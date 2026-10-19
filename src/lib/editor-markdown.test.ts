@@ -43,6 +43,12 @@ describe("Markdown of the editor's blocks (AI assistant, voice notes)", () => {
     expect(block.content).toEqual([text("A claim[^1].")]);
   });
 
+  it("adds no dashboard for a dashboard line the answer repeats", async () => {
+    const dashboard = (await editorBlocksToMarkdown(editor, [{ id: "dash1", type: "dashboard", props: {}, children: [] }])).trim();
+    expect(dashboard).toContain("dash1");
+    expect(await editorMarkdownToBlocks(editor, `${dashboard}\n\nText after it.`)).toMatchObject([paragraph(text("Text after it."))]);
+  });
+
   it("keeps footnotes and equations in the editor's own HTML, which replacing a selection pastes", async () => {
     const blocks = await editorMarkdownToBlocks(editor, ["Energy[^1] is $E = mc^2$.", "", "[^1]: Einstein, 1905."].join("\n"));
     const pasted = await serverEditor.tryParseHTMLToBlocks(await serverEditor.blocksToFullHTML(blocks as never));
