@@ -77,6 +77,7 @@ const { currentTarget, removeRetiredStorage } = await import("@/server/storage/w
 const accounts = await import("@/server/storage/accounts");
 const moves = await import("@/server/storage/moves");
 const settings = await import("@/server/storage/settings");
+const { deleteWorkspace } = await import("@/server/workspace-deletion");
 const fileRoute = await import("@/app/api/files/[id]/route");
 
 const RUN = `workspace-storage-e2e-${Date.now().toString(36)}`;
@@ -93,6 +94,14 @@ function check(condition: unknown, label: string, detail?: unknown): asserts con
   }
   passed++;
   console.log(`ok    ${label}`);
+}
+
+async function eventually(condition: () => Promise<boolean>, what: string) {
+  for (let i = 0; i < 200; i++) {
+    if (await condition()) return;
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+  check(false, `${what} (timed out)`);
 }
 
 /** The error code a call fails with, or null when it works. */
@@ -391,6 +400,21 @@ try {
   check((await lastMove(ws.gone))?.status === "done" && (await inBucket(otherBucket, g1Row.storageKey))?.equals(bytes(3_000, 17)), "their files reach the other owner's storage, whole");
   check(await served("oli", g1.id, bytes(3_000, 17)), "…and are served from there");
   check((await accountOf(dels.id)) === null, "then their storage account is forgotten");
+
+  // ------------------------------------------------------------------ Deleting a workspace
+  const teamKeys = (await db.select().from(file).where(eq(file.workspaceId, ws.team))).map((f) => f.storageKey);
+  check(teamKeys.length === 2, "the workspace has two files in the other owner's storage");
+  await deleteWorkspace(
+    { user: { id: ids.oli, name: ids.oli, email: `${ids.oli}@example.test` }, session: { id: `${ids.oli}-session`, createdAt: new Date() } },
+    ws.team,
+    { confirmation: "Team", proof: {} },
+  );
+  // The deletion from storage runs in the background.
+  await eventually(async () => (await db.select().from(storageDeletion).where(eq(storageDeletion.storageId, olisPlace!.id))).length === 0, "the queued deletions");
+  for (const key of teamKeys) check(!(await inBucket(otherBucket, key)), "deleting the workspace deletes its files from the storage");
+  await removeRetiredStorage();
+  check((await placeOf(olisPlace!.id)) === null, "…and forgets its place there");
+  check((await accountOf(olis.id))?.status === "active", "…while the storage account stays its owner's");
 
   console.log(`\n${passed} checks passed`);
 } finally {
