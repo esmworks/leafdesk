@@ -331,7 +331,14 @@
       "subtext": "Текст зі значком на кольоровому фоні",
       "aliases": "callout note tip warning alert box виноска примітка порада попередження",
       "icon": "Змінити значок",
-      "hiddenInPrint": "Приховано під час друку"
+      "hiddenInPrint": "Приховано під час друку",
+      "titleField": "Заголовок виноски",
+      "titlePlaceholder": "Заголовок",
+      "builtin": {
+        "frame": "Рамка"
+      },
+      "styleSubtext": "Стиль виноски",
+      "group": "Виноски"
     },
     "code": {
       "language": "Мова",
@@ -534,7 +541,12 @@
   },
   "blockMenu": {
     "copyLink": "Копіювати посилання на блок",
-    "hideInPrint": "Приховувати під час друку"
+    "hideInPrint": "Приховувати під час друку",
+    "calloutStyle": "Стиль виноски",
+    "turnIntoCallout": "Перетворити на виноску",
+    "plainCallout": "Звичайна виноска",
+    "addTitle": "Додати заголовок",
+    "removeTitle": "Прибрати заголовок"
   },
   "pdf": {
     "untitled": "PDF",

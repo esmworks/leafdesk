@@ -118,7 +118,19 @@ const SCHEMAS: Record<string, JsonSchema> = {
   WorkspaceList: loose({
     workspaces: {
       type: "array",
-      items: loose({ id, name: { type: "string" }, role: { type: "string", enum: ["owner", "member", "guest"] } }, ["id", "name", "role"]),
+      items: loose(
+        {
+          id,
+          name: { type: "string" },
+          role: { type: "string", enum: ["owner", "member", "guest"] },
+          callout_styles: {
+            type: "array",
+            description: "The workspace's callout styles, when it has any: a page body writes one as `> [!key] Title`.",
+            items: loose({ key: { type: "string" }, name: { type: "string" }, title: { type: "string" } }, ["key", "name"]),
+          },
+        },
+        ["id", "name", "role"],
+      ),
     },
   }),
   TeamspaceList: loose({

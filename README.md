@@ -555,6 +555,16 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   formatting shortcuts, equation completion and file uploads, and save it back; colors and other
   things Markdown can't hold are named before saving, and edits made meanwhile by others are
   never overwritten unasked (see [Edit as Markdown](#edit-as-markdown)).
+- **Callout styles**: owners name up to 30 box looks in Settings → General → Callout styles, each
+  with an icon (or none), one of the editor's colors, a border (none, a bar at the side or a full
+  frame) and an optional default title. Everyone inserts them from the `/` menu's *Callouts* group
+  or picks one in a callout's block menu (*Turn into callout* does it for a block of text), and
+  any callout can have a title of its own. Changing a style changes every callout using it, in the
+  editor, on published pages and in PDFs; a callout whose style was deleted shows as a plain
+  callout. Every workspace also has a framed box (*Frame*). In Markdown a styled callout is
+  `> [!key] Title`, a plain one keeps its alert (`> [!NOTE] Title`, `> [!NOTE|blue]` for a color
+  the alerts don't have), and imports read `:::info`, `:::warning`, `:::details`, `:::card` and
+  similar containers as callouts, toggles and framed boxes, nested ones too.
 
 ## Quick start (Docker)
 
@@ -2474,6 +2484,11 @@ The tools cover:
   of its own (`[^1]: The note.`), the notes written at the end of the body; a callout hidden in
   print has the line `<!-- leafdesk:no-print -->` right before its alert (see
   `src/lib/content-markdown.ts`).
+- **Callout styles:** a callout's title follows its alert (`> [!NOTE] Title`), a color the alerts
+  don't have rides along (`> [!NOTE|blue]`), and a callout of one of the workspace's styles is
+  `> [!key] Title`; `list_workspaces` (and `GET /api/v1/workspaces`) lists each workspace's
+  `callout_styles`. `:::name Title` … `:::` containers in Markdown read as callouts, toggles
+  (`details`) and framed boxes (`frame`, `card`, `panel`).
 - **Inbox:** `list_notifications`, when the user also grants the `notifications:read` permission.
   `watch_page` watches or mutes a page (follows or stops following a row); `get_page` shows
   `watching`.

@@ -95,6 +95,17 @@
   whose text didn't change and puts the page as it was into its history; first it names what
   Markdown can't hold, such as colors, alignment and image sizes, and when someone else changed the
   page meanwhile it asks whether to load their version or save over it.
+- **Callout styles.** Owners name up to 30 box looks in Settings → General → Callout styles: an
+  icon or none, one of the editor's colors, no border, a bar at the side or a full frame, and an
+  optional default title. Everyone inserts them from the `/` menu's *Callouts* group, switches a
+  callout's style in its block menu, or turns a block of text into a callout of a style. Changing a
+  style changes every callout using it, in the editor, on published pages and in PDFs; a callout
+  whose style is deleted shows as a plain callout with its own icon and color. Every workspace also
+  has a framed box, and any callout can now have a title. Markdown writes a styled callout as
+  `> [!key] Title` and a plain one's title after its alert, with `> [!NOTE|blue]` for colors the
+  alerts don't have; MCP's `list_workspaces` and the API list the style keys. Markdown imports read
+  `:::info`, `:::tip`, `:::warning`, `:::danger`, `:::details`, `:::card` and other `:::`
+  containers as callouts, toggles and framed boxes, nested ones too.
 
 ### Changed
 

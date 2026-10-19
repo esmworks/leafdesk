@@ -331,7 +331,14 @@
       "subtext": "Texto com um ícone sobre um fundo colorido",
       "aliases": "callout destaque nota dica aviso alerta caixa",
       "icon": "Alterar ícone",
-      "hiddenInPrint": "Oculto ao imprimir"
+      "hiddenInPrint": "Oculto ao imprimir",
+      "titleField": "Título do destaque",
+      "titlePlaceholder": "Título",
+      "builtin": {
+        "frame": "Moldura"
+      },
+      "styleSubtext": "Estilo de destaque",
+      "group": "Destaques"
     },
     "code": {
       "language": "Linguagem",
@@ -534,7 +541,12 @@
   },
   "blockMenu": {
     "copyLink": "Copiar link do bloco",
-    "hideInPrint": "Ocultar ao imprimir"
+    "hideInPrint": "Ocultar ao imprimir",
+    "calloutStyle": "Estilo de destaque",
+    "turnIntoCallout": "Transformar em destaque",
+    "plainCallout": "Destaque simples",
+    "addTitle": "Adicionar título",
+    "removeTitle": "Remover título"
   },
   "pdf": {
     "untitled": "PDF",

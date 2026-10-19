@@ -38,6 +38,10 @@ export function blockText(block: BlockLike, pageText?: PageMentionText): string 
   if (block.type === "bookmark") {
     return [block.props?.title, block.props?.description].filter((v) => typeof v === "string" && v).join(" ");
   }
+  // A callout's title is a line of its own above its text.
+  if (block.type === "callout" && typeof block.props?.title === "string" && block.props.title.trim()) {
+    return [block.props.title.trim(), blockText({ ...block, props: { ...block.props, title: "" } }, pageText)].filter(Boolean).join("\n");
+  }
   if (!content) return "";
   if (typeof content === "string" || Array.isArray(content)) return inlineText(content, pageText);
   if (content.type === "tableContent") {

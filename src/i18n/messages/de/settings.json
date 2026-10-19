@@ -829,7 +829,8 @@
     "confirmationMismatch": "Gib zur Bestätigung den Namen des Workspace genau so ein, wie er angezeigt wird.",
     "workspaceDeleted": "Jemand hat diesen Workspace inzwischen gelöscht.",
     "storageNoDestination": "Die Dateien dieses Workspaces liegen in deinem Speicher, und wenn du ihn verlässt, können sie nirgendwohin verschoben werden: Kein anderer Inhaber hat einen Standardspeicher, und der Speicher dieses Servers kann sie nicht aufnehmen. Bitte einen Inhaber, Speicher einzurichten, oder verschiebe die Dateien zuerst (Einstellungen > Speicher).",
-    "storageMoveInProgress": "Die Dateien dieses Workspaces werden gerade in deinen Speicher verschoben. Warte, bis das abgeschlossen ist, und verlasse den Workspace dann."
+    "storageMoveInProgress": "Die Dateien dieses Workspaces werden gerade in deinen Speicher verschoben. Warte, bis das abgeschlossen ist, und verlasse den Workspace dann.",
+    "invalidCalloutStyle": "Ein Hinweisstil konnte nicht gespeichert werden: Prüfe Schlüssel, Name und Symbol."
   },
   "security": {
     "description": "Lege fest, wie sich Personen anmelden, wer andere in diesen Workspace holen darf, was Gäste tun können, was ihn verlassen darf (Exporte, verbundene Apps) und wer Seiten im Web veröffentlichen darf. Nur Inhaber können diese Einstellungen ändern.",
@@ -1901,5 +1902,45 @@
     "button": "Sichern",
     "preparing": "Wird vorbereitet…",
     "disabled": "Backups sind zusammen mit dem Export unter Einstellungen → Sicherheit ausgeschaltet."
+  },
+  "calloutStyles": {
+    "heading": "Hinweisstile",
+    "description": "Benannte Kastenstile, die alle über das /-Menü einfügen können. Wer einen Stil ändert, ändert jeden Hinweis, der ihn verwendet.",
+    "empty": "Noch keine Hinweisstile.",
+    "previewText": "Text eines Hinweises in diesem Stil.",
+    "edit": "Bearbeiten",
+    "remove": "{name} entfernen",
+    "removeConfirm": "Den Stil „{name}“ entfernen? Hinweise mit diesem Stil werden zu einfachen Hinweisen.",
+    "count": "{count} von {max} Stilen",
+    "ownersOnly": "Nur Eigentümer können Hinweisstile ändern.",
+    "add": "Stil hinzufügen",
+    "name": "Name",
+    "key": "Schlüssel",
+    "keyHelp": "In Markdown als > [!{key}] geschrieben. Kleinbuchstaben, Ziffern und Bindestriche.",
+    "icon": "Symbol",
+    "chooseIcon": "Auswählen",
+    "noIcon": "Kein Symbol",
+    "border": "Rand",
+    "borders": {
+      "none": "Keiner",
+      "left": "Balken an der Seite",
+      "full": "Voller Rahmen"
+    },
+    "color": "Farbe",
+    "noColor": "Keine Farbe",
+    "title": "Standardtitel",
+    "titleHelp": "Wird angezeigt, wenn ein Hinweis dieses Stils keinen eigenen Titel hat.",
+    "titlePlaceholder": "Keiner",
+    "problems": {
+      "tooMany": "Höchstens 30 Stile.",
+      "key": "Verwende Kleinbuchstaben, Ziffern und Bindestriche, am Anfang und Ende ein Buchstabe oder eine Ziffer.",
+      "reservedKey": "Dieser Schlüssel gehört zu einer eingebauten Art (note, tip, important, warning, caution, info, danger, details, frame, card, panel).",
+      "duplicateKey": "Ein anderer Stil hat diesen Schlüssel schon.",
+      "name": "Gib einen Namen mit höchstens 60 Zeichen ein.",
+      "icon": "Wähle ein Emoji oder kein Symbol.",
+      "color": "Wähle eine Farbe.",
+      "border": "Wähle einen Rand.",
+      "title": "Der Titel darf höchstens 120 Zeichen lang sein."
+    }
   }
 }

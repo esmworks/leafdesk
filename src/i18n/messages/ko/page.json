@@ -331,7 +331,14 @@
       "subtext": "색상 배경 위에 아이콘과 함께 표시되는 텍스트",
       "aliases": "callout note tip warning alert box 콜아웃 메모 팁 경고 알림 상자",
       "icon": "아이콘 변경",
-      "hiddenInPrint": "인쇄 시 숨김"
+      "hiddenInPrint": "인쇄 시 숨김",
+      "titleField": "콜아웃 제목",
+      "titlePlaceholder": "제목",
+      "builtin": {
+        "frame": "테두리"
+      },
+      "styleSubtext": "콜아웃 스타일",
+      "group": "콜아웃"
     },
     "code": {
       "language": "언어",
@@ -534,7 +541,12 @@
   },
   "blockMenu": {
     "copyLink": "블록 링크 복사",
-    "hideInPrint": "인쇄 시 숨기기"
+    "hideInPrint": "인쇄 시 숨기기",
+    "calloutStyle": "콜아웃 스타일",
+    "turnIntoCallout": "콜아웃으로 전환",
+    "plainCallout": "기본 콜아웃",
+    "addTitle": "제목 추가",
+    "removeTitle": "제목 제거"
   },
   "pdf": {
     "untitled": "PDF",

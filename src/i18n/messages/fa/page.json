@@ -331,7 +331,14 @@
       "subtext": "متن با یک نماد روی پس‌زمینه رنگی",
       "aliases": "کادر برجسته یادداشت نکته هشدار callout note tip warning alert box",
       "icon": "تغییر نماد",
-      "hiddenInPrint": "هنگام چاپ پنهان"
+      "hiddenInPrint": "هنگام چاپ پنهان",
+      "titleField": "عنوان کادر",
+      "titlePlaceholder": "عنوان",
+      "builtin": {
+        "frame": "قاب"
+      },
+      "styleSubtext": "سبک کادر",
+      "group": "کادرها"
     },
     "code": {
       "language": "زبان",
@@ -534,7 +541,12 @@
   },
   "blockMenu": {
     "copyLink": "کپی لینک بلوک",
-    "hideInPrint": "پنهان هنگام چاپ"
+    "hideInPrint": "پنهان هنگام چاپ",
+    "calloutStyle": "سبک کادر",
+    "turnIntoCallout": "تبدیل به کادر",
+    "plainCallout": "کادر ساده",
+    "addTitle": "افزودن عنوان",
+    "removeTitle": "حذف عنوان"
   },
   "pdf": {
     "untitled": "PDF",

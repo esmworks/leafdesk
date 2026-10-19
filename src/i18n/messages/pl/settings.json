@@ -829,7 +829,8 @@
     "confirmationMismatch": "Aby potwierdzić, wpisz nazwę obszaru roboczego dokładnie tak, jak jest wyświetlana.",
     "workspaceDeleted": "Ktoś w międzyczasie usunął ten obszar roboczy.",
     "storageNoDestination": "Pliki tego obszaru roboczego są w Twoim magazynie i po Twoim odejściu nie ma dokąd ich przenieść: żaden inny właściciel nie ma domyślnego magazynu, a magazyn tego serwera nie może ich przyjąć. Poproś właściciela o skonfigurowanie magazynu albo najpierw przenieś pliki (Ustawienia > Magazyn).",
-    "storageMoveInProgress": "Pliki tego obszaru roboczego są właśnie przenoszone do Twojego magazynu. Poczekaj, aż to się zakończy, a potem opuść obszar roboczy."
+    "storageMoveInProgress": "Pliki tego obszaru roboczego są właśnie przenoszone do Twojego magazynu. Poczekaj, aż to się zakończy, a potem opuść obszar roboczy.",
+    "invalidCalloutStyle": "Nie udało się zapisać stylu wyróżnienia: sprawdź jego klucz, nazwę i ikonę."
   },
   "security": {
     "description": "Zdecyduj, jak osoby się logują, kto może wprowadzać osoby do tego obszaru roboczego, co mogą robić goście, co może go opuszczać (eksporty, połączone aplikacje) i kto może publikować strony w internecie. Tylko właściciele mogą zmieniać te ustawienia.",
@@ -1901,5 +1902,45 @@
     "button": "Utwórz kopię",
     "preparing": "Przygotowywanie…",
     "disabled": "Kopie zapasowe są wyłączane razem z eksportem w sekcji Ustawienia → Bezpieczeństwo."
+  },
+  "calloutStyles": {
+    "heading": "Style wyróżnień",
+    "description": "Nazwane style ramek, które każdy może wstawić z menu /. Zmiana stylu zmienia każde wyróżnienie, które go używa.",
+    "empty": "Nie ma jeszcze stylów wyróżnień.",
+    "previewText": "Tekst wyróżnienia w tym stylu.",
+    "edit": "Edytuj",
+    "remove": "Usuń {name}",
+    "removeConfirm": "Usunąć styl „{name}”? Wyróżnienia, które go używają, staną się zwykłymi wyróżnieniami.",
+    "count": "{count} z {max} stylów",
+    "ownersOnly": "Tylko właściciele mogą zmieniać style wyróżnień.",
+    "add": "Dodaj styl",
+    "name": "Nazwa",
+    "key": "Klucz",
+    "keyHelp": "W Markdown zapisywany jako > [!{key}]. Małe litery, cyfry i myślniki.",
+    "icon": "Ikona",
+    "chooseIcon": "Wybierz",
+    "noIcon": "Bez ikony",
+    "border": "Obramowanie",
+    "borders": {
+      "none": "Brak",
+      "left": "Pasek z boku",
+      "full": "Pełna ramka"
+    },
+    "color": "Kolor",
+    "noColor": "Bez koloru",
+    "title": "Domyślny tytuł",
+    "titleHelp": "Widoczny, gdy wyróżnienie w tym stylu nie ma własnego tytułu.",
+    "titlePlaceholder": "Brak",
+    "problems": {
+      "tooMany": "Najwyżej 30 stylów.",
+      "key": "Użyj małych liter, cyfr i myślników; na początku i na końcu litera lub cyfra.",
+      "reservedKey": "Ten klucz należy do wbudowanego rodzaju (note, tip, important, warning, caution, info, danger, details, frame, card, panel).",
+      "duplicateKey": "Inny styl ma już ten klucz.",
+      "name": "Wpisz nazwę o długości do 60 znaków.",
+      "icon": "Wybierz jedno emoji albo brak ikony.",
+      "color": "Wybierz kolor.",
+      "border": "Wybierz obramowanie.",
+      "title": "Tytuł może mieć najwyżej 120 znaków."
+    }
   }
 }

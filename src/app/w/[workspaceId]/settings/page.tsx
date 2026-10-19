@@ -63,8 +63,10 @@ import { WorkspaceApps } from "@/components/settings/workspace-apps";
 import { WorkspaceBackup } from "@/components/settings/workspace-backup";
 import { WorkspaceExport } from "@/components/settings/workspace-export";
 import { WorkspaceNameForm } from "@/components/settings/workspace-settings";
+import { CalloutStylesSettings } from "@/components/settings/callout-styles-settings";
 import { SnippetsPanel } from "@/components/snippets/snippets-panel";
 import { parseAnalyticsPeriod } from "@/lib/analytics";
+import { storedCalloutStyles } from "@/lib/callout-styles";
 import { parseAuditFilters } from "@/lib/audit";
 import { parseStaleMonths } from "@/lib/workspace-check";
 import { isStrongSession } from "@/lib/auth-security";
@@ -214,6 +216,7 @@ export default async function SettingsPage({
                 {/* Guests can't open the members list, where everyone else leaves from. */}
                 {guest && <LeaveWorkspaceRow workspaceId={workspaceId} userId={user.id} />}
               </SettingsGroup>
+              {!guest && <CalloutStylesGroup workspaceId={workspaceId} userId={user.id} isOwner={isOwner} />}
               {!guest && <AiGroup workspaceId={workspaceId} userId={user.id} isOwner={isOwner} />}
               {/* Exporting everything is for owners, like the members list download. */}
               {isOwner && <ExportGroup workspaceId={workspaceId} userId={user.id} />}
@@ -337,6 +340,16 @@ async function AiGroup({ workspaceId, userId, isOwner }: { workspaceId: string; 
         provider={info && { provider: info.provider, model: info.model }}
         embeddings={info?.embeddings ?? null}
       />
+    </SettingsGroup>
+  );
+}
+
+/** Settings > General > Callout styles: the workspace's named box styles (lib/callout-styles); owners change them. */
+async function CalloutStylesGroup({ workspaceId, userId, isOwner }: { workspaceId: string; userId: string; isOwner: boolean }) {
+  const [settings, t] = await Promise.all([getWorkspaceSettings(userId, workspaceId), getTranslations("settings.calloutStyles")]);
+  return (
+    <SettingsGroup title={t("heading")} description={t("description")} className="mt-10">
+      <CalloutStylesSettings workspaceId={workspaceId} styles={storedCalloutStyles(settings.calloutStyles)} canEdit={isOwner} />
     </SettingsGroup>
   );
 }

@@ -331,7 +331,14 @@
       "subtext": "نص مع أيقونة على خلفية ملونة",
       "aliases": "callout note tip warning alert box تنبيه ملاحظة نصيحة تحذير مربع",
       "icon": "تغيير الأيقونة",
-      "hiddenInPrint": "مخفي عند الطباعة"
+      "hiddenInPrint": "مخفي عند الطباعة",
+      "titleField": "عنوان التنبيه",
+      "titlePlaceholder": "العنوان",
+      "builtin": {
+        "frame": "إطار"
+      },
+      "styleSubtext": "نمط التنبيه",
+      "group": "التنبيهات"
     },
     "code": {
       "language": "اللغة",
@@ -534,7 +541,12 @@
   },
   "blockMenu": {
     "copyLink": "نسخ رابط الكتلة",
-    "hideInPrint": "إخفاء عند الطباعة"
+    "hideInPrint": "إخفاء عند الطباعة",
+    "calloutStyle": "نمط التنبيه",
+    "turnIntoCallout": "تحويل إلى تنبيه",
+    "plainCallout": "تنبيه عادي",
+    "addTitle": "إضافة عنوان",
+    "removeTitle": "إزالة العنوان"
   },
   "pdf": {
     "untitled": "PDF",

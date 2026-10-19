@@ -331,7 +331,14 @@
       "subtext": "טקסט עם סמל על רקע צבעוני",
       "aliases": "הדגשה הערה טיפ אזהרה התראה תיבה callout note tip warning alert box",
       "icon": "החלפת הסמל",
-      "hiddenInPrint": "מוסתר בהדפסה"
+      "hiddenInPrint": "מוסתר בהדפסה",
+      "titleField": "כותרת ההדגשה",
+      "titlePlaceholder": "כותרת",
+      "builtin": {
+        "frame": "מסגרת"
+      },
+      "styleSubtext": "סגנון הדגשה",
+      "group": "הדגשות"
     },
     "code": {
       "language": "שפה",
@@ -534,7 +541,12 @@
   },
   "blockMenu": {
     "copyLink": "העתקת קישור לבלוק",
-    "hideInPrint": "הסתרה בהדפסה"
+    "hideInPrint": "הסתרה בהדפסה",
+    "calloutStyle": "סגנון הדגשה",
+    "turnIntoCallout": "המרה להדגשה",
+    "plainCallout": "הדגשה רגילה",
+    "addTitle": "הוספת כותרת",
+    "removeTitle": "הסרת הכותרת"
   },
   "pdf": {
     "untitled": "PDF",

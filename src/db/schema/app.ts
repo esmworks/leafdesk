@@ -1,3 +1,4 @@
+import type { CalloutStyle } from "@/lib/callout-styles";
 import { getTableColumns, sql } from "drizzle-orm";
 import {
   boolean,
@@ -137,6 +138,11 @@ export type WorkspaceSettings = {
    * that row. Off until an owner turns it on.
    */
   email: boolean;
+  /**
+   * The workspace's callout styles (lib/callout-styles): named box looks its owners define in
+   * Settings > General and everyone inserts. Checked by parseCalloutStyles when saved.
+   */
+  calloutStyles: CalloutStyle[];
 };
 
 export const DEFAULT_WORKSPACE_SETTINGS: WorkspaceSettings = {
@@ -158,6 +164,7 @@ export const DEFAULT_WORKSPACE_SETTINGS: WorkspaceSettings = {
   domainJoin: "join",
   joinRequests: "nobody",
   email: false,
+  calloutStyles: [],
 };
 
 export const workspace = pgTable("workspace", {

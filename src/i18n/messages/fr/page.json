@@ -331,7 +331,14 @@
       "subtext": "Du texte avec une icône sur un fond coloré",
       "aliases": "callout note tip warning alert box encadré astuce avertissement alerte bloc",
       "icon": "Changer l’icône",
-      "hiddenInPrint": "Masqué à l’impression"
+      "hiddenInPrint": "Masqué à l’impression",
+      "titleField": "Titre de l’encadré",
+      "titlePlaceholder": "Titre",
+      "builtin": {
+        "frame": "Cadre"
+      },
+      "styleSubtext": "Style d’encadré",
+      "group": "Encadrés"
     },
     "code": {
       "language": "Langage",
@@ -534,7 +541,12 @@
   },
   "blockMenu": {
     "copyLink": "Copier le lien vers le bloc",
-    "hideInPrint": "Masquer à l’impression"
+    "hideInPrint": "Masquer à l’impression",
+    "calloutStyle": "Style d’encadré",
+    "turnIntoCallout": "Transformer en encadré",
+    "plainCallout": "Encadré simple",
+    "addTitle": "Ajouter un titre",
+    "removeTitle": "Retirer le titre"
   },
   "pdf": {
     "untitled": "PDF",

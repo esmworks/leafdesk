@@ -331,7 +331,14 @@
       "subtext": "Renkli arka plan üzerinde simgeli metin",
       "aliases": "callout bilgi kutusu not ipucu uyarı kutu",
       "icon": "Simgeyi değiştir",
-      "hiddenInPrint": "Yazdırırken gizli"
+      "hiddenInPrint": "Yazdırırken gizli",
+      "titleField": "Kutu başlığı",
+      "titlePlaceholder": "Başlık",
+      "builtin": {
+        "frame": "Çerçeve"
+      },
+      "styleSubtext": "Kutu stili",
+      "group": "Kutular"
     },
     "code": {
       "language": "Dil",
@@ -534,7 +541,12 @@
   },
   "blockMenu": {
     "copyLink": "Bloğun bağlantısını kopyala",
-    "hideInPrint": "Yazdırırken gizle"
+    "hideInPrint": "Yazdırırken gizle",
+    "calloutStyle": "Kutu stili",
+    "turnIntoCallout": "Kutuya dönüştür",
+    "plainCallout": "Düz kutu",
+    "addTitle": "Başlık ekle",
+    "removeTitle": "Başlığı kaldır"
   },
   "pdf": {
     "untitled": "PDF",

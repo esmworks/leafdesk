@@ -39,6 +39,7 @@ import { isEmail, MAX_BULK_EMAILS, normalizeEmail } from "@/lib/emails";
 import { assignableRoles, invitationApplies, linkAccess, memberInviteMode } from "@/lib/membership-policy";
 import { TRASH_RETENTION_CHOICES } from "@/lib/retention";
 import { parseDomains } from "@/lib/sso-config";
+import { parseCalloutStyles } from "@/lib/callout-styles";
 import { cleanSidebarLayout, type SidebarLayout } from "@/lib/sidebar-sections";
 import { env } from "@/lib/env";
 import { canCreateWorkspace } from "@/lib/instance-admin";
@@ -125,6 +126,8 @@ export type WorkspaceErrorCode =
   | "transferToGuest"
   | "invalidSetting"
   | "invalidDomain"
+  /** A callout style that doesn't pass parseCalloutStyles (lib/callout-styles); the detail says what. */
+  | "invalidCalloutStyle"
   | "requestHandled"
   | "tooManyRequests"
   | "creationRestricted"
@@ -1347,7 +1350,7 @@ export async function countMembersWithoutTwoFactor(actorId: string, workspaceId:
  * allowedDomainsVerified isn't one: only proving a domain sets it (server/allowed-domains.ts).
  */
 const SETTING_VALUES: {
-  [K in Exclude<keyof WorkspaceSettings, "allowedDomains" | "allowedDomainsVerified">]: readonly WorkspaceSettings[K][];
+  [K in Exclude<keyof WorkspaceSettings, "allowedDomains" | "allowedDomainsVerified" | "calloutStyles">]: readonly WorkspaceSettings[K][];
 } = {
   guestInvites: ["owners", "members"],
   guestPrivatePages: [false, true],
@@ -1394,6 +1397,14 @@ export async function updateWorkspaceSettings(
         throw new WorkspaceError("invalidDomain", `Can't allow ${parsed ? parsed.invalid : "that"}`, parsed ? parsed.invalid : "");
       }
       clean.allowedDomains = parsed.domains;
+      continue;
+    }
+    if (key === "calloutStyles") {
+      const parsed = parseCalloutStyles(value);
+      if (!parsed.ok) {
+        throw new WorkspaceError("invalidCalloutStyle", `Can't save callout style ${parsed.index + 1}: ${parsed.problem}`, parsed.problem);
+      }
+      clean.calloutStyles = parsed.styles;
       continue;
     }
     const allowed = Object.hasOwn(SETTING_VALUES, key)

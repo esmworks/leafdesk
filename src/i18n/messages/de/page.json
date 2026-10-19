@@ -331,7 +331,14 @@
       "subtext": "Text mit Symbol auf farbigem Hintergrund",
       "aliases": "callout note tip warning alert box hinweis notiz tipp warnung kasten",
       "icon": "Symbol ändern",
-      "hiddenInPrint": "Beim Drucken ausgeblendet"
+      "hiddenInPrint": "Beim Drucken ausgeblendet",
+      "titleField": "Titel des Hinweises",
+      "titlePlaceholder": "Titel",
+      "builtin": {
+        "frame": "Rahmen"
+      },
+      "styleSubtext": "Hinweisstil",
+      "group": "Hinweise"
     },
     "code": {
       "language": "Sprache",
@@ -534,7 +541,12 @@
   },
   "blockMenu": {
     "copyLink": "Link zum Block kopieren",
-    "hideInPrint": "Beim Drucken ausblenden"
+    "hideInPrint": "Beim Drucken ausblenden",
+    "calloutStyle": "Hinweisstil",
+    "turnIntoCallout": "In Hinweis umwandeln",
+    "plainCallout": "Einfacher Hinweis",
+    "addTitle": "Titel hinzufügen",
+    "removeTitle": "Titel entfernen"
   },
   "pdf": {
     "untitled": "PDF",

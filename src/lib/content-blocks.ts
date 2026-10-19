@@ -29,6 +29,11 @@ export const DEFAULT_CALLOUT_ICON = "💡";
  * color prop (the block menu's "Colors" changes it); new callouts start gray. One hidden in print
  * shows on screen but is left out of the print view and of whatever the browser prints (BlockNote
  * writes the prop as `data-hide-in-print`), for notes that shouldn't reach a PDF.
+ *
+ * `styleKey` names one of the workspace's callout styles (lib/callout-styles), whose icon, color,
+ * border and default title it is drawn with instead of its own; "" is a plain callout. `title` is
+ * a line of plain text above the callout's text, "" for none. Both came later: their defaults are
+ * what documents saved before them read as.
  */
 export const calloutBlockConfig = {
   type: CALLOUT_BLOCK,
@@ -37,6 +42,8 @@ export const calloutBlockConfig = {
     backgroundColor: defaultProps.backgroundColor,
     icon: { default: DEFAULT_CALLOUT_ICON },
     hideInPrint: { default: false },
+    styleKey: { default: "" },
+    title: { default: "" },
   },
   content: "inline",
 } as const;
