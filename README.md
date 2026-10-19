@@ -658,6 +658,35 @@ objects to delete are queued in the same transaction that removes their records,
 refuses is tried again by the hourly file cleanup, waiting longer after each failure (up to a
 day), so no bytes stay behind with nothing pointing at them.
 
+### A workspace's own storage
+
+Owners can keep a workspace's uploads in storage of their own instead of the server's: in
+**Settings → Storage**, connect an S3-compatible bucket (AWS S3, Cloudflare R2, Backblaze B2,
+MinIO and the like) with its endpoint, region, bucket, an optional folder, and an access key that
+may put, get and delete objects there. Before anything is saved, Leafdesk stores a test file,
+reads it back whole and in part, and deletes it. From then on the workspace's new uploads go to the
+bucket and count against no `UPLOAD_WORKSPACE_QUOTA_MB` (the per-file limit still applies); other
+workspaces keep the server's storage and its quota.
+
+Files are still served by Leafdesk at `/api/files/<id>` with the same access checks, so the bucket
+stays private: no public access, presigned links or CORS settings are needed. The keys are stored
+encrypted (`LEAFDESK_ENCRYPTION_KEY`) and never shown again. A request the bucket refuses (revoked
+keys, a deleted bucket) marks the storage as not working, with the storage's answer, in Settings →
+Storage; uploads then fail instead of landing on the server, and the next request that works, or
+**Test again**, clears it.
+
+Nothing is moved: files uploaded before the bucket was connected stay on the server, and files in
+a bucket stay there when the workspace switches to another bucket or disconnects (new uploads then
+go to the server again). They are read from there, with that bucket's keys, until they are deleted;
+a bucket that holds none of the workspace's files any more is forgotten, keys and all. Deleting a
+workspace deletes its files from every bucket they are in. A workspace backup carries its files'
+bytes but not the connection: a restored workspace stores them on the new server.
+
+The endpoint is one an owner typed, so it is held to the rules connections follow: https only, a
+public address only (the address is checked when connecting and the connection pinned to it), and
+no redirects. List storage on your own network in `STORAGE_ALLOWED_HOSTS` (comma-separated, a host
+name or host:port; plain http allowed for those), e.g. `STORAGE_ALLOWED_HOSTS=minio:9000`.
+
 ## Export
 
 The page menu exports a page as Markdown or a database as CSV, and a skill as `SKILL.md` (see
