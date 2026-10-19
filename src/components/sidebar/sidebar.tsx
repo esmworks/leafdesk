@@ -1063,38 +1063,43 @@ export function Sidebar({
             <kbd className="font-sans text-xs text-fg-faint pointer-coarse:hidden">⌘K</kbd>
           </button>
           <div className="mt-1.5 space-y-px">
-            <SidebarButton icon={<House className="h-4 w-4" />} href={`/w/${workspaceId}`} active={pathname === `/w/${workspaceId}`}>
-              {t("nav.home")}
-            </SidebarButton>
-            {/* Daily notes are private top-level pages, so only for those who may add them. */}
-            {topLevel && (
-              <DailyNotesCalendarButton
-                workspaceId={workspaceId}
-                disabled={offline}
-                title={offline ? needsServer(tJournal("calendar")) : undefined}
-                leading={
-                  <SidebarButton
-                    icon={<CalendarCheck className="h-4 w-4" />}
-                    onClick={() => openDailyNote()}
-                    disabled={offline || openingDailyNote}
-                    title={offline ? needsServer(tJournal("openToday")) : tJournal("openToday")}
-                  >
-                    {tJournal("today")}
-                  </SidebarButton>
-                }
-              />
+            {/* In the full-page chat its list has the way back to the pages instead. */}
+            {!onChatPage && (
+              <>
+                <SidebarButton icon={<House className="h-4 w-4" />} href={`/w/${workspaceId}`} active={pathname === `/w/${workspaceId}`}>
+                  {t("nav.home")}
+                </SidebarButton>
+                {/* Daily notes are private top-level pages, so only for those who may add them. */}
+                {topLevel && (
+                  <DailyNotesCalendarButton
+                    workspaceId={workspaceId}
+                    disabled={offline}
+                    title={offline ? needsServer(tJournal("calendar")) : undefined}
+                    leading={
+                      <SidebarButton
+                        icon={<CalendarCheck className="h-4 w-4" />}
+                        onClick={() => openDailyNote()}
+                        disabled={offline || openingDailyNote}
+                        title={offline ? needsServer(tJournal("openToday")) : tJournal("openToday")}
+                      >
+                        {tJournal("today")}
+                      </SidebarButton>
+                    }
+                  />
+                )}
+                {/* The full-page AI chat; the people directory and skills are in the footer's "More" menu. */}
+                {aiChat &&
+                  (offline ? (
+                    <SidebarButton icon={<Sparkles className="h-4 w-4" />} disabled title={needsServer(tAi("open"))}>
+                      {tAi("open")}
+                    </SidebarButton>
+                  ) : (
+                    <SidebarButton icon={<Sparkles className="h-4 w-4" />} href={chatPath(workspaceId)}>
+                      {tAi("open")}
+                    </SidebarButton>
+                  ))}
+              </>
             )}
-            {/* The full-page AI chat; the people directory and skills are in the footer's "More" menu. */}
-            {aiChat &&
-              (offline ? (
-                <SidebarButton icon={<Sparkles className="h-4 w-4" />} disabled title={needsServer(tAi("open"))}>
-                  {tAi("open")}
-                </SidebarButton>
-              ) : (
-                <SidebarButton icon={<Sparkles className="h-4 w-4" />} href={chatPath(workspaceId)} active={onChatPage}>
-                  {tAi("open")}
-                </SidebarButton>
-              ))}
             {dailyNoteError && (
               <p role="alert" className="px-2 text-xs text-danger">
                 {dailyNoteError}
