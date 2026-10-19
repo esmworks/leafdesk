@@ -267,5 +267,81 @@
       "notFound": "Cette note n'existe plus.",
       "off": "La mémoire de l’IA est désactivée dans cet espace de travail."
     }
+  },
+  "accounts": {
+    "heading": "IA",
+    "description": "Vos propres clés de fournisseurs d’IA. Ajoutez une clé une fois et faites tourner dessus l’IA des espaces de travail dont vous êtes propriétaire : tout ce que l’IA y fait, pour chaque membre et en arrière-plan, est facturé sur cette clé. Rien d’autre ne l’utilise.",
+    "add": "Ajouter un compte IA",
+    "empty": "Aucun compte IA pour l’instant.",
+    "default": "Par défaut pour les nouveaux espaces de travail",
+    "keyHint": "clé se terminant par {hint}",
+    "embeddingsValue": "recherche : {model}",
+    "sttValue": "voix : {model}",
+    "status": {
+      "active": "Fonctionne, vérifié {time}",
+      "broken": "Ne fonctionne pas : {error}"
+    },
+    "usedBy": "Utilisé par {names}",
+    "unused": "Utilisé par aucun espace de travail pour l’instant. Choisissez-le dans Paramètres > Général > IA d’un espace de travail.",
+    "test": "Tester",
+    "testing": "Test en cours…",
+    "change": "Modifier",
+    "makeDefault": "Définir par défaut",
+    "remove": "Supprimer",
+    "removeNote": "La clé est supprimée de ce serveur.",
+    "removeNoteUsed": "La clé est supprimée de ce serveur. {count, plural, one {L’espace de travail qui l’utilise revient à l’IA du serveur, ou n’en a plus ; ses propriétaires sont prévenus.} other {Les # espaces de travail qui l’utilisent reviennent à l’IA du serveur, ou n’en ont plus ; leurs propriétaires sont prévenus.}}",
+    "save": "Tester et enregistrer",
+    "providers": {
+      "anthropic": "Anthropic",
+      "openai": "OpenAI",
+      "google": "Google Gemini",
+      "opencode-go": "OpenCode Go",
+      "openai-compatible": "Serveur compatible OpenAI"
+    },
+    "fields": {
+      "provider": "Fournisseur",
+      "label": "Nom",
+      "labelHint": "Facultatif, pour distinguer les comptes",
+      "baseUrl": "Adresse du serveur",
+      "baseUrlHint": "La racine de l’API du serveur, qui se termine généralement par /v1. Ce doit être une adresse https publique.",
+      "model": "Modèle",
+      "modelHint": "Le nom du modèle, exactement tel que le fournisseur l’écrit.",
+      "apiKey": "Clé d’API",
+      "apiKeyOptional": "Clé d’API (si le serveur en demande une)",
+      "apiKeyKeep": "Clé enregistrée se terminant par {hint} ; laissez vide pour la conserver",
+      "embeddingsModel": "Modèle d’embeddings",
+      "embeddingsModelHint": "Facultatif. Active la recherche sémantique dans les espaces de travail qui utilisent ce compte.",
+      "sttModel": "Modèle de transcription vocale",
+      "sttModelHint": "Facultatif. Active les notes vocales dans les espaces de travail qui utilisent ce compte.",
+      "keyHint": "L’enregistrement envoie une courte requête pour vérifier la clé. La clé est stockée chiffrée et n’est plus jamais affichée."
+    },
+    "errors": {
+      "disabled": "Ce serveur n’accepte pas vos propres clés d’IA.",
+      "providerRequired": "Choisissez un fournisseur.",
+      "modelRequired": "Indiquez le modèle.",
+      "baseUrlRequired": "Indiquez l’adresse du serveur.",
+      "baseUrlInvalid": "Cette adresse ne peut pas être utilisée : {message}",
+      "keyRequired": "Collez la clé d’API.",
+      "keyTooLong": "La clé est trop longue.",
+      "notFound": "Ce compte IA n’existe plus.",
+      "tooMany": "Vous avez atteint le nombre maximal de comptes IA. Supprimez-en un d’abord.",
+      "testFailed": "La requête de test a échoué : {message}",
+      "ownersOnly": "Seuls les propriétaires de l’espace de travail peuvent choisir son compte IA."
+    },
+    "workspace": {
+      "title": "Compte IA",
+      "sourceMine": "Fonctionne avec votre compte {label} ({provider}, {model}). L’IA est facturée sur votre clé.",
+      "sourceTheirs": "Fonctionne avec le compte {label} de {name} ({provider}, {model}). L’IA est facturée sur la clé de {name}.",
+      "sourceInstance": "Fonctionne avec l’IA de ce serveur.",
+      "sourceOff": "Aucun compte IA : l’IA est désactivée dans cet espace de travail jusqu’à ce qu’un propriétaire en choisisse un.",
+      "sourceOffOnlyOwn": "Aucun compte IA : sur ce serveur, l’IA ne fonctionne qu’avec la clé personnelle d’un propriétaire.",
+      "noAccounts": "Vous n’avez pas de compte IA personnel.",
+      "addOne": "En ajouter un",
+      "ownersOnly": "Seuls les propriétaires peuvent modifier ce réglage, chacun avec ses propres comptes.",
+      "noneInstance": "Aucun (IA de ce serveur)",
+      "noneOff": "Aucun (IA désactivée)",
+      "theirsOption": "{label} ({name})",
+      "brokenOption": "{label} (ne fonctionne pas)"
+    }
   }
 }

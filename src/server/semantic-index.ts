@@ -12,8 +12,9 @@
  * The text of PDFs, Word documents and Excel workbooks the page shows goes in too (file-text.ts), read once per file.
  * Only chunks whose text changed are embedded again. Jobs run at most AI_CONCURRENCY at a time,
  * each workspace within its own allowance of AI_WORKSPACE_RATE_LIMIT embedding requests a minute
- * (jobs wait for their turn). Nothing is embedded while the server has no embeddings model or the
- * workspace has AI turned off (its index is dropped then). The index holds no access rules: search
+ * (jobs wait for their turn). Nothing is embedded while the workspace has no embeddings model (its
+ * own AI account's or the server's) or has AI turned off (its index is dropped then). A workspace
+ * that changes models (another AI account) is indexed again: chunks of another model don't count. The index holds no access rules: search
  * checks the reader's access to every page when it runs (semantic-search.ts). Trashed pages keep
  * their chunks for when they come back, but never show in results.
  */
@@ -22,7 +23,7 @@ import { db } from "@/db";
 import { page, pageChunk, pageIndexState, propertyPermission } from "@/db/schema";
 import { MAX_PAGE_DEPTH } from "@/lib/page-depth";
 import { sharedLimiter } from "@/lib/rate-limit";
-import { aiConfig, embed, embeddingModel, embeddingsEnabled, isAiError } from "@/server/ai";
+import { aiConfig, embed, embeddingModel, embeddingModelFor, embeddingsEnabled, isAiError } from "@/server/ai";
 import { getCollab } from "@/server/collab/bridge";
 import * as databases from "@/server/databases";
 import { pageDocuments } from "@/server/file-text";
@@ -40,9 +41,9 @@ const SWEEP_BATCH = 2_000;
 /** Chunks per embeddings request. */
 const EMBED_BATCH = 32;
 
-/** Whether semantic search runs in a workspace: the server has an embeddings model and owners left AI on. */
+/** Whether semantic search runs in a workspace: it has an embeddings model and owners left AI on. */
 export async function semanticAvailable(workspaceId: string): Promise<boolean> {
-  if (!embeddingsEnabled()) return false;
+  if (!embeddingsEnabled() || !(await embeddingModelFor(workspaceId))) return false;
   return (await workspaceSettings(workspaceId)).ai !== false;
 }
 
@@ -264,7 +265,7 @@ export async function indexPage(pageId: string): Promise<IndexOutcome | number> 
     .where(eq(page.id, pageId))
     .limit(1);
   if (!row) return "skipped"; // deleted: its chunks went with it
-  const model = embeddingModel();
+  const model = await embeddingModelFor(row.workspaceId);
   if (!model || !(await semanticAvailable(row.workspaceId)) || row.inTemplate) {
     await dropPage(pageId);
     return "removed";
@@ -365,9 +366,9 @@ export async function indexPage(pageId: string): Promise<IndexOutcome | number> 
 
 // ---------------------------------------------------------------------------------- sweep
 
-/** Pages of a workspace whose index is missing or out of date, most recently changed first. */
+/** Pages of a workspace whose index is missing or out of date (or of another model), most recently changed first. */
 export async function stalePages(workspaceId: string, limit = SWEEP_BATCH): Promise<string[]> {
-  const model = embeddingModel();
+  const model = await embeddingModelFor(workspaceId);
   if (!model) return [];
   const rows = await db.execute<{ id: string }>(sql`
     select p.id from ${page} p
@@ -387,6 +388,16 @@ export async function sweepWorkspace(workspaceId: string): Promise<number> {
   const ids = await stalePages(workspaceId);
   enqueueIndex(ids);
   return ids.length;
+}
+
+/**
+ * The workspace's AI changed (another AI account, or none): its pages are indexed again with the
+ * model it has now, or dropped from the index without one. Only this workspace's chunks change.
+ */
+export async function reindexWorkspace(workspaceId: string) {
+  queue.sweptAt.delete(workspaceId);
+  if (!(await semanticAvailable(workspaceId))) return dropWorkspaceIndex(workspaceId);
+  await sweepWorkspace(workspaceId);
 }
 
 /** Starts a sweep of the workspace unless one ran in the last SWEEP_INTERVAL_MS (lazy backfill). */
@@ -422,5 +433,6 @@ onRowChanged("semantic-index", ({ rowId }) => scheduleIndex(rowId));
 /** Called once at startup (server.ts): importing this module starts listening for changes. */
 export function startSemanticIndex() {
   const model = embeddingModel();
-  console.log(model ? `Semantic search: on (${model})` : "Semantic search: off (no AI_EMBEDDINGS_MODEL)");
+  const own = embeddingsEnabled() && !model ? " (only where a workspace's own AI account has an embeddings model)" : "";
+  console.log(model ? `Semantic search: on (${model})` : `Semantic search: off (no AI_EMBEDDINGS_MODEL)${own}`);
 }

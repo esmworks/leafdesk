@@ -5,7 +5,7 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 import { describeAiConfig, readAiConfig } from "./config";
 import { startFakeOpenAi, type FakeOpenAi } from "./fake-openai";
-import { sttEnabled, sttLimits, transcribe } from "./index";
+import { sttEnabled, sttLimitsFor, transcribe } from "./index";
 import { fallbackVoiceTitle, parseVoiceNote, voiceNotePrompt } from "./prompts";
 import { installFauxAi, resetAi, setAiEnv } from "./testing";
 
@@ -65,42 +65,42 @@ describe("transcribe", () => {
   it("sends the recording under a name with its format and gives back the text", async () => {
     setAiEnv({ STT_PROVIDER: "openai-compatible", STT_MODEL: "base", STT_BASE_URL: fake.baseUrl });
     expect(sttEnabled()).toBe(true);
-    expect(sttLimits()).toEqual({ maxSeconds: 600, maxBytes: 25 * 1024 * 1024 });
-    expect(await transcribe(audio(2048, "audio/mp4"), { feature: "test" })).toBe("This is a test recording.");
+    expect(await sttLimitsFor("w1")).toEqual({ maxSeconds: 600, maxBytes: 25 * 1024 * 1024 });
+    expect(await transcribe(audio(2048, "audio/mp4"), { feature: "test", workspaceId: "w1" })).toBe("This is a test recording.");
     expect(fake.transcribed).toEqual([{ name: "voice-note.m4a", size: 2048, model: "base" }]);
   });
 
   it("refuses what it can't send, and says when nothing was heard", async () => {
     setAiEnv({ STT_PROVIDER: "openai-compatible", STT_MODEL: "base", STT_BASE_URL: fake.baseUrl, STT_MAX_MB: "1" });
-    await expect(transcribe(audio(2 * 1024 * 1024), { feature: "test" })).rejects.toMatchObject({ code: "tooLarge" });
-    await expect(transcribe(audio(0), { feature: "test" })).rejects.toMatchObject({ code: "invalid" });
+    await expect(transcribe(audio(2 * 1024 * 1024), { feature: "test", workspaceId: "w1" })).rejects.toMatchObject({ code: "tooLarge" });
+    await expect(transcribe(audio(0), { feature: "test", workspaceId: "w1" })).rejects.toMatchObject({ code: "invalid" });
     fake.setTranscript(() => "  ");
-    await expect(transcribe(audio(), { feature: "test" })).rejects.toMatchObject({ code: "empty" });
+    await expect(transcribe(audio(), { feature: "test", workspaceId: "w1" })).rejects.toMatchObject({ code: "empty" });
     expect(fake.transcribed).toHaveLength(1);
   });
 
   it("is off without settings, and reports the server's failures as provider errors", async () => {
     setAiEnv({});
     expect(sttEnabled()).toBe(false);
-    await expect(transcribe(audio(), { feature: "test" })).rejects.toMatchObject({ code: "disabled" });
+    await expect(transcribe(audio(), { feature: "test", workspaceId: "w1" })).rejects.toMatchObject({ code: "disabled" });
     setAiEnv({ STT_PROVIDER: "openai-compatible", STT_MODEL: "base", STT_BASE_URL: fake.baseUrl });
     fake.setTranscript(() => {
       throw new Error("model not loaded");
     });
-    await expect(transcribe(audio(), { feature: "test" })).rejects.toMatchObject({ code: "provider" });
+    await expect(transcribe(audio(), { feature: "test", workspaceId: "w1" })).rejects.toMatchObject({ code: "provider" });
   });
 
   it("can be cancelled", async () => {
     setAiEnv({ STT_PROVIDER: "openai-compatible", STT_MODEL: "base", STT_BASE_URL: fake.baseUrl });
     const cancel = new AbortController();
     cancel.abort();
-    await expect(transcribe(audio(), { feature: "test", signal: cancel.signal })).rejects.toMatchObject({ code: "aborted" });
+    await expect(transcribe(audio(), { feature: "test", workspaceId: "w1", signal: cancel.signal })).rejects.toMatchObject({ code: "aborted" });
   });
 
   it("answers from the test double when one is installed", async () => {
     installFauxAi(() => "ok", { transcribe: async ({ type }) => `heard ${type}` });
     expect(sttEnabled()).toBe(true);
-    expect(await transcribe(audio(10, "audio/ogg"), { feature: "test" })).toBe("heard audio/ogg");
+    expect(await transcribe(audio(10, "audio/ogg"), { feature: "test", workspaceId: "w1" })).toBe("heard audio/ogg");
   });
 });
 

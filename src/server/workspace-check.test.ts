@@ -78,7 +78,7 @@ vi.mock("@/server/mentions", () => ({
   listUnlinkedMentions: mentions.listUnlinkedMentions,
 }));
 
-const ai = vi.hoisted(() => ({ embeddingsEnabled: vi.fn(() => true), embeddingModel: vi.fn(() => "test") }));
+const ai = vi.hoisted(() => ({ embeddingsEnabled: vi.fn(() => true), embeddingModelFor: vi.fn(async (_workspaceId: string): Promise<string | null> => "test") }));
 vi.mock("@/server/ai", () => ai);
 const workspaces = vi.hoisted(() => ({ workspaceSettings: vi.fn(async () => ({}) as { ai?: boolean }) }));
 vi.mock("@/server/workspaces", () => workspaces);
@@ -114,7 +114,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   access.getMembership.mockResolvedValue({ role: "member" });
   ai.embeddingsEnabled.mockReturnValue(true);
-  ai.embeddingModel.mockReturnValue("test");
+  ai.embeddingModelFor.mockResolvedValue("test");
   workspaces.workspaceSettings.mockResolvedValue({});
   world.pages = [
     pageRow("roadmap", { hasRefs: true }),

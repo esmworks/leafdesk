@@ -154,7 +154,9 @@
     "reportDone": "其定时运行已完成。",
     "reportFailed": "其定时运行失败。打开以查看原因。",
     "reportHidden": "其定时运行已完成，运行于一个你无法打开的数据库。",
-    "reportGone": "该运行记录已不再保留。"
+    "reportGone": "该运行记录已不再保留。",
+    "aiAccountTitle": "AI 账户已移除",
+    "aiAccountDetached": "工作区的 AI 不再使用 {actor} 的密钥运行。请在设置中选择另一个 AI 账户。"
   },
   "templates": {
     "title": "模板",

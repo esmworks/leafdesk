@@ -267,5 +267,81 @@
       "notFound": "Bu not artık yok.",
       "off": "Bu çalışma alanında yapay zekâ hafızası kapalı."
     }
+  },
+  "accounts": {
+    "heading": "Yapay zekâ",
+    "description": "Kendi yapay zekâ sağlayıcı anahtarlarınız. Bir anahtarı bir kez ekleyin ve sahibi olduğunuz çalışma alanlarının yapay zekâsını onunla çalıştırın: orada yapay zekânın yaptığı her şey, her üye için ve arka planda, bu anahtara faturalanır. Başka hiçbir şey onu kullanmaz.",
+    "add": "Yapay zekâ hesabı ekle",
+    "empty": "Henüz yapay zekâ hesabı yok.",
+    "default": "Yeni çalışma alanları için varsayılan",
+    "keyHint": "{hint} ile biten anahtar",
+    "embeddingsValue": "arama: {model}",
+    "sttValue": "ses: {model}",
+    "status": {
+      "active": "Çalışıyor, son kontrol: {time}",
+      "broken": "Çalışmıyor: {error}"
+    },
+    "usedBy": "Kullanan çalışma alanları: {names}",
+    "unused": "Henüz hiçbir çalışma alanı kullanmıyor. Bir çalışma alanının Ayarlar > Genel > Yapay zekâ bölümünden seçin.",
+    "test": "Test et",
+    "testing": "Test ediliyor…",
+    "change": "Değiştir",
+    "makeDefault": "Varsayılan yap",
+    "remove": "Kaldır",
+    "removeNote": "Anahtar bu sunucudan silinir.",
+    "removeNoteUsed": "Anahtar bu sunucudan silinir. {count, plural, one {Onu kullanan çalışma alanı sunucunun yapay zekâsına döner ya da yapay zekâsız kalır; sahiplerine haber verilir.} other {Onu kullanan # çalışma alanı sunucunun yapay zekâsına döner ya da yapay zekâsız kalır; sahiplerine haber verilir.}}",
+    "save": "Test et ve kaydet",
+    "providers": {
+      "anthropic": "Anthropic",
+      "openai": "OpenAI",
+      "google": "Google Gemini",
+      "opencode-go": "OpenCode Go",
+      "openai-compatible": "OpenAI uyumlu sunucu"
+    },
+    "fields": {
+      "provider": "Sağlayıcı",
+      "label": "Ad",
+      "labelHint": "İsteğe bağlı, hesapları birbirinden ayırmak için",
+      "baseUrl": "Sunucu adresi",
+      "baseUrlHint": "Sunucunun API kök adresi; genellikle /v1 ile biter. Herkese açık bir https adresi olmalı.",
+      "model": "Model",
+      "modelHint": "Modelin adı, tam olarak sağlayıcının yazdığı gibi.",
+      "apiKey": "API anahtarı",
+      "apiKeyOptional": "API anahtarı (sunucu istiyorsa)",
+      "apiKeyKeep": "Kayıtlı anahtar {hint} ile bitiyor; aynı kalması için boş bırakın",
+      "embeddingsModel": "Embedding modeli",
+      "embeddingsModelHint": "İsteğe bağlı. Bu hesabı kullanan çalışma alanlarında anlamsal aramayı açar.",
+      "sttModel": "Konuşmayı yazıya çevirme modeli",
+      "sttModelHint": "İsteğe bağlı. Bu hesabı kullanan çalışma alanlarında sesli notları açar.",
+      "keyHint": "Kaydederken anahtarı denetlemek için kısa bir istek gönderilir. Anahtar şifrelenmiş olarak saklanır ve bir daha gösterilmez."
+    },
+    "errors": {
+      "disabled": "Bu sunucu kendi yapay zekâ anahtarlarınızı kabul etmiyor.",
+      "providerRequired": "Bir sağlayıcı seçin.",
+      "modelRequired": "Modelin adını yazın.",
+      "baseUrlRequired": "Sunucunun adresini girin.",
+      "baseUrlInvalid": "Bu adres kullanılamıyor: {message}",
+      "keyRequired": "API anahtarını yapıştırın.",
+      "keyTooLong": "Anahtar çok uzun.",
+      "notFound": "Bu yapay zekâ hesabı artık yok.",
+      "tooMany": "Yapay zekâ hesabı sınırına ulaştınız. Önce birini kaldırın.",
+      "testFailed": "Test isteği başarısız oldu: {message}",
+      "ownersOnly": "Çalışma alanının yapay zekâ hesabını yalnızca sahipleri seçebilir."
+    },
+    "workspace": {
+      "title": "Yapay zekâ hesabı",
+      "sourceMine": "{label} hesabınızla çalışıyor ({provider}, {model}). Yapay zekâ kullanımı anahtarınıza faturalanır.",
+      "sourceTheirs": "{name} kişisinin {label} hesabıyla çalışıyor ({provider}, {model}). Yapay zekâ kullanımı onun anahtarına faturalanır.",
+      "sourceInstance": "Bu sunucunun yapay zekâsıyla çalışıyor.",
+      "sourceOff": "Yapay zekâ hesabı yok: bir sahip hesap seçene kadar bu çalışma alanında yapay zekâ kapalı.",
+      "sourceOffOnlyOwn": "Yapay zekâ hesabı yok: bu sunucuda yapay zekâ yalnızca bir sahibin kendi anahtarıyla çalışır.",
+      "noAccounts": "Size ait bir yapay zekâ hesabı yok.",
+      "addOne": "Hesap ekle",
+      "ownersOnly": "Bunu yalnızca sahipler, her biri kendi hesaplarıyla değiştirebilir.",
+      "noneInstance": "Yok (bu sunucunun yapay zekâsı)",
+      "noneOff": "Yok (yapay zekâ kapalı)",
+      "theirsOption": "{label} ({name})",
+      "brokenOption": "{label} (çalışmıyor)"
+    }
   }
 }

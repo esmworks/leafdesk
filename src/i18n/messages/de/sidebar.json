@@ -154,7 +154,9 @@
     "reportDone": "Sein geplanter Lauf ist fertig.",
     "reportFailed": "Sein geplanter Lauf ist fehlgeschlagen. Öffne ihn, um zu sehen, warum.",
     "reportHidden": "Sein geplanter Lauf ist fertig, in einer Datenbank, die du nicht öffnen kannst.",
-    "reportGone": "Der Lauf wird nicht mehr aufbewahrt."
+    "reportGone": "Der Lauf wird nicht mehr aufbewahrt.",
+    "aiAccountTitle": "KI-Konto entfernt",
+    "aiAccountDetached": "Die KI des Workspaces läuft nicht mehr über den Schlüssel von {actor}. Wähle in den Einstellungen ein anderes KI-Konto."
   },
   "templates": {
     "title": "Vorlagen",

@@ -71,7 +71,7 @@ afterEach(() => {
 describe("providers over HTTP", () => {
   it("streams a chat completion with the configured model, system prompt and limits", async () => {
     setAiEnv({ AI_PROVIDER: "ollama", AI_MODEL: "llama3.2", AI_BASE_URL: base, AI_MAX_OUTPUT_TOKENS: "300" });
-    const s = stream({ feature: "test", system: "Be brief.", messages: [{ role: "user", content: "hi" }] });
+    const s = stream({ feature: "test", workspaceId: "w1", system: "Be brief.", messages: [{ role: "user", content: "hi" }] });
     let text = "";
     for await (const e of s) text += e.delta;
     const result = await s.result();
@@ -89,15 +89,15 @@ describe("providers over HTTP", () => {
 
   it("sends the key and reports the server's refusal", async () => {
     setAiEnv({ AI_PROVIDER: "openai-compatible", AI_MODEL: "m", AI_BASE_URL: base, AI_API_KEY: "sk-local" });
-    await complete({ feature: "test", messages: [{ role: "user", content: "hi" }] });
+    await complete({ feature: "test", workspaceId: "w1", messages: [{ role: "user", content: "hi" }] });
     expect(seen[0].auth).toBe("Bearer sk-local");
     failNext = true;
-    await expect(complete({ feature: "test", messages: [{ role: "user", content: "hi" }] })).rejects.toMatchObject({ code: "provider" });
+    await expect(complete({ feature: "test", workspaceId: "w1", messages: [{ role: "user", content: "hi" }] })).rejects.toMatchObject({ code: "provider" });
   });
 
   it("speaks Anthropic's Messages API with the key from AI_API_KEY", async () => {
     setAiEnv({ AI_PROVIDER: "anthropic", AI_MODEL: "claude-haiku-4-5", AI_API_KEY: "sk-ant-test", AI_BASE_URL: base.replace(/\/v1$/, "") });
-    const result = await complete({ feature: "test", system: "Translate.", messages: [{ role: "user", content: "Hello" }] });
+    const result = await complete({ feature: "test", workspaceId: "w1", system: "Translate.", messages: [{ role: "user", content: "Hello" }] });
     expect(result.text).toBe("Bonjour");
     expect(result.usage).toMatchObject({ inputTokens: 9, outputTokens: 3 });
     const request = seen[0];
@@ -109,7 +109,7 @@ describe("providers over HTTP", () => {
 
   it("sends OpenCode Go a stable session id per conversation and names the client", async () => {
     setAiEnv({ AI_PROVIDER: "opencode-go", AI_MODEL: "kimi-k3", OPENCODE_API_KEY: "sk-go", AI_BASE_URL: base });
-    const ask = (sessionId?: string) => complete({ feature: "test", messages: [{ role: "user", content: "hi" }], sessionId });
+    const ask = (sessionId?: string) => complete({ feature: "test", workspaceId: "w1", messages: [{ role: "user", content: "hi" }], sessionId });
     await ask("conv-1");
     await ask("conv-1");
     await ask();
@@ -127,7 +127,7 @@ describe("providers over HTTP", () => {
 
   it("sends OpenCode Go's Messages-API models to the Anthropic endpoint, with the session id", async () => {
     setAiEnv({ AI_PROVIDER: "opencode-go", AI_MODEL: "minimax-m3", AI_API_KEY: "sk-go", AI_BASE_URL: base });
-    const result = await complete({ feature: "test", messages: [{ role: "user", content: "Hello" }], sessionId: "conv-2" });
+    const result = await complete({ feature: "test", workspaceId: "w1", messages: [{ role: "user", content: "Hello" }], sessionId: "conv-2" });
     expect(result.text).toBe("Bonjour");
     expect(seen[0].path).toMatch(/^\/v1\/messages/);
     expect(seen[0].headers["x-opencode-session"]).toBe("conv-2");
@@ -136,18 +136,18 @@ describe("providers over HTTP", () => {
 
   it("sends no OpenCode session id to other providers", async () => {
     setAiEnv({ AI_PROVIDER: "openai-compatible", AI_MODEL: "m", AI_BASE_URL: base });
-    await complete({ feature: "test", messages: [{ role: "user", content: "hi" }], sessionId: "conv-3" });
+    await complete({ feature: "test", workspaceId: "w1", messages: [{ role: "user", content: "hi" }], sessionId: "conv-3" });
     expect(seen[0].headers["x-opencode-session"]).toBeUndefined();
   });
 
   it("embeds in input order over /embeddings", async () => {
     setAiEnv({ AI_PROVIDER: "ollama", AI_MODEL: "m", AI_BASE_URL: base, AI_EMBEDDINGS_MODEL: "nomic-embed-text" });
-    expect(await embed(["abc", "de"], { feature: "test" })).toEqual([
+    expect(await embed(["abc", "de"], { feature: "test", workspaceId: "w1" })).toEqual([
       [3, 0],
       [2, 1],
     ]);
     expect(seen[0].body).toEqual({ model: "nomic-embed-text", input: ["abc", "de"] });
     failNext = true;
-    await expect(embed(["x"], { feature: "test" })).rejects.toMatchObject({ code: "provider" });
+    await expect(embed(["x"], { feature: "test", workspaceId: "w1" })).rejects.toMatchObject({ code: "provider" });
   });
 });

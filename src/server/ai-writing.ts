@@ -8,14 +8,17 @@ import * as z from "zod";
 import { EDITOR_ACTIONS, isAiLanguage, SELECTION_ACTIONS } from "@/lib/ai";
 import { isPageLocked } from "@/lib/page-lock";
 import { AccessError, requirePageAccess, WorkspacePolicyError } from "@/server/access";
-import { aiConfig, AiError, stream, type AiStream } from "@/server/ai";
+import { aiConfig, aiEnabledFor, AiError, stream, type AiStream } from "@/server/ai";
 import { editorPrompt } from "@/server/ai/prompts";
 import { getCollab } from "@/server/collab/bridge";
 import { workspaceSettings } from "@/server/workspaces";
 
-/** Whether AI features are available in a workspace: the server has a provider and owners left it on. */
+/**
+ * Whether AI features are available in a workspace: it has a provider (its own AI account's or the
+ * server's, see aiTargetFor) and owners left it on.
+ */
 export async function aiAvailable(workspaceId: string): Promise<boolean> {
-  if (!aiConfig().chat) return false;
+  if (!(await aiEnabledFor(workspaceId))) return false;
   return (await workspaceSettings(workspaceId)).ai !== false;
 }
 

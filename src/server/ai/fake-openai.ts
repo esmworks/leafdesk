@@ -75,6 +75,10 @@ export type FakeOpenAi = {
   setTranscript(text: (audio: { name: string; size: number }) => string): void;
   /** Milliseconds between streamed pieces (for cancelling mid-answer). */
   delayMs: number;
+  /** The bearer key of every request, in order (null without one). */
+  keys: (string | null)[];
+  /** Answers 401 to requests without one of these keys; null takes any (the default). */
+  setAcceptedKeys(keys: string[] | null): void;
   setChat(reply: (request: FakeChatRequest) => FakeReply | Promise<FakeReply>): void;
   close(): Promise<void>;
 };
@@ -91,12 +95,17 @@ export async function startFakeOpenAi(
 ) {
   let answer = reply;
   let transcript = (_audio: { name: string; size: number }) => "This is a test recording.";
+  let accepted: string[] | null = null;
   const state: FakeOpenAi = {
     baseUrl: "",
     chats: [],
     embedded: [],
     transcribed: [],
     delayMs: 0,
+    keys: [],
+    setAcceptedKeys(next) {
+      accepted = next;
+    },
     setTranscript(next) {
       transcript = next;
     },
@@ -107,6 +116,13 @@ export async function startFakeOpenAi(
   };
   const server: Server = createServer(async (req, res) => {
     try {
+      const key = /^Bearer (.+)$/.exec(req.headers.authorization ?? "")?.[1] ?? null;
+      state.keys.push(key);
+      if (accepted && (!key || !accepted.includes(key))) {
+        for await (const _ of req) void _;
+        res.writeHead(401, { "Content-Type": "application/json" }).end(JSON.stringify({ error: { message: "Incorrect API key provided", type: "invalid_request_error" } }));
+        return;
+      }
       if (req.url === "/v1/audio/transcriptions") {
         // Multipart: the fields are read through the platform's own parser.
         const chunks: Buffer[] = [];

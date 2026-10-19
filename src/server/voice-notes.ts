@@ -30,7 +30,7 @@ import {
   requirePageAccess,
   WorkspacePolicyError,
 } from "@/server/access";
-import { aiConfig, AiError, complete, sttLimits, transcribe } from "@/server/ai";
+import { aiConfig, AiError, complete, sttLimitsFor, transcribe } from "@/server/ai";
 import { fallbackVoiceTitle, parseVoiceNote, voiceNotePrompt } from "@/server/ai/prompts";
 import { aiAvailable } from "@/server/ai-writing";
 import { getCollab } from "@/server/collab/bridge";
@@ -52,7 +52,7 @@ const MAX_TAG_PROPERTIES = 10;
  * workspace left AI on (the audio goes to an AI provider like any other AI request). Null otherwise.
  */
 export async function voiceNoteLimits(workspaceId: string): Promise<VoiceNoteLimits | null> {
-  const limits = sttLimits();
+  const limits = await sttLimitsFor(workspaceId);
   if (!limits) return null;
   return (await workspaceSettings(workspaceId)).ai !== false ? limits : null;
 }

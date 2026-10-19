@@ -243,7 +243,9 @@
     "reportDone": "Its scheduled run finished",
     "reportFailed": "Its scheduled run failed",
     "untitled": "Untitled",
-    "snooze": "Snooze 1 hour"
+    "snooze": "Snooze 1 hour",
+    "aiAccountTitle": "AI account removed",
+    "aiAccountDetached": "The workspace's AI no longer runs on {actor}'s key."
   },
   "workspaceDeleted": {
     "subject": "{workspace} was deleted",

@@ -3,7 +3,11 @@
  * later semantic search and the chat panel) call these functions and never the AI library, so the
  * library behind them (pi-ai, see backend.ts) can be swapped.
  *
- * - `isEnabled()` / `aiInfo()`: whether a provider is configured (env, see config.ts).
+ * - `aiTargetFor(workspaceId)`: what a workspace's AI runs on: the own AI account attached to it
+ *   (OWN_AI_KEYS_ENABLED, see server/ai-accounts.ts), else the server's AI_* settings (unless
+ *   AI_ONLY_OWN_KEYS), else nothing. Every request names its workspace and runs on that one
+ *   account: one payer per workspace, background work included.
+ * - `aiEnabledFor()` / `aiInfoFor()` / `embeddingModelFor()` / `sttLimitsFor()`: per workspace.
  * - `complete()` / `stream()`: one model turn, optionally with tools (tool calls come back for the
  *   caller to run and answer with `role: "tool"` messages).
  * - `embed()`: vectors for texts, over an OpenAI-compatible /embeddings endpoint.
@@ -17,11 +21,13 @@
 import { randomUUID } from "node:crypto";
 import { Type, type Api, type AssistantMessage, type Context, type Message, type Model, type Tool } from "@earendil-works/pi-ai";
 import { sharedLimiter, takeAll, type SlidingWindowLimiter } from "@/lib/rate-limit";
+import { env } from "@/lib/env";
 import { redactText } from "@/lib/redact";
 import { createBackend, type AiBackend } from "./backend";
-import { DEFAULT_MIN_SIMILARITY, describeAiConfig, readAiConfig, type AiConfig } from "./config";
+import { accountAiConfig, DEFAULT_MIN_SIMILARITY, describeAiConfig, readAiConfig, readSttLimits, type AiConfig } from "./config";
 import { fetchEmbeddings } from "./embeddings";
 import { AiError } from "./errors";
+import { guardedAiFetch } from "./fetch";
 import { fetchTranscription } from "./transcribe";
 
 export { AiError, aiErrorStatus, isAiError } from "./errors";
@@ -50,7 +56,8 @@ export type AiRequest = {
   feature: string;
   /** Who asks: limited per person and workspace (see AI_RATE_LIMIT / AI_WORKSPACE_RATE_LIMIT). */
   userId?: string | null;
-  workspaceId?: string | null;
+  /** The workspace the request is for: its AI account answers and pays. Required: no workspace, no AI. */
+  workspaceId: string;
   /** Background work takes from the workspace's allowance itself (see takeWorkspaceCapacity). */
   skipRateLimit?: boolean;
   system?: string;
@@ -85,10 +92,17 @@ export type AiStream = AsyncIterable<AiStreamEvent> & { result(): Promise<AiResu
 
 // ---------------------------------------------------------------------------------- runtime
 
+type CachedBackend = { fingerprint: string; backend: Promise<AiBackend | null> };
+
 type Runtime = {
   config?: AiConfig;
   backend?: Promise<AiBackend | null>;
-  /** Tests (see testing.ts) replace the settings and the backend. */
+  /** Own AI accounts' backends, by account id; made again when the account changes. */
+  accounts?: Map<string, CachedBackend>;
+  /**
+   * Tests (see testing.ts) replace the server's settings and the backend. Own AI accounts still
+   * answer for the workspaces they are attached to.
+   */
   override?: { config: AiConfig; backend: AiBackend | null };
 };
 
@@ -97,76 +111,233 @@ type Runtime = {
 const KEY = "__leafdeskAi";
 const runtime = ((globalThis as Record<string, unknown>)[KEY] ??= {}) as Runtime;
 
+/** The server's own settings (AI_*), and the limits every request is held to. */
 export function aiConfig(): AiConfig {
   if (runtime.override) return runtime.override.config;
   return (runtime.config ??= readAiConfig());
 }
 
-async function backend(): Promise<AiBackend> {
-  if (runtime.override?.backend) return runtime.override.backend;
-  const config = aiConfig();
-  if (!config.chat) throw new AiError("disabled", "AI is not configured on this server");
-  runtime.backend ??= createBackend(config).catch((error) => {
-    runtime.backend = undefined;
-    throw error;
-  });
-  const found = await runtime.backend;
-  if (!found) throw new AiError("disabled", "AI is not configured on this server");
+/**
+ * What a workspace's AI runs on: `accountId` names the own AI account attached to it, null means
+ * the server's AI_* settings. `key` changes with what requests are sent with.
+ */
+export type AiTarget = { key: string; config: AiConfig; accountId: string | null; broken?: boolean };
+
+const instanceTarget = (): AiTarget => ({ key: "instance", config: aiConfig(), accountId: null });
+
+/** The database side of own AI accounts, loaded only once they are on (tests and scripts without a database never load it). */
+let accountTargetModule: Promise<typeof import("./account-target")> | undefined;
+const accountTarget = () => (accountTargetModule ??= import("./account-target"));
+
+/**
+ * What the workspace's AI runs on: its own AI account (while OWN_AI_KEYS_ENABLED), else the
+ * server's settings, unless AI_ONLY_OWN_KEYS keeps those from workspaces (null then). With own keys
+ * off this reads nothing from the database: the server's settings, as always.
+ */
+export async function aiTargetFor(workspaceId: string): Promise<AiTarget | null> {
+  if (!env.ownAiKeysEnabled) return instanceTarget();
+  const { workspaceAiAccount } = await accountTarget();
+  const account = await workspaceAiAccount(workspaceId);
+  if (account) {
+    return {
+      key: `account:${account.id}:${account.fingerprint}`,
+      config: accountAiConfig(account.settings, guardedAiFetch),
+      accountId: account.id,
+      broken: account.status === "broken",
+    };
+  }
+  return env.aiOnlyOwnKeys ? null : instanceTarget();
+}
+
+/** The test backend, which stands in for the server's settings only (never for an own account). */
+const testBackend = (target: AiTarget | null) => (target && target.accountId === null ? runtime.override?.backend : null) ?? null;
+
+/** Whether a workspace without an account of its own gets the server's chat model. */
+export const serverAiServesWorkspaces = () => instanceUsable() && chatOn(instanceTarget());
+
+async function backendFor(target: AiTarget): Promise<AiBackend> {
+  const testing = testBackend(target);
+  if (testing) return testing;
+  if (!target.config.chat) throw new AiError("disabled", "AI is not configured for this workspace");
+  let pending: Promise<AiBackend | null>;
+  if (target.accountId === null) {
+    pending = runtime.backend ??= createBackend(target.config).catch((error) => {
+      runtime.backend = undefined;
+      throw error;
+    });
+  } else {
+    const accounts = (runtime.accounts ??= new Map());
+    const id = target.accountId;
+    const cached = accounts.get(id);
+    if (cached?.fingerprint === target.key) pending = cached.backend;
+    else {
+      pending = createBackend(target.config).catch((error) => {
+        if (accounts.get(id)?.backend === pending) accounts.delete(id);
+        throw error;
+      });
+      accounts.set(id, { fingerprint: target.key, backend: pending });
+    }
+  }
+  const found = await pending;
+  if (!found) throw new AiError("disabled", "AI is not configured for this workspace");
   return found;
+}
+
+/** Drops an own AI account's cached backend (it changed or is gone). */
+export function forgetAiAccount(accountId: string) {
+  runtime.accounts?.delete(accountId);
+}
+
+/**
+ * A backend for settings that aren't saved yet (an own AI account being added or tested), never
+ * cached. Answers one short request; throws AiError.
+ */
+export async function tryAiConfig(config: AiConfig, signal?: AbortSignal): Promise<void> {
+  const backend = await createBackend(config);
+  if (!backend) throw new AiError("disabled", "Nothing to try");
+  const timeout = AbortSignal.timeout(Math.min(config.limits.timeoutMs, 30_000));
+  const s = signal ? AbortSignal.any([signal, timeout]) : timeout;
+  let final: AssistantMessage | null = null;
+  try {
+    const events = backend.models.stream(backend.model, toContext({ feature: "account.test", workspaceId: "", messages: [{ role: "user", content: "Reply with the word OK." }] }, backend.model), {
+      signal: s,
+      maxTokens: 16,
+      ...(backend.fetch ? { fetch: backend.fetch } : {}),
+      ...(backend.sessions ? { sessionId: randomUUID() } : {}),
+    });
+    final = await events.result();
+    if (final.stopReason === "error" || final.stopReason === "aborted") throw new Error(final.errorMessage ?? final.stopReason);
+  } catch (error) {
+    throw failure(final, error, { timedOut: timeout.aborted, cancelled: signal?.aborted === true }, { feature: "account.test", ms: 0, model: config.chat?.model });
+  }
+  if (config.embeddings) await fetchEmbeddings(config.embeddings, ["test"], s).catch((error: unknown) => {
+    throw failure(null, error, { timedOut: timeout.aborted, cancelled: signal?.aborted === true }, { feature: "account.test", ms: 0, model: config.embeddings?.model });
+  });
 }
 
 /** For testing.ts only. */
 export function setAiOverride(override: Runtime["override"]) {
   runtime.override = override;
   runtime.backend = undefined;
+  runtime.accounts?.clear();
 }
 
-/** Whether a chat model is configured (the server's setting; workspaces may still turn AI off). */
+/** Whether the server's own AI_* settings may serve workspaces (AI_ONLY_OWN_KEYS keeps them from it). */
+const instanceUsable = () => !env.aiOnlyOwnKeys;
+
+/**
+ * Whether AI could be on in some workspace: the server has a chat model workspaces may use, or
+ * people may bring their own keys. Per workspace, see aiEnabledFor.
+ */
 export function isEnabled(): boolean {
-  return aiConfig().chat !== null;
+  return (instanceUsable() && aiConfig().chat !== null) || env.ownAiKeysEnabled;
 }
 
+const chatOn = (target: AiTarget | null) => Boolean(target && (target.config.chat !== null || testBackend(target)));
+
+/** Whether the workspace has a chat model (its own account's or the server's); owners may still turn AI off there. */
+export async function aiEnabledFor(workspaceId: string): Promise<boolean> {
+  return chatOn(await aiTargetFor(workspaceId));
+}
+
+/** Whether semantic search could run somewhere (the background index's quick check). */
 export function embeddingsEnabled(): boolean {
   const override = runtime.override;
+  if (env.ownAiKeysEnabled) return true;
   if (override) return Boolean(override.backend?.embed) || override.config.embeddings !== null;
   return aiConfig().embeddings !== null;
 }
 
 /**
- * The embeddings model's name, stored with each vector so vectors of another model are never
- * compared; null without embeddings. Tests that embed in-process use "test".
+ * The server's embeddings model's name (see embeddingModelFor); null without one. Tests that embed
+ * in-process use "test".
  */
 export function embeddingModel(): string | null {
-  const config = aiConfig();
-  if (config.embeddings) return config.embeddings.model;
-  return runtime.override?.backend?.embed ? "test" : null;
+  return modelOf(instanceUsable() ? instanceTarget() : null);
 }
 
-/** Whether speech to text is configured (voice notes); workspaces with AI off still go without. */
+function modelOf(target: AiTarget | null): string | null {
+  if (!target) return null;
+  if (target.config.embeddings) return target.config.embeddings.model;
+  return testBackend(target)?.embed ? "test" : null;
+}
+
+/**
+ * The embeddings model a workspace's semantic search uses, stored with each vector so vectors of
+ * another model are never compared (a workspace that switches models is indexed again); null
+ * without one.
+ */
+export async function embeddingModelFor(workspaceId: string): Promise<string | null> {
+  return modelOf(await aiTargetFor(workspaceId));
+}
+
+/** How similar a passage must be to a query to count as a semantic match in the workspace (see config.ts). */
+export async function minSimilarityFor(workspaceId: string): Promise<number> {
+  return (await aiTargetFor(workspaceId))?.config.embeddings?.minSimilarity ?? DEFAULT_MIN_SIMILARITY;
+}
+
+/**
+ * Whether speech to text could be on somewhere (voice notes' shortcut in the app's manifest);
+ * workspaces without it, or with AI off, still go without.
+ */
 export function sttEnabled(): boolean {
-  return aiConfig().stt !== null;
+  return (instanceUsable() && aiConfig().stt !== null) || env.ownAiKeysEnabled;
 }
 
-/** The recording limits the browser holds to; null without speech to text. */
+/**
+ * The largest recordings any workspace may send, for sizing a request before its workspace is
+ * known (an own AI account has the server's STT_* limits); null without speech to text anywhere.
+ */
 export function sttLimits(): { maxSeconds: number; maxBytes: number } | null {
-  const stt = aiConfig().stt;
+  const stt = instanceUsable() ? aiConfig().stt : null;
+  const limits = stt ?? (env.ownAiKeysEnabled ? readSttLimits(process.env, []) : null);
+  return limits ? { maxSeconds: limits.maxSeconds, maxBytes: limits.maxBytes } : null;
+}
+
+/** The recording limits the browser holds to in the workspace; null without speech to text there. */
+export async function sttLimitsFor(workspaceId: string): Promise<{ maxSeconds: number; maxBytes: number } | null> {
+  const stt = (await aiTargetFor(workspaceId))?.config.stt;
   return stt ? { maxSeconds: stt.maxSeconds, maxBytes: stt.maxBytes } : null;
 }
 
-/** How similar a passage must be to a query to count as a semantic match (see config.ts). */
-export function minSimilarity(): number {
-  return aiConfig().embeddings?.minSimilarity ?? DEFAULT_MIN_SIMILARITY;
+/**
+ * The provider and model names for the workspace's settings and logs, and whether they are an own
+ * AI account's; null while the workspace has no AI.
+ */
+export async function aiInfoFor(workspaceId: string): Promise<{ provider: string; model: string; accountId: string | null; embeddings: string | null } | null> {
+  const target = await aiTargetFor(workspaceId);
+  const chat = target?.config.chat;
+  if (!target || !chat) return null;
+  return { provider: chat.provider, model: chat.model, accountId: target.accountId, embeddings: modelOf(target) };
 }
 
-/** Provider and model names for settings pages and logs; null while AI is off. */
+/** The server's provider and model names (its AI_* settings); null while unset. */
 export function aiInfo(): { provider: string; model: string } | null {
   const chat = aiConfig().chat;
   return chat ? { provider: chat.provider, model: chat.model } : null;
 }
 
 export function describeAiSetup(): string {
-  return describeAiConfig(aiConfig());
+  const line = describeAiConfig(aiConfig());
+  if (!env.ownAiKeysEnabled) return line;
+  return `${line}, own AI keys: on${env.aiOnlyOwnKeys ? " (only own keys: the server's AI serves no workspace)" : ""}`;
 }
+
+/**
+ * Records how an own AI account's request went: a refused key marks it broken for its owner's
+ * settings, a request that works marks a broken one working again.
+ */
+async function noteAccount(target: AiTarget, error: AiError | null) {
+  if (!target.accountId) return;
+  const { markAccountBroken, markAccountWorking, refusesKey } = await accountTarget();
+  if (!error) {
+    if (target.broken) await markAccountWorking(target.accountId);
+  } else if (error.code === "provider" && refusesKey(error.message)) {
+    await markAccountBroken(target.accountId, error.message);
+  }
+}
+
+const noted = (target: AiTarget, error: AiError | null) => void noteAccount(target, error).catch(() => undefined);
 
 // ----------------------------------------------------------------------------------- limits
 
@@ -174,7 +345,11 @@ const WINDOW_MS = 60_000;
 const userLimiter = (): SlidingWindowLimiter => sharedLimiter("ai:user", aiConfig().limits.userPerMinute, WINDOW_MS);
 const workspaceLimiter = (): SlidingWindowLimiter => sharedLimiter("ai:workspace", aiConfig().limits.workspacePerMinute, WINDOW_MS);
 
-/** Takes one request from the person's and the workspace's allowance, or throws "rateLimited". */
+/**
+ * Takes one request from the person's and the workspace's allowance, or throws "rateLimited". Only
+ * the person's without a workspace (a refresh that queues background work, which then takes from
+ * the workspace's itself); nothing is sent to a provider without one (see AiRequest).
+ */
 export function takeRateLimit(who: { userId?: string | null; workspaceId?: string | null }) {
   const entries: [SlidingWindowLimiter, string][] = [];
   if (who.userId) entries.push([userLimiter(), who.userId]);
@@ -271,6 +446,8 @@ type LogEntry = {
   feature: string;
   userId?: string | null;
   workspaceId?: string | null;
+  /** The own AI account that answered; none for the server's settings. */
+  accountId?: string | null;
   status: string;
   ms: number;
   usage?: AiUsage;
@@ -286,6 +463,7 @@ function logUsage(entry: LogEntry) {
     entry.model ? `model=${entry.model}` : null,
     entry.userId ? `user=${entry.userId}` : null,
     entry.workspaceId ? `workspace=${entry.workspaceId}` : null,
+    entry.accountId ? `account=${entry.accountId}` : null,
     entry.usage ? `in=${entry.usage.inputTokens} out=${entry.usage.outputTokens}` : null,
     entry.usage?.costUsd ? `cost=$${entry.usage.costUsd.toFixed(5)}` : null,
     `ms=${Math.round(entry.ms)}`,
@@ -301,7 +479,10 @@ function logUsage(entry: LogEntry) {
 /** Checks, limits and a combined abort signal (the caller's plus AI_TIMEOUT_SECONDS). */
 function prepare(request: AiRequest) {
   const config = aiConfig();
-  if (!config.chat && !runtime.override?.backend) throw new AiError("disabled", "AI is not configured on this server");
+  if (!request.workspaceId) throw new AiError("disabled", "AI runs only for a workspace");
+  // Without own keys this is the whole answer, as it always was; with them the workspace decides
+  // (in stream, once its account is read).
+  if (!env.ownAiKeysEnabled && !config.chat && !runtime.override?.backend) throw new AiError("disabled", "AI is not configured on this server");
   if (!request.messages.length) throw new AiError("invalid", "Nothing to send");
   if (promptSize(request) > config.limits.maxInputChars) {
     throw new AiError("tooLarge", `The request is larger than ${config.limits.maxInputChars} characters`);
@@ -352,7 +533,8 @@ export async function complete(request: AiRequest): Promise<AiResult> {
  * One model turn, streamed. Iterate for text as it arrives; `result()` settles when the answer is
  * complete (and rejects with an AiError when it fails, times out or is cancelled). Checks and
  * limits run before anything is sent, so this throws synchronously for oversized or rate-limited
- * requests and when AI is off.
+ * requests and when the server has no AI at all; a workspace without AI (own keys, see
+ * aiTargetFor) rejects `result()` with "disabled".
  */
 export function stream(request: AiRequest): AiStream {
   const prepared = prepare(request);
@@ -364,12 +546,16 @@ export function stream(request: AiRequest): AiStream {
   const settle = (async (): Promise<AiResult> => {
     let final: AssistantMessage | null = null;
     let model = "";
+    let target: AiTarget | null = null;
     try {
-      const { models, model: m, sessions } = await backend();
+      target = await aiTargetFor(request.workspaceId);
+      if (!chatOn(target)) throw new AiError("disabled", "AI is not configured for this workspace");
+      const { models, model: m, sessions, fetch: viaFetch } = await backendFor(target!);
       model = m.id;
       const events = models.stream(m, toContext(request, m), {
         signal: prepared.signal,
         maxTokens: prepared.maxTokens,
+        ...(viaFetch ? { fetch: viaFetch } : {}),
         // Only where asked for: other providers would also turn it into prompt-cache keys.
         ...(sessions ? { sessionId: request.sessionId ?? randomUUID() } : {}),
       });
@@ -382,17 +568,30 @@ export function stream(request: AiRequest): AiStream {
       final = await events.result();
       if (final.stopReason === "error" || final.stopReason === "aborted") throw new Error(final.errorMessage ?? final.stopReason);
       const result = toResult(final);
-      logUsage({ feature: request.feature, userId: request.userId, workspaceId: request.workspaceId, status: "ok", ms: performance.now() - started, usage: result.usage, model });
-      return result;
-    } catch (error) {
-      throw failure(final, error, { timedOut: prepared.timedOut(), cancelled: prepared.cancelled() }, {
+      logUsage({
         feature: request.feature,
         userId: request.userId,
         workspaceId: request.workspaceId,
+        accountId: target!.accountId,
+        status: "ok",
+        ms: performance.now() - started,
+        usage: result.usage,
+        model,
+      });
+      noted(target!, null);
+      return result;
+    } catch (error) {
+      const failed = failure(final, error, { timedOut: prepared.timedOut(), cancelled: prepared.cancelled() }, {
+        feature: request.feature,
+        userId: request.userId,
+        workspaceId: request.workspaceId,
+        accountId: target?.accountId,
         ms: performance.now() - started,
         usage: final ? toResult(final).usage : undefined,
         model,
       });
+      if (target) noted(target, failed);
+      throw failed;
     } finally {
       prepared.done();
       finished = true;
@@ -429,25 +628,28 @@ export function stream(request: AiRequest): AiStream {
  */
 export async function transcribe(
   audio: { bytes: Blob; type: string },
-  request: { feature: string; userId?: string | null; workspaceId?: string | null; signal?: AbortSignal; skipRateLimit?: boolean },
+  request: { feature: string; userId?: string | null; workspaceId: string; signal?: AbortSignal; skipRateLimit?: boolean },
 ): Promise<string> {
-  const config = aiConfig();
-  const stt = config.stt;
-  if (!stt) throw new AiError("disabled", "Speech to text is not configured on this server");
+  if (!request.workspaceId) throw new AiError("disabled", "AI runs only for a workspace");
+  const target = await aiTargetFor(request.workspaceId);
+  const stt = target?.config.stt;
+  if (!target || !stt) throw new AiError("disabled", "Speech to text is not configured for this workspace");
   if (!audio.bytes.size) throw new AiError("invalid", "The recording is empty");
   if (audio.bytes.size > stt.maxBytes) throw new AiError("tooLarge", `Recordings can be at most ${Math.round(stt.maxBytes / 1024 / 1024)} MB`);
   if (!request.skipRateLimit) takeRateLimit(request);
   const timeout = AbortSignal.timeout(stt.timeoutMs);
   const signal = request.signal ? AbortSignal.any([request.signal, timeout]) : timeout;
   const started = performance.now();
-  const testing = runtime.override?.backend?.transcribe;
+  const testing = testBackend(target)?.transcribe;
   try {
     const { text, seconds } = testing ? { text: await testing(audio), seconds: null } : await fetchTranscription(stt, audio, signal);
     if (!text) throw new AiError("empty", "Nothing was heard in the recording");
+    noted(target, null);
     logUsage({
       feature: request.feature,
       userId: request.userId,
       workspaceId: request.workspaceId,
+      accountId: target.accountId,
       status: "ok",
       ms: performance.now() - started,
       model: stt.model,
@@ -455,25 +657,30 @@ export async function transcribe(
     });
     return text;
   } catch (error) {
-    throw failure(null, error, { timedOut: timeout.aborted, cancelled: request.signal?.aborted === true }, {
+    const failed = failure(null, error, { timedOut: timeout.aborted, cancelled: request.signal?.aborted === true }, {
       feature: request.feature,
       userId: request.userId,
       workspaceId: request.workspaceId,
+      accountId: target.accountId,
       ms: performance.now() - started,
       model: stt.model,
     });
+    noted(target, failed);
+    throw failed;
   }
 }
 
 /** Vectors for `texts`, in order. Throws AiError ("disabled" without an embeddings model). */
 export async function embed(
   texts: string[],
-  request: { feature: string; userId?: string | null; workspaceId?: string | null; signal?: AbortSignal; skipRateLimit?: boolean },
+  request: { feature: string; userId?: string | null; workspaceId: string; signal?: AbortSignal; skipRateLimit?: boolean },
 ): Promise<number[][]> {
   if (!texts.length) return [];
-  const config = aiConfig();
-  const testing = runtime.override?.backend?.embed;
-  if (!testing && !config.embeddings) throw new AiError("disabled", "No embeddings model is configured on this server");
+  if (!request.workspaceId) throw new AiError("disabled", "AI runs only for a workspace");
+  const target = await aiTargetFor(request.workspaceId);
+  const config = target?.config ?? aiConfig();
+  const testing = testBackend(target)?.embed;
+  if (!target || (!testing && !config.embeddings)) throw new AiError("disabled", "No embeddings model is configured for this workspace");
   const size = texts.reduce((n, t) => n + t.length, 0);
   if (size > config.limits.maxInputChars * 4) throw new AiError("tooLarge", "Too much text for one embeddings request");
   if (!request.skipRateLimit) takeRateLimit(request);
@@ -484,10 +691,12 @@ export async function embed(
     const { vectors, tokens } = testing
       ? { vectors: await testing(texts), tokens: 0 }
       : await fetchEmbeddings(config.embeddings!, texts, signal);
+    noted(target, null);
     logUsage({
       feature: request.feature,
       userId: request.userId,
       workspaceId: request.workspaceId,
+      accountId: target.accountId,
       status: "ok",
       ms: performance.now() - started,
       usage: { inputTokens: tokens, outputTokens: 0, totalTokens: tokens, costUsd: 0 },
@@ -495,12 +704,15 @@ export async function embed(
     });
     return vectors;
   } catch (error) {
-    throw failure(null, error, { timedOut: timeout.aborted, cancelled: request.signal?.aborted === true }, {
+    const failed = failure(null, error, { timedOut: timeout.aborted, cancelled: request.signal?.aborted === true }, {
       feature: request.feature,
       userId: request.userId,
       workspaceId: request.workspaceId,
+      accountId: target.accountId,
       ms: performance.now() - started,
       model: config.embeddings?.model ?? "test",
     });
+    noted(target, failed);
+    throw failed;
   }
 }

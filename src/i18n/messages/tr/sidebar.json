@@ -154,7 +154,9 @@
     "reportDone": "Zamanlanmış çalışması bitti.",
     "reportFailed": "Zamanlanmış çalışması başarısız oldu. Nedenini görmek için aç.",
     "reportHidden": "Zamanlanmış çalışması, açamadığın bir veritabanında bitti.",
-    "reportGone": "Çalışma artık saklanmıyor."
+    "reportGone": "Çalışma artık saklanmıyor.",
+    "aiAccountTitle": "Yapay zekâ hesabı kaldırıldı",
+    "aiAccountDetached": "Çalışma alanının yapay zekâsı artık {actor} kişisinin anahtarıyla çalışmıyor. Ayarlar'dan başka bir yapay zekâ hesabı seçin."
   },
   "templates": {
     "title": "Şablonlar",

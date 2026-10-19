@@ -243,7 +243,9 @@
     "reportDone": "La sua esecuzione pianificata è terminata",
     "reportFailed": "La sua esecuzione pianificata non è riuscita",
     "untitled": "Senza titolo",
-    "snooze": "Posticipa di 1 ora"
+    "snooze": "Posticipa di 1 ora",
+    "aiAccountTitle": "Account IA rimosso",
+    "aiAccountDetached": "L’IA dello spazio di lavoro non funziona più con la chiave di {actor}."
   },
   "workspaceDeleted": {
     "subject": "{workspace} è stato eliminato",

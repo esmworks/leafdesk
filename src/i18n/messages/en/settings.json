@@ -1367,6 +1367,10 @@
       "backup": {
         "created": "Backed up the workspace ({count, plural, one {# page} other {# pages}})",
         "restored": "Restored the workspace from a backup ({count, plural, one {# page} other {# pages}})"
+      },
+      "ai_account": {
+        "attached": "Ran the workspace's AI on the AI account {target}",
+        "detached": "Stopped running the workspace's AI on the AI account {target}"
       }
     },
     "decisions": {

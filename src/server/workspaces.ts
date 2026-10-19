@@ -3,6 +3,7 @@ import { and, asc, eq, gt, inArray, isNotNull, max, ne, or, sql } from "drizzle-
 import { getLocale, getTranslations } from "next-intl/server";
 import { db } from "@/db";
 import {
+  aiAccount,
   aiConversation,
   aiMemory,
   apiToken,
@@ -11,6 +12,7 @@ import {
   DEFAULT_WORKSPACE_SETTINGS,
   file,
   mailbox,
+  notification,
   page,
   pageInvitation,
   passkey,
@@ -167,7 +169,14 @@ export async function createWorkspace(userId: string, name: string) {
   if (!clean) throw new WorkspaceError("nameRequired", "Give the workspace a name.");
   const general = await generalTeamspaceName();
   return db.transaction(async (tx) => {
-    const [ws] = await tx.insert(workspace).values({ name: clean }).returning({ id: workspace.id });
+    // Someone with a default AI account of their own (OWN_AI_KEYS_ENABLED) runs the new workspace's AI on it.
+    const [own] = env.ownAiKeysEnabled
+      ? await tx.select({ id: aiAccount.id }).from(aiAccount).where(and(eq(aiAccount.userId, userId), eq(aiAccount.isDefault, true))).limit(1)
+      : [];
+    const [ws] = await tx
+      .insert(workspace)
+      .values({ name: clean, aiAccountId: own?.id ?? null })
+      .returning({ id: workspace.id });
     await tx.insert(workspaceMember).values({ workspaceId: ws.id, userId, role: "owner" });
     await setUpGeneralTeamspace(tx, ws.id, userId, general);
     return ws;
@@ -947,6 +956,7 @@ export async function removeMember(actorId: string, workspaceId: string, targetI
   if (!actor || (actorId !== targetId && actor.role !== "owner")) throw new AccessError();
   // Archiving an agent takes it out of the lists; its membership stays, so its edits keep its name.
   await refuseAgentUser(targetId);
+  let released: AiAccountRelease | null = null;
   await db.transaction(async (tx) => {
     const [current] = await tx
       .select({ role: workspaceMember.role })
@@ -960,6 +970,7 @@ export async function removeMember(actorId: string, workspaceId: string, targetI
     await tx
       .delete(workspaceMember)
       .where(and(eq(workspaceMember.workspaceId, workspaceId), eq(workspaceMember.userId, targetId)));
+    released = await releaseAiAccount(tx, workspaceId, targetId);
     // An owner removing someone takes over what only they managed; someone leaving hands it to an owner.
     const heir = actorId !== targetId ? actorId : await oldestOwner(tx, workspaceId);
     await dropFromTeamspaces(tx, workspaceId, targetId, heir);
@@ -986,9 +997,69 @@ export async function removeMember(actorId: string, workspaceId: string, targetI
     );
   });
   await getCollab().disconnectUser(targetId, workspaceId);
+  if (released) await afterAiAccountReleased([released]);
 }
 
 export type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
+
+/** A workspace whose AI no longer runs on someone's own AI account, and the owners' inbox items about it. */
+export type AiAccountRelease = { workspaceId: string; notificationIds: string[] };
+
+/**
+ * Takes `userId`'s own AI account (OWN_AI_KEYS_ENABLED) off the workspace, inside the transaction
+ * that takes them out of it: nobody pays for a workspace they are no longer in. Its AI falls back to
+ * the server's settings, or none (see aiTargetFor). The owners who stay find out in their inbox.
+ * Null when the workspace didn't run on their account.
+ */
+export async function releaseAiAccount(tx: Tx, workspaceId: string, userId: string): Promise<AiAccountRelease | null> {
+  const released = await tx
+    .update(workspace)
+    .set({ aiAccountId: null })
+    .where(and(eq(workspace.id, workspaceId), sql`${workspace.aiAccountId} in (select ${aiAccount.id} from ${aiAccount} where ${aiAccount.userId} = ${userId})`))
+    .returning({ id: workspace.id });
+  if (!released.length) return null;
+  return { workspaceId, notificationIds: await tellOwnersAiAccountGone(tx, workspaceId, userId) };
+}
+
+/**
+ * Inbox items for the workspace's owners (but `payerId`) that its AI no longer runs on `payerId`'s
+ * own AI account; their ids, to push once the transaction commits (afterAiAccountReleased).
+ */
+export async function tellOwnersAiAccountGone(tx: Tx, workspaceId: string, payerId: string): Promise<string[]> {
+  const owners = await tx
+    .select({ id: workspaceMember.userId })
+    .from(workspaceMember)
+    .where(and(eq(workspaceMember.workspaceId, workspaceId), eq(workspaceMember.role, "owner"), ne(workspaceMember.userId, payerId), notAgentUser(workspaceMember.userId)));
+  if (!owners.length) return [];
+  const rows = await tx
+    .insert(notification)
+    .values(owners.map((o) => ({ userId: o.id, workspaceId, kind: "ai_account_detached" as const, actorId: payerId })))
+    .returning({ id: notification.id });
+  return rows.map((r) => r.id);
+}
+
+/**
+ * After the transaction that took AI accounts off workspaces: their open inboxes refresh, the
+ * owners' devices get the news, and their semantic search index is made again with the model they
+ * have now (or dropped without one).
+ */
+export async function afterAiAccountReleased(released: AiAccountRelease[]) {
+  if (!released.length) return;
+  const [{ signalInbox }, { pushNotifications }, { reindexWorkspace }] = await Promise.all([
+    import("@/server/notifications"),
+    import("@/server/push"),
+    import("@/server/semantic-index"),
+  ]);
+  for (const { workspaceId, notificationIds } of released) {
+    try {
+      signalInbox(workspaceId);
+      pushNotifications(notificationIds);
+    } catch (error) {
+      console.error("[ai] could not tell owners about a detached AI account", error);
+    }
+    await reindexWorkspace(workspaceId).catch((error) => console.error("[ai] could not index a workspace again", error));
+  }
+}
 
 async function standingsOf(reader: Pick<typeof db, "select">, userId: string): Promise<WorkspaceStanding[]> {
   const rows = await reader
@@ -1030,7 +1101,7 @@ export async function accountDeletionPlan(userId: string): Promise<DeletionPlan>
 export async function withdrawFromWorkspaces(
   tx: Tx,
   userId: string,
-): Promise<{ plan: DeletionPlan; fileKeys: QueuedObject[]; providerIds: string[] }> {
+): Promise<{ plan: DeletionPlan; fileKeys: QueuedObject[]; providerIds: string[]; aiReleased: AiAccountRelease[] }> {
   const ids = (
     await tx.select({ id: workspaceMember.workspaceId }).from(workspaceMember).where(eq(workspaceMember.userId, userId))
   ).map((r) => r.id);
@@ -1043,10 +1114,11 @@ export async function withdrawFromWorkspaces(
     await tx.select({ id: workspace.id }).from(workspace).where(inArray(workspace.id, locked)).orderBy(asc(workspace.id)).for("update");
   }
   const plan = planAccountDeletion(await standingsOf(tx, userId));
-  if (plan.blockers.length) return { plan, fileKeys: [], providerIds: [] };
+  if (plan.blockers.length) return { plan, fileKeys: [], providerIds: [], aiReleased: [] };
 
   const fileKeys: QueuedObject[] = [];
   const providerIds: string[] = [];
+  const aiReleased: AiAccountRelease[] = [];
   const deleted = plan.deleted.map((w) => w.id);
   if (deleted.length) {
     const connections = await tx
@@ -1068,6 +1140,8 @@ export async function withdrawFromWorkspaces(
       tx,
     );
     await tx.delete(workspaceMember).where(and(eq(workspaceMember.workspaceId, id), eq(workspaceMember.userId, userId)));
+    const released = await releaseAiAccount(tx, id, userId);
+    if (released) aiReleased.push(released);
     const heir = await oldestOwner(tx, id);
     if (heir) await handOverOrphanedPages(tx, id, heir);
   }
@@ -1077,7 +1151,7 @@ export async function withdrawFromWorkspaces(
     const heir = await oldestOwner(tx, workspaceId);
     if (heir) await tx.update(ssoProvider).set({ userId: heir }).where(eq(ssoProvider.providerId, providerId));
   }
-  return { plan, fileKeys, providerIds };
+  return { plan, fileKeys, providerIds, aiReleased };
 }
 
 /** The single sign-on connections whose provider row belongs to `userId`, who set them up. */
@@ -1386,6 +1460,7 @@ export async function joinAsMember(workspaceId: string, userId: string, email: s
  * manage. Owners can't be removed this way. Returns false when they weren't in the workspace.
  */
 export async function removeMemberByProvider(workspaceId: string, userId: string) {
+  let released: AiAccountRelease | null = null;
   const removed = await db.transaction(async (tx) => {
     const [current] = await tx
       .select({ role: workspaceMember.role })
@@ -1395,6 +1470,7 @@ export async function removeMemberByProvider(workspaceId: string, userId: string
     if (!current) return false;
     if (current.role === "owner") throw new WorkspaceError("lastOwnerRemove", "Owners are managed in the app");
     await tx.delete(workspaceMember).where(and(eq(workspaceMember.workspaceId, workspaceId), eq(workspaceMember.userId, userId)));
+    released = await releaseAiAccount(tx, workspaceId, userId);
     // Their AI chat conversations quote the workspace's pages, and what it remembers about them is
     // the workspace's context: they go with the membership.
     await tx.delete(aiConversation).where(and(eq(aiConversation.workspaceId, workspaceId), eq(aiConversation.userId, userId)));
@@ -1412,6 +1488,7 @@ export async function removeMemberByProvider(workspaceId: string, userId: string
 
   });
   if (removed) await getCollab().disconnectUser(userId, workspaceId);
+  if (released) await afterAiAccountReleased([released]);
   return removed;
 }
 

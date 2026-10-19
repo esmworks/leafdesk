@@ -267,5 +267,81 @@
       "notFound": "そのメモはもうありません。",
       "off": "このワークスペースではAIメモリーがオフになっています。"
     }
+  },
+  "accounts": {
+    "heading": "AI",
+    "description": "ご自身のAIプロバイダーのキーです。キーを一度追加すると、オーナーを務めるワークスペースのAIをそのキーで実行できます。そこでAIが行う処理は、どのメンバーによるものもバックグラウンドのものも、すべてこのキーに課金されます。それ以外の用途には使われません。",
+    "add": "AIアカウントを追加",
+    "empty": "AIアカウントはまだありません。",
+    "default": "新しいワークスペースのデフォルト",
+    "keyHint": "末尾が{hint}のキー",
+    "embeddingsValue": "検索: {model}",
+    "sttValue": "音声: {model}",
+    "status": {
+      "active": "動作中（{time}に確認）",
+      "broken": "動作していません: {error}"
+    },
+    "usedBy": "使用中: {names}",
+    "unused": "まだどのワークスペースでも使われていません。ワークスペースの「設定 > 全般 > AI」で選択してください。",
+    "test": "テスト",
+    "testing": "テスト中…",
+    "change": "変更",
+    "makeDefault": "デフォルトにする",
+    "remove": "削除",
+    "removeNote": "キーはこのサーバーから削除されます。",
+    "removeNoteUsed": "キーはこのサーバーから削除されます。{count, plural, =1 {このキーを使っているワークスペースは、サーバーのAIに戻るか、AIなしになります。そのオーナーには通知が送られます。} other {このキーを使っている#個のワークスペースは、サーバーのAIに戻るか、AIなしになります。各ワークスペースのオーナーには通知が送られます。}}",
+    "save": "テストして保存",
+    "providers": {
+      "anthropic": "Anthropic",
+      "openai": "OpenAI",
+      "google": "Google Gemini",
+      "opencode-go": "OpenCode Go",
+      "openai-compatible": "OpenAI互換サーバー"
+    },
+    "fields": {
+      "provider": "プロバイダー",
+      "label": "名前",
+      "labelHint": "任意。アカウントを見分けるために使います",
+      "baseUrl": "サーバーアドレス",
+      "baseUrlHint": "サーバーのAPIルートです。通常は /v1 で終わります。公開されている https アドレスである必要があります。",
+      "model": "モデル",
+      "modelHint": "プロバイダーの表記どおりのモデル名です。",
+      "apiKey": "APIキー",
+      "apiKeyOptional": "APIキー（サーバーが必要とする場合）",
+      "apiKeyKeep": "保存済みのキーの末尾は{hint}です。そのまま使う場合は空欄のままにしてください",
+      "embeddingsModel": "埋め込みモデル",
+      "embeddingsModelHint": "任意。このアカウントを使うワークスペースでセマンティック検索をオンにします。",
+      "sttModel": "音声認識モデル",
+      "sttModelHint": "任意。このアカウントを使うワークスペースでボイスメモをオンにします。",
+      "keyHint": "保存時に、キーを確認するための短いリクエストを1回送信します。キーは暗号化して保存され、再表示されません。"
+    },
+    "errors": {
+      "disabled": "このサーバーでは独自のAIキーを使用できません。",
+      "providerRequired": "プロバイダーを選択してください。",
+      "modelRequired": "モデル名を入力してください。",
+      "baseUrlRequired": "サーバーのアドレスを入力してください。",
+      "baseUrlInvalid": "このアドレスは使用できません: {message}",
+      "keyRequired": "APIキーを貼り付けてください。",
+      "keyTooLong": "キーが長すぎます。",
+      "notFound": "このAIアカウントはもう存在しません。",
+      "tooMany": "AIアカウントの上限に達しています。先にいずれかを削除してください。",
+      "testFailed": "テストリクエストが失敗しました: {message}",
+      "ownersOnly": "ワークスペースのAIアカウントを選択できるのは、そのオーナーだけです。"
+    },
+    "workspace": {
+      "title": "AIアカウント",
+      "sourceMine": "あなたのアカウント{label}（{provider}、{model}）で実行されます。AIの利用はあなたのキーに課金されます。",
+      "sourceTheirs": "{name}のアカウント{label}（{provider}、{model}）で実行されます。AIの利用は{name}のキーに課金されます。",
+      "sourceInstance": "このサーバーのAIで実行されます。",
+      "sourceOff": "AIアカウントがありません。オーナーが選択するまで、このワークスペースではAIがオフです。",
+      "sourceOffOnlyOwn": "AIアカウントがありません。このサーバーでは、AIはオーナー自身のキーでのみ実行されます。",
+      "noAccounts": "ご自身のAIアカウントがありません。",
+      "addOne": "追加する",
+      "ownersOnly": "これを変更できるのはオーナーだけで、各自が自分のアカウントから選択します。",
+      "noneInstance": "なし（このサーバーのAI）",
+      "noneOff": "なし（AIオフ）",
+      "theirsOption": "{label}（{name}）",
+      "brokenOption": "{label}（動作していません）"
+    }
   }
 }

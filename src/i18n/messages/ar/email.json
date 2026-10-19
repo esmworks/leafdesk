@@ -243,7 +243,9 @@
     "reportDone": "انتهى تشغيله المجدول",
     "reportFailed": "فشل تشغيله المجدول",
     "untitled": "بلا عنوان",
-    "snooze": "تأجيل ساعة"
+    "snooze": "تأجيل ساعة",
+    "aiAccountTitle": "أُزيل حساب الذكاء الاصطناعي",
+    "aiAccountDetached": "لم يعد الذكاء الاصطناعي في مساحة العمل يعمل بمفتاح {actor}."
   },
   "workspaceDeleted": {
     "subject": "تم حذف {workspace}",

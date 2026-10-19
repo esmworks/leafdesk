@@ -1,6 +1,7 @@
 import { Info, KeyRound, Plug, SlidersHorizontal, UserRound, type LucideIcon } from "lucide-react";
 import { cookies } from "next/headers";
 import { getTranslations } from "next-intl/server";
+import { AiAccountsGroup } from "@/components/account/ai-accounts-group";
 import { AccountEmailSettings } from "@/components/account/email-settings";
 import { AboutLeafdesk } from "@/components/account/about";
 import { DeleteAccountSettings } from "@/components/account/delete-account";
@@ -56,6 +57,7 @@ export async function AccountTabContent({ tab, session }: { tab: AccountTab; ses
       <SettingsHeader title={t("nav.apps")} description={t("apps.description")} />
       <div className="space-y-10">
         <ConnectedApps />
+        {env.ownAiKeysEnabled && <AiAccountsGroup />}
         <McpInstructions />
         <ApiTokens />
       </div>

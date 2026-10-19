@@ -34,7 +34,7 @@ import {
 } from "@/lib/ai";
 import { PropertyValueError } from "@/lib/properties";
 import { AccessError, hasLevel, pageAccessOf } from "@/server/access";
-import { aiConfig, AiError, complete, describeAiSetup, isAiError, takeRateLimit, takeWorkspaceCapacity } from "@/server/ai";
+import { aiConfig, AiError, complete, describeAiSetup, isAiError, isEnabled as aiMayBeOn, takeRateLimit, takeWorkspaceCapacity } from "@/server/ai";
 import { autofillNeedsBody, autofillPrompt, cleanValue, formatValue, type Prompt } from "@/server/ai/prompts";
 import { aiAvailable } from "@/server/ai-writing";
 import { getCollab } from "@/server/collab/bridge";
@@ -583,7 +583,7 @@ export function followUpTargets(properties: Property[], scope: Pick<FollowUpScop
 }
 
 function scheduleFollowUp(change: RowChange) {
-  if (!change.userId || !aiConfig().chat) return;
+  if (!change.userId || !aiMayBeOn()) return;
   const pending = queue.followUps.get(change.rowId);
   if (pending) clearTimeout(pending.timer);
   // Read now, while the code that made the change runs: the timer would carry its context on.

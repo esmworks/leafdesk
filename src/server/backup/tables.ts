@@ -125,6 +125,7 @@ export const LEFT_OUT: Record<string, string> = {
   mailbox: "members' mailboxes and their passwords, connected again on the new server",
   workspace_storage: "the workspace's own file storage and its keys, connected again on the new server",
   workspace_storage_oauth: "storage sign-ins in progress",
+  ai_account: "people's own AI provider keys; the workspace uses the new server's AI until an owner attaches one again",
 };
 
 export type BackupColumn = {

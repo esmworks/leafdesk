@@ -34,7 +34,7 @@ import {
   type WorkspaceCheck,
 } from "@/lib/workspace-check";
 import { AccessError, accessRank, getMembership, isGuest, levelFromRank, pageVisibleTo, requirePageAccess } from "@/server/access";
-import { embeddingModel, embeddingsEnabled } from "@/server/ai";
+import { embeddingModelFor, embeddingsEnabled } from "@/server/ai";
 import { updateRowProperties } from "@/server/databases";
 import { loadProperties } from "@/server/derived";
 import { listUnlinkedMentions, resolvePageRefs } from "@/server/mentions";
@@ -267,8 +267,8 @@ async function findDuplicates(
   asCheckPage: (p: Loaded) => CheckPage,
   minSimilarity: number,
 ): Promise<DuplicateSection> {
-  const model = embeddingModel();
-  if (!embeddingsEnabled() || !model) return { status: "skipped", reason: "noEmbeddings" };
+  const model = embeddingsEnabled() ? await embeddingModelFor(workspaceId) : null;
+  if (!model) return { status: "skipped", reason: "noEmbeddings" };
   if ((await workspaceSettings(workspaceId)).ai === false) return { status: "skipped", reason: "aiOff" };
   // Pages only: rows say little each, and databases have no body.
   const candidates = checked.filter((p) => p.kind === "page").slice(0, MAX_DUPLICATE_PAGES);

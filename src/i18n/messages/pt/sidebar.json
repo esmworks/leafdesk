@@ -154,7 +154,9 @@
     "reportDone": "A execução agendada terminou.",
     "reportFailed": "A execução agendada falhou. Abra para ver o motivo.",
     "reportHidden": "A execução agendada terminou, em um banco de dados que você não pode abrir.",
-    "reportGone": "A execução não está mais guardada."
+    "reportGone": "A execução não está mais guardada.",
+    "aiAccountTitle": "Conta de IA removida",
+    "aiAccountDetached": "A IA do espaço de trabalho não funciona mais com a chave de {actor}. Escolha outra conta de IA em Configurações."
   },
   "templates": {
     "title": "Modelos",

@@ -149,6 +149,32 @@ export const env = {
   get localMode() {
     return ["1", "true", "yes"].includes((process.env.LEAFDESK_LOCAL_MODE ?? "").trim().toLowerCase());
   },
+  /**
+   * OWN_AI_KEYS_ENABLED=true: people add their own AI provider key to their account and attach it
+   * to workspaces they own, which then use it for all their AI (see server/ai-accounts.ts). Off by
+   * default: AI comes only from the AI_* settings.
+   */
+  get ownAiKeysEnabled() {
+    return ["1", "true", "yes"].includes((process.env.OWN_AI_KEYS_ENABLED ?? "").trim().toLowerCase());
+  },
+  /**
+   * AI_ONLY_OWN_KEYS=true, with OWN_AI_KEYS_ENABLED: the AI_* key is never used for a workspace, so
+   * a workspace without its own AI account has AI off (a free tier that never spends the server's key).
+   */
+  get aiOnlyOwnKeys() {
+    return this.ownAiKeysEnabled && ["1", "true", "yes"].includes((process.env.AI_ONLY_OWN_KEYS ?? "").trim().toLowerCase());
+  },
+  /**
+   * AI_ALLOWED_HOSTS: hosts (names, or host:port) a person's own OpenAI-compatible AI server may be
+   * on even though they are on a private network, a local name or plain http; comma-separated.
+   * Every other base URL is reached only on public https addresses.
+   */
+  get aiAllowedHosts() {
+    return (process.env.AI_ALLOWED_HOSTS ?? "")
+      .split(",")
+      .map((h) => h.trim().toLowerCase())
+      .filter(Boolean);
+  },
   /** ADMIN_EMAILS: the instance administrators' addresses (see lib/instance-admin.ts). */
   get adminEmails() {
     return adminEmailsFrom(process.env.ADMIN_EMAILS);

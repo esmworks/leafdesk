@@ -16,6 +16,8 @@ export type AiBackend = {
   transcribe?: (audio: { bytes: Blob; type: string }) => Promise<string>;
   /** The provider wants a session id per conversation (OpenCode's `x-opencode-session`). */
   sessions?: boolean;
+  /** Requests go through this fetch (a person's own server, see fetch.ts). */
+  fetch?: typeof fetch;
 };
 
 /** One implementation for all the provider's models, or one per wire API for mixed providers. */
@@ -143,5 +145,5 @@ export async function createBackend(config: AiConfig): Promise<AiBackend | null>
   });
   const models = createModels();
   models.setProvider(provider);
-  return { models, model, sessions: kind.sessions };
+  return { models, model, sessions: kind.sessions, ...(chat.fetch ? { fetch: chat.fetch } : {}) };
 }

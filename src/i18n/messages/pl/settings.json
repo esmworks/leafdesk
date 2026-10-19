@@ -1367,6 +1367,10 @@
       "backup": {
         "created": "Utworzono kopię zapasową obszaru roboczego ({count, plural, one {# strona} few {# strony} many {# stron} other {# strony}})",
         "restored": "Przywrócono obszar roboczy z kopii zapasowej ({count, plural, one {# strona} few {# strony} many {# stron} other {# strony}})"
+      },
+      "ai_account": {
+        "attached": "Podłączono AI obszaru roboczego do konta AI {target}",
+        "detached": "Odłączono AI obszaru roboczego od konta AI {target}"
       }
     },
     "decisions": {

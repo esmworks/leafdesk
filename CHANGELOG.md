@@ -17,6 +17,16 @@
   reach a printout. The callout shows a small mark while it is hidden. In Markdown it is the line
   `<!-- leafdesk:no-print -->` right before the callout.
 
+- **Your own AI keys.** With `OWN_AI_KEYS_ENABLED`, everyone can add AI accounts to their Leafdesk
+  account in Settings → Apps → AI: a provider (Anthropic, OpenAI, Google Gemini, OpenCode Go or an
+  OpenAI-compatible server), a model and the key, tried with a tiny request before it is kept and
+  never shown again, plus optional models for semantic search and voice notes. A workspace runs all
+  its AI on one owner's account, picked in Settings → General → AI; a new workspace takes its
+  creator's default account, so one key serves all of someone's workspaces. Without an account a
+  workspace uses the server's AI settings, or has no AI with `AI_ONLY_OWN_KEYS`. When the account's
+  owner leaves or removes it, the workspace falls back and its other owners are told. Semantic search
+  indexes each workspace with its own embeddings model. An OpenAI-compatible server must be on a
+  public https address unless listed in `AI_ALLOWED_HOSTS`.
 - **Email on database rows.** Owners turn it on in Settings → Email and pick the databases mail
   lands on, in order, with the email properties that hold addresses; each member connects their
   own mailbox for that workspace (Google Workspace and Gmail, Yandex, Zoho or any IMAP and SMTP

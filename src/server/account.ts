@@ -42,7 +42,7 @@ import { recipientLocale, requestLocale } from "@/server/mail/locale";
 import { clearPasswordResetRequirement, consumeResetStep, resetStepUser } from "@/server/required-password";
 import { afterCutOff, cutOffConnection } from "@/server/sso";
 import { instanceStorage } from "@/server/storage";
-import { accountDeletionPlan, withdrawFromWorkspaces } from "@/server/workspaces";
+import { accountDeletionPlan, afterAiAccountReleased, withdrawFromWorkspaces } from "@/server/workspaces";
 
 /**
  * The signed-in person's own account (the account page, /account): profile, password, email,
@@ -602,8 +602,8 @@ export async function deleteAccount(current: AccountSession, input: { confirmati
   if (preview.blockers.length) throw new AccountError("soleOwner", preview.blockers.map((w) => w.name));
   await reauthenticate(current, input.proof);
 
-  const { plan, keys, cutOff } = await db.transaction(async (tx) => {
-    const { plan, fileKeys: keys, providerIds } = await withdrawFromWorkspaces(tx, userId);
+  const { plan, keys, cutOff, aiReleased } = await db.transaction(async (tx) => {
+    const { plan, fileKeys: keys, providerIds, aiReleased } = await withdrawFromWorkspaces(tx, userId);
     if (plan.blockers.length) throw new AccountError("soleOwner", plan.blockers.map((w) => w.name));
     // Pending email changes and password reset links (Better Auth keeps the user id as the value).
     await tx.delete(verification).where(or(eq(verification.value, userId), changeRowsOf(userId)));
@@ -615,8 +615,10 @@ export async function deleteAccount(current: AccountSession, input: { confirmati
     // still there; this person's own went with the account.
     const cutOff: Awaited<ReturnType<typeof cutOffConnection>>[] = [];
     for (const providerId of providerIds) cutOff.push(await cutOffConnection(tx, providerId));
-    return { plan, keys, cutOff };
+    return { plan, keys, cutOff, aiReleased };
   });
+  // Workspaces that ran on their own AI account: owners hear, and the search index follows the model they have now.
+  await afterAiAccountReleased(aiReleased).catch((error) => console.error("[account] could not finish detaching AI accounts", error));
 
   try {
     await getCollab().disconnectSessions(userId, []);

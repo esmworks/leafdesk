@@ -243,7 +243,9 @@
     "reportDone": "A execução agendada terminou",
     "reportFailed": "A execução agendada falhou",
     "untitled": "Sem título",
-    "snooze": "Adiar 1 hora"
+    "snooze": "Adiar 1 hora",
+    "aiAccountTitle": "Conta de IA removida",
+    "aiAccountDetached": "A IA do espaço de trabalho não funciona mais com a chave de {actor}."
   },
   "workspaceDeleted": {
     "subject": "{workspace} foi excluído",

@@ -23,6 +23,7 @@ import type { PageBackground } from "../../lib/page-background";
 import type { PageVisibility } from "../../lib/page-visibility";
 import type { RowActivityActor, RowActivityKind } from "../../lib/row-activity";
 import type { SidebarLayout } from "../../lib/sidebar-sections";
+import { aiAccount } from "./ai-accounts";
 import { user } from "./auth";
 
 const bytea = customType<{ data: Uint8Array; driverData: Buffer }>({
@@ -167,6 +168,11 @@ export const workspace = pgTable("workspace", {
   inviteLinkToken: text("invite_link_token").unique(),
   /** Only the policies an owner changed; `workspaceSettings` fills in the rest from the defaults. */
   settings: jsonb("settings").$type<Partial<WorkspaceSettings>>().notNull().default({}),
+  /**
+   * The AI account (OWN_AI_KEYS_ENABLED) all of the workspace's AI runs on and is paid by: one of
+   * its owner's own keys (server/ai-accounts.ts). Null: the server's AI_* settings, if any.
+   */
+  aiAccountId: text("ai_account_id").references(() => aiAccount.id, { onDelete: "set null" }),
   ...timestamps,
 });
 

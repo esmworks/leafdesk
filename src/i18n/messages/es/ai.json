@@ -267,5 +267,81 @@
       "notFound": "Esa nota ya no existe.",
       "off": "La memoria de la IA está desactivada en este espacio de trabajo."
     }
+  },
+  "accounts": {
+    "heading": "IA",
+    "description": "Tus propias claves de proveedores de IA. Añade una clave una vez y ejecuta con ella la IA de los espacios de trabajo de los que eres propietario: todo lo que hace la IA allí, para cada miembro y en segundo plano, se factura a esta clave. Nada más la usa.",
+    "add": "Añadir cuenta de IA",
+    "empty": "Aún no hay cuentas de IA.",
+    "default": "Predeterminada para espacios de trabajo nuevos",
+    "keyHint": "clave que termina en {hint}",
+    "embeddingsValue": "búsqueda: {model}",
+    "sttValue": "voz: {model}",
+    "status": {
+      "active": "Funciona, comprobada {time}",
+      "broken": "No funciona: {error}"
+    },
+    "usedBy": "Usada por {names}",
+    "unused": "Aún no la usa ningún espacio de trabajo. Elígela en Configuración > General > IA de un espacio de trabajo.",
+    "test": "Probar",
+    "testing": "Probando…",
+    "change": "Cambiar",
+    "makeDefault": "Hacer predeterminada",
+    "remove": "Quitar",
+    "removeNote": "La clave se elimina de este servidor.",
+    "removeNoteUsed": "La clave se elimina de este servidor. {count, plural, one {El espacio de trabajo que la usa vuelve a la IA del servidor, o se queda sin IA; se avisa a sus propietarios.} other {Los # espacios de trabajo que la usan vuelven a la IA del servidor, o se quedan sin IA; se avisa a sus propietarios.}}",
+    "save": "Probar y guardar",
+    "providers": {
+      "anthropic": "Anthropic",
+      "openai": "OpenAI",
+      "google": "Google Gemini",
+      "opencode-go": "OpenCode Go",
+      "openai-compatible": "Servidor compatible con OpenAI"
+    },
+    "fields": {
+      "provider": "Proveedor",
+      "label": "Nombre",
+      "labelHint": "Opcional, para distinguir las cuentas",
+      "baseUrl": "Dirección del servidor",
+      "baseUrlHint": "La raíz de la API del servidor, que suele terminar en /v1. Debe ser una dirección https pública.",
+      "model": "Modelo",
+      "modelHint": "El nombre del modelo, exactamente como lo escribe el proveedor.",
+      "apiKey": "Clave de API",
+      "apiKeyOptional": "Clave de API (si el servidor la necesita)",
+      "apiKeyKeep": "Clave guardada que termina en {hint}; déjalo vacío para conservarla",
+      "embeddingsModel": "Modelo de embeddings",
+      "embeddingsModelHint": "Opcional. Activa la búsqueda semántica en los espacios de trabajo que usan esta cuenta.",
+      "sttModel": "Modelo de voz a texto",
+      "sttModelHint": "Opcional. Activa las notas de voz en los espacios de trabajo que usan esta cuenta.",
+      "keyHint": "Al guardar se envía una solicitud breve para comprobar la clave. La clave se guarda cifrada y no se vuelve a mostrar."
+    },
+    "errors": {
+      "disabled": "Este servidor no acepta tus propias claves de IA.",
+      "providerRequired": "Elige un proveedor.",
+      "modelRequired": "Indica el modelo.",
+      "baseUrlRequired": "Indica la dirección del servidor.",
+      "baseUrlInvalid": "Esta dirección no se puede usar: {message}",
+      "keyRequired": "Pega la clave de API.",
+      "keyTooLong": "La clave es demasiado larga.",
+      "notFound": "Esta cuenta de IA ya no existe.",
+      "tooMany": "Ya tienes el máximo de cuentas de IA. Quita una primero.",
+      "testFailed": "La solicitud de prueba falló: {message}",
+      "ownersOnly": "Solo los propietarios del espacio de trabajo pueden elegir su cuenta de IA."
+    },
+    "workspace": {
+      "title": "Cuenta de IA",
+      "sourceMine": "Funciona con tu cuenta {label} ({provider}, {model}). Su IA se factura a tu clave.",
+      "sourceTheirs": "Funciona con la cuenta {label} de {name} ({provider}, {model}). Su IA se factura a la clave de {name}.",
+      "sourceInstance": "Funciona con la IA de este servidor.",
+      "sourceOff": "Sin cuenta de IA: la IA está desactivada en este espacio de trabajo hasta que un propietario elija una.",
+      "sourceOffOnlyOwn": "Sin cuenta de IA: en este servidor, la IA solo funciona con la clave propia de un propietario.",
+      "noAccounts": "No tienes ninguna cuenta de IA propia.",
+      "addOne": "Añadir una",
+      "ownersOnly": "Solo los propietarios pueden cambiar esto, cada uno con sus propias cuentas.",
+      "noneInstance": "Ninguna (IA de este servidor)",
+      "noneOff": "Ninguna (IA desactivada)",
+      "theirsOption": "{label} ({name})",
+      "brokenOption": "{label} (no funciona)"
+    }
   }
 }

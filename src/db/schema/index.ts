@@ -9,6 +9,7 @@ export * from "./api-tokens";
 export * from "./sso";
 export * from "./groups";
 export * from "./ai";
+export * from "./ai-accounts";
 export * from "./audit";
 export * from "./property-access";
 export * from "./automations";

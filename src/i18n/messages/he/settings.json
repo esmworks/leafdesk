@@ -1367,6 +1367,10 @@
       "backup": {
         "created": "גיבוי סביבת העבודה ({count, plural, one {דף אחד} two {שני דפים} other {# דפים}})",
         "restored": "שחזור סביבת העבודה מגיבוי ({count, plural, one {דף אחד} two {שני דפים} other {# דפים}})"
+      },
+      "ai_account": {
+        "attached": "חיבור ה־AI של סביבת העבודה לחשבון ה־AI {target}",
+        "detached": "ניתוק ה־AI של סביבת העבודה מחשבון ה־AI {target}"
       }
     },
     "decisions": {

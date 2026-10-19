@@ -267,5 +267,81 @@
       "notFound": "Quella nota non esiste più.",
       "off": "La memoria IA è disattivata in questo spazio di lavoro."
     }
+  },
+  "accounts": {
+    "heading": "IA",
+    "description": "Le tue chiavi personali dei provider IA. Aggiungi una chiave una volta e fai funzionare con essa l’IA degli spazi di lavoro di cui sei proprietario: tutto ciò che l’IA fa lì, per ogni membro e in background, viene addebitato a questa chiave. Nient’altro la usa.",
+    "add": "Aggiungi account IA",
+    "empty": "Ancora nessun account IA.",
+    "default": "Predefinito per i nuovi spazi di lavoro",
+    "keyHint": "chiave che termina con {hint}",
+    "embeddingsValue": "ricerca: {model}",
+    "sttValue": "voce: {model}",
+    "status": {
+      "active": "Funziona, verificato {time}",
+      "broken": "Non funziona: {error}"
+    },
+    "usedBy": "Usato da {names}",
+    "unused": "Non ancora usato da nessuno spazio di lavoro. Sceglilo in Impostazioni > Generali > IA di uno spazio di lavoro.",
+    "test": "Prova",
+    "testing": "Prova in corso…",
+    "change": "Cambia",
+    "makeDefault": "Imposta come predefinito",
+    "remove": "Rimuovi",
+    "removeNote": "La chiave viene eliminata da questo server.",
+    "removeNoteUsed": "La chiave viene eliminata da questo server. {count, plural, one {Lo spazio di lavoro che la usa torna all’IA del server, oppure ne resta senza; i suoi proprietari vengono avvisati.} other {I # spazi di lavoro che la usano tornano all’IA del server, oppure ne restano senza; i loro proprietari vengono avvisati.}}",
+    "save": "Prova e salva",
+    "providers": {
+      "anthropic": "Anthropic",
+      "openai": "OpenAI",
+      "google": "Google Gemini",
+      "opencode-go": "OpenCode Go",
+      "openai-compatible": "Server compatibile con OpenAI"
+    },
+    "fields": {
+      "provider": "Provider",
+      "label": "Nome",
+      "labelHint": "Facoltativo, per distinguere gli account",
+      "baseUrl": "Indirizzo del server",
+      "baseUrlHint": "La radice API del server, che di solito termina con /v1. Deve essere un indirizzo https pubblico.",
+      "model": "Modello",
+      "modelHint": "Il nome del modello, esattamente come lo scrive il provider.",
+      "apiKey": "Chiave API",
+      "apiKeyOptional": "Chiave API (se il server ne richiede una)",
+      "apiKeyKeep": "Chiave salvata che termina con {hint}; lascia vuoto per mantenerla",
+      "embeddingsModel": "Modello di embedding",
+      "embeddingsModelHint": "Facoltativo. Attiva la ricerca semantica negli spazi di lavoro che usano questo account.",
+      "sttModel": "Modello di trascrizione vocale",
+      "sttModelHint": "Facoltativo. Attiva le note vocali negli spazi di lavoro che usano questo account.",
+      "keyHint": "Al salvataggio viene inviata una breve richiesta per verificare la chiave. La chiave viene archiviata cifrata e non viene mai più mostrata."
+    },
+    "errors": {
+      "disabled": "Questo server non accetta chiavi IA personali.",
+      "providerRequired": "Scegli un provider.",
+      "modelRequired": "Indica il modello.",
+      "baseUrlRequired": "Indica l’indirizzo del server.",
+      "baseUrlInvalid": "Questo indirizzo non può essere usato: {message}",
+      "keyRequired": "Incolla la chiave API.",
+      "keyTooLong": "La chiave è troppo lunga.",
+      "notFound": "Questo account IA non esiste più.",
+      "tooMany": "Hai già il numero massimo di account IA. Rimuovine prima uno.",
+      "testFailed": "La richiesta di prova non è riuscita: {message}",
+      "ownersOnly": "Solo i proprietari dello spazio di lavoro possono sceglierne l’account IA."
+    },
+    "workspace": {
+      "title": "Account IA",
+      "sourceMine": "Funziona con il tuo account {label} ({provider}, {model}). L’IA viene addebitata alla tua chiave.",
+      "sourceTheirs": "Funziona con l’account {label} di {name} ({provider}, {model}). L’IA viene addebitata alla chiave di {name}.",
+      "sourceInstance": "Funziona con l’IA di questo server.",
+      "sourceOff": "Nessun account IA: l’IA è disattivata in questo spazio di lavoro finché un proprietario non ne sceglie uno.",
+      "sourceOffOnlyOwn": "Nessun account IA: su questo server l’IA funziona solo con la chiave personale di un proprietario.",
+      "noAccounts": "Non hai un account IA personale.",
+      "addOne": "Aggiungine uno",
+      "ownersOnly": "Solo i proprietari possono modificare questa impostazione, ciascuno con i propri account.",
+      "noneInstance": "Nessuno (IA di questo server)",
+      "noneOff": "Nessuno (IA disattivata)",
+      "theirsOption": "{label} ({name})",
+      "brokenOption": "{label} (non funziona)"
+    }
   }
 }
