@@ -62,7 +62,7 @@ describe("markdownLosses", () => {
   });
 
   it("compares nested blocks and inline nodes", () => {
-    const withChild = (child: unknown) => ({ ...paragraph("Parent"), children: [child] });
+    const withChild = (child: ReturnType<typeof paragraph>) => ({ ...paragraph("Parent"), children: [child] });
     expect(markdownLosses([withChild(paragraph("Kid", { textColor: "red" }))], [withChild(paragraph("Kid"))])).toEqual(["textColor"]);
     const mention = (id: string) => ({ type: "paragraph", props: {}, content: [{ type: "mention", props: { kind: "user", id } }], children: [] });
     expect(markdownLosses([mention("m1")], [mention("m1")])).toEqual([]);

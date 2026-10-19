@@ -544,6 +544,10 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
     My account → Connected apps.
 - **REST API** under `/api/v1` with personal access tokens (read or read-write, optionally one
   workspace, optional expiry) and an OpenAPI 3.1 document (see [REST API](#rest-api)).
+- **Edit as Markdown**: open a page's text as Markdown beside a live preview, edit it with
+  formatting shortcuts, equation completion and file uploads, and save it back; colors and other
+  things Markdown can't hold are named before saving, and edits made meanwhile by others are
+  never overwritten unasked (see [Edit as Markdown](#edit-as-markdown)).
 
 ## Quick start (Docker)
 
@@ -855,6 +859,33 @@ itself, and follows the workspace's two-step policy.
 The browser makes the PDF, so the server needs nothing extra (no headless browser in the image).
 Its own header and footer (date, address, page numbers) can be turned off under "More settings"
 in the print dialog.
+
+### Edit as Markdown
+
+"Edit as Markdown" in the page menu (for people who may edit the page; not for databases, locked
+pages or pages in the trash) opens the page's text as Markdown, in the same form Markdown export,
+MCP and the API use: callouts as `> [!NOTE]`, toggles as `<details>`, equations as `$…$` and
+`$$`, footnotes as `[^1]`, Mermaid code blocks, and `<!-- leafdesk:… -->` comments for database
+blocks, synced blocks and columns. It is read from the live page, so it holds what everyone editing
+it has typed. The Markdown sits on the left and a preview of the page it makes on the right,
+drawn by the editor itself and updated as you type, so it shows what saving will write; the
+preview follows the part of the Markdown you are editing. On a narrow screen the two are tabs.
+
+Ctrl or ⌘ with B, I, E and K make bold, italic, inline code and a link, with 1 to 6 (or with Alt
+and 1 to 6, where the browser keeps the plain ones for its tabs) a heading, and with Shift and 7,
+8 or 9 a numbered, bulleted or to-do list; Ctrl or ⌘ Enter checks a to-do. Inside `$…$` and `$$`
+equations, `\` offers equation commands. Pasting or dropping files uploads them and writes their
+Markdown. Ctrl or ⌘ S saves and Esc closes, asking first when there are unsaved changes.
+
+Saving rewrites the page's text from the Markdown: blocks whose text didn't change keep their
+ids, so links to them and comments on them stay, and a version of the page as it was goes into
+its history first. Before saving, the view names what Markdown can't hold and saving would drop
+(text and background colors, alignment, image sizes, some callout settings, underline, table
+column widths and cell colors), and says so when the Markdown changed lines inside a synced block,
+whose content is edited on the page and kept as it was. When someone else changed the page after
+the Markdown was opened, saving stops and offers to load the page as it is now or to save the
+Markdown over it. Opening and saving need a connection: when it drops, the Markdown stays open
+and can be edited, and saving waits until the connection is back.
 
 ## Install and offline use
 

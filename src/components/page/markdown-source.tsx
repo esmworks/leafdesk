@@ -404,9 +404,10 @@ export function MarkdownSourceView({
   return (
     <div role="dialog" aria-modal="true" aria-label={t("title")} className="fixed inset-0 z-50 flex flex-col bg-bg text-fg" data-markdown-source="">
       <header className="flex h-12 shrink-0 items-center gap-2 border-b border-border px-3">
-        <h2 className="shrink-0 text-sm font-semibold">{t("title")}</h2>
+        {/* On a narrow screen the tabs name what is shown, and the title would push Save away. */}
+        <h2 className={cn("min-w-0 truncate text-sm font-semibold", narrow && source && "sr-only")}>{t("title")}</h2>
         {narrow && source && (
-          <div role="tablist" className="ms-1 flex rounded-md border border-border p-0.5 text-xs">
+          <div role="tablist" className="flex shrink-0 rounded-md border border-border p-0.5 text-xs">
             {(["source", "preview"] as const).map((name) => (
               <button
                 key={name}
@@ -424,10 +425,10 @@ export function MarkdownSourceView({
         <div className="min-w-0 flex-1 truncate text-end text-xs text-fg-muted" aria-live="polite">
           {status}
         </div>
-        <Button size="sm" variant="primary" onClick={save} disabled={!source || !dirty || saving || offline} title={t("saveHint")}>
+        <Button size="sm" variant="primary" onClick={save} disabled={!source || !dirty || saving || offline} title={t("saveHint")} className="shrink-0">
           {saving ? tc("saving") : tc("save")}
         </Button>
-        <IconButton label={t("close")} onClick={requestClose} className="h-7 w-7">
+        <IconButton label={t("close")} onClick={requestClose} className="h-7 w-7 shrink-0">
           <X className="h-4 w-4" />
         </IconButton>
       </header>
