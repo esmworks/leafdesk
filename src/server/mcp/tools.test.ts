@@ -101,6 +101,9 @@ const workspaces = vi.hoisted(() => {
 });
 vi.mock("@/server/workspaces", () => workspaces);
 
+const calloutStyles = vi.hoisted(() => ({ calloutStylesOf: vi.fn(async (_workspaceId: string): Promise<unknown[]> => []), calloutStylesOfPage: vi.fn(async () => []) }));
+vi.mock("@/server/callout-styles", () => calloutStyles);
+
 const notifications = vi.hoisted(() => ({ listNotifications: vi.fn() }));
 vi.mock("@/server/notifications", () => notifications);
 
@@ -606,6 +609,23 @@ describe("groups", () => {
     const r = await callTool(reader, "list_groups", { workspace_id: "ws-2" });
     expect(r.isError).toBe(true);
     expect(r.text).toMatch(/Not found or access denied/);
+  });
+});
+
+describe("workspaces", () => {
+  it("lists each workspace's callout styles, for the keys a body's callouts name", async () => {
+    pages.listWorkspaces.mockResolvedValue([
+      { id: "ws-1", name: "Team", icon: null, role: "owner" },
+      { id: "ws-2", name: "Club", icon: null, role: "member" },
+    ]);
+    calloutStyles.calloutStylesOf.mockImplementation(async (id: string) =>
+      id === "ws-1" ? [{ key: "decision", name: "Decision", icon: "✅", color: "green", border: "left", title: "Decided" }] : [],
+    );
+    const r = await callTool(reader, "list_workspaces", {});
+    expect(r.data.workspaces).toEqual([
+      { id: "ws-1", name: "Team", role: "owner", callout_styles: [{ key: "decision", name: "Decision", title: "Decided" }] },
+      { id: "ws-2", name: "Club", role: "member" },
+    ]);
   });
 });
 

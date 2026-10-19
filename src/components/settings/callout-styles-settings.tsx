@@ -41,14 +41,14 @@ function slugOf(name: string): string {
  * A callout drawn the way the editor draws one of the style, for the list and the form. Inside a
  * `bn-container` so it takes the editor's block colors (globals.css), in the current scheme.
  */
-export function CalloutPreview({ style, name, text }: { style: CalloutStyle; name?: string; text: string }) {
+export function CalloutPreview({ style, text }: { style: CalloutStyle; text: string }) {
   const scheme = useColorScheme();
   return (
     <div className="bn-container min-w-0 flex-1" data-color-scheme={scheme}>
       <div className="leafdesk-callout-preview" data-callout-color={style.color} data-callout-border={style.border}>
         {style.icon && <span className="leafdesk-callout-icon">{style.icon}</span>}
         <div className="min-w-0 flex-1">
-          {(style.title || name) && <div className="leafdesk-callout-title truncate">{style.title || name}</div>}
+          {style.title && <div className="leafdesk-callout-title truncate">{style.title}</div>}
           <div className="truncate text-sm">{text}</div>
         </div>
       </div>
@@ -92,7 +92,7 @@ export function CalloutStylesSettings({ workspaceId, styles, canEdit }: { worksp
           />
         ) : (
           <div key={style.key} className="flex items-center gap-4 px-5 py-3">
-            <CalloutPreview style={style} name={style.name} text={t("previewText")} />
+            <CalloutPreview style={style} text={t("previewText")} />
             <div className="w-36 shrink-0 text-sm">
               <div className="truncate font-medium">{style.name}</div>
               <div className="truncate text-fg-muted">{style.key}</div>
@@ -187,7 +187,7 @@ function StyleForm({
         onSave(parsed.styles[parsed.styles.length - 1]);
       }}
     >
-      <CalloutPreview style={style} name={style.name} text={t("previewText")} />
+      <CalloutPreview style={style} text={t("previewText")} />
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label={t("name")} htmlFor={`${id}-name`} error={problem === "name" ? t("problems.name") : null}>
           <Input

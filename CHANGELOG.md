@@ -69,6 +69,17 @@
   Workbooks uploaded earlier are read by the background sweep, and pages are indexed for the AI
   chat again in the background so their workbooks go in. The MCP `get_file` tool reads a workbook
   as text, sheet by sheet. A workbook whose contents unpack to more than 64 MB isn't read.
+- **Callout styles.** Owners name up to 30 box looks in Settings → General → Callout styles: an
+  icon or none, one of the editor's colors, no border, a bar at the side or a full frame, and an
+  optional default title. Everyone inserts them from the `/` menu's *Callouts* group, switches a
+  callout's style in its block menu, or turns a block of text into a callout of a style. Changing a
+  style changes every callout using it, in the editor, on published pages and in PDFs; a callout
+  whose style is deleted shows as a plain callout with its own icon and color. Every workspace also
+  has a framed box, and any callout can now have a title. Markdown writes a styled callout as
+  `> [!key] Title` and a plain one's title after its alert, with `> [!NOTE|blue]` for colors the
+  alerts don't have; MCP's `list_workspaces` and the API list the style keys. Markdown imports read
+  `:::info`, `:::tip`, `:::warning`, `:::danger`, `:::details`, `:::card` and other `:::`
+  containers as callouts, toggles and framed boxes, nested ones too.
 
 ### Changed
 

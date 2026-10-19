@@ -23,6 +23,7 @@ import {
   parsePageBackground,
 } from "@/lib/page-background";
 import { requirePageAccess } from "@/server/access";
+import { calloutStylesOf } from "@/server/callout-styles";
 import { getCollab, type WriteActor } from "@/server/collab/bridge";
 import * as comments from "@/server/comments";
 import * as databases from "@/server/databases";
@@ -483,7 +484,20 @@ export async function teamspaceOf(ctx: OperationContext, teamspaceId: string | n
 
 export async function listWorkspaces(ctx: OperationContext) {
   const workspaces = await pages.listWorkspaces(ctx.userId);
-  return { workspaces: workspaces.map((w) => ({ id: w.id, name: w.name, role: w.role })) };
+  return {
+    workspaces: await Promise.all(
+      workspaces.map(async (w) => {
+        // The keys a page body's `> [!key]` callouts can name (lib/content-markdown).
+        const styles = await calloutStylesOf(w.id);
+        return {
+          id: w.id,
+          name: w.name,
+          role: w.role,
+          callout_styles: styles.length ? styles.map((s) => ({ key: s.key, name: s.name, title: s.title || undefined })) : undefined,
+        };
+      }),
+    ),
+  };
 }
 
 export async function listTeamspaces(ctx: OperationContext, { workspace_id, include_archived }: Args<"listTeamspaces">) {

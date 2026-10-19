@@ -343,7 +343,7 @@
  * a bar along its start edge or a frame, in its color's hue.
  */
 .body [data-leafdesk-callout][data-callout-border] {
-  --callout-edge: var(--border);
+  --callout-edge: #9b9a97;
 }
 .body [data-callout-border][data-background-color="gray"] { --callout-edge: #9b9a97; }
 .body [data-callout-border][data-background-color="brown"] { --callout-edge: #9f6b53; }
