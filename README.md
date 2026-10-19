@@ -885,7 +885,7 @@ column widths and cell colors), and says so when the Markdown changed lines insi
 whose content is edited on the page and kept as it was. When someone else changed the page after
 the Markdown was opened, saving stops and offers to load the page as it is now or to save the
 Markdown over it. Opening and saving need a connection: when it drops, the Markdown stays open
-and can be edited, and saving waits until the connection is back.
+and can be edited, but Save is off until the connection is back.
 
 ## Install and offline use
 
