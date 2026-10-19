@@ -23,28 +23,20 @@ import {
   subpagesBlockConfig,
   tocBlockConfig,
 } from "@/lib/content-blocks";
-import { columnBlockSpecs, groupColumns } from "@/lib/columns";
-import { finishMarkdownImport, footnoteMarkdown, plainText, prepareMarkdownExport, prepareMarkdownImport } from "@/lib/content-markdown";
+import { columnBlockSpecs } from "@/lib/columns";
+import { finishMarkdownImport, plainText, prepareMarkdownExport, prepareMarkdownImport } from "@/lib/content-markdown";
 import {
-  carryOverMentions,
   mentionConfig,
   mentionPlainText,
   pageLinkBlockConfig,
   syncedPageBlockConfig,
   type MentionPerson,
 } from "@/lib/mentions";
-import {
-  databaseBlockConfig,
-  linkedViewBlockConfig,
-  mergeReferencedBlocks,
-  referenceLine,
-  splitMarkdownReferences,
-  isEmbedBlockType,
-} from "@/lib/embed-blocks";
-import { dashboardBlockConfig, restoreDashboards } from "@/lib/dashboard";
+import { databaseBlockConfig, linkedViewBlockConfig, referenceLine, isEmbedBlockType } from "@/lib/embed-blocks";
+import { dashboardBlockConfig } from "@/lib/dashboard";
+import { markdownToPageBlocks } from "@/lib/page-markdown";
 import { textScriptStyleSpecs } from "@/lib/text-scripts";
-import { restoreBookmarks } from "@/lib/web-blocks";
-import { collapseSyncedRegions, SYNCED_BLOCK, syncedBlockConfig, syncedBlocksIn } from "@/lib/synced-blocks";
+import { syncedBlockConfig } from "@/lib/synced-blocks";
 import { webBlockServerSpecs } from "./web-blocks";
 
 /**
@@ -253,31 +245,11 @@ export async function markdownToBlocks(
     carryOver?: boolean;
   } & MentionContext = {},
 ): Promise<PageBlock[]> {
-  // Footnotes first: their notes sit at the end, apart from the blocks that refer to them.
-  const notes = footnoteMarkdown(markdown, randomBytes(6).toString("hex"));
-  // A synced block's blocks are never written from Markdown: only its begin line counts.
-  const parts = await Promise.all(
-    splitMarkdownReferences(collapseSyncedRegions(notes.markdown)).map(async (part) =>
-      "markdown" in part ? { blocks: await parseMarkdown(part.markdown, context) } : part,
-    ),
-  );
-  const blocks = groupColumns(notes.restore(mergeReferencedBlocks(parts, existing, { keepMissingInline })));
-  if (keepMissingInline && context.pageId) blocks.push(...missingSources(blocks, existing, context.pageId));
-  carryOverMentions(blocks, carryOver ? existing : []);
-  // A rewrite of the whole body (not an append) gets the page's bookmarks back from their link lines
-  // and its dashboards from theirs; an append makes no dashboard (restoreDashboards drops the lines).
-  return keepMissingInline ? restoreDashboards(restoreBookmarks(blocks, existing), existing) : restoreDashboards(blocks, []);
-}
-
-/** The page's synced blocks (sources) that `blocks` leave out, as blocks to add back. */
-function missingSources(blocks: PageBlock[], existing: PageBlock[], pageId: string): PageBlock[] {
-  const kept = new Set(syncedBlocksIn(blocks).map((ref) => `${ref.pageId}:${ref.syncId}`));
-  const out: PageBlock[] = [];
-  for (const ref of syncedBlocksIn(existing)) {
-    const key = `${ref.pageId}:${ref.syncId}`;
-    if (ref.pageId !== pageId || kept.has(key)) continue;
-    kept.add(key);
-    out.push({ type: SYNCED_BLOCK, props: { pageId: ref.pageId, syncId: ref.syncId }, children: [] } as unknown as PageBlock);
-  }
-  return out;
+  // The same steps as the Markdown source view's preview (lib/page-markdown).
+  return markdownToPageBlocks(markdown, (part) => parseMarkdown(part, context), existing, {
+    keepMissingInline,
+    carryOver,
+    pageId: context.pageId,
+    nonce: () => randomBytes(6).toString("hex"),
+  });
 }

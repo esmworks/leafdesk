@@ -8,6 +8,7 @@ import {
   CornerUpLeft,
   Download,
   FileArchive,
+  FileCode,
   FileSpreadsheet,
   FileText,
   Hash,
@@ -83,6 +84,7 @@ export function PageHeaderActions({
   doc,
   viewers = [],
   onHistory,
+  onMarkdown,
   onComments,
   commentsOpen = false,
   onGraph,
@@ -104,6 +106,8 @@ export function PageHeaderActions({
   /** Everyone else who has the page open. */
   viewers?: Presence[];
   onHistory: () => void;
+  /** Opens the body as Markdown to edit (markdown-source.tsx); unset where it can't be. */
+  onMarkdown?: () => void;
   /** Opens or closes the comments beside the page; pages without a body have none. */
   onComments?: () => void;
   commentsOpen?: boolean;
@@ -266,6 +270,7 @@ export function PageHeaderActions({
         info={info}
         onInfo={setInfo}
         onHistory={onHistory}
+        onMarkdown={onMarkdown}
         onGraph={onGraph}
         onMoveToTrash={onMoveToTrash}
         onOpenPage={onOpenPage}
@@ -378,6 +383,7 @@ function PageMenu({
   info,
   onInfo,
   onHistory,
+  onMarkdown,
   onGraph,
   onMoveToTrash,
   onOpenPage,
@@ -390,6 +396,8 @@ function PageMenu({
   info: PageHeaderInfo;
   onInfo: (info: PageHeaderInfo) => void;
   onHistory: () => void;
+  /** Opens the body as Markdown to edit (markdown-source.tsx); unset where it can't be. */
+  onMarkdown?: () => void;
   onGraph?: () => void;
   onMoveToTrash: () => void;
   onOpenPage?: (workspaceId: string, pageId: string) => void;
@@ -723,6 +731,18 @@ function PageMenu({
                   <span className="flex-1 truncate">{t("exportPdf")}</span>
                 </a>
               </>
+            )}
+            {/* Writing the body needs edit access, and the page unlocked; databases have no body. */}
+            {onMarkdown && page.hasBody && !isDatabase && !page.archived && canEdit && !info.locked && (
+              <MenuItem
+                icon={<FileCode className="h-4 w-4" />}
+                onClick={() => {
+                  close();
+                  onMarkdown();
+                }}
+              >
+                {t("editMarkdown")}
+              </MenuItem>
             )}
             {page.hasBody && (
               <MenuItem

@@ -61,7 +61,8 @@
     "watch": "Acompanhar",
     "watchHint": "Saiba na sua caixa de entrada quando outra pessoa editar esta página ou iniciar uma conversa de comentários nela.",
     "mute": "Silenciar",
-    "muteHint": "Você fica sabendo na sua caixa de entrada quando outra pessoa edita esta página ou inicia uma conversa de comentários nela. Silencie para parar."
+    "muteHint": "Você fica sabendo na sua caixa de entrada quando outra pessoa edita esta página ou inicia uma conversa de comentários nela. Silencie para parar.",
+    "editMarkdown": "Editar como Markdown"
   },
   "comments": {
     "aboutPage": "Sobre esta página",
@@ -146,7 +147,8 @@
       "manual": "Versão salva",
       "beforeAiEdit": "Antes da edição por IA",
       "beforeAiEditBy": "Antes da edição por {client}",
-      "beforeAssistantEdit": "Antes da edição pelo assistente de IA"
+      "beforeAssistantEdit": "Antes da edição pelo assistente de IA",
+      "beforeMarkdownEdit": "Antes da edição em Markdown"
     },
     "empty": "Nenhuma versão ainda. As versões são salvas automaticamente enquanto você edita e antes que qualquer app de IA altere esta página.",
     "restore": "Restaurar esta versão",
@@ -728,5 +730,64 @@
     "markdownImageUntitled": "Imagem",
     "expand": "Abrir no visualizador",
     "view": "Ver {name}"
+  },
+  "markdownSource": {
+    "title": "Editar como Markdown",
+    "sourceTab": "Markdown",
+    "previewTab": "Pré-visualização",
+    "toolbar": "Formatação",
+    "placeholder": "Escreva Markdown…",
+    "close": "Fechar",
+    "retry": "Tentar novamente",
+    "unsaved": "Alterações não salvas",
+    "offline": "Offline: salvar precisa de conexão",
+    "saveHint": "Salvar na página (Ctrl+S ou ⌘S)",
+    "tools": {
+      "bold": "Negrito",
+      "italic": "Itálico",
+      "code": "Código em linha",
+      "link": "Link",
+      "heading": "Título {level}",
+      "bulletList": "Lista com marcadores",
+      "numberedList": "Lista numerada",
+      "taskList": "Lista de tarefas"
+    },
+    "errors": {
+      "noAccess": "Você não pode editar esta página.",
+      "database": "Bancos de dados não têm texto para editar como Markdown.",
+      "trashed": "Esta página está na lixeira.",
+      "locked": "Esta página está bloqueada. Desbloqueie-a para editá-la.",
+      "saveFailed": "Não foi possível salvar a página. Tente novamente em instantes.",
+      "failed": "Algo deu errado. Tente novamente."
+    },
+    "losses": {
+      "title": "Parte desta página não será mantida",
+      "body": "O Markdown não consegue guardar tudo o que há nesta página. Ao salvar, a página é reescrita a partir do Markdown, então isto se perde:",
+      "kinds": {
+        "textColor": "Cores do texto",
+        "backgroundColor": "Cores de fundo e realces",
+        "alignment": "Alinhamento do texto",
+        "mediaSize": "Tamanhos de imagens e vídeos",
+        "callout": "Cores e ícones de destaques que o Markdown não representa",
+        "textStyle": "Parte da formatação do texto, como o sublinhado",
+        "table": "Larguras de coluna, linhas de cabeçalho e cores de células das tabelas",
+        "blockSetting": "Outras configurações de blocos",
+        "content": "Parte do conteúdo que o Markdown não consegue guardar"
+      },
+      "synced": "{count, plural, one {Suas alterações dentro de um bloco sincronizado: edite-o na página} other {Suas alterações dentro de # blocos sincronizados: edite-os na página}}",
+      "confirm": "Salvar mesmo assim"
+    },
+    "conflict": {
+      "title": "Outra pessoa alterou esta página",
+      "body": "A página mudou depois que você abriu o Markdown dela. Carregue a página como está agora (suas alterações aqui são descartadas) ou salve as suas por cima.",
+      "reload": "Carregar a página atual",
+      "overwrite": "Salvar as minhas por cima"
+    },
+    "discard": {
+      "title": "Descartar as alterações?",
+      "body": "Suas alterações no Markdown não foram salvas.",
+      "keep": "Continuar editando",
+      "confirm": "Descartar"
+    }
   }
 }

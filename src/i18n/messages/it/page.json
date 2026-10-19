@@ -61,7 +61,8 @@
     "watch": "Osserva",
     "watchHint": "Ricevi un avviso nella posta in arrivo quando qualcun altro modifica questa pagina o vi avvia una discussione.",
     "mute": "Silenzia",
-    "muteHint": "Ricevi un avviso nella posta in arrivo quando qualcun altro modifica questa pagina o vi avvia una discussione. Silenziala per smettere."
+    "muteHint": "Ricevi un avviso nella posta in arrivo quando qualcun altro modifica questa pagina o vi avvia una discussione. Silenziala per smettere.",
+    "editMarkdown": "Modifica come Markdown"
   },
   "comments": {
     "aboutPage": "Su questa pagina",
@@ -146,7 +147,8 @@
       "manual": "Versione salvata",
       "beforeAiEdit": "Prima della modifica dell’IA",
       "beforeAiEditBy": "Prima della modifica di {client}",
-      "beforeAssistantEdit": "Prima della modifica dell’assistente IA"
+      "beforeAssistantEdit": "Prima della modifica dell’assistente IA",
+      "beforeMarkdownEdit": "Prima della modifica in Markdown"
     },
     "empty": "Ancora nessuna versione. Le versioni vengono salvate automaticamente mentre modifichi e prima che un’app di IA cambi questa pagina.",
     "restore": "Ripristina questa versione",
@@ -728,5 +730,64 @@
     "markdownImageUntitled": "Immagine",
     "expand": "Apri nel visualizzatore",
     "view": "Visualizza {name}"
+  },
+  "markdownSource": {
+    "title": "Modifica come Markdown",
+    "sourceTab": "Markdown",
+    "previewTab": "Anteprima",
+    "toolbar": "Formattazione",
+    "placeholder": "Scrivi in Markdown…",
+    "close": "Chiudi",
+    "retry": "Riprova",
+    "unsaved": "Modifiche non salvate",
+    "offline": "Offline: per salvare serve una connessione",
+    "saveHint": "Salva nella pagina (Ctrl+S o ⌘S)",
+    "tools": {
+      "bold": "Grassetto",
+      "italic": "Corsivo",
+      "code": "Codice in linea",
+      "link": "Link",
+      "heading": "Titolo {level}",
+      "bulletList": "Elenco puntato",
+      "numberedList": "Elenco numerato",
+      "taskList": "Elenco di attività"
+    },
+    "errors": {
+      "noAccess": "Non puoi modificare questa pagina.",
+      "database": "I database non hanno testo da modificare come Markdown.",
+      "trashed": "Questa pagina è nel cestino.",
+      "locked": "Questa pagina è bloccata. Sbloccala per modificarla.",
+      "saveFailed": "Impossibile salvare la pagina. Riprova tra un momento.",
+      "failed": "Qualcosa è andato storto. Riprova."
+    },
+    "losses": {
+      "title": "Parte di questa pagina non verrà mantenuta",
+      "body": "Il Markdown non può contenere tutto ciò che c’è in questa pagina. Salvando, la pagina viene riscritta dal Markdown, quindi si perde:",
+      "kinds": {
+        "textColor": "Colori del testo",
+        "backgroundColor": "Colori di sfondo ed evidenziazioni",
+        "alignment": "Allineamento del testo",
+        "mediaSize": "Dimensioni di immagini e video",
+        "callout": "Colori e icone dei riquadri che il Markdown non può rappresentare",
+        "textStyle": "Parte della formattazione, come la sottolineatura",
+        "table": "Larghezze delle colonne, righe di intestazione e colori delle celle delle tabelle",
+        "blockSetting": "Altre impostazioni dei blocchi",
+        "content": "Parte del contenuto che il Markdown non può contenere"
+      },
+      "synced": "{count, plural, one {Le tue modifiche in un blocco sincronizzato: modificalo nella pagina} other {Le tue modifiche in # blocchi sincronizzati: modificali nella pagina}}",
+      "confirm": "Salva comunque"
+    },
+    "conflict": {
+      "title": "Qualcun altro ha modificato questa pagina",
+      "body": "La pagina è cambiata dopo che hai aperto il suo Markdown. Carica la pagina com’è ora (le tue modifiche qui vengono scartate) oppure salva le tue sopra.",
+      "reload": "Carica la pagina attuale",
+      "overwrite": "Salva le mie sopra"
+    },
+    "discard": {
+      "title": "Scartare le modifiche?",
+      "body": "Le modifiche al Markdown non sono state salvate.",
+      "keep": "Continua a modificare",
+      "confirm": "Scarta"
+    }
   }
 }

@@ -537,7 +537,7 @@ export function createCollab() {
       mentions: NonNullable<Parameters<typeof markdownToBlocks>[2]>,
     ) => Promise<typeof existing | null>,
     /** `true`: an AI app's or the chat's write, saved as `before_mcp_write` and offered for review. */
-    snapshot: boolean | "before_restore",
+    snapshot: boolean | "before_restore" | "before_markdown_edit",
     check: VersionCheck = {},
   ) => {
     await assertWritable(pageId);

@@ -61,7 +61,8 @@
     "watch": "Watch",
     "watchHint": "Hear in your inbox when someone else edits this page or starts a comment thread on it.",
     "mute": "Mute",
-    "muteHint": "You hear in your inbox when someone else edits this page or starts a comment thread on it. Mute it to stop."
+    "muteHint": "You hear in your inbox when someone else edits this page or starts a comment thread on it. Mute it to stop.",
+    "editMarkdown": "Edit as Markdown"
   },
   "comments": {
     "aboutPage": "About this page",
@@ -146,7 +147,8 @@
       "manual": "Saved version",
       "beforeAiEdit": "Before AI edit",
       "beforeAiEditBy": "Before edit by {client}",
-      "beforeAssistantEdit": "Before AI assistant edit"
+      "beforeAssistantEdit": "Before AI assistant edit",
+      "beforeMarkdownEdit": "Before Markdown edit"
     },
     "empty": "No versions yet. Versions are saved automatically while you edit and before any AI app changes this page.",
     "restore": "Restore this version",
@@ -728,5 +730,64 @@
     "markdownImageUntitled": "Image",
     "expand": "Open in viewer",
     "view": "View {name}"
+  },
+  "markdownSource": {
+    "title": "Edit as Markdown",
+    "sourceTab": "Markdown",
+    "previewTab": "Preview",
+    "toolbar": "Formatting",
+    "placeholder": "Write Markdown…",
+    "close": "Close",
+    "retry": "Try again",
+    "unsaved": "Unsaved changes",
+    "offline": "Offline: saving needs a connection",
+    "saveHint": "Save to the page (Ctrl+S or ⌘S)",
+    "tools": {
+      "bold": "Bold",
+      "italic": "Italic",
+      "code": "Inline code",
+      "link": "Link",
+      "heading": "Heading {level}",
+      "bulletList": "Bulleted list",
+      "numberedList": "Numbered list",
+      "taskList": "To-do list"
+    },
+    "errors": {
+      "noAccess": "You can't edit this page.",
+      "database": "Databases have no text to edit as Markdown.",
+      "trashed": "This page is in the trash.",
+      "locked": "This page is locked. Unlock it to edit it.",
+      "saveFailed": "The page couldn't be saved. Try again in a moment.",
+      "failed": "Something went wrong. Try again."
+    },
+    "losses": {
+      "title": "Some of this page won't be kept",
+      "body": "Markdown can't hold everything on this page. Saving writes the page from the Markdown, so these go:",
+      "kinds": {
+        "textColor": "Text colors",
+        "backgroundColor": "Background colors and highlights",
+        "alignment": "Text alignment",
+        "mediaSize": "Image and video sizes",
+        "callout": "Callout colors and icons Markdown has no form for",
+        "textStyle": "Some text formatting, such as underline",
+        "table": "Table column widths, header rows and cell colors",
+        "blockSetting": "Other block settings",
+        "content": "Some content Markdown can't hold"
+      },
+      "synced": "{count, plural, one {Your changes inside a synced block: edit it on the page instead} other {Your changes inside # synced blocks: edit them on the page instead}}",
+      "confirm": "Save anyway"
+    },
+    "conflict": {
+      "title": "Someone else changed this page",
+      "body": "The page changed after you opened its Markdown. Load the page as it is now (your changes here are discarded), or save yours over it.",
+      "reload": "Load the current page",
+      "overwrite": "Save mine over it"
+    },
+    "discard": {
+      "title": "Discard your changes?",
+      "body": "Your Markdown changes haven't been saved.",
+      "keep": "Keep editing",
+      "confirm": "Discard"
+    }
   }
 }

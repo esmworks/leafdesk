@@ -61,7 +61,8 @@
     "watch": "Beobachten",
     "watchHint": "Erfahre in deinem Posteingang, wenn jemand anderes diese Seite bearbeitet oder einen Kommentar-Thread darauf beginnt.",
     "mute": "Stummschalten",
-    "muteHint": "Du erfährst in deinem Posteingang, wenn jemand anderes diese Seite bearbeitet oder einen Kommentar-Thread darauf beginnt. Schalte sie stumm, um das zu beenden."
+    "muteHint": "Du erfährst in deinem Posteingang, wenn jemand anderes diese Seite bearbeitet oder einen Kommentar-Thread darauf beginnt. Schalte sie stumm, um das zu beenden.",
+    "editMarkdown": "Als Markdown bearbeiten"
   },
   "comments": {
     "aboutPage": "Zu dieser Seite",
@@ -146,7 +147,8 @@
       "manual": "Gespeicherte Version",
       "beforeAiEdit": "Vor KI-Bearbeitung",
       "beforeAiEditBy": "Vor Bearbeitung durch {client}",
-      "beforeAssistantEdit": "Vor Bearbeitung durch den KI-Assistenten"
+      "beforeAssistantEdit": "Vor Bearbeitung durch den KI-Assistenten",
+      "beforeMarkdownEdit": "Vor Markdown-Bearbeitung"
     },
     "empty": "Noch keine Versionen. Versionen werden beim Bearbeiten automatisch gespeichert und bevor eine KI-App diese Seite ändert.",
     "restore": "Diese Version wiederherstellen",
@@ -728,5 +730,64 @@
     "markdownImageUntitled": "Bild",
     "expand": "Im Viewer öffnen",
     "view": "{name} ansehen"
+  },
+  "markdownSource": {
+    "title": "Als Markdown bearbeiten",
+    "sourceTab": "Markdown",
+    "previewTab": "Vorschau",
+    "toolbar": "Formatierung",
+    "placeholder": "Markdown schreiben…",
+    "close": "Schließen",
+    "retry": "Erneut versuchen",
+    "unsaved": "Ungespeicherte Änderungen",
+    "offline": "Offline: Zum Speichern ist eine Verbindung nötig",
+    "saveHint": "Auf der Seite speichern (Strg+S oder ⌘S)",
+    "tools": {
+      "bold": "Fett",
+      "italic": "Kursiv",
+      "code": "Inline-Code",
+      "link": "Link",
+      "heading": "Überschrift {level}",
+      "bulletList": "Aufzählung",
+      "numberedList": "Nummerierte Liste",
+      "taskList": "To-do-Liste"
+    },
+    "errors": {
+      "noAccess": "Du kannst diese Seite nicht bearbeiten.",
+      "database": "Datenbanken haben keinen Text, der sich als Markdown bearbeiten lässt.",
+      "trashed": "Diese Seite ist im Papierkorb.",
+      "locked": "Diese Seite ist gesperrt. Entsperre sie, um sie zu bearbeiten.",
+      "saveFailed": "Die Seite konnte nicht gespeichert werden. Versuche es gleich noch einmal.",
+      "failed": "Etwas ist schiefgelaufen. Versuche es erneut."
+    },
+    "losses": {
+      "title": "Manches auf dieser Seite bleibt nicht erhalten",
+      "body": "Markdown kann nicht alles auf dieser Seite abbilden. Beim Speichern wird die Seite aus dem Markdown geschrieben, deshalb geht Folgendes verloren:",
+      "kinds": {
+        "textColor": "Textfarben",
+        "backgroundColor": "Hintergrundfarben und Hervorhebungen",
+        "alignment": "Textausrichtung",
+        "mediaSize": "Bild- und Videogrößen",
+        "callout": "Callout-Farben und -Symbole, für die Markdown keine Form hat",
+        "textStyle": "Manche Textformatierung, etwa Unterstreichung",
+        "table": "Spaltenbreiten, Kopfzeilen und Zellfarben von Tabellen",
+        "blockSetting": "Andere Blockeinstellungen",
+        "content": "Manche Inhalte, die Markdown nicht abbilden kann"
+      },
+      "synced": "{count, plural, one {Deine Änderungen in einem synchronisierten Block: bearbeite ihn stattdessen auf der Seite} other {Deine Änderungen in # synchronisierten Blöcken: bearbeite sie stattdessen auf der Seite}}",
+      "confirm": "Trotzdem speichern"
+    },
+    "conflict": {
+      "title": "Jemand anderes hat diese Seite geändert",
+      "body": "Die Seite hat sich geändert, nachdem du ihr Markdown geöffnet hast. Lade die Seite, wie sie jetzt ist (deine Änderungen hier werden verworfen), oder speichere deine darüber.",
+      "reload": "Aktuelle Seite laden",
+      "overwrite": "Meine darüber speichern"
+    },
+    "discard": {
+      "title": "Änderungen verwerfen?",
+      "body": "Deine Markdown-Änderungen wurden nicht gespeichert.",
+      "keep": "Weiter bearbeiten",
+      "confirm": "Verwerfen"
+    }
   }
 }

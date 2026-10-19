@@ -61,7 +61,8 @@
     "watch": "关注页面",
     "watchHint": "其他人编辑此页面或在其中发起评论串时，在收件箱中收到通知。",
     "mute": "静音",
-    "muteHint": "其他人编辑此页面或在其中发起评论串时，你会在收件箱中收到通知。静音即可停止。"
+    "muteHint": "其他人编辑此页面或在其中发起评论串时，你会在收件箱中收到通知。静音即可停止。",
+    "editMarkdown": "以 Markdown 编辑"
   },
   "comments": {
     "aboutPage": "关于此页面",
@@ -146,7 +147,8 @@
       "manual": "已保存的版本",
       "beforeAiEdit": "AI 编辑之前",
       "beforeAiEditBy": "{client} 编辑之前",
-      "beforeAssistantEdit": "AI 助手编辑之前"
+      "beforeAssistantEdit": "AI 助手编辑之前",
+      "beforeMarkdownEdit": "Markdown 编辑之前"
     },
     "empty": "还没有版本。编辑时以及任何 AI 应用更改此页面之前，都会自动保存版本。",
     "restore": "恢复此版本",
@@ -728,5 +730,64 @@
     "markdownImageUntitled": "图片",
     "expand": "在查看器中打开",
     "view": "查看 {name}"
+  },
+  "markdownSource": {
+    "title": "以 Markdown 编辑",
+    "sourceTab": "Markdown",
+    "previewTab": "预览",
+    "toolbar": "格式",
+    "placeholder": "输入 Markdown…",
+    "close": "关闭",
+    "retry": "重试",
+    "unsaved": "有未保存的更改",
+    "offline": "离线：保存需要网络连接",
+    "saveHint": "保存到页面（Ctrl+S 或 ⌘S）",
+    "tools": {
+      "bold": "粗体",
+      "italic": "斜体",
+      "code": "行内代码",
+      "link": "链接",
+      "heading": "标题 {level}",
+      "bulletList": "项目符号列表",
+      "numberedList": "编号列表",
+      "taskList": "待办列表"
+    },
+    "errors": {
+      "noAccess": "你无法编辑此页面。",
+      "database": "数据库没有可作为 Markdown 编辑的文本。",
+      "trashed": "此页面在回收站中。",
+      "locked": "此页面已锁定。解锁后才能编辑。",
+      "saveFailed": "无法保存页面。请稍后重试。",
+      "failed": "出了点问题。请重试。"
+    },
+    "losses": {
+      "title": "此页面的部分内容将不会保留",
+      "body": "Markdown 无法承载此页面上的全部内容。保存时会根据 Markdown 重写页面，因此以下内容会丢失：",
+      "kinds": {
+        "textColor": "文字颜色",
+        "backgroundColor": "背景颜色和高亮",
+        "alignment": "文本对齐",
+        "mediaSize": "图片和视频尺寸",
+        "callout": "Markdown 无法表示的标注颜色和图标",
+        "textStyle": "部分文字格式，例如下划线",
+        "table": "表格的列宽、标题行和单元格颜色",
+        "blockSetting": "其他块设置",
+        "content": "Markdown 无法承载的部分内容"
+      },
+      "synced": "{count, plural, other {你在 # 个同步块中的更改：请在页面上编辑}}",
+      "confirm": "仍然保存"
+    },
+    "conflict": {
+      "title": "其他人更改了此页面",
+      "body": "你打开 Markdown 之后页面发生了变化。载入页面的当前内容（此处的更改将被丢弃），或用你的内容覆盖保存。",
+      "reload": "载入当前页面",
+      "overwrite": "用我的内容覆盖"
+    },
+    "discard": {
+      "title": "放弃更改？",
+      "body": "你的 Markdown 更改尚未保存。",
+      "keep": "继续编辑",
+      "confirm": "放弃"
+    }
   }
 }

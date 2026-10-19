@@ -45,6 +45,7 @@ const CollabEditor = dynamic(() => import("./collab-editor"), { ssr: false });
 const LocalGraphPanel = dynamic(() => import("@/components/graph/local-graph-panel").then((m) => m.LocalGraphPanel), { ssr: false });
 // Loaded when it opens: its preview brings the editor and the editor's dictionaries.
 const HistoryPanel = dynamic(() => import("./history-panel").then((m) => m.HistoryPanel), { ssr: false });
+const MarkdownSourceView = dynamic(() => import("./markdown-source").then((m) => m.MarkdownSourceView), { ssr: false });
 
 type Crumb = { id: string; title: string; icon: string | null; kind: PageKind };
 
@@ -109,6 +110,7 @@ export function PageView({
   const [icon, setIcon] = useState(page.icon);
   const [background, setBackground] = useState(page.background);
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [markdownOpen, setMarkdownOpen] = useState(false);
   const [commentsOpen, setCommentsOpen] = useState(false);
   // The graph and the comments share the room beside the page: opening one closes the other.
   const [graphOpen, setGraphOpen] = useState(false);
@@ -396,6 +398,7 @@ export function PageView({
               doc={synced ? pageDoc?.doc : undefined}
               viewers={connection === "live" ? viewers : []}
               onHistory={() => setHistoryOpen(true)}
+              onMarkdown={showBody && pageDoc && canEdit && !locked && !page.archived ? () => setMarkdownOpen(true) : undefined}
               commentsOpen={commentsOpen}
               onComments={
                 showBody
@@ -544,6 +547,16 @@ export function PageView({
 
         {graphOpen && !offline && !page.archived && (
           <LocalGraphPanel workspaceId={workspaceId} pageId={page.id} onClose={() => setGraphOpen(false)} />
+        )}
+        {markdownOpen && pageDoc && (
+          <MarkdownSourceView
+            workspaceId={workspaceId}
+            pageId={page.id}
+            doc={pageDoc.doc}
+            user={user}
+            offline={offline}
+            onClose={() => setMarkdownOpen(false)}
+          />
         )}
         {historyOpen && (
           <HistoryPanel pageId={page.id} readOnly={page.archived || !canEdit || locked} onClose={() => setHistoryOpen(false)} />

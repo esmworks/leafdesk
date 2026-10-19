@@ -61,7 +61,8 @@
     "watch": "ウォッチ",
     "watchHint": "ほかの人がこのページを編集したり、コメントスレッドを始めたりすると受信トレイに通知します。",
     "mute": "ミュート",
-    "muteHint": "ほかの人がこのページを編集したり、コメントスレッドを始めたりすると受信トレイに通知されます。止めるにはミュートしてください。"
+    "muteHint": "ほかの人がこのページを編集したり、コメントスレッドを始めたりすると受信トレイに通知されます。止めるにはミュートしてください。",
+    "editMarkdown": "Markdownとして編集"
   },
   "comments": {
     "aboutPage": "このページについて",
@@ -146,7 +147,8 @@
       "manual": "保存したバージョン",
       "beforeAiEdit": "AIによる編集前",
       "beforeAiEditBy": "{client}による編集前",
-      "beforeAssistantEdit": "AIアシスタントによる編集前"
+      "beforeAssistantEdit": "AIアシスタントによる編集前",
+      "beforeMarkdownEdit": "Markdown編集前"
     },
     "empty": "バージョンはまだありません。バージョンは編集中と、AIアプリがこのページを変更する前に自動で保存されます。",
     "restore": "このバージョンを復元",
@@ -728,5 +730,64 @@
     "markdownImageUntitled": "画像",
     "expand": "ビューアーで開く",
     "view": "{name} を表示"
+  },
+  "markdownSource": {
+    "title": "Markdownとして編集",
+    "sourceTab": "Markdown",
+    "previewTab": "プレビュー",
+    "toolbar": "書式",
+    "placeholder": "Markdownを入力…",
+    "close": "閉じる",
+    "retry": "再試行",
+    "unsaved": "未保存の変更があります",
+    "offline": "オフライン: 保存には接続が必要です",
+    "saveHint": "ページに保存 (Ctrl+S または ⌘S)",
+    "tools": {
+      "bold": "太字",
+      "italic": "斜体",
+      "code": "インラインコード",
+      "link": "リンク",
+      "heading": "見出し{level}",
+      "bulletList": "箇条書きリスト",
+      "numberedList": "番号付きリスト",
+      "taskList": "ToDoリスト"
+    },
+    "errors": {
+      "noAccess": "このページは編集できません。",
+      "database": "データベースにはMarkdownとして編集するテキストがありません。",
+      "trashed": "このページはゴミ箱にあります。",
+      "locked": "このページはロックされています。編集するにはロックを解除してください。",
+      "saveFailed": "ページを保存できませんでした。少し待ってから再試行してください。",
+      "failed": "問題が発生しました。もう一度お試しください。"
+    },
+    "losses": {
+      "title": "このページの一部は保持されません",
+      "body": "Markdownではこのページのすべてを表せません。保存するとページがMarkdownから書き直されるため、次のものが失われます:",
+      "kinds": {
+        "textColor": "文字色",
+        "backgroundColor": "背景色とハイライト",
+        "alignment": "テキストの配置",
+        "mediaSize": "画像と動画のサイズ",
+        "callout": "Markdownで表せないコールアウトの色とアイコン",
+        "textStyle": "下線など一部の文字書式",
+        "table": "表の列幅、見出し行、セルの色",
+        "blockSetting": "その他のブロック設定",
+        "content": "Markdownで表せない一部のコンテンツ"
+      },
+      "synced": "{count, plural, other {#個の同期ブロック内の変更: ページ上で編集してください}}",
+      "confirm": "それでも保存"
+    },
+    "conflict": {
+      "title": "他の人がこのページを変更しました",
+      "body": "Markdownを開いた後にページが変更されました。現在のページを読み込む(ここでの変更は破棄されます)か、自分の内容で上書き保存してください。",
+      "reload": "現在のページを読み込む",
+      "overwrite": "自分の内容で上書き"
+    },
+    "discard": {
+      "title": "変更を破棄しますか?",
+      "body": "Markdownの変更は保存されていません。",
+      "keep": "編集を続ける",
+      "confirm": "破棄"
+    }
   }
 }

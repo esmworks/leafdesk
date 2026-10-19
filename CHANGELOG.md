@@ -88,6 +88,13 @@
   a block's menu starts one from the page. The form previews the blocks, and lists import and export
   JSON (also plain `[{"id", "label"}]` lists, with what was skipped and why). Up to 300 per person
   and per workspace. MCP gets `list_snippets`. Workspace snippets are in the workspace's backup.
+- **Edit as Markdown.** *Edit as Markdown* in the page menu opens a page's text as Markdown beside
+  a live preview of the page it makes, which follows the part being edited (tabs on a narrow
+  screen). Shortcuts and a toolbar format text, headings and lists, equation commands are offered
+  inside `$…$` and `$$`, and pasted or dropped files are uploaded. Saving keeps the ids of blocks
+  whose text didn't change and puts the page as it was into its history; first it names what
+  Markdown can't hold, such as colors, alignment and image sizes, and when someone else changed the
+  page meanwhile it asks whether to load their version or save over it.
 
 ### Changed
 

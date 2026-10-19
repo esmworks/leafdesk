@@ -61,7 +61,8 @@
     "watch": "지켜보기",
     "watchHint": "다른 사람이 이 페이지를 편집하거나 댓글 스레드를 시작하면 받은편지함에서 알림을 받습니다.",
     "mute": "음소거",
-    "muteHint": "다른 사람이 이 페이지를 편집하거나 댓글 스레드를 시작하면 받은편지함에서 알림을 받고 있습니다. 그만 받으려면 음소거하세요."
+    "muteHint": "다른 사람이 이 페이지를 편집하거나 댓글 스레드를 시작하면 받은편지함에서 알림을 받고 있습니다. 그만 받으려면 음소거하세요.",
+    "editMarkdown": "Markdown으로 편집"
   },
   "comments": {
     "aboutPage": "이 페이지에 대한 댓글",
@@ -146,7 +147,8 @@
       "manual": "저장된 버전",
       "beforeAiEdit": "AI 편집 전",
       "beforeAiEditBy": "{client} 편집 전",
-      "beforeAssistantEdit": "AI 어시스턴트 편집 전"
+      "beforeAssistantEdit": "AI 어시스턴트 편집 전",
+      "beforeMarkdownEdit": "Markdown 편집 전"
     },
     "empty": "아직 버전이 없습니다. 버전은 편집하는 동안, 그리고 AI 앱이 이 페이지를 변경하기 전에 자동으로 저장됩니다.",
     "restore": "이 버전 복원",
@@ -728,5 +730,64 @@
     "markdownImageUntitled": "이미지",
     "expand": "뷰어에서 열기",
     "view": "{name} 보기"
+  },
+  "markdownSource": {
+    "title": "Markdown으로 편집",
+    "sourceTab": "Markdown",
+    "previewTab": "미리 보기",
+    "toolbar": "서식",
+    "placeholder": "Markdown 입력…",
+    "close": "닫기",
+    "retry": "다시 시도",
+    "unsaved": "저장되지 않은 변경 사항",
+    "offline": "오프라인: 저장하려면 연결이 필요합니다",
+    "saveHint": "페이지에 저장 (Ctrl+S 또는 ⌘S)",
+    "tools": {
+      "bold": "굵게",
+      "italic": "기울임꼴",
+      "code": "인라인 코드",
+      "link": "링크",
+      "heading": "제목 {level}",
+      "bulletList": "글머리 기호 목록",
+      "numberedList": "번호 매기기 목록",
+      "taskList": "할 일 목록"
+    },
+    "errors": {
+      "noAccess": "이 페이지를 편집할 수 없습니다.",
+      "database": "데이터베이스에는 Markdown으로 편집할 텍스트가 없습니다.",
+      "trashed": "이 페이지는 휴지통에 있습니다.",
+      "locked": "이 페이지는 잠겨 있습니다. 편집하려면 잠금을 해제하세요.",
+      "saveFailed": "페이지를 저장하지 못했습니다. 잠시 후 다시 시도하세요.",
+      "failed": "문제가 발생했습니다. 다시 시도하세요."
+    },
+    "losses": {
+      "title": "이 페이지의 일부는 유지되지 않습니다",
+      "body": "Markdown은 이 페이지의 모든 것을 담을 수 없습니다. 저장하면 페이지가 Markdown으로 다시 작성되므로 다음 항목이 사라집니다:",
+      "kinds": {
+        "textColor": "텍스트 색상",
+        "backgroundColor": "배경색과 강조 표시",
+        "alignment": "텍스트 정렬",
+        "mediaSize": "이미지 및 동영상 크기",
+        "callout": "Markdown으로 표현할 수 없는 콜아웃 색상과 아이콘",
+        "textStyle": "밑줄 등 일부 텍스트 서식",
+        "table": "표의 열 너비, 머리글 행, 셀 색상",
+        "blockSetting": "기타 블록 설정",
+        "content": "Markdown이 담을 수 없는 일부 콘텐츠"
+      },
+      "synced": "{count, plural, other {동기화 블록 #개 안의 변경 사항: 페이지에서 편집하세요}}",
+      "confirm": "그래도 저장"
+    },
+    "conflict": {
+      "title": "다른 사람이 이 페이지를 변경했습니다",
+      "body": "Markdown을 연 뒤에 페이지가 변경되었습니다. 현재 페이지를 불러오거나(여기서의 변경 사항은 버려집니다) 내 내용으로 덮어써 저장하세요.",
+      "reload": "현재 페이지 불러오기",
+      "overwrite": "내 내용으로 덮어쓰기"
+    },
+    "discard": {
+      "title": "변경 사항을 버릴까요?",
+      "body": "Markdown 변경 사항이 저장되지 않았습니다.",
+      "keep": "계속 편집",
+      "confirm": "버리기"
+    }
   }
 }
