@@ -9,7 +9,7 @@ import { dayString, localDay } from "@/lib/time-zone";
 import { getMembership, isGuest } from "@/server/access";
 import { assignedRows } from "@/server/assigned";
 import { listDailyNotes } from "@/server/journal";
-import { recentPages } from "@/server/pages";
+import { parentTitles, recentPages } from "@/server/pages";
 import { requireWorkspaceSession } from "@/server/session";
 import { topLevelAccess } from "@/server/workspaces";
 
@@ -21,13 +21,18 @@ export default async function WorkspaceHome({ params }: { params: Promise<{ work
   const timeZone = await getTimeZone();
   const today = dayString(localDay(now.getTime(), timeZone));
   const [pages, membership, topLevel, assigned, dailyNotes] = await Promise.all([
-    recentPages(user.id, workspaceId, 12),
+    recentPages(user.id, workspaceId, 8),
     getMembership(user.id, workspaceId),
     topLevelAccess(user.id, workspaceId),
     assignedRows(user.id, workspaceId, today, timeZone),
     listDailyNotes(user.id, workspaceId, { to: today, limit: 5 }),
   ]);
-  const [t, tc, format] = await Promise.all([getTranslations("home"), getTranslations("common"), getFormatter()]);
+  const [t, tc, format, parents] = await Promise.all([
+    getTranslations("home"),
+    getTranslations("common"),
+    getFormatter(),
+    parentTitles(user.id, pages.map((p) => p.id)),
+  ]);
   const guest = !membership || isGuest(membership.role);
 
   return (
@@ -48,28 +53,34 @@ export default async function WorkspaceHome({ params }: { params: Promise<{ work
       {/* Guests see it only once something is assigned to them. */}
       {(assigned.groups.length > 0 || !guest) && <AssignedSection workspaceId={workspaceId} assigned={assigned} today={today} />}
 
-      <section className="space-y-2">
-        <h2 className="text-sm font-semibold">{t("recent")}</h2>
+      <section className="space-y-3" aria-labelledby="recent-heading">
+        <h2 id="recent-heading" className="text-sm font-semibold">
+          {t("recent")}
+        </h2>
         {pages.length === 0 ? (
           <p className="rounded-md border border-dashed border-border px-4 py-6 text-center text-sm text-fg-muted">
             {t(guest ? "emptyGuest" : "empty")}
           </p>
         ) : (
-          <ul className="grid gap-2 sm:grid-cols-2">
-            {pages.map((p) => (
-              <li key={p.id}>
-                <Link
-                  href={`/w/${workspaceId}/p/${p.id}`}
-                  className="flex h-full items-start gap-2.5 rounded-md border border-border px-3.5 py-3 text-sm hover:bg-bg-hover"
-                >
-                  <PageIcon icon={p.icon} kind={p.kind} className="mt-0.5 text-fg-muted" />
-                  <span className="min-w-0 flex-1">
-                    <span className="line-clamp-2 break-words">{pageLabel(p.title, tc("untitled"))}</span>
-                    <span className="mt-1 block text-xs text-fg-muted">{format.relativeTime(p.updatedAt, now)}</span>
-                  </span>
-                </Link>
-              </li>
-            ))}
+          <ul className="divide-y divide-border rounded-md border border-border">
+            {pages.map((p) => {
+              const parent = parents.get(p.id);
+              return (
+                <li key={p.id}>
+                  <Link
+                    href={`/w/${workspaceId}/p/${p.id}`}
+                    className="flex items-center gap-2.5 px-4 py-3 text-sm hover:bg-bg-hover md:py-2.5"
+                  >
+                    <PageIcon icon={p.icon} kind={p.kind} className="flex w-4 shrink-0 justify-center text-fg-muted" />
+                    <span className="flex min-w-0 flex-1 flex-col md:flex-row md:items-baseline md:gap-2">
+                      <span className="truncate">{pageLabel(p.title, tc("untitled"))}</span>
+                      {parent !== undefined && <span className="truncate text-xs text-fg-muted">{pageLabel(parent, tc("untitled"))}</span>}
+                    </span>
+                    <span className="shrink-0 text-xs text-fg-muted">{format.relativeTime(p.updatedAt, now)}</span>
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
         )}
       </section>

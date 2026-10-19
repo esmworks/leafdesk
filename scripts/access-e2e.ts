@@ -68,6 +68,7 @@ const {
   listSnapshots,
   listTrash,
   movePage,
+  parentTitles,
   recentPages,
   searchPages,
 } = await import("@/server/pages");
@@ -338,6 +339,12 @@ try {
   check(JSON.stringify(guestRoots) === JSON.stringify([Pg]), "…and so does their top-level list", guestRoots);
   const guestRecent = (await recentPages(guest, workspaceId, 50)).map((p) => p.id);
   check(JSON.stringify(guestRecent) === JSON.stringify([Pg]), "recent pages show guests only their pages", guestRecent);
+  const guestPlaces = await parentTitles(guest, [Pg]);
+  check(
+    guestPlaces.size === 0 && (await parentTitles(owner, [Pg])).get(Pg) === "T",
+    "a page's place in a list is named only to those who can open its parent",
+    [...guestPlaces],
+  );
   const hits = async (q: string) => (await searchPages(guest, q, { workspaceId })).map((h) => h.id);
   check((await hits("R")).length === 0 && JSON.stringify(await hits("P")) === JSON.stringify([Pg]), "search too");
   check((await levels(Pg, guest))[0] === "edit", "a guest gets the level they were given");

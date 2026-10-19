@@ -1163,6 +1163,22 @@ export async function pagesTitled(userId: string, workspaceId: string, titles: s
   return rows.map((r) => r.id);
 }
 
+/**
+ * Where each page sits, for lists of pages from all over a workspace: the title of its parent (a
+ * row's database, a subpage's page), by page id. Top-level pages and parents the viewer can't open
+ * are left out, so a page shared on its own doesn't give its parent's name away.
+ */
+export async function parentTitles(userId: string, pageIds: string[]): Promise<Map<string, string>> {
+  if (pageIds.length === 0) return new Map();
+  const parent = alias(page, "parent");
+  const rows = await db
+    .select({ id: page.id, title: parent.title })
+    .from(page)
+    .innerJoin(parent, eq(parent.id, page.parentId))
+    .where(and(inArray(page.id, pageIds), isNull(parent.archivedAt), pageVisibleTo(userId, "parent")));
+  return new Map(rows.map((row) => [row.id, row.title]));
+}
+
 export async function recentPages(userId: string, workspaceId: string, limit = 8) {
   await requireMembership(userId, workspaceId);
   const live = and(eq(page.workspaceId, workspaceId), isNull(page.archivedAt), eq(page.inTemplate, false));
