@@ -30,6 +30,8 @@ after you approve them over OAuth.
   two-step verification, passkeys and an audit log.
 - **Yours to run**: one `docker compose up` on your own server, data in your PostgreSQL,
   AGPL-3.0 licensed, in 16 languages.
+- **Or on your computer**: the desktop app for macOS, Windows and Linux runs Leafdesk on its own,
+  with no server to set up, and backs your workspace up every day; it connects to a server too.
 
 Claude planning a launch in Leafdesk over MCP: a database, its tasks, a board view and a kickoff
 page, all showing up live (sped up):
@@ -49,6 +51,10 @@ docker compose up -d
 
 Then open http://localhost:3000 and create an account. See [Quick start](#quick-start-docker) for
 versions, upgrades and running behind a domain.
+
+Just for yourself, with no server: download the desktop app from the
+[latest release](https://github.com/esmworks/leafdesk/releases/latest) (`.dmg` for macOS, `.exe`
+for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop app](#desktop-app).
 
 ## Features
 
@@ -123,6 +129,8 @@ versions, upgrades and running behind a domain.
   quick note filled in, saved as a private page in the workspace you pick or as a row of one of its
   databases. Where the server can transcribe, the quick note takes voice notes too (see
   [Voice notes](#voice-notes)).
+- **Desktop app** for macOS, Windows and Linux: a window on your server, or Leafdesk running on
+  the computer itself with its own database and daily backups (see [Desktop app](#desktop-app)).
 - **Find and replace** in a page (Cmd/Ctrl+F): highlights every match, steps through them, and
   replaces one or all in a single undo step. Anyone who can open the page can search it.
 - **Databases**: every row is also a page.
@@ -791,10 +799,17 @@ the collaboration socket. Images and files in pages are not kept offline.
 
 ### Desktop app
 
-The desktop app for macOS, Windows and Linux is a window on your Leafdesk server: it opens the
-server's own pages, so it always runs the server's build (see *After an update*) and has nothing
-of its own to keep in step with it. Download it from the
-[latest release](https://github.com/esmworks/leafdesk/releases/latest):
+The desktop app for macOS, Windows and Linux works two ways. Connected to your Leafdesk server, it
+is a window on it: it opens the server's own pages, so it always runs the server's build (see
+*After an update*) and has nothing of its own to keep in step with it. *On this computer*, it runs
+Leafdesk itself, with no server to set up, for one person.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset=".github/screenshots/desktop-dark.png">
+  <img src=".github/screenshots/desktop-light.png" alt="The Leafdesk desktop app on macOS running on the computer itself, showing a small business dashboard with open jobs, quotes and the balance sheet">
+</picture>
+
+Download it from the [latest release](https://github.com/esmworks/leafdesk/releases/latest):
 
 | System | File |
 | --- | --- |
@@ -805,6 +820,11 @@ of its own to keep in step with it. Download it from the
 
 The macOS app is signed and notarized. The Windows installer isn't signed yet, so SmartScreen
 warns the first time: choose *More info*, then *Run anyway*.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset=".github/screenshots/desktop-start-dark.png">
+  <img src=".github/screenshots/desktop-start.png" width="360" alt="The desktop app's first screen: My own server, On this computer, and Leafdesk account (coming soon)">
+</picture>
 
 **Connecting.** On first start the app asks where your workspace is. *My own server* takes the
 server's address (`leafdesk.example.com`, or with `https://`, a port or `http://` for a server on
