@@ -10,6 +10,7 @@
     "groups": "Grupos",
     "agents": "Agentes",
     "connections": "Conexiones",
+    "email": "Correo",
     "analytics": "Analíticas",
     "health": "Salud",
     "security": "Seguridad",
@@ -1209,7 +1210,8 @@
       "memberInvites": "Quién puede añadir miembros",
       "allowedDomains": "Dominios de correo permitidos",
       "domainJoin": "Cuando alguien de estos dominios inicia sesión",
-      "joinRequests": "Quién puede pedir unirse"
+      "joinRequests": "Quién puede pedir unirse",
+      "email": "Correo en las filas"
     },
     "values": {
       "on": "Activado",
@@ -1352,6 +1354,11 @@
         "tool_called": "Llamó a «{tool}» en «{target}» ({outcome})",
         "approval_decided": "Llamada a «{tool}» en «{target}» del agente «{agent}»: {decision}"
       },
+      "mail": {
+        "databases_changed": "Definió las bases de datos a las que llega el correo: {names}",
+        "mailbox_connected": "Conectó el buzón {target}",
+        "mailbox_disconnected": "Desconectó el buzón {target}"
+      },
       "backup": {
         "created": "Hizo una copia de seguridad del espacio de trabajo ({count, plural, one {# página} other {# páginas}})",
         "restored": "Restauró el espacio de trabajo desde una copia de seguridad ({count, plural, one {# página} other {# páginas}})"
@@ -1413,6 +1420,9 @@
     "pageUpdateTitle": "Páginas que observas",
     "pageUpdateDescription": "Otra persona edita una página que observas: una que creaste o editaste, que elegiste observar o que está en un espacio de equipo que observas. Los correos sobre la misma página llegan como mucho cada pocas horas y, tras unos cuantos al día, el resto llega junto en un solo correo.",
     "pageUpdateChannel": "Páginas que observas: {channel}",
+    "rowEmailTitle": "Correo en las filas",
+    "rowEmailDescription": "Llega un mensaje a una fila de una base de datos: a través de tu propio buzón, o a una fila que sigues o a la que estás asignado. Ya está en un buzón, así que nunca te llega otra vez por correo.",
+    "rowEmailChannel": "Correo en las filas: {channel}",
     "watchedHeading": "Páginas observadas",
     "watchedDescription": "Páginas que elegiste observar o editaste, y espacios de equipo que observas. También observas las páginas que creaste. Quienes observan se enteran de las ediciones y los nuevos hilos de comentarios.",
     "watchedNone": "Todavía no observas ninguna página",
@@ -1650,6 +1660,87 @@
       "redo": "Devolver con una nota…",
       "notWhole": "Esta llamada es más larga de lo que se muestra aquí o contiene valores ocultos aquí. Abre su ejecución para ver todo lo que se enviaría antes de aprobarla.",
       "openRun": "Abrir la ejecución para aprobar"
+    }
+  },
+  "email": {
+    "description": "El correo con las personas de tus bases de datos llega a sus filas: quien puede ver una fila lee allí sus correos y los responde desde su propio buzón.",
+    "enabled": "Correo en las filas",
+    "enabledHint": "Los miembros conectan su propio buzón aquí abajo. Solo se leen completos los correos cuyo interlocutor es la dirección de correo de una fila; el resto se queda en el buzón.",
+    "ownersOnly": "Solo los propietarios pueden cambiar esto.",
+    "databasesHeading": "Adónde llega el correo",
+    "databasesDescription": "Un mensaje va a la fila cuya propiedad de correo contiene la dirección del interlocutor, en la primera de estas bases de datos donde coincide exactamente una fila. Las respuestas siguen su hilo.",
+    "databasesNone": "Todavía no hay bases de datos",
+    "databasesNoneHint": "Añade una base de datos con una propiedad de correo, como tus clientes o contactos.",
+    "moveUp": "Probar antes",
+    "moveDown": "Probar después",
+    "removeDatabase": "Dejar de asociar correos a esta base de datos",
+    "addressProperties": "Las direcciones están en",
+    "addDatabase": "Añadir una base de datos",
+    "addDatabaseHint": "Bases de datos con una propiedad de correo.",
+    "chooseDatabase": "Elige una base de datos",
+    "mailboxHeading": "Tu buzón",
+    "mailboxDescription": "El buzón que usas para este espacio de trabajo. Se lee en busca de correos con las personas de las bases de datos de arriba, y lo que escribes en las filas se envía desde él. Tus otros espacios de trabajo no lo ven.",
+    "syncedAt": "leído {time}",
+    "change": "Cambiar",
+    "disconnect": "Desconectar",
+    "connect": "Probar y conectar",
+    "testing": "Probando…",
+    "consent": "Entiendo que los correos con las personas de estas bases de datos, enviados o recibidos a través de este buzón, se muestran en sus filas a todos los que pueden ver esas filas.",
+    "status": {
+      "ok": "Conectado",
+      "connecting": "Conectando",
+      "error": {
+        "blocked": "El servidor de correo está en una red privada, a la que este servidor no llega.",
+        "notFound": "No se encontró el nombre del servidor de correo.",
+        "auth": "El servidor de correo rechazó el nombre de usuario o la contraseña. Revisa la contraseña de aplicación.",
+        "tls": "No se pudo establecer una conexión segura con el servidor de correo.",
+        "unreachable": "No se puede contactar con el servidor de correo en este momento.",
+        "noInbox": "El servidor de correo no muestra ninguna bandeja de entrada."
+      }
+    },
+    "fields": {
+      "address": "Dirección de correo",
+      "displayName": "Nombre en los correos enviados",
+      "provider": "Proveedor de correo",
+      "chooseProvider": "Elegir…",
+      "otherProvider": "Otro (IMAP y SMTP)",
+      "imap": "Entrante (IMAP)",
+      "smtp": "Saliente (SMTP)",
+      "host": "Servidor",
+      "port": "Puerto",
+      "tls": "TLS",
+      "username": "Nombre de usuario",
+      "usernamePlaceholder": "Normalmente, la dirección de correo",
+      "password": "Contraseña de aplicación",
+      "passwordKeep": "Déjalo vacío para mantener la actual",
+      "passwordHelp": "Una contraseña de aplicación creada para Leafdesk, no la contraseña con la que inicias sesión. Se guarda cifrada y no se vuelve a mostrar."
+    },
+    "providerHelp": {
+      "google": "También para direcciones de Google Workspace en tu propio dominio. Crea una contraseña de aplicación en tu cuenta de Google, en Seguridad (la verificación en dos pasos debe estar activada).",
+      "yandex": "Crea una contraseña de aplicación para el correo en los ajustes de tu Yandex ID.",
+      "zoho": "Activa el acceso IMAP en los ajustes de Zoho Mail y crea una contraseña de aplicación."
+    },
+    "membersHeading": "Buzones de los miembros",
+    "membersDescription": "Quién ha conectado un buzón en este espacio de trabajo. Nadie salvo su dueño ve lo que contiene.",
+    "memberStatus": {
+      "connecting": "Conectando",
+      "ok": "Conectado",
+      "error": "No funciona"
+    },
+    "errors": {
+      "disabled": "El correo en las filas está desactivado en este espacio de trabajo.",
+      "invalid": "Algunos datos no son válidos. Revísalos y vuelve a intentarlo.",
+      "consent": "Confirma que los correos de las filas se muestran a todos los que pueden verlas.",
+      "noMailbox": "Primero conecta tu buzón en Configuración > Correo.",
+      "rateLimited": "Tu buzón ya envió todo lo que puede en esta hora. Vuelve a intentarlo más tarde.",
+      "notFound": "No se encontró el nombre del servidor de correo.",
+      "blocked": "El servidor de correo está en una red privada, a la que este servidor no llega.",
+      "auth": "El servidor de correo rechazó el nombre de usuario o la contraseña. Revisa la contraseña de aplicación.",
+      "tls": "No se pudo establecer una conexión segura con el servidor de correo.",
+      "unreachable": "No se pudo contactar con el servidor de correo. Revisa los nombres de los servidores y los puertos.",
+      "noInbox": "El servidor de correo no muestra ninguna bandeja de entrada.",
+      "accessDenied": "No tienes acceso para hacer esto.",
+      "gone": "Ese mensaje ya no está en esta fila."
     }
   },
   "backup": {

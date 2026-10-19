@@ -230,6 +230,7 @@
     "rowUpdateTitle": "标题",
     "rowUpdateBody": "正文",
     "pageUpdated": "{actor} 编辑了此页面",
+    "rowEmail": "来自 {from} 的邮件",
     "someone": "有人",
     "joinRequestTitle": "加入申请",
     "joinRequest": "{actor} 申请加入",

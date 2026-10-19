@@ -10,6 +10,7 @@
     "groups": "그룹",
     "agents": "에이전트",
     "connections": "연결",
+    "email": "이메일",
     "analytics": "분석",
     "health": "상태 점검",
     "security": "보안",
@@ -1209,7 +1210,8 @@
       "memberInvites": "멤버를 추가할 수 있는 사람",
       "allowedDomains": "허용된 이메일 도메인",
       "domainJoin": "이 도메인의 사용자가 로그인할 때",
-      "joinRequests": "참여를 요청할 수 있는 사람"
+      "joinRequests": "참여를 요청할 수 있는 사람",
+      "email": "행의 이메일"
     },
     "values": {
       "on": "켜짐",
@@ -1352,6 +1354,11 @@
         "tool_called": "“{target}”에서 “{tool}”을(를) 호출했습니다({outcome})",
         "approval_decided": "에이전트 “{agent}”의 “{target}” “{tool}” 호출을 {decision}"
       },
+      "mail": {
+        "databases_changed": "이메일이 도착할 데이터베이스를 설정했습니다: {names}",
+        "mailbox_connected": "메일함 {target}을(를) 연결했습니다",
+        "mailbox_disconnected": "메일함 {target}의 연결을 해제했습니다"
+      },
       "backup": {
         "created": "워크스페이스를 백업했습니다(페이지 {count}개)",
         "restored": "백업에서 워크스페이스를 복원했습니다(페이지 {count}개)"
@@ -1413,6 +1420,9 @@
     "pageUpdateTitle": "지켜보는 페이지",
     "pageUpdateDescription": "다른 사람이 지켜보는 페이지를 편집할 때: 내가 만들었거나 편집한 페이지, 지켜보기로 한 페이지, 지켜보는 팀스페이스에 있는 페이지. 같은 페이지에 대한 이메일은 많아야 몇 시간에 한 번 오고, 하루에 몇 통이 넘으면 나머지는 한 통의 이메일로 모아서 옵니다.",
     "pageUpdateChannel": "지켜보는 페이지: {channel}",
+    "rowEmailTitle": "행의 이메일",
+    "rowEmailDescription": "데이터베이스 행에 메시지가 도착할 때. 내 메일함을 통해 온 메시지이거나, 팔로우하거나 담당자로 지정된 행에 온 메시지입니다. 이미 메일함에 있으므로 이메일로 다시 오지 않습니다.",
+    "rowEmailChannel": "행의 이메일: {channel}",
     "watchedHeading": "지켜보는 페이지",
     "watchedDescription": "지켜보기로 했거나 편집한 페이지와 지켜보는 팀스페이스입니다. 내가 만든 페이지도 지켜봅니다. 지켜보는 사람은 편집과 새 댓글 스레드 알림을 받습니다.",
     "watchedNone": "아직 지켜보는 페이지가 없습니다",
@@ -1650,6 +1660,87 @@
       "redo": "메모와 함께 되돌려 보내기…",
       "notWhole": "이 호출은 여기에 표시된 것보다 길거나 여기서 가려진 값을 포함합니다. 승인하기 전에 실행을 열어 전송될 전체 내용을 확인하세요.",
       "openRun": "실행을 열어 승인"
+    }
+  },
+  "email": {
+    "description": "데이터베이스에 있는 사람들과 주고받은 이메일이 해당 행에 도착합니다. 행을 볼 수 있는 사람은 누구나 그곳에서 이메일을 읽고 자신의 메일함에서 답장할 수 있습니다.",
+    "enabled": "행의 이메일",
+    "enabledHint": "멤버는 아래에서 자신의 메일함을 연결합니다. 상대방이 행의 이메일 주소인 이메일만 전체를 읽으며, 나머지는 메일함에 그대로 남습니다.",
+    "ownersOnly": "소유자만 변경할 수 있습니다.",
+    "databasesHeading": "이메일이 도착하는 곳",
+    "databasesDescription": "메시지는 이메일 속성에 상대방 주소가 있는 행으로 갑니다. 이 데이터베이스들 중 정확히 한 행이 일치하는 첫 번째 데이터베이스가 사용됩니다. 답장은 원래 스레드를 따라갑니다.",
+    "databasesNone": "아직 데이터베이스가 없습니다",
+    "databasesNoneHint": "고객이나 연락처처럼 이메일 속성이 있는 데이터베이스를 추가하세요.",
+    "moveUp": "먼저 확인",
+    "moveDown": "나중에 확인",
+    "removeDatabase": "이 데이터베이스와 이메일 연결 중지",
+    "addressProperties": "주소가 있는 속성",
+    "addDatabase": "데이터베이스 추가",
+    "addDatabaseHint": "이메일 속성이 있는 데이터베이스입니다.",
+    "chooseDatabase": "데이터베이스 선택",
+    "mailboxHeading": "내 메일함",
+    "mailboxDescription": "이 워크스페이스에서 사용하는 메일함입니다. 위 데이터베이스에 있는 사람들과 주고받은 이메일을 읽고, 행에서 작성한 이메일을 이 메일함에서 보냅니다. 다른 워크스페이스에서는 보이지 않습니다.",
+    "syncedAt": "{time}에 읽음",
+    "change": "변경",
+    "disconnect": "연결 해제",
+    "connect": "테스트 후 연결",
+    "testing": "테스트 중…",
+    "consent": "이 메일함으로 주고받은, 이 데이터베이스에 있는 사람들과의 이메일이 해당 행을 볼 수 있는 모든 사람에게 행에 표시된다는 것을 이해합니다.",
+    "status": {
+      "ok": "연결됨",
+      "connecting": "연결 중",
+      "error": {
+        "blocked": "메일 서버가 사설 네트워크에 있어 이 서버에서 접근할 수 없습니다.",
+        "notFound": "메일 서버 이름을 찾을 수 없습니다.",
+        "auth": "메일 서버가 사용자 이름 또는 비밀번호를 거부했습니다. 앱 비밀번호를 확인하세요.",
+        "tls": "메일 서버와 보안 연결을 만들 수 없습니다.",
+        "unreachable": "지금은 메일 서버에 연결할 수 없습니다.",
+        "noInbox": "메일 서버에 받은편지함이 없습니다."
+      }
+    },
+    "fields": {
+      "address": "이메일 주소",
+      "displayName": "보내는 이메일에 표시할 이름",
+      "provider": "메일 제공업체",
+      "chooseProvider": "선택…",
+      "otherProvider": "기타(IMAP 및 SMTP)",
+      "imap": "받는 메일(IMAP)",
+      "smtp": "보내는 메일(SMTP)",
+      "host": "서버",
+      "port": "포트",
+      "tls": "TLS",
+      "username": "사용자 이름",
+      "usernamePlaceholder": "보통 이메일 주소",
+      "password": "앱 비밀번호",
+      "passwordKeep": "현재 비밀번호를 유지하려면 비워 두세요",
+      "passwordHelp": "로그인할 때 쓰는 비밀번호가 아니라 Leafdesk용으로 만든 앱 비밀번호입니다. 암호화되어 저장되며 다시 표시되지 않습니다."
+    },
+    "providerHelp": {
+      "google": "자체 도메인의 Google Workspace 주소에도 사용할 수 있습니다. Google 계정의 보안에서 앱 비밀번호를 만드세요(2단계 인증이 켜져 있어야 합니다).",
+      "yandex": "Yandex ID 설정에서 메일용 앱 비밀번호를 만드세요.",
+      "zoho": "Zoho Mail 설정에서 IMAP 액세스를 켜고 앱 비밀번호를 만드세요."
+    },
+    "membersHeading": "멤버의 메일함",
+    "membersDescription": "이 워크스페이스에서 메일함을 연결한 사람입니다. 메일함의 내용은 그 주인만 볼 수 있습니다.",
+    "memberStatus": {
+      "connecting": "연결 중",
+      "ok": "연결됨",
+      "error": "작동하지 않음"
+    },
+    "errors": {
+      "disabled": "이 워크스페이스에서는 행의 이메일이 꺼져 있습니다.",
+      "invalid": "일부 정보가 올바르지 않습니다. 확인한 후 다시 시도하세요.",
+      "consent": "행의 이메일이 해당 행을 볼 수 있는 모든 사람에게 표시된다는 것을 확인하세요.",
+      "noMailbox": "먼저 설정 > 이메일에서 메일함을 연결하세요.",
+      "rateLimited": "이 메일함은 이번 시간에 보낼 수 있는 한도에 도달했습니다. 나중에 다시 시도하세요.",
+      "notFound": "메일 서버 이름을 찾을 수 없습니다.",
+      "blocked": "메일 서버가 사설 네트워크에 있어 이 서버에서 접근할 수 없습니다.",
+      "auth": "메일 서버가 사용자 이름 또는 비밀번호를 거부했습니다. 앱 비밀번호를 확인하세요.",
+      "tls": "메일 서버와 보안 연결을 만들 수 없습니다.",
+      "unreachable": "메일 서버에 연결할 수 없습니다. 서버 이름과 포트를 확인하세요.",
+      "noInbox": "메일 서버에 받은편지함이 없습니다.",
+      "accessDenied": "이 작업을 할 수 있는 권한이 없습니다.",
+      "gone": "이 메시지는 더 이상 이 행에 없습니다."
     }
   },
   "backup": {

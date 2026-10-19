@@ -230,6 +230,7 @@
     "rowUpdateTitle": "le titre",
     "rowUpdateBody": "le texte",
     "pageUpdated": "{actor} a modifié cette page",
+    "rowEmail": "E-mail de {from}",
     "someone": "Quelqu’un",
     "joinRequestTitle": "Demande d'accès",
     "joinRequest": "{actor} a demandé à rejoindre l'espace",

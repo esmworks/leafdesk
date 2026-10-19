@@ -10,6 +10,7 @@
     "groups": "Gruppi",
     "agents": "Agenti",
     "connections": "Connessioni",
+    "email": "Email",
     "analytics": "Statistiche",
     "health": "Integrità",
     "security": "Sicurezza",
@@ -1209,7 +1210,8 @@
       "memberInvites": "Chi può aggiungere membri",
       "allowedDomains": "Domini email consentiti",
       "domainJoin": "Quando qualcuno di questi domini accede",
-      "joinRequests": "Chi può chiedere di entrare"
+      "joinRequests": "Chi può chiedere di entrare",
+      "email": "Email sulle righe"
     },
     "values": {
       "on": "Attivo",
@@ -1352,6 +1354,11 @@
         "tool_called": "Ha chiamato “{tool}” su “{target}” ({outcome})",
         "approval_decided": "{decision} la chiamata a “{tool}” su “{target}” dell’agente “{agent}”"
       },
+      "mail": {
+        "databases_changed": "Ha impostato i database su cui arrivano le email: {names}",
+        "mailbox_connected": "Ha collegato la casella di posta {target}",
+        "mailbox_disconnected": "Ha scollegato la casella di posta {target}"
+      },
       "backup": {
         "created": "Ha eseguito il backup dello spazio di lavoro ({count, plural, one {# pagina} other {# pagine}})",
         "restored": "Ha ripristinato lo spazio di lavoro da un backup ({count, plural, one {# pagina} other {# pagine}})"
@@ -1413,6 +1420,9 @@
     "pageUpdateTitle": "Pagine che osservi",
     "pageUpdateDescription": "Qualcun altro modifica una pagina che osservi: una che hai creato o modificato, che hai scelto di osservare o che si trova in uno spazio del team che osservi. Le email sulla stessa pagina arrivano al massimo ogni qualche ora e, dopo alcune al giorno, le altre arrivano insieme in un’unica email.",
     "pageUpdateChannel": "Pagine che osservi: {channel}",
+    "rowEmailTitle": "Email sulle righe",
+    "rowEmailDescription": "Arriva un messaggio su una riga di database: tramite la tua casella di posta, oppure su una riga che segui o a cui sei assegnato. È già in una casella di posta, quindi non arriva mai di nuovo via email.",
+    "rowEmailChannel": "Email sulle righe: {channel}",
     "watchedHeading": "Pagine osservate",
     "watchedDescription": "Le pagine che hai scelto di osservare o hai modificato, e gli spazi del team che osservi. Osservi anche le pagine che hai creato. Chi osserva riceve avvisi su modifiche e nuove discussioni.",
     "watchedNone": "Non stai ancora osservando nessuna pagina",
@@ -1650,6 +1660,87 @@
       "redo": "Rimanda indietro con una nota…",
       "notWhole": "Questa chiamata è più lunga di quanto mostrato qui o contiene valori qui nascosti. Apri la sua esecuzione per vedere tutto ciò che verrebbe inviato prima di approvarla.",
       "openRun": "Apri l’esecuzione per approvare"
+    }
+  },
+  "email": {
+    "description": "Le email con le persone dei tuoi database arrivano sulle loro righe: chiunque possa vedere una riga ne legge lì le email e risponde dalla propria casella di posta.",
+    "enabled": "Email sulle righe",
+    "enabledHint": "I membri collegano la propria casella di posta qui sotto. Vengono lette per intero solo le email il cui interlocutore è l’indirizzo email di una riga; il resto rimane nella casella di posta.",
+    "ownersOnly": "Solo i proprietari possono modificarlo.",
+    "databasesHeading": "Dove arrivano le email",
+    "databasesDescription": "Un messaggio va alla riga la cui proprietà email contiene l’indirizzo dell’interlocutore, nel primo di questi database in cui corrisponde esattamente una riga. Le risposte seguono la loro conversazione.",
+    "databasesNone": "Ancora nessun database",
+    "databasesNoneHint": "Aggiungi un database con una proprietà email, come i tuoi clienti o contatti.",
+    "moveUp": "Prova prima",
+    "moveDown": "Prova dopo",
+    "removeDatabase": "Smetti di abbinare le email a questo database",
+    "addressProperties": "Gli indirizzi sono in",
+    "addDatabase": "Aggiungi un database",
+    "addDatabaseHint": "Database con una proprietà email.",
+    "chooseDatabase": "Scegli un database",
+    "mailboxHeading": "La tua casella di posta",
+    "mailboxDescription": "La casella di posta che usi per questo spazio di lavoro. Viene letta per le email con le persone dei database qui sopra, e ciò che scrivi sulle righe viene inviato da lì. Gli altri tuoi spazi di lavoro non la vedono.",
+    "syncedAt": "letta {time}",
+    "change": "Cambia",
+    "disconnect": "Scollega",
+    "connect": "Prova e collega",
+    "testing": "Prova in corso…",
+    "consent": "Capisco che le email con le persone di questi database, inviate o ricevute tramite questa casella di posta, sono visibili sulle loro righe a chiunque possa vedere quelle righe.",
+    "status": {
+      "ok": "Collegata",
+      "connecting": "Collegamento in corso",
+      "error": {
+        "blocked": "Il server di posta è su una rete privata, che questo server non raggiunge.",
+        "notFound": "Il nome del server di posta non è stato trovato.",
+        "auth": "Il server di posta ha rifiutato il nome utente o la password. Controlla la password per le app.",
+        "tls": "Impossibile stabilire una connessione sicura con il server di posta.",
+        "unreachable": "Al momento il server di posta non è raggiungibile.",
+        "noInbox": "Il server di posta non mostra alcuna posta in arrivo."
+      }
+    },
+    "fields": {
+      "address": "Indirizzo email",
+      "displayName": "Nome sulle email in uscita",
+      "provider": "Provider di posta",
+      "chooseProvider": "Scegli…",
+      "otherProvider": "Altro (IMAP e SMTP)",
+      "imap": "In arrivo (IMAP)",
+      "smtp": "In uscita (SMTP)",
+      "host": "Server",
+      "port": "Porta",
+      "tls": "TLS",
+      "username": "Nome utente",
+      "usernamePlaceholder": "Di solito l’indirizzo email",
+      "password": "Password per le app",
+      "passwordKeep": "Lascia vuoto per mantenere quella attuale",
+      "passwordHelp": "Una password per le app creata per Leafdesk, non la password con cui accedi. Viene conservata crittografata e non viene più mostrata."
+    },
+    "providerHelp": {
+      "google": "Anche per gli indirizzi Google Workspace sul tuo dominio. Crea una password per le app nel tuo account Google, in Sicurezza (la verifica in due passaggi deve essere attiva).",
+      "yandex": "Crea una password per le app per la posta nelle impostazioni del tuo Yandex ID.",
+      "zoho": "Attiva l’accesso IMAP nelle impostazioni di Zoho Mail e crea una password per le app."
+    },
+    "membersHeading": "Caselle di posta dei membri",
+    "membersDescription": "Chi ha collegato una casella di posta in questo spazio di lavoro. Nessuno tranne il suo proprietario vede cosa contiene.",
+    "memberStatus": {
+      "connecting": "Collegamento in corso",
+      "ok": "Collegata",
+      "error": "Non funziona"
+    },
+    "errors": {
+      "disabled": "Le email sulle righe sono disattivate in questo spazio di lavoro.",
+      "invalid": "Alcuni dati non sono validi. Controllali e riprova.",
+      "consent": "Conferma che le email sulle righe sono visibili a chiunque possa vedere quelle righe.",
+      "noMailbox": "Collega prima la tua casella di posta in Impostazioni > Email.",
+      "rateLimited": "La tua casella di posta ha già inviato tutto ciò che può in quest’ora. Riprova più tardi.",
+      "notFound": "Il nome del server di posta non è stato trovato.",
+      "blocked": "Il server di posta è su una rete privata, che questo server non raggiunge.",
+      "auth": "Il server di posta ha rifiutato il nome utente o la password. Controlla la password per le app.",
+      "tls": "Impossibile stabilire una connessione sicura con il server di posta.",
+      "unreachable": "Impossibile raggiungere il server di posta. Controlla i nomi dei server e le porte.",
+      "noInbox": "Il server di posta non mostra alcuna posta in arrivo.",
+      "accessDenied": "Non hai l’accesso necessario per farlo.",
+      "gone": "Quel messaggio non è più su questa riga."
     }
   },
   "backup": {

@@ -230,6 +230,7 @@
     "rowUpdateTitle": "タイトル",
     "rowUpdateBody": "本文",
     "pageUpdated": "{actor}さんがこのページを編集しました",
+    "rowEmail": "{from}からのメール",
     "someone": "誰か",
     "joinRequestTitle": "参加リクエスト",
     "joinRequest": "{actor}が参加をリクエストしました",

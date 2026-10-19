@@ -230,6 +230,7 @@
     "rowUpdateTitle": "назва",
     "rowUpdateBody": "текст",
     "pageUpdated": "{actor}: зміни на цій сторінці",
+    "rowEmail": "Лист від {from}",
     "someone": "Хтось",
     "joinRequestTitle": "Запит на приєднання",
     "joinRequest": "{actor} просить приєднатися",

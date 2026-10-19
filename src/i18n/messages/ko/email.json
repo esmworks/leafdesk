@@ -230,6 +230,7 @@
     "rowUpdateTitle": "제목",
     "rowUpdateBody": "본문",
     "pageUpdated": "{actor} 님이 이 페이지를 편집했습니다",
+    "rowEmail": "{from}에게서 온 이메일",
     "someone": "알 수 없는 사용자",
     "joinRequestTitle": "참여 요청",
     "joinRequest": "{actor}님이 참여를 요청했습니다",

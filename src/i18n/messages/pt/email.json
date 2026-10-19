@@ -230,6 +230,7 @@
     "rowUpdateTitle": "o título",
     "rowUpdateBody": "o texto",
     "pageUpdated": "{actor} editou esta página",
+    "rowEmail": "E-mail de {from}",
     "someone": "Alguém",
     "joinRequestTitle": "Solicitação para participar",
     "joinRequest": "{actor} pediu para participar",

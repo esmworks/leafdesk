@@ -10,6 +10,7 @@
     "groups": "用户组",
     "agents": "智能体",
     "connections": "连接",
+    "email": "邮件",
     "analytics": "分析",
     "health": "健康状况",
     "security": "安全",
@@ -1209,7 +1210,8 @@
       "memberInvites": "谁可以添加成员",
       "allowedDomains": "允许的邮箱域名",
       "domainJoin": "这些域名的人登录时",
-      "joinRequests": "谁可以申请加入"
+      "joinRequests": "谁可以申请加入",
+      "email": "行中的邮件"
     },
     "values": {
       "on": "开启",
@@ -1352,6 +1354,11 @@
         "tool_called": "调用了“{target}”上的“{tool}”（{outcome}）",
         "approval_decided": "{decision}了智能体“{agent}”对“{target}”上“{tool}”的调用"
       },
+      "mail": {
+        "databases_changed": "设置了邮件进入的数据库：{names}",
+        "mailbox_connected": "连接了邮箱 {target}",
+        "mailbox_disconnected": "断开了邮箱 {target}"
+      },
       "backup": {
         "created": "备份了工作区（{count} 个页面）",
         "restored": "从备份恢复了工作区（{count} 个页面）"
@@ -1413,6 +1420,9 @@
     "pageUpdateTitle": "你关注的页面",
     "pageUpdateDescription": "其他人编辑了你关注的页面：你创建或编辑过的页面、你选择关注的页面，或你关注的团队空间中的页面。同一页面的邮件最多每隔几小时发送一次，每天超过几封后，其余的会合并为一封邮件。",
     "pageUpdateChannel": "你关注的页面：{channel}",
+    "rowEmailTitle": "行中的邮件",
+    "rowEmailDescription": "有邮件进入数据库行时：通过你自己的邮箱，或进入你关注的、分配给你的行。邮件已在邮箱中，因此不会再通过邮件发送给你。",
+    "rowEmailChannel": "行中的邮件：{channel}",
     "watchedHeading": "关注的页面",
     "watchedDescription": "你选择关注或编辑过的页面，以及你关注的团队空间。你也会关注自己创建的页面。关注者会收到编辑和新评论串的通知。",
     "watchedNone": "你还没有关注任何页面",
@@ -1650,6 +1660,87 @@
       "redo": "附上备注退回…",
       "notWhole": "此调用的内容比这里显示的更长，或包含此处已隐藏的值。批准前请打开其运行记录，查看将要发送的全部内容。",
       "openRun": "打开运行记录以批准"
+    }
+  },
+  "email": {
+    "description": "与数据库中人员的往来邮件会进入他们的行：能看到某一行的人都可以在那里阅读其邮件，并从自己的邮箱回复。",
+    "enabled": "行中的邮件",
+    "enabledHint": "成员在下方连接自己的邮箱。只有对方是某一行邮箱地址的邮件才会被完整读取；其余邮件留在邮箱中。",
+    "ownersOnly": "只有所有者可以更改此项。",
+    "databasesHeading": "邮件进入的位置",
+    "databasesDescription": "邮件会进入邮箱属性中包含对方地址的那一行，即在下列数据库中第一个恰好有一行匹配的数据库里。回复会跟随其所在的会话。",
+    "databasesNone": "还没有数据库",
+    "databasesNoneHint": "添加一个带邮箱属性的数据库，例如你的客户或联系人。",
+    "moveUp": "提前匹配",
+    "moveDown": "延后匹配",
+    "removeDatabase": "不再将邮件匹配到此数据库",
+    "addressProperties": "地址所在属性",
+    "addDatabase": "添加数据库",
+    "addDatabaseHint": "带邮箱属性的数据库。",
+    "chooseDatabase": "选择数据库",
+    "mailboxHeading": "你的邮箱",
+    "mailboxDescription": "你在此工作区使用的邮箱。系统会从中读取与上方数据库中人员的往来邮件，你在行中撰写的邮件也从这里发送。你的其他工作区看不到它。",
+    "syncedAt": "读取于 {time}",
+    "change": "更改",
+    "disconnect": "断开连接",
+    "connect": "测试并连接",
+    "testing": "正在测试…",
+    "consent": "我了解，通过此邮箱收发的、与这些数据库中人员的往来邮件，会在他们的行中向所有能看到这些行的人显示。",
+    "status": {
+      "ok": "已连接",
+      "connecting": "正在连接",
+      "error": {
+        "blocked": "邮件服务器位于私有网络中，此服务器无法访问。",
+        "notFound": "找不到邮件服务器的名称。",
+        "auth": "邮件服务器拒绝了用户名或密码。请检查应用专用密码。",
+        "tls": "无法与邮件服务器建立安全连接。",
+        "unreachable": "目前无法访问邮件服务器。",
+        "noInbox": "邮件服务器没有显示收件箱。"
+      }
+    },
+    "fields": {
+      "address": "邮箱地址",
+      "displayName": "发出邮件中的名称",
+      "provider": "邮件服务商",
+      "chooseProvider": "选择…",
+      "otherProvider": "其他（IMAP 和 SMTP）",
+      "imap": "收信（IMAP）",
+      "smtp": "发信（SMTP）",
+      "host": "服务器",
+      "port": "端口",
+      "tls": "TLS",
+      "username": "用户名",
+      "usernamePlaceholder": "通常是邮箱地址",
+      "password": "应用专用密码",
+      "passwordKeep": "留空以保留当前密码",
+      "passwordHelp": "为 Leafdesk 创建的应用专用密码，而不是你登录时使用的密码。它会加密保存，且不会再次显示。"
+    },
+    "providerHelp": {
+      "google": "也适用于你自有域名上的 Google Workspace 地址。在 Google 账号的“安全性”中创建应用专用密码（必须已开启两步验证）。",
+      "yandex": "在 Yandex ID 设置中为邮件创建应用专用密码。",
+      "zoho": "在 Zoho Mail 设置中开启 IMAP 访问，并创建应用专用密码。"
+    },
+    "membersHeading": "成员的邮箱",
+    "membersDescription": "在此工作区连接了邮箱的人。除邮箱主人外，没有人能看到其中的内容。",
+    "memberStatus": {
+      "connecting": "正在连接",
+      "ok": "已连接",
+      "error": "无法使用"
+    },
+    "errors": {
+      "disabled": "此工作区已关闭行中的邮件。",
+      "invalid": "部分信息无效。请检查后重试。",
+      "consent": "请确认行中的邮件会向所有能看到这些行的人显示。",
+      "noMailbox": "请先在“设置 > 邮件”中连接你的邮箱。",
+      "rateLimited": "你的邮箱在这一小时内的发送量已达上限。请稍后重试。",
+      "notFound": "找不到邮件服务器的名称。",
+      "blocked": "邮件服务器位于私有网络中，此服务器无法访问。",
+      "auth": "邮件服务器拒绝了用户名或密码。请检查应用专用密码。",
+      "tls": "无法与邮件服务器建立安全连接。",
+      "unreachable": "无法访问邮件服务器。请检查服务器名称和端口。",
+      "noInbox": "邮件服务器没有显示收件箱。",
+      "accessDenied": "你没有执行此操作的权限。",
+      "gone": "该邮件已不在这一行中。"
     }
   },
   "backup": {

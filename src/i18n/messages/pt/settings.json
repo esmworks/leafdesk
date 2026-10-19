@@ -10,6 +10,7 @@
     "groups": "Grupos",
     "agents": "Agentes",
     "connections": "Conexões",
+    "email": "E-mail",
     "analytics": "Análises",
     "health": "Saúde",
     "security": "Segurança",
@@ -1209,7 +1210,8 @@
       "memberInvites": "Quem pode adicionar membros",
       "allowedDomains": "Domínios de e-mail permitidos",
       "domainJoin": "Quando alguém destes domínios entra",
-      "joinRequests": "Quem pode pedir para entrar"
+      "joinRequests": "Quem pode pedir para entrar",
+      "email": "E-mail nas linhas"
     },
     "values": {
       "on": "Ativado",
@@ -1352,6 +1354,11 @@
         "tool_called": "Chamou “{tool}” em “{target}” ({outcome})",
         "approval_decided": "{decision} a chamada de “{tool}” em “{target}” feita pelo agente “{agent}”"
       },
+      "mail": {
+        "databases_changed": "Definiu os bancos de dados em que o e-mail chega: {names}",
+        "mailbox_connected": "Conectou a caixa de e-mail {target}",
+        "mailbox_disconnected": "Desconectou a caixa de e-mail {target}"
+      },
       "backup": {
         "created": "Fez backup do espaço de trabalho ({count, plural, one {# página} other {# páginas}})",
         "restored": "Restaurou o espaço de trabalho a partir de um backup ({count, plural, one {# página} other {# páginas}})"
@@ -1413,6 +1420,9 @@
     "pageUpdateTitle": "Páginas que você acompanha",
     "pageUpdateDescription": "Outra pessoa edita uma página que você acompanha: uma que você criou ou editou, escolheu acompanhar ou que está em um espaço de equipe que você acompanha. E-mails sobre a mesma página chegam no máximo a cada poucas horas e, depois de alguns por dia, o restante chega junto em um único e-mail.",
     "pageUpdateChannel": "Páginas que você acompanha: {channel}",
+    "rowEmailTitle": "E-mail nas linhas",
+    "rowEmailDescription": "Chega uma mensagem em uma linha de banco de dados: pela sua própria caixa de e-mail, ou em uma linha que você segue ou à qual está atribuído. Ela já está em uma caixa de e-mail, então nunca chega de novo por e-mail.",
+    "rowEmailChannel": "E-mail nas linhas: {channel}",
     "watchedHeading": "Páginas acompanhadas",
     "watchedDescription": "Páginas que você escolheu acompanhar ou editou, e espaços de equipe que você acompanha. Você também acompanha as páginas que criou. Quem acompanha fica sabendo de edições e novas conversas de comentários.",
     "watchedNone": "Você ainda não acompanha nenhuma página",
@@ -1650,6 +1660,87 @@
       "redo": "Devolver com uma nota…",
       "notWhole": "Esta chamada é maior do que o mostrado aqui ou contém valores mascarados aqui. Abra a execução dela para ver tudo o que seria enviado antes de aprová-la.",
       "openRun": "Abrir a execução para aprovar"
+    }
+  },
+  "email": {
+    "description": "Os e-mails com as pessoas dos seus bancos de dados chegam às linhas delas: quem pode ver uma linha lê os e-mails dela ali e responde da própria caixa de e-mail.",
+    "enabled": "E-mail nas linhas",
+    "enabledHint": "Os membros conectam a própria caixa de e-mail abaixo. Só são lidos por inteiro os e-mails cujo interlocutor é o endereço de e-mail de uma linha; o resto fica na caixa de e-mail.",
+    "ownersOnly": "Só proprietários podem alterar isso.",
+    "databasesHeading": "Onde o e-mail chega",
+    "databasesDescription": "Uma mensagem vai para a linha cuja propriedade de e-mail contém o endereço do interlocutor, no primeiro destes bancos de dados em que exatamente uma linha corresponde. As respostas seguem a conversa delas.",
+    "databasesNone": "Nenhum banco de dados ainda",
+    "databasesNoneHint": "Adicione um banco de dados com uma propriedade de e-mail, como seus clientes ou contatos.",
+    "moveUp": "Tentar antes",
+    "moveDown": "Tentar depois",
+    "removeDatabase": "Parar de associar e-mails a este banco de dados",
+    "addressProperties": "Os endereços estão em",
+    "addDatabase": "Adicionar um banco de dados",
+    "addDatabaseHint": "Bancos de dados com uma propriedade de e-mail.",
+    "chooseDatabase": "Escolha um banco de dados",
+    "mailboxHeading": "Sua caixa de e-mail",
+    "mailboxDescription": "A caixa de e-mail que você usa neste espaço de trabalho. Ela é lida em busca de e-mails com as pessoas dos bancos de dados acima, e o que você escreve nas linhas é enviado por ela. Seus outros espaços de trabalho não a veem.",
+    "syncedAt": "lida {time}",
+    "change": "Alterar",
+    "disconnect": "Desconectar",
+    "connect": "Testar e conectar",
+    "testing": "Testando…",
+    "consent": "Entendo que os e-mails com as pessoas destes bancos de dados, enviados ou recebidos por esta caixa de e-mail, aparecem nas linhas delas para todos que podem ver essas linhas.",
+    "status": {
+      "ok": "Conectada",
+      "connecting": "Conectando",
+      "error": {
+        "blocked": "O servidor de e-mail está em uma rede privada, que este servidor não alcança.",
+        "notFound": "O nome do servidor de e-mail não foi encontrado.",
+        "auth": "O servidor de e-mail recusou o nome de usuário ou a senha. Confira a senha de app.",
+        "tls": "Não foi possível estabelecer uma conexão segura com o servidor de e-mail.",
+        "unreachable": "Não é possível acessar o servidor de e-mail agora.",
+        "noInbox": "O servidor de e-mail não mostra nenhuma caixa de entrada."
+      }
+    },
+    "fields": {
+      "address": "Endereço de e-mail",
+      "displayName": "Nome nos e-mails enviados",
+      "provider": "Provedor de e-mail",
+      "chooseProvider": "Escolher…",
+      "otherProvider": "Outro (IMAP e SMTP)",
+      "imap": "Entrada (IMAP)",
+      "smtp": "Saída (SMTP)",
+      "host": "Servidor",
+      "port": "Porta",
+      "tls": "TLS",
+      "username": "Nome de usuário",
+      "usernamePlaceholder": "Geralmente o endereço de e-mail",
+      "password": "Senha de app",
+      "passwordKeep": "Deixe em branco para manter a atual",
+      "passwordHelp": "Uma senha de app criada para o Leafdesk, não a senha com que você faz login. Ela é guardada criptografada e nunca mais é mostrada."
+    },
+    "providerHelp": {
+      "google": "Também para endereços do Google Workspace no seu próprio domínio. Crie uma senha de app na sua Conta do Google, em Segurança (a verificação em duas etapas precisa estar ativada).",
+      "yandex": "Crie uma senha de app para e-mail nas configurações do seu Yandex ID.",
+      "zoho": "Ative o acesso IMAP nas configurações do Zoho Mail e crie uma senha de app."
+    },
+    "membersHeading": "Caixas de e-mail dos membros",
+    "membersDescription": "Quem conectou uma caixa de e-mail neste espaço de trabalho. Ninguém além do dono vê o que há nela.",
+    "memberStatus": {
+      "connecting": "Conectando",
+      "ok": "Conectada",
+      "error": "Não está funcionando"
+    },
+    "errors": {
+      "disabled": "O e-mail nas linhas está desativado neste espaço de trabalho.",
+      "invalid": "Alguns dados não são válidos. Confira-os e tente novamente.",
+      "consent": "Confirme que os e-mails nas linhas aparecem para todos que podem ver essas linhas.",
+      "noMailbox": "Primeiro conecte sua caixa de e-mail em Configurações > E-mail.",
+      "rateLimited": "Sua caixa de e-mail já enviou tudo o que pode nesta hora. Tente novamente mais tarde.",
+      "notFound": "O nome do servidor de e-mail não foi encontrado.",
+      "blocked": "O servidor de e-mail está em uma rede privada, que este servidor não alcança.",
+      "auth": "O servidor de e-mail recusou o nome de usuário ou a senha. Confira a senha de app.",
+      "tls": "Não foi possível estabelecer uma conexão segura com o servidor de e-mail.",
+      "unreachable": "Não foi possível acessar o servidor de e-mail. Confira os nomes dos servidores e as portas.",
+      "noInbox": "O servidor de e-mail não mostra nenhuma caixa de entrada.",
+      "accessDenied": "Você não tem acesso para fazer isso.",
+      "gone": "Essa mensagem não está mais nesta linha."
     }
   },
   "backup": {

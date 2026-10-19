@@ -10,6 +10,7 @@
     "groups": "Groupes",
     "agents": "Agents",
     "connections": "Connexions",
+    "email": "E-mail",
     "analytics": "Statistiques",
     "health": "Santé",
     "security": "Sécurité",
@@ -1209,7 +1210,8 @@
       "memberInvites": "Qui peut ajouter des membres",
       "allowedDomains": "Domaines de messagerie autorisés",
       "domainJoin": "Quand quelqu’un de ces domaines se connecte",
-      "joinRequests": "Qui peut demander à rejoindre"
+      "joinRequests": "Qui peut demander à rejoindre",
+      "email": "E-mails sur les lignes"
     },
     "values": {
       "on": "Activé",
@@ -1352,6 +1354,11 @@
         "tool_called": "A appelé « {tool} » sur « {target} » ({outcome})",
         "approval_decided": "Appel de « {tool} » sur « {target} » par l’agent « {agent} » : {decision}"
       },
+      "mail": {
+        "databases_changed": "A défini les bases de données où arrivent les e-mails : {names}",
+        "mailbox_connected": "A connecté la boîte mail {target}",
+        "mailbox_disconnected": "A déconnecté la boîte mail {target}"
+      },
       "backup": {
         "created": "A sauvegardé l’espace de travail ({count, plural, one {# page} other {# pages}})",
         "restored": "A restauré l’espace de travail à partir d’une sauvegarde ({count, plural, one {# page} other {# pages}})"
@@ -1413,6 +1420,9 @@
     "pageUpdateTitle": "Pages que vous surveillez",
     "pageUpdateDescription": "Quelqu’un d’autre modifie une page que vous surveillez : une page que vous avez créée ou modifiée, choisi de surveiller, ou qui se trouve dans un espace d’équipe que vous surveillez. Les e-mails sur une même page arrivent au plus toutes les quelques heures et, après quelques-uns par jour, les autres arrivent regroupés en un seul e-mail.",
     "pageUpdateChannel": "Pages que vous surveillez : {channel}",
+    "rowEmailTitle": "E-mails sur les lignes",
+    "rowEmailDescription": "Un message arrive sur une ligne de base de données : par votre propre boîte mail, ou sur une ligne que vous suivez ou à laquelle vous êtes assigné. Il est déjà dans une boîte mail, il ne vous est donc jamais renvoyé par e-mail.",
+    "rowEmailChannel": "E-mails sur les lignes : {channel}",
     "watchedHeading": "Pages surveillées",
     "watchedDescription": "Les pages que vous avez choisi de surveiller ou modifiées, et les espaces d’équipe que vous surveillez. Vous surveillez aussi les pages que vous avez créées. Ceux qui surveillent sont avertis des modifications et des nouveaux fils de commentaires.",
     "watchedNone": "Vous ne surveillez encore aucune page",
@@ -1650,6 +1660,87 @@
       "redo": "Renvoyer avec une note…",
       "notWhole": "Cet appel est plus long que ce qui est affiché ici, ou contient des valeurs masquées ici. Ouvrez son exécution pour voir tout ce qui serait envoyé avant de l’approuver.",
       "openRun": "Ouvrir l’exécution pour approuver"
+    }
+  },
+  "email": {
+    "description": "Les e-mails échangés avec les personnes de vos bases de données arrivent sur leurs lignes : tous ceux qui peuvent voir une ligne y lisent ses e-mails et y répondent depuis leur propre boîte mail.",
+    "enabled": "E-mails sur les lignes",
+    "enabledHint": "Les membres connectent leur propre boîte mail ci-dessous. Seuls les e-mails dont l’interlocuteur est l’adresse e-mail d’une ligne sont lus en entier ; le reste demeure dans la boîte mail.",
+    "ownersOnly": "Seuls les propriétaires peuvent modifier ce réglage.",
+    "databasesHeading": "Où arrivent les e-mails",
+    "databasesDescription": "Un message va sur la ligne dont la propriété e-mail contient l’adresse de l’interlocuteur, dans la première de ces bases de données où exactement une ligne correspond. Les réponses suivent leur fil.",
+    "databasesNone": "Aucune base de données pour l’instant",
+    "databasesNoneHint": "Ajoutez une base de données avec une propriété e-mail, comme vos clients ou vos contacts.",
+    "moveUp": "Essayer plus tôt",
+    "moveDown": "Essayer plus tard",
+    "removeDatabase": "Ne plus associer d’e-mails à cette base de données",
+    "addressProperties": "Les adresses sont dans",
+    "addDatabase": "Ajouter une base de données",
+    "addDatabaseHint": "Bases de données avec une propriété e-mail.",
+    "chooseDatabase": "Choisir une base de données",
+    "mailboxHeading": "Votre boîte mail",
+    "mailboxDescription": "La boîte mail que vous utilisez pour cet espace de travail. Elle est lue pour les e-mails échangés avec les personnes des bases de données ci-dessus, et ce que vous écrivez sur les lignes est envoyé depuis elle. Vos autres espaces de travail ne la voient pas.",
+    "syncedAt": "lue {time}",
+    "change": "Modifier",
+    "disconnect": "Déconnecter",
+    "connect": "Tester et connecter",
+    "testing": "Test en cours…",
+    "consent": "Je comprends que les e-mails échangés avec les personnes de ces bases de données, envoyés ou reçus par cette boîte mail, s’affichent sur leurs lignes pour tous ceux qui peuvent voir ces lignes.",
+    "status": {
+      "ok": "Connectée",
+      "connecting": "Connexion en cours",
+      "error": {
+        "blocked": "Le serveur de messagerie est sur un réseau privé, que ce serveur ne peut pas atteindre.",
+        "notFound": "Le nom du serveur de messagerie est introuvable.",
+        "auth": "Le serveur de messagerie a refusé le nom d’utilisateur ou le mot de passe. Vérifiez le mot de passe d’application.",
+        "tls": "Impossible d’établir une connexion sécurisée avec le serveur de messagerie.",
+        "unreachable": "Le serveur de messagerie est injoignable pour le moment.",
+        "noInbox": "Le serveur de messagerie n’affiche aucune boîte de réception."
+      }
+    },
+    "fields": {
+      "address": "Adresse e-mail",
+      "displayName": "Nom sur les e-mails envoyés",
+      "provider": "Fournisseur de messagerie",
+      "chooseProvider": "Choisir…",
+      "otherProvider": "Autre (IMAP et SMTP)",
+      "imap": "Entrant (IMAP)",
+      "smtp": "Sortant (SMTP)",
+      "host": "Serveur",
+      "port": "Port",
+      "tls": "TLS",
+      "username": "Nom d’utilisateur",
+      "usernamePlaceholder": "Généralement l’adresse e-mail",
+      "password": "Mot de passe d’application",
+      "passwordKeep": "Laissez vide pour conserver l’actuel",
+      "passwordHelp": "Un mot de passe d’application créé pour Leafdesk, pas celui avec lequel vous vous connectez. Il est conservé chiffré et n’est plus jamais affiché."
+    },
+    "providerHelp": {
+      "google": "Aussi pour les adresses Google Workspace sur votre propre domaine. Créez un mot de passe d’application dans votre compte Google, sous Sécurité (la validation en deux étapes doit être activée).",
+      "yandex": "Créez un mot de passe d’application pour la messagerie dans les paramètres de votre Yandex ID.",
+      "zoho": "Activez l’accès IMAP dans les paramètres de Zoho Mail et créez un mot de passe d’application."
+    },
+    "membersHeading": "Boîtes mail des membres",
+    "membersDescription": "Qui a connecté une boîte mail dans cet espace de travail. Personne d’autre que son propriétaire ne voit ce qu’elle contient.",
+    "memberStatus": {
+      "connecting": "Connexion en cours",
+      "ok": "Connectée",
+      "error": "Ne fonctionne pas"
+    },
+    "errors": {
+      "disabled": "Les e-mails sur les lignes sont désactivés dans cet espace de travail.",
+      "invalid": "Certaines informations ne sont pas valides. Vérifiez-les et réessayez.",
+      "consent": "Confirmez que les e-mails sur les lignes s’affichent pour tous ceux qui peuvent voir ces lignes.",
+      "noMailbox": "Connectez d’abord votre boîte mail dans Paramètres > E-mail.",
+      "rateLimited": "Votre boîte mail a envoyé tout ce qu’elle peut envoyer pour cette heure. Réessayez plus tard.",
+      "notFound": "Le nom du serveur de messagerie est introuvable.",
+      "blocked": "Le serveur de messagerie est sur un réseau privé, que ce serveur ne peut pas atteindre.",
+      "auth": "Le serveur de messagerie a refusé le nom d’utilisateur ou le mot de passe. Vérifiez le mot de passe d’application.",
+      "tls": "Impossible d’établir une connexion sécurisée avec le serveur de messagerie.",
+      "unreachable": "Le serveur de messagerie est injoignable. Vérifiez les noms des serveurs et les ports.",
+      "noInbox": "Le serveur de messagerie n’affiche aucune boîte de réception.",
+      "accessDenied": "Vous n’avez pas l’accès nécessaire pour faire cela.",
+      "gone": "Ce message n’est plus sur cette ligne."
     }
   },
   "backup": {

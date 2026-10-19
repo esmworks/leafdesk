@@ -230,6 +230,7 @@
     "rowUpdateTitle": "عنوان",
     "rowUpdateBody": "متن",
     "pageUpdated": "{actor} این صفحه را ویرایش کرد",
+    "rowEmail": "ایمیل از {from}",
     "someone": "یک نفر",
     "joinRequestTitle": "درخواست پیوستن",
     "joinRequest": "{actor} درخواست پیوستن داد",

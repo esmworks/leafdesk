@@ -230,6 +230,7 @@
     "rowUpdateTitle": "הכותרת",
     "rowUpdateBody": "הטקסט",
     "pageUpdated": "{actor} ערך את הדף הזה",
+    "rowEmail": "אימייל מ־{from}",
     "someone": "מישהו",
     "joinRequestTitle": "בקשת הצטרפות",
     "joinRequest": "{actor} ביקש להצטרף",

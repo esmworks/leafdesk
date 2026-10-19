@@ -230,6 +230,7 @@
     "rowUpdateTitle": "العنوان",
     "rowUpdateBody": "النص",
     "pageUpdated": "عدّل {actor} هذه الصفحة",
+    "rowEmail": "رسالة بريد من {from}",
     "someone": "شخص ما",
     "joinRequestTitle": "طلب انضمام",
     "joinRequest": "طلب {actor} الانضمام",

@@ -230,6 +230,7 @@
     "rowUpdateTitle": "название",
     "rowUpdateBody": "текст",
     "pageUpdated": "{actor}: изменения на этой странице",
+    "rowEmail": "Письмо от {from}",
     "someone": "Кто-то",
     "joinRequestTitle": "Запрос на вступление",
     "joinRequest": "{actor} просит принять в пространство",
