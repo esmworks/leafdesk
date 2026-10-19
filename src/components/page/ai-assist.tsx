@@ -38,6 +38,7 @@ import { AI_LANGUAGES, isAiErrorCode, type EditorAction } from "@/lib/ai";
 import { CALLOUT_BLOCK } from "@/lib/content-blocks";
 import { editorBlocksToMarkdown, editorMarkdownToBlocks } from "@/lib/editor-markdown";
 import type { PageEditor } from "./embed-blocks";
+import { knownPageTitle } from "./mentions";
 import { isRtl } from "@/components/direction";
 
 type AnyBlock = PageEditor["document"][number];
@@ -536,8 +537,9 @@ async function captureTarget(editor: PageEditor): Promise<Target | null> {
   // The panel opens from where the text starts: its right edge there when the line runs right to left.
   const left = isRtl(view.dom) ? start.right - Math.min(PANEL_WIDTH, window.innerWidth - 16) : start.left;
   // Everything above is read before the Markdown is written, while the selection is still the one opened on.
-  const text = selected.length ? (await editorBlocksToMarkdown(editor, selected)).trim() : "";
-  const before = (await editorBlocksToMarkdown(editor, document.slice(0, index + 1))).trim();
+  const markdown = (list: AnyBlock[]) => editorBlocksToMarkdown(editor, list, { pageTitle: knownPageTitle }).then((md) => md.trim());
+  const text = selected.length ? await markdown(selected) : "";
+  const before = await markdown(document.slice(0, index + 1));
   return { text, plain, range, before, blockId: block.id, top: coords.bottom + 8, left };
 }
 

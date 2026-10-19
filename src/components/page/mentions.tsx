@@ -93,6 +93,12 @@ function requestRef(id: string) {
   }, 10);
 }
 
+/** The title of a page the browser has fetched and the reader may open. */
+export function knownPageTitle(pageId: string): string | undefined {
+  const ref = refs.get(pageId);
+  return ref?.status === "ok" ? ref.title : undefined;
+}
+
 /** Fetches every known page again (their titles, icons or access may have changed). */
 export function refreshPageRefs() {
   void fetchRefs([...refs.keys()]);

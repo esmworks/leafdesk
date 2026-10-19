@@ -43,6 +43,15 @@ describe("Markdown of the editor's blocks (AI assistant, voice notes)", () => {
     expect(block.content).toEqual([text("A claim[^1].")]);
   });
 
+  it("writes links to mentioned pages with their titles, and reads them back as mentions", async () => {
+    const pageId = "0b9f7c1e-5a3d-4c2b-9e8f-1a2b3c4d5e6f";
+    const mention = { type: "mention", props: { kind: "page", pageId } };
+    const markdown = await editorBlocksToMarkdown(editor, [paragraph(text("See "), mention)], { pageTitle: (id) => (id === pageId ? "Roadmap" : undefined) });
+    expect(markdown.trim()).toBe(`See [Roadmap](/w/-/p/${pageId})`);
+    const [block] = await editorMarkdownToBlocks(editor, markdown);
+    expect(block.content).toMatchObject([text("See "), { type: "mention", props: { kind: "page", pageId } }]);
+  });
+
   it("adds no dashboard for a dashboard line the answer repeats", async () => {
     const dashboard = (await editorBlocksToMarkdown(editor, [{ id: "dash1", type: "dashboard", props: {}, children: [] }])).trim();
     expect(dashboard).toContain("dash1");

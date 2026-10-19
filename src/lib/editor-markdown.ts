@@ -20,8 +20,13 @@ export type MarkdownEditor<B extends MdBlock> = {
  */
 const nonce = () => Array.from(crypto.getRandomValues(new Uint8Array(6)), (byte) => byte.toString(16).padStart(2, "0")).join("");
 
-export async function editorBlocksToMarkdown<B extends MdBlock>(editor: MarkdownEditor<B>, blocks: B[]): Promise<string> {
-  const content = prepareMarkdownExport(blocks, nonce());
+/** `pageTitle`: the titles of mentioned pages the browser knows, so links to them say which page they are. */
+export async function editorBlocksToMarkdown<B extends MdBlock>(
+  editor: MarkdownEditor<B>,
+  blocks: B[],
+  { pageTitle }: { pageTitle?: (pageId: string) => string | undefined } = {},
+): Promise<string> {
+  const content = prepareMarkdownExport(blocks, nonce(), { pageTitle });
   return content.finish(await editor.blocksToMarkdownLossy(content.blocks as never));
 }
 
