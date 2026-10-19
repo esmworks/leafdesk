@@ -177,8 +177,9 @@ export function ChatThread({
                 send();
               }}
               className={cn(
-                "relative border border-border bg-bg transition-colors focus-within:border-fg-faint",
-                page ? "rounded-2xl px-3 pt-2.5 pb-2 shadow-[0_2px_12px_rgb(0_0_0/0.06)]" : "rounded-xl px-2 py-1.5",
+                // A faint edge that firms up a little while typing; the shadow lifts it off the page.
+                "relative border border-border/60 bg-bg transition-colors focus-within:border-border",
+                page ? "rounded-3xl px-4 pt-3 pb-2.5 shadow-[0_2px_12px_rgb(0_0_0/0.05)]" : "rounded-xl px-2 py-1.5",
               )}
             >
               <SkillList picker={skills} />
