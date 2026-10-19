@@ -57,7 +57,7 @@ const {
   workspaceSso,
 } = await import("@/db/schema");
 const { totpCode, totpKeyFromUri } = await import("@/lib/totp");
-const { getStorage } = await import("@/server/storage");
+const { instanceStorage } = await import("@/server/storage");
 const { createApiToken } = await import("@/server/api/tokens");
 
 const BASE = (process.env.APP_URL ?? "http://localhost:3000").replace(/\/$/, "");
@@ -290,7 +290,7 @@ async function uploadAvatar(jar: Jar, body: Uint8Array | string, headers: Record
 }
 
 async function stored(key: string) {
-  const body = await getStorage().get(key);
+  const body = await instanceStorage().get(key);
   if (!body) return false;
   await body.cancel();
   return true;

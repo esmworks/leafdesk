@@ -17,7 +17,7 @@
  * All rows go in one transaction, which stores the files first and removes them again when it fails.
  */
 import { randomBytes } from "node:crypto";
-import { eq, inArray, sql } from "drizzle-orm";
+import { and, eq, inArray, isNull, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { pagePublication, formPublication, storageDeletion, user, workspace, workspaceSite } from "@/db/schema";
 import { agentEmail } from "@/lib/agents";
@@ -32,7 +32,7 @@ import { recordAudit } from "@/server/audit";
 import { newSecretSalt } from "@/server/automations/webhook";
 import { newEventSecret } from "@/server/connections/manage";
 import { seal } from "@/server/secret-box";
-import { getStorage, uploadLimits } from "@/server/storage";
+import { instanceStorage, uploadLimits } from "@/server/storage";
 import { mayCreateWorkspace } from "@/server/workspaces";
 import { BackupError, SCHEMA_TAGS } from "./export";
 
@@ -218,10 +218,13 @@ function validate(manifest: BackupManifest, rows: Rows, files: Map<string, ZipEn
     }
   }
 
-  // Files are stored under the workspace, and each has its bytes in the archive.
+  // Files are stored under the workspace, and each has its bytes in the archive. They go to the
+  // instance's storage: a workspace's own storage isn't in backups (it is connected again).
   const fileIds = new Set<string>();
   for (const row of rows.get("file")!) {
     const id = row.id as string;
+    row.storage_id = null;
+    row.storage_object_id = null;
     if (!isFileId(id) || row.storage_key !== `${workspaceId}/${id}`) throw new BackupError("invalid", "a file is stored outside its workspace");
     const entry = files.get(fileEntryPath(id));
     if (!entry || entry.size !== Number(row.size)) throw new BackupError("invalid", `file ${id} is missing or damaged`);
@@ -464,7 +467,7 @@ const isUniqueViolation = (error: unknown) =>
   (error as { code?: string }).code === "23505" || (error as { cause?: { code?: string } }).cause?.code === "23505";
 
 async function storeAndInsert(actorId: string, archive: string, manifest: BackupManifest, rows: Rows, people: People, files: Map<string, ZipEntry>) {
-  const storage = getStorage();
+  const storage = instanceStorage();
   const stored: string[] = [];
   try {
     await db.transaction(async (tx) => {
@@ -505,9 +508,12 @@ async function storeAndInsert(actorId: string, archive: string, manifest: Backup
           sql`update page set teamspace_id = null where teamspace_id is not null and id in (${sql.join(outside.slice(i, i + 1000).map((id) => sql`${id}`), sql`, `)})`,
         );
       }
-      // Objects the old server meant to delete (a workspace restored after deleting it) stay.
+      // Objects the old server meant to delete (a workspace restored after deleting it) stay; those
+      // in a workspace's own storage are other objects, and still go.
       for (let i = 0; i < stored.length; i += 1000) {
-        await tx.delete(storageDeletion).where(inArray(storageDeletion.storageKey, stored.slice(i, i + 1000)));
+        await tx
+          .delete(storageDeletion)
+          .where(and(inArray(storageDeletion.storageKey, stored.slice(i, i + 1000)), isNull(storageDeletion.storageId)));
       }
       await recordAudit(
         {

@@ -123,6 +123,8 @@ export const LEFT_OUT: Record<string, string> = {
   page_update_pending: "emails waiting to go out",
   page_update_email: "emails waiting to go out",
   mailbox: "members' mailboxes and their passwords, connected again on the new server",
+  workspace_storage: "the workspace's own file storage and its keys, connected again on the new server",
+  workspace_storage_oauth: "storage sign-ins in progress",
 };
 
 export type BackupColumn = {

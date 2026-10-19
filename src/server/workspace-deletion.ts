@@ -5,7 +5,7 @@ import { confirmsWorkspaceName, type Proof } from "@/lib/account";
 import { type AccountSession, reauthenticate } from "@/server/account";
 import { AccessError, requireMembership } from "@/server/access";
 import { getCollab } from "@/server/collab/bridge";
-import { deleteQueued, queueStorageDeletion } from "@/server/files";
+import { deleteQueued, fileObject, fileObjectColumns, queueStorageDeletion } from "@/server/files";
 import { mailStatus, sendMail, workspaceDeletedEmail } from "@/server/mail";
 import { recipientLocale } from "@/server/mail/locale";
 import { afterCutOff, cutOffConnection } from "@/server/sso";
@@ -56,14 +56,14 @@ export async function deleteWorkspace(current: AccountSession, workspaceId: stri
       .select({ providerId: workspaceSso.providerId })
       .from(workspaceSso)
       .where(eq(workspaceSso.workspaceId, workspaceId));
-    const files = await tx.delete(file).where(eq(file.workspaceId, workspaceId)).returning({ key: file.storageKey });
-    await queueStorageDeletion(tx, files.map((f) => f.key));
+    const files = await tx.delete(file).where(eq(file.workspaceId, workspaceId)).returning(fileObjectColumns);
+    await queueStorageDeletion(tx, files.map(fileObject));
     await deleteWorkspaces(tx, [workspaceId]);
     // After the workspace is gone (see above). Nothing it deleted is needed: the sign-ins point at
     // the connection's provider id without a foreign key, so they are still there to forget.
     const cutOff: Awaited<ReturnType<typeof cutOffConnection>>[] = [];
     for (const { providerId } of connections) cutOff.push(await cutOffConnection(tx, providerId));
-    return { keys: files.map((f) => f.key), pageIds: pages.map((p) => p.id), people, cutOff };
+    return { keys: files.map(fileObject), pageIds: pages.map((p) => p.id), people, cutOff };
   });
 
   const tokens = cutOff.reduce((n, c) => n + c.counts.revokedApiTokens, 0);

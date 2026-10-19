@@ -71,7 +71,14 @@ export async function POST(request: Request) {
       return Response.json({ error: error.message, code: error.code }, { status });
     }
     if (error instanceof FileError) {
-      const status = error.code === "tooLarge" || error.code === "quotaExceeded" ? 413 : error.code === "notAllowed" ? 403 : 400;
+      const status =
+        error.code === "tooLarge" || error.code === "quotaExceeded"
+          ? 413
+          : error.code === "notAllowed"
+            ? 403
+            : error.code === "storageFailed"
+              ? 502
+              : 400;
       return Response.json({ error: error.message, code: error.code, limit: error.limit }, { status });
     }
     throw error;

@@ -1,7 +1,8 @@
 import { auth } from "@/lib/auth";
 import { dispositionOf, isSafeInline, parseRange } from "@/lib/files";
 import { fileForViewer } from "@/server/files";
-import { getStorage } from "@/server/storage";
+import { StorageError } from "@/server/storage";
+import { refOf, storageOf } from "@/server/storage/workspace";
 
 /**
  * Serves an uploaded file to whoever may read it (see server/files.ts `fileForViewer`): people who
@@ -12,6 +13,9 @@ import { getStorage } from "@/server/storage";
  * HTML included) is a download, never sniffed into something else, and sandboxed should a browser
  * render it anyway. Single byte ranges are served, so video and audio can seek. PDFs can be framed
  * by this site only (the inline viewer), with `?view=pdf` guaranteeing the frame gets a PDF.
+ *
+ * The bytes come from wherever the file is stored (the workspace's own storage or the instance's),
+ * always through here: that storage needs no public access.
  */
 const BASE_HEADERS = {
   "X-Content-Type-Options": "nosniff",
@@ -60,7 +64,17 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   if (range === "unsatisfiable") {
     return new Response(null, { status: 416, headers: { ...headers, "Content-Range": `bytes */${found.size}` } });
   }
-  const body = await getStorage().get(found.storageKey, range ?? undefined);
+  let body: ReadableStream<Uint8Array> | null;
+  try {
+    body = await (await storageOf(found)).get(refOf(found), range ?? undefined);
+  } catch (error) {
+    // The workspace's own storage refused or couldn't be reached (Settings > Storage shows why).
+    if (!(error instanceof StorageError)) throw error;
+    return new Response("The file's storage isn't answering", {
+      status: 502,
+      headers: { ...BASE_HEADERS, "Cache-Control": "no-store", "Content-Type": "text/plain" },
+    });
+  }
   if (!body) return notFound();
   if (range) {
     headers["Content-Range"] = `bytes ${range.start}-${range.end}/${found.size}`;

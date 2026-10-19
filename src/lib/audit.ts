@@ -41,7 +41,7 @@ export const AUDIT_CATEGORIES = {
     "teamspace.group_removed",
   ],
   groups: ["group.created", "group.renamed", "group.deleted", "group.members_added", "group.members_removed"],
-  settings: ["workspace.renamed", "workspace.settings_changed"],
+  settings: ["workspace.renamed", "workspace.settings_changed", "storage.connected", "storage.disconnected"],
   security: [
     "sso.configured",
     "sso.domains_verified",
@@ -138,6 +138,7 @@ export type AuditTargetType =
   | "api_token"
   | "connected_app"
   | "join_link"
+  | "storage"
   | "site"
   | "connection"
   | "mailbox";

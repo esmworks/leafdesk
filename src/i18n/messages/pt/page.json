@@ -476,7 +476,8 @@
   "upload": {
     "tooLarge": "{name} é grande demais. Os arquivos podem ter no máximo {limit}.",
     "quotaExceeded": "{name} não foi enviado: este espaço de trabalho já usou seus {limit} de armazenamento de arquivos.",
-    "failed": "Não foi possível enviar {name}."
+    "failed": "Não foi possível enviar {name}.",
+    "storageFailed": "{name} não foi enviado: o armazenamento próprio do espaço de trabalho não o aceitou. Os proprietários dele podem ver o motivo em Configurações > Armazenamento."
   },
   "mention": {
     "people": "Pessoas",

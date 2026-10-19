@@ -4,6 +4,7 @@ import {
   ChartColumn,
   ContactRound,
   Globe,
+  HardDrive,
   HeartPulse,
   Mail,
   Plug,
@@ -28,6 +29,7 @@ import { GuestsPanel } from "@/components/settings/guests-panel";
 import { HealthPanel } from "@/components/settings/health-panel";
 import { AiSettings } from "@/components/settings/ai-settings";
 import { MailSettings } from "@/components/settings/mail-settings";
+import { StorageSettings } from "@/components/settings/storage-settings";
 import { DeleteWorkspaceRow } from "@/components/settings/delete-workspace";
 import { LeaveWorkspaceRow } from "@/components/settings/leave-workspace";
 import { MembersPanel } from "@/components/settings/members-panel";
@@ -78,6 +80,8 @@ import { connectedAppsMode } from "@/server/connected-app";
 import { builtinAgents } from "@/server/agents/builtin";
 import { allowedDomainsStatus } from "@/server/allowed-domains";
 import { getMailSettings } from "@/server/row-mail/settings";
+import { storageNoticeOf, type StorageNotice } from "@/lib/workspace-storage";
+import { getStorageSettings } from "@/server/storage/settings";
 import { listAgents } from "@/server/agents/manage";
 import { proposedNoteCounts } from "@/server/agents/memory";
 import { listConnections } from "@/server/connections/manage";
@@ -126,6 +130,7 @@ const ICONS: Record<SettingsTab, LucideIcon> = {
   agents: Bot,
   connections: Plug,
   email: Mail,
+  storage: HardDrive,
   analytics: ChartColumn,
   health: HeartPulse,
   security: Shield,
@@ -234,6 +239,7 @@ export default async function SettingsPage({
             />
           )}
           {tab === "email" && <EmailTab workspaceId={workspaceId} userId={user.id} />}
+          {tab === "storage" && <StorageTab workspaceId={workspaceId} userId={user.id} notice={storageNoticeOf(query)} />}
           {tab === "analytics" && <AnalyticsTab workspaceId={workspaceId} userId={user.id} days={query.days} />}
           {tab === "health" && <HealthTab workspaceId={workspaceId} userId={user.id} months={query.months} />}
           {tab === "security" && <SecurityTab workspaceId={workspaceId} userId={user.id} isOwner={isOwner} />}
@@ -254,6 +260,17 @@ async function EmailTab({ workspaceId, userId }: { workspaceId: string; userId: 
     <>
       <SettingsHeader title={t("nav.email")} description={t("email.description")} />
       <MailSettings workspaceId={workspaceId} initial={view} />
+    </>
+  );
+}
+
+/** Settings > Storage, for owners: where the workspace's uploads are kept (see server/storage/settings.ts). */
+async function StorageTab({ workspaceId, userId, notice }: { workspaceId: string; userId: string; notice?: StorageNotice }) {
+  const [view, t] = await Promise.all([getStorageSettings(userId, workspaceId), getTranslations("settings")]);
+  return (
+    <>
+      <SettingsHeader title={t("nav.storage")} description={t("storage.description")} />
+      <StorageSettings workspaceId={workspaceId} initial={view} notice={notice} />
     </>
   );
 }

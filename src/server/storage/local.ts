@@ -4,7 +4,7 @@ import { mkdir, rename, rm, stat } from "node:fs/promises";
 import { dirname, join, resolve, sep } from "node:path";
 import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
-import { assertKey, type StorageDriver } from "./driver";
+import { assertKey, keyOf, type StorageDriver } from "./driver";
 
 /**
  * Files on a local disk (a Docker volume in production), one file per key under `root`. Writes go
@@ -39,8 +39,8 @@ export function localDriver(root: string): StorageDriver {
       }
     },
 
-    async get(key, range) {
-      const path = pathOf(key);
+    async get(ref, range) {
+      const path = pathOf(keyOf(ref));
       try {
         await stat(path);
       } catch (error) {
@@ -51,8 +51,8 @@ export function localDriver(root: string): StorageDriver {
       return Readable.toWeb(stream) as ReadableStream<Uint8Array>;
     },
 
-    async delete(key) {
-      await rm(pathOf(key), { force: true });
+    async delete(ref) {
+      await rm(pathOf(keyOf(ref)), { force: true });
     },
   };
 }

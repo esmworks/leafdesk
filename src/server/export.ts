@@ -19,7 +19,7 @@ import { resolveEmbeds } from "@/server/embeds";
 import { labelPageLinks } from "@/server/mentions";
 import { ENGLISH_SYNCED_LABELS, expandSyncedMarkdown, type SyncedLabels } from "@/server/synced-blocks";
 import { propertyAccessFor, type PropertyAccess } from "@/server/property-access";
-import { getStorage } from "@/server/storage";
+import { refOf, storageResolver } from "@/server/storage/workspace";
 import { exportAllowed } from "@/server/workspaces";
 
 /**
@@ -251,7 +251,16 @@ type PlannedPage = {
   updatedAt: Date;
 };
 
-type PlannedFile = { id: string; name: string; contentType: string; size: number; storageKey: string; createdAt: Date };
+type PlannedFile = {
+  id: string;
+  name: string;
+  contentType: string;
+  size: number;
+  storageKey: string;
+  storageId: string | null;
+  storageObjectId: string | null;
+  createdAt: Date;
+};
 
 export type ExportPlan = {
   workspaceId: string;
@@ -353,6 +362,8 @@ export async function planExport(userId: string, scope: ExportScope, labels: Exp
         contentType: file.contentType,
         size: file.size,
         storageKey: file.storageKey,
+        storageId: file.storageId,
+        storageObjectId: file.storageObjectId,
         createdAt: file.createdAt,
         pageId: fileReference.pageId,
       })
@@ -480,17 +491,19 @@ export function exportArchive(
     else if (chunk.length) queue.push(chunk);
   });
   const encoder = new TextEncoder();
-  const storage = getStorage();
+  const storageOf = storageResolver();
 
   async function* build(): AsyncGenerator<void> {
     // Files first: a link is only rewritten to a file that made it into the archive.
     const written = new Map<string, string>();
     for (const f of plan.files) {
       const path = plan.layout.files.get(f.id)!;
-      const body = await storage.get(f.storageKey).catch((error) => {
-        console.error(`[export] couldn't read ${f.storageKey}`, error);
-        return null;
-      });
+      const body = await storageOf(f)
+        .then((storage) => storage.get(refOf(f)))
+        .catch((error: unknown) => {
+          console.error(`[export] couldn't read ${f.storageKey}`, error);
+          return null;
+        });
       if (!body) continue;
       const entry = COMPRESSED.test(f.contentType) ? new ZipPassThrough(path) : new ZipDeflate(path, { level: 6 });
       entry.mtime = zipTime(f.createdAt);

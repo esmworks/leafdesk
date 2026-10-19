@@ -38,7 +38,7 @@ const { createPage } = await import("@/server/pages");
 const { addProperty } = await import("@/server/databases");
 const { createRowTemplate } = await import("@/server/templates");
 const { uploadFile } = await import("@/server/files");
-const { getStorage } = await import("@/server/storage");
+const { instanceStorage } = await import("@/server/storage");
 const exporter = await import("@/server/export");
 const { importPages } = await import("@/server/import/markdown");
 
@@ -217,7 +217,7 @@ try {
 
   const [storedPhoto] = await db.select().from(file).where(eq(file.workspaceId, target));
   check(storedPhoto?.name === "photo.png", "the image is uploaded to the new workspace", storedPhoto);
-  const stored = Buffer.from(await new Response(await getStorage().get(storedPhoto.storageKey)).arrayBuffer());
+  const stored = Buffer.from(await new Response(await instanceStorage().get(storedPhoto.storageKey)).arrayBuffer());
   check(stored.equals(png), "…byte for byte");
   const projectBody = (await getCollab().readPage(one("Project").id)).markdown;
   check(projectBody.includes(`/api/files/${storedPhoto.id}`) && projectBody.includes(`/w/${target}/p/${one("Plan").id}`), "the body shows the upload and links the imported Plan", projectBody);

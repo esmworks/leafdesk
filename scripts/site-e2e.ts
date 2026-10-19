@@ -32,7 +32,7 @@ const dup = await import("@/server/published-duplicate");
 const { createPage, archivePage } = await import("@/server/pages");
 const { setPagePermission } = await import("@/server/permissions");
 const { storeFile } = await import("@/server/files");
-const { getStorage } = await import("@/server/storage");
+const { instanceStorage } = await import("@/server/storage");
 const { AccessError } = await import("@/server/access");
 const { getCollab, registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
@@ -293,7 +293,7 @@ try {
   check(copiedChapter.contentMarkdown.includes(`/api/files/${copiedFile.id}`) && !copiedChapter.contentMarkdown.includes(image.id), "the copy shows the copied file");
   const refs = await db.select().from(fileReference).where(eq(fileReference.fileId, copiedFile.id));
   check(refs.some((r) => r.pageId === copiedChapter.id), "the copied file counts as shown by the copy");
-  const bytes = Buffer.from(await new Response(await getStorage().get(copiedFile.storageKey)).arrayBuffer()).toString();
+  const bytes = Buffer.from(await new Response(await instanceStorage().get(copiedFile.storageKey)).arrayBuffer()).toString();
   check(bytes === "not really a png", "the file's bytes were copied");
 
   const viaToken = await byVisitor(guidePub.token, chapter.id, target, true);
@@ -338,7 +338,7 @@ try {
 } finally {
   // Stored bytes don't go with the rows: remove them first.
   const stored = await db.select({ key: file.storageKey }).from(file).where(inArray(file.workspaceId, [source, target]));
-  for (const { key } of stored) await getStorage().delete(key).catch(() => {});
+  for (const { key } of stored) await instanceStorage().delete(key).catch(() => {});
   await db.delete(workspaceSite).where(and(eq(workspaceSite.workspaceId, source)));
   await db.delete(pagePublication).where(inArray(pagePublication.publishedBy, userIds));
   await db.delete(workspace).where(inArray(workspace.id, [source, target]));

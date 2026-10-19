@@ -476,7 +476,8 @@
   "upload": {
     "tooLarge": "{name} è troppo grande. I file possono essere al massimo di {limit}.",
     "quotaExceeded": "{name} non è stato caricato: questo spazio di lavoro ha esaurito i suoi {limit} di spazio per i file.",
-    "failed": "Impossibile caricare {name}."
+    "failed": "Impossibile caricare {name}.",
+    "storageFailed": "{name} non è stato caricato: l’archiviazione propria dello spazio di lavoro non l’ha accettato. I suoi proprietari possono vedere il motivo in Impostazioni > Archiviazione."
   },
   "mention": {
     "people": "Persone",

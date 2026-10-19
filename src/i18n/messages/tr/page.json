@@ -476,7 +476,8 @@
   "upload": {
     "tooLarge": "{name} çok büyük. Dosyalar en fazla {limit} olabilir.",
     "quotaExceeded": "{name} yüklenmedi: bu çalışma alanı {limit} dosya depolama alanının tamamını kullandı.",
-    "failed": "{name} yüklenemedi."
+    "failed": "{name} yüklenemedi.",
+    "storageFailed": "{name} yüklenmedi: çalışma alanının kendi depolaması dosyayı kabul etmedi. Nedenini sahipleri Ayarlar > Depolama'da görebilir."
   },
   "mention": {
     "people": "Kişiler",

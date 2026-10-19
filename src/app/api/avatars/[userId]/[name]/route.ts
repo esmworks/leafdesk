@@ -1,6 +1,6 @@
 import { auth } from "@/lib/auth";
 import { AVATAR_TYPES, avatarStorageKey, parseAvatarParts } from "@/lib/avatar";
-import { getStorage } from "@/server/storage";
+import { instanceStorage } from "@/server/storage";
 
 /**
  * Serves an uploaded profile picture (see lib/avatar.ts) to signed-in people: they show next to
@@ -32,7 +32,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ user
     ETag: etag,
   };
   if (request.headers.get("if-none-match") === etag) return new Response(null, { status: 304, headers });
-  const body = await getStorage().get(avatarStorageKey(userId, name));
+  const body = await instanceStorage().get(avatarStorageKey(userId, name));
   if (!body) return notFound();
   return new Response(body, { status: 200, headers });
 }

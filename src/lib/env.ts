@@ -1,4 +1,5 @@
 import { connectionOAuthClientsFrom } from "@/lib/connections";
+import type { OAuthStorageKind } from "@/lib/workspace-storage";
 import { sessionDaysFrom } from "@/lib/session-lifetime";
 import { adminEmailsFrom, workspaceCreationFrom } from "@/lib/instance-admin";
 import { vapidFrom } from "@/lib/push";
@@ -84,6 +85,25 @@ export const env = {
       .filter(Boolean);
   },
   /**
+   * STORAGE_ALLOWED_HOSTS: hosts (names, or host:port) a workspace's own S3-compatible storage may
+   * be on even though they are on a private network, a local name or plain http (MinIO on the same
+   * machine, say); comma-separated. Every other endpoint is reached only on public https addresses.
+   */
+  get storageAllowedHosts() {
+    return (process.env.STORAGE_ALLOWED_HOSTS ?? "")
+      .split(",")
+      .map((h) => h.trim().toLowerCase())
+      .filter(Boolean);
+  },
+  /**
+   * STORAGE_GDRIVE_CLIENT_ID/SECRET and STORAGE_DROPBOX_CLIENT_ID/SECRET: the apps the instance
+   * registered with Google and Dropbox, which owners sign in to when they keep a workspace's
+   * uploads in their Drive or Dropbox. A kind without both values can't be connected.
+   */
+  get storageOAuthApps() {
+    return storageOAuthAppsFrom(process.env);
+  },
+  /**
    * CONNECTION_OAUTH_CLIENTS: OAuth apps the instance registered with services of the connection
    * catalog that don't let Leafdesk register itself (Slack, HubSpot…), so owners needn't make their
    * own: `slack=CLIENT_ID:CLIENT_SECRET,discord=CLIENT_ID` (see connectionOAuthClientsFrom).
@@ -162,3 +182,19 @@ export const mcpResource = () => `${env.appUrl}/mcp`;
  * inside the container (port mapping, reverse proxy), so self-requests use loopback.
  */
 export const internalUrl = () => `http://127.0.0.1:${process.env.PORT ?? 3000}`;
+
+export type StorageOAuthApp = { clientId: string; clientSecret: string };
+
+/** The storage sign-in apps set in `vars`, by kind (see env.storageOAuthApps). */
+export function storageOAuthAppsFrom(vars: Record<string, string | undefined>): Partial<Record<OAuthStorageKind, StorageOAuthApp>> {
+  const apps: Partial<Record<OAuthStorageKind, StorageOAuthApp>> = {};
+  for (const [kind, name] of [
+    ["gdrive", "GDRIVE"],
+    ["dropbox", "DROPBOX"],
+  ] as const) {
+    const clientId = vars[`STORAGE_${name}_CLIENT_ID`]?.trim();
+    const clientSecret = vars[`STORAGE_${name}_CLIENT_SECRET`]?.trim();
+    if (clientId && clientSecret) apps[kind] = { clientId, clientSecret };
+  }
+  return apps;
+}

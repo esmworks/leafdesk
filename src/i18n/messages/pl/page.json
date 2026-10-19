@@ -476,7 +476,8 @@
   "upload": {
     "tooLarge": "Plik {name} jest za duży. Pliki mogą mieć najwyżej {limit}.",
     "quotaExceeded": "Nie przesłano pliku {name}: ten obszar roboczy wykorzystał limit {limit} miejsca na pliki.",
-    "failed": "Nie udało się przesłać pliku {name}."
+    "failed": "Nie udało się przesłać pliku {name}.",
+    "storageFailed": "Nie przesłano pliku {name}: własny magazyn obszaru roboczego go nie przyjął. Jego właściciele mogą sprawdzić, dlaczego, w sekcji Ustawienia > Magazyn."
   },
   "mention": {
     "people": "Osoby",

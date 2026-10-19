@@ -476,7 +476,8 @@
   "upload": {
     "tooLarge": "{name} ist zu groß. Dateien dürfen höchstens {limit} groß sein.",
     "quotaExceeded": "{name} wurde nicht hochgeladen: Dieser Workspace hat seine {limit} Dateispeicher aufgebraucht.",
-    "failed": "{name} konnte nicht hochgeladen werden."
+    "failed": "{name} konnte nicht hochgeladen werden.",
+    "storageFailed": "{name} wurde nicht hochgeladen: Der eigene Speicher des Workspaces hat die Datei nicht angenommen. Die Inhaber sehen unter Einstellungen > Speicher, warum."
   },
   "mention": {
     "people": "Personen",

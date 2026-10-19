@@ -20,7 +20,7 @@ export type UploadFile = (file: File) => Promise<FileValue>;
 
 export class UploadError extends Error {
   constructor(
-    readonly code: "tooLarge" | "quotaExceeded" | "rateLimited" | "failed",
+    readonly code: "tooLarge" | "quotaExceeded" | "rateLimited" | "storageFailed" | "failed",
     readonly fileName: string,
     readonly limit?: number,
   ) {
@@ -49,7 +49,8 @@ export async function postFile(endpoint: string, file: File, headers: Record<str
     | { url?: string; name?: string; contentType?: string; code?: string; limit?: number }
     | null;
   if (!res.ok || !data?.url) {
-    const code = data?.code === "tooLarge" || data?.code === "quotaExceeded" || data?.code === "rateLimited" ? data.code : "failed";
+    const code =
+      data?.code === "tooLarge" || data?.code === "quotaExceeded" || data?.code === "rateLimited" || data?.code === "storageFailed" ? data.code : "failed";
     throw new UploadError(code, name, data?.limit);
   }
   return { url: data.url, name: data.name ?? name, type: data.contentType ?? "application/octet-stream" };
@@ -68,6 +69,7 @@ export function useUploadErrorMessage() {
     if (error.code === "tooLarge") return t("tooLarge", { name: error.fileName, limit });
     if (error.code === "quotaExceeded") return t("quotaExceeded", { name: error.fileName, limit });
     if (error.code === "rateLimited") return tf("rateLimited");
+    if (error.code === "storageFailed") return t("storageFailed", { name: error.fileName });
     return t("failed", { name: error.fileName });
   };
 }

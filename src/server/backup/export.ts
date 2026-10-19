@@ -29,7 +29,7 @@ import { requireMembership } from "@/server/access";
 import { readAiConfig } from "@/server/ai/config";
 import { recordAudit } from "@/server/audit";
 import { getCollab } from "@/server/collab/bridge";
-import { getStorage } from "@/server/storage";
+import { refOf, storageResolver } from "@/server/storage/workspace";
 import { exportAllowed } from "@/server/workspaces";
 import journal from "../../../drizzle/meta/_journal.json";
 import pkg from "../../../package.json";
@@ -116,7 +116,7 @@ export type BackupSnapshot = {
   manifest: BackupManifest;
   /** The table entries in archive order: their path there and on disk. */
   entries: { path: string; file: string }[];
-  files: { id: string; storageKey: string; contentType: string; createdAt: Date }[];
+  files: { id: string; storageKey: string; storageId: string | null; storageObjectId: string | null; contentType: string; createdAt: Date }[];
 };
 
 /**
@@ -177,6 +177,8 @@ export async function snapshotWorkspace(plan: BackupPlan): Promise<BackupSnapsho
                 files.push({
                   id: row.id as string,
                   storageKey: row.storageKey as string,
+                  storageId: (row.storageId as string | null) ?? null,
+                  storageObjectId: (row.storageObjectId as string | null) ?? null,
                   contentType: row.contentType as string,
                   createdAt: row.createdAt as Date,
                 });
@@ -278,7 +280,7 @@ export function backupArchive(snapshot: BackupSnapshot, { onDone }: { onDone?: (
     if (error) zipError = error;
     else if (chunk.length) queue.push(chunk);
   });
-  const storage = getStorage();
+  const storageOf = storageResolver();
   const now = new Date();
 
   async function* build(): AsyncGenerator<void> {
@@ -301,7 +303,7 @@ export function backupArchive(snapshot: BackupSnapshot, { onDone }: { onDone?: (
     }
 
     for (const f of snapshot.files) {
-      const body = await storage.get(f.storageKey);
+      const body = await (await storageOf(f)).get(refOf(f));
       if (!body) throw new Error(`file ${f.id} is missing from the storage`);
       const out = COMPRESSED.test(f.contentType) ? new ZipPassThrough(fileEntryPath(f.id)) : new ZipDeflate(fileEntryPath(f.id), { level: 6 });
       out.mtime = now;

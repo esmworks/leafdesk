@@ -11,6 +11,7 @@
     "agents": "Agents",
     "connections": "Connections",
     "email": "Email",
+    "storage": "Storage",
     "analytics": "Analytics",
     "health": "Health",
     "security": "Security",
@@ -1359,6 +1360,10 @@
         "mailbox_connected": "Connected the mailbox {target}",
         "mailbox_disconnected": "Disconnected the mailbox {target}"
       },
+      "storage": {
+        "connected": "Connected the workspace's own storage {target}",
+        "disconnected": "Disconnected the workspace's own storage {target}"
+      },
       "backup": {
         "created": "Backed up the workspace ({count, plural, one {# page} other {# pages}})",
         "restored": "Restored the workspace from a backup ({count, plural, one {# page} other {# pages}})"
@@ -1743,6 +1748,87 @@
       "noInbox": "The mail server shows no inbox.",
       "accessDenied": "You don't have access to do this.",
       "gone": "That message isn't on this row any more."
+    }
+  },
+  "storage": {
+    "description": "Where this workspace's uploaded files are kept. Connect storage of the workspace's own (an S3-compatible bucket, Google Drive or Dropbox) and new files go there instead of this server. Leafdesk still serves every file itself, so the storage stays private: no public access or sharing is needed.",
+    "currentHeading": "Where new files go",
+    "instance": "This server",
+    "instanceHint": "Files are kept on the server Leafdesk runs on.",
+    "instanceUsage": "{used} of {quota} used.",
+    "instanceUsageNoQuota": "{used} used.",
+    "kinds": {
+      "s3": "S3-compatible storage",
+      "gdrive": "Google Drive",
+      "dropbox": "Dropbox"
+    },
+    "kindHints": {
+      "s3": "AWS S3, Cloudflare R2, Backblaze B2, MinIO, or any other storage that speaks the S3 protocol.",
+      "gdrive": "Files go in a folder Leafdesk makes in your Drive. Leafdesk can only see the files it made there, nothing else in your Drive.",
+      "dropbox": "Files go in Leafdesk's app folder in your Dropbox (under Apps). Leafdesk can't see anything outside it."
+    },
+    "status": {
+      "active": "Working, checked {time}",
+      "broken": "Not working: {error}"
+    },
+    "files": "{count, plural, =0 {No files yet} one {# file, {size}} other {# files, {size}}}",
+    "noQuota": "no storage limit of this server applies",
+    "olderFiles": "Files uploaded before it was connected stay on this server ({size}).",
+    "testAgain": "Test again",
+    "testing": "Testing…",
+    "change": "Change",
+    "disconnect": "Disconnect",
+    "disconnectNote": "New files will go to this server again. Files already in that storage stay there and are still read from it until they are deleted.",
+    "connectHeading": "Connect storage",
+    "changeHeading": "Change storage",
+    "connectDescription": "Before anything is saved, a test file is stored, read back and deleted. Files already uploaded stay where they are.",
+    "fields": {
+      "kind": "Kind of storage",
+      "endpoint": "Endpoint",
+      "endpointHint": "The storage's S3 address, starting with https://. Leave it empty for AWS S3.",
+      "bucket": "Bucket",
+      "region": "Region",
+      "regionHint": "us-east-1 when unsure; auto for Cloudflare R2.",
+      "prefix": "Folder",
+      "prefixHint": "Optional: files go under this folder of the bucket.",
+      "accessKeyId": "Access key ID",
+      "secretAccessKey": "Secret access key",
+      "keysKeep": "Empty keeps the current key",
+      "keysHint": "Give these keys access to this bucket only. They are stored encrypted and never shown again.",
+      "pathStyle": "Address the bucket by path",
+      "pathStyleHint": "Needed for MinIO and most storage other than AWS S3."
+    },
+    "test": "Test connection",
+    "testOk": "It works: a test file went there and back.",
+    "connect": "Connect",
+    "connecting": "Connecting…",
+    "save": "Save",
+    "retiredHeading": "Earlier storage",
+    "retiredDescription": "Storage disconnected before that still holds files. They are read from there until they are deleted.",
+    "errors": {
+      "accessDenied": "Only the workspace's owners can change where its files are stored.",
+      "endpoint": "Enter the endpoint as a web address, like https://storage.example.com.",
+      "region": "Enter a region of lowercase letters, digits and dashes, like us-east-1.",
+      "bucket": "Enter the bucket's name: 3 to 63 letters, digits, dots, dashes or underscores.",
+      "prefix": "A folder may only hold letters, digits, dashes and underscores, separated by slashes.",
+      "accessKeyId": "Enter the access key ID.",
+      "secretAccessKey": "Enter the secret access key.",
+      "unavailable": "That kind of storage can't be connected yet.",
+      "refused": "The storage didn't work: {message}",
+      "rateLimited": "Too many tries. Wait a few minutes, then try again.",
+      "noStorage": "This workspace has no storage of its own connected.",
+      "notConfigured": "This server isn't set up for that kind of storage.",
+      "oauthFailed": "Signing in didn't work, so nothing was changed. Try again."
+    },
+    "signIn": "Sign in to {provider}",
+    "signInAgain": "Sign in to {provider} again",
+    "signingIn": "Opening…",
+    "signInHint": "You sign in at {provider} and come back here. Before anything is saved, a test file is stored, read back and deleted.",
+    "notConfigured": "This server isn't set up for {provider} yet. Its administrator needs to register an app with {provider} and set {vars}.",
+    "dismiss": "Dismiss",
+    "notices": {
+      "connected": "Connected. New files go there from now on.",
+      "refused": "You signed in, but a test file couldn't be stored there, so nothing was changed. Try again later."
     }
   },
   "backup": {

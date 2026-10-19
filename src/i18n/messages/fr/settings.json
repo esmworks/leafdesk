@@ -11,6 +11,7 @@
     "agents": "Agents",
     "connections": "Connexions",
     "email": "E-mail",
+    "storage": "Stockage",
     "analytics": "Statistiques",
     "health": "Santé",
     "security": "Sécurité",
@@ -1359,6 +1360,10 @@
         "mailbox_connected": "A connecté la boîte mail {target}",
         "mailbox_disconnected": "A déconnecté la boîte mail {target}"
       },
+      "storage": {
+        "connected": "A connecté le stockage propre de l’espace de travail {target}",
+        "disconnected": "A déconnecté le stockage propre de l’espace de travail {target}"
+      },
       "backup": {
         "created": "A sauvegardé l’espace de travail ({count, plural, one {# page} other {# pages}})",
         "restored": "A restauré l’espace de travail à partir d’une sauvegarde ({count, plural, one {# page} other {# pages}})"
@@ -1743,6 +1748,87 @@
       "noInbox": "Le serveur de messagerie n’affiche aucune boîte de réception.",
       "accessDenied": "Vous n’avez pas l’accès nécessaire pour faire cela.",
       "gone": "Ce message n’est plus sur cette ligne."
+    }
+  },
+  "storage": {
+    "description": "L'endroit où sont conservés les fichiers téléversés dans cet espace de travail. Connectez un stockage propre à l'espace de travail (un bucket compatible S3, Google Drive ou Dropbox) et les nouveaux fichiers y iront au lieu de ce serveur. Leafdesk continue de servir lui-même chaque fichier, le stockage reste donc privé : aucun accès public ni partage n'est nécessaire.",
+    "currentHeading": "Où vont les nouveaux fichiers",
+    "instance": "Ce serveur",
+    "instanceHint": "Les fichiers sont conservés sur le serveur où Leafdesk s’exécute.",
+    "instanceUsage": "{used} utilisés sur {quota}.",
+    "instanceUsageNoQuota": "{used} utilisés.",
+    "kinds": {
+      "s3": "Stockage compatible S3",
+      "gdrive": "Google Drive",
+      "dropbox": "Dropbox"
+    },
+    "kindHints": {
+      "s3": "AWS S3, Cloudflare R2, Backblaze B2, MinIO ou tout autre stockage qui parle le protocole S3.",
+      "gdrive": "Les fichiers vont dans un dossier que Leafdesk crée dans votre Drive. Leafdesk ne voit que les fichiers qu'il y a créés, rien d'autre de votre Drive.",
+      "dropbox": "Les fichiers vont dans le dossier d'application de Leafdesk dans votre Dropbox (sous Applications). Leafdesk ne voit rien en dehors."
+    },
+    "status": {
+      "active": "Fonctionne, vérifié {time}",
+      "broken": "Ne fonctionne pas : {error}"
+    },
+    "files": "{count, plural, =0 {Aucun fichier pour l’instant} one {# fichier, {size}} many {# de fichiers, {size}} other {# fichiers, {size}}}",
+    "noQuota": "aucune limite de stockage de ce serveur ne s’applique",
+    "olderFiles": "Les fichiers téléversés avant la connexion restent sur ce serveur ({size}).",
+    "testAgain": "Tester à nouveau",
+    "testing": "Test en cours…",
+    "change": "Modifier",
+    "disconnect": "Déconnecter",
+    "disconnectNote": "Les nouveaux fichiers iront de nouveau sur ce serveur. Les fichiers déjà dans ce stockage y restent et continuent d'y être lus jusqu'à leur suppression.",
+    "connectHeading": "Connecter un stockage",
+    "changeHeading": "Modifier le stockage",
+    "connectDescription": "Avant tout enregistrement, un fichier de test est stocké, relu puis supprimé. Les fichiers déjà téléversés restent où ils sont.",
+    "fields": {
+      "kind": "Type de stockage",
+      "endpoint": "Point de terminaison",
+      "endpointHint": "L’adresse S3 du stockage, commençant par https://. Laissez vide pour AWS S3.",
+      "bucket": "Bucket",
+      "region": "Région",
+      "regionHint": "us-east-1 en cas de doute ; auto pour Cloudflare R2.",
+      "prefix": "Dossier",
+      "prefixHint": "Facultatif : les fichiers sont placés sous ce dossier du bucket.",
+      "accessKeyId": "ID de clé d’accès",
+      "secretAccessKey": "Clé d’accès secrète",
+      "keysKeep": "Vide, la clé actuelle est conservée",
+      "keysHint": "Donnez à ces clés l’accès à ce bucket uniquement. Elles sont stockées chiffrées et ne sont plus jamais affichées.",
+      "pathStyle": "Adresser le bucket par le chemin",
+      "pathStyleHint": "Nécessaire pour MinIO et la plupart des stockages autres qu’AWS S3."
+    },
+    "test": "Tester la connexion",
+    "testOk": "Ça fonctionne : un fichier de test a fait l’aller-retour.",
+    "connect": "Connecter",
+    "connecting": "Connexion en cours…",
+    "save": "Enregistrer",
+    "retiredHeading": "Stockage précédent",
+    "retiredDescription": "Un stockage déconnecté auparavant contient encore des fichiers. Ils sont lus depuis celui-ci jusqu’à leur suppression.",
+    "errors": {
+      "accessDenied": "Seuls les propriétaires de l’espace de travail peuvent modifier l’emplacement de ses fichiers.",
+      "endpoint": "Saisissez le point de terminaison sous forme d’adresse web, comme https://storage.example.com.",
+      "region": "Saisissez une région composée de lettres minuscules, de chiffres et de tirets, comme us-east-1.",
+      "bucket": "Saisissez le nom du bucket : de 3 à 63 lettres, chiffres, points, tirets ou tirets bas.",
+      "prefix": "Un dossier ne peut contenir que des lettres, des chiffres, des tirets et des tirets bas, séparés par des barres obliques.",
+      "accessKeyId": "Saisissez l’ID de la clé d’accès.",
+      "secretAccessKey": "Saisissez la clé d’accès secrète.",
+      "unavailable": "Ce type de stockage ne peut pas encore être connecté.",
+      "refused": "Le stockage n’a pas fonctionné : {message}",
+      "rateLimited": "Trop de tentatives. Patientez quelques minutes, puis réessayez.",
+      "noStorage": "Aucun stockage propre n’est connecté à cet espace de travail.",
+      "notConfigured": "Ce serveur n'est pas configuré pour ce type de stockage.",
+      "oauthFailed": "La connexion n'a pas abouti, donc rien n'a changé. Réessayez."
+    },
+    "signIn": "Se connecter à {provider}",
+    "signInAgain": "Se reconnecter à {provider}",
+    "signingIn": "Ouverture…",
+    "signInHint": "Vous vous connectez sur {provider} puis revenez ici. Avant tout enregistrement, un fichier de test est stocké, relu puis supprimé.",
+    "notConfigured": "Ce serveur n'est pas encore configuré pour {provider}. Son administrateur doit enregistrer une application auprès de {provider} et définir {vars}.",
+    "dismiss": "Fermer",
+    "notices": {
+      "connected": "Connecté. Les nouveaux fichiers y vont désormais.",
+      "refused": "Vous vous êtes connecté, mais aucun fichier de test n'a pu y être stocké, donc rien n'a changé. Réessayez plus tard."
     }
   },
   "backup": {

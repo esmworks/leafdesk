@@ -26,7 +26,7 @@ import { publishedPageRefs, syncPageReferences } from "@/server/mentions";
 import { makePagePrivate } from "@/server/permissions";
 import { chainTo, readableViews, readerAccess, webViews } from "@/server/publication";
 import { servedPublication } from "@/server/site";
-import { getStorage, uploadLimits } from "@/server/storage";
+import { refOf, storageFor, storageResolver } from "@/server/storage/workspace";
 import { topLevelAccess } from "@/server/workspaces";
 
 /**
@@ -221,8 +221,11 @@ export async function duplicatePublishedPage(
   const files = await workspaceFiles(sourceWorkspace, [...fileIds]);
   if (files.length > MAX_COPY_FILES) throw new DuplicateError(`Can't copy more than ${MAX_COPY_FILES} files at once`, "tooLarge");
   const bytes = files.reduce((sum, f) => sum + f.size, 0);
-  const { workspaceQuotaBytes } = uploadLimits();
-  if (bytes > workspaceQuotaBytes - (await workspaceUsage(target))) {
+  // The copies go where the workspace stores uploads now; only the instance's storage has a quota.
+  const destination = await storageFor(target);
+  const workspaceQuotaBytes = destination.quotaBytes;
+  const quota = workspaceQuotaBytes !== Infinity;
+  if (quota && bytes > workspaceQuotaBytes - (await workspaceUsage(target))) {
     throw new DuplicateError("That workspace doesn't have room for the page's files", "quotaExceeded");
   }
 
@@ -240,20 +243,23 @@ export async function duplicatePublishedPage(
     : new Map<string, { text: string; href: string | null }>();
 
   // The files' bytes, under new keys of the new workspace. Removed again if anything fails.
-  const storage = getStorage();
-  const copiedFiles: { id: string; storageKey: string; source: (typeof files)[number] }[] = [];
+  const storageOf = storageResolver();
+  const storageId = destination.storageId;
+  const copiedFiles: { id: string; storageKey: string; objectId: string | null; source: (typeof files)[number] }[] = [];
   const fileMap = new Map<string, string>();
   try {
     for (const source of files) {
-      const body = await storage.get(source.storageKey);
+      const body = await (await storageOf(source)).get(refOf(source));
       if (!body) continue;
       const id = randomBytes(18).toString("base64url");
       const storageKey = `${target}/${id}`;
-      copiedFiles.push({ id, storageKey, source });
-      await storage.put(storageKey, Readable.fromWeb(body as import("node:stream/web").ReadableStream<Uint8Array>), {
+      const copied = { id, storageKey, objectId: null as string | null, source };
+      copiedFiles.push(copied);
+      const objectId = await destination.driver.put(storageKey, Readable.fromWeb(body as import("node:stream/web").ReadableStream<Uint8Array>), {
         size: source.size,
         contentType: source.contentType,
       });
+      copied.objectId = objectId || null;
       fileMap.set(source.id, id);
     }
 
@@ -295,24 +301,24 @@ export async function duplicatePublishedPage(
     const asTemplate = Boolean(input.asTemplate);
 
     await db.transaction(async (tx) => {
-      // The quota again, under the lock uploads take, now that the bytes are stored.
-      await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${`leafdesk:file-quota:${target}`}))`);
       if (copiedFiles.length) {
-        const [used] = await tx
-          .select({ used: sql<string>`coalesce(sum(${file.size}), 0)` })
-          .from(file)
-          .where(eq(file.workspaceId, target));
-        const added = copiedFiles.reduce((sum, f) => sum + f.source.size, 0);
-        if (Number(used?.used ?? 0) + added > workspaceQuotaBytes) {
-          throw new DuplicateError("That workspace doesn't have room for the page's files", "quotaExceeded");
+        if (quota) {
+          // The quota again, under the lock uploads take, now that the bytes are stored.
+          await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${`leafdesk:file-quota:${target}`}))`);
+          const added = copiedFiles.reduce((sum, f) => sum + f.source.size, 0);
+          if ((await workspaceUsage(target, tx)) + added > workspaceQuotaBytes) {
+            throw new DuplicateError("That workspace doesn't have room for the page's files", "quotaExceeded");
+          }
         }
         // Recorded before the pages, so the pages' triggers see them (file_reference).
         await tx.insert(file).values(
-          copiedFiles.map(({ id, storageKey, source }) => ({
+          copiedFiles.map(({ id, storageKey, objectId, source }) => ({
             id,
             workspaceId: target,
             pageId: null,
             storageKey,
+            storageId,
+            storageObjectId: objectId,
             name: source.name,
             contentType: source.contentType,
             size: source.size,
@@ -389,7 +395,7 @@ export async function duplicatePublishedPage(
     }
   } catch (error) {
     // Queued, so copies storage refuses to delete now are deleted later.
-    await removeStored(copiedFiles.map((f) => f.storageKey));
+    await removeStored(copiedFiles.map((f) => ({ storageId, key: f.storageKey, objectId: f.objectId })));
     throw error;
   }
 
