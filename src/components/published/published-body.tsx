@@ -2,6 +2,7 @@ import { FileSpreadsheet, FileText } from "lucide-react";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { PropertyDisplay } from "@/components/database/property-cell";
+import { FileViewerArea } from "@/components/file-viewer";
 import { PropertyTypeIcon } from "@/components/database/property-icons";
 import { PublishedMermaid } from "@/components/page/mermaid-diagram";
 import { HeadingList, SubpageList, Trail } from "@/components/page/page-outline";
@@ -288,5 +289,7 @@ export async function PublishedBody({
     }
   };
 
-  return <div className="mt-6">{blocks.map((block, i) => segment(block, i, false))}</div>;
+  // On screen, uploaded images and files open in the file viewer, with the page's others a key away.
+  if (print) return <div className="mt-6">{blocks.map((block, i) => segment(block, i, false))}</div>;
+  return <FileViewerArea className="mt-6">{blocks.map((block, i) => segment(block, i, false))}</FileViewerArea>;
 }

@@ -69,6 +69,16 @@
   Workbooks uploaded earlier are read by the background sweep, and pages are indexed for the AI
   chat again in the background so their workbooks go in. The MCP `get_file` tool reads a workbook
   as text, sheet by sheet. A workbook whose contents unpack to more than 64 MB isn't read.
+- **File viewer.** Uploaded files open full screen without downloading them: from an image (a
+  click on a read-only or published page; the expand button or a double click while editing), a
+  file block's name, the expand button of a PDF or workbook, and a files & media property. ← and →
+  go through the other files of the page or cell, Esc closes, + − and 0 zoom; on a phone, swipe
+  between files and pinch to zoom. Images (SVG included, as a picture whose scripts don't run)
+  zoom and pan, PDFs and workbooks fill the screen, video and audio play, Word documents show
+  their text, tables and pictures, CSV and TSV show as a table of their first 1,000 rows, Markdown
+  shows formatted without its raw HTML or remote pictures, JSON and code show colored, and other
+  text shows as is (the first 2 MB). Anything else shows its name, type and size with a download
+  button.
 
 ### Changed
 

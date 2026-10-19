@@ -436,7 +436,9 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   them, and published pages show theirs (see [File uploads](#file-uploads)). Uploaded PDFs show
   in place, and so do Excel workbooks (.xlsx), read-only, a sheet at a time; an editor can turn one
   into a database. Search finds pages by the words of the PDFs, Word documents and Excel workbooks
-  they show.
+  they show. Any uploaded file opens full screen in the file viewer, with ← and → for the page's
+  other files: images zoom, Word documents, CSV, Markdown, JSON, code and text show their
+  contents, and the rest offers a download.
 - **Import**: bring in Markdown files, a folder or a ZIP as pages that keep their folder
   structure, with links between the files turned into page links and the images they show
   uploaded, into the page or teamspace you start it from. A link naming a file by its bare name
@@ -659,6 +661,14 @@ removed after a day. When files go this way, or with a deleted workspace or acco
 objects to delete are queued in the same transaction that removes their records, and what storage
 refuses is tried again by the hourly file cleanup, waiting longer after each failure (up to a
 day), so no bytes stay behind with nothing pointing at them.
+
+The file viewer shows files without changing how they are served. Images, SVG included, show as
+pictures (`<img>`), so an SVG's scripts don't run. Text, CSV, Markdown, JSON and code are read
+with `fetch` (the first 2 MB) and shown as text, a table or formatted Markdown without its raw
+HTML, never as a page of their own. Word documents (.docx, up to 25 MB) are turned into cleaned-up
+HTML on the server by `GET /api/files/<id>/preview`, which answers only people who may open the
+file; their pictures are inlined (up to 3 MB each, 12 MB in all) and links keep only `http`,
+`https` and `mailto` addresses.
 
 ### A workspace's own storage
 
