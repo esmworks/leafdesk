@@ -247,8 +247,9 @@ export function DatabasePage({
 
   // The properties in the view's column order: what its columns, cards and properties menu show.
   const viewProperties = useMemo(
-    () => (snapshot ? orderProperties(snapshot.properties, view?.config.propertyOrder) : []),
-    [snapshot, view?.config.propertyOrder],
+    () => orderProperties(snapshot?.properties ?? [], view?.config.propertyOrder),
+    // Not the whole snapshot: a changed row would give every card new properties to redraw with.
+    [snapshot?.properties, view?.config.propertyOrder],
   );
 
   // What the views are given stays the same from one render of the page to the next (see MemoBoardView).
