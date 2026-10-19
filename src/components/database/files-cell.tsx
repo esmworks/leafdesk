@@ -3,6 +3,7 @@
 import { FileText, Paperclip, Upload, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState, type DragEvent } from "react";
+import { plainClick, useFileViewer } from "@/components/file-viewer";
 import { cn } from "@/components/ui";
 import { asFiles, formatBytes, isImageFile, type FileValue } from "@/lib/files";
 
@@ -100,14 +101,17 @@ function Thumb({ file, size = "sm", src }: { file: FileValue; size?: "sm" | "md"
 
 /**
  * A files value, read-only: in cells and on cards a line of thumbnails (images) and names (other
- * files); wrapped (row panels, published rows) every file with its name. Each opens the file.
+ * files); wrapped (row panels, published rows) every file with its name. Each opens the file in the
+ * file viewer (components/file-viewer), with the value's other files a key away; a click with a
+ * modifier opens it as a link.
  */
 export function FilesDisplay({ value, wrap }: { value: unknown; wrap?: boolean }) {
   const files = asFiles(value);
+  const viewer = useFileViewer();
   if (!files.length) return null;
   return (
     <span className={cn("flex min-w-0 items-center gap-1", wrap ? "flex-wrap py-0.5" : "overflow-hidden")}>
-      {files.map((file) => {
+      {files.map((file, i) => {
         const image = isImageFile(file.type);
         return (
           <a
@@ -117,7 +121,12 @@ export function FilesDisplay({ value, wrap }: { value: unknown; wrap?: boolean }
             rel="noopener"
             title={file.name}
             aria-label={file.name}
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (!plainClick(e)) return;
+              e.preventDefault();
+              viewer.open(files, i);
+            }}
             className={cn(
               "inline-flex min-w-0 shrink-0 items-center gap-1 rounded text-xs text-fg no-underline hover:underline",
               (!image || wrap) && "max-w-48",
@@ -128,6 +137,7 @@ export function FilesDisplay({ value, wrap }: { value: unknown; wrap?: boolean }
           </a>
         );
       })}
+      {viewer.element}
     </span>
   );
 }
@@ -169,6 +179,7 @@ export function FilesEditor({
     return () => previews.forEach((u) => URL.revokeObjectURL(u));
   }, []);
   const disabled = Boolean(answer?.disabled);
+  const viewer = useFileViewer();
 
   const commit = (next: FileValue[]) => {
     latest.current = next;
@@ -232,6 +243,11 @@ export function FilesEditor({
                 rel="noopener"
                 className="min-w-0 flex-1 truncate text-sm text-fg no-underline hover:underline"
                 title={t("open", { name: file.name })}
+                onClick={(e) => {
+                  if (!plainClick(e)) return;
+                  e.preventDefault();
+                  viewer.open(files, files.indexOf(file));
+                }}
               >
                 {file.name}
               </a>
@@ -258,6 +274,7 @@ export function FilesEditor({
         )}
       </div>
       {error && <div className="border-t border-border px-2.5 py-1.5 text-xs text-danger">{error}</div>}
+      {viewer.element}
       {upload && (
         <div className="border-t border-border p-1">
           <input
