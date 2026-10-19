@@ -4,6 +4,16 @@
 
 ### Added
 
+- **Email on database rows.** Owners turn it on in Settings → Email and pick the databases mail
+  lands on, in order, with the email properties that hold addresses; each member connects their
+  own mailbox for that workspace (Google Workspace and Gmail, Yandex, Zoho or any IMAP and SMTP
+  server, with an app password). Mail whose other party is a row's address, or that answers mail
+  already on a row, shows in the row's new Email section to everyone who can see the row and its
+  address; the rest of the mailbox is never read past its headers. Whoever may edit the row writes
+  new mail and replies there in plain text, sent from their own mailbox and kept in its sent
+  folder. Mail that comes in tells the mailbox's owner and the row's followers, in the inbox's new
+  Email tab and by push. `MAIL_ALLOWED_HOSTS` lets mailboxes reach mail servers on a private
+  network.
 - **Excel workbooks show in place.** An .xlsx file in a page shows its cells read-only, with the
   sheet's row numbers and column letters and a tab for each sheet (the first 200 rows and 40
   columns of a sheet; workbooks up to 10 MB). Published pages show them too. *Turn into a

@@ -948,6 +948,35 @@ checked before every send with the connection pinned to the checked address; hos
 `PUSH_ALLOWED_HOSTS` skip that check. A push service that says a subscription is gone gets it
 deleted, and one that fails 10 times in a row has it dropped.
 
+## Email on rows
+
+Mail with the people in your databases can land on their rows. An owner turns it on in Settings →
+Email and picks the databases mail lands on, in order, with the email properties that hold
+addresses (a customers database, say). Then each member connects their own mailbox there, for
+that workspace only: the address, the provider (Google Workspace and Gmail, Yandex, Zoho, or any
+IMAP and SMTP server) and an app password made for Leafdesk. The mailbox is tried before it is
+kept, and its password is sealed like a connection's secrets (`LEAFDESK_ENCRYPTION_KEY`).
+
+Every minute the server reads the inbox and the sent folder of each mailbox, from where it last
+stopped, headers first. A message goes on a row when an earlier message of its thread is on one,
+or else when the other party's address is in a matched email property of exactly one row of a
+database, trying the databases in order; it is fetched whole only then, so mail that has nothing
+to do with the workspace never leaves the mail server. Only rows the mailbox's owner can see
+count. A message that reached two members' mailboxes shows once.
+
+Under a row's properties, the Email section lists its messages for everyone who can see the row
+and its address. Whoever may edit the row and has a mailbox writes a new message or a reply there,
+in plain text; it goes out from their own mailbox (at most 100 an hour), is tried again after 1, 5
+and 30 minutes when the server can't be reached, and is put in the mailbox's sent folder. Mail that
+comes in tells the mailbox's owner and the row's followers who may read it (the inbox's Email tab,
+and push); it never comes as a notification email.
+
+Mail servers are reached only on public addresses over TLS (implicit or STARTTLS), checked as
+connections are. List a server on your own network in `MAIL_ALLOWED_HOSTS` (comma-separated, a
+host name or `host:port`) to let mailboxes reach it, also without TLS. Backups keep the messages on
+rows and which databases mail lands on, not the mailboxes: members connect them again after a
+restore.
+
 ## Social login
 
 People can also sign in with GitHub or Google. Each provider is off until you set both of its
