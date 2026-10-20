@@ -64,8 +64,9 @@
 - **Larger small print in settings.** On the workspace's, the account's and the server's settings,
   notes, hints, counts and small buttons are 13px instead of 12px, dialogs opened from there
   included. Their secondary and faint text share one darker gray, so a hint reads as well as a
-  description (5:1 or more on the page and its cards, in either theme). High contrast keeps its own
-  colors, and the rest of the app keeps its sizes and colors.
+  description (5:1 or more on the page and its cards, in either theme). The settings navigation's
+  items are in the main text color with their icons a step lighter, no longer gray. High contrast
+  keeps its own colors, and the rest of the app keeps its sizes and colors.
 - **The AI chat takes the next question while it answers.** A question sent while an answer is being
   written waits in a strip above the question box (how many, the first of them, and Clear) and is
   asked in the same conversation once the answer is done; before, Enter did nothing then. Stop gives
