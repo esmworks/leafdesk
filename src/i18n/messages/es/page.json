@@ -672,6 +672,14 @@
       "interrupted": "El servidor se reinició mientras se procesaba. Vuelve a intentarlo.",
       "limitReached": "Este espacio de trabajo alcanzó su límite mensual de coste de IA, así que las solicitudes de IA se rechazan hasta el mes que viene. Los propietarios ven los detalles en la configuración, en Uso de IA.",
       "insert": "No se pudo añadir la nota a la página."
+    },
+    "instructions": {
+      "menu": "Instrucciones para notas de voz",
+      "menuHint": "Cómo redacta la IA las notas de voz que se guardan en esta base de datos",
+      "title": "Instrucciones para notas de voz",
+      "description": "La IA las sigue al redactar una nota de voz que se guarda en esta base de datos. Se aplican a todos los que graban en ella.",
+      "placeholder": "Por ejemplo: Nota de visita a cliente. Incluye la empresa, la persona con la que te reuniste, lo que se habló, el estado del presupuesto y el siguiente paso.",
+      "followed": "Las notas de voz que se guardan aquí siguen las instrucciones de redacción de esta base de datos."
     }
   },
   "review": {

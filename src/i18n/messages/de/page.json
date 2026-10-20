@@ -672,6 +672,14 @@
       "interrupted": "Der Server wurde währenddessen neu gestartet. Versuche es erneut.",
       "limitReached": "Dieser Workspace hat sein monatliches KI-Kostenlimit erreicht, daher werden KI-Anfragen bis zum nächsten Monat abgelehnt. Eigentümer sehen die Details in den Einstellungen unter KI-Nutzung.",
       "insert": "Die Notiz konnte nicht zur Seite hinzugefügt werden."
+    },
+    "instructions": {
+      "menu": "Anweisungen für Sprachnotizen",
+      "menuHint": "Wie die KI Sprachnotizen schreibt, die in dieser Datenbank gespeichert werden",
+      "title": "Anweisungen für Sprachnotizen",
+      "description": "Die KI hält sich daran, wenn sie eine Sprachnotiz ausformuliert, die in dieser Datenbank gespeichert wird. Sie gelten für alle, die hier aufnehmen.",
+      "placeholder": "Zum Beispiel: Notiz zum Kundenbesuch. Firma, Ansprechpartner, besprochene Themen, Stand des Angebots und nächster Schritt.",
+      "followed": "Hier gespeicherte Sprachnotizen folgen den Schreibanweisungen dieser Datenbank."
     }
   },
   "review": {

@@ -10,7 +10,11 @@ import { VoiceNoteRecorder } from "@/components/voice/voice-note-recorder";
 import { SHARED_COOKIE, SHARED_COOKIE_PATH } from "@/lib/shared-note";
 import type { VoiceNoteDraft, VoiceNoteLimits } from "@/lib/voice-notes";
 
-export type QuickNoteTargets = { limits: VoiceNoteLimits | null; databases: { id: string; title: string; icon: string | null }[] };
+export type QuickNoteTargets = {
+  limits: VoiceNoteLimits | null;
+  /** `instructions`: the database has writing instructions its voice notes follow. */
+  databases: { id: string; title: string; icon: string | null; instructions: boolean }[];
+};
 
 /**
  * The quick note's fields (see app/share): saved as a private page, or as a row of a database the
@@ -109,6 +113,7 @@ export function QuickNoteForm({
   };
 
   const picked = draft && draft.databaseId === databaseId ? Object.keys(draft.properties).length : 0;
+  const followsInstructions = Boolean(targets.limits && databaseId && targets.databases.find((d) => d.id === databaseId)?.instructions);
 
   return (
     <form
@@ -159,6 +164,7 @@ export function QuickNoteForm({
             autoStart={autoVoice}
             onBusyChange={setRecording}
           />
+          {followsInstructions && <p className="mt-2 text-xs text-fg-muted">{tv("instructions.followed")}</p>}
         </div>
       )}
       <label className="block">

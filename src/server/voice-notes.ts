@@ -17,7 +17,7 @@
 import { and, eq, isNull, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { page } from "@/db/schema";
-import { MAX_TRANSCRIPT, pickTagValues, transcriptBlock, type VoiceNoteDraft, type VoiceNoteLimits, type VoiceNoteTagProperty } from "@/lib/voice-notes";
+import { cleanVoiceNoteInstructions, MAX_TRANSCRIPT, pickTagValues, transcriptBlock, type VoiceNoteDraft, type VoiceNoteLimits, type VoiceNoteTagProperty } from "@/lib/voice-notes";
 import { isPageLocked } from "@/lib/page-lock";
 import { PropertyValueError } from "@/lib/properties";
 import {
@@ -34,13 +34,16 @@ import { aiConfig, AiError, complete, contentChars, sttLimitsFor, transcribe } f
 import { fallbackVoiceTitle, parseVoiceNote, voiceNotePrompt } from "@/server/ai/prompts";
 import { aiAvailable } from "@/server/ai-writing";
 import { getCollab } from "@/server/collab/bridge";
-import { knownProperties } from "@/server/databases";
+import { knownProperties, requireDatabase } from "@/server/databases";
 import { loadMessages } from "@/i18n/messages";
 import { recipientLocale } from "@/server/mail/locale";
 import { createPage } from "@/server/pages";
 import { workspaceSettings } from "@/server/workspaces";
 
-/** Room left for the transcript in the prompt after the instructions and the database's options. */
+/**
+ * Room left for the transcript in the prompt after the instructions and the database's options;
+ * the database's own writing instructions come off it too.
+ */
 const PROMPT_OVERHEAD = 3_000;
 /** Most options of one property offered to the AI. */
 const MAX_OPTIONS = 50;
@@ -77,12 +80,24 @@ async function targetDatabase(userId: string, workspaceId: string, databaseId: s
   return found;
 }
 
-/** The databases of a workspace a voice note can be added to as a row: the ones the person may edit. */
-export async function voiceNoteDatabases(userId: string, workspaceId: string): Promise<{ id: string; title: string; icon: string | null }[]> {
+/**
+ * The databases of a workspace a voice note can be added to as a row: the ones the person may edit.
+ * `instructions` says whether the database has writing instructions for its notes (not what they say).
+ */
+export async function voiceNoteDatabases(
+  userId: string,
+  workspaceId: string,
+): Promise<{ id: string; title: string; icon: string | null; instructions: boolean }[]> {
   // The workspace's sign-in policies are checked here, once; access to each database in the query.
   await requireMembership(userId, workspaceId);
   const rows = await db
-    .select({ id: page.id, title: page.title, icon: page.icon, level: accessRank(userId, sql`${page.id}`) })
+    .select({
+      id: page.id,
+      title: page.title,
+      icon: page.icon,
+      instructions: sql<boolean>`${page.voiceNoteInstructions} <> ''`,
+      level: accessRank(userId, sql`${page.id}`),
+    })
     .from(page)
     .where(and(eq(page.workspaceId, workspaceId), eq(page.kind, "database"), eq(page.inTemplate, false), isNull(page.archivedAt)))
     .orderBy(page.title);
@@ -103,23 +118,45 @@ export async function voiceTagProperties(userId: string, databaseId: string): Pr
     }));
 }
 
+/**
+ * A database's writing instructions for the voice notes saved in it, to edit them. Shared by
+ * everyone who records into the database; set by people with full access to it, like its other
+ * settings (locking it, automations).
+ */
+export async function getVoiceNoteInstructions(userId: string, databaseId: string): Promise<string> {
+  const database = await requireDatabase(userId, databaseId, "full");
+  return database.voiceNoteInstructions;
+}
+
+/** Sets a database's writing instructions for voice notes (see getVoiceNoteInstructions); empty removes them. */
+export async function setVoiceNoteInstructions(userId: string, databaseId: string, text: string): Promise<string> {
+  const database = await requireDatabase(userId, databaseId, "full");
+  if (database.archivedAt) throw new AccessError("The database is in the trash");
+  const instructions = cleanVoiceNoteInstructions(text);
+  await db.update(page).set({ voiceNoteInstructions: instructions, updatedBy: userId }).where(eq(page.id, databaseId));
+  return instructions;
+}
+
 export type VoiceNoteTarget =
   /** The quick note: a private page of the workspace, or a row of `databaseId`. */
   | { workspaceId: string; databaseId?: string | null }
   /** The editor: the note goes into this page at the cursor. */
   | { pageId: string };
 
-/** Where a recording's note goes, checked: the workspace, and the database whose options apply. */
-async function resolveTarget(userId: string, target: VoiceNoteTarget) {
+/**
+ * Where a recording's note goes, checked: the workspace, and the database whose options and writing
+ * instructions apply.
+ */
+async function resolveTarget(userId: string, target: VoiceNoteTarget): Promise<{ workspaceId: string; databaseId: string | null; instructions: string }> {
   if ("pageId" in target) {
     const found = await requirePageAccess(userId, target.pageId, "edit").catch(noAccess);
     if (found.archivedAt || found.kind !== "page") throw new AiError("noAccess", "Page not found");
     if (isPageLocked(found)) throw new AiError("noAccess", "The page is locked");
-    return { workspaceId: found.workspaceId, databaseId: null };
+    return { workspaceId: found.workspaceId, databaseId: null, instructions: "" };
   }
   await requireMembership(userId, target.workspaceId).catch(noAccess);
-  if (target.databaseId) await targetDatabase(userId, target.workspaceId, target.databaseId);
-  return { workspaceId: target.workspaceId, databaseId: target.databaseId ?? null };
+  const database = target.databaseId ? await targetDatabase(userId, target.workspaceId, target.databaseId) : null;
+  return { workspaceId: target.workspaceId, databaseId: database?.id ?? null, instructions: database?.voiceNoteInstructions ?? "" };
 }
 
 /**
@@ -154,14 +191,14 @@ export async function draftVoiceNote(
   audio: { bytes: Blob; type: string },
   { signal, onStage }: { signal?: AbortSignal; onStage?: (stage: "writing") => void } = {},
 ): Promise<VoiceNoteDraft> {
-  const { workspaceId, databaseId } = target;
+  const { workspaceId, databaseId, instructions } = target;
   const transcript = (await transcribe(audio, { feature: "voice.transcribe", userId, workspaceId, signal })).slice(0, MAX_TRANSCRIPT);
   const raw: VoiceNoteDraft = { title: fallbackVoiceTitle(transcript), markdown: transcript, transcript, properties: {}, rewritten: false };
   if (!(await aiAvailable(workspaceId))) return raw;
   onStage?.("writing");
   const tags = databaseId ? await voiceTagProperties(userId, databaseId) : [];
-  const maxContent = Math.max(1_000, contentChars(aiConfig().limits) - PROMPT_OVERHEAD);
-  const prompt = voiceNotePrompt(transcript, tags, maxContent);
+  const maxContent = Math.max(1_000, contentChars(aiConfig().limits) - PROMPT_OVERHEAD - instructions.length);
+  const prompt = voiceNotePrompt(transcript, tags, maxContent, instructions);
   try {
     const result = await complete({
       feature: "voice.rewrite",

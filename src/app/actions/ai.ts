@@ -13,7 +13,14 @@ import { AutofillError, requestAutofill, setAutofill } from "@/server/ai-propert
 import { snapshotBeforeAiEdit } from "@/server/ai-writing";
 import * as databases from "@/server/databases";
 import { requireUserId } from "@/server/session";
-import { saveVoiceNote, snapshotBeforeVoiceNote, voiceNoteDatabases, voiceNoteLimits } from "@/server/voice-notes";
+import {
+  getVoiceNoteInstructions,
+  saveVoiceNote,
+  setVoiceNoteInstructions,
+  snapshotBeforeVoiceNote,
+  voiceNoteDatabases,
+  voiceNoteLimits,
+} from "@/server/voice-notes";
 
 export type ActionResult<T> = { ok: true; data: T } | { ok: false; error: string; code?: string };
 
@@ -145,6 +152,16 @@ export async function quickNoteTargetsAction(workspaceId: string) {
     const [limits, databases] = await Promise.all([voiceNoteLimits(String(workspaceId)), voiceNoteDatabases(userId, String(workspaceId))]);
     return { limits, databases };
   });
+}
+
+/** A database's writing instructions for voice notes, to edit them (full access). */
+export async function getVoiceNoteInstructionsAction(databaseId: string) {
+  return run((userId) => getVoiceNoteInstructions(userId, String(databaseId)));
+}
+
+/** Sets a database's writing instructions for voice notes; empty removes them. Answers what was stored. */
+export async function setVoiceNoteInstructionsAction(databaseId: string, instructions: string) {
+  return run((userId) => setVoiceNoteInstructions(userId, String(databaseId), typeof instructions === "string" ? instructions : ""));
 }
 
 /** Most characters of a voice note's text saved here (the note and its transcript). */

@@ -428,6 +428,11 @@ export const page = pgTable(
     /** Databases: the row template "New" starts from; null for a blank row. */
     defaultTemplateId: text("default_template_id").references((): AnyPgColumn => page.id, { onDelete: "set null" }),
     /**
+     * Databases: how voice notes saved as rows are written up (server/voice-notes.ts), e.g. what a
+     * customer visit note covers. Plain text, added to the AI's prompt; empty for none.
+     */
+    voiceNoteInstructions: text("voice_note_instructions").notNull().default(""),
+    /**
      * A skill (server/skills.ts): reusable instructions, the page's body, offered in the skills
      * library, to MCP clients as prompts and in the AI chat. Pages and rows only, never templates.
      */

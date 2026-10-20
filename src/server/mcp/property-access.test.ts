@@ -186,6 +186,14 @@ describe("get_database", () => {
     });
     expect(data.properties.find((p: { name: string }) => p.name === "Notes").access_settings).toBeUndefined();
   });
+
+  it("shows the database's writing instructions for voice notes when it has them", async () => {
+    expect((await callTool(reader, "get_database", { database_id: "db-1" })).data).not.toHaveProperty("voice_note_instructions");
+    const voiceNoteInstructions = "Customer visit note: company, person met, next step.";
+    databases.getDatabase.mockResolvedValue({ ...restricted, database: { ...restricted.database, voiceNoteInstructions } });
+    const { data } = await callTool(reader, "get_database", { database_id: "db-1" });
+    expect(data.voice_note_instructions).toBe(voiceNoteInstructions);
+  });
 });
 
 describe("query_database", () => {

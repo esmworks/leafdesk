@@ -366,6 +366,10 @@ const SCHEMAS: Record<string, JsonSchema> = {
           "The first entry is the row title. number_format (how the app shows the values; they stay plain numbers here, a percentage as its fraction) is there for number properties and formulas giving a number that have one. access_settings (who may do what with a restricted property) is only there for users with full access to the database.",
       },
       views: { type: "array", items: loose({ id, name: { type: "string" }, type: { type: "string" } }) },
+      voice_note_instructions: {
+        type: "string",
+        description: "How voice notes saved as rows are written up: what they cover and how they are laid out. Left out when the database has none.",
+      },
       url,
     },
     ["id", "title", "properties", "views", "url"],

@@ -225,8 +225,13 @@ export type VoiceNoteTagInput = { name: string; multiple: boolean; options: stri
  * Asks for the note in a small plain-text format (see parseVoiceNote): a `Title:` line, a
  * `Property "Name": a, b` line per property that fits, a `---` line, then the note as Markdown.
  * Models keep this format more reliably than JSON with Markdown inside it.
+ *
+ * `instructions` are the target database's own guidance on what its notes cover and how they are
+ * laid out (page.voiceNoteInstructions). They shape the note's body only: they come before the
+ * answer format, which is restated after them as what the answer must look like, so guidance asking
+ * for another format can't take the title and properties away from parseVoiceNote.
  */
-export function voiceNotePrompt(transcript: string, tags: VoiceNoteTagInput[], maxContent: number): Prompt {
+export function voiceNotePrompt(transcript: string, tags: VoiceNoteTagInput[], maxContent: number, instructions = ""): Prompt {
   const tagLines = tags.length
     ? [
         "",
@@ -241,6 +246,13 @@ export function voiceNotePrompt(transcript: string, tags: VoiceNoteTagInput[], m
     "- Keep every fact, name, number, date and decision. Add nothing that wasn't said.",
     "- Use short paragraphs. When things are listed (items, steps, options), write them as a Markdown list; to-dos as `- [ ]` items. Add `##` headings only when the note covers several separate topics.",
     "- Don't repeat the title at the top of the note.",
+    ...(instructions.trim()
+      ? [
+          "",
+          "Notes saved here follow the workspace's own guidance below on what to cover and how to lay the note out. Follow it for the note itself, but never fill a part it asks for with something that wasn't said; the answer format after it still applies.",
+          tagged("guidance", instructions.trim()),
+        ]
+      : []),
     "",
     "Answer in exactly this format and nothing else:",
     "Title: <a short title for the note, at most eight words>",

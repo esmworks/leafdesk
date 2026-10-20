@@ -18,6 +18,7 @@ import {
   Lock,
   MessageSquare,
   MessagesSquare,
+  Mic,
   MoreHorizontal,
   MoveHorizontal,
   Printer,
@@ -47,6 +48,7 @@ import { deleteTemplateAction, saveAsTemplateAction } from "@/app/actions/templa
 import { useAiChat } from "@/components/ai-chat/chat-panel";
 import { cn, Dialog, IconButton, MenuItem, MenuSeparator, PageIcon, pageLabel, Popover, Switch } from "@/components/ui";
 import { useZipExport } from "@/components/use-zip-export";
+import { VoiceNoteInstructionsDialog } from "@/components/voice/voice-note-instructions-dialog";
 import type { PageKind } from "@/db/schema/app";
 import { FAVORITES_EVENT } from "@/lib/favorites-event";
 import { OPEN_SHARE_EVENT } from "@/lib/share-event";
@@ -409,9 +411,11 @@ function PageMenu({
   const tOffline = useTranslations("offline");
   const tTemplate = useTranslations("page.template");
   const tSkills = useTranslations("skills");
+  const tVoice = useTranslations("page.voiceNote.instructions");
   const locale = useLocale();
   const router = useRouter();
   const [moveOpen, setMoveOpen] = useState(false);
+  const [voiceInstructionsOpen, setVoiceInstructionsOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const zipExport = useZipExport();
@@ -644,6 +648,19 @@ function PageMenu({
                 </div>
               </>
             )}
+            {/* How voice notes saved in the database are written up: a database setting, like the lock. */}
+            {isDatabase && !page.archived && canManage && info.voice && (
+              <MenuItem
+                icon={<Mic className="h-4 w-4" />}
+                title={tVoice("menuHint")}
+                onClick={() => {
+                  close();
+                  setVoiceInstructionsOpen(true);
+                }}
+              >
+                {tVoice("menu")}
+              </MenuItem>
+            )}
             {/* A guard against accidental edits, not a permission: whoever may edit the page may unlock it. */}
             {!isDatabase && !page.archived && (canEdit || info.locked) && (
               <>
@@ -778,6 +795,9 @@ function PageMenu({
         guest={info.guest}
         onClose={() => setMoveOpen(false)}
       />
+      {isDatabase && (
+        <VoiceNoteInstructionsDialog databaseId={page.id} open={voiceInstructionsOpen} onClose={() => setVoiceInstructionsOpen(false)} />
+      )}
     </>
   );
 }
