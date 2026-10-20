@@ -183,7 +183,7 @@ export default async function SettingsPage({
   const href = (name: string) => `/w/${workspaceId}/settings?tab=${name}`;
 
   return (
-    <div className="flex min-h-full flex-col md:flex-row">
+    <div className="settings-type flex min-h-full flex-col md:flex-row">
       <SettingsNav
         label={t("title")}
         back={{ href: `/w/${workspaceId}`, label: ta("back", { workspace: workspace.name }) }}
