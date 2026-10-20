@@ -88,6 +88,8 @@ export type AiRequest = {
    * request without one is its own session.
    */
   sessionId?: string;
+  /** Also stream the model's thinking as it comes (`{type: "thinking"}` events), where it shows it. */
+  thinkingEvents?: boolean;
 };
 
 export type AiUsage = { inputTokens: number; outputTokens: number; totalTokens: number; costUsd: number };
@@ -102,9 +104,9 @@ export type AiResult = {
   message: Extract<AiMessage, { role: "assistant" }>;
 };
 
-export type AiStreamEvent = { type: "text"; delta: string };
+export type AiStreamEvent = { type: "text"; delta: string } | { type: "thinking"; delta: string };
 
-/** Text as it arrives; `result()` settles with the whole answer, or rejects with an AiError. */
+/** Text (and with `thinkingEvents`, thinking) as it arrives; `result()` settles with the whole answer, or rejects with an AiError. */
 export type AiStream = AsyncIterable<AiStreamEvent> & { result(): Promise<AiResult> };
 
 // ---------------------------------------------------------------------------------- runtime
@@ -595,6 +597,9 @@ export function stream(request: AiRequest): AiStream {
       for await (const event of events) {
         if (event.type === "text_delta" && event.delta) {
           queue.push({ type: "text", delta: event.delta });
+          wake?.();
+        } else if (event.type === "thinking_delta" && event.delta && request.thinkingEvents) {
+          queue.push({ type: "thinking", delta: event.delta });
           wake?.();
         }
       }

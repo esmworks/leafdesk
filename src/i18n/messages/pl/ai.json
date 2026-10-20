@@ -133,8 +133,14 @@
     "confirmDeleteAll": "Usunąć wszystkie twoje rozmowy z AI w tym obszarze roboczym?",
     "intro": "Zapytaj o cokolwiek w tym obszarze roboczym. Odpowiedzi pochodzą ze stron, które możesz otworzyć, z linkami do nich.",
     "placeholder": "Zadaj pytanie…",
+    "placeholderBusy": "Zadaj następne pytanie: poczeka na tę odpowiedź…",
     "send": "Wyślij",
     "stop": "Zatrzymaj",
+    "queue": {
+      "count": "{count, plural, one {# pytanie czeka} few {# pytania czekają} many {# pytań czeka} other {# pytania czeka}}",
+      "clear": "Wyczyść",
+      "add": "Zapytaj po tej odpowiedzi"
+    },
     "scope": "Odpowiadaj na podstawie",
     "scopeWorkspace": "Cały obszar roboczy",
     "scopePage": "Ta strona i jej podstrony",

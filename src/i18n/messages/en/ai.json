@@ -133,8 +133,14 @@
     "confirmDeleteAll": "Delete all your AI conversations in this workspace?",
     "intro": "Ask about anything in this workspace. Answers come from the pages you can open, with links to them.",
     "placeholder": "Ask a question…",
+    "placeholderBusy": "Ask the next question: it waits for this answer…",
     "send": "Send",
     "stop": "Stop",
+    "queue": {
+      "count": "{count, plural, one {# question waiting} other {# questions waiting}}",
+      "clear": "Clear",
+      "add": "Ask after this answer"
+    },
     "scope": "Answer from",
     "scopeWorkspace": "The whole workspace",
     "scopePage": "This page and its subpages",

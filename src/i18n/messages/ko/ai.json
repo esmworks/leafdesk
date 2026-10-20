@@ -133,8 +133,14 @@
     "confirmDeleteAll": "이 워크스페이스의 모든 AI 대화를 삭제할까요?",
     "intro": "이 워크스페이스의 무엇이든 물어보세요. 내가 열 수 있는 페이지를 바탕으로 해당 페이지 링크와 함께 답변합니다.",
     "placeholder": "질문하기…",
+    "placeholderBusy": "다음 질문 입력: 이 답변이 끝나면 전송됩니다…",
     "send": "보내기",
     "stop": "중지",
+    "queue": {
+      "count": "{count, plural, other {대기 중인 질문 #개}}",
+      "clear": "지우기",
+      "add": "이 답변 후에 질문"
+    },
     "scope": "답변 범위",
     "scopeWorkspace": "전체 워크스페이스",
     "scopePage": "이 페이지와 하위 페이지",

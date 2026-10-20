@@ -133,8 +133,14 @@
     "confirmDeleteAll": "要删除你在此工作区中的所有 AI 对话吗？",
     "intro": "可以询问此工作区中的任何内容。回答来自你能打开的页面，并附有指向这些页面的链接。",
     "placeholder": "提出问题…",
+    "placeholderBusy": "输入下一个问题：将在此回答完成后提出…",
     "send": "发送",
     "stop": "停止",
+    "queue": {
+      "count": "{count, plural, other {# 个问题等待中}}",
+      "clear": "清除",
+      "add": "在此回答后提问"
+    },
     "scope": "回答范围",
     "scopeWorkspace": "整个工作区",
     "scopePage": "此页面及其子页面",

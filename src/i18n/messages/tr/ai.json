@@ -133,8 +133,14 @@
     "confirmDeleteAll": "Bu çalışma alanındaki tüm yapay zekâ sohbetlerin silinsin mi?",
     "intro": "Bu çalışma alanındaki herhangi bir şeyi sor. Yanıtlar açabildiğin sayfalardan gelir ve onlara bağlantı verir.",
     "placeholder": "Bir soru sor…",
+    "placeholderBusy": "Sıradaki soruyu yaz: bu cevap bitince sorulur…",
     "send": "Gönder",
     "stop": "Durdur",
+    "queue": {
+      "count": "{count, plural, other {# soru sırada}}",
+      "clear": "Temizle",
+      "add": "Bu cevaptan sonra sor"
+    },
     "scope": "Yanıt kaynağı",
     "scopeWorkspace": "Tüm çalışma alanı",
     "scopePage": "Bu sayfa ve alt sayfaları",

@@ -133,8 +133,14 @@
     "confirmDeleteAll": "Eliminare tutte le tue conversazioni con l’IA in questo spazio di lavoro?",
     "intro": "Chiedi qualsiasi cosa su questo spazio di lavoro. Le risposte arrivano dalle pagine che puoi aprire, con i link alle pagine.",
     "placeholder": "Fai una domanda…",
+    "placeholderBusy": "Scrivi la prossima domanda: aspetta questa risposta…",
     "send": "Invia",
     "stop": "Interrompi",
+    "queue": {
+      "count": "{count, plural, one {# domanda in attesa} other {# domande in attesa}}",
+      "clear": "Cancella",
+      "add": "Chiedi dopo questa risposta"
+    },
     "scope": "Rispondi da",
     "scopeWorkspace": "Tutto lo spazio di lavoro",
     "scopePage": "Questa pagina e le sue sottopagine",
