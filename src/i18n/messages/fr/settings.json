@@ -826,7 +826,8 @@
     "revoking": "Révocation…",
     "disconnect": "Déconnecter {name}",
     "revokeError": "Impossible de révoquer l’accès. Réessayez.",
-    "listHeading": "Applications auxquelles vous avez donné accès"
+    "listHeading": "Applications auxquelles vous avez donné accès",
+    "permissions": "{count, plural, one {# autorisation} other {# autorisations}}"
   },
   "mcp": {
     "heading": "Connecter un assistant IA",

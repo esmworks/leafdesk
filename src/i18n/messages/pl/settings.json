@@ -826,7 +826,8 @@
     "revoking": "Odbieranie dostępu…",
     "disconnect": "Odłącz {name}",
     "revokeError": "Nie udało się odebrać dostępu. Spróbuj ponownie.",
-    "listHeading": "Aplikacje, którym dano dostęp"
+    "listHeading": "Aplikacje, którym dano dostęp",
+    "permissions": "{count, plural, one {# uprawnienie} few {# uprawnienia} many {# uprawnień} other {# uprawnienia}}"
   },
   "mcp": {
     "heading": "Połącz asystenta AI",

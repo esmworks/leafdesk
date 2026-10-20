@@ -826,7 +826,8 @@
     "revoking": "Wird widerrufen…",
     "disconnect": "{name} trennen",
     "revokeError": "Der Zugriff konnte nicht widerrufen werden. Versuch es noch einmal.",
-    "listHeading": "Apps, denen du Zugriff gewährt hast"
+    "listHeading": "Apps, denen du Zugriff gewährt hast",
+    "permissions": "{count, plural, one {# Berechtigung} other {# Berechtigungen}}"
   },
   "mcp": {
     "heading": "KI-Assistenten verbinden",

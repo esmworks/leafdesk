@@ -826,7 +826,8 @@
     "revoking": "در حال لغو…",
     "disconnect": "قطع اتصال {name}",
     "revokeError": "دسترسی لغو نشد. دوباره تلاش کنید.",
-    "listHeading": "برنامه‌هایی که به آن‌ها دسترسی داده‌اید"
+    "listHeading": "برنامه‌هایی که به آن‌ها دسترسی داده‌اید",
+    "permissions": "{count, plural, one {# مجوز} other {# مجوز}}"
   },
   "mcp": {
     "heading": "اتصال یک دستیار هوش مصنوعی",
