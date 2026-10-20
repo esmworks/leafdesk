@@ -3,8 +3,10 @@
  * them before anything is sent: the owners' limit on all spending, the server's
  * (AI_MONTHLY_LIMIT_USD) on what its own key pays.
  */
+import { createModels, fauxAssistantMessage, fauxProvider, fauxText } from "@earendil-works/pi-ai";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { complete, embed, stream, transcribe } from "./index";
+import { readAiConfig } from "./config";
+import { complete, embed, setAiOverride, stream, transcribe } from "./index";
 import { installFauxAi, resetAi } from "./testing";
 import { memoryAiUsageLedger, monthOf, usageNumbers, type AiUsageEntry } from "./usage";
 
@@ -88,6 +90,29 @@ describe("recording AI usage", () => {
     await transcribe({ bytes: new Blob(["x"]), type: "audio/webm" }, { feature: "voice.transcribe", workspaceId: "w1" });
     expect(ledger.rows.find((r) => r.feature === "search.index")).toMatchObject({ model: "test", requests: 1, costUsd: 0 });
     expect(ledger.rows.find((r) => r.feature === "voice.transcribe")).toMatchObject({ model: "faux-listener", requests: 1, costUsd: 0 });
+  });
+
+  it("counts a request under the model that answered it, the fast model where a feature runs on it", async () => {
+    const faux = fauxProvider({ provider: "faux", models: [{ id: "main-model" }, { id: "fast-model" }] });
+    const answer = () => {
+      faux.appendResponses([answer]);
+      return fauxAssistantMessage([fauxText("ok")]);
+    };
+    faux.setResponses([answer]);
+    const models = createModels();
+    models.setProvider(faux.provider);
+    const config = readAiConfig({});
+    setAiOverride({
+      config: { ...config, chat: { provider: "openai-compatible", model: "main-model", fastModel: "fast-model", baseUrl: "http://faux.invalid", apiKey: null } },
+      backend: { models, model: faux.getModel("main-model")!, fast: faux.getModel("fast-model")! },
+      usage: ledger,
+    });
+    await complete({ feature: "property.summary", workspaceId: "w1", messages: [{ role: "user", content: "Sum up" }] });
+    await complete({ feature: "chat", workspaceId: "w1", messages: [{ role: "user", content: "Hi" }] });
+    expect(ledger.rows.map((r) => [r.feature, r.model])).toEqual([
+      ["property.summary", "fast-model"],
+      ["chat", "main-model"],
+    ]);
   });
 
   it("never records anything without a ledger", async () => {
