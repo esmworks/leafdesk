@@ -39,8 +39,11 @@ export type RowPanelHost = {
   openRow: OpenRowStore;
   /** Rows can open in the panel here: not on phones, where they open as pages. */
   available: boolean;
-  /** Opens a row in the panel, in place of the one open there. */
-  open: (rowId: string, origin: RowOrigin) => void;
+  /**
+   * Opens a row in the panel, in place of the one open there; any page opens there too (the AI
+   * chat's sources). `blockId` scrolls the page to that block.
+   */
+  open: (rowId: string, origin: RowOrigin, blockId?: string | null) => void;
   /** A view's rows (or their order) changed: the panel's previous and next rows may have too. */
   rowsChanged: () => void;
 };

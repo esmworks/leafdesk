@@ -60,6 +60,8 @@ export default function AnswerMarkdown({
           return source?.pageId ? (
             <button
               type="button"
+              // On the chat page a source opens in the row panel, which steps through these.
+              data-open-row={source.kind === "database" ? undefined : source.pageId}
               onClick={() => onSource(source)}
               title={pageLabel(source.title ?? "")}
               className="mx-0.5 inline-flex h-4 min-w-4 -translate-y-0.5 items-center justify-center rounded bg-bg-active px-1 align-middle text-[10px] font-medium text-fg-muted hover:bg-accent hover:text-accent-fg"

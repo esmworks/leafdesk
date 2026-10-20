@@ -22,6 +22,10 @@
 
 ### Changed
 
+- **A source in the full-page AI chat opens beside it.** Clicking an answer's citation (or a page it
+  read) opens the page in the panel at the right instead of leaving the conversation, scrolled to the
+  cited passage; the panel's up and down buttons (K and J) go through the conversation's other sources,
+  and Esc closes it. A database still opens as its page, as does every source on a phone.
 - **Claude Haiku 5.5 and Sonnet 5.5 are known models.** The AI library (pi-ai 1.3.0) now has them,
   so they run with their real 1,000,000-token context window, output limit, prices in the server
   log and thinking settings, where they used to be sent as an unknown model. The examples in the

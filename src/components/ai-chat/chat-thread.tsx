@@ -25,7 +25,7 @@ import {
   Zap,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { Fragment, lazy, Suspense, useEffect, useRef, useState, type ReactNode } from "react";
+import { Fragment, lazy, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { BlockChanges } from "@/components/page/history-diff";
 import { copyText } from "@/components/settings/copy-button";
 import { Button, cn, IconButton, MenuItem, Popover } from "@/components/ui";
@@ -300,7 +300,8 @@ function Answer({
 }) {
   const t = useTranslations("ai.chat.actions");
   const tMemory = useTranslations("ai.memory");
-  const byNumber = new Map((message.sources ?? []).map((s) => [s.n, s]));
+  // Kept across renders: a new one would redraw the answer's citation buttons as new elements.
+  const byNumber = useMemo(() => new Map((message.sources ?? []).map((s) => [s.n, s])), [message.sources]);
   const done = status === null && !waiting && (message.content.trim() !== "" || message.ms !== undefined);
   return (
     <div className="group/answer text-sm leading-relaxed">

@@ -31,6 +31,17 @@ export function withRow(href: string, rowId: string | null): string {
   return /^[a-z][a-z\d+.-]*:/i.test(href) ? url.href : `${url.pathname}${url.search}${url.hash}`;
 }
 
+/**
+ * `href` pointing at block `blockId` of the page in the panel (`#block-<id>`, which its editor
+ * scrolls to), or with no block for null; a hash that isn't a block's stays.
+ */
+export function withBlock(href: string, blockId: string | null): string {
+  const url = new URL(href, "http://x");
+  if (blockId) url.hash = `block-${blockId}`;
+  else if (url.hash.startsWith("#block-")) url.hash = "";
+  return /^[a-z][a-z\d+.-]*:/i.test(href) ? url.href : `${url.pathname}${url.search}${url.hash}`;
+}
+
 /** The rows before and after `rowId` in a view's order (repeats, like a bar in two weeks, count once). */
 export function neighbours(order: readonly string[], rowId: string): { previous: string | null; next: string | null } {
   const unique = [...new Set(order)];
