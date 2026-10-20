@@ -46,7 +46,7 @@ import {
   type ChatSourceView,
   type ChatStepView,
   type ConversationSummary,
-  stripCitations,
+  thoughtText,
 } from "@/lib/ai-chat";
 import { pageLabel } from "@/lib/labels";
 import { AccessError, requireMembership, requirePageAccess, WorkspacePolicyError } from "@/server/access";
@@ -269,9 +269,15 @@ async function* runChat(
         tools,
         signal,
         sessionId: conversation.id,
+        thinkingEvents: true,
       });
       let streamed = "";
       for await (const event of turn) {
+        // The model's thinking is shown as it comes, and not kept.
+        if (event.type === "thinking") {
+          yield { type: "reasoning", text: event.delta };
+          continue;
+        }
         streamed += event.delta;
         answer = streamed;
         yield { type: "text", text: event.delta };
@@ -284,7 +290,7 @@ async function* runChat(
       }
       // Text before a tool call is the model thinking aloud, not the answer: it's kept as a step.
       if (streamed) yield { type: "reset" };
-      const thought = stripCitations(streamed).replace(/\s+/g, " ").trim();
+      const thought = thoughtText(streamed);
       if (thought) yield await step({ kind: "thought", text: thought.length > THOUGHT_CHARS ? `${thought.slice(0, THOUGHT_CHARS - 1).trimEnd()}…` : thought });
       answer = "";
       messages.push(result.message);

@@ -133,8 +133,14 @@
     "confirmDeleteAll": "Alle deine KI-Unterhaltungen in diesem Workspace löschen?",
     "intro": "Frag nach allem in diesem Workspace. Die Antworten stammen aus den Seiten, die du öffnen kannst, und verlinken sie.",
     "placeholder": "Stell eine Frage…",
+    "placeholderBusy": "Nächste Frage stellen: sie wartet auf diese Antwort…",
     "send": "Senden",
     "stop": "Stopp",
+    "queue": {
+      "count": "{count, plural, one {# Frage wartet} other {# Fragen warten}}",
+      "clear": "Leeren",
+      "add": "Nach dieser Antwort fragen"
+    },
     "scope": "Quelle",
     "scopeWorkspace": "Ganzer Workspace",
     "scopePage": "Diese Seite und ihre Unterseiten",

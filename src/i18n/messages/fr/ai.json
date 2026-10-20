@@ -133,8 +133,14 @@
     "confirmDeleteAll": "Supprimer toutes vos conversations avec l’IA dans cet espace de travail ?",
     "intro": "Posez une question sur n’importe quel sujet de cet espace de travail. Les réponses viennent des pages que vous pouvez ouvrir, avec des liens vers elles.",
     "placeholder": "Posez une question…",
+    "placeholderBusy": "Posez la question suivante : elle attend cette réponse…",
     "send": "Envoyer",
     "stop": "Arrêter",
+    "queue": {
+      "count": "{count, plural, one {# question en attente} other {# questions en attente}}",
+      "clear": "Effacer",
+      "add": "Demander après cette réponse"
+    },
     "scope": "Répondre à partir de",
     "scopeWorkspace": "Tout l’espace de travail",
     "scopePage": "Cette page et ses sous-pages",

@@ -251,6 +251,7 @@ try {
     first.events.map((e) => e.type),
   );
   check(first.events.some((e) => e.type === "reset"), "text the model wrote before calling a tool is taken back");
+
   const vendorsSource = first.sources.find((s) => s.pageId === vendors.id);
   check(first.text.startsWith("The answer is in Tyre vendors [") && vendorsSource?.title === "Tyre vendors", "the answer cites the page it read", first);
   check(vendorsSource.workspaceId === workspaceId && vendorsSource.blockId === null, "…as a link to the page", vendorsSource);
@@ -295,6 +296,21 @@ try {
   check((await refusal(() => startChat(bob, { workspaceId, conversationId, message: "More?" }))) === "noAccess", "…or continue it");
   await deleteConversations(bob, workspaceId, [conversationId]);
   check((await listConversations(alice, workspaceId)).length === 1, "…or delete it");
+
+  // The model's thinking streams as it comes, before its answer, and isn't kept.
+  fake.setChat(() => ({ thinking: "Weighing which page answers this.", text: "Nothing on it here." }));
+  const thought = await ask(alice, { workspaceId, message: "Is there a page about bicycles?" });
+  const reasoning = thought.events.flatMap((e) => (e.type === "reasoning" ? [e.text] : [])).join("");
+  check(thought.done && reasoning === "Weighing which page answers this.", "the model's thinking streams as reasoning events", thought.events);
+  check(
+    thought.events.findIndex((e) => e.type === "reasoning") < thought.events.findIndex((e) => e.type === "text") && thought.text === "Nothing on it here.",
+    "…before the answer, and apart from it",
+    thought.events.map((e) => e.type),
+  );
+  const thoughtShown = await getConversation(alice, workspaceId, thought.conversationId!);
+  check(!JSON.stringify(thoughtShown.messages).includes("Weighing"), "…and isn't kept in the conversation", thoughtShown.messages);
+  await deleteConversations(alice, workspaceId, [thought.conversationId!]);
+
 
   // A follow-up carries the earlier turn, without its citation numbers.
   fake.setChat(researcher({}));

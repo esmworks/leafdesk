@@ -29,6 +29,15 @@
 
 ### Changed
 
+- **The AI chat takes the next question while it answers.** A question sent while an answer is being
+  written waits in a strip above the question box (how many, the first of them, and Clear) and is
+  asked in the same conversation once the answer is done; before, Enter did nothing then. Stop gives
+  the waiting questions back: the first into the box when nothing is typed there, the rest still
+  waiting, to follow it. Leaving the conversation mid-answer (opening another, closing the panel)
+  keeps its waiting questions for when it is opened again in the tab. While the model thinks, the
+  line saying so shows the newest line of its thinking, and the whole of it opens from there (it
+  isn't kept). Text the model writes before looking something up moves into the steps at once, and
+  the "Thinking…" line stays while the lookup runs.
 - **The sidebar has three tabs: Home, Journal and Chat.** Home lists your pages as before. Journal
   holds your daily notes: a month calendar, the notes themselves and how new ones start, so the
   journal page no longer sits among your private pages. Chat lists your conversations under a new

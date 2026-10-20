@@ -133,8 +133,14 @@
     "confirmDeleteAll": "このワークスペースでのAIとの会話をすべて削除しますか？",
     "intro": "このワークスペースのことなら何でも質問してください。回答はあなたが開けるページをもとに、リンク付きで返されます。",
     "placeholder": "質問を入力…",
+    "placeholderBusy": "次の質問を入力：この回答の後に送信されます…",
     "send": "送信",
     "stop": "停止",
+    "queue": {
+      "count": "{count, plural, other {# 件の質問が待機中}}",
+      "clear": "クリア",
+      "add": "この回答の後に質問"
+    },
     "scope": "回答の範囲",
     "scopeWorkspace": "ワークスペース全体",
     "scopePage": "このページとサブページ",

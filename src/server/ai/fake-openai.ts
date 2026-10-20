@@ -57,8 +57,11 @@ export type FakeChatMessage = {
 
 export type FakeChatRequest = { model: string; messages: FakeChatMessage[]; tools?: { function: { name: string } }[] };
 
-/** What the fake model answers: text, tool calls, or both. Throwing makes the server answer 500. */
-export type FakeReply = { text?: string; toolCalls?: { name: string; arguments: Record<string, unknown> }[] };
+/**
+ * What the fake model answers: text, tool calls, or both, after thinking (streamed as
+ * `reasoning_content`) when given. Throwing makes the server answer 500.
+ */
+export type FakeReply = { text?: string; thinking?: string; toolCalls?: { name: string; arguments: Record<string, unknown> }[] };
 
 export const textOf = (content: FakeChatMessage["content"]) =>
   typeof content === "string" ? content : Array.isArray(content) ? content.map((c) => c.text ?? "").join("") : "";
@@ -161,6 +164,11 @@ export async function startFakeOpenAi(
         `data: ${JSON.stringify({ id: "fake", object: "chat.completion.chunk", created: 1, model: request.model, choices: [{ index: 0, delta, finish_reason: finish }] })}\n\n`;
       const pause = () => (state.delayMs ? new Promise((r) => setTimeout(r, state.delayMs)) : Promise.resolve());
       res.write(chunk({ role: "assistant", content: "" }));
+      for (const piece of (out.thinking ?? "").match(/\S+\s*|\s+/g) ?? []) {
+        if (closed) return;
+        await pause();
+        res.write(chunk({ reasoning_content: piece }));
+      }
       // Word by word, as a model streams.
       for (const piece of (out.text ?? "").match(/\S+\s*|\s+/g) ?? []) {
         if (closed) return;

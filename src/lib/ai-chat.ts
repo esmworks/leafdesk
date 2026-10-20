@@ -129,7 +129,8 @@ export const changedMemory = (step: ChatStepView) => step.kind === "memory" && s
 /**
  * Lines of `POST /api/ai/chat`'s newline-delimited JSON answer, in order: `conversation` (its id,
  * first), `step` for each step taken (the model's searches, reads, queries and changes, and what it
- * said before them), `thinking` while the model works on a turn, `text` as the answer streams
+ * said before them), `thinking` while the model works on a turn, `reasoning` with its thinking as
+ * it comes (where the model shows it; not kept), `text` as the answer streams
  * (`reset` drops what was streamed before a tool call: it comes again as a `thought` step),
  * `sources` once the answer is complete, then `done` (with how long it took) or `error`.
  * `approval` asks the person about a change (mode `ask`): the answer waits for decideChange with
@@ -138,6 +139,7 @@ export const changedMemory = (step: ChatStepView) => step.kind === "memory" && s
 export type ChatEvent =
   | { type: "conversation"; id: string; title: string }
   | { type: "thinking" }
+  | { type: "reasoning"; text: string }
   | { type: "step"; step: ChatStepView }
   | { type: "approval"; id: string; action: ChatActionView }
   | { type: "ping" }
@@ -159,6 +161,11 @@ export function citedNumbers(text: string): number[] {
 /** An answer's text with its citations taken out (earlier answers sent back to the model). */
 export function stripCitations(text: string): string {
   return text.replace(/\s?\[(\d{1,3}(?:\s*,\s*\d{1,3})*)\]/g, "");
+}
+
+/** What the model wrote before a tool call, as its `thought` step shows it: one line, no citations. */
+export function thoughtText(text: string): string {
+  return stripCitations(text).replace(/\s+/g, " ").trim();
 }
 
 /** Where the links citations become point (`[1](#cite-1)`), for the answer's renderer. */
