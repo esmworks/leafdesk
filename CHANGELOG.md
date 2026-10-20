@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+### Added
+
+- **What AI costs, per workspace.** Every AI request (chat, writing assistant, AI properties,
+  agents, voice notes, semantic search) adds its tokens and cost in US dollars to its workspace's
+  month, by feature and model, whichever account paid. Owners see this month and the last twelve in
+  the new **Settings → AI usage**. Only counts are stored, never what was asked or answered.
+- **Monthly AI cost limits.** Owners can set the most their workspace's AI may cost in a month, and
+  `AI_MONTHLY_LIMIT_USD` caps what the server's own AI key pays for each workspace (a workspace on
+  its own AI account isn't held by it). Past a limit, AI requests are refused with a clear message
+  until the next month, before anything is sent. Migration 0093 adds the `ai_usage` table. With
+  Docker, the new `docker-compose.yml` passes `AI_MONTHLY_LIMIT_USD` on to the app.
+
 ### Changed
 
 - **Claude Haiku 5.5 and Sonnet 5.5 are known models.** The AI library (pi-ai 1.3.0) now has them,

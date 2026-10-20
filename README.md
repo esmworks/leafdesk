@@ -1866,7 +1866,8 @@ every `read_page` call (a page whose access was taken back mid-conversation can'
 more, and its old citations no longer show its title). Nothing is sent without someone asking
 (automatic updates follow an edit and run as its author; indexing for semantic search sends page
 text to the embeddings endpoint in the background). Owners can turn AI off for a workspace in
-Settings → General → AI, which stops all AI features there and deletes its semantic search index. The server logs each request's feature, model, token counts and cost, never its content.
+Settings → General → AI, which stops all AI features there and deletes its semantic search index. The server logs each request's feature, model, token counts and cost, and counts them for
+the workspace's usage (see *Usage and cost limits*), never its content.
 With a hosted provider, what is sent is subject to that provider's terms; a local model keeps
 everything on your machines.
 
@@ -1881,6 +1882,36 @@ everything on your machines.
 | `AI_WORKSPACE_RATE_LIMIT` | 120 | Requests per workspace per minute, AI property values included (they wait for their turn) |
 | `AI_CONCURRENCY` | 2 | AI property values worked out at the same time |
 | `AI_CONTEXT_WINDOW` | 32768 | Context size assumed for OpenAI-compatible and local models |
+| `AI_MONTHLY_LIMIT_USD` | none | The most each workspace's AI may cost the server's `AI_*` key in a calendar month, in US dollars (see below) |
+
+### Usage and cost limits
+
+Every AI request adds what it used to its workspace's month: the AI chat, the writing assistant, AI
+properties, agents, voice notes and semantic search, with the input, prompt cache and output tokens
+and the cost in US dollars, by feature and model. Only these counts are stored (table `ai_usage`),
+never what was asked or answered. The cost comes from the provider's prices as the AI library knows
+them (current Claude, OpenAI and Gemini models), so it can differ slightly from the provider's
+invoice; a model without known prices counts at no cost, and speech to text and embeddings are
+counted but not priced. A request the provider failed after it started answering still counts what
+it used. Months follow UTC and are kept for twelve.
+
+Owners see it in **Settings → AI usage**: this month's cost and how much of the limit is left, the
+last twelve months, and the month they pick by feature and model. There are two monthly limits,
+and a request that would go past either is refused before anything is sent, with a message saying
+the workspace reached its limit (agents' runs stop with that reason; AI property values show it in
+the cell):
+
+- **The workspace's own**, which owners set in Settings → AI usage (empty: none). It counts all of
+  the workspace's AI, whoever pays for it, so owners can hold their own AI account to a budget too.
+  Changing it is in the audit log.
+- **The server's**, `AI_MONTHLY_LIMIT_USD`, for whoever runs the server and pays for its `AI_*` key:
+  it counts only what that key paid for the workspace this month, and never holds back a workspace
+  running on its own AI account (*Your own AI keys*), which spends its owner's money. A higher limit
+  of the owners' own doesn't lift it.
+
+The limit is checked before each request, so requests already under way finish and a month can end
+slightly over it (by at most `AI_CONCURRENCY` requests at once, a chat answer's worth). Agents keep
+their own monthly token limit besides (*Agents*).
 
 ### Your own AI keys
 
@@ -1925,7 +1956,8 @@ connections follow: https only, a public address only (checked when the request 
 connection pinned to it), and no redirects. List servers on your own network in `AI_ALLOWED_HOSTS`
 (comma-separated, a host name or host:port; plain http allowed for those), e.g.
 `AI_ALLOWED_HOSTS=vllm:8000`. The limits above (`AI_MAX_INPUT_CHARS`, `AI_RATE_LIMIT`…) hold for
-own accounts too.
+own accounts too. What an own account pays counts in the workspace's usage, and the owners' monthly
+limit holds it; the server's `AI_MONTHLY_LIMIT_USD` doesn't (*Usage and cost limits*).
 
 ```bash
 OWN_AI_KEYS_ENABLED=true
