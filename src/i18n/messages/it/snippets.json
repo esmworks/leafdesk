@@ -54,8 +54,15 @@
   },
   "settings": {
     "personalDescription": "Pezzi di contenuto che inserisci mentre scrivi: digita ; e l’attivatore di un frammento in qualsiasi pagina, oppure sceglilo in Frammenti nel menu /. Solo tu li vedi.",
-    "workspaceDescription": "Frammenti che tutti nello spazio di lavoro possono inserire mentre scrivono, insieme ai propri. I proprietari li aggiungono e li modificano.",
-    "ownersOnly": "Solo i proprietari dello spazio di lavoro ne aggiungono e modificano i frammenti.",
+    "description": "Pezzi di contenuto che inserisci mentre scrivi: digita ; e l’attivatore di un frammento in qualsiasi pagina, oppure sceglilo in Frammenti nel menu /.",
+    "tabsLabel": "Frammenti",
+    "tabs": {
+      "mine": "Miei",
+      "workspace": "Spazio di lavoro"
+    },
+    "mineNote": "Solo tu li vedi, e puoi usarli in tutti gli spazi di lavoro di cui fai parte.",
+    "workspaceNote": "Tutti in {workspace} possono usarli. Solo i proprietari li aggiungono e li modificano.",
+    "workspaceNoteOwner": "Tutti in {workspace} possono usarli. I proprietari li aggiungono e li modificano.",
     "search": "Cerca frammenti",
     "new": "Nuovo frammento",
     "import": "Importa",
@@ -63,8 +70,9 @@
     "export": "Esporta",
     "count": "{count} di {max}",
     "noMatches": "Nessun frammento corrisponde.",
-    "empty": "Ancora nessun frammento.",
+    "empty": "Lo spazio di lavoro non ha ancora frammenti condivisi.",
     "emptyOwner": "Ancora nessun frammento. Parti da un esempio o creane uno tuo.",
+    "emptyWorkspaceOwner": "Lo spazio di lavoro non ha ancora frammenti condivisi. Creane uno che tutti possano usare.",
     "examplesHeading": "Esempi",
     "addExample": "Aggiungi",
     "actionsFor": "Azioni per {title}",

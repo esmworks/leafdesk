@@ -66,8 +66,8 @@ describe("guestsCsvRows", () => {
 });
 
 describe("visibleSettingsTabs", () => {
-  it("shows guests only the general tab", () => {
-    expect(visibleSettingsTabs({ guest: true, managesGuests: true })).toEqual(["general"]);
+  it("shows guests only the general tab and their own snippets", () => {
+    expect(visibleSettingsTabs({ guest: true, managesGuests: true })).toEqual(["general", "snippets"]);
   });
 
   it("shows the guests tab to those who may bring guests in", () => {

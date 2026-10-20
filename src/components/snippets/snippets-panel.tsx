@@ -56,18 +56,21 @@ const excerpt = (body: string) =>
 /**
  * Settings > Snippets: the person's own snippets (`workspace` null) or a workspace's. Everyone who
  * may see them can search and export them; who may change them (`canManage`) also adds, edits,
- * duplicates, deletes and imports them.
+ * duplicates, deletes and imports them. The examples are offered for the person's own list only.
+ * `onChange` hears of every change to the list.
  */
 export function SnippetsPanel({
   workspace,
   canManage,
   initial,
   me,
+  onChange,
 }: {
   workspace: { id: string; name: string } | null;
   canManage: boolean;
   initial: SnippetView[];
   me: string;
+  onChange?: (list: SnippetView[]) => void;
 }) {
   const t = useTranslations("snippets");
   const ts = useTranslations("snippets.settings");
@@ -85,6 +88,7 @@ export function SnippetsPanel({
 
   const changed = (next: SnippetView[]) => {
     setSnippets([...next].sort((a, b) => a.trigger.localeCompare(b.trigger)));
+    onChange?.(next);
     announceSnippetsChanged();
   };
   const saved = (view: SnippetView) => {
@@ -182,7 +186,6 @@ export function SnippetsPanel({
           )}
         </div>
       </div>
-      {!canManage && <p className="text-xs text-fg-muted">{ts("ownersOnly")}</p>}
       {(imported || importError) && (
         <div role="status" className="rounded-lg border border-border bg-bg-subtle px-4 py-3 text-sm" data-snippet-import-result>
           {importError ? (
@@ -227,13 +230,13 @@ export function SnippetsPanel({
           </ul>
         ) : (
           <p className="px-4 py-8 text-center text-sm text-fg-muted">
-            {snippets.length ? ts("noMatches") : canManage ? ts("emptyOwner") : ts("empty")}
+            {snippets.length ? ts("noMatches") : !workspace ? ts("emptyOwner") : canManage ? ts("emptyWorkspaceOwner") : ts("empty")}
           </p>
         )}
       </div>
       {error && <p className="text-xs text-danger">{error}</p>}
 
-      {canManage && onlyExamples && offered.length > 0 && (
+      {!workspace && onlyExamples && offered.length > 0 && (
         <section className="space-y-2" data-snippet-examples>
           <h2 className="text-[15px] font-semibold">{ts("examplesHeading")}</h2>
           <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-bg-subtle/60">

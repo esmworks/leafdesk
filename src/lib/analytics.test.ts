@@ -75,6 +75,6 @@ describe("visibleSettingsTabs: analytics", () => {
   it("is for owners only", () => {
     expect(visibleSettingsTabs({ guest: false, managesGuests: true, owner: true })).toContain("analytics");
     expect(visibleSettingsTabs({ guest: false, managesGuests: true })).not.toContain("analytics");
-    expect(visibleSettingsTabs({ guest: true, managesGuests: false, owner: true })).toEqual(["general"]);
+    expect(visibleSettingsTabs({ guest: true, managesGuests: false, owner: true })).toEqual(["general", "snippets"]);
   });
 });
