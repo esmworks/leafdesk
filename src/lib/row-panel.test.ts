@@ -7,6 +7,7 @@ import {
   ROW_PANEL_WIDTH,
   rowFromSearch,
   stepKey,
+  withBlock,
   withRow,
 } from "./row-panel";
 
@@ -109,5 +110,17 @@ describe("stepKey", () => {
     expect(stepKey(key("k", { metaKey: true }))).toBeNull();
     expect(stepKey(key("j", { ctrlKey: true }))).toBeNull();
     expect(stepKey(key("j", { altKey: true }))).toBeNull();
+  });
+});
+
+describe("withBlock", () => {
+  it("points the address at a block of the page in the panel", () => {
+    expect(withBlock("/w/ws/ai?c=c1&row=r1", "b1")).toBe("/w/ws/ai?c=c1&row=r1#block-b1");
+    expect(withBlock("/w/ws/ai?row=r1#block-b1", "b2")).toBe("/w/ws/ai?row=r1#block-b2");
+  });
+
+  it("drops a block but keeps another hash", () => {
+    expect(withBlock("/w/ws/ai?row=r1#block-b1", null)).toBe("/w/ws/ai?row=r1");
+    expect(withBlock("http://localhost:3000/w/ws/p/db?row=r1#top", null)).toBe("http://localhost:3000/w/ws/p/db?row=r1#top");
   });
 });

@@ -8,6 +8,7 @@ import { loadRowPanelAction, rowPanelStampAction, type RowPanelPage } from "@/ap
 import { useAiChat } from "@/components/ai-chat/chat-panel";
 import { useChannel } from "@/components/collab/use-channel";
 import { useIsOffline } from "@/components/offline/offline-context";
+import { FOCUS_BLOCK_EVENT } from "@/components/page/block-focus";
 import { PageView, type PanelChrome } from "@/components/page/page-view";
 import { Button, IconButton, pageLabel } from "@/components/ui";
 import { PHONE_QUERY, useMediaQuery } from "@/components/use-media-query";
@@ -20,6 +21,7 @@ import {
   rowFromSearch,
   rowPanelStamp,
   stepKey,
+  withBlock,
   withRow,
 } from "@/lib/row-panel";
 import { isEditable } from "@/lib/shortcuts";
@@ -114,19 +116,25 @@ export function RowPanelProvider({
   }, [mounted, phone, rowId, router, workspaceId]);
 
   const open = useCallback(
-    (id: string, from: RowOrigin) => {
+    (id: string, from: RowOrigin, blockId: string | null = null) => {
       origin.current = { source: from.source ?? origin.current.source, trigger: from.trigger ?? origin.current.trigger };
       const current = rowFromSearch(window.location.search);
+      // The page's editor scrolls to the block in the address as it opens (block-focus.ts).
+      const href = withBlock(withRow(window.location.href, id), blockId);
       // A null state lets Next follow the new address (see selectView in database-page.tsx).
       if (!current) {
-        window.history.pushState(null, "", withRow(window.location.href, id));
+        window.history.pushState(null, "", href);
         pushed.current = entryOf(id);
         // Both panels take the right edge: the row replaces the chat.
         closeAiChat?.(false);
       } else if (current !== id) {
         const ours = pushed.current === entryOf(current);
-        window.history.replaceState(null, "", withRow(window.location.href, id));
+        window.history.replaceState(null, "", href);
         if (ours) pushed.current = entryOf(id);
+      } else if (blockId) {
+        // Already open: its editor goes to the block from where it is.
+        window.history.replaceState(window.history.state, "", href);
+        window.dispatchEvent(new CustomEvent(FOCUS_BLOCK_EVENT, { detail: { blockId } }));
       }
     },
     [closeAiChat],
@@ -138,7 +146,7 @@ export function RowPanelProvider({
       pushed.current = null;
       window.history.back();
     } else {
-      window.history.replaceState(null, "", withRow(window.location.href, null));
+      window.history.replaceState(null, "", withBlock(withRow(window.location.href, null), null));
     }
     if (current) setTimeout(() => focusRow(current, origin.current), 0);
   }, []);
@@ -238,7 +246,9 @@ function RowPanel({
   const router = useRouter();
   const offline = useIsOffline();
   const panelRef = useRef<HTMLElement>(null);
-  const [loaded, setLoaded] = useState<{ rowId: string; result: Loaded } | null>(null);
+  // `wasRow`: the panel has shown the page as a row of a database (so one that isn't is a row taken
+  // out of it, not a page opened here from the AI chat).
+  const [loaded, setLoaded] = useState<{ rowId: string; result: Loaded; wasRow: boolean } | null>(null);
 
   const load = useCallback(async () => {
     let result: Loaded;
@@ -247,16 +257,19 @@ function RowPanel({
     } catch {
       result = { ok: false, reason: "unreachable" };
     }
-    setLoaded((current) =>
+    setLoaded((current) => {
       // A late answer for a row the panel has moved on from is dropped.
-      rowFromSearch(window.location.search) === rowId ? { rowId, result } : current,
-    );
+      if (rowFromSearch(window.location.search) !== rowId) return current;
+      const before = current?.rowId === rowId && current.wasRow;
+      return { rowId, result, wasRow: before || (result.ok && result.data.databaseId !== null) };
+    });
   }, [rowId]);
   useEffect(() => {
     void load();
   }, [load]);
 
   const result = loaded?.rowId === rowId ? loaded.result : null;
+  const wasRow = loaded?.rowId === rowId && loaded.wasRow;
 
   // Trashed, restored, moved or shared elsewhere (the workspace's page tree changed): load again,
   // so the panel shows the row as it is now. Only when the row's place changed, read cheaply:
@@ -411,7 +424,7 @@ function RowPanel({
             readOnly={data.page.archived || !canEdit}
           />
         ) : (
-          <Notice>{t("notInDatabase")}</Notice>
+          wasRow && <Notice>{t("notInDatabase")}</Notice>
         )}
       </PageView>
     );
@@ -463,7 +476,7 @@ function RowPanel({
       data-row-panel
       role="dialog"
       aria-modal="false"
-      aria-label={t("label", { title })}
+      aria-label={result?.ok && !result.data.databaseId ? title : t("label", { title })}
       tabIndex={-1}
       // The row's comments open beside the panel (components/page/comments-panel.tsx).
       style={{ width, "--comments-right": `${width}px` } as CSSProperties}

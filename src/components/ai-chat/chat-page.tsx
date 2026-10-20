@@ -3,16 +3,19 @@
 /**
  * The full-page AI chat (/w/[id]/ai, the sidebar's "Ask AI"): one conversation across the page,
  * `?c=` naming it, while the sidebar lists the person's conversations (ConversationList). A source
- * opens its page with the conversation carried on in the panel beside it.
+ * opens in the row panel beside the conversation; a database, or any source on a phone, opens as
+ * its page, the conversation carried on in the chat panel beside it.
  */
 import { SquarePen } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
+import { useRowPanel } from "@/components/database/row-panel-context";
 import { useIsOffline } from "@/components/offline/offline-context";
 import { SidebarOpenButton } from "@/components/sidebar/sidebar-context";
 import { IconButton } from "@/components/ui";
 import { chatPath, sourceHref, type ChatSourceView } from "@/lib/ai-chat";
+import { rowFromSearch, withRow } from "@/lib/row-panel";
 import { useAiChat } from "./chat-panel";
 import { ChatThread } from "./chat-thread";
 import { MemoryButton } from "./memory-dialog";
@@ -24,14 +27,15 @@ export function ChatPage({ workspaceId, available, memory }: { workspaceId: stri
   const router = useRouter();
   const requested = useSearchParams().get("c");
   const context = useAiChat();
+  const rowPanel = useRowPanel();
   const offline = useIsOffline();
   // The conversation the page shows (or null: a new chat), as far as the address is concerned.
   const shown = useRef<string | null | undefined>(undefined);
   const chat = useChat(workspaceId, {
     onConversation: (id) => {
       shown.current = id;
-      // Without a navigation: the answer is still streaming in.
-      window.history.replaceState(null, "", chatPath(workspaceId, id));
+      // Without a navigation: the answer is still streaming in. A source open beside it stays.
+      window.history.replaceState(null, "", withRow(chatPath(workspaceId, id), rowFromSearch(window.location.search)));
       // A new conversation shows in the sidebar's list right away, not when it's answered.
       if (id) void context?.refreshConversations();
     },
@@ -59,16 +63,27 @@ export function ChatPage({ workspaceId, available, memory }: { workspaceId: stri
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [requested, workspaceId]);
 
-  function openSource(source: ChatSourceView) {
-    const href = sourceHref(source);
-    if (!href) return;
-    router.push(href);
-    // Beside the page, the conversation goes on; a phone has no room for both.
-    if (!window.matchMedia("(max-width: 767px)").matches) context?.openPanel(conversationId);
-  }
+  // The same function while the row panel opens and closes, so the answers' citations stay the
+  // same elements and the panel can give focus back to the one that opened it.
+  const openSource = useCallback(
+    (source: ChatSourceView) => {
+      const href = sourceHref(source);
+      if (!href || !source.pageId) return;
+      if (rowPanel?.available && source.kind !== "database") {
+        const trigger = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+        rowPanel.open(source.pageId, { source: null, trigger }, source.blockId);
+        return;
+      }
+      router.push(href);
+      // Beside the page, the conversation goes on; a phone has no room for both.
+      if (!window.matchMedia("(max-width: 767px)").matches) context?.openPanel(conversationId);
+    },
+    [rowPanel, router, context, conversationId],
+  );
 
   return (
-    <div className="flex h-full flex-col">
+    // The row panel steps through the answers' sources here, and gives focus back to one as it closes.
+    <div data-row-source className="flex h-full flex-col">
       <div data-window-controls-clear className="flex h-11 shrink-0 items-center gap-1 px-3 max-md:ps-1.5">
         <SidebarOpenButton className="me-1 max-md:me-0" />
         <h1 className="min-w-0 flex-1 truncate text-sm font-medium">{title || t("title")}</h1>
