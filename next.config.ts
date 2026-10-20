@@ -18,11 +18,14 @@ const config = (phase: string): NextConfig => ({
   // The desktop app's build (desktop/scripts/bundle-server.ts): only the files the server runs, its
   // packages traced from the repository alone (not from a checkout around it). Without the image
   // optimizer, which nothing uses and whose sharp is native code for one kind of processor: the
-  // same server goes into both Mac apps.
+  // same server goes into both Mac apps. Without the type check: CI's check job type checks the
+  // same commit (`pnpm typecheck` and its own `next build`), and here it would run again on each
+  // platform, for minutes, needing more memory than Node gives itself on the macOS runner.
   ...(process.env.LEAFDESK_STANDALONE === "1" && {
     output: "standalone",
     outputFileTracingRoot: process.cwd(),
     images: { unoptimized: true },
+    typescript: { ignoreBuildErrors: true },
   }),
   // Loaded by the custom server too; keep one copy of each in the process.
   serverExternalPackages: ["postgres", "@blocknote/server-util", "jsdom", "yjs", "nodemailer", "@earendil-works/pi-ai", "unpdf", "web-push", "imapflow", "mailparser"],
