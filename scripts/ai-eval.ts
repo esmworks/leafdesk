@@ -12,7 +12,7 @@
  * (claude-opus-5-5; the fake models are judged by a fake), --tasks <id prefixes>, --repeat <n>,
  * --set KEY=VALUE (extra AI_* settings for the model under test), --spend (needed for any real
  * model), --keep (leave the seeded workspaces), --seed-only (seed one demo workspace and stop),
- * --out <dir>.
+ * --out <dir>, --regrade <results.json> (grade a saved run's outputs again, no model called).
  *
  * Env: AI_EVAL_DATABASE_URL (default postgres://leafdesk:leafdesk@localhost:5432/leafdesk_aieval;
  * DATABASE_URL is never used, so the eval can't write into another database by accident; only a
@@ -44,6 +44,7 @@ const spend = flag("spend") !== undefined;
 const keep = flag("keep") !== undefined;
 const seedOnly = flag("seed-only") !== undefined;
 const outDir = flag("out") || "data/ai-eval";
+const regradeFile = flag("regrade");
 const extraEnv = Object.fromEntries(flags("set").map((kv) => [kv.slice(0, kv.indexOf("=")), kv.slice(kv.indexOf("=") + 1)]));
 
 const isFake = (model: string) => model === "fake" || model === "fake-wrong";
@@ -93,13 +94,21 @@ const { requestAgentRun } = await import("@/server/agents/requests");
 const { flushAgentRuns } = await import("@/server/agents/run");
 const { deleteEvalWorkspaces, seedEvalWorkspace } = await import("./ai-eval/seed");
 const { TASKS } = await import("./ai-eval/tasks");
-const { fold, JUDGE_SYSTEM, judgePrompt, readVerdict, score } = await import("./ai-eval/grade");
+const { fold, JUDGE_SYSTEM, judgePrompt, readVerdict, score, turkishCheck } = await import("./ai-eval/grade");
 type EvalSeed = import("./ai-eval/seed").EvalSeed;
 type EvalTask = import("./ai-eval/tasks").EvalTask;
 type RowView = import("./ai-eval/tasks").RowView;
 type TaskContext = import("./ai-eval/tasks").TaskContext;
 type Variant = import("./ai-eval/tasks").Variant;
 type Check = import("./ai-eval/grade").Check;
+
+// Grading a saved run again needs neither the fake model nor the collaboration service.
+if (regradeFile) {
+  const { regrade } = await import("./ai-eval/regrade");
+  await regrade(regradeFile);
+  await (globalThis as unknown as { __leafdeskSql?: { end(): Promise<void> } }).__leafdeskSql?.end();
+  process.exit(0);
+}
 
 const { hocuspocus, service } = createCollab();
 registerCollab(service);
@@ -283,6 +292,7 @@ async function runTask(task: EvalTask, seed: EvalSeed, ctx: ReturnType<typeof co
         const out = await runChat(task, seed);
         const checks = out.error ? [{ name: `the chat failed (${out.error})`, pass: false }] : await task.grade(out, ctx);
         if (out.approvals && task.mode !== "auto") checks.push({ name: "asked to change something on a question that only reads", pass: false, detail: String(out.approvals) });
+        if (!out.error) checks.push(turkishCheck(out.text));
         return { ...base, score: out.error ? 0 : score(checks), checks, output: out.text, error: out.error };
       }
       case "autofill": {
@@ -316,7 +326,7 @@ async function runTask(task: EvalTask, seed: EvalSeed, ctx: ReturnType<typeof co
           ...(task.instruction ? { instruction: task.instruction } : {}),
         });
         const { text } = await answer.result();
-        const checks = task.grade(text);
+        const checks = [...task.grade(text), turkishCheck(text)];
         return { ...base, score: score(checks), checks, output: text, error: null };
       }
       case "agent": {
@@ -349,8 +359,9 @@ async function judge(task: Extract<EvalTask, { kind: "writing" }>, result: TaskR
   sink = usage;
   try {
     if (variant) fakeReply = () => ({ text: JSON.stringify({ score: variant === "right" ? 5 : 2, reason: "fake judge" }) });
-    // A summary is judged against the page it summarizes.
-    const input = task.text ?? (task.page ? (await getCollab().readPage(task.page(seed))).markdown : "");
+    // A summary is judged against the page it summarizes, title included: the model sees the title too.
+    const page = !task.text && task.page ? await getCollab().readPage(task.page(seed)) : null;
+    const input = task.text ?? (page ? `Page title: ${page.title}\n\n${page.markdown}` : "");
     const answer = await complete({
       feature: "eval.judge",
       userId: seed.ownerId,
