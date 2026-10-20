@@ -105,7 +105,12 @@
   The workspace's own email settings moved into **Settings → General → Email**, so there is one
   Email page rather than two: owners choose whether email on rows is on, where mail lands and see
   whose mailbox is connected; members see whether it is on. The workspace's settings are grouped
-  under Workspace, Features and Administration, and your own snippets are now **My snippets**.
+  under Workspace, Features and Administration.
+- **Your snippets and the workspace's share one page.** Settings → Snippets has a tab for each:
+  **Mine** (only you see them, in every workspace you're in) and **Workspace** (everyone in it uses
+  them, owners change them), each with its count. Snippets is no longer under My account. The
+  examples are offered for your own list only, and an empty workspace list says it has no shared
+  snippets. Guests get the page with their own list alone.
 - **A source in the full-page AI chat opens beside it.** Clicking an answer's citation (or a page it
   read) opens the page in the panel at the right instead of leaving the conversation, scrolled to the
   cited passage; the panel's up and down buttons (K and J) go through the conversation's other sources,

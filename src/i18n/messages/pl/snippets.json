@@ -54,8 +54,15 @@
   },
   "settings": {
     "personalDescription": "Kawałki treści wstawiane podczas pisania: wpisz ; i wyzwalacz fragmentu na dowolnej stronie albo wybierz go w sekcji Fragmenty w menu /. Widzisz je tylko ty.",
-    "workspaceDescription": "Fragmenty, które wszyscy w obszarze roboczym mogą wstawiać podczas pisania, obok własnych. Właściciele je dodają i zmieniają.",
-    "ownersOnly": "Tylko właściciele obszaru roboczego dodają i zmieniają jego fragmenty.",
+    "description": "Kawałki treści wstawiane podczas pisania: wpisz ; i wyzwalacz fragmentu na dowolnej stronie albo wybierz go w sekcji Fragmenty w menu /.",
+    "tabsLabel": "Fragmenty",
+    "tabs": {
+      "mine": "Moje",
+      "workspace": "Obszar roboczy"
+    },
+    "mineNote": "Widzisz je tylko ty i możesz ich używać w każdym obszarze roboczym, do którego należysz.",
+    "workspaceNote": "Wszyscy w {workspace} mogą ich używać. Tylko właściciele je dodają i zmieniają.",
+    "workspaceNoteOwner": "Wszyscy w {workspace} mogą ich używać. Właściciele je dodają i zmieniają.",
     "search": "Szukaj fragmentów",
     "new": "Nowy fragment",
     "import": "Importuj",
@@ -63,8 +70,9 @@
     "export": "Eksportuj",
     "count": "{count} z {max}",
     "noMatches": "Brak pasujących fragmentów.",
-    "empty": "Nie ma jeszcze fragmentów.",
+    "empty": "Obszar roboczy nie ma jeszcze wspólnych fragmentów.",
     "emptyOwner": "Nie ma jeszcze fragmentów. Zacznij od przykładu albo utwórz własny.",
+    "emptyWorkspaceOwner": "Obszar roboczy nie ma jeszcze wspólnych fragmentów. Utwórz pierwszy, z którego wszyscy będą mogli korzystać.",
     "examplesHeading": "Przykłady",
     "addExample": "Dodaj",
     "actionsFor": "Akcje dla: {title}",

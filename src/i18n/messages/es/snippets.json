@@ -54,8 +54,15 @@
   },
   "settings": {
     "personalDescription": "Piezas de contenido que insertas mientras escribes: escribe ; y el activador de un fragmento en cualquier página, o elígelo en Fragmentos, en el menú /. Solo tú los ves.",
-    "workspaceDescription": "Fragmentos que todos en el espacio de trabajo pueden insertar mientras escriben, junto a los suyos. Los propietarios los añaden y los cambian.",
-    "ownersOnly": "Solo los propietarios del espacio de trabajo añaden y cambian sus fragmentos.",
+    "description": "Piezas de contenido que insertas mientras escribes: escribe ; y el activador de un fragmento en cualquier página, o elígelo en Fragmentos, en el menú /.",
+    "tabsLabel": "Fragmentos",
+    "tabs": {
+      "mine": "Míos",
+      "workspace": "Espacio de trabajo"
+    },
+    "mineNote": "Solo tú los ves, y puedes usarlos en todos los espacios de trabajo en los que estás.",
+    "workspaceNote": "Todos en {workspace} pueden usarlos. Solo los propietarios los añaden y los cambian.",
+    "workspaceNoteOwner": "Todos en {workspace} pueden usarlos. Los propietarios los añaden y los cambian.",
     "search": "Buscar fragmentos",
     "new": "Nuevo fragmento",
     "import": "Importar",
@@ -63,8 +70,9 @@
     "export": "Exportar",
     "count": "{count} de {max}",
     "noMatches": "Ningún fragmento coincide.",
-    "empty": "Aún no hay fragmentos.",
+    "empty": "El espacio de trabajo aún no tiene fragmentos compartidos.",
     "emptyOwner": "Aún no hay fragmentos. Empieza con un ejemplo o crea el tuyo.",
+    "emptyWorkspaceOwner": "El espacio de trabajo aún no tiene fragmentos compartidos. Crea uno que todos puedan usar.",
     "examplesHeading": "Ejemplos",
     "addExample": "Añadir",
     "actionsFor": "Acciones para {title}",

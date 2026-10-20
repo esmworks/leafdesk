@@ -54,8 +54,15 @@
   },
   "settings": {
     "personalDescription": "Pedaços de conteúdo que você insere enquanto digita: digite ; e o gatilho de um trecho em qualquer página, ou escolha-o em Trechos no menu /. Só você vê estes.",
-    "workspaceDescription": "Trechos que todos no espaço de trabalho podem inserir enquanto digitam, além dos próprios. Os proprietários os adicionam e alteram.",
-    "ownersOnly": "Só os proprietários do espaço de trabalho adicionam e alteram os trechos dele.",
+    "description": "Pedaços de conteúdo que você insere enquanto digita: digite ; e o gatilho de um trecho em qualquer página, ou escolha-o em Trechos no menu /.",
+    "tabsLabel": "Trechos",
+    "tabs": {
+      "mine": "Meus",
+      "workspace": "Espaço de trabalho"
+    },
+    "mineNote": "Só você vê estes, e pode usá-los em todos os espaços de trabalho de que participa.",
+    "workspaceNote": "Todos em {workspace} podem usá-los. Só os proprietários os adicionam e alteram.",
+    "workspaceNoteOwner": "Todos em {workspace} podem usá-los. Os proprietários os adicionam e alteram.",
     "search": "Pesquisar trechos",
     "new": "Novo trecho",
     "import": "Importar",
@@ -63,8 +70,9 @@
     "export": "Exportar",
     "count": "{count} de {max}",
     "noMatches": "Nenhum trecho corresponde.",
-    "empty": "Ainda não há trechos.",
+    "empty": "O espaço de trabalho ainda não tem trechos compartilhados.",
     "emptyOwner": "Ainda não há trechos. Comece com um exemplo ou crie o seu.",
+    "emptyWorkspaceOwner": "O espaço de trabalho ainda não tem trechos compartilhados. Crie um que todos possam usar.",
     "examplesHeading": "Exemplos",
     "addExample": "Adicionar",
     "actionsFor": "Ações para {title}",

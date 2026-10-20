@@ -54,8 +54,15 @@
   },
   "settings": {
     "personalDescription": "Inhalte, die du beim Tippen einfügst: Tippe auf einer beliebigen Seite ; und das Kürzel eines Textbausteins oder wähle ihn unter Textbausteine im /-Menü. Nur du siehst diese.",
-    "workspaceDescription": "Textbausteine, die alle im Workspace beim Tippen einfügen können, zusätzlich zu ihren eigenen. Inhaber fügen sie hinzu und ändern sie.",
-    "ownersOnly": "Nur die Inhaber des Workspace fügen dessen Textbausteine hinzu und ändern sie.",
+    "description": "Inhalte, die du beim Tippen einfügst: Tippe auf einer beliebigen Seite ; und das Kürzel eines Textbausteins oder wähle ihn unter Textbausteine im /-Menü.",
+    "tabsLabel": "Textbausteine",
+    "tabs": {
+      "mine": "Meine",
+      "workspace": "Workspace"
+    },
+    "mineNote": "Nur du siehst diese, und du kannst sie in jedem Workspace nutzen, in dem du bist.",
+    "workspaceNote": "Alle in {workspace} können diese nutzen. Nur Inhaber fügen sie hinzu und ändern sie.",
+    "workspaceNoteOwner": "Alle in {workspace} können diese nutzen. Inhaber fügen sie hinzu und ändern sie.",
     "search": "Textbausteine durchsuchen",
     "new": "Neuer Textbaustein",
     "import": "Importieren",
@@ -63,8 +70,9 @@
     "export": "Exportieren",
     "count": "{count} von {max}",
     "noMatches": "Keine Textbausteine gefunden.",
-    "empty": "Noch keine Textbausteine.",
+    "empty": "Der Workspace hat noch keine gemeinsamen Textbausteine.",
     "emptyOwner": "Noch keine Textbausteine. Beginne mit einem Beispiel oder erstelle einen eigenen.",
+    "emptyWorkspaceOwner": "Der Workspace hat noch keine gemeinsamen Textbausteine. Erstelle einen, den alle nutzen können.",
     "examplesHeading": "Beispiele",
     "addExample": "Hinzufügen",
     "actionsFor": "Aktionen für {title}",

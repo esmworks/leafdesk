@@ -54,8 +54,15 @@
   },
   "settings": {
     "personalDescription": "Yazarken eklediğiniz içerik parçaları: herhangi bir sayfada ; ve parçacığın tetikleyicisini yazın ya da / menüsünde Parçacıklar altından seçin. Bunları yalnızca siz görürsünüz.",
-    "workspaceDescription": "Çalışma alanındaki herkesin kendi parçacıklarının yanında yazarken ekleyebileceği parçacıklar. Sahipler ekler ve değiştirir.",
-    "ownersOnly": "Çalışma alanının parçacıklarını yalnızca sahipleri ekler ve değiştirir.",
+    "description": "Yazarken eklediğiniz içerik parçaları: herhangi bir sayfada ; ve parçacığın tetikleyicisini yazın ya da / menüsünde Parçacıklar altından seçin.",
+    "tabsLabel": "Parçacıklar",
+    "tabs": {
+      "mine": "Benim",
+      "workspace": "Çalışma alanı"
+    },
+    "mineNote": "Bunları yalnızca siz görürsünüz; üyesi olduğunuz her çalışma alanında kullanabilirsiniz.",
+    "workspaceNote": "{workspace} içindeki herkes bunları kullanabilir. Yalnızca sahipler ekler ve değiştirir.",
+    "workspaceNoteOwner": "{workspace} içindeki herkes bunları kullanabilir. Sahipler ekler ve değiştirir.",
     "search": "Parçacıklarda ara",
     "new": "Yeni parçacık",
     "import": "İçe aktar",
@@ -63,8 +70,9 @@
     "export": "Dışa aktar",
     "count": "{count} / {max}",
     "noMatches": "Eşleşen parçacık yok.",
-    "empty": "Henüz parçacık yok.",
+    "empty": "Çalışma alanının henüz ortak parçacığı yok.",
     "emptyOwner": "Henüz parçacık yok. Bir örnekle başlayın ya da kendinizinkini oluşturun.",
+    "emptyWorkspaceOwner": "Çalışma alanının henüz ortak parçacığı yok. Herkesin kullanabileceği ilkini oluşturun.",
     "examplesHeading": "Örnekler",
     "addExample": "Ekle",
     "actionsFor": "{title} işlemleri",
