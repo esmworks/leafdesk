@@ -87,8 +87,9 @@ let mainWindow: BrowserWindow | null = null;
 /** Leafdesk on this computer, once started (local mode). */
 let localServer: Promise<LocalServer> | null = null;
 let quitting = false;
-/** A `leafdesk://` link that came before the app was ready. */
+/** A `leafdesk://` link that came before the app started. */
 let waitingLink: string | undefined;
+let started = false;
 const views = new WeakMap<WebContents, View>();
 const certificates = new CertificateTrust(() => settings.trustedCertificates);
 
@@ -155,6 +156,7 @@ function start() {
   registerPageBridge();
   refreshMenu();
   openMainWindow();
+  started = true;
   const link = waitingLink ?? appLinkIn(process.argv);
   waitingLink = undefined;
   if (link) followAppLink(link);
@@ -311,7 +313,7 @@ function appLinkIn(argv: string[]) {
  * (navigation.ts), which the window takes back to the server to finish under its session.
  */
 function followAppLink(link: string) {
-  if (!app.isReady()) {
+  if (!started) {
     waitingLink = link;
     return;
   }
