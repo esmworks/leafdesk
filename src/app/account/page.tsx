@@ -37,7 +37,7 @@ export default async function AccountPage({
   const suffix = from && from.id !== workspaces[0]?.id ? `&from=${encodeURIComponent(from.id)}` : "";
 
   return (
-    <div className="flex min-h-full flex-col md:flex-row">
+    <div className="settings-type flex min-h-full flex-col md:flex-row">
       <SettingsNav
         label={t("title")}
         back={{ href: from ? `/w/${from.id}` : "/", label: from ? t("back", { workspace: from.name }) : t("backHome") }}

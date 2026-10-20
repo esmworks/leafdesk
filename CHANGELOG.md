@@ -45,6 +45,9 @@
   in columns, with a switch for **In chat** (and one for all of them above) and a green or amber dot
   for whether each only reads or changes things; a description that only repeats the tool's title
   is left out.
+- **Larger small print in settings.** On the workspace's, the account's and the server's settings,
+  notes, hints, counts and small buttons are 13px instead of 12px, dialogs opened from there
+  included. The rest of the app keeps its sizes.
 - **The AI chat takes the next question while it answers.** A question sent while an answer is being
   written waits in a strip above the question box (how many, the first of them, and Clear) and is
   asked in the same conversation once the answer is done; before, Enter did nothing then. Stop gives

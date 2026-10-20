@@ -666,6 +666,16 @@
   }
 }
 
+/*
+ * Settings screens (a workspace's, the account's and the server's) are read more than scanned:
+ * their notes, hints and small buttons take 13px instead of the 12px text-xs gives elsewhere.
+ * Every text-xs inside, dialogs opened from there included, reads this variable.
+ */
+.settings-type {
+  --text-xs: 0.8125rem;
+  --text-xs--line-height: 1.45;
+}
+
 .board-card {
   background: var(--opt-card, var(--bg));
   box-shadow: 0 0 0 1px rgba(15, 15, 15, 0.06), 0 1px 3px rgba(15, 15, 15, 0.08);
