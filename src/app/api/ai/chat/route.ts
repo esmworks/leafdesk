@@ -1,16 +1,19 @@
 import * as z from "zod";
 import { auth } from "@/lib/auth";
-import { CHAT_MODES, MAX_CHAT_MESSAGE } from "@/lib/ai-chat";
+import { CHAT_MODES } from "@/lib/ai-chat";
 import { AccessError } from "@/server/access";
 import { aiErrorStatus, isAiError } from "@/server/ai";
 import { startChat } from "@/server/ai-chat";
 import { isCrossSite } from "@/server/cross-site";
 
+/** Keeps an oversized body out; what a question may be is the model's to say (see startChat). */
+const MAX_BODY_MESSAGE = 10_000_000;
+
 const chatInput = z.object({
   workspaceId: z.string().min(1).max(100),
   conversationId: z.string().min(1).max(100).nullish(),
   // Checked for length by startChat, which says so with its own error code.
-  message: z.string().max(MAX_CHAT_MESSAGE * 2),
+  message: z.string().max(MAX_BODY_MESSAGE),
   scope: z.object({ pageId: z.string().min(1).max(100) }).nullish(),
   mode: z.enum(CHAT_MODES).optional(),
   replaceLast: z.boolean().optional(),

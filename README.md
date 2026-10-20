@@ -1832,7 +1832,7 @@ is kept. Under an answer are *Copy*, *Answer again* (the latest) and its time; h
 shows its time, *Edit* (the latest: answered again in its place) and *Copy*. An answer that
 changed things can't be answered again or edited. Conversations are private to you and listed in the full-page chat's sidebar and under
 the panel's *Conversations*, where you can delete one or all; up to 50 per workspace are kept (the oldest go first), with
-no limit on questions, each up to 100,000 characters. The chat sends the model as much of the
+no limit on questions, each as long as the model's context window takes. The chat sends the model as much of the
 conversation as its context window takes (see `AI_MAX_INPUT_CHARS`); when the model still finds it
 too long, older tool results and then the earlier turns are left out and the question is asked
 again. They are deleted when you leave the workspace or delete your account. The

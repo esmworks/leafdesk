@@ -31,7 +31,7 @@ import { Fragment, lazy, Suspense, useEffect, useMemo, useRef, useState, type Re
 import { BlockChanges } from "@/components/page/history-diff";
 import { copyText } from "@/components/settings/copy-button";
 import { Button, cn, IconButton, MenuItem, Popover } from "@/components/ui";
-import { CHAT_MODES, changedMemory, changedThings, MAX_CHAT_MESSAGE, type ChatMode, type ChatSourceView, stripCitations } from "@/lib/ai-chat";
+import { CHAT_MODES, changedMemory, changedThings, type ChatMode, type ChatSourceView, stripCitations } from "@/lib/ai-chat";
 import { MemoryDialog } from "./memory-dialog";
 import { SkillChip, SkillList, useSkillPicker } from "./skill-picker";
 import { PageLink, StepLine } from "./step-line";
@@ -217,7 +217,6 @@ export function ChatThread({
                   }
                 }}
                 rows={Math.min(6, Math.max(page ? 2 : 1, input.split("\n").length))}
-                maxLength={MAX_CHAT_MESSAGE}
                 disabled={Boolean(blocked)}
                 placeholder={running ? t("placeholderBusy") : t("placeholder")}
                 aria-label={t("placeholder")}
@@ -402,7 +401,6 @@ function Question({ message, page, onEdit }: { message: ChatMessage; page: boole
             }
           }}
           rows={Math.min(6, Math.max(1, draft.split("\n").length))}
-          maxLength={MAX_CHAT_MESSAGE}
           aria-label={t("actions.edit")}
           className="block w-full resize-none bg-transparent text-sm outline-none"
         />

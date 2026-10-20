@@ -39,7 +39,6 @@ import {
   changedThings,
   citedNumbers,
   conversationTitle,
-  MAX_CHAT_MESSAGE,
   MAX_CONVERSATIONS,
   type ChatActionView,
   type ChatConnectionRecord,
@@ -157,12 +156,13 @@ const sizeOf = (messages: AiMessage[]) => messages.reduce((n, m) => n + m.conten
 export async function startChat(userId: string, input: ChatInput, signal?: AbortSignal): Promise<AsyncIterable<ChatEvent>> {
   const message = input.message.trim();
   if (!message) refuse("invalid", "Ask a question");
-  if (message.length > MAX_CHAT_MESSAGE) refuse("tooLarge", `A question may have at most ${MAX_CHAT_MESSAGE} characters`);
   const membership = await requireMembership(userId, input.workspaceId).catch((error) => {
     if (error instanceof AccessError && !(error instanceof WorkspacePolicyError)) refuse("noAccess", "Workspace not found");
     throw error;
   });
   if (!(await aiAvailable(input.workspaceId))) refuse("disabled", "AI is off for this workspace");
+  // A question is as long as the model's context window takes; nothing else bounds it.
+  if (message.length > (await promptRoomFor(input.workspaceId))) refuse("tooLarge", "The question is longer than the model takes");
   const scope = await scopePage(userId, input.workspaceId, input.scope);
   const skill = input.skillId ? await chatSkill(userId, input.workspaceId, input.skillId) : null;
   const existing = input.conversationId ? await ownConversation(userId, input.workspaceId, input.conversationId) : null;
