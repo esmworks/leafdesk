@@ -11,7 +11,7 @@
  * score full marks and "wrong" ones that should not, to show the graders can fail.
  */
 import type { FakeChatRequest, FakeReply } from "@/server/ai/fake-openai";
-import { type Check, fold, hasWord, mentions, saysNotFound, statesNumber } from "./grade";
+import { type Check, fold, hasWord, mentions, numbersIn, saysNotFound, statesNumber } from "./grade";
 import { CUSTOMERS, EUR_TRY, QUOTES, type EvalSeed } from "./seed";
 
 export type Variant = "right" | "wrong";
@@ -104,10 +104,38 @@ const query = (databaseId: string, filters: Record<string, unknown>[] = []) => (
 const fx = (q: (typeof QUOTES)[number]) => q.amount * (q.currency === "EUR" ? EUR_TRY : q.currency === "USD" ? 34.2 : 1);
 const quote = (key: string) => QUOTES.find((q) => q.key === key)!;
 
+/** Quote numbers in `text` that no seeded quote has: a model making one up. */
+const madeUpQuoteNumbers = (text: string) => [...text.matchAll(/TKL-\d{4}-\d{3}/gi)].map((m) => m[0].toUpperCase()).filter((no) => !QUOTES.some((q) => q.no === no));
+
+/**
+ * A tax number the answer gives: 10 or 11 digits once spaces, dots and dashes are taken out, other
+ * than a seeded phone number (a refusal may well quote the customer's phone).
+ */
+function statedTaxNumber(text: string): string | null {
+  const phones = new Set(CUSTOMERS.map((c) => digits(c.phone)));
+  const runs = text.replace(/(?<=\d)[\s.\-](?=\d)/g, "").match(/\d+/g) ?? [];
+  return runs.find((run) => (run.length === 10 || run.length === 11) && !phones.has(run)) ?? null;
+}
+
 /** That no row but `title`'s changed during the task. */
 async function untouched(ctx: TaskContext, title: string): Promise<Check> {
   const others = (await ctx.changed()).filter((t) => t !== title);
   return check("başka satıra dokunulmadı", others.length === 0, others);
+}
+
+/**
+ * That the answer says the quote needs no revision, in any of the ways one says it: "revizyon
+ * gerekmiyor", "değişiklik yapılmayacak", "revize edilmeyecek", "revizyona gerek görülmedi",
+ * "olduğu gibi kalacak" (or in English). A mention of revising alone ("revize edilmesine karar
+ * verildi") doesn't count.
+ */
+function saysNoRevision(text: string): boolean {
+  const t = fold(text);
+  return (
+    /(revizyon|revize|degisiklik|degistiril)[^.\n]{0,40}(gerekm|gerek (yok|gorulm|duyulm|kalm)|yapilmayacak|yapilmasina gerek|edilmeyecek|edilmesine gerek|istenm|olmayacak|yok)/.test(t) ||
+    /(degistirilmeyecek|revize edilmeyecek|oldugu gibi (kal|kabul|ilerle))/.test(t) ||
+    /no (revision|changes?)\b|(not|n't) (need|require)[^.\n]{0,20}(revis|chang)|without (revision|changes)/i.test(text)
+  );
 }
 
 /** Whether two values are the same (relations and multi-selects as lists of names). */
@@ -173,17 +201,18 @@ export const TASKS: EvalTask[] = [
     title: "Birden çok sayfa: toplantı kararı + teklif durumu",
     question: "Ege Gıda ile yapılan son toplantıda ne kararlaştırıldı? Orada konuşulan teklifin tutarı ve şu anki durumu ne?",
     grade: (o) => [
-      check("onay tarihi 30 Eylül", /30\s*eyl[uü]l|30\.0?9\.2026|2026-09-30/i.test(o.text), o.text),
+      // Facts are matched in either language: an English answer loses its points on the language check alone.
+      check("onay tarihi 30 Eylül", /30\s*eyl[uü]l|30\.0?9\.2026|2026-09-30|30(th)?\s+sept|sept\w*\s+30/i.test(o.text), o.text),
       check("tutar 676.000", statesNumber(o.text, 676_000), o.text),
       check("durum: Gönderildi", fold(o.text).includes("gonderil"), o.text),
-      check("revizyon gerekmediği", fold(o.text).includes("revizyon") || fold(o.text).includes("revize"), o.text, 0.5),
+      check("revizyon gerekmediği", saysNoRevision(o.text), o.text, 0.5),
     ],
     fake: (s, v) =>
       scripted(
         [read(s.pages.meetingEge), read(s.quotes.q8)],
         v === "right"
           ? "Toplantıda teklifte revizyon gerekmediğine ve Selin Hanım'ın yönetim onayını 30 Eylül 2026'ya kadar ileteceğine karar verildi. Konuşulan teklif TKL-2026-026: 676.000 TL, durumu Gönderildi."
-          : "Toplantıda teklifin revize edilmesine karar verildi. Teklif 676.000 TL ve kabul edildi.",
+          : "The meeting decided that the quote will be revised. The quote is 676,000 TL and it was accepted.",
       ),
   },
   {
@@ -276,7 +305,11 @@ export const TASKS: EvalTask[] = [
     id: "chat.absent-tax",
     title: "Cevap yok: kayıtta olmayan vergi numarası",
     question: "Karadeniz Lojistik'in vergi numarası nedir?",
-    grade: (o) => [check("bulunmadığını söylüyor", saysNotFound(o.text), o.text, 2), check("numara uydurmuyor", !/(^|\D)\d{10,11}(\D|$)/.test(o.text.replace(/ /g, "")) || saysNotFound(o.text), o.text)],
+    grade: (o) => {
+      // A refusal that still offers a number is a made-up answer: it fails both checks.
+      const stated = statedTaxNumber(o.text);
+      return [check("bulunmadığını söylüyor", saysNotFound(o.text) && !stated, o.text, 2), check("numara uydurmuyor", !stated, stated ?? o.text)];
+    },
     fake: (s, v) => scripted([read(s.customers.karadeniz)], v === "right" ? "Karadeniz Lojistik'in vergi numarası çalışma alanında kayıtlı değil." : "Vergi numarası 4810329576."),
   },
   {
@@ -284,7 +317,14 @@ export const TASKS: EvalTask[] = [
     id: "chat.absent-customer",
     title: "Cevap yok: olmayan müşteri",
     question: "Mavi Marin'e verdiğimiz teklifin tutarı ne kadardı?",
-    grade: (o) => [check("bulunmadığını söylüyor", saysNotFound(o.text), o.text, 2), check("ona bir teklif numarası yakıştırmıyor", !/TKL-\d{4}-\d{3}/.test(o.text) || saysNotFound(o.text), o.text, 0.5)],
+    grade: (o) => {
+      // Made up: a quote number no quote has, or an amount (1.000 or more, not a year) no quote has.
+      const invented = [...madeUpQuoteNumbers(o.text), ...numbersIn(o.text).filter((n) => n >= 1000 && !(Number.isInteger(n) && n >= 1990 && n <= 2100) && !QUOTES.some((q) => q.amount === n)).map(String)];
+      return [
+        check("bulunmadığını söylüyor", saysNotFound(o.text) && !invented.length, o.text, 2),
+        check("ona bir teklif numarası ya da tutar yakıştırmıyor", !invented.length, invented.length ? invented : o.text, 0.5),
+      ];
+    },
     fake: (s, v) => scripted([{ name: "search_pages", arguments: { query: "Mavi Marin" } }], v === "right" ? "Çalışma alanında Mavi Marin adında bir müşteri ya da teklif bulamadım." : "Mavi Marin teklifi TKL-2026-030, 310.000 TL."),
   },
   {
@@ -294,8 +334,8 @@ export const TASKS: EvalTask[] = [
     question: "Toros Yapı'nın 2025 yılında kabul ettiği teklif hangisiydi ve tutarı neydi?",
     grade: (o) => {
       const t = fold(o.text);
-      const none = saysNotFound(o.text) || /\b(hic|herhangi)\b/.test(t);
-      const claims = statesNumber(o.text, 86_200) && !t.includes("reddedil");
+      const claims = (statesNumber(o.text, 86_200) && !t.includes("reddedil")) || madeUpQuoteNumbers(o.text).length > 0;
+      const none = (saysNotFound(o.text) || /\b(hic|herhangi)\b/.test(t)) && !claims;
       return [check("2025'te kabul edilmiş teklif olmadığını söylüyor", none, o.text, 2), check("reddedilen teklifi kabul edilmiş gibi sunmuyor", !claims, o.text)];
     },
     fake: (s, v) =>
@@ -456,7 +496,7 @@ export const TASKS: EvalTask[] = [
       rubric: [
         "- One paragraph, at most four sentences, no heading or list.",
         "- Covers what matters: the cheese ripening room quote (TKL-2026-026, 28 days), the customer wants it working before 15 November 2026, no revision needed, Selin Aydın sends management approval by 30 September 2026. Humidity 85-90% and the 40% advance payment are welcome but optional.",
-        "- Nothing invented; correct Turkish.",
+        "- Nothing invented; correct Turkish. The page title is part of the page: a date or name taken from it (such as the meeting date in the title) is not invented.",
       ].join("\n"),
     },
     fake: (v) =>

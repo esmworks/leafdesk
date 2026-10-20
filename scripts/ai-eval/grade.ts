@@ -87,39 +87,69 @@ export function statesNumber(text: string, expected: number, { tolerance = 0.001
   return numbersIn(text).some((n) => Math.abs(n - expected) <= allowed);
 }
 
-/** Words and phrases that say the answer isn't in the workspace (Turkish, plus English in case). */
-const REFUSALS = [
-  "bulamadım",
-  "bulamıyorum",
-  "bulunamadı",
-  "bulunmuyor",
-  "bulunmamaktadır",
-  "yer almıyor",
-  "yer almamaktadır",
-  "geçmiyor",
-  "geçmemektedir",
-  "kayıtlı değil",
-  "kayıt yok",
-  "kaydı yok",
-  "bilgi yok",
-  "bilgisi yok",
-  "belirtilmemiş",
-  "belirtilmiyor",
-  "göremedim",
-  "göremiyorum",
-  "rastlamadım",
-  "mevcut değil",
-  "yoktur",
-  "yok.",
-  "erişemiyorum",
-  "not found",
-  "could not find",
-  "couldn't find",
-  "no record",
-  "not in the workspace",
+/**
+ * Ways of saying the answer isn't in the workspace, matched on folded text (`fold`) so Turkish
+ * inflections share a stem: "görünmüyor", "görünmemektedir" and "görünmedi" all match `gorunm`,
+ * "bulamadım", "bulamıyoruz" and "bulunamadı" match `bul(un)?ama`. English in case. A refusal says
+ * nothing about whether the answer also states a made-up value: each absent-answer task checks that
+ * apart.
+ */
+const REFUSALS: RegExp[] = [
+  /bul(un)?am[ai]/, // bulamadım, bulamıyorum, bulunamadı
+  /bulunm(uyor|amakta|adi|amis)/, // bulunmuyor, bulunmamaktadır, bulunmadı
+  /gorunm(uyor|emekte|edi|emis)/, // görünmüyor, görünmemektedir, görünmedi
+  /gozukm(uyor|emekte|edi)/,
+  /yer alm(iyor|amakta|adi|amis)/,
+  /gecm(iyor|emekte)/, // (adı) geçmiyor
+  /(kayitli|mevcut|tanimli|girilmis|eklenmis|belirtilmis|yazili)\s+(degil|gorunm)/, // kayıtlı değil, mevcut değildir
+  /(kaydedilm|girilm|eklenm|tanimlanm|belirtilm|yazilm)(emis|iyor|amis|adi|edi)/, // girilmemiş, belirtilmiyor
+  /gorem(edi|iyor)/, // göremedim, göremiyorum
+  /rastla(madi|yamadi|nmadi|namadi)/,
+  /erisem(edi|iyor)/,
+  /ulas(am|ilam)(adi|iyor)/,
+  /tespit edilem/,
+  /sonuc (vermedi|cikmadi)/,
+  /(^|[^\p{L}\p{N}])yok(tur|mus|)($|[^\p{L}\p{N}])/u, // "bir teklif yok", "yoktur"
+  /not found|could( no|n'?)t find|no record|not in the workspace|(does not|doesn'?t) (appear|exist)|there is no/,
 ];
 
-export const saysNotFound = (text: string) => REFUSALS.some((r) => fold(text).includes(fold(r)));
+export const saysNotFound = (text: string) => {
+  const folded = fold(text);
+  return REFUSALS.some((r) => r.test(folded));
+};
+
+// ---------------------------------------------------------------------------------- language
+
+/** Function words that only English uses. Left out: words Turkish also has ("on" ten, "at", "it", "in", "can", "has") and "no" ("Teklif No"). */
+const ENGLISH_WORDS = new Set(["the", "and", "is", "are", "was", "were", "of", "to", "with", "for", "will", "by", "this", "that", "not", "have", "from", "which", "be", "been", "there", "its", "or", "but", "would", "should"]);
+/** Function words that only Turkish uses. */
+const TURKISH_WORDS = new Set(["ve", "ile", "için", "bir", "bu", "şu", "da", "de", "ki", "değil", "var", "yok", "olarak", "göre", "kadar", "ama", "ancak", "veya", "daha", "çok", "gibi", "mi", "mı", "henüz", "hâlâ", "sonra", "önce", "olan", "olduğu", "yani"]);
+
+/**
+ * Whether `text` reads as English rather than Turkish. Deterministic and deliberately lenient: it
+ * counts words from two short lists of function words (the, of, with… against ve, ile, için…) and
+ * calls the text English only when it has at least three English ones and more English than
+ * Turkish ones. Too little text to tell (a number, "Teklifi ekledim.") counts as not English, so
+ * the check only fails on an answer that is clearly written in English. Names, quoted values and
+ * code don't weigh: they are rarely function words.
+ */
+export function readsAsEnglish(text: string): { english: boolean; en: number; tr: number } {
+  const words = lowerTr(text).match(/[\p{L}]+/gu) ?? [];
+  const en = words.filter((w) => ENGLISH_WORDS.has(w)).length;
+  const tr = words.filter((w) => TURKISH_WORDS.has(w)).length;
+  return { english: en >= 3 && en > tr, en, tr };
+}
+
+/**
+ * The check every chat and writing answer gets: written in Turkish, the language it was asked in.
+ * A penalty only: it weighs 1 when it fails and nothing when it passes, so a wrong answer in
+ * Turkish scores no higher than it did without the check, and scores stay comparable with runs
+ * graded before it.
+ */
+export function turkishCheck(text: string): Check {
+  const { english, en, tr } = readsAsEnglish(text);
+  return { name: "Türkçe cevap", pass: !english, weight: english ? 1 : 0, detail: `İngilizce işlev sözcüğü ${en}, Türkçe ${tr}` };
+}
 
 export function score(checks: Check[]): number {
   const total = checks.reduce((n, c) => n + (c.weight ?? 1), 0);

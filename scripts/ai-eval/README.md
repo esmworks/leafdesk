@@ -21,13 +21,25 @@ tasks through the same code a person sets off in the app, grades them and writes
     amount into a job's budget, and leave a row alone when the meeting note decided nothing.
   - Chat that writes (mode `auto`): create a quote row, update a job.
 - `grade.ts`: number matching that reads Turkish and English formats (`1.250.000,50`,
-  `1,250,000.50`, `2,5 milyon`), Turkish-aware word matching, refusal phrases and the judge.
+  `1,250,000.50`, `2,5 milyon`), Turkish-aware word matching, refusal phrases (stems over folded
+  text, so "görünmüyor", "görünmemektedir" and "kayıtlı değil" all count), the language check and
+  the judge.
+- `regrade.ts`: grades a saved run's outputs again with the current graders (`--regrade`).
 
 Grading is deterministic wherever the answer is a fact: the expected number or name in the
 answer, the row's values in the database afterwards, no other row changed, a refusal when the
 answer is absent. Only the writing assistant's text quality goes to a judge model, with the rubric
 written in the task; its 1–5 verdict counts as one weighted check (weight 2) next to the
 deterministic ones. A task's score is the weighted share of its checks that pass.
+
+An absent-answer task passes only when the answer says the value isn't there *and* states none:
+a refusal that still offers a tax number, a quote number no quote has or an amount no quote has
+fails both of its checks. Every chat and writing answer also gets a language check, "Türkçe
+cevap": the answer fails it when it has at least three English function words (the, of, with…)
+and more of them than Turkish ones (ve, ile, için…). Too short to tell counts as Turkish. It is a
+penalty only (weight 1 when it fails, 0 when it passes), so scores stay comparable with runs graded
+before it. Where a fact check has an English form (the meeting task's date and "no revision"
+checks), it accepts it, so a right answer in English loses its points on the language check. A summary is judged against the page with its title, as the model is shown it.
 
 ## Running it
 
@@ -71,6 +83,7 @@ ANTHROPIC_API_KEY=sk-ant-... pnpm tsx scripts/ai-eval.ts --model claude-haiku-5-
 | `--keep` | Keep the seeded workspaces instead of deleting them. |
 | `--seed-only` | Seed one demo workspace with its agent and stop. |
 | `--out <dir>` | Where results go (default `data/ai-eval/`, not checked in). |
+| `--regrade <file>` | Grade a saved run again with the current graders, calling no model. Chat answers and the writing assistant's checks are graded again from the saved text; autofill, agents, the chat tasks that write (they read the database) and the judge's verdicts keep what was saved. Writes `<file>-regraded.json` and `.md`. |
 
 Each run writes `ai-eval-<time>.json` (every check with what it saw, the outputs, the judge's
 verdicts, tokens, cost and time per task) and `ai-eval-<time>.md` (a table of score · tokens · cost
