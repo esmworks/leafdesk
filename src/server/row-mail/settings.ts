@@ -9,7 +9,7 @@ import { listWorkspaces, workspaceSettings } from "@/server/workspaces";
 import { MailConnectError, testMailbox } from "./connect";
 
 /**
- * Settings > Email: owners choose the databases mail lands on, in order, and which of their email
+ * Settings > General > Email: owners choose the databases mail lands on, in order, and which of their email
  * properties hold the other party's address; every member (not guests) connects their own mailbox
  * in the workspace from their account (Account > Email and calendar), which is tried before it is kept.
  */

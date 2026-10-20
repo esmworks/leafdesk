@@ -12,7 +12,6 @@
     "groups": "Gruppi",
     "agents": "Agenti",
     "connections": "Connessioni",
-    "email": "Email",
     "storage": "Archiviazione",
     "analytics": "Statistiche",
     "aiUsage": "Uso dell'IA",
@@ -1732,6 +1731,7 @@
     }
   },
   "email": {
+    "heading": "Email",
     "description": "Le email con le persone dei tuoi database arrivano sulle loro righe: chiunque possa vedere una riga ne legge lì le email e risponde dalla propria casella di posta.",
     "enabled": "Email sulle righe",
     "enabledHint": "I membri collegano la propria casella di posta in Il mio account › Email e calendario. Vengono lette per intero solo le email il cui interlocutore è l’indirizzo email di una riga; il resto rimane nella casella di posta.",

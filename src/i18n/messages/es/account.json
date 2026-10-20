@@ -172,7 +172,7 @@
     "mailboxOff": "El correo en filas está desactivado en este espacio de trabajo, así que este buzón no se lee. Desconéctalo para borrar su contraseña.",
     "notConnected": "No hay ningún buzón conectado",
     "connect": "Conectar",
-    "noMailboxes": "Ninguno de tus espacios de trabajo tiene activado el correo en filas. Sus propietarios lo activan en Configuración › Correo.",
+    "noMailboxes": "Ninguno de tus espacios de trabajo tiene activado el correo en filas. Sus propietarios lo activan en Configuración › General.",
     "calendarsHeading": "Direcciones de calendario",
     "calendarsDescription": "Direcciones que creaste para apps de calendario, desde una vista de calendario o desde las filas asignadas a ti. Quien tenga una dirección ve lo que muestra; desactiva las que ya no uses.",
     "calendarsEmpty": "Aún no hay direcciones de calendario. Crea una desde una vista de calendario o desde Asignado a ti en la página de inicio.",

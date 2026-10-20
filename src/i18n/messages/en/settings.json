@@ -12,7 +12,6 @@
     "groups": "Groups",
     "agents": "Agents",
     "connections": "Connections",
-    "email": "Email",
     "storage": "Storage",
     "analytics": "Analytics",
     "aiUsage": "AI usage",
@@ -1732,6 +1731,7 @@
     }
   },
   "email": {
+    "heading": "Email",
     "description": "Mail with the people in your databases lands on their rows: everyone who can see a row reads its mail there and answers it from their own mailbox.",
     "enabled": "Email on rows",
     "enabledHint": "Members connect their own mailbox under My account › Email and calendar. Only mail whose other party is a row's email address is ever read whole; the rest stays in the mailbox.",
