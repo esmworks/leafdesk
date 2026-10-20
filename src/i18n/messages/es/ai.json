@@ -134,6 +134,7 @@
     "intro": "Pregunta lo que quieras sobre este espacio de trabajo. Las respuestas salen de las páginas que puedes abrir, con enlaces a ellas.",
     "placeholder": "Haz una pregunta…",
     "placeholderBusy": "Escribe la siguiente pregunta: espera a esta respuesta…",
+    "pasted": "[Pegado: {count, plural, one {# línea} other {# líneas}}]",
     "send": "Enviar",
     "stop": "Detener",
     "queue": {

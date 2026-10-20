@@ -134,6 +134,7 @@
     "intro": "Zapytaj o cokolwiek w tym obszarze roboczym. Odpowiedzi pochodzą ze stron, które możesz otworzyć, z linkami do nich.",
     "placeholder": "Zadaj pytanie…",
     "placeholderBusy": "Zadaj następne pytanie: poczeka na tę odpowiedź…",
+    "pasted": "[Wklejono: {count, plural, one {# wiersz} few {# wiersze} many {# wierszy} other {# wiersza}}]",
     "send": "Wyślij",
     "stop": "Zatrzymaj",
     "queue": {

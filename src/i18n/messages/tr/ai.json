@@ -134,6 +134,7 @@
     "intro": "Bu çalışma alanındaki herhangi bir şeyi sor. Yanıtlar açabildiğin sayfalardan gelir ve onlara bağlantı verir.",
     "placeholder": "Bir soru sor…",
     "placeholderBusy": "Sıradaki soruyu yaz: bu cevap bitince sorulur…",
+    "pasted": "[Yapıştırıldı: {count, plural, other {# satır}}]",
     "send": "Gönder",
     "stop": "Durdur",
     "queue": {

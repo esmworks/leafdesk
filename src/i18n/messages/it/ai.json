@@ -134,6 +134,7 @@
     "intro": "Chiedi qualsiasi cosa su questo spazio di lavoro. Le risposte arrivano dalle pagine che puoi aprire, con i link alle pagine.",
     "placeholder": "Fai una domanda…",
     "placeholderBusy": "Scrivi la prossima domanda: aspetta questa risposta…",
+    "pasted": "[Incollato: {count, plural, one {# riga} other {# righe}}]",
     "send": "Invia",
     "stop": "Interrompi",
     "queue": {
