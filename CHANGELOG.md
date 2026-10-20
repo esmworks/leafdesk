@@ -37,6 +37,11 @@
 
 ### Changed
 
+- **A clearer Connections page.** Settings → Connections puts **Add another server** next to the
+  tabs, on both of them. The catalog's cards are roomier, with a + to connect and a tick on the
+  services already added, so long names no longer get cut. Connected services show as cards with
+  their logo and a status badge (a green, amber or red dot for ready, needs sign-in or not working),
+  and the note on approvals sits in a box of its own.
 - **The AI chat takes the next question while it answers.** A question sent while an answer is being
   written waits in a strip above the question box (how many, the first of them, and Clear) and is
   asked in the same conversation once the answer is done; before, Enter did nothing then. Stop gives
