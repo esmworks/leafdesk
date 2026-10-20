@@ -60,7 +60,10 @@ export async function regrade(file: string) {
       result.checks = checks;
       result.score = now;
     }
-    const byKind = (kind: string) => pct(mean(report.results.filter((r) => r.kind === kind).map((r) => r.score)));
+    const byKind = (kind: string) => {
+      const scores = report.results.filter((r) => r.kind === kind).map((r) => r.score);
+      return scores.length ? pct(mean(scores)) : "–";
+    };
     summary.push(`| ${report.model} | ${pct(mean(before))} | ${pct(mean(report.results.map((r) => r.score)))} | ${byKind("chat")} | ${byKind("writing")} |`);
   }
   const base = file.replace(/\.json$/, "");

@@ -545,7 +545,12 @@ function markdown(list: ModelReport[], estimate: ReturnType<typeof estimateCost>
   out.push("", "| model | mean score | by feature | requests | tokens in / out | cost | judge cost | time |", "| --- | --- | --- | --- | --- | --- | --- | --- |");
   for (const r of list) {
     const mean = (xs: TaskResult[]) => (xs.length ? (xs.reduce((n, x) => n + x.score, 0) / xs.length) * 100 : 0);
-    const kinds = ["chat", "autofill", "writing", "agent"].map((k) => `${k} ${mean(r.results.filter((x) => x.kind === k)).toFixed(0)}%`).join(", ");
+    const kinds = ["chat", "autofill", "writing", "agent"]
+      .map((k) => {
+        const xs = r.results.filter((x) => x.kind === k);
+        return `${k} ${xs.length ? `${mean(xs).toFixed(0)}%` : "–"}`;
+      })
+      .join(", ");
     out.push(
       `| ${r.model} | ${mean(r.results).toFixed(1)}% | ${kinds} | ${r.totals.requests} | ${r.totals.inputTokens} / ${r.totals.outputTokens} | $${r.totals.costUsd.toFixed(4)} | $${r.totals.judgeCostUsd.toFixed(4)} | ${(r.totals.ms / 1000).toFixed(0)}s |`,
     );
