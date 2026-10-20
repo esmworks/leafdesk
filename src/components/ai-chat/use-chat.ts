@@ -12,6 +12,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { decideChangeAction, deleteConversationAction, getConversationAction } from "@/app/actions/ai";
 import { isAiErrorCode } from "@/lib/ai";
 import { CHAT_MODES, type ChatActionView, type ChatEvent, type ChatMessageView, type ChatMode } from "@/lib/ai-chat";
+import { holdAnswering } from "./answering";
 
 /** What the model is doing while an answer is on its way: working on a turn, or writing. */
 export type ChatStatus = "thinking" | "writing";
@@ -72,6 +73,8 @@ export function useChat(
   const running = status !== null;
 
   useEffect(() => () => abort.current?.abort(), []);
+  // The sidebar's list marks the conversation while its answer is on its way.
+  useEffect(() => (running && conversationId ? holdAnswering(conversationId) : undefined), [running, conversationId]);
   // After hydration: the server doesn't know the browser's choice.
   useEffect(() => setModeState(savedMode()), []);
 
