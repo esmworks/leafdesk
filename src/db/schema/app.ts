@@ -392,15 +392,16 @@ export const page = pgTable(
     contentMarkdown: text("content_markdown").notNull().default(""),
     /**
      * What full-text search matches and ranks (server/pages.ts fullTextSearch): the title's words
-     * weighted A, the body's B, then the same for the two-character pieces of their Chinese and
-     * Japanese text (cjk_bigrams, migration 0077; lib/search-words cuts queries alike). Only the
-     * first 1,000 characters of the title and 80,000 of the body, so that the vector always stays
-     * under Postgres' tsvector limit (see the migration) and a huge page still saves.
+     * weighted A, the body's B, folded so the dotted and dotless i are alike (search_fold, migration
+     * 0093; queries fold their words alike), then the same for the two-character pieces of their
+     * Chinese and Japanese text (cjk_bigrams, migration 0077; lib/search-words cuts queries alike).
+     * Only the first 1,000 characters of the title and 80,000 of the body, so that the vector always
+     * stays under Postgres' tsvector limit (see migration 0077) and a huge page still saves.
      * Kept by Postgres from title and content_text, so ranking doesn't parse every candidate page
      * again. Large: select it only where a query needs it.
      */
     searchVector: tsvector("search_vector").generatedAlwaysAs(
-      sql`setweight(to_tsvector('simple', left(coalesce(title, ''), 1000)), 'A') || setweight(to_tsvector('simple', left(coalesce(content_text, ''), 80000)), 'B') || setweight(to_tsvector('simple', cjk_bigrams(left(title, 1000))), 'A') || setweight(to_tsvector('simple', cjk_bigrams(left(content_text, 80000))), 'B')`,
+      sql`setweight(to_tsvector('simple', search_fold(left(coalesce(title, ''), 1000))), 'A') || setweight(to_tsvector('simple', search_fold(left(coalesce(content_text, ''), 80000))), 'B') || setweight(to_tsvector('simple', cjk_bigrams(left(title, 1000))), 'A') || setweight(to_tsvector('simple', cjk_bigrams(left(content_text, 80000))), 'B')`,
     ),
     archivedAt: timestamp("archived_at", { withTimezone: true }),
     /** Databases: while set, properties and views can't be added, renamed or removed. Rows stay editable. */

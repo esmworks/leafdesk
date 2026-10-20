@@ -294,6 +294,10 @@ try {
   await write(shouted.id, "Sosyal medya için LANSMAN PLANI taslağı.");
   const dotless = await make("Lansman planı");
   check((await unlinkedIds(dotless.id)).includes(shouted.id), "…and a title with ı is found written in capitals");
+  const lab = await make("Ölçümler");
+  await write(lab.id, "Depodaki ışık seviyesi ölçüldü.");
+  const capitals = await make("IŞIK SEVİYESİ");
+  check((await unlinkedIds(capitals.id)).includes(lab.id), "…and a title in capitals is found written with ı and i");
   const short = await make("Q");
   await write(turkishNote.id, "Q and q everywhere.");
   check((await listUnlinkedMentions(ids.owner, short.id)).length === 0, "titles too short to look for find nothing");

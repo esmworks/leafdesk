@@ -902,20 +902,23 @@ export async function fullTextSearch(
   const like = `%${q.replace(/[\\%_]/g, (c) => `\\${c}`)}%`;
   // Every word as a prefix, cut by the parser that made the vectors ("e-posta" is the word and its
   // parts, as on the page), and Chinese and Japanese text by its two-character pieces
-  // (searchQueryParts); null, matching nothing, when the query has no words at all.
+  // (searchQueryParts); null, matching nothing, when the query has no words at all. Words are
+  // folded as the vectors' are (searchFoldSql), so "ışık" finds "IŞIK".
   const { words: rest, cjk } = searchQueryParts(q);
   const allOfParts = [
-    ...(/[\p{L}\p{N}]/u.test(rest) ? [sql`nullif(regexp_replace(plainto_tsquery('simple', ${rest})::text, '''( &|$)', ''':*\\1', 'g'), '')::tsquery`] : []),
+    ...(/[\p{L}\p{N}]/u.test(rest)
+      ? [sql`nullif(regexp_replace(plainto_tsquery('simple', ${searchFoldSql(rest)})::text, '''( &|$)', ''':*\\1', 'g'), '')::tsquery`]
+      : []),
     ...cjk.map((run) => sql`to_tsquery('simple', ${run})`),
   ];
   const allOf = allOfParts.length ? sql`(${sql.join(allOfParts, sql` && `)})` : sql`null::tsquery`;
-  const words = anyWord ? sql`to_tsquery('simple', ${anyWordTsQuery(terms)})` : allOf;
+  const words = anyWord ? sql`to_tsquery('simple', ${searchFoldSql(anyWordTsQuery(terms))})` : allOf;
   // Normalization 1 divides by the log of the page's length: long pages don't win on size alone.
   const rank = !q
     ? sql`0`
     : anyWord
     ? sql`ts_rank(p.search_vector, ${words}, 1)`
-    : sql`(case when p.title ilike ${like} then 2 else 0 end) + ts_rank(p.search_vector, ${words}, 1)`;
+    : sql`(case when ${searchFoldSql(sql`p.title`)} like ${searchFoldSql(like)} then 2 else 0 end) + ts_rank(p.search_vector, ${words}, 1)`;
   const matches = q ? sql`p.search_vector @@ ${words}` : sql`true`;
   const inWorkspaces = sql.join(workspaces.map((w) => sql`${w}`), sql`, `);
   // Pages whose body shows a PDF, Word document or Excel workbook with the words (file-text.ts), through a
@@ -1019,13 +1022,19 @@ async function searchedWorkspaces(userId: string): Promise<string[]> {
   return ids.filter((id) => !held.has(id));
 }
 
+/**
+ * Lower-cased with the dotted and dotless i alike, as the search vectors are, one character for
+ * one: "İ" is mapped before lowering, which would make it two.
+ */
+const snippetFold = (text: string) => text.replace(/[Iİı]/g, "i").toLowerCase();
+
 /** The text around the first of `needles` it contains, or its start. */
 function makeSnippet(text: string, needles: string[]) {
-  const lower = text.toLowerCase();
+  const lower = snippetFold(text);
   let i = -1;
   let length = 0;
   for (const needle of needles) {
-    const at = lower.indexOf(needle.toLowerCase());
+    const at = lower.indexOf(snippetFold(needle));
     if (at !== -1 && (i === -1 || at < i)) [i, length] = [at, needle.length];
   }
   if (i === -1) return text.slice(0, 140);
