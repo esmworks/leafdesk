@@ -1558,6 +1558,8 @@
       "invalidClient": "请粘贴应用的客户端 ID（以及其密钥，如果有的话）。",
       "clientForNewUrl": "新地址需要对应的应用：请重新输入客户端 ID 和密钥。",
       "needsClient": "此服务不允许 Leafdesk 自行注册。请在该服务上创建一个应用，并在连接设置中输入其客户端 ID 和密钥。",
+      "redirectRejected": "此服务不接受 Leafdesk 的返回地址。其管理员需要允许 {address}，或者在该服务上创建一个应用，并在连接设置中输入其客户端 ID 和密钥。",
+      "registrationRejected": "此服务拒绝了 Leafdesk 的注册：“{reason}”。请在该服务上创建一个应用，并在连接设置中输入其客户端 ID 和密钥。",
       "invalidTrigger": "请选择此工作区中的智能体。",
       "unknownTool": "该连接没有工具“{tool}”。",
       "oauthFailed": "登录失败。请重试。",

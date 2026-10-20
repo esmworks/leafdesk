@@ -148,6 +148,8 @@ export const CONNECTION_ERROR_CODES = [
   "invalidClient",
   "clientForNewUrl",
   "needsClient",
+  "redirectRejected",
+  "registrationRejected",
   "invalidTrigger",
   "unknownTool",
   "oauthFailed",

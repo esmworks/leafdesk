@@ -1558,6 +1558,8 @@
       "invalidClient": "앱의 클라이언트 ID를 붙여넣으세요(시크릿이 있다면 시크릿도).",
       "clientForNewUrl": "새 주소에는 앱이 필요합니다. 클라이언트 ID와 시크릿을 다시 입력하세요.",
       "needsClient": "이 서비스는 Leafdesk의 자체 등록을 허용하지 않습니다. 해당 서비스에서 앱을 만들고 연결 설정에 클라이언트 ID와 시크릿을 입력하세요.",
+      "redirectRejected": "이 서비스는 Leafdesk의 복귀 주소를 허용하지 않습니다. 서비스 관리자가 {address}를 허용하거나, 해당 서비스에서 앱을 만들고 연결 설정에 클라이언트 ID와 시크릿을 입력하세요.",
+      "registrationRejected": "이 서비스가 Leafdesk의 등록을 거부했습니다: “{reason}”. 해당 서비스에서 앱을 만들고 연결 설정에 클라이언트 ID와 시크릿을 입력하세요.",
       "invalidTrigger": "이 워크스페이스의 에이전트를 선택하세요.",
       "unknownTool": "이 연결에는 “{tool}” 도구가 없습니다.",
       "oauthFailed": "로그인하지 못했습니다. 다시 시도하세요.",
