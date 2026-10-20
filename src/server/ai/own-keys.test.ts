@@ -175,6 +175,21 @@ describe("which AI a workspace runs on", () => {
     expect(fake.chats.at(-1)?.model).toBe("server-model");
   });
 
+  it("runs an own account's simple jobs on its own model too, never the server's fast model", async () => {
+    vi.stubEnv("OWN_AI_KEYS_ENABLED", "true");
+    allowFake();
+    setAiEnv({ ...serverAi, AI_BASE_URL: fake.baseUrl, AI_FAST_MODEL: "server-fast" });
+    target.account = { id: "a2", userId: "u1", status: "active", fingerprint: "f", settings: settings({ baseUrl: fake.baseUrl }) };
+    await complete({ feature: "property.summary", workspaceId: "w1", messages: [{ role: "user", content: "hi" }] });
+    expect(fake.chats.at(-1)?.model).toBe("own-model");
+    expect(fake.keys.at(-1)).toBe("own-key");
+    // A workspace on the server's settings gets the server's fast model.
+    target.account = null;
+    await complete({ feature: "property.summary", workspaceId: "w2", messages: [{ role: "user", content: "hi" }] });
+    expect(fake.chats.at(-1)?.model).toBe("server-fast");
+    expect(fake.keys.at(-1)).toBe("server-key");
+  });
+
   it("is off without an account when only own keys may be used, and the server's key is never sent", async () => {
     vi.stubEnv("OWN_AI_KEYS_ENABLED", "true");
     vi.stubEnv("AI_ONLY_OWN_KEYS", "true");

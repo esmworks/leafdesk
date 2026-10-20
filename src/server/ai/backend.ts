@@ -20,6 +20,8 @@ import type { AiChatConfig, AiConfig } from "./config";
 export type AiBackend = {
   models: Models;
   model: Model<Api>;
+  /** The cheaper model for simple jobs (AI_FAST_MODEL, see features.ts), at the same provider. */
+  fast?: Model<Api>;
   /** Embeddings without HTTP (tests); the service uses the OpenAI-compatible endpoint otherwise. */
   embed?: (texts: string[]) => Promise<number[][]>;
   /** Speech to text without HTTP (tests); the service uses the OpenAI-compatible endpoint otherwise. */
@@ -31,7 +33,7 @@ export type AiBackend = {
 };
 
 /** How much a model that thinks should think (see AiRequest.thinking). */
-export type AiThinking = "off" | "low";
+export type AiThinking = "off" | "low" | "medium";
 
 /**
  * Sends one model turn. Without `thinking` the model thinks as its provider sets it up (Claude 5.5:
@@ -153,6 +155,7 @@ export async function createBackend(config: AiConfig): Promise<AiBackend | null>
   if (!chat) return null;
   const kind = KINDS[chat.provider];
   const model = await resolveModel(chat, config);
+  const fast = chat.fastModel ? await resolveModel({ ...chat, model: chat.fastModel }, config) : null;
   const streams = await kind.streams();
   const provider = createProvider({
     id: chat.provider,
@@ -167,10 +170,10 @@ export async function createBackend(config: AiConfig): Promise<AiBackend | null>
         resolve: async () => ({ auth: { apiKey: chat.apiKey ?? (kind.api === "openai-completions" ? "none" : "") }, source: "AI_API_KEY" }),
       },
     },
-    models: [model],
+    models: fast ? [model, fast] : [model],
     api: streams,
   });
   const models = createModels();
   models.setProvider(provider);
-  return { models, model, sessions: kind.sessions, ...(chat.fetch ? { fetch: chat.fetch } : {}) };
+  return { models, model, ...(fast ? { fast } : {}), sessions: kind.sessions, ...(chat.fetch ? { fetch: chat.fetch } : {}) };
 }

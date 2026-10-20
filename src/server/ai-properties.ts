@@ -385,6 +385,7 @@ async function runJob(job: Job): Promise<number> {
       }
       const wait = takeWorkspaceCapacity(job.workspaceId);
       if (wait > 0) return wait;
+      // On the fast model, without thinking where the model can stop (see ai/features.ts).
       const result = await complete({
         feature: `property.${input.config.mode}`,
         userId: job.userId,
@@ -393,8 +394,6 @@ async function runJob(job: Job): Promise<number> {
         system: input.prompt.system,
         messages: [{ role: "user", content: input.prompt.prompt }],
         maxOutputTokens: 800,
-        // One short value per cell, for every row: thinking would cost more than it adds.
-        thinking: "off",
       });
       value = cleanValue(result.text, MAX_AUTOFILL_VALUE);
       if (!value) throw new AiError("empty", "The model gave no value");

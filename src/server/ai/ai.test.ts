@@ -39,6 +39,18 @@ describe("AI settings", () => {
     expect(readAiConfig({ AI_PROVIDER: "ollama", AI_MODEL: "m", AI_BASE_URL: "ftp://x" }).chat).toBeNull();
   });
 
+  it("reads a fast model for simple jobs at the same provider", () => {
+    const both = readAiConfig({ AI_PROVIDER: "anthropic", AI_MODEL: "claude-opus-5-5", AI_FAST_MODEL: " claude-haiku-5-5 ", AI_API_KEY: "k" });
+    expect(both.chat).toEqual({ provider: "anthropic", model: "claude-opus-5-5", fastModel: "claude-haiku-5-5", baseUrl: null, apiKey: "k" });
+    expect(describeAiConfig(both)).toBe("AI: anthropic claude-opus-5-5, fast model: claude-haiku-5-5");
+    // Unset, empty or the same as AI_MODEL: none, and everything runs on AI_MODEL.
+    for (const fast of [undefined, "", "claude-opus-5-5"]) {
+      expect(readAiConfig({ AI_PROVIDER: "anthropic", AI_MODEL: "claude-opus-5-5", AI_FAST_MODEL: fast, AI_API_KEY: "k" }).chat).not.toHaveProperty("fastModel");
+    }
+    expect(readAiConfig({ AI_FAST_MODEL: "claude-haiku-5-5" }).problems).toEqual(["AI_FAST_MODEL is set but AI_PROVIDER is not"]);
+    expect(readAiConfig({ AI_PROVIDER: "anthropic", AI_FAST_MODEL: "claude-haiku-5-5", AI_API_KEY: "k" }).chat).toBeNull();
+  });
+
   it("reuses the chat key for embeddings only on the same endpoint", () => {
     const same = readAiConfig({ AI_PROVIDER: "openai", AI_MODEL: "gpt-4.1-mini", AI_API_KEY: "k", AI_EMBEDDINGS_MODEL: "text-embedding-3-small" });
     expect(same.embeddings).toEqual({ model: "text-embedding-3-small", baseUrl: "https://api.openai.com/v1", apiKey: "k", dimensions: null, minSimilarity: 0.3 });

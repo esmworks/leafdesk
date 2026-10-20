@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### Added
+
+- **A fast model for simple jobs: `AI_FAST_MODEL`.** A second, cheaper model at the same provider,
+  with the same key, for AI property values and writing up voice notes, e.g. `AI_MODEL=claude-opus-5-5`
+  with `AI_FAST_MODEL=claude-haiku-5-5`. Chat, agents and the writing assistant stay on `AI_MODEL`.
+  Unset, `AI_MODEL` answers everything as before. A workspace on its own AI account runs every
+  feature on the account's model. The startup log names the fast model, and each request's log
+  line its model. See the README's AI section.
+
 ### Changed
 
 - **Claude Haiku 5.5 and Sonnet 5.5 are known models.** The AI library (pi-ai 1.3.0) now has them,
@@ -14,10 +23,12 @@
   other models still keep to 800 tokens, and no request asks for more than the model's own output
   limit. A server that sets `AI_MAX_OUTPUT_TOKENS` itself keeps its value; raise it if answers end
   early.
-- **AI property values and the AI account test ask the model to think as little as it can.**
-  Claude 5.5 models think at high effort by default, which costs tokens and time on every
-  autofilled cell. Claude Haiku 5.5 now answers these without thinking; Claude Sonnet 5.5 and Opus
-  5.5, which always think, use low effort. Other AI features keep the model's own default.
+- **Each AI feature asks for the thinking it needs.** Claude 5.5 models think at high effort by
+  default, which costs tokens and time on every request. AI property values and the AI account
+  test ask for as little thinking as the model can do (none on Claude Haiku 5.5, low effort on
+  Sonnet and Opus 5.5, which always think); writing up voice notes and the writing assistant's
+  fixed actions ask for low effort; the chat and the writing assistant's own instructions for
+  medium. Agents keep the model's default. The README's AI section has the table.
 
 ### Fixed
 

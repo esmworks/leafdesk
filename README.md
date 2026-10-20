@@ -1747,6 +1747,35 @@ In Docker, a model running on the host is at `AI_BASE_URL=http://host.docker.int
 (Ollama) or `http://host.docker.internal:1234/v1` (LM Studio). The server log says which provider
 and model it uses at startup (never the key), and Settings → General → AI shows them.
 
+**A fast model for simple jobs.** `AI_FAST_MODEL` names a second, cheaper model at the same
+provider, with the same key and endpoint. It takes the short jobs that run often and need no
+careful reasoning; everything else stays on `AI_MODEL`. Unset (or the same as `AI_MODEL`),
+`AI_MODEL` answers everything. For example, a strong model for chat and agents and a small one
+for property values:
+
+```bash
+AI_PROVIDER=anthropic
+AI_MODEL=claude-opus-5-5
+AI_FAST_MODEL=claude-haiku-5-5
+```
+
+Each feature also tells a model that thinks before answering (Claude 5.5, OpenAI's and Gemini's
+reasoning models) how much to think; a model that can't think as little as asked thinks as little
+as it can (Claude Sonnet and Opus 5.5 can't stop thinking, so "off" is low effort for them).
+
+| Feature | Model | Thinking |
+| --- | --- | --- |
+| AI property values | `AI_FAST_MODEL` | off |
+| Voice notes: writing up the transcript | `AI_FAST_MODEL` | low |
+| Writing assistant: improve, fix, shorten, translate, continue, summarize | `AI_MODEL` | low |
+| Writing assistant: your own instruction | `AI_MODEL` | medium |
+| Chat | `AI_MODEL` | medium |
+| Agents | `AI_MODEL` | the model's default (Claude 5.5: high) |
+
+The writing assistant stays on `AI_MODEL`: it makes one request per click and its text goes straight
+into a page. Semantic search and the speech-to-text step of voice notes use their own models
+(`AI_EMBEDDINGS_MODEL`, `STT_MODEL`). The server log names the model of every request.
+
 **Writing assistant.** Select text and choose *Ask AI* in the formatting toolbar, or type `/` and
 pick *Ask AI*, *Continue writing* or *Summarize page*. On a selection: improve writing, fix
 spelling and grammar, make shorter, translate (choose the language), or type your own
@@ -1914,6 +1943,11 @@ spending it. When the account's owner leaves the workspace, removes the account 
 Leafdesk account, the workspace falls back down that list and its other owners get a notification.
 A request the provider refuses for its key marks the account as not working, with the provider's
 answer, in its owner's settings until a request works again or **Test** succeeds.
+
+An account has one model, and it answers every feature, the ones that would run on
+`AI_FAST_MODEL` too: the server's fast model is a model at the server's provider, which the account
+may not offer, and the account's owner chose what their key pays for. The thinking each feature asks
+for (see the table above) applies to the account's model as well.
 
 Semantic search indexes each workspace with the embeddings model its AI runs on, and changing the
 account (or the account's embeddings model) indexes that workspace again in the background; search
