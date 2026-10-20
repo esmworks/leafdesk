@@ -170,8 +170,8 @@ const IS_HANGUL = /^\p{Script=Hangul}+$/u;
  * five letters ("ekstreleri" → "ekstr", matching "ekstresi" too). Chinese and Japanese text gives
  * its words without particles and function words (cjkWords); Korean words count from two
  * syllables, without a last syllable that may be a particle (koreanStem). Case is left to the
- * database, so Turkish İ and I are lowered there the same way as the text. Empty when no word is
- * left.
+ * database, which folds the terms as it folds the text (search_fold: the dotted and dotless i
+ * alike). Empty when no word is left.
  */
 export function anyWordTerms(query: string): string[] {
   const seen = new Set<string>();

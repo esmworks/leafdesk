@@ -461,7 +461,7 @@ function titleParts(form: string): SQL[] {
   if (!cjk.length && !korean) return [];
   const parts = cjk.map((run) => sql`to_tsquery('simple', ${run})`);
   if (/[\p{L}\p{N}]/u.test(words)) {
-    const phrase = sql`phraseto_tsquery('simple', ${words})`;
+    const phrase = sql`phraseto_tsquery('simple', ${searchFoldSql(words)})`;
     parts.unshift(korean ? sql`regexp_replace(${phrase}::text, '''$', ''':*')::tsquery` : phrase);
   }
   return [sql`(${sql.join(parts, sql` && `)})`];
@@ -482,17 +482,12 @@ export async function listUnlinkedMentions(userId: string, pageId: string, { che
   const title = target.title.trim();
   if ([...title].length < MIN_MENTION_TITLE) return [];
   // The page's indexed search vector (title, then body, positions running on), so the index narrows
-  // the pages down. Postgres lowers "I" and "İ" to "i" while the title may be written with "ı": the
-  // title is looked for as written, with every i-like letter as "i" and as "ı", and findTitle has
-  // the last word. Each form is also looked for in parts (titleParts), which finds Chinese and
-  // Japanese words inside a sentence and Korean ones with a particle joined on.
+  // the pages down. Its words are folded (the dotted and dotless i alike, searchFoldSql), and so is
+  // the title looked for; findTitle has the last word. The title is also looked for in parts
+  // (titleParts), which finds Chinese and Japanese words inside a sentence and Korean ones with a
+  // particle joined on.
   const document = sql`${page.searchVector}`;
-  const folded = searchFold(title);
-  const forms = [...new Set([title, folded, folded.replace(/i/g, "ı")])];
-  const query = sql.join(
-    forms.flatMap((form) => [sql`phraseto_tsquery('simple', ${form})`, ...titleParts(form)]),
-    sql` || `,
-  );
+  const query = sql.join([sql`phraseto_tsquery('simple', ${searchFoldSql(title)})`, ...titleParts(title)], sql` || `);
   const rows = await db
     .select({
       id: page.id,

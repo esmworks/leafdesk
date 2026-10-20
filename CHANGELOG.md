@@ -34,6 +34,13 @@
 
 - OpenCode Go requests for models the catalog doesn't know go to its current endpoint
   (`opencode.ai/inference/go`), and its Gemini model works.
+- **Search treats the Turkish dotted and dotless i alike.** A page saying "IŞIK", "SICAKLIK" or
+  "ISITMA" wasn't found by "ışık", "sıcaklık" or "ısıtma", nor "ışık" by "IŞIK", because the
+  database lowered "I" to "i" and kept "ı". Pages, the documents they show, the AI chat's searches
+  and unlinked mentions now match I, ı, İ and i with each other in both directions, a title that
+  has the word written either way still comes first, and the snippet shows where. Migration 0093
+  rewrites the `page` and `file_text` tables once to rebuild their search vectors; it runs
+  automatically when the container starts (from source, run `pnpm db:migrate`).
 
 ## 0.6.2 — 2026-10-20
 
