@@ -276,6 +276,21 @@ function hostOf(url: string) {
   }
 }
 
+/**
+ * A tool's description without the title it often starts with ("Returns a range…" twice), or
+ * nothing when that is all it says.
+ */
+function descriptionAfterTitle(title: string | null, description: string) {
+  const trimmed = description.trim();
+  if (!title) return trimmed;
+  const head = title.trim().replace(/[.。]$/, "");
+  if (!trimmed.toLowerCase().startsWith(head.toLowerCase())) return trimmed;
+  return trimmed
+    .slice(head.length)
+    .replace(/^[.。:\s–—-]+/, "")
+    .trim();
+}
+
 /** A connection's logo, or its emoji or a plug, in a box the size of a catalog card's logo. */
 function ConnectionLogo({ conn }: { conn: ConnectionView }) {
   return (
@@ -759,19 +774,19 @@ function ConnectionDialog({
   const tc = useTranslations("common");
   return (
     <Dialog open onClose={onClose} className="max-w-2xl">
-      <div className="flex items-start gap-3 border-b border-border px-5 py-4">
-        <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-bg-hover text-lg">
-          <ConnectionIcon icon={conn.icon} url={conn.url} />
-        </span>
-        <div className="min-w-0 flex-1">
-          <h2 className="truncate text-base font-semibold">{conn.name}</h2>
-          <p className="truncate text-sm text-fg-muted">{conn.url}</p>
+      <div className="space-y-4 border-b border-border px-5 pt-5 pb-3">
+        <div className="flex items-center gap-3.5">
+          <ConnectionLogo conn={conn} />
+          <div className="min-w-0 flex-1">
+            <h2 className="truncate text-base font-semibold">{conn.name}</h2>
+            <p className="truncate text-sm text-fg-muted" title={conn.url}>
+              {hostOf(conn.url)}
+            </p>
+          </div>
+          <IconButton label={tc("close")} onClick={onClose} className="h-7 w-7 self-start">
+            <X className="h-4 w-4" />
+          </IconButton>
         </div>
-        <IconButton label={tc("close")} onClick={onClose} className="h-7 w-7">
-          <X className="h-4 w-4" />
-        </IconButton>
-      </div>
-      <div className="border-b border-border px-5 py-2">
         <div role="tablist" aria-label={conn.name} className="inline-flex gap-0.5 rounded-lg bg-bg-hover p-0.5">
           {(["tools", "events", "settings"] as const).map((name) => (
             <TabButton key={name} active={tab === name} onClick={() => onTab(name)}>
@@ -780,7 +795,7 @@ function ConnectionDialog({
           ))}
         </div>
       </div>
-      <div className="max-h-[65vh] overflow-y-auto px-5 py-4">
+      <div className="max-h-[65vh] overflow-y-auto px-5 py-5">
         {tab === "tools" ? (
           <ToolsTab workspaceId={workspaceId} conn={conn} onChange={onChange} />
         ) : tab === "events" ? (
@@ -803,10 +818,12 @@ function ToolsTab({ workspaceId, conn, onChange }: { workspaceId: string; conn: 
   const chosen = new Set(conn.chatTools.filter((name) => conn.tools.some((tool) => tool.name === name)));
   const setChat = (tools: string[]) => run(() => setChatToolsAction(workspaceId, conn.id, tools), onChange);
 
+  const allInChat = chosen.size === conn.tools.length;
+
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-2">
-        <p className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+        <p className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2.5 gap-y-1 text-sm">
           <StatusText conn={conn} />
           {conn.toolsAt && conn.status === "ready" && (
             <span className="text-xs text-fg-faint">{t("checkedAt", { time: format.dateTime(new Date(conn.toolsAt), { dateStyle: "medium", timeStyle: "short" }) })}</span>
@@ -833,61 +850,74 @@ function ToolsTab({ workspaceId, conn, onChange }: { workspaceId: string; conn: 
           {error || sign.error}
         </p>
       )}
-      <p className="text-xs text-fg-muted">{t("tools.description")}</p>
-      {conn.tools.length > 0 && (
+      <div className="flex items-start gap-2.5 rounded-lg border border-border bg-bg-subtle px-3.5 py-3 text-xs leading-relaxed text-fg-muted">
+        <ShieldCheck className="mt-px h-4 w-4 shrink-0 text-fg-faint" aria-hidden />
         <div className="space-y-1.5">
-          <p className="text-xs text-fg-muted">{t("tools.chatDescription")}</p>
-          <label className="flex w-fit cursor-pointer items-center gap-1.5 text-xs">
-            <input
-              type="checkbox"
-              className="h-3.5 w-3.5 accent-[var(--color-accent)]"
-              checked={chosen.size === conn.tools.length}
-              ref={(el) => {
-                if (el) el.indeterminate = chosen.size > 0 && chosen.size < conn.tools.length;
-              }}
-              disabled={pending}
-              onChange={(e) => setChat(e.target.checked ? conn.tools.map((tool) => tool.name) : [])}
-            />
-            {t("tools.chatAll")}
-          </label>
+          <p>{t("tools.description")}</p>
+          {conn.tools.length > 0 && <p>{t("tools.chatDescription")}</p>}
         </div>
-      )}
+      </div>
       {conn.tools.length === 0 ? (
-        <p className="text-sm text-fg-muted">{conn.status === "ready" ? t("tools.none") : t("tools.notListed")}</p>
+        <p className="rounded-lg border border-dashed border-border px-4 py-8 text-center text-sm text-fg-muted">
+          {conn.status === "ready" ? t("tools.none") : t("tools.notListed")}
+        </p>
       ) : (
-        <ul className="divide-y divide-border rounded-lg border border-border">
-          {conn.tools.map((tool) => (
-            <li key={tool.name} className="flex items-start gap-3 px-3 py-2">
-              <div className="min-w-0 flex-1">
-                <p className="text-sm">{tool.title || tool.name}</p>
-                {tool.title && <p className="truncate text-xs text-fg-faint">{tool.name}</p>}
-                {tool.description && <p className="line-clamp-2 text-xs text-fg-muted">{tool.description}</p>}
-                {tool.kind !== tool.hinted && <p className="text-xs text-fg-faint">{t("tools.overridden")}</p>}
-              </div>
-              <label className="flex shrink-0 cursor-pointer items-center gap-1.5 self-center text-xs text-fg-muted">
-                <input
-                  type="checkbox"
-                  className="h-3.5 w-3.5 accent-[var(--color-accent)]"
-                  aria-label={t("tools.chatLabel", { tool: tool.title || tool.name })}
-                  checked={chosen.has(tool.name)}
-                  disabled={pending}
-                  onChange={(e) => setChat(e.target.checked ? [...chosen, tool.name] : [...chosen].filter((name) => name !== tool.name))}
-                />
-                {t("tools.chat")}
-              </label>
-              <select
-                aria-label={t("tools.kindLabel", { tool: tool.title || tool.name })}
-                className={cn(selectClass, "shrink-0")}
-                value={tool.kind}
-                disabled={pending}
-                onChange={(e) => run(() => setToolKindAction(workspaceId, conn.id, tool.name, e.target.value as ToolKind), onChange)}
-              >
-                <option value="read">{t("tools.reads")}</option>
-                <option value="write">{t("tools.writes")}</option>
-              </select>
-            </li>
-          ))}
-        </ul>
+        <div className="overflow-hidden rounded-lg border border-border">
+          {/* Lined up with the rows' chat switches, so it reads as that column's heading. */}
+          <div className="flex items-center gap-4 border-b border-border bg-bg-subtle px-4 py-2.5 sm:grid sm:grid-cols-[minmax(0,1fr)_auto_13rem]">
+            <span className="flex-1 text-xs font-medium text-fg-muted">{t("tools.chatAll")}</span>
+            <Switch
+              checked={allInChat}
+              disabled={pending}
+              label={t("tools.chatAll")}
+              onChange={(on) => setChat(on ? conn.tools.map((tool) => tool.name) : [])}
+            />
+            <span className="hidden sm:block" />
+          </div>
+          <ul className="divide-y divide-border">
+            {conn.tools.map((tool) => {
+              const label = tool.title || tool.name;
+              const description = descriptionAfterTitle(tool.title, tool.description);
+              return (
+                <li key={tool.name} className="flex flex-col gap-3 px-4 py-3.5 sm:grid sm:grid-cols-[minmax(0,1fr)_auto_13rem] sm:items-center sm:gap-4">
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium">{label}</p>
+                    {tool.title && <p className="truncate text-xs text-fg-faint">{tool.name}</p>}
+                    {description && <p className="mt-1 line-clamp-2 text-xs text-fg-muted">{description}</p>}
+                    {tool.kind !== tool.hinted && <p className="mt-1 text-xs text-fg-faint">{t("tools.overridden")}</p>}
+                  </div>
+                  <div className="flex items-center gap-2 sm:contents">
+                    <span className="flex items-center gap-2 text-xs text-fg-muted">
+                      <Switch
+                        checked={chosen.has(tool.name)}
+                        disabled={pending}
+                        label={t("tools.chatLabel", { tool: label })}
+                        onChange={(on) => setChat(on ? [...chosen, tool.name] : [...chosen].filter((name) => name !== tool.name))}
+                      />
+                      <span className="sm:hidden">{t("tools.chat")}</span>
+                    </span>
+                    <span className="relative ms-auto flex w-52 items-center sm:ms-0 sm:w-full">
+                      <span
+                        className={cn("pointer-events-none absolute inset-s-2.5 h-1.5 w-1.5 rounded-full", tool.kind === "write" ? "bg-amber-400" : "bg-emerald-500")}
+                        aria-hidden
+                      />
+                      <select
+                        aria-label={t("tools.kindLabel", { tool: label })}
+                        className={cn(selectClass, "w-full ps-6")}
+                        value={tool.kind}
+                        disabled={pending}
+                        onChange={(e) => run(() => setToolKindAction(workspaceId, conn.id, tool.name, e.target.value as ToolKind), onChange)}
+                      >
+                        <option value="read">{t("tools.reads")}</option>
+                        <option value="write">{t("tools.writes")}</option>
+                      </select>
+                    </span>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
       )}
     </div>
   );
