@@ -672,6 +672,14 @@
       "interrupted": "İşlem sürerken sunucu yeniden başladı. Tekrar deneyin.",
       "limitReached": "Bu çalışma alanı aylık yapay zekâ harcama sınırına ulaştı; yapay zekâ istekleri gelecek aya kadar reddediliyor. Ayrıntıları sahipler Ayarlar'daki Yapay zekâ kullanımı bölümünde görebilir.",
       "insert": "Not sayfaya eklenemedi."
+    },
+    "instructions": {
+      "menu": "Sesli not talimatları",
+      "menuHint": "Bu veritabanına kaydedilen sesli notları AI'ın nasıl yazacağı",
+      "title": "Sesli not talimatları",
+      "description": "AI, bu veritabanına kaydedilen bir sesli notu yazarken bunlara uyar. Buraya kayıt yapan herkes için geçerlidir.",
+      "placeholder": "Örneğin: Müşteri ziyaret notu. Firma, görüşülen kişi, konuşulanlar, teklif durumu ve sonraki adım yer alsın.",
+      "followed": "Buraya kaydedilen sesli notlar bu veritabanının yazım talimatlarına uyar."
     }
   },
   "review": {

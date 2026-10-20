@@ -672,6 +672,14 @@
       "interrupted": "Serwer został ponownie uruchomiony w trakcie przetwarzania. Spróbuj ponownie.",
       "limitReached": "Ta przestrzeń robocza osiągnęła miesięczny limit kosztów AI, więc żądania AI są odrzucane do następnego miesiąca. Właściciele widzą szczegóły w ustawieniach, w sekcji Użycie AI.",
       "insert": "Nie udało się dodać notatki do strony."
+    },
+    "instructions": {
+      "menu": "Instrukcje dla notatek głosowych",
+      "menuHint": "Jak AI opracowuje notatki głosowe zapisywane w tej bazie danych",
+      "title": "Instrukcje dla notatek głosowych",
+      "description": "AI stosuje się do nich, opracowując notatkę głosową zapisaną w tej bazie danych. Dotyczą wszystkich, którzy tu nagrywają.",
+      "placeholder": "Na przykład: Notatka z wizyty u klienta. Uwzględnij firmę, osobę, z którą była rozmowa, omówione sprawy, status oferty i następny krok.",
+      "followed": "Notatki głosowe zapisywane tutaj są pisane według instrukcji tej bazy danych."
     }
   },
   "review": {

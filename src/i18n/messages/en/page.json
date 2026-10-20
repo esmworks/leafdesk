@@ -672,6 +672,14 @@
       "interrupted": "The server restarted while this was being worked out. Try again.",
       "limitReached": "This workspace reached its monthly AI cost limit, so AI requests are refused until next month. Owners see the details in Settings under AI usage.",
       "insert": "The note couldn't be added to the page."
+    },
+    "instructions": {
+      "menu": "Voice note instructions",
+      "menuHint": "How AI writes up the voice notes saved in this database",
+      "title": "Voice note instructions",
+      "description": "AI follows these when it writes up a voice note saved in this database. They apply to everyone who records into it.",
+      "placeholder": "For example: Customer visit note. Cover the company, the person met, what was discussed, the quote status and the next step.",
+      "followed": "Voice notes saved here follow this database's writing instructions."
     }
   },
   "review": {

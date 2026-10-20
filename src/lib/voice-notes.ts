@@ -94,6 +94,19 @@ export function formatDuration(seconds: number): string {
 /** Longest transcript kept with a note (the raw text under the note). */
 export const MAX_TRANSCRIPT = 100_000;
 
+/** Longest writing instructions a database gives the voice notes saved in it. */
+export const MAX_VOICE_NOTE_INSTRUCTIONS = 2_000;
+
+/** Instructions as stored: trimmed, with Windows line ends and runs of blank lines tidied, at most the limit. */
+export function cleanVoiceNoteInstructions(text: string): string {
+  return text
+    .replace(/\r\n?/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim()
+    .slice(0, MAX_VOICE_NOTE_INSTRUCTIONS)
+    .trimEnd();
+}
+
 /** The toggle block under a note that holds what was said, one paragraph per line of the transcript. */
 export function transcriptBlock(transcript: string, label: string) {
   const paragraphs = transcript

@@ -1,0 +1,1 @@
+ALTER TABLE "page" ADD COLUMN "voice_note_instructions" text DEFAULT '' NOT NULL;

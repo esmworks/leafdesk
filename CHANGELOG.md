@@ -4,6 +4,15 @@
 
 ### Added
 
+- **Writing instructions for voice notes, per database.** A database can say how the voice notes
+  saved in it are written up, e.g. "Customer visit note: company, person met, what was discussed,
+  quote status, next step". People with full access set them from the database's page menu
+  (**Voice note instructions**, up to 2,000 characters); they apply to everyone recording into it,
+  from the quick note and the REST API. The AI follows them for the note's content and layout, but
+  keeps the note's title and property format, adds nothing that wasn't said, and still reads the
+  transcript only as what was said. The quick note says when the chosen database has instructions.
+  `get_database` (MCP and REST) shows them as `voice_note_instructions`, and duplicating a database
+  keeps them. Migration 0096 adds `page.voice_note_instructions`.
 - **Merge table cells.** Select cells of a table on a page and merge them into one from the
   formatting toolbar, across columns, rows or both; the cell's menu splits a merged cell again.
   Merged cells show on published pages, Markdown export writes the table as a full grid with the

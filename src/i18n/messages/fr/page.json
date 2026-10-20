@@ -672,6 +672,14 @@
       "interrupted": "Le serveur a redémarré pendant le traitement. Réessayez.",
       "limitReached": "Cet espace de travail a atteint sa limite mensuelle de coût d'IA : les requêtes d'IA sont refusées jusqu'au mois prochain. Les propriétaires en voient le détail dans les paramètres, sous Utilisation de l'IA.",
       "insert": "La note n'a pas pu être ajoutée à la page."
+    },
+    "instructions": {
+      "menu": "Consignes pour les notes vocales",
+      "menuHint": "Comment l'IA rédige les notes vocales enregistrées dans cette base de données",
+      "title": "Consignes pour les notes vocales",
+      "description": "L'IA les suit lorsqu'elle rédige une note vocale enregistrée dans cette base de données. Elles s'appliquent à tous ceux qui y enregistrent.",
+      "placeholder": "Par exemple : Compte rendu de visite client. Indiquer l'entreprise, la personne rencontrée, ce qui a été discuté, l'état du devis et la prochaine étape.",
+      "followed": "Les notes vocales enregistrées ici suivent les consignes de rédaction de cette base de données."
     }
   },
   "review": {

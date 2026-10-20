@@ -1,5 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { demoteHeadings, formatDuration, pickTagValues, transcriptBlock, voiceAudioType, voiceFileName } from "./voice-notes";
+import {
+  cleanVoiceNoteInstructions,
+  demoteHeadings,
+  formatDuration,
+  MAX_VOICE_NOTE_INSTRUCTIONS,
+  pickTagValues,
+  transcriptBlock,
+  voiceAudioType,
+  voiceFileName,
+} from "./voice-notes";
 
 describe("voice note audio", () => {
   it("takes what recorders and phones declare, and guesses from the name otherwise", () => {
@@ -56,5 +65,13 @@ describe("pickTagValues", () => {
 
   it("leaves out unknown properties and properties where nothing fits", () => {
     expect(pickTagValues({ Status: ["Done"], Tags: ["Garden"] }, properties)).toEqual({});
+  });
+});
+
+describe("voice note instructions", () => {
+  it("are stored trimmed, with tidy line ends, and cut at the limit", () => {
+    expect(cleanVoiceNoteInstructions("  Company\r\nPerson met\r\n\r\n\r\n\r\nNext step  ")).toBe("Company\nPerson met\n\nNext step");
+    expect(cleanVoiceNoteInstructions(" \n ")).toBe("");
+    expect(cleanVoiceNoteInstructions("x".repeat(MAX_VOICE_NOTE_INSTRUCTIONS + 50))).toHaveLength(MAX_VOICE_NOTE_INSTRUCTIONS);
   });
 });

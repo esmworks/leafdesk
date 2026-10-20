@@ -1040,6 +1040,8 @@ export async function getDatabase(ctx: OperationContext, { database_id }: Args<"
       ...describeViewConfig(properties, v.config, lookups, v.type),
       ...formLinkOutput(v.type, links.get(v.id)),
     })),
+    // How voice notes saved as rows are written up; the database's own guidance on what they cover.
+    ...(database.voiceNoteInstructions ? { voice_note_instructions: database.voiceNoteInstructions } : {}),
     url: pageUrl(database.workspaceId, database.id),
   };
 }

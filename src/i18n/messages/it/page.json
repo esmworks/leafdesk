@@ -672,6 +672,14 @@
       "interrupted": "Il server si è riavviato durante l’elaborazione. Riprova.",
       "limitReached": "Questo spazio di lavoro ha raggiunto il limite mensile di costo dell'IA, quindi le richieste di IA vengono rifiutate fino al mese prossimo. I proprietari vedono i dettagli nelle impostazioni, in Uso dell'IA.",
       "insert": "Impossibile aggiungere la nota alla pagina."
+    },
+    "instructions": {
+      "menu": "Istruzioni per le note vocali",
+      "menuHint": "Come l’IA scrive le note vocali salvate in questo database",
+      "title": "Istruzioni per le note vocali",
+      "description": "L’IA le segue quando scrive una nota vocale salvata in questo database. Valgono per tutti quelli che registrano qui.",
+      "placeholder": "Ad esempio: Nota di visita cliente. Indica l’azienda, la persona incontrata, di cosa si è parlato, lo stato del preventivo e il passo successivo.",
+      "followed": "Le note vocali salvate qui seguono le istruzioni di scrittura di questo database."
     }
   },
   "review": {
