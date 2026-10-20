@@ -45,7 +45,8 @@
     "provider": "Dostawca AI nie mógł odpowiedzieć. Spróbuj później lub poproś administratora o sprawdzenie ustawień AI.",
     "empty": "AI nie udzieliła odpowiedzi. Spróbuj ponownie lub sformułuj to inaczej.",
     "invalid": "Zapytanie do AI było niekompletne. Spróbuj ponownie.",
-    "interrupted": "Serwer został ponownie uruchomiony w trakcie obliczania. Zaktualizuj ponownie."
+    "interrupted": "Serwer został ponownie uruchomiony w trakcie obliczania. Zaktualizuj ponownie.",
+    "limitReached": "Ta przestrzeń robocza osiągnęła miesięczny limit kosztów AI. Właściciel może go podnieść w ustawieniach przestrzeni roboczej."
   },
   "autofill": {
     "addEntry": "Autouzupełnianie AI",

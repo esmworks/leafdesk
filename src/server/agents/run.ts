@@ -79,6 +79,7 @@ import { agentsWorker } from "./kick";
 import { AGENT_MEMORY_TOOL_NAMES, AGENT_MEMORY_TOOLS, runAgentMemoryTool } from "./memory";
 import { agentSkillRoom, runSkills } from "./skills";
 import { addAgentUsage, overMonthlyLimit, pruneAgentUsage } from "./usage";
+import { pruneAiUsage } from "@/server/ai/usage-store";
 
 const SWEEP_INTERVAL_MS = 5_000;
 /** A run taken (or last gone on with, see converse) this long ago and not finished belongs to a worker that stopped: it's taken again. */
@@ -351,7 +352,13 @@ export async function processRun(run: Run): Promise<void> {
   if ("error" in outcome) {
     const error = outcome.error;
     if (isAiError(error) && error.code === "rateLimited") return later(run, new Date(Date.now() + (error.retryAfterMs ?? 30_000)));
-    const code: AgentRunCode = isAiError(error) ? (error.code === "aborted" || error.code === "timeout" ? "timeout" : "provider") : "error";
+    const code: AgentRunCode = !isAiError(error)
+      ? "error"
+      : error.code === "limitReached"
+        ? "costLimit"
+        : error.code === "aborted" || error.code === "timeout"
+          ? "timeout"
+          : "provider";
     if (!isAiError(error)) console.error("[agents] run failed", redactError(error));
     return finish(run, { status: "failed", code, error: error instanceof Error ? error.message : String(error) });
   }
@@ -858,6 +865,7 @@ export async function pruneAgentRuns() {
     .where(lte(connectionEvent.receivedAt, new Date(Date.now() - CONNECTION_EVENT_DAYS * 24 * 60 * 60_000)))
     .catch((error) => console.error("[connections] could not prune events", redactError(error)));
   await pruneAgentUsage().catch((error) => console.error("[agents] could not prune usage", redactError(error)));
+  await pruneAiUsage().catch((error) => console.error("[ai] could not prune usage", redactError(error)));
 }
 
 /** Server only: runs queued agents, right away when they are queued and every few seconds. */

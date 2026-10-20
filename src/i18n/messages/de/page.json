@@ -670,6 +670,7 @@
       "empty": "In der Aufnahme war nichts zu hören. Versuche es näher am Mikrofon.",
       "invalid": "Die Aufnahme konnte nicht gelesen werden. Versuche es erneut.",
       "interrupted": "Der Server wurde währenddessen neu gestartet. Versuche es erneut.",
+      "limitReached": "Dieser Workspace hat sein monatliches KI-Kostenlimit erreicht. Ein Eigentümer kann es in den Workspace-Einstellungen erhöhen.",
       "insert": "Die Notiz konnte nicht zur Seite hinzugefügt werden."
     }
   },

@@ -13,6 +13,7 @@
     "email": "E-mail",
     "storage": "Armazenamento",
     "analytics": "Análises",
+    "aiUsage": "Uso de IA",
     "health": "Saúde",
     "security": "Segurança",
     "audit": "Registro de auditoria",
@@ -463,7 +464,8 @@
         "error": "Algo deu errado.",
         "approvalTimeout": "Ninguém respondeu à chamada dele em um dia, então nada foi enviado.",
         "connectionGone": "A conexão que a iniciou foi removida.",
-        "limitReached": "Ele já tinha usado o limite mensal de tokens do agente."
+        "limitReached": "Ele já tinha usado o limite mensal de tokens do agente.",
+        "costLimit": "O espaço de trabalho tinha atingido o limite mensal de custo de IA."
       },
       "fromConnection": "{connection} · {event}",
       "removedConnection": "Uma conexão removida",
@@ -672,6 +674,50 @@
       "lastEdit": "Última edição",
       "page": "Página",
       "editors": "Editores"
+    }
+  },
+  "aiUsage": {
+    "description": "Quanto custou a IA deste espaço de trabalho, por mês, recurso e modelo, e o máximo que pode custar num mês. Só se guardam números, nunca o que foi perguntado ou respondido. Só os proprietários veem isto.",
+    "thisMonth": "Custo este mês",
+    "limitLeft": "Restante este mês",
+    "ofLimit": "De um limite de {limit}",
+    "noLimit": "Sem limite",
+    "requestsThisMonth": "Pedidos este mês",
+    "howCounted": "Os custos são calculados em dólares americanos com os preços do fornecedor de IA a cada resposta, por isso podem diferir um pouco da fatura. Modelos sem preços conhecidos contam como gratuitos; transcrição e embeddings são contados mas não valorizados. Os meses seguem o UTC.",
+    "reachedWorkspace": "Este espaço de trabalho atingiu o limite mensal de custo de IA. Os pedidos de IA são recusados até ao próximo mês ou até um proprietário aumentar ou remover o limite.",
+    "reachedServer": "Este espaço de trabalho atingiu o limite mensal de custo de IA do servidor. Os pedidos de IA são recusados até ao próximo mês; o administrador do servidor pode alterar o limite.",
+    "limitHeading": "Limite mensal",
+    "limit": "Limite de custo mensal",
+    "limitHelp": "Quando o custo de IA do mês o atinge, os pedidos de IA neste espaço de trabalho são recusados até ao mês seguinte. Conta toda a IA do espaço de trabalho, incluindo a sua própria conta de IA. Deixe vazio para não ter limite.",
+    "serverLimit": "O servidor também limita o que a sua própria chave de IA paga por cada espaço de trabalho a {limit} por mês.",
+    "serverLimitOwnAccount": "O limite do servidor de {limit} por mês não se aplica enquanto o espaço de trabalho usar a sua própria conta de IA.",
+    "limitInvalid": "Introduza um valor em dólares americanos acima de 0 e no máximo {max}, ou deixe vazio.",
+    "monthsHeading": "Por mês",
+    "monthsDescription": "Os últimos 12 meses. Escolha um mês para o ver por recurso e modelo.",
+    "current": "Este mês",
+    "detailHeading": "{month} por recurso e modelo",
+    "ownAccountShare": "A conta de IA própria do espaço de trabalho pagou {cost} deste valor.",
+    "empty": "Nenhum pedido de IA neste mês.",
+    "cacheTitle": "Lido da cache de prompts: {read} · Escrito nela: {write}",
+    "columns": {
+      "month": "Mês",
+      "requests": "Pedidos",
+      "tokens": "Tokens",
+      "input": "Entrada",
+      "cache": "Cache",
+      "output": "Saída",
+      "cost": "Custo",
+      "feature": "Recurso",
+      "model": "Modelo"
+    },
+    "groups": {
+      "chat": "Chat de IA",
+      "writing": "Assistente de escrita",
+      "properties": "Preenchimento com IA",
+      "agents": "Agentes",
+      "search": "Pesquisa semântica",
+      "voice": "Notas de voz",
+      "other": "Outros"
     }
   },
   "health": {

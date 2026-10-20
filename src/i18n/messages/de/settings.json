@@ -13,6 +13,7 @@
     "email": "E-Mail",
     "storage": "Speicher",
     "analytics": "Analysen",
+    "aiUsage": "KI-Nutzung",
     "health": "Zustand",
     "security": "Sicherheit",
     "audit": "Audit-Log",
@@ -463,7 +464,8 @@
         "error": "Etwas ist schiefgelaufen.",
         "approvalTimeout": "Niemand hat seinen Aufruf innerhalb eines Tages beantwortet, daher wurde nichts gesendet.",
         "connectionGone": "Die Verbindung, die ihn gestartet hat, wurde entfernt.",
-        "limitReached": "Das monatliche Token-Limit des Agenten war aufgebraucht."
+        "limitReached": "Das monatliche Token-Limit des Agenten war aufgebraucht.",
+        "costLimit": "Der Workspace hatte sein monatliches KI-Kostenlimit erreicht."
       },
       "fromConnection": "{connection} · {event}",
       "removedConnection": "Eine entfernte Verbindung",
@@ -672,6 +674,50 @@
       "lastEdit": "Letzte Bearbeitung",
       "page": "Seite",
       "editors": "Bearbeiter"
+    }
+  },
+  "aiUsage": {
+    "description": "Was die KI dieses Workspace gekostet hat, nach Monat, Funktion und Modell, und wie viel sie im Monat höchstens kosten darf. Gespeichert werden nur Zahlen, nie Fragen oder Antworten. Nur Eigentümer sehen das.",
+    "thisMonth": "Kosten diesen Monat",
+    "limitLeft": "Übrig diesen Monat",
+    "ofLimit": "Von {limit} Limit",
+    "noLimit": "Kein Limit",
+    "requestsThisMonth": "Anfragen diesen Monat",
+    "howCounted": "Die Kosten werden bei jeder Antwort aus den Preisen des KI-Anbieters in US-Dollar berechnet und können daher leicht von seiner Rechnung abweichen. Modelle ohne bekannte Preise zählen kostenlos; Spracherkennung und Embeddings werden gezählt, aber nicht bepreist. Monate richten sich nach UTC.",
+    "reachedWorkspace": "Dieser Workspace hat sein monatliches KI-Kostenlimit erreicht. KI-Anfragen werden bis zum nächsten Monat abgelehnt oder bis ein Eigentümer das Limit erhöht oder entfernt.",
+    "reachedServer": "Dieser Workspace hat das monatliche KI-Kostenlimit des Servers erreicht. KI-Anfragen werden bis zum nächsten Monat abgelehnt; der Administrator des Servers kann das Limit ändern.",
+    "limitHeading": "Monatliches Limit",
+    "limit": "Monatliches Kostenlimit",
+    "limitHelp": "Sobald die KI-Kosten dieses Monats es erreichen, werden KI-Anfragen in diesem Workspace bis zum nächsten Monat abgelehnt. Es zählt die gesamte KI des Workspace, auch sein eigenes KI-Konto. Leer lassen für kein Limit.",
+    "serverLimit": "Der Server begrenzt außerdem, was sein eigener KI-Schlüssel für jeden Workspace zahlt, auf {limit} im Monat.",
+    "serverLimitOwnAccount": "Das Limit des Servers von {limit} im Monat gilt nicht, solange der Workspace sein eigenes KI-Konto nutzt.",
+    "limitInvalid": "Gib einen Betrag in US-Dollar über 0 und höchstens {max} ein oder lass das Feld leer.",
+    "monthsHeading": "Nach Monat",
+    "monthsDescription": "Die letzten 12 Monate. Wähle einen Monat, um ihn nach Funktion und Modell zu sehen.",
+    "current": "Dieser Monat",
+    "detailHeading": "{month} nach Funktion und Modell",
+    "ownAccountShare": "Davon hat das eigene KI-Konto des Workspace {cost} bezahlt.",
+    "empty": "Keine KI-Anfragen in diesem Monat.",
+    "cacheTitle": "Aus dem Prompt-Cache gelesen: {read} · In ihn geschrieben: {write}",
+    "columns": {
+      "month": "Monat",
+      "requests": "Anfragen",
+      "tokens": "Tokens",
+      "input": "Eingabe",
+      "cache": "Cache",
+      "output": "Ausgabe",
+      "cost": "Kosten",
+      "feature": "Funktion",
+      "model": "Modell"
+    },
+    "groups": {
+      "chat": "KI-Chat",
+      "writing": "Schreibassistent",
+      "properties": "KI-Autofill",
+      "agents": "Agenten",
+      "search": "Semantische Suche",
+      "voice": "Sprachnotizen",
+      "other": "Sonstiges"
     }
   },
   "health": {

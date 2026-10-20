@@ -2,6 +2,7 @@ import {
   Bot,
   Boxes,
   ChartColumn,
+  Coins,
   ContactRound,
   Globe,
   HardDrive,
@@ -23,6 +24,7 @@ import { getLocale, getTimeZone, getTranslations } from "next-intl/server";
 import { ACCOUNT_ICONS, AccountTabContent } from "@/components/account/account-tabs";
 import { AgentsPanel } from "@/components/settings/agents-panel";
 import { AnalyticsPanel } from "@/components/settings/analytics-panel";
+import { AiUsagePanel } from "@/components/settings/ai-usage-panel";
 import { AuditPanel } from "@/components/settings/audit-panel";
 import { ConnectionsPanel } from "@/components/settings/connections-panel";
 import { GroupsPanel } from "@/components/settings/groups-panel";
@@ -93,7 +95,8 @@ import { proposedNoteCounts } from "@/server/agents/memory";
 import { listConnections } from "@/server/connections/manage";
 import { oauthRedirectUrl } from "@/server/connections/client";
 import { env } from "@/lib/env";
-import { aiInfoFor } from "@/server/ai";
+import { aiInfoFor, isEnabled as aiMayBeOn } from "@/server/ai";
+import { workspaceAiUsage } from "@/server/ai-usage";
 import { workspaceAiView } from "@/server/ai-accounts";
 import { workspaceAnalytics } from "@/server/analytics";
 import { auditActors, listAuditEvents } from "@/server/audit";
@@ -141,6 +144,7 @@ const ICONS: Record<SettingsTab, LucideIcon> = {
   email: Mail,
   storage: HardDrive,
   analytics: ChartColumn,
+  aiUsage: Coins,
   health: HeartPulse,
   security: Shield,
   audit: ScrollText,
@@ -168,7 +172,7 @@ export default async function SettingsPage({
   const hasOwnStorageFor = isOwner && !env.ownStorageEnabled ? await hasOwnStorage(workspaceId) : true;
   const tabs = visibleSettingsTabs({ guest, managesGuests, owner: isOwner, localMode: env.localMode }).filter(
     // Storage is about storage of one's own: with it off, only for a workspace that has some from before.
-    (name) => name !== "storage" || env.ownStorageEnabled || !isOwner || hasOwnStorageFor,
+    (name) => (name !== "storage" || env.ownStorageEnabled || !isOwner || hasOwnStorageFor) && (name !== "aiUsage" || aiMayBeOn()),
   );
   // The person's own settings come first, then the workspace's (the workspace sidebar is hidden here).
   const accountTab = ACCOUNT_SETTINGS_TABS.find((name) => name === query.tab);
@@ -256,6 +260,7 @@ export default async function SettingsPage({
           {tab === "email" && <EmailTab workspaceId={workspaceId} userId={user.id} />}
           {tab === "storage" && <StorageTab workspaceId={workspaceId} userId={user.id} isAdmin={isAdmin} notice={storageNoticeOf(query)} />}
           {tab === "analytics" && <AnalyticsTab workspaceId={workspaceId} userId={user.id} days={query.days} />}
+          {tab === "aiUsage" && <AiUsageTab workspaceId={workspaceId} userId={user.id} month={query.month} />}
           {tab === "health" && <HealthTab workspaceId={workspaceId} userId={user.id} months={query.months} />}
           {tab === "security" && <SecurityTab workspaceId={workspaceId} userId={user.id} isOwner={isOwner} />}
           {tab === "audit" && <AuditTab workspaceId={workspaceId} userId={user.id} query={query} />}
@@ -673,6 +678,12 @@ async function AnalyticsTab({ workspaceId, userId, days }: { workspaceId: string
   const now = new Date();
   const report = await workspaceAnalytics(userId, workspaceId, parseAnalyticsPeriod(days), now);
   return <AnalyticsPanel workspaceId={workspaceId} report={report} now={now} />;
+}
+
+/** Settings > AI usage, for owners: what the workspace's AI cost, and its monthly limit (server/ai-usage.ts). */
+async function AiUsageTab({ workspaceId, userId, month }: { workspaceId: string; userId: string; month: unknown }) {
+  const report = await workspaceAiUsage(userId, workspaceId);
+  return <AiUsagePanel workspaceId={workspaceId} report={report} month={typeof month === "string" ? month : undefined} />;
 }
 
 /** Settings > Health, for owners and members: the check runs each time the tab opens, with the viewer's access. */

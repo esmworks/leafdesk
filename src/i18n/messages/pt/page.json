@@ -670,6 +670,7 @@
       "empty": "Nada foi ouvido na gravação. Tente novamente mais perto do microfone.",
       "invalid": "Não foi possível ler a gravação. Tente novamente.",
       "interrupted": "O servidor reiniciou enquanto isso era processado. Tente novamente.",
+      "limitReached": "Este espaço de trabalho atingiu o limite mensal de custo de IA. Um proprietário pode aumentá-lo nas configurações do espaço de trabalho.",
       "insert": "Não foi possível adicionar a nota à página."
     }
   },

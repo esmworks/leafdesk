@@ -670,6 +670,7 @@
       "empty": "Nothing was heard in the recording. Try again closer to the microphone.",
       "invalid": "The recording couldn't be read. Try again.",
       "interrupted": "The server restarted while this was being worked out. Try again.",
+      "limitReached": "This workspace reached its monthly AI cost limit. An owner can raise it in the workspace settings.",
       "insert": "The note couldn't be added to the page."
     }
   },

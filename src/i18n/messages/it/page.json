@@ -670,6 +670,7 @@
       "empty": "Nella registrazione non si sente nulla. Riprova più vicino al microfono.",
       "invalid": "Impossibile leggere la registrazione. Riprova.",
       "interrupted": "Il server si è riavviato durante l’elaborazione. Riprova.",
+      "limitReached": "Questo spazio di lavoro ha raggiunto il limite mensile di costo dell'IA. Un proprietario può alzarlo nelle impostazioni dello spazio di lavoro.",
       "insert": "Impossibile aggiungere la nota alla pagina."
     }
   },

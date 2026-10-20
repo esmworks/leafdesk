@@ -45,7 +45,8 @@
     "provider": "The AI provider couldn't answer. Try again later, or ask an admin to check the AI settings.",
     "empty": "The AI gave no answer. Try again or rephrase.",
     "invalid": "The AI request was incomplete. Try again.",
-    "interrupted": "The server restarted while this was being worked out. Update it again."
+    "interrupted": "The server restarted while this was being worked out. Update it again.",
+    "limitReached": "This workspace reached its monthly AI cost limit. An owner can raise it in the workspace settings."
   },
   "autofill": {
     "addEntry": "AI autofill",

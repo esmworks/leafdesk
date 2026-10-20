@@ -45,7 +45,8 @@
     "provider": "Der KI-Anbieter konnte nicht antworten. Versuche es später erneut oder bitte eine Administratorin oder einen Administrator, die KI-Einstellungen zu prüfen.",
     "empty": "Die KI hat keine Antwort gegeben. Versuche es erneut oder formuliere anders.",
     "invalid": "Die KI-Anfrage war unvollständig. Versuche es erneut.",
-    "interrupted": "Der Server wurde neu gestartet, während dies ermittelt wurde. Aktualisiere es erneut."
+    "interrupted": "Der Server wurde neu gestartet, während dies ermittelt wurde. Aktualisiere es erneut.",
+    "limitReached": "Dieser Workspace hat sein monatliches KI-Kostenlimit erreicht. Ein Eigentümer kann es in den Workspace-Einstellungen erhöhen."
   },
   "autofill": {
     "addEntry": "KI-Autofill",

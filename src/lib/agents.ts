@@ -254,7 +254,8 @@ export type ApprovalDecision = "approve" | "decline" | "redo";
 /**
  * Why a run ended without doing its work: the workspace turned AI off, the agent was paused or
  * archived, it can't open the row, the model failed, the run took too long, no one answered a
- * call that waited for approval, or the agent used its tokens for the month.
+ * call that waited for approval, the agent used its tokens for the month, or the workspace's AI
+ * reached its monthly cost limit.
  */
 export const AGENT_RUN_CODES = [
   "aiOff",
@@ -268,6 +269,7 @@ export const AGENT_RUN_CODES = [
   "approvalTimeout",
   "connectionGone",
   "limitReached",
+  "costLimit",
   "error",
 ] as const;
 export type AgentRunCode = (typeof AGENT_RUN_CODES)[number];

@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { boolean, index, integer, jsonb, pgTable, primaryKey, real, text, timestamp } from "drizzle-orm/pg-core";
+import { bigint, boolean, date, doublePrecision, index, integer, jsonb, pgTable, primaryKey, real, text, timestamp } from "drizzle-orm/pg-core";
 import { databaseProperty, page, tsvector, workspace } from "./app";
 import { agentRun } from "./agents";
 import { user } from "./auth";
@@ -254,4 +254,34 @@ export const aiMemory = pgTable(
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index("ai_memory_user_idx").on(t.userId, t.workspaceId, t.createdAt)],
+);
+
+/**
+ * What a workspace's AI requests used in a calendar month (UTC), by feature (AiRequest.feature, e.g.
+ * "chat" or "editor.improve") and model, added to after every request (server/ai/usage.ts): the
+ * workspace's AI bill, kept AI_USAGE_MONTHS. `ownAccount` tells apart what the workspace's own AI
+ * account paid from what the server's AI_* key paid, which only the server's limit counts. Never
+ * anything that was asked or answered.
+ */
+export const aiUsage = pgTable(
+  "ai_usage",
+  {
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspace.id, { onDelete: "cascade" }),
+    /** The month's first day. */
+    month: date("month").notNull(),
+    feature: text("feature").notNull(),
+    model: text("model").notNull(),
+    ownAccount: boolean("own_account").notNull(),
+    requests: integer("requests").notNull().default(0),
+    /** Input not read from or written to the provider's prompt cache. */
+    inputTokens: bigint("input_tokens", { mode: "number" }).notNull().default(0),
+    cacheReadTokens: bigint("cache_read_tokens", { mode: "number" }).notNull().default(0),
+    cacheWriteTokens: bigint("cache_write_tokens", { mode: "number" }).notNull().default(0),
+    outputTokens: bigint("output_tokens", { mode: "number" }).notNull().default(0),
+    /** As the provider's prices give it; 0 for models without known prices. */
+    costUsd: doublePrecision("cost_usd").notNull().default(0),
+  },
+  (t) => [primaryKey({ columns: [t.workspaceId, t.month, t.feature, t.model, t.ownAccount] })],
 );

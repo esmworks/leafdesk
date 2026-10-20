@@ -13,6 +13,7 @@
     "email": "E-posta",
     "storage": "Depolama",
     "analytics": "Analitik",
+    "aiUsage": "Yapay zekâ kullanımı",
     "health": "Sağlık",
     "security": "Güvenlik",
     "audit": "Denetim kaydı",
@@ -463,7 +464,8 @@
         "error": "Bir şeyler ters gitti.",
         "approvalTimeout": "Çağrısını bir gün içinde kimse yanıtlamadı; hiçbir şey gönderilmedi.",
         "connectionGone": "Onu başlatan bağlantı kaldırıldı.",
-        "limitReached": "Ajanın aylık token sınırı dolmuştu."
+        "limitReached": "Ajanın aylık token sınırı dolmuştu.",
+        "costLimit": "Çalışma alanı aylık yapay zekâ harcama sınırına ulaşmıştı."
       },
       "fromConnection": "{connection} · {event}",
       "removedConnection": "Kaldırılmış bir bağlantı",
@@ -672,6 +674,50 @@
       "lastEdit": "Son düzenleme",
       "page": "Sayfa",
       "editors": "Düzenleyen"
+    }
+  },
+  "aiUsage": {
+    "description": "Bu çalışma alanında yapay zekânın aylara, özelliklere ve modellere göre ne kadar tuttuğu ve bir ayda en fazla ne kadar tutabileceği. Yalnızca sayılar tutulur; ne sorulduğu ya da ne yanıtlandığı asla kaydedilmez. Yalnızca sahipler görür.",
+    "thisMonth": "Bu ayki harcama",
+    "limitLeft": "Bu ay kalan",
+    "ofLimit": "{limit} sınırından",
+    "noLimit": "Sınır yok",
+    "requestsThisMonth": "Bu ayki istekler",
+    "howCounted": "Harcama, her istek yanıtlandığında yapay zekâ sağlayıcısının fiyatlarına göre ABD doları olarak hesaplanır; bu yüzden sağlayıcının faturasından biraz farklı olabilir. Fiyatı bilinmeyen modeller ücretsiz sayılır; konuşmayı yazıya dökme ve anlamsal arama dizinlemesi sayılır ama fiyatlandırılmaz. Aylar UTC'ye göre başlar.",
+    "reachedWorkspace": "Bu çalışma alanı aylık yapay zekâ harcama sınırına ulaştı. Gelecek aya kadar ya da bir sahip sınırı yükseltene veya kaldırana kadar yapay zekâ istekleri reddedilir.",
+    "reachedServer": "Bu çalışma alanı sunucunun aylık yapay zekâ harcama sınırına ulaştı. Gelecek aya kadar yapay zekâ istekleri reddedilir; sınırı sunucunun yöneticisi değiştirebilir.",
+    "limitHeading": "Aylık sınır",
+    "limit": "Aylık harcama sınırı",
+    "limitHelp": "Bu ayın yapay zekâ harcaması bu tutara ulaşınca çalışma alanındaki yapay zekâ istekleri gelecek aya kadar reddedilir. Çalışma alanının kendi yapay zekâ hesabı dahil tüm harcama sayılır. Sınır istemiyorsanız boş bırakın.",
+    "serverLimit": "Sunucu ayrıca kendi yapay zekâ anahtarının her çalışma alanı için ödediği tutarı ayda {limit} ile sınırlıyor.",
+    "serverLimitOwnAccount": "Sunucunun aylık {limit} sınırı, çalışma alanı kendi yapay zekâ hesabını kullandığı sürece geçerli değil.",
+    "limitInvalid": "0'dan büyük ve en fazla {max} olan bir ABD doları tutarı girin ya da boş bırakın.",
+    "monthsHeading": "Aylara göre",
+    "monthsDescription": "Son 12 ay. Özelliklere ve modellere göre dökümünü görmek için bir ay seçin.",
+    "current": "Bu ay",
+    "detailHeading": "{month}: özelliklere ve modellere göre",
+    "ownAccountShare": "Bunun {cost} tutarını çalışma alanının kendi yapay zekâ hesabı ödedi.",
+    "empty": "Bu ay hiç yapay zekâ isteği yok.",
+    "cacheTitle": "İstem önbelleğinden okunan: {read} · Önbelleğe yazılan: {write}",
+    "columns": {
+      "month": "Ay",
+      "requests": "İstek",
+      "tokens": "Token",
+      "input": "Girdi",
+      "cache": "Önbellek",
+      "output": "Çıktı",
+      "cost": "Harcama",
+      "feature": "Özellik",
+      "model": "Model"
+    },
+    "groups": {
+      "chat": "Yapay zekâ sohbeti",
+      "writing": "Yazma yardımcısı",
+      "properties": "Yapay zekâyla doldurma",
+      "agents": "Ajanlar",
+      "search": "Anlamsal arama",
+      "voice": "Sesli notlar",
+      "other": "Diğer"
     }
   },
   "health": {

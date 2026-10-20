@@ -45,7 +45,8 @@
     "provider": "El proveedor de IA no pudo responder. Inténtalo más tarde o pide a un administrador que revise los ajustes de IA.",
     "empty": "La IA no dio ninguna respuesta. Inténtalo de nuevo o reformula.",
     "invalid": "La solicitud de IA estaba incompleta. Inténtalo de nuevo.",
-    "interrupted": "El servidor se reinició mientras se calculaba esto. Vuelve a actualizarlo."
+    "interrupted": "El servidor se reinició mientras se calculaba esto. Vuelve a actualizarlo.",
+    "limitReached": "Este espacio de trabajo alcanzó su límite mensual de coste de IA. Un propietario puede subirlo en la configuración del espacio de trabajo."
   },
   "autofill": {
     "addEntry": "Autorrelleno con IA",

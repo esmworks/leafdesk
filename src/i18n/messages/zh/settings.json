@@ -13,6 +13,7 @@
     "email": "邮件",
     "storage": "存储",
     "analytics": "分析",
+    "aiUsage": "AI 用量",
     "health": "健康状况",
     "security": "安全",
     "audit": "审计日志",
@@ -463,7 +464,8 @@
         "error": "出了点问题。",
         "approvalTimeout": "一天内没有人答复它的调用请求，因此没有发送任何内容。",
         "connectionGone": "触发它的连接已被移除。",
-        "limitReached": "它已用完该智能体的每月令牌上限。"
+        "limitReached": "它已用完该智能体的每月令牌上限。",
+        "costLimit": "工作区此前已达到每月 AI 费用上限。"
       },
       "fromConnection": "{connection} · {event}",
       "removedConnection": "一个已移除的连接",
@@ -672,6 +674,50 @@
       "lastEdit": "最后编辑",
       "page": "页面",
       "editors": "编辑者"
+    }
+  },
+  "aiUsage": {
+    "description": "此工作区的 AI 按月份、功能和模型花费了多少，以及每月最多可以花多少。只保存数字，从不保存提问或回答的内容。只有所有者能看到。",
+    "thisMonth": "本月费用",
+    "limitLeft": "本月剩余",
+    "ofLimit": "上限 {limit}",
+    "noLimit": "无上限",
+    "requestsThisMonth": "本月请求",
+    "howCounted": "费用在每次请求得到回答时按 AI 提供商的价格以美元计算，因此可能与其账单略有出入。价格未知的模型按零费用计算；语音转文字和嵌入只计次数，不计费用。月份按 UTC 划分。",
+    "reachedWorkspace": "此工作区已达到每月 AI 费用上限。在下个月之前，或在所有者提高或取消上限之前，AI 请求都会被拒绝。",
+    "reachedServer": "此工作区已达到服务器设定的每月 AI 费用上限。下个月之前 AI 请求都会被拒绝；服务器管理员可以修改此上限。",
+    "limitHeading": "每月上限",
+    "limit": "每月费用上限",
+    "limitHelp": "本月 AI 费用达到此金额后，此工作区的 AI 请求会被拒绝，直到下个月。计入工作区的全部 AI 费用，包括其自己的 AI 账户。留空表示不设上限。",
+    "serverLimit": "服务器还将其自有 AI 密钥为每个工作区支付的金额限制为每月 {limit}。",
+    "serverLimitOwnAccount": "在工作区使用自己的 AI 账户期间，服务器每月 {limit} 的上限不适用。",
+    "limitInvalid": "请输入大于 0 且不超过 {max} 的美元金额，或留空。",
+    "monthsHeading": "按月",
+    "monthsDescription": "最近 12 个月。选择一个月份可按功能和模型查看。",
+    "current": "本月",
+    "detailHeading": "{month}按功能和模型",
+    "ownAccountShare": "其中 {cost} 由工作区自己的 AI 账户支付。",
+    "empty": "这个月没有 AI 请求。",
+    "cacheTitle": "从提示缓存读取：{read} · 写入缓存：{write}",
+    "columns": {
+      "month": "月份",
+      "requests": "请求",
+      "tokens": "令牌",
+      "input": "输入",
+      "cache": "缓存",
+      "output": "输出",
+      "cost": "费用",
+      "feature": "功能",
+      "model": "模型"
+    },
+    "groups": {
+      "chat": "AI 聊天",
+      "writing": "写作助手",
+      "properties": "AI 自动填充",
+      "agents": "智能体",
+      "search": "语义搜索",
+      "voice": "语音笔记",
+      "other": "其他"
     }
   },
   "health": {

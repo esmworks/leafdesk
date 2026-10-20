@@ -45,7 +45,8 @@
     "provider": "Yapay zekâ sağlayıcısı yanıt veremedi. Sonra yeniden dene ya da bir yöneticiden yapay zekâ ayarlarını kontrol etmesini iste.",
     "empty": "Yapay zekâ yanıt vermedi. Yeniden dene ya da farklı ifade et.",
     "invalid": "Yapay zekâ isteği eksikti. Yeniden dene.",
-    "interrupted": "Bu değer hesaplanırken sunucu yeniden başladı. Yeniden güncelle."
+    "interrupted": "Bu değer hesaplanırken sunucu yeniden başladı. Yeniden güncelle.",
+    "limitReached": "Bu çalışma alanı aylık yapay zekâ harcama sınırına ulaştı. Bir sahip, çalışma alanı ayarlarından sınırı yükseltebilir."
   },
   "autofill": {
     "addEntry": "Yapay zekâyla doldur",

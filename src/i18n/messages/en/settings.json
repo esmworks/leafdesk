@@ -13,6 +13,7 @@
     "email": "Email",
     "storage": "Storage",
     "analytics": "Analytics",
+    "aiUsage": "AI usage",
     "health": "Health",
     "security": "Security",
     "audit": "Audit log",
@@ -463,7 +464,8 @@
         "error": "Something went wrong.",
         "approvalTimeout": "No one answered its call within a day, so nothing was sent.",
         "connectionGone": "The connection that started it was removed.",
-        "limitReached": "It had used the agent’s monthly token limit."
+        "limitReached": "It had used the agent’s monthly token limit.",
+        "costLimit": "The workspace had reached its monthly AI cost limit."
       },
       "fromConnection": "{connection} · {event}",
       "removedConnection": "A removed connection",
@@ -672,6 +674,50 @@
       "lastEdit": "Last edit",
       "page": "Page",
       "editors": "Editors"
+    }
+  },
+  "aiUsage": {
+    "description": "What this workspace's AI cost, by month, feature and model, and the most it may cost in a month. Only counts are kept, never what was asked or answered. Only owners see this.",
+    "thisMonth": "Cost this month",
+    "limitLeft": "Left this month",
+    "ofLimit": "Of a {limit} limit",
+    "noLimit": "No limit",
+    "requestsThisMonth": "Requests this month",
+    "howCounted": "Costs are worked out in US dollars from the AI provider's prices as each request is answered, so they can differ slightly from its invoice. Models without known prices count at no cost; speech to text and embeddings are counted but not priced. Months follow UTC.",
+    "reachedWorkspace": "This workspace reached its monthly AI cost limit. AI requests are refused until next month, or until an owner raises or removes the limit.",
+    "reachedServer": "This workspace reached the server's monthly AI cost limit. AI requests are refused until next month; the server's administrator can change the limit.",
+    "limitHeading": "Monthly limit",
+    "limit": "Monthly cost limit",
+    "limitHelp": "Once this month's AI cost reaches it, AI requests in this workspace are refused until the next month. It counts all of the workspace's AI, its own AI account included. Leave it empty for no limit.",
+    "serverLimit": "The server also holds what its own AI key pays for each workspace to {limit} a month.",
+    "serverLimitOwnAccount": "The server's limit of {limit} a month doesn't apply while the workspace uses its own AI account.",
+    "limitInvalid": "Enter an amount in US dollars above 0 and at most {max}, or leave it empty.",
+    "monthsHeading": "By month",
+    "monthsDescription": "The last 12 months. Choose a month to see it by feature and model.",
+    "current": "This month",
+    "detailHeading": "{month} by feature and model",
+    "ownAccountShare": "{cost} of it was paid by the workspace's own AI account.",
+    "empty": "No AI requests in this month.",
+    "cacheTitle": "Read from the prompt cache: {read} · Written to it: {write}",
+    "columns": {
+      "month": "Month",
+      "requests": "Requests",
+      "tokens": "Tokens",
+      "input": "Input",
+      "cache": "Cache",
+      "output": "Output",
+      "cost": "Cost",
+      "feature": "Feature",
+      "model": "Model"
+    },
+    "groups": {
+      "chat": "AI chat",
+      "writing": "Writing assistant",
+      "properties": "AI autofill",
+      "agents": "Agents",
+      "search": "Semantic search",
+      "voice": "Voice notes",
+      "other": "Other"
     }
   },
   "health": {

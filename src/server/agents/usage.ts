@@ -10,12 +10,11 @@ import { and, desc, eq, lt, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { agentUsage } from "@/db/schema";
 import { AGENT_USAGE_MONTHS, type AgentUsageMonth } from "@/lib/agents";
+import { monthOf } from "@/server/ai/usage";
+
+export { monthOf };
 import { ownedAgent } from "./manage";
 
-/** The first day of `now`'s month (UTC), as `agent_usage.month` holds it. */
-export function monthOf(now: Date): string {
-  return `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}-01`;
-}
 
 /** Adds to the agent's usage for the month of `now`. */
 export async function addAgentUsage(agentId: string, used: { runs?: number; inputTokens: number; outputTokens: number; costUsd: number }, now = new Date()) {

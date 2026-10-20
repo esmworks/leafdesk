@@ -58,6 +58,7 @@ export const BACKED_UP: Record<string, Scope> = {
   page_chunk: own,
   page_index_state: own,
   ai_conversation: own,
+  ai_usage: own,
   ai_memory: own,
   workspace_agent: own,
   agent_usage: ofAgents,

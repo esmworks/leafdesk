@@ -13,6 +13,7 @@
     "email": "メール",
     "storage": "ストレージ",
     "analytics": "分析",
+    "aiUsage": "AI の使用量",
     "health": "ヘルスチェック",
     "security": "セキュリティ",
     "audit": "監査ログ",
@@ -463,7 +464,8 @@
         "error": "問題が発生しました。",
         "approvalTimeout": "1日以内に誰も呼び出しに応答しなかったため、何も送信されませんでした。",
         "connectionGone": "実行を開始した接続が削除されました。",
-        "limitReached": "エージェントの月間トークン上限に達していました。"
+        "limitReached": "エージェントの月間トークン上限に達していました。",
+        "costLimit": "ワークスペースが AI の月間コスト上限に達していました。"
       },
       "fromConnection": "{connection} · {event}",
       "removedConnection": "削除された接続",
@@ -672,6 +674,50 @@
       "lastEdit": "最終編集",
       "page": "ページ",
       "editors": "編集者"
+    }
+  },
+  "aiUsage": {
+    "description": "このワークスペースの AI にかかった費用を月・機能・モデル別に示し、1 か月にかけられる上限を設定します。保存するのは数値だけで、質問や回答の内容は保存しません。オーナーだけが見られます。",
+    "thisMonth": "今月の費用",
+    "limitLeft": "今月の残り",
+    "ofLimit": "上限 {limit} のうち",
+    "noLimit": "上限なし",
+    "requestsThisMonth": "今月のリクエスト",
+    "howCounted": "費用はリクエストへの回答ごとに AI プロバイダーの価格から米ドルで計算するため、プロバイダーの請求額とわずかに異なることがあります。価格が不明なモデルは費用 0 として数えます。音声の文字起こしと埋め込みは件数を数えますが、費用は計算しません。月は UTC で区切ります。",
+    "reachedWorkspace": "このワークスペースは AI の月間コスト上限に達しました。来月になるか、オーナーが上限を引き上げるか外すまで、AI リクエストは拒否されます。",
+    "reachedServer": "このワークスペースはサーバーが定める AI の月間コスト上限に達しました。来月まで AI リクエストは拒否されます。上限はサーバーの管理者が変更できます。",
+    "limitHeading": "月間上限",
+    "limit": "月間コスト上限",
+    "limitHelp": "今月の AI の費用がこの金額に達すると、このワークスペースの AI リクエストは翌月まで拒否されます。ワークスペース独自の AI アカウントを含め、すべての AI の費用を数えます。上限を設けない場合は空欄にします。",
+    "serverLimit": "サーバーは、自身の AI キーが各ワークスペースのために支払う額も月 {limit} までに制限しています。",
+    "serverLimitOwnAccount": "ワークスペースが独自の AI アカウントを使っている間は、サーバーの月 {limit} の上限は適用されません。",
+    "limitInvalid": "0 より大きく {max} 以下の米ドル金額を入力するか、空欄にしてください。",
+    "monthsHeading": "月別",
+    "monthsDescription": "過去 12 か月。月を選ぶと機能別・モデル別に表示します。",
+    "current": "今月",
+    "detailHeading": "{month}の機能別・モデル別",
+    "ownAccountShare": "このうち {cost} はワークスペース独自の AI アカウントが支払いました。",
+    "empty": "この月の AI リクエストはありません。",
+    "cacheTitle": "プロンプトキャッシュからの読み込み: {read} · キャッシュへの書き込み: {write}",
+    "columns": {
+      "month": "月",
+      "requests": "リクエスト",
+      "tokens": "トークン",
+      "input": "入力",
+      "cache": "キャッシュ",
+      "output": "出力",
+      "cost": "費用",
+      "feature": "機能",
+      "model": "モデル"
+    },
+    "groups": {
+      "chat": "AI チャット",
+      "writing": "文章アシスタント",
+      "properties": "AI 自動入力",
+      "agents": "エージェント",
+      "search": "セマンティック検索",
+      "voice": "ボイスメモ",
+      "other": "その他"
     }
   },
   "health": {

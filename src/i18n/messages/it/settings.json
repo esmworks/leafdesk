@@ -13,6 +13,7 @@
     "email": "Email",
     "storage": "Archiviazione",
     "analytics": "Statistiche",
+    "aiUsage": "Uso dell'IA",
     "health": "Integrità",
     "security": "Sicurezza",
     "audit": "Registro di controllo",
@@ -463,7 +464,8 @@
         "error": "Si è verificato un errore.",
         "approvalTimeout": "Nessuno ha risposto alla sua chiamata entro un giorno, quindi non è stato inviato nulla.",
         "connectionGone": "La connessione che l’ha avviata è stata rimossa.",
-        "limitReached": "Aveva esaurito il limite mensile di token dell’agente."
+        "limitReached": "Aveva esaurito il limite mensile di token dell’agente.",
+        "costLimit": "Lo spazio di lavoro aveva raggiunto il limite mensile di costo dell'IA."
       },
       "fromConnection": "{connection} · {event}",
       "removedConnection": "Una connessione rimossa",
@@ -672,6 +674,50 @@
       "lastEdit": "Ultima modifica",
       "page": "Pagina",
       "editors": "Autori delle modifiche"
+    }
+  },
+  "aiUsage": {
+    "description": "Quanto è costata l'IA di questo spazio di lavoro, per mese, funzione e modello, e quanto può costare al massimo in un mese. Si conservano solo numeri, mai domande o risposte. Lo vedono solo i proprietari.",
+    "thisMonth": "Costo questo mese",
+    "limitLeft": "Rimanente questo mese",
+    "ofLimit": "Su un limite di {limit}",
+    "noLimit": "Nessun limite",
+    "requestsThisMonth": "Richieste questo mese",
+    "howCounted": "I costi sono calcolati in dollari USA dai prezzi del fornitore di IA a ogni risposta, quindi possono differire leggermente dalla sua fattura. I modelli senza prezzi noti contano come gratuiti; trascrizione ed embedding sono contati ma non prezzati. I mesi seguono l'UTC.",
+    "reachedWorkspace": "Questo spazio di lavoro ha raggiunto il limite mensile di costo dell'IA. Le richieste di IA vengono rifiutate fino al mese prossimo o finché un proprietario non alza o toglie il limite.",
+    "reachedServer": "Questo spazio di lavoro ha raggiunto il limite mensile di costo dell'IA del server. Le richieste di IA vengono rifiutate fino al mese prossimo; l'amministratore del server può cambiare il limite.",
+    "limitHeading": "Limite mensile",
+    "limit": "Limite di costo mensile",
+    "limitHelp": "Quando il costo dell'IA del mese lo raggiunge, le richieste di IA in questo spazio di lavoro vengono rifiutate fino al mese successivo. Conta tutta l'IA dello spazio di lavoro, compreso il suo account di IA. Lascia vuoto per nessun limite.",
+    "serverLimit": "Il server limita anche quanto paga la propria chiave di IA per ogni spazio di lavoro a {limit} al mese.",
+    "serverLimitOwnAccount": "Il limite del server di {limit} al mese non si applica finché lo spazio di lavoro usa il proprio account di IA.",
+    "limitInvalid": "Inserisci un importo in dollari USA maggiore di 0 e al massimo {max}, oppure lascia vuoto.",
+    "monthsHeading": "Per mese",
+    "monthsDescription": "Gli ultimi 12 mesi. Scegli un mese per vederlo per funzione e modello.",
+    "current": "Questo mese",
+    "detailHeading": "{month} per funzione e modello",
+    "ownAccountShare": "{cost} sono stati pagati dall'account di IA dello spazio di lavoro.",
+    "empty": "Nessuna richiesta di IA in questo mese.",
+    "cacheTitle": "Letti dalla cache dei prompt: {read} · Scritti nella cache: {write}",
+    "columns": {
+      "month": "Mese",
+      "requests": "Richieste",
+      "tokens": "Token",
+      "input": "Input",
+      "cache": "Cache",
+      "output": "Output",
+      "cost": "Costo",
+      "feature": "Funzione",
+      "model": "Modello"
+    },
+    "groups": {
+      "chat": "Chat IA",
+      "writing": "Assistente di scrittura",
+      "properties": "Compilazione IA",
+      "agents": "Agenti",
+      "search": "Ricerca semantica",
+      "voice": "Note vocali",
+      "other": "Altro"
     }
   },
   "health": {

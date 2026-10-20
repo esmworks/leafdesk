@@ -5,7 +5,7 @@
  */
 import { createModels, fauxAssistantMessage, fauxProvider, fauxText, type AssistantMessage } from "@earendil-works/pi-ai";
 import { readAiConfig, type AiConfig } from "./config";
-import { setAiOverride } from "./index";
+import { setAiOverride, type AiUsageLedger } from "./index";
 
 /** What an answer script sees of a request: its system prompt and the last user message. */
 export type FauxRequest = { system: string; prompt: string };
@@ -33,6 +33,8 @@ export function installFauxAi(
     embed?: (texts: string[]) => Promise<number[][]>;
     /** Turns speech to text on, answering every recording with this. */
     transcribe?: (audio: { bytes: Blob; type: string }) => Promise<string>;
+    /** Where requests' usage is counted (memoryAiUsageLedger, or the database's); none without. */
+    usage?: AiUsageLedger;
   } = {},
 ) {
   let current = script;
@@ -68,7 +70,7 @@ export function installFauxAi(
     limits: { ...base.limits, ...options.config },
     problems: [],
   };
-  setAiOverride({ config, backend: { models, model: faux.getModel(), embed: options.embed, transcribe: options.transcribe } });
+  setAiOverride({ config, backend: { models, model: faux.getModel(), embed: options.embed, transcribe: options.transcribe }, usage: options.usage });
   return {
     faux,
     setScript(next: FauxScript) {
@@ -85,9 +87,9 @@ export function disableAi() {
   setAiOverride({ config: { ...readAiConfig({}), chat: null, embeddings: null, stt: null }, backend: null });
 }
 
-/** Uses the real providers with settings read from `env` instead of process.env. */
-export function setAiEnv(env: Record<string, string | undefined>) {
-  setAiOverride({ config: readAiConfig(env), backend: null });
+/** Uses the real providers with settings read from `env` instead of process.env (and `usage`, as installFauxAi). */
+export function setAiEnv(env: Record<string, string | undefined>, options: { usage?: AiUsageLedger } = {}) {
+  setAiOverride({ config: readAiConfig(env), backend: null, usage: options.usage });
 }
 
 /** Back to the environment's settings. */

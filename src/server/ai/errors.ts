@@ -29,6 +29,8 @@ export function aiErrorStatus(code: AiErrorCode): number {
       return 413;
     case "rateLimited":
       return 429;
+    case "limitReached":
+      return 402;
     case "timeout":
       return 504;
     case "aborted":

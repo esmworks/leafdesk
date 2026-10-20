@@ -40,6 +40,7 @@ import { assignableRoles, invitationApplies, linkAccess, memberInviteMode } from
 import { TRASH_RETENTION_CHOICES } from "@/lib/retention";
 import { parseDomains } from "@/lib/sso-config";
 import { parseCalloutStyles } from "@/lib/callout-styles";
+import { parseAiMonthlyLimit } from "@/lib/ai-usage";
 import { cleanSidebarLayout, type SidebarLayout } from "@/lib/sidebar-sections";
 import { env } from "@/lib/env";
 import { canCreateWorkspace } from "@/lib/instance-admin";
@@ -1350,7 +1351,7 @@ export async function countMembersWithoutTwoFactor(actorId: string, workspaceId:
  * allowedDomainsVerified isn't one: only proving a domain sets it (server/allowed-domains.ts).
  */
 const SETTING_VALUES: {
-  [K in Exclude<keyof WorkspaceSettings, "allowedDomains" | "allowedDomainsVerified" | "calloutStyles">]: readonly WorkspaceSettings[K][];
+  [K in Exclude<keyof WorkspaceSettings, "allowedDomains" | "allowedDomainsVerified" | "calloutStyles" | "aiMonthlyLimitUsd">]: readonly WorkspaceSettings[K][];
 } = {
   guestInvites: ["owners", "members"],
   guestPrivatePages: [false, true],
@@ -1397,6 +1398,12 @@ export async function updateWorkspaceSettings(
         throw new WorkspaceError("invalidDomain", `Can't allow ${parsed ? parsed.invalid : "that"}`, parsed ? parsed.invalid : "");
       }
       clean.allowedDomains = parsed.domains;
+      continue;
+    }
+    if (key === "aiMonthlyLimitUsd") {
+      const limit = parseAiMonthlyLimit(value);
+      if (limit === undefined) throw new WorkspaceError("invalidSetting", `Unknown setting ${key}=${String(value)}`);
+      clean.aiMonthlyLimitUsd = limit;
       continue;
     }
     if (key === "calloutStyles") {

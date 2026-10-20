@@ -45,7 +45,8 @@
     "provider": "AI 提供方无法响应。请稍后重试，或请管理员检查 AI 设置。",
     "empty": "AI 没有给出回答。请重试或换个说法。",
     "invalid": "AI 请求不完整。请重试。",
-    "interrupted": "处理过程中服务器重启了。请重新更新。"
+    "interrupted": "处理过程中服务器重启了。请重新更新。",
+    "limitReached": "此工作区已达到每月 AI 费用上限。所有者可以在工作区设置中提高上限。"
   },
   "autofill": {
     "addEntry": "AI 自动填充",

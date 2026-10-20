@@ -5,6 +5,7 @@ import { adminEmailsFrom, workspaceCreationFrom } from "@/lib/instance-admin";
 import { vapidFrom } from "@/lib/push";
 import { socialProvidersFrom, type SocialProvider } from "@/lib/social-providers";
 import { instanceOidcFrom, ssoTrustedOriginsFrom } from "@/lib/sso-config";
+import { parseAiMonthlyLimit } from "@/lib/ai-usage";
 
 function required(name: string): string {
   const value = process.env[name];
@@ -172,6 +173,14 @@ export const env = {
    */
   get aiOnlyOwnKeys() {
     return this.ownAiKeysEnabled && ["1", "true", "yes"].includes((process.env.AI_ONLY_OWN_KEYS ?? "").trim().toLowerCase());
+  },
+  /**
+   * AI_MONTHLY_LIMIT_USD: the most each workspace's AI may cost the server's AI_* key in a calendar
+   * month (UTC), in US dollars; unset or invalid: no limit. A workspace's own AI account isn't
+   * counted: what it pays only its owners' limit holds (see server/ai/usage.ts).
+   */
+  get aiMonthlyLimitUsd() {
+    return parseAiMonthlyLimit(process.env.AI_MONTHLY_LIMIT_USD?.trim() || null) ?? null;
   },
   /**
    * AI_ALLOWED_HOSTS: hosts (names, or host:port) a person's own OpenAI-compatible AI server may be

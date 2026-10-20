@@ -14,8 +14,9 @@
  * - `transcribe()`: the text of spoken audio, over an OpenAI-compatible /audio/transcriptions
  *   endpoint (STT_PROVIDER, set apart from the chat model).
  *
- * Every request is size-checked, time-limited, rate-limited per person and workspace, and logged
- * with its token usage but never its content. Callers check page access before building prompts:
+ * Every request is size-checked, time-limited, rate-limited per person and workspace, held to the
+ * workspace's monthly cost limit, and logged and counted with its token usage but never its content
+ * (see usage.ts). Callers check page access before building prompts:
  * nothing here knows about pages.
  */
 import { randomUUID } from "node:crypto";
@@ -29,10 +30,12 @@ import { fetchEmbeddings } from "./embeddings";
 import { AiError } from "./errors";
 import { guardedAiFetch } from "./fetch";
 import { fetchTranscription } from "./transcribe";
+import { holdToLimit, recordUsage, usageLedger, usageNumbers, type AiUsageLedger } from "./usage";
 
 export { AiError, aiErrorStatus, isAiError } from "./errors";
 export type { AiConfig, AiLimits } from "./config";
 export type { AiThinking } from "./backend";
+export type { AiUsageLedger } from "./usage";
 
 // ------------------------------------------------------------------------------------ types
 
@@ -110,9 +113,9 @@ type Runtime = {
   accounts?: Map<string, CachedBackend>;
   /**
    * Tests (see testing.ts) replace the server's settings and the backend. Own AI accounts still
-   * answer for the workspaces they are attached to.
+   * answer for the workspaces they are attached to. Usage is counted in `usage` (none without it).
    */
-  override?: { config: AiConfig; backend: AiBackend | null };
+  override?: { config: AiConfig; backend: AiBackend | null; usage?: AiUsageLedger };
 };
 
 // On globalThis: Next bundles route handlers apart from the custom server, and both must share one
@@ -561,9 +564,12 @@ export function stream(request: AiRequest): AiStream {
     let final: AssistantMessage | null = null;
     let model = "";
     let target: AiTarget | null = null;
+    let ledger: AiUsageLedger | null = null;
     try {
       target = await aiTargetFor(request.workspaceId);
       if (!chatOn(target)) throw new AiError("disabled", "AI is not configured for this workspace");
+      ledger = await usageLedger(runtime.override);
+      await holdToLimit(ledger, request.workspaceId, target!.accountId !== null);
       const { models, model: m, sessions, fetch: viaFetch } = await backendFor(target!);
       model = m.id;
       const events = streamTurn(
@@ -599,6 +605,7 @@ export function stream(request: AiRequest): AiStream {
         model,
       });
       noted(target!, null);
+      await recordUsage(ledger, { workspaceId: request.workspaceId, feature: request.feature, model, ownAccount: target!.accountId !== null, ...usageNumbers(final.usage) });
       return result;
     } catch (error) {
       const failed = failure(final, error, { timedOut: prepared.timedOut(), cancelled: prepared.cancelled() }, {
@@ -611,6 +618,10 @@ export function stream(request: AiRequest): AiStream {
         model,
       });
       if (target) noted(target, failed);
+      // What the provider used before it failed or was stopped is billed all the same.
+      if (final && target) {
+        await recordUsage(ledger, { workspaceId: request.workspaceId, feature: request.feature, model, ownAccount: target.accountId !== null, ...usageNumbers(final.usage) });
+      }
       throw failed;
     } finally {
       prepared.done();
@@ -661,7 +672,9 @@ export async function transcribe(
   const signal = request.signal ? AbortSignal.any([request.signal, timeout]) : timeout;
   const started = performance.now();
   const testing = testBackend(target)?.transcribe;
+  const ledger = await usageLedger(runtime.override);
   try {
+    await holdToLimit(ledger, request.workspaceId, target.accountId !== null);
     const { text, seconds } = testing ? { text: await testing(audio), seconds: null } : await fetchTranscription(stt, audio, signal);
     if (!text) throw new AiError("empty", "Nothing was heard in the recording");
     noted(target, null);
@@ -675,6 +688,8 @@ export async function transcribe(
       model: stt.model,
       detail: `bytes=${audio.bytes.size}${seconds ? ` seconds=${Math.round(seconds)}` : ""}`,
     });
+    // Speech to text is priced by the minute, which the provider doesn't say: counted, at no cost.
+    await recordUsage(ledger, { workspaceId: request.workspaceId, feature: request.feature, model: stt.model, ownAccount: target.accountId !== null, inputTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0, outputTokens: 0, costUsd: 0 });
     return text;
   } catch (error) {
     const failed = failure(null, error, { timedOut: timeout.aborted, cancelled: request.signal?.aborted === true }, {
@@ -707,7 +722,9 @@ export async function embed(
   const timeout = AbortSignal.timeout(config.limits.timeoutMs);
   const signal = request.signal ? AbortSignal.any([request.signal, timeout]) : timeout;
   const started = performance.now();
+  const ledger = await usageLedger(runtime.override);
   try {
+    await holdToLimit(ledger, request.workspaceId, target.accountId !== null);
     const { vectors, tokens } = testing
       ? { vectors: await testing(texts), tokens: 0 }
       : await fetchEmbeddings(config.embeddings!, texts, signal);
@@ -722,6 +739,8 @@ export async function embed(
       usage: { inputTokens: tokens, outputTokens: 0, totalTokens: tokens, costUsd: 0 },
       model: config.embeddings?.model ?? "test",
     });
+    // Embeddings' prices aren't known here: their tokens are counted, at no cost.
+    await recordUsage(ledger, { workspaceId: request.workspaceId, feature: request.feature, model: config.embeddings?.model ?? "test", ownAccount: target.accountId !== null, inputTokens: tokens, cacheReadTokens: 0, cacheWriteTokens: 0, outputTokens: 0, costUsd: 0 });
     return vectors;
   } catch (error) {
     const failed = failure(null, error, { timedOut: timeout.aborted, cancelled: request.signal?.aborted === true }, {

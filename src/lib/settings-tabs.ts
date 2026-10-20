@@ -11,6 +11,7 @@ export const SETTINGS_TABS = [
   "email",
   "storage",
   "analytics",
+  "aiUsage",
   "health",
   "security",
   "audit",
@@ -22,14 +23,15 @@ export const isSettingsTab = (value: unknown): value is SettingsTab =>
   typeof value === "string" && (SETTINGS_TABS as readonly string[]).includes(value);
 
 /** Tabs only the workspace's owners get. */
-const OWNER_TABS: readonly SettingsTab[] = ["connections", "storage", "analytics", "audit"];
+const OWNER_TABS: readonly SettingsTab[] = ["connections", "storage", "analytics", "aiUsage", "audit"];
 
 /**
  * The tabs someone gets. Guests don't see the workspace's members or policies: only its name, and
  * leaving it. The guests themselves are for those who may bring guests in (`canInviteGuests`:
  * owners, and members when Settings > Security lets them). Analytics, which counts what each
  * person did, the audit log, which says who changed what, and connections to outside services
- * (their credentials are the workspace's) and where the workspace's files are stored are for owners. Email is for everyone but guests: owners
+ * (their credentials are the workspace's), where the workspace's files are stored and what its AI
+ * costs are for owners. Email is for everyone but guests: owners
  * choose where mail lands, each member connects their own mailbox. Agents are listed to
  * members too (they pick them in automations); only owners change them. The health check covers
  * the pages each person can open, so owners and members get it alike.

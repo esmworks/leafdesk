@@ -13,6 +13,7 @@
     "email": "E-mail",
     "storage": "Magazyn",
     "analytics": "Analityka",
+    "aiUsage": "Użycie AI",
     "health": "Stan",
     "security": "Bezpieczeństwo",
     "audit": "Dziennik inspekcji",
@@ -463,7 +464,8 @@
         "error": "Coś poszło nie tak.",
         "approvalTimeout": "Nikt nie odpowiedział na jego wywołanie w ciągu doby, więc nic nie zostało wysłane.",
         "connectionGone": "Połączenie, które je rozpoczęło, zostało usunięte.",
-        "limitReached": "Wyczerpał miesięczny limit tokenów agenta."
+        "limitReached": "Wyczerpał miesięczny limit tokenów agenta.",
+        "costLimit": "Przestrzeń robocza osiągnęła wcześniej miesięczny limit kosztów AI."
       },
       "fromConnection": "{connection} · {event}",
       "removedConnection": "usunięte połączenie",
@@ -672,6 +674,50 @@
       "lastEdit": "Ostatnia edycja",
       "page": "Strona",
       "editors": "Edytujący"
+    }
+  },
+  "aiUsage": {
+    "description": "Ile kosztowało AI tej przestrzeni roboczej według miesiąca, funkcji i modelu oraz ile może kosztować najwyżej w miesiącu. Zapisywane są tylko liczby, nigdy pytania ani odpowiedzi. Widzą to tylko właściciele.",
+    "thisMonth": "Koszt w tym miesiącu",
+    "limitLeft": "Zostało w tym miesiącu",
+    "ofLimit": "Z limitu {limit}",
+    "noLimit": "Bez limitu",
+    "requestsThisMonth": "Żądania w tym miesiącu",
+    "howCounted": "Koszty są liczone w dolarach amerykańskich według cen dostawcy AI przy każdej odpowiedzi, więc mogą nieco różnić się od jego faktury. Modele bez znanych cen liczą się jako bezpłatne; transkrypcja i embeddingi są liczone, ale nie wyceniane. Miesiące liczone są według UTC.",
+    "reachedWorkspace": "Ta przestrzeń robocza osiągnęła miesięczny limit kosztów AI. Żądania AI są odrzucane do następnego miesiąca albo do czasu, gdy właściciel podniesie lub usunie limit.",
+    "reachedServer": "Ta przestrzeń robocza osiągnęła miesięczny limit kosztów AI serwera. Żądania AI są odrzucane do następnego miesiąca; limit może zmienić administrator serwera.",
+    "limitHeading": "Limit miesięczny",
+    "limit": "Miesięczny limit kosztów",
+    "limitHelp": "Gdy koszt AI w tym miesiącu go osiągnie, żądania AI w tej przestrzeni roboczej są odrzucane do następnego miesiąca. Liczy się całe AI przestrzeni roboczej, także jej własne konto AI. Zostaw puste, aby nie ustawiać limitu.",
+    "serverLimit": "Serwer ogranicza też to, co jego własny klucz AI płaci za każdą przestrzeń roboczą, do {limit} miesięcznie.",
+    "serverLimitOwnAccount": "Limit serwera wynoszący {limit} miesięcznie nie obowiązuje, dopóki przestrzeń robocza używa własnego konta AI.",
+    "limitInvalid": "Wpisz kwotę w dolarach amerykańskich większą od 0 i nie większą niż {max} albo zostaw puste.",
+    "monthsHeading": "Według miesiąca",
+    "monthsDescription": "Ostatnie 12 miesięcy. Wybierz miesiąc, aby zobaczyć go według funkcji i modelu.",
+    "current": "Ten miesiąc",
+    "detailHeading": "{month} według funkcji i modelu",
+    "ownAccountShare": "Z tego {cost} zapłaciło własne konto AI przestrzeni roboczej.",
+    "empty": "Brak żądań AI w tym miesiącu.",
+    "cacheTitle": "Odczytane z pamięci podręcznej promptów: {read} · Zapisane do niej: {write}",
+    "columns": {
+      "month": "Miesiąc",
+      "requests": "Żądania",
+      "tokens": "Tokeny",
+      "input": "Wejście",
+      "cache": "Pamięć podręczna",
+      "output": "Wyjście",
+      "cost": "Koszt",
+      "feature": "Funkcja",
+      "model": "Model"
+    },
+    "groups": {
+      "chat": "Czat AI",
+      "writing": "Asystent pisania",
+      "properties": "Autouzupełnianie AI",
+      "agents": "Agenci",
+      "search": "Wyszukiwanie semantyczne",
+      "voice": "Notatki głosowe",
+      "other": "Inne"
     }
   },
   "health": {

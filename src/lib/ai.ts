@@ -21,6 +21,8 @@ export const AI_ERROR_CODES = [
   "invalid",
   /** A background value was being worked out when the server restarted. */
   "interrupted",
+  /** The workspace's AI reached its monthly cost limit (see lib/ai-usage.ts). */
+  "limitReached",
 ] as const;
 export type AiErrorCode = (typeof AI_ERROR_CODES)[number];
 

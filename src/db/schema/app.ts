@@ -86,6 +86,13 @@ export type WorkspaceSettings = {
    */
   aiMemory: boolean;
   /**
+   * The most the workspace's AI requests may cost in a calendar month (UTC), in US dollars, as an
+   * owner set it; null: no limit of its own. Counts what every AI account paid, the workspace's own
+   * included. The server's AI_MONTHLY_LIMIT_USD caps what its own AI_* key pays besides (see
+   * server/ai/usage.ts).
+   */
+  aiMonthlyLimitUsd: number | null;
+  /**
    * Days a page stays in the trash before the daily cleanup deletes it for good, with its files
    * (see server/retention.ts); 0 keeps it until someone deletes it. One of TRASH_RETENTION_CHOICES.
    */
@@ -154,6 +161,7 @@ export const DEFAULT_WORKSPACE_SETTINGS: WorkspaceSettings = {
   loginMethod: "any",
   ai: true,
   aiMemory: true,
+  aiMonthlyLimitUsd: null,
   trashRetentionDays: 30,
   export: true,
   connectedApps: "full",
