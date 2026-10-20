@@ -1,9 +1,9 @@
 /**
  * End-to-end check of the search box's filters against the database: `in:` (a title, quoted or
  * not, several pages of one title, a page the person can't see), `type:` (pages, databases, rows),
- * filters without text, filters with text, words inside Japanese, Chinese and Korean sentences, a
- * page too large for the whole of it to be indexed, and the pages last edited before anything is
- * typed.
+ * filters without text, filters with text, words inside Japanese, Chinese and Korean sentences,
+ * Turkish words written with I, ı, İ or i found by each other, a page too large for the whole of it
+ * to be indexed, and the pages last edited before anything is typed.
  * Creates its own users and workspace and deletes them afterwards.
  *
  *   pnpm tsx scripts/search-e2e.ts
@@ -180,6 +180,38 @@ try {
   const asked = idsOf(await fullTextSearch(ids.owner, "明日の会議はどこですか", { workspaceId, anyWord: true }));
   check(asked.includes(japanese.id) && !asked.includes(chinese.id) && !asked.includes(korean.id), "a question in Japanese finds the pages about it, not every page with kana", asked);
   check((await search("纪要"))[0]?.snippet.includes("纪要"), "…and the snippet shows where", (await search("纪要"))[0]);
+
+  // Turkish: "I" lowers to "ı" and "İ" to "i", which the database (lowering the English way) doesn't
+  // do. Page and query are folded alike, so the dotted and dotless i find each other either way.
+  const shouted = await body("Depo notları", "Depoda IŞIK yetersiz, SICAKLIK yüksek.");
+  const quiet = await body("Lamba", "Bu odada ışık az, sıcaklık normal.");
+  const city = await make("İSTANBUL şubesi");
+  const cityNote = await body("Ofis notları", "istanbul ofisinin kirası arttı.");
+  const measure = await make("Işık ölçümü");
+  const boiler = await body("Kazan", "ISITMA sistemi bakımı yapıldı.");
+  const both = [shouted.id, quiet.id];
+  for (const query of ["ışık", "IŞIK", "Işık", "işik"]) {
+    const found = idsOf(await search(query));
+    check(both.every((id) => found.includes(id)) && found.includes(measure.id), `"${query}" finds IŞIK, ışık and Işık`, titlesOf(await search(query)));
+  }
+  check(idsOf(await search("sıcaklık")).includes(shouted.id) && idsOf(await search("SICAKLIK")).includes(quiet.id), "SICAKLIK and sıcaklık find each other");
+  for (const query of ["istanbul", "İSTANBUL", "İstanbul", "ISTANBUL"]) {
+    const found = await search(query);
+    check(
+      found[0]?.id === city.id && idsOf(found).includes(cityNote.id),
+      `"${query}" finds İSTANBUL and istanbul, the title that has it first`,
+      titlesOf(found),
+    );
+  }
+  check((await search("ışık ölç"))[0]?.id === measure.id, "a title written with Işık comes first for ışık, while typing", titlesOf(await search("ışık ölç")));
+  check(idsOf(await search("ısıtma")).includes(boiler.id) && idsOf(await search("isitma")).includes(boiler.id), "ISITMA is found typed ısıtma or isitma");
+  check((await search("ışık")).find((h) => h.id === shouted.id)?.snippet.includes("IŞIK"), "…and the snippet shows where", await search("ışık"));
+  const turkishQuestion = idsOf(await fullTextSearch(ids.owner, "Depodaki ışık ve ısıtma ne durumda?", { workspaceId, anyWord: true }));
+  check(
+    [shouted.id, quiet.id, boiler.id].every((id) => turkishQuestion.includes(id)),
+    "a question in Turkish finds the pages written in capitals",
+    turkishQuestion,
+  );
 
   // A huge page of unique words (about 2 MB) saves: the index takes only the first 80,000
   // characters of the body, so its vector stays under Postgres' tsvector limit.

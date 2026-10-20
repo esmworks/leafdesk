@@ -164,6 +164,55 @@ describe("providers over HTTP", () => {
     });
   });
 
+  describe("each feature's model and thinking", () => {
+    // A function: the stand-in's address is known only once it listens.
+    const anthropic = () => ({ AI_PROVIDER: "anthropic", AI_MODEL: "claude-opus-5-5", AI_API_KEY: "sk-ant-test", AI_BASE_URL: base.replace(/\/v1$/, "") });
+    const send = async (feature: string) => {
+      await complete({ feature, workspaceId: "w1", messages: [{ role: "user", content: "Hello" }] });
+      const { body } = seen.at(-1)!;
+      const last = (body.messages as { output_config?: { effort: string } }[]).at(-1);
+      return { model: body.model, thinking: (body.thinking as { type: string }).type, effort: last?.output_config?.effort ?? null };
+    };
+
+    it("sends the simple jobs to AI_FAST_MODEL, with the same key, and the rest to AI_MODEL", async () => {
+      setAiEnv({ ...anthropic(), AI_FAST_MODEL: "claude-haiku-5-5" });
+      expect(await send("property.summary")).toEqual({ model: "claude-haiku-5-5", thinking: "disabled", effort: null });
+      expect(await send("property.custom")).toMatchObject({ model: "claude-haiku-5-5", thinking: "disabled" });
+      expect(await send("voice.rewrite")).toEqual({ model: "claude-haiku-5-5", thinking: "adaptive", effort: "low" });
+      expect(await send("editor.improve")).toEqual({ model: "claude-opus-5-5", thinking: "adaptive", effort: "low" });
+      expect(await send("editor.translate")).toMatchObject({ model: "claude-opus-5-5", effort: "low" });
+      expect(await send("editor.custom")).toMatchObject({ model: "claude-opus-5-5", effort: "medium" });
+      expect(await send("chat")).toEqual({ model: "claude-opus-5-5", thinking: "adaptive", effort: "medium" });
+      expect(await send("agent")).toEqual({ model: "claude-opus-5-5", thinking: "adaptive", effort: "high" });
+      // A feature no one planned for: the main model as it comes.
+      expect(await send("something.new")).toMatchObject({ model: "claude-opus-5-5", effort: "high" });
+      expect(seen.every((r) => r.auth === "sk-ant-test")).toBe(true);
+    });
+
+    it("keeps everything on AI_MODEL without AI_FAST_MODEL, each at its feature's thinking", async () => {
+      setAiEnv(anthropic());
+      // Opus 5.5 can't stop thinking: as little as it can is low effort.
+      expect(await send("property.summary")).toEqual({ model: "claude-opus-5-5", thinking: "adaptive", effort: "low" });
+      expect(await send("voice.rewrite")).toMatchObject({ model: "claude-opus-5-5", effort: "low" });
+      expect(await send("chat")).toMatchObject({ model: "claude-opus-5-5", effort: "medium" });
+    });
+
+    it("lets a request ask for its own thinking", async () => {
+      setAiEnv(anthropic());
+      await complete({ feature: "chat", workspaceId: "w1", messages: [{ role: "user", content: "Hello" }], thinking: "low" });
+      expect((seen[0].body.messages as { output_config?: { effort: string } }[]).at(-1)).toMatchObject({ output_config: { effort: "low" } });
+    });
+
+    it("takes a fast model the catalog doesn't know as written", async () => {
+      setAiEnv({ AI_PROVIDER: "ollama", AI_MODEL: "llama3.2", AI_FAST_MODEL: "llama3.2:1b", AI_BASE_URL: base });
+      await complete({ feature: "property.summary", workspaceId: "w1", messages: [{ role: "user", content: "hi" }], maxOutputTokens: 800 });
+      await complete({ feature: "chat", workspaceId: "w1", messages: [{ role: "user", content: "hi" }] });
+      expect(seen.map((r) => r.body.model)).toEqual(["llama3.2:1b", "llama3.2"]);
+      // A model that doesn't think keeps the feature's cap.
+      expect(seen[0].body.max_tokens).toBe(800);
+    });
+  });
+
   it("asks no more than the model's own output limit", async () => {
     setAiEnv({ AI_PROVIDER: "openai", AI_MODEL: "gpt-4-turbo", AI_API_KEY: "sk-test", AI_BASE_URL: base });
     await complete({ feature: "test", workspaceId: "w1", messages: [{ role: "user", content: "hi" }] }).catch(() => {});

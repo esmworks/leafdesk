@@ -113,13 +113,14 @@ export const fileText = pgTable(
     failed: boolean("failed").notNull().default(false),
     extractedAt: timestamp("extracted_at", { withTimezone: true }).notNull().defaultNow(),
     /**
-     * What full-text search matches in the document (server/pages.ts fullTextSearch): its words and
-     * the two-character pieces of its Chinese and Japanese text, from its first 80,000 characters
-     * as for a page's body, so that the vector stays under Postgres' tsvector limit (migration
-     * 0077). Large: select it only where a query needs it.
+     * What full-text search matches in the document (server/pages.ts fullTextSearch): its words,
+     * folded as a page's are (search_fold, migration 0093), and the two-character pieces of its
+     * Chinese and Japanese text, from its first 80,000 characters as for a page's body, so that the
+     * vector stays under Postgres' tsvector limit (migration 0077). Large: select it only where a
+     * query needs it.
      */
     searchVector: tsvector("search_vector").generatedAlwaysAs(
-      sql`to_tsvector('simple', left(text, 80000)) || to_tsvector('simple', cjk_bigrams(left(text, 80000)))`,
+      sql`to_tsvector('simple', search_fold(left(text, 80000))) || to_tsvector('simple', cjk_bigrams(left(text, 80000)))`,
     ),
   },
   (t) => [index("file_text_content_hash_idx").on(t.contentHash), index("file_text_search_vector_idx").using("gin", t.searchVector)],

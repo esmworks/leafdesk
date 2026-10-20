@@ -29,6 +29,11 @@ const PROVIDER_KEY_VARS: Partial<Record<AiProviderKind, string>> = {
 export type AiChatConfig = {
   provider: AiProviderKind;
   model: string;
+  /**
+   * A cheaper model at the same provider, with the same key and endpoint, for the simple jobs
+   * features.ts marks (AI_FAST_MODEL); those run on `model` without one.
+   */
+  fastModel?: string;
   /** Overrides the provider's endpoint; required for openai-compatible. */
   baseUrl: string | null;
   apiKey: string | null;
@@ -142,6 +147,7 @@ export function readAiConfig(env: Env = process.env): AiConfig {
 
   const providerRaw = clean(env.AI_PROVIDER)?.toLowerCase() ?? null;
   const model = clean(env.AI_MODEL);
+  const fastModel = clean(env.AI_FAST_MODEL);
   let chat: AiChatConfig | null = null;
   let provider: AiProviderKind | null = null;
   if (providerRaw !== null) {
@@ -158,11 +164,12 @@ export function readAiConfig(env: Env = process.env): AiConfig {
         // Reported above.
       } else if (provider === "openai-compatible" && !resolvedUrl) problems.push("AI_BASE_URL is required with AI_PROVIDER=openai-compatible");
       else if (keyVar && !apiKey) problems.push(`AI_API_KEY is required with AI_PROVIDER=${provider}`);
-      else chat = { provider, model, baseUrl: resolvedUrl, apiKey };
+      else chat = { provider, model, ...(fastModel && fastModel !== model ? { fastModel } : {}), baseUrl: resolvedUrl, apiKey };
     }
   } else if (model) {
     problems.push("AI_MODEL is set but AI_PROVIDER is not");
   }
+  if (fastModel && providerRaw === null) problems.push("AI_FAST_MODEL is set but AI_PROVIDER is not");
 
   // Embeddings (semantic search) speak the OpenAI-compatible /embeddings API. They default to the
   // chat provider's endpoint and key; a key is only reused for that same endpoint, never sent to a
@@ -253,6 +260,10 @@ export type AiAccountSettings = {
  * embeddings and speech to text at the same provider with the same key when the account names
  * models for them (never the server's: one account pays for all of a workspace's AI). The server's
  * limits still apply. Requests to a typed base URL go through `guardedFetch`.
+ *
+ * The account's model answers every feature, the simple jobs too: AI_FAST_MODEL names a model at
+ * the server's provider, which the account may not offer, and the account's owner chose what
+ * their key pays for. Each feature's thinking level still applies.
  */
 export function accountAiConfig(account: AiAccountSettings, guardedFetch: typeof fetch, env: Env = process.env): AiConfig {
   const problems: string[] = [];
@@ -321,6 +332,7 @@ export function describeAiConfig(config: AiConfig): string {
   if (config.chat) {
     const where = config.chat.baseUrl ? ` at ${config.chat.baseUrl}` : "";
     parts.push(`AI: ${config.chat.provider} ${config.chat.model}${where}`);
+    if (config.chat.fastModel) parts.push(`fast model: ${config.chat.fastModel}`);
   } else {
     parts.push("AI: off");
   }

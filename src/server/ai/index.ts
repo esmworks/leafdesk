@@ -28,6 +28,7 @@ import { createBackend, streamTurn, type AiBackend, type AiThinking } from "./ba
 import { accountAiConfig, DEFAULT_MIN_SIMILARITY, describeAiConfig, readAiConfig, readSttLimits, type AiConfig } from "./config";
 import { fetchEmbeddings } from "./embeddings";
 import { AiError } from "./errors";
+import { featurePlan } from "./features";
 import { guardedAiFetch } from "./fetch";
 import { fetchTranscription } from "./transcribe";
 import { holdToLimit, recordUsage, usageLedger, usageNumbers, type AiUsageLedger } from "./usage";
@@ -56,7 +57,10 @@ export type AiMessage =
   | { role: "tool"; toolCallId: string; name: string; content: string; isError?: boolean };
 
 export type AiRequest = {
-  /** What asks, for usage logs and limits, e.g. "editor.improve" or "property.summary". */
+  /**
+   * What asks, for usage logs and limits, e.g. "editor.improve" or "property.summary"; also picks
+   * the model and thinking (see features.ts).
+   */
   feature: string;
   /** Who asks: limited per person and workspace (see AI_RATE_LIMIT / AI_WORKSPACE_RATE_LIMIT). */
   userId?: string | null;
@@ -74,7 +78,8 @@ export type AiRequest = {
   maxOutputTokens?: number;
   /**
    * How much a model that thinks should think: "off" (or as little as the model allows) and "low"
-   * for small answers where thinking costs more than it adds. Unset, the model's default.
+   * for small answers where thinking costs more than it adds, "medium" below the default. Unset,
+   * the feature's (features.ts), else the model's default.
    */
   thinking?: AiThinking;
   signal?: AbortSignal;
@@ -570,7 +575,9 @@ export function stream(request: AiRequest): AiStream {
       if (!chatOn(target)) throw new AiError("disabled", "AI is not configured for this workspace");
       ledger = await usageLedger(runtime.override);
       await holdToLimit(ledger, request.workspaceId, target!.accountId !== null);
-      const { models, model: m, sessions, fetch: viaFetch } = await backendFor(target!);
+      const plan = featurePlan(request.feature);
+      const { models, model: main, fast, sessions, fetch: viaFetch } = await backendFor(target!);
+      const m = plan.fast && fast ? fast : main;
       model = m.id;
       const events = streamTurn(
         models,
@@ -583,7 +590,7 @@ export function stream(request: AiRequest): AiStream {
           // Only where asked for: other providers would also turn it into prompt-cache keys.
           ...(sessions ? { sessionId: request.sessionId ?? randomUUID() } : {}),
         },
-        request.thinking,
+        request.thinking ?? plan.thinking,
       );
       for await (const event of events) {
         if (event.type === "text_delta" && event.delta) {

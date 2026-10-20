@@ -1,7 +1,8 @@
 /**
  * End-to-end check of full-text search over the PDFs and Word documents pages show, without an
  * embeddings model: an uploaded PDF is read in the background and its page is found by a word only
- * the PDF has (naming the PDF, with a snippet from it), below a page that has the word itself; a
+ * the PDF has (naming the PDF, with a snippet from it, also a Turkish word typed with ı that the
+ * PDF writes with I), below a page that has the word itself; a
  * person who can't see the page doesn't find it, one it is shared with does; a page whose
  * reference to the file isn't authorized isn't found through it; `in:` and the trash apply; words
  * past a document's first 80,000 characters aren't found; documents uploaded before their text was
@@ -120,6 +121,12 @@ try {
   check(hit.snippet.includes("zorbatron"), "…and its snippet comes from the PDF", hit);
   check((await search("zorb")).some((h) => h.id === offer.id), "…also by the start of the word, as it is typed");
   check((await search("glycol zorbatron")).some((h) => h.id === offer.id), "…and by several words of the PDF");
+  const boiler = await make("Boiler service", projects.id);
+  const boilerPdf = await upload(boiler.id, "Boiler.pdf", "Kazan ISITMA kontrol raporu");
+  await show(boiler.id, boilerPdf);
+  await whenDocumentsRead();
+  const heating = (await search("ısıtma")).find((h) => h.id === boiler.id);
+  check(heating?.file?.id === boilerPdf.id && heating.snippet.includes("ISITMA"), "…and by a Turkish word typed with ı that the PDF writes with I", heating);
 
   const manual = await make("Pump manual", null, "How to service the zorbatron.");
   const both = await search("zorbatron");

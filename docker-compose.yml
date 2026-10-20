@@ -153,6 +153,7 @@ services:
       # AI features stay off unless AI_PROVIDER and AI_MODEL are set (see the README's AI section).
       AI_PROVIDER: ${AI_PROVIDER:-}
       AI_MODEL: ${AI_MODEL:-}
+      AI_FAST_MODEL: ${AI_FAST_MODEL:-}
       AI_API_KEY: ${AI_API_KEY:-}
       AI_BASE_URL: ${AI_BASE_URL:-}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}

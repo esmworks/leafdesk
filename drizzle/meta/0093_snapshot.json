@@ -1,5 +1,5 @@
 {
-  "id": "4bc23326-49b8-40a8-85e4-e92f936f24d5",
+  "id": "9cea1d0e-ed9c-450e-8b58-33b7bccbe828",
   "prevId": "717c5212-9315-4f6f-a0bd-483f57f9a700",
   "version": "7",
   "dialect": "postgresql",
@@ -2271,7 +2271,7 @@
           "primaryKey": false,
           "notNull": false,
           "generated": {
-            "as": "setweight(to_tsvector('simple', left(coalesce(title, ''), 1000)), 'A') || setweight(to_tsvector('simple', left(coalesce(content_text, ''), 80000)), 'B') || setweight(to_tsvector('simple', cjk_bigrams(left(title, 1000))), 'A') || setweight(to_tsvector('simple', cjk_bigrams(left(content_text, 80000))), 'B')",
+            "as": "setweight(to_tsvector('simple', search_fold(left(coalesce(title, ''), 1000))), 'A') || setweight(to_tsvector('simple', search_fold(left(coalesce(content_text, ''), 80000))), 'B') || setweight(to_tsvector('simple', cjk_bigrams(left(title, 1000))), 'A') || setweight(to_tsvector('simple', cjk_bigrams(left(content_text, 80000))), 'B')",
             "type": "stored"
           }
         },
@@ -8765,116 +8765,6 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.ai_usage": {
-      "name": "ai_usage",
-      "schema": "",
-      "columns": {
-        "workspace_id": {
-          "name": "workspace_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "month": {
-          "name": "month",
-          "type": "date",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "feature": {
-          "name": "feature",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "model": {
-          "name": "model",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "own_account": {
-          "name": "own_account",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "requests": {
-          "name": "requests",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "input_tokens": {
-          "name": "input_tokens",
-          "type": "bigint",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "cache_read_tokens": {
-          "name": "cache_read_tokens",
-          "type": "bigint",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "cache_write_tokens": {
-          "name": "cache_write_tokens",
-          "type": "bigint",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "output_tokens": {
-          "name": "output_tokens",
-          "type": "bigint",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "cost_usd": {
-          "name": "cost_usd",
-          "type": "double precision",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "ai_usage_workspace_id_workspace_id_fk": {
-          "name": "ai_usage_workspace_id_workspace_id_fk",
-          "tableFrom": "ai_usage",
-          "tableTo": "workspace",
-          "columnsFrom": [
-            "workspace_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "ai_usage_workspace_id_month_feature_model_own_account_pk": {
-          "name": "ai_usage_workspace_id_month_feature_model_own_account_pk",
-          "columns": [
-            "workspace_id",
-            "month",
-            "feature",
-            "model",
-            "own_account"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
     "public.file_text": {
       "name": "file_text",
       "schema": "",
@@ -8936,7 +8826,7 @@
           "primaryKey": false,
           "notNull": false,
           "generated": {
-            "as": "to_tsvector('simple', left(text, 80000)) || to_tsvector('simple', cjk_bigrams(left(text, 80000)))",
+            "as": "to_tsvector('simple', search_fold(left(text, 80000))) || to_tsvector('simple', cjk_bigrams(left(text, 80000)))",
             "type": "stored"
           }
         }
