@@ -1831,8 +1831,11 @@ page and its subpages* keeps questions to the page you are on. *Stop* ends an an
 is kept. Under an answer are *Copy*, *Answer again* (the latest) and its time; hovering a question
 shows its time, *Edit* (the latest: answered again in its place) and *Copy*. An answer that
 changed things can't be answered again or edited. Conversations are private to you and listed in the full-page chat's sidebar and under
-the panel's *Conversations*, where you can delete one or all; up to 50 per workspace are kept (the oldest go first), 40 questions each, 4000
-characters a question. They are deleted when you leave the workspace or delete your account. The
+the panel's *Conversations*, where you can delete one or all; up to 50 per workspace are kept (the oldest go first), with
+no limit on questions, each up to 100,000 characters. The chat sends the model as much of the
+conversation as its context window takes (see `AI_MAX_INPUT_CHARS`); when the model still finds it
+too long, older tool results and then the earlier turns are left out and the question is asked
+again. They are deleted when you leave the workspace or delete your account. The
 chat is off while offline and when AI is off for the workspace. Every question counts against
 `AI_RATE_LIMIT`; the model's extra turns count against `AI_WORKSPACE_RATE_LIMIT`.
 
@@ -1907,13 +1910,13 @@ everything on your machines.
 
 | Variable | Default | |
 | --- | --- | --- |
-| `AI_MAX_INPUT_CHARS` | 48000 | Characters one request may send; a longer selection is refused, a longer page is cut |
+| `AI_MAX_INPUT_CHARS` | none | Unset, the chat and agents send what the model's context window takes (its size less the answer's tokens, at 3 characters a token), and the writing assistant, AI properties, voice notes and agents' skills read at most 48,000 characters (a longer selection is refused, a longer page is cut). Set, it caps every request at this many characters |
 | `AI_MAX_OUTPUT_TOKENS` | 8192 | Tokens one answer may have. A model that thinks before answering (Claude 5.5, OpenAI's and Gemini's reasoning models…) spends its thinking from the same tokens, so it always gets all of them, also where a feature caps the answer lower (AI property values: 800) |
 | `AI_TIMEOUT_SECONDS` | 60 | |
 | `AI_RATE_LIMIT` | 20 | Requests per person per minute |
 | `AI_WORKSPACE_RATE_LIMIT` | 120 | Requests per workspace per minute, AI property values included (they wait for their turn) |
 | `AI_CONCURRENCY` | 2 | AI property values worked out at the same time |
-| `AI_CONTEXT_WINDOW` | 32768 | Context size assumed for OpenAI-compatible and local models |
+| `AI_CONTEXT_WINDOW` | 32768 | Context size, in tokens, assumed for OpenAI-compatible and local models (the chat and agents fit their prompt in it) |
 | `AI_MONTHLY_LIMIT_USD` | none | The most each workspace's AI may cost the server's `AI_*` key in a calendar month, in US dollars (see below) |
 
 ### Usage and cost limits
@@ -2258,7 +2261,7 @@ edit: not a member, a teamspace, a group, a guest or an agent (the agent itself 
 one that others can edit is refused, and every run checks again: a skill someone else can edit by
 then, or that is no longer a skill (unmarked, in the trash), is left out, and the run says so in
 its steps, as the tab does next to the skill. A skill that doesn't fit in what a run may read
-(12,000 characters for all of them together, at most a quarter of `AI_MAX_INPUT_CHARS`) is left
+(12,000 characters for all of them together, at most a quarter of `AI_MAX_INPUT_CHARS` when set) is left
 out whole, never cut. A run held to someone's access (the member whose change started it, or a
 public form's publisher) also leaves out the skills that person can't open, as it does pages;
 sharing a skill with members at *Can view* lets their runs follow it and keeps it a skill only

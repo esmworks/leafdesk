@@ -40,7 +40,6 @@ import {
   citedNumbers,
   conversationTitle,
   MAX_CHAT_MESSAGE,
-  MAX_CHAT_TURNS,
   MAX_CONVERSATIONS,
   type ChatActionView,
   type ChatConnectionRecord,
@@ -56,7 +55,8 @@ import {
 } from "@/lib/ai-chat";
 import { pageLabel } from "@/lib/labels";
 import { AccessError, isGuest, requireMembership, requirePageAccess, WorkspacePolicyError } from "@/server/access";
-import { aiConfig, AiError, isAiError, stream, takeRateLimit, takeWorkspaceCapacity, type AiMessage } from "@/server/ai";
+import { AiError, isAiError, promptRoomFor, stream, takeRateLimit, takeWorkspaceCapacity, type AiMessage, type AiResult } from "@/server/ai";
+import { dropOldToolResults } from "@/server/ai/compact";
 import { chatHistory, chatQuestionPrompt, chatSystemPrompt } from "@/server/ai/prompts";
 import { getSkillContent, SkillError } from "@/server/skills";
 import { aiAvailable } from "@/server/ai-writing";
@@ -167,9 +167,6 @@ export async function startChat(userId: string, input: ChatInput, signal?: Abort
   const skill = input.skillId ? await chatSkill(userId, input.workspaceId, input.skillId) : null;
   const existing = input.conversationId ? await ownConversation(userId, input.workspaceId, input.conversationId) : null;
   const replaced = input.replaceLast ? lastTurn(existing) : 0;
-  if (existing && existing.messages.filter((m) => m.role === "user").length - (replaced ? 1 : 0) >= MAX_CHAT_TURNS) {
-    refuse("tooLarge", "This conversation is full; start a new one");
-  }
   takeRateLimit({ userId, workspaceId: input.workspaceId });
   const chat = { scope: scope ? { id: scope.id, title: scope.title } : null, skill, existing, mode: input.mode ?? "ask", replaced, connections: !isGuest(membership.role) };
   return runChat(userId, input.workspaceId, message, chat, signal);
@@ -210,7 +207,6 @@ async function* runChat(
   signal?: AbortSignal,
 ): AsyncGenerator<ChatEvent> {
   const ctx: ops.OperationContext = { userId, actor: { userId } };
-  const limits = aiConfig().limits;
   // "Don't ask again" makes the rest of this answer `auto`.
   let mode = initialMode;
   // Keeping notes about the person changes nothing in the workspace: it's offered in every mode,
@@ -223,7 +219,10 @@ async function* runChat(
   const tools = [...CHAT_TOOLS, ...(mode === "read" ? [] : WRITE_TOOLS), ...(remembers ? MEMORY_TOOLS : []), ...(external?.tools ?? [])];
   const system = chatSystemPrompt(scope ? pageLabel(scope.title) : null, mode !== "read", skill ? pageLabel(skill.title) : null, remembers, services);
   const toolsSize = tools.reduce((n, t) => n + t.description.length + JSON.stringify(t.parameters).length, 0);
-  const room = () => limits.maxInputChars - system.length - toolsSize - 200;
+  // What the model takes, less what every turn sends: the history, the map, memory and tool results
+  // share the rest.
+  const budget = await promptRoomFor(workspaceId);
+  const room = () => Math.max(0, budget - system.length - toolsSize - 200);
 
   const conversation =
     existing ??
@@ -305,7 +304,17 @@ async function* runChat(
     const memory = remembers ? await memoryForPrompt(userId, workspaceId, Math.floor(room() * MEMORY_SHARE)) : { text: "", count: 0 };
     const mapRoom = Math.min(MAP_CHARS, room() - sizeOf(history) - message.length - (skill?.body.length ?? 0) - memory.text.length - 2_000);
     const map = mapRoom >= 500 ? await workspaceMap(ctx, workspaceId, scope?.id ?? null, mapRoom) : "";
-    const messages: AiMessage[] = [...history, { role: "user", content: chatQuestionPrompt(message, map, skill?.body, memory.text) }];
+    const question: AiMessage = { role: "user", content: chatQuestionPrompt(message, map, skill?.body, memory.text) };
+    const messages: AiMessage[] = [...history, question];
+    // When the model finds it all too long: old tool results go first (it can call the tool again),
+    // then the earlier conversation. False when there's nothing left to drop.
+    const makeRoom = () => {
+      if (dropOldToolResults(messages) > 0) return true;
+      const earlier = messages.indexOf(question);
+      if (earlier > 0) messages.splice(0, earlier);
+      return earlier > 0;
+    };
+    let roomMade = 0;
 
     // ------------------------------------------------------------------------------ model turns
     for (let round = 0; round < MAX_ROUNDS; round++) {
@@ -315,32 +324,43 @@ async function* runChat(
       }
       const last = round === MAX_ROUNDS - 1;
       yield { type: "thinking" };
-      const turn = stream({
-        feature: "chat",
-        userId,
-        workspaceId,
-        skipRateLimit: true,
-        system,
-        messages,
-        // Tools stay declared (providers want them while the conversation has tool calls); the
-        // last turn is told to answer instead, and what it writes is the answer.
-        tools,
-        signal,
-        sessionId: conversation.id,
-        thinkingEvents: true,
-      });
       let streamed = "";
-      for await (const event of turn) {
-        // The model's thinking is shown as it comes, and not kept.
-        if (event.type === "thinking") {
-          yield { type: "reasoning", text: event.delta };
+      let result: AiResult;
+      try {
+        const turn = stream({
+          feature: "chat",
+          userId,
+          workspaceId,
+          skipRateLimit: true,
+          system,
+          messages,
+          // Tools stay declared (providers want them while the conversation has tool calls); the
+          // last turn is told to answer instead, and what it writes is the answer.
+          tools,
+          signal,
+          sessionId: conversation.id,
+          thinkingEvents: true,
+        });
+        for await (const event of turn) {
+          // The model's thinking is shown as it comes, and not kept.
+          if (event.type === "thinking") {
+            yield { type: "reasoning", text: event.delta };
+            continue;
+          }
+          streamed += event.delta;
+          answer = streamed;
+          yield { type: "text", text: event.delta };
+        }
+        result = await turn.result();
+      } catch (error) {
+        // Too long for the model: the same turn is asked again with room made, twice at most.
+        if (isAiError(error) && error.code === "tooLarge" && !streamed && roomMade < 2 && makeRoom()) {
+          roomMade += 1;
+          round -= 1;
           continue;
         }
-        streamed += event.delta;
-        answer = streamed;
-        yield { type: "text", text: event.delta };
+        throw error;
       }
-      const result = await turn.result();
       if (!result.toolCalls.length || last) {
         answer = result.text;
         stopReason = result.stopReason === "length" ? "length" : "stop";
