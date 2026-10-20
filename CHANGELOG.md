@@ -13,6 +13,14 @@
   transcript only as what was said. The quick note says when the chosen database has instructions.
   `get_database` (MCP and REST) shows them as `voice_note_instructions`, and duplicating a database
   keeps them. Migration 0096 adds `page.voice_note_instructions`.
+- **Jump to the pages beside one from the breadcrumb.** Resting the pointer on a page in the
+  breadcrumb at the top of a page, or pressing the down arrow on it, lists the pages beside it:
+  the other subpages of its parent in the sidebar's order, the other top-level pages of its
+  teamspace or of the private pages, or for a database row the other rows of its database (the
+  first 50, in the rows' own order) with an entry that opens the database. The page itself is
+  marked; the arrow keys move through the list, Enter opens a page and Escape closes it. Clicking
+  the current page's title opens its list too, also on touch screens. Only pages the reader can see
+  are listed, loaded the first time the list opens.
 - **Merge table cells.** Select cells of a table on a page and merge them into one from the
   formatting toolbar, across columns, rows or both; the cell's menu splits a merged cell again.
   Merged cells show on published pages, Markdown export writes the table as a full grid with the

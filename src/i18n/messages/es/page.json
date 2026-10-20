@@ -810,5 +810,12 @@
       "keep": "Seguir editando",
       "confirm": "Descartar"
     }
+  },
+  "siblings": {
+    "label": "Páginas junto a {title}",
+    "empty": "No hay otras páginas aquí",
+    "failed": "No se pudieron cargar las páginas de aquí.",
+    "openDatabase": "Abrir base de datos",
+    "allRows": "Ver todas las filas en la base de datos"
   }
 }

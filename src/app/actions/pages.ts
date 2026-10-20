@@ -5,6 +5,7 @@ import type { PageKind } from "@/db/schema";
 import type { PageBackground } from "@/lib/page-background";
 import { hasLevel } from "@/server/access";
 import * as pages from "@/server/pages";
+import { getPageSiblings } from "@/server/page-siblings";
 import { requireUserId } from "@/server/session";
 import { databaseSeedNames } from "./seed-names";
 
@@ -94,6 +95,12 @@ export async function listSubpagesAction(workspaceId: string, pageId: string) {
   const userId = await requireUserId();
   const rows = await pages.listChildren(userId, workspaceId, pageId);
   return rows.map(({ id, kind, title, icon }) => ({ id, kind, title, icon }));
+}
+
+/** The pages beside a page that the user can see, for its breadcrumb (server/page-siblings). */
+export async function getPageSiblingsAction(pageId: string) {
+  const userId = await requireUserId();
+  return getPageSiblings(userId, String(pageId));
 }
 
 /** The sidebar's tree and the teamspaces it has sections for. */

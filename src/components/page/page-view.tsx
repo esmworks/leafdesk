@@ -24,6 +24,7 @@ import { AiReviewBar } from "./ai-review";
 import { DocumentViewContext } from "./document-title";
 import { IconPicker } from "./icon-picker";
 import { BackgroundPicker } from "./page-background";
+import { CrumbSiblings } from "./crumb-siblings";
 import { backdropClass } from "./page-backdrop";
 import { Backlinks } from "./mentions";
 import { takeNewPage } from "./new-page-focus";
@@ -360,22 +361,38 @@ export function PageView({
           ) : (
             <nav className="flex min-w-0 items-center gap-1 text-sm text-fg-muted">
               <SidebarOpenButton className="me-1 max-md:me-0" />
+              {/* Each crumb lists the pages beside it, to jump sideways (crumb-siblings.tsx). */}
               {parents.map((c) => (
                 <span key={c.id} className="flex min-w-0 items-center gap-1 max-md:hidden">
-                  <Link
-                    href={`/w/${workspaceId}/p/${c.id}`}
-                    className="flex min-w-0 items-center gap-1 rounded px-1 py-0.5 hover:bg-bg-hover hover:text-fg"
-                  >
-                    <PageIcon icon={c.icon} kind={c.kind} className="text-sm" />
-                    <span className="max-w-40 truncate">{pageLabel(c.title, untitled)}</span>
-                  </Link>
+                  <CrumbSiblings workspaceId={workspaceId} pageId={c.id} title={pageLabel(c.title, untitled)}>
+                    {({ toggle: _, close, ...trigger }) => (
+                      <Link
+                        href={`/w/${workspaceId}/p/${c.id}`}
+                        onClick={close}
+                        {...trigger}
+                        className="flex min-w-0 items-center gap-1 rounded px-1 py-0.5 hover:bg-bg-hover hover:text-fg"
+                      >
+                        <PageIcon icon={c.icon} kind={c.kind} className="text-sm" />
+                        <span className="max-w-40 truncate">{pageLabel(c.title, untitled)}</span>
+                      </Link>
+                    )}
+                  </CrumbSiblings>
                   <span className="text-fg-faint">/</span>
                 </span>
               ))}
-              <span className="flex min-w-0 items-center gap-1 px-1 text-fg">
-                <PageIcon icon={icon} kind={page.kind} className="text-sm" />
-                <span className="truncate md:max-w-60">{pageLabel(title, untitled)}</span>
-              </span>
+              <CrumbSiblings key={page.id} workspaceId={workspaceId} pageId={page.id} title={pageLabel(title, untitled)}>
+                {({ toggle, close: _, ...trigger }) => (
+                  <button
+                    type="button"
+                    onClick={toggle}
+                    {...trigger}
+                    className="flex min-w-0 items-center gap-1 rounded px-1 py-0.5 text-fg hover:bg-bg-hover"
+                  >
+                    <PageIcon icon={icon} kind={page.kind} className="text-sm" />
+                    <span className="truncate md:max-w-60">{pageLabel(title, untitled)}</span>
+                  </button>
+                )}
+              </CrumbSiblings>
             </nav>
           )}
           <div className="flex shrink-0 items-center gap-0.5">

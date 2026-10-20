@@ -810,5 +810,12 @@
       "keep": "Weiter bearbeiten",
       "confirm": "Verwerfen"
     }
+  },
+  "siblings": {
+    "label": "Seiten neben {title}",
+    "empty": "Hier gibt es keine anderen Seiten",
+    "failed": "Die Seiten hier konnten nicht geladen werden.",
+    "openDatabase": "Datenbank öffnen",
+    "allRows": "Alle Zeilen in der Datenbank ansehen"
   }
 }

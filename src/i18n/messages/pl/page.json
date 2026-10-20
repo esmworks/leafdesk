@@ -810,5 +810,12 @@
       "keep": "Edytuj dalej",
       "confirm": "Odrzuć"
     }
+  },
+  "siblings": {
+    "label": "Strony obok {title}",
+    "empty": "Nie ma tu innych stron",
+    "failed": "Nie udało się wczytać stron z tego miejsca.",
+    "openDatabase": "Otwórz bazę danych",
+    "allRows": "Zobacz wszystkie wiersze w bazie danych"
   }
 }
