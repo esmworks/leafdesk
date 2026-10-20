@@ -1528,7 +1528,7 @@
   },
   "connections": {
     "heading": "Connexions",
-    "description": "Les services que vos agents utilisent : Slack, GitHub, un CRM, un autre Leafdesk… tout ce qui a un serveur MCP distant. Seuls les propriétaires les voient et les gèrent ; les outils permis à chaque agent se règlent sur l’agent. (Programmes qui utilisent Leafdesk : ceux qui accèdent à cet espace de travail sont dans Sécurité, ceux que vous avez connectés vous-même dans Mon compte › Applications connectées.)",
+    "description": "Les services que vos agents utilisent : Slack, GitHub, un CRM, un autre Leafdesk… tout ce qui a un serveur MCP distant. Seuls les propriétaires les voient et les gèrent ; les outils permis à chaque agent se règlent sur l’agent. Les outils que le chat IA peut utiliser se règlent sur chaque connexion, sous Outils. (Programmes qui utilisent Leafdesk : ceux qui accèdent à cet espace de travail sont dans Sécurité, ceux que vous avez connectés vous-même dans Mon compte › Applications connectées.)",
     "tabs": {
       "browse": "Parcourir",
       "connected": "Connectées",
@@ -1670,7 +1670,11 @@
       "overridden": "Classé par un propriétaire, pas comme le serveur l’a marqué",
       "kindLabel": "Ce que fait « {tool} »",
       "reads": "Lit seulement",
-      "writes": "Modifie, demande d’abord"
+      "writes": "Modifie, demande d’abord",
+      "chat": "Dans le chat",
+      "chatLabel": "Laisser le chat IA utiliser « {tool} »",
+      "chatAll": "Les utiliser toutes dans le chat",
+      "chatDescription": "Cochez « Dans le chat » pour que le chat IA de l'espace de travail puisse utiliser un outil. Le chat l'appelle avec le compte de cette connexion pour tout membre qui pose une question (pas les invités) ; un outil qui modifie quelque chose demande d'abord à cette personne, à chaque fois."
     },
     "events": {
       "address": "Adresse des événements",
@@ -1709,7 +1713,7 @@
       "promptPlaceholder": "Ce que l’agent doit faire de l’événement",
       "addTrigger": "Ajouter un déclencheur"
     },
-    "reconnectNote": "Changer l’adresse ou la connexion déconnecte la liaison ; elle est réessayée à l’enregistrement. Une nouvelle adresse demande aussi à nouveau le jeton, liste ses outils de zéro et retire aux agents les outils de cette connexion jusqu’à ce que vous les leur redonniez.",
+    "reconnectNote": "Changer l’adresse ou la connexion déconnecte la liaison ; elle est réessayée à l’enregistrement. Une nouvelle adresse demande aussi à nouveau le jeton, liste ses outils de zéro et retire aux agents les outils de cette connexion jusqu’à ce que vous les leur redonniez. Le chat les perd aussi.",
     "deleteTitle": "Supprimer la connexion",
     "deleteBody": "Ses identifiants, les outils qu’y avaient les agents, ses déclencheurs et ses événements partent avec elle. Les appels en attente d’approbation échouent sans rien envoyer.",
     "deleteConfirm": "Supprimer",

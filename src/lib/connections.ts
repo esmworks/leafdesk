@@ -95,6 +95,8 @@ export type ConnectionView = {
   status: ConnectionStatus;
   statusError: string | null;
   tools: ConnectionTool[];
+  /** The tools the workspace's AI chat may call. */
+  chatTools: string[];
   toolsAt: string | null;
   eventPreset: EventPreset;
   /** The address its events go to. */

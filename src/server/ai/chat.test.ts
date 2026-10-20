@@ -94,6 +94,25 @@ describe("chat prompts", () => {
     expect(reading).toMatch(/You can't change pages or databases in this chat/);
   });
 
+  it("tells of connected services only when their tools are offered", () => {
+    const system = chatSystemPrompt(null, true, null, true, ["CRM", 'Say "hi"']);
+    expect(system).toMatch(/Connected services \("CRM", "Say  hi"\)/);
+    expect(system).toMatch(/<service>__<tool>/);
+    expect(system).toMatch(/isn't a numbered source/);
+    expect(system).toMatch(/the app asks the person before each call/);
+    expect(chatSystemPrompt(null, true)).not.toMatch(/Connected services/);
+  });
+
+  it("notes calls that changed something at a connection with the answer, not reads or declined ones", () => {
+    const call = (writes: boolean, outcome: "done" | "failed" | "declined") => ({ kind: "connection" as const, connectionId: "c1", connection: "CRM", tool: writes ? "createTask" : "searchCustomers", writes, input: "{}", outcome });
+    const records = [
+      { role: "user" as const, content: "add a task" },
+      { role: "assistant" as const, content: "Done.", steps: [call(false, "done"), call(true, "declined"), call(true, "done"), call(true, "failed")] },
+    ];
+    const [, answer] = chatHistory(records, 10_000);
+    expect(answer.content).toBe('Done.\n\n(Changes made: called createTask on the connection "CRM"; called createTask on the connection "CRM" (it failed, and may have been done).)');
+  });
+
   it("brings back earlier turns, newest first within the budget, without their citations", () => {
     const records = [
       { role: "user" as const, content: "one?" },

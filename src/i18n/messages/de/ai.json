@@ -186,6 +186,11 @@
           "remember": "Merken abgelehnt:",
           "forget": "Vergessen abgelehnt:"
         }
+      },
+      "connection": {
+        "done": "{connection}: {tool} aufgerufen",
+        "failed": "{connection}: {tool} fehlgeschlagen",
+        "declined": "{connection}: Aufruf von {tool} abgelehnt"
       }
     },
     "stopped": "Gestoppt.",
@@ -207,7 +212,8 @@
         "createPage": "Diese Seite hinzufügen?",
         "remember": "Das über dich merken?",
         "forget": "Diese Notiz vergessen?",
-        "editPage": "Den Text dieser Seite ändern?"
+        "editPage": "Den Text dieser Seite ändern?",
+        "connection": "Das an {connection} senden?"
       },
       "in": "In",
       "row": "Zeile",
@@ -219,7 +225,8 @@
       "decline": "Nein",
       "waiting": "Wartet auf deine Zustimmung",
       "page": "Seite",
-      "empty": "(leer)"
+      "empty": "(leer)",
+      "connectionHint": "Wird mit der Verbindung des Arbeitsbereichs gesendet: Es kann bei {connection} etwas ändern"
     },
     "mode": {
       "label": "Änderungen",

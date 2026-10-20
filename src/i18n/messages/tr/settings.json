@@ -1528,7 +1528,7 @@
   },
   "connections": {
     "heading": "Bağlantılar",
-    "description": "Ajanlarınızın kullandığı servisler: Slack, GitHub, bir CRM, başka bir Leafdesk… uzak MCP sunucusu olan her şey. Yalnızca sahipler görür ve yönetir; her ajanın hangi araçları kullanabileceği ajanın kendisinde ayarlanır. (Leafdesk’i kullanan programlar: bu çalışma alanına ulaşanlar Güvenlik altında, kendi bağladıklarınız Hesabım › Bağlı uygulamalar’da.)",
+    "description": "Ajanlarınızın kullandığı servisler: Slack, GitHub, bir CRM, başka bir Leafdesk… uzak MCP sunucusu olan her şey. Yalnızca sahipler görür ve yönetir; her ajanın hangi araçları kullanabileceği ajanın kendisinde ayarlanır. Yapay zeka sohbetinin hangi araçları kullanabileceği her bağlantının Araçlar sekmesinde ayarlanır. (Leafdesk’i kullanan programlar: bu çalışma alanına ulaşanlar Güvenlik altında, kendi bağladıklarınız Hesabım › Bağlı uygulamalar’da.)",
     "tabs": {
       "browse": "Keşfet",
       "connected": "Bağlı",
@@ -1670,7 +1670,11 @@
       "overridden": "Sunucunun işaretine göre değil, bir sahip tarafından sınıflandı",
       "kindLabel": "“{tool}” ne yapar",
       "reads": "Yalnızca okur",
-      "writes": "Değiştirir, önce sorar"
+      "writes": "Değiştirir, önce sorar",
+      "chat": "Sohbette",
+      "chatLabel": "Yapay zeka sohbeti “{tool}” aracını kullanabilsin",
+      "chatAll": "Hepsini sohbette kullan",
+      "chatDescription": "Bir aracı çalışma alanının yapay zeka sohbetine açmak için “Sohbette”yi işaretleyin. Sohbet, soran her üye için (misafirler hariç) aracı bu bağlantının hesabıyla çağırır; bir şeyi değiştiren araç her seferinde önce o kişiye sorar."
     },
     "events": {
       "address": "Olay adresi",
@@ -1709,7 +1713,7 @@
       "promptPlaceholder": "Ajanın olayla ne yapması gerektiği",
       "addTrigger": "Tetikleyici ekle"
     },
-    "reconnectNote": "Adresi ya da oturum açma yolunu değiştirmek bağlantının oturumunu kapatır; kaydettiğinizde yeniden denenir. Yeni bir adres token’ı da yeniden ister, araçlarını baştan listeler ve siz yeniden verene kadar ajanlardan bu bağlantının araçlarını alır.",
+    "reconnectNote": "Adresi ya da oturum açma yolunu değiştirmek bağlantının oturumunu kapatır; kaydettiğinizde yeniden denenir. Yeni bir adres token’ı da yeniden ister, araçlarını baştan listeler ve siz yeniden verene kadar ajanlardan bu bağlantının araçlarını alır. Sohbet de onları kaybeder.",
     "deleteTitle": "Bağlantıyı kaldır",
     "deleteBody": "Kimlik bilgileri, ajanların bu bağlantıdaki araçları, tetikleyicileri ve olayları da gider. Onay bekleyen çağrılar hiçbir şey göndermeden başarısız olur.",
     "deleteConfirm": "Kaldır",

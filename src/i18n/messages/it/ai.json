@@ -186,6 +186,11 @@
           "remember": "Rifiutato di ricordare:",
           "forget": "Rifiutato di dimenticare:"
         }
+      },
+      "connection": {
+        "done": "{connection}: chiamato {tool}",
+        "failed": "{connection}: {tool} non riuscito",
+        "declined": "{connection}: hai rifiutato di chiamare {tool}"
       }
     },
     "stopped": "Interrotto.",
@@ -207,7 +212,8 @@
         "createPage": "Aggiungere questa pagina?",
         "remember": "Ricordare questo su di te?",
         "forget": "Dimenticare questa nota?",
-        "editPage": "Modificare il testo di questa pagina?"
+        "editPage": "Modificare il testo di questa pagina?",
+        "connection": "Inviare questo a {connection}?"
       },
       "in": "In",
       "row": "Riga",
@@ -219,7 +225,8 @@
       "decline": "No",
       "waiting": "In attesa della tua approvazione",
       "page": "Pagina",
-      "empty": "(vuoto)"
+      "empty": "(vuoto)",
+      "connectionHint": "Inviato con la connessione dello spazio di lavoro: può cambiare qualcosa su {connection}"
     },
     "mode": {
       "label": "Modifiche",

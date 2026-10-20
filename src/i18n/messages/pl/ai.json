@@ -186,6 +186,11 @@
           "remember": "Odrzucono zapamiętanie:",
           "forget": "Odrzucono zapomnienie:"
         }
+      },
+      "connection": {
+        "done": "{connection}: wywołano {tool}",
+        "failed": "{connection}: {tool} nie powiodło się",
+        "declined": "{connection}: odrzucono wywołanie {tool}"
       }
     },
     "stopped": "Zatrzymano.",
@@ -207,7 +212,8 @@
         "createPage": "Dodać tę stronę?",
         "remember": "Zapamiętać to o tobie?",
         "forget": "Zapomnieć tę notatkę?",
-        "editPage": "Zmienić tekst tej strony?"
+        "editPage": "Zmienić tekst tej strony?",
+        "connection": "Wysłać to do {connection}?"
       },
       "in": "W",
       "row": "Wiersz",
@@ -219,7 +225,8 @@
       "decline": "Nie",
       "waiting": "Oczekiwanie na twoją zgodę",
       "page": "Strona",
-      "empty": "(puste)"
+      "empty": "(puste)",
+      "connectionHint": "Wysyłane przez połączenie obszaru roboczego: może coś zmienić w {connection}"
     },
     "mode": {
       "label": "Zmiany",

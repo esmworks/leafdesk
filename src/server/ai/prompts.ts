@@ -326,7 +326,7 @@ export type ChatSourceText = { n: number; pageId: string; title: string; text: s
  * Instructions for the AI chat (#41). `scopeTitle`: the page the chat keeps to, if any; `memory`:
  * whether it keeps notes about the person (off by the person's or the workspace's switch).
  */
-export function chatSystemPrompt(scopeTitle?: string | null, canChange = false, skillTitle?: string | null, memory = true): string {
+export function chatSystemPrompt(scopeTitle?: string | null, canChange = false, skillTitle?: string | null, memory = true, services: string[] = []): string {
   return [
     "You are the assistant of a notes app. You answer questions about the pages and databases of the person's workspace that they can open.",
     "First think about what the question needs, then use the tools for it. With the question comes a map of the workspace: its databases (with their properties and options) and pages.",
@@ -335,6 +335,11 @@ export function chatSystemPrompt(scopeTitle?: string | null, canChange = false, 
     canChange
       ? "- When the person asks to add or change something (a task, a row, a page): create_row, update_row or create_page, after finding the database, row or page it goes to; edit_page changes a page's text, after read_page with_block_ids. Change only what they asked for, and only when they ask. Don't ask for permission in text: the app asks the person itself when it has to. When a change is declined, don't try it again."
       : `- You can't change pages or databases in this chat. When asked to, say that changes are off; the person can allow them under the question box.${memory ? " Keeping notes about the person (remember, forget) still works here." : ""}`,
+    ...(services.length
+      ? [
+          `- Connected services (${services.map((s) => `"${attr(s)}"`).join(", ")}): tools named <service>__<tool>, whose descriptions start with the service's name in brackets, reach services outside the workspace. Use them when the question is about what such a service holds or does (its records, searches, calculations). What they return isn't a numbered source: don't cite it with a number, say which service it came from. A tool marked as needing approval changes something there: call it only when the person asks for that change; don't ask for permission in text, the app asks the person before each call. When a call is declined, don't try it again.`,
+        ]
+      : []),
     "- Greetings, or questions that aren't about the workspace: answer directly, without tools.",
     ...(memory
       ? [
@@ -395,7 +400,13 @@ export function chatHistory(
     const answer = records[i];
     const question = records[i - 1];
     if (answer.role !== "assistant" || question.role !== "user") continue;
-    const changes = (answer.steps ?? []).flatMap((s) => (s.kind === "write" && s.outcome === "done" && s.pageId ? [changeNote(s)] : []));
+    const changes = (answer.steps ?? []).flatMap((s) =>
+      s.kind === "write" && s.outcome === "done" && s.pageId
+        ? [changeNote(s)]
+        : s.kind === "connection" && s.writes && s.outcome !== "declined"
+          ? [`called ${s.tool} on the connection "${attr(s.connection)}"${s.outcome === "failed" ? " (it failed, and may have been done)" : ""}`]
+          : [],
+    );
     const content = [stripCitations(answer.content).trim(), changes.length ? `(Changes made: ${changes.join("; ")}.)` : ""].filter(Boolean).join("\n\n");
     const size = question.content.length + content.length;
     if (used + size > budget) break;

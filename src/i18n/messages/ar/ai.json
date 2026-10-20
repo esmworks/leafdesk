@@ -186,6 +186,11 @@
           "remember": "رُفض التذكّر:",
           "forget": "رُفض النسيان:"
         }
+      },
+      "connection": {
+        "done": "{connection}: تم استدعاء {tool}",
+        "failed": "{connection}: فشل {tool}",
+        "declined": "{connection}: رفضت استدعاء {tool}"
       }
     },
     "stopped": "تم الإيقاف.",
@@ -207,7 +212,8 @@
         "createPage": "إضافة هذه الصفحة؟",
         "remember": "تذكّر هذا عنك؟",
         "forget": "نسيان هذه الملاحظة؟",
-        "editPage": "تغيير نص هذه الصفحة؟"
+        "editPage": "تغيير نص هذه الصفحة؟",
+        "connection": "هل تريد إرسال هذا إلى {connection}؟"
       },
       "in": "في",
       "row": "الصف",
@@ -219,7 +225,8 @@
       "decline": "لا",
       "waiting": "في انتظار موافقتك",
       "page": "الصفحة",
-      "empty": "(فارغ)"
+      "empty": "(فارغ)",
+      "connectionHint": "يُرسل عبر اتصال مساحة العمل: قد يغيّر شيئًا في {connection}"
     },
     "mode": {
       "label": "التغييرات",

@@ -512,7 +512,7 @@ async function converse(
       if ((external.tool.kind === "write" || askEveryTool) && !approved) return null;
       const left = MAX_RUN_EXTERNAL_CHARS - externalChars;
       if (left <= 200) return { content: "You have read as much from connected services as one run may. Finish with what you have.", isError: true };
-      const out = await runConnectionTool({ entry: external, args: call.arguments, agentUserId: agent.userId, agentName: agent.name, approvedBy: approved?.userId ?? null, room: left, signal });
+      const out = await runConnectionTool({ entry: external, args: call.arguments, actorId: agent.userId, approvedBy: approved?.userId ?? null, room: left, signal });
       externalChars += out.chars;
       if (external.tool.kind === "write") writes += 1;
       return out;

@@ -4,6 +4,14 @@
 
 ### Added
 
+- **The AI chat can use connections' tools.** Owners tick **In chat** next to a connection's tools
+  (Settings → Connections → a connection → Tools), and members' chats may call them; guests' chats
+  never get them. Reading tools run at once and show as a step under the answer. A tool that
+  changes something at the service asks the person before every call, in Auto too, and isn't
+  offered in a read-only chat; an answer that sent one can't be asked again. What a service returns
+  reaches the model as outside data, cut to fit, with credentials masked in the step and the audit
+  log, which records each call as the person's. Migration 0095 adds `connection.chat_tools`; a
+  connection moved to a new address starts with none.
 - **Google Drive, Docs, Sheets, Slides, Gmail, Calendar, Chat and Contacts connections.** The
   connection catalog lists Google's own MCP servers. They sign in an OAuth client made in a Google
   Cloud project: enter its ID and secret on the connection, or set one for all of them as

@@ -127,7 +127,9 @@ const stepLabel = (step: ChatStepView) =>
         ? `query:${step.database?.title ?? "gone"}:${step.conditions.map((c) => `${c.property} ${c.op} ${c.value ?? ""}`.trim()).join(",")}:${step.results}`
         : step.kind === "write"
           ? `write:${step.action}:${step.outcome}:${step.page?.title ?? step.title ?? step.target?.title ?? "?"}`
-          : `thought:${step.text}`;
+          : step.kind === "connection"
+            ? `connection:${step.connection}:${step.tool}:${step.outcome}`
+            : `thought:${step.text}`;
 
 /** Runs a question to the end; returns its events and what they add up to. */
 async function ask(userId: string, input: ChatInput, options: { signal?: AbortSignal; onEvent?: (e: ChatEvent) => void | Promise<void> } = {}) {

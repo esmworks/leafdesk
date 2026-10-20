@@ -1528,7 +1528,7 @@
   },
   "connections": {
     "heading": "Connections",
-    "description": "Services your agents use: Slack, GitHub, a CRM, another Leafdesk… anything with a remote MCP server. Only owners see and manage them; which tools each agent may use is set on the agent. (Programs that use Leafdesk: the ones reaching this workspace are under Security, the ones you connected yourself under My account › Connected apps.)",
+    "description": "Services your agents use: Slack, GitHub, a CRM, another Leafdesk… anything with a remote MCP server. Only owners see and manage them; which tools each agent may use is set on the agent. Which tools the AI chat may use is set on each connection, under Tools. (Programs that use Leafdesk: the ones reaching this workspace are under Security, the ones you connected yourself under My account › Connected apps.)",
     "tabs": {
       "browse": "Browse",
       "connected": "Connected",
@@ -1670,7 +1670,11 @@
       "overridden": "Classed by an owner, not as the server marked it",
       "kindLabel": "What “{tool}” does",
       "reads": "Only reads",
-      "writes": "Changes things, asks first"
+      "writes": "Changes things, asks first",
+      "chat": "In chat",
+      "chatLabel": "Let the AI chat use “{tool}”",
+      "chatAll": "Use all of them in the chat",
+      "chatDescription": "Tick “In chat” to let the workspace's AI chat use a tool. The chat calls it with this connection's account for any member who asks (not guests); a tool that changes things asks that person first, every time."
     },
     "events": {
       "address": "Event address",
@@ -1709,7 +1713,7 @@
       "promptPlaceholder": "What the agent should do with the event",
       "addTrigger": "Add trigger"
     },
-    "reconnectNote": "Changing the address or the sign-in signs the connection out; it is tried again when you save. A new address also needs the token again, lists its tools afresh and takes this connection's tools away from agents until you give them again.",
+    "reconnectNote": "Changing the address or the sign-in signs the connection out; it is tried again when you save. A new address also needs the token again, lists its tools afresh and takes this connection's tools away from agents until you give them again. The chat loses them too.",
     "deleteTitle": "Remove connection",
     "deleteBody": "Its credentials, the tools agents had on it, its triggers and its events go with it. Calls waiting for approval fail without sending anything.",
     "deleteConfirm": "Remove it",
