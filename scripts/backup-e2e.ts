@@ -2,7 +2,8 @@
  * End-to-end check of workspace backups (server/backup): a workspace with members, a teamspace, a
  * group, pages with mentions and comments in their documents, a history version, a database with
  * person, files and relation values, a view, an uploaded file, a published page, a favorite, a
- * page permission, an agent and "SSO only" (through the server's own provider) is backed up, and
+ * page permission, an agent with a note in its memory and "SSO only" (through the server's own
+ * provider) is backed up, without Alice's AI chat and the note the chat kept about her, and
  *
  * - restored on another Leafdesk (a second database and upload folder, in a child process of this
  *   script) through the restore route, by someone with the owner's address but another id there,
@@ -13,7 +14,8 @@
  * - refused when it was edited to reach outside itself, and next to itself;
  * - restored on the same server after the workspace was deleted, with every row as it was ("SSO
  *   only" too, the server's provider being there), no new users, and the files the deletion queued
- *   for removal kept; a single sign-on connection it sets up then forgets the sign-ins left on
+ *   for removal kept, from a backup made as older versions did (with Alice's chat and note, which
+ *   stay out); a single sign-on connection it sets up then forgets the sign-ins left on
  *   record under its provider id.
  *
  *   pnpm tsx scripts/backup-e2e.ts
@@ -46,7 +48,7 @@ process.env.UPLOAD_DIR = join(work, PEER ? "peer-uploads" : "uploads");
 const { eq, inArray, like, sql } = await import("drizzle-orm");
 const Y = await import("yjs");
 const { db } = await import("@/db");
-const { account, apiToken, auditEvent, file, page, pageSnapshot, session, storageDeletion, user, workspace } = await import("@/db/schema");
+const { account, aiConversation, aiMemory, apiToken, auditEvent, file, page, pageSnapshot, session, storageDeletion, user, workspace } = await import("@/db/schema");
 const { makeSignature } = await import("better-auth/crypto");
 const { encodeValue, idRewriter, rewriteDeep } = await import("@/lib/backup");
 const { COLLAB_FRAGMENT } = await import("@/lib/collab-constants");
@@ -336,6 +338,10 @@ async function main() {
     await setPagePermission(ids.owner, child.id, ids.bob, "edit");
     await setPagePermission(ids.owner, child.id, `group:${group.id}`, "comment").catch(() => {});
     await publishPage(ids.owner, doc.id);
+    // Alice's chat and what it noted about her are hers alone; the agent's note is the workspace's.
+    const [chat] = await db.insert(aiConversation).values({ userId: ids.alice, workspaceId: ws, title: "My plans", messages: [] }).returning();
+    const [aliceNote] = await db.insert(aiMemory).values({ userId: ids.alice, workspaceId: ws, text: "Alice is moving to Lisbon.", conversationId: chat.id }).returning();
+    await db.insert(aiMemory).values({ userId: agentUserId!, workspaceId: ws, text: "Tasks go in the Tasks database." });
     // Members sign in with single sign-on only, which needs a provider: the server's own.
     await withInstanceProvider(() => updateWorkspaceSettings(ids.owner, ws, { loginMethod: "sso" }));
 
@@ -356,6 +362,11 @@ async function main() {
     const fileHashes: Record<string, string> = {};
     for (const row of await db.select().from(file).where(eq(file.workspaceId, ws))) fileHashes[row.id] = sha((await storedBytes(row.storageKey))!);
     check(Object.keys(fileHashes).length === 2, "two files are backed up");
+    const backedUp = new Map<string, string>();
+    for (const entry of await zipEntries(archive)) backedUp.set(entry.name, Buffer.from(await readEntry(archive, entry, 1e9)).toString("utf8"));
+    check(![...backedUp.keys()].some((name) => name.startsWith("tables/ai_conversation/")), "people's AI chats stay out of the backup");
+    const notesBackedUp = [...backedUp].filter(([name]) => name.startsWith("tables/ai_memory/")).flatMap(([, text]) => text.split("\n").filter(Boolean).map((line) => JSON.parse(line) as Row));
+    check(notesBackedUp.length === 1 && notesBackedUp[0].user_id === agentUserId, "of the AI's notes, only the agent's are backed up", notesBackedUp);
     const [created] = await db.select().from(auditEvent).where(sql`${auditEvent.workspaceId} = ${ws} and ${auditEvent.action} = 'backup.created'`);
     check(created, "the backup is in the audit log");
 
@@ -478,7 +489,20 @@ async function main() {
       await deleteWorkspaces(tx, [ws]);
     });
     check((await db.select().from(storageDeletion).where(inArray(storageDeletion.storageKey, keys))).length === 2, "deleting it queues its files for removal");
-    const back = await withInstanceProvider(() => restoreBackup(ids.owner, archive));
+    // As older versions backed up: with Alice's chat, and her note pointing at it.
+    const older = new Map(contents);
+    const olderManifest = JSON.parse(Buffer.from(older.get("manifest.json")!).toString("utf8"));
+    const noteEntry = tableEntry("ai_memory");
+    const noteRow = Object.fromEntries(backupTables().find((t) => t.name === "ai_memory")!.columns.map((c) => [c.name, encodeValue(c.kind, aliceNote[c.key as keyof typeof aliceNote])]));
+    older.set(noteEntry, Buffer.from(Buffer.from(older.get(noteEntry)!).toString("utf8") + JSON.stringify(noteRow) + "\n"));
+    const chatRow = { id: chat.id, user_id: ids.alice, workspace_id: ws, title: chat.title, messages: [], created_at: chat.createdAt.toISOString(), updated_at: chat.updatedAt.toISOString() };
+    older.set("tables/ai_conversation/0001.jsonl", Buffer.from(JSON.stringify(chatRow) + "\n"));
+    for (const t of olderManifest.tables) if (t.name === "ai_memory") t.rows += 1;
+    olderManifest.tables.push({ name: "ai_conversation", rows: 1 });
+    older.set("manifest.json", Buffer.from(JSON.stringify(olderManifest)));
+    const olderArchive = join(work, "older.zip");
+    await writeFile(olderArchive, zipSync(Object.fromEntries([...older].map(([name, bytes]) => [name, [bytes, { level: 0 }]]))));
+    const back = await withInstanceProvider(() => restoreBackup(ids.owner, olderArchive));
     check(back.workspaceId === ws && back.withoutAccount.length === 0, "it restores where it was deleted, everyone with their account", back);
     const [restored] = await db.select({ settings: workspace.settings }).from(workspace).where(eq(workspace.id, ws));
     check(
@@ -493,6 +517,9 @@ async function main() {
     await files.drainStorageDeletions();
     for (const key of keys) check(await storedBytes(key), `the file cleanup leaves ${key.split("/")[1]} alone`);
     compareDumps(expectedAfterRestore(original, new Map(), new Set(), "sso"), await dumpWorkspace(ws), "on the same server");
+    const [{ chats }] = await db.select({ chats: sql<number>`count(*)::int` }).from(aiConversation).where(eq(aiConversation.workspaceId, ws));
+    const [{ aliceNotes }] = await db.select({ aliceNotes: sql<number>`count(*)::int` }).from(aiMemory).where(eq(aiMemory.userId, ids.alice));
+    check(chats === 0 && aliceNotes === 0, "an older backup's chats and people's notes don't come back", { chats, aliceNotes });
 
     // The restored workspace's id brings back its single sign-on provider id (`ws-<id>`), under
     // which a sign-in may still be on record from before (older versions left them when a deleted

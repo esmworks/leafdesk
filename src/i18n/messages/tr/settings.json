@@ -1947,7 +1947,7 @@
   },
   "backup": {
     "title": "Çalışma alanını yedekle",
-    "description": "Çalışma alanındaki her şeyi tek bir dosya olarak indirin; burada ya da başka bir Leafdesk'te geri yükleyebilirsiniz: geçmişleriyle sayfalar, veritabanları, yorumlar, dosyalar, ekip alanları, gruplar ve erişimler, ajanlar ve otomasyonlar.",
+    "description": "Çalışma alanındaki her şeyi tek bir dosya olarak indirin; burada ya da başka bir Leafdesk'te geri yükleyebilirsiniz: geçmişleriyle sayfalar, veritabanları, yorumlar, dosyalar, ekip alanları, gruplar ve erişimler, ajanlar ve otomasyonlar. Kişilerin yapay zeka sohbetleri ve yapay zekanın onlar hakkında hatırladıkları yedeğe girmez.",
     "button": "Yedekle",
     "preparing": "Hazırlanıyor…",
     "disabled": "Yedekleme, dışa aktarmayla birlikte Ayarlar → Güvenlik bölümünden kapatılmış."
