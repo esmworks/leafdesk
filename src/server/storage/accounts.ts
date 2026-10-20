@@ -345,14 +345,14 @@ export async function beginStorageOAuth(userId: string, kind: unknown, workspace
 }
 
 /**
- * Where `userId`'s sign-in begun with `state` came from, for sending the browser back whatever
- * became of it; null when unknown (or someone else began it).
+ * Where `userId`'s sign-in begun with `state` (anyone's, without `userId`) came from, for sending
+ * the browser back whatever became of it; null when unknown (or someone else began it).
  */
-export async function storageOAuthReturnOf(state: string, userId: string): Promise<{ workspaceId: string | null } | null> {
+export async function storageOAuthReturnOf(state: string, userId?: string): Promise<{ workspaceId: string | null } | null> {
   const [found] = await db
     .select({ workspaceId: storageOauth.workspaceId })
     .from(storageOauth)
-    .where(and(eq(storageOauth.state, state), eq(storageOauth.userId, userId)))
+    .where(and(eq(storageOauth.state, state), userId === undefined ? undefined : eq(storageOauth.userId, userId)))
     .limit(1);
   return found ?? null;
 }
