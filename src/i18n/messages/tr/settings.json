@@ -1558,6 +1558,8 @@
       "invalidClient": "Uygulamanın istemci kimliğini (ve varsa sırrını) yapıştırın.",
       "clientForNewUrl": "Yeni adres için uygulama gerekiyor: istemci kimliğini ve sırrını yeniden girin.",
       "needsClient": "Bu servis Leafdesk'in kendini kaydetmesine izin vermiyor. Orada bir uygulama oluşturup istemci kimliğini ve sırrını bağlantının ayarlarına girin.",
+      "redirectRejected": "Bu servis Leafdesk’in giriş dönüş adresini kabul etmiyor. Servisin yöneticisi {address} adresine izin vermeli ya da orada bir uygulama oluşturup istemci kimliğini ve sırrını bağlantının ayarlarına girin.",
+      "registrationRejected": "Bu servis Leafdesk’in kaydını reddetti: “{reason}”. Orada bir uygulama oluşturup istemci kimliğini ve sırrını bağlantının ayarlarına girin.",
       "invalidTrigger": "Bu çalışma alanından bir ajan seçin.",
       "unknownTool": "Bağlantıda “{tool}” diye bir araç yok.",
       "oauthFailed": "Giriş yapılamadı. Yeniden deneyin.",

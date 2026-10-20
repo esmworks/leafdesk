@@ -1558,6 +1558,8 @@
       "invalidClient": "Collez l’identifiant client de l’application (et son secret, s’il y en a un).",
       "clientForNewUrl": "Une nouvelle adresse demande son application : saisissez à nouveau l’identifiant et le secret client.",
       "needsClient": "Ce service ne permet pas à Leafdesk de s’enregistrer. Créez-y une application et saisissez son identifiant et son secret client dans les réglages de la connexion.",
+      "redirectRejected": "Ce service n’accepte pas l’adresse de retour de Leafdesk. Son administrateur doit autoriser {address}, ou créez-y une application et saisissez son identifiant et son secret client dans les réglages de la connexion.",
+      "registrationRejected": "Ce service a refusé l’enregistrement de Leafdesk : « {reason} ». Créez-y une application et saisissez son identifiant et son secret client dans les réglages de la connexion.",
       "invalidTrigger": "Choisissez un agent de cet espace.",
       "unknownTool": "La connexion n’a pas d’outil « {tool} ».",
       "oauthFailed": "La connexion a échoué. Réessayez.",

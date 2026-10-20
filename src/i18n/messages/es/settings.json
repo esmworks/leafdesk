@@ -1558,6 +1558,8 @@
       "invalidClient": "Pega el ID de cliente de la aplicación (y su secreto, si tiene).",
       "clientForNewUrl": "Una dirección nueva necesita su aplicación: vuelve a introducir el ID y el secreto de cliente.",
       "needsClient": "Este servicio no permite que Leafdesk se registre. Crea allí una aplicación e introduce su ID y secreto de cliente en los ajustes de la conexión.",
+      "redirectRejected": "Este servicio no acepta la dirección de retorno de Leafdesk. Su administrador debe permitir {address}, o crea allí una aplicación e introduce su ID y secreto de cliente en los ajustes de la conexión.",
+      "registrationRejected": "Este servicio rechazó el registro de Leafdesk: «{reason}». Crea allí una aplicación e introduce su ID y secreto de cliente en los ajustes de la conexión.",
       "invalidTrigger": "Elige un agente de este espacio de trabajo.",
       "unknownTool": "La conexión no tiene la herramienta «{tool}».",
       "oauthFailed": "No se pudo iniciar sesión. Inténtalo de nuevo.",

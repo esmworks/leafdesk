@@ -1558,6 +1558,8 @@
       "invalidClient": "Paste the app’s client ID (and its secret, if it has one).",
       "clientForNewUrl": "A new address needs its app: enter the client ID and secret again.",
       "needsClient": "This service doesn’t let Leafdesk register itself. Create an app there and enter its client ID and secret in the connection’s settings.",
+      "redirectRejected": "This service doesn’t accept Leafdesk’s sign-in return address. Its admin needs to allow {address}, or create an app there and enter its client ID and secret in the connection’s settings.",
+      "registrationRejected": "This service turned down Leafdesk’s registration: “{reason}”. Create an app there and enter its client ID and secret in the connection’s settings.",
       "invalidTrigger": "Pick an agent of this workspace.",
       "unknownTool": "The connection has no tool “{tool}”.",
       "oauthFailed": "Signing in didn’t work. Try again.",

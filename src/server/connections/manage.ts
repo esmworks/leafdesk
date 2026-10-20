@@ -5,6 +5,7 @@
  * whether a connection has them.
  */
 import { randomBytes } from "node:crypto";
+import { RegistrationRejectedError } from "@modelcontextprotocol/client";
 import { and, count, desc, eq, lte } from "drizzle-orm";
 import { db } from "@/db";
 import { agentGrant, connection, connectionEvent, connectionOauth, connectionTrigger, workspaceAgent } from "@/db/schema";
@@ -38,6 +39,7 @@ import {
   dropClient,
   finishOAuth,
   listConnectionTools,
+  oauthRedirectUrl,
   ownClientOf,
   secretsOf,
   startOAuth,
@@ -345,6 +347,8 @@ export async function beginConnectionOAuth(userId: string, connectionId: string)
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     await db.update(connection).set({ status: "error", statusError: redactText(`oauth: ${message}`).slice(0, 300) }).where(eq(connection.id, row.id));
+    // The service takes registrations but turned Leafdesk's down: say why, in its words.
+    if (error instanceof RegistrationRejectedError && !ownClientOf(row)) throw registrationRejected(error);
     // The service signs in only apps registered with it, and none is set.
     if (/dynamic client registration/i.test(message) && !ownClientOf(row)) throw new ConnectionError("needsClient", message);
     throw new ConnectionError("oauthFailed", message);
@@ -355,6 +359,24 @@ export async function beginConnectionOAuth(userId: string, connectionId: string)
   }
   await db.insert(connectionOauth).values({ state: started.state, connectionId, userId, data: sealJson({ verifier: started.verifier }) });
   return { url: started.url.href };
+}
+
+/**
+ * A service's refusal of Leafdesk's registration (RFC 7591): one that won't send sign-ins back to
+ * Leafdesk's address names that address, for the service's admin to allow; any other gives the
+ * service's reason.
+ */
+function registrationRejected(error: RegistrationRejectedError): ConnectionError {
+  let body: { error?: unknown; error_description?: unknown } = {};
+  try {
+    const parsed: unknown = JSON.parse(error.body);
+    if (parsed && typeof parsed === "object") body = parsed;
+  } catch {
+    // Not the JSON error the RFC asks for: only the status is known.
+  }
+  if (body.error === "invalid_redirect_uri") return new ConnectionError("redirectRejected", error.message, { address: oauthRedirectUrl() });
+  const reason = [body.error_description, body.error].find((value): value is string => typeof value === "string" && value.trim() !== "");
+  return new ConnectionError("registrationRejected", error.message, { reason: (reason ?? `HTTP ${error.status}`).trim().slice(0, 200) });
 }
 
 /** Where a sign-in begun with `state` should send the browser back to, whatever became of it. */

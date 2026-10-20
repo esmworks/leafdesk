@@ -70,6 +70,10 @@
 
 ### Fixed
 
+- **A service that turns down Leafdesk's sign-in says why.** When a connection's server took
+  registrations but refused Leafdesk's, the settings said the service doesn't let Leafdesk register
+  itself. Now a server that won't send sign-ins back to Leafdesk names the address its admin has to
+  allow, and any other refusal shows the server's own reason.
 - **Workspace backups leave out people's AI chats and what the AI remembers about them.** Both are
   private to each person, but a backup held everyone's, so an owner who opened the file could read
   them. Agents' memory is still backed up. Restoring an older backup passes over the chats and
