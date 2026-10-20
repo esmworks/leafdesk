@@ -826,7 +826,8 @@
     "revoking": "회수 중…",
     "disconnect": "{name} 연결 해제",
     "revokeError": "액세스 권한을 회수할 수 없습니다. 다시 시도하세요.",
-    "listHeading": "액세스 권한을 준 앱"
+    "listHeading": "액세스 권한을 준 앱",
+    "permissions": "{count, plural, other {권한 #개}}"
   },
   "mcp": {
     "heading": "AI 어시스턴트 연결",

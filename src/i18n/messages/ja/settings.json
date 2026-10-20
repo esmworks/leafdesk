@@ -826,7 +826,8 @@
     "revoking": "取り消し中…",
     "disconnect": "{name}の接続を解除",
     "revokeError": "アクセスを取り消せませんでした。もう一度お試しください。",
-    "listHeading": "アクセスを許可したアプリ"
+    "listHeading": "アクセスを許可したアプリ",
+    "permissions": "{count, plural, other {# 件の権限}}"
   },
   "mcp": {
     "heading": "AIアシスタントを接続",

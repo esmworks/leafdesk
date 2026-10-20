@@ -826,7 +826,8 @@
     "revoking": "בביטול…",
     "disconnect": "ניתוק {name}",
     "revokeError": "לא ניתן היה לבטל את הגישה. יש לנסות שוב.",
-    "listHeading": "אפליקציות שנתת להן גישה"
+    "listHeading": "אפליקציות שנתת להן גישה",
+    "permissions": "{count, plural, one {הרשאה אחת} two {שתי הרשאות} other {# הרשאות}}"
   },
   "mcp": {
     "heading": "חיבור עוזר AI",
