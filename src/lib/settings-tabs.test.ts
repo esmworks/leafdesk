@@ -12,9 +12,9 @@ describe("settings tabs", () => {
     for (const tab of ACCOUNT_SETTINGS_TABS) expect(SETTINGS_TABS as readonly string[]).not.toContain(tab);
   });
 
-  it("gives email to owners only: members connect their mailbox under their account", () => {
-    expect(visibleSettingsTabs({ guest: false, managesGuests: false, owner: true })).toContain("email");
-    expect(visibleSettingsTabs({ guest: false, managesGuests: false, owner: false })).not.toContain("email");
+  it("keeps email on rows under General: the mailbox is the person's own, under their account", () => {
+    expect(SETTINGS_TABS as readonly string[]).not.toContain("email");
+    expect(visibleSettingsTabs({ guest: false, managesGuests: false, owner: true })).toContain("general");
     expect(ACCOUNT_SETTINGS_TABS).toContain("mail");
   });
 });

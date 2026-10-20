@@ -12,7 +12,6 @@
     "groups": "Grupos",
     "agents": "Agentes",
     "connections": "Conexiones",
-    "email": "Correo",
     "storage": "Almacenamiento",
     "analytics": "Analíticas",
     "aiUsage": "Uso de IA",
@@ -1732,6 +1731,7 @@
     }
   },
   "email": {
+    "heading": "Correo",
     "description": "El correo con las personas de tus bases de datos llega a sus filas: quien puede ver una fila lee allí sus correos y los responde desde su propio buzón.",
     "enabled": "Correo en las filas",
     "enabledHint": "Los miembros conectan su propio buzón en Mi cuenta › Correo y calendario. Solo se leen completos los correos cuyo interlocutor es la dirección de correo de una fila; el resto se queda en el buzón.",

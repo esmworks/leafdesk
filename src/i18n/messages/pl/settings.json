@@ -12,7 +12,6 @@
     "groups": "Grupy",
     "agents": "Agenci",
     "connections": "Połączenia",
-    "email": "E-mail",
     "storage": "Magazyn",
     "analytics": "Analityka",
     "aiUsage": "Użycie AI",
@@ -1732,6 +1731,7 @@
     }
   },
   "email": {
+    "heading": "E-mail",
     "description": "Korespondencja z osobami z twoich baz danych trafia do ich wierszy: każdy, kto widzi wiersz, czyta tam jego e-maile i odpowiada na nie z własnej skrzynki pocztowej.",
     "enabled": "E-maile w wierszach",
     "enabledHint": "Członkowie podłączają własne skrzynki pocztowe w sekcji Moje konto › E-mail i kalendarz. W całości czytane są tylko e-maile, których drugą stroną jest adres e-mail z wiersza; reszta zostaje w skrzynce.",

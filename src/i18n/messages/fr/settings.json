@@ -12,7 +12,6 @@
     "groups": "Groupes",
     "agents": "Agents",
     "connections": "Connexions",
-    "email": "E-mail",
     "storage": "Stockage",
     "analytics": "Statistiques",
     "aiUsage": "Utilisation de l'IA",
@@ -1732,6 +1731,7 @@
     }
   },
   "email": {
+    "heading": "E-mail",
     "description": "Les e-mails échangés avec les personnes de vos bases de données arrivent sur leurs lignes : tous ceux qui peuvent voir une ligne y lisent ses e-mails et y répondent depuis leur propre boîte mail.",
     "enabled": "E-mails sur les lignes",
     "enabledHint": "Les membres connectent leur propre boîte mail dans Mon compte › E-mail et calendrier. Seuls les e-mails dont l’interlocuteur est l’adresse e-mail d’une ligne sont lus en entier ; le reste demeure dans la boîte mail.",

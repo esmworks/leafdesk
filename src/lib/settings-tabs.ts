@@ -8,7 +8,6 @@ export const SETTINGS_TABS = [
   "agents",
   "snippets",
   "connections",
-  "email",
   "storage",
   "analytics",
   "aiUsage",
@@ -28,12 +27,12 @@ export const isSettingsTab = (value: unknown): value is SettingsTab =>
  */
 export const SETTINGS_TAB_GROUPS = [
   { label: "workspace", tabs: ["general", "members", "guests", "teamspaces", "groups"] },
-  { label: "features", tabs: ["agents", "snippets", "connections", "email", "site"] },
+  { label: "features", tabs: ["agents", "snippets", "connections", "site"] },
   { label: "admin", tabs: ["security", "storage", "analytics", "aiUsage", "health", "audit"] },
 ] as const satisfies readonly { label: string; tabs: readonly SettingsTab[] }[];
 
 /** Tabs only the workspace's owners get. */
-const OWNER_TABS: readonly SettingsTab[] = ["connections", "email", "storage", "analytics", "aiUsage", "audit"];
+const OWNER_TABS: readonly SettingsTab[] = ["connections", "storage", "analytics", "aiUsage", "audit"];
 
 /**
  * The tabs someone gets. Guests don't see the workspace's members or policies: only its name, and
@@ -41,8 +40,8 @@ const OWNER_TABS: readonly SettingsTab[] = ["connections", "email", "storage", "
  * owners, and members when Settings > Security lets them). Analytics, which counts what each
  * person did, the audit log, which says who changed what, and connections to outside services
  * (their credentials are the workspace's), where the workspace's files are stored and what its AI
- * costs are for owners. So is email, where owners choose where mail lands (each member connects
- * their own mailbox under their account, Account > Email and calendar). Agents are listed to
+ * costs are for owners. Email on rows has no tab: it is under General, and each member connects
+ * their own mailbox under their account (Account > Email and calendar). Agents are listed to
  * members too (they pick them in automations); only owners change them. The health check covers
  * the pages each person can open, so owners and members get it alike.
  */

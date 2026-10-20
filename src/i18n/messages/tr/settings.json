@@ -12,7 +12,6 @@
     "groups": "Gruplar",
     "agents": "Ajanlar",
     "connections": "Bağlantılar",
-    "email": "E-posta",
     "storage": "Depolama",
     "analytics": "Analitik",
     "aiUsage": "Yapay zekâ kullanımı",
@@ -1732,6 +1731,7 @@
     }
   },
   "email": {
+    "heading": "E-posta",
     "description": "Veritabanlarınızdaki kişilerle yazışmalar onların satırlarına düşer: bir satırı görebilen herkes e-postalarını orada okur ve kendi posta kutusundan yanıtlar.",
     "enabled": "Satırlarda e-posta",
     "enabledHint": "Üyeler kendi posta kutularını Hesabım › E-posta ve takvim'den bağlar. Yalnızca karşı tarafı bir satırın e-posta adresi olan mesajlar bütünüyle okunur; gerisi posta kutusunda kalır.",

@@ -12,7 +12,6 @@
     "groups": "Grupos",
     "agents": "Agentes",
     "connections": "Conexões",
-    "email": "E-mail",
     "storage": "Armazenamento",
     "analytics": "Análises",
     "aiUsage": "Uso de IA",
@@ -1732,6 +1731,7 @@
     }
   },
   "email": {
+    "heading": "E-mail",
     "description": "Os e-mails com as pessoas dos seus bancos de dados chegam às linhas delas: quem pode ver uma linha lê os e-mails dela ali e responde da própria caixa de e-mail.",
     "enabled": "E-mail nas linhas",
     "enabledHint": "Os membros conectam a própria caixa de e-mail em Minha conta › E-mail e calendário. Só são lidos por inteiro os e-mails cujo interlocutor é o endereço de e-mail de uma linha; o resto fica na caixa de e-mail.",

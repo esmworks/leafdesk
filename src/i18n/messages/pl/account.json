@@ -172,7 +172,7 @@
     "mailboxOff": "E-mail w wierszach jest wyłączony w tym obszarze roboczym, więc ta skrzynka nie jest czytana. Odłącz ją, aby usunąć jej hasło.",
     "notConnected": "Brak podłączonej skrzynki pocztowej",
     "connect": "Podłącz",
-    "noMailboxes": "Żaden z twoich obszarów roboczych nie ma włączonego e-maila w wierszach. Jego właściciele włączają go w sekcji Ustawienia › E-mail.",
+    "noMailboxes": "Żaden z twoich obszarów roboczych nie ma włączonego e-maila w wierszach. Jego właściciele włączają go w sekcji Ustawienia › Ogólne.",
     "calendarsHeading": "Adresy kalendarzy",
     "calendarsDescription": "Adresy utworzone przez ciebie dla aplikacji kalendarza, z widoku kalendarza lub z przypisanych ci wierszy. Każdy, kto zna adres, widzi to, co pokazuje — wyłącz te, których już nie używasz.",
     "calendarsEmpty": "Nie ma jeszcze adresów kalendarzy. Utwórz adres z widoku kalendarza lub z sekcji Przypisane do ciebie na stronie głównej.",

@@ -172,7 +172,7 @@
     "mailboxOff": "Email on rows is off in this workspace, so this mailbox isn't read. Disconnect it to remove its password.",
     "notConnected": "No mailbox connected",
     "connect": "Connect",
-    "noMailboxes": "None of your workspaces has email on rows turned on. Its owners turn it on under Settings › Email.",
+    "noMailboxes": "None of your workspaces has email on rows turned on. Its owners turn it on under Settings › General.",
     "calendarsHeading": "Calendar addresses",
     "calendarsDescription": "Addresses you made for calendar apps, from a calendar view or from the rows assigned to you. Anyone with an address sees what it shows, so turn off the ones you no longer use.",
     "calendarsEmpty": "No calendar addresses yet. Make one from a calendar view, or from Assigned to you on the home page.",

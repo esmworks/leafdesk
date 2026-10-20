@@ -12,7 +12,6 @@
     "groups": "Gruppen",
     "agents": "Agenten",
     "connections": "Verbindungen",
-    "email": "E-Mail",
     "storage": "Speicher",
     "analytics": "Analysen",
     "aiUsage": "KI-Nutzung",
@@ -1732,6 +1731,7 @@
     }
   },
   "email": {
+    "heading": "E-Mail",
     "description": "E-Mails mit den Personen in deinen Datenbanken landen in deren Zeilen: Wer eine Zeile sehen kann, liest ihre E-Mails dort und beantwortet sie aus dem eigenen Postfach.",
     "enabled": "E-Mails in Zeilen",
     "enabledHint": "Mitglieder verbinden ihr eigenes Postfach unter Mein Konto › E-Mail und Kalender. Vollständig gelesen werden nur E-Mails, deren Gegenüber die E-Mail-Adresse einer Zeile ist; alles andere bleibt im Postfach.",
