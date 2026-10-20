@@ -3,7 +3,8 @@
  * service, without credentials, the way Leafdesk meets it when someone adds the connection:
  *
  *   - `none`: an `initialize` request is answered with a serverInfo.
- *   - `oauth`: it is answered with 401; the protected-resource metadata (named by the
+ *   - `oauth`: it is answered with 401 (or answered, by a server that asks for a sign-in only on a
+ *     tool call, when it has protected-resource metadata for its address); the metadata (named by the
  *     WWW-Authenticate header, else under /.well-known/oauth-protected-resource for the path, then
  *     the origin) names a `resource` that is the entry's address or a parent of it; and the first
  *     authorization server's metadata (oauth-authorization-server or openid-configuration, for its
@@ -172,7 +173,14 @@ async function check(entry: CatalogEntry) {
     if (res.status !== 401 && res.status !== 403) return fail(`expected 401 or 403 without a token, got ${res.status}`);
     return;
   }
-  if (res.status !== 401) return fail(`expected 401 without a sign-in, got ${res.status}`);
+  if (res.ok) {
+    // Some servers (Google's) start and list their tools for anyone and ask for a sign-in only on
+    // a call; Leafdesk signs in before using them all the same, finding the metadata at its address.
+    const named = await firstJson(resourceMetadataUrls(entryUrl, null), signal, (body) => typeof body.resource === "string");
+    if (!named) return fail(`initialize answered ${res.status} without a sign-in, and no resource metadata names the address`);
+  } else if (res.status !== 401) {
+    return fail(`expected 401 without a sign-in, got ${res.status}`);
+  }
   await checkOAuth(entry, entryUrl, res.headers.get("www-authenticate"), signal);
 }
 

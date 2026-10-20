@@ -18,7 +18,7 @@ import {
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { connection } from "@/db/schema";
-import { catalogEntryFor } from "@/lib/connection-catalog";
+import { catalogEntryFor, instanceClientKey } from "@/lib/connection-catalog";
 import { CONNECTION_CALL_TIMEOUT_MS, MAX_CONNECTION_TOOLS, type ConnectionTool, type ToolKind } from "@/lib/connections";
 import { env } from "@/lib/env";
 import { openJson, sealJson } from "../secret-box";
@@ -63,6 +63,8 @@ const IDLE_MS = 5 * 60_000;
 const MAX_CLIENTS = 100;
 const CONNECT_TIMEOUT_MS = 15_000;
 
+const GOOGLE_ACCOUNTS = "https://accounts.google.com";
+
 export const oauthRedirectUrl = () => `${env.appUrl}/api/connections/oauth/callback`;
 
 /** Where Leafdesk's client metadata document is served: its client ID at services that take one (CIMD). */
@@ -95,7 +97,7 @@ export function ownClientOf(row: Pick<ConnectionRow, "url" | "secrets" | "authTy
   const own = secretsOf(row).ownClient;
   if (own) return { client: own, fromInstance: false };
   const entry = catalogEntryFor(row.url);
-  const instance = entry ? env.connectionOAuthClients[entry.id] : undefined;
+  const instance = entry ? env.connectionOAuthClients[instanceClientKey(entry)] : undefined;
   return instance ? { client: instance, fromInstance: true } : null;
 }
 
@@ -185,6 +187,12 @@ export class ConnectionOAuthProvider implements OAuthClientProvider {
   }
 
   redirectToAuthorization(url: URL) {
+    // Google gives a refresh token only when asked for one, and again only with a fresh consent;
+    // without it a sign-in lasts an hour.
+    if (url.origin === GOOGLE_ACCOUNTS) {
+      url.searchParams.set("access_type", "offline");
+      url.searchParams.set("prompt", "consent");
+    }
     this.authorizationUrl = url;
   }
 
@@ -217,10 +225,15 @@ export class ConnectionOAuthProvider implements OAuthClientProvider {
   }
 }
 
-/** Begins an OAuth sign-in to a connection's service: the address to send the browser to, or null when already signed in. */
+/**
+ * Begins an OAuth sign-in to a connection's service: the address to send the browser to, or null
+ * when already signed in. It asks for the scopes the catalog names for the service, else for all
+ * the service lists.
+ */
 export async function startOAuth(row: ConnectionRow) {
   const provider = new ConnectionOAuthProvider(row.id, secretsOf(row), null, ownClientOf(row)?.client);
-  const result = await serialized(row.id, () => auth(provider, { serverUrl: row.url, fetchFn: connectionFetch }));
+  const scope = catalogEntryFor(row.url)?.scope;
+  const result = await serialized(row.id, () => auth(provider, { serverUrl: row.url, scope, fetchFn: connectionFetch }));
   if (result === "AUTHORIZED") return null;
   if (!provider.authorizationUrl || !provider.startedState || !provider.codeVerifierValue) {
     throw new ConnectionClientError("unauthorized", "The service didn't start a sign-in");

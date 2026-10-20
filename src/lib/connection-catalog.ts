@@ -43,12 +43,28 @@ export type CatalogEntry = {
   tokenHelp?: string;
   /**
    * For an OAuth service that signs in only apps registered with it: where an owner registers one
-   * (with Leafdesk's redirect URL), and whether the app may have no secret.
+   * (with Leafdesk's redirect URL), whether the app may have no secret, and, for services that all
+   * sign in the same app, the name the instance's app goes under in CONNECTION_OAUTH_CLIENTS.
    */
-  client?: { help: string; secretOptional?: boolean };
+  client?: { help: string; secretOptional?: boolean; shared?: string };
+  /** The scopes a sign-in asks for, when not all the service lists (its tools need less). */
+  scope?: string;
 };
 
-type Row = [name: string, url: string, authType: ConnectionAuthType, extra?: Pick<CatalogEntry, "eventPreset" | "tokenHelp" | "client">];
+type Row = [name: string, url: string, authType: ConnectionAuthType, extra?: Pick<CatalogEntry, "eventPreset" | "tokenHelp" | "client" | "scope">];
+
+/**
+ * Google's MCP servers sign in an app registered in a Google Cloud project, one for all of them.
+ * Each asks only for the scopes its tools use: Drive files are read, and written only when made
+ * through it.
+ */
+function google(...scopes: string[]): NonNullable<Row[3]> {
+  return {
+    client: { help: "https://developers.google.com/workspace/guides/configure-mcp-servers", shared: "google" },
+    scope: scopes.map((scope) => `https://www.googleapis.com/auth/${scope}`).join(" "),
+  };
+}
+const DRIVE_SCOPES = ["drive.readonly", "drive.file"];
 
 const ROWS: Record<CatalogCategory, Row[]> = {
   projects: [
@@ -73,6 +89,10 @@ const ROWS: Record<CatalogCategory, Row[]> = {
     ["Egnyte", "https://mcp-server.egnyte.com/mcp", "oauth"],
     ["Evernote", "https://mcp.evernote.com/mcp", "oauth"],
     ["GitBook", "https://mcp.gitbook.com/mcp", "oauth"],
+    ["Google Docs", "https://docsmcp.googleapis.com/mcp/v1", "oauth", google(...DRIVE_SCOPES, "documents")],
+    ["Google Drive", "https://drivemcp.googleapis.com/mcp/v1", "oauth", google(...DRIVE_SCOPES)],
+    ["Google Sheets", "https://sheetsmcp.googleapis.com/mcp/v1", "oauth", google(...DRIVE_SCOPES, "spreadsheets")],
+    ["Google Slides", "https://slidesmcp.googleapis.com/mcp/v1", "oauth", google(...DRIVE_SCOPES, "presentations")],
     ["Guru", "https://mcp.api.getguru.com/mcp", "oauth"],
     ["Microsoft Learn", "https://learn.microsoft.com/api/mcp", "none"],
     ["Mintlify", "https://mcp.mintlify.com/mcp", "oauth"],
@@ -155,6 +175,7 @@ const ROWS: Record<CatalogCategory, Row[]> = {
     ["Attio", "https://mcp.attio.com/mcp", "oauth"],
     ["Close", "https://mcp.close.com/mcp", "oauth"],
     ["Gong", "https://mcp.gong.io/mcp", "oauth"],
+    ["Google Contacts", "https://people.googleapis.com/mcp/v1", "oauth", google("contacts.readonly", "directory.readonly", "userinfo.profile")],
     [
       "HubSpot",
       "https://mcp.hubspot.com/",
@@ -168,6 +189,14 @@ const ROWS: Record<CatalogCategory, Row[]> = {
   ],
   messaging: [
     ["Discord", "https://mcp.discord.com/mcp", "oauth", { client: { help: "https://discord.com/developers/applications", secretOptional: true } }],
+    // Its tools label, trash and draft mail: gmail.modify, which can't delete mail for good.
+    ["Gmail", "https://gmailmcp.googleapis.com/mcp/v1", "oauth", google("gmail.modify")],
+    [
+      "Google Chat",
+      "https://chatmcp.googleapis.com/mcp/v1",
+      "oauth",
+      google("chat.spaces.readonly", "chat.memberships.readonly", "chat.messages.readonly", "chat.messages.create", "chat.users.readstate"),
+    ],
     ["Slack", "https://mcp.slack.com/mcp", "oauth", { eventPreset: "slack", client: { help: "https://api.slack.com/apps" } }],
   ],
   support: [
@@ -208,6 +237,7 @@ const ROWS: Record<CatalogCategory, Row[]> = {
     ["Dialpad", "https://mcp.dialpad.com/mcp", "oauth"],
     ["Fathom", "https://api.fathom.ai/mcp", "oauth"],
     ["Fireflies", "https://api.fireflies.ai/mcp", "oauth"],
+    ["Google Calendar", "https://calendarmcp.googleapis.com/mcp/v1", "oauth", google("calendar.calendarlist.readonly", "calendar.events", "calendar.events.freebusy")],
     ["Granola", "https://mcp.granola.ai/mcp", "oauth"],
     ["Krisp", "https://mcp.krisp.ai/mcp", "oauth"],
     ["Otter.ai", "https://mcp.otter.ai/mcp", "oauth"],
@@ -264,6 +294,11 @@ function addressKey(url: string) {
 }
 
 const byAddress = new Map(CONNECTION_CATALOG.map((entry) => [addressKey(entry.url), entry]));
+
+/** The name the instance's app for an entry goes under in CONNECTION_OAUTH_CLIENTS. */
+export function instanceClientKey(entry: CatalogEntry): string {
+  return entry.client?.shared ?? entry.id;
+}
 
 /** The catalog entry a connection's address belongs to, if any. */
 export function catalogEntryFor(url: string): CatalogEntry | undefined {
