@@ -783,7 +783,7 @@
         "mediaSize": "Rozmiary obrazów i filmów",
         "callout": "Kolory i ikony wyróżnień, których Markdown nie wyraża",
         "textStyle": "Część formatowania tekstu, np. podkreślenie",
-        "table": "Szerokości kolumn, wiersze nagłówka i kolory komórek tabel",
+        "table": "Szerokości kolumn, wiersze nagłówka, scalone komórki i kolory komórek tabel",
         "blockSetting": "Inne ustawienia bloków",
         "content": "Część treści, której Markdown nie pomieści"
       },

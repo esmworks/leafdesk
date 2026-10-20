@@ -55,6 +55,17 @@ describe("markdownLosses", () => {
     expect(markdownLosses([table([null], "default", "A")], [table([null], "default", "B")])).toEqual(["content"]);
   });
 
+  it("names merged cells as table layout when their text comes back in place", () => {
+    const cell = (text: string, colspan = 1, rowspan = 1) => ({ type: "tableCell", props: { colspan, rowspan }, content: text ? [{ type: "text", text, styles: {} }] : [] });
+    const table = (rows: ReturnType<typeof cell>[][]) => ({ type: "table", props: {}, content: { type: "tableContent", rows: rows.map((cells) => ({ cells })) }, children: [] });
+    const merged = table([[cell("Wide", 2), cell("C")], [cell("Tall", 1, 2), cell("b1"), cell("c1")], [cell("b2"), cell("c2")]]);
+    const flat = table([[cell("Wide"), cell(""), cell("C")], [cell("Tall"), cell("b1"), cell("c1")], [cell(""), cell("b2"), cell("c2")]]);
+    expect(markdownLosses([merged], [flat])).toEqual(["table"]);
+    // Text that would land where a merged cell was is content all the same.
+    const moved = table([[cell("Wide"), cell("x"), cell("C")], [cell("Tall"), cell("b1"), cell("c1")], [cell(""), cell("b2"), cell("c2")]]);
+    expect(markdownLosses([merged], [moved])).toEqual(["table", "content"]);
+  });
+
   it("counts a missing block as lost content without blaming the blocks around it", () => {
     const before = [paragraph("One"), { type: "audio", props: {}, children: [] }, paragraph("Three", { textColor: "default" })];
     const after = [paragraph("One"), paragraph("Three")];

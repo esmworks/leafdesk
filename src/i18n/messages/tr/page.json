@@ -783,7 +783,7 @@
         "mediaSize": "Görsel ve video boyutları",
         "callout": "Markdown'da karşılığı olmayan bilgi kutusu renkleri ve simgeleri",
         "textStyle": "Altı çizili gibi bazı metin biçimleri",
-        "table": "Tablo sütun genişlikleri, başlık satırları ve hücre renkleri",
+        "table": "Tablo sütun genişlikleri, başlık satırları, birleştirilmiş hücreler ve hücre renkleri",
         "blockSetting": "Diğer blok ayarları",
         "content": "Markdown'ın tutamadığı bazı içerikler"
       },

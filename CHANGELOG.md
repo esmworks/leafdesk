@@ -4,6 +4,11 @@
 
 ### Added
 
+- **Merge table cells.** Select cells of a table on a page and merge them into one from the
+  formatting toolbar, across columns, rows or both; the cell's menu splits a merged cell again.
+  Merged cells show on published pages, Markdown export writes the table as a full grid with the
+  places a merged cell covered left empty, and turning the table into a database does the same.
+  Saving a page from its Markdown source names merged cells among what Markdown can't keep.
 - **What AI costs, per workspace.** Every AI request (chat, writing assistant, AI properties,
   agents, voice notes, semantic search) adds its tokens and cost in US dollars to its workspace's
   month, by feature and model, whichever account paid. Owners see this month and the last twelve in
@@ -58,6 +63,10 @@
 
 ### Fixed
 
+- **A line break in a table cell no longer scrambles the table in Markdown.** It is written `<br>`,
+  so the row stays on one line. It used to end the row, so reading the Markdown back (the Markdown
+  source view, imports of an export, AI tools editing the page) made an extra row and moved the
+  text after the break into the wrong cells.
 - OpenCode Go requests for models the catalog doesn't know go to its current endpoint
   (`opencode.ai/inference/go`), and its Gemini model works.
 - **Search treats the Turkish dotted and dotless i alike.** A page saying "IŞIK", "SICAKLIK" or

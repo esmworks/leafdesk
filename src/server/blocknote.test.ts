@@ -287,3 +287,52 @@ describe("synced blocks in page bodies", () => {
     expect(JSON.stringify(segments)).toContain("Visible");
   });
 });
+
+describe("tables in Markdown", () => {
+  const cell = (text: string, colspan = 1, rowspan = 1) => ({
+    type: "tableCell",
+    content: [{ type: "text", text, styles: {} }],
+    props: { colspan, rowspan, backgroundColor: "default", textColor: "default", textAlignment: "left" },
+  });
+  const texts = (block: PageBlock) =>
+    (block.content as unknown as { rows: { cells: { content: { text: string }[] }[] }[] }).rows.map((row) =>
+      row.cells.map((c) => c.content.map((node) => node.text).join("")),
+    );
+
+  it("write merged cells out as a full grid, with the places they covered empty", async () => {
+    const table = {
+      id: "t1",
+      type: "table",
+      props: { textColor: "default" },
+      content: {
+        type: "tableContent",
+        columnWidths: [undefined, undefined, undefined],
+        headerRows: 1,
+        rows: [{ cells: [cell("Wide", 2), cell("C")] }, { cells: [cell("Tall", 1, 2), cell("b1"), cell("c1")] }, { cells: [cell("b2"), cell("c2")] }],
+      },
+      children: [],
+    } as unknown as PageBlock;
+    const back = await markdownToBlocks(await blocksToMarkdown([table]));
+    expect(texts(back[0])).toEqual([
+      ["Wide", "", "C"],
+      ["Tall", "b1", "c1"],
+      ["", "b2", "c2"],
+    ]);
+  });
+
+  it("write a line break in a cell as <br>, keeping the row on one line", async () => {
+    const table = {
+      id: "t2",
+      type: "table",
+      props: { textColor: "default" },
+      content: { type: "tableContent", columnWidths: [undefined, undefined], headerRows: 1, rows: [{ cells: [cell("A"), cell("B")] }, { cells: [cell("Jan\nFeb"), cell("y")] }] },
+      children: [],
+    } as unknown as PageBlock;
+    const markdown = await blocksToMarkdown([table]);
+    expect(markdown).toContain("Jan<br>Feb");
+    expect(texts((await markdownToBlocks(markdown))[0])).toEqual([
+      ["A", "B"],
+      ["Jan\nFeb", "y"],
+    ]);
+  });
+});

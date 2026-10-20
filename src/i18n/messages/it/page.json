@@ -783,7 +783,7 @@
         "mediaSize": "Dimensioni di immagini e video",
         "callout": "Colori e icone dei riquadri che il Markdown non può rappresentare",
         "textStyle": "Parte della formattazione, come la sottolineatura",
-        "table": "Larghezze delle colonne, righe di intestazione e colori delle celle delle tabelle",
+        "table": "Larghezze delle colonne, righe di intestazione, celle unite e colori delle celle delle tabelle",
         "blockSetting": "Altre impostazioni dei blocchi",
         "content": "Parte del contenuto che il Markdown non può contenere"
       },

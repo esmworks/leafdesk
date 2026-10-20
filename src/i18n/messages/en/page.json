@@ -783,7 +783,7 @@
         "mediaSize": "Image and video sizes",
         "callout": "Callout colors and icons Markdown has no form for",
         "textStyle": "Some text formatting, such as underline",
-        "table": "Table column widths, header rows and cell colors",
+        "table": "Table column widths, header rows, merged cells and cell colors",
         "blockSetting": "Other block settings",
         "content": "Some content Markdown can't hold"
       },

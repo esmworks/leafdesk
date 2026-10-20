@@ -783,7 +783,7 @@
         "mediaSize": "Tailles des images et vidéos",
         "callout": "Couleurs et icônes d’encadrés sans équivalent en Markdown",
         "textStyle": "Une partie de la mise en forme, comme le soulignement",
-        "table": "Largeurs de colonnes, lignes d’en-tête et couleurs de cellules des tableaux",
+        "table": "Largeurs de colonnes, lignes d’en-tête, cellules fusionnées et couleurs de cellules des tableaux",
         "blockSetting": "Autres réglages de blocs",
         "content": "Du contenu que le Markdown ne peut pas contenir"
       },

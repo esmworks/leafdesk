@@ -783,7 +783,7 @@
         "mediaSize": "画像と動画のサイズ",
         "callout": "Markdownで表せないコールアウトの色とアイコン",
         "textStyle": "下線など一部の文字書式",
-        "table": "表の列幅、見出し行、セルの色",
+        "table": "表の列幅、見出し行、結合したセル、セルの色",
         "blockSetting": "その他のブロック設定",
         "content": "Markdownで表せない一部のコンテンツ"
       },
