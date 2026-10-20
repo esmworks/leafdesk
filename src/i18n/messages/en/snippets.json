@@ -54,8 +54,15 @@
   },
   "settings": {
     "personalDescription": "Pieces of content you insert while typing: type ; and a snippet's trigger in any page, or pick it under Snippets in the / menu. Only you see these.",
-    "workspaceDescription": "Snippets everyone in the workspace can insert while typing, next to their own. Owners add and change them.",
-    "ownersOnly": "Only the workspace's owners add and change its snippets.",
+    "description": "Pieces of content you insert while typing: type ; and a snippet's trigger in any page, or pick it under Snippets in the / menu.",
+    "tabsLabel": "Snippets",
+    "tabs": {
+      "mine": "Mine",
+      "workspace": "Workspace"
+    },
+    "mineNote": "Only you see these, and you can use them in every workspace you're in.",
+    "workspaceNote": "Everyone in {workspace} can use these. Only owners add and change them.",
+    "workspaceNoteOwner": "Everyone in {workspace} can use these. Owners add and change them.",
     "search": "Search snippets",
     "new": "New snippet",
     "import": "Import",
@@ -63,8 +70,9 @@
     "export": "Export",
     "count": "{count} of {max}",
     "noMatches": "No snippets match.",
-    "empty": "No snippets yet.",
+    "empty": "The workspace has no shared snippets yet.",
     "emptyOwner": "No snippets yet. Start with an example, or create your own.",
+    "emptyWorkspaceOwner": "The workspace has no shared snippets yet. Create one everyone can use.",
     "examplesHeading": "Examples",
     "addExample": "Add",
     "actionsFor": "Actions for {title}",

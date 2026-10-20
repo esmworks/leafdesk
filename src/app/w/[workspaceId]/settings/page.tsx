@@ -65,7 +65,7 @@ import { WorkspaceBackup } from "@/components/settings/workspace-backup";
 import { WorkspaceExport } from "@/components/settings/workspace-export";
 import { WorkspaceNameForm } from "@/components/settings/workspace-settings";
 import { CalloutStylesSettings } from "@/components/settings/callout-styles-settings";
-import { SnippetsPanel } from "@/components/snippets/snippets-panel";
+import { SnippetsTabs } from "@/components/snippets/snippets-tabs";
 import { parseAnalyticsPeriod } from "@/lib/analytics";
 import { storedCalloutStyles } from "@/lib/callout-styles";
 import { parseAuditFilters } from "@/lib/audit";
@@ -173,12 +173,14 @@ export default async function SettingsPage({
     // Storage is about storage of one's own: with it off, only for a workspace that has some from before.
     (name) => (name !== "storage" || env.ownStorageEnabled || !isOwner || hasOwnStorageFor) && (name !== "aiUsage" || aiMayBeOn()),
   );
+  // The person's own snippets had a tab of their own; they are the Snippets tab's first list now.
+  const requested = query.tab === "mySnippets" ? "snippets" : query.tab;
   // The person's own settings come first, then the workspace's (the workspace sidebar is hidden here).
-  const accountTab = ACCOUNT_SETTINGS_TABS.find((name) => name === query.tab);
+  const accountTab = ACCOUNT_SETTINGS_TABS.find((name) => name === requested);
   // A workspace tab this person may not open is not found, the way its data routes answer, rather
   // than quietly showing General: the link isn't broken for them, the tab isn't theirs.
-  if (isSettingsTab(query.tab) && !tabs.includes(query.tab)) notFound();
-  const tab: SettingsTab | AccountSettingsTab = accountTab ?? tabs.find((name) => name === query.tab) ?? "general";
+  if (isSettingsTab(requested) && !tabs.includes(requested)) notFound();
+  const tab: SettingsTab | AccountSettingsTab = accountTab ?? tabs.find((name) => name === requested) ?? "general";
   const [t, ta, isAdmin] = await Promise.all([getTranslations("settings"), getTranslations("account"), instanceAdmin(user)]);
   const href = (name: string) => `/w/${workspaceId}/settings?tab=${name}`;
 
@@ -250,7 +252,17 @@ export default async function SettingsPage({
               agentTab={query.agentTab === "memory" || query.agentTab === "schedules" ? query.agentTab : undefined}
             />
           )}
-          {tab === "snippets" && <SnippetsTab workspaceId={workspaceId} workspaceName={workspace.name} userId={user.id} name={user.name} isOwner={isOwner} />}
+          {tab === "snippets" && (
+            <SnippetsTab
+              workspaceId={workspaceId}
+              workspaceName={workspace.name}
+              userId={user.id}
+              name={user.name}
+              isOwner={isOwner}
+              guest={guest}
+              scope={query.scope === "workspace" ? "workspace" : "mine"}
+            />
+          )}
           {tab === "connections" && (
             <ConnectionsTab
               workspaceId={workspaceId}
@@ -274,29 +286,44 @@ export default async function SettingsPage({
   );
 }
 
-/** Settings > Snippets: the workspace's shared snippets; members use them, owners change them (server/snippets.ts). */
+/**
+ * Settings > Snippets: the person's own snippets, the same in every workspace, and the workspace's,
+ * which members use and owners change (server/snippets.ts). Guests have only their own.
+ */
 async function SnippetsTab({
   workspaceId,
   workspaceName,
   userId,
   name,
   isOwner,
+  guest,
+  scope,
 }: {
   workspaceId: string;
   workspaceName: string;
   userId: string;
   name: string;
   isOwner: boolean;
+  guest: boolean;
+  scope: "mine" | "workspace";
 }) {
-  const [list, t, ts] = await Promise.all([
-    listSnippets(userId, { kind: "workspace", workspaceId }),
+  const [mine, shared, t, ts] = await Promise.all([
+    listSnippets(userId, { kind: "personal" }),
+    guest ? null : listSnippets(userId, { kind: "workspace", workspaceId }),
     getTranslations("settings"),
     getTranslations("snippets.settings"),
   ]);
   return (
     <>
-      <SettingsHeader title={t("nav.snippets")} description={ts("workspaceDescription")} />
-      <SnippetsPanel workspace={{ id: workspaceId, name: workspaceName }} canManage={isOwner} initial={list} me={name} />
+      <SettingsHeader title={t("nav.snippets")} description={ts("description")} />
+      <SnippetsTabs
+        workspace={{ id: workspaceId, name: workspaceName }}
+        mine={mine}
+        shared={shared}
+        canManage={isOwner}
+        me={name}
+        initialScope={shared ? scope : "mine"}
+      />
     </>
   );
 }

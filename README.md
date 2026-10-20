@@ -2172,12 +2172,12 @@ after a word stays a semicolon.
 - **Placeholders**, filled in when the snippet goes in: `{{date}}`, `{{time}}` and `{{datetime}}`
   (in your language and time zone), `{{me}}` (your name), `{{page}}` (the page's title) and
   `{{cursor}}`, where the caret stops (the first one; any others are removed).
-- **Your snippets**: Settings → My account → *Snippets*, only for you, in every workspace. Until a
+- **Your snippets**: Settings → *Snippets* → *Mine*, only for you, in every workspace. Until the
   list holds snippets other than these, it offers three examples (meeting notes, a dated log line,
   a decision record) to add with one click.
-- **The workspace's snippets**: Settings → *Snippets*. Everyone in the workspace inserts them, next
-  to their own; owners add, change and delete them. Guests see only their own. They are part of
-  the workspace's backup; personal snippets are not.
+- **The workspace's snippets**: Settings → *Snippets* → *Workspace*. Everyone in the workspace
+  inserts them, next to their own; owners add, change and delete them. Guests see only their own.
+  They are part of the workspace's backup; personal snippets are not.
 - **Making one**: *New snippet* in either list, or *Save as snippet* in a block's menu (the
   handle beside it), which opens the form with that block, or the selected blocks, as Markdown.
   The form has the title, the trigger (made from the title until you type one), the Markdown with

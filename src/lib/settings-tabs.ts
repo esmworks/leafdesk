@@ -43,7 +43,8 @@ const OWNER_TABS: readonly SettingsTab[] = ["connections", "storage", "analytics
  * costs are for owners. Email on rows has no tab: it is under General, and each member connects
  * their own mailbox under their account (Account > Email and calendar). Agents are listed to
  * members too (they pick them in automations); only owners change them. The health check covers
- * the pages each person can open, so owners and members get it alike.
+ * the pages each person can open, so owners and members get it alike. Snippets holds the person's
+ * own snippets next to the workspace's, so guests get it too, with their own alone.
  */
 export function visibleSettingsTabs({
   guest,
@@ -57,7 +58,7 @@ export function visibleSettingsTabs({
   /** Leafdesk on one computer (lib/env.ts localMode): no guests, no groups of one, and no site to publish. */
   localMode?: boolean;
 }): SettingsTab[] {
-  if (guest) return ["general"];
+  if (guest) return ["general", "snippets"];
   return SETTINGS_TABS.filter(
     (tab) =>
       (tab !== "guests" || managesGuests) &&
@@ -71,16 +72,20 @@ const LOCAL_MODE_HIDDEN_TABS: readonly SettingsTab[] = ["guests", "groups", "sit
 
 /**
  * The person's own settings (see components/account/account-tabs) under a workspace's Settings,
- * named so they don't clash with the workspace tabs: the account's "security" is "accountSecurity",
- * its "snippets" (the person's own) "mySnippets".
+ * named so they don't clash with the workspace tabs: the account's "security" is "accountSecurity".
+ * The person's own snippets aren't among them: they are the Snippets tab's first list, beside the
+ * workspace's.
  */
-export const ACCOUNT_SETTINGS_TABS = ["profile", "accountSecurity", "preferences", "mail", "mySnippets", "apps", "about"] as const;
+export const ACCOUNT_SETTINGS_TABS = ["profile", "accountSecurity", "preferences", "mail", "apps", "about"] as const;
 export type AccountSettingsTab = (typeof ACCOUNT_SETTINGS_TABS)[number];
 
 export function accountTabForSettings(tab: AccountSettingsTab) {
-  return tab === "accountSecurity" ? "security" : tab === "mySnippets" ? "snippets" : tab;
+  return tab === "accountSecurity" ? "security" : tab;
 }
 
-export function settingsTabForAccount(tab: "profile" | "security" | "preferences" | "mail" | "snippets" | "apps" | "about"): AccountSettingsTab {
-  return tab === "security" ? "accountSecurity" : tab === "snippets" ? "mySnippets" : tab;
+/** Where a tab of the account page (/account) is under a workspace's Settings. */
+export function settingsTabForAccount(
+  tab: "profile" | "security" | "preferences" | "mail" | "snippets" | "apps" | "about",
+): AccountSettingsTab | "snippets" {
+  return tab === "security" ? "accountSecurity" : tab;
 }

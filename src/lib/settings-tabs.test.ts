@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ACCOUNT_SETTINGS_TABS, SETTINGS_TAB_GROUPS, SETTINGS_TABS, visibleSettingsTabs } from "./settings-tabs";
+import { ACCOUNT_SETTINGS_TABS, SETTINGS_TAB_GROUPS, SETTINGS_TABS, settingsTabForAccount, visibleSettingsTabs } from "./settings-tabs";
 
 describe("settings tabs", () => {
   it("puts every workspace tab in exactly one navigation group", () => {
@@ -16,5 +16,11 @@ describe("settings tabs", () => {
     expect(SETTINGS_TABS as readonly string[]).not.toContain("email");
     expect(visibleSettingsTabs({ guest: false, managesGuests: false, owner: true })).toContain("general");
     expect(ACCOUNT_SETTINGS_TABS).toContain("mail");
+  });
+
+  it("keeps the person's own snippets on the Snippets tab, beside the workspace's", () => {
+    expect(ACCOUNT_SETTINGS_TABS as readonly string[]).not.toContain("mySnippets");
+    expect(settingsTabForAccount("snippets")).toBe("snippets");
+    expect(visibleSettingsTabs({ guest: true, managesGuests: false })).toContain("snippets");
   });
 });

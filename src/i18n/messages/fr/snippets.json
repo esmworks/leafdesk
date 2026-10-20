@@ -54,8 +54,15 @@
   },
   "settings": {
     "personalDescription": "Des morceaux de contenu que vous insérez en tapant : tapez ; puis le déclencheur d’un extrait dans n’importe quelle page, ou choisissez-le sous Extraits dans le menu /. Vous seul les voyez.",
-    "workspaceDescription": "Des extraits que tous les membres de l’espace de travail peuvent insérer en tapant, en plus des leurs. Les propriétaires les ajoutent et les modifient.",
-    "ownersOnly": "Seuls les propriétaires de l’espace de travail ajoutent et modifient ses extraits.",
+    "description": "Des morceaux de contenu que vous insérez en tapant : tapez ; puis le déclencheur d’un extrait dans n’importe quelle page, ou choisissez-le sous Extraits dans le menu /.",
+    "tabsLabel": "Extraits",
+    "tabs": {
+      "mine": "Les miens",
+      "workspace": "Espace de travail"
+    },
+    "mineNote": "Vous seul les voyez, et vous pouvez les utiliser dans tous vos espaces de travail.",
+    "workspaceNote": "Tous les membres de {workspace} peuvent les utiliser. Seuls les propriétaires les ajoutent et les modifient.",
+    "workspaceNoteOwner": "Tous les membres de {workspace} peuvent les utiliser. Les propriétaires les ajoutent et les modifient.",
     "search": "Rechercher des extraits",
     "new": "Nouvel extrait",
     "import": "Importer",
@@ -63,8 +70,9 @@
     "export": "Exporter",
     "count": "{count} sur {max}",
     "noMatches": "Aucun extrait ne correspond.",
-    "empty": "Aucun extrait pour l’instant.",
+    "empty": "L’espace de travail n’a pas encore d’extraits partagés.",
     "emptyOwner": "Aucun extrait pour l’instant. Commencez par un exemple ou créez le vôtre.",
+    "emptyWorkspaceOwner": "L’espace de travail n’a pas encore d’extraits partagés. Créez-en un que tout le monde pourra utiliser.",
     "examplesHeading": "Exemples",
     "addExample": "Ajouter",
     "actionsFor": "Actions pour {title}",

@@ -54,8 +54,15 @@
   },
   "settings": {
     "personalDescription": "输入时可以插入的内容片段：在任意页面输入 ; 和片段的触发词，或在 / 菜单的“片段”下选择。只有你能看到这些片段。",
-    "workspaceDescription": "工作区所有人在输入时都可以插入的片段，与各自的片段并用。由所有者添加和更改。",
-    "ownersOnly": "只有工作区的所有者可以添加和更改它的片段。",
+    "description": "输入时可以插入的内容片段：在任意页面输入 ; 和片段的触发词，或在 / 菜单的“片段”下选择。",
+    "tabsLabel": "片段",
+    "tabs": {
+      "mine": "我的",
+      "workspace": "工作区"
+    },
+    "mineNote": "只有你能看到，可在你加入的每个工作区中使用。",
+    "workspaceNote": "{workspace} 中的所有人都可以使用。只有所有者可以添加和更改。",
+    "workspaceNoteOwner": "{workspace} 中的所有人都可以使用。由所有者添加和更改。",
     "search": "搜索片段",
     "new": "新建片段",
     "import": "导入",
@@ -63,8 +70,9 @@
     "export": "导出",
     "count": "{count} / {max}",
     "noMatches": "没有匹配的片段。",
-    "empty": "还没有片段。",
+    "empty": "工作区还没有共享片段。",
     "emptyOwner": "还没有片段。可以从示例开始，或创建你自己的片段。",
+    "emptyWorkspaceOwner": "工作区还没有共享片段。创建一个所有人都能使用的片段。",
     "examplesHeading": "示例",
     "addExample": "添加",
     "actionsFor": "{title} 的操作",
