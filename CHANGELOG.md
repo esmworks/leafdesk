@@ -47,6 +47,12 @@
 
 ### Changed
 
+- **The desktop app signs in to a connection's service in your browser.** Signing in to a
+  connection or to Google Drive or Dropbox storage opens the service's page in the system's
+  browser, where you are likely signed in to it already, instead of inside the app. Once you allow
+  Leafdesk there, the browser hands the answer back to the app with a `leafdesk://` link and the
+  app finishes the sign-in. A sign-in that returns to a browser without a Leafdesk session now
+  leads to the sign-in page instead of a missing page.
 - **The AI chat fits a conversation to the model, not to a fixed size.** A chat request was
   refused past 48,000 characters, so a workspace whose connections offer many tools (their
   descriptions take room in every request) could fill it before the conversation did, and the chat

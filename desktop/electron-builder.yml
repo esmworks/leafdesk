@@ -20,6 +20,10 @@ asarUnpack:
 # platform's PostgreSQL.
 afterPack: scripts/after-pack.ts
 artifactName: Leafdesk-${version}-${arch}.${ext}
+# `leafdesk://` links bring a sign-in done in the system's browser back to the app (src/navigation.ts).
+protocols:
+  - name: Leafdesk
+    schemes: [leafdesk]
 
 mac:
   category: public.app-category.productivity
