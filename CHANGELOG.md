@@ -29,7 +29,8 @@
   last were in it; clicking the tab you are on goes to its start (the home page, today's note, a
   new chat). The open tab shows its name; the others show only their icons and widen to show their
   names when you point at them. Conversations are listed like pages, and the one an answer is being
-  written for has a dot that fades in and out meanwhile.
+  written for has a dot that fades in and out meanwhile. The page header's button that opens the
+  chat panel has the same two-bubble icon as the Chat tab.
 - **The sidebar's new button asks what to make.** It opens a menu with a new page, a new chat, a
   new database and a page from a template, instead of always making a page.
 - **Your mailbox and calendar addresses have their own page under your account.** The new
