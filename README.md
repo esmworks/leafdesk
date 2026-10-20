@@ -1722,7 +1722,7 @@ unset.
 
 ```bash
 AI_PROVIDER=anthropic
-AI_MODEL=claude-haiku-4-5
+AI_MODEL=claude-haiku-5-5
 AI_API_KEY=sk-ant-...
 
 # or a local model
@@ -1730,7 +1730,12 @@ AI_PROVIDER=ollama
 AI_MODEL=llama3.2
 ```
 
-**OpenCode Go** serves its models over three APIs; Leafdesk picks the right one for each model in
+For Anthropic, OpenAI and Google, Leafdesk knows the current models (`claude-haiku-5-5`,
+`claude-sonnet-5-5`, `claude-opus-5-5`…) and uses their context window, prices and thinking
+settings. A model id it doesn't know yet still works: it is sent as written, with a 128,000-token
+context window, no thinking settings, and a cost of 0 in the server log.
+
+**OpenCode Go** serves its models over four APIs; Leafdesk picks the right one for each model in
 its catalog (`kimi-k3`, `glm-5.3`, `deepseek-v4-pro`, `qwen3.8-flash`, `minimax-m3`, `grok-4.7`…;
 the ids as in OpenCode's model list, without `opencode-go/`), with its real context window. A model
 id the catalog doesn't know yet is sent to the chat completions API with `AI_CONTEXT_WINDOW`. As Go
@@ -1870,7 +1875,7 @@ everything on your machines.
 | Variable | Default | |
 | --- | --- | --- |
 | `AI_MAX_INPUT_CHARS` | 48000 | Characters one request may send; a longer selection is refused, a longer page is cut |
-| `AI_MAX_OUTPUT_TOKENS` | 2048 | Tokens one answer may have |
+| `AI_MAX_OUTPUT_TOKENS` | 8192 | Tokens one answer may have. A model that thinks before answering (Claude 5.5, OpenAI's and Gemini's reasoning models…) spends its thinking from the same tokens, so it always gets all of them, also where a feature caps the answer lower (AI property values: 800) |
 | `AI_TIMEOUT_SECONDS` | 60 | |
 | `AI_RATE_LIMIT` | 20 | Requests per person per minute |
 | `AI_WORKSPACE_RATE_LIMIT` | 120 | Requests per workspace per minute, AI property values included (they wait for their turn) |

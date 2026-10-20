@@ -63,7 +63,10 @@ export type AiRequest = {
   system?: string;
   messages: AiMessage[];
   tools?: AiTool[];
-  /** At most AI_MAX_OUTPUT_TOKENS. */
+  /**
+   * At most AI_MAX_OUTPUT_TOKENS. Models that think get all of AI_MAX_OUTPUT_TOKENS instead: their
+   * thinking comes out of the same tokens and could leave a smaller cap no room for the answer.
+   */
   maxOutputTokens?: number;
   signal?: AbortSignal;
   /**
@@ -500,7 +503,8 @@ function prepare(request: AiRequest) {
   const maxTokens = Math.min(request.maxOutputTokens ?? config.limits.maxOutputTokens, config.limits.maxOutputTokens);
   return {
     signal,
-    maxTokens,
+    // Never above the model's own output limit (a few older models allow 4096).
+    maxTokens: (model: Model<Api>) => Math.min(model.reasoning ? config.limits.maxOutputTokens : maxTokens, model.maxTokens || Infinity),
     timedOut: () => timeout.signal.aborted,
     cancelled: () => request.signal?.aborted === true,
     done: () => clearTimeout(timer),
@@ -560,7 +564,7 @@ export function stream(request: AiRequest): AiStream {
       model = m.id;
       const events = models.stream(m, toContext(request, m), {
         signal: prepared.signal,
-        maxTokens: prepared.maxTokens,
+        maxTokens: prepared.maxTokens(m),
         ...(viaFetch ? { fetch: viaFetch } : {}),
         // Only where asked for: other providers would also turn it into prompt-cache keys.
         ...(sessions ? { sessionId: request.sessionId ?? randomUUID() } : {}),

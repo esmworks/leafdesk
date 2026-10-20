@@ -132,7 +132,7 @@ export function readAiConfig(env: Env = process.env): AiConfig {
   const problems: string[] = [];
   const limits: AiLimits = {
     maxInputChars: positive(env, "AI_MAX_INPUT_CHARS", 48_000, problems),
-    maxOutputTokens: positive(env, "AI_MAX_OUTPUT_TOKENS", 2_048, problems),
+    maxOutputTokens: positive(env, "AI_MAX_OUTPUT_TOKENS", 8_192, problems),
     timeoutMs: positive(env, "AI_TIMEOUT_SECONDS", 60, problems) * 1000,
     userPerMinute: positive(env, "AI_RATE_LIMIT", 20, problems),
     workspacePerMinute: positive(env, "AI_WORKSPACE_RATE_LIMIT", 120, problems),

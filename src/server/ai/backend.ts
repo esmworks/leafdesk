@@ -50,22 +50,24 @@ const KINDS: Record<
     streams: async () => (await import("@earendil-works/pi-ai/api/google-generative-ai.lazy")).googleGenerativeAIApi(),
     catalog: async () => (await import("@earendil-works/pi-ai/providers/google")).googleProvider().getModels(),
   },
-  // OpenCode Go serves each model over its own API (chat completions, Responses or Anthropic's
-  // Messages) and asks clients to name themselves and send a stable id per conversation.
+  // OpenCode Go serves each model over its own API (chat completions, Responses, Anthropic's
+  // Messages or Gemini's) and asks clients to name themselves and send a stable id per conversation.
   "opencode-go": {
     api: "openai-completions",
-    baseUrl: "https://opencode.ai/zen/go/v1",
+    baseUrl: "https://opencode.ai/inference/go/v1",
     streams: async () => {
-      const [{ withOpenCodeSessionHeader }, completions, responses, messages] = await Promise.all([
+      const [{ withOpenCodeSessionHeader }, completions, responses, messages, gemini] = await Promise.all([
         import("@earendil-works/pi-ai/providers/opencode-headers"),
         openAICompletions(),
         import("@earendil-works/pi-ai/api/openai-responses.lazy").then((m) => m.openAIResponsesApi()),
         import("@earendil-works/pi-ai/api/anthropic-messages.lazy").then((m) => m.anthropicMessagesApi()),
+        import("@earendil-works/pi-ai/api/google-generative-ai.lazy").then((m) => m.googleGenerativeAIApi()),
       ]);
       return {
         "openai-completions": withOpenCodeSessionHeader(completions),
         "openai-responses": withOpenCodeSessionHeader(responses),
         "anthropic-messages": withOpenCodeSessionHeader(messages),
+        "google-generative-ai": withOpenCodeSessionHeader(gemini),
       };
     },
     catalog: async () => (await import("@earendil-works/pi-ai/providers/opencode-go")).opencodeGoProvider().getModels(),

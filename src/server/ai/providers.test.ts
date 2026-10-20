@@ -107,6 +107,29 @@ describe("providers over HTTP", () => {
     expect(request.body.stream).toBe(true);
   });
 
+  it.each(["claude-haiku-5-5", "claude-sonnet-5-5"])("knows %s, which thinks, and gives it the whole output limit", async (model) => {
+    setAiEnv({ AI_PROVIDER: "anthropic", AI_MODEL: model, AI_API_KEY: "sk-ant-test", AI_BASE_URL: base.replace(/\/v1$/, "") });
+    // A feature's smaller cap would leave the answer no room once the model has thought.
+    await complete({ feature: "test", workspaceId: "w1", messages: [{ role: "user", content: "Hello" }], maxOutputTokens: 800 });
+    const { body } = seen[0];
+    expect(body.model).toBe(model);
+    expect(body.max_tokens).toBe(8192);
+    // Only the library's catalog entry asks for adaptive thinking; an unknown model id gets none.
+    expect(body.thinking).toMatchObject({ type: "adaptive" });
+  });
+
+  it("asks no more than the model's own output limit", async () => {
+    setAiEnv({ AI_PROVIDER: "openai", AI_MODEL: "gpt-4-turbo", AI_API_KEY: "sk-test", AI_BASE_URL: base });
+    await complete({ feature: "test", workspaceId: "w1", messages: [{ role: "user", content: "hi" }] }).catch(() => {});
+    expect(seen[0].body.max_output_tokens).toBe(4096);
+  });
+
+  it("keeps a feature's smaller cap for a model that doesn't think", async () => {
+    setAiEnv({ AI_PROVIDER: "ollama", AI_MODEL: "llama3.2", AI_BASE_URL: base });
+    await complete({ feature: "test", workspaceId: "w1", messages: [{ role: "user", content: "hi" }], maxOutputTokens: 800 });
+    expect(seen[0].body.max_tokens).toBe(800);
+  });
+
   it("sends OpenCode Go a stable session id per conversation and names the client", async () => {
     setAiEnv({ AI_PROVIDER: "opencode-go", AI_MODEL: "kimi-k3", OPENCODE_API_KEY: "sk-go", AI_BASE_URL: base });
     const ask = (sessionId?: string) => complete({ feature: "test", workspaceId: "w1", messages: [{ role: "user", content: "hi" }], sessionId });

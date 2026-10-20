@@ -2,6 +2,24 @@
 
 ## Unreleased
 
+### Changed
+
+- **Claude Haiku 5.5 and Sonnet 5.5 are known models.** The AI library (pi-ai 1.3.0) now has them,
+  so they run with their real 1,000,000-token context window, output limit, prices in the server
+  log and thinking settings, where they used to be sent as an unknown model. The examples in the
+  README and `.env.example` use `claude-haiku-5-5`.
+- **`AI_MAX_OUTPUT_TOKENS` defaults to 8192** (was 2048). Claude 5.5 models think before they
+  answer, and their thinking comes out of the same tokens as the answer, which could cut answers
+  off. A model that thinks now always gets the whole limit, also for AI property values, which
+  other models still keep to 800 tokens, and no request asks for more than the model's own output
+  limit. A server that sets `AI_MAX_OUTPUT_TOKENS` itself keeps its value; raise it if answers end
+  early.
+
+### Fixed
+
+- OpenCode Go requests for models the catalog doesn't know go to its current endpoint
+  (`opencode.ai/inference/go`), and its Gemini model works.
+
 ## 0.6.2 — 2026-10-20
 
 ### Upgrading from 0.6.1
