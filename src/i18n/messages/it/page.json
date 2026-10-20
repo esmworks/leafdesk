@@ -802,5 +802,12 @@
       "keep": "Continua a modificare",
       "confirm": "Scarta"
     }
+  },
+  "siblings": {
+    "label": "Pagine accanto a {title}",
+    "empty": "Nessun'altra pagina qui",
+    "failed": "Impossibile caricare le pagine qui.",
+    "openDatabase": "Apri database",
+    "allRows": "Vedi tutte le righe nel database"
   }
 }

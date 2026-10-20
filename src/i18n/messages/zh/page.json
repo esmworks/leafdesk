@@ -802,5 +802,12 @@
       "keep": "继续编辑",
       "confirm": "放弃"
     }
+  },
+  "siblings": {
+    "label": "与 {title} 同级的页面",
+    "empty": "这里没有其他页面",
+    "failed": "无法加载这里的页面。",
+    "openDatabase": "打开数据库",
+    "allRows": "在数据库中查看所有行"
   }
 }
