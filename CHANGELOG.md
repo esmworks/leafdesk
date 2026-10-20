@@ -4,6 +4,13 @@
 
 ### Added
 
+- **Google Drive, Docs, Sheets, Slides, Gmail, Calendar, Chat and Contacts connections.** The
+  connection catalog lists Google's own MCP servers. They sign in an OAuth client made in a Google
+  Cloud project: enter its ID and secret on the connection, or set one for all of them as
+  `google=CLIENT_ID:CLIENT_SECRET` in `CONNECTION_OAUTH_CLIENTS`. Each asks only for the scopes its
+  tools use (Drive files are read, and written only when made through Leafdesk; Gmail never gets
+  the whole mailbox), and Leafdesk asks Google for a refresh token, so a sign-in doesn't end after an
+  hour. The README's Connections section has the setup in Google Cloud.
 - **What AI costs, per workspace.** Every AI request (chat, writing assistant, AI properties,
   agents, voice notes, semantic search) adds its tokens and cost in US dollars to its workspace's
   month, by feature and model, whichever account paid. Owners see this month and the last twelve in

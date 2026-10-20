@@ -2364,10 +2364,26 @@ the form below filled in from that service, which can still be changed; a servic
 opens its connection instead. The catalog lives in
 `src/lib/connection-catalog.ts`: it lists only servers that, at that address, either publish OAuth
 metadata naming it that Leafdesk can sign in with, take an API key, or answer without any sign-in.
-A few services (Slack, HubSpot, Asana, Box, Discord, Front, PagerDuty, Xero) sign in only apps
+A few services (Slack, HubSpot, Asana, Box, Discord, Front, PagerDuty, Xero, Google) sign in only apps
 registered with them beforehand: for those the form asks for the client ID and secret of an app
 you create at the service, links to where it's made, and shows the redirect URL to give it
-(`APP_URL/api/connections/oauth/callback`). Vendors move their MCP addresses now and then, so
+(`APP_URL/api/connections/oauth/callback`).
+
+**Google** (Drive, Docs, Sheets, Slides, Gmail, Calendar, Chat, Contacts) is one of these: its
+MCP servers sign in an OAuth client from a Google Cloud project, and one client serves them all.
+Following [Google's guide](https://developers.google.com/workspace/guides/configure-mcp-servers):
+in the project, enable each service's MCP API and its API (for Sheets, `sheetsmcp.googleapis.com`
+and `sheets.googleapis.com`); set up the consent screen (*Internal* for a Workspace organization,
+else *External* with test users); and create a *Web application* client with *Use this client for
+an AI-powered agent* ticked and `APP_URL/api/connections/oauth/callback` as its redirect URI. Enter
+its ID and secret on each connection, or once for the instance as `google=` in
+`CONNECTION_OAUTH_CLIENTS`. Google's MCP servers are in its Workspace Developer Preview Program at
+the time of writing. Each entry asks only for the scopes its tools use: Drive files are read, and
+written only when made through Leafdesk; Docs, Sheets and Slides can edit any document of their
+kind; Gmail labels, trashes and drafts mail (`gmail.modify`, never the whole mailbox); Calendar
+reads calendars and edits events. Leafdesk asks Google for a refresh token, so a sign-in lasts.
+
+Vendors move their MCP addresses now and then, so
 before a release run `pnpm catalog:check` (it needs the network and isn't part of the tests): it
 asks every entry the questions above without credentials, lists those that no longer answer as
 listed and exits with 1 if there are any; `pnpm catalog:check linear sentry` checks only those
@@ -2383,8 +2399,9 @@ test fails when an entry has no logo, or a logo has no entry. *Add another serve
   needed. Who signs in decides what the agents can reach there: they act as that account. A
   server that takes no registrations needs an app registered with it: enter its client ID (and
   secret, if it has one) on the connection, or set one for the whole instance in
-  `CONNECTION_OAUTH_CLIENTS` by catalog id (`slack=CLIENT_ID:CLIENT_SECRET,discord=CLIENT_ID`),
-  used for connections to that service's catalog address that have no app of their own. Where
+  `CONNECTION_OAUTH_CLIENTS` by catalog id (`slack=CLIENT_ID:CLIENT_SECRET,discord=CLIENT_ID`;
+  `google` for all of Google's services), used for connections to that service's catalog address
+  that have no app of their own. Where
   such a server instead takes a client metadata document (as ElevenLabs does), Leafdesk gives the
   address of its own, `APP_URL/api/connections/oauth/client`, as its client ID: this needs an
   `https` `APP_URL` the service can fetch.

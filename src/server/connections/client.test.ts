@@ -38,6 +38,19 @@ const SLACK = {
   },
 };
 
+/** Google's: metadata under the server's path, naming Google's own sign-in at another host. */
+const GOOGLE = {
+  mcp: "https://sheetsmcp.googleapis.com/mcp/v1",
+  metadata: {
+    issuer: "https://accounts.google.com",
+    authorization_endpoint: "https://accounts.google.com/o/oauth2/v2/auth",
+    token_endpoint: "https://oauth2.googleapis.com/token",
+    response_types_supported: ["code"],
+    code_challenge_methods_supported: ["plain", "S256"],
+    token_endpoint_auth_methods_supported: ["client_secret_post", "client_secret_basic"],
+  },
+};
+
 const ACCESS_TOKEN = "xoxp-test-access";
 
 function json(body: unknown, init: ResponseInit = {}) {
@@ -53,6 +66,13 @@ async function fakeFetch(input: string | URL | Request, init: RequestInit = {}):
   seen.push({ method, url: url.href, body, headers });
   const origin = new URL(service.mcp).origin;
 
+  if (service === GOOGLE && method === "GET") {
+    if (url.href === "https://sheetsmcp.googleapis.com/.well-known/oauth-protected-resource/mcp/v1") {
+      const scopes = ["drive.readonly", "spreadsheets.readonly", "drive", "drive.file", "spreadsheets"];
+      return json({ resource: GOOGLE.mcp, authorization_servers: ["https://accounts.google.com/"], scopes_supported: scopes.map((s) => `https://www.googleapis.com/auth/${s}`) });
+    }
+    if (url.href === "https://accounts.google.com/.well-known/oauth-authorization-server") return json(GOOGLE.metadata);
+  }
   if (url.href === `${origin}/.well-known/oauth-protected-resource` && method === "GET") {
     return json({ resource: origin, authorization_servers: [origin], scopes_supported: ["channels:read", "chat:write"] });
   }
@@ -86,6 +106,7 @@ async function fakeFetch(input: string | URL | Request, init: RequestInit = {}):
 vi.mock("./fetch", () => ({ connectionFetch: (input: string | URL | Request, init?: RequestInit) => fakeFetch(input, init) }));
 
 const { sealJson } = await import("../secret-box");
+const { catalogEntryFor } = await import("@/lib/connection-catalog");
 const { ConnectionOAuthProvider, dropClient, finishOAuth, listConnectionTools, oauthClientMetadataUrl, ownClientOf, secretsOf, startOAuth } = await import("./client");
 type Row = import("./client").ConnectionRow;
 
@@ -127,6 +148,9 @@ describe("signing in as an app registered with the service", () => {
     expect(authorize.searchParams.get("state")).toBe(started!.state);
     // The secret never goes to the browser.
     expect(authorize.href).not.toContain("app-secret");
+    // Asks for all the service lists, and nothing only Google takes.
+    expect(authorize.searchParams.get("scope")).toBe("channels:read chat:write");
+    expect(authorize.searchParams.has("access_type")).toBe(false);
 
     await finishOAuth(reread(row), started!.verifier, "the-code", undefined);
     const token = seen.find((r) => r.url === SLACK.metadata.token_endpoint);
@@ -176,6 +200,34 @@ describe("signing in as an app registered with the service", () => {
     await provider.invalidateCredentials("all");
     expect(secretsOf({ secrets: savedSecrets })).toEqual({ ownClient: own, oauth: {} });
     expect(provider.clientInformation()).toEqual(own);
+  });
+});
+
+describe("signing in to Google", () => {
+  it("signs in every Google service as the instance's one app, asking for the entry's scopes and a refresh token", async () => {
+    process.env.CONNECTION_OAUTH_CLIENTS = "google=123-abc.apps.googleusercontent.com:GOCSPX-secret";
+    service = GOOGLE;
+    const row = rowOf(GOOGLE.mcp, {});
+
+    const started = await startOAuth(row);
+    const authorize = started!.url;
+    expect(`${authorize.origin}${authorize.pathname}`).toBe("https://accounts.google.com/o/oauth2/v2/auth");
+    expect(authorize.searchParams.get("client_id")).toBe("123-abc.apps.googleusercontent.com");
+    // The catalog's scopes, not every one the server lists (all of Drive).
+    const scope = authorize.searchParams.get("scope")!;
+    expect(scope).toBe(catalogEntryFor(GOOGLE.mcp)!.scope);
+    expect(scope.split(" ")).not.toContain("https://www.googleapis.com/auth/drive");
+    expect(authorize.searchParams.get("access_type")).toBe("offline");
+    expect(authorize.searchParams.get("prompt")).toBe("consent");
+    expect(authorize.searchParams.get("resource")).toBe(GOOGLE.mcp);
+
+    await finishOAuth(reread(row), started!.verifier, "the-code", undefined);
+    expect(secretsOf(reread(row)).oauth?.tokens?.refresh_token).toBe("xoxe-refresh");
+
+    // The same app for Google's other services; a service's own app still goes under its id.
+    const gmail = ownClientOf(rowOf("https://gmailmcp.googleapis.com/mcp/v1", {}));
+    expect(gmail).toEqual({ client: { client_id: "123-abc.apps.googleusercontent.com", client_secret: "GOCSPX-secret" }, fromInstance: true });
+    expect(ownClientOf(rowOf(SLACK.mcp, {}))).toBeNull();
   });
 });
 

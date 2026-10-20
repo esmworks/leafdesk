@@ -38,7 +38,15 @@ import {
   type ToolKind,
 } from "@/lib/connections";
 import { MAX_AGENT_PROMPT } from "@/lib/agents";
-import { CATALOG_CATEGORIES, catalogEntryFor, catalogLogo, searchCatalog, type CatalogCategory, type CatalogEntry } from "@/lib/connection-catalog";
+import {
+  CATALOG_CATEGORIES,
+  catalogEntryFor,
+  catalogLogo,
+  instanceClientKey,
+  searchCatalog,
+  type CatalogCategory,
+  type CatalogEntry,
+} from "@/lib/connection-catalog";
 
 export type ConnectionAgent = { id: string; name: string; icon: string | null };
 
@@ -60,7 +68,7 @@ type ClientMode = "required" | "instance" | "optional";
 function clientModeOf(authType: ConnectionAuthType, entry: CatalogEntry | null | undefined, setup: OAuthSetup): ClientMode | null {
   if (authType !== "oauth") return null;
   if (!entry?.client) return "optional";
-  return setup.instanceClients.includes(entry.id) ? "instance" : "required";
+  return setup.instanceClients.includes(instanceClientKey(entry)) ? "instance" : "required";
 }
 
 /** A connection's emoji; else, for a service of the catalog, its logo; else a plug. */
