@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, ExternalLink, Plug, Plus, RefreshCw, Search, X } from "lucide-react";
+import { Check, ChevronRight, ExternalLink, Plug, Plus, RefreshCw, Search, ShieldCheck, X } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import {
@@ -154,8 +154,8 @@ function ConnectionList({
 
   return (
     <div>
-      <SettingsHeader title={t("heading")} description={t("description")} />
-      <div className="space-y-3">
+      <SettingsHeader title={t("heading")} description={<span className="block max-w-3xl">{t("description")}</span>} />
+      <div className="space-y-4">
         {shownNotice && (
           <p
             role="status"
@@ -167,13 +167,25 @@ function ConnectionList({
             </button>
           </p>
         )}
-        <div role="tablist" aria-label={t("heading")} className="inline-flex gap-0.5 rounded-lg bg-bg-hover p-0.5">
-          <TabButton active={view === "browse"} onClick={() => setView("browse")}>
-            {t("tabs.browse")}
-          </TabButton>
-          <TabButton active={view === "connected"} onClick={() => setView("connected")}>
-            {t("tabs.connected")} <span className="text-fg-faint">{list.length}</span>
-          </TabButton>
+        <div className="flex flex-wrap items-center gap-2">
+          <div role="tablist" aria-label={t("heading")} className="inline-flex gap-0.5 rounded-lg bg-bg-hover p-0.5">
+            <TabButton active={view === "browse"} onClick={() => setView("browse")}>
+              {t("tabs.browse")}
+            </TabButton>
+            <TabButton active={view === "connected"} onClick={() => setView("connected")}>
+              {t("tabs.connected")} <span className="text-fg-faint">{list.length}</span>
+            </TabButton>
+          </div>
+          <Button
+            variant="primary"
+            className="ms-auto shrink-0 whitespace-nowrap"
+            disabled={full}
+            title={full ? t("errors.tooMany", { max: MAX_CONNECTIONS }) : undefined}
+            onClick={() => setAdding("custom")}
+          >
+            <Plus className="h-3.5 w-3.5" />
+            {t("catalog.custom")}
+          </Button>
         </div>
         {view === "browse" ? (
           <CatalogBrowser
@@ -184,34 +196,40 @@ function ConnectionList({
           />
         ) : (
           <>
-            <p className="text-xs text-fg-muted">{t("approvalNote")}</p>
-            <div className="overflow-hidden rounded-xl border border-border">
-              {list.length ? (
-                <ul className="divide-y divide-border">
-                  {list.map((conn) => (
-                    <li key={conn.id}>
-                      <button type="button" onClick={() => setOpen({ id: conn.id, tab: "tools" })} className="flex w-full items-center gap-3 px-4 py-3 text-start hover:bg-bg-hover">
-                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-bg-hover text-lg">
-                          <ConnectionIcon icon={conn.icon} url={conn.url} />
-                        </span>
+            <p className="flex items-start gap-2.5 rounded-lg border border-border bg-bg-subtle px-3.5 py-3 text-xs leading-relaxed text-fg-muted">
+              <ShieldCheck className="mt-px h-4 w-4 shrink-0 text-fg-faint" aria-hidden />
+              <span>{t("approvalNote")}</span>
+            </p>
+            {list.length === 0 ? (
+              <div className="space-y-3 rounded-xl border border-dashed border-border px-4 py-10 text-center">
+                <p className="text-sm text-fg-muted">{t("empty")}</p>
+                <Button variant="secondary" onClick={() => setView("browse")}>
+                  {t("browse")}
+                </Button>
+              </div>
+            ) : (
+              <ul className="grid gap-3 sm:grid-cols-2">
+                {list.map((conn) => (
+                  <li key={conn.id}>
+                    <button
+                      type="button"
+                      onClick={() => setOpen({ id: conn.id, tab: "tools" })}
+                      className="flex h-full w-full flex-col items-start gap-4 rounded-xl border border-border p-4 text-start transition-colors hover:border-fg-faint/60 hover:bg-bg-hover"
+                    >
+                      <span className="flex w-full items-center gap-3">
+                        <ConnectionLogo conn={conn} />
                         <span className="min-w-0 flex-1">
                           <span className="block truncate text-sm font-medium">{conn.name}</span>
                           <span className="block truncate text-xs text-fg-muted">{hostOf(conn.url)}</span>
                         </span>
-                        <StatusText conn={conn} />
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <div className="space-y-3 px-4 py-8 text-center">
-                  <p className="text-sm text-fg-muted">{t("empty")}</p>
-                  <Button variant="secondary" onClick={() => setView("browse")}>
-                    {t("browse")}
-                  </Button>
-                </div>
-              )}
-            </div>
+                        <ChevronRight className="h-4 w-4 shrink-0 text-fg-faint rtl:rotate-180" aria-hidden />
+                      </span>
+                      <StatusText conn={conn} />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
           </>
         )}
       </div>
@@ -258,10 +276,31 @@ function hostOf(url: string) {
   }
 }
 
+/** A connection's logo, or its emoji or a plug, in a box the size of a catalog card's logo. */
+function ConnectionLogo({ conn }: { conn: ConnectionView }) {
+  return (
+    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[22%] bg-bg-hover text-xl">
+      <ConnectionIcon icon={conn.icon} url={conn.url} />
+    </span>
+  );
+}
+
+const STATUS_DOTS: Record<ConnectionView["status"], string> = {
+  ready: "bg-emerald-500",
+  needsAuth: "bg-amber-400",
+  error: "bg-danger",
+};
+
 function StatusText({ conn }: { conn: ConnectionView }) {
   const t = useTranslations("settings.connections.status");
   return (
-    <span className={cn("shrink-0 text-xs", conn.status === "error" ? "text-danger" : conn.status === "needsAuth" ? "text-fg" : "text-fg-muted")}>
+    <span
+      className={cn(
+        "inline-flex h-6 shrink-0 items-center gap-1.5 rounded-md border border-border px-2 text-xs",
+        conn.status === "error" ? "text-danger" : conn.status === "needsAuth" ? "text-fg" : "text-fg-muted",
+      )}
+    >
+      <span className={cn("h-1.5 w-1.5 rounded-full", STATUS_DOTS[conn.status])} aria-hidden />
       {conn.status === "ready" ? t("ready", { n: conn.tools.length }) : t(conn.status)}
     </span>
   );
@@ -318,9 +357,8 @@ function CatalogBrowser({
   const tooMany = full ? t("errors.tooMany", { max: MAX_CONNECTIONS }) : undefined;
 
   return (
-    <div className="space-y-4">
-      <p className="text-sm text-fg-muted">{t("catalog.description")}</p>
-      <div className="flex flex-wrap gap-2">
+    <div className="space-y-6">
+      <div className="flex flex-wrap items-center gap-2">
         <label className="relative min-w-48 flex-1">
           <Search className="pointer-events-none absolute top-1/2 inset-s-2.5 h-3.5 w-3.5 -translate-y-1/2 text-fg-faint" aria-hidden />
           <Input
@@ -345,55 +383,67 @@ function CatalogBrowser({
             </option>
           ))}
         </select>
-        <Button variant="secondary" disabled={full} title={tooMany} onClick={() => onPick("custom")}>
-          <Plus className="h-3.5 w-3.5" />
-          {t("catalog.custom")}
-        </Button>
+        <p className="w-full text-xs text-fg-muted">{t("catalog.description")}</p>
       </div>
       {groups.length === 0 ? (
         <p className="rounded-xl border border-dashed border-border py-8 text-center text-sm text-fg-muted">{t("catalog.none")}</p>
       ) : (
         groups.map((group) => (
           <section key={group.category}>
-            <h3 className="mb-2 text-sm font-medium">
-              {categoryLabel(group.category)} <span className="font-normal text-fg-faint">{group.entries.length}</span>
+            <h3 className="mb-3 flex items-baseline gap-2 text-sm font-semibold">
+              {categoryLabel(group.category)} <span className="text-xs font-normal text-fg-faint">{group.entries.length}</span>
             </h3>
-            <ul className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+            <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
               {group.entries.map((entry) => {
                 const conn = added.get(entry.id);
                 return (
-                  <li key={entry.id} className="flex items-center gap-1 rounded-xl border border-border transition-colors hover:bg-bg-hover">
+                  <li
+                    key={entry.id}
+                    className="flex items-center gap-1 rounded-xl border border-border transition-colors hover:border-fg-faint/60 hover:bg-bg-hover"
+                  >
                     <button
                       type="button"
                       disabled={!conn && full}
                       title={conn ? undefined : tooMany}
                       onClick={() => (conn ? onOpen(conn) : onPick(entry))}
-                      className="group flex min-w-0 flex-1 items-center gap-3 p-3 text-start disabled:cursor-not-allowed disabled:opacity-60"
+                      className="group flex min-w-0 flex-1 items-center gap-3.5 p-4 text-start disabled:cursor-not-allowed disabled:opacity-60"
                     >
-                      <span className="h-10 w-10 shrink-0">
+                      <span className="h-11 w-11 shrink-0">
                         <ServiceLogo entry={entry} />
                       </span>
                       <span className="min-w-0 flex-1">
-                        <span className="block truncate text-sm font-medium">{entry.name}</span>
-                        <span className="block truncate text-xs text-fg-muted">
-                          {clientModeOf(entry.authType, entry, setup) === "required" ? t("catalog.ownApp") : t(`catalog.auth.${entry.authType}`)}
+                        <span className="block truncate text-sm font-medium" title={entry.name}>
+                          {entry.name}
                         </span>
+                        {conn ? (
+                          <span className="mt-0.5 flex items-center gap-1 text-xs text-fg-muted">
+                            <Check className="h-3.5 w-3.5 shrink-0 text-emerald-500" aria-hidden />
+                            <span className="truncate">{t("catalog.added")}</span>
+                          </span>
+                        ) : (
+                          <span className="mt-0.5 block truncate text-xs text-fg-muted">
+                            {clientModeOf(entry.authType, entry, setup) === "required" ? t("catalog.ownApp") : t(`catalog.auth.${entry.authType}`)}
+                          </span>
+                        )}
                       </span>
-                      {conn ? (
-                        <span className="flex shrink-0 items-center gap-1 text-xs text-fg-muted">
-                          <Check className="h-3.5 w-3.5" aria-hidden />
-                          {t("catalog.added")}
-                        </span>
-                      ) : (
-                        <span className="shrink-0 rounded-md border border-border bg-bg px-2 py-1 text-xs font-medium group-hover:border-fg-faint">
-                          {t("catalog.connect")}
+                      {!conn && !full && (
+                        <span
+                          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-border bg-bg text-fg-muted transition-colors group-hover:border-fg-faint group-hover:text-fg"
+                          title={t("catalog.connect")}
+                        >
+                          <Plus className="h-4 w-4" aria-hidden />
+                          <span className="sr-only">{t("catalog.connect")}</span>
                         </span>
                       )}
                     </button>
                     {/* Another connection to the same service: a second workspace, account or org. */}
                     {conn && !full && (
-                      <IconButton label={t("catalog.addAnother", { name: entry.name })} onClick={() => onPick(entry)} className="me-2 h-7 w-7 shrink-0">
-                        <Plus className="h-3.5 w-3.5" />
+                      <IconButton
+                        label={t("catalog.addAnother", { name: entry.name })}
+                        onClick={() => onPick(entry)}
+                        className="me-4 h-8 w-8 rounded-md border border-border bg-bg"
+                      >
+                        <Plus className="h-4 w-4" />
                       </IconButton>
                     )}
                   </li>
@@ -756,10 +806,10 @@ function ToolsTab({ workspaceId, conn, onChange }: { workspaceId: string; conn: 
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-2">
-        <p className="min-w-0 flex-1 text-sm">
+        <p className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-1 text-sm">
           <StatusText conn={conn} />
           {conn.toolsAt && conn.status === "ready" && (
-            <span className="text-xs text-fg-faint"> · {t("checkedAt", { time: format.dateTime(new Date(conn.toolsAt), { dateStyle: "medium", timeStyle: "short" }) })}</span>
+            <span className="text-xs text-fg-faint">{t("checkedAt", { time: format.dateTime(new Date(conn.toolsAt), { dateStyle: "medium", timeStyle: "short" }) })}</span>
           )}
         </p>
         {conn.authType === "oauth" && conn.status !== "ready" && (
