@@ -184,7 +184,8 @@ export async function startFakeOpenAi(
       res.write(`data: ${JSON.stringify({ id: "fake", object: "chat.completion.chunk", created: 1, model: request.model, choices: [], usage: { prompt_tokens: 10, completion_tokens: 5, total_tokens: 15 } })}\n\n`);
       res.end("data: [DONE]\n\n");
     } catch (error) {
-      if (!res.headersSent) res.writeHead(500, { "Content-Type": "application/json" });
+      // An error with a `status` answers with it (400 for a prompt the model can't take), others with 500.
+      if (!res.headersSent) res.writeHead((error as { status?: number }).status ?? 500, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ error: { message: (error as Error).message } }));
     }
   });

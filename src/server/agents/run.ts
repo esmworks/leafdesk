@@ -62,7 +62,7 @@ import { pageLabel } from "@/lib/labels";
 import { redactError, redactText, redactValue } from "@/lib/redact";
 import { AccessError, findMembership, inWorkspace, pageAccessOf } from "@/server/access";
 import { runActingFor } from "@/server/acting-for";
-import { aiConfig, AiError, complete, isAiError, takeWorkspaceCapacity, type AiMessage, type AiTool, type AiToolCall } from "@/server/ai";
+import { aiConfig, AiError, complete, isAiError, promptRoomFor, takeWorkspaceCapacity, type AiMessage, type AiResult, type AiTool, type AiToolCall } from "@/server/ai";
 import { agentEventPrompt, agentRequestPrompt, agentSchedulePrompt, agentSystemPrompt, agentTaskPrompt } from "@/server/ai/prompts";
 import { aiAvailable } from "@/server/ai-writing";
 import { memoryAvailable, memoryForPrompt } from "@/server/ai-memory";
@@ -80,6 +80,7 @@ import { AGENT_MEMORY_TOOL_NAMES, AGENT_MEMORY_TOOLS, runAgentMemoryTool } from 
 import { agentSkillRoom, runSkills } from "./skills";
 import { addAgentUsage, overMonthlyLimit, pruneAgentUsage } from "./usage";
 import { pruneAiUsage } from "@/server/ai/usage-store";
+import { dropOldToolResults } from "@/server/ai/compact";
 
 const SWEEP_INTERVAL_MS = 5_000;
 /** A run taken (or last gone on with, see converse) this long ago and not finished belongs to a worker that stopped: it's taken again. */
@@ -426,7 +427,6 @@ async function converse(
   // A row no member wrote, or an event from a service no owner vouched for, may carry anyone's
   // instructions: no connection tool runs without an owner.
   const askEveryTool = rowRun ? !member : !trusted;
-  const limits = aiConfig().limits;
   // The run's own time, from now: the wait for an answer doesn't count.
   const signal = AbortSignal.timeout(databaseId ? SCHEDULED_RUN_TIMEOUT_MS : AGENT_RUN_TIMEOUT_MS);
   const toolset = await agentToolset(agent.id);
@@ -455,7 +455,8 @@ async function converse(
     remembers,
   });
   const toolsSize = tools.reduce((n, t) => n + t.description.length + JSON.stringify(t.parameters).length, 0);
-  const room = (messages: AiMessage[]) => limits.maxInputChars - system.length - toolsSize - messages.reduce((n, m) => n + m.content.length, 0) - 300;
+  const budget = await promptRoomFor(run.workspaceId);
+  const room = (messages: AiMessage[]) => budget - system.length - toolsSize - messages.reduce((n, m) => n + m.content.length, 0) - 300;
 
   const registry: Registry = { sources: [], byKey: new Map() };
   const steps: AgentStepRecord[] = [...run.steps];
@@ -610,17 +611,28 @@ async function converse(
     // the agent use them too); a new run's first turn was checked in processRun.
     if ((round > firstRound || saved) && (await overMonthlyLimit(agent))) return { status: "failed", code: "limitReached", steps, usage };
     const last = round === maxRounds - 1;
-    const result = await complete({
-      feature: "agent",
-      userId: agent.userId,
-      workspaceId: run.workspaceId,
-      skipRateLimit: true,
-      system,
-      messages,
-      tools,
-      signal,
-      sessionId: run.id,
-    });
+    let result: AiResult;
+    try {
+      result = await complete({
+        feature: "agent",
+        userId: agent.userId,
+        workspaceId: run.workspaceId,
+        skipRateLimit: true,
+        system,
+        messages,
+        tools,
+        signal,
+        sessionId: run.id,
+      });
+    } catch (error) {
+      // Too long for the model: old tool results make room (the agent can call the tool again),
+      // and the same turn is asked again.
+      if (isAiError(error) && error.code === "tooLarge" && dropOldToolResults(messages) > 0) {
+        round -= 1;
+        continue;
+      }
+      throw error;
+    }
     // Counted as it comes back, so a run that fails later still counts what it used; a run is one
     // of the month's runs at its first turn.
     await addAgentUsage(agent.id, { runs: usage.rounds === 0 ? 1 : 0, ...result.usage }).catch((error) =>

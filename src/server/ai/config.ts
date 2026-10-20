@@ -81,8 +81,12 @@ export type AiSttConfig = {
 };
 
 export type AiLimits = {
-  /** Characters of prompt (instructions plus content) one request may send. */
-  maxInputChars: number;
+  /**
+   * Characters of prompt (instructions plus content) one request may send, when set
+   * (AI_MAX_INPUT_CHARS). Unset, a request may send what the model's context window takes, and the
+   * features that cut what they read to a fixed size use CONTENT_CHARS.
+   */
+  maxInputChars: number | null;
   /** Tokens one answer may have. */
   maxOutputTokens: number;
   timeoutMs: number;
@@ -106,6 +110,17 @@ export type AiConfig = {
 };
 
 type Env = Record<string, string | undefined>;
+
+/**
+ * Characters of content (a page, a transcript, skills) the features that read a bounded amount
+ * take, unless AI_MAX_INPUT_CHARS says otherwise: AI property values over many rows, voice notes,
+ * an agent's skills. It keeps their cost per request steady; the chat and agents use the model's
+ * context window instead.
+ */
+export const CONTENT_CHARS = 48_000;
+
+/** The content budget of the features that read a bounded amount (see CONTENT_CHARS). */
+export const contentChars = (limits: AiLimits) => limits.maxInputChars ?? CONTENT_CHARS;
 
 const clean = (value: string | undefined) => {
   const v = value?.trim();
@@ -136,7 +151,7 @@ function url(raw: string | null, name: string, problems: string[]) {
 export function readAiConfig(env: Env = process.env): AiConfig {
   const problems: string[] = [];
   const limits: AiLimits = {
-    maxInputChars: positive(env, "AI_MAX_INPUT_CHARS", 48_000, problems),
+    maxInputChars: clean(env.AI_MAX_INPUT_CHARS) === null ? null : positive(env, "AI_MAX_INPUT_CHARS", CONTENT_CHARS, problems),
     maxOutputTokens: positive(env, "AI_MAX_OUTPUT_TOKENS", 8_192, problems),
     timeoutMs: positive(env, "AI_TIMEOUT_SECONDS", 60, problems) * 1000,
     userPerMinute: positive(env, "AI_RATE_LIMIT", 20, problems),

@@ -43,7 +43,7 @@ const { deleteConversations, getConversation, listConversations, MAX_ROUNDS, sta
 const { setMemoryUse } = await import("@/server/ai-memory");
 const { decideChange } = await import("@/server/ai-chat-approvals");
 const { decidePageReview, getPageReview } = await import("@/server/page-review");
-const { MAX_CHAT_MESSAGE, MAX_CHAT_TURNS } = await import("@/lib/ai-chat");
+const { MAX_CHAT_MESSAGE } = await import("@/lib/ai-chat");
 type ChatEvent = import("@/lib/ai-chat").ChatEvent;
 type ChatStepView = import("@/lib/ai-chat").ChatStepView;
 type ChatInput = import("@/server/ai-chat").ChatInput;
@@ -440,14 +440,29 @@ try {
     .values({
       userId: dave,
       workspaceId,
-      title: "Full",
-      messages: Array.from({ length: MAX_CHAT_TURNS }, () => [
-        { role: "user" as const, content: "q", at: "" },
-        { role: "assistant" as const, content: "a", at: "" },
+      title: "Long",
+      messages: Array.from({ length: 60 }, (_, i) => [
+        { role: "user" as const, content: `Question ${i}`, at: "" },
+        { role: "assistant" as const, content: `Answer ${i}`, at: "" },
       ]).flat(),
     })
     .returning();
-  check((await refusal(() => startChat(dave, { workspaceId, conversationId: full.id, message: "One more?" }))) === "tooLarge", `a conversation takes at most ${MAX_CHAT_TURNS} questions`);
+  // A model that finds the conversation too long: the chat asks again without the earlier turns.
+  fake.setChat((request) => {
+    if (request.messages.filter((m) => m.role === "user").length > 1) {
+      throw Object.assign(new Error("This model's maximum context length is 32768 tokens. However, your messages resulted in 40000 tokens."), { status: 400 });
+    }
+    return { text: "Still here." };
+  });
+  fake.chats.length = 0;
+  const longer = await ask(dave, { workspaceId, conversationId: full.id, message: "One more?" });
+  check(longer.done && longer.text === "Still here.", "a long conversation takes more questions, without a turn limit", longer.error);
+  check(
+    fake.chats.length === 2 && fake.chats[0].messages.some((m) => textOf(m.content) === "Question 59") && !everything(fake.chats[1]).includes("Question 59"),
+    "…and when the model finds it too long, the turn is asked again without the earlier conversation",
+    fake.chats.map((c) => c.messages.length),
+  );
+  check((await getConversation(dave, workspaceId, full.id)).messages.length === 122, "…and the question and answer are kept with the rest");
   setAiEnv({ ...AI, AI_RATE_LIMIT: "2" });
   fake.setChat(researcher({}));
   const limited: (string | null)[] = [];

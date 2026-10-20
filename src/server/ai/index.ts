@@ -20,12 +20,12 @@
  * nothing here knows about pages.
  */
 import { randomUUID } from "node:crypto";
-import { Type, type Api, type AssistantMessage, type Context, type Message, type Model, type Tool } from "@earendil-works/pi-ai";
+import { isContextOverflow, Type, type Api, type AssistantMessage, type Context, type Message, type Model, type Tool } from "@earendil-works/pi-ai";
 import { sharedLimiter, takeAll, type SlidingWindowLimiter } from "@/lib/rate-limit";
 import { env } from "@/lib/env";
 import { redactText } from "@/lib/redact";
 import { createBackend, streamTurn, type AiBackend, type AiThinking } from "./backend";
-import { accountAiConfig, DEFAULT_MIN_SIMILARITY, describeAiConfig, readAiConfig, readSttLimits, type AiConfig } from "./config";
+import { accountAiConfig, contentChars, DEFAULT_MIN_SIMILARITY, describeAiConfig, readAiConfig, readSttLimits, type AiConfig } from "./config";
 import { fetchEmbeddings } from "./embeddings";
 import { AiError } from "./errors";
 import { featurePlan } from "./features";
@@ -35,6 +35,7 @@ import { holdToLimit, recordUsage, usageLedger, usageNumbers, type AiUsageLedger
 
 export { AiError, aiErrorStatus, isAiError } from "./errors";
 export type { AiConfig, AiLimits } from "./config";
+export { CONTENT_CHARS, contentChars } from "./config";
 export type { AiThinking } from "./backend";
 export type { AiUsageLedger } from "./usage";
 
@@ -389,6 +390,36 @@ export function takeWorkspaceCapacity(workspaceId: string): number {
   return takeAll([[workspaceLimiter(), workspaceId]]);
 }
 
+/**
+ * Characters a token is taken to hold when sizing a prompt against a model's context window: low,
+ * as Turkish text and JSON tool schemas take more tokens per character than English prose.
+ */
+const CHARS_PER_TOKEN = 3;
+
+/**
+ * Characters of prompt a model takes: AI_MAX_INPUT_CHARS when set, otherwise its context window
+ * less the room its answer needs. An estimate: a provider that finds the prompt too long all the
+ * same answers "tooLarge" too (see stream).
+ */
+function promptRoom(model: Model<Api>, limits: AiConfig["limits"], answerTokens: number) {
+  if (limits.maxInputChars !== null) return limits.maxInputChars;
+  return Math.max(0, (model.contextWindow || 128_000) - answerTokens) * CHARS_PER_TOKEN;
+}
+
+/**
+ * Characters of prompt the workspace's chat model takes (see promptRoom), for the chat and agents
+ * to fit their history and tool results in. Without AI for the workspace, the content budget.
+ */
+export async function promptRoomFor(workspaceId: string): Promise<number> {
+  const target = await aiTargetFor(workspaceId);
+  // A backend that can't be set up fails the request itself, with its own error.
+  const backend = target && chatOn(target) ? await backendFor(target).catch(() => null) : null;
+  if (!target || !backend) return contentChars(aiConfig().limits);
+  const { model } = backend;
+  const limits = target.config.limits;
+  return promptRoom(model, limits, Math.min(limits.maxOutputTokens, model.maxTokens || Infinity));
+}
+
 function promptSize(request: AiRequest) {
   let size = request.system?.length ?? 0;
   for (const m of request.messages) size += m.content.length;
@@ -507,7 +538,8 @@ function prepare(request: AiRequest) {
   // (in stream, once its account is read).
   if (!env.ownAiKeysEnabled && !config.chat && !runtime.override?.backend) throw new AiError("disabled", "AI is not configured on this server");
   if (!request.messages.length) throw new AiError("invalid", "Nothing to send");
-  if (promptSize(request) > config.limits.maxInputChars) {
+  // A set AI_MAX_INPUT_CHARS is checked before anything else; the model's own room once it's known.
+  if (config.limits.maxInputChars !== null && promptSize(request) > config.limits.maxInputChars) {
     throw new AiError("tooLarge", `The request is larger than ${config.limits.maxInputChars} characters`);
   }
   if (!request.skipRateLimit) takeRateLimit(request);
@@ -556,9 +588,10 @@ export async function complete(request: AiRequest): Promise<AiResult> {
 /**
  * One model turn, streamed. Iterate for text as it arrives; `result()` settles when the answer is
  * complete (and rejects with an AiError when it fails, times out or is cancelled). Checks and
- * limits run before anything is sent, so this throws synchronously for oversized or rate-limited
- * requests and when the server has no AI at all; a workspace without AI (own keys, see
- * aiTargetFor) rejects `result()` with "disabled".
+ * limits run before anything is sent, so this throws synchronously for rate-limited requests,
+ * requests over a set AI_MAX_INPUT_CHARS and when the server has no AI at all; a workspace without
+ * AI (own keys, see aiTargetFor) rejects `result()` with "disabled", and a prompt longer than the
+ * model takes, by our estimate or the provider's, with "tooLarge".
  */
 export function stream(request: AiRequest): AiStream {
   const prepared = prepare(request);
@@ -581,6 +614,8 @@ export function stream(request: AiRequest): AiStream {
       const { models, model: main, fast, sessions, fetch: viaFetch } = await backendFor(target!);
       const m = plan.fast && fast ? fast : main;
       model = m.id;
+      const room = promptRoom(m, target!.config.limits, prepared.maxTokens(m));
+      if (promptSize(request) > room) throw new AiError("tooLarge", `The request is larger than the model takes (${room} characters)`);
       const events = streamTurn(
         models,
         m,
@@ -604,6 +639,10 @@ export function stream(request: AiRequest): AiStream {
         }
       }
       final = await events.result();
+      // The provider found the prompt longer than the model takes: the caller can make room and ask again.
+      if (final.stopReason === "error" && isContextOverflow(final, m.contextWindow)) {
+        throw new AiError("tooLarge", `The request is larger than the model takes: ${final.errorMessage ?? ""}`);
+      }
       if (final.stopReason === "error" || final.stopReason === "aborted") throw new Error(final.errorMessage ?? final.stopReason);
       const result = toResult(final);
       logUsage({
@@ -729,7 +768,7 @@ export async function embed(
   const testing = testBackend(target)?.embed;
   if (!target || (!testing && !config.embeddings)) throw new AiError("disabled", "No embeddings model is configured for this workspace");
   const size = texts.reduce((n, t) => n + t.length, 0);
-  if (size > config.limits.maxInputChars * 4) throw new AiError("tooLarge", "Too much text for one embeddings request");
+  if (size > contentChars(config.limits) * 4) throw new AiError("tooLarge", "Too much text for one embeddings request");
   if (!request.skipRateLimit) takeRateLimit(request);
   const timeout = AbortSignal.timeout(config.limits.timeoutMs);
   const signal = request.signal ? AbortSignal.any([request.signal, timeout]) : timeout;

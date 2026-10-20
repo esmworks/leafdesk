@@ -6,10 +6,11 @@ import type { PageKind } from "@/db/schema/app";
 import type { BlockChange } from "./page-diff";
 import type { AiErrorCode } from "./ai";
 
-/** Longest question one message may ask. */
-export const MAX_CHAT_MESSAGE = 4_000;
-/** Questions one conversation may hold; then a new one starts. */
-export const MAX_CHAT_TURNS = 40;
+/**
+ * Longest question one message may ask: room for a pasted document. What the model takes is
+ * checked against its context window; this only bounds one request.
+ */
+export const MAX_CHAT_MESSAGE = 100_000;
 /** Conversations kept per person and workspace; the oldest go first. */
 export const MAX_CONVERSATIONS = 50;
 

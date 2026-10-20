@@ -37,6 +37,16 @@
 
 ### Changed
 
+- **The AI chat fits a conversation to the model, not to a fixed size.** A chat request was
+  refused past 48,000 characters, so a workspace whose connections offer many tools (their
+  descriptions take room in every request) could fill it before the conversation did, and the chat
+  answered "this conversation is full". The chat and agents now size what they send by the model's
+  context window. When the model still finds it too long, older tool results are left out first
+  (the model can call the tool again), then the earlier turns, and the question is asked again. A
+  conversation no longer stops at 40 questions, and a question can be 100,000 characters long.
+  `AI_MAX_INPUT_CHARS` is unset by default; set, it still caps every request. The writing
+  assistant, AI properties, voice notes and agents' skills keep reading at most 48,000 characters.
+
 - **A clearer Connections page.** Settings → Connections puts **Add another server** next to the
   tabs, on both of them. The catalog's cards are roomier, with a + to connect and a tick on the
   services already added, so long names no longer get cut. Connected services show as cards with
