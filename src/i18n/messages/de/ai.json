@@ -46,7 +46,7 @@
     "empty": "Die KI hat keine Antwort gegeben. Versuche es erneut oder formuliere anders.",
     "invalid": "Die KI-Anfrage war unvollständig. Versuche es erneut.",
     "interrupted": "Der Server wurde neu gestartet, während dies ermittelt wurde. Aktualisiere es erneut.",
-    "limitReached": "Dieser Workspace hat sein monatliches KI-Kostenlimit erreicht. Ein Eigentümer kann es in den Workspace-Einstellungen erhöhen."
+    "limitReached": "Dieser Workspace hat sein monatliches KI-Kostenlimit erreicht, daher werden KI-Anfragen bis zum nächsten Monat abgelehnt. Eigentümer sehen die Details in den Einstellungen unter KI-Nutzung."
   },
   "autofill": {
     "addEntry": "KI-Autofill",

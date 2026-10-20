@@ -670,7 +670,7 @@
       "empty": "Rien n'a été entendu dans l'enregistrement. Réessayez plus près du micro.",
       "invalid": "L'enregistrement n'a pas pu être lu. Réessayez.",
       "interrupted": "Le serveur a redémarré pendant le traitement. Réessayez.",
-      "limitReached": "Cet espace de travail a atteint sa limite mensuelle de coût d'IA. Un propriétaire peut la relever dans les paramètres de l'espace de travail.",
+      "limitReached": "Cet espace de travail a atteint sa limite mensuelle de coût d'IA : les requêtes d'IA sont refusées jusqu'au mois prochain. Les propriétaires en voient le détail dans les paramètres, sous Utilisation de l'IA.",
       "insert": "La note n'a pas pu être ajoutée à la page."
     }
   },

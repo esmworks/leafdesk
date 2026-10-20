@@ -1254,6 +1254,7 @@
       "loginMethod": "Come accedono i membri",
       "ai": "Funzioni IA",
       "aiMemory": "Memoria IA",
+      "aiMonthlyLimitUsd": "Limite mensile di costo dell'IA",
       "trashRetentionDays": "Elimina le pagine nel cestino dopo",
       "export": "Consenti l’esportazione",
       "connectedApps": "App connesse e token API",

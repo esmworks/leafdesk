@@ -46,7 +46,7 @@
     "empty": "AI nie udzieliła odpowiedzi. Spróbuj ponownie lub sformułuj to inaczej.",
     "invalid": "Zapytanie do AI było niekompletne. Spróbuj ponownie.",
     "interrupted": "Serwer został ponownie uruchomiony w trakcie obliczania. Zaktualizuj ponownie.",
-    "limitReached": "Ta przestrzeń robocza osiągnęła miesięczny limit kosztów AI. Właściciel może go podnieść w ustawieniach przestrzeni roboczej."
+    "limitReached": "Ta przestrzeń robocza osiągnęła miesięczny limit kosztów AI, więc żądania AI są odrzucane do następnego miesiąca. Właściciele widzą szczegóły w ustawieniach, w sekcji Użycie AI."
   },
   "autofill": {
     "addEntry": "Autouzupełnianie AI",

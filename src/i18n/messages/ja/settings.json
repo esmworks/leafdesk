@@ -1254,6 +1254,7 @@
       "loginMethod": "メンバーのログイン方法",
       "ai": "AI機能",
       "aiMemory": "AIメモリー",
+      "aiMonthlyLimitUsd": "AI の月間コスト上限",
       "trashRetentionDays": "ゴミ箱のページを削除するまでの期間",
       "export": "エクスポートを許可",
       "connectedApps": "接続済みアプリとAPIトークン",

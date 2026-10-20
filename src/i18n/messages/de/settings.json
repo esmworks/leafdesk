@@ -1254,6 +1254,7 @@
       "loginMethod": "Wie sich Mitglieder anmelden",
       "ai": "KI-Funktionen",
       "aiMemory": "KI-Gedächtnis",
+      "aiMonthlyLimitUsd": "Monatliches KI-Kostenlimit",
       "trashRetentionDays": "Seiten im Papierkorb löschen nach",
       "export": "Export erlauben",
       "connectedApps": "Verbundene Apps und API-Token",

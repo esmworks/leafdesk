@@ -670,7 +670,7 @@
       "empty": "Kayıtta bir şey duyulmadı. Mikrofona daha yakın konuşarak tekrar deneyin.",
       "invalid": "Kayıt okunamadı. Tekrar deneyin.",
       "interrupted": "İşlem sürerken sunucu yeniden başladı. Tekrar deneyin.",
-      "limitReached": "Bu çalışma alanı aylık yapay zekâ harcama sınırına ulaştı. Bir sahip, çalışma alanı ayarlarından sınırı yükseltebilir.",
+      "limitReached": "Bu çalışma alanı aylık yapay zekâ harcama sınırına ulaştı; yapay zekâ istekleri gelecek aya kadar reddediliyor. Ayrıntıları sahipler Ayarlar'daki Yapay zekâ kullanımı bölümünde görebilir.",
       "insert": "Not sayfaya eklenemedi."
     }
   },

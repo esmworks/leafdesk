@@ -46,7 +46,7 @@
     "empty": "La IA no dio ninguna respuesta. Inténtalo de nuevo o reformula.",
     "invalid": "La solicitud de IA estaba incompleta. Inténtalo de nuevo.",
     "interrupted": "El servidor se reinició mientras se calculaba esto. Vuelve a actualizarlo.",
-    "limitReached": "Este espacio de trabajo alcanzó su límite mensual de coste de IA. Un propietario puede subirlo en la configuración del espacio de trabajo."
+    "limitReached": "Este espacio de trabajo alcanzó su límite mensual de coste de IA, así que las solicitudes de IA se rechazan hasta el mes que viene. Los propietarios ven los detalles en la configuración, en Uso de IA."
   },
   "autofill": {
     "addEntry": "Autorrelleno con IA",

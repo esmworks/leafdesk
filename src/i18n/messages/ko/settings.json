@@ -1254,6 +1254,7 @@
       "loginMethod": "멤버 로그인 방법",
       "ai": "AI 기능",
       "aiMemory": "AI 메모리",
+      "aiMonthlyLimitUsd": "월간 AI 비용 한도",
       "trashRetentionDays": "휴지통의 페이지 삭제 기한",
       "export": "내보내기 허용",
       "connectedApps": "연결된 앱과 API 토큰",

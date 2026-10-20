@@ -1254,6 +1254,7 @@
       "loginMethod": "Comment les membres se connectent",
       "ai": "Fonctions d’IA",
       "aiMemory": "Mémoire de l’IA",
+      "aiMonthlyLimitUsd": "Limite mensuelle de coût d'IA",
       "trashRetentionDays": "Supprimer les pages de la corbeille après",
       "export": "Autoriser l’exportation",
       "connectedApps": "Applications connectées et jetons d’API",

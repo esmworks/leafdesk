@@ -1254,6 +1254,7 @@
       "loginMethod": "Jak logują się członkowie",
       "ai": "Funkcje AI",
       "aiMemory": "Pamięć AI",
+      "aiMonthlyLimitUsd": "Miesięczny limit kosztów AI",
       "trashRetentionDays": "Usuwaj strony z kosza po",
       "export": "Zezwól na eksport",
       "connectedApps": "Połączone aplikacje i tokeny API",

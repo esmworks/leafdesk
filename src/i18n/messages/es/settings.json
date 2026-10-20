@@ -1254,6 +1254,7 @@
       "loginMethod": "Cómo inician sesión los miembros",
       "ai": "Funciones de IA",
       "aiMemory": "Memoria de la IA",
+      "aiMonthlyLimitUsd": "Límite mensual de coste de IA",
       "trashRetentionDays": "Eliminar las páginas de la papelera tras",
       "export": "Permitir exportar",
       "connectedApps": "Apps conectadas y tokens de API",

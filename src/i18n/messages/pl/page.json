@@ -670,7 +670,7 @@
       "empty": "W nagraniu nic nie było słychać. Spróbuj ponownie bliżej mikrofonu.",
       "invalid": "Nie udało się odczytać nagrania. Spróbuj ponownie.",
       "interrupted": "Serwer został ponownie uruchomiony w trakcie przetwarzania. Spróbuj ponownie.",
-      "limitReached": "Ta przestrzeń robocza osiągnęła miesięczny limit kosztów AI. Właściciel może go podnieść w ustawieniach przestrzeni roboczej.",
+      "limitReached": "Ta przestrzeń robocza osiągnęła miesięczny limit kosztów AI, więc żądania AI są odrzucane do następnego miesiąca. Właściciele widzą szczegóły w ustawieniach, w sekcji Użycie AI.",
       "insert": "Nie udało się dodać notatki do strony."
     }
   },

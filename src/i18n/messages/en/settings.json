@@ -1254,6 +1254,7 @@
       "loginMethod": "How members sign in",
       "ai": "AI features",
       "aiMemory": "AI memory",
+      "aiMonthlyLimitUsd": "Monthly AI cost limit",
       "trashRetentionDays": "Delete pages in the trash after",
       "export": "Allow export",
       "connectedApps": "Connected apps and API tokens",

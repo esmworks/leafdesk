@@ -1254,6 +1254,7 @@
       "loginMethod": "איך חברים מתחברים",
       "ai": "תכונות AI",
       "aiMemory": "זיכרון AI",
+      "aiMonthlyLimitUsd": "מגבלת עלות חודשית לבינה מלאכותית",
       "trashRetentionDays": "מחיקת דפים מהאשפה אחרי",
       "export": "לאפשר ייצוא",
       "connectedApps": "אפליקציות מחוברות ואסימוני API",
