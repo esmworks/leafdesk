@@ -76,7 +76,7 @@ const { mkdirSync, writeFileSync } = await import("node:fs");
 const { and, eq, inArray } = await import("drizzle-orm");
 const { db } = await import("@/db");
 const { aiPropertyState, page } = await import("@/db/schema");
-const { registerCollab } = await import("@/server/collab/bridge");
+const { getCollab, registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
 const { addProperty } = await import("@/server/databases");
 const { complete, isAiError } = await import("@/server/ai");
@@ -349,7 +349,8 @@ async function judge(task: Extract<EvalTask, { kind: "writing" }>, result: TaskR
   sink = usage;
   try {
     if (variant) fakeReply = () => ({ text: JSON.stringify({ score: variant === "right" ? 5 : 2, reason: "fake judge" }) });
-    const input = task.text ?? "(the whole page, see the task)";
+    // A summary is judged against the page it summarizes.
+    const input = task.text ?? (task.page ? (await getCollab().readPage(task.page(seed))).markdown : "");
     const answer = await complete({
       feature: "eval.judge",
       userId: seed.ownerId,
@@ -409,6 +410,11 @@ try {
           const ms = performance.now() - started;
           sink = null;
           const result: TaskResult = { ...outcome, attempt, usage, ms, ...(variant ? { traffic: { ...traffic } } : {}) };
+          // Every task asks the model at least once: no usage read means the "[ai]" log line changed.
+          if (!usage.requests && !result.error) {
+            result.checks.push({ name: "usage was read from the [ai] log line (its format changed?)", pass: false });
+            result.score = score(result.checks);
+          }
           if (task.kind === "writing" && !result.error) {
             if (!variant) selectModel(judgeModel);
             const verdict = await judge(task, result, seed, variant);
