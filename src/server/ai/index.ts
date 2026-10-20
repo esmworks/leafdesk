@@ -23,7 +23,7 @@ import { Type, type Api, type AssistantMessage, type Context, type Message, type
 import { sharedLimiter, takeAll, type SlidingWindowLimiter } from "@/lib/rate-limit";
 import { env } from "@/lib/env";
 import { redactText } from "@/lib/redact";
-import { createBackend, type AiBackend } from "./backend";
+import { createBackend, streamTurn, type AiBackend, type AiThinking } from "./backend";
 import { accountAiConfig, DEFAULT_MIN_SIMILARITY, describeAiConfig, readAiConfig, readSttLimits, type AiConfig } from "./config";
 import { fetchEmbeddings } from "./embeddings";
 import { AiError } from "./errors";
@@ -32,6 +32,7 @@ import { fetchTranscription } from "./transcribe";
 
 export { AiError, aiErrorStatus, isAiError } from "./errors";
 export type { AiConfig, AiLimits } from "./config";
+export type { AiThinking } from "./backend";
 
 // ------------------------------------------------------------------------------------ types
 
@@ -68,6 +69,11 @@ export type AiRequest = {
    * thinking comes out of the same tokens and could leave a smaller cap no room for the answer.
    */
   maxOutputTokens?: number;
+  /**
+   * How much a model that thinks should think: "off" (or as little as the model allows) and "low"
+   * for small answers where thinking costs more than it adds. Unset, the model's default.
+   */
+  thinking?: AiThinking;
   signal?: AbortSignal;
   /**
    * The same for every turn of one conversation, for providers that want it (OpenCode Go); a
@@ -202,12 +208,10 @@ export async function tryAiConfig(config: AiConfig, signal?: AbortSignal): Promi
   const s = signal ? AbortSignal.any([signal, timeout]) : timeout;
   let final: AssistantMessage | null = null;
   try {
-    const events = backend.models.stream(backend.model, toContext({ feature: "account.test", workspaceId: "", messages: [{ role: "user", content: "Reply with the word OK." }] }, backend.model), {
-      signal: s,
-      maxTokens: 16,
-      ...(backend.fetch ? { fetch: backend.fetch } : {}),
-      ...(backend.sessions ? { sessionId: randomUUID() } : {}),
-    });
+    const context = toContext({ feature: "account.test", workspaceId: "", messages: [{ role: "user", content: "Reply with the word OK." }] }, backend.model);
+    // A thinking model could spend all 16 tokens thinking (and the account's money on a word).
+    const options = { signal: s, maxTokens: 16, ...(backend.fetch ? { fetch: backend.fetch } : {}), ...(backend.sessions ? { sessionId: randomUUID() } : {}) };
+    const events = streamTurn(backend.models, backend.model, context, options, "off");
     final = await events.result();
     if (final.stopReason === "error" || final.stopReason === "aborted") throw new Error(final.errorMessage ?? final.stopReason);
   } catch (error) {
@@ -562,13 +566,19 @@ export function stream(request: AiRequest): AiStream {
       if (!chatOn(target)) throw new AiError("disabled", "AI is not configured for this workspace");
       const { models, model: m, sessions, fetch: viaFetch } = await backendFor(target!);
       model = m.id;
-      const events = models.stream(m, toContext(request, m), {
-        signal: prepared.signal,
-        maxTokens: prepared.maxTokens(m),
-        ...(viaFetch ? { fetch: viaFetch } : {}),
-        // Only where asked for: other providers would also turn it into prompt-cache keys.
-        ...(sessions ? { sessionId: request.sessionId ?? randomUUID() } : {}),
-      });
+      const events = streamTurn(
+        models,
+        m,
+        toContext(request, m),
+        {
+          signal: prepared.signal,
+          maxTokens: prepared.maxTokens(m),
+          ...(viaFetch ? { fetch: viaFetch } : {}),
+          // Only where asked for: other providers would also turn it into prompt-cache keys.
+          ...(sessions ? { sessionId: request.sessionId ?? randomUUID() } : {}),
+        },
+        request.thinking,
+      );
       for await (const event of events) {
         if (event.type === "text_delta" && event.delta) {
           queue.push({ type: "text", delta: event.delta });

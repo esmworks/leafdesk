@@ -14,6 +14,10 @@
   other models still keep to 800 tokens, and no request asks for more than the model's own output
   limit. A server that sets `AI_MAX_OUTPUT_TOKENS` itself keeps its value; raise it if answers end
   early.
+- **AI property values and the AI account test ask the model to think as little as it can.**
+  Claude 5.5 models think at high effort by default, which costs tokens and time on every
+  autofilled cell. Claude Haiku 5.5 now answers these without thinking; Claude Sonnet 5.5 and Opus
+  5.5, which always think, use low effort. Other AI features keep the model's own default.
 
 ### Fixed
 

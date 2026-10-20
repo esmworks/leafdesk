@@ -393,6 +393,8 @@ async function runJob(job: Job): Promise<number> {
         system: input.prompt.system,
         messages: [{ role: "user", content: input.prompt.prompt }],
         maxOutputTokens: 800,
+        // One short value per cell, for every row: thinking would cost more than it adds.
+        thinking: "off",
       });
       value = cleanValue(result.text, MAX_AUTOFILL_VALUE);
       if (!value) throw new AiError("empty", "The model gave no value");

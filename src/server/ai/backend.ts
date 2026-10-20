@@ -3,7 +3,17 @@
  * implementation it needs; SDKs load lazily on the first request) and a Models collection holding
  * it. Nothing outside src/server/ai imports pi-ai, so the library can be swapped here.
  */
-import { createModels, createProvider, type Api, type Model, type Models, type ProviderStreams } from "@earendil-works/pi-ai";
+import {
+  clampThinkingLevel,
+  createModels,
+  createProvider,
+  type Api,
+  type Context,
+  type Model,
+  type Models,
+  type ProviderStreams,
+  type StreamOptions,
+} from "@earendil-works/pi-ai";
 import type { AiChatConfig, AiConfig } from "./config";
 
 /** What the service sends requests through: a Models collection and the model to use. */
@@ -19,6 +29,21 @@ export type AiBackend = {
   /** Requests go through this fetch (a person's own server, see fetch.ts). */
   fetch?: typeof fetch;
 };
+
+/** How much a model that thinks should think (see AiRequest.thinking). */
+export type AiThinking = "off" | "low";
+
+/**
+ * Sends one model turn. Without `thinking` the model thinks as its provider sets it up (Claude 5.5:
+ * adaptive thinking at high effort). With it, the request goes through the library's
+ * provider-neutral thinking levels, moved to the nearest one the model has: Claude Sonnet and Opus
+ * 5.5 can't stop thinking, so "off" is low effort for them.
+ */
+export function streamTurn(models: Models, model: Model<Api>, context: Context, options: StreamOptions, thinking?: AiThinking) {
+  if (!thinking) return models.stream(model, context, options);
+  const level = clampThinkingLevel(model, thinking);
+  return models.streamSimple(model, context, level === "off" ? options : { ...options, reasoning: level });
+}
 
 /** One implementation for all the provider's models, or one per wire API for mixed providers. */
 type ApiLoader = () => Promise<ProviderStreams | Partial<Record<Api, ProviderStreams>>>;

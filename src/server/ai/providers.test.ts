@@ -6,7 +6,8 @@
 import { createServer, type IncomingMessage, type Server } from "node:http";
 import type { AddressInfo } from "node:net";
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
-import { complete, embed, stream } from "./index";
+import { readAiConfig } from "./config";
+import { complete, embed, stream, tryAiConfig } from "./index";
 import { resetAi, setAiEnv } from "./testing";
 
 let server: Server;
@@ -116,6 +117,51 @@ describe("providers over HTTP", () => {
     expect(body.max_tokens).toBe(8192);
     // Only the library's catalog entry asks for adaptive thinking; an unknown model id gets none.
     expect(body.thinking).toMatchObject({ type: "adaptive" });
+  });
+
+  describe("a request that asks for little thinking", () => {
+    const anthropic = (model: string) => ({ AI_PROVIDER: "anthropic", AI_MODEL: model, AI_API_KEY: "sk-ant-test", AI_BASE_URL: base.replace(/\/v1$/, "") });
+    const ask = (thinking: "off" | "low") =>
+      complete({ feature: "test", workspaceId: "w1", messages: [{ role: "user", content: "Hello" }], maxOutputTokens: 800, thinking });
+    // The effort for the answer is the last message: a system turn with only output_config.
+    const lastEffort = (body: Record<string, unknown>) => (body.messages as { role: string; output_config?: { effort: string } }[]).at(-1);
+
+    it("turns thinking off where the model can stop thinking (claude-haiku-5-5)", async () => {
+      setAiEnv(anthropic("claude-haiku-5-5"));
+      await ask("off");
+      const { body } = seen[0];
+      expect(body.thinking).toEqual({ type: "disabled" });
+      expect(body.output_config).toBeUndefined();
+      expect(lastEffort(body)).toMatchObject({ role: "user" });
+      // Still the whole limit: the rule for models that think stays.
+      expect(body.max_tokens).toBe(8192);
+    });
+
+    it("asks for low effort where the model always thinks (claude-sonnet-5-5)", async () => {
+      setAiEnv(anthropic("claude-sonnet-5-5"));
+      await ask("off");
+      const { body } = seen[0];
+      expect(body.thinking).toMatchObject({ type: "adaptive" });
+      expect(lastEffort(body)).toEqual({ role: "system", content: [], output_config: { effort: "low" } });
+    });
+
+    it("asks for low effort when asked for a little thinking", async () => {
+      setAiEnv(anthropic("claude-haiku-5-5"));
+      await ask("low");
+      expect(seen[0].body.thinking).toMatchObject({ type: "adaptive" });
+      expect(lastEffort(seen[0].body)).toMatchObject({ output_config: { effort: "low" } });
+    });
+
+    it("leaves the model's own thinking alone otherwise", async () => {
+      setAiEnv(anthropic("claude-sonnet-5-5"));
+      await complete({ feature: "test", workspaceId: "w1", messages: [{ role: "user", content: "Hello" }] });
+      expect(lastEffort(seen[0].body)).toMatchObject({ output_config: { effort: "high" } });
+    });
+
+    it("tests an AI account without thinking", async () => {
+      await tryAiConfig(readAiConfig(anthropic("claude-haiku-5-5")));
+      expect(seen[0].body).toMatchObject({ max_tokens: 16, thinking: { type: "disabled" } });
+    });
   });
 
   it("asks no more than the model's own output limit", async () => {
