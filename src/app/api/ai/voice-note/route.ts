@@ -1,9 +1,8 @@
 import { auth } from "@/lib/auth";
-import { voiceAudioType } from "@/lib/voice-notes";
 import { AccessError } from "@/server/access";
 import { aiErrorStatus, isAiError, sttLimits } from "@/server/ai";
+import { audioError as fail, readAudioForm } from "@/server/audio-upload";
 import { isCrossSite } from "@/server/cross-site";
-import { BodyTooLargeError, readFormLimited } from "@/server/request-body";
 import { draftVoiceNote, prepareVoiceNote, type VoiceNoteTarget } from "@/server/voice-notes";
 
 /**
@@ -26,21 +25,9 @@ export async function POST(request: Request) {
   if (isCrossSite(request)) return fail("noAccess", "Cross-site requests aren't allowed", 403);
   const limits = sttLimits();
   if (!limits) return fail("disabled", "Speech to text is not configured on this server", 403);
-  if (!(request.headers.get("content-type") ?? "").includes("multipart/form-data")) return fail("invalid", "Send multipart form data", 415);
-  // Room for the form's other fields on top of the audio; a larger body isn't read to its end.
-  let form: FormData | null;
-  try {
-    form = await readFormLimited(request, limits.maxBytes + 64 * 1024);
-  } catch (error) {
-    if (error instanceof BodyTooLargeError) return tooLarge(limits.maxBytes);
-    form = null;
-  }
-  const audio = form?.get("audio");
-  if (!form || !(audio instanceof Blob)) return fail("invalid", "Send the recording as `audio`", 400);
-  const type = voiceAudioType(audio.type, audio instanceof File ? audio.name : null);
-  if (!type) return fail("invalid", "This kind of audio file isn't supported", 415);
-  if (!audio.size) return fail("invalid", "The recording is empty", 400);
-  if (audio.size > limits.maxBytes) return tooLarge(limits.maxBytes);
+  const read = await readAudioForm(request, limits.maxBytes);
+  if (read instanceof Response) return read;
+  const { form, audio } = read;
   const field = (name: string) => {
     const value = form.get(name);
     return typeof value === "string" && value.trim() ? value.trim().slice(0, 100) : null;
@@ -68,7 +55,7 @@ export async function POST(request: Request) {
   const body = new ReadableStream<Uint8Array>({
     async start(controller) {
       try {
-        const draft = await draftVoiceNote(session.user.id, prepared, { bytes: audio, type }, {
+        const draft = await draftVoiceNote(session.user.id, prepared, audio, {
           signal,
           onStage: (stage) => controller.enqueue(line({ type: "stage", stage })),
         });
@@ -89,12 +76,4 @@ export async function POST(request: Request) {
   return new Response(body, {
     headers: { "Content-Type": "application/x-ndjson; charset=utf-8", "Cache-Control": "no-store", "X-Accel-Buffering": "no" },
   });
-}
-
-function tooLarge(maxBytes: number) {
-  return fail("tooLarge", `Recordings can be at most ${Math.round(maxBytes / 1024 / 1024)} MB`, 413);
-}
-
-function fail(code: string, message: string, status: number) {
-  return Response.json({ error: { code, message } }, { status });
 }

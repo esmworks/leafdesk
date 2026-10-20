@@ -142,6 +142,24 @@
       "clear": "Clear",
       "add": "Ask after this answer"
     },
+    "dictation": {
+      "start": "Dictate a question",
+      "stop": "Stop and insert the text",
+      "cancel": "Cancel recording",
+      "transcribing": "Writing down what you said…",
+      "autoStopped": "The recording stopped at the {minutes} min limit. Check the text before you send it.",
+      "errors": {
+        "unsupported": "This browser can't record audio.",
+        "denied": "Leafdesk isn't allowed to use the microphone. Allow it in your browser's site settings and try again.",
+        "noDevice": "No microphone was found.",
+        "failed": "The recording couldn't start. Try again.",
+        "disabled": "Dictation isn't available in this workspace.",
+        "tooLarge": "The recording is too large. Recordings can be at most {max}.",
+        "timeout": "Writing down the recording took too long. Try again with a shorter recording.",
+        "provider": "The recording couldn't be written down. Try again later, or ask an admin to check the speech to text settings.",
+        "empty": "Nothing was heard in the recording. Try again closer to the microphone."
+      }
+    },
     "scope": "Answer from",
     "scopeWorkspace": "The whole workspace",
     "scopePage": "This page and its subpages",

@@ -142,6 +142,24 @@
       "clear": "清除",
       "add": "在此回答后提问"
     },
+    "dictation": {
+      "start": "语音输入问题",
+      "stop": "停止并插入文字",
+      "cancel": "取消录音",
+      "transcribing": "正在记录你说的话…",
+      "autoStopped": "录音已在 {minutes} 分钟的上限处停止。发送前请检查文字。",
+      "errors": {
+        "unsupported": "此浏览器无法录音。",
+        "denied": "Leafdesk 无权使用麦克风。请在浏览器的网站设置中允许后重试。",
+        "noDevice": "未找到麦克风。",
+        "failed": "无法开始录音。请重试。",
+        "disabled": "此工作区无法使用语音输入。",
+        "tooLarge": "录音过大。录音最大为 {max}。",
+        "timeout": "转写录音用时过长。请用更短的录音重试。",
+        "provider": "无法转写录音。请稍后重试，或请管理员检查语音转文字设置。",
+        "empty": "录音中没有听到任何内容。请靠近麦克风重试。"
+      }
+    },
     "scope": "回答范围",
     "scopeWorkspace": "整个工作区",
     "scopePage": "此页面及其子页面",

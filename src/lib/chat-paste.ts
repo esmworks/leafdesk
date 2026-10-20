@@ -1,5 +1,5 @@
 // Client-safe: the AI chat's box (src/components/ai-chat) shows a long paste as a label, and the
-// question it sends has the pasted text in the label's place.
+// question it sends has the pasted text in the label's place. Dictated text goes in as typed text.
 
 /** A long paste: its label stands in the box's text at `start..end`; `text` is what is sent. */
 export type PastePart = { label: string; text: string; start: number; end: number };
@@ -105,4 +105,19 @@ export function expandDraft(draft: ChatDraft): string {
     text = text.slice(0, at) + part.text + text.slice(at + part.label.length);
   }
   return text;
+}
+
+/**
+ * The box's text with dictated words in place of `start..end` (the selection; null: at the end),
+ * spaced from the words around them, and where the caret goes (after them).
+ */
+export function insertDictation(text: string, dictated: string, start: number | null, end: number | null): { text: string; caret: number } {
+  const words = dictated.trim();
+  const from = start === null ? text.length : Math.max(0, Math.min(start, text.length));
+  const to = end === null ? from : Math.max(from, Math.min(end, text.length));
+  if (!words) return { text, caret: to };
+  const before = text.slice(0, from);
+  const after = text.slice(to);
+  const inserted = `${before && !/\s$/.test(before) ? " " : ""}${words}${after && !/^\s/.test(after) ? " " : ""}`;
+  return { text: before + inserted + after, caret: from + inserted.length };
 }

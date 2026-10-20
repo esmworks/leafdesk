@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { caretOutsideLabels, deleteLabel, EMPTY_DRAFT, expandDraft, insertPaste, normalizePaste, pasteLineCount, shouldCollapsePaste, syncDraft, uniqueLabel } from "./chat-paste";
+import { caretOutsideLabels, deleteLabel, EMPTY_DRAFT, expandDraft, insertDictation, insertPaste, normalizePaste, pasteLineCount, shouldCollapsePaste, syncDraft, uniqueLabel } from "./chat-paste";
 
 // Labels as uniqueLabel makes them, with spaces that don't break.
 const label = (n: number) => `[Pasted\u00a0${n}\u00a0lines]`;
@@ -102,5 +102,21 @@ describe("a label is one piece", () => {
     expect(caretOutsideLabels(draft.pastes, end - 1, end)).toBe(1);
     expect(caretOutsideLabels(draft.pastes, end, 0)).toBe(end);
     expect(caretOutsideLabels(draft.pastes, 0, 5)).toBe(0);
+  });
+});
+
+describe("insertDictation", () => {
+  it("fills an empty box, and goes at the end without a caret", () => {
+    expect(insertDictation("", "  What changed this week? ", 0, 0)).toEqual({ text: "What changed this week?", caret: 23 });
+    expect(insertDictation("Summarize", "the launch notes", null, null)).toEqual({ text: "Summarize the launch notes", caret: 26 });
+  });
+  it("goes in at the caret or in place of the selection, spaced from the words around it", () => {
+    expect(insertDictation("Find  pages", "budget", 5, 5)).toEqual({ text: "Find budget pages", caret: 11 });
+    expect(insertDictation("Find old pages", "budget", 5, 8)).toEqual({ text: "Find budget pages", caret: 11 });
+    expect(insertDictation("Findpages", "budget", 4, 4)).toEqual({ text: "Find budget pages", caret: 12 });
+    expect(insertDictation("Line one\n", "two", 9, 9)).toEqual({ text: "Line one\ntwo", caret: 12 });
+  });
+  it("leaves the text as it was when nothing was heard", () => {
+    expect(insertDictation("Hello", " ", 2, 2)).toEqual({ text: "Hello", caret: 2 });
   });
 });

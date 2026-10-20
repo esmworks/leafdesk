@@ -142,6 +142,24 @@
       "clear": "Leeren",
       "add": "Nach dieser Antwort fragen"
     },
+    "dictation": {
+      "start": "Frage diktieren",
+      "stop": "Stoppen und Text einfügen",
+      "cancel": "Aufnahme abbrechen",
+      "transcribing": "Das Gesagte wird verschriftlicht…",
+      "autoStopped": "Die Aufnahme wurde beim Limit von {minutes} Min. beendet. Prüfe den Text, bevor du ihn sendest.",
+      "errors": {
+        "unsupported": "Dieser Browser kann kein Audio aufnehmen.",
+        "denied": "Leafdesk darf das Mikrofon nicht verwenden. Erlaube es in den Website-Einstellungen deines Browsers und versuche es erneut.",
+        "noDevice": "Es wurde kein Mikrofon gefunden.",
+        "failed": "Die Aufnahme konnte nicht starten. Versuche es erneut.",
+        "disabled": "Diktieren ist in diesem Workspace nicht verfügbar.",
+        "tooLarge": "Die Aufnahme ist zu groß. Aufnahmen dürfen höchstens {max} groß sein.",
+        "timeout": "Das Verschriftlichen hat zu lange gedauert. Versuche es mit einer kürzeren Aufnahme erneut.",
+        "provider": "Die Aufnahme konnte nicht verschriftlicht werden. Versuche es später erneut oder bitte einen Admin, die Spracherkennungs-Einstellungen zu prüfen.",
+        "empty": "In der Aufnahme war nichts zu hören. Versuche es näher am Mikrofon."
+      }
+    },
     "scope": "Quelle",
     "scopeWorkspace": "Ganzer Workspace",
     "scopePage": "Diese Seite und ihre Unterseiten",

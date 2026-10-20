@@ -142,6 +142,24 @@
       "clear": "Wyczyść",
       "add": "Zapytaj po tej odpowiedzi"
     },
+    "dictation": {
+      "start": "Podyktuj pytanie",
+      "stop": "Zatrzymaj i wstaw tekst",
+      "cancel": "Anuluj nagrywanie",
+      "transcribing": "Zapisywanie tego, co mówisz…",
+      "autoStopped": "Nagrywanie zatrzymało się po osiągnięciu limitu {minutes} min. Sprawdź tekst przed wysłaniem.",
+      "errors": {
+        "unsupported": "Ta przeglądarka nie może nagrywać dźwięku.",
+        "denied": "Leafdesk nie ma zgody na używanie mikrofonu. Zezwól na to w ustawieniach witryny w przeglądarce i spróbuj ponownie.",
+        "noDevice": "Nie znaleziono mikrofonu.",
+        "failed": "Nie udało się rozpocząć nagrywania. Spróbuj ponownie.",
+        "disabled": "Dyktowanie nie jest dostępne w tym obszarze roboczym.",
+        "tooLarge": "Nagranie jest za duże. Nagrania mogą mieć najwyżej {max}.",
+        "timeout": "Zapisywanie nagrania trwało zbyt długo. Spróbuj ponownie z krótszym nagraniem.",
+        "provider": "Nie udało się zapisać nagrania. Spróbuj później lub poproś administratora o sprawdzenie ustawień zamiany mowy na tekst.",
+        "empty": "W nagraniu nic nie było słychać. Spróbuj ponownie bliżej mikrofonu."
+      }
+    },
     "scope": "Odpowiadaj na podstawie",
     "scopeWorkspace": "Cały obszar roboczy",
     "scopePage": "Ta strona i jej podstrony",

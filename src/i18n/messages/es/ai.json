@@ -142,6 +142,24 @@
       "clear": "Borrar",
       "add": "Preguntar después de esta respuesta"
     },
+    "dictation": {
+      "start": "Dictar una pregunta",
+      "stop": "Detener e insertar el texto",
+      "cancel": "Cancelar la grabación",
+      "transcribing": "Transcribiendo lo que dijiste…",
+      "autoStopped": "La grabación se detuvo en el límite de {minutes} min. Revisa el texto antes de enviarlo.",
+      "errors": {
+        "unsupported": "Este navegador no puede grabar audio.",
+        "denied": "Leafdesk no tiene permiso para usar el micrófono. Permítelo en la configuración del sitio de tu navegador y vuelve a intentarlo.",
+        "noDevice": "No se encontró ningún micrófono.",
+        "failed": "No se pudo iniciar la grabación. Vuelve a intentarlo.",
+        "disabled": "El dictado no está disponible en este espacio de trabajo.",
+        "tooLarge": "La grabación es demasiado grande. Las grabaciones pueden ocupar como máximo {max}.",
+        "timeout": "La transcripción tardó demasiado. Vuelve a intentarlo con una grabación más corta.",
+        "provider": "No se pudo transcribir la grabación. Inténtalo más tarde o pide a un administrador que revise la configuración de transcripción.",
+        "empty": "No se oyó nada en la grabación. Vuelve a intentarlo más cerca del micrófono."
+      }
+    },
     "scope": "Responder a partir de",
     "scopeWorkspace": "Todo el espacio de trabajo",
     "scopePage": "Esta página y sus subpáginas",

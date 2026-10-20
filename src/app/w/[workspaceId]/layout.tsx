@@ -24,6 +24,7 @@ import { listFavorites } from "@/server/page-meta";
 import { getSidebar, listWorkspaces } from "@/server/pages";
 import { requestedPath, requireSession, requireWorkspaceSession } from "@/server/session";
 import { canCreateTeamspace } from "@/server/teamspaces";
+import { voiceNoteLimits } from "@/server/voice-notes";
 import { getSidebarLayout, topLevelAccess } from "@/server/workspaces";
 
 export default async function WorkspaceLayout({
@@ -46,7 +47,7 @@ export default async function WorkspaceLayout({
     }
     notFound();
   }
-  const [workspaces, joinable, sidebar, favorites, topLevel, canCreate, cookieStore, ai, sidebarLayout, memory, aiConfigured, calloutStyles, firstAdmin] = await Promise.all([
+  const [workspaces, joinable, sidebar, favorites, topLevel, canCreate, cookieStore, ai, sidebarLayout, memory, aiConfigured, calloutStyles, firstAdmin, voice] = await Promise.all([
     listWorkspaces(user.id),
     joinableWorkspaces(user.id),
     getSidebar(user.id, workspaceId),
@@ -60,6 +61,7 @@ export default async function WorkspaceLayout({
     aiEnabledFor(workspaceId),
     calloutStylesOf(workspaceId),
     firstAdminId(),
+    voiceNoteLimits(workspaceId),
   ]);
 
   const body = (
@@ -102,7 +104,7 @@ export default async function WorkspaceLayout({
       <SidebarProvider initial={parseSidebarCookie(cookieStore.get(SIDEBAR_COOKIE)?.value)}>
         {/* The AI chat panel (#41), when the workspace has an AI provider (the server's or its own account's). */}
         {aiConfigured ? (
-          <AiChatProvider workspaceId={workspaceId} available={ai} memory={ai && memory}>
+          <AiChatProvider workspaceId={workspaceId} available={ai} memory={ai && memory} voice={voice}>
             {body}
           </AiChatProvider>
         ) : (

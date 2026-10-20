@@ -21,6 +21,11 @@
   marked; the arrow keys move through the list, Enter opens a page and Escape closes it. Clicking
   the current page's title opens its list too, also on touch screens. Only pages the reader can see
   are listed, loaded the first time the list opens.
+- **Dictate a question in the AI chat.** The chat's box, in the panel and on the full page, has a
+  microphone button where the workspace can transcribe recordings (as for voice notes): press it to
+  record, press again to stop. The time shows while recording, with a button (or Escape) to cancel.
+  What was said goes into the box at the caret without being sent, so it can be fixed first. It
+  counts as the AI chat's usage, and the recording isn't stored.
 - **Merge table cells.** Select cells of a table on a page and merge them into one from the
   formatting toolbar, across columns, rows or both; the cell's menu splits a merged cell again.
   Merged cells show on published pages, Markdown export writes the table as a full grid with the

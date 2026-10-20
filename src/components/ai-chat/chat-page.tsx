@@ -92,7 +92,7 @@ export function ChatPage({ workspaceId, available, memory }: { workspaceId: stri
           <SquarePen className="h-4 w-4" />
         </IconButton>
       </div>
-      <ChatThread chat={chat} blocked={blocked} onSend={(again) => void chat.send(null, again)} onSource={openSource} variant="page" />
+      <ChatThread chat={chat} blocked={blocked} onSend={(again) => void chat.send(null, again)} onSource={openSource} variant="page" voice={context?.voice ?? null} />
     </div>
   );
 }

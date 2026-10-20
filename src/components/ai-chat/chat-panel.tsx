@@ -18,6 +18,7 @@ import { useIsOffline } from "@/components/offline/offline-context";
 import { FOCUS_BLOCK_EVENT } from "@/components/page/block-focus";
 import { cn, IconButton, MenuItem, MenuSeparator, Popover } from "@/components/ui";
 import { chatPath, isChatPath, sourceHref, type ChatSourceView, type ConversationSummary } from "@/lib/ai-chat";
+import type { VoiceNoteLimits } from "@/lib/voice-notes";
 import { ChatThread } from "./chat-thread";
 import { useChat } from "./use-chat";
 
@@ -25,6 +26,8 @@ type ChatContext = {
   workspaceId: string;
   /** AI is on in the workspace (otherwise the chat explains why it can't answer). */
   available: boolean;
+  /** The recording limits when questions can be dictated (speech to text works here), else null. */
+  voice: VoiceNoteLimits | null;
   /** The panel beside the page. */
   open: boolean;
   setOpen: (open: boolean) => void;
@@ -45,18 +48,20 @@ export function useAiChat() {
 
 /**
  * Holds the chat for a workspace's pages. `available`: AI is on in the workspace (the chat explains
- * when it isn't); `memory`: so is the chat's memory (its Memory view is shown). Only rendered when
- * the server has an AI provider.
+ * when it isn't); `memory`: so is the chat's memory (its Memory view is shown); `voice`: questions
+ * can be dictated (see voiceNoteLimits). Only rendered when the server has an AI provider.
  */
 export function AiChatProvider({
   workspaceId,
   available,
   memory,
+  voice,
   children,
 }: {
   workspaceId: string;
   available: boolean;
   memory: boolean;
+  voice: VoiceNoteLimits | null;
   children: ReactNode;
 }) {
   const pathname = usePathname();
@@ -83,8 +88,8 @@ export function AiChatProvider({
   const backPath = useCallback(() => lastPage.current, []);
 
   const value = useMemo(
-    () => ({ workspaceId, available, open, setOpen, openPanel, conversations, refreshConversations, backPath }),
-    [workspaceId, available, open, openPanel, conversations, refreshConversations, backPath],
+    () => ({ workspaceId, available, voice, open, setOpen, openPanel, conversations, refreshConversations, backPath }),
+    [workspaceId, available, voice, open, openPanel, conversations, refreshConversations, backPath],
   );
   return (
     <Context.Provider value={value}>
@@ -255,6 +260,7 @@ function ChatPanel({
         onSend={(again) => void chat.send(pageScope, again)}
         onSource={openSource}
         variant="panel"
+        voice={context.voice}
         footer={
           <div className="mt-2 flex items-center gap-2 text-xs text-fg-muted">
             <label htmlFor="ai-chat-scope">{t("scope")}</label>

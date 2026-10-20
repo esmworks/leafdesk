@@ -142,6 +142,24 @@
       "clear": "Cancella",
       "add": "Chiedi dopo questa risposta"
     },
+    "dictation": {
+      "start": "Detta una domanda",
+      "stop": "Interrompi e inserisci il testo",
+      "cancel": "Annulla la registrazione",
+      "transcribing": "Trascrizione di quello che hai detto…",
+      "autoStopped": "La registrazione si è fermata al limite di {minutes} min. Controlla il testo prima di inviarlo.",
+      "errors": {
+        "unsupported": "Questo browser non può registrare audio.",
+        "denied": "Leafdesk non ha il permesso di usare il microfono. Consentilo nelle impostazioni del sito del browser e riprova.",
+        "noDevice": "Nessun microfono trovato.",
+        "failed": "Impossibile avviare la registrazione. Riprova.",
+        "disabled": "La dettatura non è disponibile in questo spazio di lavoro.",
+        "tooLarge": "La registrazione è troppo grande. Le registrazioni possono essere al massimo di {max}.",
+        "timeout": "La trascrizione della registrazione ha richiesto troppo tempo. Riprova con una registrazione più breve.",
+        "provider": "Impossibile trascrivere la registrazione. Riprova più tardi o chiedi a un amministratore di controllare le impostazioni di riconoscimento vocale.",
+        "empty": "Nella registrazione non si sente nulla. Riprova più vicino al microfono."
+      }
+    },
     "scope": "Rispondi da",
     "scopeWorkspace": "Tutto lo spazio di lavoro",
     "scopePage": "Questa pagina e le sue sottopagine",
