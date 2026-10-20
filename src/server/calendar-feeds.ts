@@ -1,4 +1,4 @@
-import { and, eq, isNull, type SQL } from "drizzle-orm";
+import { and, desc, eq, isNull, type SQL } from "drizzle-orm";
 import { db } from "@/db";
 import { calendarFeed, databaseView, workspace } from "@/db/schema";
 import enHome from "@/i18n/messages/en/home.json";
@@ -16,7 +16,7 @@ import { openAssignedRows } from "@/server/assigned";
 import { runAsConnectedApp } from "@/server/connected-app";
 import { getProperties, requireDatabase, viewedRows, withCode } from "@/server/databases";
 import { pickLocale, savedLocale } from "@/server/mail/locale";
-import { exportAllowed } from "@/server/workspaces";
+import { exportAllowed, listWorkspaces } from "@/server/workspaces";
 
 /**
  * Calendar feeds: database rows as an iCalendar address that calendar apps subscribe to, each row
@@ -134,6 +134,69 @@ export async function createAssignedCalendarFeed(userId: string, workspaceId: st
 export async function deleteAssignedCalendarFeed(userId: string, workspaceId: string) {
   const scope = await assignedScope(userId, workspaceId);
   await db.delete(calendarFeed).where(scope.where);
+}
+
+/**
+ * One of the person's feeds as their account lists it. `title` and `view` name what it shows while
+ * they can still open it (their workspace, the view's database); null once they can't.
+ */
+export type OwnCalendarFeed = {
+  id: string;
+  kind: "view" | "assigned";
+  workspace: string | null;
+  title: string | null;
+  icon: string | null;
+  view: string | null;
+  createdAt: Date;
+  lastUsedAt: Date | null;
+};
+
+/** Every feed the person has made, newest first, for Account > Email and calendar. */
+export async function listCalendarFeeds(userId: string): Promise<OwnCalendarFeed[]> {
+  const [feeds, workspaces] = await Promise.all([
+    db
+      .select({
+        id: calendarFeed.id,
+        viewId: calendarFeed.viewId,
+        workspaceId: calendarFeed.workspaceId,
+        createdAt: calendarFeed.createdAt,
+        lastUsedAt: calendarFeed.lastUsedAt,
+        viewName: databaseView.name,
+        databaseId: databaseView.databaseId,
+        viewDeletedAt: databaseView.deletedAt,
+      })
+      .from(calendarFeed)
+      .leftJoin(databaseView, eq(databaseView.id, calendarFeed.viewId))
+      .where(eq(calendarFeed.userId, userId))
+      .orderBy(desc(calendarFeed.createdAt)),
+    listWorkspaces(userId),
+  ]);
+  const names = new Map(workspaces.map((w) => [w.id, w.name]));
+  return Promise.all(
+    feeds.map(async (feed): Promise<OwnCalendarFeed> => {
+      const base = { id: feed.id, createdAt: feed.createdAt, lastUsedAt: feed.lastUsedAt };
+      if (!feed.viewId) {
+        return { ...base, kind: "assigned", workspace: names.get(feed.workspaceId!) ?? null, title: null, icon: null, view: null };
+      }
+      // A view's feed names its database only to someone who can still open it.
+      const database =
+        feed.databaseId && !feed.viewDeletedAt ? await requireDatabase(userId, feed.databaseId, "view").catch(() => null) : null;
+      return {
+        ...base,
+        kind: "view",
+        workspace: database ? (names.get(database.workspaceId) ?? null) : null,
+        title: database ? (database.title ?? "") : null,
+        icon: database?.icon ?? null,
+        view: database ? feed.viewName : null,
+      };
+    }),
+  );
+}
+
+/** Stops one of the person's feeds, whatever it shows (and whether or not they can still open it). */
+export async function deleteOwnCalendarFeed(userId: string, feedId: string) {
+  if (typeof feedId !== "string") throw new AccessError();
+  await db.delete(calendarFeed).where(and(eq(calendarFeed.id, feedId), eq(calendarFeed.userId, userId)));
 }
 
 type FeedRead = { status: 200; body: string; name: string } | { status: 404 | 429 };

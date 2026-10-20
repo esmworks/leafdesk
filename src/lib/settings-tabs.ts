@@ -1,4 +1,4 @@
-/** The workspace settings tabs, in the order the settings navigation shows them. */
+/** The workspace settings tabs; the navigation shows them in SETTINGS_TAB_GROUPS. */
 export const SETTINGS_TABS = [
   "general",
   "members",
@@ -22,8 +22,18 @@ export type SettingsTab = (typeof SETTINGS_TABS)[number];
 export const isSettingsTab = (value: unknown): value is SettingsTab =>
   typeof value === "string" && (SETTINGS_TABS as readonly string[]).includes(value);
 
+/**
+ * The navigation's three groups of workspace tabs, in its order: the workspace and its people,
+ * what it does, and how it is run.
+ */
+export const SETTINGS_TAB_GROUPS = [
+  { label: "workspace", tabs: ["general", "members", "guests", "teamspaces", "groups"] },
+  { label: "features", tabs: ["agents", "snippets", "connections", "email", "site"] },
+  { label: "admin", tabs: ["security", "storage", "analytics", "aiUsage", "health", "audit"] },
+] as const satisfies readonly { label: string; tabs: readonly SettingsTab[] }[];
+
 /** Tabs only the workspace's owners get. */
-const OWNER_TABS: readonly SettingsTab[] = ["connections", "storage", "analytics", "aiUsage", "audit"];
+const OWNER_TABS: readonly SettingsTab[] = ["connections", "email", "storage", "analytics", "aiUsage", "audit"];
 
 /**
  * The tabs someone gets. Guests don't see the workspace's members or policies: only its name, and
@@ -31,8 +41,8 @@ const OWNER_TABS: readonly SettingsTab[] = ["connections", "storage", "analytics
  * owners, and members when Settings > Security lets them). Analytics, which counts what each
  * person did, the audit log, which says who changed what, and connections to outside services
  * (their credentials are the workspace's), where the workspace's files are stored and what its AI
- * costs are for owners. Email is for everyone but guests: owners
- * choose where mail lands, each member connects their own mailbox. Agents are listed to
+ * costs are for owners. So is email, where owners choose where mail lands (each member connects
+ * their own mailbox under their account, Account > Email and calendar). Agents are listed to
  * members too (they pick them in automations); only owners change them. The health check covers
  * the pages each person can open, so owners and members get it alike.
  */
@@ -65,13 +75,13 @@ const LOCAL_MODE_HIDDEN_TABS: readonly SettingsTab[] = ["guests", "groups", "sit
  * named so they don't clash with the workspace tabs: the account's "security" is "accountSecurity",
  * its "snippets" (the person's own) "mySnippets".
  */
-export const ACCOUNT_SETTINGS_TABS = ["profile", "accountSecurity", "preferences", "mySnippets", "apps", "about"] as const;
+export const ACCOUNT_SETTINGS_TABS = ["profile", "accountSecurity", "preferences", "mail", "mySnippets", "apps", "about"] as const;
 export type AccountSettingsTab = (typeof ACCOUNT_SETTINGS_TABS)[number];
 
 export function accountTabForSettings(tab: AccountSettingsTab) {
   return tab === "accountSecurity" ? "security" : tab === "mySnippets" ? "snippets" : tab;
 }
 
-export function settingsTabForAccount(tab: "profile" | "security" | "preferences" | "snippets" | "apps" | "about"): AccountSettingsTab {
+export function settingsTabForAccount(tab: "profile" | "security" | "preferences" | "mail" | "snippets" | "apps" | "about"): AccountSettingsTab {
   return tab === "security" ? "accountSecurity" : tab === "snippets" ? "mySnippets" : tab;
 }

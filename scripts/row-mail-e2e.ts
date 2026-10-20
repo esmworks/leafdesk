@@ -46,7 +46,7 @@ const { setPropertyAccess } = await import("@/server/property-access");
 const { listInbox } = await import("@/server/notifications");
 const { setFollowing } = await import("@/server/row-follow");
 const { removeMember, updateWorkspaceSettings } = await import("@/server/workspaces");
-const { connectMailbox, getMailSettings, RowMailError, setMailDatabases } = await import("@/server/row-mail/settings");
+const { connectMailbox, getMailSettings, listOwnMailboxes, RowMailError, setMailDatabases } = await import("@/server/row-mail/settings");
 const { syncDue } = await import("@/server/row-mail/sync");
 const { queueRowEmail, sendDue } = await import("@/server/row-mail/send");
 const { hideRowEmail, listRowEmails } = await import("@/server/row-mail/list");
@@ -181,7 +181,7 @@ try {
   check(box.status === "ok" && box.address === ada, "a member's mailbox is tried, then kept", box);
   const [stored] = await db.select().from(mailbox).where(eq(mailbox.id, box.id));
   check(stored.secret !== "app-password" && !stored.secret.includes("app-password"), "its password is kept sealed");
-  check(!JSON.stringify(await getMailSettings(ids.member, workspaceId)).includes("app-password"), "and never comes back out");
+  check(!JSON.stringify(await listOwnMailboxes(ids.member)).includes("app-password"), "and never comes back out");
   await setMailDatabases(ids.owner, workspaceId, [
     { databaseId: customers.id, propertyIds: [customerEmail.id] },
     { databaseId: contacts.id, propertyIds: ["*"] },
@@ -299,7 +299,10 @@ try {
   await prepare(can);
   const turkish = await connect(ids.hidden, ece);
   check(turkish.folders.inbox === "INBOX" && turkish.folders.sent === "Gönderilenler", "a sent folder the server doesn't mark is found by its name", turkish.folders);
-  check((await getMailSettings(ids.hidden, workspaceId)).mailbox?.folders.sent === "Gönderilenler", "and its owner sees which folders are read");
+  check(
+    (await listOwnMailboxes(ids.hidden)).find((m) => m.workspaceId === workspaceId)?.mailbox?.folders.sent === "Gönderilenler",
+    "and its owner sees which folders are read, under their account",
+  );
   const noSent = await connect(ids.follower, can);
   check(noSent.status === "ok" && noSent.folders.inbox === "INBOX" && noSent.folders.sent === null, "a mailbox without a sent folder still connects, and says it has none", noSent);
 

@@ -3,6 +3,8 @@
   "title": "Einstellungen",
   "nav": {
     "workspace": "Workspace",
+    "features": "Funktionen",
+    "admin": "Verwaltung",
     "general": "Allgemein",
     "members": "Mitglieder",
     "guests": "Gäste",
@@ -1526,7 +1528,7 @@
   },
   "connections": {
     "heading": "Verbindungen",
-    "description": "Dienste, die deine Agenten nutzen: Slack, GitHub, ein CRM, ein anderes Leafdesk… alles mit einem entfernten MCP-Server. Nur Inhaber sehen und verwalten sie; welche Werkzeuge ein Agent nutzen darf, wird beim Agenten festgelegt. (Programme, die Leafdesk nutzen, findest du unter Sicherheit › Verbundene Apps.)",
+    "description": "Dienste, die deine Agenten nutzen: Slack, GitHub, ein CRM, ein anderes Leafdesk… alles mit einem entfernten MCP-Server. Nur Inhaber sehen und verwalten sie; welche Werkzeuge ein Agent nutzen darf, wird beim Agenten festgelegt. (Programme, die Leafdesk nutzen: die, die diesen Workspace erreichen, unter Sicherheit, die du selbst verbunden hast, unter Mein Konto › Verbundene Apps.)",
     "tabs": {
       "browse": "Entdecken",
       "connected": "Verbunden",
@@ -1726,7 +1728,7 @@
   "email": {
     "description": "E-Mails mit den Personen in deinen Datenbanken landen in deren Zeilen: Wer eine Zeile sehen kann, liest ihre E-Mails dort und beantwortet sie aus dem eigenen Postfach.",
     "enabled": "E-Mails in Zeilen",
-    "enabledHint": "Mitglieder verbinden unten ihr eigenes Postfach. Vollständig gelesen werden nur E-Mails, deren Gegenüber die E-Mail-Adresse einer Zeile ist; alles andere bleibt im Postfach.",
+    "enabledHint": "Mitglieder verbinden ihr eigenes Postfach unter Mein Konto › E-Mail und Kalender. Vollständig gelesen werden nur E-Mails, deren Gegenüber die E-Mail-Adresse einer Zeile ist; alles andere bleibt im Postfach.",
     "ownersOnly": "Das können nur Inhaber ändern.",
     "databasesHeading": "Wo E-Mails landen",
     "databasesDescription": "Eine Nachricht kommt in die Zeile, deren E-Mail-Eigenschaft die Adresse des Gegenübers enthält, und zwar in der ersten dieser Datenbanken, in der genau eine Zeile passt. Antworten folgen ihrem Verlauf.",
@@ -1740,7 +1742,7 @@
     "addDatabaseHint": "Datenbanken mit einer E-Mail-Eigenschaft.",
     "chooseDatabase": "Datenbank auswählen",
     "mailboxHeading": "Dein Postfach",
-    "mailboxDescription": "Das Postfach, das du für diesen Workspace nutzt. Daraus werden E-Mails mit den Personen in den Datenbanken oben gelesen, und was du in Zeilen schreibst, wird von dort gesendet. Deine anderen Workspaces sehen es nicht.",
+    "mailboxDescription": "Das Postfach, das du in diesem Workspace nutzt. Daraus werden E-Mails mit den Personen in den Mail-Datenbanken des Workspaces gelesen, und was du in Zeilen schreibst, wird von dort gesendet. Deine anderen Workspaces sehen es nicht.",
     "syncedAt": "gelesen {time}",
     "folders": "Liest eingehende Mails aus {inbox} und gesendete aus {sent}.",
     "noSentFolder": "Liest eingehende Mails aus {inbox}. Es wurde kein Ordner für gesendete Mails gefunden: Was Sie aus Ihrem eigenen Mailprogramm senden, erscheint nicht in den Zeilen, und aus Zeilen gesendete Mails werden nicht in Ihrem Postfach gespeichert.",
@@ -1748,7 +1750,7 @@
     "disconnect": "Trennen",
     "connect": "Testen und verbinden",
     "testing": "Wird getestet…",
-    "consent": "Mir ist klar, dass E-Mails mit den Personen in diesen Datenbanken, die über dieses Postfach gesendet oder empfangen werden, in ihren Zeilen für alle sichtbar sind, die diese Zeilen sehen können.",
+    "consent": "Mir ist klar, dass E-Mails mit den Personen in den Mail-Datenbanken dieses Workspaces, die über dieses Postfach gesendet oder empfangen werden, in ihren Zeilen für alle sichtbar sind, die diese Zeilen sehen können.",
     "status": {
       "ok": "Verbunden",
       "connecting": "Wird verbunden",
@@ -1794,7 +1796,7 @@
       "disabled": "E-Mails in Zeilen sind in diesem Workspace ausgeschaltet.",
       "invalid": "Einige Angaben sind ungültig. Prüfe sie und versuche es erneut.",
       "consent": "Bestätige, dass E-Mails in Zeilen für alle sichtbar sind, die diese Zeilen sehen können.",
-      "noMailbox": "Verbinde zuerst dein Postfach unter Einstellungen > E-Mail.",
+      "noMailbox": "Verbinde zuerst dein Postfach unter Einstellungen > E-Mail und Kalender.",
       "rateLimited": "Dein Postfach hat in dieser Stunde so viel gesendet, wie es darf. Versuche es später erneut.",
       "notFound": "Der Name des Mailservers wurde nicht gefunden.",
       "blocked": "Der Mailserver liegt in einem privaten Netz, das dieser Server nicht erreicht.",

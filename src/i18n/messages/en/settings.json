@@ -3,6 +3,8 @@
   "title": "Settings",
   "nav": {
     "workspace": "Workspace",
+    "features": "Features",
+    "admin": "Administration",
     "general": "General",
     "members": "Members",
     "guests": "Guests",
@@ -1526,7 +1528,7 @@
   },
   "connections": {
     "heading": "Connections",
-    "description": "Services your agents use: Slack, GitHub, a CRM, another Leafdesk… anything with a remote MCP server. Only owners see and manage them; which tools each agent may use is set on the agent. (Programs that use Leafdesk are under Security › Connected apps.)",
+    "description": "Services your agents use: Slack, GitHub, a CRM, another Leafdesk… anything with a remote MCP server. Only owners see and manage them; which tools each agent may use is set on the agent. (Programs that use Leafdesk: the ones reaching this workspace are under Security, the ones you connected yourself under My account › Connected apps.)",
     "tabs": {
       "browse": "Browse",
       "connected": "Connected",
@@ -1726,7 +1728,7 @@
   "email": {
     "description": "Mail with the people in your databases lands on their rows: everyone who can see a row reads its mail there and answers it from their own mailbox.",
     "enabled": "Email on rows",
-    "enabledHint": "Members connect their own mailbox below. Only mail whose other party is a row's email address is ever read whole; the rest stays in the mailbox.",
+    "enabledHint": "Members connect their own mailbox under My account › Email and calendar. Only mail whose other party is a row's email address is ever read whole; the rest stays in the mailbox.",
     "ownersOnly": "Only owners can change this.",
     "databasesHeading": "Where mail lands",
     "databasesDescription": "A message goes to the row whose email property holds the other party's address, in the first of these databases where exactly one row does. Replies follow their thread.",
@@ -1740,7 +1742,7 @@
     "addDatabaseHint": "Databases with an email property.",
     "chooseDatabase": "Choose a database",
     "mailboxHeading": "Your mailbox",
-    "mailboxDescription": "The mailbox you use for this workspace. It is read for mail with the people in the databases above, and what you write on rows is sent from it. Your other workspaces don't see it.",
+    "mailboxDescription": "The mailbox you use in this workspace. It is read for mail with the people in the workspace's mail databases, and what you write on rows is sent from it. Your other workspaces don't see it.",
     "syncedAt": "read {time}",
     "folders": "Reads incoming mail from {inbox} and sent mail from {sent}.",
     "noSentFolder": "Reads incoming mail from {inbox}. No sent folder was found, so mail you send from your own mail program won't show on rows, and mail sent from rows won't be saved in your mailbox.",
@@ -1748,7 +1750,7 @@
     "disconnect": "Disconnect",
     "connect": "Test and connect",
     "testing": "Testing…",
-    "consent": "I understand that mail with the people in these databases, sent or received through this mailbox, shows on their rows to everyone who can see those rows.",
+    "consent": "I understand that mail with the people in this workspace's mail databases, sent or received through this mailbox, shows on their rows to everyone who can see those rows.",
     "status": {
       "ok": "Connected",
       "connecting": "Connecting",
@@ -1794,7 +1796,7 @@
       "disabled": "Email on rows is off in this workspace.",
       "invalid": "Some of the details aren't valid. Check them and try again.",
       "consent": "Confirm that mail on rows shows to everyone who can see them.",
-      "noMailbox": "Connect your mailbox in Settings > Email first.",
+      "noMailbox": "Connect your mailbox in Settings > Email and calendar first.",
       "rateLimited": "Your mailbox has sent as much as it may this hour. Try again later.",
       "notFound": "The mail server's name wasn't found.",
       "blocked": "The mail server is on a private network, which this server doesn't reach.",

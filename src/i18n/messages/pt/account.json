@@ -7,10 +7,11 @@
     "profile": "Perfil",
     "security": "Segurança",
     "preferences": "Preferências",
+    "mail": "E-mail e calendário",
     "apps": "Apps conectados",
     "about": "Sobre",
     "admin": "Administração do servidor",
-    "snippets": "Trechos"
+    "snippets": "Meus trechos"
   },
   "apps": {
     "description": "Apps que você autorizou a usar o Leafdesk em seu nome, por exemplo assistentes de IA conectados por MCP. Eles alcançam todos os espaços de trabalho em que você está."
@@ -163,5 +164,26 @@
     "samePassword": "Escolha uma senha diferente da antiga.",
     "resetStepExpired": "Esta etapa expirou. Entre com sua senha antiga de novo.",
     "storageStuck": "Os arquivos de {workspaces} estão no seu armazenamento e não têm para onde ser movidos. Peça aos proprietários que configurem um armazenamento ou mova os arquivos primeiro."
+  },
+  "mail": {
+    "description": "Suas caixas de e-mail e endereços de calendário, em todos os seus espaços de trabalho.",
+    "mailboxHeading": "Sua caixa de e-mail",
+    "mailboxIn": "Sua caixa de e-mail em {workspace}",
+    "mailboxOff": "O e-mail nas linhas está desativado neste espaço de trabalho, então esta caixa não é lida. Desconecte-a para apagar a senha dela.",
+    "notConnected": "Nenhuma caixa de e-mail conectada",
+    "connect": "Conectar",
+    "noMailboxes": "Nenhum dos seus espaços de trabalho tem o e-mail nas linhas ativado. Os proprietários o ativam em Configurações › E-mail.",
+    "calendarsHeading": "Endereços de calendário",
+    "calendarsDescription": "Endereços que você criou para apps de calendário, a partir de uma visualização de calendário ou das linhas atribuídas a você. Quem tiver um endereço vê o que ele mostra; desative os que você não usa mais.",
+    "calendarsEmpty": "Nenhum endereço de calendário ainda. Crie um a partir de uma visualização de calendário ou de Atribuídos a você na página inicial.",
+    "assignedFeed": "Linhas atribuídas a você",
+    "feedNoAccess": "Um calendário que você não consegue mais abrir",
+    "made": "criado em {date}",
+    "lastRead": "última leitura {time}",
+    "neverRead": "ainda não lido",
+    "turnOff": "Desativar",
+    "turnOffConfirm": "Desativar este endereço",
+    "turningOff": "Desativando…",
+    "turnOffError": "Não foi possível desativar."
   }
 }

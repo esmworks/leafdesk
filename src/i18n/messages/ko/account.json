@@ -7,10 +7,11 @@
     "profile": "프로필",
     "security": "보안",
     "preferences": "환경설정",
+    "mail": "이메일 및 캘린더",
     "apps": "연결된 앱",
     "about": "정보",
     "admin": "서버 관리",
-    "snippets": "스니펫"
+    "snippets": "내 스니펫"
   },
   "apps": {
     "description": "사용자를 대신해 Leafdesk를 사용하도록 허용한 앱입니다(예: MCP로 연결된 AI 어시스턴트). 이 앱은 참여 중인 모든 워크스페이스에 접근할 수 있습니다."
@@ -163,5 +164,26 @@
     "samePassword": "이전 비밀번호와 다른 비밀번호를 선택하세요.",
     "resetStepExpired": "이 단계가 만료되었습니다. 이전 비밀번호로 다시 로그인하세요.",
     "storageStuck": "{workspaces}의 파일이 내 저장소에 있는데 옮길 곳이 없습니다. 해당 소유자에게 저장소 설정을 요청하거나 먼저 파일을 이동하세요."
+  },
+  "mail": {
+    "description": "참여 중인 모든 워크스페이스의 메일함과 캘린더 주소입니다.",
+    "mailboxHeading": "내 메일함",
+    "mailboxIn": "{workspace}의 내 메일함",
+    "mailboxOff": "이 워크스페이스에서는 행 이메일이 꺼져 있어 이 메일함을 읽지 않습니다. 비밀번호를 지우려면 연결을 해제하세요.",
+    "notConnected": "연결된 메일함이 없습니다",
+    "connect": "연결",
+    "noMailboxes": "행 이메일이 켜진 워크스페이스가 없습니다. 소유자가 설정 › 이메일에서 켭니다.",
+    "calendarsHeading": "캘린더 주소",
+    "calendarsDescription": "캘린더 보기나 나에게 할당된 행에서 캘린더 앱용으로 만든 주소입니다. 주소를 아는 사람은 누구나 그 내용을 볼 수 있으니, 더 이상 쓰지 않는 주소는 끄세요.",
+    "calendarsEmpty": "아직 캘린더 주소가 없습니다. 캘린더 보기나 홈의 나에게 할당됨에서 만들 수 있습니다.",
+    "assignedFeed": "나에게 할당된 행",
+    "feedNoAccess": "더 이상 열 수 없는 캘린더",
+    "made": "{date}에 만듦",
+    "lastRead": "마지막으로 읽음 {time}",
+    "neverRead": "아직 읽지 않음",
+    "turnOff": "끄기",
+    "turnOffConfirm": "이 주소 끄기",
+    "turningOff": "끄는 중…",
+    "turnOffError": "끌 수 없습니다."
   }
 }

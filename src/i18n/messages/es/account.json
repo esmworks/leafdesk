@@ -7,10 +7,11 @@
     "profile": "Perfil",
     "security": "Seguridad",
     "preferences": "Preferencias",
+    "mail": "Correo y calendario",
     "apps": "Apps conectadas",
     "about": "Acerca de",
     "admin": "Administración del servidor",
-    "snippets": "Fragmentos"
+    "snippets": "Mis fragmentos"
   },
   "apps": {
     "description": "Apps a las que has permitido usar Leafdesk en tu nombre, por ejemplo asistentes de IA conectados por MCP. Tienen acceso a todos los espacios de trabajo de los que formas parte."
@@ -163,5 +164,26 @@
     "samePassword": "Elige una contraseña distinta de la anterior.",
     "resetStepExpired": "Este paso ha caducado. Vuelve a iniciar sesión con tu contraseña anterior.",
     "storageStuck": "Los archivos de {workspaces} están en tu almacenamiento y no tienen adónde moverse. Pide a sus propietarios que configuren un almacenamiento o mueve antes los archivos."
+  },
+  "mail": {
+    "description": "Tus buzones y direcciones de calendario, en todos tus espacios de trabajo.",
+    "mailboxHeading": "Tu buzón",
+    "mailboxIn": "Tu buzón en {workspace}",
+    "mailboxOff": "El correo en filas está desactivado en este espacio de trabajo, así que este buzón no se lee. Desconéctalo para borrar su contraseña.",
+    "notConnected": "No hay ningún buzón conectado",
+    "connect": "Conectar",
+    "noMailboxes": "Ninguno de tus espacios de trabajo tiene activado el correo en filas. Sus propietarios lo activan en Configuración › Correo.",
+    "calendarsHeading": "Direcciones de calendario",
+    "calendarsDescription": "Direcciones que creaste para apps de calendario, desde una vista de calendario o desde las filas asignadas a ti. Quien tenga una dirección ve lo que muestra; desactiva las que ya no uses.",
+    "calendarsEmpty": "Aún no hay direcciones de calendario. Crea una desde una vista de calendario o desde Asignado a ti en la página de inicio.",
+    "assignedFeed": "Filas asignadas a ti",
+    "feedNoAccess": "Un calendario que ya no puedes abrir",
+    "made": "creada el {date}",
+    "lastRead": "última lectura {time}",
+    "neverRead": "aún sin leer",
+    "turnOff": "Desactivar",
+    "turnOffConfirm": "Desactivar esta dirección",
+    "turningOff": "Desactivando…",
+    "turnOffError": "No se pudo desactivar."
   }
 }

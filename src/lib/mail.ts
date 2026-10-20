@@ -148,9 +148,20 @@ export type MailSettingsView = {
   databases: { databaseId: string; title: string; icon: string | null; propertyIds: string[]; emailProperties: { id: string; name: string }[] }[];
   /** Databases with an email property that aren't matched yet, for owners to add. */
   candidates: { databaseId: string; title: string; icon: string | null }[];
-  mailbox: MailboxView | null;
   /** Members with a mailbox connected, for owners: who and how it is doing, nothing more. */
   members: { userId: string; name: string; address: string; status: MailboxStatus }[];
+};
+
+/**
+ * The person's mailbox in one of their workspaces, as their account lists it: where email on rows
+ * is on, or where one is still connected after it was turned off (to disconnect it).
+ */
+export type OwnMailbox = {
+  workspaceId: string;
+  workspaceName: string;
+  /** Whether the workspace has email on rows on: only then can a mailbox be connected or changed. */
+  enabled: boolean;
+  mailbox: MailboxView | null;
 };
 
 /** The link fragment that opens a message in its row's email section. */

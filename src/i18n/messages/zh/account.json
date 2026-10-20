@@ -7,10 +7,11 @@
     "profile": "个人资料",
     "security": "安全",
     "preferences": "偏好设置",
+    "mail": "邮件和日历",
     "apps": "已连接的应用",
     "about": "关于",
     "admin": "服务器管理",
-    "snippets": "片段"
+    "snippets": "我的片段"
   },
   "apps": {
     "description": "你允许代表你使用 Leafdesk 的应用，例如通过 MCP 连接的 AI 助手。它们可以访问你所在的每个工作区。"
@@ -163,5 +164,26 @@
     "samePassword": "请选择与旧密码不同的密码。",
     "resetStepExpired": "此步骤已过期。请重新使用旧密码登录。",
     "storageStuck": "{workspaces} 的文件存放在你的存储中，没有可以移动的去处。请让其所有者设置存储，或先移动这些文件。"
+  },
+  "mail": {
+    "description": "你所在的所有工作区中的邮箱和日历地址。",
+    "mailboxHeading": "你的邮箱",
+    "mailboxIn": "你在 {workspace} 的邮箱",
+    "mailboxOff": "此工作区已关闭行邮件，因此不会读取此邮箱。断开连接即可删除其密码。",
+    "notConnected": "未连接邮箱",
+    "connect": "连接",
+    "noMailboxes": "你的工作区都没有开启行邮件。所有者可在“设置 › 邮件”中开启。",
+    "calendarsHeading": "日历地址",
+    "calendarsDescription": "你从日历视图或分配给你的行为日历应用创建的地址。任何知道地址的人都能看到其中的内容，请关闭不再使用的地址。",
+    "calendarsEmpty": "还没有日历地址。可以从日历视图或主页的“分配给你的”中创建。",
+    "assignedFeed": "分配给你的行",
+    "feedNoAccess": "你已无法打开的日历",
+    "made": "创建于 {date}",
+    "lastRead": "上次读取 {time}",
+    "neverRead": "尚未读取",
+    "turnOff": "关闭",
+    "turnOffConfirm": "关闭此地址",
+    "turningOff": "正在关闭…",
+    "turnOffError": "无法关闭。"
   }
 }

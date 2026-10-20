@@ -7,10 +7,11 @@
     "profile": "Profil",
     "security": "Sicherheit",
     "preferences": "Präferenzen",
+    "mail": "E-Mail und Kalender",
     "apps": "Verbundene Apps",
     "about": "Über",
     "admin": "Serververwaltung",
-    "snippets": "Textbausteine"
+    "snippets": "Meine Textbausteine"
   },
   "apps": {
     "description": "Apps, denen du erlaubt hast, Leafdesk in deinem Namen zu nutzen, zum Beispiel über MCP verbundene KI-Assistenten. Diese Apps haben Zugriff auf jeden Workspace, in dem du Mitglied bist."
@@ -163,5 +164,26 @@
     "samePassword": "Wählen Sie ein anderes Passwort als das alte.",
     "resetStepExpired": "Dieser Schritt ist abgelaufen. Melden Sie sich erneut mit Ihrem alten Passwort an.",
     "storageStuck": "Die Dateien von {workspaces} liegen in deinem Speicher und können nirgendwohin verschoben werden. Bitte ihre Inhaber, Speicher einzurichten, oder verschiebe die Dateien zuerst."
+  },
+  "mail": {
+    "description": "Deine Postfächer und Kalenderadressen, in allen deinen Workspaces.",
+    "mailboxHeading": "Dein Postfach",
+    "mailboxIn": "Dein Postfach in {workspace}",
+    "mailboxOff": "E-Mail in Zeilen ist in diesem Workspace aus, daher wird dieses Postfach nicht gelesen. Trenne es, um sein Passwort zu entfernen.",
+    "notConnected": "Kein Postfach verbunden",
+    "connect": "Verbinden",
+    "noMailboxes": "In keinem deiner Workspaces ist E-Mail in Zeilen eingeschaltet. Die Eigentümer schalten es unter Einstellungen › E-Mail ein.",
+    "calendarsHeading": "Kalenderadressen",
+    "calendarsDescription": "Adressen, die du für Kalender-Apps erstellt hast, aus einer Kalenderansicht oder aus den dir zugewiesenen Zeilen. Wer eine Adresse kennt, sieht, was sie zeigt – schalte die aus, die du nicht mehr nutzt.",
+    "calendarsEmpty": "Noch keine Kalenderadressen. Erstelle eine in einer Kalenderansicht oder unter Dir zugewiesen auf der Startseite.",
+    "assignedFeed": "Dir zugewiesene Zeilen",
+    "feedNoAccess": "Ein Kalender, den du nicht mehr öffnen kannst",
+    "made": "erstellt am {date}",
+    "lastRead": "zuletzt gelesen {time}",
+    "neverRead": "noch nicht gelesen",
+    "turnOff": "Ausschalten",
+    "turnOffConfirm": "Diese Adresse ausschalten",
+    "turningOff": "Wird ausgeschaltet…",
+    "turnOffError": "Konnte nicht ausgeschaltet werden."
   }
 }

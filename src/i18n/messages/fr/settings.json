@@ -3,6 +3,8 @@
   "title": "Paramètres",
   "nav": {
     "workspace": "Espace de travail",
+    "features": "Fonctionnalités",
+    "admin": "Administration",
     "general": "Général",
     "members": "Membres",
     "guests": "Invités",
@@ -1526,7 +1528,7 @@
   },
   "connections": {
     "heading": "Connexions",
-    "description": "Les services que vos agents utilisent : Slack, GitHub, un CRM, un autre Leafdesk… tout ce qui a un serveur MCP distant. Seuls les propriétaires les voient et les gèrent ; les outils permis à chaque agent se règlent sur l’agent. (Les programmes qui utilisent Leafdesk sont dans Sécurité › Applications connectées.)",
+    "description": "Les services que vos agents utilisent : Slack, GitHub, un CRM, un autre Leafdesk… tout ce qui a un serveur MCP distant. Seuls les propriétaires les voient et les gèrent ; les outils permis à chaque agent se règlent sur l’agent. (Programmes qui utilisent Leafdesk : ceux qui accèdent à cet espace de travail sont dans Sécurité, ceux que vous avez connectés vous-même dans Mon compte › Applications connectées.)",
     "tabs": {
       "browse": "Parcourir",
       "connected": "Connectées",
@@ -1726,7 +1728,7 @@
   "email": {
     "description": "Les e-mails échangés avec les personnes de vos bases de données arrivent sur leurs lignes : tous ceux qui peuvent voir une ligne y lisent ses e-mails et y répondent depuis leur propre boîte mail.",
     "enabled": "E-mails sur les lignes",
-    "enabledHint": "Les membres connectent leur propre boîte mail ci-dessous. Seuls les e-mails dont l’interlocuteur est l’adresse e-mail d’une ligne sont lus en entier ; le reste demeure dans la boîte mail.",
+    "enabledHint": "Les membres connectent leur propre boîte mail dans Mon compte › E-mail et calendrier. Seuls les e-mails dont l’interlocuteur est l’adresse e-mail d’une ligne sont lus en entier ; le reste demeure dans la boîte mail.",
     "ownersOnly": "Seuls les propriétaires peuvent modifier ce réglage.",
     "databasesHeading": "Où arrivent les e-mails",
     "databasesDescription": "Un message va sur la ligne dont la propriété e-mail contient l’adresse de l’interlocuteur, dans la première de ces bases de données où exactement une ligne correspond. Les réponses suivent leur fil.",
@@ -1740,7 +1742,7 @@
     "addDatabaseHint": "Bases de données avec une propriété e-mail.",
     "chooseDatabase": "Choisir une base de données",
     "mailboxHeading": "Votre boîte mail",
-    "mailboxDescription": "La boîte mail que vous utilisez pour cet espace de travail. Elle est lue pour les e-mails échangés avec les personnes des bases de données ci-dessus, et ce que vous écrivez sur les lignes est envoyé depuis elle. Vos autres espaces de travail ne la voient pas.",
+    "mailboxDescription": "La boîte mail que vous utilisez dans cet espace de travail. Elle est lue pour les e-mails échangés avec les personnes des bases de données de messagerie de l’espace, et ce que vous écrivez sur les lignes est envoyé depuis elle. Vos autres espaces de travail ne la voient pas.",
     "syncedAt": "lue {time}",
     "folders": "Lit le courrier reçu dans {inbox} et le courrier envoyé dans {sent}.",
     "noSentFolder": "Lit le courrier reçu dans {inbox}. Aucun dossier d'envoi n'a été trouvé : ce que vous envoyez depuis votre propre logiciel de messagerie n'apparaîtra pas sur les lignes, et le courrier envoyé depuis les lignes ne sera pas enregistré dans votre boîte.",
@@ -1748,7 +1750,7 @@
     "disconnect": "Déconnecter",
     "connect": "Tester et connecter",
     "testing": "Test en cours…",
-    "consent": "Je comprends que les e-mails échangés avec les personnes de ces bases de données, envoyés ou reçus par cette boîte mail, s’affichent sur leurs lignes pour tous ceux qui peuvent voir ces lignes.",
+    "consent": "Je comprends que les e-mails échangés avec les personnes des bases de données de messagerie de cet espace, envoyés ou reçus par cette boîte mail, s’affichent sur leurs lignes pour tous ceux qui peuvent voir ces lignes.",
     "status": {
       "ok": "Connectée",
       "connecting": "Connexion en cours",
@@ -1794,7 +1796,7 @@
       "disabled": "Les e-mails sur les lignes sont désactivés dans cet espace de travail.",
       "invalid": "Certaines informations ne sont pas valides. Vérifiez-les et réessayez.",
       "consent": "Confirmez que les e-mails sur les lignes s’affichent pour tous ceux qui peuvent voir ces lignes.",
-      "noMailbox": "Connectez d’abord votre boîte mail dans Paramètres > E-mail.",
+      "noMailbox": "Connectez d’abord votre boîte mail dans Paramètres > E-mail et calendrier.",
       "rateLimited": "Votre boîte mail a envoyé tout ce qu’elle peut envoyer pour cette heure. Réessayez plus tard.",
       "notFound": "Le nom du serveur de messagerie est introuvable.",
       "blocked": "Le serveur de messagerie est sur un réseau privé, que ce serveur ne peut pas atteindre.",

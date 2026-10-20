@@ -201,7 +201,8 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
     switch rather than its sign-in policies: it stops while export or connected apps are off.
     The home page's "Assigned to you" section has the same kind of address for the rows assigned
     to you across the workspace's databases (those with a date you may see, done ones left out,
-    at most the 1,000 assigned rows edited last), named after the workspace.
+    at most the 1,000 assigned rows edited last), named after the workspace. Settings → Email and
+    calendar lists every address you made, in every workspace, and turns any of them off.
   - Sub-items: turned on in a table, list or timeline view's settings, a row can go under another
     row of the same database (a "Parent item" property holds its one parent, "Sub-items" lists the
     rows under it). Those views show sub-items nested under their parent, opened and closed by each
@@ -1116,8 +1117,8 @@ deleted, and one that fails 10 times in a row has it dropped.
 
 Mail with the people in your databases can land on their rows. An owner turns it on in Settings →
 Email and picks the databases mail lands on, in order, with the email properties that hold
-addresses (a customers database, say). Then each member connects their own mailbox there, for
-that workspace only: the address, the provider (Google Workspace and Gmail, Yandex, Zoho, or any
+addresses (a customers database, say). Then each member connects their own mailbox under their
+account, in Settings → Email and calendar, for that workspace only: the address, the provider (Google Workspace and Gmail, Yandex, Zoho, or any
 IMAP and SMTP server) and an app password made for Leafdesk. The mailbox is tried before it is
 kept, and its password is sealed like a connection's secrets (`LEAFDESK_ENCRYPTION_KEY`).
 

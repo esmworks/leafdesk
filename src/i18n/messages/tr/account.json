@@ -7,10 +7,11 @@
     "profile": "Profil",
     "security": "Güvenlik",
     "preferences": "Tercihler",
+    "mail": "E-posta ve takvim",
     "apps": "Bağlı uygulamalar",
     "about": "Hakkında",
     "admin": "Sunucu yönetimi",
-    "snippets": "Parçacıklar"
+    "snippets": "Parçacıklarım"
   },
   "apps": {
     "description": "Leafdesk'i sizin adınıza kullanmasına izin verdiğiniz uygulamalar, örneğin MCP ile bağlanan yapay zekâ asistanları. Bulunduğunuz tüm çalışma alanlarına erişirler."
@@ -163,5 +164,26 @@
     "samePassword": "Eskisinden farklı bir parola seçin.",
     "resetStepExpired": "Bu adımın süresi doldu. Eski parolanızla yeniden giriş yapın.",
     "storageStuck": "Şu çalışma alanlarının dosyaları sizin depolamanızda ve taşınabilecekleri bir yer yok: {workspaces}. Sahiplerinden depolama kurmalarını isteyin ya da önce dosyaları taşıyın."
+  },
+  "mail": {
+    "description": "Posta kutularınız ve takvim adresleriniz, bulunduğunuz tüm çalışma alanlarında.",
+    "mailboxHeading": "Posta kutunuz",
+    "mailboxIn": "Posta kutunuz: {workspace}",
+    "mailboxOff": "Bu çalışma alanında satırlarda e-posta kapalı, bu yüzden posta kutusu okunmuyor. Şifresini silmek için bağlantısını kesin.",
+    "notConnected": "Bağlı posta kutusu yok",
+    "connect": "Bağla",
+    "noMailboxes": "Çalışma alanlarınızın hiçbirinde satırlarda e-posta açık değil. Sahipleri Ayarlar › E-posta'dan açar.",
+    "calendarsHeading": "Takvim adresleri",
+    "calendarsDescription": "Takvim uygulamaları için bir takvim görünümünden ya da size atanan satırlardan oluşturduğunuz adresler. Adresi bilen herkes gösterdiğini görür; artık kullanmadıklarınızı kapatın.",
+    "calendarsEmpty": "Henüz takvim adresi yok. Bir takvim görünümünden ya da ana sayfadaki Size atananlar bölümünden oluşturabilirsiniz.",
+    "assignedFeed": "Size atanan satırlar",
+    "feedNoAccess": "Artık açamadığınız bir takvim",
+    "made": "{date} tarihinde oluşturuldu",
+    "lastRead": "son okunma {time}",
+    "neverRead": "henüz okunmadı",
+    "turnOff": "Kapat",
+    "turnOffConfirm": "Bu adresi kapat",
+    "turningOff": "Kapatılıyor…",
+    "turnOffError": "Kapatılamadı."
   }
 }

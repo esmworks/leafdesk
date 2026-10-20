@@ -3,6 +3,8 @@
   "title": "Ayarlar",
   "nav": {
     "workspace": "Çalışma alanı",
+    "features": "Özellikler",
+    "admin": "Yönetim",
     "general": "Genel",
     "members": "Üyeler",
     "guests": "Misafirler",
@@ -1526,7 +1528,7 @@
   },
   "connections": {
     "heading": "Bağlantılar",
-    "description": "Ajanlarınızın kullandığı servisler: Slack, GitHub, bir CRM, başka bir Leafdesk… uzak MCP sunucusu olan her şey. Yalnızca sahipler görür ve yönetir; her ajanın hangi araçları kullanabileceği ajanın kendisinde ayarlanır. (Leafdesk’i kullanan programlar Güvenlik › Bağlı uygulamalar altındadır.)",
+    "description": "Ajanlarınızın kullandığı servisler: Slack, GitHub, bir CRM, başka bir Leafdesk… uzak MCP sunucusu olan her şey. Yalnızca sahipler görür ve yönetir; her ajanın hangi araçları kullanabileceği ajanın kendisinde ayarlanır. (Leafdesk’i kullanan programlar: bu çalışma alanına ulaşanlar Güvenlik altında, kendi bağladıklarınız Hesabım › Bağlı uygulamalar’da.)",
     "tabs": {
       "browse": "Keşfet",
       "connected": "Bağlı",
@@ -1726,7 +1728,7 @@
   "email": {
     "description": "Veritabanlarınızdaki kişilerle yazışmalar onların satırlarına düşer: bir satırı görebilen herkes e-postalarını orada okur ve kendi posta kutusundan yanıtlar.",
     "enabled": "Satırlarda e-posta",
-    "enabledHint": "Üyeler kendi posta kutularını aşağıdan bağlar. Yalnızca karşı tarafı bir satırın e-posta adresi olan mesajlar bütünüyle okunur; gerisi posta kutusunda kalır.",
+    "enabledHint": "Üyeler kendi posta kutularını Hesabım › E-posta ve takvim'den bağlar. Yalnızca karşı tarafı bir satırın e-posta adresi olan mesajlar bütünüyle okunur; gerisi posta kutusunda kalır.",
     "ownersOnly": "Bunu yalnızca sahipler değiştirebilir.",
     "databasesHeading": "E-postaların düştüğü yer",
     "databasesDescription": "Bir mesaj, karşı tarafın adresi e-posta özelliğinde bulunan satıra gider; bu veritabanlarından tam olarak bir satırın eşleştiği ilkinde. Yanıtlar kendi yazışmalarını izler.",
@@ -1740,7 +1742,7 @@
     "addDatabaseHint": "E-posta özelliği olan veritabanları.",
     "chooseDatabase": "Bir veritabanı seçin",
     "mailboxHeading": "Posta kutunuz",
-    "mailboxDescription": "Bu çalışma alanı için kullandığınız posta kutusu. Yukarıdaki veritabanlarındaki kişilerle yazışmalar için okunur, satırlarda yazdıklarınız da buradan gönderilir. Diğer çalışma alanlarınız onu görmez.",
+    "mailboxDescription": "Bu çalışma alanında kullandığınız posta kutusu. Çalışma alanının posta veritabanlarındaki kişilerle yazışmalar için okunur, satırlarda yazdıklarınız da buradan gönderilir. Diğer çalışma alanlarınız onu görmez.",
     "syncedAt": "{time} okundu",
     "folders": "Gelen postayı {inbox} klasöründen, gönderilen postayı {sent} klasöründen okur.",
     "noSentFolder": "Gelen postayı {inbox} klasöründen okur. Gönderilen posta klasörü bulunamadı: kendi posta programınızdan gönderdikleriniz satırlarda görünmez, satırlardan gönderilenler de posta kutunuza kaydedilmez.",
@@ -1748,7 +1750,7 @@
     "disconnect": "Bağlantıyı kes",
     "connect": "Dene ve bağla",
     "testing": "Deneniyor…",
-    "consent": "Bu posta kutusundan gönderilen ya da ona gelen, bu veritabanlarındaki kişilerle yazışmaların, o satırları görebilen herkese satırlarında görüneceğini anlıyorum.",
+    "consent": "Bu posta kutusundan gönderilen ya da ona gelen, çalışma alanının posta veritabanlarındaki kişilerle yazışmaların, o satırları görebilen herkese satırlarında görüneceğini anlıyorum.",
     "status": {
       "ok": "Bağlı",
       "connecting": "Bağlanıyor",
@@ -1794,7 +1796,7 @@
       "disabled": "Bu çalışma alanında satırlarda e-posta kapalı.",
       "invalid": "Bilgilerin bazıları geçerli değil. Kontrol edip yeniden deneyin.",
       "consent": "Satırlardaki e-postaların o satırları görebilen herkese görüneceğini onaylayın.",
-      "noMailbox": "Önce Ayarlar > E-posta'dan posta kutunuzu bağlayın.",
+      "noMailbox": "Önce Ayarlar > E-posta ve takvim'den posta kutunuzu bağlayın.",
       "rateLimited": "Posta kutunuz bu saat içinde gönderebileceği kadarını gönderdi. Daha sonra yeniden deneyin.",
       "gone": "Bu mesaj artık bu satırda değil.",
       "notFound": "Posta sunucusunun adı bulunamadı.",

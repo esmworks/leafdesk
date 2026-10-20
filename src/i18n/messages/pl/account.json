@@ -7,10 +7,11 @@
     "profile": "Profil",
     "security": "Bezpieczeństwo",
     "preferences": "Preferencje",
+    "mail": "E-mail i kalendarz",
     "apps": "Połączone aplikacje",
     "about": "Informacje",
     "admin": "Administracja serwerem",
-    "snippets": "Fragmenty"
+    "snippets": "Moje fragmenty"
   },
   "apps": {
     "description": "Aplikacje, którym pozwolono korzystać z Leafdesk w twoim imieniu, np. asystenci AI połączeni przez MCP. Mają dostęp do wszystkich obszarów roboczych, do których należysz."
@@ -163,5 +164,26 @@
     "samePassword": "Wybierz hasło inne niż poprzednie.",
     "resetStepExpired": "Ten krok wygasł. Zaloguj się ponownie starym hasłem.",
     "storageStuck": "Pliki tych obszarów roboczych są w twoim magazynie i nie mają dokąd zostać przeniesione: {workspaces}. Poproś ich właścicieli o skonfigurowanie magazynu albo najpierw przenieś pliki."
+  },
+  "mail": {
+    "description": "Twoje skrzynki pocztowe i adresy kalendarzy we wszystkich twoich obszarach roboczych.",
+    "mailboxHeading": "Twoja skrzynka pocztowa",
+    "mailboxIn": "Twoja skrzynka pocztowa w {workspace}",
+    "mailboxOff": "E-mail w wierszach jest wyłączony w tym obszarze roboczym, więc ta skrzynka nie jest czytana. Odłącz ją, aby usunąć jej hasło.",
+    "notConnected": "Brak podłączonej skrzynki pocztowej",
+    "connect": "Podłącz",
+    "noMailboxes": "Żaden z twoich obszarów roboczych nie ma włączonego e-maila w wierszach. Jego właściciele włączają go w sekcji Ustawienia › E-mail.",
+    "calendarsHeading": "Adresy kalendarzy",
+    "calendarsDescription": "Adresy utworzone przez ciebie dla aplikacji kalendarza, z widoku kalendarza lub z przypisanych ci wierszy. Każdy, kto zna adres, widzi to, co pokazuje — wyłącz te, których już nie używasz.",
+    "calendarsEmpty": "Nie ma jeszcze adresów kalendarzy. Utwórz adres z widoku kalendarza lub z sekcji Przypisane do ciebie na stronie głównej.",
+    "assignedFeed": "Wiersze przypisane do ciebie",
+    "feedNoAccess": "Kalendarz, którego nie możesz już otworzyć",
+    "made": "utworzono {date}",
+    "lastRead": "ostatni odczyt {time}",
+    "neverRead": "jeszcze nie odczytano",
+    "turnOff": "Wyłącz",
+    "turnOffConfirm": "Wyłącz ten adres",
+    "turningOff": "Wyłączanie…",
+    "turnOffError": "Nie udało się wyłączyć."
   }
 }

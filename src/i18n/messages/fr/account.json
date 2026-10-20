@@ -7,10 +7,11 @@
     "profile": "Profil",
     "security": "Sécurité",
     "preferences": "Préférences",
+    "mail": "E-mail et calendrier",
     "apps": "Applications connectées",
     "about": "À propos",
     "admin": "Administration du serveur",
-    "snippets": "Extraits"
+    "snippets": "Mes extraits"
   },
   "apps": {
     "description": "Les applications que vous avez autorisées à utiliser Leafdesk en votre nom, par exemple des assistants IA connectés via MCP. Elles ont accès à tous vos espaces de travail."
@@ -163,5 +164,26 @@
     "samePassword": "Choisissez un mot de passe différent de l'ancien.",
     "resetStepExpired": "Cette étape a expiré. Reconnectez-vous avec votre ancien mot de passe.",
     "storageStuck": "Les fichiers de {workspaces} sont dans votre stockage et ne peuvent être déplacés nulle part. Demandez à leurs propriétaires de configurer un stockage, ou déplacez d’abord les fichiers."
+  },
+  "mail": {
+    "description": "Vos boîtes mail et adresses de calendrier, dans tous vos espaces de travail.",
+    "mailboxHeading": "Votre boîte mail",
+    "mailboxIn": "Votre boîte mail dans {workspace}",
+    "mailboxOff": "Les e-mails sur les lignes sont désactivés dans cet espace de travail : cette boîte mail n’est donc pas lue. Déconnectez-la pour supprimer son mot de passe.",
+    "notConnected": "Aucune boîte mail connectée",
+    "connect": "Connecter",
+    "noMailboxes": "Aucun de vos espaces de travail n’a activé les e-mails sur les lignes. Ses propriétaires l’activent dans Paramètres › E-mail.",
+    "calendarsHeading": "Adresses de calendrier",
+    "calendarsDescription": "Les adresses que vous avez créées pour des applications de calendrier, depuis une vue calendrier ou depuis les lignes qui vous sont assignées. Quiconque connaît une adresse voit ce qu’elle montre : désactivez celles que vous n’utilisez plus.",
+    "calendarsEmpty": "Aucune adresse de calendrier pour l’instant. Créez-en une depuis une vue calendrier ou depuis Qui vous est assigné sur la page d’accueil.",
+    "assignedFeed": "Lignes qui vous sont assignées",
+    "feedNoAccess": "Un calendrier que vous ne pouvez plus ouvrir",
+    "made": "créée le {date}",
+    "lastRead": "lue {time}",
+    "neverRead": "pas encore lue",
+    "turnOff": "Désactiver",
+    "turnOffConfirm": "Désactiver cette adresse",
+    "turningOff": "Désactivation…",
+    "turnOffError": "Impossible de la désactiver."
   }
 }

@@ -386,3 +386,8 @@ export async function createAssignedCalendarFeedAction(workspaceId: string) {
 export async function deleteAssignedCalendarFeedAction(workspaceId: string) {
   return run((userId) => calendarFeeds.deleteAssignedCalendarFeed(userId, workspaceId));
 }
+
+/** Stops one of the user's feeds from their account's list, whatever it shows. */
+export async function deleteOwnCalendarFeedAction(feedId: string) {
+  return run((userId) => calendarFeeds.deleteOwnCalendarFeed(userId, feedId));
+}

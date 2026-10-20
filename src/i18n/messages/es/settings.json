@@ -3,6 +3,8 @@
   "title": "Configuración",
   "nav": {
     "workspace": "Espacio de trabajo",
+    "features": "Funciones",
+    "admin": "Administración",
     "general": "General",
     "members": "Miembros",
     "guests": "Invitados",
@@ -1526,7 +1528,7 @@
   },
   "connections": {
     "heading": "Conexiones",
-    "description": "Servicios que usan tus agentes: Slack, GitHub, un CRM, otro Leafdesk… cualquier cosa con un servidor MCP remoto. Solo los propietarios los ven y gestionan; qué herramientas puede usar cada agente se ajusta en el agente. (Los programas que usan Leafdesk están en Seguridad › Apps conectadas.)",
+    "description": "Servicios que usan tus agentes: Slack, GitHub, un CRM, otro Leafdesk… cualquier cosa con un servidor MCP remoto. Solo los propietarios los ven y gestionan; qué herramientas puede usar cada agente se ajusta en el agente. (Programas que usan Leafdesk: los que llegan a este espacio de trabajo están en Seguridad; los que conectaste tú, en Mi cuenta › Apps conectadas.)",
     "tabs": {
       "browse": "Explorar",
       "connected": "Conectadas",
@@ -1726,7 +1728,7 @@
   "email": {
     "description": "El correo con las personas de tus bases de datos llega a sus filas: quien puede ver una fila lee allí sus correos y los responde desde su propio buzón.",
     "enabled": "Correo en las filas",
-    "enabledHint": "Los miembros conectan su propio buzón aquí abajo. Solo se leen completos los correos cuyo interlocutor es la dirección de correo de una fila; el resto se queda en el buzón.",
+    "enabledHint": "Los miembros conectan su propio buzón en Mi cuenta › Correo y calendario. Solo se leen completos los correos cuyo interlocutor es la dirección de correo de una fila; el resto se queda en el buzón.",
     "ownersOnly": "Solo los propietarios pueden cambiar esto.",
     "databasesHeading": "Adónde llega el correo",
     "databasesDescription": "Un mensaje va a la fila cuya propiedad de correo contiene la dirección del interlocutor, en la primera de estas bases de datos donde coincide exactamente una fila. Las respuestas siguen su hilo.",
@@ -1740,7 +1742,7 @@
     "addDatabaseHint": "Bases de datos con una propiedad de correo.",
     "chooseDatabase": "Elige una base de datos",
     "mailboxHeading": "Tu buzón",
-    "mailboxDescription": "El buzón que usas para este espacio de trabajo. Se lee en busca de correos con las personas de las bases de datos de arriba, y lo que escribes en las filas se envía desde él. Tus otros espacios de trabajo no lo ven.",
+    "mailboxDescription": "El buzón que usas en este espacio de trabajo. Se lee en busca de correos con las personas de las bases de datos de correo del espacio, y lo que escribes en las filas se envía desde él. Tus otros espacios de trabajo no lo ven.",
     "syncedAt": "leído {time}",
     "folders": "Lee el correo entrante de {inbox} y el enviado de {sent}.",
     "noSentFolder": "Lee el correo entrante de {inbox}. No se encontró una carpeta de enviados: lo que envíes desde tu propio programa de correo no aparecerá en las filas, y el correo enviado desde las filas no se guardará en tu buzón.",
@@ -1748,7 +1750,7 @@
     "disconnect": "Desconectar",
     "connect": "Probar y conectar",
     "testing": "Probando…",
-    "consent": "Entiendo que los correos con las personas de estas bases de datos, enviados o recibidos a través de este buzón, se muestran en sus filas a todos los que pueden ver esas filas.",
+    "consent": "Entiendo que los correos con las personas de las bases de datos de correo de este espacio, enviados o recibidos a través de este buzón, se muestran en sus filas a todos los que pueden ver esas filas.",
     "status": {
       "ok": "Conectado",
       "connecting": "Conectando",
@@ -1794,7 +1796,7 @@
       "disabled": "El correo en las filas está desactivado en este espacio de trabajo.",
       "invalid": "Algunos datos no son válidos. Revísalos y vuelve a intentarlo.",
       "consent": "Confirma que los correos de las filas se muestran a todos los que pueden verlas.",
-      "noMailbox": "Primero conecta tu buzón en Configuración > Correo.",
+      "noMailbox": "Primero conecta tu buzón en Configuración > Correo y calendario.",
       "rateLimited": "Tu buzón ya envió todo lo que puede en esta hora. Vuelve a intentarlo más tarde.",
       "notFound": "No se encontró el nombre del servidor de correo.",
       "blocked": "El servidor de correo está en una red privada, a la que este servidor no llega.",

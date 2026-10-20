@@ -77,6 +77,7 @@ import {
   accountTabForSettings,
   type AccountSettingsTab,
   isSettingsTab,
+  SETTINGS_TAB_GROUPS,
   type SettingsTab,
   visibleSettingsTabs,
 } from "@/lib/settings-tabs";
@@ -202,10 +203,12 @@ export default async function SettingsPage({
                 : []),
             ],
           },
-          {
-            label: t("nav.workspace"),
-            items: tabs.map((name) => ({ href: href(name), label: t(`nav.${name}`), icon: ICONS[name], active: tab === name })),
-          },
+          ...SETTINGS_TAB_GROUPS.map((group) => ({
+            label: t(`nav.${group.label}`),
+            items: group.tabs
+              .filter((name) => tabs.includes(name))
+              .map((name) => ({ href: href(name), label: t(`nav.${name}`), icon: ICONS[name], active: tab === name })),
+          })).filter((group) => group.items.length > 0),
         ]}
       />
 

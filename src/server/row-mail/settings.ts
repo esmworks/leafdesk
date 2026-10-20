@@ -1,17 +1,17 @@
 import { and, asc, eq, inArray, isNull, notInArray } from "drizzle-orm";
 import { db } from "@/db";
 import { databaseProperty, mailbox, mailDatabase, page, user } from "@/db/schema";
-import { normalizeAddress, type MailboxFolders, type MailboxServers, type MailboxView, type MailSettingsView } from "@/lib/mail";
+import { normalizeAddress, type MailboxFolders, type MailboxServers, type MailboxView, type MailSettingsView, type OwnMailbox } from "@/lib/mail";
 import { isGuest, requireMembership } from "@/server/access";
 import { recordAudit } from "@/server/audit";
 import { open, seal } from "@/server/secret-box";
-import { workspaceSettings } from "@/server/workspaces";
+import { listWorkspaces, workspaceSettings } from "@/server/workspaces";
 import { MailConnectError, testMailbox } from "./connect";
 
 /**
  * Settings > Email: owners choose the databases mail lands on, in order, and which of their email
  * properties hold the other party's address; every member (not guests) connects their own mailbox
- * in the workspace, which is tried before it is kept.
+ * in the workspace from their account (Account > Email and calendar), which is tried before it is kept.
  */
 
 export type RowMailErrorCode = "disabled" | "invalid" | "consent" | "noMailbox" | "rateLimited" | "gone" | MailConnectError["code"];
@@ -74,21 +74,8 @@ async function emailDatabases(workspaceId: string) {
 export async function getMailSettings(userId: string, workspaceId: string): Promise<MailSettingsView> {
   const membership = await requireMembership(userId, workspaceId);
   const canManage = membership.role === "owner";
-  const [settings, [own]] = await Promise.all([
-    workspaceSettings(workspaceId),
-    db
-      .select()
-      .from(mailbox)
-      .where(and(eq(mailbox.workspaceId, workspaceId), eq(mailbox.userId, userId))),
-  ]);
-  const view: MailSettingsView = {
-    enabled: settings.email,
-    canManage,
-    databases: [],
-    candidates: [],
-    mailbox: own ? mailboxView(own) : null,
-    members: [],
-  };
+  const settings = await workspaceSettings(workspaceId);
+  const view: MailSettingsView = { enabled: settings.email, canManage, databases: [], candidates: [], members: [] };
   if (!canManage) return view;
   const [chosen, available, boxes] = await Promise.all([
     db
@@ -119,6 +106,24 @@ export async function getMailSettings(userId: string, workspaceId: string): Prom
   view.candidates = [...available].filter(([id]) => !taken.has(id)).map(([databaseId, d]) => ({ databaseId, title: d.title, icon: d.icon }));
   view.members = boxes;
   return view;
+}
+
+/**
+ * The person's own mailboxes (Account > Email and calendar), one per workspace they are a member
+ * of (not a guest) where email on rows is on or a mailbox of theirs is still connected.
+ */
+export async function listOwnMailboxes(userId: string): Promise<OwnMailbox[]> {
+  const [workspaces, boxes] = await Promise.all([
+    listWorkspaces(userId),
+    db.select().from(mailbox).where(eq(mailbox.userId, userId)),
+  ]);
+  const members = workspaces.filter((w) => !isGuest(w.role));
+  const settings = await Promise.all(members.map((w) => workspaceSettings(w.id)));
+  return members.flatMap((w, i) => {
+    const own = boxes.find((b) => b.workspaceId === w.id);
+    const enabled = settings[i].email;
+    return enabled || own ? [{ workspaceId: w.id, workspaceName: w.name, enabled, mailbox: own ? mailboxView(own) : null }] : [];
+  });
 }
 
 /**

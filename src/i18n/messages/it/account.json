@@ -7,10 +7,11 @@
     "profile": "Profilo",
     "security": "Sicurezza",
     "preferences": "Preferenze",
+    "mail": "Email e calendario",
     "apps": "App connesse",
     "about": "Informazioni",
     "admin": "Amministrazione del server",
-    "snippets": "Frammenti"
+    "snippets": "I miei frammenti"
   },
   "apps": {
     "description": "Le app che hai autorizzato a usare Leafdesk per tuo conto, ad esempio gli assistenti IA connessi tramite MCP. Hanno accesso a tutti gli spazi di lavoro di cui fai parte."
@@ -163,5 +164,26 @@
     "samePassword": "Scegli una password diversa da quella precedente.",
     "resetStepExpired": "Questo passaggio è scaduto. Accedi di nuovo con la vecchia password.",
     "storageStuck": "I file di {workspaces} sono nella tua archiviazione e non hanno un posto in cui essere spostati. Chiedi ai loro proprietari di configurare un’archiviazione, oppure sposta prima i file."
+  },
+  "mail": {
+    "description": "Le tue caselle di posta e i tuoi indirizzi di calendario, in tutti i tuoi spazi di lavoro.",
+    "mailboxHeading": "La tua casella di posta",
+    "mailboxIn": "La tua casella di posta in {workspace}",
+    "mailboxOff": "L’email sulle righe è disattivata in questo spazio di lavoro, quindi questa casella non viene letta. Scollegala per rimuoverne la password.",
+    "notConnected": "Nessuna casella di posta collegata",
+    "connect": "Collega",
+    "noMailboxes": "Nessuno dei tuoi spazi di lavoro ha attivato l’email sulle righe. I proprietari la attivano in Impostazioni › Email.",
+    "calendarsHeading": "Indirizzi di calendario",
+    "calendarsDescription": "Gli indirizzi che hai creato per le app di calendario, da una vista calendario o dalle righe assegnate a te. Chiunque conosca un indirizzo vede ciò che mostra: disattiva quelli che non usi più.",
+    "calendarsEmpty": "Ancora nessun indirizzo di calendario. Creane uno da una vista calendario o da Assegnate a te nella home.",
+    "assignedFeed": "Righe assegnate a te",
+    "feedNoAccess": "Un calendario che non puoi più aprire",
+    "made": "creato il {date}",
+    "lastRead": "ultima lettura {time}",
+    "neverRead": "non ancora letto",
+    "turnOff": "Disattiva",
+    "turnOffConfirm": "Disattiva questo indirizzo",
+    "turningOff": "Disattivazione…",
+    "turnOffError": "Impossibile disattivarlo."
   }
 }

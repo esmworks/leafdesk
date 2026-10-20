@@ -3,6 +3,8 @@
   "title": "Ustawienia",
   "nav": {
     "workspace": "Obszar roboczy",
+    "features": "Funkcje",
+    "admin": "Administracja",
     "general": "Ogólne",
     "members": "Członkowie",
     "guests": "Goście",
@@ -1526,7 +1528,7 @@
   },
   "connections": {
     "heading": "Połączenia",
-    "description": "Usługi, z których korzystają twoi agenci: Slack, GitHub, CRM, inny Leafdesk… wszystko, co ma zdalny serwer MCP. Widzą je i zarządzają nimi tylko właściciele; to, których narzędzi może używać każdy agent, ustawia się przy agencie. (Programy korzystające z Leafdesk znajdziesz w sekcji Bezpieczeństwo › Połączone aplikacje.)",
+    "description": "Usługi, z których korzystają twoi agenci: Slack, GitHub, CRM, inny Leafdesk… wszystko, co ma zdalny serwer MCP. Widzą je i zarządzają nimi tylko właściciele; to, których narzędzi może używać każdy agent, ustawia się przy agencie. (Programy korzystające z Leafdesk: te, które docierają do tego obszaru roboczego, są w sekcji Bezpieczeństwo, a te podłączone przez ciebie w Moje konto › Połączone aplikacje.)",
     "tabs": {
       "browse": "Przeglądaj",
       "connected": "Połączone",
@@ -1726,7 +1728,7 @@
   "email": {
     "description": "Korespondencja z osobami z twoich baz danych trafia do ich wierszy: każdy, kto widzi wiersz, czyta tam jego e-maile i odpowiada na nie z własnej skrzynki pocztowej.",
     "enabled": "E-maile w wierszach",
-    "enabledHint": "Członkowie podłączają poniżej własne skrzynki pocztowe. W całości czytane są tylko e-maile, których drugą stroną jest adres e-mail z wiersza; reszta zostaje w skrzynce.",
+    "enabledHint": "Członkowie podłączają własne skrzynki pocztowe w sekcji Moje konto › E-mail i kalendarz. W całości czytane są tylko e-maile, których drugą stroną jest adres e-mail z wiersza; reszta zostaje w skrzynce.",
     "ownersOnly": "Tylko właściciele mogą to zmienić.",
     "databasesHeading": "Gdzie trafiają e-maile",
     "databasesDescription": "Wiadomość trafia do wiersza, którego właściwość e-mail zawiera adres drugiej strony, w pierwszej z tych baz danych, w której pasuje dokładnie jeden wiersz. Odpowiedzi idą za swoim wątkiem.",
@@ -1740,7 +1742,7 @@
     "addDatabaseHint": "Bazy danych z właściwością e-mail.",
     "chooseDatabase": "Wybierz bazę danych",
     "mailboxHeading": "Twoja skrzynka pocztowa",
-    "mailboxDescription": "Skrzynka pocztowa, której używasz w tym obszarze roboczym. Są z niej czytane e-maile z osobami z powyższych baz danych, a to, co piszesz w wierszach, jest z niej wysyłane. Twoje inne obszary robocze jej nie widzą.",
+    "mailboxDescription": "Skrzynka pocztowa, której używasz w tym obszarze roboczym. Są z niej czytane e-maile z osobami z pocztowych baz danych obszaru, a to, co piszesz w wierszach, jest z niej wysyłane. Twoje inne obszary robocze jej nie widzą.",
     "syncedAt": "odczytano {time}",
     "folders": "Czyta pocztę przychodzącą z {inbox} i wysłaną z {sent}.",
     "noSentFolder": "Czyta pocztę przychodzącą z {inbox}. Nie znaleziono folderu wysłanych: wiadomości wysłane z Twojego programu pocztowego nie pojawią się w wierszach, a wysłane z wierszy nie zostaną zapisane w Twojej skrzynce.",
@@ -1748,7 +1750,7 @@
     "disconnect": "Odłącz",
     "connect": "Sprawdź i podłącz",
     "testing": "Sprawdzanie…",
-    "consent": "Rozumiem, że e-maile z osobami z tych baz danych, wysłane lub odebrane przez tę skrzynkę pocztową, są widoczne w ich wierszach dla wszystkich, którzy widzą te wiersze.",
+    "consent": "Rozumiem, że e-maile z osobami z pocztowych baz danych tego obszaru, wysłane lub odebrane przez tę skrzynkę pocztową, są widoczne w ich wierszach dla wszystkich, którzy widzą te wiersze.",
     "status": {
       "ok": "Połączono",
       "connecting": "Łączenie",
@@ -1794,7 +1796,7 @@
       "disabled": "E-maile w wierszach są wyłączone w tym obszarze roboczym.",
       "invalid": "Niektóre dane są nieprawidłowe. Sprawdź je i spróbuj ponownie.",
       "consent": "Potwierdź, że e-maile w wierszach są widoczne dla wszystkich, którzy widzą te wiersze.",
-      "noMailbox": "Najpierw podłącz swoją skrzynkę pocztową w sekcji Ustawienia > E-mail.",
+      "noMailbox": "Najpierw podłącz swoją skrzynkę pocztową w sekcji Ustawienia > E-mail i kalendarz.",
       "rateLimited": "Twoja skrzynka pocztowa wysłała w tej godzinie tyle, ile może. Spróbuj ponownie później.",
       "notFound": "Nie znaleziono nazwy serwera poczty.",
       "blocked": "Serwer poczty jest w sieci prywatnej, do której ten serwer nie ma dostępu.",

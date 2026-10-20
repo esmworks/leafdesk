@@ -22,6 +22,13 @@
 
 ### Changed
 
+- **Your mailbox and calendar addresses have their own page under your account.** The new
+  **Settings → Email and calendar** (under My account) is where you connect, change or disconnect
+  your mailbox for each workspace with email on rows, and where every calendar address you made,
+  from a calendar view or from the rows assigned to you, is listed with a way to turn it off.
+  **Settings → Email** in the workspace is now for owners only: whether email on rows is on, where
+  mail lands and whose mailbox is connected. The workspace's settings are grouped under Workspace,
+  Features and Administration, and your own snippets are now **My snippets**.
 - **A source in the full-page AI chat opens beside it.** Clicking an answer's citation (or a page it
   read) opens the page in the panel at the right instead of leaving the conversation, scrolled to the
   cited passage; the panel's up and down buttons (K and J) go through the conversation's other sources,

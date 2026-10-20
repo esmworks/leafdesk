@@ -7,10 +7,11 @@
     "profile": "Profile",
     "security": "Security",
     "preferences": "Preferences",
+    "mail": "Email and calendar",
     "apps": "Connected apps",
     "about": "About",
     "admin": "Server administration",
-    "snippets": "Snippets"
+    "snippets": "My snippets"
   },
   "apps": {
     "description": "Apps you have allowed to use Leafdesk on your behalf, for example AI assistants connected over MCP. They reach every workspace you are in."
@@ -163,5 +164,26 @@
     "samePassword": "Choose a password different from the old one.",
     "resetStepExpired": "This step has expired. Sign in with your old password again.",
     "storageStuck": "The files of {workspaces} are in your storage and have nowhere to move to. Ask their owners to set up storage, or move the files first."
+  },
+  "mail": {
+    "description": "Your mailboxes and calendar addresses, in every workspace you're in.",
+    "mailboxHeading": "Your mailbox",
+    "mailboxIn": "Your mailbox in {workspace}",
+    "mailboxOff": "Email on rows is off in this workspace, so this mailbox isn't read. Disconnect it to remove its password.",
+    "notConnected": "No mailbox connected",
+    "connect": "Connect",
+    "noMailboxes": "None of your workspaces has email on rows turned on. Its owners turn it on under Settings › Email.",
+    "calendarsHeading": "Calendar addresses",
+    "calendarsDescription": "Addresses you made for calendar apps, from a calendar view or from the rows assigned to you. Anyone with an address sees what it shows, so turn off the ones you no longer use.",
+    "calendarsEmpty": "No calendar addresses yet. Make one from a calendar view, or from Assigned to you on the home page.",
+    "assignedFeed": "Rows assigned to you",
+    "feedNoAccess": "A calendar you can no longer open",
+    "made": "made {date}",
+    "lastRead": "last read {time}",
+    "neverRead": "not read yet",
+    "turnOff": "Turn off",
+    "turnOffConfirm": "Turn off this address",
+    "turningOff": "Turning off…",
+    "turnOffError": "Couldn't turn it off."
   }
 }

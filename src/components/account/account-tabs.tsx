@@ -1,4 +1,4 @@
-import { Info, KeyRound, Plug, SlidersHorizontal, TextQuote, UserRound, type LucideIcon } from "lucide-react";
+import { Info, KeyRound, Mails, Plug, SlidersHorizontal, TextQuote, UserRound, type LucideIcon } from "lucide-react";
 import { cookies } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { AiAccountsGroup } from "@/components/account/ai-accounts-group";
@@ -10,9 +10,11 @@ import { ProfileSettings } from "@/components/account/profile-settings";
 import { SessionList } from "@/components/account/session-list";
 import { PasskeySettings } from "@/components/security/passkeys";
 import { TwoFactorSettings } from "@/components/security/two-factor";
+import { CalendarFeeds } from "@/components/account/calendar-feeds";
 import { ApiTokens } from "@/components/settings/api-tokens";
 import { ConnectedApps } from "@/components/settings/connected-apps";
 import { LanguageSettings } from "@/components/settings/language-settings";
+import { OwnMailboxes } from "@/components/settings/mail-settings";
 import { McpInstructions } from "@/components/settings/mcp-instructions";
 import { NotificationSettings } from "@/components/settings/notification-settings";
 import { WatchedPages } from "@/components/settings/watched-pages";
@@ -33,6 +35,7 @@ import { instanceAdmin } from "@/server/first-admin";
 import { getStorageAccounts } from "@/server/storage/accounts";
 import { AccountStorage } from "@/components/settings/account-storage";
 import { SnippetsPanel } from "@/components/snippets/snippets-panel";
+import { listOwnMailboxes } from "@/server/row-mail/settings";
 import { listSnippets } from "@/server/snippets";
 
 /**
@@ -40,12 +43,13 @@ import { listSnippets } from "@/server/snippets";
  * usual way in) and on the account page (/account), which stays open outside any workspace to
  * someone a workspace's two-step policy holds back or who has no workspace at all.
  */
-export const ACCOUNT_TABS = ["profile", "security", "preferences", "snippets", "apps", "about"] as const;
+export const ACCOUNT_TABS = ["profile", "security", "preferences", "mail", "snippets", "apps", "about"] as const;
 export type AccountTab = (typeof ACCOUNT_TABS)[number];
 export const ACCOUNT_ICONS: Record<AccountTab, LucideIcon> = {
   profile: UserRound,
   security: KeyRound,
   preferences: SlidersHorizontal,
+  mail: Mails,
   snippets: TextQuote,
   apps: Plug,
   about: Info,
@@ -57,6 +61,7 @@ export async function AccountTabContent({ tab, session, query = {} }: { tab: Acc
   if (tab === "profile") return <ProfileTab session={session} />;
   if (tab === "security") return <SecurityTab session={session} />;
   if (tab === "preferences") return <PreferencesTab userId={session.user.id} />;
+  if (tab === "mail") return <MailTab userId={session.user.id} />;
   if (tab === "about") return <AboutLeafdesk />;
   if (tab === "snippets") return <SnippetsTab userId={session.user.id} name={session.user.name} />;
   const [t, storage] = await Promise.all([getTranslations("account"), instanceAdmin(session.user).then((isAdmin) => getStorageAccounts(session.user.id, { isAdmin }))]);
@@ -69,6 +74,20 @@ export async function AccountTabContent({ tab, session, query = {} }: { tab: Acc
         {env.ownAiKeysEnabled && <AiAccountsGroup />}
         <McpInstructions />
         <ApiTokens />
+      </div>
+    </>
+  );
+}
+
+/** The person's mailboxes, one per workspace (server/row-mail), and their calendar addresses (server/calendar-feeds). */
+async function MailTab({ userId }: { userId: string }) {
+  const [mailboxes, t] = await Promise.all([listOwnMailboxes(userId), getTranslations("account")]);
+  return (
+    <>
+      <SettingsHeader title={t("nav.mail")} description={t("mail.description")} />
+      <div className="space-y-10">
+        <OwnMailboxes initial={mailboxes} />
+        <CalendarFeeds userId={userId} />
       </div>
     </>
   );

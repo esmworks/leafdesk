@@ -3,6 +3,8 @@
   "title": "Impostazioni",
   "nav": {
     "workspace": "Spazio di lavoro",
+    "features": "Funzionalità",
+    "admin": "Amministrazione",
     "general": "Generali",
     "members": "Membri",
     "guests": "Ospiti",
@@ -1526,7 +1528,7 @@
   },
   "connections": {
     "heading": "Connessioni",
-    "description": "Servizi usati dai tuoi agenti: Slack, GitHub, un CRM, un altro Leafdesk… qualsiasi cosa con un server MCP remoto. Solo i proprietari li vedono e li gestiscono; quali strumenti può usare ogni agente si imposta sull’agente. (I programmi che usano Leafdesk si trovano in Sicurezza › App connesse.)",
+    "description": "Servizi usati dai tuoi agenti: Slack, GitHub, un CRM, un altro Leafdesk… qualsiasi cosa con un server MCP remoto. Solo i proprietari li vedono e li gestiscono; quali strumenti può usare ogni agente si imposta sull’agente. (Programmi che usano Leafdesk: quelli che raggiungono questo spazio di lavoro sono in Sicurezza, quelli che hai collegato tu in Il mio account › App connesse.)",
     "tabs": {
       "browse": "Sfoglia",
       "connected": "Connessi",
@@ -1726,7 +1728,7 @@
   "email": {
     "description": "Le email con le persone dei tuoi database arrivano sulle loro righe: chiunque possa vedere una riga ne legge lì le email e risponde dalla propria casella di posta.",
     "enabled": "Email sulle righe",
-    "enabledHint": "I membri collegano la propria casella di posta qui sotto. Vengono lette per intero solo le email il cui interlocutore è l’indirizzo email di una riga; il resto rimane nella casella di posta.",
+    "enabledHint": "I membri collegano la propria casella di posta in Il mio account › Email e calendario. Vengono lette per intero solo le email il cui interlocutore è l’indirizzo email di una riga; il resto rimane nella casella di posta.",
     "ownersOnly": "Solo i proprietari possono modificarlo.",
     "databasesHeading": "Dove arrivano le email",
     "databasesDescription": "Un messaggio va alla riga la cui proprietà email contiene l’indirizzo dell’interlocutore, nel primo di questi database in cui corrisponde esattamente una riga. Le risposte seguono la loro conversazione.",
@@ -1740,7 +1742,7 @@
     "addDatabaseHint": "Database con una proprietà email.",
     "chooseDatabase": "Scegli un database",
     "mailboxHeading": "La tua casella di posta",
-    "mailboxDescription": "La casella di posta che usi per questo spazio di lavoro. Viene letta per le email con le persone dei database qui sopra, e ciò che scrivi sulle righe viene inviato da lì. Gli altri tuoi spazi di lavoro non la vedono.",
+    "mailboxDescription": "La casella di posta che usi in questo spazio di lavoro. Viene letta per le email con le persone dei database di posta dello spazio, e ciò che scrivi sulle righe viene inviato da lì. Gli altri tuoi spazi di lavoro non la vedono.",
     "syncedAt": "letta {time}",
     "folders": "Legge la posta in arrivo da {inbox} e quella inviata da {sent}.",
     "noSentFolder": "Legge la posta in arrivo da {inbox}. Non è stata trovata una cartella della posta inviata: ciò che invii dal tuo programma di posta non comparirà sulle righe e la posta inviata dalle righe non verrà salvata nella tua casella.",
@@ -1748,7 +1750,7 @@
     "disconnect": "Scollega",
     "connect": "Prova e collega",
     "testing": "Prova in corso…",
-    "consent": "Capisco che le email con le persone di questi database, inviate o ricevute tramite questa casella di posta, sono visibili sulle loro righe a chiunque possa vedere quelle righe.",
+    "consent": "Capisco che le email con le persone dei database di posta di questo spazio, inviate o ricevute tramite questa casella di posta, sono visibili sulle loro righe a chiunque possa vedere quelle righe.",
     "status": {
       "ok": "Collegata",
       "connecting": "Collegamento in corso",
@@ -1794,7 +1796,7 @@
       "disabled": "Le email sulle righe sono disattivate in questo spazio di lavoro.",
       "invalid": "Alcuni dati non sono validi. Controllali e riprova.",
       "consent": "Conferma che le email sulle righe sono visibili a chiunque possa vedere quelle righe.",
-      "noMailbox": "Collega prima la tua casella di posta in Impostazioni > Email.",
+      "noMailbox": "Collega prima la tua casella di posta in Impostazioni > Email e calendario.",
       "rateLimited": "La tua casella di posta ha già inviato tutto ciò che può in quest’ora. Riprova più tardi.",
       "notFound": "Il nome del server di posta non è stato trovato.",
       "blocked": "Il server di posta è su una rete privata, che questo server non raggiunge.",

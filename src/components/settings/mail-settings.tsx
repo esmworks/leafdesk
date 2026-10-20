@@ -6,15 +6,15 @@ import { useState } from "react";
 import { connectMailboxAction, disconnectMailboxAction, setMailDatabasesAction } from "@/app/actions/row-mail";
 import { updateWorkspaceSettingsAction } from "@/app/actions/workspaces";
 import { Button, cn, IconButton, Input, PageIcon, pageLabel, selectClass, Switch } from "@/components/ui";
-import { MAIL_PROVIDERS, providerFor, type MailboxServers, type MailboxView, type MailSettingsView } from "@/lib/mail";
+import { MAIL_PROVIDERS, providerFor, type MailboxServers, type MailboxView, type MailSettingsView, type OwnMailbox } from "@/lib/mail";
 import { relativeTime } from "@/lib/relative-time";
 import { SettingsGroup, SettingsRow } from "./section";
 import { useAction } from "./workspace-settings";
 
 /**
- * Settings > Email: owners turn email on rows on and pick the databases mail lands on, in order,
- * with the email properties that hold the other party's address; each member connects their own
- * mailbox here, and owners see whose is connected and how it is doing.
+ * Settings > Email, for owners: they turn email on rows on and pick the databases mail lands on, in
+ * order, with the email properties that hold the other party's address, and see whose mailbox is
+ * connected and how it is doing. Each member connects their own under their account (OwnMailboxes).
  */
 export function MailSettings({ workspaceId, initial }: { workspaceId: string; initial: MailSettingsView }) {
   const t = useTranslations("settings.email");
@@ -54,9 +54,6 @@ export function MailSettings({ workspaceId, initial }: { workspaceId: string; in
         />
       </SettingsGroup>
       {view.enabled && view.canManage && <DatabasesGroup workspaceId={workspaceId} view={view} onChange={setView} />}
-      {view.enabled && (
-        <MailboxGroup workspaceId={workspaceId} mailbox={view.mailbox} onChange={(mailbox) => setView((v) => ({ ...v, mailbox }))} />
-      )}
       {view.enabled && view.canManage && view.members.length > 0 && <MembersGroup members={view.members} />}
     </div>
   );
@@ -164,18 +161,61 @@ const statusError = (code: string | null) => STATUS_ERRORS.find((c) => c === cod
 
 const DEFAULT_SERVERS: MailboxServers = { imapHost: "", imapPort: 993, imapSecure: true, smtpHost: "", smtpPort: 465, smtpSecure: true };
 
-/** The member's own mailbox: how it is doing, or the form that connects it (and changes it). */
-function MailboxGroup({ workspaceId, mailbox, onChange }: { workspaceId: string; mailbox: MailboxView | null; onChange: (mailbox: MailboxView | null) => void }) {
+/**
+ * Account > Email and calendar: the person's mailbox in each workspace where email on rows is on
+ * (server/row-mail/settings.ts listOwnMailboxes), each connected, changed or disconnected there.
+ */
+export function OwnMailboxes({ initial }: { initial: OwnMailbox[] }) {
+  const t = useTranslations("account.mail");
+  const [list, setList] = useState(initial);
+  if (!list.length) {
+    return (
+      <SettingsGroup title={t("mailboxHeading")}>
+        <p className="px-5 py-8 text-center text-sm text-fg-muted">{t("noMailboxes")}</p>
+      </SettingsGroup>
+    );
+  }
+  return list.map((entry) => (
+    <MailboxGroup
+      key={entry.workspaceId}
+      // With one workspace there is nothing to tell apart.
+      title={list.length > 1 ? t("mailboxIn", { workspace: entry.workspaceName }) : t("mailboxHeading")}
+      workspaceId={entry.workspaceId}
+      enabled={entry.enabled}
+      mailbox={entry.mailbox}
+      onChange={(mailbox) =>
+        setList((all) => all.flatMap((e) => (e.workspaceId !== entry.workspaceId ? [e] : e.enabled || mailbox ? [{ ...e, mailbox }] : [])))
+      }
+    />
+  ));
+}
+
+/** The member's own mailbox in a workspace: how it is doing, or the form that connects it (and changes it). */
+function MailboxGroup({
+  title,
+  workspaceId,
+  enabled,
+  mailbox,
+  onChange,
+}: {
+  title: string;
+  workspaceId: string;
+  /** Off: the workspace turned email on rows off; a mailbox still connected can only be disconnected. */
+  enabled: boolean;
+  mailbox: MailboxView | null;
+  onChange: (mailbox: MailboxView | null) => void;
+}) {
   const t = useTranslations("settings.email");
+  const ta = useTranslations("account.mail");
   const locale = useLocale();
   const [editing, setEditing] = useState(false);
   const { pending, error, run } = useAction();
 
-  if (mailbox && !editing) {
+  if (mailbox && (!editing || !enabled)) {
     const status =
       mailbox.status === "error" ? t(`status.error.${statusError(mailbox.statusError)}`) : mailbox.status === "ok" ? t("status.ok") : t("status.connecting");
     return (
-      <SettingsGroup title={t("mailboxHeading")} description={t("mailboxDescription")}>
+      <SettingsGroup title={title} description={enabled ? t("mailboxDescription") : ta("mailboxOff")}>
         <SettingsRow
           title={mailbox.displayName ? `${mailbox.displayName} <${mailbox.address}>` : mailbox.address}
           description={
@@ -194,9 +234,11 @@ function MailboxGroup({ workspaceId, mailbox, onChange }: { workspaceId: string;
           }
           control={
             <div className="flex gap-2">
-              <Button size="sm" onClick={() => setEditing(true)}>
-                {t("change")}
-              </Button>
+              {enabled && (
+                <Button size="sm" onClick={() => setEditing(true)}>
+                  {t("change")}
+                </Button>
+              )}
               <Button size="sm" variant="ghost" disabled={pending} onClick={() => run(() => disconnectMailboxAction(workspaceId), () => onChange(null))}>
                 {t("disconnect")}
               </Button>
@@ -206,12 +248,27 @@ function MailboxGroup({ workspaceId, mailbox, onChange }: { workspaceId: string;
       </SettingsGroup>
     );
   }
+  if (!editing) {
+    // The form opens on request: someone in several workspaces would otherwise get one form each.
+    return (
+      <SettingsGroup title={title} description={t("mailboxDescription")}>
+        <SettingsRow
+          title={ta("notConnected")}
+          control={
+            <Button size="sm" onClick={() => setEditing(true)}>
+              {ta("connect")}
+            </Button>
+          }
+        />
+      </SettingsGroup>
+    );
+  }
   return (
-    <SettingsGroup title={t("mailboxHeading")} description={t("mailboxDescription")}>
+    <SettingsGroup title={title} description={t("mailboxDescription")}>
       <MailboxForm
         workspaceId={workspaceId}
         mailbox={mailbox}
-        onCancel={mailbox ? () => setEditing(false) : undefined}
+        onCancel={() => setEditing(false)}
         onSaved={(saved) => {
           onChange(saved);
           setEditing(false);

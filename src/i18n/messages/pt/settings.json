@@ -3,6 +3,8 @@
   "title": "Configurações",
   "nav": {
     "workspace": "Espaço de trabalho",
+    "features": "Recursos",
+    "admin": "Administração",
     "general": "Geral",
     "members": "Membros",
     "guests": "Convidados",
@@ -1526,7 +1528,7 @@
   },
   "connections": {
     "heading": "Conexões",
-    "description": "Serviços que seus agentes usam: Slack, GitHub, um CRM, outro Leafdesk… qualquer coisa com um servidor MCP remoto. Só proprietários os veem e gerenciam; quais ferramentas cada agente pode usar é definido no agente. (Programas que usam o Leafdesk ficam em Segurança › Apps conectados.)",
+    "description": "Serviços que seus agentes usam: Slack, GitHub, um CRM, outro Leafdesk… qualquer coisa com um servidor MCP remoto. Só proprietários os veem e gerenciam; quais ferramentas cada agente pode usar é definido no agente. (Programas que usam o Leafdesk: os que acessam este espaço de trabalho ficam em Segurança; os que você mesmo conectou, em Minha conta › Apps conectados.)",
     "tabs": {
       "browse": "Explorar",
       "connected": "Conectadas",
@@ -1726,7 +1728,7 @@
   "email": {
     "description": "Os e-mails com as pessoas dos seus bancos de dados chegam às linhas delas: quem pode ver uma linha lê os e-mails dela ali e responde da própria caixa de e-mail.",
     "enabled": "E-mail nas linhas",
-    "enabledHint": "Os membros conectam a própria caixa de e-mail abaixo. Só são lidos por inteiro os e-mails cujo interlocutor é o endereço de e-mail de uma linha; o resto fica na caixa de e-mail.",
+    "enabledHint": "Os membros conectam a própria caixa de e-mail em Minha conta › E-mail e calendário. Só são lidos por inteiro os e-mails cujo interlocutor é o endereço de e-mail de uma linha; o resto fica na caixa de e-mail.",
     "ownersOnly": "Só proprietários podem alterar isso.",
     "databasesHeading": "Onde o e-mail chega",
     "databasesDescription": "Uma mensagem vai para a linha cuja propriedade de e-mail contém o endereço do interlocutor, no primeiro destes bancos de dados em que exatamente uma linha corresponde. As respostas seguem a conversa delas.",
@@ -1740,7 +1742,7 @@
     "addDatabaseHint": "Bancos de dados com uma propriedade de e-mail.",
     "chooseDatabase": "Escolha um banco de dados",
     "mailboxHeading": "Sua caixa de e-mail",
-    "mailboxDescription": "A caixa de e-mail que você usa neste espaço de trabalho. Ela é lida em busca de e-mails com as pessoas dos bancos de dados acima, e o que você escreve nas linhas é enviado por ela. Seus outros espaços de trabalho não a veem.",
+    "mailboxDescription": "A caixa de e-mail que você usa neste espaço de trabalho. Ela é lida em busca de e-mails com as pessoas dos bancos de dados de e-mail do espaço, e o que você escreve nas linhas é enviado por ela. Seus outros espaços de trabalho não a veem.",
     "syncedAt": "lida {time}",
     "folders": "Lê o correio recebido em {inbox} e o enviado em {sent}.",
     "noSentFolder": "Lê o correio recebido em {inbox}. Não foi encontrada uma pasta de enviados: o que enviar do seu próprio programa de email não aparecerá nas linhas, e o email enviado das linhas não será guardado na sua caixa.",
@@ -1748,7 +1750,7 @@
     "disconnect": "Desconectar",
     "connect": "Testar e conectar",
     "testing": "Testando…",
-    "consent": "Entendo que os e-mails com as pessoas destes bancos de dados, enviados ou recebidos por esta caixa de e-mail, aparecem nas linhas delas para todos que podem ver essas linhas.",
+    "consent": "Entendo que os e-mails com as pessoas dos bancos de dados de e-mail deste espaço, enviados ou recebidos por esta caixa de e-mail, aparecem nas linhas delas para todos que podem ver essas linhas.",
     "status": {
       "ok": "Conectada",
       "connecting": "Conectando",
@@ -1794,7 +1796,7 @@
       "disabled": "O e-mail nas linhas está desativado neste espaço de trabalho.",
       "invalid": "Alguns dados não são válidos. Confira-os e tente novamente.",
       "consent": "Confirme que os e-mails nas linhas aparecem para todos que podem ver essas linhas.",
-      "noMailbox": "Primeiro conecte sua caixa de e-mail em Configurações > E-mail.",
+      "noMailbox": "Primeiro conecte sua caixa de e-mail em Configurações > E-mail e calendário.",
       "rateLimited": "Sua caixa de e-mail já enviou tudo o que pode nesta hora. Tente novamente mais tarde.",
       "notFound": "O nome do servidor de e-mail não foi encontrado.",
       "blocked": "O servidor de e-mail está em uma rede privada, que este servidor não alcança.",
