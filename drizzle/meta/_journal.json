@@ -666,6 +666,13 @@
       "when": 1792486431316,
       "tag": "0094_ai_usage",
       "breakpoints": true
+    },
+    {
+      "idx": 95,
+      "version": "7",
+      "when": 1792524122422,
+      "tag": "0095_connection_chat_tools",
+      "breakpoints": true
     }
   ]
 }

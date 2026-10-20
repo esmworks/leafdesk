@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, ExternalLink, Plug, Plus, RefreshCw, Search, X } from "lucide-react";
+import { Check, ChevronRight, ExternalLink, Plug, Plus, RefreshCw, Search, ShieldCheck, X } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import {
@@ -14,6 +14,7 @@ import {
   refreshConnectionAction,
   revealEventSecretAction,
   setEventSecretAction,
+  setChatToolsAction,
   setToolKindAction,
   signOutConnectionAction,
   updateConnectionAction,
@@ -38,7 +39,15 @@ import {
   type ToolKind,
 } from "@/lib/connections";
 import { MAX_AGENT_PROMPT } from "@/lib/agents";
-import { CATALOG_CATEGORIES, catalogEntryFor, catalogLogo, searchCatalog, type CatalogCategory, type CatalogEntry } from "@/lib/connection-catalog";
+import {
+  CATALOG_CATEGORIES,
+  catalogEntryFor,
+  catalogLogo,
+  instanceClientKey,
+  searchCatalog,
+  type CatalogCategory,
+  type CatalogEntry,
+} from "@/lib/connection-catalog";
 
 export type ConnectionAgent = { id: string; name: string; icon: string | null };
 
@@ -60,7 +69,7 @@ type ClientMode = "required" | "instance" | "optional";
 function clientModeOf(authType: ConnectionAuthType, entry: CatalogEntry | null | undefined, setup: OAuthSetup): ClientMode | null {
   if (authType !== "oauth") return null;
   if (!entry?.client) return "optional";
-  return setup.instanceClients.includes(entry.id) ? "instance" : "required";
+  return setup.instanceClients.includes(instanceClientKey(entry)) ? "instance" : "required";
 }
 
 /** A connection's emoji; else, for a service of the catalog, its logo; else a plug. */
@@ -145,8 +154,8 @@ function ConnectionList({
 
   return (
     <div>
-      <SettingsHeader title={t("heading")} description={t("description")} />
-      <div className="space-y-3">
+      <SettingsHeader title={t("heading")} description={<span className="block max-w-3xl">{t("description")}</span>} />
+      <div className="space-y-4">
         {shownNotice && (
           <p
             role="status"
@@ -158,13 +167,25 @@ function ConnectionList({
             </button>
           </p>
         )}
-        <div role="tablist" aria-label={t("heading")} className="inline-flex gap-0.5 rounded-lg bg-bg-hover p-0.5">
-          <TabButton active={view === "browse"} onClick={() => setView("browse")}>
-            {t("tabs.browse")}
-          </TabButton>
-          <TabButton active={view === "connected"} onClick={() => setView("connected")}>
-            {t("tabs.connected")} <span className="text-fg-faint">{list.length}</span>
-          </TabButton>
+        <div className="flex flex-wrap items-center gap-2">
+          <div role="tablist" aria-label={t("heading")} className="inline-flex gap-0.5 rounded-lg bg-bg-hover p-0.5">
+            <TabButton active={view === "browse"} onClick={() => setView("browse")}>
+              {t("tabs.browse")}
+            </TabButton>
+            <TabButton active={view === "connected"} onClick={() => setView("connected")}>
+              {t("tabs.connected")} <span className="text-fg-faint">{list.length}</span>
+            </TabButton>
+          </div>
+          <Button
+            variant="primary"
+            className="ms-auto shrink-0 whitespace-nowrap"
+            disabled={full}
+            title={full ? t("errors.tooMany", { max: MAX_CONNECTIONS }) : undefined}
+            onClick={() => setAdding("custom")}
+          >
+            <Plus className="h-3.5 w-3.5" />
+            {t("catalog.custom")}
+          </Button>
         </div>
         {view === "browse" ? (
           <CatalogBrowser
@@ -175,34 +196,40 @@ function ConnectionList({
           />
         ) : (
           <>
-            <p className="text-xs text-fg-muted">{t("approvalNote")}</p>
-            <div className="overflow-hidden rounded-xl border border-border">
-              {list.length ? (
-                <ul className="divide-y divide-border">
-                  {list.map((conn) => (
-                    <li key={conn.id}>
-                      <button type="button" onClick={() => setOpen({ id: conn.id, tab: "tools" })} className="flex w-full items-center gap-3 px-4 py-3 text-start hover:bg-bg-hover">
-                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-bg-hover text-lg">
-                          <ConnectionIcon icon={conn.icon} url={conn.url} />
-                        </span>
+            <p className="flex items-start gap-2.5 rounded-lg border border-border bg-bg-subtle px-3.5 py-3 text-xs leading-relaxed text-fg-muted">
+              <ShieldCheck className="mt-px h-4 w-4 shrink-0 text-fg-faint" aria-hidden />
+              <span>{t("approvalNote")}</span>
+            </p>
+            {list.length === 0 ? (
+              <div className="space-y-3 rounded-xl border border-dashed border-border px-4 py-10 text-center">
+                <p className="text-sm text-fg-muted">{t("empty")}</p>
+                <Button variant="secondary" onClick={() => setView("browse")}>
+                  {t("browse")}
+                </Button>
+              </div>
+            ) : (
+              <ul className="grid gap-3 sm:grid-cols-2">
+                {list.map((conn) => (
+                  <li key={conn.id}>
+                    <button
+                      type="button"
+                      onClick={() => setOpen({ id: conn.id, tab: "tools" })}
+                      className="flex h-full w-full flex-col items-start gap-4 rounded-xl border border-border p-4 text-start transition-colors hover:border-fg-faint/60 hover:bg-bg-hover"
+                    >
+                      <span className="flex w-full items-center gap-3">
+                        <ConnectionLogo conn={conn} />
                         <span className="min-w-0 flex-1">
                           <span className="block truncate text-sm font-medium">{conn.name}</span>
                           <span className="block truncate text-xs text-fg-muted">{hostOf(conn.url)}</span>
                         </span>
-                        <StatusText conn={conn} />
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <div className="space-y-3 px-4 py-8 text-center">
-                  <p className="text-sm text-fg-muted">{t("empty")}</p>
-                  <Button variant="secondary" onClick={() => setView("browse")}>
-                    {t("browse")}
-                  </Button>
-                </div>
-              )}
-            </div>
+                        <ChevronRight className="h-4 w-4 shrink-0 text-fg-faint rtl:rotate-180" aria-hidden />
+                      </span>
+                      <StatusText conn={conn} />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
           </>
         )}
       </div>
@@ -249,10 +276,46 @@ function hostOf(url: string) {
   }
 }
 
+/**
+ * A tool's description without the title it often starts with ("Returns a range…" twice), or
+ * nothing when that is all it says.
+ */
+function descriptionAfterTitle(title: string | null, description: string) {
+  const trimmed = description.trim();
+  if (!title) return trimmed;
+  const head = title.trim().replace(/[.。]$/, "");
+  if (!trimmed.toLowerCase().startsWith(head.toLowerCase())) return trimmed;
+  return trimmed
+    .slice(head.length)
+    .replace(/^[.。:\s–—-]+/, "")
+    .trim();
+}
+
+/** A connection's logo, or its emoji or a plug, in a box the size of a catalog card's logo. */
+function ConnectionLogo({ conn }: { conn: ConnectionView }) {
+  return (
+    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[22%] bg-bg-hover text-xl">
+      <ConnectionIcon icon={conn.icon} url={conn.url} />
+    </span>
+  );
+}
+
+const STATUS_DOTS: Record<ConnectionView["status"], string> = {
+  ready: "bg-emerald-500",
+  needsAuth: "bg-amber-400",
+  error: "bg-danger",
+};
+
 function StatusText({ conn }: { conn: ConnectionView }) {
   const t = useTranslations("settings.connections.status");
   return (
-    <span className={cn("shrink-0 text-xs", conn.status === "error" ? "text-danger" : conn.status === "needsAuth" ? "text-fg" : "text-fg-muted")}>
+    <span
+      className={cn(
+        "inline-flex h-6 shrink-0 items-center gap-1.5 rounded-md border border-border px-2 text-xs",
+        conn.status === "error" ? "text-danger" : conn.status === "needsAuth" ? "text-fg" : "text-fg-muted",
+      )}
+    >
+      <span className={cn("h-1.5 w-1.5 rounded-full", STATUS_DOTS[conn.status])} aria-hidden />
       {conn.status === "ready" ? t("ready", { n: conn.tools.length }) : t(conn.status)}
     </span>
   );
@@ -309,9 +372,8 @@ function CatalogBrowser({
   const tooMany = full ? t("errors.tooMany", { max: MAX_CONNECTIONS }) : undefined;
 
   return (
-    <div className="space-y-4">
-      <p className="text-sm text-fg-muted">{t("catalog.description")}</p>
-      <div className="flex flex-wrap gap-2">
+    <div className="space-y-6">
+      <div className="flex flex-wrap items-center gap-2">
         <label className="relative min-w-48 flex-1">
           <Search className="pointer-events-none absolute top-1/2 inset-s-2.5 h-3.5 w-3.5 -translate-y-1/2 text-fg-faint" aria-hidden />
           <Input
@@ -336,55 +398,67 @@ function CatalogBrowser({
             </option>
           ))}
         </select>
-        <Button variant="secondary" disabled={full} title={tooMany} onClick={() => onPick("custom")}>
-          <Plus className="h-3.5 w-3.5" />
-          {t("catalog.custom")}
-        </Button>
+        <p className="w-full text-xs text-fg-muted">{t("catalog.description")}</p>
       </div>
       {groups.length === 0 ? (
         <p className="rounded-xl border border-dashed border-border py-8 text-center text-sm text-fg-muted">{t("catalog.none")}</p>
       ) : (
         groups.map((group) => (
           <section key={group.category}>
-            <h3 className="mb-2 text-sm font-medium">
-              {categoryLabel(group.category)} <span className="font-normal text-fg-faint">{group.entries.length}</span>
+            <h3 className="mb-3 flex items-baseline gap-2 text-sm font-semibold">
+              {categoryLabel(group.category)} <span className="text-xs font-normal text-fg-faint">{group.entries.length}</span>
             </h3>
-            <ul className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+            <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
               {group.entries.map((entry) => {
                 const conn = added.get(entry.id);
                 return (
-                  <li key={entry.id} className="flex items-center gap-1 rounded-xl border border-border transition-colors hover:bg-bg-hover">
+                  <li
+                    key={entry.id}
+                    className="flex items-center gap-1 rounded-xl border border-border transition-colors hover:border-fg-faint/60 hover:bg-bg-hover"
+                  >
                     <button
                       type="button"
                       disabled={!conn && full}
                       title={conn ? undefined : tooMany}
                       onClick={() => (conn ? onOpen(conn) : onPick(entry))}
-                      className="group flex min-w-0 flex-1 items-center gap-3 p-3 text-start disabled:cursor-not-allowed disabled:opacity-60"
+                      className="group flex min-w-0 flex-1 items-center gap-3.5 p-4 text-start disabled:cursor-not-allowed disabled:opacity-60"
                     >
-                      <span className="h-10 w-10 shrink-0">
+                      <span className="h-11 w-11 shrink-0">
                         <ServiceLogo entry={entry} />
                       </span>
                       <span className="min-w-0 flex-1">
-                        <span className="block truncate text-sm font-medium">{entry.name}</span>
-                        <span className="block truncate text-xs text-fg-muted">
-                          {clientModeOf(entry.authType, entry, setup) === "required" ? t("catalog.ownApp") : t(`catalog.auth.${entry.authType}`)}
+                        <span className="block truncate text-sm font-medium" title={entry.name}>
+                          {entry.name}
                         </span>
+                        {conn ? (
+                          <span className="mt-0.5 flex items-center gap-1 text-xs text-fg-muted">
+                            <Check className="h-3.5 w-3.5 shrink-0 text-emerald-500" aria-hidden />
+                            <span className="truncate">{t("catalog.added")}</span>
+                          </span>
+                        ) : (
+                          <span className="mt-0.5 block truncate text-xs text-fg-muted">
+                            {clientModeOf(entry.authType, entry, setup) === "required" ? t("catalog.ownApp") : t(`catalog.auth.${entry.authType}`)}
+                          </span>
+                        )}
                       </span>
-                      {conn ? (
-                        <span className="flex shrink-0 items-center gap-1 text-xs text-fg-muted">
-                          <Check className="h-3.5 w-3.5" aria-hidden />
-                          {t("catalog.added")}
-                        </span>
-                      ) : (
-                        <span className="shrink-0 rounded-md border border-border bg-bg px-2 py-1 text-xs font-medium group-hover:border-fg-faint">
-                          {t("catalog.connect")}
+                      {!conn && !full && (
+                        <span
+                          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-border bg-bg text-fg-muted transition-colors group-hover:border-fg-faint group-hover:text-fg"
+                          title={t("catalog.connect")}
+                        >
+                          <Plus className="h-4 w-4" aria-hidden />
+                          <span className="sr-only">{t("catalog.connect")}</span>
                         </span>
                       )}
                     </button>
                     {/* Another connection to the same service: a second workspace, account or org. */}
                     {conn && !full && (
-                      <IconButton label={t("catalog.addAnother", { name: entry.name })} onClick={() => onPick(entry)} className="me-2 h-7 w-7 shrink-0">
-                        <Plus className="h-3.5 w-3.5" />
+                      <IconButton
+                        label={t("catalog.addAnother", { name: entry.name })}
+                        onClick={() => onPick(entry)}
+                        className="me-4 h-8 w-8 rounded-md border border-border bg-bg"
+                      >
+                        <Plus className="h-4 w-4" />
                       </IconButton>
                     )}
                   </li>
@@ -700,19 +774,19 @@ function ConnectionDialog({
   const tc = useTranslations("common");
   return (
     <Dialog open onClose={onClose} className="max-w-2xl">
-      <div className="flex items-start gap-3 border-b border-border px-5 py-4">
-        <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-bg-hover text-lg">
-          <ConnectionIcon icon={conn.icon} url={conn.url} />
-        </span>
-        <div className="min-w-0 flex-1">
-          <h2 className="truncate text-base font-semibold">{conn.name}</h2>
-          <p className="truncate text-sm text-fg-muted">{conn.url}</p>
+      <div className="space-y-4 border-b border-border px-5 pt-5 pb-3">
+        <div className="flex items-center gap-3.5">
+          <ConnectionLogo conn={conn} />
+          <div className="min-w-0 flex-1">
+            <h2 className="truncate text-base font-semibold">{conn.name}</h2>
+            <p className="truncate text-sm text-fg-muted" title={conn.url}>
+              {hostOf(conn.url)}
+            </p>
+          </div>
+          <IconButton label={tc("close")} onClick={onClose} className="h-7 w-7 self-start">
+            <X className="h-4 w-4" />
+          </IconButton>
         </div>
-        <IconButton label={tc("close")} onClick={onClose} className="h-7 w-7">
-          <X className="h-4 w-4" />
-        </IconButton>
-      </div>
-      <div className="border-b border-border px-5 py-2">
         <div role="tablist" aria-label={conn.name} className="inline-flex gap-0.5 rounded-lg bg-bg-hover p-0.5">
           {(["tools", "events", "settings"] as const).map((name) => (
             <TabButton key={name} active={tab === name} onClick={() => onTab(name)}>
@@ -721,7 +795,7 @@ function ConnectionDialog({
           ))}
         </div>
       </div>
-      <div className="max-h-[65vh] overflow-y-auto px-5 py-4">
+      <div className="max-h-[65vh] overflow-y-auto px-5 py-5">
         {tab === "tools" ? (
           <ToolsTab workspaceId={workspaceId} conn={conn} onChange={onChange} />
         ) : tab === "events" ? (
@@ -740,14 +814,19 @@ function ToolsTab({ workspaceId, conn, onChange }: { workspaceId: string; conn: 
   const { pending, error, run } = useAction();
   const sign = useSignIn(workspaceId, onChange);
   const signedInByOAuth = conn.authType === "oauth" && conn.status !== "needsAuth";
+  // Names of tools the server no longer lists are left out (saving them would be refused).
+  const chosen = new Set(conn.chatTools.filter((name) => conn.tools.some((tool) => tool.name === name)));
+  const setChat = (tools: string[]) => run(() => setChatToolsAction(workspaceId, conn.id, tools), onChange);
+
+  const allInChat = chosen.size === conn.tools.length;
 
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-2">
-        <p className="min-w-0 flex-1 text-sm">
+        <p className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2.5 gap-y-1 text-sm">
           <StatusText conn={conn} />
           {conn.toolsAt && conn.status === "ready" && (
-            <span className="text-xs text-fg-faint"> · {t("checkedAt", { time: format.dateTime(new Date(conn.toolsAt), { dateStyle: "medium", timeStyle: "short" }) })}</span>
+            <span className="text-xs text-fg-faint">{t("checkedAt", { time: format.dateTime(new Date(conn.toolsAt), { dateStyle: "medium", timeStyle: "short" }) })}</span>
           )}
         </p>
         {conn.authType === "oauth" && conn.status !== "ready" && (
@@ -771,32 +850,74 @@ function ToolsTab({ workspaceId, conn, onChange }: { workspaceId: string; conn: 
           {error || sign.error}
         </p>
       )}
-      <p className="text-xs text-fg-muted">{t("tools.description")}</p>
+      <div className="flex items-start gap-2.5 rounded-lg border border-border bg-bg-subtle px-3.5 py-3 text-xs leading-relaxed text-fg-muted">
+        <ShieldCheck className="mt-px h-4 w-4 shrink-0 text-fg-faint" aria-hidden />
+        <div className="space-y-1.5">
+          <p>{t("tools.description")}</p>
+          {conn.tools.length > 0 && <p>{t("tools.chatDescription")}</p>}
+        </div>
+      </div>
       {conn.tools.length === 0 ? (
-        <p className="text-sm text-fg-muted">{conn.status === "ready" ? t("tools.none") : t("tools.notListed")}</p>
+        <p className="rounded-lg border border-dashed border-border px-4 py-8 text-center text-sm text-fg-muted">
+          {conn.status === "ready" ? t("tools.none") : t("tools.notListed")}
+        </p>
       ) : (
-        <ul className="divide-y divide-border rounded-lg border border-border">
-          {conn.tools.map((tool) => (
-            <li key={tool.name} className="flex items-start gap-3 px-3 py-2">
-              <div className="min-w-0 flex-1">
-                <p className="text-sm">{tool.title || tool.name}</p>
-                {tool.title && <p className="truncate text-xs text-fg-faint">{tool.name}</p>}
-                {tool.description && <p className="line-clamp-2 text-xs text-fg-muted">{tool.description}</p>}
-                {tool.kind !== tool.hinted && <p className="text-xs text-fg-faint">{t("tools.overridden")}</p>}
-              </div>
-              <select
-                aria-label={t("tools.kindLabel", { tool: tool.title || tool.name })}
-                className={cn(selectClass, "shrink-0")}
-                value={tool.kind}
-                disabled={pending}
-                onChange={(e) => run(() => setToolKindAction(workspaceId, conn.id, tool.name, e.target.value as ToolKind), onChange)}
-              >
-                <option value="read">{t("tools.reads")}</option>
-                <option value="write">{t("tools.writes")}</option>
-              </select>
-            </li>
-          ))}
-        </ul>
+        <div className="overflow-hidden rounded-lg border border-border">
+          {/* Lined up with the rows' chat switches, so it reads as that column's heading. */}
+          <div className="flex items-center gap-4 border-b border-border bg-bg-subtle px-4 py-2.5 sm:grid sm:grid-cols-[minmax(0,1fr)_auto_13rem]">
+            <span className="flex-1 text-xs font-medium text-fg-muted">{t("tools.chatAll")}</span>
+            <Switch
+              checked={allInChat}
+              disabled={pending}
+              label={t("tools.chatAll")}
+              onChange={(on) => setChat(on ? conn.tools.map((tool) => tool.name) : [])}
+            />
+            <span className="hidden sm:block" />
+          </div>
+          <ul className="divide-y divide-border">
+            {conn.tools.map((tool) => {
+              const label = tool.title || tool.name;
+              const description = descriptionAfterTitle(tool.title, tool.description);
+              return (
+                <li key={tool.name} className="flex flex-col gap-3 px-4 py-3.5 sm:grid sm:grid-cols-[minmax(0,1fr)_auto_13rem] sm:items-center sm:gap-4">
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium">{label}</p>
+                    {tool.title && <p className="truncate text-xs text-fg-faint">{tool.name}</p>}
+                    {description && <p className="mt-1 line-clamp-2 text-xs text-fg-muted">{description}</p>}
+                    {tool.kind !== tool.hinted && <p className="mt-1 text-xs text-fg-faint">{t("tools.overridden")}</p>}
+                  </div>
+                  <div className="flex items-center gap-2 sm:contents">
+                    <span className="flex items-center gap-2 text-xs text-fg-muted">
+                      <Switch
+                        checked={chosen.has(tool.name)}
+                        disabled={pending}
+                        label={t("tools.chatLabel", { tool: label })}
+                        onChange={(on) => setChat(on ? [...chosen, tool.name] : [...chosen].filter((name) => name !== tool.name))}
+                      />
+                      <span className="sm:hidden">{t("tools.chat")}</span>
+                    </span>
+                    <span className="relative ms-auto flex w-52 items-center sm:ms-0 sm:w-full">
+                      <span
+                        className={cn("pointer-events-none absolute inset-s-2.5 h-1.5 w-1.5 rounded-full", tool.kind === "write" ? "bg-amber-400" : "bg-emerald-500")}
+                        aria-hidden
+                      />
+                      <select
+                        aria-label={t("tools.kindLabel", { tool: label })}
+                        className={cn(selectClass, "w-full ps-6")}
+                        value={tool.kind}
+                        disabled={pending}
+                        onChange={(e) => run(() => setToolKindAction(workspaceId, conn.id, tool.name, e.target.value as ToolKind), onChange)}
+                      >
+                        <option value="read">{t("tools.reads")}</option>
+                        <option value="write">{t("tools.writes")}</option>
+                      </select>
+                    </span>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
       )}
     </div>
   );

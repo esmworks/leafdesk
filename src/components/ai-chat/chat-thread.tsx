@@ -6,7 +6,8 @@
  * below), under the steps taken to them
  * (searches, pages read, changes made): listed as they happen, then folded into how long it took.
  * Under the box, what the chat may change (ask, auto, read only); a change it asks about takes the
- * box's place until the person decides.
+ * box's place until the person decides. Questions asked while an answer is on its way wait in a
+ * strip above the box.
  */
 import {
   ArrowUp,
@@ -14,6 +15,7 @@ import {
   Check,
   ChevronDown,
   ChevronRight,
+  Clock,
   Copy,
   Eye,
   Hand,
@@ -25,15 +27,16 @@ import {
   Zap,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { Fragment, lazy, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { Fragment, lazy, Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
 import { BlockChanges } from "@/components/page/history-diff";
 import { copyText } from "@/components/settings/copy-button";
 import { Button, cn, IconButton, MenuItem, Popover } from "@/components/ui";
-import { CHAT_MODES, changedMemory, MAX_CHAT_MESSAGE, type ChatMode, type ChatSourceView, stripCitations } from "@/lib/ai-chat";
+import { CHAT_MODES, changedMemory, changedThings, type ChatMode, type ChatSourceView, stripCitations } from "@/lib/ai-chat";
+import { caretOutsideLabels, deleteLabel, normalizePaste, shouldCollapsePaste, type PastePart } from "@/lib/chat-paste";
 import { MemoryDialog } from "./memory-dialog";
 import { SkillChip, SkillList, useSkillPicker } from "./skill-picker";
 import { PageLink, StepLine } from "./step-line";
-import type { ChangeDecision, Chat, ChatMessage, ChatSkillPick, ChatStatus, PendingChange } from "./use-chat";
+import { useReasoning, type ChangeDecision, type Chat, type ChatMessage, type ChatSkillPick, type ChatStatus, type PendingChange, type QueuedQuestion, type Reasoning } from "./use-chat";
 
 export function ChatThread({
   chat,
@@ -59,6 +62,14 @@ export function ChatThread({
   const { messages, status, error, input, setInput, running, inputRef } = chat;
   const listRef = useRef<HTMLDivElement>(null);
   const page = variant === "page";
+  // While the box holds a paste, its text is drawn behind it with the labels as chips.
+  const chipsRef = useRef<HTMLDivElement>(null);
+  const caretWas = useRef(0);
+  const chips = chat.pastes.length > 0;
+  const boxText = cn("block min-h-7 w-full py-1", page ? "px-1 text-[15px] leading-6" : "text-sm");
+  useLayoutEffect(() => {
+    if (chipsRef.current && inputRef.current) chipsRef.current.scrollTop = inputRef.current.scrollTop;
+  }, [input, inputRef]);
   const skills = useSkillPicker({
     workspaceId: chat.workspaceId,
     input,
@@ -74,13 +85,16 @@ export function ChatThread({
     inputRef.current?.focus();
   }, [inputRef]);
   // Follow the answer as it streams, unless the person scrolled up to read; an opened conversation
-  // starts at its end.
+  // starts at its end, and so does a question just asked.
   const shownConversation = useRef(chat.conversationId);
+  const shownCount = useRef(messages.length);
   useEffect(() => {
     const el = listRef.current;
     const opened = shownConversation.current !== chat.conversationId;
+    const asked = messages.length > shownCount.current && messages[messages.length - 2]?.role === "user";
     shownConversation.current = chat.conversationId;
-    if (el && (opened || el.scrollHeight - el.scrollTop - el.clientHeight < 120)) el.scrollTop = el.scrollHeight;
+    shownCount.current = messages.length;
+    if (el && (opened || asked || el.scrollHeight - el.scrollTop - el.clientHeight < 120)) el.scrollTop = el.scrollHeight;
   }, [messages, status, chat.conversationId]);
 
   const send = () => {
@@ -89,11 +103,8 @@ export function ChatThread({
   // The last question can be answered again, or edited, unless its answer changed things (that
   // would make them twice).
   const empty = page && messages.length === 0;
-  const sendButton = cn(
-    "inline-flex shrink-0 items-center justify-center rounded-full bg-fg text-bg transition-colors hover:bg-fg/85",
-    "disabled:bg-bg-active disabled:text-fg-faint disabled:hover:bg-bg-active",
-    page ? "h-8 w-8" : "h-7 w-7",
-  );
+  const round = "inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full transition-colors";
+  const sendButton = cn(round, "bg-fg text-bg hover:bg-fg/85 disabled:bg-bg-active disabled:text-fg-faint disabled:hover:bg-bg-active");
   const last = messages[messages.length - 1];
   const askAgain =
     !running &&
@@ -101,7 +112,7 @@ export function ChatThread({
     chat.conversationId !== null &&
     messages.length >= 2 &&
     last.role === "assistant" &&
-    !last.steps?.some((st) => st.kind === "write" && st.outcome === "done");
+    !last.steps?.some(changedThings);
 
   return (
     <>
@@ -140,6 +151,7 @@ export function ChatThread({
                       message={m}
                       status={i === messages.length - 1 ? status : null}
                       waiting={i === messages.length - 1 && chat.pending !== null}
+                      reasoning={chat.reasoning}
                       last={i === messages.length - 1}
                       onRetry={
                         askAgain && i === messages.length - 1 ? () => onSend({ question: messages[i - 1].content, skill: messages[i - 1].skill }) : undefined
@@ -168,6 +180,7 @@ export function ChatThread({
               {error}
             </p>
           )}
+          {!chat.pending && <QueueStrip queued={chat.queued} onClear={chat.clearQueue} />}
           {chat.pending ? (
             <ChangePrompt pending={chat.pending} onDecide={(d) => void chat.decide(d)} onSource={onSource} />
           ) : (
@@ -192,36 +205,71 @@ export function ChatThread({
                   }}
                 />
               )}
-              <textarea
-                ref={inputRef}
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (skills.onKeyDown(e)) {
+              <div className="relative">
+                {chips && <PasteChips text={input} pastes={chat.pastes} boxRef={chipsRef} className={boxText} />}
+                <textarea
+                  ref={inputRef}
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onScroll={(e) => {
+                    if (chipsRef.current) chipsRef.current.scrollTop = e.currentTarget.scrollTop;
+                  }}
+                  // A label is one piece: the caret steps over it.
+                  onSelect={(e) => {
+                    const box = e.currentTarget;
+                    if (box.selectionStart !== box.selectionEnd) return;
+                    const at = caretOutsideLabels(chat.pastes, box.selectionStart, caretWas.current);
+                    if (at !== box.selectionStart) box.setSelectionRange(at, at);
+                    caretWas.current = at;
+                  }}
+                  // A long paste goes in as a label (the text itself is sent in its place).
+                  onPaste={(e) => {
+                    const raw = e.clipboardData.getData("text/plain");
+                    if (!raw || !shouldCollapsePaste(raw)) return;
                     e.preventDefault();
-                    return;
-                  }
-                  // Backspace in the empty box takes off the picked skill.
-                  if (e.key === "Backspace" && !input && chat.skill) {
-                    e.preventDefault();
-                    chat.setSkill(null);
-                    return;
-                  }
-                  if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
-                    e.preventDefault();
-                    send();
-                  }
-                }}
-                rows={Math.min(6, Math.max(page ? 2 : 1, input.split("\n").length))}
-                maxLength={MAX_CHAT_MESSAGE}
-                disabled={Boolean(blocked)}
-                placeholder={t("placeholder")}
-                aria-label={t("placeholder")}
-                className={cn(
-                  "block max-h-40 min-h-7 w-full resize-none bg-transparent py-1 outline-none placeholder:text-fg-faint disabled:opacity-60",
-                  page ? "px-1 text-[15px] leading-6" : "text-sm",
-                )}
-              />
+                    const box = e.currentTarget;
+                    const caret = chat.pasteInput(normalizePaste(raw), box.selectionStart, box.selectionEnd);
+                    requestAnimationFrame(() => box.setSelectionRange(caret, caret));
+                  }}
+                  onKeyDown={(e) => {
+                    if (skills.onKeyDown(e)) {
+                      e.preventDefault();
+                      return;
+                    }
+                    // Backspace in the empty box takes off the picked skill.
+                    if (e.key === "Backspace" && !input && chat.skill) {
+                      e.preventDefault();
+                      chat.setSkill(null);
+                      return;
+                    }
+                    // …and Backspace or Delete next to a label takes all of it.
+                    const box = e.currentTarget;
+                    if ((e.key === "Backspace" || e.key === "Delete") && box.selectionStart === box.selectionEnd) {
+                      const cut = deleteLabel({ text: input, pastes: chat.pastes }, box.selectionStart, e.key);
+                      if (cut) {
+                        e.preventDefault();
+                        setInput(cut.text);
+                        caretWas.current = cut.caret;
+                        requestAnimationFrame(() => box.setSelectionRange(cut.caret, cut.caret));
+                        return;
+                      }
+                    }
+                    if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
+                      e.preventDefault();
+                      send();
+                    }
+                  }}
+                  rows={Math.min(6, Math.max(page ? 2 : 1, input.split("\n").length))}
+                  disabled={Boolean(blocked)}
+                  placeholder={running ? t("placeholderBusy") : t("placeholder")}
+                  aria-label={t("placeholder")}
+                  className={cn(
+                    boxText,
+                    "relative max-h-40 resize-none bg-transparent outline-none placeholder:text-fg-faint disabled:opacity-60",
+                    chips && "text-transparent caret-fg selection:bg-accent/25 selection:text-transparent",
+                  )}
+                />
+              </div>
               {/* The highlighted skill, for screen readers: the list itself is under the mouse. */}
               {skills.open && skills.shown.length > 0 && (
                 <span className="sr-only" aria-live="polite">
@@ -244,11 +292,31 @@ export function ChatThread({
                     <ScrollText className="h-4 w-4" />
                   </IconButton>
                 </div>
-                {/* Filled while there is something to send (or to stop), quiet otherwise. */}
+                {/* Filled while there is something to send, quiet otherwise. While an answer is on its
+                    way, Stop is a ring, and a typed question can be queued beside it. */}
                 {running ? (
-                  <button type="button" aria-label={t("stop")} title={t("stop")} className={sendButton} onClick={chat.stop}>
-                    <Square className="h-3 w-3 fill-current" />
-                  </button>
+                  <div className="flex items-center gap-1.5">
+                    {input.trim() && (
+                      <button
+                        type="submit"
+                        aria-label={t("queue.add")}
+                        title={t("queue.add")}
+                        className={cn(round, "text-fg-muted hover:bg-bg-hover hover:text-fg disabled:opacity-40")}
+                        disabled={Boolean(blocked) || skills.open}
+                      >
+                        <ArrowUp className="h-3.5 w-3.5" />
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      aria-label={t("stop")}
+                      title={t("stop")}
+                      className={cn(round, "border-[1.5px] border-fg text-fg hover:bg-bg-hover")}
+                      onClick={chat.stop}
+                    >
+                      <Square className="h-2.5 w-2.5 fill-current" />
+                    </button>
+                  </div>
                 ) : (
                   <button
                     type="submit"
@@ -257,7 +325,7 @@ export function ChatThread({
                     className={sendButton}
                     disabled={Boolean(blocked) || !input.trim() || skills.open}
                   >
-                    <ArrowUp className="h-4 w-4" />
+                    <ArrowUp className="h-3.5 w-3.5" />
                   </button>
                 )}
               </div>
@@ -273,12 +341,47 @@ export function ChatThread({
   );
 }
 
+/**
+ * The chat box's text, drawn behind the box (whose own text is clear) with each paste's label as a
+ * chip; its brackets stay in place, unseen, as the chip's padding, so the text lines up.
+ */
+function PasteChips({ text, pastes, boxRef, className }: { text: string; pastes: PastePart[]; boxRef: RefObject<HTMLDivElement | null>; className: string }) {
+  const parts: ReactNode[] = [];
+  let at = 0;
+  for (const paste of pastes) {
+    parts.push(text.slice(at, paste.start));
+    const bracketed = paste.label.startsWith("[") && paste.label.endsWith("]");
+    parts.push(
+      <span key={paste.start} className="rounded-md bg-bg-active text-fg-muted">
+        {bracketed ? (
+          <>
+            <span className="text-transparent">[</span>
+            {paste.label.slice(1, -1)}
+            <span className="text-transparent">]</span>
+          </>
+        ) : (
+          paste.label
+        )}
+      </span>,
+    );
+    at = paste.end;
+  }
+  // A last empty line takes room in the box too.
+  parts.push(`${text.slice(at)} `);
+  return (
+    <div ref={boxRef} aria-hidden className={cn(className, "pointer-events-none absolute inset-0 overflow-hidden break-words whitespace-pre-wrap")}>
+      {parts}
+    </div>
+  );
+}
+
 type Labels = { stopped: string; cutOff: string; thinking: string };
 
 function Answer({
   message,
   status,
   waiting,
+  reasoning,
   last,
   onRetry,
   onSource,
@@ -289,6 +392,7 @@ function Answer({
   status: ChatStatus | null;
   /** A change it wants to make waits for the person. */
   waiting: boolean;
+  reasoning: Reasoning;
   /** The conversation's latest answer: its actions show without hovering. */
   last: boolean;
   /** Answers its question again, when it may be. */
@@ -306,7 +410,7 @@ function Answer({
   return (
     <div className="group/answer text-sm leading-relaxed">
       {message.steps ? (
-        <Steps message={message} status={status} waiting={waiting} onSource={onSource} />
+        <Steps message={message} status={status} waiting={waiting} reasoning={reasoning} onSource={onSource} />
       ) : (
         // Answers kept from before steps were.
         status === "thinking" &&
@@ -376,7 +480,6 @@ function Question({ message, page, onEdit }: { message: ChatMessage; page: boole
             }
           }}
           rows={Math.min(6, Math.max(1, draft.split("\n").length))}
-          maxLength={MAX_CHAT_MESSAGE}
           aria-label={t("actions.edit")}
           className="block w-full resize-none bg-transparent text-sm outline-none"
         />
@@ -454,11 +557,13 @@ function Steps({
   message,
   status,
   waiting,
+  reasoning,
   onSource,
 }: {
   message: ChatMessage;
   status: ChatStatus | null;
   waiting: boolean;
+  reasoning: Reasoning;
   onSource: (source: ChatSourceView) => void;
 }) {
   const t = useTranslations("ai.chat");
@@ -500,15 +605,83 @@ function Steps({
               <span>{t("approval.waiting")}</span>
             </li>
           ) : (
-            status === "thinking" && (
-              <li className="flex items-center gap-1.5">
-                <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin" />
-                <span>{t("thinking")}</span>
-              </li>
-            )
+            status === "thinking" && <Thinking reasoning={reasoning} />
           )}
         </ol>
       )}
+    </div>
+  );
+}
+
+/** The last line of the model's thinking (its newest words), for the line saying it thinks. */
+function thoughtSummary(text: string): string {
+  const last = text.replace(/\r\n?/g, "\n").split("\n").reverse().find((l) => l.trim())?.trim() ?? "";
+  return last.length > 120 ? `…${last.slice(-119)}` : last;
+}
+
+/**
+ * The model at work on a turn: "Thinking…" and, when it shows its thinking, the newest line of it;
+ * the whole thinking opens from there. It goes once the answer starts or a step is taken.
+ */
+function Thinking({ reasoning }: { reasoning: Reasoning }) {
+  const t = useTranslations("ai.chat");
+  const [open, setOpen] = useState(false);
+  const text = useReasoning(reasoning).trim();
+  const body = useRef<HTMLDivElement>(null);
+  // The newest of it stays in view while it streams.
+  useEffect(() => {
+    if (open && body.current) body.current.scrollTop = body.current.scrollHeight;
+  }, [open, text]);
+  if (!text) {
+    return (
+      <li className="flex items-center gap-1.5">
+        <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin" />
+        <span>{t("thinking")}</span>
+      </li>
+    );
+  }
+  return (
+    <li className="min-w-0">
+      <button
+        type="button"
+        aria-expanded={open}
+        onClick={() => setOpen(!open)}
+        className="-ms-1 flex w-full min-w-0 items-center gap-1.5 rounded px-1 text-start hover:bg-bg-hover hover:text-fg"
+      >
+        <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin" />
+        <span className="shrink-0">{open ? t("thinking") : t("thinking").replace(/(…|\.\.\.)$/, "")}</span>
+        {!open && (
+          <>
+            <span className="shrink-0 text-fg-faint">·</span>
+            <span className="min-w-0 truncate text-fg-faint">{thoughtSummary(text)}</span>
+          </>
+        )}
+        <ChevronRight className={cn("h-3.5 w-3.5 shrink-0 transition-transform", open ? "rotate-90" : "rtl:rotate-180")} />
+      </button>
+      {open && (
+        <div ref={body} className="mt-1 max-h-60 overflow-y-auto border-s border-border ps-3 text-xs leading-relaxed whitespace-pre-wrap text-fg-muted">
+          {text}
+        </div>
+      )}
+    </li>
+  );
+}
+
+/** The questions waiting for the answer on its way: how many, the first of them, and clearing them. */
+function QueueStrip({ queued, onClear }: { queued: QueuedQuestion[]; onClear: () => void }) {
+  const t = useTranslations("ai.chat.queue");
+  if (!queued.length) return null;
+  const first = queued[0].question;
+  return (
+    <div role="status" className="mb-2 flex items-center gap-2 rounded-lg border border-border bg-bg-subtle px-3 py-1.5 text-xs">
+      <Clock className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
+      <span className="shrink-0 text-fg-muted">{t("count", { count: queued.length })}</span>
+      <span className="min-w-0 flex-1 truncate" title={first}>
+        {first}
+      </span>
+      <button type="button" onClick={onClear} className="shrink-0 rounded px-1.5 py-0.5 text-fg-muted hover:bg-bg-hover hover:text-fg">
+        {t("clear")}
+      </button>
     </div>
   );
 }
@@ -571,8 +744,11 @@ function ModePicker({ mode, onChange }: { mode: ChatMode; onChange: (mode: ChatM
 }
 
 const DECISIONS: ChangeDecision[] = ["approve", "always", "decline"];
-/** A note about the person is asked about each time: no "don't ask again" (it would turn on Auto). */
-const MEMORY_DECISIONS: ChangeDecision[] = ["approve", "decline"];
+/**
+ * A note about the person, and a call to a connection's tool that changes something, are asked
+ * about each time: no "don't ask again" (it would turn on Auto, which doesn't cover them).
+ */
+const EACH_TIME_DECISIONS: ChangeDecision[] = ["approve", "decline"];
 const isMemory = (action: PendingChange["action"]) => action.action === "remember" || action.action === "forget";
 
 /**
@@ -592,7 +768,9 @@ function ChangePrompt({
   const first = useRef<HTMLButtonElement>(null);
   const { action } = pending;
   const memory = isMemory(action);
-  const decisions = memory ? MEMORY_DECISIONS : DECISIONS;
+  const call = action.action === "connection";
+  const decisions = memory || call ? EACH_TIME_DECISIONS : DECISIONS;
+  const question = action.action === "connection" ? t("question.connection", { connection: action.connection?.name ?? "" }) : t(`question.${action.action}`);
   useEffect(() => {
     first.current?.focus();
   }, [pending.id]);
@@ -600,7 +778,7 @@ function ChangePrompt({
   return (
     <div
       role="group"
-      aria-label={t(`question.${action.action}`)}
+      aria-label={question}
       className="rounded-lg border border-accent bg-bg p-3 text-sm shadow-sm"
       onKeyDown={(e) => {
         const chosen = e.key === "Escape" ? "decline" : decisions[Number(e.key) - 1];
@@ -609,12 +787,14 @@ function ChangePrompt({
         onDecide(chosen);
       }}
     >
-      <p className="font-medium">{t(`question.${action.action}`)}</p>
+      <p className="font-medium">{question}</p>
       <div className="mt-1.5 space-y-1">
         {action.title && (
           <p className="font-medium break-words text-fg">
             {memory ? (
               `“${action.title}”`
+            ) : call ? (
+              action.title
             ) : action.previousTitle !== undefined ? (
               <>
                 <span className="text-fg-muted line-through decoration-fg-faint">{action.previousTitle || t("empty")}</span> → {action.title}
@@ -627,6 +807,8 @@ function ChangePrompt({
         <p className="flex min-w-0 items-center gap-1 text-xs text-fg-muted">
           {memory ? (
             t("memoryHint")
+          ) : call ? (
+            t("connectionHint", { connection: action.connection?.name ?? "" })
           ) : action.target ? (
             <>
               {t(action.action === "updateRow" ? "row" : action.action === "editPage" ? "page" : "in")}
@@ -651,7 +833,12 @@ function ChangePrompt({
             ))}
           </ul>
         )}
-        {action.content && <p className="line-clamp-4 rounded bg-bg-subtle px-2 py-1 text-xs whitespace-pre-wrap text-fg-muted">{action.content}</p>}
+        {action.content &&
+          (call ? (
+            <pre className="max-h-40 overflow-auto rounded bg-bg-subtle px-2 py-1 text-xs break-all whitespace-pre-wrap text-fg-muted">{action.content}</pre>
+          ) : (
+            <p className="line-clamp-4 rounded bg-bg-subtle px-2 py-1 text-xs whitespace-pre-wrap text-fg-muted">{action.content}</p>
+          ))}
         {action.diff && action.diff.length > 0 && (
           <div className="max-h-64 space-y-0.5 overflow-y-auto rounded bg-bg-subtle px-1 py-1 text-xs">
             <BlockChanges changes={action.diff} compact />

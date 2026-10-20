@@ -172,7 +172,7 @@
     "mailboxOff": "O e-mail nas linhas está desativado neste espaço de trabalho, então esta caixa não é lida. Desconecte-a para apagar a senha dela.",
     "notConnected": "Nenhuma caixa de e-mail conectada",
     "connect": "Conectar",
-    "noMailboxes": "Nenhum dos seus espaços de trabalho tem o e-mail nas linhas ativado. Os proprietários o ativam em Configurações › E-mail.",
+    "noMailboxes": "Nenhum dos seus espaços de trabalho tem o e-mail nas linhas ativado. Os proprietários o ativam em Configurações › Geral.",
     "calendarsHeading": "Endereços de calendário",
     "calendarsDescription": "Endereços que você criou para apps de calendário, a partir de uma visualização de calendário ou das linhas atribuídas a você. Quem tiver um endereço vê o que ele mostra; desative os que você não usa mais.",
     "calendarsEmpty": "Nenhum endereço de calendário ainda. Crie um a partir de uma visualização de calendário ou de Atribuídos a você na página inicial.",

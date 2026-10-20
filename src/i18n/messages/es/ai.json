@@ -133,8 +133,15 @@
     "confirmDeleteAll": "¿Eliminar todas tus conversaciones con la IA en este espacio de trabajo?",
     "intro": "Pregunta lo que quieras sobre este espacio de trabajo. Las respuestas salen de las páginas que puedes abrir, con enlaces a ellas.",
     "placeholder": "Haz una pregunta…",
+    "placeholderBusy": "Escribe la siguiente pregunta: espera a esta respuesta…",
+    "pasted": "[Pegado: {count, plural, one {# línea} other {# líneas}}]",
     "send": "Enviar",
     "stop": "Detener",
+    "queue": {
+      "count": "{count, plural, one {# pregunta en espera} other {# preguntas en espera}}",
+      "clear": "Borrar",
+      "add": "Preguntar después de esta respuesta"
+    },
     "scope": "Responder a partir de",
     "scopeWorkspace": "Todo el espacio de trabajo",
     "scopePage": "Esta página y sus subpáginas",
@@ -180,6 +187,11 @@
           "remember": "Rechazaste recordar:",
           "forget": "Rechazaste olvidar:"
         }
+      },
+      "connection": {
+        "done": "{connection}: se llamó a {tool}",
+        "failed": "{connection}: {tool} falló",
+        "declined": "{connection}: rechazaste llamar a {tool}"
       }
     },
     "stopped": "Detenido.",
@@ -201,7 +213,8 @@
         "createPage": "¿Añadir esta página?",
         "remember": "¿Recordar esto sobre ti?",
         "forget": "¿Olvidar esta nota?",
-        "editPage": "¿Cambiar el texto de esta página?"
+        "editPage": "¿Cambiar el texto de esta página?",
+        "connection": "¿Enviar esto a {connection}?"
       },
       "in": "En",
       "row": "Fila",
@@ -213,7 +226,8 @@
       "decline": "No",
       "waiting": "Esperando tu aprobación",
       "page": "Página",
-      "empty": "(vacío)"
+      "empty": "(vacío)",
+      "connectionHint": "Se envía con la conexión del espacio de trabajo: puede cambiar algo en {connection}"
     },
     "mode": {
       "label": "Cambios",

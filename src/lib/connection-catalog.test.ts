@@ -2,7 +2,7 @@ import { readdirSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { checkConnectionUrl } from "@/server/connections/fetch";
-import { CATALOG_CATEGORIES, catalogEntryFor, catalogLogo, CONNECTION_CATALOG, searchCatalog } from "./connection-catalog";
+import { CATALOG_CATEGORIES, catalogEntryFor, catalogLogo, CONNECTION_CATALOG, instanceClientKey, searchCatalog } from "./connection-catalog";
 import { connectionSlug, MAX_CONNECTION_NAME } from "./connections";
 
 describe("connection catalog", () => {
@@ -46,6 +46,22 @@ describe("connection catalog", () => {
     }
     expect(CONNECTION_CATALOG.find((entry) => entry.id === "slack")).toMatchObject({ authType: "oauth", eventPreset: "slack", client: { help: "https://api.slack.com/apps" } });
     expect(CONNECTION_CATALOG.find((entry) => entry.id === "discord")?.client?.secretOptional).toBe(true);
+  });
+
+  it("signs in Google's services as one app, asking each for only its own scopes", () => {
+    const google = CONNECTION_CATALOG.filter((entry) => new URL(entry.url).host.endsWith(".googleapis.com"));
+    expect(google.map((entry) => entry.id).sort()).toEqual(
+      ["gmail", "google-calendar", "google-chat", "google-contacts", "google-docs", "google-drive", "google-sheets", "google-slides"],
+    );
+    for (const entry of google) {
+      expect(entry, entry.name).toMatchObject({ authType: "oauth", client: { shared: "google" } });
+      expect(instanceClientKey(entry)).toBe("google");
+      expect(entry.scope, entry.name).toMatch(/^https:\/\/www\.googleapis\.com\/auth\/[a-z.]+( https:\/\/www\.googleapis\.com\/auth\/[a-z.]+)*$/);
+      // Never the whole mailbox or all of Drive.
+      expect(entry.scope!.split(" "), entry.name).not.toContain("https://mail.google.com/");
+      expect(entry.scope!.split(" "), entry.name).not.toContain("https://www.googleapis.com/auth/drive");
+    }
+    expect(instanceClientKey(CONNECTION_CATALOG.find((entry) => entry.id === "slack")!)).toBe("slack");
   });
 
   it("has a logo for every entry, and no logo of a service it no longer lists", () => {

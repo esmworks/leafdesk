@@ -7,7 +7,6 @@ import {
   Globe,
   HardDrive,
   HeartPulse,
-  Mail,
   Plug,
   ScrollText,
   Settings,
@@ -142,7 +141,6 @@ const ICONS: Record<SettingsTab, LucideIcon> = {
   agents: Bot,
   snippets: TextQuote,
   connections: Plug,
-  email: Mail,
   storage: HardDrive,
   analytics: ChartColumn,
   aiUsage: Coins,
@@ -185,7 +183,7 @@ export default async function SettingsPage({
   const href = (name: string) => `/w/${workspaceId}/settings?tab=${name}`;
 
   return (
-    <div className="flex min-h-full flex-col md:flex-row">
+    <div className="settings-type flex min-h-full flex-col md:flex-row">
       <SettingsNav
         label={t("title")}
         back={{ href: `/w/${workspaceId}`, label: ta("back", { workspace: workspace.name }) }}
@@ -225,6 +223,7 @@ export default async function SettingsPage({
               </SettingsGroup>
               {!guest && <CalloutStylesGroup workspaceId={workspaceId} userId={user.id} isOwner={isOwner} />}
               {!guest && <AiGroup workspaceId={workspaceId} userId={user.id} isOwner={isOwner} />}
+              {!guest && <MailGroup workspaceId={workspaceId} userId={user.id} />}
               {/* Exporting everything is for owners, like the members list download. */}
               {isOwner && <ExportGroup workspaceId={workspaceId} userId={user.id} />}
               {isOwner && <DeleteGroup workspaceId={workspaceId} name={workspace.name} session={session} />}
@@ -260,7 +259,6 @@ export default async function SettingsPage({
               notice={query.signedIn === "1" ? "signedIn" : query.connectionError === "oauthFailed" ? "oauthFailed" : undefined}
             />
           )}
-          {tab === "email" && <EmailTab workspaceId={workspaceId} userId={user.id} />}
           {tab === "storage" && <StorageTab workspaceId={workspaceId} userId={user.id} isAdmin={isAdmin} notice={storageNoticeOf(query)} />}
           {tab === "analytics" && <AnalyticsTab workspaceId={workspaceId} userId={user.id} days={query.days} />}
           {tab === "aiUsage" && <AiUsageTab workspaceId={workspaceId} userId={user.id} month={query.month} />}
@@ -303,14 +301,13 @@ async function SnippetsTab({
   );
 }
 
-/** Settings > Email: email on rows (see server/row-mail). */
-async function EmailTab({ workspaceId, userId }: { workspaceId: string; userId: string }) {
-  const [view, t] = await Promise.all([getMailSettings(userId, workspaceId), getTranslations("settings")]);
+/** Settings > General > Email: email on rows (see server/row-mail); owners change it, members see whether it is on. */
+async function MailGroup({ workspaceId, userId }: { workspaceId: string; userId: string }) {
+  const view = await getMailSettings(userId, workspaceId);
   return (
-    <>
-      <SettingsHeader title={t("nav.email")} description={t("email.description")} />
+    <div className="mt-10">
       <MailSettings workspaceId={workspaceId} initial={view} />
-    </>
+    </div>
   );
 }
 

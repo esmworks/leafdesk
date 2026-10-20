@@ -133,8 +133,15 @@
     "confirmDeleteAll": "Bu çalışma alanındaki tüm yapay zekâ sohbetlerin silinsin mi?",
     "intro": "Bu çalışma alanındaki herhangi bir şeyi sor. Yanıtlar açabildiğin sayfalardan gelir ve onlara bağlantı verir.",
     "placeholder": "Bir soru sor…",
+    "placeholderBusy": "Sıradaki soruyu yaz: bu cevap bitince sorulur…",
+    "pasted": "[Yapıştırıldı: {count, plural, other {# satır}}]",
     "send": "Gönder",
     "stop": "Durdur",
+    "queue": {
+      "count": "{count, plural, other {# soru sırada}}",
+      "clear": "Temizle",
+      "add": "Bu cevaptan sonra sor"
+    },
     "scope": "Yanıt kaynağı",
     "scopeWorkspace": "Tüm çalışma alanı",
     "scopePage": "Bu sayfa ve alt sayfaları",
@@ -180,6 +187,11 @@
           "remember": "Hatırlamayı reddettin:",
           "forget": "Unutmayı reddettin:"
         }
+      },
+      "connection": {
+        "done": "{connection}: {tool} çağrıldı",
+        "failed": "{connection}: {tool} başarısız oldu",
+        "declined": "{connection}: {tool} çağrısını reddettin"
       }
     },
     "stopped": "Durduruldu.",
@@ -201,7 +213,8 @@
         "createPage": "Bu sayfa eklensin mi?",
         "remember": "Bunu senin hakkında hatırlasın mı?",
         "forget": "Bu not unutulsun mu?",
-        "editPage": "Bu sayfanın metni değiştirilsin mi?"
+        "editPage": "Bu sayfanın metni değiştirilsin mi?",
+        "connection": "Bu, {connection} hizmetine gönderilsin mi?"
       },
       "in": "Yer:",
       "row": "Satır:",
@@ -213,7 +226,8 @@
       "decline": "Hayır",
       "waiting": "Onayını bekliyor",
       "page": "Sayfa:",
-      "empty": "(boş)"
+      "empty": "(boş)",
+      "connectionHint": "Çalışma alanının bağlantısıyla gönderilir: {connection} tarafında bir şeyi değiştirebilir"
     },
     "mode": {
       "label": "Değişiklikler",

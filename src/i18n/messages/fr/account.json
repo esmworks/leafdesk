@@ -172,7 +172,7 @@
     "mailboxOff": "Les e-mails sur les lignes sont désactivés dans cet espace de travail : cette boîte mail n’est donc pas lue. Déconnectez-la pour supprimer son mot de passe.",
     "notConnected": "Aucune boîte mail connectée",
     "connect": "Connecter",
-    "noMailboxes": "Aucun de vos espaces de travail n’a activé les e-mails sur les lignes. Ses propriétaires l’activent dans Paramètres › E-mail.",
+    "noMailboxes": "Aucun de vos espaces de travail n’a activé les e-mails sur les lignes. Ses propriétaires l’activent dans Paramètres › Général.",
     "calendarsHeading": "Adresses de calendrier",
     "calendarsDescription": "Les adresses que vous avez créées pour des applications de calendrier, depuis une vue calendrier ou depuis les lignes qui vous sont assignées. Quiconque connaît une adresse voit ce qu’elle montre : désactivez celles que vous n’utilisez plus.",
     "calendarsEmpty": "Aucune adresse de calendrier pour l’instant. Créez-en une depuis une vue calendrier ou depuis Qui vous est assigné sur la page d’accueil.",

@@ -5,6 +5,7 @@
  * whether a connection has them.
  */
 import { randomBytes } from "node:crypto";
+import { RegistrationRejectedError } from "@modelcontextprotocol/client";
 import { and, count, desc, eq, lte } from "drizzle-orm";
 import { db } from "@/db";
 import { agentGrant, connection, connectionEvent, connectionOauth, connectionTrigger, workspaceAgent } from "@/db/schema";
@@ -38,6 +39,7 @@ import {
   dropClient,
   finishOAuth,
   listConnectionTools,
+  oauthRedirectUrl,
   ownClientOf,
   secretsOf,
   startOAuth,
@@ -92,6 +94,7 @@ export function viewConnection(row: ConnectionRow): ConnectionView {
     status: row.status,
     statusError: row.statusError,
     tools: row.tools,
+    chatTools: row.chatTools,
     toolsAt: row.toolsAt?.toISOString() ?? null,
     eventPreset: row.eventPreset,
     eventUrl: eventUrlOf(row.id),
@@ -270,9 +273,10 @@ export async function updateConnection(userId: string, connectionId: string, inp
   }
   if (moved) {
     // Another server's tools may share names with these but do something else: classes and what
-    // agents were allowed start over, and its tools are listed afresh.
+    // agents and the chat were allowed start over, and its tools are listed afresh.
     set.tools = [];
     set.kinds = {};
+    set.chatTools = [];
     set.toolsAt = null;
   }
   const { updated, grantsRemoved } = await db.transaction(async (tx) => {
@@ -324,6 +328,27 @@ export async function setToolKind(userId: string, connectionId: string, tool: st
   return viewConnection(updated);
 }
 
+/**
+ * Sets the tools of a connection the workspace's AI chat may call (none: the chat doesn't use it).
+ * The chat calls them with the connection's credentials, for any member who asks.
+ */
+export async function setChatTools(userId: string, connectionId: string, tools: string[]): Promise<ConnectionView> {
+  const row = await ownedConnection(userId, connectionId);
+  const known = new Set(row.tools.map((t) => t.name));
+  const unknown = tools.find((t) => !known.has(t));
+  if (unknown) throw new ConnectionError("unknownTool", `No tool "${unknown}"`, { tool: unknown });
+  const chosen = [...new Set(tools)];
+  const [updated] = await db.update(connection).set({ chatTools: chosen }).where(eq(connection.id, connectionId)).returning();
+  await recordAudit({
+    workspaceId: row.workspaceId,
+    actorId: userId,
+    action: "connection.updated",
+    target: { type: "connection", id: connectionId, label: row.name },
+    details: { ...auditDetails(row), chatTools: chosen, previousChatTools: row.chatTools },
+  });
+  return viewConnection(updated);
+}
+
 /** Removes a connection: its credentials, the tools agents had on it and its triggers go with it. */
 export async function deleteConnection(userId: string, connectionId: string): Promise<void> {
   const row = await ownedConnection(userId, connectionId);
@@ -345,6 +370,8 @@ export async function beginConnectionOAuth(userId: string, connectionId: string)
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     await db.update(connection).set({ status: "error", statusError: redactText(`oauth: ${message}`).slice(0, 300) }).where(eq(connection.id, row.id));
+    // The service takes registrations but turned Leafdesk's down: say why, in its words.
+    if (error instanceof RegistrationRejectedError && !ownClientOf(row)) throw registrationRejected(error);
     // The service signs in only apps registered with it, and none is set.
     if (/dynamic client registration/i.test(message) && !ownClientOf(row)) throw new ConnectionError("needsClient", message);
     throw new ConnectionError("oauthFailed", message);
@@ -355,6 +382,24 @@ export async function beginConnectionOAuth(userId: string, connectionId: string)
   }
   await db.insert(connectionOauth).values({ state: started.state, connectionId, userId, data: sealJson({ verifier: started.verifier }) });
   return { url: started.url.href };
+}
+
+/**
+ * A service's refusal of Leafdesk's registration (RFC 7591): one that won't send sign-ins back to
+ * Leafdesk's address names that address, for the service's admin to allow; any other gives the
+ * service's reason.
+ */
+function registrationRejected(error: RegistrationRejectedError): ConnectionError {
+  let body: { error?: unknown; error_description?: unknown } = {};
+  try {
+    const parsed: unknown = JSON.parse(error.body);
+    if (parsed && typeof parsed === "object") body = parsed;
+  } catch {
+    // Not the JSON error the RFC asks for: only the status is known.
+  }
+  if (body.error === "invalid_redirect_uri") return new ConnectionError("redirectRejected", error.message, { address: oauthRedirectUrl() });
+  const reason = [body.error_description, body.error].find((value): value is string => typeof value === "string" && value.trim() !== "");
+  return new ConnectionError("registrationRejected", error.message, { reason: (reason ?? `HTTP ${error.status}`).trim().slice(0, 200) });
 }
 
 /** Where a sign-in begun with `state` should send the browser back to, whatever became of it. */

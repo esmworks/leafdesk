@@ -133,8 +133,15 @@
     "confirmDeleteAll": "Supprimer toutes vos conversations avec l’IA dans cet espace de travail ?",
     "intro": "Posez une question sur n’importe quel sujet de cet espace de travail. Les réponses viennent des pages que vous pouvez ouvrir, avec des liens vers elles.",
     "placeholder": "Posez une question…",
+    "placeholderBusy": "Posez la question suivante : elle attend cette réponse…",
+    "pasted": "[Collé : {count, plural, one {# ligne} other {# lignes}}]",
     "send": "Envoyer",
     "stop": "Arrêter",
+    "queue": {
+      "count": "{count, plural, one {# question en attente} other {# questions en attente}}",
+      "clear": "Effacer",
+      "add": "Demander après cette réponse"
+    },
     "scope": "Répondre à partir de",
     "scopeWorkspace": "Tout l’espace de travail",
     "scopePage": "Cette page et ses sous-pages",
@@ -180,6 +187,11 @@
           "remember": "Mémorisation refusée :",
           "forget": "Oubli refusé :"
         }
+      },
+      "connection": {
+        "done": "{connection} : {tool} appelé",
+        "failed": "{connection} : échec de {tool}",
+        "declined": "{connection} : appel de {tool} refusé"
       }
     },
     "stopped": "Arrêté.",
@@ -201,7 +213,8 @@
         "createPage": "Ajouter cette page ?",
         "remember": "Retenir ceci à votre sujet ?",
         "forget": "Oublier cette note ?",
-        "editPage": "Modifier le texte de cette page ?"
+        "editPage": "Modifier le texte de cette page ?",
+        "connection": "Envoyer ceci à {connection} ?"
       },
       "in": "Dans",
       "row": "Ligne",
@@ -213,7 +226,8 @@
       "decline": "Non",
       "waiting": "En attente de votre accord",
       "page": "Page",
-      "empty": "(vide)"
+      "empty": "(vide)",
+      "connectionHint": "Envoyé avec la connexion de l'espace de travail : cela peut modifier quelque chose sur {connection}"
     },
     "mode": {
       "label": "Modifications",

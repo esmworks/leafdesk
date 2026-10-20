@@ -296,6 +296,21 @@ describe("AI interface (faux provider)", () => {
     );
   });
 
+  it("without AI_MAX_INPUT_CHARS, sends what the model's context window takes", async () => {
+    installFauxAi(() => "read it");
+    // The faux model's window is 128,000 tokens: far more than a fixed character limit would allow.
+    const long = await complete({ feature: "test", workspaceId: "w1", messages: [{ role: "user", content: "x".repeat(200_000) }] });
+    expect(long.text).toBe("read it");
+    await expect(complete({ feature: "test", workspaceId: "w1", messages: [{ role: "user", content: "x".repeat(400_000) }] })).rejects.toMatchObject({ code: "tooLarge" });
+  });
+
+  it("tells a prompt the provider finds too long from other failures", async () => {
+    installFauxAi(() => {
+      throw new Error("prompt is too long: 210000 tokens > 200000 maximum");
+    });
+    await expect(complete({ feature: "test", workspaceId: "w1", messages: [{ role: "user", content: "x" }] })).rejects.toMatchObject({ code: "tooLarge" });
+  });
+
   it("limits requests per person", async () => {
     installFauxAi(() => "ok", { config: { userPerMinute: 2 } });
     const ask = () => complete({ feature: "test", workspaceId: "w1", userId: `limit-user-${process.pid}`, messages: [{ role: "user", content: "x" }] });

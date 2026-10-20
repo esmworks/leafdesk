@@ -8,7 +8,7 @@ import * as z from "zod";
 import { EDITOR_ACTIONS, isAiLanguage, SELECTION_ACTIONS } from "@/lib/ai";
 import { isPageLocked } from "@/lib/page-lock";
 import { AccessError, requirePageAccess, WorkspacePolicyError } from "@/server/access";
-import { aiConfig, aiEnabledFor, AiError, stream, type AiStream } from "@/server/ai";
+import { aiConfig, aiEnabledFor, contentChars, AiError, stream, type AiStream } from "@/server/ai";
 import { editorPrompt } from "@/server/ai/prompts";
 import { getCollab } from "@/server/collab/bridge";
 import { workspaceSettings } from "@/server/workspaces";
@@ -64,7 +64,7 @@ export async function startEditorAction(userId: string, input: EditorActionInput
   if (action === "translate" && !isAiLanguage(input.language)) throw new AiError("invalid", "Choose a language to translate into");
   if (action === "custom" && !input.instruction?.trim()) throw new AiError("invalid", "Say what the AI should do");
   const found = await editablePage(userId, input.pageId);
-  const maxContent = Math.max(1_000, aiConfig().limits.maxInputChars - PROMPT_OVERHEAD - (input.instruction?.length ?? 0));
+  const maxContent = Math.max(1_000, contentChars(aiConfig().limits) - PROMPT_OVERHEAD - (input.instruction?.length ?? 0));
   if ((input.text?.length ?? 0) > maxContent) throw new AiError("tooLarge", "The selection is too long for one request");
   // A summary reads the page as it is now on the server, not what the browser sent.
   const page = action === "summarize" ? await getCollab().readPage(input.pageId) : null;

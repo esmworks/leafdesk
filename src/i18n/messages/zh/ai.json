@@ -133,8 +133,15 @@
     "confirmDeleteAll": "要删除你在此工作区中的所有 AI 对话吗？",
     "intro": "可以询问此工作区中的任何内容。回答来自你能打开的页面，并附有指向这些页面的链接。",
     "placeholder": "提出问题…",
+    "placeholderBusy": "输入下一个问题：将在此回答完成后提出…",
+    "pasted": "[已粘贴 {count, plural, other {# 行}}]",
     "send": "发送",
     "stop": "停止",
+    "queue": {
+      "count": "{count, plural, other {# 个问题等待中}}",
+      "clear": "清除",
+      "add": "在此回答后提问"
+    },
     "scope": "回答范围",
     "scopeWorkspace": "整个工作区",
     "scopePage": "此页面及其子页面",
@@ -180,6 +187,11 @@
           "remember": "已拒绝记住：",
           "forget": "已拒绝忘记："
         }
+      },
+      "connection": {
+        "done": "{connection}：已调用 {tool}",
+        "failed": "{connection}：{tool} 调用失败",
+        "declined": "{connection}：你拒绝了调用 {tool}"
       }
     },
     "stopped": "已停止。",
@@ -201,7 +213,8 @@
         "createPage": "要添加此页面吗？",
         "remember": "要记住关于你的这条信息吗？",
         "forget": "要忘记这条笔记吗？",
-        "editPage": "要更改此页面的文本吗？"
+        "editPage": "要更改此页面的文本吗？",
+        "connection": "要将此发送到 {connection} 吗？"
       },
       "in": "位于",
       "row": "行",
@@ -213,7 +226,8 @@
       "decline": "否",
       "waiting": "等待你的批准",
       "page": "页面",
-      "empty": "（空）"
+      "empty": "（空）",
+      "connectionHint": "通过工作区的连接发送：可能会更改 {connection} 中的内容"
     },
     "mode": {
       "label": "更改",

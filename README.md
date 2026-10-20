@@ -865,7 +865,9 @@ without an account (nobody can sign in as them or email them); the restore lists
 invite them, and their own sign-up is unaffected. Some things belong to the server and don't
 travel: pending invitations and join requests, the invite link, SSO and SCIM setup, API tokens,
 connected apps, notifications, the audit log, agent and automation runs, and connections'
-sign-ins (connections ask to be signed in to again). Allowed email domains must be verified again,
+sign-ins (connections ask to be signed in to again). People's AI chats and what the AI remembers
+about them are theirs alone, so a backup leaves them out too, and restoring an older backup that
+held them doesn't bring them back; agents' memory travels with them. Allowed email domains must be verified again,
 a site whose address is taken on the new server is left out, and semantic search builds its index
 again when the server uses another embeddings model. *Single sign-on only* comes back as *Any
 method*, to choose again once single sign-on is set up, unless the server has its own provider
@@ -1829,8 +1831,11 @@ page and its subpages* keeps questions to the page you are on. *Stop* ends an an
 is kept. Under an answer are *Copy*, *Answer again* (the latest) and its time; hovering a question
 shows its time, *Edit* (the latest: answered again in its place) and *Copy*. An answer that
 changed things can't be answered again or edited. Conversations are private to you and listed in the full-page chat's sidebar and under
-the panel's *Conversations*, where you can delete one or all; up to 50 per workspace are kept (the oldest go first), 40 questions each, 4000
-characters a question. They are deleted when you leave the workspace or delete your account. The
+the panel's *Conversations*, where you can delete one or all; up to 50 per workspace are kept (the oldest go first), with
+no limit on questions, each as long as the model's context window takes (a paste of 3 lines or more, or more than 150 characters, shows in the box as a chip like *Pasted 40 lines*, one piece that Backspace takes whole, and is sent in full). The chat sends the model as much of the
+conversation as its context window takes (see `AI_MAX_INPUT_CHARS`); when the model still finds it
+too long, older tool results and then the earlier turns are left out and the question is asked
+again. They are deleted when you leave the workspace or delete your account. The
 chat is off while offline and when AI is off for the workspace. Every question counts against
 `AI_RATE_LIMIT`; the model's extra turns count against `AI_WORKSPACE_RATE_LIMIT`.
 
@@ -1905,13 +1910,13 @@ everything on your machines.
 
 | Variable | Default | |
 | --- | --- | --- |
-| `AI_MAX_INPUT_CHARS` | 48000 | Characters one request may send; a longer selection is refused, a longer page is cut |
+| `AI_MAX_INPUT_CHARS` | none | Unset, the chat and agents send what the model's context window takes (its size less the answer's tokens, at 3 characters a token), and the writing assistant, AI properties, voice notes and agents' skills read at most 48,000 characters (a longer selection is refused, a longer page is cut). Set, it caps every request at this many characters |
 | `AI_MAX_OUTPUT_TOKENS` | 8192 | Tokens one answer may have. A model that thinks before answering (Claude 5.5, OpenAI's and Gemini's reasoning models…) spends its thinking from the same tokens, so it always gets all of them, also where a feature caps the answer lower (AI property values: 800) |
 | `AI_TIMEOUT_SECONDS` | 60 | |
 | `AI_RATE_LIMIT` | 20 | Requests per person per minute |
 | `AI_WORKSPACE_RATE_LIMIT` | 120 | Requests per workspace per minute, AI property values included (they wait for their turn) |
 | `AI_CONCURRENCY` | 2 | AI property values worked out at the same time |
-| `AI_CONTEXT_WINDOW` | 32768 | Context size assumed for OpenAI-compatible and local models |
+| `AI_CONTEXT_WINDOW` | 32768 | Context size, in tokens, assumed for OpenAI-compatible and local models (the chat and agents fit their prompt in it) |
 | `AI_MONTHLY_LIMIT_USD` | none | The most each workspace's AI may cost the server's `AI_*` key in a calendar month, in US dollars (see below) |
 
 ### Usage and cost limits
@@ -2256,7 +2261,7 @@ edit: not a member, a teamspace, a group, a guest or an agent (the agent itself 
 one that others can edit is refused, and every run checks again: a skill someone else can edit by
 then, or that is no longer a skill (unmarked, in the trash), is left out, and the run says so in
 its steps, as the tab does next to the skill. A skill that doesn't fit in what a run may read
-(12,000 characters for all of them together, at most a quarter of `AI_MAX_INPUT_CHARS`) is left
+(12,000 characters for all of them together, at most a quarter of `AI_MAX_INPUT_CHARS` when set) is left
 out whole, never cut. A run held to someone's access (the member whose change started it, or a
 public form's publisher) also leaves out the skills that person can't open, as it does pages;
 sharing a skill with members at *Can view* lets their runs follow it and keeps it a skill only
@@ -2362,10 +2367,26 @@ the form below filled in from that service, which can still be changed; a servic
 opens its connection instead. The catalog lives in
 `src/lib/connection-catalog.ts`: it lists only servers that, at that address, either publish OAuth
 metadata naming it that Leafdesk can sign in with, take an API key, or answer without any sign-in.
-A few services (Slack, HubSpot, Asana, Box, Discord, Front, PagerDuty, Xero) sign in only apps
+A few services (Slack, HubSpot, Asana, Box, Discord, Front, PagerDuty, Xero, Google) sign in only apps
 registered with them beforehand: for those the form asks for the client ID and secret of an app
 you create at the service, links to where it's made, and shows the redirect URL to give it
-(`APP_URL/api/connections/oauth/callback`). Vendors move their MCP addresses now and then, so
+(`APP_URL/api/connections/oauth/callback`).
+
+**Google** (Drive, Docs, Sheets, Slides, Gmail, Calendar, Chat, Contacts) is one of these: its
+MCP servers sign in an OAuth client from a Google Cloud project, and one client serves them all.
+Following [Google's guide](https://developers.google.com/workspace/guides/configure-mcp-servers):
+in the project, enable each service's MCP API and its API (for Sheets, `sheetsmcp.googleapis.com`
+and `sheets.googleapis.com`); set up the consent screen (*Internal* for a Workspace organization,
+else *External* with test users); and create a *Web application* client with *Use this client for
+an AI-powered agent* ticked and `APP_URL/api/connections/oauth/callback` as its redirect URI. Enter
+its ID and secret on each connection, or once for the instance as `google=` in
+`CONNECTION_OAUTH_CLIENTS`. Google's MCP servers are in its Workspace Developer Preview Program at
+the time of writing. Each entry asks only for the scopes its tools use: Drive files are read, and
+written only when made through Leafdesk; Docs, Sheets and Slides can edit any document of their
+kind; Gmail labels, trashes and drafts mail (`gmail.modify`, never the whole mailbox); Calendar
+reads calendars and edits events. Leafdesk asks Google for a refresh token, so a sign-in lasts.
+
+Vendors move their MCP addresses now and then, so
 before a release run `pnpm catalog:check` (it needs the network and isn't part of the tests): it
 asks every entry the questions above without credentials, lists those that no longer answer as
 listed and exits with 1 if there are any; `pnpm catalog:check linear sentry` checks only those
@@ -2381,8 +2402,9 @@ test fails when an entry has no logo, or a logo has no entry. *Add another serve
   needed. Who signs in decides what the agents can reach there: they act as that account. A
   server that takes no registrations needs an app registered with it: enter its client ID (and
   secret, if it has one) on the connection, or set one for the whole instance in
-  `CONNECTION_OAUTH_CLIENTS` by catalog id (`slack=CLIENT_ID:CLIENT_SECRET,discord=CLIENT_ID`),
-  used for connections to that service's catalog address that have no app of their own. Where
+  `CONNECTION_OAUTH_CLIENTS` by catalog id (`slack=CLIENT_ID:CLIENT_SECRET,discord=CLIENT_ID`;
+  `google` for all of Google's services), used for connections to that service's catalog address
+  that have no app of their own. Where
   such a server instead takes a client metadata document (as ElevenLabs does), Leafdesk gives the
   address of its own, `APP_URL/api/connections/oauth/client`, as its client ID: this needs an
   `https` `APP_URL` the service can fetch.

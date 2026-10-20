@@ -133,8 +133,15 @@
     "confirmDeleteAll": "Eliminare tutte le tue conversazioni con l’IA in questo spazio di lavoro?",
     "intro": "Chiedi qualsiasi cosa su questo spazio di lavoro. Le risposte arrivano dalle pagine che puoi aprire, con i link alle pagine.",
     "placeholder": "Fai una domanda…",
+    "placeholderBusy": "Scrivi la prossima domanda: aspetta questa risposta…",
+    "pasted": "[Incollato: {count, plural, one {# riga} other {# righe}}]",
     "send": "Invia",
     "stop": "Interrompi",
+    "queue": {
+      "count": "{count, plural, one {# domanda in attesa} other {# domande in attesa}}",
+      "clear": "Cancella",
+      "add": "Chiedi dopo questa risposta"
+    },
     "scope": "Rispondi da",
     "scopeWorkspace": "Tutto lo spazio di lavoro",
     "scopePage": "Questa pagina e le sue sottopagine",
@@ -180,6 +187,11 @@
           "remember": "Rifiutato di ricordare:",
           "forget": "Rifiutato di dimenticare:"
         }
+      },
+      "connection": {
+        "done": "{connection}: chiamato {tool}",
+        "failed": "{connection}: {tool} non riuscito",
+        "declined": "{connection}: hai rifiutato di chiamare {tool}"
       }
     },
     "stopped": "Interrotto.",
@@ -201,7 +213,8 @@
         "createPage": "Aggiungere questa pagina?",
         "remember": "Ricordare questo su di te?",
         "forget": "Dimenticare questa nota?",
-        "editPage": "Modificare il testo di questa pagina?"
+        "editPage": "Modificare il testo di questa pagina?",
+        "connection": "Inviare questo a {connection}?"
       },
       "in": "In",
       "row": "Riga",
@@ -213,7 +226,8 @@
       "decline": "No",
       "waiting": "In attesa della tua approvazione",
       "page": "Pagina",
-      "empty": "(vuoto)"
+      "empty": "(vuoto)",
+      "connectionHint": "Inviato con la connessione dello spazio di lavoro: può cambiare qualcosa su {connection}"
     },
     "mode": {
       "label": "Modifiche",

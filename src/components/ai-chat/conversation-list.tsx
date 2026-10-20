@@ -15,6 +15,7 @@ import { useIsOffline } from "@/components/offline/offline-context";
 import { useSidebar } from "@/components/sidebar/sidebar-context";
 import { cn, IconButton, MenuItem, Popover } from "@/components/ui";
 import { chatPath } from "@/lib/ai-chat";
+import { useAnswering } from "./answering";
 import { useAiChat } from "./chat-panel";
 
 export function ConversationList() {
@@ -24,6 +25,7 @@ export function ConversationList() {
   const context = useAiChat()!;
   const { workspaceId, conversations, refreshConversations } = context;
   const offline = useIsOffline();
+  const answering = useAnswering();
   // On a phone the list is a drawer over the chat; only the address's `?c=` changes, so the drawer
   // (which closes when the path does) is closed here.
   const closeDrawer = useSidebar()?.close;
@@ -43,7 +45,8 @@ export function ConversationList() {
     await refreshConversations();
   }
 
-  const row = "flex h-7 w-full items-center gap-2 rounded-md px-2 text-start text-fg-muted hover:bg-bg-hover hover:text-fg";
+  // Like a page in the sidebar's tree: a dot where a page has its icon, then the title.
+  const row = "flex h-7 w-full items-center gap-0.5 rounded-md ps-1 text-start hover:bg-bg-hover";
   /** A ⋯ button opening a menu with one destructive item: two clicks, so nothing goes by accident. */
   const deleteMenu = (label: string, item: string, onDelete: () => void, className: string) => (
     <span className={cn("flex", className)}>
@@ -100,9 +103,13 @@ export function ConversationList() {
                   onClick={closeDrawer}
                   aria-current={c.id === current ? "page" : undefined}
                   title={c.title || t("untitled")}
-                  className={cn(row, "pe-8", c.id === current && "bg-bg-active font-medium text-fg hover:bg-bg-active")}
+                  className={cn(row, "pe-8", c.id === current && "bg-bg-active font-medium hover:bg-bg-active")}
                 >
-                  <span className="flex-1 truncate">{c.title || t("untitled")}</span>
+                  <span aria-hidden className="flex h-6 w-6 shrink-0 items-center justify-center">
+                    {/* Fades in and out while an answer is being written for it. */}
+                    <span className={cn("h-1.5 w-1.5 rounded-full bg-fg", answering.has(c.id) && "animate-pulse motion-reduce:animate-none")} />
+                  </span>
+                  <span className="flex-1 truncate ps-0.5">{c.title || t("untitled")}</span>
                 </Link>
                 {deleteMenu(t("actionsFor", { name: c.title || t("untitled") }), t("deleteConversation"), () => void remove(c.id), cn("absolute top-0 inset-e-0", onHover))}
               </li>

@@ -172,7 +172,7 @@
     "mailboxOff": "Bu çalışma alanında satırlarda e-posta kapalı, bu yüzden posta kutusu okunmuyor. Şifresini silmek için bağlantısını kesin.",
     "notConnected": "Bağlı posta kutusu yok",
     "connect": "Bağla",
-    "noMailboxes": "Çalışma alanlarınızın hiçbirinde satırlarda e-posta açık değil. Sahipleri Ayarlar › E-posta'dan açar.",
+    "noMailboxes": "Çalışma alanlarınızın hiçbirinde satırlarda e-posta açık değil. Sahipleri Ayarlar › Genel'den açar.",
     "calendarsHeading": "Takvim adresleri",
     "calendarsDescription": "Takvim uygulamaları için bir takvim görünümünden ya da size atanan satırlardan oluşturduğunuz adresler. Adresi bilen herkes gösterdiğini görür; artık kullanmadıklarınızı kapatın.",
     "calendarsEmpty": "Henüz takvim adresi yok. Bir takvim görünümünden ya da ana sayfadaki Size atananlar bölümünden oluşturabilirsiniz.",

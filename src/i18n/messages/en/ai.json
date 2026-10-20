@@ -133,8 +133,15 @@
     "confirmDeleteAll": "Delete all your AI conversations in this workspace?",
     "intro": "Ask about anything in this workspace. Answers come from the pages you can open, with links to them.",
     "placeholder": "Ask a question…",
+    "placeholderBusy": "Ask the next question: it waits for this answer…",
+    "pasted": "[Pasted {count, plural, one {# line} other {# lines}}]",
     "send": "Send",
     "stop": "Stop",
+    "queue": {
+      "count": "{count, plural, one {# question waiting} other {# questions waiting}}",
+      "clear": "Clear",
+      "add": "Ask after this answer"
+    },
     "scope": "Answer from",
     "scopeWorkspace": "The whole workspace",
     "scopePage": "This page and its subpages",
@@ -180,6 +187,11 @@
           "remember": "Declined remembering:",
           "forget": "Declined forgetting:"
         }
+      },
+      "connection": {
+        "done": "{connection}: called {tool}",
+        "failed": "{connection}: {tool} failed",
+        "declined": "{connection}: declined calling {tool}"
       }
     },
     "stopped": "Stopped.",
@@ -201,7 +213,8 @@
         "createPage": "Add this page?",
         "remember": "Remember this about you?",
         "forget": "Forget this note?",
-        "editPage": "Change this page's text?"
+        "editPage": "Change this page's text?",
+        "connection": "Send this to {connection}?"
       },
       "in": "In",
       "row": "Row",
@@ -213,7 +226,8 @@
       "decline": "No",
       "waiting": "Waiting for your approval",
       "page": "Page",
-      "empty": "(empty)"
+      "empty": "(empty)",
+      "connectionHint": "Sent with the workspace's connection: it may change something at {connection}"
     },
     "mode": {
       "label": "Changes",

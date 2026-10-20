@@ -29,9 +29,9 @@ export function SettingsNav({
     >
       <Link
         href={back.href}
-        className="flex h-8 items-center gap-2 rounded-md px-2 text-fg-muted hover:bg-bg-hover hover:text-fg"
+        className="flex h-8 items-center gap-2 rounded-md px-2 text-fg hover:bg-bg-hover"
       >
-        <ArrowLeft className="h-4 w-4 shrink-0 rtl:-scale-x-100" aria-hidden />
+        <ArrowLeft className="h-4 w-4 shrink-0 text-fg-icon rtl:-scale-x-100" aria-hidden />
         <span className="truncate">{back.label}</span>
       </Link>
       <SettingsNavScroller className="relative mt-1 flex gap-1 overflow-x-auto [scrollbar-width:none] md:mt-4 md:flex-col md:gap-5">
@@ -45,10 +45,10 @@ export function SettingsNav({
                     href={href}
                     aria-current={active ? "page" : undefined}
                     className={`flex h-8 items-center gap-2 rounded-md px-2 whitespace-nowrap md:h-7 ${
-                      active ? "bg-bg-active font-medium text-fg" : "text-fg-muted hover:bg-bg-hover hover:text-fg"
+                      active ? "bg-bg-active font-medium text-fg" : "text-fg hover:bg-bg-hover"
                     }`}
                   >
-                    <Icon className="h-4 w-4 shrink-0" aria-hidden />
+                    <Icon className="h-4 w-4 shrink-0 text-fg-icon" aria-hidden />
                     {itemLabel}
                   </Link>
                 </li>

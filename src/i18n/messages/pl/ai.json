@@ -133,8 +133,15 @@
     "confirmDeleteAll": "Usunąć wszystkie twoje rozmowy z AI w tym obszarze roboczym?",
     "intro": "Zapytaj o cokolwiek w tym obszarze roboczym. Odpowiedzi pochodzą ze stron, które możesz otworzyć, z linkami do nich.",
     "placeholder": "Zadaj pytanie…",
+    "placeholderBusy": "Zadaj następne pytanie: poczeka na tę odpowiedź…",
+    "pasted": "[Wklejono: {count, plural, one {# wiersz} few {# wiersze} many {# wierszy} other {# wiersza}}]",
     "send": "Wyślij",
     "stop": "Zatrzymaj",
+    "queue": {
+      "count": "{count, plural, one {# pytanie czeka} few {# pytania czekają} many {# pytań czeka} other {# pytania czeka}}",
+      "clear": "Wyczyść",
+      "add": "Zapytaj po tej odpowiedzi"
+    },
     "scope": "Odpowiadaj na podstawie",
     "scopeWorkspace": "Cały obszar roboczy",
     "scopePage": "Ta strona i jej podstrony",
@@ -180,6 +187,11 @@
           "remember": "Odrzucono zapamiętanie:",
           "forget": "Odrzucono zapomnienie:"
         }
+      },
+      "connection": {
+        "done": "{connection}: wywołano {tool}",
+        "failed": "{connection}: {tool} nie powiodło się",
+        "declined": "{connection}: odrzucono wywołanie {tool}"
       }
     },
     "stopped": "Zatrzymano.",
@@ -201,7 +213,8 @@
         "createPage": "Dodać tę stronę?",
         "remember": "Zapamiętać to o tobie?",
         "forget": "Zapomnieć tę notatkę?",
-        "editPage": "Zmienić tekst tej strony?"
+        "editPage": "Zmienić tekst tej strony?",
+        "connection": "Wysłać to do {connection}?"
       },
       "in": "W",
       "row": "Wiersz",
@@ -213,7 +226,8 @@
       "decline": "Nie",
       "waiting": "Oczekiwanie na twoją zgodę",
       "page": "Strona",
-      "empty": "(puste)"
+      "empty": "(puste)",
+      "connectionHint": "Wysyłane przez połączenie obszaru roboczego: może coś zmienić w {connection}"
     },
     "mode": {
       "label": "Zmiany",

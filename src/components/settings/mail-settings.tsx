@@ -12,9 +12,10 @@ import { SettingsGroup, SettingsRow } from "./section";
 import { useAction } from "./workspace-settings";
 
 /**
- * Settings > Email, for owners: they turn email on rows on and pick the databases mail lands on, in
+ * Settings > General > Email: owners turn email on rows on and pick the databases mail lands on, in
  * order, with the email properties that hold the other party's address, and see whose mailbox is
- * connected and how it is doing. Each member connects their own under their account (OwnMailboxes).
+ * connected and how it is doing; members see whether it is on. Each member connects their own
+ * mailbox under their account (OwnMailboxes).
  */
 export function MailSettings({ workspaceId, initial }: { workspaceId: string; initial: MailSettingsView }) {
   const t = useTranslations("settings.email");
@@ -23,7 +24,7 @@ export function MailSettings({ workspaceId, initial }: { workspaceId: string; in
 
   return (
     <div className="space-y-10">
-      <SettingsGroup>
+      <SettingsGroup title={t("heading")} description={t("description")}>
         <SettingsRow
           title={t("enabled")}
           description={

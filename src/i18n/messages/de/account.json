@@ -172,7 +172,7 @@
     "mailboxOff": "E-Mail in Zeilen ist in diesem Workspace aus, daher wird dieses Postfach nicht gelesen. Trenne es, um sein Passwort zu entfernen.",
     "notConnected": "Kein Postfach verbunden",
     "connect": "Verbinden",
-    "noMailboxes": "In keinem deiner Workspaces ist E-Mail in Zeilen eingeschaltet. Die Eigentümer schalten es unter Einstellungen › E-Mail ein.",
+    "noMailboxes": "In keinem deiner Workspaces ist E-Mail in Zeilen eingeschaltet. Die Eigentümer schalten es unter Einstellungen › Allgemein ein.",
     "calendarsHeading": "Kalenderadressen",
     "calendarsDescription": "Adressen, die du für Kalender-Apps erstellt hast, aus einer Kalenderansicht oder aus den dir zugewiesenen Zeilen. Wer eine Adresse kennt, sieht, was sie zeigt – schalte die aus, die du nicht mehr nutzt.",
     "calendarsEmpty": "Noch keine Kalenderadressen. Erstelle eine in einer Kalenderansicht oder unter Dir zugewiesen auf der Startseite.",

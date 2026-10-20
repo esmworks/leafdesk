@@ -56,7 +56,8 @@ const startOAuth = vi.fn();
 vi.mock("./client", async () => ({ ...(await vi.importActual<typeof import("./client")>("./client")), startOAuth: (...args: unknown[]) => startOAuth(...args) }));
 
 const { beginConnectionOAuth, createConnection, signOutConnection, updateConnection } = await import("./manage");
-const { secretsOf } = await import("./client");
+const { oauthRedirectUrl, secretsOf } = await import("./client");
+const { RegistrationRejectedError } = await import("@modelcontextprotocol/client");
 
 const SLACK = "https://mcp.slack.com/mcp";
 const codeOf = (promise: Promise<unknown>) => promise.then(() => null, (error: { code?: string }) => error.code ?? "other");
@@ -139,6 +140,25 @@ describe("a connection's own OAuth app", () => {
     expect(await codeOf(beginConnectionOAuth("owner", "conn-1"))).toBe("needsClient");
     // With an app set, the same failure is the app's (or the service's) to explain.
     await updateConnection("owner", "conn-1", { oauthClient: { clientId: "1234.5678", clientSecret: "s" } });
+    expect(await codeOf(beginConnectionOAuth("owner", "conn-1"))).toBe("oauthFailed");
+  });
+
+  it("says why when the service turns Leafdesk's registration down", async () => {
+    const reject = (status: number, body: string) => startOAuth.mockRejectedValue(new RegistrationRejectedError({ status, body, submittedMetadata: { redirect_uris: [] } }));
+    const errorOf = (promise: Promise<unknown>) => promise.then(() => null, (error: { code?: string; params?: Record<string, string> }) => ({ code: error.code, params: error.params }));
+    await createConnection("owner", "ws", { name: "Server", url: "https://mcp.example.com/mcp", authType: "oauth" });
+
+    reject(400, JSON.stringify({ error: "invalid_redirect_uri", error_description: "Not allowed: https://work.example/cb" }));
+    expect(await errorOf(beginConnectionOAuth("owner", "conn-1"))).toEqual({ code: "redirectRejected", params: { address: oauthRedirectUrl() } });
+
+    reject(400, JSON.stringify({ error: "invalid_client_metadata", error_description: " Scopes not allowed " }));
+    expect(await errorOf(beginConnectionOAuth("owner", "conn-1"))).toEqual({ code: "registrationRejected", params: { reason: "Scopes not allowed" } });
+
+    reject(503, "<html>Service unavailable</html>");
+    expect(await errorOf(beginConnectionOAuth("owner", "conn-1"))).toEqual({ code: "registrationRejected", params: { reason: "HTTP 503" } });
+
+    // With an app set, Leafdesk doesn't register itself: whatever failed is the app's to explain.
+    await updateConnection("owner", "conn-1", { oauthClient: { clientId: "1234.5678" } });
     expect(await codeOf(beginConnectionOAuth("owner", "conn-1"))).toBe("oauthFailed");
   });
 });

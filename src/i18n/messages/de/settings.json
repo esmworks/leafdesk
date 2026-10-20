@@ -12,7 +12,6 @@
     "groups": "Gruppen",
     "agents": "Agenten",
     "connections": "Verbindungen",
-    "email": "E-Mail",
     "storage": "Speicher",
     "analytics": "Analysen",
     "aiUsage": "KI-Nutzung",
@@ -1528,7 +1527,7 @@
   },
   "connections": {
     "heading": "Verbindungen",
-    "description": "Dienste, die deine Agenten nutzen: Slack, GitHub, ein CRM, ein anderes Leafdesk… alles mit einem entfernten MCP-Server. Nur Inhaber sehen und verwalten sie; welche Werkzeuge ein Agent nutzen darf, wird beim Agenten festgelegt. (Programme, die Leafdesk nutzen: die, die diesen Workspace erreichen, unter Sicherheit, die du selbst verbunden hast, unter Mein Konto › Verbundene Apps.)",
+    "description": "Dienste, die deine Agenten nutzen: Slack, GitHub, ein CRM, ein anderes Leafdesk… alles mit einem entfernten MCP-Server. Nur Inhaber sehen und verwalten sie; welche Werkzeuge ein Agent nutzen darf, wird beim Agenten festgelegt. Welche Tools der KI-Chat nutzen darf, legst du bei jeder Verbindung unter Tools fest. (Programme, die Leafdesk nutzen: die, die diesen Workspace erreichen, unter Sicherheit, die du selbst verbunden hast, unter Mein Konto › Verbundene Apps.)",
     "tabs": {
       "browse": "Entdecken",
       "connected": "Verbunden",
@@ -1558,6 +1557,8 @@
       "invalidClient": "Füge die Client-ID der App ein (und ihr Secret, falls sie eins hat).",
       "clientForNewUrl": "Eine neue Adresse braucht ihre App: Gib Client-ID und Secret erneut ein.",
       "needsClient": "Dieser Dienst lässt Leafdesk sich nicht selbst registrieren. Erstelle dort eine App und trage Client-ID und Secret in den Einstellungen der Verbindung ein.",
+      "redirectRejected": "Dieser Dienst akzeptiert die Rücksprungadresse von Leafdesk nicht. Sein Admin muss {address} erlauben, oder erstelle dort eine App und trage Client-ID und Secret in den Einstellungen der Verbindung ein.",
+      "registrationRejected": "Dieser Dienst hat die Registrierung von Leafdesk abgelehnt: „{reason}“. Erstelle dort eine App und trage Client-ID und Secret in den Einstellungen der Verbindung ein.",
       "invalidTrigger": "Wähle einen Agenten dieses Workspaces.",
       "unknownTool": "Die Verbindung hat kein Werkzeug „{tool}“.",
       "oauthFailed": "Die Anmeldung hat nicht geklappt. Versuche es erneut.",
@@ -1668,7 +1669,11 @@
       "overridden": "Von einem Inhaber eingeordnet, nicht wie vom Server markiert",
       "kindLabel": "Was „{tool}“ tut",
       "reads": "Liest nur",
-      "writes": "Ändert etwas, fragt vorher"
+      "writes": "Ändert etwas, fragt vorher",
+      "chat": "Im Chat",
+      "chatLabel": "Den KI-Chat „{tool}“ nutzen lassen",
+      "chatAll": "Alle im Chat nutzen",
+      "chatDescription": "Setze „Im Chat“, damit der KI-Chat des Arbeitsbereichs ein Tool nutzen kann. Der Chat ruft es mit dem Konto dieser Verbindung für jedes Mitglied auf, das fragt (nicht für Gäste); ein Tool, das etwas ändert, fragt diese Person jedes Mal vorher."
     },
     "events": {
       "address": "Ereignisadresse",
@@ -1707,7 +1712,7 @@
       "promptPlaceholder": "Was der Agent mit dem Ereignis tun soll",
       "addTrigger": "Auslöser hinzufügen"
     },
-    "reconnectNote": "Wenn du die Adresse oder die Anmeldung änderst, wird die Verbindung abgemeldet; beim Speichern wird sie erneut versucht. Eine neue Adresse braucht außerdem das Token erneut, listet ihre Werkzeuge neu auf und nimmt Agenten die Werkzeuge dieser Verbindung, bis du sie wieder freigibst.",
+    "reconnectNote": "Wenn du die Adresse oder die Anmeldung änderst, wird die Verbindung abgemeldet; beim Speichern wird sie erneut versucht. Eine neue Adresse braucht außerdem das Token erneut, listet ihre Werkzeuge neu auf und nimmt Agenten die Werkzeuge dieser Verbindung, bis du sie wieder freigibst. Der Chat verliert sie ebenfalls.",
     "deleteTitle": "Verbindung entfernen",
     "deleteBody": "Ihre Zugangsdaten, die Werkzeuge der Agenten darauf, ihre Auslöser und Ereignisse gehen mit. Aufrufe, die auf Freigabe warten, schlagen fehl, ohne etwas zu senden.",
     "deleteConfirm": "Entfernen",
@@ -1726,6 +1731,7 @@
     }
   },
   "email": {
+    "heading": "E-Mail",
     "description": "E-Mails mit den Personen in deinen Datenbanken landen in deren Zeilen: Wer eine Zeile sehen kann, liest ihre E-Mails dort und beantwortet sie aus dem eigenen Postfach.",
     "enabled": "E-Mails in Zeilen",
     "enabledHint": "Mitglieder verbinden ihr eigenes Postfach unter Mein Konto › E-Mail und Kalender. Vollständig gelesen werden nur E-Mails, deren Gegenüber die E-Mail-Adresse einer Zeile ist; alles andere bleibt im Postfach.",
@@ -1947,7 +1953,7 @@
   },
   "backup": {
     "title": "Workspace sichern",
-    "description": "Lade alles aus dem Workspace als eine Datei herunter, um es hier oder auf einem anderen Leafdesk wiederherzustellen: Seiten mit ihrem Verlauf, Datenbanken, Kommentare, Dateien, Teamspaces, Gruppen und Zugriffsrechte, Agenten und Automatisierungen.",
+    "description": "Lade alles aus dem Workspace als eine Datei herunter, um es hier oder auf einem anderen Leafdesk wiederherzustellen: Seiten mit ihrem Verlauf, Datenbanken, Kommentare, Dateien, Teamspaces, Gruppen und Zugriffsrechte, Agenten und Automatisierungen. KI-Chats der Mitglieder und was die KI sich über sie merkt, bleiben draußen.",
     "button": "Sichern",
     "preparing": "Wird vorbereitet…",
     "disabled": "Backups sind zusammen mit dem Export unter Einstellungen → Sicherheit ausgeschaltet."

@@ -133,8 +133,8 @@ export type ChatSourceRef = { n: number; pageId: string; blockId: string | null 
  * A step the AI chat took on the way to an answer: a search (`query` null for the one with the
  * question itself) and how many pages it found, a page it read, a database it queried (with the
  * filters and how many rows matched), a change it made or was refused (see ChatWriteRecord), a
- * note it kept or dropped about the person (ChatMemoryRecord), or what the model said before
- * searching or reading.
+ * note it kept or dropped about the person (ChatMemoryRecord), a call to a connection's tool
+ * (ChatConnectionRecord), or what the model said before searching or reading.
  */
 export type ChatStepRecord =
   | { kind: "search"; query: string | null; results: number }
@@ -142,7 +142,24 @@ export type ChatStepRecord =
   | { kind: "query"; databaseId: string; conditions: ChatQueryCondition[]; any?: boolean; results: number }
   | ChatWriteRecord
   | ChatMemoryRecord
+  | ChatConnectionRecord
   | { kind: "thought"; text: string };
+
+/**
+ * A call the AI chat made to a connection's tool (server/connections), with the connection's name
+ * then: `done`, `failed`, or `declined` by the person (a tool that changes something is asked
+ * about each time). `writes`: the tool changes something at the service; `input`: what was sent
+ * (or would have been), credentials masked, cut to fit.
+ */
+export type ChatConnectionRecord = {
+  kind: "connection";
+  connectionId: string;
+  connection: string;
+  tool: string;
+  writes: boolean;
+  input: string;
+  outcome: "done" | "failed" | "declined";
+};
 
 /**
  * A note the chat kept about the person (`remember`, also in place of an older note) or dropped
@@ -198,7 +215,8 @@ export type ChatMessageRecord = {
 
 /**
  * AI chat conversations (#41), private to the person who had them: only they can list, read or
- * delete them. Deleted with their account, when they leave the workspace and with the workspace.
+ * delete them, and workspace backups leave them out. Deleted with their account, when they leave
+ * the workspace and with the workspace.
  * Cited pages are looked up again with the reader's current access whenever they are shown.
  */
 export const aiConversation = pgTable(
@@ -224,12 +242,14 @@ export const aiConversation = pgTable(
 /**
  * What the AI chat remembers about a person in a workspace (see server/ai-memory.ts): short notes
  * on who they are, what they work on and how they want answers, kept by the chat when they tell it
- * or written by them in the chat's Memory view. Private to that person like their conversations,
- * and deleted with their account, when they leave the workspace and with the workspace.
+ * or written by them in the chat's Memory view. Private to that person like their conversations
+ * (workspace backups leave them out too), and deleted with their account, when they leave the
+ * workspace and with the workspace.
  * `conversationId` is where the chat noted it (null: the person wrote it, or the conversation is gone).
  *
  * An agent's notes are kept here too, under its own user (server/agents/memory.ts): what its runs
- * proposed (`status` proposed, `agentRunId` the run) and what its owners kept or wrote (no run).
+ * proposed (`status` proposed, `agentRunId` the run) and what its owners kept or wrote (no run);
+ * these are backed up with the agent.
  * Only kept notes go with its runs. A proposal no owner answered goes with its run, when the run
  * is pruned; notes stay while the agent is archived and go with it.
  */

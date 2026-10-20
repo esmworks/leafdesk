@@ -12,7 +12,6 @@
     "groups": "Grupos",
     "agents": "Agentes",
     "connections": "Conexiones",
-    "email": "Correo",
     "storage": "Almacenamiento",
     "analytics": "Analíticas",
     "aiUsage": "Uso de IA",
@@ -1528,7 +1527,7 @@
   },
   "connections": {
     "heading": "Conexiones",
-    "description": "Servicios que usan tus agentes: Slack, GitHub, un CRM, otro Leafdesk… cualquier cosa con un servidor MCP remoto. Solo los propietarios los ven y gestionan; qué herramientas puede usar cada agente se ajusta en el agente. (Programas que usan Leafdesk: los que llegan a este espacio de trabajo están en Seguridad; los que conectaste tú, en Mi cuenta › Apps conectadas.)",
+    "description": "Servicios que usan tus agentes: Slack, GitHub, un CRM, otro Leafdesk… cualquier cosa con un servidor MCP remoto. Solo los propietarios los ven y gestionan; qué herramientas puede usar cada agente se ajusta en el agente. Qué herramientas puede usar el chat de IA se configura en cada conexión, en Herramientas. (Programas que usan Leafdesk: los que llegan a este espacio de trabajo están en Seguridad; los que conectaste tú, en Mi cuenta › Apps conectadas.)",
     "tabs": {
       "browse": "Explorar",
       "connected": "Conectadas",
@@ -1558,6 +1557,8 @@
       "invalidClient": "Pega el ID de cliente de la aplicación (y su secreto, si tiene).",
       "clientForNewUrl": "Una dirección nueva necesita su aplicación: vuelve a introducir el ID y el secreto de cliente.",
       "needsClient": "Este servicio no permite que Leafdesk se registre. Crea allí una aplicación e introduce su ID y secreto de cliente en los ajustes de la conexión.",
+      "redirectRejected": "Este servicio no acepta la dirección de retorno de Leafdesk. Su administrador debe permitir {address}, o crea allí una aplicación e introduce su ID y secreto de cliente en los ajustes de la conexión.",
+      "registrationRejected": "Este servicio rechazó el registro de Leafdesk: «{reason}». Crea allí una aplicación e introduce su ID y secreto de cliente en los ajustes de la conexión.",
       "invalidTrigger": "Elige un agente de este espacio de trabajo.",
       "unknownTool": "La conexión no tiene la herramienta «{tool}».",
       "oauthFailed": "No se pudo iniciar sesión. Inténtalo de nuevo.",
@@ -1668,7 +1669,11 @@
       "overridden": "Clasificada por un propietario, no como la marcó el servidor",
       "kindLabel": "Qué hace «{tool}»",
       "reads": "Solo lee",
-      "writes": "Cambia cosas, pregunta antes"
+      "writes": "Cambia cosas, pregunta antes",
+      "chat": "En el chat",
+      "chatLabel": "Dejar que el chat de IA use «{tool}»",
+      "chatAll": "Usarlas todas en el chat",
+      "chatDescription": "Marca «En el chat» para que el chat de IA del espacio de trabajo pueda usar una herramienta. El chat la llama con la cuenta de esta conexión para cualquier miembro que pregunte (no para invitados); una herramienta que cambia cosas pregunta antes a esa persona, cada vez."
     },
     "events": {
       "address": "Dirección de eventos",
@@ -1707,7 +1712,7 @@
       "promptPlaceholder": "Qué debe hacer el agente con el evento",
       "addTrigger": "Añadir disparador"
     },
-    "reconnectNote": "Cambiar la dirección o el inicio de sesión cierra la sesión de la conexión; se vuelve a intentar al guardar. Una dirección nueva también pide de nuevo el token, lista sus herramientas desde cero y quita a los agentes las herramientas de esta conexión hasta que se las vuelvas a dar.",
+    "reconnectNote": "Cambiar la dirección o el inicio de sesión cierra la sesión de la conexión; se vuelve a intentar al guardar. Una dirección nueva también pide de nuevo el token, lista sus herramientas desde cero y quita a los agentes las herramientas de esta conexión hasta que se las vuelvas a dar. El chat también las pierde.",
     "deleteTitle": "Eliminar conexión",
     "deleteBody": "Se van con ella sus credenciales, las herramientas que tenían los agentes, sus disparadores y sus eventos. Las llamadas que esperan aprobación fallan sin enviar nada.",
     "deleteConfirm": "Eliminar",
@@ -1726,6 +1731,7 @@
     }
   },
   "email": {
+    "heading": "Correo",
     "description": "El correo con las personas de tus bases de datos llega a sus filas: quien puede ver una fila lee allí sus correos y los responde desde su propio buzón.",
     "enabled": "Correo en las filas",
     "enabledHint": "Los miembros conectan su propio buzón en Mi cuenta › Correo y calendario. Solo se leen completos los correos cuyo interlocutor es la dirección de correo de una fila; el resto se queda en el buzón.",
@@ -1947,7 +1953,7 @@
   },
   "backup": {
     "title": "Hacer copia de seguridad del espacio de trabajo",
-    "description": "Descarga todo el contenido del espacio de trabajo en un solo archivo para restaurarlo aquí o en otro Leafdesk: páginas con su historial, bases de datos, comentarios, archivos, espacios de equipo, grupos y accesos, agentes y automatizaciones.",
+    "description": "Descarga todo el contenido del espacio de trabajo en un solo archivo para restaurarlo aquí o en otro Leafdesk: páginas con su historial, bases de datos, comentarios, archivos, espacios de equipo, grupos y accesos, agentes y automatizaciones. Los chats de IA de cada persona y lo que la IA recuerda de ella quedan fuera.",
     "button": "Hacer copia",
     "preparing": "Preparando…",
     "disabled": "Las copias de seguridad se desactivan junto con la exportación en Configuración → Seguridad."

@@ -34,7 +34,7 @@ import {
 } from "@/lib/ai";
 import { PropertyValueError } from "@/lib/properties";
 import { AccessError, hasLevel, pageAccessOf } from "@/server/access";
-import { aiConfig, AiError, complete, describeAiSetup, isAiError, isEnabled as aiMayBeOn, takeRateLimit, takeWorkspaceCapacity } from "@/server/ai";
+import { aiConfig, AiError, complete, contentChars, describeAiSetup, isAiError, isEnabled as aiMayBeOn, takeRateLimit, takeWorkspaceCapacity } from "@/server/ai";
 import { autofillNeedsBody, autofillPrompt, cleanValue, formatValue, type Prompt } from "@/server/ai/prompts";
 import { aiAvailable } from "@/server/ai-writing";
 import { getCollab } from "@/server/collab/bridge";
@@ -260,7 +260,7 @@ async function rowInput(
       .filter(([, value]) => value.trim()),
   );
   const body = autofillNeedsBody(config) ? (await getCollab().readPage(row.id)).markdown : "";
-  const maxContent = Math.max(1_000, aiConfig().limits.maxInputChars - 3_000);
+  const maxContent = Math.max(1_000, contentChars(aiConfig().limits) - 3_000);
   const prompt: Prompt | null = autofillPrompt(
     config,
     { title: row.title, values: text, names: Object.fromEntries(inputs.map((p) => [p.id, p.name])), body },

@@ -33,7 +33,7 @@ const { createGroup } = await import("@/server/groups");
 const { createTeamspace } = await import("@/server/teamspaces");
 const { removeMember, updateWorkspaceSettings } = await import("@/server/workspaces");
 const { AccessError } = await import("@/server/access");
-const { isAiError } = await import("@/server/ai");
+const { isAiError, promptRoomFor } = await import("@/server/ai");
 const { resetAi, setAiEnv } = await import("@/server/ai/testing");
 const { startFakeOpenAi, textOf } = await import("@/server/ai/fake-openai");
 type FakeChatRequest = import("@/server/ai/fake-openai").FakeChatRequest;
@@ -43,7 +43,6 @@ const { deleteConversations, getConversation, listConversations, MAX_ROUNDS, sta
 const { setMemoryUse } = await import("@/server/ai-memory");
 const { decideChange } = await import("@/server/ai-chat-approvals");
 const { decidePageReview, getPageReview } = await import("@/server/page-review");
-const { MAX_CHAT_MESSAGE, MAX_CHAT_TURNS } = await import("@/lib/ai-chat");
 type ChatEvent = import("@/lib/ai-chat").ChatEvent;
 type ChatStepView = import("@/lib/ai-chat").ChatStepView;
 type ChatInput = import("@/server/ai-chat").ChatInput;
@@ -127,7 +126,9 @@ const stepLabel = (step: ChatStepView) =>
         ? `query:${step.database?.title ?? "gone"}:${step.conditions.map((c) => `${c.property} ${c.op} ${c.value ?? ""}`.trim()).join(",")}:${step.results}`
         : step.kind === "write"
           ? `write:${step.action}:${step.outcome}:${step.page?.title ?? step.title ?? step.target?.title ?? "?"}`
-          : `thought:${step.text}`;
+          : step.kind === "connection"
+            ? `connection:${step.connection}:${step.tool}:${step.outcome}`
+            : `thought:${step.text}`;
 
 /** Runs a question to the end; returns its events and what they add up to. */
 async function ask(userId: string, input: ChatInput, options: { signal?: AbortSignal; onEvent?: (e: ChatEvent) => void | Promise<void> } = {}) {
@@ -251,6 +252,7 @@ try {
     first.events.map((e) => e.type),
   );
   check(first.events.some((e) => e.type === "reset"), "text the model wrote before calling a tool is taken back");
+
   const vendorsSource = first.sources.find((s) => s.pageId === vendors.id);
   check(first.text.startsWith("The answer is in Tyre vendors [") && vendorsSource?.title === "Tyre vendors", "the answer cites the page it read", first);
   check(vendorsSource.workspaceId === workspaceId && vendorsSource.blockId === null, "…as a link to the page", vendorsSource);
@@ -295,6 +297,21 @@ try {
   check((await refusal(() => startChat(bob, { workspaceId, conversationId, message: "More?" }))) === "noAccess", "…or continue it");
   await deleteConversations(bob, workspaceId, [conversationId]);
   check((await listConversations(alice, workspaceId)).length === 1, "…or delete it");
+
+  // The model's thinking streams as it comes, before its answer, and isn't kept.
+  fake.setChat(() => ({ thinking: "Weighing which page answers this.", text: "Nothing on it here." }));
+  const thought = await ask(alice, { workspaceId, message: "Is there a page about bicycles?" });
+  const reasoning = thought.events.flatMap((e) => (e.type === "reasoning" ? [e.text] : [])).join("");
+  check(thought.done && reasoning === "Weighing which page answers this.", "the model's thinking streams as reasoning events", thought.events);
+  check(
+    thought.events.findIndex((e) => e.type === "reasoning") < thought.events.findIndex((e) => e.type === "text") && thought.text === "Nothing on it here.",
+    "…before the answer, and apart from it",
+    thought.events.map((e) => e.type),
+  );
+  const thoughtShown = await getConversation(alice, workspaceId, thought.conversationId!);
+  check(!JSON.stringify(thoughtShown.messages).includes("Weighing"), "…and isn't kept in the conversation", thoughtShown.messages);
+  await deleteConversations(alice, workspaceId, [thought.conversationId!]);
+
 
   // A follow-up carries the earlier turn, without its citation numbers.
   fake.setChat(researcher({}));
@@ -415,21 +432,46 @@ try {
   });
   check(toolResults(fake.chats[MAX_ROUNDS - 1]).at(-1)?.includes("answer now"), "…and it's told to answer before its last turn");
 
-  check((await refusal(() => startChat(dave, { workspaceId, message: "x".repeat(MAX_CHAT_MESSAGE + 1) }))) === "tooLarge", "a question longer than the limit is refused");
+  const room = await promptRoomFor(workspaceId);
+  check((await refusal(() => startChat(dave, { workspaceId, message: "x".repeat(room + 1) }))) === "tooLarge", "a question longer than the model takes is refused");
+  // A model with a larger window takes a longer question: nothing else bounds it.
+  setAiEnv({ ...AI, AI_CONTEXT_WINDOW: "200000" });
+  fake.setChat(() => ({ text: "Quite long." }));
+  const long = await ask(dave, { workspaceId, message: `${"x".repeat(150_000)} How long is this?` });
+  check(long.done && long.text === "Quite long.", "…and with a larger context window, a question of 150,000 characters is answered", {
+    room: await promptRoomFor(workspaceId),
+    error: long.error,
+  });
+  setAiEnv(AI);
   check((await refusal(() => startChat(dave, { workspaceId, message: "   " }))) === "invalid", "an empty question is refused");
   const [full] = await db
     .insert(aiConversation)
     .values({
       userId: dave,
       workspaceId,
-      title: "Full",
-      messages: Array.from({ length: MAX_CHAT_TURNS }, () => [
-        { role: "user" as const, content: "q", at: "" },
-        { role: "assistant" as const, content: "a", at: "" },
+      title: "Long",
+      messages: Array.from({ length: 60 }, (_, i) => [
+        { role: "user" as const, content: `Question ${i}`, at: "" },
+        { role: "assistant" as const, content: `Answer ${i}`, at: "" },
       ]).flat(),
     })
     .returning();
-  check((await refusal(() => startChat(dave, { workspaceId, conversationId: full.id, message: "One more?" }))) === "tooLarge", `a conversation takes at most ${MAX_CHAT_TURNS} questions`);
+  // A model that finds the conversation too long: the chat asks again without the earlier turns.
+  fake.setChat((request) => {
+    if (request.messages.filter((m) => m.role === "user").length > 1) {
+      throw Object.assign(new Error("This model's maximum context length is 32768 tokens. However, your messages resulted in 40000 tokens."), { status: 400 });
+    }
+    return { text: "Still here." };
+  });
+  fake.chats.length = 0;
+  const longer = await ask(dave, { workspaceId, conversationId: full.id, message: "One more?" });
+  check(longer.done && longer.text === "Still here.", "a long conversation takes more questions, without a turn limit", longer.error);
+  check(
+    fake.chats.length === 2 && fake.chats[0].messages.some((m) => textOf(m.content) === "Question 59") && !everything(fake.chats[1]).includes("Question 59"),
+    "…and when the model finds it too long, the turn is asked again without the earlier conversation",
+    fake.chats.map((c) => c.messages.length),
+  );
+  check((await getConversation(dave, workspaceId, full.id)).messages.length === 122, "…and the question and answer are kept with the rest");
   setAiEnv({ ...AI, AI_RATE_LIMIT: "2" });
   fake.setChat(researcher({}));
   const limited: (string | null)[] = [];

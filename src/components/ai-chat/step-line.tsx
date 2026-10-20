@@ -2,10 +2,10 @@
 
 /**
  * One step an AI answer or an agent's run took (a search, a page read, a database queried, a
- * change made, a note kept about the person or dropped, a thought), as a line: an icon and what
- * happened, the pages it names as links.
+ * change made, a note kept about the person or dropped, a call to a connection's tool, a thought),
+ * as a line: an icon and what happened, the pages it names as links.
  */
-import { Ban, BookOpen, Brain, BrainCog, CircleAlert, FilePen, FilePlus, Filter, Lightbulb, ListPlus, PencilLine, Search } from "lucide-react";
+import { Ban, BookOpen, Brain, BrainCog, CircleAlert, FilePen, FilePlus, Filter, Lightbulb, ListPlus, PencilLine, Plug, Search } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { Fragment } from "react";
 import { cn, PageIcon, pageLabel } from "@/components/ui";
@@ -67,6 +67,20 @@ export function StepLine({ step, onSource }: { step: ChatStepView; onSource: (so
         <Icon className={icon} />
         <span className="min-w-0 break-words">
           {label} <span className="text-fg">“{step.text}”</span>
+        </span>
+      </>
+    );
+  }
+  if (step.kind === "connection") {
+    const Icon = step.outcome === "declined" ? Ban : step.outcome === "failed" ? CircleAlert : Plug;
+    return (
+      <>
+        <Icon className={cn(icon, step.outcome === "failed" && "text-danger")} />
+        <span className="min-w-0 break-words">
+          {t(`steps.connection.${step.outcome}`, { connection: step.connection, tool: step.tool })}
+          <code className="mt-0.5 block truncate text-xs text-fg-faint" title={step.input}>
+            {step.input}
+          </code>
         </span>
       </>
     );

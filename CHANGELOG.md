@@ -9,6 +9,21 @@
   Merged cells show on published pages, Markdown export writes the table as a full grid with the
   places a merged cell covered left empty, and turning the table into a database does the same.
   Saving a page from its Markdown source names merged cells among what Markdown can't keep.
+- **The AI chat can use connections' tools.** Owners tick **In chat** next to a connection's tools
+  (Settings → Connections → a connection → Tools), and members' chats may call them; guests' chats
+  never get them. Reading tools run at once and show as a step under the answer. A tool that
+  changes something at the service asks the person before every call, in Auto too, and isn't
+  offered in a read-only chat; an answer that sent one can't be asked again. What a service returns
+  reaches the model as outside data, cut to fit, with credentials masked in the step and the audit
+  log, which records each call as the person's. Migration 0095 adds `connection.chat_tools`; a
+  connection moved to a new address starts with none.
+- **Google Drive, Docs, Sheets, Slides, Gmail, Calendar, Chat and Contacts connections.** The
+  connection catalog lists Google's own MCP servers. They sign in an OAuth client made in a Google
+  Cloud project: enter its ID and secret on the connection, or set one for all of them as
+  `google=CLIENT_ID:CLIENT_SECRET` in `CONNECTION_OAUTH_CLIENTS`. Each asks only for the scopes its
+  tools use (Drive files are read, and written only when made through Leafdesk; Gmail never gets
+  the whole mailbox), and Leafdesk asks Google for a refresh token, so a sign-in doesn't end after an
+  hour. The README's Connections section has the setup in Google Cloud.
 - **What AI costs, per workspace.** Every AI request (chat, writing assistant, AI properties,
   agents, voice notes, semantic search) adds its tokens and cost in US dollars to its workspace's
   month, by feature and model, whichever account paid. Owners see this month and the last twelve in
@@ -24,22 +39,67 @@
   Unset, `AI_MODEL` answers everything as before. A workspace on its own AI account runs every
   feature on the account's model. The startup log names the fast model, and each request's log
   line its model. See the README's AI section.
+- **A long paste shows as a chip in the AI chat's box.** Pasting 3 lines or more, or more than
+  150 characters, puts a chip ("Pasted 40 lines") at the caret instead of the text, so the box
+  stays readable; the question is sent with the pasted text in the chip's place. The chip is one
+  piece: the caret steps over it, and Backspace after it (or Delete before it) takes it and its
+  paste. Two pastes of the same size are numbered apart.
 
 ### Changed
 
+- **The AI chat fits a conversation to the model, not to a fixed size.** A chat request was
+  refused past 48,000 characters, so a workspace whose connections offer many tools (their
+  descriptions take room in every request) could fill it before the conversation did, and the chat
+  answered "this conversation is full". The chat and agents now size what they send by the model's
+  context window. When the model still finds it too long, older tool results are left out first
+  (the model can call the tool again), then the earlier turns, and the question is asked again. A
+  conversation no longer stops at 40 questions, and a question has no fixed length: it can be as
+  long as the model's context window takes, and a long paste is no longer cut in the chat's box.
+  `AI_MAX_INPUT_CHARS` is unset by default; set, it still caps every request. The writing
+  assistant, AI properties, voice notes and agents' skills keep reading at most 48,000 characters.
+
+- **A clearer Connections page.** Settings → Connections puts **Add another server** next to the
+  tabs, on both of them. The catalog's cards are roomier, with a + to connect and a tick on the
+  services already added, so long names no longer get cut. Connected services show as cards with
+  their logo and a status badge (a green, amber or red dot for ready, needs sign-in or not working),
+  and the note on approvals sits in a box of its own. In a connection's Tools tab the tools line up
+  in columns, with a switch for **In chat** (and one for all of them above) and a green or amber dot
+  for whether each only reads or changes things; a description that only repeats the tool's title
+  is left out.
+- **Larger small print in settings.** On the workspace's, the account's and the server's settings,
+  notes, hints, counts and small buttons are 13px instead of 12px, dialogs opened from there
+  included. Their secondary and faint text share one darker gray, so a hint reads as well as a
+  description (5:1 or more on the page and its cards, in either theme). The settings navigation's
+  items are in the main text color with their icons a step lighter, no longer gray. High contrast
+  keeps its own colors, and the rest of the app keeps its sizes and colors.
+- **The AI chat takes the next question while it answers.** A question sent while an answer is being
+  written waits in a strip above the question box (how many, the first of them, and Clear) and is
+  asked in the same conversation once the answer is done; before, Enter did nothing then. Stop gives
+  the waiting questions back: the first into the box when nothing is typed there, the rest still
+  waiting, to follow it. Leaving the conversation mid-answer (opening another, closing the panel)
+  keeps its waiting questions for when it is opened again in the tab. While the model thinks, the
+  line saying so shows the newest line of its thinking, and the whole of it opens from there (it
+  isn't kept). Text the model writes before looking something up moves into the steps at once, and
+  the "Thinking…" line stays while the lookup runs.
 - **The sidebar has three tabs: Home, Journal and Chat.** Home lists your pages as before. Journal
   holds your daily notes: a month calendar, the notes themselves and how new ones start, so the
   journal page no longer sits among your private pages. Chat lists your conversations under a new
   chat. Each tab follows the page you have open, and going back to a tab takes you to where you
   last were in it; clicking the tab you are on goes to its start (the home page, today's note, a
-  new chat).
+  new chat). The open tab shows its name; the others show only their icons and widen to show their
+  names when you point at them. Conversations are listed like pages, and the one an answer is being
+  written for has a dot that fades in and out meanwhile. The page header's button that opens the
+  chat panel has the same two-bubble icon as the Chat tab.
+- **The sidebar's new button asks what to make.** It opens a menu with a new page, a new chat, a
+  new database and a page from a template, instead of always making a page.
 - **Your mailbox and calendar addresses have their own page under your account.** The new
   **Settings → Email and calendar** (under My account) is where you connect, change or disconnect
   your mailbox for each workspace with email on rows, and where every calendar address you made,
   from a calendar view or from the rows assigned to you, is listed with a way to turn it off.
-  **Settings → Email** in the workspace is now for owners only: whether email on rows is on, where
-  mail lands and whose mailbox is connected. The workspace's settings are grouped under Workspace,
-  Features and Administration, and your own snippets are now **My snippets**.
+  The workspace's own email settings moved into **Settings → General → Email**, so there is one
+  Email page rather than two: owners choose whether email on rows is on, where mail lands and see
+  whose mailbox is connected; members see whether it is on. The workspace's settings are grouped
+  under Workspace, Features and Administration, and your own snippets are now **My snippets**.
 - **A source in the full-page AI chat opens beside it.** Clicking an answer's citation (or a page it
   read) opens the page in the panel at the right instead of leaving the conversation, scrolled to the
   cited passage; the panel's up and down buttons (K and J) go through the conversation's other sources,
@@ -67,6 +127,14 @@
   so the row stays on one line. It used to end the row, so reading the Markdown back (the Markdown
   source view, imports of an export, AI tools editing the page) made an extra row and moved the
   text after the break into the wrong cells.
+- **A service that turns down Leafdesk's sign-in says why.** When a connection's server took
+  registrations but refused Leafdesk's, the settings said the service doesn't let Leafdesk register
+  itself. Now a server that won't send sign-ins back to Leafdesk names the address its admin has to
+  allow, and any other refusal shows the server's own reason.
+- **Workspace backups leave out people's AI chats and what the AI remembers about them.** Both are
+  private to each person, but a backup held everyone's, so an owner who opened the file could read
+  them. Agents' memory is still backed up. Restoring an older backup passes over the chats and
+  people's notes it holds.
 - OpenCode Go requests for models the catalog doesn't know go to its current endpoint
   (`opencode.ai/inference/go`), and its Gemini model works.
 - **Search treats the Turkish dotted and dotless i alike.** A page saying "IŞIK", "SICAKLIK" or

@@ -12,7 +12,6 @@
     "groups": "Grupy",
     "agents": "Agenci",
     "connections": "Połączenia",
-    "email": "E-mail",
     "storage": "Magazyn",
     "analytics": "Analityka",
     "aiUsage": "Użycie AI",
@@ -1528,7 +1527,7 @@
   },
   "connections": {
     "heading": "Połączenia",
-    "description": "Usługi, z których korzystają twoi agenci: Slack, GitHub, CRM, inny Leafdesk… wszystko, co ma zdalny serwer MCP. Widzą je i zarządzają nimi tylko właściciele; to, których narzędzi może używać każdy agent, ustawia się przy agencie. (Programy korzystające z Leafdesk: te, które docierają do tego obszaru roboczego, są w sekcji Bezpieczeństwo, a te podłączone przez ciebie w Moje konto › Połączone aplikacje.)",
+    "description": "Usługi, z których korzystają twoi agenci: Slack, GitHub, CRM, inny Leafdesk… wszystko, co ma zdalny serwer MCP. Widzą je i zarządzają nimi tylko właściciele; to, których narzędzi może używać każdy agent, ustawia się przy agencie. Których narzędzi może używać czat AI, ustawia się w każdym połączeniu, w zakładce Narzędzia. (Programy korzystające z Leafdesk: te, które docierają do tego obszaru roboczego, są w sekcji Bezpieczeństwo, a te podłączone przez ciebie w Moje konto › Połączone aplikacje.)",
     "tabs": {
       "browse": "Przeglądaj",
       "connected": "Połączone",
@@ -1558,6 +1557,8 @@
       "invalidClient": "Wklej ID klienta aplikacji (i jej sekret, jeśli go ma).",
       "clientForNewUrl": "Nowy adres wymaga aplikacji: wpisz ponownie ID klienta i sekret.",
       "needsClient": "Ta usługa nie pozwala Leafdesk zarejestrować się samodzielnie. Utwórz tam aplikację i wpisz jej ID klienta oraz sekret w ustawieniach połączenia.",
+      "redirectRejected": "Ta usługa nie akceptuje adresu powrotu Leafdesk. Jej administrator musi zezwolić na {address} albo utwórz tam aplikację i wpisz jej ID klienta oraz sekret w ustawieniach połączenia.",
+      "registrationRejected": "Ta usługa odrzuciła rejestrację Leafdesk: „{reason}”. Utwórz tam aplikację i wpisz jej ID klienta oraz sekret w ustawieniach połączenia.",
       "invalidTrigger": "Wybierz agenta z tego obszaru roboczego.",
       "unknownTool": "Połączenie nie ma narzędzia „{tool}”.",
       "oauthFailed": "Logowanie nie powiodło się. Spróbuj ponownie.",
@@ -1668,7 +1669,11 @@
       "overridden": "Sklasyfikowane przez właściciela, a nie tak, jak oznaczył je serwer",
       "kindLabel": "Co robi „{tool}”",
       "reads": "Tylko odczytuje",
-      "writes": "Zmienia dane, najpierw pyta"
+      "writes": "Zmienia dane, najpierw pyta",
+      "chat": "W czacie",
+      "chatLabel": "Pozwól czatowi AI używać „{tool}”",
+      "chatAll": "Używaj wszystkich w czacie",
+      "chatDescription": "Zaznacz „W czacie”, aby czat AI obszaru roboczego mógł używać narzędzia. Czat wywołuje je kontem tego połączenia dla każdego członka, który pyta (nie dla gości); narzędzie, które coś zmienia, za każdym razem najpierw pyta tę osobę."
     },
     "events": {
       "address": "Adres zdarzeń",
@@ -1707,7 +1712,7 @@
       "promptPlaceholder": "Co agent ma zrobić ze zdarzeniem",
       "addTrigger": "Dodaj wyzwalacz"
     },
-    "reconnectNote": "Zmiana adresu lub sposobu logowania wylogowuje połączenie; zostanie ono ponownie sprawdzone po zapisaniu. Nowy adres wymaga też ponownego podania tokenu, od nowa wczytuje narzędzia i odbiera agentom narzędzia tego połączenia, dopóki ich ponownie nie nadasz.",
+    "reconnectNote": "Zmiana adresu lub sposobu logowania wylogowuje połączenie; zostanie ono ponownie sprawdzone po zapisaniu. Nowy adres wymaga też ponownego podania tokenu, od nowa wczytuje narzędzia i odbiera agentom narzędzia tego połączenia, dopóki ich ponownie nie nadasz. Czat również je traci.",
     "deleteTitle": "Usuń połączenie",
     "deleteBody": "Razem z nim znikną jego dane uwierzytelniające, narzędzia, które mieli w nim agenci, jego wyzwalacze i zdarzenia. Wywołania oczekujące na zatwierdzenie zakończą się niepowodzeniem bez wysyłania czegokolwiek.",
     "deleteConfirm": "Usuń",
@@ -1726,6 +1731,7 @@
     }
   },
   "email": {
+    "heading": "E-mail",
     "description": "Korespondencja z osobami z twoich baz danych trafia do ich wierszy: każdy, kto widzi wiersz, czyta tam jego e-maile i odpowiada na nie z własnej skrzynki pocztowej.",
     "enabled": "E-maile w wierszach",
     "enabledHint": "Członkowie podłączają własne skrzynki pocztowe w sekcji Moje konto › E-mail i kalendarz. W całości czytane są tylko e-maile, których drugą stroną jest adres e-mail z wiersza; reszta zostaje w skrzynce.",
@@ -1947,7 +1953,7 @@
   },
   "backup": {
     "title": "Kopia zapasowa obszaru roboczego",
-    "description": "Pobierz całą zawartość obszaru roboczego jako jeden plik, aby przywrócić ją tutaj lub w innej instancji Leafdesk: strony z historią, bazy danych, komentarze, pliki, przestrzenie zespołów, grupy i uprawnienia, agentów i automatyzacje.",
+    "description": "Pobierz całą zawartość obszaru roboczego jako jeden plik, aby przywrócić ją tutaj lub w innej instancji Leafdesk: strony z historią, bazy danych, komentarze, pliki, przestrzenie zespołów, grupy i uprawnienia, agentów i automatyzacje. Czaty AI poszczególnych osób i to, co AI o nich zapamiętała, nie są uwzględniane.",
     "button": "Utwórz kopię",
     "preparing": "Przygotowywanie…",
     "disabled": "Kopie zapasowe są wyłączane razem z eksportem w sekcji Ustawienia → Bezpieczeństwo."

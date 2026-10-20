@@ -3,15 +3,21 @@
 /**
  * One AI chat conversation as the panel and the full-page chat show it: its messages, the question
  * being typed, the streamed answer from `/api/ai/chat` (see server/ai-chat.ts) and what the model
- * is doing meanwhile. Stop cancels the answer; switching conversations or starting a new one does
- * too. The mode (what the chat may change) is remembered in the browser; in mode `ask` a change the
- * model wants to make waits, as `pending`, for the person's decision.
+ * is doing meanwhile. A question asked while an answer is on its way waits in a queue and is asked
+ * once that answer is done. Stop cancels the answer and gives the queued questions back: the first
+ * into an empty box, the rest still queued to follow it. Switching conversations or starting a new
+ * one cancels the answer too, and keeps the conversation's queued questions for when it's opened
+ * again. The mode (what the chat may change) is remembered in the browser; in mode `ask` a change
+ * the model wants to make waits, as `pending`, for the person's decision. A long paste shows in the
+ * box as a label (lib/chat-paste.ts) and is sent in its place.
  */
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { decideChangeAction, deleteConversationAction, getConversationAction } from "@/app/actions/ai";
 import { isAiErrorCode } from "@/lib/ai";
-import { CHAT_MODES, type ChatActionView, type ChatEvent, type ChatMessageView, type ChatMode } from "@/lib/ai-chat";
+import { CHAT_MODES, changedThings, thoughtText, type ChatActionView, type ChatEvent, type ChatMessageView, type ChatMode } from "@/lib/ai-chat";
+import { EMPTY_DRAFT, expandDraft, insertPaste, pasteLineCount, syncDraft, uniqueLabel, type ChatDraft } from "@/lib/chat-paste";
+import { holdAnswering } from "./answering";
 
 /** What the model is doing while an answer is on its way: working on a turn, or writing. */
 export type ChatStatus = "thinking" | "writing";
@@ -24,6 +30,47 @@ export type PendingChange = { id: string; action: ChatActionView };
 
 /** A skill picked for the next question: its instructions guide the answer (server/skills). */
 export type ChatSkillPick = { id: string; title: string };
+
+/** A question asked while an answer was on its way, waiting to be asked. */
+export type QueuedQuestion = { question: string; skill: ChatSkillPick | null; scopePageId: string | null };
+
+/**
+ * The model's thinking on its current turn, as it comes (not kept): held apart from the messages so
+ * that each piece redraws only the line showing it, not the conversation.
+ */
+export type Reasoning = { get(): string; subscribe(listener: () => void): () => void };
+
+function reasoningStore() {
+  let text = "";
+  const listeners = new Set<() => void>();
+  return {
+    get: () => text,
+    set(next: string) {
+      if (next === text) return;
+      text = next;
+      for (const listener of listeners) listener();
+    },
+    subscribe(listener: () => void) {
+      listeners.add(listener);
+      return () => void listeners.delete(listener);
+    },
+  };
+}
+
+/** The model's thinking on the current turn, kept up to date. */
+export function useReasoning(reasoning: Reasoning): string {
+  return useSyncExternalStore(reasoning.subscribe, reasoning.get, () => "");
+}
+
+/**
+ * Questions left waiting when their conversation was left mid-answer (another one opened, the panel
+ * closed): given back when it's opened again in this tab.
+ */
+const parked = new Map<string, QueuedQuestion[]>();
+
+function park(conversationId: string | null, questions: QueuedQuestion[]) {
+  if (conversationId && questions.length) parked.set(conversationId, [...(parked.get(conversationId) ?? []), ...questions]);
+}
 
 /** Yes; yes and don't ask again (the mode becomes `auto`); no. */
 export type ChangeDecision = "approve" | "always" | "decline";
@@ -58,20 +105,54 @@ export function useChat(
   const ta = useTranslations("ai");
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [input, setInput] = useState("");
+  const [draft, setDraft] = useState<ChatDraft>(EMPTY_DRAFT);
+  const input = draft.text;
   const [status, setStatus] = useState<ChatStatus | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [mode, setModeState] = useState<ChatMode>("ask");
   const [pending, setPending] = useState<PendingChange | null>(null);
   const [skill, setSkill] = useState<ChatSkillPick | null>(null);
+  const [queued, setQueued] = useState<QueuedQuestion[]>([]);
+  const [reasoning] = useState(reasoningStore);
   const abort = useRef<AbortController | null>(null);
+  // Read by a queued question asked from the end of the answer before it, after renders that
+  // answer's own closure never saw (its conversation, a mode changed meanwhile).
+  const queue = useRef<QueuedQuestion[]>([]);
+  const conversationRef = useRef(conversationId);
+  conversationRef.current = conversationId;
+  const modeRef = useRef(mode);
+  modeRef.current = mode;
+  const inputNow = useRef(input);
+  inputNow.current = input;
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  /** The box's text, typed or set; a paste whose label is no longer in it goes. */
+  const setInput = useCallback((text: string) => setDraft((d) => syncDraft(d, text)), []);
+  /**
+   * Puts a long paste in the box as a label, in place of `start..end`; returns where the caret goes
+   * (after the label).
+   */
+  const pasteInput = (text: string, start: number, end: number) => {
+    const label = uniqueLabel(draft.pastes, t("pasted", { count: pasteLineCount(text) }));
+    const next = insertPaste(draft, text, label, start, end);
+    inputNow.current = next.text;
+    setDraft(next);
+    return Math.min(start, end) + label.length;
+  };
   // The latest callbacks, without restarting anything when the caller passes new ones.
   const callbacks = useRef({ onConversation, onAnswered });
   callbacks.current = { onConversation, onAnswered };
   const running = status !== null;
 
-  useEffect(() => () => abort.current?.abort(), []);
+  // Unmounted (the panel closed, the page left) mid-answer: the answer stops, its queue is parked.
+  useEffect(
+    () => () => {
+      abort.current?.abort();
+      park(conversationRef.current, queue.current);
+    },
+    [],
+  );
+  // The sidebar's list marks the conversation while its answer is on its way.
+  useEffect(() => (running && conversationId ? holdAnswering(conversationId) : undefined), [running, conversationId]);
   // After hydration: the server doesn't know the browser's choice.
   useEffect(() => setModeState(savedMode()), []);
 
@@ -95,20 +176,57 @@ export function useChat(
   const updateLast = (fn: (m: ChatMessage) => ChatMessage) =>
     setMessages((list) => (list.length && list[list.length - 1].role === "assistant" ? [...list.slice(0, -1), fn(list[list.length - 1])] : list));
 
+  const setQueue = (next: QueuedQuestion[]) => {
+    queue.current = next;
+    setQueued(next);
+  };
+
+  /**
+   * Gives back questions that weren't asked (`unasked`, then the queue's): the first into the box
+   * when nothing is typed there, the rest staying queued, to follow the next answer.
+   */
+  const giveBack = (unasked: QueuedQuestion[] = []) => {
+    const all = [...unasked, ...queue.current];
+    const toBox = inputNow.current.trim() ? undefined : all[0];
+    setQueue(toBox ? all.slice(1) : all);
+    if (!toBox) return;
+    inputNow.current = toBox.question;
+    setInput(toBox.question);
+    setSkill((current) => current ?? toBox.skill);
+  };
+
+  /** Stops the answer and leaves the conversation, its queued questions parked for its return. */
+  const leave = () => {
+    abort.current?.abort();
+    park(conversationRef.current, queue.current);
+    setQueue([]);
+  };
+
   /**
    * Asks the typed question with the picked skill, of the whole workspace or of `scopePageId` and
    * its subpages; with `again`, asks its question (the last one, maybe edited, with the skill it
-   * used) in place of the last question and answer.
+   * used) in place of the last question and answer. While an answer is on its way, the typed
+   * question is queued instead.
    */
   async function send(scopePageId: string | null, again?: { question: string; skill?: ChatSkillPick }) {
-    const question = (again?.question ?? input).trim();
-    if (!question || running) return;
-    const used = again ? (again.skill ?? null) : skill;
-    setError(null);
+    const question = (again?.question ?? expandDraft(draft)).trim();
+    if (!question) return;
+    if (running) {
+      if (again) return;
+      setQueue([...queue.current, { question, skill, scopePageId }]);
+      setInput("");
+      setSkill(null);
+      return;
+    }
     if (!again) {
       setInput("");
       setSkill(null);
     }
+    await ask(question, again ? (again.skill ?? null) : skill, scopePageId, Boolean(again));
+  }
+
+  async function ask(question: string, used: ChatSkillPick | null, scopePageId: string | null, again: boolean) {
+    setError(null);
     const controller = new AbortController();
     abort.current = controller;
     const startedAt = Date.now();
@@ -121,6 +239,10 @@ export function useChat(
     setStatus("thinking");
     let failed: string | null = null;
     let finished = false;
+    // The text streamed on this turn of the model's; and whether what was streamed before a tool
+    // call is shown as a thought until the server's own step replaces it.
+    let streamed = "";
+    let provisional = false;
     // The answer made changes: it stays, whatever happens next.
     let changed = false;
     try {
@@ -129,10 +251,10 @@ export function useChat(
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           workspaceId,
-          conversationId,
+          conversationId: conversationRef.current,
           message: question,
           scope: scopePageId ? { pageId: scopePageId } : null,
-          mode,
+          mode: modeRef.current,
           ...(again ? { replaceLast: true } : {}),
           ...(used ? { skillId: used.id } : {}),
         }),
@@ -159,17 +281,37 @@ export function useChat(
           // Whatever comes after a change was asked about means it was decided (or timed out).
           setPending(event.type === "approval" ? { id: event.id, action: event.action } : null);
           if (event.type === "conversation") {
+            conversationRef.current = event.id;
             setConversationId(event.id);
             callbacks.current.onConversation?.(event.id);
-          } else if (event.type === "thinking") setStatus("thinking");
+          } else if (event.type === "thinking") {
+            setStatus("thinking");
+            reasoning.set("");
+          } else if (event.type === "reasoning") reasoning.set(reasoning.get() + event.text);
           else if (event.type === "step") {
-            if (event.step.kind === "write" && event.step.outcome === "done") changed = true;
-            updateLast((m) => ({ ...m, steps: [...(m.steps ?? []), event.step] }));
-          }
-          else if (event.type === "text") {
+            // The thinking that led to it is done.
+            reasoning.set("");
+            if (changedThings(event.step)) changed = true;
+            const replaces = provisional && event.step.kind === "thought";
+            provisional = false;
+            updateLast((m) => {
+              const steps = m.steps ?? [];
+              return { ...m, steps: [...(replaces ? steps.slice(0, -1) : steps), event.step] };
+            });
+          } else if (event.type === "text") {
             setStatus("writing");
+            streamed += event.text;
+            reasoning.set("");
             updateLast((m) => ({ ...m, content: m.content + event.text }));
-          } else if (event.type === "reset") updateLast((m) => ({ ...m, content: "" }));
+          } else if (event.type === "reset") {
+            // What was streamed was the model thinking aloud before a tool call: it moves into the
+            // steps at once (the server's thought step follows), and the tool runs meanwhile.
+            setStatus("thinking");
+            const thought = thoughtText(streamed);
+            streamed = "";
+            provisional = thought !== "";
+            updateLast((m) => ({ ...m, content: "", ...(thought ? { steps: [...(m.steps ?? []), { kind: "thought" as const, text: thought }] } : {}) }));
+          }
           else if (event.type === "sources") updateLast((m) => ({ ...m, sources: event.sources }));
           else if (event.type === "done") {
             finished = true;
@@ -189,6 +331,7 @@ export function useChat(
       setStatus(null);
       setPending(null);
       // Stopped or failed: the time it ran for, as the page saw it.
+      reasoning.set("");
       updateLast((m) => (m.ms === undefined && m.startedAt ? { ...m, ms: Date.now() - m.startedAt } : m));
       if (failed) {
         setError(failed);
@@ -199,17 +342,29 @@ export function useChat(
           const answered = !(last?.role === "assistant" && !last.content.trim() && !changed);
           return answered ? list : again ? before : list.slice(0, -2);
         });
-        if (!changed && !again) {
-          setInput((current) => current || question);
-          setSkill((current) => current ?? used);
-        }
       }
       callbacks.current.onAnswered?.();
+      // Answered: the next queued question is asked. Failed (the question first, unless it changed
+      // things), or ended without an answer by the server: they are given back. Stopped here, Stop or
+      // leaving the conversation took care of them.
+      const next = queue.current[0];
+      if (failed) giveBack(!changed && !again ? [{ question, skill: used, scopePageId }] : []);
+      else if (finished && next) {
+        setQueue(queue.current.slice(1));
+        void ask(next.question, next.skill, next.scopePageId, false);
+      } else if (!finished && !controller.signal.aborted) giveBack();
     }
   }
 
+  /** Stops the answer; the queued questions are given back. */
   function stop() {
     abort.current?.abort();
+    giveBack();
+  }
+
+  /** Drops the queued questions. */
+  function clearQueue() {
+    setQueue([]);
   }
 
   /** Answers the change the model asks to make; "always" also makes the mode `auto`. */
@@ -227,7 +382,7 @@ export function useChat(
   }
 
   function newChat() {
-    stop();
+    leave();
     setConversationId(null);
     setMessages([]);
     setError(null);
@@ -237,7 +392,7 @@ export function useChat(
 
   /** Shows a saved conversation; false when it can't be loaded (gone, or not theirs). */
   async function openConversation(id: string) {
-    stop();
+    leave();
     const result = await getConversationAction(workspaceId, id);
     if (!result.ok) {
       setError(t("loadFailed"));
@@ -246,6 +401,12 @@ export function useChat(
     setError(null);
     setConversationId(result.data.id);
     setMessages(result.data.messages.map((m) => ({ ...m, key: nextKey() })));
+    // Questions left waiting here come back.
+    const left = parked.get(result.data.id);
+    if (left) {
+      parked.delete(result.data.id);
+      giveBack(left);
+    }
     return true;
   }
 
@@ -258,6 +419,8 @@ export function useChat(
       newChat();
       callbacks.current.onConversation?.(null);
     }
+    if (id === "all") parked.clear();
+    else parked.delete(id);
     return true;
   }
 
@@ -265,10 +428,15 @@ export function useChat(
     workspaceId,
     skill,
     setSkill,
+    queued,
+    clearQueue,
+    reasoning: reasoning as Reasoning,
     conversationId,
     messages,
     input,
     setInput,
+    pastes: draft.pastes,
+    pasteInput,
     status,
     error,
     running,

@@ -12,7 +12,6 @@
     "groups": "Groupes",
     "agents": "Agents",
     "connections": "Connexions",
-    "email": "E-mail",
     "storage": "Stockage",
     "analytics": "Statistiques",
     "aiUsage": "Utilisation de l'IA",
@@ -1528,7 +1527,7 @@
   },
   "connections": {
     "heading": "Connexions",
-    "description": "Les services que vos agents utilisent : Slack, GitHub, un CRM, un autre Leafdesk… tout ce qui a un serveur MCP distant. Seuls les propriétaires les voient et les gèrent ; les outils permis à chaque agent se règlent sur l’agent. (Programmes qui utilisent Leafdesk : ceux qui accèdent à cet espace de travail sont dans Sécurité, ceux que vous avez connectés vous-même dans Mon compte › Applications connectées.)",
+    "description": "Les services que vos agents utilisent : Slack, GitHub, un CRM, un autre Leafdesk… tout ce qui a un serveur MCP distant. Seuls les propriétaires les voient et les gèrent ; les outils permis à chaque agent se règlent sur l’agent. Les outils que le chat IA peut utiliser se règlent sur chaque connexion, sous Outils. (Programmes qui utilisent Leafdesk : ceux qui accèdent à cet espace de travail sont dans Sécurité, ceux que vous avez connectés vous-même dans Mon compte › Applications connectées.)",
     "tabs": {
       "browse": "Parcourir",
       "connected": "Connectées",
@@ -1558,6 +1557,8 @@
       "invalidClient": "Collez l’identifiant client de l’application (et son secret, s’il y en a un).",
       "clientForNewUrl": "Une nouvelle adresse demande son application : saisissez à nouveau l’identifiant et le secret client.",
       "needsClient": "Ce service ne permet pas à Leafdesk de s’enregistrer. Créez-y une application et saisissez son identifiant et son secret client dans les réglages de la connexion.",
+      "redirectRejected": "Ce service n’accepte pas l’adresse de retour de Leafdesk. Son administrateur doit autoriser {address}, ou créez-y une application et saisissez son identifiant et son secret client dans les réglages de la connexion.",
+      "registrationRejected": "Ce service a refusé l’enregistrement de Leafdesk : « {reason} ». Créez-y une application et saisissez son identifiant et son secret client dans les réglages de la connexion.",
       "invalidTrigger": "Choisissez un agent de cet espace.",
       "unknownTool": "La connexion n’a pas d’outil « {tool} ».",
       "oauthFailed": "La connexion a échoué. Réessayez.",
@@ -1668,7 +1669,11 @@
       "overridden": "Classé par un propriétaire, pas comme le serveur l’a marqué",
       "kindLabel": "Ce que fait « {tool} »",
       "reads": "Lit seulement",
-      "writes": "Modifie, demande d’abord"
+      "writes": "Modifie, demande d’abord",
+      "chat": "Dans le chat",
+      "chatLabel": "Laisser le chat IA utiliser « {tool} »",
+      "chatAll": "Les utiliser toutes dans le chat",
+      "chatDescription": "Cochez « Dans le chat » pour que le chat IA de l'espace de travail puisse utiliser un outil. Le chat l'appelle avec le compte de cette connexion pour tout membre qui pose une question (pas les invités) ; un outil qui modifie quelque chose demande d'abord à cette personne, à chaque fois."
     },
     "events": {
       "address": "Adresse des événements",
@@ -1707,7 +1712,7 @@
       "promptPlaceholder": "Ce que l’agent doit faire de l’événement",
       "addTrigger": "Ajouter un déclencheur"
     },
-    "reconnectNote": "Changer l’adresse ou la connexion déconnecte la liaison ; elle est réessayée à l’enregistrement. Une nouvelle adresse demande aussi à nouveau le jeton, liste ses outils de zéro et retire aux agents les outils de cette connexion jusqu’à ce que vous les leur redonniez.",
+    "reconnectNote": "Changer l’adresse ou la connexion déconnecte la liaison ; elle est réessayée à l’enregistrement. Une nouvelle adresse demande aussi à nouveau le jeton, liste ses outils de zéro et retire aux agents les outils de cette connexion jusqu’à ce que vous les leur redonniez. Le chat les perd aussi.",
     "deleteTitle": "Supprimer la connexion",
     "deleteBody": "Ses identifiants, les outils qu’y avaient les agents, ses déclencheurs et ses événements partent avec elle. Les appels en attente d’approbation échouent sans rien envoyer.",
     "deleteConfirm": "Supprimer",
@@ -1726,6 +1731,7 @@
     }
   },
   "email": {
+    "heading": "E-mail",
     "description": "Les e-mails échangés avec les personnes de vos bases de données arrivent sur leurs lignes : tous ceux qui peuvent voir une ligne y lisent ses e-mails et y répondent depuis leur propre boîte mail.",
     "enabled": "E-mails sur les lignes",
     "enabledHint": "Les membres connectent leur propre boîte mail dans Mon compte › E-mail et calendrier. Seuls les e-mails dont l’interlocuteur est l’adresse e-mail d’une ligne sont lus en entier ; le reste demeure dans la boîte mail.",
@@ -1947,7 +1953,7 @@
   },
   "backup": {
     "title": "Sauvegarder l’espace de travail",
-    "description": "Téléchargez tout le contenu de l’espace de travail dans un seul fichier, pour le restaurer ici ou sur un autre Leafdesk : les pages avec leur historique, les bases de données, les commentaires, les fichiers, les espaces d’équipe, les groupes et les accès, les agents et les automatisations.",
+    "description": "Téléchargez tout le contenu de l’espace de travail dans un seul fichier, pour le restaurer ici ou sur un autre Leafdesk : les pages avec leur historique, les bases de données, les commentaires, les fichiers, les espaces d’équipe, les groupes et les accès, les agents et les automatisations. Les conversations IA de chacun et ce que l’IA retient à son sujet n’en font pas partie.",
     "button": "Sauvegarder",
     "preparing": "Préparation…",
     "disabled": "Les sauvegardes sont désactivées en même temps que l’exportation dans Paramètres → Sécurité."

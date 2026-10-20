@@ -17,12 +17,12 @@ import {
   Link2,
   Lock,
   MessageSquare,
+  MessagesSquare,
   MoreHorizontal,
   MoveHorizontal,
   Printer,
   ScrollText,
   Search,
-  Sparkles,
   Star,
   Trash2,
   Type,
@@ -236,7 +236,7 @@ export function PageHeaderActions({
           className={cn("h-7 w-7 disabled:opacity-40 disabled:hover:bg-transparent", aiChat.open && !offline && "bg-bg-hover")}
           onClick={() => (aiChat.open ? aiChat.setOpen(false) : aiChat.openPanel())}
         >
-          <Sparkles className="h-4 w-4" />
+          <MessagesSquare className="h-4 w-4" />
         </IconButton>
       )}
       {onComments && (

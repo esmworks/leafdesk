@@ -21,6 +21,7 @@ import {
   refreshConnection,
   revealEventSecret,
   setAgentGrant,
+  setChatTools,
   setEventSecret,
   setToolKind,
   signOutConnection,
@@ -95,6 +96,12 @@ export async function deleteConnectionAction(workspaceId: string, connectionId: 
 export async function setToolKindAction(workspaceId: string, connectionId: string, tool: string, kind: ToolKind | null): Promise<ActionResult<ConnectionView>> {
   const valid = kind === "read" || kind === "write" ? kind : null;
   return run(workspaceId, (userId) => setToolKind(userId, String(connectionId), String(tool), valid));
+}
+
+/** Sets the tools of a connection the workspace's AI chat may call. */
+export async function setChatToolsAction(workspaceId: string, connectionId: string, tools: string[]): Promise<ActionResult<ConnectionView>> {
+  const list = Array.isArray(tools) ? tools.filter((t): t is string => typeof t === "string") : [];
+  return run(workspaceId, (userId) => setChatTools(userId, String(connectionId), list));
 }
 
 /** Begins signing in to the service: the address to open (null: already signed in). */

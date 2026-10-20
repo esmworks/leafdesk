@@ -133,8 +133,15 @@
     "confirmDeleteAll": "Alle deine KI-Unterhaltungen in diesem Workspace löschen?",
     "intro": "Frag nach allem in diesem Workspace. Die Antworten stammen aus den Seiten, die du öffnen kannst, und verlinken sie.",
     "placeholder": "Stell eine Frage…",
+    "placeholderBusy": "Nächste Frage stellen: sie wartet auf diese Antwort…",
+    "pasted": "[Eingefügt: {count, plural, one {# Zeile} other {# Zeilen}}]",
     "send": "Senden",
     "stop": "Stopp",
+    "queue": {
+      "count": "{count, plural, one {# Frage wartet} other {# Fragen warten}}",
+      "clear": "Leeren",
+      "add": "Nach dieser Antwort fragen"
+    },
     "scope": "Quelle",
     "scopeWorkspace": "Ganzer Workspace",
     "scopePage": "Diese Seite und ihre Unterseiten",
@@ -180,6 +187,11 @@
           "remember": "Merken abgelehnt:",
           "forget": "Vergessen abgelehnt:"
         }
+      },
+      "connection": {
+        "done": "{connection}: {tool} aufgerufen",
+        "failed": "{connection}: {tool} fehlgeschlagen",
+        "declined": "{connection}: Aufruf von {tool} abgelehnt"
       }
     },
     "stopped": "Gestoppt.",
@@ -201,7 +213,8 @@
         "createPage": "Diese Seite hinzufügen?",
         "remember": "Das über dich merken?",
         "forget": "Diese Notiz vergessen?",
-        "editPage": "Den Text dieser Seite ändern?"
+        "editPage": "Den Text dieser Seite ändern?",
+        "connection": "Das an {connection} senden?"
       },
       "in": "In",
       "row": "Zeile",
@@ -213,7 +226,8 @@
       "decline": "Nein",
       "waiting": "Wartet auf deine Zustimmung",
       "page": "Seite",
-      "empty": "(leer)"
+      "empty": "(leer)",
+      "connectionHint": "Wird mit der Verbindung des Arbeitsbereichs gesendet: Es kann bei {connection} etwas ändern"
     },
     "mode": {
       "label": "Änderungen",

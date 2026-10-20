@@ -30,7 +30,7 @@ import {
   requirePageAccess,
   WorkspacePolicyError,
 } from "@/server/access";
-import { aiConfig, AiError, complete, sttLimitsFor, transcribe } from "@/server/ai";
+import { aiConfig, AiError, complete, contentChars, sttLimitsFor, transcribe } from "@/server/ai";
 import { fallbackVoiceTitle, parseVoiceNote, voiceNotePrompt } from "@/server/ai/prompts";
 import { aiAvailable } from "@/server/ai-writing";
 import { getCollab } from "@/server/collab/bridge";
@@ -160,7 +160,7 @@ export async function draftVoiceNote(
   if (!(await aiAvailable(workspaceId))) return raw;
   onStage?.("writing");
   const tags = databaseId ? await voiceTagProperties(userId, databaseId) : [];
-  const maxContent = Math.max(1_000, aiConfig().limits.maxInputChars - PROMPT_OVERHEAD);
+  const maxContent = Math.max(1_000, contentChars(aiConfig().limits) - PROMPT_OVERHEAD);
   const prompt = voiceNotePrompt(transcript, tags, maxContent);
   try {
     const result = await complete({

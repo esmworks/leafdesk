@@ -47,7 +47,7 @@ export default async function AdminPage({
   const emailReset = mailStatus() === "smtp";
 
   return (
-    <div className="flex min-h-full flex-col md:flex-row">
+    <div className="settings-type flex min-h-full flex-col md:flex-row">
       <nav
         aria-label={t("title")}
         // In the sidebar's place, so the desktop app keeps its window buttons clear of it the same way (globals.css).

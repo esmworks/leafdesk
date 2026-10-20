@@ -1,5 +1,5 @@
 import type { CallToolResult } from "@modelcontextprotocol/client";
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { agentGrant, connection } from "@/db/schema";
 import type { AgentToolRecord } from "@/lib/agents";
@@ -10,9 +10,10 @@ import { recordAudit } from "@/server/audit";
 import { callConnectionTool, classify, type ConnectionClientError, type ConnectionRow } from "./client";
 
 /**
- * The tools of connections an agent may use, as the model sees them: `<slug>__<tool>`, only the
- * ones an owner allowed it, on connections that are ready. What a tool answers comes from outside
- * Leafdesk: it reaches the model framed as data, cut to fit, and can't add tools or permissions.
+ * The tools of connections an agent or the AI chat may use, as the model sees them:
+ * `<slug>__<tool>`, only the ones an owner allowed, on connections that are ready. What a tool
+ * answers comes from outside Leafdesk: it reaches the model framed as data, cut to fit, and can't
+ * add tools or permissions.
  */
 
 export type ConnectionToolEntry = { connection: ConnectionRow; tool: ConnectionTool };
@@ -26,20 +27,15 @@ function parametersOf(schema: Record<string, unknown>): Record<string, unknown> 
   return { type: "object", properties: {}, additionalProperties: true };
 }
 
-/** The connection tools an agent may use in a run. */
-export async function agentToolset(agentId: string): Promise<ConnectionToolset> {
-  const rows = await db
-    .select({ grant: agentGrant, connection })
-    .from(agentGrant)
-    .innerJoin(connection, eq(connection.id, agentGrant.connectionId))
-    .where(and(eq(agentGrant.agentId, agentId), eq(connection.status, "ready")));
+/** The tools allowed on each connection, as the model sees them; `writes` false leaves out the ones that change something. */
+function toolsetOf(rows: { allowed: string[]; connection: ConnectionRow }[], { writes = true } = {}): ConnectionToolset {
   if (!rows.length) return EMPTY;
   const tools: AiTool[] = [];
   const byName = new Map<string, ConnectionToolEntry>();
-  for (const { grant, connection: conn } of rows) {
-    const allowed = new Set(grant.tools);
+  for (const { allowed: names, connection: conn } of rows) {
+    const allowed = new Set(names);
     for (const tool of conn.tools) {
-      if (!allowed.has(tool.name)) continue;
+      if (!allowed.has(tool.name) || (!writes && tool.kind === "write")) continue;
       const name = namespacedTool(conn.slug, tool.name);
       if (byName.has(name)) continue;
       byName.set(name, { connection: conn, tool });
@@ -48,6 +44,39 @@ export async function agentToolset(agentId: string): Promise<ConnectionToolset> 
     }
   }
   return { tools, byName };
+}
+
+/** The connection tools an agent may use in a run. */
+export async function agentToolset(agentId: string): Promise<ConnectionToolset> {
+  const rows = await db
+    .select({ grant: agentGrant, connection })
+    .from(agentGrant)
+    .innerJoin(connection, eq(connection.id, agentGrant.connectionId))
+    .where(and(eq(agentGrant.agentId, agentId), eq(connection.status, "ready")));
+  return toolsetOf(rows.map((r) => ({ allowed: r.grant.tools, connection: r.connection })));
+}
+
+/** The connection tools the workspace's AI chat may use; `writes` false (a read-only chat) leaves out the ones that change something. */
+export async function chatToolset(workspaceId: string, { writes }: { writes: boolean }): Promise<ConnectionToolset> {
+  const rows = await db
+    .select()
+    .from(connection)
+    .where(and(eq(connection.workspaceId, workspaceId), eq(connection.status, "ready"), sql`jsonb_array_length(${connection.chatTools}) > 0`))
+    .orderBy(connection.createdAt);
+  return toolsetOf(
+    rows.map((row) => ({ allowed: row.chatTools, connection: row })),
+    { writes },
+  );
+}
+
+/**
+ * The chat's tool as it stands now (null: no longer allowed it, or its connection isn't ready): a
+ * call that waited for the person is sent only if an owner hasn't taken the tool away meanwhile.
+ */
+export async function chatToolNow(entry: ConnectionToolEntry): Promise<ConnectionToolEntry | null> {
+  const [row] = await db.select().from(connection).where(eq(connection.id, entry.connection.id)).limit(1);
+  const tool = row?.tools.find((t) => t.name === entry.tool.name);
+  return row?.status === "ready" && tool && row.chatTools.includes(tool.name) ? { connection: row, tool } : null;
 }
 
 /** A tool's input as its step and the audit log show it: JSON, credentials masked, cut to fit. */
@@ -103,15 +132,16 @@ export function failureText(connectionName: string, tool: ConnectionTool, failur
 }
 
 /**
- * Calls a connection's tool for an agent's run and records it in the audit log: who (the agent's
- * user), which connection and tool, the input in short, who approved it, and how it went.
- * `room`: how much of the answer the run may still read.
+ * Calls a connection's tool for an agent's run or the AI chat and records it in the audit log: who
+ * (the agent's user, or the person asking the chat), which connection and tool, the input in
+ * short, who approved it, and how it went. `room`: how much of the answer may still be read.
  */
 export async function runConnectionTool(input: {
   entry: ConnectionToolEntry;
   args: Record<string, unknown>;
-  agentUserId: string;
-  agentName: string;
+  actorId: string;
+  /** The AI chat called it (rather than an agent's run). */
+  chat?: boolean;
   approvedBy: string | null;
   room: number;
   signal?: AbortSignal;
@@ -130,10 +160,10 @@ export async function runConnectionTool(input: {
   const audit = (outcome: "done" | "failed", error?: string) =>
     recordAudit({
       workspaceId: conn.workspaceId,
-      actorId: input.agentUserId,
+      actorId: input.actorId,
       action: "connection.tool_called",
       target: { type: "connection", id: conn.id, label: conn.name },
-      details: { tool: tool.name, kind: tool.kind, input: summary, approvedBy: input.approvedBy, outcome, ...(error ? { error: redactText(error).slice(0, 200) } : {}) },
+      details: { tool: tool.name, kind: tool.kind, input: summary, approvedBy: input.approvedBy, outcome, ...(input.chat ? { via: "chat" } : {}), ...(error ? { error: redactText(error).slice(0, 200) } : {}) },
     }).catch((e) => console.error("[connections] could not record a tool call", redactError(e)));
 
   let result: CallToolResult;

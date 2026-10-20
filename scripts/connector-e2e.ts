@@ -9,7 +9,9 @@
  * writing call until an owner answers: approved, it's sent and the row appears on the peer;
  * declined or sent back with a note, nothing is sent; unanswered, it runs out of time and nothing
  * is sent. A call carrying a credential is shown to owners masked and reaches the peer as the agent
- * made it. Unsigned, stale,
+ * made it. The AI chat gets only the tools an owner allowed it, members' chats not guests': a
+ * reading call runs at once, a writing one asks the person each time, also in Auto, and isn't
+ * offered in a read-only chat. Unsigned, stale,
  * repeated and oversized events are refused; members can't manage connections or answer calls;
  * private addresses are refused. Creates its own users and workspaces on both sides and deletes
  * them afterwards.
@@ -67,6 +69,11 @@ const { ProtocolError, SdkError, SdkErrorCode } = await import("@modelcontextpro
 const { receiveEvent } = await import("@/server/connections/events");
 const { listInbox } = await import("@/server/notifications");
 const { describeAgentRun } = await import("@/server/mcp/agents");
+const { startChat } = await import("@/server/ai-chat");
+const { decideChange } = await import("@/server/ai-chat-approvals");
+const { isAiError } = await import("@/server/ai");
+type ChatEvent = import("@/lib/ai-chat").ChatEvent;
+type ChatDecision = import("@/server/ai-chat-approvals").ChatDecision;
 const { AccessError } = await import("@/server/access");
 const { namespacedTool } = await import("@/lib/connections");
 const { WEBHOOK_DELIVERY_HEADER, WEBHOOK_EVENT_HEADER, WEBHOOK_SIGNATURE_HEADER, signatureHeader, signedContent } = await import("@/lib/automations");
@@ -236,7 +243,7 @@ setAiEnv({
 const toolMessages = (request: FakeChatRequest) => request.messages.filter((m) => m.role === "tool").map((m) => textOf(m.content));
 const assistantCalls = (request: FakeChatRequest) => request.messages.filter((m) => m.role === "assistant" && m.tool_calls?.length).length;
 
-const ids = { owner: `${RUN}-owner`, member: `${RUN}-member` };
+const ids = { owner: `${RUN}-owner`, member: `${RUN}-member`, guest: `${RUN}-guest` };
 const workspaceId = `${RUN}-ws`;
 
 /** Sends an event to a connection as the service would, signed with `secret` (hmac preset). */
@@ -271,11 +278,13 @@ try {
   await db.insert(user).values([
     { id: ids.owner, name: "Owner Olcay", email: `${ids.owner}@example.test` },
     { id: ids.member, name: "Member Mert", email: `${ids.member}@example.test` },
+    { id: ids.guest, name: "Guest Gül", email: `${ids.guest}@example.test` },
   ]);
   await db.insert(workspace).values({ id: workspaceId, name: RUN });
   await db.insert(workspaceMember).values([
     { workspaceId, userId: ids.owner, role: "owner" },
     { workspaceId, userId: ids.member, role: "member" },
+    { workspaceId, userId: ids.guest, role: "guest" },
   ]);
 
   // ── Adding a connection ───────────────────────────────────────────────────────────────────
@@ -722,6 +731,104 @@ try {
   check(taken.status === "done" && taken.answer === "Gone.", "a call approved after its tool was taken away isn't sent", { status: taken.status, answer: taken.answer });
   check(!(await rowsAtPeer()).includes("Taken away"), "nothing reaches the peer");
 
+  // ── The AI chat ─────────────────────────────────────────────────────────────────────────────
+  /** Asks the chat a question to the end, answering each change it asks about with `decide`. */
+  const chat = async (userId: string, message: string, mode: "ask" | "auto" | "read", decide: (e: Extract<ChatEvent, { type: "approval" }>) => ChatDecision | Promise<ChatDecision> = () => "decline") => {
+    const events: ChatEvent[] = [];
+    for await (const e of await startChat(userId, { workspaceId, message, mode })) {
+      events.push(e);
+      if (e.type === "approval") decideChange(userId, e.id, await decide(e));
+    }
+    return events;
+  };
+  const chatOffered = (request: FakeChatRequest) => request.tools?.map((t) => t.function.name) ?? [];
+  const systemOf = (request: FakeChatRequest) => request.messages.filter((m) => m.role === "system").map((m) => textOf(m.content)).join("\n");
+  const answerOf = (events: ChatEvent[]) => events.map((e) => (e.type === "text" ? e.text : "")).join("");
+  const chatSteps = (events: ChatEvent[]) => events.flatMap((e) => (e.type === "step" && e.step.kind === "connection" ? [e.step] : []));
+
+  fake.setChat((): FakeReply => ({ text: "Nothing to call." }));
+  fake.chats.length = 0;
+  await chat(ids.member, "What's in the peer?", "ask");
+  check(!chatOffered(fake.chats[0]).some((t) => t.startsWith(`${rawRow.slug}__`)), "until an owner allows it, the chat is offered no connection tools", chatOffered(fake.chats[0]));
+  check(!/Connected services/.test(systemOf(fake.chats[0])), "…and isn't told of connected services");
+
+  check(await fails(manage.setChatTools(ids.member, conn.id, ["list_workspaces"]), isDenied), "members can't choose the chat's tools");
+  check(await fails(manage.setChatTools(ids.owner, conn.id, ["no_such_tool"]), isConnErr("unknownTool")), "a tool the connection doesn't have can't be chosen");
+  const chosen = await manage.setChatTools(ids.owner, conn.id, ["list_workspaces", "create_database_row", "list_workspaces"]);
+  check(chosen.chatTools.length === 2 && chosen.chatTools.includes("create_database_row"), "an owner chooses the tools the chat may use", chosen.chatTools);
+
+  // A reading call runs at once; what comes back reaches the model framed as outside data.
+  fake.setChat((request): FakeReply => (assistantCalls(request) === 0 ? { toolCalls: [{ name: listTool, arguments: {} }] } : { text: toolMessages(request).some((t) => t.includes("<<<EXTERNAL DATA")) ? "Framed." : "?" }));
+  fake.chats.length = 0;
+  const read = await chat(ids.member, "Which workspaces are at the peer?", "ask");
+  const tools = chatOffered(fake.chats[0]);
+  check(tools.includes(listTool) && tools.includes(rowTool) && !tools.includes(namespacedTool(rawRow.slug, "query_database")), "the chat is offered only the tools chosen", tools);
+  check(/Connected services \("Peer desk"\)/.test(systemOf(fake.chats[0])), "…and is told of the service", systemOf(fake.chats[0]).slice(-600));
+  check(!read.some((e) => e.type === "approval"), "a reading call isn't asked about");
+  check(chatSteps(read).some((s) => s.tool === "list_workspaces" && s.outcome === "done" && s.connection === "Peer desk" && !s.writes), "…and shows as a step", chatSteps(read));
+  check(answerOf(read).includes("Framed."), "the answer reached the model framed as outside data", read.filter((e) => e.type === "text"));
+  const chatAudit = await db.select().from(auditEvent).where(and(eq(auditEvent.workspaceId, workspaceId), eq(auditEvent.action, "connection.tool_called"), eq(auditEvent.actorUserId, ids.member)));
+  check(chatAudit.some((a) => (a.details as { via?: string; tool?: string }).via === "chat"), "the call is in the audit log as the member's, from the chat", chatAudit.map((a) => a.details));
+
+  // A writing call asks the person each time, also in Auto.
+  const approvedTitle = `From the chat ${RUN}`;
+  fake.setChat((request): FakeReply => (assistantCalls(request) === 0 ? { toolCalls: [{ name: rowTool, arguments: { database_id: peerDb.id, title: approvedTitle } }] } : { text: "Added." }));
+  let asked: Extract<ChatEvent, { type: "approval" }> | null = null;
+  const wrote = await chat(ids.member, "Add a lead at the peer", "auto", (e) => {
+    asked = e;
+    return "approve";
+  });
+  const askedAction = (asked as Extract<ChatEvent, { type: "approval" }> | null)?.action;
+  check(askedAction?.action === "connection" && askedAction.connection?.name === "Peer desk" && askedAction.content?.includes(approvedTitle), "a writing call is asked about, also in Auto, with what it sends", askedAction);
+  check(chatSteps(wrote).some((s) => s.tool === "create_database_row" && s.writes && s.outcome === "done"), "approved, it's sent", chatSteps(wrote));
+  check((await rowsAtPeer()).includes(approvedTitle), "…and the row is at the peer");
+  const conversationId = wrote.flatMap((e) => (e.type === "conversation" ? [e.id] : []))[0];
+  check(
+    await fails(
+      startChat(ids.member, { workspaceId, conversationId, message: "Again", replaceLast: true }),
+      (e) => isAiError(e) && e.code === "invalid",
+    ),
+    "an answer that called a writing tool can't be asked again",
+  );
+
+  const declinedTitle = `Declined in the chat ${RUN}`;
+  fake.setChat((request): FakeReply =>
+    assistantCalls(request) === 0
+      ? { toolCalls: [{ name: rowTool, arguments: { database_id: peerDb.id, title: declinedTitle } }] }
+      : { text: toolMessages(request).some((t) => t.includes("declined this call")) ? "Left it." : "?" },
+  );
+  const declinedChat = await chat(ids.member, "Add another lead", "ask", () => "decline");
+  check(chatSteps(declinedChat).some((s) => s.tool === "create_database_row" && s.outcome === "declined"), "declined, the step says so", chatSteps(declinedChat));
+  check(answerOf(declinedChat).includes("Left it."), "…and the model is told");
+  check(!(await rowsAtPeer()).includes(declinedTitle), "a declined call sends nothing");
+
+  // A tool an owner takes away while a call waits for the person isn't sent.
+  const takenTitle = `Taken from the chat ${RUN}`;
+  fake.setChat((request): FakeReply =>
+    assistantCalls(request) === 0
+      ? { toolCalls: [{ name: rowTool, arguments: { database_id: peerDb.id, title: takenTitle } }] }
+      : { text: toolMessages(request).some((t) => t.includes("no longer allowed")) ? "Gone." : "?" },
+  );
+  const takenAway = await chat(ids.member, "Add one more lead", "ask", async (): Promise<ChatDecision> => {
+    await manage.setChatTools(ids.owner, conn.id, ["list_workspaces"]);
+    return "approve";
+  });
+  check(answerOf(takenAway).includes("Gone."), "a call approved after its tool was taken from the chat isn't sent", takenAway.filter((e) => e.type === "text"));
+  check(!(await rowsAtPeer()).includes(takenTitle), "…and nothing reaches the peer");
+
+  // A read-only chat isn't offered writing tools; guests aren't offered any.
+  fake.setChat((): FakeReply => ({ text: "Read only." }));
+  fake.chats.length = 0;
+  await chat(ids.member, "Look only", "read");
+  check(chatOffered(fake.chats[0]).includes(listTool) && !chatOffered(fake.chats[0]).includes(rowTool), "a read-only chat is offered reading tools only", chatOffered(fake.chats[0]));
+  await manage.setChatTools(ids.owner, conn.id, ["list_workspaces", "create_database_row"]);
+  fake.chats.length = 0;
+  await chat(ids.member, "Look only", "read");
+  check(chatOffered(fake.chats[0]).includes(listTool) && !chatOffered(fake.chats[0]).includes(rowTool), "…also when writing tools are allowed the chat", chatOffered(fake.chats[0]));
+  fake.chats.length = 0;
+  await chat(ids.guest, "What's at the peer?", "ask");
+  check(!chatOffered(fake.chats[0]).some((t) => t.startsWith(`${rawRow.slug}__`)), "a guest's chat is offered no connection tools", chatOffered(fake.chats[0]));
+
   // ── A token connection; signing out; removing ────────────────────────────────────────────────
   const token = secretsOf(rawRow).oauth!.tokens!.access_token;
   const byToken = await manage.createConnection(ids.owner, workspaceId, { name: "Peer desk", url: `${PEER}/mcp`, authType: "token", token });
@@ -736,10 +843,12 @@ try {
   check((await manage.getConnection(ids.owner, byToken.id)).url === `${PEER}/mcp`, "and the address stays as it was");
   await manage.setToolKind(ids.owner, byToken.id, "create_database_row", "read");
   await manage.setAgentGrant(ids.owner, agent.id, byToken.id, ["create_database_row"]);
+  await manage.setChatTools(ids.owner, byToken.id, ["create_database_row"]);
   const moved = await manage.updateConnection(ids.owner, byToken.id, { url: `${PEER}/mcp?moved=1`, token });
   const movedRow = moved.tools.find((t) => t.name === "create_database_row");
   check(moved.status === "ready" && movedRow?.kind === "write" && movedRow.kind === movedRow.hinted, "at a new address the tools are listed again, classed as the server marks them", { status: moved.status, error: moved.statusError, movedRow });
   check(!(await manage.listAgentGrants(ids.owner, agent.id)).some((g) => g.connectionId === byToken.id), "and agents lose its tools until given them again");
+  check(moved.chatTools.length === 0, "…and so does the chat", moved.chatTools);
   const badToken = await manage.updateConnection(ids.owner, byToken.id, { token: "not-a-real-token" });
   check(badToken.status === "error" && badToken.statusError?.startsWith("unauthorized"), "a wrong token shows as an error", badToken);
 
@@ -749,6 +858,8 @@ try {
   check(!secretsOf(afterSignOut).oauth?.tokens, "signing out forgets the peer's tokens");
   const offeredNow = await import("@/server/connections/tools").then((m) => m.agentToolset(agent.id));
   check(offeredNow.tools.length === 0, "a connection that isn't ready offers agents no tools");
+  const chatNow = await import("@/server/connections/tools").then((m) => m.chatToolset(workspaceId, { writes: true }));
+  check(chatNow.tools.length === 0, "…nor the chat");
 
   await manage.deleteConnection(ids.owner, byToken.id);
   await manage.deleteConnection(ids.owner, conn.id);

@@ -14,7 +14,7 @@ import { MAX_AGENT_SKILL_CHARS, MAX_AGENT_SKILLS, type AgentSkillRecord, type Ag
 import { pageLabel } from "@/lib/labels";
 import { describeSkill } from "@/lib/skills";
 import { AccessError, ConnectedAppReadOnlyError, pagesOthersMayEdit, requirePageAccess } from "@/server/access";
-import { aiConfig } from "@/server/ai";
+import { aiConfig, contentChars } from "@/server/ai";
 import { recordAudit } from "@/server/audit";
 import { getCollab } from "@/server/collab/bridge";
 import { labelPageLinks } from "@/server/mentions";
@@ -75,7 +75,7 @@ async function skillStates(workspaceId: string, pageIds: string[], viewer?: stri
 const SKILL_OVERHEAD = 40;
 
 /** How much of a run's prompt its skills may take, together. */
-export const agentSkillRoom = () => Math.min(MAX_AGENT_SKILL_CHARS, Math.floor(aiConfig().limits.maxInputChars / 4));
+export const agentSkillRoom = () => Math.min(MAX_AGENT_SKILL_CHARS, Math.floor(contentChars(aiConfig().limits) / 4));
 
 const attachedIds = async (agentId: string) =>
   (await db.select({ pageId: agentSkill.pageId }).from(agentSkill).where(eq(agentSkill.agentId, agentId)).orderBy(asc(agentSkill.position), asc(agentSkill.createdAt))).map(
