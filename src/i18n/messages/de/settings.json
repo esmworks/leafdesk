@@ -1947,7 +1947,7 @@
   },
   "backup": {
     "title": "Workspace sichern",
-    "description": "Lade alles aus dem Workspace als eine Datei herunter, um es hier oder auf einem anderen Leafdesk wiederherzustellen: Seiten mit ihrem Verlauf, Datenbanken, Kommentare, Dateien, Teamspaces, Gruppen und Zugriffsrechte, Agenten und Automatisierungen.",
+    "description": "Lade alles aus dem Workspace als eine Datei herunter, um es hier oder auf einem anderen Leafdesk wiederherzustellen: Seiten mit ihrem Verlauf, Datenbanken, Kommentare, Dateien, Teamspaces, Gruppen und Zugriffsrechte, Agenten und Automatisierungen. KI-Chats der Mitglieder und was die KI sich über sie merkt, bleiben draußen.",
     "button": "Sichern",
     "preparing": "Wird vorbereitet…",
     "disabled": "Backups sind zusammen mit dem Export unter Einstellungen → Sicherheit ausgeschaltet."

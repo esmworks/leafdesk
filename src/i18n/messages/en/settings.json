@@ -1947,7 +1947,7 @@
   },
   "backup": {
     "title": "Back up workspace",
-    "description": "Download everything in the workspace as one file, to restore here or on another Leafdesk: pages with their history, databases, comments, files, teamspaces, groups and access, agents and automations.",
+    "description": "Download everything in the workspace as one file, to restore here or on another Leafdesk: pages with their history, databases, comments, files, teamspaces, groups and access, agents and automations. People's AI chats and what the AI remembers about them stay out.",
     "button": "Back up",
     "preparing": "Preparing…",
     "disabled": "Backups are turned off together with export in Settings → Security."

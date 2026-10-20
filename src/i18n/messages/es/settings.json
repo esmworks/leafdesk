@@ -1947,7 +1947,7 @@
   },
   "backup": {
     "title": "Hacer copia de seguridad del espacio de trabajo",
-    "description": "Descarga todo el contenido del espacio de trabajo en un solo archivo para restaurarlo aquí o en otro Leafdesk: páginas con su historial, bases de datos, comentarios, archivos, espacios de equipo, grupos y accesos, agentes y automatizaciones.",
+    "description": "Descarga todo el contenido del espacio de trabajo en un solo archivo para restaurarlo aquí o en otro Leafdesk: páginas con su historial, bases de datos, comentarios, archivos, espacios de equipo, grupos y accesos, agentes y automatizaciones. Los chats de IA de cada persona y lo que la IA recuerda de ella quedan fuera.",
     "button": "Hacer copia",
     "preparing": "Preparando…",
     "disabled": "Las copias de seguridad se desactivan junto con la exportación en Configuración → Seguridad."

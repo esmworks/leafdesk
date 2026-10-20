@@ -865,7 +865,9 @@ without an account (nobody can sign in as them or email them); the restore lists
 invite them, and their own sign-up is unaffected. Some things belong to the server and don't
 travel: pending invitations and join requests, the invite link, SSO and SCIM setup, API tokens,
 connected apps, notifications, the audit log, agent and automation runs, and connections'
-sign-ins (connections ask to be signed in to again). Allowed email domains must be verified again,
+sign-ins (connections ask to be signed in to again). People's AI chats and what the AI remembers
+about them are theirs alone, so a backup leaves them out too, and restoring an older backup that
+held them doesn't bring them back; agents' memory travels with them. Allowed email domains must be verified again,
 a site whose address is taken on the new server is left out, and semantic search builds its index
 again when the server uses another embeddings model. *Single sign-on only* comes back as *Any
 method*, to choose again once single sign-on is set up, unless the server has its own provider

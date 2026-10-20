@@ -1947,7 +1947,7 @@
   },
   "backup": {
     "title": "Kopia zapasowa obszaru roboczego",
-    "description": "Pobierz całą zawartość obszaru roboczego jako jeden plik, aby przywrócić ją tutaj lub w innej instancji Leafdesk: strony z historią, bazy danych, komentarze, pliki, przestrzenie zespołów, grupy i uprawnienia, agentów i automatyzacje.",
+    "description": "Pobierz całą zawartość obszaru roboczego jako jeden plik, aby przywrócić ją tutaj lub w innej instancji Leafdesk: strony z historią, bazy danych, komentarze, pliki, przestrzenie zespołów, grupy i uprawnienia, agentów i automatyzacje. Czaty AI poszczególnych osób i to, co AI o nich zapamiętała, nie są uwzględniane.",
     "button": "Utwórz kopię",
     "preparing": "Przygotowywanie…",
     "disabled": "Kopie zapasowe są wyłączane razem z eksportem w sekcji Ustawienia → Bezpieczeństwo."

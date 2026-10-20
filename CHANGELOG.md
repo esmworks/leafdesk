@@ -63,6 +63,10 @@
 
 ### Fixed
 
+- **Workspace backups leave out people's AI chats and what the AI remembers about them.** Both are
+  private to each person, but a backup held everyone's, so an owner who opened the file could read
+  them. Agents' memory is still backed up. Restoring an older backup passes over the chats and
+  people's notes it holds.
 - OpenCode Go requests for models the catalog doesn't know go to its current endpoint
   (`opencode.ai/inference/go`), and its Gemini model works.
 - **Search treats the Turkish dotted and dotless i alike.** A page saying "IŞIK", "SICAKLIK" or

@@ -1947,7 +1947,7 @@
   },
   "backup": {
     "title": "Backup dello spazio di lavoro",
-    "description": "Scarica tutto il contenuto dello spazio di lavoro in un unico file, da ripristinare qui o su un altro Leafdesk: pagine con la loro cronologia, database, commenti, file, spazi del team, gruppi e accessi, agenti e automazioni.",
+    "description": "Scarica tutto il contenuto dello spazio di lavoro in un unico file, da ripristinare qui o su un altro Leafdesk: pagine con la loro cronologia, database, commenti, file, spazi del team, gruppi e accessi, agenti e automazioni. Le chat IA delle persone e ciò che l’IA ricorda di loro restano fuori.",
     "button": "Esegui backup",
     "preparing": "Preparazione…",
     "disabled": "I backup sono disattivati insieme all’esportazione in Impostazioni → Sicurezza."

@@ -38,7 +38,7 @@ import { mayCreateWorkspace } from "@/server/workspaces";
 import { BackupError, SCHEMA_TAGS } from "./export";
 
 export type { RestoreResult };
-import { BACKED_UP, backupTables, MEMBERSHIP_TABLES, WORKSPACE_MEMBERS, type BackupTable } from "./tables";
+import { BACKED_UP, backupTables, MEMBERSHIP_TABLES, NO_LONGER_BACKED_UP, WORKSPACE_MEMBERS, type BackupTable } from "./tables";
 import { entryStream, readEntry, zipEntries, ZipFormatError, type ZipEntry } from "./zip-reader";
 
 const MB = 1024 * 1024;
@@ -119,6 +119,7 @@ async function readTables(archive: string, entries: ZipEntry[], manifest: Backup
     .filter((p): p is { entry: ZipEntry; kind: { kind: "table"; table: string } } => p.kind?.kind === "table")
     .sort((a, b) => a.entry.name.localeCompare(b.entry.name));
   for (const { entry, kind } of parts) {
+    if (NO_LONGER_BACKED_UP.has(kind.table)) continue;
     const t = tables.get(kind.table);
     if (!t) throw new BackupError("invalid", `unknown table ${kind.table}`);
     total += entry.size;
@@ -152,9 +153,13 @@ async function readTables(archive: string, entries: ZipEntry[], manifest: Backup
     }
   }
   for (const { name, rows: count } of manifest.tables) {
+    if (NO_LONGER_BACKED_UP.has(name)) continue;
     if (!(name in BACKED_UP)) throw new BackupError("invalid", `unknown table ${name}`);
     if ((rows.get(name)?.length ?? 0) !== count) throw new BackupError("invalid", `${name} doesn't hold the rows the manifest says`);
   }
+  // Older backups held people's notes too; only agents' come back (see tables.ts).
+  const agents = new Set(rows.get("workspace_agent")!.map((a) => a.user_id));
+  rows.set("ai_memory", rows.get("ai_memory")!.filter((note) => agents.has(note.user_id)));
   return rows;
 }
 

@@ -1947,7 +1947,7 @@
   },
   "backup": {
     "title": "Sauvegarder l’espace de travail",
-    "description": "Téléchargez tout le contenu de l’espace de travail dans un seul fichier, pour le restaurer ici ou sur un autre Leafdesk : les pages avec leur historique, les bases de données, les commentaires, les fichiers, les espaces d’équipe, les groupes et les accès, les agents et les automatisations.",
+    "description": "Téléchargez tout le contenu de l’espace de travail dans un seul fichier, pour le restaurer ici ou sur un autre Leafdesk : les pages avec leur historique, les bases de données, les commentaires, les fichiers, les espaces d’équipe, les groupes et les accès, les agents et les automatisations. Les conversations IA de chacun et ce que l’IA retient à son sujet n’en font pas partie.",
     "button": "Sauvegarder",
     "preparing": "Préparation…",
     "disabled": "Les sauvegardes sont désactivées en même temps que l’exportation dans Paramètres → Sécurité."

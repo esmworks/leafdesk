@@ -198,7 +198,8 @@ export type ChatMessageRecord = {
 
 /**
  * AI chat conversations (#41), private to the person who had them: only they can list, read or
- * delete them. Deleted with their account, when they leave the workspace and with the workspace.
+ * delete them, and workspace backups leave them out. Deleted with their account, when they leave
+ * the workspace and with the workspace.
  * Cited pages are looked up again with the reader's current access whenever they are shown.
  */
 export const aiConversation = pgTable(
@@ -224,12 +225,14 @@ export const aiConversation = pgTable(
 /**
  * What the AI chat remembers about a person in a workspace (see server/ai-memory.ts): short notes
  * on who they are, what they work on and how they want answers, kept by the chat when they tell it
- * or written by them in the chat's Memory view. Private to that person like their conversations,
- * and deleted with their account, when they leave the workspace and with the workspace.
+ * or written by them in the chat's Memory view. Private to that person like their conversations
+ * (workspace backups leave them out too), and deleted with their account, when they leave the
+ * workspace and with the workspace.
  * `conversationId` is where the chat noted it (null: the person wrote it, or the conversation is gone).
  *
  * An agent's notes are kept here too, under its own user (server/agents/memory.ts): what its runs
- * proposed (`status` proposed, `agentRunId` the run) and what its owners kept or wrote (no run).
+ * proposed (`status` proposed, `agentRunId` the run) and what its owners kept or wrote (no run);
+ * these are backed up with the agent.
  * Only kept notes go with its runs. A proposal no owner answered goes with its run, when the run
  * is pruned; notes stay while the agent is archived and go with it.
  */

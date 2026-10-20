@@ -20,6 +20,8 @@ const ofPages =
 const ofTeamspaces: Scope = (ws) => sql`teamspace_id in (select id from teamspace where workspace_id = ${ws})`;
 const ofAgents: Scope = (ws) => sql`agent_id in (select id from workspace_agent where workspace_id = ${ws})`;
 const ofConnections: Scope = (ws) => sql`connection_id in (select id from connection where workspace_id = ${ws})`;
+/** Agents' notes: what the AI remembers about a person is theirs alone, like their chats. */
+const agentsNotes: Scope = (ws) => sql`workspace_id = ${ws} and user_id in (select user_id from workspace_agent where workspace_id = ${ws})`;
 const ofFiles: Scope = (ws) => sql`file_id in (select id from file where workspace_id = ${ws})`;
 
 /** The tables a backup holds, by SQL name, with the rows of the workspace in each. */
@@ -57,9 +59,8 @@ export const BACKED_UP: Record<string, Scope> = {
   ai_property_state: ofPages("row_id"),
   page_chunk: own,
   page_index_state: own,
-  ai_conversation: own,
   ai_usage: own,
-  ai_memory: own,
+  ai_memory: agentsNotes,
   workspace_agent: own,
   agent_usage: ofAgents,
   agent_database_share: ofAgents,
@@ -78,6 +79,9 @@ export const BACKED_UP: Record<string, Scope> = {
   // The workspace's own snippets; people's personal ones have no workspace and stay out.
   snippet: own,
 };
+
+/** Tables older backups held and later ones leave out: a restore passes over them. */
+export const NO_LONGER_BACKED_UP = new Set(["ai_conversation"]);
 
 /** The table of a workspace's members and their roles. */
 export const WORKSPACE_MEMBERS = "workspace_member";
@@ -130,6 +134,7 @@ export const LEFT_OUT: Record<string, string> = {
   storage_account: "people's own file storage and its keys, connected again on the new server",
   storage_oauth: "storage sign-ins in progress",
   storage_move: "moves of files between storages on the old server",
+  ai_conversation: "people's AI chats, which only each of them may read",
   ai_account: "people's own AI provider keys; the workspace uses the new server's AI until an owner attaches one again",
 };
 
