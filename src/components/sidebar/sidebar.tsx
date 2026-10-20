@@ -19,6 +19,7 @@ import {
   LayoutTemplate,
   LogOut,
   LogOut as LeaveIcon,
+  MessagesSquare,
   MoreHorizontal,
   Pencil,
   Plus,
@@ -27,7 +28,6 @@ import {
   Settings,
   ShieldCheck,
   SlidersHorizontal,
-  Sparkles,
   SquarePen,
   Trash2,
   Upload,
@@ -38,7 +38,7 @@ import {
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, useTransition } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { unreadCountAction } from "@/app/actions/notifications";
 import { listFavoritesAction } from "@/app/actions/page-menu";
 import { archivePageAction, createPageAction, getSidebarAction, movePageAction, renamePageAction } from "@/app/actions/pages";
@@ -1060,16 +1060,74 @@ export function Sidebar({
                   </span>
                 )}
               </IconButton>
-              {topLevel && (
-                <IconButton
-                  label={t("pages.newPage")}
-                  title={needsServer(t("pages.newPage"))}
-                  onClick={() => create(null, "page", undefined)}
-                  disabled={offline}
-                  className="h-7 w-7 disabled:opacity-50"
+              {(topLevel || aiChat) && (
+                // What to start: a page, a chat or a database.
+                <Popover
+                  trigger={({ open, toggle }) => (
+                    <IconButton
+                      label={t("pages.new")}
+                      title={needsServer(t("pages.new"))}
+                      onClick={toggle}
+                      aria-expanded={open}
+                      disabled={offline}
+                      className={cn("h-7 w-7 disabled:opacity-50", open && "bg-bg-active text-fg")}
+                    >
+                      <SquarePen className="h-4 w-4" />
+                    </IconButton>
+                  )}
                 >
-                  <SquarePen className="h-4 w-4" />
-                </IconButton>
+                  {(close) => (
+                    <>
+                      {topLevel && (
+                        <MenuItem
+                          icon={<FileText className="h-4 w-4" />}
+                          onClick={() => {
+                            close();
+                            create(null, "page", undefined);
+                          }}
+                        >
+                          {t("pages.newPage")}
+                        </MenuItem>
+                      )}
+                      {aiChat && (
+                        <MenuItem
+                          icon={<MessagesSquare className="h-4 w-4" />}
+                          onClick={() => {
+                            close();
+                            setTab("chat");
+                            router.push(chatPath(workspaceId));
+                            sidebar?.close();
+                          }}
+                        >
+                          {tAi("newChat")}
+                        </MenuItem>
+                      )}
+                      {topLevel && (
+                        <>
+                          <MenuItem
+                            icon={<Database className="h-4 w-4" />}
+                            onClick={() => {
+                              close();
+                              create(null, "database", undefined);
+                            }}
+                          >
+                            {t("pages.newDatabase")}
+                          </MenuItem>
+                          <MenuSeparator />
+                          <MenuItem
+                            icon={<LayoutTemplate className="h-4 w-4" />}
+                            onClick={() => {
+                              close();
+                              openTemplates(undefined);
+                            }}
+                          >
+                            {t("pages.fromTemplate")}
+                          </MenuItem>
+                        </>
+                      )}
+                    </>
+                  )}
+                </Popover>
               )}
               {sidebar &&
                 (sidebar.collapsed ? (
@@ -1122,7 +1180,7 @@ export function Sidebar({
             <SidebarTabs
               label={t("tabs.label")}
               tabs={tabs.map((key) => {
-                const Icon = key === "journal" ? BookOpen : key === "chat" ? Sparkles : House;
+                const Icon = key === "journal" ? BookOpen : key === "chat" ? MessagesSquare : House;
                 const label = t(`tabs.${key}`);
                 // Opening the daily notes or the chat takes the server.
                 const unreachable = offline && key !== "home" && key !== tab;
@@ -1701,8 +1759,9 @@ function ResizeHandle() {
 }
 
 /**
- * The sidebar's tabs: each an icon and its name, or only the icon (named on hover) while the
- * sidebar is too narrow for every name to show in full.
+ * The sidebar's tabs: the open one is wide, its name beside its icon; the others are narrow, only
+ * their icons. Pointing at another (or reaching it from the keyboard) widens it to show its name
+ * while the open one narrows to its icon, so one name shows at a time and none is cut short.
  */
 function SidebarTabs({
   label,
@@ -1711,31 +1770,8 @@ function SidebarTabs({
   label: string;
   tabs: { key: string; label: string; icon: React.ReactNode; selected: boolean; disabled?: boolean; title?: string; onClick: () => void }[];
 }) {
-  const list = useRef<HTMLDivElement>(null);
-  const [named, setNamed] = useState(true);
-  const names = tabs.map((tab) => tab.label).join("\n");
-  useLayoutEffect(() => {
-    const el = list.current;
-    if (!el) return;
-    const fit = () => {
-      // The names at their full width (hidden copies), against the room each tab has.
-      const widest = Math.max(...[...el.querySelectorAll<HTMLElement>("[data-tab-measure]")].map((m) => m.offsetWidth));
-      const room = (el.clientWidth - 4 - 2 * (tabs.length - 1)) / tabs.length;
-      setNamed(widest + TAB_CHROME <= room);
-    };
-    fit();
-    const observer = new ResizeObserver(fit);
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [names, tabs.length]);
-
   return (
-    <div
-      ref={list}
-      role="tablist"
-      aria-label={label}
-      className="relative mt-1.5 grid auto-cols-fr grid-flow-col gap-0.5 overflow-hidden rounded-lg bg-bg-hover p-0.5"
-    >
+    <div role="tablist" aria-label={label} className="group/tabs mt-1.5 flex gap-0.5 rounded-lg bg-bg-hover p-0.5">
       {tabs.map((tab) => (
         <button
           key={tab.key}
@@ -1744,25 +1780,34 @@ function SidebarTabs({
           aria-selected={tab.selected}
           onClick={tab.onClick}
           disabled={tab.disabled}
-          title={tab.title ?? (named ? undefined : tab.label)}
+          title={tab.title}
+          data-other-tab={tab.selected ? undefined : ""}
           className={cn(
-            "flex h-7 min-w-0 items-center justify-center gap-1.5 rounded-md border px-2 disabled:opacity-50",
-            tab.selected ? "border-border bg-bg text-fg shadow-xs" : "border-transparent text-fg-muted hover:text-fg",
+            "group/tab flex h-7 min-w-0 basis-0 items-center justify-center rounded-md border px-2 transition-[flex-grow] duration-200 ease-out disabled:opacity-50 motion-reduce:transition-none",
+            tab.selected
+              ? "grow-[3] border-border bg-bg text-fg shadow-xs group-has-[[data-other-tab]:hover]/tabs:grow group-has-[[data-other-tab]:focus-visible]/tabs:grow"
+              : "grow border-transparent text-fg-muted hover:grow-[3] hover:text-fg focus-visible:grow-[3]",
           )}
         >
           {tab.icon}
-          <span className={named ? "truncate" : "sr-only"}>{tab.label}</span>
-          <span data-tab-measure aria-hidden className="invisible absolute whitespace-nowrap">
-            {tab.label}
+          {/* A column that opens from nothing to the name's width, so the name slides in. */}
+          <span
+            className={cn(
+              "grid min-w-0 transition-[grid-template-columns] duration-200 ease-out motion-reduce:transition-none",
+              tab.selected
+                ? "grid-cols-[1fr] group-has-[[data-other-tab]:hover]/tabs:grid-cols-[0fr] group-has-[[data-other-tab]:focus-visible]/tabs:grid-cols-[0fr]"
+                : "grid-cols-[0fr] group-hover/tab:grid-cols-[1fr] group-focus-visible/tab:grid-cols-[1fr]",
+            )}
+          >
+            <span className="min-w-0 overflow-hidden">
+              <span className="block truncate ps-1.5">{tab.label}</span>
+            </span>
           </span>
         </button>
       ))}
     </div>
   );
 }
-
-/** What a tab takes besides its name: its padding and border, the icon and the gap after it. */
-const TAB_CHROME = 2 * 8 + 2 + 16 + 6;
 
 function SidebarButton({
   icon,
