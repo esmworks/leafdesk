@@ -33,7 +33,7 @@ const { createGroup } = await import("@/server/groups");
 const { createTeamspace } = await import("@/server/teamspaces");
 const { removeMember, updateWorkspaceSettings } = await import("@/server/workspaces");
 const { AccessError } = await import("@/server/access");
-const { isAiError } = await import("@/server/ai");
+const { isAiError, promptRoomFor } = await import("@/server/ai");
 const { resetAi, setAiEnv } = await import("@/server/ai/testing");
 const { startFakeOpenAi, textOf } = await import("@/server/ai/fake-openai");
 type FakeChatRequest = import("@/server/ai/fake-openai").FakeChatRequest;
@@ -43,7 +43,6 @@ const { deleteConversations, getConversation, listConversations, MAX_ROUNDS, sta
 const { setMemoryUse } = await import("@/server/ai-memory");
 const { decideChange } = await import("@/server/ai-chat-approvals");
 const { decidePageReview, getPageReview } = await import("@/server/page-review");
-const { MAX_CHAT_MESSAGE } = await import("@/lib/ai-chat");
 type ChatEvent = import("@/lib/ai-chat").ChatEvent;
 type ChatStepView = import("@/lib/ai-chat").ChatStepView;
 type ChatInput = import("@/server/ai-chat").ChatInput;
@@ -433,7 +432,17 @@ try {
   });
   check(toolResults(fake.chats[MAX_ROUNDS - 1]).at(-1)?.includes("answer now"), "…and it's told to answer before its last turn");
 
-  check((await refusal(() => startChat(dave, { workspaceId, message: "x".repeat(MAX_CHAT_MESSAGE + 1) }))) === "tooLarge", "a question longer than the limit is refused");
+  const room = await promptRoomFor(workspaceId);
+  check((await refusal(() => startChat(dave, { workspaceId, message: "x".repeat(room + 1) }))) === "tooLarge", "a question longer than the model takes is refused");
+  // A model with a larger window takes a longer question: nothing else bounds it.
+  setAiEnv({ ...AI, AI_CONTEXT_WINDOW: "200000" });
+  fake.setChat(() => ({ text: "Quite long." }));
+  const long = await ask(dave, { workspaceId, message: `${"x".repeat(150_000)} How long is this?` });
+  check(long.done && long.text === "Quite long.", "…and with a larger context window, a question of 150,000 characters is answered", {
+    room: await promptRoomFor(workspaceId),
+    error: long.error,
+  });
+  setAiEnv(AI);
   check((await refusal(() => startChat(dave, { workspaceId, message: "   " }))) === "invalid", "an empty question is refused");
   const [full] = await db
     .insert(aiConversation)

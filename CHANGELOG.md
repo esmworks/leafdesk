@@ -43,7 +43,8 @@
   answered "this conversation is full". The chat and agents now size what they send by the model's
   context window. When the model still finds it too long, older tool results are left out first
   (the model can call the tool again), then the earlier turns, and the question is asked again. A
-  conversation no longer stops at 40 questions, and a question can be 100,000 characters long.
+  conversation no longer stops at 40 questions, and a question has no fixed length: it can be as
+  long as the model's context window takes, and a long paste is no longer cut in the chat's box.
   `AI_MAX_INPUT_CHARS` is unset by default; set, it still caps every request. The writing
   assistant, AI properties, voice notes and agents' skills keep reading at most 48,000 characters.
 
