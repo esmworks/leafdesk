@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  ArrowLeft,
   Bell,
   BellOff,
   CalendarCheck,
@@ -11,6 +10,7 @@ import {
   ChevronsRight,
   ChevronUp,
   CloudOff,
+  BookOpen,
   Database,
   FileText,
   House,
@@ -38,7 +38,7 @@ import {
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Fragment, useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, useTransition } from "react";
 import { unreadCountAction } from "@/app/actions/notifications";
 import { listFavoritesAction } from "@/app/actions/page-menu";
 import { archivePageAction, createPageAction, getSidebarAction, movePageAction, renamePageAction } from "@/app/actions/pages";
@@ -48,7 +48,7 @@ import type { FavoritePage } from "@/server/page-meta";
 import { useChannel } from "@/components/collab/use-channel";
 import { ViewIcon } from "@/components/database/property-icons";
 import { markNewPage } from "@/components/page/new-page-focus";
-import { DailyNotesCalendarButton, useOpenDailyNote } from "@/components/journal/daily-notes";
+import { DailyNotesCalendar, JournalStartPicker, useOpenDailyNote } from "@/components/journal/daily-notes";
 import { cn, IconButton, MenuItem, MenuSeparator, PageIcon, pageLabel, Popover } from "@/components/ui";
 import { UserAvatar } from "@/components/user-avatar";
 import type { PageKind } from "@/db/schema/app";
@@ -115,11 +115,19 @@ function saveSet(key: string, set: Set<string>) {
 /** Where a new top-level page goes: a teamspace, null for private, undefined for the workspace default. */
 type Target = string | null | undefined;
 
+/**
+ * What the sidebar lists: the pages (with the home page), the person's daily notes, or their AI
+ * conversations. Each is a place too: the tab follows the page that is open, and a tab opens where
+ * the person last was in it (its start when there is none, or when it is already the open tab).
+ */
+type SidebarTab = "home" | "journal" | "chat";
+
 export function Sidebar({
   workspaceId,
   workspaces,
   initialTree,
   initialTeamspaces,
+  initialJournalPageId = null,
   canCreateTeamspace,
   canCreateWorkspace,
   isInstanceAdmin,
@@ -136,6 +144,8 @@ export function Sidebar({
   initialTree: TreeNode[];
   /** The teamspaces they are in, each a sidebar section. */
   initialTeamspaces: TeamspaceSummary[];
+  /** The page their daily notes go under: listed in the journal tab rather than with the pages. */
+  initialJournalPageId?: string | null;
   canCreateTeamspace: boolean;
   /** WORKSPACE_CREATION may keep "New workspace" to the server's administrators. */
   canCreateWorkspace: boolean;
@@ -153,10 +163,12 @@ export function Sidebar({
   const tc = useTranslations("common");
   const pathname = usePathname();
   const activeId = /\/p\/([\w-]+)/.exec(pathname)?.[1] ?? null;
-  const activeViewId = useSearchParams().get("view");
+  const searchParams = useSearchParams();
+  const activeViewId = searchParams.get("view");
   const sidebar = useSidebar();
   const [tree, setTree] = useState(initialTree);
   const [teamspaces, setTeamspaces] = useState(initialTeamspaces);
+  const [journalPageId, setJournalPageId] = useState(initialJournalPageId);
   const [layout, setLayout] = useState(initialLayout);
   const folded = useMemo(() => new Set<string>(layout.folded ?? []), [layout.folded]);
   // Folded sections opened to show the page being opened: only here, the saved layout stays folded.
@@ -225,6 +237,7 @@ export function Sidebar({
     if (!savingLayout.current) setLayout(initialLayout);
   }, [initialLayout]);
   useEffect(() => setTeamspaces(initialTeamspaces), [initialTeamspaces]);
+  useEffect(() => setJournalPageId(initialJournalPageId), [initialJournalPageId]);
   useEffect(() => setFavorites(initialFavorites), [initialFavorites]);
 
   const refreshFavorites = useCallback(() => {
@@ -235,6 +248,7 @@ export function Sidebar({
       .then((next) => {
         setTree(next.tree);
         setTeamspaces(next.teamspaces);
+        setJournalPageId(next.journalPageId);
       })
       .catch(() => {});
     // Renames, trash and sharing changes show up in Favorites too.
@@ -246,16 +260,20 @@ export function Sidebar({
   // The tree as last loaded is kept in this browser; offline, it replaces the one the page came
   // with (a cached page may be older than the last tree seen).
   useEffect(() => {
-    if (!offline) void saveSnapshot(user.id, treeSnapshotKey(workspaceId), { tree, teamspaces });
-  }, [offline, tree, teamspaces, user.id, workspaceId]);
+    if (!offline) void saveSnapshot(user.id, treeSnapshotKey(workspaceId), { tree, teamspaces, journalPageId });
+  }, [offline, tree, teamspaces, journalPageId, user.id, workspaceId]);
   useEffect(() => {
     if (!offline) return;
     let current = true;
-    void loadSnapshot<{ tree: TreeNode[]; teamspaces: TeamspaceSummary[] }>(user.id, treeSnapshotKey(workspaceId)).then((kept) => {
+    void loadSnapshot<{ tree: TreeNode[]; teamspaces: TeamspaceSummary[]; journalPageId?: string | null }>(
+      user.id,
+      treeSnapshotKey(workspaceId),
+    ).then((kept) => {
       // Copies from before teamspaces were kept as a bare tree; those wait for the next load.
       if (!current || !kept || Array.isArray(kept.data)) return;
       setTree(kept.data.tree);
       setTeamspaces(kept.data.teamspaces);
+      setJournalPageId(kept.data.journalPageId ?? null);
     });
     return () => {
       current = false;
@@ -323,15 +341,50 @@ export function Sidebar({
     const map = new Map<string, TreeNode[]>();
     const ids = new Set(tree.map((n) => n.id));
     for (const node of tree) {
+      // The journal is listed in its own tab, its notes under it there.
+      if (node.id === journalPageId) continue;
       // Children of hidden parents (e.g. rows) never reach the tree; orphans go to the top.
       const key = node.parentId && ids.has(node.parentId) ? node.parentId : `@${node.section}`;
       map.set(key, [...(map.get(key) ?? []), node]);
     }
     for (const list of map.values()) list.sort((a, b) => a.position - b.position);
     return map;
-  }, [tree]);
+  }, [tree, journalPageId]);
   const byId = useMemo(() => new Map(tree.map((n) => [n.id, n])), [tree]);
   const rootsOf = (section: TreeSection) => children.get(`@${section}`) ?? [];
+  const journalNotes = (journalPageId && children.get(journalPageId)) || [];
+
+  /** Whether a page is the journal or under it. */
+  function inJournal(id: string) {
+    const seen = new Set<string>();
+    for (let at: string | null = id; at && !seen.has(at); at = byId.get(at)?.parentId ?? null) {
+      if (at === journalPageId) return true;
+      seen.add(at);
+    }
+    return false;
+  }
+
+  // Daily notes are private top-level pages, so the journal only for those who may add them.
+  const tabs: SidebarTab[] = ["home", ...(topLevel ? (["journal"] as const) : []), ...(aiChat ? (["chat"] as const) : [])];
+  const routeTab: SidebarTab = onChatPage ? "chat" : topLevel && activeId && inJournal(activeId) ? "journal" : "home";
+  const [tab, setTab] = useState<SidebarTab>(routeTab);
+  // Where the person last was in each tab, in this visit.
+  const lastPath = useRef<Partial<Record<SidebarTab, string>>>({});
+  const query = searchParams.toString();
+  useEffect(() => {
+    setTab(routeTab);
+    lastPath.current[routeTab] = query ? `${pathname}?${query}` : pathname;
+  }, [routeTab, pathname, query]);
+
+  function openTab(next: SidebarTab) {
+    const back = next === tab ? undefined : lastPath.current[next];
+    setTab(next);
+    if (back) router.push(back);
+    else if (next === "journal") openDailyNote();
+    else router.push(next === "chat" ? chatPath(workspaceId) : `/w/${workspaceId}`);
+    // A new chat on the chat page only changes the address's `?c=`, which leaves a phone's drawer open.
+    if (next === "chat") sidebar?.close();
+  }
 
   /** The teamspace a page lands in under `parentId`, or at the top of `section` (null: private). */
   function spaceAt(parentId: string | null, section: TreeSection) {
@@ -436,7 +489,9 @@ export function Sidebar({
       });
     }
     const section = node.section;
-    if (section === PRIVATE_SECTION || section === SHARED_SECTION) reveal(section);
+    if (inJournal(node.id)) {
+      // Listed in the journal tab, outside the sections.
+    } else if (section === PRIVATE_SECTION || section === SHARED_SECTION) reveal(section);
     else if (section === pagesSpace?.id) reveal(PAGES_SECTION);
     else {
       reveal(TEAMSPACES_GROUP);
@@ -1063,60 +1118,37 @@ export function Sidebar({
             <span className="flex-1 truncate">{t("nav.search")}</span>
             <kbd className="font-sans text-xs text-fg-faint pointer-coarse:hidden">⌘K</kbd>
           </button>
-          <div className="mt-1.5 space-y-px">
-            {/* The full-page chat has the way back to the pages and a new chat here instead. */}
-            {onChatPage && aiChat ? (
-              <>
-                <SidebarButton icon={<ArrowLeft className="h-4 w-4 rtl:-scale-x-100" />} href={aiChat.backPath()}>
-                  {tAi("backToPages")}
-                </SidebarButton>
-                {/* Only the address's `?c=` changes, so a phone's drawer is closed here. */}
-                <SidebarButton icon={<SquarePen className="h-4 w-4" />} href={chatPath(workspaceId)} onClick={sidebar?.close}>
-                  {tAi("newChat")}
-                </SidebarButton>
-              </>
-            ) : (
-              <>
-                <SidebarButton icon={<House className="h-4 w-4" />} href={`/w/${workspaceId}`} active={pathname === `/w/${workspaceId}`}>
-                  {t("nav.home")}
-                </SidebarButton>
-                {/* Daily notes are private top-level pages, so only for those who may add them. */}
-                {topLevel && (
-                  <DailyNotesCalendarButton
-                    workspaceId={workspaceId}
-                    disabled={offline}
-                    title={offline ? needsServer(tJournal("calendar")) : undefined}
-                    leading={
-                      <SidebarButton
-                        icon={<CalendarCheck className="h-4 w-4" />}
-                        onClick={() => openDailyNote()}
-                        disabled={offline || openingDailyNote}
-                        title={offline ? needsServer(tJournal("openToday")) : tJournal("openToday")}
-                      >
-                        {tJournal("today")}
-                      </SidebarButton>
-                    }
-                  />
-                )}
-                {/* The full-page AI chat; the people directory and skills are in the footer's "More" menu. */}
-                {aiChat &&
-                  (offline ? (
-                    <SidebarButton icon={<Sparkles className="h-4 w-4" />} disabled title={needsServer(tAi("open"))}>
-                      {tAi("open")}
-                    </SidebarButton>
-                  ) : (
-                    <SidebarButton icon={<Sparkles className="h-4 w-4" />} href={chatPath(workspaceId)}>
-                      {tAi("open")}
-                    </SidebarButton>
-                  ))}
-              </>
-            )}
-            {dailyNoteError && (
-              <p role="alert" className="px-2 text-xs text-danger">
-                {dailyNoteError}
-              </p>
-            )}
-          </div>
+          {tabs.length > 1 ? (
+            <SidebarTabs
+              label={t("tabs.label")}
+              tabs={tabs.map((key) => {
+                const Icon = key === "journal" ? BookOpen : key === "chat" ? Sparkles : House;
+                const label = t(`tabs.${key}`);
+                // Opening the daily notes or the chat takes the server.
+                const unreachable = offline && key !== "home" && key !== tab;
+                return {
+                  key,
+                  label,
+                  icon: <Icon className="h-4 w-4 shrink-0" />,
+                  selected: tab === key,
+                  disabled: unreachable || (key === "journal" && openingDailyNote),
+                  title: unreachable ? needsServer(label) : undefined,
+                  onClick: () => openTab(key),
+                };
+              })}
+            />
+          ) : (
+            <div className="mt-1.5">
+              <SidebarButton icon={<House className="h-4 w-4" />} href={`/w/${workspaceId}`} active={pathname === `/w/${workspaceId}`}>
+                {t("nav.home")}
+              </SidebarButton>
+            </div>
+          )}
+          {dailyNoteError && (
+            <p role="alert" className="mt-1 px-2 text-xs text-danger">
+              {dailyNoteError}
+            </p>
+          )}
         </div>
 
         <div className="pt-1" />
@@ -1130,10 +1162,38 @@ export function Sidebar({
             {actionError}
           </p>
         )}
-        <nav className="flex-1 overflow-y-auto px-2 pb-4" aria-label={onChatPage ? tAi("history") : t("pages.heading")}>
-          {/* The full-page chat lists the conversations in place of the pages. */}
-          {onChatPage ? (
-            <ConversationList />
+        <nav
+          className="flex-1 overflow-y-auto px-2 pb-4"
+          aria-label={tab === "chat" ? tAi("history") : tab === "journal" ? t("tabs.journal") : t("pages.heading")}
+        >
+          {tab === "chat" && aiChat ? (
+            <>
+              <SidebarButton icon={<SquarePen className="h-4 w-4" />} onClick={() => openTab("chat")}>
+                {tAi("newChat")}
+              </SidebarButton>
+              <div className="mt-2">
+                <ConversationList />
+              </div>
+            </>
+          ) : tab === "journal" ? (
+            <>
+              <div className="px-1 pt-1 pb-3">
+                <DailyNotesCalendar workspaceId={workspaceId} notesKey={journalNotes.map((n) => n.id).join()} />
+              </div>
+              <section aria-labelledby="journal-notes-heading" className="mb-2">
+                <h2 id="journal-notes-heading" className="flex h-7 items-center px-2 text-xs font-medium text-fg-muted">
+                  {tJournal("notes")}
+                </h2>
+                {journalNotes.length === 0 ? (
+                  <p className="px-2 py-1 text-xs text-fg-faint">{tJournal("noNotes")}</p>
+                ) : (
+                  <TreeLevel nodes={journalNotes} depth={0} {...treeProps} />
+                )}
+              </section>
+              <div className="px-2">
+                <JournalStartPicker workspaceId={workspaceId} />
+              </div>
+            </>
           ) : customizing ? (
             <CustomizeSections
               sections={sidebarOrder(layout)
@@ -1148,7 +1208,7 @@ export function Sidebar({
               .filter((key) => !hiddenSections.has(key))
               .map((key) => <Fragment key={key}>{sectionContent[key]}</Fragment>)
           )}
-          {!onChatPage && guest && tree.length === 0 && !topLevel && <p className="px-2 py-1.5 text-fg-muted">{t("pages.nothingShared")}</p>}
+          {tab === "home" && guest && tree.length === 0 && !topLevel && <p className="px-2 py-1.5 text-fg-muted">{t("pages.nothingShared")}</p>}
         </nav>
 
         <div className="flex items-center gap-0.5 border-t border-border px-2 py-1.5">
@@ -1639,6 +1699,70 @@ function ResizeHandle() {
     />
   );
 }
+
+/**
+ * The sidebar's tabs: each an icon and its name, or only the icon (named on hover) while the
+ * sidebar is too narrow for every name to show in full.
+ */
+function SidebarTabs({
+  label,
+  tabs,
+}: {
+  label: string;
+  tabs: { key: string; label: string; icon: React.ReactNode; selected: boolean; disabled?: boolean; title?: string; onClick: () => void }[];
+}) {
+  const list = useRef<HTMLDivElement>(null);
+  const [named, setNamed] = useState(true);
+  const names = tabs.map((tab) => tab.label).join("\n");
+  useLayoutEffect(() => {
+    const el = list.current;
+    if (!el) return;
+    const fit = () => {
+      // The names at their full width (hidden copies), against the room each tab has.
+      const widest = Math.max(...[...el.querySelectorAll<HTMLElement>("[data-tab-measure]")].map((m) => m.offsetWidth));
+      const room = (el.clientWidth - 4 - 2 * (tabs.length - 1)) / tabs.length;
+      setNamed(widest + TAB_CHROME <= room);
+    };
+    fit();
+    const observer = new ResizeObserver(fit);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [names, tabs.length]);
+
+  return (
+    <div
+      ref={list}
+      role="tablist"
+      aria-label={label}
+      className="relative mt-1.5 grid auto-cols-fr grid-flow-col gap-0.5 overflow-hidden rounded-lg bg-bg-hover p-0.5"
+    >
+      {tabs.map((tab) => (
+        <button
+          key={tab.key}
+          type="button"
+          role="tab"
+          aria-selected={tab.selected}
+          onClick={tab.onClick}
+          disabled={tab.disabled}
+          title={tab.title ?? (named ? undefined : tab.label)}
+          className={cn(
+            "flex h-7 min-w-0 items-center justify-center gap-1.5 rounded-md border px-2 disabled:opacity-50",
+            tab.selected ? "border-border bg-bg text-fg shadow-xs" : "border-transparent text-fg-muted hover:text-fg",
+          )}
+        >
+          {tab.icon}
+          <span className={named ? "truncate" : "sr-only"}>{tab.label}</span>
+          <span data-tab-measure aria-hidden className="invisible absolute whitespace-nowrap">
+            {tab.label}
+          </span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
+/** What a tab takes besides its name: its padding and border, the icon and the gap after it. */
+const TAB_CHROME = 2 * 8 + 2 + 16 + 6;
 
 function SidebarButton({
   icon,

@@ -1,8 +1,8 @@
 "use client";
 
 /**
- * The sidebar of the full-page chat: the person's conversations in place of the page tree, newest
- * first. The way back to the pages and a new chat are above it, where Home is on other pages.
+ * The sidebar's chat tab: the person's conversations in place of the page tree, newest first, under
+ * a new chat.
  * Deleting, one or all, is in a ⋯ menu so a stray click doesn't lose a conversation.
  */
 import { Loader2, MoreHorizontal, Trash2 } from "lucide-react";

@@ -19,6 +19,12 @@
     "skills": "Skills",
     "more": "Mehr"
   },
+  "tabs": {
+    "label": "Seitenleiste",
+    "home": "Startseite",
+    "journal": "Journal",
+    "chat": "Chat"
+  },
   "toggle": {
     "open": "Seitenleiste öffnen",
     "close": "Seitenleiste ausblenden",

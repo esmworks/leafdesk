@@ -19,6 +19,12 @@
     "skills": "Competenze",
     "more": "Altro"
   },
+  "tabs": {
+    "label": "Barra laterale",
+    "home": "Home",
+    "journal": "Diario",
+    "chat": "Chat"
+  },
   "toggle": {
     "open": "Apri la barra laterale",
     "close": "Nascondi la barra laterale",

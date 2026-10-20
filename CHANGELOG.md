@@ -22,6 +22,12 @@
 
 ### Changed
 
+- **The sidebar has three tabs: Home, Journal and Chat.** Home lists your pages as before. Journal
+  holds your daily notes: a month calendar, the notes themselves and how new ones start, so the
+  journal page no longer sits among your private pages. Chat lists your conversations under a new
+  chat. Each tab follows the page you have open, and going back to a tab takes you to where you
+  last were in it; clicking the tab you are on goes to its start (the home page, today's note, a
+  new chat).
 - **Your mailbox and calendar addresses have their own page under your account.** The new
   **Settings → Email and calendar** (under My account) is where you connect, change or disconnect
   your mailbox for each workspace with email on rows, and where every calendar address you made,

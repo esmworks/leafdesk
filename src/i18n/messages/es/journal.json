@@ -1,5 +1,4 @@
 {
-  "today": "Hoy",
   "todayNote": "Nota de hoy",
   "openToday": "Abrir la nota de hoy",
   "startToday": "Empezar la nota de hoy",
@@ -16,5 +15,7 @@
   "openFailed": "No se pudo abrir la nota diaria",
   "saveFailed": "No se pudo guardar el ajuste",
   "searchHint": "tus notas diarias",
-  "yesterday": "Nota de ayer"
+  "yesterday": "Nota de ayer",
+  "notes": "Notas",
+  "noNotes": "Aún no hay notas. Elige un día para empezar una."
 }

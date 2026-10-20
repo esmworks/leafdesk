@@ -19,6 +19,12 @@
     "skills": "Skills",
     "more": "More"
   },
+  "tabs": {
+    "label": "Sidebar",
+    "home": "Home",
+    "journal": "Journal",
+    "chat": "Chat"
+  },
   "toggle": {
     "open": "Open sidebar",
     "close": "Hide sidebar",

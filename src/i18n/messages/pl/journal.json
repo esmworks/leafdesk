@@ -1,5 +1,4 @@
 {
-  "today": "Dziś",
   "todayNote": "Dzisiejsza notatka",
   "openToday": "Otwórz dzisiejszą notatkę",
   "startToday": "Zacznij dzisiejszą notatkę",
@@ -16,5 +15,7 @@
   "openFailed": "Nie udało się otworzyć notatki dziennej",
   "saveFailed": "Nie udało się zapisać ustawienia",
   "searchHint": "twoje notatki dzienne",
-  "yesterday": "Wczorajsza notatka"
+  "yesterday": "Wczorajsza notatka",
+  "notes": "Notatki",
+  "noNotes": "Nie ma jeszcze notatek. Wybierz dzień, aby zacząć."
 }

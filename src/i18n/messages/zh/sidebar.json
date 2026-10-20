@@ -19,6 +19,12 @@
     "skills": "技能",
     "more": "更多"
   },
+  "tabs": {
+    "label": "侧边栏",
+    "home": "主页",
+    "journal": "日志",
+    "chat": "聊天"
+  },
   "toggle": {
     "open": "打开侧边栏",
     "close": "隐藏侧边栏",

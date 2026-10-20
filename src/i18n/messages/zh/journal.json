@@ -1,5 +1,4 @@
 {
-  "today": "今天",
   "todayNote": "今日笔记",
   "openToday": "打开今日笔记",
   "startToday": "开始今日笔记",
@@ -16,5 +15,7 @@
   "openFailed": "无法打开每日笔记",
   "saveFailed": "无法保存设置",
   "searchHint": "你的每日笔记",
-  "yesterday": "昨日笔记"
+  "yesterday": "昨日笔记",
+  "notes": "笔记",
+  "noNotes": "还没有笔记。选一天开始写吧。"
 }

@@ -1,5 +1,4 @@
 {
-  "today": "오늘",
   "todayNote": "오늘의 노트",
   "openToday": "오늘의 노트 열기",
   "startToday": "오늘의 노트 시작",
@@ -16,5 +15,7 @@
   "openFailed": "데일리 노트를 열 수 없습니다",
   "saveFailed": "설정을 저장할 수 없습니다",
   "searchHint": "내 데일리 노트",
-  "yesterday": "어제의 노트"
+  "yesterday": "어제의 노트",
+  "notes": "노트",
+  "noNotes": "아직 노트가 없습니다. 날짜를 골라 시작하세요."
 }

@@ -1,5 +1,4 @@
 {
-  "today": "Bugün",
   "todayNote": "Bugünün notu",
   "openToday": "Bugünün notunu aç",
   "startToday": "Bugünün notunu başlat",
@@ -16,5 +15,7 @@
   "openFailed": "Günlük not açılamadı",
   "saveFailed": "Ayar kaydedilemedi",
   "searchHint": "günlük notların",
-  "yesterday": "Dünün notu"
+  "yesterday": "Dünün notu",
+  "notes": "Notlar",
+  "noNotes": "Henüz not yok. Başlamak için bir gün seçin."
 }

@@ -1,5 +1,4 @@
 {
-  "today": "Today",
   "todayNote": "Today's note",
   "openToday": "Open today's note",
   "startToday": "Start today's note",
@@ -16,5 +15,7 @@
   "openFailed": "Couldn't open the daily note",
   "saveFailed": "Couldn't save the setting",
   "searchHint": "your daily notes",
-  "yesterday": "Yesterday's note"
+  "yesterday": "Yesterday's note",
+  "notes": "Notes",
+  "noNotes": "No notes yet. Pick a day to start one."
 }
