@@ -669,11 +669,26 @@
 /*
  * Settings screens (a workspace's, the account's and the server's) are read more than scanned:
  * their notes, hints and small buttons take 13px instead of the 12px text-xs gives elsewhere.
- * Every text-xs inside, dialogs opened from there included, reads this variable.
+ * Every text-xs inside, dialogs opened from there included, reads this variable. Their secondary
+ * and faint text share one gray, 5:1 or more on the page and its cards in either theme, so a hint
+ * reads as well as a description; high contrast keeps its own colors.
  */
 .settings-type {
   --text-xs: 0.8125rem;
   --text-xs--line-height: 1.45;
+  --fg: #1c2126;
+  --fg-muted: #5f676f;
+  --fg-faint: #5f676f;
+  @variant dark {
+    --fg: #e9e9e7;
+    --fg-muted: #90908b;
+    --fg-faint: #90908b;
+  }
+  @variant high-contrast {
+    --fg: inherit;
+    --fg-muted: inherit;
+    --fg-faint: inherit;
+  }
 }
 
 .board-card {
