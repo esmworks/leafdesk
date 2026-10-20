@@ -31,6 +31,7 @@ import {
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
+import { createPortal } from "react-dom";
 import type * as Y from "yjs";
 import {
   duplicatePageAction,
@@ -769,22 +770,26 @@ function PageMenu({
           </div>
         )}
       </Popover>
-      <MoveDialog
-        open={moveOpen}
-        workspaceId={workspaceId}
-        pageId={page.id}
-        isDatabase={isDatabase}
-        currentParentId={page.parentId}
-        guest={info.guest}
-        onClose={() => setMoveOpen(false)}
-      />
+      {moveOpen &&
+        typeof document !== "undefined" &&
+        // The header's backdrop blur would otherwise hold the fixed overlay to the header's own box.
+        createPortal(
+          <MoveDialog
+            workspaceId={workspaceId}
+            pageId={page.id}
+            isDatabase={isDatabase}
+            currentParentId={page.parentId}
+            guest={info.guest}
+            onClose={() => setMoveOpen(false)}
+          />,
+          document.body,
+        )}
     </>
   );
 }
 
 /** Pick a new parent: any page or database in the sidebar tree except this page and its subpages. */
 function MoveDialog({
-  open,
   workspaceId,
   pageId,
   isDatabase,
@@ -792,7 +797,6 @@ function MoveDialog({
   guest,
   onClose,
 }: {
-  open: boolean;
   workspaceId: string;
   pageId: string;
   isDatabase: boolean;
@@ -810,16 +814,13 @@ function MoveDialog({
   const [pending, startTransition] = useTransition();
 
   useEffect(() => {
-    if (!open) return;
-    setQuery("");
-    setError(null);
     getSidebarAction(workspaceId)
       .then((next) => {
         setTree(next.tree);
         setTeamspaces(next.teamspaces);
       })
       .catch(() => setTree([]));
-  }, [open, workspaceId]);
+  }, [workspaceId]);
 
   const targets = useMemo(() => {
     // This page and everything under it can't take it in.
@@ -877,7 +878,7 @@ function MoveDialog({
     });
 
   return (
-    <Dialog open={open} onClose={onClose} className="max-w-md">
+    <Dialog open onClose={onClose} className="max-w-md">
       <div className="flex items-center gap-2 border-b border-border px-3">
         <Search className="h-4 w-4 text-fg-muted" />
         <input
