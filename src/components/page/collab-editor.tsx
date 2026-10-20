@@ -211,6 +211,8 @@ export default function CollabEditor({
       schema: pageEditorSchema,
       dictionary,
       uploadFile,
+      // Selected table cells can be merged into one, and a merged cell split again.
+      tables: { splitCells: true },
       extensions: [KeepUndoAttached(), FindReplace(), codeHighlighting(), BlockDirection(), comments],
       // A synced block copied with "Copy synced block" lands as a reference; none lands inside one.
       pasteHandler: ({ event, editor, defaultPasteHandler }) => {

@@ -4,6 +4,11 @@
 
 ### Added
 
+- **Merge table cells.** Select cells of a table on a page and merge them into one from the
+  formatting toolbar, across columns, rows or both; the cell's menu splits a merged cell again.
+  Merged cells show on published pages, Markdown export writes the table as a full grid with the
+  places a merged cell covered left empty, and turning the table into a database does the same.
+  Saving a page from its Markdown source names merged cells among what Markdown can't keep.
 - **The AI chat can use connections' tools.** Owners tick **In chat** next to a connection's tools
   (Settings → Connections → a connection → Tools), and members' chats may call them; guests' chats
   never get them. Reading tools run at once and show as a step under the answer. A tool that
@@ -118,6 +123,10 @@
 
 ### Fixed
 
+- **A line break in a table cell no longer scrambles the table in Markdown.** It is written `<br>`,
+  so the row stays on one line. It used to end the row, so reading the Markdown back (the Markdown
+  source view, imports of an export, AI tools editing the page) made an extra row and moved the
+  text after the break into the wrong cells.
 - **A service that turns down Leafdesk's sign-in says why.** When a connection's server took
   registrations but refused Leafdesk's, the settings said the service doesn't let Leafdesk register
   itself. Now a server that won't send sign-ins back to Leafdesk names the address its admin has to

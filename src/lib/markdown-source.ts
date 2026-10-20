@@ -4,6 +4,7 @@
  * editor's scrolling. Pure, shared by the browser and the server.
  */
 import { mapSyncedRegions, syncedKey } from "./synced-blocks";
+import { cellGrid } from "./table-to-database";
 
 // ---------------------------------------------------------------------------------------------
 // What Markdown can't hold
@@ -113,14 +114,23 @@ function compareTable(before: TableContent, after: TableContent, found: Set<Mark
   // Column widths, header rows and the like.
   if (!same(restBefore, restAfter)) found.add("table");
   if (rowsBefore.length !== rowsAfter.length) found.add("content");
-  rowsBefore.forEach((row, r) => {
-    const cellsBefore = row.cells ?? [];
-    const cellsAfter = rowsAfter[r]?.cells ?? [];
+  // Compared place by place: Markdown has no merged cells, so a merged cell comes back as its
+  // first place's cell and empty ones for the places it covered.
+  const gridAfter = cellGrid(rowsAfter);
+  const parts = (value: Cell) => (Array.isArray(value) ? { props: {}, content: value } : { props: value.props ?? {}, content: value.content });
+  cellGrid(rowsBefore).forEach((cellsBefore, r) => {
+    const cellsAfter = gridAfter[r] ?? [];
     if (cellsBefore.length !== cellsAfter.length) found.add("content");
     cellsBefore.forEach((cell, c) => {
       const other = cellsAfter[c];
       if (other === undefined) return;
-      const parts = (value: Cell) => (Array.isArray(value) ? { props: {}, content: value } : { props: value.props ?? {}, content: value.content });
+      if (cell === null || other === null) {
+        // A merge made or undone: the cell on the other side should be empty.
+        found.add("table");
+        const filled = cell ?? other;
+        if (filled) compareContent(parts(filled).content ?? [], [], found);
+        return;
+      }
       const a = parts(cell);
       const b = parts(other);
       if (!same(a.props, b.props)) found.add("table");

@@ -183,6 +183,16 @@ export function prepareMarkdownExport<B extends MdBlock>(
   const notes: string[] = [];
   const blockToken = (markdown: string) => `leafdesk${nonce}b${blockMarkdown.push(markdown) - 1}x`;
   const dollarToken = `leafdesk${nonce}dx`;
+  // A line break in a table cell is written `<br>`: a Markdown table row has to stay on one line.
+  const cellBreakToken = `leafdesk${nonce}rx`;
+  const cellBreaks = (content: unknown): unknown =>
+    Array.isArray(content)
+      ? content.map((node: Inline) => {
+          if (node?.type === "text" && typeof node.text === "string") return { ...node, text: node.text.replaceAll("\n", cellBreakToken) };
+          if (node?.type === "link") return { ...node, content: cellBreaks(node.content) };
+          return node;
+        })
+      : content;
 
   // Superscript and subscript have no Markdown of their own: a text in one of them is written
   // between `<sup>`/`<sub>` tags (lib/text-scripts). BlockNote writes every text node with its own
@@ -205,7 +215,7 @@ export function prepareMarkdownExport<B extends MdBlock>(
           rows: content.rows.map((row: { cells?: unknown[] }) => ({
             ...row,
             cells: (row.cells ?? []).map((cell) =>
-              Array.isArray(cell) ? inline(cell) : isObject(cell) ? { ...cell, content: inline(cell.content) } : cell,
+              Array.isArray(cell) ? cellBreaks(inline(cell)) : isObject(cell) ? { ...cell, content: cellBreaks(inline(cell.content)) } : cell,
             ),
           })),
         };
@@ -401,7 +411,8 @@ export function prepareMarkdownExport<B extends MdBlock>(
       )
         .replace(new RegExp(`leafdesk${nonce}(e?)(sup|sub)x`, "g"), (_, end: string, tag: string) => `<${end ? "/" : ""}${tag}>`)
         .replace(new RegExp(`leafdesk${nonce}i(\\d+)x`, "g"), (_, i: string) => inlineMarkdown[Number(i)])
-        .replaceAll(dollarToken, () => "\\$"),
+        .replaceAll(dollarToken, () => "\\$")
+        .replaceAll(cellBreakToken, "<br>"),
     );
 
   return { blocks: replace(blocks), finish };

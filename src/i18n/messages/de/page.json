@@ -783,7 +783,7 @@
         "mediaSize": "Bild- und Videogrößen",
         "callout": "Callout-Farben und -Symbole, für die Markdown keine Form hat",
         "textStyle": "Manche Textformatierung, etwa Unterstreichung",
-        "table": "Spaltenbreiten, Kopfzeilen und Zellfarben von Tabellen",
+        "table": "Spaltenbreiten, Kopfzeilen, verbundene Zellen und Zellfarben von Tabellen",
         "blockSetting": "Andere Blockeinstellungen",
         "content": "Manche Inhalte, die Markdown nicht abbilden kann"
       },

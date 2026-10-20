@@ -783,7 +783,7 @@
         "mediaSize": "Tamaños de imágenes y videos",
         "callout": "Colores e iconos de textos destacados que Markdown no puede representar",
         "textStyle": "Parte del formato del texto, como el subrayado",
-        "table": "Anchos de columna, filas de encabezado y colores de celda de las tablas",
+        "table": "Anchos de columna, filas de encabezado, celdas combinadas y colores de celda de las tablas",
         "blockSetting": "Otros ajustes de bloques",
         "content": "Parte del contenido que Markdown no puede guardar"
       },

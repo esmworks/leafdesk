@@ -28,32 +28,47 @@ export function inlineText(content: unknown): string {
 const span = (n: unknown) => (typeof n === "number" && Number.isInteger(n) && n > 1 ? n : 1);
 
 /**
- * A table block's cells as rows of text, every row as wide as the widest. A merged cell's text goes
- * to its first (top left) position; the positions it covers stay empty, as empty cells do.
+ * A table's cells by their place in the grid: a merged cell at its first (top left) place, null at
+ * the places it covers. The table's own rows hold only the cells that start in them, so a row after
+ * a merge has fewer cells than the grid is wide.
  */
-export function tableRecords(content: TableBlockContent | null | undefined): string[][] {
-  const grid: (string | undefined)[][] = [];
-  (content?.rows ?? []).forEach((row, r) => {
+export function cellGrid<C>(rows: readonly { cells?: C[] }[]): (C | null)[][] {
+  const grid: (C | null)[][] = [];
+  rows.forEach((row, r) => {
     const line = (grid[r] ??= []);
     let c = 0;
     for (const cell of row.cells ?? []) {
-      // Positions a cell above still covers are skipped.
+      // Places a cell above still covers are skipped.
       while (line[c] !== undefined) c++;
-      const isCell = !Array.isArray(cell) && cell?.type === "tableCell";
-      const text = inlineText(isCell ? cell.content : cell);
-      const cols = isCell ? span(cell.props?.colspan) : 1;
-      const rows = isCell ? span(cell.props?.rowspan) : 1;
+      const merged = cell as { type?: unknown; props?: { colspan?: unknown; rowspan?: unknown } } | null;
+      const props = !Array.isArray(cell) && merged?.type === "tableCell" ? merged.props : undefined;
+      const cols = span(props?.colspan);
+      const rows = span(props?.rowspan);
       for (let dr = 0; dr < rows; dr++) {
         const covered = (grid[r + dr] ??= []);
-        for (let dc = 0; dc < cols; dc++) covered[c + dc] = dr === 0 && dc === 0 ? text : "";
+        for (let dc = 0; dc < cols; dc++) covered[c + dc] = dr === 0 && dc === 0 ? cell : null;
       }
       c += cols;
     }
   });
   // Rows a merged cell reaches past the table's end aren't the table's.
-  const rows = grid.slice(0, content?.rows?.length ?? 0);
-  const width = Math.max(0, ...rows.map((row) => row.length));
-  return rows.map((row) => Array.from({ length: width }, (_, i) => row[i] ?? ""));
+  return grid.slice(0, rows.length);
+}
+
+/**
+ * A table block's cells as rows of text, every row as wide as the widest. A merged cell's text goes
+ * to its first (top left) position; the positions it covers stay empty, as empty cells do.
+ */
+export function tableRecords(content: TableBlockContent | null | undefined): string[][] {
+  const grid = cellGrid(content?.rows ?? []);
+  const width = Math.max(0, ...grid.map((row) => row.length));
+  return grid.map((row) =>
+    Array.from({ length: width }, (_, i) => {
+      const cell = row[i];
+      if (!cell) return "";
+      return inlineText(!Array.isArray(cell) && cell.type === "tableCell" ? cell.content : cell);
+    }),
+  );
 }
 
 /**
