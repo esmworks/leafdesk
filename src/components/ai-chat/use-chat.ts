@@ -8,13 +8,15 @@
  * into an empty box, the rest still queued to follow it. Switching conversations or starting a new
  * one cancels the answer too, and keeps the conversation's queued questions for when it's opened
  * again. The mode (what the chat may change) is remembered in the browser; in mode `ask` a change
- * the model wants to make waits, as `pending`, for the person's decision.
+ * the model wants to make waits, as `pending`, for the person's decision. A long paste shows in the
+ * box as a label (lib/chat-paste.ts) and is sent in its place.
  */
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { decideChangeAction, deleteConversationAction, getConversationAction } from "@/app/actions/ai";
 import { isAiErrorCode } from "@/lib/ai";
 import { CHAT_MODES, changedThings, thoughtText, type ChatActionView, type ChatEvent, type ChatMessageView, type ChatMode } from "@/lib/ai-chat";
+import { EMPTY_DRAFT, expandDraft, insertPaste, pasteLineCount, syncDraft, uniqueLabel, type ChatDraft } from "@/lib/chat-paste";
 import { holdAnswering } from "./answering";
 
 /** What the model is doing while an answer is on its way: working on a turn, or writing. */
@@ -103,7 +105,8 @@ export function useChat(
   const ta = useTranslations("ai");
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [input, setInput] = useState("");
+  const [draft, setDraft] = useState<ChatDraft>(EMPTY_DRAFT);
+  const input = draft.text;
   const [status, setStatus] = useState<ChatStatus | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [mode, setModeState] = useState<ChatMode>("ask");
@@ -122,6 +125,19 @@ export function useChat(
   const inputNow = useRef(input);
   inputNow.current = input;
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  /** The box's text, typed or set; a paste whose label is no longer in it goes. */
+  const setInput = useCallback((text: string) => setDraft((d) => syncDraft(d, text)), []);
+  /**
+   * Puts a long paste in the box as a label, in place of `start..end`; returns where the caret goes
+   * (after the label).
+   */
+  const pasteInput = (text: string, start: number, end: number) => {
+    const label = uniqueLabel(draft.pastes, t("pasted", { count: pasteLineCount(text) }));
+    const next = insertPaste(draft, text, label, start, end);
+    inputNow.current = next.text;
+    setDraft(next);
+    return Math.min(start, end) + label.length;
+  };
   // The latest callbacks, without restarting anything when the caller passes new ones.
   const callbacks = useRef({ onConversation, onAnswered });
   callbacks.current = { onConversation, onAnswered };
@@ -193,7 +209,7 @@ export function useChat(
    * question is queued instead.
    */
   async function send(scopePageId: string | null, again?: { question: string; skill?: ChatSkillPick }) {
-    const question = (again?.question ?? input).trim();
+    const question = (again?.question ?? expandDraft(draft)).trim();
     if (!question) return;
     if (running) {
       if (again) return;
@@ -419,6 +435,8 @@ export function useChat(
     messages,
     input,
     setInput,
+    pastes: draft.pastes,
+    pasteInput,
     status,
     error,
     running,

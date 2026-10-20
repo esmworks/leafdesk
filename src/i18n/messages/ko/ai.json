@@ -134,6 +134,7 @@
     "intro": "이 워크스페이스의 무엇이든 물어보세요. 내가 열 수 있는 페이지를 바탕으로 해당 페이지 링크와 함께 답변합니다.",
     "placeholder": "질문하기…",
     "placeholderBusy": "다음 질문 입력: 이 답변이 끝나면 전송됩니다…",
+    "pasted": "[붙여넣음: {count, plural, other {#줄}}]",
     "send": "보내기",
     "stop": "중지",
     "queue": {

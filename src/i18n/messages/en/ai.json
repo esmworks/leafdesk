@@ -134,6 +134,7 @@
     "intro": "Ask about anything in this workspace. Answers come from the pages you can open, with links to them.",
     "placeholder": "Ask a question…",
     "placeholderBusy": "Ask the next question: it waits for this answer…",
+    "pasted": "[Pasted {count, plural, one {# line} other {# lines}}]",
     "send": "Send",
     "stop": "Stop",
     "queue": {

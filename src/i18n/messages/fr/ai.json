@@ -134,6 +134,7 @@
     "intro": "Posez une question sur n’importe quel sujet de cet espace de travail. Les réponses viennent des pages que vous pouvez ouvrir, avec des liens vers elles.",
     "placeholder": "Posez une question…",
     "placeholderBusy": "Posez la question suivante : elle attend cette réponse…",
+    "pasted": "[Collé : {count, plural, one {# ligne} other {# lignes}}]",
     "send": "Envoyer",
     "stop": "Arrêter",
     "queue": {

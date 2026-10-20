@@ -27,11 +27,12 @@ import {
   Zap,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { Fragment, lazy, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { Fragment, lazy, Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
 import { BlockChanges } from "@/components/page/history-diff";
 import { copyText } from "@/components/settings/copy-button";
 import { Button, cn, IconButton, MenuItem, Popover } from "@/components/ui";
 import { CHAT_MODES, changedMemory, changedThings, type ChatMode, type ChatSourceView, stripCitations } from "@/lib/ai-chat";
+import { caretOutsideLabels, deleteLabel, normalizePaste, shouldCollapsePaste, type PastePart } from "@/lib/chat-paste";
 import { MemoryDialog } from "./memory-dialog";
 import { SkillChip, SkillList, useSkillPicker } from "./skill-picker";
 import { PageLink, StepLine } from "./step-line";
@@ -61,6 +62,14 @@ export function ChatThread({
   const { messages, status, error, input, setInput, running, inputRef } = chat;
   const listRef = useRef<HTMLDivElement>(null);
   const page = variant === "page";
+  // While the box holds a paste, its text is drawn behind it with the labels as chips.
+  const chipsRef = useRef<HTMLDivElement>(null);
+  const caretWas = useRef(0);
+  const chips = chat.pastes.length > 0;
+  const boxText = cn("block min-h-7 w-full py-1", page ? "px-1 text-[15px] leading-6" : "text-sm");
+  useLayoutEffect(() => {
+    if (chipsRef.current && inputRef.current) chipsRef.current.scrollTop = inputRef.current.scrollTop;
+  }, [input, inputRef]);
   const skills = useSkillPicker({
     workspaceId: chat.workspaceId,
     input,
@@ -196,35 +205,71 @@ export function ChatThread({
                   }}
                 />
               )}
-              <textarea
-                ref={inputRef}
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (skills.onKeyDown(e)) {
+              <div className="relative">
+                {chips && <PasteChips text={input} pastes={chat.pastes} boxRef={chipsRef} className={boxText} />}
+                <textarea
+                  ref={inputRef}
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onScroll={(e) => {
+                    if (chipsRef.current) chipsRef.current.scrollTop = e.currentTarget.scrollTop;
+                  }}
+                  // A label is one piece: the caret steps over it.
+                  onSelect={(e) => {
+                    const box = e.currentTarget;
+                    if (box.selectionStart !== box.selectionEnd) return;
+                    const at = caretOutsideLabels(chat.pastes, box.selectionStart, caretWas.current);
+                    if (at !== box.selectionStart) box.setSelectionRange(at, at);
+                    caretWas.current = at;
+                  }}
+                  // A long paste goes in as a label (the text itself is sent in its place).
+                  onPaste={(e) => {
+                    const raw = e.clipboardData.getData("text/plain");
+                    if (!raw || !shouldCollapsePaste(raw)) return;
                     e.preventDefault();
-                    return;
-                  }
-                  // Backspace in the empty box takes off the picked skill.
-                  if (e.key === "Backspace" && !input && chat.skill) {
-                    e.preventDefault();
-                    chat.setSkill(null);
-                    return;
-                  }
-                  if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
-                    e.preventDefault();
-                    send();
-                  }
-                }}
-                rows={Math.min(6, Math.max(page ? 2 : 1, input.split("\n").length))}
-                disabled={Boolean(blocked)}
-                placeholder={running ? t("placeholderBusy") : t("placeholder")}
-                aria-label={t("placeholder")}
-                className={cn(
-                  "block max-h-40 min-h-7 w-full resize-none bg-transparent py-1 outline-none placeholder:text-fg-faint disabled:opacity-60",
-                  page ? "px-1 text-[15px] leading-6" : "text-sm",
-                )}
-              />
+                    const box = e.currentTarget;
+                    const caret = chat.pasteInput(normalizePaste(raw), box.selectionStart, box.selectionEnd);
+                    requestAnimationFrame(() => box.setSelectionRange(caret, caret));
+                  }}
+                  onKeyDown={(e) => {
+                    if (skills.onKeyDown(e)) {
+                      e.preventDefault();
+                      return;
+                    }
+                    // Backspace in the empty box takes off the picked skill.
+                    if (e.key === "Backspace" && !input && chat.skill) {
+                      e.preventDefault();
+                      chat.setSkill(null);
+                      return;
+                    }
+                    // …and Backspace or Delete next to a label takes all of it.
+                    const box = e.currentTarget;
+                    if ((e.key === "Backspace" || e.key === "Delete") && box.selectionStart === box.selectionEnd) {
+                      const cut = deleteLabel({ text: input, pastes: chat.pastes }, box.selectionStart, e.key);
+                      if (cut) {
+                        e.preventDefault();
+                        setInput(cut.text);
+                        caretWas.current = cut.caret;
+                        requestAnimationFrame(() => box.setSelectionRange(cut.caret, cut.caret));
+                        return;
+                      }
+                    }
+                    if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
+                      e.preventDefault();
+                      send();
+                    }
+                  }}
+                  rows={Math.min(6, Math.max(page ? 2 : 1, input.split("\n").length))}
+                  disabled={Boolean(blocked)}
+                  placeholder={running ? t("placeholderBusy") : t("placeholder")}
+                  aria-label={t("placeholder")}
+                  className={cn(
+                    boxText,
+                    "relative max-h-40 resize-none bg-transparent outline-none placeholder:text-fg-faint disabled:opacity-60",
+                    chips && "text-transparent caret-fg selection:bg-accent/25 selection:text-transparent",
+                  )}
+                />
+              </div>
               {/* The highlighted skill, for screen readers: the list itself is under the mouse. */}
               {skills.open && skills.shown.length > 0 && (
                 <span className="sr-only" aria-live="polite">
@@ -293,6 +338,40 @@ export function ChatThread({
       <MemoryDialog workspaceId={chat.workspaceId} open={memoryOpen} onClose={() => setMemoryOpen(false)} />
       {empty && <div className="flex-[1.4]" aria-hidden />}
     </>
+  );
+}
+
+/**
+ * The chat box's text, drawn behind the box (whose own text is clear) with each paste's label as a
+ * chip; its brackets stay in place, unseen, as the chip's padding, so the text lines up.
+ */
+function PasteChips({ text, pastes, boxRef, className }: { text: string; pastes: PastePart[]; boxRef: RefObject<HTMLDivElement | null>; className: string }) {
+  const parts: ReactNode[] = [];
+  let at = 0;
+  for (const paste of pastes) {
+    parts.push(text.slice(at, paste.start));
+    const bracketed = paste.label.startsWith("[") && paste.label.endsWith("]");
+    parts.push(
+      <span key={paste.start} className="rounded-md bg-bg-active text-fg-muted">
+        {bracketed ? (
+          <>
+            <span className="text-transparent">[</span>
+            {paste.label.slice(1, -1)}
+            <span className="text-transparent">]</span>
+          </>
+        ) : (
+          paste.label
+        )}
+      </span>,
+    );
+    at = paste.end;
+  }
+  // A last empty line takes room in the box too.
+  parts.push(`${text.slice(at)} `);
+  return (
+    <div ref={boxRef} aria-hidden className={cn(className, "pointer-events-none absolute inset-0 overflow-hidden break-words whitespace-pre-wrap")}>
+      {parts}
+    </div>
   );
 }
 

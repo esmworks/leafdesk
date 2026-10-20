@@ -34,6 +34,11 @@
   Unset, `AI_MODEL` answers everything as before. A workspace on its own AI account runs every
   feature on the account's model. The startup log names the fast model, and each request's log
   line its model. See the README's AI section.
+- **A long paste shows as a chip in the AI chat's box.** Pasting 3 lines or more, or more than
+  150 characters, puts a chip ("Pasted 40 lines") at the caret instead of the text, so the box
+  stays readable; the question is sent with the pasted text in the chip's place. The chip is one
+  piece: the caret steps over it, and Backspace after it (or Delete before it) takes it and its
+  paste. Two pastes of the same size are numbered apart.
 
 ### Changed
 

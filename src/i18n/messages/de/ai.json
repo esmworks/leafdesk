@@ -134,6 +134,7 @@
     "intro": "Frag nach allem in diesem Workspace. Die Antworten stammen aus den Seiten, die du öffnen kannst, und verlinken sie.",
     "placeholder": "Stell eine Frage…",
     "placeholderBusy": "Nächste Frage stellen: sie wartet auf diese Antwort…",
+    "pasted": "[Eingefügt: {count, plural, one {# Zeile} other {# Zeilen}}]",
     "send": "Senden",
     "stop": "Stopp",
     "queue": {
