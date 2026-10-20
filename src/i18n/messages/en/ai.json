@@ -186,6 +186,11 @@
           "remember": "Declined remembering:",
           "forget": "Declined forgetting:"
         }
+      },
+      "connection": {
+        "done": "{connection}: called {tool}",
+        "failed": "{connection}: {tool} failed",
+        "declined": "{connection}: declined calling {tool}"
       }
     },
     "stopped": "Stopped.",
@@ -207,7 +212,8 @@
         "createPage": "Add this page?",
         "remember": "Remember this about you?",
         "forget": "Forget this note?",
-        "editPage": "Change this page's text?"
+        "editPage": "Change this page's text?",
+        "connection": "Send this to {connection}?"
       },
       "in": "In",
       "row": "Row",
@@ -219,7 +225,8 @@
       "decline": "No",
       "waiting": "Waiting for your approval",
       "page": "Page",
-      "empty": "(empty)"
+      "empty": "(empty)",
+      "connectionHint": "Sent with the workspace's connection: it may change something at {connection}"
     },
     "mode": {
       "label": "Changes",

@@ -1,0 +1,1 @@
+ALTER TABLE "connection" ADD COLUMN "chat_tools" jsonb DEFAULT '[]'::jsonb NOT NULL;

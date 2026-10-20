@@ -186,6 +186,11 @@
           "remember": "Mémorisation refusée :",
           "forget": "Oubli refusé :"
         }
+      },
+      "connection": {
+        "done": "{connection} : {tool} appelé",
+        "failed": "{connection} : échec de {tool}",
+        "declined": "{connection} : appel de {tool} refusé"
       }
     },
     "stopped": "Arrêté.",
@@ -207,7 +212,8 @@
         "createPage": "Ajouter cette page ?",
         "remember": "Retenir ceci à votre sujet ?",
         "forget": "Oublier cette note ?",
-        "editPage": "Modifier le texte de cette page ?"
+        "editPage": "Modifier le texte de cette page ?",
+        "connection": "Envoyer ceci à {connection} ?"
       },
       "in": "Dans",
       "row": "Ligne",
@@ -219,7 +225,8 @@
       "decline": "Non",
       "waiting": "En attente de votre accord",
       "page": "Page",
-      "empty": "(vide)"
+      "empty": "(vide)",
+      "connectionHint": "Envoyé avec la connexion de l'espace de travail : cela peut modifier quelque chose sur {connection}"
     },
     "mode": {
       "label": "Modifications",

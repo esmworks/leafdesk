@@ -14,6 +14,7 @@ import {
   refreshConnectionAction,
   revealEventSecretAction,
   setEventSecretAction,
+  setChatToolsAction,
   setToolKindAction,
   signOutConnectionAction,
   updateConnectionAction,
@@ -748,6 +749,9 @@ function ToolsTab({ workspaceId, conn, onChange }: { workspaceId: string; conn: 
   const { pending, error, run } = useAction();
   const sign = useSignIn(workspaceId, onChange);
   const signedInByOAuth = conn.authType === "oauth" && conn.status !== "needsAuth";
+  // Names of tools the server no longer lists are left out (saving them would be refused).
+  const chosen = new Set(conn.chatTools.filter((name) => conn.tools.some((tool) => tool.name === name)));
+  const setChat = (tools: string[]) => run(() => setChatToolsAction(workspaceId, conn.id, tools), onChange);
 
   return (
     <div className="space-y-4">
@@ -780,6 +784,24 @@ function ToolsTab({ workspaceId, conn, onChange }: { workspaceId: string; conn: 
         </p>
       )}
       <p className="text-xs text-fg-muted">{t("tools.description")}</p>
+      {conn.tools.length > 0 && (
+        <div className="space-y-1.5">
+          <p className="text-xs text-fg-muted">{t("tools.chatDescription")}</p>
+          <label className="flex w-fit cursor-pointer items-center gap-1.5 text-xs">
+            <input
+              type="checkbox"
+              className="h-3.5 w-3.5 accent-[var(--color-accent)]"
+              checked={chosen.size === conn.tools.length}
+              ref={(el) => {
+                if (el) el.indeterminate = chosen.size > 0 && chosen.size < conn.tools.length;
+              }}
+              disabled={pending}
+              onChange={(e) => setChat(e.target.checked ? conn.tools.map((tool) => tool.name) : [])}
+            />
+            {t("tools.chatAll")}
+          </label>
+        </div>
+      )}
       {conn.tools.length === 0 ? (
         <p className="text-sm text-fg-muted">{conn.status === "ready" ? t("tools.none") : t("tools.notListed")}</p>
       ) : (
@@ -792,6 +814,17 @@ function ToolsTab({ workspaceId, conn, onChange }: { workspaceId: string; conn: 
                 {tool.description && <p className="line-clamp-2 text-xs text-fg-muted">{tool.description}</p>}
                 {tool.kind !== tool.hinted && <p className="text-xs text-fg-faint">{t("tools.overridden")}</p>}
               </div>
+              <label className="flex shrink-0 cursor-pointer items-center gap-1.5 self-center text-xs text-fg-muted">
+                <input
+                  type="checkbox"
+                  className="h-3.5 w-3.5 accent-[var(--color-accent)]"
+                  aria-label={t("tools.chatLabel", { tool: tool.title || tool.name })}
+                  checked={chosen.has(tool.name)}
+                  disabled={pending}
+                  onChange={(e) => setChat(e.target.checked ? [...chosen, tool.name] : [...chosen].filter((name) => name !== tool.name))}
+                />
+                {t("tools.chat")}
+              </label>
               <select
                 aria-label={t("tools.kindLabel", { tool: tool.title || tool.name })}
                 className={cn(selectClass, "shrink-0")}

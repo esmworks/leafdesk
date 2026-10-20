@@ -133,8 +133,8 @@ export type ChatSourceRef = { n: number; pageId: string; blockId: string | null 
  * A step the AI chat took on the way to an answer: a search (`query` null for the one with the
  * question itself) and how many pages it found, a page it read, a database it queried (with the
  * filters and how many rows matched), a change it made or was refused (see ChatWriteRecord), a
- * note it kept or dropped about the person (ChatMemoryRecord), or what the model said before
- * searching or reading.
+ * note it kept or dropped about the person (ChatMemoryRecord), a call to a connection's tool
+ * (ChatConnectionRecord), or what the model said before searching or reading.
  */
 export type ChatStepRecord =
   | { kind: "search"; query: string | null; results: number }
@@ -142,7 +142,24 @@ export type ChatStepRecord =
   | { kind: "query"; databaseId: string; conditions: ChatQueryCondition[]; any?: boolean; results: number }
   | ChatWriteRecord
   | ChatMemoryRecord
+  | ChatConnectionRecord
   | { kind: "thought"; text: string };
+
+/**
+ * A call the AI chat made to a connection's tool (server/connections), with the connection's name
+ * then: `done`, `failed`, or `declined` by the person (a tool that changes something is asked
+ * about each time). `writes`: the tool changes something at the service; `input`: what was sent
+ * (or would have been), credentials masked, cut to fit.
+ */
+export type ChatConnectionRecord = {
+  kind: "connection";
+  connectionId: string;
+  connection: string;
+  tool: string;
+  writes: boolean;
+  input: string;
+  outcome: "done" | "failed" | "declined";
+};
 
 /**
  * A note the chat kept about the person (`remember`, also in place of an older note) or dropped

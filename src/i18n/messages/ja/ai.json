@@ -186,6 +186,11 @@
           "remember": "記憶が拒否されました：",
           "forget": "忘れることが拒否されました："
         }
+      },
+      "connection": {
+        "done": "{connection}：{tool} を呼び出しました",
+        "failed": "{connection}：{tool} に失敗しました",
+        "declined": "{connection}：{tool} の呼び出しを拒否しました"
       }
     },
     "stopped": "停止しました。",
@@ -207,7 +212,8 @@
         "createPage": "このページを追加しますか？",
         "remember": "あなたについてこれを記憶しますか？",
         "forget": "このメモを忘れますか？",
-        "editPage": "このページのテキストを変更しますか？"
+        "editPage": "このページのテキストを変更しますか？",
+        "connection": "これを {connection} に送信しますか？"
       },
       "in": "場所",
       "row": "行",
@@ -219,7 +225,8 @@
       "decline": "いいえ",
       "waiting": "承認を待っています",
       "page": "ページ",
-      "empty": "（空）"
+      "empty": "（空）",
+      "connectionHint": "ワークスペースの接続で送信されます：{connection} で何かが変更される場合があります"
     },
     "mode": {
       "label": "変更",

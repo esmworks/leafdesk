@@ -94,6 +94,7 @@ export function viewConnection(row: ConnectionRow): ConnectionView {
     status: row.status,
     statusError: row.statusError,
     tools: row.tools,
+    chatTools: row.chatTools,
     toolsAt: row.toolsAt?.toISOString() ?? null,
     eventPreset: row.eventPreset,
     eventUrl: eventUrlOf(row.id),
@@ -272,9 +273,10 @@ export async function updateConnection(userId: string, connectionId: string, inp
   }
   if (moved) {
     // Another server's tools may share names with these but do something else: classes and what
-    // agents were allowed start over, and its tools are listed afresh.
+    // agents and the chat were allowed start over, and its tools are listed afresh.
     set.tools = [];
     set.kinds = {};
+    set.chatTools = [];
     set.toolsAt = null;
   }
   const { updated, grantsRemoved } = await db.transaction(async (tx) => {
@@ -322,6 +324,27 @@ export async function setToolKind(userId: string, connectionId: string, tool: st
     action: "connection.updated",
     target: { type: "connection", id: connectionId, label: row.name },
     details: { ...auditDetails(updated), tool, kind: kinds[tool] ?? found.hinted },
+  });
+  return viewConnection(updated);
+}
+
+/**
+ * Sets the tools of a connection the workspace's AI chat may call (none: the chat doesn't use it).
+ * The chat calls them with the connection's credentials, for any member who asks.
+ */
+export async function setChatTools(userId: string, connectionId: string, tools: string[]): Promise<ConnectionView> {
+  const row = await ownedConnection(userId, connectionId);
+  const known = new Set(row.tools.map((t) => t.name));
+  const unknown = tools.find((t) => !known.has(t));
+  if (unknown) throw new ConnectionError("unknownTool", `No tool "${unknown}"`, { tool: unknown });
+  const chosen = [...new Set(tools)];
+  const [updated] = await db.update(connection).set({ chatTools: chosen }).where(eq(connection.id, connectionId)).returning();
+  await recordAudit({
+    workspaceId: row.workspaceId,
+    actorId: userId,
+    action: "connection.updated",
+    target: { type: "connection", id: connectionId, label: row.name },
+    details: { ...auditDetails(row), chatTools: chosen, previousChatTools: row.chatTools },
   });
   return viewConnection(updated);
 }

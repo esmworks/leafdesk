@@ -1528,7 +1528,7 @@
   },
   "connections": {
     "heading": "Conexões",
-    "description": "Serviços que seus agentes usam: Slack, GitHub, um CRM, outro Leafdesk… qualquer coisa com um servidor MCP remoto. Só proprietários os veem e gerenciam; quais ferramentas cada agente pode usar é definido no agente. (Programas que usam o Leafdesk: os que acessam este espaço de trabalho ficam em Segurança; os que você mesmo conectou, em Minha conta › Apps conectados.)",
+    "description": "Serviços que seus agentes usam: Slack, GitHub, um CRM, outro Leafdesk… qualquer coisa com um servidor MCP remoto. Só proprietários os veem e gerenciam; quais ferramentas cada agente pode usar é definido no agente. Quais ferramentas o chat de IA pode usar é definido em cada conexão, em Ferramentas. (Programas que usam o Leafdesk: os que acessam este espaço de trabalho ficam em Segurança; os que você mesmo conectou, em Minha conta › Apps conectados.)",
     "tabs": {
       "browse": "Explorar",
       "connected": "Conectadas",
@@ -1670,7 +1670,11 @@
       "overridden": "Classificada por um proprietário, não como o servidor a marcou",
       "kindLabel": "O que “{tool}” faz",
       "reads": "Só lê",
-      "writes": "Altera coisas, pergunta antes"
+      "writes": "Altera coisas, pergunta antes",
+      "chat": "No chat",
+      "chatLabel": "Deixar o chat de IA usar “{tool}”",
+      "chatAll": "Usar todas no chat",
+      "chatDescription": "Marque “No chat” para que o chat de IA do espaço de trabalho possa usar uma ferramenta. O chat a chama com a conta desta conexão para qualquer membro que perguntar (não convidados); uma ferramenta que muda algo pergunta antes a essa pessoa, todas as vezes."
     },
     "events": {
       "address": "Endereço de eventos",
@@ -1709,7 +1713,7 @@
       "promptPlaceholder": "O que o agente deve fazer com o evento",
       "addTrigger": "Adicionar gatilho"
     },
-    "reconnectNote": "Alterar o endereço ou o login desconecta a conexão; ela é testada de novo quando você salvar. Um novo endereço também precisa do token de novo, lista as ferramentas dele do zero e retira as ferramentas desta conexão dos agentes até você concedê-las de novo.",
+    "reconnectNote": "Alterar o endereço ou o login desconecta a conexão; ela é testada de novo quando você salvar. Um novo endereço também precisa do token de novo, lista as ferramentas dele do zero e retira as ferramentas desta conexão dos agentes até você concedê-las de novo. O chat também as perde.",
     "deleteTitle": "Remover conexão",
     "deleteBody": "As credenciais dela, as ferramentas que os agentes tinham nela, os gatilhos e os eventos vão junto. Chamadas aguardando aprovação falham sem enviar nada.",
     "deleteConfirm": "Remover",

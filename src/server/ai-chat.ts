@@ -16,7 +16,11 @@
  * 5. in every mode, may make it keep or drop notes about the person (`remember`, `forget`): what
  *    it remembers goes with their later questions in the workspace (ai-memory.ts), unless the
  *    person or the workspace's owners turned the memory off;
- * 6. streams the answer; citations ([n]) link to the pages (and the block a passage starts at).
+ * 6. for members (not guests), may make it call the tools of the workspace's connections that its
+ *    owners allowed the chat (server/connections): they run with the connection's credentials,
+ *    their answers reach the model framed as outside data, and one that changes something there
+ *    waits for the person's approval each time, in every mode (and isn't offered in `read`);
+ * 7. streams the answer; citations ([n]) link to the pages (and the block a passage starts at).
  *
  * Conversations are kept per person (ai_conversation) and only ever shown to them; cited pages are
  * looked up again with their current access whenever a conversation is shown.
@@ -32,12 +36,14 @@ import {
 import type { AiErrorCode } from "@/lib/ai";
 import {
   changedMemory,
+  changedThings,
   citedNumbers,
   conversationTitle,
   MAX_CHAT_MESSAGE,
   MAX_CHAT_TURNS,
   MAX_CONVERSATIONS,
   type ChatActionView,
+  type ChatConnectionRecord,
   type ChatEvent,
   type ChatMessageView,
   type ChatMode,
@@ -49,13 +55,14 @@ import {
   thoughtText,
 } from "@/lib/ai-chat";
 import { pageLabel } from "@/lib/labels";
-import { AccessError, requireMembership, requirePageAccess, WorkspacePolicyError } from "@/server/access";
+import { AccessError, isGuest, requireMembership, requirePageAccess, WorkspacePolicyError } from "@/server/access";
 import { aiConfig, AiError, isAiError, stream, takeRateLimit, takeWorkspaceCapacity, type AiMessage } from "@/server/ai";
 import { chatHistory, chatQuestionPrompt, chatSystemPrompt } from "@/server/ai/prompts";
 import { getSkillContent, SkillError } from "@/server/skills";
 import { aiAvailable } from "@/server/ai-writing";
 import { applyMemory, memoryForPrompt, memoryOn, MEMORY_TOOL_NAMES, MEMORY_TOOLS, prepareMemory } from "@/server/ai-memory";
 import { awaitDecision, type ChatDecision } from "@/server/ai-chat-approvals";
+import { chatToolNow, chatToolset, inputSummary, runConnectionTool, type ConnectionToolEntry } from "@/server/connections/tools";
 import * as ops from "@/server/operations";
 import {
   applyWrite,
@@ -151,7 +158,7 @@ export async function startChat(userId: string, input: ChatInput, signal?: Abort
   const message = input.message.trim();
   if (!message) refuse("invalid", "Ask a question");
   if (message.length > MAX_CHAT_MESSAGE) refuse("tooLarge", `A question may have at most ${MAX_CHAT_MESSAGE} characters`);
-  await requireMembership(userId, input.workspaceId).catch((error) => {
+  const membership = await requireMembership(userId, input.workspaceId).catch((error) => {
     if (error instanceof AccessError && !(error instanceof WorkspacePolicyError)) refuse("noAccess", "Workspace not found");
     throw error;
   });
@@ -164,7 +171,8 @@ export async function startChat(userId: string, input: ChatInput, signal?: Abort
     refuse("tooLarge", "This conversation is full; start a new one");
   }
   takeRateLimit({ userId, workspaceId: input.workspaceId });
-  return runChat(userId, input.workspaceId, message, scope ? { id: scope.id, title: scope.title } : null, skill, existing, input.mode ?? "ask", replaced, signal);
+  const chat = { scope: scope ? { id: scope.id, title: scope.title } : null, skill, existing, mode: input.mode ?? "ask", replaced, connections: !isGuest(membership.role) };
+  return runChat(userId, input.workspaceId, message, chat, signal);
 }
 
 /**
@@ -174,7 +182,7 @@ export async function startChat(userId: string, input: ChatInput, signal?: Abort
 function lastTurn(existing: typeof aiConversation.$inferSelect | null): number {
   const [question, answer] = existing?.messages.slice(-2) ?? [];
   if (question?.role !== "user" || answer?.role !== "assistant") refuse("invalid", "There is no answer to ask again");
-  if (answer.steps?.some((s) => s.kind === "write" && s.outcome === "done")) refuse("invalid", "An answer that changed things can't be asked again");
+  if (answer.steps?.some(changedThings)) refuse("invalid", "An answer that changed things can't be asked again");
   return 2;
 }
 
@@ -182,12 +190,23 @@ async function* runChat(
   userId: string,
   workspaceId: string,
   message: string,
-  scope: { id: string; title: string } | null,
-  skill: ChatSkill | null,
-  existing: typeof aiConversation.$inferSelect | null,
-  initialMode: ChatMode,
-  /** Records at the end of the conversation the new turn replaces. */
-  replaced: number,
+  {
+    scope,
+    skill,
+    existing,
+    mode: initialMode,
+    replaced,
+    connections,
+  }: {
+    scope: { id: string; title: string } | null;
+    skill: ChatSkill | null;
+    existing: typeof aiConversation.$inferSelect | null;
+    mode: ChatMode;
+    /** Records at the end of the conversation the new turn replaces. */
+    replaced: number;
+    /** The connections' tools allowed the chat are offered (not to guests). */
+    connections: boolean;
+  },
   signal?: AbortSignal,
 ): AsyncGenerator<ChatEvent> {
   const ctx: ops.OperationContext = { userId, actor: { userId } };
@@ -198,8 +217,11 @@ async function* runChat(
   // and asked about unless the mode is `auto` (a read-only chat asks too), while both the person and
   // the workspace have the memory on.
   const remembers = await memoryOn(userId, workspaceId);
-  const tools = [...CHAT_TOOLS, ...(mode === "read" ? [] : WRITE_TOOLS), ...(remembers ? MEMORY_TOOLS : [])];
-  const system = chatSystemPrompt(scope ? pageLabel(scope.title) : null, mode !== "read", skill ? pageLabel(skill.title) : null, remembers);
+  // Tools of connections that change something are left out of a read-only chat.
+  const external = connections ? await chatToolset(workspaceId, { writes: mode !== "read" }) : null;
+  const services = [...new Set([...(external?.byName.values() ?? [])].map((e) => e.connection.name))];
+  const tools = [...CHAT_TOOLS, ...(mode === "read" ? [] : WRITE_TOOLS), ...(remembers ? MEMORY_TOOLS : []), ...(external?.tools ?? [])];
+  const system = chatSystemPrompt(scope ? pageLabel(scope.title) : null, mode !== "read", skill ? pageLabel(skill.title) : null, remembers, services);
   const toolsSize = tools.reduce((n, t) => n + t.description.length + JSON.stringify(t.parameters).length, 0);
   const room = () => limits.maxInputChars - system.length - toolsSize - 200;
 
@@ -231,6 +253,42 @@ async function* runChat(
       if (next !== "ping") return next;
       yield { type: "ping" };
     }
+  }
+  /**
+   * Calls a connection's tool. One that changes something there is asked about first, in every
+   * mode and each time ("don't ask again" doesn't cover it): what it sends comes from the model.
+   */
+  async function* callConnection(entry: ConnectionToolEntry, args: Record<string, unknown>, left: number): AsyncGenerator<ChatEvent, ToolOutcome> {
+    const { connection: conn, tool } = entry;
+    const writes = tool.kind === "write";
+    const record = (outcome: ChatConnectionRecord["outcome"]): ChatConnectionRecord => ({
+      kind: "connection",
+      connectionId: conn.id,
+      connection: conn.name,
+      tool: tool.name,
+      writes,
+      input: inputSummary(args),
+      outcome,
+    });
+    if (left <= 200) return { content: "There's no room left in this answer for more from connected services: answer with what you have.", isError: true };
+    if (writes) {
+      const action: ChatActionView = { action: "connection", connection: { name: conn.name, icon: conn.icon }, target: null, title: tool.title || tool.name, changes: [], content: inputSummary(args, 2_000) };
+      const decision = yield* decide(action);
+      if (decision === "decline" || decision === "timeout") {
+        return {
+          content:
+            decision === "timeout"
+              ? "The person didn't answer in time, so the call wasn't sent. Say what you would have done."
+              : "The person declined this call: it wasn't sent. Don't try it again; say what you would have done, or ask what they want instead.",
+          step: record("declined"),
+        };
+      }
+      const now = await chatToolNow(entry);
+      if (!now) return { content: "This tool is no longer allowed in the chat, so the call wasn't sent. Say what you would have done.", isError: true, step: record("declined") };
+      entry = now;
+    }
+    const out = await runConnectionTool({ entry, args, actorId: userId, chat: true, approvedBy: writes ? userId : null, room: left, signal });
+    return { content: out.content, isError: out.isError, step: record(out.step.outcome === "done" ? "done" : "failed") };
   }
   // Notes the answer asked again kept or dropped: they stay done, so they go with the new answer
   // (shown first), not with the records it replaces.
@@ -298,8 +356,10 @@ async function* runChat(
       for (const call of result.toolCalls) {
         const left = room() - sizeOf(messages) - 300;
         let out: ToolOutcome;
+        const entry = external?.byName.get(call.name);
+        if (entry) out = yield* callConnection(entry, call.arguments, left);
         // With the memory off, remember and forget aren't offered: called anyway, they're unknown.
-        if (remembers && MEMORY_TOOL_NAMES.has(call.name)) {
+        else if (remembers && MEMORY_TOOL_NAMES.has(call.name)) {
           // Text the model read could pass itself off as a lasting note: the person approves each.
           const prepared = await prepareMemory(userId, workspaceId, call);
           let decision: ChatDecision | "timeout" = "approve";
@@ -330,7 +390,7 @@ async function* runChat(
   // ------------------------------------------------------------------------------ the answer
   // Changes made and notes kept or dropped are kept in the conversation, also when the answer
   // didn't come.
-  const changed = steps.some((s) => (s.kind === "write" && s.outcome === "done") || (s.kind === "memory" && changedMemory(s)));
+  const changed = steps.some((s) => changedThings(s) || (s.kind === "memory" && changedMemory(s)));
   const stopped = failure === "aborted" && (answer.trim().length > 0 || changed);
   if (!failure || stopped || changed) {
     const cited = new Set(citedNumbers(answer));

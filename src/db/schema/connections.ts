@@ -33,6 +33,8 @@ export const connection = pgTable(
     tools: jsonb("tools").$type<ConnectionTool[]>().notNull().default([]),
     /** Owners' overrides of a tool's class, by tool name, kept when the tools are listed again. */
     kinds: jsonb("kinds").$type<Record<string, ToolKind>>().notNull().default({}),
+    /** The tools the workspace's AI chat may call (members' chats, not guests'), by name. */
+    chatTools: jsonb("chat_tools").$type<string[]>().notNull().default([]),
     toolsAt: timestamp("tools_at", { withTimezone: true }),
     eventPreset: text("event_preset").$type<EventPreset>().notNull().default("hmac"),
     /** Sealed: the secret events are signed with (ours for `hmac`, the service's for the others). */

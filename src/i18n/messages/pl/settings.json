@@ -1528,7 +1528,7 @@
   },
   "connections": {
     "heading": "Połączenia",
-    "description": "Usługi, z których korzystają twoi agenci: Slack, GitHub, CRM, inny Leafdesk… wszystko, co ma zdalny serwer MCP. Widzą je i zarządzają nimi tylko właściciele; to, których narzędzi może używać każdy agent, ustawia się przy agencie. (Programy korzystające z Leafdesk: te, które docierają do tego obszaru roboczego, są w sekcji Bezpieczeństwo, a te podłączone przez ciebie w Moje konto › Połączone aplikacje.)",
+    "description": "Usługi, z których korzystają twoi agenci: Slack, GitHub, CRM, inny Leafdesk… wszystko, co ma zdalny serwer MCP. Widzą je i zarządzają nimi tylko właściciele; to, których narzędzi może używać każdy agent, ustawia się przy agencie. Których narzędzi może używać czat AI, ustawia się w każdym połączeniu, w zakładce Narzędzia. (Programy korzystające z Leafdesk: te, które docierają do tego obszaru roboczego, są w sekcji Bezpieczeństwo, a te podłączone przez ciebie w Moje konto › Połączone aplikacje.)",
     "tabs": {
       "browse": "Przeglądaj",
       "connected": "Połączone",
@@ -1670,7 +1670,11 @@
       "overridden": "Sklasyfikowane przez właściciela, a nie tak, jak oznaczył je serwer",
       "kindLabel": "Co robi „{tool}”",
       "reads": "Tylko odczytuje",
-      "writes": "Zmienia dane, najpierw pyta"
+      "writes": "Zmienia dane, najpierw pyta",
+      "chat": "W czacie",
+      "chatLabel": "Pozwól czatowi AI używać „{tool}”",
+      "chatAll": "Używaj wszystkich w czacie",
+      "chatDescription": "Zaznacz „W czacie”, aby czat AI obszaru roboczego mógł używać narzędzia. Czat wywołuje je kontem tego połączenia dla każdego członka, który pyta (nie dla gości); narzędzie, które coś zmienia, za każdym razem najpierw pyta tę osobę."
     },
     "events": {
       "address": "Adres zdarzeń",
@@ -1709,7 +1713,7 @@
       "promptPlaceholder": "Co agent ma zrobić ze zdarzeniem",
       "addTrigger": "Dodaj wyzwalacz"
     },
-    "reconnectNote": "Zmiana adresu lub sposobu logowania wylogowuje połączenie; zostanie ono ponownie sprawdzone po zapisaniu. Nowy adres wymaga też ponownego podania tokenu, od nowa wczytuje narzędzia i odbiera agentom narzędzia tego połączenia, dopóki ich ponownie nie nadasz.",
+    "reconnectNote": "Zmiana adresu lub sposobu logowania wylogowuje połączenie; zostanie ono ponownie sprawdzone po zapisaniu. Nowy adres wymaga też ponownego podania tokenu, od nowa wczytuje narzędzia i odbiera agentom narzędzia tego połączenia, dopóki ich ponownie nie nadasz. Czat również je traci.",
     "deleteTitle": "Usuń połączenie",
     "deleteBody": "Razem z nim znikną jego dane uwierzytelniające, narzędzia, które mieli w nim agenci, jego wyzwalacze i zdarzenia. Wywołania oczekujące na zatwierdzenie zakończą się niepowodzeniem bez wysyłania czegokolwiek.",
     "deleteConfirm": "Usuń",

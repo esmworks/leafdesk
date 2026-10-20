@@ -1,7 +1,7 @@
 // Client-safe: shared by the AI chat's server side (src/server/ai-chat.ts, /api/ai/chat) and its
 // panel (src/components/ai-chat).
 
-import type { ChatChange, ChatMemoryRecord, ChatWriteAction } from "@/db/schema/ai";
+import type { ChatChange, ChatConnectionRecord, ChatMemoryRecord, ChatStepRecord, ChatWriteAction } from "@/db/schema/ai";
 import type { PageKind } from "@/db/schema/app";
 import type { BlockChange } from "./page-diff";
 import type { AiErrorCode } from "./ai";
@@ -24,7 +24,7 @@ export type MemoryView = { id: string; text: string; app: string | null; created
 /** What the chat answers from: the whole workspace, or a page and the pages under it. */
 export type ChatScope = { pageId: string } | null;
 
-export type { ChatChange, ChatMemoryRecord, ChatWriteAction };
+export type { ChatChange, ChatConnectionRecord, ChatMemoryRecord, ChatWriteAction };
 
 /**
  * What the chat may change: `ask` asks the person before each change (the answer waits), `auto`
@@ -57,7 +57,8 @@ export type ChatPageView = { pageId: string; workspaceId: string; title: string;
  * A step the chat took on the way to an answer (shown above it): a search (`query` null for the
  * search with the question itself) and how many pages it found, a page it read, a database it
  * queried (its filters and how many rows matched), a change (see ChatWriteView), a note it kept
- * about the person or dropped (ChatMemoryRecord), or what the model said before searching or reading.
+ * about the person or dropped (ChatMemoryRecord), a call to a connection's tool
+ * (ChatConnectionRecord), or what the model said before searching or reading.
  */
 export type ChatStepView =
   | { kind: "search"; query: string | null; results: number }
@@ -65,6 +66,7 @@ export type ChatStepView =
   | { kind: "query"; database: ChatPageView; conditions: ChatQueryCondition[]; any?: boolean; results: number }
   | ChatWriteView
   | ChatMemoryRecord
+  | ChatConnectionRecord
   | { kind: "thought"; text: string };
 
 /**
@@ -86,11 +88,14 @@ export type ChatWriteView = {
 /**
  * A change the chat asks to make (mode `ask`): what (`action`), where (`target` as in
  * ChatWriteView), the title of the row or page, the values it sets and the start of the text it
- * writes, if any.
+ * writes, if any. A call to a connection's tool that changes something (asked in every mode):
+ * the connection, the tool as title and what it sends as content.
  */
 export type ChatActionView = {
-  /** A change to the workspace, or a note about the person to keep or drop (title: its text). */
-  action: ChatWriteAction | "remember" | "forget";
+  /** A change to the workspace, a note about the person to keep or drop (title: its text), or a call to a connection's tool. */
+  action: ChatWriteAction | "remember" | "forget" | "connection";
+  /** A call to a connection's tool: the connection. */
+  connection?: { name: string; icon: string | null };
   target: ChatPageView;
   title: string | null;
   /** A row renamed: its title now. */
@@ -125,6 +130,14 @@ export type ConversationSummary = { id: string; title: string; updatedAt: string
 
 /** Whether an answer's step kept or dropped a note about the person (declined ones didn't). */
 export const changedMemory = (step: ChatStepView) => step.kind === "memory" && step.outcome !== "declined";
+
+/**
+ * Whether an answer's step changed something: a change made in the workspace, or a call sent to a
+ * connection's tool that changes something there (one that failed may have been done too).
+ * Asking such an answer again would do it twice.
+ */
+export const changedThings = (step: ChatStepView | ChatStepRecord) =>
+  (step.kind === "write" && step.outcome === "done") || (step.kind === "connection" && step.writes && step.outcome !== "declined");
 
 /**
  * Lines of `POST /api/ai/chat`'s newline-delimited JSON answer, in order: `conversation` (its id,

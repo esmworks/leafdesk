@@ -1528,7 +1528,7 @@
   },
   "connections": {
     "heading": "Connessioni",
-    "description": "Servizi usati dai tuoi agenti: Slack, GitHub, un CRM, un altro Leafdesk… qualsiasi cosa con un server MCP remoto. Solo i proprietari li vedono e li gestiscono; quali strumenti può usare ogni agente si imposta sull’agente. (Programmi che usano Leafdesk: quelli che raggiungono questo spazio di lavoro sono in Sicurezza, quelli che hai collegato tu in Il mio account › App connesse.)",
+    "description": "Servizi usati dai tuoi agenti: Slack, GitHub, un CRM, un altro Leafdesk… qualsiasi cosa con un server MCP remoto. Solo i proprietari li vedono e li gestiscono; quali strumenti può usare ogni agente si imposta sull’agente. Quali strumenti può usare la chat IA si imposta su ogni connessione, in Strumenti. (Programmi che usano Leafdesk: quelli che raggiungono questo spazio di lavoro sono in Sicurezza, quelli che hai collegato tu in Il mio account › App connesse.)",
     "tabs": {
       "browse": "Sfoglia",
       "connected": "Connessi",
@@ -1670,7 +1670,11 @@
       "overridden": "Classificato da un proprietario, non come indicato dal server",
       "kindLabel": "Cosa fa “{tool}”",
       "reads": "Legge soltanto",
-      "writes": "Modifica dati, chiede prima"
+      "writes": "Modifica dati, chiede prima",
+      "chat": "Nella chat",
+      "chatLabel": "Lascia che la chat IA usi “{tool}”",
+      "chatAll": "Usali tutti nella chat",
+      "chatDescription": "Seleziona “Nella chat” per permettere alla chat IA dello spazio di lavoro di usare uno strumento. La chat lo chiama con l'account di questa connessione per qualsiasi membro che chiede (non gli ospiti); uno strumento che modifica qualcosa chiede prima a quella persona, ogni volta."
     },
     "events": {
       "address": "Indirizzo degli eventi",
@@ -1709,7 +1713,7 @@
       "promptPlaceholder": "Cosa deve fare l’agente con l’evento",
       "addTrigger": "Aggiungi trigger"
     },
-    "reconnectNote": "Cambiare l’indirizzo o il metodo di accesso disconnette la connessione; viene ritentata al salvataggio. Un nuovo indirizzo richiede anche di nuovo il token, elenca da capo i suoi strumenti e toglie agli agenti gli strumenti di questa connessione finché non li assegni di nuovo.",
+    "reconnectNote": "Cambiare l’indirizzo o il metodo di accesso disconnette la connessione; viene ritentata al salvataggio. Un nuovo indirizzo richiede anche di nuovo il token, elenca da capo i suoi strumenti e toglie agli agenti gli strumenti di questa connessione finché non li assegni di nuovo. Anche la chat li perde.",
     "deleteTitle": "Rimuovi connessione",
     "deleteBody": "Con lei se ne vanno le credenziali, gli strumenti che gli agenti avevano su di essa, i suoi trigger e i suoi eventi. Le chiamate in attesa di approvazione falliscono senza inviare nulla.",
     "deleteConfirm": "Rimuovila",

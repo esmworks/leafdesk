@@ -186,6 +186,11 @@
           "remember": "Recusado lembrar:",
           "forget": "Recusado esquecer:"
         }
+      },
+      "connection": {
+        "done": "{connection}: {tool} chamado",
+        "failed": "{connection}: {tool} falhou",
+        "declined": "{connection}: você recusou chamar {tool}"
       }
     },
     "stopped": "Parado.",
@@ -207,7 +212,8 @@
         "createPage": "Adicionar esta página?",
         "remember": "Lembrar isto sobre você?",
         "forget": "Esquecer esta nota?",
-        "editPage": "Alterar o texto desta página?"
+        "editPage": "Alterar o texto desta página?",
+        "connection": "Enviar isto para {connection}?"
       },
       "in": "Em",
       "row": "Linha",
@@ -219,7 +225,8 @@
       "decline": "Não",
       "waiting": "Aguardando sua aprovação",
       "page": "Página",
-      "empty": "(vazio)"
+      "empty": "(vazio)",
+      "connectionHint": "Enviado com a conexão do espaço de trabalho: pode mudar algo em {connection}"
     },
     "mode": {
       "label": "Alterações",

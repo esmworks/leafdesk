@@ -14,7 +14,7 @@ import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { decideChangeAction, deleteConversationAction, getConversationAction } from "@/app/actions/ai";
 import { isAiErrorCode } from "@/lib/ai";
-import { CHAT_MODES, thoughtText, type ChatActionView, type ChatEvent, type ChatMessageView, type ChatMode } from "@/lib/ai-chat";
+import { CHAT_MODES, changedThings, thoughtText, type ChatActionView, type ChatEvent, type ChatMessageView, type ChatMode } from "@/lib/ai-chat";
 import { holdAnswering } from "./answering";
 
 /** What the model is doing while an answer is on its way: working on a turn, or writing. */
@@ -275,7 +275,7 @@ export function useChat(
           else if (event.type === "step") {
             // The thinking that led to it is done.
             reasoning.set("");
-            if (event.step.kind === "write" && event.step.outcome === "done") changed = true;
+            if (changedThings(event.step)) changed = true;
             const replaces = provisional && event.step.kind === "thought";
             provisional = false;
             updateLast((m) => {

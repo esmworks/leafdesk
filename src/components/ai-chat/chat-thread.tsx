@@ -31,7 +31,7 @@ import { Fragment, lazy, Suspense, useEffect, useMemo, useRef, useState, type Re
 import { BlockChanges } from "@/components/page/history-diff";
 import { copyText } from "@/components/settings/copy-button";
 import { Button, cn, IconButton, MenuItem, Popover } from "@/components/ui";
-import { CHAT_MODES, changedMemory, MAX_CHAT_MESSAGE, type ChatMode, type ChatSourceView, stripCitations } from "@/lib/ai-chat";
+import { CHAT_MODES, changedMemory, changedThings, MAX_CHAT_MESSAGE, type ChatMode, type ChatSourceView, stripCitations } from "@/lib/ai-chat";
 import { MemoryDialog } from "./memory-dialog";
 import { SkillChip, SkillList, useSkillPicker } from "./skill-picker";
 import { PageLink, StepLine } from "./step-line";
@@ -103,7 +103,7 @@ export function ChatThread({
     chat.conversationId !== null &&
     messages.length >= 2 &&
     last.role === "assistant" &&
-    !last.steps?.some((st) => st.kind === "write" && st.outcome === "done");
+    !last.steps?.some(changedThings);
 
   return (
     <>
@@ -667,8 +667,11 @@ function ModePicker({ mode, onChange }: { mode: ChatMode; onChange: (mode: ChatM
 }
 
 const DECISIONS: ChangeDecision[] = ["approve", "always", "decline"];
-/** A note about the person is asked about each time: no "don't ask again" (it would turn on Auto). */
-const MEMORY_DECISIONS: ChangeDecision[] = ["approve", "decline"];
+/**
+ * A note about the person, and a call to a connection's tool that changes something, are asked
+ * about each time: no "don't ask again" (it would turn on Auto, which doesn't cover them).
+ */
+const EACH_TIME_DECISIONS: ChangeDecision[] = ["approve", "decline"];
 const isMemory = (action: PendingChange["action"]) => action.action === "remember" || action.action === "forget";
 
 /**
@@ -688,7 +691,9 @@ function ChangePrompt({
   const first = useRef<HTMLButtonElement>(null);
   const { action } = pending;
   const memory = isMemory(action);
-  const decisions = memory ? MEMORY_DECISIONS : DECISIONS;
+  const call = action.action === "connection";
+  const decisions = memory || call ? EACH_TIME_DECISIONS : DECISIONS;
+  const question = action.action === "connection" ? t("question.connection", { connection: action.connection?.name ?? "" }) : t(`question.${action.action}`);
   useEffect(() => {
     first.current?.focus();
   }, [pending.id]);
@@ -696,7 +701,7 @@ function ChangePrompt({
   return (
     <div
       role="group"
-      aria-label={t(`question.${action.action}`)}
+      aria-label={question}
       className="rounded-lg border border-accent bg-bg p-3 text-sm shadow-sm"
       onKeyDown={(e) => {
         const chosen = e.key === "Escape" ? "decline" : decisions[Number(e.key) - 1];
@@ -705,12 +710,14 @@ function ChangePrompt({
         onDecide(chosen);
       }}
     >
-      <p className="font-medium">{t(`question.${action.action}`)}</p>
+      <p className="font-medium">{question}</p>
       <div className="mt-1.5 space-y-1">
         {action.title && (
           <p className="font-medium break-words text-fg">
             {memory ? (
               `“${action.title}”`
+            ) : call ? (
+              action.title
             ) : action.previousTitle !== undefined ? (
               <>
                 <span className="text-fg-muted line-through decoration-fg-faint">{action.previousTitle || t("empty")}</span> → {action.title}
@@ -723,6 +730,8 @@ function ChangePrompt({
         <p className="flex min-w-0 items-center gap-1 text-xs text-fg-muted">
           {memory ? (
             t("memoryHint")
+          ) : call ? (
+            t("connectionHint", { connection: action.connection?.name ?? "" })
           ) : action.target ? (
             <>
               {t(action.action === "updateRow" ? "row" : action.action === "editPage" ? "page" : "in")}
@@ -747,7 +756,12 @@ function ChangePrompt({
             ))}
           </ul>
         )}
-        {action.content && <p className="line-clamp-4 rounded bg-bg-subtle px-2 py-1 text-xs whitespace-pre-wrap text-fg-muted">{action.content}</p>}
+        {action.content &&
+          (call ? (
+            <pre className="max-h-40 overflow-auto rounded bg-bg-subtle px-2 py-1 text-xs break-all whitespace-pre-wrap text-fg-muted">{action.content}</pre>
+          ) : (
+            <p className="line-clamp-4 rounded bg-bg-subtle px-2 py-1 text-xs whitespace-pre-wrap text-fg-muted">{action.content}</p>
+          ))}
         {action.diff && action.diff.length > 0 && (
           <div className="max-h-64 space-y-0.5 overflow-y-auto rounded bg-bg-subtle px-1 py-1 text-xs">
             <BlockChanges changes={action.diff} compact />
