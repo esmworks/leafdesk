@@ -142,6 +142,24 @@
       "clear": "Temizle",
       "add": "Bu cevaptan sonra sor"
     },
+    "dictation": {
+      "start": "Soruyu sesle yaz",
+      "stop": "Durdur ve metni ekle",
+      "cancel": "Kaydı iptal et",
+      "transcribing": "Söyledikleriniz yazıya dökülüyor…",
+      "autoStopped": "Kayıt {minutes} dakikalık sınırda durdu. Göndermeden önce metni kontrol edin.",
+      "errors": {
+        "unsupported": "Bu tarayıcı ses kaydedemiyor.",
+        "denied": "Leafdesk'in mikrofonu kullanmasına izin verilmemiş. Tarayıcınızın site ayarlarından izin verip tekrar deneyin.",
+        "noDevice": "Mikrofon bulunamadı.",
+        "failed": "Kayıt başlatılamadı. Tekrar deneyin.",
+        "disabled": "Bu çalışma alanında sesle yazma kullanılamıyor.",
+        "tooLarge": "Kayıt çok büyük. Kayıtlar en fazla {max} olabilir.",
+        "timeout": "Kaydı yazıya dökmek çok uzun sürdü. Daha kısa bir kayıtla tekrar deneyin.",
+        "provider": "Kayıt yazıya dökülemedi. Daha sonra tekrar deneyin ya da bir yöneticiden konuşmayı yazıya dökme ayarlarını kontrol etmesini isteyin.",
+        "empty": "Kayıtta bir şey duyulmadı. Mikrofona daha yakın konuşarak tekrar deneyin."
+      }
+    },
     "scope": "Yanıt kaynağı",
     "scopeWorkspace": "Tüm çalışma alanı",
     "scopePage": "Bu sayfa ve alt sayfaları",

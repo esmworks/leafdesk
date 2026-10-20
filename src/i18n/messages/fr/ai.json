@@ -142,6 +142,24 @@
       "clear": "Effacer",
       "add": "Demander après cette réponse"
     },
+    "dictation": {
+      "start": "Dicter une question",
+      "stop": "Arrêter et insérer le texte",
+      "cancel": "Annuler l'enregistrement",
+      "transcribing": "Transcription de ce que vous avez dit…",
+      "autoStopped": "L'enregistrement s'est arrêté à la limite de {minutes} min. Vérifiez le texte avant de l'envoyer.",
+      "errors": {
+        "unsupported": "Ce navigateur ne peut pas enregistrer de son.",
+        "denied": "Leafdesk n'est pas autorisé à utiliser le micro. Autorisez-le dans les paramètres du site de votre navigateur, puis réessayez.",
+        "noDevice": "Aucun micro n'a été trouvé.",
+        "failed": "L'enregistrement n'a pas pu démarrer. Réessayez.",
+        "disabled": "La dictée n'est pas disponible dans cet espace de travail.",
+        "tooLarge": "L'enregistrement est trop volumineux. Les enregistrements peuvent faire au plus {max}.",
+        "timeout": "La transcription a pris trop de temps. Réessayez avec un enregistrement plus court.",
+        "provider": "L'enregistrement n'a pas pu être transcrit. Réessayez plus tard ou demandez à un administrateur de vérifier les réglages de transcription.",
+        "empty": "Rien n'a été entendu dans l'enregistrement. Réessayez plus près du micro."
+      }
+    },
     "scope": "Répondre à partir de",
     "scopeWorkspace": "Tout l’espace de travail",
     "scopePage": "Cette page et ses sous-pages",

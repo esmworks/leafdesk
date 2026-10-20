@@ -27,12 +27,14 @@ import {
   Zap,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { Fragment, lazy, Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
+import { Fragment, lazy, Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
 import { BlockChanges } from "@/components/page/history-diff";
 import { copyText } from "@/components/settings/copy-button";
 import { Button, cn, IconButton, MenuItem, Popover } from "@/components/ui";
 import { CHAT_MODES, changedMemory, changedThings, type ChatMode, type ChatSourceView, stripCitations } from "@/lib/ai-chat";
-import { caretOutsideLabels, deleteLabel, normalizePaste, shouldCollapsePaste, type PastePart } from "@/lib/chat-paste";
+import { caretOutsideLabels, deleteLabel, insertDictation, normalizePaste, shouldCollapsePaste, type PastePart } from "@/lib/chat-paste";
+import type { VoiceNoteLimits } from "@/lib/voice-notes";
+import { DictateButton, useCanRecord, type DictationNotice } from "./dictate-button";
 import { MemoryDialog } from "./memory-dialog";
 import { SkillChip, SkillList, useSkillPicker } from "./skill-picker";
 import { PageLink, StepLine } from "./step-line";
@@ -45,6 +47,7 @@ export function ChatThread({
   onSource,
   footer,
   variant,
+  voice,
 }: {
   chat: Chat;
   /** Why questions can't be asked now (offline, AI off), shown above the box. */
@@ -55,6 +58,8 @@ export function ChatThread({
   /** Under the box, before the note (the panel's scope picker). */
   footer?: ReactNode;
   variant: "panel" | "page";
+  /** The recording limits when questions can be dictated here, else null. */
+  voice: VoiceNoteLimits | null;
 }) {
   const t = useTranslations("ai.chat");
   const [memoryOpen, setMemoryOpen] = useState(false);
@@ -70,6 +75,22 @@ export function ChatThread({
   useLayoutEffect(() => {
     if (chipsRef.current && inputRef.current) chipsRef.current.scrollTop = inputRef.current.scrollTop;
   }, [input, inputRef]);
+  // Dictating a question, where the workspace can transcribe and the browser can record.
+  const canRecord = useCanRecord();
+  const [dictation, setDictation] = useState<DictationNotice>(null);
+  const dictated = useCallback(
+    (text: string) => {
+      const box = inputRef.current;
+      if (!box) return;
+      // The box as it is now (typing may have gone on meanwhile), at the caret it keeps while the
+      // button has focus.
+      const next = insertDictation(box.value, text, box.selectionStart, box.selectionEnd);
+      setInput(next.text);
+      box.focus();
+      requestAnimationFrame(() => box.setSelectionRange(next.caret, next.caret));
+    },
+    [inputRef, setInput],
+  );
   const skills = useSkillPicker({
     workspaceId: chat.workspaceId,
     input,
@@ -98,7 +119,9 @@ export function ChatThread({
   }, [messages, status, chat.conversationId]);
 
   const send = () => {
-    if (!blocked) onSend();
+    if (blocked) return;
+    setDictation(null);
+    onSend();
   };
   // The last question can be answered again, or edited, unless its answer changed things (that
   // would make them twice).
@@ -178,6 +201,11 @@ export function ChatThread({
           {error && (
             <p role="alert" className="mb-2 text-sm text-danger">
               {error}
+            </p>
+          )}
+          {dictation && (
+            <p role={dictation.error ? "alert" : "status"} className={cn("mb-2 text-sm", dictation.error ? "text-danger" : "text-fg-muted")}>
+              {dictation.message}
             </p>
           )}
           {!chat.pending && <QueueStrip queued={chat.queued} onClear={chat.clearQueue} />}
@@ -291,6 +319,9 @@ export function ChatThread({
                   >
                     <ScrollText className="h-4 w-4" />
                   </IconButton>
+                  {voice && canRecord && (
+                    <DictateButton workspaceId={chat.workspaceId} limits={voice} disabled={Boolean(blocked)} onText={dictated} onNotice={setDictation} />
+                  )}
                 </div>
                 {/* Filled while there is something to send, quiet otherwise. While an answer is on its
                     way, Stop is a ring, and a typed question can be queued beside it. */}
