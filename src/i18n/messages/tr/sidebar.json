@@ -19,6 +19,12 @@
     "skills": "Beceriler",
     "more": "Diğer"
   },
+  "tabs": {
+    "label": "Kenar çubuğu",
+    "home": "Ana sayfa",
+    "journal": "Günlük",
+    "chat": "Sohbet"
+  },
   "toggle": {
     "open": "Kenar çubuğunu aç",
     "close": "Kenar çubuğunu gizle",

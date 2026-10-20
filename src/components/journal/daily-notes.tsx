@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useState, useTransition, type ReactNode } from "react";
@@ -11,7 +11,7 @@ import {
   setJournalStartAction,
   type JournalStartChoice,
 } from "@/app/actions/journal";
-import { cn, Popover, selectClass } from "@/components/ui";
+import { cn, selectClass } from "@/components/ui";
 import type { JournalStart } from "@/db/schema";
 import { firstDayOfWeek, monthWeeks } from "@/lib/calendar";
 import { addDays, today } from "@/lib/journal";
@@ -77,62 +77,17 @@ export function OpenDailyNoteButton({
 const utcDay = (day: number) => new Date(day * 86_400_000);
 
 /**
- * The calendar button beside "Today" in the sidebar: a month of days, those with a note marked,
- * any of them a click away from its note; and how new notes start. `leading` (the "Today" button)
- * comes before it on the same line, which the calendar opens under, from its start.
+ * A month of days, those with a note marked, any of them a click away from its note (the sidebar's
+ * journal tab). `notesKey` changes when the notes do, so the marks follow notes made or trashed elsewhere.
  */
-export function DailyNotesCalendarButton({
-  workspaceId,
-  disabled,
-  title,
-  leading,
-}: {
-  workspaceId: string;
-  disabled?: boolean;
-  title?: string;
-  leading?: ReactNode;
-}) {
-  const t = useTranslations("journal");
-  const [open, setOpen] = useState(false);
-  return (
-    <Popover
-      open={open}
-      onOpenChange={setOpen}
-      className="w-72 p-3"
-      wrapperClassName="w-full items-center gap-0.5"
-      trigger={({ toggle }) => (
-        <>
-          {leading}
-          <button
-            type="button"
-            onClick={toggle}
-            disabled={disabled}
-            aria-label={t("calendar")}
-            aria-expanded={open}
-            title={title ?? t("calendar")}
-            className={cn(
-              "flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-fg-muted hover:bg-bg-hover hover:text-fg disabled:opacity-50",
-              open && "bg-bg-active text-fg",
-            )}
-          >
-            <CalendarDays className="h-4 w-4" />
-          </button>
-        </>
-      )}
-    >
-      {(close) => <DailyNotesCalendar workspaceId={workspaceId} onOpened={close} />}
-    </Popover>
-  );
-}
-
-export function DailyNotesCalendar({ workspaceId, onOpened }: { workspaceId: string; onOpened?: () => void }) {
+export function DailyNotesCalendar({ workspaceId, notesKey }: { workspaceId: string; notesKey?: string }) {
   const t = useTranslations("journal");
   const format = useFormatter();
   const locale = useLocale();
   const [now] = useState(() => today());
   const [month, setMonth] = useState(() => now.slice(0, 8) + "01");
   const [noted, setNoted] = useState<Set<string>>(new Set());
-  const { open, pending, error } = useOpenDailyNote(workspaceId, onOpened);
+  const { open, pending, error } = useOpenDailyNote(workspaceId);
 
   useEffect(() => {
     let live = true;
@@ -142,7 +97,7 @@ export function DailyNotesCalendar({ workspaceId, onOpened }: { workspaceId: str
     return () => {
       live = false;
     };
-  }, [workspaceId, month]);
+  }, [workspaceId, month, notesKey]);
 
   const [year, monthIndex] = month.split("-").map(Number);
   const weekStart = firstDayOfWeek(locale);
@@ -236,13 +191,12 @@ export function DailyNotesCalendar({ workspaceId, onOpened }: { workspaceId: str
           {error}
         </p>
       )}
-      <JournalStartPicker workspaceId={workspaceId} />
     </div>
   );
 }
 
 /** How the user's new notes start: a few headings, blank, or one of the workspace's page templates. */
-function JournalStartPicker({ workspaceId }: { workspaceId: string }) {
+export function JournalStartPicker({ workspaceId }: { workspaceId: string }) {
   const t = useTranslations("journal");
   const tc = useTranslations("common");
   const [choice, setChoice] = useState<JournalStartChoice | null>(null);

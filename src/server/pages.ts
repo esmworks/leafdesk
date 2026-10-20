@@ -14,6 +14,7 @@ import {
   file,
   fileReference,
   fileText,
+  journal,
   oauthClient,
   page,
   pageColumns,
@@ -164,13 +165,26 @@ export async function getTree(userId: string, workspaceId: string): Promise<Tree
   }));
 }
 
-/** The sidebar: its page tree and the teamspaces it has a section for. */
-export async function getSidebar(
-  userId: string,
-  workspaceId: string,
-): Promise<{ tree: TreeNode[]; teamspaces: TeamspaceSummary[] }> {
-  const [tree, teamspaces] = await Promise.all([getTree(userId, workspaceId), sidebarTeamspaces(userId, workspaceId)]);
-  return { tree, teamspaces };
+export type SidebarData = {
+  tree: TreeNode[];
+  teamspaces: TeamspaceSummary[];
+  /** The page the user's daily notes go under (see server/journal.ts), listed apart from the other pages. */
+  journalPageId: string | null;
+};
+
+/** The sidebar: its page tree, the teamspaces it has a section for and the user's journal. */
+export async function getSidebar(userId: string, workspaceId: string): Promise<SidebarData> {
+  const [tree, teamspaces, [ownJournal]] = await Promise.all([
+    getTree(userId, workspaceId),
+    sidebarTeamspaces(userId, workspaceId),
+    db
+      .select({ pageId: journal.pageId })
+      .from(journal)
+      .where(and(eq(journal.workspaceId, workspaceId), eq(journal.userId, userId))),
+  ]);
+  // Only while it is in the tree: one in the trash, or out of their reach, is no journal to list.
+  const journalPageId = ownJournal?.pageId && tree.some((n) => n.id === ownJournal.pageId) ? ownJournal.pageId : null;
+  return { tree, teamspaces, journalPageId };
 }
 
 export async function getPage(userId: string, pageId: string) {

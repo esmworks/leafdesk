@@ -19,6 +19,12 @@
     "skills": "Umiejętności",
     "more": "Więcej"
   },
+  "tabs": {
+    "label": "Pasek boczny",
+    "home": "Strona główna",
+    "journal": "Dziennik",
+    "chat": "Czat"
+  },
   "toggle": {
     "open": "Otwórz pasek boczny",
     "close": "Ukryj pasek boczny",

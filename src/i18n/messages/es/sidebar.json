@@ -19,6 +19,12 @@
     "skills": "Habilidades",
     "more": "Más"
   },
+  "tabs": {
+    "label": "Barra lateral",
+    "home": "Inicio",
+    "journal": "Diario",
+    "chat": "Chat"
+  },
   "toggle": {
     "open": "Abrir barra lateral",
     "close": "Ocultar barra lateral",

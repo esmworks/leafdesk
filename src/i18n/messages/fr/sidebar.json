@@ -19,6 +19,12 @@
     "skills": "Compétences",
     "more": "Plus"
   },
+  "tabs": {
+    "label": "Barre latérale",
+    "home": "Accueil",
+    "journal": "Journal",
+    "chat": "Discussion"
+  },
   "toggle": {
     "open": "Ouvrir la barre latérale",
     "close": "Masquer la barre latérale",
