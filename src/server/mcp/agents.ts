@@ -2,6 +2,7 @@ import * as z from "zod";
 import {
   type AgentMemoryView,
   AGENT_ACCESS_LEVELS,
+  AGENT_MODELS,
   isRowRun,
   MAX_AGENT_DESCRIPTION,
   MAX_AGENT_SCHEDULES,
@@ -16,6 +17,7 @@ import {
   MAX_AGENTS,
   MAX_AGENT_PROPOSALS,
   type AgentAccessView,
+  type AgentModel,
   type AgentSkillSkip,
   type AgentSkillView,
   type AgentRunView,
@@ -53,6 +55,12 @@ const instructionsInput = z
   .max(MAX_AGENT_INSTRUCTIONS)
   .describe(
     `What the agent does and how, in plain language (at most ${MAX_AGENT_INSTRUCTIONS} characters): it reads them on every run, before the task an automation gives it.`,
+  );
+
+const modelInput = z
+  .enum(AGENT_MODELS)
+  .describe(
+    'Which of the server\'s models its runs use: "main" (its main model, for work that needs judgment) or "fast" (its cheaper fast model, for routine, well-defined jobs such as summaries or sorting rows). "fast" runs on the main model where the server has no fast model or the workspace\'s AI is an own AI account.',
   );
 
 const repeatInput = z
@@ -101,6 +109,7 @@ export const agentInputs = {
     description: descriptionInput.optional(),
     instructions: instructionsInput.optional(),
     enabled: z.boolean().optional().describe("Whether it runs (default true). A paused agent's queued runs end without doing anything."),
+    model: modelInput.optional().describe(`${modelInput.description} Default "main".`),
   }),
   // No defaults here: what is left out stays as it is.
   update: z.object({
@@ -120,6 +129,7 @@ export const agentInputs = {
       .describe(
         "The most tokens (input and output) its runs may use in a calendar month (UTC); a run stops once the month reaches it, and runs aren't started until the next month. null removes the limit.",
       ),
+    model: modelInput.optional(),
   }),
   run: z.object({
     agent_id: id("agent"),
@@ -220,14 +230,16 @@ export function toScheduleInput(args: { repeat?: RepeatArgs; time_zone?: string;
 
 /** update_agent's arguments as a patch: only what was given. */
 export function toAgentPatch(args: Omit<z.infer<typeof agentInputs.update>, "agent_id">) {
-  const patch: { name?: string; icon?: string | null; description?: string; instructions?: string; enabled?: boolean; monthlyTokenLimit?: number | null } = {};
+  const patch: { name?: string; icon?: string | null; description?: string; instructions?: string; enabled?: boolean; monthlyTokenLimit?: number | null; model?: AgentModel } =
+    {};
   if (args.name !== undefined) patch.name = args.name;
   if (args.icon !== undefined) patch.icon = args.icon;
   if (args.description !== undefined) patch.description = args.description;
   if (args.instructions !== undefined) patch.instructions = args.instructions;
   if (args.enabled !== undefined) patch.enabled = args.enabled;
   if (args.monthly_token_limit !== undefined) patch.monthlyTokenLimit = args.monthly_token_limit;
-  if (!Object.keys(patch).length) throw new ToolInputError("Nothing to change: pass name, icon, description, instructions, enabled or monthly_token_limit.");
+  if (args.model !== undefined) patch.model = args.model;
+  if (!Object.keys(patch).length) throw new ToolInputError("Nothing to change: pass name, icon, description, instructions, enabled, monthly_token_limit or model.");
   return patch;
 }
 
@@ -236,6 +248,7 @@ const INVALID: Record<string, string> = {
   icon: "An agent's icon is one emoji; pass null to remove it.",
   level: 'An agent can view, comment on or edit a page ("view", "comment" or "edit"), never get full access.',
   limit: `A monthly token limit is a whole number from 1 to ${MAX_AGENT_TOKEN_LIMIT}; pass null to remove it.`,
+  model: 'An agent runs on the "main" or the "fast" model.',
   task: "A run needs a task: say what the agent should do.",
   taskLength: `A task has at most ${MAX_AGENT_PROMPT} characters. Make it shorter.`,
   repeat:
@@ -344,6 +357,7 @@ export function describeAgentSummary(agent: AgentView) {
     description: agent.description,
     enabled: agent.enabled,
     archived: agent.archived,
+    model: agent.model,
     user_id: agent.userId,
   };
 }
@@ -617,6 +631,7 @@ export function describeAgentRun(workspaceId: string, run: AgentRunView) {
             input_tokens: run.usage.inputTokens,
             output_tokens: run.usage.outputTokens,
             cost_usd: run.usage.costUsd,
+            ...(run.usage.model ? { model: run.usage.model } : {}),
           },
         }
       : {}),

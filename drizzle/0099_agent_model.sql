@@ -1,0 +1,1 @@
+ALTER TABLE "workspace_agent" ADD COLUMN "model" text DEFAULT 'main' NOT NULL;

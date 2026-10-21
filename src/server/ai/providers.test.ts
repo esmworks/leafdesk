@@ -184,6 +184,8 @@ describe("providers over HTTP", () => {
       expect(await send("editor.custom")).toMatchObject({ model: "claude-opus-5-5", effort: "medium" });
       expect(await send("chat")).toEqual({ model: "claude-opus-5-5", thinking: "adaptive", effort: "medium" });
       expect(await send("agent")).toEqual({ model: "claude-opus-5-5", thinking: "adaptive", effort: "high" });
+      // An agent its owners put on the fast model.
+      expect(await send("agent.fast")).toEqual({ model: "claude-haiku-5-5", thinking: "adaptive", effort: "low" });
       // A feature no one planned for: the main model as it comes.
       expect(await send("something.new")).toMatchObject({ model: "claude-opus-5-5", effort: "high" });
       expect(seen.every((r) => r.auth === "sk-ant-test")).toBe(true);
@@ -195,6 +197,8 @@ describe("providers over HTTP", () => {
       expect(await send("property.summary")).toEqual({ model: "claude-opus-5-5", thinking: "adaptive", effort: "low" });
       expect(await send("voice.rewrite")).toMatchObject({ model: "claude-opus-5-5", effort: "low" });
       expect(await send("chat")).toMatchObject({ model: "claude-opus-5-5", effort: "medium" });
+      // An agent set to the fast model is an agent like any other here.
+      expect(await send("agent.fast")).toEqual({ model: "claude-opus-5-5", thinking: "adaptive", effort: "high" });
     });
 
     it("lets a request ask for its own thinking", async () => {

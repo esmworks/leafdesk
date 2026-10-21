@@ -103,6 +103,8 @@ export type AiResult = {
   usage: AiUsage;
   /** The answer as a message, to append to `messages` for the next turn. */
   message: Extract<AiMessage, { role: "assistant" }>;
+  /** The model that answered (AI_MODEL's, AI_FAST_MODEL's or an own AI account's id). */
+  model: string;
 };
 
 export type AiStreamEvent = { type: "text"; delta: string } | { type: "thinking"; delta: string };
@@ -328,11 +330,14 @@ export async function sttLimitsFor(workspaceId: string): Promise<{ maxSeconds: n
  * The provider and model names for the workspace's settings and logs, and whether they are an own
  * AI account's; null while the workspace has no AI.
  */
-export async function aiInfoFor(workspaceId: string): Promise<{ provider: string; model: string; accountId: string | null; embeddings: string | null } | null> {
+export async function aiInfoFor(
+  workspaceId: string,
+): Promise<{ provider: string; model: string; fastModel: string | null; accountId: string | null; embeddings: string | null } | null> {
   const target = await aiTargetFor(workspaceId);
   const chat = target?.config.chat;
   if (!target || !chat) return null;
-  return { provider: chat.provider, model: chat.model, accountId: target.accountId, embeddings: modelOf(target) };
+  // An own AI account has one model: the fast jobs run on it too (see accountAiConfig).
+  return { provider: chat.provider, model: chat.model, fastModel: chat.fastModel ?? null, accountId: target.accountId, embeddings: modelOf(target) };
 }
 
 /** The server's provider and model names (its AI_* settings); null while unset. */
@@ -408,16 +413,27 @@ function promptRoom(model: Model<Api>, limits: AiConfig["limits"], answerTokens:
 
 /**
  * Characters of prompt the workspace's chat model takes (see promptRoom), for the chat and agents
- * to fit their history and tool results in. Without AI for the workspace, the content budget.
+ * to fit their history and tool results in: the model `feature` runs on (see features.ts). Without
+ * AI for the workspace, the content budget.
  */
-export async function promptRoomFor(workspaceId: string): Promise<number> {
+export async function promptRoomFor(workspaceId: string, feature?: string): Promise<number> {
   const target = await aiTargetFor(workspaceId);
   // A backend that can't be set up fails the request itself, with its own error.
   const backend = target && chatOn(target) ? await backendFor(target).catch(() => null) : null;
   if (!target || !backend) return contentChars(aiConfig().limits);
-  const { model } = backend;
+  const { model } = planFor(backend, feature ?? "");
   const limits = target.config.limits;
   return promptRoom(model, limits, Math.min(limits.maxOutputTokens, model.maxTokens || Infinity));
+}
+
+/**
+ * The model a feature runs on, and its plan there (features.ts): AI_FAST_MODEL for the features
+ * marked `fast`, where the backend has one; AI_MODEL (or an own AI account's) otherwise.
+ */
+function planFor(backend: AiBackend, feature: string) {
+  const plan = featurePlan(feature);
+  if (plan.fast && backend.fast) return { model: backend.fast, plan };
+  return { model: backend.model, plan: plan.orElse ? featurePlan(plan.orElse) : plan };
 }
 
 function promptSize(request: AiRequest) {
@@ -475,7 +491,7 @@ function toContext(request: AiRequest, model: Model<Api>): Context {
   return { systemPrompt: request.system, messages, ...(tools?.length ? { tools } : {}) };
 }
 
-function toResult(message: AssistantMessage): AiResult {
+function toResult(message: AssistantMessage, model: string): AiResult {
   const text = message.content.flatMap((b) => (b.type === "text" ? [b.text] : [])).join("");
   const toolCalls = message.content.flatMap((b) =>
     b.type === "toolCall" ? [{ id: b.id, name: b.name, arguments: (b.arguments ?? {}) as Record<string, unknown> }] : [],
@@ -491,6 +507,7 @@ function toResult(message: AssistantMessage): AiResult {
       costUsd: message.usage.cost.total,
     },
     message: { role: "assistant", content: text, ...(toolCalls.length ? { toolCalls } : {}), raw: message },
+    model,
   };
 }
 
@@ -610,9 +627,9 @@ export function stream(request: AiRequest): AiStream {
       if (!chatOn(target)) throw new AiError("disabled", "AI is not configured for this workspace");
       ledger = await usageLedger(runtime.override);
       await holdToLimit(ledger, request.workspaceId, target!.accountId !== null);
-      const plan = featurePlan(request.feature);
-      const { models, model: main, fast, sessions, fetch: viaFetch } = await backendFor(target!);
-      const m = plan.fast && fast ? fast : main;
+      const backend = await backendFor(target!);
+      const { models, sessions, fetch: viaFetch } = backend;
+      const { model: m, plan } = planFor(backend, request.feature);
       model = m.id;
       const room = promptRoom(m, target!.config.limits, prepared.maxTokens(m));
       if (promptSize(request) > room) throw new AiError("tooLarge", `The request is larger than the model takes (${room} characters)`);
@@ -644,7 +661,7 @@ export function stream(request: AiRequest): AiStream {
         throw new AiError("tooLarge", `The request is larger than the model takes: ${final.errorMessage ?? ""}`);
       }
       if (final.stopReason === "error" || final.stopReason === "aborted") throw new Error(final.errorMessage ?? final.stopReason);
-      const result = toResult(final);
+      const result = toResult(final, model);
       logUsage({
         feature: request.feature,
         userId: request.userId,
@@ -665,7 +682,7 @@ export function stream(request: AiRequest): AiStream {
         workspaceId: request.workspaceId,
         accountId: target?.accountId,
         ms: performance.now() - started,
-        usage: final ? toResult(final).usage : undefined,
+        usage: final ? toResult(final, model).usage : undefined,
         model,
       });
       if (target) noted(target, failed);

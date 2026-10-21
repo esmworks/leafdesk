@@ -67,6 +67,7 @@ const fake = await startFakeOpenAi();
 setAiEnv({
   AI_PROVIDER: "openai-compatible",
   AI_MODEL: "fake-chat",
+  AI_FAST_MODEL: "fake-fast",
   AI_BASE_URL: fake.baseUrl,
   AI_WORKSPACE_RATE_LIMIT: "1000",
   AI_RATE_LIMIT: "1000",
@@ -542,6 +543,42 @@ try {
   );
   const views = await agents.listAgentRuns(ids.owner, router.id);
   check(!JSON.stringify(views).includes(leaked.github), "an agent's runs, as owners list them, show no credential");
+  await db.delete(agentRun).where(budgetRuns);
+
+  // ── The model an agent runs on ──────────────────────────────────────────────────────────────
+  const searchThenAnswer = (request: FakeChatRequest): FakeReply =>
+    request.messages.some((m) => m.role === "assistant" && m.tool_calls?.length) ? { text: "Checked." } : { toolCalls: [{ name: "search_pages", arguments: { query: "budget" } }] };
+  check(talkative.usage?.model === "fake-chat", "a run keeps the model that answered: the main model by default", talkative.usage);
+  check((await agents.updateAgent(ids.owner, router.id, { model: "fast" })).model === "fast", "an owner puts the agent on the fast model");
+  const onFast = await keptRun(searchThenAnswer);
+  check(
+    onFast.status === "done" && fake.chats.length === 2 && fake.chats.every((c) => c.model === "fake-fast"),
+    "every turn of its runs goes to the fast model",
+    { status: onFast.status, models: fake.chats.map((c) => c.model) },
+  );
+  check(onFast.usage?.model === "fake-fast" && onFast.usage.rounds === 2, "…and the run says so", onFast.usage);
+  check(
+    await fails(agents.updateAgent(ids.owner, router.id, { model: "turbo" as never }), (e) => e instanceof agents.AgentError && e.code === "invalid"),
+    "an agent runs on the main or the fast model, nothing else",
+  );
+  await agents.updateAgent(ids.owner, router.id, { model: "main" });
+  const onMain = await keptRun(searchThenAnswer);
+  check(fake.chats.length === 2 && fake.chats.every((c) => c.model === "fake-chat") && onMain.usage?.model === "fake-chat", "back on the main model, its runs are too", {
+    models: fake.chats.map((c) => c.model),
+    usage: onMain.usage,
+  });
+  const [audited] = await db
+    .select({ details: auditEvent.details })
+    .from(auditEvent)
+    .where(and(eq(auditEvent.workspaceId, workspaceId), eq(auditEvent.action, "agent.updated")))
+    .orderBy(sql`${auditEvent.createdAt} desc`)
+    .limit(1);
+  check(
+    (audited?.details as { model?: string; previous?: { model?: string } })?.model === "main" &&
+      (audited?.details as { previous?: { model?: string } }).previous?.model === "fast",
+    "the audit log records the change of model",
+    audited,
+  );
   await db.delete(agentRun).where(budgetRuns);
 
   // ── When a run doesn't happen ───────────────────────────────────────────────────────────────

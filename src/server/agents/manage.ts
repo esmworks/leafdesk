@@ -16,6 +16,7 @@ import {
   callConnectionName,
   callToSend,
   isAgentAccessLevel,
+  isAgentModel,
   isEventRun,
   isRowRun,
   isScheduleRun,
@@ -28,6 +29,7 @@ import {
   MAX_AGENTS,
   type AgentAccessLevel,
   type AgentAccessView,
+  type AgentModel,
   type AgentRunView,
   type AgentView,
 } from "@/lib/agents";
@@ -83,6 +85,7 @@ export type AgentInput = {
   enabled?: boolean;
   /** Tokens a month; null removes the limit. */
   monthlyTokenLimit?: number | null;
+  model?: AgentModel;
 };
 
 const clean = (value: unknown, max: number) => (typeof value === "string" ? value.trim().slice(0, max) : undefined);
@@ -98,6 +101,11 @@ function checkLimit(value: unknown) {
   if (typeof value !== "number" || !Number.isInteger(value) || value < 1 || value > MAX_AGENT_TOKEN_LIMIT) {
     throw new AgentError("invalid", "A monthly token limit is a whole number of tokens, from 1 to a billion", { reason: "limit" });
   }
+  return value;
+}
+
+function checkModel(value: unknown): AgentModel {
+  if (!isAgentModel(value)) throw new AgentError("invalid", 'An agent runs on the "main" or the "fast" model', { reason: "model" });
   return value;
 }
 
@@ -121,12 +129,13 @@ export function viewAgent(a: Agent): AgentView {
     enabled: a.enabled,
     archived: a.archivedAt !== null,
     monthlyTokenLimit: a.monthlyTokenLimit,
+    model: a.model,
     createdAt: a.createdAt.toISOString(),
     updatedAt: a.updatedAt.toISOString(),
   };
 }
 
-export const auditDetails = (a: Agent) => ({ name: a.name, enabled: a.enabled, archived: a.archivedAt !== null, monthlyTokenLimit: a.monthlyTokenLimit });
+export const auditDetails = (a: Agent) => ({ name: a.name, enabled: a.enabled, archived: a.archivedAt !== null, monthlyTokenLimit: a.monthlyTokenLimit, model: a.model });
 
 /** The agent with this id, for an owner of its workspace. */
 export async function ownedAgent(userId: string, agentId: string) {
@@ -166,6 +175,7 @@ export async function createAgent(userId: string, workspaceId: string, input: Ag
   const description = clean(input.description, MAX_AGENT_DESCRIPTION) ?? "";
   const instructions = clean(input.instructions, MAX_AGENT_INSTRUCTIONS) ?? "";
   const monthlyTokenLimit = input.monthlyTokenLimit === undefined ? null : checkLimit(input.monthlyTokenLimit);
+  const model = input.model === undefined ? "main" : checkModel(input.model);
   const created = await db.transaction(async (tx) => {
     const [{ n }] = await tx
       .select({ n: count() })
@@ -178,7 +188,7 @@ export async function createAgent(userId: string, workspaceId: string, input: Ag
     await addAgentMembership(tx, workspaceId, userIdOfAgent, userId);
     const [agent] = await tx
       .insert(workspaceAgent)
-      .values({ id, workspaceId, userId: userIdOfAgent, name, icon, description, instructions, enabled: input.enabled ?? true, monthlyTokenLimit, createdBy: userId })
+      .values({ id, workspaceId, userId: userIdOfAgent, name, icon, description, instructions, enabled: input.enabled ?? true, monthlyTokenLimit, model, createdBy: userId })
       .returning();
     return agent;
   });
@@ -197,6 +207,7 @@ export async function updateAgent(userId: string, agentId: string, patch: AgentI
   if (patch.instructions !== undefined) set.instructions = clean(patch.instructions, MAX_AGENT_INSTRUCTIONS) ?? "";
   if (patch.enabled !== undefined) set.enabled = Boolean(patch.enabled);
   if (patch.monthlyTokenLimit !== undefined) set.monthlyTokenLimit = checkLimit(patch.monthlyTokenLimit);
+  if (patch.model !== undefined) set.model = checkModel(patch.model);
   if (!Object.keys(set).length) return viewAgent(current);
   const updated = await db.transaction(async (tx) => {
     const [agent] = await tx.update(workspaceAgent).set(set).where(eq(workspaceAgent.id, agentId)).returning();

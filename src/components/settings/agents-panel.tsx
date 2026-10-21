@@ -11,7 +11,7 @@ import { useAction } from "@/components/settings/workspace-settings";
 import { Button, cn, Dialog, IconButton, MenuItem, MenuSeparator } from "@/components/ui";
 import { MAX_AGENTS, type AgentView } from "@/lib/agents";
 import type { BuiltinAgentSummary } from "@/lib/builtin-agents";
-import { AgentDialog, AgentForm, AgentIcon, type AgentTab } from "./agent-dialog";
+import { AgentDialog, AgentForm, AgentIcon, type AgentModelNames, type AgentTab } from "./agent-dialog";
 import { TemplateWizard } from "./agent-template-wizard";
 
 /**
@@ -27,6 +27,7 @@ export function AgentsPanel({
   memoryOff = false,
   templates,
   ai,
+  models = null,
   initialAgentId,
   initialRunId,
   initialTab,
@@ -42,6 +43,8 @@ export function AgentsPanel({
   templates: BuiltinAgentSummary[];
   /** Whether agents can run: AI set up on the server and on in the workspace. */
   ai: "on" | "off" | "unavailable";
+  /** The server's main and fast models, when an agent may choose between them (see AgentForm). */
+  models?: AgentModelNames | null;
   initialAgentId?: string;
   initialRunId?: string;
   /** The tab of `initialAgentId` a link opens (its runs when it names a run, else its settings). */
@@ -170,6 +173,7 @@ export function AgentsPanel({
           <h2 className="border-b border-border px-5 py-4 text-base font-semibold">{t("form.createTitle")}</h2>
           <AgentForm
             workspaceId={workspaceId}
+            models={models}
             onDone={() => setCreating(false)}
             onCreated={(agent) => {
               setCreating(false);
@@ -187,6 +191,7 @@ export function AgentsPanel({
           runId={linkedRun}
           proposals={proposals[opened.id] ?? 0}
           memoryOff={memoryOff}
+          models={models}
           onTab={(tab) => setOpen({ id: opened.id, tab })}
           onClose={() => {
             setOpen(null);

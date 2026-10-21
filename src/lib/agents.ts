@@ -74,6 +74,16 @@ export type AgentAccessLevel = (typeof AGENT_ACCESS_LEVELS)[number];
 export const isAgentAccessLevel = (value: unknown): value is AgentAccessLevel =>
   typeof value === "string" && (AGENT_ACCESS_LEVELS as readonly string[]).includes(value);
 
+/**
+ * Which of the server's models an agent's runs use: its main model (AI_MODEL), or its cheaper fast
+ * one (AI_FAST_MODEL), for routine, well-defined jobs. Without a fast model, and on a workspace's
+ * own AI account, which has one model, "fast" runs on the main model.
+ */
+export const AGENT_MODELS = ["main", "fast"] as const;
+export type AgentModel = (typeof AGENT_MODELS)[number];
+
+export const isAgentModel = (value: unknown): value is AgentModel => typeof value === "string" && (AGENT_MODELS as readonly string[]).includes(value);
+
 /** Where an owner asked for a run: the REST API or an MCP client. */
 export const AGENT_RUN_VIAS = ["api", "mcp"] as const;
 export type AgentRunVia = (typeof AGENT_RUN_VIAS)[number];
@@ -274,7 +284,14 @@ export const AGENT_RUN_CODES = [
 ] as const;
 export type AgentRunCode = (typeof AGENT_RUN_CODES)[number];
 
-export type AgentRunUsage = { inputTokens: number; outputTokens: number; costUsd: number; rounds: number };
+export type AgentRunUsage = {
+  inputTokens: number;
+  outputTokens: number;
+  costUsd: number;
+  rounds: number;
+  /** The model that answered its latest turn (runs from before it was kept have none). */
+  model?: string;
+};
 
 /** An agent as the settings show it. */
 export type AgentView = {
@@ -293,6 +310,8 @@ export type AgentView = {
    * stops at its first turn once the month's tokens reach it.
    */
   monthlyTokenLimit: number | null;
+  /** Which of the server's models its runs use (see AGENT_MODELS). */
+  model: AgentModel;
   createdAt: string;
   updatedAt: string;
 };

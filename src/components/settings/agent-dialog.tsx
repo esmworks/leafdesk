@@ -32,6 +32,7 @@ import {
   OWN_TOOLS_NAME,
   type AgentAccessLevel,
   type AgentAccessView,
+  type AgentModel,
   type AgentSkillRecord,
   type AgentToolRecord,
   type AgentUsageMonth,
@@ -44,6 +45,8 @@ import { AgentSkillsTab } from "./agent-skills-tab";
 import { PagePicker, useShareablePages } from "./agent-page-picker";
 
 export type AgentTab = "settings" | "access" | "skills" | "memory" | "connections" | "schedules" | "runs";
+/** The server's main and fast models' names, shown with the agent's choice between them. */
+export type AgentModelNames = { main: string; fast: string };
 export const AGENT_TABS: readonly AgentTab[] = ["settings", "access", "skills", "memory", "connections", "schedules", "runs"];
 
 
@@ -61,12 +64,15 @@ export function AgentDialog({
   runId,
   proposals = 0,
   memoryOff = false,
+  models = null,
   onTab,
   onClose,
 }: {
   workspaceId: string;
   agent: AgentView;
   tab: AgentTab;
+  /** The models an agent may choose between; null hides the choice (see AgentForm). */
+  models?: AgentModelNames | null;
   /** Notes its runs proposed that wait for an owner, counted on the Memory tab. */
   proposals?: number;
   memoryOff?: boolean;
@@ -110,7 +116,7 @@ export function AgentDialog({
         </div>
       </div>
       {tab === "settings" ? (
-        <AgentForm workspaceId={workspaceId} agent={agent} onDone={onClose} />
+        <AgentForm workspaceId={workspaceId} agent={agent} models={models} onDone={onClose} />
       ) : tab === "access" ? (
         <AccessTab workspaceId={workspaceId} agent={agent} />
       ) : tab === "skills" ? (
@@ -132,11 +138,18 @@ export function AgentDialog({
 export function AgentForm({
   workspaceId,
   agent,
+  models = null,
   onDone,
   onCreated,
 }: {
   workspaceId: string;
   agent?: AgentView;
+  /**
+   * The server's main and fast models, when the agent may choose between them. Null (no fast
+   * model, or an own AI account) hides the choice and leaves the stored one as it is: a "fast"
+   * agent then runs on the main model.
+   */
+  models?: AgentModelNames | null;
   onDone: () => void;
   onCreated?: (agent: AgentView) => void;
 }) {
@@ -148,6 +161,7 @@ export function AgentForm({
   const [instructions, setInstructions] = useState(agent?.instructions ?? "");
   const [enabled, setEnabled] = useState(agent?.enabled ?? true);
   const [limit, setLimit] = useState(agent?.monthlyTokenLimit ? String(agent.monthlyTokenLimit) : "");
+  const [model, setModel] = useState<AgentModel>(agent?.model ?? "main");
   const { pending, error, run } = useAction();
   const locked = Boolean(agent?.archived);
   const clean = name.trim();
@@ -157,7 +171,7 @@ export function AgentForm({
 
   const submit = () => {
     if (!clean || locked || !limitValid) return;
-    const value = { name: clean, icon, description, instructions, enabled, monthlyTokenLimit };
+    const value = { name: clean, icon, description, instructions, enabled, monthlyTokenLimit, ...(models ? { model } : {}) };
     if (agent) run(() => updateAgentAction(workspaceId, agent.id, value), onDone);
     else run(() => createAgentAction(workspaceId, value), (created) => onCreated?.(created));
   };
@@ -223,6 +237,16 @@ export function AgentForm({
           </div>
           <Switch checked={enabled} label={t("active")} disabled={locked} onChange={setEnabled} />
         </div>
+        {models && (
+          <label className="block border-t border-border pt-3">
+            <span className="mb-1 block text-sm">{t("model")}</span>
+            <select value={model} onChange={(e) => setModel(e.target.value as AgentModel)} className={cn(selectClass, "w-full sm:w-auto")}>
+              <option value="main">{t("modelMain", { name: models.main })}</option>
+              <option value="fast">{t("modelFast", { name: models.fast })}</option>
+            </select>
+            <span className="mt-1 block text-xs text-fg-muted">{t("modelHelp")}</span>
+          </label>
+        )}
         <label className="block border-t border-border pt-3">
           <span className="mb-1 block text-sm">{t("limit")}</span>
           <Input
@@ -582,6 +606,7 @@ function RunItem({
             {took && ` · ${t("took", { time: took })}`}
             {run.request && ` · ${t("requestedBy", { name: run.request.byName, via: run.request.via })}`}
             {run.schedule && ` · ${t("scheduledBy", { name: run.schedule.byName })}`}
+            {run.usage?.model && ` · ${t("model", { model: run.usage.model })}`}
           </div>
           {failed && run.code && <p className="mt-0.5 text-xs text-danger">{t(`reason.${run.code}`)}</p>}
         </div>

@@ -11,6 +11,11 @@ export type AiFeaturePlan = {
   fast?: boolean;
   /** Unset: the model's own default (Claude 5.5: high effort). */
   thinking?: AiThinking;
+  /**
+   * Where there is no fast model (none on the server, or an own AI account), the request runs as
+   * this feature instead: for features that ask for the fast model by choice rather than need.
+   */
+  orElse?: string;
 };
 
 /** A name ending in "." covers every feature it starts; the first match counts. */
@@ -27,6 +32,10 @@ const PLANS: [feature: string, plan: AiFeaturePlan][] = [
   // Questions over the workspace's pages, often with figures, while the person waits.
   ["chat", { thinking: "medium" }],
   // Agents work alone over many steps, where a mistake is not caught by someone reading along.
+  // One its owners set to the fast model does routine, well-defined work (summaries, sorting rows):
+  // a little thinking keeps its steps on track without spending what the cheaper model saves.
+  // Without a fast model it is an agent like any other.
+  ["agent.fast", { fast: true, thinking: "low", orElse: "agent" }],
   ["agent", {}],
 ];
 
