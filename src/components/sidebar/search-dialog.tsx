@@ -1,12 +1,12 @@
 "use client";
 
-import { ChevronRight, Paperclip, Search } from "lucide-react";
+import { Archive, ChevronRight, Paperclip, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { recentSearchAction, searchAction } from "@/app/actions/pages";
 import { openBlockLink } from "@/components/page/block-focus";
-import { cn, Dialog, PageIcon, pageLabel } from "@/components/ui";
+import { cn, Dialog, PageIcon, pageLabel, Switch } from "@/components/ui";
 import type { PageKind } from "@/db/schema";
 import { pageOrBlockPath } from "@/lib/mentions";
 import { searchFold } from "@/lib/search-fold";
@@ -30,6 +30,8 @@ type PageItem = {
   match?: SearchHit["match"];
   blockId?: string | null;
   file?: SearchHit["file"];
+  /** Archived (server/page-outdated): found only while the search includes archived pages. */
+  outdated?: boolean;
 };
 type Item = { type: "page"; page: PageItem } | { type: "command"; command: SearchCommand };
 
@@ -39,7 +41,7 @@ const fold = (value: string) => searchFold(value.normalize("NFC").trim());
 /**
  * The search box (Cmd/Ctrl+K): pages by their title and content, narrowed with `in:` and `type:`
  * (see lib/search-query); the pages last edited before anything is typed; and, after `>`, the
- * commands the sidebar hands it.
+ * commands the sidebar hands it. Archived pages are found only with "Include archived" on, and say so.
  */
 export function SearchDialog({
   workspaceId,
@@ -61,6 +63,7 @@ export function SearchDialog({
   const [recent, setRecent] = useState<PageItem[]>([]);
   const [active, setActive] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [includeOutdated, setIncludeOutdated] = useState(false);
   const requestId = useRef(0);
   const input = useRef<HTMLInputElement>(null);
   const list = useRef<HTMLUListElement>(null);
@@ -98,14 +101,14 @@ export function SearchDialog({
     }
     setLoading(true);
     const timer = setTimeout(async () => {
-      const result = await searchAction(workspaceId, trimmed).catch(() => []);
+      const result = await searchAction(workspaceId, trimmed, includeOutdated).catch(() => []);
       if (id !== requestId.current) return; // a newer query is in flight
       setHits(result);
       setActive(0);
       setLoading(false);
     }, 150);
     return () => clearTimeout(timer);
-  }, [trimmed, commandMode, workspaceId]);
+  }, [trimmed, commandMode, workspaceId, includeOutdated]);
 
   const items = useMemo<Item[]>(() => {
     if (commandMode) {
@@ -194,6 +197,12 @@ export function SearchDialog({
                   <span className="min-w-0 flex-1">
                     <span className="flex items-baseline gap-2">
                       <span className="min-w-0 truncate text-sm font-medium">{pageLabel(item.page.title, tc("untitled"))}</span>
+                      {item.page.outdated && (
+                        <span className="flex shrink-0 items-center gap-1 self-center text-xs text-fg-faint">
+                          <Archive className="h-3 w-3" aria-hidden />
+                          {t("archived")}
+                        </span>
+                      )}
                       {/* Semantic search found it by meaning; its words may not appear in the snippet. */}
                       {item.page.match === "semantic" && (
                         <span className="shrink-0 text-xs text-fg-faint" title={t("semanticHint")}>
@@ -233,6 +242,17 @@ export function SearchDialog({
         <HintButton onClick={() => insert("type:database")} token="type:database" label={t("hint.type")} />
         <HintButton onClick={() => insert("type:journal")} token="type:journal" label={tj("searchHint")} />
         {commands.length > 0 && <HintButton onClick={() => insert(">")} token=">" label={t("hint.commands")} />}
+        <span className="ms-auto flex items-center gap-2" title={t("includeArchivedHint")}>
+          <span aria-hidden>{t("includeArchived")}</span>
+          <Switch
+            checked={includeOutdated}
+            onChange={(on) => {
+              setIncludeOutdated(on);
+              input.current?.focus();
+            }}
+            label={t("includeArchived")}
+          />
+        </span>
       </div>
     </Dialog>
   );

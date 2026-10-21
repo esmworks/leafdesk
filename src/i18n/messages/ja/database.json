@@ -646,7 +646,8 @@
     "openRowsIn": {
       "panel": "サイドパネル",
       "page": "フルページ"
-    }
+    },
+    "showOutdated": "アーカイブした行を表示"
   },
   "gallery": {
     "new": "新規",

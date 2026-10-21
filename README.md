@@ -57,7 +57,9 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
 
 - **Pages**: nested pages, a block editor (BlockNote) with slash menu (block text and background
   colors included) and markdown shortcuts, icons (beside the title), backgrounds (a color that suits the light and dark theme, or black, with an optional faint
-  pattern), favorites, duplicate, move, trash with restore (emptied after a time owners choose), export as Markdown or PDF (or, with
+  pattern), favorites, duplicate, move, trash with restore (emptied after a time owners choose), archive (an outdated page, such
+  as an old price list, leaves the sidebar, search, pickers and database views with the pages and rows under it, yet stays
+  readable, editable and linked; a banner on it says who archived it and when, and search finds it with *Include archived*), export as Markdown or PDF (or, with
   subpages, as a ZIP; owners can export the whole workspace, see [Export](#export)), and search
   over titles and content: full-text (every word of the search, each also as the start of a
   longer word, so pages show up while you type: "kond plan" finds "Kondenser planı", while the
@@ -2565,7 +2567,9 @@ The tools cover:
   creates at the top is private to the user, so nothing an app makes is shared before they
   decide; the user moves it to share it.
 - **Pages:** `get_page`, `create_page`, `update_page`, `move_page`, `duplicate_page` (a copy with
-  everything under it, beside the original), `archive_page`, `list_trash`, `restore_page`.
+  everything under it, beside the original), `archive_page`, `list_trash`, `restore_page` (the
+  trash), `set_page_archived` (archive an outdated page or unarchive it; `search`, `list_pages`
+  and `query_database` leave archived pages and rows out unless `include_archived` is true).
   `list_pages` with `favorites: true` lists the user's starred pages, and `get_page` says whether a
   page is starred. `update_page` sets the cover: an uploaded file's URL, an https image link or
   `gradient:<name>`, with `cover_position` for the band of an image that shows. Besides replacing
@@ -2701,7 +2705,10 @@ Filter ops: `contains`, `does_not_contain`, `equals`, `not_equals`, `is_any_of` 
 - **Pages:** `GET /search`, `POST /pages`, `GET` and `PATCH /pages/{id}` (title, icon, cover,
   Markdown body replaced or appended, or single blocks by `block_id` with the modes
   `replace_block`, `insert_after` and `delete_block`; `GET` with `with_block_ids` gives the ids),
-  `GET /pages/{id}/children`, `POST /pages/{id}/move`, `/archive` and `/restore`. `GET /pages/{id}`
+  `GET /pages/{id}/children`, `POST /pages/{id}/move`, `/archive` and `/restore` (the trash), and
+  `POST /pages/{id}/archived` (`archived: true` or `false`: archive an outdated page or unarchive
+  it; `GET /search`, the page lists and `POST /databases/{id}/query` leave archived pages and rows
+  out unless `include_archived` is true). `GET /pages/{id}`
   gives the body's `version`, and `PATCH` takes it back as `expected_version`: when the body
   changed since, nothing is written and the answer is `409` `version_conflict` with the current
   version. Body writes report the new `version`.

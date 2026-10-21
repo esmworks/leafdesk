@@ -7,6 +7,9 @@
     "copyLink": "复制链接",
     "copyId": "复制 ID",
     "moveToTrash": "移到回收站",
+    "archive": "归档",
+    "unarchive": "取消归档",
+    "archiveHint": "页面会保留，但不再出现在侧边栏、搜索和选择列表中。子页面也一样。",
     "edited": "编辑于 {time}",
     "activity": "动态",
     "editedBy": "由 {name} 编辑",
@@ -83,6 +86,14 @@
     "banner": "此页面在回收站中。",
     "deletePermanently": "永久删除",
     "confirmDelete": "要永久删除此页面及其中的所有内容吗？此操作无法撤销。"
+  },
+  "outdated": {
+    "byOn": "{name} 于 {date} 归档。",
+    "on": "于 {date} 归档。",
+    "with": "随 <link>{title}</link> 一起归档。",
+    "above": "随上级页面一起归档。",
+    "unarchive": "取消归档",
+    "hint": "已归档的页面不会出现在侧边栏、搜索和选择列表中，但仍可阅读和编辑。"
   },
   "icon": {
     "add": "添加图标",

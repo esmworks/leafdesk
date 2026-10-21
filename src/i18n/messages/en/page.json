@@ -7,6 +7,9 @@
     "copyLink": "Copy link",
     "copyId": "Copy ID",
     "moveToTrash": "Move to trash",
+    "archive": "Archive",
+    "unarchive": "Unarchive",
+    "archiveHint": "Keep the page but take it out of the sidebar, search and pickers. Its subpages go with it.",
     "edited": "Edited {time}",
     "activity": "Activity",
     "editedBy": "Edited by {name}",
@@ -83,6 +86,14 @@
     "banner": "This page is in the trash.",
     "deletePermanently": "Delete permanently",
     "confirmDelete": "Delete this page and everything inside it permanently? This cannot be undone."
+  },
+  "outdated": {
+    "byOn": "Archived by {name} on {date}.",
+    "on": "Archived on {date}.",
+    "with": "Archived along with <link>{title}</link>.",
+    "above": "Archived along with a page above this one.",
+    "unarchive": "Unarchive",
+    "hint": "Archived pages stay out of the sidebar, search and pickers, but can still be read and edited."
   },
   "icon": {
     "add": "Add icon",

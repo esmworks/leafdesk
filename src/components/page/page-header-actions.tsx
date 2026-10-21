@@ -1,6 +1,8 @@
 "use client";
 
 import {
+  Archive,
+  ArchiveRestore,
   ArrowRightLeft,
   Bell,
   BellOff,
@@ -41,6 +43,7 @@ import {
   setFavoriteAction,
   setFollowingAction,
   setPageLockedAction,
+  setPageOutdatedAction,
   setWatchingAction,
 } from "@/app/actions/page-menu";
 import { getSidebarAction, movePageAction } from "@/app/actions/pages";
@@ -99,6 +102,7 @@ export function PageHeaderActions({
   onStyle,
   onLocked,
   onSkill,
+  onOutdated,
 }: {
   workspaceId: string;
   page: { id: string; kind: PageKind; parentId: string | null; archived: boolean; hasBody: boolean; isRow?: boolean };
@@ -131,12 +135,15 @@ export function PageHeaderActions({
   onLocked?: (locked: boolean) => void;
   /** Hears whether the page is a skill, likewise. */
   onSkill?: (skill: PageHeaderInfo["skill"]) => void;
+  /** Hears whether the page is archived, likewise. */
+  onOutdated?: (outdated: PageHeaderInfo["outdated"]) => void;
 }) {
   const t = useTranslations("page.header");
   const tOffline = useTranslations("offline");
   const [info, setInfo] = useState(initialInfo);
   useEffect(() => onLocked?.(info.locked), [info.locked, onLocked]);
   useEffect(() => onSkill?.(info.skill), [info.skill, onSkill]);
+  useEffect(() => onOutdated?.(info.outdated), [info.outdated, onOutdated]);
   const offlineTitle = (label: string) => (offline ? tOffline("needsConnection", { action: label }) : label);
   const aiChat = useAiChat();
   const tAi = useTranslations("ai.chat");
@@ -509,6 +516,19 @@ function PageMenu({
       }
     });
 
+  // Archived pages leave the sidebar, search and pickers (server/page-outdated); the banner says so.
+  const setOutdated = (outdated: boolean, close: () => void) =>
+    startTransition(async () => {
+      setError(null);
+      try {
+        await setPageOutdatedAction(workspaceId, page.id, outdated);
+        onInfo(await getPageHeaderAction(page.id));
+        close();
+      } catch {
+        setError(t("actionFailed"));
+      }
+    });
+
   const setSkill = (on: boolean) =>
     startTransition(async () => {
       setError(null);
@@ -615,6 +635,16 @@ function PageMenu({
                 }}
               >
                 {t("moveTo")}
+              </MenuItem>
+            )}
+            {/* Full access, like moving it. A page archived with one above it comes back with that one (see its banner). */}
+            {!page.archived && canManage && !info.template && (!info.outdated || info.outdated.own) && (
+              <MenuItem
+                icon={info.outdated ? <ArchiveRestore className="h-4 w-4" /> : <Archive className="h-4 w-4" />}
+                title={info.outdated ? undefined : t("archiveHint")}
+                onClick={() => setOutdated(!info.outdated, close)}
+              >
+                {info.outdated ? t("unarchive") : t("archive")}
               </MenuItem>
             )}
             {!page.archived && canEdit && !templateRoot && (

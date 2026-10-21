@@ -1,8 +1,8 @@
 "use client";
 
-import { LayoutTemplate, Lock, Paintbrush, RotateCcw, SmilePlus } from "lucide-react";
+import { Archive, LayoutTemplate, Lock, Paintbrush, RotateCcw, SmilePlus } from "lucide-react";
 import dynamic from "next/dynamic";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, useTransition, type ReactNode, type RefObject } from "react";
@@ -13,7 +13,7 @@ import {
   setPageBackgroundAction,
   setPageIconAction,
 } from "@/app/actions/pages";
-import { setPageLockedAction } from "@/app/actions/page-menu";
+import { setPageLockedAction, setPageOutdatedAction } from "@/app/actions/page-menu";
 import { createRowAction } from "@/app/actions/databases";
 import { createFromTemplateAction } from "@/app/actions/templates";
 import { Button, cn, PageIcon, pageLabel } from "@/components/ui";
@@ -125,6 +125,8 @@ export function PageView({
   const locked = page.kind === "page" && lockedNow;
   // Whether the page is a skill, from the page menu at once and otherwise with the header.
   const [skillNow, setSkillNow] = useState(info.skill);
+  // Whether it is archived (server/page-outdated), likewise.
+  const [outdatedNow, setOutdatedNow] = useState(info.outdated);
   // The collab server drops edits from people who may only view, and from everyone while the page
   // is locked, so don't let them type at all. Offline edits are kept in this browser: the doc syncs
   // them when the connection comes back.
@@ -152,6 +154,7 @@ export function PageView({
   useEffect(() => setIcon(page.icon), [page.icon]);
   useEffect(() => setLockedNow(info.locked), [info.locked]);
   useEffect(() => setSkillNow(info.skill), [info.skill]);
+  useEffect(() => setOutdatedNow(info.outdated), [info.outdated]);
   useEffect(() => setBackground(page.background), [page.background]);
   // A link to one of the page's threads (`#comment-<id>`) opens the comments; the panel selects it.
   useEffect(() => {
@@ -242,6 +245,19 @@ export function PageView({
         refresh();
       },
       () => setLockedNow(true),
+    );
+  }
+
+  /** Unarchives the page, or the page above it it is archived with. */
+  function unarchive(pageId: string) {
+    const previous = outdatedNow;
+    setOutdatedNow(null);
+    run(
+      async () => {
+        await setPageOutdatedAction(workspaceId, pageId, false);
+        refresh();
+      },
+      () => setOutdatedNow(previous),
     );
   }
 
@@ -443,6 +459,7 @@ export function PageView({
               onStyle={editable && showBody && pageDoc ? (change) => writePageStyle(pageDoc.doc, change) : undefined}
               onLocked={setLockedNow}
               onSkill={setSkillNow}
+              onOutdated={setOutdatedNow}
             />
           </div>
         </header>
@@ -462,6 +479,15 @@ export function PageView({
             )}
             {actionError && <span role="alert">{actionError}</span>}
           </div>
+        )}
+
+        {outdatedNow && !page.archived && (
+          <OutdatedBanner
+            workspaceId={workspaceId}
+            outdated={outdatedNow}
+            onUnarchive={outdatedNow.canUnarchive && !offline ? () => unarchive(outdatedNow.pageId) : undefined}
+            pending={pending}
+          />
         )}
 
         {info.template && !page.archived && (
@@ -679,6 +705,53 @@ function LockedNotice({ onUnlock, pending }: { onUnlock?: () => void; pending: b
         </Button>
       )}
     </span>
+  );
+}
+
+/**
+ * Says the page is archived (server/page-outdated): by whom and when, or with which page above it,
+ * linked when the user can open it, and offers to unarchive it to those who may. Quiet: the page
+ * stays readable and editable.
+ */
+function OutdatedBanner({
+  workspaceId,
+  outdated,
+  onUnarchive,
+  pending,
+}: {
+  workspaceId: string;
+  outdated: NonNullable<PageHeaderInfo["outdated"]>;
+  onUnarchive?: () => void;
+  pending: boolean;
+}) {
+  const t = useTranslations("page.outdated");
+  const tc = useTranslations("common");
+  const locale = useLocale();
+  const date = new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(new Date(outdated.at));
+  const message = outdated.own
+    ? outdated.by
+      ? t("byOn", { name: outdated.by, date })
+      : t("on", { date })
+    : outdated.title !== null
+      ? t.rich("with", {
+          title: pageLabel(outdated.title, tc("untitled")),
+          link: (chunks) => (
+            <Link href={`/w/${workspaceId}/p/${outdated.pageId}`} className="font-medium text-fg underline decoration-border underline-offset-2 hover:decoration-fg">
+              {chunks}
+            </Link>
+          ),
+        })
+      : t("above");
+  return (
+    <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 border-y border-border bg-bg-subtle px-4 py-2 text-sm" title={t("hint")}>
+      <Archive className="h-4 w-4 shrink-0 text-fg-muted" aria-hidden />
+      <span className="text-fg-muted">{message}</span>
+      {onUnarchive && (
+        <Button size="sm" onClick={onUnarchive} disabled={pending}>
+          {t("unarchive")}
+        </Button>
+      )}
+    </div>
   );
 }
 

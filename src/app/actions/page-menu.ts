@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { duplicatePage } from "@/server/duplicate";
 import { setDatabaseLocked } from "@/server/databases";
 import { getPageHeaderInfo, listFavorites, setFavorite } from "@/server/page-meta";
+import { setPageOutdated } from "@/server/page-outdated";
 import { setPageLocked } from "@/server/pages";
 import { listWatches, setWatching } from "@/server/page-watch";
 import { setFollowing } from "@/server/row-follow";
@@ -53,6 +54,14 @@ export async function setPageLockedAction(workspaceId: string, pageId: string, l
   const userId = await requireUserId();
   await setPageLocked(userId, pageId, locked);
   revalidatePath(`/w/${workspaceId}/p/${pageId}`);
+}
+
+/** Archives a page or unarchives it (server/page-outdated): full access only. */
+export async function setPageOutdatedAction(workspaceId: string, pageId: string, outdated: boolean) {
+  const userId = await requireUserId();
+  const found = await setPageOutdated(userId, pageId, outdated);
+  revalidatePath(`/w/${workspaceId}/p/${pageId}`);
+  if (found.parentId) revalidatePath(`/w/${workspaceId}/p/${found.parentId}`);
 }
 
 export async function duplicatePageAction(

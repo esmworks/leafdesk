@@ -646,7 +646,8 @@
     "openRowsIn": {
       "panel": "Im Seitenbereich",
       "page": "Als ganze Seite"
-    }
+    },
+    "showOutdated": "Archivierte Zeilen anzeigen"
   },
   "gallery": {
     "new": "Neu",

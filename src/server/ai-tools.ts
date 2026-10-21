@@ -27,6 +27,7 @@ import { normalizeRowProperties } from "@/server/databases";
 import { ToolInputError } from "@/server/mcp/format";
 import * as ops from "@/server/operations";
 import { getTree } from "@/server/pages";
+import { outdatedState } from "@/server/page-outdated";
 import { chunksOfPages, inSubtree } from "@/server/semantic-search";
 import { bestChunkForTerms, chunkPage, passageOf } from "@/server/semantic-text";
 
@@ -290,7 +291,13 @@ async function searchSources(
   registry: Registry,
   maxChars: number,
 ) {
-  const { results } = await ops.search(ctx, { query, workspace_id: workspaceId, limit: PASSAGES }, { withinPageId: scopeId, passages: true, anyWord: true });
+  // Archived pages stay out (server/page-outdated.ts), unless the chat is about one: then what is under it is what it asks about.
+  const include_archived = scopeId ? (await outdatedState(ctx.userId, scopeId)) !== null : false;
+  const { results } = await ops.search(
+    ctx,
+    { query, workspace_id: workspaceId, limit: PASSAGES, include_archived },
+    { withinPageId: scopeId, passages: true, anyWord: true },
+  );
   const [values, found] = await Promise.all([rowValues(ctx, results), textPassages(results, query)]);
   return results.map((r) => {
     const best = r.passage ? { passage: r.passage, blockId: r.block_id ?? null } : found.get(r.id);

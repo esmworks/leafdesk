@@ -7,6 +7,9 @@
     "copyLink": "Bağlantıyı kopyala",
     "copyId": "ID'yi kopyala",
     "moveToTrash": "Çöp kutusuna taşı",
+    "archive": "Arşivle",
+    "unarchive": "Arşivden çıkar",
+    "archiveHint": "Sayfa kalır ama kenar çubuğundan, aramadan ve seçicilerden çıkar. Alt sayfaları da onunla gider.",
     "edited": "{time} düzenlendi",
     "activity": "Etkinlik",
     "editedBy": "{name} düzenledi",
@@ -83,6 +86,14 @@
     "banner": "Bu sayfa çöp kutusunda.",
     "deletePermanently": "Kalıcı olarak sil",
     "confirmDelete": "Bu sayfa ve içindeki her şey kalıcı olarak silinsin mi? Bu işlem geri alınamaz."
+  },
+  "outdated": {
+    "byOn": "{name} tarafından {date} tarihinde arşivlendi.",
+    "on": "{date} tarihinde arşivlendi.",
+    "with": "<link>{title}</link> ile birlikte arşivlendi.",
+    "above": "Üstündeki bir sayfayla birlikte arşivlendi.",
+    "unarchive": "Arşivden çıkar",
+    "hint": "Arşivlenen sayfalar kenar çubuğunda, aramada ve seçicilerde görünmez; yine de okunup düzenlenebilir."
   },
   "icon": {
     "add": "Simge ekle",

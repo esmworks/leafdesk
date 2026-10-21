@@ -37,6 +37,7 @@ import { LINK_PLACEHOLDER } from "@/lib/link-context";
 import { countBacklinks, labelPageLinks, listBacklinks, MAX_BACKLINKS } from "@/server/mentions";
 import { expandSyncedMarkdown } from "@/server/synced-blocks";
 import * as pageMeta from "@/server/page-meta";
+import { OutdatedError, outdatedState, setPageOutdated, type OutdatedState } from "@/server/page-outdated";
 import { isWatching, setWatching } from "@/server/page-watch";
 import { isFollowing, setFollowing } from "@/server/row-follow";
 import * as pages from "@/server/pages";
@@ -166,6 +167,10 @@ export const inputs = {
     query: z.string().min(1).describe("Words to look for."),
     workspace_id: z.string().optional().describe("Only search this workspace."),
     limit: z.number().int().min(1).max(50).default(10).describe("Maximum results (1-50, default 10)."),
+    include_archived: z
+      .boolean()
+      .optional()
+      .describe("Also include archived pages (out of date but kept; not the trash), marked archived: true. Left out by default."),
   }),
   listPages: z.object({
     workspace_id: id("workspace"),
@@ -178,6 +183,12 @@ export const inputs = {
       .boolean()
       .optional()
       .describe("List the pages the user starred in this workspace instead (oldest star first). Not with parent_id or teamspace_id."),
+    include_archived: z
+      .boolean()
+      .optional()
+      .describe(
+        "Also list archived pages (out of date but kept; not the trash), marked archived: true. Left out by default; under a parent that is archived itself its pages are listed either way.",
+      ),
   }),
   listTeamspaces: z.object({
     workspace_id: id("workspace"),
@@ -254,6 +265,10 @@ export const inputs = {
       ),
   }),
   pageId: z.object({ page_id: id("page") }),
+  setPageArchived: z.object({
+    page_id: id("page"),
+    archived: z.boolean().describe("true to archive the page, false to unarchive it."),
+  }),
   movePage: z.object({
     page_id: id("page"),
     parent_id: z.string().min(1).nullable().describe("New parent page id, or null for the top level."),
@@ -284,6 +299,10 @@ export const inputs = {
       .describe(
         "Only return these properties' values in each row (names, case-insensitive, or ids); [] returns just each row's id, title and url. Leave out for every property.",
       ),
+    include_archived: z
+      .boolean()
+      .optional()
+      .describe("Also return rows archived on their own (out of date but kept; not the trash), marked archived: true. Left out by default, unless view_id names a view that shows them."),
   }),
   createDatabaseRow: z.object({
     database_id: id("database"),
@@ -546,13 +565,20 @@ export async function listGroups(ctx: OperationContext, { workspace_id }: Args<"
  * `withinPageId` keeps to a page and its subpages; `passages` adds the best matching passage of
  * each page (as far as semantic search found one) and the block it starts at (AI chat). `anyWord`:
  * pages with any of the query's words, not all (AI chat, which searches with whole questions).
+ * Archived pages (server/page-outdated.ts) only with `include_archived`.
  */
 export async function search(
   ctx: OperationContext,
-  { query, workspace_id, limit }: Args<"search">,
+  { query, workspace_id, limit, include_archived = false }: Args<"search">,
   { withinPageId, passages = false, anyWord = false }: { withinPageId?: string; passages?: boolean; anyWord?: boolean } = {},
 ) {
-  const hits = await pages.searchPages(ctx.userId, query, { workspaceId: workspace_id, limit, withinPageId, anyWord });
+  const hits = await pages.searchPages(ctx.userId, query, {
+    workspaceId: workspace_id,
+    limit,
+    withinPageId,
+    anyWord,
+    includeOutdated: include_archived,
+  });
   return {
     results: hits.map((h) => ({
       id: h.id,
@@ -565,6 +591,7 @@ export async function search(
       match: h.match ?? ("text" as const),
       // Found by the words of a PDF or Word document the page shows (the snippet is from it).
       document: h.file ? { id: h.file.id, name: h.file.name } : null,
+      archived: h.outdated,
       updated_at: h.updatedAt.toISOString(),
       url: pageUrl(h.workspaceId, h.id),
       ...(passages ? { passage: h.passage ?? null, block_id: h.blockId ?? null } : {}),
@@ -607,11 +634,15 @@ export async function listDailyNotes(ctx: OperationContext, { workspace_id, from
   };
 }
 
-export async function listPages(ctx: OperationContext, { workspace_id, parent_id, teamspace_id, favorites }: Args<"listPages">) {
+/** Starred pages are listed archived or not: the user picked them. */
+export async function listPages(
+  ctx: OperationContext,
+  { workspace_id, parent_id, teamspace_id, favorites, include_archived = false }: Args<"listPages">,
+) {
   if (favorites && (parent_id || teamspace_id)) throw new ToolInputError("favorites lists the starred pages of the whole workspace: leave out parent_id and teamspace_id.");
   const children = favorites
     ? await pageMeta.listFavorites(ctx.userId, workspace_id)
-    : await pages.listChildren(ctx.userId, workspace_id, parent_id ?? null, { teamspaceId: spaceOf(teamspace_id) });
+    : await pages.listChildren(ctx.userId, workspace_id, parent_id ?? null, { teamspaceId: spaceOf(teamspace_id), includeOutdated: include_archived });
   return {
     pages: children.map((c) => ({
       id: c.id,
@@ -619,6 +650,7 @@ export async function listPages(ctx: OperationContext, { workspace_id, parent_id
       kind: c.kind,
       icon: c.icon,
       teamspace_id: c.teamspaceId,
+      archived: c.outdated,
       updated_at: c.updatedAt.toISOString(),
       url: pageUrl(workspace_id, c.id),
     })),
@@ -633,13 +665,14 @@ export async function getPage(
 ) {
   const { userId } = ctx;
   const { page, parent, parentDatabase } = await loadPage(ctx, page_id);
-  const [crumbs, content, workspaces, favorite, version, watching] = await Promise.all([
+  const [crumbs, content, workspaces, favorite, version, watching, outdated] = await Promise.all([
     pages.getBreadcrumbs(userId, page_id),
     getCollab().readPage(page_id),
     pages.listWorkspaces(userId),
     pageMeta.isFavorite(userId, page_id),
     page.kind === "database" ? null : getCollab().pageVersion(page_id),
     watchState(userId, page_id),
+    outdatedState(userId, page_id),
   ]);
   const workspace = workspaces.find((w) => w.id === page.workspaceId);
   // Mentioned pages read as their current title, as far as the user can see them.
@@ -662,6 +695,7 @@ export async function getPage(
     parent_id: parent?.id ?? null,
     path: [workspace?.name ?? "Workspace", ...crumbs.map((c) => pageLabel(c.title))].join(" / "),
     in_trash: Boolean(page.archivedAt),
+    ...archivedFields(page.workspaceId, outdated),
     // A locked page's title, icon, background and body can't change; a locked database's properties and views.
     locked: Boolean(page.lockedAt),
     favorite,
@@ -708,8 +742,11 @@ export async function getPage(
     if (markdownDashboards(content.markdown).length) {
       out.dashboards = await dashboardsOutput(userId, (await getCollab().readBlocks(page.id)).blocks);
     }
-    const children = await pages.listChildren(userId, page.workspaceId, page.id);
-    out.child_pages = children.slice(0, 100).map((c) => ({ id: c.id, title: pageLabel(c.title), kind: c.kind }));
+    // Archived ones too, marked: they are still the page's.
+    const children = await pages.listChildren(userId, page.workspaceId, page.id, { includeOutdated: true });
+    out.child_pages = children
+      .slice(0, 100)
+      .map((c) => ({ id: c.id, title: pageLabel(c.title), kind: c.kind, ...(c.outdated ? { archived: true } : {}) }));
     if (children.length > 100) out.child_pages_truncated = children.length;
     const backlinks = await listBacklinks(userId, page.id);
     if (backlinks.length) {
@@ -732,6 +769,22 @@ export async function getPage(
     }
   }
   return out;
+}
+
+/**
+ * Whether a page is archived (server/page-outdated.ts), for get_page: when and by whom, or the page
+ * above it that is archived (unnamed when the user can't open it).
+ */
+function archivedFields(workspaceId: string, state: OutdatedState | null) {
+  if (!state) return { archived: false };
+  return {
+    archived: true,
+    archived_at: state.at.toISOString(),
+    archived_by: state.by,
+    ...(state.own
+      ? {}
+      : { archived_with: state.title === null ? null : { id: state.pageId, title: pageLabel(state.title), url: pageUrl(workspaceId, state.pageId) } }),
+  };
 }
 
 /** Whether the user watches the page, or follows the database row; null for templates, which are neither. */
@@ -955,6 +1008,42 @@ export async function restorePage(ctx: OperationContext, { page_id }: Args<"page
   };
 }
 
+/**
+ * Archives a page or unarchives it (server/page-outdated.ts): full access only. Its sub-pages (a
+ * database's rows) follow it.
+ */
+export async function setPageArchived(ctx: OperationContext, { page_id, archived }: Args<"setPageArchived">) {
+  // Nothing is said about a page the user can't open.
+  await pages.getPage(ctx.userId, page_id);
+  const before = await outdatedState(ctx.userId, page_id);
+  let page;
+  try {
+    page = await setPageOutdated(ctx.userId, page_id, archived);
+  } catch (error) {
+    if (error instanceof OutdatedError) throw new ToolInputError(`${error.message}.`);
+    throw error;
+  }
+  const after = await outdatedState(ctx.userId, page_id);
+  let note: string;
+  if (archived) {
+    note = before?.own
+      ? "The page was already archived."
+      : "Archived with its sub-pages: they stay readable and editable by link, but leave the sidebar, search and pickers (search with include_archived finds them).";
+  } else if (after) {
+    note = after.own
+      ? "The page is still archived."
+      : "The page itself isn't archived, but a page above it is: it comes back when that page is unarchived" +
+        (after.title === null ? "." : ` ("${pageLabel(after.title)}", ${after.pageId}).`);
+  } else note = before ? "Unarchived with its sub-pages." : "The page was not archived.";
+  return {
+    id: page.id,
+    title: pageLabel(page.title),
+    archived: Boolean(after),
+    note,
+    url: pageUrl(page.workspaceId, page.id),
+  };
+}
+
 export async function movePage(ctx: OperationContext, { page_id, parent_id, teamspace_id }: Args<"movePage">) {
   const { userId } = ctx;
   const { page, parentDatabase } = await loadPage(ctx, page_id);
@@ -1102,7 +1191,7 @@ export function decodeRowCursor(cursor: string): RowCursor {
  */
 export async function queryDatabase(
   ctx: OperationContext,
-  { database_id, filters, filter_combinator, sorts, view_id, limit, cursor, properties: only }: Args<"queryDatabase">,
+  { database_id, filters, filter_combinator, sorts, view_id, limit, cursor, properties: only, include_archived }: Args<"queryDatabase">,
 ) {
   const { userId } = ctx;
   const { database, properties, views, propertyAccess: levels } = await databases.getDatabase(userId, database_id);
@@ -1135,6 +1224,8 @@ export async function queryDatabase(
   const { rows: ordered, sorts: applied } = await databases.listRowsInOrder(userId, database_id, {
     filters: [saved, own].filter((g) => g.rules.length),
     sorts: ownSorts ?? view?.config.sorts ?? [],
+    // Rows archived on their own (server/page-outdated.ts), as asked or as the view shows them.
+    showOutdated: include_archived ?? view?.config.showOutdated,
   });
   let start: number;
   if ("query" in from) {
@@ -1159,6 +1250,7 @@ export async function queryDatabase(
       title: pageLabel(r.title),
       properties: displayProperties(shown, r.properties, lookups, env.appUrl),
       ...describeRowAccess(shown, r),
+      ...(r.outdated ? { archived: true } : {}),
       url: pageUrl(database.workspaceId, r.id),
     })),
     next_cursor,
@@ -1347,7 +1439,8 @@ async function findMatches(
     first.set(key, i);
   }
   const existing = new Map<string, MatchedRow[]>();
-  for (const row of await databases.listRows(ctx.userId, databaseId)) {
+  // Archived rows match too: they are still rows of the database.
+  for (const row of await databases.listRows(ctx.userId, databaseId, { showOutdated: true })) {
     const key = keyOf(byTitle ? row.title : row.properties[prop!.id]);
     if (key === null || !first.has(key)) continue;
     existing.set(key, [...(existing.get(key) ?? []), { id: row.id, title: row.title }]);

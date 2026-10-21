@@ -20,6 +20,7 @@ import {
   type AccessLevel,
 } from "@/server/access";
 import { getCollab } from "@/server/collab/bridge";
+import { isOutdated, listedPage } from "@/server/page-outdated";
 import { searchFoldSql } from "@/server/search-fold-sql";
 import { recordMentions, recordReminder, withdrawMentions } from "@/server/notifications";
 import { followOnTakingPart } from "@/server/row-follow";
@@ -504,8 +505,8 @@ export async function listUnlinkedMentions(userId: string, pageId: string, { che
         eq(page.workspaceId, target.workspaceId),
         ne(page.id, pageId),
         eq(page.kind, "page"),
-        isNull(page.archivedAt),
-        eq(page.inTemplate, false),
+        // Archived pages are left alone too (server/page-outdated.ts).
+        listedPage(target.workspaceId),
         sql`${document} @@ (${query})`,
         sql`not exists (select 1 from ${pageLink} pl where pl.source_id = ${page.id} and pl.target_id = ${pageId})`,
         pageVisibleTo(userId),
@@ -577,7 +578,7 @@ export type MentionCandidates = {
 /**
  * What the editor's @ and [[ menus offer on a page: people of the workspace (members only: guests
  * don't get to see who is in it) and pages the user can view, matching `query` as lib/search-fold
- * does (so "ı" and "I" find each other).
+ * does (so "ı" and "I" find each other). Archived pages aren't offered (server/page-outdated.ts).
  */
 export async function mentionCandidates(userId: string, pageId: string, query: string): Promise<MentionCandidates> {
   const target = await requirePageAccess(userId, pageId, "edit");
@@ -599,8 +600,7 @@ export async function mentionCandidates(userId: string, pageId: string, query: s
     .where(
       and(
         eq(page.workspaceId, target.workspaceId),
-        isNull(page.archivedAt),
-        eq(page.inTemplate, false),
+        listedPage(target.workspaceId),
         ne(page.id, pageId),
         q ? sql`${title} like ${like}` : undefined,
         pageVisibleTo(userId),
@@ -614,7 +614,8 @@ export async function mentionCandidates(userId: string, pageId: string, query: s
 /**
  * The pages `[[Title]]` written into a page names (lib/wikilinks), keyed by titleKey: for each of
  * `titles`, the page of that title the user can see in the page's workspace (not the page itself,
- * the trash or templates), the last edited where several share it.
+ * the trash or templates), the last edited where several share it, archived pages
+ * (server/page-outdated.ts) only when no other has it.
  */
 export async function pagesNamed(userId: string, pageId: string, titles: string[]): Promise<Map<string, PageCandidate>> {
   const found = new Map<string, PageCandidate>();
@@ -638,7 +639,7 @@ export async function pagesNamed(userId: string, pageId: string, titles: string[
         )})`,
       ),
     )
-    .orderBy(desc(page.updatedAt));
+    .orderBy(isOutdated(source.workspaceId), desc(page.updatedAt));
   for (const row of rows) if (!found.has(titleKey(row.title))) found.set(titleKey(row.title), row);
   return found;
 }

@@ -4,6 +4,21 @@
 
 ### Added
 
+- **Archive pages that are out of date.** An old price list or a superseded offer can be archived
+  instead of trashed: people with full access choose **Archive** in the page's menu. The page keeps
+  everything else (it stays readable, editable, reachable by its link, mentions and backlinks, and
+  published if it was) but leaves the sidebar, search, the mention and link pickers, recent pages,
+  the AI chat's sources and what agents, MCP clients and the REST API search and list. The pages
+  under it count as archived too, and database rows with their database; rows can also be archived
+  one by one, and a database view can show them again (**Show archived rows** in its layout menu).
+  An archived page shows who archived it and when, or which page above it is archived, with
+  **Unarchive** for people allowed to; unarchiving brings the pages under it back. Search has an
+  **Include archived** switch that marks what it finds. Archived pages aren't in the trash and go
+  to the trash and back still archived; duplicating one keeps it archived. MCP gets
+  `set_page_archived` and an `include_archived` flag on `search`, `list_pages` and
+  `query_database`; REST gets `POST /pages/{id}/archived` and the same flag on its page listings and
+  search, and pages say whether they're archived. Migration 0097 adds `page.outdated_at` and
+  `page.outdated_by`.
 - **Writing instructions for voice notes, per database.** A database can say how the voice notes
   saved in it are written up, e.g. "Customer visit note: company, person met, what was discussed,
   quote status, next step". People with full access set them from the database's page menu

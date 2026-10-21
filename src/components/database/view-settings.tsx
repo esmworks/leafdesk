@@ -203,6 +203,11 @@ export function ViewLayoutMenu({
               }}
             />
           )}
+          {/* Rows archived on their own stay out of the view unless it shows them (server/page-outdated.ts). */}
+          <MenuSeparator />
+          <Toggle on={!!config.showOutdated} onChange={(on) => set({ showOutdated: on || undefined })}>
+            {t("showOutdated")}
+          </Toggle>
         </div>
       </Floating>
     </>

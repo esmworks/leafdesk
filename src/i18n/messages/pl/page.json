@@ -7,6 +7,9 @@
     "copyLink": "Kopiuj link",
     "copyId": "Kopiuj ID",
     "moveToTrash": "Przenieś do kosza",
+    "archive": "Zarchiwizuj",
+    "unarchive": "Przywróć z archiwum",
+    "archiveHint": "Strona zostaje, ale znika z paska bocznego, wyszukiwania i list wyboru. Podstrony idą razem z nią.",
     "edited": "Edytowano {time}",
     "activity": "Aktywność",
     "editedBy": "Edytowane przez: {name}",
@@ -83,6 +86,14 @@
     "banner": "Ta strona jest w koszu.",
     "deletePermanently": "Usuń trwale",
     "confirmDelete": "Trwale usunąć tę stronę i wszystko, co się w niej znajduje? Tej operacji nie można cofnąć."
+  },
+  "outdated": {
+    "byOn": "Zarchiwizowano {date} (przez: {name}).",
+    "on": "Zarchiwizowano {date}.",
+    "with": "Zarchiwizowano razem z <link>{title}</link>.",
+    "above": "Zarchiwizowano razem ze stroną nadrzędną.",
+    "unarchive": "Przywróć z archiwum",
+    "hint": "Zarchiwizowane strony nie pojawiają się na pasku bocznym, w wyszukiwaniu ani na listach wyboru, ale nadal można je czytać i edytować."
   },
   "icon": {
     "add": "Dodaj ikonę",

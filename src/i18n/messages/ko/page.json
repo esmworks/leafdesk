@@ -7,6 +7,9 @@
     "copyLink": "링크 복사",
     "copyId": "ID 복사",
     "moveToTrash": "휴지통으로 이동",
+    "archive": "보관",
+    "unarchive": "보관 해제",
+    "archiveHint": "페이지는 남지만 사이드바, 검색, 선택 목록에서 빠집니다. 하위 페이지도 함께 빠집니다.",
     "edited": "{time} 편집됨",
     "activity": "활동",
     "editedBy": "{name}이(가) 편집함",
@@ -83,6 +86,14 @@
     "banner": "이 페이지는 휴지통에 있습니다.",
     "deletePermanently": "영구 삭제",
     "confirmDelete": "이 페이지와 그 안의 모든 내용을 영구 삭제할까요? 이 작업은 되돌릴 수 없습니다."
+  },
+  "outdated": {
+    "byOn": "{name}님이 {date}에 보관했습니다.",
+    "on": "{date}에 보관되었습니다.",
+    "with": "<link>{title}</link>와(과) 함께 보관되었습니다.",
+    "above": "상위 페이지와 함께 보관되었습니다.",
+    "unarchive": "보관 해제",
+    "hint": "보관된 페이지는 사이드바, 검색, 선택 목록에 나타나지 않지만 계속 읽고 편집할 수 있습니다."
   },
   "icon": {
     "add": "아이콘 추가",

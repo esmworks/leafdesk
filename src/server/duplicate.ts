@@ -224,13 +224,16 @@ export async function copyPageTree(
         default_template_id: (defaultTemplate && plan.pageIds.get(defaultTemplate)) || null,
       };
     });
+    // Archived pages stay archived in the copy, by whoever archived them (server/page-outdated.ts),
+    // but templates and the pages in them never are.
     const inserted = await tx.execute<{ id: string }>(sql`
       insert into ${page} (id, workspace_id, parent_id, kind, title, icon, background, position, properties,
         ydoc, content_text, content_markdown, is_template, in_template, default_template_id, voice_note_instructions, teamspace_id,
-        created_by, updated_by)
+        outdated_at, outdated_by, created_by, updated_by)
       select m.id, src.workspace_id, m.parent_id, src.kind, m.title, src.icon, src.background, m.position, m.properties,
         src.ydoc, src.content_text, src.content_markdown, m.is_template, m.in_template, m.default_template_id, src.voice_note_instructions,
-        ${space}::text, ${userId}, ${userId}
+        ${space}::text, case when m.in_template then null else src.outdated_at end, case when m.in_template then null else src.outdated_by end,
+        ${userId}, ${userId}
       from jsonb_to_recordset(${JSON.stringify(rows)}::jsonb)
         as m(id text, source_id text, parent_id text, title text, position double precision, properties jsonb,
           is_template boolean, in_template boolean, default_template_id text)

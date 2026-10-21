@@ -7,6 +7,9 @@
     "copyLink": "Copiar link",
     "copyId": "Copiar ID",
     "moveToTrash": "Mover para a lixeira",
+    "archive": "Arquivar",
+    "unarchive": "Desarquivar",
+    "archiveHint": "A página continua existindo, mas sai da barra lateral, da pesquisa e dos seletores. As subpáginas vão junto.",
     "edited": "Editado {time}",
     "activity": "Atividade",
     "editedBy": "Editado por {name}",
@@ -83,6 +86,14 @@
     "banner": "Esta página está na lixeira.",
     "deletePermanently": "Excluir permanentemente",
     "confirmDelete": "Excluir permanentemente esta página e tudo o que há nela? Essa ação não pode ser desfeita."
+  },
+  "outdated": {
+    "byOn": "Arquivada por {name} em {date}.",
+    "on": "Arquivada em {date}.",
+    "with": "Arquivada junto com <link>{title}</link>.",
+    "above": "Arquivada junto com uma página acima desta.",
+    "unarchive": "Desarquivar",
+    "hint": "Páginas arquivadas ficam fora da barra lateral, da pesquisa e dos seletores, mas ainda podem ser lidas e editadas."
   },
   "icon": {
     "add": "Adicionar ícone",

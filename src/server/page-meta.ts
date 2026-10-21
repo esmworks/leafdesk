@@ -7,6 +7,7 @@ import { countAccessRequests } from "@/server/access-requests";
 import { aiAvailable } from "@/server/ai-writing";
 import { voiceNoteLimits } from "@/server/voice-notes";
 import { AccessError, isGuest, pageVisibleTo, requireMembership, resolvePageAccess, type AccessLevel } from "@/server/access";
+import { isOutdated, outdatedState, type OutdatedState } from "@/server/page-outdated";
 import { isWatching } from "@/server/page-watch";
 import { isFollowing } from "@/server/row-follow";
 import { exportAllowed, topLevelAccess } from "@/server/workspaces";
@@ -43,6 +44,8 @@ export type PageHeaderInfo = {
   following: boolean | null;
   /** Other pages: whether the user hears about others' edits and new comment threads (server/page-watch); null for rows and templates. */
   watching: boolean | null;
+  /** Set when the page is archived, itself or through a page above it: by whom, when (server/page-outdated). */
+  outdated: OutdatedState | null;
 };
 
 export async function getPageHeaderInfo(userId: string, pageId: string): Promise<PageHeaderInfo> {
@@ -50,7 +53,7 @@ export async function getPageHeaderInfo(userId: string, pageId: string): Promise
   if (!found || level === "none") throw new AccessError();
   const creator = alias(user, "creator");
   const editor = alias(user, "editor");
-  const [[names], [star], membership, topLevel, ai, voice, exportable, accessRequests, following, watching] = await Promise.all([
+  const [[names], [star], membership, topLevel, ai, voice, exportable, accessRequests, following, watching, outdated] = await Promise.all([
     db
       .select({ createdBy: creator.name, updatedBy: editor.name })
       .from(page)
@@ -69,6 +72,7 @@ export async function getPageHeaderInfo(userId: string, pageId: string): Promise
     level === "full" ? countAccessRequests(pageId) : 0,
     found.parentId ? isFollowing(userId, pageId) : null,
     isWatching(userId, pageId),
+    outdatedState(userId, pageId),
   ]);
   return {
     level,
@@ -88,6 +92,7 @@ export async function getPageHeaderInfo(userId: string, pageId: string): Promise
     skill: found.isSkill && !found.inTemplate ? { description: found.skillDescription } : null,
     following,
     watching,
+    outdated,
   };
 }
 
@@ -120,6 +125,8 @@ export type FavoritePage = {
   kind: PageKind;
   teamspaceId: string | null;
   updatedAt: Date;
+  /** Archived, itself or through a page above it (server/page-outdated): still listed, the user starred it. */
+  outdated: boolean;
 };
 
 /**
@@ -129,7 +136,15 @@ export type FavoritePage = {
 export async function listFavorites(userId: string, workspaceId: string): Promise<FavoritePage[]> {
   await requireMembership(userId, workspaceId);
   return db
-    .select({ id: page.id, title: page.title, icon: page.icon, kind: page.kind, teamspaceId: page.teamspaceId, updatedAt: page.updatedAt })
+    .select({
+      id: page.id,
+      title: page.title,
+      icon: page.icon,
+      kind: page.kind,
+      teamspaceId: page.teamspaceId,
+      updatedAt: page.updatedAt,
+      outdated: isOutdated(workspaceId),
+    })
     .from(pageFavorite)
     .innerJoin(page, eq(page.id, pageFavorite.pageId))
     .where(

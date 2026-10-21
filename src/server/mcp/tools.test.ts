@@ -78,6 +78,13 @@ vi.mock("@/server/databases", () => databases);
 const pageHistory = vi.hoisted(() => ({ diffSnapshot: vi.fn() }));
 vi.mock("@/server/page-history", () => pageHistory);
 
+// Whether a page is archived; which pages count is checked against the database in scripts/page-archive-e2e.ts.
+const outdated = vi.hoisted(() => ({
+  outdatedState: vi.fn<(userId: string, pageId: string) => Promise<unknown>>(async () => null),
+  setPageOutdated: vi.fn(),
+}));
+vi.mock("@/server/page-outdated", async (importOriginal) => ({ ...(await importOriginal<object>()), ...outdated }));
+
 const teamspaces = vi.hoisted(() => ({
   listTeamspaces: vi.fn(),
   getTeamspace: vi.fn(),
@@ -3288,5 +3295,104 @@ describe("daily notes", () => {
     expect(listed.isError).toBe(false);
     expect(journal.listDailyNotes).toHaveBeenLastCalledWith("user-1", "ws-1", { from: "2026-10-01", to: undefined, limit: 31 });
     expect(listed.data).toMatchObject({ notes: [{ date: "2026-10-17", id: "note-1" }] });
+  });
+});
+
+describe("archived pages", () => {
+  const hit = { id: "page-2", workspaceId: "ws-1", teamspaceId: null, parentId: null, kind: "page", title: "Old prices", icon: null, snippet: "", updatedAt: page.updatedAt };
+
+  it("search leaves archived pages out unless include_archived, and marks them", async () => {
+    pages.searchPages.mockResolvedValue([{ ...hit, outdated: false }]);
+    const plain = await callTool(reader, "search", { query: "prices" });
+    expect(pages.searchPages).toHaveBeenLastCalledWith("user-1", "prices", expect.objectContaining({ includeOutdated: false }));
+    expect(plain.data.results[0].archived).toBe(false);
+    pages.searchPages.mockResolvedValue([{ ...hit, outdated: true }]);
+    const all = await callTool(reader, "search", { query: "prices", include_archived: true });
+    expect(pages.searchPages).toHaveBeenLastCalledWith("user-1", "prices", expect.objectContaining({ includeOutdated: true }));
+    expect(all.data.results[0].archived).toBe(true);
+  });
+
+  it("list_pages passes include_archived on", async () => {
+    pages.listChildren.mockResolvedValue([{ id: "page-2", kind: "page", title: "Old prices", icon: null, teamspaceId: null, updatedAt: page.updatedAt, outdated: true }]);
+    const r = await callTool(reader, "list_pages", { workspace_id: "ws-1", include_archived: true });
+    expect(pages.listChildren).toHaveBeenLastCalledWith("user-1", "ws-1", null, { teamspaceId: undefined, includeOutdated: true });
+    expect(r.data.pages[0].archived).toBe(true);
+    await callTool(reader, "list_pages", { workspace_id: "ws-1" });
+    expect(pages.listChildren).toHaveBeenLastCalledWith("user-1", "ws-1", null, { teamspaceId: undefined, includeOutdated: false });
+  });
+
+  it("get_page says whether a page is archived, and with which page above it", async () => {
+    expect((await callTool(reader, "get_page", { page_id: "page-1" })).data.archived).toBe(false);
+    const at = new Date("2026-10-01T00:00:00Z");
+    outdated.outdatedState.mockResolvedValueOnce({ pageId: "page-1", own: true, title: "Plan", at, by: "Ada", canUnarchive: true });
+    const own = (await callTool(reader, "get_page", { page_id: "page-1" })).data;
+    expect(own).toMatchObject({ archived: true, archived_at: at.toISOString(), archived_by: "Ada" });
+    expect(own).not.toHaveProperty("archived_with");
+    outdated.outdatedState.mockResolvedValueOnce({ pageId: "top", own: false, title: "Archive 2025", at, by: "Ada", canUnarchive: false });
+    const under = (await callTool(reader, "get_page", { page_id: "page-1" })).data;
+    expect(under.archived_with).toMatchObject({ id: "top", title: "Archive 2025" });
+    outdated.outdatedState.mockResolvedValueOnce({ pageId: "top", own: false, title: null, at, by: null, canUnarchive: false });
+    expect((await callTool(reader, "get_page", { page_id: "page-1" })).data.archived_with).toBeNull();
+  });
+
+  it("get_page lists archived sub-pages too, marked", async () => {
+    pages.listChildren.mockResolvedValue([
+      { id: "c1", kind: "page", title: "Live", outdated: false },
+      { id: "c2", kind: "page", title: "Old", outdated: true },
+    ]);
+    const r = await callTool(reader, "get_page", { page_id: "page-1" });
+    expect(pages.listChildren).toHaveBeenLastCalledWith("user-1", "ws-1", "page-1", { includeOutdated: true });
+    expect(r.data.child_pages).toEqual([
+      { id: "c1", title: "Live", kind: "page" },
+      { id: "c2", title: "Old", kind: "page", archived: true },
+    ]);
+  });
+
+  it("set_page_archived archives and unarchives through setPageOutdated", async () => {
+    const at = new Date();
+    outdated.setPageOutdated.mockResolvedValue(page);
+    outdated.outdatedState.mockResolvedValueOnce(null).mockResolvedValueOnce({ pageId: "page-1", own: true, title: "Plan", at, by: "Ada", canUnarchive: true });
+    const archived = await callTool(writer, "set_page_archived", { page_id: "page-1", archived: true });
+    expect(outdated.setPageOutdated).toHaveBeenLastCalledWith("user-1", "page-1", true);
+    expect(archived.data).toMatchObject({ id: "page-1", archived: true });
+    expect(archived.data.note).toMatch(/sub-pages/);
+    // Still archived through a page above it: the note says which.
+    outdated.outdatedState
+      .mockResolvedValueOnce({ pageId: "top", own: false, title: "Archive 2025", at, by: "Ada", canUnarchive: true })
+      .mockResolvedValueOnce({ pageId: "top", own: false, title: "Archive 2025", at, by: "Ada", canUnarchive: true });
+    const under = await callTool(writer, "set_page_archived", { page_id: "page-1", archived: false });
+    expect(outdated.setPageOutdated).toHaveBeenLastCalledWith("user-1", "page-1", false);
+    expect(under.data.archived).toBe(true);
+    expect(under.data.note).toMatch(/Archive 2025/);
+  });
+
+  it("set_page_archived turns refusals into tool errors and needs write access", async () => {
+    const { OutdatedError } = await import("@/server/page-outdated");
+    outdated.setPageOutdated.mockRejectedValue(new OutdatedError("template", "Templates and the pages in them can't be archived"));
+    const refused = await callTool(writer, "set_page_archived", { page_id: "page-1", archived: true });
+    expect(refused.isError).toBe(true);
+    expect(refused.text).toMatch(/Templates/);
+    outdated.setPageOutdated.mockClear();
+    const read = await callTool(reader, "set_page_archived", { page_id: "page-1", archived: true });
+    expect(read.isError).toBe(true);
+    expect(outdated.setPageOutdated).not.toHaveBeenCalled();
+  });
+
+  it("query_database leaves archived rows out unless asked or the view shows them", async () => {
+    databases.listRows.mockResolvedValue([
+      { id: "r1", title: "A", properties: {} },
+      { id: "r2", title: "B", properties: {}, outdated: true },
+    ]);
+    await callTool(reader, "query_database", { database_id: "db-1" });
+    expect(databases.listRowsInOrder).toHaveBeenLastCalledWith("user-1", "db-1", expect.objectContaining({ showOutdated: undefined }));
+    const all = await callTool(reader, "query_database", { database_id: "db-1", include_archived: true });
+    expect(databases.listRowsInOrder).toHaveBeenLastCalledWith("user-1", "db-1", expect.objectContaining({ showOutdated: true }));
+    expect(all.data.rows.map((r: { id: string; archived?: boolean }) => [r.id, r.archived ?? false])).toEqual([
+      ["r1", false],
+      ["r2", true],
+    ]);
+    databases.getDatabase.mockResolvedValue({ ...database, views: [{ id: "view-a", name: "All", type: "table", config: { showOutdated: true } }] });
+    await callTool(reader, "query_database", { database_id: "db-1", view_id: "view-a" });
+    expect(databases.listRowsInOrder).toHaveBeenLastCalledWith("user-1", "db-1", expect.objectContaining({ showOutdated: true }));
   });
 });

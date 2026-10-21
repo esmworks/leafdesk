@@ -17,7 +17,18 @@ vi.mock("@/db", () => ({
 vi.mock("@/server/collab/bridge", () => ({ getCollab: vi.fn() }));
 vi.mock("@/server/pages", () => ({ getTree: vi.fn() }));
 vi.mock("@/server/databases", () => ({ normalizeRowProperties: vi.fn() }));
-vi.mock("@/server/operations", () => ({ search: async () => ({ results }) }));
+const searchCalls = vi.hoisted(() => [] as unknown[][]);
+vi.mock("@/server/operations", () => ({
+  search: async (...args: unknown[]) => {
+    searchCalls.push(args);
+    return { results };
+  },
+}));
+/** Archived scope pages, by id (server/page-outdated). */
+const outdatedScopes = vi.hoisted(() => new Set<string>());
+vi.mock("@/server/page-outdated", () => ({
+  outdatedState: async (_userId: string, pageId: string) => (outdatedScopes.has(pageId) ? { pageId, own: true } : null),
+}));
 vi.mock("@/server/semantic-search", () => ({
   inSubtree: vi.fn(),
   chunksOfPages: async (ids: string[]) => new Map([...chunks].filter(([id]) => ids.includes(id))),
@@ -25,14 +36,16 @@ vi.mock("@/server/semantic-search", () => ({
 
 const { runTool } = await import("./ai-tools");
 
-const search = async (query: string) => {
+const search = async (query: string, scopeId?: string) => {
   const registry = { sources: [], byKey: new Map() };
-  const outcome = await runTool({ userId: "u" } as never, "w", undefined, { name: "search_pages", arguments: { query } }, registry, 50_000);
+  const outcome = await runTool({ userId: "u" } as never, "w", scopeId, { name: "search_pages", arguments: { query } }, registry, 50_000);
   return { outcome, sources: registry.sources as { pageId: string; blockId: string | null; text: string }[] };
 };
 
 beforeEach(() => {
   results.length = 0;
+  searchCalls.length = 0;
+  outdatedScopes.clear();
   chunks.clear();
   bodies.clear();
 });
@@ -72,5 +85,20 @@ describe("search_pages passages", () => {
     bodies.set("p3", "");
     const { sources } = await search("supplier");
     expect(sources).toEqual([expect.objectContaining({ pageId: "p3", blockId: null, text: "…supplier…" })]);
+  });
+});
+
+describe("search_pages and archived pages", () => {
+  const included = () => (searchCalls.at(-1)![1] as { include_archived?: boolean }).include_archived;
+
+  it("leaves archived pages out, unless the chat is about an archived page", async () => {
+    await search("prices");
+    expect(included()).toBe(false);
+    await search("prices", "live-page");
+    expect(included()).toBe(false);
+    outdatedScopes.add("old-page");
+    await search("prices", "old-page");
+    expect(included()).toBe(true);
+    expect(searchCalls.at(-1)![2]).toMatchObject({ withinPageId: "old-page" });
   });
 });

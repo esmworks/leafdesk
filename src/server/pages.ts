@@ -59,6 +59,7 @@ import { parseSearchQuery } from "@/lib/search-query";
 import { pageChanged } from "@/server/page-events";
 import { searchFoldSql } from "@/server/search-fold-sql";
 import { sweepDocuments } from "@/server/file-text";
+import { listedPage, isOutdated, outdatedIds } from "@/server/page-outdated";
 import { searchScope, semanticSearch, type SearchScope } from "@/server/semantic-search";
 import { reciprocalRankFusion, snippetOf } from "@/server/semantic-text";
 import { assertNestable, subtreeHeight } from "@/server/page-depth";
@@ -95,7 +96,8 @@ export { listWorkspaces } from "@/server/workspaces";
 
 /**
  * Sidebar tree: the live pages the user can see except database rows (those live inside their
- * database) and templates (listed by the template picker), each in its section:
+ * database), templates (listed by the template picker) and archived pages with the pages under
+ * them (server/page-outdated.ts), each in its section:
  * - the teamspaces they are in (archived ones left out), with their pages;
  * - "private": their own pages outside any teamspace;
  * - "shared": pages shared with them by name that are in neither, such as a page of a closed
@@ -123,8 +125,7 @@ export async function getTree(userId: string, workspaceId: string): Promise<Tree
       from ${page} p
       left join ${page} parent on parent.id = p.parent_id
       where p.workspace_id = ${workspaceId}
-        and p.archived_at is null
-        and not p.in_template
+        and ${listedPage(workspaceId, { alias: "p" })}
         and (parent.id is null or parent.kind <> 'database')
     )
     select id, parent_id, kind, title, icon, position, level, teamspace_id,
@@ -822,6 +823,8 @@ export type SearchHit = {
   blockId?: string | null;
   /** Full-text search found the page by the words of a document its body shows, not its own: that document (the snippet is from it). */
   file?: { id: string; name: string };
+  /** The page is archived, itself or through a page above it; only searches that include archived pages find one. */
+  outdated: boolean;
 };
 
 export type SearchOptions = SearchScope & {
@@ -874,6 +877,7 @@ export async function searchPages(userId: string, query: string, options: Search
             icon: m.icon,
             snippet,
             updatedAt: m.updatedAt,
+            outdated: m.outdated,
             match: "semantic",
             passage: m.passage,
             blockId: m.blockId,
@@ -902,6 +906,7 @@ export async function fullTextSearch(
   query: string,
   { workspaceId, limit = 20, anyWord = false, ...scope }: SearchOptions = {},
 ): Promise<SearchHit[]> {
+  const { includeOutdated = false } = scope;
   const q = query.trim();
   if (!q && !scoped(scope)) return [];
   // Without a letter or digit there are no words to look for ("---" finds nothing).
@@ -935,6 +940,8 @@ export async function fullTextSearch(
     : sql`(case when ${searchFoldSql(sql`p.title`)} like ${searchFoldSql(like)} then 2 else 0 end) + ts_rank(p.search_vector, ${words}, 1)`;
   const matches = q ? sql`p.search_vector @@ ${words}` : sql`true`;
   const inWorkspaces = sql.join(workspaces.map((w) => sql`${w}`), sql`, `);
+  // Out of the trash and templates, and archived pages only when asked for (server/page-outdated.ts).
+  const listed = listedPage(workspaces, { alias: "p", includeOutdated });
   // Pages whose body shows a PDF, Word document or Excel workbook with the words (file-text.ts), through a
   // reference its readers may read it by: the rule semantic search indexes documents by
   // (file-text.pageDocuments), so the document's words find nothing someone couldn't read there.
@@ -950,8 +957,7 @@ export async function fullTextSearch(
         join ${page} p on p.id = fr.page_id and p.workspace_id = f.workspace_id
         where f.workspace_id in (${inWorkspaces})
           and ft.search_vector @@ ${words}
-          and p.archived_at is null
-          and not p.in_template
+          and ${listed}
           ${searchScope(scope, userId)}`
     : sql``;
   const rows = await db.execute<{
@@ -967,13 +973,13 @@ export async function fullTextSearch(
     file_id: string | null;
     file_name: string | null;
     file_text: string | null;
+    outdated: boolean;
   }>(sql`
     with candidates as (
       select p.id, ${rank} as rank, null::text as file_id
       from ${page} p
       where p.workspace_id in (${inWorkspaces})
-        and p.archived_at is null
-        and not p.in_template
+        and ${listed}
         ${searchScope(scope, userId)}
         and ${matches}
       ${documentHits}
@@ -1006,7 +1012,8 @@ export async function fullTextSearch(
       -- A parent they can't see isn't named, not even by id.
       case when p.parent_id is not null and ${pageVisibleTo(userId, "parent")} then p.parent_id end as parent_id,
       p.kind, p.title, p.icon, p.content_text, p.updated_at,
-      h.file_id, f.name as file_name, left(ft.text, 80000) as file_text
+      h.file_id, f.name as file_name, left(ft.text, 80000) as file_text,
+      ${includeOutdated ? isOutdated(workspaces, "p") : sql`false`} as outdated
     from hits h
     join ${page} p on p.id = h.id
     left join ${page} parent on parent.id = p.parent_id
@@ -1025,6 +1032,7 @@ export async function fullTextSearch(
     icon: r.icon,
     snippet: makeSnippet(r.file_id ? (r.file_text ?? "") : r.content_text, needles),
     updatedAt: new Date(r.updated_at),
+    outdated: Boolean(r.outdated),
     ...(r.file_id ? { file: { id: r.file_id, name: r.file_name ?? "" } } : {}),
   }));
 }
@@ -1064,8 +1072,12 @@ export async function listChildren(
   userId: string,
   workspaceId: string,
   parentId: string | null,
-  /** Top level only: just this teamspace's pages (null: private pages outside any teamspace). */
-  { teamspaceId }: { teamspaceId?: string | null } = {},
+  /**
+   * `teamspaceId`, top level only: just this teamspace's pages (null: private pages outside any
+   * teamspace). `includeOutdated`: archived pages too (server/page-outdated.ts); under a parent
+   * that is archived itself its pages are listed either way.
+   */
+  { teamspaceId, includeOutdated = false }: { teamspaceId?: string | null; includeOutdated?: boolean } = {},
 ) {
   await requireMembership(userId, workspaceId);
   if (parentId) await requirePageAccess(userId, parentId, "view");
@@ -1082,6 +1094,8 @@ export async function listChildren(
       icon: page.icon,
       teamspaceId: page.teamspaceId,
       updatedAt: page.updatedAt,
+      // Archived itself, or (at the top level) through a page above it the user can't see.
+      outdated: parentId ? sql<boolean>`${page.outdatedAt} is not null` : isOutdated(workspaceId),
     })
     .from(page)
     .leftJoin(parent, eq(parent.id, page.parentId))
@@ -1097,6 +1111,8 @@ export async function listChildren(
         // Templates are listed by list_templates, not as pages.
         eq(page.isTemplate, false),
         isNull(page.archivedAt),
+        // Under a parent the pages it has are archived when they are themselves or it is.
+        includeOutdated ? undefined : parentId ? isNull(page.outdatedAt) : sql`${page.id} not in ${outdatedIds(workspaceId)}`,
         pageVisibleTo(userId),
       ),
     )
@@ -1153,11 +1169,18 @@ export async function restoreSnapshot(actor: WriteActor, snapshotId: string) {
  * The search box's query (see lib/search-query): its text, in the pages its `in:` filters name
  * (none of them found: no results) and of the kinds its `type:` filters name.
  */
-export async function searchWithQuery(userId: string, workspaceId: string, query: string, limit = 20): Promise<SearchHit[]> {
+export async function searchWithQuery(
+  userId: string,
+  workspaceId: string,
+  query: string,
+  limit = 20,
+  /** Archived pages too (server/page-outdated.ts): the search box's "Include archived". */
+  { includeOutdated = false }: { includeOutdated?: boolean } = {},
+): Promise<SearchHit[]> {
   const { text, within, kinds } = parseSearchQuery(query);
-  const withinPageIds = within.length ? await pagesTitled(userId, workspaceId, within) : undefined;
+  const withinPageIds = within.length ? await pagesTitled(userId, workspaceId, within, 20, { includeOutdated }) : undefined;
   if (withinPageIds && !withinPageIds.length) return [];
-  return searchPages(userId, text, { workspaceId, limit, withinPageIds, kinds });
+  return searchPages(userId, text, { workspaceId, limit, withinPageIds, kinds, includeOutdated });
 }
 
 /**
@@ -1165,7 +1188,13 @@ export async function searchWithQuery(userId: string, workspaceId: string, query
  * lib/search-fold does, without surrounding space), last edited first: what a search's `in:`
  * filters name.
  */
-export async function pagesTitled(userId: string, workspaceId: string, titles: string[], limit = 20): Promise<string[]> {
+export async function pagesTitled(
+  userId: string,
+  workspaceId: string,
+  titles: string[],
+  limit = 20,
+  { includeOutdated = false }: { includeOutdated?: boolean } = {},
+): Promise<string[]> {
   const wanted = [...new Set(titles.map((t) => searchFold(t.normalize("NFC").trim())).filter(Boolean))];
   if (!wanted.length) return [];
   await enforceWorkspacePolicy(userId, workspaceId);
@@ -1175,8 +1204,7 @@ export async function pagesTitled(userId: string, workspaceId: string, titles: s
     .where(
       and(
         eq(page.workspaceId, workspaceId),
-        isNull(page.archivedAt),
-        eq(page.inTemplate, false),
+        listedPage(workspaceId, { includeOutdated }),
         pageVisibleTo(userId),
         sql`${searchFoldSql(sql`trim(normalize(${page.title}, NFC))`)} in (${sql.join(wanted.map((t) => sql`${t}`), sql`, `)})`,
       ),
@@ -1204,7 +1232,8 @@ export async function parentTitles(userId: string, pageIds: string[]): Promise<M
 
 export async function recentPages(userId: string, workspaceId: string, limit = 8) {
   await requireMembership(userId, workspaceId);
-  const live = and(eq(page.workspaceId, workspaceId), isNull(page.archivedAt), eq(page.inTemplate, false));
+  // Archived pages too stay out (server/page-outdated.ts).
+  const live = and(eq(page.workspaceId, workspaceId), listedPage(workspaceId));
   const columns = { id: page.id, title: page.title, icon: page.icon, kind: page.kind, updatedAt: page.updatedAt };
   // Access is asked of the latest pages, newest first, until enough are found: asked of every page
   // in the workspace before sorting, it took seconds in a large one. When too few of the latest are
