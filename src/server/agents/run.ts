@@ -455,7 +455,9 @@ async function converse(
     remembers,
   });
   const toolsSize = tools.reduce((n, t) => n + t.description.length + JSON.stringify(t.parameters).length, 0);
-  const budget = await promptRoomFor(run.workspaceId);
+  // The model its owners chose: every turn of every run of the agent's goes to it (features.ts).
+  const feature = agent.model === "fast" ? "agent.fast" : "agent";
+  const budget = await promptRoomFor(run.workspaceId, feature);
   const room = (messages: AiMessage[]) => budget - system.length - toolsSize - messages.reduce((n, m) => n + m.content.length, 0) - 300;
 
   const registry: Registry = { sources: [], byKey: new Map() };
@@ -614,7 +616,7 @@ async function converse(
     let result: AiResult;
     try {
       result = await complete({
-        feature: "agent",
+        feature,
         userId: agent.userId,
         workspaceId: run.workspaceId,
         skipRateLimit: true,
@@ -642,6 +644,7 @@ async function converse(
     usage.inputTokens += result.usage.inputTokens;
     usage.outputTokens += result.usage.outputTokens;
     usage.costUsd += result.usage.costUsd;
+    usage.model = result.model;
     if (!result.toolCalls.length || last) {
       finalAnswer = result.text;
       break;

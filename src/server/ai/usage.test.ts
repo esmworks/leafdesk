@@ -115,6 +115,35 @@ describe("recording AI usage", () => {
     ]);
   });
 
+  it("counts an agent on the fast model under the fast model, and falls back to the main model without one", async () => {
+    const faux = fauxProvider({ provider: "faux", models: [{ id: "main-model" }, { id: "fast-model" }] });
+    const answer = () => {
+      faux.appendResponses([answer]);
+      return fauxAssistantMessage([fauxText("ok")]);
+    };
+    faux.setResponses([answer]);
+    const models = createModels();
+    models.setProvider(faux.provider);
+    const config = readAiConfig({});
+    const chat = { provider: "openai-compatible" as const, model: "main-model", baseUrl: "http://faux.invalid", apiKey: null };
+    setAiOverride({
+      config: { ...config, chat: { ...chat, fastModel: "fast-model" } },
+      backend: { models, model: faux.getModel("main-model")!, fast: faux.getModel("fast-model")! },
+      usage: ledger,
+    });
+    const ask = (feature: string) => complete({ feature, workspaceId: "w1", messages: [{ role: "user", content: "Sort the rows" }] });
+    expect((await ask("agent.fast")).model).toBe("fast-model");
+    expect((await ask("agent")).model).toBe("main-model");
+    // A server without a fast model runs the same agent on its main model.
+    setAiOverride({ config: { ...config, chat }, backend: { models, model: faux.getModel("main-model")! }, usage: ledger });
+    expect((await ask("agent.fast")).model).toBe("main-model");
+    expect(ledger.rows.map((r) => [r.feature, r.model, r.requests])).toEqual([
+      ["agent.fast", "fast-model", 1],
+      ["agent", "main-model", 1],
+      ["agent.fast", "main-model", 1],
+    ]);
+  });
+
   it("never records anything without a ledger", async () => {
     installFauxAi(() => "ok");
     await complete({ feature: "chat", workspaceId: "w1", messages: [{ role: "user", content: "Hi" }] });

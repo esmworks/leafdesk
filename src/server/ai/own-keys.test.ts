@@ -11,7 +11,7 @@ import type { AiAccountSettings } from "./config";
 import { accountAiConfig } from "./config";
 import { startFakeOpenAi, type FakeOpenAi } from "./fake-openai";
 import { checkAiUrl, guardedAiFetch } from "./fetch";
-import { aiEnabledFor, aiTargetFor, complete, describeAiSetup, embed, embeddingModelFor, isEnabled, sttLimitsFor } from "./index";
+import { aiEnabledFor, aiInfoFor, aiTargetFor, complete, describeAiSetup, embed, embeddingModelFor, isEnabled, sttLimitsFor } from "./index";
 import { resetAi, setAiEnv } from "./testing";
 
 const target = vi.hoisted(() => ({
@@ -175,7 +175,7 @@ describe("which AI a workspace runs on", () => {
     expect(fake.chats.at(-1)?.model).toBe("server-model");
   });
 
-  it("runs an own account's simple jobs on its own model too, never the server's fast model", async () => {
+  it("runs an own account's simple jobs and fast agents on its own model too, never the server's fast model", async () => {
     vi.stubEnv("OWN_AI_KEYS_ENABLED", "true");
     allowFake();
     setAiEnv({ ...serverAi, AI_BASE_URL: fake.baseUrl, AI_FAST_MODEL: "server-fast" });
@@ -183,11 +183,20 @@ describe("which AI a workspace runs on", () => {
     await complete({ feature: "property.summary", workspaceId: "w1", messages: [{ role: "user", content: "hi" }] });
     expect(fake.chats.at(-1)?.model).toBe("own-model");
     expect(fake.keys.at(-1)).toBe("own-key");
+    // An agent its owners put on the fast model, too.
+    const agent = await complete({ feature: "agent.fast", workspaceId: "w1", messages: [{ role: "user", content: "hi" }] });
+    expect(fake.chats.at(-1)?.model).toBe("own-model");
+    expect(agent.model).toBe("own-model");
+    // So its settings offer agents no choice of model.
+    expect(await aiInfoFor("w1")).toMatchObject({ model: "own-model", fastModel: null });
     // A workspace on the server's settings gets the server's fast model.
     target.account = null;
     await complete({ feature: "property.summary", workspaceId: "w2", messages: [{ role: "user", content: "hi" }] });
     expect(fake.chats.at(-1)?.model).toBe("server-fast");
     expect(fake.keys.at(-1)).toBe("server-key");
+    await complete({ feature: "agent.fast", workspaceId: "w2", messages: [{ role: "user", content: "hi" }] });
+    expect(fake.chats.at(-1)?.model).toBe("server-fast");
+    expect(await aiInfoFor("w2")).toMatchObject({ model: "server-model", fastModel: "server-fast" });
   });
 
   it("is off without an account when only own keys may be used, and the server's key is never sent", async () => {

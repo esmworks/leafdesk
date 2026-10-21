@@ -2338,6 +2338,7 @@ describe("agents", () => {
     enabled: true,
     archived: false,
     monthlyTokenLimit: 50_000,
+    model: "main",
     createdAt: "2026-10-01T00:00:00.000Z",
     updatedAt: "2026-10-01T00:00:00.000Z",
   };
@@ -2373,7 +2374,7 @@ describe("agents", () => {
     expect(isError).toBe(false);
     expect(agents.listAgents).toHaveBeenCalledWith("user-1", "ws-1", { archived: true });
     expect(data.agents).toEqual([
-      { id: "agent-1", name: "Ticket router", icon: "🤖", description: "Sorts new tickets", enabled: true, archived: false, user_id: "bot-1" },
+      { id: "agent-1", name: "Ticket router", icon: "🤖", description: "Sorts new tickets", enabled: true, archived: false, model: "main", user_id: "bot-1" },
     ]);
   });
 
@@ -2620,7 +2621,7 @@ describe("agents", () => {
           { kind: "skill", pageId: "s-2", title: "", outcome: "skipped", reason: "editable" },
         ],
         answer: "Done.",
-        usage: { inputTokens: 900, outputTokens: 40, costUsd: 0.001, rounds: 3 },
+        usage: { inputTokens: 900, outputTokens: 40, costUsd: 0.001, rounds: 3, model: "fast-model" },
         createdAt: "2026-10-01T00:00:00.000Z",
         finishedAt: "2026-10-01T00:00:10.000Z",
       },
@@ -2634,7 +2635,7 @@ describe("agents", () => {
       source: { kind: "automation", automation_id: "auto-1", database_id: "db-1" },
       row: { id: "row-1", title: "Printer jammed", url: expect.stringMatching(/\/w\/ws-1\/p\/row-1$/) },
       answer: "Done.",
-      usage: { rounds: 3, input_tokens: 900, output_tokens: 40 },
+      usage: { rounds: 3, input_tokens: 900, output_tokens: 40, model: "fast-model" },
     });
     expect(data.runs[0].steps.map((s: { summary: string }) => s.summary)).toEqual([
       'Searched "printer" (2 results)',
@@ -2646,6 +2647,30 @@ describe("agents", () => {
     ]);
     expect(data.runs[1]).toMatchObject({ status: "failed", code: "aiOff", row: { id: "row-2", title: null } });
     expect(data.runs[1].row).not.toHaveProperty("url");
+  });
+
+  it("puts an agent on the fast model or back on the main one, and returns its model", async () => {
+    agents.createAgent.mockResolvedValueOnce({ ...agent, model: "fast" });
+    const created = await callTool(writer, "create_agent", { workspace_id: "ws-1", name: "Summarizer", model: "fast" });
+    expect(agents.createAgent).toHaveBeenLastCalledWith("user-1", "ws-1", { name: "Summarizer", model: "fast" });
+    expect(created.data.model).toBe("fast");
+
+    agents.getAgent.mockResolvedValueOnce({ ...agent, model: "fast" });
+    agents.listAgentAccess.mockResolvedValue({ pages: [], hidden: 0 });
+    expect((await callTool(reader, "get_agent", { agent_id: "agent-1" })).data.model).toBe("fast");
+
+    agents.updateAgent.mockResolvedValueOnce({ ...agent, model: "main" });
+    const back = await callTool(writer, "update_agent", { agent_id: "agent-1", model: "main" });
+    expect(agents.updateAgent).toHaveBeenLastCalledWith("user-1", "agent-1", { model: "main" });
+    expect(back.data.model).toBe("main");
+
+    // Only the two choices: anything else is refused before it reaches the agent.
+    const calls = agents.updateAgent.mock.calls.length;
+    const odd = await callTool(writer, "update_agent", { agent_id: "agent-1", model: "claude-haiku-5-5" });
+    expect(odd.isError).toBe(true);
+    expect(agents.updateAgent.mock.calls.length).toBe(calls);
+    const tools = new Map((await listTools(writer)).map((t) => [t.name, t]));
+    expect(tools.get("update_agent")!.inputSchema.properties.model).toMatchObject({ enum: ["main", "fast"] });
   });
 
   it("starts a run an owner asks for, and shows who asked, the task, the limit and the usage", async () => {

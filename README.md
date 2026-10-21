@@ -1776,9 +1776,12 @@ as it can (Claude Sonnet and Opus 5.5 can't stop thinking, so "off" is low effor
 | Writing assistant: your own instruction | `AI_MODEL` | medium |
 | Chat | `AI_MODEL` | medium |
 | Agents | `AI_MODEL` | the model's default (Claude 5.5: high) |
+| Agents set to the fast model | `AI_FAST_MODEL` | low |
 
 The writing assistant stays on `AI_MODEL`: it makes one request per click and its text goes straight
-into a page. Semantic search and the speech-to-text step of voice notes use their own models
+into a page. Agents run on `AI_MODEL` unless an owner puts one on the fast model, for routine,
+well-defined jobs (see [Agents](#agents)); without `AI_FAST_MODEL` such an agent runs on `AI_MODEL`
+like any other. Semantic search and the speech-to-text step of voice notes use their own models
 (`AI_EMBEDDINGS_MODEL`, `STT_MODEL`). The server log names the model of every request.
 
 **Writing assistant.** Select text and choose *Ask AI* in the formatting toolbar, or type `/` and
@@ -1984,7 +1987,7 @@ A request the provider refuses for its key marks the account as not working, wit
 answer, in its owner's settings until a request works again or **Test** succeeds.
 
 An account has one model, and it answers every feature, the ones that would run on
-`AI_FAST_MODEL` too: the server's fast model is a model at the server's provider, which the account
+`AI_FAST_MODEL` too (agents set to the fast model included, which run there as any other agent): the server's fast model is a model at the server's provider, which the account
 may not offer, and the account's owner chose what their key pays for. The thinking each feature asks
 for (see the table above) applies to the account's model as well.
 
@@ -2244,6 +2247,17 @@ run shows who asked, from where and the task; read how it went with
 `GET /api/v1/agents/{id}/runs/{run_id}` or `list_agent_runs`. Asking is refused, not queued, while
 the agent is paused or archived, AI is off for the workspace, the agent used its monthly token
 limit, or 5 runs asked of it still wait. Each request is recorded in the audit log.
+
+**Its model.** Where the server has a fast model (`AI_FAST_MODEL`, see [AI features](#ai-features)),
+the agent's settings let an owner choose which model its runs use, both named: the main model
+(`AI_MODEL`, the default), for work that needs judgment, or the fast one, cheaper, for routine,
+well-defined jobs such as summaries or sorting rows. Every turn of every run of the agent's, however
+it started, goes to that model, with the same tools and limits; on the fast model it thinks a
+little (low effort). The choice isn't shown, and a fast agent runs on the main model, where the
+server has no fast model or the workspace's AI is an own AI account (which has one model). Each
+run records the model that answered it, shown in the *Runs* tab, and the workspace's AI usage
+counts its turns under that model. MCP's `create_agent` and `update_agent` and the REST API's
+`PATCH /api/v1/agents/{id}` take `model` (`main` or `fast`).
 
 **Usage and a monthly limit.** Every turn a run takes with the model is added to the agent's usage
 for the calendar month (UTC): its runs, input and output tokens and cost (the cost stays 0 where the
@@ -2655,7 +2669,7 @@ The tools cover:
   `add_agent_memory`, `update_agent_memory` and `delete_agent_memory` (an owner's own notes)
   and `list_agent_runs` (each run's steps summarized), `start_agent_run` (ask an agent for a task
   now, on a row or on none); `get_agent` also shows its monthly token limit and usage by month,
-  and `update_agent` sets the limit. Owners manage agents; members can list them (see
+  and `update_agent` sets the limit and the model its runs use (`main` or `fast`). Owners manage agents; members can list them (see
   [Agents](#agents)).
 - **Memory:** `list_memory` (the user's notes in one workspace or all of them), `add_memory`,
   `update_memory` and `delete_memory` (by ids or all, also while the memory is off): the notes the
@@ -2733,7 +2747,7 @@ Filter ops: `contains`, `does_not_contain`, `equals`, `not_equals`, `is_any_of` 
   ```
 - **Comments:** `GET` and `POST /pages/{id}/comments`.
 - **Agents:** `GET /workspaces/{id}/agents`, `GET` and `PATCH /agents/{id}` (settings, pausing and
-  resuming, the monthly token limit; with this month's usage), `POST /agents/{id}/runs` (ask for a
+  resuming, the monthly token limit, the model; with this month's usage), `POST /agents/{id}/runs` (ask for a
   task now, optionally on a row), `GET /agents/{id}/runs`, `GET /agents/{id}/runs/{run_id}` and
   `GET /agents/{id}/usage` (by month). Owners only, except the list. Asking for a run answers
   `409` when the agent can't run now (`agent_unavailable`), used its monthly limit

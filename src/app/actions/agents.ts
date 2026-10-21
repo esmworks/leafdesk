@@ -78,6 +78,7 @@ const input = (value: AgentInput): AgentInput => ({
   instructions: value?.instructions,
   enabled: value?.enabled,
   monthlyTokenLimit: value?.monthlyTokenLimit,
+  model: value?.model,
 });
 
 export async function createAgentAction(workspaceId: string, value: AgentInput) {

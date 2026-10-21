@@ -4,6 +4,16 @@
 
 ### Added
 
+- **Run an agent on the fast model.** Where the server has `AI_FAST_MODEL`, an agent's settings
+  offer a choice of model, each shown by name: the main model (the default), for work that needs
+  judgment, or the cheaper fast model, for routine, well-defined jobs such as summaries or sorting
+  rows. Every turn of the agent's runs, however they start, then goes to that model, with the same
+  tools and limits and a little thinking. Each run records the model that answered it, shown in the
+  agent's runs, and the workspace's AI usage counts it under that model. The choice is hidden where
+  it wouldn't apply: without `AI_FAST_MODEL`, or on a workspace's own AI account, which has one
+  model; a fast agent runs on the main model there. MCP's `create_agent` and `update_agent` and the
+  REST API's `PATCH /agents/{id}` take `model` (`main` or `fast`), and `list_agents`, `get_agent`
+  and the run lists return it. Migration 0099 adds `workspace_agent.model`.
 - **Archive pages that are out of date.** An old price list or a superseded offer can be archived
   instead of trashed: people with full access choose **Archive** in the page's menu. The page keeps
   everything else (it stays readable, editable, reachable by its link, mentions and backlinks, and

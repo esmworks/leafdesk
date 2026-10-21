@@ -655,7 +655,11 @@ async function AgentsTab({
     isOwner ? getLocale().then(builtinAgents) : [],
     isOwner ? proposedNoteCounts(userId, workspaceId) : {},
   ]);
-  const ai = !(await aiInfoFor(workspaceId)) ? "unavailable" : settings.ai === false ? "off" : "on";
+  const info = await aiInfoFor(workspaceId);
+  const ai = !info ? "unavailable" : settings.ai === false ? "off" : "on";
+  // Agents choose a model only where it makes a difference: the server has a fast model, and the
+  // workspace's AI isn't an own AI account (which has one model).
+  const models = isOwner && info?.fastModel ? { main: info.model, fast: info.fastModel } : null;
   return (
     <AgentsPanel
       workspaceId={workspaceId}
@@ -665,6 +669,7 @@ async function AgentsTab({
       memoryOff={settings.aiMemory === false}
       templates={templates}
       ai={ai}
+      models={models}
       initialAgentId={isOwner ? agentId : undefined}
       initialRunId={isOwner ? runId : undefined}
       initialTab={isOwner ? agentTab : undefined}
