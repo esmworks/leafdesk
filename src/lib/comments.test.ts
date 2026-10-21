@@ -8,7 +8,9 @@ import {
   mentionsAsText,
   replyAudience,
   safeHref,
+  threadBefore,
   threadParticipants,
+  type PlainComment,
 } from "./comments";
 
 describe("cleanCommentBody", () => {
@@ -139,5 +141,32 @@ describe("replyAudience", () => {
 
   it("never tells the author, even when they mention themselves", () => {
     expect(replyAudience({ participants: ["ann"], muted: [], mentioned: ["bob"], authorId: "bob" }).notify).toEqual(["ann"]);
+  });
+});
+
+describe("threadBefore", () => {
+  const comment = (id: string, userId: string, text: string, deleted = false): PlainComment => ({
+    id,
+    userId,
+    createdAt: "",
+    updatedAt: "",
+    deletedAt: deleted ? "2026-01-01T00:00:00.000Z" : null,
+    body: deleted ? null : [{ type: "paragraph", content: [{ type: "text", text, styles: {} }] }],
+    reactions: [],
+  });
+  const names = (id: string) => ({ ada: "Ada", bot: "Helper (agent)" })[id] ?? "Someone";
+  const thread = {
+    comments: [comment("c1", "ada", "First"), comment("c2", "bob", "gone", true), comment("c3", "bot", "Sure."), comment("c4", "ada", "@Helper now"), comment("c5", "ada", "Later")],
+  };
+
+  it("reads the comments before the one that mentioned the agent, oldest first, deleted ones left out", () => {
+    expect(threadBefore(thread, "c4", names, { max: 20, chars: 1000 })).toEqual(["Ada: First", "Helper (agent): Sure."]);
+    expect(threadBefore(thread, "c1", names, { max: 20, chars: 1000 })).toEqual([]);
+    expect(threadBefore(thread, "missing", names, { max: 20, chars: 1000 })).toEqual([]);
+  });
+
+  it("keeps the newest that fit, by count and by length", () => {
+    expect(threadBefore(thread, "c5", names, { max: 1, chars: 1000 })).toEqual(["Ada: @Helper now"]);
+    expect(threadBefore(thread, "c5", names, { max: 20, chars: 40 })).toEqual(["Helper (agent): Sure.", "Ada: @Helper now"]);
   });
 });

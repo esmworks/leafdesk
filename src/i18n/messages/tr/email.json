@@ -247,6 +247,16 @@
     "aiAccountTitle": "Yapay zekâ hesabı kaldırıldı",
     "aiAccountDetached": "Çalışma alanının yapay zekâsı artık {actor} kişisinin anahtarıyla çalışmıyor."
   },
+  "agentReply": {
+    "aiOff": "Yanıt veremiyorum: bu çalışma alanında yapay zekâ kapalı.",
+    "agentDisabled": "Yanıt veremiyorum: duraklatıldım. Çalışma alanının bir sahibi beni Ayarlar’dan yeniden açabilir.",
+    "limitReached": "Yanıt veremiyorum: bu ayki token sınırımı doldurdum. Çalışma alanının bir sahibi sınırı Ayarlar’dan yükseltebilir.",
+    "costLimit": "Yanıt veremiyorum: çalışma alanı aylık yapay zekâ maliyet sınırına ulaştı.",
+    "timeout": "Zamanında bitiremedim. Daha küçük bir istekle yeniden deneyin.",
+    "approvalTimeout": "Bitiremedim: yapmam gerekeni bir gün içinde kimse onaylamadı, bu yüzden durdum.",
+    "empty": "İnceledim, ama ekleyecek bir şeyim yok.",
+    "failed": "Üzgünüm, bunu bitiremedim. Çalışma alanının bir sahibi ne olduğunu Ayarlar’daki çalıştırmalarımda görebilir."
+  },
   "workspaceDeleted": {
     "subject": "{workspace} silindi",
     "heading": "{workspace} silindi",

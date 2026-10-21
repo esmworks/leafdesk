@@ -551,18 +551,24 @@ const SCHEMAS: Record<string, JsonSchema> = {
       status: { type: "string", enum: ["pending", "running", "awaiting_approval", "done", "failed"] },
       code: {
         type: "string",
-        description: "Why it failed: aiOff, agentDisabled, noAccess, rowGone, databaseGone, provider, timeout, tooManyAttempts, approvalTimeout, connectionGone, limitReached or error.",
+        description: "Why it failed: aiOff, agentDisabled, noAccess, rowGone, databaseGone, commentGone, provider, timeout, tooManyAttempts, approvalTimeout, connectionGone, limitReached or error.",
       },
       error: { type: "string" },
       source: loose(
         {
-          kind: { type: "string", enum: ["automation", "connection", "request", "schedule"] },
+          kind: { type: "string", enum: ["automation", "connection", "request", "schedule", "mention"] },
           requested_by: loose({ id, name: { type: "string" } }),
           via: { type: "string", enum: ["api", "mcp"] },
-          task: { type: "string", description: "The task asked for, or the schedule's (empty where the run's row or database is hidden from the user)." },
+          task: {
+            type: "string",
+            description: "The task asked for, the schedule's, or the comment that mentioned the agent (empty where the run's row, database or page is hidden from the user).",
+          },
           schedule_id: { type: ["string", "null"], description: "The schedule that started it; null once the schedule was deleted." },
           scheduled_by: loose({ id, name: { type: "string" } }),
           database: loose({ id, title: { type: ["string", "null"], description: "null where the user can't open the database." }, url }),
+          mentioned_by: loose({ id, name: { type: "string" } }),
+          thread_id: { type: "string", description: "The comment thread the agent answers in." },
+          page: loose({ id, title: { type: ["string", "null"], description: "null where the user can't open the page." }, url }),
         },
         ["kind"],
       ),

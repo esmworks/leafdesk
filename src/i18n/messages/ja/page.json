@@ -509,6 +509,7 @@
   },
   "mention": {
     "people": "ユーザー",
+    "agents": "エージェント",
     "pages": "ページ",
     "dates": "日付",
     "newPage": "新しいページ：{title}",

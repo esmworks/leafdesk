@@ -247,6 +247,16 @@
     "aiAccountTitle": "AI account removed",
     "aiAccountDetached": "The workspace's AI no longer runs on {actor}'s key."
   },
+  "agentReply": {
+    "aiOff": "I can’t answer: AI is off in this workspace.",
+    "agentDisabled": "I can’t answer: I’m paused. An owner of the workspace can turn me back on in Settings.",
+    "limitReached": "I can’t answer: I’ve used my token limit for this month. An owner of the workspace can raise it in Settings.",
+    "costLimit": "I can’t answer: the workspace has reached its monthly AI cost limit.",
+    "timeout": "I couldn’t finish in time. Try again with a smaller request.",
+    "approvalTimeout": "I couldn’t finish: no one approved what I needed to do within a day, so I stopped.",
+    "empty": "I looked into it, but have nothing to add.",
+    "failed": "Sorry, I couldn’t finish this. An owner of the workspace can see what happened in my runs in Settings."
+  },
   "workspaceDeleted": {
     "subject": "{workspace} was deleted",
     "heading": "{workspace} was deleted",

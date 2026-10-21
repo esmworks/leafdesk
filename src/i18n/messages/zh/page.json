@@ -509,6 +509,7 @@
   },
   "mention": {
     "people": "人员",
+    "agents": "智能体",
     "pages": "页面",
     "dates": "日期",
     "newPage": "新建页面：{title}",

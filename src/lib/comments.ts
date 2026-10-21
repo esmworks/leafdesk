@@ -275,3 +275,31 @@ export const PAGE_THREAD_METADATA = { page: true } as const;
 /** Whether a thread's metadata says it is about the whole page. */
 export const isPageThread = (metadata: unknown) =>
   typeof metadata === "object" && metadata !== null && (metadata as { page?: unknown }).page === true;
+
+/**
+ * A thread up to one of its comments as an agent mentioned there reads it: the comments before
+ * `commentId` (deleted ones left out), each as "<name>: <text>", oldest first; the last `max` of
+ * them, as many as fit in `chars` from the newest back. Empty when the comment isn't in the thread.
+ */
+export function threadBefore(
+  thread: Pick<PlainThread, "comments">,
+  commentId: string,
+  nameOf: (userId: string) => string,
+  { max, chars }: { max: number; chars: number },
+): string[] {
+  const at = thread.comments.findIndex((c) => c.id === commentId);
+  if (at < 0) return [];
+  const lines = thread.comments
+    .slice(0, at)
+    .filter((c) => !c.deletedAt && c.body)
+    .slice(-max)
+    .map((c) => `${nameOf(c.userId)}: ${commentText(c.body).trim()}`);
+  const kept: string[] = [];
+  let used = 0;
+  for (let i = lines.length - 1; i >= 0; i--) {
+    used += lines[i].length + 1;
+    if (used > chars) break;
+    kept.unshift(lines[i]);
+  }
+  return kept;
+}

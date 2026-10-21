@@ -509,6 +509,7 @@
   },
   "mention": {
     "people": "Persone",
+    "agents": "Agenti",
     "pages": "Pagine",
     "dates": "Date",
     "newPage": "Nuova pagina: {title}",

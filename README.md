@@ -261,7 +261,8 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   on the row, or move it to the trash, with a 30-day run history (see
   [Automations and webhooks](#automations-and-webhooks)).
 - **Agents**: AI helpers with instructions of their own that automations run on database rows,
-  or that owners ask for a task over the REST API or MCP. Each acts as a user of its own that sees
+  that owners ask for a task over the REST API or MCP, or that members mention in a comment to
+  have them answer in its thread. Each acts as a user of its own that sees
   only the pages shared with it (from its settings or the page's Share menu), and its changes and
   comments show its name. Agents follow the skills they're given, keep a memory whose notes an
   owner reviews before they count, and show their monthly usage, with an optional token limit
@@ -2201,7 +2202,8 @@ An agent is an AI helper of a workspace with a name, an emoji, a description and
 its own. An automation's *Run an agent* action starts it: when the automation runs on a row, the
 agent gets its instructions, the action's task, what happened to the row and the row itself, and
 works on it. An event a connection receives can start it too (see [Connections](#connections)),
-and owners can ask one for a task of their own over the REST API or MCP.
+owners can ask one for a task of their own over the REST API or MCP, and members can mention one
+in a page's comments to have it answer there.
 
 **Its own user.** Each agent acts as a user of its own: a bot user that can't sign in (its address,
 `agent-<id>@agents.leafdesk.invalid`, can't receive mail), added to the workspace as a guest. Like
@@ -2231,7 +2233,7 @@ makes at most 5 changes and comments, and lasts at most 2 minutes. Runs are queu
 a time (`AI_CONCURRENCY`), each turn within the workspace's AI allowance
 (`AI_WORKSPACE_RATE_LIMIT`): a run waits for its turn rather than failing. Each run is kept for
 30 days after it finishes, with what the agent did step by step, its final answer, the tokens it
-used, and why it failed (`aiOff`, `agentDisabled`, `noAccess`, `rowGone`, `provider`, `timeout`,
+used, and why it failed (`aiOff`, `agentDisabled`, `noAccess`, `rowGone`, `commentGone`, `provider`, `timeout`,
 `tooManyAttempts`, `limitReached` or `error`).
 
 **Runs owners ask for.** An owner can ask an agent to do a task now, over the REST API
@@ -2244,6 +2246,24 @@ run shows who asked, from where and the task; read how it went with
 `GET /api/v1/agents/{id}/runs/{run_id}` or `list_agent_runs`. Asking is refused, not queued, while
 the agent is paused or archived, AI is off for the workspace, the agent used its monthly token
 limit, or 5 runs asked of it still wait. Each request is recorded in the audit log.
+
+**Mentioning an agent in a comment.** Typing `@` in a page's comments offers, below the people,
+the agents that may comment on the page (shared with them at comment or edit), marked with their
+icon; agents that may only view it, paused and archived agents aren't offered. When a member posts
+a comment that mentions one, in a new thread or as a reply, the agent runs: it reads the comment
+(its task), the thread before it (its last 20 comments, oldest first) and the page, and answers
+with a reply in the same thread, as itself, which notifies the thread's people like any reply. The
+run is held to that member's access as well as the agent's, as a run a member's change started is;
+it may change the page the comment is on (and its values, on a database row) only when both may
+edit it, and nothing else, with the connections' tools under the usual approval rules. It proposes
+no notes. When it can't answer (the agent used its monthly tokens, the workspace's AI is off or
+reached its cost limit, the agent was paused, the run took too long or failed) it says so in the
+thread instead. An agent mentioned twice in one comment runs once; editing a comment to add a
+mention starts no run, nor does a guest's comment (guests aren't offered agents, and a mention
+they paste stays as the agent's name) or an agent's own reply, so agents can't set each other off.
+Its runs show who mentioned it and on which page (`mention` in `list_agent_runs` and the REST API),
+and end as `commentGone` when the comment or its page is gone by then; what they did shows to the
+owners who can open the page.
 
 **Usage and a monthly limit.** Every turn a run takes with the model is added to the agent's usage
 for the calendar month (UTC): its runs, input and output tokens and cost (the cost stays 0 where the

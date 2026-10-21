@@ -25,6 +25,7 @@ import { searchFoldSql } from "@/server/search-fold-sql";
 import { pageRecipients, recordMentions, recordReminder, withdrawMentions } from "@/server/notifications";
 import { followOnTakingPart } from "@/server/row-follow";
 import { workspacePeople } from "@/server/workspaces";
+import { mentionableAgents, type AgentCandidate } from "@/server/agents/mentions";
 import { avatarSrc } from "@/lib/avatar";
 import { startSweep } from "@/server/sweep";
 import { syncSyncedReferences } from "@/server/synced-blocks";
@@ -578,18 +579,26 @@ async function peopleMatching(userId: string, workspaceId: string, q: string) {
     .map((p) => ({ id: p.id, name: p.name, image: avatarSrc(p.image) }));
 }
 
+/** What the @ menu in a comment offers: people, and agents apart from them. */
+export type CommentMentionCandidates = { people: MentionCandidates["people"]; agents: AgentCandidate[] };
+
 /**
  * What the @ menu in a comment offers: the people mentionCandidates would, but only those who can
- * open the page (the ones a mention reaches, see server/comments), and not the user. For anyone who
- * may comment on the page.
+ * open the page (the ones a mention reaches, see server/comments), and not the user; and the
+ * agents that may comment on the page, which answer when mentioned (server/agents/mentions). For
+ * anyone who may comment on the page; guests get neither, as they don't get the people of the
+ * workspace (and their mentions start no runs).
  */
-export async function commentMentionCandidates(userId: string, pageId: string, query: string): Promise<MentionCandidates["people"]> {
+export async function commentMentionCandidates(userId: string, pageId: string, query: string): Promise<CommentMentionCandidates> {
   const target = await requirePageAccess(userId, pageId, "comment");
+  const membership = await getMembership(userId, target.workspaceId);
+  if (!membership || isGuest(membership.role)) return { people: [], agents: [] };
   const q = typeof query === "string" ? searchFold(query.trim().slice(0, 100)) : "";
   // The first matches are enough for the menu; typing narrows them, so the access check stays small.
   const people = (await peopleMatching(userId, target.workspaceId, q)).filter((p) => p.id !== userId).slice(0, 30);
-  const reach = new Set(await pageRecipients(people.map((p) => p.id), pageId));
-  return people.filter((p) => reach.has(p.id)).slice(0, 6);
+  const [reach, agents] = await Promise.all([pageRecipients(people.map((p) => p.id), pageId), mentionableAgents(target.workspaceId, pageId, q)]);
+  const reached = new Set(reach);
+  return { people: people.filter((p) => reached.has(p.id)).slice(0, 6), agents: agents.slice(0, 4) };
 }
 
 export type PageCandidate = { id: string; title: string; icon: string | null; kind: PageKind };

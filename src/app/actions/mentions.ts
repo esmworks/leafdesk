@@ -15,13 +15,13 @@ export async function mentionCandidatesAction(pageId: string, query: string): Pr
   }
 }
 
-/** What the @ menu in a comment offers on a page the user may comment on. */
-export async function commentMentionCandidatesAction(pageId: string, query: string): Promise<mentions.MentionCandidates["people"]> {
+/** What the @ menu in a comment offers on a page the user may comment on: people and agents. */
+export async function commentMentionCandidatesAction(pageId: string, query: string): Promise<mentions.CommentMentionCandidates> {
   const userId = await requireUserId();
   try {
     return await mentions.commentMentionCandidates(userId, pageId, query);
   } catch (error) {
-    if (error instanceof AccessError) return [];
+    if (error instanceof AccessError) return { people: [], agents: [] };
     throw error;
   }
 }

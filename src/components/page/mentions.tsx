@@ -9,7 +9,7 @@ import {
   useExtensionState,
   type DefaultReactSuggestionItem,
 } from "@blocknote/react";
-import { Bell, CalendarCheck, CalendarDays, ChevronRight, CircleUser, FilePlus, FileX2, Link2, Lock, Pilcrow, Search } from "lucide-react";
+import { Bell, Bot, CalendarCheck, CalendarDays, ChevronRight, CircleUser, FilePlus, FileX2, Link2, Lock, Pilcrow, Search } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { createPortal } from "react-dom";
@@ -45,6 +45,7 @@ import {
 import { openBlockLink } from "./block-focus";
 import { LINK_PLACEHOLDER } from "@/lib/link-context";
 import type { Backlink, MentionCandidates, PageRef, UnlinkedMention } from "@/server/mentions";
+import type { AgentCandidate } from "@/server/agents/mentions";
 import type { PageEditor } from "./embed-blocks";
 import { searchFold } from "@/lib/search-fold";
 import { linkWikilinks, titleKey, wikilinkTitles } from "@/lib/wikilinks";
@@ -505,6 +506,23 @@ export function personItem(editor: MentionTarget, person: MentionCandidates["peo
     group,
     icon: person.image ? <UserAvatar name={person.name} image={person.image} size="xs" /> : <CircleUser size={18} />,
     onItemClick: () => insertMention(editor, { kind: "user", id: newMentionId(), userId: person.id, name: person.name }),
+  };
+}
+
+/**
+ * An agent in a comment's @ menu, with its icon (or a robot): picking it mentions its user, and
+ * posting the comment asks the agent to answer in the thread.
+ */
+export function agentItem(editor: MentionTarget, agent: AgentCandidate, group: string): DefaultReactSuggestionItem {
+  return {
+    title: agent.name,
+    group,
+    icon: (
+      <span className="flex h-[18px] w-[18px] items-center justify-center text-base leading-none" aria-hidden data-agent-mention>
+        {agent.icon || <Bot size={18} />}
+      </span>
+    ),
+    onItemClick: () => insertMention(editor, { kind: "user", id: newMentionId(), userId: agent.id, name: agent.name }),
   };
 }
 

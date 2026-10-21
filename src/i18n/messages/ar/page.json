@@ -509,6 +509,7 @@
   },
   "mention": {
     "people": "الأشخاص",
+    "agents": "الوكلاء",
     "pages": "الصفحات",
     "dates": "التواريخ",
     "newPage": "صفحة جديدة: {title}",

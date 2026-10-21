@@ -4,6 +4,15 @@
 
 ### Added
 
+- **Mention an agent in a comment.** Typing `@` in a page's comments offers, below the people, the
+  agents that may comment on the page, with their icons. When a member posts a comment that
+  mentions one (a new thread or a reply), the agent reads the comment, the thread before it and the
+  page, within that member's access as well as its own, may change that page where both may edit
+  it, and answers in the same thread as itself; the reply notifies the thread's people like any
+  other. When it can't answer (its monthly tokens used, AI off, paused, out of time) it says so in
+  the thread. Mentioning an agent twice runs it once; edits, guests' comments and agents' own
+  replies start no run. The agent's runs show who mentioned it and on which page, also in
+  `list_agent_runs` and the REST API (source `mention`, code `commentGone`).
 - **Archive pages that are out of date.** An old price list or a superseded offer can be archived
   instead of trashed: people with full access choose **Archive** in the page's menu. The page keeps
   everything else (it stays readable, editable, reachable by its link, mentions and backlinks, and

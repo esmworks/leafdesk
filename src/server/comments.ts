@@ -5,6 +5,7 @@ import {
   cleanCommentBody,
   CommentError,
   commentMentions,
+  commentText,
   replyAudience,
   threadParticipants,
   type CommentAnchor,
@@ -21,6 +22,8 @@ import { followOnTakingPart } from "@/server/row-follow";
 import { forgetThreadMutes, threadMuters, unmuteThread } from "@/server/thread-mute";
 import { workspacePeople } from "@/server/workspaces";
 import { agentMarks, markOf } from "@/server/agents/users";
+import { startMentionRuns } from "@/server/agents/mentions";
+import { redactError } from "@/lib/redact";
 
 /**
  * Comments on pages. Anyone who can view a page reads its comments; anyone who can comment on it
@@ -130,6 +133,16 @@ export async function changeComments(userId: string, pageId: string, op: Comment
     await recordComment(userId, target.workspaceId, pageId, result.thread.id, recipients);
     // Commenting on a database row follows it (server/row-follow).
     await followOnTakingPart(pageId, [userId]);
+    // Agents it mentions answer in the thread (server/agents/mentions); an edit starts none.
+    await startMentionRuns({
+      authorId: userId,
+      workspaceId: target.workspaceId,
+      pageId,
+      threadId: result.thread.id,
+      commentId: result.comment.id,
+      mentioned,
+      text: commentText(clean.body),
+    }).catch((error) => console.error("[comments] could not start the runs of agents a comment mentions", redactError(error)));
   } else if (clean.type === "updateComment" && mentioned.length) {
     // People an edit mentions hear about it like any other mention, and it ends their mute.
     await unmuteThread(pageId, clean.threadId, mentioned);
