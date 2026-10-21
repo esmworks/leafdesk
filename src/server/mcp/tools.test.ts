@@ -202,6 +202,11 @@ const agentSchedules = vi.hoisted(() => ({
 }));
 vi.mock("@/server/agents/schedules", () => agentSchedules);
 
+const agentHelpers = vi.hoisted(() => ({
+  helperIdsOf: vi.fn(async (ids: string[]) => new Map(ids.map((id): [string, string[]] => [id, id === "agent-1" ? ["agent-2"] : []]))),
+}));
+vi.mock("@/server/agents/helpers", () => agentHelpers);
+
 const agentRequests = vi.hoisted(() => ({ requestAgentRun: vi.fn() }));
 vi.mock("@/server/agents/requests", () => agentRequests);
 
@@ -2373,7 +2378,7 @@ describe("agents", () => {
     expect(isError).toBe(false);
     expect(agents.listAgents).toHaveBeenCalledWith("user-1", "ws-1", { archived: true });
     expect(data.agents).toEqual([
-      { id: "agent-1", name: "Ticket router", icon: "🤖", description: "Sorts new tickets", enabled: true, archived: false, user_id: "bot-1" },
+      { id: "agent-1", name: "Ticket router", icon: "🤖", description: "Sorts new tickets", enabled: true, archived: false, user_id: "bot-1", helper_agent_ids: ["agent-2"] },
     ]);
   });
 
@@ -2532,12 +2537,14 @@ describe("agents", () => {
     const created = await callTool(writer, "create_agent", { workspace_id: "ws-1", name: "Ticket router", icon: "🤖", instructions: "Be brief" });
     expect(created.isError).toBe(false);
     expect(agents.createAgent).toHaveBeenCalledWith("user-1", "ws-1", { name: "Ticket router", icon: "🤖", instructions: "Be brief" });
-    expect(created.data).toMatchObject({ id: "agent-1", access: { pages: [] } });
+    expect(created.data).toMatchObject({ id: "agent-1", access: { pages: [] }, helper_agent_ids: ["agent-2"] });
 
     agents.updateAgent.mockResolvedValue({ ...agent, enabled: false, icon: null });
     const updated = await callTool(writer, "update_agent", { agent_id: "agent-1", enabled: false, icon: null });
     expect(updated.isError).toBe(false);
     expect(agents.updateAgent).toHaveBeenCalledWith("user-1", "agent-1", { enabled: false, icon: null });
+    await callTool(writer, "update_agent", { agent_id: "agent-1", helper_agent_ids: ["agent-2"] });
+    expect(agents.updateAgent).toHaveBeenLastCalledWith("user-1", "agent-1", { helperAgentIds: ["agent-2"] });
     const empty = await callTool(writer, "update_agent", { agent_id: "agent-1" });
     expect(empty.isError).toBe(true);
     expect(empty.text).toMatch(/Nothing to change/);

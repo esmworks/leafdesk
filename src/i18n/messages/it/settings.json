@@ -347,7 +347,11 @@
       "limitInvalid": "Inserisci un numero intero da 1 a 1.000.000.000, oppure lascia vuoto per nessun limite.",
       "create": "Crea agente",
       "creating": "Creazione…",
-      "archivedNote": "Ripristina l’agente per modificarlo."
+      "archivedNote": "Ripristina l’agente per modificarlo.",
+      "helpers": "Agenti a cui può chiedere",
+      "helpersHelp": "Durante un’esecuzione può affidare parte del suo compito a questi agenti, fino a {max} volte, e usarne le risposte. Ognuno lavora con i propri accessi, strumenti e limiti, e non può a sua volta chiedere ad altri agenti.",
+      "helpersEmpty": "In questo spazio di lavoro non ci sono ancora altri agenti.",
+      "helperPaused": "In pausa"
     },
     "access": {
       "description": "L’agente apre solo queste pagine e le pagine e le righe al loro interno. In un’esecuzione avviata dalla modifica di qualcuno, apre solo ciò che anche quella persona può aprire.",
@@ -491,6 +495,16 @@
           "hidden": "Esclusa <name></name>: chi ha avviato l’esecuzione non può aprirla",
           "removed": "Esclusa <name></name>: un proprietario l’ha tolta all’agente mentre l’esecuzione era in attesa"
         }
+      },
+      "askedBy": "Richiesto da <agent></agent>",
+      "removedAgent": "un agente rimosso",
+      "handoff": {
+        "done": "Ha chiesto a <agent></agent>: «{task}»",
+        "failed": "Ha chiesto a <agent></agent>, ma la sua esecuzione non è riuscita: «{task}»",
+        "waiting": "Ha chiesto a <agent></agent>; non aveva finito quando questa esecuzione è andata avanti: «{task}»",
+        "paused": "Non ha potuto chiedere a <agent></agent>: è in pausa",
+        "archived": "Non ha potuto chiedere a <agent></agent>: è archiviato",
+        "limitReached": "Non ha potuto chiedere a <agent></agent>: ha esaurito il suo limite mensile di token"
       }
     },
     "usage": {
@@ -585,7 +599,8 @@
         "limit": "Inserisci un limite di token come numero intero da 1 a 1.000.000.000.",
         "task": "Scrivi l’attività che svolge a ogni esecuzione.",
         "taskLength": "Un’attività può avere al massimo 2.000 caratteri.",
-        "repeat": "Controlla quando si ripete e il suo fuso orario."
+        "repeat": "Controlla quando si ripete e il suo fuso orario.",
+        "helpers": "Scegli fino a 10 altri agenti di questo spazio di lavoro che non siano archiviati."
       },
       "noteEmpty": "Scrivi cosa deve ricordare l’agente.",
       "noteTooLong": "Una nota può avere al massimo {max} caratteri.",

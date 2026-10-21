@@ -347,7 +347,11 @@
       "limitInvalid": "Escribe un número entero de 1 a 1.000.000.000, o déjalo vacío para no poner límite.",
       "create": "Crear agente",
       "creating": "Creando…",
-      "archivedNote": "Restaura el agente para cambiarlo."
+      "archivedNote": "Restaura el agente para cambiarlo.",
+      "helpers": "Agentes a los que puede preguntar",
+      "helpersHelp": "Durante una ejecución puede pasar parte de su tarea a estos agentes, hasta {max} veces, y usar sus respuestas. Cada uno trabaja con su propio acceso, herramientas y límites, y no puede preguntar a otros agentes a su vez.",
+      "helpersEmpty": "Todavía no hay otros agentes en este espacio de trabajo.",
+      "helperPaused": "En pausa"
     },
     "access": {
       "description": "El agente solo abre estas páginas y las páginas y filas que hay debajo. En una ejecución iniciada por el cambio de una persona, solo abre lo que esa persona también puede abrir.",
@@ -491,6 +495,16 @@
           "hidden": "Dejó fuera <name></name>: la persona que inició la ejecución no puede abrirla",
           "removed": "Dejó fuera <name></name>: un propietario se la quitó al agente mientras la ejecución esperaba"
         }
+      },
+      "askedBy": "Lo pidió <agent></agent>",
+      "removedAgent": "un agente eliminado",
+      "handoff": {
+        "done": "Preguntó a <agent></agent>: «{task}»",
+        "failed": "Preguntó a <agent></agent>, pero su ejecución falló: «{task}»",
+        "waiting": "Preguntó a <agent></agent>; no había terminado cuando esta ejecución siguió: «{task}»",
+        "paused": "No pudo preguntar a <agent></agent>: está en pausa",
+        "archived": "No pudo preguntar a <agent></agent>: está archivado",
+        "limitReached": "No pudo preguntar a <agent></agent>: agotó su límite mensual de tokens"
       }
     },
     "usage": {
@@ -585,7 +599,8 @@
         "limit": "Escribe un límite de tokens entero de 1 a 1.000.000.000.",
         "task": "Escribe la tarea que hace en cada ejecución.",
         "taskLength": "Una tarea tiene como mucho 2000 caracteres.",
-        "repeat": "Revisa cuándo se repite y su zona horaria."
+        "repeat": "Revisa cuándo se repite y su zona horaria.",
+        "helpers": "Elige hasta 10 agentes más de este espacio de trabajo que no estén archivados."
       },
       "noteEmpty": "Escribe qué debe recordar el agente.",
       "noteTooLong": "Una nota puede tener como máximo {max} caracteres.",

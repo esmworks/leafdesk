@@ -449,6 +449,8 @@ export function agentSystemPrompt(
     row: boolean;
     /** An owner asked for the run with a task of their own (rather than a change or an event starting it). */
     requested?: boolean;
+    /** Another agent asked for the run, as part of its own (server/agents/handoff.ts); with `requested`. */
+    askedByAgent?: boolean;
     /** One of the agent's schedules started the run: on a database it looks after (with how many changes it may make), or on none. */
     scheduled?: { database: boolean; maxWrites: number };
     /** A connection event's run: it may add rows to databases shared with it to edit, each once approved. */
@@ -464,6 +466,8 @@ export function agentSystemPrompt(
   return [
     scheduled
       ? `You are "${attr(agent.name)}", an agent in a notes app. You work on your own, without anyone to ask: an owner of the workspace set a schedule for you, and on each run you do the task below${scheduled.database ? " for the database you look after" : ""}.`
+      : run.askedByAgent
+      ? `You are "${attr(agent.name)}", an agent in a notes app. You work on your own, without anyone to ask: another agent of the workspace asked you for the task below, as part of its own work, and you do it.`
       : run.requested
       ? `You are "${attr(agent.name)}", an agent in a notes app. You work on your own, without anyone to ask: an owner of the workspace asked you for the task below${run.row ? ", on a row" : ""}, and you do it.`
       : run.row
@@ -488,6 +492,8 @@ export function agentSystemPrompt(
     "Never make up facts, people or values. Use the database's own option names and people's names as the tools show them.",
     scheduled
       ? "When you are done, write a short report for the owner who set the schedule, in the language of the task: what you changed, and what they need to do (each item with the row's title), or that nothing needs them. They read it in their inbox."
+      : run.askedByAgent
+        ? "When you are done, answer the task with what it asks you to send back, in the language of the task. Keep it short and to the point: the agent that asked reads it."
       : run.requested
         ? "When you are done, answer the task: what you found, or what you did and why, in the language of the task. Keep it short; the owner reads it later."
         : "When you are done, end with one or two sentences saying what you did and why, in the language of your instructions.",

@@ -347,7 +347,11 @@
       "limitInvalid": "Digite um número inteiro de 1 a 1.000.000.000, ou deixe vazio para não ter limite.",
       "create": "Criar agente",
       "creating": "Criando…",
-      "archivedNote": "Restaure o agente para alterá-lo."
+      "archivedNote": "Restaure o agente para alterá-lo.",
+      "helpers": "Agentes a quem pode pedir",
+      "helpersHelp": "Durante uma execução, ele pode passar parte da tarefa a estes agentes, até {max} vezes, e usar as respostas deles. Cada um trabalha com o próprio acesso, ferramentas e limites, e não pode pedir a outros agentes por sua vez.",
+      "helpersEmpty": "Ainda não há outros agentes neste espaço de trabalho.",
+      "helperPaused": "Pausado"
     },
     "access": {
       "description": "O agente abre só estas páginas e as páginas e linhas dentro delas. Em uma execução iniciada pela alteração de alguém, ele abre só o que essa pessoa também pode abrir.",
@@ -491,6 +495,16 @@
           "hidden": "Deixou de fora <name></name>: a pessoa que iniciou a execução não pode abri-la",
           "removed": "Deixou de fora <name></name>: um proprietário a retirou do agente enquanto a execução aguardava"
         }
+      },
+      "askedBy": "Pedido por <agent></agent>",
+      "removedAgent": "um agente removido",
+      "handoff": {
+        "done": "Pediu a <agent></agent>: “{task}”",
+        "failed": "Pediu a <agent></agent>, mas a execução dele falhou: “{task}”",
+        "waiting": "Pediu a <agent></agent>; ele não tinha terminado quando esta execução seguiu: “{task}”",
+        "paused": "Não pôde pedir a <agent></agent>: ele está pausado",
+        "archived": "Não pôde pedir a <agent></agent>: ele está arquivado",
+        "limitReached": "Não pôde pedir a <agent></agent>: ele usou o limite mensal de tokens"
       }
     },
     "usage": {
@@ -585,7 +599,8 @@
         "limit": "Digite um limite de tokens como número inteiro de 1 a 1.000.000.000.",
         "task": "Escreva a tarefa que ele faz em cada execução.",
         "taskLength": "Uma tarefa pode ter no máximo 2.000 caracteres.",
-        "repeat": "Confira quando ele se repete e o fuso horário."
+        "repeat": "Confira quando ele se repete e o fuso horário.",
+        "helpers": "Escolha até 10 outros agentes deste espaço de trabalho que não estejam arquivados."
       },
       "noteEmpty": "Escreva o que o agente deve lembrar.",
       "noteTooLong": "Uma nota pode ter no máximo {max} caracteres.",

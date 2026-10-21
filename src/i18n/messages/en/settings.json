@@ -347,7 +347,11 @@
       "limitInvalid": "Enter a whole number from 1 to 1,000,000,000, or leave it empty for no limit.",
       "create": "Create agent",
       "creating": "Creating…",
-      "archivedNote": "Restore the agent to change it."
+      "archivedNote": "Restore the agent to change it.",
+      "helpers": "Agents it can ask",
+      "helpersHelp": "During a run it can hand part of its task to these agents, up to {max} times, and use their answers. Each works with its own access, tools and limits, and can’t ask other agents in turn.",
+      "helpersEmpty": "There are no other agents in this workspace yet.",
+      "helperPaused": "Paused"
     },
     "access": {
       "description": "The agent opens only these pages, and the pages and rows under them. On a run started by someone’s change, it opens only what that person can open too.",
@@ -491,6 +495,16 @@
           "hidden": "Left out <name></name>: the person who started the run can’t open it",
           "removed": "Left out <name></name>: an owner took it from the agent while the run waited"
         }
+      },
+      "askedBy": "Asked by <agent></agent>",
+      "removedAgent": "a removed agent",
+      "handoff": {
+        "done": "Asked <agent></agent>: “{task}”",
+        "failed": "Asked <agent></agent>, but its run failed: “{task}”",
+        "waiting": "Asked <agent></agent>; it hadn’t finished when this run went on: “{task}”",
+        "paused": "Couldn’t ask <agent></agent>: it’s paused",
+        "archived": "Couldn’t ask <agent></agent>: it’s archived",
+        "limitReached": "Couldn’t ask <agent></agent>: it has used its monthly token limit"
       }
     },
     "usage": {
@@ -585,7 +599,8 @@
         "limit": "Enter a token limit as a whole number from 1 to 1,000,000,000.",
         "task": "Write the task it does on each run.",
         "taskLength": "A task can have at most 2,000 characters.",
-        "repeat": "Check when it repeats and its time zone."
+        "repeat": "Check when it repeats and its time zone.",
+        "helpers": "Choose up to 10 other agents of this workspace that aren’t archived."
       },
       "noteEmpty": "Write what the agent should remember.",
       "noteTooLong": "A note can have at most {max} characters.",

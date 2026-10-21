@@ -4,6 +4,8 @@ import {
   AGENT_ACCESS_LEVELS,
   isRowRun,
   MAX_AGENT_DESCRIPTION,
+  MAX_AGENT_HELPERS,
+  MAX_HANDOFFS_PER_RUN,
   MAX_AGENT_SCHEDULES,
   MAX_SCHEDULE_TASK,
   MAX_SCHEDULED_WRITES,
@@ -55,6 +57,13 @@ const instructionsInput = z
     `What the agent does and how, in plain language (at most ${MAX_AGENT_INSTRUCTIONS} characters): it reads them on every run, before the task an automation gives it.`,
   );
 
+const helpersInput = z
+  .array(id("agent"))
+  .max(MAX_AGENT_HELPERS)
+  .describe(
+    `Its "Agents it can ask": ids of other agents of the workspace (list_agents), not archived, at most ${MAX_AGENT_HELPERS}. On a run it may hand part of its task to one of them with ask_agent (at most ${MAX_HANDOFFS_PER_RUN} times a run), and gets its answer; each runs with its own access, tools and limits and can't ask further agents. Replaces the whole list; [] clears it.`,
+  );
+
 const repeatInput = z
   .object({
     frequency: z.enum(REPEAT_FREQUENCIES as [string, ...string[]]).describe("daily, weekly, monthly or yearly."),
@@ -101,6 +110,7 @@ export const agentInputs = {
     description: descriptionInput.optional(),
     instructions: instructionsInput.optional(),
     enabled: z.boolean().optional().describe("Whether it runs (default true). A paused agent's queued runs end without doing anything."),
+    helper_agent_ids: helpersInput.optional(),
   }),
   // No defaults here: what is left out stays as it is.
   update: z.object({
@@ -120,6 +130,7 @@ export const agentInputs = {
       .describe(
         "The most tokens (input and output) its runs may use in a calendar month (UTC); a run stops once the month reaches it, and runs aren't started until the next month. null removes the limit.",
       ),
+    helper_agent_ids: helpersInput.optional(),
   }),
   run: z.object({
     agent_id: id("agent"),
@@ -220,14 +231,16 @@ export function toScheduleInput(args: { repeat?: RepeatArgs; time_zone?: string;
 
 /** update_agent's arguments as a patch: only what was given. */
 export function toAgentPatch(args: Omit<z.infer<typeof agentInputs.update>, "agent_id">) {
-  const patch: { name?: string; icon?: string | null; description?: string; instructions?: string; enabled?: boolean; monthlyTokenLimit?: number | null } = {};
+  const patch: { name?: string; icon?: string | null; description?: string; instructions?: string; enabled?: boolean; monthlyTokenLimit?: number | null; helperAgentIds?: string[] } =
+    {};
   if (args.name !== undefined) patch.name = args.name;
   if (args.icon !== undefined) patch.icon = args.icon;
   if (args.description !== undefined) patch.description = args.description;
   if (args.instructions !== undefined) patch.instructions = args.instructions;
   if (args.enabled !== undefined) patch.enabled = args.enabled;
   if (args.monthly_token_limit !== undefined) patch.monthlyTokenLimit = args.monthly_token_limit;
-  if (!Object.keys(patch).length) throw new ToolInputError("Nothing to change: pass name, icon, description, instructions, enabled or monthly_token_limit.");
+  if (args.helper_agent_ids !== undefined) patch.helperAgentIds = args.helper_agent_ids;
+  if (!Object.keys(patch).length) throw new ToolInputError("Nothing to change: pass name, icon, description, instructions, enabled, monthly_token_limit or helper_agent_ids.");
   return patch;
 }
 
@@ -238,6 +251,7 @@ const INVALID: Record<string, string> = {
   limit: `A monthly token limit is a whole number from 1 to ${MAX_AGENT_TOKEN_LIMIT}; pass null to remove it.`,
   task: "A run needs a task: say what the agent should do.",
   taskLength: `A task has at most ${MAX_AGENT_PROMPT} characters. Make it shorter.`,
+  helpers: `helper_agent_ids lists other agents of the same workspace that aren't archived, each once, at most ${MAX_AGENT_HELPERS} (an agent can't ask itself). Call list_agents to find them.`,
   repeat:
     'Invalid repeat rule or time zone: frequency daily, weekly, monthly or yearly; weekdays (0-6) for a weekly rule; time as "HH:MM"; start as a real YYYY-MM-DD day; time_zone an IANA name such as "Europe/Istanbul".',
 };
@@ -335,8 +349,8 @@ export async function withSharingErrors<T>(fn: () => Promise<T>): Promise<T> {
   }
 }
 
-/** An agent as list_agents shows it: what it is, not what it is told. */
-export function describeAgentSummary(agent: AgentView) {
+/** An agent as list_agents shows it: what it is, not what it is told; `helpers`, the agents it can ask, when given. */
+export function describeAgentSummary(agent: AgentView, helpers?: string[]) {
   return {
     id: agent.id,
     name: agent.name,
@@ -345,6 +359,7 @@ export function describeAgentSummary(agent: AgentView) {
     enabled: agent.enabled,
     archived: agent.archived,
     user_id: agent.userId,
+    ...(helpers ? { helper_agent_ids: helpers } : {}),
   };
 }
 
@@ -533,6 +548,23 @@ export function describeAgentStep(step: AgentStepRecord) {
         summary: step.outcome === "used" ? `Followed ${name}` : `Left out ${name}: ${why}`,
       };
     }
+    case "handoff": {
+      const how = {
+        done: "Asked",
+        failed: "Asked (its run failed)",
+        waiting: "Asked (its run hadn't finished when this one went on)",
+        paused: "Couldn't ask (paused)",
+        archived: "Couldn't ask (archived)",
+        limitReached: "Couldn't ask (it used its monthly token limit)",
+      }[step.outcome];
+      return {
+        kind: "handoff",
+        outcome: step.outcome,
+        agent_id: step.agentId,
+        ...(step.runId ? { run_id: step.runId } : {}),
+        summary: `${how} the agent ${quote(step.agentName)}: ${quote(short(step.task))}`,
+      };
+    }
     case "tool": {
       const how = { done: "Used", failed: "Failed to use", declined: "Declined (not sent):", redo: "Sent back to redo (not sent):", expired: "No one answered (not sent):" }[step.outcome];
       return {
@@ -564,6 +596,15 @@ function describeRunSource(workspaceId: string, run: AgentRunView) {
     : {};
   if (source.kind === "automation") return { source: { kind: source.kind, automation_id: source.automationId, ...database }, ...row };
   if (source.kind === "connection") return { source: { kind: source.kind, connection_id: source.connectionId, trigger_id: source.triggerId, event_type: run.eventType } };
+  if (source.kind === "handoff") {
+    return {
+      source: {
+        kind: source.kind,
+        asked_by: { agent_id: source.fromAgentId, name: run.handoff?.fromName ?? "", run_id: source.parentRunId },
+        task: run.handoff?.task ?? "",
+      },
+    };
+  }
   if (source.kind === "schedule") {
     const s = run.schedule;
     const database = source.databaseId

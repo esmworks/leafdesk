@@ -347,7 +347,11 @@
       "limitInvalid": "1 ile 1.000.000.000 arasında bir tam sayı girin ya da sınır koymamak için boş bırakın.",
       "create": "Ajan oluştur",
       "creating": "Oluşturuluyor…",
-      "archivedNote": "Değiştirmek için ajanı geri getirin."
+      "archivedNote": "Değiştirmek için ajanı geri getirin.",
+      "helpers": "Sorabileceği ajanlar",
+      "helpersHelp": "Bir çalışma sırasında görevinin bir kısmını bu ajanlara en fazla {max} kez devredip yanıtlarını kullanabilir. Her biri kendi erişimi, araçları ve sınırlarıyla çalışır ve kendisi başka ajanlara soramaz.",
+      "helpersEmpty": "Bu çalışma alanında henüz başka ajan yok.",
+      "helperPaused": "Duraklatıldı"
     },
     "access": {
       "description": "Ajan yalnızca bu sayfaları ve bunların altındaki sayfa ve satırları açabilir. Birinin değişikliğiyle başlayan bir çalışmada yalnızca o kişinin de açabildiklerini açar.",
@@ -491,6 +495,16 @@
           "hidden": "<name></name> atlandı: çalışmayı başlatan kişi bu sayfayı açamıyor",
           "removed": "<name></name> atlandı: çalışma beklerken bir sahip bu beceriyi ajandan kaldırdı"
         }
+      },
+      "askedBy": "<agent></agent> istedi",
+      "removedAgent": "Kaldırılmış bir ajan",
+      "handoff": {
+        "done": "<agent></agent> ajanına sordu: “{task}”",
+        "failed": "<agent></agent> ajanına sordu, ancak onun çalışması başarısız oldu: “{task}”",
+        "waiting": "<agent></agent> ajanına sordu; bu çalışma devam ettiğinde henüz bitirmemişti: “{task}”",
+        "paused": "<agent></agent> ajanına sorulamadı: duraklatılmış",
+        "archived": "<agent></agent> ajanına sorulamadı: arşivlenmiş",
+        "limitReached": "<agent></agent> ajanına sorulamadı: aylık token sınırı dolmuş"
       }
     },
     "usage": {
@@ -585,7 +599,8 @@
         "limit": "Token sınırını 1 ile 1.000.000.000 arasında bir tam sayı olarak girin.",
         "task": "Her çalışmada yapacağı görevi yaz.",
         "taskLength": "Bir görev en fazla 2.000 karakter olabilir.",
-        "repeat": "Ne zaman tekrarlandığını ve saat dilimini kontrol et."
+        "repeat": "Ne zaman tekrarlandığını ve saat dilimini kontrol et.",
+        "helpers": "Bu çalışma alanından arşivlenmemiş en fazla 10 başka ajan seçin."
       },
       "noteEmpty": "Ajanın neyi hatırlaması gerektiğini yazın.",
       "noteTooLong": "Bir not en fazla {max} karakter olabilir.",

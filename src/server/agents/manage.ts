@@ -12,6 +12,7 @@ import { and, count, desc, eq, inArray, isNull } from "drizzle-orm";
 import { db } from "@/db";
 import { agentDatabaseShare, agentRun, connection, databaseAutomation, page, pagePermission, schedule, user, workspaceAgent } from "@/db/schema";
 import {
+  accessSource,
   agentEmail,
   callConnectionName,
   callToSend,
@@ -36,6 +37,7 @@ import { AccessError, ConnectedAppReadOnlyError, pageAccessOf, pageVisibleTo, re
 import { recordAudit } from "@/server/audit";
 import { removePagePermission, setPagePermission } from "@/server/permissions";
 import { addAgentMembership } from "@/server/workspaces";
+import { checkHelperIds, dropHelper, helperIdsOf, saveHelpers } from "./helpers";
 
 export type AgentErrorCode =
   | "invalid"
@@ -83,6 +85,8 @@ export type AgentInput = {
   enabled?: boolean;
   /** Tokens a month; null removes the limit. */
   monthlyTokenLimit?: number | null;
+  /** Its "Agents it can ask" (see helpers.ts), all of them. */
+  helperAgentIds?: string[];
 };
 
 const clean = (value: unknown, max: number) => (typeof value === "string" ? value.trim().slice(0, max) : undefined);
@@ -99,6 +103,12 @@ function checkLimit(value: unknown) {
     throw new AgentError("invalid", "A monthly token limit is a whole number of tokens, from 1 to a billion", { reason: "limit" });
   }
   return value;
+}
+
+async function checkHelpers(workspaceId: string, agentId: string | null, value: unknown) {
+  const ids = await checkHelperIds(workspaceId, agentId, value);
+  if (!ids) throw new AgentError("invalid", "An agent may ask up to 10 other agents of its workspace that aren't archived", { reason: "helpers" });
+  return ids;
 }
 
 function checkIcon(value: unknown) {
@@ -166,6 +176,7 @@ export async function createAgent(userId: string, workspaceId: string, input: Ag
   const description = clean(input.description, MAX_AGENT_DESCRIPTION) ?? "";
   const instructions = clean(input.instructions, MAX_AGENT_INSTRUCTIONS) ?? "";
   const monthlyTokenLimit = input.monthlyTokenLimit === undefined ? null : checkLimit(input.monthlyTokenLimit);
+  const helpers = input.helperAgentIds === undefined ? [] : await checkHelpers(workspaceId, null, input.helperAgentIds);
   const created = await db.transaction(async (tx) => {
     const [{ n }] = await tx
       .select({ n: count() })
@@ -180,6 +191,7 @@ export async function createAgent(userId: string, workspaceId: string, input: Ag
       .insert(workspaceAgent)
       .values({ id, workspaceId, userId: userIdOfAgent, name, icon, description, instructions, enabled: input.enabled ?? true, monthlyTokenLimit, createdBy: userId })
       .returning();
+    if (helpers.length) await saveHelpers(tx, id, helpers);
     return agent;
   });
   await recordAudit({ workspaceId, actorId: userId, action: "agent.created", target: { type: "user", id: created.userId, label: name }, details: auditDetails(created) });
@@ -197,8 +209,13 @@ export async function updateAgent(userId: string, agentId: string, patch: AgentI
   if (patch.instructions !== undefined) set.instructions = clean(patch.instructions, MAX_AGENT_INSTRUCTIONS) ?? "";
   if (patch.enabled !== undefined) set.enabled = Boolean(patch.enabled);
   if (patch.monthlyTokenLimit !== undefined) set.monthlyTokenLimit = checkLimit(patch.monthlyTokenLimit);
-  if (!Object.keys(set).length) return viewAgent(current);
+  const helpersBefore = (await helperIdsOf([agentId])).get(agentId) ?? [];
+  const helpers = patch.helperAgentIds === undefined ? helpersBefore : await checkHelpers(current.workspaceId, agentId, patch.helperAgentIds);
+  const helpersChanged = helpers.join() !== helpersBefore.join();
+  if (!Object.keys(set).length && !helpersChanged) return viewAgent(current);
   const updated = await db.transaction(async (tx) => {
+    if (helpersChanged) await saveHelpers(tx, agentId, helpers);
+    if (!Object.keys(set).length) return current;
     const [agent] = await tx.update(workspaceAgent).set(set).where(eq(workspaceAgent.id, agentId)).returning();
     // Its name shows wherever its user does: last edited by, comments, history.
     if (set.name) await tx.update(user).set({ name: set.name }).where(eq(user.id, current.userId));
@@ -209,7 +226,12 @@ export async function updateAgent(userId: string, agentId: string, patch: AgentI
     actorId: userId,
     action: "agent.updated",
     target: { type: "user", id: current.userId, label: updated.name },
-    details: { ...auditDetails(updated), previous: auditDetails(current), instructionsChanged: patch.instructions !== undefined || undefined },
+    details: {
+      ...auditDetails(updated),
+      previous: auditDetails(current),
+      instructionsChanged: patch.instructions !== undefined || undefined,
+      ...(helpersChanged ? { helpers, previousHelpers: helpersBefore } : {}),
+    },
   });
   return viewAgent(updated);
 }
@@ -245,6 +267,8 @@ export async function archiveAgent(userId: string, agentId: string): Promise<Age
       );
     }
     await tx.delete(agentDatabaseShare).where(eq(agentDatabaseShare.agentId, agentId));
+    // Other agents can no longer ask it.
+    await dropHelper(tx, agentId);
     return agent;
   });
   await recordAudit({ workspaceId: current.workspaceId, actorId: userId, action: "agent.archived", target: { type: "user", id: current.userId, label: current.name }, details: auditDetails(archived) });
@@ -401,7 +425,15 @@ export async function getAgentRun(userId: string, agentId: string, runId: string
 
 /** Runs as `userId` may see them (see listAgentRuns). */
 async function viewRuns(userId: string, runs: (typeof agentRun.$inferSelect)[], exact: boolean): Promise<AgentRunView[]> {
-  const rowIds = [...new Set(runs.flatMap((r) => (isRowRun(r.source) ? [r.source.rowId] : [])))];
+  // A helper's run shows as the run that asked it does (accessSource): its row or database counts.
+  const rowIds = [
+    ...new Set(
+      runs.flatMap((r) => {
+        const source = accessSource(r.source);
+        return isRowRun(source) ? [source.rowId] : [];
+      }),
+    ),
+  ];
   const titles = new Map<string, string>();
   if (rowIds.length) {
     const rows = await db
@@ -428,7 +460,14 @@ async function viewRuns(userId: string, runs: (typeof agentRun.$inferSelect)[], 
     connectionIds.length ? (await db.select({ id: connection.id, name: connection.name }).from(connection).where(inArray(connection.id, connectionIds))).map((c) => [c.id, c.name]) : [],
   );
   // A schedule's run on a database: its title, and what the run read and wrote, only for those who can open it.
-  const scheduledDatabaseIds = [...new Set(runs.flatMap((r) => (isScheduleRun(r.source) && r.source.databaseId ? [r.source.databaseId] : [])))];
+  const scheduledDatabaseIds = [
+    ...new Set(
+      runs.flatMap((r) => {
+        const source = accessSource(r.source);
+        return isScheduleRun(source) && source.databaseId ? [source.databaseId] : [];
+      }),
+    ),
+  ];
   const databaseTitles = new Map(
     scheduledDatabaseIds.length
       ? (await db.select({ id: page.id, title: page.title }).from(page).where(and(inArray(page.id, scheduledDatabaseIds), pageVisibleTo(userId)))).map((d) => [d.id, d.title])
@@ -445,12 +484,17 @@ async function viewRuns(userId: string, runs: (typeof agentRun.$inferSelect)[], 
   const requesters = new Map(
     requesterIds.length ? (await db.select({ id: user.id, name: user.name }).from(user).where(inArray(user.id, requesterIds))).map((u) => [u.id, u.name]) : [],
   );
+  // The agents that asked for runs (handoff.ts), by name.
+  const askerIds = [...new Set(runs.flatMap((r) => (r.source.kind === "handoff" ? [r.source.fromAgentId] : [])))];
+  const askers = new Map(
+    askerIds.length ? (await db.select({ id: workspaceAgent.id, name: workspaceAgent.name }).from(workspaceAgent).where(inArray(workspaceAgent.id, askerIds))).map((a) => [a.id, a.name]) : [],
+  );
   // What a run did can quote pages the agent may open and the viewer may not: it, and the call it
   // waits on, are for the owners ownerSeesRun names, the same ones the inbox asks to answer the call
   // (connections/approvals).
   const visible = (r: (typeof runs)[number]) => {
     const pageId = runPageOf(r.source);
-    return ownerSeesRun(r.source, userId, pageId !== null && (isRowRun(r.source) ? titles : databaseTitles).has(pageId));
+    return ownerSeesRun(r.source, userId, pageId !== null && (isRowRun(accessSource(r.source)) ? titles : databaseTitles).has(pageId));
   };
   return runs.map((r) => {
     const open = visible(r);
@@ -487,6 +531,10 @@ async function viewRuns(userId: string, runs: (typeof agentRun.$inferSelect)[], 
             databaseTitle: r.source.databaseId ? (databaseTitles.get(r.source.databaseId) ?? "") : "",
           }
         : null,
+      handoff:
+        r.source.kind === "handoff"
+          ? { fromAgentId: r.source.fromAgentId, fromName: askers.get(r.source.fromAgentId) ?? "", parentRunId: r.source.parentRunId, task: open ? r.prompt : "" }
+          : null,
       connections: Object.fromEntries(connectionIds.filter((id) => connectionNames.has(id)).map((id) => [id, connectionNames.get(id)!])),
       createdAt: r.createdAt.toISOString(),
       finishedAt: r.finishedAt?.toISOString() ?? null,

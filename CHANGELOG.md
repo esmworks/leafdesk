@@ -4,6 +4,24 @@
 
 ### Added
 
+- **Agents hand part of a job to other agents.** An agent's settings have **Agents it can ask**:
+  other agents of the workspace an owner ticks. During a run it can then hand part of its task to
+  one of them with an `ask_agent` tool (the agent, the task and what to send back), wait for it and
+  use its answer, which reaches it as data from another agent, never as instructions. The helper
+  does the part in a run of its own, with its own access, tools, skills, notes, instructions and
+  limits, its tokens counted against it; it changes no pages, proposes no notes and can't ask
+  further agents. A run asks at most 3 times; its own time stands still while it waits, for up to 4
+  minutes of waiting in all. A helper's run is held to whose access holds the asking run, and when
+  no one stands behind what that run read, each of its connection calls waits for an owner too; it
+  shows to whoever the asking run shows to. A paused or archived helper, or one over its monthly
+  token limit, is explained to the asking run instead of run, and one still waiting for an approval
+  goes on without it. Both histories link: the asking run shows "Asked <agent>: <task>" opening the
+  helper's run, which shows who asked. The helper runs in the asking run's slot, so even one slot
+  (`AI_CONCURRENCY=1`) never waits on itself. Archiving an agent takes it off every list; backups
+  carry the lists. MCP's `create_agent` and `update_agent` take `helper_agent_ids`, `get_agent` and
+  `list_agents` return it, and `list_agent_runs` shows runs of kind `handoff`; over REST, the agent
+  endpoints return it, `PATCH /api/v1/agents/{id}` changes it and runs show the new kind. Migration
+  0099 adds the `agent_helper` table.
 - **Archive pages that are out of date.** An old price list or a superseded offer can be archived
   instead of trashed: people with full access choose **Archive** in the page's menu. The page keeps
   everything else (it stays readable, editable, reachable by its link, mentions and backlinks, and
