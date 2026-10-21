@@ -349,6 +349,38 @@
       "creating": "Oluşturuluyor…",
       "archivedNote": "Değiştirmek için ajanı geri getirin."
     },
+    "describe": {
+      "button": "Ajanı anlat",
+      "title": "Ajanı anlat",
+      "hint": "Ne yapması gerektiğini yaz, yapay zekâ gözden geçirmen için bir taslak hazırlasın.",
+      "label": "Bu ajan ne yapmalı?",
+      "placeholder": "Örneğin:\n– Her pazartesi 9:00’da Görevler’e geçen hafta eklenen satırları özetle ve özeti Haftalık sayfasına yorum olarak yaz.\n– Bir destek talebi eklendiğinde yanıtı Yardım sayfalarında ara ve yorum olarak yaz.\n– Her sabah teslim tarihi geçmiş görevleri Gecikti olarak işaretle.",
+      "help": "Henüz hiçbir şey kaydedilmedi: ajanı oluşturmadan önce taslağı kontrol eder, istediğini değiştirirsin.",
+      "draft": "Taslak hazırla",
+      "drafting": "Taslak hazırlanıyor…",
+      "back": "Açıklamaya dön",
+      "reviewTitle": "Taslak ajanı gözden geçir",
+      "reviewHint": "Yapay zekâ hata yapabilir. Oluşturmadan önce her şeyi kontrol et.",
+      "pages": "Açabileceği sayfalar",
+      "pagesHelp": "Ajanı oluşturduğunda her biri gösterilen erişimle onunla paylaşılır.",
+      "noPages": "Paylaşılacak sayfa yok. Daha sonra Erişim sekmesinden paylaşabilirsin.",
+      "setUp": "Kurulacaklar",
+      "setUpHelp": "Ajanla birlikte oluşturulur. İstemediklerini kaldır.",
+      "setUpHelpShares": "Ajanla birlikte oluşturulur. İstemediklerini kaldır. Bir otomasyon, veritabanını ajanla düzenleme erişimiyle paylaşır.",
+      "noSetUp": "Henüz onu kendiliğinden çalıştıran bir şey yok. Daha sonra bir zamanlama ekleyebilir ya da bir veritabanı otomasyonundan çalıştırabilirsin.",
+      "scheduleOn": "{when} · {database} üzerinde",
+      "task": "Görev:",
+      "remove": "{item} öğesini kaldır",
+      "triggers": {
+        "rowCreated": "{database} veritabanına bir satır eklendiğinde",
+        "rowChanged": "{database} veritabanında bir satır değiştiğinde",
+        "propertyChanged": "{database} veritabanında bir satırın {property} değeri değiştiğinde",
+        "datePassed": "{database} satırları: {days, plural, =0 {{date} geldiğinde} other {{date} üzerinden # gün geçince}}",
+        "created": "oluşturulma tarihleri",
+        "edited": "son düzenlemeleri"
+      },
+      "automationName": "{agent} ajanını çalıştır"
+    },
     "access": {
       "description": "Ajan yalnızca bu sayfaları ve bunların altındaki sayfa ve satırları açabilir. Birinin değişikliğiyle başlayan bir çalışmada yalnızca o kişinin de açabildiklerini açar.",
       "warning": "Bir ajanla paylaştığınız her şey, onun değiştirdiği satırlara ya da yazdığı yorumlara geçebilir; o satırları görebilen herkes de bunları okuyabilir.",

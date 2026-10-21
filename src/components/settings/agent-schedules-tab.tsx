@@ -116,7 +116,7 @@ export function AgentSchedulesTab({ workspaceId, agent, onRuns }: { workspaceId:
 }
 
 /** "Every 2 weeks on Mon, Thu · 08:00 (Europe/Istanbul)", in the viewer's words. */
-function useRuleSummary() {
+export function useRuleSummary() {
   const t = useTranslations("settings.agents.schedules");
   const tr = useTranslations("database.page.templates.repeatDialog");
   const format = useFormatter();

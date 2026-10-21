@@ -4,6 +4,18 @@
 
 ### Added
 
+- **Describe an agent and let AI draft it.** Beside **New agent**, owners can choose
+  **Describe an agent**, say in their own words what it should do ("Every Monday, summarize
+  last week's new rows in Tasks and comment the summary on the Weekly page") and press **Draft**.
+  The AI drafts the agent: a name, a description, step-by-step instructions in the language the
+  description is written in, the pages and databases it needs (only ones the owner has full access
+  to, each at the least access that does the job) and when it runs: a schedule, and automations on
+  a database (a row added or a form answered, a property changed, a date passed). Nothing is saved:
+  the usual form opens filled in, with the pages it would share and the schedules and automations
+  it would set up listed under **Will be set up**, each with a way to remove it. Creating the agent
+  shares those pages and sets up what is left, and takes it all back when a step fails. It shows
+  where AI is on, counts as the agents' AI usage and is held to the workspace's AI limits; an error
+  keeps the description. MCP gets `draft_agent`, which returns the draft without saving it.
 - **Archive pages that are out of date.** An old price list or a superseded offer can be archived
   instead of trashed: people with full access choose **Archive** in the page's menu. The page keeps
   everything else (it stays readable, editable, reachable by its link, mentions and backlinks, and

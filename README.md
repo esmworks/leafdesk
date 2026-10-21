@@ -1775,6 +1775,7 @@ as it can (Claude Sonnet and Opus 5.5 can't stop thinking, so "off" is low effor
 | Writing assistant: improve, fix, shorten, translate, continue, summarize | `AI_MODEL` | low |
 | Writing assistant: your own instruction | `AI_MODEL` | medium |
 | Chat | `AI_MODEL` | medium |
+| Drafting an agent from a description | `AI_MODEL` | medium |
 | Agents | `AI_MODEL` | the model's default (Claude 5.5: high) |
 
 The writing assistant stays on `AI_MODEL`: it makes one request per click and its text goes straight
@@ -2325,7 +2326,7 @@ workspace has at most 50 agents. A paused agent doesn't run: its queued runs end
 log as a removed permission) and takes it off the lists;
 its user stays, so what it did keeps its name. A restored agent comes back paused, with nothing
 shared; its skills and memory stay. Creating, changing and archiving agents is recorded in the audit log. Over MCP:
-`list_agents`, `get_agent`, `create_agent`, `update_agent`, `archive_agent`, `restore_agent`,
+`list_agents`, `get_agent`, `draft_agent`, `create_agent`, `update_agent`, `archive_agent`, `restore_agent`,
 `set_agent_access`, `set_agent_skill`, `add_agent_memory`, `update_agent_memory`,
 `keep_agent_memory`, `dismiss_agent_memory`, `delete_agent_memory`, `list_agent_runs` and
 `start_agent_run`. Over the REST API: listing, reading and changing agents (pausing, resuming, the
@@ -2335,6 +2336,18 @@ monthly limit), asking for a run, and reading runs and usage (see [REST API](#re
 > Anything shared with an agent can end up in the rows it writes: a value it copies, a summary in
 > a comment. Everyone who can open those rows sees it, even when they can't open the page it came
 > from. Share with an agent only what everyone who sees its database may see.
+
+**Describing an agent.** Where AI is on, Settings → *Agents* → *Describe an agent* takes what the
+agent should do in your own words ("Every Monday, summarize last week's new rows in Tasks and
+comment the summary on the Weekly page") and has the AI draft it: a name, a description, step-by-step
+instructions in the language you wrote in, the pages and databases it needs (only ones you have full
+access to, each at the least access that does the job) and when it runs: a schedule, and
+automations on a database (a row added, a form answer included; a property changed; a date passed).
+Nothing is saved: the draft opens the usual form filled in, with the pages it would share and the
+schedules and automations it would set up listed apart, each with a way to remove it. Creating the
+agent shares those pages and sets up what is left; when one step fails, nothing of it stays (the
+agent is archived). Only owners can draft, the request counts as the agents' AI usage, and MCP's
+`draft_agent` returns the same draft without saving it.
 
 **Built-in agents.** Settings → *Agents* → *Start from a template* sets one up on a database in one
 step: it creates the agent with instructions in your language that name the properties you pick
@@ -2649,7 +2662,9 @@ The tools cover:
   `list_automations` shows names next to the stored ids. A `run_agent` action names an agent
   by id or name.
 - **Agents:** `list_agents`, `get_agent` (its instructions, the pages shared with it, its
-  skills and its memory), `create_agent`, `update_agent`, `archive_agent`, `restore_agent`, `set_agent_access`
+  skills and its memory), `draft_agent` (a draft from what the user says it should do: its
+  instructions, the pages it needs and suggested schedules and automations, nothing saved),
+  `create_agent`, `update_agent`, `archive_agent`, `restore_agent`, `set_agent_access`
   (view, comment, edit or remove), `set_agent_skill` (give or take a skill only owners can edit),
   `keep_agent_memory` and `dismiss_agent_memory` (answer the notes its runs proposed),
   `add_agent_memory`, `update_agent_memory` and `delete_agent_memory` (an owner's own notes)

@@ -349,6 +349,38 @@
       "creating": "Création…",
       "archivedNote": "Restaurez l’agent pour le modifier."
     },
+    "describe": {
+      "button": "Décrire un agent",
+      "title": "Décrire un agent",
+      "hint": "Dites ce qu’il doit faire, et l’IA en rédige un brouillon que vous vérifiez.",
+      "label": "Que doit faire cet agent ?",
+      "placeholder": "Par exemple :\n– Chaque lundi à 9 h 00, résumer les nouvelles lignes de la semaine passée dans Tâches et publier le résumé en commentaire sur la page Hebdo.\n– Quand une demande d’assistance est ajoutée, chercher la réponse dans les pages d’aide et la mettre en commentaire.\n– Chaque matin, marquer En retard les tâches dont l’échéance est passée.",
+      "help": "Rien n’est encore enregistré : vous vérifiez le brouillon et modifiez ce que vous voulez avant de créer l’agent.",
+      "draft": "Rédiger",
+      "drafting": "Rédaction…",
+      "back": "Revenir à la description",
+      "reviewTitle": "Vérifier l’agent rédigé",
+      "reviewHint": "L’IA peut se tromper. Vérifiez tout avant de le créer.",
+      "pages": "Pages qu’il peut ouvrir",
+      "pagesHelp": "Partagées avec l’agent à sa création, chacune avec l’accès indiqué.",
+      "noPages": "Aucune page à partager. Vous pourrez en partager plus tard dans son onglet Accès.",
+      "setUp": "Sera configuré",
+      "setUpHelp": "Créé avec l’agent. Retirez ce que vous ne voulez pas.",
+      "setUpHelpShares": "Créé avec l’agent. Retirez ce que vous ne voulez pas. Une automatisation partage sa base de données avec l’agent en modification.",
+      "noSetUp": "Rien ne le lance encore de lui-même. Ajoutez une planification plus tard, ou lancez-le depuis une automatisation de base de données.",
+      "scheduleOn": "{when} · sur {database}",
+      "task": "Tâche :",
+      "remove": "Retirer {item}",
+      "triggers": {
+        "rowCreated": "Quand une ligne est ajoutée à {database}",
+        "rowChanged": "Quand une ligne de {database} change",
+        "propertyChanged": "Quand {property} change dans une ligne de {database}",
+        "datePassed": "Lignes de {database} : {days, plural, =0 {quand {date} est atteinte} one {# jour après {date}} other {# jours après {date}}}",
+        "created": "leur date de création",
+        "edited": "leur dernière modification"
+      },
+      "automationName": "Lancer {agent}"
+    },
     "access": {
       "description": "L’agent n’ouvre que ces pages, et les pages et lignes qu’elles contiennent. Lors d’une exécution lancée par la modification d’une personne, il n’ouvre que ce que cette personne peut aussi ouvrir.",
       "warning": "Tout ce que vous partagez avec un agent peut se retrouver dans les lignes qu’il modifie ou les commentaires qu’il écrit, où toute personne qui voit ces lignes peut le lire.",

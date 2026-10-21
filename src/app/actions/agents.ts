@@ -9,7 +9,9 @@ import type { RepeatRule } from "@/lib/schedule";
 import { ANSWER_PROPERTY_TYPES, FLAG_PROPERTY_TYPES, LOG_PROPERTY_TYPES, ROUTER_PROPERTY_TYPES, type BuiltinAgentSetup } from "@/lib/builtin-agents";
 import { isDatabaseErrorCode, PropertyValueError } from "@/lib/properties";
 import { AccessError } from "@/server/access";
+import { isAiError } from "@/server/ai";
 import { installBuiltinAgent } from "@/server/agents/builtin";
+import { createAgentFromDraft, draftAgent, type DraftedAgentInput } from "@/server/agents/draft";
 import {
   AgentError,
   archiveAgent,
@@ -41,6 +43,8 @@ const isInvalidReason = (value: unknown): value is InvalidReason => (INVALID_REA
 
 async function fail(error: unknown): Promise<{ ok: false; error: string } | null> {
   const t = await getTranslations();
+  // Drafting an agent asks the AI.
+  if (isAiError(error)) return { ok: false, error: t(`ai.errors.${error.code}`, { seconds: error.retryAfterMs ? Math.ceil(error.retryAfterMs / 1000) : 0 }) };
   if (error instanceof AgentError) {
     const reason = error.params.reason;
     if (error.code === "invalid" && isInvalidReason(reason)) return { ok: false, error: t(`settings.agents.errors.reasons.${reason}`) };
@@ -265,4 +269,25 @@ export async function builtinAgentPropertiesAction(workspaceId: string, database
 export async function installBuiltinAgentAction(workspaceId: string, setup: BuiltinAgentSetup) {
   const locale = await getLocale();
   return run(workspaceId, (userId) => installBuiltinAgent(userId, workspaceId, setup, { locale }), { refresh: true });
+}
+
+/** A draft of an agent doing what `description` says (server/agents/draft.ts); nothing is saved. */
+export async function draftAgentAction(workspaceId: string, description: string) {
+  return run(workspaceId, (userId) => draftAgent(userId, workspaceId, String(description ?? "")));
+}
+
+/** Creates an agent from a reviewed draft, with the shares, schedules and automations the owner kept. */
+export async function createAgentFromDraftAction(workspaceId: string, value: DraftedAgentInput) {
+  const t = await getTranslations("settings.agents.describe");
+  return run(
+    workspaceId,
+    (userId) =>
+      createAgentFromDraft(
+        userId,
+        workspaceId,
+        { ...input(value), pages: value?.pages, schedules: value?.schedules, automations: value?.automations, timeZone: value?.timeZone },
+        { automationName: (agent) => t("automationName", { agent }) },
+      ),
+    { refresh: true },
+  );
 }
