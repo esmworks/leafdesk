@@ -1,6 +1,6 @@
 "use client";
 
-import { MoreHorizontal, Plus } from "lucide-react";
+import { MoreHorizontal, Plus, Sparkles } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { archiveAgentAction, restoreAgentAction, updateAgentAction } from "@/app/actions/agents";
@@ -11,13 +11,14 @@ import { useAction } from "@/components/settings/workspace-settings";
 import { Button, cn, Dialog, IconButton, MenuItem, MenuSeparator } from "@/components/ui";
 import { MAX_AGENTS, type AgentView } from "@/lib/agents";
 import type { BuiltinAgentSummary } from "@/lib/builtin-agents";
+import { AgentDescribeDialog } from "./agent-describe-dialog";
 import { AgentDialog, AgentForm, AgentIcon, type AgentModelNames, type AgentTab } from "./agent-dialog";
 import { TemplateWizard } from "./agent-template-wizard";
 
 /**
- * Settings > Agents: the workspace's agents, active or archived. Owners create them (from scratch
- * or from a template), open one to change it, choose the pages it may open and read its runs,
- * pause, archive and restore them; members see the list.
+ * Settings > Agents: the workspace's agents, active or archived. Owners create them (from scratch,
+ * from a template, or from a description the AI drafts them from), open one to change it, choose
+ * the pages it may open and read its runs, pause, archive and restore them; members see the list.
  */
 export function AgentsPanel({
   workspaceId,
@@ -63,6 +64,7 @@ export function AgentsPanel({
   // An agent just made, until the refreshed list brings it.
   const [made, setMade] = useState<AgentView | null>(null);
   const [creating, setCreating] = useState(false);
+  const [describing, setDescribing] = useState(false);
   const [archivingId, setArchivingId] = useState<string | null>(null);
   const [template, setTemplate] = useState<BuiltinAgentSummary | null>(null);
   // The run a link opened (from an automation's runs), until its agent is closed.
@@ -103,10 +105,16 @@ export function AgentsPanel({
               </TabButton>
             </div>
           )}
+          {isOwner && ai === "on" && (
+            <Button className="ms-auto" disabled={full} onClick={() => setDescribing(true)}>
+              <Sparkles className="h-3.5 w-3.5" />
+              {t("describe.button")}
+            </Button>
+          )}
           {isOwner && (
             <Button
               variant="primary"
-              className="ms-auto"
+              className={ai === "on" ? undefined : "ms-auto"}
               disabled={full}
               title={full ? t("errors.tooMany", { max: MAX_AGENTS }) : undefined}
               onClick={() => setCreating(true)}
@@ -186,6 +194,18 @@ export function AgentsPanel({
             }}
           />
         </Dialog>
+      )}
+      {describing && (
+        <AgentDescribeDialog
+          workspaceId={workspaceId}
+          models={models}
+          webSearch={webSearch}
+          onClose={() => setDescribing(false)}
+          onCreated={(agent) => {
+            setDescribing(false);
+            showNew(agent, "settings");
+          }}
+        />
       )}
       {opened && open && (
         <AgentDialog

@@ -356,6 +356,38 @@
       "creating": "Wird erstellt…",
       "archivedNote": "Stell den Agenten wieder her, um ihn zu ändern."
     },
+    "describe": {
+      "button": "Agent beschreiben",
+      "title": "Agent beschreiben",
+      "hint": "Beschreibe, was er tun soll, und die KI entwirft ihn, damit du ihn prüfen kannst.",
+      "label": "Was soll dieser Agent tun?",
+      "placeholder": "Zum Beispiel:\n– Jeden Montag um 9:00 die neuen Zeilen der letzten Woche in Aufgaben zusammenfassen und die Zusammenfassung auf der Seite Wochenbericht kommentieren.\n– Wenn eine Supportanfrage hinzukommt, die Antwort in den Hilfeseiten suchen und als Kommentar schreiben.\n– Jeden Morgen Aufgaben, deren Fälligkeitsdatum vorbei ist, als Verspätet markieren.",
+      "help": "Noch wird nichts gespeichert: Du prüfst den Entwurf und änderst, was du möchtest, bevor du den Agent erstellst.",
+      "draft": "Entwerfen",
+      "drafting": "Wird entworfen…",
+      "back": "Zurück zur Beschreibung",
+      "reviewTitle": "Entworfenen Agent prüfen",
+      "reviewHint": "KI kann Fehler machen. Prüfe alles, bevor du ihn erstellst.",
+      "pages": "Seiten, die er öffnen darf",
+      "pagesHelp": "Werden beim Erstellen mit dem Agent geteilt, jeweils mit dem angezeigten Zugriff.",
+      "noPages": "Keine Seiten zum Teilen. Du kannst später welche im Tab Zugriff teilen.",
+      "setUp": "Wird eingerichtet",
+      "setUpHelp": "Wird mit dem Agent erstellt. Entferne, was du nicht möchtest.",
+      "setUpHelpShares": "Wird mit dem Agent erstellt. Entferne, was du nicht möchtest. Eine Automation teilt ihre Datenbank mit dem Agent zum Bearbeiten.",
+      "noSetUp": "Noch startet ihn nichts von selbst. Füge später einen Zeitplan hinzu oder starte ihn über eine Datenbank-Automation.",
+      "scheduleOn": "{when} · in {database}",
+      "task": "Aufgabe:",
+      "remove": "{item} entfernen",
+      "triggers": {
+        "rowCreated": "Wenn eine Zeile zu {database} hinzukommt",
+        "rowChanged": "Wenn sich eine Zeile von {database} ändert",
+        "propertyChanged": "Wenn sich {property} in einer Zeile von {database} ändert",
+        "datePassed": "Zeilen von {database}: {days, plural, =0 {wenn {date} erreicht ist} one {# Tag nach {date}} other {# Tage nach {date}}}",
+        "created": "ihrem Erstelldatum",
+        "edited": "ihrer letzten Bearbeitung"
+      },
+      "automationName": "{agent} ausführen"
+    },
     "access": {
       "description": "Der Agent öffnet nur diese Seiten und die Seiten und Zeilen darunter. Bei einem Lauf, den die Änderung einer Person gestartet hat, öffnet er nur, was auch diese Person öffnen kann.",
       "warning": "Alles, was du mit einem Agenten teilst, kann in den Zeilen landen, die er ändert, oder in den Kommentaren, die er schreibt – dort kann es jeder lesen, der diese Zeilen sieht.",

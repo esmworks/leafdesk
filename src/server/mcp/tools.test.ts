@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { today } from "@/lib/journal";
 import { PropertyValueError } from "@/lib/properties";
 import { AccessError } from "@/server/access";
+import { AiError } from "@/server/ai";
 import { MAX_MARKDOWN_CHARS } from "./format";
 import type { McpPrincipal } from "./principal";
 import { CONTENT_NOTE, createMcpServer } from "./tools";
@@ -153,6 +154,8 @@ const agents = vi.hoisted(() => {
   };
 });
 vi.mock("@/server/agents/manage", () => agents);
+const agentDraft = vi.hoisted(() => ({ draftAgent: vi.fn() }));
+vi.mock("@/server/agents/draft", () => agentDraft);
 
 const agentSkills = vi.hoisted(() => ({
   listAgentSkills: vi.fn(async () => ({ skills: [] as unknown[], hidden: 0 })),
@@ -2616,6 +2619,36 @@ describe("agents", () => {
     agents.setAgentAccess.mockRejectedValueOnce(new AccessError());
     const notFull = await callTool(writer, "set_agent_access", { agent_id: "agent-1", page_id: "p-x", level: "view" });
     expect(notFull.text).toMatch(/needs full access/);
+  });
+
+  it("drafts an agent without saving it, in the shape the setup tools take", async () => {
+    const tools = new Map((await listTools(reader)).map((t) => [t.name, t]));
+    expect(tools.get("draft_agent")?.annotations?.readOnlyHint).toBe(true);
+    expect(tools.get("draft_agent")!.inputSchema.required).toEqual(["workspace_id", "description"]);
+    agentDraft.draftAgent.mockResolvedValue({
+      name: "Weekly summary",
+      icon: null,
+      description: "",
+      instructions: "1. Read. 2. Comment.",
+      pages: [{ pageId: "page-1", title: "Weekly", icon: null, kind: "page", level: "comment" }],
+      schedules: [{ rule: { frequency: "weekly", interval: 1, weekdays: [1], time: "09:00" }, task: "Summarize.", databaseId: null, databaseTitle: null }],
+      automations: [{ databaseId: "db-1", databaseTitle: "Tasks", trigger: { type: "property_changed", propertyId: "p-1" }, propertyName: "Status", task: "Check." }],
+    });
+    const drafted = await callTool(reader, "draft_agent", { workspace_id: "ws-1", description: "Summarize the week" });
+    expect(drafted.isError).toBe(false);
+    expect(agentDraft.draftAgent).toHaveBeenCalledWith("user-1", "ws-1", "Summarize the week");
+    expect(drafted.data).toMatchObject({
+      saved: false,
+      pages: [{ page_id: "page-1", level: "comment" }],
+      schedules: [{ repeat: { frequency: "weekly", weekdays: [1], time: "09:00" }, database_id: null }],
+      automations: [{ database_id: "db-1", trigger: { type: "property_changed", property: "p-1" } }],
+    });
+    expect(agents.createAgent).not.toHaveBeenCalled();
+
+    agentDraft.draftAgent.mockRejectedValueOnce(new AccessError());
+    expect((await callTool(reader, "draft_agent", { workspace_id: "ws-1", description: "x" })).text).toMatch(/Only owners/);
+    agentDraft.draftAgent.mockRejectedValueOnce(new AiError("disabled", "AI is off for this workspace"));
+    expect((await callTool(reader, "draft_agent", { workspace_id: "ws-1", description: "x" })).text).toMatch(/AI is off/);
   });
 
   it("lists runs with their steps summarized and rows linked only when the user can open them", async () => {

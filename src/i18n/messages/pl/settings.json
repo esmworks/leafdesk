@@ -356,6 +356,38 @@
       "creating": "Tworzenie…",
       "archivedNote": "Przywróć agenta, aby go zmienić."
     },
+    "describe": {
+      "button": "Opisz agenta",
+      "title": "Opisz agenta",
+      "hint": "Napisz, co ma robić, a AI przygotuje szkic do przejrzenia.",
+      "label": "Co ma robić ten agent?",
+      "placeholder": "Na przykład:\n– W każdy poniedziałek o 9:00 podsumuj nowe wiersze z ostatniego tygodnia w Zadaniach i dodaj podsumowanie jako komentarz na stronie Tydzień.\n– Gdy pojawi się zgłoszenie do wsparcia, poszukaj odpowiedzi na stronach Pomocy i dodaj ją jako komentarz.\n– Każdego ranka oznacz zadania po terminie jako Opóźnione.",
+      "help": "Nic nie jest jeszcze zapisane: sprawdzasz szkic i zmieniasz, co chcesz, zanim utworzysz agenta.",
+      "draft": "Przygotuj szkic",
+      "drafting": "Przygotowywanie szkicu…",
+      "back": "Wróć do opisu",
+      "reviewTitle": "Przejrzyj szkic agenta",
+      "reviewHint": "AI może się mylić. Sprawdź wszystko przed utworzeniem.",
+      "pages": "Strony, które może otwierać",
+      "pagesHelp": "Udostępniane agentowi przy tworzeniu, każda z pokazanym dostępem.",
+      "noPages": "Brak stron do udostępnienia. Możesz je udostępnić później na karcie Dostęp.",
+      "setUp": "Zostanie skonfigurowane",
+      "setUpHelp": "Tworzone razem z agentem. Usuń to, czego nie chcesz.",
+      "setUpHelpShares": "Tworzone razem z agentem. Usuń to, czego nie chcesz. Automatyzacja udostępnia agentowi swoją bazę danych do edycji.",
+      "noSetUp": "Nic go jeszcze samo nie uruchamia. Dodaj później harmonogram albo uruchamiaj go z automatyzacji bazy danych.",
+      "scheduleOn": "{when} · w {database}",
+      "task": "Zadanie:",
+      "remove": "Usuń: {item}",
+      "triggers": {
+        "rowCreated": "Gdy do {database} zostanie dodany wiersz",
+        "rowChanged": "Gdy zmieni się wiersz w {database}",
+        "propertyChanged": "Gdy zmieni się {property} w wierszu {database}",
+        "datePassed": "Wiersze {database}: {days, plural, =0 {gdy nadejdzie {date}} one {# dzień po {date}} few {# dni po {date}} many {# dni po {date}} other {# dnia po {date}}}",
+        "created": "dacie utworzenia",
+        "edited": "ostatniej edycji"
+      },
+      "automationName": "Uruchom {agent}"
+    },
     "access": {
       "description": "Agent otwiera tylko te strony oraz strony i wiersze pod nimi. Przy uruchomieniu wywołanym czyjąś zmianą otwiera tylko to, co ta osoba również może otworzyć.",
       "warning": "Wszystko, co udostępnisz agentowi, może trafić do zmienianych przez niego wierszy lub pisanych komentarzy, gdzie przeczyta to każdy, kto widzi te wiersze.",

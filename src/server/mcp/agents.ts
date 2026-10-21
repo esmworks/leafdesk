@@ -26,6 +26,7 @@ import {
   type AgentUsageMonth,
   type AgentView,
 } from "@/lib/agents";
+import { MAX_AGENT_REQUEST, type AgentDraft, type DraftTrigger } from "@/lib/agent-draft";
 import { MAX_MEMORIES, MAX_MEMORY_CHARS } from "@/lib/ai-chat";
 import { pageLabel } from "@/lib/labels";
 import { MAX_REPEAT_INTERVAL, REPEAT_FREQUENCIES } from "@/lib/schedule";
@@ -108,6 +109,14 @@ export const agentInputs = {
     include_archived: z.boolean().default(false).describe("Also list archived agents (default false)."),
   }),
   agentId: z.object({ agent_id: id("agent") }),
+  draft: z.object({
+    workspace_id: id("workspace"),
+    description: z
+      .string()
+      .min(1)
+      .max(MAX_AGENT_REQUEST)
+      .describe(`What the agent should do, in the user's words and language (at most ${MAX_AGENT_REQUEST} characters): what it reads, what it does and when.`),
+  }),
   create: z.object({
     workspace_id: id("workspace"),
     name: nameInput.describe("The agent's name: its changes and comments show it."),
@@ -488,6 +497,34 @@ const SCHEDULE_PAUSED = {
   agentGone: "paused: the agent was archived",
   failed: "its last run couldn't start; it tries again next time",
 } as const;
+
+/** A trigger of a drafted automation, as create_automation takes it. */
+function draftTrigger(trigger: DraftTrigger) {
+  if (trigger.type === "property_changed") return { type: trigger.type, property: trigger.propertyId };
+  return trigger;
+}
+
+/** An agent's draft (draft_agent), snake_case, in the shape the tools that set it up take. Nothing in it is saved. */
+export function describeAgentDraft(workspaceId: string, draft: AgentDraft) {
+  return {
+    saved: false,
+    name: draft.name,
+    icon: draft.icon,
+    description: draft.description,
+    instructions: draft.instructions,
+    pages: draft.pages.map((p) => ({ page_id: p.pageId, title: pageLabel(p.title), kind: p.kind, level: p.level, url: pageUrl(workspaceId, p.pageId) })),
+    schedules: draft.schedules.map((s) => ({ repeat: s.rule, task: s.task, database_id: s.databaseId, database_title: s.databaseTitle === null ? null : pageLabel(s.databaseTitle) })),
+    automations: draft.automations.map((a) => ({
+      database_id: a.databaseId,
+      database_title: pageLabel(a.databaseTitle),
+      trigger: draftTrigger(a.trigger),
+      property_name: a.propertyName,
+      task: a.task,
+    })),
+    next:
+      "Show the draft to the user and change what they ask. To set it up: create_agent (name, icon, description, instructions), set_agent_access for each page at its level, add_agent_schedule for each schedule (with the user's time_zone), and create_automation on each automation's database with its trigger and a run_agent action naming the agent, with the task as its prompt.",
+  };
+}
 
 /** One of an agent's schedules, snake_case, with a note on what stands in its way. */
 export function describeAgentSchedule(workspaceId: string, s: AgentScheduleView) {

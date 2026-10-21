@@ -356,6 +356,38 @@
       "creating": "Creando…",
       "archivedNote": "Restaura el agente para cambiarlo."
     },
+    "describe": {
+      "button": "Describir un agente",
+      "title": "Describir un agente",
+      "hint": "Di lo que debe hacer y la IA lo redacta para que lo revises.",
+      "label": "¿Qué debe hacer este agente?",
+      "placeholder": "Por ejemplo:\n– Cada lunes a las 9:00, resumir las filas nuevas de la semana pasada en Tareas y comentar el resumen en la página Semanal.\n– Cuando se añada una solicitud de soporte, buscar la respuesta en las páginas de Ayuda y comentarla.\n– Cada mañana, marcar como Retrasada las tareas cuya fecha de vencimiento ya pasó.",
+      "help": "Todavía no se guarda nada: revisas el borrador y cambias lo que quieras antes de crear el agente.",
+      "draft": "Redactar",
+      "drafting": "Redactando…",
+      "back": "Volver a la descripción",
+      "reviewTitle": "Revisar el agente redactado",
+      "reviewHint": "La IA puede equivocarse. Revisa todo antes de crearlo.",
+      "pages": "Páginas que puede abrir",
+      "pagesHelp": "Se comparten con el agente al crearlo, cada una con el acceso indicado.",
+      "noPages": "No hay páginas para compartir. Puedes compartir algunas más tarde en su pestaña Acceso.",
+      "setUp": "Se configurará",
+      "setUpHelp": "Se crea junto con el agente. Quita lo que no quieras.",
+      "setUpHelpShares": "Se crea junto con el agente. Quita lo que no quieras. Una automatización comparte su base de datos con el agente para editar.",
+      "noSetUp": "Todavía nada lo ejecuta por sí solo. Añade una programación más tarde o ejecútalo desde una automatización de base de datos.",
+      "scheduleOn": "{when} · en {database}",
+      "task": "Tarea:",
+      "remove": "Quitar {item}",
+      "triggers": {
+        "rowCreated": "Cuando se añade una fila a {database}",
+        "rowChanged": "Cuando cambia una fila de {database}",
+        "propertyChanged": "Cuando cambia {property} en una fila de {database}",
+        "datePassed": "Filas de {database}: {days, plural, =0 {al llegar {date}} one {# día después de {date}} other {# días después de {date}}}",
+        "created": "su fecha de creación",
+        "edited": "su última edición"
+      },
+      "automationName": "Ejecutar {agent}"
+    },
     "access": {
       "description": "El agente solo abre estas páginas y las páginas y filas que hay debajo. En una ejecución iniciada por el cambio de una persona, solo abre lo que esa persona también puede abrir.",
       "warning": "Todo lo que compartes con un agente puede acabar en las filas que cambia o en los comentarios que escribe, donde cualquiera que pueda ver esas filas puede leerlo.",

@@ -31,6 +31,9 @@ const PLANS: [feature: string, plan: AiFeaturePlan][] = [
   ["editor.", { thinking: "low" }],
   // Questions over the workspace's pages, often with figures, while the person waits.
   ["chat", { thinking: "medium" }],
+  // An agent drafted from an owner's description: instructions it will follow alone, so the main
+  // model, while the owner waits for one answer.
+  ["agent.draft", { thinking: "medium" }],
   // Agents work alone over many steps, where a mistake is not caught by someone reading along.
   // One its owners set to the fast model does routine, well-defined work (summaries, sorting rows):
   // a little thinking keeps its steps on track without spending what the cheaper model saves.

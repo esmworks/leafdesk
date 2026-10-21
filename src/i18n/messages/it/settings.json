@@ -356,6 +356,38 @@
       "creating": "Creazione…",
       "archivedNote": "Ripristina l’agente per modificarlo."
     },
+    "describe": {
+      "button": "Descrivi un agente",
+      "title": "Descrivi un agente",
+      "hint": "Di’ cosa deve fare e l’IA ne prepara una bozza da rivedere.",
+      "label": "Cosa deve fare questo agente?",
+      "placeholder": "Per esempio:\n– Ogni lunedì alle 9:00, riassumere le nuove righe della settimana scorsa in Attività e commentare il riassunto nella pagina Settimanale.\n– Quando viene aggiunta una richiesta di assistenza, cercare la risposta nelle pagine di Aiuto e scriverla in un commento.\n– Ogni mattina, segnare come In ritardo le attività con la scadenza passata.",
+      "help": "Non viene ancora salvato nulla: controlli la bozza e cambi ciò che vuoi prima di creare l’agente.",
+      "draft": "Crea bozza",
+      "drafting": "Creazione bozza…",
+      "back": "Torna alla descrizione",
+      "reviewTitle": "Rivedi l’agente in bozza",
+      "reviewHint": "L’IA può sbagliare. Controlla tutto prima di crearlo.",
+      "pages": "Pagine che può aprire",
+      "pagesHelp": "Condivise con l’agente quando lo crei, ciascuna con l’accesso indicato.",
+      "noPages": "Nessuna pagina da condividere. Puoi condividerne in seguito nella scheda Accesso.",
+      "setUp": "Verrà configurato",
+      "setUpHelp": "Creato insieme all’agente. Rimuovi ciò che non vuoi.",
+      "setUpHelpShares": "Creato insieme all’agente. Rimuovi ciò che non vuoi. Un’automazione condivide il suo database con l’agente in modifica.",
+      "noSetUp": "Ancora nulla lo avvia da solo. Aggiungi una pianificazione in seguito, o avvialo da un’automazione di database.",
+      "scheduleOn": "{when} · su {database}",
+      "task": "Attività:",
+      "remove": "Rimuovi {item}",
+      "triggers": {
+        "rowCreated": "Quando viene aggiunta una riga a {database}",
+        "rowChanged": "Quando cambia una riga di {database}",
+        "propertyChanged": "Quando cambia {property} in una riga di {database}",
+        "datePassed": "Righe di {database}: {days, plural, =0 {al raggiungimento di {date}} one {# giorno dopo {date}} other {# giorni dopo {date}}}",
+        "created": "la loro data di creazione",
+        "edited": "la loro ultima modifica"
+      },
+      "automationName": "Esegui {agent}"
+    },
     "access": {
       "description": "L’agente apre solo queste pagine e le pagine e le righe al loro interno. In un’esecuzione avviata dalla modifica di qualcuno, apre solo ciò che anche quella persona può aprire.",
       "warning": "Tutto ciò che condividi con un agente può finire nelle righe che modifica o nei commenti che scrive, dove chiunque possa vedere quelle righe può leggerlo.",

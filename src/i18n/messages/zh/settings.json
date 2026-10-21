@@ -356,6 +356,38 @@
       "creating": "正在创建…",
       "archivedNote": "恢复智能体后才能更改它。"
     },
+    "describe": {
+      "button": "描述一个智能体",
+      "title": "描述一个智能体",
+      "hint": "说出它要做什么，AI 会起草一个供你检查。",
+      "label": "这个智能体要做什么？",
+      "placeholder": "例如：\n– 每周一 9:00，汇总“任务”中上周新增的行，并把汇总作为评论发在“周报”页面上。\n– 新增支持请求时，在帮助页面中查找答案并以评论回复。\n– 每天早上把已过截止日期的任务标记为“延期”。",
+      "help": "现在还不会保存任何内容：创建智能体之前，你可以检查草稿并随意修改。",
+      "draft": "起草",
+      "drafting": "正在起草…",
+      "back": "返回描述",
+      "reviewTitle": "检查起草的智能体",
+      "reviewHint": "AI 可能出错。创建前请检查所有内容。",
+      "pages": "它可以打开的页面",
+      "pagesHelp": "创建时按所示权限与智能体共享。",
+      "noPages": "没有要共享的页面。之后可以在其“访问权限”选项卡中共享。",
+      "setUp": "将要设置",
+      "setUpHelp": "与智能体一起创建。删除不需要的项。",
+      "setUpHelpShares": "与智能体一起创建。删除不需要的项。自动化会以可编辑权限与智能体共享其数据库。",
+      "noSetUp": "目前没有任何东西会自动运行它。之后可以添加定时计划，或从数据库自动化中运行它。",
+      "scheduleOn": "{when} · 在 {database}",
+      "task": "任务：",
+      "remove": "删除 {item}",
+      "triggers": {
+        "rowCreated": "向 {database} 添加行时",
+        "rowChanged": "{database} 中的行变化时",
+        "propertyChanged": "{database} 中某行的 {property} 变化时",
+        "datePassed": "{database} 的行：{days, plural, =0 {到达{date}时} other {{date}之后 # 天}}",
+        "created": "创建日期",
+        "edited": "最后编辑"
+      },
+      "automationName": "运行 {agent}"
+    },
     "access": {
       "description": "智能体只能打开这些页面，以及它们下面的页面和行。在由某人的更改触发的运行中，它只能打开那个人也能打开的内容。",
       "warning": "你与智能体分享的任何内容都可能出现在它更改的行或撰写的评论中，能看到这些行的人都可以读到。",

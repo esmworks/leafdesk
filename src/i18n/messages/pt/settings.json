@@ -356,6 +356,38 @@
       "creating": "Criando…",
       "archivedNote": "Restaure o agente para alterá-lo."
     },
+    "describe": {
+      "button": "Descrever um agente",
+      "title": "Descrever um agente",
+      "hint": "Diga o que ele deve fazer e a IA o rascunha para você revisar.",
+      "label": "O que este agente deve fazer?",
+      "placeholder": "Por exemplo:\n– Toda segunda-feira às 9:00, resumir as novas linhas da semana passada em Tarefas e comentar o resumo na página Semanal.\n– Quando uma solicitação de suporte for adicionada, procurar a resposta nas páginas de Ajuda e comentá-la.\n– Toda manhã, marcar como Atrasada as tarefas cujo prazo já passou.",
+      "help": "Nada é salvo ainda: você confere o rascunho e muda o que quiser antes de criar o agente.",
+      "draft": "Rascunhar",
+      "drafting": "Rascunhando…",
+      "back": "Voltar à descrição",
+      "reviewTitle": "Revisar o agente rascunhado",
+      "reviewHint": "A IA pode errar. Confira tudo antes de criá-lo.",
+      "pages": "Páginas que ele pode abrir",
+      "pagesHelp": "Compartilhadas com o agente ao criá-lo, cada uma com o acesso indicado.",
+      "noPages": "Nenhuma página para compartilhar. Você pode compartilhar algumas depois na aba Acesso.",
+      "setUp": "Será configurado",
+      "setUpHelp": "Criado junto com o agente. Remova o que não quiser.",
+      "setUpHelpShares": "Criado junto com o agente. Remova o que não quiser. Uma automação compartilha seu banco de dados com o agente para editar.",
+      "noSetUp": "Nada o executa sozinho ainda. Adicione um agendamento depois ou execute-o a partir de uma automação de banco de dados.",
+      "scheduleOn": "{when} · em {database}",
+      "task": "Tarefa:",
+      "remove": "Remover {item}",
+      "triggers": {
+        "rowCreated": "Quando uma linha é adicionada a {database}",
+        "rowChanged": "Quando uma linha de {database} muda",
+        "propertyChanged": "Quando {property} muda em uma linha de {database}",
+        "datePassed": "Linhas de {database}: {days, plural, =0 {quando {date} chegar} one {# dia após {date}} other {# dias após {date}}}",
+        "created": "sua data de criação",
+        "edited": "sua última edição"
+      },
+      "automationName": "Executar {agent}"
+    },
     "access": {
       "description": "O agente abre só estas páginas e as páginas e linhas dentro delas. Em uma execução iniciada pela alteração de alguém, ele abre só o que essa pessoa também pode abrir.",
       "warning": "Tudo o que você compartilha com um agente pode acabar nas linhas que ele altera ou nos comentários que escreve, onde qualquer pessoa que vê essas linhas pode ler.",

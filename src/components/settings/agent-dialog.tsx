@@ -16,12 +16,14 @@ import {
   type AgentRunDetails,
   type AgentStepView,
 } from "@/app/actions/agents";
+import type { ActionResult } from "@/app/actions/workspaces";
 import { StepLine } from "@/components/ai-chat/step-line";
 import { ApprovalActions } from "@/components/connections/approval-actions";
 import { IconPicker } from "@/components/page/icon-picker";
 import { TabButton } from "@/components/settings/members-panel";
 import { useAction } from "@/components/settings/workspace-settings";
 import { Button, cn, Dialog, IconButton, Input, PageIcon, pageLabel, selectClass, Switch, textareaClass } from "@/components/ui";
+import type { AgentInput } from "@/server/agents/manage";
 import {
   AGENT_ACCESS_LEVELS,
   AGENT_RUN_HISTORY_DAYS,
@@ -138,12 +140,21 @@ export function AgentDialog({
   );
 }
 
-/** A new agent (no `agent`) or an agent's settings. */
+/** What a new agent's form starts with, and how it is created: a drafted agent (see agent-describe-dialog). */
+export type AgentFormDraft = {
+  initial: Pick<AgentView, "name" | "icon" | "description" | "instructions">;
+  /** Shown under the instructions: what creating it sets up besides. */
+  extra?: ReactNode;
+  create: (value: AgentInput) => Promise<ActionResult<AgentView>>;
+};
+
+/** A new agent (no `agent`, prefilled from `draft` when given) or an agent's settings. */
 export function AgentForm({
   workspaceId,
   agent,
   models = null,
   webSearch = false,
+  draft,
   onDone,
   onCreated,
 }: {
@@ -157,15 +168,17 @@ export function AgentForm({
   models?: AgentModelNames | null;
   /** The server has a search service: the web access switch says the agent can search too. */
   webSearch?: boolean;
+  draft?: AgentFormDraft;
   onDone: () => void;
   onCreated?: (agent: AgentView) => void;
 }) {
   const t = useTranslations("settings.agents.form");
   const tc = useTranslations("common");
-  const [icon, setIcon] = useState<string | null>(agent?.icon ?? null);
-  const [name, setName] = useState(agent?.name ?? "");
-  const [description, setDescription] = useState(agent?.description ?? "");
-  const [instructions, setInstructions] = useState(agent?.instructions ?? "");
+  const start = agent ?? draft?.initial;
+  const [icon, setIcon] = useState<string | null>(start?.icon ?? null);
+  const [name, setName] = useState(start?.name ?? "");
+  const [description, setDescription] = useState(start?.description ?? "");
+  const [instructions, setInstructions] = useState(start?.instructions ?? "");
   const [enabled, setEnabled] = useState(agent?.enabled ?? true);
   const [webAccess, setWebAccess] = useState(agent?.webAccess ?? false);
   const [limit, setLimit] = useState(agent?.monthlyTokenLimit ? String(agent.monthlyTokenLimit) : "");
@@ -181,7 +194,7 @@ export function AgentForm({
     if (!clean || locked || !limitValid) return;
     const value = { name: clean, icon, description, instructions, enabled, webAccess, monthlyTokenLimit, ...(models ? { model } : {}) };
     if (agent) run(() => updateAgentAction(workspaceId, agent.id, value), onDone);
-    else run(() => createAgentAction(workspaceId, value), (created) => onCreated?.(created));
+    else run(() => (draft ? draft.create(value) : createAgentAction(workspaceId, value)), (created) => onCreated?.(created));
   };
 
   return (
@@ -238,6 +251,7 @@ export function AgentForm({
           />
           <span className="mt-1 block text-xs text-fg-muted">{t("instructionsHelp")}</span>
         </label>
+        {draft?.extra}
         <div className="flex items-center justify-between gap-3 border-t border-border pt-3 text-sm">
           <div>
             <div>{t("active")}</div>

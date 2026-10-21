@@ -356,6 +356,38 @@
       "creating": "Creating…",
       "archivedNote": "Restore the agent to change it."
     },
+    "describe": {
+      "button": "Describe an agent",
+      "title": "Describe an agent",
+      "hint": "Say what it should do, and AI drafts it for you to review.",
+      "label": "What should this agent do?",
+      "placeholder": "For example:\n– Every Monday at 9:00, summarize last week’s new rows in Tasks and comment the summary on the Weekly page.\n– When a support request is added, look for the answer in the Help pages and comment it.\n– Every morning, mark tasks whose due date has passed as Late.",
+      "help": "Nothing is saved yet: you check the draft and change what you like before creating the agent.",
+      "draft": "Draft",
+      "drafting": "Drafting…",
+      "back": "Back to the description",
+      "reviewTitle": "Review the drafted agent",
+      "reviewHint": "AI can make mistakes. Check everything before you create it.",
+      "pages": "Pages it may open",
+      "pagesHelp": "Shared with the agent when you create it, each at the access shown.",
+      "noPages": "No pages to share. You can share some later on its Access tab.",
+      "setUp": "Will be set up",
+      "setUpHelp": "Created with the agent. Remove what you don’t want.",
+      "setUpHelpShares": "Created with the agent. Remove what you don’t want. An automation shares its database with the agent to edit.",
+      "noSetUp": "Nothing runs it on its own yet. Add a schedule later, or run it from a database automation.",
+      "scheduleOn": "{when} · on {database}",
+      "task": "Task:",
+      "remove": "Remove {item}",
+      "triggers": {
+        "rowCreated": "When a row is added to {database}",
+        "rowChanged": "When a row of {database} changes",
+        "propertyChanged": "When {property} changes in a row of {database}",
+        "datePassed": "Rows of {database}: {days, plural, =0 {when {date} is reached} one {# day after {date}} other {# days after {date}}}",
+        "created": "their creation date",
+        "edited": "their last edit"
+      },
+      "automationName": "Run {agent}"
+    },
     "access": {
       "description": "The agent opens only these pages, and the pages and rows under them. On a run started by someone’s change, it opens only what that person can open too.",
       "warning": "Anything you share with an agent can end up in the rows it changes or the comments it writes, where everyone who can see those rows can read it.",
