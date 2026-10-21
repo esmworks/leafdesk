@@ -652,6 +652,19 @@ function describeRunSource(workspaceId: string, run: AgentRunView) {
       },
     };
   }
+  if (source.kind === "mention") {
+    const m = run.mention;
+    return {
+      source: {
+        kind: source.kind,
+        mentioned_by: { id: source.mentionedBy, name: m?.byName ?? "" },
+        // The comment that mentioned the agent: its task.
+        task: m?.task ?? "",
+        thread_id: source.threadId,
+        page: m?.pageTitle != null ? { id: source.pageId, title: pageLabel(m.pageTitle), url: pageUrl(workspaceId, source.pageId) } : { id: source.pageId, title: null },
+      },
+    };
+  }
   return {
     source: { kind: source.kind, requested_by: { id: source.requestedBy, name: run.request?.byName ?? "" }, via: source.via, task: run.request?.task ?? "", ...database },
     ...row,

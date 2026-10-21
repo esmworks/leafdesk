@@ -18,6 +18,7 @@ import {
   isAgentAccessLevel,
   isAgentModel,
   isEventRun,
+  isMentionRun,
   isRowRun,
   isScheduleRun,
   ownerSeesRun,
@@ -468,13 +469,30 @@ async function viewRuns(userId: string, runs: (typeof agentRun.$inferSelect)[], 
       ? (await db.select({ id: page.id, title: page.title }).from(page).where(and(inArray(page.id, scheduledDatabaseIds), pageVisibleTo(userId)))).map((d) => [d.id, d.title])
       : [],
   );
+  // A mention's run: the page its comment is on, and what the run read and wrote, only for those who can open it.
+  const mentionPageIds = [...new Set(runs.flatMap((r) => (isMentionRun(r.source) ? [r.source.pageId] : [])))];
+  const mentionTitles = new Map(
+    mentionPageIds.length
+      ? (await db.select({ id: page.id, title: page.title }).from(page).where(and(inArray(page.id, mentionPageIds), pageVisibleTo(userId)))).map((p) => [p.id, p.title])
+      : [],
+  );
   // A schedule removed since keeps its runs; they just no longer name it.
   const scheduleIds = [...new Set(runs.flatMap((r) => (isScheduleRun(r.source) ? [r.source.scheduleId] : [])))];
   const liveSchedules = new Set(
     scheduleIds.length ? (await db.select({ id: schedule.id }).from(schedule).where(inArray(schedule.id, scheduleIds))).map((s) => s.id) : [],
   );
   const requesterIds = [
-    ...new Set(runs.flatMap((r) => (r.source.kind === "request" ? [r.source.requestedBy] : r.source.kind === "schedule" ? [r.source.scheduledBy] : []))),
+    ...new Set(
+      runs.flatMap((r) =>
+        r.source.kind === "request"
+          ? [r.source.requestedBy]
+          : r.source.kind === "schedule"
+            ? [r.source.scheduledBy]
+            : r.source.kind === "mention"
+              ? [r.source.mentionedBy]
+              : [],
+      ),
+    ),
   ];
   const requesters = new Map(
     requesterIds.length ? (await db.select({ id: user.id, name: user.name }).from(user).where(inArray(user.id, requesterIds))).map((u) => [u.id, u.name]) : [],
@@ -484,7 +502,7 @@ async function viewRuns(userId: string, runs: (typeof agentRun.$inferSelect)[], 
   // (connections/approvals).
   const visible = (r: (typeof runs)[number]) => {
     const pageId = runPageOf(r.source);
-    return ownerSeesRun(r.source, userId, pageId !== null && (isRowRun(r.source) ? titles : databaseTitles).has(pageId));
+    return ownerSeesRun(r.source, userId, pageId !== null && (isRowRun(r.source) ? titles : isMentionRun(r.source) ? mentionTitles : databaseTitles).has(pageId));
   };
   return runs.map((r) => {
     const open = visible(r);
@@ -519,6 +537,16 @@ async function viewRuns(userId: string, runs: (typeof agentRun.$inferSelect)[], 
             task: open ? r.prompt : "",
             databaseId: r.source.databaseId ?? null,
             databaseTitle: r.source.databaseId ? (databaseTitles.get(r.source.databaseId) ?? "") : "",
+          }
+        : null,
+      mention: isMentionRun(r.source)
+        ? {
+            by: r.source.mentionedBy,
+            byName: requesters.get(r.source.mentionedBy) ?? "",
+            pageId: r.source.pageId,
+            threadId: r.source.threadId,
+            pageTitle: mentionTitles.get(r.source.pageId) ?? null,
+            task: open ? r.prompt : "",
           }
         : null,
       connections: Object.fromEntries(connectionIds.filter((id) => connectionNames.has(id)).map((id) => [id, connectionNames.get(id)!])),

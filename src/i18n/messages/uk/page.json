@@ -509,6 +509,7 @@
   },
   "mention": {
     "people": "Люди",
+    "agents": "Агенти",
     "pages": "Сторінки",
     "dates": "Дати",
     "newPage": "Нова сторінка: {title}",

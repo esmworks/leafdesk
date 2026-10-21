@@ -247,6 +247,16 @@
     "aiAccountTitle": "Cuenta de IA quitada",
     "aiAccountDetached": "La IA del espacio de trabajo ya no funciona con la clave de {actor}."
   },
+  "agentReply": {
+    "aiOff": "No puedo responder: la IA está desactivada en este espacio de trabajo.",
+    "agentDisabled": "No puedo responder: estoy en pausa. Un propietario del espacio de trabajo puede volver a activarme en Ajustes.",
+    "limitReached": "No puedo responder: he usado mi límite de tokens de este mes. Un propietario del espacio de trabajo puede aumentarlo en Ajustes.",
+    "costLimit": "No puedo responder: el espacio de trabajo alcanzó su límite mensual de coste de IA.",
+    "timeout": "No pude terminar a tiempo. Vuelve a intentarlo con una petición más pequeña.",
+    "approvalTimeout": "No pude terminar: nadie aprobó lo que necesitaba hacer en un día, así que me detuve.",
+    "empty": "Lo revisé, pero no tengo nada que añadir.",
+    "failed": "Lo siento, no pude terminar esto. Un propietario del espacio de trabajo puede ver qué pasó en mis ejecuciones, en Ajustes."
+  },
   "workspaceDeleted": {
     "subject": "{workspace} se ha eliminado",
     "heading": "{workspace} se ha eliminado",

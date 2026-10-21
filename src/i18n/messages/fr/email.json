@@ -247,6 +247,16 @@
     "aiAccountTitle": "Compte IA supprimé",
     "aiAccountDetached": "L’IA de l’espace de travail ne fonctionne plus avec la clé de {actor}."
   },
+  "agentReply": {
+    "aiOff": "Je ne peux pas répondre : l’IA est désactivée dans cet espace de travail.",
+    "agentDisabled": "Je ne peux pas répondre : je suis en pause. Un propriétaire de l’espace de travail peut me réactiver dans les Paramètres.",
+    "limitReached": "Je ne peux pas répondre : j’ai utilisé ma limite de jetons pour ce mois. Un propriétaire de l’espace de travail peut l’augmenter dans les Paramètres.",
+    "costLimit": "Je ne peux pas répondre : l’espace de travail a atteint sa limite mensuelle de coût d’IA.",
+    "timeout": "Je n’ai pas pu terminer à temps. Réessayez avec une demande plus petite.",
+    "approvalTimeout": "Je n’ai pas pu terminer : personne n’a approuvé ce que je devais faire dans la journée, alors je me suis arrêté.",
+    "empty": "J’ai regardé, mais je n’ai rien à ajouter.",
+    "failed": "Désolé, je n’ai pas pu terminer. Un propriétaire de l’espace de travail peut voir ce qui s’est passé dans mes exécutions, dans les Paramètres."
+  },
   "workspaceDeleted": {
     "subject": "{workspace} a été supprimé",
     "heading": "{workspace} a été supprimé",

@@ -18,10 +18,11 @@ import { useTranslations } from "next-intl";
 import { createContext, forwardRef, useCallback, useContext, useMemo, useRef, type ReactNode } from "react";
 import { commentMentionCandidatesAction } from "@/app/actions/mentions";
 import { searchFold } from "@/lib/search-fold";
-import { mentionInlineSpecs, personItem } from "./mentions";
+import { agentItem, mentionInlineSpecs, personItem } from "./mentions";
 
 // Comments keep the default comment editor's blocks and styles (no colors), and add mentions of
-// people: the server notifies them (server/comments) and stores their names as text.
+// people and agents: the server notifies the people, starts the agents (server/comments) and
+// stores their names as text.
 const { textColor: _textColor, backgroundColor: _backgroundColor, ...commentStyleSpecs } = defaultStyleSpecs;
 
 export const commentEditorSchema = BlockNoteSchema.create({
@@ -82,23 +83,24 @@ function CommentFormattingToolbar() {
   return <FormattingToolbar blockTypeSelectItems={[]}>{items}</FormattingToolbar>;
 }
 
-/** `@` in a comment: the people who can open the page. */
+/** `@` in a comment: the people who can open the page, then the agents that may answer there. */
 function CommentMentionMenu({ pageId }: { pageId: string }) {
   const editor = useBlockNoteEditor<typeof commentEditorSchema.blockSchema, typeof commentEditorSchema.inlineContentSchema>();
   const t = useTranslations("page.mention");
   // The last answer, so typing doesn't flash an empty menu while the next one loads.
-  const last = useRef<Awaited<ReturnType<typeof commentMentionCandidatesAction>>>([]);
+  const last = useRef<Awaited<ReturnType<typeof commentMentionCandidatesAction>>>({ people: [], agents: [] });
   const getItems = useCallback(
     async (query: string): Promise<DefaultReactSuggestionItem[]> => {
-      let people = last.current;
+      let found = last.current;
       try {
-        people = last.current = await commentMentionCandidatesAction(pageId, query);
+        found = last.current = await commentMentionCandidatesAction(pageId, query);
       } catch {
-        // Keep the last answer, but only the people who still match.
+        // Keep the last answer, but only the people and agents who still match.
         const q = searchFold(query.trim());
-        people = people.filter((p) => !q || searchFold(p.name).includes(q));
+        const matches = (name: string) => !q || searchFold(name).includes(q);
+        found = { people: found.people.filter((p) => matches(p.name)), agents: found.agents.filter((a) => matches(a.name)) };
       }
-      return people.map((p) => personItem(editor, p, t("people")));
+      return [...found.people.map((p) => personItem(editor, p, t("people"))), ...found.agents.map((a) => agentItem(editor, a, t("agents")))];
     },
     [editor, pageId, t],
   );

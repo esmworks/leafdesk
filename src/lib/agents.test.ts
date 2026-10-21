@@ -7,6 +7,7 @@ import {
   INBOX_CALL_CHARS,
   inboxCallInput,
   isAgentEmail,
+  isMentionRun,
   isScheduleRun,
   MAX_AGENT_WRITES,
   MAX_SCHEDULED_WRITES,
@@ -129,9 +130,18 @@ describe("who a run is for (sees its work and answers its call)", () => {
   const askedOnRow: AgentRunSource = { ...asked, rowId: "row", databaseId: "db" };
   const ownSchedule: AgentRunSource = { kind: "schedule", scheduleId: "s", scheduledBy: "o1" };
   const event: AgentRunSource = { kind: "connection", connectionId: "c", triggerId: "t", eventId: "e" };
+  const mentioned: AgentRunSource = { kind: "mention", pageId: "page", threadId: "th", commentId: "c1", mentionedBy: "m1" };
 
-  it("decides by the row, or the schedule's database", () => {
-    expect([row, scheduled, asked, askedOnRow, ownSchedule, event].map(runPageOf)).toEqual(["row", "db", null, "row", null, null]);
+  it("decides by the row, the schedule's database, or the page a mention's comment is on", () => {
+    expect([row, scheduled, asked, askedOnRow, ownSchedule, event, mentioned].map(runPageOf)).toEqual(["row", "db", null, "row", null, null, "page"]);
+  });
+
+  it("is a mention's run for the owners who can open its page, the member who mentioned the agent aside", () => {
+    expect(isMentionRun(mentioned)).toBe(true);
+    expect([row, asked, event].some(isMentionRun)).toBe(false);
+    expect(ownerSeesRun(mentioned, "o1", true)).toBe(true);
+    expect(ownerSeesRun(mentioned, "o1", false)).toBe(false);
+    expect(ownerSeesRun(mentioned, "m1", false)).toBe(false);
   });
 
   it("is a row's or a database's run for the owners who can open it", () => {

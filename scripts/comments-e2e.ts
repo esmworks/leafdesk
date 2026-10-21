@@ -269,14 +269,14 @@ try {
   );
   await changeComments(ids.commenter, doc.id, { type: "deleteComment", threadId: byCommenter.thread!.id, commentId: byCommenter.comment!.id });
   check(!(await listComments(ids.commenter, doc.id)).some((t) => t.id === byCommenter.thread!.id), "…but delete their own");
-  const offered = (await commentMentionCandidates(ids.commenter, doc.id, "")).map((p) => p.id).sort();
+  const offered = (await commentMentionCandidates(ids.commenter, doc.id, "")).people.map((p) => p.id).sort();
   check(
     offered.join() === [ids.editor, ids.owner, ids.viewer].sort().join(),
     "the @ menu in a comment offers the people who can open the page, not the writer or outsiders",
     offered,
   );
   check(
-    (await commentMentionCandidates(ids.commenter, doc.id, "EDITOR")).map((p) => p.id).join() === ids.editor,
+    (await commentMentionCandidates(ids.commenter, doc.id, "EDITOR")).people.map((p) => p.id).join() === ids.editor,
     "…matching what was typed",
   );
   check((await failure(() => commentMentionCandidates(ids.viewer, doc.id, ""))) === "access", "…and is only for people who may comment");
@@ -284,7 +284,7 @@ try {
   await setPagePermission(ids.owner, secret.id, ids.owner, "full");
   await setPagePermission(ids.owner, secret.id, null, "none");
   await setPagePermission(ids.owner, secret.id, ids.commenter, "comment");
-  const offeredSecret = (await commentMentionCandidates(ids.commenter, secret.id, "")).map((p) => p.id);
+  const offeredSecret = (await commentMentionCandidates(ids.commenter, secret.id, "")).people.map((p) => p.id);
   check(offeredSecret.join() === ids.owner, "…leaving out members who can't open the page", offeredSecret);
 
   // Server writes keep anchors

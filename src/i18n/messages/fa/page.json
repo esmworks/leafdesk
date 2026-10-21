@@ -509,6 +509,7 @@
   },
   "mention": {
     "people": "افراد",
+    "agents": "عامل‌ها",
     "pages": "صفحه‌ها",
     "dates": "تاریخ‌ها",
     "newPage": "صفحه جدید: {title}",

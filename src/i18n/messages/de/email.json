@@ -247,6 +247,16 @@
     "aiAccountTitle": "KI-Konto entfernt",
     "aiAccountDetached": "Die KI des Workspaces läuft nicht mehr über den Schlüssel von {actor}."
   },
+  "agentReply": {
+    "aiOff": "Ich kann nicht antworten: KI ist in diesem Workspace ausgeschaltet.",
+    "agentDisabled": "Ich kann nicht antworten: Ich bin pausiert. Ein Inhaber des Workspace kann mich in den Einstellungen wieder einschalten.",
+    "limitReached": "Ich kann nicht antworten: Ich habe mein Token-Limit für diesen Monat aufgebraucht. Ein Inhaber des Workspace kann es in den Einstellungen erhöhen.",
+    "costLimit": "Ich kann nicht antworten: Der Workspace hat sein monatliches KI-Kostenlimit erreicht.",
+    "timeout": "Ich bin nicht rechtzeitig fertig geworden. Versuche es mit einer kleineren Anfrage noch einmal.",
+    "approvalTimeout": "Ich konnte nicht fertig werden: Niemand hat innerhalb eines Tages genehmigt, was ich tun musste, also habe ich aufgehört.",
+    "empty": "Ich habe es mir angesehen, habe aber nichts hinzuzufügen.",
+    "failed": "Leider konnte ich das nicht abschließen. Ein Inhaber des Workspace sieht in den Einstellungen bei meinen Läufen, was passiert ist."
+  },
   "workspaceDeleted": {
     "subject": "{workspace} wurde gelöscht",
     "heading": "{workspace} wurde gelöscht",

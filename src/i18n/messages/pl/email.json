@@ -247,6 +247,16 @@
     "aiAccountTitle": "Usunięto konto AI",
     "aiAccountDetached": "AI obszaru roboczego nie działa już na kluczu użytkownika {actor}."
   },
+  "agentReply": {
+    "aiOff": "Nie mogę odpowiedzieć: AI jest wyłączone w tym obszarze roboczym.",
+    "agentDisabled": "Nie mogę odpowiedzieć: jestem wstrzymany. Właściciel obszaru roboczego może mnie ponownie włączyć w Ustawieniach.",
+    "limitReached": "Nie mogę odpowiedzieć: wykorzystałem limit tokenów na ten miesiąc. Właściciel obszaru roboczego może go podnieść w Ustawieniach.",
+    "costLimit": "Nie mogę odpowiedzieć: obszar roboczy osiągnął miesięczny limit kosztów AI.",
+    "timeout": "Nie zdążyłem skończyć. Spróbuj ponownie z mniejszą prośbą.",
+    "approvalTimeout": "Nie mogłem skończyć: nikt w ciągu doby nie zatwierdził tego, co musiałem zrobić, więc przerwałem.",
+    "empty": "Przyjrzałem się temu, ale nie mam nic do dodania.",
+    "failed": "Przepraszam, nie udało mi się tego skończyć. Właściciel obszaru roboczego zobaczy, co się stało, w moich uruchomieniach w Ustawieniach."
+  },
   "workspaceDeleted": {
     "subject": "Obszar roboczy {workspace} został usunięty",
     "heading": "Obszar roboczy {workspace} został usunięty",

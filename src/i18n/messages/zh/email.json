@@ -247,6 +247,16 @@
     "aiAccountTitle": "AI 账户已移除",
     "aiAccountDetached": "工作区的 AI 不再使用 {actor} 的密钥运行。"
   },
+  "agentReply": {
+    "aiOff": "我无法回答：此工作区已关闭 AI。",
+    "agentDisabled": "我无法回答：我已暂停。工作区所有者可以在设置中重新开启我。",
+    "limitReached": "我无法回答：我本月的令牌额度已用完。工作区所有者可以在设置中提高额度。",
+    "costLimit": "我无法回答：工作区已达到每月 AI 费用上限。",
+    "timeout": "我没能及时完成。请换个更小的请求再试一次。",
+    "approvalTimeout": "我没能完成：一天内没有人批准我需要执行的操作，所以我停下了。",
+    "empty": "我看过了，但没有要补充的。",
+    "failed": "抱歉，我没能完成。工作区所有者可以在设置中我的运行记录里查看发生了什么。"
+  },
   "workspaceDeleted": {
     "subject": "{workspace} 已被删除",
     "heading": "{workspace} 已被删除",

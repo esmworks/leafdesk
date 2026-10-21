@@ -41,6 +41,7 @@ import {
   type AgentUsageMonth,
   type AgentView,
 } from "@/lib/agents";
+import { commentHash } from "@/lib/comments";
 import { AgentConnectionsTab } from "./agent-connections-tab";
 import { AgentMemoryTab } from "./agent-memory-tab";
 import { AgentSchedulesTab } from "./agent-schedules-tab";
@@ -614,6 +615,17 @@ function RunItem({
                       : t("fromScheduleHidden")}
                 </span>
               </span>
+            ) : run.source.kind === "mention" ? (
+              <span className="flex min-w-0 flex-1 items-center gap-1.5 text-sm">
+                <MessageSquare aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
+                {run.mention?.pageTitle != null ? (
+                  <Link href={`/w/${workspaceId}/p/${run.source.pageId}${commentHash(run.source.threadId)}`} className="truncate hover:underline">
+                    {t("fromMention", { name: run.mention.byName, page: pageLabel(run.mention.pageTitle, tc("untitled")) })}
+                  </Link>
+                ) : (
+                  <span className="truncate">{t("fromMentionHidden", { name: run.mention?.byName ?? "" })}</span>
+                )}
+              </span>
             ) : run.source.kind === "request" && !run.source.rowId ? (
               <span className="flex min-w-0 flex-1 items-center gap-1.5 text-sm">
                 <Play aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
@@ -645,6 +657,11 @@ function RunItem({
           {(run.request?.task || run.schedule?.task) && (
             <p className="whitespace-pre-wrap text-fg-muted">
               <span className="text-xs font-medium">{t("task")}</span> {run.request?.task || run.schedule?.task}
+            </p>
+          )}
+          {run.mention?.task && (
+            <p className="whitespace-pre-wrap text-fg-muted">
+              <span className="text-xs font-medium">{t("mentionComment")}</span> {run.mention.task}
             </p>
           )}
           {run.steps.length > 0 ? (

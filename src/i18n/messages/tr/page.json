@@ -509,6 +509,7 @@
   },
   "mention": {
     "people": "Kişiler",
+    "agents": "Ajanlar",
     "pages": "Sayfalar",
     "dates": "Tarihler",
     "newPage": "Yeni sayfa: {title}",

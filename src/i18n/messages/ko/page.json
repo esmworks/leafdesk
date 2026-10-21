@@ -509,6 +509,7 @@
   },
   "mention": {
     "people": "사람",
+    "agents": "에이전트",
     "pages": "페이지",
     "dates": "날짜",
     "newPage": "새 페이지: {title}",

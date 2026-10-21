@@ -509,6 +509,7 @@
   },
   "mention": {
     "people": "אנשים",
+    "agents": "סוכנים",
     "pages": "דפים",
     "dates": "תאריכים",
     "newPage": "דף חדש: {title}",

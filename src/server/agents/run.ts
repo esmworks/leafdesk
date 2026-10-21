@@ -45,12 +45,15 @@ import {
   AGENT_RUN_HISTORY_DAYS,
   AGENT_RUN_TIMEOUT_MS,
   isEventRun,
+  isMentionRun,
   isRowRun,
   isScheduleRun,
   MAX_AGENT_PROMPT,
   MAX_AGENT_ROUNDS,
   MAX_AGENT_WRITES,
   MAX_SCHEDULED_WRITES,
+  MENTION_THREAD_CHARS,
+  MENTION_THREAD_COMMENTS,
   skillStepsToAdd,
   type AgentPendingCall,
   type AgentRunCode,
@@ -63,18 +66,22 @@ import {
 import { APPROVAL_TIMEOUT_MS, CONNECTION_EVENT_DAYS, MAX_RUN_EXTERNAL_CHARS } from "@/lib/connections";
 import { pageLabel } from "@/lib/labels";
 import { redactError, redactText, redactValue } from "@/lib/redact";
-import { AccessError, findMembership, inWorkspace, pageAccessOf } from "@/server/access";
+import { threadBefore } from "@/lib/comments";
+import { AccessError, findMembership, hasLevel, inWorkspace, isGuest, pageAccessOf } from "@/server/access";
 import { runActingFor } from "@/server/acting-for";
 import { aiConfig, AiError, complete, isAiError, promptRoomFor, takeWorkspaceCapacity, type AiMessage, type AiResult, type AiTool, type AiToolCall } from "@/server/ai";
-import { agentEventPrompt, agentRequestPrompt, agentSchedulePrompt, agentSystemPrompt, agentTaskPrompt } from "@/server/ai/prompts";
+import { agentEventPrompt, agentMentionPrompt, agentRequestPrompt, agentSchedulePrompt, agentSystemPrompt, agentTaskPrompt } from "@/server/ai/prompts";
 import { aiAvailable } from "@/server/ai-writing";
 import { memoryAvailable, memoryForPrompt } from "@/server/ai-memory";
 import { applyWrite, CHAT_TOOLS, prepareWrite, runTool, workspaceMap, WRITE_TOOLS, type Registry, type ToolOutcome } from "@/server/ai-tools";
 import { asAutomation } from "@/server/automations/queue";
+import { getCollab } from "@/server/collab/bridge";
 import { changeComments } from "@/server/comments";
 import { notifyApprovers, withdrawApproval } from "@/server/connections/approvals";
 import { agentToolset, inputSummary, runConnectionTool, type ConnectionToolset } from "@/server/connections/tools";
 import { getProperties } from "@/server/databases";
+import { recipientLocale } from "@/server/mail/locale";
+import { emailTranslator } from "@/server/mail/templates";
 import { signalInbox } from "@/server/notifications";
 import { pushNotifications } from "@/server/push";
 import type * as ops from "@/server/operations";
@@ -156,12 +163,14 @@ const EVENT_APPROVED_TOOLS: ReadonlySet<string> = new Set([CREATE_ROW.name]);
 const state = agentsWorker;
 
 /**
- * What makes two queued runs the same run: the automation's run, the event and trigger, or the
- * schedule and the time it was due. Each run an owner asks for is its own.
+ * What makes two queued runs the same run: the automation's run, the event and trigger, the
+ * schedule and the time it was due, or the comment that mentioned the agent. Each run an owner
+ * asks for is its own.
  */
 function sameSource(source: AgentRunSource, context: AgentRunContext) {
   if (source.kind === "automation") return sql`${agentRun.source}->>'automationRunId' = ${source.automationRunId}`;
   if (source.kind === "connection") return sql`${agentRun.source}->>'eventId' = ${source.eventId} and ${agentRun.source}->>'triggerId' = ${source.triggerId}`;
+  if (source.kind === "mention") return sql`${agentRun.source}->>'commentId' = ${source.commentId}`;
   if (source.kind === "schedule" && "scheduledFor" in context && context.scheduledFor) {
     return sql`${agentRun.source}->>'scheduleId' = ${source.scheduleId} and ${agentRun.context}->>'scheduledFor' = ${context.scheduledFor}`;
   }
@@ -233,6 +242,7 @@ async function finish(run: Run, values: Ending) {
     })
     .where(eq(agentRun.id, run.id));
   await reportScheduledRun(run);
+  await replyToMention(run, values);
 }
 
 /**
@@ -252,6 +262,35 @@ async function reportScheduledRun(run: Pick<Run, "id" | "workspaceId" | "agentId
     pushNotifications(inserted.map((n) => n.id));
   } catch (error) {
     console.error("[agents] could not report a scheduled run", redactError(error));
+  }
+}
+
+/** What an agent mentioned in a comment says in the thread when its run ends without an answer, by the run's code (lib/agents). */
+const MENTION_REPLIES = ["aiOff", "agentDisabled", "limitReached", "costLimit", "timeout", "approvalTimeout"] as const;
+
+/**
+ * Answers the comment that started a mention's run, in its thread, as the agent: its final message,
+ * or a short word on why it has none (in the mentioner's language). Posted as the agent's own
+ * comment, which starts no run (server/agents/mentions). Never throws: the run's ending is saved
+ * either way, and the agent may no longer comment there.
+ */
+async function replyToMention(run: Pick<Run, "agentId" | "source" | "context">, ending: Pick<Ending, "status" | "code" | "answer">) {
+  if (!isMentionRun(run.source)) return;
+  const { pageId, threadId, mentionedBy } = run.source;
+  try {
+    const [agent] = await db.select({ userId: workspaceAgent.userId }).from(workspaceAgent).where(eq(workspaceAgent.id, run.agentId));
+    if (!agent) return;
+    let text = ending.status === "done" ? redactText(ending.answer ?? "").trim().slice(0, MAX_COMMENT) : "";
+    if (!text) {
+      const locale = await recipientLocale(mentionedBy, "locale" in run.context ? run.context.locale : null);
+      const t = emailTranslator(locale);
+      const code = ending.code ?? null;
+      const key = ending.status === "done" ? "empty" : MENTION_REPLIES.find((c) => c === code) ?? "failed";
+      text = t(`agentReply.${key}`);
+    }
+    await asAutomation(() => changeComments(agent.userId, pageId, { type: "addComment", threadId, body: text }));
+  } catch (error) {
+    console.error("[agents] could not answer a mention", redactError(error));
   }
 }
 
@@ -313,6 +352,19 @@ export async function processRun(run: Run): Promise<void> {
     if (asker?.role !== "owner") return finish(run, { status: "failed", code: "noAccess" });
     member = bound = ownerId;
     trusted = true;
+  } else if (isMentionRun(run.source)) {
+    // A member mentioned the agent: it works within their access, and they stand behind the task.
+    // Asked again each time, so one who left the workspace or became a guest since opens nothing.
+    const { mentionedBy, pageId } = run.source;
+    const mentioner = await findMembership(mentionedBy, run.workspaceId);
+    if (!mentioner || isGuest(mentioner.role)) return finish(run, { status: "failed", code: "noAccess" });
+    member = bound = mentionedBy;
+    trusted = true;
+    const [target] = await db.select({ archivedAt: page.archivedAt }).from(page).where(eq(page.id, pageId));
+    if (!target || target.archivedAt) return finish(run, { status: "failed", code: "commentGone" });
+    // It answers with a comment: it must still be allowed to write one.
+    const { level } = await withinMember(agent, bound, () => pageAccessOf(agent.userId, pageId));
+    if (!hasLevel(level, "comment")) return finish(run, { status: "failed", code: "noAccess" });
   }
   const databaseId = scheduledDatabase(run.source);
   if (databaseId) {
@@ -426,6 +478,10 @@ async function converse(
   const maxWrites = databaseId ? MAX_SCHEDULED_WRITES : MAX_AGENT_WRITES;
   const maxRounds = databaseId ? MAX_SCHEDULED_ROUNDS : MAX_AGENT_ROUNDS;
   const eventRun = isEventRun(run.source);
+  const mention = isMentionRun(run.source) ? run.source : null;
+  // A mention's run may change the page its comment is on where the agent (and the member) may
+  // edit it, and its values when it is a database row.
+  const mentionEdits = mention ? await mentionEditing(agent, mention.pageId) : null;
   // A row no member wrote, or an event from a service no owner vouched for, may carry anyone's
   // instructions: no connection tool runs without an owner.
   const askEveryTool = rowRun ? !member : !trusted;
@@ -443,9 +499,11 @@ async function converse(
   // What a run reads that no one in the workspace stands behind could fill the owners' review with
   // its own notes: such a run proposes none.
   const memoryOn = await memoryAvailable(run.workspaceId);
-  const remembers = memoryOn && !askEveryTool;
+  // A mention's run answers one person in a thread: it reads the notes owners kept, but proposes none.
+  const remembers = memoryOn && !askEveryTool && !mention;
+  const mentionTools = mentionEdits?.edits ? [EDIT_PAGE, ...(mentionEdits.row ? [UPDATE_ROW] : [])] : [];
   const tools = [
-    ...(rowRun ? AGENT_TOOLS : databaseId ? SCHEDULED_DATABASE_TOOLS : eventRun ? EVENT_TOOLS : CHAT_TOOLS),
+    ...(rowRun ? AGENT_TOOLS : databaseId ? SCHEDULED_DATABASE_TOOLS : eventRun ? EVENT_TOOLS : [...CHAT_TOOLS, ...mentionTools]),
     ...(remembers ? AGENT_MEMORY_TOOLS : []),
     ...webTools,
     ...toolset.tools,
@@ -459,6 +517,7 @@ async function converse(
     requested,
     scheduled: scheduled ? { database: Boolean(databaseId), maxWrites } : undefined,
     addsRows: eventRun,
+    mentioned: mentionEdits ?? undefined,
     connections,
     askEveryTool,
     web: webTools.length ? { search: webNames.has(WEB_TOOL_NAMES.search) } : undefined,
@@ -504,6 +563,21 @@ async function converse(
     const map = await workspaceMap(ctx, run.workspaceId, null, MAP_CHARS);
     const memory = memoryOn ? await memoryForPrompt(agent.userId, run.workspaceId, Math.min(MEMORY_CHARS, Math.floor(room([]) * 0.2))) : { text: "" };
     messages = [{ role: "user", content: agentSchedulePrompt({ task: run.prompt, event: await eventText(run), database: read?.content ?? null, map, memory: memory.text }) }];
+  } else if (mention) {
+    // The comment and the thread before it, as they are now: a run on a comment since deleted ends here.
+    const thread = (await getCollab().readThreads(mention.pageId)).find((t) => t.id === mention.threadId);
+    const comment = thread?.comments.find((c) => c.id === mention.commentId);
+    if (!thread || !comment || comment.deletedAt) return { status: "failed", code: "commentGone", steps, usage };
+    // The page, read as the agent (within the member's access), as source 1.
+    const read = await runTool(ctx, run.workspaceId, undefined, { name: "read_page", arguments: { page_id: mention.pageId } }, registry, Math.min(8_000, room([])));
+    if (read.isError) return { status: "failed", code: "noAccess", steps, usage };
+    const names = await threadNames(thread.comments.map((c) => c.userId));
+    const before = threadBefore(thread, comment.id, (id) => names.get(id) ?? "Someone", { max: MENTION_THREAD_COMMENTS, chars: MENTION_THREAD_CHARS });
+    const map = await workspaceMap(ctx, run.workspaceId, null, MAP_CHARS);
+    const memory = memoryOn ? await memoryForPrompt(agent.userId, run.workspaceId, Math.min(MEMORY_CHARS, Math.floor(room([]) * 0.2))) : { text: "" };
+    messages = [
+      { role: "user", content: agentMentionPrompt({ comment: run.prompt, event: await eventText(run), page: read.content, thread: before, map, memory: memory.text }) },
+    ];
   } else if (requested) {
     const map = await workspaceMap(ctx, run.workspaceId, null, MAP_CHARS);
     const memory = memoryOn ? await memoryForPrompt(agent.userId, run.workspaceId, Math.min(MEMORY_CHARS, Math.floor(room([]) * 0.2))) : { text: "" };
@@ -557,7 +631,8 @@ async function converse(
       if (!out.isError) writes += 1;
       return out;
     }
-    if ((rowRun || databaseId) && (call.name === "update_row" || call.name === "edit_page" || call.name === "add_comment")) {
+    const mentionWrite = mention && mentionTools.some((t) => t.name === call.name);
+    if ((rowRun || databaseId || mentionWrite) && (call.name === "update_row" || call.name === "edit_page" || call.name === "add_comment")) {
       if (writes >= maxWrites) return { content: `You have made ${maxWrites} changes, the most one run may make. Finish now.`, isError: true };
       const out: CallResult = call.name === "add_comment" ? await addComment(agent, run, call.arguments) : await changeRow(ctx, run, call);
       if (!out.isError) writes += 1;
@@ -725,7 +800,8 @@ async function isRowOf(rowId: string, databaseId: string) {
 
 /**
  * update_row and edit_page, made at once (no one to ask) and starting no automations: on the run's
- * row only, or, on a schedule's run, on the rows of the database it looks after. A row's text
+ * row only, on the page a mention's comment is on, or, on a schedule's run, on the rows of the
+ * database it looks after. A row's text
  * changed shows on its page for review, as any AI change does.
  */
 async function changeRow(ctx: ops.OperationContext, run: Run, call: { name: string; arguments: Record<string, unknown> }): Promise<ToolOutcome> {
@@ -735,6 +811,10 @@ async function changeRow(ctx: ops.OperationContext, run: Run, call: { name: stri
   if (databaseId) {
     if (!(await isRowOf(rowId, databaseId))) {
       return { content: `You may change only rows of the database this run looks after (database_id ${databaseId}). Nothing was changed.`, isError: true };
+    }
+  } else if (isMentionRun(run.source)) {
+    if (rowId !== run.source.pageId) {
+      return { content: `You may change only the page the comment is on (page_id ${run.source.pageId}). Nothing was changed.`, isError: true };
     }
   } else if (!isRowRun(run.source)) {
     return { content: "This run has no row to change.", isError: true };
@@ -770,13 +850,40 @@ async function addComment(agent: Agent, run: Run, args: Record<string, unknown>)
   }
 }
 
-/** What happened, in words: the row added or the properties changed, and by whom; the event received; or who asked, or set the schedule. */
+/**
+ * Whether a mention's run may change the page its comment is on (the agent, within the member's
+ * access, may edit it) and whether that page is a database row (update_row).
+ */
+async function mentionEditing(agent: Agent, pageId: string): Promise<{ edits: boolean; row: boolean }> {
+  const { page: target, level } = await pageAccessOf(agent.userId, pageId);
+  if (!target || !hasLevel(level, "edit")) return { edits: false, row: false };
+  const [parent] = target.parentId ? await db.select({ kind: page.kind }).from(page).where(eq(page.id, target.parentId)) : [];
+  return { edits: true, row: parent?.kind === "database" };
+}
+
+/** Names of the people (and agents) who wrote in a thread, for a mention's run to read it by. */
+async function threadNames(userIds: string[]): Promise<Map<string, string>> {
+  const ids = [...new Set(userIds)];
+  if (!ids.length) return new Map();
+  const [rows, agents] = await Promise.all([
+    db.select({ id: user.id, name: user.name }).from(user).where(inArray(user.id, ids)),
+    db.select({ userId: workspaceAgent.userId }).from(workspaceAgent).where(inArray(workspaceAgent.userId, ids)),
+  ]);
+  const isAgent = new Set(agents.map((a) => a.userId));
+  return new Map(rows.map((r) => [r.id, isAgent.has(r.id) ? `${r.name} (agent)` : r.name]));
+}
+
+/** What happened, in words: the row added or the properties changed, and by whom; the event received; who asked, or set the schedule; or who mentioned the agent. */
 async function eventText(run: Run) {
   if (isScheduleRun(run.source)) {
     const [owner] = await db.select({ name: user.name }).from(user).where(eq(user.id, run.source.scheduledBy));
     const due = "scheduledFor" in run.context && run.context.scheduledFor ? ` It was due at ${run.context.scheduledFor} (UTC).` : "";
     const on = run.source.databaseId ? ", to look after the database below" : "";
     return `${owner?.name ?? "An owner"} set a schedule for you that started this run${on}.${due}`;
+  }
+  if (isMentionRun(run.source)) {
+    const [person] = await db.select({ name: user.name }).from(user).where(eq(user.id, run.source.mentionedBy));
+    return `${person?.name ?? "A member"} mentioned you in a comment on the page below.`;
   }
   if (run.source.kind === "request") {
     const [owner] = await db.select({ name: user.name }).from(user).where(eq(user.id, run.source.requestedBy));
@@ -855,7 +962,15 @@ export async function expireApprovals() {
       .update(agentRun)
       .set({ status: "failed", code: "approvalTimeout", finishedAt: new Date(), state: null })
       .where(and(eq(agentRun.status, "awaiting_approval"), lte(agentRun.nextAt, new Date())))
-      .returning({ id: agentRun.id, steps: agentRun.steps, pending: agentRun.pending, workspaceId: agentRun.workspaceId, agentId: agentRun.agentId, source: agentRun.source });
+      .returning({
+        id: agentRun.id,
+        steps: agentRun.steps,
+        pending: agentRun.pending,
+        workspaceId: agentRun.workspaceId,
+        agentId: agentRun.agentId,
+        source: agentRun.source,
+        context: agentRun.context,
+      });
     for (const run of expired) {
       const pending = run.pending;
       if (pending) {
@@ -864,6 +979,7 @@ export async function expireApprovals() {
       }
       await withdrawApproval(run.id);
       await reportScheduledRun(run);
+      await replyToMention(run, { status: "failed", code: "approvalTimeout" });
     }
   } catch (error) {
     console.error("[agents] could not expire approvals", redactError(error));

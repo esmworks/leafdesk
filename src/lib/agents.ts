@@ -32,6 +32,9 @@ export const MAX_AGENT_INSTRUCTIONS = 8_000;
 export const MAX_AGENT_PROMPT = 2_000;
 /** Runs owners asked for that one agent may have waiting or under way at once. */
 export const MAX_REQUESTED_RUNS = 5;
+/** The most of a thread a mention's run reads: its last comments before the one that mentioned the agent, oldest first. */
+export const MENTION_THREAD_COMMENTS = 20;
+export const MENTION_THREAD_CHARS = 8_000;
 /** Schedules one agent may have. */
 export const MAX_AGENT_SCHEDULES = 10;
 /**
@@ -90,8 +93,8 @@ export type AgentRunVia = (typeof AGENT_RUN_VIAS)[number];
 
 /**
  * What started a run: an automation on a row, an event a connection received, an owner who asked
- * for it with a task of their own (on a row of a database, or on none), or one of the agent's
- * schedules (on a database, or on none).
+ * for it with a task of their own (on a row of a database, or on none), one of the agent's
+ * schedules (on a database, or on none), or a member who mentioned it in a comment.
  */
 export type AgentRunSource =
   | {
@@ -124,6 +127,15 @@ export type AgentRunSource =
       scheduledBy: string;
       /** The database it looks after, when the schedule names one: it may change and comment on its rows. */
       databaseId?: string;
+    }
+  | {
+      kind: "mention";
+      /** The page the comment is on, its thread and the comment that mentioned the agent. */
+      pageId: string;
+      threadId: string;
+      commentId: string;
+      /** The member who wrote the comment; the run is held to their access as well. */
+      mentionedBy: string;
     };
 
 /** What happened that the run responds to, for its prompt and its history. */
@@ -150,10 +162,15 @@ export type AgentRunContext =
       body: string;
     }
   | {
-      /** The owner who asked for the run (as `source.requestedBy`), or set its schedule (`source.scheduledBy`). */
+      /**
+       * The owner who asked for the run (as `source.requestedBy`), set its schedule
+       * (`source.scheduledBy`), or the member who mentioned the agent (`source.mentionedBy`).
+       */
       actorId: string;
       /** A schedule's run: when it was due (ISO). */
       scheduledFor?: string;
+      /** A mention's run: the language the comment was written in, for what the agent says when it can't answer. */
+      locale?: string;
     };
 
 /** `awaiting_approval`: a tool that may change something outside waits for an owner's answer. */
@@ -266,9 +283,9 @@ export type ApprovalDecision = "approve" | "decline" | "redo";
 
 /**
  * Why a run ended without doing its work: the workspace turned AI off, the agent was paused or
- * archived, it can't open the row, the model failed, the run took too long, no one answered a
- * call that waited for approval, the agent used its tokens for the month, or the workspace's AI
- * reached its monthly cost limit.
+ * archived, it can't open the row, the comment that mentioned it is gone, the model failed, the
+ * run took too long, no one answered a call that waited for approval, the agent used its tokens
+ * for the month, or the workspace's AI reached its monthly cost limit.
  */
 export const AGENT_RUN_CODES = [
   "aiOff",
@@ -276,6 +293,7 @@ export const AGENT_RUN_CODES = [
   "noAccess",
   "rowGone",
   "databaseGone",
+  "commentGone",
   "provider",
   "timeout",
   "tooManyAttempts",
@@ -424,6 +442,11 @@ export type AgentRunView = {
    * after (`databaseTitle` and `task` empty where the viewer can't open the database).
    */
   schedule: { id: string; by: string; byName: string; task: string; databaseId: string | null; databaseTitle: string } | null;
+  /**
+   * For a run a comment started: who mentioned the agent, the page and thread, and the comment
+   * (`pageTitle` null and `task` empty where the viewer can't open the page).
+   */
+  mention: { by: string; byName: string; pageId: string; threadId: string; pageTitle: string | null; task: string } | null;
   /** Names of the connections the run's source, steps and waiting call name (removed ones are left out). */
   connections: Record<string, string>;
   createdAt: string;
@@ -445,22 +468,26 @@ export const MAX_SCHEDULE_TASK = MAX_AGENT_PROMPT;
 /** Whether a run answers an event a connection received. */
 export const isEventRun = (source: AgentRunSource): source is Extract<AgentRunSource, { kind: "connection" }> => source.kind === "connection";
 
-/** The page whose access decides who sees a run's work: its row, or its schedule's database. */
+/** Whether a comment that mentioned the agent started a run. */
+export const isMentionRun = (source: AgentRunSource): source is Extract<AgentRunSource, { kind: "mention" }> => source.kind === "mention";
+
+/** The page whose access decides who sees a run's work: its row, its schedule's database, or the page its comment is on. */
 export const runPageOf = (source: AgentRunSource): string | null =>
-  isRowRun(source) ? source.rowId : isScheduleRun(source) ? (source.databaseId ?? null) : null;
+  isRowRun(source) ? source.rowId : isScheduleRun(source) ? (source.databaseId ?? null) : isMentionRun(source) ? source.pageId : null;
 
 /**
  * Whether an owner sees what a run read, thought and answered, and the call it waits on, and so
  * may answer that call (`opensPage`: whether they can open runPageOf). What a run did can quote
  * pages the agent may open and the owner may not. A row's run puts it all on the row anyway, so
  * it is for those who can open the row; a schedule's run on a database, for those who can open
- * the database. A run an owner asked for, or one of a schedule without a database, read with that
- * owner's access: it is theirs alone. A connection's event is the owners' (they set up the
- * connection), as is the run it started.
+ * the database. A mention's run answers in the page's comments: it is for those who can open the
+ * page, as a row's run is. A run an owner asked for, or one of a schedule without a database, read
+ * with that owner's access: it is theirs alone. A connection's event is the owners' (they set up
+ * the connection), as is the run it started.
  */
 export function ownerSeesRun(source: AgentRunSource, userId: string, opensPage: boolean): boolean {
   if (source.kind === "request") return source.requestedBy === userId && (!isRowRun(source) || opensPage);
-  if (isRowRun(source)) return opensPage;
+  if (isRowRun(source) || isMentionRun(source)) return opensPage;
   if (isScheduleRun(source)) return source.databaseId ? opensPage : source.scheduledBy === userId;
   return true;
 }
