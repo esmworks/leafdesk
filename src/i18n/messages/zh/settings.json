@@ -308,7 +308,8 @@
       "memory": "记忆",
       "runs": "运行",
       "connections": "连接",
-      "schedules": "定时计划"
+      "schedules": "定时计划",
+      "history": "历史"
     },
     "empty": "还没有智能体。",
     "emptyOwner": "还没有智能体。创建一个，或从下面的模板开始。",
@@ -598,7 +599,8 @@
       "notARow": "未找到该行。",
       "notADatabase": "请选择此工作区中你能打开的数据库。",
       "tooManySchedules": "无法再添加定时计划（最多 {max} 个）。",
-      "scheduleNotFound": "此定时计划已不存在。"
+      "scheduleNotFound": "此定时计划已不存在。",
+      "versionNotFound": "此版本已不存在。"
     },
     "connections": {
       "description": "此智能体可以使用的各个连接的工具。只读工具会立即运行（来自匿名表单答复的行除外）；其他工具在智能体每次调用时都需要所有者批准。",
@@ -647,6 +649,81 @@
       "taskPlaceholder": "例如：检查每一行。截止日期已过的，将“状态”设为“已逾期”，并列出我今天需要做的事。",
       "taskKept": "你无法打开该数据库，因此无法查看任务内容。留空即保留原任务，或者写一个新任务。",
       "reportHint": "每次运行结束后，其报告会发送到你的收件箱。"
+    },
+    "history": {
+      "description": "每次保存对此代理的设置、技能、定时计划或共享页面的更改都会生成一个版本。相隔不到两分钟保存的更改算作一个版本。保留最近的 {max} 个版本。",
+      "list": "版本",
+      "empty": "还没有版本。",
+      "version": "版本 {number}",
+      "current": "当前",
+      "byAt": "{name} · {time}",
+      "someone": "某人",
+      "kinds": {
+        "created": "已创建",
+        "baseline": "开始记录历史时的配置",
+        "restored": "已恢复版本 {number}",
+        "changed": "已保存更改"
+      },
+      "fields": {
+        "name": "名称",
+        "icon": "图标",
+        "description": "描述",
+        "instructions": "指令",
+        "enabled": "活跃",
+        "monthly_token_limit": "每月令牌上限",
+        "skills": "技能",
+        "schedules": "定时计划",
+        "shares": "共享页面"
+      },
+      "back": "所有版本",
+      "compareNote": "从此版本到代理当前配置之间的变化。恢复后将回到此版本的内容。",
+      "same": "此版本与代理的当前配置相同。",
+      "sameLatest": "这是代理的当前配置。",
+      "sections": {
+        "settings": "设置"
+      },
+      "setting": "设置项",
+      "thisVersion": "此版本",
+      "now": "现在",
+      "none": "无",
+      "on": "活跃",
+      "paused": "已暂停",
+      "yes": "是",
+      "no": "否",
+      "tokens": "{count, number} 个令牌",
+      "addedSince": "此版本之后添加",
+      "removedSince": "仅在此版本中",
+      "reordered": "技能顺序已更改。",
+      "levelChange": "{before} → {after}",
+      "hiddenPage": "你无法打开的页面",
+      "deletedPage": "已删除的页面",
+      "inTrash": "在回收站中",
+      "taskHidden": "任务已隐藏：你无法打开其数据库。",
+      "restore": "恢复此版本",
+      "confirmRestore": "要恢复版本 {number} 吗？代理的设置、技能、定时计划和共享页面将回到当时的状态。运行记录、记忆和用量保持不变，你可以通过恢复之后的版本来撤销。",
+      "restored": "已将版本 {number} 恢复为版本 {version}。",
+      "archived": "请先恢复代理，再找回它的某个版本。",
+      "skippedHeading": "部分内容未能恢复：",
+      "skippedItem": "{what}：{reason}",
+      "skipped": {
+        "setting": "设置“{name}”",
+        "settingHidden": "一项设置",
+        "skill": "技能“{name}”",
+        "skillHidden": "你无法打开的技能",
+        "schedule": "定时计划“{name}”",
+        "scheduleHidden": "你无法打开的数据库上的定时计划",
+        "share": "页面“{name}”",
+        "shareHidden": "你无法打开的页面"
+      },
+      "reasons": {
+        "gone": "已不存在",
+        "trash": "在回收站中",
+        "invalid": "保存的值已无效",
+        "noAccess": "你需要对其拥有完全访问权限",
+        "notASkill": "已不再是技能",
+        "skillEditable": "所有者以外的人可以编辑它",
+        "tooMany": "没有空间"
+      }
     }
   },
   "analytics": {

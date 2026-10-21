@@ -308,7 +308,8 @@
       "memory": "Mémoire",
       "runs": "Exécutions",
       "connections": "Connexions",
-      "schedules": "Planifications"
+      "schedules": "Planifications",
+      "history": "Historique"
     },
     "empty": "Aucun agent pour l’instant.",
     "emptyOwner": "Aucun agent pour l’instant. Créez-en un, ou partez d’un modèle ci-dessous.",
@@ -598,7 +599,8 @@
       "notARow": "Ligne introuvable.",
       "notADatabase": "Choisissez une base de données de cet espace de travail que vous pouvez ouvrir.",
       "tooManySchedules": "Il n’y a pas de place pour une autre planification ({max} au plus).",
-      "scheduleNotFound": "Cette planification n’existe plus."
+      "scheduleNotFound": "Cette planification n’existe plus.",
+      "versionNotFound": "Cette version n’existe plus."
     },
     "connections": {
       "description": "Les outils de chaque connexion que cet agent peut utiliser. Les outils qui ne font que lire s’exécutent aussitôt, sauf sur une ligne issue d’une réponse anonyme à un formulaire ; les autres attendent l’approbation d’un propriétaire à chaque appel.",
@@ -647,6 +649,81 @@
       "taskPlaceholder": "p. ex. Passe toutes les lignes en revue. Mets le Statut sur En retard quand l’échéance est passée, et liste ce que je dois faire aujourd’hui.",
       "taskKept": "Vous ne pouvez pas ouvrir la base de données, donc vous ne pouvez pas lire la tâche. Laissez ce champ vide pour la garder, ou écrivez-en une nouvelle.",
       "reportHint": "Quand une exécution se termine, son rapport arrive dans votre boîte de réception."
+    },
+    "history": {
+      "description": "Chaque modification enregistrée des paramètres, compétences, planifications ou pages partagées de cet agent crée une version. Les modifications que vous enregistrez à moins de deux minutes d’intervalle comptent pour une seule. Les {max} dernières versions sont conservées.",
+      "list": "Versions",
+      "empty": "Aucune version pour l’instant.",
+      "version": "Version {number}",
+      "current": "Actuelle",
+      "byAt": "{name} · {time}",
+      "someone": "Quelqu’un",
+      "kinds": {
+        "created": "Créé",
+        "baseline": "Configuration au début de l’historique",
+        "restored": "Version {number} restaurée",
+        "changed": "Modifications enregistrées"
+      },
+      "fields": {
+        "name": "Nom",
+        "icon": "Icône",
+        "description": "Description",
+        "instructions": "Instructions",
+        "enabled": "Actif",
+        "monthly_token_limit": "Limite mensuelle de tokens",
+        "skills": "Compétences",
+        "schedules": "Planifications",
+        "shares": "Pages partagées"
+      },
+      "back": "Toutes les versions",
+      "compareNote": "Ce qui a changé entre cette version et la configuration actuelle de l’agent. Restaurer rétablit ce que contenait cette version.",
+      "same": "Cette version est identique à la configuration actuelle de l’agent.",
+      "sameLatest": "C’est la configuration actuelle de l’agent.",
+      "sections": {
+        "settings": "Paramètres"
+      },
+      "setting": "Paramètre",
+      "thisVersion": "Cette version",
+      "now": "Maintenant",
+      "none": "Aucun",
+      "on": "Actif",
+      "paused": "En pause",
+      "yes": "Oui",
+      "no": "Non",
+      "tokens": "{count, number} tokens",
+      "addedSince": "Ajouté depuis cette version",
+      "removedSince": "Seulement dans cette version",
+      "reordered": "L’ordre des compétences a changé.",
+      "levelChange": "{before} → {after}",
+      "hiddenPage": "Une page que vous ne pouvez pas ouvrir",
+      "deletedPage": "Une page supprimée",
+      "inTrash": "dans la corbeille",
+      "taskHidden": "La tâche est masquée : vous ne pouvez pas ouvrir sa base de données.",
+      "restore": "Restaurer cette version",
+      "confirmRestore": "Restaurer la version {number} ? Les paramètres, compétences, planifications et pages partagées de l’agent redeviennent ce qu’ils étaient alors. Ses exécutions, sa mémoire et sa consommation ne changent pas, et vous pouvez annuler en restaurant une version ultérieure.",
+      "restored": "Version {number} restaurée, en tant que version {version}.",
+      "archived": "Restaurez l’agent pour rétablir l’une de ses versions.",
+      "skippedHeading": "Certaines parties n’ont pas pu être restaurées :",
+      "skippedItem": "{what} : {reason}",
+      "skipped": {
+        "setting": "Paramètre « {name} »",
+        "settingHidden": "Un paramètre",
+        "skill": "Compétence « {name} »",
+        "skillHidden": "Une compétence que vous ne pouvez pas ouvrir",
+        "schedule": "Planification « {name} »",
+        "scheduleHidden": "Une planification sur une base de données que vous ne pouvez pas ouvrir",
+        "share": "Page « {name} »",
+        "shareHidden": "Une page que vous ne pouvez pas ouvrir"
+      },
+      "reasons": {
+        "gone": "elle n’existe plus",
+        "trash": "elle est dans la corbeille",
+        "invalid": "la valeur enregistrée n’est plus valide",
+        "noAccess": "il vous faut un accès complet",
+        "notASkill": "ce n’est plus une compétence",
+        "skillEditable": "quelqu’un d’autre que les propriétaires peut la modifier",
+        "tooMany": "il n’y a plus de place"
+      }
     }
   },
   "analytics": {

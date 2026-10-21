@@ -308,7 +308,8 @@
       "memory": "メモリー",
       "runs": "実行",
       "connections": "接続",
-      "schedules": "スケジュール"
+      "schedules": "スケジュール",
+      "history": "履歴"
     },
     "empty": "エージェントはまだありません。",
     "emptyOwner": "エージェントはまだありません。作成するか、下のテンプレートから始めてください。",
@@ -598,7 +599,8 @@
       "notARow": "行が見つかりません。",
       "notADatabase": "このワークスペースの、あなたが開けるデータベースを選択してください。",
       "tooManySchedules": "これ以上スケジュールを追加できません（最大{max}個）。",
-      "scheduleNotFound": "このスケジュールはもう存在しません。"
+      "scheduleNotFound": "このスケジュールはもう存在しません。",
+      "versionNotFound": "このバージョンはもう存在しません。"
     },
     "connections": {
       "description": "このエージェントが使用できる、各接続のツールです。読み取り専用のツールはすぐに実行されます（匿名のフォーム回答による行の場合を除く）。それ以外のツールは、エージェントが呼び出すたびにオーナーの承認を待ちます。",
@@ -647,6 +649,81 @@
       "taskPlaceholder": "例：すべての行を確認してください。期限が過ぎている行のステータスを「遅延」に設定し、今日やるべきことを一覧にしてください。",
       "taskKept": "データベースを開けないため、タスクを読むことができません。そのままにする場合は空のままにし、変更する場合は新しいタスクを書いてください。",
       "reportHint": "実行が終わると、レポートが受信トレイに届きます。"
+    },
+    "history": {
+      "description": "このエージェントの設定、スキル、スケジュール、共有ページへの変更を保存するたびにバージョンが作られます。2分以内に続けて保存した変更は1つとして数えます。最新の{max}件のバージョンが保持されます。",
+      "list": "バージョン",
+      "empty": "まだバージョンはありません。",
+      "version": "バージョン{number}",
+      "current": "現在",
+      "byAt": "{name} · {time}",
+      "someone": "誰か",
+      "kinds": {
+        "created": "作成",
+        "baseline": "履歴の開始時点の構成",
+        "restored": "バージョン{number}を復元",
+        "changed": "変更を保存"
+      },
+      "fields": {
+        "name": "名前",
+        "icon": "アイコン",
+        "description": "説明",
+        "instructions": "指示",
+        "enabled": "アクティブ",
+        "monthly_token_limit": "月間トークン上限",
+        "skills": "スキル",
+        "schedules": "スケジュール",
+        "shares": "共有ページ"
+      },
+      "back": "すべてのバージョン",
+      "compareNote": "このバージョンからエージェントの現在の構成までに変わった内容です。復元すると、このバージョンの内容に戻ります。",
+      "same": "このバージョンはエージェントの現在の構成と同じです。",
+      "sameLatest": "これはエージェントの現在の構成です。",
+      "sections": {
+        "settings": "設定"
+      },
+      "setting": "項目",
+      "thisVersion": "このバージョン",
+      "now": "現在",
+      "none": "なし",
+      "on": "アクティブ",
+      "paused": "一時停止中",
+      "yes": "はい",
+      "no": "いいえ",
+      "tokens": "{count, number}トークン",
+      "addedSince": "このバージョンの後に追加",
+      "removedSince": "このバージョンのみ",
+      "reordered": "スキルの順序が変わりました。",
+      "levelChange": "{before} → {after}",
+      "hiddenPage": "開けないページ",
+      "deletedPage": "削除されたページ",
+      "inTrash": "ゴミ箱内",
+      "taskHidden": "タスクは非表示です: そのデータベースを開けません。",
+      "restore": "このバージョンを復元",
+      "confirmRestore": "バージョン{number}を復元しますか？エージェントの設定、スキル、スケジュール、共有ページが当時の状態に戻ります。実行履歴、メモリ、使用量はそのままです。後のバージョンを復元すれば元に戻せます。",
+      "restored": "バージョン{number}をバージョン{version}として復元しました。",
+      "archived": "バージョンを戻すには、先にエージェントを復元してください。",
+      "skippedHeading": "一部は復元できませんでした:",
+      "skippedItem": "{what}: {reason}",
+      "skipped": {
+        "setting": "設定「{name}」",
+        "settingHidden": "設定",
+        "skill": "スキル「{name}」",
+        "skillHidden": "開けないスキル",
+        "schedule": "スケジュール「{name}」",
+        "scheduleHidden": "開けないデータベースのスケジュール",
+        "share": "ページ「{name}」",
+        "shareHidden": "開けないページ"
+      },
+      "reasons": {
+        "gone": "もう存在しません",
+        "trash": "ゴミ箱にあります",
+        "invalid": "保存された値はもう有効ではありません",
+        "noAccess": "フルアクセスが必要です",
+        "notASkill": "もうスキルではありません",
+        "skillEditable": "オーナー以外も編集できます",
+        "tooMany": "空きがありません"
+      }
     }
   },
   "analytics": {

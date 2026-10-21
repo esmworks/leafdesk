@@ -308,7 +308,8 @@
       "memory": "Gedächtnis",
       "runs": "Durchläufe",
       "connections": "Verbindungen",
-      "schedules": "Zeitpläne"
+      "schedules": "Zeitpläne",
+      "history": "Verlauf"
     },
     "empty": "Noch keine Agenten.",
     "emptyOwner": "Noch keine Agenten. Erstelle einen oder beginne unten mit einer Vorlage.",
@@ -598,7 +599,8 @@
       "notARow": "Zeile nicht gefunden.",
       "notADatabase": "Wähle eine Datenbank dieses Workspaces, die du öffnen kannst.",
       "tooManySchedules": "Für einen weiteren Zeitplan ist kein Platz (höchstens {max}).",
-      "scheduleNotFound": "Diesen Zeitplan gibt es nicht mehr."
+      "scheduleNotFound": "Diesen Zeitplan gibt es nicht mehr.",
+      "versionNotFound": "Diese Version gibt es nicht mehr."
     },
     "connections": {
       "description": "Die Werkzeuge jeder Verbindung, die dieser Agent nutzen darf. Werkzeuge, die nur lesen, laufen sofort, außer bei einer Zeile aus einer anonymen Formularantwort; alle anderen warten bei jedem Aufruf auf die Freigabe eines Inhabers.",
@@ -647,6 +649,81 @@
       "taskPlaceholder": "z. B. Geh alle Zeilen durch. Setze den Status auf „Verspätet“, wo das Fälligkeitsdatum vorbei ist, und liste auf, was ich heute erledigen muss.",
       "taskKept": "Du kannst die Datenbank nicht öffnen und daher die Aufgabe nicht lesen. Lass das Feld leer, um sie zu behalten, oder schreib eine neue.",
       "reportHint": "Wenn ein Lauf endet, kommt sein Bericht in deinen Posteingang."
+    },
+    "history": {
+      "description": "Jede gespeicherte Änderung an den Einstellungen, Skills, Zeitplänen oder freigegebenen Seiten dieses Agenten erzeugt eine Version. Änderungen, die du innerhalb von zwei Minuten nacheinander speicherst, zählen als eine. Die letzten {max} Versionen werden aufbewahrt.",
+      "list": "Versionen",
+      "empty": "Noch keine Versionen.",
+      "version": "Version {number}",
+      "current": "Aktuell",
+      "byAt": "{name} · {time}",
+      "someone": "Jemand",
+      "kinds": {
+        "created": "Erstellt",
+        "baseline": "Einrichtung zu Beginn des Verlaufs",
+        "restored": "Version {number} wiederhergestellt",
+        "changed": "Änderungen gespeichert"
+      },
+      "fields": {
+        "name": "Name",
+        "icon": "Symbol",
+        "description": "Beschreibung",
+        "instructions": "Anweisungen",
+        "enabled": "Aktiv",
+        "monthly_token_limit": "Monatliches Token-Limit",
+        "skills": "Skills",
+        "schedules": "Zeitpläne",
+        "shares": "Freigegebene Seiten"
+      },
+      "back": "Alle Versionen",
+      "compareNote": "Was sich von dieser Version bis zur aktuellen Einrichtung des Agenten geändert hat. Beim Wiederherstellen kommt zurück, was diese Version hatte.",
+      "same": "Diese Version entspricht der aktuellen Einrichtung des Agenten.",
+      "sameLatest": "Das ist die aktuelle Einrichtung des Agenten.",
+      "sections": {
+        "settings": "Einstellungen"
+      },
+      "setting": "Einstellung",
+      "thisVersion": "Diese Version",
+      "now": "Jetzt",
+      "none": "Keine",
+      "on": "Aktiv",
+      "paused": "Pausiert",
+      "yes": "Ja",
+      "no": "Nein",
+      "tokens": "{count, number} Tokens",
+      "addedSince": "Seit dieser Version hinzugekommen",
+      "removedSince": "Nur in dieser Version",
+      "reordered": "Die Reihenfolge der Skills hat sich geändert.",
+      "levelChange": "{before} → {after}",
+      "hiddenPage": "Eine Seite, die du nicht öffnen kannst",
+      "deletedPage": "Eine gelöschte Seite",
+      "inTrash": "im Papierkorb",
+      "taskHidden": "Die Aufgabe ist verborgen: Du kannst ihre Datenbank nicht öffnen.",
+      "restore": "Diese Version wiederherstellen",
+      "confirmRestore": "Version {number} wiederherstellen? Einstellungen, Skills, Zeitpläne und freigegebene Seiten des Agenten werden wie damals. Durchläufe, Gedächtnis und Verbrauch bleiben, wie sie sind, und du kannst das rückgängig machen, indem du eine spätere Version wiederherstellst.",
+      "restored": "Version {number} wiederhergestellt, als Version {version}.",
+      "archived": "Stelle den Agenten wieder her, um eine seiner Versionen zurückzuholen.",
+      "skippedHeading": "Einiges ließ sich nicht wiederherstellen:",
+      "skippedItem": "{what}: {reason}",
+      "skipped": {
+        "setting": "Einstellung „{name}“",
+        "settingHidden": "Eine Einstellung",
+        "skill": "Skill „{name}“",
+        "skillHidden": "Ein Skill, den du nicht öffnen kannst",
+        "schedule": "Zeitplan „{name}“",
+        "scheduleHidden": "Ein Zeitplan für eine Datenbank, die du nicht öffnen kannst",
+        "share": "Seite „{name}“",
+        "shareHidden": "Eine Seite, die du nicht öffnen kannst"
+      },
+      "reasons": {
+        "gone": "es gibt sie nicht mehr",
+        "trash": "sie liegt im Papierkorb",
+        "invalid": "der gespeicherte Wert ist nicht mehr gültig",
+        "noAccess": "du brauchst Vollzugriff darauf",
+        "notASkill": "es ist kein Skill mehr",
+        "skillEditable": "außer den Inhabern kann ihn noch jemand bearbeiten",
+        "tooMany": "dafür ist kein Platz mehr"
+      }
     }
   },
   "analytics": {

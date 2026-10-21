@@ -308,7 +308,8 @@
       "memory": "Hafıza",
       "runs": "Çalışmalar",
       "connections": "Bağlantılar",
-      "schedules": "Zamanlamalar"
+      "schedules": "Zamanlamalar",
+      "history": "Geçmiş"
     },
     "empty": "Henüz ajan yok.",
     "emptyOwner": "Henüz ajan yok. Bir tane oluşturun ya da aşağıdaki şablonlardan biriyle başlayın.",
@@ -598,7 +599,8 @@
       "notARow": "Satır bulunamadı.",
       "notADatabase": "Bu çalışma alanında açabildiğin bir veritabanı seç.",
       "tooManySchedules": "Başka bir zamanlamaya yer yok (en fazla {max}).",
-      "scheduleNotFound": "Bu zamanlama artık yok."
+      "scheduleNotFound": "Bu zamanlama artık yok.",
+      "versionNotFound": "Bu sürüm artık yok."
     },
     "connections": {
       "description": "Bu ajanın her bağlantıda kullanabileceği araçlar. Yalnızca okuyan araçlar hemen çalışır (anonim bir form yanıtından gelen satırda hariç); diğerleri ajan her çağırdığında bir sahibin onayını bekler.",
@@ -647,6 +649,81 @@
       "taskPlaceholder": "ör. Tüm satırları gözden geçir. Bitiş tarihi geçenlerin Durumunu Gecikti yap ve bugün yapmam gerekenleri listele.",
       "taskKept": "Veritabanını açamadığın için görevi okuyamazsın. Korumak için boş bırak ya da yenisini yaz.",
       "reportHint": "Bir çalışma bittiğinde raporu gelen kutuna gelir."
+    },
+    "history": {
+      "description": "Bu ajanın ayarlarında, becerilerinde, zamanlamalarında veya paylaşılan sayfalarında kaydedilen her değişiklik bir sürüm oluşturur. Birbirinden en fazla iki dakika arayla kaydettiğiniz değişiklikler tek sürüm sayılır. Son {max} sürüm saklanır.",
+      "list": "Sürümler",
+      "empty": "Henüz sürüm yok.",
+      "version": "Sürüm {number}",
+      "current": "Geçerli",
+      "byAt": "{name} · {time}",
+      "someone": "Biri",
+      "kinds": {
+        "created": "Oluşturuldu",
+        "baseline": "Geçmiş başladığındaki kurulum",
+        "restored": "Sürüm {number} geri yüklendi",
+        "changed": "Değişiklikler kaydedildi"
+      },
+      "fields": {
+        "name": "Ad",
+        "icon": "Simge",
+        "description": "Açıklama",
+        "instructions": "Talimatlar",
+        "enabled": "Etkin",
+        "monthly_token_limit": "Aylık token sınırı",
+        "skills": "Beceriler",
+        "schedules": "Zamanlamalar",
+        "shares": "Paylaşılan sayfalar"
+      },
+      "back": "Tüm sürümler",
+      "compareNote": "Bu sürümden ajanın şu anki kurulumuna kadar değişenler. Geri yüklemek bu sürümdekileri geri getirir.",
+      "same": "Bu sürüm ajanın şu anki kurulumuyla aynı.",
+      "sameLatest": "Bu, ajanın şu anki kurulumu.",
+      "sections": {
+        "settings": "Ayarlar"
+      },
+      "setting": "Ayar",
+      "thisVersion": "Bu sürüm",
+      "now": "Şimdi",
+      "none": "Yok",
+      "on": "Etkin",
+      "paused": "Duraklatıldı",
+      "yes": "Evet",
+      "no": "Hayır",
+      "tokens": "{count, number} token",
+      "addedSince": "Bu sürümden sonra eklendi",
+      "removedSince": "Yalnızca bu sürümde",
+      "reordered": "Becerilerin sırası değişti.",
+      "levelChange": "{before} → {after}",
+      "hiddenPage": "Açamadığınız bir sayfa",
+      "deletedPage": "Silinmiş bir sayfa",
+      "inTrash": "çöp kutusunda",
+      "taskHidden": "Görev gizli: veritabanını açamıyorsunuz.",
+      "restore": "Bu sürümü geri yükle",
+      "confirmRestore": "Sürüm {number} geri yüklensin mi? Ajanın ayarları, becerileri, zamanlamaları ve paylaşılan sayfaları o zamanki haline döner. Çalışmaları, hafızası ve kullanımı olduğu gibi kalır; daha sonraki bir sürümü geri yükleyerek bunu geri alabilirsiniz.",
+      "restored": "Sürüm {number} geri yüklendi; yeni sürüm {version}.",
+      "archived": "Sürümlerinden birini geri getirmek için önce ajanı geri yükleyin.",
+      "skippedHeading": "Bazı kısımlar geri yüklenemedi:",
+      "skippedItem": "{what}: {reason}",
+      "skipped": {
+        "setting": "“{name}” ayarı",
+        "settingHidden": "Bir ayar",
+        "skill": "“{name}” becerisi",
+        "skillHidden": "Açamadığınız bir beceri",
+        "schedule": "“{name}” zamanlaması",
+        "scheduleHidden": "Açamadığınız bir veritabanındaki zamanlama",
+        "share": "“{name}” sayfası",
+        "shareHidden": "Açamadığınız bir sayfa"
+      },
+      "reasons": {
+        "gone": "artık yok",
+        "trash": "çöp kutusunda",
+        "invalid": "kayıtlı değer artık geçerli değil",
+        "noAccess": "sayfaya tam erişiminiz olmalı",
+        "notASkill": "artık bir beceri değil",
+        "skillEditable": "sahipler dışında biri de düzenleyebiliyor",
+        "tooMany": "yeri kalmadı"
+      }
     }
   },
   "analytics": {

@@ -21,6 +21,7 @@ import { labelPageLinks } from "@/server/mentions";
 import { expandSyncedMarkdown } from "@/server/synced-blocks";
 import { isSkill } from "@/server/skills";
 import { AgentError, auditDetails, ownedAgent } from "./manage";
+import { recordAgentVersion } from "./version-record";
 
 type SkillState = {
   id: string;
@@ -203,6 +204,7 @@ export async function addAgentSkill(userId: string, agentId: string, pageId: str
     target: { type: "user", id: agent.userId, label: agent.name },
     details: { ...auditDetails(agent), previous: auditDetails(agent), skillAdded: { pageId, title } },
   });
+  await recordAgentVersion(userId, agent.id);
 }
 
 /** Takes a skill from the agent (also one the owner can't open, or that is no longer a skill). */
@@ -220,6 +222,7 @@ export async function removeAgentSkill(userId: string, agentId: string, pageId: 
     target: { type: "user", id: agent.userId, label: agent.name },
     details: { ...auditDetails(agent), previous: auditDetails(agent), skillRemoved: { pageId } },
   });
+  await recordAgentVersion(userId, agent.id);
 }
 
 /** A skill a run follows: its title and its body as Markdown. */
