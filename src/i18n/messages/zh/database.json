@@ -646,7 +646,8 @@
     "openRowsIn": {
       "panel": "侧边面板",
       "page": "完整页面"
-    }
+    },
+    "showOutdated": "显示已归档的行"
   },
   "gallery": {
     "new": "新建",

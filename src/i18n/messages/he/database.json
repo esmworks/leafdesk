@@ -646,7 +646,8 @@
     "openRowsIn": {
       "panel": "חלונית צד",
       "page": "דף מלא"
-    }
+    },
+    "showOutdated": "הצגת שורות בארכיון"
   },
   "gallery": {
     "new": "חדש",

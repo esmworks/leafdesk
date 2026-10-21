@@ -646,7 +646,8 @@
     "openRowsIn": {
       "panel": "사이드 패널",
       "page": "전체 페이지"
-    }
+    },
+    "showOutdated": "보관된 행 표시"
   },
   "gallery": {
     "new": "새로 만들기",

@@ -974,6 +974,8 @@ function loadRows(loads: PublishedLoads | undefined, publisher: string, database
         createdAt: page.createdAt,
         updatedAt: page.updatedAt,
         hasImage: withCovers ? sql<boolean>`${page.contentMarkdown} ~ ${PG_MARKDOWN_IMAGE_PATTERN}` : sql<boolean>`false`,
+        // Archived rows show only in views that show them (applyView; server/page-outdated.ts).
+        outdated: sql<boolean>`${page.outdatedAt} is not null`,
       })
       .from(page)
       .where(and(eq(page.parentId, databaseId), eq(page.isTemplate, false), isNull(page.archivedAt), childVisibleTo(publisher, databaseId)))
@@ -1044,7 +1046,7 @@ export async function publishedDatabase(
   const tabs = shownViews.map((v) => ({ id: v.id, name: v.name, type: v.type }));
   if (!chosen) {
     const rows = await publicValues(
-      stored.map(({ createdBy, updatedBy: __, hasImage: ___, ...row }) => ({
+      stored.filter((row) => !row.outdated).map(({ createdBy, updatedBy: __, hasImage: ___, ...row }) => ({
         ...row,
         createdBy,
         properties: { ...row.properties, ...computedValues(storedProperties, { ...row, createdBy: null }) },

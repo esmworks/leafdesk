@@ -439,7 +439,15 @@ export function displayValue(prop: PropertyDef, value: unknown): unknown {
   return value;
 }
 
-export type RowLike = { id: string; title: string; properties: Record<string, unknown>; createdAt: Date; updatedAt: Date };
+export type RowLike = {
+  id: string;
+  title: string;
+  properties: Record<string, unknown>;
+  createdAt: Date;
+  updatedAt: Date;
+  /** The row is archived on its own (server/page-outdated.ts): views leave it out unless they show archived rows. */
+  outdated?: boolean;
+};
 
 /** Special property ids understood by filters and sorts in addition to real property ids. */
 export const TITLE_KEY = "title";
@@ -734,10 +742,12 @@ export function applyView<T extends RowLike>(
     filters = [],
     filterCombinator,
     sorts = [],
-  }: { filters?: FilterEntry[]; filterCombinator?: FilterCombinator; sorts?: SortRule[] },
+    showOutdated = false,
+  }: { filters?: FilterEntry[]; filterCombinator?: FilterCombinator; sorts?: SortRule[]; showOutdated?: boolean },
   props: PropertyDef[] = [],
   { viewerId, people = [], now = new Date(), timeZone }: ViewViewer = {},
 ): T[] {
+  if (!showOutdated && rows.some((row) => row.outdated)) rows = rows.filter((row) => !row.outdated);
   const byId = new Map(props.map((p) => [p.id, p]));
   const test = compileFilters<T>(
     pruneFilters(filters, (rule) => !isIncompleteFilter(rule)),

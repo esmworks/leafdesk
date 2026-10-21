@@ -646,7 +646,8 @@
     "openRowsIn": {
       "panel": "Pannello laterale",
       "page": "Pagina intera"
-    }
+    },
+    "showOutdated": "Mostra righe archiviate"
   },
   "gallery": {
     "new": "Nuovo",

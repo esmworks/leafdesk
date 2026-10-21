@@ -7,6 +7,9 @@
     "copyLink": "Link kopieren",
     "copyId": "ID kopieren",
     "moveToTrash": "In den Papierkorb verschieben",
+    "archive": "Archivieren",
+    "unarchive": "Archivierung aufheben",
+    "archiveHint": "Die Seite bleibt erhalten, verschwindet aber aus Seitenleiste, Suche und Auswahllisten. Ihre Unterseiten gehen mit.",
     "edited": "Bearbeitet {time}",
     "activity": "Aktivität",
     "editedBy": "Bearbeitet von {name}",
@@ -83,6 +86,14 @@
     "banner": "Diese Seite liegt im Papierkorb.",
     "deletePermanently": "Endgültig löschen",
     "confirmDelete": "Diese Seite und alles darin endgültig löschen? Das kann nicht rückgängig gemacht werden."
+  },
+  "outdated": {
+    "byOn": "Archiviert von {name} am {date}.",
+    "on": "Archiviert am {date}.",
+    "with": "Archiviert zusammen mit <link>{title}</link>.",
+    "above": "Archiviert zusammen mit einer übergeordneten Seite.",
+    "unarchive": "Archivierung aufheben",
+    "hint": "Archivierte Seiten erscheinen nicht in Seitenleiste, Suche und Auswahllisten, lassen sich aber weiter lesen und bearbeiten."
   },
   "icon": {
     "add": "Symbol hinzufügen",

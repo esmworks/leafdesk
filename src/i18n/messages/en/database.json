@@ -646,7 +646,8 @@
     "openRowsIn": {
       "panel": "Side panel",
       "page": "Full page"
-    }
+    },
+    "showOutdated": "Show archived rows"
   },
   "gallery": {
     "new": "New",

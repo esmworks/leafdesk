@@ -411,7 +411,15 @@ export const page = pgTable(
     searchVector: tsvector("search_vector").generatedAlwaysAs(
       sql`setweight(to_tsvector('simple', search_fold(left(coalesce(title, ''), 1000))), 'A') || setweight(to_tsvector('simple', search_fold(left(coalesce(content_text, ''), 80000))), 'B') || setweight(to_tsvector('simple', cjk_bigrams(left(title, 1000))), 'A') || setweight(to_tsvector('simple', cjk_bigrams(left(content_text, 80000))), 'B')`,
     ),
+    /** While set, the page is in the trash (with the pages under it that went there with it). */
     archivedAt: timestamp("archived_at", { withTimezone: true }),
+    /**
+     * While set, the page is archived (the app's "Archive"; not the trash): out of date but kept.
+     * Set on the page archived only; the pages under it count as archived too (see
+     * server/page-outdated.ts), and stay out of the sidebar, search and pickers with it.
+     */
+    outdatedAt: timestamp("outdated_at", { withTimezone: true }),
+    outdatedBy: text("outdated_by").references(() => user.id, { onDelete: "set null" }),
     /** Databases: while set, properties and views can't be added, renamed or removed. Rows stay editable. */
     lockedAt: timestamp("locked_at", { withTimezone: true }),
     /**
@@ -453,6 +461,7 @@ export const page = pgTable(
     }),
     index("page_template_idx").on(t.workspaceId, t.parentId).where(sql`${t.isTemplate}`),
     index("page_skill_idx").on(t.workspaceId).where(sql`${t.isSkill}`),
+    index("page_outdated_idx").on(t.workspaceId).where(sql`${t.outdatedAt} is not null`),
     index("page_search_vector_idx").using("gin", t.searchVector),
   ],
 );
@@ -772,6 +781,8 @@ export type ViewConfig = {
   calculations?: Record<string, AggregateFn>;
   /** Form views: questions, texts and default values. */
   form?: FormConfig;
+  /** Views with rows and charts: rows archived on their own (see server/page-outdated.ts) show too; left out when missing. */
+  showOutdated?: boolean;
 };
 
 export const databaseView = pgTable(

@@ -646,7 +646,8 @@
     "openRowsIn": {
       "panel": "Panel boczny",
       "page": "Pełna strona"
-    }
+    },
+    "showOutdated": "Pokaż zarchiwizowane wiersze"
   },
   "gallery": {
     "new": "Nowy",

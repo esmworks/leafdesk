@@ -125,6 +125,8 @@ export type DatabaseRow = {
   updatedAt: Date;
   /** How styled formula results show (see lib/formula style()); their values stay plain. */
   styles?: Record<string, FormulaStyle>;
+  /** Archived on its own (server/page-outdated.ts): views leave it out unless they show archived rows (applyView). */
+  outdated?: boolean;
 } & RedactedFields;
 
 /**
@@ -329,6 +331,12 @@ export async function deletedPropertyIds(databaseId: string, exec: Executor = db
   return new Set(rows.map((r) => r.id));
 }
 
+/**
+ * A row is archived on its own when it is itself (server/page-outdated.ts); one in an archived
+ * database shows in the database's views like the others.
+ */
+const rowOutdated = sql<boolean>`${page.outdatedAt} is not null`;
+
 export async function listRows(userId: string, databaseId: string, config: ViewConfig = {}) {
   // Rows inherit their database's access; rows restricted on their own are left out.
   await requireDatabase(userId, databaseId, "view");
@@ -400,6 +408,7 @@ async function readRows(
         createdAt: page.createdAt,
         updatedAt: page.updatedAt,
         position: page.position,
+        outdated: rowOutdated,
       })
       .from(page)
       .where(and(eq(page.parentId, databaseId), eq(page.isTemplate, false), isNull(page.archivedAt), childVisibleTo(userId, databaseId)))
@@ -2769,6 +2778,7 @@ export async function getDatabaseSnapshot(
       position: page.position,
       createdAt: page.createdAt,
       updatedAt: page.updatedAt,
+      outdated: rowOutdated,
       ...(withCovers ? { hasImage: sql<boolean>`${page.contentMarkdown} ~ ${PG_MARKDOWN_IMAGE_PATTERN}` } : {}),
     })
     .from(page)

@@ -646,7 +646,8 @@
     "openRowsIn": {
       "panel": "Yan panelde",
       "page": "Tam sayfada"
-    }
+    },
+    "showOutdated": "Arşivlenen satırları göster"
   },
   "gallery": {
     "new": "Yeni",

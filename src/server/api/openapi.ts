@@ -184,6 +184,7 @@ const SCHEMAS: Record<string, JsonSchema> = {
       kind: pageKind,
       icon: { type: ["string", "null"] },
       teamspace_id: teamspaceId,
+      archived: { type: "boolean", description: "Archived (out of date but kept; not the trash), itself or through a page above it. Only with include_archived." },
       updated_at: { type: "string", format: "date-time" },
       url,
     },
@@ -208,6 +209,7 @@ const SCHEMAS: Record<string, JsonSchema> = {
             description: "The PDF or Word document the page shows whose words matched, when the page's own text doesn't; the snippet is from it.",
             properties: { id, name: { type: "string" } },
           },
+          archived: { type: "boolean", description: "Archived (out of date but kept; not the trash), itself or through a page above it. Only with include_archived." },
           updated_at: { type: "string", format: "date-time" },
           url,
         }),
@@ -231,6 +233,17 @@ const SCHEMAS: Record<string, JsonSchema> = {
       parent_id: { type: ["string", "null"], description: "Null at the top level, or when the user can't see the parent." },
       path: { type: "string", description: "Workspace and ancestors, joined with /." },
       in_trash: { type: "boolean" },
+      archived: {
+        type: "boolean",
+        description: "Archived: out of date but kept, out of the sidebar, search and pickers (not the trash). Set on the page itself or on a page above it (archived_with).",
+      },
+      archived_at: { type: "string", format: "date-time" },
+      archived_by: { type: ["string", "null"], description: "Who archived it; null when their account is gone." },
+      archived_with: {
+        type: ["object", "null"],
+        description: "The page above it it is archived with, when it isn't archived itself; null when the user can't open that page.",
+        properties: { id, title: { type: "string" }, url },
+      },
       locked: {
         type: "boolean",
         description:
@@ -322,6 +335,7 @@ const SCHEMAS: Record<string, JsonSchema> = {
   ),
   PageWatch: loose({ id, watching: { type: "boolean" }, url }, ["id", "watching", "url"]),
   PageMoved: loose({ id, title: { type: "string" }, parent_id: { type: ["string", "null"] }, ...teamspaceFields, url }, ["id", "parent_id", "url"]),
+  PageArchiveState: loose({ id, title: { type: "string" }, archived: { type: "boolean" }, url }, ["id", "archived", "url"]),
   PageTrashState: loose({ id, title: { type: "string" }, parent_id: { type: ["string", "null"] }, in_trash: { type: "boolean" }, url }, [
     "id",
     "in_trash",
@@ -425,7 +439,17 @@ const SCHEMAS: Record<string, JsonSchema> = {
       title: { type: "string" },
       total: { type: "integer", description: "Rows matching the filters, over all pages." },
       returned: { type: "integer" },
-      rows: { type: "array", items: loose({ id, title: { type: "string" }, properties: propertyValues, ...rowAccessFields, url }) },
+      rows: {
+        type: "array",
+        items: loose({
+          id,
+          title: { type: "string" },
+          properties: propertyValues,
+          ...rowAccessFields,
+          archived: { type: "boolean", description: "The row is archived on its own; only with include_archived or a view that shows archived rows." },
+          url,
+        }),
+      },
       chart: { type: "object", additionalProperties: true, description: "For a chart view: its settings and the series it plots." },
       ...cursorFields,
     },

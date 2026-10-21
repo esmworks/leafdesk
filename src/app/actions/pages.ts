@@ -125,9 +125,10 @@ export async function listTrashAction(workspaceId: string) {
   }));
 }
 
-export async function searchAction(workspaceId: string, query: string) {
+/** `includeOutdated`: archived pages too (server/page-outdated), marked as such. */
+export async function searchAction(workspaceId: string, query: string, includeOutdated = false) {
   const userId = await requireUserId();
-  return pages.searchWithQuery(userId, workspaceId, query);
+  return pages.searchWithQuery(userId, workspaceId, query, 20, { includeOutdated: includeOutdated === true });
 }
 
 /** What the search box shows before anything is typed: the pages last edited. */

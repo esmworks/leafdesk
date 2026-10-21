@@ -178,6 +178,9 @@ jobs:
       - name: Locked pages end-to-end
         run: pnpm tsx scripts/page-lock-e2e.ts
 
+      - name: Archived pages end-to-end
+        run: pnpm tsx scripts/page-archive-e2e.ts
+
       # Join request emails are captured by the script, never sent.
       - name: Membership policies end-to-end
         run: pnpm tsx scripts/membership-e2e.ts

@@ -131,6 +131,7 @@ const pageBodies = {
   movePage: ops.inputs.movePage.omit({ page_id: true }),
   addComment: ops.inputs.addComment.omit({ page_id: true }),
   watchPage: ops.inputs.watchPage.omit({ page_id: true }),
+  setPageArchived: ops.inputs.setPageArchived.omit({ page_id: true }),
 };
 
 /** The workspace a page or database is in (AccessError when there is none). */
@@ -199,7 +200,7 @@ export const API_ROUTES: ApiRoute[] = [
     tag: "Workspaces",
     summary: "List top-level pages",
     description:
-      "The pages at the top of a workspace's tree (with parent_id: the pages directly under that page), in sidebar order. Trashed pages and templates are left out.",
+      "The pages at the top of a workspace's tree (with parent_id: the pages directly under that page), in sidebar order. Trashed pages and templates are left out, and archived pages unless include_archived is true.",
     scope: "pages:read",
     query: listQuery.extend({
       parent_id: z.string().optional().describe("List the pages under this page instead."),
@@ -207,6 +208,10 @@ export const API_ROUTES: ApiRoute[] = [
         .string()
         .optional()
         .describe('Top level only: just this teamspace\'s pages, or "private" for the user\'s private pages.'),
+      include_archived: z
+        .stringbool()
+        .default(false)
+        .describe("Also include archived pages (out of date but kept; not the trash), marked archived: true (true or false)."),
     }),
     response: "PageList",
     handler: async ({ principal, ctx, params, query }) => {
@@ -215,6 +220,7 @@ export const API_ROUTES: ApiRoute[] = [
         workspace_id: params.workspace_id,
         parent_id: query.parent_id,
         teamspace_id: query.teamspace_id,
+        include_archived: query.include_archived,
       });
       const { items, ...more } = paginate(pages, query.cursor, query.limit);
       return { pages: items, ...more };
@@ -264,11 +270,15 @@ export const API_ROUTES: ApiRoute[] = [
     tag: "Pages",
     summary: "Search pages",
     description:
-      "Search over page titles and bodies (database rows included), best matches first: full-text, merged with semantic search (by meaning) when the server has an embeddings model. `match` says how each result was found.",
+      "Search over page titles and bodies (database rows included), best matches first: full-text, merged with semantic search (by meaning) when the server has an embeddings model. `match` says how each result was found. Archived pages are left out unless include_archived is true.",
     scope: "pages:read",
     query: z.object({
       query: z.string().min(1).describe("Words to look for."),
       workspace_id: z.string().optional().describe("Only search this workspace."),
+      include_archived: z
+        .stringbool()
+        .default(false)
+        .describe("Also include archived pages (out of date but kept; not the trash), marked archived: true (true or false)."),
       limit: limitInput(50, 10),
       cursor: cursorInput,
     }),
@@ -283,6 +293,7 @@ export const API_ROUTES: ApiRoute[] = [
         query: query.query,
         workspace_id: query.workspace_id ?? principal.workspaceId ?? undefined,
         limit: offset + query.limit + 1,
+        include_archived: query.include_archived,
       });
       const next = results.length > offset + query.limit ? nextCursor(offset, query.limit, results.length) : null;
       return { results: results.slice(offset, offset + query.limit), next_cursor: next, has_more: next !== null };
@@ -441,14 +452,20 @@ export const API_ROUTES: ApiRoute[] = [
     operationId: "listChildPages",
     tag: "Pages",
     summary: "List sub-pages",
-    description: "The pages directly under a page, in order. For the rows of a database, query the database instead.",
+    description:
+      "The pages directly under a page, in order. Archived ones are left out unless include_archived is true (under a page that is archived itself, its pages are listed either way). For the rows of a database, query the database instead.",
     scope: "pages:read",
-    query: listQuery,
+    query: listQuery.extend({
+      include_archived: z
+        .stringbool()
+        .default(false)
+        .describe("Also include archived pages (out of date but kept; not the trash), marked archived: true (true or false)."),
+    }),
     response: "PageList",
     handler: async ({ principal, ctx, params, query }) => {
       await requirePageInWorkspace(principal, params.page_id);
       const parent = await getPage(ctx.userId, params.page_id);
-      const { pages } = await ops.listPages(ctx, { workspace_id: parent.workspaceId, parent_id: parent.id });
+      const { pages } = await ops.listPages(ctx, { workspace_id: parent.workspaceId, parent_id: parent.id, include_archived: query.include_archived });
       const { items, ...more } = paginate(pages, query.cursor, query.limit);
       return { pages: items, ...more };
     },
@@ -478,7 +495,8 @@ export const API_ROUTES: ApiRoute[] = [
     operationId: "archivePage",
     tag: "Pages",
     summary: "Move a page to the trash",
-    description: "Moves a page with its sub-pages (or a database with its rows) to the trash. Restoring brings it back.",
+    description:
+      "Moves a page with its sub-pages (or a database with its rows) to the trash. Restoring brings it back. To archive an outdated page instead, which keeps it out of the trash, see /pages/{page_id}/archived.",
     scope: "pages:write",
     response: "PageTrashState",
     handler: async ({ principal, ctx, params }) => {
@@ -498,6 +516,22 @@ export const API_ROUTES: ApiRoute[] = [
     handler: async ({ principal, ctx, params }) => {
       await requirePageInWorkspace(principal, params.page_id);
       return withoutNote(await ops.restorePage(ctx, { page_id: params.page_id }));
+    },
+  }),
+  defineRoute({
+    method: "POST",
+    path: "/pages/{page_id}/archived",
+    operationId: "setPageArchived",
+    tag: "Pages",
+    summary: "Archive or unarchive a page",
+    description:
+      "With `archived: true` the page is archived: out of date but kept (an old price list, a superseded offer). Its sub-pages, or a database's rows, are archived with it. Archived pages stay readable, editable and linked, but leave the sidebar, search, pickers and database views; search, page lists and row queries return them with include_archived. `false` unarchives it. Not the trash (/pages/{page_id}/archive). Needs full access to the page; templates can't be archived, and a page in the trash is restored first. Reading the page shows `archived`.",
+    scope: "pages:write",
+    body: pageBodies.setPageArchived,
+    response: "PageArchiveState",
+    handler: async ({ principal, ctx, params, body }) => {
+      await requirePageInWorkspace(principal, params.page_id);
+      return withoutNote(await ops.setPageArchived(ctx, { page_id: params.page_id, archived: body.archived }));
     },
   }),
   defineRoute({

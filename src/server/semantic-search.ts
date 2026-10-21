@@ -19,6 +19,7 @@ import { sharedLimiter } from "@/lib/rate-limit";
 import type { SearchKind } from "@/lib/search-query";
 import { pageVisibleTo, workspacesHeldBack } from "@/server/access";
 import { aiTargetFor, embed, embeddingModelFor, embeddingModelOf, embeddingsEnabled, minSimilarityOf } from "@/server/ai";
+import { listedPage, isOutdated } from "@/server/page-outdated";
 import { maybeSweep } from "@/server/semantic-index";
 import { passageOf, vectorLiteral } from "@/server/semantic-text";
 import { listWorkspaces, workspaceSettings } from "@/server/workspaces";
@@ -44,6 +45,8 @@ export type SemanticHit = {
   /** The best chunk's passage (without the title it was embedded with) and where it starts. */
   passage: string;
   blockId: string | null;
+  /** Archived, itself or through a page above it: only when the search includes archived pages. */
+  outdated: boolean;
 };
 
 type Cache = Map<string, number[]>;
@@ -152,8 +155,11 @@ export async function embeddingGroups(workspaceIds: string[]) {
   return [...groups.values()];
 }
 
-/** Where a search looks: under pages (any of them), and at pages of some kinds (see lib/search-query). */
-export type SearchScope = { withinPageId?: string; withinPageIds?: string[]; kinds?: SearchKind[] };
+/**
+ * Where a search looks: under pages (any of them), at pages of some kinds (see lib/search-query),
+ * and at archived pages too (`includeOutdated`, see server/page-outdated.ts; left out otherwise).
+ */
+export type SearchScope = { withinPageId?: string; withinPageIds?: string[]; kinds?: SearchKind[]; includeOutdated?: boolean };
 
 /**
  * The `and …` conditions a search scope puts on the pages of `alias`: inside `withinPageId` and
@@ -224,6 +230,7 @@ async function rankGroup(
     title: string;
     icon: string | null;
     updated_at: Date;
+    outdated: boolean;
   }>(sql`
     with candidates as materialized (
       select distinct c.page_id from ${pageChunk} c
@@ -233,7 +240,7 @@ async function rankGroup(
     visible as materialized (
       -- Access first, then ranking: only pages the user can open right now are compared at all.
       select p.id from ${page} p join candidates k on k.page_id = p.id
-      where p.archived_at is null and not p.in_template
+      where ${listedPage(workspaces, { alias: "p", includeOutdated: scope.includeOutdated })}
         ${searchScope(scope, userId)}
         and ${pageVisibleTo(userId, "p")}
     ),
@@ -250,7 +257,8 @@ async function rankGroup(
     select b.page_id, b.block_id, b.text, b.score, p.workspace_id, p.teamspace_id,
       -- A parent they can't see isn't named, not even by id.
       case when p.parent_id is not null and ${pageVisibleTo(userId, "parent")} then p.parent_id end as parent_id,
-      p.kind, p.title, p.icon, p.updated_at
+      p.kind, p.title, p.icon, p.updated_at,
+      ${scope.includeOutdated ? isOutdated(workspaces, "p") : sql`false`} as outdated
     from best b
     join ${page} p on p.id = b.page_id
     left join ${page} parent on parent.id = p.parent_id
@@ -269,5 +277,6 @@ async function rankGroup(
     score: Number(r.score),
     passage: passageOf(r.text, r.title),
     blockId: r.block_id,
+    outdated: Boolean(r.outdated),
   }));
 }
