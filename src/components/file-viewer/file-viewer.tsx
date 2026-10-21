@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState, type SyntheticEvent } from "react";
 import { createPortal } from "react-dom";
 import { useDirection } from "@/components/direction";
+import { trapFocus } from "@/components/trap-focus";
 import { cn } from "@/components/ui";
 import { knownFormat, probeResult, viewerFormat } from "@/lib/file-viewer";
 import { formatBytes, isSafeInline } from "@/lib/files";
@@ -49,8 +50,6 @@ function useProbe(url: string): Probe {
   }, [url]);
   return probe?.url === url ? probe.probe : { status: "loading" };
 }
-
-const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), audio[controls], video[controls], object, [tabindex]:not([tabindex="-1"])';
 
 /** Keys with a meaning of their own where focus is: the viewer leaves them alone there. */
 function ownsKeys(target: EventTarget | null): boolean {
@@ -275,27 +274,6 @@ export default function FileViewer({ files, start, onClose }: { files: ViewerFil
     </div>,
     document.body,
   );
-}
-
-/** Keeps Tab and Shift+Tab inside `box`, wrapping around at either end. */
-function trapFocus(event: KeyboardEvent, box: HTMLElement | null) {
-  if (!box) return;
-  const items = [...box.querySelectorAll<HTMLElement>(FOCUSABLE)].filter((el) => el.offsetParent !== null || el === document.activeElement);
-  if (!items.length) {
-    event.preventDefault();
-    box.focus();
-    return;
-  }
-  const first = items[0];
-  const last = items[items.length - 1];
-  const active = document.activeElement;
-  if (event.shiftKey && (active === first || active === box || !box.contains(active))) {
-    event.preventDefault();
-    last.focus();
-  } else if (!event.shiftKey && (active === last || !box.contains(active))) {
-    event.preventDefault();
-    first.focus();
-  }
 }
 
 /** A note in the middle of the viewer: loading, or why there's nothing to show. */

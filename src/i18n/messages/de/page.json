@@ -61,6 +61,7 @@
     "exportDisabled": "Export ist ausgeschaltet",
     "exportDisabledBody": "Die Inhaber dieses Workspace haben das Exportieren und Drucken seiner Seiten ausgeschaltet.",
     "showInGraph": "Im Graphen zeigen",
+    "present": "Präsentieren",
     "watch": "Beobachten",
     "watchHint": "Erfahre in deinem Posteingang, wenn jemand anderes diese Seite bearbeitet oder einen Kommentar-Thread darauf beginnt.",
     "mute": "Stummschalten",
@@ -769,6 +770,13 @@
     "markdownImageUntitled": "Bild",
     "expand": "Im Viewer öffnen",
     "view": "{name} ansehen"
+  },
+  "presentation": {
+    "previous": "Vorherige Folie",
+    "next": "Nächste Folie",
+    "exit": "Präsentation beenden",
+    "counter": "{index} von {count}",
+    "announce": "Folie {index} von {count}"
   },
   "markdownSource": {
     "title": "Als Markdown bearbeiten",

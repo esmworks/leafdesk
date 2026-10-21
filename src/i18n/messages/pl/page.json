@@ -61,6 +61,7 @@
     "exportDisabled": "Eksport jest wyłączony",
     "exportDisabledBody": "Właściciele tego obszaru roboczego wyłączyli eksportowanie i drukowanie jego stron.",
     "showInGraph": "Pokaż w grafie",
+    "present": "Prezentuj",
     "watch": "Obserwuj",
     "watchHint": "Dowiaduj się w skrzynce odbiorczej, gdy ktoś inny edytuje tę stronę lub rozpocznie na niej wątek komentarzy.",
     "mute": "Wycisz",
@@ -769,6 +770,13 @@
     "markdownImageUntitled": "Obraz",
     "expand": "Otwórz w przeglądarce plików",
     "view": "Wyświetl {name}"
+  },
+  "presentation": {
+    "previous": "Poprzedni slajd",
+    "next": "Następny slajd",
+    "exit": "Zakończ prezentację",
+    "counter": "{index} z {count}",
+    "announce": "Slajd {index} z {count}"
   },
   "markdownSource": {
     "title": "Edytuj jako Markdown",

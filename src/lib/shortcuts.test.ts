@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import texts from "@/i18n/messages/en/shortcuts.json";
-import { comboText, keyLabels, opensShortcuts, SHORTCUT_GROUPS } from "./shortcuts";
+import { comboText, keyLabels, opensPresentation, opensShortcuts, SHORTCUT_GROUPS } from "./shortcuts";
 import { SUBSCRIPT, SUPERSCRIPT, TEXT_SCRIPT_SHORTCUTS } from "./text-scripts";
 
 const press = (key: string, init: Partial<KeyboardEvent> = {}, target: unknown = null) =>
@@ -65,5 +65,27 @@ describe("opensShortcuts", () => {
   it("leaves keys something else handled, and text being composed", () => {
     expect(opensShortcuts(press("/", { metaKey: true, defaultPrevented: true }), true)).toBe(false);
     expect(opensShortcuts(press("?", { isComposing: true }, element(false)), false)).toBe(false);
+  });
+});
+
+describe("opensPresentation", () => {
+  it("opens on Mod+Alt+P with the system's Mod key, whatever character the keys type", () => {
+    expect(opensPresentation(press("π", { code: "KeyP", metaKey: true, altKey: true }), true)).toBe(true);
+    expect(opensPresentation(press("p", { code: "KeyP", ctrlKey: true, altKey: true }), false)).toBe(true);
+    expect(opensPresentation(press("p", { code: "KeyP", ctrlKey: true, altKey: true }), true)).toBe(false);
+    expect(opensPresentation(press("π", { code: "KeyP", metaKey: true, altKey: true }), false)).toBe(false);
+  });
+
+  it("needs all of Mod, Alt and P, and nothing more", () => {
+    expect(opensPresentation(press("p", { code: "KeyP", metaKey: true }), true)).toBe(false);
+    expect(opensPresentation(press("π", { code: "KeyP", altKey: true }), true)).toBe(false);
+    expect(opensPresentation(press("P", { code: "KeyP", metaKey: true, altKey: true, shiftKey: true }), true)).toBe(false);
+    expect(opensPresentation(press("o", { code: "KeyO", metaKey: true, altKey: true }), true)).toBe(false);
+    expect(opensPresentation(press("p", { code: "KeyP", metaKey: true, ctrlKey: true, altKey: true }), true)).toBe(false);
+  });
+
+  it("leaves keys something else handled, and text being composed", () => {
+    expect(opensPresentation(press("π", { code: "KeyP", metaKey: true, altKey: true, defaultPrevented: true }), true)).toBe(false);
+    expect(opensPresentation(press("π", { code: "KeyP", metaKey: true, altKey: true, isComposing: true }), true)).toBe(false);
   });
 });

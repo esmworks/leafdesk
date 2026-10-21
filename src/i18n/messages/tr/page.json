@@ -61,6 +61,7 @@
     "exportDisabled": "Dışa aktarma kapalı",
     "exportDisabledBody": "Bu çalışma alanının sahipleri sayfaların dışa aktarılmasını ve yazdırılmasını kapattı.",
     "showInGraph": "Grafikte göster",
+    "present": "Sunum yap",
     "watch": "İzle",
     "watchHint": "Bu sayfayı başka biri düzenlediğinde ya da üzerinde yorum dizisi başlattığında gelen kutunuzda haber alın.",
     "mute": "Sessize al",
@@ -769,6 +770,13 @@
     "markdownImageUntitled": "Görsel",
     "expand": "Görüntüleyicide aç",
     "view": "{name} dosyasını görüntüle"
+  },
+  "presentation": {
+    "previous": "Önceki slayt",
+    "next": "Sonraki slayt",
+    "exit": "Sunumu bitir",
+    "counter": "{index} / {count}",
+    "announce": "Slayt {index} / {count}"
   },
   "markdownSource": {
     "title": "Markdown olarak düzenle",
