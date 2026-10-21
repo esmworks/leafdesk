@@ -280,6 +280,12 @@ try {
     "…matching what was typed",
   );
   check((await failure(() => commentMentionCandidates(ids.viewer, doc.id, ""))) === "access", "…and is only for people who may comment");
+  const secret = await createPage({ userId: ids.owner }, { workspaceId, title: "Secret" });
+  await setPagePermission(ids.owner, secret.id, ids.owner, "full");
+  await setPagePermission(ids.owner, secret.id, null, "none");
+  await setPagePermission(ids.owner, secret.id, ids.commenter, "comment");
+  const offeredSecret = (await commentMentionCandidates(ids.commenter, secret.id, "")).map((p) => p.id);
+  check(offeredSecret.join() === ids.owner, "…leaving out members who can't open the page", offeredSecret);
 
   // Server writes keep anchors
   await getCollab().replaceContent(doc.id, "New intro.\n\nShip the comments feature this week.\n\nSecond paragraph stays.", { userId: ids.owner });
@@ -390,6 +396,15 @@ try {
   await setThreadMuted(ids.commenter, doc.id, thread.id, true);
   await setThreadMuted(ids.commenter, doc.id, thread.id, false);
   check((await mutedThreads(ids.commenter, doc.id)).length === 0, "unmuting a thread hears about it again");
+  await clearInbox(ids.editor);
+  await changeComments(ids.owner, doc.id, {
+    type: "updateComment",
+    threadId: thread.id,
+    commentId: mentioned.comment!.id,
+    body: mention(ids.editor, "Editor", " what do you think now?"),
+  });
+  check((await unread(ids.editor, thread.id)).length === 1, "a person an edit mentions hears about it");
+  check((await mutedThreads(ids.editor, doc.id)).length === 0, "…and their mute ends");
 
   // Deleting
   await changeComments(ids.owner, doc.id, { type: "addComment", threadId: thread.id, body: "Unread one." });

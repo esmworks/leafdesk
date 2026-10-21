@@ -586,7 +586,8 @@ async function peopleMatching(userId: string, workspaceId: string, q: string) {
 export async function commentMentionCandidates(userId: string, pageId: string, query: string): Promise<MentionCandidates["people"]> {
   const target = await requirePageAccess(userId, pageId, "comment");
   const q = typeof query === "string" ? searchFold(query.trim().slice(0, 100)) : "";
-  const people = (await peopleMatching(userId, target.workspaceId, q)).filter((p) => p.id !== userId);
+  // The first matches are enough for the menu; typing narrows them, so the access check stays small.
+  const people = (await peopleMatching(userId, target.workspaceId, q)).filter((p) => p.id !== userId).slice(0, 30);
   const reach = new Set(await pageRecipients(people.map((p) => p.id), pageId));
   return people.filter((p) => reach.has(p.id)).slice(0, 6);
 }

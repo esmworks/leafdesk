@@ -14,13 +14,11 @@ import {
   type ComponentProps,
   type DefaultReactSuggestionItem,
 } from "@blocknote/react";
-import { CircleUser } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { createContext, forwardRef, useCallback, useContext, useMemo, useRef, type ReactNode } from "react";
 import { commentMentionCandidatesAction } from "@/app/actions/mentions";
-import { UserAvatar } from "@/components/user-avatar";
-import { mentionInlineSpecs } from "./mentions";
-import { newMentionId } from "@/lib/mentions";
+import { searchFold } from "@/lib/search-fold";
+import { mentionInlineSpecs, personItem } from "./mentions";
 
 // Comments keep the default comment editor's blocks and styles (no colors), and add mentions of
 // people: the server notifies them (server/comments) and stores their names as text.
@@ -92,20 +90,15 @@ function CommentMentionMenu({ pageId }: { pageId: string }) {
   const last = useRef<Awaited<ReturnType<typeof commentMentionCandidatesAction>>>([]);
   const getItems = useCallback(
     async (query: string): Promise<DefaultReactSuggestionItem[]> => {
+      let people = last.current;
       try {
-        last.current = await commentMentionCandidatesAction(pageId, query);
+        people = last.current = await commentMentionCandidatesAction(pageId, query);
       } catch {
-        // Keep the last answer.
+        // Keep the last answer, but only the people who still match.
+        const q = searchFold(query.trim());
+        people = people.filter((p) => !q || searchFold(p.name).includes(q));
       }
-      return last.current.map((p) => ({
-        title: p.name,
-        group: t("people"),
-        icon: p.image ? <UserAvatar name={p.name} image={p.image} size="xs" /> : <CircleUser size={18} />,
-        onItemClick: () =>
-          editor.insertInlineContent([{ type: "mention", props: { kind: "user", id: newMentionId(), userId: p.id, name: p.name } }, " "] as never, {
-            updateSelection: true,
-          }),
-      }));
+      return people.map((p) => personItem(editor, p, t("people")));
     },
     [editor, pageId, t],
   );

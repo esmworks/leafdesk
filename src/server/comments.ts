@@ -104,8 +104,9 @@ export async function changeComments(userId: string, pageId: string, op: Comment
   const { page: target, level } = await resolvePageAccess(userId, pageId);
   if (!target || !hasLevel(level, "comment")) throw new AccessError();
   if (target.archivedAt) throw new CommentError("Pages in the trash can't be commented on", "notAllowed");
-  // Mentions are read before cleaning, which keeps only their names.
-  const mentioned = op?.type === "addComment" || op?.type === "createThread" ? commentMentions(op.body) : [];
+  // Mentions are read before cleaning, which keeps only their names. A stored comment holds no
+  // mention nodes, so those in an edit are the people it newly mentions.
+  const mentioned = op?.type === "addComment" || op?.type === "createThread" || op?.type === "updateComment" ? commentMentions(op.body) : [];
   const clean = cleanOp(op);
   const role = hasLevel(level, "full") ? "editor" : "comment";
   const result = await getCollab().commentOp(pageId, { userId, role }, clean);
@@ -129,6 +130,10 @@ export async function changeComments(userId: string, pageId: string, op: Comment
     await recordComment(userId, target.workspaceId, pageId, result.thread.id, recipients);
     // Commenting on a database row follows it (server/row-follow).
     await followOnTakingPart(pageId, [userId]);
+  } else if (clean.type === "updateComment" && mentioned.length) {
+    // People an edit mentions hear about it like any other mention, and it ends their mute.
+    await unmuteThread(pageId, clean.threadId, mentioned);
+    await recordComment(userId, target.workspaceId, pageId, clean.threadId, mentioned);
   } else if (clean.type === "deleteThread" || (clean.type === "deleteComment" && !result.thread)) {
     await withdrawComments(target.workspaceId, pageId, clean.threadId);
     await forgetThreadMutes(pageId, clean.threadId);

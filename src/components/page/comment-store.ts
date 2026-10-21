@@ -2,7 +2,8 @@ import { DefaultThreadStoreAuth, ThreadStoreAuth, type CommentData, type ThreadD
 import { YjsThreadStoreBase } from "@blocknote/core/yjs";
 import type * as Y from "yjs";
 import { changeCommentsAction } from "@/app/actions/comments";
-import type { CommentAnchor, CommentOp, PlainComment, PlainThread } from "@/lib/comments";
+import { loadedPageTitle } from "./mentions";
+import { mentionsAsText, type CommentAnchor, type CommentOp, type PlainComment, type PlainThread } from "@/lib/comments";
 
 /**
  * Comments in the editor: read live from the page's document like BlockNote's Yjs store, written
@@ -111,19 +112,19 @@ export class ServerThreadStore extends YjsThreadStoreBase {
   public addThreadToDocument = async () => {};
 
   public createThread = async (options: { initialComment: { body: unknown } }) => {
-    const { thread } = await this.change({ type: "createThread", body: options.initialComment.body, anchor: this.anchor() });
+    const { thread } = await this.change({ type: "createThread", body: sendable(options.initialComment.body), anchor: this.anchor() });
     if (!thread) throw new CommentChangeError("notFound");
     return toThread(thread);
   };
 
   public addComment = async (options: { comment: { body: unknown }; threadId: string }) => {
-    const { comment } = await this.change({ type: "addComment", threadId: options.threadId, body: options.comment.body });
+    const { comment } = await this.change({ type: "addComment", threadId: options.threadId, body: sendable(options.comment.body) });
     if (!comment) throw new CommentChangeError("notFound");
     return toComment(comment);
   };
 
   public updateComment = async (options: { comment: { body: unknown }; threadId: string; commentId: string }) => {
-    await this.change({ type: "updateComment", threadId: options.threadId, commentId: options.commentId, body: options.comment.body });
+    await this.change({ type: "updateComment", threadId: options.threadId, commentId: options.commentId, body: sendable(options.comment.body) });
   };
 
   public deleteComment = async (options: { threadId: string; commentId: string }) => {
@@ -150,3 +151,6 @@ export class ServerThreadStore extends YjsThreadStoreBase {
     await this.change({ type: "deleteReaction", ...options });
   };
 }
+
+/** What a comment box sends: page and date mentions as their text (lib/comments mentionsAsText). */
+const sendable = (body: unknown) => mentionsAsText(body, loadedPageTitle);
