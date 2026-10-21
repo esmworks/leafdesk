@@ -196,6 +196,26 @@ export const pageWatch = pgTable(
   (t) => [primaryKey({ columns: [t.pageId, t.userId] }), index("page_watch_user_idx").on(t.userId)],
 );
 
+/**
+ * People who muted the replies in one comment thread of a page (see server/thread-mute.ts). Threads
+ * live in the page's document, so `thread_id` refers to nothing here; the rows go with the thread,
+ * the page or the person.
+ */
+export const threadMute = pgTable(
+  "thread_mute",
+  {
+    pageId: text("page_id")
+      .notNull()
+      .references(() => page.id, { onDelete: "cascade" }),
+    threadId: text("thread_id").notNull(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.pageId, t.threadId, t.userId] }), index("thread_mute_user_idx").on(t.userId)],
+);
+
 /** People who watch every page of a teamspace, unless they muted the page (see server/page-watch.ts). */
 export const teamspaceWatch = pgTable(
   "teamspace_watch",

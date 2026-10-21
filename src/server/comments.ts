@@ -1,7 +1,16 @@
 import { inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { user } from "@/db/schema";
-import { cleanCommentBody, CommentError, threadParticipants, type CommentAnchor, type CommentOp, type PlainThread } from "@/lib/comments";
+import {
+  cleanCommentBody,
+  CommentError,
+  commentMentions,
+  replyAudience,
+  threadParticipants,
+  type CommentAnchor,
+  type CommentOp,
+  type PlainThread,
+} from "@/lib/comments";
 import { AccessError, getMembership, hasLevel, isGuest, requirePageAccess, resolvePageAccess } from "@/server/access";
 import { avatarSrc } from "@/lib/avatar";
 import { getCollab } from "@/server/collab/bridge";
@@ -9,6 +18,7 @@ import type { CommentOpResult } from "@/server/collab/bridge";
 import { recordComment, withdrawComments } from "@/server/notifications";
 import { newThreadAudience } from "@/server/page-watch";
 import { followOnTakingPart } from "@/server/row-follow";
+import { forgetThreadMutes, threadMuters, unmuteThread } from "@/server/thread-mute";
 import { workspacePeople } from "@/server/workspaces";
 import { agentMarks, markOf } from "@/server/agents/users";
 
@@ -94,22 +104,34 @@ export async function changeComments(userId: string, pageId: string, op: Comment
   const { page: target, level } = await resolvePageAccess(userId, pageId);
   if (!target || !hasLevel(level, "comment")) throw new AccessError();
   if (target.archivedAt) throw new CommentError("Pages in the trash can't be commented on", "notAllowed");
+  // Mentions are read before cleaning, which keeps only their names.
+  const mentioned = op?.type === "addComment" || op?.type === "createThread" ? commentMentions(op.body) : [];
   const clean = cleanOp(op);
   const role = hasLevel(level, "full") ? "editor" : "comment";
   const result = await getCollab().commentOp(pageId, { userId, role }, clean);
 
   if ((clean.type === "createThread" || clean.type === "addComment") && result.thread && result.comment) {
-    // Everyone who wrote in the thread before hears about a reply; a new thread tells the page's
-    // watchers (a database row's followers), see server/page-watch.
-    const recipients =
-      clean.type === "createThread"
-        ? await newThreadAudience(pageId, target.createdBy)
-        : threadParticipants(result.thread, userId, result.comment.id);
+    // Everyone who wrote in the thread before hears about a reply, but those who muted it (see
+    // server/thread-mute); a new thread tells the page's watchers (a database row's followers), see
+    // server/page-watch. People a comment mentions hear about it either way.
+    let recipients: string[];
+    if (clean.type === "createThread") recipients = [...(await newThreadAudience(pageId, target.createdBy)), ...mentioned];
+    else {
+      const audience = replyAudience({
+        participants: threadParticipants(result.thread, userId, result.comment.id),
+        muted: await threadMuters(pageId, result.thread.id),
+        mentioned,
+        authorId: userId,
+      });
+      await unmuteThread(pageId, result.thread.id, audience.unmute);
+      recipients = audience.notify;
+    }
     await recordComment(userId, target.workspaceId, pageId, result.thread.id, recipients);
     // Commenting on a database row follows it (server/row-follow).
     await followOnTakingPart(pageId, [userId]);
   } else if (clean.type === "deleteThread" || (clean.type === "deleteComment" && !result.thread)) {
     await withdrawComments(target.workspaceId, pageId, clean.threadId);
+    await forgetThreadMutes(pageId, clean.threadId);
   }
   return result;
 }

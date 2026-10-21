@@ -4,6 +4,15 @@
 
 ### Added
 
+- **Mute the replies in one comment thread.** Each thread in a page's comments panel has a menu
+  with **Mute replies**: from then on new comments in that thread don't reach the person, in the
+  inbox, by email or by push, and a bell mark on the thread says so. Replying in the thread, or
+  being mentioned in a comment there, ends the mute, so nothing addressed to them is missed; the
+  comment that mentions them still notifies them. **Unmute replies** ends it by hand. Each person
+  mutes for themselves, and deleting the thread or its page forgets the mutes. A comment's body may
+  carry person mentions (`mention` nodes, as on pages): the people mentioned are notified and the
+  comment keeps their names as text; the comment box doesn't offer mentions yet. Migration 0097
+  adds the `thread_mute` table.
 - **Writing instructions for voice notes, per database.** A database can say how the voice notes
   saved in it are written up, e.g. "Customer visit note: company, person met, what was discussed,
   quote status, next step". People with full access set them from the database's page menu

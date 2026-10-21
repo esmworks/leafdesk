@@ -77,7 +77,14 @@
       "open": "Açık yorum yok. Yorum başlatmak için sayfada bir metin seçip Yorum'u seçin.",
       "resolved": "Çözülen yorum yok.",
       "all": "Henüz yorum yok. Yorum başlatmak için sayfada bir metin seçip Yorum'u seçin."
-    }
+    },
+    "threadMenu": "Yorum konusu seçenekleri",
+    "mute": "Yanıtları sessize al",
+    "unmute": "Yanıtların sesini aç",
+    "muteHint": "Bu konudaki yeni yanıtlardan haberdar olmayı bırakın. Burada yanıt yazdığınızda ya da burada anıldığınızda yeniden açılır.",
+    "unmuteHint": "Bu konudaki yeni yanıtlardan yeniden haberdar olun.",
+    "muted": "Yanıtlar sessizde",
+    "mutedHint": "Burada yanıt yazana ya da biri sizi burada anana kadar bu konudaki yanıtlardan haberdar olmazsınız."
   },
   "archived": {
     "banner": "Bu sayfa çöp kutusunda.",

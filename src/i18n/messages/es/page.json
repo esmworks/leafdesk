@@ -77,7 +77,14 @@
       "open": "No hay comentarios abiertos. Selecciona texto en la página y elige Comentar para empezar uno.",
       "resolved": "No hay comentarios resueltos.",
       "all": "Todavía no hay comentarios. Selecciona texto en la página y elige Comentar para empezar uno."
-    }
+    },
+    "threadMenu": "Opciones del hilo",
+    "mute": "Silenciar respuestas",
+    "unmute": "Dejar de silenciar respuestas",
+    "muteHint": "Deja de recibir avisos de nuevas respuestas en este hilo. Se vuelve a activar si respondes aquí o si alguien te menciona aquí.",
+    "unmuteHint": "Vuelve a recibir avisos de nuevas respuestas en este hilo.",
+    "muted": "Respuestas silenciadas",
+    "mutedHint": "No recibes avisos de respuestas en este hilo hasta que respondas aquí o alguien te mencione aquí."
   },
   "archived": {
     "banner": "Esta página está en la papelera.",

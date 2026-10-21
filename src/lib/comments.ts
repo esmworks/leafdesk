@@ -110,14 +110,18 @@ function cleanInline(node: unknown): Inline[] {
     const href = safeHref(node.href);
     return href ? [{ type: "link", href, content }] : content;
   }
+  // A person mentioned keeps their name as text (see commentMentions).
+  if (isRecord(node) && node.type === "mention" && isRecord(node.props) && typeof node.props.name === "string" && node.props.name) {
+    return [{ type: "text", text: `@${node.props.name}`, styles: {} }];
+  }
   const text = cleanText(node);
   return text ? [text] : [];
 }
 
 /**
  * A comment body the way it is stored: paragraphs of text with bold, italic, underline, strike or
- * code, and web or email links. Other blocks, styles and attributes are left out; plain strings
- * become one paragraph per line. Throws CommentError for empty or overlong comments.
+ * code, and web or email links. People mentioned become their name as text; other blocks, styles
+ * and attributes are left out; plain strings become one paragraph per line. Throws CommentError for empty or overlong comments.
  */
 export function cleanCommentBody(body: unknown): CommentBody {
   const blocks: unknown[] =
@@ -160,6 +164,47 @@ export function commentText(body: unknown): string {
 export function threadParticipants(thread: Pick<PlainThread, "comments">, authorId: string, newCommentId?: string): string[] {
   const ids = thread.comments.filter((c) => c.id !== newCommentId).map((c) => c.userId);
   return [...new Set(ids)].filter((id) => id !== authorId);
+}
+
+/**
+ * The people a comment's body mentions (`mention` nodes of kind "user", as on pages), before it is
+ * cleaned: the stored body keeps only their names as text.
+ */
+export function commentMentions(body: unknown): string[] {
+  const found = new Set<string>();
+  if (!Array.isArray(body)) return [];
+  for (const block of body) {
+    if (!isRecord(block) || !Array.isArray(block.content)) continue;
+    for (const node of block.content) {
+      if (!isRecord(node) || node.type !== "mention" || !isRecord(node.props)) continue;
+      const { kind, userId } = node.props;
+      if (kind === "user" && typeof userId === "string" && userId && userId.length <= 100) found.add(userId);
+    }
+  }
+  return [...found];
+}
+
+/**
+ * Who hears about a reply, and whose mute of the thread it ends: the people in the thread but
+ * those who muted it, and the people it mentions whether they muted it or not. Posting in a thread,
+ * or being mentioned there, unmutes it, so nothing addressed to someone is missed.
+ */
+export function replyAudience({
+  participants,
+  muted,
+  mentioned,
+  authorId,
+}: {
+  participants: string[];
+  muted: string[];
+  mentioned: string[];
+  authorId: string;
+}): { notify: string[]; unmute: string[] } {
+  const silent = new Set(muted);
+  const notify = new Set([...participants.filter((id) => !silent.has(id)), ...mentioned]);
+  notify.delete(authorId);
+  const unmute = [...new Set([authorId, ...mentioned])].filter((id) => silent.has(id));
+  return { notify: [...notify], unmute };
 }
 
 type ThreadLike = {

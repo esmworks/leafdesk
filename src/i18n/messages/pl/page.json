@@ -77,7 +77,14 @@
       "open": "Brak otwartych komentarzy. Zaznacz tekst na stronie i wybierz Komentarz, aby rozpocząć.",
       "resolved": "Brak rozwiązanych komentarzy.",
       "all": "Brak komentarzy. Zaznacz tekst na stronie i wybierz Komentarz, aby rozpocząć."
-    }
+    },
+    "threadMenu": "Opcje wątku",
+    "mute": "Wycisz odpowiedzi",
+    "unmute": "Wyłącz wyciszenie odpowiedzi",
+    "muteHint": "Nie otrzymuj powiadomień o nowych odpowiedziach w tym wątku. Odpowiedź tutaj lub wzmianka o tobie tutaj włącza je ponownie.",
+    "unmuteHint": "Znowu otrzymuj powiadomienia o nowych odpowiedziach w tym wątku.",
+    "muted": "Odpowiedzi wyciszone",
+    "mutedHint": "Nie otrzymujesz powiadomień o odpowiedziach w tym wątku, dopóki tu nie odpowiesz lub ktoś cię tu nie wspomni."
   },
   "archived": {
     "banner": "Ta strona jest w koszu.",

@@ -77,7 +77,14 @@
       "open": "No open comments. Select text in the page and choose Comment to start one.",
       "resolved": "No resolved comments.",
       "all": "No comments yet. Select text in the page and choose Comment to start one."
-    }
+    },
+    "threadMenu": "Thread options",
+    "mute": "Mute replies",
+    "unmute": "Unmute replies",
+    "muteHint": "Stop hearing about new replies in this thread. Replying here, or being mentioned here, turns it back on.",
+    "unmuteHint": "Hear about new replies in this thread again.",
+    "muted": "Replies muted",
+    "mutedHint": "You don't hear about replies in this thread until you reply here or someone mentions you here."
   },
   "archived": {
     "banner": "This page is in the trash.",

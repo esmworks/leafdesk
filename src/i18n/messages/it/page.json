@@ -77,7 +77,14 @@
       "open": "Nessun commento aperto. Seleziona del testo nella pagina e scegli Commenta per iniziarne uno.",
       "resolved": "Nessun commento risolto.",
       "all": "Ancora nessun commento. Seleziona del testo nella pagina e scegli Commenta per iniziarne uno."
-    }
+    },
+    "threadMenu": "Opzioni della discussione",
+    "mute": "Silenzia risposte",
+    "unmute": "Riattiva risposte",
+    "muteHint": "Smetti di ricevere avvisi sulle nuove risposte in questa discussione. Si riattiva se rispondi qui o se qualcuno ti menziona qui.",
+    "unmuteHint": "Ricevi di nuovo avvisi sulle nuove risposte in questa discussione.",
+    "muted": "Risposte silenziate",
+    "mutedHint": "Non ricevi avvisi sulle risposte in questa discussione finché non rispondi qui o qualcuno non ti menziona qui."
   },
   "archived": {
     "banner": "Questa pagina è nel cestino.",
