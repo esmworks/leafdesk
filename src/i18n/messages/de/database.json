@@ -30,7 +30,14 @@
     "list": "Liste",
     "timeline": "Zeitleiste",
     "chart": "Diagramm",
+    "dashboard": "Dashboard",
     "form": "Formular"
+  },
+  "dashboardView": {
+    "emptyEditable": "Zeigen Sie hier Zahlen, Diagramme und Listen aus dieser Datenbank. Sie bleiben aktuell, wenn sich Zeilen ändern.",
+    "chartTitle": "{measure} nach {property}",
+    "recent": "Zuletzt bearbeitet",
+    "titlePlaceholder": "Titel (optional)"
   },
   "colors": {
     "gray": "Grau",

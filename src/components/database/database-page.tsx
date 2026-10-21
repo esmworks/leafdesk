@@ -1,6 +1,7 @@
 "use client";
 
 import { Plus, TriangleAlert, X } from "lucide-react";
+import dynamic from "next/dynamic";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { memo, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
@@ -48,6 +49,8 @@ const MemoGalleryView = memo(GalleryView);
 const MemoListView = memo(ListView);
 const MemoTableView = memo(TableView);
 const MemoTimelineView = memo(TimelineView);
+// Loaded when a dashboard view opens: its grid brings the chart and linked view code along.
+const DashboardView = dynamic(() => import("./dashboard-view"), { loading: () => <DashboardSkeleton /> });
 
 /** A database shown inside a page body (see components/page/embed-blocks). */
 export type DatabaseEmbed = {
@@ -383,6 +386,11 @@ export function DatabasePage({
                           await api.deleteView(v.id);
                         }}
                       />
+                      {view?.type === "dashboard" && canManageAutomations && (
+                        <div className="flex shrink-0 items-center gap-1 self-end md:pb-1.5">
+                          <AutomationsButton workspaceId={workspaceId} databaseId={databaseId} databaseTitle={snapshot.database.title} />
+                        </div>
+                      )}
                       {view?.type === "form" && (
                         <div className="flex shrink-0 items-center gap-1 self-end md:pb-1.5">
                           <FormToolbar
@@ -403,7 +411,7 @@ export function DatabasePage({
                           )}
                         </div>
                       )}
-                      {view && view.type !== "form" && (
+                      {view && view.type !== "form" && view.type !== "dashboard" && (
                         <div className="relative flex shrink-0 items-center gap-1 self-end md:pb-1.5">
                           <ViewSearch value={search} onChange={setSearch} />
                           <ViewToolbar
@@ -471,7 +479,7 @@ export function DatabasePage({
                       </div>
                     )}
 
-                    {view && view.type !== "form" && (
+                    {view && view.type !== "form" && view.type !== "dashboard" && (
                       <ActiveRulesBar
                         view={view}
                         properties={snapshot.properties}
@@ -558,6 +566,14 @@ export function DatabasePage({
                         locked={locked}
                         onCreateGroupProperty={createGroupProperty}
                       />
+                    ) : view.type === "dashboard" ? (
+                      <DashboardView
+                        key={view.id}
+                        workspaceId={workspaceId}
+                        view={view}
+                        readOnly={configReadOnly}
+                        onConfig={(config) => void setConfig(view, config)}
+                      />
                     ) : view.type === "calendar" ? (
                       <div className="page-gutter">
                         <MemoCalendarView
@@ -598,6 +614,15 @@ export function DatabasePage({
         </SchemaProvider>
       </PeopleProvider>
     </RelationProvider>
+  );
+}
+
+function DashboardSkeleton() {
+  const t = useTranslations("database.page");
+  return (
+    <div aria-busy="true" aria-label={t("loading")} className="page-gutter">
+      <div className="h-28 animate-pulse rounded-lg bg-bg-subtle" />
+    </div>
   );
 }
 

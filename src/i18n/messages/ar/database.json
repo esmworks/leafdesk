@@ -30,7 +30,14 @@
     "list": "قائمة",
     "timeline": "مخطط زمني",
     "chart": "مخطط بياني",
+    "dashboard": "لوحة معلومات",
     "form": "نموذج"
+  },
+  "dashboardView": {
+    "emptyEditable": "اعرض هنا أرقامًا ومخططات بيانية وقوائم من قاعدة البيانات هذه. تظل محدّثة مع تغيّر الصفوف.",
+    "chartTitle": "{measure} حسب {property}",
+    "recent": "المعدّلة مؤخرًا",
+    "titlePlaceholder": "العنوان (اختياري)"
   },
   "colors": {
     "gray": "رمادي",

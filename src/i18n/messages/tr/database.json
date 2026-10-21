@@ -30,7 +30,14 @@
     "list": "Liste",
     "timeline": "Zaman çizelgesi",
     "chart": "Grafik",
+    "dashboard": "Gösterge paneli",
     "form": "Form"
+  },
+  "dashboardView": {
+    "emptyEditable": "Bu veritabanının sayılarını, grafiklerini ve listelerini burada gösterin. Satırlar değiştikçe güncel kalırlar.",
+    "chartTitle": "{property} özelliğine göre {measure}",
+    "recent": "Son düzenlenenler",
+    "titlePlaceholder": "Başlık (isteğe bağlı)"
   },
   "colors": {
     "gray": "Gri",

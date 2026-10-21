@@ -30,7 +30,14 @@
     "list": "فهرست",
     "timeline": "خط زمانی",
     "chart": "نمودار",
+    "dashboard": "داشبورد",
     "form": "فرم"
+  },
+  "dashboardView": {
+    "emptyEditable": "عددها، نمودارها و فهرست‌هایی از این پایگاه داده را اینجا نمایش دهید. با تغییر ردیف‌ها به‌روز می‌مانند.",
+    "chartTitle": "{measure} بر اساس {property}",
+    "recent": "ویرایش‌شده‌های اخیر",
+    "titlePlaceholder": "عنوان (اختیاری)"
   },
   "colors": {
     "gray": "خاکستری",

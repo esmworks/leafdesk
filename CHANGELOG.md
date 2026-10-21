@@ -27,6 +27,16 @@
   member stands behind asks an owner before each one. MCP's `create_agent` and `update_agent` take
   `web_access`, and `get_agent`, `list_agents` and the REST API's agents return it. Migration 0100
   adds `workspace_agent.web_access`.
+- **Dashboard views of a database.** **Dashboard** in a database's add-view menu gives it an
+  overview tab: the dashboard grid, with numbers (a count, or the sum or average of a number
+  property), charts, lists and other layouts, each a view of that database with its own filters,
+  title, width and color. A new one starts with the row count, the sum of the first number
+  property, a chart by the first select or status property and the rows edited last. People who
+  may change the database's views set the widgets up in place, as on a dashboard block; everyone
+  else sees each widget worked out from the rows and values they may see, archived rows left out.
+  Phones show one widget per row. Dashboard views aren't published, printed or offered to linked
+  views. MCP's `create_database_view` makes one (with default widgets, or the ones given in
+  `widgets`), `update_database_view` replaces its `widgets`, and `get_database` describes them.
 - **Archive pages that are out of date.** An old price list or a superseded offer can be archived
   instead of trashed: people with full access choose **Archive** in the page's menu. The page keeps
   everything else (it stays readable, editable, reachable by its link, mentions and backlinks, and

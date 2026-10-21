@@ -30,7 +30,14 @@
     "list": "Lista",
     "timeline": "Oś czasu",
     "chart": "Wykres",
+    "dashboard": "Pulpit",
     "form": "Formularz"
+  },
+  "dashboardView": {
+    "emptyEditable": "Wyświetlaj tutaj liczby, wykresy i listy z tej bazy danych. Aktualizują się wraz ze zmianami wierszy.",
+    "chartTitle": "{measure} według: {property}",
+    "recent": "Ostatnio edytowane",
+    "titlePlaceholder": "Tytuł (opcjonalnie)"
   },
   "colors": {
     "gray": "Szary",

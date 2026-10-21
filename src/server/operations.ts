@@ -1199,6 +1199,9 @@ export async function queryDatabase(
   const lookups = await databases.getLookups(userId, properties);
   const view = view_id ? views.find((v) => v.id === view_id) : undefined;
   if (view_id && !view) throw new ToolInputError(`No view with id "${view_id}" in this database.`);
+  if (view?.type === "dashboard") {
+    throw new ToolInputError("A dashboard view has no filters or sorts of its own (its widgets do): query without view_id, or with another view.");
+  }
   // The view's filters and the caller's each keep their own combinator; rows must match both.
   const ownRules = toFilterEntries(props, filters ?? [], lookups);
   const ownSorts = sorts?.length ? sorts.map((s) => toSortRule(props, s)) : null;

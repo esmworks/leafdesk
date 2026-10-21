@@ -7,6 +7,7 @@ import { mapFilterRules } from "./filters";
 import { detectDateFormat, parseChecklist, parseCheckbox, parseDate, parseNumber, splitList, type DateFormat } from "./import/csv";
 import { asChecklist, isEmailAddress, isGroupable, isPhoneNumber, isSortable, SELECT_COLORS, sortStatusOptions } from "./properties";
 import { holdsOptions, holdsPeople, holdsTimestamp, isDerived, isReadOnlyType } from "./property-types";
+import { withWidgetConfigs } from "./views";
 
 /**
  * Changing a property's type: what each value becomes. Pure, so the column menu counts the values
@@ -316,7 +317,7 @@ export function retypeViewConfig(
   from: PropertyType,
   to: { type: PropertyType; options: PropertyOptions },
 ): ViewConfig {
-  const c = config;
+  const c = withWidgetConfigs(config, (widget) => retypeViewConfig(widget, id, from, to));
   const type = valueType(to);
   // Group keys (option ids, days, people) meant the old values, unless options kept their ids.
   const regrouped = c.groupBy === id && !(holdsOptions(from) && holdsOptions(to.type));

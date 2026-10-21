@@ -13,6 +13,7 @@ import {
   Hash,
   History,
   Kanban,
+  LayoutDashboard,
   LayoutGrid,
   LayoutList,
   Link as LinkIcon,
@@ -72,6 +73,7 @@ const VIEW_ICONS = {
   list: LayoutList,
   timeline: ChartGantt,
   chart: ChartColumnBig,
+  dashboard: LayoutDashboard,
   form: ClipboardList,
 } as const satisfies Record<ViewType, LucideIcon>;
 

@@ -10,13 +10,31 @@ import type {
   ViewConfig,
   ViewCover,
   ViewType,
+  ViewWidget,
 } from "@/db/schema/app";
 import { CHART_ACCUMULATES, CHART_SORTS, CHART_TYPES, isBoardAggregateFn, isChartAggregateFn } from "./chart";
+import { filterConfigError } from "./filters";
 import { formConfigError } from "./forms";
+import { SELECT_COLORS } from "./properties";
 import { SUB_ITEMS_DISPLAYS } from "./sub-items";
 
 /** Every kind of database view, in the order the "Add a view" menu lists them. */
-export const VIEW_TYPES = ["table", "board", "calendar", "gallery", "list", "timeline", "chart", "form"] as const satisfies readonly ViewType[];
+export const VIEW_TYPES = [
+  "table",
+  "board",
+  "calendar",
+  "gallery",
+  "list",
+  "timeline",
+  "chart",
+  "dashboard",
+  "form",
+] as const satisfies readonly ViewType[];
+/**
+ * Views that show inside something else: linked view blocks and dashboard widgets. Forms show no
+ * rows, and a dashboard is made of such views itself.
+ */
+export const LINKED_VIEW_TYPES = VIEW_TYPES.filter((type) => type !== "form" && type !== "dashboard");
 export const CARD_SIZES = ["small", "medium", "large"] as const satisfies readonly CardSize[];
 export const COVER_SOURCES = ["first_image", "property", "none"] as const satisfies readonly ViewCover["source"][];
 export const TIMELINE_ZOOMS = ["day", "week", "month"] as const satisfies readonly TimelineZoom[];
@@ -42,6 +60,7 @@ export const DEFAULT_VIEW_NAMES: Record<ViewType, string> = {
   list: "List",
   timeline: "Timeline",
   chart: "Chart",
+  dashboard: "Dashboard",
   form: "Form",
 };
 
@@ -155,7 +174,74 @@ export function layoutConfigError(config: ViewConfig): string | null {
   if (wrapped !== undefined && (!Array.isArray(wrapped) || !wrapped.every((id) => typeof id === "string"))) {
     return "wrapped must be a list of column ids";
   }
+  if (c.widgets !== undefined) {
+    const error = widgetsConfigError(c.widgets);
+    if (error) return error;
+  }
   return formConfigError(c.form);
+}
+
+// ---------------------------------------------------------------------------------------------
+// Dashboards (see lib/dashboard): the widget limits live here so view configs can be checked
+// without the dashboard module, which builds on linked views and so on this one.
+
+/** Columns of a dashboard's grid on wide screens; widgets take 1 to 4 of them, phones show one per row. */
+export const DASHBOARD_COLUMNS = 4;
+export const WIDGET_SPANS = [1, 2, 3, 4] as const;
+export type WidgetSpan = (typeof WIDGET_SPANS)[number];
+/** Widgets per dashboard: each one is a query when the page opens and whenever its database changes. */
+export const MAX_WIDGETS = 12;
+export const MAX_WIDGET_TITLE = 120;
+export const WIDGET_ID = /^[\w-]{1,64}$/;
+
+/**
+ * Why a dashboard view's widgets are malformed, or null. Each widget is a view of the dashboard's
+ * own database, so it names none; its settings are checked as any view's.
+ */
+function widgetsConfigError(value: unknown): string | null {
+  if (!Array.isArray(value)) return "widgets must be a list";
+  if (value.length > MAX_WIDGETS) return `A dashboard holds up to ${MAX_WIDGETS} widgets`;
+  const ids = new Set<string>();
+  for (const item of value as unknown[]) {
+    if (!item || typeof item !== "object" || Array.isArray(item)) return "Each widget must be an object";
+    const { id, title, span, color, view, ...rest } = item as Record<string, unknown>;
+    if (typeof id !== "string" || !WIDGET_ID.test(id)) return "Each widget needs an id of letters, digits, - or _";
+    if (ids.has(id)) return `Two widgets have the id "${id}"`;
+    ids.add(id);
+    if (Object.keys(rest).length) return `Widget "${id}": unknown setting "${Object.keys(rest)[0]}"`;
+    if (title !== undefined && (typeof title !== "string" || title.length > MAX_WIDGET_TITLE)) {
+      return `Widget "${id}": the title must be text of up to ${MAX_WIDGET_TITLE} characters`;
+    }
+    if (!WIDGET_SPANS.includes(span as WidgetSpan)) return `Widget "${id}": span must be one of ${WIDGET_SPANS.join(", ")}`;
+    if (color !== undefined && !(SELECT_COLORS as readonly unknown[]).includes(color)) {
+      return `Widget "${id}": color must be one of ${SELECT_COLORS.join(", ")}`;
+    }
+    const v = view as { type?: unknown; config?: unknown } | null;
+    if (!v || typeof v !== "object" || !(LINKED_VIEW_TYPES as readonly unknown[]).includes(v.type)) {
+      return `Widget "${id}": the view must be one of ${LINKED_VIEW_TYPES.join(", ")}`;
+    }
+    const config = v.config;
+    if (!config || typeof config !== "object" || Array.isArray(config)) return `Widget "${id}": the view's config must be an object`;
+    if ((config as ViewConfig).widgets !== undefined) return `Widget "${id}": a widget holds no widgets`;
+    const error = filterConfigError(config as ViewConfig) || layoutConfigError(config as ViewConfig);
+    if (error) return `Widget "${id}": ${error}`;
+  }
+  return null;
+}
+
+/**
+ * A view's settings with `change` applied to each of its widgets' settings too (dashboard views):
+ * what is done to the properties a view names (deleting, copying, retyping, hiding them) is done
+ * to what its widgets name.
+ */
+export function withWidgetConfigs(config: ViewConfig, change: (config: ViewConfig) => ViewConfig): ViewConfig {
+  if (!config.widgets?.length) return config;
+  return { ...config, widgets: config.widgets.map((w): ViewWidget => ({ ...w, view: { ...w.view, config: change(w.view.config) } })) };
+}
+
+/** A view's own settings and its widgets', for reading what they name (people in filters, say). */
+export function configsOf(config: ViewConfig): ViewConfig[] {
+  return [config, ...(config.widgets ?? []).map((w) => w.view.config)];
 }
 
 /**

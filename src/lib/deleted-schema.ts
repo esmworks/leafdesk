@@ -55,7 +55,7 @@ export function withoutDeleted(config: ViewConfig, deleted: ReadonlySet<string>)
 export function keepDeleted(stored: ViewConfig, next: ViewConfig, deleted: ReadonlySet<string>): ViewConfig {
   if (!deleted.size) return next;
   const { filters: _filters, ...rest } = stored;
-  const out = restoreReferences(rest, next, deleted);
+  const out = restoreReferences(rest, next, deleted, (s, n) => keepDeleted(s, n, deleted));
   const storedFilters = stored.filters ?? [];
   const lost: FilterRule[] = [];
   mapFilterRules(storedFilters, (rule) => {

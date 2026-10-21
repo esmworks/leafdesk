@@ -144,7 +144,8 @@ export function NumberFigure({
   compact,
 }: {
   value: string;
-  label: string;
+  /** What the value is; left out where the value's title already says it. */
+  label?: string;
   openLabel?: string;
   onOpen?: (anchor: HTMLElement) => void;
   compact?: boolean;
@@ -152,7 +153,7 @@ export function NumberFigure({
   const figure = (
     <>
       <span className={cn("block truncate font-semibold tracking-tight tabular-nums", compact ? "text-3xl" : "text-5xl")}>{value}</span>
-      <span className="mt-1 block truncate text-sm text-fg-muted">{label}</span>
+      {label && <span className="mt-1 block truncate text-sm text-fg-muted">{label}</span>}
     </>
   );
   if (!onOpen) return <div className="min-w-0 py-1">{figure}</div>;

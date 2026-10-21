@@ -93,6 +93,8 @@ import {
   placeWidget,
   serializeDashboard,
   updateWidget,
+  viewWidgets,
+  viewWidgetsConfig,
   WIDGET_COLORS,
   type DashboardWidget,
   type WidgetColor,
@@ -456,8 +458,8 @@ const groupSettingsInput = {
   hide_empty_groups: z.boolean().optional().describe("Leave out groups without rows."),
 };
 
-/** Layouts a dashboard widget shows: any view but a form. */
-const WIDGET_TYPE = z.enum(VIEW_TYPES).exclude(["form"]);
+/** Layouts a dashboard widget shows: any view but a form or a dashboard. */
+const WIDGET_TYPE = z.enum(VIEW_TYPES).exclude(["form", "dashboard"]);
 
 /** A dashboard widget's settings besides its database and layout, shared by add_dashboard and update_dashboard_widget. */
 const widgetInputs = {
@@ -487,9 +489,24 @@ const widgetInputs = {
   sorts: sortsInput.optional(),
 };
 
+/** The widgets of a dashboard view: each shows the view's own database, so names none. */
+const viewWidgetsInput = z
+  .array(
+    z.object({
+      id: z.string().min(1).optional().describe("A widget the view has (get_database lists them): keeps its settings you leave out."),
+      type: WIDGET_TYPE.optional().describe('"chart" (a number with chart_type "number"), "list", "table", "board", "calendar", "gallery" or "timeline". New widgets are charts.'),
+      ...widgetInputs,
+      title: z.string().max(MAX_WIDGET_TITLE).optional().describe("Shown above the widget; empty to name it after what it shows."),
+    }),
+  )
+  .max(MAX_WIDGETS)
+  .describe(
+    `Dashboard views: their widgets in reading order (left to right, then down), up to ${MAX_WIDGETS}, each a view of this database with its own settings (as in add_dashboard). Replaces the current widgets; widgets left out go.`,
+  );
+
 type WidgetInput = ViewInput & {
   database_id?: string;
-  type?: Exclude<ViewType, "form">;
+  type?: Exclude<ViewType, "form" | "dashboard">;
   title?: string;
   width?: number;
   color?: WidgetColor | "none";
@@ -830,6 +847,12 @@ async function applyFormLink(userId: string, viewId: string, input: FormInput) {
     throw error;
   }
   return (await forms.formPublicationsOf([viewId])).get(viewId) ?? null;
+}
+
+/** Refuses settings a dashboard view doesn't have: it shows its widgets, each with its own settings. */
+function dashboardOnly(settings: Record<string, unknown>) {
+  const given = Object.entries(settings).find(([, value]) => value !== undefined)?.[0];
+  if (given) throw new ToolInputError(`A dashboard view has no ${given} of its own: set its widgets (each takes its own view settings).`);
 }
 
 function viewOutput(
@@ -2518,7 +2541,7 @@ export function createMcpServer(principal: McpPrincipal) {
     {
       title: "Create a database view",
       description:
-        'Add a saved view to a database: a "table" (optionally grouped into collapsible sections with group_by), a "board" (cards in columns by group_by), a "calendar" (rows placed on the days of a date property, across every day of a range and at their times in the week mode; see calendar_mode), a "gallery" (cards with a cover: the first image in each row\'s body, or in a files property with cover), a "list" (one compact line per row), a "timeline" (bars from a start date to an optional end date, optionally in swimlanes by group_by) or a "form" (questions people answer to add a row; see questions, defaults and public). Views group by a select, status (per option, or per todo / in_progress / done with group_status_by "group"), multi_select, person, created_by, last_edited_by, checkbox (unchecked / checked), date, created_time or last_edited_time (per day, week from Monday, month or year with group_date_by, month by default) or relation (one group per linked row); a row with several tags, people or links shows in each of their groups. Filters (with groups and filter_combinator) and sorts use the same form as query_database; a person filter on "me" shows everyone who opens the view their own rows, and is_within date filters count from the day the view is opened.',
+        'Add a saved view to a database: a "table" (optionally grouped into collapsible sections with group_by), a "board" (cards in columns by group_by), a "calendar" (rows placed on the days of a date property, across every day of a range and at their times in the week mode; see calendar_mode), a "gallery" (cards with a cover: the first image in each row\'s body, or in a files property with cover), a "list" (one compact line per row), a "timeline" (bars from a start date to an optional end date, optionally in swimlanes by group_by), a "chart" (see chart_type), a "dashboard" (a grid of widgets over the database: numbers, charts, lists and other views, each with its own settings; see widgets. Without widgets it starts with the row count, the sum of the first number property, a chart by the first select or status property and the rows edited last) or a "form" (questions people answer to add a row; see questions, defaults and public). Views group by a select, status (per option, or per todo / in_progress / done with group_status_by "group"), multi_select, person, created_by, last_edited_by, checkbox (unchecked / checked), date, created_time or last_edited_time (per day, week from Monday, month or year with group_date_by, month by default) or relation (one group per linked row); a row with several tags, people or links shows in each of their groups. Filters (with groups and filter_combinator) and sorts use the same form as query_database; a person filter on "me" shows everyone who opens the view their own rows, and is_within date filters count from the day the view is opened.',
       inputSchema: z.object({
         database_id: id("database"),
         name: z.string().min(1).max(100).describe("View name."),
@@ -2541,15 +2564,24 @@ export function createMcpServer(principal: McpPrincipal) {
         filters: filtersInput.optional(),
         filter_combinator: filterCombinatorInput,
         sorts: sortsInput.optional(),
+        widgets: viewWidgetsInput.optional(),
       }),
       annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
       scopeChallenge: requireWrite,
     },
-    ({ database_id, name, type, filters, filter_combinator, sorts, ...input }) =>
+    ({ database_id, name, type, filters, filter_combinator, sorts, widgets, ...input }) =>
       runTool(async () => {
         assertWrite();
         const { database, properties, access } = await databases.getDatabase(userId, database_id);
         if (database.archivedAt) throw new ToolInputError("This database is in the trash.");
+        if (type === "dashboard") {
+          dashboardOnly({ ...input, filters, filter_combinator, sorts });
+          // Checked before the view is made, so a bad widget leaves nothing half set up behind.
+          const built = widgets && (await dashboardWidgets(database_id, widgets, []));
+          const created = await databases.addView(userId, database_id, { name, type, ...(built ? { config: { widgets: viewWidgetsConfig(built) } } : {}) });
+          return viewOutput(database, properties, { ...created, config: access.viewConfig(created.config) }, await databases.getLookups(userId, properties));
+        }
+        if (widgets !== undefined) throw new ToolInputError("widgets only applies to dashboard views.");
         const lookups = await databases.getLookups(userId, properties);
         const { questions, form_title, form_description, confirmation_message, allow_another, defaults, ...settings } = input;
         const formInput: FormInput = { questions, form_title, form_description, confirmation_message, allow_another, defaults };
@@ -2576,7 +2608,7 @@ export function createMcpServer(principal: McpPrincipal) {
     {
       title: "Update a database view",
       description:
-        "Rename a saved view or change its filters, sorts, grouping (boards and tables, see create_database_view) or timeline swimlanes, calendar or timeline dates, calendar month or week, timeline zoom and table, gallery cards, or a form's questions, texts, default values and public link (view ids from get_database). before_view_id or after_view_id moves the view's tab next to another view of the database; the first tab is the one a published database shows. filters and sorts replace the view's current ones (filters with filter_combinator, \"and\" unless given); pass an empty array to clear them. filter_combinator alone switches how the current filters combine. Settings you leave out keep their values.",
+        "Rename a saved view or change its filters, sorts, grouping (boards and tables, see create_database_view) or timeline swimlanes, calendar or timeline dates, calendar month or week, timeline zoom and table, gallery cards, a form's questions, texts, default values and public link, or a dashboard's widgets (view ids from get_database). before_view_id or after_view_id moves the view's tab next to another view of the database; the first tab is the one a published database shows. filters and sorts replace the view's current ones (filters with filter_combinator, \"and\" unless given); pass an empty array to clear them. filter_combinator alone switches how the current filters combine. Settings you leave out keep their values.",
       inputSchema: z.object({
         database_id: id("database"),
         view_id: id("view"),
@@ -2598,16 +2630,20 @@ export function createMcpServer(principal: McpPrincipal) {
         filters: filtersInput.optional(),
         filter_combinator: filterCombinatorInput,
         sorts: sortsInput.optional(),
+        widgets: viewWidgetsInput.optional(),
       }),
       annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: false },
       scopeChallenge: requireWrite,
     },
-    ({ database_id, view_id, name, before_view_id, after_view_id, filters, filter_combinator, sorts, ...input }) =>
+    ({ database_id, view_id, name, before_view_id, after_view_id, filters, filter_combinator, sorts, widgets, ...input }) =>
       runTool(async () => {
         assertWrite();
         const { database, properties, views } = await databases.getDatabase(userId, database_id);
         const view = views.find((v) => v.id === view_id);
         if (!view) throw new ToolInputError(`No view with id "${view_id}" in this database. Call get_database for view ids.`);
+        if (view.type === "dashboard") dashboardOnly({ ...input, filters, filter_combinator, sorts });
+        else if (widgets !== undefined) throw new ToolInputError("widgets only applies to dashboard views.");
+        const built = widgets && (await dashboardWidgets(database_id, widgets, viewWidgets(view.config, database_id)));
         if (before_view_id !== undefined && after_view_id !== undefined) {
           throw new ToolInputError("Give before_view_id or after_view_id, not both.");
         }
@@ -2624,11 +2660,12 @@ export function createMcpServer(principal: McpPrincipal) {
         const patch = {
           ...viewConfigPatch(properties, view.type, { ...layout, filters, filter_combinator, sorts }, lookups, view.config),
           ...formConfigPatch(properties, view.type, view.config, formInput),
+          ...(built ? { widgets: viewWidgetsConfig(built) } : {}),
         };
         const linkChange = isPublic !== undefined || anonymous !== undefined;
         if (name === undefined && !Object.keys(patch).length && !linkChange && target === undefined) {
           throw new ToolInputError(
-            "Nothing to change: provide name, before_view_id or after_view_id, a view setting, filters, filter_combinator or sorts.",
+            "Nothing to change: provide name, before_view_id or after_view_id, a view setting, filters, filter_combinator, sorts or a dashboard's widgets.",
           );
         }
         // Moved first: on a locked database the call is refused before anything else is saved.
@@ -2677,6 +2714,22 @@ export function createMcpServer(principal: McpPrincipal) {
       ...(color ? { color } : {}),
       view,
     };
+  };
+
+  /**
+   * A dashboard view's widgets from tool input, each showing the view's database `databaseId`. An
+   * input naming one of the `current` widgets changes that one (settings left out keep their values).
+   */
+  const dashboardWidgets = async (databaseId: string, inputs: (WidgetInput & { id?: string })[], current: DashboardWidget[]) => {
+    const built: DashboardWidget[] = [];
+    for (const { id, ...input } of inputs) {
+      const was = id === undefined ? undefined : current.find((w) => w.id === id);
+      if (id !== undefined && !was) throw new ToolInputError(`No widget with id "${id}" on this dashboard view. get_database lists them.`);
+      if (was && built.some((w) => w.id === was.id)) throw new ToolInputError(`The widget "${id}" is listed twice.`);
+      // New widgets get ids neither the view's widgets nor the ones built so far have.
+      built.push(await widgetFrom({ ...input, database_id: databaseId }, [...current, ...built], was));
+    }
+    return built;
   };
 
   /** A page that may get or change a dashboard: one the user can edit, with a body, not trashed or locked. */

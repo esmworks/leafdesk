@@ -15,6 +15,7 @@ import {
   type PropertyViewer,
 } from "./property-access";
 import type { PropertyType } from "./property-types";
+import { withWidgetConfigs } from "./views";
 
 type Prop = { id: string; name: string; type: PropertyType; options: { formula?: { expression: string } } };
 
@@ -251,7 +252,7 @@ function withoutDefaults(config: ViewConfig, hidden: ReadonlySet<string>): ViewC
 export function hideReferences(config: ViewConfig, gone: ReadonlySet<string>): ViewConfig {
   if (!gone.size) return config;
   const dropped = dropPropertyReferences(
-    { ...config, filters: config.filters?.filter((f) => !mentions(f, gone)) },
+    { ...withWidgetConfigs(config, (c) => hideReferences(c, gone)), filters: config.filters?.filter((f) => !mentions(f, gone)) },
     (id) => gone.has(id),
   );
   return dropped;
@@ -273,9 +274,22 @@ function mentions(entry: FilterEntry, gone: ReadonlySet<string>) {
  * settings said about those properties put back: saving a view never drops someone else's filter
  * on a column the saver can't see.
  */
-export function restoreReferences(stored: ViewConfig, next: ViewConfig, gone: ReadonlySet<string>): ViewConfig {
+export function restoreReferences(
+  stored: ViewConfig,
+  next: ViewConfig,
+  gone: ReadonlySet<string>,
+  restoreWidget: (stored: ViewConfig, next: ViewConfig) => ViewConfig = (s, n) => restoreReferences(s, n, gone),
+): ViewConfig {
   if (!gone.size) return next;
   const out: ViewConfig = { ...next };
+  // A dashboard's widgets each get back what they said, as long as they show the same layout.
+  if (stored.widgets?.length && next.widgets?.length) {
+    const before = new Map(stored.widgets.map((w) => [w.id, w]));
+    out.widgets = next.widgets.map((w) => {
+      const was = before.get(w.id);
+      return was && was.view.type === w.view.type ? { ...w, view: { ...w.view, config: restoreWidget(was.view.config, w.view.config) } } : w;
+    });
+  }
   const keep = (id: string | undefined) => id !== undefined && gone.has(id);
   for (const key of ["groupBy", "dateBy", "endDateBy", "stackBy", "frozenThrough"] as const) {
     if (keep(stored[key])) out[key] = stored[key];

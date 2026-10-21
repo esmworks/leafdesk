@@ -3446,3 +3446,90 @@ describe("archived pages", () => {
     expect(databases.listRowsInOrder).toHaveBeenLastCalledWith("user-1", "db-1", expect.objectContaining({ showOutdated: true }));
   });
 });
+
+describe("dashboard views", () => {
+  const amount = { id: "prop-amount", name: "Amount", type: "number", options: {} };
+  const widgets = [
+    { id: "rows", span: 1, view: { type: "chart", config: { chartType: "number" } } },
+    { id: "chart", span: 3, view: { type: "chart", config: { groupBy: "prop-status" } } },
+  ];
+  const dashboard = { id: "view-d", name: "Overview", type: "dashboard", config: { widgets } };
+  beforeEach(() => databases.getDatabase.mockResolvedValue({ ...database, properties: [status, notes, amount], views: [...database.views, dashboard] }));
+
+  it("creates a dashboard view with its default widgets, described by name", async () => {
+    databases.addView.mockResolvedValue(dashboard);
+    const r = await callTool(writer, "create_database_view", { database_id: "db-1", name: "Overview", type: "dashboard" });
+    expect(databases.addView).toHaveBeenCalledWith("user-1", "db-1", { name: "Overview", type: "dashboard" });
+    expect(databases.updateView).not.toHaveBeenCalled();
+    expect(r.data).toMatchObject({
+      type: "dashboard",
+      widgets: [
+        { id: "rows", title: null, width: 1, type: "chart", chart_type: "number", aggregate: "count" },
+        { id: "chart", width: 3, type: "chart", group_by: "Status", chart_type: "bar" },
+      ],
+    });
+  });
+
+  it("creates a dashboard view with the widgets it is given, each a view of the database", async () => {
+    databases.addView.mockImplementation(async (_user: string, _db: string, input: { name: string; type: string; config: object }) => ({
+      id: "view-e",
+      ...input,
+    }));
+    const r = await callTool(writer, "create_database_view", {
+      database_id: "db-1",
+      name: "Money",
+      type: "dashboard",
+      widgets: [
+        { type: "chart", chart_type: "number", aggregate: "sum", aggregate_property: "Amount", title: "Total" },
+        { type: "list", sorts: [{ property: "Amount", direction: "desc" }] },
+      ],
+    });
+    expect(r.isError).toBe(false);
+    const config = databases.addView.mock.calls[0][2].config;
+    expect(config.widgets).toHaveLength(2);
+    expect(config.widgets[0]).toMatchObject({ title: "Total", span: 1, view: { type: "chart", config: { chartType: "number", chartAggregate: { fn: "sum", propertyId: "prop-amount" } } } });
+    expect(config.widgets[1]).toMatchObject({ span: 2, view: { type: "list", config: { sorts: [{ propertyId: "prop-amount", direction: "desc" }] } } });
+    expect(config.widgets.every((w: object) => !("databaseId" in w))).toBe(true);
+    expect(r.data.widgets[0]).toMatchObject({ title: "Total", aggregate: "sum", aggregate_property: "Amount" });
+  });
+
+  it("refuses settings a dashboard doesn't have, and widgets on other views, before creating anything", async () => {
+    const filtered = await callTool(writer, "create_database_view", {
+      database_id: "db-1",
+      name: "D",
+      type: "dashboard",
+      filters: [{ property: "Status", op: "equals", value: "Done" }],
+    });
+    expect(filtered.text).toMatch(/A dashboard view has no filters of its own/);
+    const grouped = await callTool(writer, "create_database_view", { database_id: "db-1", name: "D", type: "dashboard", group_by: "Status" });
+    expect(grouped.text).toMatch(/no group_by of its own/);
+    const onTable = await callTool(writer, "create_database_view", { database_id: "db-1", name: "T", widgets: [] });
+    expect(onTable.text).toMatch(/widgets only applies to dashboard views/);
+    const nested = await callTool(writer, "create_database_view", { database_id: "db-1", name: "D", type: "dashboard", widgets: [{ type: "dashboard" }] });
+    expect(nested.isError).toBe(true);
+    expect(databases.addView).not.toHaveBeenCalled();
+  });
+
+  it("replaces a dashboard's widgets, keeping what a listed widget leaves out", async () => {
+    const r = await callTool(writer, "update_database_view", {
+      database_id: "db-1",
+      view_id: "view-d",
+      widgets: [{ id: "chart", width: 4, chart_type: "donut" }, { type: "chart", chart_type: "number" }],
+    });
+    expect(r.isError).toBe(false);
+    const saved = databases.updateView.mock.calls[0][2].config.widgets;
+    expect(saved[0]).toEqual({ id: "chart", span: 4, view: { type: "chart", config: { groupBy: "prop-status", chartType: "donut" } } });
+    expect(saved[1].id).not.toMatch(/^(rows|chart)$/);
+    expect(saved).toHaveLength(2);
+    const unknown = await callTool(writer, "update_database_view", { database_id: "db-1", view_id: "view-d", widgets: [{ id: "nope" }] });
+    expect(unknown.text).toMatch(/No widget with id "nope"/);
+    const sorted = await callTool(writer, "update_database_view", { database_id: "db-1", view_id: "view-d", sorts: [] });
+    expect(sorted.text).toMatch(/no sorts of its own/);
+  });
+
+  it("doesn't query rows through a dashboard view", async () => {
+    databases.listRowsInOrder.mockResolvedValue({ rows: [], sorts: [] });
+    const r = await callTool(writer, "query_database", { database_id: "db-1", view_id: "view-d" });
+    expect(r.text).toMatch(/A dashboard view has no filters or sorts of its own/);
+  });
+});

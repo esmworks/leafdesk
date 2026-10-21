@@ -40,8 +40,9 @@ import { dropPropertyReferences } from "@/lib/duplicate";
 import { keepDeleted, livePropertyValues, uniqueName, withoutDeleted, type DeletedProperty, type DeletedView } from "@/lib/deleted-schema";
 import { filterConfigError, filterRules } from "@/lib/filters";
 import { chartGroupProperty } from "@/lib/chart";
+import { defaultDashboardWidgets } from "@/lib/dashboard";
 import { defaultFormConfig } from "@/lib/forms";
-import { DEFAULT_VIEW_NAMES, galleryCover, isViewType, layoutConfigError } from "@/lib/views";
+import { configsOf, DEFAULT_VIEW_NAMES, galleryCover, isViewType, layoutConfigError } from "@/lib/views";
 import { holdsOptions, holdsPeople, isComputed, isDerived, isReadOnlyType, PERSON_ME, type StatusGroup } from "@/lib/property-types";
 import { canRestrict, namesPeople } from "@/lib/property-access";
 import { moveGroupValue } from "@/lib/grouping";
@@ -2385,6 +2386,8 @@ export async function addView(userId: string, databaseId: string, input: { name:
   if (input.type === "chart") config.groupBy = chartGroupProperty(props, {})?.id;
   // Forms start out asking for the name and every property a form can ask for.
   if (input.type === "form") config.form = defaultFormConfig(props);
+  // Dashboards start with a few widgets over what the maker may see (see lib/dashboard).
+  if (input.type === "dashboard") config.widgets = defaultDashboardWidgets(props.filter((p) => !access.valuesHidden().has(p.id)));
   Object.assign(config, input.config);
   const [{ max }] = await db
     .select({ max: sql<number | null>`max(${databaseView.position})` })
@@ -2954,8 +2957,8 @@ export async function getPeople(userId: string, properties: DatabaseProperty[]):
     const values = { ...stored, ...computedValues(personProps, { createdBy, updatedBy }) };
     for (const prop of personProps) for (const id of asIds(values[prop.id])) referenced.add(id);
   }
-  for (const view of views) {
-    for (const rule of filterRules(access.viewConfig(view.config).filters)) {
+  for (const config of views.flatMap((view) => configsOf(access.viewConfig(view.config)))) {
+    for (const rule of filterRules(config.filters)) {
       const person = personProps.some((p) => p.id === rule.propertyId);
       if (!person) continue;
       for (const value of Array.isArray(rule.value) ? rule.value : [rule.value]) {

@@ -17,7 +17,7 @@ after you approve them over OAuth.
 </picture>
 
 - **Pages and databases**: a block editor with slash commands, and databases whose rows are pages,
-  shown as table, board, calendar, gallery, list, timeline, chart or form, with relations,
+  shown as table, board, calendar, gallery, list, timeline, chart, dashboard or form, with relations,
   formulas and rollups; dashboards put numbers, charts and lists from several databases on a page.
 - **Realtime and offline**: edit together with live cursors, keep working without a connection.
 - **Built for AI assistants**: connect Claude or any other MCP client over OAuth 2.1 and approve
@@ -112,7 +112,11 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   opens the rows behind it. A widget can take one of the option colors, as board columns do, and
   editors move widgets by dragging their title bar. A page with a dashboard uses the full width.
   Published pages show numbers and lists, and charts as a table of their figures. Over MCP,
-  `add_dashboard` and `update_dashboard_widget` build one.
+  `add_dashboard` and `update_dashboard_widget` build one. A database also has dashboard views:
+  the same grid as a tab of the database, its widgets all views of that database, starting with
+  the row count, the sum of the first number property, a chart by the first select or status
+  property and the rows edited last. Dashboard views aren't published, printed or shown by linked
+  views.
 - **Web bookmarks and embeds**: link cards with the page's title, description and image (fetched
   once on the server behind an SSRF guard), and YouTube, Vimeo, Loom, Figma, Google Docs, CodePen,
   Spotify and Google Maps embeds in sandboxed iframes.
@@ -143,7 +147,8 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
     changes the other row's paired property too. That takes edit access to the row you change and
     being able to see the row you link, not edit access to the other database; making a two-way
     relation takes edit access to both databases, since it adds the paired property to the other.
-  - Views: table, board, calendar, gallery, list, timeline and chart, each with its own filters,
+  - Views: table, board, calendar, gallery, list, timeline, chart and dashboard (widgets over the
+    database, see Dashboards), each with its own filters,
     sorting, grouping and shown properties (one by one, or all hidden or shown at once). Filters
     combine with "and"/"or" in groups and take relative dates such as "this week". Text can be
     filtered on what it does or does not contain, numbers with =, ≠, <, ≤, > and ≥, dates on,
@@ -2665,7 +2670,7 @@ The tools cover:
   `change_database_property_type` (converts the values in every row; `dry_run` counts what would
   convert and what would be cleared without changing anything), `delete_database_property`,
   `create_database_view` and `update_database_view` (table, board, calendar, gallery, list,
-  timeline, chart or form, including a form's public link; a chart over a date takes `accumulate`
+  timeline, chart, dashboard or form, including a form's public link and a dashboard's `widgets`; a chart over a date takes `accumulate`
   for running totals or a burndown, a calendar `calendar_mode` (month or week), a board `aggregate` and `aggregate_property` for what its column headers show, and table, list and timeline views take `sub_items`;
   `update_database_view` also moves a
   view's tab with `before_view_id` or `after_view_id`), and `set_property_access` (who may

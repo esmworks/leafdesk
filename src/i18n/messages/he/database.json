@@ -30,7 +30,14 @@
     "list": "רשימה",
     "timeline": "ציר זמן",
     "chart": "תרשים",
+    "dashboard": "לוח בקרה",
     "form": "טופס"
+  },
+  "dashboardView": {
+    "emptyEditable": "כאן אפשר להציג מספרים, תרשימים ורשימות ממסד הנתונים הזה. הם מתעדכנים כשהשורות משתנות.",
+    "chartTitle": "{measure} לפי {property}",
+    "recent": "נערכו לאחרונה",
+    "titlePlaceholder": "כותרת (אופציונלי)"
   },
   "colors": {
     "gray": "אפור",
