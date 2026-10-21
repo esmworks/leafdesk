@@ -593,6 +593,29 @@
 }
 
 /*
+ * A page presented as slides (components/page/presentation.tsx) sets its text a size larger,
+ * growing with the screen; headings, the title and the slide's width follow in em. Small text
+ * stays a step smaller there too.
+ */
+.presentation-slide {
+  font-size: clamp(18px, 1.25vw + 8px, 34px);
+}
+.presentation-slide .leafdesk-editor .bn-default-styles {
+  font-size: 1em;
+}
+.page-small-text .presentation-slide .leafdesk-editor .bn-default-styles {
+  font-size: 0.875em;
+}
+/* A slide is all page: its background's pattern runs behind the text too, as on the title slide. */
+.presentation-slide .bn-container[data-color-scheme] {
+  --bn-colors-editor-background: transparent;
+}
+/* Comments aren't part of a presentation: the text they mark shows plain. */
+.presentation-slide .bn-thread-mark:not([data-orphan="true"]) {
+  background: transparent;
+}
+
+/*
  * The comments panel (360px, fixed at the right) would cover the end of every line. A page keeps
  * its place while it clears the panel; otherwise it moves left, and narrows once it reaches the edge.
  */

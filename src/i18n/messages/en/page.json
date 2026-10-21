@@ -58,6 +58,7 @@
     "exportDisabled": "Export is turned off",
     "exportDisabledBody": "The owners of this workspace have turned off exporting and printing its pages.",
     "showInGraph": "Show in graph",
+    "present": "Present",
     "watch": "Watch",
     "watchHint": "Hear in your inbox when someone else edits this page or starts a comment thread on it.",
     "mute": "Mute",
@@ -751,6 +752,13 @@
     "markdownImageUntitled": "Image",
     "expand": "Open in viewer",
     "view": "View {name}"
+  },
+  "presentation": {
+    "previous": "Previous slide",
+    "next": "Next slide",
+    "exit": "End presentation",
+    "counter": "{index} of {count}",
+    "announce": "Slide {index} of {count}"
   },
   "markdownSource": {
     "title": "Edit as Markdown",

@@ -11,6 +11,7 @@
   "items": {
     "shortcuts": "Show the keyboard shortcuts",
     "close": "Close a dialog, menu or panel",
+    "present": "Present the page as slides",
     "search": "Search",
     "sidebar": "Show or hide the sidebar",
     "find": "Find in page",

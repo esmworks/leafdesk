@@ -23,6 +23,8 @@ export const SHORTCUT_GROUPS: readonly ShortcutGroup[] = [
       { id: "shortcuts", combos: [["Mod", "/"], ["?"]] },
       // Dialogs, menus and panels (components/ui.tsx useDismiss, the comments and AI panels).
       { id: "close", combos: [["Esc"]] },
+      // components/page/page-view.tsx; the keys inside it are presentation.tsx's.
+      { id: "present", combos: [["Mod", "Alt", "P"]] },
     ],
   },
   {
@@ -113,7 +115,7 @@ export function comboText(combo: Combo, mac: boolean): string {
   return keyLabels(combo, mac).join(mac ? "" : "+");
 }
 
-type KeyEventLike = Pick<KeyboardEvent, "key" | "metaKey" | "ctrlKey" | "altKey" | "shiftKey" | "defaultPrevented" | "isComposing"> & {
+type KeyEventLike = Pick<KeyboardEvent, "key" | "code" | "metaKey" | "ctrlKey" | "altKey" | "shiftKey" | "defaultPrevented" | "isComposing"> & {
   target: EventTarget | null;
 };
 
@@ -133,4 +135,13 @@ export function opensShortcuts(e: KeyEventLike, mac: boolean): boolean {
   if (e.defaultPrevented || e.isComposing || e.altKey) return false;
   if (e.key === "/") return mac ? e.metaKey && !e.ctrlKey : e.ctrlKey && !e.metaKey;
   return e.key === "?" && !e.metaKey && !e.ctrlKey && !isEditable(e.target);
+}
+
+/**
+ * Whether a key press presents the page: Mod+Alt+P. Matched by the key's place rather than its
+ * character, since Option+P types "π" on a Mac and Ctrl+Alt is AltGr on many other keyboards.
+ */
+export function opensPresentation(e: KeyEventLike, mac: boolean): boolean {
+  if (e.defaultPrevented || e.isComposing || e.shiftKey || !e.altKey || e.code !== "KeyP") return false;
+  return mac ? e.metaKey && !e.ctrlKey : e.ctrlKey && !e.metaKey;
 }

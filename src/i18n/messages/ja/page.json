@@ -58,6 +58,7 @@
     "exportDisabled": "エクスポートはオフになっています",
     "exportDisabledBody": "このワークスペースのオーナーが、ページのエクスポートと印刷をオフにしています。",
     "showInGraph": "グラフで表示",
+    "present": "プレゼンテーション",
     "watch": "ウォッチ",
     "watchHint": "ほかの人がこのページを編集したり、コメントスレッドを始めたりすると受信トレイに通知します。",
     "mute": "ミュート",
@@ -751,6 +752,13 @@
     "markdownImageUntitled": "画像",
     "expand": "ビューアーで開く",
     "view": "{name} を表示"
+  },
+  "presentation": {
+    "previous": "前のスライド",
+    "next": "次のスライド",
+    "exit": "プレゼンテーションを終了",
+    "counter": "{index} / {count}",
+    "announce": "スライド {index} / {count}"
   },
   "markdownSource": {
     "title": "Markdownとして編集",

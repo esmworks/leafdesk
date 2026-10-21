@@ -58,6 +58,7 @@
     "exportDisabled": "برون‌بری خاموش است",
     "exportDisabledBody": "مالکان این فضای کاری برون‌بری و چاپ صفحه‌های آن را خاموش کرده‌اند.",
     "showInGraph": "نمایش در گراف",
+    "present": "ارائه",
     "watch": "پیگیری",
     "watchHint": "وقتی کس دیگری این صفحه را ویرایش می‌کند یا رشتهٔ نظری روی آن شروع می‌کند، در صندوق ورودی باخبر شوید.",
     "mute": "بی‌صدا کردن",
@@ -751,6 +752,13 @@
     "markdownImageUntitled": "تصویر",
     "expand": "باز کردن در نمایشگر",
     "view": "نمایش {name}"
+  },
+  "presentation": {
+    "previous": "اسلاید قبلی",
+    "next": "اسلاید بعدی",
+    "exit": "پایان ارائه",
+    "counter": "{index} از {count}",
+    "announce": "اسلاید {index} از {count}"
   },
   "markdownSource": {
     "title": "ویرایش به‌صورت Markdown",

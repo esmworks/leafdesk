@@ -39,6 +39,7 @@ import { PAGE_HEADER_EVENT } from "@/lib/collab-constants";
 import { threadOfHash } from "@/lib/comments";
 import type { PageBackground } from "@/lib/page-background";
 import { DEFAULT_PAGE_STYLE, pageTextClasses, writePageStyle, type PageStyle } from "@/lib/page-style";
+import { isMac, opensPresentation } from "@/lib/shortcuts";
 
 // BlockNote touches `window` during setup; render it only in the browser.
 const CollabEditor = dynamic(() => import("./collab-editor"), { ssr: false });
@@ -47,6 +48,8 @@ const LocalGraphPanel = dynamic(() => import("@/components/graph/local-graph-pan
 // Loaded when it opens: its preview brings the editor and the editor's dictionaries.
 const HistoryPanel = dynamic(() => import("./history-panel").then((m) => m.HistoryPanel), { ssr: false });
 const MarkdownSourceView = dynamic(() => import("./markdown-source").then((m) => m.MarkdownSourceView), { ssr: false });
+// Loaded when it opens, likewise.
+const Presentation = dynamic(() => import("./presentation"), { ssr: false });
 
 type Crumb = { id: string; title: string; icon: string | null; kind: PageKind };
 
@@ -112,6 +115,7 @@ export function PageView({
   const [background, setBackground] = useState(page.background);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [markdownOpen, setMarkdownOpen] = useState(false);
+  const [presenting, setPresenting] = useState(false);
   const [commentsOpen, setCommentsOpen] = useState(false);
   // The graph and the comments share the room beside the page: opening one closes the other.
   const [graphOpen, setGraphOpen] = useState(false);
@@ -196,6 +200,27 @@ export function PageView({
       ? t("documentViewTitle", { title: label, view: viewName })
       : t("documentTitle", { title: label });
   }, [title, untitled, viewName, t, inPanel]);
+
+  // Presenting needs the body's blocks, so the page has a body and its document has synced.
+  const canPresent = showBody && Boolean(pageDoc) && synced && !page.archived;
+  const present = useCallback(() => {
+    // Asked for here, while the click or key press that wants it is still in hand: the browser
+    // refuses the whole screen otherwise. The presentation works without it.
+    void document.documentElement.requestFullscreen?.().catch(() => {});
+    setPresenting(true);
+  }, []);
+  // Mod+Alt+P presents the page. In the row panel, the panel's page answers first (a capturing
+  // listener), and the page beside it then leaves the key alone.
+  useEffect(() => {
+    if (!canPresent) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (!opensPresentation(e, isMac()) || document.querySelector("[data-presentation]")) return;
+      e.preventDefault();
+      present();
+    };
+    window.addEventListener("keydown", onKey, inPanel);
+    return () => window.removeEventListener("keydown", onKey, inPanel);
+  }, [canPresent, present, inPanel]);
 
   /** Runs a page action; a failure shows a message instead of reaching the error boundary. */
   function run(action: () => Promise<void>, onError?: () => void) {
@@ -416,6 +441,7 @@ export function PageView({
               viewers={connection === "live" ? viewers : []}
               onHistory={() => setHistoryOpen(true)}
               onMarkdown={showBody && pageDoc && canEdit && !locked && !page.archived ? () => setMarkdownOpen(true) : undefined}
+              onPresent={canPresent ? present : undefined}
               commentsOpen={commentsOpen}
               onComments={
                 showBody
@@ -577,6 +603,21 @@ export function PageView({
         )}
         {historyOpen && (
           <HistoryPanel pageId={page.id} readOnly={page.archived || !canEdit || locked} onClose={() => setHistoryOpen(false)} />
+        )}
+        {presenting && canPresent && pageDoc && (
+          <Presentation
+            pageDoc={pageDoc}
+            workspaceId={workspaceId}
+            pageId={page.id}
+            title={title}
+            icon={icon}
+            kind={page.kind}
+            background={background}
+            style={pageStyle}
+            user={user}
+            crumbs={trail}
+            onClose={() => setPresenting(false)}
+          />
         )}
       </div>
     </DarkScheme>

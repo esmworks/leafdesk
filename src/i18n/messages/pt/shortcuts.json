@@ -11,6 +11,7 @@
   "items": {
     "shortcuts": "Mostrar os atalhos de teclado",
     "close": "Fechar uma caixa de diálogo, menu ou painel",
+    "present": "Apresentar a página como slides",
     "search": "Pesquisar",
     "sidebar": "Mostrar ou ocultar a barra lateral",
     "find": "Localizar na página",

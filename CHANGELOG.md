@@ -4,6 +4,16 @@
 
 ### Added
 
+- **Present a page as slides.** **Present** in a page's menu, or ⌘⌥P (Ctrl+Alt+P), shows the page
+  over the whole screen, read-only, in the app's light or dark theme. The first slide is the page's
+  icon and title on its background; after it, each divider starts a new slide, or on a page without
+  dividers each heading of level 1 or 2 does, and blocks nested under one stay with it. Slides draw
+  the page's own blocks (tables with merged cells, images, callouts, columns, code, equations and
+  embeds) with larger text, and a slide longer than the screen scrolls. →, Space, Page Down or a
+  click go on, ← and Page Up go back (mirrored in right-to-left languages), Home and End jump to the
+  ends, and Esc ends it. A counter and a progress line show where you are; the controls fade while
+  the pointer rests, and slides change without motion when the system asks for less. Edits made
+  meanwhile show as they come. The shortcut is listed under **Keyboard shortcuts**.
 - **Writing instructions for voice notes, per database.** A database can say how the voice notes
   saved in it are written up, e.g. "Customer visit note: company, person met, what was discussed,
   quote status, next step". People with full access set them from the database's page menu

@@ -58,6 +58,7 @@
     "exportDisabled": "التصدير معطّل",
     "exportDisabledBody": "أوقف مالكو مساحة العمل هذه تصدير صفحاتها وطباعتها.",
     "showInGraph": "العرض في الرسم البياني",
+    "present": "عرض تقديمي",
     "watch": "مراقبة",
     "watchHint": "اعرف في صندوق الوارد عندما يعدّل شخص آخر هذه الصفحة أو يبدأ سلسلة تعليقات عليها.",
     "mute": "كتم",
@@ -751,6 +752,13 @@
     "markdownImageUntitled": "صورة",
     "expand": "فتح في العارض",
     "view": "عرض {name}"
+  },
+  "presentation": {
+    "previous": "الشريحة السابقة",
+    "next": "الشريحة التالية",
+    "exit": "إنهاء العرض التقديمي",
+    "counter": "{index} من {count}",
+    "announce": "الشريحة {index} من {count}"
   },
   "markdownSource": {
     "title": "تحرير بصيغة Markdown",

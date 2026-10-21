@@ -58,6 +58,7 @@
     "exportDisabled": "A exportação está desativada",
     "exportDisabledBody": "Os proprietários deste espaço de trabalho desativaram a exportação e a impressão das páginas.",
     "showInGraph": "Mostrar no grafo",
+    "present": "Apresentar",
     "watch": "Acompanhar",
     "watchHint": "Saiba na sua caixa de entrada quando outra pessoa editar esta página ou iniciar uma conversa de comentários nela.",
     "mute": "Silenciar",
@@ -751,6 +752,13 @@
     "markdownImageUntitled": "Imagem",
     "expand": "Abrir no visualizador",
     "view": "Ver {name}"
+  },
+  "presentation": {
+    "previous": "Slide anterior",
+    "next": "Próximo slide",
+    "exit": "Encerrar a apresentação",
+    "counter": "{index} de {count}",
+    "announce": "Slide {index} de {count}"
   },
   "markdownSource": {
     "title": "Editar como Markdown",

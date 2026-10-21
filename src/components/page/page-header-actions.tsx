@@ -21,6 +21,7 @@ import {
   Mic,
   MoreHorizontal,
   MoveHorizontal,
+  Presentation,
   Printer,
   ScrollText,
   Search,
@@ -57,6 +58,7 @@ import type { Presence } from "@/lib/presence";
 import { PAGE_FONTS, type PageStyle } from "@/lib/page-style";
 import { printPath } from "@/lib/print";
 import { relativeTime } from "@/lib/relative-time";
+import { comboText, isMac } from "@/lib/shortcuts";
 import type { PageHeaderInfo } from "@/server/page-meta";
 import type { TreeNode } from "@/server/pages";
 import type { TeamspaceSummary } from "@/server/teamspaces";
@@ -88,6 +90,7 @@ export function PageHeaderActions({
   viewers = [],
   onHistory,
   onMarkdown,
+  onPresent,
   onComments,
   commentsOpen = false,
   onGraph,
@@ -111,6 +114,8 @@ export function PageHeaderActions({
   onHistory: () => void;
   /** Opens the body as Markdown to edit (markdown-source.tsx); unset where it can't be. */
   onMarkdown?: () => void;
+  /** Presents the page as slides (presentation.tsx); unset where it can't be. */
+  onPresent?: () => void;
   /** Opens or closes the comments beside the page; pages without a body have none. */
   onComments?: () => void;
   commentsOpen?: boolean;
@@ -274,6 +279,7 @@ export function PageHeaderActions({
         onInfo={setInfo}
         onHistory={onHistory}
         onMarkdown={onMarkdown}
+        onPresent={onPresent}
         onGraph={onGraph}
         onMoveToTrash={onMoveToTrash}
         onOpenPage={onOpenPage}
@@ -387,6 +393,7 @@ function PageMenu({
   onInfo,
   onHistory,
   onMarkdown,
+  onPresent,
   onGraph,
   onMoveToTrash,
   onOpenPage,
@@ -401,6 +408,7 @@ function PageMenu({
   onHistory: () => void;
   /** Opens the body as Markdown to edit (markdown-source.tsx); unset where it can't be. */
   onMarkdown?: () => void;
+  onPresent?: () => void;
   onGraph?: () => void;
   onMoveToTrash: () => void;
   onOpenPage?: (workspaceId: string, pageId: string) => void;
@@ -592,6 +600,18 @@ function PageMenu({
                 }}
               >
                 {t("showInGraph")}
+              </MenuItem>
+            )}
+            {onPresent && page.hasBody && !isDatabase && !page.archived && (
+              <MenuItem
+                icon={<Presentation className="h-4 w-4" />}
+                trailing={<kbd className="font-sans text-xs text-fg-faint pointer-coarse:hidden">{comboText(["Mod", "Alt", "P"], isMac())}</kbd>}
+                onClick={() => {
+                  close();
+                  onPresent();
+                }}
+              >
+                {t("present")}
               </MenuItem>
             )}
             {/* The copy lands beside the original; at the top level that isn't open to every guest. */}

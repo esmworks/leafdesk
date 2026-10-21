@@ -58,6 +58,7 @@
     "exportDisabled": "הייצוא מושבת",
     "exportDisabledBody": "הבעלים של סביבת העבודה הזו השביתו את הייצוא וההדפסה של הדפים שלה.",
     "showInGraph": "הצגה בגרף",
+    "present": "הצגה כמצגת",
     "watch": "מעקב",
     "watchHint": "לקבל הודעה בתיבת הדואר הנכנס כשמישהו אחר עורך את הדף הזה או פותח בו שרשור תגובות.",
     "mute": "השתקה",
@@ -751,6 +752,13 @@
     "markdownImageUntitled": "תמונה",
     "expand": "פתיחה במציג",
     "view": "הצגת {name}"
+  },
+  "presentation": {
+    "previous": "השקופית הקודמת",
+    "next": "השקופית הבאה",
+    "exit": "סיום המצגת",
+    "counter": "{index} מתוך {count}",
+    "announce": "שקופית {index} מתוך {count}"
   },
   "markdownSource": {
     "title": "עריכה כ־Markdown",
