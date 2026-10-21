@@ -431,7 +431,10 @@ function RowPanel({
   } else {
     body = (
       <>
-        <header className="sticky top-0 z-[35] flex h-11 items-center gap-0.5 bg-bg/90 px-3 backdrop-blur">{controls}</header>
+        {/* Blurred on a layer behind it, so fixed menus inside aren't held to the header (as in page-view.tsx). */}
+        <header className="sticky top-0 z-[35] flex h-11 items-center gap-0.5 px-3 before:absolute before:inset-0 before:-z-10 before:bg-bg/90 before:backdrop-blur">
+          {controls}
+        </header>
         {result ? (
           <div className="px-6 pt-10">
             <Notice>
