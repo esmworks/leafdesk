@@ -687,6 +687,13 @@
       "when": 1792613974157,
       "tag": "0097_page_outdated",
       "breakpoints": true
+    },
+    {
+      "idx": 98,
+      "version": "7",
+      "when": 1792615700615,
+      "tag": "0098_thread_mute",
+      "breakpoints": true
     }
   ]
 }

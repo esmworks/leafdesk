@@ -2,10 +2,11 @@
 
 import { CommentsExtension, type ThreadData } from "@blocknote/core/comments";
 import { Thread, useBlockNoteEditor, useExtension, useExtensionState, useThreads } from "@blocknote/react";
-import { X } from "lucide-react";
+import { Bell, BellOff, MoreHorizontal, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { memo, useCallback, useEffect, useMemo, useState, type FocusEvent } from "react";
-import { cn, IconButton } from "@/components/ui";
+import { muteThreadAction, mutedThreadsAction } from "@/app/actions/comments";
+import { cn, IconButton, MenuItem, Popover } from "@/components/ui";
 import { isPageThread, threadOfHash } from "@/lib/comments";
 
 const FILTERS = ["open", "resolved", "all"] as const;
@@ -15,7 +16,7 @@ type Filter = (typeof FILTERS)[number];
  * The page's comment threads beside the editor, in the order of the text they're about. Rendered
  * inside BlockNoteView, whose editor the threads belong to.
  */
-export function CommentsPanel({ onClose }: { onClose: () => void }) {
+export function CommentsPanel({ pageId, onClose }: { pageId: string; onClose: () => void }) {
   const t = useTranslations("page.comments");
   const [filter, setFilter] = useState<Filter>("open");
 
@@ -54,7 +55,7 @@ export function CommentsPanel({ onClose }: { onClose: () => void }) {
         ))}
       </nav>
       <div className="min-h-0 flex-1 overflow-y-auto p-3">
-        <Threads filter={filter} onFilter={setFilter} />
+        <Threads pageId={pageId} filter={filter} onFilter={setFilter} />
         <p className="comments-empty px-1 py-6 text-center text-sm text-fg-faint">{t(`empty.${filter}`)}</p>
       </div>
     </aside>
@@ -67,7 +68,7 @@ export function CommentsPanel({ onClose }: { onClose: () => void }) {
  * its text was deleted. (BlockNote's own sidebar can't tell a thread about the page from one whose
  * text is gone.)
  */
-function Threads({ filter, onFilter }: { filter: Filter; onFilter: (filter: Filter) => void }) {
+function Threads({ pageId, filter, onFilter }: { pageId: string; filter: Filter; onFilter: (filter: Filter) => void }) {
   const t = useTranslations("page.comments");
   const editor = useBlockNoteEditor();
   const comments = useExtension(CommentsExtension);
@@ -75,6 +76,38 @@ function Threads({ filter, onFilter }: { filter: Filter; onFilter: (filter: Filt
   const positions = useExtensionState(CommentsExtension, { selector: (state) => state.threadPositions });
   const selectedThreadId = useExtensionState(CommentsExtension, { selector: (state) => state.selectedThreadId });
   const deleted = editor.dictionary.comments.deleted_reference_text;
+
+  // The threads whose replies the viewer muted. Read again as the threads change: posting in one,
+  // or being mentioned there, unmutes it (see server/thread-mute).
+  const [muted, setMuted] = useState<ReadonlySet<string>>(() => new Set());
+  useEffect(() => {
+    let current = true;
+    mutedThreadsAction(pageId).then(
+      (ids) => current && setMuted(new Set(ids)),
+      () => {},
+    );
+    return () => {
+      current = false;
+    };
+  }, [pageId, threads]);
+  const onMute = useCallback(
+    async (threadId: string, mute: boolean) => {
+      const set = (on: boolean) =>
+        setMuted((prev) => {
+          const next = new Set(prev);
+          if (on) next.add(threadId);
+          else next.delete(threadId);
+          return next;
+        });
+      set(mute);
+      try {
+        await muteThreadAction(pageId, threadId, mute);
+      } catch {
+        set(!mute);
+      }
+    },
+    [pageId],
+  );
 
   // The thread a link names (`#comment-<id>`): selected once it has loaded, after its text has
   // (so the page scrolls there), or a moment later for a thread whose text is gone. A resolved one
@@ -127,24 +160,40 @@ function Threads({ filter, onFilter }: { filter: Filter; onFilter: (filter: Filt
   return (
     <div className="bn-threads-sidebar">
       {shown.map(({ thread, referenceText, orphaned }) => (
-        <SidebarThread key={thread.id} thread={thread} selected={thread.id === selectedThreadId} referenceText={referenceText} orphaned={orphaned} />
+        <SidebarThread
+          key={thread.id}
+          thread={thread}
+          selected={thread.id === selectedThreadId}
+          referenceText={referenceText}
+          orphaned={orphaned}
+          muted={muted.has(thread.id)}
+          onMute={onMute}
+        />
       ))}
     </div>
   );
 }
 
-/** One thread of the list; focusing it selects it (and its text in the page), as in BlockNote's sidebar. */
+/**
+ * One thread of the list; focusing it selects it (and its text in the page), as in BlockNote's
+ * sidebar. Its menu mutes the replies in it, which shows beside the menu while it lasts.
+ */
 const SidebarThread = memo(function SidebarThread({
   thread,
   selected,
   referenceText,
   orphaned,
+  muted,
+  onMute,
 }: {
   thread: ThreadData;
   selected: boolean;
   referenceText: string;
   orphaned: boolean;
+  muted: boolean;
+  onMute: (threadId: string, mute: boolean) => Promise<void>;
 }) {
+  const t = useTranslations("page.comments");
   const comments = useExtension(CommentsExtension);
   const onFocus = useCallback(
     (event: FocusEvent) => {
@@ -164,15 +213,46 @@ const SidebarThread = memo(function SidebarThread({
     [comments],
   );
   return (
-    <Thread
-      thread={thread}
-      selected={selected}
-      orphaned={orphaned}
-      referenceText={referenceText}
-      maxCommentsBeforeCollapse={5}
-      onFocus={onFocus}
-      onBlur={onBlur}
-      tabIndex={0}
-    />
+    <div className="comments-thread relative">
+      <Thread
+        thread={thread}
+        selected={selected}
+        orphaned={orphaned}
+        referenceText={referenceText}
+        maxCommentsBeforeCollapse={5}
+        onFocus={onFocus}
+        onBlur={onBlur}
+        tabIndex={0}
+      />
+      <div className="absolute top-1.5 inset-e-1.5 flex items-center gap-0.5">
+        {muted && (
+          <span role="img" aria-label={t("muted")} title={t("mutedHint")} className="flex h-6 w-6 items-center justify-center text-fg-faint">
+            <BellOff className="h-3.5 w-3.5" />
+          </span>
+        )}
+        <Popover
+          align="end"
+          className="w-56"
+          trigger={({ toggle }) => (
+            <IconButton label={t("threadMenu")} className="h-6 w-6 text-fg-muted" onClick={toggle}>
+              <MoreHorizontal className="h-4 w-4" />
+            </IconButton>
+          )}
+        >
+          {(close) => (
+            <MenuItem
+              icon={muted ? <Bell className="h-4 w-4" /> : <BellOff className="h-4 w-4" />}
+              title={t(muted ? "unmuteHint" : "muteHint")}
+              onClick={() => {
+                close();
+                void onMute(thread.id, !muted);
+              }}
+            >
+              {t(muted ? "unmute" : "mute")}
+            </MenuItem>
+          )}
+        </Popover>
+      </div>
+    </div>
   );
 });

@@ -80,7 +80,14 @@
       "open": "Aucun commentaire ouvert. Sélectionnez du texte dans la page et choisissez Commenter pour en ajouter un.",
       "resolved": "Aucun commentaire résolu.",
       "all": "Aucun commentaire pour l’instant. Sélectionnez du texte dans la page et choisissez Commenter pour en ajouter un."
-    }
+    },
+    "threadMenu": "Options du fil",
+    "mute": "Masquer les réponses",
+    "unmute": "Réactiver les réponses",
+    "muteHint": "Ne plus être averti des nouvelles réponses dans ce fil. Répondre ici, ou y être mentionné, les réactive.",
+    "unmuteHint": "Être de nouveau averti des nouvelles réponses dans ce fil.",
+    "muted": "Réponses masquées",
+    "mutedHint": "Vous n’êtes pas averti des réponses dans ce fil tant que vous n’y répondez pas ou que personne ne vous y mentionne."
   },
   "archived": {
     "banner": "Cette page est dans la corbeille.",

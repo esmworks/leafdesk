@@ -1,7 +1,7 @@
 /**
  * End-to-end check of comments on pages: who may read and write them, anchoring threads to quoted
  * text, keeping anchors through server writes, cleaning comment bodies, notifications and emails to
- * the people in a thread, and the MCP tools.
+ * the people in a thread, muting a thread's replies, and the MCP tools.
  * Creates its own users and workspace and deletes them afterwards.
  *
  *   pnpm tsx scripts/comments-e2e.ts
@@ -18,9 +18,9 @@ try {
 const { and, eq, inArray } = await import("drizzle-orm");
 const Y = await import("yjs");
 const { db } = await import("@/db");
-const { notification, page, user, workspace, workspaceMember } = await import("@/db/schema");
+const { notification, page, threadMute, user, workspace, workspaceMember } = await import("@/db/schema");
 const { COLLAB_FRAGMENT } = await import("@/lib/collab-constants");
-const { CommentError, THREADS_MAP } = await import("@/lib/comments");
+const { CommentError, commentText: commentTextOf, THREADS_MAP } = await import("@/lib/comments");
 const { changeComments, commentUsers, listComments } = await import("@/server/comments");
 const { getCollab, registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
@@ -29,6 +29,7 @@ const { archivePage, createPage } = await import("@/server/pages");
 const { setPagePermission } = await import("@/server/permissions");
 const { flushShareEmails, setShareMailer } = await import("@/server/share-emails");
 const { setNotificationPreference } = await import("@/server/notification-preferences");
+const { mutedThreads, setThreadMuted } = await import("@/server/thread-mute");
 const { AccessError, requirePageAccess } = await import("@/server/access");
 const { authorizeCollab } = await import("@/server/collab/authorize");
 const { InMemoryTransport } = await import("@modelcontextprotocol/server");
@@ -350,11 +351,40 @@ try {
     await new Promise((resolve) => server.close(resolve));
   }
 
+  // Muting a thread's replies
+  const clearInbox = (userId: string) =>
+    db.delete(notification).where(and(eq(notification.userId, userId), eq(notification.threadId, thread.id)));
+  const mention = (userId: string, name: string, text: string) => [
+    { type: "paragraph", content: [{ type: "mention", props: { kind: "user", id: `${RUN}-m`, userId, name } }, { type: "text", text, styles: {} }] },
+  ];
+  await changeComments(ids.commenter, doc.id, { type: "addComment", threadId: thread.id, body: "Following along." });
+  await setThreadMuted(ids.editor, doc.id, thread.id, true);
+  check((await mutedThreads(ids.editor, doc.id)).join() === thread.id, "people mute the replies in a thread");
+  check((await mutedThreads(ids.commenter, doc.id)).length === 0, "…for themselves only");
+  check((await failure(() => setThreadMuted(ids.outsider, doc.id, thread.id, true))) === "access", "…if they can open the page");
+  check((await failure(() => setThreadMuted(ids.editor, doc.id, "nope", true))) === "notFound", "…and the thread exists");
+  await Promise.all([clearInbox(ids.editor), clearInbox(ids.commenter)]);
+  await changeComments(ids.owner, doc.id, { type: "addComment", threadId: thread.id, body: "Moving on." });
+  check((await unread(ids.editor, thread.id)).length === 0, "a muted thread's replies tell its muter nothing");
+  check((await unread(ids.commenter, thread.id)).length === 1, "…and still tell everyone else");
+  const mentioned = await changeComments(ids.owner, doc.id, { type: "addComment", threadId: thread.id, body: mention(ids.editor, "Editor", " what do you think?") });
+  check(commentTextOf(mentioned.comment?.body) === "@Editor what do you think?", "a mention in a comment is kept as the person's name", mentioned.comment?.body);
+  check((await unread(ids.editor, thread.id)).length === 1, "a reply mentioning the muter still tells them");
+  check((await mutedThreads(ids.editor, doc.id)).length === 0, "…and ends their mute");
+  await setThreadMuted(ids.editor, doc.id, thread.id, true);
+  await changeComments(ids.editor, doc.id, { type: "addComment", threadId: thread.id, body: "Back in." });
+  check((await mutedThreads(ids.editor, doc.id)).length === 0, "posting in a muted thread ends the mute");
+  await setThreadMuted(ids.editor, doc.id, thread.id, true);
+  await setThreadMuted(ids.commenter, doc.id, thread.id, true);
+  await setThreadMuted(ids.commenter, doc.id, thread.id, false);
+  check((await mutedThreads(ids.commenter, doc.id)).length === 0, "unmuting a thread hears about it again");
+
   // Deleting
   await changeComments(ids.owner, doc.id, { type: "addComment", threadId: thread.id, body: "Unread one." });
   await changeComments(ids.owner, doc.id, { type: "deleteThread", threadId: thread.id });
   check(!(await listComments(ids.owner, doc.id)).some((t) => t.id === thread.id), "full access deletes whole threads");
   check((await unread(ids.editor, thread.id)).filter((n) => !n.readAt).length === 0, "…taking back their unread notifications");
+  check((await db.select().from(threadMute).where(eq(threadMute.threadId, thread.id))).length === 0, "…and forgetting who muted them");
   await archivePage(ids.owner, doc.id);
   check((await failure(() => changeComments(ids.owner, doc.id, { type: "createThread", body: "hi", anchor: { quote: "Second" } }))) === "notAllowed", "pages in the trash take no comments");
 

@@ -80,7 +80,14 @@
       "open": "Keine offenen Kommentare. Markiere Text auf der Seite und wähle „Kommentieren“, um einen zu beginnen.",
       "resolved": "Keine erledigten Kommentare.",
       "all": "Noch keine Kommentare. Markiere Text auf der Seite und wähle „Kommentieren“, um einen zu beginnen."
-    }
+    },
+    "threadMenu": "Optionen für den Thread",
+    "mute": "Antworten stummschalten",
+    "unmute": "Antworten nicht mehr stummschalten",
+    "muteHint": "Keine Benachrichtigungen mehr über neue Antworten in diesem Thread. Wenn du hier antwortest oder hier erwähnt wirst, wird es wieder eingeschaltet.",
+    "unmuteHint": "Wieder über neue Antworten in diesem Thread benachrichtigt werden.",
+    "muted": "Antworten stummgeschaltet",
+    "mutedHint": "Du wirst nicht über Antworten in diesem Thread benachrichtigt, bis du hier antwortest oder dich hier jemand erwähnt."
   },
   "archived": {
     "banner": "Diese Seite liegt im Papierkorb.",

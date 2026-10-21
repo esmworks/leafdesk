@@ -316,7 +316,7 @@ export default function CollabEditor({
                   )}
                 />
               )}
-              {commentsOpen && <CommentsPanel onClose={onCloseComments} />}
+              {commentsOpen && <CommentsPanel pageId={pageId} onClose={onCloseComments} />}
               <EditorFiles editor={editor} editable={editable} />
             </BlockNoteView>
             {/* A synced page's notes are listed on its own page. */}

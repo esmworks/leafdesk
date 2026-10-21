@@ -80,7 +80,14 @@
       "open": "Nenhum comentário aberto. Selecione um texto na página e escolha Comentar para começar.",
       "resolved": "Nenhum comentário resolvido.",
       "all": "Nenhum comentário ainda. Selecione um texto na página e escolha Comentar para começar."
-    }
+    },
+    "threadMenu": "Opções da conversa",
+    "mute": "Silenciar respostas",
+    "unmute": "Reativar respostas",
+    "muteHint": "Deixe de ser avisado sobre novas respostas nesta conversa. Responder aqui, ou ser mencionado aqui, reativa os avisos.",
+    "unmuteHint": "Volte a ser avisado sobre novas respostas nesta conversa.",
+    "muted": "Respostas silenciadas",
+    "mutedHint": "Você não é avisado sobre respostas nesta conversa até responder aqui ou alguém mencionar você aqui."
   },
   "archived": {
     "banner": "Esta página está na lixeira.",

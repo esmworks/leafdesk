@@ -5,6 +5,7 @@ import { CommentError, type CommentOp } from "@/lib/comments";
 import { AccessError } from "@/server/access";
 import * as comments from "@/server/comments";
 import { requireUserId } from "@/server/session";
+import { mutedThreads, setThreadMuted } from "@/server/thread-mute";
 
 export type CommentFailure = "notAllowed" | "notFound" | "invalidBody" | "tooLong";
 
@@ -31,4 +32,16 @@ export async function commentUsersAction(pageId: string, userIds: string[]) {
   if (!users.some((u) => u.isAgent)) return users;
   const t = await getTranslations("common");
   return users.map((u) => (u.isAgent ? { ...u, username: t("agentName", { name: u.username }) } : u));
+}
+
+/** The page's threads whose replies the viewer muted. */
+export async function mutedThreadsAction(pageId: string) {
+  const userId = await requireUserId();
+  return mutedThreads(userId, pageId);
+}
+
+/** Mutes the replies in a thread of the page, or hears about them again. */
+export async function muteThreadAction(pageId: string, threadId: string, muted: boolean) {
+  const userId = await requireUserId();
+  return setThreadMuted(userId, pageId, threadId, muted);
 }

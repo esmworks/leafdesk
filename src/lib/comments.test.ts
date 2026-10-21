@@ -1,5 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { cleanCommentBody, CommentError, commentText, MAX_COMMENT_LENGTH, safeHref, threadParticipants } from "./comments";
+import {
+  cleanCommentBody,
+  CommentError,
+  commentMentions,
+  commentText,
+  MAX_COMMENT_LENGTH,
+  replyAudience,
+  safeHref,
+  threadParticipants,
+} from "./comments";
 
 describe("cleanCommentBody", () => {
   it("keeps paragraphs, allowed styles and web links", () => {
@@ -61,5 +70,53 @@ describe("threadParticipants", () => {
     const thread = { comments: [comment("c1", "ann"), comment("c2", "bob"), comment("c3", "ann"), comment("c4", "cem")] };
     expect(threadParticipants(thread, "cem", "c4")).toEqual(["ann", "bob"]);
     expect(threadParticipants(thread, "ann")).toEqual(["bob", "cem"]);
+  });
+});
+
+describe("comment mentions", () => {
+  const body = [
+    {
+      type: "paragraph",
+      content: [
+        { type: "text", text: "Over to ", styles: {} },
+        { type: "mention", props: { kind: "user", id: "m1", userId: "bob", name: "Bob" } },
+        { type: "mention", props: { kind: "page", pageId: "p1" } },
+        { type: "mention", props: { kind: "user", id: "m2", userId: "bob", name: "Bob" } },
+      ],
+    },
+  ];
+
+  it("are the people mentioned, once each", () => {
+    expect(commentMentions(body)).toEqual(["bob"]);
+    expect(commentMentions("@Bob")).toEqual([]);
+  });
+
+  it("are stored as the person's name", () => {
+    expect(commentText(cleanCommentBody(body))).toBe("Over to @Bob@Bob");
+  });
+});
+
+describe("replyAudience", () => {
+  const participants = ["ann", "bob", "cem"];
+
+  it("leaves out the people who muted the thread, and no one else", () => {
+    expect(replyAudience({ participants, muted: ["bob"], mentioned: [], authorId: "dan" })).toEqual({ notify: ["ann", "cem"], unmute: [] });
+    expect(replyAudience({ participants, muted: [], mentioned: [], authorId: "dan" }).notify).toEqual(participants);
+  });
+
+  it("still tells someone who muted it when the reply mentions them, and ends their mute", () => {
+    expect(replyAudience({ participants, muted: ["bob"], mentioned: ["bob"], authorId: "ann" })).toEqual({ notify: ["cem", "bob"], unmute: ["bob"] });
+  });
+
+  it("tells people it mentions who weren't in the thread", () => {
+    expect(replyAudience({ participants: ["ann"], muted: [], mentioned: ["eve"], authorId: "cem" }).notify).toEqual(["ann", "eve"]);
+  });
+
+  it("ends the author's own mute when they post in the thread", () => {
+    expect(replyAudience({ participants: ["ann"], muted: ["bob", "cem"], mentioned: [], authorId: "bob" })).toEqual({ notify: ["ann"], unmute: ["bob"] });
+  });
+
+  it("never tells the author, even when they mention themselves", () => {
+    expect(replyAudience({ participants: ["ann"], muted: [], mentioned: ["bob"], authorId: "bob" }).notify).toEqual(["ann"]);
   });
 });
