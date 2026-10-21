@@ -30,7 +30,14 @@
     "list": "リスト",
     "timeline": "タイムライン",
     "chart": "グラフ",
+    "dashboard": "ダッシュボード",
     "form": "フォーム"
+  },
+  "dashboardView": {
+    "emptyEditable": "このデータベースの数値、グラフ、リストをここに表示します。行が変わると自動で更新されます。",
+    "chartTitle": "{property}別の{measure}",
+    "recent": "最近編集した行",
+    "titlePlaceholder": "タイトル（任意）"
   },
   "colors": {
     "gray": "グレー",

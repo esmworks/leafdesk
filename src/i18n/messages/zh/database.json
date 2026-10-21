@@ -30,7 +30,14 @@
     "list": "列表",
     "timeline": "时间线",
     "chart": "图表",
+    "dashboard": "仪表板",
     "form": "表单"
+  },
+  "dashboardView": {
+    "emptyEditable": "在这里显示此数据库的数字、图表和列表。行发生变化时它们会保持最新。",
+    "chartTitle": "按 {property} 的{measure}",
+    "recent": "最近编辑",
+    "titlePlaceholder": "标题（可选）"
   },
   "colors": {
     "gray": "灰色",

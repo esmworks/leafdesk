@@ -2,7 +2,7 @@ import * as Y from "yjs";
 import type { ViewConfig, ViewType } from "@/db/schema/app";
 import { COLLAB_FRAGMENT } from "./collab-constants";
 import { filterConfigError } from "./filters";
-import { isViewType, layoutConfigError, VIEW_TYPES } from "./views";
+import { isViewType, layoutConfigError, LINKED_VIEW_TYPES } from "./views";
 
 /**
  * Database blocks inside page bodies: an inline database (a database page living under the page
@@ -44,12 +44,13 @@ export type LinkedView = { type: ViewType; config: ViewConfig };
 export const DEFAULT_LINKED_VIEW: LinkedView = { type: "table", config: {} };
 
 /**
- * Layouts a linked view can take: every one but the form. A form adds rows through a view the
- * database owns (its questions, defaults and public link live on that view, and answers are
- * checked against it), so a page can't carry one of its own; an inline database still shows the
- * database's own form views.
+ * Layouts a linked view can take: every one but the form and the dashboard (lib/views
+ * LINKED_VIEW_TYPES). A form adds rows through a view the database owns (its questions, defaults
+ * and public link live on that view, and answers are checked against it), so a page can't carry
+ * one of its own; a dashboard is made of linked views itself, and a page has dashboard blocks. An
+ * inline database still shows the database's own form and dashboard views.
  */
-export const LINKED_VIEW_TYPES = VIEW_TYPES.filter((type) => type !== "form");
+export { LINKED_VIEW_TYPES };
 
 /**
  * The linked view stored in a block. Anyone who may edit the host page can write the prop, so it
@@ -70,9 +71,10 @@ export function parseLinkedView(value: unknown): LinkedView {
 export function checkLinkedView(parsed: unknown): LinkedView {
   if (!parsed || typeof parsed !== "object") return DEFAULT_LINKED_VIEW;
   const { type, config } = parsed as { type?: unknown; config?: unknown };
-  if (!isViewType(type) || type === "form") return DEFAULT_LINKED_VIEW;
+  if (!isViewType(type) || !(LINKED_VIEW_TYPES as readonly ViewType[]).includes(type)) return DEFAULT_LINKED_VIEW;
   if (!config || typeof config !== "object" || Array.isArray(config)) return { type, config: {} };
-  const c = config as ViewConfig;
+  // Only dashboard views hold widgets.
+  const { widgets: _, ...c } = config as ViewConfig;
   if (filterConfigError(c) || layoutConfigError(c)) return { type, config: {} };
   return { type, config: c };
 }

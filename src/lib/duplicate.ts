@@ -2,6 +2,7 @@ import type { PageKind, PropertyOptions, PropertyType, RowProperties, ViewConfig
 import { mapFilterRules } from "./filters";
 import { rewriteReferences, rewriteRelatedReferences } from "./formula";
 import { atLeast, type PropertyLevel, type PropertyRule } from "./property-access";
+import { withWidgetConfigs } from "./views";
 // Type only: property-access-rows imports this module.
 import type { PropertyAccess } from "./property-access-rows";
 
@@ -353,7 +354,7 @@ export function remapViewConfig(
   // it is open to the web isn't part of the config: a copy starts closed.
   if (config.form?.questions) out.form!.questions = config.form.questions.map((q) => ({ ...q, propertyId: map(q.propertyId) }));
   if (config.form?.defaults) out.form!.defaults = remapRowProperties(config.form.defaults, propIds, rowIdsFor);
-  return out;
+  return withWidgetConfigs(out, (c) => remapViewConfig(c, propIds, rowIdsFor));
 }
 
 /**
@@ -361,7 +362,7 @@ export function remapViewConfig(
  * to its database's views, and what a copy that leaves properties behind does to the copied views.
  */
 export function dropPropertyReferences(config: ViewConfig, gone: (propertyId: string) => boolean): ViewConfig {
-  const c = config;
+  const c = withWidgetConfigs(config, (widget) => dropPropertyReferences(widget, gone));
   return {
     ...c,
     groupBy: c.groupBy !== undefined && gone(c.groupBy) ? undefined : c.groupBy,

@@ -618,7 +618,7 @@ export const databaseProperty = pgTable(
   ],
 );
 
-export type ViewType = "table" | "board" | "calendar" | "gallery" | "list" | "timeline" | "chart" | "form";
+export type ViewType = "table" | "board" | "calendar" | "gallery" | "list" | "timeline" | "chart" | "dashboard" | "form";
 /** Grouping by a date: one group per day, week (Monday to Sunday), month or year. */
 export type GroupDateBy = "day" | "week" | "month" | "year";
 export type GroupStatusBy = "option" | "group";
@@ -706,6 +706,20 @@ export type FormConfig = {
   /** Whether the thank-you screen offers to fill the form in again; true when missing. */
   allowAnother?: boolean;
 };
+/**
+ * One widget of a dashboard view: a view of the dashboard's own database (any layout but a form or
+ * a dashboard) with a title and a width (see lib/dashboard).
+ */
+export type ViewWidget = {
+  id: string;
+  /** Empty or missing: the app names the widget after what it shows. */
+  title?: string;
+  /** Columns of the dashboard's grid it takes, 1 to 4. */
+  span: number;
+  /** One of the option colors (lib/properties SELECT_COLORS); a plain box when missing. */
+  color?: string;
+  view: { type: ViewType; config: ViewConfig };
+};
 export type ViewConfig = {
   /** Boards: the column property. Timelines: optional swimlanes (none when missing). Charts: the bars, points or slices. */
   groupBy?: string;
@@ -783,6 +797,8 @@ export type ViewConfig = {
   form?: FormConfig;
   /** Views with rows and charts: rows archived on their own (see server/page-outdated.ts) show too; left out when missing. */
   showOutdated?: boolean;
+  /** Dashboard views: the widgets, in reading order. */
+  widgets?: ViewWidget[];
 };
 
 export const databaseView = pgTable(

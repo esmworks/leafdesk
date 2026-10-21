@@ -1,5 +1,5 @@
 import { randomBytes } from "node:crypto";
-import { and, asc, desc, eq, inArray, isNull, ne, sql } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, isNull, notInArray, sql } from "drizzle-orm";
 import { getTranslations } from "next-intl/server";
 import { db } from "@/db";
 import { databaseProperty, databaseView, page, pagePublication, user, workspace, type CardSize, type PageKind, type ViewConfig, type ViewType } from "@/db/schema";
@@ -910,12 +910,15 @@ async function sortNames(rows: { properties: Record<string, unknown> }[], props:
 
 type StoredView = typeof databaseView.$inferSelect;
 
-/** A database's views that show rows, in their order (deleted ones left out). */
+/**
+ * A database's views that show rows, in their order (deleted ones left out). Forms show none, and
+ * dashboards are worked out for each signed-in reader (server/dashboards), so neither is published.
+ */
 export function readableViews(databaseId: string): Promise<StoredView[]> {
   return db
     .select()
     .from(databaseView)
-    .where(and(eq(databaseView.databaseId, databaseId), ne(databaseView.type, "form"), isNull(databaseView.deletedAt)))
+    .where(and(eq(databaseView.databaseId, databaseId), notInArray(databaseView.type, ["form", "dashboard"]), isNull(databaseView.deletedAt)))
     .orderBy(asc(databaseView.position), asc(databaseView.createdAt));
 }
 

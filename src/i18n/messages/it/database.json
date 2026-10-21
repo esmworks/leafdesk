@@ -30,7 +30,14 @@
     "list": "Elenco",
     "timeline": "Timeline",
     "chart": "Grafico",
+    "dashboard": "Dashboard",
     "form": "Modulo"
+  },
+  "dashboardView": {
+    "emptyEditable": "Mostra qui numeri, grafici ed elenchi di questo database. Restano aggiornati quando le righe cambiano.",
+    "chartTitle": "{measure} per {property}",
+    "recent": "Modificati di recente",
+    "titlePlaceholder": "Titolo (facoltativo)"
   },
   "colors": {
     "gray": "Grigio",

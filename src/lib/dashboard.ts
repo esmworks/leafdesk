@@ -1,6 +1,7 @@
-import type { ViewType } from "@/db/schema/app";
+import type { ViewConfig, ViewType, ViewWidget } from "@/db/schema/app";
 import { checkLinkedView, LINKED_VIEW_TYPES, type LinkedView } from "./embed-blocks";
-import { SELECT_COLORS } from "./properties";
+import { SELECT_COLORS, UPDATED_KEY } from "./properties";
+import { DASHBOARD_COLUMNS, MAX_WIDGET_TITLE, MAX_WIDGETS, WIDGET_ID, WIDGET_SPANS, type WidgetSpan } from "./views";
 
 /**
  * Dashboards: a page block laying out widgets in a grid, each one view of a database the reader
@@ -12,6 +13,9 @@ import { SELECT_COLORS } from "./properties";
  * widgetData) and only what they draw comes to the browser; other layouts show as linked views.
  * Like a linked view, the block holds only database ids and view settings, never what a database
  * holds, so the page's readers learn nothing of a database they can't see.
+ *
+ * A database's dashboard views (view type "dashboard") hold the same widgets in their settings
+ * (ViewConfig `widgets`), each a view of that database, so they name none (viewWidgets).
  *
  * Pure: the block config is shared by the editor (components/page/dashboard-block.tsx) and the
  * server (server/blocknote.ts).
@@ -27,13 +31,7 @@ export const dashboardBlockConfig = {
   content: "none",
 } as const;
 
-/** Columns of the grid on wide screens; widgets take 1 to 4 of them, phones show one per row. */
-export const DASHBOARD_COLUMNS = 4;
-export const WIDGET_SPANS = [1, 2, 3, 4] as const;
-export type WidgetSpan = (typeof WIDGET_SPANS)[number];
-/** Widgets per dashboard: each one is a query when the page opens and whenever its database changes. */
-export const MAX_WIDGETS = 12;
-export const MAX_WIDGET_TITLE = 120;
+export { DASHBOARD_COLUMNS, MAX_WIDGET_TITLE, MAX_WIDGETS, WIDGET_SPANS, type WidgetSpan } from "./views";
 /**
  * The grid follows the width the page gives it (a container query on DASHBOARD_CLASS), not the
  * window: one column on a phone, two, then four. WIDGET_SPAN_CLASS is how many a widget takes.
@@ -76,8 +74,6 @@ export type DashboardWidget = {
   view: LinkedView;
 };
 
-const ID = /^[\w-]{1,64}$/;
-
 /** Layouts the server works out (numbers and charts are both "chart" views). */
 export function isComputedWidget(type: ViewType): type is "chart" | "list" {
   return type === "chart" || type === "list";
@@ -89,7 +85,6 @@ export function defaultSpan(view: LinkedView): WidgetSpan {
   return view.type === "list" ? 2 : 4;
 }
 
-/** What a new widget shows until it is set up: how many rows the database has. */
 /** A short id no widget of `taken` has. */
 export function newWidgetId(taken: Pick<DashboardWidget, "id">[]) {
   for (;;) {
@@ -98,6 +93,7 @@ export function newWidgetId(taken: Pick<DashboardWidget, "id">[]) {
   }
 }
 
+/** What a new widget shows until it is set up: how many rows the database has. */
 export function newWidget(id: string, databaseId: string): DashboardWidget {
   const view: LinkedView = { type: "chart", config: { chartType: "number" } };
   return { id, databaseId, title: "", span: defaultSpan(view), view };
@@ -129,10 +125,12 @@ export function parseDashboard(value: unknown): DashboardWidget[] {
   return out;
 }
 
-function checkWidget(item: unknown): DashboardWidget | null {
+/** A stored widget, or null when malformed; `fixed` is the database of a dashboard view's widgets. */
+function checkWidget(item: unknown, fixed?: string): DashboardWidget | null {
   if (!item || typeof item !== "object" || Array.isArray(item)) return null;
-  const { id, databaseId, title, span, color, view } = item as Record<string, unknown>;
-  if (typeof id !== "string" || !ID.test(id) || typeof databaseId !== "string" || !ID.test(databaseId)) return null;
+  const { id, title, span, color, view } = item as Record<string, unknown>;
+  const databaseId = fixed ?? (item as Record<string, unknown>).databaseId;
+  if (typeof id !== "string" || !WIDGET_ID.test(id) || typeof databaseId !== "string" || !WIDGET_ID.test(databaseId)) return null;
   const checked = checkLinkedView(view);
   if (!(LINKED_VIEW_TYPES as readonly ViewType[]).includes(checked.type)) return null;
   return {
@@ -143,6 +141,61 @@ function checkWidget(item: unknown): DashboardWidget | null {
     ...(isWidgetColor(color) ? { color } : {}),
     view: checked,
   };
+}
+
+/**
+ * A dashboard view's widgets (ViewConfig `widgets`), as views of its database `databaseId`. The
+ * server checked them when they were saved (lib/views layoutConfigError); like the block's, they
+ * are read leniently all the same.
+ */
+export function viewWidgets(config: Pick<ViewConfig, "widgets">, databaseId: string): DashboardWidget[] {
+  const seen = new Set<string>();
+  const out: DashboardWidget[] = [];
+  for (const item of Array.isArray(config.widgets) ? config.widgets : []) {
+    if (out.length >= MAX_WIDGETS) break;
+    const widget = checkWidget(item, databaseId);
+    if (!widget || seen.has(widget.id)) continue;
+    seen.add(widget.id);
+    out.push(widget);
+  }
+  return out;
+}
+
+/** Widgets as a dashboard view stores them: without their database, which is the view's own. */
+export const viewWidgetsConfig = (widgets: DashboardWidget[]): ViewWidget[] =>
+  widgets.slice(0, MAX_WIDGETS).map(({ id, title, span, color, view }) => ({
+    id,
+    ...(title ? { title } : {}),
+    span,
+    ...(color ? { color } : {}),
+    view: { type: view.type, config: view.config },
+  }));
+
+/** Rows the list widget of a new dashboard view shows: the last edited first. */
+export const RECENT_ROWS_SORT = { propertyId: UPDATED_KEY, direction: "desc" } as const;
+
+/**
+ * What a new dashboard view starts with, from the properties its maker may know of: how many rows
+ * there are, the sum of the first number property, a chart of the rows by the first select or
+ * status property, and the rows edited last. Titles stay empty: the app names each widget after
+ * what it shows, in the reader's language.
+ */
+export function defaultDashboardWidgets(properties: { id: string; type: string }[]): ViewWidget[] {
+  const amount = properties.find((p) => p.type === "number");
+  const groupBy = properties.find((p) => p.type === "select" || p.type === "status");
+  const widgets: ViewWidget[] = [{ id: "rows", span: 1, view: { type: "chart", config: { chartType: "number" } } }];
+  if (amount) {
+    widgets.push({
+      id: "total",
+      span: 1,
+      view: { type: "chart", config: { chartType: "number", chartAggregate: { fn: "sum", propertyId: amount.id } } },
+    });
+  }
+  // The chart (or the list, without one) fills the rest of the first row.
+  const rest = Math.max(1, DASHBOARD_COLUMNS - widgets.length) as WidgetSpan;
+  if (groupBy) widgets.push({ id: "chart", span: rest, view: { type: "chart", config: { groupBy: groupBy.id } } });
+  widgets.push({ id: "recent", span: groupBy ? DASHBOARD_COLUMNS : rest, view: { type: "list", config: { sorts: [{ ...RECENT_ROWS_SORT }] } } });
+  return widgets;
 }
 
 export const serializeDashboard = (widgets: DashboardWidget[]) =>

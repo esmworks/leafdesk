@@ -30,7 +30,14 @@
     "list": "Lista",
     "timeline": "Linha do tempo",
     "chart": "Gráfico",
+    "dashboard": "Painel",
     "form": "Formulário"
+  },
+  "dashboardView": {
+    "emptyEditable": "Mostre aqui números, gráficos e listas deste banco de dados. Eles se mantêm atualizados conforme as linhas mudam.",
+    "chartTitle": "{measure} por {property}",
+    "recent": "Editados recentemente",
+    "titlePlaceholder": "Título (opcional)"
   },
   "colors": {
     "gray": "Cinza",

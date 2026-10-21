@@ -30,7 +30,14 @@
     "list": "목록",
     "timeline": "타임라인",
     "chart": "차트",
+    "dashboard": "대시보드",
     "form": "양식"
+  },
+  "dashboardView": {
+    "emptyEditable": "이 데이터베이스의 숫자, 차트, 목록을 여기에 표시하세요. 행이 바뀌면 자동으로 최신 상태로 유지됩니다.",
+    "chartTitle": "{property} 기준 {measure}",
+    "recent": "최근 편집됨",
+    "titlePlaceholder": "제목(선택 사항)"
   },
   "colors": {
     "gray": "회색",

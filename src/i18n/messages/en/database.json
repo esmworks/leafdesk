@@ -30,7 +30,14 @@
     "list": "List",
     "timeline": "Timeline",
     "chart": "Chart",
+    "dashboard": "Dashboard",
     "form": "Form"
+  },
+  "dashboardView": {
+    "emptyEditable": "Show numbers, charts and lists of this database here. They stay up to date as rows change.",
+    "chartTitle": "{measure} by {property}",
+    "recent": "Recently edited",
+    "titlePlaceholder": "Title (optional)"
   },
   "colors": {
     "gray": "Gray",

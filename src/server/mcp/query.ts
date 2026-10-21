@@ -370,9 +370,9 @@ function keyName(props: PropertyDef[], key: string) {
 
 /**
  * A view's stored config with property and option names, for get_database output. Chart settings
- * are described with their defaults when `type` is "chart".
+ * are described with their defaults when `type` is "chart", and a dashboard's widgets each like a view.
  */
-export function describeViewConfig(props: PropertyDef[], config: ViewConfig, lookups: Lookups = NO_LOOKUPS, type?: ViewType) {
+export function describeViewConfig(props: PropertyDef[], config: ViewConfig, lookups: Lookups = NO_LOOKUPS, type?: ViewType): object {
   const byId = new Map(props.map((p) => [p.id, p]));
   const describeEntry = (f: FilterEntry): object => {
     if (isFilterGroup(f)) return { type: "group", combinator: f.combinator, rules: f.rules.map(describeEntry) };
@@ -415,6 +415,18 @@ export function describeViewConfig(props: PropertyDef[], config: ViewConfig, loo
       ? { sorts: config.sorts.map((s) => ({ property: keyName(props, s.propertyId), direction: s.direction })) }
       : {}),
     ...(config.form ? { form: describeForm(props, config.form, lookups) } : {}),
+    ...(type === "dashboard"
+      ? {
+          widgets: (config.widgets ?? []).map((w) => ({
+            id: w.id,
+            title: w.title || null,
+            width: w.span,
+            color: w.color ?? null,
+            type: w.view.type,
+            ...describeViewConfig(props, w.view.config, lookups, w.view.type),
+          })),
+        }
+      : {}),
   };
 }
 
