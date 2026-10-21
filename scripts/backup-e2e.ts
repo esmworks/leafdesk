@@ -268,6 +268,7 @@ async function main() {
   ]);
   let workspaceId: string | null = null;
   let agentUserId: string | null = null;
+  let askerUserId: string | null = null;
   try {
     // ----- A workspace with a bit of everything
     workspaceId = (await createWorkspace(ids.owner, `${RUN} Team`)).id;
@@ -279,6 +280,8 @@ async function main() {
     const group = await createGroup(ids.owner, ws, "Reviewers", [ids.alice, ids.bob]);
     const agent = await createAgent(ids.owner, ws, { name: "Helper", instructions: "Help." });
     agentUserId = (agent as unknown as { userId: string }).userId;
+    // An agent that may ask the first one for help.
+    askerUserId = (await createAgent(ids.owner, ws, { name: "Asker", helperAgentIds: [agent.id] })).userId;
 
     const owner = { userId: ids.owner };
     const doc = await createPage(owner, { workspaceId: ws, title: "Plans", markdown: "Hello" });
@@ -358,7 +361,8 @@ async function main() {
     check(looseRow.teamspace_id === null && looseRow.parent_id === null, "a top-level page is outside any teamspace");
     const filled = Object.entries(original).filter(([, rows]) => rows.length).map(([name]) => name);
     check(filled.length >= 15, `the workspace fills ${filled.length} tables`, filled);
-    check(snapshot.manifest.people.length === 4, "the manifest names the three people and the agent", snapshot.manifest.people);
+    check(snapshot.manifest.people.length === 5, "the manifest names the three people and the two agents", snapshot.manifest.people);
+    check(snapshot.manifest.tables.find((t: { name: string }) => t.name === "agent_helper")?.rows === 1, "it holds which agents an agent may ask", snapshot.manifest.tables);
     const fileHashes: Record<string, string> = {};
     for (const row of await db.select().from(file).where(eq(file.workspaceId, ws))) fileHashes[row.id] = sha((await storedBytes(row.storageKey))!);
     check(Object.keys(fileHashes).length === 2, "two files are backed up");
@@ -568,7 +572,7 @@ async function main() {
         await deleteWorkspaces(tx, [ws]);
       });
     }
-    await db.delete(user).where(inArray(user.id, [ids.owner, ids.alice, ids.bob, ...(agentUserId ? [agentUserId] : [])]));
+    await db.delete(user).where(inArray(user.id, [ids.owner, ids.alice, ids.bob, ...(agentUserId ? [agentUserId] : []), ...(askerUserId ? [askerUserId] : [])]));
     await rm(work, { recursive: true, force: true });
   }
   process.exit(0);

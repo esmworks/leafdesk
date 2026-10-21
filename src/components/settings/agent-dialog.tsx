@@ -44,6 +44,8 @@ import {
 import { commentHash } from "@/lib/comments";
 import { AgentConnectionsTab } from "./agent-connections-tab";
 import { AgentHistoryTab } from "./agent-history-tab";
+import { AskedByLine, HandoffStepLine, type OpenAgentRun } from "./agent-handoff-step";
+import { AgentHelpersField } from "./agent-helpers-field";
 import { AgentMemoryTab } from "./agent-memory-tab";
 import { AgentSchedulesTab } from "./agent-schedules-tab";
 import { AgentSkillsTab } from "./agent-skills-tab";
@@ -72,6 +74,7 @@ export function AgentDialog({
   models = null,
   webSearch = false,
   onTab,
+  onOpenRun,
   onClose,
 }: {
   workspaceId: string;
@@ -87,6 +90,8 @@ export function AgentDialog({
   /** A run to show opened (a link from an automation's history). */
   runId?: string;
   onTab: (tab: AgentTab) => void;
+  /** Opens a run of another agent (one this agent asked, or that asked it). */
+  onOpenRun?: OpenAgentRun;
   onClose: () => void;
 }) {
   const t = useTranslations("settings.agents");
@@ -138,7 +143,7 @@ export function AgentDialog({
       ) : tab === "history" ? (
         <AgentHistoryTab workspaceId={workspaceId} agent={agent} />
       ) : (
-        <RunsTab workspaceId={workspaceId} agent={agent} runId={runId} />
+        <RunsTab workspaceId={workspaceId} agent={agent} runId={runId} onOpenRun={onOpenRun} />
       )}
     </Dialog>
   );
@@ -187,6 +192,8 @@ export function AgentForm({
   const [webAccess, setWebAccess] = useState(agent?.webAccess ?? false);
   const [limit, setLimit] = useState(agent?.monthlyTokenLimit ? String(agent.monthlyTokenLimit) : "");
   const [model, setModel] = useState<AgentModel>(agent?.model ?? "main");
+  // Null until loaded: saving then leaves them as they are.
+  const [helpers, setHelpers] = useState<string[] | null>(null);
   const { pending, error, run } = useAction();
   const locked = Boolean(agent?.archived);
   const clean = name.trim();
@@ -196,7 +203,7 @@ export function AgentForm({
 
   const submit = () => {
     if (!clean || locked || !limitValid) return;
-    const value = { name: clean, icon, description, instructions, enabled, webAccess, monthlyTokenLimit, ...(models ? { model } : {}) };
+    const value = { name: clean, icon, description, instructions, enabled, webAccess, monthlyTokenLimit, ...(models ? { model } : {}), helperAgentIds: helpers ?? undefined };
     if (agent) run(() => updateAgentAction(workspaceId, agent.id, value), onDone);
     else run(() => (draft ? draft.create(value) : createAgentAction(workspaceId, value)), (created) => onCreated?.(created));
   };
@@ -296,6 +303,7 @@ export function AgentForm({
           />
           <span className={cn("mt-1 block text-xs", limitValid ? "text-fg-muted" : "text-danger")}>{limitValid ? t("limitHelp") : t("limitInvalid")}</span>
         </label>
+        <AgentHelpersField workspaceId={workspaceId} agentId={agent?.id ?? null} value={helpers} disabled={locked} onChange={setHelpers} />
       </fieldset>
       <div className="flex items-center justify-end gap-2 border-t border-border px-5 py-3">
         {error && (
@@ -453,7 +461,7 @@ function useDuration() {
 }
 
 /** The agent's latest runs; each opens to its steps, what it said, and why it failed. */
-function RunsTab({ workspaceId, agent, runId }: { workspaceId: string; agent: AgentView; runId?: string }) {
+function RunsTab({ workspaceId, agent, runId, onOpenRun }: { workspaceId: string; agent: AgentView; runId?: string; onOpenRun?: OpenAgentRun }) {
   const t = useTranslations("settings.agents.runs");
   const tc = useTranslations("common");
   const [runs, setRuns] = useState<AgentRunDetails[] | null>(null);
@@ -509,7 +517,7 @@ function RunsTab({ workspaceId, agent, runId }: { workspaceId: string; agent: Ag
       ) : (
         <ul className="divide-y divide-border">
           {runs.map((run) => (
-            <RunItem key={run.id} workspaceId={workspaceId} run={run} initiallyOpen={run.id === runId} onChanged={() => setVersion((v) => v + 1)} />
+            <RunItem key={run.id} workspaceId={workspaceId} run={run} initiallyOpen={run.id === runId} onChanged={() => setVersion((v) => v + 1)} onOpenRun={onOpenRun} />
           ))}
         </ul>
       )}
@@ -570,12 +578,14 @@ function RunItem({
   run,
   initiallyOpen,
   onChanged,
+  onOpenRun,
 }: {
   workspaceId: string;
   run: AgentRunDetails;
   initiallyOpen: boolean;
   /** The run changed here (an owner answered its call): load the runs again. */
   onChanged: () => void;
+  onOpenRun?: OpenAgentRun;
 }) {
   const t = useTranslations("settings.agents.runs");
   const tc = useTranslations("common");
@@ -629,6 +639,8 @@ function RunItem({
                   <span className="truncate">{t("fromMentionHidden", { name: run.mention?.byName ?? "" })}</span>
                 )}
               </span>
+            ) : run.source.kind === "handoff" ? (
+              run.handoff && <AskedByLine handoff={run.handoff} onOpenRun={onOpenRun} />
             ) : run.source.kind === "request" && !run.source.rowId ? (
               <span className="flex min-w-0 flex-1 items-center gap-1.5 text-sm">
                 <Play aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
@@ -657,9 +669,9 @@ function RunItem({
       </div>
       {open && (
         <div className="mt-2 ms-6 space-y-2 text-sm">
-          {(run.request?.task || run.schedule?.task) && (
+          {(run.request?.task || run.schedule?.task || run.handoff?.task) && (
             <p className="whitespace-pre-wrap text-fg-muted">
-              <span className="text-xs font-medium">{t("task")}</span> {run.request?.task || run.schedule?.task}
+              <span className="text-xs font-medium">{t("task")}</span> {run.request?.task || run.schedule?.task || run.handoff?.task}
             </p>
           )}
           {run.mention?.task && (
@@ -671,7 +683,12 @@ function RunItem({
             <ol className="ms-1.5 space-y-1 border-s border-border ps-3 text-fg-muted">
               {run.steps.map((step, i) => (
                 <li key={i} className="flex min-w-0 items-start gap-1.5">
-                  <AgentStepLine step={step} connections={run.connections} onOpen={(pageId) => router.push(`/w/${workspaceId}/p/${pageId}`)} />
+                  <AgentStepLine
+                    step={step}
+                    connections={run.connections}
+                    onOpen={(pageId) => router.push(`/w/${workspaceId}/p/${pageId}`)}
+                    onOpenRun={onOpenRun}
+                  />
                 </li>
               ))}
             </ol>
@@ -701,12 +718,23 @@ function RunItem({
   );
 }
 
-/** A step of a run: the chat's steps, the comments the agent wrote, and its calls to connections. */
-function AgentStepLine({ step, connections, onOpen }: { step: AgentStepView; connections: Record<string, string>; onOpen: (pageId: string) => void }) {
+/** A step of a run: the chat's steps, the comments the agent wrote, its calls to connections and the agents it asked. */
+function AgentStepLine({
+  step,
+  connections,
+  onOpen,
+  onOpenRun,
+}: {
+  step: AgentStepView;
+  connections: Record<string, string>;
+  onOpen: (pageId: string) => void;
+  onOpenRun?: OpenAgentRun;
+}) {
   const t = useTranslations("settings.agents.runs");
   if (step.kind === "tool" && step.connectionId === null && (step.outcome === "done" || step.outcome === "failed") && webTool(step.tool)) {
     return <WebStepLine step={step} />;
   }
+  if (step.kind === "handoff") return <HandoffStepLine step={step} onOpenRun={onOpenRun} />;
   if (step.kind === "tool") {
     const connection = step.connectionId === null ? OWN_TOOLS_NAME : (connections[step.connectionId] ?? t("removedConnection"));
     return <ToolStepLine step={step} connection={connection} />;

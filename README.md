@@ -2372,6 +2372,29 @@ MCP, owners keep and dismiss proposals with `keep_agent_memory` and `dismiss_age
 write, change and delete notes with `add_agent_memory`, `update_agent_memory` and
 `delete_agent_memory`; `list_notifications` shows the inbox item with the agent's and run's ids.
 
+**Handing off.** In an agent's settings, owners tick up to 10 other agents of the workspace under
+*Agents it can ask*. Its runs then get an `ask_agent` tool: the run names one of them, the task (with
+everything the other agent needs, since it sees nothing else of the run) and what to send back,
+waits, and reads the answer as data from another agent, never as instructions. The helper does its
+part in a run of its own, with its own access, tools, skills, notes, instructions and limits, and
+its tokens count against it, not the agent that asked. A helper's run changes no pages (it reads,
+uses its connections' tools and answers), proposes no notes, and never asks further agents. It is
+held to whose access holds the asking run (the member whose change started it, the owner who asked
+for it), and when no one stands behind what the asking run read (an anonymous form answer, an
+untrusted trigger's event), each of its connection calls waits for an owner as well. Who sees what
+it did is who sees the asking run. A run asks at most 3 times; its own time stands still while it
+waits, for up to 4 minutes of waiting in all (so a 2-minute run lasts at most 6). A helper that is
+paused, archived or over its monthly token limit isn't run: the asking run hears why and goes on
+without it, as it does when a helper waits for an owner's approval or isn't done in time (its run
+finishes on its own). The asking run's history shows "Asked *agent*: *task*", opening the helper's
+run, and the helper's shows who asked it, opening the asking run. The helper runs in the asking
+run's slot of the worker, so even `AI_CONCURRENCY=1` never waits on itself. Archiving an agent takes
+it off every list. Each helper uses its own run settings, its model included: where agents can
+choose between the main and the fast model, give the agent that plans the job and weighs the
+answers the main one, and helpers that do narrow, well-described parts (look something up, sum up
+a database) the fast one. Over MCP, `create_agent` and `update_agent` take `helper_agent_ids`, and
+`get_agent` and `list_agents` return it; the REST API's agent endpoints do too.
+
 **AI must be on.** Agents use the chat model: the server needs an AI provider (see
 [AI features](#ai-features)) and the workspace must have AI on. Otherwise runs end as `aiOff`.
 

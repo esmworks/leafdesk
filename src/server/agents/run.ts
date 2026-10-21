@@ -85,6 +85,8 @@ import { emailTranslator } from "@/server/mail/templates";
 import { signalInbox } from "@/server/notifications";
 import { pushNotifications } from "@/server/push";
 import type * as ops from "@/server/operations";
+import { runClock } from "./clock";
+import { ASK_AGENT, handoffEventText, handoffFor, handoffHold } from "./handoff";
 import { agentsWorker } from "./kick";
 import { AGENT_MEMORY_TOOL_NAMES, AGENT_MEMORY_TOOLS, runAgentMemoryTool } from "./memory";
 import { agentSkillRoom, runSkills } from "./skills";
@@ -366,6 +368,13 @@ export async function processRun(run: Run): Promise<void> {
     const { level } = await withinMember(agent, bound, () => pageAccessOf(agent.userId, pageId));
     if (!hasLevel(level, "comment")) return finish(run, { status: "failed", code: "noAccess" });
   }
+  // Another agent asked for the run (handoff.ts): held as its run was.
+  if (run.source.kind === "handoff") {
+    const held = await handoffHold(run.source, run.workspaceId);
+    if (!held) return finish(run, { status: "failed", code: "noAccess" });
+    member = bound = held.bound;
+    trusted = held.trusted;
+  }
   const databaseId = scheduledDatabase(run.source);
   if (databaseId) {
     const [database] = await db.select({ kind: page.kind, archivedAt: page.archivedAt }).from(page).where(eq(page.id, databaseId));
@@ -492,29 +501,37 @@ async function converse(
   const webNames = new Set(webTools.map((t) => t.name));
   // Leafdesk's own tools this run makes only once an owner approves (none on a row's run).
   const ownApproved: ReadonlySet<string> = new Set([...(eventRun ? EVENT_APPROVED_TOOLS : []), ...(askEveryTool ? webNames : [])]);
-  // The run's own time, from now: the wait for an answer doesn't count.
-  const signal = AbortSignal.timeout(databaseId ? SCHEDULED_RUN_TIMEOUT_MS : AGENT_RUN_TIMEOUT_MS);
+  // The run's own time, from now: the wait for an answer doesn't count, nor (up to a point) the
+  // wait for agents it asks.
+  const clock = runClock(databaseId ? SCHEDULED_RUN_TIMEOUT_MS : AGENT_RUN_TIMEOUT_MS);
+  const signal = clock.signal;
   const toolset = await agentToolset(agent.id);
   const connections = [...new Set([...toolset.byName.values()].map((e) => e.connection.name))];
   // What a run reads that no one in the workspace stands behind could fill the owners' review with
   // its own notes: such a run proposes none.
   const memoryOn = await memoryAvailable(run.workspaceId);
-  // A mention's run answers one person in a thread: it reads the notes owners kept, but proposes none.
-  const remembers = memoryOn && !askEveryTool && !mention;
+  // A mention's run answers one person in a thread, and another agent wrote a helper's task: they
+  // read the notes owners kept, but propose none.
+  const handedOff = run.source.kind === "handoff";
+  const remembers = memoryOn && !askEveryTool && !mention && !handedOff;
   const mentionTools = mentionEdits?.edits ? [EDIT_PAGE, ...(mentionEdits.row ? [UPDATE_ROW] : [])] : [];
+  // Other agents it may ask; none on a helper's run.
+  const handoff = await handoffFor(agent, run, { bound, trusted: !askEveryTool, clock, runHelper: runInSlot });
   const tools = [
     ...(rowRun ? AGENT_TOOLS : databaseId ? SCHEDULED_DATABASE_TOOLS : eventRun ? EVENT_TOOLS : [...CHAT_TOOLS, ...mentionTools]),
     ...(remembers ? AGENT_MEMORY_TOOLS : []),
     ...webTools,
+    ...(handoff ? [handoff.tool] : []),
     ...toolset.tools,
   ];
   // Checked when the run starts and again when it goes on after waiting for approval, so a skill
   // someone else may edit by then is left out (see steps below).
   const skillSet = await runSkills(agent, agentSkillRoom(), bound);
-  const requested = run.source.kind === "request";
+  const requested = run.source.kind === "request" || handedOff;
   const system = agentSystemPrompt(agent, {
     row: rowRun,
     requested,
+    askedByAgent: handedOff,
     scheduled: scheduled ? { database: Boolean(databaseId), maxWrites } : undefined,
     addsRows: eventRun,
     mentioned: mentionEdits ?? undefined,
@@ -638,6 +655,7 @@ async function converse(
       if (!out.isError) writes += 1;
       return out;
     }
+    if (handoff && call.name === ASK_AGENT) return handoff.ask(call, room(messages));
     if (!tools.some((t) => t.name === call.name)) return { content: `There is no tool "${call.name}" in this run.`, isError: true };
     const out: ToolOutcome = await runTool(ctx, run.workspaceId, undefined, call, registry, room(messages));
     return out;
@@ -875,6 +893,7 @@ async function threadNames(userIds: string[]): Promise<Map<string, string>> {
 
 /** What happened, in words: the row added or the properties changed, and by whom; the event received; who asked, or set the schedule; or who mentioned the agent. */
 async function eventText(run: Run) {
+  if (run.source.kind === "handoff") return handoffEventText(run.source);
   if (isScheduleRun(run.source)) {
     const [owner] = await db.select({ name: user.name }).from(user).where(eq(user.id, run.source.scheduledBy));
     const due = "scheduledFor" in run.context && run.context.scheduledFor ? ` It was due at ${run.context.scheduledFor} (UTC).` : "";
@@ -911,6 +930,14 @@ async function eventText(run: Run) {
 
 // ----------------------------------------------------------------------------------- worker
 
+/** Does a run taken in a slot of the worker (or, a helper's, in the slot of the run that asked it), failing it on an error. */
+function runInSlot(run: Run): Promise<void> {
+  return processRun(run).catch(async (error) => {
+    console.error("[agents] run failed", redactError(error));
+    await finish(run, { status: "failed", code: "error", error: error instanceof Error ? error.message : String(error) }).catch(() => undefined);
+  });
+}
+
 const running = new Set<string>();
 /** A sweep under way, and whether another was asked for meanwhile: one at a time, or two could each take the free slots. */
 let sweeping: Promise<void> | null = null;
@@ -939,11 +966,7 @@ async function takeDue() {
     const runs = await claim(free);
     for (const run of runs) {
       running.add(run.id);
-      void processRun(run)
-        .catch(async (error) => {
-          console.error("[agents] run failed", redactError(error));
-          await finish(run, { status: "failed", code: "error", error: error instanceof Error ? error.message : String(error) }).catch(() => undefined);
-        })
+      void runInSlot(run)
         .finally(() => {
           running.delete(run.id);
           // A slot is free: take what waits.

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  accessSource,
   AGENT_EMAIL_DOMAIN,
   agentEmail,
   agentRunPath,
@@ -162,5 +163,24 @@ describe("who a run is for (sees its work and answers its call)", () => {
 
   it("is a connection's event's run every owner's", () => {
     expect(ownerSeesRun(event, "o2", false)).toBe(true);
+  });
+
+  it("is a helper's run for whoever the run that asked it is for", () => {
+    const handoff = (parent: Exclude<AgentRunSource, { kind: "handoff" }>): AgentRunSource => ({
+      kind: "handoff",
+      parentRunId: "r",
+      fromAgentId: "a",
+      callId: "c",
+      boundTo: null,
+      trusted: true,
+      parent,
+    });
+    expect([row, scheduled, asked, event].map((p) => runPageOf(handoff(p)))).toEqual(["row", "db", null, null]);
+    expect(accessSource(handoff(asked))).toBe(asked);
+    expect(ownerSeesRun(handoff(row), "o2", true)).toBe(true);
+    expect(ownerSeesRun(handoff(row), "o2", false)).toBe(false);
+    expect(ownerSeesRun(handoff(asked), "o1", false)).toBe(true);
+    expect(ownerSeesRun(handoff(asked), "o2", false)).toBe(false);
+    expect(ownerSeesRun(handoff(event), "o2", false)).toBe(true);
   });
 });

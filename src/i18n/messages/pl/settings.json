@@ -355,7 +355,11 @@
       "limitInvalid": "Wpisz liczbę całkowitą od 1 do 1 000 000 000 lub zostaw puste pole, aby nie ustawiać limitu.",
       "create": "Utwórz agenta",
       "creating": "Tworzenie…",
-      "archivedNote": "Przywróć agenta, aby go zmienić."
+      "archivedNote": "Przywróć agenta, aby go zmienić.",
+      "helpers": "Agenci, których może poprosić",
+      "helpersHelp": "Podczas uruchomienia może przekazać część zadania tym agentom, najwyżej {max} razy, i skorzystać z ich odpowiedzi. Każdy działa z własnym dostępem, narzędziami i limitami i sam nie może prosić kolejnych agentów.",
+      "helpersEmpty": "W tym obszarze roboczym nie ma jeszcze innych agentów.",
+      "helperPaused": "Wstrzymany"
     },
     "describe": {
       "button": "Opisz agenta",
@@ -543,6 +547,16 @@
           "hidden": "Pominięto <name></name>: osoba, która rozpoczęła uruchomienie, nie może jej otworzyć",
           "removed": "Pominięto <name></name>: właściciel odebrał ją agentowi, gdy uruchomienie czekało"
         }
+      },
+      "askedBy": "Na prośbę agenta <agent></agent>",
+      "removedAgent": "usuniętego agenta",
+      "handoff": {
+        "done": "Poproszono agenta <agent></agent>: „{task}”",
+        "failed": "Poproszono agenta <agent></agent>, ale jego uruchomienie się nie powiodło: „{task}”",
+        "waiting": "Poproszono agenta <agent></agent>; nie skończył, gdy to uruchomienie poszło dalej: „{task}”",
+        "paused": "Nie udało się poprosić agenta <agent></agent>: jest wstrzymany",
+        "archived": "Nie udało się poprosić agenta <agent></agent>: jest zarchiwizowany",
+        "limitReached": "Nie udało się poprosić agenta <agent></agent>: wyczerpał miesięczny limit tokenów"
       }
     },
     "usage": {
@@ -637,7 +651,8 @@
         "limit": "Wpisz limit tokenów jako liczbę całkowitą od 1 do 1 000 000 000.",
         "task": "Napisz zadanie wykonywane przy każdym uruchomieniu.",
         "taskLength": "Zadanie może mieć najwyżej 2000 znaków.",
-        "repeat": "Sprawdź, kiedy się powtarza, i strefę czasową."
+        "repeat": "Sprawdź, kiedy się powtarza, i strefę czasową.",
+        "helpers": "Wybierz najwyżej 10 innych, niezarchiwizowanych agentów tego obszaru roboczego."
       },
       "noteEmpty": "Napisz, co agent ma zapamiętać.",
       "noteTooLong": "Notatka może mieć najwyżej {max, plural, one {# znak} few {# znaki} many {# znaków} other {# znaku}}.",

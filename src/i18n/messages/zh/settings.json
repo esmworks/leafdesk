@@ -355,7 +355,11 @@
       "limitInvalid": "请输入 1 到 1,000,000,000 之间的整数，或留空表示无上限。",
       "create": "创建智能体",
       "creating": "正在创建…",
-      "archivedNote": "恢复智能体后才能更改它。"
+      "archivedNote": "恢复智能体后才能更改它。",
+      "helpers": "可求助的智能体",
+      "helpersHelp": "运行期间，它可以把部分任务交给这些智能体（最多 {max} 次），并使用它们的回答。每个智能体都使用自己的访问权限、工具和上限工作，且不能再去求助其他智能体。",
+      "helpersEmpty": "此工作区中还没有其他智能体。",
+      "helperPaused": "已暂停"
     },
     "describe": {
       "button": "描述一个智能体",
@@ -543,6 +547,16 @@
           "hidden": "已跳过 <name></name>：发起此次运行的人无法打开它",
           "removed": "已跳过 <name></name>：在运行等待期间，所有者将其从智能体中移除了"
         }
+      },
+      "askedBy": "由 <agent></agent> 请求",
+      "removedAgent": "已移除的智能体",
+      "handoff": {
+        "done": "求助了 <agent></agent>：“{task}”",
+        "failed": "求助了 <agent></agent>，但其运行失败：“{task}”",
+        "waiting": "求助了 <agent></agent>；本次运行继续时它尚未完成：“{task}”",
+        "paused": "无法求助 <agent></agent>：它已暂停",
+        "archived": "无法求助 <agent></agent>：它已归档",
+        "limitReached": "无法求助 <agent></agent>：它已用完每月令牌上限"
       }
     },
     "usage": {
@@ -637,7 +651,8 @@
         "limit": "请输入 1 到 1,000,000,000 之间的整数作为令牌上限。",
         "task": "请编写它在每次运行时要执行的任务。",
         "taskLength": "任务最多 2,000 个字符。",
-        "repeat": "请检查重复时间及其时区。"
+        "repeat": "请检查重复时间及其时区。",
+        "helpers": "请从此工作区选择最多 10 个其他未归档的智能体。"
       },
       "noteEmpty": "请写下智能体应记住的内容。",
       "noteTooLong": "每条笔记最多 {max} 个字符。",

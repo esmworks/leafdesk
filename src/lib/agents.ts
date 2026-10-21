@@ -51,6 +51,14 @@ export const MAX_AGENT_TOKEN_LIMIT = 1_000_000_000;
 export const MAX_AGENT_ROUNDS = 8;
 export const MAX_AGENT_WRITES = 5;
 export const AGENT_RUN_TIMEOUT_MS = 2 * 60_000;
+/** Other agents one agent may ask (its "Agents it can ask"), and times one run may ask them. */
+export const MAX_AGENT_HELPERS = 10;
+export const MAX_HANDOFFS_PER_RUN = 3;
+/**
+ * The longest a run waits, in all, for the agents it asks: its own time stands still meanwhile, so a
+ * run of AGENT_RUN_TIMEOUT_MS lasts at most 6 minutes.
+ */
+export const MAX_HANDOFF_WAIT_MS = 4 * 60_000;
 /** Skills one agent may have, and how much of them one run reads (all of them together). */
 export const MAX_AGENT_SKILLS = 10;
 export const MAX_AGENT_SKILL_CHARS = 12_000;
@@ -136,6 +144,19 @@ export type AgentRunSource =
       commentId: string;
       /** The member who wrote the comment; the run is held to their access as well. */
       mentionedBy: string;
+    }
+  | {
+      kind: "handoff";
+      /** The run of the agent that asked (`fromAgentId`), and its call: one call asks once. */
+      parentRunId: string;
+      fromAgentId: string;
+      callId: string;
+      /** Whose access holds the asking run besides its agent's own: the helper's run is held to it too. */
+      boundTo: string | null;
+      /** Whether someone stands behind what the asking run read; if not, the helper's run asks before each connection tool. */
+      trusted: boolean;
+      /** What started the asking run: who sees what the helper's run did is who sees that run's. */
+      parent: Exclude<AgentRunSource, { kind: "handoff" }>;
     };
 
 /** What happened that the run responds to, for its prompt and its history. */
@@ -230,8 +251,21 @@ export function skillStepsToAdd(steps: AgentStepRecord[], now: AgentSkillRecord[
   return [...changed, ...removed];
 }
 
-/** One thing a run did: followed a skill, searched, read, queried, changed, thought aloud, commented or used a tool. */
-export type AgentStepRecord = ChatStepRecord | AgentCommentRecord | AgentToolRecord | AgentSkillRecord;
+/**
+ * Another agent the run asked (see server/agents/handoff.ts): its run, and how it went (`waiting`:
+ * the run still waits, for an owner's approval or its turn), or why it couldn't be asked.
+ */
+export type AgentHandoffRecord = {
+  kind: "handoff";
+  agentId: string;
+  agentName: string;
+  runId: string | null;
+  task: string;
+  outcome: "done" | "failed" | "waiting" | "paused" | "archived" | "limitReached";
+};
+
+/** One thing a run did: followed a skill, searched, read, queried, changed, thought aloud, commented, used a tool or asked another agent. */
+export type AgentStepRecord = ChatStepRecord | AgentCommentRecord | AgentToolRecord | AgentSkillRecord | AgentHandoffRecord;
 
 /** A call waiting for approval: what will be sent, and since when. No connection (null): Leafdesk's own tool. */
 export type AgentPendingCall = {
@@ -447,6 +481,8 @@ export type AgentRunView = {
    * (`pageTitle` null and `task` empty where the viewer can't open the page).
    */
   mention: { by: string; byName: string; pageId: string; threadId: string; pageTitle: string | null; task: string } | null;
+  /** For a run another agent asked for: that agent, its run, and the task (empty where the viewer may not see it). */
+  handoff: { fromAgentId: string; fromName: string; parentRunId: string; task: string } | null;
   /** Names of the connections the run's source, steps and waiting call name (removed ones are left out). */
   connections: Record<string, string>;
   createdAt: string;
@@ -471,9 +507,14 @@ export const isEventRun = (source: AgentRunSource): source is Extract<AgentRunSo
 /** Whether a comment that mentioned the agent started a run. */
 export const isMentionRun = (source: AgentRunSource): source is Extract<AgentRunSource, { kind: "mention" }> => source.kind === "mention";
 
+/** What decides who sees a run's work: its own source, or for a run another agent asked for, that agent's run's. */
+export const accessSource = (source: AgentRunSource): Exclude<AgentRunSource, { kind: "handoff" }> => (source.kind === "handoff" ? source.parent : source);
+
 /** The page whose access decides who sees a run's work: its row, its schedule's database, or the page its comment is on. */
-export const runPageOf = (source: AgentRunSource): string | null =>
-  isRowRun(source) ? source.rowId : isScheduleRun(source) ? (source.databaseId ?? null) : isMentionRun(source) ? source.pageId : null;
+export const runPageOf = (given: AgentRunSource): string | null => {
+  const source = accessSource(given);
+  return isRowRun(source) ? source.rowId : isScheduleRun(source) ? (source.databaseId ?? null) : isMentionRun(source) ? source.pageId : null;
+};
 
 /**
  * Whether an owner sees what a run read, thought and answered, and the call it waits on, and so
@@ -485,7 +526,9 @@ export const runPageOf = (source: AgentRunSource): string | null =>
  * with that owner's access: it is theirs alone. A connection's event is the owners' (they set up
  * the connection), as is the run it started.
  */
-export function ownerSeesRun(source: AgentRunSource, userId: string, opensPage: boolean): boolean {
+export function ownerSeesRun(given: AgentRunSource, userId: string, opensPage: boolean): boolean {
+  // A helper's run read for the run that asked it: it shows to whoever that run shows to.
+  const source = accessSource(given);
   if (source.kind === "request") return source.requestedBy === userId && (!isRowRun(source) || opensPage);
   if (isRowRun(source) || isMentionRun(source)) return opensPage;
   if (isScheduleRun(source)) return source.databaseId ? opensPage : source.scheduledBy === userId;

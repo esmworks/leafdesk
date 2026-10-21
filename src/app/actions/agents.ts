@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getLocale, getTranslations } from "next-intl/server";
 import type { ActionResult } from "@/app/actions/workspaces";
-import type { AgentAccessLevel, AgentCommentRecord, AgentRunView, AgentSkillRecord, AgentToolRecord } from "@/lib/agents";
+import type { AgentAccessLevel, AgentCommentRecord, AgentHandoffRecord, AgentRunView, AgentSkillRecord, AgentToolRecord } from "@/lib/agents";
 import type { ChatStepView } from "@/lib/ai-chat";
 import type { RepeatRule } from "@/lib/schedule";
 import { ANSWER_PROPERTY_TYPES, FLAG_PROPERTY_TYPES, LOG_PROPERTY_TYPES, ROUTER_PROPERTY_TYPES, type BuiltinAgentSetup } from "@/lib/builtin-agents";
@@ -24,6 +24,7 @@ import {
   updateAgent,
   type AgentInput,
 } from "@/server/agents/manage";
+import { helperChoices } from "@/server/agents/helpers";
 import { addAgentMemory, deleteAgentMemory, keepAgentMemory, listAgentMemory, updateAgentMemory } from "@/server/agents/memory";
 import { listAgentSchedules, removeAgentSchedule, setAgentSchedule } from "@/server/agents/schedules";
 import { addAgentSkill, listAgentSkills, removeAgentSkill } from "@/server/agents/skills";
@@ -38,7 +39,7 @@ import { requireUserId } from "@/server/session";
 // messages in production.
 
 /** Reasons an `invalid` error names, each with its own message. */
-const INVALID_REASONS = ["name", "icon", "level", "template", "database", "property", "option", "rules", "pages", "limit", "task", "taskLength", "repeat"] as const;
+const INVALID_REASONS = ["name", "icon", "level", "template", "database", "property", "option", "rules", "pages", "limit", "task", "taskLength", "repeat", "helpers"] as const;
 type InvalidReason = (typeof INVALID_REASONS)[number];
 const isInvalidReason = (value: unknown): value is InvalidReason => (INVALID_REASONS as readonly unknown[]).includes(value);
 
@@ -85,6 +86,7 @@ const input = (value: AgentInput): AgentInput => ({
   webAccess: value?.webAccess,
   monthlyTokenLimit: value?.monthlyTokenLimit,
   model: value?.model,
+  helperAgentIds: Array.isArray(value?.helperAgentIds) ? value.helperAgentIds.map(String) : undefined,
 });
 
 export async function createAgentAction(workspaceId: string, value: AgentInput) {
@@ -102,6 +104,11 @@ export async function archiveAgentAction(workspaceId: string, agentId: string) {
 
 export async function restoreAgentAction(workspaceId: string, agentId: string) {
   return run(workspaceId, (userId) => restoreAgent(userId, agentId), { refresh: true });
+}
+
+/** The agents an owner may choose from for an agent's "Agents it can ask" (`agentId` null: a new agent), and those it has. */
+export async function agentHelperChoicesAction(workspaceId: string, agentId: string | null) {
+  return run(workspaceId, (userId) => helperChoices(userId, workspaceId, agentId ? String(agentId) : null));
 }
 
 export async function listAgentAccessAction(workspaceId: string, agentId: string) {
@@ -192,7 +199,7 @@ export async function deleteAgentMemoryAction(workspaceId: string, agentId: stri
 
 /** A comment the agent wrote; its text only when the viewer can open the row it's on. */
 export type AgentCommentView = Omit<AgentCommentRecord, "text"> & { text: string | null };
-export type AgentStepView = ChatStepView | AgentCommentView | AgentToolRecord | AgentSkillRecord;
+export type AgentStepView = ChatStepView | AgentCommentView | AgentToolRecord | AgentSkillRecord | AgentHandoffRecord;
 export type AgentRunDetails = Omit<AgentRunView, "steps"> & { steps: AgentStepView[] };
 
 /** An agent's schedules (server/agents/schedules.ts), for its owners. */
@@ -238,7 +245,7 @@ export async function listAgentRunsAction(workspaceId: string, agentId: string):
           r.steps.map(async (step): Promise<AgentStepView> =>
             step.kind === "comment"
               ? { ...step, text: r.rowTitle === null ? null : step.text }
-              : step.kind === "tool" || step.kind === "skill"
+              : step.kind === "tool" || step.kind === "skill" || step.kind === "handoff"
                 ? step
                 : viewStep(userId, step),
           ),

@@ -175,3 +175,22 @@ export const agentSkill = pgTable(
   },
   (t) => [primaryKey({ columns: [t.agentId, t.pageId] }), index("agent_skill_page_idx").on(t.pageId)],
 );
+
+/**
+ * An agent another agent may ask for help during its runs (see server/agents/handoff.ts): the
+ * agent's "Agents it can ask". Both are agents of the same workspace; archiving the helper takes it
+ * off every list.
+ */
+export const agentHelper = pgTable(
+  "agent_helper",
+  {
+    agentId: text("agent_id")
+      .notNull()
+      .references(() => workspaceAgent.id, { onDelete: "cascade" }),
+    helperId: text("helper_id")
+      .notNull()
+      .references(() => workspaceAgent.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.agentId, t.helperId] }), index("agent_helper_helper_idx").on(t.helperId)],
+);

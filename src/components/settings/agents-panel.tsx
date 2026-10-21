@@ -218,6 +218,11 @@ export function AgentsPanel({
           models={models}
           webSearch={webSearch}
           onTab={(tab) => setOpen({ id: opened.id, tab })}
+          onOpenRun={(agentId, runId) => {
+            if (!find(agentId)) return;
+            setLinkedRun(runId);
+            setOpen({ id: agentId, tab: "runs" });
+          }}
           onClose={() => {
             setOpen(null);
             if (!initialAgentId) return;

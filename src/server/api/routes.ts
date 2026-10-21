@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { page, user, workspaceAgent, type ApiTokenScope } from "@/db/schema";
 import type { AgentView } from "@/lib/agents";
 import { AccessError } from "@/server/access";
+import { helperIdsOf } from "@/server/agents/helpers";
 import * as agents from "@/server/agents/manage";
 import { requestAgentRun } from "@/server/agents/requests";
 import { listAgentSchedules, removeAgentSchedule, setAgentSchedule } from "@/server/agents/schedules";
@@ -97,7 +98,8 @@ async function ownedAgentFor(principal: ApiPrincipal, agentId: string) {
 /** An agent as GET and PATCH answer it: its settings, and what its runs used this month. */
 async function agentWithUsage(agent: AgentView) {
   const [month] = await usageMonthsOf(agent.id);
-  return { ...describeAgent(agent), usage_this_month: describeUsageMonth(month) };
+  const helpers = await helperIdsOf([agent.id]);
+  return { ...describeAgent(agent), helper_agent_ids: helpers.get(agent.id) ?? [], usage_this_month: describeUsageMonth(month) };
 }
 
 async function requirePageInWorkspace(principal: ApiPrincipal, pageId: string) {
@@ -728,7 +730,8 @@ export const API_ROUTES: ApiRoute[] = [
     handler: async ({ principal, params, query }) => {
       requireWorkspace(principal, params.workspace_id);
       const list = await agents.listAgents(principal.userId, params.workspace_id, { archived: query.include_archived });
-      return { workspace_id: params.workspace_id, agents: list.map(describeAgentSummary) };
+      const helpers = await helperIdsOf(list.map((a) => a.id));
+      return { workspace_id: params.workspace_id, agents: list.map((a) => describeAgentSummary(a, helpers.get(a.id) ?? [])) };
     },
   }),
   defineRoute({
@@ -751,7 +754,7 @@ export const API_ROUTES: ApiRoute[] = [
     tag: "Agents",
     summary: "Update an agent",
     description:
-      "Changes an agent's name, icon, description, instructions, whether it is enabled (false pauses it: its queued runs end without doing anything), whether it may read the web (`web_access`), its monthly token limit (null removes it) or the model its runs use (`main`, or `fast` for the server's cheaper fast model); fields left out keep their values. Workspace owners only; an archived agent can't change.",
+      "Changes an agent's name, icon, description, instructions, whether it is enabled (false pauses it: its queued runs end without doing anything), whether it may read the web (`web_access`), its monthly token limit (null removes it), the model its runs use (`main`, or `fast` for the server's cheaper fast model) or the other agents it can hand part of a task to (`helper_agent_ids`, the whole list; `[]` clears it); fields left out keep their values. Workspace owners only; an archived agent can't change.",
     scope: "pages:write",
     body: agentInputs.update.omit({ agent_id: true }),
     response: "Agent",

@@ -521,6 +521,11 @@ const SCHEMAS: Record<string, JsonSchema> = {
       },
       web_access: { type: "boolean", description: "Whether its runs may read public web pages (and search the web, where the server has a search service)." },
       user_id: { type: "string", description: "The agent's own user: what its changes and comments show." },
+      helper_agent_ids: {
+        type: "array",
+        items: { type: "string" },
+        description: "The other agents of the workspace it can hand part of a task to during a run (its \"Agents it can ask\").",
+      },
     },
     ["id", "name", "enabled", "archived", "model", "web_access", "user_id"],
   ),
@@ -562,7 +567,7 @@ const SCHEMAS: Record<string, JsonSchema> = {
       error: { type: "string" },
       source: loose(
         {
-          kind: { type: "string", enum: ["automation", "connection", "request", "schedule", "mention"] },
+          kind: { type: "string", enum: ["automation", "connection", "request", "schedule", "mention", "handoff"] },
           requested_by: loose({ id, name: { type: "string" } }),
           via: { type: "string", enum: ["api", "mcp"] },
           task: {
@@ -571,6 +576,7 @@ const SCHEMAS: Record<string, JsonSchema> = {
           },
           schedule_id: { type: ["string", "null"], description: "The schedule that started it; null once the schedule was deleted." },
           scheduled_by: loose({ id, name: { type: "string" } }),
+          asked_by: { ...loose({ agent_id: id, name: { type: "string" }, run_id: id }), description: "For a run another agent asked for (`handoff`): that agent and its run." },
           database: loose({ id, title: { type: ["string", "null"], description: "null where the user can't open the database." }, url }),
           mentioned_by: loose({ id, name: { type: "string" } }),
           thread_id: { type: "string", description: "The comment thread the agent answers in." },

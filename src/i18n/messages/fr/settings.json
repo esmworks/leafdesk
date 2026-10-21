@@ -355,7 +355,11 @@
       "limitInvalid": "Saisissez un nombre entier de 1 à 1 000 000 000, ou laissez vide pour aucune limite.",
       "create": "Créer l’agent",
       "creating": "Création…",
-      "archivedNote": "Restaurez l’agent pour le modifier."
+      "archivedNote": "Restaurez l’agent pour le modifier.",
+      "helpers": "Agents qu’il peut solliciter",
+      "helpersHelp": "Pendant une exécution, il peut confier une partie de sa tâche à ces agents, jusqu’à {max} fois, et utiliser leurs réponses. Chacun travaille avec ses propres accès, outils et limites, et ne peut pas solliciter d’autres agents à son tour.",
+      "helpersEmpty": "Il n’y a pas encore d’autres agents dans cet espace de travail.",
+      "helperPaused": "En pause"
     },
     "describe": {
       "button": "Décrire un agent",
@@ -543,6 +547,16 @@
           "hidden": "<name></name> laissée de côté : la personne qui a lancé l’exécution ne peut pas l’ouvrir",
           "removed": "<name></name> laissée de côté : un propriétaire l’a retirée à l’agent pendant que l’exécution attendait"
         }
+      },
+      "askedBy": "Demandé par <agent></agent>",
+      "removedAgent": "un agent supprimé",
+      "handoff": {
+        "done": "A sollicité <agent></agent> : « {task} »",
+        "failed": "A sollicité <agent></agent>, mais son exécution a échoué : « {task} »",
+        "waiting": "A sollicité <agent></agent> ; il n’avait pas fini quand cette exécution a continué : « {task} »",
+        "paused": "N’a pas pu solliciter <agent></agent> : il est en pause",
+        "archived": "N’a pas pu solliciter <agent></agent> : il est archivé",
+        "limitReached": "N’a pas pu solliciter <agent></agent> : il a atteint sa limite mensuelle de tokens"
       }
     },
     "usage": {
@@ -637,7 +651,8 @@
         "limit": "Saisissez une limite de tokens entière de 1 à 1 000 000 000.",
         "task": "Écrivez la tâche qu’il fait à chaque exécution.",
         "taskLength": "Une tâche compte au plus 2 000 caractères.",
-        "repeat": "Vérifiez quand elle se répète et son fuseau horaire."
+        "repeat": "Vérifiez quand elle se répète et son fuseau horaire.",
+        "helpers": "Choisissez jusqu’à 10 autres agents non archivés de cet espace de travail."
       },
       "noteEmpty": "Écrivez ce que l’agent doit retenir.",
       "noteTooLong": "Une note peut contenir au plus {max} caractères.",

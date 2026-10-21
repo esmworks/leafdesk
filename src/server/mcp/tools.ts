@@ -109,6 +109,7 @@ import { filterCombinatorInput, filtersInput, id, rowValue, sortsInput } from "@
 import { idsFromLinks, jsonResult, MAX_MARKDOWN_CHARS, pageUrl, runTool, sliceText, ToolInputError, toolErrorFor } from "./format";
 import * as automations from "@/server/automations/manage";
 import * as agents from "@/server/agents/manage";
+import { helperIdsOf } from "@/server/agents/helpers";
 import * as agentMemory from "@/server/agents/memory";
 import * as agentSchedules from "@/server/agents/schedules";
 import * as agentSkills from "@/server/agents/skills";
@@ -2165,27 +2166,31 @@ export function createMcpServer(principal: McpPrincipal) {
     "Only owners of the workspace manage agents; others get \"No agent with this id\". An agent acts as a user of its own, a guest of the workspace: it opens only the pages shared with it (set_agent_access), never with full access, and its changes and comments show its name.";
   const RUN_NOTE = `An automation's run_agent action starts a run on the row that changed: the agent reads its instructions and the task, may read what is shared with it (on a run a member's change started, only what that member can open as well; on one an anonymous or outside answer to a public form started, only what the form's publisher can open as well), and may change or comment on that row only, in at most ${MAX_AGENT_ROUNDS} model turns, ${MAX_AGENT_WRITES} changes and ${AGENT_RUN_TIMEOUT_MS / 60_000} minutes. Runs need AI set up on the server and on for the workspace; otherwise they end with code aiOff.`;
 
+  /** The agents an agent can ask, as get_agent and the write tools add them. */
+  const helpersOf = async (agentId: string) => ({ helper_agent_ids: (await helperIdsOf([agentId])).get(agentId) ?? [] });
+
   server.registerTool(
     "list_agents",
     {
       title: "List a workspace's agents",
       description:
-        "List the agents of a workspace: AI helpers with instructions of their own that automations run on database rows (create_automation's run_agent action takes an agent's id or name). Shows each one's name, icon, description, whether it is enabled (paused agents don't run) and archived, the model its runs use (main or fast), whether it may read the web (web_access), and the id of its own user (what its changes and comments show). Owners and members can list them; guests can't. get_agent shows an agent's instructions and the pages shared with it.",
+        "List the agents of a workspace: AI helpers with instructions of their own that automations run on database rows (create_automation's run_agent action takes an agent's id or name). Shows each one's name, icon, description, whether it is enabled (paused agents don't run) and archived, the model its runs use (main or fast), whether it may read the web (web_access), the id of its own user (what its changes and comments show), and the agents it can ask (helper_agent_ids). Owners and members can list them; guests can't. get_agent shows an agent's instructions and the pages shared with it.",
       inputSchema: agentInputs.list,
       annotations: READ,
     },
     ({ workspace_id, include_archived }) =>
-      runTool(async () => ({
-        workspace_id,
-        agents: (await agents.listAgents(userId, workspace_id, { archived: include_archived })).map(describeAgentSummary),
-      })),
+      runTool(async () => {
+        const list = await agents.listAgents(userId, workspace_id, { archived: include_archived });
+        const helpers = await helperIdsOf(list.map((a) => a.id));
+        return { workspace_id, agents: list.map((a) => describeAgentSummary(a, helpers.get(a.id) ?? [])) };
+      }),
   );
 
   server.registerTool(
     "get_agent",
     {
       title: "Get an agent",
-      description: `Get an agent from list_agents: its instructions, the pages shared with it, each with the agent's level (view, comment or edit) and link, and its skills (set_agent_skill), each with whether its runs follow it now, and its memory: notes that go with every run (kept), and notes its runs proposed that wait for an owner to keep or dismiss them (proposed: keep_agent_memory, dismiss_agent_memory; a run's notes never go with a run until an owner keeps them), each with the run that proposed it; its schedules (add_agent_schedule), each with when it runs next and what stands in its way; its model (main or fast, see update_agent); whether it may read the web (web_access); its monthly_token_limit, and the tokens, cost (0 where the AI provider names no price) and runs it used by calendar month (UTC), this month first. Pages and skills the user can't open are only counted (hidden), and a proposal from a run on a row they can't open has no text. ${AGENT_NOTE}`,
+      description: `Get an agent from list_agents: its instructions, the pages shared with it, each with the agent's level (view, comment or edit) and link, and its skills (set_agent_skill), each with whether its runs follow it now, and its memory: notes that go with every run (kept), and notes its runs proposed that wait for an owner to keep or dismiss them (proposed: keep_agent_memory, dismiss_agent_memory; a run's notes never go with a run until an owner keeps them), each with the run that proposed it; its schedules (add_agent_schedule), each with when it runs next and what stands in its way; its model (main or fast, see update_agent); whether it may read the web (web_access); the other agents it can ask (helper_agent_ids); its monthly_token_limit, and the tokens, cost (0 where the AI provider names no price) and runs it used by calendar month (UTC), this month first. Pages and skills the user can't open are only counted (hidden), and a proposal from a run on a row they can't open has no text. ${AGENT_NOTE}`,
       inputSchema: agentInputs.agentId,
       annotations: READ,
     },
@@ -2193,14 +2198,17 @@ export function createMcpServer(principal: McpPrincipal) {
       runTool(() =>
         withAgentErrors(async () => {
           const agent = await agents.getAgent(userId, agent_id);
-          return describeAgent(
-            agent,
-            await agents.listAgentAccess(userId, agent_id),
-            await agentSkills.listAgentSkills(userId, agent_id),
-            await agentMemory.listAgentMemory(userId, agent_id),
-            await usageMonthsOf(agent.id),
-            await agentSchedules.listAgentSchedules(userId, agent_id),
-          );
+          return {
+            ...describeAgent(
+              agent,
+              await agents.listAgentAccess(userId, agent_id),
+              await agentSkills.listAgentSkills(userId, agent_id),
+              await agentMemory.listAgentMemory(userId, agent_id),
+              await usageMonthsOf(agent.id),
+              await agentSchedules.listAgentSchedules(userId, agent_id),
+            ),
+            ...(await helpersOf(agent.id)),
+          };
         }),
       ),
   );
@@ -2209,15 +2217,16 @@ export function createMcpServer(principal: McpPrincipal) {
     "create_agent",
     {
       title: "Create an agent",
-      description: `Create an agent in a workspace: a name, an optional emoji icon and description, instructions it follows on every run, and the model its runs use (main by default; fast for routine, well-defined jobs). It gets a user of its own, a guest of the workspace that can't sign in, and starts with nothing shared with it: share pages it should read with set_agent_access, and run it from a database automation (create_automation with a run_agent action, which shares that database with it at edit access). It reads nothing outside the workspace unless web_access is true: then its runs may read public web pages, and search the web where the server has a search service; leave it off for agents that only work with the workspace. ${RUN_NOTE} Anything shared with an agent can end up in the rows it writes, which everyone who can open those rows sees. Only owners create agents; a workspace has at most 50.`,
+      description: `Create an agent in a workspace: a name, an optional emoji icon and description, instructions it follows on every run, the model its runs use (main by default; fast for routine, well-defined jobs), and optionally the other agents it can hand part of a task to (helper_agent_ids). It gets a user of its own, a guest of the workspace that can't sign in, and starts with nothing shared with it: share pages it should read with set_agent_access, and run it from a database automation (create_automation with a run_agent action, which shares that database with it at edit access). It reads nothing outside the workspace unless web_access is true: then its runs may read public web pages, and search the web where the server has a search service; leave it off for agents that only work with the workspace. ${RUN_NOTE} Anything shared with an agent can end up in the rows it writes, which everyone who can open those rows sees. Only owners create agents; a workspace has at most 50.`,
       inputSchema: agentInputs.create,
       annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
       scopeChallenge: requireWrite,
     },
-    write(({ workspace_id, web_access, ...input }) =>
+    write(({ workspace_id, web_access, helper_agent_ids, ...input }) =>
       withAgentErrors(async () => {
         try {
-          return describeAgent(await agents.createAgent(userId, workspace_id, { ...input, ...(web_access !== undefined ? { webAccess: web_access } : {}) }), { pages: [], hidden: 0 });
+          const agent = await agents.createAgent(userId, workspace_id, { ...input, ...(web_access !== undefined ? { webAccess: web_access } : {}), helperAgentIds: helper_agent_ids });
+          return { ...describeAgent(agent, { pages: [], hidden: 0 }), ...(await helpersOf(agent.id)) };
         } catch (error) {
           if (error instanceof AccessError && !(error instanceof ConnectedAppReadOnlyError)) {
             throw new ToolInputError("Only owners of a workspace create agents. Check the workspace id and the user's role with list_workspaces.");
@@ -2254,7 +2263,7 @@ export function createMcpServer(principal: McpPrincipal) {
     "update_agent",
     {
       title: "Change an agent",
-      description: `Change an agent from list_agents: its name (its changes and comments show the new one), icon (null removes it), description, instructions, whether it is enabled (false pauses it: its queued runs end without doing anything), whether its runs may read the web (web_access), its monthly token limit (null removes it), or the model its runs use: "main", the server's main model, for work that needs judgment, or "fast", its cheaper fast model, for routine, well-defined jobs such as summaries or sorting rows (where the server has no fast model, or the workspace's AI is an own AI account, a fast agent runs on the main model). What you leave out stays as it is. ${AGENT_NOTE}`,
+      description: `Change an agent from list_agents: its name (its changes and comments show the new one), icon (null removes it), description, instructions, whether it is enabled (false pauses it: its queued runs end without doing anything), whether its runs may read the web (web_access), its monthly token limit (null removes it), the agents it can ask (helper_agent_ids: the whole list), or the model its runs use: "main", the server's main model, for work that needs judgment, or "fast", its cheaper fast model, for routine, well-defined jobs such as summaries or sorting rows (where the server has no fast model, or the workspace's AI is an own AI account, a fast agent runs on the main model). What you leave out stays as it is. ${AGENT_NOTE}`,
       inputSchema: agentInputs.update,
       annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },
       scopeChallenge: requireWrite,
@@ -2262,7 +2271,8 @@ export function createMcpServer(principal: McpPrincipal) {
     write(({ agent_id, ...input }) =>
       withAgentErrors(async () => {
         const patch = toAgentPatch(input);
-        return describeAgent(await agents.updateAgent(userId, agent_id, patch));
+        const agent = await agents.updateAgent(userId, agent_id, patch);
+        return { ...describeAgent(agent), ...(await helpersOf(agent.id)) };
       }),
     ),
   );
@@ -2428,7 +2438,7 @@ export function createMcpServer(principal: McpPrincipal) {
     "list_agent_runs",
     {
       title: "List an agent's runs",
-      description: `List an agent's latest runs, newest first (kept for ${AGENT_RUN_HISTORY_DAYS} days): what started each (an automation and its row, the row's title only when the user can open it; a connection's event; an owner's request with start_agent_run or the REST API, with its task; one of its schedules, with its task and database; or a member who mentioned it in a comment, with the comment and its page), its status (pending, running, awaiting_approval, done, failed), why it failed (code: aiOff, agentDisabled, noAccess, rowGone, databaseGone, commentGone, provider, timeout, tooManyAttempts, approvalTimeout, connectionGone, limitReached or error), what it did step by step (followed or left out a skill, searched, read, queried, changed the row, commented, called a connection's tool, its thoughts), the call it waits on (credentials in its input masked), its final answer and the tokens it used, with the model that answered. A call waiting for approval is answered by an owner in Leafdesk (the inbox, or the agent's runs, which show the call exactly as it will be sent), not here. ${RUN_NOTE} ${AGENT_NOTE}`,
+      description: `List an agent's latest runs, newest first (kept for ${AGENT_RUN_HISTORY_DAYS} days): what started each (an automation and its row, the row's title only when the user can open it; a connection's event; an owner's request with start_agent_run or the REST API, with its task; one of its schedules, with its task and database; a member who mentioned it in a comment, with the comment and its page; or another agent that asked it for part of its task with ask_agent (source kind handoff, with that agent and its run_id)), its status (pending, running, awaiting_approval, done, failed), why it failed (code: aiOff, agentDisabled, noAccess, rowGone, databaseGone, commentGone, provider, timeout, tooManyAttempts, approvalTimeout, connectionGone, limitReached or error), what it did step by step (followed or left out a skill, searched, read, queried, changed the row, commented, called a connection's tool, asked another agent (with the helper's run_id), its thoughts), the call it waits on (credentials in its input masked), its final answer and the tokens it used, with the model that answered. A call waiting for approval is answered by an owner in Leafdesk (the inbox, or the agent's runs, which show the call exactly as it will be sent), not here. ${RUN_NOTE} ${AGENT_NOTE}`,
       inputSchema: agentInputs.runs,
       annotations: READ,
     },

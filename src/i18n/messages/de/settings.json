@@ -355,7 +355,11 @@
       "limitInvalid": "Gib eine ganze Zahl von 1 bis 1.000.000.000 ein oder lass das Feld für kein Limit leer.",
       "create": "Agent erstellen",
       "creating": "Wird erstellt…",
-      "archivedNote": "Stell den Agenten wieder her, um ihn zu ändern."
+      "archivedNote": "Stell den Agenten wieder her, um ihn zu ändern.",
+      "helpers": "Agenten, die er fragen kann",
+      "helpersHelp": "Während eines Durchlaufs kann er Teile seiner Aufgabe an diese Agenten abgeben, bis zu {max}-mal, und ihre Antworten verwenden. Jeder arbeitet mit eigenem Zugriff, eigenen Werkzeugen und Limits und kann selbst keine weiteren Agenten fragen.",
+      "helpersEmpty": "In diesem Workspace gibt es noch keine anderen Agenten.",
+      "helperPaused": "Pausiert"
     },
     "describe": {
       "button": "Agent beschreiben",
@@ -543,6 +547,16 @@
           "hidden": "<name></name> ausgelassen: Die Person, die den Lauf gestartet hat, kann ihn nicht öffnen",
           "removed": "<name></name> ausgelassen: Ein Inhaber hat ihn dem Agenten weggenommen, während der Lauf wartete"
         }
+      },
+      "askedBy": "Gefragt von <agent></agent>",
+      "removedAgent": "einem entfernten Agenten",
+      "handoff": {
+        "done": "Hat <agent></agent> gefragt: „{task}“",
+        "failed": "Hat <agent></agent> gefragt, aber dessen Durchlauf ist fehlgeschlagen: „{task}“",
+        "waiting": "Hat <agent></agent> gefragt; er war noch nicht fertig, als dieser Durchlauf weiterging: „{task}“",
+        "paused": "Konnte <agent></agent> nicht fragen: Er ist pausiert",
+        "archived": "Konnte <agent></agent> nicht fragen: Er ist archiviert",
+        "limitReached": "Konnte <agent></agent> nicht fragen: Sein monatliches Token-Limit ist aufgebraucht"
       }
     },
     "usage": {
@@ -637,7 +651,8 @@
         "limit": "Gib als Token-Limit eine ganze Zahl von 1 bis 1.000.000.000 ein.",
         "task": "Schreib die Aufgabe, die er bei jedem Lauf erledigt.",
         "taskLength": "Eine Aufgabe hat höchstens 2.000 Zeichen.",
-        "repeat": "Prüfe, wann er sich wiederholt, und die Zeitzone."
+        "repeat": "Prüfe, wann er sich wiederholt, und die Zeitzone.",
+        "helpers": "Wähle bis zu 10 andere, nicht archivierte Agenten dieses Workspaces."
       },
       "noteEmpty": "Schreiben Sie, was sich der Agent merken soll.",
       "noteTooLong": "Eine Notiz darf höchstens {max} Zeichen haben.",
