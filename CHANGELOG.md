@@ -99,6 +99,17 @@
   stays readable; the question is sent with the pasted text in the chip's place. The chip is one
   piece: the caret steps over it, and Backspace after it (or Delete before it) takes it and its
   paste. Two pastes of the same size are numbered apart.
+- **Chat with an agent, and put that chat on a page.** An agent's settings get a **Chat** tab where
+  owners write to it and it answers with its instructions, skills, notes, connections and the
+  owner's access, and may create and change pages and rows both can edit. The **Agent chat** block
+  (slash menu, or paste a link to an agent) puts a chat with an agent on a page, for anyone in the
+  workspace who isn't a guest: owners chat as in the tab, everyone else read-only, the agent reading
+  only pages both it and they can open, changing nothing and calling only connection tools that
+  read. Each person's conversations are their own, per block, with the 20 most recent kept and
+  **New conversation** for another. Every answer is one of the agent's runs, shown in its history
+  as a chat message and counted in its usage and monthly limit. Guests, published pages and
+  exports show the block without the chat. MCP's `list_agent_runs` describes chat runs. Migration
+  0099 adds the `agent_conversation` table.
 
 ### Changed
 

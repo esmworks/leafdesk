@@ -57,6 +57,7 @@ import { MentionMenu, PageLinkMenu, PagePicker, usePageLinkSlashItem, usePageRef
 import type { PageDoc } from "./use-page-doc";
 import { SyncedFrameProvider, useSyncedFrame, useSyncedPageSlashItem } from "./synced-page";
 import { pasteSyncedBlock, useSyncedBlockSlashItem } from "./synced-block";
+import { pasteAgentChat, useAgentChatSlashItem } from "./agent-chat-block";
 import { PasteLinkMenu, useWebSlashItems } from "./web-blocks";
 import { useColorSlashItems } from "./slash-colors";
 import { withTextScriptButtons } from "./text-scripts";
@@ -173,11 +174,11 @@ export default function CollabEditor({
   );
   // Files dropped, pasted or picked in a file block go to the server (see api/files); the block keeps
   // the URL it answers with. Read through a ref, so the editor isn't re-created when these change.
-  const uploadTo = useRef({ pageId, tu, setEmbedError, inSyncedBlock, nestedMessage: tSyncedBlock("nested") });
+  const uploadTo = useRef({ pageId, workspaceId, tu, setEmbedError, inSyncedBlock, nestedMessage: tSyncedBlock("nested") });
   // After every render, on purpose: the ref always holds the latest values.
   // eslint-disable-next-line react-hooks/exhaustive-deps -- no dependency list is the point
   useEffect(() => {
-    uploadTo.current = { pageId, tu, setEmbedError, inSyncedBlock, nestedMessage: tSyncedBlock("nested") };
+    uploadTo.current = { pageId, workspaceId, tu, setEmbedError, inSyncedBlock, nestedMessage: tSyncedBlock("nested") };
   });
   const uploadFile = useMemo(
     () => async (file: File) => {
@@ -218,9 +219,14 @@ export default function CollabEditor({
       tables: { splitCells: true },
       extensions: [KeepUndoAttached(), FindReplace(), codeHighlighting(), BlockDirection(), comments],
       // A synced block copied with "Copy synced block" lands as a reference; none lands inside one.
+      // A link to an agent of the workspace, alone in an empty paragraph, becomes a chat with it.
       pasteHandler: ({ event, editor, defaultPasteHandler }) => {
-        const { inSyncedBlock, setEmbedError, nestedMessage } = uploadTo.current;
-        return pasteSyncedBlock(event, editor as unknown as PageEditor, inSyncedBlock, () => setEmbedError(nestedMessage)) ?? defaultPasteHandler();
+        const { inSyncedBlock, setEmbedError, nestedMessage, workspaceId } = uploadTo.current;
+        return (
+          pasteAgentChat(event, editor as unknown as PageEditor, workspaceId) ??
+          pasteSyncedBlock(event, editor as unknown as PageEditor, inSyncedBlock, () => setEmbedError(nestedMessage)) ??
+          defaultPasteHandler()
+        );
       },
       collaboration: {
         fragment: pageDoc.doc.getXmlFragment(fragment),
@@ -423,6 +429,7 @@ function SlashMenu({
   const syncedPageItems = useSyncedPageSlashItem(editor, onPickSynced);
   const placeSynced = useCallback((at: string, block: Parameters<typeof placeEmbedBlock>[2]) => placeEmbedBlock(editor, at, block), [editor]);
   const syncedBlockItems = useSyncedBlockSlashItem(editor, doc, placeSynced);
+  const agentChatItems = useAgentChatSlashItem(editor, placeSynced);
   const columnItems = useColumnSlashItems(editor);
   const colorItems = useColorSlashItems(editor);
   const aiItems = useAiSlashItems(assistant?.open ?? noop, assistant !== null);
@@ -441,6 +448,7 @@ function SlashMenu({
             ...pageLinkItems,
             ...syncedPageItems,
             ...syncedBlockItems,
+            ...agentChatItems,
             ...colorItems(),
             ...snippetItems,
             ...aiItems,

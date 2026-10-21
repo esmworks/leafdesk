@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import * as Y from "yjs";
+import { agentChatLine } from "@/lib/agent-chat";
 import { blocksToPlainText } from "@/lib/blocks";
 import { COLLAB_FRAGMENT } from "@/lib/collab-constants";
 import { dashboardLine, newWidget, serializeDashboard } from "@/lib/dashboard";
@@ -334,5 +335,36 @@ describe("tables in Markdown", () => {
       ["A", "B"],
       ["Jan\nFeb", "y"],
     ]);
+  });
+});
+
+describe("agent chats in page bodies", () => {
+  it("round-trip through the Yjs document and Markdown, keeping their conversations' id", async () => {
+    const doc = docFrom([
+      { type: "paragraph", content: "Ask" },
+      { type: "agentChat", props: { agentId: "a1", chatId: "c1" } },
+    ]);
+    const blocks = read(doc);
+    expect(blocks[1]).toMatchObject({ type: "agentChat", props: { agentId: "a1", chatId: "c1" } });
+    const markdown = (await blocksToMarkdown(blocks)).trim();
+    expect(markdown).toBe(`Ask\n\n${agentChatLine("a1", "c1")}`);
+    const back = await markdownToBlocks(markdown);
+    expect(back.map((b) => [b.type, b.props])).toEqual([
+      ["paragraph", expect.anything()],
+      ["agentChat", { agentId: "a1", chatId: "c1" }],
+    ]);
+  });
+
+  it("get a chat id when written in Markdown without one", async () => {
+    const [block] = await markdownToBlocks(agentChatLine("a1", ""));
+    expect(block.type).toBe("agentChat");
+    expect((block.props as { chatId: string }).chatId).toMatch(/^[\w-]{8,}$/);
+  });
+
+  it("show a note, never the agent, on a published page", async () => {
+    const doc = docFrom([{ type: "paragraph", content: "Visible" }, { type: "agentChat", props: { agentId: "a1", chatId: "c1" } }]);
+    const segments = await bodySegmentsFromYdoc(Y.encodeStateAsUpdate(doc));
+    expect(segments.map((s) => s.kind)).toEqual(["html", "agentChat"]);
+    expect(JSON.stringify(segments)).not.toContain("a1");
   });
 });

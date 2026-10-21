@@ -153,4 +153,11 @@ describe("who a run is for (sees its work and answers its call)", () => {
   it("is a connection's event's run every owner's", () => {
     expect(ownerSeesRun(event, "o2", false)).toBe(true);
   });
+
+  it("is a chat's run the chatting person's alone", () => {
+    const chat: AgentRunSource = { kind: "chat", userId: "o1", conversationId: "c" };
+    expect(runPageOf(chat)).toBeNull();
+    expect(ownerSeesRun(chat, "o1", false)).toBe(true);
+    expect(ownerSeesRun(chat, "o2", true)).toBe(false);
+  });
 });

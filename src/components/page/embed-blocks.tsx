@@ -29,6 +29,7 @@ import { mentionBlockSpecs, mentionInlineSpecs } from "./mentions";
 import { DashboardBlock } from "./dashboard-block";
 import { SyncedPageBlock } from "./synced-page";
 import { SyncedBlockSpec } from "./synced-block";
+import { AgentChatBlock } from "./agent-chat-block";
 import { DatabaseEmbed, useEmbedHost } from "./database-embed";
 import { FileBlock } from "./file-block";
 import { webBlockSpecs } from "./web-blocks";
@@ -95,6 +96,8 @@ export const pageEditorSchema = BlockNoteSchema.create({
     syncedPage: SyncedPageBlock(),
     // Blocks kept on one page and shown live on others (see synced-block.tsx).
     syncedBlock: SyncedBlockSpec(),
+    // A chat with one of the workspace's agents (see agent-chat-block.tsx).
+    agentChat: AgentChatBlock(),
     // Uploaded PDFs show in place (see file-block.tsx).
     file: FileBlock(),
     // Blocks side by side (see columns.tsx).

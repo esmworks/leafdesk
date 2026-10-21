@@ -75,6 +75,12 @@ describe("copyPublishedBlocks", () => {
     expect(out[0].props).toMatchObject({ databaseId: "copy-of-db" });
   });
 
+  it("leaves agent chats out, keeping what is nested in them", () => {
+    const out = copyPublishedBlocks([{ id: "c1", type: "agentChat", props: { agentId: "a1", chatId: "chat1" }, children: [paragraph([{ type: "text", text: "kept", styles: {} }])] }], refs);
+    expect(out.map((b) => b.type)).toEqual(["paragraph"]);
+    expect(JSON.stringify(out)).not.toContain("a1");
+  });
+
   it("keeps dashboard widgets whose database was copied", () => {
     const widget = (id: string, databaseId: string) => ({ id, databaseId, span: 1, view: { type: "list", config: {} } });
     const out = copyPublishedBlocks(

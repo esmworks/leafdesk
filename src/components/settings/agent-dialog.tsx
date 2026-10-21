@@ -1,6 +1,6 @@
 "use client";
 
-import { BookCheck, BookX, Bot, CalendarClock, ChevronRight, MessageSquare, MessageSquareOff, Play, Plug, RefreshCw, TriangleAlert, X } from "lucide-react";
+import { BookCheck, BookX, Bot, CalendarClock, ChevronRight, MessageSquare, MessageSquareOff, MessagesSquare, Play, Plug, RefreshCw, TriangleAlert, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
@@ -37,14 +37,15 @@ import {
   type AgentUsageMonth,
   type AgentView,
 } from "@/lib/agents";
+import { AgentChatTab } from "./agent-chat-tab";
 import { AgentConnectionsTab } from "./agent-connections-tab";
 import { AgentMemoryTab } from "./agent-memory-tab";
 import { AgentSchedulesTab } from "./agent-schedules-tab";
 import { AgentSkillsTab } from "./agent-skills-tab";
 import { PagePicker, useShareablePages } from "./agent-page-picker";
 
-export type AgentTab = "settings" | "access" | "skills" | "memory" | "connections" | "schedules" | "runs";
-export const AGENT_TABS: readonly AgentTab[] = ["settings", "access", "skills", "memory", "connections", "schedules", "runs"];
+export type AgentTab = "settings" | "access" | "skills" | "memory" | "connections" | "schedules" | "runs" | "chat";
+export const AGENT_TABS: readonly AgentTab[] = ["settings", "access", "skills", "memory", "connections", "schedules", "runs", "chat"];
 
 
 /** An agent's emoji, or a robot when it has none. */
@@ -53,7 +54,10 @@ export function AgentIcon({ icon, className }: { icon: string | null; className?
   return <Bot className={cn("h-4 w-4 text-fg-muted", className)} aria-hidden />;
 }
 
-/** One agent: its settings, the pages shared with it, its skills, its memory, the connections' tools it may use, its schedules and its latest runs, in tabs. */
+/**
+ * One agent: its settings, the pages shared with it, its skills, its memory, the connections' tools
+ * it may use, its schedules, its latest runs and a chat with it, in tabs.
+ */
 export function AgentDialog({
   workspaceId,
   agent,
@@ -94,7 +98,7 @@ export function AgentDialog({
           <X className="h-4 w-4" />
         </IconButton>
       </div>
-      {/* Seven tabs don't fit a phone: they scroll on their own rather than widening the dialog. */}
+      {/* Eight tabs don't fit a phone: they scroll on their own rather than widening the dialog. */}
       <div className="overflow-x-auto border-b border-border px-5 py-2">
         <div role="tablist" aria-label={agent.name} className="inline-flex gap-0.5 rounded-lg bg-bg-hover p-0.5">
           {AGENT_TABS.map((name) => (
@@ -121,6 +125,8 @@ export function AgentDialog({
         <AgentConnectionsTab workspaceId={workspaceId} agent={agent} />
       ) : tab === "schedules" ? (
         <AgentSchedulesTab workspaceId={workspaceId} agent={agent} onRuns={() => onTab("runs")} />
+      ) : tab === "chat" ? (
+        <AgentChatTab workspaceId={workspaceId} agent={agent} />
       ) : (
         <RunsTab workspaceId={workspaceId} agent={agent} runId={runId} />
       )}
@@ -561,6 +567,11 @@ function RunItem({
                       : t("fromScheduleHidden")}
                 </span>
               </span>
+            ) : run.source.kind === "chat" ? (
+              <span className="flex min-w-0 flex-1 items-center gap-1.5 text-sm">
+                <MessagesSquare aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
+                <span className={cn("truncate", !run.chat?.message && "text-fg-muted")}>{run.chat?.message || t("fromChat", { name: run.chat?.byName ?? "" })}</span>
+              </span>
             ) : run.source.kind === "request" && !run.source.rowId ? (
               <span className="flex min-w-0 flex-1 items-center gap-1.5 text-sm">
                 <Play aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
@@ -582,6 +593,7 @@ function RunItem({
             {took && ` · ${t("took", { time: took })}`}
             {run.request && ` · ${t("requestedBy", { name: run.request.byName, via: run.request.via })}`}
             {run.schedule && ` · ${t("scheduledBy", { name: run.schedule.byName })}`}
+            {run.chat && ` · ${t("chattedBy", { name: run.chat.byName })}`}
           </div>
           {failed && run.code && <p className="mt-0.5 text-xs text-danger">{t(`reason.${run.code}`)}</p>}
         </div>
@@ -628,7 +640,7 @@ function RunItem({
 }
 
 /** A step of a run: the chat's steps, the comments the agent wrote, and its calls to connections. */
-function AgentStepLine({ step, connections, onOpen }: { step: AgentStepView; connections: Record<string, string>; onOpen: (pageId: string) => void }) {
+export function AgentStepLine({ step, connections, onOpen }: { step: AgentStepView; connections: Record<string, string>; onOpen: (pageId: string) => void }) {
   const t = useTranslations("settings.agents.runs");
   if (step.kind === "tool") {
     const connection = step.connectionId === null ? OWN_TOOLS_NAME : (connections[step.connectionId] ?? t("removedConnection"));

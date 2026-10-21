@@ -440,7 +440,11 @@ async function viewRuns(userId: string, runs: (typeof agentRun.$inferSelect)[], 
     scheduleIds.length ? (await db.select({ id: schedule.id }).from(schedule).where(inArray(schedule.id, scheduleIds))).map((s) => s.id) : [],
   );
   const requesterIds = [
-    ...new Set(runs.flatMap((r) => (r.source.kind === "request" ? [r.source.requestedBy] : r.source.kind === "schedule" ? [r.source.scheduledBy] : []))),
+    ...new Set(
+      runs.flatMap((r) =>
+        r.source.kind === "request" ? [r.source.requestedBy] : r.source.kind === "schedule" ? [r.source.scheduledBy] : r.source.kind === "chat" ? [r.source.userId] : [],
+      ),
+    ),
   ];
   const requesters = new Map(
     requesterIds.length ? (await db.select({ id: user.id, name: user.name }).from(user).where(inArray(user.id, requesterIds))).map((u) => [u.id, u.name]) : [],
@@ -477,6 +481,7 @@ async function viewRuns(userId: string, runs: (typeof agentRun.$inferSelect)[], 
         r.source.kind === "request"
           ? { by: r.source.requestedBy, byName: requesters.get(r.source.requestedBy) ?? "", via: r.source.via, task: open ? r.prompt : "" }
           : null,
+      chat: r.source.kind === "chat" ? { by: r.source.userId, byName: requesters.get(r.source.userId) ?? "", message: open ? r.prompt : "" } : null,
       schedule: isScheduleRun(r.source)
         ? {
             id: liveSchedules.has(r.source.scheduleId) ? r.source.scheduleId : "",

@@ -5,6 +5,7 @@ import { file, fileReference, page, propertyPermission, type PageKind, workspace
 import { toCsv } from "@/lib/csv";
 import { valueType } from "@/lib/derived";
 import { mapReferenceLines, markdownReferences } from "@/lib/embed-blocks";
+import { mapAgentChatLines } from "@/lib/agent-chat";
 import { env } from "@/lib/env";
 import { layoutExport, relativeLink, rewriteLinks, type ExportLayout } from "@/lib/export-layout";
 import { fileIdOf, fileIdsIn, fileIdsInProperties, formatBytes } from "@/lib/files";
@@ -13,6 +14,7 @@ import { toXlsx, type XlsxValue } from "@/lib/xlsx";
 import { cellText } from "@/lib/table-clipboard";
 import { accessRank, pageIdColumn, requireMembership, requirePageAccess } from "@/server/access";
 import { recordAudit } from "@/server/audit";
+import { agentNames } from "@/server/agents/chat";
 import { getCollab } from "@/server/collab/bridge";
 import { getDatabaseSnapshot } from "@/server/databases";
 import { resolveEmbeds } from "@/server/embeds";
@@ -40,7 +42,15 @@ import { exportAllowed } from "@/server/workspaces";
  * reads it; limits on pages and file bytes are checked before the first byte is sent.
  */
 
-export type ExportLabels = { untitled: string; noAccess: string; deleted: string; unavailable: string; synced: SyncedLabels };
+export type ExportLabels = {
+  untitled: string;
+  noAccess: string;
+  deleted: string;
+  unavailable: string;
+  synced: SyncedLabels;
+  /** An agent chat block's line, naming its agent (or "" when it is gone). */
+  agentChat: (name: string) => string;
+};
 
 export const ENGLISH_EXPORT_LABELS: ExportLabels = {
   untitled: "Untitled",
@@ -48,6 +58,7 @@ export const ENGLISH_EXPORT_LABELS: ExportLabels = {
   deleted: "Deleted page",
   unavailable: "Database unavailable",
   synced: ENGLISH_SYNCED_LABELS,
+  agentChat: (name) => (name ? `Agent chat: ${name}` : "Agent chat"),
 };
 
 // ---------------------------------------------------------------------------------------------
@@ -63,7 +74,23 @@ export async function pageMarkdown(userId: string, pageId: string, labels: Expor
   // Synced blocks shown from other pages first, so their links and databases are labelled too.
   const expanded = await expandSyncedMarkdown(userId, pageId, content.markdown.trim(), labels.synced);
   const labelled = await labelPageLinks(userId, expanded, labels);
-  return { title: content.title, body: await linkEmbeds(userId, labelled, labels) };
+  return { title: content.title, body: await nameAgentChats(pageId, await linkEmbeds(userId, labelled, labels), labels) };
+}
+
+/**
+ * Agent chat blocks as a plain line naming the agent: what is said in them is each reader's own,
+ * and never exported. An agent since archived is still named; one of another workspace is not.
+ */
+async function nameAgentChats(pageId: string, markdown: string, labels: ExportLabels) {
+  const ids = new Set<string>();
+  mapAgentChatLines(markdown, ({ agentId }) => {
+    ids.add(agentId);
+    return "";
+  });
+  if (!ids.size) return markdown;
+  const [found] = await db.select({ workspaceId: page.workspaceId }).from(page).where(eq(page.id, pageId));
+  const names = await agentNames(found ? [found.workspaceId] : [], [...ids]);
+  return mapAgentChatLines(markdown, ({ agentId }) => `*${labels.agentChat(names.get(agentId) ?? "").replace(/[*_[\]]/g, "\\$&")}*`);
 }
 
 /** Title heading and body, as one Markdown file. */

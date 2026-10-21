@@ -201,7 +201,7 @@ function withContentNote(result: CallToolResult): CallToolResult {
 }
 
 const EMBED_NOTE =
-  "Databases shown inside a page body appear in its Markdown as their own lines, `<!-- leafdesk:database <id> -->` (an inline database) or `<!-- leafdesk:linked-view <id> -->` (a linked view of a database); get_page lists them under embedded_databases. A dashboard (see add_dashboard) is the line `<!-- leafdesk:dashboard <id> -->`; get_page lists dashboards and their widgets under dashboards.";
+  "Databases shown inside a page body appear in its Markdown as their own lines, `<!-- leafdesk:database <id> -->` (an inline database) or `<!-- leafdesk:linked-view <id> -->` (a linked view of a database); get_page lists them under embedded_databases. A dashboard (see add_dashboard) is the line `<!-- leafdesk:dashboard <id> -->`; get_page lists dashboards and their widgets under dashboards. A chat with an agent, where readers of the page talk to it in the app, is the line `<!-- leafdesk:agent-chat <agent_id> <chat_id> -->` (keep the chat_id: it holds the readers' conversations; a new line may leave it out).";
 
 /** How formulas are written, for tool descriptions. */
 const FORMULA_HELP =
@@ -2376,7 +2376,7 @@ export function createMcpServer(principal: McpPrincipal) {
     "list_agent_runs",
     {
       title: "List an agent's runs",
-      description: `List an agent's latest runs, newest first (kept for ${AGENT_RUN_HISTORY_DAYS} days): what started each (an automation and its row, the row's title only when the user can open it; a connection's event; an owner's request with start_agent_run or the REST API, with its task; or one of its schedules, with its task and database), its status (pending, running, awaiting_approval, done, failed), why it failed (code: aiOff, agentDisabled, noAccess, rowGone, databaseGone, provider, timeout, tooManyAttempts, approvalTimeout, connectionGone, limitReached or error), what it did step by step (followed or left out a skill, searched, read, queried, changed the row, commented, called a connection's tool, its thoughts), the call it waits on (credentials in its input masked), its final answer and the tokens it used. A call waiting for approval is answered by an owner in Leafdesk (the inbox, or the agent's runs, which show the call exactly as it will be sent), not here. ${RUN_NOTE} ${AGENT_NOTE}`,
+      description: `List an agent's latest runs, newest first (kept for ${AGENT_RUN_HISTORY_DAYS} days): what started each (an automation and its row, the row's title only when the user can open it; a connection's event; an owner's request with start_agent_run or the REST API, with its task; one of its schedules, with its task and database; or a person's message in a chat with it, the message only for the user who wrote it), its status (pending, running, awaiting_approval, done, failed), why it failed (code: aiOff, agentDisabled, noAccess, rowGone, databaseGone, provider, timeout, tooManyAttempts, approvalTimeout, connectionGone, limitReached or error), what it did step by step (followed or left out a skill, searched, read, queried, changed the row, commented, called a connection's tool, its thoughts), the call it waits on (credentials in its input masked), its final answer and the tokens it used. A call waiting for approval is answered by an owner in Leafdesk (the inbox, or the agent's runs, which show the call exactly as it will be sent), not here. ${RUN_NOTE} ${AGENT_NOTE}`,
       inputSchema: agentInputs.runs,
       annotations: READ,
     },

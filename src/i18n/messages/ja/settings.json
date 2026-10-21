@@ -308,7 +308,8 @@
       "memory": "メモリー",
       "runs": "実行",
       "connections": "接続",
-      "schedules": "スケジュール"
+      "schedules": "スケジュール",
+      "chat": "チャット"
     },
     "empty": "エージェントはまだありません。",
     "emptyOwner": "エージェントはまだありません。作成するか、下のテンプレートから始めてください。",
@@ -491,7 +492,9 @@
           "hidden": "<name></name>を除外：実行を開始した人が開けません",
           "removed": "<name></name>を除外：実行の待機中に、オーナーがエージェントから外しました"
         }
-      }
+      },
+      "fromChat": "{name}からのチャットメッセージ",
+      "chattedBy": "{name}がチャット"
     },
     "usage": {
       "thisMonth": "今月：{usage}",

@@ -582,6 +582,8 @@ function describeRunSource(workspaceId: string, run: AgentRunView) {
       },
     };
   }
+  // A chat's message is its person's alone (empty for anyone else).
+  if (source.kind === "chat") return { source: { kind: source.kind, by: { id: source.userId, name: run.chat?.byName ?? "" }, message: run.chat?.message ?? "" } };
   return {
     source: { kind: source.kind, requested_by: { id: source.requestedBy, name: run.request?.byName ?? "" }, via: source.via, task: run.request?.task ?? "", ...database },
     ...row,

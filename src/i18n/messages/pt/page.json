@@ -843,5 +843,77 @@
     "failed": "Não foi possível carregar as páginas daqui.",
     "openDatabase": "Abrir banco de dados",
     "allRows": "Ver todas as linhas no banco de dados"
+  },
+  "agentChat": {
+    "label": "Chat com agente",
+    "exportLine": "Chat com agente: {name}",
+    "elsewhere": "Chat com agente: disponível no app para os membros do espaço de trabalho.",
+    "choose": "Escolha um agente",
+    "noAgent": "Escolha o agente com quem as pessoas conversam aqui.",
+    "noAgentReadOnly": "Nenhum agente foi escolhido para este chat.",
+    "loadFailed": "Não foi possível carregar este chat.",
+    "retry": "Tentar novamente",
+    "states": {
+      "guest": "Chats com agentes não estão disponíveis para convidados.",
+      "gone": "Este agente não está mais disponível.",
+      "paused": "Este agente está pausado, então não pode responder.",
+      "aiOff": "A IA está desativada neste espaço de trabalho, então o agente não pode responder.",
+      "limitReached": "Este agente já usou os tokens do mês, então só poderá responder no mês que vem."
+    },
+    "empty": {
+      "full": "Pergunte algo a {name} ou dê uma tarefa a ele. Ele trabalha com o próprio acesso, as próprias habilidades e a própria memória, e cada resposta é uma das execuções dele.",
+      "readOnly": "Faça uma pergunta a {name}. As respostas vêm só de páginas que vocês dois podem ver, e ele não pode alterar nada."
+    },
+    "readOnly": "Somente leitura",
+    "readOnlyHint": "As respostas vêm só de páginas que você e o agente podem ver.",
+    "placeholder": "Mensagem para {name}…",
+    "send": "Enviar",
+    "working": "Trabalhando…",
+    "waiting": "Aguardando uma vaga de IA…",
+    "approval": "O agente quer usar uma ferramenta. Aprove a chamada para ele continuar.",
+    "steps": "{count, plural, one {# etapa} other {# etapas}}",
+    "conversations": "Conversas",
+    "newConversation": "Nova conversa",
+    "deleteConversation": "Excluir esta conversa",
+    "failed": {
+      "aiOff": "A IA está desativada neste espaço de trabalho.",
+      "agentDisabled": "O agente foi pausado ou arquivado.",
+      "noAccess": "Você não pode mais conversar com este agente aqui.",
+      "provider": "O provedor de IA não respondeu.",
+      "timeout": "O agente demorou demais para responder.",
+      "tooManyAttempts": "A cota de IA do espaço de trabalho continuou esgotada, então o agente não conseguiu começar.",
+      "approvalTimeout": "Ninguém respondeu à chamada dele a tempo, então nada foi enviado.",
+      "limitReached": "O agente já usou os tokens do mês.",
+      "costLimit": "O espaço de trabalho atingiu o limite mensal de custo de IA.",
+      "error": "Algo deu errado."
+    },
+    "errors": {
+      "invalid": "Escreva uma mensagem primeiro.",
+      "tooLong": "Uma mensagem pode ter no máximo {max} caracteres.",
+      "busy": "O agente ainda está respondendo à sua última mensagem.",
+      "rateLimited": "Muitas mensagens de uma vez. Tente novamente em instantes.",
+      "noAccess": "Este chat não está disponível para você.",
+      "notOnPage": "Este chat não está mais na página.",
+      "guest": "Chats com agentes não estão disponíveis para convidados.",
+      "gone": "Este agente não está mais disponível.",
+      "paused": "Este agente está pausado, então não pode responder.",
+      "aiOff": "A IA está desativada neste espaço de trabalho, então o agente não pode responder.",
+      "limitReached": "Este agente já usou os tokens do mês."
+    },
+    "picker": {
+      "search": "Buscar agentes",
+      "empty": "Nenhum agente para conversar. Os proprietários os criam em Configurações, em Agentes.",
+      "failed": "Não foi possível carregar os agentes.",
+      "paused": "Pausado"
+    },
+    "slash": {
+      "title": "Chat com agente",
+      "subtext": "Converse nesta página com um dos agentes do espaço de trabalho",
+      "aliases": "agent chat bot assistant ai ask agente assistente ia perguntar conversa"
+    },
+    "tab": {
+      "hint": "Cole o link deste agente em uma página para colocar ali um chat com ele. Os membros podem conversar nele no modo somente leitura.",
+      "copyLink": "Copiar link"
+    }
   }
 }

@@ -308,7 +308,8 @@
       "memory": "Mémoire",
       "runs": "Exécutions",
       "connections": "Connexions",
-      "schedules": "Planifications"
+      "schedules": "Planifications",
+      "chat": "Chat"
     },
     "empty": "Aucun agent pour l’instant.",
     "emptyOwner": "Aucun agent pour l’instant. Créez-en un, ou partez d’un modèle ci-dessous.",
@@ -491,7 +492,9 @@
           "hidden": "<name></name> laissée de côté : la personne qui a lancé l’exécution ne peut pas l’ouvrir",
           "removed": "<name></name> laissée de côté : un propriétaire l’a retirée à l’agent pendant que l’exécution attendait"
         }
-      }
+      },
+      "fromChat": "Message de chat de {name}",
+      "chattedBy": "chat de {name}"
     },
     "usage": {
       "thisMonth": "Ce mois-ci : {usage}",

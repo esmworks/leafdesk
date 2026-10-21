@@ -308,7 +308,8 @@
       "memory": "记忆",
       "runs": "运行",
       "connections": "连接",
-      "schedules": "定时计划"
+      "schedules": "定时计划",
+      "chat": "对话"
     },
     "empty": "还没有智能体。",
     "emptyOwner": "还没有智能体。创建一个，或从下面的模板开始。",
@@ -491,7 +492,9 @@
           "hidden": "已跳过 <name></name>：发起此次运行的人无法打开它",
           "removed": "已跳过 <name></name>：在运行等待期间，所有者将其从智能体中移除了"
         }
-      }
+      },
+      "fromChat": "{name} 的聊天消息",
+      "chattedBy": "由 {name} 发起对话"
     },
     "usage": {
       "thisMonth": "本月：{usage}",

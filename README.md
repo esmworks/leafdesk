@@ -2245,6 +2245,32 @@ run shows who asked, from where and the task; read how it went with
 the agent is paused or archived, AI is off for the workspace, the agent used its monthly token
 limit, or 5 runs asked of it still wait. Each request is recorded in the audit log.
 
+**Chatting with an agent.** Owners chat with an agent in its *Chat* tab, and anyone in the
+workspace who isn't a guest can chat with one in a page's **Agent chat** block (the slash menu's
+*Agent chat*, or paste a link to the agent's settings, as the *Chat* tab copies it, alone on an
+empty line). Each message the agent answers is one of its runs (shown in its *Runs* tab as a chat
+message, counted in its usage and held to its monthly limit), with the agent's instructions, skills
+and kept notes, and the conversation's 20 earlier messages. The agent doesn't read the page the
+block is on unless asked to. What it may do depends on who writes:
+
+- **An owner** gets what a run an owner asks for gets, held to that owner's access as well as the
+  agent's: it searches and reads what both can open, uses its connections' tools (those that change
+  something wait for the owner's approval, which the chat asks for in place), proposes notes, and
+  creates and changes pages and rows both can edit, at most 5 changes a message, made at once.
+- **Anyone else** chats read-only: *answers come only from pages you can both see*. The agent reads
+  only the pages both it and that person can open, changes nothing, proposes no notes and calls
+  only its connections' tools that read. They chat only in a block on a page they can open.
+
+Guests, and readers of a published page, see that the chat isn't available to them. Each person's
+conversations are their own, per block (a copy of the block, on a duplicated page or one made from a
+template, shows the same ones) or in the *Chat* tab: nobody else sees them, owners included, and the agent's run history
+shows another person's chat messages without what was said. The 20 most recent conversations are
+kept per person and place; **New conversation** starts another and each can be deleted. A message
+has at most 4000 characters; the agent answers one at a time per conversation, within the
+workspace's AI allowance. A paused or archived agent, AI turned off, or an agent past its monthly
+limit leaves the chat saying so. Exported Markdown and HTML show the block as a line naming the
+agent, never what was said.
+
 **Usage and a monthly limit.** Every turn a run takes with the model is added to the agent's usage
 for the calendar month (UTC): its runs, input and output tokens and cost (the cost stays 0 where the
 AI provider names no price). The agent's *Runs* tab shows this month against its limit, and the

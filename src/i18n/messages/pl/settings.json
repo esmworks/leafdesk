@@ -308,7 +308,8 @@
       "memory": "Pamięć",
       "runs": "Uruchomienia",
       "connections": "Połączenia",
-      "schedules": "Harmonogramy"
+      "schedules": "Harmonogramy",
+      "chat": "Czat"
     },
     "empty": "Brak agentów.",
     "emptyOwner": "Brak agentów. Utwórz agenta lub zacznij od jednego z poniższych szablonów.",
@@ -491,7 +492,9 @@
           "hidden": "Pominięto <name></name>: osoba, która rozpoczęła uruchomienie, nie może jej otworzyć",
           "removed": "Pominięto <name></name>: właściciel odebrał ją agentowi, gdy uruchomienie czekało"
         }
-      }
+      },
+      "fromChat": "Wiadomość na czacie od {name}",
+      "chattedBy": "z czatu: {name}"
     },
     "usage": {
       "thisMonth": "W tym miesiącu: {usage}",

@@ -843,5 +843,77 @@
     "failed": "Buradaki sayfalar yüklenemedi.",
     "openDatabase": "Veritabanını aç",
     "allRows": "Tüm satırları veritabanında gör"
+  },
+  "agentChat": {
+    "label": "Ajan sohbeti",
+    "exportLine": "Ajan sohbeti: {name}",
+    "elsewhere": "Ajan sohbeti: uygulamada çalışma alanının üyelerine açık.",
+    "choose": "Bir ajan seç",
+    "noAgent": "Burada sohbet edilecek ajanı seç.",
+    "noAgentReadOnly": "Bu sohbet için ajan seçilmedi.",
+    "loadFailed": "Bu sohbet yüklenemedi.",
+    "retry": "Yeniden dene",
+    "states": {
+      "guest": "Ajan sohbetleri misafirlere açık değil.",
+      "gone": "Bu ajan artık kullanılamıyor.",
+      "paused": "Bu ajan duraklatıldı, bu yüzden yanıt veremiyor.",
+      "aiOff": "Bu çalışma alanında yapay zekâ kapalı, bu yüzden ajan yanıt veremiyor.",
+      "limitReached": "Bu ajan bu ayki token sınırına ulaştı; gelecek aya kadar yanıt veremez."
+    },
+    "empty": {
+      "full": "{name} ajanına bir şey sor ya da bir iş ver. Kendi erişimi, becerileri ve hafızasıyla çalışır; her yanıtı çalışmalarından biridir.",
+      "readOnly": "{name} ajanına bir soru sor. Yanıtlar yalnızca ikinizin de görebildiği sayfalardan gelir ve ajan hiçbir şeyi değiştiremez."
+    },
+    "readOnly": "Salt okunur",
+    "readOnlyHint": "Yanıtlar yalnızca hem senin hem de ajanın görebildiği sayfalardan gelir.",
+    "placeholder": "{name} ajanına mesaj yaz…",
+    "send": "Gönder",
+    "working": "Çalışıyor…",
+    "waiting": "Yapay zekâ sırası bekleniyor…",
+    "approval": "Ajan bir araç kullanmak istiyor. Devam edebilmesi için çağrıyı onayla.",
+    "steps": "{count, plural, one {# adım} other {# adım}}",
+    "conversations": "Sohbetler",
+    "newConversation": "Yeni sohbet",
+    "deleteConversation": "Bu sohbeti sil",
+    "failed": {
+      "aiOff": "Bu çalışma alanında yapay zekâ kapalı.",
+      "agentDisabled": "Ajan duraklatıldı ya da arşivlendi.",
+      "noAccess": "Artık burada bu ajanla sohbet edemezsin.",
+      "provider": "Yapay zekâ sağlayıcısı yanıt vermedi.",
+      "timeout": "Ajanın yanıtı çok uzun sürdü.",
+      "tooManyAttempts": "Çalışma alanının yapay zekâ kotası dolu kaldı, bu yüzden ajan başlayamadı.",
+      "approvalTimeout": "Çağrısını zamanında kimse yanıtlamadı; hiçbir şey gönderilmedi.",
+      "limitReached": "Ajan bu ayki token sınırına ulaştı.",
+      "costLimit": "Çalışma alanı aylık yapay zekâ harcama sınırına ulaştı.",
+      "error": "Bir şeyler ters gitti."
+    },
+    "errors": {
+      "invalid": "Önce bir mesaj yaz.",
+      "tooLong": "Bir mesaj en fazla {max} karakter olabilir.",
+      "busy": "Ajan hâlâ son mesajını yanıtlıyor.",
+      "rateLimited": "Aynı anda çok fazla mesaj. Birazdan yeniden dene.",
+      "noAccess": "Bu sohbet sana açık değil.",
+      "notOnPage": "Bu sohbet artık sayfada değil.",
+      "guest": "Ajan sohbetleri misafirlere açık değil.",
+      "gone": "Bu ajan artık kullanılamıyor.",
+      "paused": "Bu ajan duraklatıldı, bu yüzden yanıt veremiyor.",
+      "aiOff": "Bu çalışma alanında yapay zekâ kapalı, bu yüzden ajan yanıt veremiyor.",
+      "limitReached": "Bu ajan bu ayki token sınırına ulaştı."
+    },
+    "picker": {
+      "search": "Ajan ara",
+      "empty": "Sohbet edilecek ajan yok. Sahipler ajanları Ayarlar'daki Ajanlar bölümünde oluşturur.",
+      "failed": "Ajanlar yüklenemedi.",
+      "paused": "Duraklatıldı"
+    },
+    "slash": {
+      "title": "Ajan sohbeti",
+      "subtext": "Bu sayfada çalışma alanının ajanlarından biriyle sohbet et",
+      "aliases": "agent chat bot assistant ai ask ajan sohbet asistan yapay zeka sor"
+    },
+    "tab": {
+      "hint": "Bu ajanın bağlantısını bir sayfaya yapıştırarak orada onunla bir sohbet aç. Üyeler bu sohbeti salt okunur olarak kullanabilir.",
+      "copyLink": "Bağlantıyı kopyala"
+    }
   }
 }

@@ -10,6 +10,7 @@ import type {
   AgentStepRecord,
   ApprovalDecision,
 } from "@/lib/agents";
+import type { AgentChatMessageRecord } from "@/lib/agent-chat";
 import { page, workspace } from "./app";
 import { user } from "./auth";
 
@@ -169,4 +170,36 @@ export const agentSkill = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [primaryKey({ columns: [t.agentId, t.pageId] }), index("agent_skill_page_idx").on(t.pageId)],
+);
+
+/**
+ * A person's conversation with an agent (see lib/agent-chat.ts): in a page's agent chat block
+ * (`chatId`, the block's), or in the agent's dialog (no chat id). Each answer is one of the agent's
+ * runs (source `chat`), written here when it ends. Private to that person: no one else is shown
+ * it, owners included; deleted with their account, the agent and the workspace, and when they
+ * leave the workspace their chats stop being answered (the run checks they are still in it).
+ */
+export const agentConversation = pgTable(
+  "agent_conversation",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    agentId: text("agent_id")
+      .notNull()
+      .references(() => workspaceAgent.id, { onDelete: "cascade" }),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspace.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    /** The block's conversations (its `chatId` prop); null: the agent's dialog. */
+    chatId: text("chat_id"),
+    title: text("title").notNull().default(""),
+    messages: jsonb("messages").$type<AgentChatMessageRecord[]>().notNull().default([]),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("agent_conversation_user_idx").on(t.userId, t.agentId, t.chatId, t.updatedAt)],
 );

@@ -308,7 +308,8 @@
       "memory": "메모리",
       "runs": "실행",
       "connections": "연결",
-      "schedules": "일정"
+      "schedules": "일정",
+      "chat": "채팅"
     },
     "empty": "아직 에이전트가 없습니다.",
     "emptyOwner": "아직 에이전트가 없습니다. 새로 만들거나 아래 템플릿에서 시작하세요.",
@@ -491,7 +492,9 @@
           "hidden": "<name></name> 제외됨: 실행을 시작한 사람이 열 수 없음",
           "removed": "<name></name> 제외됨: 실행이 대기하는 동안 소유자가 에이전트에서 제거함"
         }
-      }
+      },
+      "fromChat": "{name}의 채팅 메시지",
+      "chattedBy": "{name}이(가) 채팅함"
     },
     "usage": {
       "thisMonth": "이번 달: {usage}",

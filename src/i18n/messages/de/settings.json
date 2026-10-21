@@ -308,7 +308,8 @@
       "memory": "Gedächtnis",
       "runs": "Durchläufe",
       "connections": "Verbindungen",
-      "schedules": "Zeitpläne"
+      "schedules": "Zeitpläne",
+      "chat": "Chat"
     },
     "empty": "Noch keine Agenten.",
     "emptyOwner": "Noch keine Agenten. Erstelle einen oder beginne unten mit einer Vorlage.",
@@ -491,7 +492,9 @@
           "hidden": "<name></name> ausgelassen: Die Person, die den Lauf gestartet hat, kann ihn nicht öffnen",
           "removed": "<name></name> ausgelassen: Ein Inhaber hat ihn dem Agenten weggenommen, während der Lauf wartete"
         }
-      }
+      },
+      "fromChat": "Chat-Nachricht von {name}",
+      "chattedBy": "Chat von {name}"
     },
     "usage": {
       "thisMonth": "Diesen Monat: {usage}",

@@ -308,7 +308,8 @@
       "memory": "Memory",
       "runs": "Runs",
       "connections": "Connections",
-      "schedules": "Schedules"
+      "schedules": "Schedules",
+      "chat": "Chat"
     },
     "empty": "No agents yet.",
     "emptyOwner": "No agents yet. Create one, or start from a template below.",
@@ -491,7 +492,9 @@
           "hidden": "Left out <name></name>: the person who started the run can’t open it",
           "removed": "Left out <name></name>: an owner took it from the agent while the run waited"
         }
-      }
+      },
+      "fromChat": "A chat message from {name}",
+      "chattedBy": "chat by {name}"
     },
     "usage": {
       "thisMonth": "This month: {usage}",

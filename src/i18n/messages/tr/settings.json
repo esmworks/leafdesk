@@ -308,7 +308,8 @@
       "memory": "Hafıza",
       "runs": "Çalışmalar",
       "connections": "Bağlantılar",
-      "schedules": "Zamanlamalar"
+      "schedules": "Zamanlamalar",
+      "chat": "Sohbet"
     },
     "empty": "Henüz ajan yok.",
     "emptyOwner": "Henüz ajan yok. Bir tane oluşturun ya da aşağıdaki şablonlardan biriyle başlayın.",
@@ -491,7 +492,9 @@
           "hidden": "<name></name> atlandı: çalışmayı başlatan kişi bu sayfayı açamıyor",
           "removed": "<name></name> atlandı: çalışma beklerken bir sahip bu beceriyi ajandan kaldırdı"
         }
-      }
+      },
+      "fromChat": "{name} kişisinin sohbet mesajı",
+      "chattedBy": "sohbet eden: {name}"
     },
     "usage": {
       "thisMonth": "Bu ay: {usage}",

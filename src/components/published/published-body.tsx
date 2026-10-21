@@ -1,4 +1,4 @@
-import { FileSpreadsheet, FileText } from "lucide-react";
+import { Bot, FileSpreadsheet, FileText } from "lucide-react";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { PropertyDisplay } from "@/components/database/property-cell";
@@ -78,13 +78,14 @@ export async function PublishedBody({
   unavailable: string;
   print?: boolean;
 }) {
-  const [tc, tb, tw, tp, ts, td] = await Promise.all([
+  const [tc, tb, tw, tp, ts, td, ta] = await Promise.all([
     getTranslations("common"),
     getTranslations("page.blocks"),
     getTranslations("page.web"),
     getTranslations("page.pdf"),
     getTranslations("page.spreadsheet"),
     getTranslations("page.dashboard"),
+    getTranslations("page.agentChat"),
   ]);
   const untitled = tc("untitled");
   const titles = new Map(crumbs.map((c) => [c.id, c.title]));
@@ -167,6 +168,16 @@ export async function PublishedBody({
               untitled={untitled}
               link={(anchor) => ({ href: `#${anchor}` })}
             />
+          </div>
+        );
+      case "agentChat":
+        // Chats are each reader's own, in the app: here only a note that there is one.
+        return (
+          <div key={i} className={cn("my-2", pad, print && styles.keep)}>
+            <p className="flex items-center gap-2 rounded-lg border border-dashed border-border px-3 py-2.5 text-sm text-fg-muted">
+              <Bot className="h-4 w-4 shrink-0" aria-hidden />
+              {ta("elsewhere")}
+            </p>
           </div>
         );
       case "footnotes":

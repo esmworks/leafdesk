@@ -1,3 +1,4 @@
+import { AGENT_CHAT_BLOCK } from "./agent-chat";
 import { DASHBOARD_BLOCK, parseDashboard, serializeDashboard } from "./dashboard";
 import { isEmbedBlockType } from "./embed-blocks";
 import { isPageBlockType, MENTION, mentionProps, mentionText } from "./mentions";
@@ -116,6 +117,8 @@ export function copyPublishedBlocks<B extends Block>(blocks: B[], refs: CopyRefs
       });
       return widgets.length ? [{ ...block, props: { ...props, widgets: serializeDashboard(widgets) }, children }] : (children as B[]);
     }
+    // A chat with an agent of the source workspace: the copy's workspace has no such agent.
+    if (block.type === AGENT_CHAT_BLOCK) return children as B[];
     if (isPageBlockType(block.type)) {
       const pageId = String(props?.pageId ?? "");
       const copy = refs.pageIds.get(pageId);

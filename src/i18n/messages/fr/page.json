@@ -843,5 +843,77 @@
     "failed": "Impossible de charger les pages d'ici.",
     "openDatabase": "Ouvrir la base de données",
     "allRows": "Voir toutes les lignes dans la base de données"
+  },
+  "agentChat": {
+    "label": "Chat avec un agent",
+    "exportLine": "Chat avec un agent : {name}",
+    "elsewhere": "Chat avec un agent : disponible dans l’app pour les membres de l’espace de travail.",
+    "choose": "Choisir un agent",
+    "noAgent": "Choisissez l’agent avec lequel on discute ici.",
+    "noAgentReadOnly": "Aucun agent n’a été choisi pour ce chat.",
+    "loadFailed": "Impossible de charger ce chat.",
+    "retry": "Réessayer",
+    "states": {
+      "guest": "Les chats avec un agent ne sont pas disponibles pour les invités.",
+      "gone": "Cet agent n’est plus disponible.",
+      "paused": "Cet agent est en pause : il ne peut pas répondre.",
+      "aiOff": "L’IA est désactivée dans cet espace de travail : l’agent ne peut pas répondre.",
+      "limitReached": "Cet agent a utilisé ses tokens du mois : il ne pourra pas répondre avant le mois prochain."
+    },
+    "empty": {
+      "full": "Posez une question à {name} ou confiez-lui une tâche. Il travaille avec ses propres accès, compétences et mémoire, et chaque réponse est l’une de ses exécutions.",
+      "readOnly": "Posez une question à {name}. Les réponses ne viennent que des pages que vous pouvez voir tous les deux, et il ne peut rien modifier."
+    },
+    "readOnly": "Lecture seule",
+    "readOnlyHint": "Les réponses ne viennent que des pages que vous et l’agent pouvez voir.",
+    "placeholder": "Message à {name}…",
+    "send": "Envoyer",
+    "working": "En cours…",
+    "waiting": "En attente d’un créneau d’IA…",
+    "approval": "L’agent veut utiliser un outil. Approuvez l’appel pour qu’il puisse continuer.",
+    "steps": "{count, plural, one {# étape} other {# étapes}}",
+    "conversations": "Conversations",
+    "newConversation": "Nouvelle conversation",
+    "deleteConversation": "Supprimer cette conversation",
+    "failed": {
+      "aiOff": "L’IA est désactivée dans cet espace de travail.",
+      "agentDisabled": "L’agent a été mis en pause ou archivé.",
+      "noAccess": "Vous ne pouvez plus discuter ici avec cet agent.",
+      "provider": "Le fournisseur d’IA n’a pas répondu.",
+      "timeout": "L’agent a mis trop de temps à répondre.",
+      "tooManyAttempts": "Le quota d’IA de l’espace de travail est resté épuisé : l’agent n’a pas pu démarrer.",
+      "approvalTimeout": "Personne n’a répondu à son appel à temps : rien n’a été envoyé.",
+      "limitReached": "L’agent a utilisé ses tokens du mois.",
+      "costLimit": "L’espace de travail a atteint sa limite mensuelle de coût d’IA.",
+      "error": "Un problème est survenu."
+    },
+    "errors": {
+      "invalid": "Écrivez d’abord un message.",
+      "tooLong": "Un message peut contenir au maximum {max} caractères.",
+      "busy": "L’agent répond encore à votre dernier message.",
+      "rateLimited": "Trop de messages à la fois. Réessayez dans un instant.",
+      "noAccess": "Ce chat ne vous est pas accessible.",
+      "notOnPage": "Ce chat n’est plus sur la page.",
+      "guest": "Les chats avec un agent ne sont pas disponibles pour les invités.",
+      "gone": "Cet agent n’est plus disponible.",
+      "paused": "Cet agent est en pause : il ne peut pas répondre.",
+      "aiOff": "L’IA est désactivée dans cet espace de travail : l’agent ne peut pas répondre.",
+      "limitReached": "Cet agent a utilisé ses tokens du mois."
+    },
+    "picker": {
+      "search": "Rechercher des agents",
+      "empty": "Aucun agent avec qui discuter. Les propriétaires les créent dans Paramètres, sous Agents.",
+      "failed": "Impossible de charger les agents.",
+      "paused": "En pause"
+    },
+    "slash": {
+      "title": "Chat avec un agent",
+      "subtext": "Discutez sur cette page avec l’un des agents de l’espace de travail",
+      "aliases": "agent chat bot assistant ai ask ia discussion discuter demander"
+    },
+    "tab": {
+      "hint": "Collez le lien de cet agent dans une page pour y placer un chat avec lui. Les membres peuvent y discuter en lecture seule.",
+      "copyLink": "Copier le lien"
+    }
   }
 }

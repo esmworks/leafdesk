@@ -308,7 +308,8 @@
       "memory": "Memória",
       "runs": "Execuções",
       "connections": "Conexões",
-      "schedules": "Agendamentos"
+      "schedules": "Agendamentos",
+      "chat": "Chat"
     },
     "empty": "Nenhum agente ainda.",
     "emptyOwner": "Nenhum agente ainda. Crie um ou comece por um modelo abaixo.",
@@ -491,7 +492,9 @@
           "hidden": "Deixou de fora <name></name>: a pessoa que iniciou a execução não pode abri-la",
           "removed": "Deixou de fora <name></name>: um proprietário a retirou do agente enquanto a execução aguardava"
         }
-      }
+      },
+      "fromChat": "Mensagem de chat de {name}",
+      "chattedBy": "chat de {name}"
     },
     "usage": {
       "thisMonth": "Este mês: {usage}",
