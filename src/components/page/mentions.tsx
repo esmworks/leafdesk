@@ -491,6 +491,29 @@ const DATE_ITEMS: DateItem[] = [
   { key: "nextWeek", days: 7 },
 ];
 
+type MentionTarget = { insertInlineContent: (content: never, options: { updateSelection: boolean }) => void };
+
+/** Puts a mention at the cursor, followed by a space. */
+function insertMention(editor: MentionTarget, props: Partial<MentionProps>) {
+  editor.insertInlineContent([{ type: "mention", props: { ...props } }, " "] as never, { updateSelection: true });
+}
+
+/** A person in an @ menu (the page's or a comment's): picking them mentions them. */
+export function personItem(editor: MentionTarget, person: MentionCandidates["people"][number], group: string): DefaultReactSuggestionItem {
+  return {
+    title: person.name,
+    group,
+    icon: person.image ? <UserAvatar name={person.name} image={person.image} size="xs" /> : <CircleUser size={18} />,
+    onItemClick: () => insertMention(editor, { kind: "user", id: newMentionId(), userId: person.id, name: person.name }),
+  };
+}
+
+/** The title of a page mentioned somewhere on screen, when the reader may open it. */
+export function loadedPageTitle(pageId: string): string | null {
+  const ref = refs.get(pageId);
+  return ref?.status === "ok" ? ref.title : null;
+}
+
 /** `@` in the editor: people of the workspace, pages the user can see, and dates. */
 export function MentionMenu({ editor, workspaceId, pageId }: { editor: PageEditor; workspaceId: string; pageId: string }) {
   const t = useTranslations("page.mention");
@@ -499,12 +522,7 @@ export function MentionMenu({ editor, workspaceId, pageId }: { editor: PageEdito
   // The last answer, so typing doesn't flash an empty menu while the next one loads.
   const last = useRef<MentionCandidates>({ people: [], pages: [] });
 
-  const insert = useCallback(
-    (props: Partial<MentionProps>) => {
-      editor.insertInlineContent([{ type: "mention", props: { ...props } }, " "] as never, { updateSelection: true });
-    },
-    [editor],
-  );
+  const insert = useCallback((props: Partial<MentionProps>) => insertMention(editor, props), [editor]);
 
   const getItems = useCallback(
     async (query: string): Promise<DefaultReactSuggestionItem[]> => {
@@ -516,14 +534,7 @@ export function MentionMenu({ editor, workspaceId, pageId }: { editor: PageEdito
         // Keep the last answer.
       }
       const q = searchFold(query.trim());
-      const people = found.people.map(
-        (p): DefaultReactSuggestionItem => ({
-          title: p.name,
-          group: t("people"),
-          icon: p.image ? <UserAvatar name={p.name} image={p.image} size="xs" /> : <CircleUser size={18} />,
-          onItemClick: () => insert({ kind: "user", id: newMentionId(), userId: p.id, name: p.name }),
-        }),
-      );
+      const people = found.people.map((p) => personItem(editor, p, t("people")));
       const pages = found.pages.map((p) => pageItem(p, () => insertPageMention(editor, workspaceId, p)));
       const dates = DATE_ITEMS.flatMap((d): DefaultReactSuggestionItem[] => {
         const title = t(d.key);

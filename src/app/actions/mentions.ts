@@ -15,6 +15,17 @@ export async function mentionCandidatesAction(pageId: string, query: string): Pr
   }
 }
 
+/** What the @ menu in a comment offers on a page the user may comment on. */
+export async function commentMentionCandidatesAction(pageId: string, query: string): Promise<mentions.MentionCandidates["people"]> {
+  const userId = await requireUserId();
+  try {
+    return await mentions.commentMentionCandidates(userId, pageId, query);
+  } catch (error) {
+    if (error instanceof AccessError) return [];
+    throw error;
+  }
+}
+
 /**
  * The pages `[[Title]]` pasted into a page names (server/mentions pagesNamed), as [title key, page]
  * pairs. Only for someone who may edit the page.

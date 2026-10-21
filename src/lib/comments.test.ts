@@ -5,6 +5,7 @@ import {
   commentMentions,
   commentText,
   MAX_COMMENT_LENGTH,
+  mentionsAsText,
   replyAudience,
   safeHref,
   threadParticipants,
@@ -93,6 +94,26 @@ describe("comment mentions", () => {
 
   it("are stored as the person's name", () => {
     expect(commentText(cleanCommentBody(body))).toBe("Over to @Bob@Bob");
+  });
+
+  it("of pages and dates are sent as the text they show", () => {
+    const pasted = [
+      {
+        type: "paragraph",
+        content: [
+          { type: "text", text: "See ", styles: {} },
+          { type: "mention", props: { kind: "page", pageId: "p1" } },
+          { type: "text", text: " by ", styles: {} },
+          { type: "mention", props: { kind: "date", date: "2026-11-02" } },
+          { type: "mention", props: { kind: "page", pageId: "hidden" } },
+          { type: "mention", props: { kind: "user", userId: "bob", name: "Bob" } },
+        ],
+      },
+    ];
+    const sent = mentionsAsText(pasted, (id) => (id === "p1" ? "Price list" : null));
+    expect(commentMentions(sent)).toEqual(["bob"]);
+    expect(commentText(cleanCommentBody(sent))).toBe("See Price list by 2026-11-02@Bob");
+    expect(mentionsAsText("plain", () => null)).toBe("plain");
   });
 });
 

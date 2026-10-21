@@ -10,6 +10,8 @@ import { withCollaboration } from "@blocknote/core/yjs";
 import { BlockNoteView } from "@blocknote/mantine";
 import {
   FormattingToolbar,
+  FloatingComposerController,
+  FloatingThreadController,
   FormattingToolbarController,
   getDefaultReactSlashMenuItems,
   getFormattingToolbarItems,
@@ -36,6 +38,7 @@ import { useEditorDictionary } from "@/i18n/blocknote";
 import { COLLAB_FRAGMENT } from "@/lib/collab-constants";
 import { formatBytes } from "@/lib/files";
 import { THREADS_MAP, type CommentAnchor } from "@/lib/comments";
+import { CommentComponents, commentEditorSchema } from "./comment-mentions";
 import { CommentsPanel } from "./comments-panel";
 import { CommentAuth, ServerThreadStore } from "./comment-store";
 import { useColumnSlashItems } from "./columns";
@@ -165,7 +168,7 @@ export default function CollabEditor({
   const canComment = level !== "view";
   const threadStore = useMemo(() => new ServerThreadStore(pageId, pageDoc.doc.getMap(THREADS_MAP), auth), [pageId, pageDoc, auth]);
   const comments = useMemo(
-    () => CommentsExtension({ threadStore, resolveUsers: (ids: string[]) => commentUsersAction(pageId, ids) }),
+    () => CommentsExtension({ threadStore, resolveUsers: (ids: string[]) => commentUsersAction(pageId, ids), schema: commentEditorSchema }),
     [pageId, threadStore],
   );
   // Files dropped, pasted or picked in a file block go to the server (see api/files); the block keeps
@@ -277,6 +280,7 @@ export default function CollabEditor({
               slashMenu={false}
               sideMenu={false}
               formattingToolbar={false}
+              comments={false}
               className="leafdesk-editor"
             >
               {/*
@@ -316,7 +320,12 @@ export default function CollabEditor({
                   )}
                 />
               )}
-              {commentsOpen && <CommentsPanel pageId={pageId} onClose={onCloseComments} />}
+              {/* BlockNote's comment UI, with the @ menu for people in its comment boxes. */}
+              <CommentComponents pageId={pageId}>
+                <FloatingComposerController />
+                <FloatingThreadController />
+                {commentsOpen && <CommentsPanel pageId={pageId} onClose={onCloseComments} />}
+              </CommentComponents>
               <EditorFiles editor={editor} editable={editable} />
             </BlockNoteView>
             {/* A synced page's notes are listed on its own page. */}

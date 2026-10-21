@@ -167,6 +167,25 @@ export function threadParticipants(thread: Pick<PlainThread, "comments">, author
 }
 
 /**
+ * A comment body as the comment box sends it, with page and date mentions turned into the text they
+ * show: the page's title (`pageTitle`, nothing when unknown) or the date. Comments keep only people
+ * mentioned (cleanCommentBody), and a mention pasted from a page would otherwise leave nothing.
+ */
+export function mentionsAsText(body: unknown, pageTitle: (pageId: string) => string | null): unknown {
+  if (!Array.isArray(body)) return body;
+  return body.map((block) => {
+    if (!isRecord(block) || !Array.isArray(block.content)) return block;
+    const content = block.content.flatMap((node: unknown) => {
+      if (!isRecord(node) || node.type !== "mention" || !isRecord(node.props) || node.props.kind === "user") return [node];
+      const { kind, pageId, date } = node.props;
+      const text = kind === "date" ? date : typeof pageId === "string" ? pageTitle(pageId) : null;
+      return typeof text === "string" && text ? [{ type: "text", text, styles: {} }] : [];
+    });
+    return { ...block, content };
+  });
+}
+
+/**
  * The people a comment's body mentions (`mention` nodes of kind "user", as on pages), before it is
  * cleaned: the stored body keeps only their names as text.
  */
