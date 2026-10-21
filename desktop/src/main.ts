@@ -31,7 +31,7 @@ import { CertificateTrust, isCertificateError, type CertificateProblem } from ".
 import { showContextMenu } from "./context-menu.ts";
 import { hasSession, signIn, startLocalServer, type BackupResult, type LocalServer } from "./local-server.ts";
 import { buildMenu, WEBSITE } from "./menu.ts";
-import { decideNavigation, decideNewWindow, isServerPage } from "./navigation.ts";
+import { APP_SCHEME, decideNavigation, decideNewWindow, isServerPage, signInReturn } from "./navigation.ts";
 import { addressCandidates, hostOf, isLeafdeskManifest } from "./server-address.ts";
 import { loadSettings, saveSettings, type Settings } from "./settings.ts";
 import { direction, isLocale, pickLocale, STRINGS, type Locale } from "./strings.ts";
@@ -87,6 +87,9 @@ let mainWindow: BrowserWindow | null = null;
 /** Leafdesk on this computer, once started (local mode). */
 let localServer: Promise<LocalServer> | null = null;
 let quitting = false;
+/** A `leafdesk://` link that came before the app started. */
+let waitingLink: string | undefined;
+let started = false;
 const views = new WeakMap<WebContents, View>();
 const certificates = new CertificateTrust(() => settings.trustedCertificates);
 
@@ -108,7 +111,15 @@ if (!app.isPackaged && !app.commandLine.hasSwitch("user-data-dir")) app.setPath(
 if (!app.requestSingleInstanceLock()) {
   app.quit();
 } else {
-  app.on("second-instance", () => {
+  // macOS hands the app its `leafdesk://` links here, including the one that started it.
+  app.on("open-url", (event, url) => {
+    event.preventDefault();
+    followAppLink(url);
+  });
+  app.on("second-instance", (_event, argv) => {
+    // Windows and Linux start the app again for a `leafdesk://` link.
+    const link = appLinkIn(argv);
+    if (link) return followAppLink(link);
     const window = mainWindow ?? BrowserWindow.getAllWindows()[0];
     if (!window) return openMainWindow();
     if (window.isMinimized()) window.restore();
@@ -133,6 +144,8 @@ function start() {
   locale = systemLocale();
   app.userAgentFallback = plainUserAgent(app.userAgentFallback);
   if (process.platform === "win32") app.setAppUserModelId("io.github.esmworks.leafdesk");
+  // The app run from its source leaves the scheme to the installed one.
+  if (app.isPackaged) app.setAsDefaultProtocolClient(APP_SCHEME);
   app.setAboutPanelOptions({ applicationName: "Leafdesk", applicationVersion: app.getVersion(), website: WEBSITE });
 
   const ses = session.defaultSession;
@@ -143,6 +156,10 @@ function start() {
   registerPageBridge();
   refreshMenu();
   openMainWindow();
+  started = true;
+  const link = waitingLink ?? appLinkIn(process.argv);
+  waitingLink = undefined;
+  if (link) followAppLink(link);
   startUpdates(strings);
 
   app.on("activate", () => {
@@ -287,6 +304,28 @@ function openMainWindow() {
   return window;
 }
 
+function appLinkIn(argv: string[]) {
+  return argv.find((arg) => arg.startsWith(`${APP_SCHEME}:`));
+}
+
+/**
+ * A `leafdesk://` link: the answer of a service the person signed in to in the system's browser
+ * (navigation.ts), which the window takes back to the server to finish under its session.
+ */
+function followAppLink(link: string) {
+  if (!started) {
+    waitingLink = link;
+    return;
+  }
+  const target = signInReturn(link, currentOrigin());
+  if (!target) return;
+  const window = mainWindow ?? openMainWindow();
+  if (window.isMinimized()) window.restore();
+  views.delete(window.webContents);
+  window.loadURL(target).catch(() => undefined);
+  window.focus();
+}
+
 /** The size and place the window had, unless that place is off every screen now. */
 function restoredBounds(): Partial<Rectangle> | undefined {
   const saved = settings.window;
@@ -411,7 +450,7 @@ function showView(window: BrowserWindow, view: View) {
 /** Navigation, new windows, failed loads and the context menu of a window's page. */
 function guard(contents: WebContents) {
   contents.on("will-navigate", (event) => {
-    const decision = decideNavigation(event.url, PAGES_URL);
+    const decision = decideNavigation(event.url, PAGES_URL, currentOrigin());
     if (decision === "allow") return;
     event.preventDefault();
     if (decision === "external") void shell.openExternal(event.url);

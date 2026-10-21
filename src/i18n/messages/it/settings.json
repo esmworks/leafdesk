@@ -826,7 +826,8 @@
     "revoking": "Revoca in corso…",
     "disconnect": "Disconnetti {name}",
     "revokeError": "Impossibile revocare l’accesso. Riprova.",
-    "listHeading": "App a cui hai dato accesso"
+    "listHeading": "App a cui hai dato accesso",
+    "permissions": "{count, plural, one {# autorizzazione} other {# autorizzazioni}}"
   },
   "mcp": {
     "heading": "Connetti un assistente IA",

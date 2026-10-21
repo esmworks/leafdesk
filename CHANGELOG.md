@@ -69,6 +69,12 @@
 
 ### Changed
 
+- **The desktop app signs in to a connection's service in your browser.** Signing in to a
+  connection or to Google Drive or Dropbox storage opens the service's page in the system's
+  browser, where you are likely signed in to it already, instead of inside the app. Once you allow
+  Leafdesk there, the browser hands the answer back to the app with a `leafdesk://` link and the
+  app finishes the sign-in. A sign-in that returns to a browser without a Leafdesk session now
+  leads to the sign-in page instead of a missing page.
 - **The AI chat fits a conversation to the model, not to a fixed size.** A chat request was
   refused past 48,000 characters, so a workspace whose connections offer many tools (their
   descriptions take room in every request) could fill it before the conversation did, and the chat
@@ -94,6 +100,11 @@
   description (5:1 or more on the page and its cards, in either theme). The settings navigation's
   items are in the main text color with their icons a step lighter, no longer gray. High contrast
   keeps its own colors, and the rest of the app keeps its sizes and colors.
+- **A tidier Connected apps page.** Each app you gave access to shows a badge for whether it only
+  reads or also edits, with the full list of what it may do folded under "N permissions". An app's
+  tile is tinted from its name, so two apps that start with the same letter look apart, on this
+  page and in Settings → Security alike. Connecting an AI assistant shows the server URL on top and
+  one assistant's steps at a time, picked from tabs (Claude, Claude Code, Codex, other clients).
 - **The AI chat takes the next question while it answers.** A question sent while an answer is being
   written waits in a strip above the question box (how many, the first of them, and Clear) and is
   asked in the same conversation once the answer is done; before, Enter did nothing then. Stop gives

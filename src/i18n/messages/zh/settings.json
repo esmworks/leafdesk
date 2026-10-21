@@ -826,7 +826,8 @@
     "revoking": "正在撤销…",
     "disconnect": "断开 {name} 的连接",
     "revokeError": "无法撤销访问权限。请重试。",
-    "listHeading": "你已授予访问权限的应用"
+    "listHeading": "你已授予访问权限的应用",
+    "permissions": "{count, plural, other {# 项权限}}"
   },
   "mcp": {
     "heading": "连接 AI 助手",

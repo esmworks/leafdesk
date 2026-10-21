@@ -826,7 +826,8 @@
     "revoking": "Kaldırılıyor…",
     "disconnect": "{name} bağlantısını kes",
     "revokeError": "Erişim kaldırılamadı. Tekrar deneyin.",
-    "listHeading": "Erişim verdiğiniz uygulamalar"
+    "listHeading": "Erişim verdiğiniz uygulamalar",
+    "permissions": "{count, plural, one {# izin} other {# izin}}"
   },
   "mcp": {
     "heading": "Yapay zekâ asistanı bağlayın",

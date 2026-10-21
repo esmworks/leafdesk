@@ -826,7 +826,8 @@
     "revoking": "جارٍ الإلغاء…",
     "disconnect": "فصل {name}",
     "revokeError": "تعذّر إلغاء الوصول. حاول مرة أخرى.",
-    "listHeading": "التطبيقات التي منحتها الوصول"
+    "listHeading": "التطبيقات التي منحتها الوصول",
+    "permissions": "{count, plural, zero {لا أذونات} one {إذن واحد} two {إذنان} few {# أذونات} many {# إذنًا} other {# إذن}}"
   },
   "mcp": {
     "heading": "ربط مساعد ذكاء اصطناعي",

@@ -1,37 +1,30 @@
 import { getTranslations } from "next-intl/server";
 import { mcpResource } from "@/lib/env";
-import { CopyButton } from "./copy-button";
-import { SettingsGroup, SettingsRow } from "./section";
-
-function Snippet({ value }: { value: string }) {
-  return (
-    <div className="flex items-center gap-2 rounded-lg border border-border bg-bg py-1.5 pe-1.5 ps-3">
-      <code className="min-w-0 flex-1 text-xs break-all">{value}</code>
-      <CopyButton value={value} />
-    </div>
-  );
-}
+import { McpClientTabs, Snippet } from "./mcp-client-tabs";
+import { SettingsGroup } from "./section";
 
 /** How to connect Claude, Codex and other MCP clients to this Leafdesk instance. */
 export async function McpInstructions() {
   const t = await getTranslations("settings.mcp");
   const url = mcpResource();
-  const claudeCode = `claude mcp add --transport http leafdesk ${url}`;
-  const codex = `codex mcp add leafdesk --url ${url}`;
 
   return (
     <SettingsGroup title={t("heading")} description={t("description")}>
-      <SettingsRow title={t("serverUrl")}>
+      <div className="space-y-2 px-5 py-4">
+        <div className="text-sm font-medium">{t("serverUrl")}</div>
         <Snippet value={url} />
-      </SettingsRow>
-      <SettingsRow title={t("claude.title")} description={t("claude.body")} />
-      <SettingsRow title={t("claudeCode.title")} description={t("claudeCode.body")}>
-        <Snippet value={claudeCode} />
-      </SettingsRow>
-      <SettingsRow title={t("codex.title")} description={t("codex.body")}>
-        <Snippet value={codex} />
-      </SettingsRow>
-      <SettingsRow title={t("other.title")} description={t("other.body")} />
+      </div>
+      <div className="px-5 py-4">
+        <McpClientTabs
+          label={t("heading")}
+          clients={[
+            { id: "claude", title: t("claude.title"), body: t("claude.body") },
+            { id: "claudeCode", title: t("claudeCode.title"), body: t("claudeCode.body"), command: `claude mcp add --transport http leafdesk ${url}` },
+            { id: "codex", title: t("codex.title"), body: t("codex.body"), command: `codex mcp add leafdesk --url ${url}` },
+            { id: "other", title: t("other.title"), body: t("other.body") },
+          ]}
+        />
+      </div>
     </SettingsGroup>
   );
 }
