@@ -308,7 +308,8 @@
       "memory": "Pamięć",
       "runs": "Uruchomienia",
       "connections": "Połączenia",
-      "schedules": "Harmonogramy"
+      "schedules": "Harmonogramy",
+      "history": "Historia"
     },
     "empty": "Brak agentów.",
     "emptyOwner": "Brak agentów. Utwórz agenta lub zacznij od jednego z poniższych szablonów.",
@@ -649,7 +650,8 @@
       "notARow": "Nie znaleziono wiersza.",
       "notADatabase": "Wybierz bazę danych z tego obszaru roboczego, którą możesz otworzyć.",
       "tooManySchedules": "Nie ma miejsca na kolejny harmonogram (najwyżej {max}).",
-      "scheduleNotFound": "Ten harmonogram już nie istnieje."
+      "scheduleNotFound": "Ten harmonogram już nie istnieje.",
+      "versionNotFound": "Ta wersja już nie istnieje."
     },
     "connections": {
       "description": "Narzędzia każdego połączenia, których ten agent może używać. Narzędzia tylko do odczytu działają od razu, chyba że w wierszu z anonimowej odpowiedzi z formularza; każde inne czeka na zatwierdzenie właściciela za każdym razem, gdy agent je wywołuje.",
@@ -698,6 +700,85 @@
       "taskPlaceholder": "np. Przejrzyj każdy wiersz. Ustaw Status na Opóźnione tam, gdzie minął termin, i wypisz, co mam dziś zrobić.",
       "taskKept": "Nie możesz otworzyć bazy danych, więc nie możesz przeczytać zadania. Zostaw to pole puste, aby je zachować, lub napisz nowe.",
       "reportHint": "Po zakończeniu uruchomienia raport trafi do twojej skrzynki odbiorczej."
+    },
+    "history": {
+      "description": "Każda zapisana zmiana ustawień, umiejętności, harmonogramów lub udostępnionych stron tego agenta tworzy wersję. Zmiany zapisane w odstępie krótszym niż dwie minuty liczą się jako jedna. Przechowywanych jest ostatnich {max} wersji.",
+      "list": "Wersje",
+      "empty": "Nie ma jeszcze wersji.",
+      "version": "Wersja {number}",
+      "current": "Bieżąca",
+      "byAt": "{name} · {time}",
+      "someone": "Ktoś",
+      "kinds": {
+        "created": "Utworzono",
+        "baseline": "Konfiguracja z początku historii",
+        "restored": "Przywrócono wersję {number}",
+        "changed": "Zapisano zmiany"
+      },
+      "fields": {
+        "name": "Nazwa",
+        "icon": "Ikona",
+        "description": "Opis",
+        "instructions": "Instrukcje",
+        "enabled": "Aktywny",
+        "model": "Model",
+        "web_access": "Dostęp do internetu",
+        "monthly_token_limit": "Miesięczny limit tokenów",
+        "skills": "Umiejętności",
+        "schedules": "Harmonogramy",
+        "shares": "Udostępnione strony"
+      },
+      "back": "Wszystkie wersje",
+      "compareNote": "Co zmieniło się od tej wersji do bieżącej konfiguracji agenta. Przywrócenie przywraca to, co miała ta wersja.",
+      "same": "Ta wersja jest taka sama jak bieżąca konfiguracja agenta.",
+      "sameLatest": "To jest bieżąca konfiguracja agenta.",
+      "sections": {
+        "settings": "Ustawienia"
+      },
+      "setting": "Ustawienie",
+      "thisVersion": "Ta wersja",
+      "now": "Teraz",
+      "none": "Brak",
+      "on": "Aktywny",
+      "paused": "Wstrzymany",
+      "yes": "Tak",
+      "no": "Nie",
+      "tokens": "{count, number} tokenów",
+      "modelMain": "Model główny",
+      "modelFast": "Model szybki",
+      "addedSince": "Dodano po tej wersji",
+      "removedSince": "Tylko w tej wersji",
+      "reordered": "Zmieniła się kolejność umiejętności.",
+      "levelChange": "{before} → {after}",
+      "hiddenPage": "Strona, której nie możesz otworzyć",
+      "deletedPage": "Usunięta strona",
+      "inTrash": "w koszu",
+      "taskHidden": "Zadanie jest ukryte: nie możesz otworzyć jego bazy danych.",
+      "restore": "Przywróć tę wersję",
+      "confirmRestore": "Przywrócić wersję {number}? Ustawienia, umiejętności, harmonogramy i udostępnione strony agenta wrócą do tamtego stanu. Uruchomienia, pamięć i zużycie pozostaną bez zmian, a cofniesz to, przywracając późniejszą wersję.",
+      "restored": "Przywrócono wersję {number} jako wersję {version}.",
+      "archived": "Przywróć agenta, aby odzyskać jedną z jego wersji.",
+      "skippedHeading": "Niektórych części nie udało się przywrócić:",
+      "skippedItem": "{what}: {reason}",
+      "skipped": {
+        "setting": "Ustawienie „{name}”",
+        "settingHidden": "Ustawienie",
+        "skill": "Umiejętność „{name}”",
+        "skillHidden": "Umiejętność, której nie możesz otworzyć",
+        "schedule": "Harmonogram „{name}”",
+        "scheduleHidden": "Harmonogram bazy danych, której nie możesz otworzyć",
+        "share": "Strona „{name}”",
+        "shareHidden": "Strona, której nie możesz otworzyć"
+      },
+      "reasons": {
+        "gone": "już nie istnieje",
+        "trash": "jest w koszu",
+        "invalid": "zapisana wartość nie jest już prawidłowa",
+        "noAccess": "potrzebujesz do niej pełnego dostępu",
+        "notASkill": "nie jest już umiejętnością",
+        "skillEditable": "może ją edytować ktoś poza właścicielami",
+        "tooMany": "brakuje na nią miejsca"
+      }
     }
   },
   "analytics": {

@@ -22,6 +22,7 @@ import { isReservedEmail } from "@/lib/reserved-emails";
 import { isEmail, normalizeEmail } from "@/lib/emails";
 import { AccessError, FULL_RANK, getMembership, hasLevel, requirePageAccess, resolvePageAccess } from "@/server/access";
 import { isAgentUser, notAgentUser } from "@/server/agents/users";
+import { recordAgentVersionOfUser } from "@/server/agents/version-record";
 import { recordAudit } from "@/server/audit";
 import { getCollab } from "@/server/collab/bridge";
 import { afterAccessChange, groupMemberIds, requireGroupIn } from "@/server/groups";
@@ -376,6 +377,7 @@ export async function setPagePermission(actorId: string, pageId: string, princip
   await recheckEditors(target.workspaceId, principal);
   if (!principal) return;
   await keepAgentEntry(pageId, principal);
+  await recordAgentVersionOfUser(actorId, principal);
   if (level === "none") await withdrawShare(target.workspaceId, principal, pageId);
   else {
     // Sharing the page answers their request for it, whichever way it was shared.
@@ -423,6 +425,7 @@ export async function removePagePermission(actorId: string, pageId: string, prin
   await recheckEditors(target.workspaceId, principal);
   if (principal) {
     await keepAgentEntry(pageId, principal);
+    await recordAgentVersionOfUser(actorId, principal);
     await withdrawShare(target.workspaceId, principal, pageId);
   }
 }

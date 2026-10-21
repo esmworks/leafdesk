@@ -855,7 +855,7 @@ An export is for reading; a backup is for bringing a workspace back. Owners down
 Settings → General → Back up workspace: a single ZIP (`<name> <date>.leafdesk.zip`) holding every
 row of the workspace as the database has it, and its uploaded files. Pages keep their history,
 comments, ids and links; databases their properties, views and rows; and so do teamspaces, groups,
-permissions, favorites, published pages and forms, the site, agents with their memory and skills,
+permissions, favorites, published pages and forms, the site, agents with their memory, skills and versions,
 automations and schedules, daily notes and semantic search's index. Open pages are saved first,
 so a change made a moment ago is in. Backups are turned off together with export in Settings →
 Security.
@@ -2395,9 +2395,24 @@ its user stays, so what it did keeps its name. A restored agent comes back pause
 shared; its skills and memory stay. Creating, changing and archiving agents is recorded in the audit log. Over MCP:
 `list_agents`, `get_agent`, `draft_agent`, `create_agent`, `update_agent`, `archive_agent`, `restore_agent`,
 `set_agent_access`, `set_agent_skill`, `add_agent_memory`, `update_agent_memory`,
-`keep_agent_memory`, `dismiss_agent_memory`, `delete_agent_memory`, `list_agent_runs` and
-`start_agent_run`. Over the REST API: listing, reading and changing agents (pausing, resuming, web access, the
+`keep_agent_memory`, `dismiss_agent_memory`, `delete_agent_memory`, `list_agent_runs`,
+`list_agent_versions`, `restore_agent_version` and `start_agent_run`. Over the REST API: listing, reading and changing agents (pausing, resuming, web access, the
 monthly limit), asking for a run, and reading runs and usage (see [REST API](#rest-api)).
+
+**History.** Each saved change to an agent's setup keeps a version: its settings (name, icon,
+description, instructions, active or paused, monthly limit, and any setting added later), its
+skills in their order, its schedules and the pages shared with it (from its settings or a page's
+Share menu; not the databases automations share with it). Changes one person saves within two
+minutes of each other make one version, and the last 50 versions are kept. The agent's *History*
+tab lists them, with who saved each, when and what changed; opening one shows what changed from it
+to the current setup, the instructions line by line. Owners can **Restore this version**: settings,
+skills, schedules and shared pages go back to how they were, through the same checks as changing
+them by hand, and what can't come back is skipped and listed (a page deleted or in the trash since,
+one you lack full access to, a skill others may edit by now, a setting no longer valid). Runs,
+memory and usage aren't part of a version. A restore makes a version of its own, so it can be undone
+the same way, and is recorded in the audit log; an archived agent is restored first. Agents made
+before history began start with their setup at that time as version 1. Versions go with workspace
+backups. Over MCP: `list_agent_versions` and `restore_agent_version`.
 
 > [!WARNING]
 > Anything shared with an agent can end up in the rows it writes: a value it copies, a summary in

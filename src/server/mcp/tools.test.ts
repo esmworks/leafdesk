@@ -208,6 +208,9 @@ vi.mock("@/server/agents/schedules", () => agentSchedules);
 const agentRequests = vi.hoisted(() => ({ requestAgentRun: vi.fn() }));
 vi.mock("@/server/agents/requests", () => agentRequests);
 
+const agentVersions = vi.hoisted(() => ({ listAgentVersions: vi.fn(), restoreAgentVersion: vi.fn() }));
+vi.mock("@/server/agents/versions", () => agentVersions);
+
 const files = vi.hoisted(() => {
   class FileError extends Error {
     constructor(
@@ -2729,6 +2732,46 @@ describe("agents", () => {
     expect(agents.updateAgent.mock.calls.length).toBe(calls);
     const tools = new Map((await listTools(writer)).map((t) => [t.name, t]));
     expect(tools.get("update_agent")!.inputSchema.properties.model).toMatchObject({ enum: ["main", "fast"] });
+  });
+
+  it("lists an agent's versions and restores one, listing what it skipped", async () => {
+    const tools = new Map((await listTools(writer)).map((t) => [t.name, t]));
+    expect(tools.get("list_agent_versions")?.annotations?.readOnlyHint).toBe(true);
+    expect(tools.get("restore_agent_version")?.annotations?.readOnlyHint).toBe(false);
+    expect(tools.get("restore_agent_version")!.inputSchema.required).toEqual(["agent_id", "version"]);
+    const version = (number: number, kind: string) => ({
+      number,
+      kind,
+      changes: kind === "changed" ? ["instructions", "skills"] : null,
+      restoredFrom: kind === "restored" ? 1 : null,
+      by: { id: "user-1", name: "Olcay" },
+      createdAt: "2026-10-01T00:00:00.000Z",
+      updatedAt: "2026-10-01T00:01:00.000Z",
+    });
+    agentVersions.listAgentVersions.mockResolvedValueOnce([version(2, "changed"), version(1, "created")]);
+    const listed = await callTool(reader, "list_agent_versions", { agent_id: "agent-1" });
+    expect(listed.isError).toBe(false);
+    expect(agentVersions.listAgentVersions).toHaveBeenCalledWith("user-1", "agent-1");
+    expect(listed.data.versions[0]).toEqual({
+      version: 2,
+      kind: "changed",
+      changed: ["instructions", "skills"],
+      restored_from: null,
+      by: { user_id: "user-1", name: "Olcay" },
+      created_at: "2026-10-01T00:00:00.000Z",
+      last_saved_at: "2026-10-01T00:01:00.000Z",
+    });
+
+    agentVersions.restoreAgentVersion.mockResolvedValueOnce({ version: version(3, "restored"), skipped: [{ part: "share", name: "", reason: "trash" }] });
+    const restored = await callTool(writer, "restore_agent_version", { agent_id: "agent-1", version: 1 });
+    expect(restored.isError).toBe(false);
+    expect(agentVersions.restoreAgentVersion).toHaveBeenCalledWith("user-1", "agent-1", 1);
+    expect(restored.data).toMatchObject({ version: { version: 3, kind: "restored", restored_from: 1 }, skipped: [{ part: "share", name: null, reason: "trash" }] });
+
+    agentVersions.restoreAgentVersion.mockRejectedValueOnce(new agents.AgentError("versionNotFound", "x"));
+    const missing = await callTool(writer, "restore_agent_version", { agent_id: "agent-1", version: 99 });
+    expect(missing.isError).toBe(true);
+    expect(missing.text).toContain("list_agent_versions");
   });
 
   it("starts a run an owner asks for, and shows who asked, the task, the limit and the usage", async () => {

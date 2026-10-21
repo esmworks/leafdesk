@@ -308,7 +308,8 @@
       "memory": "Memoria",
       "runs": "Esecuzioni",
       "connections": "Connessioni",
-      "schedules": "Pianificazioni"
+      "schedules": "Pianificazioni",
+      "history": "Cronologia"
     },
     "empty": "Ancora nessun agente.",
     "emptyOwner": "Ancora nessun agente. Creane uno o parti da un modello qui sotto.",
@@ -649,7 +650,8 @@
       "notARow": "Riga non trovata.",
       "notADatabase": "Scegli un database di questo spazio di lavoro che puoi aprire.",
       "tooManySchedules": "Non c’è spazio per un’altra pianificazione (al massimo {max}).",
-      "scheduleNotFound": "Questa pianificazione non esiste più."
+      "scheduleNotFound": "Questa pianificazione non esiste più.",
+      "versionNotFound": "Questa versione non esiste più."
     },
     "connections": {
       "description": "Gli strumenti di ogni connessione che questo agente può usare. Gli strumenti che leggono soltanto vengono eseguiti subito, tranne su una riga nata da una risposta anonima a un modulo; tutti gli altri attendono l’approvazione di un proprietario ogni volta che l’agente li chiama.",
@@ -698,6 +700,85 @@
       "taskPlaceholder": "es. Passa in rassegna ogni riga. Imposta Stato su In ritardo dove la scadenza è passata ed elenca cosa devo fare oggi.",
       "taskKept": "Non puoi aprire il database, quindi non puoi leggere l’attività. Lascia vuoto per conservarla o scrivine una nuova.",
       "reportHint": "Al termine di un’esecuzione, il suo resoconto arriva nella tua Posta in arrivo."
+    },
+    "history": {
+      "description": "Ogni modifica salvata alle impostazioni, alle competenze, alle pianificazioni o alle pagine condivise di questo agente crea una versione. Le modifiche che salvi a meno di due minuti l’una dall’altra contano come una. Vengono conservate le ultime {max} versioni.",
+      "list": "Versioni",
+      "empty": "Ancora nessuna versione.",
+      "version": "Versione {number}",
+      "current": "Attuale",
+      "byAt": "{name} · {time}",
+      "someone": "Qualcuno",
+      "kinds": {
+        "created": "Creato",
+        "baseline": "Configurazione all’inizio della cronologia",
+        "restored": "Versione {number} ripristinata",
+        "changed": "Modifiche salvate"
+      },
+      "fields": {
+        "name": "Nome",
+        "icon": "Icona",
+        "description": "Descrizione",
+        "instructions": "Istruzioni",
+        "enabled": "Attivo",
+        "model": "Modello",
+        "web_access": "Accesso al web",
+        "monthly_token_limit": "Limite mensile di token",
+        "skills": "Competenze",
+        "schedules": "Pianificazioni",
+        "shares": "Pagine condivise"
+      },
+      "back": "Tutte le versioni",
+      "compareNote": "Cosa è cambiato da questa versione alla configurazione attuale dell’agente. Il ripristino riporta ciò che aveva questa versione.",
+      "same": "Questa versione è uguale alla configurazione attuale dell’agente.",
+      "sameLatest": "Questa è la configurazione attuale dell’agente.",
+      "sections": {
+        "settings": "Impostazioni"
+      },
+      "setting": "Impostazione",
+      "thisVersion": "Questa versione",
+      "now": "Ora",
+      "none": "Nessuno",
+      "on": "Attivo",
+      "paused": "In pausa",
+      "yes": "Sì",
+      "no": "No",
+      "tokens": "{count, number} token",
+      "modelMain": "Modello principale",
+      "modelFast": "Modello veloce",
+      "addedSince": "Aggiunto dopo questa versione",
+      "removedSince": "Solo in questa versione",
+      "reordered": "L’ordine delle competenze è cambiato.",
+      "levelChange": "{before} → {after}",
+      "hiddenPage": "Una pagina che non puoi aprire",
+      "deletedPage": "Una pagina eliminata",
+      "inTrash": "nel cestino",
+      "taskHidden": "L’attività è nascosta: non puoi aprire il suo database.",
+      "restore": "Ripristina questa versione",
+      "confirmRestore": "Ripristinare la versione {number}? Impostazioni, competenze, pianificazioni e pagine condivise dell’agente tornano com’erano allora. Esecuzioni, memoria e utilizzo restano come sono, e puoi annullare ripristinando una versione successiva.",
+      "restored": "Versione {number} ripristinata, come versione {version}.",
+      "archived": "Ripristina l’agente per recuperare una delle sue versioni.",
+      "skippedHeading": "Alcune parti non sono state ripristinate:",
+      "skippedItem": "{what}: {reason}",
+      "skipped": {
+        "setting": "Impostazione «{name}»",
+        "settingHidden": "Un’impostazione",
+        "skill": "Competenza «{name}»",
+        "skillHidden": "Una competenza che non puoi aprire",
+        "schedule": "Pianificazione «{name}»",
+        "scheduleHidden": "Una pianificazione su un database che non puoi aprire",
+        "share": "Pagina «{name}»",
+        "shareHidden": "Una pagina che non puoi aprire"
+      },
+      "reasons": {
+        "gone": "non esiste più",
+        "trash": "è nel cestino",
+        "invalid": "il valore salvato non è più valido",
+        "noAccess": "ti serve l’accesso completo",
+        "notASkill": "non è più una competenza",
+        "skillEditable": "qualcuno oltre ai proprietari può modificarla",
+        "tooMany": "non c’è più spazio"
+      }
     }
   },
   "analytics": {

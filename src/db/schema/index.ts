@@ -14,6 +14,7 @@ export * from "./audit";
 export * from "./property-access";
 export * from "./automations";
 export * from "./agents";
+export * from "./agent-versions";
 export * from "./connections";
 export * from "./schedules";
 export * from "./calendar-feeds";

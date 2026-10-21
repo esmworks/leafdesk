@@ -308,7 +308,8 @@
       "memory": "Memória",
       "runs": "Execuções",
       "connections": "Conexões",
-      "schedules": "Agendamentos"
+      "schedules": "Agendamentos",
+      "history": "Histórico"
     },
     "empty": "Nenhum agente ainda.",
     "emptyOwner": "Nenhum agente ainda. Crie um ou comece por um modelo abaixo.",
@@ -649,7 +650,8 @@
       "notARow": "Linha não encontrada.",
       "notADatabase": "Escolha um banco de dados deste espaço de trabalho que você possa abrir.",
       "tooManySchedules": "Não há espaço para outro agendamento (no máximo {max}).",
-      "scheduleNotFound": "Este agendamento não existe mais."
+      "scheduleNotFound": "Este agendamento não existe mais.",
+      "versionNotFound": "Esta versão não existe mais."
     },
     "connections": {
       "description": "As ferramentas de cada conexão que este agente pode usar. Ferramentas que só leem são executadas na hora, exceto em uma linha vinda de uma resposta anônima de formulário; qualquer outra aguarda a aprovação de um proprietário toda vez que o agente a chama.",
@@ -698,6 +700,85 @@
       "taskPlaceholder": "ex.: Revise todas as linhas. Defina Status como Atrasado onde o prazo já passou e liste o que preciso fazer hoje.",
       "taskKept": "Você não pode abrir o banco de dados, então não pode ler a tarefa. Deixe vazio para mantê-la ou escreva uma nova.",
       "reportHint": "Quando uma execução termina, o relatório chega à sua caixa de entrada."
+    },
+    "history": {
+      "description": "Cada alteração salva nas configurações, habilidades, agendamentos ou páginas compartilhadas deste agente cria uma versão. Alterações que você salva com menos de dois minutos de intervalo contam como uma. As últimas {max} versões são mantidas.",
+      "list": "Versões",
+      "empty": "Ainda não há versões.",
+      "version": "Versão {number}",
+      "current": "Atual",
+      "byAt": "{name} · {time}",
+      "someone": "Alguém",
+      "kinds": {
+        "created": "Criado",
+        "baseline": "Configuração no início do histórico",
+        "restored": "Versão {number} restaurada",
+        "changed": "Alterações salvas"
+      },
+      "fields": {
+        "name": "Nome",
+        "icon": "Ícone",
+        "description": "Descrição",
+        "instructions": "Instruções",
+        "enabled": "Ativo",
+        "model": "Modelo",
+        "web_access": "Acesso à web",
+        "monthly_token_limit": "Limite mensal de tokens",
+        "skills": "Habilidades",
+        "schedules": "Agendamentos",
+        "shares": "Páginas compartilhadas"
+      },
+      "back": "Todas as versões",
+      "compareNote": "O que mudou desta versão até a configuração atual do agente. Restaurar traz de volta o que esta versão tinha.",
+      "same": "Esta versão é igual à configuração atual do agente.",
+      "sameLatest": "Esta é a configuração atual do agente.",
+      "sections": {
+        "settings": "Configurações"
+      },
+      "setting": "Configuração",
+      "thisVersion": "Esta versão",
+      "now": "Agora",
+      "none": "Nenhum",
+      "on": "Ativo",
+      "paused": "Pausado",
+      "yes": "Sim",
+      "no": "Não",
+      "tokens": "{count, number} tokens",
+      "modelMain": "Modelo principal",
+      "modelFast": "Modelo rápido",
+      "addedSince": "Adicionado depois desta versão",
+      "removedSince": "Só nesta versão",
+      "reordered": "A ordem das habilidades mudou.",
+      "levelChange": "{before} → {after}",
+      "hiddenPage": "Uma página que você não pode abrir",
+      "deletedPage": "Uma página excluída",
+      "inTrash": "na lixeira",
+      "taskHidden": "A tarefa está oculta: você não pode abrir o banco de dados dela.",
+      "restore": "Restaurar esta versão",
+      "confirmRestore": "Restaurar a versão {number}? As configurações, habilidades, agendamentos e páginas compartilhadas do agente voltam a ser como eram. Execuções, memória e uso continuam como estão, e você pode desfazer restaurando uma versão posterior.",
+      "restored": "Versão {number} restaurada, como versão {version}.",
+      "archived": "Restaure o agente para trazer de volta uma de suas versões.",
+      "skippedHeading": "Algumas partes não puderam ser restauradas:",
+      "skippedItem": "{what}: {reason}",
+      "skipped": {
+        "setting": "Configuração “{name}”",
+        "settingHidden": "Uma configuração",
+        "skill": "Habilidade “{name}”",
+        "skillHidden": "Uma habilidade que você não pode abrir",
+        "schedule": "Agendamento “{name}”",
+        "scheduleHidden": "Um agendamento de um banco de dados que você não pode abrir",
+        "share": "Página “{name}”",
+        "shareHidden": "Uma página que você não pode abrir"
+      },
+      "reasons": {
+        "gone": "não existe mais",
+        "trash": "está na lixeira",
+        "invalid": "o valor salvo não é mais válido",
+        "noAccess": "você precisa de acesso total a ela",
+        "notASkill": "não é mais uma habilidade",
+        "skillEditable": "alguém além dos proprietários pode editá-la",
+        "tooMany": "não há espaço para ela"
+      }
     }
   },
   "analytics": {

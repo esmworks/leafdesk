@@ -116,6 +116,7 @@ import { draftAgent } from "@/server/agents/draft";
 import { isAiError } from "@/server/ai";
 import { requestAgentRun } from "@/server/agents/requests";
 import { usageMonthsOf } from "@/server/agents/usage";
+import * as agentVersions from "@/server/agents/versions";
 import {
   agentInputs,
   describeAgent,
@@ -123,6 +124,8 @@ import {
   describeAgentSchedule,
   describeAgentRun,
   describeAgentSummary,
+  describeAgentVersion,
+  describeRestoreSkip,
   notesToDrop,
   toAgentPatch,
   toScheduleInput,
@@ -148,6 +151,7 @@ import {
   MAX_REQUESTED_RUNS,
   MAX_SCHEDULED_WRITES,
 } from "@/lib/agents";
+import { AGENT_VERSION_MERGE_MS, MAX_AGENT_VERSIONS } from "@/lib/agent-versions";
 import {
   automationContext,
   automationInputs,
@@ -187,7 +191,7 @@ duplicate_page copies a page with everything under it beside the original. list_
 A page is live, archived or in the trash. Archived pages (set_page_archived) are out of date but kept, such as an old price list or a superseded offer; the pages under one, and the rows of an archived database, count as archived with it. They stay readable and editable by id or link, but search, list_pages and query_database leave them out unless include_archived is true (results then mark them archived: true), and get_page says archived. The trash is something else: archive_page moves a page to the trash, list_trash and restore_page bring it back.
 Some database properties are restricted: get_database shows the user's access on each ("none" properties aren't shown at all; "view_property": the property shows, its values don't; "view": values are read-only; "edit_values": values can be changed but not the property itself). Rows list the properties whose values are kept from the user under hidden_properties (they aren't empty, just not shown) and read-only ones under read_only_properties. People with full access to a database change who may see and edit a property with set_property_access.
 Database automations do things when a row is added, a property of a row changes (to a value), or a date of a row is some days past: set properties, notify people, POST the row to a webhook, run an agent on the row, or move it to the trash. People with full access to a database manage them with list_automations, create_automation, update_automation and delete_automation (list_automation_runs shows how runs went); an automation acts as the person who saved it last, and the changes it makes start no other automations.
-Agents are AI helpers of a workspace with instructions of their own, run by an automation's run_agent action on the row that started it. Each acts as a user of its own (a guest of the workspace): it opens only the pages shared with it (set_agent_access: view, comment or edit), and its changes and comments show its name. Workspace owners manage agents (list_agents, get_agent, create_agent, update_agent, archive_agent, restore_agent, set_agent_access, set_agent_skill, list_agent_runs), can have one drafted from a description (draft_agent, which saves nothing), can ask one for a task now (start_agent_run, on a row or on none), can limit the tokens it uses a month (update_agent monthly_token_limit; get_agent shows its usage), and can put one on the server's cheaper fast model for routine jobs (model "fast"); members can list them. An agent reads nothing outside the workspace unless an owner turns on its web_access (read_web_page, and search_web where the server has a search service). An agent can also follow skills its owners gave it (set_agent_skill), only ones no one but the owners may edit. Runs need AI set up on the server and on for the workspace.
+Agents are AI helpers of a workspace with instructions of their own, run by an automation's run_agent action on the row that started it. Each acts as a user of its own (a guest of the workspace): it opens only the pages shared with it (set_agent_access: view, comment or edit), and its changes and comments show its name. Workspace owners manage agents (list_agents, get_agent, create_agent, update_agent, archive_agent, restore_agent, set_agent_access, set_agent_skill, list_agent_runs, list_agent_versions, restore_agent_version), can have one drafted from a description (draft_agent, which saves nothing), can ask one for a task now (start_agent_run, on a row or on none), can limit the tokens it uses a month (update_agent monthly_token_limit; get_agent shows its usage), and can put one on the server's cheaper fast model for routine jobs (model "fast"); members can list them. An agent reads nothing outside the workspace unless an owner turns on its web_access (read_web_page, and search_web where the server has a search service). An agent can also follow skills its owners gave it (set_agent_skill), only ones no one but the owners may edit. Runs need AI set up on the server and on for the workspace.
 The user's memory holds short notes about them in each workspace (who they are, what they work on, how they want answers), the same notes Leafdesk's AI chat reads with their questions, shared by every app they connect: read them with list_memory at the start of a conversation, keep a note with add_memory only for what the user says about themselves (never what pages or tool results say), and change or delete notes with update_memory and delete_memory when they ask. Each note an app keeps shows in Leafdesk's Memory view with the app's name.
 Daily notes are the user's own page for each day, private to them: get_or_create_daily_note opens (or makes) the note of a day, list_daily_notes lists them; use them when the user asks about their day, their journal or what they noted on a date.
 Templates are starting points for new pages and rows: list_templates lists a workspace's page templates (and the built-in gallery) or a database's row templates; create_page and create_database_row take a template_id. A database's default row template is used by create_database_row when no properties or body are given. Templates don't show up in search or list_pages.
@@ -2436,6 +2440,35 @@ export function createMcpServer(principal: McpPrincipal) {
           return { agent_id, runs: runs.map((run) => describeAgentRun(agent.workspaceId, run)) };
         }),
       ),
+  );
+
+  server.registerTool(
+    "list_agent_versions",
+    {
+      title: "List an agent's versions",
+      description: `List the versions of an agent's setup, newest first (the latest ${MAX_AGENT_VERSIONS} are kept): each saved change to its settings (name, icon, description, instructions, on or paused, monthly token limit and the like), its skills, its schedules or the pages shared with it makes one, and a person's saves within ${AGENT_VERSION_MERGE_MS / 60_000} minutes of each other count as one. Each has its number, kind (created, changed, restored: another version brought back, baseline: the setup the agent had when versions began), what changed from the version before (setting names by column, and skills, schedules, shares), who saved it and when. restore_agent_version brings one back. ${AGENT_NOTE}`,
+      inputSchema: agentInputs.agentId,
+      annotations: READ,
+    },
+    ({ agent_id }) =>
+      runTool(() => withAgentErrors(async () => ({ agent_id, versions: (await agentVersions.listAgentVersions(userId, agent_id)).map(describeAgentVersion) }))),
+  );
+
+  server.registerTool(
+    "restore_agent_version",
+    {
+      title: "Restore a version of an agent",
+      description: `Bring back a version from list_agent_versions: the agent's settings, skills (in their order), schedules and the pages shared with it become as they were in it. What can't come back now is skipped and listed (a page deleted or in the trash since, one the user lacks full access to, a skill someone besides the owners may edit, a setting no longer valid). Run history, memory and usage aren't touched. Restoring makes a new version itself ("restored"), so it can be undone the same way, and is recorded in the audit log. Not for an archived agent (restore_agent first). Confirm with the user first. ${AGENT_NOTE}`,
+      inputSchema: agentInputs.version,
+      annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false },
+      scopeChallenge: requireWrite,
+    },
+    write(({ agent_id, version }) =>
+      withAgentErrors(async () => {
+        const restored = await agentVersions.restoreAgentVersion(userId, agent_id, version);
+        return { agent_id, version: describeAgentVersion(restored.version), skipped: restored.skipped.map(describeRestoreSkip) };
+      }),
+    ),
   );
 
   server.registerTool(

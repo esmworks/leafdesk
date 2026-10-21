@@ -308,7 +308,8 @@
       "memory": "Memory",
       "runs": "Runs",
       "connections": "Connections",
-      "schedules": "Schedules"
+      "schedules": "Schedules",
+      "history": "History"
     },
     "empty": "No agents yet.",
     "emptyOwner": "No agents yet. Create one, or start from a template below.",
@@ -649,7 +650,8 @@
       "notARow": "Row not found.",
       "notADatabase": "Choose a database of this workspace that you can open.",
       "tooManySchedules": "There's no room for another schedule (at most {max}).",
-      "scheduleNotFound": "This schedule no longer exists."
+      "scheduleNotFound": "This schedule no longer exists.",
+      "versionNotFound": "This version no longer exists."
     },
     "connections": {
       "description": "The tools of each connection this agent may use. Tools that only read run at once, except on a row from an anonymous form answer; any other waits for an owner’s approval every time the agent calls it.",
@@ -698,6 +700,85 @@
       "taskPlaceholder": "e.g. Go through every row. Set Status to Late where the due date has passed, and list what I need to do today.",
       "taskKept": "You can't open the database, so you can't read the task. Leave this empty to keep it, or write a new one.",
       "reportHint": "When a run ends, its report comes to your inbox."
+    },
+    "history": {
+      "description": "Each saved change to this agent’s settings, skills, schedules or shared pages makes a version. Changes you save within two minutes of each other count as one. The last {max} versions are kept.",
+      "list": "Versions",
+      "empty": "No versions yet.",
+      "version": "Version {number}",
+      "current": "Current",
+      "byAt": "{name} · {time}",
+      "someone": "Someone",
+      "kinds": {
+        "created": "Created",
+        "baseline": "Setup when history began",
+        "restored": "Restored version {number}",
+        "changed": "Changes saved"
+      },
+      "fields": {
+        "name": "Name",
+        "icon": "Icon",
+        "description": "Description",
+        "instructions": "Instructions",
+        "enabled": "Active",
+        "model": "Model",
+        "web_access": "Web access",
+        "monthly_token_limit": "Monthly token limit",
+        "skills": "Skills",
+        "schedules": "Schedules",
+        "shares": "Shared pages"
+      },
+      "back": "All versions",
+      "compareNote": "What changed from this version to the agent’s current setup. Restoring brings back what this version had.",
+      "same": "This version is the same as the agent’s current setup.",
+      "sameLatest": "This is the agent’s current setup.",
+      "sections": {
+        "settings": "Settings"
+      },
+      "setting": "Setting",
+      "thisVersion": "This version",
+      "now": "Now",
+      "none": "None",
+      "on": "Active",
+      "paused": "Paused",
+      "yes": "Yes",
+      "no": "No",
+      "tokens": "{count, number} tokens",
+      "modelMain": "Main model",
+      "modelFast": "Fast model",
+      "addedSince": "Added since this version",
+      "removedSince": "Only in this version",
+      "reordered": "The order of the skills changed.",
+      "levelChange": "{before} → {after}",
+      "hiddenPage": "A page you can’t open",
+      "deletedPage": "A deleted page",
+      "inTrash": "in the trash",
+      "taskHidden": "The task is hidden: you can’t open its database.",
+      "restore": "Restore this version",
+      "confirmRestore": "Restore version {number}? The agent’s settings, skills, schedules and shared pages go back to how they were then. Its runs, memory and usage stay as they are, and you can undo this by restoring a later version.",
+      "restored": "Version {number} restored, as version {version}.",
+      "archived": "Restore the agent to bring back one of its versions.",
+      "skippedHeading": "Some parts couldn’t be restored:",
+      "skippedItem": "{what}: {reason}",
+      "skipped": {
+        "setting": "Setting “{name}”",
+        "settingHidden": "A setting",
+        "skill": "Skill “{name}”",
+        "skillHidden": "A skill you can’t open",
+        "schedule": "Schedule “{name}”",
+        "scheduleHidden": "A schedule on a database you can’t open",
+        "share": "Page “{name}”",
+        "shareHidden": "A page you can’t open"
+      },
+      "reasons": {
+        "gone": "it no longer exists",
+        "trash": "it’s in the trash",
+        "invalid": "the saved value isn’t valid any more",
+        "noAccess": "you need full access to it",
+        "notASkill": "it’s no longer a skill",
+        "skillEditable": "someone besides the owners can edit it",
+        "tooMany": "there’s no room for it"
+      }
     }
   },
   "analytics": {

@@ -27,6 +27,7 @@ import {
   type AgentView,
 } from "@/lib/agents";
 import { MAX_AGENT_REQUEST, type AgentDraft, type DraftTrigger } from "@/lib/agent-draft";
+import type { AgentRestoreSkip, AgentVersionView } from "@/lib/agent-versions";
 import { MAX_MEMORIES, MAX_MEMORY_CHARS } from "@/lib/ai-chat";
 import { pageLabel } from "@/lib/labels";
 import { MAX_REPEAT_INTERVAL, REPEAT_FREQUENCIES } from "@/lib/schedule";
@@ -191,6 +192,10 @@ export const agentInputs = {
     skill_id: id("page").describe("The skill's page id, from list_skills."),
     use: z.boolean().describe("true gives the agent the skill; false takes it away."),
   }),
+  version: z.object({
+    agent_id: id("agent"),
+    version: z.number().int().min(1).describe("The version's number, from list_agent_versions."),
+  }),
   runs: z.object({
     agent_id: id("agent"),
     limit: z.number().int().min(1).max(100).default(20).describe("Maximum runs (1-100, default 20)."),
@@ -347,6 +352,8 @@ export async function withAgentErrors<T>(fn: () => Promise<T>): Promise<T> {
           );
         case "scheduleNotFound":
           throw new ToolInputError("No schedule with this schedule_id on the agent. Call get_agent to see its schedules.");
+        case "versionNotFound":
+          throw new ToolInputError("No version with this number of the agent (only the latest ones are kept). Call list_agent_versions to see them.");
         case "noteNotFound":
           throw new ToolInputError(
             "No note with this memory_id in the agent's memory that the user may read. Call get_agent to see its notes; a proposal from a run on a row the user can't open may only be dismissed (dismiss_agent_memory).",
@@ -708,3 +715,17 @@ export function describeAgentRun(workspaceId: string, run: AgentRunView) {
     finished_at: run.finishedAt,
   };
 }
+
+/** A version of an agent's setup (server/agents/versions.ts), for MCP. */
+export const describeAgentVersion = (v: AgentVersionView) => ({
+  version: v.number,
+  kind: v.kind,
+  changed: v.changes,
+  restored_from: v.restoredFrom,
+  by: v.by ? { user_id: v.by.id, name: v.by.name } : null,
+  created_at: v.createdAt,
+  last_saved_at: v.updatedAt,
+});
+
+/** What a restore couldn't bring back, for MCP. */
+export const describeRestoreSkip = (s: AgentRestoreSkip) => ({ part: s.part, name: s.name || null, reason: s.reason });

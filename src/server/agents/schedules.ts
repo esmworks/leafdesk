@@ -27,6 +27,7 @@ import { recordAudit } from "@/server/audit";
 import { lockWorkspaceSchedules, MAX_SCHEDULES_PER_WORKSPACE, registerScheduleHandler, ScheduleRunError, type ScheduleRow } from "@/server/schedules";
 import { AgentError, ownedAgent } from "./manage";
 import { queueAgentRun } from "./run";
+import { recordAgentVersion } from "./version-record";
 
 /**
  * A schedule as set: a new one needs `rule`, `timeZone` and `task`; a change keeps what it leaves
@@ -197,6 +198,7 @@ export async function setAgentSchedule(
     target: { type: "user", id: agent.userId, label: agent.name },
     details: { name: agent.name, scheduleId: id, rule, timeZone, ...(databaseId ? { databaseId } : {}), created: !scheduleId || undefined },
   });
+  await recordAgentVersion(userId, agent.id);
   const [row] = await db.select().from(schedule).where(eq(schedule.id, id));
   return (await viewSchedules(userId, agent.userId, [row]))[0];
 }
@@ -216,6 +218,7 @@ export async function removeAgentSchedule(userId: string, agentId: string, sched
     target: { type: "user", id: agent.userId, label: agent.name },
     details: { name: agent.name, scheduleId },
   });
+  await recordAgentVersion(userId, agent.id);
 }
 
 /** Whether the schedule's last run still waits or is under way: a schedule has one run at a time. */

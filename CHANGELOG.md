@@ -58,6 +58,20 @@
   the thread. Mentioning an agent twice runs it once; edits, guests' comments and agents' own
   replies start no run. The agent's runs show who mentioned it and on which page, also in
   `list_agent_runs` and the REST API (source `mention`, code `commentGone`).
+- **History of an agent's setup, with restore.** Each saved change to an agent's settings (name,
+  icon, description, instructions, active or paused, monthly token limit, and settings added
+  later), its skills, its schedules or the pages shared with it keeps a version; one person's
+  changes within two minutes of each other make one, and the last 50 are kept. The agent's new
+  **History** tab lists who saved each version, when and what changed; opening one shows what
+  changed from it to the current setup, the instructions line by line and the rest as before and
+  now. Owners can **Restore this version** after confirming: settings, skills (in their order),
+  schedules and shared pages go back to how they were, through the same checks as changing them by
+  hand, and what can't come back (a page deleted or in the trash since, one the owner can't share,
+  a skill others may now edit, a setting no longer valid) is skipped and listed. Runs, memory and
+  usage aren't touched. A restore makes a version of its own and is recorded in the audit log.
+  Databases automations share with an agent aren't part of its setup. Agents made before start with
+  their current setup as version 1. MCP gets `list_agent_versions` and `restore_agent_version`;
+  workspace backups include the versions. Migration 0101 adds the `agent_version` table.
 - **Archive pages that are out of date.** An old price list or a superseded offer can be archived
   instead of trashed: people with full access choose **Archive** in the page's menu. The page keeps
   everything else (it stays readable, editable, reachable by its link, mentions and backlinks, and

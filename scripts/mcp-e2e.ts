@@ -421,7 +421,7 @@ async function main() {
     "list_recent_pages", "check_workspace", "list_users", "list_trash", "restore_page", "list_page_history", "get_page_version", "diff_page_version", "restore_page_version",
     "list_notifications", "attach_file", "invite_member", "set_property_access", "get_file", "duplicate_page",
     "list_automations", "create_automation", "update_automation", "delete_automation", "list_automation_runs",
-    "list_agents", "get_agent", "create_agent", "update_agent", "archive_agent", "restore_agent", "set_agent_access", "set_agent_skill", "list_agent_runs", "list_connections",
+    "list_agents", "get_agent", "create_agent", "update_agent", "archive_agent", "restore_agent", "set_agent_access", "set_agent_skill", "list_agent_runs", "list_agent_versions", "restore_agent_version", "list_connections",
     "add_agent_memory", "update_agent_memory", "keep_agent_memory", "dismiss_agent_memory", "delete_agent_memory", "set_agent_connection_tools",
     "list_skills", "get_skill", "set_skill", "list_memory", "add_memory", "update_memory", "delete_memory",
     "list_snippets",

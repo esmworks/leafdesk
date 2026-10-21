@@ -43,15 +43,16 @@ import {
 } from "@/lib/agents";
 import { commentHash } from "@/lib/comments";
 import { AgentConnectionsTab } from "./agent-connections-tab";
+import { AgentHistoryTab } from "./agent-history-tab";
 import { AgentMemoryTab } from "./agent-memory-tab";
 import { AgentSchedulesTab } from "./agent-schedules-tab";
 import { AgentSkillsTab } from "./agent-skills-tab";
 import { PagePicker, useShareablePages } from "./agent-page-picker";
 
-export type AgentTab = "settings" | "access" | "skills" | "memory" | "connections" | "schedules" | "runs";
+export type AgentTab = "settings" | "access" | "skills" | "memory" | "connections" | "schedules" | "runs" | "history";
 /** The server's main and fast models' names, shown with the agent's choice between them. */
 export type AgentModelNames = { main: string; fast: string };
-export const AGENT_TABS: readonly AgentTab[] = ["settings", "access", "skills", "memory", "connections", "schedules", "runs"];
+export const AGENT_TABS: readonly AgentTab[] = ["settings", "access", "skills", "memory", "connections", "schedules", "runs", "history"];
 
 
 /** An agent's emoji, or a robot when it has none. */
@@ -60,7 +61,7 @@ export function AgentIcon({ icon, className }: { icon: string | null; className?
   return <Bot className={cn("h-4 w-4 text-fg-muted", className)} aria-hidden />;
 }
 
-/** One agent: its settings, the pages shared with it, its skills, its memory, the connections' tools it may use, its schedules and its latest runs, in tabs. */
+/** One agent: its settings, the pages shared with it, its skills, its memory, the connections' tools it may use, its schedules, its latest runs and its versions, in tabs. */
 export function AgentDialog({
   workspaceId,
   agent,
@@ -107,7 +108,7 @@ export function AgentDialog({
           <X className="h-4 w-4" />
         </IconButton>
       </div>
-      {/* Seven tabs don't fit a phone: they scroll on their own rather than widening the dialog. */}
+      {/* Eight tabs don't fit a phone: they scroll on their own rather than widening the dialog. */}
       <div className="overflow-x-auto border-b border-border px-5 py-2">
         <div role="tablist" aria-label={agent.name} className="inline-flex gap-0.5 rounded-lg bg-bg-hover p-0.5">
           {AGENT_TABS.map((name) => (
@@ -134,6 +135,8 @@ export function AgentDialog({
         <AgentConnectionsTab workspaceId={workspaceId} agent={agent} />
       ) : tab === "schedules" ? (
         <AgentSchedulesTab workspaceId={workspaceId} agent={agent} onRuns={() => onTab("runs")} />
+      ) : tab === "history" ? (
+        <AgentHistoryTab workspaceId={workspaceId} agent={agent} />
       ) : (
         <RunsTab workspaceId={workspaceId} agent={agent} runId={runId} />
       )}

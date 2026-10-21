@@ -308,7 +308,8 @@
       "memory": "Memoria",
       "runs": "Ejecuciones",
       "connections": "Conexiones",
-      "schedules": "Programaciones"
+      "schedules": "Programaciones",
+      "history": "Historial"
     },
     "empty": "Todavía no hay agentes.",
     "emptyOwner": "Todavía no hay agentes. Crea uno o empieza con una plantilla de abajo.",
@@ -649,7 +650,8 @@
       "notARow": "No se encontró la fila.",
       "notADatabase": "Elige una base de datos de este espacio de trabajo que puedas abrir.",
       "tooManySchedules": "No hay sitio para otra programación (como mucho {max}).",
-      "scheduleNotFound": "Esta programación ya no existe."
+      "scheduleNotFound": "Esta programación ya no existe.",
+      "versionNotFound": "Esta versión ya no existe."
     },
     "connections": {
       "description": "Las herramientas de cada conexión que este agente puede usar. Las que solo leen se ejecutan al momento, salvo en una fila que viene de una respuesta anónima a un formulario; las demás esperan la aprobación de un propietario cada vez que el agente las llama.",
@@ -698,6 +700,85 @@
       "taskPlaceholder": "p. ej. Revisa todas las filas. Pon el Estado en Atrasada donde la fecha límite ya pasó y enumera lo que tengo que hacer hoy.",
       "taskKept": "No puedes abrir la base de datos, así que no puedes leer la tarea. Déjalo vacío para conservarla o escribe una nueva.",
       "reportHint": "Cuando termina una ejecución, su informe llega a tu bandeja de entrada."
+    },
+    "history": {
+      "description": "Cada cambio guardado en la configuración, las habilidades, las programaciones o las páginas compartidas de este agente crea una versión. Los cambios que guardas con menos de dos minutos de diferencia cuentan como uno. Se conservan las últimas {max} versiones.",
+      "list": "Versiones",
+      "empty": "Aún no hay versiones.",
+      "version": "Versión {number}",
+      "current": "Actual",
+      "byAt": "{name} · {time}",
+      "someone": "Alguien",
+      "kinds": {
+        "created": "Creado",
+        "baseline": "Configuración al empezar el historial",
+        "restored": "Versión {number} restaurada",
+        "changed": "Cambios guardados"
+      },
+      "fields": {
+        "name": "Nombre",
+        "icon": "Icono",
+        "description": "Descripción",
+        "instructions": "Instrucciones",
+        "enabled": "Activo",
+        "model": "Modelo",
+        "web_access": "Acceso a la web",
+        "monthly_token_limit": "Límite mensual de tokens",
+        "skills": "Habilidades",
+        "schedules": "Programaciones",
+        "shares": "Páginas compartidas"
+      },
+      "back": "Todas las versiones",
+      "compareNote": "Lo que cambió desde esta versión hasta la configuración actual del agente. Al restaurarla vuelve lo que tenía esta versión.",
+      "same": "Esta versión es igual a la configuración actual del agente.",
+      "sameLatest": "Esta es la configuración actual del agente.",
+      "sections": {
+        "settings": "Configuración"
+      },
+      "setting": "Ajuste",
+      "thisVersion": "Esta versión",
+      "now": "Ahora",
+      "none": "Ninguno",
+      "on": "Activo",
+      "paused": "En pausa",
+      "yes": "Sí",
+      "no": "No",
+      "tokens": "{count, number} tokens",
+      "modelMain": "Modelo principal",
+      "modelFast": "Modelo rápido",
+      "addedSince": "Añadido después de esta versión",
+      "removedSince": "Solo en esta versión",
+      "reordered": "Cambió el orden de las habilidades.",
+      "levelChange": "{before} → {after}",
+      "hiddenPage": "Una página que no puedes abrir",
+      "deletedPage": "Una página eliminada",
+      "inTrash": "en la papelera",
+      "taskHidden": "La tarea está oculta: no puedes abrir su base de datos.",
+      "restore": "Restaurar esta versión",
+      "confirmRestore": "¿Restaurar la versión {number}? La configuración, las habilidades, las programaciones y las páginas compartidas del agente vuelven a como estaban entonces. Sus ejecuciones, su memoria y su uso no cambian, y puedes deshacerlo restaurando una versión posterior.",
+      "restored": "Versión {number} restaurada, como versión {version}.",
+      "archived": "Restaura el agente para recuperar una de sus versiones.",
+      "skippedHeading": "Algunas partes no se pudieron restaurar:",
+      "skippedItem": "{what}: {reason}",
+      "skipped": {
+        "setting": "Ajuste «{name}»",
+        "settingHidden": "Un ajuste",
+        "skill": "Habilidad «{name}»",
+        "skillHidden": "Una habilidad que no puedes abrir",
+        "schedule": "Programación «{name}»",
+        "scheduleHidden": "Una programación de una base de datos que no puedes abrir",
+        "share": "Página «{name}»",
+        "shareHidden": "Una página que no puedes abrir"
+      },
+      "reasons": {
+        "gone": "ya no existe",
+        "trash": "está en la papelera",
+        "invalid": "el valor guardado ya no es válido",
+        "noAccess": "necesitas acceso total a ella",
+        "notASkill": "ya no es una habilidad",
+        "skillEditable": "alguien además de los propietarios puede editarla",
+        "tooMany": "no hay espacio para ella"
+      }
     }
   },
   "analytics": {

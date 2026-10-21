@@ -28,6 +28,7 @@ import { addAgentMemory, deleteAgentMemory, keepAgentMemory, listAgentMemory, up
 import { listAgentSchedules, removeAgentSchedule, setAgentSchedule } from "@/server/agents/schedules";
 import { addAgentSkill, listAgentSkills, removeAgentSkill } from "@/server/agents/skills";
 import { agentUsageMonths } from "@/server/agents/usage";
+import { getAgentVersion, listAgentVersions, restoreAgentVersion } from "@/server/agents/versions";
 import { viewStep } from "@/server/ai-chat";
 import { getProperties, requireDatabase } from "@/server/databases";
 import { requireUserId } from "@/server/session";
@@ -292,4 +293,19 @@ export async function createAgentFromDraftAction(workspaceId: string, value: Dra
       ),
     { refresh: true },
   );
+}
+
+// Versions of an agent's setup (server/agents/versions.ts). Restoring refreshes the list of agents:
+// its name and settings may have changed.
+
+export async function listAgentVersionsAction(workspaceId: string, agentId: string) {
+  return run(workspaceId, (userId) => listAgentVersions(userId, agentId));
+}
+
+export async function getAgentVersionAction(workspaceId: string, agentId: string, number: number) {
+  return run(workspaceId, (userId) => getAgentVersion(userId, agentId, Number(number)));
+}
+
+export async function restoreAgentVersionAction(workspaceId: string, agentId: string, number: number) {
+  return run(workspaceId, (userId) => restoreAgentVersion(userId, agentId, Number(number)), { refresh: true });
 }

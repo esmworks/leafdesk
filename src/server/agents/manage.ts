@@ -39,6 +39,7 @@ import { AccessError, ConnectedAppReadOnlyError, pageAccessOf, pageVisibleTo, re
 import { recordAudit } from "@/server/audit";
 import { removePagePermission, setPagePermission } from "@/server/permissions";
 import { addAgentMembership } from "@/server/workspaces";
+import { recordAgentVersion, withoutVersions } from "./version-record";
 
 export type AgentErrorCode =
   | "invalid"
@@ -60,7 +61,8 @@ export type AgentErrorCode =
   | "notARow"
   | "notADatabase"
   | "tooManySchedules"
-  | "scheduleNotFound";
+  | "scheduleNotFound"
+  | "versionNotFound";
 
 export class AgentError extends Error {
   constructor(
@@ -216,6 +218,7 @@ export async function createAgent(userId: string, workspaceId: string, input: Ag
     return agent;
   });
   await recordAudit({ workspaceId, actorId: userId, action: "agent.created", target: { type: "user", id: created.userId, label: name }, details: auditDetails(created) });
+  await recordAgentVersion(userId, created.id, "created");
   return viewAgent(created);
 }
 
@@ -246,6 +249,7 @@ export async function updateAgent(userId: string, agentId: string, patch: AgentI
     target: { type: "user", id: current.userId, label: updated.name },
     details: { ...auditDetails(updated), previous: auditDetails(current), instructionsChanged: patch.instructions !== undefined || undefined },
   });
+  await recordAgentVersion(userId, agentId);
   return viewAgent(updated);
 }
 
@@ -373,7 +377,8 @@ export async function shareDatabaseWithAgents(userId: string, databaseId: string
       .select({ level: pagePermission.level })
       .from(pagePermission)
       .where(and(eq(pagePermission.pageId, databaseId), eq(pagePermission.userId, agent.userId)));
-    await setPagePermission(userId, databaseId, agent.userId, "edit");
+    // An automation's share isn't part of the agent's setup (see version-record.ts).
+    await withoutVersions(() => setPagePermission(userId, databaseId, agent.userId, "edit"));
     await db
       .insert(agentDatabaseShare)
       .values({ agentId: agent.id, databaseId, previousLevel: own && isAgentAccessLevel(own.level) ? own.level : null })
@@ -399,8 +404,9 @@ export async function releaseDatabaseFromAgents(userId: string, databaseId: stri
   const stillRun = new Set(automations.flatMap((a) => a.actions.flatMap((x) => (x.type === "run_agent" ? [x.agentId] : []))));
   for (const share of shares) {
     if (stillRun.has(share.agentId)) continue;
-    if (share.previousLevel) await setPagePermission(userId, databaseId, share.agentUserId, share.previousLevel);
-    else await removePagePermission(userId, databaseId, share.agentUserId);
+    await withoutVersions(() =>
+      share.previousLevel ? setPagePermission(userId, databaseId, share.agentUserId, share.previousLevel) : removePagePermission(userId, databaseId, share.agentUserId),
+    );
     await forgetDatabaseShare(share.agentId, databaseId);
   }
 }
