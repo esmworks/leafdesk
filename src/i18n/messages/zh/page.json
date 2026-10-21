@@ -844,5 +844,77 @@
     "failed": "无法加载这里的页面。",
     "openDatabase": "打开数据库",
     "allRows": "在数据库中查看所有行"
+  },
+  "agentChat": {
+    "label": "智能体对话",
+    "exportLine": "智能体对话：{name}",
+    "elsewhere": "智能体对话：工作区成员可在应用中使用。",
+    "choose": "选择智能体",
+    "noAgent": "选择大家在此对话的智能体。",
+    "noAgentReadOnly": "此对话尚未选择智能体。",
+    "loadFailed": "无法加载此对话。",
+    "retry": "重试",
+    "states": {
+      "guest": "访客无法使用智能体对话。",
+      "gone": "此智能体已不可用。",
+      "paused": "此智能体已暂停，因此无法回答。",
+      "aiOff": "此工作区已关闭 AI，因此智能体无法回答。",
+      "limitReached": "此智能体本月的令牌已用完，下个月之前无法回答。"
+    },
+    "empty": {
+      "full": "向 {name} 提问，或交给它一项任务。它使用自己的访问权限、技能和记忆工作，每次回答都是它的一次运行。",
+      "readOnly": "向 {name} 提一个问题。回答只来自你们双方都能看到的页面，且它无法更改任何内容。"
+    },
+    "readOnly": "只读",
+    "readOnlyHint": "回答只来自你和智能体都能看到的页面。",
+    "placeholder": "给 {name} 发消息…",
+    "send": "发送",
+    "working": "处理中…",
+    "waiting": "正在等待 AI 空闲名额…",
+    "approval": "智能体想要使用一个工具。批准该调用后它才能继续。",
+    "steps": "{count, plural, other {# 个步骤}}",
+    "conversations": "对话",
+    "newConversation": "新对话",
+    "deleteConversation": "删除此对话",
+    "failed": {
+      "aiOff": "此工作区已关闭 AI。",
+      "agentDisabled": "该智能体已被暂停或归档。",
+      "noAccess": "你已无法在此与该智能体对话。",
+      "provider": "AI 提供方没有响应。",
+      "timeout": "智能体回答用时过长。",
+      "tooManyAttempts": "工作区的 AI 额度一直处于用尽状态，因此智能体无法开始。",
+      "approvalTimeout": "没有人及时答复它的调用请求，因此没有发送任何内容。",
+      "limitReached": "该智能体本月的令牌已用完。",
+      "costLimit": "工作区已达到每月 AI 费用上限。",
+      "error": "出了点问题。"
+    },
+    "errors": {
+      "invalid": "请先输入消息。",
+      "tooLong": "消息最多 {max} 个字符。",
+      "busy": "智能体仍在回答你的上一条消息。",
+      "rateLimited": "消息过多。请稍后再试。",
+      "noAccess": "你无法使用此对话。",
+      "notOnPage": "此对话已不在页面上。",
+      "guest": "访客无法使用智能体对话。",
+      "gone": "此智能体已不可用。",
+      "paused": "此智能体已暂停，因此无法回答。",
+      "aiOff": "此工作区已关闭 AI，因此智能体无法回答。",
+      "limitReached": "此智能体本月的令牌已用完。"
+    },
+    "picker": {
+      "search": "搜索智能体",
+      "empty": "没有可对话的智能体。所有者可在“设置”的“智能体”中创建。",
+      "failed": "无法加载智能体。",
+      "paused": "已暂停"
+    },
+    "slash": {
+      "title": "智能体对话",
+      "subtext": "在此页面与工作区的智能体对话",
+      "aliases": "agent chat bot assistant ai ask 智能体 对话 聊天 机器人 助手 提问"
+    },
+    "tab": {
+      "hint": "将此智能体的链接粘贴到页面中，即可在那里放置与它的对话。成员可以只读方式在其中对话。",
+      "copyLink": "复制链接"
+    }
   }
 }

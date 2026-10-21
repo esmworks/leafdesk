@@ -309,7 +309,8 @@
       "runs": "実行",
       "connections": "接続",
       "schedules": "スケジュール",
-      "history": "履歴"
+      "history": "履歴",
+      "chat": "チャット"
     },
     "empty": "エージェントはまだありません。",
     "emptyOwner": "エージェントはまだありません。作成するか、下のテンプレートから始めてください。",
@@ -557,7 +558,9 @@
         "paused": "<agent></agent>に依頼できませんでした：一時停止中です",
         "archived": "<agent></agent>に依頼できませんでした：アーカイブされています",
         "limitReached": "<agent></agent>に依頼できませんでした：月間トークン上限に達しています"
-      }
+      },
+      "fromChat": "{name}からのチャットメッセージ",
+      "chattedBy": "{name}がチャット"
     },
     "usage": {
       "thisMonth": "今月：{usage}",

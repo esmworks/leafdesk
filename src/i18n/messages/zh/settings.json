@@ -309,7 +309,8 @@
       "runs": "运行",
       "connections": "连接",
       "schedules": "定时计划",
-      "history": "历史"
+      "history": "历史",
+      "chat": "对话"
     },
     "empty": "还没有智能体。",
     "emptyOwner": "还没有智能体。创建一个，或从下面的模板开始。",
@@ -557,7 +558,9 @@
         "paused": "无法求助 <agent></agent>：它已暂停",
         "archived": "无法求助 <agent></agent>：它已归档",
         "limitReached": "无法求助 <agent></agent>：它已用完每月令牌上限"
-      }
+      },
+      "fromChat": "{name} 的聊天消息",
+      "chattedBy": "由 {name} 发起对话"
     },
     "usage": {
       "thisMonth": "本月：{usage}",

@@ -309,7 +309,8 @@
       "runs": "Exécutions",
       "connections": "Connexions",
       "schedules": "Planifications",
-      "history": "Historique"
+      "history": "Historique",
+      "chat": "Chat"
     },
     "empty": "Aucun agent pour l’instant.",
     "emptyOwner": "Aucun agent pour l’instant. Créez-en un, ou partez d’un modèle ci-dessous.",
@@ -557,7 +558,9 @@
         "paused": "N’a pas pu solliciter <agent></agent> : il est en pause",
         "archived": "N’a pas pu solliciter <agent></agent> : il est archivé",
         "limitReached": "N’a pas pu solliciter <agent></agent> : il a atteint sa limite mensuelle de tokens"
-      }
+      },
+      "fromChat": "Message de chat de {name}",
+      "chattedBy": "chat de {name}"
     },
     "usage": {
       "thisMonth": "Ce mois-ci : {usage}",

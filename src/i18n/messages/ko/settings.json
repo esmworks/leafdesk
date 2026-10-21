@@ -309,7 +309,8 @@
       "runs": "실행",
       "connections": "연결",
       "schedules": "일정",
-      "history": "기록"
+      "history": "기록",
+      "chat": "채팅"
     },
     "empty": "아직 에이전트가 없습니다.",
     "emptyOwner": "아직 에이전트가 없습니다. 새로 만들거나 아래 템플릿에서 시작하세요.",
@@ -557,7 +558,9 @@
         "paused": "<agent></agent>에게 요청할 수 없음: 일시 중지됨",
         "archived": "<agent></agent>에게 요청할 수 없음: 보관됨",
         "limitReached": "<agent></agent>에게 요청할 수 없음: 월간 토큰 한도를 모두 사용함"
-      }
+      },
+      "fromChat": "{name}의 채팅 메시지",
+      "chattedBy": "{name}이(가) 채팅함"
     },
     "usage": {
       "thisMonth": "이번 달: {usage}",

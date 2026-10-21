@@ -2,6 +2,7 @@
 
 import {
   Bookmark,
+  Bot,
   ChevronRight,
   ChevronsUpDown,
   Database,
@@ -100,6 +101,8 @@ function BlockBody({ block, text, compact }: { block: DiffBlock; text: ReactNode
       return marker(<ListTree className="mt-1 h-4 w-4" />);
     case "dashboard":
       return marker(<LayoutDashboard className="mt-1 h-4 w-4" />);
+    case "agentChat":
+      return marker(<Bot className="mt-1 h-4 w-4" />);
     case "table":
       return <div className="whitespace-pre-wrap text-sm">{text}</div>;
     case "divider":
@@ -122,6 +125,7 @@ function ChangeRow({ change, actions, compact }: { change: BlockChange; actions?
   const te = useTranslations("page.embed");
   const tb = useTranslations("page.blocks");
   const td = useTranslations("page.dashboard");
+  const ta = useTranslations("page.agentChat");
   const { block } = change;
   // A database block is only named: the version keeps which database, not its rows back then.
   // An empty block still takes a line (a no-break space), so an added or removed empty paragraph shows.
@@ -135,6 +139,8 @@ function ChangeRow({ change, actions, compact }: { change: BlockChange; actions?
           ? tb("subpages.label")
           : block.type === "dashboard"
           ? td("title")
+          : block.type === "agentChat"
+          ? ta("label")
           : block.text || "\u00a0";
   const text =
     change.op === "changed" ? (

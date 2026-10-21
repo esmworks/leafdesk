@@ -309,7 +309,8 @@
       "runs": "Çalışmalar",
       "connections": "Bağlantılar",
       "schedules": "Zamanlamalar",
-      "history": "Geçmiş"
+      "history": "Geçmiş",
+      "chat": "Sohbet"
     },
     "empty": "Henüz ajan yok.",
     "emptyOwner": "Henüz ajan yok. Bir tane oluşturun ya da aşağıdaki şablonlardan biriyle başlayın.",
@@ -557,7 +558,9 @@
         "paused": "<agent></agent> ajanına sorulamadı: duraklatılmış",
         "archived": "<agent></agent> ajanına sorulamadı: arşivlenmiş",
         "limitReached": "<agent></agent> ajanına sorulamadı: aylık token sınırı dolmuş"
-      }
+      },
+      "fromChat": "{name} kişisinin sohbet mesajı",
+      "chattedBy": "sohbet eden: {name}"
     },
     "usage": {
       "thisMonth": "Bu ay: {usage}",

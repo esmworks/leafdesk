@@ -102,7 +102,8 @@ export type AgentRunVia = (typeof AGENT_RUN_VIAS)[number];
 /**
  * What started a run: an automation on a row, an event a connection received, an owner who asked
  * for it with a task of their own (on a row of a database, or on none), one of the agent's
- * schedules (on a database, or on none), or a member who mentioned it in a comment.
+ * schedules (on a database, or on none), a member who mentioned it in a comment, or a person's
+ * message in a chat with the agent (see lib/agent-chat.ts).
  */
 export type AgentRunSource =
   | {
@@ -157,6 +158,13 @@ export type AgentRunSource =
       trusted: boolean;
       /** What started the asking run: who sees what the helper's run did is who sees that run's. */
       parent: Exclude<AgentRunSource, { kind: "handoff" }>;
+    }
+  | {
+      kind: "chat";
+      /** Who wrote the message; the run is held to their access as well, and is theirs alone. */
+      userId: string;
+      /** Their conversation (`agent_conversation`) the answer goes to. */
+      conversationId: string;
     };
 
 /** What happened that the run responds to, for its prompt and its history. */
@@ -471,6 +479,8 @@ export type AgentRunView = {
   eventType: string | null;
   /** For a run an owner asked for: who, where, and the task they gave it (empty where its row is hidden). */
   request: { by: string; byName: string; via: AgentRunVia; task: string } | null;
+  /** For a chat's run: who wrote, and their message (empty for anyone else: a conversation is its person's). */
+  chat: { by: string; byName: string; message: string } | null;
   /**
    * For a run a schedule started: the schedule, who set it, the task and the database it looks
    * after (`databaseTitle` and `task` empty where the viewer can't open the database).
@@ -523,13 +533,14 @@ export const runPageOf = (given: AgentRunSource): string | null => {
  * it is for those who can open the row; a schedule's run on a database, for those who can open
  * the database. A mention's run answers in the page's comments: it is for those who can open the
  * page, as a row's run is. A run an owner asked for, or one of a schedule without a database, read
- * with that owner's access: it is theirs alone. A connection's event is the owners' (they set up
- * the connection), as is the run it started.
+ * with that owner's access: it is theirs alone, as a chat's run is its person's (an owner's or
+ * not). A connection's event is the owners' (they set up the connection), as is the run it started.
  */
 export function ownerSeesRun(given: AgentRunSource, userId: string, opensPage: boolean): boolean {
   // A helper's run read for the run that asked it: it shows to whoever that run shows to.
   const source = accessSource(given);
   if (source.kind === "request") return source.requestedBy === userId && (!isRowRun(source) || opensPage);
+  if (source.kind === "chat") return source.userId === userId;
   if (isRowRun(source) || isMentionRun(source)) return opensPage;
   if (isScheduleRun(source)) return source.databaseId ? opensPage : source.scheduledBy === userId;
   return true;

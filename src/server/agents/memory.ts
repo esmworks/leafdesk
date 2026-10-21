@@ -73,7 +73,11 @@ async function proposingRuns(viewer: string, notes: Note[]): Promise<Map<string,
   const rowIds = runs.flatMap((r) => (isRowRun(r.source) ? [r.source.rowId] : []));
   // A run another owner asked for, or one of their schedules without a database, read with their access (see viewRuns).
   const othersRun = (source: (typeof runs)[number]["source"]) =>
-    source.kind === "request" ? source.requestedBy !== viewer : isScheduleRun(source) && !source.databaseId && source.scheduledBy !== viewer;
+    source.kind === "request"
+      ? source.requestedBy !== viewer
+      : source.kind === "chat"
+        ? source.userId !== viewer
+        : isScheduleRun(source) && !source.databaseId && source.scheduledBy !== viewer;
   const databaseIds = runs.flatMap((r) => (isScheduleRun(r.source) && r.source.databaseId ? [r.source.databaseId] : []));
   const openDatabases = new Set(
     databaseIds.length ? (await db.select({ id: page.id }).from(page).where(and(inArray(page.id, databaseIds), pageVisibleTo(viewer)))).map((p) => p.id) : [],
@@ -94,7 +98,7 @@ async function proposingRuns(viewer: string, notes: Note[]): Promise<Map<string,
         rowId: isRowRun(r.source) ? r.source.rowId : null,
         rowTitle: isRowRun(r.source) ? (titles.get(r.source.rowId) ?? null) : null,
         connectionName: isEventRun(r.source) ? (names.get(r.source.connectionId) ?? "") : null,
-        requested: r.source.kind === "request",
+        requested: r.source.kind === "request" || r.source.kind === "chat",
         scheduled: isScheduleRun(r.source),
         databaseHidden: isScheduleRun(r.source) && Boolean(r.source.databaseId) && !openDatabases.has(r.source.databaseId!),
         othersRun: othersRun(r.source),

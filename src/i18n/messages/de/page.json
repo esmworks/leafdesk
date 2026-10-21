@@ -844,5 +844,77 @@
     "failed": "Die Seiten hier konnten nicht geladen werden.",
     "openDatabase": "Datenbank öffnen",
     "allRows": "Alle Zeilen in der Datenbank ansehen"
+  },
+  "agentChat": {
+    "label": "Agenten-Chat",
+    "exportLine": "Agenten-Chat: {name}",
+    "elsewhere": "Agenten-Chat: in der App für Mitglieder des Workspaces verfügbar.",
+    "choose": "Agent auswählen",
+    "noAgent": "Wähle den Agenten, mit dem hier gechattet wird.",
+    "noAgentReadOnly": "Für diesen Chat wurde kein Agent ausgewählt.",
+    "loadFailed": "Dieser Chat konnte nicht geladen werden.",
+    "retry": "Erneut versuchen",
+    "states": {
+      "guest": "Agenten-Chats sind für Gäste nicht verfügbar.",
+      "gone": "Dieser Agent ist nicht mehr verfügbar.",
+      "paused": "Dieser Agent ist pausiert und kann daher nicht antworten.",
+      "aiOff": "KI ist in diesem Workspace ausgeschaltet, daher kann der Agent nicht antworten.",
+      "limitReached": "Dieser Agent hat seine Tokens für diesen Monat verbraucht und kann erst im nächsten Monat wieder antworten."
+    },
+    "empty": {
+      "full": "Frag {name} etwas oder gib ihm eine Aufgabe. Er arbeitet mit seinem eigenen Zugriff, seinen Skills und seinem Gedächtnis, und jede Antwort ist einer seiner Durchläufe.",
+      "readOnly": "Stell {name} eine Frage. Antworten stammen nur aus Seiten, die ihr beide sehen könnt, und er kann nichts ändern."
+    },
+    "readOnly": "Schreibgeschützt",
+    "readOnlyHint": "Antworten stammen nur aus Seiten, die du und der Agent beide sehen könnt.",
+    "placeholder": "Nachricht an {name} …",
+    "send": "Senden",
+    "working": "Arbeitet …",
+    "waiting": "Wartet auf einen freien KI-Platz …",
+    "approval": "Der Agent möchte ein Tool verwenden. Gib den Aufruf frei, damit er weitermachen kann.",
+    "steps": "{count, plural, one {# Schritt} other {# Schritte}}",
+    "conversations": "Unterhaltungen",
+    "newConversation": "Neue Unterhaltung",
+    "deleteConversation": "Diese Unterhaltung löschen",
+    "failed": {
+      "aiOff": "KI ist in diesem Workspace ausgeschaltet.",
+      "agentDisabled": "Der Agent wurde pausiert oder archiviert.",
+      "noAccess": "Du kannst hier nicht mehr mit diesem Agenten chatten.",
+      "provider": "Der KI-Anbieter hat nicht geantwortet.",
+      "timeout": "Der Agent hat für die Antwort zu lange gebraucht.",
+      "tooManyAttempts": "Das KI-Kontingent des Workspaces blieb aufgebraucht, daher konnte der Agent nicht starten.",
+      "approvalTimeout": "Niemand hat seinen Aufruf rechtzeitig beantwortet, daher wurde nichts gesendet.",
+      "limitReached": "Der Agent hat seine Tokens für diesen Monat verbraucht.",
+      "costLimit": "Der Workspace hat sein monatliches KI-Kostenlimit erreicht.",
+      "error": "Etwas ist schiefgelaufen."
+    },
+    "errors": {
+      "invalid": "Schreib zuerst eine Nachricht.",
+      "tooLong": "Eine Nachricht darf höchstens {max} Zeichen haben.",
+      "busy": "Der Agent antwortet noch auf deine letzte Nachricht.",
+      "rateLimited": "Zu viele Nachrichten auf einmal. Versuch es gleich noch einmal.",
+      "noAccess": "Dieser Chat ist für dich nicht verfügbar.",
+      "notOnPage": "Dieser Chat ist nicht mehr auf der Seite.",
+      "guest": "Agenten-Chats sind für Gäste nicht verfügbar.",
+      "gone": "Dieser Agent ist nicht mehr verfügbar.",
+      "paused": "Dieser Agent ist pausiert und kann daher nicht antworten.",
+      "aiOff": "KI ist in diesem Workspace ausgeschaltet, daher kann der Agent nicht antworten.",
+      "limitReached": "Dieser Agent hat seine Tokens für diesen Monat verbraucht."
+    },
+    "picker": {
+      "search": "Agenten suchen",
+      "empty": "Keine Agenten zum Chatten. Inhaber erstellen sie in den Einstellungen unter Agenten.",
+      "failed": "Die Agenten konnten nicht geladen werden.",
+      "paused": "Pausiert"
+    },
+    "slash": {
+      "title": "Agenten-Chat",
+      "subtext": "Auf dieser Seite mit einem Agenten des Workspaces chatten",
+      "aliases": "agent chat bot assistant ai ask agenten assistent ki fragen unterhaltung"
+    },
+    "tab": {
+      "hint": "Füge den Link dieses Agenten in eine Seite ein, um dort einen Chat mit ihm einzubinden. Mitglieder können darin schreibgeschützt chatten.",
+      "copyLink": "Link kopieren"
+    }
   }
 }

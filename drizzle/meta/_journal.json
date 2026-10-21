@@ -722,6 +722,13 @@
       "when": 1792625787766,
       "tag": "0102_agent_helpers",
       "breakpoints": true
+    },
+    {
+      "idx": 103,
+      "version": "7",
+      "when": 1792626220931,
+      "tag": "0103_agent_chat",
+      "breakpoints": true
     }
   ]
 }

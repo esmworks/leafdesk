@@ -309,7 +309,8 @@
       "runs": "عمليات التشغيل",
       "connections": "الاتصالات",
       "schedules": "الجداول الزمنية",
-      "history": "السجل"
+      "history": "السجل",
+      "chat": "المحادثة"
     },
     "empty": "لا وكلاء بعد.",
     "emptyOwner": "لا وكلاء بعد. أنشئ وكيلًا، أو ابدأ من أحد القوالب أدناه.",
@@ -557,7 +558,9 @@
         "paused": "تعذّر سؤال <agent></agent>: إنه متوقف مؤقتًا",
         "archived": "تعذّر سؤال <agent></agent>: إنه مؤرشف",
         "limitReached": "تعذّر سؤال <agent></agent>: استنفد حد الرموز الشهري"
-      }
+      },
+      "fromChat": "رسالة محادثة من {name}",
+      "chattedBy": "حادثه {name}"
     },
     "usage": {
       "thisMonth": "هذا الشهر: {usage}",

@@ -844,5 +844,77 @@
     "failed": "Couldn't load the pages here.",
     "openDatabase": "Open database",
     "allRows": "See all rows in the database"
+  },
+  "agentChat": {
+    "label": "Agent chat",
+    "exportLine": "Agent chat: {name}",
+    "elsewhere": "Agent chat: available in the app to members of the workspace.",
+    "choose": "Choose an agent",
+    "noAgent": "Choose the agent people chat with here.",
+    "noAgentReadOnly": "No agent was chosen for this chat.",
+    "loadFailed": "Couldn’t load this chat.",
+    "retry": "Try again",
+    "states": {
+      "guest": "Agent chats aren’t available to guests.",
+      "gone": "This agent is no longer available.",
+      "paused": "This agent is paused, so it can’t answer.",
+      "aiOff": "AI is off in this workspace, so the agent can’t answer.",
+      "limitReached": "This agent has used its tokens for the month, so it can’t answer until next month."
+    },
+    "empty": {
+      "full": "Ask {name} something, or give it a job. It works with its own access, skills and memory, and each answer is one of its runs.",
+      "readOnly": "Ask {name} a question. Answers come only from pages you can both see, and it can’t change anything."
+    },
+    "readOnly": "Read-only",
+    "readOnlyHint": "Answers come only from pages you and the agent can both see.",
+    "placeholder": "Message {name}…",
+    "send": "Send",
+    "working": "Working…",
+    "waiting": "Waiting for an AI slot…",
+    "approval": "The agent wants to use a tool. Approve the call to let it go on.",
+    "steps": "{count, plural, one {# step} other {# steps}}",
+    "conversations": "Conversations",
+    "newConversation": "New conversation",
+    "deleteConversation": "Delete this conversation",
+    "failed": {
+      "aiOff": "AI is off in this workspace.",
+      "agentDisabled": "The agent was paused or archived.",
+      "noAccess": "You can no longer chat with this agent here.",
+      "provider": "The AI provider didn’t answer.",
+      "timeout": "The agent took too long to answer.",
+      "tooManyAttempts": "The workspace’s AI allowance stayed used up, so the agent couldn’t start.",
+      "approvalTimeout": "No one answered its call in time, so nothing was sent.",
+      "limitReached": "The agent has used its tokens for the month.",
+      "costLimit": "The workspace has reached its monthly AI cost limit.",
+      "error": "Something went wrong."
+    },
+    "errors": {
+      "invalid": "Write a message first.",
+      "tooLong": "A message can have at most {max} characters.",
+      "busy": "The agent is still answering your last message.",
+      "rateLimited": "Too many messages at once. Try again in a moment.",
+      "noAccess": "This chat isn’t available to you.",
+      "notOnPage": "This chat isn’t on the page any more.",
+      "guest": "Agent chats aren’t available to guests.",
+      "gone": "This agent is no longer available.",
+      "paused": "This agent is paused, so it can’t answer.",
+      "aiOff": "AI is off in this workspace, so the agent can’t answer.",
+      "limitReached": "This agent has used its tokens for the month."
+    },
+    "picker": {
+      "search": "Search agents",
+      "empty": "No agents to chat with. Owners create them in Settings, under Agents.",
+      "failed": "Couldn’t load the agents.",
+      "paused": "Paused"
+    },
+    "slash": {
+      "title": "Agent chat",
+      "subtext": "Chat with one of the workspace’s agents on this page",
+      "aliases": "agent chat bot assistant ai ask"
+    },
+    "tab": {
+      "hint": "Paste this agent’s link into a page to put a chat with it there. Members can chat in it read-only.",
+      "copyLink": "Copy link"
+    }
   }
 }

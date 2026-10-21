@@ -542,7 +542,9 @@ async function viewRuns(userId: string, runs: (typeof agentRun.$inferSelect)[], 
             ? [r.source.scheduledBy]
             : r.source.kind === "mention"
               ? [r.source.mentionedBy]
-              : [],
+              : r.source.kind === "chat"
+                ? [r.source.userId]
+                : [],
       ),
     ),
   ];
@@ -587,6 +589,7 @@ async function viewRuns(userId: string, runs: (typeof agentRun.$inferSelect)[], 
         r.source.kind === "request"
           ? { by: r.source.requestedBy, byName: requesters.get(r.source.requestedBy) ?? "", via: r.source.via, task: open ? r.prompt : "" }
           : null,
+      chat: r.source.kind === "chat" ? { by: r.source.userId, byName: requesters.get(r.source.userId) ?? "", message: open ? r.prompt : "" } : null,
       schedule: isScheduleRun(r.source)
         ? {
             id: liveSchedules.has(r.source.scheduleId) ? r.source.scheduleId : "",

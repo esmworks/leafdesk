@@ -844,5 +844,77 @@
     "failed": "No se pudieron cargar las páginas de aquí.",
     "openDatabase": "Abrir base de datos",
     "allRows": "Ver todas las filas en la base de datos"
+  },
+  "agentChat": {
+    "label": "Chat con agente",
+    "exportLine": "Chat con agente: {name}",
+    "elsewhere": "Chat con agente: disponible en la app para los miembros del espacio de trabajo.",
+    "choose": "Elige un agente",
+    "noAgent": "Elige el agente con el que se chatea aquí.",
+    "noAgentReadOnly": "No se eligió ningún agente para este chat.",
+    "loadFailed": "No se pudo cargar este chat.",
+    "retry": "Reintentar",
+    "states": {
+      "guest": "Los chats con agentes no están disponibles para invitados.",
+      "gone": "Este agente ya no está disponible.",
+      "paused": "Este agente está en pausa, así que no puede responder.",
+      "aiOff": "La IA está desactivada en este espacio de trabajo, así que el agente no puede responder.",
+      "limitReached": "Este agente ha usado sus tokens del mes, así que no puede responder hasta el mes que viene."
+    },
+    "empty": {
+      "full": "Pregúntale algo a {name} o encárgale una tarea. Trabaja con su propio acceso, sus habilidades y su memoria, y cada respuesta es una de sus ejecuciones.",
+      "readOnly": "Hazle una pregunta a {name}. Las respuestas salen solo de páginas visibles para ambos, y no puede cambiar nada."
+    },
+    "readOnly": "Solo lectura",
+    "readOnlyHint": "Las respuestas salen solo de páginas visibles tanto para ti como para el agente.",
+    "placeholder": "Mensaje para {name}…",
+    "send": "Enviar",
+    "working": "Trabajando…",
+    "waiting": "Esperando un turno de IA…",
+    "approval": "El agente quiere usar una herramienta. Aprueba la llamada para que pueda continuar.",
+    "steps": "{count, plural, one {# paso} other {# pasos}}",
+    "conversations": "Conversaciones",
+    "newConversation": "Nueva conversación",
+    "deleteConversation": "Eliminar esta conversación",
+    "failed": {
+      "aiOff": "La IA está desactivada en este espacio de trabajo.",
+      "agentDisabled": "El agente se puso en pausa o se archivó.",
+      "noAccess": "Ya no puedes chatear aquí con este agente.",
+      "provider": "El proveedor de IA no respondió.",
+      "timeout": "El agente tardó demasiado en responder.",
+      "tooManyAttempts": "El cupo de IA del espacio de trabajo siguió agotado, así que el agente no pudo empezar.",
+      "approvalTimeout": "Nadie respondió a su llamada a tiempo, así que no se envió nada.",
+      "limitReached": "El agente ha usado sus tokens del mes.",
+      "costLimit": "El espacio de trabajo ha alcanzado su límite mensual de coste de IA.",
+      "error": "Algo salió mal."
+    },
+    "errors": {
+      "invalid": "Escribe un mensaje primero.",
+      "tooLong": "Un mensaje puede tener como máximo {max} caracteres.",
+      "busy": "El agente todavía está respondiendo a tu último mensaje.",
+      "rateLimited": "Demasiados mensajes a la vez. Inténtalo de nuevo en un momento.",
+      "noAccess": "Este chat no está disponible para ti.",
+      "notOnPage": "Este chat ya no está en la página.",
+      "guest": "Los chats con agentes no están disponibles para invitados.",
+      "gone": "Este agente ya no está disponible.",
+      "paused": "Este agente está en pausa, así que no puede responder.",
+      "aiOff": "La IA está desactivada en este espacio de trabajo, así que el agente no puede responder.",
+      "limitReached": "Este agente ha usado sus tokens del mes."
+    },
+    "picker": {
+      "search": "Buscar agentes",
+      "empty": "No hay agentes con los que chatear. Los propietarios los crean en Configuración, en Agentes.",
+      "failed": "No se pudieron cargar los agentes.",
+      "paused": "En pausa"
+    },
+    "slash": {
+      "title": "Chat con agente",
+      "subtext": "Chatea en esta página con uno de los agentes del espacio de trabajo",
+      "aliases": "agent chat bot assistant ai ask agente asistente ia preguntar conversación conversacion"
+    },
+    "tab": {
+      "hint": "Pega el enlace de este agente en una página para poner allí un chat con él. Los miembros pueden chatear en él en modo de solo lectura.",
+      "copyLink": "Copiar enlace"
+    }
   }
 }

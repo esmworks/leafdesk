@@ -28,6 +28,12 @@
  * (and searches, where the server has a search service; web.ts) as it reads from a connection:
  * within the same limit, and waiting for an owner before each call where every connection tool does.
  *
+ * A person's message in a chat with the agent (lib/agent-chat.ts) is a run too, held to that
+ * person's access: an owner's may also change pages at once (WRITE_TOOLS, within MAX_AGENT_WRITES)
+ * and calls connections' tools as an owner's request does; anyone else's only reads, with no tool
+ * that changes something offered at all. Its answer goes to the conversation when it ends
+ * (chat-store.ts).
+ *
  * The notes its owners kept from earlier runs go with each run (memory.ts). A run whose input a
  * member or a trusted trigger stands behind may propose new ones (`remember`), which wait for an
  * owner, and drop old ones (`forget`); others may neither. With the workspace's AI memory off, no
@@ -70,10 +76,10 @@ import { threadBefore } from "@/lib/comments";
 import { AccessError, findMembership, hasLevel, inWorkspace, isGuest, pageAccessOf } from "@/server/access";
 import { runActingFor } from "@/server/acting-for";
 import { aiConfig, AiError, complete, isAiError, promptRoomFor, takeWorkspaceCapacity, type AiMessage, type AiResult, type AiTool, type AiToolCall } from "@/server/ai";
-import { agentEventPrompt, agentMentionPrompt, agentRequestPrompt, agentSchedulePrompt, agentSystemPrompt, agentTaskPrompt } from "@/server/ai/prompts";
+import { agentChatPrompt, agentEventPrompt, agentMentionPrompt, agentRequestPrompt, agentSchedulePrompt, agentSystemPrompt, agentTaskPrompt } from "@/server/ai/prompts";
 import { aiAvailable } from "@/server/ai-writing";
 import { memoryAvailable, memoryForPrompt } from "@/server/ai-memory";
-import { applyWrite, CHAT_TOOLS, prepareWrite, runTool, workspaceMap, WRITE_TOOLS, type Registry, type ToolOutcome } from "@/server/ai-tools";
+import { applyWrite, CHAT_TOOLS, prepareWrite, runTool, workspaceMap, WRITE_TOOL_NAMES, WRITE_TOOLS, type Registry, type ToolOutcome } from "@/server/ai-tools";
 import { asAutomation } from "@/server/automations/queue";
 import { getCollab } from "@/server/collab/bridge";
 import { changeComments } from "@/server/comments";
@@ -87,6 +93,7 @@ import { pushNotifications } from "@/server/push";
 import type * as ops from "@/server/operations";
 import { runClock } from "./clock";
 import { ASK_AGENT, handoffEventText, handoffFor, handoffHold } from "./handoff";
+import { chatRunHistory, closeChatTurn } from "./chat-store";
 import { agentsWorker } from "./kick";
 import { AGENT_MEMORY_TOOL_NAMES, AGENT_MEMORY_TOOLS, runAgentMemoryTool } from "./memory";
 import { agentSkillRoom, runSkills } from "./skills";
@@ -115,6 +122,8 @@ const MAX_SCHEDULED_ROUNDS = 16;
 const SCHEDULED_RUN_TIMEOUT_MS = 6 * 60_000;
 /** The most of the database a schedule's run reads before its first turn. */
 const DATABASE_CHARS = 16_000;
+/** The share of the prompt a chat's earlier messages may take. */
+const CHAT_HISTORY_SHARE = 0.25;
 
 type Run = typeof agentRun.$inferSelect;
 type Agent = typeof workspaceAgent.$inferSelect;
@@ -245,6 +254,7 @@ async function finish(run: Run, values: Ending) {
     .where(eq(agentRun.id, run.id));
   await reportScheduledRun(run);
   await replyToMention(run, values);
+  await closeChatTurn(run, values);
 }
 
 /**
@@ -375,6 +385,16 @@ export async function processRun(run: Run): Promise<void> {
     member = bound = held.bound;
     trusted = held.trusted;
   }
+  // A chat's run is held to the person who wrote, while they are in the workspace and not a guest;
+  // only an owner's may change things.
+  let chatWrites = false;
+  if (run.source.kind === "chat") {
+    const writer = await findMembership(run.source.userId, run.workspaceId);
+    if (!writer || writer.role === "guest") return finish(run, { status: "failed", code: "noAccess" });
+    member = bound = run.source.userId;
+    trusted = true;
+    chatWrites = writer.role === "owner";
+  }
   const databaseId = scheduledDatabase(run.source);
   if (databaseId) {
     const [database] = await db.select({ kind: page.kind, archivedAt: page.archivedAt }).from(page).where(eq(page.id, databaseId));
@@ -414,7 +434,7 @@ export async function processRun(run: Run): Promise<void> {
   const wait = takeWorkspaceCapacity(run.workspaceId);
   if (wait > 0) return later(run, new Date(Date.now() + wait));
 
-  const outcome = await withinMember(agent, bound, () => converse(agent, run, { member, bound, trusted })).catch((error: unknown) => ({ error }));
+  const outcome = await withinMember(agent, bound, () => converse(agent, run, { member, bound, trusted, chatWrites })).catch((error: unknown) => ({ error }));
   if ("error" in outcome) {
     const error = outcome.error;
     if (isAiError(error) && error.code === "rateLimited") return later(run, new Date(Date.now() + (error.retryAfterMs ?? 30_000)));
@@ -477,7 +497,7 @@ type CallResult = { content: string; isError?: boolean; step?: AgentStepRecord }
 async function converse(
   agent: Agent,
   run: Run,
-  { member, bound, trusted }: { member: string | null; bound: string | null; trusted: boolean },
+  { member, bound, trusted, chatWrites }: { member: string | null; bound: string | null; trusted: boolean; chatWrites: boolean },
 ): Promise<Ending | Paused> {
   const ctx: ops.OperationContext = { userId: agent.userId, actor: { userId: agent.userId } };
   const rowRun = isRowRun(run.source);
@@ -491,6 +511,7 @@ async function converse(
   // A mention's run may change the page its comment is on where the agent (and the member) may
   // edit it, and its values when it is a database row.
   const mentionEdits = mention ? await mentionEditing(agent, mention.pageId) : null;
+  const chat = run.source.kind === "chat";
   // A row no member wrote, or an event from a service no owner vouched for, may carry anyone's
   // instructions: no connection tool runs without an owner.
   const askEveryTool = rowRun ? !member : !trusted;
@@ -505,20 +526,22 @@ async function converse(
   // wait for agents it asks.
   const clock = runClock(databaseId ? SCHEDULED_RUN_TIMEOUT_MS : AGENT_RUN_TIMEOUT_MS);
   const signal = clock.signal;
-  const toolset = await agentToolset(agent.id);
+  // A read-only chat isn't offered connections' tools that change something.
+  const toolset = await agentToolset(agent.id, { writes: !chat || chatWrites });
   const connections = [...new Set([...toolset.byName.values()].map((e) => e.connection.name))];
   // What a run reads that no one in the workspace stands behind could fill the owners' review with
   // its own notes: such a run proposes none.
   const memoryOn = await memoryAvailable(run.workspaceId);
-  // A mention's run answers one person in a thread, and another agent wrote a helper's task: they
-  // read the notes owners kept, but propose none.
+  // A mention's run answers one person in a thread, another agent wrote a helper's task, and
+  // someone who isn't an owner shouldn't fill the owners' review from a read-only chat: these read
+  // the notes owners kept, but propose none.
   const handedOff = run.source.kind === "handoff";
-  const remembers = memoryOn && !askEveryTool && !mention && !handedOff;
+  const remembers = memoryOn && !askEveryTool && !mention && !handedOff && (!chat || chatWrites);
   const mentionTools = mentionEdits?.edits ? [EDIT_PAGE, ...(mentionEdits.row ? [UPDATE_ROW] : [])] : [];
   // Other agents it may ask; none on a helper's run.
   const handoff = await handoffFor(agent, run, { bound, trusted: !askEveryTool, clock, runHelper: runInSlot });
   const tools = [
-    ...(rowRun ? AGENT_TOOLS : databaseId ? SCHEDULED_DATABASE_TOOLS : eventRun ? EVENT_TOOLS : [...CHAT_TOOLS, ...mentionTools]),
+    ...(rowRun ? AGENT_TOOLS : databaseId ? SCHEDULED_DATABASE_TOOLS : eventRun ? EVENT_TOOLS : chatWrites ? [...CHAT_TOOLS, ...WRITE_TOOLS] : [...CHAT_TOOLS, ...mentionTools]),
     ...(remembers ? AGENT_MEMORY_TOOLS : []),
     ...webTools,
     ...(handoff ? [handoff.tool] : []),
@@ -533,6 +556,7 @@ async function converse(
     requested,
     askedByAgent: handedOff,
     scheduled: scheduled ? { database: Boolean(databaseId), maxWrites } : undefined,
+    chat: chat ? { writes: chatWrites } : undefined,
     addsRows: eventRun,
     mentioned: mentionEdits ?? undefined,
     connections,
@@ -595,6 +619,12 @@ async function converse(
     messages = [
       { role: "user", content: agentMentionPrompt({ comment: run.prompt, event: await eventText(run), page: read.content, thread: before, map, memory: memory.text }) },
     ];
+  } else if (chat) {
+    // The conversation so far, then the message, with the workspace as the agent sees it (with the person).
+    const map = await workspaceMap(ctx, run.workspaceId, null, MAP_CHARS);
+    const memory = memoryOn ? await memoryForPrompt(agent.userId, run.workspaceId, Math.min(MEMORY_CHARS, Math.floor(room([]) * 0.2))) : { text: "" };
+    const history = await chatRunHistory(run, Math.floor(room([]) * CHAT_HISTORY_SHARE));
+    messages = [...history, { role: "user", content: agentChatPrompt({ message: run.prompt, event: await eventText(run), map, memory: memory.text }) }];
   } else if (requested) {
     const map = await workspaceMap(ctx, run.workspaceId, null, MAP_CHARS);
     const memory = memoryOn ? await memoryForPrompt(agent.userId, run.workspaceId, Math.min(MEMORY_CHARS, Math.floor(room([]) * 0.2))) : { text: "" };
@@ -634,6 +664,15 @@ async function converse(
       if (left <= 200) return { content: "You have read as much from outside as one run may. Finish with what you have.", isError: true };
       const out = await runWebTool(call, { room: left, decidedBy: approved?.userId ?? null });
       externalChars += out.chars;
+      return out;
+    }
+    // An owner's chat changes what they ask for at once: they are there, and asked.
+    if (chatWrites && WRITE_TOOL_NAMES.has(call.name)) {
+      if (writes >= maxWrites) return { content: `You have made ${maxWrites} changes, the most one message may make. Finish now.`, isError: true };
+      const prepared = await prepareWrite(ctx, run.workspaceId, null, call);
+      if (!("action" in prepared)) return prepared;
+      const out = await asAutomation(() => applyWrite(prepared, "approve", registry));
+      if (!out.isError) writes += 1;
       return out;
     }
     if (ownApproved.has(call.name)) {
@@ -704,7 +743,8 @@ async function converse(
       if (out.step) steps.push(out.step);
       messages.push({ role: "tool", toolCallId: call.id, name: call.name, content: out.content, isError: out.isError });
       queue = queue.slice(1);
-      if (answered || writes !== writesBefore) await checkpoint();
+      // A chat's steps are saved as they come: the person follows them (chat.ts chatTurn).
+      if (answered || writes !== writesBefore || chat) await checkpoint();
     }
     return null;
   };
@@ -894,6 +934,10 @@ async function threadNames(userIds: string[]): Promise<Map<string, string>> {
 /** What happened, in words: the row added or the properties changed, and by whom; the event received; who asked, or set the schedule; or who mentioned the agent. */
 async function eventText(run: Run) {
   if (run.source.kind === "handoff") return handoffEventText(run.source);
+  if (run.source.kind === "chat") {
+    const [person] = await db.select({ name: user.name }).from(user).where(eq(user.id, run.source.userId));
+    return `${person?.name ?? "A person"} wrote to you in a chat.`;
+  }
   if (isScheduleRun(run.source)) {
     const [owner] = await db.select({ name: user.name }).from(user).where(eq(user.id, run.source.scheduledBy));
     const due = "scheduledFor" in run.context && run.context.scheduledFor ? ` It was due at ${run.context.scheduledFor} (UTC).` : "";
@@ -996,13 +1040,16 @@ export async function expireApprovals() {
       });
     for (const run of expired) {
       const pending = run.pending;
+      let steps = run.steps;
       if (pending) {
         const step: AgentStepRecord = { kind: "tool", connectionId: pending.connectionId, tool: pending.tool, input: inputSummary(pending.arguments), outcome: "expired" };
-        await db.update(agentRun).set({ steps: [...run.steps, step], pending: null }).where(eq(agentRun.id, run.id));
+        steps = [...run.steps, step];
+        await db.update(agentRun).set({ steps, pending: null }).where(eq(agentRun.id, run.id));
       }
       await withdrawApproval(run.id);
       await reportScheduledRun(run);
       await replyToMention(run, { status: "failed", code: "approvalTimeout" });
+      await closeChatTurn({ ...run, steps }, { code: "approvalTimeout" });
     }
   } catch (error) {
     console.error("[agents] could not expire approvals", redactError(error));

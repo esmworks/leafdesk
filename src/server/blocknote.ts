@@ -34,6 +34,7 @@ import {
 } from "@/lib/mentions";
 import { databaseBlockConfig, linkedViewBlockConfig, referenceLine, isEmbedBlockType } from "@/lib/embed-blocks";
 import { dashboardBlockConfig } from "@/lib/dashboard";
+import { agentChatBlockConfig } from "@/lib/agent-chat";
 import { markdownToPageBlocks } from "@/lib/page-markdown";
 import { textScriptStyleSpecs } from "@/lib/text-scripts";
 import { syncedBlockConfig } from "@/lib/synced-blocks";
@@ -176,6 +177,8 @@ export const pageSchema = BlockNoteSchema.create({
     syncedPage: createBlockSpec(syncedPageBlockConfig, marker("syncedPage"))(),
     // Only its ids: its blocks are a fragment of the source page's document (lib/synced-blocks).
     syncedBlock: createBlockSpec(syncedBlockConfig, marker("syncedBlock"))(),
+    // Only the agent's and the chat's ids: what is said in it is each reader's own.
+    agentChat: createBlockSpec(agentChatBlockConfig, marker("agentChat"))(),
     ...columnBlockSpecs(),
   },
   inlineContentSpecs: { ...defaultInlineContentSpecs, inlineMath, footnote, mention },

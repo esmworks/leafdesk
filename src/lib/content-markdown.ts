@@ -23,6 +23,7 @@ import {
   type ColumnMarker,
 } from "./columns";
 import { DASHBOARD_BLOCK, dashboardLine, parseDashboardLine } from "./dashboard";
+import { AGENT_CHAT_BLOCK, agentChatLine, newChatId, parseAgentChatLine } from "./agent-chat";
 import { BLOCK_COLORS } from "./block-colors";
 import { calloutKey, calloutTitle } from "./callout-styles";
 import { TEXT_SCRIPT_TAGS, TEXT_SCRIPTS, type TextScript } from "./text-scripts";
@@ -277,6 +278,11 @@ export function prepareMarkdownExport<B extends MdBlock>(
           return paragraph(blockToken("<!-- leafdesk:toc -->"));
         case DASHBOARD_BLOCK:
           return paragraph(block.id ? blockToken(dashboardLine(block.id)) : "");
+        case AGENT_CHAT_BLOCK: {
+          // Only its ids; a block whose agent isn't chosen yet has nothing to write.
+          const agentId = String(block.props?.agentId ?? "");
+          return paragraph(agentId ? blockToken(agentChatLine(agentId, String(block.props?.chatId ?? ""))) : "");
+        }
         case BREADCRUMB_BLOCK:
           return paragraph(blockToken("<!-- leafdesk:breadcrumb -->"));
         case SUBPAGES_BLOCK:
@@ -446,6 +452,7 @@ type Pending =
   | { type: typeof PAGE_LINK_BLOCK | typeof SYNCED_PAGE_BLOCK; pageId: string; blockId: string }
   | { type: typeof COLUMN_BLOCK; marker: ColumnMarker }
   | { type: typeof DASHBOARD_BLOCK; id: string }
+  | { type: typeof AGENT_CHAT_BLOCK; agentId: string; chatId: string }
   | { type: typeof SYNCED_BLOCK; pageId: string; syncId: string };
 
 const FENCE_OPEN = /^ {0,3}(`{3,}|~{3,})/;
@@ -519,6 +526,11 @@ export function prepareMarkdownImport(markdown: string, nonce: string, { appUrl 
     const dashboard = parseDashboardLine(line);
     if (dashboard) {
       blockLine({ type: DASHBOARD_BLOCK, id: dashboard });
+      continue;
+    }
+    const agentChat = parseAgentChatLine(line);
+    if (agentChat) {
+      blockLine({ type: AGENT_CHAT_BLOCK, ...agentChat });
       continue;
     }
     const web = WEB_LINE.exec(line);
@@ -818,6 +830,9 @@ export async function finishMarkdownImport<B extends MdBlock>(
         return { type: SYNCED_PAGE_BLOCK, props: { pageId: pending.pageId }, children: [] } as unknown as B;
       case SYNCED_BLOCK:
         return { type: SYNCED_BLOCK, props: { pageId: pending.pageId, syncId: pending.syncId }, children: [] } as unknown as B;
+      case AGENT_CHAT_BLOCK:
+        // A line without a chat id (written by hand, or by MCP) starts the block's conversations afresh.
+        return { type: AGENT_CHAT_BLOCK, props: { agentId: pending.agentId, chatId: pending.chatId || newChatId() }, children: [] } as unknown as B;
       case DASHBOARD_BLOCK:
         // Only the id: the page's dashboard with it comes back whole (lib/dashboard restoreDashboards).
         return { id: pending.id, type: DASHBOARD_BLOCK, props: {}, children: [] } as unknown as B;

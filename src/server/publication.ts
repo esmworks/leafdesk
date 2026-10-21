@@ -380,6 +380,7 @@ export type PublishedBlock =
   | { kind: "breadcrumb" }
   | { kind: "subpages" }
   | { kind: "mermaid"; source: string }
+  | { kind: "agentChat" }
   | { kind: "bookmark"; bookmark: PublishedBookmark }
   | { kind: "webEmbed"; url: string; embed: EmbedTarget }
   | { kind: "pdf"; fileId: string; name: string; caption: string }

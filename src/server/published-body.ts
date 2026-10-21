@@ -6,6 +6,7 @@ import { COLUMN_BLOCK, COLUMN_LIST_BLOCK, columnWidth } from "@/lib/columns";
 import { applyCalloutStyles, findCalloutStyle, type CalloutStyle } from "@/lib/callout-styles";
 import { BREADCRUMB_BLOCK, CALLOUT_BLOCK, MERMAID_BLOCK, SUBPAGES_BLOCK, TOC_BLOCK } from "@/lib/content-blocks";
 import { plainText } from "@/lib/content-markdown";
+import { AGENT_CHAT_BLOCK } from "@/lib/agent-chat";
 import { DASHBOARD_BLOCK, parseDashboard, type DashboardWidget } from "@/lib/dashboard";
 import { isEmbedBlockType, parseLinkedView, type EmbedBlockType, type LinkedView } from "@/lib/embed-blocks";
 import { pdfFileId, spreadsheetFileId } from "@/lib/files";
@@ -180,6 +181,8 @@ export type BodySegment =
   | { kind: "breadcrumb" }
   | { kind: "subpages" }
   | { kind: "mermaid"; source: string }
+  /** An agent chat block: chats happen in the app only, so it says just that (naming no agent). */
+  | { kind: "agentChat" }
   | { kind: "bookmark"; bookmark: PublishedBookmark }
   /** An embed of an allowlisted provider; any other URL comes back as a bookmark. */
   | { kind: "webEmbed"; url: string; embed: EmbedTarget }
@@ -226,6 +229,7 @@ const isStandalone = (block: PageBlock) =>
   block.type === BREADCRUMB_BLOCK ||
   block.type === SUBPAGES_BLOCK ||
   block.type === MERMAID_BLOCK ||
+  block.type === AGENT_CHAT_BLOCK ||
   inPlaceFileOf(block) !== null;
 
 /** A bookmark or embed block as the published page draws it, or null when it has no valid URL. */
@@ -592,6 +596,11 @@ export async function bodySegmentsFromBlocks(
         if (!widgets.length) return;
         await flush();
         segments.push({ kind: "dashboard", widgets });
+        return;
+      }
+      if (block.type === AGENT_CHAT_BLOCK) {
+        await flush();
+        segments.push({ kind: "agentChat" });
         return;
       }
       if (block.type === MERMAID_BLOCK) {

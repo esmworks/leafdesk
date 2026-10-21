@@ -1,6 +1,6 @@
 "use client";
 
-import { BookCheck, BookX, Bot, CalendarClock, ChevronRight, Globe, MessageSquare, MessageSquareOff, Play, Plug, RefreshCw, TriangleAlert, X } from "lucide-react";
+import { BookCheck, BookX, Bot, CalendarClock, ChevronRight, Globe, MessageSquare, MessageSquareOff, MessagesSquare, Play, Plug, RefreshCw, TriangleAlert, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
@@ -42,6 +42,7 @@ import {
   type AgentView,
 } from "@/lib/agents";
 import { commentHash } from "@/lib/comments";
+import { AgentChatTab } from "./agent-chat-tab";
 import { AgentConnectionsTab } from "./agent-connections-tab";
 import { AgentHistoryTab } from "./agent-history-tab";
 import { AskedByLine, HandoffStepLine, type OpenAgentRun } from "./agent-handoff-step";
@@ -51,10 +52,10 @@ import { AgentSchedulesTab } from "./agent-schedules-tab";
 import { AgentSkillsTab } from "./agent-skills-tab";
 import { PagePicker, useShareablePages } from "./agent-page-picker";
 
-export type AgentTab = "settings" | "access" | "skills" | "memory" | "connections" | "schedules" | "runs" | "history";
+export type AgentTab = "settings" | "access" | "skills" | "memory" | "connections" | "schedules" | "runs" | "chat" | "history";
 /** The server's main and fast models' names, shown with the agent's choice between them. */
 export type AgentModelNames = { main: string; fast: string };
-export const AGENT_TABS: readonly AgentTab[] = ["settings", "access", "skills", "memory", "connections", "schedules", "runs", "history"];
+export const AGENT_TABS: readonly AgentTab[] = ["settings", "access", "skills", "memory", "connections", "schedules", "runs", "chat", "history"];
 
 
 /** An agent's emoji, or a robot when it has none. */
@@ -63,7 +64,10 @@ export function AgentIcon({ icon, className }: { icon: string | null; className?
   return <Bot className={cn("h-4 w-4 text-fg-muted", className)} aria-hidden />;
 }
 
-/** One agent: its settings, the pages shared with it, its skills, its memory, the connections' tools it may use, its schedules, its latest runs and its versions, in tabs. */
+/**
+ * One agent: its settings, the pages shared with it, its skills, its memory, the connections' tools
+ * it may use, its schedules, its latest runs, a chat with it and its versions, in tabs.
+ */
 export function AgentDialog({
   workspaceId,
   agent,
@@ -142,6 +146,8 @@ export function AgentDialog({
         <AgentSchedulesTab workspaceId={workspaceId} agent={agent} onRuns={() => onTab("runs")} />
       ) : tab === "history" ? (
         <AgentHistoryTab workspaceId={workspaceId} agent={agent} />
+      ) : tab === "chat" ? (
+        <AgentChatTab workspaceId={workspaceId} agent={agent} />
       ) : (
         <RunsTab workspaceId={workspaceId} agent={agent} runId={runId} onOpenRun={onOpenRun} />
       )}
@@ -641,6 +647,11 @@ function RunItem({
               </span>
             ) : run.source.kind === "handoff" ? (
               run.handoff && <AskedByLine handoff={run.handoff} onOpenRun={onOpenRun} />
+            ) : run.source.kind === "chat" ? (
+              <span className="flex min-w-0 flex-1 items-center gap-1.5 text-sm">
+                <MessagesSquare aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
+                <span className={cn("truncate", !run.chat?.message && "text-fg-muted")}>{run.chat?.message || t("fromChat", { name: run.chat?.byName ?? "" })}</span>
+              </span>
             ) : run.source.kind === "request" && !run.source.rowId ? (
               <span className="flex min-w-0 flex-1 items-center gap-1.5 text-sm">
                 <Play aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
@@ -663,6 +674,7 @@ function RunItem({
             {run.request && ` · ${t("requestedBy", { name: run.request.byName, via: run.request.via })}`}
             {run.schedule && ` · ${t("scheduledBy", { name: run.schedule.byName })}`}
             {run.usage?.model && ` · ${t("model", { model: run.usage.model })}`}
+            {run.chat && ` · ${t("chattedBy", { name: run.chat.byName })}`}
           </div>
           {failed && run.code && <p className="mt-0.5 text-xs text-danger">{t(`reason.${run.code}`)}</p>}
         </div>
@@ -719,7 +731,7 @@ function RunItem({
 }
 
 /** A step of a run: the chat's steps, the comments the agent wrote, its calls to connections and the agents it asked. */
-function AgentStepLine({
+export function AgentStepLine({
   step,
   connections,
   onOpen,

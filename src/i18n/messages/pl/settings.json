@@ -309,7 +309,8 @@
       "runs": "Uruchomienia",
       "connections": "Połączenia",
       "schedules": "Harmonogramy",
-      "history": "Historia"
+      "history": "Historia",
+      "chat": "Czat"
     },
     "empty": "Brak agentów.",
     "emptyOwner": "Brak agentów. Utwórz agenta lub zacznij od jednego z poniższych szablonów.",
@@ -557,7 +558,9 @@
         "paused": "Nie udało się poprosić agenta <agent></agent>: jest wstrzymany",
         "archived": "Nie udało się poprosić agenta <agent></agent>: jest zarchiwizowany",
         "limitReached": "Nie udało się poprosić agenta <agent></agent>: wyczerpał miesięczny limit tokenów"
-      }
+      },
+      "fromChat": "Wiadomość na czacie od {name}",
+      "chattedBy": "z czatu: {name}"
     },
     "usage": {
       "thisMonth": "W tym miesiącu: {usage}",

@@ -844,5 +844,77 @@
     "failed": "Nie udało się wczytać stron z tego miejsca.",
     "openDatabase": "Otwórz bazę danych",
     "allRows": "Zobacz wszystkie wiersze w bazie danych"
+  },
+  "agentChat": {
+    "label": "Czat z agentem",
+    "exportLine": "Czat z agentem: {name}",
+    "elsewhere": "Czat z agentem: dostępny w aplikacji dla członków obszaru roboczego.",
+    "choose": "Wybierz agenta",
+    "noAgent": "Wybierz agenta, z którym można tu czatować.",
+    "noAgentReadOnly": "Dla tego czatu nie wybrano agenta.",
+    "loadFailed": "Nie udało się wczytać tego czatu.",
+    "retry": "Spróbuj ponownie",
+    "states": {
+      "guest": "Czaty z agentami nie są dostępne dla gości.",
+      "gone": "Ten agent nie jest już dostępny.",
+      "paused": "Ten agent jest wstrzymany, więc nie może odpowiedzieć.",
+      "aiOff": "AI jest wyłączona w tym obszarze roboczym, więc agent nie może odpowiedzieć.",
+      "limitReached": "Ten agent wykorzystał swoje tokeny na ten miesiąc, więc nie odpowie aż do następnego miesiąca."
+    },
+    "empty": {
+      "full": "Zapytaj o coś agenta {name} lub zleć mu zadanie. Działa z własnym dostępem, umiejętnościami i pamięcią, a każda odpowiedź to jedno z jego uruchomień.",
+      "readOnly": "Zadaj pytanie agentowi {name}. Odpowiedzi pochodzą tylko ze stron, które widzicie oboje, a agent nie może niczego zmienić."
+    },
+    "readOnly": "Tylko do odczytu",
+    "readOnlyHint": "Odpowiedzi pochodzą tylko ze stron widocznych zarówno dla ciebie, jak i dla agenta.",
+    "placeholder": "Wiadomość do agenta {name}…",
+    "send": "Wyślij",
+    "working": "Pracuje…",
+    "waiting": "Czeka na wolne miejsce AI…",
+    "approval": "Agent chce użyć narzędzia. Zatwierdź wywołanie, aby mógł kontynuować.",
+    "steps": "{count, plural, one {# krok} few {# kroki} many {# kroków} other {# kroku}}",
+    "conversations": "Rozmowy",
+    "newConversation": "Nowa rozmowa",
+    "deleteConversation": "Usuń tę rozmowę",
+    "failed": {
+      "aiOff": "AI jest wyłączona w tym obszarze roboczym.",
+      "agentDisabled": "Agent został wstrzymany lub zarchiwizowany.",
+      "noAccess": "Nie możesz już tutaj czatować z tym agentem.",
+      "provider": "Dostawca AI nie odpowiedział.",
+      "timeout": "Odpowiedź agenta trwała zbyt długo.",
+      "tooManyAttempts": "Limit AI obszaru roboczego pozostawał wyczerpany, więc agent nie mógł zacząć.",
+      "approvalTimeout": "Nikt nie odpowiedział na jego wywołanie na czas, więc nic nie zostało wysłane.",
+      "limitReached": "Agent wykorzystał swoje tokeny na ten miesiąc.",
+      "costLimit": "Obszar roboczy osiągnął miesięczny limit kosztów AI.",
+      "error": "Coś poszło nie tak."
+    },
+    "errors": {
+      "invalid": "Najpierw napisz wiadomość.",
+      "tooLong": "Wiadomość może mieć najwyżej {max} znaków.",
+      "busy": "Agent wciąż odpowiada na twoją ostatnią wiadomość.",
+      "rateLimited": "Za dużo wiadomości naraz. Spróbuj ponownie za chwilę.",
+      "noAccess": "Ten czat nie jest dla ciebie dostępny.",
+      "notOnPage": "Tego czatu nie ma już na stronie.",
+      "guest": "Czaty z agentami nie są dostępne dla gości.",
+      "gone": "Ten agent nie jest już dostępny.",
+      "paused": "Ten agent jest wstrzymany, więc nie może odpowiedzieć.",
+      "aiOff": "AI jest wyłączona w tym obszarze roboczym, więc agent nie może odpowiedzieć.",
+      "limitReached": "Ten agent wykorzystał swoje tokeny na ten miesiąc."
+    },
+    "picker": {
+      "search": "Szukaj agentów",
+      "empty": "Brak agentów do czatowania. Właściciele tworzą ich w Ustawieniach, w sekcji Agenci.",
+      "failed": "Nie udało się wczytać agentów.",
+      "paused": "Wstrzymany"
+    },
+    "slash": {
+      "title": "Czat z agentem",
+      "subtext": "Czatuj na tej stronie z jednym z agentów obszaru roboczego",
+      "aliases": "czat asystent rozmowa zapytaj agent chat bot assistant ai ask"
+    },
+    "tab": {
+      "hint": "Wklej link tego agenta na stronę, aby umieścić tam czat z nim. Członkowie mogą w nim czatować w trybie tylko do odczytu.",
+      "copyLink": "Kopiuj link"
+    }
   }
 }

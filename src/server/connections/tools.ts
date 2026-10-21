@@ -46,14 +46,14 @@ function toolsetOf(rows: { allowed: string[]; connection: ConnectionRow }[], { w
   return { tools, byName };
 }
 
-/** The connection tools an agent may use in a run. */
-export async function agentToolset(agentId: string): Promise<ConnectionToolset> {
+/** The connection tools an agent may use in a run; `writes` false (a read-only chat) leaves out the ones that change something. */
+export async function agentToolset(agentId: string, { writes = true }: { writes?: boolean } = {}): Promise<ConnectionToolset> {
   const rows = await db
     .select({ grant: agentGrant, connection })
     .from(agentGrant)
     .innerJoin(connection, eq(connection.id, agentGrant.connectionId))
     .where(and(eq(agentGrant.agentId, agentId), eq(connection.status, "ready")));
-  return toolsetOf(rows.map((r) => ({ allowed: r.grant.tools, connection: r.connection })));
+  return toolsetOf(rows.map((r) => ({ allowed: r.grant.tools, connection: r.connection })), { writes });
 }
 
 /** The connection tools the workspace's AI chat may use; `writes` false (a read-only chat) leaves out the ones that change something. */
