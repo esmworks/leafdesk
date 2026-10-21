@@ -73,7 +73,7 @@ export async function checkTarget(url: URL, guard: Partial<PreviewGuard> = {}): 
 }
 
 /** Charset of a response: the Content-Type header, else the page's own `<meta>`, else UTF-8. */
-function decode(bytes: Buffer, contentType: string): string {
+export function decodePage(bytes: Buffer, contentType: string): string {
   const fromHeader = /charset\s*=\s*"?([\w-]+)/i.exec(contentType)?.[1];
   const label = fromHeader ?? declaredCharset(headOf(bytes.toString("latin1"))) ?? "utf-8";
   try {
@@ -188,7 +188,7 @@ export async function fetchLinkPreview(input: string, guard: Partial<PreviewGuar
       if (res.status >= 400) throw new LinkPreviewError("httpError", `HTTP ${res.status}`);
       const type = String(res.headers["content-type"] ?? "");
       const meta = res.body.length
-        ? parseLinkMeta(decode(res.body, type), url.href)
+        ? parseLinkMeta(decodePage(res.body, type), url.href)
         : { title: "", description: "", image: "", favicon: new URL("/favicon.ico", url).href, siteName: "" };
       // The bookmark keeps the address that was pasted; the details are the final page's.
       return { url: original, ...meta };

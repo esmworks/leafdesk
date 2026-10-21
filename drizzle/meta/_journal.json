@@ -694,6 +694,13 @@
       "when": 1792615700615,
       "tag": "0098_thread_mute",
       "breakpoints": true
+    },
+    {
+      "idx": 99,
+      "version": "7",
+      "when": 1792622301202,
+      "tag": "0099_agent_web_access",
+      "breakpoints": true
     }
   ]
 }

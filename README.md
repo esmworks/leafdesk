@@ -1908,6 +1908,15 @@ the workspace's usage (see *Usage and cost limits*), never its content.
 With a hosted provider, what is sent is subject to that provider's terms; a local model keeps
 everything on your machines.
 
+**Web search for agents.** Agents an owner gave web access (see [Agents](#agents)) can also search
+the web when the server has a search service: set `WEB_SEARCH_URL` to a self-hosted
+[SearXNG](https://docs.searxng.org) instance with its JSON output turned on (`json` listed under
+`search.formats` in its `settings.yml`), e.g. `WEB_SEARCH_URL=http://searxng:8080`. Leafdesk asks
+`<WEB_SEARCH_URL>/search?q=…&format=json` (an address with a path of its own is used as it is) and
+waits 10 seconds at most. The service is the server's own, so it may be on a private network; the
+pages agents then read may not. Unset, agents with web access read only the pages whose links they
+are given or find in the workspace.
+
 **Limits.**
 
 | Variable | Default | |
@@ -2245,6 +2254,25 @@ run shows who asked, from where and the task; read how it went with
 the agent is paused or archived, AI is off for the workspace, the agent used its monthly token
 limit, or 5 runs asked of it still wait. Each request is recorded in the audit log.
 
+**Web access.** An agent reads nothing outside the workspace unless an owner turns on *Web access*
+in its settings (over MCP and the REST API, `web_access`). Its runs then get `read_web_page`: the
+server fetches a public http(s) page and the agent reads its title and main text (markup, scripts
+and navigation left out, at most 20,000 characters, followed by the links on it), or plain text and
+JSON as they are; images, PDFs and other files are refused. Pages are fetched as files attached by
+URL are: only on the web's usual ports (80, 443, 8080, 8443), never from a host with an address that
+isn't public (loopback, private networks, link-local and cloud metadata addresses), checked when
+connecting and again on each of up to 5 redirects, within 15 seconds and 20 MB (of which 2 MB are
+read). Where the server has a search service (`WEB_SEARCH_URL`, see [AI features](#ai-features)),
+runs also get `search_web`, with up to 8 results (title, address and snippet); without one, the
+agent reads the pages whose links it is given or finds in the workspace. What comes back reaches
+the model framed as data from outside Leafdesk, and the agent is told that instructions on a web
+page are never its owners'. Each page read and search shows in the run's steps with its address or
+query. It changes nothing, so it isn't one of the run's changes, but it counts with connections'
+tools toward the 40,000 characters a run may read from outside. A run no member stands behind (an
+anonymous or outside form answer, an event from a trigger no owner marked trusted) asks an owner
+before each call, as it does before each connection tool: otherwise what it read could be sent to
+an address a stranger chose. Leave web access off for agents that only work with the workspace.
+
 **Usage and a monthly limit.** Every turn a run takes with the model is added to the agent's usage
 for the calendar month (UTC): its runs, input and output tokens and cost (the cost stays 0 where the
 AI provider names no price). The agent's *Runs* tab shows this month against its limit, and the
@@ -2328,7 +2356,7 @@ shared; its skills and memory stay. Creating, changing and archiving agents is r
 `list_agents`, `get_agent`, `create_agent`, `update_agent`, `archive_agent`, `restore_agent`,
 `set_agent_access`, `set_agent_skill`, `add_agent_memory`, `update_agent_memory`,
 `keep_agent_memory`, `dismiss_agent_memory`, `delete_agent_memory`, `list_agent_runs` and
-`start_agent_run`. Over the REST API: listing, reading and changing agents (pausing, resuming, the
+`start_agent_run`. Over the REST API: listing, reading and changing agents (pausing, resuming, web access, the
 monthly limit), asking for a run, and reading runs and usage (see [REST API](#rest-api)).
 
 > [!WARNING]

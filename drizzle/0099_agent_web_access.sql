@@ -1,0 +1,1 @@
+ALTER TABLE "workspace_agent" ADD COLUMN "web_access" boolean DEFAULT false NOT NULL;

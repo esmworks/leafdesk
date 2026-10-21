@@ -4,6 +4,19 @@
 
 ### Added
 
+- **Agents can read the web.** Each agent has a **Web access** switch in its settings, off by
+  default. With it on, its runs can read public web pages: `read_web_page` returns a page's title
+  and main text without markup (at most 20,000 characters, with a note when it is cut, and the
+  links on it), and plain text and JSON as they are; images, PDFs and other files are refused.
+  Pages are fetched with the same guard as files attached by URL: only public addresses on the
+  web's usual ports, checked again on every redirect, within 15 seconds and a size limit. When the
+  server sets `WEB_SEARCH_URL` to a self-hosted SearXNG instance, runs can also `search_web` (up to
+  8 results with title, address and snippet). What comes back reaches the model framed as outside
+  data, and the agent is told that instructions on web pages aren't its owners'. Each page and
+  search shows in the run's steps and counts toward what a run may read from outside; a run no
+  member stands behind asks an owner before each one. MCP's `create_agent` and `update_agent` take
+  `web_access`, and `get_agent`, `list_agents` and the REST API's agents return it. Migration 0099
+  adds `workspace_agent.web_access`.
 - **Archive pages that are out of date.** An old price list or a superseded offer can be archived
   instead of trashed: people with full access choose **Archive** in the page's menu. The page keeps
   everything else (it stays readable, editable, reachable by its link, mentions and backlinks, and

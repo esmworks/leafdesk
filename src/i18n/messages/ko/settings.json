@@ -341,6 +341,9 @@
       "count": "{count} / {max}",
       "active": "활성",
       "activeHelp": "일시 중지된 에이전트의 실행은 아무 작업도 하지 않고 종료됩니다.",
+      "webAccess": "웹 접근",
+      "webAccessHelp": "받은 링크나 워크스페이스에서 찾은 링크의 공개 웹 페이지를 열 수 있습니다. 내부 작업에만 쓰는 에이전트는 꺼 두세요.",
+      "webAccessHelpSearch": "웹을 검색하고 공개 웹 페이지를 열 수 있습니다. 내부 작업에만 쓰는 에이전트는 꺼 두세요.",
       "limit": "월간 토큰 한도",
       "limitPlaceholder": "제한 없음",
       "limitHelp": "한 달(UTC 기준 달력 월) 동안 실행에서 사용할 수 있는 최대 토큰 수입니다. 한도에 도달하면 다음 달까지 실행이 중지됩니다.",
@@ -471,6 +474,13 @@
       "fromConnection": "{connection} · {event}",
       "removedConnection": "제거된 연결",
       "waiting": "소유자가 이 호출에 응답하기를 기다리는 중입니다:",
+      "web": {
+        "read": "웹 페이지를 읽음",
+        "readFailed": "웹 페이지를 읽지 못함",
+        "search": "웹을 검색함",
+        "searchFailed": "웹을 검색하지 못함",
+        "approved": "승인됨"
+      },
       "tool": {
         "done": "{connection}에서 “{tool}” 호출함",
         "failed": "{connection}에서 “{tool}”을(를) 호출하지 못함",

@@ -1,6 +1,6 @@
 "use client";
 
-import { BookCheck, BookX, Bot, CalendarClock, ChevronRight, MessageSquare, MessageSquareOff, Play, Plug, RefreshCw, TriangleAlert, X } from "lucide-react";
+import { BookCheck, BookX, Bot, CalendarClock, ChevronRight, Globe, MessageSquare, MessageSquareOff, Play, Plug, RefreshCw, TriangleAlert, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
@@ -30,6 +30,7 @@ import {
   MAX_AGENT_NAME,
   MAX_AGENT_TOKEN_LIMIT,
   OWN_TOOLS_NAME,
+  WEB_TOOL_NAMES,
   type AgentAccessLevel,
   type AgentAccessView,
   type AgentSkillRecord,
@@ -61,6 +62,7 @@ export function AgentDialog({
   runId,
   proposals = 0,
   memoryOff = false,
+  webSearch = false,
   onTab,
   onClose,
 }: {
@@ -70,6 +72,8 @@ export function AgentDialog({
   /** Notes its runs proposed that wait for an owner, counted on the Memory tab. */
   proposals?: number;
   memoryOff?: boolean;
+  /** The server has a search service (see AgentForm). */
+  webSearch?: boolean;
   /** A run to show opened (a link from an automation's history). */
   runId?: string;
   onTab: (tab: AgentTab) => void;
@@ -110,7 +114,7 @@ export function AgentDialog({
         </div>
       </div>
       {tab === "settings" ? (
-        <AgentForm workspaceId={workspaceId} agent={agent} onDone={onClose} />
+        <AgentForm workspaceId={workspaceId} agent={agent} webSearch={webSearch} onDone={onClose} />
       ) : tab === "access" ? (
         <AccessTab workspaceId={workspaceId} agent={agent} />
       ) : tab === "skills" ? (
@@ -132,11 +136,14 @@ export function AgentDialog({
 export function AgentForm({
   workspaceId,
   agent,
+  webSearch = false,
   onDone,
   onCreated,
 }: {
   workspaceId: string;
   agent?: AgentView;
+  /** The server has a search service: the web access switch says the agent can search too. */
+  webSearch?: boolean;
   onDone: () => void;
   onCreated?: (agent: AgentView) => void;
 }) {
@@ -147,6 +154,7 @@ export function AgentForm({
   const [description, setDescription] = useState(agent?.description ?? "");
   const [instructions, setInstructions] = useState(agent?.instructions ?? "");
   const [enabled, setEnabled] = useState(agent?.enabled ?? true);
+  const [webAccess, setWebAccess] = useState(agent?.webAccess ?? false);
   const [limit, setLimit] = useState(agent?.monthlyTokenLimit ? String(agent.monthlyTokenLimit) : "");
   const { pending, error, run } = useAction();
   const locked = Boolean(agent?.archived);
@@ -157,7 +165,7 @@ export function AgentForm({
 
   const submit = () => {
     if (!clean || locked || !limitValid) return;
-    const value = { name: clean, icon, description, instructions, enabled, monthlyTokenLimit };
+    const value = { name: clean, icon, description, instructions, enabled, webAccess, monthlyTokenLimit };
     if (agent) run(() => updateAgentAction(workspaceId, agent.id, value), onDone);
     else run(() => createAgentAction(workspaceId, value), (created) => onCreated?.(created));
   };
@@ -222,6 +230,13 @@ export function AgentForm({
             <div className="text-xs text-fg-muted">{t("activeHelp")}</div>
           </div>
           <Switch checked={enabled} label={t("active")} disabled={locked} onChange={setEnabled} />
+        </div>
+        <div className="flex items-center justify-between gap-3 border-t border-border pt-3 text-sm">
+          <div>
+            <div>{t("webAccess")}</div>
+            <div className="text-xs text-fg-muted">{t(webSearch ? "webAccessHelpSearch" : "webAccessHelp")}</div>
+          </div>
+          <Switch checked={webAccess} label={t("webAccess")} disabled={locked} onChange={setWebAccess} />
         </div>
         <label className="block border-t border-border pt-3">
           <span className="mb-1 block text-sm">{t("limit")}</span>
@@ -630,6 +645,9 @@ function RunItem({
 /** A step of a run: the chat's steps, the comments the agent wrote, and its calls to connections. */
 function AgentStepLine({ step, connections, onOpen }: { step: AgentStepView; connections: Record<string, string>; onOpen: (pageId: string) => void }) {
   const t = useTranslations("settings.agents.runs");
+  if (step.kind === "tool" && step.connectionId === null && (step.outcome === "done" || step.outcome === "failed") && webTool(step.tool)) {
+    return <WebStepLine step={step} />;
+  }
   if (step.kind === "tool") {
     const connection = step.connectionId === null ? OWN_TOOLS_NAME : (connections[step.connectionId] ?? t("removedConnection"));
     return <ToolStepLine step={step} connection={connection} />;
@@ -688,6 +706,34 @@ function ToolStepLine({ step, connection }: { step: AgentToolRecord; connection:
         {step.note && <span className="block text-xs text-fg-faint">{t("note", { note: step.note })}</span>}
         <code className="mt-0.5 block truncate text-xs text-fg-faint" title={step.input}>
           {step.input}
+        </code>
+      </span>
+    </>
+  );
+}
+
+const webTool = (name: string) => name === WEB_TOOL_NAMES.read || name === WEB_TOOL_NAMES.search;
+
+/** A page the run read from the web, or a search it made: the address or the query, and whether it worked. */
+function WebStepLine({ step }: { step: AgentToolRecord }) {
+  const t = useTranslations("settings.agents.runs.web");
+  const failed = step.outcome === "failed";
+  const search = step.tool === WEB_TOOL_NAMES.search;
+  // The input is the call's arguments as JSON, cut to fit: the address or the query when it parses.
+  let target = step.input;
+  try {
+    const args = JSON.parse(step.input) as Record<string, unknown>;
+    const value = search ? args.query : args.url;
+    if (typeof value === "string") target = value;
+  } catch {}
+  return (
+    <>
+      <Globe className={cn("mt-[3px] h-3.5 w-3.5 shrink-0", failed && "text-danger")} />
+      <span className="min-w-0 break-words">
+        {t(search ? (failed ? "searchFailed" : "search") : failed ? "readFailed" : "read")}
+        {step.decidedBy && <span className="text-fg-faint"> · {t("approved")}</span>}
+        <code className="mt-0.5 block truncate text-xs text-fg-faint" title={target}>
+          {target}
         </code>
       </span>
     </>

@@ -25,6 +25,7 @@ export function AgentsPanel({
   agents,
   proposals = {},
   memoryOff = false,
+  webSearch = false,
   templates,
   ai,
   initialAgentId,
@@ -39,6 +40,8 @@ export function AgentsPanel({
   proposals?: Record<string, number>;
   /** The workspace's AI memory is off: runs carry no notes and keep none. */
   memoryOff?: boolean;
+  /** The server has a search service: agents with web access can search the web too. */
+  webSearch?: boolean;
   templates: BuiltinAgentSummary[];
   /** Whether agents can run: AI set up on the server and on in the workspace. */
   ai: "on" | "off" | "unavailable";
@@ -170,6 +173,7 @@ export function AgentsPanel({
           <h2 className="border-b border-border px-5 py-4 text-base font-semibold">{t("form.createTitle")}</h2>
           <AgentForm
             workspaceId={workspaceId}
+            webSearch={webSearch}
             onDone={() => setCreating(false)}
             onCreated={(agent) => {
               setCreating(false);
@@ -187,6 +191,7 @@ export function AgentsPanel({
           runId={linkedRun}
           proposals={proposals[opened.id] ?? 0}
           memoryOff={memoryOff}
+          webSearch={webSearch}
           onTab={(tab) => setOpen({ id: opened.id, tab })}
           onClose={() => {
             setOpen(null);

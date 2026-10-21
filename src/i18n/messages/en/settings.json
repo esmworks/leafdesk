@@ -341,6 +341,9 @@
       "count": "{count} / {max}",
       "active": "Active",
       "activeHelp": "A paused agent’s runs end without doing anything.",
+      "webAccess": "Web access",
+      "webAccessHelp": "It can open public web pages whose links it’s given or finds in the workspace. Turn it off for strictly internal jobs.",
+      "webAccessHelpSearch": "It can search the web and open public web pages. Turn it off for strictly internal jobs.",
       "limit": "Monthly token limit",
       "limitPlaceholder": "No limit",
       "limitHelp": "The most tokens its runs may use in a calendar month (UTC). Once they reach it, its runs stop until the next month.",
@@ -471,6 +474,13 @@
       "fromConnection": "{connection} · {event}",
       "removedConnection": "A removed connection",
       "waiting": "It waits for an owner to answer this call:",
+      "web": {
+        "read": "Read a web page",
+        "readFailed": "Couldn’t read a web page",
+        "search": "Searched the web",
+        "searchFailed": "Couldn’t search the web",
+        "approved": "approved"
+      },
       "tool": {
         "done": "Called “{tool}” on {connection}",
         "failed": "Couldn’t call “{tool}” on {connection}",

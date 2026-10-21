@@ -514,9 +514,10 @@ const SCHEMAS: Record<string, JsonSchema> = {
       description: { type: "string" },
       enabled: { type: "boolean", description: "Paused agents don't run." },
       archived: { type: "boolean" },
+      web_access: { type: "boolean", description: "Whether its runs may read public web pages (and search the web, where the server has a search service)." },
       user_id: { type: "string", description: "The agent's own user: what its changes and comments show." },
     },
-    ["id", "name", "enabled", "archived", "user_id"],
+    ["id", "name", "enabled", "archived", "web_access", "user_id"],
   ),
   AgentList: loose({ workspace_id: id, agents: { type: "array", items: ref("AgentSummary") } }, ["workspace_id", "agents"]),
   AgentUsageMonth: loose(

@@ -341,6 +341,9 @@
       "count": "{count} / {max}",
       "active": "Aktiv",
       "activeHelp": "Durchläufe eines pausierten Agenten enden, ohne etwas zu tun.",
+      "webAccess": "Webzugriff",
+      "webAccessHelp": "Er kann öffentliche Webseiten öffnen, deren Links er erhält oder im Arbeitsbereich findet. Für rein interne Aufgaben ausschalten.",
+      "webAccessHelpSearch": "Er kann im Web suchen und öffentliche Webseiten öffnen. Für rein interne Aufgaben ausschalten.",
       "limit": "Monatliches Token-Limit",
       "limitPlaceholder": "Kein Limit",
       "limitHelp": "Die meisten Tokens, die seine Durchläufe in einem Kalendermonat (UTC) verbrauchen dürfen. Ist das Limit erreicht, ruhen sie bis zum nächsten Monat.",
@@ -471,6 +474,13 @@
       "fromConnection": "{connection} · {event}",
       "removedConnection": "Eine entfernte Verbindung",
       "waiting": "Wartet darauf, dass ein Inhaber diesen Aufruf beantwortet:",
+      "web": {
+        "read": "Hat eine Webseite gelesen",
+        "readFailed": "Konnte eine Webseite nicht lesen",
+        "search": "Hat im Web gesucht",
+        "searchFailed": "Konnte nicht im Web suchen",
+        "approved": "freigegeben"
+      },
       "tool": {
         "done": "Hat „{tool}“ bei {connection} aufgerufen",
         "failed": "Konnte „{tool}“ bei {connection} nicht aufrufen",

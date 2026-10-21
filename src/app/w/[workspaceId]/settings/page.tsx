@@ -92,6 +92,7 @@ import { getStorageSettings } from "@/server/storage/settings";
 import { hasOwnStorage } from "@/server/storage/workspace";
 import { listAgents } from "@/server/agents/manage";
 import { proposedNoteCounts } from "@/server/agents/memory";
+import { webSearchUrl } from "@/server/agents/web";
 import { listConnections } from "@/server/connections/manage";
 import { oauthRedirectUrl } from "@/server/connections/client";
 import { env } from "@/lib/env";
@@ -663,6 +664,7 @@ async function AgentsTab({
       agents={agents}
       proposals={proposals}
       memoryOff={settings.aiMemory === false}
+      webSearch={webSearchUrl() !== null}
       templates={templates}
       ai={ai}
       initialAgentId={isOwner ? agentId : undefined}

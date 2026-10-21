@@ -53,11 +53,17 @@ export type RemoteFetchOptions = {
   maxBytes: number;
   timeoutMs?: number;
   maxRedirects?: number;
+  /** Ports the URL (and every redirect) may name ("" for the scheme's own); unset: any. */
+  ports?: ReadonlySet<string>;
+  userAgent?: string;
+  accept?: string;
   /** Tests only: which addresses count as off limits. */
   isBlocked?: (address: string) => boolean;
 };
 
 export type RemoteFile = {
+  /** The URL the file came from, after redirects. */
+  url: string;
   /** The response body; read it to the end or destroy it. Destroyed on the deadline. */
   body: IncomingMessage;
   contentType: string | null;
@@ -105,7 +111,8 @@ function nameFrom(disposition: string | undefined, url: URL): string | null {
 
 /** Fetches `input` (GET), following up to `maxRedirects` redirects, each checked like the first. */
 export async function fetchRemoteFile(input: string, options: RemoteFetchOptions): Promise<RemoteFile> {
-  const { maxBytes, timeoutMs = 30_000, maxRedirects = 5, isBlocked = isBlockedAddress } = options;
+  const { maxBytes, timeoutMs = 30_000, maxRedirects = 5, ports, isBlocked = isBlockedAddress } = options;
+  const headers = { "user-agent": options.userAgent ?? "Leafdesk (+file attachment)", accept: options.accept ?? "*/*" };
   const deadline = Date.now() + timeoutMs;
   let url: URL;
   try {
@@ -116,10 +123,11 @@ export async function fetchRemoteFile(input: string, options: RemoteFetchOptions
   for (let hop = 0; ; hop++) {
     if (url.protocol !== "http:" && url.protocol !== "https:") throw new RemoteFetchError("Only http and https URLs can be fetched", "badUrl");
     if (url.username || url.password) throw new RemoteFetchError("URLs with credentials can't be fetched", "badUrl");
+    if (ports && !ports.has(url.port)) throw new RemoteFetchError(`Port ${url.port} isn't one of the web's usual ports`, "blocked");
     const host = url.hostname.replace(/^\[|\]$/g, "");
     // Literal addresses skip DNS, so the lookup guard never sees them.
     if (isIP(host) && isBlocked(host)) throw new RemoteFetchError("That address isn't public", "blocked");
-    const res = await get(url, { isBlocked, deadline });
+    const res = await get(url, { isBlocked, deadline, headers });
     const status = res.statusCode ?? 0;
     if ([301, 302, 303, 307, 308].includes(status) && res.headers.location) {
       res.resume();
@@ -140,6 +148,7 @@ export async function fetchRemoteFile(input: string, options: RemoteFetchOptions
     const timer = setTimeout(() => res.destroy(new RemoteFetchError("The download took too long", "timeout")), Math.max(0, deadline - Date.now()));
     res.once("close", () => clearTimeout(timer));
     return {
+      url: url.href,
       body: res,
       contentType: res.headers["content-type"] ?? null,
       name: nameFrom(res.headers["content-disposition"], url),
@@ -148,13 +157,16 @@ export async function fetchRemoteFile(input: string, options: RemoteFetchOptions
   }
 }
 
-function get(url: URL, { isBlocked, deadline }: { isBlocked: (address: string) => boolean; deadline: number }): Promise<IncomingMessage> {
+function get(
+  url: URL,
+  { isBlocked, deadline, headers }: { isBlocked: (address: string) => boolean; deadline: number; headers: { "user-agent": string; accept: string } },
+): Promise<IncomingMessage> {
   return new Promise((resolveGet, reject) => {
     const send = url.protocol === "https:" ? httpsRequest : httpRequest;
     const options: RequestOptions = {
       method: "GET",
       lookup: guardedLookup(isBlocked),
-      headers: { "user-agent": "Leafdesk (+file attachment)", accept: "*/*", "accept-encoding": "identity" },
+      headers: { ...headers, "accept-encoding": "identity" },
       // A fresh connection per request: pooled sockets would skip the lookup.
       agent: false,
     };

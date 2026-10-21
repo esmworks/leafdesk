@@ -88,6 +88,12 @@ const scheduleDatabaseInput = id("database")
     `A database for the agent to look after: each run reads it first and may change and comment on its rows (at most ${MAX_SCHEDULED_WRITES} changes a run). The user must be able to open it, and the agent needs edit access to change rows (set_agent_access). null: the run only reads and reports.`,
   );
 
+const webAccessInput = z
+  .boolean()
+  .describe(
+    "Whether its runs may read public web pages (read_web_page), and search the web where the server has a search service (search_web); default false. Leave it off for agents that should only work with the workspace: a run with it could send what it read to a web address.",
+  );
+
 export const agentInputs = {
   list: z.object({
     workspace_id: id("workspace"),
@@ -101,6 +107,7 @@ export const agentInputs = {
     description: descriptionInput.optional(),
     instructions: instructionsInput.optional(),
     enabled: z.boolean().optional().describe("Whether it runs (default true). A paused agent's queued runs end without doing anything."),
+    web_access: webAccessInput.optional(),
   }),
   // No defaults here: what is left out stays as it is.
   update: z.object({
@@ -110,6 +117,7 @@ export const agentInputs = {
     description: descriptionInput.optional(),
     instructions: instructionsInput.optional(),
     enabled: z.boolean().optional().describe("Pause (false) or resume (true) the agent."),
+    web_access: webAccessInput.optional(),
     monthly_token_limit: z
       .number()
       .int()
@@ -220,14 +228,15 @@ export function toScheduleInput(args: { repeat?: RepeatArgs; time_zone?: string;
 
 /** update_agent's arguments as a patch: only what was given. */
 export function toAgentPatch(args: Omit<z.infer<typeof agentInputs.update>, "agent_id">) {
-  const patch: { name?: string; icon?: string | null; description?: string; instructions?: string; enabled?: boolean; monthlyTokenLimit?: number | null } = {};
+  const patch: { name?: string; icon?: string | null; description?: string; instructions?: string; enabled?: boolean; webAccess?: boolean; monthlyTokenLimit?: number | null } = {};
   if (args.name !== undefined) patch.name = args.name;
   if (args.icon !== undefined) patch.icon = args.icon;
   if (args.description !== undefined) patch.description = args.description;
   if (args.instructions !== undefined) patch.instructions = args.instructions;
   if (args.enabled !== undefined) patch.enabled = args.enabled;
+  if (args.web_access !== undefined) patch.webAccess = args.web_access;
   if (args.monthly_token_limit !== undefined) patch.monthlyTokenLimit = args.monthly_token_limit;
-  if (!Object.keys(patch).length) throw new ToolInputError("Nothing to change: pass name, icon, description, instructions, enabled or monthly_token_limit.");
+  if (!Object.keys(patch).length) throw new ToolInputError("Nothing to change: pass name, icon, description, instructions, enabled, web_access or monthly_token_limit.");
   return patch;
 }
 
@@ -344,6 +353,7 @@ export function describeAgentSummary(agent: AgentView) {
     description: agent.description,
     enabled: agent.enabled,
     archived: agent.archived,
+    web_access: agent.webAccess,
     user_id: agent.userId,
   };
 }
