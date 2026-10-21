@@ -25,6 +25,7 @@ const { changeComments, commentUsers, listComments } = await import("@/server/co
 const { getCollab, registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
 const { threadQuotes } = await import("@/server/collab/comment-marks");
+const { commentMentionCandidates } = await import("@/server/mentions");
 const { archivePage, createPage } = await import("@/server/pages");
 const { setPagePermission } = await import("@/server/permissions");
 const { flushShareEmails, setShareMailer } = await import("@/server/share-emails");
@@ -268,6 +269,17 @@ try {
   );
   await changeComments(ids.commenter, doc.id, { type: "deleteComment", threadId: byCommenter.thread!.id, commentId: byCommenter.comment!.id });
   check(!(await listComments(ids.commenter, doc.id)).some((t) => t.id === byCommenter.thread!.id), "…but delete their own");
+  const offered = (await commentMentionCandidates(ids.commenter, doc.id, "")).map((p) => p.id).sort();
+  check(
+    offered.join() === [ids.editor, ids.owner, ids.viewer].sort().join(),
+    "the @ menu in a comment offers the people who can open the page, not the writer or outsiders",
+    offered,
+  );
+  check(
+    (await commentMentionCandidates(ids.commenter, doc.id, "EDITOR")).map((p) => p.id).join() === ids.editor,
+    "…matching what was typed",
+  );
+  check((await failure(() => commentMentionCandidates(ids.viewer, doc.id, ""))) === "access", "…and is only for people who may comment");
 
   // Server writes keep anchors
   await getCollab().replaceContent(doc.id, "New intro.\n\nShip the comments feature this week.\n\nSecond paragraph stays.", { userId: ids.owner });

@@ -24,10 +24,9 @@
   inbox, by email or by push, and a bell mark on the thread says so. Replying in the thread, or
   being mentioned in a comment there, ends the mute, so nothing addressed to them is missed; the
   comment that mentions them still notifies them. **Unmute replies** ends it by hand. Each person
-  mutes for themselves, and deleting the thread or its page forgets the mutes. A comment's body may
-  carry person mentions (`mention` nodes, as on pages): the people mentioned are notified and the
-  comment keeps their names as text; the comment box doesn't offer mentions yet. Migration 0098
-  adds the `thread_mute` table.
+  mutes for themselves, and deleting the thread or its page forgets the mutes. Typing `@` in a
+  comment offers the people who can open the page; the people mentioned are notified and the
+  comment keeps their names as text. Migration 0098 adds the `thread_mute` table.
 - **Present a page as slides.** **Present** in a page's menu, or ⌘⌥P (Ctrl+Alt+P), shows the page
   over the whole screen, read-only, in the app's light or dark theme. The first slide is the page's
   icon and title on its background; after it, each divider starts a new slide, or on a page without

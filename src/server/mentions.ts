@@ -22,7 +22,7 @@ import {
 import { getCollab } from "@/server/collab/bridge";
 import { isOutdated, listedPage } from "@/server/page-outdated";
 import { searchFoldSql } from "@/server/search-fold-sql";
-import { recordMentions, recordReminder, withdrawMentions } from "@/server/notifications";
+import { pageRecipients, recordMentions, recordReminder, withdrawMentions } from "@/server/notifications";
 import { followOnTakingPart } from "@/server/row-follow";
 import { workspacePeople } from "@/server/workspaces";
 import { avatarSrc } from "@/lib/avatar";
@@ -568,6 +568,29 @@ export async function linkUnlinkedMention(userId: string, sourceId: string, targ
   return true;
 }
 
+/** The workspace's people matching a folded query, the user last; none for guests. */
+async function peopleMatching(userId: string, workspaceId: string, q: string) {
+  const membership = await getMembership(userId, workspaceId);
+  if (!membership || isGuest(membership.role)) return [];
+  return (await workspacePeople(workspaceId))
+    .filter((p) => !q || searchFold(p.name).includes(q) || searchFold(p.email).startsWith(q))
+    .sort((a, b) => (a.id === userId ? 1 : 0) - (b.id === userId ? 1 : 0) || a.name.localeCompare(b.name))
+    .map((p) => ({ id: p.id, name: p.name, image: avatarSrc(p.image) }));
+}
+
+/**
+ * What the @ menu in a comment offers: the people mentionCandidates would, but only those who can
+ * open the page (the ones a mention reaches, see server/comments), and not the user. For anyone who
+ * may comment on the page.
+ */
+export async function commentMentionCandidates(userId: string, pageId: string, query: string): Promise<MentionCandidates["people"]> {
+  const target = await requirePageAccess(userId, pageId, "comment");
+  const q = typeof query === "string" ? searchFold(query.trim().slice(0, 100)) : "";
+  const people = (await peopleMatching(userId, target.workspaceId, q)).filter((p) => p.id !== userId);
+  const reach = new Set(await pageRecipients(people.map((p) => p.id), pageId));
+  return people.filter((p) => reach.has(p.id)).slice(0, 6);
+}
+
 export type PageCandidate = { id: string; title: string; icon: string | null; kind: PageKind };
 
 export type MentionCandidates = {
@@ -582,16 +605,8 @@ export type MentionCandidates = {
  */
 export async function mentionCandidates(userId: string, pageId: string, query: string): Promise<MentionCandidates> {
   const target = await requirePageAccess(userId, pageId, "edit");
-  const membership = await getMembership(userId, target.workspaceId);
   const q = typeof query === "string" ? searchFold(query.trim().slice(0, 100)) : "";
-  const people =
-    membership && !isGuest(membership.role)
-      ? (await workspacePeople(target.workspaceId))
-          .filter((p) => !q || searchFold(p.name).includes(q) || searchFold(p.email).startsWith(q))
-          .sort((a, b) => (a.id === userId ? 1 : 0) - (b.id === userId ? 1 : 0) || a.name.localeCompare(b.name))
-          .slice(0, 6)
-          .map((p) => ({ id: p.id, name: p.name, image: avatarSrc(p.image) }))
-      : [];
+  const people = (await peopleMatching(userId, target.workspaceId, q)).slice(0, 6);
   const like = `%${q.replace(/[\\%_]/g, (c) => `\\${c}`)}%`;
   const title = searchFoldSql(page.title);
   const pages = await db
