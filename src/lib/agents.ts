@@ -225,6 +225,9 @@ export type AgentPendingCall = {
   askedAt: string;
 };
 
+/** The tools of an agent with web access (server/agents/web.ts): Leafdesk's own, so their steps name no connection. */
+export const WEB_TOOL_NAMES = { read: "read_web_page", search: "search_web" } as const;
+
 /** What a call to Leafdesk's own tool (no connection) names in place of a connection. */
 export const OWN_TOOLS_NAME = "Leafdesk";
 
@@ -305,6 +308,8 @@ export type AgentView = {
   instructions: string;
   enabled: boolean;
   archived: boolean;
+  /** Whether its runs may read public web pages (read_web_page, and search_web where the server has a search service). */
+  webAccess: boolean;
   /**
    * The most tokens (in and out) its runs may use in a calendar month (UTC); null: no limit. A run
    * stops at its first turn once the month's tokens reach it.

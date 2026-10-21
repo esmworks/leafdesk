@@ -25,6 +25,7 @@ export function AgentsPanel({
   agents,
   proposals = {},
   memoryOff = false,
+  webSearch = false,
   templates,
   ai,
   models = null,
@@ -40,6 +41,8 @@ export function AgentsPanel({
   proposals?: Record<string, number>;
   /** The workspace's AI memory is off: runs carry no notes and keep none. */
   memoryOff?: boolean;
+  /** The server has a search service: agents with web access can search the web too. */
+  webSearch?: boolean;
   templates: BuiltinAgentSummary[];
   /** Whether agents can run: AI set up on the server and on in the workspace. */
   ai: "on" | "off" | "unavailable";
@@ -174,6 +177,7 @@ export function AgentsPanel({
           <AgentForm
             workspaceId={workspaceId}
             models={models}
+            webSearch={webSearch}
             onDone={() => setCreating(false)}
             onCreated={(agent) => {
               setCreating(false);
@@ -192,6 +196,7 @@ export function AgentsPanel({
           proposals={proposals[opened.id] ?? 0}
           memoryOff={memoryOff}
           models={models}
+          webSearch={webSearch}
           onTab={(tab) => setOpen({ id: opened.id, tab })}
           onClose={() => {
             setOpen(null);

@@ -341,6 +341,9 @@
       "count": "{count} / {max}",
       "active": "アクティブ",
       "activeHelp": "一時停止中のエージェントの実行は、何もせずに終了します。",
+      "webAccess": "ウェブアクセス",
+      "webAccessHelp": "渡されたリンクやワークスペースで見つけたリンクの公開ウェブページを開けます。社内だけで完結する作業ではオフにしてください。",
+      "webAccessHelpSearch": "ウェブを検索し、公開ウェブページを開けます。社内だけで完結する作業ではオフにしてください。",
       "limit": "月間トークン上限",
       "limitPlaceholder": "上限なし",
       "limitHelp": "1か月（UTC）にこのエージェントの実行で使用できるトークンの上限です。上限に達すると、翌月まで実行が停止します。",
@@ -476,6 +479,13 @@
       "fromConnection": "{connection} · {event}",
       "removedConnection": "削除された接続",
       "waiting": "この呼び出しに対するオーナーの応答を待っています：",
+      "web": {
+        "read": "ウェブページを読みました",
+        "readFailed": "ウェブページを読めませんでした",
+        "search": "ウェブを検索しました",
+        "searchFailed": "ウェブを検索できませんでした",
+        "approved": "承認済み"
+      },
       "tool": {
         "done": "{connection}で「{tool}」を呼び出しました",
         "failed": "{connection}で「{tool}」を呼び出せませんでした",

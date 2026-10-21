@@ -341,6 +341,9 @@
       "count": "{count} / {max}",
       "active": "Etkin",
       "activeHelp": "Duraklatılmış bir ajanın çalışmaları hiçbir şey yapmadan biter.",
+      "webAccess": "Web erişimi",
+      "webAccessHelp": "Kendisine verilen ya da çalışma alanında bulduğu bağlantılardaki herkese açık web sayfalarını açabilir. Yalnızca iç işler için kapalı tutun.",
+      "webAccessHelpSearch": "Web’de arama yapabilir ve herkese açık web sayfalarını açabilir. Yalnızca iç işler için kapalı tutun.",
       "limit": "Aylık token sınırı",
       "limitPlaceholder": "Sınır yok",
       "limitHelp": "Çalışmalarının bir takvim ayında (UTC) kullanabileceği en fazla token. Sınıra ulaşınca çalışmaları gelecek aya kadar durur.",
@@ -476,6 +479,13 @@
       "fromConnection": "{connection} · {event}",
       "removedConnection": "Kaldırılmış bir bağlantı",
       "waiting": "Bir sahibin bu çağrıyı yanıtlamasını bekliyor:",
+      "web": {
+        "read": "Bir web sayfası okundu",
+        "readFailed": "Bir web sayfası okunamadı",
+        "search": "Web’de arama yapıldı",
+        "searchFailed": "Web’de arama yapılamadı",
+        "approved": "onaylandı"
+      },
       "tool": {
         "done": "{connection} üzerinde “{tool}” çağrıldı",
         "failed": "{connection} üzerinde “{tool}” çağrılamadı",

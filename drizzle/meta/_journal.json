@@ -701,6 +701,13 @@
       "when": 1792621894119,
       "tag": "0099_agent_model",
       "breakpoints": true
+    },
+    {
+      "idx": 100,
+      "version": "7",
+      "when": 1792623685102,
+      "tag": "0100_agent_web_access",
+      "breakpoints": true
     }
   ]
 }

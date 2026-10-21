@@ -519,9 +519,10 @@ const SCHEMAS: Record<string, JsonSchema> = {
         enum: ["main", "fast"],
         description: "Which of the server's models its runs use: its main model, or its cheaper fast one (the main model where the server has none, or on an own AI account).",
       },
+      web_access: { type: "boolean", description: "Whether its runs may read public web pages (and search the web, where the server has a search service)." },
       user_id: { type: "string", description: "The agent's own user: what its changes and comments show." },
     },
-    ["id", "name", "enabled", "archived", "model", "user_id"],
+    ["id", "name", "enabled", "archived", "model", "web_access", "user_id"],
   ),
   AgentList: loose({ workspace_id: id, agents: { type: "array", items: ref("AgentSummary") } }, ["workspace_id", "agents"]),
   AgentUsageMonth: loose(

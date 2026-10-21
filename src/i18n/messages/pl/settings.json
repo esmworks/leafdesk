@@ -341,6 +341,9 @@
       "count": "{count} / {max}",
       "active": "Aktywny",
       "activeHelp": "Uruchomienia wstrzymanego agenta kończą się bez żadnego działania.",
+      "webAccess": "Dostęp do internetu",
+      "webAccessHelp": "Może otwierać publiczne strony internetowe, do których dostaje linki lub które znajdzie w obszarze roboczym. Wyłącz go przy zadaniach czysto wewnętrznych.",
+      "webAccessHelpSearch": "Może wyszukiwać w internecie i otwierać publiczne strony internetowe. Wyłącz go przy zadaniach czysto wewnętrznych.",
       "limit": "Miesięczny limit tokenów",
       "limitPlaceholder": "Bez limitu",
       "limitHelp": "Maksymalna liczba tokenów, jaką jego uruchomienia mogą zużyć w miesiącu kalendarzowym (UTC). Po jej osiągnięciu uruchomienia są wstrzymane do następnego miesiąca.",
@@ -476,6 +479,13 @@
       "fromConnection": "{connection} · {event}",
       "removedConnection": "usunięte połączenie",
       "waiting": "Czeka, aż właściciel odpowie na to wywołanie:",
+      "web": {
+        "read": "Odczytano stronę internetową",
+        "readFailed": "Nie udało się odczytać strony internetowej",
+        "search": "Wyszukano w internecie",
+        "searchFailed": "Nie udało się wyszukać w internecie",
+        "approved": "zatwierdzone"
+      },
       "tool": {
         "done": "Wywołano „{tool}” w połączeniu {connection}",
         "failed": "Nie udało się wywołać „{tool}” w połączeniu {connection}",

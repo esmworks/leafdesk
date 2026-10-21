@@ -24,7 +24,9 @@
  * trigger an owner hasn't marked trusted), where every one waits; any other makes the run wait
  * (`awaiting_approval`, its conversation saved in `state`) until an owner answers, and fails it,
  * sending nothing, after APPROVAL_TIMEOUT_MS. An event's run waits the same way before each row it
- * adds, trusted or not: trust lets it read.
+ * adds, trusted or not: trust lets it read. An agent an owner gave web access reads public pages
+ * (and searches, where the server has a search service; web.ts) as it reads from a connection:
+ * within the same limit, and waiting for an owner before each call where every connection tool does.
  *
  * The notes its owners kept from earlier runs go with each run (memory.ts). A run whose input a
  * member or a trusted trigger stands behind may propose new ones (`remember`), which wait for an
@@ -56,6 +58,7 @@ import {
   type AgentRunSource,
   type AgentRunUsage,
   type AgentStepRecord,
+  WEB_TOOL_NAMES,
 } from "@/lib/agents";
 import { APPROVAL_TIMEOUT_MS, CONNECTION_EVENT_DAYS, MAX_RUN_EXTERNAL_CHARS } from "@/lib/connections";
 import { pageLabel } from "@/lib/labels";
@@ -78,6 +81,7 @@ import type * as ops from "@/server/operations";
 import { agentsWorker } from "./kick";
 import { AGENT_MEMORY_TOOL_NAMES, AGENT_MEMORY_TOOLS, runAgentMemoryTool } from "./memory";
 import { agentSkillRoom, runSkills } from "./skills";
+import { runWebTool, webToolsFor } from "./web";
 import { addAgentUsage, overMonthlyLimit, pruneAgentUsage } from "./usage";
 import { pruneAiUsage } from "@/server/ai/usage-store";
 import { dropOldToolResults } from "@/server/ai/compact";
@@ -422,11 +426,16 @@ async function converse(
   const maxWrites = databaseId ? MAX_SCHEDULED_WRITES : MAX_AGENT_WRITES;
   const maxRounds = databaseId ? MAX_SCHEDULED_ROUNDS : MAX_AGENT_ROUNDS;
   const eventRun = isEventRun(run.source);
-  // Leafdesk's own tools this run makes only once an owner approves (none on a row's run).
-  const ownApproved: ReadonlySet<string> = eventRun ? EVENT_APPROVED_TOOLS : new Set();
   // A row no member wrote, or an event from a service no owner vouched for, may carry anyone's
   // instructions: no connection tool runs without an owner.
   const askEveryTool = rowRun ? !member : !trusted;
+  // An agent with web access reads pages (and searches) as it reads from a connection: on such a
+  // run each call waits for an owner too, or the run could be steered to send what it read to any
+  // address.
+  const webTools = webToolsFor(agent);
+  const webNames = new Set(webTools.map((t) => t.name));
+  // Leafdesk's own tools this run makes only once an owner approves (none on a row's run).
+  const ownApproved: ReadonlySet<string> = new Set([...(eventRun ? EVENT_APPROVED_TOOLS : []), ...(askEveryTool ? webNames : [])]);
   // The run's own time, from now: the wait for an answer doesn't count.
   const signal = AbortSignal.timeout(databaseId ? SCHEDULED_RUN_TIMEOUT_MS : AGENT_RUN_TIMEOUT_MS);
   const toolset = await agentToolset(agent.id);
@@ -438,6 +447,7 @@ async function converse(
   const tools = [
     ...(rowRun ? AGENT_TOOLS : databaseId ? SCHEDULED_DATABASE_TOOLS : eventRun ? EVENT_TOOLS : CHAT_TOOLS),
     ...(remembers ? AGENT_MEMORY_TOOLS : []),
+    ...webTools,
     ...toolset.tools,
   ];
   // Checked when the run starts and again when it goes on after waiting for approval, so a skill
@@ -451,6 +461,7 @@ async function converse(
     addsRows: eventRun,
     connections,
     askEveryTool,
+    web: webTools.length ? { search: webNames.has(WEB_TOOL_NAMES.search) } : undefined,
     skills: skillSet.skills,
     remembers,
   });
@@ -524,6 +535,15 @@ async function converse(
     if (AGENT_MEMORY_TOOL_NAMES.has(call.name)) {
       if (!remembers) return { content: `There is no tool "${call.name}" in this run.`, isError: true };
       return runAgentMemoryTool(agent, run.id, call);
+    }
+    // Reading the web changes nothing: it counts as reading from outside, not as a change.
+    if (webNames.has(call.name)) {
+      if (askEveryTool && !approved) return null;
+      const left = Math.min(MAX_RUN_EXTERNAL_CHARS - externalChars, room(messages));
+      if (left <= 200) return { content: "You have read as much from outside as one run may. Finish with what you have.", isError: true };
+      const out = await runWebTool(call, { room: left, decidedBy: approved?.userId ?? null });
+      externalChars += out.chars;
+      return out;
     }
     if (ownApproved.has(call.name)) {
       if (writes >= maxWrites) return { content: `You have made ${maxWrites} changes, the most one run may make. Finish now.`, isError: true };

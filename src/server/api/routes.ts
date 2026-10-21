@@ -751,7 +751,7 @@ export const API_ROUTES: ApiRoute[] = [
     tag: "Agents",
     summary: "Update an agent",
     description:
-      "Changes an agent's name, icon, description, instructions, whether it is enabled (false pauses it: its queued runs end without doing anything), its monthly token limit (null removes it) or the model its runs use (`main`, or `fast` for the server's cheaper fast model); fields left out keep their values. Workspace owners only; an archived agent can't change.",
+      "Changes an agent's name, icon, description, instructions, whether it is enabled (false pauses it: its queued runs end without doing anything), whether it may read the web (`web_access`), its monthly token limit (null removes it) or the model its runs use (`main`, or `fast` for the server's cheaper fast model); fields left out keep their values. Workspace owners only; an archived agent can't change.",
     scope: "pages:write",
     body: agentInputs.update.omit({ agent_id: true }),
     response: "Agent",

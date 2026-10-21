@@ -341,6 +341,9 @@
       "count": "{count} / {max}",
       "active": "Activo",
       "activeHelp": "Las ejecuciones de un agente en pausa terminan sin hacer nada.",
+      "webAccess": "Acceso a la web",
+      "webAccessHelp": "Puede abrir páginas web públicas cuyos enlaces recibe o encuentra en el espacio de trabajo. Desactívalo para tareas estrictamente internas.",
+      "webAccessHelpSearch": "Puede buscar en la web y abrir páginas web públicas. Desactívalo para tareas estrictamente internas.",
       "limit": "Límite mensual de tokens",
       "limitPlaceholder": "Sin límite",
       "limitHelp": "Los tokens que sus ejecuciones pueden usar como máximo en un mes natural (UTC). Al llegar al límite, se detienen hasta el mes siguiente.",
@@ -476,6 +479,13 @@
       "fromConnection": "{connection} · {event}",
       "removedConnection": "Una conexión eliminada",
       "waiting": "Espera a que un propietario responda a esta llamada:",
+      "web": {
+        "read": "Leyó una página web",
+        "readFailed": "No pudo leer una página web",
+        "search": "Buscó en la web",
+        "searchFailed": "No pudo buscar en la web",
+        "approved": "aprobada"
+      },
       "tool": {
         "done": "Llamó a «{tool}» en {connection}",
         "failed": "No pudo llamar a «{tool}» en {connection}",

@@ -54,6 +54,8 @@ export const workspaceAgent = pgTable(
     instructions: text("instructions").notNull().default(""),
     /** Paused agents don't run; their queued runs end as `agentDisabled`. */
     enabled: boolean("enabled").notNull().default(true),
+    /** Whether its runs may read public web pages (and search the web, where the server has a search service). */
+    webAccess: boolean("web_access").notNull().default(false),
     /** The most tokens its runs may use in a calendar month (UTC); null: no limit (see agent_usage). */
     monthlyTokenLimit: integer("monthly_token_limit"),
     /** Which of the server's models its runs use: "fast" is AI_FAST_MODEL, where the workspace's AI has one. */

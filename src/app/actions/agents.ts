@@ -77,6 +77,7 @@ const input = (value: AgentInput): AgentInput => ({
   description: value?.description,
   instructions: value?.instructions,
   enabled: value?.enabled,
+  webAccess: value?.webAccess,
   monthlyTokenLimit: value?.monthlyTokenLimit,
   model: value?.model,
 });

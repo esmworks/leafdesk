@@ -83,6 +83,7 @@ export type AgentInput = {
   description?: string;
   instructions?: string;
   enabled?: boolean;
+  webAccess?: boolean;
   /** Tokens a month; null removes the limit. */
   monthlyTokenLimit?: number | null;
   model?: AgentModel;
@@ -128,6 +129,7 @@ export function viewAgent(a: Agent): AgentView {
     instructions: a.instructions,
     enabled: a.enabled,
     archived: a.archivedAt !== null,
+    webAccess: a.webAccess,
     monthlyTokenLimit: a.monthlyTokenLimit,
     model: a.model,
     createdAt: a.createdAt.toISOString(),
@@ -135,7 +137,14 @@ export function viewAgent(a: Agent): AgentView {
   };
 }
 
-export const auditDetails = (a: Agent) => ({ name: a.name, enabled: a.enabled, archived: a.archivedAt !== null, monthlyTokenLimit: a.monthlyTokenLimit, model: a.model });
+export const auditDetails = (a: Agent) => ({
+  name: a.name,
+  enabled: a.enabled,
+  archived: a.archivedAt !== null,
+  webAccess: a.webAccess,
+  monthlyTokenLimit: a.monthlyTokenLimit,
+  model: a.model,
+});
 
 /** The agent with this id, for an owner of its workspace. */
 export async function ownedAgent(userId: string, agentId: string) {
@@ -188,7 +197,20 @@ export async function createAgent(userId: string, workspaceId: string, input: Ag
     await addAgentMembership(tx, workspaceId, userIdOfAgent, userId);
     const [agent] = await tx
       .insert(workspaceAgent)
-      .values({ id, workspaceId, userId: userIdOfAgent, name, icon, description, instructions, enabled: input.enabled ?? true, monthlyTokenLimit, model, createdBy: userId })
+      .values({
+        id,
+        workspaceId,
+        userId: userIdOfAgent,
+        name,
+        icon,
+        description,
+        instructions,
+        enabled: input.enabled ?? true,
+        webAccess: input.webAccess === true,
+        monthlyTokenLimit,
+        model,
+        createdBy: userId,
+      })
       .returning();
     return agent;
   });
@@ -206,6 +228,7 @@ export async function updateAgent(userId: string, agentId: string, patch: AgentI
   if (patch.description !== undefined) set.description = clean(patch.description, MAX_AGENT_DESCRIPTION) ?? "";
   if (patch.instructions !== undefined) set.instructions = clean(patch.instructions, MAX_AGENT_INSTRUCTIONS) ?? "";
   if (patch.enabled !== undefined) set.enabled = Boolean(patch.enabled);
+  if (patch.webAccess !== undefined) set.webAccess = patch.webAccess === true;
   if (patch.monthlyTokenLimit !== undefined) set.monthlyTokenLimit = checkLimit(patch.monthlyTokenLimit);
   if (patch.model !== undefined) set.model = checkModel(patch.model);
   if (!Object.keys(set).length) return viewAgent(current);

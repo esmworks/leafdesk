@@ -2337,6 +2337,7 @@ describe("agents", () => {
     instructions: "Set the priority from the ticket's text.",
     enabled: true,
     archived: false,
+    webAccess: false,
     monthlyTokenLimit: 50_000,
     model: "main",
     createdAt: "2026-10-01T00:00:00.000Z",
@@ -2374,7 +2375,7 @@ describe("agents", () => {
     expect(isError).toBe(false);
     expect(agents.listAgents).toHaveBeenCalledWith("user-1", "ws-1", { archived: true });
     expect(data.agents).toEqual([
-      { id: "agent-1", name: "Ticket router", icon: "🤖", description: "Sorts new tickets", enabled: true, archived: false, model: "main", user_id: "bot-1" },
+      { id: "agent-1", name: "Ticket router", icon: "🤖", description: "Sorts new tickets", enabled: true, archived: false, model: "main", web_access: false, user_id: "bot-1" },
     ]);
   });
 
@@ -2526,6 +2527,30 @@ describe("agents", () => {
       expect(result.isError).toBe(true);
       expect(result.text).toMatch(message);
     }
+  });
+
+  it("turns an agent's web access on and off, and shows it in get_agent and list_agents", async () => {
+    const tools = new Map((await listTools(writer)).map((t) => [t.name, t]));
+    for (const name of ["create_agent", "update_agent"]) {
+      expect(tools.get(name)!.inputSchema.properties).toHaveProperty("web_access");
+    }
+    agents.createAgent.mockResolvedValueOnce({ ...agent, webAccess: true });
+    const created = await callTool(writer, "create_agent", { workspace_id: "ws-1", name: "Researcher", web_access: true });
+    expect(agents.createAgent).toHaveBeenLastCalledWith("user-1", "ws-1", { name: "Researcher", webAccess: true });
+    expect(created.data.web_access).toBe(true);
+
+    agents.updateAgent.mockResolvedValueOnce({ ...agent, webAccess: false });
+    const updated = await callTool(writer, "update_agent", { agent_id: "agent-1", web_access: false });
+    expect(agents.updateAgent).toHaveBeenLastCalledWith("user-1", "agent-1", { webAccess: false });
+    expect(updated.data.web_access).toBe(false);
+    expect((await callTool(writer, "update_agent", { agent_id: "agent-1", web_access: "yes" })).isError).toBe(true);
+
+    agents.getAgent.mockResolvedValueOnce({ ...agent, webAccess: true });
+    agents.listAgentAccess.mockResolvedValueOnce({ pages: [], hidden: 0 });
+    expect((await callTool(reader, "get_agent", { agent_id: "agent-1" })).data.web_access).toBe(true);
+    agents.listAgents.mockResolvedValueOnce([{ ...agent, webAccess: true }]);
+    const listed = await callTool(reader, "list_agents", { workspace_id: "ws-1" });
+    expect(listed.data.agents[0]).toMatchObject({ id: "agent-1", web_access: true });
   });
 
   it("creates, changes, archives and restores agents with what was given", async () => {

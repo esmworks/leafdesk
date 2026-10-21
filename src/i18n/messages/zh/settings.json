@@ -341,6 +341,9 @@
       "count": "{count} / {max}",
       "active": "活跃",
       "activeHelp": "暂停的智能体的运行会直接结束，不执行任何操作。",
+      "webAccess": "网络访问",
+      "webAccessHelp": "可以打开别人给它的或在工作区中找到的链接所指向的公开网页。仅限内部的工作请关闭。",
+      "webAccessHelpSearch": "可以搜索网络并打开公开网页。仅限内部的工作请关闭。",
       "limit": "每月令牌上限",
       "limitPlaceholder": "无上限",
       "limitHelp": "其运行在一个日历月（UTC）内可使用的最大令牌数。达到上限后，其运行将停止，直到下个月。",
@@ -476,6 +479,13 @@
       "fromConnection": "{connection} · {event}",
       "removedConnection": "一个已移除的连接",
       "waiting": "它正在等待所有者答复此调用请求：",
+      "web": {
+        "read": "已读取网页",
+        "readFailed": "无法读取网页",
+        "search": "已搜索网络",
+        "searchFailed": "无法搜索网络",
+        "approved": "已批准"
+      },
       "tool": {
         "done": "已调用 {connection} 上的“{tool}”",
         "failed": "无法调用 {connection} 上的“{tool}”",
