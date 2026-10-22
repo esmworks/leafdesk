@@ -82,6 +82,7 @@ export const AUDIT_CATEGORIES = {
     "connected_app.connected",
     "connected_app.revoked",
     "api_token.created",
+    "api_token.updated",
     "api_token.revoked",
     "automation.created",
     "automation.updated",

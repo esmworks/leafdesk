@@ -1202,7 +1202,11 @@ export async function createRows(userId: string, databaseId: string, rows: NewRo
     try {
       values.push(await normalizeRowProperties(userId, databaseId, row.properties ?? {}));
     } catch (error) {
-      if (error instanceof PropertyValueError) error.message = `Row ${i + 1} ("${row.title.trim()}"): ${error.message}`;
+      if (error instanceof PropertyValueError) {
+        error.message = `Row ${i + 1} ("${row.title.trim()}"): ${error.message}`;
+        // Counted from 0, as the REST API names it (rows.<index>.properties.<name>).
+        error.params = { ...error.params, row: String(i) };
+      }
       throw error;
     }
   }

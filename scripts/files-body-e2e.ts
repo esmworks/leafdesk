@@ -12,7 +12,7 @@
  *
  * Env: DATABASE_URL and BETTER_AUTH_SECRET (read from .env when present). Migrations must be applied.
  */
-export {};
+import { API_TOKEN_SCOPES as ALL_SCOPES } from "@/lib/api-scopes";
 
 try {
   process.loadEnvFile();
@@ -129,7 +129,7 @@ try {
   check((await reference(mine.id, secretFile.id))?.authorized === false, "…an absolute URL just the same");
   check(!(await canRead(ids.member, secretFile.id)), "…nor appending its absolute URL");
 
-  const { secret: memberToken } = await createApiToken(ids.member, { name: RUN, scopes: ["pages:read", "pages:write"] });
+  const { secret: memberToken } = await createApiToken(ids.member, { name: RUN, scopes: ALL_SCOPES });
   const viaRest = await rest(memberToken, "POST", "/pages", { workspace_id: workspaceId, title: "Via REST", markdown: image(secretFile.url) });
   check(viaRest.status === 201 && viaRest.body.id, "the REST API creates a page whose body holds the URL", viaRest);
   const patched = await rest(memberToken, "PATCH", `/pages/${mine.id}`, { markdown: `REST\n\n${image(secretFile.url)}` });

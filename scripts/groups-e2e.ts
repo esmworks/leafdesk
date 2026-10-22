@@ -12,7 +12,7 @@
  *
  * Env: DATABASE_URL (read from .env when present). Migrations must be applied.
  */
-export {};
+import { READ_SCOPES } from "@/lib/api-scopes";
 
 try {
   process.loadEnvFile();
@@ -376,9 +376,9 @@ try {
   );
   const mcpGuest = await callTool(guest, "list_groups", { workspace_id: workspaceId });
   check(mcpGuest.isError, "…and refuses guests", mcpGuest.text);
-  const ownerToken = (await createApiToken(owner, { name: RUN, scopes: ["pages:read"] })).secret;
-  const guestToken = (await createApiToken(guest, { name: RUN, scopes: ["pages:read"] })).secret;
-  const boundToken = (await createApiToken(owner, { name: RUN, scopes: ["pages:read"], workspaceId: bareWs })).secret;
+  const ownerToken = (await createApiToken(owner, { name: RUN, scopes: READ_SCOPES })).secret;
+  const guestToken = (await createApiToken(guest, { name: RUN, scopes: READ_SCOPES })).secret;
+  const boundToken = (await createApiToken(owner, { name: RUN, scopes: READ_SCOPES, workspaceId: bareWs })).secret;
   const api = async (token: string, path: string) => {
     const res = await handleApiRequest(new Request(`http://localhost/api/v1${path}`, { headers: { authorization: `Bearer ${token}` } }));
     const text = await res.text();

@@ -2965,11 +2965,33 @@ token. The reference is at `<APP_URL>/docs/api`, generated from the OpenAPI 3.1 
 `<APP_URL>/api/v1/openapi.json` (import it into Postman, Insomnia or a client generator).
 
 Create a token in My account → *Connected apps* → *Personal access tokens*: give it a name, choose
-**Read only** (`pages:read`) or **Read and write** (`pages:write` too), optionally limit it to one
-workspace, and pick when it expires (7, 30, 90 days, a year, or never). The token is shown once;
-Leafdesk keeps only its SHA-256 hash. Tokens look like `esi_` and 40 letters and digits, so secret
-scanners can match leaked ones with `esi_[A-Za-z0-9]{40}`. The list shows when each was last
-used; revoking one stops it at once.
+what it may read and write, optionally limit it to one workspace, and pick when it expires (7, 30,
+90 days, a year, or never). The token is shown once; Leafdesk keeps only its SHA-256 hash. Tokens
+look like `esi_` and 40 letters and digits, so secret scanners can match leaked ones with
+`esi_[A-Za-z0-9]{40}`. The list shows what each may do and when it was last used; *Change access*
+changes what it may do without a new secret, and revoking one stops it at once.
+
+What a token may do is chosen per resource, with a read and (where there is one) a write toggle
+for each, or one of the presets *Read everything* and *Read and write everything*. A write scope
+brings the read scope of its resource. Every endpoint needs one scope (the reference names it;
+`GET /me` takes any token), and a token without it gets `403 insufficient_scope` with the scope in
+`details.scope`:
+
+| Scope | Endpoints |
+| --- | --- |
+| `workspaces:read` | `GET /workspaces`, a workspace's teamspaces and groups |
+| `pages:read`, `pages:write` | pages (database rows too, as pages), their sub-pages, the page tree, daily notes; writing creates, changes, moves, trashes, restores, archives and watches pages and makes voice notes |
+| `search:read` | `GET /search` |
+| `databases:read` | `GET /databases/{id}` (properties and views) |
+| `rows:read`, `rows:write` | `POST /databases/{id}/query`, `GET /rows/{id}` and its activity; writing adds, upserts and changes rows (a voice note into a database needs it too) |
+| `comments:read`, `comments:write` | a page's comment threads; writing starts threads and replies |
+| `agents:read`, `agents:write` | agents, their runs, usage, schedules and sharing; writing changes them, asks for runs, sets schedules and shares |
+
+Tokens made before scopes were per resource keep exactly the access they had: their `pages:read`
+reads everything and their `pages:write` reads and writes everything, including endpoints added
+later. Settings and `GET /me` (`legacy_scopes: true`) say so; once their access is changed they
+get the scopes chosen, like a new token. The scopes are the REST API's own: those of MCP apps are
+unchanged.
 
 The ids the API takes are in the app too: *Copy ID* in a page's, database's or row's menu, and
 *Copy property ID* in a column's menu (properties are also taken by name).
@@ -3030,7 +3052,7 @@ Filter ops: `contains`, `does_not_contain`, `equals`, `not_equals`, `is_any_of` 
   for (see [Sharing an agent](#agents)); each agent carries the token's user's
   `your_access`, and only owners change the monthly limit. Asking for a run answers
   `409` when the agent can't run now (`agent_unavailable`), used its monthly limit
-  (`limit_reached`) or has too many runs waiting (`too_many_runs`). A `pages:write` token may thus
+  (`limit_reached`) or has too many runs waiting (`too_many_runs`). An `agents:write` token may thus
   start runs that use the workspace's AI allowance.
 
 Automations have no REST endpoints: they are managed in the app or over MCP.
@@ -3040,10 +3062,29 @@ input, access and history the same way: a token acts as its user, with that user
 pages, and every body change is saved to page history first. Pages the user can't see (or outside
 a token's workspace) answer `404`. A body the database refuses to save answers `500`
 `internal_error` (and AI apps get an error result) rather than passing for written; a page
-created with such a body stays, without it. Errors are JSON, `{"error": {"code", "message", "details"}}`;
-lists page with `next_cursor`. Each token may make 180 requests a minute (`API_RATE_LIMIT`;
-`X-RateLimit-*` headers, `429` with `Retry-After` beyond it), and JSON request bodies are limited
-to 5 MB. Only tokens authenticate (never the browser session), and CORS is off unless
+created with such a body stays, without it. Errors are JSON, `{"error": {"code", "message", "param", "details"}}`,
+where `param` names the field an invalid value is in when it is known (`title`,
+`properties.Status`, `rows.2.properties.Status` in a bulk call); lists page with `next_cursor`.
+Each token may make 180 requests a minute (`API_RATE_LIMIT`): every answer to a request with a
+valid token carries `X-RateLimit-Limit`, `X-RateLimit-Remaining` and `X-RateLimit-Reset` (when one
+more request is allowed again, in Unix seconds), and beyond the limit the answer is `429` with
+`Retry-After` (seconds). JSON request bodies are limited to 5 MB.
+
+Writes take an `Idempotency-Key` header (up to 255 characters, say a UUID per change), so a client
+can safely send a request again after a timeout: within 24 hours the same request with the same
+key gets the first answer back, with `Idempotent-Replayed: true`, and changes nothing more. A key
+belongs to its token and endpoint and remembers the request's path, query and body; the same key
+with another request answers `422 idempotency_key_reused`, and while the first request still runs
+`409 idempotency_conflict`. Server failures (`5xx`) and `429`s aren't kept, so their retry runs
+again; the daily retention run deletes keys older than 24 hours.
+
+```bash
+curl -X POST http://localhost:3000/api/v1/databases/<database_id>/rows \
+  -H "Authorization: Bearer $LEAFDESK_TOKEN" -H "Content-Type: application/json" \
+  -H "Idempotency-Key: $(uuidgen)" -d '{"title": "Call the supplier"}'
+```
+
+Only tokens authenticate (never the browser session), and CORS is off unless
 `API_CORS_ORIGINS` lists origins. Like connected MCP apps, tokens are not held back by a
 workspace's "require two-step verification" policy: it guards browser sessions. They are held to
 its **Connected apps and API tokens** switch: in a read-only workspace write endpoints answer

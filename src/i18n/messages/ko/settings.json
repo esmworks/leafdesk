@@ -1582,6 +1582,7 @@
       },
       "api_token": {
         "created": "API 토큰 {target}을(를) 만들었습니다",
+        "updated": "API 토큰 {target}이(가) 할 수 있는 일을 변경했습니다",
         "revoked": "{hasSubject, select, yes {{subject}의 API 토큰 {target}을(를) 취소했습니다} other {API 토큰 {target}을(를) 취소했습니다}}"
       },
       "automation": {

@@ -28,6 +28,7 @@
  * .env when present). Migrations must be applied.
  */
 import { waitOutAuthRateLimits } from "./auth-rate-limit";
+import { API_TOKEN_SCOPES as ALL_SCOPES, READ_SCOPES } from "@/lib/api-scopes";
 export {};
 
 const appUrl = process.env.APP_URL;
@@ -277,7 +278,7 @@ try {
     location: print.headers.get("location"),
   });
   // A token the request really carries is outside the sign-in policy, the browser's cookie or not.
-  const restToken = (await createApiToken(ids.member, { name: RUN, scopes: ["pages:read"] })).secret;
+  const restToken = (await createApiToken(ids.member, { name: RUN, scopes: READ_SCOPES })).secret;
   const rest = await fetch(`${BASE}/api/v1/pages/${plan.id}`, { headers: { authorization: `Bearer ${restToken}`, cookie: member.header() } });
   check(rest.status === 200, "a REST API token still reads the page, even sent along with the held session's cookie", rest.status);
 
@@ -290,14 +291,14 @@ try {
   check(accountPage.status === 307 && settings.startsWith(`/w/${open}/settings`), "the held-back member opens their account settings in the other workspace", { status: accountPage.status, settings });
   check((await get(settings, member)).status === 200, "…where API tokens are made");
   const newToken = (jar: Jar, workspaceId: string | null) =>
-    callAction(jar, "/account", TOKENS, "createApiTokenAction", [{ name: RUN, write: true, workspaceId, expiresInDays: 30 }]);
+    callAction(jar, "/account", TOKENS, "createApiTokenAction", [{ name: RUN, scopes: [...ALL_SCOPES], workspaceId, expiresInDays: 30 }]);
   const tokensOf = async (userId: string) => (await db.select({ id: apiToken.id }).from(apiToken).where(eq(apiToken.userId, userId))).length;
   const before = await tokensOf(ids.member);
   const unbound = await newToken(member, null);
   check(unbound.text.includes('"error":"policy"') && unbound.text.includes(`/two-step/${ws}`), "a token for all workspaces is refused, and the session sent to the two-step page", unbound.text.slice(0, 300));
   const bound = await newToken(member, ws);
   check(bound.text.includes('"error":"policy"') && bound.text.includes(`/two-step/${ws}`), "…so is one for the workspace that holds it back", bound.text.slice(0, 300));
-  const unboundBogus = await callAction(member, "/account", TOKENS, "createApiTokenAction", [{ name: RUN, write: true, workspaceId: null, expiresInDays: 30 }], BOGUS);
+  const unboundBogus = await callAction(member, "/account", TOKENS, "createApiTokenAction", [{ name: RUN, scopes: [...ALL_SCOPES], workspaceId: null, expiresInDays: 30 }], BOGUS);
   check(unboundBogus.text.includes('"error":"policy"'), "…with an Authorization header too", unboundBogus.text.slice(0, 300));
   check((await tokensOf(ids.member)) === before, "…and no token was made");
   const elsewhere = await newToken(member, open);
@@ -327,7 +328,7 @@ try {
     await db.insert(passkey).values({ id: `${userId}-key`, publicKey: "key", userId, credentialID: `${userId}-cred`, counter: 0, deviceType: "singleDevice", backedUp: false });
     await db.insert(twoFactor).values({ id: `${userId}-2fa`, secret: "secret", backupCodes: "codes", userId });
     await db.update(user).set({ twoFactorEnabled: true }).where(eq(user.id, userId));
-    await createApiToken(userId, { name: RUN, scopes: ["pages:read"] });
+    await createApiToken(userId, { name: RUN, scopes: READ_SCOPES });
     const now = new Date();
     await db.insert(oauthConsent).values({ id: `${userId}-consent`, clientId: clientIds[0], userId, scopes: ["pages:read"], createdAt: now, updatedAt: now });
     await signedIn(userId);

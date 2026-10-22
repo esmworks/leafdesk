@@ -1582,6 +1582,7 @@
       },
       "api_token": {
         "created": "יצירת אסימון ה־API {target}",
+        "updated": "שינוי מה שאסימון ה־API {target} יכול לעשות",
         "revoked": "{hasSubject, select, yes {ביטול אסימון ה־API {target} של {subject}} other {ביטול אסימון ה־API {target}}}"
       },
       "automation": {

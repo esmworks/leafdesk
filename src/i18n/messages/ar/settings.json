@@ -1582,6 +1582,7 @@
       },
       "api_token": {
         "created": "أنشأ رمز API {target}",
+        "updated": "غيّر ما يمكن أن يفعله رمز API {target}",
         "revoked": "{hasSubject, select, yes {ألغى رمز API {target} الخاص بـ {subject}} other {ألغى رمز API {target}}}"
       },
       "automation": {

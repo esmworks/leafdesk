@@ -1582,6 +1582,7 @@
       },
       "api_token": {
         "created": "Створено API-токен {target}",
+        "updated": "Змінено права API-токена {target}",
         "revoked": "{hasSubject, select, yes {Відкликано API-токен {target} користувача {subject}} other {Відкликано API-токен {target}}}"
       },
       "automation": {

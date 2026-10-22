@@ -15,7 +15,7 @@
  * Env: DATABASE_URL (read from .env when present). Migrations must be applied. Run it with no app
  * server on the same database: the server's workers would take the schedules and runs.
  */
-export {};
+import { API_TOKEN_SCOPES as ALL_SCOPES } from "@/lib/api-scopes";
 
 try {
   process.loadEnvFile();
@@ -251,8 +251,8 @@ try {
   );
 
   // ── REST ──────────────────────────────────────────────────────────────────────────────────────
-  const token = (await createApiToken(ids.owner, { name: "Schedules", scopes: ["pages:read", "pages:write"] })).secret;
-  const memberToken = (await createApiToken(ids.member, { name: "Member", scopes: ["pages:read", "pages:write"] })).secret;
+  const token = (await createApiToken(ids.owner, { name: "Schedules", scopes: ALL_SCOPES })).secret;
+  const memberToken = (await createApiToken(ids.member, { name: "Member", scopes: ALL_SCOPES })).secret;
   const restList = await api(token, "GET", `/agents/${keeper.id}/schedules`);
   check(
     restList.status === 200 && restList.json.schedules[0].schedule_id === set.id && restList.json.schedules[0].database.agent_access === "edit",

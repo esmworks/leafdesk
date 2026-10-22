@@ -42,6 +42,25 @@
   an AI property's settings picks up to 10 properties that must be filled in (a checkbox: ticked);
   other rows are skipped without asking a model and keep their value. MCP lists them as
   `only_rows_with`.
+- **API tokens with access per resource, and safe retries.** A personal access token now gets
+  read and write scopes per resource: `workspaces:read`, `pages:read` / `pages:write`,
+  `search:read`, `databases:read`, `rows:read` / `rows:write`, `comments:read` /
+  `comments:write` and `agents:read` / `agents:write`. Creating a token in My account →
+  *Connected apps* shows a read and a write toggle for each, with the presets *Read everything*
+  and *Read and write everything*, and *Change access* changes what an existing token may do
+  without a new secret (recorded in the audit log). Every endpoint names the scope it needs in the
+  reference and the OpenAPI document; without it the answer is still `403 insufficient_scope`,
+  which now names the scope in `details.scope`. Tokens made before keep exactly the access they
+  had: their `pages:read` reads everything and their `pages:write` reads and writes everything,
+  and they say so in settings and in `GET /me` (`legacy_scopes`), which any token may now call.
+  Writes take an `Idempotency-Key` header: the same request sent again with the same key
+  within 24 hours gets the first answer back (`Idempotent-Replayed: true`) instead of being done
+  twice, another request with the key answers `422 idempotency_key_reused`, one sent while the
+  first still runs `409 idempotency_conflict`, and server failures aren't kept so their retry runs
+  again; the daily retention run deletes older keys. Every answer to a valid token now also
+  carries `X-RateLimit-Reset`, and errors about a field name it in `param` (`title`,
+  `properties.Status`, `rows.2.properties.Status`). Migration 0107 adds `api_idempotency_key` and
+  `api_token.legacy_scopes`, marking every existing token as legacy.
 
 - **Ask the AI chat from Telegram.** With `TELEGRAM_BOT_TOKEN` set to a bot made with @BotFather,
   people link their Telegram account in My account → *Connected apps* → *Telegram* (a one-time

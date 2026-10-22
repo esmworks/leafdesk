@@ -35,6 +35,7 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import { join } from "node:path";
 import { waitOutAuthRateLimits } from "./auth-rate-limit";
+import { READ_SCOPES } from "@/lib/api-scopes";
 
 try {
   process.loadEnvFile();
@@ -500,7 +501,7 @@ async function refreshes(app: App) {
 /** What a person reaches the app with besides a session: an API token and a connected app. */
 type Access = { token: string; app: App };
 async function giveAccess(userId: string, jar: Jar, label: string): Promise<Access> {
-  const { secret } = await createApiToken(userId, { name: `SSO e2e ${label}`, scopes: ["pages:read"] });
+  const { secret } = await createApiToken(userId, { name: `SSO e2e ${label}`, scopes: READ_SCOPES });
   return { token: secret, app: await connectApp(jar, label) };
 }
 
@@ -950,7 +951,7 @@ async function main() {
     ssoProviderId: providerId,
   });
   await db.insert(oauthConsent).values({ id: staleId, clientId: aliceAccessAgain.app.clientId, userId: aliceId, scopes: APP_SCOPES.split(" "), createdAt: at, updatedAt: at });
-  const { secret: aliceLaterToken } = await createApiToken(aliceId, { name: "SSO e2e Alice, after the connection went", scopes: ["pages:read"] });
+  const { secret: aliceLaterToken } = await createApiToken(aliceId, { name: "SSO e2e Alice, after the connection went", scopes: READ_SCOPES });
   const recreated = await callAction(owner.jar, settingsPath, SSO_ACTIONS, "saveSsoConnectionAction", [
     workspaceId,
     { protocol: "oidc", issuer: `${IDP}/acme2`, clientId: "leafdesk-acme2", clientSecret: "acme2-secret", domains: DOMAIN },
@@ -1027,12 +1028,12 @@ async function main() {
   // Sid: a session through the earlier connection, without a link.
   const sid = await signUp("sid");
   await seedSignIn(sid.id, providerId, null, earlier);
-  const { secret: sidToken } = await createApiToken(sid.id, { name: "SSO e2e Sid", scopes: ["pages:read"] });
+  const { secret: sidToken } = await createApiToken(sid.id, { name: "SSO e2e Sid", scopes: READ_SCOPES });
   // Ivy: a link and a session under a workspace whose connection is gone, its "SSO only" kept.
   const ivy = await signUp("ivy");
   const goneProvider = `ws-${ivy.workspaceId}`;
   await seedSignIn(ivy.id, goneProvider, earlier, new Date());
-  const { secret: ivyToken } = await createApiToken(ivy.id, { name: "SSO e2e Ivy", scopes: ["pages:read"] });
+  const { secret: ivyToken } = await createApiToken(ivy.id, { name: "SSO e2e Ivy", scopes: READ_SCOPES });
   const [ivyWs] = await db.select({ settings: workspace.settings }).from(workspace).where(eq(workspace.id, ivy.workspaceId!));
   await db.update(workspace).set({ settings: { ...ivyWs.settings, loginMethod: "sso" } }).where(eq(workspace.id, ivy.workspaceId!));
   // Oscar signed in through the connection as it is.

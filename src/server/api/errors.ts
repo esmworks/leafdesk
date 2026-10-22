@@ -14,7 +14,10 @@ export const API_ERROR_CODES = {
   unauthorized: { status: 401, description: "No token was sent: pass it as `Authorization: Bearer esi_…`." },
   invalid_token: { status: 401, description: "The token is malformed, unknown or revoked." },
   token_expired: { status: 401, description: "The token has expired; create a new one." },
-  insufficient_scope: { status: 403, description: "The token lacks the scope this endpoint needs (pages:write for changes)." },
+  insufficient_scope: {
+    status: 403,
+    description: "The token lacks the scope this endpoint (or this use of it) needs; `details.scope` names it. Change what the token may do in Settings, keeping its secret.",
+  },
   forbidden: {
     status: 403,
     description:
@@ -30,9 +33,16 @@ export const API_ERROR_CODES = {
     status: 415,
     description: "The body or the file it carries is of a kind the endpoint doesn't take (voice notes take multipart form data with an audio file).",
   },
-  validation_error: { status: 400, description: "A parameter or body field is missing or invalid; `details` lists which." },
+  validation_error: {
+    status: 400,
+    description: "A parameter or body field is missing or invalid; `details` lists which, and `param` names the first.",
+  },
+  invalid_idempotency_key: { status: 400, description: "The Idempotency-Key header is empty or longer than 255 characters." },
   invalid_request: { status: 400, description: "The request can't be carried out as asked; the message says why." },
-  invalid_property_value: { status: 400, description: "A row property value doesn't fit its property." },
+  invalid_property_value: {
+    status: 400,
+    description: "A row property value doesn't fit its property; `param` names it (`properties.Status`, or `rows.2.properties.Status` in a bulk call).",
+  },
   invalid_cursor: { status: 400, description: "The pagination cursor is malformed." },
   agent_unavailable: { status: 409, description: "The agent can't run now: it is paused or archived, or AI is off for its workspace." },
   limit_reached: { status: 409, description: "The agent used its monthly token limit; it runs again next month, or once an owner raises the limit." },
@@ -49,6 +59,14 @@ export const API_ERROR_CODES = {
     status: 409,
     description: "The page's body changed since `expected_version` was read, and nothing was written. Read the page again and make the change on its current body.",
   },
+  idempotency_conflict: {
+    status: 409,
+    description: "A request with this Idempotency-Key is still running; send it again once that one has finished (Retry-After).",
+  },
+  idempotency_key_reused: {
+    status: 422,
+    description: "This Idempotency-Key was already used for a different request (another path, query or body) of the same operation; use a new key for each change.",
+  },
   payload_too_large: { status: 413, description: "The request body is too large." },
   rate_limited: { status: 429, description: "Too many requests for this token; wait for Retry-After seconds." },
   internal_error: { status: 500, description: "Something went wrong on the server." },
@@ -58,17 +76,38 @@ export const API_ERROR_CODES = {
 export type ApiErrorCode = keyof typeof API_ERROR_CODES;
 
 export class ApiError extends Error {
+  /** Sent as Retry-After (a 429 for limits other than the token's own). */
+  readonly retryAfterSeconds?: number;
+  /** The request field it is about, where it is known: "title", "properties.Status". */
+  readonly param?: string;
+
   constructor(
     readonly status: number,
     readonly code: ApiErrorCode,
     message: string,
     readonly details?: unknown,
-    /** Sent as Retry-After (a 429 for limits other than the token's own). */
-    readonly retryAfterSeconds?: number,
+    extra: { retryAfterSeconds?: number; param?: string } = {},
   ) {
     super(message);
     this.name = "ApiError";
+    this.retryAfterSeconds = extra.retryAfterSeconds;
+    this.param = extra.param;
   }
+}
+
+/** A 403 for a token without `scope`. */
+export function insufficientScope(scope: string) {
+  return new ApiError(403, "insufficient_scope", `This needs a token with the ${scope} scope.`, { scope });
+}
+
+/**
+ * The field a property value error is about: `properties.<name>`, under `rows.<index>` when it
+ * names a row of a bulk call.
+ */
+function propertyParam(error: PropertyValueError) {
+  const { property, row } = error.params;
+  if (!property) return undefined;
+  return `${row !== undefined ? `rows.${row}.` : ""}properties.${property}`;
 }
 
 /** Maps domain errors to API errors; unknown errors stay opaque (and are logged). */
@@ -82,7 +121,7 @@ export function apiErrorFor(error: unknown): ApiError {
     return new ApiError(409, "version_conflict", error.message, { expected_version: error.expected, version: error.current });
   }
   if (error instanceof ToolInputError) return new ApiError(400, "invalid_request", error.message);
-  if (error instanceof PropertyValueError) return new ApiError(400, "invalid_property_value", error.message);
+  if (error instanceof PropertyValueError) return new ApiError(400, "invalid_property_value", error.message, undefined, { param: propertyParam(error) });
   if (error instanceof TeamspaceError) return new ApiError(403, "forbidden", error.message);
   if (error instanceof GroupError) return new ApiError(400, "invalid_request", error.message);
   // Locks guard against accidents rather than limit access: like operations' own refusals of a
@@ -134,7 +173,7 @@ function apiErrorForAi(error: AiError): ApiError {
       return new ApiError(413, "payload_too_large", `${error.message}.`);
     case "rateLimited": {
       const seconds = Math.max(1, Math.ceil((error.retryAfterMs ?? 1000) / 1000));
-      return new ApiError(429, "rate_limited", "Too many AI requests for this user or workspace; try again shortly.", undefined, seconds);
+      return new ApiError(429, "rate_limited", "Too many AI requests for this user or workspace; try again shortly.", undefined, { retryAfterSeconds: seconds });
     }
     case "invalid":
     case "empty":
@@ -147,5 +186,12 @@ function apiErrorForAi(error: AiError): ApiError {
 }
 
 export function errorBody(error: ApiError) {
-  return { error: { code: error.code, message: error.message, ...(error.details !== undefined ? { details: error.details } : {}) } };
+  return {
+    error: {
+      code: error.code,
+      message: error.message,
+      ...(error.param !== undefined ? { param: error.param } : {}),
+      ...(error.details !== undefined ? { details: error.details } : {}),
+    },
+  };
 }

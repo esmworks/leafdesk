@@ -16,7 +16,7 @@
  *
  * Env: DATABASE_URL (read from .env when present). Migrations must be applied.
  */
-export {};
+import { READ_SCOPES } from "@/lib/api-scopes";
 
 try {
   process.loadEnvFile();
@@ -248,8 +248,8 @@ try {
     mcp.text,
   );
   check(!mcpIds.includes(diary.id) && !mcpIds.includes(roadmap.id), "…without pages the person can't open");
-  const aliceToken = (await createApiToken(alice, { name: RUN, scopes: ["pages:read"] })).secret;
-  const guestToken = (await createApiToken(guest, { name: RUN, scopes: ["pages:read"] })).secret;
+  const aliceToken = (await createApiToken(alice, { name: RUN, scopes: READ_SCOPES })).secret;
+  const guestToken = (await createApiToken(guest, { name: RUN, scopes: READ_SCOPES })).secret;
   const api = async (token: string, path: string) => {
     const res = await handleApiRequest(new Request(`http://localhost/api/v1${path}`, { headers: { authorization: `Bearer ${token}` } }));
     const text = await res.text();

@@ -1582,6 +1582,7 @@
       },
       "api_token": {
         "created": "APIトークン{target}を作成しました",
+        "updated": "APIトークン{target}ができることを変更しました",
         "revoked": "{hasSubject, select, yes {{subject}のAPIトークン{target}を無効にしました} other {APIトークン{target}を無効にしました}}"
       },
       "automation": {

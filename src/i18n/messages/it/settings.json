@@ -1582,6 +1582,7 @@
       },
       "api_token": {
         "created": "Ha creato il token API {target}",
+        "updated": "Ha cambiato cosa può fare il token API {target}",
         "revoked": "{hasSubject, select, yes {Ha revocato il token API {target} di {subject}} other {Ha revocato il token API {target}}}"
       },
       "automation": {

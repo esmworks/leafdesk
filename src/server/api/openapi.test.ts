@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { API_TOKEN_SCOPES } from "@/db/schema";
+import { API_TOKEN_SCOPES } from "@/lib/api-scopes";
 import { buildOpenApiDocument } from "./openapi";
 import { decodeCursor, encodeCursor, nextCursor, paginate } from "./pagination";
 import { API_ROUTES } from "./routes";
@@ -50,6 +50,9 @@ describe("OpenAPI document", () => {
       expect(op.summary, op.operationId).toBeTruthy();
       const scopes = op.security.flatMap((s: Json) => s.bearerAuth);
       expect(scopes.every((s: string) => (API_TOKEN_SCOPES as readonly string[]).includes(s)), op.operationId).toBe(true);
+      // One scope each, said in the description too; only GET /me takes any token.
+      expect(scopes.length, op.operationId).toBe(op.operationId === "getMe" ? 0 : 1);
+      expect(op.description, op.operationId).toContain(scopes.length ? `Scope: \`${scopes[0]}\`` : "Any token");
       const codes = Object.keys(op.responses);
       expect(codes.some((c) => /^2\d\d$/.test(c)), op.operationId).toBe(true);
       expect(codes).toEqual(expect.arrayContaining(["401", "404", "429"]));
@@ -68,7 +71,7 @@ describe("OpenAPI document", () => {
   it("gives parameters and bodies JSON Schemas", () => {
     for (const { op } of operations) {
       for (const p of (op.parameters ?? []) as Json[]) {
-        expect(["path", "query"]).toContain(p.in);
+        expect(["path", "query", "header"]).toContain(p.in);
         expect(p.schema, `${op.operationId} ${p.name}`).toEqual(expect.any(Object));
       }
       const body = (Object.values(op.requestBody?.content ?? {})[0] as Json | undefined)?.schema;
@@ -82,6 +85,32 @@ describe("OpenAPI document", () => {
     const query = doc.paths["/databases/{database_id}/query"].post.requestBody.content["application/json"].schema;
     expect(Object.keys(query.properties)).toEqual(expect.arrayContaining(["filters", "sorts", "limit", "cursor"]));
     expect(query.properties.database_id).toBeUndefined();
+  });
+
+  it("uses every scope, with routes of each resource", () => {
+    const used = new Set(operations.flatMap(({ op }) => op.security.flatMap((s: Json) => s.bearerAuth)));
+    expect([...used].sort()).toEqual([...API_TOKEN_SCOPES].sort());
+    expect(doc.paths["/databases/{database_id}/query"].post["x-scope"]).toBe("rows:read");
+    expect(doc.paths["/pages/{page_id}/comments"].post["x-scope"]).toBe("comments:write");
+    expect(doc.paths["/workspaces"].get["x-scope"]).toBe("workspaces:read");
+  });
+
+  it("offers an Idempotency-Key on the endpoints that change something, and only those", () => {
+    for (const { method, path, op } of operations) {
+      const header = ((op.parameters ?? []) as Json[]).find((p) => p.in === "header" && p.name === "Idempotency-Key");
+      const changes = method !== "get" && String(op["x-scope"] ?? "").endsWith(":write");
+      expect(Boolean(header), `${method} ${path}`).toBe(changes);
+      if (changes) expect(Object.keys(op.responses), op.operationId).toEqual(expect.arrayContaining(["409", "422"]));
+    }
+    expect(doc.paths["/databases/{database_id}/query"].post.parameters?.some((p: Json) => p.in === "header")).toBeFalsy();
+    expect(doc.paths["/pages"].post.responses["201"].headers["Idempotent-Replayed"]).toBeDefined();
+  });
+
+  it("documents the rate limit headers on answers to tokens", () => {
+    expect(doc.paths["/me"].get.responses["200"].headers).toEqual(
+      expect.objectContaining({ "X-RateLimit-Limit": expect.any(Object), "X-RateLimit-Remaining": expect.any(Object), "X-RateLimit-Reset": expect.any(Object) }),
+    );
+    expect(doc.components.responses.E429.headers["Retry-After"]).toBeDefined();
   });
 
   it("describes bodies with files as multipart form data", () => {

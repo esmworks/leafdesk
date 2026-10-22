@@ -15,6 +15,16 @@ describe("SlidingWindowLimiter", () => {
     expect(limiter.retryAfter("ip", 1050)).toBe(50);
   });
 
+  it("says when a key gets one more hit back", () => {
+    const limiter = new SlidingWindowLimiter(3, 1000);
+    expect(limiter.resetAt("ip", 50)).toBe(50);
+    limiter.hit("ip", 100);
+    limiter.hit("ip", 400);
+    expect(limiter.resetAt("ip", 500)).toBe(1100);
+    // Once the oldest hit has left the window, the next one counts.
+    expect(limiter.resetAt("ip", 1200)).toBe(1400);
+  });
+
   it("counts keys separately", () => {
     const limiter = new SlidingWindowLimiter(1, 1000);
     limiter.hit("a", 0);
