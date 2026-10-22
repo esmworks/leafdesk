@@ -81,6 +81,7 @@ export const BACKED_UP: Record<string, Scope> = {
   mail_database: own,
   row_email: own,
   row_email_attachment: (ws) => sql`row_email_id in (select id from row_email where workspace_id = ${ws})`,
+  email_sequence: own,
   // The workspace's own snippets; people's personal ones have no workspace and stay out.
   snippet: own,
 };
@@ -142,6 +143,8 @@ export const LEFT_OUT: Record<string, string> = {
   page_update_pending: "emails waiting to go out",
   page_update_email: "emails waiting to go out",
   mailbox: "members' mailboxes and their passwords, connected again on the new server",
+  sequence_enrollment: "follow-ups under way, which would send from mailboxes the new server hasn't connected",
+  sequence_send: "the steps follow-ups sent, kept with their enrollments",
   workspace_storage: "the workspace's place in its owners' own file storage, connected again on the new server",
   storage_account: "people's own file storage and its keys, connected again on the new server",
   storage_oauth: "storage sign-ins in progress",

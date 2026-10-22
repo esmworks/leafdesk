@@ -26,6 +26,7 @@ const COLUMNS = {
   page_updated: { inbox: "pageUpdateInbox", email: "pageUpdateEmails", push: "pageUpdatePush", telegram: "pageUpdateTelegram" },
   row_email: { inbox: "rowEmailInbox", email: "rowEmailEmails", push: "rowEmailPush", telegram: "rowEmailTelegram" },
   review: { inbox: "reviewInbox", email: "reviewEmails", push: "reviewPush", telegram: "reviewTelegram" },
+  follow_up: { inbox: "followUpInbox", email: "followUpEmails", push: "followUpPush", telegram: "followUpTelegram" },
 } as const satisfies Record<PreferenceKind, Record<NotificationChannel, keyof typeof userPreference.$inferSelect>>;
 
 const KINDS = Object.keys(COLUMNS) as PreferenceKind[];

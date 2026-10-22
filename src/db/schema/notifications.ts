@@ -6,6 +6,7 @@ import { databaseProperty, page, teamspace, workspace, workspaceJoinRequest } fr
 import { session, user } from "./auth";
 import { databaseAutomation } from "./automations";
 import { rowEmail } from "./mail";
+import { sequenceEnrollment } from "./sequences";
 import { accessRequest } from "./permissions";
 
 /** Account-wide choices that follow the user across browsers (the interface language doesn't). */
@@ -73,6 +74,13 @@ export const userPreference = pgTable("user_preference", {
   reviewInbox: boolean("review_inbox").notNull().default(true),
   reviewEmails: boolean("review_emails").notNull().default(false),
   /**
+   * Follow-up sequences (server/sequences): show a follow-up of mine that stopped short of sending
+   * in my inbox. No email goes out about it (`followUpEmails` is kept for the shape every kind has,
+   * and unused).
+   */
+  followUpInbox: boolean("follow_up_inbox").notNull().default(true),
+  followUpEmails: boolean("follow_up_emails").notNull().default(false),
+  /**
    * Push notifications per kind, to the devices that turned them on (see push_subscription). They
    * follow the inbox: a kind turned off there sends no push either, whatever these say, so by
    * default push is on exactly for what shows in the inbox, and each kind can be silenced on its own.
@@ -89,6 +97,7 @@ export const userPreference = pgTable("user_preference", {
   pageUpdatePush: boolean("page_update_push").notNull().default(true),
   rowEmailPush: boolean("row_email_push").notNull().default(true),
   reviewPush: boolean("review_push").notNull().default(true),
+  followUpPush: boolean("follow_up_push").notNull().default(true),
   /**
    * Telegram messages per kind, to the Telegram account the person linked (see telegram_link,
    * server/telegram/notify.ts). They follow the inbox as push does.
@@ -105,6 +114,7 @@ export const userPreference = pgTable("user_preference", {
   pageUpdateTelegram: boolean("page_update_telegram").notNull().default(true),
   rowEmailTelegram: boolean("row_email_telegram").notNull().default(true),
   reviewTelegram: boolean("review_telegram").notNull().default(true),
+  followUpTelegram: boolean("follow_up_telegram").notNull().default(true),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
@@ -311,6 +321,7 @@ export const NOTIFICATION_KINDS = [
   "page_updated",
   "row_email",
   "review",
+  "follow_up",
   "agent_approval",
   "agent_memory",
   "agent_report",
@@ -349,7 +360,9 @@ export type PreferenceKind = Exclude<NotificationKind, OwnerKind>;
  * landed on row `pageId`, through the mailbox of `actorId` (null when it is the user's own).
  * "review": changes wait for the user's review (pending_change) in the workspace, the latest
  * proposed by agent `actorId`; one unread at a time per person and workspace, which newer
- * proposals bring back to the top rather than adding more; it has no page.
+ * proposals bring back to the top rather than adding more; it has no page. "follow_up": the
+ * user's enrollment `sequenceEnrollmentId` of row `pageId` in a follow-up sequence paused because
+ * its next email didn't pass the draft check (see server/sequences).
  * "ai_account_detached": the workspace's AI no longer runs on `actorId`'s own AI account (they left
  * the workspace, deleted the account or their whole account); it has no page. Unread ones are dropped when the change is
  * undone (or the request decided). Rows are recorded
@@ -411,6 +424,8 @@ export const notification = pgTable(
     changes: jsonb("changes").$type<RowUpdate>(),
     /** Row email: the message that landed on row `pageId` (received into `actorId`'s mailbox, when not the user's own). */
     rowEmailId: text("row_email_id").references(() => rowEmail.id, { onDelete: "cascade" }),
+    /** Follow-ups: the enrollment that paused. */
+    sequenceEnrollmentId: text("sequence_enrollment_id").references(() => sequenceEnrollment.id, { onDelete: "cascade" }),
   },
   (t) => [
     index("notification_inbox_idx").on(t.userId, t.workspaceId, t.createdAt),
