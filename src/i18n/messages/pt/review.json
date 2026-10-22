@@ -1,0 +1,88 @@
+{
+  "metaTitle": "Para revisar",
+  "heading": "Para revisar",
+  "description": "Alterações que agentes propuseram em vez de fazê-las. Aprove uma para fazê-la em seu nome, edite antes ou descarte. Propostas que ninguém responde expiram após 30 dias.",
+  "filters": {
+    "agent": "Agente",
+    "database": "Banco de dados",
+    "status": "Mostrar",
+    "allAgents": "Todos os agentes",
+    "allDatabases": "Todos os bancos de dados",
+    "open": "Aguardando",
+    "decided": "Respondidas",
+    "allRows": "Mostrar todas as linhas",
+    "clear": "Limpar filtros"
+  },
+  "count": "{count, plural, one {# alteração} other {# alterações}}",
+  "select": "Selecionar esta alteração",
+  "selectAll": "Selecionar tudo",
+  "selected": "{count} selecionadas",
+  "approveSelected": "Aprovar {count}",
+  "dismissSelected": "Descartar {count}",
+  "bulkSkipped": "{count, plural, one {Uma alteração não pôde ser respondida: ela já tinha sido respondida, a linha mudou desde então ou você não pode respondê-la.} other {# alterações não puderam ser respondidas: elas já tinham sido respondidas, as linhas mudaram desde então ou você não pode respondê-las.}}",
+  "empty": {
+    "open": "Nada aguarda sua revisão.",
+    "decided": "Nenhuma alteração foi respondida nos últimos 30 dias.",
+    "filtered": "Nenhuma alteração corresponde a esses filtros."
+  },
+  "proposes": {
+    "createRow": "<agent></agent> quer adicionar uma linha a <database></database>",
+    "updateRow": "<agent></agent> quer alterar <row></row>",
+    "emailDraft": "<agent></agent> rascunhou um e-mail em <row></row>"
+  },
+  "inDatabase": "em <database></database>",
+  "unknownAgent": "Um agente excluído",
+  "someone": "Alguém",
+  "viewRun": "Ver execução",
+  "edited": "Editada",
+  "expires": "Expira {time}",
+  "decided": {
+    "approved": "Aprovada por {name} {time}",
+    "dismissed": "Descartada por {name} {time}",
+    "expired": "Expirou sem resposta"
+  },
+  "title": "Título",
+  "becomes": "passa a ser",
+  "changedSince": "Mudou desde que foi proposto, agora <value></value>",
+  "conflictNotice": "Esta linha mudou desde que o agente propôs isto. Aprovar substitui o que ela tem agora.",
+  "failedNote": "Ela foi aprovada, mas não pôde ser feita: {error} Edite e aprove de novo, ou descarte.",
+  "failed": {
+    "error": "algo deu errado.",
+    "pageLocked": "a linha está bloqueada."
+  },
+  "email": {
+    "from": "De",
+    "to": "Para",
+    "cc": "Cc",
+    "subject": "Assunto",
+    "text": "Texto",
+    "reply": "Uma resposta ao e-mail mais recente da linha"
+  },
+  "markdown": "Texto da página",
+  "notEditable": "Mantenha ou deixe de fora; altere depois na linha.",
+  "leaveOut": "Deixar de fora",
+  "keep": "Manter",
+  "approve": "Aprovar",
+  "approveAnyway": "Aprovar mesmo assim",
+  "send": "Enviar",
+  "edit": "Editar",
+  "save": "Salvar edição",
+  "dismiss": "Descartar",
+  "cannot": {
+    "email": "Só {name} pode enviar este rascunho, da própria caixa de e-mail.",
+    "row": "Você pode ver esta alteração, mas aprová-la exige acesso de edição à linha e a cada valor que ela define."
+  },
+  "errors": {
+    "notFound": "Esta alteração não existe mais, ou você não pode vê-la.",
+    "decided": "Alguém já respondeu a esta alteração.",
+    "conflict": "A linha mudou desde que isto foi proposto. Veja de novo e depois aprove mesmo assim ou descarte.",
+    "invalid": "Esta edição não é válida: {message}",
+    "accessDenied": "Você não pode responder a esta alteração."
+  },
+  "banner": {
+    "title": "Alterações aguardando revisão",
+    "bar": "{count, plural, one {# alteração aguarda revisão} other {# alterações aguardam revisão}}",
+    "by": "propostas por {names}",
+    "open": "Revisar"
+  }
+}

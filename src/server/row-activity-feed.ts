@@ -29,6 +29,8 @@ export type RowActivityEntry = {
   /** When it happened; for merged changes, the last of them. ISO 8601. */
   at: string;
   actor: { kind: RowActivityActor; person: ActivityPerson | null };
+  /** A change proposed for review and approved by `actor`: the agent that proposed it. */
+  proposedBy: ActivityPerson | null;
   /** The property a `property` entry is about. */
   property: { id: string; name: string; type: PropertyType } | null;
   /** The value before and after, for `title` and `property` entries. */
@@ -98,6 +100,7 @@ export async function listRowActivity(
       workspaceId: row.workspaceId,
       actorUserId: row.createdBy,
       actorKind: "user",
+      proposedBy: null,
       kind: "created",
       propertyId: null,
       propertyType: null,
@@ -113,7 +116,7 @@ export async function listRowActivity(
     { type: e.propertyType, value: e.newValue },
   ]);
   const ids = referencedIds(values);
-  const lookups = await loadLookups(userId, [...ids.people, ...listed.flatMap((e) => (e.actorUserId ? [e.actorUserId] : []))], [...ids.pages]);
+  const lookups = await loadLookups(userId, [...ids.people, ...listed.flatMap((e) => [e.actorUserId, e.proposedBy].filter((id): id is string => !!id))], [...ids.pages]);
   const entries = listed.map((e): RowActivityEntry => {
     const prop = e.propertyId ? byId.get(e.propertyId) : undefined;
     const options = prop?.options.options ?? [];
@@ -126,6 +129,7 @@ export async function listRowActivity(
       at: e.createdAt.toISOString(),
       // The "created" entry made up for older rows knows only who created them.
       actor: { kind: e.actorKind === "user" && person?.isAgent ? "agent" : e.actorKind, person },
+      proposedBy: e.proposedBy ? (lookups.people.get(e.proposedBy) ?? null) : null,
       property: prop ? { id: prop.id, name: prop.name, type: prop.type } : null,
       from: e.kind === "created" ? null : read(e.oldValue),
       to: e.kind === "created" ? null : read(e.newValue),

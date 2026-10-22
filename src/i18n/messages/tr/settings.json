@@ -361,7 +361,12 @@
       "helpersHelp": "Bir çalışma sırasında görevinin bir kısmını bu ajanlara en fazla {max} kez devredip yanıtlarını kullanabilir. Her biri kendi erişimi, araçları ve sınırlarıyla çalışır ve kendisi başka ajanlara soramaz.",
       "helpersEmpty": "Bu çalışma alanında henüz başka ajan yok.",
       "helperPaused": "Duraklatıldı",
-      "limitOwnersOnly": "Bu sınırı yalnızca çalışma alanı sahipleri belirler."
+      "limitOwnersOnly": "Bu sınırı yalnızca çalışma alanı sahipleri belirler.",
+      "rowChanges": "Satır değişiklikleri",
+      "rowChangesDirect": "Doğrudan yazsın",
+      "rowChangesReview": "İncelemeye önersin",
+      "rowChangesDirectHelp": "Eklediği satırlar ve değiştirdiği değerler hemen, onun adıyla kaydedilir.",
+      "rowChangesReviewHelp": "Ekleyeceği satırlar ve değiştireceği değerler, onları düzenleyebilen biri her birini onaylayana ya da reddedene kadar İncelenecekler bölümünde bekler."
     },
     "describe": {
       "button": "Ajanı anlat",
@@ -753,7 +758,8 @@
         "monthly_token_limit": "Aylık token sınırı",
         "skills": "Beceriler",
         "schedules": "Zamanlamalar",
-        "shares": "Paylaşılan sayfalar"
+        "shares": "Paylaşılan sayfalar",
+        "row_changes": "Satır değişiklikleri"
       },
       "back": "Tüm sürümler",
       "compareNote": "Bu sürümden ajanın şu anki kurulumuna kadar değişenler. Geri yüklemek bu sürümdekileri geri getirir.",
@@ -1621,6 +1627,10 @@
       "ai_account": {
         "attached": "Çalışma alanının yapay zekâsını bir yapay zekâ hesabına bağladı: {target}",
         "detached": "Çalışma alanının yapay zekâsını yapay zekâ hesabından ayırdı: {target}"
+      },
+      "review": {
+        "approved": "{kind, select, email_draft {“{agent}” ajanının {target} üzerinde hazırladığı e-postayı gönderdi} create_row {“{agent}” ajanının {target} içinde önerdiği satırı onayladı} other {“{agent}” ajanının {target} için önerdiği değişikliği onayladı}}{outcome, select, failed { (başarısız oldu)} other {}}",
+        "dismissed": "{kind, select, email_draft {“{agent}” ajanının {target} üzerinde hazırladığı e-postayı reddetti} create_row {“{agent}” ajanının {target} içinde önerdiği satırı reddetti} other {“{agent}” ajanının {target} için önerdiği değişikliği reddetti}}"
       }
     },
     "decisions": {
@@ -1693,7 +1703,10 @@
     "watchedNone": "Henüz hiçbir sayfayı izlemiyorsunuz",
     "watchedNoneDescription": "Bir sayfayı ⋯ menüsünden, bütün bir ekip alanını da kenar çubuğundaki menüsünden izleyin. Düzenlediğiniz sayfalar sizin için izlenir.",
     "watchedTeamspace": "Bu ekip alanının tüm sayfaları · {workspace}",
-    "stopWatching": "İzlemeyi bırak"
+    "stopWatching": "İzlemeyi bırak",
+    "reviewTitle": "İncelenecekler",
+    "reviewDescription": "Bir ajan, düzenleyebildiğiniz bir satırda değişiklik önerir ya da posta kutunuzdan bir e-posta taslağı hazırlar ve bu, incelemenizi bekler. Yeni öneriler, siz açana kadar bir arada toplanır.",
+    "reviewChannel": "İncelenecekler: {channel}"
   },
   "site": {
     "description": "Bu çalışma alanının yayındaki sayfalarına okunabilir tek bir adres, bir ana sayfa ve aralarında gezinme menüsü verin.",

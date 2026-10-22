@@ -361,7 +361,12 @@
       "helpersHelp": "実行中に、タスクの一部をこれらのエージェントに最大{max}回まで任せ、その回答を使えます。各エージェントは自分のアクセス権、ツール、上限で動作し、さらに別のエージェントに依頼することはできません。",
       "helpersEmpty": "このワークスペースにはまだ他のエージェントがありません。",
       "helperPaused": "一時停止中",
-      "limitOwnersOnly": "この上限を設定できるのはワークスペースのオーナーだけです。"
+      "limitOwnersOnly": "この上限を設定できるのはワークスペースのオーナーだけです。",
+      "rowChanges": "行の変更",
+      "rowChangesDirect": "直接書き込む",
+      "rowChangesReview": "確認用に提案する",
+      "rowChangesDirectHelp": "追加した行と変更した値は、エージェントの名前ですぐに保存されます。",
+      "rowChangesReviewHelp": "追加しようとする行と変更しようとする値は、それを編集できる人が1件ずつ承認または却下するまで「確認待ち」で待機します。"
     },
     "describe": {
       "button": "エージェントを説明して作成",
@@ -753,7 +758,8 @@
         "monthly_token_limit": "月間トークン上限",
         "skills": "スキル",
         "schedules": "スケジュール",
-        "shares": "共有ページ"
+        "shares": "共有ページ",
+        "row_changes": "行の変更"
       },
       "back": "すべてのバージョン",
       "compareNote": "このバージョンからエージェントの現在の構成までに変わった内容です。復元すると、このバージョンの内容に戻ります。",
@@ -1621,6 +1627,10 @@
       "ai_account": {
         "attached": "ワークスペースのAIをAIアカウント{target}に接続しました",
         "detached": "ワークスペースのAIとAIアカウント{target}の接続を解除しました"
+      },
+      "review": {
+        "approved": "{kind, select, email_draft {エージェント「{agent}」が{target}で下書きしたメールを送信しました} create_row {エージェント「{agent}」が{target}に提案した行を承認しました} other {エージェント「{agent}」が{target}に提案した変更を承認しました}}{outcome, select, failed {（失敗しました）} other {}}",
+        "dismissed": "{kind, select, email_draft {エージェント「{agent}」が{target}で下書きしたメールを却下しました} create_row {エージェント「{agent}」が{target}に提案した行を却下しました} other {エージェント「{agent}」が{target}に提案した変更を却下しました}}"
       }
     },
     "decisions": {
@@ -1693,7 +1703,10 @@
     "watchedNone": "まだウォッチしているページはありません",
     "watchedNoneDescription": "ページは⋯メニューから、チームスペース全体はサイドバーのメニューからウォッチできます。編集したページは自動でウォッチされます。",
     "watchedTeamspace": "このチームスペースのすべてのページ · {workspace}",
-    "stopWatching": "ウォッチをやめる"
+    "stopWatching": "ウォッチをやめる",
+    "reviewTitle": "確認待ち",
+    "reviewDescription": "編集できる行への変更をエージェントが提案したとき、またはあなたのメールボックスからメールを下書きしたとき。提案はあなたの確認を待ちます。新しい提案は、開くまでまとめて届きます。",
+    "reviewChannel": "確認待ち：{channel}"
   },
   "site": {
     "description": "このワークスペースの公開ページに、わかりやすい1つのアドレス、ホームページ、ページ間のナビゲーションを用意します。",

@@ -527,7 +527,8 @@
     "unknownPerson": "不明なユーザー{count}人",
     "checked": "チェックあり",
     "unchecked": "チェックなし",
-    "checklist": "{total}件中{done}件完了"
+    "checklist": "{total}件中{done}件完了",
+    "approvedFrom": "（{name}の提案）"
   },
   "rowEmail": {
     "title": "メール",

@@ -527,7 +527,8 @@
     "unknownPerson": "{count, plural, one {bilinmeyen biri} other {# bilinmeyen kişi}}",
     "checked": "işaretli",
     "unchecked": "işaretsiz",
-    "checklist": "{total} maddeden {done} tanesi tamam"
+    "checklist": "{total} maddeden {done} tanesi tamam",
+    "approvedFrom": "({name} önerisiyle)"
   },
   "rowEmail": {
     "title": "E-posta",

@@ -361,7 +361,12 @@
       "helpersHelp": "运行期间，它可以把部分任务交给这些智能体（最多 {max} 次），并使用它们的回答。每个智能体都使用自己的访问权限、工具和上限工作，且不能再去求助其他智能体。",
       "helpersEmpty": "此工作区中还没有其他智能体。",
       "helperPaused": "已暂停",
-      "limitOwnersOnly": "只有工作区所有者可以设置此上限。"
+      "limitOwnersOnly": "只有工作区所有者可以设置此上限。",
+      "rowChanges": "对行的更改",
+      "rowChangesDirect": "直接写入",
+      "rowChangesReview": "提议以供审阅",
+      "rowChangesDirectHelp": "它添加的行和更改的值会立即以它的名义保存。",
+      "rowChangesReviewHelp": "它要添加的行和要更改的值会在“待审阅”中等待，直到有编辑权限的人逐一批准或忽略。"
     },
     "describe": {
       "button": "描述一个智能体",
@@ -753,7 +758,8 @@
         "monthly_token_limit": "每月令牌上限",
         "skills": "技能",
         "schedules": "定时计划",
-        "shares": "共享页面"
+        "shares": "共享页面",
+        "row_changes": "对行的更改"
       },
       "back": "所有版本",
       "compareNote": "从此版本到代理当前配置之间的变化。恢复后将回到此版本的内容。",
@@ -1621,6 +1627,10 @@
       "ai_account": {
         "attached": "让工作区的 AI 使用 AI 账户 {target} 运行",
         "detached": "停止让工作区的 AI 使用 AI 账户 {target} 运行"
+      },
+      "review": {
+        "approved": "{kind, select, email_draft {发送了智能体“{agent}”在 {target} 上起草的邮件} create_row {批准了智能体“{agent}”在 {target} 中提议的行} other {批准了智能体“{agent}”对 {target} 提议的更改}}{outcome, select, failed {（失败）} other {}}",
+        "dismissed": "{kind, select, email_draft {忽略了智能体“{agent}”在 {target} 上起草的邮件} create_row {忽略了智能体“{agent}”在 {target} 中提议的行} other {忽略了智能体“{agent}”对 {target} 提议的更改}}"
       }
     },
     "decisions": {
@@ -1693,7 +1703,10 @@
     "watchedNone": "你还没有关注任何页面",
     "watchedNoneDescription": "可从页面的 ⋯ 菜单关注页面，或从侧边栏中团队空间的菜单关注整个团队空间。你编辑的页面会自动关注。",
     "watchedTeamspace": "此团队空间的所有页面 · {workspace}",
-    "stopWatching": "停止关注"
+    "stopWatching": "停止关注",
+    "reviewTitle": "待审阅",
+    "reviewDescription": "智能体提议更改你可编辑的某一行，或从你的邮箱起草一封邮件，并等待你审阅时。新的提议会合并在一起，直到你打开它们。",
+    "reviewChannel": "待审阅：{channel}"
   },
   "site": {
     "description": "为此工作区已发布的页面提供一个易读的地址、一个主页以及页面之间的导航。",

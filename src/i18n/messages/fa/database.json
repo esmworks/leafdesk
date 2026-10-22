@@ -527,7 +527,8 @@
     "unknownPerson": "{count, plural, one {شخصی ناشناس} other {# شخص ناشناس}}",
     "checked": "تیک‌خورده",
     "unchecked": "تیک‌نخورده",
-    "checklist": "{done} از {total} انجام شده"
+    "checklist": "{done} از {total} انجام شده",
+    "approvedFrom": "(پیشنهاد {name})"
   },
   "rowEmail": {
     "title": "ایمیل",

@@ -195,7 +195,13 @@
           "createPage": "Seite konnte nicht hinzugefügt werden:",
           "editPage": "Text konnte nicht geändert werden:"
         },
-        "in": "in"
+        "in": "in",
+        "proposed": {
+          "createRow": "Hinzufügen einer Zeile zur Prüfung vorgeschlagen:",
+          "updateRow": "Änderung zur Prüfung vorgeschlagen:",
+          "createPage": "Hinzufügen einer Seite zur Prüfung vorgeschlagen:",
+          "editPage": "Textänderung zur Prüfung vorgeschlagen:"
+        }
       },
       "memory": {
         "remember": "Gemerkt:",

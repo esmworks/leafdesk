@@ -1,0 +1,88 @@
+{
+  "metaTitle": "Por revisar",
+  "heading": "Por revisar",
+  "description": "Cambios que los agentes propusieron en lugar de hacerlos. Aprueba uno para hacerlo en tu nombre, edítalo antes o descártalo. Las propuestas que nadie responde caducan a los 30 días.",
+  "filters": {
+    "agent": "Agente",
+    "database": "Base de datos",
+    "status": "Mostrar",
+    "allAgents": "Todos los agentes",
+    "allDatabases": "Todas las bases de datos",
+    "open": "En espera",
+    "decided": "Respondidos",
+    "allRows": "Mostrar todas las filas",
+    "clear": "Quitar filtros"
+  },
+  "count": "{count, plural, one {# cambio} other {# cambios}}",
+  "select": "Seleccionar este cambio",
+  "selectAll": "Seleccionar todo",
+  "selected": "{count} seleccionados",
+  "approveSelected": "Aprobar {count}",
+  "dismissSelected": "Descartar {count}",
+  "bulkSkipped": "{count, plural, one {Un cambio no se pudo responder: ya estaba respondido, su fila cambió desde entonces o no puedes responderlo.} other {# cambios no se pudieron responder: ya estaban respondidos, sus filas cambiaron desde entonces o no puedes responderlos.}}",
+  "empty": {
+    "open": "Nada espera tu revisión.",
+    "decided": "No se respondió ningún cambio en los últimos 30 días.",
+    "filtered": "Ningún cambio coincide con estos filtros."
+  },
+  "proposes": {
+    "createRow": "<agent></agent> quiere añadir una fila a <database></database>",
+    "updateRow": "<agent></agent> quiere cambiar <row></row>",
+    "emailDraft": "<agent></agent> redactó un correo en <row></row>"
+  },
+  "inDatabase": "en <database></database>",
+  "unknownAgent": "Un agente eliminado",
+  "someone": "Alguien",
+  "viewRun": "Ver ejecución",
+  "edited": "Editado",
+  "expires": "Caduca {time}",
+  "decided": {
+    "approved": "Aprobado por {name} {time}",
+    "dismissed": "Descartado por {name} {time}",
+    "expired": "Caducó sin respuesta"
+  },
+  "title": "Título",
+  "becomes": "pasa a ser",
+  "changedSince": "Cambió desde que se propuso; ahora <value></value>",
+  "conflictNotice": "Esta fila cambió desde que el agente lo propuso. Si lo apruebas, se sobrescribe lo que tiene ahora.",
+  "failedNote": "Se aprobó, pero no se pudo hacer: {error} Edítalo y apruébalo otra vez, o descártalo.",
+  "failed": {
+    "error": "algo salió mal.",
+    "pageLocked": "la fila está bloqueada."
+  },
+  "email": {
+    "from": "De",
+    "to": "Para",
+    "cc": "CC",
+    "subject": "Asunto",
+    "text": "Texto",
+    "reply": "Una respuesta al último correo de la fila"
+  },
+  "markdown": "Texto de la página",
+  "notEditable": "Consérvalo o exclúyelo; cámbialo después en la fila.",
+  "leaveOut": "Excluir",
+  "keep": "Conservar",
+  "approve": "Aprobar",
+  "approveAnyway": "Aprobar de todos modos",
+  "send": "Enviar",
+  "edit": "Editar",
+  "save": "Guardar edición",
+  "dismiss": "Descartar",
+  "cannot": {
+    "email": "Solo {name} puede enviar este borrador, desde su propio buzón.",
+    "row": "Puedes ver este cambio, pero para aprobarlo necesitas acceso de edición a la fila y a cada valor que establece."
+  },
+  "errors": {
+    "notFound": "Este cambio ya no existe o no puedes verlo.",
+    "decided": "Alguien ya respondió a este cambio.",
+    "conflict": "La fila cambió desde que se propuso esto. Vuelve a mirarla y luego apruébalo de todos modos o descártalo.",
+    "invalid": "Esta edición no es válida: {message}",
+    "accessDenied": "No puedes responder a este cambio."
+  },
+  "banner": {
+    "title": "Cambios por revisar",
+    "bar": "{count, plural, one {# cambio espera revisión} other {# cambios esperan revisión}}",
+    "by": "propuestos por {names}",
+    "open": "Revisar"
+  }
+}

@@ -527,7 +527,8 @@
     "unknownPerson": "{count, plural, one {מישהו לא ידוע} two {שני אנשים לא ידועים} other {# אנשים לא ידועים}}",
     "checked": "מסומן",
     "unchecked": "לא מסומן",
-    "checklist": "{done} מתוך {total} בוצעו"
+    "checklist": "{done} מתוך {total} בוצעו",
+    "approvedFrom": "(הוצע על ידי {name})"
   },
   "rowEmail": {
     "title": "אימייל",

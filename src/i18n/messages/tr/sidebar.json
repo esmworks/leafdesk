@@ -17,7 +17,9 @@
     "import": "İçe aktar",
     "graph": "Grafik",
     "skills": "Beceriler",
-    "more": "Diğer"
+    "more": "Diğer",
+    "review": "İncelenecekler",
+    "reviewCount": "{count, plural, one {# değişiklik incelemenizi bekliyor} other {# değişiklik incelemenizi bekliyor}}"
   },
   "tabs": {
     "label": "Kenar çubuğu",
@@ -166,7 +168,9 @@
     "reportHidden": "Zamanlanmış çalışması, açamadığın bir veritabanında bitti.",
     "reportGone": "Çalışma artık saklanmıyor.",
     "aiAccountTitle": "Yapay zekâ hesabı kaldırıldı",
-    "aiAccountDetached": "Çalışma alanının yapay zekâsı artık {actor} kişisinin anahtarıyla çalışmıyor. Ayarlar'dan başka bir yapay zekâ hesabı seçin."
+    "aiAccountDetached": "Çalışma alanının yapay zekâsı artık {actor} kişisinin anahtarıyla çalışmıyor. Ayarlar'dan başka bir yapay zekâ hesabı seçin.",
+    "reviewTitle": "İncelenecekler",
+    "review": "{count, plural, one {{agent} incelemeniz için bir değişiklik önerdi} other {# değişiklik incelemenizi bekliyor, sonuncusu: {agent}}}"
   },
   "templates": {
     "title": "Şablonlar",

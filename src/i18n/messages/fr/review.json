@@ -1,0 +1,88 @@
+{
+  "metaTitle": "À vérifier",
+  "heading": "À vérifier",
+  "description": "Les modifications que des agents ont proposées au lieu de les faire. Approuvez-en une pour la faire en votre nom, modifiez-la d’abord ou écartez-la. Les propositions que personne ne traite expirent après 30 jours.",
+  "filters": {
+    "agent": "Agent",
+    "database": "Base de données",
+    "status": "Afficher",
+    "allAgents": "Tous les agents",
+    "allDatabases": "Toutes les bases de données",
+    "open": "En attente",
+    "decided": "Traitées",
+    "allRows": "Afficher toutes les lignes",
+    "clear": "Effacer les filtres"
+  },
+  "count": "{count, plural, one {# modification} other {# modifications}}",
+  "select": "Sélectionner cette modification",
+  "selectAll": "Tout sélectionner",
+  "selected": "Sélection : {count}",
+  "approveSelected": "Approuver ({count})",
+  "dismissSelected": "Écarter ({count})",
+  "bulkSkipped": "{count, plural, one {Une modification n’a pas pu être traitée : elle l’était déjà, sa ligne a changé depuis, ou vous ne pouvez pas la traiter.} other {# modifications n’ont pas pu être traitées : elles l’étaient déjà, leurs lignes ont changé depuis, ou vous ne pouvez pas les traiter.}}",
+  "empty": {
+    "open": "Rien n’attend votre vérification.",
+    "decided": "Aucune modification n’a été traitée ces 30 derniers jours.",
+    "filtered": "Aucune modification ne correspond à ces filtres."
+  },
+  "proposes": {
+    "createRow": "<agent></agent> veut ajouter une ligne à <database></database>",
+    "updateRow": "<agent></agent> veut modifier <row></row>",
+    "emailDraft": "<agent></agent> a rédigé un e-mail sur <row></row>"
+  },
+  "inDatabase": "dans <database></database>",
+  "unknownAgent": "Un agent supprimé",
+  "someone": "Quelqu’un",
+  "viewRun": "Voir l’exécution",
+  "edited": "Modifiée",
+  "expires": "Expire {time}",
+  "decided": {
+    "approved": "Approuvée par {name} {time}",
+    "dismissed": "Écartée par {name} {time}",
+    "expired": "Expirée sans réponse"
+  },
+  "title": "Titre",
+  "becomes": "devient",
+  "changedSince": "A changé depuis la proposition, désormais <value></value>",
+  "conflictNotice": "Cette ligne a changé depuis que l’agent a fait cette proposition. L’approuver remplace ce qu’elle contient maintenant.",
+  "failedNote": "Elle a été approuvée mais n’a pas pu être faite : {error} Modifiez-la et approuvez-la à nouveau, ou écartez-la.",
+  "failed": {
+    "error": "un problème est survenu.",
+    "pageLocked": "la ligne est verrouillée."
+  },
+  "email": {
+    "from": "De",
+    "to": "À",
+    "cc": "Cc",
+    "subject": "Objet",
+    "text": "Texte",
+    "reply": "Une réponse au dernier e-mail de la ligne"
+  },
+  "markdown": "Texte de la page",
+  "notEditable": "Gardez ou ignorez cette valeur ; modifiez-la ensuite sur la ligne.",
+  "leaveOut": "Ignorer",
+  "keep": "Garder",
+  "approve": "Approuver",
+  "approveAnyway": "Approuver quand même",
+  "send": "Envoyer",
+  "edit": "Modifier",
+  "save": "Enregistrer",
+  "dismiss": "Écarter",
+  "cannot": {
+    "email": "Ce brouillon ne peut être envoyé que par {name}, depuis sa propre boîte mail.",
+    "row": "Vous pouvez voir cette modification, mais pour l’approuver il faut un accès en modification à la ligne et à chaque valeur qu’elle définit."
+  },
+  "errors": {
+    "notFound": "Cette modification n’existe plus, ou vous ne pouvez pas la voir.",
+    "decided": "Quelqu’un a déjà traité cette modification.",
+    "conflict": "La ligne a changé depuis cette proposition. Regardez-la à nouveau, puis approuvez quand même ou écartez.",
+    "invalid": "Cette modification n’est pas valide : {message}",
+    "accessDenied": "Vous ne pouvez pas traiter cette modification."
+  },
+  "banner": {
+    "title": "Modifications à vérifier",
+    "bar": "{count, plural, one {# modification à vérifier} other {# modifications à vérifier}}",
+    "by": "proposées par {names}",
+    "open": "Vérifier"
+  }
+}

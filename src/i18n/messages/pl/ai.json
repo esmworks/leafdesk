@@ -195,7 +195,13 @@
           "createPage": "Nie udało się dodać strony:",
           "editPage": "Nie udało się zmienić tekstu:"
         },
-        "in": "w"
+        "in": "w",
+        "proposed": {
+          "createRow": "Zaproponowano do przejrzenia dodanie wiersza:",
+          "updateRow": "Zaproponowano do przejrzenia zmianę:",
+          "createPage": "Zaproponowano do przejrzenia dodanie strony:",
+          "editPage": "Zaproponowano do przejrzenia zmianę tekstu:"
+        }
       },
       "memory": {
         "remember": "Zapamiętano:",

@@ -153,6 +153,8 @@ function Entry({ entry }: { entry: RowActivityEntry }) {
       )}
       {/* An AI value names who it was worked out for: whoever asked, or whose change set it off. */}
       {kind === "ai" && <span className="ms-1">{t("aiFor", { name: person?.name ?? t("someone") })}</span>}
+      {/* A change an agent proposed for review, which this person approved. */}
+      {entry.proposedBy && <span className="ms-1">{t("approvedFrom", { name: entry.proposedBy.name })}</span>}
     </>
   );
   const tags = {
@@ -214,6 +216,8 @@ export function Value({ value }: { value: ActivityValue | null }) {
   const t = useTranslations("database.rowActivity");
   const tc = useTranslations("common");
   const formatDate = useFormatDate();
+  // In the app's language rather than the browser's, so a server render reads the same.
+  const format = useFormatter();
   const strong = "font-medium text-fg";
   if (!value) return null;
   switch (value.type) {
@@ -229,7 +233,7 @@ export function Value({ value }: { value: ActivityValue | null }) {
       );
     }
     case "number":
-      return <span className={strong}>{value.value.toLocaleString()}</span>;
+      return <span className={strong}>{format.number(value.value)}</span>;
     case "checkbox":
       return <span className={strong}>{t(value.checked ? "checked" : "unchecked")}</span>;
     case "date":

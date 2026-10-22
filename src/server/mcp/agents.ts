@@ -19,7 +19,9 @@ import {
   MAX_AGENTS,
   MAX_AGENT_PROPOSALS,
   type AgentAccessView,
+  AGENT_ROW_CHANGES,
   type AgentModel,
+  type AgentRowChanges,
   type AgentSkillSkip,
   type AgentSkillView,
   type AgentRunView,
@@ -113,6 +115,12 @@ const webAccessInput = z
     "Whether its runs may read public web pages (read_web_page), and search the web where the server has a search service (search_web); default false. Leave it off for agents that should only work with the workspace: a run with it could send what it read to a web address.",
   );
 
+const rowChangesInput = z
+  .enum(AGENT_ROW_CHANGES)
+  .describe(
+    'How its runs change database rows: "direct" (default) makes the changes; "review" proposes each row it would add or change for a person to approve, edit or dismiss first (list_pending_changes). Chats with the agent change rows directly either way: the person is there.',
+  );
+
 export const agentInputs = {
   list: z.object({
     workspace_id: id("workspace"),
@@ -136,6 +144,7 @@ export const agentInputs = {
     enabled: z.boolean().optional().describe("Whether it runs (default true). A paused agent's queued runs end without doing anything."),
     model: modelInput.optional().describe(`${modelInput.description} Default "main".`),
     web_access: webAccessInput.optional(),
+    row_changes: rowChangesInput.optional(),
     helper_agent_ids: helpersInput.optional(),
   }),
   // No defaults here: what is left out stays as it is.
@@ -147,6 +156,7 @@ export const agentInputs = {
     instructions: instructionsInput.optional(),
     enabled: z.boolean().optional().describe("Pause (false) or resume (true) the agent."),
     web_access: webAccessInput.optional(),
+    row_changes: rowChangesInput.optional(),
     monthly_token_limit: z
       .number()
       .int()
@@ -281,6 +291,7 @@ export function toAgentPatch(args: Omit<z.infer<typeof agentInputs.update>, "age
     instructions?: string;
     enabled?: boolean;
     webAccess?: boolean;
+    rowChanges?: AgentRowChanges;
     monthlyTokenLimit?: number | null;
     model?: AgentModel;
     helperAgentIds?: string[];
@@ -291,11 +302,12 @@ export function toAgentPatch(args: Omit<z.infer<typeof agentInputs.update>, "age
   if (args.instructions !== undefined) patch.instructions = args.instructions;
   if (args.enabled !== undefined) patch.enabled = args.enabled;
   if (args.web_access !== undefined) patch.webAccess = args.web_access;
+  if (args.row_changes !== undefined) patch.rowChanges = args.row_changes;
   if (args.monthly_token_limit !== undefined) patch.monthlyTokenLimit = args.monthly_token_limit;
   if (args.model !== undefined) patch.model = args.model;
   if (args.helper_agent_ids !== undefined) patch.helperAgentIds = args.helper_agent_ids;
   if (!Object.keys(patch).length)
-    throw new ToolInputError("Nothing to change: pass name, icon, description, instructions, enabled, web_access, monthly_token_limit, model or helper_agent_ids.");
+    throw new ToolInputError("Nothing to change: pass name, icon, description, instructions, enabled, web_access, row_changes, monthly_token_limit, model or helper_agent_ids.");
   return patch;
 }
 
@@ -431,6 +443,7 @@ export function describeAgentSummary(agent: AgentView, helpers?: string[]) {
     archived: agent.archived,
     model: agent.model,
     web_access: agent.webAccess,
+    row_changes: agent.rowChanges,
     user_id: agent.userId,
     your_access: agent.access,
     ...(helpers ? { helper_agent_ids: helpers } : {}),
@@ -624,7 +637,7 @@ export function describeAgentStep(step: AgentStepRecord) {
         kind: "write",
         outcome: step.outcome,
         page_id: step.pageId,
-        summary: `${step.outcome === "failed" ? "Failed: " : step.outcome === "declined" ? "Declined: " : ""}${what}${step.title ? ` ${quote(step.title)}` : ""}${changes ? `: ${changes}` : ""}`,
+        summary: `${step.outcome === "failed" ? "Failed: " : step.outcome === "declined" ? "Declined: " : step.outcome === "proposed" ? "Proposed for review (not made yet): " : ""}${what}${step.title ? ` ${quote(step.title)}` : ""}${changes ? `: ${changes}` : ""}`,
       };
     }
     case "comment":

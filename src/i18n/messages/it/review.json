@@ -1,0 +1,88 @@
+{
+  "metaTitle": "Da rivedere",
+  "heading": "Da rivedere",
+  "description": "Modifiche che gli agenti hanno proposto invece di farle. Approvane una per farla a tuo nome, modificala prima o ignorala. Le proposte che nessuno gestisce scadono dopo 30 giorni.",
+  "filters": {
+    "agent": "Agente",
+    "database": "Database",
+    "status": "Mostra",
+    "allAgents": "Tutti gli agenti",
+    "allDatabases": "Tutti i database",
+    "open": "In attesa",
+    "decided": "Gestite",
+    "allRows": "Mostra tutte le righe",
+    "clear": "Cancella i filtri"
+  },
+  "count": "{count, plural, one {# modifica} other {# modifiche}}",
+  "select": "Seleziona questa modifica",
+  "selectAll": "Seleziona tutto",
+  "selected": "{count} selezionate",
+  "approveSelected": "Approva {count}",
+  "dismissSelected": "Ignora {count}",
+  "bulkSkipped": "{count, plural, one {Non è stato possibile gestire una modifica: era già stata gestita, la sua riga è cambiata nel frattempo o non puoi gestirla.} other {Non è stato possibile gestire # modifiche: erano già state gestite, le loro righe sono cambiate nel frattempo o non puoi gestirle.}}",
+  "empty": {
+    "open": "Niente attende la tua revisione.",
+    "decided": "Nessuna modifica è stata gestita negli ultimi 30 giorni.",
+    "filtered": "Nessuna modifica corrisponde a questi filtri."
+  },
+  "proposes": {
+    "createRow": "<agent></agent> vuole aggiungere una riga a <database></database>",
+    "updateRow": "<agent></agent> vuole modificare <row></row>",
+    "emailDraft": "<agent></agent> ha preparato un’email su <row></row>"
+  },
+  "inDatabase": "in <database></database>",
+  "unknownAgent": "Un agente eliminato",
+  "someone": "Qualcuno",
+  "viewRun": "Vedi esecuzione",
+  "edited": "Modificata",
+  "expires": "Scade {time}",
+  "decided": {
+    "approved": "Approvata da {name} {time}",
+    "dismissed": "Ignorata da {name} {time}",
+    "expired": "Scaduta senza risposta"
+  },
+  "title": "Titolo",
+  "becomes": "diventa",
+  "changedSince": "Cambiato da quando è stato proposto, ora <value></value>",
+  "conflictNotice": "Questa riga è cambiata da quando l’agente l’ha proposto. Se approvi, sovrascrivi quello che contiene ora.",
+  "failedNote": "È stata approvata ma non è stato possibile farla: {error} Modificala e approvala di nuovo, oppure ignorala.",
+  "failed": {
+    "error": "qualcosa è andato storto.",
+    "pageLocked": "la riga è bloccata."
+  },
+  "email": {
+    "from": "Da",
+    "to": "A",
+    "cc": "Cc",
+    "subject": "Oggetto",
+    "text": "Testo",
+    "reply": "Una risposta all’ultima email della riga"
+  },
+  "markdown": "Testo della pagina",
+  "notEditable": "Mantienilo o escludilo; modificalo poi nella riga.",
+  "leaveOut": "Escludi",
+  "keep": "Mantieni",
+  "approve": "Approva",
+  "approveAnyway": "Approva comunque",
+  "send": "Invia",
+  "edit": "Modifica",
+  "save": "Salva modifica",
+  "dismiss": "Ignora",
+  "cannot": {
+    "email": "Solo {name} può inviare questa bozza, dalla propria casella di posta.",
+    "row": "Puoi vedere questa modifica, ma per approvarla serve l’accesso in modifica alla riga e a ogni valore che imposta."
+  },
+  "errors": {
+    "notFound": "Questa modifica non c’è più, o non puoi vederla.",
+    "decided": "Qualcuno ha già gestito questa modifica.",
+    "conflict": "La riga è cambiata da quando è stato proposto. Ricontrollala, poi approva comunque o ignora.",
+    "invalid": "Questa modifica non è valida: {message}",
+    "accessDenied": "Non puoi gestire questa modifica."
+  },
+  "banner": {
+    "title": "Modifiche da rivedere",
+    "bar": "{count, plural, one {# modifica da rivedere} other {# modifiche da rivedere}}",
+    "by": "proposte da {names}",
+    "open": "Rivedi"
+  }
+}

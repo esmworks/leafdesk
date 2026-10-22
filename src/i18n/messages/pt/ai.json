@@ -195,7 +195,13 @@
           "createPage": "Não foi possível adicionar a página:",
           "editPage": "Não foi possível alterar o texto de:"
         },
-        "in": "em"
+        "in": "em",
+        "proposed": {
+          "createRow": "Propôs adicionar uma linha para revisão:",
+          "updateRow": "Propôs uma alteração para revisão:",
+          "createPage": "Propôs adicionar uma página para revisão:",
+          "editPage": "Propôs uma alteração de texto para revisão:"
+        }
       },
       "memory": {
         "remember": "Lembrou:",

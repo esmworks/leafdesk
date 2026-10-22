@@ -90,6 +90,7 @@ const input = (value: AgentInput): AgentInput => ({
   webAccess: value?.webAccess,
   monthlyTokenLimit: value?.monthlyTokenLimit,
   model: value?.model,
+  rowChanges: value?.rowChanges,
   helperAgentIds: Array.isArray(value?.helperAgentIds) ? value.helperAgentIds.map(String) : undefined,
 });
 

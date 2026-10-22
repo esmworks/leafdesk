@@ -130,6 +130,7 @@ export const LEFT_OUT: Record<string, string> = {
   notification: "inboxes",
   audit_event: "the old server's audit log; a backup file can be edited, so it would prove nothing",
   agent_run: "agent runs, kept a few weeks only",
+  pending_change: "changes agents proposed for review, kept a few weeks only; the runs that proposed them aren't backed up",
   automation_run: "automation runs; pending ones would run again",
   connection_event: "events received from connected services",
   connection_oauth: "connection sign-ins in progress",

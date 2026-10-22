@@ -361,7 +361,12 @@
       "helpersHelp": "Podczas uruchomienia może przekazać część zadania tym agentom, najwyżej {max} razy, i skorzystać z ich odpowiedzi. Każdy działa z własnym dostępem, narzędziami i limitami i sam nie może prosić kolejnych agentów.",
       "helpersEmpty": "W tym obszarze roboczym nie ma jeszcze innych agentów.",
       "helperPaused": "Wstrzymany",
-      "limitOwnersOnly": "Ten limit ustalają tylko właściciele obszaru roboczego."
+      "limitOwnersOnly": "Ten limit ustalają tylko właściciele obszaru roboczego.",
+      "rowChanges": "Zmiany w wierszach",
+      "rowChangesDirect": "Wprowadzaj je od razu",
+      "rowChangesReview": "Proponuj je do przejrzenia",
+      "rowChangesDirectHelp": "Wiersze, które dodaje, i wartości, które zmienia, są zapisywane od razu, pod jego nazwą.",
+      "rowChangesReviewHelp": "Wiersze, które by dodał, i wartości, które by zmienił, czekają w sekcji Do przejrzenia, aż ktoś, kto może je edytować, zatwierdzi lub odrzuci każdą z tych zmian."
     },
     "describe": {
       "button": "Opisz agenta",
@@ -753,7 +758,8 @@
         "monthly_token_limit": "Miesięczny limit tokenów",
         "skills": "Umiejętności",
         "schedules": "Harmonogramy",
-        "shares": "Udostępnione strony"
+        "shares": "Udostępnione strony",
+        "row_changes": "Zmiany w wierszach"
       },
       "back": "Wszystkie wersje",
       "compareNote": "Co zmieniło się od tej wersji do bieżącej konfiguracji agenta. Przywrócenie przywraca to, co miała ta wersja.",
@@ -1621,6 +1627,10 @@
       "ai_account": {
         "attached": "Podłączono AI obszaru roboczego do konta AI {target}",
         "detached": "Odłączono AI obszaru roboczego od konta AI {target}"
+      },
+      "review": {
+        "approved": "{kind, select, email_draft {Wysłano e-mail przygotowany przez agenta „{agent}” w {target}} create_row {Zatwierdzono wiersz zaproponowany przez agenta „{agent}” w {target}} other {Zatwierdzono zmianę zaproponowaną przez agenta „{agent}” w {target}}}{outcome, select, failed { (nie powiodło się)} other {}}",
+        "dismissed": "{kind, select, email_draft {Odrzucono e-mail przygotowany przez agenta „{agent}” w {target}} create_row {Odrzucono wiersz zaproponowany przez agenta „{agent}” w {target}} other {Odrzucono zmianę zaproponowaną przez agenta „{agent}” w {target}}}"
       }
     },
     "decisions": {
@@ -1693,7 +1703,10 @@
     "watchedNone": "Nie obserwujesz jeszcze żadnych stron",
     "watchedNoneDescription": "Obserwuj stronę z jej menu ⋯ albo całą przestrzeń zespołu z jej menu na pasku bocznym. Edytowane strony są obserwowane automatycznie.",
     "watchedTeamspace": "Wszystkie strony tej przestrzeni zespołu · {workspace}",
-    "stopWatching": "Przestań obserwować"
+    "stopWatching": "Przestań obserwować",
+    "reviewTitle": "Do przejrzenia",
+    "reviewDescription": "Agent proponuje zmianę w wierszu, który możesz edytować, albo przygotowuje szkic e-maila z twojej skrzynki pocztowej, i zmiana czeka, aż ją przejrzysz. Nowe propozycje są zbierane razem, dopóki ich nie otworzysz.",
+    "reviewChannel": "Do przejrzenia: {channel}"
   },
   "site": {
     "description": "Nadaj opublikowanym stronom tego obszaru roboczego jeden czytelny adres, stronę główną i nawigację między nimi.",

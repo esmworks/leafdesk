@@ -10,6 +10,7 @@ import { and, eq, inArray, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { page, type ChatChange, type ChatQueryCondition, type ChatStepRecord, type ChatWriteRecord, type PageKind } from "@/db/schema";
 import type { ChatActionView, ChatPageView } from "@/lib/ai-chat";
+import type { RowChangeBefore, RowChangePayload } from "@/lib/pending-changes";
 import { BLOCK_EDIT_OPS, blockEditProblem, MAX_BLOCK_EDITS, type BlockEdit } from "@/lib/block-edits";
 import { FILTER_OPS, MAX_FILTER_DEPTH } from "@/lib/filters";
 import { pageLabel } from "@/lib/labels";
@@ -506,6 +507,11 @@ export type PreparedWrite = {
   record: Omit<ChatWriteRecord, "outcome" | "pageId">;
   /** Makes the change, as the person: the row or page made or changed, with its values. */
   execute: () => Promise<{ id: string; title: string; text: string }>;
+  /**
+   * A row to add or change, as it would be stored (values by property id), and what it touches as
+   * the row has it now: what a change proposed for review keeps (server/pending-changes.ts).
+   */
+  row?: { kind: "create_row" | "update_row"; databaseId: string; rowId: string | null; payload: RowChangePayload; before: RowChangeBefore | null };
 };
 
 const invalidChange = (message: string): ToolOutcome => ({ content: `The change is not valid: ${message}`, isError: true });
@@ -536,7 +542,7 @@ export async function prepareWrite(
       const target = await writeTarget(userId, workspaceId, scopeId, input.database_id);
       if (!target || target.page.kind !== "database") return { content: "No database with that id can be changed. Use a database_id from the map or a source.", isError: true };
       if (!canEdit(target.level)) return readOnly;
-      if (input.properties) await normalizeRowProperties(userId, target.page.id, input.properties);
+      const stored = input.properties ? await normalizeRowProperties(userId, target.page.id, input.properties) : {};
       const changes = changesOf(input.properties);
       return {
         action: { action: "createRow", target: await pageView(userId, target.page.id), title: input.title, changes, content: preview(input.markdown) },
@@ -544,6 +550,13 @@ export async function prepareWrite(
         execute: async () => {
           const row = await ops.createDatabaseRow(ctx, input);
           return { id: row.id, title: row.title, text: valuesLine(row.properties as Record<string, unknown>) };
+        },
+        row: {
+          kind: "create_row",
+          databaseId: target.page.id,
+          rowId: null,
+          payload: { title: input.title, properties: stored, ...(input.markdown ? { markdown: input.markdown } : {}) },
+          before: null,
         },
       };
     }
@@ -558,9 +571,11 @@ export async function prepareWrite(
       if (!canEdit(target.level)) return readOnly;
       // Before the person is asked: a locked row keeps its title (its values stay open).
       if (input.title !== undefined && isPageLocked(target.page)) return { content: PAGE_LOCKED_MESSAGE, isError: true };
-      if (input.properties && Object.keys(input.properties).length) {
-        await normalizeRowProperties(userId, parent.page.id, input.properties, target.page.properties, { createdBy: target.page.createdBy });
-      }
+      const stored =
+        input.properties && Object.keys(input.properties).length
+          ? await normalizeRowProperties(userId, parent.page.id, input.properties, target.page.properties, { createdBy: target.page.createdBy })
+          : {};
+      const had = (target.page.properties ?? {}) as Record<string, unknown>;
       // What the person sees beside each new value: the value it has now, as they may see it.
       const now = Object.keys(input.properties ?? {}).length ? ((await ops.rowFields(ctx, target.page.id)).properties as Record<string, unknown>) : {};
       const changes = changesOf(input.properties, now);
@@ -578,6 +593,16 @@ export async function prepareWrite(
         execute: async () => {
           const row = await ops.updateDatabaseRow(ctx, input);
           return { id: row.id, title: row.title, text: valuesLine(row.properties as Record<string, unknown>) };
+        },
+        row: {
+          kind: "update_row",
+          databaseId: parent.page.id,
+          rowId: target.page.id,
+          payload: { ...(input.title !== undefined ? { title: input.title } : {}), properties: stored },
+          before: {
+            ...(input.title !== undefined ? { title: target.page.title } : {}),
+            properties: Object.fromEntries(Object.keys(stored).map((id) => [id, had[id] ?? null])),
+          },
         },
       };
     }

@@ -1,0 +1,88 @@
+{
+  "metaTitle": "Do przejrzenia",
+  "heading": "Do przejrzenia",
+  "description": "Zmiany, które agenci zaproponowali zamiast je wprowadzić. Zatwierdź zmianę, aby wprowadzić ją w twoim imieniu, najpierw ją edytuj albo ją odrzuć. Propozycje, których nikt nie rozpatrzy, wygasają po 30 dniach.",
+  "filters": {
+    "agent": "Agent",
+    "database": "Baza danych",
+    "status": "Pokaż",
+    "allAgents": "Wszyscy agenci",
+    "allDatabases": "Wszystkie bazy danych",
+    "open": "Oczekujące",
+    "decided": "Rozpatrzone",
+    "allRows": "Pokaż wszystkie wiersze",
+    "clear": "Wyczyść filtry"
+  },
+  "count": "{count, plural, one {# zmiana} few {# zmiany} many {# zmian} other {# zmiany}}",
+  "select": "Zaznacz tę zmianę",
+  "selectAll": "Zaznacz wszystkie",
+  "selected": "Zaznaczono: {count}",
+  "approveSelected": "Zatwierdź ({count})",
+  "dismissSelected": "Odrzuć ({count})",
+  "bulkSkipped": "{count, plural, one {Nie udało się rozpatrzyć jednej zmiany: była już rozpatrzona, jej wiersz się od tego czasu zmienił albo nie możesz jej rozpatrzyć.} few {Nie udało się rozpatrzyć # zmiany: były już rozpatrzone, ich wiersze się od tego czasu zmieniły albo nie możesz ich rozpatrzyć.} many {Nie udało się rozpatrzyć # zmian: były już rozpatrzone, ich wiersze się od tego czasu zmieniły albo nie możesz ich rozpatrzyć.} other {Nie udało się rozpatrzyć # zmiany: były już rozpatrzone, ich wiersze się od tego czasu zmieniły albo nie możesz ich rozpatrzyć.}}",
+  "empty": {
+    "open": "Nic nie czeka, aż to przejrzysz.",
+    "decided": "W ciągu ostatnich 30 dni nie rozpatrzono żadnej zmiany.",
+    "filtered": "Żadna zmiana nie pasuje do tych filtrów."
+  },
+  "proposes": {
+    "createRow": "<agent></agent> chce dodać wiersz do <database></database>",
+    "updateRow": "<agent></agent> chce zmienić <row></row>",
+    "emailDraft": "<agent></agent>: przygotowano szkic e-maila w <row></row>"
+  },
+  "inDatabase": "w <database></database>",
+  "unknownAgent": "Usunięty agent",
+  "someone": "Ktoś",
+  "viewRun": "Zobacz uruchomienie",
+  "edited": "Edytowano",
+  "expires": "Wygasa {time}",
+  "decided": {
+    "approved": "Zatwierdzono: {name}, {time}",
+    "dismissed": "Odrzucono: {name}, {time}",
+    "expired": "Wygasła nierozpatrzona"
+  },
+  "title": "Tytuł",
+  "becomes": "zmienia się na",
+  "changedSince": "Zmieniono od czasu propozycji, teraz: <value></value>",
+  "conflictNotice": "Ten wiersz zmienił się od czasu, gdy agent to zaproponował. Zatwierdzenie nadpisze jego obecną zawartość.",
+  "failedNote": "Zmiana została zatwierdzona, ale nie udało się jej wprowadzić: {error} Edytuj ją i zatwierdź ponownie albo ją odrzuć.",
+  "failed": {
+    "error": "coś poszło nie tak.",
+    "pageLocked": "wiersz jest zablokowany."
+  },
+  "email": {
+    "from": "Od",
+    "to": "Do",
+    "cc": "DW",
+    "subject": "Temat",
+    "text": "Tekst",
+    "reply": "Odpowiedź na najnowszy e-mail w wierszu"
+  },
+  "markdown": "Tekst strony",
+  "notEditable": "Zachowaj lub pomiń; zmień to potem w wierszu.",
+  "leaveOut": "Pomiń",
+  "keep": "Zachowaj",
+  "approve": "Zatwierdź",
+  "approveAnyway": "Zatwierdź mimo to",
+  "send": "Wyślij",
+  "edit": "Edytuj",
+  "save": "Zapisz edycję",
+  "dismiss": "Odrzuć",
+  "cannot": {
+    "email": "Tylko {name} może wysłać ten szkic, z własnej skrzynki pocztowej.",
+    "row": "Widzisz tę zmianę, ale do jej zatwierdzenia potrzebujesz uprawnień do edycji wiersza i każdej wartości, którą ustawia."
+  },
+  "errors": {
+    "notFound": "Tej zmiany już nie ma albo nie możesz jej zobaczyć.",
+    "decided": "Ktoś już rozpatrzył tę zmianę.",
+    "conflict": "Wiersz zmienił się od czasu tej propozycji. Przejrzyj go ponownie, a potem zatwierdź mimo to albo odrzuć.",
+    "invalid": "Ta edycja jest nieprawidłowa: {message}",
+    "accessDenied": "Nie możesz rozpatrzyć tej zmiany."
+  },
+  "banner": {
+    "title": "Zmiany czekające na przejrzenie",
+    "bar": "{count, plural, one {# zmiana czeka na przejrzenie} few {# zmiany czekają na przejrzenie} many {# zmian czeka na przejrzenie} other {# zmiany czeka na przejrzenie}}",
+    "by": "zaproponowane przez: {names}",
+    "open": "Przejrzyj"
+  }
+}

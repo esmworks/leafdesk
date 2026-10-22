@@ -195,7 +195,13 @@
           "createPage": "Impossibile aggiungere la pagina:",
           "editPage": "Impossibile modificare il testo di:"
         },
-        "in": "in"
+        "in": "in",
+        "proposed": {
+          "createRow": "Aggiunta di una riga proposta da rivedere:",
+          "updateRow": "Modifica proposta da rivedere:",
+          "createPage": "Aggiunta di una pagina proposta da rivedere:",
+          "editPage": "Modifica del testo proposta da rivedere:"
+        }
       },
       "memory": {
         "remember": "Ricordato:",

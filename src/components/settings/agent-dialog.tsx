@@ -37,6 +37,7 @@ import {
   type AgentAccessLevel,
   type AgentAccessView,
   type AgentModel,
+  type AgentRowChanges,
   type AgentSkillRecord,
   type AgentToolRecord,
   type AgentUsageMonth,
@@ -226,6 +227,7 @@ export function AgentForm({
   const [webAccess, setWebAccess] = useState(agent?.webAccess ?? false);
   const [limit, setLimit] = useState(agent?.monthlyTokenLimit ? String(agent.monthlyTokenLimit) : "");
   const [model, setModel] = useState<AgentModel>(agent?.model ?? "main");
+  const [rowChanges, setRowChanges] = useState<AgentRowChanges>(agent?.rowChanges ?? "direct");
   // Null until loaded: saving then leaves them as they are.
   const [helpers, setHelpers] = useState<string[] | null>(null);
   const { pending, error, run } = useAction();
@@ -245,6 +247,7 @@ export function AgentForm({
       instructions,
       enabled,
       webAccess,
+      rowChanges,
       // Left as it is by anyone but an owner.
       ...(isOwner ? { monthlyTokenLimit } : {}),
       ...(models ? { model } : {}),
@@ -326,6 +329,19 @@ export function AgentForm({
             <span className="mt-1 block text-xs text-fg-muted">{t("modelHelp")}</span>
           </label>
         )}
+        <label className="block border-t border-border pt-3">
+          <span className="mb-1 block text-sm">{t("rowChanges")}</span>
+          <select
+            value={rowChanges}
+            disabled={locked}
+            onChange={(e) => setRowChanges(e.target.value as AgentRowChanges)}
+            className={cn(selectClass, "w-full sm:w-auto")}
+          >
+            <option value="direct">{t("rowChangesDirect")}</option>
+            <option value="review">{t("rowChangesReview")}</option>
+          </select>
+          <span className="mt-1 block text-xs text-fg-muted">{t(rowChanges === "review" ? "rowChangesReviewHelp" : "rowChangesDirectHelp")}</span>
+        </label>
         <div className="flex items-center justify-between gap-3 border-t border-border pt-3 text-sm">
           <div>
             <div>{t("webAccess")}</div>

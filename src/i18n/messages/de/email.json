@@ -245,7 +245,9 @@
     "untitled": "Ohne Titel",
     "snooze": "1 Stunde zurückstellen",
     "aiAccountTitle": "KI-Konto entfernt",
-    "aiAccountDetached": "Die KI des Workspaces läuft nicht mehr über den Schlüssel von {actor}."
+    "aiAccountDetached": "Die KI des Workspaces läuft nicht mehr über den Schlüssel von {actor}.",
+    "reviewTitle": "Zu prüfen",
+    "review": "{count, plural, one {{agent} hat eine Änderung zur Prüfung vorgeschlagen} other {# Änderungen warten auf deine Prüfung, die neueste von {agent}}}"
   },
   "agentReply": {
     "aiOff": "Ich kann nicht antworten: KI ist in diesem Workspace ausgeschaltet.",

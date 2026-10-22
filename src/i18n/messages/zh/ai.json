@@ -195,7 +195,13 @@
           "createPage": "无法添加页面：",
           "editPage": "无法更改其文本："
         },
-        "in": "位于"
+        "in": "位于",
+        "proposed": {
+          "createRow": "提议添加一行以供审阅：",
+          "updateRow": "提议了一处更改以供审阅：",
+          "createPage": "提议添加一个页面以供审阅：",
+          "editPage": "提议了一处文本更改以供审阅："
+        }
       },
       "memory": {
         "remember": "已记住：",

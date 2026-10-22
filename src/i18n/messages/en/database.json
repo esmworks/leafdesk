@@ -527,7 +527,8 @@
     "unknownPerson": "{count, plural, one {someone unknown} other {# people unknown}}",
     "checked": "checked",
     "unchecked": "unchecked",
-    "checklist": "{done} of {total} done"
+    "checklist": "{done} of {total} done",
+    "approvedFrom": "(proposed by {name})"
   },
   "rowEmail": {
     "title": "Email",

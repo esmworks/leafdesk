@@ -527,7 +527,8 @@
     "unknownPerson": "{count, plural, one {# неизвестный человек} few {# неизвестных человека} many {# неизвестных человек} other {# неизвестного человека}}",
     "checked": "отмечено",
     "unchecked": "не отмечено",
-    "checklist": "выполнено {done} из {total}"
+    "checklist": "выполнено {done} из {total}",
+    "approvedFrom": "(предложено: {name})"
   },
   "rowEmail": {
     "title": "Почта",

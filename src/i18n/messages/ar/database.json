@@ -527,7 +527,8 @@
     "unknownPerson": "{count, plural, one {شخص غير معروف} two {شخصان غير معروفين} few {# أشخاص غير معروفين} many {# شخصًا غير معروف} other {# شخص غير معروف}}",
     "checked": "محدد",
     "unchecked": "غير محدد",
-    "checklist": "اكتمل {done} من {total}"
+    "checklist": "اكتمل {done} من {total}",
+    "approvedFrom": "(باقتراح من {name})"
   },
   "rowEmail": {
     "title": "البريد",

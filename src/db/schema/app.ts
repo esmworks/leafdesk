@@ -898,6 +898,11 @@ export const rowActivity = pgTable(
      */
     actorUserId: text("actor_user_id").references(() => user.id, { onDelete: "set null" }),
     actorKind: text("actor_kind").$type<RowActivityActor>().notNull(),
+    /**
+     * When the change was proposed for review and a person approved it (pending_change): the
+     * agent's user that proposed it; `actorUserId` is who approved it.
+     */
+    proposedBy: text("proposed_by").references(() => user.id, { onDelete: "set null" }),
     kind: text("kind").$type<RowActivityKind>().notNull(),
     /**
      * The property, for `property` entries. No foreign key: a deleted property's entries come back

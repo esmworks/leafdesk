@@ -14,6 +14,7 @@ const TAGS = [
   { name: "Rows", description: "Database rows and their property values." },
   { name: "Comments", description: "Comment threads on pages." },
   { name: "Agents", description: "A workspace's agents: their settings, who they are shared with, runs asked for now, schedules, run history and monthly usage." },
+  { name: "Review", description: "Changes agents proposed instead of making them: rows to add or change and email drafts, each approved (optionally edited) or dismissed by a person." },
 ];
 
 /** Field descriptions are shared with the MCP server and sometimes name its tools. */
@@ -520,6 +521,11 @@ const SCHEMAS: Record<string, JsonSchema> = {
         description: "Which of the server's models its runs use: its main model, or its cheaper fast one (the main model where the server has none, or on an own AI account).",
       },
       web_access: { type: "boolean", description: "Whether its runs may read public web pages (and search the web, where the server has a search service)." },
+      row_changes: {
+        type: "string",
+        enum: ["direct", "review"],
+        description: "How its runs change database rows: directly, or by proposing each change for a person to approve first (the pending changes endpoints).",
+      },
       user_id: { type: "string", description: "The agent's own user: what its changes and comments show." },
       helper_agent_ids: {
         type: "array",
@@ -533,7 +539,7 @@ const SCHEMAS: Record<string, JsonSchema> = {
           "The token's user's access to the agent: full (everything, sharing and archiving it too; workspace owners always), edit (change and run it), interact (see it, chat with it and mention it).",
       },
     },
-    ["id", "name", "enabled", "archived", "model", "web_access", "user_id", "your_access"],
+    ["id", "name", "enabled", "archived", "model", "web_access", "row_changes", "user_id", "your_access"],
   ),
   AgentList: loose({ workspace_id: id, agents: { type: "array", items: ref("AgentSummary") } }, ["workspace_id", "agents"]),
   AgentUsageMonth: loose(
@@ -677,6 +683,54 @@ const SCHEMAS: Record<string, JsonSchema> = {
     },
     ["agent_id", "monthly_token_limit", "months"],
   ),
+  PendingChange: loose(
+    {
+      id,
+      kind: { type: "string", enum: ["create_row", "update_row", "email_draft"] },
+      status: { type: "string", enum: ["pending", "approved", "dismissed", "expired", "failed"], description: "failed: approved, but it couldn't be made (`error` says why); approve it again or dismiss it." },
+      error: { type: "string" },
+      reason: { type: "string", description: "Why the agent proposed it." },
+      database: loose({ id, title: { type: "string" }, url }, ["id"]),
+      row: { oneOf: [{ type: "null" }, loose({ id, title: { type: "string" }, url }, ["id"])], description: "null for a row still to be added." },
+      agent: { oneOf: [{ type: "null" }, loose({ id, name: { type: "string" } }, ["id"])] },
+      run_id: { type: "string", description: "The agent's run that proposed it." },
+      run_url: url,
+      changes: {
+        type: "array",
+        description: "A row change's values: what each was when proposed (`from`), is now (`now`) and would become (`to`), as text.",
+        items: loose(
+          {
+            property: { type: "string", description: "The property's name, or `title`." },
+            property_id: id,
+            from: { type: "string" },
+            now: { type: "string" },
+            to: { type: "string" },
+            conflict: { type: "boolean", description: "The value changed since it was proposed." },
+          },
+          ["property", "to"],
+        ),
+      },
+      markdown: { type: "string", description: "A new row's page text." },
+      email: loose({
+        from: { type: "string", description: "The person it goes out from." },
+        to: { type: "array", items: { type: "string" } },
+        cc: { type: "array", items: { type: "string" } },
+        subject: { type: "string" },
+        text: { type: "string" },
+        in_reply: { type: "boolean", description: "It answers the row's latest email." },
+      }),
+      edited: { type: "boolean", description: "A reviewer changed it from what the agent proposed." },
+      conflict: { type: "boolean", description: "The row changed since in a value it sets: approving needs `force`." },
+      can_approve: { type: "boolean", description: "Whether the token's user may approve or dismiss it." },
+      created_at: { type: "string", format: "date-time" },
+      expires_at: { type: "string", format: "date-time" },
+      decided_at: { type: "string", format: "date-time" },
+      decided_by: { type: ["string", "null"] },
+      url,
+    },
+    ["id", "kind", "status", "reason", "database", "row", "edited", "conflict", "can_approve", "created_at", "expires_at"],
+  ),
+  PendingChangeList: loose({ workspace_id: id, changes: { type: "array", items: ref("PendingChange") } }, ["workspace_id", "changes"]),
 };
 
 const ERROR_RESPONSES: Record<string, { description: string }> = {
@@ -689,7 +743,7 @@ const ERROR_RESPONSES: Record<string, { description: string }> = {
   "404": { description: "Not found, or the user (or the token's workspace) may not access it." },
   "409": {
     description:
-      "It can't be done now: the agent can't run (agent_unavailable, limit_reached, too_many_runs), or voice notes or AI aren't available (voice_notes_unavailable, ai_unavailable).",
+      "It can't be done now: the agent can't run (agent_unavailable, limit_reached, too_many_runs), a change waiting for review was already answered or its row changed since (change_decided, change_conflict), or voice notes or AI aren't available (voice_notes_unavailable, ai_unavailable).",
   },
   "413": { description: "The request body is too large (payload_too_large)." },
   "415": { description: "The body or its file is of a kind the endpoint doesn't take (unsupported_media_type)." },

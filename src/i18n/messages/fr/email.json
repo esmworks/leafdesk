@@ -245,7 +245,9 @@
     "untitled": "Sans titre",
     "snooze": "Reporter d’1 heure",
     "aiAccountTitle": "Compte IA supprimé",
-    "aiAccountDetached": "L’IA de l’espace de travail ne fonctionne plus avec la clé de {actor}."
+    "aiAccountDetached": "L’IA de l’espace de travail ne fonctionne plus avec la clé de {actor}.",
+    "reviewTitle": "À vérifier",
+    "review": "{count, plural, one {{agent} a proposé une modification à vérifier} other {# modifications attendent votre vérification, la dernière de {agent}}}"
   },
   "agentReply": {
     "aiOff": "Je ne peux pas répondre : l’IA est désactivée dans cet espace de travail.",

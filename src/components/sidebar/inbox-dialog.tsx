@@ -1,6 +1,6 @@
 "use client";
 
-import { AlarmClock, CalendarClock, KeyRound, Mail, NotebookPen, ShieldQuestion, UserPlus } from "lucide-react";
+import { AlarmClock, CalendarClock, ClipboardCheck, KeyRound, Mail, NotebookPen, ShieldQuestion, UserPlus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
@@ -174,6 +174,11 @@ export function InboxDialog({
                       <CalendarClock aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
                       <span className="truncate">{t("reportTitle", { agent: item.report?.agentName ?? item.actorName ?? t("someone") })}</span>
                     </>
+                  ) : item.kind === "review" ? (
+                    <>
+                      <ClipboardCheck aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
+                      <span className="truncate">{t("reviewTitle")}</span>
+                    </>
                   ) : item.kind === "ai_account_detached" ? (
                     <>
                       <KeyRound aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
@@ -215,6 +220,8 @@ export function InboxDialog({
                         : item.report.text === null
                           ? t("reportHidden")
                           : item.report.text || t("reportDone")
+                    : item.kind === "review"
+                    ? t("review", { count: item.review?.count ?? 0, agent: item.actorName || t("someone") })
                     : item.kind === "ai_account_detached"
                     ? t("aiAccountDetached", { actor: item.actorName || t("someone") })
                     : item.kind === "access_request"

@@ -195,7 +195,13 @@
           "createPage": "Couldn't add the page:",
           "editPage": "Couldn't change the text of:"
         },
-        "in": "in"
+        "in": "in",
+        "proposed": {
+          "createRow": "Proposed adding a row for review:",
+          "updateRow": "Proposed a change for review:",
+          "createPage": "Proposed adding a page for review:",
+          "editPage": "Proposed a text change for review:"
+        }
       },
       "memory": {
         "remember": "Remembered:",

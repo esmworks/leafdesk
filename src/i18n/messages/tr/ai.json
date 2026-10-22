@@ -195,7 +195,13 @@
           "createPage": "Sayfa eklenemedi:",
           "editPage": "Metni değiştirilemedi:"
         },
-        "in": "yer:"
+        "in": "yer:",
+        "proposed": {
+          "createRow": "İnceleme için satır eklemeyi önerdi:",
+          "updateRow": "İnceleme için bir değişiklik önerdi:",
+          "createPage": "İnceleme için sayfa eklemeyi önerdi:",
+          "editPage": "İnceleme için bir metin değişikliği önerdi:"
+        }
       },
       "memory": {
         "remember": "Hatırladı:",

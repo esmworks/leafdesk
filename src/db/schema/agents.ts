@@ -4,6 +4,7 @@ import type {
   AgentAccessLevel,
   AgentModel,
   AgentPendingCall,
+  AgentRowChanges,
   AgentRunCode,
   AgentRunContext,
   AgentRunSource,
@@ -64,6 +65,8 @@ export const workspaceAgent = pgTable(
     monthlyTokenLimit: integer("monthly_token_limit"),
     /** Which of the server's models its runs use: "fast" is AI_FAST_MODEL, where the workspace's AI has one. */
     model: text("model").$type<AgentModel>().notNull().default("main"),
+    /** Whether its runs write rows at once or propose the changes for review (lib/agents AGENT_ROW_CHANGES). */
+    rowChanges: text("row_changes").$type<AgentRowChanges>().notNull().default("direct"),
     archivedAt: timestamp("archived_at", { withTimezone: true }),
     createdBy: text("created_by").references(() => user.id, { onDelete: "set null" }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

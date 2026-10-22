@@ -202,7 +202,14 @@ export async function installBuiltinAgent(
   await create();
   const built = buildBuiltinAgent(texts, names);
   const name = typeof setup.name === "string" && setup.name.trim() ? setup.name : built.name;
-  const agent = await createAgent(userId, workspaceId, { name, icon: built.icon, description: built.description, instructions: built.instructions });
+  const agent = await createAgent(userId, workspaceId, {
+    name,
+    icon: built.icon,
+    description: built.description,
+    instructions: built.instructions,
+    // Its answers go to people who asked: someone reads each one before it is written to the row.
+    ...(names.key === "request-answerer" ? { rowChanges: "review" as const } : {}),
+  });
   try {
     for (const page of pages) await setAgentAccess(userId, agent.id, page.id, "view");
     if (trigger) {

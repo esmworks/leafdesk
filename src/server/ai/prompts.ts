@@ -472,6 +472,10 @@ export function agentSystemPrompt(
     web?: { search: boolean };
     skills?: { title: string; body: string }[];
     remembers?: boolean;
+    /** Its owners chose that its changes to rows (create_row, update_row) wait for review instead of being made. */
+    reviews?: boolean;
+    /** It may draft emails on the row (draft_email), which go out only once the sender approves them. */
+    drafts?: boolean;
   } = { row: true, connections: [] },
 ): string {
   const skills = run.skills ?? [];
@@ -505,9 +509,17 @@ export function agentSystemPrompt(
       ? `update_row changes values or the title of rows of the database you look after, and only its rows; edit_page changes their text (read_page with_block_ids first). add_comment writes a comment on one of its rows. You may make ${scheduled.maxWrites} changes in all: change only what the task and your instructions call for; when nothing needs changing, change nothing.`
       : run.row
         ? "update_row changes values or the title of the row that started this run, and only that row; edit_page changes its text (read_page with_block_ids first). add_comment writes a comment on that row. Change only what the task and your instructions call for; when nothing needs changing, change nothing."
+        : run.addsRows && run.reviews
+          ? "create_row proposes a row for a database shared with you to edit; it is the only change you can make to pages in this run. Propose a row only when the task and your instructions call for it."
         : run.addsRows
           ? "create_row adds a row to a database shared with you to edit; it is the only change you can make to pages in this run. Each row is added only after a person approves it: call it once with exactly the row to add, and you will hear whether it was added, declined or sent back with a note. Add a row only when the task and your instructions call for it."
           : "You can't change pages in this run; you may only read them, and use the tools of connected services.",
+    run.reviews
+      ? "Your changes to rows (create_row, update_row) are proposals: each waits for a person to approve it (maybe after editing it) or dismiss it, and nothing is saved until then. Give each a short reason, for the person reviewing it: why you propose it. Propose each change once, with everything it should change; a newer proposal for the same row takes the place of the one waiting. Say in your answer what you proposed, not that you changed it."
+      : "",
+    run.drafts
+      ? "draft_email drafts an email on the row, to the row's own addresses, from the mailbox of the person you work for: it goes out only once they read and approve it. Write it as they would send it: plain text, no Markdown, no placeholders, signed with their name, in the language of the row's earlier mail (or of the row). Draft one only when the task and your instructions call for it."
+      : "",
     run.connections.length
       ? `Tools named <service>__<tool> belong to connected services (${run.connections.map((c) => `"${attr(c)}"`).join(", ")}). ${run.askEveryTool ? "Each" : "Tools that only read run at once. Any other"} is sent only after a person approves it: call it once with exactly what should be sent, and you will hear whether it was sent, declined or sent back with a note. Never call such a tool to try things out.`
       : "",

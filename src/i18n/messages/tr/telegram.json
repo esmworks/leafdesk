@@ -93,7 +93,8 @@
   "changed": {
     "done": "Yapıldı: {what}",
     "declined": "Yapılmadı: {what}",
-    "failed": "Yapılamadı: {what}"
+    "failed": "Yapılamadı: {what}",
+    "proposed": "İncelemeye önerildi: {what}"
   },
   "errors": {
     "disabled": "Bu çalışma alanında yapay zekâ kapalı.",

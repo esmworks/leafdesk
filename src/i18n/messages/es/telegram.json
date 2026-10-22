@@ -93,7 +93,8 @@
   "changed": {
     "done": "Hecho: {what}",
     "declined": "No hecho: {what}",
-    "failed": "No se pudo hacer: {what}"
+    "failed": "No se pudo hacer: {what}",
+    "proposed": "Propuesto para revisión: {what}"
   },
   "errors": {
     "disabled": "La IA está desactivada en este espacio de trabajo.",

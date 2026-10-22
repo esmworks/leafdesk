@@ -93,7 +93,8 @@
   "changed": {
     "done": "已完成：{what}",
     "declined": "未执行：{what}",
-    "failed": "无法完成：{what}"
+    "failed": "无法完成：{what}",
+    "proposed": "已提议以供审阅：{what}"
   },
   "errors": {
     "disabled": "此工作区已关闭 AI。",

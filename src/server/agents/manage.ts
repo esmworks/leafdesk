@@ -19,6 +19,7 @@ import {
   callToSend,
   isAgentAccessLevel,
   isAgentModel,
+  isAgentRowChanges,
   isEventRun,
   isMentionRun,
   isRowRun,
@@ -33,6 +34,7 @@ import {
   type AgentAccessLevel,
   type AgentAccessView,
   type AgentModel,
+  type AgentRowChanges,
   type AgentRunView,
   type AgentView,
 } from "@/lib/agents";
@@ -65,6 +67,8 @@ export type AgentInput = {
   /** Tokens a month; null removes the limit. */
   monthlyTokenLimit?: number | null;
   model?: AgentModel;
+  /** Whether its runs change rows at once or propose the changes for review. */
+  rowChanges?: AgentRowChanges;
   /** Its "Agents it can ask" (see helpers.ts), all of them. */
   helperAgentIds?: string[];
 };
@@ -82,6 +86,11 @@ function checkLimit(value: unknown) {
   if (typeof value !== "number" || !Number.isInteger(value) || value < 1 || value > MAX_AGENT_TOKEN_LIMIT) {
     throw new AgentError("invalid", "A monthly token limit is a whole number of tokens, from 1 to a billion", { reason: "limit" });
   }
+  return value;
+}
+
+function checkRowChanges(value: unknown): AgentRowChanges {
+  if (!isAgentRowChanges(value)) throw new AgentError("invalid", 'An agent changes rows "direct"ly or proposes them for "review"', { reason: "rowChanges" });
   return value;
 }
 
@@ -128,6 +137,7 @@ export function viewAgent(a: Agent, access: AgentShareLevel): AgentView {
     webAccess: a.webAccess,
     monthlyTokenLimit: a.monthlyTokenLimit,
     model: a.model,
+    rowChanges: a.rowChanges,
     access,
     createdAt: a.createdAt.toISOString(),
     updatedAt: a.updatedAt.toISOString(),
@@ -141,6 +151,7 @@ export const auditDetails = (a: Agent) => ({
   webAccess: a.webAccess,
   monthlyTokenLimit: a.monthlyTokenLimit,
   model: a.model,
+  rowChanges: a.rowChanges,
 });
 
 export { agentWithLevel } from "./sharing";
@@ -223,6 +234,7 @@ export async function createAgent(userId: string, workspaceId: string, input: Ag
         webAccess: input.webAccess === true,
         monthlyTokenLimit,
         model,
+        rowChanges: input.rowChanges === undefined ? "direct" : checkRowChanges(input.rowChanges),
         createdBy: userId,
       })
       .returning();
@@ -254,6 +266,7 @@ export async function updateAgent(userId: string, agentId: string, patch: AgentI
   if (patch.webAccess !== undefined) set.webAccess = patch.webAccess === true;
   if (patch.monthlyTokenLimit !== undefined) set.monthlyTokenLimit = checkLimit(patch.monthlyTokenLimit);
   if (patch.model !== undefined) set.model = checkModel(patch.model);
+  if (patch.rowChanges !== undefined) set.rowChanges = checkRowChanges(patch.rowChanges);
   const helpersBefore = (await helperIdsOf([agentId])).get(agentId) ?? [];
   const helpers = patch.helperAgentIds === undefined ? helpersBefore : await checkHelpers(userId, current.workspaceId, agentId, patch.helperAgentIds, helpersBefore);
   const helpersChanged = helpers.join() !== helpersBefore.join();

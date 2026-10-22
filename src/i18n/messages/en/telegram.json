@@ -93,7 +93,8 @@
   "changed": {
     "done": "Done: {what}",
     "declined": "Not done: {what}",
-    "failed": "Couldn't do: {what}"
+    "failed": "Couldn't do: {what}",
+    "proposed": "Proposed for review: {what}"
   },
   "errors": {
     "disabled": "AI is turned off in this workspace.",
