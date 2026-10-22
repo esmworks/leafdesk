@@ -1602,7 +1602,7 @@
         "updated": "שינוי החיבור “{target}”",
         "deleted": "הסרת החיבור “{target}”",
         "tool_called": "הפעלת “{tool}” ב־“{target}” ({outcome})",
-        "approval_decided": "{decision} הקריאה של הסוכן “{agent}” ל־“{tool}” ב־“{target}”"
+        "approval_decided": "{decision} הקריאה של הסוכן “{agent}” ל־“{tool}” ב־“{target}”{channel, select, telegram { (מ־Telegram)} other {}}"
       },
       "mail": {
         "databases_changed": "הגדרת מסדי הנתונים שאליהם מגיעים אימיילים: {names}",
@@ -1644,6 +1644,7 @@
     "inbox": "דואר נכנס",
     "email": "אימייל",
     "push": "Push",
+    "telegram": "Telegram",
     "pushDescription": "התראות Push נשלחות על מה שמוצג בתיבת הדואר הנכנס שלך, במכשירים שבהם הן הופעלו.",
     "pushDeviceTitle": "התראות Push במכשיר הזה",
     "pushDeviceOff": "קבלת התראה במכשיר הזה על כל פריט חדש בתיבת הדואר הנכנס, גם כש־Leafdesk סגור.",

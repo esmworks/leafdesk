@@ -1602,7 +1602,7 @@
         "updated": "Changed the connection “{target}”",
         "deleted": "Removed the connection “{target}”",
         "tool_called": "Called “{tool}” on “{target}” ({outcome})",
-        "approval_decided": "{decision} the call of “{tool}” on “{target}” by the agent “{agent}”"
+        "approval_decided": "{decision} the call of “{tool}” on “{target}” by the agent “{agent}”{channel, select, telegram { (from Telegram)} other {}}"
       },
       "mail": {
         "databases_changed": "Set the databases email lands on: {names}",
@@ -1644,6 +1644,7 @@
     "inbox": "Inbox",
     "email": "Email",
     "push": "Push",
+    "telegram": "Telegram",
     "pushDescription": "Push notifications come for what shows in your inbox, on the devices where you turn them on.",
     "pushDeviceTitle": "Push notifications on this device",
     "pushDeviceOff": "Get a notification on this device for each new item in your inbox, even when Leafdesk is closed.",

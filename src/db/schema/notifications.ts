@@ -82,6 +82,21 @@ export const userPreference = pgTable("user_preference", {
   rowUpdatePush: boolean("row_update_push").notNull().default(true),
   pageUpdatePush: boolean("page_update_push").notNull().default(true),
   rowEmailPush: boolean("row_email_push").notNull().default(true),
+  /**
+   * Telegram messages per kind, to the Telegram account the person linked (see telegram_link,
+   * server/telegram/notify.ts). They follow the inbox as push does.
+   */
+  assignmentTelegram: boolean("assignment_telegram").notNull().default(true),
+  shareTelegram: boolean("share_telegram").notNull().default(true),
+  commentTelegram: boolean("comment_telegram").notNull().default(true),
+  mentionTelegram: boolean("mention_telegram").notNull().default(true),
+  reminderTelegram: boolean("reminder_telegram").notNull().default(true),
+  accessRequestTelegram: boolean("access_request_telegram").notNull().default(true),
+  joinRequestTelegram: boolean("join_request_telegram").notNull().default(true),
+  automationTelegram: boolean("automation_telegram").notNull().default(true),
+  rowUpdateTelegram: boolean("row_update_telegram").notNull().default(true),
+  pageUpdateTelegram: boolean("page_update_telegram").notNull().default(true),
+  rowEmailTelegram: boolean("row_email_telegram").notNull().default(true),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

@@ -64,9 +64,10 @@ export async function withdrawApproval(runId: string) {
 
 /**
  * An owner's answer to the call a run waits on. `callId` names the call they saw, so an answer
- * meant for an earlier call (the agent asked again since) is refused rather than taken.
+ * meant for an earlier call (the agent asked again since) is refused rather than taken. `via` names
+ * where it was given when not in the app (the Telegram bot), for the audit log.
  */
-export async function decideApproval(userId: string, input: { runId: string; callId: string; decision: ApprovalDecision; note?: string }) {
+export async function decideApproval(userId: string, input: { runId: string; callId: string; decision: ApprovalDecision; note?: string; via?: string }) {
   const note = input.note?.trim().slice(0, MAX_REDO_NOTE) ?? "";
   if (input.decision === "redo" && !note) throw new ApprovalError("invalid", "Say what should change");
   const [run] = await db
@@ -108,7 +109,14 @@ export async function decideApproval(userId: string, input: { runId: string; cal
     target: pending.connectionId
       ? { type: "connection", id: pending.connectionId, label: conn?.name ?? null }
       : { type: "workspace", id: run.workspaceId, label: OWN_TOOLS_NAME },
-    details: { tool: pending.tool, decision: input.decision, agent: agent?.name ?? null, input: inputSummary(pending.arguments), ...(note ? { note: note.slice(0, 200) } : {}) },
+    details: {
+      tool: pending.tool,
+      decision: input.decision,
+      agent: agent?.name ?? null,
+      input: inputSummary(pending.arguments),
+      ...(note ? { note: note.slice(0, 200) } : {}),
+      ...(input.via ? { via: input.via } : {}),
+    },
   });
   return { runId: run.id };
 }

@@ -1602,7 +1602,7 @@
         "updated": "연결 “{target}”을(를) 변경했습니다",
         "deleted": "연결 “{target}”을(를) 제거했습니다",
         "tool_called": "“{target}”에서 “{tool}”을(를) 호출했습니다({outcome})",
-        "approval_decided": "에이전트 “{agent}”의 “{target}” “{tool}” 호출을 {decision}"
+        "approval_decided": "에이전트 “{agent}”의 “{target}” “{tool}” 호출을 {decision}{channel, select, telegram { (Telegram에서)} other {}}"
       },
       "mail": {
         "databases_changed": "이메일이 도착할 데이터베이스를 설정했습니다: {names}",
@@ -1644,6 +1644,7 @@
     "inbox": "수신함",
     "email": "이메일",
     "push": "푸시",
+    "telegram": "Telegram",
     "pushDescription": "푸시 알림은 수신함에 표시되는 항목에 대해, 알림을 켠 기기에서 받습니다.",
     "pushDeviceTitle": "이 기기의 푸시 알림",
     "pushDeviceOff": "Leafdesk가 닫혀 있어도 수신함에 새 항목이 생길 때마다 이 기기에서 알림을 받습니다.",

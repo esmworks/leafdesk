@@ -1602,7 +1602,7 @@
         "updated": "“{target}” bağlantısını değiştirdi",
         "deleted": "“{target}” bağlantısını kaldırdı",
         "tool_called": "“{target}” üzerinde “{tool}” çağırdı ({outcome})",
-        "approval_decided": "“{agent}” ajanının “{target}” üzerindeki “{tool}” çağrısı: {decision}"
+        "approval_decided": "“{agent}” ajanının “{target}” üzerindeki “{tool}” çağrısı: {decision}{channel, select, telegram { (Telegram’dan)} other {}}"
       },
       "mail": {
         "databases_changed": "E-postaların düştüğü veritabanlarını belirledi: {names}",
@@ -1644,6 +1644,7 @@
     "inbox": "Gelen kutusu",
     "email": "E-posta",
     "push": "Anlık",
+    "telegram": "Telegram",
     "pushDescription": "Anlık bildirimler, gelen kutunuzda görünenler için, açtığınız cihazlara gelir.",
     "pushDeviceTitle": "Bu cihazda anlık bildirimler",
     "pushDeviceOff": "Gelen kutunuza düşen her yeni öğe için, Leafdesk kapalıyken bile bu cihazda bildirim alın.",

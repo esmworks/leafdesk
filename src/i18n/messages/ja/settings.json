@@ -1602,7 +1602,7 @@
         "updated": "接続「{target}」を変更しました",
         "deleted": "接続「{target}」を削除しました",
         "tool_called": "「{target}」で「{tool}」を呼び出しました（{outcome}）",
-        "approval_decided": "エージェント「{agent}」による「{target}」での「{tool}」の呼び出し：{decision}"
+        "approval_decided": "エージェント「{agent}」による「{target}」での「{tool}」の呼び出し：{decision}{channel, select, telegram {（Telegram から）} other {}}"
       },
       "mail": {
         "databases_changed": "メールが届くデータベースを設定しました: {names}",
@@ -1644,6 +1644,7 @@
     "inbox": "受信トレイ",
     "email": "メール",
     "push": "プッシュ",
+    "telegram": "Telegram",
     "pushDescription": "プッシュ通知は、受信トレイに表示されるものについて、オンにしたデバイスに届きます。",
     "pushDeviceTitle": "このデバイスのプッシュ通知",
     "pushDeviceOff": "Leafdeskを閉じていても、受信トレイに新しい項目が届くたびに、このデバイスに通知を表示します。",

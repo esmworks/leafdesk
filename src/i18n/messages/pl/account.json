@@ -185,5 +185,30 @@
     "turnOffConfirm": "Wyłącz ten adres",
     "turningOff": "Wyłączanie…",
     "turnOffError": "Nie udało się wyłączyć."
+  },
+  "telegram": {
+    "title": "Telegram",
+    "description": "Pytaj czat AI z Telegrama, tekstem lub wiadomością głosową, i otrzymuj tam swoje powiadomienia. Odpowiada w twoim imieniu, na podstawie stron, które możesz otworzyć, z linkami do nich; o zmiany pyta przyciskami, tak jak czat tutaj.",
+    "notLinked": "Niepołączone",
+    "notLinkedHint": "Połącz swoje konto Telegram, aby rozmawiać z {bot}.",
+    "link": "Połącz z Telegramem",
+    "linking": "Tworzenie linku…",
+    "steps": "Otwórz link na urządzeniu, na którym używasz Telegrama, albo zeskanuj kod telefonem, a potem naciśnij Start w czacie z botem.",
+    "openWithCode": "Otwórz w Telegramie",
+    "qrLabel": "Kod QR otwierający bota w Telegramie",
+    "waiting": "Czekam, aż uruchomisz bota. Link wygaśnie {time}.",
+    "cancel": "Anuluj",
+    "linkedAs": "Połączono z {name}",
+    "yourAccount": "twoim kontem Telegram",
+    "linkedOn": "Połączono {date}",
+    "lastUsed": "ostatnio użyto {time}",
+    "neverUsed": "jeszcze nieużywane",
+    "notifications": "Wysyłaj tu moje powiadomienia",
+    "notificationsHint": "To, co pojawia się w twojej skrzynce, trafia też do czatu; rodzaje wybierasz w Preferencjach.",
+    "open": "Otwórz czat",
+    "unlink": "Odłącz",
+    "unlinkConfirm": "Odłącz Telegram",
+    "unlinking": "Odłączanie…",
+    "unreachable": "Serwer nie może teraz połączyć się z Telegramem. Spróbuj później."
   }
 }

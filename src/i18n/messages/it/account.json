@@ -185,5 +185,30 @@
     "turnOffConfirm": "Disattiva questo indirizzo",
     "turningOff": "Disattivazione…",
     "turnOffError": "Impossibile disattivarlo."
+  },
+  "telegram": {
+    "title": "Telegram",
+    "description": "Fai domande alla chat IA da Telegram, con un testo o un messaggio vocale, e ricevi lì le tue notifiche. Risponde per tuo conto, dalle pagine che puoi aprire, con i link a esse; chiede le modifiche con dei pulsanti, come la chat qui.",
+    "notLinked": "Non collegato",
+    "notLinkedHint": "Collega il tuo account Telegram per parlare con {bot}.",
+    "link": "Collega Telegram",
+    "linking": "Creazione del link…",
+    "steps": "Apri il link sul dispositivo in cui usi Telegram, oppure inquadra il codice con il telefono, poi premi Avvia nella chat con il bot.",
+    "openWithCode": "Apri in Telegram",
+    "qrLabel": "Codice QR che apre il bot in Telegram",
+    "waiting": "In attesa che tu avvii il bot. Il link scade {time}.",
+    "cancel": "Annulla",
+    "linkedAs": "Collegato a {name}",
+    "yourAccount": "il tuo account Telegram",
+    "linkedOn": "Collegato il {date}",
+    "lastUsed": "ultimo uso {time}",
+    "neverUsed": "non ancora usato",
+    "notifications": "Invia qui le mie notifiche",
+    "notificationsHint": "Ciò che compare nella tua posta in arrivo arriva anche nella chat; nelle Preferenze scegli quali tipi.",
+    "open": "Apri chat",
+    "unlink": "Scollega",
+    "unlinkConfirm": "Scollega Telegram",
+    "unlinking": "Scollegamento…",
+    "unreachable": "Il server non riesce a raggiungere Telegram in questo momento. Riprova più tardi."
   }
 }

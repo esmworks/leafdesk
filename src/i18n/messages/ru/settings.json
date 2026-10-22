@@ -1602,7 +1602,7 @@
         "updated": "Изменено подключение «{target}»",
         "deleted": "Удалено подключение «{target}»",
         "tool_called": "Вызов «{tool}» в «{target}» ({outcome})",
-        "approval_decided": "{decision}: вызов «{tool}» в «{target}» агентом «{agent}»"
+        "approval_decided": "{decision}: вызов «{tool}» в «{target}» агентом «{agent}»{channel, select, telegram { (из Telegram)} other {}}"
       },
       "mail": {
         "databases_changed": "Заданы базы данных, в которые попадает почта: {names}",
@@ -1644,6 +1644,7 @@
     "inbox": "Входящие",
     "email": "Эл. почта",
     "push": "Push",
+    "telegram": "Telegram",
     "pushDescription": "Push-уведомления приходят о том, что появляется во входящих, на устройствах, где вы их включили.",
     "pushDeviceTitle": "Push-уведомления на этом устройстве",
     "pushDeviceOff": "Получайте уведомление на этом устройстве о каждом новом элементе во входящих, даже когда Leafdesk закрыт.",

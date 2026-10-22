@@ -14,6 +14,7 @@ import { recipientLocale } from "@/server/mail/locale";
 import { emailTranslator } from "@/server/mail/templates";
 import { getNotificationPreferences, pushWanted } from "@/server/notification-preferences";
 import { listNotifications } from "@/server/notifications";
+import { deliverTelegram } from "@/server/telegram/notify";
 
 /**
  * Push notifications: each new inbox notification also goes, as a push message, to the browsers
@@ -56,19 +57,23 @@ export function vapidPublicKey() {
 const sending = new Set<Promise<void>>();
 
 /**
- * Pushes the notifications just saved (by id) to their recipients' devices, without waiting:
- * returns at once and never throws. Unread notifications only, of the kinds each person wants
- * pushed, that their inbox shows them.
+ * Pushes the notifications just saved (by id) to their recipients' devices, and sends them to the
+ * Telegram chats they linked (server/telegram/notify.ts), without waiting: returns at once and never
+ * throws. Unread notifications only, of the kinds each person wants there, that their inbox shows
+ * them.
  */
 export function pushNotifications(ids: string[]) {
-  if (!ids.length || !env.vapid) return;
-  const delivery: Promise<void> = deliver(ids)
-    .catch((error) => console.error("could not send push notifications", error))
-    .finally(() => sending.delete(delivery));
+  if (!ids.length) return;
+  if (env.telegramBotToken) track(deliverTelegram(ids), "could not send notifications to Telegram");
+  if (env.vapid) track(deliver(ids), "could not send push notifications");
+}
+
+function track(work: Promise<void>, failure: string) {
+  const delivery: Promise<void> = work.catch((error) => console.error(failure, error)).finally(() => sending.delete(delivery));
   sending.add(delivery);
 }
 
-/** Scripts and tests: wait for the push notifications being sent. */
+/** Scripts and tests: wait for the push notifications (and Telegram messages) being sent. */
 export async function flushPush() {
   while (sending.size) await Promise.all(sending);
 }

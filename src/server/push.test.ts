@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { preferencesFrom, pushWanted } from "./notification-preferences";
+import { preferencesFrom, pushWanted, telegramWanted } from "./notification-preferences";
 import { pushTarget, PushTargetError } from "./push";
 
 vi.mock("@/db", () => ({ db: {} }));
@@ -7,7 +7,7 @@ vi.mock("@/db", () => ({ db: {} }));
 describe("push preferences", () => {
   it("are on for every kind until turned off", () => {
     const preferences = preferencesFrom(undefined);
-    expect(preferences.mention).toEqual({ inbox: true, email: true, push: true });
+    expect(preferences.mention).toEqual({ inbox: true, email: true, push: true, telegram: true });
     expect(pushWanted(preferences, "mention")).toBe(true);
   });
 
@@ -16,9 +16,18 @@ describe("push preferences", () => {
     expect(pushWanted(preferences, "mention")).toBe(false);
     expect(pushWanted(preferences, "assignment")).toBe(false);
     // Turned off for push only: still in the inbox, not pushed.
-    expect(preferences.comment).toEqual({ inbox: true, email: true, push: false });
+    expect(preferences.comment).toEqual({ inbox: true, email: true, push: false, telegram: true });
     expect(pushWanted(preferences, "comment")).toBe(false);
     expect(pushWanted(preferences, "page_shared")).toBe(true);
+  });
+
+  it("send to Telegram as push does, each kind on its own", () => {
+    const preferences = preferencesFrom({ mentionInbox: false, commentTelegram: false, commentPush: true });
+    expect(telegramWanted(preferences, "mention")).toBe(false);
+    expect(telegramWanted(preferences, "comment")).toBe(false);
+    expect(pushWanted(preferences, "comment")).toBe(true);
+    expect(telegramWanted(preferences, "page_shared")).toBe(true);
+    expect(telegramWanted(preferencesFrom({ assignmentInbox: false, assignmentTelegram: false }), "agent_approval")).toBe(true);
   });
 
   it("always push an agent's call waiting for approval", () => {

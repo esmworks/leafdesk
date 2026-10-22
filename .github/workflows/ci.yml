@@ -286,6 +286,10 @@ jobs:
       - name: AI chat memory end-to-end
         run: pnpm tsx scripts/ai-memory-e2e.ts
 
+      # A fake Bot API and a fake model, both over HTTP: nothing reaches Telegram.
+      - name: AI chat from Telegram end-to-end
+        run: pnpm tsx scripts/telegram-e2e.ts
+
       - name: Skills end-to-end
         run: pnpm tsx scripts/skills-e2e.ts
 

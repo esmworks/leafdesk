@@ -394,6 +394,8 @@ export function describeAuditEvent(event: Pick<AuditEvent, "action" | "targetLab
     count: typeof d.count === "number" ? d.count : list(d.names).length,
     kind: text(d.kind) || "join",
     via: known(t, `audit.via.${text(d.via)}`, text(d.via)),
+    // Where an answer was given outside the app: "telegram" (an agent's call answered from the bot).
+    channel: text(d.via) === "telegram" ? "telegram" : "app",
     format: known(t, `audit.formats.${text(d.format)}`, text(d.format)),
     protocol: text(d.protocol).toUpperCase(),
     domains: list(d.domains).join(", "),

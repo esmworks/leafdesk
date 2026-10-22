@@ -185,6 +185,9 @@ services:
       OWN_AI_KEYS_ENABLED: ${OWN_AI_KEYS_ENABLED:-}
       AI_ONLY_OWN_KEYS: ${AI_ONLY_OWN_KEYS:-}
       AI_ALLOWED_HOSTS: ${AI_ALLOWED_HOSTS:-}
+      # The AI chat from Telegram: off unless TELEGRAM_BOT_TOKEN is set (see the README).
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_API_URL: ${TELEGRAM_API_URL:-}
       # Daily cleanup of the trash and old page history: on in production unless set to off.
       RETENTION_JOB: ${RETENTION_JOB:-}
     # Lets AI_BASE_URL=http://host.docker.internal:11434/v1 reach Ollama or LM Studio on the host (Linux too).

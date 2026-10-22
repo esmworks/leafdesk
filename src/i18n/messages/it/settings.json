@@ -1602,7 +1602,7 @@
         "updated": "Ha modificato la connessione “{target}”",
         "deleted": "Ha rimosso la connessione “{target}”",
         "tool_called": "Ha chiamato “{tool}” su “{target}” ({outcome})",
-        "approval_decided": "{decision} la chiamata a “{tool}” su “{target}” dell’agente “{agent}”"
+        "approval_decided": "{decision} la chiamata a “{tool}” su “{target}” dell’agente “{agent}”{channel, select, telegram { (da Telegram)} other {}}"
       },
       "mail": {
         "databases_changed": "Ha impostato i database su cui arrivano le email: {names}",
@@ -1644,6 +1644,7 @@
     "inbox": "Posta in arrivo",
     "email": "Email",
     "push": "Push",
+    "telegram": "Telegram",
     "pushDescription": "Le notifiche push arrivano per ciò che appare nella tua Posta in arrivo, sui dispositivi dove le attivi.",
     "pushDeviceTitle": "Notifiche push su questo dispositivo",
     "pushDeviceOff": "Ricevi una notifica su questo dispositivo per ogni nuovo elemento nella tua Posta in arrivo, anche quando Leafdesk è chiuso.",

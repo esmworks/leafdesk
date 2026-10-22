@@ -193,6 +193,17 @@ export const env = {
       .map((h) => h.trim().toLowerCase())
       .filter(Boolean);
   },
+  /**
+   * TELEGRAM_BOT_TOKEN: the token of a Telegram bot (from @BotFather) through which people talk to
+   * the AI chat once they link their Telegram account (see server/telegram). Unset: off.
+   */
+  get telegramBotToken() {
+    return process.env.TELEGRAM_BOT_TOKEN?.trim() || null;
+  },
+  /** TELEGRAM_API_URL: the Bot API server (a self-hosted one, say); Telegram's own by default. */
+  get telegramApiUrl() {
+    return (process.env.TELEGRAM_API_URL?.trim() || "https://api.telegram.org").replace(/\/$/, "");
+  },
   /** ADMIN_EMAILS: the instance administrators' addresses (see lib/instance-admin.ts). */
   get adminEmails() {
     return adminEmailsFrom(process.env.ADMIN_EMAILS);

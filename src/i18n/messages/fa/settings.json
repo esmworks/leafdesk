@@ -1602,7 +1602,7 @@
         "updated": "اتصال «{target}» را تغییر داد",
         "deleted": "اتصال «{target}» را حذف کرد",
         "tool_called": "«{tool}» را روی «{target}» فراخوانی کرد ({outcome})",
-        "approval_decided": "فراخوانی «{tool}» روی «{target}» توسط عامل «{agent}» را {decision}"
+        "approval_decided": "فراخوانی «{tool}» روی «{target}» توسط عامل «{agent}» را {decision}{channel, select, telegram { (از Telegram)} other {}}"
       },
       "mail": {
         "databases_changed": "پایگاه‌های داده‌ای را که ایمیل به آن‌ها می‌رسد تعیین کرد: {names}",
@@ -1644,6 +1644,7 @@
     "inbox": "صندوق ورودی",
     "email": "ایمیل",
     "push": "اعلان فوری",
+    "telegram": "Telegram",
     "pushDescription": "اعلان‌های فوری برای مواردی که در صندوق ورودی شما نمایش داده می‌شوند، روی دستگاه‌هایی که آن‌ها را روشن کرده‌اید می‌آیند.",
     "pushDeviceTitle": "اعلان فوری روی این دستگاه",
     "pushDeviceOff": "برای هر مورد جدید در صندوق ورودی، حتی وقتی Leafdesk بسته است، روی این دستگاه اعلان دریافت کنید.",

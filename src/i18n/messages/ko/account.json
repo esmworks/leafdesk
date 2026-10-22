@@ -185,5 +185,30 @@
     "turnOffConfirm": "이 주소 끄기",
     "turningOff": "끄는 중…",
     "turnOffError": "끌 수 없습니다."
+  },
+  "telegram": {
+    "title": "Telegram",
+    "description": "Telegram에서 텍스트나 음성 메시지로 AI 채팅에 질문하고, 알림도 그곳에서 받으세요. 사용자 본인으로서, 열 수 있는 페이지를 바탕으로 링크와 함께 답하고, 변경은 이곳 채팅처럼 버튼으로 확인합니다.",
+    "notLinked": "연결되지 않음",
+    "notLinkedHint": "{bot}와(과) 대화하려면 Telegram 계정을 연결하세요.",
+    "link": "Telegram 연결",
+    "linking": "링크를 만드는 중…",
+    "steps": "Telegram을 사용하는 기기에서 링크를 열거나 휴대폰으로 코드를 스캔한 뒤, 봇과의 채팅에서 시작을 누르세요.",
+    "openWithCode": "Telegram에서 열기",
+    "qrLabel": "Telegram에서 봇을 여는 QR 코드",
+    "waiting": "봇을 시작하기를 기다리는 중입니다. 링크는 {time} 만료됩니다.",
+    "cancel": "취소",
+    "linkedAs": "{name}에 연결됨",
+    "yourAccount": "내 Telegram 계정",
+    "linkedOn": "{date}에 연결됨",
+    "lastUsed": "마지막 사용 {time}",
+    "neverUsed": "아직 사용하지 않음",
+    "notifications": "내 알림을 여기로 보내기",
+    "notificationsHint": "받은편지함에 표시되는 알림이 채팅으로도 옵니다. 받을 종류는 환경설정에서 고르세요.",
+    "open": "채팅 열기",
+    "unlink": "연결 해제",
+    "unlinkConfirm": "Telegram 연결 해제",
+    "unlinking": "연결 해제 중…",
+    "unreachable": "서버가 지금 Telegram에 연결할 수 없습니다. 나중에 다시 시도하세요."
   }
 }
