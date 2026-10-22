@@ -184,7 +184,8 @@ const state = agentsWorker;
  * asks for is its own.
  */
 function sameSource(source: AgentRunSource, context: AgentRunContext) {
-  if (source.kind === "automation") return sql`${agentRun.source}->>'automationRunId' = ${source.automationRunId}`;
+  // A "for each" step runs the agent once per found row of the automation's run.
+  if (source.kind === "automation") return sql`${agentRun.source}->>'automationRunId' = ${source.automationRunId} and ${agentRun.source}->>'rowId' = ${source.rowId}`;
   if (source.kind === "connection") return sql`${agentRun.source}->>'eventId' = ${source.eventId} and ${agentRun.source}->>'triggerId' = ${source.triggerId}`;
   if (source.kind === "mention") return sql`${agentRun.source}->>'commentId' = ${source.commentId}`;
   if (source.kind === "schedule" && "scheduledFor" in context && context.scheduledFor) {

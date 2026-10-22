@@ -211,7 +211,7 @@ try {
   check((await check1(markStale.id, now)) === 2, "the check queues a run for each");
   const staleRuns = await runsOf(markStale.id);
   check(
-    staleRuns.length === 2 && new Set(staleRuns.map((r) => r.rowId)).size === 2 && staleRuns.every((r) => [stale.id, nameless.id].includes(r.rowId)),
+    staleRuns.length === 2 && new Set(staleRuns.map((r) => r.rowId)).size === 2 && staleRuns.every((r) => [stale.id, nameless.id].includes(r.rowId!)),
     "…for the rows not edited for 30 days that aren't done: not the done one, the fresh one, the trashed one or the template",
     staleRuns,
   );

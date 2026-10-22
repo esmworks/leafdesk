@@ -178,6 +178,22 @@ export function stepIds(actions: { id?: string }[]): string[] {
   });
 }
 
+/**
+ * The agents the steps run and the database each runs on: the automation's own (`databaseId`), or
+ * the database a "for each" goes over. Publishing shares those databases with those agents.
+ */
+export function agentTargets(actions: AutomationAction[], databaseId: string) {
+  const ids = stepIds(actions);
+  const out: { agentId: string; databaseId: string }[] = [];
+  for (const action of actions) {
+    if (action.type !== "run_agent") continue;
+    const over = action.forEach ? actions[ids.indexOf(action.forEach)] : null;
+    const target = over?.type === "find_rows" ? over.databaseId : databaseId;
+    if (!out.some((t) => t.agentId === action.agentId && t.databaseId === target)) out.push({ agentId: action.agentId, databaseId: target });
+  }
+  return out;
+}
+
 /** The actions with their ids written in (see stepIds). */
 export const withStepIds = <T extends { id?: string }>(actions: T[]): T[] => {
   const ids = stepIds(actions);

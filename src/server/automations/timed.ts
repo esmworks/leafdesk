@@ -217,7 +217,7 @@ async function checkAutomation(automation: Automation, database: { id: string; w
       .returning({ rowId: automationFire.rowId, basis: automationFire.basis });
     if (!fired.length) return 0;
     await tx.insert(automationRun).values(
-      fired.map((r) => ({ automationId: automation.id, rowId: r.rowId, actorId: null, created: false, changed: [], basis: r.basis })),
+      fired.map((r) => ({ automationId: automation.id, rowId: r.rowId, actorId: null, created: false, changed: [], basis: r.basis, version: automation.version })),
     );
     return fired.length;
   });
@@ -244,6 +244,7 @@ export async function runDatePassedAutomations({ now = new Date(), automationIds
         .where(
           and(
             eq(databaseAutomation.enabled, true),
+            sql`${databaseAutomation.version} > 0`,
             sql`${databaseAutomation.trigger} ->> 'type' = 'date_passed'`,
             // A database in the trash or in a template runs nothing; it carries on when restored.
             isNull(page.archivedAt),
