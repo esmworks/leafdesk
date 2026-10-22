@@ -18,6 +18,7 @@ import {
   signatureHeader,
   signedContent,
   type AutomationStep,
+  type AutomationTrigger,
 } from "./automations";
 
 const update = (before: Record<string, unknown>, after: Record<string, unknown>) => ({ before, after, created: false });
@@ -68,6 +69,18 @@ describe("matchesTrigger", () => {
     expect(matchesTrigger(off, update({ c: true }, { c: false }))).toBe(true);
     expect(matchesTrigger(off, update({ c: true }, {}))).toBe(true);
     expect(matchesTrigger(off, update({}, { c: false }))).toBe(false);
+  });
+
+  it("several properties: when any of them changes, not on a new row", () => {
+    const t: AutomationTrigger = { type: "property_changed", propertyId: null, propertyIds: ["a", "b"] };
+    expect(matchesTrigger(t, update({ a: 1, b: 1, c: 1 }, { a: 1, b: 2, c: 1 }))).toBe(true);
+    expect(matchesTrigger(t, update({ a: 1, b: 1, c: 1 }, { a: 1, b: 1, c: 2 }))).toBe(false);
+    expect(matchesTrigger(t, create({ a: 1 }))).toBe(false);
+  });
+
+  it("schedules and incoming webhooks never match a row write", () => {
+    expect(matchesTrigger({ type: "schedule", schedule: { frequency: "daily", time: "09:00" } }, update({ a: 1 }, { a: 2 }))).toBe(false);
+    expect(matchesTrigger({ type: "incoming_webhook" }, create({ a: 1 }))).toBe(false);
   });
 
   it("person and multi-select: when the id gets added", () => {
