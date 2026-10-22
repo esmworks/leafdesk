@@ -3067,8 +3067,9 @@ Useful scripts:
 | `pnpm tsx scripts/two-factor-e2e.ts` | End-to-end two-step verification check (sign-in challenge, recovery codes, workspace policy) against a running server |
 | `pnpm tsx scripts/admin-e2e.ts` | End-to-end instance administration check (`ADMIN_EMAILS`, `WORKSPACE_CREATION`, signing out, required password resets) against a running server with the same two settings; it signs everyone out, so only on a development or CI database |
 
-CI (`.github/workflows/ci.yml`) runs every `scripts/*-e2e.ts`, the ones that need a server against
-`pnpm start`; each step there shows the settings its script needs.
+CI (`.github/workflows/ci.yml`) runs most `scripts/*-e2e.ts`, the ones that need a server against
+`pnpm start`; each step there shows the settings its script needs. The others (for example the
+workspace storage checks, which need an S3 server) are run by hand.
 
 ## Languages
 
@@ -3104,7 +3105,8 @@ so far; corrections to the other languages are welcome as pull requests, as are 
   - Route handlers, server actions and MCP tools write into open documents through the same
     Hocuspocus instance, so AI edits appear live in open editors.
   - The `/collab` connection is authenticated with a short-lived HMAC token.
-- Page access is worked out in SQL (`page_access_level`, migrations `0003`, `0013`, `0021`):
+- Page access is worked out in SQL (`page_access_level`, first in migration `0003`, current in
+  `0055`):
   every read path (sidebar, search, mentions, export, MCP, REST, collaboration) filters with it.
   A page's teamspace is stored on every page of its tree (`page.teamspace_id`, kept in step by
   triggers); null means private.
