@@ -310,6 +310,12 @@
 
 ### Fixed
 
+- **The Windows desktop app installs in minutes, not an hour.** The installer unpacked the app into
+  a temporary folder and then copied its thousands of files one by one into place, and antivirus
+  software scanned each file on both writes, so the progress bar could sit for up to an hour. It
+  now unpacks them straight into the app's folder. The app is also smaller: the local server no
+  longer carries the build's file traces or the migrations' schema snapshots, which nothing reads
+  when it runs.
 - **A line break in a table cell no longer scrambles the table in Markdown.** It is written `<br>`,
   so the row stays on one line. It used to end the row, so reading the Markdown back (the Markdown
   source view, imports of an export, AI tools editing the page) made an extra row and moved the
