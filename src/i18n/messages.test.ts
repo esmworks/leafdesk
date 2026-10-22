@@ -8,6 +8,7 @@ import { tr as editorTr } from "./blocknote/tr";
 import { checkTranslations, compareFile, formatIssues } from "./check";
 import { DEFAULT_LOCALE, LOCALES, negotiateLocale, requestLocale } from "./config";
 import { emailMessages } from "./messages/email";
+import { telegramMessages } from "./messages/telegram";
 import { clientMessages, loadMessages, withFallback } from "./messages";
 import en from "./messages/en";
 
@@ -49,6 +50,7 @@ describe("translations", () => {
       const messages = await loadMessages(locale);
       expect(keys(messages).sort(), locale).toEqual(keys(en).sort());
       expect(keys(emailMessages[locale]).sort(), locale).toEqual(keys(emailMessages.en).sort());
+      expect(keys(telegramMessages[locale]).sort(), locale).toEqual(keys(telegramMessages.en).sort());
     }
     expect((await loadMessages("tr")).common.untitled).toBe("Adsız");
   });

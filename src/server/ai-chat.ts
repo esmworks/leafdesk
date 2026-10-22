@@ -12,7 +12,9 @@
  *    conversation said before;
  * 4. unless the chat's mode is `read`, may make it change things as the person (`create_row`,
  *    `update_row`, `create_page`, with their edit access checked): in mode `ask` the answer waits
- *    for the person to approve each change (ai-chat-approvals.ts), in `auto` it doesn't;
+ *    for the person to approve each change (ai-chat-approvals.ts), in `auto` it doesn't; asked
+ *    through a connected app (the Telegram bot, server/telegram) in a workspace that lets apps only
+ *    read, the mode is `read` and no notes are kept or dropped;
  * 5. in every mode, may make it keep or drop notes about the person (`remember`, `forget`): what
  *    it remembers goes with their later questions in the workspace (ai-memory.ts), unless the
  *    person or the workspace's owners turned the memory off;
@@ -53,7 +55,8 @@ import {
   thoughtText,
 } from "@/lib/ai-chat";
 import { pageLabel } from "@/lib/labels";
-import { AccessError, isGuest, requireMembership, requirePageAccess, WorkspacePolicyError } from "@/server/access";
+import { AccessError, connectedAppHold, isGuest, requireMembership, requirePageAccess, WorkspacePolicyError } from "@/server/access";
+import { asWrite } from "@/server/connected-app";
 import { AiError, isAiError, promptRoomFor, stream, takeRateLimit, takeWorkspaceCapacity, type AiMessage, type AiResult } from "@/server/ai";
 import { dropOldToolResults } from "@/server/ai/compact";
 import { chatHistory, chatQuestionPrompt, chatSystemPrompt } from "@/server/ai/prompts";
@@ -168,7 +171,18 @@ export async function startChat(userId: string, input: ChatInput, signal?: Abort
   const existing = input.conversationId ? await ownConversation(userId, input.workspaceId, input.conversationId) : null;
   const replaced = input.replaceLast ? lastTurn(existing) : 0;
   takeRateLimit({ userId, workspaceId: input.workspaceId });
-  const chat = { scope: scope ? { id: scope.id, title: scope.title } : null, skill, existing, mode: input.mode ?? "ask", replaced, connections: !isGuest(membership.role) };
+  // Asked through a connected app (the Telegram bot) where the workspace lets apps only read:
+  // nothing is changed, notes about the person included.
+  const appReadOnly = (await asWrite(() => connectedAppHold(userId, input.workspaceId))) === "readOnly";
+  const chat = {
+    scope: scope ? { id: scope.id, title: scope.title } : null,
+    skill,
+    existing,
+    mode: appReadOnly ? "read" : (input.mode ?? "ask"),
+    replaced,
+    connections: !isGuest(membership.role),
+    memoryChanges: !appReadOnly,
+  } as const;
   return runChat(userId, input.workspaceId, message, chat, signal);
 }
 
@@ -194,6 +208,7 @@ async function* runChat(
     mode: initialMode,
     replaced,
     connections,
+    memoryChanges,
   }: {
     scope: { id: string; title: string } | null;
     skill: ChatSkill | null;
@@ -203,6 +218,8 @@ async function* runChat(
     replaced: number;
     /** The connections' tools allowed the chat are offered (not to guests). */
     connections: boolean;
+    /** Notes about the person may be kept or dropped (not where a connected app may only read). */
+    memoryChanges: boolean;
   },
   signal?: AbortSignal,
 ): AsyncGenerator<ChatEvent> {
@@ -212,7 +229,7 @@ async function* runChat(
   // Keeping notes about the person changes nothing in the workspace: it's offered in every mode,
   // and asked about unless the mode is `auto` (a read-only chat asks too), while both the person and
   // the workspace have the memory on.
-  const remembers = await memoryOn(userId, workspaceId);
+  const remembers = memoryChanges && (await memoryOn(userId, workspaceId));
   // Tools of connections that change something are left out of a read-only chat.
   const external = connections ? await chatToolset(workspaceId, { writes: mode !== "read" }) : null;
   const services = [...new Set([...(external?.byName.values() ?? [])].map((e) => e.connection.name))];

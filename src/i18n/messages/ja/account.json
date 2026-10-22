@@ -185,5 +185,28 @@
     "turnOffConfirm": "このアドレスをオフにする",
     "turningOff": "オフにしています…",
     "turnOffError": "オフにできませんでした。"
+  },
+  "telegram": {
+    "title": "Telegram",
+    "description": "Telegram から、テキストまたは音声メッセージでAIチャットに質問できます。あなたとして、あなたが開けるページから、リンクつきで答えます。変更は、ここのチャットと同じようにボタンで確認します。",
+    "notLinked": "未連携",
+    "notLinkedHint": "{bot} と話すには、Telegram アカウントを連携してください。",
+    "link": "Telegram を連携",
+    "linking": "リンクを作成しています…",
+    "steps": "Telegram を使っているデバイスでリンクを開くか、スマートフォンでコードを読み取り、ボットとのチャットで「開始」を押してください。",
+    "openWithCode": "Telegram で開く",
+    "qrLabel": "Telegram でボットを開く QR コード",
+    "waiting": "ボットの開始を待っています。リンクは {time}に無効になります。",
+    "cancel": "キャンセル",
+    "linkedAs": "{name} に連携済み",
+    "yourAccount": "あなたの Telegram アカウント",
+    "linkedOn": "{date} に連携",
+    "lastUsed": "最終使用 {time}",
+    "neverUsed": "まだ使用されていません",
+    "open": "チャットを開く",
+    "unlink": "連携を解除",
+    "unlinkConfirm": "Telegram の連携を解除",
+    "unlinking": "連携を解除しています…",
+    "unreachable": "サーバーは現在 Telegram に接続できません。しばらくしてからお試しください。"
   }
 }

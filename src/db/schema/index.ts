@@ -22,3 +22,4 @@ export * from "./connected-apps";
 export * from "./journal";
 export * from "./mail";
 export * from "./snippets";
+export * from "./telegram";

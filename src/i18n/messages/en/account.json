@@ -185,5 +185,28 @@
     "turnOffConfirm": "Turn off this address",
     "turningOff": "Turning off…",
     "turnOffError": "Couldn't turn it off."
+  },
+  "telegram": {
+    "title": "Telegram",
+    "description": "Ask the AI chat from Telegram, by text or voice message. It answers as you, from the pages you can open, with links to them; changes are asked about with buttons, as the chat asks here.",
+    "notLinked": "Not linked",
+    "notLinkedHint": "Link your Telegram account to talk to {bot}.",
+    "link": "Link Telegram",
+    "linking": "Making a link…",
+    "steps": "Open the link on the device where you use Telegram, or scan the code with your phone, then press Start in the chat with the bot.",
+    "openWithCode": "Open in Telegram",
+    "qrLabel": "QR code that opens the bot in Telegram",
+    "waiting": "Waiting for you to start the bot. The link stops working {time}.",
+    "cancel": "Cancel",
+    "linkedAs": "Linked to {name}",
+    "yourAccount": "your Telegram account",
+    "linkedOn": "Linked {date}",
+    "lastUsed": "last used {time}",
+    "neverUsed": "not used yet",
+    "open": "Open chat",
+    "unlink": "Unlink",
+    "unlinkConfirm": "Unlink Telegram",
+    "unlinking": "Unlinking…",
+    "unreachable": "The server can't reach Telegram right now. Try again later."
   }
 }

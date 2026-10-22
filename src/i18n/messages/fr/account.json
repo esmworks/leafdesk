@@ -185,5 +185,28 @@
     "turnOffConfirm": "Désactiver cette adresse",
     "turningOff": "Désactivation…",
     "turnOffError": "Impossible de la désactiver."
+  },
+  "telegram": {
+    "title": "Telegram",
+    "description": "Interrogez le chat IA depuis Telegram, par texte ou message vocal. Il répond en votre nom, à partir des pages que vous pouvez ouvrir, avec des liens vers elles ; il demande les modifications avec des boutons, comme le chat ici.",
+    "notLinked": "Non lié",
+    "notLinkedHint": "Liez votre compte Telegram pour discuter avec {bot}.",
+    "link": "Lier Telegram",
+    "linking": "Création du lien…",
+    "steps": "Ouvrez le lien sur l’appareil où vous utilisez Telegram, ou scannez le code avec votre téléphone, puis appuyez sur Démarrer dans la conversation avec le bot.",
+    "openWithCode": "Ouvrir dans Telegram",
+    "qrLabel": "Code QR qui ouvre le bot dans Telegram",
+    "waiting": "En attente du démarrage du bot. Le lien expire {time}.",
+    "cancel": "Annuler",
+    "linkedAs": "Lié à {name}",
+    "yourAccount": "votre compte Telegram",
+    "linkedOn": "Lié le {date}",
+    "lastUsed": "dernière utilisation {time}",
+    "neverUsed": "pas encore utilisé",
+    "open": "Ouvrir la conversation",
+    "unlink": "Délier",
+    "unlinkConfirm": "Délier Telegram",
+    "unlinking": "Déliaison…",
+    "unreachable": "Le serveur ne parvient pas à joindre Telegram pour le moment. Réessayez plus tard."
   }
 }

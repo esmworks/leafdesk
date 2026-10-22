@@ -185,5 +185,28 @@
     "turnOffConfirm": "Diese Adresse ausschalten",
     "turningOff": "Wird ausgeschaltet…",
     "turnOffError": "Konnte nicht ausgeschaltet werden."
+  },
+  "telegram": {
+    "title": "Telegram",
+    "description": "Frag den KI-Chat über Telegram, per Text oder Sprachnachricht. Er antwortet als du, aus den Seiten, die du öffnen kannst, mit Links darauf; Änderungen erfragt er mit Schaltflächen, wie der Chat hier.",
+    "notLinked": "Nicht verbunden",
+    "notLinkedHint": "Verbinde dein Telegram-Konto, um mit {bot} zu schreiben.",
+    "link": "Telegram verbinden",
+    "linking": "Link wird erstellt …",
+    "steps": "Öffne den Link auf dem Gerät, auf dem du Telegram nutzt, oder scanne den Code mit deinem Handy, und tippe dann im Chat mit dem Bot auf Start.",
+    "openWithCode": "In Telegram öffnen",
+    "qrLabel": "QR-Code, der den Bot in Telegram öffnet",
+    "waiting": "Warte darauf, dass du den Bot startest. Der Link läuft {time} ab.",
+    "cancel": "Abbrechen",
+    "linkedAs": "Verbunden mit {name}",
+    "yourAccount": "deinem Telegram-Konto",
+    "linkedOn": "Verbunden am {date}",
+    "lastUsed": "zuletzt benutzt {time}",
+    "neverUsed": "noch nicht benutzt",
+    "open": "Chat öffnen",
+    "unlink": "Trennen",
+    "unlinkConfirm": "Telegram trennen",
+    "unlinking": "Wird getrennt …",
+    "unreachable": "Der Server erreicht Telegram gerade nicht. Versuch es später noch einmal."
   }
 }

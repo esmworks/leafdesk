@@ -185,5 +185,28 @@
     "turnOffConfirm": "إيقاف هذا العنوان",
     "turningOff": "جارٍ الإيقاف…",
     "turnOffError": "تعذّر الإيقاف."
+  },
+  "telegram": {
+    "title": "Telegram",
+    "description": "اسأل محادثة الذكاء الاصطناعي من Telegram، نصًا أو برسالة صوتية. تجيب باسمك، من الصفحات التي يمكنك فتحها، مع روابط إليها؛ وتطلب موافقتك على التغييرات بأزرار، كما تفعل المحادثة هنا.",
+    "notLinked": "غير مرتبط",
+    "notLinkedHint": "اربط حسابك في Telegram للتحدث مع {bot}.",
+    "link": "ربط Telegram",
+    "linking": "جارٍ إنشاء رابط…",
+    "steps": "افتح الرابط على الجهاز الذي تستخدم عليه Telegram، أو امسح الرمز بهاتفك، ثم اضغط بدء في المحادثة مع البوت.",
+    "openWithCode": "فتح في Telegram",
+    "qrLabel": "رمز QR يفتح البوت في Telegram",
+    "waiting": "في انتظار أن تبدأ البوت. ينتهي الرابط {time}.",
+    "cancel": "إلغاء",
+    "linkedAs": "مرتبط بـ {name}",
+    "yourAccount": "حسابك في Telegram",
+    "linkedOn": "تم الربط في {date}",
+    "lastUsed": "آخر استخدام {time}",
+    "neverUsed": "لم يُستخدم بعد",
+    "open": "فتح المحادثة",
+    "unlink": "إلغاء الربط",
+    "unlinkConfirm": "إلغاء ربط Telegram",
+    "unlinking": "جارٍ إلغاء الربط…",
+    "unreachable": "لا يستطيع الخادم الوصول إلى Telegram الآن. حاول لاحقًا."
   }
 }

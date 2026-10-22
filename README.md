@@ -536,6 +536,10 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   database row whose select and multi-select properties it fills from their options. OpenAI or any
   server with an OpenAI-compatible transcription API, such as a local Whisper server (see
   [Voice notes](#voice-notes)).
+- **AI chat from Telegram** (optional, off until the server has a Telegram bot): people link their
+  Telegram account in My account → *Connected apps* and ask the AI chat there, by text or voice
+  message; answers cite their pages as links, and changes are asked about with buttons (see
+  [AI chat from Telegram](#ai-chat-from-telegram)).
 - **Skills**: instructions your team reuses (how to wrap up meeting notes, reply to a customer),
   kept as pages or database rows and marked *Use as skill*; picked with `/` in the AI chat, offered
   to MCP clients as prompts and tools, listed in the workspace's skills library and exported as
@@ -1241,8 +1245,9 @@ the REST API.
   workspace, on top of their own permissions and their user's access. *Full access* (default),
   *Read only* (write tools and write endpoints are refused, reads still work), or *Off* (the
   workspace is hidden from them: `list_workspaces` and `GET /workspaces` leave it out, and its
-  pages answer as pages the user can't see). This applies to the MCP server and the REST API
-  only; the app itself in the browser is not affected.
+  pages answer as pages the user can't see). This applies to the MCP server, the REST API and the
+  AI chat from Telegram (read only: it answers without changing anything); the app itself in the
+  browser is not affected.
 - **Apps that reach this workspace** (owners): the MCP apps the workspace's people connected and
   their API tokens for it (for all their workspaces or this one; expired ones and the server's
   own clients are left out), with what each may do, who connected it, when, and when it last
@@ -2143,6 +2148,74 @@ add a `vector(n)` column filled from `embedding` (one model and dimension per co
 index (`vector_cosine_ops`), and order the `ranked` step of `src/server/semantic-search.ts` by
 `embedding <=> query` over a larger candidate set before the access filter's final cut.
 
+### AI chat from Telegram
+
+People can ask the [AI chat](#ai-features) from Telegram: in a private chat with the server's bot,
+by text or by voice message, answered as they are in the app, from the pages they can open, with
+their sources as links to those pages.
+
+**Setting it up.** Make a bot with [@BotFather](https://t.me/BotFather) (`/newbot`), and set its
+token on the server, then restart:
+
+```bash
+TELEGRAM_BOT_TOKEN=123456789:AA...
+# A self-hosted Bot API server instead of Telegram's (optional):
+# TELEGRAM_API_URL=https://telegram-bot-api.example.com
+```
+
+The server asks Telegram for new messages itself (long polling), so it needs no public address
+and works behind a firewall; any webhook set for the bot is removed. Give
+each server its own bot: two servers reading one bot's messages each get some of them (the log
+says so). The server log says `telegram: on as @<bot>` at startup, or why not. AI must be on (see
+[AI features](#ai-features)); voice messages need speech to text (see
+[Voice notes](#voice-notes)), otherwise the bot asks for text. Telegram's menu lists the bot's
+commands in each of Leafdesk's languages.
+
+**Linking an account.** In My account → *Connected apps* → *Telegram*, *Link Telegram* makes a
+one-time link that opens the bot (also as a QR code for a phone); pressing *Start* there links
+that Telegram account to the person. The link works once, for 10 minutes, and only a hash of it is
+kept. A Telegram account links to one Leafdesk account at a time, and the other way round:
+linking again moves it. The settings show the linked account and when it was last used, and
+*Unlink* ends it (the bot says so in the chat); so do `/unlink` in Telegram and deleting the
+account.
+
+**Asking.** Each question goes to the person's current workspace and conversation, kept on the
+link: the first workspace they are in until they pick another. A question in progress shows
+"typing…"; a second one waits until it is answered. The bot only answers in a private chat with
+the linked account; in a group it answers commands only, to say so. Commands:
+
+| Command | What it does |
+| --- | --- |
+| `/new` | Starts a new conversation (the earlier ones stay in the app's chat history) |
+| `/workspace` | Picks the workspace questions go to, from buttons, in a new conversation |
+| `/mode` | Picks what the chat may change: *Ask* before each change (the default), change without asking (*Auto*), or *Read only* |
+| `/stop` | Stops the answer being written; what it did so far is kept |
+| `/unlink` | Unlinks the Telegram account |
+| `/help` | Lists the commands |
+
+A voice message is written down by speech to text (counting as the chat's AI usage), shown back
+as *You said: …*, and answered. Answers come in Telegram's formatting (bold, italics, code,
+quotes; tables as preformatted text), split into messages where long, followed by the changes the
+answer made and its sources as links to their pages (`APP_URL` must be an address the person's
+phone can open). Conversations are the person's AI chat conversations: they show in the app's
+chat history and follow its limits.
+
+**Changes.** In *Ask* mode, each change (a row, a page, a page's text, a note to remember, a call
+to a connection's tool that changes something) comes as a message saying what and where, with
+*Yes* and *No* buttons (and *Yes, don't ask again* for changes in the workspace). Only the linked
+person can press them; the answer waits up to 15 minutes, then goes on without the change, and
+the message's buttons go once the answer ends.
+
+**Who may reach what.** The bot acts as the person, as a connected app does: each question is
+checked like an MCP request against the person's access and against the workspace's *Connected
+apps and API tokens* switch (see [Workspace security switches](#workspace-security-switches)): a
+workspace that turned apps off isn't offered, and in one that lets them only read, the chat
+changes nothing, its notes about the person included. Like other connected apps, the bot doesn't
+meet a workspace's sign-in policies (two-step, single sign-on) itself: owners who require them for
+everything can turn connected apps off. Every question counts against `AI_RATE_LIMIT`. The bot
+never answers someone whose Telegram account isn't linked, and what people send it reaches the
+model as their question, nothing more.
+
 ## Skills
 
 A skill is a page or database row whose body is instructions to reuse: a review checklist, how to
@@ -3027,7 +3100,9 @@ so far; corrections to the other languages are welcome as pull requests, as are 
   the route handlers announce through `src/server/page-events.ts`. The AI chat
   (`src/server/ai-chat.ts`, `POST /api/ai/chat` streaming NDJSON) runs its `search_pages` and
   `read_page` tools through `src/server/operations.ts` as the person asking; conversations are
-  stored per person in `ai_conversation`.
+  stored per person in `ai_conversation`. The Telegram bot (`src/server/telegram`) reads its
+  messages by long polling and runs the same chat as the linked person, inside
+  `runAsConnectedApp`; links are kept in `telegram_link`.
 - Auth is Better Auth: email/password, GitHub/Google, two-factor and passkey plugins for people,
   and the OAuth provider, JWT, MCP and CIMD plugins for apps. Data access uses Drizzle ORM on PostgreSQL 18.
 

@@ -4,6 +4,21 @@
 
 ### Added
 
+- **Ask the AI chat from Telegram.** With `TELEGRAM_BOT_TOKEN` set to a bot made with @BotFather,
+  people link their Telegram account in My account → *Connected apps* → *Telegram* (a one-time
+  link, also as a QR code, that works once for 10 minutes) and then ask the AI chat in a private
+  chat with the bot, by text or by voice message (written down by speech to text where the server
+  has it). Answers come formatted for Telegram, with the changes they made and their sources as
+  links to the pages. In *Ask* mode each change, note to remember or call that changes something
+  at a connection is asked about with *Yes* / *No* buttons only the linked person can press.
+  `/new` starts a new conversation, `/workspace` and `/mode` pick the workspace and what the chat
+  may change, `/stop` stops an answer and `/unlink` unlinks the account; Telegram's menu lists them
+  in each of Leafdesk's languages. The bot runs each question as its person, as a connected app,
+  so a workspace's *Connected apps and API tokens* switch holds it: off hides the workspace, read
+  only answers without changing anything, notes about the person included. The server reads the
+  bot's messages by long polling, so it needs no public address (`TELEGRAM_API_URL` points at a
+  self-hosted Bot API server). Conversations show in the app's chat history. Migration 0105 adds
+  `telegram_link` and `telegram_link_code`.
 - **Share an agent.** Each agent has a **Share** list in its settings: people, groups and everyone
   in the workspace (never guests), each with *Full access* (everything an owner can do with it,
   sharing and archiving too), *Can edit* (its settings, instructions, pages, skills, schedules,

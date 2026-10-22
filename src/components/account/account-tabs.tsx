@@ -11,6 +11,7 @@ import { SessionList } from "@/components/account/session-list";
 import { PasskeySettings } from "@/components/security/passkeys";
 import { TwoFactorSettings } from "@/components/security/two-factor";
 import { CalendarFeeds } from "@/components/account/calendar-feeds";
+import { TelegramGroup } from "@/components/account/telegram-group";
 import { ApiTokens } from "@/components/settings/api-tokens";
 import { ConnectedApps } from "@/components/settings/connected-apps";
 import { LanguageSettings } from "@/components/settings/language-settings";
@@ -72,6 +73,7 @@ export async function AccountTabContent({ tab, session, query = {} }: { tab: Acc
         <AccountStorage initial={storage} notice={storageNoticeOf(query)} />
         <ConnectedApps />
         {env.ownAiKeysEnabled && <AiAccountsGroup />}
+        {env.telegramBotToken && <TelegramGroup userId={session.user.id} />}
         <McpInstructions />
         <ApiTokens />
       </div>
