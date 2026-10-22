@@ -71,6 +71,7 @@ export const BACKED_UP: Record<string, Scope> = {
   agent_share: own,
   database_automation: own,
   automation_fire: (ws) => sql`automation_id in (select id from database_automation where workspace_id = ${ws})`,
+  automation_version: (ws) => sql`automation_id in (select id from database_automation where workspace_id = ${ws})`,
   schedule: own,
   connection: own,
   agent_grant: ofConnections,
