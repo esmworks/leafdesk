@@ -79,7 +79,9 @@
     "deletePermanently": "Supprimer définitivement",
     "confirmDelete": "Supprimer définitivement ? Cette action est irréversible.",
     "deletesIn": "Supprimée dans {count, plural, one {# jour} other {# jours}}",
-    "deletesSoon": "Bientôt supprimée"
+    "deletesSoon": "Bientôt supprimée",
+    "mergedInto": "Fusionnée dans {title}",
+    "restoreMerged": "Restaurer comme ligne distincte. Les liens, commentaires, activités et e-mails transférés vers « {title} » y restent."
   },
   "newWorkspace": {
     "title": "Nouvel espace de travail",

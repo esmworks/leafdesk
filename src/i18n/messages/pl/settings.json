@@ -1517,7 +1517,8 @@
         "deleted": "Trwale usunięto {target}",
         "published": "Opublikowano {target} w internecie",
         "unpublished": "Cofnięto publikację {target}",
-        "publication_revoked": "Wycofano {target} z internetu (opublikowane przez: {subject})"
+        "publication_revoked": "Wycofano {target} z internetu (opublikowane przez: {subject})",
+        "rows_merged": "Scalono {count, plural, one {# wiersz} few {# wiersze} many {# wierszy} other {# wiersza}} z {target}"
       },
       "property": {
         "access_changed": "Zmieniono, kto ma dostęp do „{property}” w {target}",

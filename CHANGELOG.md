@@ -4,6 +4,25 @@
 
 ### Added
 
+- **Merge duplicate rows.** Select 2 to 5 rows of a table and choose **Merge**, or pick **Merge
+  with…** in a row's menu and search for its duplicates. The dialog sets the rows side by side:
+  choose the row to keep (the oldest to start with) and, for the title and each property, the row
+  whose value it keeps, or **Combine all** for multi-select, relation, person, files and checklist
+  values. Values start as the kept row's, or the first row's that has one; relations combine.
+  Other rows' links to the merged rows, both ways and from other databases, point at the kept row
+  once each, so rollups and formulas over them count again, and sub-items and dependencies move
+  too. The merged rows' comments (on the same text where their content came along), activity
+  (marked as coming from them), uploads, email, followers, reminders and page content (each under
+  a "Merged from" heading, the kept row's body saved to its history first) come to the kept row,
+  whose activity says who merged which rows. The merged rows go to the trash, which says what they
+  were merged into; links and mentions of them open the kept row, and restoring one brings it back
+  as a row of its own without undoing what moved. Merging needs edit access to every row and to
+  the rows whose links change (the error names them), never takes values from outside the rows,
+  and leaves properties the person may not edit as the kept row has them. It runs in one
+  transaction with the rows locked and is in the audit log. `merge_rows` over MCP and
+  `POST /api/v1/databases/{id}/rows/merge` do the same, with `dry_run`; an agent's scheduled run on
+  a database it may edit can merge its duplicates too, as one of its changes. Migration 0107 adds
+  `page.merged_into_id` and `row_activity.merged_from_id` / `merged_from_title`.
 - **Ask the AI chat from Telegram.** With `TELEGRAM_BOT_TOKEN` set to a bot made with @BotFather,
   people link their Telegram account in My account → *Connected apps* → *Telegram* (a one-time
   link, also as a QR code, that works once for 10 minutes) and then ask the AI chat in a private

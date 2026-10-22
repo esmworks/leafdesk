@@ -419,11 +419,24 @@ const SCHEMAS: Record<string, JsonSchema> = {
               description:
                 "Who acted: a person, an agent, an automation (acting as the person in by), an AI autofill value (worked out for the person in by) or an anonymous form answer.",
             },
-            change: { type: "string", enum: ["created", "title", "property"] },
+            change: {
+              type: "string",
+              enum: ["created", "title", "property", "merged"],
+              description: "merged: other rows were merged into this one (listed in merged_rows).",
+            },
             property: { type: "string", description: "For property changes: the property's name." },
             property_id: id,
             from: { type: ["string", "null"], description: "The value before, as text (option and people names, dates as stored); null for nothing." },
             to: { type: ["string", "null"], description: "The value after." },
+            merged_rows: {
+              type: "array",
+              items: loose({ id, title: { type: "string" } }, ["id", "title"]),
+              description: "merged entries: the rows merged into this one, by their titles then.",
+            },
+            merged_from: {
+              ...loose({ id, title: { type: "string" } }, ["id", "title"]),
+              description: "An entry that came with a row merged into this one: that row, by its title then.",
+            },
           },
           ["at", "by", "actor", "change"],
         ),
@@ -476,6 +489,25 @@ const SCHEMAS: Record<string, JsonSchema> = {
       url,
     },
     ["database_id"],
+  ),
+  RowsMerged: loose(
+    {
+      kept_row_id: id,
+      merged_row_ids: { type: "array", items: id, description: "The rows merged into the kept one, now in the trash (not with dry_run)." },
+      would_merge_row_ids: { type: "array", items: id, description: "With dry_run: the rows the call would merge." },
+      dry_run: { type: "boolean" },
+      title: { type: "string", description: "The kept row's title after the merge." },
+      relinked_rows: { type: "integer", description: "Other rows whose links point at the kept row instead." },
+      moved: loose({
+        comment_threads: { type: "integer" },
+        bodies: { type: "integer", description: "Merged rows whose page content was added to the kept row's." },
+        activity: { type: "integer" },
+        files: { type: "integer" },
+        emails: { type: "integer" },
+      }),
+      url,
+    },
+    ["kept_row_id", "title", "relinked_rows", "moved"],
   ),
   CommentThreads: loose(
     {

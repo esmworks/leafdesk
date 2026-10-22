@@ -1517,7 +1517,8 @@
         "deleted": "Удаление навсегда: {target}",
         "published": "Публикация в интернете: {target}",
         "unpublished": "Снятие с публикации: {target}",
-        "publication_revoked": "Снятие с публикации: {target} (опубликовал(а): {subject})"
+        "publication_revoked": "Снятие с публикации: {target} (опубликовал(а): {subject})",
+        "rows_merged": "Объединил(а) {count, plural, one {# строку} few {# строки} many {# строк} other {# строки}} с {target}"
       },
       "property": {
         "access_changed": "Изменён доступ к «{property}» в базе данных {target}",

@@ -181,19 +181,22 @@
           "createRow": "행 추가됨:",
           "updateRow": "행 변경됨:",
           "createPage": "페이지 추가됨:",
-          "editPage": "페이지 텍스트 변경됨:"
+          "editPage": "페이지 텍스트 변경됨:",
+          "mergeRows": "행을 병합한 곳:"
         },
         "declined": {
           "createRow": "행 추가 거절됨:",
           "updateRow": "변경 거절됨:",
           "createPage": "페이지 추가 거절됨:",
-          "editPage": "텍스트 변경 거절됨:"
+          "editPage": "텍스트 변경 거절됨:",
+          "mergeRows": "행 병합을 거절함:"
         },
         "failed": {
           "createRow": "행을 추가하지 못함:",
           "updateRow": "변경하지 못함:",
           "createPage": "페이지를 추가하지 못함:",
-          "editPage": "텍스트를 변경하지 못함:"
+          "editPage": "텍스트를 변경하지 못함:",
+          "mergeRows": "행을 병합하지 못함:"
         },
         "in": "위치:"
       },

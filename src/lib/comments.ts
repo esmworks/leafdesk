@@ -276,6 +276,12 @@ export const PAGE_THREAD_METADATA = { page: true } as const;
 export const isPageThread = (metadata: unknown) =>
   typeof metadata === "object" && metadata !== null && (metadata as { page?: unknown }).page === true;
 
+/** The title of the row a thread came from when that row was merged into this one, if it did. */
+export const mergedFromOf = (metadata: unknown): string | null => {
+  const from = typeof metadata === "object" && metadata !== null ? (metadata as { mergedFrom?: unknown }).mergedFrom : undefined;
+  return typeof from === "string" ? from : null;
+};
+
 /**
  * A thread up to one of its comments as an agent mentioned there reads it: the comments before
  * `commentId` (deleted ones left out), each as "<name>: <text>", oldest first; the last `max` of

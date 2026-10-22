@@ -61,6 +61,7 @@ export const AUDIT_CATEGORIES = {
   pages: [
     "page.created",
     "page.duplicated",
+    "page.rows_merged",
     "page.imported",
     "page.moved",
     "page.trashed",

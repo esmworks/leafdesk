@@ -181,19 +181,22 @@
           "createRow": "Dodano wiersz:",
           "updateRow": "Zmieniono wiersz:",
           "createPage": "Dodano stronę:",
-          "editPage": "Zmieniono tekst strony:"
+          "editPage": "Zmieniono tekst strony:",
+          "mergeRows": "Scalono wiersze w:"
         },
         "declined": {
           "createRow": "Odrzucono dodanie wiersza:",
           "updateRow": "Odrzucono zmianę:",
           "createPage": "Odrzucono dodanie strony:",
-          "editPage": "Odrzucono zmianę tekstu:"
+          "editPage": "Odrzucono zmianę tekstu:",
+          "mergeRows": "Odrzucono scalenie wierszy w:"
         },
         "failed": {
           "createRow": "Nie udało się dodać wiersza:",
           "updateRow": "Nie udało się zmienić:",
           "createPage": "Nie udało się dodać strony:",
-          "editPage": "Nie udało się zmienić tekstu:"
+          "editPage": "Nie udało się zmienić tekstu:",
+          "mergeRows": "Nie udało się scalić wierszy w:"
         },
         "in": "w"
       },

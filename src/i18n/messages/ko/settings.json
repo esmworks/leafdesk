@@ -1517,7 +1517,8 @@
         "deleted": "{target}을(를) 영구 삭제했습니다",
         "published": "{target}을(를) 웹에 게시했습니다",
         "unpublished": "{target}의 게시를 취소했습니다",
-        "publication_revoked": "{target}을(를) 웹에서 내렸습니다({subject}이(가) 게시함)"
+        "publication_revoked": "{target}을(를) 웹에서 내렸습니다({subject}이(가) 게시함)",
+        "rows_merged": "행 {count}개를 {target}에 병합"
       },
       "property": {
         "access_changed": "{target}에서 “{property}”에 액세스할 수 있는 사람을 변경했습니다",

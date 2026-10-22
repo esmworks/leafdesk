@@ -1,10 +1,12 @@
 "use client";
 
-import { ArrowLeft, Copy, Download, FileSpreadsheet, Pencil, Trash2, X } from "lucide-react";
+import { ArrowLeft, Copy, Download, FileSpreadsheet, Merge, Pencil, Trash2, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Button, cn, Input, MenuItem } from "@/components/ui";
 import { Floating, useFloating } from "./floating";
+import { MergeRowsDialog } from "./merge-rows-dialog";
+import { MAX_MERGE_ROWS, MIN_MERGE_ROWS } from "@/lib/merge-rows";
 import { PersonPicker } from "./person-cell";
 import { usePropertyAccess } from "./property-access";
 import { editText, INPUT_MODE, INVALID_INPUT, OptionPicker, parseInput } from "./property-cell";
@@ -174,8 +176,20 @@ export function BulkActionBar({
   const t = useTranslations("database.bulk");
   const edit = useFloating<HTMLButtonElement>();
   const [busy, setBusy] = useState(false);
+  // The rows being merged: the dialog stays open on them while the selection changes beside it.
+  const [merging, setMerging] = useState<string[] | null>(null);
   const ids = selection.ids;
-  if (!ids.length) return null;
+  const mergeDialog = merging && (
+    <MergeRowsDialog
+      rowIds={merging}
+      onClose={() => setMerging(null)}
+      onMerged={() => {
+        setMerging(null);
+        selection.clear();
+      }}
+    />
+  );
+  if (!ids.length) return mergeDialog || null;
 
   const selectedRows = rows.filter((r) => selection.isSelected(r.id));
 
@@ -241,6 +255,13 @@ export function BulkActionBar({
           </button>
         </>
       )}
+      {/* Duplicates into one: they go to the trash, which guests don't have. */}
+      {!readOnly && !guest && ids.length >= MIN_MERGE_ROWS && ids.length <= MAX_MERGE_ROWS && (
+        <button type="button" disabled={busy} onClick={() => setMerging(ids)} className={action} title={t("mergeHint")}>
+          <Merge className="h-3.5 w-3.5 text-fg-muted" />
+          <span className="max-sm:sr-only">{t("merge")}</span>
+        </button>
+      )}
       {exportable && (
         <>
           <button type="button" disabled={busy} onClick={() => exportRows("csv")} className={action} title={t("export")}>
@@ -278,6 +299,7 @@ export function BulkActionBar({
       >
         <X className="h-4 w-4" />
       </button>
+      {mergeDialog}
     </div>
   );
 }

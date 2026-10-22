@@ -8,6 +8,7 @@ import type { DateOptionsInput } from "@/lib/date-options";
 import { TIME_ZONE_COOKIE } from "@/i18n/config";
 import type { PageVisibility } from "@/lib/page-visibility";
 import type { DependencyInput } from "@/lib/dependencies";
+import type { MergeChoices } from "@/lib/merge-rows";
 import { isDatabaseErrorCode, PropertyValueError } from "@/lib/properties";
 import type { PropertyLevel } from "@/lib/property-access";
 import type { PastedRow } from "@/lib/table-clipboard";
@@ -21,6 +22,7 @@ import { pasteRows } from "@/server/paste";
 import { getPropertyAccessSettings, loadPropertyRules, setPropertyAccess } from "@/server/property-access";
 import { listRowActivity } from "@/server/row-activity-feed";
 import { listMembers } from "@/server/workspaces";
+import { mergeCandidates, mergeRows, previewMerge } from "@/server/merge-rows";
 import * as pages from "@/server/pages";
 import * as templates from "@/server/templates";
 import { requireUserId } from "@/server/session";
@@ -170,6 +172,23 @@ export async function duplicateRowsAction(databaseId: string, rowIds: string[]) 
     const t = await getTranslations("page.header");
     return duplicateRows({ userId }, databaseId, rowIds, t("duplicateSuffix"));
   });
+}
+
+/** What merging these rows would bring together (the merge dialog). */
+export async function previewMergeAction(rowIds: string[]) {
+  return run((userId) => previewMerge(userId, rowIds.map(String)));
+}
+
+/** Merges `otherRowIds` into `keptRowId`, with a row (or "combine") for each property. */
+export async function mergeRowsAction(input: { keptRowId: string; otherRowIds: string[]; choices?: MergeChoices }) {
+  return run((userId) =>
+    mergeRows({ userId }, { keptRowId: String(input.keptRowId), otherRowIds: input.otherRowIds.map(String), choices: input.choices ?? {} }),
+  );
+}
+
+/** Rows "Merge with…" offers for a row. */
+export async function mergeCandidatesAction(rowId: string, query: string) {
+  return run((userId) => mergeCandidates(userId, String(rowId), String(query ?? "")));
 }
 
 export async function moveRowAction(

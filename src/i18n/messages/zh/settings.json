@@ -1517,7 +1517,8 @@
         "deleted": "永久删除了 {target}",
         "published": "将 {target} 发布到了网络",
         "unpublished": "取消发布了 {target}",
-        "publication_revoked": "将 {target} 从网络下线（由 {subject} 发布）"
+        "publication_revoked": "将 {target} 从网络下线（由 {subject} 发布）",
+        "rows_merged": "将 {count} 行合并到 {target}"
       },
       "property": {
         "access_changed": "更改了 {target} 中“{property}”的访问权限",

@@ -218,7 +218,8 @@ export function RowPanelProvider({
 
 type Loaded =
   | { ok: true; data: RowPanelPage }
-  | { ok: false; reason: "unavailable" | "database" | "unreachable" };
+  | { ok: false; reason: "unavailable" | "database" | "unreachable" }
+  | { ok: false; reason: "merged"; rowId: string };
 
 function RowPanel({
   workspaceId,
@@ -250,12 +251,19 @@ function RowPanel({
   // out of it, not a page opened here from the AI chat).
   const [loaded, setLoaded] = useState<{ rowId: string; result: Loaded; wasRow: boolean } | null>(null);
 
+  const openRef = useRef(onOpen);
+  openRef.current = onOpen;
   const load = useCallback(async () => {
     let result: Loaded;
     try {
       result = await loadRowPanelAction(rowId);
     } catch {
       result = { ok: false, reason: "unreachable" };
+    }
+    // A row merged into another one: the panel shows that row instead.
+    if (!result.ok && result.reason === "merged") {
+      if (rowFromSearch(window.location.search) === rowId) openRef.current(result.rowId);
+      return;
     }
     setLoaded((current) => {
       // A late answer for a row the panel has moved on from is dropped.

@@ -181,19 +181,22 @@
           "createRow": "行を追加しました：",
           "updateRow": "変更しました：",
           "createPage": "ページを追加しました：",
-          "editPage": "ページのテキストを変更しました："
+          "editPage": "ページのテキストを変更しました：",
+          "mergeRows": "行を統合しました："
         },
         "declined": {
           "createRow": "行の追加が拒否されました：",
           "updateRow": "変更が拒否されました：",
           "createPage": "ページの追加が拒否されました：",
-          "editPage": "テキストの変更が拒否されました："
+          "editPage": "テキストの変更が拒否されました：",
+          "mergeRows": "行の統合を却下しました："
         },
         "failed": {
           "createRow": "行を追加できませんでした：",
           "updateRow": "変更できませんでした：",
           "createPage": "ページを追加できませんでした：",
-          "editPage": "テキストを変更できませんでした："
+          "editPage": "テキストを変更できませんでした：",
+          "mergeRows": "行を統合できませんでした："
         },
         "in": "場所："
       },

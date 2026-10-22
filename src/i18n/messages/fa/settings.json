@@ -1517,7 +1517,8 @@
         "deleted": "{target} را برای همیشه حذف کرد",
         "published": "{target} را در وب منتشر کرد",
         "unpublished": "انتشار {target} را لغو کرد",
-        "publication_revoked": "{target} را از وب برداشت (منتشرشده توسط {subject})"
+        "publication_revoked": "{target} را از وب برداشت (منتشرشده توسط {subject})",
+        "rows_merged": "{count, plural, one {# ردیف} other {# ردیف}} را در {target} ادغام کرد"
       },
       "property": {
         "access_changed": "دسترسی به «{property}» در {target} را تغییر داد",

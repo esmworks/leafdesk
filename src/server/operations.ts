@@ -43,6 +43,8 @@ import { isFollowing, setFollowing } from "@/server/row-follow";
 import * as pages from "@/server/pages";
 import * as propertyAccess from "@/server/property-access";
 import * as rowActivityFeed from "@/server/row-activity-feed";
+import { mergeRows as mergeRowsOp } from "@/server/merge-rows";
+import { COMBINE, MAX_MERGE_ROWS, MERGE_TITLE, MIN_MERGE_ROWS, type MergeChoices } from "@/lib/merge-rows";
 import * as skills from "@/server/skills";
 import * as snippets from "@/server/snippets";
 import { skillSlug } from "@/lib/skills";
@@ -352,6 +354,23 @@ export const inputs = {
       .boolean()
       .default(false)
       .describe("true checks the values and reports which rows would change (row_ids) and which would be skipped, without writing anything."),
+  }),
+  mergeRows: z.object({
+    database_id: id("database").optional().describe("The database of the rows; when given, every row must belong to it."),
+    kept_row_id: id("row").describe("The row that stays: the others are merged into it and go to the trash."),
+    other_row_ids: z
+      .array(z.string().min(1))
+      .min(MIN_MERGE_ROWS - 1)
+      .max(MAX_MERGE_ROWS - 1)
+      .describe(`Ids of the rows merged into the kept one (${MIN_MERGE_ROWS - 1}-${MAX_MERGE_ROWS - 1}), of the same database.`),
+    properties: z
+      .record(z.string(), z.string().min(1))
+      .optional()
+      .describe(
+        `Which row each property's value comes from, by property name or id: a row id of the merge, or "${COMBINE}" for every row's values together (multi-select, relation, person, files and checklist properties). Properties left out keep the kept row's value, or the first row's that has one; relations combine.`,
+      ),
+    title: z.string().min(1).optional().describe("The row id of the merge whose title the kept row takes (default: the kept row's, or the first one that has one)."),
+    dry_run: z.boolean().default(false).describe("true checks the merge and reports what it would do, without writing anything."),
   }),
   listRowActivity: z.object({
     row_id: id("row"),
@@ -1530,9 +1549,51 @@ export async function listRowActivity(ctx: OperationContext, { row_id, limit, of
       actor: e.actor.kind,
       change: e.kind,
       ...(e.property ? { property: e.property.name, property_id: e.property.id } : {}),
-      ...(e.kind === "created" ? {} : { from: e.from && valueText(e.from), to: e.to && valueText(e.to) }),
+      ...(e.kind === "created" || e.kind === "merged" ? {} : { from: e.from && valueText(e.from), to: e.to && valueText(e.to) }),
+      ...(e.merged ? { merged_rows: e.merged.map((r) => ({ id: r.id, title: pageLabel(r.title) })) } : {}),
+      ...(e.mergedFrom ? { merged_from: { id: e.mergedFrom.id, title: pageLabel(e.mergedFrom.title) } } : {}),
     })),
     url: pageUrl(page.workspaceId, page.id),
+  };
+}
+
+/**
+ * Merges duplicate rows into one (server/merge-rows.ts): the kept row takes the chosen values, and
+ * the links, comments, activity, files, email and content of the others, which go to the trash.
+ * Values are only ever picked from the rows, never given.
+ */
+export async function mergeRows(
+  ctx: OperationContext,
+  { database_id, kept_row_id, other_row_ids, properties, title, dry_run = false }: Args<"mergeRows">,
+) {
+  const { page: kept, parentDatabase } = await loadPage(ctx, kept_row_id);
+  if (!parentDatabase) throw new ToolInputError("This page is not a database row.");
+  if (database_id !== undefined && parentDatabase.id !== database_id) throw new ToolInputError("The kept row isn't a row of this database.");
+  const { properties: props } = await databases.getDatabase(ctx.userId, parentDatabase.id);
+  const ids = new Set([kept.id, ...other_row_ids]);
+  const rowChoice = (key: string, value: string) => {
+    if (value === COMBINE || ids.has(value)) return value;
+    throw new ToolInputError(`"${key}": "${value}" is neither a row of this merge nor "${COMBINE}".`);
+  };
+  const choices: MergeChoices = {};
+  for (const [key, value] of Object.entries(properties ?? {})) {
+    const { prop } = resolvePropertyKey(props, key);
+    if (!prop) throw new ToolInputError(`"${key}" is a built-in field; give the title's row with "title".`);
+    choices[prop.id] = rowChoice(prop.name, value);
+  }
+  if (title !== undefined) {
+    if (!ids.has(title)) throw new ToolInputError(`"title": "${title}" is not a row of this merge.`);
+    choices[MERGE_TITLE] = title;
+  }
+  const result = await mergeRowsOp(ctx.actor, { keptRowId: kept.id, otherRowIds: other_row_ids, choices }, { dryRun: dry_run });
+  return {
+    ...(dry_run ? { dry_run: true } : {}),
+    kept_row_id: result.keptRowId,
+    [dry_run ? "would_merge_row_ids" : "merged_row_ids"]: result.mergedRowIds,
+    title: pageLabel(result.title),
+    relinked_rows: result.relinkedRows,
+    moved: { comment_threads: result.threads, bodies: result.bodies, activity: result.activity, files: result.files, emails: result.emails },
+    url: pageUrl(result.workspaceId, result.keptRowId),
   };
 }
 

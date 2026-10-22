@@ -79,7 +79,9 @@
     "deletePermanently": "Endgültig löschen",
     "confirmDelete": "Endgültig löschen? Das kann nicht rückgängig gemacht werden.",
     "deletesIn": "Wird in {count, plural, one {# Tag} other {# Tagen}} gelöscht",
-    "deletesSoon": "Wird bald gelöscht"
+    "deletesSoon": "Wird bald gelöscht",
+    "mergedInto": "Zusammengeführt mit {title}",
+    "restoreMerged": "Als eigene Zeile wiederherstellen. Verknüpfungen, Kommentare, Aktivität und E-Mails, die zu „{title}“ übertragen wurden, bleiben dort."
   },
   "newWorkspace": {
     "title": "Neuer Workspace",

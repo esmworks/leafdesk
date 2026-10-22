@@ -1517,7 +1517,8 @@
         "deleted": "Ha eliminato definitivamente {target}",
         "published": "Ha pubblicato {target} sul web",
         "unpublished": "Ha annullato la pubblicazione di {target}",
-        "publication_revoked": "Ha tolto {target} dal web (pubblicata da {subject})"
+        "publication_revoked": "Ha tolto {target} dal web (pubblicata da {subject})",
+        "rows_merged": "Ha unito {count, plural, one {# riga} other {# righe}} a {target}"
       },
       "property": {
         "access_changed": "Ha cambiato chi può accedere a “{property}” in {target}",

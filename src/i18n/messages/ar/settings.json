@@ -1517,7 +1517,8 @@
         "deleted": "حذف {target} نهائيًا",
         "published": "نشر {target} على الويب",
         "unpublished": "ألغى نشر {target}",
-        "publication_revoked": "أزال {target} من الويب (نشرها {subject})"
+        "publication_revoked": "أزال {target} من الويب (نشرها {subject})",
+        "rows_merged": "دمج {count, plural, zero {# صف} one {صفًا واحدًا} two {صفين} few {# صفوف} many {# صفًا} other {# صف}} في {target}"
       },
       "property": {
         "access_changed": "غيّر من يمكنه الوصول إلى «{property}» في {target}",

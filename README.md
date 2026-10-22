@@ -2905,7 +2905,10 @@ The tools cover:
   so a retried import adds nothing twice, and each row says whether it was `created` or `updated`;
   a value two given rows share, or that several existing rows hold, is refused before anything is
   written. `update_database_rows` takes `expect` (writes nothing unless exactly that many rows
-  would change) and `dry_run`.
+  would change) and `dry_run`. `merge_rows` merges duplicate rows into a kept row, taking each
+  value from the row picked for it (or every row's together), pointing other rows' links at the
+  kept row and bringing comments, activity, files, email and content along; the merged rows go to
+  the trash.
 - **Dashboards:** `add_dashboard` adds a dashboard of widgets (each a database and the settings of
   a view, as for `create_database_view`; a number is a chart with `chart_type: "number"`) to the end
   of a page, and `update_dashboard_widget` adds, changes, moves or removes one widget. `get_page`
@@ -2988,6 +2991,7 @@ Filter ops: `contains`, `does_not_contain`, `equals`, `not_equals`, `is_any_of` 
   each row), `POST /databases/{id}/rows`, `POST
   /databases/{id}/rows/bulk` (up to 100; both take `match_by` to upsert, as the MCP tools do),
   `PATCH /databases/{id}/rows` (same values on many rows, with `expect` and `dry_run`),
+  `POST /databases/{id}/rows/merge` (duplicate rows into one, as `merge_rows` does),
   `GET` and `PATCH /rows/{id}`, `GET /rows/{id}/activity` (who changed what, newest first;
   `actor: "ai"` for AI autofill values, with the person in `by`).
 - **Voice notes:** `POST /voice-notes` takes a recording as multipart form data (`audio`, and

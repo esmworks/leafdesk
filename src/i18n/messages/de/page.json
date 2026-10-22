@@ -88,7 +88,8 @@
     "muteHint": "Keine Benachrichtigungen mehr über neue Antworten in diesem Thread. Wenn du hier antwortest oder hier erwähnt wirst, wird es wieder eingeschaltet.",
     "unmuteHint": "Wieder über neue Antworten in diesem Thread benachrichtigt werden.",
     "muted": "Antworten stummgeschaltet",
-    "mutedHint": "Du wirst nicht über Antworten in diesem Thread benachrichtigt, bis du hier antwortest oder dich hier jemand erwähnt."
+    "mutedHint": "Du wirst nicht über Antworten in diesem Thread benachrichtigt, bis du hier antwortest oder dich hier jemand erwähnt.",
+    "mergedFrom": "Aus „{title}“"
   },
   "archived": {
     "banner": "Diese Seite liegt im Papierkorb.",
@@ -167,7 +168,8 @@
       "beforeAiEdit": "Vor KI-Bearbeitung",
       "beforeAiEditBy": "Vor Bearbeitung durch {client}",
       "beforeAssistantEdit": "Vor Bearbeitung durch den KI-Assistenten",
-      "beforeMarkdownEdit": "Vor Markdown-Bearbeitung"
+      "beforeMarkdownEdit": "Vor Markdown-Bearbeitung",
+      "beforeMerge": "Vor dem Zusammenführen von Zeilen"
     },
     "empty": "Noch keine Versionen. Versionen werden beim Bearbeiten automatisch gespeichert und bevor eine KI-App diese Seite ändert.",
     "restore": "Diese Version wiederherstellen",

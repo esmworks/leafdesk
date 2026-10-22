@@ -1517,7 +1517,8 @@
         "deleted": "Kalıcı olarak silindi: {target}",
         "published": "Web’de yayınlandı: {target}",
         "unpublished": "Yayından kaldırıldı: {target}",
-        "publication_revoked": "Web’den kaldırıldı: {target} (yayınlayan: {subject})"
+        "publication_revoked": "Web’den kaldırıldı: {target} (yayınlayan: {subject})",
+        "rows_merged": "{count, plural, one {# satırı} other {# satırı}} {target} satırında birleştirdi"
       },
       "property": {
         "access_changed": "{target} içindeki “{property}” özelliğinin erişimi değiştirildi",

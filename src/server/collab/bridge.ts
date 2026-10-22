@@ -141,6 +141,18 @@ export interface CollabService {
    * before the editor's AI assistant applies a suggestion in the browser.
    */
   snapshot(pageId: string, reason: "before_ai_edit" | "manual", actor: WriteActor): Promise<void>;
+  /**
+   * Brings what database rows merged into this one hold (server/merge-rows.ts): each source's body,
+   * when it isn't empty, goes after the page's own under a heading (`heading`), its blocks with ids
+   * of their own; and its comment threads come along as they are (who wrote what, and when), on
+   * the same text where the page now has it, else about the whole page, saying which row they came
+   * from (`title`). The page is saved to its history first. The sources stay as they are.
+   */
+  mergeInto(
+    pageId: string,
+    sources: { pageId: string; title: string; heading: string }[],
+    actor: WriteActor,
+  ): Promise<{ bodies: number; threads: number }>;
   /** The page's comment threads, from the live document when it is open. */
   readThreads(pageId: string): Promise<PlainThread[]>;
   /**

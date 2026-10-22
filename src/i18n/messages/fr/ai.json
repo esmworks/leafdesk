@@ -181,19 +181,22 @@
           "createRow": "Ligne ajoutée :",
           "updateRow": "Ligne modifiée :",
           "createPage": "Page ajoutée :",
-          "editPage": "Texte de la page modifié :"
+          "editPage": "Texte de la page modifié :",
+          "mergeRows": "Lignes fusionnées dans :"
         },
         "declined": {
           "createRow": "Ajout de la ligne refusé :",
           "updateRow": "Modification refusée :",
           "createPage": "Ajout de la page refusé :",
-          "editPage": "Modification du texte refusée :"
+          "editPage": "Modification du texte refusée :",
+          "mergeRows": "Fusion refusée pour :"
         },
         "failed": {
           "createRow": "Impossible d'ajouter la ligne :",
           "updateRow": "Impossible de modifier :",
           "createPage": "Impossible d'ajouter la page :",
-          "editPage": "Impossible de modifier le texte de :"
+          "editPage": "Impossible de modifier le texte de :",
+          "mergeRows": "Impossible de fusionner les lignes dans :"
         },
         "in": "dans"
       },
