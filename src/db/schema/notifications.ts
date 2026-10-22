@@ -370,6 +370,8 @@ export const notification = pgTable(
     joinRequestId: text("join_request_id").references(() => workspaceJoinRequest.id, { onDelete: "cascade" }),
     /** Automation notifications: the automation that sent it. */
     automationId: text("automation_id").references(() => databaseAutomation.id, { onDelete: "cascade" }),
+    /** "automation": the message its notify step wrote, templates resolved; null without one. */
+    message: text("message"),
     /** Agent approval, memory and report notifications: the run whose call or notes wait, or that finished. */
     agentRunId: text("agent_run_id").references(() => agentRun.id, { onDelete: "cascade" }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
