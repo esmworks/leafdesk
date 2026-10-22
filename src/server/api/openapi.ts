@@ -32,7 +32,7 @@ const DESCRIPTION = `A REST API for the pages, databases, rows and comments of L
 
 **Authentication.** Create a personal access token in Settings → Connected apps and send it as \`Authorization: Bearer esi_…\`. Tokens may be limited to one workspace and may expire. Tokens look like \`esi_\` followed by 40 letters and digits, so secret scanners can spot leaked ones; revoke a leaked token in Settings. Tokens act outside a workspace's "require two-step verification" policy, like connected MCP apps.
 
-**Scopes.** A token may read, and for some resources write, each kind of thing on its own: ${API_TOKEN_SCOPES.map((s) => `\`${s}\``).join(", ")}. A write scope brings the read scope of its resource. Each endpoint names the one scope it needs (\`GET /me\` takes any token); without it the answer is \`403 missing_scope\` with the scope in \`details.scope\`. What a token may do can be changed in Settings without changing its secret. Tokens made before scopes were per resource keep the access they had: their \`pages:read\` reads everything and their \`pages:write\` reads and writes everything (\`GET /me\` shows \`legacy_scopes: true\` and lists the scopes they stand for).
+**Scopes.** A token may read, and for some resources write, each kind of thing on its own: ${API_TOKEN_SCOPES.map((s) => `\`${s}\``).join(", ")}. A write scope brings the read scope of its resource. Each endpoint names the one scope it needs (\`GET /me\` takes any token); without it the answer is \`403 insufficient_scope\` with the scope in \`details.scope\`. What a token may do can be changed in Settings without changing its secret. Tokens made before scopes were per resource keep the access they had: their \`pages:read\` reads everything and their \`pages:write\` reads and writes everything (\`GET /me\` shows \`legacy_scopes: true\` and lists the scopes they stand for).
 
 **Errors** are JSON: \`{"error": {"code": "not_found", "message": "…"}}\`. Invalid input adds \`details\` (what is wrong with each field) and \`param\`, the field it is about where it is known (\`title\`, \`properties.Status\`, \`rows.2.properties.Status\`). A page, database or row that doesn't exist and one the user may not see both answer \`404 not_found\`.
 
@@ -112,7 +112,7 @@ const SCHEMAS: Record<string, JsonSchema> = {
           },
           details: {
             description:
-              "For invalid input, what is wrong with each field; for `missing_scope`, `{scope}`; for `version_conflict`, the versions.",
+              "For invalid input, what is wrong with each field; for `insufficient_scope`, `{scope}`; for `version_conflict`, the versions.",
             oneOf: [{ type: "array", items: loose({ path: { type: "string" }, message: { type: "string" } }) }, loose({})],
           },
         },
@@ -702,7 +702,7 @@ const ERROR_RESPONSES: Record<string, { description: string }> = {
   "401": { description: "No token, or an invalid or expired one (unauthorized, invalid_token, token_expired)." },
   "403": {
     description:
-      "The token lacks the scope (missing_scope, naming it in details.scope), or the user may not do this, or the workspace lets API tokens only read (forbidden).",
+      "The token lacks the scope (insufficient_scope, naming it in details.scope), or the user may not do this, or the workspace lets API tokens only read (forbidden).",
   },
   "404": { description: "Not found, or the user (or the token's workspace) may not access it." },
   "409": {

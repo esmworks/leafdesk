@@ -29,7 +29,7 @@ import { voiceAudioType } from "@/lib/voice-notes";
 import { AiError, sttLimits } from "@/server/ai";
 import { pageUrl } from "@/server/mcp/format";
 import { createVoiceNote } from "@/server/voice-notes";
-import { ApiError, missingScope } from "./errors";
+import { ApiError, insufficientScope } from "./errors";
 import { cursorInput, decodeCursor, nextCursor, paginate } from "./pagination";
 import type { ApiPrincipal } from "./tokens";
 
@@ -87,7 +87,7 @@ export const defineRoute = <Q extends Schema = Schema, B extends Schema = Schema
 
 /** For what only some calls of an endpoint do (a voice note into a database): refused without the scope. */
 function requireScope(principal: ApiPrincipal, scope: ApiTokenScope) {
-  if (!principal.scopes.includes(scope)) throw missingScope(scope);
+  if (!principal.scopes.includes(scope)) throw insufficientScope(scope);
 }
 
 /** A token bound to a workspace sees nothing outside it: other workspaces read as not found. */

@@ -5,7 +5,7 @@ import { CLIENT_IP_HEADER } from "@/lib/client-ip";
 import { limitFromEnv, SlidingWindowLimiter } from "@/lib/rate-limit";
 import { runAsConnectedApp } from "@/server/connected-app";
 import { BodyTooLargeError, readBodyLimited, readFormLimited } from "@/server/request-body";
-import { ApiError, apiErrorFor, errorBody, missingScope } from "./errors";
+import { ApiError, apiErrorFor, errorBody, insufficientScope } from "./errors";
 import {
   IDEMPOTENCY_HEADER,
   keepsAnswer,
@@ -277,7 +277,7 @@ export function createApiHandler(deps: ApiDeps) {
     const headers = { ...cors, ...limited.headers };
 
     if (route.scope && !principal.scopes.includes(route.scope)) {
-      return json(403, errorBody(missingScope(route.scope)), {
+      return json(403, errorBody(insufficientScope(route.scope)), {
         ...headers,
         "WWW-Authenticate": `${WWW_AUTHENTICATE}, error="insufficient_scope", scope="${route.scope}"`,
       });
@@ -370,7 +370,7 @@ export function createApiHandler(deps: ApiDeps) {
       const apiError = apiErrorFor(error);
       const text = JSON.stringify(errorBody(apiError));
       // A missing scope can be granted to the token, and the retry should then run.
-      await settle(apiError.status, text, keepsAnswer(apiError.status) && apiError.code !== "missing_scope");
+      await settle(apiError.status, text, keepsAnswer(apiError.status) && apiError.code !== "insufficient_scope");
       const retry: Record<string, string> = apiError.retryAfterSeconds ? { "Retry-After": String(apiError.retryAfterSeconds) } : {};
       return raw(apiError.status, text, { ...headers, ...retry });
     }

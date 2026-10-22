@@ -14,7 +14,7 @@ export const API_ERROR_CODES = {
   unauthorized: { status: 401, description: "No token was sent: pass it as `Authorization: Bearer esi_…`." },
   invalid_token: { status: 401, description: "The token is malformed, unknown or revoked." },
   token_expired: { status: 401, description: "The token has expired; create a new one." },
-  missing_scope: {
+  insufficient_scope: {
     status: 403,
     description: "The token lacks the scope this endpoint (or this use of it) needs; `details.scope` names it. Change what the token may do in Settings, keeping its secret.",
   },
@@ -96,8 +96,8 @@ export class ApiError extends Error {
 }
 
 /** A 403 for a token without `scope`. */
-export function missingScope(scope: string) {
-  return new ApiError(403, "missing_scope", `This needs a token with the ${scope} scope.`, { scope });
+export function insufficientScope(scope: string) {
+  return new ApiError(403, "insufficient_scope", `This needs a token with the ${scope} scope.`, { scope });
 }
 
 /**

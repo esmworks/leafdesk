@@ -11,11 +11,11 @@
   *Connected apps* shows a read and a write toggle for each, with the presets *Read everything*
   and *Read and write everything*, and *Change access* changes what an existing token may do
   without a new secret (recorded in the audit log). Every endpoint names the scope it needs in the
-  reference and the OpenAPI document; without it the answer is `403 missing_scope` with the scope
-  in `details.scope` (this replaces `insufficient_scope`). Tokens made before keep exactly the
-  access they had: their `pages:read` reads everything and their `pages:write` reads and writes
-  everything, and they say so in settings and in `GET /me` (`legacy_scopes`), which any token may
-  now call. Writes take an `Idempotency-Key` header: the same request sent again with the same key
+  reference and the OpenAPI document; without it the answer is still `403 insufficient_scope`,
+  which now names the scope in `details.scope`. Tokens made before keep exactly the access they
+  had: their `pages:read` reads everything and their `pages:write` reads and writes everything,
+  and they say so in settings and in `GET /me` (`legacy_scopes`), which any token may now call.
+  Writes take an `Idempotency-Key` header: the same request sent again with the same key
   within 24 hours gets the first answer back (`Idempotent-Replayed: true`) instead of being done
   twice, another request with the key answers `422 idempotency_key_reused`, one sent while the
   first still runs `409 idempotency_conflict`, and server failures aren't kept so their retry runs

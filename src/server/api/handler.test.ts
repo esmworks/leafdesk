@@ -209,7 +209,7 @@ describe("REST API handler", () => {
   it("refuses writes to read-only tokens, naming the scope missing", async () => {
     const res = await call(handler(), "POST", "/things", { token: READ, body: JSON.stringify({ title: "x" }) });
     expect(res.status).toBe(403);
-    expect(await errorOf(res)).toEqual({ code: "missing_scope", message: expect.stringContaining("pages:write"), details: { scope: "pages:write" } });
+    expect(await errorOf(res)).toEqual({ code: "insufficient_scope", message: expect.stringContaining("pages:write"), details: { scope: "pages:write" } });
     expect(res.headers.get("www-authenticate")).toContain('error="insufficient_scope", scope="pages:write"');
   });
 
@@ -298,7 +298,7 @@ describe("REST API handler", () => {
       const off = await call(handler(), "POST", "/recordings", { token: WRITE, body: form });
       expect([off.status, (await errorOf(off)).code]).toEqual([409, "voice_notes_unavailable"]);
       const readOnly = await call(handler(), "POST", "/recordings", { token: READ, body: form });
-      expect([readOnly.status, (await errorOf(readOnly)).code]).toEqual([403, "missing_scope"]);
+      expect([readOnly.status, (await errorOf(readOnly)).code]).toEqual([403, "insufficient_scope"]);
     } finally {
       recordingsOff = false;
     }
@@ -435,7 +435,7 @@ describe("idempotency keys", () => {
     const other = await post(h, "k2", "Two");
     expect([other.status, (await errorOf(other)).code]).toEqual([422, "idempotency_key_reused"]);
     const otherToken = await call(h, "POST", "/things", { token: READ, body: JSON.stringify({ title: "Two" }), headers: { "idempotency-key": "k2" } });
-    expect((await errorOf(otherToken)).code).toBe("missing_scope");
+    expect((await errorOf(otherToken)).code).toBe("insufficient_scope");
   });
 
   it("answers 409 while the first request with the key still runs", async () => {

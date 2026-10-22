@@ -154,7 +154,7 @@ try {
 
   const readOnlyCreate = await api("POST", "/pages", R, { workspace_id: wsA, title: "Should not exist" });
   check(
-    readOnlyCreate.status === 403 && errorCode(readOnlyCreate) === "missing_scope" && readOnlyCreate.body.error.details.scope === "pages:write",
+    readOnlyCreate.status === 403 && errorCode(readOnlyCreate) === "insufficient_scope" && readOnlyCreate.body.error.details.scope === "pages:write",
     "a read token can't create pages, and is told the scope it lacks",
     readOnlyCreate.body,
   );
@@ -223,7 +223,7 @@ try {
   check((await api("GET", `/pages/${parent}`, R)).body.in_trash === true, "…which then reads as in the trash");
   const restored = await api("POST", `/pages/${parent}/restore`, W);
   check(restored.status === 200 && restored.body.in_trash === false, "POST /pages/{id}/restore brings it back");
-  check(errorCode(await api("POST", `/pages/${parent}/archive`, R)) === "missing_scope", "a read token can't trash pages");
+  check(errorCode(await api("POST", `/pages/${parent}/archive`, R)) === "insufficient_scope", "a read token can't trash pages");
 
   // Comments
   const thread = await api("POST", `/pages/${pageId}/comments`, W, { text: "Which apricots?", quote: "apricots" });
@@ -240,7 +240,7 @@ try {
   check(noQuote.status === 400, "quoting text the page doesn't have is a 400");
 
   // ------------------------------------------------------------------ daily notes
-  check(errorCode(await api("POST", `/workspaces/${wsA}/daily-notes`, R, { date: "2026-10-17" })) === "missing_scope", "a read token can't make a daily note");
+  check(errorCode(await api("POST", `/workspaces/${wsA}/daily-notes`, R, { date: "2026-10-17" })) === "insufficient_scope", "a read token can't make a daily note");
   const note = await api("POST", `/workspaces/${wsA}/daily-notes`, W, { date: "2026-10-17" });
   check(note.status === 200 && note.body.created === true && note.body.date === "2026-10-17" && note.body.title === "October 17, 2026", "POST /workspaces/{id}/daily-notes makes the day's note", note.body);
   const noteAgain = await api("POST", `/workspaces/${wsA}/daily-notes`, W, { date: "2026-10-17" });
@@ -262,7 +262,7 @@ try {
     schema.body,
   );
   const readOnlyRow = await api("POST", `/databases/${database.id}/rows`, R, { title: "No" });
-  check(errorCode(readOnlyRow) === "missing_scope", "a read token can't add rows");
+  check(errorCode(readOnlyRow) === "insufficient_scope", "a read token can't add rows");
   const row = await api("POST", `/databases/${database.id}/rows`, W, { title: "Alpha", properties: { Status: "In progress" }, markdown: "Row body." });
   check(row.status === 201 && row.body.properties.Status === "In progress", "POST /databases/{id}/rows adds a row with properties", row.body);
   const bulk = await api("POST", `/databases/${database.id}/rows/bulk`, W, {
@@ -326,7 +326,7 @@ try {
   check(bulkPatch.status === 200 && bulkPatch.body.updated === 3, "PATCH /databases/{id}/rows updates many rows", bulkPatch.body);
   const notStarted = await api("POST", `/databases/${database.id}/query`, R, { filters: [{ property: "Status", op: "equals", value: "Not started" }] });
   check(notStarted.body.total === 3, "…and the change shows up in queries");
-  check(errorCode(await api("PATCH", `/rows/${alpha}`, R, { title: "no" })) === "missing_scope", "a read token can't change rows");
+  check(errorCode(await api("PATCH", `/rows/${alpha}`, R, { title: "no" })) === "insufficient_scope", "a read token can't change rows");
   const badPatchValue = await api("PATCH", `/rows/${alpha}`, W, { properties: { Status: "Bogus" } });
   check(badPatchValue.body.error?.param === "properties.Status", "a bad value in PATCH /rows/{id} names the property in param", badPatchValue.body);
 
@@ -382,7 +382,7 @@ try {
   const denied = async (method: string, path: string, token: string, scope: string, body?: unknown) => {
     const res = await api(method, path, token, body);
     check(
-      res.status === 403 && errorCode(res) === "missing_scope" && res.body.error.details?.scope === scope &&
+      res.status === 403 && errorCode(res) === "insufficient_scope" && res.body.error.details?.scope === scope &&
         res.headers.get("www-authenticate")?.includes(`scope="${scope}"`),
       `${method} ${path.replace(RUN, "…")} needs ${scope}`,
       { status: res.status, body: res.body },
@@ -509,7 +509,7 @@ try {
   check(invalid.status === 400 && !(await keyRow(invalidKey)), "an invalid request keeps nothing under its key");
   check((await keyed("POST", "/pages", invalidKey, { workspace_id: wsA, title: `${RUN} Fixed` })).status === 201, "…so the corrected request runs with it");
   const missingKey = `${RUN}-missing`;
-  check(errorCode(await keyed("POST", `/databases/${database.id}/rows`, missingKey, { title: "no" }, pagesOnly)) === "missing_scope" && !(await keyRow(missingKey)), "a missing scope keeps nothing either");
+  check(errorCode(await keyed("POST", `/databases/${database.id}/rows`, missingKey, { title: "no" }, pagesOnly)) === "insufficient_scope" && !(await keyRow(missingKey)), "a missing scope keeps nothing either");
   const notFoundKey = `${RUN}-not-found`;
   const gone = await keyed("PATCH", `/rows/${RUN}-nothing`, notFoundKey, { title: "x" });
   const goneAgain = await keyed("PATCH", `/rows/${RUN}-nothing`, notFoundKey, { title: "x" });

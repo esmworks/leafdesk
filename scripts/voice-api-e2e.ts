@@ -158,7 +158,7 @@ try {
   const mismatch = await api("POST", "/voice-notes", W, recording("x", { workspace_id: wsB, database_id: database.id }));
   check(mismatch.status === 404, "a database of another workspace than workspace_id: 404", mismatch.body);
   const readOnly = await api("POST", "/voice-notes", R, recording("x", { workspace_id: wsA }));
-  check(readOnly.status === 403 && errorCode(readOnly) === "missing_scope", "a read token can't make voice notes");
+  check(readOnly.status === 403 && errorCode(readOnly) === "insufficient_scope", "a read token can't make voice notes");
 
   // ------------------------------------------------------------------ what isn't a recording
   const text = await api("POST", "/voice-notes", W, recording("x", { workspace_id: wsA }, new File(["x"], "notes.txt", { type: "text/plain" })));

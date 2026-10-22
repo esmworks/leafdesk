@@ -2955,7 +2955,7 @@ changes what it may do without a new secret, and revoking one stops it at once.
 What a token may do is chosen per resource, with a read and (where there is one) a write toggle
 for each, or one of the presets *Read everything* and *Read and write everything*. A write scope
 brings the read scope of its resource. Every endpoint needs one scope (the reference names it;
-`GET /me` takes any token), and a token without it gets `403 missing_scope` with the scope in
+`GET /me` takes any token), and a token without it gets `403 insufficient_scope` with the scope in
 `details.scope`:
 
 | Scope | Endpoints |
