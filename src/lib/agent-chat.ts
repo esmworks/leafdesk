@@ -7,11 +7,12 @@ import type { ChatStepView } from "./ai-chat";
 
 /**
  * Chatting with an agent: a person writes to one of the workspace's agents and it answers, each
- * answer one of its runs (source `chat`, in its history, counted in its usage and limits). Owners
- * chat in the agent's dialog (its Chat tab) or in a page's "Agent chat" block, and the agent does
- * what any run an owner asks for may, held to that owner's access as well. Anyone else in the
- * workspace (not a guest) chats only in a block, read-only: the agent reads only pages both it and
- * that person can open, changes nothing and calls no connection tool that changes something.
+ * answer one of its runs (source `chat`, in its history, counted in its usage and limits). Anyone
+ * the agent is shared with (lib/agent-sharing) chats in its dialog (its Chat tab) or in a page's
+ * "Agent chat" block. For those who can edit the agent the run does what a run they ask for may,
+ * held to their access as well; for those who can only view and interact with it, it is
+ * read-only: the agent reads only pages both it and that person can open, changes nothing and
+ * calls no connection tool that changes something.
  *
  * Each person has their own conversations, per block (`chatId`) or in the dialog (no chat id); no
  * one else sees them, owners included (a member's runs show in the history without what was said).
@@ -137,11 +138,12 @@ export type AgentChatTurn = {
 };
 
 /**
- * Where a person stands with an agent's chat: they may chat (`full` as an owner, else read-only),
- * or not: a guest, the agent is gone (archived, or not of the workspace), paused, the workspace's
- * AI is off, or the agent used its tokens for the month.
+ * Where a person stands with an agent's chat: they may chat (`full` when they can edit the agent,
+ * see lib/agent-sharing, else read-only), or not: a guest, the agent is gone (archived, or not of
+ * the workspace), not shared with them, paused, the workspace's AI is off, or the agent used its
+ * tokens for the month.
  */
-export type AgentChatState = "full" | "readOnly" | "guest" | "gone" | "paused" | "aiOff" | "limitReached";
+export type AgentChatState = "full" | "readOnly" | "guest" | "gone" | "noAccess" | "paused" | "aiOff" | "limitReached";
 
 export type AgentChatInfo = {
   state: AgentChatState;

@@ -5,8 +5,8 @@
  * masked) and goes with no later run until an owner keeps it; an owner who can't open the run's
  * row doesn't see a proposal's text and can't keep it; kept notes go with every later run inside a
  * <memory> data tag, also runs no member started, which can't propose or drop notes; proposals are
- * bounded and go with their run; owners write, change, keep, dismiss and delete notes, members
- * can't; a run's proposals put one item in each owner's inbox (its text only for an owner who can
+ * bounded and go with their run; owners (and those who can edit the agent) write, change, keep,
+ * dismiss and delete notes, those who can only view and interact see them; a run's proposals put one item in each owner's inbox (its text only for an owner who can
  * open the row), gone once none waits; an archived agent's memory can't change but stays; the
  * audit log counts the changes.
  * Creates its own users and workspace and deletes them afterwards.
@@ -32,7 +32,6 @@ const { registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
 const { createPage } = await import("@/server/pages");
 const { addProperty, createRows } = await import("@/server/databases");
-const { AccessError } = await import("@/server/access");
 const { setAiEnv } = await import("@/server/ai/testing");
 const { startFakeOpenAi, textOf } = await import("@/server/ai/fake-openai");
 type FakeChatRequest = import("@/server/ai/fake-openai").FakeChatRequest;
@@ -79,7 +78,6 @@ async function fails(promise: Promise<unknown>, what: (error: unknown) => boolea
     return what(error);
   }
 }
-const isAccess = (e: unknown) => e instanceof AccessError || (e instanceof agents.AgentError && e.code === "notFound");
 const isCode = (code: string) => (e: unknown) => e instanceof agents.AgentError && e.code === code;
 
 const everything = (request: FakeChatRequest) => request.messages.map((m) => textOf(m.content)).join("\n");
@@ -161,7 +159,7 @@ try {
   check(memorySteps.length >= 2 && memorySteps.every((s) => s.kind === "memory" && s.action === "propose"), "each proposal is a step of the run", firstRun.steps);
   check((await agents.listAgentRuns(ids.owner, router.id))[0].steps.some((s) => s.kind === "memory"), "…in the run's history");
   check((await memory.proposedNoteCounts(ids.owner, workspaceId))[router.id] === 2, "the owners' list of agents counts the proposals waiting");
-  check(await fails(memory.proposedNoteCounts(ids.member, workspaceId), (e) => e instanceof AccessError), "…members don't get it");
+  check(Object.keys(await memory.proposedNoteCounts(ids.member, workspaceId)).length === 0, "…members who can't edit the agent don't get it");
   check((await listMemories(ids.owner, workspaceId)).length === 0, "an agent's notes are not the owner's chat memory");
 
   // ── Owners hear of it in their inbox ────────────────────────────────────────────────────────
@@ -192,7 +190,7 @@ try {
   check(!everything(fake.chats[0]).includes("Refund questions are Billing tickets"), "a proposal no owner kept goes with no run", everything(fake.chats[0]).slice(0, 2000));
 
   // ── Owners review ───────────────────────────────────────────────────────────────────────────
-  check(await fails(memory.listAgentMemory(ids.member, router.id), isAccess), "members can't see an agent's memory");
+  check(Array.isArray(await memory.listAgentMemory(ids.member, router.id)), "members it is shared with see its memory");
   const seenByOther = await memory.listAgentMemory(ids.other, router.id);
   check(
     seenByOther.length === 2 && seenByOther.every((n) => n.text === null && n.run?.rowId === first.id && n.run.rowTitle === null),
@@ -210,7 +208,7 @@ try {
   await memory.deleteAgentMemory(ids.owner, router.id, [hiddenProposal.id]);
   const seen = await memory.listAgentMemory(ids.owner, router.id);
   check(seen[0].text === proposals[0].text && seen[0].run?.rowTitle === "I want a refund", "the owner who can open it sees the note and the row it came from", seen);
-  check(await fails(memory.keepAgentMemory(ids.member, router.id, proposals[0].id), isAccess), "members can't keep a proposal");
+  check(await fails(memory.keepAgentMemory(ids.member, router.id, proposals[0].id), isCode("notAllowed")), "members who can only view and interact can't keep a proposal");
   const keptNote = await memory.keepAgentMemory(ids.owner, router.id, proposals[0].id, "Refund questions are Billing tickets.");
   check(keptNote.status === "kept" && keptNote.text === "Refund questions are Billing tickets." && keptNote.run === null, "an owner keeps a proposal, changed", keptNote);
   const stillWaiting = await inboxItem(ids.owner, firstRun.id);
@@ -226,7 +224,7 @@ try {
   check(written.status === "kept", "an owner writes a note: kept at once");
   check(await fails(memory.addAgentMemory(ids.owner, router.id, " "), isCode("noteEmpty")), "a note needs text");
   check(await fails(memory.addAgentMemory(ids.owner, router.id, "x".repeat(301)), isCode("noteTooLong")), "…of at most 300 characters");
-  check(await fails(memory.addAgentMemory(ids.member, router.id, "Members can't"), isAccess), "members can't write one");
+  check(await fails(memory.addAgentMemory(ids.member, router.id, "Members can't"), isCode("notAllowed")), "…or write one");
   const changed = await memory.updateAgentMemory(ids.owner, router.id, written.id, "Bug tickets need steps to reproduce and a version.");
   check(changed.text === "Bug tickets need steps to reproduce and a version.", "an owner changes a note");
   check((await memory.proposedNoteCounts(ids.owner, workspaceId))[router.id] === undefined, "no proposal waits any more");

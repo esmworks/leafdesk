@@ -794,7 +794,7 @@
     "tooManyAutomations": "Bir veritabanında en fazla {max} otomasyon olabilir.",
     "invalidWebhookUrl": "“{value}” geçerli bir http(s) adresi değil.",
     "webhookBlocked": "Webhook’lar özel veya yerel ağ adreslerine gönderilemez.",
-    "agentOwnersOnly": "Ajan çalıştıran eylemleri yalnızca çalışma alanı sahipleri ekleyip değiştirebilir.",
+    "agentOwnersOnly": "Ajanı çalıştıran eylemleri yalnızca çalışma alanı sahipleri ve ajanı düzenleyebilenler ekleyip değiştirebilir.",
     "invalidRepeat": "Bu tekrar ayarı geçerli değil: günleri, saati ve saat dilimini kontrol et.",
     "tooManySchedules": "Bu çalışma alanında olabilecek en fazla sayıda tekrarlayan şablon var."
   },
@@ -1077,7 +1077,7 @@
       "createAgent": "Ayarlar > Ajanlar’dan bir tane oluşturun.",
       "noAgentsMember": "Ajanları çalışma alanı sahipleri Ayarlar’dan oluşturur.",
       "agentTask": "Görev",
-      "agentOwnersOnly": "Bu eylemi yalnızca çalışma alanı sahipleri değiştirebilir.",
+      "agentOwnersOnly": "Bu eylemi yalnızca çalışma alanı sahipleri ve bu ajanı düzenleyebilenler değiştirebilir.",
       "agentTaskPlaceholder": "Talimatlarına ek olarak satırla ne yapsın. Örneğin: Bu yeni talebi sınıflandır.",
       "agentAccess": "Kaydettiğinizde {agent} bu veritabanında düzenleme erişimi alır.",
       "agentAccessAny": "Kaydettiğinizde ajan bu veritabanında düzenleme erişimi alır."

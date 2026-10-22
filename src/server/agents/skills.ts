@@ -20,7 +20,7 @@ import { getCollab } from "@/server/collab/bridge";
 import { labelPageLinks } from "@/server/mentions";
 import { expandSyncedMarkdown } from "@/server/synced-blocks";
 import { isSkill } from "@/server/skills";
-import { AgentError, auditDetails, ownedAgent } from "./manage";
+import { AgentError, auditDetails, agentFor } from "./manage";
 import { recordAgentVersion } from "./version-record";
 
 type SkillState = {
@@ -143,7 +143,7 @@ const neverFollowed = (state: SkillState): AgentSkillSkip | null => (!state.skil
  * someone who can't open some of the skills has more room than this says.
  */
 export async function listAgentSkills(userId: string, agentId: string): Promise<{ skills: AgentSkillView[]; hidden: number }> {
-  const agent = await ownedAgent(userId, agentId);
+  const agent = await agentFor(userId, agentId, "interact");
   const ids = await attachedIds(agent.id);
   const states = await skillStates(agent.workspaceId, ids, userId);
   const fitted = new Map((await fitSkills(agent, ids, states, agentSkillRoom(), neverFollowed)).map((f) => [f.pageId, f]));
@@ -175,7 +175,7 @@ export async function listAgentSkills(userId: string, agentId: string): Promise<
  * the agent's orders.
  */
 export async function addAgentSkill(userId: string, agentId: string, pageId: string) {
-  const agent = await ownedAgent(userId, agentId);
+  const agent = await agentFor(userId, agentId, "edit");
   if (agent.archivedAt) throw new AgentError("archived", "Restore the agent to give it skills");
   const found = await requirePageAccess(userId, pageId, "view").catch((error) => {
     if (error instanceof AccessError && !(error instanceof ConnectedAppReadOnlyError)) throw new AgentError("notAPage", "Page not found");
@@ -209,7 +209,7 @@ export async function addAgentSkill(userId: string, agentId: string, pageId: str
 
 /** Takes a skill from the agent (also one the owner can't open, or that is no longer a skill). */
 export async function removeAgentSkill(userId: string, agentId: string, pageId: string) {
-  const agent = await ownedAgent(userId, agentId);
+  const agent = await agentFor(userId, agentId, "edit");
   const removed = await db
     .delete(agentSkill)
     .where(and(eq(agentSkill.agentId, agent.id), eq(agentSkill.pageId, pageId)))

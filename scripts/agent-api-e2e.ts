@@ -5,8 +5,9 @@
  * and answers) or on a row (it changes that row), read its runs and its usage by month. A run asked
  * for is held to the asking owner's access as well as the agent's; asking is refused while the
  * agent is paused, AI is off, the month's tokens are used up or too many asked-for runs wait; a run
- * under way stops once the month reaches the limit. Members, read-only tokens, tokens for another
- * workspace and workspaces that let apps only read are refused. The audit log records each request,
+ * under way stops once the month reaches the limit. Members it is shared with to view and interact
+ * read it but don't change it or ask it for runs; read-only tokens, tokens for another workspace
+ * and workspaces that let apps only read are refused. The audit log records each request,
  * and the daily cleanup forgets old months.
  * Creates its own users and workspaces and deletes them afterwards.
  *
@@ -24,7 +25,7 @@ try {
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
 const { and, eq, inArray } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { agentRun, agentUsage, auditEvent, page, teamspace, user, workspace, workspaceAgent, workspaceMember } = await import("@/db/schema");
+const { agentRun, agentShare, agentUsage, auditEvent, page, teamspace, user, workspace, workspaceAgent, workspaceMember } = await import("@/db/schema");
 const { registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
 const { createPage } = await import("@/server/pages");
@@ -133,7 +134,11 @@ try {
   const listed = await api(full, "GET", `/workspaces/${workspaceId}/agents`);
   check(listed.status === 200 && listed.json.agents.some((a: Json) => a.id === router.id && a.enabled === true && a.user_id === router.userId), "owners list a workspace's agents", listed);
   const byMember = await api(memberToken, "GET", `/workspaces/${workspaceId}/agents`);
-  check(byMember.status === 200 && byMember.json.agents.length === 1 && !("instructions" in byMember.json.agents[0]), "members list them too, without instructions", byMember.json);
+  check(
+    byMember.status === 200 && byMember.json.agents.length === 1 && byMember.json.agents[0].your_access === "interact" && !("instructions" in byMember.json.agents[0]),
+    "members list those shared with them, with their access, without instructions",
+    byMember.json,
+  );
   const read = await api(full, "GET", `/agents/${router.id}`);
   check(
     read.status === 200 &&
@@ -144,8 +149,26 @@ try {
     "an owner reads an agent, with no limit and nothing used this month",
     read.json,
   );
-  check((await api(memberToken, "GET", `/agents/${router.id}`)).status === 404, "a member can't read an agent's settings");
+  const byMemberRead = await api(memberToken, "GET", `/agents/${router.id}`);
+  check(byMemberRead.status === 200 && byMemberRead.json.instructions.startsWith("Answer from the FAQ"), "a member it is shared with reads its settings", byMemberRead.json);
+  const byMemberChange = await api(memberToken, "PATCH", `/agents/${router.id}`, { enabled: false });
+  check(byMemberChange.status === 403 && byMemberChange.json.error.code === "forbidden", "…but can't change them at view & interact", byMemberChange.json);
   check((await api(elsewhere, "GET", `/agents/${router.id}`)).status === 404, "a token for another workspace doesn't see the agent");
+  const memberSharing = await api(memberToken, "GET", `/agents/${router.id}/sharing`);
+  check(
+    memberSharing.status === 200 && memberSharing.json.your_access === "interact" && memberSharing.json.shared_with.some((e: Json) => e.everyone === true && e.level === "interact"),
+    "a member reads who the agent is shared with",
+    memberSharing.json,
+  );
+  const memberShares = await api(memberToken, "POST", `/agents/${router.id}/sharing`, { user_id: ids.member, level: "full" });
+  check(memberShares.status === 403 && memberShares.json.error.code === "forbidden", "…but can't change it without full access", memberShares.json);
+  check((await api(full, "POST", `/agents/${router.id}/sharing`, { everyone: true, user_id: ids.member, level: "edit" })).status === 400, "sharing names exactly one person, group or everyone");
+  const shared = await api(full, "POST", `/agents/${router.id}/sharing`, { user_id: ids.member, level: "edit" });
+  check(shared.status === 200 && shared.json.shared_with.some((e: Json) => e.user_id === ids.member && e.level === "edit"), "an owner shares it with the member at edit", shared.json);
+  const byEditor = await api(memberToken, "PATCH", `/agents/${router.id}`, { description: "Answers questions" });
+  check(byEditor.status === 200 && byEditor.json.your_access === "edit", "…who can then change it", byEditor.json);
+  const unshared = await api(full, "POST", `/agents/${router.id}/sharing`, { user_id: ids.member, level: "remove" });
+  check(unshared.status === 200 && !unshared.json.shared_with.some((e: Json) => e.user_id === ids.member), "…and takes them off the list again", unshared.json);
   const badLimit = await api(full, "PATCH", `/agents/${router.id}`, { monthly_token_limit: 0 });
   check(badLimit.status === 400 && badLimit.json.error.code === "validation_error", "a monthly limit is at least one token", badLimit.json);
   const nothing = await api(full, "PATCH", `/agents/${router.id}`, {});
@@ -159,7 +182,7 @@ try {
   // ── Who may ask ───────────────────────────────────────────────────────────────────────────────
   const noScope = await api(readOnly, "POST", `/agents/${router.id}/runs`, { task: "Anything" });
   check(noScope.status === 403 && noScope.json.error.code === "insufficient_scope", "asking for a run needs pages:write", noScope.json);
-  check((await api(memberToken, "POST", `/agents/${router.id}/runs`, { task: "Anything" })).status === 404, "members can't ask an agent for a run");
+  check((await api(memberToken, "POST", `/agents/${router.id}/runs`, { task: "Anything" })).status === 403, "members who can only view and interact can't ask it for a run");
   check((await api(full, "POST", `/agents/${router.id}/runs`, { task: "" })).status === 400, "a run needs a task");
   const notARow = await api(full, "POST", `/agents/${router.id}/runs`, { task: "Anything", row_id: faq.id });
   check(notARow.status === 404, "row_id must be a database row", notARow.json);
@@ -288,14 +311,18 @@ try {
   );
   await flushAgentRuns();
 
-  // ── An asker who is no longer an owner ────────────────────────────────────────────────────────
+  // ── An asker who can no longer edit the agent ─────────────────────────────────────────────────
+  // No longer an owner, and the entry they got for creating it narrowed to view & interact.
   const ownerRow = and(eq(workspaceMember.workspaceId, workspaceId), eq(workspaceMember.userId, ids.owner));
+  const creatorEntry = and(eq(agentShare.agentId, router.id), eq(agentShare.userId, ids.owner));
   const beforeDemotion = await api(full, "POST", `/agents/${router.id}/runs`, { task: "Later" });
   await db.update(workspaceMember).set({ role: "member" }).where(ownerRow);
+  await db.update(agentShare).set({ level: "interact" }).where(creatorEntry);
   await flushAgentRuns();
   await db.update(workspaceMember).set({ role: "owner" }).where(ownerRow);
+  await db.update(agentShare).set({ level: "full" }).where(creatorEntry);
   const demoted = await api(full, "GET", `/agents/${router.id}/runs/${beforeDemotion.json.id}`);
-  check(demoted.json.status === "failed" && demoted.json.code === "noAccess", "a run whose asker is no longer an owner opens nothing", demoted.json);
+  check(demoted.json.status === "failed" && demoted.json.code === "noAccess", "a run whose asker can no longer edit the agent opens nothing", demoted.json);
 
   // ── The docs, the audit log and the cleanup ───────────────────────────────────────────────────
   const doc = (await (await handleApiRequest(new Request("http://localhost/api/v1/openapi.json"))).json()) as Json;

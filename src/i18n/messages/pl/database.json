@@ -794,7 +794,7 @@
     "tooManyAutomations": "Baza danych może mieć najwyżej {max, plural, one {# automatyzację} few {# automatyzacje} many {# automatyzacji} other {# automatyzacji}}.",
     "invalidWebhookUrl": "„{value}” nie jest prawidłowym adresem http(s).",
     "webhookBlocked": "Webhooki nie mogą trafiać do adresów sieci prywatnych ani lokalnych.",
-    "agentOwnersOnly": "Akcje uruchamiające agenta mogą dodawać i zmieniać tylko właściciele obszaru roboczego.",
+    "agentOwnersOnly": "Akcje uruchamiające agenta mogą dodawać i zmieniać tylko właściciele obszaru roboczego i osoby, które mogą edytować tego agenta.",
     "invalidRepeat": "Ten harmonogram powtarzania jest nieprawidłowy: sprawdź dni, godzinę i strefę czasową.",
     "tooManySchedules": "Ten obszar roboczy ma już maksymalną liczbę powtarzanych szablonów."
   },
@@ -1077,7 +1077,7 @@
       "createAgent": "Utwórz agenta w sekcji Ustawienia > Agenci.",
       "noAgentsMember": "Tworzą ich właściciele obszaru roboczego w Ustawieniach.",
       "agentTask": "Zadanie",
-      "agentOwnersOnly": "Tę akcję mogą zmieniać tylko właściciele obszaru roboczego.",
+      "agentOwnersOnly": "Tę akcję mogą zmieniać tylko właściciele obszaru roboczego i osoby, które mogą edytować tego agenta.",
       "agentTaskPlaceholder": "Co zrobić z wierszem, oprócz instrukcji agenta. Na przykład: Posortuj tę nową prośbę.",
       "agentAccess": "Zapisanie daje agentowi {agent} dostęp do edycji tej bazy danych.",
       "agentAccessAny": "Zapisanie daje agentowi dostęp do edycji tej bazy danych."

@@ -2,13 +2,13 @@
  * End-to-end check of chatting with agents (lib/agent-chat.ts) against the database, with a fake
  * OpenAI-compatible server scripted per message: an owner chats with an agent in its dialog and in
  * a page's block with its full tools (pages it may change, its memory), each message one of its
- * runs (source `chat`, in its history and usage); a member chats only in a block on a page they can
- * open that holds that chat, read-only and within what both they and the agent can open (a page
- * only the agent and the owner see is not found for them, whatever the model asks for); guests,
- * archived agents and agents over their monthly limit don't chat; each person's conversations are
- * theirs alone (owners don't see a member's, members don't see each other's); one answer at a time;
- * exported Markdown names the agent and nothing said. Creates its own users and workspace and
- * deletes them afterwards.
+ * runs (source `chat`, in its history and usage); a member it is shared with to view and interact
+ * chats in its dialog, or in a block on a page they can open that holds that chat, read-only and
+ * within what both they and the agent can open (a page only the agent and the owner see is not
+ * found for them, whatever the model asks for); guests, archived agents and agents over their
+ * monthly limit don't chat; each person's conversations are theirs alone (owners don't see a
+ * member's, members don't see each other's); one answer at a time; exported Markdown names the
+ * agent and nothing said. Creates its own users and workspace and deletes them afterwards.
  *
  *   pnpm tsx scripts/agent-chat-e2e.ts
  *
@@ -124,7 +124,7 @@ try {
   check((await chat.agentChatInfo(ids.owner, workspaceId, helper.id, null)).state === "full", "an owner chats in the dialog with full tools");
   check((await chat.agentChatInfo(ids.owner, workspaceId, helper.id, place)).state === "full", "and in the block");
   check((await chat.agentChatInfo(ids.member, workspaceId, helper.id, place)).state === "readOnly", "a member chats in the block, read-only");
-  check((await chat.agentChatInfo(ids.member, workspaceId, helper.id, null)).state === "gone", "a member has no dialog chat");
+  check((await chat.agentChatInfo(ids.member, workspaceId, helper.id, null)).state === "readOnly", "a member it is shared with chats in its dialog too, read-only");
   const guestInfo = await chat.agentChatInfo(ids.guest, workspaceId, helper.id, place);
   check(guestInfo.state === "guest" && guestInfo.agent === null, "a guest gets no chat and learns nothing of the agent", guestInfo);
 
@@ -173,8 +173,8 @@ try {
   );
   fake.chats.length = 0;
   check(
-    (await refusal(chat.sendAgentChat(ids.member, { workspaceId, agentId: helper.id, place: null, conversationId: null, message: "Hi" }))) === "gone",
-    "a member can't chat outside a block",
+    (await refusal(chat.sendAgentChat(ids.guest, { workspaceId, agentId: helper.id, place: null, conversationId: null, message: "Hi" }))) === "guest",
+    "a guest can't chat in the dialog either",
   );
   check(
     (await refusal(chat.sendAgentChat(ids.member, { workspaceId, agentId: helper.id, place: { chatId: "elsewhere", pageId: chatPage.id }, conversationId: null, message: "Hi" }))) ===

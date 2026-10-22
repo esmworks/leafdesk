@@ -15,17 +15,20 @@ import { useRuleSummary } from "./agent-schedules-tab";
 /**
  * Creating an agent by saying what it should do: the AI drafts it (server/agents/draft.ts), and the
  * draft opens the usual form, filled in, with the pages it would share and the schedules and
- * automations it would set up. Nothing is saved until the owner creates it; what they remove from
+ * automations it would set up. Nothing is saved until the person creates it; what they remove from
  * the lists isn't set up.
  */
 export function AgentDescribeDialog({
   workspaceId,
+  isOwner,
   models = null,
   webSearch = false,
   onClose,
   onCreated,
 }: {
   workspaceId: string;
+  /** Only owners set the token limit (see AgentForm). */
+  isOwner: boolean;
   models?: AgentModelNames | null;
   webSearch?: boolean;
   onClose: () => void;
@@ -67,6 +70,7 @@ export function AgentDescribeDialog({
         <DraftReview
           key={draft.version}
           workspaceId={workspaceId}
+          isOwner={isOwner}
           draft={draft.value}
           models={models}
           webSearch={webSearch}
@@ -124,6 +128,7 @@ export function AgentDescribeDialog({
 /** The agent's form filled in from the draft, with the shares and triggers creating it sets up. */
 function DraftReview({
   workspaceId,
+  isOwner,
   draft,
   models,
   webSearch,
@@ -131,6 +136,7 @@ function DraftReview({
   onCreated,
 }: {
   workspaceId: string;
+  isOwner: boolean;
   draft: AgentDraft;
   models: AgentModelNames | null;
   webSearch: boolean;
@@ -143,6 +149,7 @@ function DraftReview({
   return (
     <AgentForm
       workspaceId={workspaceId}
+      isOwner={isOwner}
       models={models}
       webSearch={webSearch}
       draft={{

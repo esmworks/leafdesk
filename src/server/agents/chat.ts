@@ -5,11 +5,12 @@
  * chat follows a run by asking for it again (`chatTurn`) until it ends: its steps as they come,
  * then its answer, or the call it waits on for the owner whose turn it is.
  *
- * Owners chat in the agent's dialog and in a page's block; anyone else in the workspace (not a
- * guest) only in a block of a page they can open that holds this very chat (`chatId`), read-only:
- * the run's access is the lower of the agent's and theirs (acting-for.ts), and it is offered
- * nothing that changes anything. Conversations are their person's: every query here is held to
- * `userId`, owners' included.
+ * Anyone the agent is shared with (sharing.ts; workspace owners always) chats in the agent's dialog,
+ * and in a page's block: workspace owners in any block, others only in a block of a page they can
+ * open that holds this very chat (`chatId`). The run's access is the lower of the agent's and the
+ * person's (acting-for.ts); for those who can only view and interact with the agent it is
+ * read-only, offered nothing that changes anything. Conversations are their person's: every query
+ * here is held to `userId`, owners' included.
  */
 import { and, desc, eq, inArray, notInArray, sql } from "drizzle-orm";
 import { db } from "@/db";
@@ -29,11 +30,14 @@ import {
 } from "@/lib/agent-chat";
 import { callConnectionName, callToSend, type AgentStepRecord } from "@/lib/agents";
 import { conversationTitle } from "@/lib/ai-chat";
+import { hasAgentLevel, type AgentLevel } from "@/lib/agent-sharing";
 import { AccessError, isGuest, pageVisibleTo, requireMembership, requirePageAccess, WorkspacePolicyError } from "@/server/access";
 import { isAiError, takeRateLimit } from "@/server/ai";
 import { viewStep } from "@/server/ai-chat";
 import { aiAvailable } from "@/server/ai-writing";
+import { approversOf } from "./approvers";
 import { kickAgents } from "./kick";
+import { agentLevel, agentLevels } from "./sharing";
 import { overMonthlyLimit } from "./usage";
 
 /** Why a message wasn't taken, or a conversation not shown. */
@@ -55,8 +59,8 @@ export type { ChatPlace };
 
 /**
  * The person's membership (a policy holding back their session says so, as everywhere; not being
- * in the workspace looks like a missing thing) and the agent, when it is still one of the
- * workspace's (not archived).
+ * in the workspace looks like a missing thing), the agent, when it is still one of the workspace's
+ * (not archived), and their level on it.
  */
 async function standing(userId: string, workspaceId: string, agentId: string) {
   const membership = await requireMembership(userId, workspaceId).catch((error) => {
@@ -67,27 +71,28 @@ async function standing(userId: string, workspaceId: string, agentId: string) {
     .select()
     .from(workspaceAgent)
     .where(and(eq(workspaceAgent.id, agentId), eq(workspaceAgent.workspaceId, workspaceId)));
-  return { role: membership.role, agent: agent && !agent.archivedAt ? agent : null };
+  const live = agent && !agent.archivedAt ? agent : null;
+  return { role: membership.role, agent: live, level: live ? await agentLevel(userId, live, membership.role) : ("none" as AgentLevel) };
 }
 
 /**
  * Where a person stands with the chat: guests never chat, nor does anyone with an agent that is
- * gone, paused, out of tokens for the month or in a workspace whose AI is off. In the dialog (no
- * place) only owners chat.
+ * gone, not shared with them, paused, out of tokens for the month or in a workspace whose AI is
+ * off. Those who can edit the agent chat in full, the others read-only.
  */
-export async function chatState(role: string, agent: Agent | null, workspaceId: string, place: ChatPlace): Promise<AgentChatState> {
+export async function chatState(role: string, level: AgentLevel, agent: Agent | null, workspaceId: string): Promise<AgentChatState> {
   if (isGuest(role as "guest")) return "guest";
   if (!agent) return "gone";
-  if (!place && role !== "owner") return "gone";
+  if (level === "none") return "noAccess";
   if (!agent.enabled) return "paused";
   if (!(await aiAvailable(workspaceId))) return "aiOff";
   if (await overMonthlyLimit(agent)) return "limitReached";
-  return role === "owner" ? "full" : "readOnly";
+  return hasAgentLevel(level, "edit") ? "full" : "readOnly";
 }
 
 /**
- * Whether the page, which the person can open, holds this chat: someone who isn't an owner chats
- * with an agent only where an owner (or an editor) put it. Read from the page's Markdown, which
+ * Whether the page, which the person can open, holds this chat: someone who isn't a workspace owner
+ * chats with an agent in a page only where someone who may edit the page put it. Read from the page's Markdown, which
  * names each chat block's agent and chat id.
  */
 async function pageHoldsChat(userId: string, workspaceId: string, agentId: string, place: NonNullable<ChatPlace>) {
@@ -117,9 +122,9 @@ const placeIs = (chatId: string | null) => (chatId ? eq(agentConversation.chatId
 
 /** What the chat shows first: where the person stands, the agent (unless it is gone, or they are a guest) and their conversations. */
 export async function agentChatInfo(userId: string, workspaceId: string, agentId: string, place: ChatPlace): Promise<AgentChatInfo> {
-  const { role, agent } = await standing(userId, workspaceId, agentId);
-  const state = await chatState(role, agent, workspaceId, place);
-  if (state === "guest" || state === "gone" || !agent) return { state, agent: null, conversations: [] };
+  const { role, agent, level } = await standing(userId, workspaceId, agentId);
+  const state = await chatState(role, level, agent, workspaceId);
+  if (state === "guest" || state === "gone" || state === "noAccess" || !agent) return { state, agent: null, conversations: [] };
   return {
     state,
     agent: { id: agent.id, name: agent.name, icon: agent.icon, description: agent.description },
@@ -137,8 +142,8 @@ async function ownConversation(userId: string, agentId: string, conversationId: 
 }
 
 /**
- * Sends a message: checks that the person may chat here (as agentChatInfo, and for anyone but an
- * owner that the page holds the chat), that the conversation is theirs and has no answer under way,
+ * Sends a message: checks that the person may chat here (as agentChatInfo, and in a block, for
+ * anyone but a workspace owner, that the page holds the chat), that the conversation is theirs and has no answer under way,
  * and their AI allowance; then queues the run with the message, in the conversation (a new one
  * without `conversationId`), and wakes the worker.
  */
@@ -149,10 +154,10 @@ export async function sendAgentChat(
   const message = input.message.trim();
   if (!message) refuse("invalid", "Write a message");
   if (message.length > MAX_AGENT_CHAT_MESSAGE) refuse("tooLong", `A message has at most ${MAX_AGENT_CHAT_MESSAGE} characters`);
-  const { role, agent } = await standing(userId, input.workspaceId, input.agentId);
-  const state = await chatState(role, agent, input.workspaceId, input.place);
+  const { role, agent, level } = await standing(userId, input.workspaceId, input.agentId);
+  const state = await chatState(role, level, agent, input.workspaceId);
   if (state !== "full" && state !== "readOnly") return refuse(state, "This chat isn't available");
-  if (state === "readOnly" && !(input.place && (await pageHoldsChat(userId, input.workspaceId, agent!.id, input.place)))) refuse("notOnPage", "This chat isn't on the page");
+  if (input.place && role !== "owner" && !(await pageHoldsChat(userId, input.workspaceId, agent!.id, input.place))) refuse("notOnPage", "This chat isn't on the page");
   const chatId = input.place?.chatId ?? null;
   const existing = input.conversationId ? await ownConversation(userId, agent!.id, input.conversationId, chatId) : null;
   const last = existing?.messages.at(-1);
@@ -277,7 +282,7 @@ export async function deleteAgentConversation(userId: string, workspaceId: strin
 /**
  * A run answering the person's message, as their chat follows it. Only theirs: another's chat
  * run, or one that isn't a chat's, looks missing. The call it waits on is shown exactly as it will
- * be sent: only an owner's turn has one, and they answer it.
+ * be sent to the workspace owner who answers it (approvers.ts); anyone else's turn shows none.
  */
 export async function chatTurn(userId: string, workspaceId: string, runId: string): Promise<AgentChatTurn> {
   await requireMembership(userId, workspaceId);
@@ -286,7 +291,7 @@ export async function chatTurn(userId: string, workspaceId: string, runId: strin
     .from(agentRun)
     .where(and(eq(agentRun.id, runId), eq(agentRun.workspaceId, workspaceId), sql`${agentRun.source}->>'kind' = 'chat'`, sql`${agentRun.source}->>'userId' = ${userId}`));
   if (!run) return refuse("noAccess", "Not found");
-  const pendingCall = run.status === "awaiting_approval" ? run.pending : null;
+  const pendingCall = run.status === "awaiting_approval" && (await approversOf(run)).includes(userId) ? run.pending : null;
   const connections = await connectionNames(run.steps, pendingCall?.connectionId ?? null);
   return {
     runId: run.id,
@@ -306,7 +311,7 @@ export async function chatTurn(userId: string, workspaceId: string, runId: strin
   };
 }
 
-/** The workspace's agents a block may show, for anyone but a guest choosing one: names, nothing of their settings. */
+/** The workspace's agents shared with the person, for a block (not a guest's) to show: names, nothing of their settings. */
 export async function chatAgents(userId: string, workspaceId: string) {
   const { role } = await standing(userId, workspaceId, "");
   if (isGuest(role)) return [];
@@ -315,7 +320,8 @@ export async function chatAgents(userId: string, workspaceId: string) {
     .from(workspaceAgent)
     .where(and(eq(workspaceAgent.workspaceId, workspaceId), sql`${workspaceAgent.archivedAt} is null`))
     .orderBy(workspaceAgent.name);
-  return rows;
+  const levels = await agentLevels(userId, workspaceId, rows.map((r) => r.id), role);
+  return rows.filter((r) => levels.get(r.id) !== "none");
 }
 
 /** The names of these agents of the workspace (archived ones too), for exported Markdown. */

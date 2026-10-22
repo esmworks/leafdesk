@@ -1,6 +1,7 @@
 import { and, asc, count, desc, eq, inArray, isNull } from "drizzle-orm";
 import { db } from "@/db";
 import { automationRun, databaseAutomation, page, user, workspaceAgent } from "@/db/schema";
+import { hasAgentLevel } from "@/lib/agent-sharing";
 import { MAX_AGENT_PROMPT } from "@/lib/agents";
 import {
   isDynamicValue,
@@ -27,6 +28,7 @@ import { getMembership, pageVisibleTo } from "@/server/access";
 import { LinkPreviewError } from "@/server/link-preview";
 import { recordAudit } from "@/server/audit";
 import { releaseDatabaseFromAgents, shareDatabaseWithAgents } from "@/server/agents/manage";
+import { agentLevel } from "@/server/agents/sharing";
 import { getProperties, normalizeRowProperties, requireDatabase } from "@/server/databases";
 import { exportAllowed, workspacePeople } from "@/server/workspaces";
 import { countDatePassedMatches, forgetFired } from "./timed";
@@ -260,11 +262,14 @@ async function checkActions(
       const prompt = typeof action.prompt === "string" ? action.prompt.trim() : "";
       if (prompt.length > MAX_AGENT_PROMPT) throw invalid(`An agent's task may have at most ${MAX_AGENT_PROMPT} characters`);
       // The task is written by whoever saves it and the agent may open pages they can't: only
-      // owners, who choose what agents may open, give agents tasks. Others may keep one as it is.
+      // those who choose what the agent may open (owners, and those who can edit the agent, see
+      // agents/sharing.ts) give it tasks. Others may keep one as it is.
       const kept = current.some((a) => a.type === "run_agent" && a.agentId === agent.id && a.prompt === prompt);
       if (!kept) {
         owner ??= (await getMembership(userId, workspaceId))?.role === "owner";
-        if (!owner) throw new PropertyValueError("Only owners of the workspace add or change actions that run an agent", "agentOwnersOnly", {});
+        if (!owner && !hasAgentLevel(await agentLevel(userId, { id: agent.id, workspaceId }), "edit")) {
+          throw new PropertyValueError("Only owners of the workspace and those who can edit the agent add or change actions that run it", "agentOwnersOnly", {});
+        }
       }
       out.push({ type: "run_agent", agentId: agent.id, prompt });
     } else if (action?.type === "move_to_trash") {

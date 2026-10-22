@@ -1,12 +1,12 @@
 /**
  * End-to-end check of agents' skills against the database, with a fake OpenAI-compatible server
- * (src/server/ai/fake-openai.ts): owners give an agent skills of its workspace, only ones no one
- * but the workspace's owners may edit (a member, a teamspace, a guest or the agent itself editing
- * one stops it); a run sends the skills' instructions after the agent's own and says which it
- * followed; a skill someone else may edit by the time of the run, that is no longer a skill, that
- * doesn't fit, or that the member who started the run can't open is left out and the run says so;
- * a run that goes on after waiting checks them again; members and owners who can't open a skill
- * don't see it named.
+ * (src/server/ai/fake-openai.ts): owners (and those who can edit the agent) give an agent skills
+ * of its workspace, only ones no one but the workspace's owners may edit (a member, a teamspace, a
+ * guest or the agent itself editing one stops it); a run sends the skills' instructions after the
+ * agent's own and says which it followed; a skill someone else may edit by the time of the run,
+ * that is no longer a skill, that doesn't fit, or that the member who started the run can't open is
+ * left out and the run says so; a run that goes on after waiting checks them again; members and
+ * owners who can't open a skill don't see it named.
  * Creates its own users and workspace and deletes them afterwards.
  *
  *   pnpm tsx scripts/agent-skills-e2e.ts
@@ -127,8 +127,8 @@ try {
   });
 
   // ── Giving skills ───────────────────────────────────────────────────────────────────────────
-  check((await codeOf(addAgentSkill(ids.member, router.id, triage.id))) === "notFound", "members can't give an agent skills");
-  check((await codeOf(listAgentSkills(ids.member, router.id))) === "notFound", "…nor see the skills it has");
+  check((await codeOf(addAgentSkill(ids.member, router.id, triage.id))) === "notAllowed", "members who can only view and interact with an agent can't give it skills");
+  check((await codeOf(listAgentSkills(ids.member, router.id))) === "", "…but see the skills it has");
   check((await codeOf(addAgentSkill(ids.owner, router.id, plain.id))) === "notASkill", "a page that isn't a skill can't be given");
   check((await codeOf(addAgentSkill(ids.owner, router.id, tone.id))) === "skillEditable", "a skill members may edit can't be given: it would become the agent's orders");
   check((await codeOf(addAgentSkill(ids.owner, router.id, othersSkill.id))) === "notAPage", "an owner can't give a skill they can't open");

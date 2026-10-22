@@ -3,17 +3,76 @@
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
+import { agentGrantSummaryAction } from "@/app/actions/agents";
 import { listAgentGrantsAction, listConnectionsAction, setAgentGrantAction } from "@/app/actions/connections";
 import { cn } from "@/components/ui";
 import type { AgentView } from "@/lib/agents";
-import type { AgentGrantView, ConnectionView } from "@/lib/connections";
+import type { AgentGrantSummary, AgentGrantView, ConnectionView } from "@/lib/connections";
 import { ConnectionIcon, ToolKindLabel } from "./connections-panel";
 
 /**
  * The tools of each connection an agent may use. Ticking a tool allows it at once; tools that
- * change something still wait for an owner's approval each time the agent calls them.
+ * change something still wait for an owner's approval each time the agent calls them. Only owners
+ * choose them (the connections are theirs): anyone else the agent is shared with sees the list.
  */
-export function AgentConnectionsTab({ workspaceId, agent }: { workspaceId: string; agent: AgentView }) {
+export function AgentConnectionsTab({ workspaceId, agent, isOwner }: { workspaceId: string; agent: AgentView; isOwner: boolean }) {
+  return isOwner ? <GrantsEditor workspaceId={workspaceId} agent={agent} /> : <GrantsList workspaceId={workspaceId} agent={agent} />;
+}
+
+/** The connections' tools the agent may use, read-only. */
+function GrantsList({ workspaceId, agent }: { workspaceId: string; agent: AgentView }) {
+  const t = useTranslations("settings.agents.connections");
+  const tc = useTranslations("common");
+  const [grants, setGrants] = useState<AgentGrantSummary[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let live = true;
+    agentGrantSummaryAction(workspaceId, agent.id)
+      .then((res) => {
+        if (!live) return;
+        if (res.ok) setGrants(res.data);
+        else setError(res.error);
+      })
+      .catch(() => live && setError(tc("genericError")));
+    return () => {
+      live = false;
+    };
+  }, [workspaceId, agent.id, tc]);
+
+  return (
+    <div className="max-h-[65vh] space-y-4 overflow-y-auto px-5 py-4">
+      <p className="text-sm text-fg-muted">{t("ownersChoose")}</p>
+      {!grants ? (
+        <p className="text-sm text-fg-muted" role={error ? "alert" : undefined}>
+          {error ?? tc("loading")}
+        </p>
+      ) : grants.length === 0 ? (
+        <p className="rounded-md border border-dashed border-border px-3 py-4 text-center text-sm text-fg-muted">{t("none")}</p>
+      ) : (
+        grants.map((grant) => (
+          <section key={grant.connectionId} className="rounded-lg border border-border">
+            <div className="flex items-center gap-2 border-b border-border px-3 py-2">
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center text-xs">
+                <ConnectionIcon icon={grant.icon} />
+              </span>
+              <h3 className="min-w-0 flex-1 truncate text-sm font-medium">{grant.name}</h3>
+            </div>
+            <ul className="divide-y divide-border">
+              {grant.tools.map((tool) => (
+                <li key={tool} className="px-3 py-1.5 text-sm">
+                  {tool}
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))
+      )}
+    </div>
+  );
+}
+
+function GrantsEditor({ workspaceId, agent }: { workspaceId: string; agent: AgentView }) {
   const t = useTranslations("settings.agents.connections");
   const tc = useTranslations("common");
   const [connections, setConnections] = useState<ConnectionView[] | null>(null);

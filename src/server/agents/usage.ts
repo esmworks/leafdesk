@@ -13,7 +13,7 @@ import { AGENT_USAGE_MONTHS, type AgentUsageMonth } from "@/lib/agents";
 import { monthOf } from "@/server/ai/usage";
 
 export { monthOf };
-import { ownedAgent } from "./manage";
+import { agentFor } from "./manage";
 
 
 /** Adds to the agent's usage for the month of `now`. */
@@ -56,7 +56,7 @@ const view = (row: typeof agentUsage.$inferSelect): AgentUsageMonth => ({
  * runs used nothing yet), and the earlier months it ran in, AGENT_USAGE_MONTHS in all at most.
  */
 export async function agentUsageMonths(userId: string, agentId: string, now = new Date()): Promise<AgentUsageMonth[]> {
-  const agent = await ownedAgent(userId, agentId);
+  const agent = await agentFor(userId, agentId, "interact");
   return usageMonthsOf(agent.id, now);
 }
 

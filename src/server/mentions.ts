@@ -585,7 +585,7 @@ export type CommentMentionCandidates = { people: MentionCandidates["people"]; ag
 /**
  * What the @ menu in a comment offers: the people mentionCandidates would, but only those who can
  * open the page (the ones a mention reaches, see server/comments), and not the user; and the
- * agents that may comment on the page, which answer when mentioned (server/agents/mentions). For
+ * agents shared with the user that may comment on the page, which answer when mentioned (server/agents/mentions). For
  * anyone who may comment on the page; guests get neither, as they don't get the people of the
  * workspace (and their mentions start no runs).
  */
@@ -596,7 +596,7 @@ export async function commentMentionCandidates(userId: string, pageId: string, q
   const q = typeof query === "string" ? searchFold(query.trim().slice(0, 100)) : "";
   // The first matches are enough for the menu; typing narrows them, so the access check stays small.
   const people = (await peopleMatching(userId, target.workspaceId, q)).filter((p) => p.id !== userId).slice(0, 30);
-  const [reach, agents] = await Promise.all([pageRecipients(people.map((p) => p.id), pageId), mentionableAgents(target.workspaceId, pageId, q)]);
+  const [reach, agents] = await Promise.all([pageRecipients(people.map((p) => p.id), pageId), mentionableAgents(userId, target.workspaceId, pageId, q)]);
   const reached = new Set(reach);
   return { people: people.filter((p) => reached.has(p.id)).slice(0, 6), agents: agents.slice(0, 4) };
 }

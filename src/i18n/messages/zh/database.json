@@ -794,7 +794,7 @@
     "tooManyAutomations": "一个数据库最多可以有 {max} 个自动化。",
     "invalidWebhookUrl": "“{value}”不是有效的 http(s) 地址。",
     "webhookBlocked": "Webhook 不能发送到私有或本地网络地址。",
-    "agentOwnersOnly": "只有工作区所有者可以添加或更改运行智能体的操作。",
+    "agentOwnersOnly": "只有工作区所有者和可以编辑该智能体的人可以添加或更改运行它的操作。",
     "invalidRepeat": "该重复计划无效：请检查日期、时间和时区。",
     "tooManySchedules": "此工作区的重复模板数量已达上限。"
   },
@@ -1077,7 +1077,7 @@
       "createAgent": "请在“设置 > 智能体”中创建。",
       "noAgentsMember": "工作区所有者可以在设置中创建智能体。",
       "agentTask": "任务",
-      "agentOwnersOnly": "只有工作区所有者可以更改此操作。",
+      "agentOwnersOnly": "只有工作区所有者和可以编辑此智能体的人可以更改此操作。",
       "agentTaskPlaceholder": "在其指令之外，还要对该行做什么。例如：整理这个新请求。",
       "agentAccess": "保存后，{agent} 将获得此数据库的编辑权限。",
       "agentAccessAny": "保存后，该智能体将获得此数据库的编辑权限。"

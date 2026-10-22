@@ -132,6 +132,8 @@ export type ConnectionEventView = {
 
 /** The tools an agent may use on a connection. */
 export type AgentGrantView = { connectionId: string; tools: string[] };
+/** A connection whose tools an agent may use, named, as those the agent is shared with see it. */
+export type AgentGrantSummary = AgentGrantView & { name: string; icon: string | null };
 
 /**
  * Codes for errors the settings and MCP show in the person's language (`connections.errors.<code>`).

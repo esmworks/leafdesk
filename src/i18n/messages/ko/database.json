@@ -794,7 +794,7 @@
     "tooManyAutomations": "데이터베이스에는 자동화를 최대 {max}개까지 만들 수 있습니다.",
     "invalidWebhookUrl": "“{value}”은(는) 유효한 http(s) 주소가 아닙니다.",
     "webhookBlocked": "웹훅은 사설 또는 로컬 네트워크 주소로 보낼 수 없습니다.",
-    "agentOwnersOnly": "에이전트를 실행하는 동작은 워크스페이스 소유자만 추가하거나 변경할 수 있습니다.",
+    "agentOwnersOnly": "에이전트를 실행하는 동작은 워크스페이스 소유자와 해당 에이전트를 편집할 수 있는 사람만 추가하거나 변경할 수 있습니다.",
     "invalidRepeat": "반복 일정이 올바르지 않습니다. 요일, 시간, 시간대를 확인하세요.",
     "tooManySchedules": "이 워크스페이스에 만들 수 있는 반복 템플릿 수가 한도에 도달했습니다."
   },
@@ -1077,7 +1077,7 @@
       "createAgent": "설정 > 에이전트에서 만드세요.",
       "noAgentsMember": "워크스페이스 소유자가 설정에서 만들 수 있습니다.",
       "agentTask": "작업",
-      "agentOwnersOnly": "이 동작은 워크스페이스 소유자만 변경할 수 있습니다.",
+      "agentOwnersOnly": "이 동작은 워크스페이스 소유자와 이 에이전트를 편집할 수 있는 사람만 변경할 수 있습니다.",
       "agentTaskPlaceholder": "에이전트 지침 외에 이 행으로 할 일. 예: 이 새 요청을 분류하세요.",
       "agentAccess": "저장하면 {agent}에 이 데이터베이스의 편집 권한이 부여됩니다.",
       "agentAccessAny": "저장하면 에이전트에 이 데이터베이스의 편집 권한이 부여됩니다."

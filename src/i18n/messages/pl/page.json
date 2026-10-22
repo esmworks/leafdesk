@@ -859,7 +859,8 @@
       "gone": "Ten agent nie jest już dostępny.",
       "paused": "Ten agent jest wstrzymany, więc nie może odpowiedzieć.",
       "aiOff": "AI jest wyłączona w tym obszarze roboczym, więc agent nie może odpowiedzieć.",
-      "limitReached": "Ten agent wykorzystał swoje tokeny na ten miesiąc, więc nie odpowie aż do następnego miesiąca."
+      "limitReached": "Ten agent wykorzystał swoje tokeny na ten miesiąc, więc nie odpowie aż do następnego miesiąca.",
+      "noAccess": "Nie masz dostępu do tego agenta."
     },
     "empty": {
       "full": "Zapytaj o coś agenta {name} lub zleć mu zadanie. Działa z własnym dostępem, umiejętnościami i pamięcią, a każda odpowiedź to jedno z jego uruchomień.",
@@ -915,6 +916,7 @@
     "tab": {
       "hint": "Wklej link tego agenta na stronę, aby umieścić tam czat z nim. Członkowie mogą w nim czatować w trybie tylko do odczytu.",
       "copyLink": "Kopiuj link"
-    }
+    },
+    "awaitingOwner": "Czeka, aż właściciel obszaru roboczego zatwierdzi wywołanie…"
   }
 }

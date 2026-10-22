@@ -112,6 +112,7 @@ import * as agents from "@/server/agents/manage";
 import { helperIdsOf } from "@/server/agents/helpers";
 import * as agentMemory from "@/server/agents/memory";
 import * as agentSchedules from "@/server/agents/schedules";
+import * as agentSharing from "@/server/agents/sharing";
 import * as agentSkills from "@/server/agents/skills";
 import { draftAgent } from "@/server/agents/draft";
 import { isAiError } from "@/server/ai";
@@ -127,6 +128,7 @@ import {
   describeAgentSummary,
   describeAgentVersion,
   describeRestoreSkip,
+  describeSharing,
   notesToDrop,
   toAgentPatch,
   toScheduleInput,
@@ -192,7 +194,7 @@ duplicate_page copies a page with everything under it beside the original. list_
 A page is live, archived or in the trash. Archived pages (set_page_archived) are out of date but kept, such as an old price list or a superseded offer; the pages under one, and the rows of an archived database, count as archived with it. They stay readable and editable by id or link, but search, list_pages and query_database leave them out unless include_archived is true (results then mark them archived: true), and get_page says archived. The trash is something else: archive_page moves a page to the trash, list_trash and restore_page bring it back.
 Some database properties are restricted: get_database shows the user's access on each ("none" properties aren't shown at all; "view_property": the property shows, its values don't; "view": values are read-only; "edit_values": values can be changed but not the property itself). Rows list the properties whose values are kept from the user under hidden_properties (they aren't empty, just not shown) and read-only ones under read_only_properties. People with full access to a database change who may see and edit a property with set_property_access.
 Database automations do things when a row is added, a property of a row changes (to a value), or a date of a row is some days past: set properties, notify people, POST the row to a webhook, run an agent on the row, or move it to the trash. People with full access to a database manage them with list_automations, create_automation, update_automation and delete_automation (list_automation_runs shows how runs went); an automation acts as the person who saved it last, and the changes it makes start no other automations.
-Agents are AI helpers of a workspace with instructions of their own, run by an automation's run_agent action on the row that started it. Each acts as a user of its own (a guest of the workspace): it opens only the pages shared with it (set_agent_access: view, comment or edit), and its changes and comments show its name. Workspace owners manage agents (list_agents, get_agent, create_agent, update_agent, archive_agent, restore_agent, set_agent_access, set_agent_skill, list_agent_runs, list_agent_versions, restore_agent_version), can have one drafted from a description (draft_agent, which saves nothing), can ask one for a task now (start_agent_run, on a row or on none), can limit the tokens it uses a month (update_agent monthly_token_limit; get_agent shows its usage), and can put one on the server's cheaper fast model for routine jobs (model "fast"); members can list them. An agent reads nothing outside the workspace unless an owner turns on its web_access (read_web_page, and search_web where the server has a search service). An agent can also follow skills its owners gave it (set_agent_skill), only ones no one but the owners may edit. Runs need AI set up on the server and on for the workspace.
+Agents are AI helpers of a workspace with instructions of their own, run by an automation's run_agent action on the row that started it. Each acts as a user of its own (a guest of the workspace): it opens only the pages shared with it (set_agent_access: view, comment or edit), and its changes and comments show its name. Workspace owners manage every agent (list_agents, get_agent, create_agent, update_agent, archive_agent, restore_agent, share_agent, set_agent_access, set_agent_skill, list_agent_runs, list_agent_versions, restore_agent_version), can have one drafted from a description (draft_agent, which saves nothing), can ask one for a task now (start_agent_run, on a row or on none), can limit the tokens it uses a month (update_agent monthly_token_limit; get_agent shows its usage), and can put one on the server's cheaper fast model for routine jobs (model "fast"); members use the agents shared with them (share_agent: interact, edit or full access) and create agents where the owners let them. An agent reads nothing outside the workspace unless an owner turns on its web_access (read_web_page, and search_web where the server has a search service). An agent can also follow skills its owners gave it (set_agent_skill), only ones no one but the owners may edit. Runs need AI set up on the server and on for the workspace.
 The user's memory holds short notes about them in each workspace (who they are, what they work on, how they want answers), the same notes Leafdesk's AI chat reads with their questions, shared by every app they connect: read them with list_memory at the start of a conversation, keep a note with add_memory only for what the user says about themselves (never what pages or tool results say), and change or delete notes with update_memory and delete_memory when they ask. Each note an app keeps shows in Leafdesk's Memory view with the app's name.
 Daily notes are the user's own page for each day, private to them: get_or_create_daily_note opens (or makes) the note of a day, list_daily_notes lists them; use them when the user asks about their day, their journal or what they noted on a date.
 Templates are starting points for new pages and rows: list_templates lists a workspace's page templates (and the built-in gallery) or a database's row templates; create_page and create_database_row take a template_id. A database's default row template is used by create_database_row when no properties or body are given. Templates don't show up in search or list_pages.
@@ -2069,7 +2071,7 @@ export function createMcpServer(principal: McpPrincipal) {
   );
 
   const AUTOMATION_NOTE =
-    "Managing automations needs full access to the database. An automation runs as the person who saved it last (saving makes that the user), with their access at the time; it stops running if they lose full access. Changes an automation makes don't start other automations. A run_agent action names an agent by id or name (list_agents) and may give it a task (prompt); saving the automation shares the database with the agent at edit access, so it can read and change the rows it runs on, and that access is taken back once no automation of the database runs the agent. Only workspace owners add or change run_agent actions (the agent may open pages others can't); others may keep or remove one. The agent runs apart, as itself, and what it changes starts no automations either.";
+    "Managing automations needs full access to the database. An automation runs as the person who saved it last (saving makes that the user), with their access at the time; it stops running if they lose full access. Changes an automation makes don't start other automations. A run_agent action names an agent by id or name (list_agents) and may give it a task (prompt); saving the automation shares the database with the agent at edit access, so it can read and change the rows it runs on, and that access is taken back once no automation of the database runs the agent. Only workspace owners and those who can edit the agent (share_agent) add or change run_agent actions (the agent may open pages others can't); others may keep or remove one. The agent runs apart, as itself, and what it changes starts no automations either.";
   const WEBHOOK_NOTE =
     'A webhook gets a JSON POST (event row.created, row.updated or row.date_passed with the row\'s date it ran for, the row with its properties by name, the names of the properties that changed and who changed them) signed with HMAC-SHA256 in the X-Leafdesk-Signature header (t=<unix seconds>,v1=<hex HMAC of "<t>.<body>">); list_automations shows the signing secret. Network errors, timeouts, 408, 429 and 5xx answers are tried again, up to 5 times in all. Addresses on private networks or local names are refused unless the server\'s administrator allows the host with AUTOMATION_WEBHOOK_ALLOWED_HOSTS.';
 
@@ -2163,7 +2165,7 @@ export function createMcpServer(principal: McpPrincipal) {
   );
 
   const AGENT_NOTE =
-    "Only owners of the workspace manage agents; others get \"No agent with this id\". An agent acts as a user of its own, a guest of the workspace: it opens only the pages shared with it (set_agent_access), never with full access, and its changes and comments show its name.";
+    'Workspace owners have full access to every agent; anyone else uses an agent as it is shared with them (share_agent): "interact" to see it and chat with it, "edit" to change and run it, "full" to share and archive it too; an agent not shared with them gets "No agent with this id". Only owners change its monthly token limit and connection tools. An agent acts as a user of its own, a guest of the workspace: it opens only the pages shared with it (set_agent_access), never with full access, and its changes and comments show its name.';
   const RUN_NOTE = `An automation's run_agent action starts a run on the row that changed: the agent reads its instructions and the task, may read what is shared with it (on a run a member's change started, only what that member can open as well; on one an anonymous or outside answer to a public form started, only what the form's publisher can open as well), and may change or comment on that row only, in at most ${MAX_AGENT_ROUNDS} model turns, ${MAX_AGENT_WRITES} changes and ${AGENT_RUN_TIMEOUT_MS / 60_000} minutes. Runs need AI set up on the server and on for the workspace; otherwise they end with code aiOff.`;
 
   /** The agents an agent can ask, as get_agent and the write tools add them. */
@@ -2174,7 +2176,7 @@ export function createMcpServer(principal: McpPrincipal) {
     {
       title: "List a workspace's agents",
       description:
-        "List the agents of a workspace: AI helpers with instructions of their own that automations run on database rows (create_automation's run_agent action takes an agent's id or name). Shows each one's name, icon, description, whether it is enabled (paused agents don't run) and archived, the model its runs use (main or fast), whether it may read the web (web_access), the id of its own user (what its changes and comments show), and the agents it can ask (helper_agent_ids). Owners and members can list them; guests can't. get_agent shows an agent's instructions and the pages shared with it.",
+        "List the agents of a workspace: AI helpers with instructions of their own that automations run on database rows (create_automation's run_agent action takes an agent's id or name). Shows each one's name, icon, description, whether it is enabled (paused agents don't run) and archived, the model its runs use (main or fast), whether it may read the web (web_access), the id of its own user (what its changes and comments show), the agents it can ask (helper_agent_ids) and the user's access to it (your_access: full, edit or interact). Owners list every agent; members those shared with them; guests none. get_agent shows an agent's instructions, the pages shared with it and who it is shared with.",
       inputSchema: agentInputs.list,
       annotations: READ,
     },
@@ -2190,7 +2192,7 @@ export function createMcpServer(principal: McpPrincipal) {
     "get_agent",
     {
       title: "Get an agent",
-      description: `Get an agent from list_agents: its instructions, the pages shared with it, each with the agent's level (view, comment or edit) and link, and its skills (set_agent_skill), each with whether its runs follow it now, and its memory: notes that go with every run (kept), and notes its runs proposed that wait for an owner to keep or dismiss them (proposed: keep_agent_memory, dismiss_agent_memory; a run's notes never go with a run until an owner keeps them), each with the run that proposed it; its schedules (add_agent_schedule), each with when it runs next and what stands in its way; its model (main or fast, see update_agent); whether it may read the web (web_access); the other agents it can ask (helper_agent_ids); its monthly_token_limit, and the tokens, cost (0 where the AI provider names no price) and runs it used by calendar month (UTC), this month first. Pages and skills the user can't open are only counted (hidden), and a proposal from a run on a row they can't open has no text. ${AGENT_NOTE}`,
+      description: `Get an agent from list_agents: its instructions, the pages shared with it, each with the agent's level (view, comment or edit) and link, and its skills (set_agent_skill), each with whether its runs follow it now, and its memory: notes that go with every run (kept), and notes its runs proposed that wait for an owner to keep or dismiss them (proposed: keep_agent_memory, dismiss_agent_memory; a run's notes never go with a run until an owner keeps them), each with the run that proposed it; its schedules (add_agent_schedule), each with when it runs next and what stands in its way; its model (main or fast, see update_agent); whether it may read the web (web_access); the other agents it can ask (helper_agent_ids); its monthly_token_limit, and the tokens, cost (0 where the AI provider names no price) and runs it used by calendar month (UTC), this month first; and who it is shared with (sharing: people, groups and everyone in the workspace, each with a level, and the user's own access). Pages and skills the user can't open are only counted (hidden), and a proposal from a run on a row they can't open has no text. ${AGENT_NOTE}`,
       inputSchema: agentInputs.agentId,
       annotations: READ,
     },
@@ -2208,6 +2210,7 @@ export function createMcpServer(principal: McpPrincipal) {
               await agentSchedules.listAgentSchedules(userId, agent_id),
             ),
             ...(await helpersOf(agent.id)),
+            sharing: describeSharing(await agentSharing.agentSharing(userId, agent_id)),
           };
         }),
       ),
@@ -2217,7 +2220,7 @@ export function createMcpServer(principal: McpPrincipal) {
     "create_agent",
     {
       title: "Create an agent",
-      description: `Create an agent in a workspace: a name, an optional emoji icon and description, instructions it follows on every run, the model its runs use (main by default; fast for routine, well-defined jobs), and optionally the other agents it can hand part of a task to (helper_agent_ids). It gets a user of its own, a guest of the workspace that can't sign in, and starts with nothing shared with it: share pages it should read with set_agent_access, and run it from a database automation (create_automation with a run_agent action, which shares that database with it at edit access). It reads nothing outside the workspace unless web_access is true: then its runs may read public web pages, and search the web where the server has a search service; leave it off for agents that only work with the workspace. ${RUN_NOTE} Anything shared with an agent can end up in the rows it writes, which everyone who can open those rows sees. Only owners create agents; a workspace has at most 50.`,
+      description: `Create an agent in a workspace: a name, an optional emoji icon and description, instructions it follows on every run, the model its runs use (main by default; fast for routine, well-defined jobs), and optionally the other agents it can hand part of a task to (helper_agent_ids). It gets a user of its own, a guest of the workspace that can't sign in, and starts with nothing shared with it: share pages it should read with set_agent_access, and run it from a database automation (create_automation with a run_agent action, which shares that database with it at edit access). It reads nothing outside the workspace unless web_access is true: then its runs may read public web pages, and search the web where the server has a search service; leave it off for agents that only work with the workspace. ${RUN_NOTE} Anything shared with an agent can end up in the rows it writes, which everyone who can open those rows sees. Owners create agents, and members too where the workspace's owners let them (Settings > Agents, "Who can create agents"); the user who creates it gets full access, and it starts shared with everyone in the workspace at "interact" (share_agent changes that). Only owners set its monthly_token_limit. A workspace has at most 50.`,
       inputSchema: agentInputs.create,
       annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
       scopeChallenge: requireWrite,
@@ -2229,7 +2232,9 @@ export function createMcpServer(principal: McpPrincipal) {
           return { ...describeAgent(agent, { pages: [], hidden: 0 }), ...(await helpersOf(agent.id)) };
         } catch (error) {
           if (error instanceof AccessError && !(error instanceof ConnectedAppReadOnlyError)) {
-            throw new ToolInputError("Only owners of a workspace create agents. Check the workspace id and the user's role with list_workspaces.");
+            throw new ToolInputError(
+              "The user may not create agents in this workspace: owners create them, and members only where the owners let them (Settings > Agents, \"Who can create agents\"). Check the workspace id and the user's role with list_workspaces.",
+            );
           }
           throw error;
         }
@@ -2241,7 +2246,7 @@ export function createMcpServer(principal: McpPrincipal) {
     "draft_agent",
     {
       title: "Draft an agent from a description",
-      description: `Draft an agent from what the user says it should do, with Leafdesk's AI: a name, icon, description and step-by-step instructions in the user's language, the pages and databases it needs (only ones the user may share with it, each at the least access that does the job), and when it should run: schedules (as add_agent_schedule takes them) and automations on a database (trigger as create_automation takes it). Nothing is saved: show the draft, then set it up with the tools it names. Only owners may draft, as they create agents. It counts as the workspace's AI usage and needs AI on for the workspace.`,
+      description: `Draft an agent from what the user says it should do, with Leafdesk's AI: a name, icon, description and step-by-step instructions in the user's language, the pages and databases it needs (only ones the user may share with it, each at the least access that does the job), and when it should run: schedules (as add_agent_schedule takes them) and automations on a database (trigger as create_automation takes it). Nothing is saved: show the draft, then set it up with the tools it names. Only those who may create agents may draft (owners, and members where the owners let them). It counts as the workspace's AI usage and needs AI on for the workspace.`,
       inputSchema: agentInputs.draft,
       annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: false, openWorldHint: true },
     },
@@ -2251,7 +2256,9 @@ export function createMcpServer(principal: McpPrincipal) {
           return describeAgentDraft(workspace_id, await draftAgent(userId, workspace_id, description));
         } catch (error) {
           if (error instanceof AccessError && !(error instanceof ConnectedAppReadOnlyError)) {
-            throw new ToolInputError("Only owners of a workspace draft and create agents. Check the workspace id and the user's role with list_workspaces.");
+            throw new ToolInputError(
+              "The user may not create agents in this workspace, so they can't draft one: owners create them, and members only where the owners let them (Settings > Agents). Check the workspace id and the user's role with list_workspaces.",
+            );
           }
           if (isAiError(error)) throw new ToolInputError(`The draft couldn't be made: ${error.message}.`);
           throw error;
@@ -2263,7 +2270,7 @@ export function createMcpServer(principal: McpPrincipal) {
     "update_agent",
     {
       title: "Change an agent",
-      description: `Change an agent from list_agents: its name (its changes and comments show the new one), icon (null removes it), description, instructions, whether it is enabled (false pauses it: its queued runs end without doing anything), whether its runs may read the web (web_access), its monthly token limit (null removes it), the agents it can ask (helper_agent_ids: the whole list), or the model its runs use: "main", the server's main model, for work that needs judgment, or "fast", its cheaper fast model, for routine, well-defined jobs such as summaries or sorting rows (where the server has no fast model, or the workspace's AI is an own AI account, a fast agent runs on the main model). What you leave out stays as it is. ${AGENT_NOTE}`,
+      description: `Change an agent from list_agents: its name (its changes and comments show the new one), icon (null removes it), description, instructions, whether it is enabled (false pauses it: its queued runs end without doing anything), whether its runs may read the web (web_access), its monthly token limit (null removes it; owners only), the agents it can ask (helper_agent_ids: the whole list), or the model its runs use: "main", the server's main model, for work that needs judgment, or "fast", its cheaper fast model, for routine, well-defined jobs such as summaries or sorting rows (where the server has no fast model, or the workspace's AI is an own AI account, a fast agent runs on the main model). What you leave out stays as it is. ${AGENT_NOTE}`,
       inputSchema: agentInputs.update,
       annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },
       scopeChallenge: requireWrite,
@@ -2281,7 +2288,7 @@ export function createMcpServer(principal: McpPrincipal) {
     "archive_agent",
     {
       title: "Archive an agent",
-      description: `Archive an agent: it stops (its queued runs end without doing anything), every page shared with it is unshared, and it leaves the lists; runs that automations start for it end as agentDisabled. Its user stays, so its past changes and comments keep its name. restore_agent brings it back, paused and with nothing shared. Confirm with the user first; to only pause it, call update_agent with enabled false. ${AGENT_NOTE}`,
+      description: `Archive an agent: it stops (its queued runs end without doing anything), every page shared with it is unshared, and it leaves the lists; runs that automations start for it end as agentDisabled. Its user stays, so its past changes and comments keep its name. restore_agent brings it back, paused and with nothing shared. Needs full access to the agent. Confirm with the user first; to only pause it, call update_agent with enabled false. ${AGENT_NOTE}`,
       inputSchema: agentInputs.agentId,
       annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: false },
       scopeChallenge: requireWrite,
@@ -2293,12 +2300,33 @@ export function createMcpServer(principal: McpPrincipal) {
     "restore_agent",
     {
       title: "Restore an archived agent",
-      description: `Bring an archived agent back (list_agents with include_archived). It comes back paused and with nothing shared with it: share pages again with set_agent_access and turn it on with update_agent (enabled true). ${AGENT_NOTE}`,
+      description: `Bring an archived agent back (list_agents with include_archived). It comes back paused and with no pages shared with it (who it is shared with stays): share pages again with set_agent_access and turn it on with update_agent (enabled true). Needs full access to the agent. ${AGENT_NOTE}`,
       inputSchema: agentInputs.agentId,
       annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
       scopeChallenge: requireWrite,
     },
     write(({ agent_id }) => withAgentErrors(async () => describeAgent(await agents.restoreAgent(userId, agent_id)))),
+  );
+
+  server.registerTool(
+    "share_agent",
+    {
+      title: "Share an agent with people",
+      description: `Share an agent with a person (user_id: an owner or member of the workspace, never a guest), a group (group_id) or everyone in the workspace (everyone: true), at a level, or take them off its list ("remove"). Levels: "full" (everything a workspace owner can do with the agent, sharing and archiving it too), "edit" (change its settings, instructions, pages, skills, schedules, memory and versions and run it), "interact" (see it and its settings read-only, chat with it, mention it in comments). A person's own entry decides for them; without one, the highest of their groups'; without those, everyone's. Workspace owners always have full access. A new agent is shared with everyone at "interact"; remove everyone to keep it to the people listed. Needs full access to the agent; each change goes to the audit log. Returns who the agent is shared with. ${AGENT_NOTE}`,
+      inputSchema: agentInputs.share,
+      annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: false },
+      scopeChallenge: requireWrite,
+    },
+    write(({ agent_id, user_id, group_id, everyone, level }) =>
+      withAgentErrors(async () => {
+        const named = [user_id, group_id, everyone ? "everyone" : undefined].filter(Boolean);
+        if (named.length !== 1) throw new ToolInputError("Name exactly one of user_id, group_id or everyone: true.");
+        const target = user_id ? { kind: "person" as const, userId: user_id } : group_id ? { kind: "group" as const, groupId: group_id } : { kind: "everyone" as const };
+        const sharing =
+          level === "remove" ? await agentSharing.removeAgentShare(userId, agent_id, target) : await agentSharing.setAgentShare(userId, agent_id, target, level);
+        return { agent_id, sharing: describeSharing(sharing) };
+      }),
+    ),
   );
 
   server.registerTool(
@@ -2338,7 +2366,7 @@ export function createMcpServer(principal: McpPrincipal) {
       }),
     ),
   );
-  const MEMORY_NOTE = `An agent's memory: short notes that go with every one of its runs (kept), and notes its runs proposed (proposed), which go with no run until an owner keeps them. Only owners manage it. A kept note goes with every later run, whoever starts it, like the agent's instructions: read a proposal before keeping it, since a run proposes what it read in rows, pages and events other people and services wrote. An agent keeps at most ${MAX_MEMORIES} notes of at most ${MAX_MEMORY_CHARS} characters. Returns the agent with its memory, as get_agent shows it.`;
+  const MEMORY_NOTE = `An agent's memory: short notes that go with every one of its runs (kept), and notes its runs proposed (proposed), which go with no run until someone who can edit the agent keeps them. Those who can edit the agent manage it. A kept note goes with every later run, whoever starts it, like the agent's instructions: read a proposal before keeping it, since a run proposes what it read in rows, pages and events other people and services wrote. An agent keeps at most ${MAX_MEMORIES} notes of at most ${MAX_MEMORY_CHARS} characters. Returns the agent with its memory, as get_agent shows it.`;
   const withMemory = async (agentId: string) => describeAgent(await agents.getAgent(userId, agentId), undefined, undefined, await agentMemory.listAgentMemory(userId, agentId));
 
   server.registerTool(
@@ -2438,7 +2466,7 @@ export function createMcpServer(principal: McpPrincipal) {
     "list_agent_runs",
     {
       title: "List an agent's runs",
-      description: `List an agent's latest runs, newest first (kept for ${AGENT_RUN_HISTORY_DAYS} days): what started each (an automation and its row, the row's title only when the user can open it; a connection's event; an owner's request with start_agent_run or the REST API, with its task; one of its schedules, with its task and database; a member who mentioned it in a comment, with the comment and its page; a person's message in a chat with it, the message only for the user who wrote it; or another agent that asked it for part of its task with ask_agent (source kind handoff, with that agent and its run_id)), its status (pending, running, awaiting_approval, done, failed), why it failed (code: aiOff, agentDisabled, noAccess, rowGone, databaseGone, commentGone, provider, timeout, tooManyAttempts, approvalTimeout, connectionGone, limitReached or error), what it did step by step (followed or left out a skill, searched, read, queried, changed the row, commented, called a connection's tool, asked another agent (with the helper's run_id), its thoughts), the call it waits on (credentials in its input masked), its final answer and the tokens it used, with the model that answered. A call waiting for approval is answered by an owner in Leafdesk (the inbox, or the agent's runs, which show the call exactly as it will be sent), not here. ${RUN_NOTE} ${AGENT_NOTE}`,
+      description: `List an agent's latest runs, newest first (kept for ${AGENT_RUN_HISTORY_DAYS} days): what started each (an automation and its row, the row's title only when the user can open it; a connection's event; an owner's request with start_agent_run or the REST API, with its task; one of its schedules, with its task and database; a member who mentioned it in a comment, with the comment and its page; a person's message in a chat with it, the message only for the user who wrote it; or another agent that asked it for part of its task with ask_agent (source kind handoff, with that agent and its run_id)), its status (pending, running, awaiting_approval, done, failed), why it failed (code: aiOff, agentDisabled, noAccess, rowGone, databaseGone, commentGone, provider, timeout, tooManyAttempts, approvalTimeout, connectionGone, limitReached or error), what it did step by step (followed or left out a skill, searched, read, queried, changed the row, commented, called a connection's tool, asked another agent (with the helper's run_id), its thoughts), the call it waits on (credentials in its input masked), its final answer and the tokens it used, with the model that answered. A call waiting for approval is answered by an owner in Leafdesk (the inbox, or the agent's runs, which show the call exactly as it will be sent), not here. Someone who can only interact with the agent sees only the runs they started. ${RUN_NOTE} ${AGENT_NOTE}`,
       inputSchema: agentInputs.runs,
       annotations: READ,
     },
@@ -2499,7 +2527,7 @@ export function createMcpServer(principal: McpPrincipal) {
     ),
   );
 
-  const SCHEDULE_NOTE = `A schedule's run follows the agent's instructions and skills, held to what the owner who set the schedule last can open as well as what is shared with the agent. With a database it reads the database first and may change and comment on its rows (at most ${MAX_SCHEDULED_WRITES} changes a run); without one it only reads (and uses its connections' tools). Each run ends with a report in that owner's Leafdesk inbox; list_agent_runs shows it too. A schedule pauses when the agent is archived, or when whoever set it is no longer an owner or can't open the database; setting it again turns it back on, as the user. A schedule whose last run still waits skips a run. Runs use the workspace's AI allowance and the agent's monthly token limit.`;
+  const SCHEDULE_NOTE = `A schedule's run follows the agent's instructions and skills, held to what the person who set the schedule last can open as well as what is shared with the agent. With a database it reads the database first and may change and comment on its rows (at most ${MAX_SCHEDULED_WRITES} changes a run); without one it only reads (and uses its connections' tools). Each run ends with a report in that person's Leafdesk inbox; list_agent_runs shows it too. Setting a schedule needs edit access to the agent. A schedule pauses when the agent is archived, or when whoever set it can no longer edit the agent or open the database; setting it again turns it back on, as the user. A schedule whose last run still waits skips a run. Runs use the workspace's AI allowance and the agent's monthly token limit.`;
 
   server.registerTool(
     "add_agent_schedule",

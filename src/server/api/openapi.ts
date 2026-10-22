@@ -13,7 +13,7 @@ const TAGS = [
   { name: "Databases", description: "Database schemas and row queries." },
   { name: "Rows", description: "Database rows and their property values." },
   { name: "Comments", description: "Comment threads on pages." },
-  { name: "Agents", description: "A workspace's agents: their settings, runs asked for now, schedules, run history and monthly usage." },
+  { name: "Agents", description: "A workspace's agents: their settings, who they are shared with, runs asked for now, schedules, run history and monthly usage." },
 ];
 
 /** Field descriptions are shared with the MCP server and sometimes name its tools. */
@@ -526,8 +526,14 @@ const SCHEMAS: Record<string, JsonSchema> = {
         items: { type: "string" },
         description: "The other agents of the workspace it can hand part of a task to during a run (its \"Agents it can ask\").",
       },
+      your_access: {
+        type: "string",
+        enum: ["full", "edit", "interact"],
+        description:
+          "The token's user's access to the agent: full (everything, sharing and archiving it too; workspace owners always), edit (change and run it), interact (see it, chat with it and mention it).",
+      },
     },
-    ["id", "name", "enabled", "archived", "model", "web_access", "user_id"],
+    ["id", "name", "enabled", "archived", "model", "web_access", "user_id", "your_access"],
   ),
   AgentList: loose({ workspace_id: id, agents: { type: "array", items: ref("AgentSummary") } }, ["workspace_id", "agents"]),
   AgentUsageMonth: loose(
@@ -639,6 +645,30 @@ const SCHEMAS: Record<string, JsonSchema> = {
   ),
   AgentScheduleList: loose({ agent_id: id, schedules: { type: "array", items: ref("AgentSchedule") } }, ["agent_id", "schedules"]),
   AgentScheduleDeleted: loose({ agent_id: id, deleted: { type: "string", description: "The deleted schedule's id." } }, ["agent_id", "deleted"]),
+  AgentSharing: loose(
+    {
+      agent_id: id,
+      your_access: { type: "string", enum: ["full", "edit", "interact"] },
+      shared_with: {
+        type: "array",
+        description: "Each entry names `everyone: true`, a person (`user_id`, `name`, `email`) or a group (`group_id`, `name`, `member_count`), with its `level`.",
+        items: loose(
+          {
+            everyone: { type: "boolean" },
+            user_id: { type: "string" },
+            group_id: { type: "string" },
+            name: { type: "string" },
+            email: { type: "string" },
+            member_count: { type: "integer" },
+            level: { type: "string", enum: ["full", "edit", "interact"] },
+          },
+          ["level"],
+        ),
+      },
+      note: { type: "string" },
+    },
+    ["agent_id", "your_access", "shared_with"],
+  ),
   AgentUsage: loose(
     {
       agent_id: id,

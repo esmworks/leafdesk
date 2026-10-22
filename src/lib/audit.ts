@@ -90,7 +90,16 @@ export const AUDIT_CATEGORIES = {
     "mail.mailbox_connected",
     "mail.mailbox_disconnected",
   ],
-  agents: ["agent.created", "agent.updated", "agent.archived", "agent.run_requested", "agent.schedule_set", "agent.schedule_removed"],
+  agents: [
+    "agent.created",
+    "agent.updated",
+    "agent.archived",
+    "agent.run_requested",
+    "agent.schedule_set",
+    "agent.schedule_removed",
+    "agent.shared",
+    "agent.unshared",
+  ],
   connections: [
     "connection.created",
     "connection.updated",
@@ -426,6 +435,9 @@ export function describeAuditEvent(event: Pick<AuditEvent, "action" | "targetLab
     case "backup.created":
     case "backup.restored":
       values.count = typeof d.pages === "number" ? d.pages : 0;
+      break;
+    case "agent.shared":
+      values.level = known(t, `audit.agentLevels.${text(d.level)}`, text(d.level));
       break;
     case "agent.updated":
     case "automation.updated": {

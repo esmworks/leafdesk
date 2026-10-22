@@ -1,12 +1,13 @@
 /**
  * End-to-end check of agents' schedules (server/agents/schedules.ts) against the database and a
  * fake OpenAI-compatible server: owners add, change and delete an agent's schedules in the app's
- * functions and over the REST API (members can't; invalid rules, tasks and databases are refused);
+ * functions and over the REST API (those who can only view and interact with it read them, but
+ * don't change them; invalid rules, tasks and databases are refused);
  * a due schedule queues one run of the agent, held to the owner who set it, that reads the database
  * first, changes and comments on its rows (and only its rows), and ends with a report in that
  * owner's inbox; its history names the schedule. A schedule whose last run still waits skips a
- * run; a paused agent or a database in the trash skips runs; whoever set it losing ownership pauses
- * it ("accessLost") until set again, as does archiving the agent ("agentGone").
+ * run; a paused agent or a database in the trash skips runs; whoever set it losing edit access to
+ * the agent pauses it ("accessLost") until set again, as does archiving the agent ("agentGone").
  * Creates its own users and workspace and deletes them afterwards.
  *
  *   pnpm tsx scripts/agent-schedule-e2e.ts
@@ -23,7 +24,7 @@ try {
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
 const { and, eq, inArray } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { agentRun, auditEvent, notification, page, schedule, teamspace, user, workspace, workspaceAgent, workspaceMember } = await import("@/db/schema");
+const { agentRun, agentShare, auditEvent, notification, page, schedule, teamspace, user, workspace, workspaceAgent, workspaceMember } = await import("@/db/schema");
 const { registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
 const { archivePage, createPage, restorePage } = await import("@/server/pages");
@@ -133,8 +134,8 @@ try {
   // ── Setting schedules ─────────────────────────────────────────────────────────────────────────
   const task = "Go through every row: set Stage to Late where it is overdue, and tell me what I need to do today.";
   check(
-    await failsWith(agentSchedules.setAgentSchedule(ids.member, keeper.id, null, { rule: daily, timeZone: ZONE, task }), "notFound"),
-    "a member can't set an agent's schedule",
+    await failsWith(agentSchedules.setAgentSchedule(ids.member, keeper.id, null, { rule: daily, timeZone: ZONE, task }), "notAllowed"),
+    "a member who can only view and interact with the agent can't set its schedule",
   );
   check(
     await failsWith(agentSchedules.setAgentSchedule(ids.owner, keeper.id, null, { rule: { ...daily, time: "25:00" }, timeZone: ZONE, task }), "invalid", "repeat"),
@@ -267,7 +268,9 @@ try {
   const changed = await api(token, "PATCH", `/agents/${keeper.id}/schedules/${added.json.schedule_id}`, { task: "Summarize the week, briefly." });
   check(changed.status === 200 && changed.json.task === "Summarize the week, briefly." && changed.json.repeat.time === "17:30", "…changes only what it is given", changed);
   const byMember = await api(memberToken, "GET", `/agents/${keeper.id}/schedules`);
-  check(byMember.status === 404, "…and refuses members", byMember);
+  check(byMember.status === 200 && byMember.json.schedules.length === 2, "…lets a member it is shared with read them", byMember);
+  const addedByMember = await api(memberToken, "POST", `/agents/${keeper.id}/schedules`, { repeat: { frequency: "daily", time: "09:00" }, time_zone: ZONE, task: "x" });
+  check(addedByMember.status === 403, "…and refuses them a change at view & interact", addedByMember);
   const deleted = await api(token, "DELETE", `/agents/${keeper.id}/schedules/${added.json.schedule_id}`);
   const deletedAgain = await api(token, "DELETE", `/agents/${keeper.id}/schedules/${added.json.schedule_id}`);
   check(deleted.status === 200 && deletedAgain.status === 404, "…and deletes one", { deleted, deletedAgain });
@@ -298,23 +301,33 @@ try {
   );
   await agents.setAgentAccess(ids.owner, keeper.id, board.id, "edit");
 
+  // No longer an owner, and the entry they got for creating the agent narrowed to view & interact.
   const ownerRow = and(eq(workspaceMember.workspaceId, workspaceId), eq(workspaceMember.userId, ids.owner));
-  await db.update(workspaceMember).set({ role: "member" }).where(ownerRow);
+  const creatorEntry = and(eq(agentShare.agentId, keeper.id), eq(agentShare.userId, ids.owner));
+  const demote = async () => {
+    await db.update(workspaceMember).set({ role: "member" }).where(ownerRow);
+    await db.update(agentShare).set({ level: "interact" }).where(creatorEntry);
+  };
+  const promote = async () => {
+    await db.update(workspaceMember).set({ role: "owner" }).where(ownerRow);
+    await db.update(agentShare).set({ level: "full" }).where(creatorEntry);
+  };
+  await demote();
   await runNow(set.id);
-  await db.update(workspaceMember).set({ role: "owner" }).where(ownerRow);
+  await promote();
   let paused = await scheduleRow(set.id);
-  check(!paused.enabled && paused.lastError === "accessLost" && (await runsOf(keeper.id)).length === 1, "whoever set it losing ownership pauses it (accessLost)", paused);
+  check(!paused.enabled && paused.lastError === "accessLost" && (await runsOf(keeper.id)).length === 1, "whoever set it losing edit access to the agent pauses it (accessLost)", paused);
   const resumed = await agentSchedules.setAgentSchedule(ids.owner, keeper.id, set.id, {});
   check(resumed.enabled && resumed.lastError === null && resumed.task === task && resumed.databaseId === board.id, "setting it again turns it back on, keeping what it had");
 
   // A run queued before its owner was demoted opens nothing.
   fake.setChat(() => ({ text: "should not run" }));
   await runNow(set.id);
-  await db.update(workspaceMember).set({ role: "member" }).where(ownerRow);
+  await demote();
   await flushAgentRuns();
-  await db.update(workspaceMember).set({ role: "owner" }).where(ownerRow);
+  await promote();
   const [held] = (await runsOf(keeper.id)).filter((r) => r.id !== done.id);
-  check(held?.status === "failed" && held.code === "noAccess", "a run whose schedule's owner is no longer an owner opens nothing", held);
+  check(held?.status === "failed" && held.code === "noAccess", "a run whose schedule's setter can no longer edit the agent opens nothing", held);
   const failedReport = (await listNotifications(ids.owner, { workspaceId })).find((n) => n.report?.runId === held.id);
   check(failedReport?.report?.status === "failed", "a failed run reports too");
 

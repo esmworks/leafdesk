@@ -38,8 +38,9 @@ import {
   type RouterProperty,
 } from "@/lib/builtin-agents";
 import { PropertyValueError } from "@/lib/properties";
-import { pageAccessOf, requireMembership } from "@/server/access";
+import { pageAccessOf } from "@/server/access";
 import { AgentError, archiveAgent, createAgent, setAgentAccess } from "@/server/agents/manage";
+import { requireAgentCreator } from "@/server/agents/sharing";
 import { createAutomation } from "@/server/automations/manage";
 import { assertTriggerRoom, ConnectionError, createTrigger, ownedConnection } from "@/server/connections/manage";
 import { addProperty, ensureOption, getProperties, requireDatabase } from "@/server/databases";
@@ -98,7 +99,7 @@ async function addOwnProperty(
 }
 
 /**
- * Sets up a built-in agent on a database (owners, with full access to the database). Returns the
+ * Sets up a built-in agent on a database (those who may create agents, with full access to the database). Returns the
  * agent and the automation that runs it, or for the wins logger the connection's trigger.
  */
 export async function installBuiltinAgent(
@@ -107,7 +108,7 @@ export async function installBuiltinAgent(
   setup: BuiltinAgentSetup,
   { locale }: { locale?: string } = {},
 ): Promise<{ agent: AgentView; automationId: string | null; triggerId: string | null }> {
-  await requireMembership(userId, workspaceId, "owner");
+  await requireAgentCreator(userId, workspaceId);
   if (!setup || !isBuiltinAgentKey(setup.key)) throw invalid("template", "Unknown built-in agent");
   const database = await requireDatabase(userId, String(setup.databaseId ?? ""), "full");
   if (database.workspaceId !== workspaceId) throw invalid("database", "The database is in another workspace");

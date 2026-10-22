@@ -8,7 +8,7 @@ import { addAgentSkillAction, listAgentSkillsAction, removeAgentSkillAction } fr
 import { listSkillsAction } from "@/app/actions/skills";
 import { useAction } from "@/components/settings/workspace-settings";
 import { Button, cn, IconButton, PageIcon, pageLabel } from "@/components/ui";
-import { MAX_AGENT_SKILLS, type AgentSkillView, type AgentView } from "@/lib/agents";
+import { editsAgent, MAX_AGENT_SKILLS, type AgentSkillView, type AgentView } from "@/lib/agents";
 import { PagePicker, type PickablePage } from "./agent-page-picker";
 
 /**
@@ -90,14 +90,16 @@ export function AgentSkillsTab({ workspaceId, agent }: { workspaceId: string; ag
                       </Link>
                       <span className={cn("block text-xs", skipped ? "text-danger" : "text-fg-muted")}>{t(`status.${s.status}`)}</span>
                     </div>
-                    <IconButton
-                      label={t("remove", { title })}
-                      disabled={pending}
-                      onClick={() => run(() => removeAgentSkillAction(workspaceId, agent.id, s.pageId), setGiven)}
-                      className="hover:text-danger"
-                    >
-                      <X className="h-4 w-4" />
-                    </IconButton>
+                    {editsAgent(agent) && (
+                      <IconButton
+                        label={t("remove", { title })}
+                        disabled={pending}
+                        onClick={() => run(() => removeAgentSkillAction(workspaceId, agent.id, s.pageId), setGiven)}
+                        className="hover:text-danger"
+                      >
+                        <X className="h-4 w-4" />
+                      </IconButton>
+                    )}
                   </li>
                 );
               })}
@@ -107,6 +109,7 @@ export function AgentSkillsTab({ workspaceId, agent }: { workspaceId: string; ag
           )}
           {given.hidden > 0 && <p className="text-xs text-fg-muted">{t("hidden", { count: given.hidden })}</p>}
           {!agent.archived &&
+            editsAgent(agent) &&
             (full ? (
               <p className="text-xs text-fg-muted">{t("full", { max: MAX_AGENT_SKILLS })}</p>
             ) : adding ? (

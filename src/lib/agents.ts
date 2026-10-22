@@ -1,6 +1,7 @@
 // Client-safe: shared by the agents' server side (src/server/agents), the settings and the
 // automation editor.
 
+import type { AgentShareLevel } from "./agent-sharing";
 import type { ChatStepRecord, MemoryStatus } from "@/db/schema/ai";
 import type { RepeatRule, ScheduleError } from "./schedule";
 
@@ -377,9 +378,14 @@ export type AgentView = {
   monthlyTokenLimit: number | null;
   /** Which of the server's models its runs use (see AGENT_MODELS). */
   model: AgentModel;
+  /** The viewer's level on it (lib/agent-sharing): owners of the workspace always have full access. */
+  access: AgentShareLevel;
   createdAt: string;
   updatedAt: string;
 };
+
+/** Whether the viewer may change the agent (edit or full access), not just see it and chat with it. */
+export const editsAgent = (agent: Pick<AgentView, "access">) => agent.access !== "interact";
 
 /** What an agent's runs used in one calendar month (UTC). `costUsd` is 0 where the provider names no price. */
 export type AgentUsageMonth = { month: string; runs: number; inputTokens: number; outputTokens: number; costUsd: number };

@@ -25,6 +25,9 @@ import {
   type AgentInput,
 } from "@/server/agents/manage";
 import { helperChoices } from "@/server/agents/helpers";
+import { agentSharing, parseShareTarget, removeAgentShare, setAgentShare } from "@/server/agents/sharing";
+import { agentGrantSummary } from "@/server/connections/manage";
+import type { AgentShareLevel } from "@/lib/agent-sharing";
 import { addAgentMemory, deleteAgentMemory, keepAgentMemory, listAgentMemory, updateAgentMemory } from "@/server/agents/memory";
 import { listAgentSchedules, removeAgentSchedule, setAgentSchedule } from "@/server/agents/schedules";
 import { addAgentSkill, listAgentSkills, removeAgentSkill } from "@/server/agents/skills";
@@ -34,12 +37,13 @@ import { viewStep } from "@/server/ai-chat";
 import { getProperties, requireDatabase } from "@/server/databases";
 import { requireUserId } from "@/server/session";
 
-// Agents (see server/agents/manage.ts): owners create, change, pause and archive them, choose what
-// they may open and read their runs. Expected failures come back translated: Next.js hides thrown
+// Agents (see server/agents/manage.ts): those who may create them do, and those they are shared
+// with (server/agents/sharing.ts) change, pause, archive and share them, choose what they may open
+// and read their runs, as their level on each lets them. Expected failures come back translated: Next.js hides thrown
 // messages in production.
 
 /** Reasons an `invalid` error names, each with its own message. */
-const INVALID_REASONS = ["name", "icon", "level", "template", "database", "property", "option", "rules", "pages", "limit", "task", "taskLength", "repeat", "helpers"] as const;
+const INVALID_REASONS = ["name", "icon", "level", "template", "database", "property", "option", "rules", "pages", "limit", "task", "taskLength", "repeat", "helpers", "shareLevel"] as const;
 type InvalidReason = (typeof INVALID_REASONS)[number];
 const isInvalidReason = (value: unknown): value is InvalidReason => (INVALID_REASONS as readonly unknown[]).includes(value);
 
@@ -109,6 +113,42 @@ export async function restoreAgentAction(workspaceId: string, agentId: string) {
 /** The agents an owner may choose from for an agent's "Agents it can ask" (`agentId` null: a new agent), and those it has. */
 export async function agentHelperChoicesAction(workspaceId: string, agentId: string | null) {
   return run(workspaceId, (userId) => helperChoices(userId, workspaceId, agentId ? String(agentId) : null));
+}
+
+/** Who the agent is shared with, and (for those with full access) who it may be shared with. */
+export async function agentSharingAction(workspaceId: string, agentId: string) {
+  return run(workspaceId, (userId) => agentSharing(userId, String(agentId)));
+}
+
+/** Shares the agent with a person, a group or everyone, at a level; returns the list as it is now. */
+export async function setAgentShareAction(workspaceId: string, agentId: string, target: unknown, level: AgentShareLevel) {
+  return run(
+    workspaceId,
+    (userId) => {
+      const parsed = parseShareTarget(target);
+      if (!parsed) throw new AgentError("notAMember", "Pick a person, a group or everyone");
+      return setAgentShare(userId, String(agentId), parsed, level);
+    },
+    { refresh: true },
+  );
+}
+
+/** Takes a person, a group or everyone off the agent's list; returns the list as it is now. */
+export async function removeAgentShareAction(workspaceId: string, agentId: string, target: unknown) {
+  return run(
+    workspaceId,
+    (userId) => {
+      const parsed = parseShareTarget(target);
+      if (!parsed) throw new AgentError("notAMember", "Pick a person, a group or everyone");
+      return removeAgentShare(userId, String(agentId), parsed);
+    },
+    { refresh: true },
+  );
+}
+
+/** The connections' tools the agent may use, named, for anyone it is shared with (owners change them in the Connections tab). */
+export async function agentGrantSummaryAction(workspaceId: string, agentId: string) {
+  return run(workspaceId, (userId) => agentGrantSummary(userId, String(agentId)));
 }
 
 export async function listAgentAccessAction(workspaceId: string, agentId: string) {

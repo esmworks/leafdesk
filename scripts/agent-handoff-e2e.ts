@@ -136,7 +136,7 @@ try {
   check(((await helperIdsOf([coordinator.id])).get(coordinator.id) ?? []).join() === researcher.id, "an agent is created with the agents it can ask");
   check(await fails(agents.updateAgent(ids.owner, coordinator.id, { helperAgentIds: [coordinator.id] }), invalidHelpers), "it can't ask itself");
   check(await fails(agents.updateAgent(ids.owner, coordinator.id, { helperAgentIds: ["no-such-agent"] }), invalidHelpers), "…nor an agent of another workspace, or none");
-  check(await fails(agents.updateAgent(ids.member, coordinator.id, { helperAgentIds: [] }), (e) => !(e instanceof agents.AgentError) || e.code === "notFound"), "only owners choose them");
+  check(await fails(agents.updateAgent(ids.member, coordinator.id, { helperAgentIds: [] }), (e) => e instanceof agents.AgentError && e.code === "notAllowed"), "only those who can edit it choose them");
   await agents.updateAgent(ids.owner, coordinator.id, { helperAgentIds: [researcher.id, writer.id] });
   // The researcher may ask the coordinator back: its own runs for others still can't ask.
   await agents.updateAgent(ids.owner, researcher.id, { helperAgentIds: [coordinator.id] });

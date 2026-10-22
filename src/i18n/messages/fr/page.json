@@ -859,7 +859,8 @@
       "gone": "Cet agent n’est plus disponible.",
       "paused": "Cet agent est en pause : il ne peut pas répondre.",
       "aiOff": "L’IA est désactivée dans cet espace de travail : l’agent ne peut pas répondre.",
-      "limitReached": "Cet agent a utilisé ses tokens du mois : il ne pourra pas répondre avant le mois prochain."
+      "limitReached": "Cet agent a utilisé ses tokens du mois : il ne pourra pas répondre avant le mois prochain.",
+      "noAccess": "Vous n’avez pas accès à cet agent."
     },
     "empty": {
       "full": "Posez une question à {name} ou confiez-lui une tâche. Il travaille avec ses propres accès, compétences et mémoire, et chaque réponse est l’une de ses exécutions.",
@@ -915,6 +916,7 @@
     "tab": {
       "hint": "Collez le lien de cet agent dans une page pour y placer un chat avec lui. Les membres peuvent y discuter en lecture seule.",
       "copyLink": "Copier le lien"
-    }
+    },
+    "awaitingOwner": "En attente de l’approbation d’un appel par un propriétaire de l’espace de travail…"
   }
 }

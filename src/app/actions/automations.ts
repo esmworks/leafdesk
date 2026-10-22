@@ -54,7 +54,8 @@ async function run<T>(fn: (userId: string) => Promise<T>): Promise<ActionResult<
 
 /**
  * The database's automations, with the workspace's people a notification can go to and the
- * agents an action can run (and whether the viewer owns the workspace, to make one).
+ * agents shared with the viewer (and whether they own the workspace, or can edit an agent, to make
+ * an action that runs one).
  */
 export async function listAutomationsAction(databaseId: string) {
   return run(async (userId) => {
@@ -73,7 +74,8 @@ export async function listAutomationsAction(databaseId: string) {
     return {
       automations,
       members: members.map((m) => ({ id: m.userId, name: m.name, email: m.email, image: avatarSrc(m.image) })),
-      agents: agents.map((a) => ({ id: a.id, name: a.name, icon: a.icon, description: a.description, enabled: a.enabled })),
+      // Those who can edit an agent give it tasks too (agents/sharing.ts), not just owners.
+      agents: agents.map((a) => ({ id: a.id, name: a.name, icon: a.icon, description: a.description, enabled: a.enabled, canRun: a.access !== "interact" })),
       isOwner: membership?.role === "owner",
     };
   });

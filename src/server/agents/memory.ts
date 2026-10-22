@@ -6,7 +6,8 @@
  * Nobody speaks to an agent during a run: all it reads is someone else's writing (the row, pages,
  * an event, what connected services return), so a note a run kept on its own could carry anyone's
  * orders into every later run. A run therefore only proposes notes (`remember`): a proposal goes
- * with no run until one of the workspace's owners keeps it, as it is or changed, in the agent's
+ * with no run until someone who can edit the agent (a workspace owner, or someone it is shared
+ * with at full access or can edit, see sharing.ts) keeps it, as it is or changed, in the agent's
  * Memory tab, where they also write, change and delete notes. A run may drop a note at once
  * (`forget`), which loses at most that note. Runs whose input no member stands behind (askEveryTool
  * in run.ts) get neither tool. Proposals are bounded (MAX_AGENT_PROPOSALS) and go with their run
@@ -19,12 +20,13 @@
  * The workspace's AI memory switch (ai-memory.ts memoryAvailable) holds for agents too: while it
  * is off, runs carry no notes and keep none; owners still see and change them here.
  *
- * A run's first proposal puts an item in each owner's inbox (one per run and owner, pushed too); it
+ * A run's first proposal puts an item in each workspace owner's inbox (one per run and owner, pushed too); it
  * shows a proposal's text by the same rule as here, and goes once none of the run's proposals waits.
  */
 import { and, asc, count, eq, inArray, notExists, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { agentRun, aiMemory, connection, notification, page, workspaceAgent, type ChatMemoryRecord } from "@/db/schema";
+import { hasAgentLevel } from "@/lib/agent-sharing";
 import { isEventRun, isRowRun, isScheduleRun, MAX_AGENT_PROPOSALS, type AgentMemoryView } from "@/lib/agents";
 import { MAX_MEMORIES, MAX_MEMORY_CHARS } from "@/lib/ai-chat";
 import { redactError, redactText } from "@/lib/redact";
@@ -34,9 +36,10 @@ import { cleanNote, lockNotes, MemoryError, sameNote, writeNote } from "@/server
 import { recordAudit } from "@/server/audit";
 import { signalInbox, type InboxAgentMemory } from "@/server/notifications";
 import { pushNotifications } from "@/server/push";
-import { AgentError, auditDetails, ownedAgent } from "./manage";
+import { AgentError, agentFor, auditDetails } from "./manage";
+import { agentLevels } from "./sharing";
 
-type Agent = Awaited<ReturnType<typeof ownedAgent>>;
+type Agent = Awaited<ReturnType<typeof agentFor>>;
 type Note = typeof aiMemory.$inferSelect;
 
 /** A MemoryError as the agents' error, for the app and MCP to word. */
@@ -135,9 +138,9 @@ const audit = (userId: string, agent: Agent, memory: Record<string, number>) =>
     details: { ...auditDetails(agent), previous: auditDetails(agent), memory },
   });
 
-/** The agent's notes, oldest first: kept ones and proposals waiting for an owner. Owners only. */
+/** The agent's notes, oldest first: kept ones and proposals waiting to be kept, for anyone the agent is shared with. */
 export async function listAgentMemory(userId: string, agentId: string): Promise<AgentMemoryView[]> {
-  const agent = await ownedAgent(userId, agentId);
+  const agent = await agentFor(userId, agentId, "interact");
   const notes = await notesOf(agent);
   const runs = await proposingRuns(userId, notes);
   return notes.map((n) => view(n, n.agentRunId ? runs.get(n.agentRunId) : undefined));
@@ -145,7 +148,7 @@ export async function listAgentMemory(userId: string, agentId: string): Promise<
 
 /** An owner writes a note: kept at once (refused at MAX_MEMORIES kept ones). */
 export async function addAgentMemory(userId: string, agentId: string, text: string): Promise<AgentMemoryView> {
-  const agent = await ownedAgent(userId, agentId);
+  const agent = await agentFor(userId, agentId, "edit");
   if (agent.archivedAt) throw new AgentError("archived", "Restore the agent to change its memory");
   let note = await writeNote(agent.userId, agent.workspaceId, text).catch(asAgentError);
   if (note.status === "proposed") {
@@ -163,7 +166,7 @@ export async function addAgentMemory(userId: string, agentId: string, text: stri
 
 /** An owner changes a note's text; a proposal stays one (keepAgentMemory keeps it). */
 export async function updateAgentMemory(userId: string, agentId: string, memoryId: string, text: string): Promise<AgentMemoryView> {
-  const agent = await ownedAgent(userId, agentId);
+  const agent = await agentFor(userId, agentId, "edit");
   if (agent.archivedAt) throw new AgentError("archived", "Restore the agent to change its memory");
   const clean = (() => {
     try {
@@ -186,7 +189,7 @@ export async function updateAgentMemory(userId: string, agentId: string, memoryI
  * already keeps the same text, the proposal just goes.
  */
 export async function keepAgentMemory(userId: string, agentId: string, memoryId: string, text?: string): Promise<AgentMemoryView> {
-  const agent = await ownedAgent(userId, agentId);
+  const agent = await agentFor(userId, agentId, "edit");
   if (agent.archivedAt) throw new AgentError("archived", "Restore the agent to change its memory");
   const proposal = await noteOf(agent, memoryId);
   if (proposal.status !== "proposed") return view(proposal, undefined);
@@ -229,7 +232,7 @@ export async function keepAgentMemory(userId: string, agentId: string, memoryId:
  * proposal; with `only`, of the given ids just those in that state. Returns how many went.
  */
 export async function deleteAgentMemory(userId: string, agentId: string, which: string[] | "kept" | "proposed", only?: "kept" | "proposed"): Promise<number> {
-  const agent = await ownedAgent(userId, agentId);
+  const agent = await agentFor(userId, agentId, "edit");
   const gone = await db
     .delete(aiMemory)
     .where(
@@ -391,14 +394,15 @@ export async function runAgentMemoryTool(
   }
 }
 
-/** How many proposals wait for an owner, per agent of the workspace, for its owners' list of agents. */
+/** How many proposals wait, per agent of the workspace the person can edit, for their list of agents. */
 export async function proposedNoteCounts(userId: string, workspaceId: string): Promise<Record<string, number>> {
-  await requireMembership(userId, workspaceId, "owner");
+  const membership = await requireMembership(userId, workspaceId);
   const rows = await db
     .select({ agentId: workspaceAgent.id, count: count() })
     .from(aiMemory)
     .innerJoin(workspaceAgent, eq(workspaceAgent.userId, aiMemory.userId))
     .where(and(eq(aiMemory.workspaceId, workspaceId), eq(workspaceAgent.workspaceId, workspaceId), eq(aiMemory.status, "proposed")))
     .groupBy(workspaceAgent.id);
-  return Object.fromEntries(rows.map((r) => [r.agentId, r.count]));
+  const levels = await agentLevels(userId, workspaceId, rows.map((r) => r.agentId), membership.role);
+  return Object.fromEntries(rows.filter((r) => hasAgentLevel(levels.get(r.agentId) ?? "none", "edit")).map((r) => [r.agentId, r.count]));
 }

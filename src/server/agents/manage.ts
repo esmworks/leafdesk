@@ -1,6 +1,7 @@
 /**
- * Agents of a workspace (see lib/agents.ts): owners create, change, pause and archive them and
- * choose which pages they may open; members list them (to pick one in an automation).
+ * Agents of a workspace (see lib/agents.ts): who may create them is the workspace's setting (owners
+ * only, or members too), and each agent's sharing list (sharing.ts) says who may change, pause and
+ * archive it and choose which pages it may open; workspace owners may do all of that with every agent.
  *
  * An agent is a user of its own: created with the agent, in the same transaction, with an address
  * that can't receive mail (`agent-<id>@agents.leafdesk.invalid`), no password or other way to sign
@@ -8,7 +9,7 @@
  * (`page_access_level` gives guests nothing from teamspaces, groups or "everyone"), and it's never
  * given full access. Archiving keeps the user, so what the agent did keeps its name.
  */
-import { and, count, desc, eq, inArray, isNull } from "drizzle-orm";
+import { and, count, desc, eq, inArray, isNull, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { agentDatabaseShare, agentRun, connection, databaseAutomation, page, pagePermission, schedule, user, workspaceAgent } from "@/db/schema";
 import {
@@ -36,46 +37,18 @@ import {
   type AgentView,
 } from "@/lib/agents";
 import { parseIcon } from "@/lib/icon";
-import { AccessError, ConnectedAppReadOnlyError, pageAccessOf, pageVisibleTo, requireMember, requireMembership } from "@/server/access";
+import type { AgentLevel, AgentShareLevel } from "@/lib/agent-sharing";
+import { pageAccessOf, pageVisibleTo, requireMember } from "@/server/access";
 import { recordAudit } from "@/server/audit";
 import { removePagePermission, setPagePermission } from "@/server/permissions";
 import { addAgentMembership } from "@/server/workspaces";
 import { recordAgentVersion, withoutVersions } from "./version-record";
 import { checkHelperIds, dropHelper, helperIdsOf, saveHelpers } from "./helpers";
+import { agentLevels, agentWithLevel, requireAgentCreator, shareNewAgent } from "./sharing";
 
-export type AgentErrorCode =
-  | "invalid"
-  | "notFound"
-  | "tooMany"
-  | "archived"
-  | "notAPage"
-  | "notASkill"
-  | "skillEditable"
-  | "tooManySkills"
-  | "noteEmpty"
-  | "noteTooLong"
-  | "memoryFull"
-  | "noteNotFound"
-  | "paused"
-  | "aiOff"
-  | "limitReached"
-  | "tooManyRuns"
-  | "notARow"
-  | "notADatabase"
-  | "tooManySchedules"
-  | "scheduleNotFound"
-  | "versionNotFound";
+import { AgentError } from "./errors";
 
-export class AgentError extends Error {
-  constructor(
-    readonly code: AgentErrorCode,
-    message: string,
-    readonly params: Record<string, string> = {},
-  ) {
-    super(message);
-    this.name = "AgentError";
-  }
-}
+export { AgentError, type AgentErrorCode } from "./errors";
 
 export { AGENT_EMAIL_DOMAIN, agentEmail, isAgentEmail } from "@/lib/agents";
 export { agentUserIds, isAgentUser } from "@/server/agents/users";
@@ -117,9 +90,18 @@ function checkModel(value: unknown): AgentModel {
   return value;
 }
 
-async function checkHelpers(workspaceId: string, agentId: string | null, value: unknown) {
+/**
+ * `value` as an agent's helpers, chosen by `userId`: each helper they add must be one they can at
+ * least interact with (owners: any); those it has already stay.
+ */
+async function checkHelpers(userId: string, workspaceId: string, agentId: string | null, value: unknown, kept: string[] = []) {
   const ids = await checkHelperIds(workspaceId, agentId, value);
   if (!ids) throw new AgentError("invalid", "An agent may ask up to 10 other agents of its workspace that aren't archived", { reason: "helpers" });
+  const added = ids.filter((id) => !kept.includes(id));
+  if (added.length) {
+    const levels = await agentLevels(userId, workspaceId, added);
+    if (added.some((id) => levels.get(id) === "none")) throw new AgentError("invalid", "An agent may ask only agents shared with you", { reason: "helpers" });
+  }
   return ids;
 }
 
@@ -131,7 +113,8 @@ function checkIcon(value: unknown) {
   return icon;
 }
 
-export function viewAgent(a: Agent): AgentView {
+/** The agent as `access` (the viewer's level on it) sees it. */
+export function viewAgent(a: Agent, access: AgentShareLevel): AgentView {
   return {
     id: a.id,
     workspaceId: a.workspaceId,
@@ -145,6 +128,7 @@ export function viewAgent(a: Agent): AgentView {
     webAccess: a.webAccess,
     monthlyTokenLimit: a.monthlyTokenLimit,
     model: a.model,
+    access,
     createdAt: a.createdAt.toISOString(),
     updatedAt: a.updatedAt.toISOString(),
   };
@@ -159,21 +143,19 @@ export const auditDetails = (a: Agent) => ({
   model: a.model,
 });
 
-/** The agent with this id, for an owner of its workspace. */
-export async function ownedAgent(userId: string, agentId: string) {
-  const [found] = await db.select().from(workspaceAgent).where(eq(workspaceAgent.id, agentId)).limit(1);
-  if (!found) throw new AgentError("notFound", "Agent not found");
-  await requireMembership(userId, found.workspaceId, "owner").catch((error) => {
-    // A workspace that lets connected apps only read says so, rather than hiding the agent.
-    if (error instanceof AccessError && !(error instanceof ConnectedAppReadOnlyError)) throw new AgentError("notFound", "Agent not found");
-    throw error;
-  });
-  return found;
+export { agentWithLevel } from "./sharing";
+
+/**
+ * The agent with this id, for someone with at least `min` on it (see sharing.ts): `interact` to
+ * see it, `edit` to change it, `full` to share and archive it.
+ */
+export async function agentFor(userId: string, agentId: string, min: AgentLevel) {
+  return (await agentWithLevel(userId, agentId, min)).agent;
 }
 
 /**
- * The agents of a workspace, for its owners and members (archived ones only when asked). Members
- * get them without instructions: those are the owners' (they may name pages members can't open).
+ * The agents of a workspace someone in it (not a guest) may see: every one for its owners, those
+ * shared with them for members (archived ones only when asked), each with their level on it.
  */
 export async function listAgents(userId: string, workspaceId: string, { archived = false } = {}): Promise<AgentView[]> {
   const membership = await requireMember(userId, workspaceId);
@@ -182,23 +164,41 @@ export async function listAgents(userId: string, workspaceId: string, { archived
     .from(workspaceAgent)
     .where(and(eq(workspaceAgent.workspaceId, workspaceId), archived ? undefined : isNull(workspaceAgent.archivedAt)))
     .orderBy(workspaceAgent.createdAt);
-  const owner = membership.role === "owner";
-  return rows.map((a) => (owner ? viewAgent(a) : { ...viewAgent(a), instructions: "" }));
+  const levels = await agentLevels(userId, workspaceId, rows.map((a) => a.id), membership.role);
+  return rows.flatMap((a) => {
+    const level = levels.get(a.id) ?? "none";
+    return level === "none" ? [] : [viewAgent(a, level)];
+  });
+}
+
+/** The names of the workspace's agents (archived ones too), for naming them where they are used (automations): for owners and members. */
+export async function agentRefs(userId: string, workspaceId: string): Promise<{ id: string; name: string }[]> {
+  await requireMember(userId, workspaceId);
+  return db.select({ id: workspaceAgent.id, name: workspaceAgent.name }).from(workspaceAgent).where(eq(workspaceAgent.workspaceId, workspaceId)).orderBy(workspaceAgent.createdAt);
 }
 
 export async function getAgent(userId: string, agentId: string): Promise<AgentView> {
-  return viewAgent(await ownedAgent(userId, agentId));
+  const { agent, level } = await agentWithLevel(userId, agentId, "interact");
+  return viewAgent(agent, level);
 }
 
+/**
+ * Creates an agent, for owners and (when the workspace lets them) members: shared with everyone in
+ * the workspace (can view and interact), and with its creator at full access. Only owners give it
+ * a monthly token limit.
+ */
 export async function createAgent(userId: string, workspaceId: string, input: AgentInput): Promise<AgentView> {
-  await requireMembership(userId, workspaceId, "owner");
+  const membership = await requireAgentCreator(userId, workspaceId);
+  if (input.monthlyTokenLimit !== undefined && input.monthlyTokenLimit !== null && membership.role !== "owner") {
+    throw new AgentError("ownersOnly", "Only the workspace's owners set an agent's monthly token limit");
+  }
   const name = checkName(input.name);
   const icon = checkIcon(input.icon);
   const description = clean(input.description, MAX_AGENT_DESCRIPTION) ?? "";
   const instructions = clean(input.instructions, MAX_AGENT_INSTRUCTIONS) ?? "";
   const monthlyTokenLimit = input.monthlyTokenLimit === undefined ? null : checkLimit(input.monthlyTokenLimit);
   const model = input.model === undefined ? "main" : checkModel(input.model);
-  const helpers = input.helperAgentIds === undefined ? [] : await checkHelpers(workspaceId, null, input.helperAgentIds);
+  const helpers = input.helperAgentIds === undefined ? [] : await checkHelpers(userId, workspaceId, null, input.helperAgentIds);
   const created = await db.transaction(async (tx) => {
     const [{ n }] = await tx
       .select({ n: count() })
@@ -227,17 +227,24 @@ export async function createAgent(userId: string, workspaceId: string, input: Ag
       })
       .returning();
     if (helpers.length) await saveHelpers(tx, id, helpers);
+    await shareNewAgent(tx, agent, userId);
     return agent;
   });
   await recordAudit({ workspaceId, actorId: userId, action: "agent.created", target: { type: "user", id: created.userId, label: name }, details: auditDetails(created) });
   await recordAgentVersion(userId, created.id, "created");
-  return viewAgent(created);
+  return viewAgent(created, "full");
 }
 
-/** Changes an agent; what `patch` leaves out stays as it was. */
+/**
+ * Changes an agent, for those who can edit it; what `patch` leaves out stays as it was. Only owners
+ * change its monthly token limit (the same limit sent back is no change).
+ */
 export async function updateAgent(userId: string, agentId: string, patch: AgentInput): Promise<AgentView> {
-  const current = await ownedAgent(userId, agentId);
+  const { agent: current, level, owner } = await agentWithLevel(userId, agentId, "edit");
   if (current.archivedAt) throw new AgentError("archived", "Restore the agent to change it");
+  if (patch.monthlyTokenLimit !== undefined && patch.monthlyTokenLimit !== current.monthlyTokenLimit && !owner) {
+    throw new AgentError("ownersOnly", "Only the workspace's owners set an agent's monthly token limit");
+  }
   const set: Partial<Agent> = {};
   if (patch.name !== undefined) set.name = checkName(patch.name);
   if (patch.icon !== undefined) set.icon = checkIcon(patch.icon);
@@ -248,9 +255,9 @@ export async function updateAgent(userId: string, agentId: string, patch: AgentI
   if (patch.monthlyTokenLimit !== undefined) set.monthlyTokenLimit = checkLimit(patch.monthlyTokenLimit);
   if (patch.model !== undefined) set.model = checkModel(patch.model);
   const helpersBefore = (await helperIdsOf([agentId])).get(agentId) ?? [];
-  const helpers = patch.helperAgentIds === undefined ? helpersBefore : await checkHelpers(current.workspaceId, agentId, patch.helperAgentIds);
+  const helpers = patch.helperAgentIds === undefined ? helpersBefore : await checkHelpers(userId, current.workspaceId, agentId, patch.helperAgentIds, helpersBefore);
   const helpersChanged = helpers.join() !== helpersBefore.join();
-  if (!Object.keys(set).length && !helpersChanged) return viewAgent(current);
+  if (!Object.keys(set).length && !helpersChanged) return viewAgent(current, level);
   const updated = await db.transaction(async (tx) => {
     if (helpersChanged) await saveHelpers(tx, agentId, helpers);
     if (!Object.keys(set).length) return current;
@@ -272,7 +279,7 @@ export async function updateAgent(userId: string, agentId: string, patch: AgentI
     },
   });
   await recordAgentVersion(userId, agentId);
-  return viewAgent(updated);
+  return viewAgent(updated, level);
 }
 
 /**
@@ -280,8 +287,8 @@ export async function updateAgent(userId: string, agentId: string, patch: AgentI
  * and leaves the lists. Its user stays, so its edits and comments keep its name.
  */
 export async function archiveAgent(userId: string, agentId: string): Promise<AgentView> {
-  const current = await ownedAgent(userId, agentId);
-  if (current.archivedAt) return viewAgent(current);
+  const { agent: current } = await agentWithLevel(userId, agentId, "full");
+  if (current.archivedAt) return viewAgent(current, "full");
   const archived = await db.transaction(async (tx) => {
     const [agent] = await tx
       .update(workspaceAgent)
@@ -311,13 +318,13 @@ export async function archiveAgent(userId: string, agentId: string): Promise<Age
     return agent;
   });
   await recordAudit({ workspaceId: current.workspaceId, actorId: userId, action: "agent.archived", target: { type: "user", id: current.userId, label: current.name }, details: auditDetails(archived) });
-  return viewAgent(archived);
+  return viewAgent(archived, "full");
 }
 
 /** Brings an archived agent back, paused and with nothing shared with it. */
 export async function restoreAgent(userId: string, agentId: string): Promise<AgentView> {
-  const current = await ownedAgent(userId, agentId);
-  if (!current.archivedAt) return viewAgent(current);
+  const { agent: current } = await agentWithLevel(userId, agentId, "full");
+  if (!current.archivedAt) return viewAgent(current, "full");
   const [{ n }] = await db
     .select({ n: count() })
     .from(workspaceAgent)
@@ -325,17 +332,17 @@ export async function restoreAgent(userId: string, agentId: string): Promise<Age
   if (n >= MAX_AGENTS) throw new AgentError("tooMany", `A workspace has at most ${MAX_AGENTS} agents`, { max: String(MAX_AGENTS) });
   const [restored] = await db.update(workspaceAgent).set({ archivedAt: null, enabled: false }).where(eq(workspaceAgent.id, agentId)).returning();
   await recordAudit({ workspaceId: current.workspaceId, actorId: userId, action: "agent.updated", target: { type: "user", id: current.userId, label: current.name }, details: { ...auditDetails(restored), restored: true } });
-  return viewAgent(restored);
+  return viewAgent(restored, "full");
 }
 
 // ------------------------------------------------------------------------------------ access
 
 /**
- * The pages shared with an agent that the owner asking can open themselves (pages they can't
+ * The pages shared with an agent that the person asking can open themselves (pages they can't
  * open are only counted, the way other lists keep restricted pages out of sight).
  */
 export async function listAgentAccess(userId: string, agentId: string): Promise<{ pages: AgentAccessView[]; hidden: number }> {
-  const agent = await ownedAgent(userId, agentId);
+  const agent = await agentFor(userId, agentId, "interact");
   const entries = await db
     .select({ pageId: pagePermission.pageId, level: pagePermission.level })
     .from(pagePermission)
@@ -362,23 +369,23 @@ export async function listAgentAccess(userId: string, agentId: string): Promise<
 }
 
 /**
- * Shares a page (and the pages and rows under it) with an agent. The owner needs full access to
- * the page, as for sharing it with anyone. Rows are reached through their database: an agent
+ * Shares a page (and the pages and rows under it) with an agent, for those who can edit the agent.
+ * They need full access to the page, as for sharing it with anyone. Rows are reached through their database: an agent
  * reads and changes a row only with access to its database too.
  */
 export async function setAgentAccess(userId: string, agentId: string, pageId: string, level: AgentAccessLevel) {
-  const agent = await ownedAgent(userId, agentId);
+  const agent = await agentFor(userId, agentId, "edit");
   if (agent.archivedAt) throw new AgentError("archived", "Restore the agent to share pages with it");
   if (!isAgentAccessLevel(level)) throw new AgentError("invalid", "An agent can view, comment on or edit a page", { reason: "level" });
   const { page: found } = await pageAccessOf(userId, pageId);
   if (!found || found.workspaceId !== agent.workspaceId) throw new AgentError("notAPage", "Page not found");
   await setPagePermission(userId, pageId, agent.userId, level);
-  // An owner set it: it's theirs now, no longer taken back with the automations.
+  // Someone set it: it's theirs now, no longer taken back with the automations.
   await forgetDatabaseShare(agent.id, pageId);
 }
 
 export async function removeAgentAccess(userId: string, agentId: string, pageId: string) {
-  const agent = await ownedAgent(userId, agentId);
+  const agent = await agentFor(userId, agentId, "edit");
   await removePagePermission(userId, pageId, agent.userId);
   await forgetDatabaseShare(agent.id, pageId);
 }
@@ -438,30 +445,39 @@ export async function releaseDatabaseFromAgents(userId: string, databaseId: stri
 // -------------------------------------------------------------------------------------- runs
 
 /**
- * An agent's latest runs, newest first. `exact`: a waiting call's input as it will be sent, for
- * the app's runs, where an owner approves it; otherwise (MCP, which can't approve) masked.
+ * SQL: runs `userId` started themselves (asked for, scheduled, mentioned the agent in, chatted):
+ * all of an agent's runs that someone who can only interact with it sees.
+ */
+const startedBy = (userId: string) =>
+  sql`(${agentRun.source}->>'requestedBy' = ${userId} or ${agentRun.source}->>'scheduledBy' = ${userId} or ${agentRun.source}->>'mentionedBy' = ${userId} or (${agentRun.source}->>'kind' = 'chat' and ${agentRun.source}->>'userId' = ${userId}))`;
+
+/**
+ * An agent's latest runs, newest first: all of them for those who can edit it, only their own for
+ * those who can only interact with it; what each run did as viewRuns shows it to them. `exact`: a
+ * waiting call's input as it will be sent, for the app's runs, where an owner approves it;
+ * otherwise (MCP, which can't approve, and anyone but an owner) masked.
  */
 export async function listAgentRuns(userId: string, agentId: string, limit = 30, { exact = false }: { exact?: boolean } = {}): Promise<AgentRunView[]> {
-  const agent = await ownedAgent(userId, agentId);
+  const { agent, level, owner } = await agentWithLevel(userId, agentId, "interact");
   const runs = await db
     .select()
     .from(agentRun)
-    .where(eq(agentRun.agentId, agent.id))
+    .where(and(eq(agentRun.agentId, agent.id), level === "interact" ? startedBy(userId) : undefined))
     .orderBy(desc(agentRun.createdAt))
     .limit(Math.min(Math.max(limit, 1), 100));
-  return viewRuns(userId, runs, exact);
+  return viewRuns(userId, runs, exact && owner);
 }
 
-/** One of an agent's runs, for its owners, as listAgentRuns shows it. */
+/** One of an agent's runs, as listAgentRuns shows it. */
 export async function getAgentRun(userId: string, agentId: string, runId: string, { exact = false }: { exact?: boolean } = {}): Promise<AgentRunView> {
-  const agent = await ownedAgent(userId, agentId);
+  const { agent, level, owner } = await agentWithLevel(userId, agentId, "interact");
   const [run] = await db
     .select()
     .from(agentRun)
-    .where(and(eq(agentRun.id, runId), eq(agentRun.agentId, agent.id)))
+    .where(and(eq(agentRun.id, runId), eq(agentRun.agentId, agent.id), level === "interact" ? startedBy(userId) : undefined))
     .limit(1);
   if (!run) throw new AgentError("notFound", "Run not found");
-  return (await viewRuns(userId, [run], exact))[0];
+  return (await viewRuns(userId, [run], exact && owner))[0];
 }
 
 /** Runs as `userId` may see them (see listAgentRuns). */

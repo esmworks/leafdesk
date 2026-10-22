@@ -1,9 +1,9 @@
 /**
- * Drafting an agent from what an owner says it should do: the AI writes its name, description and
- * instructions, picks the pages and databases it needs (only ones the owner may share, see
- * draftCandidates) at the least access that does the job, and suggests when it runs: schedules,
- * and automations on a database. Nothing is saved: the draft opens the creation dialog, where the
- * owner changes what they like, and creating it (createAgentFromDraft) makes the agent and sets up
+ * Drafting an agent from what someone who may create agents says it should do: the AI writes its
+ * name, description and instructions, picks the pages and databases it needs (only ones they may
+ * share, see draftCandidates) at the least access that does the job, and suggests when it runs:
+ * schedules, and automations on a database. Nothing is saved: the draft opens the creation dialog, where the
+ * person changes what they like, and creating it (createAgentFromDraft) makes the agent and sets up
  * the shares, schedules and automations they kept.
  *
  * The request counts as the agents' AI usage ("agent.draft") and is held to the workspace's AI
@@ -22,7 +22,6 @@ import {
   type DraftTrigger,
 } from "@/lib/agent-draft";
 import { isTimeZone } from "@/lib/time-zone";
-import { requireMembership } from "@/server/access";
 import { AiError, complete } from "@/server/ai";
 import { agentDraftPrompt } from "@/server/ai/prompts";
 import { aiAvailable } from "@/server/ai-writing";
@@ -30,6 +29,7 @@ import { createAutomation, deleteAutomation, type AutomationInput } from "@/serv
 import { knownProperties } from "@/server/databases";
 import { fullTextSearch, getTree, recentPages } from "@/server/pages";
 import { AgentError, archiveAgent, createAgent, setAgentAccess, type AgentInput } from "./manage";
+import { requireAgentCreator } from "./sharing";
 import { removeAgentSchedule, setAgentSchedule } from "./schedules";
 
 /** Pages and databases offered to the AI at most, and databases whose properties it is told. */
@@ -101,12 +101,12 @@ export async function draftAgentWith(request: {
 }
 
 /**
- * A draft of an agent doing what `description` says, for an owner of the workspace (those who may
- * create agents). Throws AccessError for anyone else, AiError when the workspace has no AI or the
- * request fails.
+ * A draft of an agent doing what `description` says, for those who may create agents in the
+ * workspace (owners, and members when its setting lets them). Throws AccessError for anyone else,
+ * AiError when the workspace has no AI or the request fails.
  */
 export async function draftAgent(userId: string, workspaceId: string, description: string, { signal }: { signal?: AbortSignal } = {}): Promise<AgentDraft> {
-  await requireMembership(userId, workspaceId, "owner");
+  await requireAgentCreator(userId, workspaceId);
   const text = typeof description === "string" ? description.trim().slice(0, MAX_AGENT_REQUEST) : "";
   if (!text) throw new AiError("invalid", "Describe what the agent should do");
   if (!(await aiAvailable(workspaceId))) throw new AiError("disabled", "AI is off for this workspace");

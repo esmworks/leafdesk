@@ -29,9 +29,10 @@
  * within the same limit, and waiting for an owner before each call where every connection tool does.
  *
  * A person's message in a chat with the agent (lib/agent-chat.ts) is a run too, held to that
- * person's access: an owner's may also change pages at once (WRITE_TOOLS, within MAX_AGENT_WRITES)
- * and calls connections' tools as an owner's request does; anyone else's only reads, with no tool
- * that changes something offered at all. Its answer goes to the conversation when it ends
+ * person's access: the run of someone who can edit the agent (an owner, or someone it is shared
+ * with at full access or can edit, see sharing.ts) may also change pages at once (WRITE_TOOLS,
+ * within MAX_AGENT_WRITES) and calls connections' tools as a request does; anyone else's only
+ * reads, with no tool that changes something offered at all. Its answer goes to the conversation when it ends
  * (chat-store.ts).
  *
  * The notes its owners kept from earlier runs go with each run (memory.ts). A run whose input a
@@ -48,6 +49,7 @@ import { and, eq, inArray, isNotNull, isNull, lte, not, or, sql } from "drizzle-
 import { db } from "@/db";
 import { agentRun, connection, connectionEvent, connectionTrigger, notification, page, user, workspaceAgent, type AgentRunState } from "@/db/schema";
 import {
+  accessSource,
   AGENT_RUN_HISTORY_DAYS,
   AGENT_RUN_TIMEOUT_MS,
   isEventRun,
@@ -69,11 +71,12 @@ import {
   type AgentStepRecord,
   WEB_TOOL_NAMES,
 } from "@/lib/agents";
+import { hasAgentLevel } from "@/lib/agent-sharing";
 import { APPROVAL_TIMEOUT_MS, CONNECTION_EVENT_DAYS, MAX_RUN_EXTERNAL_CHARS } from "@/lib/connections";
 import { pageLabel } from "@/lib/labels";
 import { redactError, redactText, redactValue } from "@/lib/redact";
 import { threadBefore } from "@/lib/comments";
-import { AccessError, findMembership, hasLevel, inWorkspace, isGuest, pageAccessOf } from "@/server/access";
+import { AccessError, findMembership, hasLevel, inWorkspace, pageAccessOf } from "@/server/access";
 import { runActingFor } from "@/server/acting-for";
 import { aiConfig, AiError, complete, isAiError, promptRoomFor, takeWorkspaceCapacity, type AiMessage, type AiResult, type AiTool, type AiToolCall } from "@/server/ai";
 import { agentChatPrompt, agentEventPrompt, agentMentionPrompt, agentRequestPrompt, agentSchedulePrompt, agentSystemPrompt, agentTaskPrompt } from "@/server/ai/prompts";
@@ -94,10 +97,12 @@ import type * as ops from "@/server/operations";
 import { runClock } from "./clock";
 import { ASK_AGENT, handoffEventText, handoffFor, handoffHold } from "./handoff";
 import { chatRunHistory, closeChatTurn } from "./chat-store";
+import { approversOf } from "./approvers";
 import { agentsWorker } from "./kick";
 import { AGENT_MEMORY_TOOL_NAMES, AGENT_MEMORY_TOOLS, runAgentMemoryTool } from "./memory";
 import { agentSkillRoom, runSkills } from "./skills";
 import { runWebTool, webToolsFor } from "./web";
+import { agentLevel } from "./sharing";
 import { addAgentUsage, overMonthlyLimit, pruneAgentUsage } from "./usage";
 import { pruneAiUsage } from "@/server/ai/usage-store";
 import { dropOldToolResults } from "@/server/ai/compact";
@@ -355,21 +360,21 @@ export async function processRun(run: Run): Promise<void> {
   // too (turning it off holds back the calls of runs already under way). A trigger since removed
   // isn't trusted.
   let trusted = false;
-  // A run an owner asked for (or set a schedule for) is held to their access, and stands behind
-  // what it reads as they do; only owners ask for runs and set schedules, so one whose owner is no
-  // longer an owner opens nothing.
+  // A run someone asked for (or set a schedule for) is held to their access, and stands behind what
+  // it reads as they do; only those who can edit the agent (sharing.ts) ask for runs and set
+  // schedules, so one whose asker can no longer edit it opens nothing.
   if (run.source.kind === "request" || run.source.kind === "schedule") {
-    const ownerId = run.source.kind === "request" ? run.source.requestedBy : run.source.scheduledBy;
-    const asker = await findMembership(ownerId, run.workspaceId);
-    if (asker?.role !== "owner") return finish(run, { status: "failed", code: "noAccess" });
-    member = bound = ownerId;
+    const askerId = run.source.kind === "request" ? run.source.requestedBy : run.source.scheduledBy;
+    const asker = await findMembership(askerId, run.workspaceId);
+    if (!asker || !hasAgentLevel(await agentLevel(askerId, agent, asker.role), "edit")) return finish(run, { status: "failed", code: "noAccess" });
+    member = bound = askerId;
     trusted = true;
   } else if (isMentionRun(run.source)) {
     // A member mentioned the agent: it works within their access, and they stand behind the task.
     // Asked again each time, so one who left the workspace or became a guest since opens nothing.
     const { mentionedBy, pageId } = run.source;
     const mentioner = await findMembership(mentionedBy, run.workspaceId);
-    if (!mentioner || isGuest(mentioner.role)) return finish(run, { status: "failed", code: "noAccess" });
+    if (!mentioner || (await agentLevel(mentionedBy, agent, mentioner.role)) === "none") return finish(run, { status: "failed", code: "noAccess" });
     member = bound = mentionedBy;
     trusted = true;
     const [target] = await db.select({ archivedAt: page.archivedAt }).from(page).where(eq(page.id, pageId));
@@ -385,15 +390,16 @@ export async function processRun(run: Run): Promise<void> {
     member = bound = held.bound;
     trusted = held.trusted;
   }
-  // A chat's run is held to the person who wrote, while they are in the workspace and not a guest;
-  // only an owner's may change things.
+  // A chat's run is held to the person who wrote, while the agent is still shared with them; only
+  // the run of someone who can edit the agent may change things.
   let chatWrites = false;
   if (run.source.kind === "chat") {
     const writer = await findMembership(run.source.userId, run.workspaceId);
-    if (!writer || writer.role === "guest") return finish(run, { status: "failed", code: "noAccess" });
+    const level = writer ? await agentLevel(run.source.userId, agent, writer.role) : "none";
+    if (level === "none") return finish(run, { status: "failed", code: "noAccess" });
     member = bound = run.source.userId;
     trusted = true;
-    chatWrites = writer.role === "owner";
+    chatWrites = hasAgentLevel(level, "edit");
   }
   const databaseId = scheduledDatabase(run.source);
   if (databaseId) {
@@ -526,8 +532,13 @@ async function converse(
   // wait for agents it asks.
   const clock = runClock(databaseId ? SCHEDULED_RUN_TIMEOUT_MS : AGENT_RUN_TIMEOUT_MS);
   const signal = clock.signal;
-  // A read-only chat isn't offered connections' tools that change something.
-  const toolset = await agentToolset(agent.id, { writes: !chat || chatWrites });
+  // A read-only chat isn't offered connections' tools that change something. Nor is a run held to
+  // someone no owner answers for (one someone who isn't an owner asked for, set or chats in,
+  // approvers.ts): each such call waits for an owner, and would only run out of time.
+  const heldTo = accessSource(run.source);
+  const heldToPerson = heldTo.kind === "chat" || heldTo.kind === "request" || (isScheduleRun(heldTo) && !heldTo.databaseId);
+  const unanswered = heldToPerson && (await approversOf(run)).length === 0;
+  const toolset = await agentToolset(agent.id, { writes: (!chat || chatWrites) && !unanswered });
   const connections = [...new Set([...toolset.byName.values()].map((e) => e.connection.name))];
   // What a run reads that no one in the workspace stands behind could fill the owners' review with
   // its own notes: such a run proposes none.

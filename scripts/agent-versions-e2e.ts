@@ -2,8 +2,8 @@
  * End-to-end check of versions of an agent's setup against the database: making an agent, changing
  * its settings, skills, schedules and the pages shared with it each keep a version; a person's saves
  * within two minutes of each other make one, someone else's or a later one a new one, a save that
- * changes nothing none; an agent keeps its last 50; owners (only) see how a version differs from now
- * and bring it back: settings, skills, schedules and shares as they were, pages deleted or in the
+ * changes nothing none; an agent keeps its last 50; those it is shared with see how a version
+ * differs from now, and those who can edit it bring it back: settings, skills, schedules and shares as they were, pages deleted or in the
  * trash since and settings no longer valid skipped and listed, a version and an audit entry made; an
  * archived agent can't be; the baseline the migration makes for agents made before reads as the app
  * reads a setup; sharing a page with the agent from the page's Share menu counts, an automation
@@ -159,9 +159,9 @@ try {
   check(versions.length === 3, "changing back within the window leaves nothing of that version", versions.map((v) => v.number));
 
   // ── Who sees them ───────────────────────────────────────────────────────────────────────────
-  check((await codeOf(listAgentVersions(ids.member, router.id))) === "notFound", "members can't list an agent's versions");
-  check((await codeOf(getAgentVersion(ids.member, router.id, 1))) === "notFound", "…or see one");
-  check((await codeOf(restoreAgentVersion(ids.member, router.id, 1))) === "notFound", "…or restore one");
+  check((await listAgentVersions(ids.member, router.id)).length === 3, "a member it is shared with to view and interact lists its versions");
+  check((await getAgentVersion(ids.member, router.id, 1)).version.number === 1, "…and sees one");
+  check((await codeOf(restoreAgentVersion(ids.member, router.id, 1))) === "notAllowed", "…but doesn't restore one");
   check((await codeOf(getAgentVersion(ids.owner, router.id, 99))) === "versionNotFound", "a version it doesn't have isn't found");
 
   const listed = await listAgentVersions(ids.owner, router.id);

@@ -158,14 +158,16 @@ try {
   const [membership] = await db.select().from(workspaceMember).where(and(eq(workspaceMember.userId, router.userId), eq(workspaceMember.workspaceId, workspaceId)));
   check(membership?.role === "guest", "…and is a guest of the workspace", membership);
   check((await pageAccessOf(router.userId, tickets.id)).level === "none" && (await pageAccessOf(router.userId, faq.id)).level === "none", "a new agent can open nothing, not even the default teamspace's pages");
-  check((await agents.listAgents(ids.member, workspaceId)).some((a) => a.id === router.id), "members list the agents (to pick one in an automation)");
+  check((await agents.listAgents(ids.member, workspaceId)).some((a) => a.id === router.id), "members list the agents (a new one is shared with everyone)");
   check(
-    (await agents.listAgents(ids.member, workspaceId)).every((a) => a.instructions === "") &&
-      (await agents.listAgents(ids.owner, workspaceId)).some((a) => a.instructions.length > 0),
-    "…without their instructions, which only owners see",
+    (await agents.listAgents(ids.member, workspaceId)).every((a) => a.access === "interact" && a.instructions.length > 0),
+    "…to view and interact with, instructions included",
   );
   check(await fails(agents.listAgents(ids.guest, workspaceId), isAccess), "guests don't");
-  check(await fails(agents.updateAgent(ids.member, router.id, { name: "x" }), isAccess), "only owners change an agent");
+  check(
+    await fails(agents.updateAgent(ids.member, router.id, { name: "x" }), (e) => e instanceof agents.AgentError && e.code === "notAllowed"),
+    "only those who can edit an agent change it",
+  );
   const renamed = await agents.updateAgent(ids.owner, router.id, { name: "Ticket triager" });
   const [botAfter] = await db.select({ name: user.name }).from(user).where(eq(user.id, router.userId));
   check(renamed.name === "Ticket triager" && botAfter.name === "Ticket triager", "renaming an agent renames its user", botAfter);
@@ -306,7 +308,7 @@ try {
   check(reacted.length === 0, "the agent's change sets off no automation", reacted.length);
   const history = await agents.listAgentRuns(ids.owner, router.id);
   check(history.length === 1 && history[0].rowTitle?.startsWith("I want a refund") === true, "the agent's history lists the run with its row", history);
-  check(await fails(agents.listAgentRuns(ids.member, router.id), isAccess), "only owners see an agent's history");
+  check((await agents.listAgentRuns(ids.member, router.id)).length === 0, "those who can only view and interact see their own runs alone, not this one");
   const hiddenRow = await createPage({ userId: ids.member }, { workspaceId, teamspaceId: null, title: "Member's private row" });
   check((await pageAccessOf(ids.owner, hiddenRow.id)).level === "none", "(an owner can't open a member's private page)");
   const [hiddenRun] = await db

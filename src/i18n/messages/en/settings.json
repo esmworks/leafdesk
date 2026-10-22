@@ -297,7 +297,7 @@
   "agents": {
     "heading": "Agents",
     "description": "Agents are AI helpers with instructions of their own. An automation runs one on a database’s rows: it reads only what is shared with it, changes the row and comments on it, under its own name.",
-    "ownersOnly": "Only workspace owners can create and change agents.",
+    "ownersOnly": "Only workspace owners can create agents.",
     "newButton": "New agent",
     "tabs": {
       "active": "Agents",
@@ -360,7 +360,8 @@
       "helpers": "Agents it can ask",
       "helpersHelp": "During a run it can hand part of its task to these agents, up to {max} times, and use their answers. Each works with its own access, tools and limits, and can’t ask other agents in turn.",
       "helpersEmpty": "There are no other agents in this workspace yet.",
-      "helperPaused": "Paused"
+      "helperPaused": "Paused",
+      "limitOwnersOnly": "Only workspace owners set this limit."
     },
     "describe": {
       "button": "Describe an agent",
@@ -560,7 +561,9 @@
         "limitReached": "Couldn’t ask <agent></agent>: it has used its monthly token limit"
       },
       "fromChat": "A chat message from {name}",
-      "chattedBy": "chat by {name}"
+      "chattedBy": "chat by {name}",
+      "yoursOnly": "You see the runs you started.",
+      "waitingForOwner": "A workspace owner answers this call."
     },
     "usage": {
       "thisMonth": "This month: {usage}",
@@ -640,7 +643,7 @@
       "tooManySkills": "An agent can have at most {max} skills.",
       "skillEditable": "Someone besides the workspace owners can edit “{title}”. An agent only follows skills that just owners can change: limit who can edit the page first.",
       "notASkill": "This page isn’t a skill.",
-      "accessDenied": "Only workspace owners can change agents.",
+      "accessDenied": "You don’t have permission to do this.",
       "reasons": {
         "name": "Give the agent a name.",
         "icon": "An agent’s icon is an emoji.",
@@ -655,7 +658,8 @@
         "task": "Write the task it does on each run.",
         "taskLength": "A task can have at most 2,000 characters.",
         "repeat": "Check when it repeats and its time zone.",
-        "helpers": "Choose up to 10 other agents of this workspace that aren’t archived."
+        "helpers": "Choose up to 10 other agents of this workspace that aren’t archived.",
+        "shareLevel": "Choose full access, can edit or can view & interact."
       },
       "noteEmpty": "Write what the agent should remember.",
       "noteTooLong": "A note can have at most {max} characters.",
@@ -669,14 +673,19 @@
       "notADatabase": "Choose a database of this workspace that you can open.",
       "tooManySchedules": "There's no room for another schedule (at most {max}).",
       "scheduleNotFound": "This schedule no longer exists.",
-      "versionNotFound": "This version no longer exists."
+      "versionNotFound": "This version no longer exists.",
+      "notAllowed": "Your access to this agent doesn’t allow this.",
+      "ownersOnly": "Only workspace owners change an agent’s monthly token limit.",
+      "notAMember": "An agent can be shared only with the workspace’s owners, members and groups."
     },
     "connections": {
       "description": "The tools of each connection this agent may use. Tools that only read run at once, except on a row from an anonymous form answer; any other waits for an owner’s approval every time the agent calls it.",
       "empty": "No connections yet. Owners add them in <link>Settings › Connections</link>.",
       "allowedCount": "{n} of {total} allowed",
       "notReady": "This connection isn’t ready (it needs a sign-in or fails), so the agent can’t use its tools for now.",
-      "noTools": "No tools listed yet."
+      "noTools": "No tools listed yet.",
+      "ownersChoose": "The tools of each connection this agent may use. Only workspace owners choose them.",
+      "none": "This agent can’t use any connection’s tools."
     },
     "schedules": {
       "description": "Let this agent run on its own, on a schedule: each run does the task, on the database you choose if any, and you get its report in your inbox. Its runs can open only what you can open.",
@@ -797,6 +806,40 @@
         "skillEditable": "someone besides the owners can edit it",
         "tooMany": "there’s no room for it"
       }
+    },
+    "share": {
+      "levels": {
+        "full": "Full access",
+        "edit": "Can edit",
+        "interact": "Can view & interact",
+        "none": "No access"
+      },
+      "button": "Share",
+      "description": "Who can use this agent, and what they can do with it.",
+      "levelHelp": {
+        "full": "Everything, including sharing and archiving it",
+        "edit": "Change its settings, pages, skills, memory and schedules",
+        "interact": "See it, chat with it and mention it in comments"
+      },
+      "add": "Add people or groups",
+      "noMatches": "No one matches.",
+      "list": "Shared with",
+      "owners": "Workspace owners",
+      "ownersHint": "Always have full access",
+      "everyone": "Everyone in the workspace",
+      "everyoneHint": "Owners and members, not guests",
+      "levelFor": "Access for {name}",
+      "remove": "Remove {name}",
+      "readOnly": "Only people with full access change who this agent is shared with.",
+      "archived": "Restore the agent to change who it is shared with.",
+      "ownersKeep": "Which connections’ tools it may use and its monthly token limit stay with the workspace’s owners.",
+      "groupMembers": "{count, plural, =0 {Group with no members} one {Group of # member} other {Group of # members}}"
+    },
+    "viewOnly": "You can view this agent, chat with it and mention it. To change it, ask someone who can edit it.",
+    "creation": {
+      "title": "Only workspace owners can create agents",
+      "description": "Off: members can create agents too, and get full access to the ones they create. Guests never can.",
+      "ownersOnly": "Only workspace owners can change this."
     }
   },
   "analytics": {
@@ -1415,7 +1458,8 @@
       "allowedDomains": "Allowed email domains",
       "domainJoin": "When someone from these domains signs in",
       "joinRequests": "Who can ask to join",
-      "email": "Email on rows"
+      "email": "Email on rows",
+      "agentCreation": "Who can create agents"
     },
     "values": {
       "on": "On",
@@ -1549,7 +1593,9 @@
         "archived": "Archived the agent “{target}”",
         "run_requested": "Asked the agent “{target}” for a run",
         "schedule_set": "Set a schedule for the agent “{target}”",
-        "schedule_removed": "Deleted a schedule of the agent “{target}”"
+        "schedule_removed": "Deleted a schedule of the agent “{target}”",
+        "shared": "Set the access of {subject} to the agent “{target}”: {level}",
+        "unshared": "Removed {subject} from the sharing of the agent “{target}”"
       },
       "connection": {
         "created": "Added the connection “{target}”",
@@ -1585,6 +1631,11 @@
     "outcomes": {
       "done": "done",
       "failed": "failed"
+    },
+    "agentLevels": {
+      "full": "Full access",
+      "edit": "Can edit",
+      "interact": "Can view & interact"
     }
   },
   "notifications": {

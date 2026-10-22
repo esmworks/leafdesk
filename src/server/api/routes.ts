@@ -7,6 +7,7 @@ import { AccessError } from "@/server/access";
 import { helperIdsOf } from "@/server/agents/helpers";
 import * as agents from "@/server/agents/manage";
 import { requestAgentRun } from "@/server/agents/requests";
+import { agentSharing, removeAgentShare, setAgentShare } from "@/server/agents/sharing";
 import { listAgentSchedules, removeAgentSchedule, setAgentSchedule } from "@/server/agents/schedules";
 import { usageMonthsOf } from "@/server/agents/usage";
 import {
@@ -15,6 +16,7 @@ import {
   describeAgentRun,
   describeAgentSchedule,
   describeAgentSummary,
+  describeSharing,
   describeUsageMonth,
   toAgentPatch,
   toScheduleInput,
@@ -86,7 +88,7 @@ function requireWorkspace(principal: ApiPrincipal, workspaceId: string) {
   if (principal.workspaceId && principal.workspaceId !== workspaceId) throw new AccessError();
 }
 
-/** The agent, for an owner of its workspace (refused for a token of another workspace). */
+/** The agent, for someone it is shared with (refused for a token of another workspace); each route's own call checks the level it needs. */
 async function ownedAgentFor(principal: ApiPrincipal, agentId: string) {
   if (principal.workspaceId) {
     const [row] = await db.select({ workspaceId: workspaceAgent.workspaceId }).from(workspaceAgent).where(eq(workspaceAgent.id, agentId)).limit(1);
@@ -717,7 +719,7 @@ export const API_ROUTES: ApiRoute[] = [
     tag: "Agents",
     summary: "List agents",
     description:
-      "The agents of a workspace: AI helpers with instructions of their own, each acting as a user of its own (`user_id`, what its changes and comments show). Owners and members can list them (members get them without instructions); guests can't.",
+      "The agents of a workspace: AI helpers with instructions of their own, each acting as a user of its own (`user_id`, what its changes and comments show). Owners list every agent; members the agents shared with them, with their access to each (`your_access`); guests can't.",
     scope: "pages:read",
     query: z.object({
       include_archived: z
@@ -740,7 +742,7 @@ export const API_ROUTES: ApiRoute[] = [
     operationId: "getAgent",
     tag: "Agents",
     summary: "Read an agent",
-    description: "An agent's settings, instructions and monthly token limit, and what its runs used this month. Workspace owners only.",
+    description: "An agent's settings, instructions and monthly token limit, what its runs used this month, and the token's user's access to it (`your_access`). Workspace owners read every agent; others those shared with them.",
     scope: "pages:read",
     response: "Agent",
     handler: async ({ principal, params }) => {
@@ -754,7 +756,7 @@ export const API_ROUTES: ApiRoute[] = [
     tag: "Agents",
     summary: "Update an agent",
     description:
-      "Changes an agent's name, icon, description, instructions, whether it is enabled (false pauses it: its queued runs end without doing anything), whether it may read the web (`web_access`), its monthly token limit (null removes it), the model its runs use (`main`, or `fast` for the server's cheaper fast model) or the other agents it can hand part of a task to (`helper_agent_ids`, the whole list; `[]` clears it); fields left out keep their values. Workspace owners only; an archived agent can't change.",
+      "Changes an agent's name, icon, description, instructions, whether it is enabled (false pauses it: its queued runs end without doing anything), whether it may read the web (`web_access`), its monthly token limit (null removes it), the model its runs use (`main`, or `fast` for the server's cheaper fast model) or the other agents it can hand part of a task to (`helper_agent_ids`, the whole list; `[]` clears it); fields left out keep their values. Needs edit access to the agent (workspace owners always have it); only owners change the monthly token limit (403 otherwise). An archived agent can't change.",
     scope: "pages:write",
     body: agentInputs.update.omit({ agent_id: true }),
     response: "Agent",
@@ -770,7 +772,7 @@ export const API_ROUTES: ApiRoute[] = [
     tag: "Agents",
     summary: "Start a run",
     description:
-      "Asks the agent to do a task now. The run is queued and done in the background, held to what the token's user can open as well as what is shared with the agent: on a row (`row_id`) it may change and comment on that row; on none it only reads and answers. Read how it went with the run's endpoint. Workspace owners only. Answers 409 when the agent is paused or archived or AI is off (`agent_unavailable`), when it used its monthly token limit (`limit_reached`), or when too many runs asked of it still wait (`too_many_runs`). Each run uses the workspace's AI allowance.",
+      "Asks the agent to do a task now. The run is queued and done in the background, held to what the token's user can open as well as what is shared with the agent: on a row (`row_id`) it may change and comment on that row; on none it only reads and answers. Read how it went with the run's endpoint. Needs edit access to the agent (workspace owners always have it). Answers 409 when the agent is paused or archived or AI is off (`agent_unavailable`), when it used its monthly token limit (`limit_reached`), or when too many runs asked of it still wait (`too_many_runs`). Each run uses the workspace's AI allowance.",
     scope: "pages:write",
     body: agentInputs.run.omit({ agent_id: true }),
     status: 201,
@@ -789,7 +791,7 @@ export const API_ROUTES: ApiRoute[] = [
     tag: "Agents",
     summary: "List an agent's runs",
     description:
-      "An agent's latest runs, newest first (finished ones are kept 30 days): what started each, its status and failure code, its steps, final answer and the tokens it used. What a run read and wrote on a row the user can't open is left out. Workspace owners only.",
+      "An agent's latest runs, newest first (finished ones are kept 30 days): what started each, its status and failure code, its steps, final answer and the tokens it used. What a run read and wrote on a row the user can't open is left out. For anyone the agent is shared with; someone who can only interact with it gets only the runs they started.",
     scope: "pages:read",
     query: z.object({ limit: limitInput(100, 20) }),
     response: "AgentRunList",
@@ -805,7 +807,7 @@ export const API_ROUTES: ApiRoute[] = [
     operationId: "getAgentRun",
     tag: "Agents",
     summary: "Read a run",
-    description: "One of an agent's runs, as the list shows it: poll it after starting a run until its status is done or failed. Workspace owners only.",
+    description: "One of an agent's runs, as the list shows it: poll it after starting a run until its status is done or failed. For anyone the agent is shared with, as the list shows runs to them.",
     scope: "pages:read",
     response: "AgentRun",
     handler: async ({ principal, params }) => {
@@ -821,7 +823,7 @@ export const API_ROUTES: ApiRoute[] = [
     tag: "Agents",
     summary: "An agent's usage",
     description:
-      "The tokens, cost and runs an agent used by calendar month (UTC), this month first, for the last 12 months it ran in. `cost_usd` is 0 where the AI provider names no price. Workspace owners only.",
+      "The tokens, cost and runs an agent used by calendar month (UTC), this month first, for the last 12 months it ran in. `cost_usd` is 0 where the AI provider names no price. For anyone the agent is shared with.",
     scope: "pages:read",
     response: "AgentUsage",
     handler: async ({ principal, params }) => {
@@ -837,7 +839,7 @@ export const API_ROUTES: ApiRoute[] = [
     tag: "Agents",
     summary: "List an agent's schedules",
     description:
-      "When the agent runs on its own: each schedule's repeat rule and time zone, its task, the database it looks after (with the agent's access to it), when it runs next and who set it. A paused schedule says why in `note`. Workspace owners only.",
+      "When the agent runs on its own: each schedule's repeat rule and time zone, its task, the database it looks after (with the agent's access to it), when it runs next and who set it. A paused schedule says why in `note`. For anyone the agent is shared with.",
     scope: "pages:read",
     response: "AgentScheduleList",
     handler: async ({ principal, params }) => {
@@ -853,7 +855,7 @@ export const API_ROUTES: ApiRoute[] = [
     tag: "Agents",
     summary: "Add a schedule",
     description:
-      "Makes the agent run on its own on a repeat rule, with a task and optionally a database it looks after: each run reads that database first and may change and comment on its rows; without one it only reads. Runs are held to what the token's user can open as well as what is shared with the agent, and each ends with a report in the user's inbox. Workspace owners only.",
+      "Makes the agent run on its own on a repeat rule, with a task and optionally a database it looks after: each run reads that database first and may change and comment on its rows; without one it only reads. Runs are held to what the token's user can open as well as what is shared with the agent, and each ends with a report in the user's inbox. Needs edit access to the agent (workspace owners always have it).",
     scope: "pages:write",
     body: agentInputs.schedule.omit({ agent_id: true }),
     status: 201,
@@ -871,7 +873,7 @@ export const API_ROUTES: ApiRoute[] = [
     tag: "Agents",
     summary: "Change a schedule",
     description:
-      "Changes a schedule's repeat rule, time zone, task or database (null: none); fields left out keep their values. Its runs are held to the token's user from now on, and a paused schedule turns back on. Workspace owners only.",
+      "Changes a schedule's repeat rule, time zone, task or database (null: none); fields left out keep their values. Its runs are held to the token's user from now on, and a paused schedule turns back on. Needs edit access to the agent (workspace owners always have it).",
     scope: "pages:write",
     body: agentInputs.scheduleUpdate.omit({ agent_id: true, schedule_id: true }),
     response: "AgentSchedule",
@@ -887,13 +889,53 @@ export const API_ROUTES: ApiRoute[] = [
     operationId: "deleteAgentSchedule",
     tag: "Agents",
     summary: "Delete a schedule",
-    description: "The agent no longer runs on this schedule; a run it already started goes on. Workspace owners only.",
+    description: "The agent no longer runs on this schedule; a run it already started goes on. Needs edit access to the agent (workspace owners always have it).",
     scope: "pages:write",
     response: "AgentScheduleDeleted",
     handler: async ({ principal, params }) => {
       const agent = await ownedAgentFor(principal, params.agent_id);
       await removeAgentSchedule(principal.userId, agent.id, params.schedule_id);
       return { agent_id: agent.id, deleted: params.schedule_id };
+    },
+  }),
+  defineRoute({
+    method: "GET",
+    path: "/agents/{agent_id}/sharing",
+    operationId: "getAgentSharing",
+    tag: "Agents",
+    summary: "Who an agent is shared with",
+    description:
+      "The people, groups and everyone in the workspace the agent is shared with, each at a level (`full`, `edit` or `interact`), and the token's user's own access (`your_access`). Workspace owners always have full access, listed or not. For anyone the agent is shared with.",
+    scope: "pages:read",
+    response: "AgentSharing",
+    handler: async ({ principal, params }) => {
+      const agent = await ownedAgentFor(principal, params.agent_id);
+      return { agent_id: agent.id, ...describeSharing(await agentSharing(principal.userId, agent.id)) };
+    },
+  }),
+  defineRoute({
+    method: "POST",
+    path: "/agents/{agent_id}/sharing",
+    operationId: "shareAgent",
+    tag: "Agents",
+    summary: "Share an agent",
+    description:
+      "Shares the agent with one person (`user_id`, an owner or member of the workspace, never a guest), group (`group_id`) or everyone in the workspace (`everyone: true`) at a level, or takes them off its list (`level: \"remove\"`). `full` can do everything a workspace owner can with the agent, sharing and archiving it too; `edit` changes and runs it; `interact` sees it, chats with it and mentions it. A person's own entry decides for them; without one, the highest of their groups'; without those, everyone's. Needs full access to the agent; each change goes to the audit log.",
+    scope: "pages:write",
+    body: agentInputs.share.omit({ agent_id: true }),
+    response: "AgentSharing",
+    handler: async ({ principal, params, body }) => {
+      const agent = await ownedAgentFor(principal, params.agent_id);
+      const named = [body.user_id, body.group_id, body.everyone ? "everyone" : undefined].filter(Boolean);
+      if (named.length !== 1) throw new ApiError(400, "invalid_request", "Name exactly one of user_id, group_id or everyone: true.");
+      const target = body.user_id
+        ? { kind: "person" as const, userId: body.user_id }
+        : body.group_id
+          ? { kind: "group" as const, groupId: body.group_id }
+          : { kind: "everyone" as const };
+      const sharing =
+        body.level === "remove" ? await removeAgentShare(principal.userId, agent.id, target) : await setAgentShare(principal.userId, agent.id, target, body.level);
+      return { agent_id: agent.id, ...describeSharing(sharing) };
     },
   }),
 ];

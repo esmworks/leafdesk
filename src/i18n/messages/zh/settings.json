@@ -297,7 +297,7 @@
   "agents": {
     "heading": "智能体",
     "description": "智能体是拥有独立指令的 AI 助手。自动化会在数据库的行上运行智能体：它只读取与其分享的内容，并以自己的名义更改该行并发表评论。",
-    "ownersOnly": "只有工作区所有者可以创建和更改智能体。",
+    "ownersOnly": "只有工作区所有者可以创建智能体。",
     "newButton": "新建智能体",
     "tabs": {
       "active": "智能体",
@@ -360,7 +360,8 @@
       "helpers": "可求助的智能体",
       "helpersHelp": "运行期间，它可以把部分任务交给这些智能体（最多 {max} 次），并使用它们的回答。每个智能体都使用自己的访问权限、工具和上限工作，且不能再去求助其他智能体。",
       "helpersEmpty": "此工作区中还没有其他智能体。",
-      "helperPaused": "已暂停"
+      "helperPaused": "已暂停",
+      "limitOwnersOnly": "只有工作区所有者可以设置此上限。"
     },
     "describe": {
       "button": "描述一个智能体",
@@ -560,7 +561,9 @@
         "limitReached": "无法求助 <agent></agent>：它已用完每月令牌上限"
       },
       "fromChat": "{name} 的聊天消息",
-      "chattedBy": "由 {name} 发起对话"
+      "chattedBy": "由 {name} 发起对话",
+      "yoursOnly": "你可以看到自己发起的运行。",
+      "waitingForOwner": "此调用由工作区所有者处理。"
     },
     "usage": {
       "thisMonth": "本月：{usage}",
@@ -640,7 +643,7 @@
       "tooManySkills": "一个智能体最多可以有 {max} 个技能。",
       "skillEditable": "除工作区所有者外还有人可以编辑“{title}”。智能体只遵循仅所有者可以更改的技能：请先限制谁可以编辑该页面。",
       "notASkill": "此页面不是技能。",
-      "accessDenied": "只有工作区所有者可以更改智能体。",
+      "accessDenied": "你没有执行此操作的权限。",
       "reasons": {
         "name": "请为智能体命名。",
         "icon": "智能体的图标必须是表情符号。",
@@ -655,7 +658,8 @@
         "task": "请编写它在每次运行时要执行的任务。",
         "taskLength": "任务最多 2,000 个字符。",
         "repeat": "请检查重复时间及其时区。",
-        "helpers": "请从此工作区选择最多 10 个其他未归档的智能体。"
+        "helpers": "请从此工作区选择最多 10 个其他未归档的智能体。",
+        "shareLevel": "请选择完全访问、可编辑或可查看和互动。"
       },
       "noteEmpty": "请写下智能体应记住的内容。",
       "noteTooLong": "每条笔记最多 {max} 个字符。",
@@ -669,14 +673,19 @@
       "notADatabase": "请选择此工作区中你能打开的数据库。",
       "tooManySchedules": "无法再添加定时计划（最多 {max} 个）。",
       "scheduleNotFound": "此定时计划已不存在。",
-      "versionNotFound": "此版本已不存在。"
+      "versionNotFound": "此版本已不存在。",
+      "notAllowed": "你对此智能体的访问权限不允许此操作。",
+      "ownersOnly": "只有工作区所有者可以更改智能体的每月令牌上限。",
+      "notAMember": "智能体只能分享给工作区的所有者、成员和用户组。"
     },
     "connections": {
       "description": "此智能体可以使用的各个连接的工具。只读工具会立即运行（来自匿名表单答复的行除外）；其他工具在智能体每次调用时都需要所有者批准。",
       "empty": "还没有连接。所有者可以在<link>设置 › 连接</link>中添加。",
       "allowedCount": "已允许 {n}/{total} 个",
       "notReady": "此连接尚未就绪（需要登录或出现故障），因此智能体暂时无法使用其工具。",
-      "noTools": "尚未列出任何工具。"
+      "noTools": "尚未列出任何工具。",
+      "ownersChoose": "此智能体可以使用的各连接的工具。只有工作区所有者可以选择。",
+      "none": "此智能体不能使用任何连接的工具。"
     },
     "schedules": {
       "description": "让此智能体按计划自行运行：每次运行都会执行任务（如果选择了数据库，则在该数据库上执行），你会在收件箱中收到其报告。其运行只能打开你能打开的内容。",
@@ -797,6 +806,40 @@
         "skillEditable": "所有者以外的人可以编辑它",
         "tooMany": "没有空间"
       }
+    },
+    "share": {
+      "levels": {
+        "full": "完全访问",
+        "edit": "可编辑",
+        "interact": "可查看和互动",
+        "none": "无访问权限"
+      },
+      "button": "分享",
+      "description": "谁可以使用此智能体，以及他们可以用它做什么。",
+      "levelHelp": {
+        "full": "所有操作，包括分享和归档",
+        "edit": "更改其设置、页面、技能、记忆和定时计划",
+        "interact": "查看、对话并在评论中提及"
+      },
+      "add": "添加成员或用户组",
+      "noMatches": "没有匹配的人。",
+      "list": "已分享给",
+      "owners": "工作区所有者",
+      "ownersHint": "始终拥有完全访问权限",
+      "everyone": "工作区中的所有人",
+      "everyoneHint": "所有者和成员，不含访客",
+      "levelFor": "{name} 的访问权限",
+      "remove": "移除 {name}",
+      "readOnly": "只有拥有完全访问权限的人才能更改此智能体的分享对象。",
+      "archived": "恢复此智能体后才能更改分享对象。",
+      "ownersKeep": "它可以使用哪些连接的工具以及每月令牌上限，仍由工作区所有者决定。",
+      "groupMembers": "{count, plural, =0 {没有成员的用户组} other {有 # 位成员的用户组}}"
+    },
+    "viewOnly": "你可以查看此智能体、与它对话并提及它。要更改它，请联系可以编辑它的人。",
+    "creation": {
+      "title": "只有工作区所有者可以创建智能体",
+      "description": "关闭：成员也可以创建智能体，并对自己创建的智能体拥有完全访问权限。访客始终不能创建。",
+      "ownersOnly": "只有工作区所有者可以更改此设置。"
     }
   },
   "analytics": {
@@ -1415,7 +1458,8 @@
       "allowedDomains": "允许的邮箱域名",
       "domainJoin": "这些域名的人登录时",
       "joinRequests": "谁可以申请加入",
-      "email": "行中的邮件"
+      "email": "行中的邮件",
+      "agentCreation": "谁可以创建智能体"
     },
     "values": {
       "on": "开启",
@@ -1549,7 +1593,9 @@
         "archived": "归档了智能体“{target}”",
         "run_requested": "请求智能体“{target}”运行",
         "schedule_set": "为智能体“{target}”设置了定时计划",
-        "schedule_removed": "删除了智能体“{target}”的一个定时计划"
+        "schedule_removed": "删除了智能体“{target}”的一个定时计划",
+        "shared": "将 {subject} 对智能体“{target}”的访问权限设为：{level}",
+        "unshared": "将 {subject} 从智能体“{target}”的分享中移除"
       },
       "connection": {
         "created": "添加了连接“{target}”",
@@ -1585,6 +1631,11 @@
     "outcomes": {
       "done": "已完成",
       "failed": "失败"
+    },
+    "agentLevels": {
+      "full": "完全访问",
+      "edit": "可编辑",
+      "interact": "可查看和互动"
     }
   },
   "notifications": {

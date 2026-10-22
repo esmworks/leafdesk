@@ -859,7 +859,8 @@
       "gone": "Questo agente non è più disponibile.",
       "paused": "Questo agente è in pausa, quindi non può rispondere.",
       "aiOff": "L’IA è disattivata in questo spazio di lavoro, quindi l’agente non può rispondere.",
-      "limitReached": "Questo agente ha esaurito i token del mese, quindi non può rispondere fino al mese prossimo."
+      "limitReached": "Questo agente ha esaurito i token del mese, quindi non può rispondere fino al mese prossimo.",
+      "noAccess": "Non hai accesso a questo agente."
     },
     "empty": {
       "full": "Chiedi qualcosa a {name} o affidagli un compito. Lavora con il proprio accesso, le proprie competenze e la propria memoria, e ogni risposta è una delle sue esecuzioni.",
@@ -915,6 +916,7 @@
     "tab": {
       "hint": "Incolla il link di questo agente in una pagina per inserirvi una chat con lui. I membri possono chattarci in sola lettura.",
       "copyLink": "Copia link"
-    }
+    },
+    "awaitingOwner": "In attesa che un proprietario dello spazio di lavoro approvi una chiamata…"
   }
 }

@@ -42,7 +42,7 @@ const OWNER_TABS: readonly SettingsTab[] = ["connections", "storage", "analytics
  * (their credentials are the workspace's), where the workspace's files are stored and what its AI
  * costs are for owners. Email on rows has no tab: it is under General, and each member connects
  * their own mailbox under their account (Account > Email and calendar). Agents are listed to
- * members too (they pick them in automations); only owners change them. The health check covers
+ * members too: those shared with them, which their sharing lets them change. The health check covers
  * the pages each person can open, so owners and members get it alike. Snippets holds the person's
  * own snippets next to the workspace's, so guests get it too, with their own alone.
  */

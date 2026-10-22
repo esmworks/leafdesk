@@ -100,6 +100,8 @@ export function apiErrorFor(error: unknown): ApiError {
     if (error.code === "notFound" || error.code === "notARow" || error.code === "notADatabase" || error.code === "scheduleNotFound") {
       return new ApiError(404, "not_found", `${error.message}.`);
     }
+    // The agent is shared with the token's user, at a level that doesn't allow this.
+    if (error.code === "notAllowed" || error.code === "ownersOnly") return new ApiError(403, "forbidden", `${error.message}.`);
     if (error.code === "archived" || error.code === "paused" || error.code === "aiOff") return new ApiError(409, "agent_unavailable", `${error.message}.`);
     if (error.code === "limitReached") return new ApiError(409, "limit_reached", `${error.message}.`);
     if (error.code === "tooManyRuns") return new ApiError(409, "too_many_runs", `${error.message}.`);

@@ -859,7 +859,8 @@
       "gone": "Bu ajan artık kullanılamıyor.",
       "paused": "Bu ajan duraklatıldı, bu yüzden yanıt veremiyor.",
       "aiOff": "Bu çalışma alanında yapay zekâ kapalı, bu yüzden ajan yanıt veremiyor.",
-      "limitReached": "Bu ajan bu ayki token sınırına ulaştı; gelecek aya kadar yanıt veremez."
+      "limitReached": "Bu ajan bu ayki token sınırına ulaştı; gelecek aya kadar yanıt veremez.",
+      "noAccess": "Bu ajana erişimin yok."
     },
     "empty": {
       "full": "{name} ajanına bir şey sor ya da bir iş ver. Kendi erişimi, becerileri ve hafızasıyla çalışır; her yanıtı çalışmalarından biridir.",
@@ -915,6 +916,7 @@
     "tab": {
       "hint": "Bu ajanın bağlantısını bir sayfaya yapıştırarak orada onunla bir sohbet aç. Üyeler bu sohbeti salt okunur olarak kullanabilir.",
       "copyLink": "Bağlantıyı kopyala"
-    }
+    },
+    "awaitingOwner": "Bir çalışma alanı sahibinin çağrıyı onaylaması bekleniyor…"
   }
 }

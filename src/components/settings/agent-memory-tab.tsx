@@ -13,7 +13,7 @@ import {
 } from "@/app/actions/agents";
 import { useAction } from "@/components/settings/workspace-settings";
 import { Button, cn, IconButton, Input, pageLabel } from "@/components/ui";
-import type { AgentMemoryView, AgentView } from "@/lib/agents";
+import { editsAgent, type AgentMemoryView, type AgentView } from "@/lib/agents";
 import { MAX_MEMORIES, MAX_MEMORY_CHARS } from "@/lib/ai-chat";
 
 /**
@@ -51,7 +51,9 @@ export function AgentMemoryTab({ workspaceId, agent, memoryOff }: { workspaceId:
   const proposed = notes?.filter((n) => n.status === "proposed") ?? [];
   const kept = notes?.filter((n) => n.status === "kept") ?? [];
   const full = kept.length >= MAX_MEMORIES;
-  const editable = !agent.archived;
+  const editable = !agent.archived && editsAgent(agent);
+  // Forgetting stays open on an archived agent, not to those who only see it.
+  const forgets = editsAgent(agent);
 
   function add(event: FormEvent) {
     event.preventDefault();
@@ -134,9 +136,11 @@ export function AgentMemoryTab({ workspaceId, agent, memoryOff }: { workspaceId:
             <section className="space-y-2">
               <div className="flex items-center gap-2">
                 <h3 className="flex-1 text-sm font-medium">{t("proposedHeading", { count: proposed.length })}</h3>
-                <Button size="sm" variant="ghost" className="hover:text-danger" disabled={pending} onClick={() => remove("proposed")}>
-                  {t("dismissAll")}
-                </Button>
+                {forgets && (
+                  <Button size="sm" variant="ghost" className="hover:text-danger" disabled={pending} onClick={() => remove("proposed")}>
+                    {t("dismissAll")}
+                  </Button>
+                )}
               </div>
               <ul aria-label={t("proposedList")} className="divide-y divide-border rounded-md border border-border">
                 {proposed.map((note) => (
@@ -157,9 +161,11 @@ export function AgentMemoryTab({ workspaceId, agent, memoryOff }: { workspaceId:
                             </IconButton>
                           </>
                         )}
-                        <IconButton label={t("dismiss")} className="h-7 w-7 hover:text-danger" disabled={pending} onClick={() => remove([note.id])}>
-                          <X className="h-4 w-4" />
-                        </IconButton>
+                        {forgets && (
+                          <IconButton label={t("dismiss")} className="h-7 w-7 hover:text-danger" disabled={pending} onClick={() => remove([note.id])}>
+                            <X className="h-4 w-4" />
+                          </IconButton>
+                        )}
                       </div>
                     )}
                   </li>
@@ -188,14 +194,16 @@ export function AgentMemoryTab({ workspaceId, agent, memoryOff }: { workspaceId:
                             <Pencil className="h-3.5 w-3.5" />
                           </IconButton>
                         )}
-                        <IconButton
-                          label={t("delete")}
-                          className="h-7 w-7 opacity-0 group-hover/note:opacity-100 focus-visible:opacity-100 pointer-coarse:opacity-60 hover:text-danger"
-                          disabled={pending}
-                          onClick={() => remove([note.id])}
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </IconButton>
+                        {forgets && (
+                          <IconButton
+                            label={t("delete")}
+                            className="h-7 w-7 opacity-0 group-hover/note:opacity-100 focus-visible:opacity-100 pointer-coarse:opacity-60 hover:text-danger"
+                            disabled={pending}
+                            onClick={() => remove([note.id])}
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </IconButton>
+                        )}
                       </div>
                     )}
                   </li>
@@ -221,7 +229,7 @@ export function AgentMemoryTab({ workspaceId, agent, memoryOff }: { workspaceId:
             )}
             <div className="flex items-center justify-between gap-2 text-xs text-fg-muted">
               <span>{t("count", { count: kept.length, max: MAX_MEMORIES })}</span>
-              {kept.length > 0 && (
+              {kept.length > 0 && forgets && (
                 <Button
                   size="sm"
                   variant="ghost"
