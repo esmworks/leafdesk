@@ -1154,6 +1154,9 @@ async function main() {
   check(publishedSteps.version === 1 && !publishedSteps.draft, "publish_automation makes the draft version 1", publishedSteps);
   const nothingToPublish = await mcp.call("publish_automation", { automation_id: stepped.id });
   check(nothingToPublish.isError && /Nothing to publish/.test(nothingToPublish.text), "publishing without a draft is a tool error", nothingToPublish.text);
+  await mcp.ok("update_automation", { automation_id: stepped.id, publish: false, actions: [{ type: "log", message: "never published" }] });
+  const discardedSteps = await mcp.ok("discard_automation_draft", { automation_id: stepped.id });
+  check(discardedSteps.version === 1 && !discardedSteps.draft && discardedSteps.actions.length === 3, "discard_automation_draft goes back to the published steps", discardedSteps);
   await mcp.ok("delete_automation", { automation_id: stepped.id });
 
   // An incoming webhook: a JSON POST to its address starts a run without a row; a new address retires the old one.

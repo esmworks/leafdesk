@@ -39,7 +39,7 @@ const base = `http://127.0.0.1:${port}`;
 
 const { and, eq, inArray, sql } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { automationRun, automationVersion, databaseAutomation, page, user, workspace, workspaceMember } = await import("@/db/schema");
+const { agentRun, automationRun, automationVersion, databaseAutomation, page, user, workspace, workspaceMember } = await import("@/db/schema");
 const { registerCollab } = await import("@/server/collab/bridge");
 const { addProperty, createRows, updateRowProperties } = await import("@/server/databases");
 const { createPage } = await import("@/server/pages");
@@ -49,6 +49,7 @@ const { runScheduledAutomations } = await import("@/server/automations/scheduled
 const { receiveHook } = await import("@/server/automations/incoming");
 const { newSecretSalt } = await import("@/server/automations/webhook");
 const { listInbox } = await import("@/server/notifications");
+const { createAgent } = await import("@/server/agents/manage");
 const { PropertyValueError } = await import("@/lib/properties");
 const { INCOMING_PER_MINUTE, MAX_AUTOMATION_ACTIONS } = await import("@/lib/automations");
 
@@ -390,6 +391,46 @@ try {
     { steps: run.steps, doingTitles },
   );
   await manage.deleteAutomation(ids.owner, digest.id);
+
+  // An agent for each found row: one run each, with the row as its context, queued once.
+  const helper = await createAgent(ids.owner, workspaceId, { name: "Row helper", instructions: "Look at the row." });
+  const helpEach = await manage.createAutomation(ids.owner, tasks.id, {
+    name: "Help each doing row",
+    trigger: { type: "schedule", schedule: { frequency: "daily", time: "07:00" } },
+    actions: [
+      { id: "doing", type: "find_rows", database: "Tasks", filters: [{ propertyId: stage.id, op: "equals", value: optionId("Doing") }], limit: 10 },
+      { type: "run_agent", forEach: "doing", agent: "Row helper", prompt: "Look at {{item.title}} ({{item.Stage}})" },
+    ],
+  });
+  const helped = await manage.testAutomation(ids.owner, helpEach.id);
+  await flushAutomations();
+  run = await lastRun(helpEach.id);
+  const queuedFor = () => db.select().from(agentRun).where(sql`${agentRun.source}->>'automationRunId' = ${helped.runId}`);
+  let agentRuns = await queuedFor();
+  const doingRows = (await rowsOf(tasks.id)).filter((r) => r.properties[stage.id] === optionId("Doing"));
+  check(
+    run.status === "done" &&
+      agentRuns.length === doingRows.length &&
+      doingRows.every((r) => agentRuns.some((a) => (a.source as { rowId?: string }).rowId === r.id && a.prompt === `Look at ${r.title} (Doing)` && a.agentId === helper.id)),
+    "run_agent for each found row queues one agent run per row, on that row, with its task filled in",
+    { steps: run.steps, agentRuns: agentRuns.map((a) => ({ source: a.source, prompt: a.prompt })) },
+  );
+  check(run.steps[1].agentRunIds?.length === doingRows.length && agentRuns.every((a) => (a.context as { actorId?: string }).actorId === ids.owner), "…the history links each run, and the agent acts for who ran it", run.steps[1]);
+  // Taken again (as after a crash), the step finds the runs it queued instead of queuing more.
+  await db
+    .update(automationRun)
+    .set({ status: "pending", finishedAt: null, nextAt: sql`now()`, steps: sql`jsonb_set(jsonb_set(steps, '{0,status}', '"pending"'), '{1,status}', '"pending"')` })
+    .where(eq(automationRun.id, helped.runId));
+  await flushAutomations();
+  agentRuns = await queuedFor();
+  run = await lastRun(helpEach.id);
+  check(
+    run.status === "done" && run.steps[1].items?.length === doingRows.length && agentRuns.length === doingRows.length,
+    "…and a run taken again finds the rows again but doesn't queue their agent runs twice",
+    { count: agentRuns.length, steps: run.steps },
+  );
+  await db.delete(agentRun).where(eq(agentRun.agentId, helper.id));
+  await manage.deleteAutomation(ids.owner, helpEach.id);
 
   // ------------------------------------------------------------------ waiting, versions, drafts and test runs
   check(

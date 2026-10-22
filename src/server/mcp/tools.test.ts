@@ -124,6 +124,7 @@ const automations = vi.hoisted(() => ({
   updateAutomation: vi.fn(),
   deleteAutomation: vi.fn(),
   publishAutomation: vi.fn(),
+  discardAutomationDraft: vi.fn(),
   testAutomation: vi.fn(),
   rotateAutomationSecret: vi.fn(),
   rotateAutomationHook: vi.fn(),
@@ -2136,7 +2137,7 @@ describe("automations", () => {
   it("registers the reads as read-only and the writes as writes, with their input schemas", async () => {
     const tools = new Map((await listTools(writer)).map((t) => [t.name, t]));
     for (const name of ["list_automations", "list_automation_runs"]) expect(tools.get(name)?.annotations?.readOnlyHint).toBe(true);
-    for (const name of ["create_automation", "update_automation", "delete_automation", "publish_automation", "test_automation"]) {
+    for (const name of ["create_automation", "update_automation", "delete_automation", "publish_automation", "discard_automation_draft", "test_automation"]) {
       expect(tools.get(name)?.annotations?.readOnlyHint).toBe(false);
     }
     expect(tools.get("delete_automation")?.annotations?.destructiveHint).toBe(true);
@@ -2275,6 +2276,16 @@ describe("automations", () => {
     const published = await callTool(writer, "publish_automation", { automation_id: "auto-1" });
     expect(automations.publishAutomation).toHaveBeenCalledWith("user-1", "auto-1");
     expect(published.data).toMatchObject({ version: 2, hook_url: incoming.hookUrl });
+
+    automations.discardAutomationDraft.mockResolvedValue({ ...incoming, version: 2, draft: null });
+    const discarded = await callTool(writer, "discard_automation_draft", { automation_id: "auto-1" });
+    expect(automations.discardAutomationDraft).toHaveBeenCalledWith("user-1", "auto-1");
+    expect(discarded.data).toMatchObject({ version: 2 });
+    expect(discarded.data.draft ?? null).toBeNull();
+    automations.discardAutomationDraft.mockRejectedValue(new PropertyValueError("This automation was never published: delete it instead", "invalidAutomation"));
+    const neverPublished = await callTool(writer, "discard_automation_draft", { automation_id: "auto-1" });
+    expect(neverPublished.isError).toBe(true);
+    expect(neverPublished.text).toMatch(/never published/);
 
     automations.testAutomation.mockResolvedValue({ runId: "run-9" });
     const tested = await callTool(writer, "test_automation", { automation_id: "auto-1", payload: { email: "a@example.com" } });

@@ -20,8 +20,8 @@
   marked as a test, as whoever ran it) and published as the next version; runs under way keep the
   version they started with. The run history shows each step's input, output, duration and, for a
   for each step, how each row went. Over MCP, `create_automation` and `update_automation` take
-  the new triggers and steps, `publish: false` and `new_webhook_address`; `publish_automation` and
-  `test_automation` are new, and `list_notifications` includes a notification's message.
+  the new triggers and steps, `publish: false` and `new_webhook_address`; `publish_automation`,
+  `discard_automation_draft` and `test_automation` are new, and `list_notifications` includes a notification's message.
   Migration 0107_automation_steps adds `automation_version` (existing automations become their
   version 1), a draft, next run and webhook address salt to `database_automation`, what started a
   run, its version, test mark and state to `automation_run` (whose row may now be empty), and a

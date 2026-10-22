@@ -1557,7 +1557,7 @@ A database automation does a list of steps when rows of its database are added o
 a date of a row comes, on a schedule, or when another service sends it a request. People with
 full access to the database see and manage its automations, in the app or over MCP
 (`list_automations`, `create_automation`, `update_automation`, `publish_automation`,
-`test_automation`, `delete_automation`, `list_automation_runs`). Creating, changing, publishing
+`discard_automation_draft`, `test_automation`, `delete_automation`, `list_automation_runs`). Creating, changing, publishing
 and deleting one is recorded in the audit log.
 
 **Triggers**
@@ -3038,12 +3038,13 @@ The tools cover:
   lists a page's dashboards and their widgets; a widget on a database the user can't open names
   nothing of it.
 - **Automations:** `list_automations`, `create_automation`, `update_automation`,
-  `publish_automation`, `test_automation`, `delete_automation` and `list_automation_runs` (see
+  `publish_automation`, `discard_automation_draft`, `test_automation`, `delete_automation` and
+  `list_automation_runs` (see
   [Automations and webhooks](#automations-and-webhooks)). They need full access to the database;
   properties are named by name or id and people by id, email, name or `"me"`, a `find_rows`
   step's filters and sorts as `query_database` takes them, and `list_automations` shows names
   next to the stored ids, each step's id, the draft and the published version. `publish: false`
-  keeps changes in the draft until `publish_automation`; `test_automation` runs it once and
+  keeps changes in the draft until `publish_automation` (or `discard_automation_draft` drops them); `test_automation` runs it once and
   returns the run's id for `list_automation_runs`. A `run_agent` step names an agent by id or
   name.
 - **Agents:** `list_agents`, `get_agent` (its instructions, the pages shared with it, its
