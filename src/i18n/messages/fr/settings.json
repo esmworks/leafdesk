@@ -1602,7 +1602,7 @@
         "updated": "A modifié la connexion « {target} »",
         "deleted": "A supprimé la connexion « {target} »",
         "tool_called": "A appelé « {tool} » sur « {target} » ({outcome})",
-        "approval_decided": "Appel de « {tool} » sur « {target} » par l’agent « {agent} » : {decision}"
+        "approval_decided": "Appel de « {tool} » sur « {target} » par l’agent « {agent} » : {decision}{channel, select, telegram { (depuis Telegram)} other {}}"
       },
       "mail": {
         "databases_changed": "A défini les bases de données où arrivent les e-mails : {names}",

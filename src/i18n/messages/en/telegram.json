@@ -52,7 +52,26 @@
     "markRead": "Mark read",
     "read": "Marked as read.",
     "snoozed": "Snoozed for an hour.",
-    "gone": "This notification isn't in your inbox anymore."
+    "gone": "This notification isn't in your inbox anymore.",
+    "approve": "Approve",
+    "decline": "Decline",
+    "redo": "Send back with a note",
+    "notWhole": "Not all of this call shows here: approve it from its run in Leafdesk.",
+    "openRun": "Open the run",
+    "notePrompt": "What should the agent change? Answer this message with a note.",
+    "notePlaceholder": "What should change",
+    "call": {
+      "approved": "Approved: the agent goes ahead.",
+      "declined": "Declined: nothing is sent.",
+      "sentBack": "Sent back with your note: the agent tries again.",
+      "decided": "This call was already answered.",
+      "gone": "This call isn't waiting anymore.",
+      "changed": "The agent asked again since: answer its new call.",
+      "forbidden": "Only the owners this run is for answer its calls.",
+      "readOnly": "Apps may only read in this workspace: answer the call in Leafdesk.",
+      "notWhole": "Not all of this call shows here: approve it from its run in Leafdesk.",
+      "emptyNote": "Write what the agent should change, in answer to the question."
+    }
   },
   "approval": {
     "createRow": "Add a row to {target}?",

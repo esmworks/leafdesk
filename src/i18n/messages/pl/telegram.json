@@ -52,7 +52,26 @@
     "markRead": "Oznacz jako przeczytane",
     "read": "Oznaczono jako przeczytane.",
     "snoozed": "Odłożono na godzinę.",
-    "gone": "Tego powiadomienia nie ma już w twojej skrzynce."
+    "gone": "Tego powiadomienia nie ma już w twojej skrzynce.",
+    "approve": "Zatwierdź",
+    "decline": "Odrzuć",
+    "redo": "Odeślij z notatką",
+    "notWhole": "Nie całe wywołanie jest tu widoczne: zatwierdź je w jego przebiegu w Leafdesk.",
+    "openRun": "Otwórz przebieg",
+    "notePrompt": "Co agent ma zmienić? Odpowiedz na tę wiadomość notatką.",
+    "notePlaceholder": "Co ma się zmienić",
+    "call": {
+      "approved": "Zatwierdzono: agent działa dalej.",
+      "declined": "Odrzucono: nic nie zostanie wysłane.",
+      "sentBack": "Odesłano z twoją notatką: agent spróbuje ponownie.",
+      "decided": "Na to wywołanie już odpowiedziano.",
+      "gone": "To wywołanie już nie czeka.",
+      "changed": "Agent od tego czasu zapytał ponownie: odpowiedz na jego nowe wywołanie.",
+      "forbidden": "Na wywołania tego przebiegu odpowiadają tylko właściciele, dla których jest przebieg.",
+      "readOnly": "W tym obszarze roboczym aplikacje mogą tylko czytać: odpowiedz na wywołanie w Leafdesk.",
+      "notWhole": "Nie całe wywołanie jest tu widoczne: zatwierdź je w jego przebiegu w Leafdesk.",
+      "emptyNote": "Napisz w odpowiedzi na pytanie, co agent ma zmienić."
+    }
   },
   "approval": {
     "createRow": "Dodać wiersz do {target}?",

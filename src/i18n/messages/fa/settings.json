@@ -1602,7 +1602,7 @@
         "updated": "اتصال «{target}» را تغییر داد",
         "deleted": "اتصال «{target}» را حذف کرد",
         "tool_called": "«{tool}» را روی «{target}» فراخوانی کرد ({outcome})",
-        "approval_decided": "فراخوانی «{tool}» روی «{target}» توسط عامل «{agent}» را {decision}"
+        "approval_decided": "فراخوانی «{tool}» روی «{target}» توسط عامل «{agent}» را {decision}{channel, select, telegram { (از Telegram)} other {}}"
       },
       "mail": {
         "databases_changed": "پایگاه‌های داده‌ای را که ایمیل به آن‌ها می‌رسد تعیین کرد: {names}",

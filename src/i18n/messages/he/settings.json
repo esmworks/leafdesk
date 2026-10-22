@@ -1602,7 +1602,7 @@
         "updated": "שינוי החיבור “{target}”",
         "deleted": "הסרת החיבור “{target}”",
         "tool_called": "הפעלת “{tool}” ב־“{target}” ({outcome})",
-        "approval_decided": "{decision} הקריאה של הסוכן “{agent}” ל־“{tool}” ב־“{target}”"
+        "approval_decided": "{decision} הקריאה של הסוכן “{agent}” ל־“{tool}” ב־“{target}”{channel, select, telegram { (מ־Telegram)} other {}}"
       },
       "mail": {
         "databases_changed": "הגדרת מסדי הנתונים שאליהם מגיעים אימיילים: {names}",

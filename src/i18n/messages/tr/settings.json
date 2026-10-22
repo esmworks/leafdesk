@@ -1602,7 +1602,7 @@
         "updated": "“{target}” bağlantısını değiştirdi",
         "deleted": "“{target}” bağlantısını kaldırdı",
         "tool_called": "“{target}” üzerinde “{tool}” çağırdı ({outcome})",
-        "approval_decided": "“{agent}” ajanının “{target}” üzerindeki “{tool}” çağrısı: {decision}"
+        "approval_decided": "“{agent}” ajanının “{target}” üzerindeki “{tool}” çağrısı: {decision}{channel, select, telegram { (Telegram’dan)} other {}}"
       },
       "mail": {
         "databases_changed": "E-postaların düştüğü veritabanlarını belirledi: {names}",

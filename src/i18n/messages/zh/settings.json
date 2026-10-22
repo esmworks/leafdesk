@@ -1602,7 +1602,7 @@
         "updated": "更改了连接“{target}”",
         "deleted": "移除了连接“{target}”",
         "tool_called": "调用了“{target}”上的“{tool}”（{outcome}）",
-        "approval_decided": "{decision}了智能体“{agent}”对“{target}”上“{tool}”的调用"
+        "approval_decided": "{decision}了智能体“{agent}”对“{target}”上“{tool}”的调用{channel, select, telegram {（来自 Telegram）} other {}}"
       },
       "mail": {
         "databases_changed": "设置了邮件进入的数据库：{names}",

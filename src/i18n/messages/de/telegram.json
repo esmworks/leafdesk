@@ -52,7 +52,26 @@
     "markRead": "Als gelesen markieren",
     "read": "Als gelesen markiert.",
     "snoozed": "Für eine Stunde zurückgestellt.",
-    "gone": "Diese Benachrichtigung ist nicht mehr in deinem Posteingang."
+    "gone": "Diese Benachrichtigung ist nicht mehr in deinem Posteingang.",
+    "approve": "Freigeben",
+    "decline": "Ablehnen",
+    "redo": "Mit Notiz zurückschicken",
+    "notWhole": "Nicht der ganze Aufruf ist hier zu sehen: Gib ihn in Leafdesk in seinem Durchlauf frei.",
+    "openRun": "Durchlauf öffnen",
+    "notePrompt": "Was soll der Agent ändern? Antworte auf diese Nachricht mit einer Notiz.",
+    "notePlaceholder": "Was sich ändern soll",
+    "call": {
+      "approved": "Freigegeben: Der Agent macht weiter.",
+      "declined": "Abgelehnt: Nichts wird gesendet.",
+      "sentBack": "Mit deiner Notiz zurückgeschickt: Der Agent versucht es noch einmal.",
+      "decided": "Dieser Aufruf wurde schon beantwortet.",
+      "gone": "Dieser Aufruf wartet nicht mehr.",
+      "changed": "Der Agent hat inzwischen neu gefragt: Beantworte seinen neuen Aufruf.",
+      "forbidden": "Nur die Inhaber, für die dieser Durchlauf ist, beantworten seine Aufrufe.",
+      "readOnly": "Apps dürfen in diesem Workspace nur lesen: Beantworte den Aufruf in Leafdesk.",
+      "notWhole": "Nicht der ganze Aufruf ist hier zu sehen: Gib ihn in Leafdesk in seinem Durchlauf frei.",
+      "emptyNote": "Schreib als Antwort auf die Frage, was der Agent ändern soll."
+    }
   },
   "approval": {
     "createRow": "Eine Zeile zu {target} hinzufügen?",

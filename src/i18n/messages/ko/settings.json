@@ -1602,7 +1602,7 @@
         "updated": "연결 “{target}”을(를) 변경했습니다",
         "deleted": "연결 “{target}”을(를) 제거했습니다",
         "tool_called": "“{target}”에서 “{tool}”을(를) 호출했습니다({outcome})",
-        "approval_decided": "에이전트 “{agent}”의 “{target}” “{tool}” 호출을 {decision}"
+        "approval_decided": "에이전트 “{agent}”의 “{target}” “{tool}” 호출을 {decision}{channel, select, telegram { (Telegram에서)} other {}}"
       },
       "mail": {
         "databases_changed": "이메일이 도착할 데이터베이스를 설정했습니다: {names}",

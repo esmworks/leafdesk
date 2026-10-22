@@ -30,6 +30,8 @@ export type TelegramMessage = {
   text?: string;
   caption?: string;
   voice?: { file_id: string; duration: number; mime_type?: string; file_size?: number };
+  /** The bot's message this one answers (a note asked for with forceReply). */
+  reply_to_message?: { message_id: number };
   audio?: { file_id: string; duration: number; mime_type?: string; file_size?: number };
 };
 export type TelegramCallbackQuery = { id: string; from: TelegramUser; message?: TelegramMessage; data?: string };
@@ -38,8 +40,11 @@ export type TelegramUpdate = { update_id: number; message?: TelegramMessage; cal
 export type InlineButton = { text: string; callback_data?: string; url?: string };
 export type InlineKeyboard = { inline_keyboard: InlineButton[][] };
 
-/** What a sent message may carry beside its text. */
-export type SendOptions = { keyboard?: InlineKeyboard; plain?: boolean };
+/**
+ * What a sent message may carry beside its text: buttons, or (`forceReply`, with the box's
+ * placeholder) an open reply to it in the person's app; `replyTo` quotes a message it answers.
+ */
+export type SendOptions = { keyboard?: InlineKeyboard; plain?: boolean; forceReply?: string; replyTo?: number };
 
 /** How long getUpdates waits for something to come, in seconds. */
 export const POLL_SECONDS = 50;
@@ -97,6 +102,8 @@ export async function sendMessage(chatId: string, text: string, options: SendOpt
     ...(options.plain ? {} : { parse_mode: "HTML" }),
     link_preview_options: { is_disabled: true },
     ...(options.keyboard ? { reply_markup: options.keyboard } : {}),
+    ...(options.forceReply !== undefined ? { reply_markup: { force_reply: true, input_field_placeholder: options.forceReply.slice(0, 64) } } : {}),
+    ...(options.replyTo ? { reply_parameters: { message_id: options.replyTo, allow_sending_without_reply: true } } : {}),
   });
   return sent.message_id;
 }

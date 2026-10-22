@@ -52,7 +52,26 @@
     "markRead": "Marquer comme lue",
     "read": "Marquée comme lue.",
     "snoozed": "Reportée d’une heure.",
-    "gone": "Cette notification n’est plus dans votre boîte de réception."
+    "gone": "Cette notification n’est plus dans votre boîte de réception.",
+    "approve": "Approuver",
+    "decline": "Refuser",
+    "redo": "Renvoyer avec une note",
+    "notWhole": "L’appel n’apparaît pas en entier ici : approuvez-le depuis son exécution dans Leafdesk.",
+    "openRun": "Ouvrir l’exécution",
+    "notePrompt": "Que doit changer l’agent ? Répondez à ce message avec une note.",
+    "notePlaceholder": "Ce qui doit changer",
+    "call": {
+      "approved": "Approuvé : l’agent continue.",
+      "declined": "Refusé : rien n’est envoyé.",
+      "sentBack": "Renvoyé avec votre note : l’agent réessaie.",
+      "decided": "Cet appel a déjà reçu une réponse.",
+      "gone": "Cet appel n’attend plus de réponse.",
+      "changed": "L’agent a redemandé depuis : répondez à son nouvel appel.",
+      "forbidden": "Seuls les propriétaires concernés par cette exécution répondent à ses appels.",
+      "readOnly": "Dans cet espace de travail, les applications peuvent seulement lire : répondez à l’appel dans Leafdesk.",
+      "notWhole": "L’appel n’apparaît pas en entier ici : approuvez-le depuis son exécution dans Leafdesk.",
+      "emptyNote": "Écrivez ce que l’agent doit changer, en réponse à la question."
+    }
   },
   "approval": {
     "createRow": "Ajouter une ligne à {target} ?",

@@ -1602,7 +1602,7 @@
         "updated": "Изменено подключение «{target}»",
         "deleted": "Удалено подключение «{target}»",
         "tool_called": "Вызов «{tool}» в «{target}» ({outcome})",
-        "approval_decided": "{decision}: вызов «{tool}» в «{target}» агентом «{agent}»"
+        "approval_decided": "{decision}: вызов «{tool}» в «{target}» агентом «{agent}»{channel, select, telegram { (из Telegram)} other {}}"
       },
       "mail": {
         "databases_changed": "Заданы базы данных, в которые попадает почта: {names}",

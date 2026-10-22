@@ -52,7 +52,26 @@
     "markRead": "Marcar como lida",
     "read": "Marcada como lida.",
     "snoozed": "Adiada por uma hora.",
-    "gone": "Esta notificação não está mais na sua caixa de entrada."
+    "gone": "Esta notificação não está mais na sua caixa de entrada.",
+    "approve": "Aprovar",
+    "decline": "Recusar",
+    "redo": "Devolver com uma nota",
+    "notWhole": "A chamada não aparece inteira aqui: aprove-a pela execução no Leafdesk.",
+    "openRun": "Abrir a execução",
+    "notePrompt": "O que o agente deve mudar? Responda a esta mensagem com uma nota.",
+    "notePlaceholder": "O que deve mudar",
+    "call": {
+      "approved": "Aprovado: o agente segue em frente.",
+      "declined": "Recusado: nada é enviado.",
+      "sentBack": "Devolvido com a sua nota: o agente tenta de novo.",
+      "decided": "Esta chamada já foi respondida.",
+      "gone": "Esta chamada não está mais aguardando.",
+      "changed": "O agente perguntou de novo desde então: responda à nova chamada.",
+      "forbidden": "Só os proprietários para quem é esta execução respondem às chamadas dela.",
+      "readOnly": "Neste espaço de trabalho os apps só podem ler: responda à chamada no Leafdesk.",
+      "notWhole": "A chamada não aparece inteira aqui: aprove-a pela execução no Leafdesk.",
+      "emptyNote": "Escreva o que o agente deve mudar, em resposta à pergunta."
+    }
   },
   "approval": {
     "createRow": "Adicionar uma linha a {target}?",

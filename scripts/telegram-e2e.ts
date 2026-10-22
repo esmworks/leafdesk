@@ -7,7 +7,9 @@
  * message's buttons (only its person can), a second question while one is answered, voice
  * messages written down by speech to text, group chats, and the workspace's connected-apps
  * setting: read only (no changes offered) and off (the workspace isn't offered); and notifications
- * sent to the linked chat, marked read or snoozed from it, by kind and on or off.
+ * sent to the linked chat, marked read or snoozed from it, by kind and on or off; and an agent's
+ * call waiting for an owner, approved, declined or sent back with a note from its message (approve
+ * only when all of the call shows, only its owner, only the call they saw, not where apps only read).
  * Creates its own users and workspaces and deletes them afterwards.
  *
  *   pnpm tsx scripts/telegram-e2e.ts
@@ -22,7 +24,7 @@ try {
 } catch {}
 
 // ── A fake Bot API ──────────────────────────────────────────────────────────────────────────────
-type Sent = { method: string; params: Record<string, unknown> };
+type Sent = { method: string; params: Record<string, unknown>; /** A sent message's id. */ id?: number };
 const sent: Sent[] = [];
 /** Chats that blocked the bot: Telegram answers 403 to messages there. */
 const blocked = new Set<number>();
@@ -50,6 +52,7 @@ const telegram: Server = createServer(async (req, res) => {
     res.writeHead(403, { "Content-Type": "application/json" }).end(JSON.stringify({ ok: false, error_code: 403, description: "Forbidden: bot was blocked by the user" }));
     return;
   }
+  if (method === "sendMessage") sent[sent.length - 1].id = messageIds + 1;
   if (method === "sendMessage") return ok({ message_id: ++messageIds, chat: { id: Number(params.chat_id), type: "private" }, date: 0, text: params.text });
   return ok(true);
 });
@@ -59,7 +62,7 @@ process.env.TELEGRAM_API_URL = `http://127.0.0.1:${(telegram.address() as Addres
 process.env.APP_URL = "https://leaf.test";
 
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
-const { eq, inArray } = await import("drizzle-orm");
+const { and, eq, inArray } = await import("drizzle-orm");
 const { db } = await import("@/db");
 const { aiConversation, page, telegramLink, telegramLinkCode, teamspace, user, workspace, workspaceMember } = await import("@/db/schema");
 const { registerCollab } = await import("@/server/collab/bridge");
@@ -69,7 +72,9 @@ const { updateWorkspaceSettings } = await import("@/server/workspaces");
 const { recordShare } = await import("@/server/notifications");
 const { flushPush } = await import("@/server/push");
 const { getNotificationPreferences, setNotificationPreference } = await import("@/server/notification-preferences");
-const { notification } = await import("@/db/schema");
+const { agentRun, auditEvent, notification, workspaceAgent } = await import("@/db/schema");
+const { createAgent } = await import("@/server/agents/manage");
+const { notifyApprovers } = await import("@/server/connections/approvals");
 const { resetAi, setAiEnv } = await import("@/server/ai/testing");
 const { startFakeOpenAi, textOf } = await import("@/server/ai/fake-openai");
 type FakeChatRequest = import("@/server/ai/fake-openai").FakeChatRequest;
@@ -408,6 +413,100 @@ try {
   blocked.delete(ALICE.id);
   await handleUpdate(press(ALICE, "nt:on", 2005));
   check((await share(3)).length === 1, "…and gets them again once turned back on");
+
+  // ── An agent's calls ──────────────────────────────────────────────────────────────────────────
+  const agent = await createAgent(ids.alice, ws, { name: "Filer" });
+  const [bot] = await db.select({ userId: workspaceAgent.userId }).from(workspaceAgent).where(eq(workspaceAgent.id, agent.id));
+  let calls = 0;
+  /** A run of the agent that Alice asked for, waiting on a call (`whole`: the call to send is known, so all of it shows). */
+  const waitingRun = async (args: Record<string, unknown>, whole = true) => {
+    const callId = `call-${++calls}`;
+    const [run] = await db
+      .insert(agentRun)
+      .values({
+        agentId: agent.id,
+        workspaceId: ws,
+        source: { kind: "request", requestedBy: ids.alice, via: "api" },
+        context: { actorId: ids.alice },
+        status: "awaiting_approval",
+        pending: { callId, connectionId: null, tool: "create_row", arguments: args, askedAt: new Date().toISOString() },
+        state: (whole ? { queue: [{ id: callId, name: "create_row", arguments: args }] } : {}) as never,
+        nextAt: new Date(Date.now() + 86_400_000),
+      })
+      .returning();
+    const from = sent.length;
+    await notifyApprovers(run, bot.userId);
+    await flushPush();
+    const message = sent.slice(from).find((x) => x.method === "sendMessage" && Number(x.params.chat_id) === ALICE.id);
+    const [note] = await db.select().from(notification).where(eq(notification.agentRunId, run.id));
+    return { run, message, notificationId: note.id };
+  };
+  type Decided = { decision?: { decision: string; userId: string; note?: string } };
+  const runNow = async (id: string) => {
+    const [found] = await db.select().from(agentRun).where(eq(agentRun.id, id));
+    return { ...found, state: found.state as Decided | null };
+  };
+  const buttonsOf = (x: Sent | undefined) => (x?.params.reply_markup as { inline_keyboard: { text: string; callback_data: string }[][] }).inline_keyboard.flat();
+  const dataOf = (x: Sent | undefined, prefix: string) => buttonsOf(x).find((b) => b.callback_data.startsWith(prefix))?.callback_data ?? "";
+  const repliedSince = (from: number) => said(ALICE.id, from);
+
+  const asked1 = await waitingRun({ title: "Q3 plan" });
+  const askedCall = String(asked1.message?.params.text);
+  check(
+    askedCall.startsWith("<b>Filer asks to go ahead</b>\nWants to call “create_row” on Leafdesk\n<tg-spoiler>") && askedCall.includes('"title": "Q3 plan"'),
+    "a waiting call comes with what it would send, hidden until tapped",
+    askedCall,
+  );
+  check(
+    buttonsOf(asked1.message).map((b) => b.text).join("|") === "Approve|Decline|Send back with a note",
+    "…with Approve, Decline and Send back with a note",
+    buttonsOf(asked1.message),
+  );
+  mark = sent.length;
+  await handleUpdate(press(MALLORY, dataOf(asked1.message, "aa:"), asked1.message!.id!));
+  check((await runNow(asked1.run.id)).status === "awaiting_approval", "someone else can't answer it");
+  await handleUpdate(press(ALICE, dataOf(asked1.message, "aa:").replace(/:[0-9a-f]{10}$/, ":0000000000"), asked1.message!.id!));
+  check((await runNow(asked1.run.id)).status === "awaiting_approval" && repliedSince(mark).includes("asked again since"), "an answer meant for another call isn't taken");
+  mark = sent.length;
+  await handleUpdate(press(ALICE, dataOf(asked1.message, "aa:"), asked1.message!.id!));
+  const approved = await runNow(asked1.run.id);
+  check(approved.status === "pending" && approved.state?.decision?.decision === "approve" && approved.state.decision.userId === ids.alice, "Approve answers the call: the run goes on", approved.state);
+  check(repliedSince(mark).includes("Approved: the agent goes ahead.") && sent.slice(mark).some((x) => x.method === "editMessageReplyMarkup"), "…saying so, the buttons gone");
+  check((await db.select().from(notification).where(eq(notification.agentRunId, asked1.run.id))).length === 0, "…and the inbox item goes, as when answered in the app");
+  const [audited] = await db.select().from(auditEvent).where(and(eq(auditEvent.workspaceId, ws), eq(auditEvent.action, "connection.approval_decided")));
+  check(audited?.actorUserId === ids.alice && (audited.details as { via?: string }).via === "telegram", "the audit log says it was answered from Telegram", audited?.details);
+  mark = sent.length;
+  await handleUpdate(press(ALICE, dataOf(asked1.message, "aa:"), asked1.message!.id!));
+  check(repliedSince(mark).includes("isn't waiting anymore"), "answering it again is refused");
+
+  const partial = await waitingRun({ title: "Q4 plan" }, false);
+  const partialText = String(partial.message?.params.text);
+  check(!dataOf(partial.message, "aa:") && partialText.includes("Not all of this call shows here"), "a call not shown whole has no Approve: it is approved from its run", partialText);
+  mark = sent.length;
+  await handleUpdate(press(ALICE, `aa:${partial.notificationId}:${dataOf(partial.message, "ad:").split(":")[2]}`, partial.message!.id!));
+  check((await runNow(partial.run.id)).status === "awaiting_approval" && repliedSince(mark).includes("approve it from its run"), "…and a forged Approve is refused");
+  await handleUpdate(press(ALICE, dataOf(partial.message, "ad:"), partial.message!.id!));
+  check((await runNow(partial.run.id)).status === "pending" && (await runNow(partial.run.id)).state?.decision?.decision === "decline", "Decline answers it");
+
+  const redo = await waitingRun({ title: "Q1 plan" });
+  mark = sent.length;
+  await handleUpdate(press(ALICE, dataOf(redo.message, "ar:"), redo.message!.id!));
+  const noteQuestion = sent.slice(mark).find((x) => x.method === "sendMessage" && (x.params.reply_markup as { force_reply?: boolean } | undefined)?.force_reply);
+  check(noteQuestion && String(noteQuestion.params.text).includes("What should the agent change?"), "Send back asks for a note", sent.slice(mark));
+  const reply = (body: string, to: number): TelegramUpdate => ({
+    update_id: updateIds++,
+    message: { message_id: updateIds, from: ALICE, chat: { id: ALICE.id, type: "private" }, date: 0, text: body, reply_to_message: { message_id: to } },
+  });
+  await handleUpdate(reply("Use the Q2 numbers", noteQuestion!.id!));
+  const sentBack = (await runNow(redo.run.id)).state?.decision;
+  check(sentBack?.decision === "redo" && sentBack.note === "Use the Q2 numbers", "the answer to it sends the call back with that note", sentBack);
+
+  await updateWorkspaceSettings(ids.alice, ws, { connectedApps: "read" });
+  const readOnly = await waitingRun({ title: "Read only" });
+  mark = sent.length;
+  await handleUpdate(press(ALICE, dataOf(readOnly.message, "aa:"), readOnly.message!.id!));
+  check((await runNow(readOnly.run.id)).status === "awaiting_approval" && repliedSince(mark).includes("answer the call in Leafdesk"), "where apps may only read, calls are answered in the app");
+  await updateWorkspaceSettings(ids.alice, ws, { connectedApps: "full" });
 
   // ── Groups ────────────────────────────────────────────────────────────────────────────────────
   mark = sent.length;

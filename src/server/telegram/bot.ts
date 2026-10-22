@@ -2,6 +2,7 @@ import { createTranslator } from "next-intl";
 import { DEFAULT_LOCALE, negotiateLocale, type Locale } from "@/i18n/config";
 import { telegramMessages } from "@/i18n/messages/telegram";
 import { CHAT_MODES, sourceHref, type ChatActionView, type ChatMode, type ChatSourceView, type ChatStepView } from "@/lib/ai-chat";
+import { MAX_REDO_NOTE } from "@/lib/connections";
 import { env } from "@/lib/env";
 import { pageLabel } from "@/lib/labels";
 import { escapeHtml, htmlToText, markdownToTelegramBlocks, packMessages, preview } from "@/lib/telegram-format";
@@ -27,7 +28,7 @@ import {
   type TelegramMessage,
   type TelegramUpdate,
 } from "./api";
-import { answerNotification } from "./notify";
+import { answerCall, answerNotification } from "./notify";
 import { linkMode, linkOf, linkWithCode, setTelegramNotifications, touchLink, unlinkTelegram, updateLink, type TelegramLinkRow } from "./links";
 
 /**
@@ -43,7 +44,8 @@ import { linkMode, linkOf, linkWithCode, setTelegramNotifications, touchLink, un
  * One question at a time per person: another waits until the answer is in (or /stop). Commands:
  * /start (with a link code: links the account), /help, /new, /workspace, /mode, /stop,
  * /notifications, /unlink. The person's inbox notifications come to the chat too (notify.ts), with
- * buttons to mark them read or snooze them.
+ * buttons to mark them read or snooze them, and an agent's call waiting for an owner with buttons
+ * to approve, decline or send it back with a note (written in answer to the bot's question).
  */
 
 type Translator = ReturnType<typeof translatorFor>;
@@ -72,6 +74,14 @@ function html(t: Translator, key: Parameters<Translator>[0], values: Record<stri
 const answering = new Map<string, AbortController>();
 /** Approval messages still waiting, by approval id: their text, to keep when the buttons go. */
 const asked = new Map<string, { text: string; messageId: number | null }>();
+
+/**
+ * Notes asked for to send an agent's call back (by the chat and the asking message's id): the
+ * approval message they answer. The newest MAX_NOTES_ASKED are kept; a note asked for before the
+ * server restarted is read as a question.
+ */
+const notesAsked = new Map<string, { notificationId: string; guard: string; messageId: number }>();
+const MAX_NOTES_ASKED = 1_000;
 
 /** How often "typing…" is sent again while an answer is written (Telegram shows it for 5 s). */
 const TYPING_EVERY_MS = 4_500;
@@ -136,6 +146,16 @@ async function onMessage(message: TelegramMessage) {
   const t = translatorFor(await localeOf(link?.userId ?? null, from.language_code));
   if (!link) return void (await send(chatId, escapeHtml(t("notLinked"))));
   void touchLink(link.id).catch(() => {});
+  const replyTo = message.reply_to_message ? `${chatId}:${message.reply_to_message.message_id}` : null;
+  const asked = replyTo ? notesAsked.get(replyTo) : undefined;
+  if (asked && replyTo && !command) {
+    notesAsked.delete(replyTo);
+    const outcome = await answerCall(link.userId, asked.notificationId, asked.guard, "redo", text.slice(0, MAX_REDO_NOTE));
+    // An empty note can be written again in answer to the same question.
+    if (outcome === "emptyNote") notesAsked.set(replyTo, asked);
+    else await editButtons(chatId, asked.messageId).catch(() => {});
+    return void (await sendMessage(chatId, escapeHtml(t(`notify.call.${outcome}`)), { replyTo: asked.messageId }));
+  }
   if (command) return onCommand(link, t, command.command);
   const voice = message.voice ?? message.audio;
   const question = (text || message.caption || "").trim();
@@ -433,6 +453,22 @@ async function onCallback(query: TelegramCallbackQuery) {
     await setTelegramNotifications(link.userId, on);
     await answerCallback(query.id);
     await editMessage(chatId, message.message_id, escapeHtml(t(on ? "notifications.on" : "notifications.off"))).catch(() => {});
+    return;
+  }
+
+  const call = /^a([adr]):([\w-]{1,60}):([0-9a-f]{10})$/.exec(data);
+  if (call) {
+    const [, choice, notificationId, guard] = call;
+    await answerCallback(query.id);
+    if (choice === "r") {
+      const asking = await sendMessage(chatId, escapeHtml(t("notify.notePrompt")), { forceReply: t("notify.notePlaceholder"), replyTo: message.message_id });
+      notesAsked.set(`${chatId}:${asking}`, { notificationId, guard, messageId: message.message_id });
+      if (notesAsked.size > MAX_NOTES_ASKED) notesAsked.delete(notesAsked.keys().next().value!);
+      return;
+    }
+    const outcome = await answerCall(link.userId, notificationId, guard, choice === "a" ? "approve" : "decline");
+    await editButtons(chatId, message.message_id).catch(() => {});
+    await sendMessage(chatId, escapeHtml(t(`notify.call.${outcome}`)), { replyTo: message.message_id });
     return;
   }
 

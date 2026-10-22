@@ -23,7 +23,11 @@
   Preferences gets a *Telegram* column to choose them per kind (following the inbox, as push does),
   and the Telegram card's *Send my notifications here* switch or `/notifications` turns them off.
   Notifications of a workspace that turned connected apps off don't go there, and a chat that
-  blocked the bot gets them turned off. Migration 0105 adds `telegram_link` and
+  blocked the bot gets them turned off. An agent's call waiting for an owner comes with what it
+  would send (hidden until tapped) and *Approve*, *Decline* and *Send back with a note* buttons;
+  *Approve* only where all of the call shows, as in the inbox, only for the owners the run is for
+  and only for the call they saw. The audit log notes answers given from Telegram, and a workspace
+  that lets connected apps only read has its calls answered in the app. Migration 0105 adds `telegram_link` and
   `telegram_link_code`; migration 0106 adds the `…_telegram` columns of `user_preference` and
   `telegram_link.notifications`.
 - **Share an agent.** Each agent has a **Share** list in its settings: people, groups and everyone

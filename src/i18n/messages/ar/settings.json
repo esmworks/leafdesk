@@ -1602,7 +1602,7 @@
         "updated": "غيّر الاتصال «{target}»",
         "deleted": "أزال الاتصال «{target}»",
         "tool_called": "استدعى «{tool}» على «{target}» ({outcome})",
-        "approval_decided": "{decision}: استدعاء الوكيل «{agent}» لـ «{tool}» على «{target}»"
+        "approval_decided": "{decision}: استدعاء الوكيل «{agent}» لـ «{tool}» على «{target}»{channel, select, telegram { (من Telegram)} other {}}"
       },
       "mail": {
         "databases_changed": "حدّد قواعد البيانات التي يصل إليها البريد: {names}",

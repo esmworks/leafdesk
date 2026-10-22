@@ -2221,6 +2221,17 @@ card, or `/notifications` in the chat, turns them all off or on. Notifications o
 turned connected apps off don't come. A chat that blocked the bot gets its notifications turned
 off, until the person turns them on again.
 
+**Agents' calls.** An agent's call that waits for an owner (see [Connections](#connections)) comes
+with what it would send, as the inbox shows it (credentials masked, cut to 3,000 characters here),
+hidden until tapped so a lock screen doesn't show it, and with *Approve*, *Decline* and *Send back
+with a note*. As in the inbox, *Approve* is offered only when that is all of what would be sent;
+otherwise the message says so and links to the run, where it is approved. *Send back with a note*
+asks for the note: the answer to that question goes back to the agent. Only the owners the run is
+for can answer it, only the call the message shows (an agent that asked again since needs an answer
+to its new call), and only once; the answer counts as the owner's, and the audit log notes it was
+given from Telegram. A workspace that lets connected apps only read has its calls answered in the
+app.
+
 **Who may reach what.** The bot acts as the person, as a connected app does: each question is
 checked like an MCP request against the person's access and against the workspace's *Connected
 apps and API tokens* switch (see [Workspace security switches](#workspace-security-switches)): a
@@ -2701,7 +2712,9 @@ tab, an owner ticks the tools that agent may use; an agent has no tool of a conn
   in Settings → *Agents* → *Runs*) with the agent, the tool and its input; only they answer it. A
   run on a row no owner can open asks no one, and runs out of time. The run shows the input exactly as it will be sent; the inbox shows it with credentials
   masked and cut to 4000 characters, so it offers *Approve* only when that is all of what would be
-  sent, and otherwise a button to open the run and approve there. An owner **approves** (the call is sent as the agent made it),
+  sent, and otherwise a button to open the run and approve there. An owner who linked Telegram
+  can answer it there too, under the same rule (see [AI chat from Telegram](#ai-chat-from-telegram)).
+  An owner **approves** (the call is sent as the agent made it),
   **declines** (the agent hears no and goes on), or **sends it back with a note** (the agent gets
   the note and tries again, which may ask again). After 24 hours with no answer the run ends as `approvalTimeout` and nothing is sent;
   an answer that comes later is refused. Once an approved call is sent, the run notes it, so a
@@ -2765,7 +2778,9 @@ error, the audit log's details) and what it writes to the server's log has crede
 token formats (Leafdesk's own, GitHub, Slack, AI providers, Stripe, AWS, Google, JSON Web Tokens).
 Pages and rows stay as they are, and what is sent (an approved call, a webhook) is the original,
 which is also what owners see where they approve a call (above). Over MCP, `list_agent_runs`
-shows a waiting call masked: a connected app can't approve it.
+shows a waiting call masked: a connected app can't approve it. The Telegram bot passes on an
+owner's own button press, not a program's choice, so it can (see
+[AI chat from Telegram](#ai-chat-from-telegram)).
 
 > [!WARNING]
 > An agent with a connection acts as the account that signed in. Allow it only the tools it needs,

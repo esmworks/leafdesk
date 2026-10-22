@@ -52,7 +52,26 @@
     "markRead": "Okundu",
     "read": "Okundu olarak işaretlendi.",
     "snoozed": "Bir saat ertelendi.",
-    "gone": "Bu bildirim artık gelen kutunda değil."
+    "gone": "Bu bildirim artık gelen kutunda değil.",
+    "approve": "Onayla",
+    "decline": "Reddet",
+    "redo": "Notla geri gönder",
+    "notWhole": "Bu çağrının tamamı burada görünmüyor: Leafdesk’te çalışmasından onayla.",
+    "openRun": "Çalışmayı aç",
+    "notePrompt": "Ajan neyi değiştirsin? Bu mesaja bir notla yanıt ver.",
+    "notePlaceholder": "Neyin değişmesi gerektiği",
+    "call": {
+      "approved": "Onaylandı: ajan devam ediyor.",
+      "declined": "Reddedildi: hiçbir şey gönderilmiyor.",
+      "sentBack": "Notunla geri gönderildi: ajan yeniden deniyor.",
+      "decided": "Bu çağrı zaten yanıtlandı.",
+      "gone": "Bu çağrı artık beklemiyor.",
+      "changed": "Ajan o zamandan beri yeniden sordu: yeni çağrısını yanıtla.",
+      "forbidden": "Bu çağrıyı yalnızca çalışmanın ait olduğu sahipler yanıtlayabilir.",
+      "readOnly": "Bu çalışma alanında uygulamalar yalnızca okuyabiliyor: çağrıyı Leafdesk’te yanıtla.",
+      "notWhole": "Bu çağrının tamamı burada görünmüyor: Leafdesk’te çalışmasından onayla.",
+      "emptyNote": "Ajanın neyi değiştirmesi gerektiğini soruya yanıt olarak yaz."
+    }
   },
   "approval": {
     "createRow": "{target} veritabanına bir satır eklensin mi?",

@@ -52,7 +52,26 @@
     "markRead": "标为已读",
     "read": "已标为已读。",
     "snoozed": "已推迟一小时。",
-    "gone": "此通知已不在你的收件箱中。"
+    "gone": "此通知已不在你的收件箱中。",
+    "approve": "批准",
+    "decline": "拒绝",
+    "redo": "附备注退回",
+    "notWhole": "此调用未在此完整显示：请在 Leafdesk 中从它的运行记录批准。",
+    "openRun": "打开运行记录",
+    "notePrompt": "智能体应该改什么？请回复此消息并附上备注。",
+    "notePlaceholder": "需要改什么",
+    "call": {
+      "approved": "已批准：智能体继续执行。",
+      "declined": "已拒绝：不会发送任何内容。",
+      "sentBack": "已附上你的备注退回：智能体将重试。",
+      "decided": "此调用已有答复。",
+      "gone": "此调用已不再等待。",
+      "changed": "智能体此后又发起了请求：请答复它的新调用。",
+      "forbidden": "只有此运行所属的所有者才能答复它的调用。",
+      "readOnly": "此工作区中应用只能读取：请在 Leafdesk 中答复此调用。",
+      "notWhole": "此调用未在此完整显示：请在 Leafdesk 中从它的运行记录批准。",
+      "emptyNote": "请以回复问题的方式写下智能体应改什么。"
+    }
   },
   "approval": {
     "createRow": "要向 {target} 添加一行吗？",
