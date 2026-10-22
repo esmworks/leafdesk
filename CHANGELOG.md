@@ -26,6 +26,10 @@
   `add_database_property` and `update_database_property` set. Public forms filter the options the
   same way when the question it depends on is asked too. Stored in the property's settings: no
   migration.
+- **Company researcher agent.** A new template in Settings → Agents → *Start from a template* looks
+  each company added to a database up on the web and fills the properties you choose that are
+  still empty (website, sector, address, phone and the like), following their descriptions, and
+  comments on the row with its sources. It never overwrites a value, and it gets web access.
 - **Ask the AI chat from Telegram.** With `TELEGRAM_BOT_TOKEN` set to a bot made with @BotFather,
   people link their Telegram account in My account → *Connected apps* → *Telegram* (a one-time
   link, also as a QR code, that works once for 10 minutes) and then ask the AI chat in a private
