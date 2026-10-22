@@ -377,6 +377,7 @@ async function checkUpgrade(manifestPath: string, beforePath: string) {
   const { and, eq, isNull } = await import("drizzle-orm");
   const Y = await import("yjs");
   const { verifyPassword } = await import("better-auth/crypto");
+  const { effectiveScopes } = await import("@/lib/api-scopes");
   const { db } = await import("@/db");
   const schema = await import("@/db/schema");
   const { createCollab } = await import("@/server/collab/service");
@@ -484,8 +485,15 @@ async function checkUpgrade(manifestPath: string, beforePath: string) {
         }),
         now: (read) => ({ ...read, exceptions: byKindThenId(read.exceptions) }),
       },
-      // …and their API token for the workspace they left.
-      listApiTokens: { before: (read) => read.filter((t: any) => !manifest.formerGrants.apiTokenIds.includes(t.id)) },
+      // …and their API token for the workspace they left. Tokens made before scopes per resource
+      // keep their access as legacy ones, which list the scopes that access stands for
+      // (0107_api_scopes_idempotency).
+      listApiTokens: {
+        before: (read) =>
+          read
+            .filter((t: any) => !manifest.formerGrants.apiTokenIds.includes(t.id))
+            .map((t: any) => ({ ...t, scopes: effectiveScopes(t.scopes, true) })),
+      },
       // Published pages mark each block, so a link can open the page at one (591bdc7a).
       getPublishedPage: { now: (read) => mapStrings(read, (s) => s.replace(/<span id="block-[^"]*" class="block-anchor"><\/span>/g, "")) },
       // Notifications one change makes share their time, and the inbox orders by time alone: the
