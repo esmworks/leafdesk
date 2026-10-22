@@ -49,7 +49,7 @@ export function ApiTokenScopePicker({
             size="sm"
             disabled={disabled}
             aria-pressed={preset === name}
-            className={cn(preset === name && "border-accent text-fg")}
+            className={cn(preset === name && "ring-1 ring-accent ring-inset")}
             onClick={() => onChange([...SCOPE_PRESETS[name]])}
           >
             {t(`presets.${name}`)}

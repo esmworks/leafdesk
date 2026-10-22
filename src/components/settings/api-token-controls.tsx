@@ -56,7 +56,7 @@ export function NewApiToken({ workspaces }: { workspaces: { id: string; name: st
         {t("create")}
       </Button>
       {/* While the secret is shown, only Done closes: a stray click must not lose it. */}
-      <Dialog open={open} onClose={secret ? () => {} : close} className="max-w-lg">
+      <Dialog open={open} onClose={secret ? () => {} : close} className="max-w-xl">
         {secret ? (
           <div className="space-y-4 p-5">
             <div>
@@ -218,7 +218,7 @@ export function EditApiTokenScopes({
       >
         {t("edit.button")}
       </Button>
-      <Dialog open={open} onClose={pending ? () => {} : close} className="max-w-lg">
+      <Dialog open={open} onClose={pending ? () => {} : close} className="max-w-xl">
         <form
           className="space-y-4 p-5"
           onSubmit={(e) => {
