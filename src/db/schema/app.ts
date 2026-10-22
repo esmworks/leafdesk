@@ -483,8 +483,12 @@ export const page = pgTable(
 export const pageColumns = (({ searchVector: _searchVector, ...rest }) => rest)(getTableColumns(page));
 
 export { PROPERTY_TYPES, type PropertyType, type StatusGroup };
-/** An option of a select, multi-select or status property. Status options belong to a `group`. */
-export type SelectOption = { id: string; name: string; color: string; group?: StatusGroup };
+/**
+ * An option of a select, multi-select or status property. Status options belong to a `group`.
+ * An option of a property that depends on another (PropertyOptions `dependsOn`) is offered only
+ * while the row's value of that property is one of `parentOptionIds`; without any, always.
+ */
+export type SelectOption = { id: string; name: string; color: string; group?: StatusGroup; parentOptionIds?: string[] };
 /** One entry of a checklist value; the value is a list of these, in order. */
 export type ChecklistItem = { id: string; text: string; checked: boolean };
 /**
@@ -579,7 +583,18 @@ export type DateOptions = {
  */
 export type DateReminder = { daysBefore: number; timeZone: string; since: string };
 export type PropertyOptions = {
+  /**
+   * Any property: what it holds and how to fill it, in plain text ("New until we've called them").
+   * Shown as a hint by its name, and given to AI that writes values (autofill, chat, agents, MCP).
+   */
+  description?: string;
   options?: SelectOption[];
+  /**
+   * Select and multi-select properties: the select property of the same database whose value
+   * decides which of this one's options a row may have (each option's `parentOptionIds`, see
+   * lib/dependent-options). Ignored while that property is deleted or no longer a select.
+   */
+  dependsOn?: string;
   relation?: RelationConfig;
   formula?: FormulaConfig;
   rollup?: RollupConfig;

@@ -46,6 +46,17 @@ import { configsOf, DEFAULT_VIEW_NAMES, galleryCover, isViewType, layoutConfigEr
 import { holdsOptions, holdsPeople, isComputed, isDerived, isReadOnlyType, PERSON_ME, type StatusGroup } from "@/lib/property-types";
 import { canRestrict, namesPeople } from "@/lib/property-access";
 import { moveGroupValue } from "@/lib/grouping";
+import {
+  canBeParent,
+  canDepend,
+  cleanParentOptions,
+  dependencyProblem,
+  dependentsOf,
+  followDependencies,
+  parentOf,
+  withoutParentOptions,
+} from "@/lib/dependent-options";
+import { cleanDescription, MAX_PROPERTY_DESCRIPTION } from "@/lib/property-description";
 import { makesLoop, parentProperty, singleParent, storedParent, subItemsProperty } from "@/lib/sub-items";
 import {
   blockedByProperty,
@@ -453,7 +464,15 @@ export async function normalizeRowProperties(
   input: Record<string, unknown>,
   /** The row's stored values, when editing an existing row. */
   existing: Record<string, unknown> = {},
-  options: { check?: boolean; createdBy?: string | null } = {},
+  options: {
+    check?: boolean;
+    createdBy?: string | null;
+    /**
+     * false: values checked on their own, not as one row's (a bulk edit, an automation's settings),
+     * so dependent selects (lib/dependent-options) are left to the writes that know the row.
+     */
+    dependencies?: boolean;
+  } = {},
 ) {
   const [all, access] = await Promise.all([getProperties(databaseId), propertyAccessFor(userId, databaseId)]);
   const props = access.visible(all);
@@ -485,7 +504,33 @@ export async function normalizeRowProperties(
     } else out[prop.id] = normalized;
   }
   if (options.check !== false) access.requireValues({ properties: existing, createdBy: options.createdBy }, Object.keys(out));
-  return out;
+  // Dependent selects (lib/dependent-options): what the write sets must fit, and what depends on
+  // a value it changes follows, even a property the writer can't see (it follows the schema).
+  return options.dependencies === false ? out : { ...out, ...followOrRefuse(all, props, existing, out) };
+}
+
+/**
+ * The values a row write clears or narrows because they depend on a value it changes (see
+ * lib/dependent-options followDependencies); throws when the write itself sets an option that
+ * doesn't fit. `visible`: the properties the writer may know of, the only ones an error names.
+ */
+export function followOrRefuse(
+  all: DatabaseProperty[],
+  visible: DatabaseProperty[],
+  before: Record<string, unknown>,
+  patch: Record<string, unknown>,
+): Record<string, unknown> {
+  const outcome = followDependencies(all, before, patch);
+  if (outcome.ok) return outcome.follow;
+  const parent = visible.some((p) => p.id === outcome.parent.id) ? outcome.parent.name : "";
+  const parentValue = outcome.parentValue?.name ?? "";
+  throw new PropertyValueError(
+    parent
+      ? `"${outcome.option.name}" is not available in "${outcome.prop.name}" while "${parent}" is ${parentValue ? `"${parentValue}"` : "empty"}; choose one of its options that goes with it`
+      : `"${outcome.option.name}" is not available in "${outcome.prop.name}" for this row`,
+    "optionUnavailable",
+    { value: outcome.option.name, property: outcome.prop.name, parent },
+  );
 }
 
 async function workspaceOf(databaseId: string): Promise<string | null> {
@@ -931,7 +976,7 @@ export async function updateRowsProperties(
 ): Promise<BulkResult> {
   const ids = bulkRowIds(rowIds);
   await requireDatabase(userId, databaseId, "view");
-  const normalized = await normalizeRowProperties(userId, databaseId, patch, {}, { check: false });
+  const normalized = await normalizeRowProperties(userId, databaseId, patch, {}, { check: false, dependencies: false });
   const found = await rowsWithAccess(userId, databaseId, ids, "edit");
   // Rows where property access keeps the user from these values are skipped like rows they can't edit.
   const access = await propertyAccessFor(userId, databaseId);
@@ -945,21 +990,40 @@ export async function updateRowsProperties(
   });
   const kept = new Set(rows.map((r) => r.id));
   const skipped = [...found.skipped, ...found.rows.filter((r) => !kept.has(r.id)).map((r) => r.id)];
+  // Dependent selects (lib/dependent-options): checked against each row's own values, before anything is written.
+  const all = await getProperties(databaseId);
+  const visible = access.visible(all);
+  const perRow = new Map(rows.map((row) => [row.id, { ...normalized, ...followOrRefuse(all, visible, row.properties, normalized) }]));
   const plan = { done: Object.keys(normalized).length ? rows.map((r) => r.id) : [], skipped };
   guard?.(plan);
   if (!plan.done.length) return plan;
   await checkLoops(databaseId, rows.map((row) => ({ rowId: row.id, values: normalized })));
   if (dryRun) return plan;
 
-  const { set, cleared } = splitPatch(normalized);
+  // Rows are written in groups that end up with the same values: one group, unless the call
+  // changes a property others depend on.
+  const groups = new Map<string, { values: Record<string, unknown>; ids: string[] }>();
+  for (const row of rows) {
+    const values = perRow.get(row.id)!;
+    const key = JSON.stringify(values);
+    const group = groups.get(key) ?? { values, ids: [] };
+    group.ids.push(row.id);
+    groups.set(key, group);
+  }
   // Merged in SQL, so a concurrent edit of another property of the same row isn't overwritten.
-  await db
-    .update(page)
-    .set({ properties: mergedProperties(set, cleared), updatedBy: userId })
-    .where(inArray(page.id, rows.map((r) => r.id)));
+  await db.transaction(async (tx) => {
+    for (const { values, ids: groupIds } of groups.values()) {
+      const { set, cleared } = splitPatch(values);
+      await tx
+        .update(page)
+        .set({ properties: mergedProperties(set, cleared), updatedBy: userId })
+        .where(inArray(page.id, groupIds));
+    }
+  });
 
   // Rows of a database kept as a template link one way and assign nobody (see updateRowProperties).
   const changeOf = (row: (typeof rows)[number]) => {
+    const { set, cleared } = splitPatch(perRow.get(row.id)!);
     const after: Record<string, unknown> = { ...row.properties, ...set };
     for (const k of cleared) delete after[k];
     return { rowId: row.id, before: row.properties, after };
@@ -1138,7 +1202,11 @@ export async function createRows(userId: string, databaseId: string, rows: NewRo
     try {
       values.push(await normalizeRowProperties(userId, databaseId, row.properties ?? {}));
     } catch (error) {
-      if (error instanceof PropertyValueError) error.message = `Row ${i + 1} ("${row.title.trim()}"): ${error.message}`;
+      if (error instanceof PropertyValueError) {
+        error.message = `Row ${i + 1} ("${row.title.trim()}"): ${error.message}`;
+        // Counted from 0, as the REST API names it (rows.<index>.properties.<name>).
+        error.params = { ...error.params, row: String(i) };
+      }
       throw error;
     }
   }
@@ -1396,9 +1464,12 @@ export async function addProperty(
     number?: NumberFormat | null;
     /** Dates: relative display and a reminder (see lib/date-options). */
     date?: DateOptionsInput;
+    /** What it holds and how to fill it (see lib/property-description). */
+    description?: string | null;
   },
 ) {
   const database = await requireDatabase(userId, databaseId, "edit");
+  const description = input.description !== undefined ? checkedDescription(input.description) : null;
   assertUnlocked(database);
   if (!PROPERTY_TYPES.includes(input.type)) {
     throw new PropertyValueError(`Unsupported type "${input.type}"`, "unsupportedType", { type: String(input.type) });
@@ -1430,7 +1501,8 @@ export async function addProperty(
               ? { rollup }
               : {};
   // A formula keeps its expression beside its format.
-  const options: PropertyOptions = number ? { ...typeOptions, number } : typeOptions;
+  const formatted: PropertyOptions = number ? { ...typeOptions, number } : typeOptions;
+  const options: PropertyOptions = description ? { description, ...formatted } : formatted;
   const created = await db.transaction(async (tx) => {
     const [created] = await tx
       .insert(databaseProperty)
@@ -1662,6 +1734,39 @@ async function requireProperty(userId: string, propertyId: string, { cellEdit = 
   return prop;
 }
 
+/** A description as stored (see lib/property-description), or null for none; refused when too long. */
+function checkedDescription(input: string | null): string | null {
+  if (input === null) return null;
+  const checked = cleanDescription(String(input));
+  if (!checked.ok) {
+    throw new PropertyValueError(`A property's description can have at most ${MAX_PROPERTY_DESCRIPTION} characters`, "invalidDescription", {
+      max: String(MAX_PROPERTY_DESCRIPTION),
+    });
+  }
+  return checked.description;
+}
+
+/**
+ * The property `prop` is to depend on, by id or (MCP) name, checked (see lib/dependent-options
+ * dependencyProblem); null for none.
+ */
+function checkedDependsOn(prop: DatabaseProperty, ref: string | null, properties: DatabaseProperty[]): string | null {
+  if (ref === null || ref === "") return null;
+  const needle = ref.trim().toLowerCase();
+  const parent = properties.find((p) => p.id === ref) ?? properties.find((p) => p.name.trim().toLowerCase() === needle);
+  const problem = dependencyProblem(prop, parent?.id ?? "", properties);
+  if (problem) {
+    const message =
+      problem === "notDependent"
+        ? `Only select and multi-select properties can depend on another property; "${prop.name}" is a ${prop.type} property`
+        : problem === "loop"
+          ? `"${parent!.name}" already depends on "${prop.name}"`
+          : `"${prop.name}" can only depend on another select property of the same database`;
+    throw new PropertyValueError(message, "invalidDependency", { property: prop.name, parent: parent?.name ?? ref });
+  }
+  return parent!.id;
+}
+
 export async function updateProperty(
   userId: string,
   propertyId: string,
@@ -1680,9 +1785,17 @@ export async function updateProperty(
     pageVisibility?: PageVisibility;
     /** Numbers: a bar or a ring instead of the number; null for the number. */
     numberDisplay?: NumberDisplay | null;
+    /** What the property holds and how to fill it (see lib/property-description); null or "" for none. */
+    description?: string | null;
+    /**
+     * Selects and multi-selects: the select property of the database this one depends on (see
+     * lib/dependent-options); null for none. Changing it forgets which options went under which.
+     */
+    dependsOn?: string | null;
   },
 ) {
   const prop = await requireProperty(userId, propertyId);
+  const description = patch.description !== undefined ? checkedDescription(patch.description) : undefined;
   if (patch.pageVisibility !== undefined && !isPageVisibility(patch.pageVisibility)) {
     throw new PropertyValueError(`Unknown page visibility "${String(patch.pageVisibility)}"`, "invalidPageVisibility");
   }
@@ -1714,6 +1827,14 @@ export async function updateProperty(
       : undefined;
   // Status options are kept in group order with a valid group each.
   if (patch.options && prop.type === "status") patch = { ...patch, options: sortStatusOptions(patch.options) };
+  // Dependent selects: the property it depends on, checked, and options that name only its options.
+  const siblings = patch.dependsOn !== undefined || patch.options || prop.options.dependsOn || canBeParent(prop.type) ? await getProperties(prop.databaseId) : [];
+  const dependsOn = patch.dependsOn !== undefined ? checkedDependsOn(prop, patch.dependsOn, siblings) : undefined;
+  const parent = parentOf({ ...prop, options: { ...prop.options, dependsOn: dependsOn === undefined ? prop.options.dependsOn : (dependsOn ?? undefined) } }, siblings);
+  if (patch.options && canDepend(prop.type)) patch = { ...patch, options: cleanParentOptions(patch.options, parent) };
+  else if (dependsOn !== undefined && dependsOn !== (prop.options.dependsOn ?? null) && prop.options.options) {
+    patch = { ...patch, options: withoutParentOptions(prop.options.options) };
+  }
   // Rows must not keep ids of deleted options: they'd show as empty yet fail validation on the next edit.
   const removed = patch.options
     ? (prop.options.options ?? []).filter((o) => !patch.options!.some((n) => n.id === o.id)).map((o) => o.id)
@@ -1739,7 +1860,18 @@ export async function updateProperty(
     const visibility = patch.pageVisibility;
     change((o) => (visibility === "show" ? without(o, "pageVisibility") : { ...o, pageVisibility: visibility }));
   }
+  if (description !== undefined) change((o) => (description ? { ...o, description } : without(o, "description")));
+  if (dependsOn !== undefined) change((o) => (dependsOn ? { ...o, dependsOn } : without(o, "dependsOn")));
+  // Options of this property others depend on that go away leave their lists (lib/dependent-options).
+  const dependents = removed.length ? dependentsOf(prop.id, siblings) : [];
   await db.transaction(async (tx) => {
+    for (const child of dependents) {
+      const pruned = cleanParentOptions(child.options.options ?? [], { options: { options: patch.options } });
+      await tx
+        .update(databaseProperty)
+        .set({ options: { ...child.options, options: pruned } })
+        .where(eq(databaseProperty.id, child.id));
+    }
     await tx
       .update(databaseProperty)
       .set({
@@ -2260,9 +2392,18 @@ async function retypeProperty(
         : rollup
           ? { rollup }
           : {};
-    // Whether it shows on row pages doesn't depend on the type.
-    const { pageVisibility } = prop.options;
-    const options: PropertyOptions = pageVisibility ? { ...typeOptions, pageVisibility } : typeOptions;
+    // Whether it shows on row pages, and what it holds, don't depend on the type; the property it
+    // depends on only while it is still a select or multi-select (whose options keep their lists).
+    const { pageVisibility, description, dependsOn } = prop.options;
+    const kept = canDepend(input.type) && dependsOn ? { dependsOn } : {};
+    const typed: PropertyOptions =
+      typeOptions.options && !kept.dependsOn ? { ...typeOptions, options: withoutParentOptions(typeOptions.options) } : typeOptions;
+    const options: PropertyOptions = {
+      ...(description ? { description } : {}),
+      ...typed,
+      ...kept,
+      ...(pageVisibility ? { pageVisibility } : {}),
+    };
     // New values by row id; null removes one. Unticked boxes and types Leafdesk works out store none.
     const next: Record<string, unknown> = {};
     rows.forEach((row, i) => {
@@ -2324,6 +2465,20 @@ async function retypeProperty(
       .set({ type: input.type, options: relation ? { ...options, relation } : options })
       .where(eq(databaseProperty.id, propertyId))
       .returning();
+    // Properties depending on it no longer can: they offer all their options again, with no
+    // lists left naming options it no longer has (lib/dependent-options).
+    if (canBeParent(prop.type) && !canBeParent(input.type)) {
+      const children = (await tx.select().from(databaseProperty).where(eq(databaseProperty.databaseId, prop.databaseId))).filter(
+        (p) => p.options.dependsOn === propertyId,
+      );
+      for (const child of children) {
+        const { dependsOn: _parent, ...rest } = child.options;
+        await tx
+          .update(databaseProperty)
+          .set({ options: { ...rest, ...(rest.options ? { options: withoutParentOptions(rest.options) } : {}) } })
+          .where(eq(databaseProperty.id, child.id));
+      }
+    }
     if (Object.keys(next).length) {
       await tx.execute(sql`
         update ${page} set
@@ -2674,9 +2829,11 @@ export async function moveRow(
       createdBy: row.createdBy,
     });
     await checkLoops(row.parentId, [{ rowId, values: normalized }]);
-    const value = normalized[groupBy];
-    if (value === null || value === undefined || (Array.isArray(value) && !value.length)) delete properties[groupBy];
-    else properties[groupBy] = value;
+    // The group's value, and the values depending on it that it clears (lib/dependent-options).
+    for (const [key, value] of Object.entries(normalized)) {
+      if (value === null || value === undefined || (Array.isArray(value) && !value.length)) delete properties[key];
+      else properties[key] = value;
+    }
   }
   await db
     .update(page)

@@ -17,6 +17,7 @@
  * Env: DATABASE_URL (read from .env when present). Migrations must be applied.
  */
 import { isDeepStrictEqual } from "node:util";
+import { API_TOKEN_SCOPES as ALL_SCOPES, READ_SCOPES } from "@/lib/api-scopes";
 
 
 try {
@@ -584,11 +585,11 @@ try {
   await latest(ws.main, "site.removed");
 
   // ── API tokens and connected apps ────────────────────────────────────────────────────────────
-  const scoped = await createApiToken(owner, { name: "CI", scopes: ["pages:read", "pages:write"], workspaceId: ws.main });
+  const scoped = await createApiToken(owner, { name: "CI", scopes: ALL_SCOPES, workspaceId: ws.main });
   row = await latest(ws.main, "api_token.created");
   check(row.targetLabel === "CI" && !JSON.stringify(row).includes(scoped.secret), "creating an API token is recorded, never its secret", row);
   check((await events(ws.other, "api_token.created")).length === 0, "…only in the workspace it is for");
-  const everywhere = await createApiToken(owner, { name: "Everywhere", scopes: ["pages:read"] });
+  const everywhere = await createApiToken(owner, { name: "Everywhere", scopes: READ_SCOPES });
   check(
     (await events(ws.main, "api_token.created")).length === 2 && (await events(ws.other, "api_token.created")).length === 1,
     "a token for all workspaces is recorded in each of them",

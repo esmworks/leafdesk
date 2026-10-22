@@ -395,7 +395,8 @@
     "startTime": "Başlangıç saati",
     "endTime": "Bitiş saati",
     "endDateSwitch": "Bitiş tarihi",
-    "includeTime": "Saat ekle"
+    "includeTime": "Saat ekle",
+    "hiddenByParent": "{count, plural, one {# seçenek} other {# seçenek}} bu satırın “{parent}” değerine uymuyor."
   },
   "checklist": {
     "addItem": "Madde ekleyin",
@@ -498,7 +499,16 @@
     "reminder": "Hatırlatıcı",
     "reminderNone": "Hatırlatıcı yok",
     "reminderBefore": "{days, select, 0 {Aynı gün, 09:00} 1 {1 gün önce, 09:00} 7 {1 hafta önce, 09:00} other {{days} gün önce, 09:00}}",
-    "reminderHint": "Her satıra atanan kişilere, kimse atanmamışsa satırı ekleyene bildirir; tamamlanan satırlar hatırlatmaz. 09:00 sizin saat diliminize göredir; saati olan tarihler o saatte hatırlatır."
+    "reminderHint": "Her satıra atanan kişilere, kimse atanmamışsa satırı ekleyene bildirir; tamamlanan satırlar hatırlatmaz. 09:00 sizin saat diliminize göredir; saati olan tarihler o saatte hatırlatır.",
+    "description": "Açıklama",
+    "descriptionPlaceholder": "Neyi tuttuğu ve nasıl doldurulacağı",
+    "dependsOn": "Bağlı olduğu",
+    "dependsOnNone": "Hiçbiri",
+    "dependsOnHint": "Her seçeneğin hangi “{parent}” seçenekleriyle geçerli olduğunu seçin. Satırlar yalnızca bunları sunar; hiçbiri seçilmemiş seçenek her durumda geçerlidir.",
+    "noParentOptions": "“{parent}” özelliğinin henüz seçeneği yok.",
+    "parentOptionsLabel": "“{parent}” şu olduğunda:",
+    "parentOptionsAll": "her zaman",
+    "parentOptionToggle": "“{parent}” “{value}” olduğunda “{option}” sunulsun"
   },
   "rowProperties": {
     "noProperties": "Özellik yok",
@@ -801,6 +811,9 @@
     "agentOwnersOnly": "Ajanı çalıştıran eylemleri yalnızca çalışma alanı sahipleri ve ajanı düzenleyebilenler ekleyip değiştirebilir.",
     "invalidRepeat": "Bu tekrar ayarı geçerli değil: günleri, saati ve saat dilimini kontrol et.",
     "tooManySchedules": "Bu çalışma alanında olabilecek en fazla sayıda tekrarlayan şablon var.",
+    "optionUnavailable": "“{value}”, bu satırda “{property}” için seçilemez.",
+    "invalidDependency": "“{property}” yalnızca bu veritabanında kendisine bağlı olmayan başka bir seçim özelliğine bağlanabilir.",
+    "invalidDescription": "Açıklama en fazla {max} karakter olabilir.",
     "mergeRowCount": "Birleştirmek için {min} ila {max} satır seçin.",
     "mergeRowsInvalid": "Yalnızca tek bir veritabanının, çöp kutusunda olmayan satırları birleştirilebilir.",
     "mergeRowsReadOnly": "{rows} satırlarını yalnızca görüntüleyebilirsiniz. Birleştirmek için her satırda düzenleme yetkisi gerekir.",

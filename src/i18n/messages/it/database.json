@@ -395,7 +395,8 @@
     "startTime": "Ora di inizio",
     "endTime": "Ora di fine",
     "endDateSwitch": "Data di fine",
-    "includeTime": "Includi ora"
+    "includeTime": "Includi ora",
+    "hiddenByParent": "{count, plural, one {# opzione non va} other {# opzioni non vanno}} con “{parent}” di questa riga."
   },
   "checklist": {
     "addItem": "Aggiungi un elemento",
@@ -498,7 +499,16 @@
     "reminder": "Promemoria",
     "reminderNone": "Nessun promemoria",
     "reminderBefore": "{days, select, 0 {Il giorno stesso, 9:00} 1 {1 giorno prima, 9:00} 7 {1 settimana prima, 9:00} other {{days} giorni prima, 9:00}}",
-    "reminderHint": "Avvisa le persone assegnate a ogni riga, o chi l’ha aggiunta, a meno che la riga non sia completata. Le 9:00 sono nel tuo fuso orario; le date con un’ora inviano il promemoria a quell’ora."
+    "reminderHint": "Avvisa le persone assegnate a ogni riga, o chi l’ha aggiunta, a meno che la riga non sia completata. Le 9:00 sono nel tuo fuso orario; le date con un’ora inviano il promemoria a quell’ora.",
+    "description": "Descrizione",
+    "descriptionPlaceholder": "Cosa contiene e come compilarla",
+    "dependsOn": "Dipende da",
+    "dependsOnNone": "Niente",
+    "dependsOnHint": "Scegli con quali opzioni di “{parent}” va ogni opzione. Le righe offrono solo quelle; un’opzione senza scelte va con tutte.",
+    "noParentOptions": "“{parent}” non ha ancora opzioni.",
+    "parentOptionsLabel": "Con “{parent}”:",
+    "parentOptionsAll": "sempre",
+    "parentOptionToggle": "Offri “{option}” quando “{parent}” è “{value}”"
   },
   "rowProperties": {
     "noProperties": "Nessuna proprietà",
@@ -801,6 +811,9 @@
     "agentOwnersOnly": "Solo i proprietari dello spazio di lavoro e chi può modificare l’agente possono aggiungere o modificare azioni che lo eseguono.",
     "invalidRepeat": "Questa pianificazione di ripetizione non è valida: controlla i giorni, l’ora e il fuso orario.",
     "tooManySchedules": "Questo spazio di lavoro ha già il numero massimo di modelli ripetuti.",
+    "optionUnavailable": "“{value}” non è disponibile in “{property}” per questa riga.",
+    "invalidDependency": "“{property}” può dipendere solo da un’altra proprietà di selezione di questo database che non dipenda da essa.",
+    "invalidDescription": "Una descrizione può avere al massimo {max} caratteri.",
     "mergeRowCount": "Scegli da {min} a {max} righe da unire.",
     "mergeRowsInvalid": "Si possono unire solo righe di uno stesso database che non sono nel cestino.",
     "mergeRowsReadOnly": "Puoi solo visualizzare {rows}. Per unire serve il permesso di modifica su ogni riga.",

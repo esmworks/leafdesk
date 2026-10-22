@@ -395,7 +395,8 @@
     "startTime": "Hora de início",
     "endTime": "Hora de término",
     "endDateSwitch": "Data de término",
-    "includeTime": "Incluir hora"
+    "includeTime": "Incluir hora",
+    "hiddenByParent": "{count, plural, one {# opção não combina} other {# opções não combinam}} com “{parent}” desta linha."
   },
   "checklist": {
     "addItem": "Adicionar um item",
@@ -498,7 +499,16 @@
     "reminder": "Lembrete",
     "reminderNone": "Sem lembrete",
     "reminderBefore": "{days, select, 0 {No dia, 9:00} 1 {1 dia antes, 9:00} 7 {1 semana antes, 9:00} other {{days} dias antes, 9:00}}",
-    "reminderHint": "Notifica as pessoas atribuídas a cada linha, ou quem a adicionou, a menos que a linha esteja concluída. 9:00 está no seu fuso horário; datas com hora enviam o lembrete nessa hora."
+    "reminderHint": "Notifica as pessoas atribuídas a cada linha, ou quem a adicionou, a menos que a linha esteja concluída. 9:00 está no seu fuso horário; datas com hora enviam o lembrete nessa hora.",
+    "description": "Descrição",
+    "descriptionPlaceholder": "O que contém e como preencher",
+    "dependsOn": "Depende de",
+    "dependsOnNone": "Nada",
+    "dependsOnHint": "Escolha com quais opções de “{parent}” cada opção combina. As linhas oferecem só essas; uma opção sem nenhuma escolhida combina com todas.",
+    "noParentOptions": "“{parent}” ainda não tem opções.",
+    "parentOptionsLabel": "Com “{parent}”:",
+    "parentOptionsAll": "sempre",
+    "parentOptionToggle": "Oferecer “{option}” quando “{parent}” for “{value}”"
   },
   "rowProperties": {
     "noProperties": "Nenhuma propriedade",
@@ -801,6 +811,9 @@
     "agentOwnersOnly": "Só os proprietários do espaço de trabalho e quem pode editar o agente podem adicionar ou alterar ações que o executam.",
     "invalidRepeat": "Essa programação de repetição não é válida: verifique os dias, a hora e o fuso horário.",
     "tooManySchedules": "Este espaço de trabalho já tem o número máximo de modelos com repetição.",
+    "optionUnavailable": "“{value}” não está disponível em “{property}” para esta linha.",
+    "invalidDependency": "“{property}” só pode depender de outra propriedade de seleção deste banco de dados que não dependa dela.",
+    "invalidDescription": "Uma descrição pode ter no máximo {max} caracteres.",
     "mergeRowCount": "Escolha de {min} a {max} linhas para mesclar.",
     "mergeRowsInvalid": "Só é possível mesclar linhas de um mesmo banco de dados que não estejam na lixeira.",
     "mergeRowsReadOnly": "Você só pode ver {rows}. Para mesclar é preciso poder editar cada linha.",

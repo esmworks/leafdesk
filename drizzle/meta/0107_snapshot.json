@@ -1,5 +1,5 @@
 {
-  "id": "7fa1bcf7-d203-4f39-ba87-ae76833a8d5c",
+  "id": "ac89e87c-472a-45c1-b0ab-ce84d36c91cf",
   "prevId": "8ffd2a74-f0f5-4cce-bbba-f04cea4ad38b",
   "version": "7",
   "dialect": "postgresql",
@@ -2340,12 +2340,6 @@
           "notNull": true,
           "default": "''"
         },
-        "merged_into_id": {
-          "name": "merged_into_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
         "created_by": {
           "name": "created_by",
           "type": "text",
@@ -2484,22 +2478,6 @@
           "concurrently": false,
           "method": "gin",
           "with": {}
-        },
-        "page_merged_into_idx": {
-          "name": "page_merged_into_idx",
-          "columns": [
-            {
-              "expression": "merged_into_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "where": "\"page\".\"merged_into_id\" is not null",
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
         }
       },
       "foreignKeys": {
@@ -2548,19 +2526,6 @@
           "tableTo": "page",
           "columnsFrom": [
             "default_template_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        },
-        "page_merged_into_id_page_id_fk": {
-          "name": "page_merged_into_id_page_id_fk",
-          "tableFrom": "page",
-          "tableTo": "page",
-          "columnsFrom": [
-            "merged_into_id"
           ],
           "columnsTo": [
             "id"
@@ -2822,18 +2787,6 @@
           "primaryKey": false,
           "notNull": false
         },
-        "merged_from_id": {
-          "name": "merged_from_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "merged_from_title": {
-          "name": "merged_from_title",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp with time zone",
@@ -2922,7 +2875,7 @@
         },
         "row_activity_kind_check": {
           "name": "row_activity_kind_check",
-          "value": "\"row_activity\".\"kind\" in ('created', 'title', 'property', 'merged')"
+          "value": "\"row_activity\".\"kind\" in ('created', 'title', 'property')"
         },
         "row_activity_property_check": {
           "name": "row_activity_property_check",
@@ -7675,6 +7628,101 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.api_idempotency_key": {
+      "name": "api_idempotency_key",
+      "schema": "",
+      "columns": {
+        "token_id": {
+          "name": "token_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "operation": {
+          "name": "operation",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "key": {
+          "name": "key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "request_hash": {
+          "name": "request_hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "response": {
+          "name": "response",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "api_idempotency_key_created_idx": {
+          "name": "api_idempotency_key_created_idx",
+          "columns": [
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "api_idempotency_key_token_id_api_token_id_fk": {
+          "name": "api_idempotency_key_token_id_api_token_id_fk",
+          "tableFrom": "api_idempotency_key",
+          "tableTo": "api_token",
+          "columnsFrom": [
+            "token_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "api_idempotency_key_token_id_operation_key_pk": {
+          "name": "api_idempotency_key_token_id_operation_key_pk",
+          "columns": [
+            "token_id",
+            "operation",
+            "key"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.api_token": {
       "name": "api_token",
       "schema": "",
@@ -7714,6 +7762,13 @@
           "type": "text[]",
           "primaryKey": false,
           "notNull": true
+        },
+        "legacy_scopes": {
+          "name": "legacy_scopes",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
         },
         "workspace_id": {
           "name": "workspace_id",

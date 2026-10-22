@@ -78,8 +78,32 @@
     "promptPlaceholder": "Na przykład: Napisz jednozdaniową zachętę do '{title}' skierowaną do '{Audience}'.",
     "promptHint": "Kliknij właściwość, aby ją wstawić; w jej miejscu pojawi się wartość wiersza.",
     "includeBody": "Wysyłaj też treść strony wiersza",
+    "typed": {
+      "select": {
+        "hint": "AI wybiera jedną z opcji tej właściwości albo zostawia ją pustą, gdy żadna nie pasuje.",
+        "placeholder": "Na przykład: Która opcja najlepiej pasuje do '{title}', biorąc pod uwagę '{Notes}'?"
+      },
+      "multi_select": {
+        "hint": "AI wybiera pasujące opcje, nigdy nowe, albo zostawia ją pustą.",
+        "placeholder": "Na przykład: Jakich tematów dotyczy '{Notes}'?"
+      },
+      "status": {
+        "hint": "AI wybiera jedną z opcji tego statusu albo zostawia go pustym, gdy żadna nie pasuje.",
+        "placeholder": "Na przykład: Sądząc po '{Notes}', czy '{title}' jest gotowe, w toku czy nierozpoczęte?"
+      },
+      "number": {
+        "hint": "AI odpowiada liczbą albo zostawia ją pustą, gdy nie potrafi jej określić.",
+        "placeholder": "Na przykład: W skali od 1 do 5, jak pilne jest '{title}', biorąc pod uwagę '{Notes}'?"
+      },
+      "checkbox": {
+        "hint": "AI zaznacza pole dla tak i zostawia je niezaznaczone dla nie.",
+        "placeholder": "Na przykład: Czy '{Notes}' wspomina o terminie?"
+      }
+    },
     "auto": "Aktualizuj, gdy wiersz się zmieni",
     "autoHint": "Kilka sekund po zmianie wartości lub strony wiersza jego wartość jest obliczana ponownie.",
+    "requires": "Tylko wiersze, w których mają one wartość",
+    "requiresHint": "Wiersze, w których któraś z nich jest pusta (lub niezaznaczona), są pomijane i zachowują swoją wartość.",
     "privacy": "Dane, na podstawie których obliczana jest wartość każdego wiersza, trafiają do dostawcy AI tego serwera.",
     "save": "Zapisz",
     "create": "Dodaj właściwość",
@@ -98,7 +122,9 @@
       "unknownPlaceholder": "Nie ma właściwości o nazwie „{name}”.",
       "cycle": "„{name}” już odczytuje tę właściwość (bezpośrednio lub przez inne właściwości AI), więc ta nie może odczytywać tamtej.",
       "hiddenInput": "„{name}” nie może trafić do wartości AI: pokazuje powiązane wiersze lub osoby, których nie każdy czytający wiersz może zobaczyć.",
-      "notText": "AI może wypełniać tylko właściwości tekstowe.",
+      "noOptions": "Najpierw dodaj opcje do tej właściwości: AI wybiera spośród nich.",
+      "unknownRequired": "Niektórych wybranych właściwości nie ma już w tej bazie danych. Wybierz je ponownie.",
+      "unsupportedType": "AI może wypełniać właściwości typu tekst, wybór, wielokrotny wybór, status, liczba i pole wyboru.",
       "databaseLocked": "Baza danych jest zablokowana."
     }
   },

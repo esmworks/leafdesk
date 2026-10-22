@@ -1,6 +1,7 @@
 import { env } from "@/lib/env";
 import { SlidingWindowLimiter } from "@/lib/rate-limit";
 import { corsOriginsFromEnv, createApiHandler, rateLimitFromEnv } from "./handler";
+import { databaseIdempotencyStore } from "./idempotency";
 import { buildOpenApiDocument } from "./openapi";
 import { API_ROUTES } from "./routes";
 import { verifyApiToken } from "./tokens";
@@ -29,4 +30,5 @@ export const handleApiRequest = (request: Request) =>
     limiter: limiter(),
     openApiDocument,
     corsOrigins: corsOriginsFromEnv(),
+    idempotency: databaseIdempotencyStore,
   })(request);

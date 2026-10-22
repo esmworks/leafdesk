@@ -2,12 +2,13 @@
 
 import { ArrowDown, ArrowUp, Bot, ChevronRight, Ellipsis, EyeOff, Plus, Trash2 } from "lucide-react";
 import { useTimeZone, useTranslations } from "next-intl";
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { cn, MenuItem, MenuSeparator } from "@/components/ui";
 import { PHONE_QUERY, useMediaQuery } from "@/components/use-media-query";
 import { useReorderDrag, type ReorderDragHandlers } from "@/components/use-reorder-drag";
 import type { ViewConfig } from "@/db/schema/app";
 import type { AggregateFn } from "@/lib/aggregate";
+import { isAutofillType } from "@/lib/ai";
 import { valueType } from "@/lib/derived";
 import { arrangeGroups, canAddToGroup, groupDefaults, groupRowsBy, type Group } from "@/lib/grouping";
 import { isEmptyValue, lostValues, planConversion } from "@/lib/convert-property";
@@ -29,6 +30,7 @@ import { PropertyTypeIcon } from "./property-icons";
 import { PropertyAccessDialog } from "./property-access-dialog";
 import { PropertyLock, usePropertyAccess } from "./property-access";
 import { AddPropertyPanel, PropertyMenu, type PropertyMenuActions } from "./property-menu";
+import { usePropertyHint } from "./property-hint";
 import { HIDE_SCROLLBAR, StickyScrollbar } from "./scroll-x";
 import { CalculationRow } from "./table-calculations";
 import { useRelations } from "./relation-context";
@@ -450,6 +452,7 @@ export function TableView({
                       void api.setCell(row.id, p.id, v);
                     }}
                     onCreateOption={createOption}
+                    rowValues={row.properties}
                     upload={p.type === "files" ? uploadToPage(row.id) : undefined}
                   />
                 </AiCell>
@@ -674,6 +677,8 @@ export function TableView({
                         : undefined,
                       hide: settingsReadOnly ? undefined : () => setConfig({ ...view.config, hidden: [...(view.config.hidden ?? []), p.id] }),
                       setOptions: fixed ? undefined : (options) => api.setOptions(p, options),
+                      setDependsOn: fixed ? undefined : (parentId) => api.setDependsOn(p, parentId),
+                      setDescription: fixed ? undefined : (description) => api.setDescription(p, description),
                       setFormula: fixed ? undefined : (expression) => api.setFormula(p, expression),
                       setRollup: fixed ? undefined : (rollup) => api.setRollup(p, rollup),
                       setNumberFormat:
@@ -681,7 +686,7 @@ export function TableView({
                       setDateOptions: fixed || p.type !== "date" ? undefined : (input) => api.setDateOptions(p, input),
                       setNumberDisplay: fixed || p.type !== "number" ? undefined : (display) => api.setNumberDisplay(p, display),
                       setPageVisibility: fixed ? undefined : (visibility) => api.setPageVisibility(p, visibility),
-                      setAutofill: fixed || !ai.enabled || p.type !== "text" ? undefined : (config) => api.setAutofill(p, config),
+                      setAutofill: fixed || !ai.enabled || !isAutofillType(p.type) ? undefined : (config) => api.setAutofill(p, config),
                       updateAllAutofill:
                         !ai.enabled || !ai.refresh || !p.options.ai || !access.canEditValues(p.id)
                           ? undefined
@@ -901,6 +906,8 @@ function HeaderCell({
   const access = usePropertyAccess();
   const [accessOpen, setAccessOpen] = useState(false);
   const menuActions = prop && access.canManage ? { ...actions, openAccess: () => setAccessOpen(true) } : actions;
+  const { hint, description } = usePropertyHint(prop, menu.el, menu.open);
+  const descriptionId = useId();
   return (
     <th
       data-column={prop?.id}
@@ -928,15 +935,18 @@ function HeaderCell({
         type="button"
         disabled={readOnly}
         onClick={menu.toggle}
+        aria-describedby={description ? descriptionId : undefined}
         className="flex h-[33px] w-full items-center gap-1.5 px-2 text-sm text-fg-muted hover:bg-bg-hover disabled:hover:bg-transparent"
       >
         <PropertyTypeIcon type={icon} className="h-3.5 w-3.5 shrink-0" />
         <span className="truncate">{label}</span>
         {prop && <PropertyLock propertyId={prop.id} />}
-        {prop?.type === "text" && prop.options.ai && <Bot className="h-3.5 w-3.5 shrink-0" aria-label={tAi("addEntry")} />}
+        {isAutofillType(prop?.type) && prop?.options.ai && <Bot className="h-3.5 w-3.5 shrink-0" aria-label={tAi("addEntry")} />}
         {sort === "asc" && <ArrowUp className="h-3 w-3 shrink-0 text-accent" aria-label={t("sortedAscending")} />}
         {sort === "desc" && <ArrowDown className="h-3 w-3 shrink-0 text-accent" aria-label={t("sortedDescending")} />}
       </button>
+      {description && <span id={descriptionId} hidden>{description}</span>}
+      {hint}
       {onResize && (
         <span
           aria-hidden

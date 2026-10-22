@@ -9,10 +9,6 @@
     "name": "Nome",
     "namePlaceholder": "ex.: Script do relatório semanal",
     "access": "Acesso",
-    "read": "Somente leitura",
-    "readHint": "Ler páginas, bancos de dados, linhas e comentários.",
-    "write": "Leitura e escrita",
-    "writeHint": "Também criar e alterar páginas, linhas e comentários, mover páginas para a lixeira e (como proprietário do espaço de trabalho) alterar agentes e pedir execuções a eles.",
     "workspace": "Espaço de trabalho",
     "allWorkspaces": "Todos os meus espaços de trabalho",
     "expiry": "Expira após",
@@ -35,7 +31,8 @@
     "neverUsed": "nunca usado",
     "expires": "expira em {date}",
     "expired": "expirou em {date}",
-    "noExpiry": "não expira"
+    "noExpiry": "não expira",
+    "legacy": "criado antes do acesso por recurso"
   },
   "revoke": "Revogar",
   "revoking": "Revogando…",
@@ -47,7 +44,8 @@
     "workspace": "Você não é membro desse espaço de trabalho.",
     "expiry": "Escolha quando o token expira.",
     "limit": "Você atingiu o número máximo de tokens. Revogue um primeiro.",
-    "generic": "Não foi possível criar o token. Tente novamente."
+    "generic": "Não foi possível criar o token. Tente novamente.",
+    "notFound": "Este token não existe mais."
   },
   "docsPage": {
     "metaTitle": "API REST",
@@ -68,6 +66,66 @@
     "name": "Nome",
     "type": "Tipo",
     "description": "Descrição",
-    "required": "obrigatório"
+    "required": "obrigatório",
+    "scopes": "Escopos",
+    "scope": "Escopo",
+    "access": "Acesso",
+    "read": "Leitura",
+    "write": "Escrita",
+    "inHeader": "cabeçalho"
+  },
+  "scopes": {
+    "presets": {
+      "readAll": "Ler tudo",
+      "all": "Ler e escrever tudo"
+    },
+    "read": "Ler",
+    "write": "Escrever",
+    "toggle": "{access}: {resource}",
+    "resources": {
+      "workspaces": {
+        "name": "Espaços de trabalho",
+        "hint": "Espaços de trabalho, seus espaços de equipe e grupos."
+      },
+      "pages": {
+        "name": "Páginas",
+        "hint": "Páginas, subpáginas e notas diárias; escrever inclui as notas de voz."
+      },
+      "search": {
+        "name": "Pesquisa",
+        "hint": "Pesquisar em páginas e linhas."
+      },
+      "databases": {
+        "name": "Bancos de dados",
+        "hint": "As propriedades e visualizações de um banco de dados."
+      },
+      "rows": {
+        "name": "Linhas",
+        "hint": "Consultar linhas e ler sua atividade; escrever adiciona e altera linhas."
+      },
+      "comments": {
+        "name": "Comentários",
+        "hint": "Conversas de comentários; escrever inicia conversas e responde."
+      },
+      "agents": {
+        "name": "Agentes",
+        "hint": "Configurações, execuções, agendamentos e compartilhamento dos agentes."
+      }
+    },
+    "summary": {
+      "read": "{resource}: leitura",
+      "readWrite": "{resource}: leitura e escrita"
+    }
+  },
+  "edit": {
+    "button": "Alterar acesso",
+    "title": "Alterar o que {name} pode fazer",
+    "body": "O token mantém o segredo; a alteração vale a partir da próxima solicitação.",
+    "legacy": "Este token foi criado antes de o acesso ser escolhido por recurso, por isso pode ler tudo (e escrever tudo, se foi criado para escrita), inclusive o que for adicionado depois. Ao salvar, ele terá exatamente o que você escolher aqui.",
+    "errors": {
+      "scopes": "Escolha pelo menos uma coisa que o token possa fazer.",
+      "notFound": "Este token não existe mais.",
+      "generic": "Não foi possível alterar o token. Tente novamente."
+    }
   }
 }

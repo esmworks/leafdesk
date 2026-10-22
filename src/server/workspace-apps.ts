@@ -10,6 +10,7 @@ import { apiToken, connectedAppUse, oauthClient, oauthConsent, user } from "@/db
 import { AccessError, inWorkspace, requireMembership } from "@/server/access";
 import { revokeApiToken } from "@/server/api/tokens";
 import { clientDisplayName, revokeConnectedApp } from "@/server/mcp/grants";
+import { scopesWrite } from "@/lib/api-scopes";
 import { WRITE_SCOPE } from "@/server/mcp/principal";
 
 /** The most apps and the most tokens the list shows, those used here most recently first. */
@@ -135,7 +136,8 @@ export async function listWorkspaceApps(actorId: string, workspaceId: string, no
       name: t.name,
       prefix: t.prefix,
       person: t.person,
-      writes: t.scopes.includes(WRITE_SCOPE),
+      // Any write scope (rows:write, say), or a legacy token's pages:write.
+      writes: scopesWrite(t.scopes),
       allWorkspaces: t.workspaceId === null,
       connectedAt: t.connectedAt,
       lastUsedHere: t.lastUsedHere,

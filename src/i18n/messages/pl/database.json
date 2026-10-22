@@ -395,7 +395,8 @@
     "startTime": "Godzina rozpoczęcia",
     "endTime": "Godzina zakończenia",
     "endDateSwitch": "Data zakończenia",
-    "includeTime": "Uwzględnij godzinę"
+    "includeTime": "Uwzględnij godzinę",
+    "hiddenByParent": "{count, plural, one {# opcja nie pasuje} few {# opcje nie pasują} many {# opcji nie pasuje} other {# opcji nie pasuje}} do „{parent}” w tym wierszu."
   },
   "checklist": {
     "addItem": "Dodaj element",
@@ -498,7 +499,16 @@
     "reminder": "Przypomnienie",
     "reminderNone": "Bez przypomnienia",
     "reminderBefore": "{days, select, 0 {W tym dniu, 9:00} 1 {1 dzień wcześniej, 9:00} 7 {1 tydzień wcześniej, 9:00} other {{days} dni wcześniej, 9:00}}",
-    "reminderHint": "Powiadamia osoby przypisane do każdego wiersza lub osobę, która go dodała, chyba że wiersz jest ukończony. 9:00 według twojej strefy czasowej; daty z godziną przypominają o tej godzinie."
+    "reminderHint": "Powiadamia osoby przypisane do każdego wiersza lub osobę, która go dodała, chyba że wiersz jest ukończony. 9:00 według twojej strefy czasowej; daty z godziną przypominają o tej godzinie.",
+    "description": "Opis",
+    "descriptionPlaceholder": "Co zawiera i jak ją wypełniać",
+    "dependsOn": "Zależy od",
+    "dependsOnNone": "Nic",
+    "dependsOnHint": "Wybierz, do których opcji „{parent}” pasuje każda opcja. Wiersze oferują tylko te; opcja bez wyboru pasuje do wszystkich.",
+    "noParentOptions": "„{parent}” nie ma jeszcze opcji.",
+    "parentOptionsLabel": "Przy „{parent}”:",
+    "parentOptionsAll": "zawsze",
+    "parentOptionToggle": "Oferuj „{option}”, gdy „{parent}” to „{value}”"
   },
   "rowProperties": {
     "noProperties": "Brak właściwości",
@@ -801,6 +811,9 @@
     "agentOwnersOnly": "Akcje uruchamiające agenta mogą dodawać i zmieniać tylko właściciele obszaru roboczego i osoby, które mogą edytować tego agenta.",
     "invalidRepeat": "Ten harmonogram powtarzania jest nieprawidłowy: sprawdź dni, godzinę i strefę czasową.",
     "tooManySchedules": "Ten obszar roboczy ma już maksymalną liczbę powtarzanych szablonów.",
+    "optionUnavailable": "„{value}” nie jest dostępne we właściwości „{property}” w tym wierszu.",
+    "invalidDependency": "„{property}” może zależeć tylko od innej właściwości wyboru tej bazy danych, która sama od niej nie zależy.",
+    "invalidDescription": "Opis może mieć najwyżej {max} znaków.",
     "mergeRowCount": "Wybierz od {min} do {max} wierszy do scalenia.",
     "mergeRowsInvalid": "Scalać można tylko wiersze jednej bazy danych, które nie są w koszu.",
     "mergeRowsReadOnly": "Możesz tylko wyświetlać {rows}. Scalanie wymaga uprawnień do edycji każdego wiersza.",

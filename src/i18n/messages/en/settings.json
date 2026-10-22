@@ -621,6 +621,12 @@
       "logFills": "It fills {properties}.",
       "logFillsNone": "The log has none of the properties it fills (lists, dates, links, people, text); it adds each win’s title and text only.",
       "logLeft": "Left out, past the first {max}: {properties}.",
+      "chooseCompanies": "Which database of companies or customers should it fill in? You need full access to it.",
+      "companyProperties": "Properties to fill",
+      "companyPropertiesHelp": "Up to {max}. On a new row it fills only those still empty, never changing a value. A property’s description tells it what goes there; untick the ones it should leave alone.",
+      "noCompanyProperties": "This database has no property it can fill: text, a link, an email, a phone number, a number, or a select with options. Add one, then set the agent up.",
+      "companyAutofilled": "Left out, as AI autofill fills them: {properties}.",
+      "summaryWeb": "It gets web access, to look the companies up.",
       "back": "Back",
       "next": "Next",
       "create": "Create agent",
@@ -1577,6 +1583,7 @@
       },
       "api_token": {
         "created": "Created the API token {target}",
+        "updated": "Changed what the API token {target} may do",
         "revoked": "{hasSubject, select, yes {Revoked {subject}'s API token {target}} other {Revoked the API token {target}}}"
       },
       "automation": {

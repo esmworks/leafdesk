@@ -9,10 +9,6 @@
     "name": "Name",
     "namePlaceholder": "e.g. Weekly report script",
     "access": "Access",
-    "read": "Read only",
-    "readHint": "Read pages, databases, rows and comments.",
-    "write": "Read and write",
-    "writeHint": "Also create and change pages, rows and comments, move pages to the trash, and (as a workspace owner) change agents and ask them for runs.",
     "workspace": "Workspace",
     "allWorkspaces": "All my workspaces",
     "expiry": "Expires after",
@@ -35,7 +31,8 @@
     "neverUsed": "never used",
     "expires": "expires {date}",
     "expired": "expired {date}",
-    "noExpiry": "does not expire"
+    "noExpiry": "does not expire",
+    "legacy": "made before access per resource"
   },
   "revoke": "Revoke",
   "revoking": "Revoking…",
@@ -47,7 +44,8 @@
     "workspace": "You are not a member of that workspace.",
     "expiry": "Choose when the token expires.",
     "limit": "You have the most tokens allowed. Revoke one first.",
-    "generic": "Could not create the token. Try again."
+    "generic": "Could not create the token. Try again.",
+    "notFound": "This token no longer exists."
   },
   "docsPage": {
     "metaTitle": "REST API",
@@ -68,6 +66,66 @@
     "name": "Name",
     "type": "Type",
     "description": "Description",
-    "required": "required"
+    "required": "required",
+    "scopes": "Scopes",
+    "scope": "Scope",
+    "access": "Access",
+    "read": "Read",
+    "write": "Write",
+    "inHeader": "header"
+  },
+  "scopes": {
+    "presets": {
+      "readAll": "Read everything",
+      "all": "Read and write everything"
+    },
+    "read": "Read",
+    "write": "Write",
+    "toggle": "{access}: {resource}",
+    "resources": {
+      "workspaces": {
+        "name": "Workspaces",
+        "hint": "Workspaces, their teamspaces and groups."
+      },
+      "pages": {
+        "name": "Pages",
+        "hint": "Pages, sub-pages and daily notes; writing also covers voice notes."
+      },
+      "search": {
+        "name": "Search",
+        "hint": "Search across pages and rows."
+      },
+      "databases": {
+        "name": "Databases",
+        "hint": "A database's properties and views."
+      },
+      "rows": {
+        "name": "Rows",
+        "hint": "Query rows and read their activity; writing adds and changes rows."
+      },
+      "comments": {
+        "name": "Comments",
+        "hint": "Comment threads; writing starts threads and replies."
+      },
+      "agents": {
+        "name": "Agents",
+        "hint": "Agents' settings, runs, schedules and sharing."
+      }
+    },
+    "summary": {
+      "read": "{resource}: read",
+      "readWrite": "{resource}: read and write"
+    }
+  },
+  "edit": {
+    "button": "Change access",
+    "title": "Change what {name} may do",
+    "body": "The token keeps its secret; the change applies from its next request.",
+    "legacy": "This token was made before access was chosen per resource, so it can read everything (and write everything, if it was made for writing), including what is added later. Saving gives it exactly what you choose here.",
+    "errors": {
+      "scopes": "Choose at least one thing the token may do.",
+      "notFound": "This token no longer exists.",
+      "generic": "Could not change the token. Try again."
+    }
   }
 }

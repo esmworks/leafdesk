@@ -395,7 +395,8 @@
     "startTime": "Start time",
     "endTime": "End time",
     "endDateSwitch": "End date",
-    "includeTime": "Include time"
+    "includeTime": "Include time",
+    "hiddenByParent": "{count, plural, one {# option doesn’t} other {# options don’t}} go with this row’s “{parent}”."
   },
   "checklist": {
     "addItem": "Add an item",
@@ -498,7 +499,16 @@
     "reminder": "Reminder",
     "reminderNone": "No reminder",
     "reminderBefore": "{days, select, 0 {On the day, 9:00} 1 {1 day before, 9:00} 7 {1 week before, 9:00} other {{days} days before, 9:00}}",
-    "reminderHint": "Notifies the people assigned to each row, or whoever added it, unless the row is done. 9:00 is in your time zone; dates with a time remind at that time instead."
+    "reminderHint": "Notifies the people assigned to each row, or whoever added it, unless the row is done. 9:00 is in your time zone; dates with a time remind at that time instead.",
+    "description": "Description",
+    "descriptionPlaceholder": "What it holds and how to fill it",
+    "dependsOn": "Depends on",
+    "dependsOnNone": "Nothing",
+    "dependsOnHint": "Pick the “{parent}” options each option goes with. Rows offer only those; one with none picked goes with any.",
+    "noParentOptions": "“{parent}” has no options yet.",
+    "parentOptionsLabel": "With “{parent}”:",
+    "parentOptionsAll": "any",
+    "parentOptionToggle": "Offer “{option}” when “{parent}” is “{value}”"
   },
   "rowProperties": {
     "noProperties": "No properties",
@@ -801,6 +811,9 @@
     "agentOwnersOnly": "Only owners of the workspace and people who can edit the agent add or change actions that run it.",
     "invalidRepeat": "That repeat schedule isn't valid: check the days, the time and the time zone.",
     "tooManySchedules": "This workspace has as many repeating templates as it can have.",
+    "optionUnavailable": "“{value}” isn’t available in “{property}” for this row.",
+    "invalidDependency": "“{property}” can only depend on another select property of this database that doesn’t depend on it.",
+    "invalidDescription": "A description can have at most {max} characters.",
     "mergeRowCount": "Pick {min} to {max} rows to merge.",
     "mergeRowsInvalid": "Only rows of one database that aren’t in the trash can be merged.",
     "mergeRowsReadOnly": "You can only view {rows}. Merging needs edit access to every row.",

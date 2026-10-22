@@ -9,10 +9,6 @@
     "name": "Nazwa",
     "namePlaceholder": "np. Skrypt raportu tygodniowego",
     "access": "Dostęp",
-    "read": "Tylko odczyt",
-    "readHint": "Odczyt stron, baz danych, wierszy i komentarzy.",
-    "write": "Odczyt i zapis",
-    "writeHint": "Także tworzenie i zmienianie stron, wierszy i komentarzy, przenoszenie stron do kosza oraz (jako właściciel obszaru roboczego) zmienianie agentów i zlecanie im uruchomień.",
     "workspace": "Obszar roboczy",
     "allWorkspaces": "Wszystkie moje obszary robocze",
     "expiry": "Wygasa po",
@@ -35,7 +31,8 @@
     "neverUsed": "nigdy nie użyto",
     "expires": "wygasa {date}",
     "expired": "wygasł {date}",
-    "noExpiry": "nie wygasa"
+    "noExpiry": "nie wygasa",
+    "legacy": "utworzony przed dostępem dla poszczególnych zasobów"
   },
   "revoke": "Unieważnij",
   "revoking": "Unieważnianie…",
@@ -47,7 +44,8 @@
     "workspace": "Nie jesteś członkiem tego obszaru roboczego.",
     "expiry": "Wybierz, kiedy token wygaśnie.",
     "limit": "Masz już maksymalną liczbę tokenów. Najpierw unieważnij jeden z nich.",
-    "generic": "Nie udało się utworzyć tokenu. Spróbuj ponownie."
+    "generic": "Nie udało się utworzyć tokenu. Spróbuj ponownie.",
+    "notFound": "Ten token już nie istnieje."
   },
   "docsPage": {
     "metaTitle": "REST API",
@@ -68,6 +66,66 @@
     "name": "Nazwa",
     "type": "Typ",
     "description": "Opis",
-    "required": "wymagane"
+    "required": "wymagane",
+    "scopes": "Zakresy",
+    "scope": "Zakres",
+    "access": "Dostęp",
+    "read": "Odczyt",
+    "write": "Zapis",
+    "inHeader": "nagłówek"
+  },
+  "scopes": {
+    "presets": {
+      "readAll": "Odczyt wszystkiego",
+      "all": "Odczyt i zapis wszystkiego"
+    },
+    "read": "Odczyt",
+    "write": "Zapis",
+    "toggle": "{access}: {resource}",
+    "resources": {
+      "workspaces": {
+        "name": "Obszary robocze",
+        "hint": "Obszary robocze, ich przestrzenie zespołów i grupy."
+      },
+      "pages": {
+        "name": "Strony",
+        "hint": "Strony, podstrony i notatki dzienne; zapis obejmuje też notatki głosowe."
+      },
+      "search": {
+        "name": "Wyszukiwanie",
+        "hint": "Wyszukiwanie w stronach i wierszach."
+      },
+      "databases": {
+        "name": "Bazy danych",
+        "hint": "Właściwości i widoki bazy danych."
+      },
+      "rows": {
+        "name": "Wiersze",
+        "hint": "Odpytywanie wierszy i odczyt ich historii; zapis dodaje i zmienia wiersze."
+      },
+      "comments": {
+        "name": "Komentarze",
+        "hint": "Wątki komentarzy; zapis zaczyna wątki i odpowiada w nich."
+      },
+      "agents": {
+        "name": "Agenci",
+        "hint": "Ustawienia, uruchomienia, harmonogramy i udostępnianie agentów."
+      }
+    },
+    "summary": {
+      "read": "{resource}: odczyt",
+      "readWrite": "{resource}: odczyt i zapis"
+    }
+  },
+  "edit": {
+    "button": "Zmień dostęp",
+    "title": "Zmień, co może {name}",
+    "body": "Token zachowuje swój sekret; zmiana działa od jego następnego żądania.",
+    "legacy": "Ten token powstał, zanim dostęp wybierało się dla poszczególnych zasobów, więc może odczytywać wszystko (i zapisywać wszystko, jeśli utworzono go do zapisu), także to, co zostanie dodane później. Po zapisaniu będzie miał dokładnie to, co tu wybierzesz.",
+    "errors": {
+      "scopes": "Wybierz co najmniej jedną rzecz, którą token może robić.",
+      "notFound": "Ten token już nie istnieje.",
+      "generic": "Nie udało się zmienić tokenu. Spróbuj ponownie."
+    }
   }
 }

@@ -78,8 +78,32 @@
     "promptPlaceholder": "For example: Write a one-line pitch for '{title}' aimed at '{Audience}'.",
     "promptHint": "Click a property to insert it; the row's value takes its place.",
     "includeBody": "Also send the row's page content",
+    "typed": {
+      "select": {
+        "hint": "AI picks one of this property's options, or leaves it empty when none fits.",
+        "placeholder": "For example: Which option fits '{title}' best, given '{Notes}'?"
+      },
+      "multi_select": {
+        "hint": "AI picks the options that apply, never new ones, or leaves it empty.",
+        "placeholder": "For example: Which topics does '{Notes}' touch on?"
+      },
+      "status": {
+        "hint": "AI picks one of this status's options, or leaves it empty when none fits.",
+        "placeholder": "For example: Judging by '{Notes}', is '{title}' done, in progress or not started?"
+      },
+      "number": {
+        "hint": "AI answers with a number, or leaves it empty when it can't tell.",
+        "placeholder": "For example: From 1 to 5, how urgent is '{title}', given '{Notes}'?"
+      },
+      "checkbox": {
+        "hint": "AI ticks the box for yes and leaves it unticked for no.",
+        "placeholder": "For example: Does '{Notes}' mention a deadline?"
+      }
+    },
     "auto": "Update when the row changes",
     "autoHint": "A few seconds after a row's values or page change, its value is worked out again.",
+    "requires": "Only rows where these have a value",
+    "requiresHint": "Rows where one of them is empty (or unticked) are skipped and keep their value.",
     "privacy": "What each row's value is worked out from goes to this server's AI provider.",
     "save": "Save",
     "create": "Add property",
@@ -98,7 +122,9 @@
       "unknownPlaceholder": "There is no property called “{name}”.",
       "cycle": "“{name}” already reads this property (directly or through other AI properties), so this one can't read it.",
       "hiddenInput": "“{name}” can’t go into an AI value: it shows related rows or people that not everyone who reads the row may see.",
-      "notText": "Only text properties can be filled in by AI.",
+      "noOptions": "Add options to this property first: AI picks from them.",
+      "unknownRequired": "Some of the chosen properties aren't in this database any more. Choose them again.",
+      "unsupportedType": "AI can fill in text, select, multi-select, status, number and checkbox properties.",
       "databaseLocked": "The database is locked."
     }
   },

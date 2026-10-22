@@ -16,7 +16,7 @@
  * Env: DATABASE_URL (read from .env when present). Migrations must be applied. Run it with no app
  * server on the same database: the server's workers would take the runs.
  */
-export {};
+import { API_TOKEN_SCOPES as ALL_SCOPES, READ_SCOPES } from "@/lib/api-scopes";
 
 try {
   process.loadEnvFile();
@@ -125,10 +125,10 @@ try {
     "the agent can open the member's page; the owner can't",
   );
 
-  const full = (await createApiToken(ids.owner, { name: "Agents", scopes: ["pages:read", "pages:write"] })).secret;
-  const readOnly = (await createApiToken(ids.owner, { name: "Agents (read)", scopes: ["pages:read"] })).secret;
-  const elsewhere = (await createApiToken(ids.owner, { name: "Other workspace", scopes: ["pages:read", "pages:write"], workspaceId: otherWorkspaceId })).secret;
-  const memberToken = (await createApiToken(ids.member, { name: "Member", scopes: ["pages:read", "pages:write"] })).secret;
+  const full = (await createApiToken(ids.owner, { name: "Agents", scopes: ALL_SCOPES })).secret;
+  const readOnly = (await createApiToken(ids.owner, { name: "Agents (read)", scopes: READ_SCOPES })).secret;
+  const elsewhere = (await createApiToken(ids.owner, { name: "Other workspace", scopes: ALL_SCOPES, workspaceId: otherWorkspaceId })).secret;
+  const memberToken = (await createApiToken(ids.member, { name: "Member", scopes: ALL_SCOPES })).secret;
 
   // ── Reading and changing agents ───────────────────────────────────────────────────────────────
   const listed = await api(full, "GET", `/workspaces/${workspaceId}/agents`);
@@ -181,7 +181,7 @@ try {
 
   // ── Who may ask ───────────────────────────────────────────────────────────────────────────────
   const noScope = await api(readOnly, "POST", `/agents/${router.id}/runs`, { task: "Anything" });
-  check(noScope.status === 403 && noScope.json.error.code === "insufficient_scope", "asking for a run needs pages:write", noScope.json);
+  check(noScope.status === 403 && noScope.json.error.code === "insufficient_scope" && noScope.json.error.details.scope === "agents:write", "asking for a run needs agents:write", noScope.json);
   check((await api(memberToken, "POST", `/agents/${router.id}/runs`, { task: "Anything" })).status === 403, "members who can only view and interact can't ask it for a run");
   check((await api(full, "POST", `/agents/${router.id}/runs`, { task: "" })).status === 400, "a run needs a task");
   const notARow = await api(full, "POST", `/agents/${router.id}/runs`, { task: "Anything", row_id: faq.id });

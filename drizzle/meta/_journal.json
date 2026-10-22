@@ -754,8 +754,15 @@
     {
       "idx": 107,
       "version": "7",
-      "when": 1792694554913,
-      "tag": "0107_merge_rows",
+      "when": 1792694495185,
+      "tag": "0107_api_scopes_idempotency",
+      "breakpoints": true
+    },
+    {
+      "idx": 108,
+      "version": "7",
+      "when": 1792700358932,
+      "tag": "0108_merge_rows",
       "breakpoints": true
     }
   ]

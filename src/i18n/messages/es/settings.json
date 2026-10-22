@@ -621,6 +621,12 @@
       "logFills": "Rellena {properties}.",
       "logFillsNone": "El registro no tiene propiedades que pueda rellenar (listas, fechas, enlaces, personas, texto); solo añade el título y el texto de cada logro.",
       "logLeft": "Quedan fuera, pasadas las primeras {max}: {properties}.",
+      "chooseCompanies": "¿Qué base de datos de empresas o clientes debe completar? Necesitas acceso completo a ella.",
+      "companyProperties": "Propiedades que rellena",
+      "companyPropertiesHelp": "Hasta {max}. En una fila nueva rellena solo las que siguen vacías y nunca cambia un valor. La descripción de una propiedad le dice qué va en ella; desmarca las que no debe tocar.",
+      "noCompanyProperties": "Esta base de datos no tiene ninguna propiedad que pueda rellenar: texto, enlace, correo, teléfono, número o una selección con opciones. Añade una y luego configura el agente.",
+      "companyAutofilled": "Quedan fuera, porque las rellena el autorrelleno con IA: {properties}.",
+      "summaryWeb": "Obtiene acceso a la web para buscar las empresas.",
       "back": "Atrás",
       "next": "Siguiente",
       "create": "Crear agente",
@@ -1577,6 +1583,7 @@
       },
       "api_token": {
         "created": "Creó el token de API {target}",
+        "updated": "Cambió lo que puede hacer el token de API {target}",
         "revoked": "{hasSubject, select, yes {Revocó el token de API {target} de {subject}} other {Revocó el token de API {target}}}"
       },
       "automation": {

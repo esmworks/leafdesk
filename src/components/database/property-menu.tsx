@@ -40,7 +40,9 @@ import { isComputed, isDerived, PROPERTY_TYPES, STATUS_GROUPS, type StatusGroup 
 import { pageLabel } from "@/lib/labels";
 import { canRestrict } from "@/lib/property-access";
 import { SELECT_COLORS, sortStatusOptions, statusColor, statusGroupOf } from "@/lib/properties";
-import type { AiAutofillConfig } from "@/lib/ai";
+import { isAutofillType, type AiAutofillConfig } from "@/lib/ai";
+import { canBeParent, canDepend, dependencyProblem, withoutParentOptions } from "@/lib/dependent-options";
+import { MAX_PROPERTY_DESCRIPTION, propertyDescription } from "@/lib/property-description";
 import type { AggregateFn } from "@/lib/aggregate";
 import type { DateOptionsInput } from "@/lib/date-options";
 import type { NumberDisplay } from "@/lib/number-display";
@@ -56,6 +58,7 @@ import { OptionChip } from "./property-cell";
 import { PropertyTypeIcon, usePropertyTypeLabel } from "./property-icons";
 import { RelationSetup } from "./relation-cell";
 import { useRelations } from "./relation-context";
+import { useSchema } from "./schema-context";
 import type { DerivedInput, Property, PropertyType, RelationInput, RollupInput, SelectOption } from "./types";
 
 /** Name + type picker used by the table "+" header and the row page "Add property". */
@@ -212,6 +215,10 @@ export type PropertyMenuActions = {
     apply: (change: TypeChangeInput) => void | Promise<unknown>;
   };
   setOptions?: (options: SelectOption[]) => void;
+  /** Selects and multi-selects: the select property this one depends on (null for none; see lib/dependent-options). */
+  setDependsOn?: (propertyId: string | null) => void;
+  /** Saves what the property holds and how to fill it (null for nothing; see lib/property-description). */
+  setDescription?: (description: string | null) => void;
   /** Formulas: saves a new expression (with property ids, see FormulaEditor). */
   setFormula?: (expression: string) => void;
   /** Rollups: saves new settings. */
@@ -383,7 +390,14 @@ export function PropertyMenu({
   }
 
   if (page === "options" && prop && actions.setOptions) {
-    return <OptionsEditor prop={prop} onChange={actions.setOptions} onBack={() => setPage("main")} />;
+    return (
+      <OptionsEditor
+        prop={prop}
+        onChange={actions.setOptions}
+        onDependsOn={canDepend(prop.type) ? actions.setDependsOn : undefined}
+        onBack={() => setPage("main")}
+      />
+    );
   }
 
   if (page === "formula" && prop && actions.setFormula) {
@@ -563,17 +577,17 @@ export function PropertyMenu({
         {t("dateOptions")}
       </MenuItem>
     ),
-    prop?.type === "text" && prop.options.ai && actions.updateAllAutofill && (
+    isAutofillType(prop?.type) && prop?.options.ai && actions.updateAllAutofill && (
       <MenuItem key="update-all" icon={icon(RefreshCw)} onClick={run(actions.updateAllAutofill)}>
         {ta("updateAll")}
       </MenuItem>
     ),
-    prop?.type === "text" && actions.setAutofill && (
+    isAutofillType(prop?.type) && actions.setAutofill && (
       <MenuItem key="autofill" icon={icon(Bot)} onClick={() => setPage("autofill")}>
         {ta("configure")}
       </MenuItem>
     ),
-    prop?.type === "text" && prop.options.ai && actions.setAutofill && (
+    isAutofillType(prop?.type) && prop?.options.ai && actions.setAutofill && (
       <MenuItem key="autofill-off" icon={icon(BotOff)} onClick={run(() => actions.setAutofill?.(null))}>
         {ta("turnOff")}
       </MenuItem>
@@ -750,6 +764,9 @@ export function PropertyMenu({
               {typeLabel(prop.type)}
             </div>
           )}
+          {(actions.setDescription || propertyDescription(prop)) && (
+            <DescriptionField prop={prop} onSave={actions.setDescription} />
+          )}
           {prop.type === "relation" && <RelationInfo prop={prop} />}
           {isComputed(prop.type) && <div className="px-2 pb-1 text-xs text-fg-faint">{t("readOnlyHint")}</div>}
           {isDerived(prop.type) && (
@@ -764,6 +781,40 @@ export function PropertyMenu({
           {items}
         </Fragment>
       ))}
+    </div>
+  );
+}
+
+/**
+ * What the property holds and how to fill it (see lib/property-description), under its name and
+ * type. Saved on blur and when the menu closes, like the name; read-only without `onSave`.
+ */
+function DescriptionField({ prop, onSave }: { prop: Property; onSave?: (description: string | null) => void }) {
+  const t = useTranslations("database.propertyMenu");
+  const [text, setText] = useState(() => propertyDescription(prop));
+  const saved = useRef(propertyDescription(prop));
+  const commit = () => {
+    const next = text.trim();
+    if (!onSave || next === saved.current) return;
+    saved.current = next;
+    onSave(next || null);
+  };
+  const commitRef = useRef(commit);
+  commitRef.current = commit;
+  useEffect(() => () => commitRef.current(), []);
+  if (!onSave) return <p className="px-2 pb-1 text-xs whitespace-pre-wrap text-fg-muted">{text}</p>;
+  return (
+    <div className="px-1 pt-0.5 pb-1">
+      <textarea
+        value={text}
+        rows={2}
+        maxLength={MAX_PROPERTY_DESCRIPTION}
+        aria-label={t("description")}
+        placeholder={t("descriptionPlaceholder")}
+        onChange={(e) => setText(e.target.value)}
+        onBlur={commit}
+        className="block max-h-40 min-h-12 w-full resize-none rounded-md [field-sizing:content] border border-border bg-bg px-1.5 py-1 text-xs text-fg outline-none placeholder:text-fg-faint focus:border-accent"
+      />
     </div>
   );
 }
@@ -796,16 +847,25 @@ function SubmenuHeader({ title, onBack }: { title: string; onBack: () => void })
 function OptionsEditor({
   prop,
   onChange,
+  onDependsOn,
   onBack,
 }: {
   prop: Property;
   onChange: (options: SelectOption[]) => void;
+  /** Selects and multi-selects whose settings may change: the select property they depend on. */
+  onDependsOn?: (propertyId: string | null) => void;
   onBack: () => void;
 }) {
   const t = useTranslations("database.propertyMenu");
   const tColor = useTranslations("database.colors");
   const tGroup = useTranslations("database.statusGroups");
+  const schema = useSchema();
   const status = prop.type === "status";
+  // Dependent selects (lib/dependent-options): the properties it may depend on, and the one it does.
+  const [dependsOn, setDependsOn] = useState<string | null>(prop.options.dependsOn ?? null);
+  const candidates = onDependsOn ? schema.filter((p) => dependencyProblem(prop, p.id, schema) === null) : [];
+  const parent = dependsOn ? (schema.find((p) => p.id === dependsOn && canBeParent(p.type)) ?? null) : null;
+  const parentOptions = parent?.options.options ?? [];
   // Edited locally and saved per change; the parent applies it optimistically.
   const [options, setOptions] = useState<SelectOption[]>(() =>
     status ? sortStatusOptions(prop.options.options ?? []) : (prop.options.options ?? []),
@@ -964,6 +1024,21 @@ function OptionsEditor({
     );
   }
 
+  const chooseParent = (id: string | null) => {
+    if (id === dependsOn) return;
+    setDependsOn(id);
+    // Lists of the old one's options mean nothing for another (the server forgets them too).
+    setOptions((current) => withoutParentOptions(current));
+    onDependsOn?.(id);
+  };
+
+  /** Which options of the parent `o` goes with: toggles one (none chosen: any). */
+  const toggleParent = (o: SelectOption, parentOptionId: string) => {
+    const ids = o.parentOptionIds ?? [];
+    const next = ids.includes(parentOptionId) ? ids.filter((id) => id !== parentOptionId) : [...ids, parentOptionId];
+    save(options.map((x) => (x.id === o.id ? withParents(x, next) : x)));
+  };
+
   return (
     <div className="w-72">
       <div className="flex items-center gap-1 px-1 pb-1">
@@ -977,6 +1052,32 @@ function OptionsEditor({
         </button>
         <span className="text-sm font-medium">{t("optionsTitle", { name: prop.name })}</span>
       </div>
+      {onDependsOn && (candidates.length > 0 || dependsOn) && (
+        <>
+          <MenuSeparator />
+          <label className="flex items-center gap-2 px-2 py-1">
+            <span className="shrink-0 text-xs text-fg-muted">{t("dependsOn")}</span>
+            <select
+              value={dependsOn ?? ""}
+              onChange={(e) => chooseParent(e.target.value || null)}
+              className="h-6 min-w-0 flex-1 rounded border border-border bg-bg px-1 text-xs text-fg outline-none focus:border-accent"
+            >
+              <option value="">{t("dependsOnNone")}</option>
+              {candidates.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
+              {dependsOn && !candidates.some((p) => p.id === dependsOn) && parent && <option value={parent.id}>{parent.name}</option>}
+            </select>
+          </label>
+          {parent && (
+            <p className="px-2 pb-1 text-xs text-fg-faint">
+              {parentOptions.length ? t("dependsOnHint", { parent: parent.name }) : t("noParentOptions", { parent: parent.name })}
+            </p>
+          )}
+        </>
+      )}
       <MenuSeparator />
       <div className="max-h-80 overflow-y-auto">
         {!options.length && <div className="px-2 py-2 text-xs text-fg-faint">{t("noOptions")}</div>}
@@ -1029,6 +1130,31 @@ function OptionsEditor({
                 />
               ))}
             </div>
+            {parent && parentOptions.length > 0 && (
+              <div className="mt-1 mb-0.5" role="group" aria-label={t("parentOptionsLabel", { parent: parent.name })}>
+                <div className="text-xs text-fg-faint">
+                  {t("parentOptionsLabel", { parent: parent.name })}{" "}
+                  {!o.parentOptionIds?.length && <span className="text-fg-muted">{t("parentOptionsAll")}</span>}
+                </div>
+                <div className="mt-0.5 flex flex-wrap gap-1">
+                  {parentOptions.map((po) => {
+                    const on = o.parentOptionIds?.includes(po.id) ?? false;
+                    return (
+                      <button
+                        key={po.id}
+                        type="button"
+                        aria-pressed={on}
+                        title={t("parentOptionToggle", { option: o.name, parent: parent.name, value: po.name })}
+                        onClick={() => toggleParent(o, po.id)}
+                        className={cn("rounded", on ? "ring-2 ring-accent ring-offset-1 ring-offset-bg" : "opacity-50 hover:opacity-100")}
+                      >
+                        <OptionChip option={po} />
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         ))}
       </div>
@@ -1053,6 +1179,12 @@ function OptionsEditor({
       </div>
     </div>
   );
+}
+
+/** An option with the parent options it goes with (none: any; see lib/dependent-options). */
+function withParents(option: SelectOption, ids: string[]): SelectOption {
+  const { parentOptionIds: _old, ...rest } = option;
+  return ids.length ? { ...rest, parentOptionIds: ids } : rest;
 }
 
 /** Which database a relation points to, and whether it is mirrored there. */

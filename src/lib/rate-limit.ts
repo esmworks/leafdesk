@@ -32,6 +32,15 @@ export class SlidingWindowLimiter {
     return times[times.length - this.limit] + this.windowMs - now;
   }
 
+  /**
+   * When `key` gets one more hit back: the oldest hit in the window leaves it then. `now` when it
+   * has none.
+   */
+  resetAt(key: string, now = Date.now()): number {
+    const [oldest] = this.recent(key, now);
+    return oldest === undefined ? now : oldest + this.windowMs;
+  }
+
   /** Hits of `key` within the window ending now. */
   count(key: string, now = Date.now()): number {
     return this.recent(key, now).length;
