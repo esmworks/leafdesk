@@ -420,7 +420,7 @@ async function main() {
     "update_database_property", "change_database_property_type", "delete_database_property", "create_database_view", "update_database_view", "move_page",
     "list_recent_pages", "check_workspace", "list_users", "list_trash", "restore_page", "list_page_history", "get_page_version", "diff_page_version", "restore_page_version",
     "list_notifications", "attach_file", "invite_member", "set_property_access", "get_file", "duplicate_page",
-    "list_automations", "create_automation", "update_automation", "delete_automation", "list_automation_runs",
+    "list_automations", "create_automation", "update_automation", "delete_automation", "list_automation_runs", "publish_automation", "test_automation",
     "list_agents", "get_agent", "create_agent", "update_agent", "archive_agent", "restore_agent", "set_agent_access", "set_agent_skill", "list_agent_runs", "list_agent_versions", "restore_agent_version", "list_connections",
     "add_agent_memory", "update_agent_memory", "keep_agent_memory", "dismiss_agent_memory", "delete_agent_memory", "set_agent_connection_tools",
     "list_skills", "get_skill", "set_skill", "list_memory", "add_memory", "update_memory", "delete_memory",
@@ -1095,6 +1095,96 @@ async function main() {
     automationRuns.runs,
   );
   await mcp.ok("delete_automation", { automation_id: agentAutomation.id });
+
+  // ---- automation steps: a draft that finds rows and uses them through templates, a test run, publishing
+  /** Waits for an automation's newest run to end. */
+  const finishedRun = async (automationId: string) => {
+    for (let i = 0; i < 60; i++) {
+      const { runs } = await mcp.ok("list_automation_runs", { automation_id: automationId, limit: 1 });
+      if (runs[0] && (runs[0].status === "done" || runs[0].status === "failed")) return runs[0];
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
+    return null;
+  };
+  const stepped = await mcp.ok("create_automation", {
+    database_id: dbPage.id,
+    name: `Steps ${RUN}`,
+    publish: false,
+    trigger: { type: "property_changed", properties: ["Urgency", "Points"] },
+    actions: [
+      {
+        type: "find_rows",
+        id: "high",
+        database_id: dbPage.id,
+        filters: [{ property: "Urgency", op: "equals", value: "Urgent" }],
+        sorts: [{ property: "Points", direction: "desc" }],
+        limit: 5,
+      },
+      { type: "log", message: "{{high.count}} high for {{trigger.title}}" },
+      { type: "set_properties", for_each: "high", values: { Points: "{{high.count}}" } },
+    ],
+  });
+  check(
+    stepped.version === 0 &&
+      stepped.draft?.actions?.map((a: { id: string }) => a.id).join(",") === "high,log,set" &&
+      stepped.draft.actions[0].filters?.[0]?.value === "Urgent" &&
+      stepped.draft.trigger.properties?.length === 2,
+    "create_automation with publish false keeps a draft whose steps have ids and filters by name",
+    stepped,
+  );
+  const stepTarget = await mcp.ok("create_database_row", { database_id: dbPage.id, title: `Steps target ${RUN}`, properties: { Urgency: "Urgent" } });
+  const noRow = await mcp.call("test_automation", { automation_id: stepped.id });
+  check(noRow.isError && /needs a row/.test(noRow.text), "test_automation of a row trigger needs row_id", noRow.text);
+  const stepTest = await mcp.ok("test_automation", { automation_id: stepped.id, row_id: stepTarget.id });
+  check(typeof stepTest.run_id === "string" && /list_automation_runs/.test(stepTest.next), "test_automation queues a run and points at list_automation_runs", stepTest);
+  const stepRun = await finishedRun(stepped.id);
+  check(
+    stepRun?.id === stepTest.run_id &&
+      stepRun.status === "done" &&
+      stepRun.test === true &&
+      stepRun.draft === true &&
+      stepRun.row?.id === stepTarget.id &&
+      stepRun.steps[0].output?.count >= 1 &&
+      String(stepRun.steps[1].output?.message).endsWith(`high for Steps target ${RUN}`) &&
+      stepRun.steps[2].items?.every((item: { status: string }) => item.status === "done"),
+    "a test run of the draft finds rows, logs through templates and sets each found row",
+    stepRun,
+  );
+  const publishedSteps = await mcp.ok("publish_automation", { automation_id: stepped.id });
+  check(publishedSteps.version === 1 && !publishedSteps.draft, "publish_automation makes the draft version 1", publishedSteps);
+  const nothingToPublish = await mcp.call("publish_automation", { automation_id: stepped.id });
+  check(nothingToPublish.isError && /Nothing to publish/.test(nothingToPublish.text), "publishing without a draft is a tool error", nothingToPublish.text);
+  await mcp.ok("update_automation", { automation_id: stepped.id, publish: false, actions: [{ type: "log", message: "never published" }] });
+  const discardedSteps = await mcp.ok("discard_automation_draft", { automation_id: stepped.id });
+  check(discardedSteps.version === 1 && !discardedSteps.draft && discardedSteps.actions.length === 3, "discard_automation_draft goes back to the published steps", discardedSteps);
+  await mcp.ok("delete_automation", { automation_id: stepped.id });
+
+  // An incoming webhook: a JSON POST to its address starts a run without a row; a new address retires the old one.
+  const hooked = await mcp.ok("create_automation", {
+    database_id: dbPage.id,
+    name: `Hook ${RUN}`,
+    trigger: { type: "incoming_webhook", example: { title: "Example" } },
+    actions: [{ type: "create_row", id: "made", database_id: dbPage.id, title: "{{trigger.title}}" }],
+  });
+  check(hooked.version === 1 && typeof hooked.hook_url === "string" && hooked.trigger.type === "incoming_webhook", "an incoming_webhook automation has an address", hooked);
+  // The address is the server's APP_URL; the request goes to the server under test.
+  const hookAt = (url: string) => `${BASE}${new URL(url).pathname}`;
+  const posted = await fetch(hookAt(hooked.hook_url), { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ title: `From hook ${RUN}` }) });
+  const postedBody = await posted.json();
+  check(posted.status === 202 && typeof postedBody.run_id === "string", "a POST to the address is taken (202) with the run's id", postedBody);
+  const hookRun = await finishedRun(hooked.id);
+  check(
+    hookRun?.id === postedBody.run_id && hookRun.status === "done" && hookRun.row === null && hookRun.trigger?.title === `From hook ${RUN}` && hookRun.steps[0].output?.title === `From hook ${RUN}`,
+    "the run has no row, the body as its trigger, and adds a row titled from it",
+    hookRun,
+  );
+  const readHook = await mcp.ok("list_automations", { database_id: dbPage.id });
+  check(readHook.automations.some((a: { id: string; hook_url?: string }) => a.id === hooked.id && a.hook_url === hooked.hook_url), "list_automations shows the address to a connection that may edit", readHook);
+  const rehooked = await mcp.ok("update_automation", { automation_id: hooked.id, new_webhook_address: true });
+  check(typeof rehooked.hook_url === "string" && rehooked.hook_url !== hooked.hook_url, "new_webhook_address gives the automation a new address", rehooked);
+  const oldHook = await fetch(hookAt(hooked.hook_url), { method: "POST", headers: { "content-type": "application/json" }, body: "{}" });
+  check(oldHook.status === 404, "the old address no longer works", oldHook.status);
+  await mcp.ok("delete_automation", { automation_id: hooked.id });
 
   // A workspace that lets connected apps only read refuses agent changes with that reason.
   const { updateWorkspaceSettings } = await import("@/server/workspaces");

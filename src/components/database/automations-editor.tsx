@@ -1,66 +1,80 @@
 "use client";
 
-import { Check, Copy, RefreshCw, Search, Send, Trash2, UserRound, X } from "lucide-react";
+import { ArrowDown, ArrowUp, Check, Copy, Play, RefreshCw, Send, Trash2 } from "lucide-react";
 import Link from "next/link";
-import { useTranslations } from "next-intl";
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useFormatter, useTranslations } from "next-intl";
+import { useCallback, useMemo, useState, type ReactNode } from "react";
 import {
   createAutomationAction,
-  previewDatePassedAction,
+  discardAutomationDraftAction,
+  publishAutomationAction,
   rotateAutomationSecretAction,
   testAutomationWebhooksAction,
   updateAutomationAction,
 } from "@/app/actions/automations";
 import { copyText } from "@/components/settings/copy-button";
-import { Button, cn, IconButton, Input, Switch, textareaClass } from "@/components/ui";
-import { UserAvatar } from "@/components/user-avatar";
+import { Button, cn, IconButton, Input, Switch } from "@/components/ui";
 import { MAX_AGENT_PROMPT } from "@/lib/agents";
 import {
-  DATE_PASSED_BATCH,
-  isDynamicValue,
+  hasRow,
   MAX_AUTOMATION_ACTIONS,
-  MAX_DATE_PASSED_DAYS,
   MAX_AUTOMATION_NAME,
+  MAX_STEP_MESSAGE,
   MAX_WEBHOOK_URL,
-  TO_VALUE_TYPES,
+  STEP_ID,
   WEBHOOK_SIGNATURE_HEADER,
   type AutomationActionType,
 } from "@/lib/automations";
-import { STATUS_GROUPS } from "@/lib/property-types";
-import { browserTimeZone } from "@/lib/time-zone";
-import { searchFold } from "@/lib/search-fold";
+import { TEMPLATE_ROOTS } from "@/lib/automation-templates";
+import { useSchemas } from "./automations-data";
+import { TestRunPanel } from "./automations-runs";
 import {
-  canSet,
-  canWatch,
-  draftDays,
   draftProblem,
   emptyDraft,
-  initialValue,
+  goesForEach,
+  keepForEachValid,
   namesPeopleType,
-  newKey,
-  optionsOf,
+  needsRowDraft,
+  newAction,
+  renameStep,
+  targetDatabase,
   toDraft,
   toInput,
-  triggerInput,
   webhookUrls,
   type AgentChoice,
   type Automation,
   type Draft,
   type DraftAction,
+  type DraftActionOf,
+  type DraftProblem,
   type DraftTrigger,
   type Person,
-  type SetEntry,
 } from "./automations-shared";
-import { OptionChip } from "./property-cell";
+import { FindRowsEditor, HttpRequestEditor, RowWriteEditor, WaitEditor } from "./automations-steps";
+import { DatePassedPreview, TriggerEditor } from "./automations-trigger";
+import { PeoplePicker, selectClass, ValuesEditor } from "./automations-values";
+import { TemplateField, useStepVariables, VariablesProvider } from "./automations-variables";
 import { PropertyTypeIcon } from "./property-icons";
 import { useSchema } from "./schema-context";
 import type { Property } from "./types";
 
-export const selectClass = "h-8 w-full rounded-md border border-border bg-bg px-2 text-sm outline-none focus:border-accent";
+export { selectClass };
 
-const MAX_CANDIDATES = 8;
+/** Steps offered to add, grouped as the menu shows them. */
+const STEP_GROUPS: { group: "rows" | "people" | "outside" | "flow"; types: AutomationActionType[] }[] = [
+  { group: "rows", types: ["set_properties", "find_rows", "create_row", "upsert_row", "move_to_trash"] },
+  { group: "people", types: ["notify", "run_agent"] },
+  { group: "outside", types: ["http_request", "webhook"] },
+  { group: "flow", types: ["wait", "log"] },
+];
 
-/** The new-automation and edit form, with a saved automation's webhook secret and test. */
+/** Steps that only act on the run's row and can't go "for each": not for a trigger without one. */
+const ROW_ONLY_TYPES: AutomationActionType[] = ["move_to_trash", "webhook"];
+
+/**
+ * The new-automation and edit form. A new automation is published at once or saved as a draft;
+ * changes to a saved one are kept as a draft, which test runs run, until they are published.
+ */
 export function AutomationEditor({
   workspaceId,
   databaseId,
@@ -70,6 +84,7 @@ export function AutomationEditor({
   isOwner,
   onSaved,
   onUpdated,
+  onTestDone,
   onCancel,
 }: {
   workspaceId: string;
@@ -80,72 +95,161 @@ export function AutomationEditor({
   /** The agents a "Run an agent" action can pick; owners, and those who can edit an agent (`canRun`), make one. */
   agents: AgentChoice[];
   isOwner: boolean;
-  /** After a save: the automation as stored, and whether it was just created. */
-  onSaved: (automation: Automation, created: boolean) => void;
-  /** A new secret replaced the old one. */
+  /** After a save: the automation as stored, whether it was just created, and whether to stay in the form. */
+  onSaved: (automation: Automation, created: boolean, stay: boolean) => void;
+  /** The automation changed and the form stays (a draft saved, a secret or address replaced). */
   onUpdated: (automation: Automation) => void;
+  /** A test run ended (or a minute went by): show it in the history. */
+  onTestDone: (automationId: string, runId: string) => void;
   onCancel: () => void;
 }) {
   const t = useTranslations("database.automations");
   const tc = useTranslations("common");
+  const format = useFormatter();
   const properties = useSchema();
-  const [draft, setDraft] = useState<Draft>(() => (saved ? toDraft(saved, properties) : emptyDraft()));
+  const [base, setBase] = useState<Draft>(() => (saved ? toDraft(saved, properties) : emptyDraft()));
+  const [draft, setDraft] = useState<Draft>(base);
   const [error, setError] = useState<string | null>(null);
-  const [saving, setSaving] = useState(false);
+  const [busy, setBusy] = useState<"save" | "publish" | "discard" | null>(null);
+  const [testing, setTesting] = useState(false);
+
+  const loaded = useSchemas(draft.actions.map((a) => targetDatabase(draft.actions, a, databaseId)).filter((id) => id !== databaseId));
+  const schemaOf = useCallback((id: string) => (id === databaseId ? properties : loaded(id)), [databaseId, properties, loaded]);
+
+  const dirty = JSON.stringify(draft) !== JSON.stringify(base);
+  const stepsDirty = JSON.stringify([draft.trigger, draft.actions]) !== JSON.stringify([base.trigger, base.actions]);
+  const unpublished = !!saved && (saved.version < 1 || saved.draft !== null);
 
   const setTrigger = (trigger: DraftTrigger) => setDraft((d) => ({ ...d, trigger }));
-  const setAction = (key: string, next: DraftAction) =>
-    setDraft((d) => ({ ...d, actions: d.actions.map((a) => (a.key === key ? next : a)) }));
-  const removeAction = (key: string) => setDraft((d) => ({ ...d, actions: d.actions.filter((a) => a.key !== key) }));
+  const setActions = (update: (actions: DraftAction[]) => DraftAction[]) => setDraft((d) => ({ ...d, actions: keepForEachValid(update(d.actions)) }));
+  const setAction = (key: string, next: DraftAction) => setActions((actions) => actions.map((a) => (a.key === key ? next : a)));
   const addAction = (type: AutomationActionType) =>
-    setDraft((d) => {
-      const action: DraftAction =
-        type === "set_properties"
-          ? { key: newKey(), type, entries: [] }
-          : type === "notify"
-            ? { key: newKey(), type, people: [], properties: [] }
-            : type === "run_agent"
-              ? { key: newKey(), type, agentId: "", prompt: "" }
-              : type === "move_to_trash"
-                ? { key: newKey(), type }
-                : { key: newKey(), type: "webhook", url: "" };
+    setActions((actions) => {
+      const action = newAction(type, actions, draft.trigger, databaseId);
       // Moving to the trash stays last: what is added goes before it.
-      const trash = d.actions.findIndex((a) => a.type === "move_to_trash");
-      const actions = trash === -1 ? [...d.actions, action] : [...d.actions.slice(0, trash), action, ...d.actions.slice(trash)];
-      return { ...d, actions };
+      const trash = actions.findIndex((a) => a.type === "move_to_trash");
+      return trash === -1 ? [...actions, action] : [...actions.slice(0, trash), action, ...actions.slice(trash)];
+    });
+  const move = (key: string, by: -1 | 1) =>
+    setActions((actions) => {
+      const at = actions.findIndex((a) => a.key === key);
+      const to = at + by;
+      if (at < 0 || to < 0 || to >= actions.length) return actions;
+      const next = [...actions];
+      [next[at], next[to]] = [next[to], next[at]];
+      return next;
     });
 
-  const save = async () => {
-    const problem = draftProblem(draft, properties);
+  const problemText = (p: DraftProblem) => {
+    const text = t(`form.errors.${p.problem}` as "form.errors.needName");
+    return p.step ? t("form.errors.inStep", { step: p.step, problem: text }) : text;
+  };
+
+  /**
+   * Saves the form: a draft (`publish` false) or the next version. A saved automation's name and
+   * whether it is on change either way; only a changed trigger or steps make a draft. Returns
+   * the automation as stored, or null when it couldn't be saved.
+   */
+  const save = async (publish: boolean): Promise<Automation | null> => {
+    const problem = draftProblem(draft, properties, schemaOf, databaseId);
     if (problem) {
-      setError(t(`form.errors.${problem}`));
-      return;
+      setError(problemText(problem));
+      return null;
     }
-    setSaving(true);
+    setBusy(publish ? "publish" : "save");
     setError(null);
     try {
-      const input = toInput(draft, properties);
-      const res = saved ? await updateAutomationAction(saved.id, input) : await createAutomationAction(databaseId, input);
+      const input = toInput(draft, properties, schemaOf, databaseId);
+      let res;
+      if (!saved) res = await createAutomationAction(databaseId, input, { publish });
+      else if (stepsDirty) res = await updateAutomationAction(saved.id, input, { publish });
+      else {
+        res = dirty ? await updateAutomationAction(saved.id, { name: input.name, enabled: input.enabled }) : { ok: true as const, data: saved };
+        // The steps as saved: published as they are when asked to.
+        if (res.ok && publish && (res.data.draft || res.data.version < 1)) res = await publishAutomationAction(saved.id);
+      }
+      if (!res.ok) {
+        setError(res.error);
+        return null;
+      }
+      setBase(draft);
+      if (!saved) {
+        // A new draft stays open to test it; a new webhook's secret and address show once saved.
+        onSaved(res.data, true, !publish || !!res.data.secret || !!res.data.hookUrl);
+      } else if (publish) onSaved(res.data, false, false);
+      else onUpdated(res.data);
+      return res.data;
+    } catch {
+      setError(tc("genericError"));
+      return null;
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const discard = async () => {
+    if (!saved || !confirm(t("lifecycle.confirmDiscard"))) return;
+    setBusy("discard");
+    setError(null);
+    try {
+      const res = await discardAutomationDraftAction(saved.id);
       if (!res.ok) {
         setError(res.error);
         return;
       }
-      onSaved(res.data, !saved);
+      const next = toDraft(res.data, properties);
+      setBase(next);
+      setDraft(next);
+      onUpdated(res.data);
     } catch {
       setError(tc("genericError"));
     } finally {
-      setSaving(false);
+      setBusy(null);
     }
   };
 
   const full = draft.actions.length >= MAX_AUTOMATION_ACTIONS;
   const hasTrash = draft.actions.some((a) => a.type === "move_to_trash");
   const hasAgent = draft.actions.some((a) => a.type === "run_agent");
+  const hasFind = draft.actions.some((a) => a.type === "find_rows");
+  const rowRun = hasRow(draft.trigger);
+  const canRunAgents = isOwner || agents.some((a) => a.canRun);
+  const offered = (type: AutomationActionType) => {
+    if (type === "run_agent" && !canRunAgents) return false;
+    return true;
+  };
+  const disabledType = (type: AutomationActionType) =>
+    (type === "move_to_trash" && (hasTrash || hasAgent)) ||
+    (type === "run_agent" && hasTrash) ||
+    (!rowRun && ROW_ONLY_TYPES.includes(type)) ||
+    (!rowRun && goesForEach(type) && type !== "notify" && !hasFind);
 
   return (
     <>
-      <div className={cn("max-h-[65vh] overflow-y-auto px-5 py-4", saving && "pointer-events-none opacity-70")}>
-        <Field label={t("form.name")}>
+      <div className={cn("max-h-[65vh] overflow-y-auto px-5 py-4", busy && "pointer-events-none opacity-70")}>
+        {saved && (
+          <StatusBar
+            saved={saved}
+            busy={busy !== null}
+            testing={testing}
+            onTest={() => setTesting(true)}
+            onDiscard={() => void discard()}
+            savedAt={saved.draft ? format.relativeTime(new Date(saved.draft.savedAt)) : null}
+          />
+        )}
+        {saved && testing && (
+          <TestRunPanel
+            automationId={saved.id}
+            databaseId={databaseId}
+            trigger={draft.trigger}
+            // Unsaved changes are saved as the draft first: the test runs what the form shows.
+            prepare={async () => (dirty ? ((await save(false))?.id ?? null) : saved.id)}
+            onDone={onTestDone}
+            onCancel={() => setTesting(false)}
+          />
+        )}
+
+        <Field label={t("form.name")} className="mt-4 first:mt-0">
           <Input
             value={draft.name}
             maxLength={MAX_AUTOMATION_NAME}
@@ -156,7 +260,7 @@ export function AutomationEditor({
         </Field>
 
         <Section title={t("form.when")}>
-          <TriggerEditor trigger={draft.trigger} people={people} onChange={setTrigger} />
+          <TriggerEditor trigger={draft.trigger} people={people} saved={saved} onChange={setTrigger} onUpdated={onUpdated} />
           {draft.trigger.type === "date_passed" && (
             <DatePassedPreview databaseId={databaseId} automationId={saved?.id ?? null} trigger={draft.trigger} />
           )}
@@ -164,45 +268,22 @@ export function AutomationEditor({
 
         <Section title={t("form.then")}>
           <ol className="space-y-2">
-            {draft.actions.map((action) => (
-              <li key={action.key} className="rounded-lg border border-border p-3">
-                <div className="mb-2 flex items-center gap-2">
-                  <span className="flex-1 text-sm font-medium">{t(`form.actionType.${action.type}`)}</span>
-                  <IconButton label={t("form.removeAction")} onClick={() => removeAction(action.key)} className="hover:text-danger">
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </IconButton>
-                </div>
-                {action.type === "set_properties" ? (
-                  <SetPropertiesEditor
-                    action={action}
-                    people={people}
-                    noActor={draft.trigger.type === "date_passed"}
-                    onChange={(next) => setAction(action.key, next)}
-                  />
-                ) : action.type === "notify" ? (
-                  <NotifyEditor action={action} people={people} onChange={(next) => setAction(action.key, next)} />
-                ) : action.type === "move_to_trash" ? (
-                  <p className="text-xs text-fg-muted">{t("form.trashHelp")}</p>
-                ) : action.type === "webhook" ? (
-                  <Input
-                    type="url"
-                    inputMode="url"
-                    value={action.url}
-                    maxLength={MAX_WEBHOOK_URL}
-                    aria-label={t("form.webhookUrl")}
-                    placeholder={t("form.webhookPlaceholder")}
-                    onChange={(e) => setAction(action.key, { ...action, url: e.target.value })}
-                  />
-                ) : (
-                  <RunAgentEditor
-                    workspaceId={workspaceId}
-                    action={action}
-                    agents={agents}
-                    isOwner={isOwner}
-                    onChange={(next) => setAction(action.key, next)}
-                  />
-                )}
-              </li>
+            {draft.actions.map((action, index) => (
+              <StepCard
+                key={action.key}
+                workspaceId={workspaceId}
+                databaseId={databaseId}
+                draft={draft}
+                index={index}
+                schemaOf={schemaOf}
+                people={people}
+                agents={agents}
+                isOwner={isOwner}
+                onChange={(next) => setAction(action.key, next)}
+                onRename={(to) => setActions((actions) => renameStep(actions, action.id, to))}
+                onMove={(by) => move(action.key, by)}
+                onRemove={() => setActions((actions) => actions.filter((a) => a.key !== action.key))}
+              />
             ))}
           </ol>
           <div className="mt-2">
@@ -215,18 +296,17 @@ export function AutomationEditor({
               className="h-7 rounded-md bg-transparent px-1.5 text-sm text-fg-muted hover:bg-bg-hover focus:outline-none disabled:opacity-50"
             >
               <option value="">+ {t("form.addAction")}</option>
-              <option value="set_properties">{t("form.actionType.set_properties")}</option>
-              <option value="notify">{t("form.actionType.notify")}</option>
-              <option value="webhook">{t("form.actionType.webhook")}</option>
-              {(isOwner || agents.some((a) => a.canRun)) && (
-                <option value="run_agent" disabled={hasTrash}>
-                  {t("form.actionType.run_agent")}
-                </option>
-              )}
-              <option value="move_to_trash" disabled={hasTrash || hasAgent}>
-                {t("form.actionType.move_to_trash")}
-              </option>
+              {STEP_GROUPS.map(({ group, types }) => (
+                <optgroup key={group} label={t(`form.stepGroup.${group}`)}>
+                  {types.filter(offered).map((type) => (
+                    <option key={type} value={type} disabled={disabledType(type)}>
+                      {t(`form.actionType.${type}`)}
+                    </option>
+                  ))}
+                </optgroup>
+              ))}
             </select>
+            {!rowRun && !hasFind && <p className="mt-1 text-xs text-fg-faint">{t("form.noRowHelp")}</p>}
           </div>
         </Section>
 
@@ -235,7 +315,7 @@ export function AutomationEditor({
             {saved?.secret ? (
               <WebhookTools
                 automation={saved}
-                changed={webhookUrls(saved.actions) !== webhookUrls(draft.actions)}
+                changed={webhookUrls(saved.draft?.actions ?? saved.actions) !== webhookUrls(draft.actions)}
                 onUpdated={onUpdated}
               />
             ) : (
@@ -255,11 +335,67 @@ export function AutomationEditor({
         <Button variant="ghost" onClick={onCancel}>
           {tc("cancel")}
         </Button>
-        <Button variant="primary" disabled={saving} onClick={() => void save()}>
-          {saving ? tc("saving") : saved ? tc("save") : t("form.create")}
+        <Button disabled={busy !== null || (!!saved && !dirty)} onClick={() => void save(false)}>
+          {busy === "save" ? tc("saving") : saved ? t("lifecycle.saveDraft") : t("lifecycle.saveAsDraft")}
+        </Button>
+        <Button variant="primary" disabled={busy !== null || (!!saved && !dirty && !unpublished)} onClick={() => void save(true)}>
+          {busy === "publish" ? t("lifecycle.publishing") : t("lifecycle.publish")}
         </Button>
       </Footer>
     </>
+  );
+}
+
+/** Where a saved automation stands: published, a draft never published, or changes not yet published. */
+function StatusBar({
+  saved,
+  busy,
+  testing,
+  savedAt,
+  onTest,
+  onDiscard,
+}: {
+  saved: Automation;
+  busy: boolean;
+  testing: boolean;
+  savedAt: string | null;
+  onTest: () => void;
+  onDiscard: () => void;
+}) {
+  const t = useTranslations("database.automations.lifecycle");
+  const state = saved.version < 1 ? "neverPublished" : saved.draft ? "unpublished" : "published";
+  return (
+    <div
+      className={cn(
+        "flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-lg border px-3 py-2",
+        state === "published" ? "border-border" : "border-accent/40 bg-accent/5",
+      )}
+      role="status"
+    >
+      <div className="min-w-0 flex-1">
+        <p className="text-sm font-medium">
+          {state === "neverPublished" ? t("neverPublished") : state === "unpublished" ? t("unpublished") : t("published", { version: saved.version })}
+        </p>
+        <p className="text-xs text-fg-muted">
+          {state === "neverPublished"
+            ? t("neverPublishedHelp")
+            : state === "unpublished"
+              ? t("unpublishedHelp", { version: saved.version, time: savedAt ?? "" })
+              : t("publishedHelp")}
+        </p>
+      </div>
+      <div className="flex shrink-0 items-center gap-1.5">
+        {state === "unpublished" && (
+          <Button size="sm" variant="ghost" disabled={busy} onClick={onDiscard}>
+            {t("discard")}
+          </Button>
+        )}
+        <Button size="sm" disabled={busy || testing} onClick={onTest}>
+          <Play className="h-3.5 w-3.5" />
+          {t("test")}
+        </Button>
+      </div>
+    </div>
   );
 }
 
@@ -285,452 +421,242 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
   );
 }
 
-function Field({ label, children }: { label: string; children: ReactNode }) {
+function Field({ label, className, children }: { label: string; className?: string; children: ReactNode }) {
   return (
-    <label className="block">
+    <label className={cn("block", className)}>
       <span className="mb-1 block text-xs font-medium text-fg-muted">{label}</span>
       {children}
     </label>
   );
 }
 
-/** "A row is added", or "a property (or any) changes", optionally "to" a value. */
-function TriggerEditor({
-  trigger,
+/**
+ * One step: its id (what later steps call it by), type and, for steps that can, the rows it goes
+ * over; then its own editor, with the variables it can use.
+ */
+function StepCard({
+  workspaceId,
+  databaseId,
+  draft,
+  index,
+  schemaOf,
   people,
+  agents,
+  isOwner,
   onChange,
+  onRename,
+  onMove,
+  onRemove,
 }: {
-  trigger: DraftTrigger;
+  workspaceId: string;
+  databaseId: string;
+  draft: Draft;
+  index: number;
+  schemaOf: (databaseId: string) => Property[] | undefined;
   people: Person[];
-  onChange: (trigger: DraftTrigger) => void;
+  agents: AgentChoice[];
+  isOwner: boolean;
+  onChange: (action: DraftAction) => void;
+  onRename: (id: string) => void;
+  onMove: (by: -1 | 1) => void;
+  onRemove: () => void;
 }) {
   const t = useTranslations("database.automations");
   const properties = useSchema();
-  const watchable = properties.filter(canWatch);
-  const propertyId = trigger.type === "property_changed" ? trigger.property : null;
-  const dates = properties.filter((p) => p.type === "date");
-  const statuses = properties.filter((p) => p.type === "status");
-  const prop = properties.find((p) => p.id === propertyId);
-  const takesValue = !!prop && (TO_VALUE_TYPES as readonly string[]).includes(prop.type);
-  const to = trigger.type === "property_changed" ? trigger.to : undefined;
+  const action = draft.actions[index];
+  const variables = useStepVariables(draft, index, properties, schemaOf, databaseId);
+  const finds = draft.actions.slice(0, index).filter((a) => a.type === "find_rows");
+  const rowRun = hasRow(draft.trigger);
+  const target = targetDatabase(draft.actions, action, databaseId);
+  const targetProps = schemaOf(target);
+  // "Whoever made the change" is only someone for a row added or changed.
+  const noActor = draft.trigger.type !== "row_created" && draft.trigger.type !== "property_changed";
+  const missingRow = !rowRun && needsRowDraft(action);
 
   return (
-    <div className="space-y-2">
-      <select
-        value={trigger.type}
-        aria-label={t("form.when")}
-        onChange={(e) =>
-          onChange(
-            e.target.value === "row_created"
-              ? { type: "row_created" }
-              : e.target.value === "date_passed"
-                ? { type: "date_passed", date: dates[0]?.id ?? "", days: "0", status: null }
-                : { type: "property_changed", property: null },
-          )
-        }
-        className={selectClass}
-      >
-        <option value="row_created">{t("form.triggerType.row_created")}</option>
-        <option value="property_changed">{t("form.triggerType.property_changed")}</option>
-        <option value="date_passed">{t("form.triggerType.date_passed")}</option>
-      </select>
-      {trigger.type === "date_passed" && <DatePassedEditor trigger={trigger} dates={dates} statuses={statuses} onChange={onChange} />}
-      {trigger.type === "property_changed" && (
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <select
-            value={propertyId ?? ""}
-            aria-label={t("form.property")}
-            onChange={(e) => onChange({ type: "property_changed", property: e.target.value || null })}
-            className={selectClass}
-          >
-            <option value="">{t("form.anyProperty")}</option>
-            {watchable.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.name}
-              </option>
-            ))}
-            {propertyId && !prop && <option value={propertyId}>{t("deletedProperty")}</option>}
-          </select>
-          {takesValue && (
-            <select
-              value={to === undefined ? "" : String(to)}
-              aria-label={t("form.becomes")}
-              onChange={(e) => {
-                const v = e.target.value;
-                onChange({
-                  type: "property_changed",
-                  property: propertyId,
-                  ...(v === "" ? {} : { to: prop.type === "checkbox" ? v === "true" : v }),
-                });
-              }}
-              className={selectClass}
-            >
-              <option value="">{t("form.anyValue")}</option>
-              {prop.type === "checkbox" ? (
-                <>
-                  <option value="true">{t("form.becomesValue", { value: t("checked") })}</option>
-                  <option value="false">{t("form.becomesValue", { value: t("unchecked") })}</option>
-                </>
-              ) : prop.type === "person" ? (
-                people.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {t("form.becomesValue", { value: p.name || p.email || "?" })}
-                  </option>
-                ))
-              ) : (
-                optionsOf(prop).map((o) => (
-                  <option key={o.id} value={o.id}>
-                    {t("form.becomesValue", { value: o.name })}
-                  </option>
-                ))
-              )}
-            </select>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
-
-/**
- * "A date passes": the date to count from (a date property, or when the row was added or last
- * edited), how many days after, and optionally the status groups rows must be in.
- */
-function DatePassedEditor({
-  trigger,
-  dates,
-  statuses,
-  onChange,
-}: {
-  trigger: Extract<DraftTrigger, { type: "date_passed" }>;
-  dates: Property[];
-  statuses: Property[];
-  onChange: (trigger: DraftTrigger) => void;
-}) {
-  const t = useTranslations("database.automations");
-  const tGroup = useTranslations("database.statusGroups");
-  const set = (patch: Partial<Extract<DraftTrigger, { type: "date_passed" }>>) => onChange({ ...trigger, ...patch });
-  const known = trigger.date === "created_time" || trigger.date === "last_edited_time" || dates.some((p) => p.id === trigger.date);
-  const status = trigger.status;
-  const statusGone = status && !statuses.some((p) => p.id === status.property);
-  return (
-    <div className="space-y-2 rounded-lg border border-border p-3">
-      <div className="flex flex-col gap-2 sm:flex-row">
-        <label className="block min-w-0 flex-1">
-          <span className="mb-1 block text-xs text-fg-muted">{t("form.date")}</span>
-          <select value={trigger.date} onChange={(e) => set({ date: e.target.value })} className={selectClass}>
-            {!trigger.date && <option value="">{t("form.chooseDate")}</option>}
-            {dates.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.name}
-              </option>
-            ))}
-            <option value="created_time">{t("form.dateCreated")}</option>
-            <option value="last_edited_time">{t("form.dateEdited")}</option>
-            {trigger.date && !known && <option value={trigger.date}>{t("deletedProperty")}</option>}
-          </select>
-        </label>
-        <label className="block sm:w-32">
-          <span className="mb-1 block text-xs text-fg-muted">{t("form.days")}</span>
-          <Input
-            type="number"
-            inputMode="numeric"
-            min={0}
-            max={MAX_DATE_PASSED_DAYS}
-            step={1}
-            value={trigger.days}
-            onChange={(e) => set({ days: e.target.value })}
-          />
-        </label>
+    <li className="rounded-lg border border-border p-3">
+      <div className="mb-2 flex flex-wrap items-center gap-2">
+        <StepIdInput id={action.id} taken={draft.actions.filter((a) => a.key !== action.key).map((a) => a.id)} onCommit={onRename} />
+        <span className="min-w-0 flex-1 truncate text-sm font-medium">{t(`form.actionType.${action.type}`)}</span>
+        <IconButton label={t("form.moveUp")} disabled={index === 0} onClick={() => onMove(-1)} className="disabled:opacity-40">
+          <ArrowUp className="h-3.5 w-3.5" />
+        </IconButton>
+        <IconButton label={t("form.moveDown")} disabled={index === draft.actions.length - 1} onClick={() => onMove(1)} className="disabled:opacity-40">
+          <ArrowDown className="h-3.5 w-3.5" />
+        </IconButton>
+        <IconButton label={t("form.removeAction")} onClick={onRemove} className="hover:text-danger">
+          <Trash2 className="h-3.5 w-3.5" />
+        </IconButton>
       </div>
-      <p className="text-xs text-fg-faint">{t("form.daysHelp")}</p>
-      {(statuses.length > 0 || status) && (
-        <div className="space-y-2 border-t border-border pt-2">
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={!!status}
-              onChange={(e) =>
-                set({ status: e.target.checked ? { property: statuses[0]?.id ?? "", groups: ["todo", "in_progress"] } : null })
-              }
-              className="h-4 w-4 accent-accent"
-            />
-            {t("form.statusCondition")}
-          </label>
-          {status && (
-            <div className="flex flex-col gap-2 ps-6 sm:flex-row sm:items-center">
-              {(statuses.length > 1 || statusGone) && (
-                <select
-                  value={status.property}
-                  aria-label={t("form.statusProperty")}
-                  onChange={(e) => set({ status: { ...status, property: e.target.value } })}
-                  className={cn(selectClass, "sm:w-44")}
-                >
-                  {statuses.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.name}
-                    </option>
-                  ))}
-                  {statusGone && <option value={status.property}>{t("deletedProperty")}</option>}
-                </select>
-              )}
-              <div className="flex flex-wrap gap-x-4 gap-y-1">
-                {STATUS_GROUPS.map((group) => (
-                  <label key={group} className="flex items-center gap-1.5 text-sm">
-                    <input
-                      type="checkbox"
-                      checked={status.groups.includes(group)}
-                      onChange={(e) =>
-                        set({
-                          status: {
-                            ...status,
-                            groups: STATUS_GROUPS.filter((g) => (g === group ? e.target.checked : status.groups.includes(g))),
-                          },
-                        })
-                      }
-                      className="h-4 w-4 accent-accent"
-                    />
-                    {tGroup(group)}
-                  </label>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
+      {"forEach" in action && (finds.length > 0 || action.forEach) && (
+        <label className="mb-2 flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-2">
+          <span className="shrink-0 text-xs text-fg-muted">{t("form.runsOn")}</span>
+          <select
+            value={action.forEach}
+            onChange={(e) => onChange({ ...action, forEach: e.target.value } as DraftAction)}
+            className={cn(selectClass, "sm:w-auto sm:min-w-56")}
+          >
+            <option value="">{rowRun ? t("form.theRow") : t("form.chooseRows")}</option>
+            {finds.map((f) => (
+              <option key={f.key} value={f.id}>
+                {t("form.eachFound", { id: f.id })}
+              </option>
+            ))}
+          </select>
+        </label>
       )}
-      <p className="text-xs text-fg-faint">{t("form.datePassedHelp")}</p>
-    </div>
+      {missingRow && (
+        <p className="mb-2 text-xs text-danger">
+          {t(goesForEach(action.type) ? "form.needsForEach" : "form.needsRow")}
+        </p>
+      )}
+      <VariablesProvider value={variables}>
+        <StepBody
+          workspaceId={workspaceId}
+          databaseId={databaseId}
+          action={action}
+          targetProps={targetProps}
+          people={people}
+          agents={agents}
+          isOwner={isOwner}
+          noActor={noActor}
+          rowRun={rowRun}
+          onChange={onChange}
+        />
+      </VariablesProvider>
+    </li>
   );
 }
 
-/**
- * How many rows the trigger as edited would run for at the next check, so nobody is surprised by
- * a burst of runs for rows that already match.
- */
-function DatePassedPreview({
+function StepBody({
+  workspaceId,
   databaseId,
-  automationId,
-  trigger,
-}: {
-  databaseId: string;
-  automationId: string | null;
-  trigger: Extract<DraftTrigger, { type: "date_passed" }>;
-}) {
-  const t = useTranslations("database.automations");
-  const [count, setCount] = useState<number | null>(null);
-  const ready =
-    !!trigger.date && draftDays(trigger.days) !== null && (!trigger.status || (!!trigger.status.property && trigger.status.groups.length > 0));
-  const key = JSON.stringify(triggerInput(trigger));
-  useEffect(() => {
-    if (!ready) return;
-    let live = true;
-    const timer = setTimeout(() => {
-      previewDatePassedAction(databaseId, JSON.parse(key), automationId, browserTimeZone())
-        .then((res) => live && setCount(res.ok ? res.data : null))
-        .catch(() => live && setCount(null));
-    }, 300);
-    return () => {
-      live = false;
-      clearTimeout(timer);
-    };
-  }, [databaseId, automationId, key, ready]);
-  if (!ready || count === null) return null;
-  return (
-    <p className="mt-2 text-xs text-fg-muted" role="status">
-      {t("form.matchNow", { count, max: DATE_PASSED_BATCH })}
-    </p>
-  );
-}
-
-/** Pairs of a property and the value to set it to. */
-function SetPropertiesEditor({
   action,
+  targetProps,
   people,
+  agents,
+  isOwner,
   noActor,
+  rowRun,
   onChange,
 }: {
-  action: Extract<DraftAction, { type: "set_properties" }>;
+  workspaceId: string;
+  databaseId: string;
+  action: DraftAction;
+  /** The properties of the database the step writes to; undefined while they load. */
+  targetProps: Property[] | undefined;
   people: Person[];
-  /** Nobody's change starts the automation ("date passed"): no "whoever made the change". */
+  agents: AgentChoice[];
+  isOwner: boolean;
   noActor: boolean;
-  onChange: (action: Extract<DraftAction, { type: "set_properties" }>) => void;
+  rowRun: boolean;
+  onChange: (action: DraftAction) => void;
 }) {
   const t = useTranslations("database.automations");
   const tc = useTranslations("common");
-  const properties = useSchema();
-  const used = new Set(action.entries.map((e) => e.propertyId));
-  const available = properties.filter((p) => canSet(p) && !used.has(p.id));
-  const setEntry = (index: number, entry: SetEntry) =>
-    onChange({ ...action, entries: action.entries.map((e, i) => (i === index ? entry : e)) });
-
-  return (
-    <div className="space-y-2">
-      {action.entries.map((entry, index) => {
-        const prop = properties.find((p) => p.id === entry.propertyId);
-        if (!prop) return null;
-        return (
-          <div key={entry.propertyId} className="flex flex-col gap-1.5 sm:flex-row sm:items-start">
-            <span className="flex h-8 min-w-0 shrink-0 items-center gap-1.5 text-sm sm:w-36">
-              <PropertyTypeIcon type={prop.type} className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
-              <span className="truncate">{prop.name}</span>
-            </span>
-            <div className="min-w-0 flex-1">
-              <ValueEditor prop={prop} value={entry.value} people={people} noActor={noActor} onChange={(value) => setEntry(index, { ...entry, value })} />
-            </div>
-            <IconButton
-              label={tc("remove")}
-              onClick={() => onChange({ ...action, entries: action.entries.filter((_, i) => i !== index) })}
-              className="mt-1 hover:text-danger"
-            >
-              <X className="h-3.5 w-3.5" />
-            </IconButton>
-          </div>
-        );
-      })}
-      {available.length > 0 && (
-        <select
-          value=""
-          aria-label={t("form.addProperty")}
-          onChange={(e) => {
-            const prop = available.find((p) => p.id === e.target.value);
-            if (prop) onChange({ ...action, entries: [...action.entries, { propertyId: prop.id, value: initialValue(prop) }] });
-          }}
-          className="h-7 rounded-md bg-transparent px-1.5 text-sm text-fg-muted hover:bg-bg-hover focus:outline-none"
-        >
-          <option value="">+ {t("form.addProperty")}</option>
-          {available.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.name}
-            </option>
-          ))}
-        </select>
-      )}
-    </div>
-  );
-}
-
-/** The value a "set properties" action gives one property. */
-function ValueEditor({
-  prop,
-  value,
-  people,
-  noActor = false,
-  onChange,
-}: {
-  prop: Property;
-  value: unknown;
-  people: Person[];
-  noActor?: boolean;
-  onChange: (value: unknown) => void;
-}) {
-  const t = useTranslations("database.automations");
-  const label = t("form.valueFor", { property: prop.name });
-
-  switch (prop.type) {
-    case "select":
-    case "status":
-      return (
-        <select value={typeof value === "string" ? value : ""} aria-label={label} onChange={(e) => onChange(e.target.value)} className={selectClass}>
-          <option value="">{t("form.choose")}</option>
-          {optionsOf(prop).map((o) => (
-            <option key={o.id} value={o.id}>
-              {o.name}
-            </option>
-          ))}
-        </select>
+  switch (action.type) {
+    case "set_properties":
+      return targetProps ? (
+        <ValuesEditor entries={action.entries} properties={targetProps} people={people} noActor={noActor} onChange={(entries) => onChange({ ...action, entries })} />
+      ) : (
+        <p className="text-xs text-fg-muted">{tc("loading")}</p>
       );
-    case "multi_select": {
-      const ids = Array.isArray(value) ? (value as string[]) : [];
-      const options = optionsOf(prop);
-      const rest = options.filter((o) => !ids.includes(o.id));
+    case "notify":
       return (
-        <div className="flex min-h-8 flex-wrap items-center gap-1">
-          {ids.map((id) => {
-            const option = options.find((o) => o.id === id);
-            return option ? <OptionChip key={id} option={option} onRemove={() => onChange(ids.filter((x) => x !== id))} /> : null;
-          })}
-          {rest.length > 0 && (
-            <select
-              value=""
-              aria-label={label}
-              onChange={(e) => e.target.value && onChange([...ids, e.target.value])}
-              className="h-7 rounded-md bg-transparent px-1.5 text-sm text-fg-muted hover:bg-bg-hover focus:outline-none"
-            >
-              <option value="">+ {t("form.addOption")}</option>
-              {rest.map((o) => (
-                <option key={o.id} value={o.id}>
-                  {o.name}
-                </option>
-              ))}
-            </select>
-          )}
-        </div>
-      );
-    }
-    case "checkbox":
-      return (
-        <div className="flex h-8 items-center gap-2 text-sm">
-          <Switch checked={value === true} label={label} onChange={onChange} />
-          <span className="text-fg-muted">{value === true ? t("checked") : t("unchecked")}</span>
-        </div>
-      );
-    case "date": {
-      const now = isDynamicValue(value) && value.$ === "now";
-      return (
-        <div className="flex flex-col gap-1.5 sm:flex-row">
-          <select
-            value={now ? "now" : "date"}
-            aria-label={label}
-            onChange={(e) => onChange(e.target.value === "now" ? { $: "now" } : "")}
-            className={selectClass}
-          >
-            <option value="now">{t("form.now")}</option>
-            <option value="date">{t("form.specificDate")}</option>
-          </select>
-          {!now && (
-            <Input
-              type="date"
-              aria-label={label}
-              value={typeof value === "string" ? value : ""}
-              onChange={(e) => onChange(e.target.value)}
-              className="[color-scheme:light_dark]"
-            />
-          )}
-        </div>
-      );
-    }
-    case "person": {
-      const actor = isDynamicValue(value) && value.$ === "actor";
-      if (noActor) {
-        return <PeoplePicker people={people} selected={Array.isArray(value) ? (value as string[]) : []} onChange={onChange} />;
-      }
-      return (
-        <div className="space-y-1.5">
-          <select
-            value={actor ? "actor" : "people"}
-            aria-label={label}
-            onChange={(e) => onChange(e.target.value === "actor" ? { $: "actor" } : [])}
-            className={selectClass}
-          >
-            <option value="actor">{t("form.actor")}</option>
-            <option value="people">{t("form.specificPeople")}</option>
-          </select>
-          {!actor && (
-            <PeoplePicker people={people} selected={Array.isArray(value) ? (value as string[]) : []} onChange={onChange} />
-          )}
-        </div>
-      );
-    }
-    default:
-      return (
-        <Input
-          type={prop.type === "number" ? "number" : prop.type === "url" ? "url" : prop.type === "email" ? "email" : prop.type === "phone" ? "tel" : "text"}
-          aria-label={label}
-          value={typeof value === "string" ? value : ""}
-          onChange={(e) => onChange(e.target.value)}
+        <NotifyEditor
+          action={action}
+          people={people}
+          personProperties={rowRun || action.forEach ? (targetProps ?? []).filter((p) => namesPeopleType(p.type)) : []}
+          onChange={onChange}
         />
       );
+    case "move_to_trash":
+      return <p className="text-xs text-fg-muted">{t("form.trashHelp")}</p>;
+    case "webhook":
+      return (
+        <Input
+          type="url"
+          inputMode="url"
+          dir="ltr"
+          value={action.url}
+          maxLength={MAX_WEBHOOK_URL}
+          aria-label={t("form.webhookUrl")}
+          placeholder={t("form.webhookPlaceholder")}
+          onChange={(e) => onChange({ ...action, url: e.target.value })}
+        />
+      );
+    case "run_agent":
+      return <RunAgentEditor workspaceId={workspaceId} action={action} agents={agents} isOwner={isOwner} onChange={onChange} />;
+    case "http_request":
+      return <HttpRequestEditor action={action} onChange={onChange} />;
+    case "find_rows":
+      return <FindRowsEditor databaseId={databaseId} action={action} onChange={onChange} />;
+    case "create_row":
+    case "upsert_row":
+      return <RowWriteEditor databaseId={databaseId} action={action} people={people} noActor={noActor} onChange={onChange} />;
+    case "wait":
+      return <WaitEditor action={action} onChange={onChange} />;
+    case "log":
+      return (
+        <div className="space-y-1">
+          <TemplateField
+            rows={2}
+            value={action.message}
+            maxLength={MAX_STEP_MESSAGE}
+            aria-label={t("steps.logMessage")}
+            placeholder={t("steps.logPlaceholder", { template: "{{trigger.title}}" })}
+            onChange={(message) => onChange({ ...action, message })}
+          />
+          <p className="text-xs text-fg-faint">{t("steps.logHelp")}</p>
+        </div>
+      );
   }
+}
+
+/**
+ * A step's id as typed: lowercase letters, digits and _, starting with a letter. Taken on leaving
+ * the field, when it is one and no other step has it; later steps' templates follow the rename.
+ */
+function StepIdInput({ id, taken, onCommit }: { id: string; taken: string[]; onCommit: (id: string) => void }) {
+  const t = useTranslations("database.automations.form");
+  const [text, setText] = useState(id);
+  const [editing, setEditing] = useState(false);
+  const shown = editing ? text : id;
+  const valid = STEP_ID.test(shown) && !(TEMPLATE_ROOTS as readonly string[]).includes(shown) && !taken.includes(shown);
+  const commit = () => {
+    setEditing(false);
+    if (text !== id && STEP_ID.test(text) && !(TEMPLATE_ROOTS as readonly string[]).includes(text) && !taken.includes(text)) onCommit(text);
+  };
+  return (
+    <input
+      value={shown}
+      maxLength={32}
+      spellCheck={false}
+      dir="ltr"
+      aria-label={t("stepId")}
+      aria-invalid={!valid}
+      title={valid ? t("stepIdHelp") : t("stepIdInvalid")}
+      onFocus={() => {
+        setText(id);
+        setEditing(true);
+      }}
+      onChange={(e) => setText(e.target.value.toLowerCase().replace(/[\s-]+/g, "_"))}
+      onBlur={commit}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") e.currentTarget.blur();
+        if (e.key === "Escape") {
+          e.stopPropagation();
+          setText(id);
+          setEditing(false);
+          e.currentTarget.blur();
+        }
+      }}
+      className={cn(
+        "h-6 w-28 rounded-md border bg-bg-hover px-1.5 text-xs outline-none focus:border-accent",
+        valid ? "border-transparent" : "border-danger",
+      )}
+    />
+  );
 }
 
 /**
@@ -746,10 +672,10 @@ function RunAgentEditor({
   onChange,
 }: {
   workspaceId: string;
-  action: Extract<DraftAction, { type: "run_agent" }>;
+  action: DraftActionOf<"run_agent">;
   agents: AgentChoice[];
   isOwner: boolean;
-  onChange: (action: Extract<DraftAction, { type: "run_agent" }>) => void;
+  onChange: (action: DraftActionOf<"run_agent">) => void;
 }) {
   const t = useTranslations("database.automations.form");
   const chosen = agents.find((a) => a.id === action.agentId);
@@ -789,23 +715,23 @@ function RunAgentEditor({
         {action.agentId && !chosen && <option value={action.agentId}>{t("archivedAgent")}</option>}
       </select>
       {chosen?.description && <p className="text-xs text-fg-muted">{chosen.description}</p>}
-      <label className="block">
+      <div>
         <span className="mb-1 flex items-baseline justify-between gap-2 text-xs text-fg-muted">
           {t("agentTask")}
           <span className="tabular-nums text-fg-faint">
             {action.prompt.length} / {MAX_AGENT_PROMPT}
           </span>
         </span>
-        <textarea
+        <TemplateField
           rows={3}
           value={action.prompt}
           maxLength={MAX_AGENT_PROMPT}
+          aria-label={t("agentTask")}
           placeholder={t("agentTaskPlaceholder")}
           readOnly={!editable}
-          onChange={(e) => onChange({ ...action, prompt: e.target.value })}
-          className={textareaClass}
+          onChange={(prompt) => onChange({ ...action, prompt })}
         />
-      </label>
+      </div>
       <p className="text-xs text-fg-faint">
         {!editable ? t("agentOwnersOnly") : chosen ? t("agentAccess", { agent: chosen.name }) : t("agentAccessAny")}
       </p>
@@ -813,26 +739,28 @@ function RunAgentEditor({
   );
 }
 
-/** Who a notification goes to: chosen people and the people a row's person properties name. */
+/** Who a notification goes to (chosen people and the people a row's person properties name), and what it says. */
 function NotifyEditor({
   action,
   people,
+  personProperties,
   onChange,
 }: {
-  action: Extract<DraftAction, { type: "notify" }>;
+  action: DraftActionOf<"notify">;
   people: Person[];
-  onChange: (action: Extract<DraftAction, { type: "notify" }>) => void;
+  /** The person properties of the row it is about; none without a row. */
+  personProperties: Property[];
+  onChange: (action: DraftActionOf<"notify">) => void;
 }) {
   const t = useTranslations("database.automations");
-  const properties = useSchema();
-  const personProperties = properties.filter((p) => namesPeopleType(p.type));
+  const listed = useMemo(() => new Set(personProperties.map((p) => p.id)), [personProperties]);
   return (
     <div className="space-y-3">
       <div>
         <p className="mb-1 text-xs text-fg-muted">{t("form.people")}</p>
         <PeoplePicker people={people} selected={action.people} onChange={(ids) => onChange({ ...action, people: ids })} />
       </div>
-      {personProperties.length > 0 && (
+      {(personProperties.length > 0 || action.properties.some((id) => !listed.has(id))) && (
         <div>
           <p className="mb-1 text-xs text-fg-muted">{t("form.personProperties")}</p>
           <ul className="space-y-0.5">
@@ -858,107 +786,34 @@ function NotifyEditor({
                 </li>
               );
             })}
+            {action.properties
+              .filter((id) => !listed.has(id))
+              .map((id) => (
+                <li key={id} className="flex items-center gap-2 px-1 py-1 text-sm text-fg-muted">
+                  <span className="truncate">{t("deletedProperty")}</span>
+                  <button
+                    type="button"
+                    onClick={() => onChange({ ...action, properties: action.properties.filter((x) => x !== id) })}
+                    className="text-xs underline underline-offset-2 hover:text-fg"
+                  >
+                    {t("form.removeProperty")}
+                  </button>
+                </li>
+              ))}
           </ul>
         </div>
       )}
-    </div>
-  );
-}
-
-/** Chosen people as chips, and a search box to add more (as in the property access dialog). */
-function PeoplePicker({
-  people,
-  selected,
-  onChange,
-}: {
-  people: Person[];
-  selected: string[];
-  onChange: (ids: string[]) => void;
-}) {
-  const t = useTranslations("database.automations");
-  const tc = useTranslations("common");
-  const [query, setQuery] = useState("");
-  const [searching, setSearching] = useState(false);
-  const candidates = useMemo(() => {
-    if (!searching) return [];
-    const q = searchFold(query.trim());
-    return people
-      .filter((p) => !selected.includes(p.id))
-      .filter((p) => !q || searchFold(p.name).includes(q) || (p.email !== null && searchFold(p.email).includes(q)))
-      .slice(0, MAX_CANDIDATES);
-  }, [people, selected, query, searching]);
-  const add = (id: string) => {
-    onChange([...selected, id]);
-    setQuery("");
-  };
-
-  return (
-    <div>
-      {selected.length > 0 && (
-        <ul className="mb-1.5 flex flex-wrap gap-1">
-          {selected.map((id) => {
-            const person = people.find((p) => p.id === id);
-            const name = person?.name || person?.email || t("unknownPerson");
-            return (
-              <li key={id} className="inline-flex items-center gap-1 rounded-md bg-bg-hover py-0.5 pe-1 ps-0.5 text-sm">
-                {person ? (
-                  <UserAvatar name={name} image={person.image} size="xs" colors="bg-accent/15 text-accent" />
-                ) : (
-                  <UserRound className="h-3.5 w-3.5 text-fg-muted" aria-hidden />
-                )}
-                <span className="max-w-40 truncate">{name}</span>
-                <button
-                  type="button"
-                  aria-label={`${tc("remove")}: ${name}`}
-                  onClick={() => onChange(selected.filter((x) => x !== id))}
-                  className="rounded text-fg-muted hover:text-danger"
-                >
-                  <X className="h-3 w-3" />
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-      )}
-      <label className="flex h-8 items-center gap-2 rounded-md border border-border px-2 focus-within:border-accent">
-        <Search className="h-4 w-4 shrink-0 text-fg-faint" aria-hidden />
-        <input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          onFocus={() => setSearching(true)}
-          onBlur={() => setSearching(false)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              if (candidates[0]) add(candidates[0].id);
-            }
-          }}
-          placeholder={t("form.addPerson")}
-          aria-label={t("form.addPerson")}
-          className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-fg-faint"
+      <div>
+        <p className="mb-1 text-xs text-fg-muted">{t("form.message")}</p>
+        <TemplateField
+          rows={2}
+          value={action.message}
+          maxLength={MAX_STEP_MESSAGE}
+          aria-label={t("form.message")}
+          placeholder={t("form.messagePlaceholder")}
+          onChange={(message) => onChange({ ...action, message })}
         />
-      </label>
-      {searching && (
-        <div className="mt-1 rounded-lg border border-border p-1">
-          {candidates.map((p) => (
-            <button
-              key={p.id}
-              type="button"
-              // Keeps the search box focused, so the list stays open for the next pick.
-              onMouseDown={(e) => e.preventDefault()}
-              onClick={() => add(p.id)}
-              className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-start hover:bg-bg-hover"
-            >
-              <UserAvatar name={p.name || p.email || "?"} image={p.image} size="md" colors="bg-accent/15 text-accent" />
-              <span className="min-w-0">
-                <span className="block truncate text-sm">{p.name || p.email}</span>
-                {p.email && p.name && <span className="block truncate text-xs text-fg-muted">{p.email}</span>}
-              </span>
-            </button>
-          ))}
-          {!candidates.length && <p className="px-2 py-1.5 text-sm text-fg-muted">{t("form.noMatches")}</p>}
-        </div>
-      )}
+      </div>
     </div>
   );
 }

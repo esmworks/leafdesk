@@ -172,7 +172,8 @@
     "aiAccountTitle": "Conta de IA removida",
     "aiAccountDetached": "A IA do espaço de trabalho não funciona mais com a chave de {actor}. Escolha outra conta de IA em Configurações.",
     "reviewTitle": "Para revisar",
-    "review": "{count, plural, one {{agent} propôs uma alteração para sua revisão} other {# alterações aguardam sua revisão, a mais recente de {agent}}}"
+    "review": "{count, plural, one {{agent} propôs uma alteração para sua revisão} other {# alterações aguardam sua revisão, a mais recente de {agent}}}",
+    "automationRun": "Automação “{name}”"
   },
   "templates": {
     "title": "Modelos",

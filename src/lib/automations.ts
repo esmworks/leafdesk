@@ -1,10 +1,13 @@
+import type { FilterCombinator, FilterEntry, SortRule } from "@/db/schema/app";
+import type { AutomationSchedule } from "./automation-schedule";
 import { STATUS_GROUPS, type StatusGroup } from "./property-types";
 import { dayString, localDay } from "./time-zone";
 
 /**
- * Database automations: "when a row is added, or a property of a row changes (to a value), or a
- * date of a row is some days past, do these things". Types, the pure trigger matching and the
- * limits, for the server (server/automations) and the settings dialog alike.
+ * Database automations: "when a row is added, a property of a row changes (to a value), a date of
+ * a row is some days past, a schedule comes round or a request arrives at the automation's own
+ * address, do these steps". Types, the pure trigger matching and the limits, for the server
+ * (server/automations) and the settings dialog alike.
  */
 
 /** The date a "date passed" trigger counts from: a date property (by id), or when the row was added or last edited. */
@@ -18,18 +21,47 @@ export type AutomationTrigger =
   /** A row is added to the database, however (the app, a form, an import, MCP, the API). */
   | { type: "row_created" }
   /**
-   * A row's value of `propertyId` changes; any property when it is null. With `to`, only when the
-   * value becomes it: an option id (select, status), true or false (checkbox), or a user id or
-   * option id that gets added (person, multi-select).
+   * A row's value of `propertyId` changes; any property when it is null. `propertyIds`, when it
+   * names more than one, watches all of them (`propertyId` is then the first). With `to` (one
+   * property only), only when the value becomes it: an option id (select, status), true or false
+   * (checkbox), or a user id or option id that gets added (person, multi-select).
    */
-  | { type: "property_changed"; propertyId: string | null; to?: string | boolean | null }
+  | { type: "property_changed"; propertyId: string | null; propertyIds?: string[]; to?: string | boolean | null }
   /**
    * A row's date (`date`: a date property's start, or when the row was added or last edited) is at
    * least `days` days past, and its status is in `status` when set. Found by a periodic check
    * (server/automations/timed.ts), not by writes: each row starts it once per value of its date
    * (see automation_fire).
    */
-  | DatePassedTrigger;
+  | DatePassedTrigger
+  /**
+   * A schedule comes round, in the automation's time zone (see lib/automation-schedule). A run
+   * has no row: steps that act on one need a "for each" over found rows.
+   */
+  | { type: "schedule"; schedule: AutomationSchedule }
+  /**
+   * A POST arrives at the automation's secret address (server/automations/incoming.ts): its JSON
+   * body is the run's `trigger`. `example` is a body to offer in the editor's variable picker and
+   * test runs. A run has no row.
+   */
+  | { type: "incoming_webhook"; example?: unknown };
+
+export type AutomationTriggerType = AutomationTrigger["type"];
+export const AUTOMATION_TRIGGER_TYPES = [
+  "row_created",
+  "property_changed",
+  "date_passed",
+  "schedule",
+  "incoming_webhook",
+] as const satisfies AutomationTriggerType[];
+
+/** Whether runs of a trigger are about a row (the `trigger` of their templates is that row). */
+export const hasRow = (trigger: { type: AutomationTriggerType }) =>
+  trigger.type === "row_created" || trigger.type === "property_changed" || trigger.type === "date_passed";
+
+/** The properties a property_changed trigger watches; empty for any property. */
+export const watchedProperties = (trigger: Extract<AutomationTrigger, { type: "property_changed" }>) =>
+  trigger.propertyIds?.length ? trigger.propertyIds : trigger.propertyId ? [trigger.propertyId] : [];
 
 export type DatePassedTrigger = { type: "date_passed"; date: DatePassedBasis; days: number; status?: StatusCondition | null };
 
@@ -39,24 +71,68 @@ export type DatePassedTrigger = { type: "date_passed"; date: DatePassedBasis; da
  */
 export type AutomationDynamicValue = { $: "now" } | { $: "actor" };
 
-/** What an automation does, in order. */
-export type AutomationAction =
+/**
+ * A step's id: what later steps' templates call its output by (`{{find.rows}}`). Saved steps
+ * always have one; steps saved before ids existed are given `step<n>` by position (stepIds).
+ */
+export const STEP_ID = /^[a-z][a-z0-9_]{0,31}$/;
+
+/** HTTP methods an HTTP request step may use. */
+export const HTTP_METHODS = ["GET", "POST", "PUT", "PATCH", "DELETE"] as const;
+export type HttpMethod = (typeof HTTP_METHODS)[number];
+
+/** Values set on a row by property id: stored values, AutomationDynamicValues or text with templates. */
+export type StepValues = Record<string, unknown>;
+
+/**
+ * What an automation does, in order. Each step may have an `id` (see STEP_ID). Text in a step can
+ * hold templates (lib/automation-templates). Steps that act on a row act on the run's row, or with
+ * `forEach` (a find_rows step's id) on each row that step found, one after another.
+ */
+export type AutomationAction = (
   /** Sets these values on the row, by property id (a stored value or an AutomationDynamicValue). */
-  | { type: "set_properties"; values: Record<string, unknown> }
+  | { type: "set_properties"; values: StepValues; forEach?: string }
   /**
    * An inbox notification (and an email, as each of them chooses) to these people and to whoever
-   * the row's person properties `propertyIds` name, as long as they can open the row.
+   * the row's person properties `propertyIds` name, as long as they can open the row (the
+   * database, for a run without one), with an optional message.
    */
-  | { type: "notify"; userIds: string[]; propertyIds: string[] }
-  /** A signed JSON POST to this address (see signWebhook). */
+  | { type: "notify"; userIds: string[]; propertyIds: string[]; message?: string; forEach?: string }
+  /** A signed JSON POST of the row to this address (see signWebhook). */
   | { type: "webhook"; url: string }
   /**
    * Runs an agent (see lib/agents.ts) on the row, with this task: it's queued, and runs apart, as
    * the agent. Saving the automation shares the database with the agent (edit access).
    */
-  | { type: "run_agent"; agentId: string; prompt: string }
+  | { type: "run_agent"; agentId: string; prompt: string; forEach?: string }
   /** Moves the row to the trash (restorable, like any trashed row). Always the last action. */
-  | { type: "move_to_trash" };
+  | { type: "move_to_trash" }
+  /**
+   * An HTTP request (server/automations/http.ts). `body` is JSON, sent for every method but GET
+   * and DELETE when given; its strings may be templates.
+   */
+  | { type: "http_request"; method: HttpMethod; url: string; headers: { name: string; value: string }[]; body?: unknown }
+  /** Rows of a database the automation's person can open, by a view's filters and sorts. */
+  | {
+      type: "find_rows";
+      databaseId: string;
+      filters?: FilterEntry[];
+      filterCombinator?: FilterCombinator;
+      sorts?: SortRule[];
+      limit: number;
+    }
+  /** Adds a row to a database (this one or another), with these values (property ids). */
+  | { type: "create_row"; databaseId: string; title?: string; values: StepValues }
+  /**
+   * Changes the first row of a database whose `matchPropertyId` ("title" for the row's title)
+   * equals `matchValue`, or adds one with it when there is none.
+   */
+  | { type: "upsert_row"; databaseId: string; matchPropertyId: string; matchValue: string; title?: string; values: StepValues }
+  /** Waits this many minutes before the next step (the run waits in the queue, not in memory). */
+  | { type: "wait"; minutes: number }
+  /** Writes a message into the run's history. */
+  | { type: "log"; message: string }
+) & { id?: string };
 
 export type AutomationActionType = AutomationAction["type"];
 
@@ -66,7 +142,63 @@ export const AUTOMATION_ACTION_TYPES = [
   "webhook",
   "run_agent",
   "move_to_trash",
+  "http_request",
+  "find_rows",
+  "create_row",
+  "upsert_row",
+  "wait",
+  "log",
 ] as const satisfies AutomationActionType[];
+
+/** Steps that can go "for each" over found rows. */
+export const FOR_EACH_TYPES = ["set_properties", "notify", "run_agent"] as const satisfies AutomationActionType[];
+
+/** Steps that act on the run's row: a run without one (schedule, incoming webhook) needs "for each" for them. */
+export const ROW_STEP_TYPES = ["set_properties", "run_agent", "move_to_trash", "webhook"] as const satisfies AutomationActionType[];
+
+/** Whether a step needs a row it doesn't have: in a run without one, not going over found rows. */
+export function needsRow(action: AutomationAction) {
+  if ((ROW_STEP_TYPES as readonly string[]).includes(action.type)) return !("forEach" in action && action.forEach);
+  if (action.type === "notify") return !action.forEach && action.propertyIds.length > 0;
+  return false;
+}
+
+/** The found_rows step a step goes over, if any. */
+export const forEachOf = (action: AutomationAction): string | null => ("forEach" in action && action.forEach ? action.forEach : null);
+
+/** Each step's id: its own, or `step<n>` (by position, skipping taken ids) for steps saved before ids. */
+export function stepIds(actions: { id?: string }[]): string[] {
+  const taken = new Set(actions.flatMap((a) => (a.id ? [a.id] : [])));
+  return actions.map((a, i) => {
+    if (a.id) return a.id;
+    let n = i + 1;
+    while (taken.has(`step${n}`)) n++;
+    taken.add(`step${n}`);
+    return `step${n}`;
+  });
+}
+
+/**
+ * The agents the steps run and the database each runs on: the automation's own (`databaseId`), or
+ * the database a "for each" goes over. Publishing shares those databases with those agents.
+ */
+export function agentTargets(actions: AutomationAction[], databaseId: string) {
+  const ids = stepIds(actions);
+  const out: { agentId: string; databaseId: string }[] = [];
+  for (const action of actions) {
+    if (action.type !== "run_agent") continue;
+    const over = action.forEach ? actions[ids.indexOf(action.forEach)] : null;
+    const target = over?.type === "find_rows" ? over.databaseId : databaseId;
+    if (!out.some((t) => t.agentId === action.agentId && t.databaseId === target)) out.push({ agentId: action.agentId, databaseId: target });
+  }
+  return out;
+}
+
+/** The actions with their ids written in (see stepIds). */
+export const withStepIds = <T extends { id?: string }>(actions: T[]): T[] => {
+  const ids = stepIds(actions);
+  return actions.map((a, i) => (a.id ? a : { ...a, id: ids[i] }));
+};
 
 /**
  * Why a list of actions can't be saved because of "move to trash": nothing can follow it (the row
@@ -81,9 +213,24 @@ export function trashProblem(actions: { type: AutomationActionType }[]): "trashN
   return null;
 }
 
-/** At most this many automations per database, and actions per automation. */
+/** At most this many automations per database, and steps per automation. */
 export const MAX_AUTOMATIONS = 50;
-export const MAX_AUTOMATION_ACTIONS = 10;
+export const MAX_AUTOMATION_ACTIONS = 20;
+/** Rows a find_rows step finds at most, which is also as many as a "for each" goes over. */
+export const MAX_FOUND_ROWS = 100;
+/** How much of an HTTP response a step keeps (and later steps see). */
+export const MAX_HTTP_RESPONSE_BYTES = 64 * 1024;
+export const MAX_HTTP_HEADERS = 20;
+/** A JSON body (as text), a log or notification message, a step's longer text. */
+export const MAX_HTTP_BODY = 32_000;
+export const MAX_STEP_MESSAGE = 2000;
+/** A wait step waits at most seven days. */
+export const MAX_WAIT_MINUTES = 7 * 24 * 60;
+/** The example body an incoming webhook trigger keeps for the editor, as JSON text. */
+export const MAX_EXAMPLE_PAYLOAD = 16_000;
+/** An incoming webhook's body at most, and how many requests an automation takes a minute. */
+export const MAX_INCOMING_BYTES = 64 * 1024;
+export const INCOMING_PER_MINUTE = 60;
 export const MAX_NOTIFY_PEOPLE = 50;
 export const MAX_AUTOMATION_NAME = 120;
 export const MAX_WEBHOOK_URL = 2000;
@@ -140,11 +287,13 @@ function holds(value: unknown, to: string | boolean) {
  */
 export function matchesTrigger(trigger: AutomationTrigger, write: RowWrite) {
   if (trigger.type === "row_created") return write.created;
-  // Found by the periodic check, never by a write.
-  if (trigger.type === "date_passed") return false;
+  // Found by the periodic checks or a request, never by a write.
+  if (trigger.type !== "property_changed") return false;
   const changed = changedProperties(write.before, write.after);
-  if (trigger.propertyId === null) return !write.created && changed.length > 0;
-  if (!changed.includes(trigger.propertyId)) return false;
+  const watched = watchedProperties(trigger);
+  if (!watched.length) return !write.created && changed.length > 0;
+  if (watched.length > 1) return !write.created && watched.some((id) => changed.includes(id));
+  if (trigger.propertyId === null || !changed.includes(trigger.propertyId)) return false;
   // A new row's values weren't changed by anyone: only a "becomes" condition looks at them.
   if (trigger.to === undefined || trigger.to === null) return !write.created;
   return holds(write.after[trigger.propertyId], trigger.to) && !holds(write.before[trigger.propertyId], trigger.to);
@@ -229,8 +378,15 @@ export function datePassedFires(
 /** The event name a webhook's body carries. */
 export const webhookEvent = (created: boolean) => (created ? "row.created" : "row.updated");
 
-/** The event of a run: a row added or changed, or a "date passed" run (it has the date it ran for). */
-export const runEvent = (run: { created: boolean; basis: string | null }) => (run.basis !== null ? "row.date_passed" : webhookEvent(run.created));
+/** What started a run without a row. */
+export type RunOrigin = "schedule" | "incoming_webhook";
+
+/**
+ * The event of a run: a row added or changed, a "date passed" run (it has the date it ran for), a
+ * schedule or a request to the automation's address.
+ */
+export const runEvent = (run: { created: boolean; basis: string | null; origin?: RunOrigin | null }) =>
+  run.origin === "schedule" ? "schedule" : run.origin === "incoming_webhook" ? "webhook.received" : run.basis !== null ? "row.date_passed" : webhookEvent(run.created);
 
 /** Header names of a webhook request. */
 export const WEBHOOK_SIGNATURE_HEADER = "X-Leafdesk-Signature";
@@ -251,12 +407,17 @@ export function retriable(status: number | null) {
   return status === null || status === 408 || status === 429 || status >= 500;
 }
 
+/** Whether a failed HTTP request step is tried again: network errors, timeouts, 502, 503 and 504 only. */
+export function httpRetriable(status: number | null) {
+  return status === null || status === 502 || status === 503 || status === 504;
+}
+
 /**
  * Why a "date passed" automation's last check couldn't look for rows: its date or status
  * property is deleted (it waits for a restore), or whoever saved it lost full access to the
  * database. Cleared by the next check that can, and by saving it.
  */
-export type AutomationCheckError = "propertyDeleted" | "noAccess";
+export type AutomationCheckError = "propertyDeleted" | "noAccess" | "scheduleInvalid";
 
 /** What a run is: waiting (or waiting to retry), running, done, or failed in some step. */
 export const AUTOMATION_RUN_STATUSES = ["pending", "running", "done", "failed"] as const;
@@ -264,11 +425,18 @@ export type AutomationRunStatus = (typeof AUTOMATION_RUN_STATUSES)[number];
 
 export type AutomationStepStatus = "pending" | "done" | "failed" | "skipped";
 
+/** How a step went for one found row of a "for each". */
+export type AutomationStepItem = { rowId: string; title: string; status: "done" | "failed" | "skipped"; code?: string; error?: string };
+
 /**
- * One action of a run. `code` is a short machine-readable reason (`noAccess`, `blocked`,
- * `timeout`, `http`…); `status` the HTTP status a webhook answered with.
+ * One step of a run. `code` is a short machine-readable reason (`noAccess`, `blocked`,
+ * `timeout`, `http`, `dependencyFailed`…); `httpStatus` the HTTP status a webhook or request
+ * answered with. `input` (the step with its templates written in) and `output` (what it gave
+ * later steps) are as the history shows them: credentials masked, long values cut.
  */
 export type AutomationStep = {
+  /** Its id in the version that ran (missing in runs from before ids). */
+  id?: string;
   type: AutomationActionType;
   status: AutomationStepStatus;
   attempts: number;
@@ -279,6 +447,17 @@ export type AutomationStep = {
   notified?: number;
   /** Run an agent: the run it queued (see agent_run). */
   agentRunId?: string;
+  /** Run an agent for each found row: the runs it queued. */
+  agentRunIds?: string[];
+  /** When it last started, and how long it took (its last try). */
+  startedAt?: string;
+  durationMs?: number;
+  /** Wait: when the run goes on. */
+  waitUntil?: string;
+  input?: unknown;
+  output?: unknown;
+  /** For each: how it went for each found row. */
+  items?: AutomationStepItem[];
 };
 
 /** A run is done when every step is; failed when one failed for good; else it still waits. */

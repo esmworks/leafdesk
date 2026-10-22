@@ -9,13 +9,19 @@ import { listAgents } from "@/server/agents/manage";
 import {
   createAutomation,
   deleteAutomation,
+  discardAutomationDraft,
   listAutomationRuns,
   listAutomations,
   previewDatePassed,
+  publishAutomation,
+  rotateAutomationHook,
   rotateAutomationSecret,
+  testAutomation,
   testAutomationWebhooks,
   updateAutomation,
   type AutomationInput,
+  type SaveOptions,
+  type TestRunInput,
 } from "@/server/automations/manage";
 import { requireDatabase } from "@/server/databases";
 import { requireUserId } from "@/server/session";
@@ -81,13 +87,36 @@ export async function listAutomationsAction(databaseId: string) {
   });
 }
 
-export async function createAutomationAction(databaseId: string, input: AutomationInput) {
-  return run((userId) => createAutomation(userId, databaseId, input));
+/** Creates an automation, published at once or (`publish: false`) as a draft that doesn't run yet. */
+export async function createAutomationAction(databaseId: string, input: AutomationInput, options: SaveOptions = {}) {
+  return run((userId) => createAutomation(userId, databaseId, input, options));
 }
 
-/** Changes an automation; `{ enabled }` alone turns it on or off. */
-export async function updateAutomationAction(automationId: string, patch: Partial<AutomationInput>) {
-  return run((userId) => updateAutomation(userId, automationId, patch));
+/**
+ * Changes an automation; `{ enabled }` alone turns it on or off. A new trigger or steps are kept
+ * as a draft with `publish: false`, else published.
+ */
+export async function updateAutomationAction(automationId: string, patch: Partial<AutomationInput>, options: SaveOptions = {}) {
+  return run((userId) => updateAutomation(userId, automationId, patch, options));
+}
+
+/** Makes the automation's draft its next version. */
+export async function publishAutomationAction(automationId: string) {
+  return run((userId) => publishAutomation(userId, automationId));
+}
+
+export async function discardAutomationDraftAction(automationId: string) {
+  return run((userId) => discardAutomationDraft(userId, automationId));
+}
+
+/** Runs the draft (or the published steps) once, with real effects, marked as a test. */
+export async function testAutomationAction(automationId: string, input: TestRunInput) {
+  return run((userId) => testAutomation(userId, automationId, input));
+}
+
+/** A new address for an incoming webhook trigger. */
+export async function rotateAutomationHookAction(automationId: string) {
+  return run((userId) => rotateAutomationHook(userId, automationId));
 }
 
 export async function deleteAutomationAction(automationId: string) {

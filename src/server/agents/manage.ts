@@ -9,7 +9,7 @@
  * (`page_access_level` gives guests nothing from teamspaces, groups or "everyone"), and it's never
  * given full access. Archiving keeps the user, so what the agent did keeps its name.
  */
-import { and, count, desc, eq, inArray, isNull, sql } from "drizzle-orm";
+import { and, count, desc, eq, inArray, isNull, or, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { agentDatabaseShare, agentRun, connection, databaseAutomation, page, pagePermission, schedule, user, workspaceAgent } from "@/db/schema";
 import {
@@ -38,6 +38,7 @@ import {
   type AgentRunView,
   type AgentView,
 } from "@/lib/agents";
+import { agentTargets } from "@/lib/automations";
 import { parseIcon } from "@/lib/icon";
 import type { AgentLevel, AgentShareLevel } from "@/lib/agent-sharing";
 import { pageAccessOf, pageVisibleTo, requireMember } from "@/server/access";
@@ -444,8 +445,14 @@ export async function releaseDatabaseFromAgents(userId: string, databaseId: stri
     .innerJoin(workspaceAgent, eq(workspaceAgent.id, agentDatabaseShare.agentId))
     .where(and(eq(agentDatabaseShare.databaseId, databaseId), inArray(agentDatabaseShare.agentId, agentIds)));
   if (!shares.length) return;
-  const automations = await db.select({ actions: databaseAutomation.actions }).from(databaseAutomation).where(eq(databaseAutomation.databaseId, databaseId));
-  const stillRun = new Set(automations.flatMap((a) => a.actions.flatMap((x) => (x.type === "run_agent" ? [x.agentId] : []))));
+  // The database's own automations, and those of other databases that go over its rows.
+  const automations = await db
+    .select({ databaseId: databaseAutomation.databaseId, actions: databaseAutomation.actions })
+    .from(databaseAutomation)
+    .where(or(eq(databaseAutomation.databaseId, databaseId), sql`${databaseAutomation.actions}::text like ${`%${databaseId}%`}`));
+  const stillRun = new Set(
+    automations.flatMap((a) => agentTargets(a.actions, a.databaseId).flatMap((t) => (t.databaseId === databaseId ? [t.agentId] : []))),
+  );
   for (const share of shares) {
     if (stillRun.has(share.agentId)) continue;
     await withoutVersions(() =>

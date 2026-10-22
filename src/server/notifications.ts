@@ -566,6 +566,8 @@ export type InboxItem = {
   reminderTimeZone: string | null;
   /** Automations: the name of the automation that sent it (`pageId` is the row, `databaseTitle` its database). */
   automationName: string | null;
+  /** Automations: the message its notify step wrote, if any. */
+  automationMessage: string | null;
   /** Access requests: what the user needs to answer it. */
   accessRequest: InboxAccessRequest | null;
   /** Join requests: someone asking to join, or a member asking to invite `requestEmail`. */
@@ -734,6 +736,7 @@ export async function listNotifications(
       reminderDate: notification.date,
       reminderTimeZone: sql<string | null>`${databaseProperty.options}->'date'->'reminder'->>'timeZone'`,
       automationName: databaseAutomation.name,
+      automationMessage: notification.message,
       requestKind: workspaceJoinRequest.kind,
       requestEmail: workspaceJoinRequest.email,
       actorEmail: actor.email,

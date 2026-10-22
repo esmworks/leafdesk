@@ -247,10 +247,16 @@ export function InboxDialog({
                           : item.kind === "automation"
                             ? item.reminderDate
                               ? t("automationDatePassed", { name: item.automationName ?? "" })
-                              : t("automation", { name: item.automationName ?? "", actor: item.actorName || t("someone") })
+                              : item.actorName
+                                ? t("automation", { name: item.automationName ?? "", actor: item.actorName })
+                                : // A schedule, a request or a test run: nobody's change started it.
+                                  t("automationRun", { name: item.automationName ?? "" })
                             : t("assignment", { actor: item.actorName || t("someone"), property: item.propertyName ?? "" })}
                   {item.databaseTitle !== null && <> · {pageLabel(item.databaseTitle, tc("untitled"))}</>}
                 </span>
+                {item.automationMessage && (
+                  <bdi className="mt-1 line-clamp-3 block text-xs leading-5 break-words whitespace-pre-line text-fg">{item.automationMessage}</bdi>
+                )}
                 {item.rowUpdate && <RowUpdateChanges update={item.rowUpdate} />}
                 {item.rowEmail && (
                   <span className="mt-1 block text-xs leading-5 text-fg-muted">

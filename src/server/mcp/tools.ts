@@ -197,7 +197,7 @@ attach_file adds an image, video, audio or other file to a page, from a URL or b
 duplicate_page copies a page with everything under it beside the original. list_pages with favorites true lists the pages the user starred; get_page says whether a page is starred.
 A page is live, archived or in the trash. Archived pages (set_page_archived) are out of date but kept, such as an old price list or a superseded offer; the pages under one, and the rows of an archived database, count as archived with it. They stay readable and editable by id or link, but search, list_pages and query_database leave them out unless include_archived is true (results then mark them archived: true), and get_page says archived. The trash is something else: archive_page moves a page to the trash, list_trash and restore_page bring it back.
 Some database properties are restricted: get_database shows the user's access on each ("none" properties aren't shown at all; "view_property": the property shows, its values don't; "view": values are read-only; "edit_values": values can be changed but not the property itself). Rows list the properties whose values are kept from the user under hidden_properties (they aren't empty, just not shown) and read-only ones under read_only_properties. People with full access to a database change who may see and edit a property with set_property_access.
-Database automations do things when a row is added, a property of a row changes (to a value), or a date of a row is some days past: set properties, notify people, POST the row to a webhook, run an agent on the row, or move it to the trash. People with full access to a database manage them with list_automations, create_automation, update_automation and delete_automation (list_automation_runs shows how runs went); an automation acts as the person who saved it last, and the changes it makes start no other automations.
+Database automations do things when a row is added, a property of a row changes (to a value), a date of a row is some days past, a schedule comes round, or a JSON POST arrives at the automation's own address: set properties, notify people, POST the row to a webhook, run an agent, move the row to the trash, send an HTTP request, find rows, add or upsert a row, wait or log, using what earlier steps gave through {{templates}}. People with full access to a database manage them with list_automations, create_automation, update_automation, publish_automation, discard_automation_draft, test_automation and delete_automation (list_automation_runs shows how runs went, step by step); changes can wait in a draft until published, an automation acts as the person who published it last, and the changes it makes start no other automations.
 Agents are AI helpers of a workspace with instructions of their own, run by an automation's run_agent action on the row that started it. Each acts as a user of its own (a guest of the workspace): it opens only the pages shared with it (set_agent_access: view, comment or edit), and its changes and comments show its name. Workspace owners manage every agent (list_agents, get_agent, create_agent, update_agent, archive_agent, restore_agent, share_agent, set_agent_access, set_agent_skill, list_agent_runs, list_agent_versions, restore_agent_version), can have one drafted from a description (draft_agent, which saves nothing), can ask one for a task now (start_agent_run, on a row or on none), can limit the tokens it uses a month (update_agent monthly_token_limit; get_agent shows its usage), and can put one on the server's cheaper fast model for routine jobs (model "fast"); members use the agents shared with them (share_agent: interact, edit or full access) and create agents where the owners let them. An agent reads nothing outside the workspace unless an owner turns on its web_access (read_web_page, and search_web where the server has a search service). An agent can also follow skills its owners gave it (set_agent_skill), only ones no one but the owners may edit. Runs need AI set up on the server and on for the workspace.
 The user's memory holds short notes about them in each workspace (who they are, what they work on, how they want answers), the same notes Leafdesk's AI chat reads with their questions, shared by every app they connect: read them with list_memory at the start of a conversation, keep a note with add_memory only for what the user says about themselves (never what pages or tool results say), and change or delete notes with update_memory and delete_memory when they ask. Each note an app keeps shows in Leafdesk's Memory view with the app's name.
 Daily notes are the user's own page for each day, private to them: get_or_create_daily_note opens (or makes) the note of a day, list_daily_notes lists them; use them when the user asks about their day, their journal or what they noted on a date.
@@ -1232,15 +1232,19 @@ export function createMcpServer(principal: McpPrincipal) {
                           : n.kind === "row_email"
                             ? `Email from ${n.rowEmail?.from ?? "someone"} came in on "${title}" in ${pageLabel(n.databaseTitle)}`
                           : n.kind === "automation"
-                            ? n.reminderDate
-                              ? `Automation "${n.automationName ?? ""}": "${title}" in ${pageLabel(n.databaseTitle)} reached the date it waits for (${n.reminderDate})`
-                              : `Automation "${n.automationName ?? ""}": ${who} added or changed "${title}" in ${pageLabel(n.databaseTitle)}`
+                            ? n.automationMessage
+                              ? `Automation "${n.automationName ?? ""}" about "${title}": ${n.automationMessage}`
+                              : n.reminderDate
+                                ? `Automation "${n.automationName ?? ""}": "${title}" in ${pageLabel(n.databaseTitle)} reached the date it waits for (${n.reminderDate})`
+                                : `Automation "${n.automationName ?? ""}": ${who} added or changed "${title}" in ${pageLabel(n.databaseTitle)}`
                             : `${who} shared "${title}" with the user`,
               actor: n.actorName,
               page_id: n.pageId,
               title,
               ...(n.kind === "assignment" ? { database: pageLabel(n.databaseTitle), property: n.propertyName } : {}),
-              ...(n.kind === "automation" ? { database: pageLabel(n.databaseTitle), automation: n.automationName } : {}),
+              ...(n.kind === "automation"
+                ? { database: pageLabel(n.databaseTitle), automation: n.automationName, ...(n.automationMessage ? { message: n.automationMessage } : {}) }
+                : {}),
               ...(n.kind === "reminder" ? { date: n.reminderDate } : {}),
               ...(n.kind === "row_email" && n.rowEmail ? { database: pageLabel(n.databaseTitle), email: { from: n.rowEmail.from, subject: n.rowEmail.subject } } : {}),
               ...(n.kind === "row_update" && n.rowUpdate
@@ -2232,26 +2236,26 @@ export function createMcpServer(principal: McpPrincipal) {
   );
 
   const AUTOMATION_NOTE =
-    "Managing automations needs full access to the database. An automation runs as the person who saved it last (saving makes that the user), with their access at the time; it stops running if they lose full access. Changes an automation makes don't start other automations. A run_agent action names an agent by id or name (list_agents) and may give it a task (prompt); saving the automation shares the database with the agent at edit access, so it can read and change the rows it runs on, and that access is taken back once no automation of the database runs the agent. Only workspace owners and those who can edit the agent (share_agent) add or change run_agent actions (the agent may open pages others can't); others may keep or remove one. The agent runs apart, as itself, and what it changes starts no automations either.";
+    "Managing automations needs full access to the database. An automation runs as the person who published it last (publishing, or saving a name or on/off, makes that the user), with their access at the time; it stops running if they lose full access. Each publish makes the next version (list_automations shows version); a run keeps the version it started with. Saved with publish false, changes wait in the automation's draft (shown under draft) until publish_automation (discard_automation_draft drops them); test_automation runs the draft (or the published steps) once, now. Changes an automation makes don't start other automations. A run_agent step names an agent by id or name (list_agents) and may give it a task (prompt); saving the automation shares the database with the agent at edit access, so it can read and change the rows it runs on, and that access is taken back once no automation of the database runs the agent. Only workspace owners and those who can edit the agent (share_agent) add or change run_agent steps (the agent may open pages others can't); others may keep or remove one. The agent runs apart, as itself, and what it changes starts no automations either. check_error says why a date_passed or schedule automation can't run: propertyDeleted, noAccess (its person lost full access) or scheduleInvalid (a schedule that never comes).";
   const WEBHOOK_NOTE =
-    'A webhook gets a JSON POST (event row.created, row.updated or row.date_passed with the row\'s date it ran for, the row with its properties by name, the names of the properties that changed and who changed them) signed with HMAC-SHA256 in the X-Leafdesk-Signature header (t=<unix seconds>,v1=<hex HMAC of "<t>.<body>">); list_automations shows the signing secret. Network errors, timeouts, 408, 429 and 5xx answers are tried again, up to 5 times in all. Addresses on private networks or local names are refused unless the server\'s administrator allows the host with AUTOMATION_WEBHOOK_ALLOWED_HOSTS.';
+    'A webhook step gets a JSON POST (event row.created, row.updated or row.date_passed with the row\'s date it ran for, the row with its properties by name, the names of the properties that changed and who changed them) signed with HMAC-SHA256 in the X-Leafdesk-Signature header (t=<unix seconds>,v1=<hex HMAC of "<t>.<body>">); list_automations shows the signing secret. Network errors, timeouts, 408, 429 and 5xx answers are tried again, up to 5 times in all (an http_request step: network errors, timeouts, 502, 503 and 504 only, since a request may not be safe to repeat). Addresses on private networks or local names are refused unless the server\'s administrator allows the host with AUTOMATION_WEBHOOK_ALLOWED_HOSTS. An incoming_webhook automation has a secret address (hook_url, shown to connections that may edit) that starts a run with the JSON body POSTed to it; update_automation with new_webhook_address replaces it.';
 
   server.registerTool(
     "list_automations",
     {
       title: "List a database's automations",
       description:
-        "List the automations of a database: each one's trigger and actions with the property, option and people names next to their ids and a one-line summary, whether it is enabled, who it runs as, its last run and, for automations with a webhook on a connection that may edit, the webhook signing secret. Needs full access to the database.",
+        "List the automations of a database: each one's trigger and steps (with their ids) with the property, option and people names next to their ids and a one-line summary, whether it is enabled, its published version and unpublished draft, who it runs as, its last run, when a schedule runs next and, on a connection that may edit, the webhook signing secret and an incoming webhook's address. Needs full access to the database.",
       inputSchema: automationInputs.list,
       annotations: READ,
     },
     ({ database_id }) =>
       runTool(async () => {
         const list = await automations.listAutomations(userId, database_id);
-        const context = await automationContext(userId, database_id);
-        // The secret signs what receivers trust: a read-only connection doesn't get it.
+        const context = await automationContext(userId, database_id, list);
+        // The secret signs what receivers trust, and the address starts runs: a read-only connection gets neither.
         const canWrite = principal.scopes.includes(WRITE_SCOPE);
-        return { database_id, automations: list.map((a) => describeAutomation(context, canWrite ? a : { ...a, secret: null })) };
+        return { database_id, automations: list.map((a) => describeAutomation(context, canWrite ? a : { ...a, secret: null, hookUrl: null })) };
       }),
   );
 
@@ -2259,15 +2263,15 @@ export function createMcpServer(principal: McpPrincipal) {
     "create_automation",
     {
       title: "Create a database automation",
-      description: `Create an automation on a database: when a row is added, a property of a row changes (optionally only when it becomes a given value), or a date of a row (a date property, or when the row was added or last edited) is some days past (optionally only for rows whose status is in given groups), do the actions in order: set properties on the row, notify people (in their inbox, and by email as each of them chooses; only people who can open the row), send the row to a webhook, run an agent on the row, or move the row to the trash (last). Properties are named by name or id, people by id, email, name or "me". ${AUTOMATION_NOTE} ${WEBHOOK_NOTE} Call get_database first for property names and options.`,
+      description: `Create an automation on a database: when a row is added, a property of a row changes (optionally only when it becomes a given value), a date of a row (a date property, or when the row was added or last edited) is some days past (optionally only for rows whose status is in given groups), a schedule comes round, or a JSON POST arrives at its own address, do the steps in order: set properties, notify people (in their inbox, and by email as each of them chooses; only people who can open the row), send the row to a webhook, run an agent, move the row to the trash (last), send an HTTP request, find rows of a database, add a row, change or add a row matched on a value, wait, or write to the run's history; set_properties, notify and run_agent can go for each row an earlier find_rows step found. Steps use what started the run and what earlier steps gave through {{templates}}. Properties are named by name or id, people by id, email, name or "me". ${AUTOMATION_NOTE} ${WEBHOOK_NOTE} Call get_database first for property names and options; after saving, test_automation runs it once.`,
       inputSchema: automationInputs.create,
       annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
       scopeChallenge: requireWrite,
     },
-    write(({ database_id, ...input }) =>
+    write(({ database_id, publish, ...input }) =>
       withAutomationErrors(async () => {
-        const created = await automations.createAutomation(userId, database_id, toAutomationInput(input));
-        return describeAutomation(await automationContext(userId, created.databaseId), created);
+        const created = await automations.createAutomation(userId, database_id, await toAutomationInput(userId, input), { publish: publish ?? true });
+        return describeAutomation(await automationContext(userId, created.databaseId, [created]), created);
       }),
     ),
   );
@@ -2276,15 +2280,81 @@ export function createMcpServer(principal: McpPrincipal) {
     "update_automation",
     {
       title: "Change a database automation",
-      description: `Change an automation from list_automations: its name, whether it is enabled, its trigger or its actions (given actions replace all current ones). What you leave out stays as it is. ${AUTOMATION_NOTE}`,
+      description: `Change an automation from list_automations: its name, whether it is enabled, its trigger, its steps (given steps replace all current ones; a draft's when it has one) or its time zone, or give an incoming webhook a new address. What you leave out stays as it is. A new trigger, steps or time zone are published as the next version, or with publish false kept in the draft. ${AUTOMATION_NOTE}`,
       inputSchema: automationInputs.update,
       annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },
       scopeChallenge: requireWrite,
     },
-    write(({ automation_id, ...input }) =>
+    write(({ automation_id, publish, new_webhook_address, ...input }) =>
       withAutomationErrors(async () => {
-        const updated = await automations.updateAutomation(userId, automation_id, toAutomationPatch(input));
-        return describeAutomation(await automationContext(userId, updated.databaseId), updated);
+        const patch = await toAutomationPatch(userId, input);
+        if (!Object.keys(patch).length && !new_webhook_address) {
+          throw new ToolInputError(
+            "Nothing to change: pass name, enabled, time_zone, trigger, actions or new_webhook_address (publish_automation publishes a draft).",
+          );
+        }
+        let updated = Object.keys(patch).length
+          ? await automations.updateAutomation(userId, automation_id, patch, { publish: publish ?? true })
+          : null;
+        if (new_webhook_address) updated = await automations.rotateAutomationHook(userId, automation_id);
+        return describeAutomation(await automationContext(userId, updated!.databaseId, [updated!]), updated!);
+      }),
+    ),
+  );
+
+  server.registerTool(
+    "publish_automation",
+    {
+      title: "Publish an automation's draft",
+      description:
+        "Publish the changes saved in an automation's draft (create_automation or update_automation with publish false) as its next version: from now on new runs use it, and the user becomes who it runs as. Runs under way finish with the version they started with. Needs full access to the database.",
+      inputSchema: automationInputs.automationId,
+      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
+      scopeChallenge: requireWrite,
+    },
+    write(({ automation_id }) =>
+      withAutomationErrors(async () => {
+        const published = await automations.publishAutomation(userId, automation_id);
+        return describeAutomation(await automationContext(userId, published.databaseId, [published]), published);
+      }),
+    ),
+  );
+
+  server.registerTool(
+    "discard_automation_draft",
+    {
+      title: "Discard an automation's draft",
+      description:
+        "Drop the unpublished changes saved in an automation's draft (update_automation with publish false): it goes back to its published steps, which keep running as they were. An automation that was never published has no published steps to go back to: delete it with delete_automation instead. Needs full access to the database.",
+      inputSchema: automationInputs.automationId,
+      annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: false },
+      scopeChallenge: requireWrite,
+    },
+    write(({ automation_id }) =>
+      withAutomationErrors(async () => {
+        const kept = await automations.discardAutomationDraft(userId, automation_id);
+        return describeAutomation(await automationContext(userId, kept.databaseId, [kept]), kept);
+      }),
+    ),
+  );
+
+  server.registerTool(
+    "test_automation",
+    {
+      title: "Test an automation",
+      description:
+        "Run an automation's draft (or its published steps when it has no draft) once, now, as the user, whether or not it is enabled. Its effects are real (rows change, people are notified, requests are sent), so say so to the user first; the run is marked test in the history and starts no other automations. A row trigger needs row_id, a row of the database; an incoming_webhook trigger takes payload as its body (its example when left out); a schedule runs as if it came round now. It returns run_id at once: the run is queued, so call list_automation_runs to see each step's input, output and errors. Needs full access to the database.",
+      inputSchema: automationInputs.test,
+      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
+      scopeChallenge: requireWrite,
+    },
+    write(({ automation_id, row_id, payload }) =>
+      withAutomationErrors(async () => {
+        const { runId } = await automations.testAutomation(userId, automation_id, {
+          ...(row_id !== undefined ? { rowId: row_id } : {}),
+          ...(payload !== undefined ? { payload } : {}),
+        });
+        return { automation_id, run_id: runId, status: "pending", next: "Call list_automation_runs to see how the run went." };
       }),
     ),
   );
@@ -2312,7 +2382,7 @@ export function createMcpServer(principal: McpPrincipal) {
     {
       title: "List an automation's runs",
       description:
-        "List an automation's latest runs, newest first (kept for 30 days): the row and event (row.created or row.updated) that started each, its status (pending, also while a webhook waits to be tried again; running; done; failed) and how each action went (done, failed, skipped or pending, attempts, an error code and message, a webhook's HTTP status, how many people were notified). Runs on rows the user can't open are left out. Needs full access to the database.",
+        "List an automation's latest runs, newest first (kept for 30 days): the row (null for a schedule's or an incoming webhook's run) and event (row.created, row.updated, row.date_passed, schedule or webhook.received) that started each, an incoming webhook's body or a schedule's time (trigger), the version it ran, whether it was a test (test, and draft for a test of unpublished changes), its status (pending, also while a step waits to be tried again or a wait step waits; running; done; failed) and how each step went: its id, done, failed, skipped or pending, attempts, an error code (dependencyFailed when it used a step that didn't run; rowsFailed when a for_each failed on some rows) and message, a request's HTTP status, how many people were notified, the agent runs it queued, when it started and how long it took, when a wait goes on, its input and output (credentials masked, long ones cut) and, for each found row of a for_each step, how it went. Runs on rows the user can't open are left out. Needs full access to the database.",
       inputSchema: automationInputs.runs,
       annotations: READ,
     },

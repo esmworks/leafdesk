@@ -172,7 +172,8 @@
     "aiAccountTitle": "AI account removed",
     "aiAccountDetached": "The workspace's AI no longer runs on {actor}'s key. Choose another AI account in Settings.",
     "reviewTitle": "For review",
-    "review": "{count, plural, one {{agent} proposed a change for your review} other {# changes wait for your review, the latest from {agent}}}"
+    "review": "{count, plural, one {{agent} proposed a change for your review} other {# changes wait for your review, the latest from {agent}}}",
+    "automationRun": "Automation “{name}”"
   },
   "templates": {
     "title": "Templates",

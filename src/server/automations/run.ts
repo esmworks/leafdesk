@@ -1,22 +1,42 @@
 import { and, eq, inArray, lte, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { automationRun, databaseAutomation, notification, page, user } from "@/db/schema";
+import { automationRun, automationVersion, databaseAutomation, notification, page, user, type AutomationDefinition } from "@/db/schema";
 import {
+  forEachOf,
+  hasRow,
+  httpRetriable,
   isDynamicValue,
+  MAX_FOUND_ROWS,
+  MAX_HTTP_RESPONSE_BYTES,
   MAX_WEBHOOK_ATTEMPTS,
   retriable,
   retryDelayMs,
   runEvent,
   runStatusOf,
+  stepIds,
   type AutomationAction,
   type AutomationStep,
+  type AutomationStepItem,
 } from "@/lib/automations";
+import { idsOf, resolveText, resolveValue, templateRoots, textOf, type TemplateScope } from "@/lib/automation-templates";
 import { env } from "@/lib/env";
+import { mapFilterRules } from "@/lib/filters";
 import { pageLabel } from "@/lib/labels";
-import { redactError, redactText } from "@/lib/redact";
+import { holdsOptions, holdsPeople } from "@/lib/property-types";
+import { isCredentialKey, REDACTED, redactError, redactText, redactValue } from "@/lib/redact";
 import { dayString, localDay } from "@/lib/time-zone";
 import { resolvePageAccess } from "@/server/access";
-import { getProperties, requireDatabase, updateRowProperties } from "@/server/databases";
+import {
+  createRows,
+  getLookups,
+  getProperties,
+  getRow,
+  requireDatabase,
+  updateRowProperties,
+  viewedRows,
+  type DatabaseProperty,
+} from "@/server/databases";
+import { displayProperties, type PropertyDef } from "@/server/mcp/query";
 import { signalInbox } from "@/server/notifications";
 import { pushNotifications } from "@/server/push";
 import { rowFields } from "@/server/operations";
@@ -24,26 +44,34 @@ import { propertyAccessFor } from "@/server/property-access";
 import { queueAgentRun } from "@/server/agents/run";
 import { notAgentUser } from "@/server/agents/users";
 import { recordAudit, runAsAuditOrigin } from "@/server/audit";
-import { archivePage } from "@/server/pages";
+import { archivePage, renamePage } from "@/server/pages";
 import { exportAllowed } from "@/server/workspaces";
+import { HttpStepError, sendRequest } from "./http";
 import { asAutomation, onAutomationsQueued } from "./queue";
 import { automationZone, followOwnEdit } from "./timed";
 import { sendWebhook, WebhookError, webhookSecret } from "./webhook";
 
 /**
- * The automation worker: takes queued runs (server/automations/queue) and does their actions, as
- * the person who last saved the automation (`runAs`), with their access at the time: if they
- * can no longer manage the database, nothing runs. Each action is a step that either works or
- * fails on its own; only webhooks are tried again (MAX_WEBHOOK_ATTEMPTS, see retryDelayMs).
- * Finished runs are kept for RUN_HISTORY_DAYS: a step's error with credentials masked
- * (lib/redact), the webhook body as it was sent (the row, sent again as it is on a retry).
+ * The automation worker: takes queued runs (server/automations/queue) and does their steps, as
+ * the person who last published the automation (`runAs`; a test run as whoever started it), with
+ * their access at the time: if they can no longer manage the database, nothing runs. A run does
+ * the steps of the version it started with (automation_version), so publishing doesn't change
+ * runs under way.
+ *
+ * Each step either works or fails on its own; a step whose templates (or "for each") use a step
+ * that failed or was skipped is skipped (`dependencyFailed`). Webhooks and HTTP requests are tried
+ * again (MAX_WEBHOOK_ATTEMPTS, see retryDelayMs), and a wait step waits in the queue: the steps
+ * after them wait too, and the run goes on later from where it was. What each step gave later
+ * steps is kept in the run's `state` while it runs (cleared when it ends); the history keeps each
+ * step's input and output with credentials masked (lib/redact), cut to MAX_HTTP_RESPONSE_BYTES.
+ * Finished runs are kept for RUN_HISTORY_DAYS.
  */
 
 const SWEEP_INTERVAL_MS = 5_000;
 const BATCH = 20;
 /** A run taken this long ago and not finished belongs to a worker that stopped: it's taken again. */
 const STALE_MS = 10 * 60_000;
-/** A run taken this many times without finishing (one that stops the worker, say) fails. */
+/** A run taken this many times without finishing or waiting on purpose (one that stops the worker, say) fails. */
 const MAX_CLAIMS = 25;
 /**
  * A new row's title is often typed after it's created (the "New" button): a run with a webhook
@@ -54,10 +82,13 @@ const TITLE_POLL_MS = 5_000;
 export const RUN_HISTORY_DAYS = 30;
 /** How long an automation's email waits, like a share's, so it isn't sent for something read at once. */
 const EMAIL_DELAY_MS = 30_000;
+/** Values the history keeps of a step's input or output (other than an HTTP answer): about this much JSON. */
+const HISTORY_BYTES = 16 * 1024;
 
 type Run = typeof automationRun.$inferSelect;
 type Automation = typeof databaseAutomation.$inferSelect;
 type Row = { id: string; title: string; parentId: string | null; workspaceId: string; archivedAt: Date | null; properties: Record<string, unknown> };
+type Prop = Awaited<ReturnType<typeof getProperties>>[number];
 
 /**
  * Takes due runs, marking them running, so two sweeps never take the same one. Databases take
@@ -96,75 +127,181 @@ async function claim(): Promise<Run[]> {
 
 /** Ends the steps still waiting with `code`; steps already done or failed keep how they went. */
 const endPending = (steps: AutomationStep[], code: string, status: AutomationStep["status"] = "failed") =>
-  steps.map((step) => (step.status === "pending" ? { ...step, status, code } : step));
+  steps.map((step) => (step.status === "pending" ? { ...step, status, code, waitUntil: undefined } : step));
+
+/** The steps a run does: a test run's own, else its version's (the automation's live ones when that is gone). */
+async function definitionOf(run: Run, automation: Automation): Promise<AutomationDefinition> {
+  if (run.definition) return run.definition;
+  const [version] = await db
+    .select()
+    .from(automationVersion)
+    .where(and(eq(automationVersion.automationId, run.automationId), eq(automationVersion.version, run.version)));
+  if (version) return { trigger: version.trigger, actions: version.actions, timeZone: version.timeZone };
+  return { trigger: automation.trigger, actions: automation.actions, timeZone: automation.timeZone };
+}
+
+// ----------------------------------------------------------------------------- history values
+
+/** Header names whose values are credentials even when lib/redact wouldn't think so. */
+const SECRET_HEADER = /auth|token|key|secret|signature|cookie|session|password/i;
+
+/** Headers as the history shows them: credentials masked. */
+export function maskHeaders(headers: Record<string, string> | { name: string; value: string }[]) {
+  const entries = Array.isArray(headers) ? headers.map((h) => [h.name, h.value] as const) : Object.entries(headers);
+  return Object.fromEntries(entries.map(([name, value]) => [name, isCredentialKey(name) || SECRET_HEADER.test(name) ? REDACTED : redactText(value)]));
+}
+
+/** A value as the history keeps it: credentials masked, and cut when its JSON is longer than `limit`. */
+export function forHistory(value: unknown, limit = HISTORY_BYTES): unknown {
+  if (value === undefined) return undefined;
+  const masked = redactValue(value);
+  let text: string;
+  try {
+    text = JSON.stringify(masked);
+  } catch {
+    return String(masked);
+  }
+  if (text === undefined || Buffer.byteLength(text) <= limit) return masked;
+  return { truncated: true, preview: text.slice(0, limit) };
+}
+
+// ------------------------------------------------------------------------------- the run
+
+/** What a step works with: the automation, the run, whom it runs as, the templates' scope. */
+type StepContext = {
+  automation: Automation;
+  run: Run;
+  runAs: string;
+  timeZone: string;
+  row: Row | null;
+  scope: TemplateScope;
+  outputs: Record<string, unknown>;
+};
+
+class StepFailure extends Error {
+  constructor(
+    readonly code: string,
+    message: string,
+  ) {
+    super(message);
+  }
+}
+
+/** What a step that worked gives: its input and output for the history, its output for later steps. */
+type StepResult = { input?: unknown; output?: unknown; raw?: unknown; httpStatus?: number; notified?: number; agentRunId?: string; agentRunIds?: string[]; items?: AutomationStepItem[]; failed?: string };
 
 /** Does what is left of one run and saves how it went. */
 export async function processRun(run: Run) {
   const [automation] = await db.select().from(databaseAutomation).where(eq(databaseAutomation.id, run.automationId));
   if (!automation) return; // deleted since: its runs went with it
-  const [row] = await db
-    .select({
-      id: page.id,
-      title: page.title,
-      parentId: page.parentId,
-      workspaceId: page.workspaceId,
-      archivedAt: page.archivedAt,
-      properties: page.properties,
-    })
-    .from(page)
-    .where(eq(page.id, run.rowId));
+  const definition = await definitionOf(run, automation);
+  const actions = definition.actions;
+  const ids = stepIds(actions);
+  const rowRun = run.rowId !== null;
+  const [row] = rowRun
+    ? await db
+        .select({
+          id: page.id,
+          title: page.title,
+          parentId: page.parentId,
+          workspaceId: page.workspaceId,
+          archivedAt: page.archivedAt,
+          properties: page.properties,
+        })
+        .from(page)
+        .where(eq(page.id, run.rowId!))
+    : [];
+  // A test run runs as whoever started it; any other as who published the automation last.
+  const runAs = run.test ? run.actorId : automation.runAs;
 
   let steps: AutomationStep[] = run.steps.length
     ? run.steps
-    : automation.actions.map((a) => ({ type: a.type, status: "pending", attempts: 0 }) as AutomationStep);
+    : actions.map((a, i) => ({ id: ids[i], type: a.type, status: "pending", attempts: 0 }) as AutomationStep);
   let payload = run.payload;
   let retryAt: Date | null = null;
-  // Actions changed while a webhook waited to be tried again: what's left belongs to the old ones.
-  const edited = steps.length !== automation.actions.length || steps.some((s, i) => s.type !== automation.actions[i].type);
+  const state = { ...(run.state ?? {}) };
+  const outputs: Record<string, unknown> = { ...(state.outputs ?? {}) };
+  // A run from before versions whose automation changed while a webhook waited: what's left belongs to the old steps.
+  const edited = steps.length !== actions.length || steps.some((s, i) => s.type !== actions[i].type);
 
   const waitsForTitle = () =>
     run.created &&
     !row?.title.trim() &&
     Date.now() - run.createdAt.getTime() < TITLE_WAIT_MS &&
-    steps.some((s, i) => s.status === "pending" && automation.actions[i].type === "webhook");
+    steps.some((s, i) => s.status === "pending" && actions[i].type === "webhook");
 
   if (edited) steps = endPending(steps, "changed", "skipped");
   else if (run.attempts > MAX_CLAIMS) steps = endPending(steps, "tooManyAttempts");
-  else if (!automation.enabled) steps = endPending(steps, "disabled", "skipped");
-  else if (!row || row.archivedAt || row.parentId !== automation.databaseId) steps = endPending(steps, "rowGone", "skipped");
-  else if (!automation.runAs || !(await canManage(automation.runAs, automation.databaseId))) {
+  else if (!automation.enabled && !run.test) steps = endPending(steps, "disabled", "skipped");
+  else if (rowRun && (!row || row.archivedAt || row.parentId !== automation.databaseId)) steps = endPending(steps, "rowGone", "skipped");
+  else if (!runAs || !(await canManage(runAs, automation.databaseId))) {
     steps = endPending(steps, "noAccess");
   } else if (waitsForTitle()) {
     retryAt = new Date(Date.now() + TITLE_POLL_MS);
   } else {
+    // The trigger as templates see it, worked out once: a run that waits sees the same one later.
+    state.trigger ??= await triggerScope(automation, run, definition, row ?? null, runAs);
+    const ctx: StepContext = {
+      automation,
+      run,
+      runAs,
+      timeZone: automationZone(definition.timeZone),
+      row: row ?? null,
+      scope: { ...outputs, trigger: state.trigger },
+      outputs,
+    };
     let live: Promise<Set<string>> | undefined;
     const liveIds = () => (live ??= getProperties(automation.databaseId).then((props) => new Set(props.map((p) => p.id))));
-    for (const [i, action] of automation.actions.entries()) {
+    for (const [i, action] of actions.entries()) {
       const step = steps[i];
       if (!step || step.status !== "pending") continue;
+      // A step that uses what a failed or skipped step would have given is skipped.
+      const uses = [...templateRoots(action), ...(forEachOf(action) ? [forEachOf(action)!] : [])];
+      const broken = uses.find((root) => {
+        const at = ids.indexOf(root);
+        return at >= 0 && at < i && steps[at].status !== "done";
+      });
+      if (broken) {
+        Object.assign(step, { status: "skipped", code: "dependencyFailed", error: `Uses the output of "${broken}", which didn't run` });
+        continue;
+      }
       step.attempts += 1;
+      const started = Date.now();
+      step.startedAt = new Date(started).toISOString();
+      let result: StepResult | undefined;
       try {
-        if (action.type === "set_properties") {
+        if (action.type === "wait") {
+          // Waits in the queue: the first time sets when it goes on, a later take goes on.
+          if (!step.waitUntil) step.waitUntil = new Date(started + action.minutes * 60_000).toISOString();
+          step.input = { minutes: action.minutes };
+          if (Date.parse(step.waitUntil) > Date.now()) {
+            retryAt = new Date(step.waitUntil);
+            break;
+          }
+          Object.assign(step, { status: "done", output: { until: step.waitUntil } });
+          outputs[ids[i]] = ctx.scope[ids[i]] = { until: step.waitUntil };
+          continue;
+        }
+        if (action.type === "set_properties" && !action.forEach) {
           // Values of deleted properties aren't set; with nothing else to set, the step is skipped.
-          const live = await liveIds();
-          const values = Object.fromEntries(Object.entries(action.values).filter(([id]) => live.has(id)));
+          const liveSet = await liveIds();
+          const values = Object.fromEntries(Object.entries(action.values).filter(([id]) => liveSet.has(id)));
           if (Object.keys(action.values).length && !Object.keys(values).length) {
             Object.assign(step, { status: "skipped", code: "propertyDeleted" });
             continue;
           }
-          await setProperties(automation, run, values);
-          step.status = "done";
-        } else if (action.type === "notify") {
+          result = await setProperties(ctx, run.rowId!, automation.databaseId, values, ctx.scope);
+        } else if (action.type === "notify" && !action.forEach) {
           // The people of a deleted person property aren't told.
-          const live = await liveIds();
-          step.notified = await notify(automation, run, row, { ...action, propertyIds: action.propertyIds.filter((id) => live.has(id)) });
-          step.status = "done";
-        } else if (action.type === "run_agent") {
+          const liveSet = await liveIds();
+          result = await notify(ctx, row ?? null, { ...action, propertyIds: action.propertyIds.filter((id) => liveSet.has(id)) }, ctx.scope);
+        } else if (action.type === "run_agent" && !action.forEach) {
           // Queued once (a retry of the run doesn't queue it again); it runs apart, as the agent.
+          const prompt = resolveText(action.prompt, ctx.scope).value;
           step.agentRunId ??= await queueAgentRun({
             agentId: action.agentId,
             workspaceId: automation.workspaceId,
-            source: { kind: "automation", automationId: automation.id, automationRunId: run.id, databaseId: automation.databaseId, rowId: run.rowId },
+            source: { kind: "automation", automationId: automation.id, automationRunId: run.id, databaseId: automation.databaseId, rowId: run.rowId! },
             context: {
               created: run.created,
               changed: run.changed,
@@ -172,54 +309,78 @@ export async function processRun(run: Run) {
               ...(run.boundTo ? { boundTo: run.boundTo } : {}),
               ...(run.basis !== null ? { datePassed: run.basis } : {}),
             },
-            prompt: action.prompt,
+            prompt,
           });
-          step.status = "done";
+          result = { input: { prompt }, output: { agentRunId: step.agentRunId }, agentRunId: step.agentRunId };
+        } else if (forEachOf(action)) {
+          result = await forEach(ctx, action, step);
         } else if (action.type === "move_to_trash") {
           // Always the last action (manage.checkActions): nothing is left to do on the row.
-          await moveToTrash(automation, run);
-          step.status = "done";
-        } else {
+          await moveToTrash(automation, runAs, run.rowId!);
+          result = { output: { trashed: true } };
+        } else if (action.type === "webhook") {
           // A webhook sends the row out of the workspace: not while its owners have export off.
-          if (!(await exportAllowed(automation.workspaceId))) {
-            throw Object.assign(new Error("The workspace's owners turned export off"), { code: "webhookExportOff" });
-          }
+          if (!(await exportAllowed(automation.workspaceId))) throw new StepFailure("webhookExportOff", "The workspace's owners turned export off");
           // The row as it is now (after the actions before this one); its retries send the same.
-          if (step.attempts === 1 || !payload) payload = await webhookPayload(automation, run, row);
+          if (step.attempts === 1 || !payload) payload = await webhookPayload(automation, run, row!, runAs);
           const status = await sendWebhook(action.url, {
             id: run.id,
             event: runEvent(run),
             body: payload,
             secret: webhookSecret(automation.secretSalt),
           });
-          Object.assign(step, { status: "done", httpStatus: status, code: undefined, error: undefined });
+          result = { output: { status }, httpStatus: status };
+        } else if (action.type === "http_request") {
+          result = await httpRequest(ctx, action, step);
+        } else if (action.type === "find_rows") {
+          result = await findRows(ctx, action);
+        } else if (action.type === "create_row") {
+          result = await createRow(ctx, action, ctx.scope);
+        } else if (action.type === "upsert_row") {
+          result = await upsertRow(ctx, action, ctx.scope);
+        } else if (action.type === "log") {
+          const message = resolveText(action.message, ctx.scope);
+          result = { input: missingNote({ message: action.message }, message.missing), output: { message: message.value } };
+        }
+        if (result) {
+          const raw = finishStep(step, result);
+          if (raw !== undefined) outputs[ids[i]] = ctx.scope[ids[i]] = raw;
         }
       } catch (error) {
-        const httpStatus = error instanceof WebhookError ? error.httpStatus : null;
+        const httpStatus = error instanceof WebhookError || error instanceof HttpStepError ? error.httpStatus : null;
         const code = (error as { code?: string }).code ?? "error";
         const message = error instanceof Error ? error.message : String(error);
         Object.assign(step, { code, error: redactText(message).slice(0, 500), ...(httpStatus ? { httpStatus } : {}) });
+        const failedInput = (error as { input?: unknown }).input;
+        if (failedInput !== undefined) step.input = forHistory(failedInput);
+        if (error instanceof HttpStepError && error.response) step.output = forHistory(responseForHistory(error.response), MAX_HTTP_RESPONSE_BYTES);
         const again =
-          action.type === "webhook" &&
           step.attempts < MAX_WEBHOOK_ATTEMPTS &&
-          error instanceof WebhookError &&
-          error.code !== "invalidUrl" &&
-          error.code !== "blocked" &&
-          retriable(httpStatus);
+          ((action.type === "webhook" &&
+            error instanceof WebhookError &&
+            error.code !== "invalidUrl" &&
+            error.code !== "blocked" &&
+            retriable(httpStatus)) ||
+            (action.type === "http_request" &&
+              error instanceof HttpStepError &&
+              (error.code === "unreachable" || error.code === "timeout" || error.code === "http") &&
+              httpRetriable(httpStatus)));
         if (again) {
-          // Actions run in order: the ones after it wait for it.
+          // Steps run in order: the ones after it wait for it.
           retryAt = new Date(Date.now() + retryDelayMs(step.attempts));
+          step.durationMs = Date.now() - started;
           break;
         }
         step.status = "failed";
       }
+      step.durationMs = Date.now() - started;
     }
   }
 
   // A run that counts from the row's last edit doesn't count its own edit as one.
-  const trigger = automation.trigger;
-  if (trigger.type === "date_passed" && trigger.date === "last_edited_time" && run.basis !== null) {
-    if (steps.some((s, i) => s.status === "done" && automation.actions[i]?.type === "set_properties")) {
+  const trigger = definition.trigger;
+  if (trigger.type === "date_passed" && trigger.date === "last_edited_time" && run.basis !== null && run.rowId) {
+    if (steps.some((s, i) => s.status === "done" && actions[i]?.type === "set_properties" && !forEachOf(actions[i]))) {
       await followOwnEdit(automation.id, run.rowId);
     }
   }
@@ -232,10 +393,38 @@ export async function processRun(run: Run) {
       payload,
       status,
       nextAt: retryAt ?? new Date(),
+      // Waiting on purpose (a wait step, a retry) isn't a take that came to nothing.
+      ...(retryAt ? { attempts: 0 } : {}),
+      // What steps gave later ones is only needed while the run goes on.
+      state: status === "pending" ? { ...state, outputs } : null,
       finishedAt: status === "pending" ? null : new Date(),
     })
     .where(eq(automationRun.id, run.id));
 }
+
+/**
+ * Marks a step done (or failed, for a "for each" with rows that failed) with what it gave; returns
+ * its output for later steps.
+ */
+function finishStep(step: AutomationStep, result: StepResult): unknown {
+  if (result.input !== undefined) step.input = forHistory(result.input);
+  if (result.output !== undefined) step.output = forHistory(result.output, step.type === "http_request" ? MAX_HTTP_RESPONSE_BYTES : HISTORY_BYTES);
+  if (result.httpStatus) step.httpStatus = result.httpStatus;
+  if (result.notified !== undefined) step.notified = result.notified;
+  if (result.agentRunId) step.agentRunId = result.agentRunId;
+  if (result.agentRunIds) step.agentRunIds = result.agentRunIds;
+  if (result.items) step.items = result.items;
+  Object.assign(step, { code: undefined, error: undefined });
+  if (result.failed) {
+    Object.assign(step, { status: "failed", code: "rowsFailed", error: result.failed });
+    return undefined;
+  }
+  step.status = "done";
+  return result.raw !== undefined ? result.raw : result.output;
+}
+
+/** The input, with the templates that led nowhere when there were any. */
+const missingNote = <T extends object>(input: T, missing: string[]) => (missing.length ? { ...input, missing: [...new Set(missing)] } : input);
 
 async function canManage(userId: string, databaseId: string) {
   try {
@@ -246,18 +435,110 @@ async function canManage(userId: string, databaseId: string) {
   }
 }
 
-/** Sets the action's values, working out `now` and `actor`, as the automation's person. */
-async function setProperties(automation: Automation, run: Run, values: Record<string, unknown>) {
-  const patch: Record<string, unknown> = {};
-  for (const [id, value] of Object.entries(values)) {
-    if (!isDynamicValue(value)) patch[id] = value;
-    // The day in the automation's time zone (whoever saved it last), the one "date passed" counts in.
-    else if (value.$ === "now") patch[id] = dayString(localDay(Date.now(), automationZone(automation.timeZone)));
-    // Nobody to set when an anonymous form answer started it: the value stays as it is.
-    else if (run.actorId) patch[id] = [run.actorId];
+// ---------------------------------------------------------------------------- the trigger
+
+const rowUrl = (workspaceId: string, id: string) => `${env.appUrl}/w/${workspaceId}/p/${id}`;
+
+/** A database row as templates see it: its id, title and link, and its values by property name. */
+function rowScope(workspaceId: string, row: { id: string; title: string; properties: Record<string, unknown> }, props: PropertyDef[], lookups: Parameters<typeof displayProperties>[2]) {
+  return {
+    ...displayProperties(props, row.properties, lookups, env.appUrl),
+    id: row.id,
+    title: pageLabel(row.title),
+    url: rowUrl(workspaceId, row.id),
+  };
+}
+
+/**
+ * What `{{trigger.…}}` is. A row's run: the row as the automation's person sees it (its values by
+ * property name, its id, title and link), with `changes.<Property>.before/after` for a change,
+ * `actor` and `event`, and `date` for "date passed". An incoming webhook's: its JSON body. A
+ * schedule's: when it was due.
+ */
+async function triggerScope(automation: Automation, run: Run, definition: AutomationDefinition, row: Row | null, runAs: string): Promise<unknown> {
+  const data = run.triggerData ?? {};
+  if (run.origin === "incoming_webhook") return data.body ?? {};
+  const [database] = await db.select({ title: page.title }).from(page).where(eq(page.id, automation.databaseId));
+  const databaseInfo = { id: automation.databaseId, title: pageLabel(database?.title ?? ""), url: rowUrl(automation.workspaceId, automation.databaseId) };
+  if (run.origin === "schedule" || !hasRow(definition.trigger) || !row) {
+    return { event: runEvent(run), scheduledFor: data.scheduledFor ?? null, database: databaseInfo };
   }
-  if (!Object.keys(patch).length) return;
-  await asAutomation(() => updateRowProperties(automation.runAs!, run.rowId, patch));
+  const { properties, row: loaded, relations, people } = await getRow(runAs, row.id);
+  const lookups = { relations, people };
+  const changes: Record<string, { before: unknown; after: unknown }> = {};
+  const changed = (data.changes ?? {}) as Record<string, { before: unknown; after: unknown }>;
+  for (const [id, change] of Object.entries(changed)) {
+    const prop = properties.find((p) => p.id === id);
+    if (!prop) continue; // one the automation's person can't see stays out
+    const show = (value: unknown) => displayProperties([prop as PropertyDef], { [id]: value }, lookups, env.appUrl)[prop.name] ?? null;
+    changes[prop.name] = { before: show(change.before), after: show(change.after) };
+  }
+  const [actor] = run.actorId && !run.test ? await db.select({ id: user.id, name: user.name }).from(user).where(eq(user.id, run.actorId)) : [];
+  return {
+    ...rowScope(automation.workspaceId, loaded, properties as PropertyDef[], lookups),
+    event: runEvent(run),
+    database: databaseInfo,
+    changes,
+    actor: actor ?? null,
+    ...(run.basis !== null ? { date: run.basis } : {}),
+  };
+}
+
+// -------------------------------------------------------------------------- row values
+
+/**
+ * A step's values for a row of `databaseId`, by property id, with templates written in: a value
+ * that is one template keeps what it finds (rows and people give their ids to relation and person
+ * properties); text is text. A template that leads nowhere clears the property.
+ */
+async function resolveRowValues(ctx: StepContext, databaseId: string, values: Record<string, unknown>, scope: TemplateScope) {
+  const props = await getProperties(databaseId);
+  const patch: Record<string, unknown> = {};
+  const shown: Record<string, unknown> = {};
+  const missing: string[] = [];
+  for (const [id, value] of Object.entries(values)) {
+    const prop = props.find((p) => p.id === id);
+    if (!prop) continue; // deleted since
+    let out: unknown;
+    if (isDynamicValue(value)) {
+      // The day in the automation's time zone (whoever saved it last), the one "date passed" counts in.
+      if (value.$ === "now") out = dayString(localDay(Date.now(), ctx.timeZone));
+      // Nobody to set when an anonymous form answer (or a schedule) started it: the value stays as it is.
+      else if (ctx.run.actorId) out = [ctx.run.actorId];
+      else continue;
+    } else out = coerce(prop, resolveValue(value, scope, missing).value);
+    patch[id] = out;
+    shown[prop.name] = out;
+  }
+  return { patch, shown, missing };
+}
+
+/** A resolved value made fit for the property it goes into. */
+function coerce(prop: Prop, value: unknown): unknown {
+  if (value === null || value === undefined || value === "") return null;
+  if (prop.type === "relation" || holdsPeople(prop.type) || prop.type === "multi_select" || prop.type === "files") {
+    if (prop.type === "files") return value;
+    return idsOf(value);
+  }
+  if (prop.type === "number") {
+    if (typeof value === "number") return value;
+    const n = Number(textOf(value).trim());
+    return Number.isFinite(n) && textOf(value).trim() !== "" ? n : textOf(value);
+  }
+  if (prop.type === "checkbox") {
+    if (typeof value === "boolean") return value;
+    const text = textOf(value).trim().toLowerCase();
+    return text === "true" || text === "yes" || text === "1";
+  }
+  if (prop.type === "checklist") return value;
+  if (typeof value === "object") return textOf(value);
+  return value;
+}
+
+async function setProperties(ctx: StepContext, rowId: string, databaseId: string, values: Record<string, unknown>, scope: TemplateScope): Promise<StepResult> {
+  const { patch, shown, missing } = await resolveRowValues(ctx, databaseId, values, scope);
+  if (Object.keys(patch).length) await asAutomation(() => updateRowProperties(ctx.runAs, rowId, patch));
+  return { input: missingNote({ row: rowId, values: shown }, missing), output: { id: rowId, values: shown } };
 }
 
 /**
@@ -265,10 +546,9 @@ async function setProperties(automation: Automation, run: Run, values: Record<st
  * the audit log with the automation as the one who did it (rows a person trashes aren't recorded
  * one by one; rows an automation trashes are, as nobody watched it happen).
  */
-async function moveToTrash(automation: Automation, run: Run) {
-  const runAs = automation.runAs!;
+async function moveToTrash(automation: Automation, runAs: string, rowId: string) {
   await runAsAuditOrigin({ kind: "automation", name: automation.name }, async () => {
-    const row = await asAutomation(() => archivePage(runAs, run.rowId));
+    const row = await asAutomation(() => archivePage(runAs, rowId));
     await recordAudit({
       workspaceId: row.workspaceId,
       actorId: runAs,
@@ -281,15 +561,27 @@ async function moveToTrash(automation: Automation, run: Run) {
 
 /**
  * Tells the action's people, and whoever its person properties name in the row now, as long as
- * they can open the row. Returns how many were told.
+ * they can open the row (the database, for a run without a row). Returns how many were told.
  */
-async function notify(automation: Automation, run: Run, row: Row, action: Extract<AutomationAction, { type: "notify" }>) {
-  const fromRow = action.propertyIds.flatMap((id) => {
-    const value = row.properties[id];
-    return Array.isArray(value) ? value.filter((v): v is string => typeof v === "string") : [];
-  });
+async function notify(
+  ctx: StepContext,
+  row: Pick<Row, "id" | "workspaceId" | "properties"> | null,
+  action: Extract<AutomationAction, { type: "notify" }>,
+  scope: TemplateScope,
+): Promise<StepResult> {
+  const { automation, run } = ctx;
+  const message = action.message ? resolveText(action.message, scope) : null;
+  const text = message?.value.trim() ? message.value.trim().slice(0, 2000) : null;
+  const input = missingNote({ message: text }, message?.missing ?? []);
+  const fromRow = row
+    ? action.propertyIds.flatMap((id) => {
+        const value = row.properties[id];
+        return Array.isArray(value) ? value.filter((v): v is string => typeof v === "string") : [];
+      })
+    : [];
   const candidates = [...new Set([...action.userIds, ...fromRow])];
-  if (!candidates.length) return 0;
+  if (!candidates.length) return { input, output: { notified: 0 }, notified: 0 };
+  const pageId = row?.id ?? automation.databaseId;
   const existing = new Set(
     // Agents' users have no inbox.
     (await db.select({ id: user.id }).from(user).where(and(inArray(user.id, candidates), notAgentUser(user.id)))).map((u) => u.id),
@@ -298,40 +590,40 @@ async function notify(automation: Automation, run: Run, row: Row, action: Extrac
     candidates
       .filter((userId) => existing.has(userId))
       .map(async (userId) => {
-        const { level } = await resolvePageAccess(userId, row.id).catch(() => ({ level: "none" as const }));
+        const { level } = await resolvePageAccess(userId, pageId).catch(() => ({ level: "none" as const }));
         return { userId, level };
       }),
   );
   const recipients = levels.filter((r) => r.level !== "none").map((r) => r.userId);
-  if (!recipients.length) return 0;
+  if (!recipients.length) return { input, output: { notified: 0 }, notified: 0 };
   const emailDueAt = new Date(Date.now() + EMAIL_DELAY_MS);
   const inserted = await db
     .insert(notification)
     .values(
       recipients.map((userId) => ({
         userId,
-        workspaceId: row.workspaceId,
+        workspaceId: automation.workspaceId,
         kind: "automation" as const,
-        actorId: run.actorId,
-        pageId: row.id,
+        actorId: run.test ? null : run.actorId,
+        pageId,
         automationId: automation.id,
         // A "date passed" run: the row's date it ran for, so the notification says so.
-        date: run.basis,
+        date: row && row.id === run.rowId ? run.basis : null,
+        message: text,
         emailDueAt,
       })),
     )
     .returning({ id: notification.id });
-  signalInbox(row.workspaceId);
+  signalInbox(automation.workspaceId);
   pushNotifications(inserted.map((n) => n.id));
-  return recipients.length;
+  return { input, output: { notified: recipients.length }, notified: recipients.length };
 }
 
 /**
  * The body every try of the run's webhooks sends: the row as the automation's person sees it
  * when it's first sent (after the run's earlier actions), and which properties changed.
  */
-async function webhookPayload(automation: Automation, run: Run, row: Row) {
-  const runAs = automation.runAs!;
+async function webhookPayload(automation: Automation, run: Run, row: Row, runAs: string) {
   const ctx = { userId: runAs, actor: { userId: runAs } };
   const [fields, all, access, [database], actor] = await Promise.all([
     rowFields(ctx, row.id),
@@ -354,8 +646,215 @@ async function webhookPayload(automation: Automation, run: Run, row: Row) {
     actor: actor[0] ? { id: actor[0].id, name: actor[0].name } : null,
     // A "date passed" run: the row's date it ran for.
     ...(run.basis !== null ? { date: run.basis } : {}),
+    ...(run.test ? { test: true } : {}),
   });
 }
+
+// -------------------------------------------------------------------------- HTTP requests
+
+const responseForHistory = (response: { status: number; headers: Record<string, string>; body: unknown; truncated?: boolean }) => ({
+  ...response,
+  headers: maskHeaders(response.headers),
+});
+
+async function httpRequest(ctx: StepContext, action: Extract<AutomationAction, { type: "http_request" }>, step: AutomationStep): Promise<StepResult> {
+  // A request sends what it likes out of the workspace: not while its owners have export off.
+  if (!(await exportAllowed(ctx.automation.workspaceId))) throw new StepFailure("webhookExportOff", "The workspace's owners turned export off");
+  const missing: string[] = [];
+  const url = resolveText(action.url, ctx.scope);
+  missing.push(...url.missing);
+  const headers = action.headers.map((h) => {
+    const value = resolveText(h.value, ctx.scope);
+    missing.push(...value.missing);
+    return { name: h.name, value: value.value };
+  });
+  const body = action.body === undefined ? undefined : resolveValue(action.body, ctx.scope, missing).value;
+  step.input = forHistory(missingNote({ method: action.method, url: redactText(url.value), headers: maskHeaders(headers), ...(body !== undefined ? { body } : {}) }, missing));
+  if (!url.value.trim()) throw new StepFailure("invalidUrl", url.missing.length ? `The address is empty: {{${url.missing[0]}}} led nowhere` : "The address is empty");
+  const response = await sendRequest({ method: action.method, url: url.value, headers, body });
+  return { output: responseForHistory(response), raw: response, httpStatus: response.status };
+}
+
+// -------------------------------------------------------------------------------- rows
+
+/** A database of the automation's workspace the automation's person can open at `level`. */
+async function targetDatabase(ctx: StepContext, databaseId: string, level: "view" | "edit") {
+  let database;
+  try {
+    database = await requireDatabase(ctx.runAs, databaseId, level);
+  } catch {
+    throw new StepFailure("noAccess", level === "view" ? "The automation's person can't open the database" : "The automation's person can't add or change rows in the database");
+  }
+  if (database.workspaceId !== ctx.automation.workspaceId || database.archivedAt) throw new StepFailure("databaseGone", "The database is gone or in the trash");
+  return database;
+}
+
+/**
+ * A templated filter value as the stored filter holds it: templates give what a row shows (an
+ * option's name, a person or row as {id, name}), filters compare ids, so names of options become
+ * their ids and people and rows their ids; a day keeps its date, a number and a checkbox their type.
+ */
+function filterValue(prop: DatabaseProperty | undefined, list: boolean, resolved: unknown): unknown {
+  const options = prop && holdsOptions(prop.type) ? ((prop.options as { options?: { id: string; name: string }[] }).options ?? []) : null;
+  const toOption = (v: unknown) => {
+    if (!options) return v;
+    const text = textOf(v).trim().toLowerCase();
+    return options.find((o) => o.id === v || o.name.trim().toLowerCase() === text)?.id ?? textOf(v);
+  };
+  const byId = prop && (prop.type === "relation" || holdsPeople(prop.type));
+  if (list) return (idsOf(resolved) as unknown[]).map(toOption);
+  if (byId) return (idsOf(resolved) as unknown[])[0] ?? null;
+  if (options) return toOption(resolved);
+  if (resolved !== null && typeof resolved === "object") return textOf(resolved);
+  if (prop?.type === "number" && typeof resolved === "string" && resolved.trim() && Number.isFinite(Number(resolved))) return Number(resolved);
+  if (prop?.type === "checkbox" && (resolved === "true" || resolved === "false")) return resolved === "true";
+  if (prop?.type === "date" && typeof resolved === "string" && /^\d{4}-\d{2}-\d{2}/.test(resolved)) return resolved.slice(0, 10);
+  return resolved;
+}
+
+async function findRows(ctx: StepContext, action: Extract<AutomationAction, { type: "find_rows" }>): Promise<StepResult> {
+  const database = await targetDatabase(ctx, action.databaseId, "view");
+  const missing: string[] = [];
+  let empty: string | null = null;
+  const props = await getProperties(action.databaseId);
+  // Filter values may be templates; one that leads nowhere would match everything or nothing, so it's an error.
+  const filters = mapFilterRules(action.filters ?? [], (rule) => {
+    if (rule.value === undefined || !templateRoots(rule.value).size) return rule;
+    const resolved = resolveValue(rule.value, ctx.scope, missing).value;
+    if (resolved === null || resolved === "" || (Array.isArray(resolved) && !resolved.length)) empty ??= rule.propertyId;
+    const prop = props.find((p) => p.id === rule.propertyId);
+    return { ...rule, value: filterValue(prop, Array.isArray(rule.value), resolved) };
+  });
+  const input = missingNote({ database: { id: database.id, title: pageLabel(database.title) }, filters, sorts: action.sorts ?? [], limit: action.limit }, missing);
+  if (empty) {
+    const name = props.find((p) => p.id === empty)?.name ?? empty;
+    throw Object.assign(new StepFailure("emptyFilter", `The filter on "${name}" has no value: ${missing.map((m) => `{{${m}}}`).join(", ")} led nowhere`), { input });
+  }
+  const rows = (await viewedRows(ctx.runAs, action.databaseId, { filters, filterCombinator: action.filterCombinator, sorts: action.sorts }, undefined, { timeZone: ctx.timeZone })).slice(
+    0,
+    Math.min(action.limit, MAX_FOUND_ROWS),
+  );
+  const access = await propertyAccessFor(ctx.runAs, action.databaseId);
+  const visible = access.visible(props) as DatabaseProperty[];
+  const lookups = await getLookups(ctx.runAs, visible);
+  const found = rows.map((r) => ({ ...rowScope(database.workspaceId, r, visible as PropertyDef[], lookups), databaseId: database.id }));
+  const output = { rows: found, count: found.length, first: found[0] ?? null };
+  return { input, output: { count: found.length, rows: found }, raw: output };
+}
+
+/** The rows a "for each" goes over: what its find_rows step found. */
+function foundRows(ctx: StepContext, stepId: string) {
+  const found = ctx.outputs[stepId] as { rows?: { id: string; title: string; databaseId: string }[] } | undefined;
+  return (found?.rows ?? []).slice(0, MAX_FOUND_ROWS);
+}
+
+/** Does a row step once for each found row, each with `{{item.…}}` set to that row. */
+async function forEach(ctx: StepContext, action: AutomationAction, step: AutomationStep): Promise<StepResult> {
+  const over = forEachOf(action)!;
+  const rows = foundRows(ctx, over);
+  const items: AutomationStepItem[] = [];
+  const outputs: unknown[] = [];
+  const agentRunIds: string[] = step.agentRunIds ? [...step.agentRunIds] : [];
+  let notified = 0;
+  for (const [n, item] of rows.entries()) {
+    const scope = { ...ctx.scope, item };
+    try {
+      if (action.type === "set_properties") {
+        const result = await setProperties(ctx, item.id, item.databaseId, action.values, scope);
+        outputs.push(result.output);
+      } else if (action.type === "notify") {
+        const [loaded] = await db.select({ id: page.id, workspaceId: page.workspaceId, properties: page.properties }).from(page).where(eq(page.id, item.id));
+        if (!loaded) throw new StepFailure("rowGone", "The row is gone");
+        const result = await notify(ctx, loaded, action, scope);
+        notified += result.notified ?? 0;
+        outputs.push(result.output);
+      } else if (action.type === "run_agent") {
+        // A run taken again finds the agent runs it already queued (queueAgentRun is idempotent per row).
+        const prompt = resolveText(action.prompt, scope).value;
+        const webhookRun = ctx.run.origin === "incoming_webhook";
+        const id = await queueAgentRun({
+          agentId: action.agentId,
+          workspaceId: ctx.automation.workspaceId,
+          source: { kind: "automation", automationId: ctx.automation.id, automationRunId: ctx.run.id, databaseId: item.databaseId, rowId: item.id },
+          // A request from outside is nobody's: the agent is held to the automation's person and asks before calling out.
+          context: {
+            created: false,
+            changed: [],
+            actorId: webhookRun ? null : (ctx.run.actorId ?? ctx.runAs),
+            ...(webhookRun ? { boundTo: ctx.runAs } : ctx.run.boundTo ? { boundTo: ctx.run.boundTo } : {}),
+          },
+          prompt,
+        });
+        if (!agentRunIds[n]) agentRunIds[n] = id;
+        outputs.push({ agentRunId: id });
+      }
+      items.push({ rowId: item.id, title: item.title, status: "done" });
+    } catch (error) {
+      const code = (error as { code?: string }).code ?? "error";
+      items.push({ rowId: item.id, title: item.title, status: "failed", code, error: redactText(error instanceof Error ? error.message : String(error)).slice(0, 300) });
+      outputs.push(null);
+    }
+  }
+  const failed = items.filter((i) => i.status === "failed").length;
+  return {
+    input: { forEach: over, rows: rows.length },
+    output: { count: rows.length, done: rows.length - failed, failed },
+    raw: { count: rows.length, items: outputs },
+    items,
+    ...(action.type === "notify" ? { notified } : {}),
+    ...(action.type === "run_agent" ? { agentRunIds } : {}),
+    ...(failed ? { failed: `${failed} of ${rows.length} rows failed` } : {}),
+  };
+}
+
+async function createRow(ctx: StepContext, action: Extract<AutomationAction, { type: "create_row" }>, scope: TemplateScope): Promise<StepResult> {
+  const database = await targetDatabase(ctx, action.databaseId, "edit");
+  const title = action.title ? resolveText(action.title, scope) : { value: "", missing: [] };
+  const { patch, shown, missing } = await resolveRowValues(ctx, action.databaseId, action.values, scope);
+  const input = missingNote({ database: { id: database.id, title: pageLabel(database.title) }, title: title.value, values: shown }, [...title.missing, ...missing]);
+  const [created] = await asAutomation(() => createRows(ctx.runAs, action.databaseId, [{ title: title.value.trim(), properties: patch }]));
+  const output = { id: created.id, title: pageLabel(created.title), url: rowUrl(database.workspaceId, created.id), created: true };
+  return { input, output };
+}
+
+async function upsertRow(ctx: StepContext, action: Extract<AutomationAction, { type: "upsert_row" }>, scope: TemplateScope): Promise<StepResult> {
+  const database = await targetDatabase(ctx, action.databaseId, "edit");
+  const match = resolveText(action.matchValue, scope);
+  const needle = match.value.trim();
+  const title = action.title ? resolveText(action.title, scope) : null;
+  const { patch, shown, missing } = await resolveRowValues(ctx, action.databaseId, action.values, scope);
+  const props = await getProperties(action.databaseId);
+  const matchProp = action.matchPropertyId === "title" ? null : props.find((p) => p.id === action.matchPropertyId);
+  const input = missingNote(
+    { database: { id: database.id, title: pageLabel(database.title) }, match: { property: matchProp?.name ?? "title", value: needle }, ...(title ? { title: title.value } : {}), values: shown },
+    [...match.missing, ...(title?.missing ?? []), ...missing],
+  );
+  if (!needle) throw Object.assign(new StepFailure("emptyMatch", match.missing.length ? `The value to match is empty: {{${match.missing[0]}}} led nowhere` : "The value to match is empty"), { input });
+  if (action.matchPropertyId !== "title" && !matchProp) throw new StepFailure("propertyDeleted", "The property to match on is deleted");
+  // The first row (in the database's order) whose value, as text, is the same, case aside.
+  const rows = await viewedRows(ctx.runAs, action.databaseId, {}, undefined, { timeZone: ctx.timeZone });
+  const lookups = matchProp ? await getLookups(ctx.runAs, [matchProp as DatabaseProperty]) : null;
+  const same = (r: (typeof rows)[number]) => {
+    const value = matchProp ? displayProperties([matchProp as PropertyDef], r.properties, lookups!, env.appUrl)[matchProp.name] : pageLabel(r.title);
+    return textOf(value).trim().toLowerCase() === needle.toLowerCase();
+  };
+  const existing = rows.find(same);
+  if (existing) {
+    const changes = { ...patch };
+    if (Object.keys(changes).length) await asAutomation(() => updateRowProperties(ctx.runAs, existing.id, changes));
+    if (title?.value.trim()) {
+      await asAutomation(() => renamePage({ userId: ctx.runAs }, existing.id, title.value.trim()));
+    }
+    return { input, output: { id: existing.id, title: title?.value.trim() || pageLabel(existing.title), url: rowUrl(database.workspaceId, existing.id), created: false } };
+  }
+  const properties = { ...patch };
+  if (matchProp && properties[matchProp.id] === undefined) properties[matchProp.id] = coerce(matchProp, needle);
+  const newTitle = matchProp ? (title?.value.trim() ?? "") : needle;
+  const [created] = await asAutomation(() => createRows(ctx.runAs, action.databaseId, [{ title: newTitle, properties }]));
+  return { input, output: { id: created.id, title: pageLabel(created.title), url: rowUrl(database.workspaceId, created.id), created: true } };
+}
+
+// ------------------------------------------------------------------------------- worker
 
 let sweeping = false;
 let again = false;
@@ -377,7 +876,7 @@ async function sweep() {
           console.error("automation run failed", redactError(error));
           await db
             .update(automationRun)
-            .set({ status: "failed", steps: endPending(run.steps, "error"), finishedAt: new Date() })
+            .set({ status: "failed", steps: endPending(run.steps, "error"), state: null, finishedAt: new Date() })
             .where(eq(automationRun.id, run.id))
             .catch(() => undefined);
         }

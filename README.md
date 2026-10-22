@@ -261,10 +261,14 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
     the first missed day when the title carries the date), not one per run. Nothing is added while the database is in the trash. The first day of a monthly or
     yearly repeat sets its date; months without that day use their last day.
 - **Database automations**: when a row is added, a property changes (or changes to a given
-  value), or a date of a row is some days past (optionally only for rows in some status groups),
-  set properties, notify people, send the row to a webhook signed with HMAC-SHA256, run an agent
-  on the row, or move it to the trash, with a 30-day run history (see
-  [Automations and webhooks](#automations-and-webhooks)).
+  value), a date of a row is some days past (optionally only for rows in some status groups), a
+  schedule comes round or another service POSTs to the automation's secret address, do up to 20
+  steps: set properties, notify people with a message, send the row to a webhook signed with
+  HMAC-SHA256, run an agent, move the row to the trash, send an HTTP request, find rows, create a
+  row or update the one that matches, wait, or log. Steps go for each row an earlier step found
+  and use the trigger's and earlier steps' values through `{{templates}}`. Changes can wait in a
+  draft, be tried with a test run and be published as numbered versions, and a 30-day run history
+  shows each step's input and output (see [Automations and webhooks](#automations-and-webhooks)).
 - **Agents**: AI helpers with instructions of their own that automations run on database rows,
   that owners ask for a task over the REST API or MCP, or that members mention in a comment to
   have them answer in its thread. Each acts as a user of its own that sees
@@ -1241,8 +1245,8 @@ the REST API.
   publishing is turned on again.
 - **Export:** on by default. Off removes Markdown, CSV, ZIP and PDF export (and the print view)
   for everyone, owners included, and the export routes answer `403`. Calendar feeds stop, and
-  automations can't get a webhook nor send one (`webhookExportOff`; a webhook saved before may
-  stay, and its runs and test pings fail until export is back on). The member list CSV in
+  automations can't get a webhook or an HTTP request step nor send one (`webhookExportOff`; one
+  saved before may stay, and its runs and test pings fail until export is back on). The member list CSV in
   Settings → Members stays, as it is an owner's own administration tool.
 - **Connected apps and API tokens:** what MCP apps and personal access tokens may do in the
   workspace, on top of their own permissions and their user's access. *Full access* (default),
@@ -1550,85 +1554,161 @@ handles database backups on its own. No compose file is involved.
 
 ## Automations and webhooks
 
-A database automation does something when rows of its database are added or changed, or when a
-date of a row comes. People with
+A database automation does a list of steps when rows of its database are added or changed, when
+a date of a row comes, on a schedule, or when another service sends it a request. People with
 full access to the database see and manage its automations, in the app or over MCP
-(`list_automations`, `create_automation`, `update_automation`, `delete_automation`,
-`list_automation_runs`). Creating, changing and deleting one is recorded in the audit log.
+(`list_automations`, `create_automation`, `update_automation`, `publish_automation`,
+`discard_automation_draft`, `test_automation`, `delete_automation`, `list_automation_runs`). Creating, changing, publishing
+and deleting one is recorded in the audit log.
 
 **Triggers**
 
 - *A row is added*, however it is added: in the app, through a form, an import, MCP or the REST API.
-- *A property changes*: one property, or any property of an existing row. For select, status,
-  checkbox, person and multi-select properties it can wait for a value: "Status changes to Done"
-  runs only when the value becomes Done, not when the row is saved again with Done (for person
-  and multi-select, when that person or option gets added). A new row that starts out with the
-  value counts too.
+- *A property changes*: one property, several (any of them), or any property of an existing row.
+  For a single select, status, checkbox, person or multi-select property it can wait for a value:
+  "Status changes to Done" runs only when the value becomes Done, not when the row is saved again
+  with Done (for person and multi-select, when that person or option gets added). A new row that
+  starts out with the value counts too.
 - *A date passes*: a row's date is at least a number of days past (0 for the day itself). The date
   is one of the database's date properties (its start, for a range), when the row was added, or
   when it was last edited. Optionally only for rows whose status (one status property, chosen when
   there are several) is in some of its groups: to do, in progress, done; a row without a status
   counts as to do. "Rows not edited for 30 days that aren't done", "rows whose Completed on is 14
   days past" and "the day a Due date comes, for rows not done" are each one such trigger.
+- *On a schedule*: every day, on some weekdays or some days of the month at a time of day, or on a
+  five-field cron expression (`*/30 8-18 * * MON-FRI`), in the automation's time zone. A day of the
+  month the month doesn't have (the 31st, the 29th of February) runs on its last day; a time the
+  clocks skip runs as much later as they moved (02:30 becomes 03:30), and one that happens twice
+  runs the first time only. The server looks
+  for due schedules every 30 seconds; one that was down runs once for the times it missed, not
+  once each. The settings show when it runs next.
+- *An incoming webhook*: a JSON `POST` to the automation's own secret address starts it, with the
+  body as what the steps work with (see [Incoming webhooks](#incoming-webhooks)).
 
-**Actions**, done in order, each one on its own (one failing doesn't stop the others):
+Schedules and incoming webhooks have no row. Their steps that act on a row (setting properties,
+running an agent, notifying the people a person property names) go *for each* row an earlier
+*Find rows* step found; *Send a webhook* and *Move to trash* aren't offered, and a date can be set
+to the day it runs but a person can't be set to whoever made the change.
 
-- *Set properties* on the row. A date can be set to the day the automation runs (in the time zone
-  of whoever saved it last), a person to whoever made the change (left as it is when an anonymous
-  form answer started it; not offered for *A date passes*, which nobody's change starts). Formulas,
-  rollups and the created/edited properties can't be set.
-- *Notify* chosen people and the people the row's person properties name: an inbox notification,
-  and an email as each of them chooses in My account → Preferences. Only people who can open the
-  row are notified.
-- *Send a webhook*: a signed JSON POST to an http(s) address (below).
-- *Move to trash*: the row goes to the trash, where anyone who may edit it can restore it, until the
-  workspace's trash retention deletes it for good. It is always the last action (nothing can
-  follow it) and can't be combined with *Run an agent*, which runs later, apart. The audit log
-  records each row an automation moves to the trash, with the automation and its person as the one
-  who did it.
-- *Run an agent* on the row, with a task of up to 2000 characters (see [Agents](#agents)). Only
-  owners of the workspace add or change this action, since the agent may open pages others can't;
-  anyone who manages the automation may keep or remove it. Saving the automation shares its
-  database with the agent at edit access. The run is queued and done apart, so the automation's
-  run counts the action as done once the agent's run is queued.
+**Steps**, done in order, each one on its own (one failing doesn't stop the others, unless they
+use what it gave):
 
-A database has at most 50 automations, an automation at most 10 actions, and a notify action at
-most 50 chosen people.
+- *Set properties* on the row, or for each found row. A date can be set to the day the automation
+  runs (in its time zone), a person to whoever made the change (a row added or a property changed
+  only; left as it is when an anonymous form answer started it). Formulas, rollups and the
+  created/edited properties can't be set.
+- *Notify* chosen people and the people the row's person properties name, with an optional
+  message: an inbox notification, and an email as each of them chooses in My account →
+  Preferences. Only people who can open the row (the database, for a run without one) are
+  notified.
+- *Send a webhook*: a signed JSON POST of the row to an http(s) address (below).
+- *Run an agent* on the row, or for each found row, with a task of up to 2000 characters (see
+  [Agents](#agents)). Only owners of the workspace and those who can edit the agent add or change
+  this step, since the agent may open pages others can't; anyone who manages the automation may
+  keep or remove it. Saving the automation shares the databases it runs the agent on with the
+  agent at edit access. The run is queued and done apart, so the step counts as done once the
+  agent's run is queued.
+- *Move to trash*: the row goes to the trash, where anyone who may edit it can restore it, until
+  the workspace's trash retention deletes it for good. It is always the last step and can't be
+  combined with *Run an agent*, which runs later, apart. The audit log records each row an
+  automation moves to the trash, with the automation and its person as the one who did it.
+- *HTTP request*: a `GET`, `POST`, `PUT`, `PATCH` or `DELETE` to an https address, with headers and
+  a JSON body (see [HTTP requests](#http-requests)). Its answer is there for the steps after it.
+- *Find rows* of this database or another one of the workspace the automation's person can open,
+  with filters and sorts as a view has them, up to 100 rows (20 unless set otherwise).
+- *Create a row* in this database or another one the automation's person can edit, with a title
+  and values.
+- *Update or create a row*: changes the first row of a database whose property (or title) equals
+  a value, usually one from the trigger ("the customer whose Email is `{{trigger.email}}`"), or
+  adds one with it when there is none.
+- *Wait* from 1 minute to 7 days before the next step. The run waits in the queue, not in the
+  server's memory, so a restart doesn't lose it.
+- *Log*: writes a message into the run's history.
 
-**Who it runs as.** An automation acts as the person who last saved it, with their access at the
-time it runs. If they no longer have full access to the database, its runs fail (`noAccess`)
-until someone with full access saves it again. A turned-off automation doesn't run, and runs for
-rows that were trashed in the meantime are skipped.
+**Templates.** Text in a step, values to set, a request's address, headers and body, and filter
+values can use what started the run and what earlier steps gave, as `{{…}}`:
 
-**No chains.** Changes an automation makes don't start automations, so two automations can't
-set each other off. That holds for "a date passes" automations too: a status they set doesn't
-start the database's "Status changes" automations.
+- `{{trigger.…}}` is what started the run. For a row trigger, the row's values by property name
+  (`{{trigger.Status}}`, `{{trigger.Due date}}`) and its `id`, `title`, `url`, `event`, `database`,
+  `actor` and, for a changed property, `changes.<Property>.before` and `.after`; a date passed run
+  has `date` too. For an incoming webhook, the JSON body (`{{trigger.customer.email}}`). For a
+  schedule, `event`, `scheduledFor` and `database`.
+- `{{item.…}}` is the found row a *for each* step is on.
+- `{{<step id>.…}}` is what an earlier step gave. Every step has an id (`find`, `http`, `create_2`
+  …, or one of your own: lowercase letters, digits and `_`): *Find rows* gives `rows`, `count` and
+  `first`; *HTTP request* `status`, `headers` and `body`; *Create a row* and *Update or create a
+  row* `id`, `title`, `url` and `created`; *Log* `message`; *Wait* `until`; *Set properties* `id`
+  and `values`; *Notify* `notified`; *Run an agent* `agentRunId`; a *for each* step `count` and
+  `items`.
+
+Paths use dots, list positions and quotes: `{{find.rows.0.title}}`, `{{http.body.items[0].id}}`,
+`{{http.body.customer["e-mail"]}}`. A name is looked up exactly, then without regard to case. In
+text a value is written as text (a row or person by its title or name, a list joined with
+", "), and a path that leads nowhere is empty text. A value that is a single template and nothing
+else keeps its type: a number stays a number in a JSON body, found rows and people give their
+ids to relation and person properties, and a path that leads nowhere clears the property it sets.
+An empty request address, value to match, or filter value fails the step, so a missing field
+doesn't turn into a request to the wrong place or a filter that matches everything. A step that
+uses a step that failed or was skipped is skipped (`dependencyFailed`), and a *for each* step
+that failed on some rows fails (`rowsFailed`) after doing the others. The app's editor offers the
+fields of the trigger (an incoming webhook's example body included) and of earlier steps to pick
+from.
+
+**Drafts, test runs and versions.** Changes to an automation's trigger, steps or time zone can
+be saved as a draft, which doesn't run, and published when they are ready; a new automation saved
+as a draft runs only once published. Each publish makes the next version, and a run does the
+steps of the version it started with, so publishing doesn't change runs under way. *Test* runs the
+draft (or the published steps, without one) once, now, whether or not the automation is on: on a
+row you pick for a row trigger, with an example body for an incoming webhook, as if it came round
+for a schedule. A test run is real: rows change, people are notified, requests are sent. It runs
+as whoever started it, shows in the history marked as a test (of the draft, when it was), and
+doesn't count as the automation's last run. Turning an automation on or off, or renaming it,
+takes effect at once, draft or not.
+
+A database has at most 50 automations, an automation at most 20 steps, a notify step at most 50
+chosen people, an HTTP request at most 20 headers and a 32,000-character body, and a message,
+title or value at most 2000 characters.
+
+**Who it runs as.** An automation acts as the person who last published it (or turned it on or
+off, or renamed it), with their access at the time it runs. If they no longer have full access to
+the database, its runs fail (`noAccess`) until someone with full access saves it again; a
+schedule that can't run says so in the settings. A turned-off automation doesn't run, and runs
+for rows that were trashed in the meantime are skipped.
+
+**No chains.** Changes an automation makes, rows it creates included, don't start automations, so
+two automations can't set each other off. That holds for "a date passes" and scheduled
+automations too: a status they set doesn't start the database's "Status changes" automations.
 
 **When a date passes.** The server looks for rows whose date has come every 10 minutes (set
 `AUTOMATION_DATE_CHECK_SECONDS` for another interval, at least 10; one server of several looks at
 a time) and queues a run for each, like a row write does. Dates without a time count by the
-calendar of the time zone of whoever saved the automation last (the browser's zone when saved in
-the app, `time_zone` over MCP, UTC when none was given): a row due on the 11th has reached its day
-at midnight there, not at the server's midnight. The automation's summary names that zone when it
-isn't yours. Times, and when a row was added or edited, count by the clock. Each row runs once
-for each value of its date: it runs again only when that date changes and is past again, for
-instance when someone edits a stale row and it goes stale once more. A row restored from the trash doesn't run again for the same
-date, and an automation's own edit doesn't count as an edit. Rows in the trash, row templates, and
-the rows of a database in the trash are left out. Rows that already match when the automation is
-saved or turned on run at the next check (the dialog says how many), at most 100 per automation
-per check; the rest follow at the checks after. If its date or status property is deleted, or
-the person it runs as no longer has full access, the automation looks for no rows and says why in
-its settings until the property is restored or someone saves it again. Changing the date it counts
-from makes every row new to it; changing the days or the status condition doesn't.
+calendar of the automation's time zone (that of whoever saved it last: the browser's zone when
+saved in the app, `time_zone` over MCP, UTC when none was given): a row due on the 11th has
+reached its day at midnight there, not at the server's midnight. The automation's summary names
+that zone when it isn't yours. Times, and when a row was added or edited, count by the clock. Each
+row runs once for each value of its date: it runs again only when that date changes and is past
+again, for instance when someone edits a stale row and it goes stale once more. A row restored
+from the trash doesn't run again for the same date, and an automation's own edit doesn't count as
+an edit. Rows in the trash, row templates, and the rows of a database in the trash are left out.
+Rows that already match when the automation is published or turned on run at the next check (the
+dialog says how many), at most 100 per automation per check; the rest follow at the checks after.
+If its date or status property is deleted, or the person it runs as no longer has full access,
+the automation looks for no rows and says why in its settings until the property is restored or
+someone saves it again. Changing the date it counts from makes every row new to it; changing the
+days or the status condition doesn't.
 
 **Queue.** Runs are queued and done one database at a time in turn, so a bulk edit that starts
 thousands of runs in one database doesn't hold back the automations of others. A database's
 automations have at most 20,000 runs waiting; a write that would start more starts only the first
 ones (the write itself is saved), and the server log says how many were left out.
 
-**Run history.** Each run is kept for 30 days after it finishes, with how each action went
-(done, failed or skipped, attempts, an error code, a webhook's HTTP status, how many people were
-notified). Runs on rows you can't open are left out.
+**Run history.** Each run is kept for 30 days after it finishes, with the version it ran, what
+started it (an incoming webhook's body, a schedule's time) and how each step went: done, failed or
+skipped, attempts, an error code and message, a request's HTTP status, how many people were
+notified, when it started and how long it took, when a wait goes on, what it was given and what it
+gave (with passwords, tokens and keys masked, each cut to 16 KB, an HTTP request's answer to
+64 KB) and, for a *for each* step, how it went for each row. Runs on rows you can't open are left
+out.
 
 **Not (yet) covered.** A copy of a database, or a template made from one, starts without
 automations. The REST API has no automation endpoints; use the app or MCP. Changes that aren't
@@ -1719,6 +1799,52 @@ server's own network, such as an n8n container next to Leafdesk, list its host i
 `AUTOMATION_WEBHOOK_ALLOWED_HOSTS`, comma-separated, as a host name or `host:port`
 (`AUTOMATION_WEBHOOK_ALLOWED_HOSTS=n8n,localhost:5678`). Listed hosts skip the address and port
 checks.
+
+### HTTP requests
+
+An *HTTP request* step sends one request and waits for its answer:
+
+- **Address.** `https` only, without credentials in it (send them in a header), on the usual web
+  ports, every address of its host public, and the connection made to the address that was
+  checked. Plain `http`, private networks and local names are allowed only for hosts in
+  `AUTOMATION_WEBHOOK_ALLOWED_HOSTS` (above). An address with templates is checked when the step
+  runs; to be saved, it must start with `https://` (or `http://`) before the first template.
+- **Headers and body.** Up to 20 headers; `Host`, `Content-Length` and the other headers that frame
+  the request are the server's. The body is JSON, sent with `POST`, `PUT` and `PATCH` (with
+  `Content-Type: application/json` unless you set one); its strings may be templates. The request
+  goes out with `User-Agent: Leafdesk-Automation/1.0`.
+- **Answer.** It must answer `2xx` within 15 seconds; redirects aren't followed. Up to 64 KB of the
+  answer is read: a JSON answer is parsed (`{{http.body.id}}`), anything else is text, and a longer
+  answer is cut and marked `truncated`. A failed request keeps the answer in the run history.
+- **Retries.** Network errors, timeouts and `502`, `503` and `504` answers are tried again, on the
+  same schedule as webhooks and 5 attempts in all; other answers fail at once, since a request may
+  not be safe to send twice. The steps after it wait.
+- Like webhooks, requests send data out of the workspace: they aren't sent while the workspace's
+  owners have export turned off.
+
+### Incoming webhooks
+
+An automation with the *incoming webhook* trigger has a secret address,
+`https://<your server>/api/automations/<id>/webhook/<token>`, shown only to people who manage it
+(and over MCP to connections that may edit). Anyone with the address can start the automation, so
+treat it like a password: *New address* (`new_webhook_address` over MCP) replaces it and the old
+one stops working at once. The token is derived from the server's `BETTER_AUTH_SECRET`, so
+changing that changes every address.
+
+A `POST` with a JSON body (up to 64 KB; an empty body counts as `{}`) queues a run whose
+`{{trigger}}` is that body, and is answered at once:
+
+| Status | When |
+| --- | --- |
+| `202` | Taken: `{"ok": true, "run_id": "…"}`; `list_automation_runs` or the run history shows how it went |
+| `400` | The body isn't JSON |
+| `404` | No automation has this address (a wrong or replaced token looks the same) |
+| `409` | The automation is off, not yet published, or its database is in the trash |
+| `413` | The body is larger than 64 KB |
+| `429` | More than 60 requests in a minute (with `Retry-After`), or too many runs waiting |
+
+The automation can keep an example body, which its test runs use and its editor offers fields
+from. Bodies are kept in the run history for 30 days with credentials masked.
 
 ## AI features
 
@@ -2934,11 +3060,15 @@ The tools cover:
   lists a page's dashboards and their widgets; a widget on a database the user can't open names
   nothing of it.
 - **Automations:** `list_automations`, `create_automation`, `update_automation`,
-  `delete_automation` and `list_automation_runs` (see
+  `publish_automation`, `discard_automation_draft`, `test_automation`, `delete_automation` and
+  `list_automation_runs` (see
   [Automations and webhooks](#automations-and-webhooks)). They need full access to the database;
-  properties are named by name or id and people by id, email, name or `"me"`, and
-  `list_automations` shows names next to the stored ids. A `run_agent` action names an agent
-  by id or name.
+  properties are named by name or id and people by id, email, name or `"me"`, a `find_rows`
+  step's filters and sorts as `query_database` takes them, and `list_automations` shows names
+  next to the stored ids, each step's id, the draft and the published version. `publish: false`
+  keeps changes in the draft until `publish_automation` (or `discard_automation_draft` drops them); `test_automation` runs it once and
+  returns the run's id for `list_automation_runs`. A `run_agent` step names an agent by id or
+  name.
 - **Agents:** `list_agents`, `get_agent` (its instructions, the pages shared with it, its
   skills and its memory), `draft_agent` (a draft from what the user says it should do: its
   instructions, the pages it needs and suggested schedules and automations, nothing saved),

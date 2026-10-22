@@ -172,7 +172,8 @@
     "aiAccountTitle": "Yapay zekâ hesabı kaldırıldı",
     "aiAccountDetached": "Çalışma alanının yapay zekâsı artık {actor} kişisinin anahtarıyla çalışmıyor. Ayarlar'dan başka bir yapay zekâ hesabı seçin.",
     "reviewTitle": "İncelenecekler",
-    "review": "{count, plural, one {{agent} incelemeniz için bir değişiklik önerdi} other {# değişiklik incelemenizi bekliyor, sonuncusu: {agent}}}"
+    "review": "{count, plural, one {{agent} incelemeniz için bir değişiklik önerdi} other {# değişiklik incelemenizi bekliyor, sonuncusu: {agent}}}",
+    "automationRun": "“{name}” otomasyonu"
   },
   "templates": {
     "title": "Şablonlar",

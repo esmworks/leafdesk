@@ -172,7 +172,8 @@
     "aiAccountTitle": "KI-Konto entfernt",
     "aiAccountDetached": "Die KI des Workspaces läuft nicht mehr über den Schlüssel von {actor}. Wähle in den Einstellungen ein anderes KI-Konto.",
     "reviewTitle": "Zu prüfen",
-    "review": "{count, plural, one {{agent} hat eine Änderung zur Prüfung vorgeschlagen} other {# Änderungen warten auf deine Prüfung, die neueste von {agent}}}"
+    "review": "{count, plural, one {{agent} hat eine Änderung zur Prüfung vorgeschlagen} other {# Änderungen warten auf deine Prüfung, die neueste von {agent}}}",
+    "automationRun": "Automatisierung „{name}“"
   },
   "templates": {
     "title": "Vorlagen",

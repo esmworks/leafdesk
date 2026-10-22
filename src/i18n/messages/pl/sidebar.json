@@ -172,7 +172,8 @@
     "aiAccountTitle": "Usunięto konto AI",
     "aiAccountDetached": "AI obszaru roboczego nie działa już na kluczu użytkownika {actor}. Wybierz inne konto AI w Ustawieniach.",
     "reviewTitle": "Do przejrzenia",
-    "review": "{count, plural, one {{agent} proponuje zmianę do przejrzenia} few {# zmiany czekają, aż je przejrzysz, najnowsza od: {agent}} many {# zmian czeka, aż je przejrzysz, najnowsza od: {agent}} other {# zmiany czeka, aż ją przejrzysz, najnowsza od: {agent}}}"
+    "review": "{count, plural, one {{agent} proponuje zmianę do przejrzenia} few {# zmiany czekają, aż je przejrzysz, najnowsza od: {agent}} many {# zmian czeka, aż je przejrzysz, najnowsza od: {agent}} other {# zmiany czeka, aż ją przejrzysz, najnowsza od: {agent}}}",
+    "automationRun": "Automatyzacja „{name}”"
   },
   "templates": {
     "title": "Szablony",

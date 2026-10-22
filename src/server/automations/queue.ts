@@ -1,8 +1,8 @@
 import { AsyncLocalStorage } from "node:async_hooks";
-import { and, count, eq, inArray, isNotNull } from "drizzle-orm";
+import { and, count, eq, gt, inArray, isNotNull } from "drizzle-orm";
 import { db } from "@/db";
 import { automationRun, databaseAutomation, databaseProperty } from "@/db/schema";
-import { changedProperties, matchesTrigger } from "@/lib/automations";
+import { changedProperties, matchesTrigger, watchedProperties } from "@/lib/automations";
 import { redactError } from "@/lib/redact";
 
 /**
@@ -61,9 +61,10 @@ export async function queueAutomations(
   if (!changes.length || runningAutomation()) return;
   try {
     const automations = await db
-      .select({ id: databaseAutomation.id, trigger: databaseAutomation.trigger })
+      .select({ id: databaseAutomation.id, trigger: databaseAutomation.trigger, version: databaseAutomation.version })
       .from(databaseAutomation)
-      .where(and(eq(databaseAutomation.databaseId, databaseId), eq(databaseAutomation.enabled, true)));
+      // Only published automations run; one that is only a draft (version 0) waits for it.
+      .where(and(eq(databaseAutomation.databaseId, databaseId), eq(databaseAutomation.enabled, true), gt(databaseAutomation.version, 0)));
     if (!automations.length) return;
     // Deleted properties start nothing: their values (kept for a restore) aren't changes, and
     // automations waiting for one of them to change wait until it is restored.
@@ -77,11 +78,16 @@ export async function queueAutomations(
     );
     const live = (values: Record<string, unknown>) =>
       deleted.size ? Object.fromEntries(Object.entries(values).filter(([id]) => !deleted.has(id))) : values;
-    const armed = automations.filter(
-      (a) => a.trigger.type === "row_created" || (a.trigger.type === "property_changed" && (!a.trigger.propertyId || !deleted.has(a.trigger.propertyId))),
-    );
+    // One watching several properties waits only while all of them are deleted.
+    const armed = automations.filter((a) => {
+      if (a.trigger.type === "row_created") return true;
+      if (a.trigger.type !== "property_changed") return false;
+      const watched = watchedProperties(a.trigger);
+      return !watched.length || watched.some((id) => !deleted.has(id));
+    });
     let runs = changes.flatMap((change) => {
       const write = { before: live(change.before), after: live(change.after), created };
+      const changed = created ? Object.keys(write.after) : changedProperties(write.before, write.after);
       return armed
         .filter((a) => matchesTrigger(a.trigger, write))
         .map((a) => ({
@@ -90,7 +96,10 @@ export async function queueAutomations(
           actorId,
           boundTo,
           created,
-          changed: created ? Object.keys(write.after) : changedProperties(write.before, write.after),
+          changed,
+          version: a.version,
+          // The changed values before and after, for `trigger.changes` in the steps' templates.
+          triggerData: created ? null : { changes: Object.fromEntries(changed.map((id) => [id, { before: write.before[id] ?? null, after: write.after[id] ?? null }])) },
         }));
     });
     if (!runs.length) return;

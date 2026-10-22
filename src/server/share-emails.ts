@@ -77,6 +77,7 @@ type Due = Pick<
   | "readAt"
   | "date"
   | "propertyId"
+  | "message"
 >;
 
 let mailer: (mail: OutgoingMail) => Promise<void> = sendMail;
@@ -120,6 +121,7 @@ async function deliverDue(everything = false) {
       readAt: notification.readAt,
       date: notification.date,
       propertyId: notification.propertyId,
+      message: notification.message,
     });
   // Page updates are held back together, per person (see sendPageUpdates).
   const pageUpdates = new Map<string, Due[]>();
@@ -276,6 +278,7 @@ async function send({
   readAt,
   date,
   propertyId,
+  message,
 }: Due) {
   if (readAt || kind === "assignment" || isOwnerKind(kind)) return;
   const locale = await recipientLocale(userId, emailLocale);
@@ -382,6 +385,7 @@ async function send({
       link,
       // A "date passed" run's notification has the row's date it ran for.
       datePassed: date !== null,
+      message,
     });
     await mailer({ to: recipient.email, ...content });
     return;

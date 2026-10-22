@@ -255,6 +255,8 @@ export function automationEmail(
     workspaceName: string;
     link: string;
     datePassed?: boolean;
+    /** What the automation's notify step wrote, templates resolved. */
+    message?: string | null;
   },
 ): RenderedEmail {
   const t = emailTranslator(locale);
@@ -272,6 +274,7 @@ export function automationEmail(
       automation.datePassed
         ? t(automation.databaseTitle === null ? "automation.bodyDatePassedHidden" : "automation.bodyDatePassed", names)
         : t(automation.databaseTitle === null ? "automation.bodyHidden" : "automation.body", names),
+      ...(automation.message ? [automation.message] : []),
       t("automation.optOut"),
     ],
     action: { label: t("automation.action"), url: automation.link },

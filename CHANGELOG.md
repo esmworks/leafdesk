@@ -118,6 +118,28 @@
   Markdown, HTML, the app's own ids, links or markup, an empty text or a subject on two lines) goes
   back to the agent with what is wrong; a reviewer's edits aren't checked. The run's steps show the
   drafts.
+- **Automations with steps that work together.** An automation can now start on a schedule
+  (daily, on weekdays, on days of the month or a cron expression, in its time zone), when another
+  service POSTs JSON to its own secret address (answered `202` with the run's id; at most 64 KB
+  and 60 requests a minute; *New address* retires the old one), or when any of several properties
+  changes. Besides setting properties, notifying people (now with a message), webhooks, agents and
+  the trash, its up to 20 steps can send an HTTP request (https, guarded like webhooks; its JSON
+  answer is there for the next steps), find rows of any database of the workspace by filters and
+  sorts, create a row, update the row that matches a value or create it, wait up to 7 days (in the
+  queue, across restarts) and write to the run's history. Setting properties, notifying and
+  running an agent can go for each found row. Steps use what started the run and what earlier
+  steps gave as `{{trigger.Status}}`, `{{find.rows.0.title}}` or `{{http.body.id}}`; a value that
+  is one template keeps its type, and a step that uses one that failed is skipped
+  (`dependencyFailed`). Changes can be saved as a draft, tried with a test run (real effects,
+  marked as a test, as whoever ran it) and published as the next version; runs under way keep the
+  version they started with. The run history shows each step's input, output, duration and, for a
+  for each step, how each row went. Over MCP, `create_automation` and `update_automation` take
+  the new triggers and steps, `publish: false` and `new_webhook_address`; `publish_automation`,
+  `discard_automation_draft` and `test_automation` are new, and `list_notifications` includes a notification's message.
+  Migration 0110 adds `automation_version` (existing automations become their
+  version 1), a draft, next run and webhook address salt to `database_automation`, what started a
+  run, its version, test mark and state to `automation_run` (whose row may now be empty), and a
+  message to `notification`.
 
 - **Ask the AI chat from Telegram.** With `TELEGRAM_BOT_TOKEN` set to a bot made with @BotFather,
   people link their Telegram account in My account → *Connected apps* → *Telegram* (a one-time

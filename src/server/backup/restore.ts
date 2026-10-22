@@ -29,6 +29,7 @@ import { fileIdOf, isFileId } from "@/lib/files";
 import { isReservedEmail, isRestoredEmail, restoredEmail } from "@/lib/reserved-emails";
 import { readAiConfig } from "@/server/ai/config";
 import { recordAudit } from "@/server/audit";
+import { newHookSalt } from "@/server/automations/incoming";
 import { newSecretSalt } from "@/server/automations/webhook";
 import { newEventSecret } from "@/server/connections/manage";
 import { seal } from "@/server/secret-box";
@@ -452,7 +453,11 @@ async function fitThisServer(manifest: BackupManifest, rows: Rows) {
     for (const row of list) if (taken.has(row.token as string)) row.token = newToken();
   }
 
-  for (const automation of rows.get("database_automation")!) automation.secret_salt = newSecretSalt();
+  // A restored automation signs with a new secret and takes requests at a new address.
+  for (const automation of rows.get("database_automation")!) {
+    automation.secret_salt = newSecretSalt();
+    automation.hook_salt = newHookSalt();
+  }
   const connections = rows.get("connection")!;
   for (const connection of connections) {
     connection.secrets = null;
