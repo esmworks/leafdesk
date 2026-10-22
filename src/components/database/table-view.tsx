@@ -8,6 +8,7 @@ import { PHONE_QUERY, useMediaQuery } from "@/components/use-media-query";
 import { useReorderDrag, type ReorderDragHandlers } from "@/components/use-reorder-drag";
 import type { ViewConfig } from "@/db/schema/app";
 import type { AggregateFn } from "@/lib/aggregate";
+import { isAutofillType } from "@/lib/ai";
 import { valueType } from "@/lib/derived";
 import { arrangeGroups, canAddToGroup, groupDefaults, groupRowsBy, type Group } from "@/lib/grouping";
 import { isEmptyValue, lostValues, planConversion } from "@/lib/convert-property";
@@ -681,7 +682,7 @@ export function TableView({
                       setDateOptions: fixed || p.type !== "date" ? undefined : (input) => api.setDateOptions(p, input),
                       setNumberDisplay: fixed || p.type !== "number" ? undefined : (display) => api.setNumberDisplay(p, display),
                       setPageVisibility: fixed ? undefined : (visibility) => api.setPageVisibility(p, visibility),
-                      setAutofill: fixed || !ai.enabled || p.type !== "text" ? undefined : (config) => api.setAutofill(p, config),
+                      setAutofill: fixed || !ai.enabled || !isAutofillType(p.type) ? undefined : (config) => api.setAutofill(p, config),
                       updateAllAutofill:
                         !ai.enabled || !ai.refresh || !p.options.ai || !access.canEditValues(p.id)
                           ? undefined
@@ -933,7 +934,7 @@ function HeaderCell({
         <PropertyTypeIcon type={icon} className="h-3.5 w-3.5 shrink-0" />
         <span className="truncate">{label}</span>
         {prop && <PropertyLock propertyId={prop.id} />}
-        {prop?.type === "text" && prop.options.ai && <Bot className="h-3.5 w-3.5 shrink-0" aria-label={tAi("addEntry")} />}
+        {isAutofillType(prop?.type) && prop?.options.ai && <Bot className="h-3.5 w-3.5 shrink-0" aria-label={tAi("addEntry")} />}
         {sort === "asc" && <ArrowUp className="h-3 w-3 shrink-0 text-accent" aria-label={t("sortedAscending")} />}
         {sort === "desc" && <ArrowDown className="h-3 w-3 shrink-0 text-accent" aria-label={t("sortedDescending")} />}
       </button>

@@ -523,8 +523,9 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   and group provisioning (see [Single sign-on (OIDC, SAML) and SCIM](#single-sign-on-oidc-saml-and-scim)).
 - **AI writing assistant, AI properties and AI chat** (optional, off until a provider is set up):
   improve, shorten, fix, translate or rewrite selected text as you ask, continue writing, and
-  summarize a page, as a suggestion you accept or discard; database text properties that AI fills
-  in (a summary, a translation or your own prompt over the row's values); a chat, on its own page
+  summarize a page, as a suggestion you accept or discard; database properties that AI fills in
+  (text: a summary, a translation or your own prompt over the row's values; a select, multi-select,
+  status, number or checkbox from your prompt); a chat, on its own page
   or in a panel beside a page, that answers questions from the pages you can read, citing them, and
   remembers what you tell it about yourself (asking first; each person, or a workspace's owners for
   everyone, can turn the memory off, see [Memory](#ai-features)); and semantic search with an
@@ -1822,6 +1823,24 @@ Other AI properties (and formulas over them) go into a prompt only when you name
 `{Property name}` or the property to translate; the AI properties that do then update after it.
 A property can't read itself through other AI properties. Cells show when a value is being worked
 out or failed, and why. Turning AI autofill off leaves the values as plain text.
+
+Select, multi-select, status, number and checkbox properties have *AI autofill…* in their menu
+too, filled in from your own prompt (summaries and translations are text). The prompt tells the
+model what the value must be: one of the property's options, written as listed, or none; a JSON
+list of options (never new ones); a number (for a percent number, a percentage, stored as the
+fraction it shows); yes or no. The answer is read the way people write such values, so a full
+stop, quotes or another case don't matter, and "none" leaves the value empty. An answer that
+doesn't fit (an option the property doesn't have, words where a number was asked for) fails
+like any other, and the cell keeps the value it had. The values are ordinary ones: filters,
+grouping, boards and automations ("Status changes to Done") work with them as they do with
+values people set.
+
+*Only rows where these have a value* limits any AI property to rows where the chosen properties
+(up to 10) aren't empty, or, for a checkbox, are ticked: "find the sector only for customers with
+a website". Other rows are skipped without asking a model, also by *Update all rows in this
+view*, and keep the value they have. A property chosen there is read like a `{Property}` in the
+prompt, so an AI property can wait for another one and updates after it; related rows, people,
+restricted properties and properties the person can't see can't be chosen and count as empty.
 
 **AI chat.** *Ask AI* in the sidebar opens the chat across the page, where the sidebar lists
 your conversations (today, yesterday, the last 7 and 30 days, older) in place of the pages until
