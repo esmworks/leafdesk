@@ -17,7 +17,7 @@ type Run = Pick<typeof agentRun.$inferSelect, "id" | "source" | "steps">;
 
 /** The steps the people's chat knows how to put into a conversation's history (changes made, connection calls). */
 const chatSteps = (steps: AgentStepRecord[] | undefined): ChatStepRecord[] =>
-  (steps ?? []).filter((s): s is ChatStepRecord => s.kind !== "comment" && s.kind !== "tool" && s.kind !== "skill");
+  (steps ?? []).filter((s): s is ChatStepRecord => s.kind !== "comment" && s.kind !== "email" && s.kind !== "tool" && s.kind !== "skill");
 
 /**
  * The conversation before a chat run's message, for the model: whole turns, newest kept first,

@@ -361,7 +361,12 @@
       "helpersHelp": "Pendant une exécution, il peut confier une partie de sa tâche à ces agents, jusqu’à {max} fois, et utiliser leurs réponses. Chacun travaille avec ses propres accès, outils et limites, et ne peut pas solliciter d’autres agents à son tour.",
       "helpersEmpty": "Il n’y a pas encore d’autres agents dans cet espace de travail.",
       "helperPaused": "En pause",
-      "limitOwnersOnly": "Seuls les propriétaires de l’espace de travail fixent cette limite."
+      "limitOwnersOnly": "Seuls les propriétaires de l’espace de travail fixent cette limite.",
+      "rowChanges": "Modifications des lignes",
+      "rowChangesDirect": "Les faire directement",
+      "rowChangesReview": "Les proposer à la vérification",
+      "rowChangesDirectHelp": "Les lignes qu’il ajoute et les valeurs qu’il modifie sont enregistrées tout de suite, en son nom.",
+      "rowChangesReviewHelp": "Les lignes qu’il ajouterait et les valeurs qu’il modifierait attendent dans À vérifier jusqu’à ce qu’une personne pouvant les modifier approuve ou écarte chacune d’elles."
     },
     "describe": {
       "button": "Décrire un agent",
@@ -563,7 +568,10 @@
       "fromChat": "Message de chat de {name}",
       "chattedBy": "chat de {name}",
       "yoursOnly": "Vous voyez les exécutions que vous avez lancées.",
-      "waitingForOwner": "Un propriétaire de l’espace de travail répond à cet appel."
+      "waitingForOwner": "Un propriétaire de l’espace de travail répond à cet appel.",
+      "emailDrafted": "A rédigé un e-mail à relire :",
+      "emailFailed": "N’a pas pu rédiger d’e-mail :",
+      "emailHidden": "A rédigé un e-mail sur une ligne que vous ne pouvez pas ouvrir"
     },
     "usage": {
       "thisMonth": "Ce mois-ci : {usage}",
@@ -759,7 +767,8 @@
         "monthly_token_limit": "Limite mensuelle de tokens",
         "skills": "Compétences",
         "schedules": "Planifications",
-        "shares": "Pages partagées"
+        "shares": "Pages partagées",
+        "row_changes": "Modifications des lignes"
       },
       "back": "Toutes les versions",
       "compareNote": "Ce qui a changé entre cette version et la configuration actuelle de l’agent. Restaurer rétablit ce que contenait cette version.",
@@ -1629,6 +1638,10 @@
       "ai_account": {
         "attached": "A associé l’IA de l’espace de travail au compte IA {target}",
         "detached": "A dissocié l’IA de l’espace de travail du compte IA {target}"
+      },
+      "review": {
+        "approved": "{kind, select, email_draft {A envoyé l’e-mail que l’agent « {agent} » a rédigé sur {target}} create_row {A approuvé la ligne que l’agent « {agent} » a proposée dans {target}} other {A approuvé la modification que l’agent « {agent} » a proposée pour {target}}}{outcome, select, failed { (échec)} other {}}",
+        "dismissed": "{kind, select, email_draft {A écarté l’e-mail que l’agent « {agent} » a rédigé sur {target}} create_row {A écarté la ligne que l’agent « {agent} » a proposée dans {target}} other {A écarté la modification que l’agent « {agent} » a proposée pour {target}}}"
       }
     },
     "decisions": {
@@ -1701,7 +1714,10 @@
     "watchedNone": "Vous ne surveillez encore aucune page",
     "watchedNoneDescription": "Surveillez une page depuis son menu ⋯, ou tout un espace d’équipe depuis son menu dans la barre latérale. Les pages que vous modifiez sont surveillées pour vous.",
     "watchedTeamspace": "Toutes les pages de cet espace d’équipe · {workspace}",
-    "stopWatching": "Ne plus surveiller"
+    "stopWatching": "Ne plus surveiller",
+    "reviewTitle": "À vérifier",
+    "reviewDescription": "Un agent propose une modification d’une ligne que vous pouvez modifier, ou rédige un e-mail depuis votre boîte mail, et elle attend votre vérification. Les nouvelles propositions sont regroupées jusqu’à ce que vous les ouvriez.",
+    "reviewChannel": "À vérifier : {channel}"
   },
   "site": {
     "description": "Donnez aux pages publiées de cet espace de travail une adresse lisible, une page d’accueil et une navigation commune.",

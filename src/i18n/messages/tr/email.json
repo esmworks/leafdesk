@@ -245,7 +245,9 @@
     "untitled": "Adsız",
     "snooze": "1 saat ertele",
     "aiAccountTitle": "Yapay zekâ hesabı kaldırıldı",
-    "aiAccountDetached": "Çalışma alanının yapay zekâsı artık {actor} kişisinin anahtarıyla çalışmıyor."
+    "aiAccountDetached": "Çalışma alanının yapay zekâsı artık {actor} kişisinin anahtarıyla çalışmıyor.",
+    "reviewTitle": "İncelenecekler",
+    "review": "{count, plural, one {{agent} incelemeniz için bir değişiklik önerdi} other {# değişiklik incelemenizi bekliyor, sonuncusu: {agent}}}"
   },
   "agentReply": {
     "aiOff": "Yanıt veremiyorum: bu çalışma alanında yapay zekâ kapalı.",

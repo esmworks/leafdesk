@@ -541,7 +541,8 @@
     "unchecked": "не позначено",
     "checklist": "виконано {done} з {total}",
     "merged": "<actor>{name}</actor> об’єднує з цим рядком {count, plural, one {# рядок} few {# рядки} many {# рядків} other {# рядка}}: <rows>{titles}</rows>",
-    "mergedFrom": "з {title}"
+    "mergedFrom": "з {title}",
+    "approvedFrom": "(запропоновано: {name})"
   },
   "rowEmail": {
     "title": "Пошта",

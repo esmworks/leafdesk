@@ -20,7 +20,7 @@ import {
 import { editsAgent, type AgentView } from "@/lib/agents";
 import { useRuleSummary } from "./agent-schedules-tab";
 
-const NAMED_FIELDS = ["name", "icon", "description", "instructions", "enabled", "model", "web_access", "monthly_token_limit", "skills", "schedules", "shares"] as const;
+const NAMED_FIELDS = ["name", "icon", "description", "instructions", "enabled", "model", "web_access", "row_changes", "monthly_token_limit", "skills", "schedules", "shares"] as const;
 type NamedField = (typeof NAMED_FIELDS)[number];
 
 /** A setting or part's name; one added since that has no translation yet goes by its column. */

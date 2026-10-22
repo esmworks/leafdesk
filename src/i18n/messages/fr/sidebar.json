@@ -17,7 +17,9 @@
     "import": "Importer",
     "graph": "Graphe",
     "skills": "Compétences",
-    "more": "Plus"
+    "more": "Plus",
+    "review": "À vérifier",
+    "reviewCount": "{count, plural, one {# modification attend votre vérification} other {# modifications attendent votre vérification}}"
   },
   "tabs": {
     "label": "Barre latérale",
@@ -168,7 +170,9 @@
     "reportHidden": "Son exécution planifiée est terminée, sur une base de données que vous ne pouvez pas ouvrir.",
     "reportGone": "L’exécution n’est plus conservée.",
     "aiAccountTitle": "Compte IA supprimé",
-    "aiAccountDetached": "L’IA de l’espace de travail ne fonctionne plus avec la clé de {actor}. Choisissez un autre compte IA dans Paramètres."
+    "aiAccountDetached": "L’IA de l’espace de travail ne fonctionne plus avec la clé de {actor}. Choisissez un autre compte IA dans Paramètres.",
+    "reviewTitle": "À vérifier",
+    "review": "{count, plural, one {{agent} a proposé une modification à vérifier} other {# modifications attendent votre vérification, la dernière de {agent}}}"
   },
   "templates": {
     "title": "Modèles",

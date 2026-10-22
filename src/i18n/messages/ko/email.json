@@ -245,7 +245,9 @@
     "untitled": "제목 없음",
     "snooze": "1시간 후 다시 알림",
     "aiAccountTitle": "AI 계정 삭제됨",
-    "aiAccountDetached": "워크스페이스의 AI가 더 이상 {actor}님의 키로 실행되지 않습니다."
+    "aiAccountDetached": "워크스페이스의 AI가 더 이상 {actor}님의 키로 실행되지 않습니다.",
+    "reviewTitle": "검토 대기",
+    "review": "{count, plural, =1 {{agent}이(가) 검토할 변경을 제안했습니다} other {변경 #개가 검토를 기다립니다. 최근 제안: {agent}}}"
   },
   "agentReply": {
     "aiOff": "답할 수 없습니다: 이 워크스페이스에서 AI가 꺼져 있습니다.",

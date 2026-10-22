@@ -7,6 +7,7 @@ import { ToolInputError, VersionConflictError } from "@/server/mcp/format";
 import { GroupError } from "@/lib/groups";
 import { TeamspaceError } from "@/lib/teamspace-error";
 import { PAGE_LOCKED_MESSAGE } from "@/lib/page-lock";
+import { PendingChangeError } from "@/server/pending-changes";
 import { isPageSaveFailed } from "@/server/collab/bridge";
 
 /** Every error code the REST API answers with, for the docs. */
@@ -54,6 +55,11 @@ export const API_ERROR_CODES = {
   voice_notes_unavailable: {
     status: 409,
     description: "Voice notes can't be made: the server has no speech to text set up, or the workspace turned AI off.",
+  },
+  change_decided: { status: 409, description: "The change waiting for review was already approved, dismissed or expired." },
+  change_conflict: {
+    status: 409,
+    description: "The row changed since the change was proposed, in a value it sets (`conflict: true`). Approve it again with `force: true` to overwrite, or dismiss it.",
   },
   version_conflict: {
     status: 409,
@@ -145,6 +151,12 @@ export function apiErrorFor(error: unknown): ApiError {
     if (error.code === "limitReached") return new ApiError(409, "limit_reached", `${error.message}.`);
     if (error.code === "tooManyRuns") return new ApiError(409, "too_many_runs", `${error.message}.`);
     return new ApiError(400, "invalid_request", `${error.message}.`);
+  }
+  if (error instanceof PendingChangeError) {
+    if (error.code === "notFound") return new ApiError(404, "not_found", error.message);
+    if (error.code === "decided") return new ApiError(409, "change_decided", error.message);
+    if (error.code === "conflict") return new ApiError(409, "change_conflict", error.message);
+    return new ApiError(400, "invalid_request", error.message);
   }
   if (error instanceof AiError) return apiErrorForAi(error);
   // The collab service logged the database's refusal already; its text can name tables and constraints.

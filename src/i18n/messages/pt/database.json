@@ -541,7 +541,8 @@
     "unchecked": "desmarcada",
     "checklist": "{done} de {total} concluídos",
     "merged": "<actor>{name}</actor> mesclou {count, plural, one {# linha} other {# linhas}} nesta linha: <rows>{titles}</rows>",
-    "mergedFrom": "de {title}"
+    "mergedFrom": "de {title}",
+    "approvedFrom": "(proposto por {name})"
   },
   "rowEmail": {
     "title": "E-mail",

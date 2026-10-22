@@ -224,7 +224,14 @@
           "editPage": "Impossibile modificare il testo di:",
           "mergeRows": "Impossibile unire le righe in:"
         },
-        "in": "in"
+        "in": "in",
+        "proposed": {
+          "createRow": "Aggiunta di una riga proposta da rivedere:",
+          "updateRow": "Modifica proposta da rivedere:",
+          "createPage": "Aggiunta di una pagina proposta da rivedere:",
+          "editPage": "Modifica del testo proposta da rivedere:",
+          "mergeRows": "Ha proposto di unire righe, da revisionare, in:"
+        }
       },
       "memory": {
         "remember": "Ricordato:",

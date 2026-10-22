@@ -180,6 +180,13 @@ const agentMemory = vi.hoisted(() => ({
 }));
 vi.mock("@/server/agents/memory", () => agentMemory);
 
+const review = vi.hoisted(() => ({
+  listPendingChanges: vi.fn(async (..._args: unknown[]) => [] as unknown[]),
+  approvePendingChange: vi.fn(async (..._args: unknown[]) => ({}) as unknown),
+  dismissPendingChange: vi.fn(async (..._args: unknown[]) => ({}) as unknown),
+}));
+vi.mock("@/server/pending-changes", async (importOriginal) => ({ ...(await importOriginal<object>()), ...review }));
+
 const personalMemory = vi.hoisted(() => {
   class MemoryError extends Error {
     constructor(
@@ -3658,5 +3665,80 @@ describe("dashboard views", () => {
     databases.listRowsInOrder.mockResolvedValue({ rows: [], sorts: [] });
     const r = await callTool(writer, "query_database", { database_id: "db-1", view_id: "view-d" });
     expect(r.text).toMatch(/A dashboard view has no filters or sorts of its own/);
+  });
+});
+
+describe("the review queue", () => {
+  const change = {
+    id: "chg-1",
+    workspaceId: "ws-1",
+    kind: "update_row",
+    status: "pending",
+    error: null,
+    reason: "The buyer confirmed the budget.",
+    database: { id: "db-1", title: "Leads", icon: null },
+    row: { id: "row-1", title: "Acme", icon: null },
+    agent: { id: "agent-1", name: "Qualifier", icon: null, userId: "bot-1" },
+    runId: "run-1",
+    fields: [
+      {
+        property: { id: "prop-amount", name: "Amount", type: "number" },
+        before: { type: "number", value: 100 },
+        now: { type: "number", value: 120 },
+        after: { type: "number", value: 150 },
+        raw: 150,
+        conflict: true,
+      },
+    ],
+    markdown: null,
+    email: null,
+    edited: false,
+    conflict: true,
+    canApprove: true,
+    createdAt: "2026-10-01T10:00:00.000Z",
+    expiresAt: "2026-10-31T10:00:00.000Z",
+    decidedAt: null,
+    decidedBy: null,
+  };
+
+  it("lists the changes waiting, with what each value was, is and would become", async () => {
+    review.listPendingChanges.mockResolvedValueOnce([change]);
+    const r = await callTool(reader, "list_pending_changes", { workspace_id: "ws-1", agent_id: "agent-1" });
+    expect(review.listPendingChanges).toHaveBeenLastCalledWith("user-1", "ws-1", {
+      filter: { agentId: "agent-1", databaseId: undefined, rowId: undefined },
+      status: "open",
+      limit: 50,
+    });
+    expect(r.data.changes[0]).toMatchObject({
+      id: "chg-1",
+      kind: "update_row",
+      reason: "The buyer confirmed the budget.",
+      changes: [{ property: "Amount", property_id: "prop-amount", from: "100", now: "120", to: "150", conflict: true }],
+      conflict: true,
+      can_approve: true,
+    });
+    expect(r.data.changes[0].url).toMatch(/\/w\/ws-1\/review\?row=row-1$/);
+  });
+
+  it("approves with an edit and force, and dismisses; both need pages:write", async () => {
+    review.approvePendingChange.mockResolvedValueOnce({ ...change, status: "approved", conflict: false, canApprove: false });
+    const approved = await callTool(writer, "approve_pending_change", { change_id: "chg-1", properties: { Amount: 140 }, force: true });
+    expect(approved.data.status).toBe("approved");
+    expect(review.approvePendingChange).toHaveBeenLastCalledWith("user-1", "chg-1", {
+      payload: { properties: { Amount: 140 } },
+      force: true,
+      actor: { userId: "user-1", oauthClientId: "client-1" },
+    });
+    review.dismissPendingChange.mockResolvedValueOnce({ ...change, status: "dismissed" });
+    expect((await callTool(writer, "dismiss_pending_change", { change_id: "chg-1" })).data.status).toBe("dismissed");
+    expect((await callTool(reader, "dismiss_pending_change", { change_id: "chg-1" })).isError).toBe(true);
+  });
+
+  it("explains a conflict and a change the user may not answer", async () => {
+    const { PendingChangeError } = await import("@/server/pending-changes");
+    review.approvePendingChange.mockRejectedValueOnce(new PendingChangeError("conflict", "changed"));
+    expect((await callTool(writer, "approve_pending_change", { change_id: "chg-1" })).text).toMatch(/force: true/);
+    review.approvePendingChange.mockRejectedValueOnce(new AccessError("Only the person whose mailbox it goes out from may send or dismiss an email draft."));
+    expect((await callTool(writer, "approve_pending_change", { change_id: "chg-1" })).text).toMatch(/Only the person whose mailbox/);
   });
 });

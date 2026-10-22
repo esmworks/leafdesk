@@ -224,7 +224,14 @@
           "editPage": "Impossible de modifier le texte de :",
           "mergeRows": "Impossible de fusionner les lignes dans :"
         },
-        "in": "dans"
+        "in": "dans",
+        "proposed": {
+          "createRow": "Ajout d’une ligne proposé à la vérification :",
+          "updateRow": "Modification proposée à la vérification :",
+          "createPage": "Ajout d’une page proposé à la vérification :",
+          "editPage": "Modification du texte proposée à la vérification :",
+          "mergeRows": "A proposé de fusionner des lignes, à valider, dans :"
+        }
       },
       "memory": {
         "remember": "Retenu :",

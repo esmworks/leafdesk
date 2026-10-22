@@ -93,7 +93,8 @@
   "changed": {
     "done": "完了：{what}",
     "declined": "未実行：{what}",
-    "failed": "実行できませんでした：{what}"
+    "failed": "実行できませんでした：{what}",
+    "proposed": "確認用に提案：{what}"
   },
   "errors": {
     "disabled": "このワークスペースではAIがオフになっています。",

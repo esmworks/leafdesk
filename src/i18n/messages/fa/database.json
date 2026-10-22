@@ -541,7 +541,8 @@
     "unchecked": "تیک‌نخورده",
     "checklist": "{done} از {total} انجام شده",
     "merged": "<actor>{name}</actor> {count, plural, one {# ردیف} other {# ردیف}} را در این ردیف ادغام کرد: <rows>{titles}</rows>",
-    "mergedFrom": "از {title}"
+    "mergedFrom": "از {title}",
+    "approvedFrom": "(پیشنهاد {name})"
   },
   "rowEmail": {
     "title": "ایمیل",

@@ -541,7 +541,8 @@
     "unchecked": "nicht angehakt",
     "checklist": "{done} von {total} erledigt",
     "merged": "<actor>{name}</actor> hat {count, plural, one {# Zeile} other {# Zeilen}} mit dieser Zeile zusammengeführt: <rows>{titles}</rows>",
-    "mergedFrom": "aus {title}"
+    "mergedFrom": "aus {title}",
+    "approvedFrom": "(vorgeschlagen von {name})"
   },
   "rowEmail": {
     "title": "E-Mail",

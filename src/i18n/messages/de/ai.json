@@ -224,7 +224,14 @@
           "editPage": "Text konnte nicht geändert werden:",
           "mergeRows": "Zeilen konnten nicht zusammengeführt werden in:"
         },
-        "in": "in"
+        "in": "in",
+        "proposed": {
+          "createRow": "Hinzufügen einer Zeile zur Prüfung vorgeschlagen:",
+          "updateRow": "Änderung zur Prüfung vorgeschlagen:",
+          "createPage": "Hinzufügen einer Seite zur Prüfung vorgeschlagen:",
+          "editPage": "Textänderung zur Prüfung vorgeschlagen:",
+          "mergeRows": "Zusammenführen von Zeilen zur Prüfung vorgeschlagen in:"
+        }
       },
       "memory": {
         "remember": "Gemerkt:",

@@ -2,7 +2,7 @@
 // dialog's Chat tab, the page block (components/page/agent-chat-block.tsx) and the Markdown and
 // editor schemas.
 
-import type { AgentCommentRecord, AgentHandoffRecord, AgentRunCode, AgentRunStatus, AgentSkillRecord, AgentStepRecord, AgentToolRecord } from "./agents";
+import type { AgentCommentRecord, AgentEmailRecord, AgentHandoffRecord, AgentRunCode, AgentRunStatus, AgentSkillRecord, AgentStepRecord, AgentToolRecord } from "./agents";
 import type { ChatStepView } from "./ai-chat";
 
 /**
@@ -109,7 +109,13 @@ export type AgentChatMessageRecord = {
 };
 
 /** A step of an answer as the reader may see it now (as an agent's run history shows it). */
-export type AgentChatStepView = ChatStepView | AgentToolRecord | AgentSkillRecord | AgentHandoffRecord | (Omit<AgentCommentRecord, "text"> & { text: string | null });
+export type AgentChatStepView =
+  | ChatStepView
+  | AgentToolRecord
+  | AgentSkillRecord
+  | AgentHandoffRecord
+  | AgentEmailRecord
+  | (Omit<AgentCommentRecord, "text"> & { text: string | null });
 
 /** A message as the chat shows it. */
 export type AgentChatMessageView = {

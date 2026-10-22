@@ -541,7 +541,8 @@
     "unchecked": "işaretsiz",
     "checklist": "{total} maddeden {done} tanesi tamam",
     "merged": "<actor>{name}</actor> {count, plural, one {# satırı} other {# satırı}} bu satırda birleştirdi: <rows>{titles}</rows>",
-    "mergedFrom": "{title} satırından"
+    "mergedFrom": "{title} satırından",
+    "approvedFrom": "({name} önerisiyle)"
   },
   "rowEmail": {
     "title": "E-posta",

@@ -166,6 +166,9 @@ import {
   withAutomationErrors,
 } from "./automations";
 import { env } from "@/lib/env";
+import { reviewPath } from "@/lib/pending-changes";
+import * as review from "@/server/pending-changes";
+import { describePendingChange, editOf, reviewInputs, withReviewErrors } from "./reviews";
 import { APP_INFO } from "@/server/app-info";
 import { CONNECT_SCOPES, FILES_SCOPE, NOTIFICATIONS_SCOPE, WRITE_SCOPE, type McpPrincipal } from "./principal";
 import {
@@ -189,7 +192,7 @@ Beyond plain Markdown, page bodies know a few block forms: a callout is a GitHub
 Mentions: a link to a page of this app (\`[Roadmap](/w/<workspace_id>/p/<page_id>)\`) is a page mention, which shows the page's live title (the link text you write is ignored; get_page shows the current title, or "No access" / "Deleted page"), and \`#block-<block_id>\` after it mentions one block of the page (get_page with with_block_ids shows the ids), which opens the page there; \`[[Page title]]\` also becomes a mention of the page of that title in the page's workspace when you can open one (otherwise it stays text); that link alone on its line followed by \`<!-- leafdesk:page-link -->\` is a "Link to page" block, and followed by \`<!-- leafdesk:synced-page -->\` a synced page (the page's body shown live inside this one; its text is not part of this page's Markdown, read the page itself for it). \`@Name\` with a person's name as list_users shows it mentions them (they are notified if they can open the page), and \`@YYYY-MM-DD\` is a date. Keep mentions as they are when you rewrite a page: people aren't notified twice and reminders set on dates stay. get_page lists the pages linking to a page under linked_from, with the text around the first link (context) when there is any, and around each link (contexts) when a page links more than once; linked_from_truncated says how many pages link there when not all are listed.
 check_workspace looks a workspace over for what is worth tidying (broken links, pages nothing links to, empty and long untouched pages, likely duplicates, relations to deleted rows); it changes nothing, so ask the user before fixing what it finds.
 People discuss pages in comment threads anchored to text of the page: list_comments reads them, add_comment starts a thread on quoted text or replies to one.
-list_notifications shows the user's inbox: rows someone assigned them to, pages shared with them, new comments in their threads, mentions of them, reminders they set on dates or that date properties send them, what database automations told them, what others changed in database rows they follow, edits by others to pages they watch, requests for access to pages they can share and, for owners, requests to join their workspaces.
+list_notifications shows the user's inbox: changes agents proposed for their review, pages shared with them, new comments in their threads, mentions of them, reminders they set on dates or that date properties send them, what database automations told them, what others changed in database rows they follow, edits by others to pages they watch, requests for access to pages they can share and, for owners, requests to join their workspaces.
 attach_file adds an image, video, audio or other file to a page, from a URL or base64 data, or (with property) to a row's files property. Files in page bodies show up in the Markdown with paths like /api/files/<id>; get_file reads one (text files and PDFs as text, images as images), as do the urls of a files property.
 duplicate_page copies a page with everything under it beside the original. list_pages with favorites true lists the pages the user starred; get_page says whether a page is starred.
 A page is live, archived or in the trash. Archived pages (set_page_archived) are out of date but kept, such as an old price list or a superseded offer; the pages under one, and the rows of an archived database, count as archived with it. They stay readable and editable by id or link, but search, list_pages and query_database leave them out unless include_archived is true (results then mark them archived: true), and get_page says archived. The trash is something else: archive_page moves a page to the trash, list_trash and restore_page bring it back.
@@ -1080,7 +1083,7 @@ export function createMcpServer(principal: McpPrincipal) {
     {
       title: "List notifications",
       description:
-        "List the user's inbox, newest first: database rows someone assigned them to, pages someone shared with them, new comments in comment threads the user is in, mentions, reminders, notifications from database automations, changes to database rows the user follows (what changed, from what to what), edits to pages the user watches, requests for access to pages the user can share and (for owners) join requests, agents' calls waiting for approval and notes agents' runs proposed for their memory, with who did it and a link. Only the kinds the user keeps in their inbox are listed. Reading does not mark them read.",
+        "List the user's inbox, newest first: database rows someone assigned them to, pages someone shared with them, new comments in comment threads the user is in, mentions, reminders, notifications from database automations, changes to database rows the user follows (what changed, from what to what), edits to pages the user watches, requests for access to pages the user can share and (for owners) join requests, agents' calls waiting for approval, changes agents proposed for their review and notes agents' runs proposed for their memory, with who did it and a link. Only the kinds the user keeps in their inbox are listed. Reading does not mark them read.",
       inputSchema: z.object({
         workspace_id: z.string().optional().describe("Only this workspace; all of the user's workspaces when omitted."),
         unread_only: z.boolean().default(false).describe("Only notifications the user hasn't read yet."),
@@ -1155,6 +1158,21 @@ export function createMcpServer(principal: McpPrincipal) {
                 workspace_id: n.workspaceId,
                 workspace_name: n.workspaceName,
                 url: r ? `${env.appUrl}${agentRunPath(n.workspaceId, r.agentId, r.runId)}` : `${env.appUrl}/w/${n.workspaceId}/settings?tab=agents`,
+              };
+            }
+            // Changes waiting for review: list_pending_changes shows them.
+            if (n.kind === "review") {
+              const waiting = n.review?.count ?? 0;
+              return {
+                id: n.id,
+                kind: n.kind,
+                read: n.read,
+                created_at: n.createdAt.toISOString(),
+                summary: `${waiting === 1 ? "A change waits" : `${waiting} changes wait`} for the user's review, the latest proposed by the agent "${who}"; list_pending_changes shows them, and the user approves or dismisses each (approve_pending_change, dismiss_pending_change)`,
+                actor: n.actorName,
+                workspace_id: n.workspaceId,
+                workspace_name: n.workspaceName,
+                url: `${env.appUrl}${reviewPath(n.workspaceId)}`,
               };
             }
             // The workspace's own AI account is gone: owners attach another in the app.
@@ -2319,7 +2337,7 @@ export function createMcpServer(principal: McpPrincipal) {
     {
       title: "List a workspace's agents",
       description:
-        "List the agents of a workspace: AI helpers with instructions of their own that automations run on database rows (create_automation's run_agent action takes an agent's id or name). Shows each one's name, icon, description, whether it is enabled (paused agents don't run) and archived, the model its runs use (main or fast), whether it may read the web (web_access), the id of its own user (what its changes and comments show), the agents it can ask (helper_agent_ids) and the user's access to it (your_access: full, edit or interact). Owners list every agent; members those shared with them; guests none. get_agent shows an agent's instructions, the pages shared with it and who it is shared with.",
+        "List the agents of a workspace: AI helpers with instructions of their own that automations run on database rows (create_automation's run_agent action takes an agent's id or name). Shows each one's name, icon, description, whether it is enabled (paused agents don't run) and archived, the model its runs use (main or fast), whether it may read the web (web_access), whether its runs change rows directly or propose them for review (row_changes), the id of its own user (what its changes and comments show), the agents it can ask (helper_agent_ids) and the user's access to it (your_access: full, edit or interact). Owners list every agent; members those shared with them; guests none. get_agent shows an agent's instructions, the pages shared with it and who it is shared with.",
       inputSchema: agentInputs.list,
       annotations: READ,
     },
@@ -2363,15 +2381,20 @@ export function createMcpServer(principal: McpPrincipal) {
     "create_agent",
     {
       title: "Create an agent",
-      description: `Create an agent in a workspace: a name, an optional emoji icon and description, instructions it follows on every run, the model its runs use (main by default; fast for routine, well-defined jobs), and optionally the other agents it can hand part of a task to (helper_agent_ids). It gets a user of its own, a guest of the workspace that can't sign in, and starts with nothing shared with it: share pages it should read with set_agent_access, and run it from a database automation (create_automation with a run_agent action, which shares that database with it at edit access). It reads nothing outside the workspace unless web_access is true: then its runs may read public web pages, and search the web where the server has a search service; leave it off for agents that only work with the workspace. ${RUN_NOTE} Anything shared with an agent can end up in the rows it writes, which everyone who can open those rows sees. Owners create agents, and members too where the workspace's owners let them (Settings > Agents, "Who can create agents"); the user who creates it gets full access, and it starts shared with everyone in the workspace at "interact" (share_agent changes that). Only owners set its monthly_token_limit. A workspace has at most 50.`,
+      description: `Create an agent in a workspace: a name, an optional emoji icon and description, instructions it follows on every run, the model its runs use (main by default; fast for routine, well-defined jobs), and optionally the other agents it can hand part of a task to (helper_agent_ids). It gets a user of its own, a guest of the workspace that can't sign in, and starts with nothing shared with it: share pages it should read with set_agent_access, and run it from a database automation (create_automation with a run_agent action, which shares that database with it at edit access). It reads nothing outside the workspace unless web_access is true: then its runs may read public web pages, and search the web where the server has a search service; leave it off for agents that only work with the workspace. With row_changes "review" its runs propose the rows they would add or change for a person to approve first. ${RUN_NOTE} Anything shared with an agent can end up in the rows it writes, which everyone who can open those rows sees. Owners create agents, and members too where the workspace's owners let them (Settings > Agents, "Who can create agents"); the user who creates it gets full access, and it starts shared with everyone in the workspace at "interact" (share_agent changes that). Only owners set its monthly_token_limit. A workspace has at most 50.`,
       inputSchema: agentInputs.create,
       annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
       scopeChallenge: requireWrite,
     },
-    write(({ workspace_id, web_access, helper_agent_ids, ...input }) =>
+    write(({ workspace_id, web_access, row_changes, helper_agent_ids, ...input }) =>
       withAgentErrors(async () => {
         try {
-          const agent = await agents.createAgent(userId, workspace_id, { ...input, ...(web_access !== undefined ? { webAccess: web_access } : {}), helperAgentIds: helper_agent_ids });
+          const agent = await agents.createAgent(userId, workspace_id, {
+            ...input,
+            ...(web_access !== undefined ? { webAccess: web_access } : {}),
+            ...(row_changes !== undefined ? { rowChanges: row_changes } : {}),
+            helperAgentIds: helper_agent_ids,
+          });
           return { ...describeAgent(agent, { pages: [], hidden: 0 }), ...(await helpersOf(agent.id)) };
         } catch (error) {
           if (error instanceof AccessError && !(error instanceof ConnectedAppReadOnlyError)) {
@@ -2413,7 +2436,7 @@ export function createMcpServer(principal: McpPrincipal) {
     "update_agent",
     {
       title: "Change an agent",
-      description: `Change an agent from list_agents: its name (its changes and comments show the new one), icon (null removes it), description, instructions, whether it is enabled (false pauses it: its queued runs end without doing anything), whether its runs may read the web (web_access), its monthly token limit (null removes it; owners only), the agents it can ask (helper_agent_ids: the whole list), or the model its runs use: "main", the server's main model, for work that needs judgment, or "fast", its cheaper fast model, for routine, well-defined jobs such as summaries or sorting rows (where the server has no fast model, or the workspace's AI is an own AI account, a fast agent runs on the main model). What you leave out stays as it is. ${AGENT_NOTE}`,
+      description: `Change an agent from list_agents: its name (its changes and comments show the new one), icon (null removes it), description, instructions, whether it is enabled (false pauses it: its queued runs end without doing anything), whether its runs may read the web (web_access), whether they change rows directly or propose the changes for review (row_changes), its monthly token limit (null removes it; owners only), the agents it can ask (helper_agent_ids: the whole list), or the model its runs use: "main", the server's main model, for work that needs judgment, or "fast", its cheaper fast model, for routine, well-defined jobs such as summaries or sorting rows (where the server has no fast model, or the workspace's AI is an own AI account, a fast agent runs on the main model). What you leave out stays as it is. ${AGENT_NOTE}`,
       inputSchema: agentInputs.update,
       annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },
       scopeChallenge: requireWrite,
@@ -2582,6 +2605,51 @@ export function createMcpServer(principal: McpPrincipal) {
         return { dismissed: gone, ...(await withMemory(args.agent_id)) };
       }),
     ),
+  );
+
+  server.registerTool(
+    "list_pending_changes",
+    {
+      title: "List changes waiting for review",
+      description:
+        "List the changes agents proposed in a workspace instead of making them (agents whose row_changes is \"review\", and email drafts they wrote), newest first: each with the agent, its reason, the row and database, what each value is, is now and would become (conflict: the row changed since in a value it sets), or the email, and can_approve (whether the user may answer it: approving or dismissing needs edit access to the row and to each value it sets, a new row edit access to the database; an email draft only its sender answers). Proposals expire after 30 days unanswered. status decided lists answered ones still kept.",
+      inputSchema: reviewInputs.list,
+      annotations: READ,
+    },
+    ({ workspace_id, agent_id, database_id, row_id, status, limit }) =>
+      runTool(() =>
+        withReviewErrors(async () => {
+          const changes = await review.listPendingChanges(userId, workspace_id, { filter: { agentId: agent_id, databaseId: database_id, rowId: row_id }, status, limit });
+          return { changes: changes.map(describePendingChange) };
+        }),
+      ),
+  );
+
+  server.registerTool(
+    "approve_pending_change",
+    {
+      title: "Approve a change waiting for review",
+      description:
+        "Approve a change an agent proposed (list_pending_changes) and make it as the user: the row is added or changed with the user's access, and its activity says the agent proposed it; an email draft is sent from the user's mailbox. Pass title, properties, markdown, subject or text to approve an edited version instead. A row that changed since in a value it sets (conflict: true) is refused unless force is true. Confirm with the user first: approving is what makes the change.",
+      inputSchema: reviewInputs.approve,
+      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
+      scopeChallenge: requireWrite,
+    },
+    write(({ change_id, force, ...edit }) =>
+      withReviewErrors(async () => describePendingChange(await review.approvePendingChange(userId, change_id, { payload: editOf(edit), force, actor }))),
+    ),
+  );
+
+  server.registerTool(
+    "dismiss_pending_change",
+    {
+      title: "Dismiss a change waiting for review",
+      description: "Dismiss a change an agent proposed (list_pending_changes): it is not made, and an email draft is discarded.",
+      inputSchema: reviewInputs.dismiss,
+      annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: false },
+      scopeChallenge: requireWrite,
+    },
+    write(({ change_id }) => withReviewErrors(async () => describePendingChange(await review.dismissPendingChange(userId, change_id)))),
   );
 
   server.registerTool(

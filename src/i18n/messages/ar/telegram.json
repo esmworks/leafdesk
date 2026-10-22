@@ -93,7 +93,8 @@
   "changed": {
     "done": "تم: {what}",
     "declined": "لم يتم: {what}",
-    "failed": "تعذّر: {what}"
+    "failed": "تعذّر: {what}",
+    "proposed": "اقتُرح للمراجعة: {what}"
   },
   "errors": {
     "disabled": "الذكاء الاصطناعي معطّل في مساحة العمل هذه.",

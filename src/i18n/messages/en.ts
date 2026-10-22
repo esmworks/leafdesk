@@ -24,7 +24,8 @@ import graph from "./en/graph.json";
 import skills from "./en/skills.json";
 import journal from "./en/journal.json";
 import snippets from "./en/snippets.json";
+import review from "./en/review.json";
 
-const messages = { common, auth, consent, sidebar, page, home, settings, database, invite, join, publish, form, import: imports, security, apiTokens, account, offline, teamspaces, ai, people, admin, shortcuts, graph, skills, journal, snippets };
+const messages = { common, auth, consent, sidebar, page, home, settings, database, invite, join, publish, form, import: imports, security, apiTokens, account, offline, teamspaces, ai, people, admin, shortcuts, graph, skills, journal, snippets, review };
 
 export default messages;

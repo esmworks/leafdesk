@@ -96,6 +96,18 @@ export type AgentModel = (typeof AGENT_MODELS)[number];
 
 export const isAgentModel = (value: unknown): value is AgentModel => typeof value === "string" && (AGENT_MODELS as readonly string[]).includes(value);
 
+/**
+ * What an agent's runs do with the rows they add or change (create_row, update_row): write them at
+ * once ("direct", as agents always did), or propose them for review ("review"): each change waits
+ * in the workspace's "For review" queue (server/pending-changes.ts) until a person approves it,
+ * maybe after editing it, or dismisses it.
+ */
+export const AGENT_ROW_CHANGES = ["direct", "review"] as const;
+export type AgentRowChanges = (typeof AGENT_ROW_CHANGES)[number];
+
+export const isAgentRowChanges = (value: unknown): value is AgentRowChanges =>
+  typeof value === "string" && (AGENT_ROW_CHANGES as readonly string[]).includes(value);
+
 /** Where an owner asked for a run: the REST API or an MCP client. */
 export const AGENT_RUN_VIAS = ["api", "mcp"] as const;
 export type AgentRunVia = (typeof AGENT_RUN_VIAS)[number];
@@ -210,6 +222,9 @@ export type AgentRunStatus = (typeof AGENT_RUN_STATUSES)[number];
 /** A comment the agent wrote on a page. */
 export type AgentCommentRecord = { kind: "comment"; pageId: string; text: string; outcome: "done" | "failed" };
 
+/** An email the agent drafted on a row (`proposed`: it waits for its sender's review), or couldn't. */
+export type AgentEmailRecord = { kind: "email"; pageId: string; subject: string; outcome: "proposed" | "failed" };
+
 /**
  * A call to a connection's tool: read at once (`done`/`failed`), or one that waited for approval
  * and was sent (`done`/`failed`), declined, sent back to be redone, or never answered. Without a
@@ -274,7 +289,7 @@ export type AgentHandoffRecord = {
 };
 
 /** One thing a run did: followed a skill, searched, read, queried, changed, thought aloud, commented, used a tool or asked another agent. */
-export type AgentStepRecord = ChatStepRecord | AgentCommentRecord | AgentToolRecord | AgentSkillRecord | AgentHandoffRecord;
+export type AgentStepRecord = ChatStepRecord | AgentCommentRecord | AgentEmailRecord | AgentToolRecord | AgentSkillRecord | AgentHandoffRecord;
 
 /** A call waiting for approval: what will be sent, and since when. No connection (null): Leafdesk's own tool. */
 export type AgentPendingCall = {
@@ -378,6 +393,8 @@ export type AgentView = {
   monthlyTokenLimit: number | null;
   /** Which of the server's models its runs use (see AGENT_MODELS). */
   model: AgentModel;
+  /** Whether its runs change rows at once or propose the changes for review (see AGENT_ROW_CHANGES). */
+  rowChanges: AgentRowChanges;
   /** The viewer's level on it (lib/agent-sharing): owners of the workspace always have full access. */
   access: AgentShareLevel;
   createdAt: string;

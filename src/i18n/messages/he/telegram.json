@@ -93,7 +93,8 @@
   "changed": {
     "done": "בוצע: {what}",
     "declined": "לא בוצע: {what}",
-    "failed": "לא ניתן היה לבצע: {what}"
+    "failed": "לא ניתן היה לבצע: {what}",
+    "proposed": "הוצע לבדיקה: {what}"
   },
   "errors": {
     "disabled": "ה־AI מושבת בסביבת העבודה הזו.",

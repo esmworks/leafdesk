@@ -541,7 +541,8 @@
     "unchecked": "לא מסומן",
     "checklist": "{done} מתוך {total} בוצעו",
     "merged": "<actor>{name}</actor> מיזג/ה לשורה הזו {count, plural, one {שורה אחת} other {# שורות}}: <rows>{titles}</rows>",
-    "mergedFrom": "מתוך {title}"
+    "mergedFrom": "מתוך {title}",
+    "approvedFrom": "(הוצע על ידי {name})"
   },
   "rowEmail": {
     "title": "אימייל",

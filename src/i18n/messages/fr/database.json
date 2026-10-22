@@ -541,7 +541,8 @@
     "unchecked": "non coché",
     "checklist": "{done} sur {total} faits",
     "merged": "<actor>{name}</actor> a fusionné {count, plural, one {# ligne} other {# lignes}} dans cette ligne : <rows>{titles}</rows>",
-    "mergedFrom": "depuis {title}"
+    "mergedFrom": "depuis {title}",
+    "approvedFrom": "(proposé par {name})"
   },
   "rowEmail": {
     "title": "E-mail",

@@ -189,7 +189,8 @@ export type ChatChange = { property: string; value: string; before?: string };
 export type ChatWriteRecord = {
   kind: "write";
   action: ChatWriteStepAction;
-  outcome: "done" | "declined" | "failed";
+  /** `proposed`: an agent's change kept for review (server/pending-changes.ts), not made yet. */
+  outcome: "done" | "declined" | "failed" | "proposed";
   targetId: string | null;
   pageId: string | null;
   /** The new title (a row or page added, a row renamed). */

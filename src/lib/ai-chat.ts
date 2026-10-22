@@ -74,7 +74,7 @@ export type ChatStepView =
 export type ChatWriteView = {
   kind: "write";
   action: ChatWriteStepAction;
-  outcome: "done" | "declined" | "failed";
+  outcome: "done" | "declined" | "failed" | "proposed";
   target: ChatPageView;
   page: ChatPageView;
   title: string | null;

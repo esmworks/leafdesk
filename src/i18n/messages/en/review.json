@@ -1,0 +1,88 @@
+{
+  "metaTitle": "For review",
+  "heading": "For review",
+  "description": "Changes agents proposed instead of making them. Approve one to make it as you, edit it first, or dismiss it. Proposals no one answers expire after 30 days.",
+  "filters": {
+    "agent": "Agent",
+    "database": "Database",
+    "status": "Show",
+    "allAgents": "All agents",
+    "allDatabases": "All databases",
+    "open": "Waiting",
+    "decided": "Answered",
+    "allRows": "Show all rows",
+    "clear": "Clear filters"
+  },
+  "count": "{count, plural, one {# change} other {# changes}}",
+  "select": "Select this change",
+  "selectAll": "Select all",
+  "selected": "{count} selected",
+  "approveSelected": "Approve {count}",
+  "dismissSelected": "Dismiss {count}",
+  "bulkSkipped": "{count, plural, one {One change couldn’t be answered: it was answered already, its row changed since, or you can’t answer it.} other {# changes couldn’t be answered: they were answered already, their rows changed since, or you can’t answer them.}}",
+  "empty": {
+    "open": "Nothing waits for your review.",
+    "decided": "No changes were answered in the last 30 days.",
+    "filtered": "No changes match these filters."
+  },
+  "proposes": {
+    "createRow": "<agent></agent> wants to add a row to <database></database>",
+    "updateRow": "<agent></agent> wants to change <row></row>",
+    "emailDraft": "<agent></agent> drafted an email on <row></row>"
+  },
+  "inDatabase": "in <database></database>",
+  "unknownAgent": "A deleted agent",
+  "someone": "Someone",
+  "viewRun": "View run",
+  "edited": "Edited",
+  "expires": "Expires {time}",
+  "decided": {
+    "approved": "Approved by {name} {time}",
+    "dismissed": "Dismissed by {name} {time}",
+    "expired": "Expired unanswered"
+  },
+  "title": "Title",
+  "becomes": "becomes",
+  "changedSince": "Changed since it was proposed, now <value></value>",
+  "conflictNotice": "This row changed since the agent proposed this. Approving overwrites what it has now.",
+  "failedNote": "It was approved but couldn’t be made: {error} Edit it and approve it again, or dismiss it.",
+  "failed": {
+    "error": "something went wrong.",
+    "pageLocked": "the row is locked."
+  },
+  "email": {
+    "from": "From",
+    "to": "To",
+    "cc": "Cc",
+    "subject": "Subject",
+    "text": "Text",
+    "reply": "A reply to the row’s latest email"
+  },
+  "markdown": "Page text",
+  "notEditable": "Keep or leave out; change it on the row afterwards.",
+  "leaveOut": "Leave out",
+  "keep": "Keep",
+  "approve": "Approve",
+  "approveAnyway": "Approve anyway",
+  "send": "Send",
+  "edit": "Edit",
+  "save": "Save edit",
+  "dismiss": "Dismiss",
+  "cannot": {
+    "email": "Only {name} can send this draft, from their own mailbox.",
+    "row": "You can see this change, but approving it needs edit access to the row and to each value it sets."
+  },
+  "errors": {
+    "notFound": "This change is gone, or you can’t see it.",
+    "decided": "Someone already answered this change.",
+    "conflict": "The row changed since this was proposed. Look at it again, then approve it anyway or dismiss it.",
+    "invalid": "This edit isn’t valid: {message}",
+    "accessDenied": "You can’t answer this change."
+  },
+  "banner": {
+    "title": "Changes waiting for review",
+    "bar": "{count, plural, one {# change waits for review} other {# changes wait for review}}",
+    "by": "proposed by {names}",
+    "open": "Review"
+  }
+}

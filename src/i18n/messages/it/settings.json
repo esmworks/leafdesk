@@ -361,7 +361,12 @@
       "helpersHelp": "Durante un’esecuzione può affidare parte del suo compito a questi agenti, fino a {max} volte, e usarne le risposte. Ognuno lavora con i propri accessi, strumenti e limiti, e non può a sua volta chiedere ad altri agenti.",
       "helpersEmpty": "In questo spazio di lavoro non ci sono ancora altri agenti.",
       "helperPaused": "In pausa",
-      "limitOwnersOnly": "Solo i proprietari dello spazio di lavoro impostano questo limite."
+      "limitOwnersOnly": "Solo i proprietari dello spazio di lavoro impostano questo limite.",
+      "rowChanges": "Modifiche alle righe",
+      "rowChangesDirect": "Farle direttamente",
+      "rowChangesReview": "Proporle da rivedere",
+      "rowChangesDirectHelp": "Le righe che aggiunge e i valori che modifica vengono salvati subito, a suo nome.",
+      "rowChangesReviewHelp": "Le righe che aggiungerebbe e i valori che modificherebbe restano in attesa in Da rivedere finché qualcuno che può modificarli non approva o ignora ciascuno."
     },
     "describe": {
       "button": "Descrivi un agente",
@@ -563,7 +568,10 @@
       "fromChat": "Messaggio in chat di {name}",
       "chattedBy": "chat di {name}",
       "yoursOnly": "Vedi le esecuzioni che hai avviato tu.",
-      "waitingForOwner": "Un proprietario dello spazio di lavoro risponde a questa chiamata."
+      "waitingForOwner": "Un proprietario dello spazio di lavoro risponde a questa chiamata.",
+      "emailDrafted": "Ha scritto una bozza di email da rivedere:",
+      "emailFailed": "Non è riuscito a scrivere una bozza di email:",
+      "emailHidden": "Ha scritto una bozza di email su una riga che non puoi aprire"
     },
     "usage": {
       "thisMonth": "Questo mese: {usage}",
@@ -759,7 +767,8 @@
         "monthly_token_limit": "Limite mensile di token",
         "skills": "Competenze",
         "schedules": "Pianificazioni",
-        "shares": "Pagine condivise"
+        "shares": "Pagine condivise",
+        "row_changes": "Modifiche alle righe"
       },
       "back": "Tutte le versioni",
       "compareNote": "Cosa è cambiato da questa versione alla configurazione attuale dell’agente. Il ripristino riporta ciò che aveva questa versione.",
@@ -1629,6 +1638,10 @@
       "ai_account": {
         "attached": "Ha collegato l’IA dello spazio di lavoro all’account IA {target}",
         "detached": "Ha scollegato l’IA dello spazio di lavoro dall’account IA {target}"
+      },
+      "review": {
+        "approved": "{kind, select, email_draft {Ha inviato l’email che l’agente “{agent}” ha preparato su {target}} create_row {Ha approvato la riga che l’agente “{agent}” ha proposto in {target}} other {Ha approvato la modifica che l’agente “{agent}” ha proposto a {target}}}{outcome, select, failed { (non riuscito)} other {}}",
+        "dismissed": "{kind, select, email_draft {Ha ignorato l’email che l’agente “{agent}” ha preparato su {target}} create_row {Ha ignorato la riga che l’agente “{agent}” ha proposto in {target}} other {Ha ignorato la modifica che l’agente “{agent}” ha proposto a {target}}}"
       }
     },
     "decisions": {
@@ -1701,7 +1714,10 @@
     "watchedNone": "Non stai ancora osservando nessuna pagina",
     "watchedNoneDescription": "Osserva una pagina dal suo menu ⋯, o un intero spazio del team dal suo menu nella barra laterale. Le pagine che modifichi vengono osservate per te.",
     "watchedTeamspace": "Tutte le pagine di questo spazio del team · {workspace}",
-    "stopWatching": "Smetti di osservare"
+    "stopWatching": "Smetti di osservare",
+    "reviewTitle": "Da rivedere",
+    "reviewDescription": "Un agente propone una modifica a una riga che puoi modificare, o prepara la bozza di un’email dalla tua casella di posta, e attende la tua revisione. Le nuove proposte vengono raggruppate finché non le apri.",
+    "reviewChannel": "Da rivedere: {channel}"
   },
   "site": {
     "description": "Dai alle pagine pubblicate di questo spazio di lavoro un unico indirizzo leggibile, una home page e la navigazione tra di loro.",

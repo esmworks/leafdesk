@@ -541,7 +541,8 @@
     "unchecked": "niezaznaczone",
     "checklist": "Wykonano {done} z {total}",
     "merged": "<actor>{name}</actor>: scalono z tym wierszem {count, plural, one {# wiersz} few {# wiersze} many {# wierszy} other {# wiersza}}: <rows>{titles}</rows>",
-    "mergedFrom": "z {title}"
+    "mergedFrom": "z {title}",
+    "approvedFrom": "(propozycja: {name})"
   },
   "rowEmail": {
     "title": "E-mail",

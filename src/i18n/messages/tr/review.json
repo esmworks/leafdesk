@@ -1,0 +1,88 @@
+{
+  "metaTitle": "İncelenecekler",
+  "heading": "İncelenecekler",
+  "description": "Ajanların yapmak yerine önerdiği değişiklikler. Birini onaylayarak sizin adınıza yapılmasını sağlayın, önce düzenleyin ya da reddedin. Kimsenin yanıtlamadığı önerilerin süresi 30 gün sonra dolar.",
+  "filters": {
+    "agent": "Ajan",
+    "database": "Veritabanı",
+    "status": "Göster",
+    "allAgents": "Tüm ajanlar",
+    "allDatabases": "Tüm veritabanları",
+    "open": "Bekleyenler",
+    "decided": "Yanıtlananlar",
+    "allRows": "Tüm satırları göster",
+    "clear": "Filtreleri temizle"
+  },
+  "count": "{count, plural, one {# değişiklik} other {# değişiklik}}",
+  "select": "Bu değişikliği seç",
+  "selectAll": "Tümünü seç",
+  "selected": "{count} seçili",
+  "approveSelected": "{count} tanesini onayla",
+  "dismissSelected": "{count} tanesini reddet",
+  "bulkSkipped": "{count, plural, one {Bir değişiklik yanıtlanamadı: zaten yanıtlanmış, satırı o zamandan beri değişmiş ya da onu yanıtlayamıyorsunuz.} other {# değişiklik yanıtlanamadı: zaten yanıtlanmışlar, satırları o zamandan beri değişmiş ya da onları yanıtlayamıyorsunuz.}}",
+  "empty": {
+    "open": "İncelemenizi bekleyen bir şey yok.",
+    "decided": "Son 30 günde yanıtlanan değişiklik yok.",
+    "filtered": "Bu filtrelere uyan değişiklik yok."
+  },
+  "proposes": {
+    "createRow": "<agent></agent>, <database></database> veritabanına bir satır eklemek istiyor",
+    "updateRow": "<agent></agent>, <row></row> satırını değiştirmek istiyor",
+    "emailDraft": "<agent></agent>, <row></row> satırında bir e-posta taslağı hazırladı"
+  },
+  "inDatabase": "<database></database> içinde",
+  "unknownAgent": "Silinmiş bir ajan",
+  "someone": "Biri",
+  "viewRun": "Çalışmayı gör",
+  "edited": "Düzenlendi",
+  "expires": "Süresi {time} doluyor",
+  "decided": {
+    "approved": "{name}, {time} onayladı",
+    "dismissed": "{name}, {time} reddetti",
+    "expired": "Yanıtlanmadan süresi doldu"
+  },
+  "title": "Başlık",
+  "becomes": "yeni değer",
+  "changedSince": "Önerildiğinden beri değişti, şimdi: <value></value>",
+  "conflictNotice": "Bu satır, ajan bunu önerdiğinden beri değişti. Onaylarsanız satırın şimdiki hâlinin üzerine yazılır.",
+  "failedNote": "Onaylandı ama yapılamadı: {error} Düzenleyip yeniden onaylayın ya da reddedin.",
+  "failed": {
+    "error": "bir şeyler ters gitti.",
+    "pageLocked": "satır kilitli."
+  },
+  "email": {
+    "from": "Kimden",
+    "to": "Kime",
+    "cc": "Bilgi",
+    "subject": "Konu",
+    "text": "Metin",
+    "reply": "Satırın son e-postasına yanıt"
+  },
+  "markdown": "Sayfa metni",
+  "notEditable": "Tutun ya da dışarıda bırakın; sonra satırda değiştirin.",
+  "leaveOut": "Dışarıda bırak",
+  "keep": "Tut",
+  "approve": "Onayla",
+  "approveAnyway": "Yine de onayla",
+  "send": "Gönder",
+  "edit": "Düzenle",
+  "save": "Düzenlemeyi kaydet",
+  "dismiss": "Reddet",
+  "cannot": {
+    "email": "Bu taslağı yalnızca {name} kendi posta kutusundan gönderebilir.",
+    "row": "Bu değişikliği görebilirsiniz ama onaylamak için satırı ve değişikliğin ayarladığı her değeri düzenleme erişiminiz olmalı."
+  },
+  "errors": {
+    "notFound": "Bu değişiklik artık yok ya da onu göremiyorsunuz.",
+    "decided": "Bu değişikliği biri zaten yanıtladı.",
+    "conflict": "Satır, bu önerildiğinden beri değişti. Yeniden bakın, sonra yine de onaylayın ya da reddedin.",
+    "invalid": "Bu düzenleme geçerli değil: {message}",
+    "accessDenied": "Bu değişikliği yanıtlayamazsınız."
+  },
+  "banner": {
+    "title": "İnceleme bekleyen değişiklikler",
+    "bar": "{count, plural, one {# değişiklik inceleme bekliyor} other {# değişiklik inceleme bekliyor}}",
+    "by": "öneren: {names}",
+    "open": "İncele"
+  }
+}

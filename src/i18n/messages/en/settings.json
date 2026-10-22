@@ -361,7 +361,12 @@
       "helpersHelp": "During a run it can hand part of its task to these agents, up to {max} times, and use their answers. Each works with its own access, tools and limits, and can’t ask other agents in turn.",
       "helpersEmpty": "There are no other agents in this workspace yet.",
       "helperPaused": "Paused",
-      "limitOwnersOnly": "Only workspace owners set this limit."
+      "limitOwnersOnly": "Only workspace owners set this limit.",
+      "rowChanges": "Changes to rows",
+      "rowChangesDirect": "Write them directly",
+      "rowChangesReview": "Propose them for review",
+      "rowChangesDirectHelp": "Rows it adds and values it changes are saved right away, under its name.",
+      "rowChangesReviewHelp": "Rows it would add and values it would change wait under For review until someone who can edit them approves or dismisses each one."
     },
     "describe": {
       "button": "Describe an agent",
@@ -503,6 +508,9 @@
       "comment": "Commented:",
       "commentFailed": "Couldn’t comment:",
       "commentHidden": "Commented on a row you can’t open",
+      "emailDrafted": "Drafted an email for review:",
+      "emailFailed": "Couldn’t draft an email:",
+      "emailHidden": "Drafted an email on a row you can’t open",
       "reason": {
         "aiOff": "AI is off in this workspace.",
         "agentDisabled": "The agent was paused or archived.",
@@ -759,7 +767,8 @@
         "monthly_token_limit": "Monthly token limit",
         "skills": "Skills",
         "schedules": "Schedules",
-        "shares": "Shared pages"
+        "shares": "Shared pages",
+        "row_changes": "Changes to rows"
       },
       "back": "All versions",
       "compareNote": "What changed from this version to the agent’s current setup. Restoring brings back what this version had.",
@@ -1629,6 +1638,10 @@
       "ai_account": {
         "attached": "Ran the workspace's AI on the AI account {target}",
         "detached": "Stopped running the workspace's AI on the AI account {target}"
+      },
+      "review": {
+        "approved": "{kind, select, email_draft {Sent the email the agent “{agent}” drafted on {target}} create_row {Approved the row the agent “{agent}” proposed in {target}} other {Approved the change the agent “{agent}” proposed to {target}}}{outcome, select, failed { (it failed)} other {}}",
+        "dismissed": "{kind, select, email_draft {Dismissed the email the agent “{agent}” drafted on {target}} create_row {Dismissed the row the agent “{agent}” proposed in {target}} other {Dismissed the change the agent “{agent}” proposed to {target}}}"
       }
     },
     "decisions": {
@@ -1701,7 +1714,10 @@
     "watchedNone": "You aren’t watching any pages yet",
     "watchedNoneDescription": "Watch a page from its ⋯ menu, or a whole teamspace from its menu in the sidebar. Pages you edit are watched for you.",
     "watchedTeamspace": "All pages of this teamspace · {workspace}",
-    "stopWatching": "Stop watching"
+    "stopWatching": "Stop watching",
+    "reviewTitle": "For review",
+    "reviewDescription": "An agent proposes a change to a row you can edit, or drafts an email from your mailbox, and it waits for your review. New proposals come together until you open them.",
+    "reviewChannel": "For review: {channel}"
   },
   "site": {
     "description": "Give this workspace's published pages one readable address, a home page and navigation between them.",

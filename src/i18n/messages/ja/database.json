@@ -541,7 +541,8 @@
     "unchecked": "チェックなし",
     "checklist": "{total}件中{done}件完了",
     "merged": "<actor>{name}</actor>が{count}行をこの行に統合しました：<rows>{titles}</rows>",
-    "mergedFrom": "{title}から"
+    "mergedFrom": "{title}から",
+    "approvedFrom": "（{name}の提案）"
   },
   "rowEmail": {
     "title": "メール",

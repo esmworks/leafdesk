@@ -541,7 +541,8 @@
     "unchecked": "未勾选",
     "checklist": "已完成 {done}/{total}",
     "merged": "<actor>{name}</actor> 将 {count} 行合并到此行：<rows>{titles}</rows>",
-    "mergedFrom": "来自 {title}"
+    "mergedFrom": "来自 {title}",
+    "approvedFrom": "（由 {name} 提议）"
   },
   "rowEmail": {
     "title": "邮件",

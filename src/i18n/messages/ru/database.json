@@ -541,7 +541,8 @@
     "unchecked": "не отмечено",
     "checklist": "выполнено {done} из {total}",
     "merged": "<actor>{name}</actor> объединил(а) с этой строкой {count, plural, one {# строку} few {# строки} many {# строк} other {# строки}}: <rows>{titles}</rows>",
-    "mergedFrom": "из {title}"
+    "mergedFrom": "из {title}",
+    "approvedFrom": "(предложено: {name})"
   },
   "rowEmail": {
     "title": "Почта",

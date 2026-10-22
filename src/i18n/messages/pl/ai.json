@@ -224,7 +224,14 @@
           "editPage": "Nie udało się zmienić tekstu:",
           "mergeRows": "Nie udało się scalić wierszy w:"
         },
-        "in": "w"
+        "in": "w",
+        "proposed": {
+          "createRow": "Zaproponowano do przejrzenia dodanie wiersza:",
+          "updateRow": "Zaproponowano do przejrzenia zmianę:",
+          "createPage": "Zaproponowano do przejrzenia dodanie strony:",
+          "editPage": "Zaproponowano do przejrzenia zmianę tekstu:",
+          "mergeRows": "Zaproponowano scalenie wierszy do przejrzenia w:"
+        }
       },
       "memory": {
         "remember": "Zapamiętano:",

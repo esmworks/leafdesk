@@ -224,7 +224,14 @@
           "editPage": "Não foi possível alterar o texto de:",
           "mergeRows": "Não foi possível mesclar linhas em:"
         },
-        "in": "em"
+        "in": "em",
+        "proposed": {
+          "createRow": "Propôs adicionar uma linha para revisão:",
+          "updateRow": "Propôs uma alteração para revisão:",
+          "createPage": "Propôs adicionar uma página para revisão:",
+          "editPage": "Propôs uma alteração de texto para revisão:",
+          "mergeRows": "Propôs mesclar linhas para revisão em:"
+        }
       },
       "memory": {
         "remember": "Lembrou:",

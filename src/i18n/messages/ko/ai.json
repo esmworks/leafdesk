@@ -224,7 +224,14 @@
           "editPage": "텍스트를 변경하지 못함:",
           "mergeRows": "행을 병합하지 못함:"
         },
-        "in": "위치:"
+        "in": "위치:",
+        "proposed": {
+          "createRow": "검토용 행 추가 제안:",
+          "updateRow": "검토용 변경 제안:",
+          "createPage": "검토용 페이지 추가 제안:",
+          "editPage": "검토용 텍스트 변경 제안:",
+          "mergeRows": "검토를 위해 행 병합을 제안함:"
+        }
       },
       "memory": {
         "remember": "기억함:",

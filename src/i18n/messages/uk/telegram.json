@@ -93,7 +93,8 @@
   "changed": {
     "done": "Зроблено: {what}",
     "declined": "Не зроблено: {what}",
-    "failed": "Не вдалося: {what}"
+    "failed": "Не вдалося: {what}",
+    "proposed": "Запропоновано на перевірку: {what}"
   },
   "errors": {
     "disabled": "ШІ в цьому робочому просторі вимкнено.",

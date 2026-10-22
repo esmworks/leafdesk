@@ -1,0 +1,88 @@
+{
+  "metaTitle": "確認待ち",
+  "heading": "確認待ち",
+  "description": "エージェントが実行する代わりに提案した変更です。承認するとあなたの名前で反映されます。先に編集することも、却下することもできます。誰も対応しない提案は30日後に期限切れになります。",
+  "filters": {
+    "agent": "エージェント",
+    "database": "データベース",
+    "status": "表示",
+    "allAgents": "すべてのエージェント",
+    "allDatabases": "すべてのデータベース",
+    "open": "対応待ち",
+    "decided": "対応済み",
+    "allRows": "すべての行を表示",
+    "clear": "フィルターをクリア"
+  },
+  "count": "{count, plural, other {#件の変更}}",
+  "select": "この変更を選択",
+  "selectAll": "すべて選択",
+  "selected": "{count}件を選択中",
+  "approveSelected": "{count}件を承認",
+  "dismissSelected": "{count}件を却下",
+  "bulkSkipped": "{count, plural, other {#件の変更に対応できませんでした。すでに対応済みか、その後に行が変更されたか、対応する権限がありません。}}",
+  "empty": {
+    "open": "確認待ちのものはありません。",
+    "decided": "過去30日間に対応した変更はありません。",
+    "filtered": "このフィルターに一致する変更はありません。"
+  },
+  "proposes": {
+    "createRow": "<agent></agent>が<database></database>に行を追加しようとしています",
+    "updateRow": "<agent></agent>が<row></row>を変更しようとしています",
+    "emailDraft": "<agent></agent>が<row></row>でメールを下書きしました"
+  },
+  "inDatabase": "<database></database>内",
+  "unknownAgent": "削除されたエージェント",
+  "someone": "誰か",
+  "viewRun": "実行を表示",
+  "edited": "編集済み",
+  "expires": "{time}に期限切れ",
+  "decided": {
+    "approved": "{name}が{time}に承認",
+    "dismissed": "{name}が{time}に却下",
+    "expired": "未対応のまま期限切れ"
+  },
+  "title": "タイトル",
+  "becomes": "変更後",
+  "changedSince": "提案後に変更されました。現在は<value></value>",
+  "conflictNotice": "エージェントが提案した後に、この行は変更されています。承認すると現在の内容が上書きされます。",
+  "failedNote": "承認されましたが、反映できませんでした：{error}編集して再度承認するか、却下してください。",
+  "failed": {
+    "error": "問題が発生しました。",
+    "pageLocked": "行がロックされています。"
+  },
+  "email": {
+    "from": "差出人",
+    "to": "宛先",
+    "cc": "Cc",
+    "subject": "件名",
+    "text": "本文",
+    "reply": "行の最新メールへの返信"
+  },
+  "markdown": "ページのテキスト",
+  "notEditable": "残すか除外してください。変更は後で行で行えます。",
+  "leaveOut": "除外",
+  "keep": "残す",
+  "approve": "承認",
+  "approveAnyway": "それでも承認",
+  "send": "送信",
+  "edit": "編集",
+  "save": "編集を保存",
+  "dismiss": "却下",
+  "cannot": {
+    "email": "この下書きは{name}さんだけが、自分のメールボックスから送信できます。",
+    "row": "この変更は表示できますが、承認するには行と、変更が設定する各値の編集権限が必要です。"
+  },
+  "errors": {
+    "notFound": "この変更はもう存在しないか、表示する権限がありません。",
+    "decided": "この変更にはすでに誰かが対応しました。",
+    "conflict": "提案された後に行が変更されました。もう一度確認してから、それでも承認するか却下してください。",
+    "invalid": "この編集は無効です：{message}",
+    "accessDenied": "この変更に対応する権限がありません。"
+  },
+  "banner": {
+    "title": "確認待ちの変更",
+    "bar": "{count, plural, other {確認待ちの変更：#件}}",
+    "by": "提案：{names}",
+    "open": "確認"
+  }
+}

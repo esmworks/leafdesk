@@ -541,7 +541,8 @@
     "unchecked": "non selezionata",
     "checklist": "{done} di {total} completati",
     "merged": "<actor>{name}</actor> ha unito {count, plural, one {# riga} other {# righe}} a questa riga: <rows>{titles}</rows>",
-    "mergedFrom": "da {title}"
+    "mergedFrom": "da {title}",
+    "approvedFrom": "(proposta di {name})"
   },
   "rowEmail": {
     "title": "Email",

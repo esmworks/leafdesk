@@ -5,6 +5,7 @@ import { auditCutoff, HISTORY_RETENTION, historyCutoffs } from "@/lib/retention"
 import { pruneIdempotencyKeys } from "@/server/api/idempotency";
 import { purgeDeletedProperties, purgeDeletedViews } from "@/server/databases";
 import { deleteTrashedPages } from "@/server/pages";
+import { expirePendingChanges } from "@/server/pending-changes";
 import { pruneConnectedAppUse } from "@/server/workspace-apps";
 
 /**
@@ -16,6 +17,8 @@ import { pruneConnectedAppUse } from "@/server/workspace-apps";
  *  - audit log events older than AUDIT_RETENTION_DAYS are deleted;
  *  - when connected apps were last used is forgotten for apps and tokens that are gone and for
  *    people no longer in the workspace (pruneConnectedAppUse);
+ *  - changes agents proposed for review expire after PENDING_CHANGE_DAYS unanswered, and answered
+ *    or expired ones are deleted some weeks later (expirePendingChanges).
  *  - the REST API's idempotency keys older than 24 hours are deleted (pruneIdempotencyKeys).
  *
  * Each replica has its own daily timer; a session advisory lock keeps two of them from running at
@@ -39,6 +42,9 @@ export type RetentionResult = {
   snapshots: number;
   auditEvents: number;
   appUses: number;
+  /** Changes agents proposed that expired unanswered, and answered or expired ones deleted. */
+  expiredProposals: number;
+  deletedProposals: number;
   idempotencyKeys: number;
 };
 
@@ -182,8 +188,18 @@ export async function runRetention(options: RetentionOptions = {}): Promise<Rete
       const snapshots = await pruneSnapshots(options);
       const auditEvents = await pruneAuditEvents(options);
       const appUses = await pruneConnectedAppUse(options.workspaceIds, options.now);
+      const proposals = await expirePendingChanges({ now: options.now, workspaceIds: options.workspaceIds });
       const idempotencyKeys = await pruneIdempotencyKeys(options);
-      return { ...trash, ...schema, snapshots, auditEvents, appUses, idempotencyKeys };
+      return {
+        ...trash,
+        ...schema,
+        snapshots,
+        auditEvents,
+        appUses,
+        expiredProposals: proposals.expired,
+        deletedProposals: proposals.deleted,
+        idempotencyKeys,
+      };
     } finally {
       await connection`select pg_advisory_unlock(hashtext(${LOCK}))`;
     }
@@ -208,7 +224,8 @@ export function startRetention() {
         `[retention] deleted ${result.trashedPages} pages from the trash of ${result.workspaces} workspaces, ` +
           `${result.deletedProperties} deleted properties, ${result.deletedViews} deleted views, ` +
           `${result.snapshots} old page versions, ${result.auditEvents} old audit log events, ${result.appUses} uses of apps that are gone ` +
-          `and ${result.idempotencyKeys} expired API idempotency keys`,
+          `and ${result.idempotencyKeys} expired API idempotency keys; ` +
+          `${result.expiredProposals} proposals for review expired and ${result.deletedProposals} old ones deleted`,
       );
     } catch (error) {
       console.error("[retention] cleanup failed", error);

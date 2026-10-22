@@ -17,7 +17,9 @@
     "import": "Importar",
     "graph": "Grafo",
     "skills": "Habilidades",
-    "more": "Más"
+    "more": "Más",
+    "review": "Por revisar",
+    "reviewCount": "{count, plural, one {# cambio espera tu revisión} other {# cambios esperan tu revisión}}"
   },
   "tabs": {
     "label": "Barra lateral",
@@ -168,7 +170,9 @@
     "reportHidden": "Su ejecución programada terminó, en una base de datos que no puedes abrir.",
     "reportGone": "La ejecución ya no se conserva.",
     "aiAccountTitle": "Cuenta de IA quitada",
-    "aiAccountDetached": "La IA del espacio de trabajo ya no funciona con la clave de {actor}. Elige otra cuenta de IA en Configuración."
+    "aiAccountDetached": "La IA del espacio de trabajo ya no funciona con la clave de {actor}. Elige otra cuenta de IA en Configuración.",
+    "reviewTitle": "Por revisar",
+    "review": "{count, plural, one {{agent} propuso un cambio para que lo revises} other {# cambios esperan tu revisión; el último, de {agent}}}"
   },
   "templates": {
     "title": "Plantillas",

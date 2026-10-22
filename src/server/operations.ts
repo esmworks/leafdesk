@@ -455,7 +455,7 @@ export const inputs = {
   }),
 };
 
-type Args<K extends keyof typeof inputs> = z.infer<(typeof inputs)[K]>;
+export type Args<K extends keyof typeof inputs> = z.infer<(typeof inputs)[K]>;
 
 // ---------------------------------------------------------------------------- helpers
 
@@ -1548,6 +1548,7 @@ export async function listRowActivity(ctx: OperationContext, { row_id, limit, of
       by: e.actor.person?.name ?? null,
       by_user_id: e.actor.person?.id ?? null,
       actor: e.actor.kind,
+      ...(e.proposedBy ? { proposed_by: e.proposedBy.name, proposed_by_user_id: e.proposedBy.id } : {}),
       change: e.kind,
       ...(e.property ? { property: e.property.name, property_id: e.property.id } : {}),
       ...(e.kind === "created" || e.kind === "merged" ? {} : { from: e.from && valueText(e.from), to: e.to && valueText(e.to) }),

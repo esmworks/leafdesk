@@ -245,7 +245,9 @@
     "untitled": "無題",
     "snooze": "1時間スヌーズ",
     "aiAccountTitle": "AIアカウントが削除されました",
-    "aiAccountDetached": "ワークスペースのAIは、{actor}のキーでは実行されなくなりました。"
+    "aiAccountDetached": "ワークスペースのAIは、{actor}のキーでは実行されなくなりました。",
+    "reviewTitle": "確認待ち",
+    "review": "{count, plural, =1 {{agent}が確認用に変更を提案しました} other {#件の変更が確認を待っています（最新は{agent}から）}}"
   },
   "agentReply": {
     "aiOff": "回答できません: このワークスペースでは AI がオフになっています。",

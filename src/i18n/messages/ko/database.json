@@ -541,7 +541,8 @@
     "unchecked": "체크 해제됨",
     "checklist": "{total}개 중 {done}개 완료",
     "merged": "<actor>{name}</actor> 님이 행 {count}개를 이 행에 병합했습니다: <rows>{titles}</rows>",
-    "mergedFrom": "{title}에서"
+    "mergedFrom": "{title}에서",
+    "approvedFrom": "({name} 제안)"
   },
   "rowEmail": {
     "title": "이메일",

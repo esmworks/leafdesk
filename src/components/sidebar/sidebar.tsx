@@ -9,6 +9,7 @@ import {
   ChevronsLeft,
   ChevronsRight,
   ChevronUp,
+  ClipboardCheck,
   CloudOff,
   BookOpen,
   Database,
@@ -40,6 +41,7 @@ import { useTranslations } from "next-intl";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { unreadCountAction } from "@/app/actions/notifications";
+import { pendingCountAction } from "@/app/actions/review";
 import { listFavoritesAction } from "@/app/actions/page-menu";
 import { archivePageAction, createPageAction, getSidebarAction, movePageAction, renamePageAction } from "@/app/actions/pages";
 import { leaveTeamspaceAction, setTeamspaceWatchingAction } from "@/app/actions/teamspaces";
@@ -194,6 +196,8 @@ export function Sidebar({
   const [dialogTarget, setDialogTarget] = useState<Target>(undefined);
   const [inboxOpen, setInboxOpen] = useState(false);
   const [unread, setUnread] = useState(0);
+  // Changes agents proposed that wait for the person (the "For review" page), counted with the inbox.
+  const [reviewCount, setReviewCount] = useState(0);
   // Bumped on every inbox signal so an open inbox reloads.
   const [inboxVersion, setInboxVersion] = useState(0);
   const [newWorkspaceOpen, setNewWorkspaceOpen] = useState(false);
@@ -256,6 +260,7 @@ export function Sidebar({
   }, [workspaceId, refreshFavorites]);
   const refreshInbox = useCallback(() => {
     unreadCountAction(workspaceId).then(setUnread).catch(() => {});
+    pendingCountAction(workspaceId).then(setReviewCount).catch(() => {});
   }, [workspaceId]);
   // The tree as last loaded is kept in this browser; offline, it replaces the one the page came
   // with (a cached page may be older than the last tree seen).
@@ -1202,6 +1207,21 @@ export function Sidebar({
               </SidebarButton>
             </div>
           )}
+          {/* Shown while something waits for the person, or while they are on the page. */}
+          {(reviewCount > 0 || pathname === `/w/${workspaceId}/review`) && (
+            <div className="mt-0.5">
+              <SidebarButton
+                icon={<ClipboardCheck className="h-4 w-4" />}
+                href={offline ? undefined : `/w/${workspaceId}/review`}
+                active={pathname === `/w/${workspaceId}/review`}
+                disabled={offline}
+                title={offline ? needsServer(t("nav.review")) : undefined}
+                badge={reviewCount > 0 ? { count: reviewCount, label: t("nav.reviewCount", { count: reviewCount }) } : undefined}
+              >
+                {t("nav.review")}
+              </SidebarButton>
+            </div>
+          )}
           {dailyNoteError && (
             <p role="alert" className="mt-1 px-2 text-xs text-danger">
               {dailyNoteError}
@@ -1316,6 +1336,15 @@ export function Sidebar({
                       {t("nav.people")}
                     </MenuItem>
                   )}
+                  <MenuItem
+                    icon={<ClipboardCheck className="h-4 w-4" />}
+                    active={pathname === `/w/${workspaceId}/review`}
+                    disabled={offline}
+                    title={offline ? needsServer(t("nav.review")) : undefined}
+                    onClick={go(() => router.push(`/w/${workspaceId}/review`))}
+                  >
+                    {t("nav.review")}
+                  </MenuItem>
                   {/* The skills library: guests see the skills shared with them. */}
                   <MenuItem
                     icon={<ScrollText className="h-4 w-4" />}
@@ -1376,6 +1405,7 @@ export function Sidebar({
                 { id: "trash", label: t("nav.trash"), icon: <Trash2 className="h-4 w-4" />, run: () => setTrashOpen(true) },
                 { id: "graph", label: t("nav.graph"), icon: <Waypoints className="h-4 w-4" />, run: () => router.push(`/w/${workspaceId}/graph`) },
                 { id: "skills", label: t("nav.skills"), icon: <ScrollText className="h-4 w-4" />, run: () => router.push(`/w/${workspaceId}/skills`) },
+                { id: "review", label: t("nav.review"), icon: <ClipboardCheck className="h-4 w-4" />, run: () => router.push(`/w/${workspaceId}/review`) },
               ]
             : []),
           ...(!guest

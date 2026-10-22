@@ -6,6 +6,7 @@
 import { agentMemoryPath, agentRunPath } from "./agents";
 import { commentHash } from "./comments";
 import { rowEmailHash } from "./mail";
+import { reviewPath } from "./pending-changes";
 import { canSnooze } from "./snooze";
 import { isTimeZone } from "./time-zone";
 
@@ -126,6 +127,8 @@ export type PushItem = {
   rowUpdate: { changes: { property: { name: string } | null }[]; body: boolean } | null;
   /** Row emails: the message and who it is from. */
   rowEmail?: { id: string; from: string } | null;
+  /** Changes waiting for review: how many. */
+  review?: { count: number } | null;
 };
 
 /** The texts of a push message (`push` in email.json), already in the recipient's language. */
@@ -138,6 +141,7 @@ export function pushLink(item: PushItem): string {
   }
   if (item.kind === "agent_memory") return item.memory ? agentMemoryPath(item.workspaceId, item.memory.agentId) : `/w/${item.workspaceId}/settings?tab=agents`;
   if (item.kind === "agent_report") return item.report ? agentRunPath(item.workspaceId, item.report.agentId, item.report.runId) : `/w/${item.workspaceId}/settings?tab=agents`;
+  if (item.kind === "review") return reviewPath(item.workspaceId);
   // The workspace's AI account is chosen in Settings > General.
   if (item.kind === "ai_account_detached") return `/w/${item.workspaceId}/settings`;
   if (item.pageId === null) return `/w/${item.workspaceId}/settings?tab=members&view=requests`;
@@ -176,6 +180,10 @@ export function pushPayload(
     if (!item.report) return null;
     title = t("reportTitle", { agent: item.report.agentName || actor });
     line = item.report.status === "failed" ? t("reportFailed") : t("reportDone");
+  } else if (item.kind === "review") {
+    // How many, not what they change: a lock screen shows it to whoever holds the device.
+    title = t("reviewTitle");
+    line = t("review", { count: item.review?.count ?? 1, agent: actor });
   } else if (item.kind === "ai_account_detached") {
     title = t("aiAccountTitle");
     line = t("aiAccountDetached", { actor });

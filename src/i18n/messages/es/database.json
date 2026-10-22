@@ -541,7 +541,8 @@
     "unchecked": "sin marcar",
     "checklist": "{done} de {total} hechos",
     "merged": "<actor>{name}</actor> combinó {count, plural, one {# fila} other {# filas}} en esta fila: <rows>{titles}</rows>",
-    "mergedFrom": "de {title}"
+    "mergedFrom": "de {title}",
+    "approvedFrom": "(propuesto por {name})"
   },
   "rowEmail": {
     "title": "Correo",

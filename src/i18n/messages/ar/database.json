@@ -541,7 +541,8 @@
     "unchecked": "غير محدد",
     "checklist": "اكتمل {done} من {total}",
     "merged": "دمج <actor>{name}</actor> {count, plural, zero {# صف} one {صفًا واحدًا} two {صفين} few {# صفوف} many {# صفًا} other {# صف}} في هذا الصف: <rows>{titles}</rows>",
-    "mergedFrom": "من {title}"
+    "mergedFrom": "من {title}",
+    "approvedFrom": "(باقتراح من {name})"
   },
   "rowEmail": {
     "title": "البريد",

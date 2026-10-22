@@ -224,7 +224,14 @@
           "editPage": "Metni değiştirilemedi:",
           "mergeRows": "Satırlar birleştirilemedi:"
         },
-        "in": "yer:"
+        "in": "yer:",
+        "proposed": {
+          "createRow": "İnceleme için satır eklemeyi önerdi:",
+          "updateRow": "İnceleme için bir değişiklik önerdi:",
+          "createPage": "İnceleme için sayfa eklemeyi önerdi:",
+          "editPage": "İnceleme için bir metin değişikliği önerdi:",
+          "mergeRows": "İnceleme için satırları şurada birleştirmeyi önerdi:"
+        }
       },
       "memory": {
         "remember": "Hatırladı:",

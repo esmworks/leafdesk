@@ -1,0 +1,88 @@
+{
+  "metaTitle": "待审阅",
+  "heading": "待审阅",
+  "description": "智能体提议而非直接做出的更改。批准后会以你的名义做出更改，也可以先编辑或将其忽略。无人处理的提议会在 30 天后过期。",
+  "filters": {
+    "agent": "智能体",
+    "database": "数据库",
+    "status": "显示",
+    "allAgents": "所有智能体",
+    "allDatabases": "所有数据库",
+    "open": "等待中",
+    "decided": "已处理",
+    "allRows": "显示所有行",
+    "clear": "清除筛选"
+  },
+  "count": "{count, plural, other {# 处更改}}",
+  "select": "选择此更改",
+  "selectAll": "全选",
+  "selected": "已选择 {count} 项",
+  "approveSelected": "批准 {count} 项",
+  "dismissSelected": "忽略 {count} 项",
+  "bulkSkipped": "{count, plural, other {# 处更改无法处理：已有人处理过，其所在行之后有过更改，或你无权处理。}}",
+  "empty": {
+    "open": "没有等待你审阅的内容。",
+    "decided": "过去 30 天内没有已处理的更改。",
+    "filtered": "没有符合这些筛选条件的更改。"
+  },
+  "proposes": {
+    "createRow": "<agent></agent> 想在 <database></database> 中添加一行",
+    "updateRow": "<agent></agent> 想更改 <row></row>",
+    "emailDraft": "<agent></agent> 在 <row></row> 上起草了一封邮件"
+  },
+  "inDatabase": "位于 <database></database>",
+  "unknownAgent": "已删除的智能体",
+  "someone": "有人",
+  "viewRun": "查看运行",
+  "edited": "已编辑",
+  "expires": "{time}过期",
+  "decided": {
+    "approved": "{name} 已批准（{time}）",
+    "dismissed": "{name} 已忽略（{time}）",
+    "expired": "无人处理，已过期"
+  },
+  "title": "标题",
+  "becomes": "变为",
+  "changedSince": "提议后已更改，现为 <value></value>",
+  "conflictNotice": "智能体提议之后，这一行已有更改。批准将覆盖其当前内容。",
+  "failedNote": "已批准，但无法完成：{error}请编辑后再次批准，或将其忽略。",
+  "failed": {
+    "error": "出了点问题。",
+    "pageLocked": "该行已锁定。"
+  },
+  "email": {
+    "from": "发件人",
+    "to": "收件人",
+    "cc": "抄送",
+    "subject": "主题",
+    "text": "正文",
+    "reply": "回复该行最新的邮件"
+  },
+  "markdown": "页面正文",
+  "notEditable": "保留或排除；之后可在该行中更改。",
+  "leaveOut": "排除",
+  "keep": "保留",
+  "approve": "批准",
+  "approveAnyway": "仍然批准",
+  "send": "发送",
+  "edit": "编辑",
+  "save": "保存编辑",
+  "dismiss": "忽略",
+  "cannot": {
+    "email": "只有 {name} 能从自己的邮箱发送此草稿。",
+    "row": "你可以查看此更改，但批准它需要对该行及其设置的每个值都有编辑权限。"
+  },
+  "errors": {
+    "notFound": "此更改已不存在，或你无权查看。",
+    "decided": "已有人处理了此更改。",
+    "conflict": "提议之后该行已有更改。请再看一下，然后仍然批准或将其忽略。",
+    "invalid": "此编辑无效：{message}",
+    "accessDenied": "你无法处理此更改。"
+  },
+  "banner": {
+    "title": "等待审阅的更改",
+    "bar": "{count, plural, other {# 处更改等待审阅}}",
+    "by": "提议者：{names}",
+    "open": "审阅"
+  }
+}

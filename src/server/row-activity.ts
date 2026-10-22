@@ -5,6 +5,7 @@
  * never holds back or fails the write it records. Reading is server/row-activity-feed.ts.
  */
 
+import { AsyncLocalStorage } from "node:async_hooks";
 import { and, desc, eq, inArray, isNull, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { db } from "@/db";
@@ -34,6 +35,17 @@ type NewEntry = {
 };
 
 const CHUNK = 500;
+
+// One per process: route modules can be loaded more than once in development.
+const globalForProposals = globalThis as unknown as { __leafdeskApprovedProposal?: AsyncLocalStorage<string> };
+const proposals = (globalForProposals.__leafdeskApprovedProposal ??= new AsyncLocalStorage<string>());
+
+/**
+ * Runs `fn`, the making of a change someone approved for review (server/pending-changes.ts): the
+ * row writes it makes are recorded as the approver's, crediting `proposedBy` (the agent's user that
+ * proposed them), each an entry of its own rather than merged into the approver's recent ones.
+ */
+export const asApprovedProposal = <T>(proposedBy: string, fn: () => Promise<T>) => proposals.run(proposedBy, fn);
 
 /**
  * Who a write is by. An AI value is the AI's whoever set it off (a person, an agent or an
@@ -66,9 +78,10 @@ export async function recordRowWrites(
     const [database] = await db.select({ workspaceId: page.workspaceId }).from(page).where(eq(page.id, databaseId));
     if (!database) return;
     const actorKind = await actorKindOf(actorId, anonymousForm, ai);
+    const proposedBy = proposals.getStore() ?? null;
     if (created) {
       const entries = changes.map(({ rowId }) => createdEntry(rowId));
-      await insertEntries(db, database.workspaceId, databaseId, actorId, actorKind, entries);
+      await insertEntries(db, database.workspaceId, databaseId, actorId, actorKind, entries, new Date(), proposedBy);
       return;
     }
     const properties = await db
@@ -85,7 +98,8 @@ export async function recordRowWrites(
         newValue: c.newValue,
       })),
     );
-    await save(database.workspaceId, databaseId, actorId, actorKind, entries, changes.length === 1);
+    if (proposedBy) await insertEntries(db, database.workspaceId, databaseId, actorId, actorKind, entries, new Date(), proposedBy);
+    else await save(database.workspaceId, databaseId, actorId, actorKind, entries, changes.length === 1);
   } catch (error) {
     console.error("[row-activity] recording row writes failed", redactError(error));
   }
@@ -122,7 +136,9 @@ export async function recordTitleChange(rowId: string, before: string, after: st
     if (!row?.databaseId || row.parentKind !== "database" || row.isTemplate || row.inTemplate) return;
     const actorKind = await actorKindOf(userId, false);
     const entry: NewEntry = { rowId, kind: "title", propertyId: null, propertyType: null, oldValue: before, newValue: after };
-    await save(row.workspaceId, row.databaseId, userId, actorKind, [entry], true);
+    const proposedBy = proposals.getStore() ?? null;
+    if (proposedBy) await insertEntries(db, row.workspaceId, row.databaseId, userId, actorKind, [entry], new Date(), proposedBy);
+    else await save(row.workspaceId, row.databaseId, userId, actorKind, [entry], true);
   } catch (error) {
     console.error("[row-activity] recording a title failed", redactError(error));
   }
@@ -234,6 +250,7 @@ async function insertEntries(
   actorKind: RowActivityActor,
   entries: NewEntry[],
   at: Date = new Date(),
+  proposedBy: string | null = null,
 ) {
   for (let i = 0; i < entries.length; i += CHUNK) {
     await tx.insert(rowActivity).values(
@@ -243,6 +260,7 @@ async function insertEntries(
         workspaceId,
         actorUserId: actorId,
         actorKind,
+        proposedBy,
         kind: e.kind,
         propertyId: e.propertyId,
         propertyType: e.propertyType,

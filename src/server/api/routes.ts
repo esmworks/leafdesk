@@ -4,7 +4,7 @@ import { db } from "@/db";
 import { page, user, workspaceAgent } from "@/db/schema";
 import type { ApiTokenScope } from "@/lib/api-scopes";
 import type { AgentView } from "@/lib/agents";
-import { AccessError } from "@/server/access";
+import { AccessError, ConnectedAppReadOnlyError } from "@/server/access";
 import { helperIdsOf } from "@/server/agents/helpers";
 import * as agents from "@/server/agents/manage";
 import { requestAgentRun } from "@/server/agents/requests";
@@ -23,6 +23,8 @@ import {
   toScheduleInput,
 } from "@/server/mcp/agents";
 import { getPage } from "@/server/pages";
+import * as review from "@/server/pending-changes";
+import { describePendingChange, editOf, reviewInputs } from "@/server/mcp/reviews";
 import * as ops from "@/server/operations";
 import { MAX_ACTIVITY_PAGE } from "@/server/row-activity-feed";
 import { voiceAudioType } from "@/lib/voice-notes";
@@ -59,7 +61,7 @@ export type ApiRoute<Q extends Schema = Schema, B extends Schema = Schema> = {
   /** Relative to /api/v1, with `{name}` path parameters. */
   path: string;
   operationId: string;
-  tag: "Account" | "Workspaces" | "Pages" | "Databases" | "Rows" | "Comments" | "Agents";
+  tag: "Account" | "Workspaces" | "Pages" | "Databases" | "Rows" | "Comments" | "Agents" | "Review";
   summary: string;
   description?: string;
   /** What the token needs to call it; null for any token (GET /me). */
@@ -115,6 +117,25 @@ async function requirePageInWorkspace(principal: ApiPrincipal, pageId: string) {
   if (!principal.workspaceId) return;
   const [row] = await db.select({ workspaceId: page.workspaceId }).from(page).where(eq(page.id, pageId)).limit(1);
   if (!row || row.workspaceId !== principal.workspaceId) throw new AccessError();
+}
+
+/** A change waiting for review, for the token's user (refused for a token of another workspace). */
+async function pendingChangeFor(principal: ApiPrincipal, changeId: string) {
+  const change = await review.getPendingChange(principal.userId, changeId);
+  if (!change || (principal.workspaceId && change.workspaceId !== principal.workspaceId)) throw new AccessError();
+  return change;
+}
+
+/** Answers a change the user can see: being refused it then is a 403, not a 404 that hides it. */
+async function answering<T>(fn: () => Promise<T>) {
+  try {
+    return await fn();
+  } catch (error) {
+    if (error instanceof AccessError && !(error instanceof ConnectedAppReadOnlyError)) {
+      throw new ApiError(403, "forbidden", error.message || "You may not answer this change: it needs edit access to the row and to each value it sets.");
+    }
+    throw error;
+  }
 }
 
 /** Drops the hints meant for AI assistants (they name MCP tools); REST clients read the fields. */
@@ -966,6 +987,68 @@ export const API_ROUTES: ApiRoute[] = [
       const sharing =
         body.level === "remove" ? await removeAgentShare(principal.userId, agent.id, target) : await setAgentShare(principal.userId, agent.id, target, body.level);
       return { agent_id: agent.id, ...describeSharing(sharing) };
+    },
+  }),
+  defineRoute({
+    method: "GET",
+    path: "/workspaces/{workspace_id}/pending-changes",
+    operationId: "listPendingChanges",
+    tag: "Review",
+    summary: "List changes waiting for review",
+    description:
+      "The changes agents proposed in a workspace instead of making them (agents set to propose row changes for review, and the email drafts they wrote), newest first: the agent and its reason, the row and database, what each value was, is now and would become (`conflict` where the row changed since in a value it sets), or the email, and whether the token's user may answer it (`can_approve`: edit access to the row and to each value it sets, to the database for a new row; an email draft only its sender). Proposals expire after 30 days unanswered. `status=decided` lists answered ones still kept.",
+    scope: "rows:read",
+    query: z.object({
+      agent_id: z.string().min(1).optional().describe("Only changes this agent proposed."),
+      database_id: z.string().min(1).optional().describe("Only changes in this database."),
+      row_id: z.string().min(1).optional().describe("Only changes to this row."),
+      status: z.enum(["open", "decided"]).default("open").describe("open (default): waiting, or approved but failed to be made; decided: answered or expired."),
+      limit: limitInput(200, 50),
+    }),
+    response: "PendingChangeList",
+    handler: async ({ principal, params, query }) => {
+      requireWorkspace(principal, params.workspace_id);
+      const changes = await review.listPendingChanges(principal.userId, params.workspace_id, {
+        filter: { agentId: query.agent_id, databaseId: query.database_id, rowId: query.row_id },
+        status: query.status,
+        limit: query.limit,
+      });
+      return { workspace_id: params.workspace_id, changes: changes.map(describePendingChange) };
+    },
+  }),
+  defineRoute({
+    method: "POST",
+    path: "/pending-changes/{change_id}/approve",
+    operationId: "approvePendingChange",
+    tag: "Review",
+    summary: "Approve a change",
+    description:
+      "Makes a change an agent proposed, as the token's user: the row is added or changed with their access (its activity says the agent proposed it), or the email draft is sent from their mailbox. Pass `title`, `properties`, `markdown`, `subject` or `text` to approve an edited version. Answers 409 `change_conflict` when the row changed since in a value it sets, unless `force` is true, and `change_decided` when it was already answered. A change that can't be made is kept with `status: failed` and its `error`.",
+    scope: "rows:write",
+    body: reviewInputs.approve.omit({ change_id: true }),
+    conflict: true,
+    response: "PendingChange",
+    handler: async ({ principal, ctx, params, body }) => {
+      await pendingChangeFor(principal, params.change_id);
+      const { force, ...edit } = body;
+      return answering(async () =>
+        describePendingChange(await review.approvePendingChange(principal.userId, params.change_id, { payload: editOf(edit), force, actor: ctx.actor })),
+      );
+    },
+  }),
+  defineRoute({
+    method: "POST",
+    path: "/pending-changes/{change_id}/dismiss",
+    operationId: "dismissPendingChange",
+    tag: "Review",
+    summary: "Dismiss a change",
+    description: "The change an agent proposed is not made; an email draft is discarded. Answers 409 `change_decided` when it was already answered.",
+    scope: "rows:write",
+    conflict: true,
+    response: "PendingChange",
+    handler: async ({ principal, params }) => {
+      await pendingChangeFor(principal, params.change_id);
+      return answering(async () => describePendingChange(await review.dismissPendingChange(principal.userId, params.change_id)));
     },
   }),
 ];

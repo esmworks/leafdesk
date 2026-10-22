@@ -245,7 +245,9 @@
     "untitled": "无标题",
     "snooze": "稍后 1 小时提醒",
     "aiAccountTitle": "AI 账户已移除",
-    "aiAccountDetached": "工作区的 AI 不再使用 {actor} 的密钥运行。"
+    "aiAccountDetached": "工作区的 AI 不再使用 {actor} 的密钥运行。",
+    "reviewTitle": "待审阅",
+    "review": "{count, plural, =1 {{agent} 提议了一处更改，等待你审阅} other {# 处更改等待你审阅，最新一处来自 {agent}}}"
   },
   "agentReply": {
     "aiOff": "我无法回答：此工作区已关闭 AI。",

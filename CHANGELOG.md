@@ -81,6 +81,43 @@
   `POST /api/v1/databases/{id}/rows/merge` do the same, with `dry_run`; an agent's scheduled run on
   a database it may edit can merge its duplicates too, as one of its changes. Migration 0108 adds
   `page.merged_into_id` and `row_activity.merged_from_id` / `merged_from_title`.
+- **Review what agents change before it is made.** An agent's settings get *Changes to rows*:
+  *Write them directly* (as before) or *Propose them for review*. Set to propose, its runs' changes
+  to rows (adding a row, changing values or the title) are kept instead of made, each with the
+  agent's reason, and the run is told they wait. A newer proposal from the same run for the same
+  row takes the place of the one waiting. They wait on the new *For review* page in the sidebar
+  (with a count, and in the More menu and the command palette), filtered by agent, database or
+  row: each shows the agent, the row and its run, why, and every value as it was, is now and would
+  become. Anyone who may edit the row (the database, for a new row) and each value it sets may
+  approve it, edit it first (change a value, or leave one out) or dismiss it, one at a time or
+  several at once; others who can open the row see it without the buttons. Approving makes the
+  change as the approver, and the row's activity says the agent proposed it; a row that changed
+  since in a value the proposal sets shows what it has now and is approved only with *Approve
+  anyway*. A change that can't be made stays with why, to edit and approve again. A row with
+  proposals waiting says so above its properties, with a link to them. The person the run worked
+  for (else whoever made the agent, else the workspace's owners) hears about new proposals in their
+  inbox, as one item per workspace that newer ones bring back to the top, also by push and Telegram
+  as their preferences say (*For review* in Preferences). Proposals no one answers expire after
+  30 days with the daily cleanup, and answered ones go 30 days later. Chats with an agent still
+  change rows directly: the person is there. The built-in *Request answerer* template proposes its
+  answers for review. Approving and dismissing go to the audit log. MCP gets
+  `list_pending_changes`, `approve_pending_change` (with an edit and `force`) and
+  `dismiss_pending_change`, the REST API `GET /workspaces/{id}/pending-changes` and
+  `POST /pending-changes/{id}/approve` and `/dismiss` (409 `change_conflict` and `change_decided`),
+  and agents' `row_changes` in both. Migration 0109 adds `pending_change`,
+  `row_activity.proposed_by`, `workspace_agent.row_changes` and the `review_…` columns of
+  `user_preference`.
+- **Agents draft email for you to send.** An agent's run on a row, or a schedule's run on a
+  database, that works for someone with a connected mailbox, where email on rows is on and mail is
+  matched to that database, gets `draft_email`: it writes a subject and a plain-text message, and
+  the draft waits under *For review* for that person alone, from whose mailbox it goes out once
+  they approve it (edited or not); dismissing it sends nothing. The draft answers the row's latest
+  message (to its other party, keeping its subject), else starts a new one to the row's own
+  addresses. Agents never send email themselves and don't read the row's mail. A draft that isn't
+  a finished message (gaps to fill like `{{name}}` or `[Your Name]`, bracketed source numbers,
+  Markdown, HTML, the app's own ids, links or markup, an empty text or a subject on two lines) goes
+  back to the agent with what is wrong; a reviewer's edits aren't checked. The run's steps show the
+  drafts.
 
 - **Ask the AI chat from Telegram.** With `TELEGRAM_BOT_TOKEN` set to a bot made with @BotFather,
   people link their Telegram account in My account → *Connected apps* → *Telegram* (a one-time

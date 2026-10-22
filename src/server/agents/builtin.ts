@@ -227,6 +227,8 @@ export async function installBuiltinAgent(
     description: built.description,
     instructions: built.instructions,
     webAccess: built.webAccess,
+    // Its answers go to people who asked: someone reads each one before it is written to the row.
+    ...(names.key === "request-answerer" ? { rowChanges: "review" as const } : {}),
   });
   try {
     for (const page of pages) await setAgentAccess(userId, agent.id, page.id, "view");

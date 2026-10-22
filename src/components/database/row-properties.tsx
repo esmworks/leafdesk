@@ -33,6 +33,7 @@ import { usePropertyHint } from "./property-hint";
 import { AddPropertyPanel, PropertyMenu } from "./property-menu";
 import { RelationProvider, type RelationContextValue } from "./relation-context";
 import { RowActivity } from "./row-activity";
+import { RowReviewBanner } from "@/components/review/row-review-banner";
 import { RowEmails } from "./row-emails";
 import { SchemaProvider } from "./schema-context";
 import type { DerivedInput, PersonRef, Property, RelationInput, RelationTarget } from "./types";
@@ -370,6 +371,7 @@ export function RowProperties({
             <AiAutofillProvider value={aiContext}>
               <div className="mb-6 border-b border-border pb-4">
                 {offline && <OfflineNotice savedAt={offlineCopyFrom} />}
+                {!offline && <RowReviewBanner workspaceId={workspaceId} databaseId={databaseId} rowId={rowId} signal={changes} />}
                 <div className="flex flex-col gap-0.5">
                   {shown.map(propertyRow)}
                   {showMore && more.map(propertyRow)}
