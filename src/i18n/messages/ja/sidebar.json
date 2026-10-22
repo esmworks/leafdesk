@@ -166,7 +166,8 @@
     "reportHidden": "スケジュールされた実行が、あなたが開けないデータベースで完了しました。",
     "reportGone": "この実行はもう保存されていません。",
     "aiAccountTitle": "AIアカウントが削除されました",
-    "aiAccountDetached": "ワークスペースのAIは、{actor}のキーでは実行されなくなりました。設定で別のAIアカウントを選択してください。"
+    "aiAccountDetached": "ワークスペースのAIは、{actor}のキーでは実行されなくなりました。設定で別のAIアカウントを選択してください。",
+    "automationRun": "オートメーション「{name}」"
   },
   "templates": {
     "title": "テンプレート",

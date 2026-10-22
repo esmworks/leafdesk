@@ -166,7 +166,8 @@
     "reportHidden": "Su ejecución programada terminó, en una base de datos que no puedes abrir.",
     "reportGone": "La ejecución ya no se conserva.",
     "aiAccountTitle": "Cuenta de IA quitada",
-    "aiAccountDetached": "La IA del espacio de trabajo ya no funciona con la clave de {actor}. Elige otra cuenta de IA en Configuración."
+    "aiAccountDetached": "La IA del espacio de trabajo ya no funciona con la clave de {actor}. Elige otra cuenta de IA en Configuración.",
+    "automationRun": "Automatización “{name}”"
   },
   "templates": {
     "title": "Plantillas",

@@ -166,7 +166,8 @@
     "reportHidden": "Sein geplanter Lauf ist fertig, in einer Datenbank, die du nicht öffnen kannst.",
     "reportGone": "Der Lauf wird nicht mehr aufbewahrt.",
     "aiAccountTitle": "KI-Konto entfernt",
-    "aiAccountDetached": "Die KI des Workspaces läuft nicht mehr über den Schlüssel von {actor}. Wähle in den Einstellungen ein anderes KI-Konto."
+    "aiAccountDetached": "Die KI des Workspaces läuft nicht mehr über den Schlüssel von {actor}. Wähle in den Einstellungen ein anderes KI-Konto.",
+    "automationRun": "Automatisierung „{name}“"
   },
   "templates": {
     "title": "Vorlagen",

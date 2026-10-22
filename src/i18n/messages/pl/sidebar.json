@@ -166,7 +166,8 @@
     "reportHidden": "Zaplanowane uruchomienie zakończyło się w bazie danych, której nie możesz otworzyć.",
     "reportGone": "To uruchomienie nie jest już przechowywane.",
     "aiAccountTitle": "Usunięto konto AI",
-    "aiAccountDetached": "AI obszaru roboczego nie działa już na kluczu użytkownika {actor}. Wybierz inne konto AI w Ustawieniach."
+    "aiAccountDetached": "AI obszaru roboczego nie działa już na kluczu użytkownika {actor}. Wybierz inne konto AI w Ustawieniach.",
+    "automationRun": "Automatyzacja „{name}”"
   },
   "templates": {
     "title": "Szablony",

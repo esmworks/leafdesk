@@ -166,7 +166,8 @@
     "reportHidden": "Zamanlanmış çalışması, açamadığın bir veritabanında bitti.",
     "reportGone": "Çalışma artık saklanmıyor.",
     "aiAccountTitle": "Yapay zekâ hesabı kaldırıldı",
-    "aiAccountDetached": "Çalışma alanının yapay zekâsı artık {actor} kişisinin anahtarıyla çalışmıyor. Ayarlar'dan başka bir yapay zekâ hesabı seçin."
+    "aiAccountDetached": "Çalışma alanının yapay zekâsı artık {actor} kişisinin anahtarıyla çalışmıyor. Ayarlar'dan başka bir yapay zekâ hesabı seçin.",
+    "automationRun": "“{name}” otomasyonu"
   },
   "templates": {
     "title": "Şablonlar",

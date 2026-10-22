@@ -165,7 +165,7 @@ try {
     trigger: { type: "date_passed", date: "Due", days: 1, status: { groups: ["todo", "in_progress"] } },
     actions: [{ type: "notify", properties: ["Assignee"] }, { type: "move_to_trash" }],
   });
-  const viaMcp = await manage.createAutomation(ids.owner, tasks.id, toAutomationInput(mcpArgs));
+  const viaMcp = await manage.createAutomation(ids.owner, tasks.id, await toAutomationInput(ids.owner, mcpArgs));
   check(
     viaMcp.trigger.type === "date_passed" && viaMcp.trigger.date === due.id && viaMcp.trigger.days === 1 && viaMcp.trigger.status?.propertyId === status.id,
     "MCP input by names is stored by ids, the only status property taken when none is named",
@@ -362,7 +362,7 @@ try {
     trigger: { type: "date_passed", date: "Due", days: 1 },
     actions: [{ type: "move_to_trash" }],
   });
-  const viaMcpZoned = await manage.createAutomation(ids.owner, zonesDb.id, toAutomationInput(mcpZoned));
+  const viaMcpZoned = await manage.createAutomation(ids.owner, zonesDb.id, await toAutomationInput(ids.owner, mcpZoned));
   const describedZone = describeAutomation(await automationContext(ids.owner, zonesDb.id), viaMcpZoned);
   check(describedZone.time_zone === "Asia/Tokyo", "MCP takes time_zone and shows it", describedZone);
 

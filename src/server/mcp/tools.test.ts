@@ -123,7 +123,10 @@ const automations = vi.hoisted(() => ({
   createAutomation: vi.fn(),
   updateAutomation: vi.fn(),
   deleteAutomation: vi.fn(),
+  publishAutomation: vi.fn(),
+  testAutomation: vi.fn(),
   rotateAutomationSecret: vi.fn(),
+  rotateAutomationHook: vi.fn(),
   testAutomationWebhooks: vi.fn(),
   listAutomationRuns: vi.fn(),
 }));
@@ -2133,7 +2136,7 @@ describe("automations", () => {
   it("registers the reads as read-only and the writes as writes, with their input schemas", async () => {
     const tools = new Map((await listTools(writer)).map((t) => [t.name, t]));
     for (const name of ["list_automations", "list_automation_runs"]) expect(tools.get(name)?.annotations?.readOnlyHint).toBe(true);
-    for (const name of ["create_automation", "update_automation", "delete_automation"]) {
+    for (const name of ["create_automation", "update_automation", "delete_automation", "publish_automation", "test_automation"]) {
       expect(tools.get(name)?.annotations?.readOnlyHint).toBe(false);
     }
     expect(tools.get("delete_automation")?.annotations?.destructiveHint).toBe(true);
@@ -2142,7 +2145,10 @@ describe("automations", () => {
     expect(create.required).toEqual(expect.arrayContaining(["database_id", "name", "trigger", "actions"]));
     expect(JSON.stringify(create.properties.trigger)).toMatch(/property_changed/);
     expect(JSON.stringify(create.properties.actions)).toMatch(/webhook/);
+    expect(JSON.stringify(create.properties.trigger)).toMatch(/incoming_webhook/);
+    expect(JSON.stringify(create.properties.actions)).toMatch(/find_rows/);
     expect(tools.get("update_automation")!.inputSchema.required).toEqual(["automation_id"]);
+    expect(tools.get("test_automation")!.inputSchema.required).toEqual(["automation_id"]);
   });
 
   it("passes create input through by name and describes the result with names", async () => {
@@ -2163,7 +2169,7 @@ describe("automations", () => {
       name: "Close out",
       trigger: { type: "property_changed", property: "Status", to: "Done" },
       actions: [actions[0], { type: "notify", people: ["me", "ada@example.com"], properties: [] }, actions[2]],
-    });
+    }, { publish: true });
     expect(data.trigger).toMatchObject({
       property: { id: "prop-status", name: "Status" },
       to: "Done",
@@ -2200,10 +2206,91 @@ describe("automations", () => {
     automations.updateAutomation.mockResolvedValue({ ...view, enabled: false });
     const updated = await callTool(writer, "update_automation", { automation_id: "auto-1", enabled: false });
     expect(updated.isError).toBe(false);
-    expect(automations.updateAutomation).toHaveBeenCalledWith("user-1", "auto-1", { enabled: false });
+    expect(automations.updateAutomation).toHaveBeenCalledWith("user-1", "auto-1", { enabled: false }, { publish: true });
     const empty = await callTool(writer, "update_automation", { automation_id: "auto-1" });
     expect(empty.isError).toBe(true);
     expect(empty.text).toMatch(/Nothing to change/);
+  });
+
+  it("turns find_rows filters and sorts into ids, keeping template values, and passes publish", async () => {
+    automations.createAutomation.mockResolvedValue({
+      ...view,
+      trigger: { type: "schedule", schedule: { frequency: "weekly", time: "09:00", weekdays: [1, 3] } },
+      timeZone: "Europe/Istanbul",
+      version: 0,
+      draft: null,
+      actions: [
+        { id: "find", type: "find_rows", databaseId: "db-1", filters: [{ propertyId: "prop-status", op: "equals", value: "opt-todo" }], sorts: [], limit: 20 },
+        { id: "notify", type: "notify", userIds: ["user-2"], propertyIds: [], message: "{{find.count}} open", forEach: "find" },
+      ],
+      secret: null,
+      hookUrl: null,
+      nextRunAt: null,
+    });
+    const created = await callTool(writer, "create_automation", {
+      database_id: "db-1",
+      name: "Weekly",
+      publish: false,
+      trigger: { type: "schedule", schedule: { frequency: "weekly", time: "09:00", weekdays: [1, 3] } },
+      actions: [
+        {
+          type: "find_rows",
+          id: "find",
+          database_id: "db-1",
+          filters: [
+            { property: "Status", op: "equals", value: "Todo" },
+            { type: "group", combinator: "or", rules: [{ property: "Notes", op: "contains", value: "{{trigger.event}}" }] },
+          ],
+          sorts: [{ property: "Notes", direction: "desc" }],
+          limit: 5,
+        },
+        { type: "notify", people: ["ada@example.com"], message: "{{find.count}} open", for_each: "find" },
+      ],
+    });
+    expect(created.isError).toBe(false);
+    const [, , input, options] = automations.createAutomation.mock.calls[0];
+    expect(options).toEqual({ publish: false });
+    expect(input.trigger).toEqual({ type: "schedule", schedule: { frequency: "weekly", time: "09:00", weekdays: [1, 3] } });
+    expect(input.actions[0]).toEqual({
+      type: "find_rows",
+      id: "find",
+      database: "db-1",
+      filters: [
+        { propertyId: "prop-status", op: "equals", value: "opt-todo" },
+        { type: "group", combinator: "or", rules: [{ propertyId: "prop-notes", op: "contains", value: "{{trigger.event}}" }] },
+      ],
+      sorts: [{ propertyId: "prop-notes", direction: "desc" }],
+      limit: 5,
+    });
+    expect(input.actions[1]).toEqual({ type: "notify", people: ["ada@example.com"], properties: [], message: "{{find.count}} open", forEach: "find" });
+    expect(created.data.version).toBe(0);
+    expect(created.data.trigger.summary).toBe("Every Monday and Wednesday at 09:00 (Europe/Istanbul)");
+    expect(created.data.actions[0]).toMatchObject({ id: "find", filters: [{ property: "Status", op: "equals", value: "Todo" }] });
+    expect(created.data.actions[1]).toMatchObject({ id: "notify", for_each: "find", message: "{{find.count}} open", summary: 'Notify Ada for each row of "find"' });
+  });
+
+  it("publishes, tests and gives an incoming webhook a new address, which read-only connections don't see", async () => {
+    const incoming = { ...view, trigger: { type: "incoming_webhook" }, hookUrl: "https://leafdesk.example/api/automations/auto-1/webhook/tok", secret: null };
+    automations.publishAutomation.mockResolvedValue({ ...incoming, version: 2 });
+    const published = await callTool(writer, "publish_automation", { automation_id: "auto-1" });
+    expect(automations.publishAutomation).toHaveBeenCalledWith("user-1", "auto-1");
+    expect(published.data).toMatchObject({ version: 2, hook_url: incoming.hookUrl });
+
+    automations.testAutomation.mockResolvedValue({ runId: "run-9" });
+    const tested = await callTool(writer, "test_automation", { automation_id: "auto-1", payload: { email: "a@example.com" } });
+    expect(automations.testAutomation).toHaveBeenCalledWith("user-1", "auto-1", { payload: { email: "a@example.com" } });
+    expect(tested.data).toMatchObject({ run_id: "run-9", next: expect.stringMatching(/list_automation_runs/) });
+
+    automations.rotateAutomationHook.mockResolvedValue(incoming);
+    const rotated = await callTool(writer, "update_automation", { automation_id: "auto-1", new_webhook_address: true });
+    expect(rotated.isError).toBe(false);
+    expect(automations.updateAutomation).not.toHaveBeenCalled();
+    expect(automations.rotateAutomationHook).toHaveBeenCalledWith("user-1", "auto-1");
+
+    automations.listAutomations.mockResolvedValue([incoming]);
+    const listed = await callTool(reader, "list_automations", { database_id: "db-1" });
+    expect(listed.data.automations[0]).not.toHaveProperty("hook_url");
+    expect(listed.data.automations[0].trigger.summary).toMatch(/JSON POST/);
   });
 
   it("refuses writes on read-only connections and turns automation errors into tool errors", async () => {
@@ -2279,6 +2366,39 @@ describe("automations", () => {
       row: { id: "row-1", title: "Fix login" },
       steps: [{ type: "webhook", status: "failed", attempts: 5, code: "http", http_status: 500 }],
     });
+
+    automations.listAutomationRuns.mockResolvedValue([
+      {
+        id: "run-2",
+        rowId: null,
+        rowTitle: "",
+        event: "webhook.received",
+        basis: null,
+        status: "done",
+        version: 3,
+        test: true,
+        draft: true,
+        trigger: { email: "a@example.com" },
+        steps: [
+          { id: "find", type: "find_rows", status: "done", attempts: 1, durationMs: 12, input: { limit: 1 }, output: { count: 1 } },
+          { id: "set", type: "set_properties", status: "failed", attempts: 1, code: "rowsFailed", items: [{ rowId: "row-1", title: "Fix login", status: "failed", code: "noAccess" }] },
+        ],
+        createdAt: "2026-10-01T00:00:00.000Z",
+        finishedAt: "2026-10-01T00:00:01.000Z",
+      },
+    ]);
+    const rowless = await callTool(reader, "list_automation_runs", { automation_id: "auto-1" });
+    expect(rowless.data.runs[0]).toMatchObject({
+      row: null,
+      version: 3,
+      test: true,
+      draft: true,
+      trigger: { email: "a@example.com" },
+      steps: [
+        { id: "find", duration_ms: 12, input: { limit: 1 }, output: { count: 1 } },
+        { id: "set", code: "rowsFailed", items: [{ row_id: "row-1", status: "failed", code: "noAccess" }] },
+      ],
+    });
   });
 
   it("summarizes an agent's proposed notes in the inbox, with their text only when the user may read it", async () => {
@@ -2331,6 +2451,23 @@ describe("automations", () => {
         databaseTitle: "Tasks",
         propertyName: null,
         automationName: "Close out",
+        automationMessage: null,
+      },
+      {
+        id: "n-4",
+        kind: "automation",
+        workspaceId: "ws-1",
+        workspaceName: "Team",
+        createdAt: new Date("2026-10-01T00:00:00Z"),
+        read: false,
+        actorName: null,
+        pageId: "row-1",
+        pageTitle: "Fix login",
+        pageIcon: null,
+        databaseTitle: "Tasks",
+        propertyName: null,
+        automationName: "Close out",
+        automationMessage: "Call the customer back",
       },
     ]);
     const principal = { ...reader, scopes: ["pages:read", "notifications:read"] };
@@ -2340,6 +2477,11 @@ describe("automations", () => {
       summary: 'Automation "Close out": Ada added or changed "Fix login" in Tasks',
       database: "Tasks",
       automation: "Close out",
+    });
+    expect(data.notifications[0]).not.toHaveProperty("message");
+    expect(data.notifications[1]).toMatchObject({
+      summary: 'Automation "Close out" about "Fix login": Call the customer back',
+      message: "Call the customer back",
     });
   });
 });
@@ -2984,6 +3126,8 @@ describe("agents", () => {
     expect(automations.createAutomation.mock.calls[0][2].actions).toEqual([{ type: "run_agent", agent: "Ticket router", prompt: "Set the priority" }]);
     expect(agents.agentRefs).toHaveBeenCalledWith("user-1", "ws-1");
     expect(data.actions[0]).toEqual({
+      // Stored steps from before ids are named by position.
+      id: "step1",
       type: "run_agent",
       agent: { id: "agent-1", name: "Ticket router" },
       prompt: "Set the priority",

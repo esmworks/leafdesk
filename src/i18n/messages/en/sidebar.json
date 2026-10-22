@@ -166,7 +166,8 @@
     "reportHidden": "Its scheduled run finished, on a database you can't open.",
     "reportGone": "The run is no longer kept.",
     "aiAccountTitle": "AI account removed",
-    "aiAccountDetached": "The workspace's AI no longer runs on {actor}'s key. Choose another AI account in Settings."
+    "aiAccountDetached": "The workspace's AI no longer runs on {actor}'s key. Choose another AI account in Settings.",
+    "automationRun": "Automation “{name}”"
   },
   "templates": {
     "title": "Templates",

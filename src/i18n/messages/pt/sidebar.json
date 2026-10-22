@@ -166,7 +166,8 @@
     "reportHidden": "A execução agendada terminou, em um banco de dados que você não pode abrir.",
     "reportGone": "A execução não está mais guardada.",
     "aiAccountTitle": "Conta de IA removida",
-    "aiAccountDetached": "A IA do espaço de trabalho não funciona mais com a chave de {actor}. Escolha outra conta de IA em Configurações."
+    "aiAccountDetached": "A IA do espaço de trabalho não funciona mais com a chave de {actor}. Escolha outra conta de IA em Configurações.",
+    "automationRun": "Automação “{name}”"
   },
   "templates": {
     "title": "Modelos",

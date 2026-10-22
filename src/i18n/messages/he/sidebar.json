@@ -166,7 +166,8 @@
     "reportHidden": "ההרצה המתוזמנת שלו הסתיימה, על מסד נתונים שאין לך גישה אליו.",
     "reportGone": "ההרצה כבר לא נשמרת.",
     "aiAccountTitle": "חשבון AI הוסר",
-    "aiAccountDetached": "ה־AI של סביבת העבודה כבר לא פועל על המפתח של {actor}. אפשר לבחור חשבון AI אחר בהגדרות."
+    "aiAccountDetached": "ה־AI של סביבת העבודה כבר לא פועל על המפתח של {actor}. אפשר לבחור חשבון AI אחר בהגדרות.",
+    "automationRun": "האוטומציה “{name}”"
   },
   "templates": {
     "title": "תבניות",

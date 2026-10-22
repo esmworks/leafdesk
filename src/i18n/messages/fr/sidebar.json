@@ -166,7 +166,8 @@
     "reportHidden": "Son exécution planifiée est terminée, sur une base de données que vous ne pouvez pas ouvrir.",
     "reportGone": "L’exécution n’est plus conservée.",
     "aiAccountTitle": "Compte IA supprimé",
-    "aiAccountDetached": "L’IA de l’espace de travail ne fonctionne plus avec la clé de {actor}. Choisissez un autre compte IA dans Paramètres."
+    "aiAccountDetached": "L’IA de l’espace de travail ne fonctionne plus avec la clé de {actor}. Choisissez un autre compte IA dans Paramètres.",
+    "automationRun": "Automatisation « {name} »"
   },
   "templates": {
     "title": "Modèles",

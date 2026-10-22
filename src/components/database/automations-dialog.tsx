@@ -1,27 +1,24 @@
 "use client";
 
 import { ArrowLeft, History, Pencil, Plus, Trash2, X, Zap } from "lucide-react";
-import Link from "next/link";
 import { useFormatter, useTranslations } from "next-intl";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
-import {
-  deleteAutomationAction,
-  listAutomationRunsAction,
-  listAutomationsAction,
-  updateAutomationAction,
-} from "@/app/actions/automations";
+import { deleteAutomationAction, listAutomationsAction, updateAutomationAction } from "@/app/actions/automations";
 import { Button, cn, Dialog, IconButton, Switch } from "@/components/ui";
-import { MAX_AUTOMATIONS } from "@/lib/automations";
+import { MAX_AUTOMATIONS, watchedProperties } from "@/lib/automations";
 import { browserTimeZone, timeZoneLabel } from "@/lib/time-zone";
+import { DatabasesProvider } from "./automations-data";
 import { AutomationEditor, Footer } from "./automations-editor";
-import { triggerValueName, type AgentChoice, type Automation, type AutomationRun, type Person } from "./automations-shared";
+import { RunList } from "./automations-runs";
+import { triggerValueName, type AgentChoice, type Automation, type Person } from "./automations-shared";
 import { usePeople } from "./person-cell";
 import { useSchema } from "./schema-context";
 
 /**
- * The database toolbar's automations button: "when a row is added or a property changes, set
- * values, notify people or call a webhook". Shown to people with full access to the database.
+ * The database toolbar's automations button: "when a row is added, a property changes, a date
+ * passes, a schedule comes round or a request arrives, do these steps". Shown to people with
+ * full access to the database.
  */
 export function AutomationsButton({
   workspaceId,
@@ -62,7 +59,7 @@ export function AutomationsButton({
   );
 }
 
-type Mode = { kind: "list" } | { kind: "edit"; id: string | null } | { kind: "runs"; id: string };
+type Mode = { kind: "list" } | { kind: "edit"; id: string | null } | { kind: "runs"; id: string; focus: string | null };
 
 function AutomationsDialog({
   workspaceId,
@@ -145,9 +142,14 @@ function AutomationsDialog({
 
   const current = mode.kind !== "list" && mode.id ? automations?.find((a) => a.id === mode.id) ?? null : null;
   const full = (automations?.length ?? 0) >= MAX_AUTOMATIONS;
+  // A menu open over the dialog (a variable picker, a filter's values) closes first, on its own.
+  const close = useCallback(() => {
+    if (!document.querySelector("[data-floating]")) onClose();
+  }, [onClose]);
 
   return (
-    <Dialog open onClose={onClose} className="max-w-2xl">
+    <Dialog open onClose={close} className="max-w-2xl">
+      <DatabasesProvider workspaceId={workspaceId}>
       <div className="flex items-start gap-3 border-b border-border px-5 py-4">
         {mode.kind !== "list" && (
           <IconButton label={t("back")} onClick={() => setMode({ kind: "list" })} className="mt-1">
@@ -194,15 +196,14 @@ function AutomationsDialog({
           isOwner={isOwner}
           onCancel={() => setMode({ kind: "list" })}
           onUpdated={replace}
-          onSaved={(saved, created) => {
+          onSaved={(saved, created, stay) => {
             setAutomations((list) => (created ? [...(list ?? []), saved] : (list ?? []).map((a) => (a.id === saved.id ? saved : a))));
-            // A new webhook's signing secret shows once it is saved: stay so it can be copied.
-            if (created && saved.secret) setMode({ kind: "edit", id: saved.id });
-            else setMode({ kind: "list" });
+            setMode(stay ? { kind: "edit", id: saved.id } : { kind: "list" });
           }}
+          onTestDone={(id, runId) => setMode({ kind: "runs", id, focus: runId })}
         />
       ) : mode.kind === "runs" && current ? (
-        <RunList workspaceId={workspaceId} automation={current} isOwner={isOwner} />
+        <RunList workspaceId={workspaceId} automation={current} isOwner={isOwner} focus={mode.focus} />
       ) : (
         <>
           <div className="max-h-[65vh] overflow-y-auto px-5 py-3">
@@ -218,7 +219,7 @@ function AutomationsDialog({
                     agents={agents}
                     onToggle={(enabled) => void toggle(automation, enabled)}
                     onEdit={() => setMode({ kind: "edit", id: automation.id })}
-                    onRuns={() => setMode({ kind: "runs", id: automation.id })}
+                    onRuns={() => setMode({ kind: "runs", id: automation.id, focus: null })}
                     onDelete={() => void remove(automation)}
                   />
                 ))}
@@ -238,6 +239,7 @@ function AutomationsDialog({
           </Footer>
         </>
       )}
+      </DatabasesProvider>
     </Dialog>
   );
 }
@@ -263,10 +265,16 @@ function AutomationItem({
   const format = useFormatter();
   const summary = useSummary(automation, people, agents);
   const last = automation.lastRun;
+  const neverPublished = automation.version < 1;
   return (
     <li className="flex items-center gap-2 py-2.5">
       <div className="min-w-0 flex-1">
-        <div className={cn("truncate text-sm font-medium", !automation.enabled && "text-fg-muted")}>{automation.name}</div>
+        <div className="flex min-w-0 items-center gap-1.5">
+          <span className={cn("truncate text-sm font-medium", (!automation.enabled || neverPublished) && "text-fg-muted")}>{automation.name}</span>
+          {neverPublished && (
+            <span className="shrink-0 rounded border border-border px-1 text-[11px] leading-4 text-fg-muted">{t("lifecycle.draftBadge")}</span>
+          )}
+        </div>
         <div className="truncate text-xs text-fg-muted" title={summary}>
           {summary}
         </div>
@@ -276,8 +284,17 @@ function AutomationItem({
                 status: t(`runs.status.${last.status}`),
                 time: format.dateTime(new Date(last.at), { dateStyle: "medium", timeStyle: "short" }),
               })
-            : t("neverRun")}
+            : neverPublished
+              ? t("lifecycle.notRunning")
+              : t("neverRun")}
+          {automation.nextRunAt && (
+            <span className="text-fg-faint">
+              {" · "}
+              {t("nextRun", { time: format.dateTime(new Date(automation.nextRunAt), { dateStyle: "medium", timeStyle: "short" }) })}
+            </span>
+          )}
         </div>
+        {automation.draft && !neverPublished && <div className="text-xs text-accent">{t("lifecycle.unpublishedHint")}</div>}
         {automation.checkError && <div className="text-xs text-danger">{t(`checkError.${automation.checkError}`)}</div>}
       </div>
       <div className="flex shrink-0 items-center gap-0.5">
@@ -298,15 +315,30 @@ function AutomationItem({
   );
 }
 
-/** "When Status becomes Done → Set Date, Notify, Webhook, Run Ticket router". */
+/** "When Status becomes Done → Set Date, Notify, Webhook, Run Ticket router": the published steps, or a never published draft's. */
 function useSummary(automation: Automation, people: Person[], agents: AgentChoice[]) {
   const t = useTranslations("database.automations");
   const properties = useSchema();
   const nameOf = (id: string) => properties.find((p) => p.id === id)?.name ?? t("deletedProperty");
   const tGroup = useTranslations("database.statusGroups");
-  const { trigger } = automation;
+  const format = useFormatter();
+  const { trigger, actions } = automation.version < 1 && automation.draft ? automation.draft : automation;
   let when: string;
   if (trigger.type === "row_created") when = t("summaryTrigger.rowCreated");
+  else if (trigger.type === "schedule") {
+    const s = trigger.schedule;
+    // January 4, 2026 is a Sunday: day n of that week names weekday n.
+    const weekday = (n: number) => format.dateTime(new Date(Date.UTC(2026, 0, 4 + n, 12)), { weekday: "short", timeZone: "UTC" });
+    when =
+      s.frequency === "cron"
+        ? t("summaryTrigger.cron", { cron: s.cron })
+        : s.frequency === "daily"
+          ? t("summaryTrigger.daily", { time: s.time })
+          : s.frequency === "weekly"
+            ? t("summaryTrigger.weekly", { days: s.weekdays.map(weekday).join(", "), time: s.time })
+            : t("summaryTrigger.monthly", { days: s.days.map((d) => format.number(d)).join(", "), time: s.time });
+    if (automation.timeZone !== browserTimeZone()) when = t("summaryTrigger.inZone", { trigger: when, zone: timeZoneLabel(automation.timeZone) });
+  } else if (trigger.type === "incoming_webhook") when = t("summaryTrigger.incoming");
   else if (trigger.type === "date_passed") {
     when =
       trigger.date === "created_time" || trigger.date === "last_edited_time"
@@ -323,142 +355,37 @@ function useSummary(automation: Automation, people: Person[], agents: AgentChoic
     if (trigger.status) {
       when = t("summaryTrigger.withStatus", { trigger: when, groups: trigger.status.groups.map((g) => tGroup(g)).join(", ") });
     }
-  } else if (trigger.propertyId === null) when = t("summaryTrigger.anyChange");
-  else {
-    const prop = properties.find((p) => p.id === trigger.propertyId);
-    const value = triggerValueName(trigger, prop, people, { checked: t("checked"), unchecked: t("unchecked") });
-    when =
-      value === null
-        ? t("summaryTrigger.changes", { property: nameOf(trigger.propertyId) })
-        : t("summaryTrigger.becomes", { property: nameOf(trigger.propertyId), value });
+  } else {
+    const watched = watchedProperties(trigger);
+    if (!watched.length) when = t("summaryTrigger.anyChange");
+    else if (watched.length > 1) when = t("summaryTrigger.changes", { property: watched.map(nameOf).join(", ") });
+    else {
+      const prop = properties.find((p) => p.id === watched[0]);
+      const value = triggerValueName(trigger.to, prop, people, { checked: t("checked"), unchecked: t("unchecked") });
+      when =
+        value === null
+          ? t("summaryTrigger.changes", { property: nameOf(watched[0]) })
+          : t("summaryTrigger.becomes", { property: nameOf(watched[0]), value });
+    }
   }
-  const actions = automation.actions
-    .map((action) =>
-      action.type === "set_properties"
-        ? t("summaryAction.set", { properties: Object.keys(action.values).map(nameOf).join(", ") })
-        : action.type === "notify"
-          ? t("summaryAction.notify")
-          : action.type === "run_agent"
-            ? t("summaryAction.runAgent", { agent: agents.find((a) => a.id === action.agentId)?.name ?? t("summaryAction.archivedAgent") })
-            : action.type === "move_to_trash"
-              ? t("summaryAction.trash")
-              : t("summaryAction.webhook"),
-    )
+  const steps = actions
+    .map((action) => {
+      switch (action.type) {
+        case "set_properties":
+          // Found rows may be another database's, whose properties aren't known here.
+          return action.forEach ? t("summaryAction.setEach") : t("summaryAction.set", { properties: Object.keys(action.values).map(nameOf).join(", ") });
+        case "notify":
+          return t("summaryAction.notify");
+        case "run_agent":
+          return t("summaryAction.runAgent", { agent: agents.find((a) => a.id === action.agentId)?.name ?? t("summaryAction.archivedAgent") });
+        case "move_to_trash":
+          return t("summaryAction.trash");
+        case "webhook":
+          return t("summaryAction.webhook");
+        default:
+          return t(`form.actionType.${action.type}`);
+      }
+    })
     .join(", ");
-  return t("summary", { trigger: when, actions });
-}
-
-/**
- * The automation's latest runs: which row, when, and how each step went. A "Run an agent" step
- * links owners to the agent's own run, where what it did is.
- */
-function RunList({ workspaceId, automation, isOwner }: { workspaceId: string; automation: Automation; isOwner: boolean }) {
-  const t = useTranslations("database.automations");
-  const tc = useTranslations("common");
-  const format = useFormatter();
-  const [runs, setRuns] = useState<AutomationRun[] | null>(null);
-  // A day as a day; a time (or when a row was added or edited) with its time, in the viewer's zone.
-  const basisLabel = (basis: string) =>
-    basis.length === 10
-      ? format.dateTime(new Date(`${basis}T00:00:00`), { dateStyle: "medium" })
-      : format.dateTime(new Date(basis), { dateStyle: "medium", timeStyle: "short" });
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let live = true;
-    listAutomationRunsAction(automation.id, 20)
-      .then((res) => {
-        if (!live) return;
-        if (res.ok) setRuns(res.data);
-        else setError(res.error);
-      })
-      .catch(() => live && setError(tc("genericError")));
-    return () => {
-      live = false;
-    };
-  }, [automation.id, tc]);
-
-  if (!runs) {
-    return (
-      <p className="px-5 py-6 text-sm text-fg-muted" role={error ? "alert" : undefined}>
-        {error ?? tc("loading")}
-      </p>
-    );
-  }
-  return (
-    <div className="max-h-[65vh] overflow-y-auto px-5 py-3">
-      {runs.length === 0 ? (
-        <p className="py-3 text-sm text-fg-muted">{t("runs.empty")}</p>
-      ) : (
-        <ul className="divide-y divide-border">
-          {runs.map((run) => (
-            <li key={run.id} className="py-2.5">
-              <div className="flex items-baseline gap-2">
-                <Link href={`/w/${workspaceId}/p/${run.rowId}`} className="min-w-0 flex-1 truncate text-sm hover:underline">
-                  {run.rowTitle || tc("untitled")}
-                </Link>
-                <span className={cn("shrink-0 text-xs", run.status === "failed" ? "text-danger" : "text-fg-muted")}>
-                  {t(`runs.status.${run.status}`)}
-                </span>
-              </div>
-              <div className="text-xs text-fg-faint">
-                {run.basis !== null
-                  ? t("runs.datePassed", { date: basisLabel(run.basis) })
-                  : run.event === "row.created"
-                    ? t("runs.added")
-                    : t("runs.changed")}{" "}
-                ·{" "}
-                {format.dateTime(new Date(run.createdAt), { dateStyle: "medium", timeStyle: "short" })}
-              </div>
-              <ul className="mt-1 space-y-0.5">
-                {run.steps.map((step, i) => (
-                  <li key={i} className="flex flex-wrap gap-x-1.5 text-xs text-fg-muted" title={step.error}>
-                    <span>{t(`form.actionType.${step.type}`)}:</span>
-                    <span className={cn(step.status === "failed" && "text-danger")}>{t(`runs.stepStatus.${step.status}`)}</span>
-                    {step.code && <span>({step.code})</span>}
-                    {step.httpStatus ? <span>HTTP {step.httpStatus}</span> : null}
-                    {step.type === "notify" && step.notified !== undefined && (
-                      <span>{t("runs.notified", { count: step.notified })}</span>
-                    )}
-                    {step.attempts > 1 && <span>{t("runs.attempts", { count: step.attempts })}</span>}
-                    {step.type === "run_agent" && step.agentRunId && (
-                      <AgentRunLink workspaceId={workspaceId} automation={automation} index={i} runId={step.agentRunId} isOwner={isOwner} />
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
-}
-
-/** Where a "Run an agent" step's run is: the agent's runs in Settings (owners), else a hint. */
-function AgentRunLink({
-  workspaceId,
-  automation,
-  index,
-  runId,
-  isOwner,
-}: {
-  workspaceId: string;
-  automation: Automation;
-  index: number;
-  runId: string;
-  isOwner: boolean;
-}) {
-  const t = useTranslations("database.automations.runs");
-  // The step's action, when the automation still has it where it was; else its first agent.
-  const action = automation.actions[index]?.type === "run_agent" ? automation.actions[index] : automation.actions.find((a) => a.type === "run_agent");
-  if (!isOwner || action?.type !== "run_agent") return <span>· {t("agentRunHint")}</span>;
-  return (
-    <Link
-      href={`/w/${workspaceId}/settings?tab=agents&agent=${encodeURIComponent(action.agentId)}&run=${encodeURIComponent(runId)}`}
-      className="text-fg underline underline-offset-2 hover:text-accent"
-    >
-      {t("agentRun")}
-    </Link>
-  );
+  return t("summary", { trigger: when, actions: steps });
 }

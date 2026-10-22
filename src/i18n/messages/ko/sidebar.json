@@ -166,7 +166,8 @@
     "reportHidden": "열 수 없는 데이터베이스에서 예약된 실행이 완료되었습니다.",
     "reportGone": "이 실행은 더 이상 보관되지 않습니다.",
     "aiAccountTitle": "AI 계정 삭제됨",
-    "aiAccountDetached": "워크스페이스의 AI가 더 이상 {actor}님의 키로 실행되지 않습니다. 설정에서 다른 AI 계정을 선택하세요."
+    "aiAccountDetached": "워크스페이스의 AI가 더 이상 {actor}님의 키로 실행되지 않습니다. 설정에서 다른 AI 계정을 선택하세요.",
+    "automationRun": "자동화 “{name}”"
   },
   "templates": {
     "title": "템플릿",

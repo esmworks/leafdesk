@@ -290,7 +290,7 @@ function ViewTab({
   );
 }
 
-type Column = { id: string; name: string; type: Property["type"] | "title"; prop: Property | null };
+export type Column = { id: string; name: string; type: Property["type"] | "title"; prop: Property | null };
 
 /** Columns filters and sorts offer; a formula is offered as a property of its result type. */
 /**
@@ -301,7 +301,7 @@ function lowerFirst(label: string, locale: string) {
   return label.charAt(0).toLocaleLowerCase(locale) + label.slice(1);
 }
 
-function columnsOf(properties: Property[], titleName: string): Column[] {
+export function columnsOf(properties: Property[], titleName: string): Column[] {
   return [
     { id: TITLE, name: titleName, type: "title", prop: null },
     ...properties.map((p) => ({ id: p.id, name: p.name, type: valueType(p), prop: p })),
@@ -898,7 +898,7 @@ function useRangeLabel() {
 /** Groups the editor lets users add: top-level groups of rules. Deeper groups (made over MCP) still show and edit. */
 const EDITOR_GROUP_DEPTH = 1;
 
-function FilterEditor({
+export function FilterEditor({
   columns,
   filters,
   combinator,
@@ -1311,7 +1311,7 @@ function FilterValue({
   );
 }
 
-function SortEditor({
+export function SortEditor({
   columns,
   sorts,
   onChange,

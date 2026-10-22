@@ -22,7 +22,7 @@ import { idsOf, resolveText, resolveValue, templateRoots, textOf, type TemplateS
 import { env } from "@/lib/env";
 import { mapFilterRules } from "@/lib/filters";
 import { pageLabel } from "@/lib/labels";
-import { holdsPeople } from "@/lib/property-types";
+import { holdsOptions, holdsPeople } from "@/lib/property-types";
 import { isCredentialKey, REDACTED, redactError, redactText, redactValue } from "@/lib/redact";
 import { dayString, localDay } from "@/lib/time-zone";
 import { resolvePageAccess } from "@/server/access";
@@ -689,18 +689,42 @@ async function targetDatabase(ctx: StepContext, databaseId: string, level: "view
   return database;
 }
 
+/**
+ * A templated filter value as the stored filter holds it: templates give what a row shows (an
+ * option's name, a person or row as {id, name}), filters compare ids, so names of options become
+ * their ids and people and rows their ids; a day keeps its date, a number and a checkbox their type.
+ */
+function filterValue(prop: DatabaseProperty | undefined, list: boolean, resolved: unknown): unknown {
+  const options = prop && holdsOptions(prop.type) ? ((prop.options as { options?: { id: string; name: string }[] }).options ?? []) : null;
+  const toOption = (v: unknown) => {
+    if (!options) return v;
+    const text = textOf(v).trim().toLowerCase();
+    return options.find((o) => o.id === v || o.name.trim().toLowerCase() === text)?.id ?? textOf(v);
+  };
+  const byId = prop && (prop.type === "relation" || holdsPeople(prop.type));
+  if (list) return (idsOf(resolved) as unknown[]).map(toOption);
+  if (byId) return (idsOf(resolved) as unknown[])[0] ?? null;
+  if (options) return toOption(resolved);
+  if (resolved !== null && typeof resolved === "object") return textOf(resolved);
+  if (prop?.type === "number" && typeof resolved === "string" && resolved.trim() && Number.isFinite(Number(resolved))) return Number(resolved);
+  if (prop?.type === "checkbox" && (resolved === "true" || resolved === "false")) return resolved === "true";
+  if (prop?.type === "date" && typeof resolved === "string" && /^\d{4}-\d{2}-\d{2}/.test(resolved)) return resolved.slice(0, 10);
+  return resolved;
+}
+
 async function findRows(ctx: StepContext, action: Extract<AutomationAction, { type: "find_rows" }>): Promise<StepResult> {
   const database = await targetDatabase(ctx, action.databaseId, "view");
   const missing: string[] = [];
   let empty: string | null = null;
+  const props = await getProperties(action.databaseId);
   // Filter values may be templates; one that leads nowhere would match everything or nothing, so it's an error.
   const filters = mapFilterRules(action.filters ?? [], (rule) => {
     if (rule.value === undefined || !templateRoots(rule.value).size) return rule;
     const resolved = resolveValue(rule.value, ctx.scope, missing).value;
     if (resolved === null || resolved === "" || (Array.isArray(resolved) && !resolved.length)) empty ??= rule.propertyId;
-    return { ...rule, value: Array.isArray(rule.value) ? idsOf(resolved) : typeof resolved === "object" && resolved !== null ? textOf(resolved) : resolved };
+    const prop = props.find((p) => p.id === rule.propertyId);
+    return { ...rule, value: filterValue(prop, Array.isArray(rule.value), resolved) };
   });
-  const props = await getProperties(action.databaseId);
   const input = missingNote({ database: { id: database.id, title: pageLabel(database.title) }, filters, sorts: action.sorts ?? [], limit: action.limit }, missing);
   if (empty) {
     const name = props.find((p) => p.id === empty)?.name ?? empty;
