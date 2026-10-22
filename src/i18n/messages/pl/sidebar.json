@@ -81,7 +81,9 @@
     "deletePermanently": "Usuń trwale",
     "confirmDelete": "Usunąć trwale? Tej operacji nie można cofnąć.",
     "deletesIn": "Zostanie usunięte za {count, plural, one {# dzień} few {# dni} many {# dni} other {# dnia}}",
-    "deletesSoon": "Wkrótce zostanie usunięte"
+    "deletesSoon": "Wkrótce zostanie usunięte",
+    "mergedInto": "Scalono z {title}",
+    "restoreMerged": "Przywróć jako osobny wiersz. Powiązania, komentarze, aktywność i e-maile przeniesione do „{title}” zostaną tam."
   },
   "newWorkspace": {
     "title": "Nowy obszar roboczy",

@@ -81,7 +81,9 @@
     "deletePermanently": "Delete permanently",
     "confirmDelete": "Delete permanently? This cannot be undone.",
     "deletesIn": "Deleted in {count, plural, one {# day} other {# days}}",
-    "deletesSoon": "Deleted soon"
+    "deletesSoon": "Deleted soon",
+    "mergedInto": "Merged into {title}",
+    "restoreMerged": "Restore as a separate row. Links, comments, activity and email that moved to “{title}” stay there."
   },
   "newWorkspace": {
     "title": "New workspace",

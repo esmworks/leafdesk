@@ -78,8 +78,32 @@
     "promptPlaceholder": "Örnek: '{title}' için '{Audience}' kitlesine yönelik tek cümlelik bir tanıtım yaz.",
     "promptHint": "Eklemek için bir özelliğe tıkla; yerine satırın değeri gelir.",
     "includeBody": "Satırın sayfa içeriğini de gönder",
+    "typed": {
+      "select": {
+        "hint": "Yapay zekâ bu özelliğin seçeneklerinden birini seçer; hiçbiri uymazsa boş bırakır.",
+        "placeholder": "Örnek: '{Notlar}' göz önüne alınınca '{title}' için en uygun seçenek hangisi?"
+      },
+      "multi_select": {
+        "hint": "Yapay zekâ uyan seçenekleri seçer, yeni seçenek eklemez; hiçbiri uymazsa boş bırakır.",
+        "placeholder": "Örnek: '{Notlar}' hangi konulara değiniyor?"
+      },
+      "status": {
+        "hint": "Yapay zekâ bu durumun seçeneklerinden birini seçer; hiçbiri uymazsa boş bırakır.",
+        "placeholder": "Örnek: '{Notlar}' göz önüne alınınca '{title}' bitti mi, sürüyor mu, başlamadı mı?"
+      },
+      "number": {
+        "hint": "Yapay zekâ bir sayıyla yanıt verir; bulamazsa boş bırakır.",
+        "placeholder": "Örnek: '{Notlar}' göz önüne alınınca '{title}' 1’den 5’e ne kadar acil?"
+      },
+      "checkbox": {
+        "hint": "Yapay zekâ evet için kutuyu işaretler, hayır için işaretsiz bırakır.",
+        "placeholder": "Örnek: '{Notlar}' bir son tarihten söz ediyor mu?"
+      }
+    },
     "auto": "Satır değişince güncelle",
     "autoHint": "Bir satırın değerleri ya da sayfası değiştikten birkaç saniye sonra değeri yeniden hesaplanır.",
+    "requires": "Yalnızca bunları dolu olan satırlar",
+    "requiresHint": "Bunlardan biri boş (ya da işaretsiz) olan satırlar atlanır ve değerini korur.",
     "privacy": "Her satırın değerinin hesaplandığı bilgiler bu sunucunun yapay zekâ sağlayıcısına gönderilir.",
     "save": "Kaydet",
     "create": "Özellik ekle",
@@ -98,7 +122,9 @@
       "unknownPlaceholder": "“{name}” adında bir özellik yok.",
       "cycle": "“{name}” bu özelliği zaten okuyor (doğrudan ya da başka AI özellikleri üzerinden); bu yüzden bu özellik onu okuyamaz.",
       "hiddenInput": "“{name}” bir AI değerinde kullanılamaz: satırı okuyan herkesin göremeyebileceği ilişkili satırları veya kişileri gösterir.",
-      "notText": "Yalnızca metin özellikleri yapay zekâyla doldurulabilir.",
+      "noOptions": "Önce bu özelliğe seçenek ekle: yapay zekâ bunların arasından seçer.",
+      "unknownRequired": "Seçilen özelliklerden bazıları artık bu veritabanında yok. Yeniden seç.",
+      "unsupportedType": "Yapay zekâ metin, seçim, çoklu seçim, durum, sayı ve onay kutusu özelliklerini doldurabilir.",
       "databaseLocked": "Veritabanı kilitli."
     }
   },
@@ -181,26 +207,30 @@
           "createRow": "Satır eklendi:",
           "updateRow": "Satır değiştirildi:",
           "createPage": "Sayfa eklendi:",
-          "editPage": "Sayfa metni değiştirildi:"
+          "editPage": "Sayfa metni değiştirildi:",
+          "mergeRows": "Satırlar şurada birleştirildi:"
         },
         "declined": {
           "createRow": "Satır ekleme reddedildi:",
           "updateRow": "Değişiklik reddedildi:",
           "createPage": "Sayfa ekleme reddedildi:",
-          "editPage": "Metin değişikliği reddedildi:"
+          "editPage": "Metin değişikliği reddedildi:",
+          "mergeRows": "Satırların birleştirilmesi reddedildi:"
         },
         "failed": {
           "createRow": "Satır eklenemedi:",
           "updateRow": "Değiştirilemedi:",
           "createPage": "Sayfa eklenemedi:",
-          "editPage": "Metni değiştirilemedi:"
+          "editPage": "Metni değiştirilemedi:",
+          "mergeRows": "Satırlar birleştirilemedi:"
         },
         "in": "yer:",
         "proposed": {
           "createRow": "İnceleme için satır eklemeyi önerdi:",
           "updateRow": "İnceleme için bir değişiklik önerdi:",
           "createPage": "İnceleme için sayfa eklemeyi önerdi:",
-          "editPage": "İnceleme için bir metin değişikliği önerdi:"
+          "editPage": "İnceleme için bir metin değişikliği önerdi:",
+          "mergeRows": "İnceleme için satırları şurada birleştirmeyi önerdi:"
         }
       },
       "memory": {

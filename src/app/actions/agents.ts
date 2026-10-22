@@ -6,7 +6,14 @@ import type { ActionResult } from "@/app/actions/workspaces";
 import type { AgentAccessLevel, AgentCommentRecord, AgentEmailRecord, AgentHandoffRecord, AgentRunView, AgentSkillRecord, AgentToolRecord } from "@/lib/agents";
 import type { ChatStepView } from "@/lib/ai-chat";
 import type { RepeatRule } from "@/lib/schedule";
-import { ANSWER_PROPERTY_TYPES, FLAG_PROPERTY_TYPES, LOG_PROPERTY_TYPES, ROUTER_PROPERTY_TYPES, type BuiltinAgentSetup } from "@/lib/builtin-agents";
+import {
+  ANSWER_PROPERTY_TYPES,
+  COMPANY_PROPERTY_TYPES,
+  FLAG_PROPERTY_TYPES,
+  LOG_PROPERTY_TYPES,
+  ROUTER_PROPERTY_TYPES,
+  type BuiltinAgentSetup,
+} from "@/lib/builtin-agents";
 import { isDatabaseErrorCode, PropertyValueError } from "@/lib/properties";
 import { AccessError } from "@/server/access";
 import { isAiError } from "@/server/ai";
@@ -301,9 +308,14 @@ export async function listAgentRunsAction(workspaceId: string, agentId: string):
 }
 
 /** Property types a built-in agent may use. */
-const TEMPLATE_TYPES: readonly string[] = [...new Set([...ROUTER_PROPERTY_TYPES, ...ANSWER_PROPERTY_TYPES, ...FLAG_PROPERTY_TYPES, ...LOG_PROPERTY_TYPES])];
+const TEMPLATE_TYPES: readonly string[] = [
+  ...new Set([...ROUTER_PROPERTY_TYPES, ...ANSWER_PROPERTY_TYPES, ...FLAG_PROPERTY_TYPES, ...LOG_PROPERTY_TYPES, ...COMPANY_PROPERTY_TYPES]),
+];
 
-/** The properties of a database a built-in agent could use, for its setup (full access only). */
+/**
+ * The properties of a database a built-in agent could use, for its setup (full access only), with
+ * their descriptions and whether AI autofill fills them (which the company researcher leaves alone).
+ */
 export async function builtinAgentPropertiesAction(workspaceId: string, databaseId: string) {
   return run(workspaceId, async (userId) => {
     const database = await requireDatabase(userId, String(databaseId), "full");
@@ -316,6 +328,8 @@ export async function builtinAgentPropertiesAction(workspaceId: string, database
         name: p.name,
         type: p.type,
         options: (p.options.options ?? []).map((o) => ({ id: o.id, name: o.name, color: o.color })),
+        description: p.options.description?.trim() || null,
+        ai: Boolean(p.options.ai),
       }));
   });
 }

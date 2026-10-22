@@ -95,7 +95,11 @@ import { recipientLocale } from "@/server/mail/locale";
 import { emailTranslator } from "@/server/mail/templates";
 import { signalInbox } from "@/server/notifications";
 import { pushNotifications } from "@/server/push";
-import type * as ops from "@/server/operations";
+import * as ops from "@/server/operations";
+import { ToolInputError } from "@/server/mcp/format";
+import { COMBINE, MAX_MERGE_ROWS } from "@/lib/merge-rows";
+import { PropertyValueError } from "@/lib/properties";
+import type { ChatWriteRecord } from "@/db/schema/ai";
 import { runClock } from "./clock";
 import { ASK_AGENT, handoffEventText, handoffFor, handoffHold } from "./handoff";
 import { chatRunHistory, closeChatTurn } from "./chat-store";
@@ -156,6 +160,30 @@ const ADD_ROW_COMMENT: AiTool = {
       text: { type: "string", description: "The comment, in plain text." },
     },
     required: ["row_id", "text"],
+    additionalProperties: false,
+  },
+};
+
+const MERGE_ROWS: AiTool = {
+  name: "merge_rows",
+  description: `Merges duplicate rows of the database this run looks after into one kept row, as you. The kept row takes, for each property, the value of the row named for it (or "${COMBINE}": every row's values of a multi-value property); properties left out keep the kept row's value, or the first row's that has one. Links, comments, activity, files, email and page text of the other rows move to the kept row, and they go to the trash. Merge only rows that are clearly the same record. Counts as one change.`,
+  parameters: {
+    type: "object",
+    properties: {
+      kept_row_id: { type: "string", description: "The page_id of the row that stays (from a source)." },
+      other_row_ids: {
+        type: "array",
+        items: { type: "string" },
+        description: `The page_ids of the rows merged into it (1-${MAX_MERGE_ROWS - 1}).`,
+      },
+      properties: {
+        type: "object",
+        description: `For each property to take from another row, by name: the page_id of that row, or "${COMBINE}".`,
+        additionalProperties: { type: "string" },
+      },
+      title: { type: "string", description: "The page_id of the row whose title the kept row takes, if not its own." },
+    },
+    required: ["kept_row_id", "other_row_ids"],
     additionalProperties: false,
   },
 };
@@ -583,8 +611,12 @@ async function converse(
   // is matched to the rows drafts email from it; each draft waits for them (email-drafts.ts).
   const draftDatabase = databaseId ?? (isRowRun(run.source) ? await databaseOfRow(run.source.rowId) : null);
   const sender = await draftSender(member, run.workspaceId, draftDatabase);
+  // A schedule's run on a database merges duplicates there only where the agent may edit it, and
+  // not when its changes wait for review: a merge can't be proposed.
+  const merges = !rowRun && !proposes && databaseId !== null && hasLevel((await pageAccessOf(agent.userId, databaseId)).level, "edit");
   const tools = [
     ...forReview(ownTools, proposes),
+    ...(merges ? [MERGE_ROWS] : []),
     ...(sender ? [draftEmailTool(sender, { anyRow: Boolean(databaseId) })] : []),
     ...(remembers ? AGENT_MEMORY_TOOLS : []),
     ...webTools,
@@ -796,6 +828,12 @@ async function converse(
       if (!out.isError) writes += 1;
       return out;
     }
+    if (databaseId && call.name === MERGE_ROWS.name && tools.includes(MERGE_ROWS)) {
+      if (writes >= maxWrites) return { content: `You have made ${maxWrites} changes, the most one run may make. Finish now.`, isError: true };
+      const out = await mergeRowsTool(ctx, agent, databaseId, call.arguments);
+      if (!out.isError) writes += 1;
+      return out;
+    }
     if (handoff && call.name === ASK_AGENT) return handoff.ask(call, room(messages));
     if (!tools.some((t) => t.name === call.name)) return { content: `There is no tool "${call.name}" in this run.`, isError: true };
     const out: ToolOutcome = await runTool(ctx, run.workspaceId, undefined, call, registry, room(messages));
@@ -992,6 +1030,40 @@ async function changeRow(
   if (propose) return propose(prepared, call);
   const registry: Registry = { sources: [], byKey: new Map() };
   return asAutomation(() => applyWrite(prepared, "approve", registry));
+}
+
+/**
+ * merge_rows on a schedule's run: rows of the database it looks after only, made at once and
+ * starting no automations, as update_row is. The merge checks the agent's access to every row.
+ */
+async function mergeRowsTool(ctx: ops.OperationContext, agent: Agent, databaseId: string, args: Record<string, unknown>): Promise<CallResult> {
+  const keptId = typeof args.kept_row_id === "string" ? args.kept_row_id.trim() : "";
+  const others = Array.isArray(args.other_row_ids) ? args.other_row_ids.filter((v): v is string => typeof v === "string").map((v) => v.trim()) : [];
+  const choices =
+    args.properties && typeof args.properties === "object" && !Array.isArray(args.properties)
+      ? Object.fromEntries(Object.entries(args.properties as Record<string, unknown>).filter((e): e is [string, string] => typeof e[1] === "string"))
+      : undefined;
+  const title = typeof args.title === "string" && args.title.trim() ? args.title.trim() : undefined;
+  const record = (outcome: "done" | "failed") =>
+    ({ kind: "write", action: "mergeRows", outcome, targetId: keptId || null, pageId: outcome === "done" ? keptId : null, title: null, changes: [] }) satisfies ChatWriteRecord;
+  for (const id of [keptId, ...others]) {
+    if (!(await isRowOf(id, databaseId))) {
+      return { content: `You may merge only rows of the database this run looks after (database_id ${databaseId}). Nothing was merged.`, isError: true };
+    }
+  }
+  try {
+    // The heading over each merged body is in the language of the person who set the agent up.
+    const locale = agent.createdBy ? await recipientLocale(agent.createdBy, null) : undefined;
+    const out = await asAutomation(() =>
+      ops.mergeRows(ctx, { database_id: databaseId, kept_row_id: keptId, other_row_ids: others, properties: choices, title, dry_run: false }, { locale }),
+    );
+    return { content: `Merged ${others.length} ${others.length === 1 ? "row" : "rows"} into the row ${keptId}: ${JSON.stringify(out)}`, step: record("done") };
+  } catch (error) {
+    if (error instanceof AccessError || error instanceof PropertyValueError || error instanceof ToolInputError) {
+      return { content: `Nothing was merged: ${error.message}`, isError: true, step: record("failed") };
+    }
+    throw error;
+  }
 }
 
 /** add_comment: a new comment thread, as the agent, on the run's row (or a row of the database a schedule's run looks after). */

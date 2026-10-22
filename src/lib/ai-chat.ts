@@ -1,7 +1,7 @@
 // Client-safe: shared by the AI chat's server side (src/server/ai-chat.ts, /api/ai/chat) and its
 // panel (src/components/ai-chat).
 
-import type { ChatChange, ChatConnectionRecord, ChatMemoryRecord, ChatStepRecord, ChatWriteAction } from "@/db/schema/ai";
+import type { ChatChange, ChatConnectionRecord, ChatMemoryRecord, ChatStepRecord, ChatWriteAction, ChatWriteStepAction } from "@/db/schema/ai";
 import type { PageKind } from "@/db/schema/app";
 import type { BlockChange } from "./page-diff";
 import type { AiErrorCode } from "./ai";
@@ -20,7 +20,7 @@ export type MemoryView = { id: string; text: string; app: string | null; created
 /** What the chat answers from: the whole workspace, or a page and the pages under it. */
 export type ChatScope = { pageId: string } | null;
 
-export type { ChatChange, ChatConnectionRecord, ChatMemoryRecord, ChatWriteAction };
+export type { ChatChange, ChatConnectionRecord, ChatMemoryRecord, ChatWriteAction, ChatWriteStepAction };
 
 /**
  * What the chat may change: `ask` asks the person before each change (the answer waits), `auto`
@@ -73,7 +73,7 @@ export type ChatStepView =
  */
 export type ChatWriteView = {
   kind: "write";
-  action: ChatWriteAction;
+  action: ChatWriteStepAction;
   outcome: "done" | "declined" | "failed" | "proposed";
   target: ChatPageView;
   page: ChatPageView;

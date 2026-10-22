@@ -6,6 +6,7 @@ import { RowProperties } from "@/components/database/row-properties";
 import { NoAccess } from "@/components/page/no-access";
 import { PageView } from "@/components/page/page-view";
 import { pageLabel } from "@/lib/labels";
+import { MERGED_ORIGINAL_PARAM } from "@/lib/merge-rows";
 import { parsePageBackground } from "@/lib/page-background";
 import { pageStyleFromYdoc } from "@/lib/page-style";
 import { AccessError, WorkspacePolicyError } from "@/server/access";
@@ -44,10 +45,16 @@ export async function generateMetadata({
   return { title: viewName ? { absolute: t("page.documentViewTitle", { title, view: viewName }) } : title };
 }
 
-export default async function PageRoute({ params }: Params) {
+export default async function PageRoute({ params, searchParams }: Params & { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const user = await requireUser();
   const { workspaceId, pageId } = await params;
   const p = await load(user.id, pageId);
+  // A row merged into another one (server/merge-rows.ts): links and mentions of it open that row,
+  // where its values, comments and content went. The trash opens the merged row itself.
+  if (p?.archivedAt && p.mergedIntoId && (await searchParams)[MERGED_ORIGINAL_PARAM] !== "1") {
+    const kept = await load(user.id, p.mergedIntoId);
+    if (kept && !kept.archivedAt) redirect(`/w/${kept.workspaceId}/p/${kept.id}`);
+  }
   if (!p) {
     // Decided by the workspace in the address, never by the page, so a page that doesn't exist
     // gets the same screen as one the user can't see.

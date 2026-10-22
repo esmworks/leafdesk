@@ -106,6 +106,20 @@ function commentError(error: unknown): unknown {
   return error;
 }
 
+/** Blocks with ids of their own (children too), to put a copy of them into another page. */
+function withFreshIds<B extends { id?: string; children?: unknown[] }>(blocks: B[]): B[] {
+  return blocks.map((block) => ({
+    ...block,
+    id: crypto.randomUUID(),
+    ...(Array.isArray(block.children) ? { children: withFreshIds(block.children as B[]) } : {}),
+  }));
+}
+
+/** Whether a body holds anything: a block that isn't an empty paragraph. */
+function holdsContent(blocks: { type: string; children: unknown[] }[]) {
+  return blocks.some((b) => b.type !== "paragraph" || b.children.length > 0 || blocksToPlainText([b as never]).trim() !== "");
+}
+
 /** A fresh page holds one empty paragraph; appending drops it instead of leaving a gap. */
 function withoutTrailingEmpty<B extends { type: string; children: unknown[] }>(blocks: B[]): B[] {
   return blocks.filter(
@@ -537,7 +551,7 @@ export function createCollab() {
       mentions: NonNullable<Parameters<typeof markdownToBlocks>[2]>,
     ) => Promise<typeof existing | null>,
     /** `true`: an AI app's or the chat's write, saved as `before_mcp_write` and offered for review. */
-    snapshot: boolean | "before_restore" | "before_markdown_edit",
+    snapshot: boolean | "before_restore" | "before_markdown_edit" | "before_merge",
     check: VersionCheck = {},
   ) => {
     await assertWritable(pageId);
@@ -702,6 +716,90 @@ export function createCollab() {
       } finally {
         doc.destroy();
       }
+    },
+
+    async mergeInto(pageId, sources, actor) {
+      // Each source as its document has it now: the open one, else the stored one.
+      const read = [];
+      for (const source of sources) {
+        const live = hocuspocus.documents.get(pageDocName(source.pageId));
+        const doc = live ?? new Y.Doc();
+        try {
+          if (!live) {
+            const [row] = await db.select({ ydoc: page.ydoc }).from(page).where(eq(page.id, source.pageId)).limit(1);
+            if (row?.ydoc) Y.applyUpdate(doc, row.ydoc);
+          }
+          const fragment = doc.getXmlFragment(COLLAB_FRAGMENT);
+          const threads = threadsOf(doc);
+          const quotes = threads.size ? threadQuotes(fragment) : new Map<string, string>();
+          read.push({
+            ...source,
+            blocks: withoutTrailingEmpty(editor.yXmlFragmentToBlocks(fragment)),
+            // Copies, taken before the source's document goes: the thread with its comments, replies and reactions.
+            threads: [...threads.entries()].flatMap(([id, thread]) =>
+              thread instanceof Y.Map ? [{ id, thread: thread.clone() as Y.Map<unknown>, quote: quotes.get(id) ?? null }] : [],
+            ),
+          });
+        } finally {
+          if (!live) doc.destroy();
+        }
+      }
+
+      const bodies = read.filter((s) => holdsContent(s.blocks));
+      if (bodies.length) {
+        await writeBlocks(
+          pageId,
+          actor,
+          async (existing) => [
+            ...withoutTrailingEmpty(existing),
+            ...bodies.flatMap((s) => [
+              {
+                id: crypto.randomUUID(),
+                type: "heading",
+                props: { level: 3, textColor: "default", backgroundColor: "default", textAlignment: "left", isToggleable: false },
+                content: [{ type: "text", text: s.heading, styles: {} }],
+                children: [],
+              },
+              ...withFreshIds(s.blocks),
+            ]),
+          ] as typeof existing,
+          "before_merge",
+        );
+      }
+
+      const moving = read.flatMap((s) => s.threads.map((t) => ({ ...t, from: s.title })));
+      if (moving.length) {
+        await transactPage(pageId, actor, (doc) => {
+          const threads = threadsOf(doc);
+          const fragment = doc.getXmlFragment(COLLAB_FRAGMENT);
+          doc.transact(
+            () => {
+              const added: typeof moving = [];
+              for (const t of moving) {
+                if (threads.has(t.id)) continue;
+                // Read and changed once in the document: a copy not in one yet holds nothing to read.
+                threads.set(t.id, t.thread);
+                const thread = threads.get(t.id) as Y.Map<unknown>;
+                const metadata = thread.get("metadata");
+                thread.set("metadata", { ...(metadata && typeof metadata === "object" ? metadata : {}), mergedFrom: t.from });
+                added.push(t);
+              }
+              // On the same text where the page has it now (the merged body came along); about the whole page otherwise.
+              const quotes = new Map(added.flatMap((t) => (t.quote ? [[t.id, t.quote] as const] : [])));
+              if (quotes.size) reanchor(fragment, quotes, new Set(quotes.keys()));
+              const anchored = threadQuotes(fragment);
+              for (const t of added) {
+                if (anchored.has(t.id)) continue;
+                const thread = threads.get(t.id) as Y.Map<unknown>;
+                const metadata = thread.get("metadata") as Record<string, unknown>;
+                if (!isPageThread(metadata)) thread.set("metadata", { ...metadata, ...PAGE_THREAD_METADATA });
+              }
+            },
+            { source: "local", context: actor },
+          );
+        });
+      }
+      return { bodies: bodies.length, threads: moving.length };
     },
 
     async readThreads(pageId) {

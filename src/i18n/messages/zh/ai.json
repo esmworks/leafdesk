@@ -78,8 +78,32 @@
     "promptPlaceholder": "例如：用一句话向'{Audience}'介绍'{title}'。",
     "promptHint": "点击某个属性即可插入；该行的值会替换它。",
     "includeBody": "同时发送该行的页面内容",
+    "typed": {
+      "select": {
+        "hint": "AI 会从此属性的选项中选一个；都不合适时留空。",
+        "placeholder": "例如：根据'{Notes}'，哪个选项最适合'{title}'？"
+      },
+      "multi_select": {
+        "hint": "AI 会选出适用的选项，不会新建选项；都不适用时留空。",
+        "placeholder": "例如：'{Notes}'涉及哪些主题？"
+      },
+      "status": {
+        "hint": "AI 会从此状态的选项中选一个；都不合适时留空。",
+        "placeholder": "例如：根据'{Notes}'，'{title}'是已完成、进行中还是未开始？"
+      },
+      "number": {
+        "hint": "AI 用一个数字回答；无法判断时留空。",
+        "placeholder": "例如：根据'{Notes}'，'{title}'的紧急程度在 1 到 5 之间是多少？"
+      },
+      "checkbox": {
+        "hint": "AI 对“是”勾选复选框，对“否”保持不勾选。",
+        "placeholder": "例如：'{Notes}'是否提到了截止日期？"
+      }
+    },
     "auto": "行发生变化时更新",
     "autoHint": "行的值或页面发生变化几秒后，会重新生成其值。",
+    "requires": "仅限这些属性有值的行",
+    "requiresHint": "其中任一为空（或未勾选）的行会被跳过，并保留原值。",
     "privacy": "用于生成每一行值的内容会发送给此服务器的 AI 提供方。",
     "save": "保存",
     "create": "添加属性",
@@ -98,7 +122,9 @@
       "unknownPlaceholder": "没有名为“{name}”的属性。",
       "cycle": "“{name}”已经（直接或通过其他 AI 属性）读取了此属性，因此此属性不能读取它。",
       "hiddenInput": "“{name}”不能用于 AI 值：它会显示并非每位读者都能看到的关联行或人员。",
-      "notText": "只有文本属性可以由 AI 填充。",
+      "noOptions": "请先为此属性添加选项：AI 会从中选择。",
+      "unknownRequired": "所选的部分属性已不在此数据库中。请重新选择。",
+      "unsupportedType": "AI 可以填充文本、单选、多选、状态、数字和复选框属性。",
       "databaseLocked": "数据库已锁定。"
     }
   },
@@ -181,26 +207,30 @@
           "createRow": "已添加行：",
           "updateRow": "已更改：",
           "createPage": "已添加页面：",
-          "editPage": "已更改页面文本："
+          "editPage": "已更改页面文本：",
+          "mergeRows": "已将行合并到："
         },
         "declined": {
           "createRow": "已拒绝添加行：",
           "updateRow": "已拒绝更改：",
           "createPage": "已拒绝添加页面：",
-          "editPage": "已拒绝更改其文本："
+          "editPage": "已拒绝更改其文本：",
+          "mergeRows": "已拒绝将行合并到："
         },
         "failed": {
           "createRow": "无法添加行：",
           "updateRow": "无法更改：",
           "createPage": "无法添加页面：",
-          "editPage": "无法更改其文本："
+          "editPage": "无法更改其文本：",
+          "mergeRows": "无法将行合并到："
         },
         "in": "位于",
         "proposed": {
           "createRow": "提议添加一行以供审阅：",
           "updateRow": "提议了一处更改以供审阅：",
           "createPage": "提议添加一个页面以供审阅：",
-          "editPage": "提议了一处文本更改以供审阅："
+          "editPage": "提议了一处文本更改以供审阅：",
+          "mergeRows": "建议合并行以供审核，合并到："
         }
       },
       "memory": {

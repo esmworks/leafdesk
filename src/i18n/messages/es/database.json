@@ -290,7 +290,9 @@
     "confirmTrash": "¿Mover {count, plural, one {# fila} other {# filas}} a la papelera?",
     "skipped": "{count, plural, one {Se omitió # fila porque no puedes cambiarla.} other {Se omitieron # filas porque no puedes cambiarlas.}}",
     "pasteLeftOut": "{count, plural, one {Se omitió # celda pegada: no encaja en su columna o no puedes cambiarla.} other {Se omitieron # celdas pegadas: no encajan en sus columnas o no puedes cambiarlas.}}",
-    "exportDisabled": "La exportación está desactivada en este espacio de trabajo."
+    "exportDisabled": "La exportación está desactivada en este espacio de trabajo.",
+    "merge": "Combinar",
+    "mergeHint": "Combinar de 2 a 5 filas en una"
   },
   "calculate": {
     "calculate": "Calcular",
@@ -393,7 +395,8 @@
     "startTime": "Hora de inicio",
     "endTime": "Hora de fin",
     "endDateSwitch": "Fecha de fin",
-    "includeTime": "Incluir hora"
+    "includeTime": "Incluir hora",
+    "hiddenByParent": "{count, plural, one {# opción no va} other {# opciones no van}} con el valor de “{parent}” de esta fila."
   },
   "checklist": {
     "addItem": "Añadir un elemento",
@@ -496,7 +499,16 @@
     "reminder": "Recordatorio",
     "reminderNone": "Sin recordatorio",
     "reminderBefore": "{days, select, 0 {El mismo día, 9:00} 1 {1 día antes, 9:00} 7 {1 semana antes, 9:00} other {{days} días antes, 9:00}}",
-    "reminderHint": "Avisa a las personas asignadas a cada fila, o a quien la añadió, salvo que la fila esté terminada. Las 9:00 son en tu zona horaria; las fechas con hora avisan a esa hora."
+    "reminderHint": "Avisa a las personas asignadas a cada fila, o a quien la añadió, salvo que la fila esté terminada. Las 9:00 son en tu zona horaria; las fechas con hora avisan a esa hora.",
+    "description": "Descripción",
+    "descriptionPlaceholder": "Qué contiene y cómo rellenarla",
+    "dependsOn": "Depende de",
+    "dependsOnNone": "Nada",
+    "dependsOnHint": "Elige con qué opciones de “{parent}” va cada opción. Las filas solo ofrecen esas; una sin ninguna elegida va con todas.",
+    "noParentOptions": "“{parent}” aún no tiene opciones.",
+    "parentOptionsLabel": "Con “{parent}”:",
+    "parentOptionsAll": "siempre",
+    "parentOptionToggle": "Ofrecer “{option}” cuando “{parent}” sea “{value}”"
   },
   "rowProperties": {
     "noProperties": "Sin propiedades",
@@ -528,6 +540,8 @@
     "checked": "marcado",
     "unchecked": "sin marcar",
     "checklist": "{done} de {total} hechos",
+    "merged": "<actor>{name}</actor> combinó {count, plural, one {# fila} other {# filas}} en esta fila: <rows>{titles}</rows>",
+    "mergedFrom": "de {title}",
     "approvedFrom": "(propuesto por {name})"
   },
   "rowEmail": {
@@ -797,7 +811,15 @@
     "webhookBlocked": "Los webhooks no pueden ir a direcciones de red privadas o locales.",
     "agentOwnersOnly": "Solo los propietarios del espacio de trabajo y quienes pueden editar el agente pueden añadir o cambiar acciones que lo ejecutan.",
     "invalidRepeat": "Esa repetición no es válida: revisa los días, la hora y la zona horaria.",
-    "tooManySchedules": "Este espacio de trabajo ya tiene todas las plantillas repetidas que puede tener."
+    "tooManySchedules": "Este espacio de trabajo ya tiene todas las plantillas repetidas que puede tener.",
+    "optionUnavailable": "“{value}” no está disponible en “{property}” para esta fila.",
+    "invalidDependency": "“{property}” solo puede depender de otra propiedad de selección de esta base de datos que no dependa de ella.",
+    "invalidDescription": "Una descripción puede tener como máximo {max} caracteres.",
+    "mergeRowCount": "Elige de {min} a {max} filas para combinar.",
+    "mergeRowsInvalid": "Solo se pueden combinar filas de una misma base de datos que no estén en la papelera.",
+    "mergeRowsReadOnly": "Solo puedes ver {rows}. Para combinar necesitas permiso de edición en cada fila.",
+    "mergeLinksBlocked": "{count, plural, one {Una fila enlaza} other {# filas enlazan}} con estas filas y no puedes {count, plural, one {cambiarla} other {cambiarlas}}: {rows}. No se combinó nada.",
+    "mergeChoiceInvalid": "No se puede usar el valor elegido para «{property}». Elige el valor de otra fila."
   },
   "formula": {
     "title": "Fórmula",
@@ -1167,5 +1189,37 @@
   "quickAdd": {
     "recognised": "Reconocido en el título",
     "keep": "Dejar «{text}» en el título"
+  },
+  "merge": {
+    "menuItem": "Combinar con…",
+    "pickTitle": "Combinar con otras filas",
+    "pickHint": "Elige hasta {count, plural, one {# fila} other {# filas}} para combinar con esta.",
+    "pickSearch": "Buscar filas",
+    "pickEmpty": "No coincide ninguna otra fila",
+    "pickLoading": "Cargando filas…",
+    "pickContinue": "Continuar",
+    "title": "Combinar {count, plural, one {# fila} other {# filas}}",
+    "keep": "Fila que se conserva",
+    "keepHint": "Las demás filas van a la papelera. Lo que contienen pasa a la fila que conservas.",
+    "oldest": "La más antigua",
+    "created": "Creada el {date}",
+    "titleField": "Título",
+    "combine": "Combinar todo",
+    "hidden": "Oculto",
+    "empty": "Vacío",
+    "locked": "No puedes cambiar esta propiedad, así que se queda el valor de la fila conservada.",
+    "moves": "También pasa a la fila conservada",
+    "movesThreads": "{count, plural, one {# hilo de comentarios} other {# hilos de comentarios}}",
+    "movesActivity": "{count, plural, one {# entrada de actividad} other {# entradas de actividad}}",
+    "movesFiles": "{count, plural, one {# archivo subido} other {# archivos subidos}}",
+    "movesEmails": "{count, plural, one {# correo} other {# correos}}",
+    "movesLinks": "Los vínculos de {count, plural, one {# otra fila} other {# otras filas}}, con subelementos y dependencias",
+    "movesBodies": "El contenido de página de {count, plural, one {# fila} other {# filas}}, cada uno bajo un encabezado",
+    "movesNothing": "No hay nada más que mover.",
+    "subpages": "{count, plural, one {# página dentro de las filas combinadas va} other {# páginas dentro de las filas combinadas van}} a la papelera con ellas.",
+    "trashNote": "Restaurar una fila combinada desde la papelera la recupera como fila independiente. Lo que se movió se queda en la fila conservada.",
+    "confirm": "Combinar filas",
+    "merging": "Combinando…",
+    "bodyHeading": "Combinado desde {title}"
   }
 }

@@ -61,6 +61,7 @@ export const AUDIT_CATEGORIES = {
   pages: [
     "page.created",
     "page.duplicated",
+    "page.rows_merged",
     "page.imported",
     "page.moved",
     "page.trashed",
@@ -82,6 +83,7 @@ export const AUDIT_CATEGORIES = {
     "connected_app.connected",
     "connected_app.revoked",
     "api_token.created",
+    "api_token.updated",
     "api_token.revoked",
     "automation.created",
     "automation.updated",

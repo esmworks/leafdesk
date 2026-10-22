@@ -88,7 +88,8 @@
     "muteHint": "이 스레드의 새 답글 알림을 더 이상 받지 않습니다. 여기에 답글을 달거나 여기서 멘션되면 다시 켜집니다.",
     "unmuteHint": "이 스레드의 새 답글 알림을 다시 받습니다.",
     "muted": "답글 알림 꺼짐",
-    "mutedHint": "여기에 답글을 달거나 누군가 여기서 회원님을 멘션할 때까지 이 스레드의 답글 알림을 받지 않습니다."
+    "mutedHint": "여기에 답글을 달거나 누군가 여기서 회원님을 멘션할 때까지 이 스레드의 답글 알림을 받지 않습니다.",
+    "mergedFrom": "‘{title}’에서"
   },
   "archived": {
     "banner": "이 페이지는 휴지통에 있습니다.",
@@ -167,7 +168,8 @@
       "beforeAiEdit": "AI 편집 전",
       "beforeAiEditBy": "{client} 편집 전",
       "beforeAssistantEdit": "AI 어시스턴트 편집 전",
-      "beforeMarkdownEdit": "Markdown 편집 전"
+      "beforeMarkdownEdit": "Markdown 편집 전",
+      "beforeMerge": "행 병합 전"
     },
     "empty": "아직 버전이 없습니다. 버전은 편집하는 동안, 그리고 AI 앱이 이 페이지를 변경하기 전에 자동으로 저장됩니다.",
     "restore": "이 버전 복원",

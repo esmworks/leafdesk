@@ -81,7 +81,9 @@
     "deletePermanently": "完全に削除",
     "confirmDelete": "完全に削除しますか？この操作は元に戻せません。",
     "deletesIn": "{count}日後に削除",
-    "deletesSoon": "まもなく削除"
+    "deletesSoon": "まもなく削除",
+    "mergedInto": "{title}に統合済み",
+    "restoreMerged": "別の行として復元します。「{title}」に移ったリンク、コメント、アクティビティ、メールはそちらに残ります。"
   },
   "newWorkspace": {
     "title": "新しいワークスペース",

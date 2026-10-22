@@ -1,7 +1,8 @@
 import * as z from "zod";
-import { API_TOKEN_SCOPES } from "@/db/schema";
+import { API_SCOPE_DESCRIPTIONS, API_TOKEN_SCOPES } from "@/lib/api-scopes";
 import { API_ERROR_CODES } from "./errors";
-import { API_PREFIX, DEFAULT_RATE_LIMIT, MAX_BODY_BYTES } from "./handler";
+import { API_PREFIX, DEFAULT_RATE_LIMIT, MAX_BODY_BYTES, takesIdempotencyKey } from "./handler";
+import { IDEMPOTENCY_HEADER, MAX_IDEMPOTENCY_KEY, REPLAYED_HEADER } from "./idempotency";
 import type { ApiRoute } from "./routes";
 
 type JsonSchema = Record<string, unknown>;
@@ -30,13 +31,17 @@ const TOOL_NAMES = [
 
 const DESCRIPTION = `A REST API for the pages, databases, rows and comments of Leafdesk, acting as the user who created the token, with that user's own access to pages.
 
-**Authentication.** Create a personal access token in Settings → Connected apps and send it as \`Authorization: Bearer esi_…\`. Tokens have the scope \`pages:read\` (GET endpoints) and optionally \`pages:write\` (everything that changes data), may be limited to one workspace and may expire. Tokens look like \`esi_\` followed by 40 letters and digits, so secret scanners can spot leaked ones; revoke a leaked token in Settings. Tokens act outside a workspace's "require two-step verification" policy, like connected MCP apps.
+**Authentication.** Create a personal access token in Settings → Connected apps and send it as \`Authorization: Bearer esi_…\`. Tokens may be limited to one workspace and may expire. Tokens look like \`esi_\` followed by 40 letters and digits, so secret scanners can spot leaked ones; revoke a leaked token in Settings. Tokens act outside a workspace's "require two-step verification" policy, like connected MCP apps.
 
-**Errors** are JSON: \`{"error": {"code": "not_found", "message": "…"}}\`, with \`details\` for invalid input. A page, database or row that doesn't exist and one the user may not see both answer \`404 not_found\`.
+**Scopes.** A token may read, and for some resources write, each kind of thing on its own: ${API_TOKEN_SCOPES.map((s) => `\`${s}\``).join(", ")}. A write scope brings the read scope of its resource. Each endpoint names the one scope it needs (\`GET /me\` takes any token); without it the answer is \`403 insufficient_scope\` with the scope in \`details.scope\`. What a token may do can be changed in Settings without changing its secret. Tokens made before scopes were per resource keep the access they had: their \`pages:read\` reads everything and their \`pages:write\` reads and writes everything (\`GET /me\` shows \`legacy_scopes: true\` and lists the scopes they stand for).
+
+**Errors** are JSON: \`{"error": {"code": "not_found", "message": "…"}}\`. Invalid input adds \`details\` (what is wrong with each field) and \`param\`, the field it is about where it is known (\`title\`, \`properties.Status\`, \`rows.2.properties.Status\`). A page, database or row that doesn't exist and one the user may not see both answer \`404 not_found\`.
+
+**Idempotency.** Endpoints that change something take an \`${IDEMPOTENCY_HEADER}\` header (up to ${MAX_IDEMPOTENCY_KEY} characters; a random UUID per change is a good key). Sending the same request again with the same key, within 24 hours, answers what the first one answered, with \`${REPLAYED_HEADER}: true\`, and changes nothing more. A key belongs to its token and endpoint and remembers the request's path, query and body: the same key with another request answers \`422 idempotency_key_reused\`, and while the first request is still running \`409 idempotency_conflict\`. Server failures (5xx) and 429s are not remembered, so a retry runs again. \`POST /databases/{database_id}/query\` changes nothing and ignores the header.
 
 **Pagination.** Lists return \`next_cursor\` and \`has_more\`; pass \`cursor=<next_cursor>\` (a body field for the query endpoint) to read on.
 
-**Rate limits.** Each token may make ${DEFAULT_RATE_LIMIT} requests a minute unless the server sets another limit; \`X-RateLimit-Limit\` and \`X-RateLimit-Remaining\` show where you stand, and \`429 rate_limited\` comes with \`Retry-After\`. JSON request bodies can be at most ${MAX_BODY_BYTES / 1024 / 1024} MB; endpoints that take files (multipart form data) say their own limit.
+**Rate limits.** Each token may make ${DEFAULT_RATE_LIMIT} requests a minute unless the server sets another limit. Every answer to a request with a valid token says where it stands: \`X-RateLimit-Limit\`, \`X-RateLimit-Remaining\` and \`X-RateLimit-Reset\` (when one more request is allowed again, in Unix seconds); \`429 rate_limited\` comes with \`Retry-After\` (seconds). JSON request bodies can be at most ${MAX_BODY_BYTES / 1024 / 1024} MB; endpoints that take files (multipart form data) say their own limit.
 
 **CORS** is off unless the server lists allowed origins, so browsers can't call the API from other sites by default.
 
@@ -102,7 +107,15 @@ const SCHEMAS: Record<string, JsonSchema> = {
         properties: {
           code: { type: "string", enum: Object.keys(API_ERROR_CODES) },
           message: { type: "string" },
-          details: { type: "array", items: loose({ path: { type: "string" }, message: { type: "string" } }) },
+          param: {
+            type: "string",
+            description: "The request field the error is about, where it is known: `title`, `properties.Status`, `rows.2.properties.Status`.",
+          },
+          details: {
+            description:
+              "For invalid input, what is wrong with each field; for `insufficient_scope`, `{scope}`; for `version_conflict`, the versions.",
+            oneOf: [{ type: "array", items: loose({ path: { type: "string" }, message: { type: "string" } }) }, loose({})],
+          },
         },
       },
     },
@@ -111,7 +124,12 @@ const SCHEMAS: Record<string, JsonSchema> = {
     user: loose({ id, name: { type: "string" }, email: { type: "string" } }),
     token: loose({
       id,
-      scopes: { type: "array", items: { type: "string", enum: [...API_TOKEN_SCOPES] } },
+      scopes: {
+        type: "array",
+        items: { type: "string", enum: [...API_TOKEN_SCOPES] },
+        description: "What the token may do; for a legacy token, what its pages:read or pages:write stands for.",
+      },
+      legacy_scopes: { type: "boolean", description: "Made before scopes were per resource." },
       workspace_id: { type: ["string", "null"] },
       expires_at: { type: ["string", "null"], format: "date-time" },
     }),
@@ -354,6 +372,20 @@ const SCHEMAS: Record<string, JsonSchema> = {
           name: { type: "string" },
           type: { type: "string" },
           id: { type: "string" },
+          description: {
+            type: "string",
+            description: "What the property holds and how to fill it, as whoever set the database up wrote it. Left out when it has none.",
+          },
+          depends_on: {
+            type: "string",
+            description:
+              "Select and multi-select properties depending on another select property: its name. A row may hold only the options that go with its value of that property (see option_parents); values that no longer fit are cleared when it changes.",
+          },
+          option_parents: {
+            type: "object",
+            additionalProperties: { type: "array", items: { type: "string" } },
+            description: "With depends_on: per option name, the options of that property it goes with. Options left out go with any value.",
+          },
           result_type: { type: "string", enum: ["number", "text", "checkbox", "date"], description: "Formulas only: what the formula gives." },
           number_format: loose(
             {
@@ -420,11 +452,24 @@ const SCHEMAS: Record<string, JsonSchema> = {
               description:
                 "Who acted: a person, an agent, an automation (acting as the person in by), an AI autofill value (worked out for the person in by) or an anonymous form answer.",
             },
-            change: { type: "string", enum: ["created", "title", "property"] },
+            change: {
+              type: "string",
+              enum: ["created", "title", "property", "merged"],
+              description: "merged: other rows were merged into this one (listed in merged_rows).",
+            },
             property: { type: "string", description: "For property changes: the property's name." },
             property_id: id,
             from: { type: ["string", "null"], description: "The value before, as text (option and people names, dates as stored); null for nothing." },
             to: { type: ["string", "null"], description: "The value after." },
+            merged_rows: {
+              type: "array",
+              items: loose({ id, title: { type: "string" } }, ["id", "title"]),
+              description: "merged entries: the rows merged into this one, by their titles then.",
+            },
+            merged_from: {
+              ...loose({ id, title: { type: "string" } }, ["id", "title"]),
+              description: "An entry that came with a row merged into this one: that row, by its title then.",
+            },
           },
           ["at", "by", "actor", "change"],
         ),
@@ -477,6 +522,25 @@ const SCHEMAS: Record<string, JsonSchema> = {
       url,
     },
     ["database_id"],
+  ),
+  RowsMerged: loose(
+    {
+      kept_row_id: id,
+      merged_row_ids: { type: "array", items: id, description: "The rows merged into the kept one, now in the trash (not with dry_run)." },
+      would_merge_row_ids: { type: "array", items: id, description: "With dry_run: the rows the call would merge." },
+      dry_run: { type: "boolean" },
+      title: { type: "string", description: "The kept row's title after the merge." },
+      relinked_rows: { type: "integer", description: "Other rows whose links point at the kept row instead." },
+      moved: loose({
+        comment_threads: { type: "integer" },
+        bodies: { type: "integer", description: "Merged rows whose page content was added to the kept row's." },
+        activity: { type: "integer" },
+        files: { type: "integer" },
+        emails: { type: "integer" },
+      }),
+      url,
+    },
+    ["kept_row_id", "title", "relinked_rows", "moved"],
   ),
   CommentThreads: loose(
     {
@@ -738,17 +802,44 @@ const ERROR_RESPONSES: Record<string, { description: string }> = {
   "401": { description: "No token, or an invalid or expired one (unauthorized, invalid_token, token_expired)." },
   "403": {
     description:
-      "The token lacks the scope (insufficient_scope), or the user may not do this, or the workspace lets API tokens only read (forbidden).",
+      "The token lacks the scope (insufficient_scope, naming it in details.scope), or the user may not do this, or the workspace lets API tokens only read (forbidden).",
   },
   "404": { description: "Not found, or the user (or the token's workspace) may not access it." },
   "409": {
     description:
-      "It can't be done now: the agent can't run (agent_unavailable, limit_reached, too_many_runs), a change waiting for review was already answered or its row changed since (change_decided, change_conflict), or voice notes or AI aren't available (voice_notes_unavailable, ai_unavailable).",
+      "It can't be done now: a request with the same Idempotency-Key is still running (idempotency_conflict), the page changed (version_conflict), the agent can't run (agent_unavailable, limit_reached, too_many_runs), a change waiting for review was already answered or its row changed since (change_decided, change_conflict), or voice notes or AI aren't available (voice_notes_unavailable, ai_unavailable).",
   },
   "413": { description: "The request body is too large (payload_too_large)." },
   "415": { description: "The body or its file is of a kind the endpoint doesn't take (unsupported_media_type)." },
+  "422": { description: "The Idempotency-Key was used for a different request (idempotency_key_reused)." },
   "429": { description: "Rate limited; wait for Retry-After seconds." },
   "502": { description: "The speech to text or AI provider failed or took too long (upstream_error)." },
+};
+
+/** Headers of every answer to a request with a valid token (while the server limits requests). */
+const RATE_LIMIT_HEADERS = {
+  "X-RateLimit-Limit": { $ref: "#/components/headers/X-RateLimit-Limit" },
+  "X-RateLimit-Remaining": { $ref: "#/components/headers/X-RateLimit-Remaining" },
+  "X-RateLimit-Reset": { $ref: "#/components/headers/X-RateLimit-Reset" },
+};
+
+const HEADERS: Record<string, JsonSchema> = {
+  "X-RateLimit-Limit": { description: "Requests the token may make a minute.", schema: { type: "integer" } },
+  "X-RateLimit-Remaining": { description: "Requests it may still make in the current minute.", schema: { type: "integer" } },
+  "X-RateLimit-Reset": { description: "When it may make one more request again, in Unix seconds.", schema: { type: "integer" } },
+  "Retry-After": { description: "Seconds to wait before trying again.", schema: { type: "integer" } },
+  [REPLAYED_HEADER]: {
+    description: `"true" when the answer is the one kept for an earlier request with the same ${IDEMPOTENCY_HEADER}.`,
+    schema: { type: "string", enum: ["true"] },
+  },
+};
+
+const idempotencyKeyParameter = {
+  name: IDEMPOTENCY_HEADER,
+  in: "header",
+  required: false,
+  schema: { type: "string", minLength: 1, maxLength: MAX_IDEMPOTENCY_KEY },
+  description: `Send the same key again with the same request to get the first answer back instead of doing it twice (kept 24 hours). A random UUID per change is a good key.`,
 };
 
 /** A zod schema as JSON Schema (draft 2020-12, as OpenAPI 3.1 uses), for what clients send. */
@@ -809,29 +900,34 @@ export function buildOpenApiDocument(routes: ApiRoute[], { appUrl, version }: { 
   const paths: Record<string, Record<string, unknown>> = {};
   for (const route of routes) {
     const status = String(route.status ?? 200);
+    const idempotent = takesIdempotencyKey(route);
     const errors = [
       "400",
       "401",
       "403",
       "404",
-      ...(route.conflict ? ["409"] : []),
+      ...(route.conflict || idempotent ? ["409"] : []),
       ...(route.body || route.form ? ["413"] : []),
       ...(route.form ? ["415"] : []),
+      ...(idempotent ? ["422"] : []),
       "429",
       ...(route.form ? ["502"] : []),
     ];
-    const parameters = parametersOf(route);
+    const parameters = [...parametersOf(route), ...(idempotent ? [idempotencyKeyParameter] : [])];
+    const scope = route.scope ? `Scope: \`${route.scope}\`.` : "Any token may call it.";
     (paths[route.path] ??= {})[route.method.toLowerCase()] = {
       operationId: route.operationId,
       tags: [route.tag],
       summary: route.summary,
-      ...(route.description ? { description: `${route.description}\n\nScope: \`${route.scope}\`.` } : {}),
-      security: [{ bearerAuth: [route.scope] }],
+      description: route.description ? `${route.description}\n\n${scope}` : scope,
+      security: [{ bearerAuth: route.scope ? [route.scope] : [] }],
+      ...(route.scope ? { "x-scope": route.scope } : {}),
       ...(parameters.length ? { parameters } : {}),
       ...requestBodyOf(route),
       responses: {
         [status]: {
           description: status === "201" ? "Created" : "OK",
+          headers: { ...RATE_LIMIT_HEADERS, ...(idempotent ? { [REPLAYED_HEADER]: { $ref: `#/components/headers/${REPLAYED_HEADER}` } } : {}) },
           content: { "application/json": { schema: ref(route.response) } },
         },
         ...Object.fromEntries(errors.map((code) => [code, { $ref: `#/components/responses/E${code}` }])),
@@ -857,13 +953,22 @@ export function buildOpenApiDocument(routes: ApiRoute[], { appUrl, version }: { 
           scheme: "bearer",
           bearerFormat: "esi_ personal access token",
           description: `Personal access token from Settings → Connected apps. Scopes: ${API_TOKEN_SCOPES.join(", ")}.`,
+          "x-scopes": API_SCOPE_DESCRIPTIONS,
         },
       },
       schemas: SCHEMAS,
+      headers: HEADERS,
       responses: Object.fromEntries(
         Object.entries(ERROR_RESPONSES).map(([code, { description }]) => [
           `E${code}`,
-          { description, content: { "application/json": { schema: ref("Error") } } },
+          {
+            description,
+            // Answers before the token is known (401) can't say where it stands.
+            ...(code === "401"
+              ? {}
+              : { headers: { ...RATE_LIMIT_HEADERS, ...(code === "429" || code === "409" ? { "Retry-After": { $ref: "#/components/headers/Retry-After" } } : {}) } }),
+            content: { "application/json": { schema: ref("Error") } },
+          },
         ]),
       ),
     },

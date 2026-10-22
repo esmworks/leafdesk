@@ -629,6 +629,12 @@
       "logFills": "Es füllt {properties}.",
       "logFillsNone": "Das Protokoll hat keine Eigenschaften, die es füllt (Listen, Daten, Links, Personen, Text); es fügt nur Titel und Text jedes Erfolgs hinzu.",
       "logLeft": "Nach den ersten {max} ausgelassen: {properties}.",
+      "chooseCompanies": "Welche Datenbank mit Firmen oder Kunden soll er ausfüllen? Du brauchst Vollzugriff darauf.",
+      "companyProperties": "Auszufüllende Eigenschaften",
+      "companyPropertiesHelp": "Bis zu {max}. Bei einer neuen Zeile füllt er nur die noch leeren aus und ändert nie einen Wert. Die Beschreibung einer Eigenschaft sagt ihm, was dort hingehört; entferne den Haken bei denen, die er nicht anfassen soll.",
+      "noCompanyProperties": "Diese Datenbank hat keine Eigenschaft, die er ausfüllen kann: Text, Link, E-Mail, Telefon, Zahl oder eine Auswahl mit Optionen. Füge eine hinzu und richte den Agenten dann ein.",
+      "companyAutofilled": "Ausgelassen, weil KI-Autofill sie ausfüllt: {properties}.",
+      "summaryWeb": "Er bekommt Webzugriff, um die Firmen nachzuschlagen.",
       "back": "Zurück",
       "next": "Weiter",
       "create": "Agent erstellen",
@@ -1526,7 +1532,8 @@
         "deleted": "Hat {target} endgültig gelöscht",
         "published": "Hat {target} im Web veröffentlicht",
         "unpublished": "Hat die Veröffentlichung von {target} beendet",
-        "publication_revoked": "Hat {target} aus dem Web genommen (veröffentlicht von {subject})"
+        "publication_revoked": "Hat {target} aus dem Web genommen (veröffentlicht von {subject})",
+        "rows_merged": "Hat {count, plural, one {# Zeile} other {# Zeilen}} mit {target} zusammengeführt"
       },
       "property": {
         "access_changed": "Hat den Zugriff auf „{property}“ in {target} geändert",
@@ -1585,6 +1592,7 @@
       },
       "api_token": {
         "created": "Hat das API-Token {target} erstellt",
+        "updated": "Hat geändert, was das API-Token {target} darf",
         "revoked": "{hasSubject, select, yes {Hat das API-Token {target} von {subject} widerrufen} other {Hat das API-Token {target} widerrufen}}"
       },
       "automation": {

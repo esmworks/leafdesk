@@ -629,6 +629,12 @@
       "logFills": "Doldurduğu özellikler: {properties}.",
       "logFillsNone": "Günlükte doldurabileceği bir özellik yok (liste, tarih, bağlantı, kişi, metin); her kazanımın yalnızca başlığını ve metnini ekler.",
       "logLeft": "İlk {max} özellikten sonrakiler dışarıda kalır: {properties}.",
+      "chooseCompanies": "Hangi şirket ya da müşteri veritabanını doldursun? Veritabanına tam erişiminiz olmalı.",
+      "companyProperties": "Doldurulacak özellikler",
+      "companyPropertiesHelp": "En fazla {max}. Yeni bir satırda yalnızca hâlâ boş olanları doldurur, hiçbir değeri değiştirmez. Bir özelliğin açıklaması ona oraya ne yazacağını söyler; dokunmaması gerekenlerin işaretini kaldırın.",
+      "noCompanyProperties": "Bu veritabanında doldurabileceği bir özellik yok: metin, bağlantı, e-posta, telefon, sayı ya da seçenekleri olan bir seçim. Bir tane ekleyin, sonra ajanı kurun.",
+      "companyAutofilled": "Yapay zekâyla doldurma onları doldurduğu için dışarıda kalanlar: {properties}.",
+      "summaryWeb": "Şirketleri araştırmak için web erişimi alır.",
       "back": "Geri",
       "next": "İleri",
       "create": "Ajan oluştur",
@@ -1526,7 +1532,8 @@
         "deleted": "Kalıcı olarak silindi: {target}",
         "published": "Web’de yayınlandı: {target}",
         "unpublished": "Yayından kaldırıldı: {target}",
-        "publication_revoked": "Web’den kaldırıldı: {target} (yayınlayan: {subject})"
+        "publication_revoked": "Web’den kaldırıldı: {target} (yayınlayan: {subject})",
+        "rows_merged": "{count, plural, one {# satırı} other {# satırı}} {target} satırında birleştirdi"
       },
       "property": {
         "access_changed": "{target} içindeki “{property}” özelliğinin erişimi değiştirildi",
@@ -1585,6 +1592,7 @@
       },
       "api_token": {
         "created": "API anahtarı oluşturuldu: {target}",
+        "updated": "API anahtarının yetkileri değiştirildi: {target}",
         "revoked": "{hasSubject, select, yes {{subject} kişisinin API anahtarı iptal edildi: {target}} other {API anahtarı iptal edildi: {target}}}"
       },
       "automation": {

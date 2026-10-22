@@ -629,6 +629,12 @@
       "logFills": "它会填写 {properties}。",
       "logFillsNone": "该日志没有它可以填写的任何属性（列表、日期、链接、人员、文本）；它只会添加每项成果的标题和正文。",
       "logLeft": "超出前 {max} 个而未包含：{properties}。",
+      "chooseCompanies": "它应该补全哪个公司或客户数据库？你需要对该数据库拥有完全访问权限。",
+      "companyProperties": "要填写的属性",
+      "companyPropertiesHelp": "最多 {max} 个。在新行上，它只填写仍为空的属性，从不更改已有的值。属性的说明会告诉它该填什么；取消勾选它不应改动的属性。",
+      "noCompanyProperties": "此数据库没有它能填写的属性：文本、链接、电子邮件、电话、数字或带选项的单选。请先添加一个，再设置该智能体。",
+      "companyAutofilled": "因由 AI 自动填充而未包含：{properties}。",
+      "summaryWeb": "它将获得网络访问权限，用于查找公司。",
       "back": "返回",
       "next": "下一步",
       "create": "创建智能体",
@@ -1526,7 +1532,8 @@
         "deleted": "永久删除了 {target}",
         "published": "将 {target} 发布到了网络",
         "unpublished": "取消发布了 {target}",
-        "publication_revoked": "将 {target} 从网络下线（由 {subject} 发布）"
+        "publication_revoked": "将 {target} 从网络下线（由 {subject} 发布）",
+        "rows_merged": "将 {count} 行合并到 {target}"
       },
       "property": {
         "access_changed": "更改了 {target} 中“{property}”的访问权限",
@@ -1585,6 +1592,7 @@
       },
       "api_token": {
         "created": "创建了 API 令牌 {target}",
+        "updated": "更改了 API 令牌 {target} 可以做的事",
         "revoked": "{hasSubject, select, yes {撤销了 {subject} 的 API 令牌 {target}} other {撤销了 API 令牌 {target}}}"
       },
       "automation": {

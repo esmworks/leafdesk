@@ -290,7 +290,9 @@
     "confirmTrash": "להעביר {count, plural, one {שורה אחת} two {שתי שורות} other {# שורות}} לאשפה?",
     "skipped": "{count, plural, one {שורה אחת דולגה כי אין לך אפשרות לשנות אותה.} two {שתי שורות דולגו כי אין לך אפשרות לשנות אותן.} other {# שורות דולגו כי אין לך אפשרות לשנות אותן.}}",
     "pasteLeftOut": "{count, plural, one {תא אחד שהודבק הושמט: הוא לא מתאים לעמודה שלו או שאין לך אפשרות לשנות אותו.} two {שני תאים שהודבקו הושמטו: הם לא מתאימים לעמודות שלהם או שאין לך אפשרות לשנות אותם.} other {# תאים שהודבקו הושמטו: הם לא מתאימים לעמודות שלהם או שאין לך אפשרות לשנות אותם.}}",
-    "exportDisabled": "הייצוא מושבת בסביבת העבודה הזו."
+    "exportDisabled": "הייצוא מושבת בסביבת העבודה הזו.",
+    "merge": "מיזוג",
+    "mergeHint": "מיזוג של 2 עד 5 שורות לשורה אחת"
   },
   "calculate": {
     "calculate": "חישוב",
@@ -393,7 +395,8 @@
     "startTime": "שעת התחלה",
     "endTime": "שעת סיום",
     "endDateSwitch": "תאריך סיום",
-    "includeTime": "כולל שעה"
+    "includeTime": "כולל שעה",
+    "hiddenByParent": "{count, plural, one {אפשרות אחת אינה מתאימה} other {# אפשרויות אינן מתאימות}} ל“{parent}” של השורה הזו."
   },
   "checklist": {
     "addItem": "הוספת פריט",
@@ -496,7 +499,16 @@
     "reminder": "תזכורת",
     "reminderNone": "ללא תזכורת",
     "reminderBefore": "{days, select, 0 {באותו יום, 9:00} 1 {יום לפני, 9:00} 7 {שבוע לפני, 9:00} other {{days} ימים לפני, 9:00}}",
-    "reminderHint": "שולח התראה לאנשים שהוקצו לכל שורה, או למי שהוסיף אותה, אלא אם השורה הושלמה. השעה 9:00 היא לפי אזור הזמן שלך; תאריכים עם שעה מזכירים בשעה הזו במקום."
+    "reminderHint": "שולח התראה לאנשים שהוקצו לכל שורה, או למי שהוסיף אותה, אלא אם השורה הושלמה. השעה 9:00 היא לפי אזור הזמן שלך; תאריכים עם שעה מזכירים בשעה הזו במקום.",
+    "description": "תיאור",
+    "descriptionPlaceholder": "מה הוא מכיל ואיך למלא אותו",
+    "dependsOn": "תלוי ב",
+    "dependsOnNone": "כלום",
+    "dependsOnHint": "בחרו לאילו אפשרויות של “{parent}” מתאימה כל אפשרות. שורות יציעו רק אותן; אפשרות שלא נבחר לה דבר מתאימה לכולן.",
+    "noParentOptions": "ל“{parent}” עדיין אין אפשרויות.",
+    "parentOptionsLabel": "עם “{parent}”:",
+    "parentOptionsAll": "תמיד",
+    "parentOptionToggle": "להציע את “{option}” כש“{parent}” הוא “{value}”"
   },
   "rowProperties": {
     "noProperties": "אין מאפיינים",
@@ -528,6 +540,8 @@
     "checked": "מסומן",
     "unchecked": "לא מסומן",
     "checklist": "{done} מתוך {total} בוצעו",
+    "merged": "<actor>{name}</actor> מיזג/ה לשורה הזו {count, plural, one {שורה אחת} other {# שורות}}: <rows>{titles}</rows>",
+    "mergedFrom": "מתוך {title}",
     "approvedFrom": "(הוצע על ידי {name})"
   },
   "rowEmail": {
@@ -797,7 +811,15 @@
     "webhookBlocked": "Webhooks לא יכולים להישלח לכתובות ברשת פרטית או מקומית.",
     "agentOwnersOnly": "רק הבעלים של סביבת העבודה ומי שיכול לערוך את הסוכן יכולים להוסיף או לשנות פעולות שמריצות אותו.",
     "invalidRepeat": "לוח הזמנים של החזרה אינו תקין: יש לבדוק את הימים, השעה ואזור הזמן.",
-    "tooManySchedules": "סביבת העבודה הזו הגיעה למספר המרבי של תבניות חוזרות."
+    "tooManySchedules": "סביבת העבודה הזו הגיעה למספר המרבי של תבניות חוזרות.",
+    "optionUnavailable": "“{value}” אינו זמין ב“{property}” עבור השורה הזו.",
+    "invalidDependency": "“{property}” יכול להיות תלוי רק במאפיין בחירה אחר של מסד הנתונים הזה שאינו תלוי בו.",
+    "invalidDescription": "תיאור יכול להכיל עד {max} תווים.",
+    "mergeRowCount": "בחרו בין {min} ל־{max} שורות למיזוג.",
+    "mergeRowsInvalid": "אפשר למזג רק שורות של מסד נתונים אחד שאינן בסל המחזור.",
+    "mergeRowsReadOnly": "יש לכם הרשאת צפייה בלבד ב־{rows}. מיזוג דורש הרשאת עריכה בכל שורה.",
+    "mergeLinksBlocked": "{count, plural, one {שורה אחת מקושרת} other {# שורות מקושרות}} לשורות האלה ואין לכם הרשאה {count, plural, one {לשנות אותה} other {לשנות אותן}}: {rows}. שום דבר לא מוזג.",
+    "mergeChoiceInvalid": "אי אפשר להשתמש בערך שנבחר עבור „{property}”. בחרו ערך משורה אחרת."
   },
   "formula": {
     "title": "נוסחה",
@@ -1167,5 +1189,37 @@
   "quickAdd": {
     "recognised": "זוהה בכותרת",
     "keep": "השארת “{text}” בכותרת"
+  },
+  "merge": {
+    "menuItem": "מיזוג עם…",
+    "pickTitle": "מיזוג עם שורות אחרות",
+    "pickHint": "בחרו עד {count, plural, one {שורה אחת} other {# שורות}} למיזוג עם השורה הזו.",
+    "pickSearch": "חיפוש שורות",
+    "pickEmpty": "אין שורות אחרות שמתאימות",
+    "pickLoading": "טוען שורות…",
+    "pickContinue": "המשך",
+    "title": "מיזוג {count, plural, one {שורה אחת} other {# שורות}}",
+    "keep": "השורה שנשארת",
+    "keepHint": "השורות האחרות עוברות לסל המחזור. התוכן שלהן עובר לשורה שנשארת.",
+    "oldest": "הישנה ביותר",
+    "created": "נוצרה ב־{date}",
+    "titleField": "כותרת",
+    "combine": "שילוב של הכול",
+    "hidden": "מוסתר",
+    "empty": "ריק",
+    "locked": "אין לכם הרשאה לשנות את המאפיין הזה, ולכן נשאר הערך של השורה שנשארת.",
+    "moves": "עובר גם לשורה שנשארת",
+    "movesThreads": "{count, plural, one {שרשור תגובות אחד} other {# שרשורי תגובות}}",
+    "movesActivity": "{count, plural, one {רשומת פעילות אחת} other {# רשומות פעילות}}",
+    "movesFiles": "{count, plural, one {קובץ שהועלה} other {# קבצים שהועלו}}",
+    "movesEmails": "{count, plural, one {הודעת אימייל אחת} other {# הודעות אימייל}}",
+    "movesLinks": "קישורים {count, plural, one {משורה אחרת אחת} other {מ־# שורות אחרות}}, כולל פריטי משנה ותלויות",
+    "movesBodies": "תוכן הדף של {count, plural, one {שורה אחת} other {# שורות}}, כל אחד תחת כותרת",
+    "movesNothing": "אין עוד מה להעביר.",
+    "subpages": "{count, plural, one {דף אחד בתוך השורות הממוזגות עובר} other {# דפים בתוך השורות הממוזגות עוברים}} לסל המחזור יחד איתן.",
+    "trashNote": "שחזור של שורה ממוזגת מסל המחזור מחזיר אותה כשורה נפרדת. מה שהועבר נשאר בשורה שנשארה.",
+    "confirm": "מיזוג שורות",
+    "merging": "ממזג…",
+    "bodyHeading": "מוזג מתוך {title}"
   }
 }

@@ -5,6 +5,7 @@ import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { loadRowActivityAction } from "@/app/actions/databases";
 import { cn } from "@/components/ui";
+import { pageLabel } from "@/lib/labels";
 import { UserAvatar } from "@/components/user-avatar";
 import { MAX_ACTIVITY_PAGE, type ActivityValue } from "@/lib/row-activity";
 import { relativeTime } from "@/lib/relative-time";
@@ -140,6 +141,7 @@ export function RowActivity({ rowId, signal }: { rowId: string; signal: number }
 
 function Entry({ entry }: { entry: RowActivityEntry }) {
   const t = useTranslations("database.rowActivity");
+  const tc = useTranslations("common");
   const locale = useLocale();
   const format = useFormatter();
   const at = new Date(entry.at);
@@ -167,7 +169,16 @@ function Entry({ entry }: { entry: RowActivityEntry }) {
   const args = { name, property: entry.property?.name ?? "", from: "", to: "" };
   const empty = (v: ActivityValue | null) => !v || v.type === "empty";
   let sentence: ReactNode;
-  if (entry.kind === "created") sentence = t.rich("created", { ...args, ...tags });
+  if (entry.kind === "merged") {
+    const titles = (entry.merged ?? []).map((row) => pageLabel(row.title, tc("untitled")));
+    sentence = t.rich("merged", {
+      ...args,
+      ...tags,
+      count: titles.length,
+      titles: "",
+      rows: () => <span className="font-medium text-fg">{format.list(titles, { type: "conjunction" })}</span>,
+    });
+  } else if (entry.kind === "created") sentence = t.rich("created", { ...args, ...tags });
   else if (entry.kind === "title") sentence = t.rich(empty(entry.from) ? "titled" : "renamed", { ...args, ...tags });
   else if (empty(entry.to)) sentence = t.rich("cleared", { ...args, ...tags });
   else if (empty(entry.from)) sentence = t.rich("set", { ...args, ...tags });
@@ -178,6 +189,12 @@ function Entry({ entry }: { entry: RowActivityEntry }) {
       <Avatar entry={entry} name={name} />
       <p className="min-w-0 flex-1 leading-6 break-words text-fg-muted">
         {sentence}{" "}
+        {/* Came with a row merged into this one: which row it was. */}
+        {entry.mergedFrom && (
+          <span className="text-xs text-fg-faint">
+            {t("mergedFrom", { title: pageLabel(entry.mergedFrom.title, tc("untitled")) })}{" "}
+          </span>
+        )}
         <span className="text-xs whitespace-nowrap text-fg-faint">
           <span aria-hidden>· </span>
           <time dateTime={entry.at} title={format.dateTime(at, { dateStyle: "full", timeStyle: "short" })}>

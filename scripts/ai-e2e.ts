@@ -4,7 +4,8 @@
  * asking, a history version before applying, the change made through the page's shared document),
  * AI autofill properties (settings checks, per-row and bulk refresh through the queue within its
  * concurrency limit, failures, automatic updates after a row changes and what they set off: the
- * row's activity, automations, the AI values reading them; interrupted values, turning it off),
+ * row's activity, automations, the AI values reading them; interrupted values; values of select,
+ * multi-select, number and checkbox properties and rows skipped for an empty input; turning it off),
  * access checks, the workspace switch, and everything being off without a provider.
  * Creates its own users and workspace and deletes them afterwards.
  *
@@ -86,6 +87,12 @@ const script = async ({ prompt }: { prompt: string }) => {
     if (prompt.includes("Improve the writing")) return "An improved sentence.";
     if (prompt.includes("Summarize this page")) return "A short summary of the page.";
     if (prompt.includes("Title: Broken")) throw new Error("model overloaded");
+    // Values of other types, answered the way models do: with a full stop, another case, a sentence.
+    const genre = /Genre of (\S+)/.exec(prompt)?.[1];
+    if (genre) return { Dune: "Science fiction.", Emma: "romance", Ulysses: "Western" }[genre] ?? "none";
+    if (prompt.includes("Topics of")) return 'Sure: ["Space", "politics"]';
+    if (prompt.includes("Pages of")) return "About 412 pages";
+    if (prompt.includes("Is it a classic")) return "Yes.";
     const hook = /Hook for (\S+)/.exec(prompt);
     if (hook) return `HOOK:${hook[1]}`;
     const pitch = /Pitch (.+?) to (\S+)/.exec(prompt);
@@ -213,8 +220,8 @@ try {
     "a prompt naming an unknown property is refused",
   );
   const statusProp = (await databases.getProperties(books.id)).find((p) => p.type === "status")!;
-  const notText = await failure(() => setAutofill(ids.owner, statusProp.id, { mode: "summary" }));
-  check(notText instanceof AutofillError && notText.code === "notText", "only text properties can be filled in by AI");
+  const statusSummary = await failure(() => setAutofill(ids.owner, statusProp.id, { mode: "summary" }));
+  check(statusSummary instanceof AutofillError && statusSummary.code === "invalidMode", "only text properties take a summary");
   check((await failure(() => setAutofill(ids.outsider, pitchProp.id, { mode: "summary" }))) instanceof AccessError, "…and only by editors");
 
   const saved = await setAutofill(ids.owner, pitchProp.id, { mode: "custom", prompt: "Pitch {title} to {Audience}" });
@@ -358,6 +365,65 @@ try {
   await databases.updateRowProperties(ids.owner, rowIds[1], { [audience.id]: "poets" });
   await sleep(5_500);
   check(calls === callsBefore, "…and nothing is sent when its inputs didn't change", { calls, callsBefore });
+
+  // ---------------------------------------------------------------- values of other types
+  const dateProp = await databases.addProperty(ids.owner, books.id, { name: "Read on", type: "date" });
+  const unsupported = await failure(() => setAutofill(ids.owner, dateProp.id, { mode: "custom", prompt: "When?" }));
+  check(unsupported instanceof AutofillError && unsupported.code === "unsupportedType", "a date property can't be filled in by AI");
+  const genre = await databases.addProperty(ids.owner, books.id, { name: "Genre", type: "select", options: ["Science fiction", "Romance"] });
+  const typedSummary = await failure(() => setAutofill(ids.owner, genre.id, { mode: "summary" }));
+  check(typedSummary instanceof AutofillError && typedSummary.code === "invalidMode", "a select is filled in from a prompt, not as a summary");
+  const empty = await databases.addProperty(ids.owner, books.id, { name: "Shelf", type: "select" });
+  const noOptions = await failure(() => setAutofill(ids.owner, empty.id, { mode: "custom", prompt: "Which shelf?" }));
+  check(noOptions instanceof AutofillError && noOptions.code === "noOptions", "…and needs options to pick from");
+  await setAutofill(ids.owner, genre.id, { mode: "custom", prompt: "Genre of {title}" });
+  const topics = await databases.addProperty(ids.owner, books.id, { name: "Topics", type: "multi_select", options: ["Space", "Politics", "Love"] });
+  await setAutofill(ids.owner, topics.id, { mode: "custom", prompt: "Topics of {title}" });
+  const pages = await databases.addProperty(ids.owner, books.id, { name: "Pages", type: "number" });
+  await setAutofill(ids.owner, pages.id, { mode: "custom", prompt: "Pages of {title}" });
+  const classic = await databases.addProperty(ids.owner, books.id, { name: "Classic", type: "checkbox" });
+  await setAutofill(ids.owner, classic.id, { mode: "custom", prompt: "Is it a classic? {title}" });
+  const typed = [genre, topics, pages, classic];
+  const typedIds = rowIds.slice(0, 3);
+  for (const prop of typed) await requestAutofill(ids.owner, prop.id, typedIds);
+  for (const prop of typed) await settled(prop.id, typedIds);
+  const schema = await databases.getProperties(books.id);
+  const optionId = (propId: string, name: string) => schema.find((p) => p.id === propId)!.options.options!.find((o) => o.name === name)!.id;
+  check((await valueOf(rowIds[0], genre.id)) === optionId(genre.id, "Science fiction"), "a select gets the option the model names, as its id");
+  check((await valueOf(rowIds[1], genre.id)) === optionId(genre.id, "Romance"), "…written in any case");
+  const offList = (await autofillStates(schema.filter((p) => p.id === genre.id)))[rowIds[2]]?.[genre.id];
+  check(offList?.status === "error" && offList.code === "empty" && (await valueOf(rowIds[2], genre.id)) === undefined, "an option the select doesn't have fails, and nothing is made up", offList);
+  check(
+    JSON.stringify(await valueOf(rowIds[0], topics.id)) === JSON.stringify([optionId(topics.id, "Space"), optionId(topics.id, "Politics")]),
+    "a multi-select gets the options of the model's list",
+    await valueOf(rowIds[0], topics.id),
+  );
+  check((await valueOf(rowIds[0], pages.id)) === 412, "a number is read from the answer");
+  check((await valueOf(rowIds[0], classic.id)) === true, "a checkbox is ticked for yes");
+  const genrePrompt = prompts.find((p) => p.includes("Genre of Dune"))!;
+  check(genrePrompt.includes("<options>") && genrePrompt.includes("Science fiction") && genrePrompt.includes("Romance"), "the prompt lists the options to pick from");
+
+  // Only rows where the properties it waits for have a value.
+  const waits = await setAutofill(ids.owner, pages.id, { mode: "custom", prompt: "Pages of {title}", requires: [audience.id] });
+  check(JSON.stringify(waits?.requires) === JSON.stringify([audience.id]), "a value can wait for other properties");
+  const blank = await createPage(owner, { workspaceId, parentId: books.id, title: "Blank", properties: { [pages.id]: 7 } });
+  const asked = prompts.length;
+  await requestAutofill(ids.owner, pages.id, [blank.id]);
+  await settled(pages.id, [blank.id]);
+  check(
+    (await valueOf(blank.id, pages.id)) === 7 && !prompts.slice(asked).some((p) => p.includes("Pages of Blank")),
+    "…and a row without them keeps its value, with nothing sent",
+  );
+  check(!(await autofillStates(schema.filter((p) => p.id === pages.id)))[blank.id], "…and shows no error");
+  await databases.updateRowProperties(ids.owner, blank.id, { [audience.id]: "everyone" });
+  await requestAutofill(ids.owner, pages.id, [blank.id]);
+  await settled(pages.id, [blank.id]);
+  check((await valueOf(blank.id, pages.id)) === 412, "…until they have one");
+  const [pagesStored] = await db.select().from(databaseProperty).where(eq(databaseProperty.id, pages.id));
+  check(
+    JSON.stringify(describeProperty(pagesStored, undefined, schema).ai_autofill?.only_rows_with) === JSON.stringify(["Audience"]),
+    "MCP names the properties it waits for",
+  );
 
   // Workspace switch applies to properties too.
   await updateWorkspaceSettings(ids.owner, workspaceId, { ai: false });

@@ -9,10 +9,6 @@
     "name": "Nom",
     "namePlaceholder": "p. ex. Script du rapport hebdomadaire",
     "access": "Accès",
-    "read": "Lecture seule",
-    "readHint": "Lire les pages, les bases de données, les lignes et les commentaires.",
-    "write": "Lecture et écriture",
-    "writeHint": "Aussi créer et modifier des pages, des lignes et des commentaires, placer des pages dans la corbeille et (en tant que propriétaire de l’espace de travail) modifier des agents et leur demander des exécutions.",
     "workspace": "Espace de travail",
     "allWorkspaces": "Tous mes espaces de travail",
     "expiry": "Expire après",
@@ -35,7 +31,8 @@
     "neverUsed": "jamais utilisé",
     "expires": "expire le {date}",
     "expired": "a expiré le {date}",
-    "noExpiry": "n’expire pas"
+    "noExpiry": "n’expire pas",
+    "legacy": "créé avant l’accès par ressource"
   },
   "revoke": "Révoquer",
   "revoking": "Révocation…",
@@ -47,7 +44,8 @@
     "workspace": "Vous n’êtes pas membre de cet espace de travail.",
     "expiry": "Choisissez quand le jeton expire.",
     "limit": "Vous avez atteint le nombre maximal de jetons. Révoquez-en un d’abord.",
-    "generic": "Impossible de créer le jeton. Réessayez."
+    "generic": "Impossible de créer le jeton. Réessayez.",
+    "notFound": "Ce jeton n’existe plus."
   },
   "docsPage": {
     "metaTitle": "API REST",
@@ -68,6 +66,66 @@
     "name": "Nom",
     "type": "Type",
     "description": "Description",
-    "required": "obligatoire"
+    "required": "obligatoire",
+    "scopes": "Portées",
+    "scope": "Portée",
+    "access": "Accès",
+    "read": "Lecture",
+    "write": "Écriture",
+    "inHeader": "en-tête"
+  },
+  "scopes": {
+    "presets": {
+      "readAll": "Tout lire",
+      "all": "Tout lire et écrire"
+    },
+    "read": "Lire",
+    "write": "Écrire",
+    "toggle": "{access} : {resource}",
+    "resources": {
+      "workspaces": {
+        "name": "Espaces de travail",
+        "hint": "Les espaces de travail, leurs espaces d’équipe et leurs groupes."
+      },
+      "pages": {
+        "name": "Pages",
+        "hint": "Pages, sous-pages et notes du jour ; l’écriture couvre aussi les notes vocales."
+      },
+      "search": {
+        "name": "Recherche",
+        "hint": "Rechercher dans les pages et les lignes."
+      },
+      "databases": {
+        "name": "Bases de données",
+        "hint": "Les propriétés et les vues d’une base de données."
+      },
+      "rows": {
+        "name": "Lignes",
+        "hint": "Interroger les lignes et lire leur activité ; l’écriture ajoute et modifie des lignes."
+      },
+      "comments": {
+        "name": "Commentaires",
+        "hint": "Fils de commentaires ; l’écriture lance des fils et y répond."
+      },
+      "agents": {
+        "name": "Agents",
+        "hint": "Réglages, exécutions, planifications et partage des agents."
+      }
+    },
+    "summary": {
+      "read": "{resource} : lecture",
+      "readWrite": "{resource} : lecture et écriture"
+    }
+  },
+  "edit": {
+    "button": "Modifier l’accès",
+    "title": "Modifier ce que {name} peut faire",
+    "body": "Le jeton garde son secret ; la modification s’applique dès sa prochaine requête.",
+    "legacy": "Ce jeton a été créé avant que l’accès se choisisse par ressource : il peut donc tout lire (et tout écrire, s’il a été créé pour écrire), y compris ce qui sera ajouté plus tard. En enregistrant, il aura exactement ce que vous choisissez ici.",
+    "errors": {
+      "scopes": "Choisissez au moins une chose que le jeton peut faire.",
+      "notFound": "Ce jeton n’existe plus.",
+      "generic": "Impossible de modifier le jeton. Réessayez."
+    }
   }
 }

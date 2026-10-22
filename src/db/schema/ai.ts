@@ -175,6 +175,9 @@ export type MemoryStatus = "kept" | "proposed";
 /** A change the AI chat may make: add a database row, change one, add a page, or change a page's text. */
 export type ChatWriteAction = "createRow" | "updateRow" | "createPage" | "editPage";
 
+/** A change made, as a step records it: one the chat may make, or duplicate rows an agent's run merged. */
+export type ChatWriteStepAction = ChatWriteAction | "mergeRows";
+
 /** A value a change sets, as shown to the person ("" clears it), and when asked, the value it had ("" none). */
 export type ChatChange = { property: string; value: string; before?: string };
 
@@ -185,7 +188,7 @@ export type ChatChange = { property: string; value: string; before?: string };
  */
 export type ChatWriteRecord = {
   kind: "write";
-  action: ChatWriteAction;
+  action: ChatWriteStepAction;
   /** `proposed`: an agent's change kept for review (server/pending-changes.ts), not made yet. */
   outcome: "done" | "declined" | "failed" | "proposed";
   targetId: string | null;

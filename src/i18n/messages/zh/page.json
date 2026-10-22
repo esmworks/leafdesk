@@ -88,7 +88,8 @@
     "muteHint": "不再接收此讨论串中新回复的通知。你在这里回复或在这里被提及时会恢复。",
     "unmuteHint": "重新接收此讨论串中新回复的通知。",
     "muted": "回复已设为免打扰",
-    "mutedHint": "在你于此回复或有人在此提及你之前，你不会收到此讨论串中回复的通知。"
+    "mutedHint": "在你于此回复或有人在此提及你之前，你不会收到此讨论串中回复的通知。",
+    "mergedFrom": "来自“{title}”"
   },
   "archived": {
     "banner": "此页面在回收站中。",
@@ -167,7 +168,8 @@
       "beforeAiEdit": "AI 编辑之前",
       "beforeAiEditBy": "{client} 编辑之前",
       "beforeAssistantEdit": "AI 助手编辑之前",
-      "beforeMarkdownEdit": "Markdown 编辑之前"
+      "beforeMarkdownEdit": "Markdown 编辑之前",
+      "beforeMerge": "合并行之前"
     },
     "empty": "还没有版本。编辑时以及任何 AI 应用更改此页面之前，都会自动保存版本。",
     "restore": "恢复此版本",

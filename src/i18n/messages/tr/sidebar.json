@@ -81,7 +81,9 @@
     "deletePermanently": "Kalıcı olarak sil",
     "confirmDelete": "Kalıcı olarak silinsin mi? Bu işlem geri alınamaz.",
     "deletesIn": "{count, plural, other {# gün}} sonra silinecek",
-    "deletesSoon": "Yakında silinecek"
+    "deletesSoon": "Yakında silinecek",
+    "mergedInto": "{title} satırında birleştirildi",
+    "restoreMerged": "Ayrı bir satır olarak geri yükle. “{title}” satırına taşınan bağlantılar, yorumlar, etkinlik ve e-postalar orada kalır."
   },
   "newWorkspace": {
     "title": "Yeni çalışma alanı",

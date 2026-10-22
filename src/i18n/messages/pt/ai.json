@@ -78,8 +78,32 @@
     "promptPlaceholder": "Por exemplo: Escreva uma frase de apresentação de '{title}' voltada para '{Audience}'.",
     "promptHint": "Clique em uma propriedade para inseri-la; o valor da linha ocupa o lugar dela.",
     "includeBody": "Enviar também o conteúdo da página da linha",
+    "typed": {
+      "select": {
+        "hint": "A IA escolhe uma das opções desta propriedade, ou a deixa vazia quando nenhuma serve.",
+        "placeholder": "Por exemplo: Qual opção combina melhor com '{title}', considerando '{Notes}'?"
+      },
+      "multi_select": {
+        "hint": "A IA escolhe as opções que se aplicam, nunca novas, ou a deixa vazia.",
+        "placeholder": "Por exemplo: Quais temas '{Notes}' aborda?"
+      },
+      "status": {
+        "hint": "A IA escolhe uma das opções deste status, ou o deixa vazio quando nenhuma serve.",
+        "placeholder": "Por exemplo: Pelo que diz '{Notes}', '{title}' está concluído, em andamento ou não iniciado?"
+      },
+      "number": {
+        "hint": "A IA responde com um número, ou o deixa vazio quando não consegue dizer.",
+        "placeholder": "Por exemplo: De 1 a 5, quão urgente é '{title}', considerando '{Notes}'?"
+      },
+      "checkbox": {
+        "hint": "A IA marca a caixa para sim e a deixa desmarcada para não.",
+        "placeholder": "Por exemplo: '{Notes}' menciona um prazo?"
+      }
+    },
     "auto": "Atualizar quando a linha mudar",
     "autoHint": "Alguns segundos depois que os valores ou a página de uma linha mudam, o valor dela é calculado novamente.",
+    "requires": "Só linhas em que estas tenham um valor",
+    "requiresHint": "Linhas em que uma delas está vazia (ou desmarcada) são puladas e mantêm seu valor.",
     "privacy": "Aquilo a partir do qual o valor de cada linha é calculado vai para o provedor de IA deste servidor.",
     "save": "Salvar",
     "create": "Adicionar propriedade",
@@ -98,7 +122,9 @@
       "unknownPlaceholder": "Não há nenhuma propriedade chamada “{name}”.",
       "cycle": "“{name}” já lê esta propriedade (diretamente ou por meio de outras propriedades de IA), então esta não pode lê-la.",
       "hiddenInput": "“{name}” não pode entrar em um valor de IA: mostra linhas relacionadas ou pessoas que nem todos que leem a linha podem ver.",
-      "notText": "Só propriedades de texto podem ser preenchidas pela IA.",
+      "noOptions": "Primeiro adicione opções a esta propriedade: a IA escolhe entre elas.",
+      "unknownRequired": "Algumas das propriedades escolhidas não estão mais neste banco de dados. Escolha-as novamente.",
+      "unsupportedType": "A IA pode preencher propriedades de texto, seleção, seleção múltipla, status, número e caixa de seleção.",
       "databaseLocked": "O banco de dados está bloqueado."
     }
   },
@@ -181,26 +207,30 @@
           "createRow": "Linha adicionada:",
           "updateRow": "Linha alterada:",
           "createPage": "Página adicionada:",
-          "editPage": "Texto da página alterado:"
+          "editPage": "Texto da página alterado:",
+          "mergeRows": "Linhas mescladas em:"
         },
         "declined": {
           "createRow": "Recusado adicionar a linha:",
           "updateRow": "Recusado alterar:",
           "createPage": "Recusado adicionar a página:",
-          "editPage": "Recusado alterar o texto de:"
+          "editPage": "Recusado alterar o texto de:",
+          "mergeRows": "Mesclagem recusada em:"
         },
         "failed": {
           "createRow": "Não foi possível adicionar a linha:",
           "updateRow": "Não foi possível alterar:",
           "createPage": "Não foi possível adicionar a página:",
-          "editPage": "Não foi possível alterar o texto de:"
+          "editPage": "Não foi possível alterar o texto de:",
+          "mergeRows": "Não foi possível mesclar linhas em:"
         },
         "in": "em",
         "proposed": {
           "createRow": "Propôs adicionar uma linha para revisão:",
           "updateRow": "Propôs uma alteração para revisão:",
           "createPage": "Propôs adicionar uma página para revisão:",
-          "editPage": "Propôs uma alteração de texto para revisão:"
+          "editPage": "Propôs uma alteração de texto para revisão:",
+          "mergeRows": "Propôs mesclar linhas para revisão em:"
         }
       },
       "memory": {

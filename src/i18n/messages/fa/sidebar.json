@@ -81,7 +81,9 @@
     "deletePermanently": "حذف دائمی",
     "confirmDelete": "برای همیشه حذف شود؟ این کار قابل بازگشت نیست.",
     "deletesIn": "حذف در {count, plural, one {# روز} other {# روز}} دیگر",
-    "deletesSoon": "به‌زودی حذف می‌شود"
+    "deletesSoon": "به‌زودی حذف می‌شود",
+    "mergedInto": "ادغام‌شده در {title}",
+    "restoreMerged": "بازگرداندن به‌صورت ردیف جداگانه. پیوندها، نظرها، فعالیت و ایمیل‌هایی که به «{title}» منتقل شده‌اند همان‌جا می‌مانند."
   },
   "newWorkspace": {
     "title": "فضای کاری جدید",

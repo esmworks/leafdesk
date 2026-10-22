@@ -81,7 +81,9 @@
     "deletePermanently": "Elimina definitivamente",
     "confirmDelete": "Eliminare definitivamente? Questa operazione non può essere annullata.",
     "deletesIn": "Eliminazione tra {count, plural, one {# giorno} other {# giorni}}",
-    "deletesSoon": "Eliminazione a breve"
+    "deletesSoon": "Eliminazione a breve",
+    "mergedInto": "Unita a {title}",
+    "restoreMerged": "Ripristina come riga separata. Collegamenti, commenti, attività ed email passati a «{title}» restano lì."
   },
   "newWorkspace": {
     "title": "Nuovo spazio di lavoro",

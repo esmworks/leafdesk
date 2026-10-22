@@ -17,8 +17,11 @@ import { isReadOnlyType, type PropertyType } from "./property-types";
 export const ROW_ACTIVITY_ACTORS = ["user", "agent", "automation", "ai", "form"] as const;
 export type RowActivityActor = (typeof ROW_ACTIVITY_ACTORS)[number];
 
-/** What an entry is about: the row being made, its title, or one of its property values. */
-export const ROW_ACTIVITY_KINDS = ["created", "title", "property"] as const;
+/**
+ * What an entry is about: the row being made, its title, one of its property values, or other rows
+ * merged into it (server/merge-rows.ts; `newValue` lists them as {id, title}).
+ */
+export const ROW_ACTIVITY_KINDS = ["created", "title", "property", "merged"] as const;
 export type RowActivityKind = (typeof ROW_ACTIVITY_KINDS)[number];
 
 /**

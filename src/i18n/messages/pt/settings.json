@@ -629,6 +629,12 @@
       "logFills": "Ele preenche {properties}.",
       "logFillsNone": "O registro não tem nenhuma das propriedades que ele preenche (listas, datas, links, pessoas, texto); ele adiciona só o título e o texto de cada conquista.",
       "logLeft": "Deixadas de fora, além das primeiras {max}: {properties}.",
+      "chooseCompanies": "Qual banco de dados de empresas ou clientes ele deve preencher? Você precisa ter acesso total a ele.",
+      "companyProperties": "Propriedades a preencher",
+      "companyPropertiesHelp": "Até {max}. Em uma nova linha, ele preenche apenas as que ainda estão vazias e nunca altera um valor. A descrição de uma propriedade diz a ele o que vai ali; desmarque as que ele não deve tocar.",
+      "noCompanyProperties": "Este banco de dados não tem nenhuma propriedade que ele possa preencher: texto, link, e-mail, telefone, número ou uma seleção com opções. Adicione uma e depois configure o agente.",
+      "companyAutofilled": "Deixadas de fora, porque o preenchimento automático com IA as preenche: {properties}.",
+      "summaryWeb": "Ele recebe acesso à web, para pesquisar as empresas.",
       "back": "Voltar",
       "next": "Avançar",
       "create": "Criar agente",
@@ -1526,7 +1532,8 @@
         "deleted": "Excluiu {target} permanentemente",
         "published": "Publicou {target} na web",
         "unpublished": "Deixou de publicar {target}",
-        "publication_revoked": "Tirou {target} da web (publicada por {subject})"
+        "publication_revoked": "Tirou {target} da web (publicada por {subject})",
+        "rows_merged": "Mesclou {count, plural, one {# linha} other {# linhas}} em {target}"
       },
       "property": {
         "access_changed": "Alterou quem pode acessar “{property}” em {target}",
@@ -1585,6 +1592,7 @@
       },
       "api_token": {
         "created": "Criou o token de API {target}",
+        "updated": "Alterou o que o token de API {target} pode fazer",
         "revoked": "{hasSubject, select, yes {Revogou o token de API {target} de {subject}} other {Revogou o token de API {target}}}"
       },
       "automation": {

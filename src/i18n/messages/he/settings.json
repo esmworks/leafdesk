@@ -629,6 +629,12 @@
       "logFills": "הוא ממלא את {properties}.",
       "logFillsNone": "אין ביומן אף אחד מהמאפיינים שהוא ממלא (רשימות, תאריכים, קישורים, אנשים, טקסט); הוא מוסיף רק את הכותרת והטקסט של כל הצלחה.",
       "logLeft": "הושמטו, מעבר ל־{max} הראשונים: {properties}.",
+      "chooseCompanies": "איזה מסד נתונים של חברות או לקוחות הוא ימלא? נדרשת לך גישה מלאה אליו.",
+      "companyProperties": "מאפיינים למילוי",
+      "companyPropertiesHelp": "עד {max}. בשורה חדשה הוא ממלא רק את אלה שעדיין ריקים, ולעולם לא משנה ערך. התיאור של מאפיין אומר לו מה נכנס בו; אפשר לבטל את הסימון של אלה שאסור לו לגעת בהם.",
+      "noCompanyProperties": "למסד הנתונים הזה אין מאפיין שהוא יכול למלא: טקסט, קישור, אימייל, טלפון, מספר או בחירה עם אפשרויות. יש להוסיף אחד, ואז להגדיר את הסוכן.",
+      "companyAutofilled": "הושמטו, כי המילוי האוטומטי ב־AI ממלא אותם: {properties}.",
+      "summaryWeb": "הוא יקבל גישה לרשת, כדי לחפש את החברות.",
       "back": "חזרה",
       "next": "הבא",
       "create": "יצירת סוכן",
@@ -1526,7 +1532,8 @@
         "deleted": "מחיקת {target} לצמיתות",
         "published": "פרסום {target} ברשת",
         "unpublished": "ביטול הפרסום של {target}",
-        "publication_revoked": "הורדת {target} מהרשת (פורסם על ידי {subject})"
+        "publication_revoked": "הורדת {target} מהרשת (פורסם על ידי {subject})",
+        "rows_merged": "מיזג/ה {count, plural, one {שורה אחת} other {# שורות}} לתוך {target}"
       },
       "property": {
         "access_changed": "שינוי הגישה ל־“{property}” ב־{target}",
@@ -1585,6 +1592,7 @@
       },
       "api_token": {
         "created": "יצירת אסימון ה־API {target}",
+        "updated": "שינוי מה שאסימון ה־API {target} יכול לעשות",
         "revoked": "{hasSubject, select, yes {ביטול אסימון ה־API {target} של {subject}} other {ביטול אסימון ה־API {target}}}"
       },
       "automation": {

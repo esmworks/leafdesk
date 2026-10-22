@@ -629,6 +629,12 @@
       "logFills": "{properties}을(를) 채웁니다.",
       "logFillsNone": "기록에 에이전트가 채우는 속성(목록, 날짜, 링크, 사람, 텍스트)이 없으므로 각 성과의 제목과 내용만 추가합니다.",
       "logLeft": "처음 {max}개를 넘어 제외됨: {properties}.",
+      "chooseCompanies": "어떤 회사 또는 고객 데이터베이스를 채울까요? 해당 데이터베이스에 대한 전체 액세스 권한이 필요합니다.",
+      "companyProperties": "채울 속성",
+      "companyPropertiesHelp": "최대 {max}개. 새 행에서는 아직 비어 있는 속성만 채우고 값을 바꾸지 않습니다. 속성의 설명이 무엇을 넣을지 알려 줍니다. 건드리면 안 되는 속성은 선택을 해제하세요.",
+      "noCompanyProperties": "이 데이터베이스에는 채울 수 있는 속성이 없습니다: 텍스트, 링크, 이메일, 전화번호, 숫자 또는 옵션이 있는 선택. 하나를 추가한 다음 에이전트를 설정하세요.",
+      "companyAutofilled": "AI 자동 채우기가 채우므로 제외됨: {properties}.",
+      "summaryWeb": "회사를 찾아보기 위해 웹 액세스 권한을 받습니다.",
       "back": "뒤로",
       "next": "다음",
       "create": "에이전트 만들기",
@@ -1526,7 +1532,8 @@
         "deleted": "{target}을(를) 영구 삭제했습니다",
         "published": "{target}을(를) 웹에 게시했습니다",
         "unpublished": "{target}의 게시를 취소했습니다",
-        "publication_revoked": "{target}을(를) 웹에서 내렸습니다({subject}이(가) 게시함)"
+        "publication_revoked": "{target}을(를) 웹에서 내렸습니다({subject}이(가) 게시함)",
+        "rows_merged": "행 {count}개를 {target}에 병합"
       },
       "property": {
         "access_changed": "{target}에서 “{property}”에 액세스할 수 있는 사람을 변경했습니다",
@@ -1585,6 +1592,7 @@
       },
       "api_token": {
         "created": "API 토큰 {target}을(를) 만들었습니다",
+        "updated": "API 토큰 {target}이(가) 할 수 있는 일을 변경했습니다",
         "revoked": "{hasSubject, select, yes {{subject}의 API 토큰 {target}을(를) 취소했습니다} other {API 토큰 {target}을(를) 취소했습니다}}"
       },
       "automation": {

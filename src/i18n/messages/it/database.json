@@ -290,7 +290,9 @@
     "confirmTrash": "Spostare {count, plural, one {# riga} other {# righe}} nel cestino?",
     "skipped": "{count, plural, one {# riga è stata saltata perché non puoi modificarla.} other {# righe sono state saltate perché non puoi modificarle.}}",
     "pasteLeftOut": "{count, plural, one {# cella incollata è stata esclusa: non è adatta alla sua colonna o non puoi modificarla.} other {# celle incollate sono state escluse: non sono adatte alle loro colonne o non puoi modificarle.}}",
-    "exportDisabled": "L’esportazione è disattivata in questo spazio di lavoro."
+    "exportDisabled": "L’esportazione è disattivata in questo spazio di lavoro.",
+    "merge": "Unisci",
+    "mergeHint": "Unisci da 2 a 5 righe in una"
   },
   "calculate": {
     "calculate": "Calcola",
@@ -393,7 +395,8 @@
     "startTime": "Ora di inizio",
     "endTime": "Ora di fine",
     "endDateSwitch": "Data di fine",
-    "includeTime": "Includi ora"
+    "includeTime": "Includi ora",
+    "hiddenByParent": "{count, plural, one {# opzione non va} other {# opzioni non vanno}} con “{parent}” di questa riga."
   },
   "checklist": {
     "addItem": "Aggiungi un elemento",
@@ -496,7 +499,16 @@
     "reminder": "Promemoria",
     "reminderNone": "Nessun promemoria",
     "reminderBefore": "{days, select, 0 {Il giorno stesso, 9:00} 1 {1 giorno prima, 9:00} 7 {1 settimana prima, 9:00} other {{days} giorni prima, 9:00}}",
-    "reminderHint": "Avvisa le persone assegnate a ogni riga, o chi l’ha aggiunta, a meno che la riga non sia completata. Le 9:00 sono nel tuo fuso orario; le date con un’ora inviano il promemoria a quell’ora."
+    "reminderHint": "Avvisa le persone assegnate a ogni riga, o chi l’ha aggiunta, a meno che la riga non sia completata. Le 9:00 sono nel tuo fuso orario; le date con un’ora inviano il promemoria a quell’ora.",
+    "description": "Descrizione",
+    "descriptionPlaceholder": "Cosa contiene e come compilarla",
+    "dependsOn": "Dipende da",
+    "dependsOnNone": "Niente",
+    "dependsOnHint": "Scegli con quali opzioni di “{parent}” va ogni opzione. Le righe offrono solo quelle; un’opzione senza scelte va con tutte.",
+    "noParentOptions": "“{parent}” non ha ancora opzioni.",
+    "parentOptionsLabel": "Con “{parent}”:",
+    "parentOptionsAll": "sempre",
+    "parentOptionToggle": "Offri “{option}” quando “{parent}” è “{value}”"
   },
   "rowProperties": {
     "noProperties": "Nessuna proprietà",
@@ -528,6 +540,8 @@
     "checked": "selezionata",
     "unchecked": "non selezionata",
     "checklist": "{done} di {total} completati",
+    "merged": "<actor>{name}</actor> ha unito {count, plural, one {# riga} other {# righe}} a questa riga: <rows>{titles}</rows>",
+    "mergedFrom": "da {title}",
     "approvedFrom": "(proposta di {name})"
   },
   "rowEmail": {
@@ -797,7 +811,15 @@
     "webhookBlocked": "I webhook non possono puntare a indirizzi di rete privati o locali.",
     "agentOwnersOnly": "Solo i proprietari dello spazio di lavoro e chi può modificare l’agente possono aggiungere o modificare azioni che lo eseguono.",
     "invalidRepeat": "Questa pianificazione di ripetizione non è valida: controlla i giorni, l’ora e il fuso orario.",
-    "tooManySchedules": "Questo spazio di lavoro ha già il numero massimo di modelli ripetuti."
+    "tooManySchedules": "Questo spazio di lavoro ha già il numero massimo di modelli ripetuti.",
+    "optionUnavailable": "“{value}” non è disponibile in “{property}” per questa riga.",
+    "invalidDependency": "“{property}” può dipendere solo da un’altra proprietà di selezione di questo database che non dipenda da essa.",
+    "invalidDescription": "Una descrizione può avere al massimo {max} caratteri.",
+    "mergeRowCount": "Scegli da {min} a {max} righe da unire.",
+    "mergeRowsInvalid": "Si possono unire solo righe di uno stesso database che non sono nel cestino.",
+    "mergeRowsReadOnly": "Puoi solo visualizzare {rows}. Per unire serve il permesso di modifica su ogni riga.",
+    "mergeLinksBlocked": "{count, plural, one {Una riga è collegata} other {# righe sono collegate}} a queste righe e non puoi {count, plural, one {modificarla} other {modificarle}}: {rows}. Non è stato unito nulla.",
+    "mergeChoiceInvalid": "Il valore scelto per «{property}» non può essere usato. Scegli il valore di un’altra riga."
   },
   "formula": {
     "title": "Formula",
@@ -1167,5 +1189,37 @@
   "quickAdd": {
     "recognised": "Riconosciuto nel titolo",
     "keep": "Mantieni “{text}” nel titolo"
+  },
+  "merge": {
+    "menuItem": "Unisci con…",
+    "pickTitle": "Unisci con altre righe",
+    "pickHint": "Scegli fino a {count, plural, one {# riga} other {# righe}} da unire a questa.",
+    "pickSearch": "Cerca righe",
+    "pickEmpty": "Nessun’altra riga corrisponde",
+    "pickLoading": "Caricamento delle righe…",
+    "pickContinue": "Continua",
+    "title": "Unisci {count, plural, one {# riga} other {# righe}}",
+    "keep": "Riga da tenere",
+    "keepHint": "Le altre righe finiscono nel cestino. Ciò che contengono passa alla riga che tieni.",
+    "oldest": "La più vecchia",
+    "created": "Creata il {date}",
+    "titleField": "Titolo",
+    "combine": "Combina tutto",
+    "hidden": "Nascosto",
+    "empty": "Vuoto",
+    "locked": "Non puoi modificare questa proprietà, quindi resta il valore della riga tenuta.",
+    "moves": "Passa anche alla riga tenuta",
+    "movesThreads": "{count, plural, one {# thread di commenti} other {# thread di commenti}}",
+    "movesActivity": "{count, plural, one {# voce di attività} other {# voci di attività}}",
+    "movesFiles": "{count, plural, one {# file caricato} other {# file caricati}}",
+    "movesEmails": "{count, plural, one {# email} other {# email}}",
+    "movesLinks": "I collegamenti di {count, plural, one {# altra riga} other {# altre righe}}, con sottoelementi e dipendenze",
+    "movesBodies": "Il contenuto della pagina di {count, plural, one {# riga} other {# righe}}, ciascuno sotto un titolo",
+    "movesNothing": "Nient’altro da spostare.",
+    "subpages": "{count, plural, one {# pagina dentro le righe unite finisce} other {# pagine dentro le righe unite finiscono}} nel cestino con loro.",
+    "trashNote": "Ripristinare dal cestino una riga unita la riporta come riga separata. Ciò che è stato spostato resta nella riga tenuta.",
+    "confirm": "Unisci righe",
+    "merging": "Unione in corso…",
+    "bodyHeading": "Unito da {title}"
   }
 }

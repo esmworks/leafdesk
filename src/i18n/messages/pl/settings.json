@@ -629,6 +629,12 @@
       "logFills": "Wypełnia: {properties}.",
       "logFillsNone": "Dziennik nie ma żadnej z wypełnianych właściwości (listy, daty, linki, osoby, tekst); dodaje tylko tytuł i opis każdego sukcesu.",
       "logLeft": "Pominięte, poza pierwszymi {max}: {properties}.",
+      "chooseCompanies": "Którą bazę danych firm lub klientów ma uzupełniać? Musisz mieć do niej pełny dostęp.",
+      "companyProperties": "Właściwości do wypełnienia",
+      "companyPropertiesHelp": "Do {max}. W nowym wierszu wypełnia tylko te, które są jeszcze puste, i nigdy nie zmienia wartości. Opis właściwości mówi mu, co w niej wpisać; odznacz te, których ma nie ruszać.",
+      "noCompanyProperties": "Ta baza danych nie ma właściwości, którą mógłby wypełnić: tekst, link, e-mail, telefon, liczba lub wybór z opcjami. Dodaj jedną, a potem skonfiguruj agenta.",
+      "companyAutofilled": "Pominięte, bo wypełnia je autouzupełnianie AI: {properties}.",
+      "summaryWeb": "Otrzymuje dostęp do internetu, aby wyszukiwać firmy.",
       "back": "Wstecz",
       "next": "Dalej",
       "create": "Utwórz agenta",
@@ -1526,7 +1532,8 @@
         "deleted": "Trwale usunięto {target}",
         "published": "Opublikowano {target} w internecie",
         "unpublished": "Cofnięto publikację {target}",
-        "publication_revoked": "Wycofano {target} z internetu (opublikowane przez: {subject})"
+        "publication_revoked": "Wycofano {target} z internetu (opublikowane przez: {subject})",
+        "rows_merged": "Scalono {count, plural, one {# wiersz} few {# wiersze} many {# wierszy} other {# wiersza}} z {target}"
       },
       "property": {
         "access_changed": "Zmieniono, kto ma dostęp do „{property}” w {target}",
@@ -1585,6 +1592,7 @@
       },
       "api_token": {
         "created": "Utworzono token API {target}",
+        "updated": "Zmieniono, co może token API {target}",
         "revoked": "{hasSubject, select, yes {Unieważniono token API {target} użytkownika {subject}} other {Unieważniono token API {target}}}"
       },
       "automation": {

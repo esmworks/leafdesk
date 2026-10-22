@@ -117,6 +117,7 @@ export const LEFT_OUT: Record<string, string> = {
   scim_identity: "the identity provider provisions people again",
   scim_group: "the identity provider provisions groups again",
   api_token: "API tokens",
+  api_idempotency_key: "answers kept for API retries, which belong to the old server's tokens",
   calendar_feed: "calendar feed links (secret tokens)",
   telegram_link: "Telegram accounts linked to people, linked again on the new server",
   telegram_link_code: "Telegram link codes in progress",

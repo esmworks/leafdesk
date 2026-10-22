@@ -81,7 +81,9 @@
     "deletePermanently": "영구 삭제",
     "confirmDelete": "영구 삭제할까요? 되돌릴 수 없습니다.",
     "deletesIn": "{count}일 후 삭제",
-    "deletesSoon": "곧 삭제"
+    "deletesSoon": "곧 삭제",
+    "mergedInto": "{title}에 병합됨",
+    "restoreMerged": "별도의 행으로 복원합니다. ‘{title}’(으)로 옮겨진 링크, 댓글, 활동, 이메일은 그곳에 남습니다."
   },
   "newWorkspace": {
     "title": "새 워크스페이스",
