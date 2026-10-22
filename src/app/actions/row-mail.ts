@@ -12,6 +12,7 @@ import {
   disconnectMailbox,
   getMailSettings,
   RowMailError,
+  setMailboxSending,
   setMailDatabases,
   type MailboxInput,
 } from "@/server/row-mail/settings";
@@ -53,6 +54,11 @@ export async function setMailDatabasesAction(
 
 export async function connectMailboxAction(workspaceId: string, input: MailboxInput): Promise<ActionResult<MailboxView>> {
   return run((userId) => connectMailbox(userId, workspaceId, input));
+}
+
+/** How follow-ups send from the member's mailbox: a daily limit and the time zone of their send windows. */
+export async function setMailboxSendingAction(workspaceId: string, input: { dailyLimit: number; timeZone: string }): Promise<ActionResult<MailboxView>> {
+  return run((userId) => setMailboxSending(userId, workspaceId, input));
 }
 
 export async function disconnectMailboxAction(workspaceId: string): Promise<ActionResult<undefined>> {

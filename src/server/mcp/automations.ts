@@ -1,4 +1,5 @@
 import * as z from "zod";
+import { listSequences } from "@/server/sequences/manage";
 import type { FilterEntry, ViewConfig } from "@/db/schema/app";
 import { MAX_CRON_LENGTH, type AutomationSchedule } from "@/lib/automation-schedule";
 import { hasTemplate, templateRoots } from "@/lib/automation-templates";
@@ -279,17 +280,23 @@ const actionInput = z.discriminatedUnion("type", [
     id: stepId,
     message: z.string().min(1).max(MAX_STEP_MESSAGE).describe("Text written into the run's history; may hold templates."),
   }),
+  z.object({
+    type: z.literal("start_sequence"),
+    id: stepId,
+    sequence: z.string().min(1).describe("The follow-up sequence to start on the row, by id or name: one of the database's (list_sequences)."),
+    for_each: forEachInput,
+  }),
 ]);
 
 const TEMPLATE_NOTE =
-  'Text in steps may hold templates: {{trigger.X}} is what started the run (a row trigger: the row\'s values by property name, and id, title, url, event, database, actor and changes.<Property>.before / .after; date_passed adds date; incoming_webhook: the JSON body; schedule: event, scheduledFor and database), {{item.X}} the found row of a for_each step, and {{<step id>.X}} what an earlier step gave: find_rows {rows, count, first} (rows with their values by property name, id, title, url), http_request {status, headers, body}, create_row and upsert_row {id, title, url, created}, log {message}, wait {until}, set_properties {id, values}, notify {notified}, run_agent {agentRunId}, and a for_each step {count, items}. Paths use dots, list positions and quotes: {{find.rows.0.title}}, {{http.body.customer["e-mail"]}}; names match exactly, then regardless of case. In text, a path that leads nowhere is empty text and a list is joined with ", "; a value that is a single template keeps its type (null when it leads nowhere). A step that uses a failed or skipped step is skipped (dependencyFailed).';
+  'Text in steps may hold templates: {{trigger.X}} is what started the run (a row trigger: the row\'s values by property name, and id, title, url, event, database, actor and changes.<Property>.before / .after; date_passed adds date; incoming_webhook: the JSON body; schedule: event, scheduledFor and database), {{item.X}} the found row of a for_each step, and {{<step id>.X}} what an earlier step gave: find_rows {rows, count, first} (rows with their values by property name, id, title, url), http_request {status, headers, body}, create_row and upsert_row {id, title, url, created}, log {message}, wait {until}, set_properties {id, values}, notify {notified}, run_agent {agentRunId}, start_sequence {enrollmentId}, and a for_each step {count, items}. Paths use dots, list positions and quotes: {{find.rows.0.title}}, {{http.body.customer["e-mail"]}}; names match exactly, then regardless of case. In text, a path that leads nowhere is empty text and a list is joined with ", "; a value that is a single template keeps its type (null when it leads nowhere). A step that uses a failed or skipped step is skipped (dependencyFailed).';
 
 const actionsInput = z
   .array(actionInput)
   .min(1)
   .max(MAX_AUTOMATION_ACTIONS)
   .describe(
-    `What the automation does, in order (at most ${MAX_AUTOMATION_ACTIONS} steps; each one works or fails on its own): set_properties, notify (an inbox notification, and an email as each person chooses, to people who can open the row, or the database for a run without one), webhook, run_agent (queues a run of an agent on the row; saving the automation shares the database with the agent at edit access, taken back once no automation of the database runs it; only workspace owners and those who can edit the agent add or change run_agent steps, others may keep or remove one), move_to_trash (the row goes to the trash, restorable; it must be the last step and can't be combined with run_agent), http_request (one request, which must answer 2xx within 15 seconds; redirects aren't followed; network errors, timeouts, 502, 503 and 504 are tried again, up to 5 times in all), find_rows, create_row, upsert_row, wait (the steps after it wait in the queue) or log. A schedule or incoming_webhook automation has no row: set_properties, run_agent and notify with properties need for_each, and webhook and move_to_trash aren't possible. ${TEMPLATE_NOTE}`,
+    `What the automation does, in order (at most ${MAX_AUTOMATION_ACTIONS} steps; each one works or fails on its own): set_properties, notify (an inbox notification, and an email as each person chooses, to people who can open the row, or the database for a run without one), webhook, run_agent (queues a run of an agent on the row; saving the automation shares the database with the agent at edit access, taken back once no automation of the database runs it; only workspace owners and those who can edit the agent add or change run_agent steps, others may keep or remove one), move_to_trash (the row goes to the trash, restorable; it must be the last step and can't be combined with run_agent), http_request (one request, which must answer 2xx within 15 seconds; redirects aren't followed; network errors, timeouts, 502, 503 and 504 are tried again, up to 5 times in all), find_rows, create_row, upsert_row, wait (the steps after it wait in the queue), log or start_sequence (starts one of the database's follow-up sequences on the row, sending from the mailbox of the person the automation runs as; a row in it already is skipped, code alreadyEnrolled). A schedule or incoming_webhook automation has no row: set_properties, run_agent and notify with properties need for_each, and webhook and move_to_trash aren't possible. ${TEMPLATE_NOTE}`,
   );
 
 const nameInput = z.string().min(1).max(MAX_AUTOMATION_NAME);
@@ -495,6 +502,9 @@ async function toActions(userId: string, actions: ActionsArg): Promise<Automatio
       case "log":
         step = { type: "log", message: a.message };
         break;
+      case "start_sequence":
+        step = { type: "start_sequence", sequence: a.sequence, ...forEach };
+        break;
     }
     out.push({ ...step, ...stepId });
   }
@@ -560,6 +570,8 @@ export type AutomationContext = {
   agents: AgentRef[];
   /** Databases find_rows, create_row and upsert_row steps use, by id (this one too); missing when the user can't open one. */
   databases: Map<string, DatabaseInfo>;
+  /** The database's follow-up sequences, for naming them. */
+  sequences: { id: string; name: string }[];
 };
 
 /** The workspace's agents, archived ones too, for naming them; none for those who can't list them (guests). */
@@ -578,10 +590,11 @@ const usedDatabases = (actions: AutomationAction[]) =>
 /** `automations`: those to be described, whose steps may use other databases. */
 export async function automationContext(userId: string, databaseId: string, automations: AutomationView[] = []): Promise<AutomationContext> {
   const { database, properties } = await databases.getDatabase(userId, databaseId);
-  const [lookups, members, agentRefs] = await Promise.all([
+  const [lookups, members, agentRefs, sequences] = await Promise.all([
     databases.getLookups(userId, properties),
     workspaces.workspacePeople(database.workspaceId),
     agentNames(userId, database.workspaceId),
+    listSequences(userId, databaseId).catch(() => []),
   ]);
   const people = new Map<string, Person>();
   for (const p of [...lookups.people, ...members]) if (!people.has(p.id)) people.set(p.id, { id: p.id, name: p.name });
@@ -607,6 +620,7 @@ export async function automationContext(userId: string, databaseId: string, auto
     people: [...people.values()],
     agents: agentRefs,
     databases: loaded,
+    sequences: sequences.map((s) => ({ id: s.id, name: s.name })),
   };
 }
 
@@ -809,6 +823,15 @@ function describeAction(ctx: AutomationContext, action: AutomationAction, all: A
       return { ...base, type: "wait", minutes: action.minutes, summary: `Wait ${action.minutes === 1 ? "1 minute" : `${action.minutes} minutes`}` };
     case "log":
       return { ...base, type: "log", message: action.message, summary: `Log ${quote(action.message)}` };
+    case "start_sequence": {
+      const sequence = { id: action.sequenceId, name: ctx.sequences.find((s) => s.id === action.sequenceId)?.name ?? null };
+      return {
+        ...base,
+        type: "start_sequence",
+        sequence,
+        summary: `Start the follow-up ${sequence.name !== null ? quote(sequence.name) : sequence.id} on ${over ? `each row of "${over}"` : "the row"}`,
+      };
+    }
   }
 }
 

@@ -132,6 +132,11 @@ export type AutomationAction = (
   | { type: "wait"; minutes: number }
   /** Writes a message into the run's history. */
   | { type: "log"; message: string }
+  /**
+   * Starts a follow-up sequence of the database (lib/sequences.ts) on the row, sending from the
+   * automation's person's mailbox. A row in it already is skipped.
+   */
+  | { type: "start_sequence"; sequenceId: string; forEach?: string }
 ) & { id?: string };
 
 export type AutomationActionType = AutomationAction["type"];
@@ -148,13 +153,14 @@ export const AUTOMATION_ACTION_TYPES = [
   "upsert_row",
   "wait",
   "log",
+  "start_sequence",
 ] as const satisfies AutomationActionType[];
 
 /** Steps that can go "for each" over found rows. */
-export const FOR_EACH_TYPES = ["set_properties", "notify", "run_agent"] as const satisfies AutomationActionType[];
+export const FOR_EACH_TYPES = ["set_properties", "notify", "run_agent", "start_sequence"] as const satisfies AutomationActionType[];
 
 /** Steps that act on the run's row: a run without one (schedule, incoming webhook) needs "for each" for them. */
-export const ROW_STEP_TYPES = ["set_properties", "run_agent", "move_to_trash", "webhook"] as const satisfies AutomationActionType[];
+export const ROW_STEP_TYPES = ["set_properties", "run_agent", "move_to_trash", "webhook", "start_sequence"] as const satisfies AutomationActionType[];
 
 /** Whether a step needs a row it doesn't have: in a run without one, not going over found rows. */
 export function needsRow(action: AutomationAction) {

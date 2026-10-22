@@ -449,6 +449,10 @@ export function describeAuditEvent(event: Pick<AuditEvent, "action" | "targetLab
     case "backup.restored":
       values.count = typeof d.pages === "number" ? d.pages : 0;
       break;
+    case "sequence.stopped":
+      // Read as a choice in the message (why it stopped), not as the word.
+      values.reason = text(d.reason);
+      break;
     case "review.approved":
       // Read as a choice in the message ("it failed"), not as the word.
       values.outcome = text(d.outcome);

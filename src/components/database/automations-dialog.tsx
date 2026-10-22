@@ -11,7 +11,8 @@ import { browserTimeZone, timeZoneLabel } from "@/lib/time-zone";
 import { DatabasesProvider } from "./automations-data";
 import { AutomationEditor, Footer } from "./automations-editor";
 import { RunList } from "./automations-runs";
-import { triggerValueName, type AgentChoice, type Automation, type Person } from "./automations-shared";
+import { FollowUpExampleButton, SequenceChoicesProvider } from "./automations-sequences";
+import { triggerValueName, type AgentChoice, type Automation, type Draft, type Person } from "./automations-shared";
 import { usePeople } from "./person-cell";
 import { useSchema } from "./schema-context";
 
@@ -59,7 +60,7 @@ export function AutomationsButton({
   );
 }
 
-type Mode = { kind: "list" } | { kind: "edit"; id: string | null } | { kind: "runs"; id: string; focus: string | null };
+type Mode = { kind: "list" } | { kind: "edit"; id: string | null; example?: Draft } | { kind: "runs"; id: string; focus: string | null };
 
 function AutomationsDialog({
   workspaceId,
@@ -150,6 +151,7 @@ function AutomationsDialog({
   return (
     <Dialog open onClose={close} className="max-w-2xl">
       <DatabasesProvider workspaceId={workspaceId}>
+      <SequenceChoicesProvider databaseId={databaseId}>
       <div className="flex items-start gap-3 border-b border-border px-5 py-4">
         {mode.kind !== "list" && (
           <IconButton label={t("back")} onClick={() => setMode({ kind: "list" })} className="mt-1">
@@ -191,6 +193,7 @@ function AutomationsDialog({
           workspaceId={workspaceId}
           databaseId={databaseId}
           saved={current}
+          example={mode.example}
           people={people}
           agents={agents}
           isOwner={isOwner}
@@ -227,6 +230,7 @@ function AutomationsDialog({
             )}
           </div>
           <Footer error={error}>
+            {!full && <FollowUpExampleButton onPick={(example) => setMode({ kind: "edit", id: null, example })} />}
             <Button
               variant="primary"
               disabled={full}
@@ -239,6 +243,7 @@ function AutomationsDialog({
           </Footer>
         </>
       )}
+      </SequenceChoicesProvider>
       </DatabasesProvider>
     </Dialog>
   );

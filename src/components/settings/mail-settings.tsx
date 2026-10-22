@@ -8,6 +8,7 @@ import { updateWorkspaceSettingsAction } from "@/app/actions/workspaces";
 import { Button, cn, IconButton, Input, PageIcon, pageLabel, selectClass, Switch } from "@/components/ui";
 import { MAIL_PROVIDERS, providerFor, type MailboxServers, type MailboxView, type MailSettingsView, type OwnMailbox } from "@/lib/mail";
 import { relativeTime } from "@/lib/relative-time";
+import { browserTimeZone } from "@/lib/time-zone";
 import { SettingsGroup, SettingsRow } from "./section";
 import { useAction } from "./workspace-settings";
 
@@ -318,6 +319,7 @@ function MailboxForm({
               username: username.trim() || address.trim(),
               password,
               consent,
+              timeZone: browserTimeZone(),
             }),
           onSaved,
         );

@@ -129,6 +129,8 @@ export type PushItem = {
   rowEmail?: { id: string; from: string } | null;
   /** Changes waiting for review: how many. */
   review?: { count: number } | null;
+  /** Follow-ups: the sequence whose next email needs a look. */
+  followUp?: { sequence: string } | null;
 };
 
 /** The texts of a push message (`push` in email.json), already in the recipient's language. */
@@ -222,6 +224,9 @@ export function pushPayload(
       }
       case "page_updated":
         line = t("pageUpdated", { actor });
+        break;
+      case "follow_up":
+        line = t("followUp", { sequence: item.followUp?.sequence ?? "" });
         break;
       case "row_email":
         // Who wrote, not the subject: a lock screen shows it to whoever holds the device.

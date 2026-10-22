@@ -50,6 +50,11 @@ const STEP_CODES = [
   "tooManyAttempts",
   "disabled",
   "rowGone",
+  "alreadyEnrolled",
+  "sequenceGone",
+  "noMailbox",
+  "noAddress",
+  "emailOff",
 ] as const;
 
 /** A run waits for a wait step: the time it goes on. */

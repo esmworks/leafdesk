@@ -1626,6 +1626,14 @@
         "mailbox_connected": "Connected the mailbox {target}",
         "mailbox_disconnected": "Disconnected the mailbox {target}"
       },
+      "sequence": {
+        "created": "Created the follow-up “{name}” on {target}",
+        "updated": "Changed the follow-up “{name}” on {target}",
+        "deleted": "Deleted the follow-up “{name}” on {target}",
+        "enrolled": "Started the follow-up “{name}” on {target}",
+        "stopped": "{reason, select, replied {The follow-up “{name}” on {target} stopped: the contact replied} manual {Stopped the follow-up “{name}” on {target}} rowTrashed {The follow-up “{name}” on {target} stopped: the row was moved to the trash} mailboxDisconnected {The follow-up “{name}” on {target} stopped: the mailbox was disconnected} dismissed {The follow-up “{name}” on {target} stopped: its draft was dismissed} other {The follow-up “{name}” on {target} stopped}}",
+        "sent": "Sent step {step} of the follow-up “{name}” on {target}"
+      },
       "storage": {
         "connected": "Started keeping new files in {target}",
         "disconnected": "Stopped keeping new files in {target}",
@@ -1717,7 +1725,10 @@
     "stopWatching": "Stop watching",
     "reviewTitle": "For review",
     "reviewDescription": "An agent proposes a change to a row you can edit, or drafts an email from your mailbox, and it waits for your review. New proposals come together until you open them.",
-    "reviewChannel": "For review: {channel}"
+    "reviewChannel": "For review: {channel}",
+    "followUpTitle": "Follow-ups",
+    "followUpDescription": "A follow-up you started pauses because its next email didn’t pass the check before sending.",
+    "followUpChannel": "Follow-ups: {channel}"
   },
   "site": {
     "description": "Give this workspace's published pages one readable address, a home page and navigation between them.",

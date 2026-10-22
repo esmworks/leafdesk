@@ -1,6 +1,7 @@
 import { and, asc, count, desc, eq, inArray, isNull, or } from "drizzle-orm";
 import { db } from "@/db";
 import { automationRun, automationVersion, databaseAutomation, page, user, workspaceAgent, type AutomationDefinition } from "@/db/schema";
+import { emailSequence } from "@/db/schema/sequences";
 import { hasAgentLevel } from "@/lib/agent-sharing";
 import { MAX_AGENT_PROMPT } from "@/lib/agents";
 import { nextScheduledRun, parseAutomationSchedule } from "@/lib/automation-schedule";
@@ -94,6 +95,8 @@ export type AutomationActionInput = (
   | { type: "upsert_row"; database: string; match: { property: string; value: string }; title?: string | null; values?: ValuesInput }
   | { type: "wait"; minutes: number }
   | { type: "log"; message: string }
+  /** The sequence by id or name, of the database the step acts on. */
+  | { type: "start_sequence"; sequence: string; forEach?: string | null }
 ) & { id?: string | null };
 
 /** An automation as typed: properties and people by id or name (see above). */
@@ -268,6 +271,7 @@ const ID_STEMS: Record<AutomationActionType, string> = {
   upsert_row: "upsert",
   wait: "wait",
   log: "log",
+  start_sequence: "follow_up",
 };
 
 /** Every step's id: the one given (checked), or a new one from its type. */
@@ -414,7 +418,7 @@ async function checkActions(
     let target = { id: databaseId, props };
     let forEach: string | undefined;
     if (typeof over === "string" && over.trim()) {
-      if (!(FOR_EACH_TYPES as readonly string[]).includes(action.type)) throw invalid(`${label}: only setting properties, notifying and running an agent go "for each" found row`);
+      if (!(FOR_EACH_TYPES as readonly string[]).includes(action.type)) throw invalid(`${label}: only setting properties, notifying, running an agent and starting a follow-up go "for each" found row`);
       const source = found.get(over.trim());
       if (!source) throw invalid(`${label} goes "for each" row of "${over}", which is no earlier step that finds rows`);
       target = source;
@@ -587,9 +591,15 @@ async function checkActions(
       step = { type: "wait", minutes };
     } else if (action?.type === "log") {
       step = { type: "log", message: checkText(action.message, "A log message", MAX_STEP_MESSAGE, true).trim() };
+    } else if (action?.type === "start_sequence") {
+      const ref = String(action.sequence ?? "").trim();
+      const sequences = await db.select({ id: emailSequence.id, name: emailSequence.name }).from(emailSequence).where(eq(emailSequence.databaseId, target.id));
+      const sequence = sequences.find((s) => s.id === ref) ?? sequences.find((s) => s.name.toLowerCase() === ref.toLowerCase());
+      if (!sequence) throw invalid(`${label}: "${ref}" is not a follow-up of the database it starts on`, { value: ref });
+      step = { type: "start_sequence", sequenceId: sequence.id, ...(forEach ? { forEach } : {}) };
     } else {
       throw invalid(
-        'Each step is "set_properties", "notify", "webhook", "run_agent", "move_to_trash", "http_request", "find_rows", "create_row", "upsert_row", "wait" or "log"',
+        'Each step is "set_properties", "notify", "webhook", "run_agent", "move_to_trash", "http_request", "find_rows", "create_row", "upsert_row", "wait", "log" or "start_sequence"',
       );
     }
     step.id = id;
@@ -675,6 +685,7 @@ function asInput(action: AutomationAction): AutomationActionInput {
     return { id: action.id, type: "notify", people: action.userIds, properties: action.propertyIds, message: action.message, forEach: action.forEach };
   }
   if (action.type === "run_agent") return { id: action.id, type: "run_agent", agent: action.agentId, prompt: action.prompt, forEach: action.forEach };
+  if (action.type === "start_sequence") return { id: action.id, type: "start_sequence", sequence: action.sequenceId, forEach: action.forEach };
   if (action.type === "find_rows") {
     return { id: action.id, type: "find_rows", database: action.databaseId, filters: action.filters, filterCombinator: action.filterCombinator, sorts: action.sorts, limit: action.limit };
   }

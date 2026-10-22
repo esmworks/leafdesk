@@ -108,6 +108,7 @@ export type DraftAction = { key: string; id: string } & (
   | { type: "upsert_row"; databaseId: string; matchProperty: string; matchValue: string; title: string; entries: SetEntry[] }
   | { type: "wait"; amount: string; unit: WaitUnit }
   | { type: "log"; message: string }
+  | { type: "start_sequence"; sequenceId: string; forEach: string }
 );
 
 export type DraftActionOf<T extends AutomationActionType> = Extract<DraftAction, { type: T }>;
@@ -143,6 +144,7 @@ const ID_STEMS: Record<AutomationActionType, string> = {
   upsert_row: "upsert",
   wait: "wait",
   log: "log",
+  start_sequence: "follow_up",
 };
 
 export function newStepId(type: AutomationActionType, taken: string[]) {
@@ -301,6 +303,8 @@ export function toDraft(automation: Automation, properties: Property[]): Draft {
         return { ...base, type: "log", message: action.message };
       case "webhook":
         return { ...base, type: "webhook", url: action.url };
+      case "start_sequence":
+        return { ...base, type: "start_sequence", sequenceId: action.sequenceId, forEach: action.forEach ?? "" };
     }
   });
   return { name: automation.name, enabled: automation.enabled, trigger: toDraftTrigger(definition.trigger), actions };
@@ -335,6 +339,8 @@ export function newAction(type: AutomationActionType, actions: DraftAction[], tr
       return { ...base, type, message: "" };
     case "webhook":
       return { ...base, type, url: "" };
+    case "start_sequence":
+      return { ...base, type, sequenceId: "", forEach };
   }
 }
 
@@ -502,6 +508,9 @@ export function draftProblem(
         if (!action.message.trim()) problem = "needMessage";
         else if (badText(action.message)) problem = "badTemplate";
         break;
+      case "start_sequence":
+        if (!action.sequenceId) problem = "needSequence";
+        break;
     }
     if (problem) return at(problem);
     seen.push(action.id);
@@ -610,6 +619,8 @@ export function actionsInput(draft: Draft, properties: Property[], schemaOf: (da
         return { id, type: "log" as const, message: action.message.trim() };
       case "webhook":
         return { id, type: "webhook" as const, url: action.url.trim() };
+      case "start_sequence":
+        return { id, type: "start_sequence" as const, sequence: action.sequenceId, ...forEach };
     }
   });
 }

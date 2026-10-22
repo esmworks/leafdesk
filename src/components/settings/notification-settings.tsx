@@ -25,10 +25,11 @@ const KIND_KEYS = {
   page_updated: "pageUpdate",
   row_email: "rowEmail",
   review: "review",
+  follow_up: "followUp",
 } as const satisfies Record<PreferenceKind, string>;
 const LOCAL_MODE_HIDDEN_KINDS: readonly PreferenceKind[] = ["access_request", "join_request"];
-/** Kinds never sent by email: the email itself is already in the member's mailbox; what waits for review is in the app. */
-const EMAILLESS_KINDS: readonly PreferenceKind[] = ["row_email", "review"];
+/** Kinds never sent by email: the email itself is already in the member's mailbox; what waits for review, and a follow-up that needs a look, is in the app. */
+const EMAILLESS_KINDS: readonly PreferenceKind[] = ["row_email", "review", "follow_up"];
 /**
  * Settings > Preferences: for each kind of notification, whether it shows in the inbox, comes by
  * email, when the server can send them (`push`) comes as a push notification and, when the person

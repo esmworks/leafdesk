@@ -44,6 +44,7 @@ import { propertyAccessFor } from "@/server/property-access";
 import { queueAgentRun } from "@/server/agents/run";
 import { notAgentUser } from "@/server/agents/users";
 import { recordAudit, runAsAuditOrigin } from "@/server/audit";
+import { enrollRows, SequenceError, type EnrollOutcome, type SequenceErrorCode } from "@/server/sequences/manage";
 import { archivePage, renamePage } from "@/server/pages";
 import { exportAllowed } from "@/server/workspaces";
 import { HttpStepError, sendRequest } from "./http";
@@ -312,6 +313,14 @@ export async function processRun(run: Run) {
             prompt,
           });
           result = { input: { prompt }, output: { agentRunId: step.agentRunId }, agentRunId: step.agentRunId };
+        } else if (action.type === "start_sequence" && !action.forEach) {
+          const [outcome] = await enrollRows(runAs, action.sequenceId, [run.rowId!], "automation").catch(followUpFailure);
+          if (!outcome?.ok && outcome?.code === "alreadyEnrolled") {
+            Object.assign(step, { status: "skipped", code: "alreadyEnrolled" });
+            continue;
+          }
+          if (!outcome?.ok) throw new StepFailure(followUpCode(outcome?.code), outcome?.error ?? "The follow-up didn't start");
+          result = { input: { sequenceId: action.sequenceId }, output: { enrollmentId: outcome.enrollment.id } };
         } else if (forEachOf(action)) {
           result = await forEach(ctx, action, step);
         } else if (action.type === "move_to_trash") {
@@ -748,6 +757,15 @@ function foundRows(ctx: StepContext, stepId: string) {
   return (found?.rows ?? []).slice(0, MAX_FOUND_ROWS);
 }
 
+/** A follow-up that couldn't start for every row at all (no mailbox, email off, the sequence gone), as its outcome. */
+const followUpFailure = (error: unknown): EnrollOutcome[] => {
+  if (error instanceof SequenceError) return [{ rowId: "", ok: false, code: error.code, error: error.message }];
+  throw error;
+};
+
+/** A follow-up's reason as the run history's code: the sequence's own, a gone one as gone. */
+const followUpCode = (code: SequenceErrorCode | undefined) => (code === "notFound" ? "sequenceGone" : (code ?? "error"));
+
 /** Does a row step once for each found row, each with `{{item.…}}` set to that row. */
 async function forEach(ctx: StepContext, action: AutomationAction, step: AutomationStep): Promise<StepResult> {
   const over = forEachOf(action)!;
@@ -787,6 +805,15 @@ async function forEach(ctx: StepContext, action: AutomationAction, step: Automat
         });
         if (!agentRunIds[n]) agentRunIds[n] = id;
         outputs.push({ agentRunId: id });
+      } else if (action.type === "start_sequence") {
+        const [outcome] = await enrollRows(ctx.runAs, action.sequenceId, [item.id], "automation").catch(followUpFailure);
+        if (!outcome?.ok && outcome?.code === "alreadyEnrolled") {
+          items.push({ rowId: item.id, title: item.title, status: "skipped", code: "alreadyEnrolled" });
+          outputs.push(null);
+          continue;
+        }
+        if (!outcome?.ok) throw new StepFailure(followUpCode(outcome?.code), outcome?.error ?? "The follow-up didn't start");
+        outputs.push({ enrollmentId: outcome.enrollment.id });
       }
       items.push({ rowId: item.id, title: item.title, status: "done" });
     } catch (error) {

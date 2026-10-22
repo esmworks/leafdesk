@@ -184,7 +184,7 @@ export function InboxDialog({
                       <KeyRound aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
                       <span className="truncate">{t("aiAccountTitle")}</span>
                     </>
-                  ) : item.kind === "row_email" ? (
+                  ) : item.kind === "row_email" || item.kind === "follow_up" ? (
                     <>
                       <Mail aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
                       <span className="truncate">{pageLabel(item.pageTitle ?? "", tc("untitled"))}</span>
@@ -244,6 +244,8 @@ export function InboxDialog({
                             ? t("pageUpdated", { actor: item.actorName || t("someone") })
                           : item.kind === "row_email"
                             ? t("rowEmail", { from: item.rowEmail?.from || t("someone") })
+                          : item.kind === "follow_up"
+                            ? t("followUp", { sequence: item.followUp?.sequence ?? "" })
                           : item.kind === "automation"
                             ? item.reminderDate
                               ? t("automationDatePassed", { name: item.automationName ?? "" })
