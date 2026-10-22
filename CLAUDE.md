@@ -26,8 +26,8 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   public forms, `(auth)/` sign-in screens, `api/` route handlers, `mcp/route.ts` the MCP server,
   `api/v1/[[...path]]` the REST API, `scim/v2`, `oauth/consent`, `print`, `admin`, `account`.
 - `src/app/actions/*.ts`: server actions, one file per area. Thin: `requireUserId()`, check and
-  narrow every argument by hand, call `@/server/*`, return `ActionResult` (`{ ok, data }` or
-  `{ ok, error }`), `revalidatePath`. Nothing in `src/server` or `src/lib` imports actions.
+  narrow every argument by hand, call `@/server/*`, return an `ActionResult` shape (`{ ok, data }`
+  or `{ ok, error }`, declared in each file), `revalidatePath`. Nothing in `src/server` or `src/lib` imports actions.
 - `src/server/`: server-only domain code (by convention; there is no `server-only` import).
 - `src/lib/`: mostly pure code shared by client and server (property types, views, filters,
   formulas in `formula/`, markdown, search words, importers in `import/`). Server-only exceptions:
@@ -140,9 +140,9 @@ because they are separate module graphs.
   read once in `database-page.tsx` and handed down; a card asks `useIsOpenRow`
   (`components/database/row-panel-context.ts`). Views are memoized; keep their props stable
   (`src/lib/keep-unchanged.ts` keeps unchanged row objects across refetches).
-- **Page decoration** (backgrounds, covers, themes) never loads a URL or image a person supplies:
-  only colors and patterns written in the stylesheet. File and image blocks are content, not
-  decoration.
+- **Page decoration** (the page background, and anything like it added later) never loads a URL or
+  image a person supplies: only colors and patterns written in the stylesheet
+  (`src/lib/page-background.ts`). File and image blocks are content, not decoration.
 - **Better Auth hooks** (`src/lib/auth-options.ts`): a `before` hook's returned `body` is merged
   into the request body, so leaving a key out doesn't remove it; `delete` it from `ctx.body`.
 - **New server env var:** add it to `src/lib/env.ts`, `.env.example` and the `app.environment` list
@@ -171,8 +171,9 @@ plus the `scripts/*-e2e.ts` of the area you touched (`pnpm tsx scripts/<name>-e2
   columns, export, print, site, scim, security, security-switches, two-factor, account, admin (signs
   everyone out), sso (with a mock identity provider; see its header), scale.
 - **Needs no server on the same database**, because a server's workers would take the queued work:
-  the agent-* scripts, automation, timed-automation, schedule, row-activity, row-follow, row-mail,
-  page-watch, wins-log. `connector-e2e` starts its own `next dev` against `<database>_peer`, which
+  agents, agent-api, agent-approvers, agent-chat, agent-handoff, agent-memory, agent-mention,
+  agent-schedule, agent-sharing, agent-skills, automation, timed-automation, schedule,
+  row-activity, row-follow, row-mail, page-watch, wins-log. `connector-e2e` starts its own `next dev` against `<database>_peer`, which
   must exist; no other dev server may run in the same checkout.
 - Each script's header says what it needs. `.github/workflows/ci.yml` shows the env each step gets;
   not every e2e script is in CI.
