@@ -151,9 +151,16 @@ const agents = vi.hoisted(() => {
     setAgentAccess: vi.fn(),
     removeAgentAccess: vi.fn(),
     listAgentRuns: vi.fn(),
+    agentRefs: vi.fn(async () => [] as unknown[]),
   };
 });
 vi.mock("@/server/agents/manage", () => agents);
+const agentSharing = vi.hoisted(() => ({
+  agentSharing: vi.fn(async () => ({ level: "full", entries: [{ kind: "everyone", level: "interact" }], members: [], groups: [] })),
+  setAgentShare: vi.fn(),
+  removeAgentShare: vi.fn(),
+}));
+vi.mock("@/server/agents/sharing", () => agentSharing);
 const agentDraft = vi.hoisted(() => ({ draftAgent: vi.fn() }));
 vi.mock("@/server/agents/draft", () => agentDraft);
 
@@ -2351,6 +2358,7 @@ describe("agents", () => {
     webAccess: false,
     monthlyTokenLimit: 50_000,
     model: "main",
+    access: "full",
     createdAt: "2026-10-01T00:00:00.000Z",
     updatedAt: "2026-10-01T00:00:00.000Z",
   };
@@ -2386,7 +2394,7 @@ describe("agents", () => {
     expect(isError).toBe(false);
     expect(agents.listAgents).toHaveBeenCalledWith("user-1", "ws-1", { archived: true });
     expect(data.agents).toEqual([
-      { id: "agent-1", name: "Ticket router", icon: "🤖", description: "Sorts new tickets", enabled: true, archived: false, model: "main", web_access: false, user_id: "bot-1", helper_agent_ids: ["agent-2"] },
+      { id: "agent-1", name: "Ticket router", icon: "🤖", description: "Sorts new tickets", enabled: true, archived: false, model: "main", web_access: false, user_id: "bot-1", helper_agent_ids: ["agent-2"], your_access: "full" },
     ]);
   });
 
@@ -2621,7 +2629,7 @@ describe("agents", () => {
 
     agents.createAgent.mockRejectedValueOnce(new AccessError());
     const notOwner = await callTool(writer, "create_agent", { workspace_id: "ws-1", name: "x" });
-    expect(notOwner.text).toMatch(/Only owners/);
+    expect(notOwner.text).toMatch(/may not create agents/);
 
     agents.setAgentAccess.mockRejectedValueOnce(new agents.AgentError("notAPage", "Page not found"));
     const notAPage = await callTool(writer, "set_agent_access", { agent_id: "agent-1", page_id: "p-x", level: "view" });
@@ -2656,7 +2664,7 @@ describe("agents", () => {
     expect(agents.createAgent).not.toHaveBeenCalled();
 
     agentDraft.draftAgent.mockRejectedValueOnce(new AccessError());
-    expect((await callTool(reader, "draft_agent", { workspace_id: "ws-1", description: "x" })).text).toMatch(/Only owners/);
+    expect((await callTool(reader, "draft_agent", { workspace_id: "ws-1", description: "x" })).text).toMatch(/may not create agents/);
     agentDraft.draftAgent.mockRejectedValueOnce(new AiError("disabled", "AI is off for this workspace"));
     expect((await callTool(reader, "draft_agent", { workspace_id: "ws-1", description: "x" })).text).toMatch(/AI is off/);
   });
@@ -2915,8 +2923,44 @@ describe("agents", () => {
     expect(got.data.schedules[1].note).toMatch(/task is hidden.*keeps it/);
   });
 
+  it("shares an agent with one person, group or everyone at a time, and shows its sharing in get_agent", async () => {
+    const sharing = {
+      level: "full",
+      entries: [
+        { kind: "everyone", level: "interact" },
+        { kind: "person", userId: "user-2", name: "Ada", email: "ada@example.com", image: null, level: "edit" },
+      ],
+      members: [],
+      groups: [],
+    };
+    agentSharing.setAgentShare.mockResolvedValueOnce(sharing);
+    const shared = await callTool(writer, "share_agent", { agent_id: "agent-1", user_id: "user-2", level: "edit" });
+    expect(shared.isError).toBe(false);
+    expect(agentSharing.setAgentShare).toHaveBeenCalledWith("user-1", "agent-1", { kind: "person", userId: "user-2" }, "edit");
+    expect(shared.data.sharing).toMatchObject({
+      your_access: "full",
+      shared_with: [{ everyone: true, level: "interact" }, { user_id: "user-2", name: "Ada", level: "edit" }],
+    });
+
+    agentSharing.removeAgentShare.mockResolvedValueOnce({ ...sharing, entries: sharing.entries.slice(1) });
+    const removed = await callTool(writer, "share_agent", { agent_id: "agent-1", everyone: true, level: "remove" });
+    expect(agentSharing.removeAgentShare).toHaveBeenCalledWith("user-1", "agent-1", { kind: "everyone" });
+    expect(removed.data.sharing.shared_with).toHaveLength(1);
+
+    // Exactly one of them, and not from a read-only connection.
+    expect((await callTool(writer, "share_agent", { agent_id: "agent-1", user_id: "user-2", everyone: true, level: "edit" })).isError).toBe(true);
+    expect((await callTool(reader, "share_agent", { agent_id: "agent-1", everyone: true, level: "edit" })).isError).toBe(true);
+
+    agents.getAgent.mockResolvedValueOnce(agent);
+    agents.listAgentAccess.mockResolvedValueOnce(access);
+    agentSharing.agentSharing.mockResolvedValueOnce(sharing);
+    const got = await callTool(reader, "get_agent", { agent_id: "agent-1" });
+    expect(got.data.your_access).toBe("full");
+    expect(got.data.sharing.shared_with).toHaveLength(2);
+  });
+
   it("passes run_agent actions through and names the agent in automations", async () => {
-    agents.listAgents.mockResolvedValue([agent]);
+    agents.agentRefs.mockResolvedValue([{ id: agent.id, name: agent.name }]);
     automations.createAutomation.mockResolvedValue({
       id: "auto-1",
       databaseId: "db-1",
@@ -2938,7 +2982,7 @@ describe("agents", () => {
     });
     expect(isError).toBe(false);
     expect(automations.createAutomation.mock.calls[0][2].actions).toEqual([{ type: "run_agent", agent: "Ticket router", prompt: "Set the priority" }]);
-    expect(agents.listAgents).toHaveBeenCalledWith("user-1", "ws-1", { archived: true });
+    expect(agents.agentRefs).toHaveBeenCalledWith("user-1", "ws-1");
     expect(data.actions[0]).toEqual({
       type: "run_agent",
       agent: { id: "agent-1", name: "Ticket router" },

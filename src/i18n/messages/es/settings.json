@@ -297,7 +297,7 @@
   "agents": {
     "heading": "Agentes",
     "description": "Los agentes son asistentes de IA con instrucciones propias. Una automatización ejecuta uno sobre las filas de una base de datos: lee solo lo que se comparte con él, cambia la fila y la comenta con su propio nombre.",
-    "ownersOnly": "Solo los propietarios del espacio de trabajo pueden crear y cambiar agentes.",
+    "ownersOnly": "Solo los propietarios del espacio de trabajo pueden crear agentes.",
     "newButton": "Nuevo agente",
     "tabs": {
       "active": "Agentes",
@@ -360,7 +360,8 @@
       "helpers": "Agentes a los que puede preguntar",
       "helpersHelp": "Durante una ejecución puede pasar parte de su tarea a estos agentes, hasta {max} veces, y usar sus respuestas. Cada uno trabaja con su propio acceso, herramientas y límites, y no puede preguntar a otros agentes a su vez.",
       "helpersEmpty": "Todavía no hay otros agentes en este espacio de trabajo.",
-      "helperPaused": "En pausa"
+      "helperPaused": "En pausa",
+      "limitOwnersOnly": "Solo los propietarios del espacio de trabajo fijan este límite."
     },
     "describe": {
       "button": "Describir un agente",
@@ -560,7 +561,9 @@
         "limitReached": "No pudo preguntar a <agent></agent>: agotó su límite mensual de tokens"
       },
       "fromChat": "Mensaje de chat de {name}",
-      "chattedBy": "chat de {name}"
+      "chattedBy": "chat de {name}",
+      "yoursOnly": "Ves las ejecuciones que iniciaste tú.",
+      "waitingForOwner": "Un propietario del espacio de trabajo responde a esta llamada."
     },
     "usage": {
       "thisMonth": "Este mes: {usage}",
@@ -640,7 +643,7 @@
       "tooManySkills": "Un agente puede tener como máximo {max} habilidades.",
       "skillEditable": "Alguien además de los propietarios del espacio de trabajo puede editar «{title}». Un agente solo sigue habilidades que únicamente los propietarios pueden cambiar: primero limita quién puede editar la página.",
       "notASkill": "Esta página no es una habilidad.",
-      "accessDenied": "Solo los propietarios del espacio de trabajo pueden cambiar agentes.",
+      "accessDenied": "No tienes permiso para hacer esto.",
       "reasons": {
         "name": "Ponle un nombre al agente.",
         "icon": "El icono de un agente es un emoji.",
@@ -655,7 +658,8 @@
         "task": "Escribe la tarea que hace en cada ejecución.",
         "taskLength": "Una tarea tiene como mucho 2000 caracteres.",
         "repeat": "Revisa cuándo se repite y su zona horaria.",
-        "helpers": "Elige hasta 10 agentes más de este espacio de trabajo que no estén archivados."
+        "helpers": "Elige hasta 10 agentes más de este espacio de trabajo que no estén archivados.",
+        "shareLevel": "Elige acceso completo, puede editar o puede ver e interactuar."
       },
       "noteEmpty": "Escribe qué debe recordar el agente.",
       "noteTooLong": "Una nota puede tener como máximo {max} caracteres.",
@@ -669,14 +673,19 @@
       "notADatabase": "Elige una base de datos de este espacio de trabajo que puedas abrir.",
       "tooManySchedules": "No hay sitio para otra programación (como mucho {max}).",
       "scheduleNotFound": "Esta programación ya no existe.",
-      "versionNotFound": "Esta versión ya no existe."
+      "versionNotFound": "Esta versión ya no existe.",
+      "notAllowed": "Tu acceso a este agente no lo permite.",
+      "ownersOnly": "Solo los propietarios del espacio de trabajo cambian el límite mensual de tokens de un agente.",
+      "notAMember": "Un agente solo se puede compartir con los propietarios, miembros y grupos del espacio de trabajo."
     },
     "connections": {
       "description": "Las herramientas de cada conexión que este agente puede usar. Las que solo leen se ejecutan al momento, salvo en una fila que viene de una respuesta anónima a un formulario; las demás esperan la aprobación de un propietario cada vez que el agente las llama.",
       "empty": "Aún no hay conexiones. Los propietarios las añaden en <link>Configuración › Conexiones</link>.",
       "allowedCount": "{n} de {total} permitidas",
       "notReady": "Esta conexión no está lista (necesita iniciar sesión o falla), así que el agente no puede usar sus herramientas por ahora.",
-      "noTools": "Aún no hay herramientas listadas."
+      "noTools": "Aún no hay herramientas listadas.",
+      "ownersChoose": "Las herramientas de cada conexión que este agente puede usar. Solo los propietarios del espacio de trabajo las eligen.",
+      "none": "Este agente no puede usar herramientas de ninguna conexión."
     },
     "schedules": {
       "description": "Deja que este agente se ejecute solo según una programación: cada ejecución hace la tarea, en la base de datos que elijas si eliges una, y su informe llega a tu bandeja de entrada. Sus ejecuciones solo abren lo que tú puedes abrir.",
@@ -797,6 +806,40 @@
         "skillEditable": "alguien además de los propietarios puede editarla",
         "tooMany": "no hay espacio para ella"
       }
+    },
+    "share": {
+      "levels": {
+        "full": "Acceso completo",
+        "edit": "Puede editar",
+        "interact": "Puede ver e interactuar",
+        "none": "Sin acceso"
+      },
+      "button": "Compartir",
+      "description": "Quién puede usar este agente y qué puede hacer con él.",
+      "levelHelp": {
+        "full": "Todo, incluido compartirlo y archivarlo",
+        "edit": "Cambiar su configuración, páginas, habilidades, memoria y programaciones",
+        "interact": "Verlo, chatear con él y mencionarlo en comentarios"
+      },
+      "add": "Añadir personas o grupos",
+      "noMatches": "Nadie coincide.",
+      "list": "Compartido con",
+      "owners": "Propietarios del espacio de trabajo",
+      "ownersHint": "Siempre tienen acceso completo",
+      "everyone": "Todos en el espacio de trabajo",
+      "everyoneHint": "Propietarios y miembros, no invitados",
+      "levelFor": "Acceso de {name}",
+      "remove": "Quitar a {name}",
+      "readOnly": "Solo las personas con acceso completo cambian con quién se comparte este agente.",
+      "archived": "Restaura el agente para cambiar con quién se comparte.",
+      "ownersKeep": "Qué herramientas de conexiones puede usar y su límite mensual de tokens siguen en manos de los propietarios del espacio de trabajo.",
+      "groupMembers": "{count, plural, =0 {Grupo sin miembros} one {Grupo de # miembro} other {Grupo de # miembros}}"
+    },
+    "viewOnly": "Puedes ver este agente, chatear con él y mencionarlo. Para cambiarlo, pídeselo a alguien que pueda editarlo.",
+    "creation": {
+      "title": "Solo los propietarios del espacio de trabajo pueden crear agentes",
+      "description": "Desactivado: los miembros también pueden crear agentes y obtienen acceso completo a los que crean. Los invitados nunca.",
+      "ownersOnly": "Solo los propietarios del espacio de trabajo pueden cambiar esto."
     }
   },
   "analytics": {
@@ -1415,7 +1458,8 @@
       "allowedDomains": "Dominios de correo permitidos",
       "domainJoin": "Cuando alguien de estos dominios inicia sesión",
       "joinRequests": "Quién puede pedir unirse",
-      "email": "Correo en las filas"
+      "email": "Correo en las filas",
+      "agentCreation": "Quién puede crear agentes"
     },
     "values": {
       "on": "Activado",
@@ -1549,7 +1593,9 @@
         "archived": "Archivó el agente «{target}»",
         "run_requested": "Pidió una ejecución al agente «{target}»",
         "schedule_set": "Programó el agente «{target}»",
-        "schedule_removed": "Eliminó una programación del agente «{target}»"
+        "schedule_removed": "Eliminó una programación del agente «{target}»",
+        "shared": "Fijó el acceso de {subject} al agente «{target}»: {level}",
+        "unshared": "Quitó a {subject} del uso compartido del agente «{target}»"
       },
       "connection": {
         "created": "Añadió la conexión «{target}»",
@@ -1585,6 +1631,11 @@
     "outcomes": {
       "done": "hecha",
       "failed": "fallida"
+    },
+    "agentLevels": {
+      "full": "Acceso completo",
+      "edit": "Puede editar",
+      "interact": "Puede ver e interactuar"
     }
   },
   "notifications": {

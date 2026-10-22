@@ -29,6 +29,7 @@ import {
   type AgentView,
 } from "@/lib/agents";
 import { MAX_AGENT_REQUEST, type AgentDraft, type DraftTrigger } from "@/lib/agent-draft";
+import { AGENT_SHARE_LEVELS, type AgentSharingView } from "@/lib/agent-sharing";
 import type { AgentRestoreSkip, AgentVersionView } from "@/lib/agent-versions";
 import { MAX_MEMORIES, MAX_MEMORY_CHARS } from "@/lib/ai-chat";
 import { pageLabel } from "@/lib/labels";
@@ -197,6 +198,17 @@ export const agentInputs = {
       .enum([...AGENT_ACCESS_LEVELS, "remove"])
       .describe('What the agent may do with the page and everything under it: "view", "comment" or "edit"; "remove" stops sharing it.'),
   }),
+  share: z.object({
+    agent_id: id("agent"),
+    user_id: id("user").optional().describe("A person to share it with: an owner or member of the workspace (list_users), never a guest."),
+    group_id: id("group").optional().describe("A group of the workspace to share it with (list_groups)."),
+    everyone: z.boolean().optional().describe("true: share it with everyone in the workspace (owners and members, never guests)."),
+    level: z
+      .enum([...AGENT_SHARE_LEVELS, "remove"])
+      .describe(
+        '"full" (everything a workspace owner can do with the agent, sharing and archiving it too), "edit" (change its settings, instructions, pages, skills, schedules, memory and versions and run it, but not share or archive it), "interact" (see it and its settings, chat with it and mention it in comments); "remove" takes them off its list.',
+      ),
+  }),
   skill: z.object({
     agent_id: id("agent"),
     skill_id: id("page").describe("The skill's page id, from list_skills."),
@@ -295,7 +307,8 @@ const INVALID: Record<string, string> = {
   model: 'An agent runs on the "main" or the "fast" model.',
   task: "A run needs a task: say what the agent should do.",
   taskLength: `A task has at most ${MAX_AGENT_PROMPT} characters. Make it shorter.`,
-  helpers: `helper_agent_ids lists other agents of the same workspace that aren't archived, each once, at most ${MAX_AGENT_HELPERS} (an agent can't ask itself). Call list_agents to find them.`,
+  helpers: `helper_agent_ids lists other agents of the same workspace that aren't archived, each once, at most ${MAX_AGENT_HELPERS} (an agent can't ask itself); an agent the user adds must be shared with them. Call list_agents to find them.`,
+  shareLevel: 'An agent is shared at "full", "edit" or "interact".',
   repeat:
     'Invalid repeat rule or time zone: frequency daily, weekly, monthly or yearly; weekdays (0-6) for a weekly rule; time as "HH:MM"; start as a real YYYY-MM-DD day; time_zone an IANA name such as "Europe/Istanbul".',
 };
@@ -309,7 +322,19 @@ export async function withAgentErrors<T>(fn: () => Promise<T>): Promise<T> {
       switch (error.code) {
         case "notFound":
           throw new ToolInputError(
-            "No agent with this id that the user manages: only owners of a workspace open, change and share pages with its agents. Call list_agents with the workspace to see its agents.",
+            "No agent with this id shared with the user: workspace owners see every agent of the workspace, others the agents shared with them. Call list_agents with the workspace to see them.",
+          );
+        case "notAllowed":
+          throw new ToolInputError(
+            `The user's access to this agent ("${error.params.level ?? ""}") doesn't allow this. "interact" lets them see it and its settings, chat with it and mention it; "edit" also lets them change it (settings, instructions, pages, skills, schedules, memory, versions) and run it; "full" also lets them share and archive it. A workspace owner, or someone with full access to the agent, can give them more with share_agent.`,
+          );
+        case "ownersOnly":
+          throw new ToolInputError(
+            "Only the workspace's owners change an agent's monthly token limit and the connection tools it may use. Leave monthly_token_limit out, or ask an owner.",
+          );
+        case "notAMember":
+          throw new ToolInputError(
+            "An agent is shared only with the workspace's owners and members (user_id, from list_users), its groups (group_id, from list_groups) or everyone in the workspace (everyone: true); never with guests.",
           );
         case "archived":
           throw new ToolInputError(
@@ -407,6 +432,7 @@ export function describeAgentSummary(agent: AgentView, helpers?: string[]) {
     model: agent.model,
     web_access: agent.webAccess,
     user_id: agent.userId,
+    your_access: agent.access,
     ...(helpers ? { helper_agent_ids: helpers } : {}),
   };
 }
@@ -771,3 +797,18 @@ export const describeAgentVersion = (v: AgentVersionView) => ({
 
 /** What a restore couldn't bring back, for MCP. */
 export const describeRestoreSkip = (s: AgentRestoreSkip) => ({ part: s.part, name: s.name || null, reason: s.reason });
+
+/** An agent's sharing list, as get_agent and share_agent show it. */
+export function describeSharing(sharing: AgentSharingView) {
+  return {
+    your_access: sharing.level,
+    shared_with: sharing.entries.map((e) =>
+      e.kind === "everyone"
+        ? { everyone: true, level: e.level }
+        : e.kind === "person"
+          ? { user_id: e.userId, name: e.name, email: e.email, level: e.level }
+          : { group_id: e.groupId, name: e.name, member_count: e.memberCount, level: e.level },
+    ),
+    note: "Workspace owners always have full access to every agent, listed or not.",
+  };
+}

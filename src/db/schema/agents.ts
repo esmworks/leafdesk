@@ -1,4 +1,5 @@
-import { bigint, boolean, date, doublePrecision, index, integer, jsonb, pgTable, primaryKey, text, timestamp } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
+import { bigint, boolean, check, date, doublePrecision, foreignKey, index, integer, jsonb, pgTable, primaryKey, text, timestamp, unique } from "drizzle-orm/pg-core";
 import type {
   AgentAccessLevel,
   AgentModel,
@@ -12,8 +13,10 @@ import type {
   ApprovalDecision,
 } from "@/lib/agents";
 import type { AgentChatMessageRecord } from "@/lib/agent-chat";
-import { page, workspace } from "./app";
+import type { AgentShareLevel } from "@/lib/agent-sharing";
+import { page, workspace, workspaceMember } from "./app";
 import { user } from "./auth";
+import { memberGroup } from "./groups";
 
 /**
  * A paused run's conversation and counters. `messages` are the model's conversation as sent
@@ -226,4 +229,50 @@ export const agentConversation = pgTable(
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index("agent_conversation_user_idx").on(t.userId, t.agentId, t.chatId, t.updatedAt)],
+);
+
+/**
+ * Who an agent is shared with (see lib/agent-sharing.ts and server/agents/sharing.ts): a person
+ * (`userId`), a group (`groupId`) or, with neither, everyone in the workspace, each at a level.
+ * A person's entry points at their membership, so leaving the workspace takes it away; a group's
+ * goes with the group. Workspace owners have full access without an entry.
+ */
+export const agentShare = pgTable(
+  "agent_share",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    agentId: text("agent_id")
+      .notNull()
+      .references(() => workspaceAgent.id, { onDelete: "cascade" }),
+    workspaceId: text("workspace_id").notNull(),
+    userId: text("user_id"),
+    groupId: text("group_id"),
+    level: text("level").$type<AgentShareLevel>().notNull(),
+    createdBy: text("created_by").references(() => user.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    unique("agent_share_principal_key").on(t.agentId, t.userId, t.groupId).nullsNotDistinct(),
+    index("agent_share_user_idx").on(t.userId),
+    index("agent_share_group_idx").on(t.groupId),
+    foreignKey({
+      name: "agent_share_workspace_fk",
+      columns: [t.workspaceId],
+      foreignColumns: [workspace.id],
+    }).onDelete("cascade"),
+    foreignKey({
+      name: "agent_share_member_fk",
+      columns: [t.workspaceId, t.userId],
+      foreignColumns: [workspaceMember.workspaceId, workspaceMember.userId],
+    }).onDelete("cascade"),
+    foreignKey({
+      name: "agent_share_group_fk",
+      columns: [t.groupId, t.workspaceId],
+      foreignColumns: [memberGroup.id, memberGroup.workspaceId],
+    }).onDelete("cascade"),
+    check("agent_share_level_check", sql`${t.level} in ('full', 'edit', 'interact')`),
+    check("agent_share_one_principal", sql`${t.userId} is null or ${t.groupId} is null`),
+  ],
 );

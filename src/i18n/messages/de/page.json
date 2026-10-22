@@ -859,7 +859,8 @@
       "gone": "Dieser Agent ist nicht mehr verfügbar.",
       "paused": "Dieser Agent ist pausiert und kann daher nicht antworten.",
       "aiOff": "KI ist in diesem Workspace ausgeschaltet, daher kann der Agent nicht antworten.",
-      "limitReached": "Dieser Agent hat seine Tokens für diesen Monat verbraucht und kann erst im nächsten Monat wieder antworten."
+      "limitReached": "Dieser Agent hat seine Tokens für diesen Monat verbraucht und kann erst im nächsten Monat wieder antworten.",
+      "noAccess": "Du hast keinen Zugriff auf diesen Agenten."
     },
     "empty": {
       "full": "Frag {name} etwas oder gib ihm eine Aufgabe. Er arbeitet mit seinem eigenen Zugriff, seinen Skills und seinem Gedächtnis, und jede Antwort ist einer seiner Durchläufe.",
@@ -915,6 +916,7 @@
     "tab": {
       "hint": "Füge den Link dieses Agenten in eine Seite ein, um dort einen Chat mit ihm einzubinden. Mitglieder können darin schreibgeschützt chatten.",
       "copyLink": "Link kopieren"
-    }
+    },
+    "awaitingOwner": "Wartet darauf, dass ein Workspace-Inhaber einen Aufruf freigibt…"
   }
 }

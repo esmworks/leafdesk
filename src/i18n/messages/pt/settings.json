@@ -297,7 +297,7 @@
   "agents": {
     "heading": "Agentes",
     "description": "Agentes são assistentes de IA com instruções próprias. Uma automação executa um deles nas linhas de um banco de dados: ele lê só o que foi compartilhado com ele, altera a linha e comenta nela, com o próprio nome.",
-    "ownersOnly": "Só proprietários do espaço de trabalho podem criar e alterar agentes.",
+    "ownersOnly": "Só proprietários do espaço de trabalho podem criar agentes.",
     "newButton": "Novo agente",
     "tabs": {
       "active": "Agentes",
@@ -360,7 +360,8 @@
       "helpers": "Agentes a quem pode pedir",
       "helpersHelp": "Durante uma execução, ele pode passar parte da tarefa a estes agentes, até {max} vezes, e usar as respostas deles. Cada um trabalha com o próprio acesso, ferramentas e limites, e não pode pedir a outros agentes por sua vez.",
       "helpersEmpty": "Ainda não há outros agentes neste espaço de trabalho.",
-      "helperPaused": "Pausado"
+      "helperPaused": "Pausado",
+      "limitOwnersOnly": "Só proprietários do espaço de trabalho definem este limite."
     },
     "describe": {
       "button": "Descrever um agente",
@@ -560,7 +561,9 @@
         "limitReached": "Não pôde pedir a <agent></agent>: ele usou o limite mensal de tokens"
       },
       "fromChat": "Mensagem de chat de {name}",
-      "chattedBy": "chat de {name}"
+      "chattedBy": "chat de {name}",
+      "yoursOnly": "Você vê as execuções que iniciou.",
+      "waitingForOwner": "Um proprietário do espaço de trabalho responde a esta chamada."
     },
     "usage": {
       "thisMonth": "Este mês: {usage}",
@@ -640,7 +643,7 @@
       "tooManySkills": "Um agente pode ter no máximo {max} habilidades.",
       "skillEditable": "Alguém além dos proprietários do espaço de trabalho pode editar “{title}”. Um agente só segue habilidades que apenas proprietários podem alterar: limite primeiro quem pode editar a página.",
       "notASkill": "Esta página não é uma habilidade.",
-      "accessDenied": "Só proprietários do espaço de trabalho podem alterar agentes.",
+      "accessDenied": "Você não tem permissão para fazer isso.",
       "reasons": {
         "name": "Dê um nome ao agente.",
         "icon": "O ícone de um agente é um emoji.",
@@ -655,7 +658,8 @@
         "task": "Escreva a tarefa que ele faz em cada execução.",
         "taskLength": "Uma tarefa pode ter no máximo 2.000 caracteres.",
         "repeat": "Confira quando ele se repete e o fuso horário.",
-        "helpers": "Escolha até 10 outros agentes deste espaço de trabalho que não estejam arquivados."
+        "helpers": "Escolha até 10 outros agentes deste espaço de trabalho que não estejam arquivados.",
+        "shareLevel": "Escolha acesso total, pode editar ou pode ver e interagir."
       },
       "noteEmpty": "Escreva o que o agente deve lembrar.",
       "noteTooLong": "Uma nota pode ter no máximo {max} caracteres.",
@@ -669,14 +673,19 @@
       "notADatabase": "Escolha um banco de dados deste espaço de trabalho que você possa abrir.",
       "tooManySchedules": "Não há espaço para outro agendamento (no máximo {max}).",
       "scheduleNotFound": "Este agendamento não existe mais.",
-      "versionNotFound": "Esta versão não existe mais."
+      "versionNotFound": "Esta versão não existe mais.",
+      "notAllowed": "Seu acesso a este agente não permite isso.",
+      "ownersOnly": "Só proprietários do espaço de trabalho alteram o limite mensal de tokens de um agente.",
+      "notAMember": "Um agente só pode ser compartilhado com proprietários, membros e grupos do espaço de trabalho."
     },
     "connections": {
       "description": "As ferramentas de cada conexão que este agente pode usar. Ferramentas que só leem são executadas na hora, exceto em uma linha vinda de uma resposta anônima de formulário; qualquer outra aguarda a aprovação de um proprietário toda vez que o agente a chama.",
       "empty": "Nenhuma conexão ainda. Proprietários as adicionam em <link>Configurações › Conexões</link>.",
       "allowedCount": "{n} de {total} permitidas",
       "notReady": "Esta conexão não está pronta (precisa de login ou está falhando), então o agente não pode usar as ferramentas dela por enquanto.",
-      "noTools": "Nenhuma ferramenta listada ainda."
+      "noTools": "Nenhuma ferramenta listada ainda.",
+      "ownersChoose": "As ferramentas de cada conexão que este agente pode usar. Só proprietários do espaço de trabalho as escolhem.",
+      "none": "Este agente não pode usar ferramentas de nenhuma conexão."
     },
     "schedules": {
       "description": "Deixe este agente ser executado sozinho, por agendamento: cada execução faz a tarefa, no banco de dados que você escolher, se houver, e você recebe o relatório na sua caixa de entrada. As execuções dele podem abrir só o que você pode abrir.",
@@ -797,6 +806,40 @@
         "skillEditable": "alguém além dos proprietários pode editá-la",
         "tooMany": "não há espaço para ela"
       }
+    },
+    "share": {
+      "levels": {
+        "full": "Acesso total",
+        "edit": "Pode editar",
+        "interact": "Pode ver e interagir",
+        "none": "Sem acesso"
+      },
+      "button": "Compartilhar",
+      "description": "Quem pode usar este agente e o que pode fazer com ele.",
+      "levelHelp": {
+        "full": "Tudo, inclusive compartilhar e arquivar",
+        "edit": "Alterar configurações, páginas, habilidades, memória e agendamentos",
+        "interact": "Ver, conversar e mencioná-lo em comentários"
+      },
+      "add": "Adicionar pessoas ou grupos",
+      "noMatches": "Ninguém corresponde.",
+      "list": "Compartilhado com",
+      "owners": "Proprietários do espaço de trabalho",
+      "ownersHint": "Sempre têm acesso total",
+      "everyone": "Todos no espaço de trabalho",
+      "everyoneHint": "Proprietários e membros, não convidados",
+      "levelFor": "Acesso de {name}",
+      "remove": "Remover {name}",
+      "readOnly": "Só pessoas com acesso total alteram com quem este agente é compartilhado.",
+      "archived": "Restaure o agente para alterar com quem ele é compartilhado.",
+      "ownersKeep": "Quais ferramentas de conexões ele pode usar e seu limite mensal de tokens continuam com os proprietários do espaço de trabalho.",
+      "groupMembers": "{count, plural, =0 {Grupo sem membros} one {Grupo de # membro} other {Grupo de # membros}}"
+    },
+    "viewOnly": "Você pode ver este agente, conversar com ele e mencioná-lo. Para alterá-lo, peça a alguém que possa editá-lo.",
+    "creation": {
+      "title": "Só proprietários do espaço de trabalho podem criar agentes",
+      "description": "Desativado: membros também podem criar agentes e recebem acesso total aos que criarem. Convidados nunca.",
+      "ownersOnly": "Só proprietários do espaço de trabalho podem alterar isso."
     }
   },
   "analytics": {
@@ -1415,7 +1458,8 @@
       "allowedDomains": "Domínios de e-mail permitidos",
       "domainJoin": "Quando alguém destes domínios entra",
       "joinRequests": "Quem pode pedir para entrar",
-      "email": "E-mail nas linhas"
+      "email": "E-mail nas linhas",
+      "agentCreation": "Quem pode criar agentes"
     },
     "values": {
       "on": "Ativado",
@@ -1549,7 +1593,9 @@
         "archived": "Arquivou o agente “{target}”",
         "run_requested": "Pediu uma execução ao agente “{target}”",
         "schedule_set": "Definiu um agendamento para o agente “{target}”",
-        "schedule_removed": "Excluiu um agendamento do agente “{target}”"
+        "schedule_removed": "Excluiu um agendamento do agente “{target}”",
+        "shared": "Definiu o acesso de {subject} ao agente “{target}”: {level}",
+        "unshared": "Removeu {subject} do compartilhamento do agente “{target}”"
       },
       "connection": {
         "created": "Adicionou a conexão “{target}”",
@@ -1585,6 +1631,11 @@
     "outcomes": {
       "done": "concluída",
       "failed": "falhou"
+    },
+    "agentLevels": {
+      "full": "Acesso total",
+      "edit": "Pode editar",
+      "interact": "Pode ver e interagir"
     }
   },
   "notifications": {

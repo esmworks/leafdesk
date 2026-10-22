@@ -17,7 +17,7 @@ import {
   type VersionPageRef,
   type VersionScheduleRef,
 } from "@/lib/agent-versions";
-import type { AgentView } from "@/lib/agents";
+import { editsAgent, type AgentView } from "@/lib/agents";
 import { useRuleSummary } from "./agent-schedules-tab";
 
 const NAMED_FIELDS = ["name", "icon", "description", "instructions", "enabled", "model", "web_access", "monthly_token_limit", "skills", "schedules", "shares"] as const;
@@ -253,7 +253,8 @@ function VersionPanel({
           {agent.archived ? (
             <p className="text-sm text-fg-muted">{t("archived")}</p>
           ) : (
-            !same && (
+            !same &&
+            editsAgent(agent) && (
               <div className="border-t border-border pt-4">
                 <Button
                   variant="primary"

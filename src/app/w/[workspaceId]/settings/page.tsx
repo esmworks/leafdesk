@@ -71,6 +71,7 @@ import { storedCalloutStyles } from "@/lib/callout-styles";
 import { parseAuditFilters } from "@/lib/audit";
 import { parseStaleMonths } from "@/lib/workspace-check";
 import { isStrongSession } from "@/lib/auth-security";
+import { isEventAgentKey } from "@/lib/builtin-agents";
 import {
   ACCOUNT_SETTINGS_TABS,
   accountTabForSettings,
@@ -650,21 +651,25 @@ async function AgentsTab({
   /** The agent's tab a link opens (a run opens its runs). */
   agentTab?: "memory" | "schedules";
 }) {
-  const [agents, settings, templates, proposals] = await Promise.all([
-    listAgents(userId, workspaceId, { archived: isOwner }),
+  const [agents, settings, proposals] = await Promise.all([
+    listAgents(userId, workspaceId, { archived: true }),
     getWorkspaceSettings(userId, workspaceId),
-    isOwner ? getLocale().then(builtinAgents) : [],
-    isOwner ? proposedNoteCounts(userId, workspaceId) : {},
+    proposedNoteCounts(userId, workspaceId),
   ]);
+  const canCreate = isOwner || settings.agentCreation === "members";
+  // Templates that start from a connection's events are for owners: the connections are theirs.
+  const templates = canCreate ? (await getLocale().then(builtinAgents)).filter((item) => isOwner || !isEventAgentKey(item.key)) : [];
   const info = await aiInfoFor(workspaceId);
   const ai = !info ? "unavailable" : settings.ai === false ? "off" : "on";
   // Agents choose a model only where it makes a difference: the server has a fast model, and the
   // workspace's AI isn't an own AI account (which has one model).
-  const models = isOwner && info?.fastModel ? { main: info.model, fast: info.fastModel } : null;
+  const models = info?.fastModel ? { main: info.model, fast: info.fastModel } : null;
   return (
     <AgentsPanel
       workspaceId={workspaceId}
       isOwner={isOwner}
+      creation={settings.agentCreation}
+      canCreate={canCreate}
       agents={agents}
       proposals={proposals}
       memoryOff={settings.aiMemory === false}
@@ -672,9 +677,9 @@ async function AgentsTab({
       templates={templates}
       ai={ai}
       models={models}
-      initialAgentId={isOwner ? agentId : undefined}
-      initialRunId={isOwner ? runId : undefined}
-      initialTab={isOwner ? agentTab : undefined}
+      initialAgentId={agentId}
+      initialRunId={runId}
+      initialTab={agentTab}
     />
   );
 }

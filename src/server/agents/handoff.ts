@@ -20,6 +20,7 @@
 import { and, eq, isNull, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { agentHelper, agentRun, workspaceAgent } from "@/db/schema";
+import { hasAgentLevel } from "@/lib/agent-sharing";
 import {
   MAX_AGENT_PROMPT,
   MAX_HANDOFFS_PER_RUN,
@@ -33,6 +34,7 @@ import { findMembership } from "@/server/access";
 import type { AiTool, AiToolCall } from "@/server/ai";
 import { frameData } from "@/server/connections/tools";
 import type { RunClock } from "./clock";
+import { agentLevel } from "./sharing";
 import { overMonthlyLimit } from "./usage";
 
 type Run = typeof agentRun.$inferSelect;
@@ -54,15 +56,15 @@ const STEP_TASK_CHARS = 500;
 
 /**
  * Whose access holds a helper's run, and whether someone stands behind what it reads; null when
- * that person is no longer in the workspace (or, for a run an owner asked for or scheduled, no
- * longer an owner), so the run opens nothing.
+ * that person is no longer in the workspace (or, for a run they asked for or scheduled, can no
+ * longer edit the asking agent), so the run opens nothing.
  */
 export async function handoffHold(source: HandoffSource, workspaceId: string): Promise<{ bound: string | null; trusted: boolean } | null> {
   if (source.boundTo) {
     const membership = await findMembership(source.boundTo, workspaceId);
     if (!membership) return null;
-    const ownerBound = source.parent.kind === "request" || source.parent.kind === "schedule";
-    if (ownerBound && membership.role !== "owner") return null;
+    const askerBound = source.parent.kind === "request" || source.parent.kind === "schedule";
+    if (askerBound && !hasAgentLevel(await agentLevel(source.boundTo, { id: source.fromAgentId, workspaceId }, membership.role), "edit")) return null;
   }
   return { bound: source.boundTo, trusted: source.trusted };
 }

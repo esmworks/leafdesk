@@ -154,7 +154,7 @@ export function AgentChat({ workspaceId, agentId, place, variant }: { workspaceI
       if (!res.ok) {
         setError(res.error);
         // The chat's standing changed (the agent paused or gone, the month's tokens used up…).
-        if (res.code && ["guest", "gone", "paused", "aiOff", "limitReached"].includes(res.code)) void agentChatInfoAction(workspaceId, agentId, placeRef.current).then((r) => r.ok && setInfo(r.data));
+        if (res.code && ["guest", "gone", "noAccess", "paused", "aiOff", "limitReached"].includes(res.code)) void agentChatInfoAction(workspaceId, agentId, placeRef.current).then((r) => r.ok && setInfo(r.data));
         return;
       }
       const { conversation, runId } = res.data;
@@ -204,12 +204,12 @@ export function AgentChat({ workspaceId, agentId, place, variant }: { workspaceI
       </Frame>
     );
   }
-  if (!info.agent || state === "guest" || state === "gone") {
+  if (!info.agent || state === "guest" || state === "gone" || state === "noAccess") {
     return (
       <Frame block={block}>
         <p className="flex items-center gap-2 px-3 py-3 text-sm text-fg-muted" data-agent-chat-state={state}>
           <AgentIcon icon={null} />
-          {t(`states.${state === "guest" ? "guest" : "gone"}`)}
+          {t(`states.${state === "guest" || state === "noAccess" ? state : "gone"}`)}
         </p>
       </Frame>
     );
@@ -290,7 +290,8 @@ export function AgentChat({ workspaceId, agentId, place, variant }: { workspaceI
                 ) : (
                   <p className="flex items-center gap-1.5 text-sm text-fg-muted">
                     <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
-                    {turn?.status === "pending" ? t("waiting") : t("working")}
+                    {/* A call only an owner answers: the person chatting sees that it waits. */}
+                    {turn?.status === "pending" ? t("waiting") : turn?.status === "awaiting_approval" ? t("awaitingOwner") : t("working")}
                   </p>
                 )}
               </li>

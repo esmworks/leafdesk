@@ -247,7 +247,7 @@ export type AutomationContext = { workspaceId: string; props: PropertyDef[]; loo
 /** The workspace's agents, archived ones too, for naming them; none for those who can't list them (guests). */
 async function agentNames(userId: string, workspaceId: string): Promise<AgentRef[]> {
   try {
-    return (await agents.listAgents(userId, workspaceId, { archived: true })).map((a) => ({ id: a.id, name: a.name }));
+    return await agents.agentRefs(userId, workspaceId);
   } catch (error) {
     if (error instanceof AccessError) return [];
     throw error;

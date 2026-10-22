@@ -794,7 +794,7 @@
     "tooManyAutomations": "Un database può avere al massimo {max} automazioni.",
     "invalidWebhookUrl": "“{value}” non è un indirizzo http(s) valido.",
     "webhookBlocked": "I webhook non possono puntare a indirizzi di rete privati o locali.",
-    "agentOwnersOnly": "Solo i proprietari dello spazio di lavoro possono aggiungere o modificare azioni che eseguono un agente.",
+    "agentOwnersOnly": "Solo i proprietari dello spazio di lavoro e chi può modificare l’agente possono aggiungere o modificare azioni che lo eseguono.",
     "invalidRepeat": "Questa pianificazione di ripetizione non è valida: controlla i giorni, l’ora e il fuso orario.",
     "tooManySchedules": "Questo spazio di lavoro ha già il numero massimo di modelli ripetuti."
   },
@@ -1077,7 +1077,7 @@
       "createAgent": "Creane uno in Impostazioni > Agenti.",
       "noAgentsMember": "I proprietari dello spazio di lavoro li creano in Impostazioni.",
       "agentTask": "Attività",
-      "agentOwnersOnly": "Solo i proprietari dello spazio di lavoro possono modificare questa azione.",
+      "agentOwnersOnly": "Solo i proprietari dello spazio di lavoro e chi può modificare questo agente possono modificare questa azione.",
       "agentTaskPlaceholder": "Cosa fare con la riga, oltre alle sue istruzioni. Ad esempio: Classifica questa nuova richiesta.",
       "agentAccess": "Salvando, {agent} ottiene l’accesso in modifica a questo database.",
       "agentAccessAny": "Salvando, l’agente ottiene l’accesso in modifica a questo database."

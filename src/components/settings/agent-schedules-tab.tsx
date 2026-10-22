@@ -8,7 +8,7 @@ import { listAgentSchedulesAction, removeAgentScheduleAction, setAgentScheduleAc
 import { freshRepeatForm, RepeatRuleFields, repeatFormOf, useRepeatRule, type RepeatForm } from "@/components/repeat-rule-fields";
 import { useAction } from "@/components/settings/workspace-settings";
 import { Button, cn, IconButton, PageIcon, pageLabel, selectClass, textareaClass } from "@/components/ui";
-import { MAX_AGENT_SCHEDULES, MAX_SCHEDULE_TASK, MAX_SCHEDULED_WRITES, type AgentScheduleView, type AgentView } from "@/lib/agents";
+import { MAX_AGENT_SCHEDULES, MAX_SCHEDULE_TASK, MAX_SCHEDULED_WRITES, editsAgent, type AgentScheduleView, type AgentView } from "@/lib/agents";
 import { WEEKDAYS_FROM_MONDAY, type RepeatRule } from "@/lib/schedule";
 import { timeZoneLabel } from "@/lib/time-zone";
 import { useShareablePages } from "./agent-page-picker";
@@ -45,6 +45,8 @@ export function AgentSchedulesTab({ workspaceId, agent, onRuns }: { workspaceId:
     };
   }, [workspaceId, agent.id, tc]);
 
+  // Those who only see the agent see its schedules, without changing them.
+  const editable = !agent.archived && editsAgent(agent);
   const edit = (s: AgentScheduleView) => setDraft({ id: s.id, repeat: repeatFormOf(s.rule, s.timeZone), task: s.task, taskHidden: s.taskHidden, databaseId: s.databaseId ?? "" });
 
   return (
@@ -72,12 +74,15 @@ export function AgentSchedulesTab({ workspaceId, agent, onRuns }: { workspaceId:
                   schedule={s}
                   disabled={pending || agent.archived}
                   editing={draft?.id === s.id}
-                  onEdit={() => edit(s)}
-                  onRemove={() =>
-                    run(() => removeAgentScheduleAction(workspaceId, agent.id, s.id), (next) => {
-                      setSchedules(next);
-                      if (draft?.id === s.id) setDraft(null);
-                    })
+                  onEdit={editable ? () => edit(s) : undefined}
+                  onRemove={
+                    editable
+                      ? () =>
+                          run(() => removeAgentScheduleAction(workspaceId, agent.id, s.id), (next) => {
+                            setSchedules(next);
+                            if (draft?.id === s.id) setDraft(null);
+                          })
+                      : undefined
                   }
                 />
               ))}
@@ -90,7 +95,7 @@ export function AgentSchedulesTab({ workspaceId, agent, onRuns }: { workspaceId:
               {t("seeRuns")}
             </button>
           )}
-          {!agent.archived &&
+          {editable &&
             (draft ? (
               <ScheduleForm
                 workspaceId={workspaceId}
@@ -146,8 +151,9 @@ function ScheduleItem({
   schedule: AgentScheduleView;
   disabled: boolean;
   editing: boolean;
-  onEdit: () => void;
-  onRemove: () => void;
+  /** Left out for those who only see the agent. */
+  onEdit?: () => void;
+  onRemove?: () => void;
 }) {
   const t = useTranslations("settings.agents.schedules");
   const tc = useTranslations("common");
@@ -178,12 +184,16 @@ function ScheduleItem({
             {s.setBy && ` · ${t("setBy", { name: s.setBy.name })}`}
           </p>
         </div>
-        <IconButton label={t("edit")} disabled={disabled} onClick={onEdit}>
-          <Pencil className="h-3.5 w-3.5" />
-        </IconButton>
-        <IconButton label={t("remove")} disabled={disabled} onClick={onRemove} className="hover:text-danger">
-          <X className="h-4 w-4" />
-        </IconButton>
+        {onEdit && (
+          <IconButton label={t("edit")} disabled={disabled} onClick={onEdit}>
+            <Pencil className="h-3.5 w-3.5" />
+          </IconButton>
+        )}
+        {onRemove && (
+          <IconButton label={t("remove")} disabled={disabled} onClick={onRemove} className="hover:text-danger">
+            <X className="h-4 w-4" />
+          </IconButton>
+        )}
       </div>
       {s.task && <p className="ms-6 line-clamp-2 whitespace-pre-wrap text-fg-muted">{s.task}</p>}
       <div className="ms-6 space-y-0.5 text-xs">

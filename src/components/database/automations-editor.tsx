@@ -77,7 +77,7 @@ export function AutomationEditor({
   /** The automation being edited; null for a new one. */
   saved: Automation | null;
   people: Person[];
-  /** The agents a "Run an agent" action can pick; `isOwner`: the viewer can make one. */
+  /** The agents a "Run an agent" action can pick; owners, and those who can edit an agent (`canRun`), make one. */
   agents: AgentChoice[];
   isOwner: boolean;
   /** After a save: the automation as stored, and whether it was just created. */
@@ -218,7 +218,7 @@ export function AutomationEditor({
               <option value="set_properties">{t("form.actionType.set_properties")}</option>
               <option value="notify">{t("form.actionType.notify")}</option>
               <option value="webhook">{t("form.actionType.webhook")}</option>
-              {isOwner && (
+              {(isOwner || agents.some((a) => a.canRun)) && (
                 <option value="run_agent" disabled={hasTrash}>
                   {t("form.actionType.run_agent")}
                 </option>
@@ -753,6 +753,9 @@ function RunAgentEditor({
 }) {
   const t = useTranslations("database.automations.form");
   const chosen = agents.find((a) => a.id === action.agentId);
+  // Owners give any agent a task; others only one they can edit, and change only such an action.
+  const editable = isOwner || (action.agentId ? Boolean(chosen?.canRun) : true);
+  const choices = isOwner ? agents : agents.filter((a) => a.canRun || a.id === action.agentId);
   if (!agents.length && !action.agentId) {
     return (
       <p className="text-sm text-fg-muted">
@@ -772,12 +775,12 @@ function RunAgentEditor({
       <select
         value={action.agentId}
         aria-label={t("agent")}
-        disabled={!isOwner}
+        disabled={!editable}
         onChange={(e) => onChange({ ...action, agentId: e.target.value })}
         className={selectClass}
       >
         <option value="">{t("chooseAgent")}</option>
-        {agents.map((a) => (
+        {choices.map((a) => (
           <option key={a.id} value={a.id}>
             {a.icon ? `${a.icon} ` : ""}
             {a.enabled ? a.name : t("pausedAgent", { name: a.name })}
@@ -798,13 +801,13 @@ function RunAgentEditor({
           value={action.prompt}
           maxLength={MAX_AGENT_PROMPT}
           placeholder={t("agentTaskPlaceholder")}
-          readOnly={!isOwner}
+          readOnly={!editable}
           onChange={(e) => onChange({ ...action, prompt: e.target.value })}
           className={textareaClass}
         />
       </label>
       <p className="text-xs text-fg-faint">
-        {!isOwner ? t("agentOwnersOnly") : chosen ? t("agentAccess", { agent: chosen.name }) : t("agentAccessAny")}
+        {!editable ? t("agentOwnersOnly") : chosen ? t("agentAccess", { agent: chosen.name }) : t("agentAccessAny")}
       </p>
     </div>
   );

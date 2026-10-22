@@ -4,6 +4,25 @@
 
 ### Added
 
+- **Share an agent.** Each agent has a **Share** list in its settings: people, groups and everyone
+  in the workspace (never guests), each with *Full access* (everything an owner can do with it,
+  sharing and archiving too), *Can edit* (its settings, instructions, pages, skills, schedules,
+  memory and versions; asking it for runs and adding it to automations) or *Can view & interact*
+  (every tab read-only, only their own runs, chatting with it in its dialog or a page's block, and
+  mentioning it in comments). A person's own entry decides, then the highest of their groups', then
+  everyone's; workspace owners always have full access. Anyone it isn't shared with doesn't see it
+  in the list, can't chat with it and isn't offered it as a mention. A new agent is shared with
+  everyone at *Can view & interact* and with its creator at full access, and existing agents are
+  set up the same way. Connections' tools, the monthly token limit and run approvals stay with
+  owners; a run no owner answers for (a chat, request or schedule of someone who isn't an owner)
+  isn't offered connections' tools that change something. Every change to the list goes to the
+  audit log, and versions don't keep it. A new workspace setting, **Who can create agents**, keeps
+  creating agents (from scratch, a template or a description) to owners or opens it to all members;
+  a member who creates one gets full access. Settings → *Agents* now shows members the agents
+  shared with them, and the agent dialog's tabs scroll instead of overflowing. MCP adds
+  `share_agent`, and `get_agent` and `list_agents` return `your_access` (with the list in
+  `get_agent`); the REST API adds `GET` and `POST /agents/{id}/sharing` and `your_access` on
+  agents. Migration 0104 adds `agent_share` and fills it for existing agents.
 - **Run an agent on the fast model.** Where the server has `AI_FAST_MODEL`, an agent's settings
   offer a choice of model, each shown by name: the main model (the default), for work that needs
   judgment, or the cheaper fast model, for routine, well-defined jobs such as summaries or sorting

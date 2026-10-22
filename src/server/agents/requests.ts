@@ -17,7 +17,7 @@ import { pageAccessOf } from "@/server/access";
 import { aiAvailable } from "@/server/ai-writing";
 import { recordAudit } from "@/server/audit";
 import { kickAgents } from "./kick";
-import { AgentError, getAgentRun, ownedAgent } from "./manage";
+import { AgentError, agentFor, getAgentRun } from "./manage";
 import { overMonthlyLimit } from "./usage";
 
 export type AgentRunRequest = {
@@ -29,7 +29,7 @@ export type AgentRunRequest = {
 
 /** Queues a run of the agent with the owner's task; returns it as listAgentRuns shows it (pending). */
 export async function requestAgentRun(userId: string, agentId: string, request: AgentRunRequest): Promise<AgentRunView> {
-  const agent = await ownedAgent(userId, agentId);
+  const agent = await agentFor(userId, agentId, "edit");
   if (agent.archivedAt) throw new AgentError("archived", "Restore the agent to run it");
   if (!agent.enabled) throw new AgentError("paused", "Turn the agent on to run it");
   const task = typeof request.task === "string" ? request.task.trim() : "";

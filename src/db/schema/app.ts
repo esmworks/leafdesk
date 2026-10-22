@@ -69,6 +69,11 @@ export type WorkspaceSettings = {
   /** Who may create teamspaces. Guests never can. */
   teamspaceCreation: "owners" | "members";
   /**
+   * Who may create agents: owners only, or members too (they get full access to the agents they
+   * create, see server/agents/sharing.ts). Guests never can.
+   */
+  agentCreation: "owners" | "members";
+  /**
    * How members may sign in to open the workspace: any way, or only through its single sign-on
    * (its own connection, or the instance's provider). Owners keep their other ways in, so a broken
    * identity provider can't lock the workspace; guests are outside it. Like two-step verification,
@@ -158,6 +163,7 @@ export const DEFAULT_WORKSPACE_SETTINGS: WorkspaceSettings = {
   publishing: "members",
   requireTwoFactor: false,
   teamspaceCreation: "members",
+  agentCreation: "owners",
   loginMethod: "any",
   ai: true,
   aiMemory: true,

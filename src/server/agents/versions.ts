@@ -1,8 +1,9 @@
 /**
- * Versions of an agent's setup (lib/agent-versions; version-record.ts keeps them as owners save):
- * owners list an agent's versions, see how one differs from its setup now and bring one back.
+ * Versions of an agent's setup (lib/agent-versions; version-record.ts keeps them as people save):
+ * anyone the agent is shared with lists its versions and sees how one differs from its setup now;
+ * those who can edit it bring one back.
  *
- * Restoring goes through the functions an owner's own changes do (they check access, skills and
+ * Restoring goes through the functions a person's own changes do (they check access, skills and
  * limits and write the audit log), skips what can't come back any more and says so, and makes a
  * version of its own ("restored").
  */
@@ -32,7 +33,7 @@ import { parseIcon } from "@/lib/icon";
 import { AccessError, ConnectedAppReadOnlyError, pageVisibleTo } from "@/server/access";
 import { recordAudit } from "@/server/audit";
 import { PermissionError } from "@/server/permissions";
-import { AgentError, auditDetails, ownedAgent, removeAgentAccess, setAgentAccess } from "./manage";
+import { AgentError, agentFor, agentWithLevel, auditDetails, removeAgentAccess, setAgentAccess } from "./manage";
 import { removeAgentSchedule, setAgentSchedule } from "./schedules";
 import { addAgentSkill, removeAgentSkill } from "./skills";
 import { agentColumns, agentSettings, readSnapshot, saveVersion, withoutVersions, type Agent, type AgentVersionRow } from "./version-record";
@@ -51,9 +52,9 @@ async function viewVersions(rows: Omit<AgentVersionRow, "snapshot">[]): Promise<
   }));
 }
 
-/** The agent's versions, newest first, without their setups. Owners only. */
+/** The agent's versions, newest first, without their setups, for anyone the agent is shared with. */
 export async function listAgentVersions(userId: string, agentId: string): Promise<AgentVersionView[]> {
-  const agent = await ownedAgent(userId, agentId);
+  const agent = await agentFor(userId, agentId, "interact");
   const { snapshot: _snapshot, ...columns } = getTableColumns(agentVersion);
   return viewVersions(await db.select(columns).from(agentVersion).where(eq(agentVersion.agentId, agent.id)).orderBy(desc(agentVersion.number)));
 }
@@ -86,9 +87,9 @@ async function pageRefs(userId: string, ids: string[]): Promise<(id: string) => 
   };
 }
 
-/** How version `number` of the agent differs from its setup now, from the version to now. Owners only. */
+/** How version `number` of the agent differs from its setup now, from the version to now, for anyone the agent is shared with. */
 export async function getAgentVersion(userId: string, agentId: string, number: number): Promise<AgentVersionDetail> {
-  const agent = await ownedAgent(userId, agentId);
+  const agent = await agentFor(userId, agentId, "interact");
   const found = await findVersion(agent.id, number);
   const diff = diffSnapshots(parseSnapshot(found.snapshot), await readSnapshot(agent));
   const schedules = [...diff.schedules.added, ...diff.schedules.removed, ...diff.schedules.changed.flatMap((c) => [c.before, c.after])];
@@ -186,7 +187,10 @@ function skipReason(error: unknown): AgentRestoreSkipReason | null {
 }
 
 /** Brings back the settings of a snapshot; those gone or no longer valid are skipped. */
-async function restoreSettings(agent: Agent, settings: Record<string, unknown>, skipped: AgentRestoreSkip[]) {
+/** Settings only the workspace's owners change (see updateAgent): someone else's restore leaves them as they are. */
+const OWNERS_SETTINGS: ReadonlySet<string> = new Set(["monthly_token_limit"]);
+
+async function restoreSettings(agent: Agent, settings: Record<string, unknown>, skipped: AgentRestoreSkip[], owner: boolean) {
   const columns = new Map(agentColumns().map(([key, column]) => [column.name, { key, column }]));
   const now = agentSettings(agent);
   const changes: { field: string; key: keyof Agent; value: unknown }[] = [];
@@ -199,7 +203,10 @@ async function restoreSettings(agent: Agent, settings: Record<string, unknown>, 
     }
     const restored = settingValue(field, found.column, value);
     if (restored === undefined) skipped.push({ part: "setting", name: field, reason: "invalid" });
-    else if (canonical(settingsOf({ [field]: restored })[field]) !== canonical(now[field])) changes.push({ field, key: found.key, value: restored });
+    else if (canonical(settingsOf({ [field]: restored })[field]) !== canonical(now[field])) {
+      if (!owner && OWNERS_SETTINGS.has(field)) skipped.push({ part: "setting", name: field, reason: "noAccess" });
+      else changes.push({ field, key: found.key, value: restored });
+    }
   }
   if (!changes.length) return;
   const write = (list: typeof changes) =>
@@ -225,11 +232,12 @@ async function restoreSettings(agent: Agent, settings: Record<string, unknown>, 
  * the pages shared with it (not those deleted or in the trash since), each through the function an
  * owner's own change goes through, so what can't come back now (a page the owner can't share, a
  * skill others may edit) is skipped and listed. Run history, memory and usage stay as they are.
- * Makes a version ("restored") and records the restore in the audit log. Owners only, of an agent
- * that isn't archived.
+ * Makes a version ("restored") and records the restore in the audit log. For those who can edit the
+ * agent, of one that isn't archived; a setting only owners change (its monthly token limit) comes
+ * back only when an owner restores.
  */
 export async function restoreAgentVersion(userId: string, agentId: string, number: number): Promise<AgentRestoreResult> {
-  const agent = await ownedAgent(userId, agentId);
+  const { agent, owner } = await agentWithLevel(userId, agentId, "edit");
   if (agent.archivedAt) throw new AgentError("archived", "Restore the agent to bring back one of its versions");
   const found = await findVersion(agent.id, number);
   const target = parseSnapshot(found.snapshot);
@@ -249,7 +257,7 @@ export async function restoreAgentVersion(userId: string, agentId: string, numbe
   };
 
   await withoutVersions(async () => {
-    await restoreSettings(agent, target.settings, skipped);
+    await restoreSettings(agent, target.settings, skipped, owner);
 
     // Skills: those it no longer had go first, leaving room; then the order is set.
     for (const pageId of current.skills.filter((id) => !target.skills.includes(id))) await removeAgentSkill(userId, agent.id, pageId);

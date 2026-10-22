@@ -2220,8 +2220,8 @@ An agent is an AI helper of a workspace with a name, an emoji, a description and
 its own. An automation's *Run an agent* action starts it: when the automation runs on a row, the
 agent gets its instructions, the action's task, what happened to the row and the row itself, and
 works on it. An event a connection receives can start it too (see [Connections](#connections)),
-owners can ask one for a task of their own over the REST API or MCP, and members can mention one
-in a page's comments to have it answer there.
+people who can edit it can ask one for a task of their own over the REST API or MCP, and anyone
+it is shared with can chat with it or mention it in a page's comments to have it answer there.
 
 **Its own user.** Each agent acts as a user of its own: a bot user that can't sign in (its address,
 `agent-<id>@agents.leafdesk.invalid`, can't receive mail), added to the workspace as a guest. Like
@@ -2254,7 +2254,7 @@ a time (`AI_CONCURRENCY`), each turn within the workspace's AI allowance
 used, and why it failed (`aiOff`, `agentDisabled`, `noAccess`, `rowGone`, `commentGone`, `provider`, `timeout`,
 `tooManyAttempts`, `limitReached` or `error`).
 
-**Runs owners ask for.** An owner can ask an agent to do a task now, over the REST API
+**Runs people ask for.** An owner, or anyone who can edit the agent, can ask it to do a task now, over the REST API
 (`POST /api/v1/agents/{id}/runs`) or MCP (`start_agent_run`), with a task of up to 2000
 characters, on a database row or on none. The run is queued like any other and held to the asking
 owner's access as well as the agent's, as a run a member's change started is held to that
@@ -2313,23 +2313,25 @@ Its runs show who mentioned it and on which page (`mention` in `list_agent_runs`
 and end as `commentGone` when the comment or its page is gone by then; what they did shows to the
 owners who can open the page.
 
-**Chatting with an agent.** Owners chat with an agent in its *Chat* tab, and anyone in the
-workspace who isn't a guest can chat with one in a page's **Agent chat** block (the slash menu's
+**Chatting with an agent.** Anyone the agent is shared with chats with it in its *Chat* tab, or
+in a page's **Agent chat** block (the slash menu's
 *Agent chat*, or paste a link to the agent's settings, as the *Chat* tab copies it, alone on an
 empty line). Each message the agent answers is one of its runs (shown in its *Runs* tab as a chat
 message, counted in its usage and held to its monthly limit), with the agent's instructions, skills
 and kept notes, and the conversation's 20 earlier messages. The agent doesn't read the page the
 block is on unless asked to. What it may do depends on who writes:
 
-- **An owner** gets what a run an owner asks for gets, held to that owner's access as well as the
-  agent's: it searches and reads what both can open, uses its connections' tools (those that change
-  something wait for the owner's approval, which the chat asks for in place), proposes notes, and
-  creates and changes pages and rows both can edit, at most 5 changes a message, made at once.
-- **Anyone else** chats read-only: *answers come only from pages you can both see*. The agent reads
-  only the pages both it and that person can open, changes nothing, proposes no notes and calls
-  only its connections' tools that read. They chat only in a block on a page they can open.
+- **Someone who can edit it** (owners included) gets what a run they ask for gets, held to their
+  access as well as the agent's: it searches and reads what both can open, proposes notes, and
+  creates and changes pages and rows both can edit, at most 5 changes a message, made at once. It
+  uses its connections' tools; those that change something wait for an owner's approval, which the
+  chat asks an owner for in place, so they are offered only in an owner's chat.
+- **Someone who can view and interact** chats read-only: *answers come only from pages you can both
+  see*. The agent reads only the pages both it and that person can open, changes nothing, proposes
+  no notes and calls only its connections' tools that read.
 
-Guests, and readers of a published page, see that the chat isn't available to them. Each person's
+Guests, people the agent isn't shared with, and readers of a published page, see that the chat
+isn't available to them. Each person's
 conversations are their own, per block (a copy of the block, on a duplicated page or one made from a
 template, shows the same ones) or in the *Chat* tab: nobody else sees them, owners included, and the agent's run history
 shows another person's chat messages without what was said. The 20 most recent conversations are
@@ -2427,9 +2429,29 @@ a database) the fast one. Over MCP, `create_agent` and `update_agent` take `help
 **No chains.** Changes and comments an agent makes don't start automations, so agents and
 automations can't set each other off.
 
-**Managing agents.** In Settings → *Agents*, owners of the workspace create, change, pause,
-archive and restore agents, choose what is shared with them and look through their runs; members
-see the list without the agents' instructions. A run's steps, answer and error, and a call it waits
+**Sharing an agent.** Each agent has its own list of who may use it, under **Share** in its
+settings: people, groups, and everyone in the workspace (owners and members; never guests), each
+at one of three levels. *Full access* can do everything an owner can with the agent, sharing and
+archiving it too. *Can edit* changes its settings, instructions, pages, skills, schedules, memory
+and versions, asks it for runs and adds it to automations, but doesn't share or archive it. *Can
+view & interact* sees the agent and all its tabs read-only, sees only the runs they started
+themselves, chats with it and mentions it in comments. A person's own entry decides for them;
+without one, the highest of their groups'; without those, everyone's; with none of them, the agent
+isn't theirs to see, chat with or mention. Owners of the workspace always have full access. A new
+agent is shared with everyone at *Can view & interact* and with whoever created it at full access,
+and agents made before sharing existed were set up the same way. Its connections' tools and its
+monthly token limit stay with owners (others see them read-only), and so do the approvals its
+runs wait for. Each change to the list is recorded in the audit log; the agent's versions don't
+keep it. Over MCP, `share_agent` changes the list and `get_agent` shows it, with the user's own
+access (`your_access`, also in `list_agents`).
+
+**Who creates agents.** Settings → *Agents* → *Who can create agents* lets owners keep creating
+agents to themselves (the default) or let every member create them, from scratch, from a template
+or from a description. A member who creates one gets full access to it.
+
+**Managing agents.** In Settings → *Agents*, everyone who isn't a guest sees the agents shared
+with them and opens each at their level: owners, and those with access enough, change, pause,
+archive and restore agents, choose what is shared with them and look through their runs. A run's steps, answer and error, and a call it waits
 on, show only to owners who can open its row (for a schedule on a database, the database), and
 only they answer that call. A run an owner asked for, or one a schedule without a database
 started, read with that owner's access: only they see what it did, its task and the notes it
@@ -2477,7 +2499,7 @@ automations on a database (a row added, a form answer included; a property chang
 Nothing is saved: the draft opens the usual form filled in, with the pages it would share and the
 schedules and automations it would set up listed apart, each with a way to remove it. Creating the
 agent shares those pages and sets up what is left; when one step fails, nothing of it stays (the
-agent is archived). Only owners can draft, the request counts as the agents' AI usage, and MCP's
+agent is archived). Only those who may create agents can draft, the request counts as the agents' AI usage, and MCP's
 `draft_agent` returns the same draft without saving it.
 
 **Built-in agents.** Settings → *Agents* → *Start from a template* sets one up on a database in one
@@ -2880,8 +2902,11 @@ Filter ops: `contains`, `does_not_contain`, `equals`, `not_equals`, `is_any_of` 
 - **Comments:** `GET` and `POST /pages/{id}/comments`.
 - **Agents:** `GET /workspaces/{id}/agents`, `GET` and `PATCH /agents/{id}` (settings, pausing and
   resuming, the monthly token limit, the model; with this month's usage), `POST /agents/{id}/runs` (ask for a
-  task now, optionally on a row), `GET /agents/{id}/runs`, `GET /agents/{id}/runs/{run_id}` and
-  `GET /agents/{id}/usage` (by month). Owners only, except the list. Asking for a run answers
+  task now, optionally on a row), `GET /agents/{id}/runs`, `GET /agents/{id}/runs/{run_id}`,
+  `GET /agents/{id}/usage` (by month), and `GET` and `POST /agents/{id}/sharing` (who it is shared
+  with; share it or take someone off). Each needs the level of access to the agent the app asks
+  for (see [Sharing an agent](#agents)); each agent carries the token's user's
+  `your_access`, and only owners change the monthly limit. Asking for a run answers
   `409` when the agent can't run now (`agent_unavailable`), used its monthly limit
   (`limit_reached`) or has too many runs waiting (`too_many_runs`). A `pages:write` token may thus
   start runs that use the workspace's AI allowance.

@@ -1,13 +1,13 @@
 /**
- * An agent's schedules: owners set when an agent runs on its own, on a repeat rule in a time zone
+ * An agent's schedules: those who can edit an agent (sharing.ts) set when it runs on its own, on a repeat rule in a time zone
  * (lib/schedule, server/schedules), with a task and, if they like, a database it looks after. On a
  * database the run may change and comment on the database's rows (MAX_SCHEDULED_WRITES); on none it
- * only reads. When the run ends, the owner who set the schedule finds what it did (or why it
- * failed) in their inbox (`agent_report`, see run.ts).
+ * only reads. When the run ends, whoever set the schedule finds what it did (or why it failed) in
+ * their inbox (`agent_report`, see run.ts).
  *
- * A schedule's run is held to the access of the owner who set it last, as a run an owner asks for
- * is held to theirs, and stands behind what it reads as they do. The schedule pauses when it can't
- * run any more: the agent archived ("agentGone"), that owner no longer an owner or unable to open
+ * A schedule's run is held to the access of whoever set it last, as a run someone asks for is held
+ * to theirs, and stands behind what it reads as they do. The schedule pauses when it can't run any
+ * more: the agent archived ("agentGone"), that person no longer able to edit the agent or to open
  * the database ("accessLost"). A paused agent, a database in the trash or one not shared with the
  * agent skips runs instead, and a schedule whose last run still waits (for its turn, or for an owner
  * to approve a call) skips one. A run over a database with rows no one in the workspace stands
@@ -19,13 +19,15 @@
 import { and, count, eq, inArray, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { agentRun, page, schedule, user, workspaceAgent } from "@/db/schema";
+import { hasAgentLevel } from "@/lib/agent-sharing";
 import { MAX_AGENT_SCHEDULES, MAX_SCHEDULE_TASK, type AgentScheduleView } from "@/lib/agents";
 import { nextOccurrence, parseRepeatRule, SCHEDULE_ERRORS, type ScheduleError } from "@/lib/schedule";
 import { dayString, isTimeZone, localDay } from "@/lib/time-zone";
 import { findMembership, pageAccessOf, pageVisibleTo } from "@/server/access";
 import { recordAudit } from "@/server/audit";
 import { lockWorkspaceSchedules, MAX_SCHEDULES_PER_WORKSPACE, registerScheduleHandler, ScheduleRunError, type ScheduleRow } from "@/server/schedules";
-import { AgentError, ownedAgent } from "./manage";
+import { AgentError, agentFor } from "./manage";
+import { agentLevel as levelOnAgent } from "./sharing";
 import { queueAgentRun } from "./run";
 import { recordAgentVersion } from "./version-record";
 
@@ -93,9 +95,9 @@ async function schedulesOf(agentId: string) {
     .orderBy(schedule.createdAt);
 }
 
-/** An agent's schedules, oldest first. Owners only. */
+/** An agent's schedules, oldest first, for anyone it is shared with. */
 export async function listAgentSchedules(userId: string, agentId: string): Promise<AgentScheduleView[]> {
-  const agent = await ownedAgent(userId, agentId);
+  const agent = await agentFor(userId, agentId, "interact");
   return viewSchedules(userId, agent.userId, await schedulesOf(agent.id));
 }
 
@@ -129,7 +131,7 @@ export async function setAgentSchedule(
   input: AgentScheduleInput,
   now = new Date(),
 ): Promise<AgentScheduleView> {
-  const agent = await ownedAgent(userId, agentId);
+  const agent = await agentFor(userId, agentId, "edit");
   if (agent.archivedAt) throw new AgentError("archived", "Restore the agent to change its schedules");
   let existing: ScheduleRow | undefined;
   if (scheduleId) {
@@ -203,9 +205,9 @@ export async function setAgentSchedule(
   return (await viewSchedules(userId, agent.userId, [row]))[0];
 }
 
-/** Removes one of an agent's schedules. Owners only; runs it already started go on. */
+/** Removes one of an agent's schedules, for those who can edit the agent; runs it already started go on. */
 export async function removeAgentSchedule(userId: string, agentId: string, scheduleId: string) {
-  const agent = await ownedAgent(userId, agentId);
+  const agent = await agentFor(userId, agentId, "edit");
   const [removed] = await db
     .delete(schedule)
     .where(and(eq(schedule.id, scheduleId), eq(schedule.agentId, agent.id), eq(schedule.kind, "agent")))
@@ -245,7 +247,9 @@ registerScheduleHandler("agent", async ({ schedule: row, runAs, at }) => {
   // A paused agent doesn't run; its schedules carry on once it is turned on again.
   if (!agent.enabled) return false;
   const membership = await findMembership(runAs, row.workspaceId);
-  if (membership?.role !== "owner") throw new ScheduleRunError("accessLost", "Whoever set the schedule no longer owns the workspace");
+  if (!membership || !hasAgentLevel(await levelOnAgent(runAs, agent, membership.role), "edit")) {
+    throw new ScheduleRunError("accessLost", "Whoever set the schedule can no longer edit the agent");
+  }
   if (row.databaseId) {
     const { page: database, level } = await pageAccessOf(runAs, row.databaseId);
     if (!database || database.kind !== "database") throw new ScheduleRunError("accessLost", "The database is gone");

@@ -297,7 +297,7 @@
   "agents": {
     "heading": "Agents",
     "description": "Les agents sont des assistants IA avec leurs propres instructions. Une automatisation en lance un sur les lignes d’une base de données : il ne lit que ce qui est partagé avec lui, modifie la ligne et la commente sous son propre nom.",
-    "ownersOnly": "Seuls les propriétaires de l’espace de travail peuvent créer et modifier des agents.",
+    "ownersOnly": "Seuls les propriétaires de l’espace de travail peuvent créer des agents.",
     "newButton": "Nouvel agent",
     "tabs": {
       "active": "Agents",
@@ -360,7 +360,8 @@
       "helpers": "Agents qu’il peut solliciter",
       "helpersHelp": "Pendant une exécution, il peut confier une partie de sa tâche à ces agents, jusqu’à {max} fois, et utiliser leurs réponses. Chacun travaille avec ses propres accès, outils et limites, et ne peut pas solliciter d’autres agents à son tour.",
       "helpersEmpty": "Il n’y a pas encore d’autres agents dans cet espace de travail.",
-      "helperPaused": "En pause"
+      "helperPaused": "En pause",
+      "limitOwnersOnly": "Seuls les propriétaires de l’espace de travail fixent cette limite."
     },
     "describe": {
       "button": "Décrire un agent",
@@ -560,7 +561,9 @@
         "limitReached": "N’a pas pu solliciter <agent></agent> : il a atteint sa limite mensuelle de tokens"
       },
       "fromChat": "Message de chat de {name}",
-      "chattedBy": "chat de {name}"
+      "chattedBy": "chat de {name}",
+      "yoursOnly": "Vous voyez les exécutions que vous avez lancées.",
+      "waitingForOwner": "Un propriétaire de l’espace de travail répond à cet appel."
     },
     "usage": {
       "thisMonth": "Ce mois-ci : {usage}",
@@ -640,7 +643,7 @@
       "tooManySkills": "Un agent peut avoir au plus {max} compétences.",
       "skillEditable": "Quelqu’un d’autre que les propriétaires de l’espace de travail peut modifier « {title} ». Un agent ne suit que les compétences que seuls les propriétaires peuvent modifier : limitez d’abord qui peut modifier la page.",
       "notASkill": "Cette page n’est pas une compétence.",
-      "accessDenied": "Seuls les propriétaires de l’espace de travail peuvent modifier des agents.",
+      "accessDenied": "Vous n’avez pas l’autorisation de faire cela.",
       "reasons": {
         "name": "Donnez un nom à l’agent.",
         "icon": "L’icône d’un agent est un emoji.",
@@ -655,7 +658,8 @@
         "task": "Écrivez la tâche qu’il fait à chaque exécution.",
         "taskLength": "Une tâche compte au plus 2 000 caractères.",
         "repeat": "Vérifiez quand elle se répète et son fuseau horaire.",
-        "helpers": "Choisissez jusqu’à 10 autres agents non archivés de cet espace de travail."
+        "helpers": "Choisissez jusqu’à 10 autres agents non archivés de cet espace de travail.",
+        "shareLevel": "Choisissez accès complet, peut modifier ou peut consulter et interagir."
       },
       "noteEmpty": "Écrivez ce que l’agent doit retenir.",
       "noteTooLong": "Une note peut contenir au plus {max} caractères.",
@@ -669,14 +673,19 @@
       "notADatabase": "Choisissez une base de données de cet espace de travail que vous pouvez ouvrir.",
       "tooManySchedules": "Il n’y a pas de place pour une autre planification ({max} au plus).",
       "scheduleNotFound": "Cette planification n’existe plus.",
-      "versionNotFound": "Cette version n’existe plus."
+      "versionNotFound": "Cette version n’existe plus.",
+      "notAllowed": "Votre accès à cet agent ne le permet pas.",
+      "ownersOnly": "Seuls les propriétaires de l’espace de travail modifient la limite mensuelle de jetons d’un agent.",
+      "notAMember": "Un agent ne peut être partagé qu’avec les propriétaires, les membres et les groupes de l’espace de travail."
     },
     "connections": {
       "description": "Les outils de chaque connexion que cet agent peut utiliser. Les outils qui ne font que lire s’exécutent aussitôt, sauf sur une ligne issue d’une réponse anonyme à un formulaire ; les autres attendent l’approbation d’un propriétaire à chaque appel.",
       "empty": "Aucune connexion pour l’instant. Les propriétaires les ajoutent dans <link>Paramètres › Connexions</link>.",
       "allowedCount": "{n} sur {total} autorisés",
       "notReady": "Cette connexion n’est pas prête (elle demande une connexion ou échoue) : l’agent ne peut pas utiliser ses outils pour l’instant.",
-      "noTools": "Aucun outil listé pour l’instant."
+      "noTools": "Aucun outil listé pour l’instant.",
+      "ownersChoose": "Les outils de chaque connexion que cet agent peut utiliser. Seuls les propriétaires de l’espace de travail les choisissent.",
+      "none": "Cet agent ne peut utiliser les outils d’aucune connexion."
     },
     "schedules": {
       "description": "Laissez cet agent s’exécuter tout seul selon une planification : chaque exécution fait la tâche, sur la base de données choisie le cas échéant, et son rapport arrive dans votre boîte de réception. Ses exécutions n’ouvrent que ce que vous pouvez ouvrir.",
@@ -797,6 +806,40 @@
         "skillEditable": "quelqu’un d’autre que les propriétaires peut la modifier",
         "tooMany": "il n’y a plus de place"
       }
+    },
+    "share": {
+      "levels": {
+        "full": "Accès complet",
+        "edit": "Peut modifier",
+        "interact": "Peut consulter et interagir",
+        "none": "Aucun accès"
+      },
+      "button": "Partager",
+      "description": "Qui peut utiliser cet agent, et ce qu’il peut en faire.",
+      "levelHelp": {
+        "full": "Tout, y compris le partager et l’archiver",
+        "edit": "Modifier ses paramètres, pages, compétences, mémoire et planifications",
+        "interact": "Le consulter, discuter avec lui et le mentionner dans les commentaires"
+      },
+      "add": "Ajouter des personnes ou des groupes",
+      "noMatches": "Personne ne correspond.",
+      "list": "Partagé avec",
+      "owners": "Propriétaires de l’espace de travail",
+      "ownersHint": "Ont toujours un accès complet",
+      "everyone": "Tout l’espace de travail",
+      "everyoneHint": "Propriétaires et membres, pas les invités",
+      "levelFor": "Accès de {name}",
+      "remove": "Retirer {name}",
+      "readOnly": "Seules les personnes disposant d’un accès complet modifient le partage de cet agent.",
+      "archived": "Restaurez l’agent pour modifier son partage.",
+      "ownersKeep": "Les outils des connexions qu’il peut utiliser et sa limite mensuelle de jetons restent du ressort des propriétaires de l’espace de travail.",
+      "groupMembers": "{count, plural, =0 {Groupe sans membres} one {Groupe de # membre} other {Groupe de # membres}}"
+    },
+    "viewOnly": "Vous pouvez consulter cet agent, discuter avec lui et le mentionner. Pour le modifier, demandez à quelqu’un qui peut le modifier.",
+    "creation": {
+      "title": "Seuls les propriétaires de l’espace de travail peuvent créer des agents",
+      "description": "Désactivé : les membres peuvent aussi créer des agents et obtiennent un accès complet à ceux qu’ils créent. Les invités, jamais.",
+      "ownersOnly": "Seuls les propriétaires de l’espace de travail peuvent modifier ce paramètre."
     }
   },
   "analytics": {
@@ -1415,7 +1458,8 @@
       "allowedDomains": "Domaines de messagerie autorisés",
       "domainJoin": "Quand quelqu’un de ces domaines se connecte",
       "joinRequests": "Qui peut demander à rejoindre",
-      "email": "E-mails sur les lignes"
+      "email": "E-mails sur les lignes",
+      "agentCreation": "Qui peut créer des agents"
     },
     "values": {
       "on": "Activé",
@@ -1549,7 +1593,9 @@
         "archived": "A archivé l’agent « {target} »",
         "run_requested": "A demandé une exécution à l’agent « {target} »",
         "schedule_set": "A défini une planification pour l’agent « {target} »",
-        "schedule_removed": "A supprimé une planification de l’agent « {target} »"
+        "schedule_removed": "A supprimé une planification de l’agent « {target} »",
+        "shared": "A défini l’accès de {subject} à l’agent « {target} » : {level}",
+        "unshared": "A retiré {subject} du partage de l’agent « {target} »"
       },
       "connection": {
         "created": "A ajouté la connexion « {target} »",
@@ -1585,6 +1631,11 @@
     "outcomes": {
       "done": "fait",
       "failed": "échec"
+    },
+    "agentLevels": {
+      "full": "Accès complet",
+      "edit": "Peut modifier",
+      "interact": "Peut consulter et interagir"
     }
   },
   "notifications": {

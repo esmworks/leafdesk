@@ -859,7 +859,8 @@
       "gone": "This agent is no longer available.",
       "paused": "This agent is paused, so it can’t answer.",
       "aiOff": "AI is off in this workspace, so the agent can’t answer.",
-      "limitReached": "This agent has used its tokens for the month, so it can’t answer until next month."
+      "limitReached": "This agent has used its tokens for the month, so it can’t answer until next month.",
+      "noAccess": "You don’t have access to this agent."
     },
     "empty": {
       "full": "Ask {name} something, or give it a job. It works with its own access, skills and memory, and each answer is one of its runs.",
@@ -915,6 +916,7 @@
     "tab": {
       "hint": "Paste this agent’s link into a page to put a chat with it there. Members can chat in it read-only.",
       "copyLink": "Copy link"
-    }
+    },
+    "awaitingOwner": "Waiting for a workspace owner to approve a call…"
   }
 }

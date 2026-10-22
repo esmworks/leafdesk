@@ -297,7 +297,7 @@
   "agents": {
     "heading": "Ajanlar",
     "description": "Ajanlar, kendi talimatları olan yapay zekâ yardımcılarıdır. Bir otomasyon, ajanı bir veritabanının satırlarında çalıştırır: ajan yalnızca kendisiyle paylaşılanları okur, satırı değiştirir ve kendi adıyla yorum yazar.",
-    "ownersOnly": "Ajanları yalnızca çalışma alanı sahipleri oluşturup değiştirebilir.",
+    "ownersOnly": "Ajanları yalnızca çalışma alanı sahipleri oluşturabilir.",
     "newButton": "Yeni ajan",
     "tabs": {
       "active": "Ajanlar",
@@ -360,7 +360,8 @@
       "helpers": "Sorabileceği ajanlar",
       "helpersHelp": "Bir çalışma sırasında görevinin bir kısmını bu ajanlara en fazla {max} kez devredip yanıtlarını kullanabilir. Her biri kendi erişimi, araçları ve sınırlarıyla çalışır ve kendisi başka ajanlara soramaz.",
       "helpersEmpty": "Bu çalışma alanında henüz başka ajan yok.",
-      "helperPaused": "Duraklatıldı"
+      "helperPaused": "Duraklatıldı",
+      "limitOwnersOnly": "Bu sınırı yalnızca çalışma alanı sahipleri belirler."
     },
     "describe": {
       "button": "Ajanı anlat",
@@ -560,7 +561,9 @@
         "limitReached": "<agent></agent> ajanına sorulamadı: aylık token sınırı dolmuş"
       },
       "fromChat": "{name} kişisinin sohbet mesajı",
-      "chattedBy": "sohbet eden: {name}"
+      "chattedBy": "sohbet eden: {name}",
+      "yoursOnly": "Başlattığın çalışmaları görürsün.",
+      "waitingForOwner": "Bu çağrıyı bir çalışma alanı sahibi yanıtlar."
     },
     "usage": {
       "thisMonth": "Bu ay: {usage}",
@@ -640,7 +643,7 @@
       "tooManySkills": "Bir ajanın en fazla {max} becerisi olabilir.",
       "skillEditable": "“{title}” sayfasını çalışma alanı sahipleri dışında biri düzenleyebiliyor. Ajan yalnızca sahiplerin değiştirebildiği becerileri izler: önce sayfayı kimin düzenleyebileceğini sınırlayın.",
       "notASkill": "Bu sayfa bir beceri değil.",
-      "accessDenied": "Ajanları yalnızca çalışma alanı sahipleri değiştirebilir.",
+      "accessDenied": "Bunu yapma iznin yok.",
       "reasons": {
         "name": "Ajana bir ad verin.",
         "icon": "Ajanın simgesi bir emoji olmalı.",
@@ -655,7 +658,8 @@
         "task": "Her çalışmada yapacağı görevi yaz.",
         "taskLength": "Bir görev en fazla 2.000 karakter olabilir.",
         "repeat": "Ne zaman tekrarlandığını ve saat dilimini kontrol et.",
-        "helpers": "Bu çalışma alanından arşivlenmemiş en fazla 10 başka ajan seçin."
+        "helpers": "Bu çalışma alanından arşivlenmemiş en fazla 10 başka ajan seçin.",
+        "shareLevel": "Tam erişim, düzenleyebilir ya da görüntüleyebilir ve etkileşebilir seç."
       },
       "noteEmpty": "Ajanın neyi hatırlaması gerektiğini yazın.",
       "noteTooLong": "Bir not en fazla {max} karakter olabilir.",
@@ -669,14 +673,19 @@
       "notADatabase": "Bu çalışma alanında açabildiğin bir veritabanı seç.",
       "tooManySchedules": "Başka bir zamanlamaya yer yok (en fazla {max}).",
       "scheduleNotFound": "Bu zamanlama artık yok.",
-      "versionNotFound": "Bu sürüm artık yok."
+      "versionNotFound": "Bu sürüm artık yok.",
+      "notAllowed": "Bu ajana erişimin buna izin vermiyor.",
+      "ownersOnly": "Bir ajanın aylık token sınırını yalnızca çalışma alanı sahipleri değiştirir.",
+      "notAMember": "Bir ajan yalnızca çalışma alanının sahipleri, üyeleri ve gruplarıyla paylaşılabilir."
     },
     "connections": {
       "description": "Bu ajanın her bağlantıda kullanabileceği araçlar. Yalnızca okuyan araçlar hemen çalışır (anonim bir form yanıtından gelen satırda hariç); diğerleri ajan her çağırdığında bir sahibin onayını bekler.",
       "empty": "Henüz bağlantı yok. Sahipler bunları <link>Ayarlar › Bağlantılar</link> bölümünden ekler.",
       "allowedCount": "{total} araçtan {n} izinli",
       "notReady": "Bu bağlantı hazır değil (giriş gerekiyor ya da hata veriyor); ajan şimdilik araçlarını kullanamaz.",
-      "noTools": "Henüz listelenmiş araç yok."
+      "noTools": "Henüz listelenmiş araç yok.",
+      "ownersChoose": "Bu ajanın kullanabileceği her bağlantının araçları. Bunları yalnızca çalışma alanı sahipleri seçer.",
+      "none": "Bu ajan hiçbir bağlantının araçlarını kullanamaz."
     },
     "schedules": {
       "description": "Bu ajan bir zamanlamayla kendiliğinden çalışsın: her çalışma görevi yapar, seçtiysen bir veritabanı üzerinde; raporu gelen kutuna düşer. Çalışmaları yalnızca senin açabildiklerini açabilir.",
@@ -797,6 +806,40 @@
         "skillEditable": "sahipler dışında biri de düzenleyebiliyor",
         "tooMany": "yeri kalmadı"
       }
+    },
+    "share": {
+      "levels": {
+        "full": "Tam erişim",
+        "edit": "Düzenleyebilir",
+        "interact": "Görüntüleyebilir ve etkileşebilir",
+        "none": "Erişim yok"
+      },
+      "button": "Paylaş",
+      "description": "Bu ajanı kimlerin kullanabileceği ve onunla neler yapabilecekleri.",
+      "levelHelp": {
+        "full": "Paylaşma ve arşivleme dahil her şey",
+        "edit": "Ayarlarını, sayfalarını, becerilerini, hafızasını ve zamanlamalarını değiştirme",
+        "interact": "Görüntüleme, sohbet etme ve yorumlarda bahsetme"
+      },
+      "add": "Kişi veya grup ekle",
+      "noMatches": "Eşleşen kimse yok.",
+      "list": "Paylaşılanlar",
+      "owners": "Çalışma alanı sahipleri",
+      "ownersHint": "Her zaman tam erişime sahiptir",
+      "everyone": "Çalışma alanındaki herkes",
+      "everyoneHint": "Sahipler ve üyeler, konuklar değil",
+      "levelFor": "{name} için erişim",
+      "remove": "{name} kaldır",
+      "readOnly": "Bu ajanın kimlerle paylaşıldığını yalnızca tam erişimi olanlar değiştirir.",
+      "archived": "Kimlerle paylaşıldığını değiştirmek için ajanı geri yükle.",
+      "ownersKeep": "Hangi bağlantıların araçlarını kullanabileceği ve aylık token sınırı çalışma alanı sahiplerinde kalır.",
+      "groupMembers": "{count, plural, =0 {Üyesi olmayan grup} one {# üyeli grup} other {# üyeli grup}}"
+    },
+    "viewOnly": "Bu ajanı görüntüleyebilir, onunla sohbet edebilir ve ondan bahsedebilirsin. Değiştirmek için onu düzenleyebilen birine sor.",
+    "creation": {
+      "title": "Ajanları yalnızca çalışma alanı sahipleri oluşturabilir",
+      "description": "Kapalı: üyeler de ajan oluşturabilir ve oluşturdukları ajanlara tam erişim alır. Konuklar asla.",
+      "ownersOnly": "Bunu yalnızca çalışma alanı sahipleri değiştirebilir."
     }
   },
   "analytics": {
@@ -1415,7 +1458,8 @@
       "allowedDomains": "İzin verilen e-posta alan adları",
       "domainJoin": "Bu alan adlarından biri giriş yaptığında",
       "joinRequests": "Kimler katılmak için istek gönderebilir",
-      "email": "Satırlarda e-posta"
+      "email": "Satırlarda e-posta",
+      "agentCreation": "Kimler ajan oluşturabilir"
     },
     "values": {
       "on": "Açık",
@@ -1549,7 +1593,9 @@
         "archived": "“{target}” ajanını arşivledi",
         "run_requested": "“{target}” ajanından bir çalışma istedi",
         "schedule_set": "“{target}” ajanı için bir zamanlama kurdu",
-        "schedule_removed": "“{target}” ajanının bir zamanlamasını sildi"
+        "schedule_removed": "“{target}” ajanının bir zamanlamasını sildi",
+        "shared": "Erişim ayarlandı: {subject}, “{target}” ajanında: {level}",
+        "unshared": "Paylaşımdan çıkarıldı: {subject}, “{target}” ajanından"
       },
       "connection": {
         "created": "“{target}” bağlantısını ekledi",
@@ -1585,6 +1631,11 @@
     "outcomes": {
       "done": "tamamlandı",
       "failed": "başarısız"
+    },
+    "agentLevels": {
+      "full": "Tam erişim",
+      "edit": "Düzenleyebilir",
+      "interact": "Görüntüleyebilir ve etkileşebilir"
     }
   },
   "notifications": {

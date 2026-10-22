@@ -68,6 +68,7 @@ export const BACKED_UP: Record<string, Scope> = {
   agent_skill: ofAgents,
   agent_version: ofAgents,
   agent_helper: ofAgents,
+  agent_share: own,
   database_automation: own,
   automation_fire: (ws) => sql`automation_id in (select id from database_automation where workspace_id = ${ws})`,
   schedule: own,
@@ -88,8 +89,11 @@ export const NO_LONGER_BACKED_UP = new Set(["ai_conversation"]);
 
 /** The table of a workspace's members and their roles. */
 export const WORKSPACE_MEMBERS = "workspace_member";
-/** Tables that make someone a member of something (a restore leaves out who has no account). */
-export const MEMBERSHIP_TABLES = [WORKSPACE_MEMBERS, "teamspace_member", "member_group_member"];
+/**
+ * Tables that make someone a member of something, or name them on an agent's sharing list (a
+ * restore leaves out who has no account).
+ */
+export const MEMBERSHIP_TABLES = [WORKSPACE_MEMBERS, "teamspace_member", "member_group_member", "agent_share"];
 
 /** The tables a backup leaves out, and why. */
 export const LEFT_OUT: Record<string, string> = {

@@ -297,7 +297,7 @@
   "agents": {
     "heading": "Agenten",
     "description": "Agenten sind KI-Helfer mit eigenen Anweisungen. Eine Automatisierung lässt einen Agenten auf den Zeilen einer Datenbank laufen: Er liest nur, was mit ihm geteilt ist, ändert die Zeile und kommentiert sie unter seinem eigenen Namen.",
-    "ownersOnly": "Nur Workspace-Inhaber können Agenten erstellen und ändern.",
+    "ownersOnly": "Nur Workspace-Inhaber können Agenten erstellen.",
     "newButton": "Neuer Agent",
     "tabs": {
       "active": "Agenten",
@@ -360,7 +360,8 @@
       "helpers": "Agenten, die er fragen kann",
       "helpersHelp": "Während eines Durchlaufs kann er Teile seiner Aufgabe an diese Agenten abgeben, bis zu {max}-mal, und ihre Antworten verwenden. Jeder arbeitet mit eigenem Zugriff, eigenen Werkzeugen und Limits und kann selbst keine weiteren Agenten fragen.",
       "helpersEmpty": "In diesem Workspace gibt es noch keine anderen Agenten.",
-      "helperPaused": "Pausiert"
+      "helperPaused": "Pausiert",
+      "limitOwnersOnly": "Nur Workspace-Inhaber legen dieses Limit fest."
     },
     "describe": {
       "button": "Agent beschreiben",
@@ -560,7 +561,9 @@
         "limitReached": "Konnte <agent></agent> nicht fragen: Sein monatliches Token-Limit ist aufgebraucht"
       },
       "fromChat": "Chat-Nachricht von {name}",
-      "chattedBy": "Chat von {name}"
+      "chattedBy": "Chat von {name}",
+      "yoursOnly": "Du siehst die Durchläufe, die du gestartet hast.",
+      "waitingForOwner": "Ein Workspace-Inhaber beantwortet diesen Aufruf."
     },
     "usage": {
       "thisMonth": "Diesen Monat: {usage}",
@@ -640,7 +643,7 @@
       "tooManySkills": "Ein Agent kann höchstens {max} Skills haben.",
       "skillEditable": "Außer den Workspace-Inhabern kann noch jemand „{title}“ bearbeiten. Ein Agent folgt nur Skills, die allein Inhaber ändern können: Schränk zuerst ein, wer die Seite bearbeiten kann.",
       "notASkill": "Diese Seite ist kein Skill.",
-      "accessDenied": "Nur Workspace-Inhaber können Agenten ändern.",
+      "accessDenied": "Dazu fehlt dir die Berechtigung.",
       "reasons": {
         "name": "Gib dem Agenten einen Namen.",
         "icon": "Das Symbol eines Agenten ist ein Emoji.",
@@ -655,7 +658,8 @@
         "task": "Schreib die Aufgabe, die er bei jedem Lauf erledigt.",
         "taskLength": "Eine Aufgabe hat höchstens 2.000 Zeichen.",
         "repeat": "Prüfe, wann er sich wiederholt, und die Zeitzone.",
-        "helpers": "Wähle bis zu 10 andere, nicht archivierte Agenten dieses Workspaces."
+        "helpers": "Wähle bis zu 10 andere, nicht archivierte Agenten dieses Workspaces.",
+        "shareLevel": "Wähle Vollzugriff, Kann bearbeiten oder Kann ansehen & interagieren."
       },
       "noteEmpty": "Schreiben Sie, was sich der Agent merken soll.",
       "noteTooLong": "Eine Notiz darf höchstens {max} Zeichen haben.",
@@ -669,14 +673,19 @@
       "notADatabase": "Wähle eine Datenbank dieses Workspaces, die du öffnen kannst.",
       "tooManySchedules": "Für einen weiteren Zeitplan ist kein Platz (höchstens {max}).",
       "scheduleNotFound": "Diesen Zeitplan gibt es nicht mehr.",
-      "versionNotFound": "Diese Version gibt es nicht mehr."
+      "versionNotFound": "Diese Version gibt es nicht mehr.",
+      "notAllowed": "Dein Zugriff auf diesen Agenten erlaubt das nicht.",
+      "ownersOnly": "Nur Workspace-Inhaber ändern das monatliche Token-Limit eines Agenten.",
+      "notAMember": "Ein Agent kann nur mit Inhabern, Mitgliedern und Gruppen des Workspace geteilt werden."
     },
     "connections": {
       "description": "Die Werkzeuge jeder Verbindung, die dieser Agent nutzen darf. Werkzeuge, die nur lesen, laufen sofort, außer bei einer Zeile aus einer anonymen Formularantwort; alle anderen warten bei jedem Aufruf auf die Freigabe eines Inhabers.",
       "empty": "Noch keine Verbindungen. Inhaber fügen sie unter <link>Einstellungen › Verbindungen</link> hinzu.",
       "allowedCount": "{n} von {total} erlaubt",
       "notReady": "Diese Verbindung ist nicht bereit (sie braucht eine Anmeldung oder schlägt fehl), daher kann der Agent ihre Werkzeuge vorerst nicht nutzen.",
-      "noTools": "Noch keine Werkzeuge aufgelistet."
+      "noTools": "Noch keine Werkzeuge aufgelistet.",
+      "ownersChoose": "Die Tools jeder Verbindung, die dieser Agent nutzen darf. Nur Workspace-Inhaber wählen sie aus.",
+      "none": "Dieser Agent darf keine Tools von Verbindungen nutzen."
     },
     "schedules": {
       "description": "Lass diesen Agenten nach Zeitplan von selbst laufen: Jeder Lauf erledigt die Aufgabe, auf Wunsch in einer Datenbank, und sein Bericht landet in deinem Posteingang. Seine Läufe öffnen nur, was du öffnen kannst.",
@@ -797,6 +806,40 @@
         "skillEditable": "außer den Inhabern kann ihn noch jemand bearbeiten",
         "tooMany": "dafür ist kein Platz mehr"
       }
+    },
+    "share": {
+      "levels": {
+        "full": "Vollzugriff",
+        "edit": "Kann bearbeiten",
+        "interact": "Kann ansehen & interagieren",
+        "none": "Kein Zugriff"
+      },
+      "button": "Teilen",
+      "description": "Wer diesen Agenten nutzen kann und was er damit tun darf.",
+      "levelHelp": {
+        "full": "Alles, auch Teilen und Archivieren",
+        "edit": "Einstellungen, Seiten, Skills, Gedächtnis und Zeitpläne ändern",
+        "interact": "Ansehen, mit ihm chatten und ihn in Kommentaren erwähnen"
+      },
+      "add": "Personen oder Gruppen hinzufügen",
+      "noMatches": "Niemand passt.",
+      "list": "Geteilt mit",
+      "owners": "Workspace-Inhaber",
+      "ownersHint": "Haben immer Vollzugriff",
+      "everyone": "Alle im Workspace",
+      "everyoneHint": "Inhaber und Mitglieder, keine Gäste",
+      "levelFor": "Zugriff für {name}",
+      "remove": "{name} entfernen",
+      "readOnly": "Nur Personen mit Vollzugriff ändern, mit wem dieser Agent geteilt ist.",
+      "archived": "Stelle den Agenten wieder her, um zu ändern, mit wem er geteilt ist.",
+      "ownersKeep": "Welche Tools von Verbindungen er nutzen darf und sein monatliches Token-Limit bestimmen weiterhin die Workspace-Inhaber.",
+      "groupMembers": "{count, plural, =0 {Gruppe ohne Mitglieder} one {Gruppe mit # Mitglied} other {Gruppe mit # Mitgliedern}}"
+    },
+    "viewOnly": "Du kannst diesen Agenten ansehen, mit ihm chatten und ihn erwähnen. Um ihn zu ändern, frag jemanden, der ihn bearbeiten kann.",
+    "creation": {
+      "title": "Nur Workspace-Inhaber können Agenten erstellen",
+      "description": "Aus: Auch Mitglieder können Agenten erstellen und erhalten Vollzugriff auf die, die sie erstellen. Gäste nie.",
+      "ownersOnly": "Nur Workspace-Inhaber können das ändern."
     }
   },
   "analytics": {
@@ -1415,7 +1458,8 @@
       "allowedDomains": "Zugelassene E-Mail-Domains",
       "domainJoin": "Wenn sich jemand aus diesen Domains anmeldet",
       "joinRequests": "Wer um Beitritt bitten kann",
-      "email": "E-Mails in Zeilen"
+      "email": "E-Mails in Zeilen",
+      "agentCreation": "Wer Agenten erstellen kann"
     },
     "values": {
       "on": "An",
@@ -1549,7 +1593,9 @@
         "archived": "Hat den Agenten „{target}“ archiviert",
         "run_requested": "Hat beim Agenten „{target}“ einen Durchlauf angefordert",
         "schedule_set": "Hat einen Zeitplan für den Agenten „{target}“ eingerichtet",
-        "schedule_removed": "Hat einen Zeitplan des Agenten „{target}“ gelöscht"
+        "schedule_removed": "Hat einen Zeitplan des Agenten „{target}“ gelöscht",
+        "shared": "Hat den Zugriff von {subject} auf den Agenten „{target}“ festgelegt: {level}",
+        "unshared": "Hat {subject} aus der Freigabe des Agenten „{target}“ entfernt"
       },
       "connection": {
         "created": "Hat die Verbindung „{target}“ hinzugefügt",
@@ -1585,6 +1631,11 @@
     "outcomes": {
       "done": "erledigt",
       "failed": "fehlgeschlagen"
+    },
+    "agentLevels": {
+      "full": "Vollzugriff",
+      "edit": "Kann bearbeiten",
+      "interact": "Kann ansehen & interagieren"
     }
   },
   "notifications": {

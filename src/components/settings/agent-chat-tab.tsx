@@ -14,9 +14,9 @@ const AgentChat = dynamic(() => import("@/components/agent-chat/agent-chat").the
 });
 
 /**
- * An owner's chat with the agent (lib/agent-chat.ts): to try it out and give it one-off jobs, with
- * its own access, tools, skills, memory and limits. Its link, pasted in a page, puts a chat with it
- * there.
+ * A chat with the agent (lib/agent-chat.ts), for anyone it is shared with: to try it out and give
+ * it one-off jobs, with its own access, tools, skills, memory and limits. Its link, pasted in a
+ * page, puts a chat with it there.
  */
 export function AgentChatTab({ workspaceId, agent }: { workspaceId: string; agent: AgentView }) {
   const t = useTranslations("page.agentChat.tab");

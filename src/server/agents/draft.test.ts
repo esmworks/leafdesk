@@ -1,6 +1,6 @@
 /**
- * Drafting an agent from a description (draft.ts): only owners, only with AI on, over the pages
- * the owner may share, with the request counted as the agents' AI usage; and creating the agent
+ * Drafting an agent from a description (draft.ts): only those who may create agents, only with AI
+ * on, over the pages the person may share, with the request counted as the agents' AI usage; and creating the agent
  * from a draft, taken back when a step fails.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -18,6 +18,12 @@ vi.mock("@/db", () => ({ db: {} }));
 vi.mock("@/server/access", () => ({
   requireMembership: async (userId: string, _workspaceId: string, role?: string) => {
     if (role === "owner" && !access.owners.has(userId)) throw new NotAllowed("Not an owner");
+  },
+}));
+// Who may create agents (sharing.ts): here, as when the workspace leaves it to its owners.
+vi.mock("./sharing", () => ({
+  requireAgentCreator: async (userId: string) => {
+    if (!access.owners.has(userId)) throw new NotAllowed("Not an owner");
   },
 }));
 vi.mock("@/server/ai-writing", () => ({ aiAvailable: async () => aiOn.value }));

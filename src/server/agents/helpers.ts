@@ -1,13 +1,14 @@
 /**
  * An agent's "Agents it can ask": other agents of its workspace its runs may hand part of a task to
- * (server/agents/handoff.ts). Owners choose them with the agent's other settings (createAgent and
- * updateAgent in manage.ts); archiving an agent takes it off every list (archiveAgent).
+ * (server/agents/handoff.ts). Those who can edit the agent choose them with its other settings
+ * (createAgent and updateAgent in manage.ts), from the agents shared with them; archiving an agent
+ * takes it off every list (archiveAgent).
  */
 import { and, asc, eq, inArray, isNull } from "drizzle-orm";
 import { db } from "@/db";
 import { agentHelper, workspaceAgent } from "@/db/schema";
 import { MAX_AGENT_HELPERS } from "@/lib/agents";
-import { requireMembership } from "@/server/access";
+import { agentLevels, agentWithLevel, requireAgentCreator } from "./sharing";
 
 type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
@@ -58,23 +59,22 @@ export const dropHelper = (tx: Tx, agentId: string) => tx.delete(agentHelper).wh
 export type HelperChoice = { id: string; name: string; icon: string | null; enabled: boolean };
 
 /**
- * What an owner may choose from for an agent's "Agents it can ask" (`agentId` null: a new agent):
- * the workspace's other agents that aren't archived, and those the agent has now.
+ * What someone may choose from for an agent's "Agents it can ask" (`agentId` null: a new agent,
+ * for those who may create one): the workspace's other agents that aren't archived and are shared
+ * with them, and those the agent has now (shared with them or not).
  */
 export async function helperChoices(userId: string, workspaceId: string, agentId: string | null): Promise<{ agents: HelperChoice[]; selected: string[] }> {
-  await requireMembership(userId, workspaceId, "owner");
-  const agents = await db
+  if (agentId) {
+    const { agent } = await agentWithLevel(userId, agentId, "interact");
+    if (agent.workspaceId !== workspaceId) return { agents: [], selected: [] };
+  } else await requireAgentCreator(userId, workspaceId);
+  const all = await db
     .select({ id: workspaceAgent.id, name: workspaceAgent.name, icon: workspaceAgent.icon, enabled: workspaceAgent.enabled })
     .from(workspaceAgent)
     .where(and(eq(workspaceAgent.workspaceId, workspaceId), isNull(workspaceAgent.archivedAt)))
     .orderBy(asc(workspaceAgent.createdAt));
-  // Only an agent of this workspace (an archived one too) has a list to show.
-  const [own] = agentId
-    ? await db
-        .select({ id: workspaceAgent.id })
-        .from(workspaceAgent)
-        .where(and(eq(workspaceAgent.id, agentId), eq(workspaceAgent.workspaceId, workspaceId)))
-    : [];
-  const selected = own ? ((await helperIdsOf([own.id])).get(own.id) ?? []) : [];
-  return { agents: agents.filter((a) => a.id !== agentId), selected };
+  const selected = agentId ? ((await helperIdsOf([agentId])).get(agentId) ?? []) : [];
+  const levels = await agentLevels(userId, workspaceId, all.map((a) => a.id));
+  const agents = all.filter((a) => a.id !== agentId && (levels.get(a.id) !== "none" || selected.includes(a.id)));
+  return { agents, selected };
 }

@@ -19,6 +19,7 @@ import {
   MAX_CONNECTION_TRIGGERS,
   MAX_CONNECTIONS,
   MAX_TRIGGER_EVENT,
+  type AgentGrantSummary,
   type AgentGrantView,
   type ConnectionAuthType,
   type ConnectionErrorCode,
@@ -32,6 +33,7 @@ import { MAX_AGENT_PROMPT } from "@/lib/agents";
 import { env } from "@/lib/env";
 import { redactText } from "@/lib/redact";
 import { AccessError, ConnectedAppReadOnlyError, requireMembership } from "@/server/access";
+import { agentWithLevel } from "@/server/agents/sharing";
 import { recordAudit } from "@/server/audit";
 import { open, seal, sealJson } from "../secret-box";
 import {
@@ -592,7 +594,22 @@ export async function listAgentGrants(userId: string, agentId: string): Promise<
   return rows.map((g) => ({ connectionId: g.connectionId, tools: g.tools }));
 }
 
-/** Sets the tools of a connection an agent may use (none: takes the connection from it). */
+/**
+ * The tools of each connection an agent may use, with the connections' names, for anyone the agent
+ * is shared with (agents/sharing.ts): only the workspace's owners change them (setAgentGrant).
+ */
+export async function agentGrantSummary(userId: string, agentId: string): Promise<AgentGrantSummary[]> {
+  const { agent } = await agentWithLevel(userId, agentId, "interact");
+  const rows = await db
+    .select({ connectionId: agentGrant.connectionId, tools: agentGrant.tools, name: connection.name, icon: connection.icon })
+    .from(agentGrant)
+    .innerJoin(connection, eq(connection.id, agentGrant.connectionId))
+    .where(and(eq(agentGrant.agentId, agent.id), eq(connection.workspaceId, agent.workspaceId)))
+    .orderBy(connection.name);
+  return rows;
+}
+
+/** Sets the tools of a connection an agent may use (none: takes the connection from it). Owners only. */
 export async function setAgentGrant(userId: string, agentId: string, connectionId: string, tools: string[]): Promise<AgentGrantView[]> {
   const agent = await ownedAgentIn(userId, agentId);
   const row = await ownedConnection(userId, connectionId);

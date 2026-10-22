@@ -794,7 +794,7 @@
     "tooManyAutomations": "Una base de datos puede tener como máximo {max} automatizaciones.",
     "invalidWebhookUrl": "«{value}» no es una dirección http(s) válida.",
     "webhookBlocked": "Los webhooks no pueden ir a direcciones de red privadas o locales.",
-    "agentOwnersOnly": "Solo los propietarios del espacio de trabajo pueden añadir o cambiar acciones que ejecutan un agente.",
+    "agentOwnersOnly": "Solo los propietarios del espacio de trabajo y quienes pueden editar el agente pueden añadir o cambiar acciones que lo ejecutan.",
     "invalidRepeat": "Esa repetición no es válida: revisa los días, la hora y la zona horaria.",
     "tooManySchedules": "Este espacio de trabajo ya tiene todas las plantillas repetidas que puede tener."
   },
@@ -1077,7 +1077,7 @@
       "createAgent": "Crea uno en Configuración > Agentes.",
       "noAgentsMember": "Los propietarios del espacio de trabajo los crean en Configuración.",
       "agentTask": "Tarea",
-      "agentOwnersOnly": "Solo los propietarios del espacio de trabajo pueden cambiar esta acción.",
+      "agentOwnersOnly": "Solo los propietarios del espacio de trabajo y quienes pueden editar este agente pueden cambiar esta acción.",
       "agentTaskPlaceholder": "Qué hacer con la fila, además de sus instrucciones. Por ejemplo: Clasifica esta nueva solicitud.",
       "agentAccess": "Al guardar, {agent} obtiene acceso de edición a esta base de datos.",
       "agentAccessAny": "Al guardar, el agente obtiene acceso de edición a esta base de datos."

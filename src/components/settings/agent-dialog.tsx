@@ -1,10 +1,11 @@
 "use client";
 
-import { BookCheck, BookX, Bot, CalendarClock, ChevronRight, Globe, MessageSquare, MessageSquareOff, MessagesSquare, Play, Plug, RefreshCw, TriangleAlert, X } from "lucide-react";
+import { BookCheck, BookX, Bot, CalendarClock, ChevronRight, Globe, MessageSquare, MessageSquareOff, MessagesSquare, Play, Plug, RefreshCw, TriangleAlert, Users, X } from "lucide-react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
   agentUsageAction,
   createAgentAction,
@@ -40,6 +41,7 @@ import {
   type AgentToolRecord,
   type AgentUsageMonth,
   type AgentView,
+  editsAgent,
 } from "@/lib/agents";
 import { commentHash } from "@/lib/comments";
 import { AgentChatTab } from "./agent-chat-tab";
@@ -52,11 +54,17 @@ import { AgentSchedulesTab } from "./agent-schedules-tab";
 import { AgentSkillsTab } from "./agent-skills-tab";
 import { PagePicker, useShareablePages } from "./agent-page-picker";
 
-export type AgentTab = "settings" | "access" | "skills" | "memory" | "connections" | "schedules" | "runs" | "chat" | "history";
+/** The dialog's tabs; `share`, who the agent is shared with, opens from its header rather than the tab bar. */
+export type AgentTab = "settings" | "access" | "skills" | "memory" | "connections" | "schedules" | "runs" | "chat" | "history" | "share";
 /** The server's main and fast models' names, shown with the agent's choice between them. */
 export type AgentModelNames = { main: string; fast: string };
-export const AGENT_TABS: readonly AgentTab[] = ["settings", "access", "skills", "memory", "connections", "schedules", "runs", "chat", "history"];
+export const AGENT_TABS: readonly Exclude<AgentTab, "share">[] = ["settings", "access", "skills", "memory", "connections", "schedules", "runs", "chat", "history"];
 
+// Sharing comes with its section, not with the dialog.
+const AgentShareTab = dynamic(() => import("./agent-share-tab").then((m) => m.AgentShareTab), {
+  ssr: false,
+  loading: () => <div aria-busy="true" className="m-5 h-24 animate-pulse rounded-md bg-bg-subtle" />,
+});
 
 /** An agent's emoji, or a robot when it has none. */
 export function AgentIcon({ icon, className }: { icon: string | null; className?: string }) {
@@ -66,10 +74,13 @@ export function AgentIcon({ icon, className }: { icon: string | null; className?
 
 /**
  * One agent: its settings, the pages shared with it, its skills, its memory, the connections' tools
- * it may use, its schedules, its latest runs, a chat with it and its versions, in tabs.
+ * it may use, its schedules, its latest runs, a chat with it and its versions, in tabs, and who it
+ * is shared with. What the viewer may change follows their level on it (`agent.access`): those who
+ * can view and interact see every tab read-only, their own runs alone, and chat with it.
  */
 export function AgentDialog({
   workspaceId,
+  isOwner,
   agent,
   tab,
   runId,
@@ -82,6 +93,8 @@ export function AgentDialog({
   onClose,
 }: {
   workspaceId: string;
+  /** The viewer owns the workspace: they choose the connections' tools and the token limit, and answer calls. */
+  isOwner: boolean;
   agent: AgentView;
   tab: AgentTab;
   /** The models an agent may choose between; null hides the choice (see AgentForm). */
@@ -100,8 +113,13 @@ export function AgentDialog({
 }) {
   const t = useTranslations("settings.agents");
   const tc = useTranslations("common");
+  const tabs = useRef<HTMLDivElement>(null);
+  // A tab a link opens may be past the edge of a narrow window.
+  useEffect(() => {
+    tabs.current?.querySelector<HTMLElement>('[aria-selected="true"]')?.scrollIntoView({ block: "nearest", inline: "nearest" });
+  }, [tab]);
   return (
-    <Dialog open onClose={onClose} className="max-w-2xl">
+    <Dialog open onClose={onClose} className="max-w-3xl">
       <div className="flex items-start gap-3 border-b border-border px-5 py-4">
         <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-bg-hover text-lg">
           <AgentIcon icon={agent.icon} />
@@ -113,13 +131,17 @@ export function AgentDialog({
             {agent.description && ` · ${agent.description}`}
           </p>
         </div>
+        <Button size="sm" variant={tab === "share" ? "primary" : "ghost"} aria-pressed={tab === "share"} onClick={() => onTab("share")}>
+          <Users className="h-3.5 w-3.5" />
+          {t("share.button")}
+        </Button>
         <IconButton label={tc("close")} onClick={onClose} className="h-7 w-7">
           <X className="h-4 w-4" />
         </IconButton>
       </div>
-      {/* Eight tabs don't fit a phone: they scroll on their own rather than widening the dialog. */}
-      <div className="overflow-x-auto border-b border-border px-5 py-2">
-        <div role="tablist" aria-label={agent.name} className="inline-flex gap-0.5 rounded-lg bg-bg-hover p-0.5">
+      {/* Nine tabs don't fit a phone: they scroll on their own, without a bar, rather than widening the dialog. */}
+      <div ref={tabs} className="overflow-x-auto border-b border-border px-5 py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div role="tablist" aria-label={agent.name} className="inline-flex w-max gap-0.5 rounded-lg bg-bg-hover p-0.5">
           {AGENT_TABS.map((name) => (
             <TabButton key={name} active={tab === name} onClick={() => onTab(name)}>
               {t(`tabs.${name}`)}
@@ -132,8 +154,11 @@ export function AgentDialog({
           ))}
         </div>
       </div>
-      {tab === "settings" ? (
-        <AgentForm workspaceId={workspaceId} agent={agent} models={models} webSearch={webSearch} onDone={onClose} />
+      {!editsAgent(agent) && tab !== "share" && tab !== "chat" && <p className="border-b border-border bg-bg-subtle px-5 py-2 text-xs text-fg-muted">{t("viewOnly")}</p>}
+      {tab === "share" ? (
+        <AgentShareTab workspaceId={workspaceId} agent={agent} />
+      ) : tab === "settings" ? (
+        <AgentForm workspaceId={workspaceId} agent={agent} isOwner={isOwner} models={models} webSearch={webSearch} onDone={onClose} />
       ) : tab === "access" ? (
         <AccessTab workspaceId={workspaceId} agent={agent} />
       ) : tab === "skills" ? (
@@ -141,7 +166,7 @@ export function AgentDialog({
       ) : tab === "memory" ? (
         <AgentMemoryTab workspaceId={workspaceId} agent={agent} memoryOff={memoryOff} />
       ) : tab === "connections" ? (
-        <AgentConnectionsTab workspaceId={workspaceId} agent={agent} />
+        <AgentConnectionsTab workspaceId={workspaceId} agent={agent} isOwner={isOwner} />
       ) : tab === "schedules" ? (
         <AgentSchedulesTab workspaceId={workspaceId} agent={agent} onRuns={() => onTab("runs")} />
       ) : tab === "history" ? (
@@ -149,7 +174,7 @@ export function AgentDialog({
       ) : tab === "chat" ? (
         <AgentChatTab workspaceId={workspaceId} agent={agent} />
       ) : (
-        <RunsTab workspaceId={workspaceId} agent={agent} runId={runId} onOpenRun={onOpenRun} />
+        <RunsTab workspaceId={workspaceId} agent={agent} isOwner={isOwner} runId={runId} onOpenRun={onOpenRun} />
       )}
     </Dialog>
   );
@@ -166,6 +191,7 @@ export type AgentFormDraft = {
 /** A new agent (no `agent`, prefilled from `draft` when given) or an agent's settings. */
 export function AgentForm({
   workspaceId,
+  isOwner,
   agent,
   models = null,
   webSearch = false,
@@ -174,6 +200,8 @@ export function AgentForm({
   onCreated,
 }: {
   workspaceId: string;
+  /** Only owners set the monthly token limit (it is what the agent costs); anyone else sees it. */
+  isOwner: boolean;
   agent?: AgentView;
   /**
    * The server's main and fast models, when the agent may choose between them. Null (no fast
@@ -201,7 +229,8 @@ export function AgentForm({
   // Null until loaded: saving then leaves them as they are.
   const [helpers, setHelpers] = useState<string[] | null>(null);
   const { pending, error, run } = useAction();
-  const locked = Boolean(agent?.archived);
+  // Archived, or shared with the viewer to view and interact only.
+  const locked = Boolean(agent?.archived) || (agent ? !editsAgent(agent) : false);
   const clean = name.trim();
   // Empty: no limit. The server checks the number again.
   const monthlyTokenLimit = limit.trim() ? Number(limit.trim()) : null;
@@ -209,7 +238,18 @@ export function AgentForm({
 
   const submit = () => {
     if (!clean || locked || !limitValid) return;
-    const value = { name: clean, icon, description, instructions, enabled, webAccess, monthlyTokenLimit, ...(models ? { model } : {}), helperAgentIds: helpers ?? undefined };
+    const value = {
+      name: clean,
+      icon,
+      description,
+      instructions,
+      enabled,
+      webAccess,
+      // Left as it is by anyone but an owner.
+      ...(isOwner ? { monthlyTokenLimit } : {}),
+      ...(models ? { model } : {}),
+      helperAgentIds: helpers ?? undefined,
+    };
     if (agent) run(() => updateAgentAction(workspaceId, agent.id, value), onDone);
     else run(() => (draft ? draft.create(value) : createAgentAction(workspaceId, value)), (created) => onCreated?.(created));
   };
@@ -222,7 +262,7 @@ export function AgentForm({
       }}
     >
       <fieldset disabled={locked || pending} className="max-h-[65vh] space-y-4 overflow-y-auto px-5 py-4">
-        {locked && <p className="text-sm text-fg-muted">{t("archivedNote")}</p>}
+        {agent?.archived && <p className="text-sm text-fg-muted">{t("archivedNote")}</p>}
         <div className="flex items-end gap-2">
           <IconPicker icon={icon} onChange={setIcon} disabled={locked}>
             {(toggle) => (
@@ -304,10 +344,13 @@ export function AgentForm({
             value={limit}
             placeholder={t("limitPlaceholder")}
             aria-invalid={!limitValid}
+            disabled={!isOwner}
             onChange={(e) => setLimit(e.target.value)}
             className="w-48"
           />
-          <span className={cn("mt-1 block text-xs", limitValid ? "text-fg-muted" : "text-danger")}>{limitValid ? t("limitHelp") : t("limitInvalid")}</span>
+          <span className={cn("mt-1 block text-xs", limitValid ? "text-fg-muted" : "text-danger")}>
+            {!limitValid ? t("limitInvalid") : isOwner ? t("limitHelp") : t("limitOwnersOnly")}
+          </span>
         </label>
         <AgentHelpersField workspaceId={workspaceId} agentId={agent?.id ?? null} value={helpers} disabled={locked} onChange={setHelpers} />
       </fieldset>
@@ -355,6 +398,7 @@ function AccessTab({ workspaceId, agent }: { workspaceId: string; agent: AgentVi
 
   const shared = new Set(access?.pages.map((p) => p.pageId));
   const candidates = shareable && shareable.filter((p) => !shared.has(p.id));
+  const editable = editsAgent(agent);
 
   return (
     <div className={cn("max-h-[65vh] space-y-4 overflow-y-auto px-5 py-4", pending && "opacity-70")}>
@@ -385,29 +429,35 @@ function AccessTab({ workspaceId, agent }: { workspaceId: string; agent: AgentVi
                     <Link href={`/w/${workspaceId}/p/${p.pageId}`} className="min-w-0 flex-1 truncate hover:underline">
                       {title}
                     </Link>
-                    <select
-                      value={p.level}
-                      aria-label={t("levelFor", { title })}
-                      disabled={pending || agent.archived}
-                      onChange={(e) =>
-                        run(() => setAgentAccessAction(workspaceId, agent.id, p.pageId, e.target.value as AgentAccessLevel), setAccess)
-                      }
-                      className={selectClass}
-                    >
-                      {AGENT_ACCESS_LEVELS.map((l) => (
-                        <option key={l} value={l}>
-                          {t(`level.${l}`)}
-                        </option>
-                      ))}
-                    </select>
-                    <IconButton
-                      label={t("remove", { title })}
-                      disabled={pending}
-                      onClick={() => run(() => removeAgentAccessAction(workspaceId, agent.id, p.pageId), setAccess)}
-                      className="hover:text-danger"
-                    >
-                      <X className="h-4 w-4" />
-                    </IconButton>
+                    {editable ? (
+                      <>
+                        <select
+                          value={p.level}
+                          aria-label={t("levelFor", { title })}
+                          disabled={pending || agent.archived}
+                          onChange={(e) =>
+                            run(() => setAgentAccessAction(workspaceId, agent.id, p.pageId, e.target.value as AgentAccessLevel), setAccess)
+                          }
+                          className={selectClass}
+                        >
+                          {AGENT_ACCESS_LEVELS.map((l) => (
+                            <option key={l} value={l}>
+                              {t(`level.${l}`)}
+                            </option>
+                          ))}
+                        </select>
+                        <IconButton
+                          label={t("remove", { title })}
+                          disabled={pending}
+                          onClick={() => run(() => removeAgentAccessAction(workspaceId, agent.id, p.pageId), setAccess)}
+                          className="hover:text-danger"
+                        >
+                          <X className="h-4 w-4" />
+                        </IconButton>
+                      </>
+                    ) : (
+                      <span className="shrink-0 text-sm text-fg-muted">{t(`level.${p.level}`)}</span>
+                    )}
                   </li>
                 );
               })}
@@ -418,6 +468,7 @@ function AccessTab({ workspaceId, agent }: { workspaceId: string; agent: AgentVi
           {access.hidden > 0 && <p className="text-xs text-fg-muted">{t("hidden", { count: access.hidden })}</p>}
           <p className="text-xs text-fg-muted">{t("automationNote")}</p>
           {!agent.archived &&
+            editable &&
             (adding ? (
               <section className="space-y-2 border-t border-border pt-4">
                 <div className="flex flex-wrap items-center justify-between gap-2">
@@ -467,7 +518,20 @@ function useDuration() {
 }
 
 /** The agent's latest runs; each opens to its steps, what it said, and why it failed. */
-function RunsTab({ workspaceId, agent, runId, onOpenRun }: { workspaceId: string; agent: AgentView; runId?: string; onOpenRun?: OpenAgentRun }) {
+/** Those who can view and interact see the runs they started alone (the server leaves the others out). */
+function RunsTab({
+  workspaceId,
+  agent,
+  isOwner,
+  runId,
+  onOpenRun,
+}: {
+  workspaceId: string;
+  agent: AgentView;
+  isOwner: boolean;
+  runId?: string;
+  onOpenRun?: OpenAgentRun;
+}) {
   const t = useTranslations("settings.agents.runs");
   const tc = useTranslations("common");
   const [runs, setRuns] = useState<AgentRunDetails[] | null>(null);
@@ -499,7 +563,10 @@ function RunsTab({ workspaceId, agent, runId, onOpenRun }: { workspaceId: string
   return (
     <div className="max-h-[65vh] overflow-y-auto px-5 py-3">
       <div className="flex items-center gap-2 pb-2">
-        <p className="min-w-0 flex-1 text-xs text-fg-muted">{t("description", { days: AGENT_RUN_HISTORY_DAYS })}</p>
+        <p className="min-w-0 flex-1 text-xs text-fg-muted">
+          {t("description", { days: AGENT_RUN_HISTORY_DAYS })}
+          {!editsAgent(agent) && ` ${t("yoursOnly")}`}
+        </p>
         <Button
           size="sm"
           variant="ghost"
@@ -523,7 +590,15 @@ function RunsTab({ workspaceId, agent, runId, onOpenRun }: { workspaceId: string
       ) : (
         <ul className="divide-y divide-border">
           {runs.map((run) => (
-            <RunItem key={run.id} workspaceId={workspaceId} run={run} initiallyOpen={run.id === runId} onChanged={() => setVersion((v) => v + 1)} onOpenRun={onOpenRun} />
+            <RunItem
+              key={run.id}
+              workspaceId={workspaceId}
+              run={run}
+              answers={isOwner}
+              initiallyOpen={run.id === runId}
+              onChanged={() => setVersion((v) => v + 1)}
+              onOpenRun={onOpenRun}
+            />
           ))}
         </ul>
       )}
@@ -582,12 +657,15 @@ function UsageSummary({ usage, limit }: { usage: AgentUsageMonth[]; limit: numbe
 function RunItem({
   workspaceId,
   run,
+  answers,
   initiallyOpen,
   onChanged,
   onOpenRun,
 }: {
   workspaceId: string;
   run: AgentRunDetails;
+  /** The viewer answers its calls to connections (an owner); anyone else sees that it waits. */
+  answers: boolean;
   initiallyOpen: boolean;
   /** The run changed here (an owner answered its call): load the runs again. */
   onChanged: () => void;
@@ -710,11 +788,15 @@ function RunItem({
           {run.pending && (
             <div className="rounded-lg border border-border p-3">
               <p className="mb-1.5 text-sm font-medium">{t("waiting")}</p>
-              <ApprovalActions
-                workspaceId={workspaceId}
-                approval={{ runId: run.id, callId: run.pending.callId, tool: run.pending.tool, connectionName: run.pending.connectionName, input: JSON.stringify(run.pending.arguments, null, 2) }}
-                onAnswered={onChanged}
-              />
+              {answers ? (
+                <ApprovalActions
+                  workspaceId={workspaceId}
+                  approval={{ runId: run.id, callId: run.pending.callId, tool: run.pending.tool, connectionName: run.pending.connectionName, input: JSON.stringify(run.pending.arguments, null, 2) }}
+                  onAnswered={onChanged}
+                />
+              ) : (
+                <p className="text-xs text-fg-muted">{t("waitingForOwner")}</p>
+              )}
             </div>
           )}
           {run.answer && (

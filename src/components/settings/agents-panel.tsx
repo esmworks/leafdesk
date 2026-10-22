@@ -1,28 +1,34 @@
 "use client";
 
 import { MoreHorizontal, Plus, Sparkles } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { archiveAgentAction, restoreAgentAction, updateAgentAction } from "@/app/actions/agents";
+import { updateWorkspaceSettingsAction } from "@/app/actions/workspaces";
 import { Floating, useFloating } from "@/components/database/floating";
 import { TabButton } from "@/components/settings/members-panel";
 import { SettingsGroup, SettingsHeader } from "@/components/settings/section";
 import { useAction } from "@/components/settings/workspace-settings";
-import { Button, cn, Dialog, IconButton, MenuItem, MenuSeparator } from "@/components/ui";
-import { MAX_AGENTS, type AgentView } from "@/lib/agents";
+import { Button, cn, Dialog, IconButton, MenuItem, MenuSeparator, Switch } from "@/components/ui";
+import { hasAgentLevel, type AgentCreation } from "@/lib/agent-sharing";
+import { editsAgent, MAX_AGENTS, type AgentView } from "@/lib/agents";
 import type { BuiltinAgentSummary } from "@/lib/builtin-agents";
 import { AgentDescribeDialog } from "./agent-describe-dialog";
 import { AgentDialog, AgentForm, AgentIcon, type AgentModelNames, type AgentTab } from "./agent-dialog";
 import { TemplateWizard } from "./agent-template-wizard";
 
 /**
- * Settings > Agents: the workspace's agents, active or archived. Owners create them (from scratch,
- * from a template, or from a description the AI drafts them from), open one to change it, choose
- * the pages it may open and read its runs, pause, archive and restore them; members see the list.
+ * Settings > Agents: the workspace's agents shared with the viewer (every one, for owners), active
+ * or archived. Owners, and members when the workspace lets them (`creation`), create them (from
+ * scratch, from a template, or from a description the AI drafts them from). Opening one shows it;
+ * what the viewer may change in it, pause, archive and restore follows their level on it.
  */
 export function AgentsPanel({
   workspaceId,
   isOwner,
+  creation,
+  canCreate,
   agents,
   proposals = {},
   memoryOff = false,
@@ -36,9 +42,13 @@ export function AgentsPanel({
 }: {
   workspaceId: string;
   isOwner: boolean;
-  /** Archived ones too, for owners. */
+  /** Who may create agents in the workspace; owners change it here. */
+  creation: AgentCreation;
+  /** The viewer may create agents (an owner, or a member when `creation` lets members). */
+  canCreate: boolean;
+  /** Those shared with the viewer (all of them, for owners), archived ones too. */
   agents: AgentView[];
-  /** Per agent, the notes its runs proposed that wait for an owner (owners only). */
+  /** Per agent the viewer can edit, the notes its runs proposed that wait for review. */
   proposals?: Record<string, number>;
   /** The workspace's AI memory is off: runs carry no notes and keep none. */
   memoryOff?: boolean;
@@ -88,6 +98,8 @@ export function AgentsPanel({
   return (
     <div>
       <SettingsHeader title={t("heading")} description={t("description")} />
+      <CreationSetting workspaceId={workspaceId} value={creation} canEdit={isOwner} />
+      <hr className="my-6 border-border" />
       <div className="space-y-3">
         {ai !== "on" && (
           <p className="rounded-md border border-border bg-bg-subtle px-3 py-2 text-sm text-fg-muted">
@@ -95,7 +107,7 @@ export function AgentsPanel({
           </p>
         )}
         <div className="flex flex-wrap items-center gap-2">
-          {isOwner && (
+          {(isOwner || archived.length > 0) && (
             <div role="tablist" aria-label={t("heading")} className="inline-flex gap-0.5 rounded-lg bg-bg-hover p-0.5">
               <TabButton active={view === "active"} onClick={() => setView("active")}>
                 {t("tabs.active")} <span className="text-fg-faint">{active.length}</span>
@@ -105,13 +117,13 @@ export function AgentsPanel({
               </TabButton>
             </div>
           )}
-          {isOwner && ai === "on" && (
+          {canCreate && ai === "on" && (
             <Button className="ms-auto" disabled={full} onClick={() => setDescribing(true)}>
               <Sparkles className="h-3.5 w-3.5" />
               {t("describe.button")}
             </Button>
           )}
-          {isOwner && (
+          {canCreate && (
             <Button
               variant="primary"
               className={ai === "on" ? undefined : "ms-auto"}
@@ -124,7 +136,7 @@ export function AgentsPanel({
             </Button>
           )}
         </div>
-        {!isOwner && <p className="text-xs text-fg-muted">{t("ownersOnly")}</p>}
+        {!canCreate && <p className="text-xs text-fg-muted">{t("ownersOnly")}</p>}
         {error && (
           <p role="alert" className="text-xs text-danger">
             {error}
@@ -138,7 +150,6 @@ export function AgentsPanel({
                 <AgentRow
                   key={agent.id}
                   agent={agent}
-                  isOwner={isOwner}
                   proposals={proposals[agent.id] ?? 0}
                   onOpen={(tab) => setOpen({ id: agent.id, tab })}
                   onToggle={() => run(() => updateAgentAction(workspaceId, agent.id, { enabled: !agent.enabled }))}
@@ -149,14 +160,14 @@ export function AgentsPanel({
             </ul>
           ) : (
             <p className="px-4 py-8 text-center text-sm text-fg-muted">
-              {view === "archived" ? t("emptyArchived") : isOwner ? t("emptyOwner") : t("empty")}
+              {view === "archived" ? t("emptyArchived") : canCreate ? t("emptyOwner") : t("empty")}
             </p>
           )}
         </div>
         {view === "archived" && archived.length > 0 && <p className="text-xs text-fg-muted">{t("restoreHint")}</p>}
       </div>
 
-      {isOwner && templates.length > 0 && (
+      {canCreate && templates.length > 0 && (
         <SettingsGroup title={t("templates.heading")} description={t("templates.description")} className="mt-10">
           <ul className="divide-y divide-border">
             {templates.map((item) => (
@@ -184,6 +195,7 @@ export function AgentsPanel({
           <h2 className="border-b border-border px-5 py-4 text-base font-semibold">{t("form.createTitle")}</h2>
           <AgentForm
             workspaceId={workspaceId}
+            isOwner={isOwner}
             models={models}
             webSearch={webSearch}
             onDone={() => setCreating(false)}
@@ -198,6 +210,7 @@ export function AgentsPanel({
       {describing && (
         <AgentDescribeDialog
           workspaceId={workspaceId}
+          isOwner={isOwner}
           models={models}
           webSearch={webSearch}
           onClose={() => setDescribing(false)}
@@ -210,6 +223,7 @@ export function AgentsPanel({
       {opened && open && (
         <AgentDialog
           workspaceId={workspaceId}
+          isOwner={isOwner}
           agent={opened}
           tab={open.tab}
           runId={linkedRun}
@@ -254,7 +268,6 @@ export function AgentsPanel({
 
 function AgentRow({
   agent,
-  isOwner,
   proposals,
   onOpen,
   onToggle,
@@ -262,7 +275,6 @@ function AgentRow({
   onRestore,
 }: {
   agent: AgentView;
-  isOwner: boolean;
   proposals: number;
   onOpen: (tab: AgentTab) => void;
   onToggle: () => void;
@@ -272,6 +284,7 @@ function AgentRow({
   const t = useTranslations("settings.agents");
   const menu = useFloating<HTMLButtonElement>();
   const status = agent.archived ? "archived" : agent.enabled ? "active" : "paused";
+  const full = hasAgentLevel(agent.access, "full");
   const item = (label: string, action: () => void, danger = false) => (
     <MenuItem
       danger={danger}
@@ -294,14 +307,10 @@ function AgentRow({
       <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-bg-hover text-lg">
         <AgentIcon icon={agent.icon} />
       </span>
-      {isOwner ? (
-        <button type="button" onClick={() => onOpen("settings")} className="min-w-0 flex-1 text-start hover:[&>span:first-child]:underline">
-          {name}
-        </button>
-      ) : (
-        <div className="min-w-0 flex-1">{name}</div>
-      )}
-      {isOwner && proposals > 0 && (
+      <button type="button" onClick={() => onOpen("settings")} className="min-w-0 flex-1 text-start hover:[&>span:first-child]:underline">
+        {name}
+      </button>
+      {proposals > 0 && (
         <button
           type="button"
           onClick={() => onOpen("memory")}
@@ -314,32 +323,34 @@ function AgentRow({
         </button>
       )}
       <span className={cn("shrink-0 text-xs", status === "active" ? "text-fg" : "text-fg-muted")}>{t(`status.${status}`)}</span>
-      {isOwner && (
-        <>
-          <IconButton ref={menu.ref} label={t("actionsFor", { name: agent.name })} onClick={menu.toggle}>
-            <MoreHorizontal className="h-4 w-4" />
-          </IconButton>
-          <Floating anchor={menu.el} open={menu.open} onClose={menu.close} align="end" className="text-start">
-            {agent.archived ? (
+      <IconButton ref={menu.ref} label={t("actionsFor", { name: agent.name })} onClick={menu.toggle}>
+        <MoreHorizontal className="h-4 w-4" />
+      </IconButton>
+      <Floating anchor={menu.el} open={menu.open} onClose={menu.close} align="end" className="text-start">
+        {agent.archived ? (
+          <>
+            {item(t("tabs.runs"), () => onOpen("runs"))}
+            {/* Archiving and restoring take full access. */}
+            {full && item(t("restore"), onRestore)}
+          </>
+        ) : (
+          <>
+            {item(t("tabs.settings"), () => onOpen("settings"))}
+            {item(t("tabs.access"), () => onOpen("access"))}
+            {item(t("tabs.memory"), () => onOpen("memory"))}
+            {item(t("tabs.schedules"), () => onOpen("schedules"))}
+            {item(t("tabs.runs"), () => onOpen("runs"))}
+            {item(t("share.button"), () => onOpen("share"))}
+            {editsAgent(agent) && item(agent.enabled ? t("pause") : t("resume"), onToggle)}
+            {full && (
               <>
-                {item(t("tabs.runs"), () => onOpen("runs"))}
-                {item(t("restore"), onRestore)}
-              </>
-            ) : (
-              <>
-                {item(t("tabs.settings"), () => onOpen("settings"))}
-                {item(t("tabs.access"), () => onOpen("access"))}
-                {item(t("tabs.memory"), () => onOpen("memory"))}
-                {item(t("tabs.schedules"), () => onOpen("schedules"))}
-                {item(t("tabs.runs"), () => onOpen("runs"))}
-                {item(agent.enabled ? t("pause") : t("resume"), onToggle)}
                 <MenuSeparator />
                 {item(t("archive"), onArchive, true)}
               </>
             )}
-          </Floating>
-        </>
-      )}
+          </>
+        )}
+      </Floating>
     </li>
   );
 }
@@ -364,5 +375,47 @@ function ArchiveDialog({ workspaceId, agent, onClose }: { workspaceId: string; a
         </div>
       </div>
     </Dialog>
+  );
+}
+
+/** Who may create agents: owners only, or owners and members (never guests). Owners change it. */
+function CreationSetting({ workspaceId, value: initial, canEdit }: { workspaceId: string; value: AgentCreation; canEdit: boolean }) {
+  const t = useTranslations("settings.agents.creation");
+  const router = useRouter();
+  const [value, setValue] = useState(initial);
+  const { pending, error, run } = useAction();
+
+  return (
+    <div className="flex items-center gap-6">
+      <div className="min-w-0 flex-1">
+        <div className="text-sm font-medium">{t("title")}</div>
+        <div className="mt-1 text-sm text-fg-muted">
+          {error ? (
+            <span className="text-danger">{error}</span>
+          ) : (
+            <>
+              {t("description")}
+              {!canEdit && <> {t("ownersOnly")}</>}
+            </>
+          )}
+        </div>
+      </div>
+      <Switch
+        checked={value === "owners"}
+        label={t("title")}
+        disabled={!canEdit || pending}
+        onChange={(ownersOnly) => {
+          const next = ownersOnly ? "owners" : "members";
+          const previous = value;
+          setValue(next);
+          run(async () => {
+            const result = await updateWorkspaceSettingsAction(workspaceId, { agentCreation: next });
+            if (!result.ok) setValue(previous);
+            else router.refresh();
+            return result;
+          });
+        }}
+      />
+    </div>
   );
 }

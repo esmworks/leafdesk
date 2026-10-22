@@ -794,7 +794,7 @@
     "tooManyAutomations": "Um banco de dados pode ter no máximo {max} automações.",
     "invalidWebhookUrl": "“{value}” não é um endereço http(s) válido.",
     "webhookBlocked": "Os webhooks não podem ir para endereços de rede privada ou local.",
-    "agentOwnersOnly": "Só os proprietários do espaço de trabalho podem adicionar ou alterar ações que executam um agente.",
+    "agentOwnersOnly": "Só os proprietários do espaço de trabalho e quem pode editar o agente podem adicionar ou alterar ações que o executam.",
     "invalidRepeat": "Essa programação de repetição não é válida: verifique os dias, a hora e o fuso horário.",
     "tooManySchedules": "Este espaço de trabalho já tem o número máximo de modelos com repetição."
   },
@@ -1077,7 +1077,7 @@
       "createAgent": "Crie um em Configurações > Agentes.",
       "noAgentsMember": "Os proprietários do espaço de trabalho os criam em Configurações.",
       "agentTask": "Tarefa",
-      "agentOwnersOnly": "Só os proprietários do espaço de trabalho podem alterar esta ação.",
+      "agentOwnersOnly": "Só os proprietários do espaço de trabalho e quem pode editar este agente podem alterar esta ação.",
       "agentTaskPlaceholder": "O que fazer com a linha, além das instruções dele. Por exemplo: Classifique esta nova solicitação.",
       "agentAccess": "Ao salvar, {agent} recebe acesso de edição a este banco de dados.",
       "agentAccessAny": "Ao salvar, o agente recebe acesso de edição a este banco de dados."

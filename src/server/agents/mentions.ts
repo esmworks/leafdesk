@@ -1,7 +1,7 @@
 /**
- * Mentioning an agent in a comment: the @ menu of a page's comments offers the agents that may
- * comment on the page, and a member who posts a comment (a new thread or a reply) mentioning one
- * queues a run of it (`agent_run`, source `mention`). The run answers in the thread, as the agent
+ * Mentioning an agent in a comment: the @ menu of a page's comments offers the agents shared with
+ * the person (sharing.ts; any level) that may comment on the page, and a member who posts a comment
+ * (a new thread or a reply) mentioning one shared with them queues a run of it (`agent_run`, source `mention`). The run answers in the thread, as the agent
  * (server/agents/run.ts), held to the member's access as well as its own.
  *
  * Only members start runs: a guest's mention (and an agent's own reply, which never carries
@@ -16,6 +16,7 @@ import { agentRun, PAGE_LEVELS, workspaceAgent } from "@/db/schema";
 import { MAX_AGENT_PROMPT } from "@/lib/agents";
 import { searchFold } from "@/lib/search-fold";
 import { findMembership, isGuest } from "@/server/access";
+import { agentLevels } from "./sharing";
 import { requestLocale } from "@/server/mail/locale";
 import { kickAgents } from "./kick";
 import { isAgentUser } from "./users";
@@ -29,22 +30,24 @@ const COMMENT_RANK = PAGE_LEVELS.indexOf("comment");
 const commentsOn = (pageId: string) => sql`page_access_level(${workspaceAgent.userId}, ${pageId}) >= ${COMMENT_RANK}`;
 
 /**
- * The agents of the workspace a comment on the page may mention, matching `q` (folded, see
- * lib/search-fold): on, not archived, and allowed to comment on the page.
+ * The agents of the workspace `userId`'s comment on the page may mention, matching `q` (folded, see
+ * lib/search-fold): shared with them, on, not archived, and allowed to comment on the page.
  */
-export async function mentionableAgents(workspaceId: string, pageId: string, q: string): Promise<AgentCandidate[]> {
+export async function mentionableAgents(userId: string, workspaceId: string, pageId: string, q: string): Promise<AgentCandidate[]> {
   const rows = await db
-    .select({ id: workspaceAgent.userId, name: workspaceAgent.name, icon: workspaceAgent.icon })
+    .select({ agentId: workspaceAgent.id, id: workspaceAgent.userId, name: workspaceAgent.name, icon: workspaceAgent.icon })
     .from(workspaceAgent)
     .where(and(eq(workspaceAgent.workspaceId, workspaceId), isNull(workspaceAgent.archivedAt), eq(workspaceAgent.enabled, true), commentsOn(pageId)))
     .orderBy(asc(workspaceAgent.name));
-  return rows.filter((a) => !q || searchFold(a.name).includes(q));
+  const matching = rows.filter((a) => !q || searchFold(a.name).includes(q));
+  const levels = await agentLevels(userId, workspaceId, matching.map((a) => a.agentId));
+  return matching.filter((a) => levels.get(a.agentId) !== "none").map(({ id, name, icon }) => ({ id, name, icon }));
 }
 
 /**
  * Queues a run of each agent a new comment mentions (`mentioned`: the users it mentions, people and
- * agents alike) that is in the workspace, not archived and may comment on the page; an agent
- * mentioned twice runs once. Nothing when the author is a guest, not in the workspace, or an agent.
+ * agents alike) that is in the workspace, shared with the author, not archived and may comment on
+ * the page; an agent mentioned twice runs once. Nothing when the author is a guest, not in the workspace, or an agent.
  * Returns the queued runs' ids.
  */
 export async function startMentionRuns(input: {
@@ -74,12 +77,14 @@ export async function startMentionRuns(input: {
         commentsOn(input.pageId),
       ),
     );
-  if (!agents.length) return [];
+  const levels = await agentLevels(input.authorId, input.workspaceId, agents.map((a) => a.id), membership.role);
+  const shared = agents.filter((a) => levels.get(a.id) !== "none");
+  if (!shared.length) return [];
   const locale = await requestLocale();
   const queued = await db
     .insert(agentRun)
     .values(
-      agents.map((agent) => ({
+      shared.map((agent) => ({
         agentId: agent.id,
         workspaceId: input.workspaceId,
         source: { kind: "mention" as const, pageId: input.pageId, threadId: input.threadId, commentId: input.commentId, mentionedBy: input.authorId },

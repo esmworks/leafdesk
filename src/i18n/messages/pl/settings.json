@@ -297,7 +297,7 @@
   "agents": {
     "heading": "Agenci",
     "description": "Agenci to pomocnicy AI z własnymi instrukcjami. Automatyzacja uruchamia agenta na wierszach bazy danych: odczytuje on tylko to, co mu udostępniono, zmienia wiersz i komentuje go pod własną nazwą.",
-    "ownersOnly": "Tylko właściciele obszaru roboczego mogą tworzyć i zmieniać agentów.",
+    "ownersOnly": "Tylko właściciele obszaru roboczego mogą tworzyć agentów.",
     "newButton": "Nowy agent",
     "tabs": {
       "active": "Agenci",
@@ -360,7 +360,8 @@
       "helpers": "Agenci, których może poprosić",
       "helpersHelp": "Podczas uruchomienia może przekazać część zadania tym agentom, najwyżej {max} razy, i skorzystać z ich odpowiedzi. Każdy działa z własnym dostępem, narzędziami i limitami i sam nie może prosić kolejnych agentów.",
       "helpersEmpty": "W tym obszarze roboczym nie ma jeszcze innych agentów.",
-      "helperPaused": "Wstrzymany"
+      "helperPaused": "Wstrzymany",
+      "limitOwnersOnly": "Ten limit ustalają tylko właściciele obszaru roboczego."
     },
     "describe": {
       "button": "Opisz agenta",
@@ -560,7 +561,9 @@
         "limitReached": "Nie udało się poprosić agenta <agent></agent>: wyczerpał miesięczny limit tokenów"
       },
       "fromChat": "Wiadomość na czacie od {name}",
-      "chattedBy": "z czatu: {name}"
+      "chattedBy": "z czatu: {name}",
+      "yoursOnly": "Widzisz uruchomienia, które sam rozpocząłeś.",
+      "waitingForOwner": "Na to wywołanie odpowiada właściciel obszaru roboczego."
     },
     "usage": {
       "thisMonth": "W tym miesiącu: {usage}",
@@ -640,7 +643,7 @@
       "tooManySkills": "Agent może mieć najwyżej {max, plural, one {# umiejętność} few {# umiejętności} many {# umiejętności} other {# umiejętności}}.",
       "skillEditable": "„{title}” może edytować ktoś poza właścicielami obszaru roboczego. Agent przestrzega tylko umiejętności, które mogą zmieniać wyłącznie właściciele: najpierw ogranicz, kto może edytować stronę.",
       "notASkill": "Ta strona nie jest umiejętnością.",
-      "accessDenied": "Tylko właściciele obszaru roboczego mogą zmieniać agentów.",
+      "accessDenied": "Nie masz uprawnień, aby to zrobić.",
       "reasons": {
         "name": "Nadaj agentowi nazwę.",
         "icon": "Ikona agenta to emoji.",
@@ -655,7 +658,8 @@
         "task": "Napisz zadanie wykonywane przy każdym uruchomieniu.",
         "taskLength": "Zadanie może mieć najwyżej 2000 znaków.",
         "repeat": "Sprawdź, kiedy się powtarza, i strefę czasową.",
-        "helpers": "Wybierz najwyżej 10 innych, niezarchiwizowanych agentów tego obszaru roboczego."
+        "helpers": "Wybierz najwyżej 10 innych, niezarchiwizowanych agentów tego obszaru roboczego.",
+        "shareLevel": "Wybierz pełny dostęp, może edytować lub może wyświetlać i używać."
       },
       "noteEmpty": "Napisz, co agent ma zapamiętać.",
       "noteTooLong": "Notatka może mieć najwyżej {max, plural, one {# znak} few {# znaki} many {# znaków} other {# znaku}}.",
@@ -669,14 +673,19 @@
       "notADatabase": "Wybierz bazę danych z tego obszaru roboczego, którą możesz otworzyć.",
       "tooManySchedules": "Nie ma miejsca na kolejny harmonogram (najwyżej {max}).",
       "scheduleNotFound": "Ten harmonogram już nie istnieje.",
-      "versionNotFound": "Ta wersja już nie istnieje."
+      "versionNotFound": "Ta wersja już nie istnieje.",
+      "notAllowed": "Twój dostęp do tego agenta na to nie pozwala.",
+      "ownersOnly": "Miesięczny limit tokenów agenta zmieniają tylko właściciele obszaru roboczego.",
+      "notAMember": "Agenta można udostępnić tylko właścicielom, członkom i grupom obszaru roboczego."
     },
     "connections": {
       "description": "Narzędzia każdego połączenia, których ten agent może używać. Narzędzia tylko do odczytu działają od razu, chyba że w wierszu z anonimowej odpowiedzi z formularza; każde inne czeka na zatwierdzenie właściciela za każdym razem, gdy agent je wywołuje.",
       "empty": "Brak połączeń. Właściciele dodają je w sekcji <link>Ustawienia › Połączenia</link>.",
       "allowedCount": "Dozwolone: {n} z {total}",
       "notReady": "To połączenie nie jest gotowe (wymaga zalogowania lub nie działa), więc agent na razie nie może używać jego narzędzi.",
-      "noTools": "Brak wymienionych narzędzi."
+      "noTools": "Brak wymienionych narzędzi.",
+      "ownersChoose": "Narzędzia każdego połączenia, z których ten agent może korzystać. Wybierają je tylko właściciele obszaru roboczego.",
+      "none": "Ten agent nie może korzystać z narzędzi żadnego połączenia."
     },
     "schedules": {
       "description": "Pozwól temu agentowi działać samodzielnie według harmonogramu: każde uruchomienie wykonuje zadanie, w wybranej bazie danych, jeśli ją wskazano, a raport trafia do twojej skrzynki odbiorczej. Jego uruchomienia mogą otwierać tylko to, co ty możesz otworzyć.",
@@ -797,6 +806,40 @@
         "skillEditable": "może ją edytować ktoś poza właścicielami",
         "tooMany": "brakuje na nią miejsca"
       }
+    },
+    "share": {
+      "levels": {
+        "full": "Pełny dostęp",
+        "edit": "Może edytować",
+        "interact": "Może wyświetlać i używać",
+        "none": "Brak dostępu"
+      },
+      "button": "Udostępnij",
+      "description": "Kto może korzystać z tego agenta i co może z nim robić.",
+      "levelHelp": {
+        "full": "Wszystko, w tym udostępnianie i archiwizowanie",
+        "edit": "Zmiana ustawień, stron, umiejętności, pamięci i harmonogramów",
+        "interact": "Wyświetlanie, czatowanie i wspominanie w komentarzach"
+      },
+      "add": "Dodaj osoby lub grupy",
+      "noMatches": "Brak wyników.",
+      "list": "Udostępniono",
+      "owners": "Właściciele obszaru roboczego",
+      "ownersHint": "Zawsze mają pełny dostęp",
+      "everyone": "Wszyscy w obszarze roboczym",
+      "everyoneHint": "Właściciele i członkowie, bez gości",
+      "levelFor": "Dostęp: {name}",
+      "remove": "Usuń: {name}",
+      "readOnly": "Tylko osoby z pełnym dostępem zmieniają, komu udostępniono tego agenta.",
+      "archived": "Przywróć agenta, aby zmienić, komu jest udostępniony.",
+      "ownersKeep": "Z jakich narzędzi połączeń może korzystać i jego miesięczny limit tokenów nadal ustalają właściciele obszaru roboczego.",
+      "groupMembers": "{count, plural, =0 {Grupa bez członków} one {Grupa: # członek} few {Grupa: # członków} many {Grupa: # członków} other {Grupa: # członka}}"
+    },
+    "viewOnly": "Możesz wyświetlać tego agenta, czatować z nim i go wspominać. Aby go zmienić, poproś kogoś, kto może go edytować.",
+    "creation": {
+      "title": "Tylko właściciele obszaru roboczego mogą tworzyć agentów",
+      "description": "Wyłączone: członkowie też mogą tworzyć agentów i mają pełny dostęp do tych, które utworzą. Goście nigdy.",
+      "ownersOnly": "Tylko właściciele obszaru roboczego mogą to zmienić."
     }
   },
   "analytics": {
@@ -1415,7 +1458,8 @@
       "allowedDomains": "Dozwolone domeny e-mail",
       "domainJoin": "Gdy ktoś z tych domen się zaloguje",
       "joinRequests": "Kto może prosić o dołączenie",
-      "email": "E-maile w wierszach"
+      "email": "E-maile w wierszach",
+      "agentCreation": "Kto może tworzyć agentów"
     },
     "values": {
       "on": "Włączone",
@@ -1549,7 +1593,9 @@
         "archived": "Zarchiwizowano agenta „{target}”",
         "run_requested": "Zlecono uruchomienie agenta „{target}”",
         "schedule_set": "Ustawiono harmonogram agenta „{target}”",
-        "schedule_removed": "Usunięto harmonogram agenta „{target}”"
+        "schedule_removed": "Usunięto harmonogram agenta „{target}”",
+        "shared": "Ustawiono dostęp do agenta „{target}” ({subject}): {level}",
+        "unshared": "Usunięto z udostępniania agenta „{target}”: {subject}"
       },
       "connection": {
         "created": "Dodano połączenie „{target}”",
@@ -1585,6 +1631,11 @@
     "outcomes": {
       "done": "gotowe",
       "failed": "niepowodzenie"
+    },
+    "agentLevels": {
+      "full": "Pełny dostęp",
+      "edit": "Może edytować",
+      "interact": "Może wyświetlać i używać"
     }
   },
   "notifications": {
