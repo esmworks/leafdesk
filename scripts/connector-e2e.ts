@@ -57,6 +57,7 @@ const { startFakeOpenAi, textOf } = await import("@/server/ai/fake-openai");
 type FakeChatRequest = import("@/server/ai/fake-openai").FakeChatRequest;
 type FakeReply = import("@/server/ai/fake-openai").FakeReply;
 const agents = await import("@/server/agents/manage");
+const { removeAgentShare, setAgentShare } = await import("@/server/agents/sharing");
 const { flushAgentRuns, processRun, queueAgentRun } = await import("@/server/agents/run");
 const { createPage } = await import("@/server/pages");
 const { createRows } = await import("@/server/databases");
@@ -668,7 +669,24 @@ try {
   check(keyedMcp.includes("ghp_[redacted]") && !JSON.stringify(keyedViews).includes(leakedToken), "the agent's runs over MCP, which can't approve, show it masked too", keyedMcp.slice(0, 600));
   const keyedExact = (await agents.listAgentRuns(ids.owner, agent.id, undefined, { exact: true })).find((v) => v.id === keyed.id);
   check((keyedExact?.pending?.arguments as { title?: string } | undefined)?.title === keyedTitle, "the agent's runs in the app, where owners approve, show the call exactly as it will be sent", keyedExact?.pending);
-  check(await fails(agents.listAgentRuns(ids.member, agent.id, undefined, { exact: true }), (e) => e instanceof Error), "members can't see it");
+  // Shared with everyone at "view & interact", members list only the runs they started themselves.
+  const memberRuns = await agents.listAgentRuns(ids.member, agent.id, undefined, { exact: true });
+  check(
+    !memberRuns.some((v) => v.id === keyed.id) && !JSON.stringify(memberRuns).includes(keyedTitle) && !JSON.stringify(memberRuns).includes("ghp_"),
+    "members can't see it",
+    memberRuns,
+  );
+  // One who may edit the agent lists all its runs, but an event's run is the owners': what it read
+  // and the call it waits on stay theirs.
+  await setAgentShare(ids.owner, agent.id, { kind: "person", userId: ids.member }, "edit");
+  const editorRuns = await agents.listAgentRuns(ids.member, agent.id, undefined, { exact: true });
+  const editorView = editorRuns.find((v) => v.id === keyed.id);
+  check(
+    editorView?.status === "awaiting_approval" && editorView.pending === null && editorView.steps.length === 0 && editorView.answer === "" && !JSON.stringify(editorRuns).includes("ghp_"),
+    "…nor does a member who may edit the agent: the event's run shows only how it stands",
+    editorView,
+  );
+  await removeAgentShare(ids.owner, agent.id, { kind: "person", userId: ids.member });
   await decideApproval(ids.owner, { runId: keyed.id, callId: keyed.pending!.callId, decision: "approve" });
   await flushAgentRuns();
   keyed = await runOf(keyed.id);

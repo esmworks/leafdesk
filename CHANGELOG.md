@@ -336,6 +336,10 @@
 
 ### Fixed
 
+- **A connection event's agent run stays with the workspace's owners.** Since agents can be shared,
+  a member who may edit an agent lists all its runs; for a run a connection's event started, they
+  also saw the call it waited on (its tool and input, credentials masked) and what it read and
+  answered. Such a run is the owners', as its approvals are: others now see only how it stands.
 - **The Windows desktop app installs in minutes, not an hour.** The installer unpacked the app into
   a temporary folder and then copied its thousands of files one by one into place, and antivirus
   software scanned each file on both writes, so the progress bar could sit for up to an hour. It
