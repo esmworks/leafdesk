@@ -9,11 +9,12 @@ import type { ActivityValue } from "./row-activity";
  */
 
 /**
- * What a proposal would do: add a row to a database, change a row's title or values, or send an
- * email from someone's own mailbox on a row (server/row-mail). Stored as its string: add kinds,
- * never rename one.
+ * What a proposal would do: add a row to a database, change a row's title or values, send an
+ * email from someone's own mailbox on a row (server/row-mail), or let an automation's run go on
+ * past an approval step (server/automations/approval.ts). Stored as its string: add kinds, never
+ * rename one.
  */
-export const PENDING_CHANGE_KINDS = ["create_row", "update_row", "email_draft"] as const;
+export const PENDING_CHANGE_KINDS = ["create_row", "update_row", "email_draft", "automation_approval"] as const;
 export type PendingChangeKind = (typeof PENDING_CHANGE_KINDS)[number];
 
 /**
@@ -48,7 +49,27 @@ export type RowChangePayload = { title?: string; properties: Record<string, unkn
  */
 export type EmailDraftPayload = { to: string[]; cc: string[]; subject: string; text: string; replyTo: string | null };
 
-export type PendingChangePayload = RowChangePayload | EmailDraftPayload;
+/**
+ * An automation's run waiting at an approval step: the message as rendered for the run, who may
+ * answer (only they), and what the steps after it do in the version the run is pinned to.
+ */
+export type ApprovalPayload = {
+  stepId: string;
+  automationName: string;
+  version: number;
+  message: string;
+  approverIds: string[];
+  nextSteps: ApprovalNextStep[];
+  onTimeout: "stop" | "continue";
+};
+
+/**
+ * One step after an approval, as a short line: its type, and what it is about (property names, a
+ * database's title, people's names, a host, minutes, a message), resolved when the run asked.
+ */
+export type ApprovalNextStep = { id: string; type: string; detail?: string; forEach?: string };
+
+export type PendingChangePayload = RowChangePayload | EmailDraftPayload | ApprovalPayload;
 
 /** What a row change touches, as the row had it when proposed: to show what it changes, and to see whether the row changed since. */
 export type RowChangeBefore = { title?: string; properties: Record<string, unknown> };
@@ -99,6 +120,8 @@ export type PendingChangeView = {
   markdown: string | null;
   /** Email drafts: the message, and whose mailbox it goes out from. */
   email: (EmailDraftPayload & { sender: { id: string; name: string } }) | null;
+  /** An automation's approval: its run, who may answer, and what the steps after it do. */
+  approval: ApprovalView | null;
   /** A reviewer changed what was proposed. */
   edited: boolean;
   /** Some value changed in the row since the proposal. */
@@ -110,6 +133,22 @@ export type PendingChangeView = {
   decidedAt: string | null;
   decidedBy: { id: string; name: string } | null;
 };
+
+/** An automation's approval as the queue shows it (`runPath` only for those who see the automation's runs). */
+export type ApprovalView = {
+  automation: { id: string; name: string } | null;
+  runId: string | null;
+  runPath: string | null;
+  version: number;
+  message: string;
+  approvers: { id: string; name: string }[];
+  nextSteps: ApprovalNextStep[];
+  onTimeout: "stop" | "continue";
+};
+
+/** Where an automation's run shows: its database, with the automation's history open at the run. */
+export const automationRunPath = (workspaceId: string, databaseId: string, automationId: string, runId: string) =>
+  `/w/${workspaceId}/p/${databaseId}?automation=${encodeURIComponent(automationId)}&run=${encodeURIComponent(runId)}`;
 
 /** What the queue is narrowed to (nothing: everything waiting that the viewer can see). */
 export type PendingChangeFilter = { agentId?: string | null; databaseId?: string | null; rowId?: string | null };

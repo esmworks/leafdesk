@@ -1030,7 +1030,8 @@
       "runAgent": "运行 {agent}",
       "archivedAgent": "一个已归档的智能体",
       "trash": "移到回收站",
-      "setEach": "设置找到的行"
+      "setEach": "设置找到的行",
+      "approval": "询问 {people}"
     },
     "form": {
       "name": "名称",
@@ -1070,7 +1071,8 @@
         "create_row": "添加一行",
         "upsert_row": "添加或更新一行",
         "wait": "等待",
-        "log": "写入运行记录"
+        "log": "写入运行记录",
+        "approval": "请求审批"
       },
       "trashHelp": "将该行移到回收站，在回收站清空之前都可以从中恢复。此操作之后不能再运行任何操作。",
       "addAction": "添加操作",
@@ -1127,7 +1129,9 @@
         "badCron": "cron 表达式无效。",
         "neverRuns": "此计划永远不会到来。",
         "badExample": "示例正文不是有效的 JSON。",
-        "exampleTooLong": "示例正文太长。"
+        "exampleTooLong": "示例正文太长。",
+        "needApprovers": "选择要询问的人。",
+        "needTimeout": "输入 1 到 30 之间的整数天数。"
       },
       "agent": "智能体",
       "chooseAgent": "选择智能体…",
@@ -1191,13 +1195,15 @@
         "pending": "等待中",
         "running": "运行中",
         "done": "已完成",
-        "failed": "失败"
+        "failed": "失败",
+        "stopped": "已停止"
       },
       "stepStatus": {
         "pending": "等待中",
         "done": "已完成",
         "failed": "失败",
-        "skipped": "已跳过"
+        "skipped": "已跳过",
+        "stopped": "已停止"
       },
       "notified": "已通知 {count} 人",
       "attempts": "尝试 {count} 次",
@@ -1241,7 +1247,20 @@
         "changed": "自动化已更改",
         "tooManyAttempts": "尝试次数过多",
         "disabled": "自动化已关闭",
-        "rowGone": "行已不存在"
+        "rowGone": "行已不存在",
+        "noApprovers": "没有可询问的人",
+        "rejected": "已拒绝",
+        "timedOut": "无人按时回复"
+      },
+      "waitingApproval": "等待审批",
+      "approval": {
+        "wouldAsk": "测试运行：将询问 {names}",
+        "approved": "{name} 已批准，{time}",
+        "rejected": "{name} 已拒绝，{time}：运行已停止",
+        "timedOut": "截至 {time} 无人回复：运行已停止",
+        "timedOutContinued": "截至 {time} 无人回复：运行已继续",
+        "waiting": "已询问 {names}，截至 {time}",
+        "closed": "已询问 {names}；运行在回复前已结束"
       }
     },
     "nextRun": "下次运行 {time}",
@@ -1367,7 +1386,9 @@
       "until": "等待到",
       "notified": "已通知的成员",
       "agentRunId": "智能体运行 ID",
-      "rowId": "行 ID"
+      "rowId": "行 ID",
+      "approvedBy": "批准人",
+      "answeredAt": "回复时间"
     },
     "test": {
       "title": "测试运行",
@@ -1383,6 +1404,36 @@
       "run": "运行测试",
       "saveAndRun": "保存并运行",
       "starting": "正在启动…"
+    },
+    "approval": {
+      "people": "询问这些人",
+      "personProperties": "行中这些属性里的人",
+      "message": "消息",
+      "messagePlaceholder": "例如：可以关闭 {template} 吗？",
+      "timeout": "回复期限（天）",
+      "onTimeout": "如果无人按时回复",
+      "timeoutStop": "停止运行",
+      "timeoutContinue": "继续后面的步骤",
+      "help": "运行会一直等待，直到其中一人在“待审阅”中回复：批准则继续后面的步骤，拒绝则停止运行。最多 {max} 天。后面的步骤可以使用批准人：{template}。"
+    },
+    "gallery": {
+      "title": "从模板开始",
+      "use": "使用",
+      "approveBeforeClosing": {
+        "name": "关闭前请求审批",
+        "description": "当一行进入审核时，由行中指定的人批准，然后标记为已关闭。",
+        "message": "可以关闭 {title} 吗？"
+      },
+      "notifyAssignee": {
+        "name": "通知被分配的人",
+        "description": "当一行的人员属性变化时，通知其中的人。",
+        "message": "你被分配了 {title}。"
+      },
+      "remindOverdue": {
+        "name": "提醒逾期的行",
+        "description": "未完成的行日期过去一天后，通知该行的人。",
+        "message": "{title} 已逾期。"
+      }
     }
   },
   "subItems": {

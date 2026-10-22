@@ -1,7 +1,7 @@
 {
   "metaTitle": "Zu prüfen",
   "heading": "Zu prüfen",
-  "description": "Änderungen, die Agenten vorgeschlagen haben, statt sie vorzunehmen. Gib eine frei, um sie in deinem Namen vorzunehmen, bearbeite sie vorher oder verwirf sie. Vorschläge, die niemand beantwortet, laufen nach 30 Tagen ab.",
+  "description": "Änderungen, die Agenten vorgeschlagen haben, statt sie vorzunehmen, und Automatisierungen, die auf eine Freigabe warten. Gib eine Änderung frei, um sie in deinem Namen vorzunehmen, bearbeite sie vorher oder verwirf sie; gib eine Automatisierung frei, damit ihre Ausführung weitergeht, oder lehne sie ab, um sie zu beenden. Vorschläge, die niemand beantwortet, laufen nach 30 Tagen ab.",
   "filters": {
     "agent": "Agent",
     "database": "Datenbank",
@@ -28,7 +28,9 @@
   "proposes": {
     "createRow": "<agent></agent> möchte eine Zeile zu <database></database> hinzufügen",
     "updateRow": "<agent></agent> möchte <row></row> ändern",
-    "emailDraft": "<agent></agent> hat eine E-Mail zu <row></row> entworfen"
+    "emailDraft": "<agent></agent> hat eine E-Mail zu <row></row> entworfen",
+    "automationApproval": "<automation></automation> bittet um Freigabe für <row></row>",
+    "automationApprovalNoRow": "<automation></automation> bittet um Freigabe"
   },
   "inDatabase": "in <database></database>",
   "unknownAgent": "Ein gelöschter Agent",
@@ -39,7 +41,9 @@
   "decided": {
     "approved": "Freigegeben von {name} {time}",
     "dismissed": "Verworfen von {name} {time}",
-    "expired": "Unbeantwortet abgelaufen"
+    "expired": "Unbeantwortet abgelaufen",
+    "rejected": "Abgelehnt von {name} {time}",
+    "timedOut": "Niemand hat rechtzeitig geantwortet"
   },
   "title": "Titel",
   "becomes": "wird zu",
@@ -70,7 +74,8 @@
   "dismiss": "Verwerfen",
   "cannot": {
     "email": "Nur {name} kann diesen Entwurf senden, aus dem eigenen Postfach.",
-    "row": "Du kannst diese Änderung sehen, aber zum Freigeben brauchst du Bearbeitungszugriff auf die Zeile und auf jeden Wert, den sie setzt."
+    "row": "Du kannst diese Änderung sehen, aber zum Freigeben brauchst du Bearbeitungszugriff auf die Zeile und auf jeden Wert, den sie setzt.",
+    "approval": "Nur die Personen, die die Automatisierung fragt, können das freigeben oder ablehnen."
   },
   "errors": {
     "notFound": "Diese Änderung gibt es nicht mehr, oder du kannst sie nicht sehen.",
@@ -84,5 +89,15 @@
     "bar": "{count, plural, one {# Änderung wartet auf Prüfung} other {# Änderungen warten auf Prüfung}}",
     "by": "vorgeschlagen von {names}",
     "open": "Prüfen"
+  },
+  "unknownAutomation": "Eine gelöschte Automatisierung",
+  "reject": "Ablehnen",
+  "approval": {
+    "next": "Wenn freigegeben, dann:",
+    "nothingNext": "Wenn freigegeben, endet die Ausführung: danach kommen keine Schritte mehr.",
+    "forEach": "für jede Zeile aus {step}",
+    "approvers": "Fragt {names}",
+    "timeoutStop": "Antwortet niemand rechtzeitig, wird die Ausführung beendet.",
+    "timeoutContinue": "Antwortet niemand rechtzeitig, geht die Ausführung weiter."
   }
 }

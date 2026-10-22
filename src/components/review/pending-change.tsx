@@ -1,8 +1,8 @@
 "use client";
 
-import { AlertTriangle, ArrowRight, Check, Pencil, X } from "lucide-react";
+import { AlertTriangle, ArrowRight, Check, Pencil, X, Zap } from "lucide-react";
 import Link from "next/link";
-import { useLocale, useTranslations } from "next-intl";
+import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { approvePendingChangeAction, dismissPendingChangeAction, editPendingChangeAction } from "@/app/actions/review";
 import { Value } from "@/components/database/row-activity";
@@ -46,6 +46,16 @@ export function AgentBadge({ agent, size = "md" }: { agent: PendingChangeView["a
   );
 }
 
+/** What proposed a change in a round badge: the agent's emoji or initial, or an automation's mark. */
+export function ChangeBadge({ change, size = "md" }: { change: PendingChangeView; size?: "sm" | "md" }) {
+  if (change.kind !== "automation_approval") return <AgentBadge agent={change.agent} size={size} />;
+  return (
+    <span aria-hidden className={cn("flex shrink-0 items-center justify-center rounded-full bg-bg-active text-fg-muted", size === "sm" ? "h-5 w-5" : "h-7 w-7")}>
+      <Zap className={size === "sm" ? "h-3 w-3" : "h-3.5 w-3.5"} />
+    </span>
+  );
+}
+
 /** "Agent wants to change Row": who proposed what, with links to the row and database. */
 export function ChangeHeadline({ change, workspaceId, showDatabase = true }: { change: PendingChangeView; workspaceId: string; showDatabase?: boolean }) {
   const t = useTranslations("review");
@@ -54,6 +64,7 @@ export function ChangeHeadline({ change, workspaceId, showDatabase = true }: { c
   const link = "font-medium text-fg hover:underline";
   const tags = {
     agent: () => <bdi className={strong}>{change.agent?.name ?? t("unknownAgent")}</bdi>,
+    automation: () => <bdi className={strong}>{change.approval?.automation?.name ?? t("unknownAutomation")}</bdi>,
     row: () =>
       change.row ? (
         <Link href={`/w/${workspaceId}/p/${change.row.id}`} className={link}>
@@ -71,7 +82,16 @@ export function ChangeHeadline({ change, workspaceId, showDatabase = true }: { c
     ),
   };
   // An approved new row has its row: it reads as the row it became.
-  const key = change.kind === "create_row" ? "createRow" : change.kind === "email_draft" ? "emailDraft" : "updateRow";
+  const key =
+    change.kind === "create_row"
+      ? "createRow"
+      : change.kind === "email_draft"
+        ? "emailDraft"
+        : change.kind === "automation_approval"
+          ? change.row
+            ? "automationApproval"
+            : "automationApprovalNoRow"
+          : "updateRow";
   return (
     <span>
       {t.rich(`proposes.${key}`, tags)}
@@ -94,16 +114,25 @@ export function ChangeMeta({ change, workspaceId }: { change: PendingChangeView;
       </Link>,
     );
   }
+  if (change.approval?.runPath) {
+    parts.push(
+      <Link key="run" href={change.approval.runPath} className="hover:text-fg hover:underline">
+        {t("viewRun")}
+      </Link>,
+    );
+  }
   if (change.edited) parts.push(<span key="edited">{t("edited")}</span>);
   if (change.status === "pending") parts.push(<span key="exp">{t("expires", { time: ago(change.expiresAt) })}</span>);
   if (change.status === "approved" || change.status === "dismissed") {
+    // A dismissed approval stopped its run: it reads as rejected.
+    const how = change.kind === "automation_approval" && change.status === "dismissed" ? "rejected" : change.status;
     parts.push(
       <span key="decided">
-        {t(`decided.${change.status}`, { name: change.decidedBy?.name ?? t("someone"), time: ago(change.decidedAt ?? change.createdAt) })}
+        {t(`decided.${how}`, { name: change.decidedBy?.name ?? t("someone"), time: ago(change.decidedAt ?? change.createdAt) })}
       </span>,
     );
   }
-  if (change.status === "expired") parts.push(<span key="expired">{t("decided.expired")}</span>);
+  if (change.status === "expired") parts.push(<span key="expired">{t(change.kind === "automation_approval" ? "decided.timedOut" : "decided.expired")}</span>);
   return (
     <span className="flex flex-wrap items-center gap-x-1.5 text-xs text-fg-muted">
       {parts.map((p, i) => (
@@ -196,6 +225,47 @@ export function EmailPreview({ email }: { email: NonNullable<PendingChangeView["
         {email.replyTo && <p className="text-xs text-fg-muted">{t("reply")}</p>}
       </div>
       <p className="max-h-72 overflow-y-auto px-3 py-2 whitespace-pre-wrap">{email.text}</p>
+    </div>
+  );
+}
+
+/**
+ * An automation's approval: its message, who may answer, and what approving lets the run do next
+ * (the steps after it in the version the run is pinned to), and what happens without an answer.
+ */
+export function ApprovalPreview({ approval }: { approval: NonNullable<PendingChangeView["approval"]> }) {
+  const t = useTranslations("review.approval");
+  const tType = useTranslations("database.automations.form.actionType");
+  const format = useFormatter();
+  const detail = (s: (typeof approval.nextSteps)[number]) =>
+    s.type === "wait" && s.detail ? format.number(Number(s.detail), { style: "unit", unit: "minute", unitDisplay: "long" }) : s.detail;
+  return (
+    <div className="space-y-2 text-sm">
+      {approval.message && <p className="border-s-2 border-border ps-3 whitespace-pre-wrap text-fg-muted">{approval.message}</p>}
+      <div className="rounded-md border border-border">
+        <p className="border-b border-border px-3 py-1.5 text-xs text-fg-muted">
+          {approval.nextSteps.length ? t("next") : t("nothingNext")}
+        </p>
+        {approval.nextSteps.length > 0 && (
+          <ol className="space-y-1 px-3 py-2">
+            {approval.nextSteps.map((s) => (
+              <li key={s.id} className="flex min-w-0 items-baseline gap-2">
+                <span className="shrink-0 font-medium">{tType.has(s.type as never) ? tType(s.type as never) : s.type}</span>
+                {(s.detail || s.forEach) && (
+                  <span className="min-w-0 truncate text-fg-muted">
+                    {[detail(s), s.forEach ? t("forEach", { step: s.forEach }) : null].filter(Boolean).join(" · ")}
+                  </span>
+                )}
+              </li>
+            ))}
+          </ol>
+        )}
+      </div>
+      <p className="text-xs text-fg-muted">
+        {t("approvers", { names: format.list(approval.approvers.map((a) => a.name || "?"), { type: "disjunction" }) })}
+        {" · "}
+        {approval.onTimeout === "continue" ? t("timeoutContinue") : t("timeoutStop")}
+      </p>
     </div>
   );
 }
@@ -351,10 +421,13 @@ export function ChangeBody({
   }
 
   const approveLabel = change.kind === "email_draft" ? t("send") : change.conflict ? t("approveAnyway") : t("approve");
+  const approval = change.approval;
   return (
     <div className="space-y-3">
-      {change.reason && <p className="border-s-2 border-border ps-3 text-sm text-fg-muted">{change.reason}</p>}
-      {edit ? (
+      {change.reason && !approval && <p className="border-s-2 border-border ps-3 text-sm text-fg-muted">{change.reason}</p>}
+      {approval ? (
+        <ApprovalPreview approval={approval} />
+      ) : edit ? (
         <EditForm change={change} edit={edit} onChange={setEdit} />
       ) : change.email ? (
         <EmailPreview email={change.email} />
@@ -382,7 +455,12 @@ export function ChangeBody({
             <Button size="sm" variant="primary" disabled={busy} onClick={() => act("approve")}>
               <Check className="h-3.5 w-3.5" /> {approveLabel}
             </Button>
-            {edit ? (
+            {approval ? (
+              // An approval can't be edited: it is approved (the run goes on) or rejected (it stops).
+              <Button size="sm" variant="ghost" disabled={busy} onClick={() => act("dismiss")}>
+                <X className="h-3.5 w-3.5" /> {t("reject")}
+              </Button>
+            ) : edit ? (
               <>
                 <Button size="sm" variant="secondary" disabled={busy} onClick={() => act("save")}>
                   {t("save")}
@@ -404,7 +482,11 @@ export function ChangeBody({
           </div>
         ) : (
           <p className="text-xs text-fg-muted">
-            {change.kind === "email_draft" ? t("cannot.email", { name: change.email?.sender.name ?? t("someone") }) : t("cannot.row")}
+            {change.kind === "email_draft"
+              ? t("cannot.email", { name: change.email?.sender.name ?? t("someone") })
+              : approval
+                ? t("cannot.approval")
+                : t("cannot.row")}
           </p>
         ))}
     </div>

@@ -1,7 +1,7 @@
 {
   "metaTitle": "確認待ち",
   "heading": "確認待ち",
-  "description": "エージェントが実行する代わりに提案した変更です。承認するとあなたの名前で反映されます。先に編集することも、却下することもできます。誰も対応しない提案は30日後に期限切れになります。",
+  "description": "エージェントが実行する代わりに提案した変更と、承認を待っているオートメーションです。変更は承認するとあなたの名前で反映され、先に編集することも、却下することもできます。オートメーションは承認すると実行が続き、却下すると停止します。誰も対応しない提案は30日後に期限切れになります。",
   "filters": {
     "agent": "エージェント",
     "database": "データベース",
@@ -28,7 +28,9 @@
   "proposes": {
     "createRow": "<agent></agent>が<database></database>に行を追加しようとしています",
     "updateRow": "<agent></agent>が<row></row>を変更しようとしています",
-    "emailDraft": "<agent></agent>が<row></row>でメールを下書きしました"
+    "emailDraft": "<agent></agent>が<row></row>でメールを下書きしました",
+    "automationApproval": "<automation></automation>が<row></row>の承認を依頼しています",
+    "automationApprovalNoRow": "<automation></automation>が承認を依頼しています"
   },
   "inDatabase": "<database></database>内",
   "unknownAgent": "削除されたエージェント",
@@ -39,7 +41,9 @@
   "decided": {
     "approved": "{name}が{time}に承認",
     "dismissed": "{name}が{time}に却下",
-    "expired": "未対応のまま期限切れ"
+    "expired": "未対応のまま期限切れ",
+    "rejected": "{name}が{time}に却下",
+    "timedOut": "期限までに誰も回答しませんでした"
   },
   "title": "タイトル",
   "becomes": "変更後",
@@ -70,7 +74,8 @@
   "dismiss": "却下",
   "cannot": {
     "email": "この下書きは{name}さんだけが、自分のメールボックスから送信できます。",
-    "row": "この変更は表示できますが、承認するには行と、変更が設定する各値の編集権限が必要です。"
+    "row": "この変更は表示できますが、承認するには行と、変更が設定する各値の編集権限が必要です。",
+    "approval": "承認または却下できるのは、オートメーションが依頼したユーザーだけです。"
   },
   "errors": {
     "notFound": "この変更はもう存在しないか、表示する権限がありません。",
@@ -84,5 +89,15 @@
     "bar": "{count, plural, other {確認待ちの変更：#件}}",
     "by": "提案：{names}",
     "open": "確認"
+  },
+  "unknownAutomation": "削除されたオートメーション",
+  "reject": "却下",
+  "approval": {
+    "next": "承認すると次に実行：",
+    "nothingNext": "承認すると実行は終了します。この後のステップはありません。",
+    "forEach": "{step}の各行に対して",
+    "approvers": "依頼先：{names}",
+    "timeoutStop": "期限までに誰も回答しないと、実行は停止します。",
+    "timeoutContinue": "期限までに誰も回答しないと、実行は続行します。"
   }
 }

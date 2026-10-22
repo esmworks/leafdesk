@@ -1030,7 +1030,8 @@
       "runAgent": "Esegui {agent}",
       "archivedAgent": "un agente archiviato",
       "trash": "Sposta nel cestino",
-      "setEach": "Imposta sulle righe trovate"
+      "setEach": "Imposta sulle righe trovate",
+      "approval": "Chiedi a {people}"
     },
     "form": {
       "name": "Nome",
@@ -1070,7 +1071,8 @@
         "create_row": "Aggiungi una riga",
         "upsert_row": "Aggiungi o aggiorna una riga",
         "wait": "Attendi",
-        "log": "Scrivi nella cronologia delle esecuzioni"
+        "log": "Scrivi nella cronologia delle esecuzioni",
+        "approval": "Chiedi approvazione"
       },
       "trashHelp": "Sposta la riga nel cestino, da cui può essere ripristinata finché il cestino non viene svuotato. Dopo questa azione non può essere eseguito nient’altro.",
       "addAction": "Aggiungi azione",
@@ -1127,7 +1129,9 @@
         "badCron": "L’espressione cron non è valida.",
         "neverRuns": "Questa pianificazione non arriva mai.",
         "badExample": "Il corpo di esempio non è JSON valido.",
-        "exampleTooLong": "Il corpo di esempio è troppo lungo."
+        "exampleTooLong": "Il corpo di esempio è troppo lungo.",
+        "needApprovers": "Scegli a chi chiedere.",
+        "needTimeout": "Inserisci un numero intero di giorni tra 1 e 30."
       },
       "agent": "Agente",
       "chooseAgent": "Scegli un agente…",
@@ -1191,13 +1195,15 @@
         "pending": "In attesa",
         "running": "In esecuzione",
         "done": "Completata",
-        "failed": "Non riuscita"
+        "failed": "Non riuscita",
+        "stopped": "Fermata"
       },
       "stepStatus": {
         "pending": "in attesa",
         "done": "completato",
         "failed": "non riuscito",
-        "skipped": "saltato"
+        "skipped": "saltato",
+        "stopped": "fermata"
       },
       "notified": "{count, plural, one {# persona avvisata} other {# persone avvisate}}",
       "attempts": "{count, plural, one {# tentativo} other {# tentativi}}",
@@ -1241,7 +1247,20 @@
         "changed": "L’automazione è cambiata",
         "tooManyAttempts": "Troppi tentativi",
         "disabled": "L’automazione è stata disattivata",
-        "rowGone": "La riga non esiste più"
+        "rowGone": "La riga non esiste più",
+        "noApprovers": "Nessuno a cui chiedere",
+        "rejected": "Rifiutata",
+        "timedOut": "Nessuno ha risposto in tempo"
+      },
+      "waitingApproval": "In attesa di approvazione",
+      "approval": {
+        "wouldAsk": "Esecuzione di prova: chiederebbe a {names}",
+        "approved": "Approvata da {name}, {time}",
+        "rejected": "Rifiutata da {name}, {time}: l’esecuzione si è fermata",
+        "timedOut": "Nessuno ha risposto entro {time}: l’esecuzione si è fermata",
+        "timedOutContinued": "Nessuno ha risposto entro {time}: l’esecuzione è proseguita",
+        "waiting": "Chiesto a {names}, fino a {time}",
+        "closed": "Chiesto a {names}; l’esecuzione è finita prima di una risposta"
       }
     },
     "nextRun": "Prossima esecuzione {time}",
@@ -1367,7 +1386,9 @@
       "until": "Atteso fino a",
       "notified": "Persone avvisate",
       "agentRunId": "ID dell’esecuzione dell’agente",
-      "rowId": "ID della riga"
+      "rowId": "ID della riga",
+      "approvedBy": "Chi ha approvato",
+      "answeredAt": "Quando è stata data la risposta"
     },
     "test": {
       "title": "Esecuzione di prova",
@@ -1383,6 +1404,36 @@
       "run": "Esegui prova",
       "saveAndRun": "Salva ed esegui",
       "starting": "Avvio…"
+    },
+    "approval": {
+      "people": "Chiedi a queste persone",
+      "personProperties": "Persone in queste proprietà della riga",
+      "message": "Messaggio",
+      "messagePlaceholder": "Per esempio: possiamo chiudere {template}?",
+      "timeout": "Giorni per rispondere",
+      "onTimeout": "Se nessuno risponde in tempo",
+      "timeoutStop": "Ferma l’esecuzione",
+      "timeoutContinue": "Continua con i passaggi successivi",
+      "help": "L’esecuzione attende che una di queste persone risponda in Da rivedere: approvare continua con i passaggi successivi, rifiutare ferma l’esecuzione. Al massimo {max} giorni. I passaggi successivi possono usare chi ha approvato: {template}."
+    },
+    "gallery": {
+      "title": "Parti da un modello",
+      "use": "Usa",
+      "approveBeforeClosing": {
+        "name": "Chiedi approvazione prima di chiudere",
+        "description": "Quando una riga passa in revisione, le persone che indica la approvano, poi viene segnata come chiusa.",
+        "message": "Si può chiudere {title}?"
+      },
+      "notifyAssignee": {
+        "name": "Avvisa le persone assegnate",
+        "description": "Quando cambia la proprietà persona di una riga, notifica le persone che contiene.",
+        "message": "Ti è stato assegnato {title}."
+      },
+      "remindOverdue": {
+        "name": "Ricorda le righe in ritardo",
+        "description": "Un giorno dopo la data di una riga non completata, notifica le sue persone.",
+        "message": "{title} è in ritardo."
+      }
     }
   },
   "subItems": {

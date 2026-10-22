@@ -7,6 +7,7 @@ import {
   dateStart,
   isDynamicValue,
   matchesTrigger,
+  needsRow,
   runEvent,
   startPassed,
   statusMatch,
@@ -17,6 +18,8 @@ import {
   runStatusOf,
   signatureHeader,
   signedContent,
+  waitingApproval,
+  type AutomationAction,
   type AutomationStep,
   type AutomationTrigger,
 } from "./automations";
@@ -129,6 +132,36 @@ describe("runStatusOf", () => {
     expect(runStatusOf([step("done"), step("failed")])).toBe("failed");
     expect(runStatusOf([step("done"), step("skipped")])).toBe("done");
     expect(runStatusOf([])).toBe("done");
+  });
+
+  it("is stopped when an approval was rejected or timed out, unless a step still waits or failed", () => {
+    expect(runStatusOf([step("done"), step("stopped"), step("skipped")])).toBe("stopped");
+    expect(runStatusOf([step("failed"), step("stopped")])).toBe("failed");
+    expect(runStatusOf([step("stopped"), step("pending")])).toBe("pending");
+  });
+});
+
+describe("approval steps", () => {
+  const approval = (propertyIds: string[]): AutomationAction => ({
+    id: "approval",
+    type: "approval",
+    userIds: ["u1"],
+    propertyIds,
+    message: "",
+    timeoutDays: 30,
+    onTimeout: "stop",
+  });
+  it("need a row only when they ask the people a row names", () => {
+    expect(needsRow(approval([]))).toBe(false);
+    expect(needsRow(approval(["owner"]))).toBe(true);
+  });
+  it("find the approval a run waits for: asked, not answered", () => {
+    const asked = { changeId: "c1", approvers: [], expiresAt: "2026-11-01T00:00:00.000Z" };
+    const waiting: AutomationStep = { type: "approval", status: "pending", attempts: 1, approval: asked };
+    expect(waitingApproval([{ type: "log", status: "done", attempts: 1 }, waiting])).toBe(waiting);
+    expect(waitingApproval([{ ...waiting, approval: { ...asked, answer: "approved" } }])).toBeNull();
+    expect(waitingApproval([{ ...waiting, approval: undefined }])).toBeNull();
+    expect(waitingApproval([{ type: "wait", status: "pending", attempts: 1 }])).toBeNull();
   });
 });
 

@@ -265,7 +265,7 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   schedule comes round or another service POSTs to the automation's secret address, do up to 20
   steps: set properties, notify people with a message, send the row to a webhook signed with
   HMAC-SHA256, run an agent, move the row to the trash, send an HTTP request, find rows, create a
-  row or update the one that matches, wait, or log. Steps go for each row an earlier step found
+  row or update the one that matches, wait, ask people for approval, or log. Steps go for each row an earlier step found
   and use the trigger's and earlier steps' values through `{{templates}}`. Changes can wait in a
   draft, be tried with a test run and be published as numbered versions, and a 30-day run history
   shows each step's input and output (see [Automations and webhooks](#automations-and-webhooks)).
@@ -1623,6 +1623,17 @@ use what it gave):
   adds one with it when there is none.
 - *Wait* from 1 minute to 7 days before the next step. The run waits in the queue, not in the
   server's memory, so a restart doesn't lose it.
+- *Ask for approval*: the run waits until one of the people asked approves or rejects it under
+  *For review* (and on the row), at most 30 days (30 unless set otherwise). It asks chosen people
+  and the people the row's person properties name (up to 20), with a message that can use
+  templates; only those who can open the row are asked, and a run with nobody to ask fails
+  (`noApprovers`). Each of them is notified (inbox, push and Telegram as they chose) and sees the
+  message, the automation, a link to the run (with full access to the database) and what the next
+  steps of the version the run started with will do. Approving goes on with the next step;
+  rejecting stops the run (`rejected`), the steps after it skipped. Without an answer in time the
+  run stops (`timedOut`) or, when set to, goes on. Only the people asked can answer, once; nobody
+  can edit it, and the audit log records each answer. It can't go *for each* found row, and a test
+  run asks nobody: it says whom it would have asked and goes on.
 - *Log*: writes a message into the run's history.
 
 **Templates.** Text in a step, values to set, a request's address, headers and body, and filter
@@ -1638,8 +1649,9 @@ values can use what started the run and what earlier steps gave, as `{{…}}`:
   …, or one of your own: lowercase letters, digits and `_`): *Find rows* gives `rows`, `count` and
   `first`; *HTTP request* `status`, `headers` and `body`; *Create a row* and *Update or create a
   row* `id`, `title`, `url` and `created`; *Log* `message`; *Wait* `until`; *Set properties* `id`
-  and `values`; *Notify* `notified`; *Run an agent* `agentRunId`; a *for each* step `count` and
-  `items`.
+  and `values`; *Notify* `notified`; *Run an agent* `agentRunId`; *Ask for approval* `approved`,
+  `approved_by` (the person), `answered_at`, and `rejected_by` or `timed_out`; a *for each* step
+  `count` and `items`.
 
 Paths use dots, list positions and quotes: `{{find.rows.0.title}}`, `{{http.body.items[0].id}}`,
 `{{http.body.customer["e-mail"]}}`. A name is looked up exactly, then without regard to case. In
@@ -1666,7 +1678,7 @@ doesn't count as the automation's last run. Turning an automation on or off, or 
 takes effect at once, draft or not.
 
 A database has at most 50 automations, an automation at most 20 steps, a notify step at most 50
-chosen people, an HTTP request at most 20 headers and a 32,000-character body, and a message,
+chosen people, an approval at most 20, an HTTP request at most 20 headers and a 32,000-character body, and a message,
 title or value at most 2000 characters.
 
 **Who it runs as.** An automation acts as the person who last published it (or turned it on or

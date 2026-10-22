@@ -17,6 +17,7 @@ import { Button, cn, IconButton, Input, Switch } from "@/components/ui";
 import { MAX_AGENT_PROMPT } from "@/lib/agents";
 import {
   hasRow,
+  MAX_APPROVAL_DAYS,
   MAX_AUTOMATION_ACTIONS,
   MAX_AUTOMATION_NAME,
   MAX_STEP_MESSAGE,
@@ -63,7 +64,7 @@ export { selectClass };
 /** Steps offered to add, grouped as the menu shows them. */
 const STEP_GROUPS: { group: "rows" | "people" | "outside" | "flow"; types: AutomationActionType[] }[] = [
   { group: "rows", types: ["set_properties", "find_rows", "create_row", "upsert_row", "move_to_trash"] },
-  { group: "people", types: ["notify", "run_agent"] },
+  { group: "people", types: ["notify", "approval", "run_agent"] },
   { group: "outside", types: ["http_request", "webhook"] },
   { group: "flow", types: ["wait", "log"] },
 ];
@@ -86,11 +87,14 @@ export function AutomationEditor({
   onUpdated,
   onTestDone,
   onCancel,
+  start = null,
 }: {
   workspaceId: string;
   databaseId: string;
   /** The automation being edited; null for a new one. */
   saved: Automation | null;
+  /** A new automation's start: a ready-made one (lib/automation-gallery), else an empty one. */
+  start?: Draft | null;
   people: Person[];
   /** The agents a "Run an agent" action can pick; owners, and those who can edit an agent (`canRun`), make one. */
   agents: AgentChoice[];
@@ -108,7 +112,8 @@ export function AutomationEditor({
   const format = useFormatter();
   const properties = useSchema();
   const [base, setBase] = useState<Draft>(() => (saved ? toDraft(saved, properties) : emptyDraft()));
-  const [draft, setDraft] = useState<Draft>(base);
+  // A ready-made start is unsaved, like anything typed into an empty form.
+  const [draft, setDraft] = useState<Draft>(() => start ?? base);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState<"save" | "publish" | "discard" | null>(null);
   const [testing, setTesting] = useState(false);
@@ -596,6 +601,15 @@ function StepBody({
       return <RowWriteEditor databaseId={databaseId} action={action} people={people} noActor={noActor} onChange={onChange} />;
     case "wait":
       return <WaitEditor action={action} onChange={onChange} />;
+    case "approval":
+      return (
+        <ApprovalEditor
+          action={action}
+          people={people}
+          personProperties={rowRun ? (targetProps ?? []).filter((p) => namesPeopleType(p.type)) : []}
+          onChange={onChange}
+        />
+      );
     case "log":
       return (
         <div className="space-y-1">
@@ -753,56 +767,18 @@ function NotifyEditor({
   onChange: (action: DraftActionOf<"notify">) => void;
 }) {
   const t = useTranslations("database.automations");
-  const listed = useMemo(() => new Set(personProperties.map((p) => p.id)), [personProperties]);
   return (
     <div className="space-y-3">
       <div>
         <p className="mb-1 text-xs text-fg-muted">{t("form.people")}</p>
         <PeoplePicker people={people} selected={action.people} onChange={(ids) => onChange({ ...action, people: ids })} />
       </div>
-      {(personProperties.length > 0 || action.properties.some((id) => !listed.has(id))) && (
-        <div>
-          <p className="mb-1 text-xs text-fg-muted">{t("form.personProperties")}</p>
-          <ul className="space-y-0.5">
-            {personProperties.map((p) => {
-              const on = action.properties.includes(p.id);
-              return (
-                <li key={p.id}>
-                  <label className="flex cursor-pointer items-center gap-2 rounded px-1 py-1 text-sm hover:bg-bg-hover">
-                    <input
-                      type="checkbox"
-                      checked={on}
-                      onChange={() =>
-                        onChange({
-                          ...action,
-                          properties: on ? action.properties.filter((id) => id !== p.id) : [...action.properties, p.id],
-                        })
-                      }
-                      className="accent-[var(--accent)]"
-                    />
-                    <PropertyTypeIcon type={p.type} className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
-                    <span className="truncate">{p.name}</span>
-                  </label>
-                </li>
-              );
-            })}
-            {action.properties
-              .filter((id) => !listed.has(id))
-              .map((id) => (
-                <li key={id} className="flex items-center gap-2 px-1 py-1 text-sm text-fg-muted">
-                  <span className="truncate">{t("deletedProperty")}</span>
-                  <button
-                    type="button"
-                    onClick={() => onChange({ ...action, properties: action.properties.filter((x) => x !== id) })}
-                    className="text-xs underline underline-offset-2 hover:text-fg"
-                  >
-                    {t("form.removeProperty")}
-                  </button>
-                </li>
-              ))}
-          </ul>
-        </div>
-      )}
+      <PersonPropertyList
+        label={t("form.personProperties")}
+        properties={personProperties}
+        selected={action.properties}
+        onChange={(properties) => onChange({ ...action, properties })}
+      />
       <div>
         <p className="mb-1 text-xs text-fg-muted">{t("form.message")}</p>
         <TemplateField
@@ -814,6 +790,130 @@ function NotifyEditor({
           onChange={(message) => onChange({ ...action, message })}
         />
       </div>
+    </div>
+  );
+}
+
+/** The row's person properties a step can take people from, as checkboxes; deleted ones stay until removed. */
+function PersonPropertyList({
+  label,
+  properties,
+  selected,
+  onChange,
+}: {
+  label: string;
+  /** The person properties of the row the step is about; none without a row. */
+  properties: Property[];
+  selected: string[];
+  onChange: (ids: string[]) => void;
+}) {
+  const t = useTranslations("database.automations");
+  const listed = useMemo(() => new Set(properties.map((p) => p.id)), [properties]);
+  if (!properties.length && !selected.some((id) => !listed.has(id))) return null;
+  return (
+    <div>
+      <p className="mb-1 text-xs text-fg-muted">{label}</p>
+      <ul className="space-y-0.5">
+        {properties.map((p) => {
+          const on = selected.includes(p.id);
+          return (
+            <li key={p.id}>
+              <label className="flex cursor-pointer items-center gap-2 rounded px-1 py-1 text-sm hover:bg-bg-hover">
+                <input
+                  type="checkbox"
+                  checked={on}
+                  onChange={() => onChange(on ? selected.filter((id) => id !== p.id) : [...selected, p.id])}
+                  className="accent-[var(--accent)]"
+                />
+                <PropertyTypeIcon type={p.type} className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
+                <span className="truncate">{p.name}</span>
+              </label>
+            </li>
+          );
+        })}
+        {selected
+          .filter((id) => !listed.has(id))
+          .map((id) => (
+            <li key={id} className="flex items-center gap-2 px-1 py-1 text-sm text-fg-muted">
+              <span className="truncate">{t("deletedProperty")}</span>
+              <button
+                type="button"
+                onClick={() => onChange(selected.filter((x) => x !== id))}
+                className="text-xs underline underline-offset-2 hover:text-fg"
+              >
+                {t("form.removeProperty")}
+              </button>
+            </li>
+          ))}
+      </ul>
+    </div>
+  );
+}
+
+/**
+ * Who approves (chosen people, and the people a row's person properties name when the run gets
+ * here), what they read, and how long the run waits for an answer and what it does without one.
+ */
+function ApprovalEditor({
+  action,
+  people,
+  personProperties,
+  onChange,
+}: {
+  action: DraftActionOf<"approval">;
+  people: Person[];
+  personProperties: Property[];
+  onChange: (action: DraftActionOf<"approval">) => void;
+}) {
+  const t = useTranslations("database.automations");
+  return (
+    <div className="space-y-3">
+      <div>
+        <p className="mb-1 text-xs text-fg-muted">{t("approval.people")}</p>
+        <PeoplePicker people={people} selected={action.people} onChange={(ids) => onChange({ ...action, people: ids })} />
+      </div>
+      <PersonPropertyList
+        label={t("approval.personProperties")}
+        properties={personProperties}
+        selected={action.properties}
+        onChange={(properties) => onChange({ ...action, properties })}
+      />
+      <div>
+        <p className="mb-1 text-xs text-fg-muted">{t("approval.message")}</p>
+        <TemplateField
+          rows={2}
+          value={action.message}
+          maxLength={MAX_STEP_MESSAGE}
+          aria-label={t("approval.message")}
+          placeholder={t("approval.messagePlaceholder", { template: "{{trigger.title}}" })}
+          onChange={(message) => onChange({ ...action, message })}
+        />
+      </div>
+      <div className="flex flex-col gap-2 sm:flex-row">
+        <label className="block sm:w-36">
+          <span className="mb-1 block text-xs text-fg-muted">{t("approval.timeout")}</span>
+          <Input
+            type="number"
+            inputMode="numeric"
+            min={1}
+            max={MAX_APPROVAL_DAYS}
+            value={action.timeoutDays}
+            onChange={(e) => onChange({ ...action, timeoutDays: e.target.value })}
+          />
+        </label>
+        <label className="block min-w-0 flex-1">
+          <span className="mb-1 block text-xs text-fg-muted">{t("approval.onTimeout")}</span>
+          <select
+            value={action.onTimeout}
+            onChange={(e) => onChange({ ...action, onTimeout: e.target.value === "continue" ? "continue" : "stop" })}
+            className={selectClass}
+          >
+            <option value="stop">{t("approval.timeoutStop")}</option>
+            <option value="continue">{t("approval.timeoutContinue")}</option>
+          </select>
+        </label>
+      </div>
+      <p className="text-xs text-fg-faint">{t("approval.help", { max: MAX_APPROVAL_DAYS, template: `{{${action.id || "approval"}.approved_by}}` })}</p>
     </div>
   );
 }

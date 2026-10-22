@@ -1030,7 +1030,8 @@
       "runAgent": "Çalıştır: {agent}",
       "archivedAgent": "arşivlenmiş bir ajan",
       "trash": "Çöp kutusuna taşı",
-      "setEach": "Bulunan satırlara ata"
+      "setEach": "Bulunan satırlara ata",
+      "approval": "{people} kişisine sor"
     },
     "form": {
       "name": "Ad",
@@ -1070,7 +1071,8 @@
         "create_row": "Satır ekle",
         "upsert_row": "Satır ekle veya güncelle",
         "wait": "Bekle",
-        "log": "Çalışma geçmişine yaz"
+        "log": "Çalışma geçmişine yaz",
+        "approval": "Onay iste"
       },
       "trashHelp": "Satırı çöp kutusuna taşır; çöp kutusu boşaltılana kadar oradan geri yüklenebilir. Bu eylemden sonra başka eylem çalışamaz.",
       "addAction": "Eylem ekle",
@@ -1127,7 +1129,9 @@
         "badCron": "Cron ifadesi geçerli değil.",
         "neverRuns": "Bu zamanlama hiç gelmiyor.",
         "badExample": "Örnek gövde geçerli bir JSON değil.",
-        "exampleTooLong": "Örnek gövde çok uzun."
+        "exampleTooLong": "Örnek gövde çok uzun.",
+        "needApprovers": "Kime sorulacağını seçin.",
+        "needTimeout": "1 ile 30 arasında tam gün sayısı girin."
       },
       "agent": "Ajan",
       "chooseAgent": "Bir ajan seçin…",
@@ -1191,13 +1195,15 @@
         "pending": "Bekliyor",
         "running": "Çalışıyor",
         "done": "Tamamlandı",
-        "failed": "Başarısız"
+        "failed": "Başarısız",
+        "stopped": "Durduruldu"
       },
       "stepStatus": {
         "pending": "bekliyor",
         "done": "tamamlandı",
         "failed": "başarısız",
-        "skipped": "atlandı"
+        "skipped": "atlandı",
+        "stopped": "durduruldu"
       },
       "notified": "{count, plural, one {# kişiye bildirildi} other {# kişiye bildirildi}}",
       "attempts": "{count, plural, one {# deneme} other {# deneme}}",
@@ -1241,7 +1247,20 @@
         "changed": "Otomasyon değişti",
         "tooManyAttempts": "Çok fazla denendi",
         "disabled": "Otomasyon kapatıldı",
-        "rowGone": "Satır artık yok"
+        "rowGone": "Satır artık yok",
+        "noApprovers": "Sorulacak kimse yok",
+        "rejected": "Reddedildi",
+        "timedOut": "Zamanında kimse yanıtlamadı"
+      },
+      "waitingApproval": "Onay bekliyor",
+      "approval": {
+        "wouldAsk": "Test çalışması: {names} kişisine sorardı",
+        "approved": "{name} onayladı, {time}",
+        "rejected": "{name} reddetti, {time}: çalışma durdu",
+        "timedOut": "{time} tarihine kadar kimse yanıtlamadı: çalışma durdu",
+        "timedOutContinued": "{time} tarihine kadar kimse yanıtlamadı: çalışma devam etti",
+        "waiting": "{names} kişisine soruldu, {time} tarihine kadar",
+        "closed": "{names} kişisine soruldu; çalışma yanıt gelmeden bitti"
       }
     },
     "nextRun": "Sonraki çalışma {time}",
@@ -1367,7 +1386,9 @@
       "until": "Beklediği zaman",
       "notified": "Bildirim gönderilen kişiler",
       "agentRunId": "Ajan çalışması kimliği",
-      "rowId": "Satır kimliği"
+      "rowId": "Satır kimliği",
+      "approvedBy": "Onaylayan",
+      "answeredAt": "Yanıtlandığı zaman"
     },
     "test": {
       "title": "Deneme çalıştırması",
@@ -1383,6 +1404,36 @@
       "run": "Denemeyi çalıştır",
       "saveAndRun": "Kaydet ve çalıştır",
       "starting": "Başlatılıyor…"
+    },
+    "approval": {
+      "people": "Bu kişilere sor",
+      "personProperties": "Satırın bu özelliklerindeki kişiler",
+      "message": "Mesaj",
+      "messagePlaceholder": "Örneğin: {template} kapatılabilir mi?",
+      "timeout": "Yanıt süresi (gün)",
+      "onTimeout": "Zamanında yanıt gelmezse",
+      "timeoutStop": "Çalışmayı durdur",
+      "timeoutContinue": "Sonraki adımlarla devam et",
+      "help": "Çalışma, içlerinden biri İncelenecekler'de yanıtlayana kadar bekler: onay sonraki adımlarla devam eder, ret çalışmayı durdurur. En çok {max} gün. Sonraki adımlar onaylayanı kullanabilir: {template}."
+    },
+    "gallery": {
+      "title": "Bir şablondan başlayın",
+      "use": "Kullan",
+      "approveBeforeClosing": {
+        "name": "Kapatmadan önce onay iste",
+        "description": "Bir satır incelemeye geçince satırdaki kişiler onaylar, sonra kapatıldı olarak işaretlenir.",
+        "message": "{title} kapatılabilir mi?"
+      },
+      "notifyAssignee": {
+        "name": "Atanan kişilere haber ver",
+        "description": "Satırın kişi özelliği değişince içindeki kişilere bildirim gönder.",
+        "message": "{title} size atandı."
+      },
+      "remindOverdue": {
+        "name": "Geciken satırları hatırlat",
+        "description": "Satırın tarihi geçtikten bir gün sonra hâlâ bitmemişse kişilerine bildirim gönder.",
+        "message": "{title} gecikti."
+      }
     }
   },
   "subItems": {

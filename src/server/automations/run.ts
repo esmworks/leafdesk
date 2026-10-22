@@ -2,6 +2,8 @@ import { and, eq, inArray, lte, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { automationRun, automationVersion, databaseAutomation, notification, page, user, type AutomationDefinition } from "@/db/schema";
 import {
+  APPROVAL_TEST_CODE,
+  FINISHED_RUN_STATUSES,
   forEachOf,
   hasRow,
   httpRetriable,
@@ -17,6 +19,7 @@ import {
   type AutomationAction,
   type AutomationStep,
   type AutomationStepItem,
+  waitingApproval,
 } from "@/lib/automations";
 import { idsOf, resolveText, resolveValue, templateRoots, textOf, type TemplateScope } from "@/lib/automation-templates";
 import { env } from "@/lib/env";
@@ -46,8 +49,9 @@ import { notAgentUser } from "@/server/agents/users";
 import { recordAudit, runAsAuditOrigin } from "@/server/audit";
 import { archivePage, renamePage } from "@/server/pages";
 import { exportAllowed } from "@/server/workspaces";
+import { ApprovalStepError, askApproval, closeApprovals, readAnswer, stillWaiting } from "./approval";
 import { HttpStepError, sendRequest } from "./http";
-import { asAutomation, onAutomationsQueued } from "./queue";
+import { asAutomation, kickAutomations, onAutomationsQueued } from "./queue";
 import { automationZone, followOwnEdit } from "./timed";
 import { sendWebhook, WebhookError, webhookSecret } from "./webhook";
 
@@ -61,7 +65,8 @@ import { sendWebhook, WebhookError, webhookSecret } from "./webhook";
  * Each step either works or fails on its own; a step whose templates (or "for each") use a step
  * that failed or was skipped is skipped (`dependencyFailed`). Webhooks and HTTP requests are tried
  * again (MAX_WEBHOOK_ATTEMPTS, see retryDelayMs), and a wait step waits in the queue: the steps
- * after them wait too, and the run goes on later from where it was. What each step gave later
+ * after them wait too, and the run goes on later from where it was. An approval step waits the
+ * same way, until it is answered or its time is up (./approval.ts); rejected, the run stops. What each step gave later
  * steps is kept in the run's `state` while it runs (cleared when it ends); the history keeps each
  * step's input and output with credentials masked (lib/redact), cut to MAX_HTTP_RESPONSE_BYTES.
  * Finished runs are kept for RUN_HISTORY_DAYS.
@@ -257,17 +262,21 @@ export async function processRun(run: Run) {
       if (!step || step.status !== "pending") continue;
       // A step that uses what a failed or skipped step would have given is skipped.
       const uses = [...templateRoots(action), ...(forEachOf(action) ? [forEachOf(action)!] : [])];
+      // A test run's approval asked nobody: what uses its answer goes on without one.
       const broken = uses.find((root) => {
         const at = ids.indexOf(root);
-        return at >= 0 && at < i && steps[at].status !== "done";
+        return at >= 0 && at < i && steps[at].status !== "done" && steps[at].code !== APPROVAL_TEST_CODE;
       });
       if (broken) {
         Object.assign(step, { status: "skipped", code: "dependencyFailed", error: `Uses the output of "${broken}", which didn't run` });
         continue;
       }
-      step.attempts += 1;
       const started = Date.now();
-      step.startedAt = new Date(started).toISOString();
+      // An approval asked once is taken again only to read its answer: that is no new try.
+      if (!(action.type === "approval" && step.approval)) {
+        step.attempts += 1;
+        step.startedAt = new Date(started).toISOString();
+      }
       let result: StepResult | undefined;
       try {
         if (action.type === "wait") {
@@ -280,6 +289,19 @@ export async function processRun(run: Run) {
           }
           Object.assign(step, { status: "done", output: { until: step.waitUntil } });
           outputs[ids[i]] = ctx.scope[ids[i]] = { until: step.waitUntil };
+          continue;
+        }
+        if (action.type === "approval") {
+          const outcome = await approvalStep(ctx, action, ids[i], i, actions, step);
+          if (outcome === "wait") {
+            retryAt = new Date(step.approval!.expiresAt);
+            break;
+          }
+          if (outcome === "stop") {
+            // Rejected, or not answered in time: the steps after it don't run.
+            steps = endPending(steps, step.approval?.answer === "rejected" ? "rejected" : "timedOut", "skipped");
+            break;
+          }
           continue;
         }
         if (action.type === "set_properties" && !action.forEach) {
@@ -386,6 +408,10 @@ export async function processRun(run: Run) {
   }
 
   const status = runStatusOf(steps);
+  // A run that ended some other way while an approval waited: the question goes from the queue.
+  if (status !== "pending") {
+    await closeApprovals(steps.flatMap((s) => (s.type === "approval" && s.approval?.changeId && !s.approval.answer ? [s.approval.changeId] : [])));
+  }
   await db
     .update(automationRun)
     .set({
@@ -400,6 +426,65 @@ export async function processRun(run: Run) {
       finishedAt: status === "pending" ? null : new Date(),
     })
     .where(eq(automationRun.id, run.id));
+  // Answered while this take ran (its wake found the run running): it goes on now, not at the expiry.
+  const asked = status === "pending" ? waitingApproval(steps) : null;
+  if (asked?.approval?.changeId && !(await stillWaiting(asked.approval.changeId))) {
+    await db.update(automationRun).set({ nextAt: new Date() }).where(and(eq(automationRun.id, run.id), eq(automationRun.status, "pending")));
+    kickAutomations();
+  }
+}
+
+/**
+ * An approval step, each time the run is taken: the first time it asks (./approval.ts); later it
+ * reads the answer. "wait" while nobody answered; "stop" when rejected or, unanswered in time,
+ * when it stops then; "next" when approved or it goes on anyway, with its output for later steps.
+ */
+async function approvalStep(
+  ctx: StepContext,
+  action: Extract<AutomationAction, { type: "approval" }>,
+  stepId: string,
+  index: number,
+  actions: AutomationAction[],
+  step: AutomationStep,
+): Promise<"wait" | "stop" | "next"> {
+  if (!step.approval) {
+    let asked;
+    try {
+      asked = await askApproval({ automation: ctx.automation, run: ctx.run, row: ctx.row, action, stepId, index, actions, scope: ctx.scope });
+    } catch (error) {
+      if (error instanceof ApprovalStepError) throw new StepFailure(error.code, error.message);
+      throw error;
+    }
+    step.approval = asked.state;
+    step.input = forHistory(missingNote({ message: asked.message, approvers: asked.state.approvers.map((a) => a.name), timeoutDays: action.timeoutDays, onTimeout: action.onTimeout }, asked.missing));
+    if (asked.state.test) {
+      // A test run asks nobody: the step says whom it would have asked, and the run goes on.
+      const output = { approved: null, approved_by: null, answered_at: null };
+      Object.assign(step, { status: "skipped", code: APPROVAL_TEST_CODE, output });
+      ctx.outputs[stepId] = ctx.scope[stepId] = output;
+      return "next";
+    }
+  }
+  const answer = await readAnswer(step.approval.changeId);
+  if (answer.answer === "waiting") return "wait";
+  const answeredAt = answer.answer === "timedOut" ? null : answer.at;
+  step.approval = { ...step.approval, answer: answer.answer, answeredBy: answer.answer === "timedOut" ? null : answer.by, answeredAt };
+  const output = {
+    approved: answer.answer === "approved",
+    approved_by: answer.answer === "approved" ? answer.by : null,
+    answered_at: answeredAt,
+    ...(answer.answer === "rejected" ? { rejected_by: answer.by } : {}),
+    ...(answer.answer === "timedOut" ? { timed_out: true } : {}),
+  };
+  step.output = forHistory(output);
+  if (step.startedAt) step.durationMs = Date.now() - Date.parse(step.startedAt);
+  if (answer.answer === "approved" || (answer.answer === "timedOut" && action.onTimeout === "continue")) {
+    Object.assign(step, { status: "done", code: answer.answer === "timedOut" ? "timedOut" : undefined });
+    ctx.outputs[stepId] = ctx.scope[stepId] = output;
+    return "next";
+  }
+  Object.assign(step, { status: "stopped", code: answer.answer === "rejected" ? "rejected" : "timedOut" });
+  return "stop";
 }
 
 /**
@@ -879,6 +964,7 @@ async function sweep() {
             .set({ status: "failed", steps: endPending(run.steps, "error"), state: null, finishedAt: new Date() })
             .where(eq(automationRun.id, run.id))
             .catch(() => undefined);
+          await closeApprovals(run.steps.flatMap((s) => (s.approval?.changeId && !s.approval.answer ? [s.approval.changeId] : []))).catch(() => undefined);
         }
       }
       if (runs.length === BATCH) again = true;
@@ -902,7 +988,7 @@ export async function pruneAutomationRuns() {
     .delete(automationRun)
     .where(
       and(
-        inArray(automationRun.status, ["done", "failed"]),
+        inArray(automationRun.status, [...FINISHED_RUN_STATUSES]),
         lte(automationRun.finishedAt, new Date(Date.now() - RUN_HISTORY_DAYS * 24 * 60 * 60_000)),
       ),
     )

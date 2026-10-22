@@ -1,7 +1,7 @@
 {
   "metaTitle": "İncelenecekler",
   "heading": "İncelenecekler",
-  "description": "Ajanların yapmak yerine önerdiği değişiklikler. Birini onaylayarak sizin adınıza yapılmasını sağlayın, önce düzenleyin ya da reddedin. Kimsenin yanıtlamadığı önerilerin süresi 30 gün sonra dolar.",
+  "description": "Ajanların yapmak yerine önerdiği değişiklikler ve birinin onayını bekleyen otomasyonlar. Bir değişikliği onaylayarak sizin adınıza yapılmasını sağlayın, önce düzenleyin ya da reddedin; bir otomasyonu onaylayınca çalışması devam eder, reddedince durur. Kimsenin yanıtlamadığı önerilerin süresi 30 gün sonra dolar.",
   "filters": {
     "agent": "Ajan",
     "database": "Veritabanı",
@@ -28,7 +28,9 @@
   "proposes": {
     "createRow": "<agent></agent>, <database></database> veritabanına bir satır eklemek istiyor",
     "updateRow": "<agent></agent>, <row></row> satırını değiştirmek istiyor",
-    "emailDraft": "<agent></agent>, <row></row> satırında bir e-posta taslağı hazırladı"
+    "emailDraft": "<agent></agent>, <row></row> satırında bir e-posta taslağı hazırladı",
+    "automationApproval": "<automation></automation>, <row></row> için onay istiyor",
+    "automationApprovalNoRow": "<automation></automation> onay istiyor"
   },
   "inDatabase": "<database></database> içinde",
   "unknownAgent": "Silinmiş bir ajan",
@@ -39,7 +41,9 @@
   "decided": {
     "approved": "{name}, {time} onayladı",
     "dismissed": "{name}, {time} reddetti",
-    "expired": "Yanıtlanmadan süresi doldu"
+    "expired": "Yanıtlanmadan süresi doldu",
+    "rejected": "{name}, {time} reddetti",
+    "timedOut": "Zamanında kimse yanıtlamadı"
   },
   "title": "Başlık",
   "becomes": "yeni değer",
@@ -70,7 +74,8 @@
   "dismiss": "Reddet",
   "cannot": {
     "email": "Bu taslağı yalnızca {name} kendi posta kutusundan gönderebilir.",
-    "row": "Bu değişikliği görebilirsiniz ama onaylamak için satırı ve değişikliğin ayarladığı her değeri düzenleme erişiminiz olmalı."
+    "row": "Bu değişikliği görebilirsiniz ama onaylamak için satırı ve değişikliğin ayarladığı her değeri düzenleme erişiminiz olmalı.",
+    "approval": "Bunu yalnızca otomasyonun sorduğu kişiler onaylayabilir ya da reddedebilir."
   },
   "errors": {
     "notFound": "Bu değişiklik artık yok ya da onu göremiyorsunuz.",
@@ -84,5 +89,15 @@
     "bar": "{count, plural, one {# değişiklik inceleme bekliyor} other {# değişiklik inceleme bekliyor}}",
     "by": "öneren: {names}",
     "open": "İncele"
+  },
+  "unknownAutomation": "Silinmiş bir otomasyon",
+  "reject": "Reddet",
+  "approval": {
+    "next": "Onaylanırsa sonra:",
+    "nothingNext": "Onaylanırsa çalışma biter: bundan sonra adım yok.",
+    "forEach": "{step} adımının bulduğu her satır için",
+    "approvers": "Sorulanlar: {names}",
+    "timeoutStop": "Zamanında kimse yanıtlamazsa çalışma durur.",
+    "timeoutContinue": "Zamanında kimse yanıtlamazsa çalışma devam eder."
   }
 }

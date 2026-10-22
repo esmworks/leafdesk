@@ -39,7 +39,8 @@ export function RowReviewBanner({ workspaceId, databaseId, rowId, signal }: { wo
   });
 
   if (!changes.length) return null;
-  const agents = [...new Set(changes.map((c) => c.agent?.name).filter((n): n is string => Boolean(n)))];
+  // Agents that proposed changes, and automations whose runs wait for an approval.
+  const agents = [...new Set(changes.map((c) => c.agent?.name ?? c.approval?.automation?.name).filter((n): n is string => Boolean(n)))];
   return (
     <div role="region" aria-label={t("title")} className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-md border border-border bg-bg-subtle px-3 py-1.5 text-sm">
       <span className="flex min-w-0 flex-1 items-center gap-2">

@@ -6,6 +6,8 @@ import {
   forEachOf,
   HTTP_METHODS,
   isDynamicValue,
+  MAX_APPROVAL_DAYS,
+  MAX_APPROVERS,
   MAX_AUTOMATION_ACTIONS,
   MAX_AUTOMATION_NAME,
   MAX_DATE_PASSED_DAYS,
@@ -279,17 +281,44 @@ const actionInput = z.discriminatedUnion("type", [
     id: stepId,
     message: z.string().min(1).max(MAX_STEP_MESSAGE).describe("Text written into the run's history; may hold templates."),
   }),
+  z.object({
+    type: z.literal("approval"),
+    id: stepId,
+    people: z
+      .array(z.string().min(1))
+      .max(MAX_APPROVERS)
+      .optional()
+      .describe('People who may approve: user ids, emails, names or "me".'),
+    properties: z
+      .array(z.string().min(1))
+      .max(20)
+      .optional()
+      .describe("Person properties (name or id): whoever the row names in them when the run gets here may approve too (row triggers only)."),
+    message: z
+      .string()
+      .max(MAX_STEP_MESSAGE)
+      .optional()
+      .describe(`What the approvers read (at most ${MAX_STEP_MESSAGE} characters); may hold templates: "Mark {{trigger.title}} as Won for {{trigger.Amount}}?".`),
+    timeout_days: z
+      .number()
+      .int()
+      .min(1)
+      .max(MAX_APPROVAL_DAYS)
+      .optional()
+      .describe(`How many days the run waits for an answer (1-${MAX_APPROVAL_DAYS}, default ${MAX_APPROVAL_DAYS}).`),
+    on_timeout: z.enum(["stop", "continue"]).optional().describe("stop (default): unanswered in time, the run stops; continue: it goes on as if approved, with approved_by null."),
+  }),
 ]);
 
 const TEMPLATE_NOTE =
-  'Text in steps may hold templates: {{trigger.X}} is what started the run (a row trigger: the row\'s values by property name, and id, title, url, event, database, actor and changes.<Property>.before / .after; date_passed adds date; incoming_webhook: the JSON body; schedule: event, scheduledFor and database), {{item.X}} the found row of a for_each step, and {{<step id>.X}} what an earlier step gave: find_rows {rows, count, first} (rows with their values by property name, id, title, url), http_request {status, headers, body}, create_row and upsert_row {id, title, url, created}, log {message}, wait {until}, set_properties {id, values}, notify {notified}, run_agent {agentRunId}, and a for_each step {count, items}. Paths use dots, list positions and quotes: {{find.rows.0.title}}, {{http.body.customer["e-mail"]}}; names match exactly, then regardless of case. In text, a path that leads nowhere is empty text and a list is joined with ", "; a value that is a single template keeps its type (null when it leads nowhere). A step that uses a failed or skipped step is skipped (dependencyFailed).';
+  'Text in steps may hold templates: {{trigger.X}} is what started the run (a row trigger: the row\'s values by property name, and id, title, url, event, database, actor and changes.<Property>.before / .after; date_passed adds date; incoming_webhook: the JSON body; schedule: event, scheduledFor and database), {{item.X}} the found row of a for_each step, and {{<step id>.X}} what an earlier step gave: find_rows {rows, count, first} (rows with their values by property name, id, title, url), http_request {status, headers, body}, create_row and upsert_row {id, title, url, created}, log {message}, wait {until}, approval {approved, approved_by: {id, name}, answered_at}, set_properties {id, values}, notify {notified}, run_agent {agentRunId}, and a for_each step {count, items}. Paths use dots, list positions and quotes: {{find.rows.0.title}}, {{http.body.customer["e-mail"]}}; names match exactly, then regardless of case. In text, a path that leads nowhere is empty text and a list is joined with ", "; a value that is a single template keeps its type (null when it leads nowhere). A step that uses a failed or skipped step is skipped (dependencyFailed).';
 
 const actionsInput = z
   .array(actionInput)
   .min(1)
   .max(MAX_AUTOMATION_ACTIONS)
   .describe(
-    `What the automation does, in order (at most ${MAX_AUTOMATION_ACTIONS} steps; each one works or fails on its own): set_properties, notify (an inbox notification, and an email as each person chooses, to people who can open the row, or the database for a run without one), webhook, run_agent (queues a run of an agent on the row; saving the automation shares the database with the agent at edit access, taken back once no automation of the database runs it; only workspace owners and those who can edit the agent add or change run_agent steps, others may keep or remove one), move_to_trash (the row goes to the trash, restorable; it must be the last step and can't be combined with run_agent), http_request (one request, which must answer 2xx within 15 seconds; redirects aren't followed; network errors, timeouts, 502, 503 and 504 are tried again, up to 5 times in all), find_rows, create_row, upsert_row, wait (the steps after it wait in the queue) or log. A schedule or incoming_webhook automation has no row: set_properties, run_agent and notify with properties need for_each, and webhook and move_to_trash aren't possible. ${TEMPLATE_NOTE}`,
+    `What the automation does, in order (at most ${MAX_AUTOMATION_ACTIONS} steps; each one works or fails on its own): set_properties, notify (an inbox notification, and an email as each person chooses, to people who can open the row, or the database for a run without one), webhook, run_agent (queues a run of an agent on the row; saving the automation shares the database with the agent at edit access, taken back once no automation of the database runs it; only workspace owners and those who can edit the agent add or change run_agent steps, others may keep or remove one), move_to_trash (the row goes to the trash, restorable; it must be the last step and can't be combined with run_agent), http_request (one request, which must answer 2xx within 15 seconds; redirects aren't followed; network errors, timeouts, 502, 503 and 504 are tried again, up to 5 times in all), find_rows, create_row, upsert_row, wait (the steps after it wait in the queue), log, or approval (asks the people it names, and whoever the row's person properties name, members who can open the row, in the "For review" queue; the run waits until one of them answers: approved, the next step runs; rejected, the run stops; unanswered within timeout_days it stops or, with on_timeout continue, goes on. At least one person must be found when the run gets there, else the step fails (noApprovers). It can't go for_each; a test run asks nobody and skips it). A schedule or incoming_webhook automation has no row: set_properties, run_agent and notify with properties need for_each, and webhook and move_to_trash aren't possible. ${TEMPLATE_NOTE}`,
   );
 
 const nameInput = z.string().min(1).max(MAX_AUTOMATION_NAME);
@@ -494,6 +523,16 @@ async function toActions(userId: string, actions: ActionsArg): Promise<Automatio
         break;
       case "log":
         step = { type: "log", message: a.message };
+        break;
+      case "approval":
+        step = {
+          type: "approval",
+          people: a.people ?? [],
+          properties: a.properties ?? [],
+          ...(a.message !== undefined ? { message: a.message } : {}),
+          ...(a.timeout_days !== undefined ? { timeoutDays: a.timeout_days } : {}),
+          ...(a.on_timeout !== undefined ? { onTimeout: a.on_timeout } : {}),
+        };
         break;
     }
     out.push({ ...step, ...stepId });
@@ -809,6 +848,25 @@ function describeAction(ctx: AutomationContext, action: AutomationAction, all: A
       return { ...base, type: "wait", minutes: action.minutes, summary: `Wait ${action.minutes === 1 ? "1 minute" : `${action.minutes} minutes`}` };
     case "log":
       return { ...base, type: "log", message: action.message, summary: `Log ${quote(action.message)}` };
+    case "approval": {
+      const people = action.userIds.map((u) => personRef(ctx, u));
+      const properties = action.propertyIds.map((p) => propertyRef(ctx.props, p));
+      const who = [
+        ...people.map((p) => p.name ?? p.id),
+        ...properties.map((p) => `the people in ${p.name !== null ? quote(p.name) : "a deleted property"}`),
+      ];
+      const days = action.timeoutDays === 1 ? "1 day" : `${action.timeoutDays} days`;
+      return {
+        ...base,
+        type: "approval",
+        people,
+        properties,
+        ...(action.message ? { message: action.message } : {}),
+        timeout_days: action.timeoutDays,
+        on_timeout: action.onTimeout,
+        summary: `Ask ${listed(who, "or")} to approve; unanswered after ${days}, ${action.onTimeout === "continue" ? "go on" : "stop"}`,
+      };
+    }
   }
 }
 
@@ -879,6 +937,19 @@ export function describeRun(run: AutomationRunView) {
       ...(s.startedAt ? { started_at: s.startedAt } : {}),
       ...(s.durationMs !== undefined ? { duration_ms: s.durationMs } : {}),
       ...(s.waitUntil ? { wait_until: s.waitUntil } : {}),
+      ...(s.approval
+        ? {
+            approval: {
+              ...(s.approval.changeId ? { change_id: s.approval.changeId } : {}),
+              approvers: s.approval.approvers.map((a) => a.name),
+              expires_at: s.approval.expiresAt,
+              ...(s.approval.test ? { test: true } : {}),
+              ...(s.approval.answer ? { answer: s.approval.answer === "timedOut" ? "timed_out" : s.approval.answer } : {}),
+              ...(s.approval.answeredBy ? { answered_by: s.approval.answeredBy.name } : {}),
+              ...(s.approval.answeredAt ? { answered_at: s.approval.answeredAt } : {}),
+            },
+          }
+        : {}),
       ...(s.input !== undefined ? { input: s.input } : {}),
       ...(s.output !== undefined ? { output: s.output } : {}),
       ...(s.items?.length ? { items: s.items.map((item) => ({ row_id: item.rowId, title: item.title, status: item.status, ...(item.code ? { code: item.code } : {}), ...(item.error ? { error: item.error } : {}) })) } : {}),
