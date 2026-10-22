@@ -55,7 +55,9 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   (`collab/service.ts` `persistPage`) and announce `pageChanged()` (`page-events.ts`); row value
   changes announce through `row-events.ts`. Page tree operations: `src/server/pages.ts`; databases,
   rows and properties: `databases.ts`; formulas and rollups: `derived.ts` (pure part in
-  `src/lib/derived.ts`).
+  `src/lib/derived.ts`). Row values are checked in `databases.ts` `normalizeRowProperties` (types,
+  property access, dependent selects); a write that stores values another way (`ai-properties.ts`
+  `saveValue`) calls `followOrRefuse` itself.
 - **Shared operations.** `src/server/operations.ts` is what the MCP tools, the REST API, the AI
   chat, agents and automations do with pages, databases, rows and comments. Each operation runs as
   `ctx.userId` with that person's access; the caller checks its own scopes first.

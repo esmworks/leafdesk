@@ -41,6 +41,7 @@ import { compileFormulas, evaluateRow, mergeResults, relatedSchemasFrom, type Co
 import { moveGroupValue } from "@/lib/grouping";
 import type { PageVisibility } from "@/lib/page-visibility";
 import type { PastePlan } from "@/lib/table-clipboard";
+import { withoutParentOptions } from "@/lib/dependent-options";
 import type { RollupConfig } from "@/db/schema/app";
 import type { DatabaseSnapshot, DerivedInput, Property, RelationInput, RollupInput, Row, View } from "./types";
 import { TITLE } from "./types";
@@ -478,6 +479,27 @@ export function useDatabase(
         const { pageVisibility: _old, ...rest } = prop.options;
         const options = pageVisibility === "show" ? rest : { ...rest, pageVisibility };
         return mutateSchema(patchProperty(prop.id, { options }), () => updatePropertyAction(prop.id, { pageVisibility }));
+      },
+
+      /** Saves what a property holds and how to fill it (null or "" for nothing; see lib/property-description). */
+      setDescription(prop: Property, description: string | null) {
+        const { description: _old, ...rest } = prop.options;
+        const text = description?.trim() ?? "";
+        return mutateSchema(patchProperty(prop.id, { options: text ? { ...rest, description: text } : rest }), () =>
+          updatePropertyAction(prop.id, { description: text || null }),
+        );
+      },
+
+      /**
+       * Makes a select depend on another select property (null: on nothing; see lib/dependent-options).
+       * A new one forgets which options went with which of the old one's.
+       */
+      setDependsOn(prop: Property, dependsOn: string | null) {
+        const { dependsOn: _old, ...rest } = prop.options;
+        const options = rest.options ? { ...rest, options: withoutParentOptions(rest.options) } : rest;
+        return mutateSchema(patchProperty(prop.id, { options: dependsOn ? { ...options, dependsOn } : options }), () =>
+          updatePropertyAction(prop.id, { dependsOn }),
+        );
       },
 
       /** Saves a date property's display and reminder (see lib/date-options); the server checks it. */

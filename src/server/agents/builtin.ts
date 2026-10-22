@@ -5,7 +5,8 @@
  * instructions in the owner's language, shares the pages it reads with it (view), and adds the
  * automation that runs it on every new row, which shares the database with it (edit). The wins
  * logger gets the database shared (edit) and an untrusted trigger on the connection instead; each
- * row it adds from an event waits for an owner's approval (agents/run.ts).
+ * row it adds from an event waits for an owner's approval (agents/run.ts). The company researcher
+ * brings nothing of its own: it gets web access and fills the database's chosen properties.
  */
 import { and, count, eq, isNull } from "drizzle-orm";
 import { db } from "@/db";
@@ -22,19 +23,21 @@ import {
   builtinAgentGallery,
   FLAG_PROPERTY_TYPES,
   isBuiltinAgentKey,
+  isCompanyProperty,
   isEventAgentKey,
   logPropertiesOf,
+  MAX_COMPANY_PROPERTIES,
   MAX_KNOWLEDGE_PAGES,
   MAX_ROUTER_PROPERTIES,
   MAX_ROUTER_RULES,
   NEW_PROPERTY,
   newPropertyNames,
   ROUTER_PROPERTY_TYPES,
-  type BuiltinAgentKey,
   type BuiltinAgentNames,
   type BuiltinAgentSetup,
   type BuiltinAgentTexts,
-  type EventAgentKey,
+  type CompanyProperty,
+  type OwnPropertyKey,
   type RouterProperty,
 } from "@/lib/builtin-agents";
 import { PropertyValueError } from "@/lib/properties";
@@ -91,7 +94,7 @@ async function addOwnProperty(
   databaseId: string,
   properties: Property[],
   texts: BuiltinAgentTexts,
-  key: Exclude<BuiltinAgentKey, EventAgentKey>,
+  key: OwnPropertyKey,
 ) {
   const own = newPropertyNames(texts, key);
   const created = await addProperty(userId, databaseId, { name: freeName(properties, own.name), type: own.type, options: own.options });
@@ -136,6 +139,22 @@ export async function installBuiltinAgent(
     trigger = { connectionId: conn.id, eventType: eventType || null };
     const log = properties.map((p) => ({ name: p.name, type: p.type, options: optionsOf(p).map((o) => o.name) }));
     names = { key: "wins-logger", database: database.title, databaseId, properties: logPropertiesOf(log).fills, connection: conn.name };
+  } else if (setup.key === "company-details") {
+    const refs = new Set<unknown>(Array.isArray(setup.properties) ? setup.properties : []);
+    if (!refs.size || refs.size > MAX_COMPANY_PROPERTIES) throw invalid("property", `Choose 1 to ${MAX_COMPANY_PROPERTIES} properties`);
+    // In the database's order, whatever order they came in.
+    const picked = properties.filter((p) => refs.has(p.id));
+    const fillable = (p: Property) => isCompanyProperty({ type: p.type, options: optionsOf(p), ai: Boolean(p.options.ai) });
+    if (picked.length !== refs.size || !picked.every(fillable)) throw invalid("property", "Choose properties it can fill");
+    const chosen = picked.map(
+      (p): CompanyProperty => ({
+        name: p.name,
+        type: p.type as CompanyProperty["type"],
+        options: optionsOf(p).map((o) => o.name),
+        description: p.options.description?.trim() || null,
+      }),
+    );
+    names = { key: "company-details", database: database.title, properties: chosen };
   } else if (setup.key === "ticket-router") {
     const refs = Array.isArray(setup.properties) ? [...new Set(setup.properties)] : [];
     if (!refs.length || refs.length > MAX_ROUTER_PROPERTIES) throw invalid("property", `Choose 1 to ${MAX_ROUTER_PROPERTIES} properties`);
@@ -202,7 +221,13 @@ export async function installBuiltinAgent(
   await create();
   const built = buildBuiltinAgent(texts, names);
   const name = typeof setup.name === "string" && setup.name.trim() ? setup.name : built.name;
-  const agent = await createAgent(userId, workspaceId, { name, icon: built.icon, description: built.description, instructions: built.instructions });
+  const agent = await createAgent(userId, workspaceId, {
+    name,
+    icon: built.icon,
+    description: built.description,
+    instructions: built.instructions,
+    webAccess: built.webAccess,
+  });
   try {
     for (const page of pages) await setAgentAccess(userId, agent.id, page.id, "view");
     if (trigger) {

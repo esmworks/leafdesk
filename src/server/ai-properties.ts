@@ -35,7 +35,9 @@ import {
   type AiErrorCode,
   type AutofillErrorCode,
 } from "@/lib/ai";
+import { availableOptions, canDepend } from "@/lib/dependent-options";
 import { normalizeValue, PropertyValueError } from "@/lib/properties";
+import { propertyDescription } from "@/lib/property-description";
 import { AccessError, hasLevel, pageAccessOf } from "@/server/access";
 import { aiConfig, AiError, complete, contentChars, describeAiSetup, isAiError, isEnabled as aiMayBeOn, takeRateLimit, takeWorkspaceCapacity } from "@/server/ai";
 import { autofillAnswer, autofillNeedsBody, autofillPrompt, formatValue, type AutofillOutput, type Prompt } from "@/server/ai/prompts";
@@ -239,13 +241,23 @@ async function setState(
     });
 }
 
-/** What the value must be, with what the model needs to know to give it (options, percent). */
-export function autofillOutput(prop: Pick<Property, "type" | "options">): AutofillOutput {
+/**
+ * What the value must be, with what the model needs to know to give it (options, percent). A select
+ * depending on another (see lib/dependent-options) offers only the options that go with the row's
+ * value of it, from `values` (by property id) among `props`.
+ */
+export function autofillOutput<P extends Pick<Property, "id" | "name" | "type" | "options">>(
+  prop: P,
+  props: readonly P[] = [prop],
+  values: Record<string, unknown> = {},
+): AutofillOutput {
   switch (prop.type) {
     case "select":
     case "status":
-    case "multi_select":
-      return { type: prop.type, options: (prop.options.options ?? []).map((o) => o.name) };
+    case "multi_select": {
+      const options = canDepend(prop.type) ? availableOptions(prop, props, values) : (prop.options.options ?? []);
+      return { type: prop.type, options: options.map((o) => o.name) };
+    }
     case "number":
       return { type: "number", ...(prop.options.number?.format === "percent" ? { percent: true } : {}) };
     case "checkbox":
@@ -300,12 +312,14 @@ async function rowInput(
   );
   const body = autofillNeedsBody(config) ? (await getCollab().readPage(row.id)).markdown : "";
   const maxContent = Math.max(1_000, contentChars(aiConfig().limits) - 3_000);
-  const output = autofillOutput(prop);
+  const output = autofillOutput(prop, props, values);
   const prompt: Prompt | null = autofillPrompt(
     config,
     { title: row.title, values: text, names: Object.fromEntries(inputs.map((p) => [p.id, p.name])), body },
     maxContent,
     output,
+    // What the database says the field holds: part of what the value depends on, like the prompt.
+    { name: prop.name, description: propertyDescription(prop) },
   );
   // Values worked out before `requires` existed keep their fingerprint.
   const hash = createHash("sha256")
@@ -465,7 +479,13 @@ async function runJob(job: Job): Promise<number> {
       .where(and(eq(databaseProperty.id, prop.id), isNull(databaseProperty.deletedAt)));
     // Deleted meanwhile, the property keeps the values it had.
     if (!current || JSON.stringify(current.options.ai) !== JSON.stringify(input.config)) return 0;
-    await saveValue(job, prop.id, value);
+    try {
+      await saveValue(job, prop.id, value);
+    } catch (error) {
+      // An option that doesn't go with the row's value of the select it depends on, as for any write.
+      if (!(error instanceof PropertyValueError)) throw error;
+      throw new AiError("empty", error.message);
+    }
     await setState(job, { status: "done", sourceHash: input.hash });
     notify(job.databaseId, "rows");
   } catch (error) {
@@ -485,6 +505,7 @@ async function runJob(job: Job): Promise<number> {
  */
 export async function saveValue(job: Pick<Job, "rowId" | "databaseId" | "userId" | "chain">, propertyId: string, value: unknown) {
   const empty = value === null || value === undefined || value === "";
+  const props = await databases.getProperties(job.databaseId);
   const written = await db.transaction(async (tx) => {
     const [row] = await tx
       .select({ properties: page.properties, inTemplate: page.inTemplate })
@@ -494,9 +515,15 @@ export async function saveValue(job: Pick<Job, "rowId" | "databaseId" | "userId"
     const before = row?.properties[propertyId];
     if (!row || JSON.stringify(before === "" ? null : (before ?? null)) === JSON.stringify(empty ? null : value)) return null;
     // The row is locked until the end of the transaction: no other write of it gets lost.
+    // Dependent selects hold as for any write (see databases.followOrRefuse): an option that
+    // doesn't go with the row's value of the one it depends on is refused (a PropertyValueError),
+    // and a new value of one others depend on clears what no longer goes with it.
+    const follow = databases.followOrRefuse(props, props, row.properties, { [propertyId]: empty ? null : value });
     const after = { ...row.properties };
-    if (empty) delete after[propertyId];
-    else after[propertyId] = value;
+    for (const [id, next] of Object.entries({ ...follow, [propertyId]: empty ? null : value })) {
+      if (next === null) delete after[id];
+      else after[id] = next;
+    }
     await tx.update(page).set({ properties: after, updatedBy: job.userId }).where(eq(page.id, job.rowId));
     return { before: row.properties, after, inTemplate: row.inTemplate };
   });

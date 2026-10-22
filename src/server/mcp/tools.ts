@@ -63,6 +63,7 @@ import { valueText } from "@/lib/row-activity";
 import { diffToText, wordsToText } from "@/lib/page-diff";
 import { isGroupable, sortStatusOptions, statusColor } from "@/lib/properties";
 import { holdsOptions, holdsTimestamp, STATUS_GROUPS } from "@/lib/property-types";
+import { MAX_PROPERTY_DESCRIPTION } from "@/lib/property-description";
 import { CALENDAR_MODES, CARD_SIZES, OPEN_ROWS, ROW_VIEW_TYPES, TIMELINE_ZOOMS, VIEW_TYPES } from "@/lib/views";
 import { getCollab, type WriteActor } from "@/server/collab/bridge";
 import { asWrite } from "@/server/connected-app";
@@ -180,7 +181,7 @@ import {
 } from "./query";
 
 const INSTRUCTIONS = `Leafdesk is a workspace of pages and databases. Each user belongs to one or more workspaces.
-Pages form a tree inside a workspace. A database is a special page whose children are rows; rows are pages with typed properties (text, number, select, multi_select, status, date, checkbox, url, email, phone, checklist, files, relation, person, created_by, created_time, last_edited_by, last_edited_time, formula, rollup). A relation links rows to rows of another database in the same workspace; two-way relations show the links on both databases. A person property assigns rows to people of the workspace; "me" stands for the signed-in user. A status is a select whose options belong to the groups todo, in_progress and done. A checklist holds items that can be ticked off. A files property holds files uploaded to the workspace (images show as thumbnails); its values read as [{name, url}]. created_by, created_time, last_edited_by and last_edited_time show who created or last edited each row and when; they are filled in automatically and can't be written. A formula property computes its value from the row's other properties, and a rollup calculates over the rows a relation links to (see add_database_property); neither can be written. A number property's number_format (see get_database), which a formula giving a number can have too, only changes how the app shows it: a percent property holds fractions (0.15 is 15%) and filters on it compare percent points (15). A date property holds a day (YYYY-MM-DD), a time (an ISO timestamp, returned in UTC: 2026-10-12T11:30:00.000Z), or a range of either written \"start/end\" (2026-10-12/2026-10-14; start and end both days or both times, the end not before the start). Write times with Z or an offset (2026-10-12T14:30+03:00); {\"start\", \"end\"} objects are accepted too. Its date_options can show it relatively and remind the row's people before it (a range: before its start; a time: at its time of day).
+Pages form a tree inside a workspace. A database is a special page whose children are rows; rows are pages with typed properties (text, number, select, multi_select, status, date, checkbox, url, email, phone, checklist, files, relation, person, created_by, created_time, last_edited_by, last_edited_time, formula, rollup). A relation links rows to rows of another database in the same workspace; two-way relations show the links on both databases. A person property assigns rows to people of the workspace; "me" stands for the signed-in user. A status is a select whose options belong to the groups todo, in_progress and done. A property may have a description saying what it holds and how to fill it (see get_database): follow it when writing values. A select may depend on another select ("City" on "Country"): a row may hold only the options that go with its value of that one. A checklist holds items that can be ticked off. A files property holds files uploaded to the workspace (images show as thumbnails); its values read as [{name, url}]. created_by, created_time, last_edited_by and last_edited_time show who created or last edited each row and when; they are filled in automatically and can't be written. A formula property computes its value from the row's other properties, and a rollup calculates over the rows a relation links to (see add_database_property); neither can be written. A number property's number_format (see get_database), which a formula giving a number can have too, only changes how the app shows it: a percent property holds fractions (0.15 is 15%) and filters on it compare percent points (15). A date property holds a day (YYYY-MM-DD), a time (an ISO timestamp, returned in UTC: 2026-10-12T11:30:00.000Z), or a range of either written \"start/end\" (2026-10-12/2026-10-14; start and end both days or both times, the end not before the start). Write times with Z or an offset (2026-10-12T14:30+03:00); {\"start\", \"end\"} objects are accepted too. Its date_options can show it relatively and remind the row's people before it (a range: before its start; a time: at its time of day).
 Start with list_workspaces or search to find ids, then get_page / list_pages / query_database. Wherever a tool takes an id (workspace_id, page_id, database_id, row_id, parent_id, view_id…), a Leafdesk link the user pasted works too (\`https://…/w/<workspace_id>/p/<page_id>\`, a view's link has \`?view=<view_id>\`).
 Teamspaces group a workspace's pages and people (list_teamspaces). A teamspace is default (everyone is in it), open (anyone can join; others can read), closed (only its members open its pages) or private (only its members know it). Its member_access is what its members get on its pages unless a page is shared otherwise (its owners and workspace owners get full access). A top-level page belongs to a teamspace, or is private to the user who made it; pages under it follow it. create_page, create_database and move_page take a teamspace_id for top-level pages ("private" for the user's private pages); without one, new top-level pages are private. Member groups (list_groups) are named sets of owners and members that pages are shared with and teamspaces joined by; someone gets the highest access they have from anywhere (their own, a group, the teamspace).
 Page bodies are read and written as Markdown. Before every content change Leafdesk saves a history snapshot, so the user can undo your edits from the page history (list_page_history / diff_page_version / restore_page_version).
@@ -355,6 +356,50 @@ function editOptions(
     options = options.map((o) => (o.id === option.id ? { ...o, group } : o));
   }
   return prop.type === "status" ? sortStatusOptions(options) : options;
+}
+
+const descriptionInput = z
+  .string()
+  .max(MAX_PROPERTY_DESCRIPTION)
+  .describe(
+    `What the property holds and how to fill it, in plain text (at most ${MAX_PROPERTY_DESCRIPTION} characters), e.g. "New until we've called them; Quoted once a quote is sent". The app shows it by the property's name, and AI writing rows (autofill, chat, agents) follows it.`,
+  );
+const dependsOnInput = z
+  .string()
+  .describe(
+    'Select and multi_select only: the name or id of another select property of the database this one depends on ("City" on "Country"); with option_parents each option is offered only with the parent options listed, and rows may hold only options that go with their parent value. When the parent value changes, values that no longer fit are cleared.',
+  );
+const optionParentsInput = z
+  .array(z.object({ option: z.string().min(1), parent_options: z.array(z.string().min(1)).max(200) }))
+  .max(200)
+  .describe("With depends_on: for each option named, the options of the parent property it goes with ([] for always). Options not named keep their lists.");
+
+/** Options with the parent options `entries` give them, by names (see dependsOnInput). */
+function withOptionParents(
+  prop: { name: string },
+  options: SelectOption[],
+  parent: { name: string; options: { options?: SelectOption[] } } | null,
+  entries: z.infer<typeof optionParentsInput>,
+) {
+  if (!parent) throw new ToolInputError(`option_parents needs depends_on: "${prop.name}" doesn't depend on another property.`);
+  const byName = (list: SelectOption[], name: string) => list.find((o) => o.name.trim().toLowerCase() === name.trim().toLowerCase());
+  const parentOptions = parent.options.options ?? [];
+  const lists = new Map<string, string[]>();
+  for (const { option, parent_options } of entries) {
+    const own = byName(options, option);
+    if (!own) throw new ToolInputError(`"${option}" is not an option of "${prop.name}". Options: ${options.map((o) => o.name).join(", ") || "none"}`);
+    lists.set(
+      own.id,
+      parent_options.map((name) => {
+        const found = byName(parentOptions, name);
+        if (!found) {
+          throw new ToolInputError(`"${name}" is not an option of "${parent.name}". Options: ${parentOptions.map((o) => o.name).join(", ") || "none"}`);
+        }
+        return found.id;
+      }),
+    );
+  }
+  return options.map((o) => (lists.has(o.id) ? { ...o, parentOptionIds: lists.get(o.id) } : o));
 }
 
 /** Layout settings of calendar, gallery and timeline views, shared by create_database_view and update_database_view. */
@@ -1536,7 +1581,7 @@ export function createMcpServer(principal: McpPrincipal) {
     {
       title: "Get a database schema",
       description:
-        "Get a database's schema: its properties (name, type, option names for select / multi_select / status with the status groups, and the people a person property can hold), its views with their type, settings (grouping, dates, timeline zoom, calendar month or week, gallery cards, form questions and public link), filters and sorts, the row count, and the database's voice_note_instructions (what notes in it should cover and how they are laid out) when it has them. A restricted property says what the user may do with it in access (view_property: its values are hidden; view: read-only; edit_values: values only, not the property itself; access_per_row: rows naming the user in a person property may give more); for users with full access it also has access_settings (see set_property_access). Call this before querying or writing rows.",
+        "Get a database's schema: its properties (name, type, description when it has one: what it holds and how to fill it, which you should follow when writing rows; option names for select / multi_select / status with the status groups; for a select depending on another, depends_on and option_parents, the parent options each option goes with (options not listed always go); and the people a person property can hold), its views with their type, settings (grouping, dates, timeline zoom, calendar month or week, gallery cards, form questions and public link), filters and sorts, the row count, and the database's voice_note_instructions (what notes in it should cover and how they are laid out) when it has them. A restricted property says what the user may do with it in access (view_property: its values are hidden; view: read-only; edit_values: values only, not the property itself; access_per_row: rows naming the user in a person property may give more); for users with full access it also has access_settings (see set_property_access). Call this before querying or writing rows.",
       inputSchema: ops.inputs.databaseId,
       annotations: READ,
     },
@@ -1654,7 +1699,7 @@ export function createMcpServer(principal: McpPrincipal) {
     {
       title: "Add a database property",
       description:
-        `Add a property (column) to a database. For select and multi_select, pass the option names. For status, pass option names (spread over the groups: the first is todo, the last done, the ones between in_progress) or {name, group} objects; without options a status gets Not started, In progress and Done. Other types ignore options. For a relation, pass related_database_id (a database in the same workspace, or this one); with two_way the related database also gets a property listing the links back. created_by, created_time, last_edited_by and last_edited_time properties fill themselves in with who created or last edited each row and when. A formula computes its value from the row's other properties: pass the expression in formula. ${FORMULA_HELP} ${ROLLUP_HELP}`,
+        `Add a property (column) to a database. For select and multi_select, pass the option names. For status, pass option names (spread over the groups: the first is todo, the last done, the ones between in_progress) or {name, group} objects; without options a status gets Not started, In progress and Done. Other types ignore options. For a relation, pass related_database_id (a database in the same workspace, or this one); with two_way the related database also gets a property listing the links back. created_by, created_time, last_edited_by and last_edited_time properties fill themselves in with who created or last edited each row and when. A formula computes its value from the row's other properties: pass the expression in formula. Any property can have a description saying what it holds and how to fill it. A select or multi_select can depend on a select property (depends_on, option_parents). ${FORMULA_HELP} ${ROLLUP_HELP}`,
       inputSchema: z.object({
         database_id: id("database"),
         name: z.string().min(1).max(100).describe("Property name; must be unique within the database."),
@@ -1672,13 +1717,35 @@ export function createMcpServer(principal: McpPrincipal) {
         rollup: rollupInput.optional().describe("Rollup only: what to calculate over which relation."),
         number_format: numberFormatInput.optional().describe(`Number, or formula giving a number: how values show. ${NUMBER_FORMAT_HELP}`),
         date_options: dateOptionsInput.optional().describe(`Date only: display and reminder. ${DATE_OPTIONS_HELP}`),
+        description: descriptionInput.optional(),
+        depends_on: dependsOnInput.optional(),
+        option_parents: optionParentsInput.optional(),
       }),
       annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
       scopeChallenge: requireWrite,
     },
-    ({ database_id, name, type, options, related_database_id, two_way, paired_property_name, formula, rollup, number_format, date_options }) =>
+    ({
+      database_id,
+      name,
+      type,
+      options,
+      related_database_id,
+      two_way,
+      paired_property_name,
+      formula,
+      rollup,
+      number_format,
+      date_options,
+      description,
+      depends_on,
+      option_parents,
+    }) =>
       runTool(async () => {
         assertWrite();
+        if (depends_on !== undefined && type !== "select" && type !== "multi_select") {
+          throw new ToolInputError("depends_on only applies to select and multi_select properties.");
+        }
+        if (option_parents !== undefined && depends_on === undefined) throw new ToolInputError("option_parents needs depends_on.");
         if (type === "relation" && !related_database_id) throw new ToolInputError("A relation needs related_database_id.");
         if (type !== "relation" && (related_database_id || paired_property_name)) {
           throw new ToolInputError("related_database_id and paired_property_name only apply to relation properties.");
@@ -1710,9 +1777,22 @@ export function createMcpServer(principal: McpPrincipal) {
           ...(type === "rollup" ? { rollup: await rollupSettings(userId, properties, rollup!) } : {}),
           ...(number_format ? { number: number_format } : {}),
           ...(date_options ? { date: dateOptionsOf(date_options) } : {}),
+          ...(description !== undefined ? { description } : {}),
         });
+        let made = created;
+        if (depends_on !== undefined) {
+          // The new property, then what it depends on (checked there) and its options' lists.
+          await databases.updateProperty(userId, created.id, { dependsOn: depends_on });
+          const stored = (await databases.getProperties(database_id)).find((p) => p.id === created.id)!;
+          const parent = properties.find((p) => p.id === stored.options.dependsOn) ?? null;
+          if (option_parents?.length) {
+            const listed = withOptionParents(stored, stored.options.options ?? [], parent, option_parents);
+            await databases.updateProperty(userId, created.id, { options: listed });
+          }
+          made = (await databases.getProperties(database_id)).find((p) => p.id === created.id)!;
+        }
         // Formulas come with their result type.
-        const after = await withAllFormulaTypes([...properties, created]);
+        const after = await withAllFormulaTypes([...properties, made]);
         const shown = after[after.length - 1];
         const lookups = await databases.getLookups(userId, [shown, ...rollupRelations(shown, after)]);
         return { database_id, property: describeProperty(shown, lookups, after, { restricted: !access.open }) };
@@ -1854,7 +1934,7 @@ export function createMcpServer(principal: McpPrincipal) {
     {
       title: "Update a database property",
       description:
-        `Rename a database property, change the options of a select / multi_select / status property (add, rename or remove options by name; for status also move options between the todo, in_progress and done groups), change a formula's expression, the number_format of a number property or a formula giving a number (null for plain numbers) and/or a date property's date_options. Renaming an option keeps it on every row that uses it; removing one clears it from those rows. Renaming a property keeps the formulas that use it working. Changing a number format never changes the stored values. ${NUMBER_FORMAT_HELP} ${DATE_OPTIONS_HELP}`,
+        `Rename a database property, change the options of a select / multi_select / status property (add, rename or remove options by name; for status also move options between the todo, in_progress and done groups), change a formula's expression, the number_format of a number property or a formula giving a number (null for plain numbers) and/or a date property's date_options, its description, or which select property a select / multi_select depends on (depends_on) and which of that property's options each of its options goes with (option_parents). Renaming an option keeps it on every row that uses it; removing one clears it from those rows. Renaming a property keeps the formulas that use it working. Changing a number format never changes the stored values. ${NUMBER_FORMAT_HELP} ${DATE_OPTIONS_HELP}`,
       inputSchema: z.object({
         database_id: id("database"),
         property: z.string().min(1).describe("Current property name or id."),
@@ -1883,11 +1963,29 @@ export function createMcpServer(principal: McpPrincipal) {
           .optional()
           .describe("Number, or formula giving a number: how values show; null for plain numbers."),
         date_options: dateOptionsInput.optional().describe("Date only: the display and reminder to change; left-out fields stay."),
+        description: descriptionInput.nullable().optional().describe("The new description (null or \"\" for none). " + descriptionInput.description),
+        depends_on: dependsOnInput.nullable().optional().describe(`${dependsOnInput.description} null: depend on nothing. Changing it forgets the options' lists.`),
+        option_parents: optionParentsInput.optional(),
       }),
       annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false },
       scopeChallenge: requireWrite,
     },
-    ({ database_id, property, name, add_options, rename_options, remove_options, option_groups, formula, rollup, number_format, date_options }) =>
+    ({
+      database_id,
+      property,
+      name,
+      add_options,
+      rename_options,
+      remove_options,
+      option_groups,
+      formula,
+      rollup,
+      number_format,
+      date_options,
+      description,
+      depends_on,
+      option_parents,
+    }) =>
       runTool(async () => {
         assertWrite();
         const { properties, access, propertyAccess } = await databases.getDatabase(userId, database_id);
@@ -1899,7 +1997,16 @@ export function createMcpServer(principal: McpPrincipal) {
           rollup?: Partial<databases.RollupInput>;
           number?: NumberFormat | null;
           date?: DateOptionsInput;
+          description?: string | null;
+          dependsOn?: string | null;
         } = {};
+        if (description !== undefined) patch.description = description;
+        if (depends_on !== undefined) {
+          if (prop.type !== "select" && prop.type !== "multi_select") {
+            throw new ToolInputError(`"${prop.name}" is a ${prop.type} property; only select and multi_select can depend on another property.`);
+          }
+          patch.dependsOn = depends_on;
+        }
         if (name !== undefined && name.trim() !== prop.name) {
           const needle = name.trim().toLowerCase();
           if (needle === "title" || properties.some((p) => p.id !== prop.id && p.name.trim().toLowerCase() === needle)) {
@@ -1950,8 +2057,27 @@ export function createMcpServer(principal: McpPrincipal) {
           if (prop.type !== "date") throw new ToolInputError(`"${prop.name}" is a ${prop.type} property; only dates have date options.`);
           patch.date = dateOptionsOf(date_options);
         }
-        if (!patch.name && !patch.options && !patch.formula && !patch.rollup && patch.number === undefined && !patch.date) {
-          throw new ToolInputError("Nothing to change: provide name, option changes, formula, rollup, number_format or date_options.");
+        if (option_parents?.length) {
+          const parentRef = patch.dependsOn !== undefined ? patch.dependsOn : prop.options.dependsOn;
+          const needle = parentRef?.trim().toLowerCase();
+          const parent = parentRef
+            ? (properties.find((p) => p.id === parentRef) ?? properties.find((p) => p.name.trim().toLowerCase() === needle) ?? null)
+            : null;
+          patch.options = withOptionParents(prop, patch.options ?? prop.options.options ?? [], parent, option_parents);
+        }
+        if (
+          !patch.name &&
+          !patch.options &&
+          !patch.formula &&
+          !patch.rollup &&
+          patch.number === undefined &&
+          !patch.date &&
+          patch.description === undefined &&
+          patch.dependsOn === undefined
+        ) {
+          throw new ToolInputError(
+            "Nothing to change: provide name, option changes, formula, rollup, number_format, date_options, description, depends_on or option_parents.",
+          );
         }
         const { date: storedDate } = await databases.updateProperty(userId, prop.id, patch);
         const after = await withAllFormulaTypes(
@@ -1971,7 +2097,12 @@ export function createMcpServer(principal: McpPrincipal) {
                 },
           ),
         );
-        const updated = after.find((p) => p.id === prop.id)!;
+        // Descriptions and dependencies as stored (cleaned there).
+        const stored = patch.description !== undefined || patch.dependsOn !== undefined || option_parents?.length
+          ? (await databases.getProperties(database_id)).find((p) => p.id === prop.id)
+          : undefined;
+        const found = after.find((p) => p.id === prop.id)!;
+        const updated = stored ? { ...found, options: { ...found.options, ...stored.options, number: found.options.number } } : found;
         const lookups = await databases.getLookups(userId, [updated, ...rollupRelations(updated, after)]);
         return {
           database_id,

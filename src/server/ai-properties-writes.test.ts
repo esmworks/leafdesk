@@ -24,7 +24,7 @@ vi.mock("@/db", () => {
 });
 vi.mock("@/server/collab/bridge", () => ({ getCollab: vi.fn() }));
 vi.mock("@/server/row-events", () => ({ onRowChanged: vi.fn(), rowChanged }));
-vi.mock("@/server/databases", () => ({ afterRowWrites }));
+vi.mock("@/server/databases", () => ({ afterRowWrites, getProperties: async () => [], followOrRefuse: () => ({}) }));
 
 const { autofillOutput, followUpTargets, mergeFollowUp, requirementsMet, saveValue } = await import("./ai-properties");
 
@@ -98,6 +98,22 @@ describe("typed values", () => {
     expect(autofillOutput(prop("p", "Share", "number", { number: { format: "percent" } }))).toEqual({ type: "number", percent: true });
     expect(autofillOutput(prop("p", "Pages", "number"))).toEqual({ type: "number" });
     expect(autofillOutput(prop("p", "Notes", "text"))).toEqual({ type: "text" });
+  });
+
+  it("offers a dependent select only the options that go with the row", () => {
+    const country = prop("country", "Country", "select", { options: [{ id: "tr", name: "Türkiye" }, { id: "de", name: "Germany" }] });
+    const city = prop("city", "City", "select", {
+      dependsOn: "country",
+      options: [
+        { id: "ist", name: "Istanbul", parentOptionIds: ["tr"] },
+        { id: "ber", name: "Berlin", parentOptionIds: ["de"] },
+        { id: "other", name: "Other" },
+      ],
+    });
+    expect(autofillOutput(city, [country, city], { country: "de" })).toEqual({ type: "select", options: ["Berlin", "Other"] });
+    expect(autofillOutput(city, [country, city], {})).toEqual({ type: "select", options: ["Other"] });
+    // Its parent out of the person's sight: every option, and the write decides.
+    expect(autofillOutput(city, [city], { country: "de" })).toEqual({ type: "select", options: ["Istanbul", "Berlin", "Other"] });
   });
 
   it("waits for values the prompt may read", () => {

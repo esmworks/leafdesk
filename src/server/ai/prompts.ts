@@ -199,11 +199,30 @@ export function autofillNeedsBody(config: AiAutofillConfig): boolean {
 }
 
 /**
+ * What the field being filled is for, from its property's description (see lib/property-description):
+ * a line before the task, so the answer fits what the database expects there. Empty without one.
+ */
+function fieldGuidance(field: AutofillField | undefined) {
+  const description = field?.description.trim();
+  return description ? `The field is "${field!.name}". What it holds and how to fill it: ${description.replace(/\s+/g, " ")}\n\n` : "";
+}
+
+/** The property an autofill value is for: its name and description. */
+export type AutofillField = { name: string; description: string };
+
+/**
  * The prompt that works out an autofill value, or null when the row has nothing to work from (the
  * value is then cleared without asking a model). A value that isn't text is asked for in the form
- * autofillAnswer reads.
+ * autofillAnswer reads; `field`'s description guides the answer.
  */
-export function autofillPrompt(config: AiAutofillConfig, row: AutofillRow, maxContent: number, output: AutofillOutput = { type: "text" }): Prompt | null {
+export function autofillPrompt(
+  config: AiAutofillConfig,
+  row: AutofillRow,
+  maxContent: number,
+  output: AutofillOutput = { type: "text" },
+  field?: AutofillField,
+): Prompt | null {
+  const guidance = fieldGuidance(field);
   const body = truncateText(row.body.trim(), maxContent);
   const properties = Object.entries(row.values)
     .map(([name, value]) => `${name}: ${value.replace(/\s+/g, " ")}`)
@@ -214,7 +233,7 @@ export function autofillPrompt(config: AiAutofillConfig, row: AutofillRow, maxCo
       const parts = [tagged("title", row.title), properties ? tagged("properties", properties) : "", body ? tagged("content", body) : ""];
       return {
         system: AUTOFILL_SYSTEM,
-        prompt: `Summarize this row in one or two sentences, in the language of its content.\n\n${parts.filter(Boolean).join("\n\n")}`,
+        prompt: `${guidance}Summarize this row in one or two sentences, in the language of its content.\n\n${parts.filter(Boolean).join("\n\n")}`,
       };
     }
     case "translation": {
@@ -224,7 +243,7 @@ export function autofillPrompt(config: AiAutofillConfig, row: AutofillRow, maxCo
       if (!text.trim()) return null;
       return {
         system: AUTOFILL_SYSTEM,
-        prompt: `Translate this text into ${languageName(config.language ?? "en")}. Answer with the translation only.\n\n${tagged("text", text)}`,
+        prompt: `${guidance}Translate this text into ${languageName(config.language ?? "en")}. Answer with the translation only.\n\n${tagged("text", text)}`,
       };
     }
     case "custom": {
@@ -234,7 +253,7 @@ export function autofillPrompt(config: AiAutofillConfig, row: AutofillRow, maxCo
       const form = outputInstruction(output);
       return {
         system: form ? AUTOFILL_TYPED_SYSTEM : AUTOFILL_SYSTEM,
-        prompt: `${instruction}\n\nThe row:\n${tagged("row", [`Title: ${row.title}`, properties].filter(Boolean).join("\n"))}${content}${form ? `\n\n${form}` : ""}`,
+        prompt: `${guidance}${instruction}\n\nThe row:\n${tagged("row", [`Title: ${row.title}`, properties].filter(Boolean).join("\n"))}${content}${form ? `\n\n${form}` : ""}`,
       };
     }
   }

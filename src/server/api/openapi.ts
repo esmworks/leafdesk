@@ -353,6 +353,20 @@ const SCHEMAS: Record<string, JsonSchema> = {
           name: { type: "string" },
           type: { type: "string" },
           id: { type: "string" },
+          description: {
+            type: "string",
+            description: "What the property holds and how to fill it, as whoever set the database up wrote it. Left out when it has none.",
+          },
+          depends_on: {
+            type: "string",
+            description:
+              "Select and multi-select properties depending on another select property: its name. A row may hold only the options that go with its value of that property (see option_parents); values that no longer fit are cleared when it changes.",
+          },
+          option_parents: {
+            type: "object",
+            additionalProperties: { type: "array", items: { type: "string" } },
+            description: "With depends_on: per option name, the options of that property it goes with. Options left out go with any value.",
+          },
           result_type: { type: "string", enum: ["number", "text", "checkbox", "date"], description: "Formulas only: what the formula gives." },
           number_format: loose(
             {
