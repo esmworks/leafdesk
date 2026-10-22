@@ -568,7 +568,10 @@
       "fromChat": "Chat-Nachricht von {name}",
       "chattedBy": "Chat von {name}",
       "yoursOnly": "Du siehst die Durchläufe, die du gestartet hast.",
-      "waitingForOwner": "Ein Workspace-Inhaber beantwortet diesen Aufruf."
+      "waitingForOwner": "Ein Workspace-Inhaber beantwortet diesen Aufruf.",
+      "emailDrafted": "Hat eine E-Mail zur Prüfung entworfen:",
+      "emailFailed": "Konnte keine E-Mail entwerfen:",
+      "emailHidden": "Hat eine E-Mail zu einer Zeile entworfen, die du nicht öffnen kannst"
     },
     "usage": {
       "thisMonth": "Diesen Monat: {usage}",

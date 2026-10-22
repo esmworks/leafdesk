@@ -8,7 +8,11 @@
  * values proposed; approving makes the change as the approver, the row's activity crediting the
  * agent, and a row that changed since needs force; a new row is made where the agent proposed it;
  * dismissing makes nothing; unanswered proposals expire and old ones go with the daily cleanup;
- * the audit log records each answer.
+ * the audit log records each answer. An agent on a row whose mail goes to someone with a mailbox
+ * drafts email with draft_email: a draft that isn't a finished message is refused, one that is
+ * waits for its sender alone, answering the row's latest message where there is one; approving
+ * queues it from the sender's mailbox, dismissing sends nothing; a run for someone without a
+ * mailbox has no draft_email.
  * Creates its own users and workspace and deletes them afterwards.
  *
  *   pnpm tsx scripts/review-e2e.ts
@@ -25,7 +29,9 @@ try {
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
 const { and, eq, inArray } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { agentRun, auditEvent, notification, page, pendingChange, rowActivity, user, workspace, workspaceMember } = await import("@/db/schema");
+const { agentRun, auditEvent, mailbox, notification, page, pendingChange, rowActivity, rowEmail, user, workspace, workspaceMember } = await import("@/db/schema");
+const { updateWorkspaceSettings } = await import("@/server/workspaces");
+const { setMailDatabases } = await import("@/server/row-mail/settings");
 const { listNotifications } = await import("@/server/notifications");
 const { registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
@@ -245,6 +251,124 @@ try {
 
   const audit = await db.select().from(auditEvent).where(and(eq(auditEvent.workspaceId, workspaceId), inArray(auditEvent.action, ["review.approved", "review.dismissed"])));
   check(audit.filter((a) => a.action === "review.approved").length === 2 && audit.filter((a) => a.action === "review.dismissed").length === 2, "the audit log records each answer", audit.map((a) => a.action));
+
+  // ── Email drafts ────────────────────────────────────────────────────────────────────────────
+  await updateWorkspaceSettings(ids.owner, workspaceId, { email: true });
+  const contacts = await createPage({ userId: ids.owner }, { workspaceId, teamspaceId: null, kind: "database", title: "Contacts" });
+  await setPagePermission(ids.owner, contacts.id, ids.editor, "edit");
+  const emailProp = await databases.addProperty(ids.owner, contacts.id, { name: "Email", type: "email" });
+  await setMailDatabases(ids.owner, workspaceId, [{ databaseId: contacts.id, propertyIds: [emailProp.id] }]);
+  // A mailbox for the editor only, as connecting one would leave it (its password is never used here).
+  await db.insert(mailbox).values({
+    workspaceId,
+    userId: ids.editor,
+    address: "ece@example.test",
+    imapHost: "imap.example.test",
+    imapPort: 993,
+    imapSecure: true,
+    smtpHost: "smtp.example.test",
+    smtpPort: 465,
+    smtpSecure: true,
+    username: "ece@example.test",
+    secret: "not-a-sealed-secret",
+    status: "ok",
+    consentedAt: new Date(),
+  });
+  const mailer = await agents.createAgent(ids.owner, workspaceId, { name: "Follow-up writer", instructions: "Write follow-ups." });
+  await automations.createAutomation(ids.owner, contacts.id, {
+    name: "Follow up",
+    trigger: { type: "row_created" },
+    actions: [{ type: "run_agent", agent: mailer.id, prompt: "Write a follow-up email." }],
+  });
+  const mailerRun = async () => (await db.select().from(agentRun).where(eq(agentRun.agentId, mailer.id)).orderBy(agentRun.createdAt)).at(-1)!;
+  const finished = "Hello Defne,\n\nThank you for your time today. The quote follows this week.\n\nBest regards,\nEce";
+  fake.chats.length = 0;
+  fake.setChat(
+    caller([
+      [{ name: "draft_email", arguments: { subject: "Your quote", text: "Hello {{first_name}},\n\n**Thanks** for your time.\n\n[Your Name]", reason: "A follow-up after the call." } }],
+      [{ name: "draft_email", arguments: { subject: "Your quote", text: finished, reason: "A follow-up after the call." } }],
+    ]),
+  );
+  const [defne] = await databases.createRows(ids.editor, contacts.id, [{ title: "Defne", properties: { [emailProp.id]: "defne@example.test" } }]);
+  await settle();
+  const drafted = await mailerRun();
+  check(drafted.status === "done", "the run that drafts is done", drafted);
+  // The other agent's runs (on rows approved above) ask the model too: the follow-up writer's turns.
+  const mailChats = fake.chats.filter((c) => everything(c).includes("Defne"));
+  const draftTool = toolsOf(mailChats[0]).find((t) => t.function.name === "draft_email");
+  check(draftTool && /Editor Ece's mailbox \(ece@example\.test\)/.test(draftTool.function.description ?? ""), "a run for someone with a mailbox may draft email from it, and is told whose", draftTool);
+  check(/draft_email drafts an email on the row/.test(everything(mailChats[0])), "the model is told how to write a draft");
+  const refused = toolResults(mailChats[1])[0] ?? "";
+  check(/isn't a finished message/.test(refused) && /gap to fill/.test(refused) && /Markdown/.test(refused), "a draft with placeholders and Markdown goes back to the model with why", refused);
+  check(/isn't sent yet/.test(toolResults(mailChats[2]).at(-1) ?? ""), "the model hears a finished draft waits, unsent", toolResults(mailChats[2]));
+  const drafts = await db.select().from(pendingChange).where(and(eq(pendingChange.agentRunId, drafted.id), eq(pendingChange.kind, "email_draft")));
+  check(drafts.length === 1 && drafts[0].senderId === ids.editor, "one draft waits, from the person the run worked for", drafts);
+  const [draft] = drafts;
+  const payload = draft.payload as { to: string[]; subject: string; text: string; replyTo: string | null };
+  check(payload.to.join() === "defne@example.test" && payload.replyTo === null && payload.subject === "Your quote" && payload.text === finished, "a new message to the row's own address", payload);
+  check(drafted.steps.some((s) => s.kind === "email" && s.outcome === "proposed"), "the run's step says it drafted an email", drafted.steps);
+  check((await db.select().from(rowEmail).where(eq(rowEmail.rowId, defne.id))).length === 0, "nothing is sent by the agent");
+  const ownerSees = (await queueOf(ids.owner)).find((c) => c.id === draft.id);
+  check(!ownerSees || !ownerSees.canApprove, "someone else, full access or not, may not send it", ownerSees);
+  check(await fails(review.approvePendingChange(ids.owner, draft.id, { actor: { userId: ids.owner } }), isAccess), "approving it from someone else's mailbox is refused");
+  check(await fails(review.dismissPendingChange(ids.owner, draft.id), isAccess), "as is dismissing it");
+  const senderSees = (await queueOf(ids.editor)).find((c) => c.id === draft.id);
+  check(senderSees?.canApprove && senderSees.email?.sender?.id === ids.editor, "its sender sees it and may send it", senderSees);
+  const sent = await review.approvePendingChange(ids.editor, draft.id, { actor: { userId: ids.editor } });
+  check(sent.status === "approved", "approving it sends it", sent);
+  const queued = await db.select().from(rowEmail).where(eq(rowEmail.rowId, defne.id));
+  check(
+    queued.length === 1 && queued[0].direction === "out" && queued[0].sentBy === ids.editor && queued[0].fromAddress === "ece@example.test" && queued[0].to.join() === "defne@example.test",
+    "from the sender's mailbox, on the row, to the row's address",
+    queued,
+  );
+  // Sending is tried at once in the background (and fails here, with no real server): wait for it.
+  for (let i = 0; i < 50 && (await db.select({ attempts: rowEmail.attempts }).from(rowEmail).where(eq(rowEmail.id, queued[0].id)))[0].attempts === 0; i++) {
+    await new Promise((r) => setTimeout(r, 100));
+  }
+
+  // A reply: the draft answers the row's latest message, to its sender, keeping its subject.
+  const incoming = await db
+    .insert(rowEmail)
+    .values({
+      workspaceId,
+      databaseId: contacts.id,
+      rowId: defne.id,
+      direction: "in",
+      messageId: `${RUN}-in@example.test`,
+      fromAddress: "defne.other@example.test",
+      to: ["ece@example.test"],
+      subject: "Price list",
+      text: "Could you send the price list?",
+      sentAt: new Date(Date.now() + 60_000),
+      status: "received",
+    })
+    .returning({ id: rowEmail.id });
+  const reply = await (await import("@/server/agents/email-drafts")).draftRowEmail({
+    workspaceId,
+    agent: { id: mailer.id, userId: mailer.userId },
+    runId: drafted.id,
+    automationRunId: null,
+    sender: { userId: ids.editor, name: "Editor Ece", address: "ece@example.test" },
+    rowId: defne.id,
+    args: { subject: "Prices", text: "Hello Defne,\n\nThe price list is attached.\n\nEce", reason: "She asked for prices." },
+  });
+  check(!reply.isError, "a draft on a row with mail", reply);
+  const [answer] = await db.select().from(pendingChange).where(and(eq(pendingChange.rowId, defne.id), eq(pendingChange.status, "pending")));
+  const answerPayload = answer.payload as { to: string[]; subject: string; replyTo: string | null };
+  check(answerPayload.replyTo === incoming[0].id && answerPayload.to.join() === "defne.other@example.test" && answerPayload.subject === "Re: Price list", "answers its latest message, to who wrote it, keeping the subject", answerPayload);
+  const thrown = await review.dismissPendingChange(ids.editor, answer.id);
+  check(thrown.status === "dismissed" && (await db.select().from(rowEmail).where(and(eq(rowEmail.rowId, defne.id), eq(rowEmail.direction, "out")))).length === 1, "dismissing a draft sends nothing");
+
+  // A run for someone without a mailbox (the owner) has no draft_email, and calling it anyway fails.
+  fake.chats.length = 0;
+  fake.setChat(caller([[{ name: "draft_email", arguments: { subject: "Hi", text: "Hello.", reason: "x" } }]]));
+  await databases.createRows(ids.owner, contacts.id, [{ title: "Ferhat", properties: { [emailProp.id]: "ferhat@example.test" } }]);
+  await settle();
+  const ownerChats = fake.chats.filter((c) => everything(c).includes("Ferhat"));
+  check(ownerChats.length === 2 && !toolsOf(ownerChats[0]).some((t) => t.function.name === "draft_email"), "a run for someone without a mailbox isn't offered draft_email", ownerChats.length);
+  check(/There is no tool "draft_email"/.test(toolResults(ownerChats[1])[0] ?? ""), "and calling it anyway gets an error", toolResults(ownerChats[1]));
+  check((await db.select().from(pendingChange).where(and(eq(pendingChange.workspaceId, workspaceId), eq(pendingChange.kind, "email_draft")))).length === 2, "no draft is made");
 
   // ── Expiry and cleanup ──────────────────────────────────────────────────────────────────────
   const stale = await propose("update_row", acme.id, { properties: { [note.id]: "B" } }, { properties: { [note.id]: null } });

@@ -222,6 +222,9 @@ export type AgentRunStatus = (typeof AGENT_RUN_STATUSES)[number];
 /** A comment the agent wrote on a page. */
 export type AgentCommentRecord = { kind: "comment"; pageId: string; text: string; outcome: "done" | "failed" };
 
+/** An email the agent drafted on a row (`proposed`: it waits for its sender's review), or couldn't. */
+export type AgentEmailRecord = { kind: "email"; pageId: string; subject: string; outcome: "proposed" | "failed" };
+
 /**
  * A call to a connection's tool: read at once (`done`/`failed`), or one that waited for approval
  * and was sent (`done`/`failed`), declined, sent back to be redone, or never answered. Without a
@@ -286,7 +289,7 @@ export type AgentHandoffRecord = {
 };
 
 /** One thing a run did: followed a skill, searched, read, queried, changed, thought aloud, commented, used a tool or asked another agent. */
-export type AgentStepRecord = ChatStepRecord | AgentCommentRecord | AgentToolRecord | AgentSkillRecord | AgentHandoffRecord;
+export type AgentStepRecord = ChatStepRecord | AgentCommentRecord | AgentEmailRecord | AgentToolRecord | AgentSkillRecord | AgentHandoffRecord;
 
 /** A call waiting for approval: what will be sent, and since when. No connection (null): Leafdesk's own tool. */
 export type AgentPendingCall = {

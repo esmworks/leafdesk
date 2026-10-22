@@ -568,7 +568,10 @@
       "fromChat": "Wiadomość na czacie od {name}",
       "chattedBy": "z czatu: {name}",
       "yoursOnly": "Widzisz uruchomienia, które sam rozpocząłeś.",
-      "waitingForOwner": "Na to wywołanie odpowiada właściciel obszaru roboczego."
+      "waitingForOwner": "Na to wywołanie odpowiada właściciel obszaru roboczego.",
+      "emailDrafted": "Przygotował szkic e-maila do sprawdzenia:",
+      "emailFailed": "Nie udało się przygotować szkicu e-maila:",
+      "emailHidden": "Przygotował szkic e-maila w wierszu, którego nie możesz otworzyć"
     },
     "usage": {
       "thisMonth": "W tym miesiącu: {usage}",

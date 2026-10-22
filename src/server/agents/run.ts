@@ -84,6 +84,7 @@ import { aiAvailable } from "@/server/ai-writing";
 import { memoryAvailable, memoryForPrompt } from "@/server/ai-memory";
 import { applyWrite, CHAT_TOOLS, prepareWrite, runTool, workspaceMap, WRITE_TOOL_NAMES, WRITE_TOOLS, type PreparedWrite, type Registry, type ToolOutcome } from "@/server/ai-tools";
 import { proposeChange } from "@/server/pending-changes";
+import { databaseOfRow, DRAFT_EMAIL, draftEmailTool, draftRowEmail, draftSender } from "./email-drafts";
 import { asAutomation } from "@/server/automations/queue";
 import { getCollab } from "@/server/collab/bridge";
 import { changeComments } from "@/server/comments";
@@ -578,8 +579,13 @@ async function converse(
   const handoff = await handoffFor(agent, run, { bound, trusted: !askEveryTool, clock, runHelper: runInSlot });
   const ownTools = rowRun ? AGENT_TOOLS : databaseId ? SCHEDULED_DATABASE_TOOLS : eventRun ? EVENT_TOOLS : chatWrites ? [...CHAT_TOOLS, ...WRITE_TOOLS] : [...CHAT_TOOLS, ...mentionTools];
   const reviews = proposes && ownTools.some((t) => PROPOSE_TOOLS.has(t.name));
+  // A run on a row, or a schedule's on a database, that works for someone with a mailbox where mail
+  // is matched to the rows drafts email from it; each draft waits for them (email-drafts.ts).
+  const draftDatabase = databaseId ?? (isRowRun(run.source) ? await databaseOfRow(run.source.rowId) : null);
+  const sender = await draftSender(member, run.workspaceId, draftDatabase);
   const tools = [
     ...forReview(ownTools, proposes),
+    ...(sender ? [draftEmailTool(sender, { anyRow: Boolean(databaseId) })] : []),
     ...(remembers ? AGENT_MEMORY_TOOLS : []),
     ...webTools,
     ...(handoff ? [handoff.tool] : []),
@@ -603,6 +609,7 @@ async function converse(
     skills: skillSet.skills,
     remembers,
     reviews,
+    drafts: Boolean(sender),
   });
   const toolsSize = tools.reduce((n, t) => n + t.description.length + JSON.stringify(t.parameters).length, 0);
   // The model its owners chose: every turn of every run of the agent's goes to it (features.ts).
@@ -768,6 +775,24 @@ async function converse(
       if (writes >= maxWrites) return { content: `You have made ${maxWrites} changes, the most one run may make. Finish now.`, isError: true };
       const out: CallResult =
         call.name === "add_comment" ? await addComment(agent, run, call.arguments) : await changeRow(ctx, run, call, proposes && call.name === UPDATE_ROW.name ? propose : null);
+      if (!out.isError) writes += 1;
+      return out;
+    }
+    if (sender && call.name === DRAFT_EMAIL) {
+      if (writes >= maxWrites) return { content: `You have made ${maxWrites} changes, the most one run may make. Finish now.`, isError: true };
+      const rowId = databaseId ? (typeof call.arguments.row_id === "string" ? call.arguments.row_id.trim() : "") : isRowRun(run.source) ? run.source.rowId : "";
+      if (databaseId && !(await isRowOf(rowId, databaseId))) {
+        return { content: `You may draft email only on rows of the database this run looks after (database_id ${databaseId}).`, isError: true };
+      }
+      const out = await draftRowEmail({
+        workspaceId: run.workspaceId,
+        agent: { id: agent.id, userId: agent.userId },
+        runId: run.id,
+        automationRunId: run.source.kind === "automation" ? run.source.automationRunId : null,
+        sender,
+        rowId,
+        args: call.arguments,
+      });
       if (!out.isError) writes += 1;
       return out;
     }

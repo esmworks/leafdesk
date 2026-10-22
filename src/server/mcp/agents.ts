@@ -647,6 +647,13 @@ export function describeAgentStep(step: AgentStepRecord) {
         page_id: step.pageId,
         summary: `${step.outcome === "failed" ? "Failed to comment" : "Commented"}: ${quote(short(step.text))}`,
       };
+    case "email":
+      return {
+        kind: "email",
+        outcome: step.outcome,
+        page_id: step.pageId,
+        summary: `${step.outcome === "failed" ? "Failed to draft an email" : "Drafted an email for its sender to review (not sent yet)"}${step.subject ? `: ${quote(short(step.subject))}` : ""}`,
+      };
     case "thought":
       return { kind: "thought", summary: step.text };
     case "memory": {

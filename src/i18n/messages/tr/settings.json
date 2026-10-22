@@ -568,7 +568,10 @@
       "fromChat": "{name} kişisinin sohbet mesajı",
       "chattedBy": "sohbet eden: {name}",
       "yoursOnly": "Başlattığın çalışmaları görürsün.",
-      "waitingForOwner": "Bu çağrıyı bir çalışma alanı sahibi yanıtlar."
+      "waitingForOwner": "Bu çağrıyı bir çalışma alanı sahibi yanıtlar.",
+      "emailDrafted": "İncelenmek üzere bir e-posta taslağı yazdı:",
+      "emailFailed": "E-posta taslağı yazamadı:",
+      "emailHidden": "Açamadığın bir satırda e-posta taslağı yazdı"
     },
     "usage": {
       "thisMonth": "Bu ay: {usage}",

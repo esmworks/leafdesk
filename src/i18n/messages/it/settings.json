@@ -568,7 +568,10 @@
       "fromChat": "Messaggio in chat di {name}",
       "chattedBy": "chat di {name}",
       "yoursOnly": "Vedi le esecuzioni che hai avviato tu.",
-      "waitingForOwner": "Un proprietario dello spazio di lavoro risponde a questa chiamata."
+      "waitingForOwner": "Un proprietario dello spazio di lavoro risponde a questa chiamata.",
+      "emailDrafted": "Ha scritto una bozza di email da rivedere:",
+      "emailFailed": "Non è riuscito a scrivere una bozza di email:",
+      "emailHidden": "Ha scritto una bozza di email su una riga che non puoi aprire"
     },
     "usage": {
       "thisMonth": "Questo mese: {usage}",

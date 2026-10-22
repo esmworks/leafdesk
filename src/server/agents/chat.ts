@@ -239,7 +239,7 @@ async function stepsFor(userId: string, steps: AgentStepRecord[]): Promise<Agent
   );
   return Promise.all(
     steps.map(async (s): Promise<AgentChatStepView> =>
-      s.kind === "skill" ? (open.has(s.pageId) ? s : { ...s, title: "" }) : s.kind === "tool" || s.kind === "comment" || s.kind === "handoff" ? s : viewStep(userId, s),
+      s.kind === "skill" ? (open.has(s.pageId) ? s : { ...s, title: "" }) : s.kind === "tool" || s.kind === "comment" || s.kind === "email" || s.kind === "handoff" ? s : viewStep(userId, s),
     ),
   );
 }

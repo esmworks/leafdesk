@@ -568,7 +568,10 @@
       "fromChat": "{name} 的聊天消息",
       "chattedBy": "由 {name} 发起对话",
       "yoursOnly": "你可以看到自己发起的运行。",
-      "waitingForOwner": "此调用由工作区所有者处理。"
+      "waitingForOwner": "此调用由工作区所有者处理。",
+      "emailDrafted": "起草了一封待审核的邮件：",
+      "emailFailed": "无法起草邮件：",
+      "emailHidden": "在你无法打开的行上起草了一封邮件"
     },
     "usage": {
       "thisMonth": "本月：{usage}",

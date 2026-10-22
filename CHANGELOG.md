@@ -30,6 +30,17 @@
   and agents' `row_changes` in both. Migration 0107 adds `pending_change`,
   `row_activity.proposed_by`, `workspace_agent.row_changes` and the `review_…` columns of
   `user_preference`.
+- **Agents draft email for you to send.** An agent's run on a row, or a schedule's run on a
+  database, that works for someone with a connected mailbox, where email on rows is on and mail is
+  matched to that database, gets `draft_email`: it writes a subject and a plain-text message, and
+  the draft waits under *For review* for that person alone, from whose mailbox it goes out once
+  they approve it (edited or not); dismissing it sends nothing. The draft answers the row's latest
+  message (to its other party, keeping its subject), else starts a new one to the row's own
+  addresses. Agents never send email themselves and don't read the row's mail. A draft that isn't
+  a finished message (gaps to fill like `{{name}}` or `[Your Name]`, bracketed source numbers,
+  Markdown, HTML, the app's own ids, links or markup, an empty text or a subject on two lines) goes
+  back to the agent with what is wrong; a reviewer's edits aren't checked. The run's steps show the
+  drafts.
 - **Ask the AI chat from Telegram.** With `TELEGRAM_BOT_TOKEN` set to a bot made with @BotFather,
   people link their Telegram account in My account → *Connected apps* → *Telegram* (a one-time
   link, also as a QR code, that works once for 10 minutes) and then ask the AI chat in a private

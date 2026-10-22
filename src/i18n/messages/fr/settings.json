@@ -568,7 +568,10 @@
       "fromChat": "Message de chat de {name}",
       "chattedBy": "chat de {name}",
       "yoursOnly": "Vous voyez les exécutions que vous avez lancées.",
-      "waitingForOwner": "Un propriétaire de l’espace de travail répond à cet appel."
+      "waitingForOwner": "Un propriétaire de l’espace de travail répond à cet appel.",
+      "emailDrafted": "A rédigé un e-mail à relire :",
+      "emailFailed": "N’a pas pu rédiger d’e-mail :",
+      "emailHidden": "A rédigé un e-mail sur une ligne que vous ne pouvez pas ouvrir"
     },
     "usage": {
       "thisMonth": "Ce mois-ci : {usage}",

@@ -508,6 +508,9 @@
       "comment": "Commented:",
       "commentFailed": "Couldn’t comment:",
       "commentHidden": "Commented on a row you can’t open",
+      "emailDrafted": "Drafted an email for review:",
+      "emailFailed": "Couldn’t draft an email:",
+      "emailHidden": "Drafted an email on a row you can’t open",
       "reason": {
         "aiOff": "AI is off in this workspace.",
         "agentDisabled": "The agent was paused or archived.",

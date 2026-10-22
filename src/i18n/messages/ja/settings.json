@@ -568,7 +568,10 @@
       "fromChat": "{name}からのチャットメッセージ",
       "chattedBy": "{name}がチャット",
       "yoursOnly": "あなたが開始した実行が表示されます。",
-      "waitingForOwner": "この呼び出しにはワークスペースのオーナーが応答します。"
+      "waitingForOwner": "この呼び出しにはワークスペースのオーナーが応答します。",
+      "emailDrafted": "確認待ちのメールを下書きしました:",
+      "emailFailed": "メールを下書きできませんでした:",
+      "emailHidden": "開けない行でメールを下書きしました"
     },
     "usage": {
       "thisMonth": "今月：{usage}",
