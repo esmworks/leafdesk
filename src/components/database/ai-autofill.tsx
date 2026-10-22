@@ -1,11 +1,11 @@
 "use client";
 
 /**
- * AI autofill properties (#42) in the database UI: the settings editor (from "+" and a text
- * property's menu), and each cell's pending and failed states with a per-row "Update with AI".
- * Values are ordinary text: the cells are the usual text cells, and people may still edit them.
+ * AI autofill properties (#42) in the database UI: the settings editor (from "+" and the menu of a
+ * property AI can fill in), and each cell's pending and failed states with a per-row "Update with
+ * AI". Values are ordinary values: the cells are the usual cells, and people may still edit them.
  */
-import { ArrowLeft, LoaderCircle, RefreshCw, TriangleAlert } from "lucide-react";
+import { ArrowLeft, Check, LoaderCircle, RefreshCw, TriangleAlert } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { createContext, useContext, useMemo, useRef, useState, type ReactNode } from "react";
 import { Button, cn } from "@/components/ui";
@@ -17,7 +17,9 @@ import {
   autofillHiddenInputs,
   checkAutofill,
   isAiErrorCode,
+  isAutofillType,
   MAX_AUTOFILL_PROMPT,
+  MAX_AUTOFILL_REQUIRES,
   type AiAutofillConfig,
   type AiAutofillMode,
   type AiCellState,
@@ -47,7 +49,7 @@ export function useAiAutofill() {
 export function AiCell({ prop, rowId, readOnly, children }: { prop: Property; rowId: string; readOnly?: boolean; children: ReactNode }) {
   const t = useTranslations("ai");
   const { enabled, states, refresh } = useAiAutofill();
-  if (prop.type !== "text" || !prop.options.ai) return <>{children}</>;
+  if (!isAutofillType(prop.type) || !prop.options.ai) return <>{children}</>;
   const state = states[rowId]?.[prop.id];
   const canRefresh = !readOnly && enabled && refresh && state?.status !== "pending";
   const reason = state?.status === "error" ? t(`errors.${isAiErrorCode(state.code) ? state.code : "provider"}`) : "";
@@ -97,7 +99,8 @@ const selectClass = "h-7 w-full rounded-md border border-border bg-bg px-2 text-
 
 /**
  * Sets up what AI fills in: a summary of the row's page, a translation of one of its values, or
- * the person's own prompt with `{Property}` placeholders. Invalid settings can't be saved.
+ * the person's own prompt with `{Property}` placeholders (the only choice for a property that isn't
+ * text), and optionally the properties a row must have a value in. Invalid settings can't be saved.
  */
 export function AutofillEditor({
   prop,
@@ -118,12 +121,18 @@ export function AutofillEditor({
   const errorOf = useAutofillError();
   const current = prop?.options.ai;
   const others = useMemo(() => properties.filter((p) => p.id !== prop?.id), [properties, prop?.id]);
-  const [mode, setMode] = useState<AiAutofillMode>(current?.mode ?? "summary");
+  // Not text: AI follows a prompt, and the answer must fit the type.
+  const typed = prop && prop.type !== "text" && isAutofillType(prop.type) ? prop.type : null;
+  const [chosenMode, setMode] = useState<AiAutofillMode>(current?.mode ?? "summary");
+  const mode = typed ? "custom" : chosenMode;
   const [language, setLanguage] = useState(current?.language ?? (locale === "en" ? "tr" : "en"));
   const [source, setSource] = useState(current?.source ?? AUTOFILL_TITLE);
   const [prompt, setPrompt] = useState(current?.prompt ?? "");
   const [includeBody, setIncludeBody] = useState(current?.includeBody ?? false);
   const [auto, setAuto] = useState(current?.auto ?? false);
+  // Properties since deleted (or hidden from this person) aren't offered, so they aren't kept either.
+  const [requires, setRequires] = useState(() => (current?.requires ?? []).filter((id) => others.some((p) => p.id === id)));
+  const [limited, setLimited] = useState(requires.length > 0);
   const [tried, setTried] = useState(false);
   const area = useRef<HTMLTextAreaElement>(null);
 
@@ -135,10 +144,16 @@ export function AutofillEditor({
     return AI_LANGUAGES.map((code) => ({ code, name: names?.of(code) ?? code })).sort((a, b) => a.name.localeCompare(b.name, locale));
   }, [locale]);
 
-  const check = checkAutofill({ mode, language, source, prompt, includeBody, auto }, others, prop?.id);
+  const check = checkAutofill(
+    { mode, language, source, prompt, includeBody, auto, requires: limited ? requires : [] },
+    properties,
+    prop?.id,
+  );
   // Related rows and people never go into a prompt: no button offers them.
   const hidden = useMemo(() => autofillHiddenInputs(properties), [properties]);
+  const inputs = others.filter((p) => !hidden.has(p.id));
   const error = errorOf(check);
+  const toggleRequired = (id: string) => setRequires(requires.includes(id) ? requires.filter((r) => r !== id) : [...requires, id]);
 
   const insert = (placeholder: string) => {
     const el = area.current;
@@ -173,6 +188,9 @@ export function AutofillEditor({
         <span className="truncate px-1 text-sm font-medium">{prop ? t("titleFor", { name }) : t("titleNew")}</span>
       </div>
       <div className="space-y-3 p-2">
+        {typed ? (
+          <p className="px-1 text-xs text-fg-muted">{t(`typed.${typed}.hint`)}</p>
+        ) : (
         <fieldset>
           <legend className="pb-1 text-xs text-fg-muted">{t("mode")}</legend>
           <div className="space-y-0.5">
@@ -190,6 +208,7 @@ export function AutofillEditor({
             ))}
           </div>
         </fieldset>
+        )}
 
         {mode === "translation" && (
           <div className="grid grid-cols-2 gap-2">
@@ -232,7 +251,7 @@ export function AutofillEditor({
               rows={4}
               maxLength={MAX_AUTOFILL_PROMPT}
               value={prompt}
-              placeholder={t("promptPlaceholder")}
+              placeholder={typed ? t(`typed.${typed}.placeholder`) : t("promptPlaceholder")}
               onChange={(e) => setPrompt(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
@@ -248,7 +267,7 @@ export function AutofillEditor({
             <p className="mt-1 text-xs text-fg-faint">{t("promptHint")}</p>
             <div className="mt-1 flex max-h-24 flex-wrap gap-1 overflow-y-auto">
               <PlaceholderButton label={tDatabase("nameColumn")} icon="title" onClick={() => insert(AUTOFILL_TITLE)} />
-              {others.filter((p) => !hidden.has(p.id)).map((p) => (
+              {inputs.map((p) => (
                 <PlaceholderButton key={p.id} label={p.name} icon={p.type} onClick={() => insert(p.name)} />
               ))}
             </div>
@@ -256,6 +275,42 @@ export function AutofillEditor({
               <input type="checkbox" checked={includeBody} onChange={(e) => setIncludeBody(e.target.checked)} />
               {t("includeBody")}
             </label>
+          </div>
+        )}
+
+        {inputs.length > 0 && (
+          <div>
+            <label className="flex items-start gap-2 text-sm">
+              <input type="checkbox" className="mt-1" checked={limited} onChange={(e) => setLimited(e.target.checked)} />
+              <span>
+                {t("requires")}
+                <span className="block text-xs text-fg-muted">{t("requiresHint")}</span>
+              </span>
+            </label>
+            {limited && (
+              <div role="group" aria-label={t("requires")} className="mt-1.5 flex max-h-24 flex-wrap gap-1 overflow-y-auto ps-6">
+                {inputs.map((p) => {
+                  const on = requires.includes(p.id);
+                  return (
+                    <button
+                      key={p.id}
+                      type="button"
+                      title={p.name}
+                      aria-pressed={on}
+                      disabled={!on && requires.length >= MAX_AUTOFILL_REQUIRES}
+                      onClick={() => toggleRequired(p.id)}
+                      className={cn(
+                        "inline-flex h-6 max-w-full items-center gap-1 rounded border px-1.5 text-xs disabled:opacity-50",
+                        on ? "border-accent bg-accent/10 text-fg" : "border-border text-fg-muted hover:bg-bg-hover hover:text-fg",
+                      )}
+                    >
+                      {on ? <Check className="h-3 w-3 shrink-0 text-accent" /> : <PropertyTypeIcon type={p.type} className="h-3 w-3 shrink-0" />}
+                      <span className="truncate">{p.name}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
 

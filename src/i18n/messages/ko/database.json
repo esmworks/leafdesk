@@ -393,7 +393,8 @@
     "startTime": "시작 시간",
     "endTime": "종료 시간",
     "endDateSwitch": "종료일",
-    "includeTime": "시간 포함"
+    "includeTime": "시간 포함",
+    "hiddenByParent": "옵션 {count}개는 이 행의 “{parent}”와(과) 맞지 않습니다."
   },
   "checklist": {
     "addItem": "항목 추가",
@@ -496,7 +497,16 @@
     "reminder": "리마인더",
     "reminderNone": "리마인더 없음",
     "reminderBefore": "{days, select, 0 {당일 9:00} 1 {1일 전 9:00} 7 {1주 전 9:00} other {{days}일 전 9:00}}",
-    "reminderHint": "각 행에 지정된 사람에게, 지정된 사람이 없으면 행을 추가한 사람에게 알립니다. 완료된 행은 알리지 않습니다. 9:00은 내 시간대 기준이며, 시간이 포함된 날짜는 그 시간에 알립니다."
+    "reminderHint": "각 행에 지정된 사람에게, 지정된 사람이 없으면 행을 추가한 사람에게 알립니다. 완료된 행은 알리지 않습니다. 9:00은 내 시간대 기준이며, 시간이 포함된 날짜는 그 시간에 알립니다.",
+    "description": "설명",
+    "descriptionPlaceholder": "무엇을 담고 어떻게 채우는지",
+    "dependsOn": "의존 대상",
+    "dependsOnNone": "없음",
+    "dependsOnHint": "각 옵션이 어떤 “{parent}” 옵션과 맞는지 고르세요. 행에서는 그 옵션만 보입니다. 아무것도 고르지 않은 옵션은 모두와 맞습니다.",
+    "noParentOptions": "“{parent}”에 아직 옵션이 없습니다.",
+    "parentOptionsLabel": "“{parent}”이(가) 다음일 때:",
+    "parentOptionsAll": "항상",
+    "parentOptionToggle": "“{parent}”이(가) “{value}”일 때 “{option}” 표시"
   },
   "rowProperties": {
     "noProperties": "속성 없음",
@@ -796,7 +806,10 @@
     "webhookBlocked": "웹훅은 사설 또는 로컬 네트워크 주소로 보낼 수 없습니다.",
     "agentOwnersOnly": "에이전트를 실행하는 동작은 워크스페이스 소유자와 해당 에이전트를 편집할 수 있는 사람만 추가하거나 변경할 수 있습니다.",
     "invalidRepeat": "반복 일정이 올바르지 않습니다. 요일, 시간, 시간대를 확인하세요.",
-    "tooManySchedules": "이 워크스페이스에 만들 수 있는 반복 템플릿 수가 한도에 도달했습니다."
+    "tooManySchedules": "이 워크스페이스에 만들 수 있는 반복 템플릿 수가 한도에 도달했습니다.",
+    "optionUnavailable": "이 행에서는 “{property}”에 “{value}”을(를) 선택할 수 없습니다.",
+    "invalidDependency": "“{property}”은(는) 이 데이터베이스에서 자신에게 의존하지 않는 다른 선택 속성에만 의존할 수 있습니다.",
+    "invalidDescription": "설명은 최대 {max}자까지 입력할 수 있습니다."
   },
   "formula": {
     "title": "수식",

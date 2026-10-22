@@ -5,14 +5,20 @@ import { useLocale, useTranslations } from "next-intl";
 import { useId, useState, type ReactNode } from "react";
 import { Button, cn } from "@/components/ui";
 import type { NumberFormat, SelectOption } from "@/db/schema/app";
-import { checkAnswers, MAX_TEXT_ANSWER, MAX_TITLE_ANSWER, type AnswerError, type ResolvedQuestion } from "@/lib/forms";
+import { checkAnswers, MAX_TEXT_ANSWER, MAX_TITLE_ANSWER, questionHelp, type AnswerError, type ResolvedQuestion } from "@/lib/forms";
 import { isDatabaseErrorCode, sortStatusOptions } from "@/lib/properties";
+import { availableOptions, followDependencies, parentOf } from "@/lib/dependent-options";
 import { FilesEditor, type UploadFile } from "./files-cell";
 import { CheckboxBox, INPUT_MODE, OptionChip, parseInput } from "./property-cell";
 import type { PropertyType } from "./types";
 
 /** What a question needs to know about its property: enough for a public page, too. */
-export type FormProperty = { id: string; name: string; type: PropertyType; options: { options?: SelectOption[]; number?: NumberFormat } };
+export type FormProperty = {
+  id: string;
+  name: string;
+  type: PropertyType;
+  options: { options?: SelectOption[]; number?: NumberFormat; dependsOn?: string; description?: string };
+};
 export type FormFillQuestion<P extends FormProperty = FormProperty> = ResolvedQuestion<P>;
 export type FormSubmitResult = { ok: true } | { ok: false; error: string; fields?: Record<string, string> };
 
@@ -71,8 +77,14 @@ export function FormFill<P extends FormProperty>({
     return t("common.genericError");
   };
 
+  // A select depending on another question's answer offers the options that go with it, and an
+  // answer that no longer goes with a changed one is taken back (lib/dependent-options).
+  const asked = questions.flatMap((q) => q.prop ?? []);
   const set = (id: string, value: unknown) => {
-    setValues((v) => ({ ...v, [id]: value }));
+    setValues((v) => {
+      const outcome = followDependencies(asked, v, { [id]: value });
+      return { ...v, [id]: value, ...(outcome.ok ? outcome.follow : {}) };
+    });
     setErrors((e) => {
       if (!(id in e)) return e;
       const next = { ...e };
@@ -156,10 +168,13 @@ export function FormFill<P extends FormProperty>({
           const inputId = `${formId}-${q.propertyId}`;
           const error = errors[q.propertyId];
           const label = q.label || q.prop?.name || t("form.nameQuestion");
-          const describedBy = [q.description && `${inputId}-help`, error && `${inputId}-error`].filter(Boolean).join(" ") || undefined;
+          const help = questionHelp(q);
+          const describedBy = [help && `${inputId}-help`, error && `${inputId}-error`].filter(Boolean).join(" ") || undefined;
           const field = {
             id: inputId,
             question: q,
+            values,
+            asked,
             value: values[q.propertyId],
             onChange: (v: unknown) => set(q.propertyId, v),
             disabled: disabled || busy,
@@ -185,9 +200,9 @@ export function FormFill<P extends FormProperty>({
                   <RequiredMark required={q.required} />
                 </label>
               )}
-              {q.description && (
+              {help && (
                 <p id={`${inputId}-help`} className={cn("mt-0.5 text-xs whitespace-pre-wrap text-fg-muted", inline && "ps-[26px]")}>
-                  {q.description}
+                  {help}
                 </p>
               )}
               {!inline && (
@@ -260,6 +275,9 @@ type FieldProps<P extends FormProperty> = {
   id: string;
   label: string;
   question: FormFillQuestion<P>;
+  /** Every answer so far, and the properties asked: what a dependent select offers depends on them. */
+  values: Record<string, unknown>;
+  asked: P[];
   value: unknown;
   onChange: (value: unknown) => void;
   disabled: boolean;
@@ -273,6 +291,8 @@ function AnswerInput<P extends FormProperty>({
   id,
   label,
   question,
+  values,
+  asked,
   value,
   onChange,
   disabled,
@@ -357,7 +377,17 @@ function AnswerInput<P extends FormProperty>({
     case "select":
     case "status":
     case "multi_select":
-      return <OptionChoices {...a11y} prop={prop} value={value} onChange={onChange} disabled={disabled} label={label} />;
+      return (
+        <OptionChoices
+          {...a11y}
+          prop={prop}
+          value={value}
+          onChange={onChange}
+          disabled={disabled}
+          label={label}
+          offered={parentOf(prop, asked) ? availableOptions(prop, asked, values) : undefined}
+        />
+      );
     case "checklist":
       return <ChecklistAnswer id={id} value={value} onChange={onChange} disabled={disabled} invalid={invalid} />;
     case "files":
@@ -389,6 +419,7 @@ function OptionChoices({
   onChange,
   disabled,
   label,
+  offered,
   ...a11y
 }: {
   id: string;
@@ -397,6 +428,8 @@ function OptionChoices({
   onChange: (value: unknown) => void;
   disabled: boolean;
   label: string;
+  /** The options that go with the answers so far (a select depending on another); all without. */
+  offered?: SelectOption[];
   "aria-invalid"?: boolean;
   "aria-describedby"?: string;
   "aria-required"?: boolean;
@@ -404,13 +437,14 @@ function OptionChoices({
   const multi = prop.type === "multi_select";
   const options = prop.type === "status" ? sortStatusOptions(prop.options.options ?? []) : (prop.options.options ?? []);
   const picked = Array.isArray(value) ? (value as string[]) : typeof value === "string" ? [value] : [];
+  const shown = offered ? options.filter((o) => picked.includes(o.id) || offered.some((x) => x.id === o.id)) : options;
   const toggle = (optionId: string) => {
     if (multi) onChange(picked.includes(optionId) ? picked.filter((x) => x !== optionId) : [...picked, optionId]);
     else onChange(picked.includes(optionId) ? null : optionId);
   };
   return (
     <div id={id} role={multi ? "group" : "radiogroup"} aria-label={label} {...a11y} className="flex flex-col items-start gap-0.5">
-      {options.map((option) => {
+      {shown.map((option) => {
         const on = picked.includes(option.id);
         return (
           <button

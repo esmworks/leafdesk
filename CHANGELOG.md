@@ -4,6 +4,44 @@
 
 ### Added
 
+- **Property descriptions.** Every property can say what it holds and how to fill it, in plain
+  text of up to 1,000 characters, set in its menu under the type. It shows as a hint when you rest
+  on the column header or the property's name on a row page, and it guides whatever writes values
+  with AI: AI autofill gets the description of the field it fills, the AI chat and agents get each
+  property's description with the database's schema (also when they read a row), and MCP's
+  `get_database` and the REST API's database schema return it as `description`. MCP's
+  `add_database_property` and `update_database_property` set it. A form question without help text
+  of its own shows the property's description. Duplicates, templates, backups and type changes keep
+  it. The importer for Markdown & CSV exports has none to bring: those exports don't carry them.
+- **Selects that depend on another select.** A select or multi-select can depend on a select of the
+  same database ("City" on "Country"): in its menu, pick the property under *Depends on*, then for
+  each option the options of that property it goes with (none picked: it goes with any). A row's
+  editor offers only the options that fit its value of the property it depends on, and says how
+  many it left out. A write that sets an option that doesn't fit is refused, from the app, a bulk
+  edit, the REST API, MCP, an agent or AI autofill (which is offered only the options that fit);
+  changing (or clearing) the value it depends on clears what no longer fits, down a chain of them
+  and also when a row is moved on a board; a CSV import or a paste leaves misfits empty. Removing an option of the parent takes it off the lists; turning the parent
+  into another type, or the dependent into a type that can't depend, undoes the dependency. MCP's
+  `get_database` and the REST schema show `depends_on` and `option_parents`, which
+  `add_database_property` and `update_database_property` set. Public forms filter the options the
+  same way when the question it depends on is asked too. Stored in the property's settings: no
+  migration.
+- **Company researcher agent.** A new template in Settings → Agents → *Start from a template* looks
+  each company added to a database up on the web and fills the properties you choose that are
+  still empty (website, sector, address, phone and the like), following their descriptions, and
+  comments on the row with its sources. It never overwrites a value, and it gets web access.
+- **AI fills in selects, multi-selects, statuses, numbers and checkboxes.** *AI autofill…* is in
+  the menu of these properties as well as text ones: from your prompt over the row's values, AI
+  picks one of a select's or status's options (or none), the options of a multi-select that apply
+  (never new ones), a number (a percent number as the fraction it shows) or yes/no for a checkbox.
+  Answers are read leniently (a full stop, quotes or another case don't matter); one that doesn't
+  fit fails and leaves the value as it was. The values are ordinary ones, so filters, boards and
+  automations such as "Status changes to Done" work with them. MCP describes such properties with
+  their `ai_autofill` settings like text ones.
+- **AI values only for rows that have what they need.** *Only rows where these have a value* in
+  an AI property's settings picks up to 10 properties that must be filled in (a checkbox: ticked);
+  other rows are skipped without asking a model and keep their value. MCP lists them as
+  `only_rows_with`.
 - **API tokens with access per resource, and safe retries.** A personal access token now gets
   read and write scopes per resource: `workspaces:read`, `pages:read` / `pages:write`,
   `search:read`, `databases:read`, `rows:read` / `rows:write`, `comments:read` /
@@ -23,6 +61,7 @@
   carries `X-RateLimit-Reset`, and errors about a field name it in `param` (`title`,
   `properties.Status`, `rows.2.properties.Status`). Migration 0107 adds `api_idempotency_key` and
   `api_token.legacy_scopes`, marking every existing token as legacy.
+
 - **Ask the AI chat from Telegram.** With `TELEGRAM_BOT_TOKEN` set to a bot made with @BotFather,
   people link their Telegram account in My account → *Connected apps* → *Telegram* (a one-time
   link, also as a QR code, that works once for 10 minutes) and then ask the AI chat in a private
@@ -355,6 +394,10 @@
 
 ### Fixed
 
+- **A copied database keeps its AI translations.** Duplicating a database (or a page holding one)
+  pointed an AI property's translation source at the original database's property, so the copy's
+  translations came out empty; the source, and the properties an AI value waits for, now point at
+  the copies.
 - **A connection event's agent run stays with the workspace's owners.** Since agents can be shared,
   a member who may edit an agent lists all its runs; for a run a connection's event started, they
   also saw the call it waited on (its tool and input, credentials masked) and what it read and

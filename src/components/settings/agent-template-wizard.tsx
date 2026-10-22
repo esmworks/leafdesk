@@ -6,14 +6,17 @@ import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { builtinAgentPropertiesAction, installBuiltinAgentAction } from "@/app/actions/agents";
 import { listConnectionsAction } from "@/app/actions/connections";
-import { PropertyTypeIcon } from "@/components/database/property-icons";
+import { PropertyTypeIcon, usePropertyTypeLabel } from "@/components/database/property-icons";
 import { useAction } from "@/components/settings/workspace-settings";
 import { Button, cn, Dialog, IconButton, Input, PageIcon, pageLabel, textareaClass } from "@/components/ui";
 import { MAX_AGENT_NAME, type AgentView } from "@/lib/agents";
 import {
   ANSWER_PROPERTY_TYPES,
+  COMPANY_PROPERTY_TYPES,
   FLAG_PROPERTY_TYPES,
+  isCompanyProperty,
   logPropertiesOf,
+  MAX_COMPANY_PROPERTIES,
   MAX_KNOWLEDGE_PAGES,
   MAX_LOG_PROPERTIES,
   MAX_ROUTER_PROPERTIES,
@@ -27,7 +30,7 @@ import { MAX_TRIGGER_EVENT, type ConnectionView, type EventPreset } from "@/lib/
 import { Field } from "./agent-dialog";
 import { PagePicker, useShareablePages, type PickablePage } from "./agent-page-picker";
 
-type WizardProperty = { id: string; name: string; type: string; options: { id: string; name: string }[] };
+type WizardProperty = { id: string; name: string; type: string; options: { id: string; name: string }[]; description: string | null; ai: boolean };
 type Step = "database" | "properties" | "pages";
 
 const selectClass = "h-8 w-full rounded-md border border-border bg-bg px-2 text-sm outline-none focus:border-accent";
@@ -41,9 +44,13 @@ type WizardProps = {
   onCreated: (agent: AgentView) => void;
 };
 
-/** Sets up a built-in agent: one an automation runs on new rows, or one a connection's events run. */
+/**
+ * Sets up a built-in agent: one an automation runs on new rows, one a connection's events run, or
+ * the company researcher, which fills a database's own properties from the web.
+ */
 export function TemplateWizard(props: WizardProps) {
   const { template } = props;
+  if (template.key === "company-details") return <CompanyDetailsWizard {...props} />;
   if (!template.newProperty) return <EventAgentWizard {...props} />;
   return <RowAgentWizard {...props} template={{ ...template, newProperty: template.newProperty }} />;
 }
@@ -553,6 +560,156 @@ function EventAgentWizard({ workspaceId, template, onClose, onCreated }: WizardP
   );
 }
 
+/**
+ * The company researcher's setup: the database of companies, which of its properties it may fill
+ * (all it can, unless the owner unticks some), and its name. Creating it adds the agent, with web
+ * access, and the automation that runs it on every new row.
+ */
+function CompanyDetailsWizard({ workspaceId, template, onClose, onCreated }: WizardProps) {
+  const t = useTranslations("settings.agents.wizard");
+  const tc = useTranslations("common");
+  const pages = useShareablePages(workspaceId);
+  const [step, setStep] = useState<"database" | "properties">("database");
+  const [database, setDatabase] = useState<PickablePage | null>(null);
+  const [properties, setProperties] = useState<WizardProperty[] | null>(null);
+  const [chosen, setChosen] = useState<string[]>([]);
+  const [name, setName] = useState(template.name);
+  const [tried, setTried] = useState(false);
+  const { pending, error, run } = useAction();
+
+  const fillable = (p: WizardProperty) => isCompanyProperty({ type: p.type, options: p.options, ai: p.ai });
+
+  const chooseDatabase = (page: PickablePage) => {
+    setDatabase(page);
+    setTried(false);
+    run(
+      () => builtinAgentPropertiesAction(workspaceId, page.id),
+      (loaded) => {
+        const listed = loaded.filter((p) => (COMPANY_PROPERTY_TYPES as readonly string[]).includes(p.type));
+        setProperties(listed);
+        // Everything it can fill, up to the most it takes: the owner unticks what it must leave alone.
+        setChosen(listed.filter(fillable).slice(0, MAX_COMPANY_PROPERTIES).map((p) => p.id));
+        setStep("properties");
+      },
+    );
+  };
+
+  const back = () => {
+    setTried(false);
+    setStep("database");
+  };
+
+  const missing = (): "needProperty" | "needName" | null => (!chosen.length ? "needProperty" : !name.trim() ? "needName" : null);
+  const gap = tried ? missing() : null;
+
+  const create = () => {
+    setTried(true);
+    if (missing() || !database || !properties) return;
+    // In the database's order, which the instructions keep.
+    const ordered = properties.filter((p) => chosen.includes(p.id)).map((p) => p.id);
+    const setup: BuiltinAgentSetup = { key: "company-details", databaseId: database.id, name: name.trim(), properties: ordered };
+    run(() => installBuiltinAgentAction(workspaceId, setup), (result) => onCreated(result.agent));
+  };
+
+  const databases = pages && pages.filter((p) => p.kind === "database");
+  const databaseTitle = pageLabel(database?.title ?? "", tc("untitled"));
+  const offered = (properties ?? []).filter((p) => !p.ai);
+  const autofilled = (properties ?? []).filter((p) => p.ai);
+
+  return (
+    <Dialog open onClose={onClose} className="max-w-xl">
+      <div className="flex items-start gap-3 border-b border-border px-5 py-4">
+        {step !== "database" && (
+          <IconButton label={t("back")} onClick={back} className="mt-1">
+            <ArrowLeft className="h-4 w-4 rtl:-scale-x-100" />
+          </IconButton>
+        )}
+        <span className="mt-0.5 text-lg leading-none">{template.icon}</span>
+        <div className="min-w-0 flex-1">
+          <h2 className="truncate text-base font-semibold">{t("title", { name: template.name })}</h2>
+          <p className="truncate text-sm text-fg-muted">
+            {t(`steps.${step}`)}
+            {database && step !== "database" && ` · ${databaseTitle}`}
+          </p>
+        </div>
+        <IconButton label={tc("close")} onClick={onClose} className="h-7 w-7">
+          <X className="h-4 w-4" />
+        </IconButton>
+      </div>
+
+      <div className={cn("max-h-[65vh] space-y-4 overflow-y-auto px-5 py-4", pending && "pointer-events-none opacity-70")}>
+        {step === "database" && (
+          <>
+            <p className="text-sm text-fg-muted">{t("chooseCompanies")}</p>
+            <PagePicker autoFocus pages={databases} label={t("searchDatabases")} empty={t("noDatabases")} onPick={chooseDatabase} />
+          </>
+        )}
+
+        {step === "properties" && properties && (
+          <>
+            {offered.some(fillable) ? (
+              <Field label={t("companyProperties")} help={t("companyPropertiesHelp", { max: MAX_COMPANY_PROPERTIES })}>
+                <ul className="divide-y divide-border rounded-md border border-border">
+                  {offered.map((p) => {
+                    const usable = fillable(p);
+                    const on = chosen.includes(p.id);
+                    const list = p.type === "select" || p.type === "multi_select";
+                    return (
+                      <PropertyChoice
+                        key={p.id}
+                        type={p.type}
+                        name={p.name}
+                        hint={p.description || (list ? (usable ? p.options.map((o) => o.name).join(", ") : t("noOptions")) : "")}
+                        checked={on}
+                        disabled={!usable || (!on && chosen.length >= MAX_COMPANY_PROPERTIES)}
+                        onChange={(checked) => setChosen((c) => (checked ? [...c, p.id] : c.filter((id) => id !== p.id)))}
+                      />
+                    );
+                  })}
+                </ul>
+              </Field>
+            ) : (
+              <p className="text-sm text-fg-muted">{t("noCompanyProperties")}</p>
+            )}
+            {autofilled.length > 0 && (
+              <p className="text-xs text-fg-muted">{t("companyAutofilled", { properties: autofilled.map((p) => p.name).join(", ") })}</p>
+            )}
+            <div className="space-y-3 border-t border-border pt-4">
+              <Field label={t("name")}>
+                <Input value={name} maxLength={MAX_AGENT_NAME} onChange={(e) => setName(e.target.value)} />
+              </Field>
+              <p className="text-xs text-fg-muted">
+                {t("summary", { database: databaseTitle })} {t("summaryWeb")}
+              </p>
+            </div>
+          </>
+        )}
+      </div>
+
+      {step === "properties" && (
+        <div className="flex items-center justify-end gap-2 border-t border-border px-5 py-3">
+          {(gap || error) && (
+            <p role="alert" className="me-auto text-xs text-danger">
+              {gap ? t(`errors.${gap}`) : error}
+            </p>
+          )}
+          <Button variant="ghost" onClick={back}>
+            {t("back")}
+          </Button>
+          <Button variant="primary" disabled={pending} onClick={create}>
+            {pending ? t("creating") : t("create")}
+          </Button>
+        </div>
+      )}
+      {step === "database" && error && (
+        <p role="alert" className="border-t border-border px-5 py-3 text-xs text-danger">
+          {error}
+        </p>
+      )}
+    </Dialog>
+  );
+}
+
 /** A property the agent may use, ticked on or off. */
 function PropertyChoice({
   type,
@@ -569,13 +726,13 @@ function PropertyChoice({
   disabled?: boolean;
   onChange: (checked: boolean) => void;
 }) {
-  const tt = useTranslations("database.types");
+  const typeLabel = usePropertyTypeLabel();
   const label = (
     <span className="min-w-0 flex-1">
       <span className="flex items-center gap-1.5">
         <PropertyTypeIcon type={type as "select"} className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
         <span className="truncate">{name}</span>
-        <span className="shrink-0 text-xs text-fg-faint">{tt(type as "select")}</span>
+        <span className="shrink-0 text-xs text-fg-faint">{typeLabel(type as "select")}</span>
       </span>
       {hint && <span className="block truncate text-xs text-fg-muted">{hint}</span>}
     </span>

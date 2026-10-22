@@ -1,3 +1,4 @@
+import { propertyDescription } from "./property-description";
 import type { FormConfig, PropertyOptions, PropertyType } from "@/db/schema/app";
 import { normalizeValue, PropertyValueError, type DatabaseErrorCode } from "./properties";
 import { atLeast } from "./property-access";
@@ -78,6 +79,14 @@ export type ResolvedQuestion<P extends PropertyDef = PropertyDef> = {
   label: string;
   description: string;
 };
+
+/**
+ * The help a question shows: its own description, else its property's (what the property holds
+ * and how to fill it, see lib/property-description).
+ */
+export function questionHelp(q: { description: string; prop: { options: { description?: unknown } } | null }): string {
+  return q.description || (q.prop ? propertyDescription(q.prop) : "");
+}
 
 /**
  * The questions a form asks, in order: those whose property still exists and can be asked

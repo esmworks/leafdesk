@@ -249,6 +249,8 @@ export async function updatePropertyAction(
     date?: DateOptionsInput;
     pageVisibility?: PageVisibility;
     numberDisplay?: NumberDisplay | null;
+    description?: string | null;
+    dependsOn?: string | null;
   },
 ) {
   return run((userId) => databases.updateProperty(userId, propertyId, patch));

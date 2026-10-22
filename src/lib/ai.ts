@@ -62,14 +62,18 @@ export function languageName(code: string): string {
 // ----------------------------------------------------------------------------------- autofill
 
 /**
- * AI autofill of a text property (#42), stored in the property's options. Values are ordinary text
- * values, so filters, sorts, exports, the REST API and MCP treat them like any other text.
+ * AI autofill of a property (#42), stored in the property's options. Values are ordinary values of
+ * the property's type (AUTOFILL_TYPES), so filters, sorts, exports, automations, the REST API and
+ * MCP treat them like any other.
  * - `summary`: sums up the row's page content (and title).
  * - `translation`: translates one source (a property, the title or the page content) into `language`.
  * - `custom`: follows `prompt`, where `{Property name}` stands for that property's value of the row,
  *   `{title}` for the row's title; with `includeBody` the page content goes along too.
+ * Summaries and translations are text; the other types take `custom` only, and the answer must fit
+ * them (one of a select's options, a number…).
  * Values are worked out on request (a row's refresh, "update all"); with `auto` also after the row's
- * other values or content change.
+ * other values or content change. With `requires`, only rows where those properties have a value
+ * are worked out; the others keep the value they have.
  *
  * Other AI values, and formulas reading them, go into a prompt only where the settings name them
  * (the translated property, a `{Property}` placeholder): see autofillReads. So what an autofill
@@ -78,6 +82,13 @@ export function languageName(code: string): string {
  */
 export type AiAutofillMode = "summary" | "translation" | "custom";
 export const AI_AUTOFILL_MODES: readonly AiAutofillMode[] = ["summary", "translation", "custom"];
+
+/** Property types AI autofill can fill in. */
+export const AUTOFILL_TYPES = ["text", "select", "multi_select", "status", "number", "checkbox"] as const;
+export type AutofillType = (typeof AUTOFILL_TYPES)[number];
+export const isAutofillType = (type: unknown): type is AutofillType => (AUTOFILL_TYPES as readonly unknown[]).includes(type);
+/** Types whose values are picked from the property's options. */
+export const AUTOFILL_OPTION_TYPES: readonly AutofillType[] = ["select", "multi_select", "status"];
 
 export type AiAutofillConfig = {
   mode: AiAutofillMode;
@@ -91,6 +102,11 @@ export type AiAutofillConfig = {
   includeBody?: boolean;
   /** Work the value out again (debounced) when the row's other values or content change. */
   auto?: boolean;
+  /**
+   * Property ids that must have a value (a checkbox: be ticked) for the row's value to be worked
+   * out; rows where one is empty keep the value they have. Left out when there are none.
+   */
+  requires?: string[];
 };
 
 export const AUTOFILL_TITLE = "title";
@@ -100,6 +116,17 @@ export const MAX_AUTOFILL_PROMPT = 2000;
 export const MAX_AUTOFILL_VALUE = 5000;
 /** Rows one "update all" may queue. */
 export const MAX_AUTOFILL_ROWS = 500;
+/** Properties one autofill may wait for (`requires`). */
+export const MAX_AUTOFILL_REQUIRES = 10;
+
+/** Whether a row's value counts as there for `requires`: not empty, an empty list, an unticked box or a formula's error. */
+export function hasAutofillValue(value: unknown): boolean {
+  if (value === null || value === undefined || value === false) return false;
+  if (typeof value === "string") return value.trim() !== "";
+  if (Array.isArray(value)) return value.length > 0;
+  if (typeof value === "object" && "error" in value) return false;
+  return true;
+}
 
 /** The names in a prompt's `{…}` placeholders, in order, each once. */
 export function promptPlaceholders(prompt: string): string[] {
@@ -118,6 +145,10 @@ export const AUTOFILL_ERROR_CODES = [
   "cycle",
   /** The settings name a property that never goes into a prompt (`name`, see autofillHiddenInputs). */
   "hiddenInput",
+  /** A select, multi-select or status property without options: there is nothing to pick. */
+  "noOptions",
+  /** `requires` names a property the database doesn't have (or too many). */
+  "unknownRequired",
 ] as const;
 export type AutofillErrorCode = (typeof AUTOFILL_ERROR_CODES)[number];
 export type AutofillCheck = { ok: true; config: AiAutofillConfig } | { ok: false; code: AutofillErrorCode; params?: Record<string, string> };
@@ -127,19 +158,26 @@ export type AutofillProperty = {
   id: string;
   name: string;
   type?: string;
-  options?: { ai?: AiAutofillConfig | null; formula?: { expression?: string } | null };
+  options?: { ai?: AiAutofillConfig | null; formula?: { expression?: string } | null; options?: { name: string }[] };
 };
 
-/** The properties settings name as inputs: the translated property, the prompt's placeholders. */
+/**
+ * The properties settings name as inputs: the translated property, the prompt's placeholders and
+ * the properties the value waits for.
+ */
 export function autofillNamedInputs(config: AiAutofillConfig, properties: AutofillProperty[], selfId?: string): string[] {
   const others = properties.filter((p) => p.id !== selfId);
-  if (config.mode === "translation") return others.some((p) => p.id === config.source) ? [config.source!] : [];
-  if (config.mode !== "custom") return [];
-  const names = new Set(promptPlaceholders(config.prompt ?? "").map((name) => name.toLowerCase()));
-  return others.filter((p) => names.has(p.name.trim().toLowerCase())).map((p) => p.id);
+  const named = new Set<string>();
+  if (config.mode === "translation" && others.some((p) => p.id === config.source)) named.add(config.source!);
+  if (config.mode === "custom") {
+    const names = new Set(promptPlaceholders(config.prompt ?? "").map((name) => name.toLowerCase()));
+    for (const p of others) if (names.has(p.name.trim().toLowerCase())) named.add(p.id);
+  }
+  for (const id of config.requires ?? []) if (others.some((p) => p.id === id)) named.add(id);
+  return [...named];
 }
 
-const isAutofill = (p: AutofillProperty) => p.type === "text" && Boolean(p.options?.ai);
+const isAutofill = (p: AutofillProperty) => isAutofillType(p.type) && Boolean(p.options?.ai);
 const formulaRefs = (p: AutofillProperty) => (p.type === "formula" ? parseFormula(p.options?.formula?.expression ?? "").refs : []);
 
 /** AI values and the formulas reading them, as far as that goes: what prompts take in only when named. */
@@ -223,16 +261,28 @@ export function autofillCycle(config: AiAutofillConfig, properties: AutofillProp
 
 /**
  * Checks autofill settings against the database's properties (`selfId`: the property being set up,
- * which can't be its own input) and returns them cleaned: only the fields the mode uses.
+ * which can't be its own input, and whose type decides what it may hold; a property being added is
+ * text) and returns them cleaned: only the fields the mode uses.
  */
 export function checkAutofill(input: unknown, properties: AutofillProperty[], selfId?: string): AutofillCheck {
   const raw = (input && typeof input === "object" ? input : {}) as Record<string, unknown>;
   const mode = raw.mode as AiAutofillMode;
-  if (!AI_AUTOFILL_MODES.includes(mode)) return { ok: false, code: "invalidMode" };
+  const self = properties.find((p) => p.id === selfId);
+  const type = self?.type ?? "text";
+  // Summaries and translations are text; other types follow a prompt.
+  if (!AI_AUTOFILL_MODES.includes(mode) || (type !== "text" && mode !== "custom")) return { ok: false, code: "invalidMode" };
+  if (AUTOFILL_OPTION_TYPES.includes(type as AutofillType) && !self?.options?.options?.length) return { ok: false, code: "noOptions" };
   const auto = raw.auto === true;
   const others = properties.filter((p) => p.id !== selfId);
   const hidden = autofillHiddenInputs(properties);
-  if (mode === "summary") return { ok: true, config: { mode, auto } };
+  const requiresInput = raw.requires === undefined ? [] : raw.requires;
+  if (!Array.isArray(requiresInput) || requiresInput.length > MAX_AUTOFILL_REQUIRES) return { ok: false, code: "unknownRequired" };
+  const requires = [...new Set(requiresInput)];
+  if (requires.some((id) => !others.some((p) => p.id === id))) return { ok: false, code: "unknownRequired" };
+  const waitsFor = requires.length ? { requires: requires as string[] } : {};
+  const hiddenRequired = others.find((p) => hidden.has(p.id) && requires.includes(p.id));
+  if (hiddenRequired) return { ok: false, code: "hiddenInput", params: { name: hiddenRequired.name } };
+  if (mode === "summary") return withoutCycle({ mode, auto, ...waitsFor }, properties, selfId);
   if (mode === "translation") {
     if (!isAiLanguage(raw.language)) return { ok: false, code: "unknownLanguage" };
     const source = typeof raw.source === "string" ? raw.source : AUTOFILL_TITLE;
@@ -240,7 +290,7 @@ export function checkAutofill(input: unknown, properties: AutofillProperty[], se
       return { ok: false, code: "unknownSource" };
     }
     if (hidden.has(source)) return { ok: false, code: "hiddenInput", params: { name: others.find((p) => p.id === source)!.name } };
-    return withoutCycle({ mode, language: raw.language, source, auto }, properties, selfId);
+    return withoutCycle({ mode, language: raw.language, source, auto, ...waitsFor }, properties, selfId);
   }
   const prompt = typeof raw.prompt === "string" ? raw.prompt.trim() : "";
   if (!prompt) return { ok: false, code: "promptRequired" };
@@ -251,7 +301,7 @@ export function checkAutofill(input: unknown, properties: AutofillProperty[], se
   const names = new Set(promptPlaceholders(prompt).map((name) => name.toLowerCase()));
   const named = others.find((p) => hidden.has(p.id) && names.has(p.name.trim().toLowerCase()));
   if (named) return { ok: false, code: "hiddenInput", params: { name: named.name } };
-  return withoutCycle({ mode, prompt, includeBody: raw.includeBody === true, auto }, properties, selfId);
+  return withoutCycle({ mode, prompt, includeBody: raw.includeBody === true, auto, ...waitsFor }, properties, selfId);
 }
 
 function withoutCycle(config: AiAutofillConfig, properties: AutofillProperty[], selfId?: string): AutofillCheck {

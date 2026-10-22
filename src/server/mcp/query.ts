@@ -10,7 +10,7 @@ import type {
   ViewType,
 } from "@/db/schema/app";
 import type { AggregateResult } from "@/lib/aggregate";
-import { AUTOFILL_BODY, AUTOFILL_TITLE, type AiAutofillConfig } from "@/lib/ai";
+import { AUTOFILL_BODY, AUTOFILL_TITLE, isAutofillType, type AiAutofillConfig } from "@/lib/ai";
 import {
   boardMeasure,
   canStack,
@@ -52,6 +52,8 @@ import {
 } from "@/lib/properties";
 import { derivedType, formulaForEditing, rollupFormat, TITLE_FIELD, valueType } from "@/lib/derived";
 import { dependencySettings } from "@/lib/dependencies";
+import { parentOf } from "@/lib/dependent-options";
+import { propertyDescription } from "@/lib/property-description";
 import { valueFormat } from "@/lib/number-format";
 import { formulaReferences, type PropertyLevel } from "@/lib/property-access";
 import { parseFormula, relatedReads } from "@/lib/formula";
@@ -583,6 +585,9 @@ function describeAutofill(config: AiAutofillConfig, props: PropertyDef[]) {
     ...(config.mode === "translation" ? { language: config.language, source } : {}),
     ...(config.mode === "custom" ? { prompt: config.prompt, include_body: Boolean(config.includeBody) } : {}),
     auto_update: Boolean(config.auto),
+    ...(config.requires?.length
+      ? { only_rows_with: config.requires.flatMap((id) => props.find((p) => p.id === id)?.name ?? []) }
+      : {}),
   };
 }
 
@@ -672,10 +677,13 @@ export function describeProperty(
     prop.type === "formula" &&
     ((restricted && formulaReferences(expression).some((r) => r !== TITLE_FIELD && !known.has(r))) ||
       relatedReads(parseFormula(expression).ast).some((n) => n.key !== TITLE_FIELD && !relatedKnown.has(n.key)));
+  const description = propertyDescription(prop);
   return {
     id: prop.id,
     name: prop.name,
     type: prop.type,
+    // What it holds and how to fill it, in the words of whoever set the database up.
+    ...(description ? { description } : {}),
     ...describeAccess(access),
     ...(prop.type === "formula"
       ? { formula: readsUnknown ? null : formulaForEditing(expression, props, TITLE_FIELD, relatedProps), result_type: derivedType(prop) }
@@ -693,6 +701,7 @@ export function describeProperty(
         }
       : {}),
     ...(holdsOptions(prop.type) ? { options: (prop.options.options ?? []).map((o) => o.name) } : {}),
+    ...describeDependency(prop, props),
     ...(prop.type === "status" ? { status_groups: statusGroups(prop) } : {}),
     ...(relation
       ? {
@@ -724,8 +733,25 @@ export function describeProperty(
       : {}),
     ...(isReadOnlyType(prop.type) ? { read_only: true } : {}),
     // Filled in by the app's AI (values stay ordinary, editable text); see lib/ai AiAutofillConfig.
-    ...(prop.type === "text" && prop.options.ai ? { ai_autofill: describeAutofill(prop.options.ai, props) } : {}),
+    ...(isAutofillType(prop.type) && prop.options.ai ? { ai_autofill: describeAutofill(prop.options.ai, props) } : {}),
   };
+}
+
+/**
+ * A select depending on another (lib/dependent-options), by names: the property it depends on, and
+ * for each option offered only with some of its options, those. Options left out are always offered.
+ */
+function describeDependency(prop: PropertyDef, props: PropertyDef[]) {
+  const parent = parentOf(prop, props);
+  if (!parent) return {};
+  const names = new Map((parent.options.options ?? []).map((o) => [o.id, o.name]));
+  const optionParents = Object.fromEntries(
+    (prop.options.options ?? []).flatMap((o) => {
+      const under = (o.parentOptionIds ?? []).flatMap((id) => names.get(id) ?? []);
+      return under.length ? [[o.name, under]] : [];
+    }),
+  );
+  return { depends_on: parent.name, option_parents: optionParents };
 }
 
 /** How rows follow the rows they wait for, by names (see set_dependencies). */

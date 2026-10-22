@@ -158,7 +158,7 @@ async function checkTrigger(userId: string, databaseId: string, props: Prop[], i
   if (!(TO_VALUE_TYPES as readonly string[]).includes(prop.type)) {
     throw invalid(`"${prop.name}" is a ${prop.type} property: only select, status, checkbox, person and multi-select properties take a value to change to`);
   }
-  const normalized = (await normalizeRowProperties(userId, databaseId, { [prop.id]: input.to }, {}, { check: false }))[prop.id];
+  const normalized = (await normalizeRowProperties(userId, databaseId, { [prop.id]: input.to }, {}, { check: false, dependencies: false }))[prop.id];
   const to = Array.isArray(normalized) ? normalized[0] : normalized;
   if (typeof to !== "string" && typeof to !== "boolean") throw invalid(`"${prop.name}" needs a value to change to`);
   return { type: "property_changed", propertyId: prop.id, to };
@@ -193,7 +193,7 @@ async function checkActions(
           values[prop.id] = value;
         } else literal[prop.id] = value;
       }
-      Object.assign(values, await normalizeRowProperties(userId, databaseId, literal, {}));
+      Object.assign(values, await normalizeRowProperties(userId, databaseId, literal, {}, { dependencies: false }));
       if (!Object.keys(values).length) throw invalid("Setting properties needs at least one value");
       out.push({ type: "set_properties", values });
     } else if (action?.type === "notify") {

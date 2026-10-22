@@ -24,9 +24,9 @@ vi.mock("@/db", () => {
 });
 vi.mock("@/server/collab/bridge", () => ({ getCollab: vi.fn() }));
 vi.mock("@/server/row-events", () => ({ onRowChanged: vi.fn(), rowChanged }));
-vi.mock("@/server/databases", () => ({ afterRowWrites }));
+vi.mock("@/server/databases", () => ({ afterRowWrites, getProperties: async () => [], followOrRefuse: () => ({}) }));
 
-const { followUpTargets, mergeFollowUp, saveValue } = await import("./ai-properties");
+const { autofillOutput, followUpTargets, mergeFollowUp, requirementsMet, saveValue } = await import("./ai-properties");
 
 type Prop = Parameters<typeof followUpTargets>[0][number];
 const prop = (id: string, name: string, type: string, options: Record<string, unknown> = {}) =>
@@ -72,11 +72,60 @@ describe("saveValue", () => {
     expect(updates).toEqual([{}]);
   });
 
+  it("saves values of other types as stored, and compares them as such", async () => {
+    expect(await saveValue(job, "tags", ["opt1", "opt2"])).toBe(true);
+    expect(updates.at(-1)).toEqual({ notes: "Hello", tags: ["opt1", "opt2"] });
+    stored.properties = { tags: ["opt1", "opt2"], score: 0, done: false };
+    expect(await saveValue(job, "tags", ["opt1", "opt2"])).toBe(false);
+    expect(await saveValue(job, "score", 0)).toBe(false);
+    expect(await saveValue(job, "done", false)).toBe(false);
+    expect(await saveValue(job, "done", true)).toBe(true);
+    expect(await saveValue(job, "score", null)).toBe(true);
+    expect(updates.at(-1)).toEqual({ tags: ["opt1", "opt2"], done: false });
+  });
+
   it("sets nothing off for rows of a database kept as a template", async () => {
     stored.inTemplate = true;
     await saveValue(job, "category", "Billing");
     expect(afterRowWrites).not.toHaveBeenCalled();
     expect(rowChanged).toHaveBeenCalled();
+  });
+});
+
+describe("typed values", () => {
+  it("asks for what the property's type holds", () => {
+    expect(autofillOutput(prop("p", "Genre", "select", { options: [{ id: "o1", name: "Romance" }] }))).toEqual({ type: "select", options: ["Romance"] });
+    expect(autofillOutput(prop("p", "Share", "number", { number: { format: "percent" } }))).toEqual({ type: "number", percent: true });
+    expect(autofillOutput(prop("p", "Pages", "number"))).toEqual({ type: "number" });
+    expect(autofillOutput(prop("p", "Notes", "text"))).toEqual({ type: "text" });
+  });
+
+  it("offers a dependent select only the options that go with the row", () => {
+    const country = prop("country", "Country", "select", { options: [{ id: "tr", name: "Türkiye" }, { id: "de", name: "Germany" }] });
+    const city = prop("city", "City", "select", {
+      dependsOn: "country",
+      options: [
+        { id: "ist", name: "Istanbul", parentOptionIds: ["tr"] },
+        { id: "ber", name: "Berlin", parentOptionIds: ["de"] },
+        { id: "other", name: "Other" },
+      ],
+    });
+    expect(autofillOutput(city, [country, city], { country: "de" })).toEqual({ type: "select", options: ["Berlin", "Other"] });
+    expect(autofillOutput(city, [country, city], {})).toEqual({ type: "select", options: ["Other"] });
+    // Its parent out of the person's sight: every option, and the write decides.
+    expect(autofillOutput(city, [city], { country: "de" })).toEqual({ type: "select", options: ["Istanbul", "Berlin", "Other"] });
+  });
+
+  it("waits for values the prompt may read", () => {
+    const existing = new Set(["notes", "who", "secret"]);
+    const inputs = new Set(["notes"]);
+    expect(requirementsMet(undefined, existing, inputs, {})).toBe(true);
+    expect(requirementsMet(["notes"], existing, inputs, { notes: "Hi" })).toBe(true);
+    expect(requirementsMet(["notes"], existing, inputs, { notes: " " })).toBe(false);
+    // Related rows, people and restricted values count as empty, whoever may see them.
+    expect(requirementsMet(["who"], existing, inputs, { who: ["ada"] })).toBe(false);
+    // A property deleted since is no longer waited for.
+    expect(requirementsMet(["gone", "notes"], existing, inputs, { notes: "Hi" })).toBe(true);
   });
 });
 
