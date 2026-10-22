@@ -51,15 +51,20 @@ fs.cpSync(path.join(standalone, ".next"), path.join(out, ".next"), {
   filter: (source) => source !== path.join(standalone, ".next", "node_modules"),
 });
 fs.copyFileSync(path.join(standalone, "package.json"), path.join(out, "package.json"));
-// Source maps of the compiled server: most of its size, and read by nobody here.
+// Source maps of the compiled server, most of its size, and the build's traces of the files each
+// page needs (.nft.json): read by nobody here.
 for (const file of fs.readdirSync(path.join(out, ".next", "server"), { recursive: true, encoding: "utf8" })) {
-  if (file.endsWith(".map")) fs.rmSync(path.join(out, ".next", "server", file));
+  if (file.endsWith(".map") || file.endsWith(".nft.json")) fs.rmSync(path.join(out, ".next", "server", file));
 }
 // What a standalone build leaves to be copied: the browser's files, the public ones, and the
-// migrations the setup applies.
+// migrations the setup applies. Of the migrations' meta, the setup reads only the journal: the
+// schema snapshots are for making new migrations.
 fs.cpSync(path.join(next, "static"), path.join(out, ".next", "static"), { recursive: true });
 fs.cpSync(path.join(repo, "public"), path.join(out, "public"), { recursive: true });
-fs.cpSync(path.join(repo, "drizzle"), path.join(out, "drizzle"), { recursive: true });
+fs.cpSync(path.join(repo, "drizzle"), path.join(out, "drizzle"), {
+  recursive: true,
+  filter: (source) => !source.endsWith("_snapshot.json"),
+});
 
 /**
  * The standalone build's packages, laid out as plain folders: pnpm links each package to its
@@ -273,9 +278,15 @@ await build({
   }
 }
 
-const size = (folder: string): number =>
-  fs.readdirSync(folder, { withFileTypes: true }).reduce((total, entry) => {
-    const full = path.join(folder, entry.name);
-    return total + (entry.isDirectory() ? size(full) : entry.isFile() ? fs.statSync(full).size : 0);
-  }, 0);
-console.log(`server/: ${Math.round(size(out) / 1024 / 1024)} MB`);
+// The number of files counts as much as their size: the Windows installer writes them one by one.
+const measure = (folder: string): { bytes: number; files: number } =>
+  fs.readdirSync(folder, { withFileTypes: true }).reduce(
+    (total, entry) => {
+      const full = path.join(folder, entry.name);
+      const inner = entry.isDirectory() ? measure(full) : { bytes: entry.isFile() ? fs.statSync(full).size : 0, files: entry.isFile() ? 1 : 0 };
+      return { bytes: total.bytes + inner.bytes, files: total.files + inner.files };
+    },
+    { bytes: 0, files: 0 },
+  );
+const { bytes, files } = measure(out);
+console.log(`server/: ${Math.round(bytes / 1024 / 1024)} MB in ${files} files`);

@@ -1,0 +1,58 @@
+diff --git a/templates/nsis/include/extractAppPackage.nsh b/templates/nsis/include/extractAppPackage.nsh
+index f5470bf52e923dc47266cea4684c76ef78ced451..996fdcf99c4d9e84ab7e739faef28cb88a035178 100644
+--- a/templates/nsis/include/extractAppPackage.nsh
++++ b/templates/nsis/include/extractAppPackage.nsh
+@@ -90,49 +90,9 @@
+ !macroend
+ 
+ !macro extractUsing7za FILE
+-  Push $OUTDIR
+-  CreateDirectory "$PLUGINSDIR\7z-out"
+-  ClearErrors
+-  SetOutPath "$PLUGINSDIR\7z-out"
++  # Leafdesk: straight into the install folder. Extracting to a temporary folder and copying from
++  # there file by file (CopyFiles) made installing take up to an hour: the app has thousands of
++  # files, and antivirus software scans each of them on both writes. The app is closed and the old
++  # version uninstalled before this (CHECK_APP_RUNNING, uninstallOldVersion): nothing holds them.
+   Nsis7z::Extract "${FILE}"
+-  Pop $R0
+-  SetOutPath $R0
+-
+-  # Retry counter
+-  StrCpy $R1 0
+-
+-  LoopExtract7za:
+-    IntOp $R1 $R1 + 1
+-
+-    # Attempt to copy files in atomic way
+-    CopyFiles /SILENT "$PLUGINSDIR\7z-out\*" $OUTDIR
+-    IfErrors 0 DoneExtract7za
+-
+-    DetailPrint `Can't modify "${PRODUCT_NAME}"'s files.`
+-    ${if} $R1 < 5
+-      # Try copying a few times before asking for a user action.
+-      Goto RetryExtract7za
+-    ${else}
+-      MessageBox MB_RETRYCANCEL|MB_ICONEXCLAMATION "$(appCannotBeClosed)" /SD IDRETRY IDCANCEL AbortExtract7za
+-    ${endIf}
+-
+-    # As an absolutely last resort after a few automatic attempts and user
+-    # intervention - we will just overwrite everything with `Nsis7z::Extract`
+-    # even though it is not atomic and will ignore errors.
+-
+-    # Clear the temporary folder first to make sure we don't use twice as
+-    # much disk space.
+-    RMDir /r "$PLUGINSDIR\7z-out"
+-
+-    Nsis7z::Extract "${FILE}"
+-    Goto DoneExtract7za
+-
+-  AbortExtract7za:
+-    Quit
+-
+-  RetryExtract7za:
+-    Sleep 1000
+-    Goto LoopExtract7za
+-
+-  DoneExtract7za:
+ !macroend
