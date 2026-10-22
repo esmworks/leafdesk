@@ -8,6 +8,7 @@ import {
   checkAnswers,
   formDefaults,
   formQuestions,
+  questionHelp,
   isBlankAnswer,
   MAX_SUBMISSION_BYTES,
   type AnswerError,
@@ -16,6 +17,7 @@ import {
 } from "@/lib/forms";
 import { normalizeValue, PropertyValueError, sortStatusOptions } from "@/lib/properties";
 import { holdsOptions } from "@/lib/property-types";
+import { parentOf } from "@/lib/dependent-options";
 import { unknownToVisitors } from "@/lib/published-copy";
 import { SlidingWindowLimiter, takeAll } from "@/lib/rate-limit";
 import { AccessError, accessRank, hasLevel, pageAccessOf, requireMembership, requirePageAccess, type RequiredLevel } from "@/server/access";
@@ -472,7 +474,9 @@ export async function revokeFormPublication(userId: string, workspaceId: string,
 // Public forms (no workspace access needed). Everything below trusts only the token.
 
 /** The one property a public question shows: its options, never its relation or anything else. */
-export type PublicFormProperty = Pick<DatabaseProperty, "id" | "name" | "type"> & { options: { options?: SelectOption[]; number?: NumberFormat } };
+export type PublicFormProperty = Pick<DatabaseProperty, "id" | "name" | "type"> & {
+  options: { options?: SelectOption[]; number?: NumberFormat; dependsOn?: string };
+};
 export type PublicForm = {
   token: string;
   title: string;
@@ -511,15 +515,28 @@ async function openPublicForm(token: string) {
   return (await publisherCanAdd(found.publishedBy, found.databaseId)) ? found : null;
 }
 
-function publicProperty(prop: DatabaseProperty, name = prop.name): PublicFormProperty {
+function publicProperty(prop: DatabaseProperty, name = prop.name, asked: DatabaseProperty[] = []): PublicFormProperty {
+  // A select depending on another the form asks offers the options that go with the answer to it.
+  const parent = parentOf(prop, asked);
   const options = holdsOptions(prop.type)
     ? (prop.type === "status" ? sortStatusOptions(prop.options.options ?? []) : (prop.options.options ?? [])).map(
-        ({ id, name, color, group }) => ({ id, name, color, ...(group ? { group } : {}) }),
+        ({ id, name, color, group, parentOptionIds }) => ({
+          id,
+          name,
+          color,
+          ...(group ? { group } : {}),
+          ...(parent && parentOptionIds?.length ? { parentOptionIds } : {}),
+        }),
       )
     : undefined;
   // A number's format says how answers are read (a percentage in percent points).
   const number = prop.type === "number" ? prop.options.number : undefined;
-  return { id: prop.id, name, type: prop.type, options: options ? { options } : number ? { number } : {} };
+  return {
+    id: prop.id,
+    name,
+    type: prop.type,
+    options: options ? { options, ...(parent ? { dependsOn: parent.id } : {}) } : number ? { number } : {},
+  };
 }
 
 /** A public form as its page shows it, or null when the link doesn't (or no longer) work. */
@@ -535,14 +552,22 @@ export async function getPublicForm(token: string): Promise<PublicForm | null> {
   // A property visitors can't know of shows only as its question: labelled, its own name stays
   // behind; unlabelled, its name is what the publisher chose to ask.
   const unknown = unknownToVisitors(visitors, all);
+  const asked = formQuestions(form, properties, { public: true });
+  const askedProperties = asked.flatMap((q) => q.prop ?? []);
   return {
     token,
     title: form?.title?.trim() || found.title,
     description: form?.description?.trim() ?? "",
-    questions: formQuestions(form, properties, { public: true }).map((q) => ({
-      ...q,
-      prop: q.prop && publicProperty(q.prop, unknown.has(q.prop.id) && q.label ? q.label : q.prop.name),
-    })),
+    questions: asked.map((q) => {
+      const hidden = Boolean(q.prop && unknown.has(q.prop.id));
+      // A property visitors can't know of says nothing of itself: only the question's own help shows.
+      const own = q.description;
+      return {
+        ...q,
+        description: hidden ? own : questionHelp(q),
+        prop: q.prop && publicProperty(q.prop, hidden && q.label ? q.label : q.prop.name, askedProperties),
+      };
+    }),
     anonymous: found.anonymous,
     confirmation: form?.confirmation?.trim() ?? "",
     allowAnother: form?.allowAnother !== false,

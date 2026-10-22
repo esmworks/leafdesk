@@ -23,8 +23,9 @@ import type { AiTool } from "@/server/ai";
 import { formatSources, truncateText, type ChatSourceText } from "@/server/ai/prompts";
 import type { ChatDecision } from "@/server/ai-chat-approvals";
 import { getCollab } from "@/server/collab/bridge";
-import { normalizeRowProperties } from "@/server/databases";
+import { getDatabase, getLookups, normalizeRowProperties } from "@/server/databases";
 import { ToolInputError } from "@/server/mcp/format";
+import { describeProperty } from "@/server/mcp/query";
 import * as ops from "@/server/operations";
 import { getTree } from "@/server/pages";
 import { outdatedState } from "@/server/page-outdated";
@@ -81,7 +82,7 @@ export const CHAT_TOOLS: AiTool[] = [
     name: "query_database",
     description: [
       "Lists the rows of a database that match filters on its properties, sorted as asked. Each row comes back as a numbered source with its values.",
-      "Properties are named as read_page shows them (or title, created_at, updated_at); select and status values by option name.",
+      "Properties are named as read_page shows them (or title, created_at, updated_at), where their descriptions say what each holds; select and status values by option name.",
       `Ops: ${FILTER_OPS.join(", ")}. is_empty and is_not_empty take no value.`,
       'People (person, created_by, last_edited_by): contains or not_equals with "me" for the person asking, or a name.',
       "Relations: contains or not_equals with a related row's title. Text: contains, does_not_contain (ignoring case), equals, not_equals.",
@@ -131,7 +132,7 @@ export const CHAT_TOOLS: AiTool[] = [
 ];
 
 const PROPERTIES_HELP =
-  'Values by property name, as the map or read_page shows them: option names for select and status (an array for multi_select), YYYY-MM-DD for dates (a time as 2026-10-12T14:30:00+03:00, a range as \"start/end\"), true/false for checkboxes, people by name or "me", relations by the related rows\' titles, null to clear. Example: {"Status": "In progress", "Due": "2026-10-12", "Assignee": ["me"]}';
+  'Values by property name, as the map or read_page shows them: option names for select and status (an array for multi_select), YYYY-MM-DD for dates (a time as 2026-10-12T14:30:00+03:00, a range as \"start/end\"), true/false for checkboxes, people by name or "me", relations by the related rows\' titles, null to clear. Follow each property\'s description (what it holds and how to fill it) and, for a select that depends on another, only the options listed for the row\'s value of that one. Example: {"Status": "In progress", "Due": "2026-10-12", "Assignee": ["me"]}';
 
 /** Tools that change the workspace, offered unless the chat only reads. */
 export const WRITE_TOOLS: AiTool[] = [
@@ -768,6 +769,10 @@ async function readPage(ctx: ops.OperationContext, workspaceId: string, scopeId:
   if (Array.isArray(out.database_properties)) {
     parts.push(`A database (database_id ${pageId}; query_database lists the rows that match filters). Its properties:\n${(out.database_properties as DescribedProperty[]).map(propertyLine).join("\n")}`);
     parts.push(await databaseRows(ctx, pageId));
+  } else if (typeof out.database_id === "string") {
+    // A row: what its database's properties hold and how to fill them, for writing its values.
+    const schema = await rowSchema(ctx, out.database_id);
+    if (schema) parts.push(`A row of the database database_id ${out.database_id}, whose properties are:\n${schema}`);
   }
   if (typeof out.markdown === "string" && out.markdown.trim()) parts.push(out.markdown);
   return {
@@ -777,9 +782,26 @@ async function readPage(ctx: ops.OperationContext, workspaceId: string, scopeId:
   };
 }
 
+/** A row's database's properties as the person may know them, one line each (see propertyLine); null when out of reach. */
+async function rowSchema(ctx: ops.OperationContext, databaseId: string) {
+  try {
+    const { properties, access, propertyAccess: levels } = await getDatabase(ctx.userId, databaseId);
+    const lookups = await getLookups(ctx.userId, properties);
+    return properties
+      .map((p) => propertyLine(describeProperty(p, lookups, properties, { access: levels?.[p.id], restricted: !access.open }) as DescribedProperty))
+      .join("\n");
+  } catch (error) {
+    if (error instanceof AccessError) return null;
+    throw error;
+  }
+}
+
 type DescribedProperty = {
   name: string;
   type: string;
+  description?: string;
+  depends_on?: string;
+  option_parents?: Record<string, string[]>;
   options?: string[];
   status_groups?: Record<string, string[]>;
   related_database?: string;
@@ -800,8 +822,16 @@ function propertyLine(p: DescribedProperty) {
     p.related_database ? `rows of "${p.related_database}"` : "",
     ["person", "created_by", "last_edited_by"].includes(p.type) ? '"me" is the person asking' : "",
     p.result_type ? `gives ${p.result_type}` : "",
+    p.depends_on ? `depends on ${p.depends_on}${dependencyText(p.option_parents)}` : "",
+    p.description ? `description: ${p.description.replace(/\s+/g, " ")}` : "",
   ].filter(Boolean);
   return `- ${p.name} (${[p.type, ...details].join("; ")})`;
+}
+
+/** Which options of a dependent select go with which of the other property's (the rest always do). */
+function dependencyText(parents: Record<string, string[]> | undefined) {
+  const pairs = Object.entries(parents ?? {}).map(([option, under]) => `${option} only with ${under.join(" or ")}`);
+  return pairs.length ? ` (${pairs.join(", ")}; other options with any)` : "";
 }
 
 /**

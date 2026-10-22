@@ -592,7 +592,7 @@ export const API_ROUTES: ApiRoute[] = [
     operationId: "getDatabase",
     tag: "Databases",
     summary: "Get a database's schema",
-    description: "Properties (name, type, options), views with their settings, filters and sorts, and the row count.",
+    description: "Properties (name, type, description, options and the select each depends on), views with their settings, filters and sorts, and the row count.",
     scope: "pages:read",
     response: "Database",
     handler: async ({ principal, ctx, params }) => {

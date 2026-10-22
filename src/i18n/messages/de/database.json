@@ -393,7 +393,8 @@
     "startTime": "Startzeit",
     "endTime": "Endzeit",
     "endDateSwitch": "Enddatum",
-    "includeTime": "Uhrzeit angeben"
+    "includeTime": "Uhrzeit angeben",
+    "hiddenByParent": "{count, plural, one {# Option passt} other {# Optionen passen}} nicht zu „{parent}“ dieser Zeile."
   },
   "checklist": {
     "addItem": "Eintrag hinzufügen",
@@ -496,7 +497,16 @@
     "reminder": "Erinnerung",
     "reminderNone": "Keine Erinnerung",
     "reminderBefore": "{days, select, 0 {Am selben Tag, 9:00} 1 {1 Tag vorher, 9:00} 7 {1 Woche vorher, 9:00} other {{days} Tage vorher, 9:00}}",
-    "reminderHint": "Benachrichtigt die Personen, die der Zeile zugewiesen sind, sonst wer sie angelegt hat; erledigte Zeilen erinnern nicht. 9:00 gilt in deiner Zeitzone; Daten mit Uhrzeit erinnern stattdessen zu dieser Uhrzeit."
+    "reminderHint": "Benachrichtigt die Personen, die der Zeile zugewiesen sind, sonst wer sie angelegt hat; erledigte Zeilen erinnern nicht. 9:00 gilt in deiner Zeitzone; Daten mit Uhrzeit erinnern stattdessen zu dieser Uhrzeit.",
+    "description": "Beschreibung",
+    "descriptionPlaceholder": "Was sie enthält und wie man sie ausfüllt",
+    "dependsOn": "Hängt ab von",
+    "dependsOnNone": "Nichts",
+    "dependsOnHint": "Wähle, zu welchen Optionen von „{parent}“ jede Option passt. Zeilen bieten nur diese an; eine Option ohne Auswahl passt immer.",
+    "noParentOptions": "„{parent}“ hat noch keine Optionen.",
+    "parentOptionsLabel": "Bei „{parent}“:",
+    "parentOptionsAll": "immer",
+    "parentOptionToggle": "„{option}“ anbieten, wenn „{parent}“ „{value}“ ist"
   },
   "rowProperties": {
     "noProperties": "Keine Eigenschaften",
@@ -796,7 +806,10 @@
     "webhookBlocked": "Webhooks können nicht an private oder lokale Netzwerkadressen gehen.",
     "agentOwnersOnly": "Nur Inhaber des Workspace und Personen, die den Agenten bearbeiten können, können Aktionen hinzufügen oder ändern, die ihn ausführen.",
     "invalidRepeat": "Diese Wiederholung ist ungültig: Prüfe Tage, Uhrzeit und Zeitzone.",
-    "tooManySchedules": "Dieser Workspace hat bereits so viele sich wiederholende Vorlagen, wie möglich sind."
+    "tooManySchedules": "Dieser Workspace hat bereits so viele sich wiederholende Vorlagen, wie möglich sind.",
+    "optionUnavailable": "„{value}“ ist in „{property}“ für diese Zeile nicht verfügbar.",
+    "invalidDependency": "„{property}“ kann nur von einer anderen Auswahl-Eigenschaft dieser Datenbank abhängen, die nicht selbst von ihr abhängt.",
+    "invalidDescription": "Eine Beschreibung darf höchstens {max} Zeichen lang sein."
   },
   "formula": {
     "title": "Formel",

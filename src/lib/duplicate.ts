@@ -111,6 +111,12 @@ export function planDuplicate(input: DuplicateInput, newId: () => string = () =>
         targetPropertyId: inside ? (propIds.get(rollup.targetPropertyId) ?? rollup.targetPropertyId) : rollup.targetPropertyId,
       };
     }
+    // A select depending on another depends on that one's copy (its options keep their ids).
+    if (prop.options.dependsOn) {
+      const parent = propIds.get(prop.options.dependsOn);
+      if (parent) options.dependsOn = parent;
+      else delete options.dependsOn;
+    }
     return { ...prop, id: propIds.get(prop.id)!, databaseId: pageIds.get(prop.databaseId)!, options };
   });
 

@@ -393,7 +393,8 @@
     "startTime": "開始時刻",
     "endTime": "終了時刻",
     "endDateSwitch": "終了日",
-    "includeTime": "時刻を含める"
+    "includeTime": "時刻を含める",
+    "hiddenByParent": "{count}個のオプションはこの行の「{parent}」に合いません。"
   },
   "checklist": {
     "addItem": "項目を追加",
@@ -496,7 +497,16 @@
     "reminder": "リマインダー",
     "reminderNone": "リマインダーなし",
     "reminderBefore": "{days, select, 0 {当日 9:00} 1 {1日前 9:00} 7 {1週間前 9:00} other {{days}日前 9:00}}",
-    "reminderHint": "行が完了していない限り、各行に割り当てられた人、または行を追加した人に通知します。9:00はあなたのタイムゾーンでの時刻です。時刻付きの日付は、その時刻に通知します。"
+    "reminderHint": "行が完了していない限り、各行に割り当てられた人、または行を追加した人に通知します。9:00はあなたのタイムゾーンでの時刻です。時刻付きの日付は、その時刻に通知します。",
+    "description": "説明",
+    "descriptionPlaceholder": "何を入れるか、どう入力するか",
+    "dependsOn": "依存先",
+    "dependsOnNone": "なし",
+    "dependsOnHint": "各オプションがどの「{parent}」オプションに対応するかを選びます。行ではそれだけが表示されます。何も選んでいないオプションはすべてに対応します。",
+    "noParentOptions": "「{parent}」にはまだオプションがありません。",
+    "parentOptionsLabel": "「{parent}」が次のとき：",
+    "parentOptionsAll": "常に",
+    "parentOptionToggle": "「{parent}」が「{value}」のとき「{option}」を表示"
   },
   "rowProperties": {
     "noProperties": "プロパティなし",
@@ -796,7 +806,10 @@
     "webhookBlocked": "Webhookをプライベートまたはローカルネットワークのアドレスに送信することはできません。",
     "agentOwnersOnly": "エージェントを実行するアクションを追加・変更できるのは、ワークスペースのオーナーとそのエージェントを編集できる人だけです。",
     "invalidRepeat": "その繰り返しのスケジュールは無効です。曜日、時刻、タイムゾーンを確認してください。",
-    "tooManySchedules": "このワークスペースは、繰り返しテンプレートの数が上限に達しています。"
+    "tooManySchedules": "このワークスペースは、繰り返しテンプレートの数が上限に達しています。",
+    "optionUnavailable": "この行では「{property}」に「{value}」を選べません。",
+    "invalidDependency": "「{property}」は、このデータベースの別のセレクトプロパティのうち、それ自体に依存していないものにだけ依存できます。",
+    "invalidDescription": "説明は{max}文字以内にしてください。"
   },
   "formula": {
     "title": "数式",

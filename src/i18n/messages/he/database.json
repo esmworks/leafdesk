@@ -393,7 +393,8 @@
     "startTime": "שעת התחלה",
     "endTime": "שעת סיום",
     "endDateSwitch": "תאריך סיום",
-    "includeTime": "כולל שעה"
+    "includeTime": "כולל שעה",
+    "hiddenByParent": "{count, plural, one {אפשרות אחת אינה מתאימה} other {# אפשרויות אינן מתאימות}} ל“{parent}” של השורה הזו."
   },
   "checklist": {
     "addItem": "הוספת פריט",
@@ -496,7 +497,16 @@
     "reminder": "תזכורת",
     "reminderNone": "ללא תזכורת",
     "reminderBefore": "{days, select, 0 {באותו יום, 9:00} 1 {יום לפני, 9:00} 7 {שבוע לפני, 9:00} other {{days} ימים לפני, 9:00}}",
-    "reminderHint": "שולח התראה לאנשים שהוקצו לכל שורה, או למי שהוסיף אותה, אלא אם השורה הושלמה. השעה 9:00 היא לפי אזור הזמן שלך; תאריכים עם שעה מזכירים בשעה הזו במקום."
+    "reminderHint": "שולח התראה לאנשים שהוקצו לכל שורה, או למי שהוסיף אותה, אלא אם השורה הושלמה. השעה 9:00 היא לפי אזור הזמן שלך; תאריכים עם שעה מזכירים בשעה הזו במקום.",
+    "description": "תיאור",
+    "descriptionPlaceholder": "מה הוא מכיל ואיך למלא אותו",
+    "dependsOn": "תלוי ב",
+    "dependsOnNone": "כלום",
+    "dependsOnHint": "בחרו לאילו אפשרויות של “{parent}” מתאימה כל אפשרות. שורות יציעו רק אותן; אפשרות שלא נבחר לה דבר מתאימה לכולן.",
+    "noParentOptions": "ל“{parent}” עדיין אין אפשרויות.",
+    "parentOptionsLabel": "עם “{parent}”:",
+    "parentOptionsAll": "תמיד",
+    "parentOptionToggle": "להציע את “{option}” כש“{parent}” הוא “{value}”"
   },
   "rowProperties": {
     "noProperties": "אין מאפיינים",
@@ -796,7 +806,10 @@
     "webhookBlocked": "Webhooks לא יכולים להישלח לכתובות ברשת פרטית או מקומית.",
     "agentOwnersOnly": "רק הבעלים של סביבת העבודה ומי שיכול לערוך את הסוכן יכולים להוסיף או לשנות פעולות שמריצות אותו.",
     "invalidRepeat": "לוח הזמנים של החזרה אינו תקין: יש לבדוק את הימים, השעה ואזור הזמן.",
-    "tooManySchedules": "סביבת העבודה הזו הגיעה למספר המרבי של תבניות חוזרות."
+    "tooManySchedules": "סביבת העבודה הזו הגיעה למספר המרבי של תבניות חוזרות.",
+    "optionUnavailable": "“{value}” אינו זמין ב“{property}” עבור השורה הזו.",
+    "invalidDependency": "“{property}” יכול להיות תלוי רק במאפיין בחירה אחר של מסד הנתונים הזה שאינו תלוי בו.",
+    "invalidDescription": "תיאור יכול להכיל עד {max} תווים."
   },
   "formula": {
     "title": "נוסחה",

@@ -35,6 +35,7 @@ import {
 import { PropertyValueError } from "@/lib/properties";
 import { AccessError, hasLevel, pageAccessOf } from "@/server/access";
 import { aiConfig, AiError, complete, contentChars, describeAiSetup, isAiError, isEnabled as aiMayBeOn, takeRateLimit, takeWorkspaceCapacity } from "@/server/ai";
+import { propertyDescription } from "@/lib/property-description";
 import { autofillNeedsBody, autofillPrompt, cleanValue, formatValue, type Prompt } from "@/server/ai/prompts";
 import { aiAvailable } from "@/server/ai-writing";
 import { getCollab } from "@/server/collab/bridge";
@@ -265,6 +266,8 @@ async function rowInput(
     config,
     { title: row.title, values: text, names: Object.fromEntries(inputs.map((p) => [p.id, p.name])), body },
     maxContent,
+    // What the database says the field holds: part of what the value depends on, like the prompt.
+    { name: prop.name, description: propertyDescription(prop) },
   );
   const hash = createHash("sha256").update(JSON.stringify({ config, prompt })).digest("hex");
   return { config, prompt, hash };

@@ -169,6 +169,16 @@ describe("autofill prompts", () => {
     expect(autofillPrompt({ mode: "custom", prompt: "  " }, row, 1000)).toBeNull();
   });
 
+  it("guides the answer with the field's description", () => {
+    const field = { name: "Priority", description: "High only when\n the customer is waiting" };
+    for (const config of [{ mode: "summary" }, { mode: "translation", source: "p1", language: "tr" }, { mode: "custom", prompt: "Rate it" }] as const) {
+      expect(autofillPrompt(config, row, 1000, field)!.prompt).toMatch(
+        /^The field is "Priority"\. What it holds and how to fill it: High only when the customer is waiting\n\n/,
+      );
+    }
+    expect(autofillPrompt({ mode: "summary" }, row, 1000, { name: "Priority", description: " " })!.prompt).not.toContain("The field is");
+  });
+
   it("cleans answers for storing", () => {
     expect(cleanValue('  "Quoted"  ', 100)).toBe("Quoted");
     expect(cleanValue("```\nfenced\n```", 100)).toBe("fenced");

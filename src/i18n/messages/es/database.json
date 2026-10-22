@@ -393,7 +393,8 @@
     "startTime": "Hora de inicio",
     "endTime": "Hora de fin",
     "endDateSwitch": "Fecha de fin",
-    "includeTime": "Incluir hora"
+    "includeTime": "Incluir hora",
+    "hiddenByParent": "{count, plural, one {# opción no va} other {# opciones no van}} con el valor de “{parent}” de esta fila."
   },
   "checklist": {
     "addItem": "Añadir un elemento",
@@ -496,7 +497,16 @@
     "reminder": "Recordatorio",
     "reminderNone": "Sin recordatorio",
     "reminderBefore": "{days, select, 0 {El mismo día, 9:00} 1 {1 día antes, 9:00} 7 {1 semana antes, 9:00} other {{days} días antes, 9:00}}",
-    "reminderHint": "Avisa a las personas asignadas a cada fila, o a quien la añadió, salvo que la fila esté terminada. Las 9:00 son en tu zona horaria; las fechas con hora avisan a esa hora."
+    "reminderHint": "Avisa a las personas asignadas a cada fila, o a quien la añadió, salvo que la fila esté terminada. Las 9:00 son en tu zona horaria; las fechas con hora avisan a esa hora.",
+    "description": "Descripción",
+    "descriptionPlaceholder": "Qué contiene y cómo rellenarla",
+    "dependsOn": "Depende de",
+    "dependsOnNone": "Nada",
+    "dependsOnHint": "Elige con qué opciones de “{parent}” va cada opción. Las filas solo ofrecen esas; una sin ninguna elegida va con todas.",
+    "noParentOptions": "“{parent}” aún no tiene opciones.",
+    "parentOptionsLabel": "Con “{parent}”:",
+    "parentOptionsAll": "siempre",
+    "parentOptionToggle": "Ofrecer “{option}” cuando “{parent}” sea “{value}”"
   },
   "rowProperties": {
     "noProperties": "Sin propiedades",
@@ -796,7 +806,10 @@
     "webhookBlocked": "Los webhooks no pueden ir a direcciones de red privadas o locales.",
     "agentOwnersOnly": "Solo los propietarios del espacio de trabajo y quienes pueden editar el agente pueden añadir o cambiar acciones que lo ejecutan.",
     "invalidRepeat": "Esa repetición no es válida: revisa los días, la hora y la zona horaria.",
-    "tooManySchedules": "Este espacio de trabajo ya tiene todas las plantillas repetidas que puede tener."
+    "tooManySchedules": "Este espacio de trabajo ya tiene todas las plantillas repetidas que puede tener.",
+    "optionUnavailable": "“{value}” no está disponible en “{property}” para esta fila.",
+    "invalidDependency": "“{property}” solo puede depender de otra propiedad de selección de esta base de datos que no dependa de ella.",
+    "invalidDescription": "Una descripción puede tener como máximo {max} caracteres."
   },
   "formula": {
     "title": "Fórmula",
