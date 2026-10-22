@@ -40,7 +40,7 @@ import { isComputed, isDerived, PROPERTY_TYPES, STATUS_GROUPS, type StatusGroup 
 import { pageLabel } from "@/lib/labels";
 import { canRestrict } from "@/lib/property-access";
 import { SELECT_COLORS, sortStatusOptions, statusColor, statusGroupOf } from "@/lib/properties";
-import type { AiAutofillConfig } from "@/lib/ai";
+import { isAutofillType, type AiAutofillConfig } from "@/lib/ai";
 import type { AggregateFn } from "@/lib/aggregate";
 import type { DateOptionsInput } from "@/lib/date-options";
 import type { NumberDisplay } from "@/lib/number-display";
@@ -563,17 +563,17 @@ export function PropertyMenu({
         {t("dateOptions")}
       </MenuItem>
     ),
-    prop?.type === "text" && prop.options.ai && actions.updateAllAutofill && (
+    isAutofillType(prop?.type) && prop?.options.ai && actions.updateAllAutofill && (
       <MenuItem key="update-all" icon={icon(RefreshCw)} onClick={run(actions.updateAllAutofill)}>
         {ta("updateAll")}
       </MenuItem>
     ),
-    prop?.type === "text" && actions.setAutofill && (
+    isAutofillType(prop?.type) && actions.setAutofill && (
       <MenuItem key="autofill" icon={icon(Bot)} onClick={() => setPage("autofill")}>
         {ta("configure")}
       </MenuItem>
     ),
-    prop?.type === "text" && prop.options.ai && actions.setAutofill && (
+    isAutofillType(prop?.type) && prop?.options.ai && actions.setAutofill && (
       <MenuItem key="autofill-off" icon={icon(BotOff)} onClick={run(() => actions.setAutofill?.(null))}>
         {ta("turnOff")}
       </MenuItem>
