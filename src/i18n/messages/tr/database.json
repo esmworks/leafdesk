@@ -504,7 +504,7 @@
     "dependsOnNone": "Hiçbiri",
     "dependsOnHint": "Her seçeneğin hangi “{parent}” seçenekleriyle geçerli olduğunu seçin. Satırlar yalnızca bunları sunar; hiçbiri seçilmemiş seçenek her durumda geçerlidir.",
     "noParentOptions": "“{parent}” özelliğinin henüz seçeneği yok.",
-    "parentOptionsLabel": "“{parent}” şuysa:",
+    "parentOptionsLabel": "“{parent}” şu olduğunda:",
     "parentOptionsAll": "her zaman",
     "parentOptionToggle": "“{parent}” “{value}” olduğunda “{option}” sunulsun"
   },

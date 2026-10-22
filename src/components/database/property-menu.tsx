@@ -813,7 +813,7 @@ function DescriptionField({ prop, onSave }: { prop: Property; onSave?: (descript
         placeholder={t("descriptionPlaceholder")}
         onChange={(e) => setText(e.target.value)}
         onBlur={commit}
-        className="block max-h-40 min-h-12 w-full resize-y rounded-md border border-border bg-bg px-1.5 py-1 text-xs text-fg outline-none placeholder:text-fg-faint focus:border-accent"
+        className="block max-h-40 min-h-12 w-full resize-none rounded-md [field-sizing:content] border border-border bg-bg px-1.5 py-1 text-xs text-fg outline-none placeholder:text-fg-faint focus:border-accent"
       />
     </div>
   );
