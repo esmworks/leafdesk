@@ -314,12 +314,19 @@ try {
   check(await fails(review.dismissPendingChange(ids.owner, draft.id), isAccess), "as is dismissing it");
   const senderSees = (await queueOf(ids.editor)).find((c) => c.id === draft.id);
   check(senderSees?.canApprove && senderSees.email?.sender?.id === ids.editor, "its sender sees it and may send it", senderSees);
+  const senderInbox = (await listNotifications(ids.editor, { workspaceId })).filter((n) => n.kind === "review");
+  check(senderInbox.length === 1 && (await review.countPendingFor(ids.editor, workspaceId)) === 1, "its sender hears about it in their inbox", senderInbox);
+  check((await review.countPendingFor(ids.owner, workspaceId)) === 0, "and no one else counts it");
+  // The sender's own words aren't checked: they send what they mean to.
+  const ownWords = `${finished}\n\n**P.S.** See you on [Friday].`;
+  const editedDraft = await review.editPendingChange(ids.editor, draft.id, { text: ownWords });
+  check(editedDraft.edited && editedDraft.email?.text === ownWords, "its sender may edit the text, unchecked", editedDraft.email);
   const sent = await review.approvePendingChange(ids.editor, draft.id, { actor: { userId: ids.editor } });
   check(sent.status === "approved", "approving it sends it", sent);
   const queued = await db.select().from(rowEmail).where(eq(rowEmail.rowId, defne.id));
   check(
-    queued.length === 1 && queued[0].direction === "out" && queued[0].sentBy === ids.editor && queued[0].fromAddress === "ece@example.test" && queued[0].to.join() === "defne@example.test",
-    "from the sender's mailbox, on the row, to the row's address",
+    queued.length === 1 && queued[0].direction === "out" && queued[0].sentBy === ids.editor && queued[0].fromAddress === "ece@example.test" && queued[0].to.join() === "defne@example.test" && queued[0].text === ownWords,
+    "from the sender's mailbox, on the row, to the row's address, as the sender edited it",
     queued,
   );
   // Sending is tried at once in the background (and fails here, with no real server): wait for it.
