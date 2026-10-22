@@ -48,6 +48,7 @@ const { flushAutomations } = await import("@/server/automations/run");
 const { runScheduledAutomations } = await import("@/server/automations/scheduled");
 const { receiveHook } = await import("@/server/automations/incoming");
 const { newSecretSalt } = await import("@/server/automations/webhook");
+const { listInbox } = await import("@/server/notifications");
 const { PropertyValueError } = await import("@/lib/properties");
 const { INCOMING_PER_MINUTE, MAX_AUTOMATION_ACTIONS } = await import("@/lib/automations");
 
@@ -358,6 +359,37 @@ try {
   run = await lastRun(templated.id);
   check(run.status === "failed" && run.steps[0].code === "blocked", "an address that a template points to a private host is refused when sent", run.steps);
   await manage.deleteAutomation(ids.owner, templated.id);
+
+  // ------------------------------------------------------------------ notify with a message, for each found row
+  const teller = await manage.createAutomation(ids.owner, tasks.id, {
+    name: "Tell Mert",
+    trigger: { type: "row_created" },
+    actions: [{ type: "notify", people: [ids.member], message: "{{trigger.title}} is {{trigger.Stage}} ({{trigger.Nope}})" }],
+  });
+  await createRows(ids.owner, tasks.id, [{ title: "Tell me", properties: { [stage.id]: optionId("Todo") } }]);
+  await flushAutomations();
+  let inbox = await listInbox(ids.member, workspaceId);
+  check(inbox.some((n) => n.automationMessage === "Tell me is Todo ()"), "a notification carries its message, templates filled in", inbox);
+  await manage.deleteAutomation(ids.owner, teller.id);
+  const digest = await manage.createAutomation(ids.owner, tasks.id, {
+    name: "Daily digest",
+    trigger: { type: "schedule", schedule: { frequency: "daily", time: "08:00" } },
+    actions: [
+      { id: "doing", type: "find_rows", database: "Tasks", filters: [{ propertyId: stage.id, op: "equals", value: optionId("Doing") }], limit: 10 },
+      { type: "notify", forEach: "doing", people: [ids.member], message: "Still doing: {{item.title}}" },
+    ],
+  });
+  await manage.testAutomation(ids.owner, digest.id);
+  await flushAutomations();
+  run = await lastRun(digest.id);
+  inbox = await listInbox(ids.member, workspaceId);
+  const doingTitles = (await rowsOf(tasks.id)).filter((r) => r.properties[stage.id] === optionId("Doing")).map((r) => `Still doing: ${r.title}`);
+  check(
+    run.status === "done" && doingTitles.length > 0 && doingTitles.every((m) => inbox.some((n) => n.automationMessage === m)),
+    "notify for each found row tells about each one",
+    { steps: run.steps, doingTitles },
+  );
+  await manage.deleteAutomation(ids.owner, digest.id);
 
   // ------------------------------------------------------------------ waiting, versions, drafts and test runs
   check(
