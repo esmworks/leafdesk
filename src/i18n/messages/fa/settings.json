@@ -1576,6 +1576,7 @@
       },
       "api_token": {
         "created": "توکن API {target} را ایجاد کرد",
+        "updated": "کارهایی را که توکن API {target} می‌تواند بکند تغییر داد",
         "revoked": "{hasSubject, select, yes {توکن API {target} متعلق به {subject} را باطل کرد} other {توکن API {target} را باطل کرد}}"
       },
       "automation": {

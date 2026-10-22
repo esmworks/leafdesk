@@ -3,9 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 vi.mock("@/db", () => ({ db: {} }));
 vi.mock("@/server/access", () => ({ findMembership: vi.fn(async () => null) }));
 
-const { ApiTokenError, createApiToken, generateTokenSecret, hashToken, normalizeScopes, TOKEN_PATTERN, verifyApiToken } = await import(
-  "./tokens"
-);
+const { ApiTokenError, createApiToken, generateTokenSecret, hashToken, TOKEN_PATTERN, verifyApiToken } = await import("./tokens");
 
 describe("token secrets", () => {
   it("are esi_ plus 40 letters and digits, and differ every time", () => {
@@ -26,14 +24,6 @@ describe("token secrets", () => {
   });
 });
 
-describe("normalizeScopes", () => {
-  it("keeps known scopes and lets write bring read", () => {
-    expect(normalizeScopes(["pages:write"])).toEqual(["pages:read", "pages:write"]);
-    expect(normalizeScopes(["pages:read", "pages:read"])).toEqual(["pages:read"]);
-    expect(normalizeScopes(["admin", "pages:read"])).toEqual(["pages:read"]);
-    expect(normalizeScopes([])).toEqual([]);
-  });
-});
 
 describe("createApiToken input checks", () => {
   const refuse = async (input: Parameters<typeof createApiToken>[1], code: string) => {
@@ -50,6 +40,8 @@ describe("createApiToken input checks", () => {
   it("needs known scopes", async () => {
     await refuse({ name: "t", scopes: [] }, "scopes");
     await refuse({ name: "t", scopes: ["pages:read", "admin"] }, "scopes");
+    // Scopes of the MCP server's OAuth tokens aren't the API's.
+    await refuse({ name: "t", scopes: ["files:write"] }, "scopes");
   });
 
   it("expires after 1 to 3650 whole days, or never", async () => {

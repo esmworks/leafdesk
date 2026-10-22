@@ -1576,6 +1576,7 @@
       },
       "api_token": {
         "created": "创建了 API 令牌 {target}",
+        "updated": "更改了 API 令牌 {target} 可以做的事",
         "revoked": "{hasSubject, select, yes {撤销了 {subject} 的 API 令牌 {target}} other {撤销了 API 令牌 {target}}}"
       },
       "automation": {

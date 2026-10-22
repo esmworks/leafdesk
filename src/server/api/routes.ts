@@ -1,7 +1,8 @@
 import { eq } from "drizzle-orm";
 import * as z from "zod";
 import { db } from "@/db";
-import { page, user, workspaceAgent, type ApiTokenScope } from "@/db/schema";
+import { page, user, workspaceAgent } from "@/db/schema";
+import type { ApiTokenScope } from "@/lib/api-scopes";
 import type { AgentView } from "@/lib/agents";
 import { AccessError } from "@/server/access";
 import { helperIdsOf } from "@/server/agents/helpers";
@@ -28,7 +29,7 @@ import { voiceAudioType } from "@/lib/voice-notes";
 import { AiError, sttLimits } from "@/server/ai";
 import { pageUrl } from "@/server/mcp/format";
 import { createVoiceNote } from "@/server/voice-notes";
-import { ApiError } from "./errors";
+import { ApiError, missingScope } from "./errors";
 import { cursorInput, decodeCursor, nextCursor, paginate } from "./pagination";
 import type { ApiPrincipal } from "./tokens";
 
@@ -61,7 +62,8 @@ export type ApiRoute<Q extends Schema = Schema, B extends Schema = Schema> = {
   tag: "Account" | "Workspaces" | "Pages" | "Databases" | "Rows" | "Comments" | "Agents";
   summary: string;
   description?: string;
-  scope: ApiTokenScope;
+  /** What the token needs to call it; null for any token (GET /me). */
+  scope: ApiTokenScope | null;
   query?: Q;
   body?: B;
   /**
@@ -82,6 +84,11 @@ export type ApiRoute<Q extends Schema = Schema, B extends Schema = Schema> = {
 export const defineRoute = <Q extends Schema = Schema, B extends Schema = Schema>(def: ApiRoute<Q, B>) => def as unknown as ApiRoute;
 
 // ---------------------------------------------------------------------------- workspace-bound tokens
+
+/** For what only some calls of an endpoint do (a voice note into a database): refused without the scope. */
+function requireScope(principal: ApiPrincipal, scope: ApiTokenScope) {
+  if (!principal.scopes.includes(scope)) throw missingScope(scope);
+}
 
 /** A token bound to a workspace sees nothing outside it: other workspaces read as not found. */
 function requireWorkspace(principal: ApiPrincipal, workspaceId: string) {
@@ -167,8 +174,9 @@ export const API_ROUTES: ApiRoute[] = [
     operationId: "getMe",
     tag: "Account",
     summary: "The token's user and settings",
-    description: "Who the token acts for, its scopes, the workspace it is limited to (if any) and when it expires.",
-    scope: "pages:read",
+    description:
+      "Who the token acts for, its scopes, the workspace it is limited to (if any) and when it expires. Any token may call it. A token made before scopes were per resource has `legacy_scopes: true`, and its `scopes` list what its `pages:read` (every read scope) or `pages:write` (every scope) stands for.",
+    scope: null,
     response: "Me",
     handler: async ({ principal }) => {
       const [row] = await db.select({ id: user.id, name: user.name, email: user.email }).from(user).where(eq(user.id, principal.userId));
@@ -177,6 +185,7 @@ export const API_ROUTES: ApiRoute[] = [
         token: {
           id: principal.tokenId,
           scopes: principal.scopes,
+          legacy_scopes: principal.legacyScopes,
           workspace_id: principal.workspaceId,
           expires_at: principal.expiresAt?.toISOString() ?? null,
         },
@@ -190,7 +199,7 @@ export const API_ROUTES: ApiRoute[] = [
     tag: "Workspaces",
     summary: "List workspaces",
     description: "The workspaces the user belongs to (only the token's workspace for a workspace-bound token), with the user's role.",
-    scope: "pages:read",
+    scope: "workspaces:read",
     response: "WorkspaceList",
     handler: async ({ principal, ctx }) => {
       const { workspaces } = await ops.listWorkspaces(ctx);
@@ -238,7 +247,7 @@ export const API_ROUTES: ApiRoute[] = [
     summary: "List teamspaces",
     description:
       'The teamspaces of a workspace the user can see (all but private ones they aren\'t in), oldest first. Pages at the top of a workspace belong to a teamspace or are private to the user who made them: pass teamspace_id (or "private") when creating or moving top-level pages.',
-    scope: "pages:read",
+    scope: "workspaces:read",
     query: z.object({
       include_archived: z
         .enum(["true", "false"])
@@ -260,7 +269,7 @@ export const API_ROUTES: ApiRoute[] = [
     summary: "List groups",
     description:
       "The member groups of a workspace, by name: named sets of its owners and members that pages are shared with and teamspaces joined by, with who is in each and the teamspaces each joined (among those the user can see). Guests can't list them.",
-    scope: "pages:read",
+    scope: "workspaces:read",
     response: "GroupList",
     handler: async ({ principal, ctx, params }) => {
       requireWorkspace(principal, params.workspace_id);
@@ -275,7 +284,7 @@ export const API_ROUTES: ApiRoute[] = [
     summary: "Search pages",
     description:
       "Search over page titles and bodies (database rows included), best matches first: full-text, merged with semantic search (by meaning) when the server has an embeddings model. `match` says how each result was found. Archived pages are left out unless include_archived is true.",
-    scope: "pages:read",
+    scope: "search:read",
     query: z.object({
       query: z.string().min(1).describe("Words to look for."),
       workspace_id: z.string().optional().describe("Only search this workspace."),
@@ -365,7 +374,7 @@ export const API_ROUTES: ApiRoute[] = [
     tag: "Pages",
     summary: "Create a note from a recording",
     description:
-      "Takes a recording as multipart form data (`audio`: WebM, Ogg, M4A/MP4, MP3, WAV or FLAC), has it transcribed and written up by AI as a clean note with a title, and saves it as a private page of the workspace or a row of `database_id`, with the transcript in a toggle under it. Answers once the note is saved, which can take a while for a long recording. The audio isn't stored. Without a chat model, or when the AI fails, the note is the transcript itself (`rewritten` false).\n\nOnly where the server has speech to text set up and the workspace allows AI; otherwise 409 `voice_notes_unavailable`. The largest recording is the server's `STT_MAX_MB` (25 MB unless set), not the 5 MB of JSON bodies. Transcription and writing up count toward the server's AI rate limits as well as the token's.",
+      "Takes a recording as multipart form data (`audio`: WebM, Ogg, M4A/MP4, MP3, WAV or FLAC), has it transcribed and written up by AI as a clean note with a title, and saves it as a private page of the workspace or a row of `database_id` (which needs `rows:write` as well), with the transcript in a toggle under it. Answers once the note is saved, which can take a while for a long recording. The audio isn't stored. Without a chat model, or when the AI fails, the note is the transcript itself (`rewritten` false).\n\nOnly where the server has speech to text set up and the workspace allows AI; otherwise 409 `voice_notes_unavailable`. The largest recording is the server's `STT_MAX_MB` (25 MB unless set), not the 5 MB of JSON bodies. Transcription and writing up count toward the server's AI rate limits as well as the token's.",
     scope: "pages:write",
     body: voiceNoteBody,
     form: {
@@ -380,13 +389,18 @@ export const API_ROUTES: ApiRoute[] = [
     conflict: true,
     response: "VoiceNoteCreated",
     handler: async ({ principal, body, files, signal }) => {
+      if (body.database_id) requireScope(principal, "rows:write");
       if (body.workspace_id) requireWorkspace(principal, body.workspace_id);
       if (body.database_id) await requirePageInWorkspace(principal, body.database_id);
       const workspaceId = body.workspace_id ?? (body.database_id ? await workspaceOfPage(body.database_id) : principal.workspaceId);
       if (!workspaceId) {
-        throw new ApiError(400, "validation_error", "The request body is invalid.", [
-          { path: "workspace_id", message: "Say which workspace the note goes into." },
-        ]);
+        throw new ApiError(
+          400,
+          "validation_error",
+          "The request body is invalid.",
+          [{ path: "workspace_id", message: "Say which workspace the note goes into." }],
+          { param: "workspace_id" },
+        );
       }
       const audio = files.audio;
       const type = voiceAudioType(audio.type, audio.name);
@@ -561,7 +575,7 @@ export const API_ROUTES: ApiRoute[] = [
     tag: "Comments",
     summary: "List comments",
     description: "The page's comment threads, oldest first, with the text each is about. Resolved threads only with include_resolved.",
-    scope: "pages:read",
+    scope: "comments:read",
     query: z.object({ include_resolved: z.stringbool().default(false).describe("Also list resolved threads (true or false).") }),
     response: "CommentThreads",
     handler: async ({ principal, ctx, params, query }) => {
@@ -577,7 +591,7 @@ export const API_ROUTES: ApiRoute[] = [
     summary: "Comment on a page",
     description:
       "Starts a thread on text of the page (quote: copied exactly from the body, within one paragraph) or replies in a thread (thread_id). People in the thread are notified.",
-    scope: "pages:write",
+    scope: "comments:write",
     body: pageBodies.addComment,
     status: 201,
     response: "CommentCreated",
@@ -593,7 +607,7 @@ export const API_ROUTES: ApiRoute[] = [
     tag: "Databases",
     summary: "Get a database's schema",
     description: "Properties (name, type, options), views with their settings, filters and sorts, and the row count.",
-    scope: "pages:read",
+    scope: "databases:read",
     response: "Database",
     handler: async ({ principal, ctx, params }) => {
       await requirePageInWorkspace(principal, params.database_id);
@@ -608,7 +622,7 @@ export const API_ROUTES: ApiRoute[] = [
     summary: "Query rows",
     description:
       'Rows matching filters, in the order of sorts (or a saved view\'s), a page at a time: pass next_cursor as cursor with the same filters, sorts and view_id to read on. Pages follow on from the last row returned, so rows added or removed in between neither repeat nor go missing. Filters name properties (or "title", "created_at", "updated_at") and use option names as values; ops: contains, does_not_contain, equals, not_equals, is_any_of, is_none_of (with a list of values), is_empty, is_not_empty, gt, gte, lt, lte, is_within. properties limits the values each row returns. The first page of a chart view also returns what it plots.',
-    scope: "pages:read",
+    scope: "rows:read",
     body: ops.inputs.queryDatabase.omit({ database_id: true }),
     response: "QueryResult",
     handler: async ({ principal, ctx, params, body }) => {
@@ -624,7 +638,7 @@ export const API_ROUTES: ApiRoute[] = [
     summary: "Add a row",
     description:
       "Adds a row with a title, property values (by property name, options by name) and an optional Markdown body. Without properties and body it starts from the database's default row template; template_id picks one. With match_by it upserts: a row whose value of that property equals the given one is updated instead (action says which happened).",
-    scope: "pages:write",
+    scope: "rows:write",
     body: ops.inputs.createDatabaseRow.omit({ database_id: true }),
     status: 201,
     response: "Row",
@@ -640,7 +654,7 @@ export const API_ROUTES: ApiRoute[] = [
     tag: "Rows",
     summary: "Add many rows",
     description: `Adds up to ${ops.MAX_BULK_ROWS} rows in order. All values are checked first: if one is invalid, nothing is created and the error names the row. With match_by it upserts: each row whose value of that property matches an existing row's updates that row instead, and each row says which happened in action.`,
-    scope: "pages:write",
+    scope: "rows:write",
     body: ops.inputs.createDatabaseRows.omit({ database_id: true }),
     status: 201,
     response: "RowsCreated",
@@ -656,7 +670,7 @@ export const API_ROUTES: ApiRoute[] = [
     tag: "Rows",
     summary: "Update many rows",
     description: `Sets the same property values on up to ${ops.MAX_BULK_ROWS} rows. Values are checked first; rows the user can't edit are skipped and listed in skipped_row_ids. expect refuses the call, writing nothing, unless exactly that many rows would change; dry_run reports which rows would change without writing.`,
-    scope: "pages:write",
+    scope: "rows:write",
     body: ops.inputs.updateDatabaseRows.omit({ database_id: true }),
     response: "RowsUpdated",
     handler: async ({ principal, ctx, params, body }) => {
@@ -671,7 +685,7 @@ export const API_ROUTES: ApiRoute[] = [
     tag: "Rows",
     summary: "Read a row",
     description: "A row's title and property values. Read its body with the page endpoint.",
-    scope: "pages:read",
+    scope: "rows:read",
     response: "Row",
     handler: async ({ principal, ctx, params }) => {
       await requirePageInWorkspace(principal, params.row_id);
@@ -686,7 +700,7 @@ export const API_ROUTES: ApiRoute[] = [
     summary: "List a row's activity",
     description:
       "Who created the row and who changed its title or a property value, from what to what, newest first. Quick changes by the same actor to the same value are one entry. Entries about properties the token's user can't see in the row are left out.",
-    scope: "pages:read",
+    scope: "rows:read",
     query: z.object({ limit: limitInput(MAX_ACTIVITY_PAGE, 20), cursor: cursorInput }),
     response: "RowActivity",
     handler: async ({ principal, ctx, params, query }) => {
@@ -704,7 +718,7 @@ export const API_ROUTES: ApiRoute[] = [
     tag: "Rows",
     summary: "Update a row",
     description: "Changes a row's title and/or property values; null clears a value and properties not given keep theirs.",
-    scope: "pages:write",
+    scope: "rows:write",
     body: ops.inputs.updateDatabaseRow.omit({ row_id: true }),
     response: "Row",
     handler: async ({ principal, ctx, params, body }) => {
@@ -720,7 +734,7 @@ export const API_ROUTES: ApiRoute[] = [
     summary: "List agents",
     description:
       "The agents of a workspace: AI helpers with instructions of their own, each acting as a user of its own (`user_id`, what its changes and comments show). Owners list every agent; members the agents shared with them, with their access to each (`your_access`); guests can't.",
-    scope: "pages:read",
+    scope: "agents:read",
     query: z.object({
       include_archived: z
         .enum(["true", "false"])
@@ -743,7 +757,7 @@ export const API_ROUTES: ApiRoute[] = [
     tag: "Agents",
     summary: "Read an agent",
     description: "An agent's settings, instructions and monthly token limit, what its runs used this month, and the token's user's access to it (`your_access`). Workspace owners read every agent; others those shared with them.",
-    scope: "pages:read",
+    scope: "agents:read",
     response: "Agent",
     handler: async ({ principal, params }) => {
       return agentWithUsage(await ownedAgentFor(principal, params.agent_id));
@@ -757,7 +771,7 @@ export const API_ROUTES: ApiRoute[] = [
     summary: "Update an agent",
     description:
       "Changes an agent's name, icon, description, instructions, whether it is enabled (false pauses it: its queued runs end without doing anything), whether it may read the web (`web_access`), its monthly token limit (null removes it), the model its runs use (`main`, or `fast` for the server's cheaper fast model) or the other agents it can hand part of a task to (`helper_agent_ids`, the whole list; `[]` clears it); fields left out keep their values. Needs edit access to the agent (workspace owners always have it); only owners change the monthly token limit (403 otherwise). An archived agent can't change.",
-    scope: "pages:write",
+    scope: "agents:write",
     body: agentInputs.update.omit({ agent_id: true }),
     response: "Agent",
     handler: async ({ principal, params, body }) => {
@@ -773,7 +787,7 @@ export const API_ROUTES: ApiRoute[] = [
     summary: "Start a run",
     description:
       "Asks the agent to do a task now. The run is queued and done in the background, held to what the token's user can open as well as what is shared with the agent: on a row (`row_id`) it may change and comment on that row; on none it only reads and answers. Read how it went with the run's endpoint. Needs edit access to the agent (workspace owners always have it). Answers 409 when the agent is paused or archived or AI is off (`agent_unavailable`), when it used its monthly token limit (`limit_reached`), or when too many runs asked of it still wait (`too_many_runs`). Each run uses the workspace's AI allowance.",
-    scope: "pages:write",
+    scope: "agents:write",
     body: agentInputs.run.omit({ agent_id: true }),
     status: 201,
     conflict: true,
@@ -792,7 +806,7 @@ export const API_ROUTES: ApiRoute[] = [
     summary: "List an agent's runs",
     description:
       "An agent's latest runs, newest first (finished ones are kept 30 days): what started each, its status and failure code, its steps, final answer and the tokens it used. What a run read and wrote on a row the user can't open is left out. For anyone the agent is shared with; someone who can only interact with it gets only the runs they started.",
-    scope: "pages:read",
+    scope: "agents:read",
     query: z.object({ limit: limitInput(100, 20) }),
     response: "AgentRunList",
     handler: async ({ principal, params, query }) => {
@@ -808,7 +822,7 @@ export const API_ROUTES: ApiRoute[] = [
     tag: "Agents",
     summary: "Read a run",
     description: "One of an agent's runs, as the list shows it: poll it after starting a run until its status is done or failed. For anyone the agent is shared with, as the list shows runs to them.",
-    scope: "pages:read",
+    scope: "agents:read",
     response: "AgentRun",
     handler: async ({ principal, params }) => {
       const agent = await ownedAgentFor(principal, params.agent_id);
@@ -824,7 +838,7 @@ export const API_ROUTES: ApiRoute[] = [
     summary: "An agent's usage",
     description:
       "The tokens, cost and runs an agent used by calendar month (UTC), this month first, for the last 12 months it ran in. `cost_usd` is 0 where the AI provider names no price. For anyone the agent is shared with.",
-    scope: "pages:read",
+    scope: "agents:read",
     response: "AgentUsage",
     handler: async ({ principal, params }) => {
       const agent = await ownedAgentFor(principal, params.agent_id);
@@ -840,7 +854,7 @@ export const API_ROUTES: ApiRoute[] = [
     summary: "List an agent's schedules",
     description:
       "When the agent runs on its own: each schedule's repeat rule and time zone, its task, the database it looks after (with the agent's access to it), when it runs next and who set it. A paused schedule says why in `note`. For anyone the agent is shared with.",
-    scope: "pages:read",
+    scope: "agents:read",
     response: "AgentScheduleList",
     handler: async ({ principal, params }) => {
       const agent = await ownedAgentFor(principal, params.agent_id);
@@ -856,7 +870,7 @@ export const API_ROUTES: ApiRoute[] = [
     summary: "Add a schedule",
     description:
       "Makes the agent run on its own on a repeat rule, with a task and optionally a database it looks after: each run reads that database first and may change and comment on its rows; without one it only reads. Runs are held to what the token's user can open as well as what is shared with the agent, and each ends with a report in the user's inbox. Needs edit access to the agent (workspace owners always have it).",
-    scope: "pages:write",
+    scope: "agents:write",
     body: agentInputs.schedule.omit({ agent_id: true }),
     status: 201,
     response: "AgentSchedule",
@@ -874,7 +888,7 @@ export const API_ROUTES: ApiRoute[] = [
     summary: "Change a schedule",
     description:
       "Changes a schedule's repeat rule, time zone, task or database (null: none); fields left out keep their values. Its runs are held to the token's user from now on, and a paused schedule turns back on. Needs edit access to the agent (workspace owners always have it).",
-    scope: "pages:write",
+    scope: "agents:write",
     body: agentInputs.scheduleUpdate.omit({ agent_id: true, schedule_id: true }),
     response: "AgentSchedule",
     handler: async ({ principal, params, body }) => {
@@ -890,7 +904,7 @@ export const API_ROUTES: ApiRoute[] = [
     tag: "Agents",
     summary: "Delete a schedule",
     description: "The agent no longer runs on this schedule; a run it already started goes on. Needs edit access to the agent (workspace owners always have it).",
-    scope: "pages:write",
+    scope: "agents:write",
     response: "AgentScheduleDeleted",
     handler: async ({ principal, params }) => {
       const agent = await ownedAgentFor(principal, params.agent_id);
@@ -906,7 +920,7 @@ export const API_ROUTES: ApiRoute[] = [
     summary: "Who an agent is shared with",
     description:
       "The people, groups and everyone in the workspace the agent is shared with, each at a level (`full`, `edit` or `interact`), and the token's user's own access (`your_access`). Workspace owners always have full access, listed or not. For anyone the agent is shared with.",
-    scope: "pages:read",
+    scope: "agents:read",
     response: "AgentSharing",
     handler: async ({ principal, params }) => {
       const agent = await ownedAgentFor(principal, params.agent_id);
@@ -921,7 +935,7 @@ export const API_ROUTES: ApiRoute[] = [
     summary: "Share an agent",
     description:
       "Shares the agent with one person (`user_id`, an owner or member of the workspace, never a guest), group (`group_id`) or everyone in the workspace (`everyone: true`) at a level, or takes them off its list (`level: \"remove\"`). `full` can do everything a workspace owner can with the agent, sharing and archiving it too; `edit` changes and runs it; `interact` sees it, chats with it and mentions it. A person's own entry decides for them; without one, the highest of their groups'; without those, everyone's. Needs full access to the agent; each change goes to the audit log.",
-    scope: "pages:write",
+    scope: "agents:write",
     body: agentInputs.share.omit({ agent_id: true }),
     response: "AgentSharing",
     handler: async ({ principal, params, body }) => {

@@ -44,8 +44,13 @@ type Doc = {
   servers: { url: string }[];
   tags: { name: string; description: string }[];
   paths: Record<string, Record<string, Operation>>;
-  components: { schemas: Record<string, Schema> };
+  components: {
+    schemas: Record<string, Schema>;
+    securitySchemes: { bearerAuth: { "x-scopes"?: Record<string, string> } };
+  };
 };
+
+const PARAMETER_PLACES = { path: "inPath", query: "inQuery", header: "inHeader" } as const;
 
 /** `code` and **bold** in the document's descriptions. */
 function inline(text: string): ReactNode[] {
@@ -120,6 +125,7 @@ export default async function ApiDocsPage() {
     Object.entries(methods).map(([method, op]) => ({ path, method, op })),
   );
   const [intro, ...sections] = doc.info.description.split(/\n\n/);
+  const scopes = Object.entries(doc.components.securitySchemes.bearerAuth["x-scopes"] ?? {});
 
   return (
     <div className="min-h-dvh bg-bg">
@@ -150,6 +156,21 @@ export default async function ApiDocsPage() {
             <p key={i}>{inline(paragraph)}</p>
           ))}
         </section>
+
+        {scopes.length > 0 && (
+          <section className="mb-10 space-y-3" id="scopes">
+            <h2 className="text-lg font-semibold">{t("scopes")}</h2>
+            <FieldTable
+              labels={{ ...labels, name: t("scope"), type: t("access") }}
+              rows={scopes.map(([scope, description]) => ({
+                name: scope,
+                type: scope.endsWith(":write") ? t("write") : t("read"),
+                required: false,
+                description,
+              }))}
+            />
+          </section>
+        )}
 
         <section className="mb-12 space-y-3">
           <h2 className="text-lg font-semibold">{t("errors")}</h2>
@@ -217,7 +238,7 @@ export default async function ApiDocsPage() {
                             labels={labels}
                             rows={op.parameters.map((p) => ({
                               name: p.name,
-                              type: `${typeOf(p.schema, schemas)} · ${p.in === "path" ? t("inPath") : t("inQuery")}`,
+                              type: `${typeOf(p.schema, schemas)} · ${t(PARAMETER_PLACES[p.in as keyof typeof PARAMETER_PLACES] ?? "inQuery")}`,
                               required: Boolean(p.required),
                               description: p.description,
                             }))}

@@ -5,16 +5,19 @@ import { AccessError } from "@/server/access";
 import { AiError } from "@/server/ai/errors";
 import { ApiError } from "./errors";
 import { ToolInputError } from "@/server/mcp/format";
-import { corsOriginsFromEnv, createApiHandler, rateLimitFromEnv } from "./handler";
+import type { ApiTokenScope } from "@/lib/api-scopes";
+import { corsOriginsFromEnv, createApiHandler, rateLimitFromEnv, takesIdempotencyKey } from "./handler";
+import type { Claim, IdempotencyEntry, IdempotencyId, IdempotencyStore, StoredResponse } from "./idempotency";
 import { defineRoute, matchRoute, type ApiRoute } from "./routes";
 import type { TokenCheck } from "./tokens";
 
 vi.mock("@/db", () => ({ db: {} }));
 
-const principal = (scopes: ("pages:read" | "pages:write")[], tokenId = "t1") => ({
+const principal = (scopes: ApiTokenScope[], tokenId = "t1") => ({
   tokenId,
   userId: "u1",
   scopes,
+  legacyScopes: false,
   workspaceId: null,
   expiresAt: null,
 });
@@ -23,9 +26,39 @@ const TOKENS: Record<string, TokenCheck> = {
   [`esi_${"r".repeat(40)}`]: { ok: true, principal: principal(["pages:read"]) },
   [`esi_${"w".repeat(40)}`]: { ok: true, principal: principal(["pages:read", "pages:write"], "t2") },
   [`esi_${"e".repeat(40)}`]: { ok: false, reason: "expired" },
+  [`esi_${"c".repeat(40)}`]: { ok: true, principal: principal(["comments:read"], "t3") },
 };
 const READ = `esi_${"r".repeat(40)}`;
 const WRITE = `esi_${"w".repeat(40)}`;
+const COMMENTS = `esi_${"c".repeat(40)}`;
+
+/** Idempotency keys in memory, as the database store keeps them. */
+function memoryStore(): IdempotencyStore & { entries: Map<string, { hash: string; response: StoredResponse | null }> } {
+  const entries = new Map<string, { hash: string; response: StoredResponse | null }>();
+  const id = (e: IdempotencyId) => `${e.tokenId} ${e.operation} ${e.key}`;
+  return {
+    entries,
+    async claim(entry: IdempotencyEntry): Promise<Claim> {
+      const found = entries.get(id(entry));
+      if (!found) {
+        entries.set(id(entry), { hash: entry.requestHash, response: null });
+        return { kind: "claimed" };
+      }
+      if (found.hash !== entry.requestHash) return { kind: "reused" };
+      return found.response ? { kind: "replay", response: found.response } : { kind: "running" };
+    },
+    async complete(e, response) {
+      entries.get(id(e))!.response = response;
+    },
+    async release(e) {
+      if (!entries.get(id(e))?.response) entries.delete(id(e));
+    },
+  };
+}
+
+let created = 0;
+let failNext = false;
+let hold: Promise<void> | null = null;
 
 const routes: ApiRoute[] = [
   defineRoute({
@@ -54,7 +87,37 @@ const routes: ApiRoute[] = [
     body: z.object({ title: z.string().min(1) }),
     status: 201,
     response: "Page",
-    handler: async ({ body }) => ({ created: body.title }),
+    handler: async ({ body }) => {
+      if (hold) await hold;
+      if (failNext) {
+        failNext = false;
+        throw new Error("database went away");
+      }
+      if (body.title === "nope") throw new ToolInputError("Not that title.");
+      created++;
+      return { created: body.title, n: created };
+    },
+  }),
+  defineRoute({
+    method: "GET",
+    path: "/me",
+    operationId: "getMe",
+    tag: "Account",
+    summary: "",
+    scope: null,
+    response: "Me",
+    handler: async ({ principal }) => ({ scopes: principal.scopes }),
+  }),
+  defineRoute({
+    method: "POST",
+    path: "/things/{thing_id}/query",
+    operationId: "queryThing",
+    tag: "Pages",
+    summary: "",
+    scope: "pages:read",
+    body: z.object({ limit: z.number().optional() }),
+    response: "Page",
+    handler: async () => ({ queried: true }),
   }),
   defineRoute({
     method: "POST",
@@ -84,13 +147,14 @@ const routes: ApiRoute[] = [
 ];
 let recordingsOff = false;
 
-function handler(options: { limit?: number; cors?: string[] } = {}) {
+function handler(options: { limit?: number; cors?: string[]; store?: IdempotencyStore } = {}) {
   return createApiHandler({
     routes,
     verifyToken: async (secret) => TOKENS[secret] ?? { ok: false, reason: "invalid" },
     limiter: options.limit ? new SlidingWindowLimiter(options.limit, 60_000) : null,
     openApiDocument: () => ({ openapi: "3.1.0" }),
     corsOrigins: options.cors ?? [],
+    idempotency: options.store ?? null,
   });
 }
 
@@ -108,7 +172,8 @@ const call = (
     }),
   );
 
-const errorOf = async (res: Response) => ((await res.json()) as { error: { code: string; message: string; details?: unknown } }).error;
+const errorOf = async (res: Response) =>
+  ((await res.json()) as { error: { code: string; message: string; param?: string; details?: unknown } }).error;
 
 describe("REST API handler", () => {
   it("answers a valid call with JSON, the path parameters and parsed query", async () => {
@@ -122,7 +187,7 @@ describe("REST API handler", () => {
   it("uses the route's status for creations", async () => {
     const res = await call(handler(), "POST", "/things", { token: WRITE, body: JSON.stringify({ title: "x" }) });
     expect(res.status).toBe(201);
-    expect(await res.json()).toEqual({ created: "x" });
+    expect(await res.json()).toEqual({ created: "x", n: expect.any(Number) });
   });
 
   it("requires a token, and says why one is turned away", async () => {
@@ -141,11 +206,18 @@ describe("REST API handler", () => {
     expect(res.status).toBe(401);
   });
 
-  it("refuses writes to read-only tokens", async () => {
+  it("refuses writes to read-only tokens, naming the scope missing", async () => {
     const res = await call(handler(), "POST", "/things", { token: READ, body: JSON.stringify({ title: "x" }) });
     expect(res.status).toBe(403);
-    expect((await errorOf(res)).code).toBe("insufficient_scope");
-    expect(res.headers.get("www-authenticate")).toContain('scope="pages:write"');
+    expect(await errorOf(res)).toEqual({ code: "missing_scope", message: expect.stringContaining("pages:write"), details: { scope: "pages:write" } });
+    expect(res.headers.get("www-authenticate")).toContain('error="insufficient_scope", scope="pages:write"');
+  });
+
+  it("holds each route to its own scope, and lets any token call one that needs none", async () => {
+    const other = await call(handler(), "GET", "/things/abc", { token: COMMENTS });
+    expect([other.status, (await errorOf(other)).details]).toEqual([403, { scope: "pages:read" }]);
+    const me = await call(handler(), "GET", "/me", { token: COMMENTS });
+    expect([me.status, await me.json()]).toEqual([200, { scopes: ["comments:read"] }]);
   });
 
   it("names unknown endpoints and wrong methods", async () => {
@@ -159,10 +231,11 @@ describe("REST API handler", () => {
   it("validates query and body, listing what is wrong", async () => {
     const query = await call(handler(), "GET", "/things/abc?limit=9", { token: READ });
     const queryError = await errorOf(query);
-    expect([query.status, queryError.code]).toEqual([400, "validation_error"]);
+    expect([query.status, queryError.code, queryError.param]).toEqual([400, "validation_error", "limit"]);
     expect(queryError.details).toEqual([expect.objectContaining({ path: "limit" })]);
     const body = await call(handler(), "POST", "/things", { token: WRITE, body: JSON.stringify({ title: "" }) });
-    expect([body.status, (await errorOf(body)).code]).toEqual([400, "validation_error"]);
+    const bodyError = await errorOf(body);
+    expect([body.status, bodyError.code, bodyError.param]).toEqual([400, "validation_error", "title"]);
     const json = await call(handler(), "POST", "/things", { token: WRITE, body: "{nope" });
     expect([json.status, (await errorOf(json)).code]).toEqual([400, "invalid_json"]);
     const array = await call(handler(), "POST", "/things", { token: WRITE, body: "[]" });
@@ -225,7 +298,7 @@ describe("REST API handler", () => {
       const off = await call(handler(), "POST", "/recordings", { token: WRITE, body: form });
       expect([off.status, (await errorOf(off)).code]).toEqual([409, "voice_notes_unavailable"]);
       const readOnly = await call(handler(), "POST", "/recordings", { token: READ, body: form });
-      expect([readOnly.status, (await errorOf(readOnly)).code]).toEqual([403, "insufficient_scope"]);
+      expect([readOnly.status, (await errorOf(readOnly)).code]).toEqual([403, "missing_scope"]);
     } finally {
       recordingsOff = false;
     }
@@ -292,13 +365,22 @@ describe("REST API handler", () => {
 
   it("limits requests per token and says when to come back", async () => {
     const h = handler({ limit: 2 });
+    const before = Math.floor(Date.now() / 1000);
     const first = await call(h, "GET", "/things/a", { token: READ });
     expect(first.headers.get("x-ratelimit-limit")).toBe("2");
     expect(first.headers.get("x-ratelimit-remaining")).toBe("1");
-    await call(h, "GET", "/things/a", { token: READ });
+    const reset = Number(first.headers.get("x-ratelimit-reset"));
+    expect(reset).toBeGreaterThanOrEqual(before + 60);
+    expect(reset).toBeLessThanOrEqual(before + 62);
+    // Errors carry them too.
+    const missing = await call(h, "GET", "/things/hidden", { token: READ });
+    expect([missing.status, missing.headers.get("x-ratelimit-remaining")]).toEqual([404, "0"]);
+    expect(Number(missing.headers.get("x-ratelimit-reset"))).toBe(reset);
     const limited = await call(h, "GET", "/things/a", { token: READ });
     expect([limited.status, (await errorOf(limited)).code]).toEqual([429, "rate_limited"]);
     expect(Number(limited.headers.get("retry-after"))).toBeGreaterThan(0);
+    expect(limited.headers.get("x-ratelimit-remaining")).toBe("0");
+    expect(Number(limited.headers.get("x-ratelimit-reset"))).toBe(reset);
     // Another token has its own allowance.
     expect((await call(h, "GET", "/things/a", { token: WRITE })).status).toBe(200);
   });
@@ -324,6 +406,110 @@ describe("REST API handler", () => {
     expect(preflight.headers.get("access-control-allow-headers")).toContain("Authorization");
     const other = await call(on, "GET", "/things/a", { token: READ, headers: { origin: "https://evil.example" } });
     expect(other.headers.get("access-control-allow-origin")).toBeNull();
+  });
+});
+
+describe("idempotency keys", () => {
+  const post = (h: ReturnType<typeof handler>, key: string | null, title: string, path = "/things") =>
+    call(h, "POST", path, { token: WRITE, body: JSON.stringify({ title }), headers: key === null ? {} : { "idempotency-key": key } });
+
+  it("answers a retry with the first answer, marked as replayed, without doing it again", async () => {
+    const store = memoryStore();
+    const h = handler({ store });
+    const first = await post(h, "k1", "Plan");
+    const body = await first.text();
+    expect(first.status).toBe(201);
+    expect(first.headers.get("idempotent-replayed")).toBeNull();
+    const n = created;
+    const again = await post(h, "k1", "Plan");
+    expect([again.status, again.headers.get("idempotent-replayed"), await again.text()]).toEqual([201, "true", body]);
+    expect(created).toBe(n);
+    // The same body with keys in another order is the same request.
+    const reordered = await call(h, "POST", "/things", { token: WRITE, body: '{ "title" : "Plan" }', headers: { "idempotency-key": "k1" } });
+    expect(reordered.headers.get("idempotent-replayed")).toBe("true");
+  });
+
+  it("refuses the key for a different body, and another token's key is its own", async () => {
+    const h = handler({ store: memoryStore() });
+    await post(h, "k2", "One");
+    const other = await post(h, "k2", "Two");
+    expect([other.status, (await errorOf(other)).code]).toEqual([422, "idempotency_key_reused"]);
+    const otherToken = await call(h, "POST", "/things", { token: READ, body: JSON.stringify({ title: "Two" }), headers: { "idempotency-key": "k2" } });
+    expect((await errorOf(otherToken)).code).toBe("missing_scope");
+  });
+
+  it("answers 409 while the first request with the key still runs", async () => {
+    const h = handler({ store: memoryStore() });
+    let release!: () => void;
+    hold = new Promise((resolve) => (release = resolve));
+    try {
+      const first = post(h, "k3", "Slow");
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      const second = await post(h, "k3", "Slow");
+      expect([second.status, (await errorOf(second)).code, second.headers.get("retry-after")]).toEqual([409, "idempotency_conflict", "1"]);
+      release();
+      expect((await first).status).toBe(201);
+    } finally {
+      hold = null;
+    }
+    expect((await post(h, "k3", "Slow")).headers.get("idempotent-replayed")).toBe("true");
+  });
+
+  it("keeps 4xx answers but not 5xx ones, so a retry after a server failure runs again", async () => {
+    const store = memoryStore();
+    const h = handler({ store });
+    const refused = await post(h, "k4", "nope");
+    expect(refused.status).toBe(400);
+    const refusedAgain = await post(h, "k4", "nope");
+    expect([refusedAgain.status, refusedAgain.headers.get("idempotent-replayed")]).toEqual([400, "true"]);
+
+    failNext = true;
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+    const failed = await post(h, "k5", "Retry me");
+    log.mockRestore();
+    expect(failed.status).toBe(500);
+    const retried = await post(h, "k5", "Retry me");
+    expect([retried.status, retried.headers.get("idempotent-replayed")]).toEqual([201, null]);
+  });
+
+  it("keeps nothing for requests refused before they run: invalid input or a missing scope", async () => {
+    const store = memoryStore();
+    const h = handler({ store });
+    expect((await post(h, "k6", "")).status).toBe(400);
+    expect(store.entries.size).toBe(0);
+    expect((await post(h, "k6", "Fixed")).status).toBe(201);
+  });
+
+  it("refuses an empty or overlong key, and ignores keys on requests that change nothing", async () => {
+    const h = handler({ store: memoryStore() });
+    const long = await post(h, "x".repeat(256), "A");
+    expect([long.status, (await errorOf(long)).code]).toEqual([400, "invalid_idempotency_key"]);
+    expect((await post(h, "x".repeat(255), "A")).status).toBe(201);
+    const empty = await post(h, " ", "A");
+    expect((await errorOf(empty)).code).toBe("invalid_idempotency_key");
+    const query = () => call(h, "POST", "/things/a/query", { token: READ, body: "{}", headers: { "idempotency-key": "q" } });
+    expect((await query()).headers.get("idempotent-replayed")).toBeNull();
+    expect((await query()).headers.get("idempotent-replayed")).toBeNull();
+    expect(takesIdempotencyKey({ method: "POST", scope: "rows:read" })).toBe(false);
+    expect(takesIdempotencyKey({ method: "DELETE", scope: "agents:write" })).toBe(true);
+    expect(takesIdempotencyKey({ method: "GET", scope: null })).toBe(false);
+  });
+
+  it("hashes the files of a form, so another recording with the same key is another request", async () => {
+    const h = handler({ store: memoryStore() });
+    const form = () => {
+      const f = new FormData();
+      f.set("audio", new File(["abc"], "a.webm"));
+      return f;
+    };
+    const first = await call(h, "POST", "/recordings", { token: WRITE, body: form(), headers: { "idempotency-key": "r1" } });
+    expect(first.status).toBe(201);
+    const again = await call(h, "POST", "/recordings", { token: WRITE, body: form(), headers: { "idempotency-key": "r1" } });
+    expect(again.headers.get("idempotent-replayed")).toBe("true");
+    const otherFile = new FormData();
+    otherFile.set("audio", new File(["abd"], "a.webm"));
+    const changed = await call(h, "POST", "/recordings", { token: WRITE, body: otherFile, headers: { "idempotency-key": "r1" } });
+    expect((await errorOf(changed)).code).toBe("idempotency_key_reused");
   });
 });
 

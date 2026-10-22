@@ -1576,6 +1576,7 @@
       },
       "api_token": {
         "created": "API anahtarı oluşturuldu: {target}",
+        "updated": "API anahtarının yetkileri değiştirildi: {target}",
         "revoked": "{hasSubject, select, yes {{subject} kişisinin API anahtarı iptal edildi: {target}} other {API anahtarı iptal edildi: {target}}}"
       },
       "automation": {

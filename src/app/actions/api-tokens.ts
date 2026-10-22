@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { WorkspacePolicyError } from "@/server/access";
-import { ApiTokenError, createApiToken, revokeApiToken } from "@/server/api/tokens";
+import { ApiTokenError, createApiToken, revokeApiToken, updateApiTokenScopes } from "@/server/api/tokens";
 import { policyGatePath, requireUserId } from "@/server/session";
 
 export type CreateApiTokenResult =
@@ -14,7 +14,7 @@ export type CreateApiTokenResult =
 /** Creates a personal access token; its secret comes back once and is never shown again. */
 export async function createApiTokenAction(input: {
   name: string;
-  write: boolean;
+  scopes: string[];
   workspaceId: string | null;
   expiresInDays: number | null;
 }): Promise<CreateApiTokenResult> {
@@ -22,7 +22,7 @@ export async function createApiTokenAction(input: {
   try {
     const { secret } = await createApiToken(userId, {
       name: String(input.name ?? ""),
-      scopes: input.write ? ["pages:read", "pages:write"] : ["pages:read"],
+      scopes: Array.isArray(input.scopes) ? input.scopes.map(String) : [],
       workspaceId: input.workspaceId,
       expiresInDays: input.expiresInDays,
     });
@@ -32,6 +32,22 @@ export async function createApiTokenAction(input: {
     if (error instanceof ApiTokenError) return { ok: false, error: error.code };
     if (error instanceof WorkspacePolicyError) return { ok: false, error: "policy", gate: policyGatePath(error.workspaceId, error.hold) };
     console.error("could not create an API token", error);
+    return { ok: false, error: "generic" };
+  }
+}
+
+export type UpdateApiTokenResult = { ok: true } | { ok: false; error: "scopes" | "notFound" | "generic" };
+
+/** Changes what one of the user's tokens may do; its secret stays the same. */
+export async function updateApiTokenScopesAction(tokenId: string, scopes: string[]): Promise<UpdateApiTokenResult> {
+  const userId = await requireUserId();
+  try {
+    await updateApiTokenScopes(userId, String(tokenId), Array.isArray(scopes) ? scopes.map(String) : []);
+    revalidatePath("/w/[workspaceId]/settings", "page");
+    return { ok: true };
+  } catch (error) {
+    if (error instanceof ApiTokenError && (error.code === "scopes" || error.code === "notFound")) return { ok: false, error: error.code };
+    console.error("could not change an API token's scopes", error);
     return { ok: false, error: "generic" };
   }
 }

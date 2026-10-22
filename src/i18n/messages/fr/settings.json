@@ -1576,6 +1576,7 @@
       },
       "api_token": {
         "created": "A créé le jeton d’API {target}",
+        "updated": "A modifié ce que peut faire le jeton d’API {target}",
         "revoked": "{hasSubject, select, yes {A révoqué le jeton d’API {target} de {subject}} other {A révoqué le jeton d’API {target}}}"
       },
       "automation": {
