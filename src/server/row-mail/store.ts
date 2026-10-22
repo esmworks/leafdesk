@@ -4,9 +4,11 @@ import type { ParsedMail } from "mailparser";
 import { db } from "@/db";
 import { file, rowEmail, rowEmailAttachment } from "@/db/schema";
 import { MAX_MAIL_TEXT, type RowEmailDirection } from "@/lib/mail";
+import type { AutoReplySignals } from "@/lib/sequences";
 import { storeFile } from "@/server/files";
 import { recordRowEmail } from "@/server/notifications";
 import { rowFollowers } from "@/server/row-follow";
+import { noticeIncoming } from "@/server/sequences/incoming";
 import { seeRowMail } from "./access";
 import type { RowMatch } from "./match";
 
@@ -28,6 +30,8 @@ export type IncomingMail = {
   unverifiedSender: boolean;
   /** Written by a machine (an auto-reply, bulk mail): kept, but nobody is told. */
   automated: boolean;
+  /** The headers that tell an out-of-office reply (lib/sequences isOutOfOffice), the subject apart. */
+  autoReply?: Omit<AutoReplySignals, "subject">;
   parsed: ParsedMail;
 };
 
@@ -106,6 +110,8 @@ export async function storeIncoming(match: RowMatch, mail: IncomingMail): Promis
     const told = await seeRowMail([mail.ownerId, ...followers], match.rowId);
     await recordRowEmail(mail.workspaceId, match.rowId, stored.id, told);
   }
+  // An answer stops the row's follow-ups; an out-of-office reply pauses them.
+  if (mail.direction === "in") await noticeIncoming(match.rowId, { ...mail, text });
   return stored.id;
 }
 

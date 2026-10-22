@@ -91,6 +91,12 @@ export const AUDIT_CATEGORIES = {
     "mail.databases_changed",
     "mail.mailbox_connected",
     "mail.mailbox_disconnected",
+    "sequence.created",
+    "sequence.updated",
+    "sequence.deleted",
+    "sequence.enrolled",
+    "sequence.stopped",
+    "sequence.sent",
   ],
   agents: [
     "agent.created",
@@ -396,6 +402,7 @@ export function describeAuditEvent(event: Pick<AuditEvent, "action" | "targetLab
     level: level(t, d.level),
     names: list(d.names).join(", "),
     count: typeof d.count === "number" ? d.count : list(d.names).length,
+    step: typeof d.step === "number" ? d.step : 0,
     kind: text(d.kind) || "join",
     via: known(t, `audit.via.${text(d.via)}`, text(d.via)),
     // Where an answer was given outside the app: "telegram" (an agent's call answered from the bot).

@@ -2,10 +2,12 @@ import { sql } from "drizzle-orm";
 import { db } from "@/db";
 import { auditEvent, databaseProperty, databaseView, DEFAULT_WORKSPACE_SETTINGS, page, pageSnapshot, workspace } from "@/db/schema";
 import { auditCutoff, HISTORY_RETENTION, historyCutoffs } from "@/lib/retention";
+import { ENROLLMENT_HISTORY_DAYS } from "@/lib/sequences";
 import { pruneIdempotencyKeys } from "@/server/api/idempotency";
 import { purgeDeletedProperties, purgeDeletedViews } from "@/server/databases";
 import { deleteTrashedPages } from "@/server/pages";
 import { expirePendingChanges } from "@/server/pending-changes";
+import { pruneEnrollments } from "@/server/sequences/manage";
 import { pruneConnectedAppUse } from "@/server/workspace-apps";
 
 /**
@@ -19,6 +21,8 @@ import { pruneConnectedAppUse } from "@/server/workspace-apps";
  *    people no longer in the workspace (pruneConnectedAppUse);
  *  - changes agents proposed for review expire after PENDING_CHANGE_DAYS unanswered, and answered
  *    or expired ones are deleted some weeks later (expirePendingChanges).
+ *  - follow-ups that finished or stopped more than ENROLLMENT_HISTORY_DAYS ago are deleted
+ *    (pruneEnrollments).
  *  - the REST API's idempotency keys older than 24 hours are deleted (pruneIdempotencyKeys).
  *
  * Each replica has its own daily timer; a session advisory lock keeps two of them from running at
@@ -45,6 +49,8 @@ export type RetentionResult = {
   /** Changes agents proposed that expired unanswered, and answered or expired ones deleted. */
   expiredProposals: number;
   deletedProposals: number;
+  /** Follow-ups that ended long ago, deleted. */
+  enrollments: number;
   idempotencyKeys: number;
 };
 
@@ -189,6 +195,7 @@ export async function runRetention(options: RetentionOptions = {}): Promise<Rete
       const auditEvents = await pruneAuditEvents(options);
       const appUses = await pruneConnectedAppUse(options.workspaceIds, options.now);
       const proposals = await expirePendingChanges({ now: options.now, workspaceIds: options.workspaceIds });
+      const enrollments = await pruneEnrollments(new Date((options.now ?? new Date()).getTime() - ENROLLMENT_HISTORY_DAYS * DAY_MS), options.workspaceIds);
       const idempotencyKeys = await pruneIdempotencyKeys(options);
       return {
         ...trash,
@@ -198,6 +205,7 @@ export async function runRetention(options: RetentionOptions = {}): Promise<Rete
         appUses,
         expiredProposals: proposals.expired,
         deletedProposals: proposals.deleted,
+        enrollments,
         idempotencyKeys,
       };
     } finally {
@@ -225,7 +233,7 @@ export function startRetention() {
           `${result.deletedProperties} deleted properties, ${result.deletedViews} deleted views, ` +
           `${result.snapshots} old page versions, ${result.auditEvents} old audit log events, ${result.appUses} uses of apps that are gone ` +
           `and ${result.idempotencyKeys} expired API idempotency keys; ` +
-          `${result.expiredProposals} proposals for review expired and ${result.deletedProposals} old ones deleted`,
+          `${result.expiredProposals} proposals for review expired and ${result.deletedProposals} old ones deleted, ${result.enrollments} old follow-ups deleted`,
       );
     } catch (error) {
       console.error("[retention] cleanup failed", error);

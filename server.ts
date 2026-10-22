@@ -66,6 +66,7 @@ const { retentionJobEnabled } = await import("./src/lib/retention");
 const { startLocalBackups } = await import("./src/server/local-backups");
 const { startRowMailSync } = await import("./src/server/row-mail/sync");
 const { startRowMailSender } = await import("./src/server/row-mail/send");
+const { startSequences } = await import("./src/server/sequences/run");
 const { startTelegram } = await import("./src/server/telegram");
 
 const { hocuspocus, service } = createCollab();
@@ -180,6 +181,7 @@ server.listen(port, hostname, () => {
   // Reads members' mailboxes for mail that belongs on rows, and sends what was written on rows.
   startRowMailSync();
   startRowMailSender();
+  startSequences();
   // Answers people's questions to the AI chat from Telegram, when the server has a bot.
   startTelegram();
 });

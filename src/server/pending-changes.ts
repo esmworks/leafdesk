@@ -91,7 +91,8 @@ export type ProposalInput = {
   before: RowChangeBefore | null;
   reason: string;
   source: PendingChangeSource;
-  agent: { id: string; userId: string };
+  /** The agent that proposed it; none for a follow-up's step. */
+  agent: { id: string; userId: string } | null;
   runId: string | null;
   senderId?: string | null;
   /** Who to tell, besides the sender of a draft: the first of them who may approve it (see reviewersOf). */
@@ -142,9 +143,9 @@ export async function proposeChange(input: ProposalInput): Promise<{ id: string;
         databaseId: input.databaseId,
         rowId: input.rowId,
         source: input.source,
-        agentId: input.agent.id,
+        agentId: input.agent?.id ?? null,
         agentRunId: input.runId,
-        proposedBy: input.agent.userId,
+        proposedBy: input.agent?.userId ?? null,
         senderId: input.senderId ?? null,
       })
       .returning({ id: pendingChange.id });
@@ -154,7 +155,7 @@ export async function proposeChange(input: ProposalInput): Promise<{ id: string;
     { kind: input.kind, workspaceId: input.workspaceId, databaseId: input.databaseId, rowId: input.rowId, senderId: input.senderId ?? null },
     input.for,
   );
-  await notifyReviewers(input.workspaceId, reviewers, input.agent.userId);
+  await notifyReviewers(input.workspaceId, reviewers, input.agent?.userId ?? null);
   signalQueue(input.workspaceId, [input.databaseId]);
   return { id, replaced };
 }
@@ -406,6 +407,7 @@ async function viewsOf(viewer: string, where: SQL | undefined, limit: number): P
       fields: views,
       markdown: c.kind === "create_row" ? (asRow(payload).markdown ?? null) : null,
       email: c.kind === "email_draft" ? { ...asEmail(payload), sender: { id: c.senderId ?? "", name: r.senderName ?? "" } } : null,
+      sequence: c.source.kind === "sequence" ? { sequenceId: c.source.sequenceId, name: c.source.name, enrollmentId: c.source.enrollmentId, step: c.source.step, steps: c.source.steps } : null,
       edited: c.editedPayload !== null,
       conflict: views.some((v) => v.conflict),
       canApprove: isOpen(c.status) && editable,
