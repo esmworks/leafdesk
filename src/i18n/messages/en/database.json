@@ -290,7 +290,9 @@
     "confirmTrash": "Move {count, plural, one {# row} other {# rows}} to the trash?",
     "skipped": "{count, plural, one {# row was skipped because you can’t change it.} other {# rows were skipped because you can’t change them.}}",
     "pasteLeftOut": "{count, plural, one {# pasted cell was left out: it doesn’t fit its column or you can’t change it.} other {# pasted cells were left out: they don’t fit their columns or you can’t change them.}}",
-    "exportDisabled": "Export is turned off in this workspace."
+    "exportDisabled": "Export is turned off in this workspace.",
+    "merge": "Merge",
+    "mergeHint": "Merge 2 to 5 rows into one"
   },
   "calculate": {
     "calculate": "Calculate",
@@ -537,7 +539,9 @@
     "unknownPerson": "{count, plural, one {someone unknown} other {# people unknown}}",
     "checked": "checked",
     "unchecked": "unchecked",
-    "checklist": "{done} of {total} done"
+    "checklist": "{done} of {total} done",
+    "merged": "<actor>{name}</actor> merged {count, plural, one {# row} other {# rows}} into this row: <rows>{titles}</rows>",
+    "mergedFrom": "from {title}"
   },
   "rowEmail": {
     "title": "Email",
@@ -809,7 +813,12 @@
     "tooManySchedules": "This workspace has as many repeating templates as it can have.",
     "optionUnavailable": "“{value}” isn’t available in “{property}” for this row.",
     "invalidDependency": "“{property}” can only depend on another select property of this database that doesn’t depend on it.",
-    "invalidDescription": "A description can have at most {max} characters."
+    "invalidDescription": "A description can have at most {max} characters.",
+    "mergeRowCount": "Pick {min} to {max} rows to merge.",
+    "mergeRowsInvalid": "Only rows of one database that aren’t in the trash can be merged.",
+    "mergeRowsReadOnly": "You can only view {rows}. Merging needs edit access to every row.",
+    "mergeLinksBlocked": "{count, plural, one {A row links} other {# rows link}} to these rows and you can’t change {count, plural, one {it} other {them}}: {rows}. Nothing was merged.",
+    "mergeChoiceInvalid": "The value picked for “{property}” can’t be used. Pick another row’s value."
   },
   "formula": {
     "title": "Formula",
@@ -1179,5 +1188,37 @@
   "quickAdd": {
     "recognised": "Recognised in the title",
     "keep": "Keep “{text}” in the title"
+  },
+  "merge": {
+    "menuItem": "Merge with…",
+    "pickTitle": "Merge with other rows",
+    "pickHint": "Pick up to {count, plural, one {# row} other {# rows}} to merge with this one.",
+    "pickSearch": "Search rows",
+    "pickEmpty": "No other rows match",
+    "pickLoading": "Loading rows…",
+    "pickContinue": "Continue",
+    "title": "Merge {count, plural, one {# row} other {# rows}}",
+    "keep": "Row to keep",
+    "keepHint": "The other rows go to the trash. What they hold moves to the row you keep.",
+    "oldest": "Oldest",
+    "created": "Created {date}",
+    "titleField": "Title",
+    "combine": "Combine all",
+    "hidden": "Hidden",
+    "empty": "Empty",
+    "locked": "You can’t change this property, so the kept row’s value stays.",
+    "moves": "Also moves to the kept row",
+    "movesThreads": "{count, plural, one {# comment thread} other {# comment threads}}",
+    "movesActivity": "{count, plural, one {# activity entry} other {# activity entries}}",
+    "movesFiles": "{count, plural, one {# uploaded file} other {# uploaded files}}",
+    "movesEmails": "{count, plural, one {# email} other {# emails}}",
+    "movesLinks": "Links from {count, plural, one {# other row} other {# other rows}}, with sub-items and dependencies",
+    "movesBodies": "The page content of {count, plural, one {# row} other {# rows}}, each under a heading",
+    "movesNothing": "Nothing else to move.",
+    "subpages": "{count, plural, one {# page inside the merged rows goes} other {# pages inside the merged rows go}} to the trash with them.",
+    "trashNote": "Restoring a merged row from the trash brings it back as a separate row. What moved stays with the kept row.",
+    "confirm": "Merge rows",
+    "merging": "Merging…",
+    "bodyHeading": "Merged from {title}"
   }
 }

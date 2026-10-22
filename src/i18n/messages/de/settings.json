@@ -1523,7 +1523,8 @@
         "deleted": "Hat {target} endgültig gelöscht",
         "published": "Hat {target} im Web veröffentlicht",
         "unpublished": "Hat die Veröffentlichung von {target} beendet",
-        "publication_revoked": "Hat {target} aus dem Web genommen (veröffentlicht von {subject})"
+        "publication_revoked": "Hat {target} aus dem Web genommen (veröffentlicht von {subject})",
+        "rows_merged": "Hat {count, plural, one {# Zeile} other {# Zeilen}} mit {target} zusammengeführt"
       },
       "property": {
         "access_changed": "Hat den Zugriff auf „{property}“ in {target} geändert",

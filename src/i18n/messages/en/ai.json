@@ -207,19 +207,22 @@
           "createRow": "Row added:",
           "updateRow": "Row changed:",
           "createPage": "Page added:",
-          "editPage": "Page text changed:"
+          "editPage": "Page text changed:",
+          "mergeRows": "Rows merged into:"
         },
         "declined": {
           "createRow": "Declined adding the row:",
           "updateRow": "Declined changing:",
           "createPage": "Declined adding the page:",
-          "editPage": "Declined changing the text of:"
+          "editPage": "Declined changing the text of:",
+          "mergeRows": "Declined merging rows into:"
         },
         "failed": {
           "createRow": "Couldn't add the row:",
           "updateRow": "Couldn't change:",
           "createPage": "Couldn't add the page:",
-          "editPage": "Couldn't change the text of:"
+          "editPage": "Couldn't change the text of:",
+          "mergeRows": "Couldn't merge rows into:"
         },
         "in": "in"
       },

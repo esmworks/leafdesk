@@ -207,19 +207,22 @@
           "createRow": "已添加行：",
           "updateRow": "已更改：",
           "createPage": "已添加页面：",
-          "editPage": "已更改页面文本："
+          "editPage": "已更改页面文本：",
+          "mergeRows": "已将行合并到："
         },
         "declined": {
           "createRow": "已拒绝添加行：",
           "updateRow": "已拒绝更改：",
           "createPage": "已拒绝添加页面：",
-          "editPage": "已拒绝更改其文本："
+          "editPage": "已拒绝更改其文本：",
+          "mergeRows": "已拒绝将行合并到："
         },
         "failed": {
           "createRow": "无法添加行：",
           "updateRow": "无法更改：",
           "createPage": "无法添加页面：",
-          "editPage": "无法更改其文本："
+          "editPage": "无法更改其文本：",
+          "mergeRows": "无法将行合并到："
         },
         "in": "位于"
       },

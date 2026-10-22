@@ -290,7 +290,9 @@
     "confirmTrash": "{count} satır çöp kutusuna taşınsın mı?",
     "skipped": "{count} satır, değiştirme izniniz olmadığı için atlandı.",
     "pasteLeftOut": "{count, plural, one {Yapıştırılan # hücre atlandı: sütununa uymuyor ya da onu değiştiremezsin.} other {Yapıştırılan # hücre atlandı: sütunlarına uymuyor ya da onları değiştiremezsin.}}",
-    "exportDisabled": "Bu çalışma alanında dışa aktarma kapalı."
+    "exportDisabled": "Bu çalışma alanında dışa aktarma kapalı.",
+    "merge": "Birleştir",
+    "mergeHint": "2 ila 5 satırı tek satırda birleştir"
   },
   "calculate": {
     "calculate": "Hesapla",
@@ -537,7 +539,9 @@
     "unknownPerson": "{count, plural, one {bilinmeyen biri} other {# bilinmeyen kişi}}",
     "checked": "işaretli",
     "unchecked": "işaretsiz",
-    "checklist": "{total} maddeden {done} tanesi tamam"
+    "checklist": "{total} maddeden {done} tanesi tamam",
+    "merged": "<actor>{name}</actor> {count, plural, one {# satırı} other {# satırı}} bu satırda birleştirdi: <rows>{titles}</rows>",
+    "mergedFrom": "{title} satırından"
   },
   "rowEmail": {
     "title": "E-posta",
@@ -809,7 +813,12 @@
     "tooManySchedules": "Bu çalışma alanında olabilecek en fazla sayıda tekrarlayan şablon var.",
     "optionUnavailable": "“{value}”, bu satırda “{property}” için seçilemez.",
     "invalidDependency": "“{property}” yalnızca bu veritabanında kendisine bağlı olmayan başka bir seçim özelliğine bağlanabilir.",
-    "invalidDescription": "Açıklama en fazla {max} karakter olabilir."
+    "invalidDescription": "Açıklama en fazla {max} karakter olabilir.",
+    "mergeRowCount": "Birleştirmek için {min} ila {max} satır seçin.",
+    "mergeRowsInvalid": "Yalnızca tek bir veritabanının, çöp kutusunda olmayan satırları birleştirilebilir.",
+    "mergeRowsReadOnly": "{rows} satırlarını yalnızca görüntüleyebilirsiniz. Birleştirmek için her satırda düzenleme yetkisi gerekir.",
+    "mergeLinksBlocked": "{count, plural, one {Bir satır} other {# satır}} bu satırlara bağlanıyor ve {count, plural, one {onu} other {onları}} değiştiremezsiniz: {rows}. Hiçbir şey birleştirilmedi.",
+    "mergeChoiceInvalid": "“{property}” için seçilen değer kullanılamıyor. Başka bir satırın değerini seçin."
   },
   "formula": {
     "title": "Formül",
@@ -1179,5 +1188,37 @@
   "quickAdd": {
     "recognised": "Başlıkta tanınanlar",
     "keep": "“{text}” başlıkta kalsın"
+  },
+  "merge": {
+    "menuItem": "Şununla birleştir…",
+    "pickTitle": "Başka satırlarla birleştir",
+    "pickHint": "Bu satırla birleştirmek için en fazla {count, plural, one {# satır} other {# satır}} seçin.",
+    "pickSearch": "Satır ara",
+    "pickEmpty": "Eşleşen başka satır yok",
+    "pickLoading": "Satırlar yükleniyor…",
+    "pickContinue": "Devam",
+    "title": "{count, plural, one {# satırı} other {# satırı}} birleştir",
+    "keep": "Kalacak satır",
+    "keepHint": "Diğer satırlar çöp kutusuna gider. İçerdikleri, kalan satıra taşınır.",
+    "oldest": "En eski",
+    "created": "Oluşturulma: {date}",
+    "titleField": "Başlık",
+    "combine": "Hepsini birleştir",
+    "hidden": "Gizli",
+    "empty": "Boş",
+    "locked": "Bu özelliği değiştiremezsiniz; kalan satırın değeri korunur.",
+    "moves": "Kalan satıra ayrıca taşınanlar",
+    "movesThreads": "{count, plural, one {# yorum dizisi} other {# yorum dizisi}}",
+    "movesActivity": "{count, plural, one {# etkinlik kaydı} other {# etkinlik kaydı}}",
+    "movesFiles": "{count, plural, one {# yüklenmiş dosya} other {# yüklenmiş dosya}}",
+    "movesEmails": "{count, plural, one {# e-posta} other {# e-posta}}",
+    "movesLinks": "{count, plural, one {# başka satırdan} other {# başka satırdan}} gelen bağlantılar, alt öğeler ve bağımlılıklarla birlikte",
+    "movesBodies": "{count, plural, one {# satırın} other {# satırın}} sayfa içeriği, her biri bir başlık altında",
+    "movesNothing": "Taşınacak başka bir şey yok.",
+    "subpages": "Birleştirilen satırların içindeki {count, plural, one {# sayfa} other {# sayfa}} de onlarla birlikte çöp kutusuna gider.",
+    "trashNote": "Birleştirilen bir satırı çöp kutusundan geri yüklemek onu ayrı bir satır olarak geri getirir. Taşınanlar kalan satırda kalır.",
+    "confirm": "Satırları birleştir",
+    "merging": "Birleştiriliyor…",
+    "bodyHeading": "{title} satırından birleştirildi"
   }
 }

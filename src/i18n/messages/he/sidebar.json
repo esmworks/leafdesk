@@ -79,7 +79,9 @@
     "deletePermanently": "מחיקה לצמיתות",
     "confirmDelete": "למחוק לצמיתות? אי אפשר לבטל את הפעולה הזו.",
     "deletesIn": "יימחק בעוד {count, plural, one {יום אחד} two {יומיים} other {# ימים}}",
-    "deletesSoon": "יימחק בקרוב"
+    "deletesSoon": "יימחק בקרוב",
+    "mergedInto": "מוזגה לתוך {title}",
+    "restoreMerged": "שחזור כשורה נפרדת. קישורים, תגובות, פעילות ואימיילים שעברו אל „{title}” נשארים שם."
   },
   "newWorkspace": {
     "title": "סביבת עבודה חדשה",

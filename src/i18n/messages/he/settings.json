@@ -1523,7 +1523,8 @@
         "deleted": "מחיקת {target} לצמיתות",
         "published": "פרסום {target} ברשת",
         "unpublished": "ביטול הפרסום של {target}",
-        "publication_revoked": "הורדת {target} מהרשת (פורסם על ידי {subject})"
+        "publication_revoked": "הורדת {target} מהרשת (פורסם על ידי {subject})",
+        "rows_merged": "מיזג/ה {count, plural, one {שורה אחת} other {# שורות}} לתוך {target}"
       },
       "property": {
         "access_changed": "שינוי הגישה ל־“{property}” ב־{target}",

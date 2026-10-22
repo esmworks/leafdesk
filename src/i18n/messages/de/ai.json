@@ -207,19 +207,22 @@
           "createRow": "Zeile hinzugefügt:",
           "updateRow": "Zeile geändert:",
           "createPage": "Seite hinzugefügt:",
-          "editPage": "Seitentext geändert:"
+          "editPage": "Seitentext geändert:",
+          "mergeRows": "Zeilen zusammengeführt in:"
         },
         "declined": {
           "createRow": "Hinzufügen der Zeile abgelehnt:",
           "updateRow": "Änderung abgelehnt:",
           "createPage": "Hinzufügen der Seite abgelehnt:",
-          "editPage": "Textänderung abgelehnt:"
+          "editPage": "Textänderung abgelehnt:",
+          "mergeRows": "Zusammenführen abgelehnt für:"
         },
         "failed": {
           "createRow": "Zeile konnte nicht hinzugefügt werden:",
           "updateRow": "Konnte nicht geändert werden:",
           "createPage": "Seite konnte nicht hinzugefügt werden:",
-          "editPage": "Text konnte nicht geändert werden:"
+          "editPage": "Text konnte nicht geändert werden:",
+          "mergeRows": "Zeilen konnten nicht zusammengeführt werden in:"
         },
         "in": "in"
       },

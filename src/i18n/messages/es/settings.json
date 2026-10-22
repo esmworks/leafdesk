@@ -1523,7 +1523,8 @@
         "deleted": "Eliminó {target} definitivamente",
         "published": "Publicó {target} en la web",
         "unpublished": "Dejó de publicar {target}",
-        "publication_revoked": "Retiró {target} de la web (publicada por {subject})"
+        "publication_revoked": "Retiró {target} de la web (publicada por {subject})",
+        "rows_merged": "Combinó {count, plural, one {# fila} other {# filas}} en {target}"
       },
       "property": {
         "access_changed": "Cambió el acceso a «{property}» en {target}",

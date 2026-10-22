@@ -207,19 +207,22 @@
           "createRow": "أُضيف الصف:",
           "updateRow": "تغيّر الصف:",
           "createPage": "أُضيفت الصفحة:",
-          "editPage": "تغيّر نص الصفحة:"
+          "editPage": "تغيّر نص الصفحة:",
+          "mergeRows": "دُمجت الصفوف في:"
         },
         "declined": {
           "createRow": "رُفضت إضافة الصف:",
           "updateRow": "رُفض تغيير:",
           "createPage": "رُفضت إضافة الصفحة:",
-          "editPage": "رُفض تغيير نص:"
+          "editPage": "رُفض تغيير نص:",
+          "mergeRows": "رُفض دمج الصفوف في:"
         },
         "failed": {
           "createRow": "تعذّرت إضافة الصف:",
           "updateRow": "تعذّر تغيير:",
           "createPage": "تعذّرت إضافة الصفحة:",
-          "editPage": "تعذّر تغيير نص:"
+          "editPage": "تعذّر تغيير نص:",
+          "mergeRows": "تعذّر دمج الصفوف في:"
         },
         "in": "في"
       },

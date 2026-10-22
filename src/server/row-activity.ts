@@ -166,6 +166,37 @@ async function save(
 
 type Executor = typeof db | Parameters<Parameters<typeof db.transaction>[0]>[0];
 
+/**
+ * Moves the activity of rows merged into `keptId` over to it, each entry marked with the row it
+ * came from (an entry that came with an earlier merge keeps saying where it came from), and records
+ * the merge there: one `merged` entry listing the rows. Runs in the merge's transaction
+ * (server/merge-rows.ts), so a merge that fails leaves every entry where it was.
+ */
+export async function moveMergedActivity(
+  tx: Executor,
+  {
+    workspaceId,
+    databaseId,
+    keptId,
+    merged,
+    actorId,
+  }: { workspaceId: string; databaseId: string; keptId: string; merged: { id: string; title: string }[]; actorId: string },
+) {
+  for (const row of merged) {
+    await tx
+      .update(rowActivity)
+      .set({
+        rowId: keptId,
+        mergedFromId: sql`coalesce(${rowActivity.mergedFromId}, ${row.id})`,
+        mergedFromTitle: sql`coalesce(${rowActivity.mergedFromTitle}, ${row.title})`,
+      })
+      .where(eq(rowActivity.rowId, row.id));
+  }
+  const actorKind = await actorKindOf(actorId, false);
+  const entry: NewEntry = { rowId: keptId, kind: "merged", propertyId: null, propertyType: null, oldValue: null, newValue: merged };
+  await insertEntries(tx, workspaceId, databaseId, actorId, actorKind, [entry]);
+}
+
 const keyOf = (entry: { kind: RowActivityKind; propertyId: string | null }) => `${entry.kind}:${entry.propertyId ?? ""}`;
 
 /** The newest entry of the row about each value `entries` change, by kind and property. */
@@ -186,6 +217,8 @@ async function latestEntries(tx: Executor, rowId: string, entries: NewEntry[]): 
     .where(
       and(
         eq(rowActivity.rowId, rowId),
+        // Entries that came with a merged row stay as they were.
+        isNull(rowActivity.mergedFromId),
         sql`(${propertyIds.length ? inArray(rowActivity.propertyId, propertyIds) : sql`false`} or ${titled ? sql`${rowActivity.kind} = 'title'` : sql`false`})`,
       ),
     )

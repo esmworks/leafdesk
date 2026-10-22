@@ -1651,6 +1651,18 @@ export function createMcpServer(principal: McpPrincipal) {
   );
 
   server.registerTool(
+    "merge_rows",
+    {
+      title: "Merge duplicate rows",
+      description: `Merge 1-4 duplicate rows of a database into a kept row. The kept row takes, for each property, the value of the row you pick (properties: name or id → a row id of the merge, or "combine" for multi-value properties); properties left out keep the kept row's value, or the first row's that has one, and relations combine. Values are only ever taken from the rows. Two-way relations of other rows are pointed at the kept row; the other rows' comments, activity, files, email and page content come along, and they go to the trash (restoring one doesn't undo the merge). Needs edit access to every row and to the rows whose links change; properties the user can't edit keep the kept row's value. dry_run true checks the merge and reports what would move, without writing.`,
+      inputSchema: ops.inputs.mergeRows,
+      annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false },
+      scopeChallenge: requireWrite,
+    },
+    write((args) => ops.mergeRows(ctx, args)),
+  );
+
+  server.registerTool(
     "create_database",
     {
       title: "Create a database",

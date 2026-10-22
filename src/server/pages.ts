@@ -600,6 +600,8 @@ export async function restorePage(userId: string, pageId: string) {
       ),
     )
     .returning({ id: page.id });
+  // A row merged into another one comes back as a row of its own; what moved stays moved (server/merge-rows.ts).
+  if (p.mergedIntoId) await db.update(page).set({ mergedIntoId: null }).where(eq(page.id, pageId));
   await getCollab().pagesTrashed(restored.map((r) => r.id), false);
   if (parentId !== p.parentId) {
     // Lifted to the top of its teamspace (or of the private pages): it keeps the access it had
@@ -692,9 +694,11 @@ export async function listTrash(userId: string, workspaceId: string) {
     kind: PageKind;
     archived_at: Date;
     level: number;
+    merged_into_id: string | null;
+    merged_into_title: string | null;
   }>(sql`
     with ranked as materialized (
-      select p.id, p.title, p.icon, p.kind, p.archived_at, ${accessRank(userId, pageIdColumn("p"))} as level
+      select p.id, p.title, p.icon, p.kind, p.archived_at, p.merged_into_id, ${accessRank(userId, pageIdColumn("p"))} as level
       from ${page} p
       left join ${page} parent on parent.id = p.parent_id
       where p.workspace_id = ${workspaceId}
@@ -702,16 +706,21 @@ export async function listTrash(userId: string, workspaceId: string) {
         and not p.is_template
         and (parent.id is null or parent.archived_at is null or parent.archived_at <> p.archived_at)
     )
-    select id, title, icon, kind, archived_at, level
+    select ranked.id, ranked.title, ranked.icon, ranked.kind, ranked.archived_at, ranked.level, ranked.merged_into_id,
+      -- The row it was merged into, by title, where the user may see that row.
+      case when kept.id is not null and ${accessRank(userId, sql`kept.id`)} > 0 then kept.title end as merged_into_title
     from ranked
-    where level > 0
-    order by archived_at desc
+    left join ${page} kept on kept.id = ranked.merged_into_id
+    where ranked.level > 0
+    order by ranked.archived_at desc
     limit 100
   `);
-  return rows.map(({ level, ...r }) => ({
+  return rows.map(({ level, merged_into_id, merged_into_title, ...r }) => ({
     ...r,
     level: levelFromRank(level),
     deletesAt: trashDeletionDate(new Date(r.archived_at), trashRetentionDays),
+    // Merged into another row (server/merge-rows.ts): which one, when the user may see it.
+    mergedInto: merged_into_id ? { id: merged_into_id, title: merged_into_title } : null,
   }));
 }
 

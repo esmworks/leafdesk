@@ -679,6 +679,22 @@ export const API_ROUTES: ApiRoute[] = [
     },
   }),
   defineRoute({
+    method: "POST",
+    path: "/databases/{database_id}/rows/merge",
+    operationId: "mergeRows",
+    tag: "Rows",
+    summary: "Merge duplicate rows",
+    description:
+      'Merges 1-4 rows into a kept row. properties names, for each property (by name or id), the row of the merge whose value the kept row takes, or "combine" for every row\'s values of a multi-value property; left out, the kept row\'s value stays, or the first row\'s that has one, and relations combine. Other rows\' two-way links point at the kept row afterwards; comments, activity, files, email and page content of the merged rows come along, and they go to the trash. Needs edit access to every row and to the rows whose links change. dry_run reports what the merge would do without writing.',
+    scope: "pages:write",
+    body: ops.inputs.mergeRows.omit({ database_id: true }),
+    response: "RowsMerged",
+    handler: async ({ principal, ctx, params, body }) => {
+      await requirePageInWorkspace(principal, params.database_id);
+      return ops.mergeRows(ctx, { ...body, database_id: params.database_id });
+    },
+  }),
+  defineRoute({
     method: "GET",
     path: "/rows/{row_id}",
     operationId: "getRow",

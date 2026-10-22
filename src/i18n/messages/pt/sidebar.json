@@ -79,7 +79,9 @@
     "deletePermanently": "Excluir permanentemente",
     "confirmDelete": "Excluir permanentemente? Isso não pode ser desfeito.",
     "deletesIn": "Excluído em {count, plural, one {# dia} other {# dias}}",
-    "deletesSoon": "Será excluído em breve"
+    "deletesSoon": "Será excluído em breve",
+    "mergedInto": "Mesclada em {title}",
+    "restoreMerged": "Restaurar como linha separada. Vínculos, comentários, atividade e e-mails que passaram para “{title}” ficam lá."
   },
   "newWorkspace": {
     "title": "Novo espaço de trabalho",

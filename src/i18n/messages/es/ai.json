@@ -207,19 +207,22 @@
           "createRow": "Fila añadida:",
           "updateRow": "Fila cambiada:",
           "createPage": "Página añadida:",
-          "editPage": "Texto de la página cambiado:"
+          "editPage": "Texto de la página cambiado:",
+          "mergeRows": "Filas combinadas en:"
         },
         "declined": {
           "createRow": "Rechazado añadir la fila:",
           "updateRow": "Cambio rechazado:",
           "createPage": "Rechazado añadir la página:",
-          "editPage": "Cambio del texto rechazado:"
+          "editPage": "Cambio del texto rechazado:",
+          "mergeRows": "Se rechazó combinar filas en:"
         },
         "failed": {
           "createRow": "No se pudo añadir la fila:",
           "updateRow": "No se pudo cambiar:",
           "createPage": "No se pudo añadir la página:",
-          "editPage": "No se pudo cambiar el texto de:"
+          "editPage": "No se pudo cambiar el texto de:",
+          "mergeRows": "No se pudieron combinar filas en:"
         },
         "in": "en"
       },

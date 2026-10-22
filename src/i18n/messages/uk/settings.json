@@ -1523,7 +1523,8 @@
         "deleted": "Назавжди видалено {target}",
         "published": "Опубліковано {target} в інтернеті",
         "unpublished": "Скасовано публікацію {target}",
-        "publication_revoked": "Знято {target} з публікації (опублікував(-ла) {subject})"
+        "publication_revoked": "Знято {target} з публікації (опублікував(-ла) {subject})",
+        "rows_merged": "Об’єднано {count, plural, one {# рядок} few {# рядки} many {# рядків} other {# рядка}} з {target}"
       },
       "property": {
         "access_changed": "Змінено доступ до «{property}» у {target}",

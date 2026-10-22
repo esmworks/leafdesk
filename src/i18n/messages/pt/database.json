@@ -290,7 +290,9 @@
     "confirmTrash": "Mover {count, plural, one {# linha} other {# linhas}} para a lixeira?",
     "skipped": "{count, plural, one {# linha foi ignorada porque você não pode alterá-la.} other {# linhas foram ignoradas porque você não pode alterá-las.}}",
     "pasteLeftOut": "{count, plural, one {# célula colada ficou de fora: ela não se encaixa na coluna ou você não pode alterá-la.} other {# células coladas ficaram de fora: elas não se encaixam nas colunas ou você não pode alterá-las.}}",
-    "exportDisabled": "A exportação está desativada neste espaço de trabalho."
+    "exportDisabled": "A exportação está desativada neste espaço de trabalho.",
+    "merge": "Mesclar",
+    "mergeHint": "Mesclar de 2 a 5 linhas em uma"
   },
   "calculate": {
     "calculate": "Calcular",
@@ -537,7 +539,9 @@
     "unknownPerson": "{count, plural, one {alguém desconhecido} other {# pessoas desconhecidas}}",
     "checked": "marcada",
     "unchecked": "desmarcada",
-    "checklist": "{done} de {total} concluídos"
+    "checklist": "{done} de {total} concluídos",
+    "merged": "<actor>{name}</actor> mesclou {count, plural, one {# linha} other {# linhas}} nesta linha: <rows>{titles}</rows>",
+    "mergedFrom": "de {title}"
   },
   "rowEmail": {
     "title": "E-mail",
@@ -809,7 +813,12 @@
     "tooManySchedules": "Este espaço de trabalho já tem o número máximo de modelos com repetição.",
     "optionUnavailable": "“{value}” não está disponível em “{property}” para esta linha.",
     "invalidDependency": "“{property}” só pode depender de outra propriedade de seleção deste banco de dados que não dependa dela.",
-    "invalidDescription": "Uma descrição pode ter no máximo {max} caracteres."
+    "invalidDescription": "Uma descrição pode ter no máximo {max} caracteres.",
+    "mergeRowCount": "Escolha de {min} a {max} linhas para mesclar.",
+    "mergeRowsInvalid": "Só é possível mesclar linhas de um mesmo banco de dados que não estejam na lixeira.",
+    "mergeRowsReadOnly": "Você só pode ver {rows}. Para mesclar é preciso poder editar cada linha.",
+    "mergeLinksBlocked": "{count, plural, one {Uma linha aponta} other {# linhas apontam}} para estas linhas e você não pode {count, plural, one {alterá-la} other {alterá-las}}: {rows}. Nada foi mesclado.",
+    "mergeChoiceInvalid": "O valor escolhido para “{property}” não pode ser usado. Escolha o valor de outra linha."
   },
   "formula": {
     "title": "Fórmula",
@@ -1179,5 +1188,37 @@
   "quickAdd": {
     "recognised": "Reconhecido no título",
     "keep": "Manter “{text}” no título"
+  },
+  "merge": {
+    "menuItem": "Mesclar com…",
+    "pickTitle": "Mesclar com outras linhas",
+    "pickHint": "Escolha até {count, plural, one {# linha} other {# linhas}} para mesclar com esta.",
+    "pickSearch": "Pesquisar linhas",
+    "pickEmpty": "Nenhuma outra linha corresponde",
+    "pickLoading": "Carregando linhas…",
+    "pickContinue": "Continuar",
+    "title": "Mesclar {count, plural, one {# linha} other {# linhas}}",
+    "keep": "Linha a manter",
+    "keepHint": "As outras linhas vão para a lixeira. O que elas contêm passa para a linha mantida.",
+    "oldest": "Mais antiga",
+    "created": "Criada em {date}",
+    "titleField": "Título",
+    "combine": "Combinar tudo",
+    "hidden": "Oculto",
+    "empty": "Vazio",
+    "locked": "Você não pode alterar esta propriedade, então o valor da linha mantida permanece.",
+    "moves": "Também passa para a linha mantida",
+    "movesThreads": "{count, plural, one {# conversa de comentários} other {# conversas de comentários}}",
+    "movesActivity": "{count, plural, one {# registro de atividade} other {# registros de atividade}}",
+    "movesFiles": "{count, plural, one {# arquivo enviado} other {# arquivos enviados}}",
+    "movesEmails": "{count, plural, one {# e-mail} other {# e-mails}}",
+    "movesLinks": "Os vínculos de {count, plural, one {# outra linha} other {# outras linhas}}, com subitens e dependências",
+    "movesBodies": "O conteúdo da página de {count, plural, one {# linha} other {# linhas}}, cada um sob um título",
+    "movesNothing": "Nada mais a mover.",
+    "subpages": "{count, plural, one {# página dentro das linhas mescladas vai} other {# páginas dentro das linhas mescladas vão}} para a lixeira com elas.",
+    "trashNote": "Restaurar uma linha mesclada da lixeira a traz de volta como linha separada. O que foi movido fica na linha mantida.",
+    "confirm": "Mesclar linhas",
+    "merging": "Mesclando…",
+    "bodyHeading": "Mesclado de {title}"
   }
 }

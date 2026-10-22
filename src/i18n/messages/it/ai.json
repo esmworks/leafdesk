@@ -207,19 +207,22 @@
           "createRow": "Riga aggiunta:",
           "updateRow": "Riga modificata:",
           "createPage": "Pagina aggiunta:",
-          "editPage": "Testo della pagina modificato:"
+          "editPage": "Testo della pagina modificato:",
+          "mergeRows": "Righe unite in:"
         },
         "declined": {
           "createRow": "Aggiunta della riga rifiutata:",
           "updateRow": "Modifica rifiutata:",
           "createPage": "Aggiunta della pagina rifiutata:",
-          "editPage": "Modifica del testo rifiutata:"
+          "editPage": "Modifica del testo rifiutata:",
+          "mergeRows": "Unione rifiutata per:"
         },
         "failed": {
           "createRow": "Impossibile aggiungere la riga:",
           "updateRow": "Impossibile modificare:",
           "createPage": "Impossibile aggiungere la pagina:",
-          "editPage": "Impossibile modificare il testo di:"
+          "editPage": "Impossibile modificare il testo di:",
+          "mergeRows": "Impossibile unire le righe in:"
         },
         "in": "in"
       },

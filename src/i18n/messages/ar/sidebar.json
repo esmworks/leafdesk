@@ -79,7 +79,9 @@
     "deletePermanently": "حذف نهائي",
     "confirmDelete": "حذف نهائي؟ لا يمكن التراجع عن ذلك.",
     "deletesIn": "تُحذف خلال {count, plural, one {يوم واحد} two {يومين} few {# أيام} many {# يومًا} other {# يوم}}",
-    "deletesSoon": "تُحذف قريبًا"
+    "deletesSoon": "تُحذف قريبًا",
+    "mergedInto": "مدموج في {title}",
+    "restoreMerged": "استعادة كصف مستقل. الروابط والتعليقات والنشاط والبريد التي انتقلت إلى «{title}» تبقى هناك."
   },
   "newWorkspace": {
     "title": "مساحة عمل جديدة",

@@ -1523,7 +1523,8 @@
         "deleted": "Deleted {target} for good",
         "published": "Published {target} to the web",
         "unpublished": "Unpublished {target}",
-        "publication_revoked": "Took {target} off the web (published by {subject})"
+        "publication_revoked": "Took {target} off the web (published by {subject})",
+        "rows_merged": "Merged {count, plural, one {# row} other {# rows}} into {target}"
       },
       "property": {
         "access_changed": "Changed who can access “{property}” in {target}",

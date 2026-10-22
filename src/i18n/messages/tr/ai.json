@@ -207,19 +207,22 @@
           "createRow": "Satır eklendi:",
           "updateRow": "Satır değiştirildi:",
           "createPage": "Sayfa eklendi:",
-          "editPage": "Sayfa metni değiştirildi:"
+          "editPage": "Sayfa metni değiştirildi:",
+          "mergeRows": "Satırlar şurada birleştirildi:"
         },
         "declined": {
           "createRow": "Satır ekleme reddedildi:",
           "updateRow": "Değişiklik reddedildi:",
           "createPage": "Sayfa ekleme reddedildi:",
-          "editPage": "Metin değişikliği reddedildi:"
+          "editPage": "Metin değişikliği reddedildi:",
+          "mergeRows": "Satırların birleştirilmesi reddedildi:"
         },
         "failed": {
           "createRow": "Satır eklenemedi:",
           "updateRow": "Değiştirilemedi:",
           "createPage": "Sayfa eklenemedi:",
-          "editPage": "Metni değiştirilemedi:"
+          "editPage": "Metni değiştirilemedi:",
+          "mergeRows": "Satırlar birleştirilemedi:"
         },
         "in": "yer:"
       },

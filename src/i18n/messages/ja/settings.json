@@ -1523,7 +1523,8 @@
         "deleted": "{target}を完全に削除しました",
         "published": "{target}をWebに公開しました",
         "unpublished": "{target}の公開を停止しました",
-        "publication_revoked": "{target}をWebから取り下げました（公開者：{subject}）"
+        "publication_revoked": "{target}をWebから取り下げました（公開者：{subject}）",
+        "rows_merged": "{count}行を{target}に統合しました"
       },
       "property": {
         "access_changed": "{target}の「{property}」にアクセスできる人を変更しました",

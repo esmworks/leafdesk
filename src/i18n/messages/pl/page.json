@@ -88,7 +88,8 @@
     "muteHint": "Nie otrzymuj powiadomień o nowych odpowiedziach w tym wątku. Odpowiedź tutaj lub wzmianka o tobie tutaj włącza je ponownie.",
     "unmuteHint": "Znowu otrzymuj powiadomienia o nowych odpowiedziach w tym wątku.",
     "muted": "Odpowiedzi wyciszone",
-    "mutedHint": "Nie otrzymujesz powiadomień o odpowiedziach w tym wątku, dopóki tu nie odpowiesz lub ktoś cię tu nie wspomni."
+    "mutedHint": "Nie otrzymujesz powiadomień o odpowiedziach w tym wątku, dopóki tu nie odpowiesz lub ktoś cię tu nie wspomni.",
+    "mergedFrom": "Z „{title}”"
   },
   "archived": {
     "banner": "Ta strona jest w koszu.",
@@ -167,7 +168,8 @@
       "beforeAiEdit": "Przed edycją AI",
       "beforeAiEditBy": "Przed edycją przez {client}",
       "beforeAssistantEdit": "Przed edycją asystenta AI",
-      "beforeMarkdownEdit": "Przed edycją w Markdown"
+      "beforeMarkdownEdit": "Przed edycją w Markdown",
+      "beforeMerge": "Przed scaleniem wierszy"
     },
     "empty": "Brak wersji. Wersje są zapisywane automatycznie podczas edycji i zanim jakakolwiek aplikacja AI zmieni tę stronę.",
     "restore": "Przywróć tę wersję",

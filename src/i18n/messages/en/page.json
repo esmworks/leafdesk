@@ -88,7 +88,8 @@
     "muteHint": "Stop hearing about new replies in this thread. Replying here, or being mentioned here, turns it back on.",
     "unmuteHint": "Hear about new replies in this thread again.",
     "muted": "Replies muted",
-    "mutedHint": "You don't hear about replies in this thread until you reply here or someone mentions you here."
+    "mutedHint": "You don't hear about replies in this thread until you reply here or someone mentions you here.",
+    "mergedFrom": "From “{title}”"
   },
   "archived": {
     "banner": "This page is in the trash.",
@@ -167,7 +168,8 @@
       "beforeAiEdit": "Before AI edit",
       "beforeAiEditBy": "Before edit by {client}",
       "beforeAssistantEdit": "Before AI assistant edit",
-      "beforeMarkdownEdit": "Before Markdown edit"
+      "beforeMarkdownEdit": "Before Markdown edit",
+      "beforeMerge": "Before merging rows"
     },
     "empty": "No versions yet. Versions are saved automatically while you edit and before any AI app changes this page.",
     "restore": "Restore this version",

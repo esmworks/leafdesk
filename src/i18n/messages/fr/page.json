@@ -88,7 +88,8 @@
     "muteHint": "Ne plus être averti des nouvelles réponses dans ce fil. Répondre ici, ou y être mentionné, les réactive.",
     "unmuteHint": "Être de nouveau averti des nouvelles réponses dans ce fil.",
     "muted": "Réponses masquées",
-    "mutedHint": "Vous n’êtes pas averti des réponses dans ce fil tant que vous n’y répondez pas ou que personne ne vous y mentionne."
+    "mutedHint": "Vous n’êtes pas averti des réponses dans ce fil tant que vous n’y répondez pas ou que personne ne vous y mentionne.",
+    "mergedFrom": "De « {title} »"
   },
   "archived": {
     "banner": "Cette page est dans la corbeille.",
@@ -167,7 +168,8 @@
       "beforeAiEdit": "Avant modification par l’IA",
       "beforeAiEditBy": "Avant modification par {client}",
       "beforeAssistantEdit": "Avant modification par l’assistant IA",
-      "beforeMarkdownEdit": "Avant modification en Markdown"
+      "beforeMarkdownEdit": "Avant modification en Markdown",
+      "beforeMerge": "Avant la fusion de lignes"
     },
     "empty": "Aucune version pour l’instant. Des versions sont enregistrées automatiquement pendant que vous modifiez la page et avant qu’une application d’IA ne la modifie.",
     "restore": "Restaurer cette version",
