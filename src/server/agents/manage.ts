@@ -465,7 +465,7 @@ export async function listAgentRuns(userId: string, agentId: string, limit = 30,
     .where(and(eq(agentRun.agentId, agent.id), level === "interact" ? startedBy(userId) : undefined))
     .orderBy(desc(agentRun.createdAt))
     .limit(Math.min(Math.max(limit, 1), 100));
-  return viewRuns(userId, runs, exact && owner);
+  return viewRuns(userId, runs, { exact: exact && owner, owner });
 }
 
 /** One of an agent's runs, as listAgentRuns shows it. */
@@ -477,11 +477,11 @@ export async function getAgentRun(userId: string, agentId: string, runId: string
     .where(and(eq(agentRun.id, runId), eq(agentRun.agentId, agent.id), level === "interact" ? startedBy(userId) : undefined))
     .limit(1);
   if (!run) throw new AgentError("notFound", "Run not found");
-  return (await viewRuns(userId, [run], exact && owner))[0];
+  return (await viewRuns(userId, [run], { exact: exact && owner, owner }))[0];
 }
 
-/** Runs as `userId` may see them (see listAgentRuns). */
-async function viewRuns(userId: string, runs: (typeof agentRun.$inferSelect)[], exact: boolean): Promise<AgentRunView[]> {
+/** Runs as `userId` may see them (see listAgentRuns); `owner`: they own the workspace. */
+async function viewRuns(userId: string, runs: (typeof agentRun.$inferSelect)[], { exact, owner }: { exact: boolean; owner: boolean }): Promise<AgentRunView[]> {
   // A helper's run shows as the run that asked it does (accessSource): its row or database counts.
   const rowIds = [
     ...new Set(
@@ -578,6 +578,9 @@ async function viewRuns(userId: string, runs: (typeof agentRun.$inferSelect)[], 
   const visible = (r: (typeof runs)[number]) => {
     const pageId = runPageOf(r.source);
     const source = accessSource(r.source);
+    // A connection's event is the owners' (ownerSeesRun), and so is the run it started: someone who
+    // may edit the agent without owning the workspace lists it, but not what it read or would send.
+    if (!owner && isEventRun(source)) return false;
     return ownerSeesRun(r.source, userId, pageId !== null && (isRowRun(source) ? titles : isMentionRun(source) ? mentionTitles : databaseTitles).has(pageId));
   };
   return runs.map((r) => {
