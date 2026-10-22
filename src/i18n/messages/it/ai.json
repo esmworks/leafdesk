@@ -78,8 +78,32 @@
     "promptPlaceholder": "Per esempio: Scrivi una presentazione di una riga per '{title}' rivolta a '{Audience}'.",
     "promptHint": "Fai clic su una proprietà per inserirla; al suo posto verrà usato il valore della riga.",
     "includeBody": "Invia anche il contenuto della pagina della riga",
+    "typed": {
+      "select": {
+        "hint": "L’IA sceglie una delle opzioni di questa proprietà, o la lascia vuota se nessuna è adatta.",
+        "placeholder": "Per esempio: Quale opzione si adatta meglio a '{title}', dato '{Notes}'?"
+      },
+      "multi_select": {
+        "hint": "L’IA sceglie le opzioni pertinenti, mai nuove, o la lascia vuota.",
+        "placeholder": "Per esempio: Quali argomenti tocca '{Notes}'?"
+      },
+      "status": {
+        "hint": "L’IA sceglie una delle opzioni di questo stato, o lo lascia vuoto se nessuna è adatta.",
+        "placeholder": "Per esempio: In base a '{Notes}', '{title}' è fatto, in corso o non iniziato?"
+      },
+      "number": {
+        "hint": "L’IA risponde con un numero, o lo lascia vuoto se non può dirlo.",
+        "placeholder": "Per esempio: Da 1 a 5, quanto è urgente '{title}', dato '{Notes}'?"
+      },
+      "checkbox": {
+        "hint": "L’IA spunta la casella per sì e la lascia vuota per no.",
+        "placeholder": "Per esempio: '{Notes}' menziona una scadenza?"
+      }
+    },
     "auto": "Aggiorna quando la riga cambia",
     "autoHint": "Pochi secondi dopo una modifica ai valori o alla pagina di una riga, il suo valore viene ricalcolato.",
+    "requires": "Solo le righe in cui queste hanno un valore",
+    "requiresHint": "Le righe in cui una di esse è vuota (o non spuntata) vengono saltate e mantengono il loro valore.",
     "privacy": "I dati da cui viene calcolato il valore di ogni riga vengono inviati al provider IA di questo server.",
     "save": "Salva",
     "create": "Aggiungi proprietà",
@@ -98,7 +122,9 @@
       "unknownPlaceholder": "Non esiste una proprietà chiamata “{name}”.",
       "cycle": "“{name}” legge già questa proprietà (direttamente o tramite altre proprietà IA), quindi questa non può leggerla.",
       "hiddenInput": "“{name}” non può entrare in un valore IA: mostra righe collegate o persone che non tutti quelli che leggono la riga possono vedere.",
-      "notText": "Solo le proprietà di testo possono essere compilate dall’IA.",
+      "noOptions": "Aggiungi prima delle opzioni a questa proprietà: l’IA sceglie tra quelle.",
+      "unknownRequired": "Alcune delle proprietà scelte non sono più in questo database. Sceglile di nuovo.",
+      "unsupportedType": "L’IA può compilare proprietà di testo, selezione, selezione multipla, stato, numero e casella di controllo.",
       "databaseLocked": "Il database è bloccato."
     }
   },

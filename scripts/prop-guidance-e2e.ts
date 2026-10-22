@@ -33,6 +33,7 @@ const { duplicatePage } = await import("@/server/duplicate");
 const { csvTable } = await import("@/lib/import/csv");
 const { importCsvIntoDatabase } = await import("@/server/import/csv");
 const { workspaceMap } = await import("@/server/ai-tools");
+const { saveValue } = await import("@/server/ai-properties");
 
 const RUN = `prop-guidance-e2e-${Date.now().toString(36)}`;
 
@@ -183,6 +184,17 @@ try {
   await databases.updateRowProperties(owner, acme.id, { [country.id]: tr, [city.id]: istanbul });
   await databases.moveRow(owner, acme.id, { groupBy: country.id, groupValue: de, groupFrom: tr });
   check(!((await stored(acme.id))[city.id]), "moving a row to another group on a board clears what no longer fits", await stored(acme.id));
+
+  // AI values are written like any other: a misfit is refused, a new parent value clears its dependents.
+  await databases.updateRowProperties(owner, acme.id, { [country.id]: de, [city.id]: null });
+  const aiJob = { rowId: acme.id, databaseId: customers.id, userId: owner, chain: [] };
+  check((await errorCode(() => saveValue(aiJob, city.id, istanbul))) === "optionUnavailable", "an AI value that doesn't fit the row is refused");
+  check(!(await stored(acme.id))[city.id], "…and nothing is written");
+  await saveValue(aiJob, city.id, berlin);
+  check((await stored(acme.id))[city.id] === berlin, "an AI value that fits is written");
+  await saveValue(aiJob, country.id, tr);
+  const aiAfter = await stored(acme.id);
+  check(aiAfter[country.id] === tr && !aiAfter[city.id], "an AI value of the parent clears what no longer fits", aiAfter);
 
   // CSV import: misfits arrive empty, the rest as given.
   await importCsvIntoDatabase(actor, {

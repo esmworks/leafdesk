@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { aiDerivedProperties, autofillHiddenInputs, autofillReads, checkAutofill, promptPlaceholders, type AiAutofillConfig } from "@/lib/ai";
+import { aiDerivedProperties, autofillHiddenInputs, autofillReads, checkAutofill, hasAutofillValue, promptPlaceholders, type AiAutofillConfig } from "@/lib/ai";
 import { describeAiConfig, readAiConfig } from "./config";
 import { AiError, aiInfo, complete, embed, embeddingsEnabled, isEnabled, stream } from "./index";
-import { autofillNeedsBody, autofillPrompt, cleanValue, editorPrompt, fillPlaceholders, formatValue, truncateText } from "./prompts";
+import { autofillAnswer, autofillNeedsBody, autofillPrompt, cleanValue, editorPrompt, fillPlaceholders, formatValue, truncateText } from "./prompts";
 import { disableAi, resetAi, installFauxAi } from "./testing";
 
 afterEach(() => resetAi());
@@ -172,17 +172,72 @@ describe("autofill prompts", () => {
   it("guides the answer with the field's description", () => {
     const field = { name: "Priority", description: "High only when\n the customer is waiting" };
     for (const config of [{ mode: "summary" }, { mode: "translation", source: "p1", language: "tr" }, { mode: "custom", prompt: "Rate it" }] as const) {
-      expect(autofillPrompt(config, row, 1000, field)!.prompt).toMatch(
+      expect(autofillPrompt(config, row, 1000, undefined, field)!.prompt).toMatch(
         /^The field is "Priority"\. What it holds and how to fill it: High only when the customer is waiting\n\n/,
       );
     }
-    expect(autofillPrompt({ mode: "summary" }, row, 1000, { name: "Priority", description: " " })!.prompt).not.toContain("The field is");
+    expect(autofillPrompt({ mode: "summary" }, row, 1000, undefined, { name: "Priority", description: " " })!.prompt).not.toContain("The field is");
+    const typed = autofillPrompt({ mode: "custom", prompt: "Rate it" }, row, 1000, { type: "select", options: ["Low", "High"] }, field)!;
+    expect(typed.prompt).toMatch(/^The field is "Priority"/);
+    expect(typed.prompt).toContain("Low");
   });
 
   it("cleans answers for storing", () => {
     expect(cleanValue('  "Quoted"  ', 100)).toBe("Quoted");
     expect(cleanValue("```\nfenced\n```", 100)).toBe("fenced");
     expect(cleanValue("abcdef", 3)).toBe("abc");
+  });
+
+  it("asks for values that aren't text in the form they are read in", () => {
+    const text = autofillPrompt({ mode: "custom", prompt: "Rate {Notes}" }, row, 1000)!;
+    expect(text.system).toContain("plain text");
+    const select = autofillPrompt({ mode: "custom", prompt: "Rate {Notes}" }, row, 1000, { type: "select", options: ["Low", "High"] })!;
+    expect(select.system).not.toContain("plain text");
+    expect(select.system).toContain("<options>");
+    expect(select.prompt).toMatch(/one of these options[\s\S]*<options>\nLow\nHigh\n<\/options>$/);
+    expect(autofillPrompt({ mode: "custom", prompt: "Tags" }, row, 1000, { type: "multi_select", options: ["a"] })!.prompt).toContain("JSON array");
+    expect(autofillPrompt({ mode: "custom", prompt: "Score" }, row, 1000, { type: "number", percent: true })!.prompt).toContain("such as 15%");
+    expect(autofillPrompt({ mode: "custom", prompt: "Done?" }, row, 1000, { type: "checkbox" })!.prompt).toMatch(/yes or no only\.$/);
+  });
+});
+
+describe("autofill answers", () => {
+  const select = { type: "select", options: ["Science fiction", "Romance", "None"] } as const;
+
+  it("reads an option as written, ignoring case, quotes, emphasis and a full stop", () => {
+    expect(autofillAnswer(select, "Science fiction", 100)).toEqual({ ok: true, value: "Science fiction" });
+    expect(autofillAnswer(select, ' **romance.** ', 100)).toEqual({ ok: true, value: "Romance" });
+    expect(autofillAnswer(select, '"Science Fiction"', 100)).toEqual({ ok: true, value: "Science fiction" });
+    // An option called "None" can be picked; without one, "none" clears the value.
+    expect(autofillAnswer(select, "None", 100)).toEqual({ ok: true, value: "None" });
+    expect(autofillAnswer({ type: "status", options: ["Done"] }, "none.", 100)).toEqual({ ok: true, value: null });
+    expect(autofillAnswer(select, "Western", 100)).toEqual({ ok: false });
+  });
+
+  it("reads a list of options from JSON or one per line", () => {
+    const multi = { type: "multi_select", options: ["Space", "Politics", "A, B"] } as const;
+    expect(autofillAnswer(multi, 'Here: ["space", "A, B", "Space"]', 100)).toEqual({ ok: true, value: ["Space", "A, B"] });
+    // In the options' order, however the model lists them.
+    expect(autofillAnswer(multi, "- Politics\n- Space", 100)).toEqual({ ok: true, value: ["Space", "Politics"] });
+    expect(autofillAnswer(multi, "[]", 100)).toEqual({ ok: true, value: null });
+    expect(autofillAnswer(multi, '["Space", "Cooking"]', 100)).toEqual({ ok: false });
+    expect(autofillAnswer(multi, "[1, 2]", 100)).toEqual({ ok: false });
+  });
+
+  it("reads numbers, percents and booleans", () => {
+    const number = { type: "number" } as const;
+    expect(autofillAnswer(number, "42", 100)).toEqual({ ok: true, value: 42 });
+    expect(autofillAnswer(number, "-3,5", 100)).toEqual({ ok: true, value: -3.5 });
+    expect(autofillAnswer(number, "1,234.5", 100)).toEqual({ ok: true, value: 1234.5 });
+    expect(autofillAnswer(number, "1.234,5", 100)).toEqual({ ok: true, value: 1234.5 });
+    expect(autofillAnswer(number, "About 412 pages.", 100)).toEqual({ ok: true, value: 412 });
+    expect(autofillAnswer(number, "Between 3 and 4", 100)).toEqual({ ok: false });
+    expect(autofillAnswer(number, "unknown", 100)).toEqual({ ok: true, value: null });
+    expect(autofillAnswer({ type: "number", percent: true }, "15%", 100)).toEqual({ ok: true, value: 0.15 });
+    expect(autofillAnswer({ type: "checkbox" }, "Yes.", 100)).toEqual({ ok: true, value: true });
+    expect(autofillAnswer({ type: "checkbox" }, "no", 100)).toEqual({ ok: true, value: false });
+    expect(autofillAnswer({ type: "checkbox" }, "Maybe", 100)).toEqual({ ok: false });
+    expect(autofillAnswer({ type: "text" }, ' "Fine" ', 100)).toEqual({ ok: true, value: "Fine" });
   });
 });
 
@@ -256,6 +311,48 @@ describe("autofill settings", () => {
     // Reading in one direction only is fine, and so are plain inputs.
     expect(checkAutofill({ mode: "custom", prompt: "Classify {Summary} and {Notes}" }, graph, "b")).toMatchObject({ ok: true });
     expect(checkAutofill({ mode: "custom", prompt: "Sum up {Notes}" }, graph, "a")).toMatchObject({ ok: true });
+  });
+
+  it("fits the settings to the property's type", () => {
+    const typed = [
+      { id: "notes", name: "Notes", type: "text" },
+      { id: "genre", name: "Genre", type: "select", options: { options: [{ name: "Romance" }] } },
+      { id: "bare", name: "Shelf", type: "select", options: { options: [] } },
+      { id: "score", name: "Score", type: "number" },
+    ];
+    expect(checkAutofill({ mode: "custom", prompt: "Genre of {Notes}" }, typed, "genre")).toMatchObject({ ok: true });
+    expect(checkAutofill({ mode: "summary" }, typed, "genre")).toEqual({ ok: false, code: "invalidMode" });
+    expect(checkAutofill({ mode: "translation", language: "de", source: "notes" }, typed, "score")).toEqual({ ok: false, code: "invalidMode" });
+    expect(checkAutofill({ mode: "custom", prompt: "Which shelf?" }, typed, "bare")).toEqual({ ok: false, code: "noOptions" });
+    // A property being added is text.
+    expect(checkAutofill({ mode: "summary" }, typed)).toMatchObject({ ok: true });
+  });
+
+  it("waits for properties of the database only", () => {
+    const props = [
+      { id: "notes", name: "Notes", type: "text" },
+      { id: "who", name: "Owner", type: "person" },
+      { id: "self", name: "Score", type: "number" },
+    ];
+    expect(checkAutofill({ mode: "custom", prompt: "Score it", requires: ["notes", "notes"] }, props, "self")).toEqual({
+      ok: true,
+      config: { mode: "custom", prompt: "Score it", includeBody: false, auto: false, requires: ["notes"] },
+    });
+    expect(checkAutofill({ mode: "custom", prompt: "Score it", requires: [] }, props, "self")).toMatchObject({ ok: true, config: { mode: "custom" } });
+    expect((checkAutofill({ mode: "custom", prompt: "Score it", requires: [] }, props, "self") as { config: object }).config).not.toHaveProperty("requires");
+    for (const requires of [["gone"], ["self"], "notes", Array(11).fill("notes")]) {
+      expect(checkAutofill({ mode: "custom", prompt: "Score it", requires }, props, "self")).toEqual({ ok: false, code: "unknownRequired" });
+    }
+    expect(checkAutofill({ mode: "summary", requires: ["who"] }, props)).toEqual({ ok: false, code: "hiddenInput", params: { name: "Owner" } });
+    // What a value waits for is read like a placeholder: a loop through it is refused too.
+    expect(checkAutofill({ mode: "custom", prompt: "Classify it", requires: ["a"] }, graph, "b")).toMatchObject({ ok: true });
+    expect(checkAutofill({ mode: "summary", requires: ["b"] }, graph, "a")).toEqual({ ok: false, code: "cycle", params: { name: "Category" } });
+    expect(autofillReads({ mode: "summary", requires: ["b", "notes"] }, graph, "x")).toEqual(["b"]);
+  });
+
+  it("counts empty values, empty lists and unticked boxes as missing", () => {
+    for (const value of [null, undefined, "", "  ", [], false, { error: { message: "x" } }]) expect(hasAutofillValue(value)).toBe(false);
+    for (const value of ["a", 0, true, ["x"], { start: "2026-01-01" }]) expect(hasAutofillValue(value)).toBe(true);
   });
 
   it("tells which AI values settings read", () => {

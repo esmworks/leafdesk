@@ -117,6 +117,16 @@ export function planDuplicate(input: DuplicateInput, newId: () => string = () =>
       if (parent) options.dependsOn = parent;
       else delete options.dependsOn;
     }
+    // AI autofill names its translation's source and the properties it waits for by id (its
+    // prompt's placeholders go by name).
+    if (prop.options.ai) {
+      const { source, requires } = prop.options.ai;
+      options.ai = {
+        ...prop.options.ai,
+        ...(source && propIds.has(source) ? { source: propIds.get(source) } : {}),
+        ...(requires ? { requires: requires.flatMap((id) => propIds.get(id) ?? []) } : {}),
+      };
+    }
     return { ...prop, id: propIds.get(prop.id)!, databaseId: pageIds.get(prop.databaseId)!, options };
   });
 

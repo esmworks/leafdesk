@@ -1,7 +1,8 @@
 /**
- * AI autofill properties (#42): text properties whose values a model works out from the rest of
- * the row (see AiAutofillConfig in lib/ai). Values are stored like any text value; what is pending
- * or failed lives in `ai_property_state`.
+ * AI autofill properties (#42): properties whose values a model works out from the rest of the row
+ * (see AiAutofillConfig in lib/ai): text, or a value of the property's type read from the answer
+ * (prompts.ts autofillAnswer). Values are stored like any value of their type; what is pending or
+ * failed lives in `ai_property_state`.
  *
  * Values are worked out in the background by a queue shared by the whole process: at most
  * AI_CONCURRENCY at a time, each workspace within its AI_WORKSPACE_RATE_LIMIT (jobs wait for their
@@ -25,6 +26,8 @@ import {
   autofillNamedInputs,
   autofillReads,
   checkAutofill,
+  hasAutofillValue,
+  isAutofillType,
   MAX_AUTOFILL_ROWS,
   MAX_AUTOFILL_VALUE,
   type AiAutofillConfig,
@@ -32,11 +35,12 @@ import {
   type AiErrorCode,
   type AutofillErrorCode,
 } from "@/lib/ai";
-import { PropertyValueError } from "@/lib/properties";
+import { availableOptions, canDepend } from "@/lib/dependent-options";
+import { normalizeValue, PropertyValueError } from "@/lib/properties";
+import { propertyDescription } from "@/lib/property-description";
 import { AccessError, hasLevel, pageAccessOf } from "@/server/access";
 import { aiConfig, AiError, complete, contentChars, describeAiSetup, isAiError, isEnabled as aiMayBeOn, takeRateLimit, takeWorkspaceCapacity } from "@/server/ai";
-import { propertyDescription } from "@/lib/property-description";
-import { autofillNeedsBody, autofillPrompt, cleanValue, formatValue, type Prompt } from "@/server/ai/prompts";
+import { autofillAnswer, autofillNeedsBody, autofillPrompt, formatValue, type AutofillOutput, type Prompt } from "@/server/ai/prompts";
 import { aiAvailable } from "@/server/ai-writing";
 import { getCollab } from "@/server/collab/bridge";
 import * as databases from "@/server/databases";
@@ -53,7 +57,7 @@ type Property = databases.DatabaseProperty;
 /** Autofill settings that don't fit the database; `code` names the problem for the UI. */
 export class AutofillError extends Error {
   constructor(
-    readonly code: AutofillErrorCode | "notText" | "databaseLocked",
+    readonly code: AutofillErrorCode | "unsupportedType" | "databaseLocked",
     message: string,
     readonly params: Record<string, string> = {},
   ) {
@@ -74,9 +78,9 @@ export function validAutofill(input: unknown, properties: Property[], selfId?: s
 }
 
 /**
- * Turns autofill on (or changes it) for a text property, or off with `null`. Needs edit access to
- * an unlocked database, like other property settings, and AI on for the workspace. Values already
- * filled in stay; pending and failed states of the old settings are dropped.
+ * Turns autofill on (or changes it) for a property of a type it fills in, or off with `null`. Needs
+ * edit access to an unlocked database, like other property settings, and AI on for the workspace.
+ * Values already filled in stay; pending and failed states of the old settings are dropped.
  */
 export async function setAutofill(userId: string, propertyId: string, input: AiAutofillConfig | null) {
   const [prop] = await db
@@ -92,7 +96,7 @@ export async function setAutofill(userId: string, propertyId: string, input: AiA
   if (!access.visible([prop]).length) throw new AccessError();
   access.requireSchema(prop.id);
   if (database.lockedAt) throw new AutofillError("databaseLocked", "The database is locked");
-  if (prop.type !== "text") throw new AutofillError("notText", "AI autofill works on text properties");
+  if (!isAutofillType(prop.type)) throw new AutofillError("unsupportedType", `AI autofill doesn't fill in ${prop.type} properties`);
   let options: PropertyOptions;
   if (input === null) {
     const { ai: _, ...rest } = prop.options;
@@ -238,13 +242,58 @@ async function setState(
 }
 
 /**
+ * What the value must be, with what the model needs to know to give it (options, percent). A select
+ * depending on another (see lib/dependent-options) offers only the options that go with the row's
+ * value of it, from `values` (by property id) among `props`.
+ */
+export function autofillOutput<P extends Pick<Property, "id" | "name" | "type" | "options">>(
+  prop: P,
+  props: readonly P[] = [prop],
+  values: Record<string, unknown> = {},
+): AutofillOutput {
+  switch (prop.type) {
+    case "select":
+    case "status":
+    case "multi_select": {
+      const options = canDepend(prop.type) ? availableOptions(prop, props, values) : (prop.options.options ?? []);
+      return { type: prop.type, options: options.map((o) => o.name) };
+    }
+    case "number":
+      return { type: "number", ...(prop.options.number?.format === "percent" ? { percent: true } : {}) };
+    case "checkbox":
+      return { type: "checkbox" };
+    default:
+      return { type: "text" };
+  }
+}
+
+/**
+ * Whether the row has a value in every property the settings wait for (`requires`), as an input
+ * of the prompt: one that can't go into it (related rows, people, restricted, hidden from the
+ * person) counts as empty. Properties deleted since are no longer waited for.
+ */
+export function requirementsMet(
+  requires: string[] | undefined,
+  existing: Set<string>,
+  inputs: Set<string>,
+  values: Record<string, unknown>,
+) {
+  return (requires ?? []).every((id) => !existing.has(id) || (inputs.has(id) && hasAutofillValue(values[id])));
+}
+
+/**
  * The prompt for a row's value and a fingerprint of everything it depends on. `props`: the
  * properties the person may know of; values they may not see are left out by rowValues.
+ * `existing`: the ids of the database's properties. `met`: false when a property the settings
+ * wait for is empty, and the value is left as it is.
  */
 async function rowInput(
   userId: string,
   row: databases.DatabaseRow & { createdBy: string | null; updatedBy: string | null; parentId: string | null },
-  props: Property[], prop: Property) {
+  props: Property[],
+  prop: Property,
+  existing: Set<string>,
+) {
   const config = prop.options.ai!;
   // Other AI values (and formulas over them) only where the settings name them: see AiAutofillConfig.
   const derived = aiDerivedProperties(props);
@@ -253,6 +302,7 @@ async function rowInput(
   const hidden = autofillHiddenInputs(props);
   const inputs = props.filter((p) => p.id !== prop.id && !hidden.has(p.id) && (!derived.has(p.id) || named.has(p.id)));
   const values = await databases.rowValues(userId, row, props);
+  const met = requirementsMet(config.requires, existing, new Set(inputs.map((p) => p.id)), values);
   // As the person sees them: option names, people and related rows they can see, by name.
   const shown = displayProperties(inputs, values, await databases.getLookups(userId, props));
   const text = Object.fromEntries(
@@ -262,15 +312,20 @@ async function rowInput(
   );
   const body = autofillNeedsBody(config) ? (await getCollab().readPage(row.id)).markdown : "";
   const maxContent = Math.max(1_000, contentChars(aiConfig().limits) - 3_000);
+  const output = autofillOutput(prop, props, values);
   const prompt: Prompt | null = autofillPrompt(
     config,
     { title: row.title, values: text, names: Object.fromEntries(inputs.map((p) => [p.id, p.name])), body },
     maxContent,
+    output,
     // What the database says the field holds: part of what the value depends on, like the prompt.
     { name: prop.name, description: propertyDescription(prop) },
   );
-  const hash = createHash("sha256").update(JSON.stringify({ config, prompt })).digest("hex");
-  return { config, prompt, hash };
+  // Values worked out before `requires` existed keep their fingerprint.
+  const hash = createHash("sha256")
+    .update(JSON.stringify({ config, prompt, ...(met ? {} : { met }) }))
+    .digest("hex");
+  return { config, prompt, hash, met, output };
 }
 
 /**
@@ -336,7 +391,7 @@ async function runJob(job: Job): Promise<number> {
     }
     if (!(await aiAvailable(job.workspaceId))) throw new AiError("disabled", "AI is off for this workspace");
     const [all, access] = await Promise.all([databases.getProperties(job.databaseId), propertyAccessFor(job.userId, job.databaseId)]);
-    const prop = all.find((p) => p.id === job.propertyId && p.type === "text" && p.options.ai);
+    const prop = all.find((p) => p.id === job.propertyId && isAutofillType(p.type) && p.options.ai);
     if (!prop) {
       await db.delete(aiPropertyState).where(and(eq(aiPropertyState.rowId, job.rowId), eq(aiPropertyState.propertyId, job.propertyId)));
       notify(job.databaseId, "rows");
@@ -370,6 +425,7 @@ async function runJob(job: Job): Promise<number> {
       row,
       access.visible(all).filter((p) => p.id === prop.id || !restricted.has(p.id)),
       prop,
+      new Set(all.map((p) => p.id)),
     );
     if (!job.force) {
       const [state] = await db
@@ -379,7 +435,13 @@ async function runJob(job: Job): Promise<number> {
         .limit(1);
       if (state?.status === "done" && state.sourceHash === input.hash) return 0;
     }
-    let value = "";
+    // A row without what the value waits for keeps the value it has.
+    if (!input.met) {
+      await setState(job, { status: "done", sourceHash: input.hash });
+      notify(job.databaseId, "rows");
+      return 0;
+    }
+    let value: unknown = null;
     if (input.prompt) {
       // Explicit requests were marked pending when asked for; automatic ones show it from here.
       if (!job.force) {
@@ -398,8 +460,17 @@ async function runJob(job: Job): Promise<number> {
         messages: [{ role: "user", content: input.prompt.prompt }],
         maxOutputTokens: 800,
       });
-      value = cleanValue(result.text, MAX_AUTOFILL_VALUE);
-      if (!value) throw new AiError("empty", "The model gave no value");
+      if (!result.text.trim()) throw new AiError("empty", "The model gave no value");
+      const answer = autofillAnswer(input.output, result.text, MAX_AUTOFILL_VALUE);
+      if (!answer.ok) throw new AiError("empty", `The model's answer doesn't fit the ${prop.type} property`);
+      if (input.output.type === "text" && !answer.value) throw new AiError("empty", "The model gave no value");
+      try {
+        // Option names to their ids, as any write stores them.
+        value = normalizeValue(prop, answer.value);
+      } catch (error) {
+        if (!(error instanceof PropertyValueError)) throw error;
+        throw new AiError("empty", error.message);
+      }
     }
     // Settings changed while the model worked: this answer is for the old ones.
     const [current] = await db
@@ -408,7 +479,13 @@ async function runJob(job: Job): Promise<number> {
       .where(and(eq(databaseProperty.id, prop.id), isNull(databaseProperty.deletedAt)));
     // Deleted meanwhile, the property keeps the values it had.
     if (!current || JSON.stringify(current.options.ai) !== JSON.stringify(input.config)) return 0;
-    await saveValue(job, prop.id, value);
+    try {
+      await saveValue(job, prop.id, value);
+    } catch (error) {
+      // An option that doesn't go with the row's value of the select it depends on, as for any write.
+      if (!(error instanceof PropertyValueError)) throw error;
+      throw new AiError("empty", error.message);
+    }
     await setState(job, { status: "done", sourceHash: input.hash });
     notify(job.databaseId, "rows");
   } catch (error) {
@@ -421,23 +498,32 @@ async function runJob(job: Job): Promise<number> {
 }
 
 /**
- * Saves a worked-out value (an empty one clears it) when it differs from the stored one, and sets
- * off what any row write does: activity (as the AI's, for the job's person), automations (unless
- * the job runs as one), and the row listeners (search, the AI values reading this one). Returns
- * whether it changed anything.
+ * Saves a worked-out value (as stored: option ids, numbers…; null or an empty one clears it) when it
+ * differs from the stored one, and sets off what any row write does: activity (as the AI's, for the
+ * job's person), automations (unless the job runs as one), and the row listeners (search, the AI
+ * values reading this one). Returns whether it changed anything.
  */
-export async function saveValue(job: Pick<Job, "rowId" | "databaseId" | "userId" | "chain">, propertyId: string, value: string) {
+export async function saveValue(job: Pick<Job, "rowId" | "databaseId" | "userId" | "chain">, propertyId: string, value: unknown) {
+  const empty = value === null || value === undefined || value === "";
+  const props = await databases.getProperties(job.databaseId);
   const written = await db.transaction(async (tx) => {
     const [row] = await tx
       .select({ properties: page.properties, inTemplate: page.inTemplate })
       .from(page)
       .where(and(eq(page.id, job.rowId), eq(page.parentId, job.databaseId)))
       .for("update");
-    if (!row || (row.properties[propertyId] ?? "") === value) return null;
+    const before = row?.properties[propertyId];
+    if (!row || JSON.stringify(before === "" ? null : (before ?? null)) === JSON.stringify(empty ? null : value)) return null;
     // The row is locked until the end of the transaction: no other write of it gets lost.
+    // Dependent selects hold as for any write (see databases.followOrRefuse): an option that
+    // doesn't go with the row's value of the one it depends on is refused (a PropertyValueError),
+    // and a new value of one others depend on clears what no longer goes with it.
+    const follow = databases.followOrRefuse(props, props, row.properties, { [propertyId]: empty ? null : value });
     const after = { ...row.properties };
-    if (value) after[propertyId] = value;
-    else delete after[propertyId];
+    for (const [id, next] of Object.entries({ ...follow, [propertyId]: empty ? null : value })) {
+      if (next === null) delete after[id];
+      else after[id] = next;
+    }
     await tx.update(page).set({ properties: after, updatedBy: job.userId }).where(eq(page.id, job.rowId));
     return { before: row.properties, after, inTemplate: row.inTemplate };
   });
@@ -476,7 +562,7 @@ export async function requestAutofill(userId: string, propertyId: string, rowIds
   const access = await propertyAccessFor(userId, prop.databaseId);
   if (!access.visible([prop]).length) throw new AccessError();
   if (!(await aiAvailable(database.workspaceId))) throw new AiError("disabled", "AI is off for this workspace");
-  if (prop.type !== "text" || !prop.options.ai) throw new AutofillError("invalidMode", "The property has no AI autofill");
+  if (!isAutofillType(prop.type) || !prop.options.ai) throw new AutofillError("invalidMode", "The property has no AI autofill");
   const ids = [...new Set(rowIds)];
   if (ids.length > MAX_AUTOFILL_ROWS) throw new AiError("tooLarge", `At most ${MAX_AUTOFILL_ROWS} rows at once`);
   // One request against the person's allowance per refresh; the values then share the workspace's.
@@ -511,7 +597,7 @@ export async function requestAutofill(userId: string, propertyId: string, rowIds
  * as failed ("interrupted"), so it can be refreshed.
  */
 export async function autofillStates(properties: Property[]): Promise<Record<string, Record<string, AiCellState>>> {
-  const ids = properties.filter((p) => p.type === "text" && p.options.ai).map((p) => p.id);
+  const ids = properties.filter((p) => isAutofillType(p.type) && p.options.ai).map((p) => p.id);
   if (!ids.length) return {};
   const found = await db
     .select({ rowId: aiPropertyState.rowId, propertyId: aiPropertyState.propertyId, status: aiPropertyState.status, error: aiPropertyState.error })
@@ -577,7 +663,7 @@ export function mergeFollowUp(
  * (settings saved before such loops were refused, or renamed into one) stop after a round.
  */
 export function followUpTargets(properties: Property[], scope: Pick<FollowUpScope, "broad" | "cascades">) {
-  const auto = properties.filter((p) => p.type === "text" && p.options.ai?.auto);
+  const auto = properties.filter((p) => isAutofillType(p.type) && p.options.ai?.auto);
   if (scope.broad) return auto.map((property) => ({ property, chain: [] as string[] }));
   return auto.flatMap((property) => {
     const reads = autofillReads(property.options.ai!, properties, property.id);
