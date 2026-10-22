@@ -25,6 +25,7 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { READ_SCOPES } from "@/lib/api-scopes";
 
 try {
   process.loadEnvFile();
@@ -441,7 +442,7 @@ async function main() {
   const wrong = await signIn(carol.email, "not-her-password");
   check(wrong.status === 401 && wrong.body?.code !== "PASSWORD_RESET_REQUIRED", "a wrong password learns nothing about it", wrong);
   // A token made with the old password (by Carol, or by whoever knew it) stops working with it.
-  await createApiToken(carol.id, { name: "Before the reset", scopes: ["pages:read"] });
+  await createApiToken(carol.id, { name: "Before the reset", scopes: READ_SCOPES });
   await chooseNewPassword(carol.email, refused, "Carol");
   check(!(await flagOf(carol.id)), "the requirement is cleared");
   const carolTokens = await db.select({ id: apiToken.id }).from(apiToken).where(eq(apiToken.userId, carol.id));

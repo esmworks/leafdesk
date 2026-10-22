@@ -12,7 +12,7 @@
  *
  * Env: DATABASE_URL (read from .env when present). Migrations must be applied.
  */
-export {};
+import { API_TOKEN_SCOPES as ALL_SCOPES, READ_SCOPES } from "@/lib/api-scopes";
 
 try {
   process.loadEnvFile();
@@ -117,10 +117,10 @@ try {
     expiresAt: new Date(Date.now() + 3_600_000),
     createdAt: now,
   });
-  const everywhere = await createApiToken(ids.member, { name: "Everywhere", scopes: ["pages:read"] });
-  const here = await createApiToken(ids.member, { name: "Reports", scopes: ["pages:write"], workspaceId: ws });
-  const elsewhere = await createApiToken(ids.member, { name: "Elsewhere", scopes: ["pages:read"], workspaceId: other });
-  const expired = await createApiToken(ids.member, { name: "Old", scopes: ["pages:read"], expiresInDays: 1 });
+  const everywhere = await createApiToken(ids.member, { name: "Everywhere", scopes: READ_SCOPES });
+  const here = await createApiToken(ids.member, { name: "Reports", scopes: ALL_SCOPES, workspaceId: ws });
+  const elsewhere = await createApiToken(ids.member, { name: "Elsewhere", scopes: READ_SCOPES, workspaceId: other });
+  const expired = await createApiToken(ids.member, { name: "Old", scopes: READ_SCOPES, expiresInDays: 1 });
   await db.update(apiToken).set({ expiresAt: new Date(Date.now() - 1000) }).where(eq(apiToken.id, expired.token.id));
 
   // ── Who sees what ───────────────────────────────────────────────────────────────────────────

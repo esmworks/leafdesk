@@ -11,7 +11,7 @@
  *
  * Env: DATABASE_URL (read from .env when present). Migrations must be applied.
  */
-export {};
+import { API_TOKEN_SCOPES as ALL_SCOPES } from "@/lib/api-scopes";
 
 try {
   process.loadEnvFile();
@@ -402,8 +402,8 @@ try {
   check(mcpRefused.isError && /Unknown teamspace_id/.test(mcpRefused.text), "MCP create_page in a hidden teamspace reads as unknown");
 
   // The REST API goes through the same operations.
-  const bobToken = (await createApiToken(bob, { name: RUN, scopes: ["pages:read", "pages:write"] })).secret;
-  const ownerToken = (await createApiToken(owner, { name: RUN, scopes: ["pages:read", "pages:write"] })).secret;
+  const bobToken = (await createApiToken(bob, { name: RUN, scopes: ALL_SCOPES })).secret;
+  const ownerToken = (await createApiToken(owner, { name: RUN, scopes: ALL_SCOPES })).secret;
   const api = async (token: string, method: string, path: string, body?: unknown) => {
     const res = await handleApiRequest(
       new Request(`http://localhost/api/v1${path}`, {

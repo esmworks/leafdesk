@@ -13,7 +13,7 @@
  *
  * Env: DATABASE_URL (read from .env when present). Migrations must be applied.
  */
-export {};
+import { API_TOKEN_SCOPES as ALL_SCOPES } from "@/lib/api-scopes";
 
 try {
   process.loadEnvFile();
@@ -196,7 +196,7 @@ try {
   check(read.data?.locked === true, "get_page says it is locked", read.data);
 
   // REST
-  const { secret } = await createApiToken(ids.owner, { name: RUN, scopes: ["pages:read", "pages:write"] });
+  const { secret } = await createApiToken(ids.owner, { name: RUN, scopes: ALL_SCOPES });
   const patched = await rest(secret, "PATCH", `/pages/${notes.id}`, { title: "Renamed", icon: "🔥" });
   check(
     patched.status === 400 && patched.body?.error?.code === "invalid_request" && /locked/.test(patched.body.error.message),

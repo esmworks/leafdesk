@@ -13,7 +13,7 @@
  *
  * Env: DATABASE_URL (read from .env when present). Migrations must be applied.
  */
-export {};
+import { API_TOKEN_SCOPES as ALL_SCOPES, READ_SCOPES } from "@/lib/api-scopes";
 
 try {
   process.loadEnvFile();
@@ -98,9 +98,9 @@ try {
     { workspaceId: wsB, userId: ids.owner, role: "owner" },
     { workspaceId: wsA, userId: ids.member, role: "member" },
   ]);
-  const W = (await createApiToken(ids.owner, { name: "voice write", scopes: ["pages:write"] })).secret;
-  const R = (await createApiToken(ids.owner, { name: "voice read", scopes: ["pages:read"] })).secret;
-  const boundB = (await createApiToken(ids.owner, { name: "voice bound", scopes: ["pages:write"], workspaceId: wsB })).secret;
+  const W = (await createApiToken(ids.owner, { name: "voice write", scopes: ALL_SCOPES })).secret;
+  const R = (await createApiToken(ids.owner, { name: "voice read", scopes: READ_SCOPES })).secret;
+  const boundB = (await createApiToken(ids.owner, { name: "voice bound", scopes: ALL_SCOPES, workspaceId: wsB })).secret;
 
   const database = await createPage({ userId: ids.owner }, { workspaceId: wsA, kind: "database", title: `${RUN} Inbox`, teamspaceId: null });
   const tags = (await getProperties(database.id)).find((p) => p.type === "multi_select");
@@ -158,7 +158,7 @@ try {
   const mismatch = await api("POST", "/voice-notes", W, recording("x", { workspace_id: wsB, database_id: database.id }));
   check(mismatch.status === 404, "a database of another workspace than workspace_id: 404", mismatch.body);
   const readOnly = await api("POST", "/voice-notes", R, recording("x", { workspace_id: wsA }));
-  check(readOnly.status === 403 && errorCode(readOnly) === "insufficient_scope", "a read token can't make voice notes");
+  check(readOnly.status === 403 && errorCode(readOnly) === "missing_scope", "a read token can't make voice notes");
 
   // ------------------------------------------------------------------ what isn't a recording
   const text = await api("POST", "/voice-notes", W, recording("x", { workspace_id: wsA }, new File(["x"], "notes.txt", { type: "text/plain" })));

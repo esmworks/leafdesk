@@ -16,6 +16,7 @@
  * Migrations must be applied.
  */
 import { waitOutAuthRateLimits } from "./auth-rate-limit";
+import { API_TOKEN_SCOPES as ALL_SCOPES } from "@/lib/api-scopes";
 export {};
 
 const appUrl = process.env.APP_URL;
@@ -434,7 +435,7 @@ try {
   // ---------------------------------------------------------------- connected apps
   const mcp = new Mcp(await mcpToken(owner));
   await mcp.init();
-  const { secret: restToken } = await createApiToken(ids.owner, { name: "security switches e2e", scopes: ["pages:write"] });
+  const { secret: restToken } = await createApiToken(ids.owner, { name: "security switches e2e", scopes: ALL_SCOPES });
   const listedIds = async () => (await mcp.call("list_workspaces", {})).data.workspaces.map((w: { id: string }) => w.id) as string[];
   const restIds = async () => ((await api("GET", "/workspaces", restToken)).body.workspaces as { id: string }[]).map((w) => w.id);
 

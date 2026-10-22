@@ -18,6 +18,7 @@ import { randomBytes } from "node:crypto";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { makeSignature } from "better-auth/crypto";
+import { READ_SCOPES } from "@/lib/api-scopes";
 
 try {
   process.loadEnvFile();
@@ -210,7 +211,7 @@ try {
 
   await db.insert(session).values({ id: sessionId, token: sessionToken, userId: OWNER, expiresAt: new Date(Date.now() + 3_600_000), updatedAt: new Date() });
   const jar = new Jar(`better-auth.session_token=${encodeURIComponent(`${sessionToken}.${await makeSignature(sessionToken, env.authSecret)}`)}`);
-  const api = await createApiToken(OWNER, { name: "scale-e2e", scopes: ["pages:read"], workspaceId });
+  const api = await createApiToken(OWNER, { name: "scale-e2e", scopes: READ_SCOPES, workspaceId });
   apiTokenId = api.token.id;
   const databasePath = `/w/${workspaceId}/p/${database.id}`;
 

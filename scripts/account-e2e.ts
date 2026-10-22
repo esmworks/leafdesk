@@ -31,6 +31,7 @@ import { waitOutAuthRateLimits } from "./auth-rate-limit";
 import { createHash } from "node:crypto";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { READ_SCOPES } from "@/lib/api-scopes";
 
 try {
   process.loadEnvFile();
@@ -354,9 +355,9 @@ async function deletingAccountsAndSingleSignOn() {
     { workspaceId: lone.workspaceId, userId: gus.id, role: "member" },
   ]);
   await signedInThrough(loneProvider, fay.id);
-  const fayToken = (await createApiToken(fay.id, { name: `Fay ${RUN}`, scopes: ["pages:read"] })).secret;
+  const fayToken = (await createApiToken(fay.id, { name: `Fay ${RUN}`, scopes: READ_SCOPES })).secret;
   const fayApp = await connectApp(fay.id, "fay");
-  const gusToken = (await createApiToken(gus.id, { name: `Gus ${RUN}`, scopes: ["pages:read"] })).secret;
+  const gusToken = (await createApiToken(gus.id, { name: `Gus ${RUN}`, scopes: READ_SCOPES })).secret;
   const loneSettings = `/w/${lone.workspaceId}/settings`;
   check((await open(`${loneSettings}?tab=members`, lone.jar)).status === 200, "Lone opens the members of a workspace with single sign-on");
   for (const person of [fay, gus]) {
@@ -398,7 +399,7 @@ async function deletingAccountsAndSingleSignOn() {
   const halProvider = await ssoConnection(hal.workspaceId, hal.id, "hal");
   const idaProvider = await ssoConnection(ida.workspaceId, hal.id, "ida");
   await signedInThrough(halProvider, ida.id);
-  const idaToken = (await createApiToken(ida.id, { name: `Ida ${RUN}`, scopes: ["pages:read"] })).secret;
+  const idaToken = (await createApiToken(ida.id, { name: `Ida ${RUN}`, scopes: READ_SCOPES })).secret;
   const halSettings = `/w/${hal.workspaceId}/settings`;
   check((await open(`${halSettings}?tab=members`, hal.jar)).status === 200, "Hal opens the members of a workspace whose connection Hal set up");
   const halLeft = await callAction(hal.jar, halSettings, WS_ACTIONS, "removeMemberAction", [hal.workspaceId, hal.id]);
@@ -611,7 +612,7 @@ async function main() {
     .where(eq(oauthClient.clientId, loggingOut));
   check(loggingOutRow && loggingOutRow.uri === null && !loggingOutRow.required, "a client that registers a back-channel logout URI is stored without it", loggingOutRow);
   const tokensOf = async (userId: string) => (await db.select({ id: apiToken.id }).from(apiToken).where(eq(apiToken.userId, userId))).length;
-  await createApiToken(ada.id, { name: `Before ${RUN}`, scopes: ["pages:read"] });
+  await createApiToken(ada.id, { name: `Before ${RUN}`, scopes: READ_SCOPES });
   const changed = await account_(ada.jar, "changePasswordAction", [
     { currentPassword: PASSWORD, newPassword: NEW_PASSWORD, revokeOthers: true },
   ]);
@@ -889,8 +890,8 @@ async function main() {
   await db.update(session).set({ ssoProviderId: providerId }).where(eq(session.userId, eve.id));
   // Tokens for all of their workspaces, and an app Eve connected: hers must not outlast the
   // connection she signed in through, Dora's (who didn't) stay.
-  const eveToken = (await createApiToken(eve.id, { name: `Doomed Eve ${RUN}`, scopes: ["pages:read"] })).secret;
-  const doraToken = (await createApiToken(dora.id, { name: `Doomed Dora ${RUN}`, scopes: ["pages:read"] })).secret;
+  const eveToken = (await createApiToken(eve.id, { name: `Doomed Eve ${RUN}`, scopes: READ_SCOPES })).secret;
+  const doraToken = (await createApiToken(dora.id, { name: `Doomed Dora ${RUN}`, scopes: READ_SCOPES })).secret;
   const eveApp = await connectApp(eve.id, "doomed");
   const apiStatus = async (token: string) => (await fetch(`${BASE}/api/v1/me`, { headers: { authorization: `Bearer ${token}` } })).status;
   check((await apiStatus(eveToken)) === 200 && (await apiStatus(doraToken)) === 200, "…and Eve and Dora have API tokens for all their workspaces");

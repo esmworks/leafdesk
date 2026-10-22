@@ -1,16 +1,17 @@
 /**
  * End-to-end check of the REST API (/api/v1) against a running app (`pnpm dev`): personal access
- * tokens (scopes, workspace binding, expiry, revocation, last use), every endpoint, pagination,
- * pages the user can't see, writes refused to read-only tokens, rate limiting, CORS being off,
- * errors, and the OpenAPI document and docs page. Creates its own users and workspaces in the
- * database and deletes them afterwards.
+ * tokens (scopes per resource, tokens from before them, changing a token's scopes, workspace
+ * binding, expiry, revocation, last use), every endpoint, pagination, pages the user can't see,
+ * writes refused to read-only tokens, idempotency keys, rate limiting and its headers, CORS being
+ * off, errors (with `param`), and the OpenAPI document and docs page. Creates its own users and
+ * workspaces in the database and deletes them afterwards.
  *
  *   pnpm tsx scripts/api-e2e.ts
  *
  * Env: APP_URL (default http://localhost:3000) and DATABASE_URL, read from .env when present. The
  * server must use the default rate limit (API_RATE_LIMIT unset) and share the database.
  */
-export {};
+import { API_TOKEN_SCOPES as ALL_SCOPES, READ_SCOPES } from "@/lib/api-scopes";
 
 try {
   process.loadEnvFile();
@@ -19,11 +20,12 @@ try {
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
 const { eq, inArray, sql } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { apiToken, user, workspace, workspaceMember } = await import("@/db/schema");
+const { apiIdempotencyKey, apiToken, user, workspace, workspaceMember } = await import("@/db/schema");
 const { registerCollab } = await import("@/server/collab/bridge");
 const { createPage } = await import("@/server/pages");
 const { setPagePermission } = await import("@/server/permissions");
-const { createApiToken, revokeApiToken, listApiTokens, verifyApiToken } = await import("@/server/api/tokens");
+const { createApiToken, revokeApiToken, listApiTokens, updateApiTokenScopes, verifyApiToken } = await import("@/server/api/tokens");
+const { pruneIdempotencyKeys } = await import("@/server/api/idempotency");
 const { API_ROUTES } = await import("@/server/api/routes");
 const { today } = await import("@/lib/journal");
 
@@ -92,6 +94,8 @@ const userIds = Object.values(ids);
 const wsA = `${RUN}-ws-a`;
 const wsB = `${RUN}-ws-b`;
 const wsBob = `${RUN}-ws-bob`;
+/** Fails page inserts with one title, for a server failure to retry after (dropped at the end). */
+const BOOM = `api_e2e_boom_${RUN.replace(/\W/g, "_")}`;
 
 try {
   await db.insert(user).values(userIds.map((id) => ({ id, name: id, email: `${id}@example.test` })));
@@ -108,17 +112,17 @@ try {
   ]);
 
   // ------------------------------------------------------------------ tokens
-  const write = await createApiToken(ids.alice, { name: "e2e write", scopes: ["pages:write"], expiresInDays: 30 });
-  const read = await createApiToken(ids.alice, { name: "e2e read", scopes: ["pages:read"] });
-  const boundA = await createApiToken(ids.alice, { name: "e2e bound", scopes: ["pages:write"], workspaceId: wsA });
+  const write = await createApiToken(ids.alice, { name: "e2e write", scopes: ALL_SCOPES, expiresInDays: 30 });
+  const read = await createApiToken(ids.alice, { name: "e2e read", scopes: READ_SCOPES });
+  const boundA = await createApiToken(ids.alice, { name: "e2e bound", scopes: ALL_SCOPES, workspaceId: wsA });
   check(/^esi_[A-Za-z0-9]{40}$/.test(write.secret), "a token is esi_ plus 40 letters and digits");
-  check(write.token.scopes.join() === "pages:read,pages:write", "a write token also reads");
+  check(write.token.scopes.length === ALL_SCOPES.length && !write.token.legacyScopes, "a new token gets the scopes asked for, not legacy ones");
   check(write.token.tokenHash !== write.secret && !write.token.tokenHash.includes(write.secret.slice(4)), "only a hash of the secret is stored");
   check(Math.abs(write.token.expiresAt!.getTime() - Date.now() - 30 * 86_400_000) < 60_000, "expiry is set 30 days out");
   const listed = await listApiTokens(ids.alice);
   check(listed.length === 3 && listed.every((t) => t.prefix.startsWith("esi_") && t.prefix.length === 8), "tokens are listed with a short prefix");
   check(listed.find((t) => t.id === boundA.token.id)?.workspaceName === `${RUN} A`, "the list names a bound token's workspace");
-  let refused = await createApiToken(ids.alice, { name: "x", scopes: ["pages:read"], workspaceId: wsBob }).catch((e) => e);
+  let refused = await createApiToken(ids.alice, { name: "x", scopes: READ_SCOPES, workspaceId: wsBob }).catch((e) => e);
   check(refused?.code === "workspace", "a token can't be bound to someone else's workspace");
   refused = await createApiToken(ids.alice, { name: "x", scopes: ["admin"] }).catch((e) => e);
   check(refused?.code === "scopes", "unknown scopes are refused");
@@ -149,7 +153,11 @@ try {
   check(!workspaces.body.workspaces.some((w: any) => w.id === wsBob), "…and not others'");
 
   const readOnlyCreate = await api("POST", "/pages", R, { workspace_id: wsA, title: "Should not exist" });
-  check(readOnlyCreate.status === 403 && errorCode(readOnlyCreate) === "insufficient_scope", "a read token can't create pages");
+  check(
+    readOnlyCreate.status === 403 && errorCode(readOnlyCreate) === "missing_scope" && readOnlyCreate.body.error.details.scope === "pages:write",
+    "a read token can't create pages, and is told the scope it lacks",
+    readOnlyCreate.body,
+  );
   const created = await api("POST", "/pages", W, {
     workspace_id: wsA,
     title: `${RUN} Notes`,
@@ -178,6 +186,7 @@ try {
   check(empty.status === 400 && errorCode(empty) === "invalid_request", "PATCH without changes is a 400 invalid_request");
   const badTitle = await api("PATCH", `/pages/${pageId}`, W, { title: "" });
   check(badTitle.status === 400 && errorCode(badTitle) === "validation_error" && badTitle.body.error.details[0].path === "title", "invalid fields are listed in details");
+  check(badTitle.body.error.param === "title", "…and param names the field", badTitle.body);
   const badJson = await api("PATCH", `/pages/${pageId}`, W, "{not json");
   check(badJson.status === 400 && errorCode(badJson) === "invalid_json", "malformed JSON is a 400 invalid_json");
 
@@ -214,7 +223,7 @@ try {
   check((await api("GET", `/pages/${parent}`, R)).body.in_trash === true, "…which then reads as in the trash");
   const restored = await api("POST", `/pages/${parent}/restore`, W);
   check(restored.status === 200 && restored.body.in_trash === false, "POST /pages/{id}/restore brings it back");
-  check(errorCode(await api("POST", `/pages/${parent}/archive`, R)) === "insufficient_scope", "a read token can't trash pages");
+  check(errorCode(await api("POST", `/pages/${parent}/archive`, R)) === "missing_scope", "a read token can't trash pages");
 
   // Comments
   const thread = await api("POST", `/pages/${pageId}/comments`, W, { text: "Which apricots?", quote: "apricots" });
@@ -231,7 +240,7 @@ try {
   check(noQuote.status === 400, "quoting text the page doesn't have is a 400");
 
   // ------------------------------------------------------------------ daily notes
-  check(errorCode(await api("POST", `/workspaces/${wsA}/daily-notes`, R, { date: "2026-10-17" })) === "insufficient_scope", "a read token can't make a daily note");
+  check(errorCode(await api("POST", `/workspaces/${wsA}/daily-notes`, R, { date: "2026-10-17" })) === "missing_scope", "a read token can't make a daily note");
   const note = await api("POST", `/workspaces/${wsA}/daily-notes`, W, { date: "2026-10-17" });
   check(note.status === 200 && note.body.created === true && note.body.date === "2026-10-17" && note.body.title === "October 17, 2026", "POST /workspaces/{id}/daily-notes makes the day's note", note.body);
   const noteAgain = await api("POST", `/workspaces/${wsA}/daily-notes`, W, { date: "2026-10-17" });
@@ -253,7 +262,7 @@ try {
     schema.body,
   );
   const readOnlyRow = await api("POST", `/databases/${database.id}/rows`, R, { title: "No" });
-  check(errorCode(readOnlyRow) === "insufficient_scope", "a read token can't add rows");
+  check(errorCode(readOnlyRow) === "missing_scope", "a read token can't add rows");
   const row = await api("POST", `/databases/${database.id}/rows`, W, { title: "Alpha", properties: { Status: "In progress" }, markdown: "Row body." });
   check(row.status === 201 && row.body.properties.Status === "In progress", "POST /databases/{id}/rows adds a row with properties", row.body);
   const bulk = await api("POST", `/databases/${database.id}/rows/bulk`, W, {
@@ -266,8 +275,12 @@ try {
   check(bulk.status === 201 && bulk.body.created === 3, "POST /databases/{id}/rows/bulk adds several rows", bulk.body);
   const badValue = await api("POST", `/databases/${database.id}/rows`, W, { title: "Echo", properties: { Status: "Bogus" } });
   check(badValue.status === 400 && errorCode(badValue) === "invalid_property_value", "an unknown option is a 400 invalid_property_value", badValue.body);
+  check(badValue.body.error.param === "properties.Status", "…whose param names the property", badValue.body);
+  const unknownProperty = await api("POST", `/databases/${database.id}/rows`, W, { title: "Echo", properties: { Colour: "red" } });
+  check(unknownProperty.body.error?.param === "properties.Colour", "…as it does an unknown property", unknownProperty.body);
   const badBulk = await api("POST", `/databases/${database.id}/rows/bulk`, W, { rows: [{ title: "ok" }, { title: "bad", properties: { Status: "Bogus" } }] });
   check(badBulk.status === 400, "a bulk insert with one bad row is refused", badBulk.body);
+  check(badBulk.body.error.param === "rows.1.properties.Status", "…naming the row and property in param", badBulk.body);
   const afterBad = await api("POST", `/databases/${database.id}/query`, R, { limit: 50 });
   check(afterBad.body.total === 4, "…and adds nothing", afterBad.body.total);
 
@@ -313,7 +326,9 @@ try {
   check(bulkPatch.status === 200 && bulkPatch.body.updated === 3, "PATCH /databases/{id}/rows updates many rows", bulkPatch.body);
   const notStarted = await api("POST", `/databases/${database.id}/query`, R, { filters: [{ property: "Status", op: "equals", value: "Not started" }] });
   check(notStarted.body.total === 3, "…and the change shows up in queries");
-  check(errorCode(await api("PATCH", `/rows/${alpha}`, R, { title: "no" })) === "insufficient_scope", "a read token can't change rows");
+  check(errorCode(await api("PATCH", `/rows/${alpha}`, R, { title: "no" })) === "missing_scope", "a read token can't change rows");
+  const badPatchValue = await api("PATCH", `/rows/${alpha}`, W, { properties: { Status: "Bogus" } });
+  check(badPatchValue.body.error?.param === "properties.Status", "a bad value in PATCH /rows/{id} names the property in param", badPatchValue.body);
 
   // ------------------------------------------------------------------ what the user can't see
   const secret = await createPage({ userId: ids.bob }, { workspaceId: wsA, title: `${RUN} Bob's secret` });
@@ -341,7 +356,7 @@ try {
     "search leaves out pages the user can't see",
     hiddenSearch.body,
   );
-  check((await api("GET", `/pages/${secret.id}`, (await createApiToken(ids.bob, { name: "bob", scopes: ["pages:read"] })).secret)).status === 200, "…while their owner reads them");
+  check((await api("GET", `/pages/${secret.id}`, (await createApiToken(ids.bob, { name: "bob", scopes: READ_SCOPES })).secret)).status === 200, "…while their owner reads them");
 
   // ------------------------------------------------------------------ workspace-bound tokens
   const pageInB = (await api("POST", "/pages", W, { workspace_id: wsB, title: `${RUN} In B` })).body.id as string;
@@ -358,6 +373,209 @@ try {
   check(errorCode(await api("POST", `/pages/${pageId}/move`, B, { parent_id: pageInB })) === "not_found", "…can't move pages into another workspace");
   check((await api("GET", `/pages/${pageId}`, B)).status === 200, "…but works inside its workspace");
 
+  // ------------------------------------------------------------------ scopes per resource
+  const scoped = async (name: string, scopes: string[]) => (await createApiToken(ids.alice, { name: `${RUN} ${name}`, scopes })).secret;
+  const pagesOnly = await scoped("pages only", ["pages:read"]);
+  const rowsWriter = await scoped("rows writer", ["rows:write"]);
+  const commentsReader = await scoped("comments reader", ["comments:read"]);
+  const agentsReader = await scoped("agents reader", ["agents:read", "workspaces:read"]);
+  const denied = async (method: string, path: string, token: string, scope: string, body?: unknown) => {
+    const res = await api(method, path, token, body);
+    check(
+      res.status === 403 && errorCode(res) === "missing_scope" && res.body.error.details?.scope === scope &&
+        res.headers.get("www-authenticate")?.includes(`scope="${scope}"`),
+      `${method} ${path.replace(RUN, "…")} needs ${scope}`,
+      { status: res.status, body: res.body },
+    );
+  };
+  check((await api("GET", `/pages/${pageId}`, pagesOnly)).status === 200, "pages:read reads pages");
+  check((await api("GET", `/pages/${parent}/children`, pagesOnly)).status === 200, "…and their sub-pages");
+  await denied("GET", "/workspaces", pagesOnly, "workspaces:read");
+  await denied("GET", `/search?query=${RUN}`, pagesOnly, "search:read");
+  await denied("GET", `/databases/${database.id}`, pagesOnly, "databases:read");
+  await denied("POST", `/databases/${database.id}/query`, pagesOnly, "rows:read", {});
+  await denied("GET", `/pages/${pageId}/comments`, pagesOnly, "comments:read");
+  await denied("PATCH", `/pages/${pageId}`, pagesOnly, "pages:write", { title: "no" });
+  const scopedRow = await api("POST", `/databases/${database.id}/rows`, rowsWriter, { title: "Foxtrot" });
+  check(scopedRow.status === 201, "rows:write adds rows", scopedRow.body);
+  check((await api("GET", `/rows/${scopedRow.body.id}`, rowsWriter)).status === 200, "…and reads them, write bringing read");
+  check((await api("PATCH", `/rows/${scopedRow.body.id}`, rowsWriter, { title: "Foxtrot 2" })).status === 200, "…and changes them");
+  await denied("PATCH", `/pages/${scopedRow.body.id}`, rowsWriter, "pages:write", { markdown: "no" });
+  await denied("GET", `/databases/${database.id}`, rowsWriter, "databases:read");
+  check((await api("GET", `/pages/${pageId}/comments`, commentsReader)).status === 200, "comments:read reads comments");
+  await denied("POST", `/pages/${pageId}/comments`, commentsReader, "comments:write", { text: "no", thread_id: thread.body.thread_id });
+  check((await api("GET", `/workspaces/${wsA}/agents`, agentsReader)).status === 200, "agents:read lists agents");
+  await denied("GET", `/workspaces/${wsA}/teamspaces`, commentsReader, "workspaces:read");
+  const anyMe = await api("GET", "/me", commentsReader);
+  check(anyMe.status === 200 && anyMe.body.token.scopes.join() === "comments:read" && anyMe.body.token.legacy_scopes === false, "GET /me takes any token", anyMe.body);
+
+  // ------------------------------------------------------------------ tokens from before scopes per resource
+  const legacyToken = async (name: string, scopes: string[]) => {
+    const made = await createApiToken(ids.alice, { name: `${RUN} ${name}`, scopes: READ_SCOPES });
+    // As migration 0107 left the tokens there were: their scopes as stored, marked legacy.
+    await db.update(apiToken).set({ scopes, legacyScopes: true }).where(eq(apiToken.id, made.token.id));
+    return made;
+  };
+  const oldRead = await legacyToken("old read", ["pages:read"]);
+  const oldWrite = await legacyToken("old write", ["pages:read", "pages:write"]);
+  const oldMe = await api("GET", "/me", oldRead.secret);
+  check(
+    oldMe.body.token.legacy_scopes === true && oldMe.body.token.scopes.join() === READ_SCOPES.join() && !oldMe.body.token.scopes.includes("pages:write"),
+    "a legacy pages:read token reads as every read scope",
+    oldMe.body,
+  );
+  for (const [label, method, path, body] of [
+    ["lists workspaces", "GET", "/workspaces"],
+    ["searches", "GET", `/search?query=${encodeURIComponent(RUN)}`],
+    ["reads a database", "GET", `/databases/${database.id}`],
+    ["queries rows", "POST", `/databases/${database.id}/query`, {}],
+    ["reads a row's activity", "GET", `/rows/${alpha}/activity`],
+    ["reads comments", "GET", `/pages/${pageId}/comments`],
+    ["lists agents", "GET", `/workspaces/${wsA}/agents`],
+    ["lists teamspaces", "GET", `/workspaces/${wsA}/teamspaces`],
+  ] as const) {
+    const res = await api(method, path, oldRead.secret, body);
+    check(res.status === 200, `…and still ${label}`, res.body);
+  }
+  await denied("POST", "/pages", oldRead.secret, "pages:write", { workspace_id: wsA, title: "no" });
+  await denied("POST", `/databases/${database.id}/rows`, oldRead.secret, "rows:write", { title: "no" });
+  const oldWriteMe = await api("GET", "/me", oldWrite.secret);
+  check(oldWriteMe.body.token.scopes.length === ALL_SCOPES.length, "a legacy pages:write token reads as every scope", oldWriteMe.body);
+  for (const [label, method, path, body, status] of [
+    ["creates pages", "POST", "/pages", { workspace_id: wsA, title: `${RUN} Old token page` }, 201],
+    ["adds rows", "POST", `/databases/${database.id}/rows`, { title: "Golf" }, 201],
+    ["changes rows", "PATCH", `/rows/${alpha}`, { title: "Alpha 3" }, 200],
+    ["comments", "POST", `/pages/${pageId}/comments`, { text: "Still here.", thread_id: thread.body.thread_id }, 201],
+    ["reads", "GET", `/databases/${database.id}`, undefined, 200],
+  ] as const) {
+    const res = await api(method, path, oldWrite.secret, body);
+    check(res.status === status, `…and still ${label}`, res.body);
+  }
+  const listedOld = (await listApiTokens(ids.alice)).find((t) => t.id === oldWrite.token.id);
+  check(listedOld?.legacyScopes === true && listedOld.scopes.length === ALL_SCOPES.length, "settings list a legacy token with what it stands for");
+
+  // Changing what a token may do keeps its secret and ends its legacy reading.
+  await updateApiTokenScopes(ids.alice, oldWrite.token.id, ["rows:read"]);
+  const narrowed = await api("GET", "/me", oldWrite.secret);
+  check(narrowed.status === 200 && narrowed.body.token.scopes.join() === "rows:read" && narrowed.body.token.legacy_scopes === false, "a token's scopes change without a new secret", narrowed.body);
+  await denied("POST", "/pages", oldWrite.secret, "pages:write", { workspace_id: wsA, title: "no" });
+  check((await api("GET", `/rows/${alpha}`, oldWrite.secret)).status === 200, "…and it does what it may now");
+  await updateApiTokenScopes(ids.alice, oldWrite.token.id, ["pages:write", "rows:write"]);
+  check((await api("GET", "/me", oldWrite.secret)).body.token.scopes.join() === "pages:read,pages:write,rows:read,rows:write", "…and can be widened again");
+  refused = await updateApiTokenScopes(ids.alice, oldWrite.token.id, ["files:write"]).catch((e) => e);
+  check(refused?.code === "scopes", "unknown scopes can't be set");
+  refused = await updateApiTokenScopes(ids.bob, oldWrite.token.id, ["pages:read"]).catch((e) => e);
+  check(refused?.code === "notFound", "nobody changes someone else's token");
+
+  // ------------------------------------------------------------------ idempotency keys
+  const idem = (await createApiToken(ids.alice, { name: `${RUN} idempotency`, scopes: ALL_SCOPES, workspaceId: wsA })).secret;
+  const keyed = (method: string, path: string, key: string, body?: unknown, token = idem) => api(method, path, token, body, { "idempotency-key": key });
+  const keyRow = async (key: string) =>
+    (await db.select().from(apiIdempotencyKey).where(eq(apiIdempotencyKey.key, key)))[0] as typeof apiIdempotencyKey.$inferSelect | undefined;
+  const pagesTitled = async (title: string) => (await db.execute<{ n: number }>(sql`select count(*)::int as n from page where title = ${title}`))[0].n;
+
+  const k1 = `${RUN}-k1`;
+  const once = await keyed("POST", "/pages", k1, { workspace_id: wsA, title: `${RUN} Once` });
+  check(once.status === 201 && once.headers.get("idempotent-replayed") === null, "a write with an Idempotency-Key runs", once.body);
+  const replay = await keyed("POST", "/pages", k1, { workspace_id: wsA, title: `${RUN} Once` });
+  check(
+    replay.status === 201 && replay.headers.get("idempotent-replayed") === "true" && JSON.stringify(replay.body) === JSON.stringify(once.body),
+    "the same request with the same key answers the first answer again, marked replayed",
+    { replay: replay.body, headers: Object.fromEntries(replay.headers) },
+  );
+  check(replay.headers.get("x-ratelimit-remaining") !== null, "…with the rate limit headers of now");
+  check((await pagesTitled(`${RUN} Once`)) === 1, "…without making the page twice");
+  const reordered = await api("POST", "/pages", idem, `{"title": "${RUN} Once",   "workspace_id": "${wsA}"}`, { "idempotency-key": k1, "content-type": "application/json" });
+  check(reordered.headers.get("idempotent-replayed") === "true", "…however the same JSON is written");
+  const reused = await keyed("POST", "/pages", k1, { workspace_id: wsA, title: `${RUN} Twice` });
+  check(reused.status === 422 && errorCode(reused) === "idempotency_key_reused", "the same key with another body is a 422 idempotency_key_reused", reused.body);
+  check((await pagesTitled(`${RUN} Twice`)) === 0, "…and changes nothing");
+  const archiveKey = `${RUN}-archive`;
+  check((await keyed("POST", `/pages/${once.body.id}/archive`, archiveKey)).status === 200, "a key on a path with an id runs");
+  const otherPath = await keyed("POST", `/pages/${pageId}/archive`, archiveKey);
+  check(otherPath.status === 422 && errorCode(otherPath) === "idempotency_key_reused", "…and the key on another page of the same endpoint is another request", otherPath.body);
+  check((await api("GET", `/pages/${pageId}`, R)).body.in_trash === false, "…which isn't trashed");
+  const otherToken = await keyed("POST", "/pages", k1, { workspace_id: wsA, title: `${RUN} Other token` }, W);
+  check(otherToken.status === 201 && otherToken.headers.get("idempotent-replayed") === null, "another token's key of the same name is its own");
+  const queryKey = `${RUN}-query`;
+  const firstQuery = await keyed("POST", `/databases/${database.id}/query`, queryKey, {});
+  const secondQuery = await keyed("POST", `/databases/${database.id}/query`, queryKey, { limit: 1 });
+  check(firstQuery.status === 200 && secondQuery.status === 200 && secondQuery.headers.get("idempotent-replayed") === null && !(await keyRow(queryKey)), "a query (which changes nothing) ignores the key");
+  const longKey = await keyed("POST", "/pages", "k".repeat(256), { workspace_id: wsA, title: "long" });
+  check(longKey.status === 400 && errorCode(longKey) === "invalid_idempotency_key", "a key over 255 characters is a 400 invalid_idempotency_key", longKey.body);
+  check((await keyed("POST", "/pages", `${RUN}-${"k".repeat(200)}`, { workspace_id: wsA, title: `${RUN} Long key` })).status === 201, "…while 255 are fine");
+  const invalidKey = `${RUN}-invalid`;
+  const invalid = await keyed("POST", "/pages", invalidKey, { workspace_id: wsA, title: 5 });
+  check(invalid.status === 400 && !(await keyRow(invalidKey)), "an invalid request keeps nothing under its key");
+  check((await keyed("POST", "/pages", invalidKey, { workspace_id: wsA, title: `${RUN} Fixed` })).status === 201, "…so the corrected request runs with it");
+  const missingKey = `${RUN}-missing`;
+  check(errorCode(await keyed("POST", `/databases/${database.id}/rows`, missingKey, { title: "no" }, pagesOnly)) === "missing_scope" && !(await keyRow(missingKey)), "a missing scope keeps nothing either");
+  const notFoundKey = `${RUN}-not-found`;
+  const gone = await keyed("PATCH", `/rows/${RUN}-nothing`, notFoundKey, { title: "x" });
+  const goneAgain = await keyed("PATCH", `/rows/${RUN}-nothing`, notFoundKey, { title: "x" });
+  check(gone.status === 404 && goneAgain.status === 404 && goneAgain.headers.get("idempotent-replayed") === "true", "a 4xx answer is kept like any other");
+
+  // While the first request still runs: hold the page's row so its PATCH waits.
+  const heldKey = `${RUN}-held`;
+  let locked!: () => void;
+  let unlock!: () => void;
+  const isLocked = new Promise<void>((resolve) => (locked = resolve));
+  const unlocking = new Promise<void>((resolve) => (unlock = resolve));
+  const holding = db.transaction(async (tx) => {
+    await tx.execute(sql`select id from page where id = ${pageId} for update`);
+    locked();
+    await unlocking;
+  });
+  await isLocked;
+  const slow = keyed("PATCH", `/pages/${pageId}`, heldKey, { title: `${RUN} Notes held` });
+  const waited = await waitingForLock();
+  const meanwhile = await keyed("PATCH", `/pages/${pageId}`, heldKey, { title: `${RUN} Notes held` });
+  unlock();
+  await holding;
+  const slowDone = await slow;
+  check(waited && meanwhile.status === 409 && errorCode(meanwhile) === "idempotency_conflict" && meanwhile.headers.get("retry-after") === "1", "a retry while the first request runs is a 409 idempotency_conflict", { waited, body: meanwhile.body });
+  check(slowDone.status === 200, "…and the first request finishes", slowDone.body);
+  check((await keyed("PATCH", `/pages/${pageId}`, heldKey, { title: `${RUN} Notes held` })).headers.get("idempotent-replayed") === "true", "…after which the key replays its answer");
+  const burstKey = `${RUN}-burst`;
+  const burst = await Promise.all(Array.from({ length: 6 }, () => keyed("POST", "/pages", burstKey, { workspace_id: wsA, title: `${RUN} Burst` })));
+  const ran = burst.filter((r) => r.status === 201 && r.headers.get("idempotent-replayed") === null);
+  check(
+    ran.length === 1 && burst.every((r) => r.status === 201 || errorCode(r) === "idempotency_conflict") && (await pagesTitled(`${RUN} Burst`)) === 1,
+    "of requests racing with one key, exactly one runs",
+    burst.map((r) => [r.status, r.headers.get("idempotent-replayed")]),
+  );
+
+  // A server failure isn't kept: the retry runs again.
+  await db.execute(
+    sql.raw(`create function ${BOOM}() returns trigger language plpgsql as $$ begin if new.title = '${RUN} Boom' then raise exception 'boom'; end if; return new; end $$`),
+  );
+  await db.execute(sql.raw(`create trigger ${BOOM} before insert on page for each row execute function ${BOOM}()`));
+  const boomKey = `${RUN}-boom`;
+  const failed = await keyed("POST", "/pages", boomKey, { workspace_id: wsA, title: `${RUN} Boom` });
+  check(failed.status === 500 && errorCode(failed) === "internal_error" && !(await keyRow(boomKey)), "a 5xx answer keeps nothing under its key", failed.body);
+  await db.execute(sql.raw(`drop trigger ${BOOM} on page`));
+  const retried = await keyed("POST", "/pages", boomKey, { workspace_id: wsA, title: `${RUN} Boom` });
+  check(retried.status === 201 && retried.headers.get("idempotent-replayed") === null && (await keyRow(boomKey))?.status === 201, "…so its retry runs and is kept", retried.body);
+
+  // Keys last 24 hours.
+  const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000 - 60_000);
+  await db.update(apiIdempotencyKey).set({ createdAt: dayAgo }).where(eq(apiIdempotencyKey.key, k1));
+  const afterExpiry = await keyed("POST", "/pages", k1, { workspace_id: wsA, title: `${RUN} After a day` });
+  check(afterExpiry.status === 201 && afterExpiry.headers.get("idempotent-replayed") === null, "a key older than 24 hours is free again, whatever it was used for", afterExpiry.body);
+  await db.update(apiIdempotencyKey).set({ createdAt: dayAgo }).where(inArray(apiIdempotencyKey.key, [k1, archiveKey]));
+  const unbound = (await verifyApiToken(W)) as { ok: true; principal: { tokenId: string } };
+  await db.update(apiIdempotencyKey).set({ createdAt: dayAgo }).where(eq(apiIdempotencyKey.tokenId, unbound.principal.tokenId));
+  const prunedHere = await pruneIdempotencyKeys({ workspaceIds: [wsA] });
+  const kept = await db.select({ key: apiIdempotencyKey.key, tokenId: apiIdempotencyKey.tokenId }).from(apiIdempotencyKey).where(inArray(apiIdempotencyKey.key, [k1, archiveKey, boomKey]));
+  check(
+    prunedHere >= 2 && kept.every((k) => k.key === boomKey || k.tokenId === unbound.principal.tokenId) && kept.some((k) => k.key === boomKey),
+    "the retention run deletes keys older than 24 hours (narrowed to tokens of the run's workspaces) and keeps newer ones",
+    { prunedHere, kept },
+  );
+  const prunedAll = await pruneIdempotencyKeys();
+  const leftOfW = await db.select({ key: apiIdempotencyKey.key }).from(apiIdempotencyKey).where(eq(apiIdempotencyKey.tokenId, unbound.principal.tokenId));
+  check(prunedAll >= 1 && leftOfW.length === 0, "…and, unnarrowed, every token's", { prunedAll, leftOfW });
+
   // ------------------------------------------------------------------ expiry and revocation
   await db.update(apiToken).set({ expiresAt: new Date(Date.now() - 1000) }).where(eq(apiToken.id, read.token.id));
   const expired = await api("GET", "/me", R);
@@ -368,7 +586,7 @@ try {
   check(!(await revokeApiToken(ids.bob, write.token.id)), "nobody can revoke someone else's token");
   check((await api("GET", "/me", W)).status === 200, "…which keeps working");
   // Deleted while a request with it waits to record when it was used: the deletion commits first.
-  const raced = await createApiToken(ids.alice, { name: `${RUN} raced`, scopes: ["pages:read"] });
+  const raced = await createApiToken(ids.alice, { name: `${RUN} raced`, scopes: READ_SCOPES });
   let deleted!: () => void;
   let commit!: () => void;
   const isDeleted = new Promise<void>((resolve) => (deleted = resolve));
@@ -398,18 +616,39 @@ try {
   const huge = await api("POST", "/pages", W, { workspace_id: wsA, title: "big", markdown: "x".repeat(6 * 1024 * 1024) });
   check(huge.status === 413 && errorCode(huge) === "payload_too_large", "bodies over 5 MB are a 413");
 
-  const limited = await createApiToken(ids.alice, { name: "e2e rate", scopes: ["pages:read"] });
-  const statuses: number[] = [];
+  const limited = await createApiToken(ids.alice, { name: "e2e rate", scopes: READ_SCOPES });
+  const startedAt = Math.floor(Date.now() / 1000);
+  const firstLimited = await api("GET", "/me", limited.secret);
+  const firstReset = Number(firstLimited.headers.get("x-ratelimit-reset"));
+  check(
+    firstLimited.headers.get("x-ratelimit-limit") === "180" && firstLimited.headers.get("x-ratelimit-remaining") === "179" && firstReset >= startedAt + 59 && firstReset <= startedAt + 62,
+    "every answer says the limit, what is left and when one more request is allowed again (Unix seconds)",
+    Object.fromEntries(firstLimited.headers),
+  );
+  const notFoundLimited = await api("GET", `/pages/${RUN}-nothing`, limited.secret);
+  check(notFoundLimited.status === 404 && notFoundLimited.headers.get("x-ratelimit-remaining") === "178" && Number(notFoundLimited.headers.get("x-ratelimit-reset")) === firstReset, "…errors too");
+  const deniedLimited = await api("POST", "/pages", limited.secret, { title: "no" });
+  check(deniedLimited.status === 403 && deniedLimited.headers.get("x-ratelimit-reset") !== null, "…a missing scope too");
+  const statuses: number[] = [200, 404, 403];
   let retryAfter: string | null = null;
+  let tooMany: Res | null = null;
   for (let batch = 0; batch < 10 && !statuses.includes(429); batch++) {
     const results = await Promise.all(Array.from({ length: 20 }, () => api("GET", "/me", limited.secret)));
     for (const res of results) {
       statuses.push(res.status);
-      if (res.status === 429) retryAfter = res.headers.get("retry-after");
+      if (res.status === 429) {
+        retryAfter = res.headers.get("retry-after");
+        tooMany = res;
+      }
     }
   }
-  check(statuses.filter((s) => s === 200).length === 180 && statuses.includes(429), "the 181st request in a minute is rate limited", statuses.length);
-  check(Number(retryAfter) > 0, "…with Retry-After");
+  check(statuses.filter((s) => s !== 429).length === 180 && statuses.includes(429), "the 181st request in a minute is rate limited", statuses.length);
+  check(Number(retryAfter) > 0 && Number(retryAfter) <= 60, "…with Retry-After in seconds", retryAfter);
+  check(
+    tooMany?.headers.get("x-ratelimit-remaining") === "0" && Math.abs(Number(tooMany.headers.get("x-ratelimit-reset")) - (Math.floor(Date.now() / 1000) + Number(retryAfter))) <= 2,
+    "…and X-RateLimit-Reset when it ends",
+    tooMany && Object.fromEntries(tooMany.headers),
+  );
   check((await api("GET", "/me", W)).status === 200, "…while other tokens keep their own allowance");
 
   // ------------------------------------------------------------------ OpenAPI and docs
@@ -430,9 +669,13 @@ try {
   const docs = await fetch(`${BASE}/docs/api`);
   const html = await docs.text();
   check(docs.status === 200 && html.includes("Leafdesk REST API") && html.includes("/databases/{database_id}/query"), "GET /docs/api renders the reference");
+  check(html.includes("comments:write") && html.includes("Idempotency-Key"), "…with the scopes and idempotency keys");
+  check(openapi.body.paths["/pages"].post["x-scope"] === "pages:write" && openapi.body.paths["/pages"].post.parameters.some((p: any) => p.name === "Idempotency-Key"), "…as the document says per endpoint");
 
   console.log(`\n${passed} checks passed`);
 } finally {
+  // Takes the trigger with it, if a failed check left it there.
+  await db.execute(sql.raw(`drop function if exists ${BOOM}() cascade`));
   await db.delete(workspace).where(inArray(workspace.id, [wsA, wsB, wsBob]));
   await db.delete(user).where(inArray(user.id, userIds));
   await (globalThis as unknown as { __leafdeskSql?: { end(): Promise<void> } }).__leafdeskSql?.end();
