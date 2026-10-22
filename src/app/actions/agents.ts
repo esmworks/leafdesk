@@ -3,10 +3,17 @@
 import { revalidatePath } from "next/cache";
 import { getLocale, getTranslations } from "next-intl/server";
 import type { ActionResult } from "@/app/actions/workspaces";
-import type { AgentAccessLevel, AgentCommentRecord, AgentHandoffRecord, AgentRunView, AgentSkillRecord, AgentToolRecord } from "@/lib/agents";
+import type { AgentAccessLevel, AgentCommentRecord, AgentEmailRecord, AgentHandoffRecord, AgentRunView, AgentSkillRecord, AgentToolRecord } from "@/lib/agents";
 import type { ChatStepView } from "@/lib/ai-chat";
 import type { RepeatRule } from "@/lib/schedule";
-import { ANSWER_PROPERTY_TYPES, FLAG_PROPERTY_TYPES, LOG_PROPERTY_TYPES, ROUTER_PROPERTY_TYPES, type BuiltinAgentSetup } from "@/lib/builtin-agents";
+import {
+  ANSWER_PROPERTY_TYPES,
+  COMPANY_PROPERTY_TYPES,
+  FLAG_PROPERTY_TYPES,
+  LOG_PROPERTY_TYPES,
+  ROUTER_PROPERTY_TYPES,
+  type BuiltinAgentSetup,
+} from "@/lib/builtin-agents";
 import { isDatabaseErrorCode, PropertyValueError } from "@/lib/properties";
 import { AccessError } from "@/server/access";
 import { isAiError } from "@/server/ai";
@@ -90,6 +97,7 @@ const input = (value: AgentInput): AgentInput => ({
   webAccess: value?.webAccess,
   monthlyTokenLimit: value?.monthlyTokenLimit,
   model: value?.model,
+  rowChanges: value?.rowChanges,
   helperAgentIds: Array.isArray(value?.helperAgentIds) ? value.helperAgentIds.map(String) : undefined,
 });
 
@@ -239,7 +247,9 @@ export async function deleteAgentMemoryAction(workspaceId: string, agentId: stri
 
 /** A comment the agent wrote; its text only when the viewer can open the row it's on. */
 export type AgentCommentView = Omit<AgentCommentRecord, "text"> & { text: string | null };
-export type AgentStepView = ChatStepView | AgentCommentView | AgentToolRecord | AgentSkillRecord | AgentHandoffRecord;
+/** An email the agent drafted; its subject only when the viewer can open the row it's on. */
+export type AgentEmailView = Omit<AgentEmailRecord, "subject"> & { subject: string | null };
+export type AgentStepView = ChatStepView | AgentCommentView | AgentEmailView | AgentToolRecord | AgentSkillRecord | AgentHandoffRecord;
 export type AgentRunDetails = Omit<AgentRunView, "steps"> & { steps: AgentStepView[] };
 
 /** An agent's schedules (server/agents/schedules.ts), for its owners. */
@@ -285,6 +295,8 @@ export async function listAgentRunsAction(workspaceId: string, agentId: string):
           r.steps.map(async (step): Promise<AgentStepView> =>
             step.kind === "comment"
               ? { ...step, text: r.rowTitle === null ? null : step.text }
+              : step.kind === "email"
+                ? { ...step, subject: r.rowTitle === null ? null : step.subject }
               : step.kind === "tool" || step.kind === "skill" || step.kind === "handoff"
                 ? step
                 : viewStep(userId, step),
@@ -296,9 +308,14 @@ export async function listAgentRunsAction(workspaceId: string, agentId: string):
 }
 
 /** Property types a built-in agent may use. */
-const TEMPLATE_TYPES: readonly string[] = [...new Set([...ROUTER_PROPERTY_TYPES, ...ANSWER_PROPERTY_TYPES, ...FLAG_PROPERTY_TYPES, ...LOG_PROPERTY_TYPES])];
+const TEMPLATE_TYPES: readonly string[] = [
+  ...new Set([...ROUTER_PROPERTY_TYPES, ...ANSWER_PROPERTY_TYPES, ...FLAG_PROPERTY_TYPES, ...LOG_PROPERTY_TYPES, ...COMPANY_PROPERTY_TYPES]),
+];
 
-/** The properties of a database a built-in agent could use, for its setup (full access only). */
+/**
+ * The properties of a database a built-in agent could use, for its setup (full access only), with
+ * their descriptions and whether AI autofill fills them (which the company researcher leaves alone).
+ */
 export async function builtinAgentPropertiesAction(workspaceId: string, databaseId: string) {
   return run(workspaceId, async (userId) => {
     const database = await requireDatabase(userId, String(databaseId), "full");
@@ -311,6 +328,8 @@ export async function builtinAgentPropertiesAction(workspaceId: string, database
         name: p.name,
         type: p.type,
         options: (p.options.options ?? []).map((o) => ({ id: o.id, name: o.name, color: o.color })),
+        description: p.options.description?.trim() || null,
+        ai: Boolean(p.options.ai),
       }));
   });
 }

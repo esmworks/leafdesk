@@ -1,6 +1,6 @@
 "use client";
 
-import { BookCheck, BookX, Bot, CalendarClock, ChevronRight, Globe, MessageSquare, MessageSquareOff, MessagesSquare, Play, Plug, RefreshCw, TriangleAlert, Users, X } from "lucide-react";
+import { BookCheck, BookX, Bot, CalendarClock, ChevronRight, Globe, Mail, MailX, MessageSquare, MessageSquareOff, MessagesSquare, Play, Plug, RefreshCw, TriangleAlert, Users, X } from "lucide-react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -14,6 +14,7 @@ import {
   removeAgentAccessAction,
   setAgentAccessAction,
   updateAgentAction,
+  type AgentEmailView,
   type AgentRunDetails,
   type AgentStepView,
 } from "@/app/actions/agents";
@@ -37,6 +38,7 @@ import {
   type AgentAccessLevel,
   type AgentAccessView,
   type AgentModel,
+  type AgentRowChanges,
   type AgentSkillRecord,
   type AgentToolRecord,
   type AgentUsageMonth,
@@ -226,6 +228,7 @@ export function AgentForm({
   const [webAccess, setWebAccess] = useState(agent?.webAccess ?? false);
   const [limit, setLimit] = useState(agent?.monthlyTokenLimit ? String(agent.monthlyTokenLimit) : "");
   const [model, setModel] = useState<AgentModel>(agent?.model ?? "main");
+  const [rowChanges, setRowChanges] = useState<AgentRowChanges>(agent?.rowChanges ?? "direct");
   // Null until loaded: saving then leaves them as they are.
   const [helpers, setHelpers] = useState<string[] | null>(null);
   const { pending, error, run } = useAction();
@@ -245,6 +248,7 @@ export function AgentForm({
       instructions,
       enabled,
       webAccess,
+      rowChanges,
       // Left as it is by anyone but an owner.
       ...(isOwner ? { monthlyTokenLimit } : {}),
       ...(models ? { model } : {}),
@@ -326,6 +330,19 @@ export function AgentForm({
             <span className="mt-1 block text-xs text-fg-muted">{t("modelHelp")}</span>
           </label>
         )}
+        <label className="block border-t border-border pt-3">
+          <span className="mb-1 block text-sm">{t("rowChanges")}</span>
+          <select
+            value={rowChanges}
+            disabled={locked}
+            onChange={(e) => setRowChanges(e.target.value as AgentRowChanges)}
+            className={cn(selectClass, "w-full sm:w-auto")}
+          >
+            <option value="direct">{t("rowChangesDirect")}</option>
+            <option value="review">{t("rowChangesReview")}</option>
+          </select>
+          <span className="mt-1 block text-xs text-fg-muted">{t(rowChanges === "review" ? "rowChangesReviewHelp" : "rowChangesDirectHelp")}</span>
+        </label>
         <div className="flex items-center justify-between gap-3 border-t border-border pt-3 text-sm">
           <div>
             <div>{t("webAccess")}</div>
@@ -834,6 +851,7 @@ export function AgentStepLine({
     return <ToolStepLine step={step} connection={connection} />;
   }
   if (step.kind === "skill") return <SkillStepLine step={step} onOpen={onOpen} />;
+  if (step.kind === "email") return <EmailStepLine step={step} />;
   if (step.kind !== "comment") return <StepLine step={step} onSource={(source) => source.pageId && onOpen(source.pageId)} />;
   const failed = step.outcome === "failed";
   const Icon = failed ? MessageSquareOff : MessageSquare;
@@ -846,6 +864,27 @@ export function AgentStepLine({
         ) : (
           <>
             {t(failed ? "commentFailed" : "comment")} <span className="text-fg">“{step.text}”</span>
+          </>
+        )}
+      </span>
+    </>
+  );
+}
+
+/** An email the run drafted for its sender's review, or couldn't; its subject only to those who may open the row. */
+function EmailStepLine({ step }: { step: AgentEmailView }) {
+  const t = useTranslations("settings.agents.runs");
+  const failed = step.outcome === "failed";
+  const Icon = failed ? MailX : Mail;
+  return (
+    <>
+      <Icon className={cn("mt-[3px] h-3.5 w-3.5 shrink-0", failed && "text-danger")} />
+      <span className="min-w-0 break-words">
+        {step.subject === null ? (
+          t("emailHidden")
+        ) : (
+          <>
+            {t(failed ? "emailFailed" : "emailDrafted")} {step.subject && <span className="text-fg">“{step.subject}”</span>}
           </>
         )}
       </span>

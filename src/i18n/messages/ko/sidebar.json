@@ -17,7 +17,9 @@
     "import": "가져오기",
     "graph": "그래프",
     "skills": "스킬",
-    "more": "더 보기"
+    "more": "더 보기",
+    "review": "검토 대기",
+    "reviewCount": "{count, plural, other {검토를 기다리는 변경 #개}}"
   },
   "tabs": {
     "label": "사이드바",
@@ -79,7 +81,9 @@
     "deletePermanently": "영구 삭제",
     "confirmDelete": "영구 삭제할까요? 되돌릴 수 없습니다.",
     "deletesIn": "{count}일 후 삭제",
-    "deletesSoon": "곧 삭제"
+    "deletesSoon": "곧 삭제",
+    "mergedInto": "{title}에 병합됨",
+    "restoreMerged": "별도의 행으로 복원합니다. ‘{title}’(으)로 옮겨진 링크, 댓글, 활동, 이메일은 그곳에 남습니다."
   },
   "newWorkspace": {
     "title": "새 워크스페이스",
@@ -167,6 +171,8 @@
     "reportGone": "이 실행은 더 이상 보관되지 않습니다.",
     "aiAccountTitle": "AI 계정 삭제됨",
     "aiAccountDetached": "워크스페이스의 AI가 더 이상 {actor}님의 키로 실행되지 않습니다. 설정에서 다른 AI 계정을 선택하세요.",
+    "reviewTitle": "검토 대기",
+    "review": "{count, plural, =1 {{agent}이(가) 검토할 변경을 제안했습니다} other {변경 #개가 검토를 기다립니다. 최근 제안: {agent}}}",
     "automationRun": "자동화 “{name}”"
   },
   "templates": {

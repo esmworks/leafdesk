@@ -1,7 +1,8 @@
 import { createHash, randomBytes } from "node:crypto";
 import { and, count, desc, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
-import { API_TOKEN_SCOPES, apiToken, workspace, type ApiTokenScope } from "@/db/schema";
+import { apiToken, workspace } from "@/db/schema";
+import { API_TOKEN_SCOPES, effectiveScopes, isApiTokenScope, normalizeScopes, type ApiTokenScope } from "@/lib/api-scopes";
 import { findMembership, memberWorkspaceIds, signInPolicyRefusal } from "@/server/access";
 import { recordAudit } from "@/server/audit";
 import { forgetApiTokenUse } from "@/server/connected-app-use";
@@ -27,7 +28,7 @@ const TOUCH_INTERVAL_MS = 60_000;
 export class ApiTokenError extends Error {
   constructor(
     message: string,
-    readonly code: "name" | "scopes" | "workspace" | "expiry" | "limit",
+    readonly code: "name" | "scopes" | "workspace" | "expiry" | "limit" | "notFound",
   ) {
     super(message);
     this.name = "ApiTokenError";
@@ -49,21 +50,17 @@ export function generateTokenSecret(): string {
 
 export const hashToken = (secret: string) => createHash("sha256").update(secret).digest("hex");
 
-/** Scopes as stored: known ones only, and pages:write always brings pages:read. */
-export function normalizeScopes(scopes: readonly string[]): ApiTokenScope[] {
-  const known = new Set(scopes.filter((s): s is ApiTokenScope => (API_TOKEN_SCOPES as readonly string[]).includes(s)));
-  if (known.has("pages:write")) known.add("pages:read");
-  return API_TOKEN_SCOPES.filter((s) => known.has(s));
-}
+type StoredToken = { id: string; name: string; workspaceId: string | null; scopes: string[]; legacyScopes: boolean };
 
 /**
- * Records a token's creation or revocation in the audit log of the workspace it is limited to, or
- * of every workspace its user is in when it reaches all of them.
+ * Records a token's creation, change or revocation in the audit log of the workspace it is limited
+ * to, or of every workspace its user is in when it reaches all of them.
  */
 async function recordToken(
   userId: string,
-  token: { id: string; name: string; workspaceId: string | null; scopes: string[] },
-  action: "api_token.created" | "api_token.revoked",
+  token: StoredToken,
+  action: "api_token.created" | "api_token.updated" | "api_token.revoked",
+  extra: Record<string, unknown> = {},
 ) {
   const workspaceIds = token.workspaceId ? [token.workspaceId] : await memberWorkspaceIds(userId);
   await recordAudit(
@@ -72,9 +69,18 @@ async function recordToken(
       actorId: userId,
       action,
       target: { type: "api_token" as const, id: token.id, label: token.name },
-      details: { scopes: normalizeScopes(token.scopes), allWorkspaces: token.workspaceId === null },
+      details: { scopes: effectiveScopes(token.scopes, token.legacyScopes), allWorkspaces: token.workspaceId === null, ...extra },
     })),
   );
+}
+
+/** The scopes asked for, as stored; refused when none or any unknown. */
+function checkedScopes(scopes: readonly string[]) {
+  const normalized = normalizeScopes(scopes);
+  if (!normalized.length || !scopes.every(isApiTokenScope)) {
+    throw new ApiTokenError(`Scopes must be some of ${API_TOKEN_SCOPES.join(", ")}`, "scopes");
+  }
+  return normalized;
 }
 
 export type NewApiToken = {
@@ -90,7 +96,10 @@ export type ApiTokenInfo = {
   id: string;
   name: string;
   prefix: string;
+  /** What it may do, a legacy token's scopes read as what they stand for. */
   scopes: ApiTokenScope[];
+  /** Made before scopes were per resource (see lib/api-scopes.ts). */
+  legacyScopes: boolean;
   workspaceId: string | null;
   workspaceName: string | null;
   expiresAt: Date | null;
@@ -102,9 +111,7 @@ export type ApiTokenInfo = {
 export async function createApiToken(userId: string, input: NewApiToken, now = new Date()) {
   const name = input.name.trim();
   if (!name || name.length > MAX_TOKEN_NAME) throw new ApiTokenError(`Give the token a name of at most ${MAX_TOKEN_NAME} characters`, "name");
-  const scopes = normalizeScopes(input.scopes);
-  const unknown = input.scopes.some((s) => !(API_TOKEN_SCOPES as readonly string[]).includes(s));
-  if (!scopes.length || unknown) throw new ApiTokenError(`Scopes must be ${API_TOKEN_SCOPES.join(" and/or ")}`, "scopes");
+  const scopes = checkedScopes(input.scopes);
   const days = input.expiresInDays ?? null;
   if (days !== null && (!Number.isInteger(days) || days < 1 || days > MAX_EXPIRY_DAYS)) {
     throw new ApiTokenError(`Tokens expire after 1 to ${MAX_EXPIRY_DAYS} days, or never`, "expiry");
@@ -145,6 +152,7 @@ export async function listApiTokens(userId: string): Promise<ApiTokenInfo[]> {
       name: apiToken.name,
       prefix: apiToken.prefix,
       scopes: apiToken.scopes,
+      legacyScopes: apiToken.legacyScopes,
       workspaceId: apiToken.workspaceId,
       workspaceName: workspace.name,
       expiresAt: apiToken.expiresAt,
@@ -155,7 +163,32 @@ export async function listApiTokens(userId: string): Promise<ApiTokenInfo[]> {
     .leftJoin(workspace, eq(workspace.id, apiToken.workspaceId))
     .where(eq(apiToken.userId, userId))
     .orderBy(desc(apiToken.createdAt));
-  return rows.map((r) => ({ ...r, scopes: normalizeScopes(r.scopes) }));
+  return rows.map((r) => ({ ...r, scopes: effectiveScopes(r.scopes, r.legacyScopes) }));
+}
+
+/**
+ * Changes what one of the user's tokens may do, keeping its secret: it gets exactly these scopes,
+ * a legacy token too (it stops standing for "everything" then). Takes effect on its next request.
+ */
+export async function updateApiTokenScopes(userId: string, tokenId: string, scopes: readonly string[]) {
+  const next = checkedScopes(scopes);
+  const updated = await db.transaction(async (tx) => {
+    const [before] = await tx
+      .select({ scopes: apiToken.scopes, legacyScopes: apiToken.legacyScopes })
+      .from(apiToken)
+      .where(and(eq(apiToken.id, tokenId), eq(apiToken.userId, userId)))
+      .for("update");
+    if (!before) return null;
+    const [row] = await tx
+      .update(apiToken)
+      .set({ scopes: next, legacyScopes: false })
+      .where(eq(apiToken.id, tokenId))
+      .returning({ id: apiToken.id, name: apiToken.name, workspaceId: apiToken.workspaceId, scopes: apiToken.scopes, legacyScopes: apiToken.legacyScopes });
+    return { row, previous: effectiveScopes(before.scopes, before.legacyScopes) };
+  });
+  if (!updated) throw new ApiTokenError("You have no such token", "notFound");
+  await recordToken(userId, updated.row, "api_token.updated", { previousScopes: updated.previous });
+  return { ...updated.row, scopes: next };
 }
 
 /**
@@ -167,7 +200,7 @@ export async function revokeApiToken(userId: string, tokenId: string, by?: { act
   const deleted = await db
     .delete(apiToken)
     .where(and(eq(apiToken.id, tokenId), eq(apiToken.userId, userId)))
-    .returning({ id: apiToken.id, name: apiToken.name, workspaceId: apiToken.workspaceId, scopes: apiToken.scopes });
+    .returning({ id: apiToken.id, name: apiToken.name, workspaceId: apiToken.workspaceId, scopes: apiToken.scopes, legacyScopes: apiToken.legacyScopes });
   await forgetApiTokenUse({ tokenIds: deleted.map((t) => t.id) }).catch((error) =>
     console.error("[api-tokens] could not forget when a token was last used", error),
   );
@@ -180,7 +213,7 @@ export async function revokeApiToken(userId: string, tokenId: string, by?: { act
         action: "api_token.revoked",
         target: { type: "api_token", id: token.id, label: token.name },
         subject: { type: "user", id: userId },
-        details: { scopes: normalizeScopes(token.scopes), allWorkspaces: token.workspaceId === null },
+        details: { scopes: effectiveScopes(token.scopes, token.legacyScopes), allWorkspaces: token.workspaceId === null },
       });
     }
   }
@@ -212,7 +245,9 @@ export async function afterApiTokensRevoked(userId: string) {
 export type ApiPrincipal = {
   tokenId: string;
   userId: string;
+  /** What it may do, a legacy token's scopes read as what they stand for. */
   scopes: ApiTokenScope[];
+  legacyScopes: boolean;
   workspaceId: string | null;
   expiresAt: Date | null;
 };
@@ -236,7 +271,8 @@ export async function verifyApiToken(secret: string, now = new Date()): Promise<
     principal: {
       tokenId: row.id,
       userId: row.userId,
-      scopes: normalizeScopes(row.scopes),
+      scopes: effectiveScopes(row.scopes, row.legacyScopes),
+      legacyScopes: row.legacyScopes,
       workspaceId: row.workspaceId,
       expiresAt: row.expiresAt,
     },

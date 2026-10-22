@@ -11,7 +11,7 @@
  * Env: DATABASE_URL (read from .env when present). Migrations must be applied. Use a scratch
  * database: while the script runs, any save of a body containing its marker fails there.
  */
-export {};
+import { API_TOKEN_SCOPES as ALL_SCOPES } from "@/lib/api-scopes";
 
 try {
   process.loadEnvFile();
@@ -121,7 +121,7 @@ try {
   await db.insert(workspace).values({ id: workspaceId, name: RUN });
   await db.insert(workspaceMember).values({ workspaceId, userId: owner, role: "owner" });
   await db.insert(oauthClient).values({ id: clientId, clientId, name: "Test AI", redirectUris: [] });
-  const { secret } = await createApiToken(owner, { name: "e2e write", scopes: ["pages:write"] });
+  const { secret } = await createApiToken(owner, { name: "e2e write", scopes: ALL_SCOPES });
 
   // NOT VALID: only rows written from now on are checked, so the scan of existing pages is skipped.
   await db.execute(sql.raw(`ALTER TABLE page ADD CONSTRAINT ${CONSTRAINT} CHECK (content_text NOT LIKE '%${MARKER}%') NOT VALID`));

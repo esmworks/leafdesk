@@ -24,7 +24,7 @@
  * PEER_DATABASE_URL (default: DATABASE_URL's database with a `_peer` suffix; it must exist, the
  * script migrates it). Creates its own users and workspaces and deletes them afterwards.
  */
-export {};
+import { READ_SCOPES } from "@/lib/api-scopes";
 
 try {
   process.loadEnvFile();
@@ -534,7 +534,7 @@ async function main() {
     const providerId = `ws-${ws}`;
     const at = new Date();
     await db.insert(account).values({ id: `${RUN}-stale`, accountId: `${RUN}-alice-at-the-old-idp`, providerId, userId: ids.alice, createdAt: at, updatedAt: at });
-    await createApiToken(ids.alice, { name: `${RUN} Alice`, scopes: ["pages:read"] });
+    await createApiToken(ids.alice, { name: `${RUN} Alice`, scopes: READ_SCOPES });
     const issuer = "https://idp.example.test/restored";
     await saveSsoConnection(
       ids.owner,

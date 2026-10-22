@@ -527,8 +527,9 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   and group provisioning (see [Single sign-on (OIDC, SAML) and SCIM](#single-sign-on-oidc-saml-and-scim)).
 - **AI writing assistant, AI properties and AI chat** (optional, off until a provider is set up):
   improve, shorten, fix, translate or rewrite selected text as you ask, continue writing, and
-  summarize a page, as a suggestion you accept or discard; database text properties that AI fills
-  in (a summary, a translation or your own prompt over the row's values); a chat, on its own page
+  summarize a page, as a suggestion you accept or discard; database properties that AI fills in
+  (text: a summary, a translation or your own prompt over the row's values; a select, multi-select,
+  status, number or checkbox from your prompt); a chat, on its own page
   or in a panel beside a page, that answers questions from the pages you can read, citing them, and
   remembers what you tell it about yourself (asking first; each person, or a workspace's owners for
   everyone, can turn the memory off, see [Memory](#ai-features)); and semantic search with an
@@ -1949,6 +1950,24 @@ Other AI properties (and formulas over them) go into a prompt only when you name
 A property can't read itself through other AI properties. Cells show when a value is being worked
 out or failed, and why. Turning AI autofill off leaves the values as plain text.
 
+Select, multi-select, status, number and checkbox properties have *AI autofill…* in their menu
+too, filled in from your own prompt (summaries and translations are text). The prompt tells the
+model what the value must be: one of the property's options, written as listed, or none; a JSON
+list of options (never new ones); a number (for a percent number, a percentage, stored as the
+fraction it shows); yes or no. The answer is read the way people write such values, so a full
+stop, quotes or another case don't matter, and "none" leaves the value empty. An answer that
+doesn't fit (an option the property doesn't have, words where a number was asked for) fails
+like any other, and the cell keeps the value it had. The values are ordinary ones: filters,
+grouping, boards and automations ("Status changes to Done") work with them as they do with
+values people set.
+
+*Only rows where these have a value* limits any AI property to rows where the chosen properties
+(up to 10) aren't empty, or, for a checkbox, are ticked: "find the sector only for customers with
+a website". Other rows are skipped without asking a model, also by *Update all rows in this
+view*, and keep the value they have. A property chosen there is read like a `{Property}` in the
+prompt, so an AI property can wait for another one and updates after it; related rows, people,
+restricted properties and properties the person can't see can't be chosen and count as empty.
+
 **AI chat.** *Ask AI* in the sidebar opens the chat across the page, where the sidebar lists
 your conversations (today, yesterday, the last 7 and 30 days, older) in place of the pages until
 *Back to pages*. The ✨ button in a page's header opens the chat in a panel beside the page, which
@@ -3031,7 +3050,10 @@ The tools cover:
   so a retried import adds nothing twice, and each row says whether it was `created` or `updated`;
   a value two given rows share, or that several existing rows hold, is refused before anything is
   written. `update_database_rows` takes `expect` (writes nothing unless exactly that many rows
-  would change) and `dry_run`.
+  would change) and `dry_run`. `merge_rows` merges duplicate rows into a kept row, taking each
+  value from the row picked for it (or every row's together), pointing other rows' links at the
+  kept row and bringing comments, activity, files, email and content along; the merged rows go to
+  the trash.
 - **Dashboards:** `add_dashboard` adds a dashboard of widgets (each a database and the settings of
   a view, as for `create_database_view`; a number is a chart with `chart_type: "number"`) to the end
   of a page, and `update_dashboard_widget` adds, changes, moves or removes one widget. `get_page`
@@ -3076,11 +3098,33 @@ token. The reference is at `<APP_URL>/docs/api`, generated from the OpenAPI 3.1 
 `<APP_URL>/api/v1/openapi.json` (import it into Postman, Insomnia or a client generator).
 
 Create a token in My account → *Connected apps* → *Personal access tokens*: give it a name, choose
-**Read only** (`pages:read`) or **Read and write** (`pages:write` too), optionally limit it to one
-workspace, and pick when it expires (7, 30, 90 days, a year, or never). The token is shown once;
-Leafdesk keeps only its SHA-256 hash. Tokens look like `esi_` and 40 letters and digits, so secret
-scanners can match leaked ones with `esi_[A-Za-z0-9]{40}`. The list shows when each was last
-used; revoking one stops it at once.
+what it may read and write, optionally limit it to one workspace, and pick when it expires (7, 30,
+90 days, a year, or never). The token is shown once; Leafdesk keeps only its SHA-256 hash. Tokens
+look like `esi_` and 40 letters and digits, so secret scanners can match leaked ones with
+`esi_[A-Za-z0-9]{40}`. The list shows what each may do and when it was last used; *Change access*
+changes what it may do without a new secret, and revoking one stops it at once.
+
+What a token may do is chosen per resource, with a read and (where there is one) a write toggle
+for each, or one of the presets *Read everything* and *Read and write everything*. A write scope
+brings the read scope of its resource. Every endpoint needs one scope (the reference names it;
+`GET /me` takes any token), and a token without it gets `403 insufficient_scope` with the scope in
+`details.scope`:
+
+| Scope | Endpoints |
+| --- | --- |
+| `workspaces:read` | `GET /workspaces`, a workspace's teamspaces and groups |
+| `pages:read`, `pages:write` | pages (database rows too, as pages), their sub-pages, the page tree, daily notes; writing creates, changes, moves, trashes, restores, archives and watches pages and makes voice notes |
+| `search:read` | `GET /search` |
+| `databases:read` | `GET /databases/{id}` (properties and views) |
+| `rows:read`, `rows:write` | `POST /databases/{id}/query`, `GET /rows/{id}` and its activity; writing adds, upserts and changes rows (a voice note into a database needs it too) |
+| `comments:read`, `comments:write` | a page's comment threads; writing starts threads and replies |
+| `agents:read`, `agents:write` | agents, their runs, usage, schedules and sharing; writing changes them, asks for runs, sets schedules and shares |
+
+Tokens made before scopes were per resource keep exactly the access they had: their `pages:read`
+reads everything and their `pages:write` reads and writes everything, including endpoints added
+later. Settings and `GET /me` (`legacy_scopes: true`) say so; once their access is changed they
+get the scopes chosen, like a new token. The scopes are the REST API's own: those of MCP apps are
+unchanged.
 
 The ids the API takes are in the app too: *Copy ID* in a page's, database's or row's menu, and
 *Copy property ID* in a column's menu (properties are also taken by name).
@@ -3118,6 +3162,7 @@ Filter ops: `contains`, `does_not_contain`, `equals`, `not_equals`, `is_any_of` 
   each row), `POST /databases/{id}/rows`, `POST
   /databases/{id}/rows/bulk` (up to 100; both take `match_by` to upsert, as the MCP tools do),
   `PATCH /databases/{id}/rows` (same values on many rows, with `expect` and `dry_run`),
+  `POST /databases/{id}/rows/merge` (duplicate rows into one, as `merge_rows` does),
   `GET` and `PATCH /rows/{id}`, `GET /rows/{id}/activity` (who changed what, newest first;
   `actor: "ai"` for AI autofill values, with the person in `by`).
 - **Voice notes:** `POST /voice-notes` takes a recording as multipart form data (`audio`, and
@@ -3141,7 +3186,7 @@ Filter ops: `contains`, `does_not_contain`, `equals`, `not_equals`, `is_any_of` 
   for (see [Sharing an agent](#agents)); each agent carries the token's user's
   `your_access`, and only owners change the monthly limit. Asking for a run answers
   `409` when the agent can't run now (`agent_unavailable`), used its monthly limit
-  (`limit_reached`) or has too many runs waiting (`too_many_runs`). A `pages:write` token may thus
+  (`limit_reached`) or has too many runs waiting (`too_many_runs`). An `agents:write` token may thus
   start runs that use the workspace's AI allowance.
 
 Automations have no REST endpoints: they are managed in the app or over MCP.
@@ -3151,10 +3196,29 @@ input, access and history the same way: a token acts as its user, with that user
 pages, and every body change is saved to page history first. Pages the user can't see (or outside
 a token's workspace) answer `404`. A body the database refuses to save answers `500`
 `internal_error` (and AI apps get an error result) rather than passing for written; a page
-created with such a body stays, without it. Errors are JSON, `{"error": {"code", "message", "details"}}`;
-lists page with `next_cursor`. Each token may make 180 requests a minute (`API_RATE_LIMIT`;
-`X-RateLimit-*` headers, `429` with `Retry-After` beyond it), and JSON request bodies are limited
-to 5 MB. Only tokens authenticate (never the browser session), and CORS is off unless
+created with such a body stays, without it. Errors are JSON, `{"error": {"code", "message", "param", "details"}}`,
+where `param` names the field an invalid value is in when it is known (`title`,
+`properties.Status`, `rows.2.properties.Status` in a bulk call); lists page with `next_cursor`.
+Each token may make 180 requests a minute (`API_RATE_LIMIT`): every answer to a request with a
+valid token carries `X-RateLimit-Limit`, `X-RateLimit-Remaining` and `X-RateLimit-Reset` (when one
+more request is allowed again, in Unix seconds), and beyond the limit the answer is `429` with
+`Retry-After` (seconds). JSON request bodies are limited to 5 MB.
+
+Writes take an `Idempotency-Key` header (up to 255 characters, say a UUID per change), so a client
+can safely send a request again after a timeout: within 24 hours the same request with the same
+key gets the first answer back, with `Idempotent-Replayed: true`, and changes nothing more. A key
+belongs to its token and endpoint and remembers the request's path, query and body; the same key
+with another request answers `422 idempotency_key_reused`, and while the first request still runs
+`409 idempotency_conflict`. Server failures (`5xx`) and `429`s aren't kept, so their retry runs
+again; the daily retention run deletes keys older than 24 hours.
+
+```bash
+curl -X POST http://localhost:3000/api/v1/databases/<database_id>/rows \
+  -H "Authorization: Bearer $LEAFDESK_TOKEN" -H "Content-Type: application/json" \
+  -H "Idempotency-Key: $(uuidgen)" -d '{"title": "Call the supplier"}'
+```
+
+Only tokens authenticate (never the browser session), and CORS is off unless
 `API_CORS_ORIGINS` lists origins. Like connected MCP apps, tokens are not held back by a
 workspace's "require two-step verification" policy: it guards browser sessions. They are held to
 its **Connected apps and API tokens** switch: in a read-only workspace write endpoints answer
@@ -3197,8 +3261,9 @@ Useful scripts:
 | `pnpm tsx scripts/two-factor-e2e.ts` | End-to-end two-step verification check (sign-in challenge, recovery codes, workspace policy) against a running server |
 | `pnpm tsx scripts/admin-e2e.ts` | End-to-end instance administration check (`ADMIN_EMAILS`, `WORKSPACE_CREATION`, signing out, required password resets) against a running server with the same two settings; it signs everyone out, so only on a development or CI database |
 
-CI (`.github/workflows/ci.yml`) runs every `scripts/*-e2e.ts`, the ones that need a server against
-`pnpm start`; each step there shows the settings its script needs.
+CI (`.github/workflows/ci.yml`) runs most `scripts/*-e2e.ts`, the ones that need a server against
+`pnpm start`; each step there shows the settings its script needs. The others (for example the
+workspace storage checks, which need an S3 server) are run by hand.
 
 ## Languages
 
@@ -3234,7 +3299,8 @@ so far; corrections to the other languages are welcome as pull requests, as are 
   - Route handlers, server actions and MCP tools write into open documents through the same
     Hocuspocus instance, so AI edits appear live in open editors.
   - The `/collab` connection is authenticated with a short-lived HMAC token.
-- Page access is worked out in SQL (`page_access_level`, migrations `0003`, `0013`, `0021`):
+- Page access is worked out in SQL (`page_access_level`, first in migration `0003`, current in
+  `0055`):
   every read path (sidebar, search, mentions, export, MCP, REST, collaboration) filters with it.
   A page's teamspace is stored on every page of its tree (`page.teamspace_id`, kept in step by
   triggers); null means private.

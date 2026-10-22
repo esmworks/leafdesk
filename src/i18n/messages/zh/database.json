@@ -290,7 +290,9 @@
     "confirmTrash": "要将 {count} 行移到回收站吗？",
     "skipped": "已跳过 {count} 行，因为你无法更改它们。",
     "pasteLeftOut": "有 {count} 个粘贴的单元格被省略：它们与所在列不匹配，或者你无法更改它们。",
-    "exportDisabled": "此工作区已关闭导出功能。"
+    "exportDisabled": "此工作区已关闭导出功能。",
+    "merge": "合并",
+    "mergeHint": "将 2 到 5 行合并为一行"
   },
   "calculate": {
     "calculate": "计算",
@@ -393,7 +395,8 @@
     "startTime": "开始时间",
     "endTime": "结束时间",
     "endDateSwitch": "结束日期",
-    "includeTime": "包含时间"
+    "includeTime": "包含时间",
+    "hiddenByParent": "有 {count} 个选项与此行的“{parent}”不符。"
   },
   "checklist": {
     "addItem": "添加项目",
@@ -496,7 +499,16 @@
     "reminder": "提醒",
     "reminderNone": "不提醒",
     "reminderBefore": "{days, select, 0 {当天 9:00} 1 {提前 1 天，9:00} 7 {提前 1 周，9:00} other {提前 {days} 天，9:00}}",
-    "reminderHint": "通知分配到每一行的人员，若无则通知添加该行的人，除非该行已完成。9:00 按你的时区计算；包含时间的日期则在该时间提醒。"
+    "reminderHint": "通知分配到每一行的人员，若无则通知添加该行的人，除非该行已完成。9:00 按你的时区计算；包含时间的日期则在该时间提醒。",
+    "description": "说明",
+    "descriptionPlaceholder": "存放什么、如何填写",
+    "dependsOn": "依赖于",
+    "dependsOnNone": "无",
+    "dependsOnHint": "为每个选项选择它对应的“{parent}”选项。行中只提供这些；未选择任何项的选项对应全部。",
+    "noParentOptions": "“{parent}”还没有选项。",
+    "parentOptionsLabel": "当“{parent}”为：",
+    "parentOptionsAll": "始终",
+    "parentOptionToggle": "当“{parent}”为“{value}”时提供“{option}”"
   },
   "rowProperties": {
     "noProperties": "没有属性",
@@ -527,7 +539,10 @@
     "unknownPerson": "{count, plural, other {# 位未知人员}}",
     "checked": "已勾选",
     "unchecked": "未勾选",
-    "checklist": "已完成 {done}/{total}"
+    "checklist": "已完成 {done}/{total}",
+    "merged": "<actor>{name}</actor> 将 {count} 行合并到此行：<rows>{titles}</rows>",
+    "mergedFrom": "来自 {title}",
+    "approvedFrom": "（由 {name} 提议）"
   },
   "rowEmail": {
     "title": "邮件",
@@ -796,7 +811,15 @@
     "webhookBlocked": "Webhook 不能发送到私有或本地网络地址。",
     "agentOwnersOnly": "只有工作区所有者和可以编辑该智能体的人可以添加或更改运行它的操作。",
     "invalidRepeat": "该重复计划无效：请检查日期、时间和时区。",
-    "tooManySchedules": "此工作区的重复模板数量已达上限。"
+    "tooManySchedules": "此工作区的重复模板数量已达上限。",
+    "optionUnavailable": "此行的“{property}”不能选择“{value}”。",
+    "invalidDependency": "“{property}”只能依赖此数据库中另一个不依赖于它的单选属性。",
+    "invalidDescription": "说明最多 {max} 个字符。",
+    "mergeRowCount": "请选择 {min} 到 {max} 行进行合并。",
+    "mergeRowsInvalid": "只能合并同一数据库中不在回收站里的行。",
+    "mergeRowsReadOnly": "你只能查看 {rows}。合并需要对每一行都有编辑权限。",
+    "mergeLinksBlocked": "有 {count} 行关联到这些行，而你无法更改它们：{rows}。没有合并任何内容。",
+    "mergeChoiceInvalid": "为“{property}”选择的值无法使用。请选择另一行的值。"
   },
   "formula": {
     "title": "公式",
@@ -1408,5 +1431,37 @@
   "quickAdd": {
     "recognised": "已从标题中识别",
     "keep": "在标题中保留“{text}”"
+  },
+  "merge": {
+    "menuItem": "与其他行合并…",
+    "pickTitle": "与其他行合并",
+    "pickHint": "最多选择 {count} 行与此行合并。",
+    "pickSearch": "搜索行",
+    "pickEmpty": "没有其他匹配的行",
+    "pickLoading": "正在加载行…",
+    "pickContinue": "继续",
+    "title": "合并 {count} 行",
+    "keep": "保留的行",
+    "keepHint": "其他行会移到回收站，其中的内容会转到你保留的行。",
+    "oldest": "最早",
+    "created": "创建于 {date}",
+    "titleField": "标题",
+    "combine": "全部合在一起",
+    "hidden": "已隐藏",
+    "empty": "空",
+    "locked": "你无法更改此属性，因此保留行的值不变。",
+    "moves": "同时转到保留的行",
+    "movesThreads": "{count} 个评论串",
+    "movesActivity": "{count} 条动态记录",
+    "movesFiles": "{count} 个上传的文件",
+    "movesEmails": "{count} 封邮件",
+    "movesLinks": "来自其他 {count} 行的关联，包括子项和依赖关系",
+    "movesBodies": "{count} 行的页面内容，各自放在一个标题下",
+    "movesNothing": "没有其他需要转移的内容。",
+    "subpages": "被合并行中的 {count} 个页面也会一起移到回收站。",
+    "trashNote": "从回收站恢复已合并的行，会把它恢复为单独的一行。已转移的内容仍留在保留的行中。",
+    "confirm": "合并行",
+    "merging": "正在合并…",
+    "bodyHeading": "合并自 {title}"
   }
 }

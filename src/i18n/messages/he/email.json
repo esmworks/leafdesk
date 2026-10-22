@@ -245,7 +245,9 @@
     "untitled": "ללא כותרת",
     "snooze": "דחייה בשעה",
     "aiAccountTitle": "חשבון AI הוסר",
-    "aiAccountDetached": "ה־AI של סביבת העבודה כבר לא פועל על המפתח של {actor}."
+    "aiAccountDetached": "ה־AI של סביבת העבודה כבר לא פועל על המפתח של {actor}.",
+    "reviewTitle": "לבדיקה",
+    "review": "{count, plural, one {{agent} הציע שינוי לבדיקה שלך} two {שני שינויים ממתינים לבדיקה שלך, האחרון מ־{agent}} other {# שינויים ממתינים לבדיקה שלך, האחרון מ־{agent}}}"
   },
   "agentReply": {
     "aiOff": "אין באפשרותי לענות: הבינה המלאכותית כבויה בסביבת העבודה הזו.",

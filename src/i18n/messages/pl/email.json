@@ -245,7 +245,9 @@
     "untitled": "Bez tytułu",
     "snooze": "Odłóż o 1 godzinę",
     "aiAccountTitle": "Usunięto konto AI",
-    "aiAccountDetached": "AI obszaru roboczego nie działa już na kluczu użytkownika {actor}."
+    "aiAccountDetached": "AI obszaru roboczego nie działa już na kluczu użytkownika {actor}.",
+    "reviewTitle": "Do przejrzenia",
+    "review": "{count, plural, one {{agent} proponuje zmianę do przejrzenia} few {# zmiany czekają, aż je przejrzysz, najnowsza od: {agent}} many {# zmian czeka, aż je przejrzysz, najnowsza od: {agent}} other {# zmiany czeka, aż ją przejrzysz, najnowsza od: {agent}}}"
   },
   "agentReply": {
     "aiOff": "Nie mogę odpowiedzieć: AI jest wyłączone w tym obszarze roboczym.",

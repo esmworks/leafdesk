@@ -1,4 +1,4 @@
-import { and, asc, count, desc, eq, inArray, isNull, lte, ne, notInArray, sql, type SQL } from "drizzle-orm";
+import { and, asc, countDistinct, desc, eq, inArray, isNull, lte, ne, notInArray, sql, type SQL } from "drizzle-orm";
 import { db } from "@/db";
 import { page, pageLink, pageMention, pagePublication, pageReminder, user, type PageKind } from "@/db/schema";
 import { findTitle, excerpt, linkContexts, linkPlaces, linkTitle, MIN_MENTION_TITLE, type Excerpt, type LinkPlace } from "@/lib/link-context";
@@ -388,9 +388,17 @@ export type Backlink = {
   places: LinkPlace[] | null;
 };
 
-/** Pages whose body mentions or links to `pageId` that `userId` can see. */
+/**
+ * Pages whose body mentions or links to `pageId` that `userId` can see. Links to rows merged into
+ * it count as its own (server/merge-rows.ts): they open it.
+ */
 const backlinkSources = (userId: string, pageId: string) =>
-  and(eq(pageLink.targetId, pageId), isNull(page.archivedAt), eq(page.inTemplate, false), pageVisibleTo(userId));
+  and(
+    sql`${pageLink.targetId} in (select ${pageId}::text union all select m.id from page m where m.merged_into_id = ${pageId})`,
+    isNull(page.archivedAt),
+    eq(page.inTemplate, false),
+    pageVisibleTo(userId),
+  );
 
 /** Linking pages listed at a time, at most. */
 export const MAX_BACKLINKS = 100;
@@ -406,8 +414,9 @@ export async function listBacklinks(
 ): Promise<Backlink[]> {
   await requirePageAccess(userId, pageId, "view");
   const take = Math.min(Math.max(1, Math.floor(limit) || 1), MAX_BACKLINKS);
+  // A page linking to both this page and a row merged into it is listed once.
   return db
-    .select({
+    .selectDistinctOn([page.title, page.id], {
       id: page.id,
       workspaceId: page.workspaceId,
       title: page.title,
@@ -428,7 +437,7 @@ export async function listBacklinks(
 export async function countBacklinks(userId: string, pageId: string): Promise<number> {
   await requirePageAccess(userId, pageId, "view");
   const [row] = await db
-    .select({ n: count() })
+    .select({ n: countDistinct(pageLink.sourceId) })
     .from(pageLink)
     .innerJoin(page, eq(page.id, pageLink.sourceId))
     .where(backlinkSources(userId, pageId));

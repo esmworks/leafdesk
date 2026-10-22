@@ -361,7 +361,12 @@
       "helpersHelp": "Bir çalışma sırasında görevinin bir kısmını bu ajanlara en fazla {max} kez devredip yanıtlarını kullanabilir. Her biri kendi erişimi, araçları ve sınırlarıyla çalışır ve kendisi başka ajanlara soramaz.",
       "helpersEmpty": "Bu çalışma alanında henüz başka ajan yok.",
       "helperPaused": "Duraklatıldı",
-      "limitOwnersOnly": "Bu sınırı yalnızca çalışma alanı sahipleri belirler."
+      "limitOwnersOnly": "Bu sınırı yalnızca çalışma alanı sahipleri belirler.",
+      "rowChanges": "Satır değişiklikleri",
+      "rowChangesDirect": "Doğrudan yazsın",
+      "rowChangesReview": "İncelemeye önersin",
+      "rowChangesDirectHelp": "Eklediği satırlar ve değiştirdiği değerler hemen, onun adıyla kaydedilir.",
+      "rowChangesReviewHelp": "Ekleyeceği satırlar ve değiştireceği değerler, onları düzenleyebilen biri her birini onaylayana ya da reddedene kadar İncelenecekler bölümünde bekler."
     },
     "describe": {
       "button": "Ajanı anlat",
@@ -563,7 +568,10 @@
       "fromChat": "{name} kişisinin sohbet mesajı",
       "chattedBy": "sohbet eden: {name}",
       "yoursOnly": "Başlattığın çalışmaları görürsün.",
-      "waitingForOwner": "Bu çağrıyı bir çalışma alanı sahibi yanıtlar."
+      "waitingForOwner": "Bu çağrıyı bir çalışma alanı sahibi yanıtlar.",
+      "emailDrafted": "İncelenmek üzere bir e-posta taslağı yazdı:",
+      "emailFailed": "E-posta taslağı yazamadı:",
+      "emailHidden": "Açamadığın bir satırda e-posta taslağı yazdı"
     },
     "usage": {
       "thisMonth": "Bu ay: {usage}",
@@ -621,6 +629,12 @@
       "logFills": "Doldurduğu özellikler: {properties}.",
       "logFillsNone": "Günlükte doldurabileceği bir özellik yok (liste, tarih, bağlantı, kişi, metin); her kazanımın yalnızca başlığını ve metnini ekler.",
       "logLeft": "İlk {max} özellikten sonrakiler dışarıda kalır: {properties}.",
+      "chooseCompanies": "Hangi şirket ya da müşteri veritabanını doldursun? Veritabanına tam erişiminiz olmalı.",
+      "companyProperties": "Doldurulacak özellikler",
+      "companyPropertiesHelp": "En fazla {max}. Yeni bir satırda yalnızca hâlâ boş olanları doldurur, hiçbir değeri değiştirmez. Bir özelliğin açıklaması ona oraya ne yazacağını söyler; dokunmaması gerekenlerin işaretini kaldırın.",
+      "noCompanyProperties": "Bu veritabanında doldurabileceği bir özellik yok: metin, bağlantı, e-posta, telefon, sayı ya da seçenekleri olan bir seçim. Bir tane ekleyin, sonra ajanı kurun.",
+      "companyAutofilled": "Yapay zekâyla doldurma onları doldurduğu için dışarıda kalanlar: {properties}.",
+      "summaryWeb": "Şirketleri araştırmak için web erişimi alır.",
       "back": "Geri",
       "next": "İleri",
       "create": "Ajan oluştur",
@@ -753,7 +767,8 @@
         "monthly_token_limit": "Aylık token sınırı",
         "skills": "Beceriler",
         "schedules": "Zamanlamalar",
-        "shares": "Paylaşılan sayfalar"
+        "shares": "Paylaşılan sayfalar",
+        "row_changes": "Satır değişiklikleri"
       },
       "back": "Tüm sürümler",
       "compareNote": "Bu sürümden ajanın şu anki kurulumuna kadar değişenler. Geri yüklemek bu sürümdekileri geri getirir.",
@@ -1517,7 +1532,8 @@
         "deleted": "Kalıcı olarak silindi: {target}",
         "published": "Web’de yayınlandı: {target}",
         "unpublished": "Yayından kaldırıldı: {target}",
-        "publication_revoked": "Web’den kaldırıldı: {target} (yayınlayan: {subject})"
+        "publication_revoked": "Web’den kaldırıldı: {target} (yayınlayan: {subject})",
+        "rows_merged": "{count, plural, one {# satırı} other {# satırı}} {target} satırında birleştirdi"
       },
       "property": {
         "access_changed": "{target} içindeki “{property}” özelliğinin erişimi değiştirildi",
@@ -1576,6 +1592,7 @@
       },
       "api_token": {
         "created": "API anahtarı oluşturuldu: {target}",
+        "updated": "API anahtarının yetkileri değiştirildi: {target}",
         "revoked": "{hasSubject, select, yes {{subject} kişisinin API anahtarı iptal edildi: {target}} other {API anahtarı iptal edildi: {target}}}"
       },
       "automation": {
@@ -1621,6 +1638,10 @@
       "ai_account": {
         "attached": "Çalışma alanının yapay zekâsını bir yapay zekâ hesabına bağladı: {target}",
         "detached": "Çalışma alanının yapay zekâsını yapay zekâ hesabından ayırdı: {target}"
+      },
+      "review": {
+        "approved": "{kind, select, email_draft {“{agent}” ajanının {target} üzerinde hazırladığı e-postayı gönderdi} create_row {“{agent}” ajanının {target} içinde önerdiği satırı onayladı} other {“{agent}” ajanının {target} için önerdiği değişikliği onayladı}}{outcome, select, failed { (başarısız oldu)} other {}}",
+        "dismissed": "{kind, select, email_draft {“{agent}” ajanının {target} üzerinde hazırladığı e-postayı reddetti} create_row {“{agent}” ajanının {target} içinde önerdiği satırı reddetti} other {“{agent}” ajanının {target} için önerdiği değişikliği reddetti}}"
       }
     },
     "decisions": {
@@ -1693,7 +1714,10 @@
     "watchedNone": "Henüz hiçbir sayfayı izlemiyorsunuz",
     "watchedNoneDescription": "Bir sayfayı ⋯ menüsünden, bütün bir ekip alanını da kenar çubuğundaki menüsünden izleyin. Düzenlediğiniz sayfalar sizin için izlenir.",
     "watchedTeamspace": "Bu ekip alanının tüm sayfaları · {workspace}",
-    "stopWatching": "İzlemeyi bırak"
+    "stopWatching": "İzlemeyi bırak",
+    "reviewTitle": "İncelenecekler",
+    "reviewDescription": "Bir ajan, düzenleyebildiğiniz bir satırda değişiklik önerir ya da posta kutunuzdan bir e-posta taslağı hazırlar ve bu, incelemenizi bekler. Yeni öneriler, siz açana kadar bir arada toplanır.",
+    "reviewChannel": "İncelenecekler: {channel}"
   },
   "site": {
     "description": "Bu çalışma alanının yayındaki sayfalarına okunabilir tek bir adres, bir ana sayfa ve aralarında gezinme menüsü verin.",

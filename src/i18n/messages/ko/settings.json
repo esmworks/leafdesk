@@ -361,7 +361,12 @@
       "helpersHelp": "실행 중에 작업의 일부를 이 에이전트들에게 최대 {max}번까지 맡기고 그 답변을 사용할 수 있습니다. 각 에이전트는 자신의 접근 권한, 도구, 한도로 작업하며, 다른 에이전트에게 다시 요청할 수는 없습니다.",
       "helpersEmpty": "이 워크스페이스에는 아직 다른 에이전트가 없습니다.",
       "helperPaused": "일시 중지됨",
-      "limitOwnersOnly": "이 한도는 워크스페이스 소유자만 설정합니다."
+      "limitOwnersOnly": "이 한도는 워크스페이스 소유자만 설정합니다.",
+      "rowChanges": "행 변경",
+      "rowChangesDirect": "직접 적용",
+      "rowChangesReview": "검토용으로 제안",
+      "rowChangesDirectHelp": "에이전트가 추가한 행과 변경한 값은 에이전트 이름으로 바로 저장됩니다.",
+      "rowChangesReviewHelp": "추가하려는 행과 변경하려는 값은 편집 권한이 있는 사람이 하나씩 승인하거나 무시할 때까지 검토 대기에 남아 있습니다."
     },
     "describe": {
       "button": "설명으로 에이전트 만들기",
@@ -563,7 +568,10 @@
       "fromChat": "{name}의 채팅 메시지",
       "chattedBy": "{name}이(가) 채팅함",
       "yoursOnly": "내가 시작한 실행만 표시됩니다.",
-      "waitingForOwner": "이 호출은 워크스페이스 소유자가 응답합니다."
+      "waitingForOwner": "이 호출은 워크스페이스 소유자가 응답합니다.",
+      "emailDrafted": "검토할 이메일 초안을 작성했습니다:",
+      "emailFailed": "이메일 초안을 작성하지 못했습니다:",
+      "emailHidden": "열 수 없는 행에서 이메일 초안을 작성했습니다"
     },
     "usage": {
       "thisMonth": "이번 달: {usage}",
@@ -621,6 +629,12 @@
       "logFills": "{properties}을(를) 채웁니다.",
       "logFillsNone": "기록에 에이전트가 채우는 속성(목록, 날짜, 링크, 사람, 텍스트)이 없으므로 각 성과의 제목과 내용만 추가합니다.",
       "logLeft": "처음 {max}개를 넘어 제외됨: {properties}.",
+      "chooseCompanies": "어떤 회사 또는 고객 데이터베이스를 채울까요? 해당 데이터베이스에 대한 전체 액세스 권한이 필요합니다.",
+      "companyProperties": "채울 속성",
+      "companyPropertiesHelp": "최대 {max}개. 새 행에서는 아직 비어 있는 속성만 채우고 값을 바꾸지 않습니다. 속성의 설명이 무엇을 넣을지 알려 줍니다. 건드리면 안 되는 속성은 선택을 해제하세요.",
+      "noCompanyProperties": "이 데이터베이스에는 채울 수 있는 속성이 없습니다: 텍스트, 링크, 이메일, 전화번호, 숫자 또는 옵션이 있는 선택. 하나를 추가한 다음 에이전트를 설정하세요.",
+      "companyAutofilled": "AI 자동 채우기가 채우므로 제외됨: {properties}.",
+      "summaryWeb": "회사를 찾아보기 위해 웹 액세스 권한을 받습니다.",
       "back": "뒤로",
       "next": "다음",
       "create": "에이전트 만들기",
@@ -753,7 +767,8 @@
         "monthly_token_limit": "월간 토큰 한도",
         "skills": "스킬",
         "schedules": "일정",
-        "shares": "공유 페이지"
+        "shares": "공유 페이지",
+        "row_changes": "행 변경"
       },
       "back": "모든 버전",
       "compareNote": "이 버전부터 에이전트의 현재 구성까지 바뀐 내용입니다. 복원하면 이 버전의 내용으로 돌아갑니다.",
@@ -1517,7 +1532,8 @@
         "deleted": "{target}을(를) 영구 삭제했습니다",
         "published": "{target}을(를) 웹에 게시했습니다",
         "unpublished": "{target}의 게시를 취소했습니다",
-        "publication_revoked": "{target}을(를) 웹에서 내렸습니다({subject}이(가) 게시함)"
+        "publication_revoked": "{target}을(를) 웹에서 내렸습니다({subject}이(가) 게시함)",
+        "rows_merged": "행 {count}개를 {target}에 병합"
       },
       "property": {
         "access_changed": "{target}에서 “{property}”에 액세스할 수 있는 사람을 변경했습니다",
@@ -1576,6 +1592,7 @@
       },
       "api_token": {
         "created": "API 토큰 {target}을(를) 만들었습니다",
+        "updated": "API 토큰 {target}이(가) 할 수 있는 일을 변경했습니다",
         "revoked": "{hasSubject, select, yes {{subject}의 API 토큰 {target}을(를) 취소했습니다} other {API 토큰 {target}을(를) 취소했습니다}}"
       },
       "automation": {
@@ -1621,6 +1638,10 @@
       "ai_account": {
         "attached": "워크스페이스의 AI를 AI 계정 {target}에 연결했습니다",
         "detached": "워크스페이스의 AI와 AI 계정 {target}의 연결을 해제했습니다"
+      },
+      "review": {
+        "approved": "{kind, select, email_draft {에이전트 “{agent}”이(가) {target}에서 작성한 이메일 초안을 보냈습니다} create_row {에이전트 “{agent}”이(가) {target}에 제안한 행을 승인했습니다} other {에이전트 “{agent}”이(가) {target}에 제안한 변경을 승인했습니다}}{outcome, select, failed { (실패)} other {}}",
+        "dismissed": "{kind, select, email_draft {에이전트 “{agent}”이(가) {target}에서 작성한 이메일 초안을 무시했습니다} create_row {에이전트 “{agent}”이(가) {target}에 제안한 행을 무시했습니다} other {에이전트 “{agent}”이(가) {target}에 제안한 변경을 무시했습니다}}"
       }
     },
     "decisions": {
@@ -1693,7 +1714,10 @@
     "watchedNone": "아직 지켜보는 페이지가 없습니다",
     "watchedNoneDescription": "페이지는 ⋯ 메뉴에서, 팀스페이스 전체는 사이드바의 메뉴에서 지켜볼 수 있습니다. 편집한 페이지는 자동으로 지켜봅니다.",
     "watchedTeamspace": "이 팀스페이스의 모든 페이지 · {workspace}",
-    "stopWatching": "지켜보기 중지"
+    "stopWatching": "지켜보기 중지",
+    "reviewTitle": "검토 대기",
+    "reviewDescription": "내가 편집할 수 있는 행의 변경을 에이전트가 제안하거나 내 메일함에서 이메일 초안을 작성할 때. 제안은 내 검토를 기다립니다. 새 제안은 열어 볼 때까지 하나로 모입니다.",
+    "reviewChannel": "검토 대기: {channel}"
   },
   "site": {
     "description": "이 워크스페이스의 게시된 페이지에 읽기 쉬운 하나의 주소, 홈 페이지, 페이지 간 탐색을 제공합니다.",

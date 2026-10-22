@@ -82,7 +82,9 @@ import { aiConfig, AiError, complete, isAiError, promptRoomFor, takeWorkspaceCap
 import { agentChatPrompt, agentEventPrompt, agentMentionPrompt, agentRequestPrompt, agentSchedulePrompt, agentSystemPrompt, agentTaskPrompt } from "@/server/ai/prompts";
 import { aiAvailable } from "@/server/ai-writing";
 import { memoryAvailable, memoryForPrompt } from "@/server/ai-memory";
-import { applyWrite, CHAT_TOOLS, prepareWrite, runTool, workspaceMap, WRITE_TOOL_NAMES, WRITE_TOOLS, type Registry, type ToolOutcome } from "@/server/ai-tools";
+import { applyWrite, CHAT_TOOLS, prepareWrite, runTool, workspaceMap, WRITE_TOOL_NAMES, WRITE_TOOLS, type PreparedWrite, type Registry, type ToolOutcome } from "@/server/ai-tools";
+import { proposeChange } from "@/server/pending-changes";
+import { databaseOfRow, DRAFT_EMAIL, draftEmailTool, draftRowEmail, draftSender } from "./email-drafts";
 import { asAutomation } from "@/server/automations/queue";
 import { getCollab } from "@/server/collab/bridge";
 import { changeComments } from "@/server/comments";
@@ -93,7 +95,11 @@ import { recipientLocale } from "@/server/mail/locale";
 import { emailTranslator } from "@/server/mail/templates";
 import { signalInbox } from "@/server/notifications";
 import { pushNotifications } from "@/server/push";
-import type * as ops from "@/server/operations";
+import * as ops from "@/server/operations";
+import { ToolInputError } from "@/server/mcp/format";
+import { COMBINE, MAX_MERGE_ROWS } from "@/lib/merge-rows";
+import { PropertyValueError } from "@/lib/properties";
+import type { ChatWriteRecord } from "@/db/schema/ai";
 import { runClock } from "./clock";
 import { ASK_AGENT, handoffEventText, handoffFor, handoffHold } from "./handoff";
 import { chatRunHistory, closeChatTurn } from "./chat-store";
@@ -158,8 +164,52 @@ const ADD_ROW_COMMENT: AiTool = {
   },
 };
 
+const MERGE_ROWS: AiTool = {
+  name: "merge_rows",
+  description: `Merges duplicate rows of the database this run looks after into one kept row, as you. The kept row takes, for each property, the value of the row named for it (or "${COMBINE}": every row's values of a multi-value property); properties left out keep the kept row's value, or the first row's that has one. Links, comments, activity, files, email and page text of the other rows move to the kept row, and they go to the trash. Merge only rows that are clearly the same record. Counts as one change.`,
+  parameters: {
+    type: "object",
+    properties: {
+      kept_row_id: { type: "string", description: "The page_id of the row that stays (from a source)." },
+      other_row_ids: {
+        type: "array",
+        items: { type: "string" },
+        description: `The page_ids of the rows merged into it (1-${MAX_MERGE_ROWS - 1}).`,
+      },
+      properties: {
+        type: "object",
+        description: `For each property to take from another row, by name: the page_id of that row, or "${COMBINE}".`,
+        additionalProperties: { type: "string" },
+      },
+      title: { type: "string", description: "The page_id of the row whose title the kept row takes, if not its own." },
+    },
+    required: ["kept_row_id", "other_row_ids"],
+    additionalProperties: false,
+  },
+};
+
 const UPDATE_ROW = WRITE_TOOLS.find((t) => t.name === "update_row")!;
 const CREATE_ROW = WRITE_TOOLS.find((t) => t.name === "create_row")!;
+
+/**
+ * create_row and update_row of an agent whose changes wait for review: the same, proposing the
+ * change instead of making it, with why (for the person reviewing it).
+ */
+function proposing(tool: AiTool): AiTool {
+  const parameters = tool.parameters as { properties: Record<string, unknown>; required: string[] };
+  return {
+    ...tool,
+    description: `${tool.description.replace(/\. Returns it as a numbered source\.$/, ".").replace(/^Adds/, "Proposes adding").replace(/^Changes/, "Proposes changing")} The change waits for a person to approve it; nothing is saved until then.`,
+    parameters: {
+      ...parameters,
+      properties: { ...parameters.properties, reason: { type: "string", description: "Why you propose it, in a sentence, for the person reviewing it." } },
+      required: [...parameters.required, "reason"],
+    },
+  };
+}
+const PROPOSE_TOOLS = new Map([UPDATE_ROW, CREATE_ROW].map((t) => [t.name, proposing(t)]));
+/** The run's tools, with create_row and update_row proposing when the agent's changes wait for review. */
+const forReview = (tools: AiTool[], reviews: boolean) => (reviews ? tools.map((t) => PROPOSE_TOOLS.get(t.name) ?? t) : tools);
 const EDIT_PAGE = WRITE_TOOLS.find((t) => t.name === "edit_page")!;
 /** Leafdesk's tools on a row's run: update_row and edit_page on that row. Any run may also keep notes (memory.ts). */
 export const AGENT_TOOLS: AiTool[] = [...CHAT_TOOLS, UPDATE_ROW, EDIT_PAGE, ADD_COMMENT];
@@ -518,7 +568,6 @@ async function converse(
   // A mention's run may change the page its comment is on where the agent (and the member) may
   // edit it, and its values when it is a database row.
   const mentionEdits = mention ? await mentionEditing(agent, mention.pageId) : null;
-  const chat = run.source.kind === "chat";
   // A row no member wrote, or an event from a service no owner vouched for, may carry anyone's
   // instructions: no connection tool runs without an owner.
   const askEveryTool = rowRun ? !member : !trusted;
@@ -527,8 +576,13 @@ async function converse(
   // address.
   const webTools = webToolsFor(agent);
   const webNames = new Set(webTools.map((t) => t.name));
-  // Leafdesk's own tools this run makes only once an owner approves (none on a row's run).
-  const ownApproved: ReadonlySet<string> = new Set([...(eventRun ? EVENT_APPROVED_TOOLS : []), ...(askEveryTool ? webNames : [])]);
+  const chat = run.source.kind === "chat";
+  // Its owners chose that its changes to rows wait for review: create_row and update_row propose
+  // them (pending-changes.ts). A chat's changes are still made at once: the person is there, and asked.
+  const proposes = agent.rowChanges === "review" && !chat;
+  // Leafdesk's own tools this run makes only once an owner approves (none on a row's run). A row an
+  // event's run proposes waits for review instead: nothing to approve before then.
+  const ownApproved: ReadonlySet<string> = new Set([...(eventRun && !proposes ? EVENT_APPROVED_TOOLS : []), ...(askEveryTool ? webNames : [])]);
   // The run's own time, from now: the wait for an answer doesn't count, nor (up to a point) the
   // wait for agents it asks.
   const clock = runClock(databaseId ? SCHEDULED_RUN_TIMEOUT_MS : AGENT_RUN_TIMEOUT_MS);
@@ -552,8 +606,19 @@ async function converse(
   const mentionTools = mentionEdits?.edits ? [EDIT_PAGE, ...(mentionEdits.row ? [UPDATE_ROW] : [])] : [];
   // Other agents it may ask; none on a helper's run.
   const handoff = await handoffFor(agent, run, { bound, trusted: !askEveryTool, clock, runHelper: runInSlot });
+  const ownTools = rowRun ? AGENT_TOOLS : databaseId ? SCHEDULED_DATABASE_TOOLS : eventRun ? EVENT_TOOLS : chatWrites ? [...CHAT_TOOLS, ...WRITE_TOOLS] : [...CHAT_TOOLS, ...mentionTools];
+  const reviews = proposes && ownTools.some((t) => PROPOSE_TOOLS.has(t.name));
+  // A run on a row, or a schedule's on a database, that works for someone with a mailbox where mail
+  // is matched to the rows drafts email from it; each draft waits for them (email-drafts.ts).
+  const draftDatabase = databaseId ?? (isRowRun(run.source) ? await databaseOfRow(run.source.rowId) : null);
+  const sender = await draftSender(member, run.workspaceId, draftDatabase);
+  // A schedule's run on a database merges duplicates there only where the agent may edit it, and
+  // not when its changes wait for review: a merge can't be proposed.
+  const merges = !rowRun && !proposes && databaseId !== null && hasLevel((await pageAccessOf(agent.userId, databaseId)).level, "edit");
   const tools = [
-    ...(rowRun ? AGENT_TOOLS : databaseId ? SCHEDULED_DATABASE_TOOLS : eventRun ? EVENT_TOOLS : chatWrites ? [...CHAT_TOOLS, ...WRITE_TOOLS] : [...CHAT_TOOLS, ...mentionTools]),
+    ...forReview(ownTools, proposes),
+    ...(merges ? [MERGE_ROWS] : []),
+    ...(sender ? [draftEmailTool(sender, { anyRow: Boolean(databaseId) })] : []),
     ...(remembers ? AGENT_MEMORY_TOOLS : []),
     ...webTools,
     ...(handoff ? [handoff.tool] : []),
@@ -576,6 +641,8 @@ async function converse(
     web: webTools.length ? { search: webNames.has(WEB_TOOL_NAMES.search) } : undefined,
     skills: skillSet.skills,
     remembers,
+    reviews,
+    drafts: Boolean(sender),
   });
   const toolsSize = tools.reduce((n, t) => n + t.description.length + JSON.stringify(t.parameters).length, 0);
   // The model its owners chose: every turn of every run of the agent's goes to it (features.ts).
@@ -649,6 +716,34 @@ async function converse(
     messages = [{ role: "user", content: agentEventPrompt({ task: run.prompt, event: await eventText(run), body, map, memory: memory.text }) }];
   }
 
+  /**
+   * Keeps a checked create_row or update_row for review rather than making it (pending-changes.ts):
+   * the person the run works for hears about it, else whoever made the agent, else the owners.
+   */
+  const propose = async (prepared: PreparedWrite, call: { arguments: Record<string, unknown> }): Promise<CallResult> => {
+    const row = prepared.row;
+    if (!row) return { content: "This change can't be proposed.", isError: true };
+    const reason = typeof call.arguments.reason === "string" ? call.arguments.reason.trim() : "";
+    if (!reason) return { content: "Give a reason: why you propose this change, for the person reviewing it. Nothing was proposed.", isError: true };
+    const { replaced } = await proposeChange({
+      workspaceId: run.workspaceId,
+      kind: row.kind,
+      databaseId: row.databaseId,
+      rowId: row.rowId,
+      payload: row.payload,
+      before: row.before,
+      reason,
+      source: { kind: "agent_run", runId: run.id, automationRunId: run.source.kind === "automation" ? run.source.automationRunId : null },
+      agent: { id: agent.id, userId: agent.userId },
+      runId: run.id,
+      for: [member, agent.createdBy],
+    });
+    return {
+      content: `${replaced ? "Proposed again, in place of your earlier proposal for this row" : "Proposed"}: it waits for a person to approve it under For review and isn't made yet. Don't propose it again.`,
+      step: { ...prepared.record, outcome: "proposed", pageId: row.rowId },
+    };
+  };
+
   /** Answers one tool call; null when it must wait for approval. */
   const answer = async (call: AiToolCall, approved: { userId: string } | null): Promise<CallResult | null> => {
     const external = toolset.byName.get(call.name);
@@ -687,6 +782,15 @@ async function converse(
       if (!out.isError) writes += 1;
       return out;
     }
+    // A row an event's run would add, proposed for review.
+    if (proposes && eventRun && call.name === CREATE_ROW.name) {
+      if (writes >= maxWrites) return { content: `You have made ${maxWrites} changes, the most one run may make. Finish now.`, isError: true };
+      const prepared = await prepareWrite(ctx, run.workspaceId, null, call);
+      if (!("action" in prepared)) return prepared;
+      const out = await propose(prepared, call);
+      if (!out.isError) writes += 1;
+      return out;
+    }
     if (ownApproved.has(call.name)) {
       if (writes >= maxWrites) return { content: `You have made ${maxWrites} changes, the most one run may make. Finish now.`, isError: true };
       // Checked first, so a call that can't be made goes back to the agent rather than to an owner.
@@ -702,7 +806,32 @@ async function converse(
     const mentionWrite = mention && mentionTools.some((t) => t.name === call.name);
     if ((rowRun || databaseId || mentionWrite) && (call.name === "update_row" || call.name === "edit_page" || call.name === "add_comment")) {
       if (writes >= maxWrites) return { content: `You have made ${maxWrites} changes, the most one run may make. Finish now.`, isError: true };
-      const out: CallResult = call.name === "add_comment" ? await addComment(agent, run, call.arguments) : await changeRow(ctx, run, call);
+      const out: CallResult =
+        call.name === "add_comment" ? await addComment(agent, run, call.arguments) : await changeRow(ctx, run, call, proposes && call.name === UPDATE_ROW.name ? propose : null);
+      if (!out.isError) writes += 1;
+      return out;
+    }
+    if (sender && call.name === DRAFT_EMAIL) {
+      if (writes >= maxWrites) return { content: `You have made ${maxWrites} changes, the most one run may make. Finish now.`, isError: true };
+      const rowId = databaseId ? (typeof call.arguments.row_id === "string" ? call.arguments.row_id.trim() : "") : isRowRun(run.source) ? run.source.rowId : "";
+      if (databaseId && !(await isRowOf(rowId, databaseId))) {
+        return { content: `You may draft email only on rows of the database this run looks after (database_id ${databaseId}).`, isError: true };
+      }
+      const out = await draftRowEmail({
+        workspaceId: run.workspaceId,
+        agent: { id: agent.id, userId: agent.userId },
+        runId: run.id,
+        automationRunId: run.source.kind === "automation" ? run.source.automationRunId : null,
+        sender,
+        rowId,
+        args: call.arguments,
+      });
+      if (!out.isError) writes += 1;
+      return out;
+    }
+    if (databaseId && call.name === MERGE_ROWS.name && tools.includes(MERGE_ROWS)) {
+      if (writes >= maxWrites) return { content: `You have made ${maxWrites} changes, the most one run may make. Finish now.`, isError: true };
+      const out = await mergeRowsTool(ctx, agent, databaseId, call.arguments);
       if (!out.isError) writes += 1;
       return out;
     }
@@ -874,7 +1003,12 @@ async function isRowOf(rowId: string, databaseId: string) {
  * database it looks after. A row's text
  * changed shows on its page for review, as any AI change does.
  */
-async function changeRow(ctx: ops.OperationContext, run: Run, call: { name: string; arguments: Record<string, unknown> }): Promise<ToolOutcome> {
+async function changeRow(
+  ctx: ops.OperationContext,
+  run: Run,
+  call: { name: string; arguments: Record<string, unknown> },
+  propose: ((prepared: PreparedWrite, call: { arguments: Record<string, unknown> }) => Promise<CallResult>) | null,
+): Promise<CallResult> {
   const given = call.name === "edit_page" ? call.arguments.page_id : call.arguments.row_id;
   const rowId = typeof given === "string" ? given.trim() : "";
   const databaseId = scheduledDatabase(run.source);
@@ -893,8 +1027,44 @@ async function changeRow(ctx: ops.OperationContext, run: Run, call: { name: stri
   }
   const prepared = await prepareWrite(ctx, run.workspaceId, null, call);
   if (!("action" in prepared)) return prepared;
+  // The agent's changes wait for review: kept, not made.
+  if (propose) return propose(prepared, call);
   const registry: Registry = { sources: [], byKey: new Map() };
   return asAutomation(() => applyWrite(prepared, "approve", registry));
+}
+
+/**
+ * merge_rows on a schedule's run: rows of the database it looks after only, made at once and
+ * starting no automations, as update_row is. The merge checks the agent's access to every row.
+ */
+async function mergeRowsTool(ctx: ops.OperationContext, agent: Agent, databaseId: string, args: Record<string, unknown>): Promise<CallResult> {
+  const keptId = typeof args.kept_row_id === "string" ? args.kept_row_id.trim() : "";
+  const others = Array.isArray(args.other_row_ids) ? args.other_row_ids.filter((v): v is string => typeof v === "string").map((v) => v.trim()) : [];
+  const choices =
+    args.properties && typeof args.properties === "object" && !Array.isArray(args.properties)
+      ? Object.fromEntries(Object.entries(args.properties as Record<string, unknown>).filter((e): e is [string, string] => typeof e[1] === "string"))
+      : undefined;
+  const title = typeof args.title === "string" && args.title.trim() ? args.title.trim() : undefined;
+  const record = (outcome: "done" | "failed") =>
+    ({ kind: "write", action: "mergeRows", outcome, targetId: keptId || null, pageId: outcome === "done" ? keptId : null, title: null, changes: [] }) satisfies ChatWriteRecord;
+  for (const id of [keptId, ...others]) {
+    if (!(await isRowOf(id, databaseId))) {
+      return { content: `You may merge only rows of the database this run looks after (database_id ${databaseId}). Nothing was merged.`, isError: true };
+    }
+  }
+  try {
+    // The heading over each merged body is in the language of the person who set the agent up.
+    const locale = agent.createdBy ? await recipientLocale(agent.createdBy, null) : undefined;
+    const out = await asAutomation(() =>
+      ops.mergeRows(ctx, { database_id: databaseId, kept_row_id: keptId, other_row_ids: others, properties: choices, title, dry_run: false }, { locale }),
+    );
+    return { content: `Merged ${others.length} ${others.length === 1 ? "row" : "rows"} into the row ${keptId}: ${JSON.stringify(out)}`, step: record("done") };
+  } catch (error) {
+    if (error instanceof AccessError || error instanceof PropertyValueError || error instanceof ToolInputError) {
+      return { content: `Nothing was merged: ${error.message}`, isError: true, step: record("failed") };
+    }
+    throw error;
+  }
 }
 
 /** add_comment: a new comment thread, as the agent, on the run's row (or a row of the database a schedule's run looks after). */

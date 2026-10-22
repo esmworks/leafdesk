@@ -17,7 +17,9 @@
     "import": "Import",
     "graph": "Graph",
     "skills": "Skills",
-    "more": "More"
+    "more": "More",
+    "review": "For review",
+    "reviewCount": "{count, plural, one {# change waits for your review} other {# changes wait for your review}}"
   },
   "tabs": {
     "label": "Sidebar",
@@ -79,7 +81,9 @@
     "deletePermanently": "Delete permanently",
     "confirmDelete": "Delete permanently? This cannot be undone.",
     "deletesIn": "Deleted in {count, plural, one {# day} other {# days}}",
-    "deletesSoon": "Deleted soon"
+    "deletesSoon": "Deleted soon",
+    "mergedInto": "Merged into {title}",
+    "restoreMerged": "Restore as a separate row. Links, comments, activity and email that moved to “{title}” stay there."
   },
   "newWorkspace": {
     "title": "New workspace",
@@ -167,6 +171,8 @@
     "reportGone": "The run is no longer kept.",
     "aiAccountTitle": "AI account removed",
     "aiAccountDetached": "The workspace's AI no longer runs on {actor}'s key. Choose another AI account in Settings.",
+    "reviewTitle": "For review",
+    "review": "{count, plural, one {{agent} proposed a change for your review} other {# changes wait for your review, the latest from {agent}}}",
     "automationRun": "Automation “{name}”"
   },
   "templates": {

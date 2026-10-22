@@ -57,6 +57,9 @@ export const DATABASE_ERROR_CODES = [
   "invalidCheckbox",
   "invalidDate",
   "unknownOption",
+  "optionUnavailable",
+  "invalidDependency",
+  "invalidDescription",
   "unknownProperty",
   "unsupportedType",
   "notADatabase",
@@ -105,6 +108,11 @@ export const DATABASE_ERROR_CODES = [
   "agentOwnersOnly",
   "invalidRepeat",
   "tooManySchedules",
+  "mergeRowCount",
+  "mergeRowsInvalid",
+  "mergeRowsReadOnly",
+  "mergeLinksBlocked",
+  "mergeChoiceInvalid",
 ] as const;
 export type DatabaseErrorCode = (typeof DATABASE_ERROR_CODES)[number];
 export type DatabaseErrorParams = Record<string, string>;

@@ -88,7 +88,8 @@
     "muteHint": "Smetti di ricevere avvisi sulle nuove risposte in questa discussione. Si riattiva se rispondi qui o se qualcuno ti menziona qui.",
     "unmuteHint": "Ricevi di nuovo avvisi sulle nuove risposte in questa discussione.",
     "muted": "Risposte silenziate",
-    "mutedHint": "Non ricevi avvisi sulle risposte in questa discussione finché non rispondi qui o qualcuno non ti menziona qui."
+    "mutedHint": "Non ricevi avvisi sulle risposte in questa discussione finché non rispondi qui o qualcuno non ti menziona qui.",
+    "mergedFrom": "Da «{title}»"
   },
   "archived": {
     "banner": "Questa pagina è nel cestino.",
@@ -167,7 +168,8 @@
       "beforeAiEdit": "Prima della modifica dell’IA",
       "beforeAiEditBy": "Prima della modifica di {client}",
       "beforeAssistantEdit": "Prima della modifica dell’assistente IA",
-      "beforeMarkdownEdit": "Prima della modifica in Markdown"
+      "beforeMarkdownEdit": "Prima della modifica in Markdown",
+      "beforeMerge": "Prima di unire righe"
     },
     "empty": "Ancora nessuna versione. Le versioni vengono salvate automaticamente mentre modifichi e prima che un’app di IA cambi questa pagina.",
     "restore": "Ripristina questa versione",

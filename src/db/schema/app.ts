@@ -453,6 +453,12 @@ export const page = pgTable(
     isSkill: boolean("is_skill").notNull().default(false),
     /** What the skill is for and when to use it; empty reads as the start of the body. */
     skillDescription: text("skill_description").notNull().default(""),
+    /**
+     * Database rows merged into another row (server/merge-rows.ts): the row they were merged into.
+     * Such a row is in the trash; links and mentions that still name it open that row instead.
+     * Cleared when the row is taken out of the trash, as a row of its own again.
+     */
+    mergedIntoId: text("merged_into_id").references((): AnyPgColumn => page.id, { onDelete: "set null" }),
     createdBy: text("created_by").references(() => user.id, { onDelete: "set null" }),
     updatedBy: text("updated_by").references(() => user.id, { onDelete: "set null" }),
     ...timestamps,
@@ -469,6 +475,7 @@ export const page = pgTable(
     index("page_skill_idx").on(t.workspaceId).where(sql`${t.isSkill}`),
     index("page_outdated_idx").on(t.workspaceId).where(sql`${t.outdatedAt} is not null`),
     index("page_search_vector_idx").using("gin", t.searchVector),
+    index("page_merged_into_idx").on(t.mergedIntoId).where(sql`${t.mergedIntoId} is not null`),
   ],
 );
 
@@ -476,8 +483,12 @@ export const page = pgTable(
 export const pageColumns = (({ searchVector: _searchVector, ...rest }) => rest)(getTableColumns(page));
 
 export { PROPERTY_TYPES, type PropertyType, type StatusGroup };
-/** An option of a select, multi-select or status property. Status options belong to a `group`. */
-export type SelectOption = { id: string; name: string; color: string; group?: StatusGroup };
+/**
+ * An option of a select, multi-select or status property. Status options belong to a `group`.
+ * An option of a property that depends on another (PropertyOptions `dependsOn`) is offered only
+ * while the row's value of that property is one of `parentOptionIds`; without any, always.
+ */
+export type SelectOption = { id: string; name: string; color: string; group?: StatusGroup; parentOptionIds?: string[] };
 /** One entry of a checklist value; the value is a list of these, in order. */
 export type ChecklistItem = { id: string; text: string; checked: boolean };
 /**
@@ -572,7 +583,18 @@ export type DateOptions = {
  */
 export type DateReminder = { daysBefore: number; timeZone: string; since: string };
 export type PropertyOptions = {
+  /**
+   * Any property: what it holds and how to fill it, in plain text ("New until we've called them").
+   * Shown as a hint by its name, and given to AI that writes values (autofill, chat, agents, MCP).
+   */
+  description?: string;
   options?: SelectOption[];
+  /**
+   * Select and multi-select properties: the select property of the same database whose value
+   * decides which of this one's options a row may have (each option's `parentOptionIds`, see
+   * lib/dependent-options). Ignored while that property is deleted or no longer a select.
+   */
+  dependsOn?: string;
   relation?: RelationConfig;
   formula?: FormulaConfig;
   rollup?: RollupConfig;
@@ -837,8 +859,9 @@ export const databaseView = pgTable(
 /**
  * `before_ai_edit`: saved before the editor's AI writing assistant applied a suggestion.
  * `before_markdown_edit`: saved before the body was written from its Markdown source.
+ * `before_merge`: saved before other rows were merged into this row (server/merge-rows.ts).
  */
-export type SnapshotReason = "auto" | "before_mcp_write" | "before_restore" | "before_ai_edit" | "manual" | "before_markdown_edit";
+export type SnapshotReason = "auto" | "before_mcp_write" | "before_restore" | "before_ai_edit" | "manual" | "before_markdown_edit" | "before_merge";
 
 export const pageSnapshot = pgTable(
   "page_snapshot",
@@ -898,6 +921,11 @@ export const rowActivity = pgTable(
      */
     actorUserId: text("actor_user_id").references(() => user.id, { onDelete: "set null" }),
     actorKind: text("actor_kind").$type<RowActivityActor>().notNull(),
+    /**
+     * When the change was proposed for review and a person approved it (pending_change): the
+     * agent's user that proposed it; `actorUserId` is who approved it.
+     */
+    proposedBy: text("proposed_by").references(() => user.id, { onDelete: "set null" }),
     kind: text("kind").$type<RowActivityKind>().notNull(),
     /**
      * The property, for `property` entries. No foreign key: a deleted property's entries come back
@@ -908,13 +936,20 @@ export const rowActivity = pgTable(
     propertyType: text("property_type").$type<PropertyType>(),
     oldValue: jsonb("old_value"),
     newValue: jsonb("new_value"),
+    /**
+     * Entries that came with a row merged into this one (server/merge-rows.ts): that row, and its
+     * title then. No foreign key, like `databaseId`: the merged row may be deleted for good later,
+     * and its title still says where the entry came from. Null for the row's own entries.
+     */
+    mergedFromId: text("merged_from_id"),
+    mergedFromTitle: text("merged_from_title"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [
     // A row's feed, newest first; also the newest entry about a value, for merging.
     index("row_activity_row_time_idx").on(t.rowId, t.createdAt.desc(), t.id.desc()),
     check("row_activity_actor_kind_check", sql`${t.actorKind} in ('user', 'agent', 'automation', 'ai', 'form')`),
-    check("row_activity_kind_check", sql`${t.kind} in ('created', 'title', 'property')`),
+    check("row_activity_kind_check", sql`${t.kind} in ('created', 'title', 'property', 'merged')`),
     check("row_activity_property_check", sql`(${t.kind} = 'property') = (${t.propertyId} is not null)`),
   ],
 );

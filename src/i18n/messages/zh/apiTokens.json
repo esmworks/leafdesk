@@ -9,10 +9,6 @@
     "name": "名称",
     "namePlaceholder": "例如：周报脚本",
     "access": "访问权限",
-    "read": "只读",
-    "readHint": "读取页面、数据库、行和评论。",
-    "write": "读写",
-    "writeHint": "还可以创建和更改页面、行和评论，将页面移到回收站，以及（作为工作区所有者）更改智能体并让它们运行。",
     "workspace": "工作区",
     "allWorkspaces": "我的所有工作区",
     "expiry": "有效期",
@@ -35,7 +31,8 @@
     "neverUsed": "从未使用",
     "expires": "将于 {date} 过期",
     "expired": "已于 {date} 过期",
-    "noExpiry": "永不过期"
+    "noExpiry": "永不过期",
+    "legacy": "在按资源设置访问权限之前创建"
   },
   "revoke": "撤销",
   "revoking": "正在撤销…",
@@ -47,7 +44,8 @@
     "workspace": "你不是该工作区的成员。",
     "expiry": "请选择令牌的过期时间。",
     "limit": "你的令牌数量已达上限。请先撤销一个。",
-    "generic": "无法创建令牌。请重试。"
+    "generic": "无法创建令牌。请重试。",
+    "notFound": "此令牌已不存在。"
   },
   "docsPage": {
     "metaTitle": "REST API",
@@ -68,6 +66,66 @@
     "name": "名称",
     "type": "类型",
     "description": "描述",
-    "required": "必填"
+    "required": "必填",
+    "scopes": "权限范围",
+    "scope": "权限范围",
+    "access": "访问权限",
+    "read": "读取",
+    "write": "写入",
+    "inHeader": "请求头"
+  },
+  "scopes": {
+    "presets": {
+      "readAll": "读取全部",
+      "all": "读写全部"
+    },
+    "read": "读取",
+    "write": "写入",
+    "toggle": "{access}：{resource}",
+    "resources": {
+      "workspaces": {
+        "name": "工作区",
+        "hint": "工作区及其团队空间和群组。"
+      },
+      "pages": {
+        "name": "页面",
+        "hint": "页面、子页面和每日笔记；写入也包括语音笔记。"
+      },
+      "search": {
+        "name": "搜索",
+        "hint": "在页面和行中搜索。"
+      },
+      "databases": {
+        "name": "数据库",
+        "hint": "数据库的属性和视图。"
+      },
+      "rows": {
+        "name": "行",
+        "hint": "查询行并读取其动态；写入会添加和更改行。"
+      },
+      "comments": {
+        "name": "评论",
+        "hint": "评论线程；写入会发起线程并回复。"
+      },
+      "agents": {
+        "name": "智能体",
+        "hint": "智能体的设置、运行、计划和共享。"
+      }
+    },
+    "summary": {
+      "read": "{resource}：读取",
+      "readWrite": "{resource}：读写"
+    }
+  },
+  "edit": {
+    "button": "更改访问权限",
+    "title": "更改 {name} 可以做的事",
+    "body": "令牌的密钥保持不变；更改从它的下一个请求起生效。",
+    "legacy": "此令牌创建于按资源选择访问权限之前，因此它可以读取所有内容（如果是为写入而创建，还可以写入所有内容），包括以后新增的内容。保存后，它将只拥有你在这里选择的权限。",
+    "errors": {
+      "scopes": "请至少为令牌选择一项权限。",
+      "notFound": "此令牌已不存在。",
+      "generic": "无法更改令牌，请重试。"
+    }
   }
 }

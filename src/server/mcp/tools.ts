@@ -63,6 +63,7 @@ import { valueText } from "@/lib/row-activity";
 import { diffToText, wordsToText } from "@/lib/page-diff";
 import { isGroupable, sortStatusOptions, statusColor } from "@/lib/properties";
 import { holdsOptions, holdsTimestamp, STATUS_GROUPS } from "@/lib/property-types";
+import { MAX_PROPERTY_DESCRIPTION } from "@/lib/property-description";
 import { CALENDAR_MODES, CARD_SIZES, OPEN_ROWS, ROW_VIEW_TYPES, TIMELINE_ZOOMS, VIEW_TYPES } from "@/lib/views";
 import { getCollab, type WriteActor } from "@/server/collab/bridge";
 import { asWrite } from "@/server/connected-app";
@@ -165,6 +166,9 @@ import {
   withAutomationErrors,
 } from "./automations";
 import { env } from "@/lib/env";
+import { reviewPath } from "@/lib/pending-changes";
+import * as review from "@/server/pending-changes";
+import { describePendingChange, editOf, reviewInputs, withReviewErrors } from "./reviews";
 import { APP_INFO } from "@/server/app-info";
 import { CONNECT_SCOPES, FILES_SCOPE, NOTIFICATIONS_SCOPE, WRITE_SCOPE, type McpPrincipal } from "./principal";
 import {
@@ -180,7 +184,7 @@ import {
 } from "./query";
 
 const INSTRUCTIONS = `Leafdesk is a workspace of pages and databases. Each user belongs to one or more workspaces.
-Pages form a tree inside a workspace. A database is a special page whose children are rows; rows are pages with typed properties (text, number, select, multi_select, status, date, checkbox, url, email, phone, checklist, files, relation, person, created_by, created_time, last_edited_by, last_edited_time, formula, rollup). A relation links rows to rows of another database in the same workspace; two-way relations show the links on both databases. A person property assigns rows to people of the workspace; "me" stands for the signed-in user. A status is a select whose options belong to the groups todo, in_progress and done. A checklist holds items that can be ticked off. A files property holds files uploaded to the workspace (images show as thumbnails); its values read as [{name, url}]. created_by, created_time, last_edited_by and last_edited_time show who created or last edited each row and when; they are filled in automatically and can't be written. A formula property computes its value from the row's other properties, and a rollup calculates over the rows a relation links to (see add_database_property); neither can be written. A number property's number_format (see get_database), which a formula giving a number can have too, only changes how the app shows it: a percent property holds fractions (0.15 is 15%) and filters on it compare percent points (15). A date property holds a day (YYYY-MM-DD), a time (an ISO timestamp, returned in UTC: 2026-10-12T11:30:00.000Z), or a range of either written \"start/end\" (2026-10-12/2026-10-14; start and end both days or both times, the end not before the start). Write times with Z or an offset (2026-10-12T14:30+03:00); {\"start\", \"end\"} objects are accepted too. Its date_options can show it relatively and remind the row's people before it (a range: before its start; a time: at its time of day).
+Pages form a tree inside a workspace. A database is a special page whose children are rows; rows are pages with typed properties (text, number, select, multi_select, status, date, checkbox, url, email, phone, checklist, files, relation, person, created_by, created_time, last_edited_by, last_edited_time, formula, rollup). A relation links rows to rows of another database in the same workspace; two-way relations show the links on both databases. A person property assigns rows to people of the workspace; "me" stands for the signed-in user. A status is a select whose options belong to the groups todo, in_progress and done. A property may have a description saying what it holds and how to fill it (see get_database): follow it when writing values. A select may depend on another select ("City" on "Country"): a row may hold only the options that go with its value of that one. A checklist holds items that can be ticked off. A files property holds files uploaded to the workspace (images show as thumbnails); its values read as [{name, url}]. created_by, created_time, last_edited_by and last_edited_time show who created or last edited each row and when; they are filled in automatically and can't be written. A formula property computes its value from the row's other properties, and a rollup calculates over the rows a relation links to (see add_database_property); neither can be written. A number property's number_format (see get_database), which a formula giving a number can have too, only changes how the app shows it: a percent property holds fractions (0.15 is 15%) and filters on it compare percent points (15). A date property holds a day (YYYY-MM-DD), a time (an ISO timestamp, returned in UTC: 2026-10-12T11:30:00.000Z), or a range of either written \"start/end\" (2026-10-12/2026-10-14; start and end both days or both times, the end not before the start). Write times with Z or an offset (2026-10-12T14:30+03:00); {\"start\", \"end\"} objects are accepted too. Its date_options can show it relatively and remind the row's people before it (a range: before its start; a time: at its time of day).
 Start with list_workspaces or search to find ids, then get_page / list_pages / query_database. Wherever a tool takes an id (workspace_id, page_id, database_id, row_id, parent_id, view_id…), a Leafdesk link the user pasted works too (\`https://…/w/<workspace_id>/p/<page_id>\`, a view's link has \`?view=<view_id>\`).
 Teamspaces group a workspace's pages and people (list_teamspaces). A teamspace is default (everyone is in it), open (anyone can join; others can read), closed (only its members open its pages) or private (only its members know it). Its member_access is what its members get on its pages unless a page is shared otherwise (its owners and workspace owners get full access). A top-level page belongs to a teamspace, or is private to the user who made it; pages under it follow it. create_page, create_database and move_page take a teamspace_id for top-level pages ("private" for the user's private pages); without one, new top-level pages are private. Member groups (list_groups) are named sets of owners and members that pages are shared with and teamspaces joined by; someone gets the highest access they have from anywhere (their own, a group, the teamspace).
 Page bodies are read and written as Markdown. Before every content change Leafdesk saves a history snapshot, so the user can undo your edits from the page history (list_page_history / diff_page_version / restore_page_version).
@@ -188,7 +192,7 @@ Beyond plain Markdown, page bodies know a few block forms: a callout is a GitHub
 Mentions: a link to a page of this app (\`[Roadmap](/w/<workspace_id>/p/<page_id>)\`) is a page mention, which shows the page's live title (the link text you write is ignored; get_page shows the current title, or "No access" / "Deleted page"), and \`#block-<block_id>\` after it mentions one block of the page (get_page with with_block_ids shows the ids), which opens the page there; \`[[Page title]]\` also becomes a mention of the page of that title in the page's workspace when you can open one (otherwise it stays text); that link alone on its line followed by \`<!-- leafdesk:page-link -->\` is a "Link to page" block, and followed by \`<!-- leafdesk:synced-page -->\` a synced page (the page's body shown live inside this one; its text is not part of this page's Markdown, read the page itself for it). \`@Name\` with a person's name as list_users shows it mentions them (they are notified if they can open the page), and \`@YYYY-MM-DD\` is a date. Keep mentions as they are when you rewrite a page: people aren't notified twice and reminders set on dates stay. get_page lists the pages linking to a page under linked_from, with the text around the first link (context) when there is any, and around each link (contexts) when a page links more than once; linked_from_truncated says how many pages link there when not all are listed.
 check_workspace looks a workspace over for what is worth tidying (broken links, pages nothing links to, empty and long untouched pages, likely duplicates, relations to deleted rows); it changes nothing, so ask the user before fixing what it finds.
 People discuss pages in comment threads anchored to text of the page: list_comments reads them, add_comment starts a thread on quoted text or replies to one.
-list_notifications shows the user's inbox: rows someone assigned them to, pages shared with them, new comments in their threads, mentions of them, reminders they set on dates or that date properties send them, what database automations told them, what others changed in database rows they follow, edits by others to pages they watch, requests for access to pages they can share and, for owners, requests to join their workspaces.
+list_notifications shows the user's inbox: changes agents proposed for their review, pages shared with them, new comments in their threads, mentions of them, reminders they set on dates or that date properties send them, what database automations told them, what others changed in database rows they follow, edits by others to pages they watch, requests for access to pages they can share and, for owners, requests to join their workspaces.
 attach_file adds an image, video, audio or other file to a page, from a URL or base64 data, or (with property) to a row's files property. Files in page bodies show up in the Markdown with paths like /api/files/<id>; get_file reads one (text files and PDFs as text, images as images), as do the urls of a files property.
 duplicate_page copies a page with everything under it beside the original. list_pages with favorites true lists the pages the user starred; get_page says whether a page is starred.
 A page is live, archived or in the trash. Archived pages (set_page_archived) are out of date but kept, such as an old price list or a superseded offer; the pages under one, and the rows of an archived database, count as archived with it. They stay readable and editable by id or link, but search, list_pages and query_database leave them out unless include_archived is true (results then mark them archived: true), and get_page says archived. The trash is something else: archive_page moves a page to the trash, list_trash and restore_page bring it back.
@@ -355,6 +359,50 @@ function editOptions(
     options = options.map((o) => (o.id === option.id ? { ...o, group } : o));
   }
   return prop.type === "status" ? sortStatusOptions(options) : options;
+}
+
+const descriptionInput = z
+  .string()
+  .max(MAX_PROPERTY_DESCRIPTION)
+  .describe(
+    `What the property holds and how to fill it, in plain text (at most ${MAX_PROPERTY_DESCRIPTION} characters), e.g. "New until we've called them; Quoted once a quote is sent". The app shows it by the property's name, and AI writing rows (autofill, chat, agents) follows it.`,
+  );
+const dependsOnInput = z
+  .string()
+  .describe(
+    'Select and multi_select only: the name or id of another select property of the database this one depends on ("City" on "Country"); with option_parents each option is offered only with the parent options listed, and rows may hold only options that go with their parent value. When the parent value changes, values that no longer fit are cleared.',
+  );
+const optionParentsInput = z
+  .array(z.object({ option: z.string().min(1), parent_options: z.array(z.string().min(1)).max(200) }))
+  .max(200)
+  .describe("With depends_on: for each option named, the options of the parent property it goes with ([] for always). Options not named keep their lists.");
+
+/** Options with the parent options `entries` give them, by names (see dependsOnInput). */
+function withOptionParents(
+  prop: { name: string },
+  options: SelectOption[],
+  parent: { name: string; options: { options?: SelectOption[] } } | null,
+  entries: z.infer<typeof optionParentsInput>,
+) {
+  if (!parent) throw new ToolInputError(`option_parents needs depends_on: "${prop.name}" doesn't depend on another property.`);
+  const byName = (list: SelectOption[], name: string) => list.find((o) => o.name.trim().toLowerCase() === name.trim().toLowerCase());
+  const parentOptions = parent.options.options ?? [];
+  const lists = new Map<string, string[]>();
+  for (const { option, parent_options } of entries) {
+    const own = byName(options, option);
+    if (!own) throw new ToolInputError(`"${option}" is not an option of "${prop.name}". Options: ${options.map((o) => o.name).join(", ") || "none"}`);
+    lists.set(
+      own.id,
+      parent_options.map((name) => {
+        const found = byName(parentOptions, name);
+        if (!found) {
+          throw new ToolInputError(`"${name}" is not an option of "${parent.name}". Options: ${parentOptions.map((o) => o.name).join(", ") || "none"}`);
+        }
+        return found.id;
+      }),
+    );
+  }
+  return options.map((o) => (lists.has(o.id) ? { ...o, parentOptionIds: lists.get(o.id) } : o));
 }
 
 /** Layout settings of calendar, gallery and timeline views, shared by create_database_view and update_database_view. */
@@ -1035,7 +1083,7 @@ export function createMcpServer(principal: McpPrincipal) {
     {
       title: "List notifications",
       description:
-        "List the user's inbox, newest first: database rows someone assigned them to, pages someone shared with them, new comments in comment threads the user is in, mentions, reminders, notifications from database automations, changes to database rows the user follows (what changed, from what to what), edits to pages the user watches, requests for access to pages the user can share and (for owners) join requests, agents' calls waiting for approval and notes agents' runs proposed for their memory, with who did it and a link. Only the kinds the user keeps in their inbox are listed. Reading does not mark them read.",
+        "List the user's inbox, newest first: database rows someone assigned them to, pages someone shared with them, new comments in comment threads the user is in, mentions, reminders, notifications from database automations, changes to database rows the user follows (what changed, from what to what), edits to pages the user watches, requests for access to pages the user can share and (for owners) join requests, agents' calls waiting for approval, changes agents proposed for their review and notes agents' runs proposed for their memory, with who did it and a link. Only the kinds the user keeps in their inbox are listed. Reading does not mark them read.",
       inputSchema: z.object({
         workspace_id: z.string().optional().describe("Only this workspace; all of the user's workspaces when omitted."),
         unread_only: z.boolean().default(false).describe("Only notifications the user hasn't read yet."),
@@ -1110,6 +1158,21 @@ export function createMcpServer(principal: McpPrincipal) {
                 workspace_id: n.workspaceId,
                 workspace_name: n.workspaceName,
                 url: r ? `${env.appUrl}${agentRunPath(n.workspaceId, r.agentId, r.runId)}` : `${env.appUrl}/w/${n.workspaceId}/settings?tab=agents`,
+              };
+            }
+            // Changes waiting for review: list_pending_changes shows them.
+            if (n.kind === "review") {
+              const waiting = n.review?.count ?? 0;
+              return {
+                id: n.id,
+                kind: n.kind,
+                read: n.read,
+                created_at: n.createdAt.toISOString(),
+                summary: `${waiting === 1 ? "A change waits" : `${waiting} changes wait`} for the user's review, the latest proposed by the agent "${who}"; list_pending_changes shows them, and the user approves or dismisses each (approve_pending_change, dismiss_pending_change)`,
+                actor: n.actorName,
+                workspace_id: n.workspaceId,
+                workspace_name: n.workspaceName,
+                url: `${env.appUrl}${reviewPath(n.workspaceId)}`,
               };
             }
             // The workspace's own AI account is gone: owners attach another in the app.
@@ -1540,7 +1603,7 @@ export function createMcpServer(principal: McpPrincipal) {
     {
       title: "Get a database schema",
       description:
-        "Get a database's schema: its properties (name, type, option names for select / multi_select / status with the status groups, and the people a person property can hold), its views with their type, settings (grouping, dates, timeline zoom, calendar month or week, gallery cards, form questions and public link), filters and sorts, the row count, and the database's voice_note_instructions (what notes in it should cover and how they are laid out) when it has them. A restricted property says what the user may do with it in access (view_property: its values are hidden; view: read-only; edit_values: values only, not the property itself; access_per_row: rows naming the user in a person property may give more); for users with full access it also has access_settings (see set_property_access). Call this before querying or writing rows.",
+        "Get a database's schema: its properties (name, type, description when it has one: what it holds and how to fill it, which you should follow when writing rows; option names for select / multi_select / status with the status groups; for a select depending on another, depends_on and option_parents, the parent options each option goes with (options not listed always go); and the people a person property can hold), its views with their type, settings (grouping, dates, timeline zoom, calendar month or week, gallery cards, form questions and public link), filters and sorts, the row count, and the database's voice_note_instructions (what notes in it should cover and how they are laid out) when it has them. A restricted property says what the user may do with it in access (view_property: its values are hidden; view: read-only; edit_values: values only, not the property itself; access_per_row: rows naming the user in a person property may give more); for users with full access it also has access_settings (see set_property_access). Call this before querying or writing rows.",
       inputSchema: ops.inputs.databaseId,
       annotations: READ,
     },
@@ -1610,6 +1673,18 @@ export function createMcpServer(principal: McpPrincipal) {
   );
 
   server.registerTool(
+    "merge_rows",
+    {
+      title: "Merge duplicate rows",
+      description: `Merge 1-4 duplicate rows of a database into a kept row. The kept row takes, for each property, the value of the row you pick (properties: name or id → a row id of the merge, or "combine" for multi-value properties); properties left out keep the kept row's value, or the first row's that has one, and relations combine. Values are only ever taken from the rows. Two-way relations of other rows are pointed at the kept row; the other rows' comments, activity, files, email and page content come along, and they go to the trash (restoring one doesn't undo the merge). Needs edit access to every row and to the rows whose links change; properties the user can't edit keep the kept row's value. dry_run true checks the merge and reports what would move, without writing.`,
+      inputSchema: ops.inputs.mergeRows,
+      annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false },
+      scopeChallenge: requireWrite,
+    },
+    write((args) => ops.mergeRows(ctx, args)),
+  );
+
+  server.registerTool(
     "create_database",
     {
       title: "Create a database",
@@ -1658,7 +1733,7 @@ export function createMcpServer(principal: McpPrincipal) {
     {
       title: "Add a database property",
       description:
-        `Add a property (column) to a database. For select and multi_select, pass the option names. For status, pass option names (spread over the groups: the first is todo, the last done, the ones between in_progress) or {name, group} objects; without options a status gets Not started, In progress and Done. Other types ignore options. For a relation, pass related_database_id (a database in the same workspace, or this one); with two_way the related database also gets a property listing the links back. created_by, created_time, last_edited_by and last_edited_time properties fill themselves in with who created or last edited each row and when. A formula computes its value from the row's other properties: pass the expression in formula. ${FORMULA_HELP} ${ROLLUP_HELP}`,
+        `Add a property (column) to a database. For select and multi_select, pass the option names. For status, pass option names (spread over the groups: the first is todo, the last done, the ones between in_progress) or {name, group} objects; without options a status gets Not started, In progress and Done. Other types ignore options. For a relation, pass related_database_id (a database in the same workspace, or this one); with two_way the related database also gets a property listing the links back. created_by, created_time, last_edited_by and last_edited_time properties fill themselves in with who created or last edited each row and when. A formula computes its value from the row's other properties: pass the expression in formula. Any property can have a description saying what it holds and how to fill it. A select or multi_select can depend on a select property (depends_on, option_parents). ${FORMULA_HELP} ${ROLLUP_HELP}`,
       inputSchema: z.object({
         database_id: id("database"),
         name: z.string().min(1).max(100).describe("Property name; must be unique within the database."),
@@ -1676,13 +1751,35 @@ export function createMcpServer(principal: McpPrincipal) {
         rollup: rollupInput.optional().describe("Rollup only: what to calculate over which relation."),
         number_format: numberFormatInput.optional().describe(`Number, or formula giving a number: how values show. ${NUMBER_FORMAT_HELP}`),
         date_options: dateOptionsInput.optional().describe(`Date only: display and reminder. ${DATE_OPTIONS_HELP}`),
+        description: descriptionInput.optional(),
+        depends_on: dependsOnInput.optional(),
+        option_parents: optionParentsInput.optional(),
       }),
       annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
       scopeChallenge: requireWrite,
     },
-    ({ database_id, name, type, options, related_database_id, two_way, paired_property_name, formula, rollup, number_format, date_options }) =>
+    ({
+      database_id,
+      name,
+      type,
+      options,
+      related_database_id,
+      two_way,
+      paired_property_name,
+      formula,
+      rollup,
+      number_format,
+      date_options,
+      description,
+      depends_on,
+      option_parents,
+    }) =>
       runTool(async () => {
         assertWrite();
+        if (depends_on !== undefined && type !== "select" && type !== "multi_select") {
+          throw new ToolInputError("depends_on only applies to select and multi_select properties.");
+        }
+        if (option_parents !== undefined && depends_on === undefined) throw new ToolInputError("option_parents needs depends_on.");
         if (type === "relation" && !related_database_id) throw new ToolInputError("A relation needs related_database_id.");
         if (type !== "relation" && (related_database_id || paired_property_name)) {
           throw new ToolInputError("related_database_id and paired_property_name only apply to relation properties.");
@@ -1714,9 +1811,22 @@ export function createMcpServer(principal: McpPrincipal) {
           ...(type === "rollup" ? { rollup: await rollupSettings(userId, properties, rollup!) } : {}),
           ...(number_format ? { number: number_format } : {}),
           ...(date_options ? { date: dateOptionsOf(date_options) } : {}),
+          ...(description !== undefined ? { description } : {}),
         });
+        let made = created;
+        if (depends_on !== undefined) {
+          // The new property, then what it depends on (checked there) and its options' lists.
+          await databases.updateProperty(userId, created.id, { dependsOn: depends_on });
+          const stored = (await databases.getProperties(database_id)).find((p) => p.id === created.id)!;
+          const parent = properties.find((p) => p.id === stored.options.dependsOn) ?? null;
+          if (option_parents?.length) {
+            const listed = withOptionParents(stored, stored.options.options ?? [], parent, option_parents);
+            await databases.updateProperty(userId, created.id, { options: listed });
+          }
+          made = (await databases.getProperties(database_id)).find((p) => p.id === created.id)!;
+        }
         // Formulas come with their result type.
-        const after = await withAllFormulaTypes([...properties, created]);
+        const after = await withAllFormulaTypes([...properties, made]);
         const shown = after[after.length - 1];
         const lookups = await databases.getLookups(userId, [shown, ...rollupRelations(shown, after)]);
         return { database_id, property: describeProperty(shown, lookups, after, { restricted: !access.open }) };
@@ -1858,7 +1968,7 @@ export function createMcpServer(principal: McpPrincipal) {
     {
       title: "Update a database property",
       description:
-        `Rename a database property, change the options of a select / multi_select / status property (add, rename or remove options by name; for status also move options between the todo, in_progress and done groups), change a formula's expression, the number_format of a number property or a formula giving a number (null for plain numbers) and/or a date property's date_options. Renaming an option keeps it on every row that uses it; removing one clears it from those rows. Renaming a property keeps the formulas that use it working. Changing a number format never changes the stored values. ${NUMBER_FORMAT_HELP} ${DATE_OPTIONS_HELP}`,
+        `Rename a database property, change the options of a select / multi_select / status property (add, rename or remove options by name; for status also move options between the todo, in_progress and done groups), change a formula's expression, the number_format of a number property or a formula giving a number (null for plain numbers) and/or a date property's date_options, its description, or which select property a select / multi_select depends on (depends_on) and which of that property's options each of its options goes with (option_parents). Renaming an option keeps it on every row that uses it; removing one clears it from those rows. Renaming a property keeps the formulas that use it working. Changing a number format never changes the stored values. ${NUMBER_FORMAT_HELP} ${DATE_OPTIONS_HELP}`,
       inputSchema: z.object({
         database_id: id("database"),
         property: z.string().min(1).describe("Current property name or id."),
@@ -1887,11 +1997,29 @@ export function createMcpServer(principal: McpPrincipal) {
           .optional()
           .describe("Number, or formula giving a number: how values show; null for plain numbers."),
         date_options: dateOptionsInput.optional().describe("Date only: the display and reminder to change; left-out fields stay."),
+        description: descriptionInput.nullable().optional().describe("The new description (null or \"\" for none). " + descriptionInput.description),
+        depends_on: dependsOnInput.nullable().optional().describe(`${dependsOnInput.description} null: depend on nothing. Changing it forgets the options' lists.`),
+        option_parents: optionParentsInput.optional(),
       }),
       annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false },
       scopeChallenge: requireWrite,
     },
-    ({ database_id, property, name, add_options, rename_options, remove_options, option_groups, formula, rollup, number_format, date_options }) =>
+    ({
+      database_id,
+      property,
+      name,
+      add_options,
+      rename_options,
+      remove_options,
+      option_groups,
+      formula,
+      rollup,
+      number_format,
+      date_options,
+      description,
+      depends_on,
+      option_parents,
+    }) =>
       runTool(async () => {
         assertWrite();
         const { properties, access, propertyAccess } = await databases.getDatabase(userId, database_id);
@@ -1903,7 +2031,16 @@ export function createMcpServer(principal: McpPrincipal) {
           rollup?: Partial<databases.RollupInput>;
           number?: NumberFormat | null;
           date?: DateOptionsInput;
+          description?: string | null;
+          dependsOn?: string | null;
         } = {};
+        if (description !== undefined) patch.description = description;
+        if (depends_on !== undefined) {
+          if (prop.type !== "select" && prop.type !== "multi_select") {
+            throw new ToolInputError(`"${prop.name}" is a ${prop.type} property; only select and multi_select can depend on another property.`);
+          }
+          patch.dependsOn = depends_on;
+        }
         if (name !== undefined && name.trim() !== prop.name) {
           const needle = name.trim().toLowerCase();
           if (needle === "title" || properties.some((p) => p.id !== prop.id && p.name.trim().toLowerCase() === needle)) {
@@ -1954,8 +2091,27 @@ export function createMcpServer(principal: McpPrincipal) {
           if (prop.type !== "date") throw new ToolInputError(`"${prop.name}" is a ${prop.type} property; only dates have date options.`);
           patch.date = dateOptionsOf(date_options);
         }
-        if (!patch.name && !patch.options && !patch.formula && !patch.rollup && patch.number === undefined && !patch.date) {
-          throw new ToolInputError("Nothing to change: provide name, option changes, formula, rollup, number_format or date_options.");
+        if (option_parents?.length) {
+          const parentRef = patch.dependsOn !== undefined ? patch.dependsOn : prop.options.dependsOn;
+          const needle = parentRef?.trim().toLowerCase();
+          const parent = parentRef
+            ? (properties.find((p) => p.id === parentRef) ?? properties.find((p) => p.name.trim().toLowerCase() === needle) ?? null)
+            : null;
+          patch.options = withOptionParents(prop, patch.options ?? prop.options.options ?? [], parent, option_parents);
+        }
+        if (
+          !patch.name &&
+          !patch.options &&
+          !patch.formula &&
+          !patch.rollup &&
+          patch.number === undefined &&
+          !patch.date &&
+          patch.description === undefined &&
+          patch.dependsOn === undefined
+        ) {
+          throw new ToolInputError(
+            "Nothing to change: provide name, option changes, formula, rollup, number_format, date_options, description, depends_on or option_parents.",
+          );
         }
         const { date: storedDate } = await databases.updateProperty(userId, prop.id, patch);
         const after = await withAllFormulaTypes(
@@ -1975,7 +2131,12 @@ export function createMcpServer(principal: McpPrincipal) {
                 },
           ),
         );
-        const updated = after.find((p) => p.id === prop.id)!;
+        // Descriptions and dependencies as stored (cleaned there).
+        const stored = patch.description !== undefined || patch.dependsOn !== undefined || option_parents?.length
+          ? (await databases.getProperties(database_id)).find((p) => p.id === prop.id)
+          : undefined;
+        const found = after.find((p) => p.id === prop.id)!;
+        const updated = stored ? { ...found, options: { ...found.options, ...stored.options, number: found.options.number } } : found;
         const lookups = await databases.getLookups(userId, [updated, ...rollupRelations(updated, after)]);
         return {
           database_id,
@@ -2246,7 +2407,7 @@ export function createMcpServer(principal: McpPrincipal) {
     {
       title: "List a workspace's agents",
       description:
-        "List the agents of a workspace: AI helpers with instructions of their own that automations run on database rows (create_automation's run_agent action takes an agent's id or name). Shows each one's name, icon, description, whether it is enabled (paused agents don't run) and archived, the model its runs use (main or fast), whether it may read the web (web_access), the id of its own user (what its changes and comments show), the agents it can ask (helper_agent_ids) and the user's access to it (your_access: full, edit or interact). Owners list every agent; members those shared with them; guests none. get_agent shows an agent's instructions, the pages shared with it and who it is shared with.",
+        "List the agents of a workspace: AI helpers with instructions of their own that automations run on database rows (create_automation's run_agent action takes an agent's id or name). Shows each one's name, icon, description, whether it is enabled (paused agents don't run) and archived, the model its runs use (main or fast), whether it may read the web (web_access), whether its runs change rows directly or propose them for review (row_changes), the id of its own user (what its changes and comments show), the agents it can ask (helper_agent_ids) and the user's access to it (your_access: full, edit or interact). Owners list every agent; members those shared with them; guests none. get_agent shows an agent's instructions, the pages shared with it and who it is shared with.",
       inputSchema: agentInputs.list,
       annotations: READ,
     },
@@ -2290,15 +2451,20 @@ export function createMcpServer(principal: McpPrincipal) {
     "create_agent",
     {
       title: "Create an agent",
-      description: `Create an agent in a workspace: a name, an optional emoji icon and description, instructions it follows on every run, the model its runs use (main by default; fast for routine, well-defined jobs), and optionally the other agents it can hand part of a task to (helper_agent_ids). It gets a user of its own, a guest of the workspace that can't sign in, and starts with nothing shared with it: share pages it should read with set_agent_access, and run it from a database automation (create_automation with a run_agent action, which shares that database with it at edit access). It reads nothing outside the workspace unless web_access is true: then its runs may read public web pages, and search the web where the server has a search service; leave it off for agents that only work with the workspace. ${RUN_NOTE} Anything shared with an agent can end up in the rows it writes, which everyone who can open those rows sees. Owners create agents, and members too where the workspace's owners let them (Settings > Agents, "Who can create agents"); the user who creates it gets full access, and it starts shared with everyone in the workspace at "interact" (share_agent changes that). Only owners set its monthly_token_limit. A workspace has at most 50.`,
+      description: `Create an agent in a workspace: a name, an optional emoji icon and description, instructions it follows on every run, the model its runs use (main by default; fast for routine, well-defined jobs), and optionally the other agents it can hand part of a task to (helper_agent_ids). It gets a user of its own, a guest of the workspace that can't sign in, and starts with nothing shared with it: share pages it should read with set_agent_access, and run it from a database automation (create_automation with a run_agent action, which shares that database with it at edit access). It reads nothing outside the workspace unless web_access is true: then its runs may read public web pages, and search the web where the server has a search service; leave it off for agents that only work with the workspace. With row_changes "review" its runs propose the rows they would add or change for a person to approve first. ${RUN_NOTE} Anything shared with an agent can end up in the rows it writes, which everyone who can open those rows sees. Owners create agents, and members too where the workspace's owners let them (Settings > Agents, "Who can create agents"); the user who creates it gets full access, and it starts shared with everyone in the workspace at "interact" (share_agent changes that). Only owners set its monthly_token_limit. A workspace has at most 50.`,
       inputSchema: agentInputs.create,
       annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
       scopeChallenge: requireWrite,
     },
-    write(({ workspace_id, web_access, helper_agent_ids, ...input }) =>
+    write(({ workspace_id, web_access, row_changes, helper_agent_ids, ...input }) =>
       withAgentErrors(async () => {
         try {
-          const agent = await agents.createAgent(userId, workspace_id, { ...input, ...(web_access !== undefined ? { webAccess: web_access } : {}), helperAgentIds: helper_agent_ids });
+          const agent = await agents.createAgent(userId, workspace_id, {
+            ...input,
+            ...(web_access !== undefined ? { webAccess: web_access } : {}),
+            ...(row_changes !== undefined ? { rowChanges: row_changes } : {}),
+            helperAgentIds: helper_agent_ids,
+          });
           return { ...describeAgent(agent, { pages: [], hidden: 0 }), ...(await helpersOf(agent.id)) };
         } catch (error) {
           if (error instanceof AccessError && !(error instanceof ConnectedAppReadOnlyError)) {
@@ -2340,7 +2506,7 @@ export function createMcpServer(principal: McpPrincipal) {
     "update_agent",
     {
       title: "Change an agent",
-      description: `Change an agent from list_agents: its name (its changes and comments show the new one), icon (null removes it), description, instructions, whether it is enabled (false pauses it: its queued runs end without doing anything), whether its runs may read the web (web_access), its monthly token limit (null removes it; owners only), the agents it can ask (helper_agent_ids: the whole list), or the model its runs use: "main", the server's main model, for work that needs judgment, or "fast", its cheaper fast model, for routine, well-defined jobs such as summaries or sorting rows (where the server has no fast model, or the workspace's AI is an own AI account, a fast agent runs on the main model). What you leave out stays as it is. ${AGENT_NOTE}`,
+      description: `Change an agent from list_agents: its name (its changes and comments show the new one), icon (null removes it), description, instructions, whether it is enabled (false pauses it: its queued runs end without doing anything), whether its runs may read the web (web_access), whether they change rows directly or propose the changes for review (row_changes), its monthly token limit (null removes it; owners only), the agents it can ask (helper_agent_ids: the whole list), or the model its runs use: "main", the server's main model, for work that needs judgment, or "fast", its cheaper fast model, for routine, well-defined jobs such as summaries or sorting rows (where the server has no fast model, or the workspace's AI is an own AI account, a fast agent runs on the main model). What you leave out stays as it is. ${AGENT_NOTE}`,
       inputSchema: agentInputs.update,
       annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },
       scopeChallenge: requireWrite,
@@ -2509,6 +2675,51 @@ export function createMcpServer(principal: McpPrincipal) {
         return { dismissed: gone, ...(await withMemory(args.agent_id)) };
       }),
     ),
+  );
+
+  server.registerTool(
+    "list_pending_changes",
+    {
+      title: "List changes waiting for review",
+      description:
+        "List the changes agents proposed in a workspace instead of making them (agents whose row_changes is \"review\", and email drafts they wrote), newest first: each with the agent, its reason, the row and database, what each value is, is now and would become (conflict: the row changed since in a value it sets), or the email, and can_approve (whether the user may answer it: approving or dismissing needs edit access to the row and to each value it sets, a new row edit access to the database; an email draft only its sender answers). Proposals expire after 30 days unanswered. status decided lists answered ones still kept.",
+      inputSchema: reviewInputs.list,
+      annotations: READ,
+    },
+    ({ workspace_id, agent_id, database_id, row_id, status, limit }) =>
+      runTool(() =>
+        withReviewErrors(async () => {
+          const changes = await review.listPendingChanges(userId, workspace_id, { filter: { agentId: agent_id, databaseId: database_id, rowId: row_id }, status, limit });
+          return { changes: changes.map(describePendingChange) };
+        }),
+      ),
+  );
+
+  server.registerTool(
+    "approve_pending_change",
+    {
+      title: "Approve a change waiting for review",
+      description:
+        "Approve a change an agent proposed (list_pending_changes) and make it as the user: the row is added or changed with the user's access, and its activity says the agent proposed it; an email draft is sent from the user's mailbox. Pass title, properties, markdown, subject or text to approve an edited version instead. A row that changed since in a value it sets (conflict: true) is refused unless force is true. Confirm with the user first: approving is what makes the change.",
+      inputSchema: reviewInputs.approve,
+      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
+      scopeChallenge: requireWrite,
+    },
+    write(({ change_id, force, ...edit }) =>
+      withReviewErrors(async () => describePendingChange(await review.approvePendingChange(userId, change_id, { payload: editOf(edit), force, actor }))),
+    ),
+  );
+
+  server.registerTool(
+    "dismiss_pending_change",
+    {
+      title: "Dismiss a change waiting for review",
+      description: "Dismiss a change an agent proposed (list_pending_changes): it is not made, and an email draft is discarded.",
+      inputSchema: reviewInputs.dismiss,
+      annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: false },
+      scopeChallenge: requireWrite,
+    },
+    write(({ change_id }) => withReviewErrors(async () => describePendingChange(await review.dismissPendingChange(userId, change_id)))),
   );
 
   server.registerTool(

@@ -245,7 +245,9 @@
     "untitled": "Sem título",
     "snooze": "Adiar 1 hora",
     "aiAccountTitle": "Conta de IA removida",
-    "aiAccountDetached": "A IA do espaço de trabalho não funciona mais com a chave de {actor}."
+    "aiAccountDetached": "A IA do espaço de trabalho não funciona mais com a chave de {actor}.",
+    "reviewTitle": "Para revisar",
+    "review": "{count, plural, one {{agent} propôs uma alteração para sua revisão} other {# alterações aguardam sua revisão, a mais recente de {agent}}}"
   },
   "agentReply": {
     "aiOff": "Não posso responder: a IA está desativada neste espaço de trabalho.",

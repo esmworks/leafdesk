@@ -575,3 +575,33 @@ describe("list, comparison and does-not-contain operators", () => {
     });
   });
 });
+
+describe("property guidance", () => {
+  const country: PropertyDef = {
+    id: "p_country",
+    name: "Country",
+    type: "select",
+    options: { description: " Where the customer is based ", options: [{ id: "o_tr", name: "Türkiye", color: "red" }] },
+  };
+  const city: PropertyDef = {
+    id: "p_city",
+    name: "City",
+    type: "select",
+    options: {
+      dependsOn: "p_country",
+      options: [
+        { id: "o_ist", name: "Istanbul", color: "blue", parentOptionIds: ["o_tr"] },
+        { id: "o_any", name: "Other", color: "gray" },
+      ],
+    },
+  };
+
+  it("describes a property's description and what it depends on", () => {
+    expect(describeProperty(country, undefined, [country, city])).toMatchObject({ description: "Where the customer is based" });
+    expect(describeProperty(city, undefined, [country, city])).toMatchObject({
+      depends_on: "Country",
+      option_parents: { Istanbul: ["Türkiye"] },
+    });
+    expect(describeProperty(city, undefined, [city])).not.toHaveProperty("depends_on");
+  });
+});

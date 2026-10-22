@@ -290,7 +290,9 @@
     "confirmTrash": "{count}行をゴミ箱に移動しますか？",
     "skipped": "変更する権限がないため、{count}行をスキップしました。",
     "pasteLeftOut": "貼り付けたセルのうち{count}個は除外されました。列に合わないか、変更する権限がありません。",
-    "exportDisabled": "このワークスペースではエクスポートがオフになっています。"
+    "exportDisabled": "このワークスペースではエクスポートがオフになっています。",
+    "merge": "統合",
+    "mergeHint": "2～5行を1行に統合"
   },
   "calculate": {
     "calculate": "計算",
@@ -393,7 +395,8 @@
     "startTime": "開始時刻",
     "endTime": "終了時刻",
     "endDateSwitch": "終了日",
-    "includeTime": "時刻を含める"
+    "includeTime": "時刻を含める",
+    "hiddenByParent": "{count}個のオプションはこの行の「{parent}」に合いません。"
   },
   "checklist": {
     "addItem": "項目を追加",
@@ -496,7 +499,16 @@
     "reminder": "リマインダー",
     "reminderNone": "リマインダーなし",
     "reminderBefore": "{days, select, 0 {当日 9:00} 1 {1日前 9:00} 7 {1週間前 9:00} other {{days}日前 9:00}}",
-    "reminderHint": "行が完了していない限り、各行に割り当てられた人、または行を追加した人に通知します。9:00はあなたのタイムゾーンでの時刻です。時刻付きの日付は、その時刻に通知します。"
+    "reminderHint": "行が完了していない限り、各行に割り当てられた人、または行を追加した人に通知します。9:00はあなたのタイムゾーンでの時刻です。時刻付きの日付は、その時刻に通知します。",
+    "description": "説明",
+    "descriptionPlaceholder": "何を入れるか、どう入力するか",
+    "dependsOn": "依存先",
+    "dependsOnNone": "なし",
+    "dependsOnHint": "各オプションがどの「{parent}」オプションに対応するかを選びます。行ではそれだけが表示されます。何も選んでいないオプションはすべてに対応します。",
+    "noParentOptions": "「{parent}」にはまだオプションがありません。",
+    "parentOptionsLabel": "「{parent}」が次のとき：",
+    "parentOptionsAll": "常に",
+    "parentOptionToggle": "「{parent}」が「{value}」のとき「{option}」を表示"
   },
   "rowProperties": {
     "noProperties": "プロパティなし",
@@ -527,7 +539,10 @@
     "unknownPerson": "不明なユーザー{count}人",
     "checked": "チェックあり",
     "unchecked": "チェックなし",
-    "checklist": "{total}件中{done}件完了"
+    "checklist": "{total}件中{done}件完了",
+    "merged": "<actor>{name}</actor>が{count}行をこの行に統合しました：<rows>{titles}</rows>",
+    "mergedFrom": "{title}から",
+    "approvedFrom": "（{name}の提案）"
   },
   "rowEmail": {
     "title": "メール",
@@ -796,7 +811,15 @@
     "webhookBlocked": "Webhookをプライベートまたはローカルネットワークのアドレスに送信することはできません。",
     "agentOwnersOnly": "エージェントを実行するアクションを追加・変更できるのは、ワークスペースのオーナーとそのエージェントを編集できる人だけです。",
     "invalidRepeat": "その繰り返しのスケジュールは無効です。曜日、時刻、タイムゾーンを確認してください。",
-    "tooManySchedules": "このワークスペースは、繰り返しテンプレートの数が上限に達しています。"
+    "tooManySchedules": "このワークスペースは、繰り返しテンプレートの数が上限に達しています。",
+    "optionUnavailable": "この行では「{property}」に「{value}」を選べません。",
+    "invalidDependency": "「{property}」は、このデータベースの別のセレクトプロパティのうち、それ自体に依存していないものにだけ依存できます。",
+    "invalidDescription": "説明は{max}文字以内にしてください。",
+    "mergeRowCount": "統合する行を{min}～{max}行選んでください。",
+    "mergeRowsInvalid": "統合できるのは、ゴミ箱にない同じデータベースの行だけです。",
+    "mergeRowsReadOnly": "{rows}は閲覧しかできません。統合するにはすべての行の編集権限が必要です。",
+    "mergeLinksBlocked": "{count}行がこれらの行にリンクしていて、あなたはそれを変更できません：{rows}。何も統合されませんでした。",
+    "mergeChoiceInvalid": "「{property}」に選んだ値は使えません。別の行の値を選んでください。"
   },
   "formula": {
     "title": "数式",
@@ -1408,5 +1431,37 @@
   "quickAdd": {
     "recognised": "タイトルから認識",
     "keep": "「{text}」をタイトルに残す"
+  },
+  "merge": {
+    "menuItem": "他の行と統合…",
+    "pickTitle": "他の行と統合",
+    "pickHint": "この行と統合する行を最大{count}行まで選んでください。",
+    "pickSearch": "行を検索",
+    "pickEmpty": "一致する行はほかにありません",
+    "pickLoading": "行を読み込み中…",
+    "pickContinue": "次へ",
+    "title": "{count}行を統合",
+    "keep": "残す行",
+    "keepHint": "ほかの行はゴミ箱に移動し、その内容は残す行に移ります。",
+    "oldest": "最も古い",
+    "created": "{date}に作成",
+    "titleField": "タイトル",
+    "combine": "すべてまとめる",
+    "hidden": "非表示",
+    "empty": "空",
+    "locked": "このプロパティは変更できないため、残す行の値がそのまま残ります。",
+    "moves": "残す行にあわせて移るもの",
+    "movesThreads": "コメントスレッド{count}件",
+    "movesActivity": "アクティビティ{count}件",
+    "movesFiles": "アップロードされたファイル{count}件",
+    "movesEmails": "メール{count}件",
+    "movesLinks": "ほかの{count}行からのリンク（サブアイテムと依存関係を含む）",
+    "movesBodies": "{count}行分のページ内容（それぞれ見出しの下に追加）",
+    "movesNothing": "ほかに移すものはありません。",
+    "subpages": "統合される行の中にある{count}ページも、一緒にゴミ箱に移動します。",
+    "trashNote": "統合された行をゴミ箱から復元すると、別の行として戻ります。移ったものは残した行に残ります。",
+    "confirm": "行を統合",
+    "merging": "統合中…",
+    "bodyHeading": "{title}から統合"
   }
 }

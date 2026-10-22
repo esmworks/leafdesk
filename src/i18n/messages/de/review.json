@@ -1,0 +1,88 @@
+{
+  "metaTitle": "Zu prüfen",
+  "heading": "Zu prüfen",
+  "description": "Änderungen, die Agenten vorgeschlagen haben, statt sie vorzunehmen. Gib eine frei, um sie in deinem Namen vorzunehmen, bearbeite sie vorher oder verwirf sie. Vorschläge, die niemand beantwortet, laufen nach 30 Tagen ab.",
+  "filters": {
+    "agent": "Agent",
+    "database": "Datenbank",
+    "status": "Anzeigen",
+    "allAgents": "Alle Agenten",
+    "allDatabases": "Alle Datenbanken",
+    "open": "Offen",
+    "decided": "Beantwortet",
+    "allRows": "Alle Zeilen anzeigen",
+    "clear": "Filter zurücksetzen"
+  },
+  "count": "{count, plural, one {# Änderung} other {# Änderungen}}",
+  "select": "Diese Änderung auswählen",
+  "selectAll": "Alle auswählen",
+  "selected": "{count} ausgewählt",
+  "approveSelected": "{count} freigeben",
+  "dismissSelected": "{count} verwerfen",
+  "bulkSkipped": "{count, plural, one {Eine Änderung konnte nicht beantwortet werden: Sie war schon beantwortet, ihre Zeile hat sich inzwischen geändert, oder du kannst sie nicht beantworten.} other {# Änderungen konnten nicht beantwortet werden: Sie waren schon beantwortet, ihre Zeilen haben sich inzwischen geändert, oder du kannst sie nicht beantworten.}}",
+  "empty": {
+    "open": "Nichts wartet auf deine Prüfung.",
+    "decided": "In den letzten 30 Tagen wurden keine Änderungen beantwortet.",
+    "filtered": "Keine Änderungen passen zu diesen Filtern."
+  },
+  "proposes": {
+    "createRow": "<agent></agent> möchte eine Zeile zu <database></database> hinzufügen",
+    "updateRow": "<agent></agent> möchte <row></row> ändern",
+    "emailDraft": "<agent></agent> hat eine E-Mail zu <row></row> entworfen"
+  },
+  "inDatabase": "in <database></database>",
+  "unknownAgent": "Ein gelöschter Agent",
+  "someone": "Jemand",
+  "viewRun": "Durchlauf ansehen",
+  "edited": "Bearbeitet",
+  "expires": "Läuft {time} ab",
+  "decided": {
+    "approved": "Freigegeben von {name} {time}",
+    "dismissed": "Verworfen von {name} {time}",
+    "expired": "Unbeantwortet abgelaufen"
+  },
+  "title": "Titel",
+  "becomes": "wird zu",
+  "changedSince": "Seit dem Vorschlag geändert, jetzt <value></value>",
+  "conflictNotice": "Diese Zeile hat sich geändert, seit der Agent das vorgeschlagen hat. Eine Freigabe überschreibt, was jetzt darin steht.",
+  "failedNote": "Sie wurde freigegeben, konnte aber nicht vorgenommen werden: {error} Bearbeite sie und gib sie erneut frei, oder verwirf sie.",
+  "failed": {
+    "error": "Etwas ist schiefgelaufen.",
+    "pageLocked": "Die Zeile ist gesperrt."
+  },
+  "email": {
+    "from": "Von",
+    "to": "An",
+    "cc": "Cc",
+    "subject": "Betreff",
+    "text": "Text",
+    "reply": "Eine Antwort auf die neueste E-Mail der Zeile"
+  },
+  "markdown": "Seitentext",
+  "notEditable": "Behalten oder auslassen; ändere den Wert danach in der Zeile.",
+  "leaveOut": "Auslassen",
+  "keep": "Behalten",
+  "approve": "Freigeben",
+  "approveAnyway": "Trotzdem freigeben",
+  "send": "Senden",
+  "edit": "Bearbeiten",
+  "save": "Bearbeitung speichern",
+  "dismiss": "Verwerfen",
+  "cannot": {
+    "email": "Nur {name} kann diesen Entwurf senden, aus dem eigenen Postfach.",
+    "row": "Du kannst diese Änderung sehen, aber zum Freigeben brauchst du Bearbeitungszugriff auf die Zeile und auf jeden Wert, den sie setzt."
+  },
+  "errors": {
+    "notFound": "Diese Änderung gibt es nicht mehr, oder du kannst sie nicht sehen.",
+    "decided": "Jemand hat diese Änderung bereits beantwortet.",
+    "conflict": "Die Zeile hat sich geändert, seit dies vorgeschlagen wurde. Sieh sie dir noch einmal an, und gib die Änderung dann trotzdem frei oder verwirf sie.",
+    "invalid": "Diese Bearbeitung ist ungültig: {message}",
+    "accessDenied": "Du kannst diese Änderung nicht beantworten."
+  },
+  "banner": {
+    "title": "Änderungen, die auf Prüfung warten",
+    "bar": "{count, plural, one {# Änderung wartet auf Prüfung} other {# Änderungen warten auf Prüfung}}",
+    "by": "vorgeschlagen von {names}",
+    "open": "Prüfen"
+  }
+}

@@ -17,7 +17,9 @@
     "import": "ייבוא",
     "graph": "גרף",
     "skills": "מיומנויות",
-    "more": "עוד"
+    "more": "עוד",
+    "review": "לבדיקה",
+    "reviewCount": "{count, plural, one {שינוי אחד ממתין לבדיקה שלך} two {שני שינויים ממתינים לבדיקה שלך} other {# שינויים ממתינים לבדיקה שלך}}"
   },
   "tabs": {
     "label": "סרגל צד",
@@ -79,7 +81,9 @@
     "deletePermanently": "מחיקה לצמיתות",
     "confirmDelete": "למחוק לצמיתות? אי אפשר לבטל את הפעולה הזו.",
     "deletesIn": "יימחק בעוד {count, plural, one {יום אחד} two {יומיים} other {# ימים}}",
-    "deletesSoon": "יימחק בקרוב"
+    "deletesSoon": "יימחק בקרוב",
+    "mergedInto": "מוזגה לתוך {title}",
+    "restoreMerged": "שחזור כשורה נפרדת. קישורים, תגובות, פעילות ואימיילים שעברו אל „{title}” נשארים שם."
   },
   "newWorkspace": {
     "title": "סביבת עבודה חדשה",
@@ -167,6 +171,8 @@
     "reportGone": "ההרצה כבר לא נשמרת.",
     "aiAccountTitle": "חשבון AI הוסר",
     "aiAccountDetached": "ה־AI של סביבת העבודה כבר לא פועל על המפתח של {actor}. אפשר לבחור חשבון AI אחר בהגדרות.",
+    "reviewTitle": "לבדיקה",
+    "review": "{count, plural, one {{agent} הציע שינוי לבדיקה שלך} two {שני שינויים ממתינים לבדיקה שלך, האחרון מ־{agent}} other {# שינויים ממתינים לבדיקה שלך, האחרון מ־{agent}}}",
     "automationRun": "האוטומציה “{name}”"
   },
   "templates": {

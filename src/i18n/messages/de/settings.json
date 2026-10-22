@@ -361,7 +361,12 @@
       "helpersHelp": "Während eines Durchlaufs kann er Teile seiner Aufgabe an diese Agenten abgeben, bis zu {max}-mal, und ihre Antworten verwenden. Jeder arbeitet mit eigenem Zugriff, eigenen Werkzeugen und Limits und kann selbst keine weiteren Agenten fragen.",
       "helpersEmpty": "In diesem Workspace gibt es noch keine anderen Agenten.",
       "helperPaused": "Pausiert",
-      "limitOwnersOnly": "Nur Workspace-Inhaber legen dieses Limit fest."
+      "limitOwnersOnly": "Nur Workspace-Inhaber legen dieses Limit fest.",
+      "rowChanges": "Änderungen an Zeilen",
+      "rowChangesDirect": "Direkt schreiben",
+      "rowChangesReview": "Zur Prüfung vorschlagen",
+      "rowChangesDirectHelp": "Zeilen, die er hinzufügt, und Werte, die er ändert, werden sofort unter seinem Namen gespeichert.",
+      "rowChangesReviewHelp": "Zeilen, die er hinzufügen, und Werte, die er ändern würde, warten unter „Zu prüfen“, bis jemand, der sie bearbeiten darf, jede einzelne freigibt oder verwirft."
     },
     "describe": {
       "button": "Agent beschreiben",
@@ -563,7 +568,10 @@
       "fromChat": "Chat-Nachricht von {name}",
       "chattedBy": "Chat von {name}",
       "yoursOnly": "Du siehst die Durchläufe, die du gestartet hast.",
-      "waitingForOwner": "Ein Workspace-Inhaber beantwortet diesen Aufruf."
+      "waitingForOwner": "Ein Workspace-Inhaber beantwortet diesen Aufruf.",
+      "emailDrafted": "Hat eine E-Mail zur Prüfung entworfen:",
+      "emailFailed": "Konnte keine E-Mail entwerfen:",
+      "emailHidden": "Hat eine E-Mail zu einer Zeile entworfen, die du nicht öffnen kannst"
     },
     "usage": {
       "thisMonth": "Diesen Monat: {usage}",
@@ -621,6 +629,12 @@
       "logFills": "Es füllt {properties}.",
       "logFillsNone": "Das Protokoll hat keine Eigenschaften, die es füllt (Listen, Daten, Links, Personen, Text); es fügt nur Titel und Text jedes Erfolgs hinzu.",
       "logLeft": "Nach den ersten {max} ausgelassen: {properties}.",
+      "chooseCompanies": "Welche Datenbank mit Firmen oder Kunden soll er ausfüllen? Du brauchst Vollzugriff darauf.",
+      "companyProperties": "Auszufüllende Eigenschaften",
+      "companyPropertiesHelp": "Bis zu {max}. Bei einer neuen Zeile füllt er nur die noch leeren aus und ändert nie einen Wert. Die Beschreibung einer Eigenschaft sagt ihm, was dort hingehört; entferne den Haken bei denen, die er nicht anfassen soll.",
+      "noCompanyProperties": "Diese Datenbank hat keine Eigenschaft, die er ausfüllen kann: Text, Link, E-Mail, Telefon, Zahl oder eine Auswahl mit Optionen. Füge eine hinzu und richte den Agenten dann ein.",
+      "companyAutofilled": "Ausgelassen, weil KI-Autofill sie ausfüllt: {properties}.",
+      "summaryWeb": "Er bekommt Webzugriff, um die Firmen nachzuschlagen.",
       "back": "Zurück",
       "next": "Weiter",
       "create": "Agent erstellen",
@@ -753,7 +767,8 @@
         "monthly_token_limit": "Monatliches Token-Limit",
         "skills": "Skills",
         "schedules": "Zeitpläne",
-        "shares": "Freigegebene Seiten"
+        "shares": "Freigegebene Seiten",
+        "row_changes": "Änderungen an Zeilen"
       },
       "back": "Alle Versionen",
       "compareNote": "Was sich von dieser Version bis zur aktuellen Einrichtung des Agenten geändert hat. Beim Wiederherstellen kommt zurück, was diese Version hatte.",
@@ -1517,7 +1532,8 @@
         "deleted": "Hat {target} endgültig gelöscht",
         "published": "Hat {target} im Web veröffentlicht",
         "unpublished": "Hat die Veröffentlichung von {target} beendet",
-        "publication_revoked": "Hat {target} aus dem Web genommen (veröffentlicht von {subject})"
+        "publication_revoked": "Hat {target} aus dem Web genommen (veröffentlicht von {subject})",
+        "rows_merged": "Hat {count, plural, one {# Zeile} other {# Zeilen}} mit {target} zusammengeführt"
       },
       "property": {
         "access_changed": "Hat den Zugriff auf „{property}“ in {target} geändert",
@@ -1576,6 +1592,7 @@
       },
       "api_token": {
         "created": "Hat das API-Token {target} erstellt",
+        "updated": "Hat geändert, was das API-Token {target} darf",
         "revoked": "{hasSubject, select, yes {Hat das API-Token {target} von {subject} widerrufen} other {Hat das API-Token {target} widerrufen}}"
       },
       "automation": {
@@ -1621,6 +1638,10 @@
       "ai_account": {
         "attached": "Hat die KI des Workspaces auf das KI-Konto {target} umgestellt",
         "detached": "Hat die KI des Workspaces vom KI-Konto {target} getrennt"
+      },
+      "review": {
+        "approved": "{kind, select, email_draft {Hat die E-Mail gesendet, die der Agent „{agent}“ zu {target} entworfen hat} create_row {Hat die Zeile freigegeben, die der Agent „{agent}“ in {target} vorgeschlagen hat} other {Hat die Änderung freigegeben, die der Agent „{agent}“ für {target} vorgeschlagen hat}}{outcome, select, failed { (fehlgeschlagen)} other {}}",
+        "dismissed": "{kind, select, email_draft {Hat die E-Mail verworfen, die der Agent „{agent}“ zu {target} entworfen hat} create_row {Hat die Zeile verworfen, die der Agent „{agent}“ in {target} vorgeschlagen hat} other {Hat die Änderung verworfen, die der Agent „{agent}“ für {target} vorgeschlagen hat}}"
       }
     },
     "decisions": {
@@ -1693,7 +1714,10 @@
     "watchedNone": "Du beobachtest noch keine Seiten",
     "watchedNoneDescription": "Beobachte eine Seite über ihr ⋯-Menü oder einen ganzen Teamspace über sein Menü in der Seitenleiste. Seiten, die du bearbeitest, werden automatisch beobachtet.",
     "watchedTeamspace": "Alle Seiten dieses Teamspace · {workspace}",
-    "stopWatching": "Nicht mehr beobachten"
+    "stopWatching": "Nicht mehr beobachten",
+    "reviewTitle": "Zu prüfen",
+    "reviewDescription": "Ein Agent schlägt eine Änderung an einer Zeile vor, die du bearbeiten kannst, oder entwirft eine E-Mail aus deinem Postfach, und sie wartet auf deine Prüfung. Neue Vorschläge werden gesammelt, bis du sie öffnest.",
+    "reviewChannel": "Zu prüfen: {channel}"
   },
   "site": {
     "description": "Gib den veröffentlichten Seiten dieses Workspace eine gemeinsame, gut lesbare Adresse, eine Startseite und eine Navigation zwischen ihnen.",

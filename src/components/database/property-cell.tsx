@@ -35,6 +35,8 @@ import { dayNumber, dayString } from "@/lib/time-zone";
 import type { DateOptions, FormulaConfig, NumberFormat, PropertyOptions } from "@/db/schema/app";
 import { calculationFormat, numberFormatOptions, numberText, readNumber, valueFormat } from "@/lib/number-format";
 import { numberShare } from "@/lib/number-display";
+import { availableOptions, parentOf } from "@/lib/dependent-options";
+import { useSchema } from "./schema-context";
 
 export type CreateOption = (propertyId: string, name: string) => Promise<SelectOption | null>;
 
@@ -508,11 +510,14 @@ export function PropertyCell({
   placeholder,
   upload,
   style,
+  rowValues,
 }: {
   prop: Property;
   value: unknown;
   onChange: (value: unknown) => void;
   onCreateOption: CreateOption;
+  /** The row's values: a select depending on another offers the options that go with its value there. */
+  rowValues?: Record<string, unknown>;
   readOnly?: boolean;
   /** How a styled formula result shows (the row's `styles`). */
   style?: FormulaStyle;
@@ -614,6 +619,7 @@ export function PropertyCell({
           }}
           draft={draft}
           upload={upload}
+          rowValues={rowValues}
         />
       )}
     </>
@@ -629,6 +635,7 @@ function CellEditor({
   onClose,
   draft,
   upload,
+  rowValues,
 }: {
   prop: Property;
   value: unknown;
@@ -638,6 +645,7 @@ function CellEditor({
   onClose: () => void;
   draft?: string;
   upload?: UploadFile;
+  rowValues?: Record<string, unknown>;
 }) {
   switch (prop.type) {
     case "text":
@@ -673,6 +681,7 @@ function CellEditor({
             onChange={onChange}
             onCreateOption={onCreateOption}
             onDone={onClose}
+            rowValues={rowValues}
           />
         </Floating>
       );
@@ -1119,14 +1128,18 @@ export function OptionPicker({
   onChange,
   onCreateOption,
   onDone,
+  rowValues,
 }: {
   prop: Property;
   value: unknown;
   onChange: (value: unknown) => void;
   onCreateOption: CreateOption;
   onDone: () => void;
+  /** The row's values, for a select depending on another (lib/dependent-options); all options without them. */
+  rowValues?: Record<string, unknown>;
 }) {
   const t = useTranslations("database.cell");
+  const schema = useSchema();
   const tGroup = useTranslations("database.statusGroups");
   const multi = prop.type === "multi_select";
   const status = prop.type === "status";
@@ -1144,8 +1157,17 @@ export function OptionPicker({
   useEffect(() => input.current?.focus(), []);
 
   const options = useMemo(() => (status ? sortStatusOptions(optionsOf(prop)) : optionsOf(prop)), [prop, status]);
+  // A select depending on another offers the options that go with the row's value there, and the
+  // ones it holds already (to take them off); the others are hidden, which the list says.
+  const parent = rowValues ? parentOf(prop, schema) : null;
+  const offered = useMemo(() => {
+    if (!parent || !rowValues) return options;
+    const fit = new Set(availableOptions(prop, schema, rowValues).map((o) => o.id));
+    return options.filter((o) => fit.has(o.id) || selectedIds.includes(o.id));
+  }, [options, parent, prop, schema, rowValues, selectedIds]);
+  const hiddenCount = options.length - offered.length;
   const q = searchFold(query.trim());
-  const filtered = useMemo(() => options.filter((o) => searchFold(o.name).includes(q)), [options, q]);
+  const filtered = useMemo(() => offered.filter((o) => searchFold(o.name).includes(q)), [offered, q]);
   const exact = options.some((o) => searchFold(o.name) === q);
   const canCreate = !status && q.length > 0 && !exact;
   const items: ({ kind: "option"; option: SelectOption } | { kind: "create" })[] = [
@@ -1247,6 +1269,9 @@ export function OptionPicker({
           <div className="px-2 pt-1 pb-1.5 text-xs text-fg-muted">
             {multi ? t("selectOptions") : t("selectOption")}
           </div>
+        )}
+        {parent && hiddenCount > 0 && (
+          <div className="px-2 pb-1.5 text-xs text-fg-faint">{t("hiddenByParent", { count: hiddenCount, parent: parent.name })}</div>
         )}
         {items.map((item, i) => (
           <Fragment key={item.kind === "create" ? "__create" : item.option.id}>

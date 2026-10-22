@@ -6,6 +6,7 @@ import { useFormatter, useTranslations } from "next-intl";
 import { useEffect, useState, useTransition } from "react";
 import { deletePagePermanentlyAction, listTrashAction, restorePageAction } from "@/app/actions/pages";
 import { Dialog, IconButton, PageIcon, pageLabel } from "@/components/ui";
+import { MERGED_ORIGINAL_PARAM } from "@/lib/merge-rows";
 import { daysUntil } from "@/lib/retention";
 
 type TrashItem = Awaited<ReturnType<typeof listTrashAction>>[number];
@@ -92,11 +93,17 @@ export function TrashDialog({
               className="flex min-w-0 flex-1 items-center gap-2 text-start text-sm"
               onClick={() => {
                 onClose();
-                router.push(`/w/${workspaceId}/p/${item.id}`);
+                // A merged row itself, not the row it was merged into (where links to it lead).
+                router.push(`/w/${workspaceId}/p/${item.id}${item.mergedInto ? `?${MERGED_ORIGINAL_PARAM}=1` : ""}`);
               }}
             >
               <PageIcon icon={item.icon} kind={item.kind} className="text-sm" />
-              <span className="truncate">{pageLabel(item.title, tc("untitled"))}</span>
+              <span className="min-w-0 truncate">{pageLabel(item.title, tc("untitled"))}</span>
+              {item.mergedInto?.title !== null && item.mergedInto?.title !== undefined && (
+                <span className="min-w-0 shrink truncate text-xs text-fg-muted">
+                  {t("mergedInto", { title: pageLabel(item.mergedInto.title, tc("untitled")) })}
+                </span>
+              )}
             </button>
             {item.deletesAt && (
               <span className="shrink-0 text-xs text-fg-muted" title={format.dateTime(item.deletesAt, { dateStyle: "medium" })}>
@@ -104,7 +111,12 @@ export function TrashDialog({
               </span>
             )}
             {item.canRestore && (
-              <IconButton label={tc("restore")} onClick={() => restore(item.id)}>
+              <IconButton
+                label={tc("restore")}
+                // Restoring a merged row doesn't take back what moved to the row it was merged into.
+                {...(item.mergedInto ? { title: t("restoreMerged", { title: pageLabel(item.mergedInto.title ?? "", tc("untitled")) }) } : {})}
+                onClick={() => restore(item.id)}
+              >
                 <RotateCcw className="h-3.5 w-3.5" />
               </IconButton>
             )}

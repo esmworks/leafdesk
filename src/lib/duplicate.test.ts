@@ -164,6 +164,39 @@ describe("planDuplicate", () => {
     expect(prop("tasks", "Client").options.relation).toEqual({ databaseId: "clients", pairedPropertyId: null });
   });
 
+  it("points AI autofill settings at the copied properties", () => {
+    const ai = planDuplicate(
+      {
+        rootId: "db",
+        rootTitle: "DB (copy)",
+        rootPosition: 1,
+        pages: [pageOf("db", "parent", { kind: "database" })],
+        properties: [
+          { id: "notes", databaseId: "db", name: "Notes", type: "text", position: 1, options: {} },
+          {
+            id: "tr",
+            databaseId: "db",
+            name: "Translation",
+            type: "text",
+            position: 2,
+            options: { ai: { mode: "translation", language: "de", source: "notes", requires: ["notes", "gone"] } },
+          },
+          { id: "de", databaseId: "db", name: "German title", type: "text", position: 3, options: { ai: { mode: "translation", language: "de", source: "title" } } },
+        ],
+        views: [],
+      },
+      counter(),
+    );
+    const notes = ai.properties.find((p) => p.name === "Notes")!;
+    expect(ai.properties.find((p) => p.name === "Translation")!.options.ai).toEqual({
+      mode: "translation",
+      language: "de",
+      source: notes.id,
+      requires: [notes.id],
+    });
+    expect(ai.properties.find((p) => p.name === "German title")!.options.ai?.source).toBe("title");
+  });
+
   it("keeps select options with their ids", () => {
     expect(prop("tasks", "Status").options.options).toEqual([{ id: "opt1", name: "Todo", color: "gray" }]);
   });

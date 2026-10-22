@@ -78,8 +78,32 @@
     "promptPlaceholder": "Par exemple : Écris un pitch d’une ligne pour '{title}' destiné à '{Audience}'.",
     "promptHint": "Cliquez sur une propriété pour l’insérer ; la valeur de la ligne prend sa place.",
     "includeBody": "Envoyer aussi le contenu de la page de la ligne",
+    "typed": {
+      "select": {
+        "hint": "L’IA choisit l’une des options de cette propriété, ou la laisse vide si aucune ne convient.",
+        "placeholder": "Par exemple : Quelle option convient le mieux à '{title}', vu '{Notes}' ?"
+      },
+      "multi_select": {
+        "hint": "L’IA choisit les options qui s’appliquent, jamais de nouvelles, ou la laisse vide.",
+        "placeholder": "Par exemple : Quels sujets '{Notes}' aborde-t-il ?"
+      },
+      "status": {
+        "hint": "L’IA choisit l’une des options de ce statut, ou le laisse vide si aucune ne convient.",
+        "placeholder": "Par exemple : D’après '{Notes}', '{title}' est-il terminé, en cours ou pas commencé ?"
+      },
+      "number": {
+        "hint": "L’IA répond par un nombre, ou le laisse vide si elle ne peut pas le dire.",
+        "placeholder": "Par exemple : De 1 à 5, à quel point '{title}' est-il urgent, vu '{Notes}' ?"
+      },
+      "checkbox": {
+        "hint": "L’IA coche la case pour oui et la laisse décochée pour non.",
+        "placeholder": "Par exemple : '{Notes}' mentionne-t-il une échéance ?"
+      }
+    },
     "auto": "Mettre à jour quand la ligne change",
     "autoHint": "Quelques secondes après un changement des valeurs ou de la page d’une ligne, sa valeur est recalculée.",
+    "requires": "Seulement les lignes où celles-ci ont une valeur",
+    "requiresHint": "Les lignes où l’une d’elles est vide (ou non cochée) sont ignorées et gardent leur valeur.",
     "privacy": "Ce à partir de quoi la valeur de chaque ligne est calculée est envoyé au fournisseur d’IA de ce serveur.",
     "save": "Enregistrer",
     "create": "Ajouter la propriété",
@@ -98,7 +122,9 @@
       "unknownPlaceholder": "Aucune propriété ne s’appelle « {name} ».",
       "cycle": "« {name} » lit déjà cette propriété (directement ou via d’autres propriétés IA) : celle-ci ne peut donc pas la lire.",
       "hiddenInput": "« {name} » ne peut pas servir à une valeur d’IA : il affiche des lignes liées ou des personnes que tous ceux qui lisent la ligne ne peuvent pas forcément voir.",
-      "notText": "Seules les propriétés de texte peuvent être remplies par l’IA.",
+      "noOptions": "Ajoutez d’abord des options à cette propriété : l’IA choisit parmi elles.",
+      "unknownRequired": "Certaines des propriétés choisies n’existent plus dans cette base de données. Choisissez-les à nouveau.",
+      "unsupportedType": "L’IA peut remplir les propriétés texte, sélection, sélection multiple, statut, nombre et case à cocher.",
       "databaseLocked": "La base de données est verrouillée."
     }
   },
@@ -181,21 +207,31 @@
           "createRow": "Ligne ajoutée :",
           "updateRow": "Ligne modifiée :",
           "createPage": "Page ajoutée :",
-          "editPage": "Texte de la page modifié :"
+          "editPage": "Texte de la page modifié :",
+          "mergeRows": "Lignes fusionnées dans :"
         },
         "declined": {
           "createRow": "Ajout de la ligne refusé :",
           "updateRow": "Modification refusée :",
           "createPage": "Ajout de la page refusé :",
-          "editPage": "Modification du texte refusée :"
+          "editPage": "Modification du texte refusée :",
+          "mergeRows": "Fusion refusée pour :"
         },
         "failed": {
           "createRow": "Impossible d'ajouter la ligne :",
           "updateRow": "Impossible de modifier :",
           "createPage": "Impossible d'ajouter la page :",
-          "editPage": "Impossible de modifier le texte de :"
+          "editPage": "Impossible de modifier le texte de :",
+          "mergeRows": "Impossible de fusionner les lignes dans :"
         },
-        "in": "dans"
+        "in": "dans",
+        "proposed": {
+          "createRow": "Ajout d’une ligne proposé à la vérification :",
+          "updateRow": "Modification proposée à la vérification :",
+          "createPage": "Ajout d’une page proposé à la vérification :",
+          "editPage": "Modification du texte proposée à la vérification :",
+          "mergeRows": "A proposé de fusionner des lignes, à valider, dans :"
+        }
       },
       "memory": {
         "remember": "Retenu :",

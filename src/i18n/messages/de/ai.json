@@ -78,8 +78,32 @@
     "promptPlaceholder": "Zum Beispiel: Schreibe einen einzeiligen Pitch für '{title}', gerichtet an '{Audience}'.",
     "promptHint": "Klicke auf eine Eigenschaft, um sie einzufügen; der Wert der Zeile tritt an ihre Stelle.",
     "includeBody": "Auch den Seiteninhalt der Zeile senden",
+    "typed": {
+      "select": {
+        "hint": "Die KI wählt eine der Optionen dieser Eigenschaft oder lässt sie leer, wenn keine passt.",
+        "placeholder": "Zum Beispiel: Welche Option passt am besten zu '{title}', ausgehend von '{Notes}'?"
+      },
+      "multi_select": {
+        "hint": "Die KI wählt die zutreffenden Optionen, nie neue, oder lässt sie leer.",
+        "placeholder": "Zum Beispiel: Welche Themen spricht '{Notes}' an?"
+      },
+      "status": {
+        "hint": "Die KI wählt eine der Optionen dieses Status oder lässt ihn leer, wenn keine passt.",
+        "placeholder": "Zum Beispiel: Ist '{title}' laut '{Notes}' erledigt, in Arbeit oder nicht begonnen?"
+      },
+      "number": {
+        "hint": "Die KI antwortet mit einer Zahl oder lässt sie leer, wenn sie es nicht sagen kann.",
+        "placeholder": "Zum Beispiel: Wie dringend ist '{title}' von 1 bis 5, ausgehend von '{Notes}'?"
+      },
+      "checkbox": {
+        "hint": "Die KI hakt das Kästchen bei Ja an und lässt es bei Nein leer.",
+        "placeholder": "Zum Beispiel: Nennt '{Notes}' eine Frist?"
+      }
+    },
     "auto": "Aktualisieren, wenn sich die Zeile ändert",
     "autoHint": "Einige Sekunden nachdem sich die Werte oder die Seite einer Zeile ändern, wird ihr Wert neu ermittelt.",
+    "requires": "Nur Zeilen, in denen diese einen Wert haben",
+    "requiresHint": "Zeilen, in denen eine davon leer (oder nicht angehakt) ist, werden übersprungen und behalten ihren Wert.",
     "privacy": "Das, woraus der Wert jeder Zeile ermittelt wird, geht an den KI-Anbieter dieses Servers.",
     "save": "Speichern",
     "create": "Eigenschaft hinzufügen",
@@ -98,7 +122,9 @@
       "unknownPlaceholder": "Es gibt keine Eigenschaft namens „{name}“.",
       "cycle": "„{name}“ liest diese Eigenschaft bereits (direkt oder über andere KI-Eigenschaften), daher kann diese sie nicht lesen.",
       "hiddenInput": "„{name}“ kann nicht in einen KI-Wert einfließen: Es zeigt verknüpfte Zeilen oder Personen, die nicht jeder sehen darf, der die Zeile liest.",
-      "notText": "Nur Texteigenschaften können von KI ausgefüllt werden.",
+      "noOptions": "Füge dieser Eigenschaft zuerst Optionen hinzu: Die KI wählt aus ihnen.",
+      "unknownRequired": "Einige der gewählten Eigenschaften gibt es in dieser Datenbank nicht mehr. Wähle sie erneut.",
+      "unsupportedType": "KI kann Text-, Auswahl-, Mehrfachauswahl-, Status-, Zahl- und Kontrollkästchen-Eigenschaften ausfüllen.",
       "databaseLocked": "Die Datenbank ist gesperrt."
     }
   },
@@ -181,21 +207,31 @@
           "createRow": "Zeile hinzugefügt:",
           "updateRow": "Zeile geändert:",
           "createPage": "Seite hinzugefügt:",
-          "editPage": "Seitentext geändert:"
+          "editPage": "Seitentext geändert:",
+          "mergeRows": "Zeilen zusammengeführt in:"
         },
         "declined": {
           "createRow": "Hinzufügen der Zeile abgelehnt:",
           "updateRow": "Änderung abgelehnt:",
           "createPage": "Hinzufügen der Seite abgelehnt:",
-          "editPage": "Textänderung abgelehnt:"
+          "editPage": "Textänderung abgelehnt:",
+          "mergeRows": "Zusammenführen abgelehnt für:"
         },
         "failed": {
           "createRow": "Zeile konnte nicht hinzugefügt werden:",
           "updateRow": "Konnte nicht geändert werden:",
           "createPage": "Seite konnte nicht hinzugefügt werden:",
-          "editPage": "Text konnte nicht geändert werden:"
+          "editPage": "Text konnte nicht geändert werden:",
+          "mergeRows": "Zeilen konnten nicht zusammengeführt werden in:"
         },
-        "in": "in"
+        "in": "in",
+        "proposed": {
+          "createRow": "Hinzufügen einer Zeile zur Prüfung vorgeschlagen:",
+          "updateRow": "Änderung zur Prüfung vorgeschlagen:",
+          "createPage": "Hinzufügen einer Seite zur Prüfung vorgeschlagen:",
+          "editPage": "Textänderung zur Prüfung vorgeschlagen:",
+          "mergeRows": "Zusammenführen von Zeilen zur Prüfung vorgeschlagen in:"
+        }
       },
       "memory": {
         "remember": "Gemerkt:",

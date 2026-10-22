@@ -290,7 +290,9 @@
     "confirmTrash": "Placer {count, plural, one {# ligne} other {# lignes}} dans la corbeille ?",
     "skipped": "{count, plural, one {# ligne a été ignorée, car vous ne pouvez pas la modifier.} other {# lignes ont été ignorées, car vous ne pouvez pas les modifier.}}",
     "pasteLeftOut": "{count, plural, one {# cellule collée a été ignorée : elle ne correspond pas à sa colonne ou vous ne pouvez pas la modifier.} other {# cellules collées ont été ignorées : elles ne correspondent pas à leurs colonnes ou vous ne pouvez pas les modifier.}}",
-    "exportDisabled": "L’exportation est désactivée dans cet espace de travail."
+    "exportDisabled": "L’exportation est désactivée dans cet espace de travail.",
+    "merge": "Fusionner",
+    "mergeHint": "Fusionner 2 à 5 lignes en une seule"
   },
   "calculate": {
     "calculate": "Calculer",
@@ -393,7 +395,8 @@
     "startTime": "Heure de début",
     "endTime": "Heure de fin",
     "endDateSwitch": "Date de fin",
-    "includeTime": "Inclure l’heure"
+    "includeTime": "Inclure l’heure",
+    "hiddenByParent": "{count, plural, one {# option ne va pas} other {# options ne vont pas}} avec « {parent} » de cette ligne."
   },
   "checklist": {
     "addItem": "Ajouter un élément",
@@ -496,7 +499,16 @@
     "reminder": "Rappel",
     "reminderNone": "Aucun rappel",
     "reminderBefore": "{days, select, 0 {Le jour même, 9:00} 1 {1 jour avant, 9:00} 7 {1 semaine avant, 9:00} other {{days} jours avant, 9:00}}",
-    "reminderHint": "Prévient les personnes assignées à chaque ligne, ou celle qui l’a ajoutée, sauf si la ligne est terminée. 9:00 dans votre fuseau horaire ; les dates avec une heure préviennent à cette heure-là."
+    "reminderHint": "Prévient les personnes assignées à chaque ligne, ou celle qui l’a ajoutée, sauf si la ligne est terminée. 9:00 dans votre fuseau horaire ; les dates avec une heure préviennent à cette heure-là.",
+    "description": "Description",
+    "descriptionPlaceholder": "Ce qu’elle contient et comment la remplir",
+    "dependsOn": "Dépend de",
+    "dependsOnNone": "Rien",
+    "dependsOnHint": "Choisissez avec quelles options de « {parent} » va chaque option. Les lignes ne proposent que celles-ci ; une option sans choix va avec toutes.",
+    "noParentOptions": "« {parent} » n’a pas encore d’options.",
+    "parentOptionsLabel": "Avec « {parent} » :",
+    "parentOptionsAll": "toujours",
+    "parentOptionToggle": "Proposer « {option} » quand « {parent} » vaut « {value} »"
   },
   "rowProperties": {
     "noProperties": "Aucune propriété",
@@ -527,7 +539,10 @@
     "unknownPerson": "{count, plural, one {une personne inconnue} other {# personnes inconnues}}",
     "checked": "coché",
     "unchecked": "non coché",
-    "checklist": "{done} sur {total} faits"
+    "checklist": "{done} sur {total} faits",
+    "merged": "<actor>{name}</actor> a fusionné {count, plural, one {# ligne} other {# lignes}} dans cette ligne : <rows>{titles}</rows>",
+    "mergedFrom": "depuis {title}",
+    "approvedFrom": "(proposé par {name})"
   },
   "rowEmail": {
     "title": "E-mail",
@@ -796,7 +811,15 @@
     "webhookBlocked": "Les webhooks ne peuvent pas viser des adresses de réseau privées ou locales.",
     "agentOwnersOnly": "Seuls les propriétaires de l’espace de travail et les personnes qui peuvent modifier l’agent peuvent ajouter ou modifier des actions qui l’exécutent.",
     "invalidRepeat": "Cette répétition n’est pas valide : vérifie les jours, l’heure et le fuseau horaire.",
-    "tooManySchedules": "Cet espace de travail a déjà autant de modèles répétés que possible."
+    "tooManySchedules": "Cet espace de travail a déjà autant de modèles répétés que possible.",
+    "optionUnavailable": "« {value} » n’est pas disponible dans « {property} » pour cette ligne.",
+    "invalidDependency": "« {property} » ne peut dépendre que d’une autre propriété de sélection de cette base de données qui ne dépend pas d’elle.",
+    "invalidDescription": "Une description peut contenir au plus {max} caractères.",
+    "mergeRowCount": "Choisissez de {min} à {max} lignes à fusionner.",
+    "mergeRowsInvalid": "Seules des lignes d’une même base de données, hors corbeille, peuvent être fusionnées.",
+    "mergeRowsReadOnly": "Vous pouvez seulement consulter {rows}. La fusion exige le droit de modifier chaque ligne.",
+    "mergeLinksBlocked": "{count, plural, one {Une ligne renvoie} other {# lignes renvoient}} à ces lignes et vous ne pouvez pas {count, plural, one {la} other {les}} modifier : {rows}. Rien n’a été fusionné.",
+    "mergeChoiceInvalid": "La valeur choisie pour « {property} » ne peut pas être utilisée. Choisissez la valeur d’une autre ligne."
   },
   "formula": {
     "title": "Formule",
@@ -1408,5 +1431,37 @@
   "quickAdd": {
     "recognised": "Reconnu dans le titre",
     "keep": "Laisser « {text} » dans le titre"
+  },
+  "merge": {
+    "menuItem": "Fusionner avec…",
+    "pickTitle": "Fusionner avec d’autres lignes",
+    "pickHint": "Choisissez jusqu’à {count, plural, one {# ligne} other {# lignes}} à fusionner avec celle-ci.",
+    "pickSearch": "Rechercher des lignes",
+    "pickEmpty": "Aucune autre ligne ne correspond",
+    "pickLoading": "Chargement des lignes…",
+    "pickContinue": "Continuer",
+    "title": "Fusionner {count, plural, one {# ligne} other {# lignes}}",
+    "keep": "Ligne à conserver",
+    "keepHint": "Les autres lignes vont à la corbeille. Leur contenu passe à la ligne conservée.",
+    "oldest": "La plus ancienne",
+    "created": "Créée le {date}",
+    "titleField": "Titre",
+    "combine": "Tout combiner",
+    "hidden": "Masqué",
+    "empty": "Vide",
+    "locked": "Vous ne pouvez pas modifier cette propriété : la valeur de la ligne conservée reste.",
+    "moves": "Passe aussi à la ligne conservée",
+    "movesThreads": "{count, plural, one {# fil de commentaires} other {# fils de commentaires}}",
+    "movesActivity": "{count, plural, one {# entrée d’activité} other {# entrées d’activité}}",
+    "movesFiles": "{count, plural, one {# fichier importé} other {# fichiers importés}}",
+    "movesEmails": "{count, plural, one {# e-mail} other {# e-mails}}",
+    "movesLinks": "Les liens de {count, plural, one {# autre ligne} other {# autres lignes}}, avec les sous-éléments et les dépendances",
+    "movesBodies": "Le contenu de page de {count, plural, one {# ligne} other {# lignes}}, chacun sous un titre",
+    "movesNothing": "Rien d’autre à transférer.",
+    "subpages": "{count, plural, one {# page contenue dans les lignes fusionnées va} other {# pages contenues dans les lignes fusionnées vont}} à la corbeille avec elles.",
+    "trashNote": "Restaurer une ligne fusionnée depuis la corbeille la ramène comme ligne distincte. Ce qui a été transféré reste avec la ligne conservée.",
+    "confirm": "Fusionner les lignes",
+    "merging": "Fusion…",
+    "bodyHeading": "Fusionné depuis {title}"
   }
 }

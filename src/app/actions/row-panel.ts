@@ -38,11 +38,19 @@ export type RowPanelPage = {
  */
 export async function loadRowPanelAction(
   rowId: string,
-): Promise<{ ok: true; data: RowPanelPage } | { ok: false; reason: "unavailable" | "database" }> {
+): Promise<{ ok: true; data: RowPanelPage } | { ok: false; reason: "unavailable" | "database" } | { ok: false; reason: "merged"; rowId: string }> {
   const userId = await requireUserId();
   try {
     const p = await getPage(userId, String(rowId));
     if (p.kind === "database") return { ok: false, reason: "database" };
+    // A row merged into another one opens that row (as its page does), if the user may see it.
+    if (p.archivedAt && p.mergedIntoId) {
+      const kept = await getPage(userId, p.mergedIntoId).catch((error) => {
+        if (error instanceof AccessError) return null;
+        throw error;
+      });
+      if (kept && !kept.archivedAt) return { ok: false, reason: "merged", rowId: kept.id };
+    }
     const [crumbs, info] = await Promise.all([getBreadcrumbs(userId, p.id), getPageHeaderInfo(userId, p.id)]);
     const parent = crumbs.length > 1 ? crumbs[crumbs.length - 2] : null;
     const isRow = parent?.kind === "database";

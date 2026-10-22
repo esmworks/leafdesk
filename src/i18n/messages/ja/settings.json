@@ -361,7 +361,12 @@
       "helpersHelp": "実行中に、タスクの一部をこれらのエージェントに最大{max}回まで任せ、その回答を使えます。各エージェントは自分のアクセス権、ツール、上限で動作し、さらに別のエージェントに依頼することはできません。",
       "helpersEmpty": "このワークスペースにはまだ他のエージェントがありません。",
       "helperPaused": "一時停止中",
-      "limitOwnersOnly": "この上限を設定できるのはワークスペースのオーナーだけです。"
+      "limitOwnersOnly": "この上限を設定できるのはワークスペースのオーナーだけです。",
+      "rowChanges": "行の変更",
+      "rowChangesDirect": "直接書き込む",
+      "rowChangesReview": "確認用に提案する",
+      "rowChangesDirectHelp": "追加した行と変更した値は、エージェントの名前ですぐに保存されます。",
+      "rowChangesReviewHelp": "追加しようとする行と変更しようとする値は、それを編集できる人が1件ずつ承認または却下するまで「確認待ち」で待機します。"
     },
     "describe": {
       "button": "エージェントを説明して作成",
@@ -563,7 +568,10 @@
       "fromChat": "{name}からのチャットメッセージ",
       "chattedBy": "{name}がチャット",
       "yoursOnly": "あなたが開始した実行が表示されます。",
-      "waitingForOwner": "この呼び出しにはワークスペースのオーナーが応答します。"
+      "waitingForOwner": "この呼び出しにはワークスペースのオーナーが応答します。",
+      "emailDrafted": "確認待ちのメールを下書きしました:",
+      "emailFailed": "メールを下書きできませんでした:",
+      "emailHidden": "開けない行でメールを下書きしました"
     },
     "usage": {
       "thisMonth": "今月：{usage}",
@@ -621,6 +629,12 @@
       "logFills": "{properties}を入力します。",
       "logFillsNone": "このログには、エージェントが入力するプロパティ（リスト、日付、リンク、ユーザー、テキスト）がありません。各成果のタイトルとテキストだけを追加します。",
       "logLeft": "最初の{max}個を超えたため除外：{properties}。",
+      "chooseCompanies": "どの企業・顧客のデータベースを埋めさせますか？そのデータベースへのフルアクセス権が必要です。",
+      "companyProperties": "埋めるプロパティ",
+      "companyPropertiesHelp": "最大{max}個。新しい行では、まだ空のものだけを埋め、値を変更することはありません。プロパティの説明が、そこに何を入れるかを伝えます。触れさせたくないものはチェックを外してください。",
+      "noCompanyProperties": "このデータベースには、埋められるプロパティがありません（テキスト、リンク、メール、電話番号、数値、オプションのあるセレクト）。追加してから、エージェントを設定してください。",
+      "companyAutofilled": "AI自動入力が埋めるため除外：{properties}。",
+      "summaryWeb": "企業を調べるため、ウェブへのアクセス権が与えられます。",
       "back": "戻る",
       "next": "次へ",
       "create": "エージェントを作成",
@@ -753,7 +767,8 @@
         "monthly_token_limit": "月間トークン上限",
         "skills": "スキル",
         "schedules": "スケジュール",
-        "shares": "共有ページ"
+        "shares": "共有ページ",
+        "row_changes": "行の変更"
       },
       "back": "すべてのバージョン",
       "compareNote": "このバージョンからエージェントの現在の構成までに変わった内容です。復元すると、このバージョンの内容に戻ります。",
@@ -1517,7 +1532,8 @@
         "deleted": "{target}を完全に削除しました",
         "published": "{target}をWebに公開しました",
         "unpublished": "{target}の公開を停止しました",
-        "publication_revoked": "{target}をWebから取り下げました（公開者：{subject}）"
+        "publication_revoked": "{target}をWebから取り下げました（公開者：{subject}）",
+        "rows_merged": "{count}行を{target}に統合しました"
       },
       "property": {
         "access_changed": "{target}の「{property}」にアクセスできる人を変更しました",
@@ -1576,6 +1592,7 @@
       },
       "api_token": {
         "created": "APIトークン{target}を作成しました",
+        "updated": "APIトークン{target}ができることを変更しました",
         "revoked": "{hasSubject, select, yes {{subject}のAPIトークン{target}を無効にしました} other {APIトークン{target}を無効にしました}}"
       },
       "automation": {
@@ -1621,6 +1638,10 @@
       "ai_account": {
         "attached": "ワークスペースのAIをAIアカウント{target}に接続しました",
         "detached": "ワークスペースのAIとAIアカウント{target}の接続を解除しました"
+      },
+      "review": {
+        "approved": "{kind, select, email_draft {エージェント「{agent}」が{target}で下書きしたメールを送信しました} create_row {エージェント「{agent}」が{target}に提案した行を承認しました} other {エージェント「{agent}」が{target}に提案した変更を承認しました}}{outcome, select, failed {（失敗しました）} other {}}",
+        "dismissed": "{kind, select, email_draft {エージェント「{agent}」が{target}で下書きしたメールを却下しました} create_row {エージェント「{agent}」が{target}に提案した行を却下しました} other {エージェント「{agent}」が{target}に提案した変更を却下しました}}"
       }
     },
     "decisions": {
@@ -1693,7 +1714,10 @@
     "watchedNone": "まだウォッチしているページはありません",
     "watchedNoneDescription": "ページは⋯メニューから、チームスペース全体はサイドバーのメニューからウォッチできます。編集したページは自動でウォッチされます。",
     "watchedTeamspace": "このチームスペースのすべてのページ · {workspace}",
-    "stopWatching": "ウォッチをやめる"
+    "stopWatching": "ウォッチをやめる",
+    "reviewTitle": "確認待ち",
+    "reviewDescription": "編集できる行への変更をエージェントが提案したとき、またはあなたのメールボックスからメールを下書きしたとき。提案はあなたの確認を待ちます。新しい提案は、開くまでまとめて届きます。",
+    "reviewChannel": "確認待ち：{channel}"
   },
   "site": {
     "description": "このワークスペースの公開ページに、わかりやすい1つのアドレス、ホームページ、ページ間のナビゲーションを用意します。",

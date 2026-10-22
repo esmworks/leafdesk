@@ -93,7 +93,8 @@
   "changed": {
     "done": "Сделано: {what}",
     "declined": "Не сделано: {what}",
-    "failed": "Не удалось: {what}"
+    "failed": "Не удалось: {what}",
+    "proposed": "Предложено на проверку: {what}"
   },
   "errors": {
     "disabled": "ИИ выключен в этом рабочем пространстве.",

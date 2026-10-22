@@ -67,6 +67,12 @@ export const userPreference = pgTable("user_preference", {
   rowEmailInbox: boolean("row_email_inbox").notNull().default(true),
   rowEmailEmails: boolean("row_email_emails").notNull().default(false),
   /**
+   * Changes waiting for my review (pending_change): show them in my inbox. No email goes out about
+   * them (`reviewEmails` is kept for the shape every kind has, and unused).
+   */
+  reviewInbox: boolean("review_inbox").notNull().default(true),
+  reviewEmails: boolean("review_emails").notNull().default(false),
+  /**
    * Push notifications per kind, to the devices that turned them on (see push_subscription). They
    * follow the inbox: a kind turned off there sends no push either, whatever these say, so by
    * default push is on exactly for what shows in the inbox, and each kind can be silenced on its own.
@@ -82,6 +88,7 @@ export const userPreference = pgTable("user_preference", {
   rowUpdatePush: boolean("row_update_push").notNull().default(true),
   pageUpdatePush: boolean("page_update_push").notNull().default(true),
   rowEmailPush: boolean("row_email_push").notNull().default(true),
+  reviewPush: boolean("review_push").notNull().default(true),
   /**
    * Telegram messages per kind, to the Telegram account the person linked (see telegram_link,
    * server/telegram/notify.ts). They follow the inbox as push does.
@@ -97,6 +104,7 @@ export const userPreference = pgTable("user_preference", {
   rowUpdateTelegram: boolean("row_update_telegram").notNull().default(true),
   pageUpdateTelegram: boolean("page_update_telegram").notNull().default(true),
   rowEmailTelegram: boolean("row_email_telegram").notNull().default(true),
+  reviewTelegram: boolean("review_telegram").notNull().default(true),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
@@ -302,6 +310,7 @@ export const NOTIFICATION_KINDS = [
   "row_update",
   "page_updated",
   "row_email",
+  "review",
   "agent_approval",
   "agent_memory",
   "agent_report",
@@ -338,6 +347,9 @@ export type PreferenceKind = Exclude<NotificationKind, OwnerKind>;
  * `agentRunId`, which one of its schedules started, finished; it tells the owner who set the
  * schedule what the run did or why it failed, and has no page. "row_email": message `rowEmailId`
  * landed on row `pageId`, through the mailbox of `actorId` (null when it is the user's own).
+ * "review": changes wait for the user's review (pending_change) in the workspace, the latest
+ * proposed by agent `actorId`; one unread at a time per person and workspace, which newer
+ * proposals bring back to the top rather than adding more; it has no page.
  * "ai_account_detached": the workspace's AI no longer runs on `actorId`'s own AI account (they left
  * the workspace, deleted the account or their whole account); it has no page. Unread ones are dropped when the change is
  * undone (or the request decided). Rows are recorded
@@ -410,10 +422,10 @@ export const notification = pgTable(
     index("notification_snoozed_idx").on(t.snoozedUntil).where(sql`${t.snoozedUntil} is not null`),
     // A run that proposes notes tells each owner once.
     uniqueIndex("notification_agent_memory_idx").on(t.agentRunId, t.userId).where(sql`${t.kind} = 'agent_memory'`),
-    // Only join requests, agents' approvals, notes and reports, and a detached AI account are about no page (access requests are about the page asked for).
+    // Only join requests, changes waiting for review, agents' approvals, notes and reports, and a detached AI account are about no page (access requests are about the page asked for).
     check(
       "notification_subject_check",
-      sql`${t.kind} in ('join_request', 'agent_approval', 'agent_memory', 'agent_report', 'ai_account_detached') or ${t.pageId} is not null`,
+      sql`${t.kind} in ('join_request', 'review', 'agent_approval', 'agent_memory', 'agent_report', 'ai_account_detached') or ${t.pageId} is not null`,
     ),
   ],
 );

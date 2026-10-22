@@ -290,7 +290,9 @@
     "confirmTrash": "{count, plural, one {# Zeile} other {# Zeilen}} in den Papierkorb verschieben?",
     "skipped": "{count, plural, one {# Zeile wurde übersprungen, weil du sie nicht ändern kannst.} other {# Zeilen wurden übersprungen, weil du sie nicht ändern kannst.}}",
     "pasteLeftOut": "{count, plural, one {# eingefügte Zelle wurde ausgelassen: Sie passt nicht in ihre Spalte oder du kannst sie nicht ändern.} other {# eingefügte Zellen wurden ausgelassen: Sie passen nicht in ihre Spalten oder du kannst sie nicht ändern.}}",
-    "exportDisabled": "In diesem Workspace ist der Export ausgeschaltet."
+    "exportDisabled": "In diesem Workspace ist der Export ausgeschaltet.",
+    "merge": "Zusammenführen",
+    "mergeHint": "2 bis 5 Zeilen zu einer zusammenführen"
   },
   "calculate": {
     "calculate": "Berechnen",
@@ -393,7 +395,8 @@
     "startTime": "Startzeit",
     "endTime": "Endzeit",
     "endDateSwitch": "Enddatum",
-    "includeTime": "Uhrzeit angeben"
+    "includeTime": "Uhrzeit angeben",
+    "hiddenByParent": "{count, plural, one {# Option passt} other {# Optionen passen}} nicht zu „{parent}“ dieser Zeile."
   },
   "checklist": {
     "addItem": "Eintrag hinzufügen",
@@ -496,7 +499,16 @@
     "reminder": "Erinnerung",
     "reminderNone": "Keine Erinnerung",
     "reminderBefore": "{days, select, 0 {Am selben Tag, 9:00} 1 {1 Tag vorher, 9:00} 7 {1 Woche vorher, 9:00} other {{days} Tage vorher, 9:00}}",
-    "reminderHint": "Benachrichtigt die Personen, die der Zeile zugewiesen sind, sonst wer sie angelegt hat; erledigte Zeilen erinnern nicht. 9:00 gilt in deiner Zeitzone; Daten mit Uhrzeit erinnern stattdessen zu dieser Uhrzeit."
+    "reminderHint": "Benachrichtigt die Personen, die der Zeile zugewiesen sind, sonst wer sie angelegt hat; erledigte Zeilen erinnern nicht. 9:00 gilt in deiner Zeitzone; Daten mit Uhrzeit erinnern stattdessen zu dieser Uhrzeit.",
+    "description": "Beschreibung",
+    "descriptionPlaceholder": "Was sie enthält und wie man sie ausfüllt",
+    "dependsOn": "Hängt ab von",
+    "dependsOnNone": "Nichts",
+    "dependsOnHint": "Wähle, zu welchen Optionen von „{parent}“ jede Option passt. Zeilen bieten nur diese an; eine Option ohne Auswahl passt immer.",
+    "noParentOptions": "„{parent}“ hat noch keine Optionen.",
+    "parentOptionsLabel": "Bei „{parent}“:",
+    "parentOptionsAll": "immer",
+    "parentOptionToggle": "„{option}“ anbieten, wenn „{parent}“ „{value}“ ist"
   },
   "rowProperties": {
     "noProperties": "Keine Eigenschaften",
@@ -527,7 +539,10 @@
     "unknownPerson": "{count, plural, one {eine unbekannte Person} other {# unbekannte Personen}}",
     "checked": "angehakt",
     "unchecked": "nicht angehakt",
-    "checklist": "{done} von {total} erledigt"
+    "checklist": "{done} von {total} erledigt",
+    "merged": "<actor>{name}</actor> hat {count, plural, one {# Zeile} other {# Zeilen}} mit dieser Zeile zusammengeführt: <rows>{titles}</rows>",
+    "mergedFrom": "aus {title}",
+    "approvedFrom": "(vorgeschlagen von {name})"
   },
   "rowEmail": {
     "title": "E-Mail",
@@ -796,7 +811,15 @@
     "webhookBlocked": "Webhooks können nicht an private oder lokale Netzwerkadressen gehen.",
     "agentOwnersOnly": "Nur Inhaber des Workspace und Personen, die den Agenten bearbeiten können, können Aktionen hinzufügen oder ändern, die ihn ausführen.",
     "invalidRepeat": "Diese Wiederholung ist ungültig: Prüfe Tage, Uhrzeit und Zeitzone.",
-    "tooManySchedules": "Dieser Workspace hat bereits so viele sich wiederholende Vorlagen, wie möglich sind."
+    "tooManySchedules": "Dieser Workspace hat bereits so viele sich wiederholende Vorlagen, wie möglich sind.",
+    "optionUnavailable": "„{value}“ ist in „{property}“ für diese Zeile nicht verfügbar.",
+    "invalidDependency": "„{property}“ kann nur von einer anderen Auswahl-Eigenschaft dieser Datenbank abhängen, die nicht selbst von ihr abhängt.",
+    "invalidDescription": "Eine Beschreibung darf höchstens {max} Zeichen lang sein.",
+    "mergeRowCount": "Wähle {min} bis {max} Zeilen zum Zusammenführen.",
+    "mergeRowsInvalid": "Nur Zeilen derselben Datenbank, die nicht im Papierkorb sind, können zusammengeführt werden.",
+    "mergeRowsReadOnly": "Du kannst {rows} nur ansehen. Zum Zusammenführen brauchst du Bearbeitungsrechte für jede Zeile.",
+    "mergeLinksBlocked": "{count, plural, one {Eine Zeile verweist} other {# Zeilen verweisen}} auf diese Zeilen, und du kannst {count, plural, one {sie} other {sie}} nicht ändern: {rows}. Es wurde nichts zusammengeführt.",
+    "mergeChoiceInvalid": "Der für „{property}“ gewählte Wert kann nicht verwendet werden. Wähle den Wert einer anderen Zeile."
   },
   "formula": {
     "title": "Formel",
@@ -1408,5 +1431,37 @@
   "quickAdd": {
     "recognised": "Im Titel erkannt",
     "keep": "„{text}“ im Titel lassen"
+  },
+  "merge": {
+    "menuItem": "Zusammenführen mit…",
+    "pickTitle": "Mit anderen Zeilen zusammenführen",
+    "pickHint": "Wähle bis zu {count, plural, one {# Zeile} other {# Zeilen}}, die mit dieser zusammengeführt werden.",
+    "pickSearch": "Zeilen suchen",
+    "pickEmpty": "Keine anderen Zeilen passen",
+    "pickLoading": "Zeilen werden geladen…",
+    "pickContinue": "Weiter",
+    "title": "{count, plural, one {# Zeile} other {# Zeilen}} zusammenführen",
+    "keep": "Zeile, die bleibt",
+    "keepHint": "Die anderen Zeilen kommen in den Papierkorb. Was sie enthalten, geht auf die Zeile über, die bleibt.",
+    "oldest": "Älteste",
+    "created": "Erstellt am {date}",
+    "titleField": "Titel",
+    "combine": "Alle kombinieren",
+    "hidden": "Verborgen",
+    "empty": "Leer",
+    "locked": "Du kannst diese Eigenschaft nicht ändern, daher bleibt der Wert der Zeile, die bleibt.",
+    "moves": "Außerdem geht auf die verbleibende Zeile über",
+    "movesThreads": "{count, plural, one {# Kommentar-Thread} other {# Kommentar-Threads}}",
+    "movesActivity": "{count, plural, one {# Aktivitätseintrag} other {# Aktivitätseinträge}}",
+    "movesFiles": "{count, plural, one {# hochgeladene Datei} other {# hochgeladene Dateien}}",
+    "movesEmails": "{count, plural, one {# E-Mail} other {# E-Mails}}",
+    "movesLinks": "Verknüpfungen von {count, plural, one {# anderen Zeile} other {# anderen Zeilen}}, mit Unterelementen und Abhängigkeiten",
+    "movesBodies": "Der Seiteninhalt von {count, plural, one {# Zeile} other {# Zeilen}}, jeweils unter einer Überschrift",
+    "movesNothing": "Sonst ist nichts zu übertragen.",
+    "subpages": "{count, plural, one {# Seite in den zusammengeführten Zeilen kommt} other {# Seiten in den zusammengeführten Zeilen kommen}} mit ihnen in den Papierkorb.",
+    "trashNote": "Eine zusammengeführte Zeile, die aus dem Papierkorb wiederhergestellt wird, kommt als eigene Zeile zurück. Was übertragen wurde, bleibt bei der verbleibenden Zeile.",
+    "confirm": "Zeilen zusammenführen",
+    "merging": "Wird zusammengeführt…",
+    "bodyHeading": "Zusammengeführt aus {title}"
   }
 }

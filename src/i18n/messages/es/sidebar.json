@@ -17,7 +17,9 @@
     "import": "Importar",
     "graph": "Grafo",
     "skills": "Habilidades",
-    "more": "Más"
+    "more": "Más",
+    "review": "Por revisar",
+    "reviewCount": "{count, plural, one {# cambio espera tu revisión} other {# cambios esperan tu revisión}}"
   },
   "tabs": {
     "label": "Barra lateral",
@@ -79,7 +81,9 @@
     "deletePermanently": "Eliminar definitivamente",
     "confirmDelete": "¿Eliminar definitivamente? No se puede deshacer.",
     "deletesIn": "Se eliminará en {count, plural, one {# día} other {# días}}",
-    "deletesSoon": "Se eliminará pronto"
+    "deletesSoon": "Se eliminará pronto",
+    "mergedInto": "Combinada en {title}",
+    "restoreMerged": "Restaurar como fila independiente. Los vínculos, comentarios, actividad y correos que pasaron a «{title}» se quedan allí."
   },
   "newWorkspace": {
     "title": "Nuevo espacio de trabajo",
@@ -167,6 +171,8 @@
     "reportGone": "La ejecución ya no se conserva.",
     "aiAccountTitle": "Cuenta de IA quitada",
     "aiAccountDetached": "La IA del espacio de trabajo ya no funciona con la clave de {actor}. Elige otra cuenta de IA en Configuración.",
+    "reviewTitle": "Por revisar",
+    "review": "{count, plural, one {{agent} propuso un cambio para que lo revises} other {# cambios esperan tu revisión; el último, de {agent}}}",
     "automationRun": "Automatización “{name}”"
   },
   "templates": {

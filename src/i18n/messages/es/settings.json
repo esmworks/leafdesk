@@ -361,7 +361,12 @@
       "helpersHelp": "Durante una ejecución puede pasar parte de su tarea a estos agentes, hasta {max} veces, y usar sus respuestas. Cada uno trabaja con su propio acceso, herramientas y límites, y no puede preguntar a otros agentes a su vez.",
       "helpersEmpty": "Todavía no hay otros agentes en este espacio de trabajo.",
       "helperPaused": "En pausa",
-      "limitOwnersOnly": "Solo los propietarios del espacio de trabajo fijan este límite."
+      "limitOwnersOnly": "Solo los propietarios del espacio de trabajo fijan este límite.",
+      "rowChanges": "Cambios en filas",
+      "rowChangesDirect": "Hacerlos directamente",
+      "rowChangesReview": "Proponerlos para revisión",
+      "rowChangesDirectHelp": "Las filas que añade y los valores que cambia se guardan al momento, a su nombre.",
+      "rowChangesReviewHelp": "Las filas que añadiría y los valores que cambiaría esperan en Por revisar hasta que alguien que pueda editarlos apruebe o descarte cada uno."
     },
     "describe": {
       "button": "Describir un agente",
@@ -563,7 +568,10 @@
       "fromChat": "Mensaje de chat de {name}",
       "chattedBy": "chat de {name}",
       "yoursOnly": "Ves las ejecuciones que iniciaste tú.",
-      "waitingForOwner": "Un propietario del espacio de trabajo responde a esta llamada."
+      "waitingForOwner": "Un propietario del espacio de trabajo responde a esta llamada.",
+      "emailDrafted": "Redactó un correo para revisar:",
+      "emailFailed": "No pudo redactar un correo:",
+      "emailHidden": "Redactó un correo en una fila que no puedes abrir"
     },
     "usage": {
       "thisMonth": "Este mes: {usage}",
@@ -621,6 +629,12 @@
       "logFills": "Rellena {properties}.",
       "logFillsNone": "El registro no tiene propiedades que pueda rellenar (listas, fechas, enlaces, personas, texto); solo añade el título y el texto de cada logro.",
       "logLeft": "Quedan fuera, pasadas las primeras {max}: {properties}.",
+      "chooseCompanies": "¿Qué base de datos de empresas o clientes debe completar? Necesitas acceso completo a ella.",
+      "companyProperties": "Propiedades que rellena",
+      "companyPropertiesHelp": "Hasta {max}. En una fila nueva rellena solo las que siguen vacías y nunca cambia un valor. La descripción de una propiedad le dice qué va en ella; desmarca las que no debe tocar.",
+      "noCompanyProperties": "Esta base de datos no tiene ninguna propiedad que pueda rellenar: texto, enlace, correo, teléfono, número o una selección con opciones. Añade una y luego configura el agente.",
+      "companyAutofilled": "Quedan fuera, porque las rellena el autorrelleno con IA: {properties}.",
+      "summaryWeb": "Obtiene acceso a la web para buscar las empresas.",
       "back": "Atrás",
       "next": "Siguiente",
       "create": "Crear agente",
@@ -753,7 +767,8 @@
         "monthly_token_limit": "Límite mensual de tokens",
         "skills": "Habilidades",
         "schedules": "Programaciones",
-        "shares": "Páginas compartidas"
+        "shares": "Páginas compartidas",
+        "row_changes": "Cambios en filas"
       },
       "back": "Todas las versiones",
       "compareNote": "Lo que cambió desde esta versión hasta la configuración actual del agente. Al restaurarla vuelve lo que tenía esta versión.",
@@ -1517,7 +1532,8 @@
         "deleted": "Eliminó {target} definitivamente",
         "published": "Publicó {target} en la web",
         "unpublished": "Dejó de publicar {target}",
-        "publication_revoked": "Retiró {target} de la web (publicada por {subject})"
+        "publication_revoked": "Retiró {target} de la web (publicada por {subject})",
+        "rows_merged": "Combinó {count, plural, one {# fila} other {# filas}} en {target}"
       },
       "property": {
         "access_changed": "Cambió el acceso a «{property}» en {target}",
@@ -1576,6 +1592,7 @@
       },
       "api_token": {
         "created": "Creó el token de API {target}",
+        "updated": "Cambió lo que puede hacer el token de API {target}",
         "revoked": "{hasSubject, select, yes {Revocó el token de API {target} de {subject}} other {Revocó el token de API {target}}}"
       },
       "automation": {
@@ -1621,6 +1638,10 @@
       "ai_account": {
         "attached": "Vinculó la IA del espacio de trabajo a la cuenta de IA {target}",
         "detached": "Desvinculó la IA del espacio de trabajo de la cuenta de IA {target}"
+      },
+      "review": {
+        "approved": "{kind, select, email_draft {Envió el correo que el agente «{agent}» redactó en {target}} create_row {Aprobó la fila que el agente «{agent}» propuso en {target}} other {Aprobó el cambio que el agente «{agent}» propuso en {target}}}{outcome, select, failed { (falló)} other {}}",
+        "dismissed": "{kind, select, email_draft {Descartó el correo que el agente «{agent}» redactó en {target}} create_row {Descartó la fila que el agente «{agent}» propuso en {target}} other {Descartó el cambio que el agente «{agent}» propuso en {target}}}"
       }
     },
     "decisions": {
@@ -1693,7 +1714,10 @@
     "watchedNone": "Todavía no observas ninguna página",
     "watchedNoneDescription": "Observa una página desde su menú ⋯, o un espacio de equipo entero desde su menú en la barra lateral. Las páginas que editas se observan automáticamente.",
     "watchedTeamspace": "Todas las páginas de este espacio de equipo · {workspace}",
-    "stopWatching": "Dejar de observar"
+    "stopWatching": "Dejar de observar",
+    "reviewTitle": "Por revisar",
+    "reviewDescription": "Un agente propone un cambio en una fila que puedes editar, o redacta un correo desde tu buzón, y queda esperando tu revisión. Las propuestas nuevas se agrupan hasta que las abres.",
+    "reviewChannel": "Por revisar: {channel}"
   },
   "site": {
     "description": "Dale a las páginas publicadas de este espacio de trabajo una dirección legible, una página de inicio y navegación entre ellas.",

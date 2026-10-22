@@ -88,7 +88,8 @@
     "muteHint": "このスレッドの新しい返信の通知を受け取らないようにします。ここで返信するか、ここでメンションされると元に戻ります。",
     "unmuteHint": "このスレッドの新しい返信の通知をまた受け取ります。",
     "muted": "返信をミュート中",
-    "mutedHint": "ここで返信するか、誰かにここでメンションされるまで、このスレッドの返信の通知は届きません。"
+    "mutedHint": "ここで返信するか、誰かにここでメンションされるまで、このスレッドの返信の通知は届きません。",
+    "mergedFrom": "「{title}」から"
   },
   "archived": {
     "banner": "このページはゴミ箱にあります。",
@@ -167,7 +168,8 @@
       "beforeAiEdit": "AIによる編集前",
       "beforeAiEditBy": "{client}による編集前",
       "beforeAssistantEdit": "AIアシスタントによる編集前",
-      "beforeMarkdownEdit": "Markdown編集前"
+      "beforeMarkdownEdit": "Markdown編集前",
+      "beforeMerge": "行を統合する前"
     },
     "empty": "バージョンはまだありません。バージョンは編集中と、AIアプリがこのページを変更する前に自動で保存されます。",
     "restore": "このバージョンを復元",

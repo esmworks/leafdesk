@@ -29,16 +29,32 @@ export type RowActivityEntry = {
   /** When it happened; for merged changes, the last of them. ISO 8601. */
   at: string;
   actor: { kind: RowActivityActor; person: ActivityPerson | null };
+  /** A change proposed for review and approved by `actor`: the agent that proposed it. */
+  proposedBy: ActivityPerson | null;
   /** The property a `property` entry is about. */
   property: { id: string; name: string; type: PropertyType } | null;
   /** The value before and after, for `title` and `property` entries. */
   from: ActivityValue | null;
   to: ActivityValue | null;
+  /** An entry that came with a row merged into this one: that row, by its title then. */
+  mergedFrom: { id: string; title: string } | null;
+  /** `merged` entries: the rows merged into this one, by their titles then. */
+  merged?: { id: string; title: string }[];
 };
 
 export type RowActivityList = { entries: RowActivityEntry[]; total: number; hasMore: boolean };
 
 export { MAX_ACTIVITY_PAGE };
+
+/** The rows a `merged` entry lists, as stored ({id, title} each); anything else is left out. */
+function mergedRowsOf(value: unknown): { id: string; title: string }[] {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((r) =>
+    r && typeof r === "object" && typeof (r as { id?: unknown }).id === "string"
+      ? [{ id: (r as { id: string }).id, title: typeof (r as { title?: unknown }).title === "string" ? (r as { title: string }).title : "" }]
+      : [],
+  );
+}
 
 /**
  * `limit` entries of a row's activity from `offset` on, newest first. Rows made before activity
@@ -77,7 +93,11 @@ export async function listRowActivity(
   );
   const [[totals], stored] = await Promise.all([
     db
-      .select({ stored: count(), hasCreated: sql<boolean>`coalesce(bool_or(${rowActivity.kind} = 'created'), false)` })
+      // Only the row's own "created" entry counts: those of rows merged into it came with them.
+      .select({
+        stored: count(),
+        hasCreated: sql<boolean>`coalesce(bool_or(${rowActivity.kind} = 'created' and ${rowActivity.mergedFromId} is null), false)`,
+      })
       .from(rowActivity)
       .where(shown),
     db
@@ -98,11 +118,14 @@ export async function listRowActivity(
       workspaceId: row.workspaceId,
       actorUserId: row.createdBy,
       actorKind: "user",
+      proposedBy: null,
       kind: "created",
       propertyId: null,
       propertyType: null,
       oldValue: null,
       newValue: null,
+      mergedFromId: null,
+      mergedFromTitle: null,
       createdAt: row.createdAt,
     });
   }
@@ -113,7 +136,7 @@ export async function listRowActivity(
     { type: e.propertyType, value: e.newValue },
   ]);
   const ids = referencedIds(values);
-  const lookups = await loadLookups(userId, [...ids.people, ...listed.flatMap((e) => (e.actorUserId ? [e.actorUserId] : []))], [...ids.pages]);
+  const lookups = await loadLookups(userId, [...ids.people, ...listed.flatMap((e) => [e.actorUserId, e.proposedBy].filter((id): id is string => !!id))], [...ids.pages]);
   const entries = listed.map((e): RowActivityEntry => {
     const prop = e.propertyId ? byId.get(e.propertyId) : undefined;
     const options = prop?.options.options ?? [];
@@ -126,9 +149,12 @@ export async function listRowActivity(
       at: e.createdAt.toISOString(),
       // The "created" entry made up for older rows knows only who created them.
       actor: { kind: e.actorKind === "user" && person?.isAgent ? "agent" : e.actorKind, person },
+      proposedBy: e.proposedBy ? (lookups.people.get(e.proposedBy) ?? null) : null,
       property: prop ? { id: prop.id, name: prop.name, type: prop.type } : null,
-      from: e.kind === "created" ? null : read(e.oldValue),
-      to: e.kind === "created" ? null : read(e.newValue),
+      from: e.kind === "created" || e.kind === "merged" ? null : read(e.oldValue),
+      to: e.kind === "created" || e.kind === "merged" ? null : read(e.newValue),
+      mergedFrom: e.mergedFromId ? { id: e.mergedFromId, title: e.mergedFromTitle ?? "" } : null,
+      ...(e.kind === "merged" ? { merged: mergedRowsOf(e.newValue) } : {}),
     };
   });
   return { entries, total, hasMore: offset + listed.length < total };

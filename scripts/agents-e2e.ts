@@ -12,7 +12,8 @@
  * member, owner or guest, it gets no notifications, it assigns people by name (not email), it's
  * marked as an agent where it acted, and deleting its workspace deletes its user.
  * Built-in agents are set up on a database in one step: properties and options made when asked,
- * instructions in the owner's language, the pages they read shared to view, the automation added.
+ * instructions in the owner's language, the pages they read shared to view, the automation added;
+ * the company researcher gets web access and instructions naming the properties it fills.
  * Creates its own users and workspaces and deletes them afterwards.
  *
  *   pnpm tsx scripts/agents-e2e.ts
@@ -29,8 +30,22 @@ try {
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
 const { and, eq, inArray, sql } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { account, agentRun, auditEvent, automationRun, databaseAutomation, notification, pagePermission, page, teamspace, user, workspace, workspaceAgent, workspaceMember } =
-  await import("@/db/schema");
+const {
+  account,
+  agentRun,
+  auditEvent,
+  automationRun,
+  databaseAutomation,
+  databaseProperty,
+  notification,
+  pagePermission,
+  page,
+  teamspace,
+  user,
+  workspace,
+  workspaceAgent,
+  workspaceMember,
+} = await import("@/db/schema");
 const { registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
 const { createPage } = await import("@/server/pages");
@@ -734,6 +749,68 @@ try {
     ran.length === 4 && ran.every((run) => run.status === "done") && ran.find((run) => run.agentId === r.id)?.prompt === "Bu yeni satırı kurallarına göre sınıflandır.",
     "a new row runs each of them, with its task",
     ran.map((run) => ({ agent: run.agentId, status: run.status, code: run.code, prompt: run.prompt })),
+  );
+
+  // The company researcher fills a companies database's own properties from the web.
+  const companies = await createPage(owner, { workspaceId, teamspaceId: general.id, kind: "database", title: "Companies" });
+  const website = await addProperty(ids.owner, companies.id, { name: "Website", type: "url" });
+  const stage = await addProperty(ids.owner, companies.id, { name: "Stage", type: "select", options: ["Lead", "Customer"] });
+  const empty = await addProperty(ids.owner, companies.id, { name: "Tags", type: "multi_select" });
+  const founded = await addProperty(ids.owner, companies.id, { name: "Founded", type: "date" });
+  const summary = await addProperty(ids.owner, companies.id, { name: "Summary", type: "text" });
+  const stageNote = "Lead until we've called them";
+  await db.update(databaseProperty).set({ options: { ...stage.options, description: stageNote } }).where(eq(databaseProperty.id, stage.id));
+  await db
+    .update(databaseProperty)
+    .set({ options: { ...summary.options, ai: { mode: "summary" } } })
+    .where(eq(databaseProperty.id, summary.id));
+  const researcherSetup = (properties: unknown[]) => ({ key: "company-details" as const, databaseId: companies.id, properties: properties as string[] });
+  const companiesBefore = await agentCount();
+  for (const [properties, label] of [
+    [[], "at least one property"],
+    [[founded.id], "no property of a type it doesn't fill"],
+    [[empty.id], "no list without options"],
+    [[summary.id], "no property AI autofill fills"],
+    [["new"], "no property of its own"],
+    [[website.id, dup.id], "no property of another database"],
+  ] as const) {
+    check(await fails(installBuiltinAgent(ids.owner, workspaceId, researcherSetup([...properties])), isInvalid("property")), `the company researcher takes ${label}`);
+  }
+  check((await agentCount()) === companiesBefore && (await automationsOf(companies.id)).length === 0, "…and a setup it refuses makes nothing");
+
+  const researching = await installBuiltinAgent(ids.owner, workspaceId, researcherSetup([stage.id, website.id, website.id]));
+  const c = researching.agent;
+  check(
+    c.icon === "🏢" &&
+      c.webAccess === true &&
+      c.instructions.includes("- “Website” (a link)\n- “Stage” (one of “Lead”, “Customer”): Lead until we've called them") &&
+      c.instructions.includes("“Companies”") &&
+      c.instructions.includes("update_row") &&
+      c.instructions.includes("add_comment"),
+    "the company researcher reads the web, and its instructions name each property it fills in the database's order, with its options and description",
+    { webAccess: c.webAccess, instructions: c.instructions },
+  );
+  const [researchingAutomation] = await automationsOf(companies.id);
+  check(
+    researchingAutomation?.id === researching.automationId &&
+      researchingAutomation.trigger.type === "row_created" &&
+      researchingAutomation.actions.length === 1 &&
+      researchingAutomation.actions[0].type === "run_agent" &&
+      researchingAutomation.actions[0].agentId === c.id,
+    "…it runs on every new company, by an automation of the database",
+    researchingAutomation,
+  );
+  check((await pageAccessOf(c.userId, companies.id)).level === "edit", "…which shares the database with it, to edit");
+  fake.chats.length = 0;
+  await createRows(ids.owner, companies.id, [{ title: "Acme Bakery" }]);
+  await settle();
+  const [researched] = await db.select().from(agentRun).where(eq(agentRun.agentId, c.id));
+  // Any chat of the run (an autofill elsewhere would have no tools).
+  const researchTools = fake.chats.flatMap((chat) => chat.tools?.map((t) => t.function.name) ?? []);
+  check(
+    researched?.status === "done" && researched.prompt === "Look this new company up on the web and fill in its empty properties." && researchTools.includes("read_web_page"),
+    "a new company runs it with its task, and it may read web pages",
+    { status: researched?.status, code: researched?.code, prompt: researched?.prompt, tools: researchTools },
   );
 
   // ── Web access ─────────────────────────────────────────────────────────────────────────────

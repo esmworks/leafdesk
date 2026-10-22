@@ -61,6 +61,7 @@ export const AUDIT_CATEGORIES = {
   pages: [
     "page.created",
     "page.duplicated",
+    "page.rows_merged",
     "page.imported",
     "page.moved",
     "page.trashed",
@@ -82,6 +83,7 @@ export const AUDIT_CATEGORIES = {
     "connected_app.connected",
     "connected_app.revoked",
     "api_token.created",
+    "api_token.updated",
     "api_token.revoked",
     "automation.created",
     "automation.updated",
@@ -99,6 +101,8 @@ export const AUDIT_CATEGORIES = {
     "agent.schedule_removed",
     "agent.shared",
     "agent.unshared",
+    "review.approved",
+    "review.dismissed",
   ],
   connections: [
     "connection.created",
@@ -437,6 +441,10 @@ export function describeAuditEvent(event: Pick<AuditEvent, "action" | "targetLab
     case "backup.created":
     case "backup.restored":
       values.count = typeof d.pages === "number" ? d.pages : 0;
+      break;
+    case "review.approved":
+      // Read as a choice in the message ("it failed"), not as the word.
+      values.outcome = text(d.outcome);
       break;
     case "agent.shared":
       values.level = known(t, `audit.agentLevels.${text(d.level)}`, text(d.level));

@@ -1,5 +1,6 @@
 "use client";
 
+import { propertyDescription } from "@/lib/property-description";
 import { ArrowDown, ArrowUp, Check, ExternalLink, Globe, Link2, Plus, Share2, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
@@ -511,7 +512,8 @@ function FormBuilder({
                       multiline
                       value={q.description}
                       onCommit={(description) => patchQuestion(i, { description })}
-                      placeholder={t("helpPlaceholder")}
+                      // Left empty, the question shows its property's description.
+                      placeholder={(q.prop && propertyDescription(q.prop)) || t("helpPlaceholder")}
                       maxLength={MAX_QUESTION_DESCRIPTION}
                       label={t("helpPlaceholder")}
                       className="-mx-1 px-1 py-0.5 text-xs text-fg-muted"

@@ -122,6 +122,8 @@ export async function listTrashAction(workspaceId: string) {
     deletesAt: r.deletesAt,
     canRestore: hasLevel(r.level, "edit"),
     canDelete: hasLevel(r.level, "full"),
+    /** A row merged into another one: that row (its title null when the user can't see it). */
+    mergedInto: r.mergedInto,
   }));
 }
 

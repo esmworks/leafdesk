@@ -17,7 +17,9 @@
     "import": "インポート",
     "graph": "グラフ",
     "skills": "スキル",
-    "more": "その他"
+    "more": "その他",
+    "review": "確認待ち",
+    "reviewCount": "{count, plural, other {確認待ちの変更：#件}}"
   },
   "tabs": {
     "label": "サイドバー",
@@ -79,7 +81,9 @@
     "deletePermanently": "完全に削除",
     "confirmDelete": "完全に削除しますか？この操作は元に戻せません。",
     "deletesIn": "{count}日後に削除",
-    "deletesSoon": "まもなく削除"
+    "deletesSoon": "まもなく削除",
+    "mergedInto": "{title}に統合済み",
+    "restoreMerged": "別の行として復元します。「{title}」に移ったリンク、コメント、アクティビティ、メールはそちらに残ります。"
   },
   "newWorkspace": {
     "title": "新しいワークスペース",
@@ -167,6 +171,8 @@
     "reportGone": "この実行はもう保存されていません。",
     "aiAccountTitle": "AIアカウントが削除されました",
     "aiAccountDetached": "ワークスペースのAIは、{actor}のキーでは実行されなくなりました。設定で別のAIアカウントを選択してください。",
+    "reviewTitle": "確認待ち",
+    "review": "{count, plural, =1 {{agent}が確認用に変更を提案しました} other {#件の変更が確認を待っています（最新は{agent}から）}}",
     "automationRun": "オートメーション「{name}」"
   },
   "templates": {

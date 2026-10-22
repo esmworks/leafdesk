@@ -18,6 +18,7 @@ import {
   LayoutTemplate,
   Link2,
   Lock,
+  Merge,
   MessageSquare,
   MessagesSquare,
   Mic,
@@ -54,6 +55,7 @@ import { useAiChat } from "@/components/ai-chat/chat-panel";
 import { cn, Dialog, IconButton, MenuItem, MenuSeparator, PageIcon, pageLabel, Popover, Switch } from "@/components/ui";
 import { useZipExport } from "@/components/use-zip-export";
 import { VoiceNoteInstructionsDialog } from "@/components/voice/voice-note-instructions-dialog";
+import { MergeWithDialog } from "@/components/database/merge-rows-dialog";
 import type { PageKind } from "@/db/schema/app";
 import { FAVORITES_EVENT } from "@/lib/favorites-event";
 import { OPEN_SHARE_EVENT } from "@/lib/share-event";
@@ -428,10 +430,12 @@ function PageMenu({
   const tTemplate = useTranslations("page.template");
   const tSkills = useTranslations("skills");
   const tVoice = useTranslations("page.voiceNote.instructions");
+  const tMerge = useTranslations("database.merge");
   const locale = useLocale();
   const router = useRouter();
   const [moveOpen, setMoveOpen] = useState(false);
   const [voiceInstructionsOpen, setVoiceInstructionsOpen] = useState(false);
+  const [mergeOpen, setMergeOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const zipExport = useZipExport();
@@ -638,6 +642,18 @@ function PageMenu({
             {!page.archived && canEdit && (page.parentId !== null || info.topLevel) && (
               <MenuItem icon={<Copy className="h-4 w-4" />} onClick={() => duplicate(close)}>
                 {t("duplicate")}
+              </MenuItem>
+            )}
+            {/* Duplicates of this row into one; the rows merged go to the trash, which guests don't have. */}
+            {page.isRow && !page.archived && canEdit && !info.template && !info.guest && (
+              <MenuItem
+                icon={<Merge className="h-4 w-4" />}
+                onClick={() => {
+                  close();
+                  setMergeOpen(true);
+                }}
+              >
+                {tMerge("menuItem")}
               </MenuItem>
             )}
             {canSaveTemplate && (
@@ -851,6 +867,19 @@ function PageMenu({
           />,
           document.body,
         )}
+      {mergeOpen && (
+        <MergeWithDialog
+          rowId={page.id}
+          onClose={() => setMergeOpen(false)}
+          onMerged={(result) => {
+            setMergeOpen(false);
+            // This row may be one of those gone to the trash: the kept row is where everything is now.
+            if (result.keptRowId === page.id) router.refresh();
+            else if (onOpenPage) onOpenPage(result.workspaceId, result.keptRowId);
+            else router.push(`/w/${result.workspaceId}/p/${result.keptRowId}`);
+          }}
+        />
+      )}
       {isDatabase && (
         <VoiceNoteInstructionsDialog databaseId={page.id} open={voiceInstructionsOpen} onClose={() => setVoiceInstructionsOpen(false)} />
       )}

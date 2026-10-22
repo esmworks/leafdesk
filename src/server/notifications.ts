@@ -28,6 +28,7 @@ import { isEmptyRowUpdate, mergeRowUpdates, parseRowUpdate, visibleRowUpdate, ty
 import {
   FULL_RANK,
   findMembership,
+  inWorkspace,
   ownsWorkspace,
   pageVisibleTo,
   peopleWithFullAccess,
@@ -49,6 +50,7 @@ import { propertyAccessFor } from "@/server/property-access";
 import { pushNotifications } from "@/server/push";
 import { snippetOf } from "@/server/semantic-text";
 import { canInviteGuests } from "@/server/workspaces";
+import { countPendingFor } from "@/server/pending-changes";
 import { startSweep } from "@/server/sweep";
 
 /**
@@ -581,6 +583,8 @@ export type InboxItem = {
   rowUpdate: InboxRowUpdate | null;
   /** Row emails: the message that came in on the row (`pageId`). */
   rowEmail: InboxRowEmail | null;
+  /** Changes waiting for review: how many the user could answer now (the item shows while there are any). */
+  review: { count: number } | null;
 };
 
 export type InboxRowEmail = { id: string; from: string; subject: string; snippet: string };
@@ -685,6 +689,8 @@ async function inboxFilter(userId: string, workspaceId?: string, only?: Notifica
         ),
       ),
       and(inArray(notification.kind, ["join_request", ...OWNER_KINDS]), ownsWorkspace(userId, notification.workspaceId)),
+      // Changes waiting for review have no page: they show while the user is in the workspace.
+      and(eq(notification.kind, "review"), inWorkspace(sql`${userId}`, notification.workspaceId)),
     ),
   )!;
 }
@@ -777,12 +783,14 @@ export async function listNotifications(
     return inviting.get(id)!;
   };
   const runsOf = (kind: NotificationKind) => rows.flatMap((r) => (r.kind === kind && r.agentRunId ? [r.agentRunId] : []));
-  const [approvals, proposals, reports, updates, emails] = await Promise.all([
+  const reviewWorkspaces = [...new Set(rows.filter((r) => r.kind === "review").map((r) => r.workspaceId))];
+  const [approvals, proposals, reports, updates, emails, reviews] = await Promise.all([
     approvalsOf(userId, runsOf("agent_approval")),
     inboxProposals(userId, runsOf("agent_memory")),
     reportsOf(userId, runsOf("agent_report")),
     rowUpdatesOf(userId, rows.filter((r) => r.kind === "row_update")),
     rowEmailsOf(userId, rows.filter((r) => r.kind === "row_email")),
+    Promise.all(reviewWorkspaces.map(async (id) => [id, await countPendingFor(userId, id)] as const)).then((counts) => new Map(counts)),
   ]);
   // A row update with nothing left the user may see (a property's access changed since) isn't shown,
   // nor a call the user no longer answers (they can't open its row any more).
@@ -791,6 +799,8 @@ export async function listNotifications(
       (r.kind !== "row_update" || updates.has(r.id)) &&
       // Nor a message the user may no longer read (the email property's access changed since).
       (r.kind !== "row_email" || emails.has(r.id)) &&
+      // Nor changes for review once none waits for the user any more.
+      (r.kind !== "review" || (reviews.get(r.workspaceId) ?? 0) > 0) &&
       !(r.kind === "agent_approval" && r.agentRunId && approvals.get(r.agentRunId) === null),
   );
   return Promise.all(
@@ -798,6 +808,7 @@ export async function listNotifications(
       ...row,
       rowUpdate: updates.get(row.id) ?? null,
       rowEmail: emails.get(row.id) ?? null,
+      review: row.kind === "review" ? { count: reviews.get(row.workspaceId) ?? 0 } : null,
       read: readAt !== null,
       approval: agentRunId && row.kind === "agent_approval" ? (approvals.get(agentRunId) ?? null) : null,
       memory: agentRunId && row.kind === "agent_memory" ? (proposals.get(agentRunId) ?? null) : null,

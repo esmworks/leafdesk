@@ -1,0 +1,88 @@
+{
+  "metaTitle": "검토 대기",
+  "heading": "검토 대기",
+  "description": "에이전트가 직접 적용하는 대신 제안한 변경입니다. 승인하면 내 이름으로 적용되며, 먼저 편집하거나 무시할 수도 있습니다. 아무도 응답하지 않은 제안은 30일 후 만료됩니다.",
+  "filters": {
+    "agent": "에이전트",
+    "database": "데이터베이스",
+    "status": "표시",
+    "allAgents": "모든 에이전트",
+    "allDatabases": "모든 데이터베이스",
+    "open": "대기 중",
+    "decided": "응답함",
+    "allRows": "모든 행 표시",
+    "clear": "필터 지우기"
+  },
+  "count": "{count, plural, other {변경 #개}}",
+  "select": "이 변경 선택",
+  "selectAll": "모두 선택",
+  "selected": "{count}개 선택됨",
+  "approveSelected": "{count}개 승인",
+  "dismissSelected": "{count}개 무시",
+  "bulkSkipped": "{count, plural, other {변경 #개에 응답할 수 없었습니다. 이미 응답되었거나, 그 후 행이 변경되었거나, 응답할 권한이 없습니다.}}",
+  "empty": {
+    "open": "검토를 기다리는 항목이 없습니다.",
+    "decided": "최근 30일 동안 응답한 변경이 없습니다.",
+    "filtered": "이 필터와 일치하는 변경이 없습니다."
+  },
+  "proposes": {
+    "createRow": "<agent></agent>이(가) <database></database>에 행을 추가하려고 합니다",
+    "updateRow": "<agent></agent>이(가) <row></row>을(를) 변경하려고 합니다",
+    "emailDraft": "<agent></agent>이(가) <row></row>에서 이메일 초안을 작성했습니다"
+  },
+  "inDatabase": "<database></database>에 있음",
+  "unknownAgent": "삭제된 에이전트",
+  "someone": "누군가",
+  "viewRun": "실행 보기",
+  "edited": "편집됨",
+  "expires": "{time} 만료",
+  "decided": {
+    "approved": "{name} 님이 {time} 승인함",
+    "dismissed": "{name} 님이 {time} 무시함",
+    "expired": "응답 없이 만료됨"
+  },
+  "title": "제목",
+  "becomes": "변경 후",
+  "changedSince": "제안 이후 변경됨, 현재 <value></value>",
+  "conflictNotice": "에이전트가 제안한 이후 이 행이 변경되었습니다. 승인하면 현재 내용을 덮어씁니다.",
+  "failedNote": "승인되었지만 적용하지 못했습니다: {error} 편집한 후 다시 승인하거나 무시하세요.",
+  "failed": {
+    "error": "문제가 발생했습니다.",
+    "pageLocked": "행이 잠겨 있습니다."
+  },
+  "email": {
+    "from": "보낸 사람",
+    "to": "받는 사람",
+    "cc": "참조",
+    "subject": "제목",
+    "text": "본문",
+    "reply": "행의 최근 이메일에 대한 답장"
+  },
+  "markdown": "페이지 텍스트",
+  "notEditable": "유지하거나 제외하세요. 나중에 행에서 변경할 수 있습니다.",
+  "leaveOut": "제외",
+  "keep": "유지",
+  "approve": "승인",
+  "approveAnyway": "그래도 승인",
+  "send": "보내기",
+  "edit": "편집",
+  "save": "편집 저장",
+  "dismiss": "무시",
+  "cannot": {
+    "email": "이 초안은 {name} 님만 자신의 메일함에서 보낼 수 있습니다.",
+    "row": "이 변경은 볼 수 있지만, 승인하려면 행과 이 변경이 설정하는 각 값에 대한 편집 권한이 필요합니다."
+  },
+  "errors": {
+    "notFound": "이 변경이 없어졌거나 볼 권한이 없습니다.",
+    "decided": "누군가 이미 이 변경에 응답했습니다.",
+    "conflict": "제안된 이후 행이 변경되었습니다. 다시 확인한 후 그래도 승인하거나 무시하세요.",
+    "invalid": "이 편집은 올바르지 않습니다: {message}",
+    "accessDenied": "이 변경에 응답할 수 없습니다."
+  },
+  "banner": {
+    "title": "검토 대기 중인 변경",
+    "bar": "{count, plural, other {검토 대기 중인 변경 #개}}",
+    "by": "제안: {names}",
+    "open": "검토"
+  }
+}

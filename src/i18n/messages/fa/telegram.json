@@ -93,7 +93,8 @@
   "changed": {
     "done": "انجام شد: {what}",
     "declined": "انجام نشد: {what}",
-    "failed": "ممکن نشد: {what}"
+    "failed": "ممکن نشد: {what}",
+    "proposed": "برای بازبینی پیشنهاد شد: {what}"
   },
   "errors": {
     "disabled": "هوش مصنوعی در این فضای کاری خاموش است.",

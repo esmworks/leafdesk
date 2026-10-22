@@ -361,7 +361,12 @@
       "helpersHelp": "Durante uma execução, ele pode passar parte da tarefa a estes agentes, até {max} vezes, e usar as respostas deles. Cada um trabalha com o próprio acesso, ferramentas e limites, e não pode pedir a outros agentes por sua vez.",
       "helpersEmpty": "Ainda não há outros agentes neste espaço de trabalho.",
       "helperPaused": "Pausado",
-      "limitOwnersOnly": "Só proprietários do espaço de trabalho definem este limite."
+      "limitOwnersOnly": "Só proprietários do espaço de trabalho definem este limite.",
+      "rowChanges": "Alterações em linhas",
+      "rowChangesDirect": "Fazer diretamente",
+      "rowChangesReview": "Propor para revisão",
+      "rowChangesDirectHelp": "As linhas que ele adiciona e os valores que altera são salvos na hora, em nome dele.",
+      "rowChangesReviewHelp": "As linhas que ele adicionaria e os valores que alteraria aguardam em Para revisar até que alguém que possa editá-los aprove ou descarte cada um."
     },
     "describe": {
       "button": "Descrever um agente",
@@ -563,7 +568,10 @@
       "fromChat": "Mensagem de chat de {name}",
       "chattedBy": "chat de {name}",
       "yoursOnly": "Você vê as execuções que iniciou.",
-      "waitingForOwner": "Um proprietário do espaço de trabalho responde a esta chamada."
+      "waitingForOwner": "Um proprietário do espaço de trabalho responde a esta chamada.",
+      "emailDrafted": "Redigiu um e-mail para revisão:",
+      "emailFailed": "Não conseguiu redigir um e-mail:",
+      "emailHidden": "Redigiu um e-mail numa linha que você não pode abrir"
     },
     "usage": {
       "thisMonth": "Este mês: {usage}",
@@ -621,6 +629,12 @@
       "logFills": "Ele preenche {properties}.",
       "logFillsNone": "O registro não tem nenhuma das propriedades que ele preenche (listas, datas, links, pessoas, texto); ele adiciona só o título e o texto de cada conquista.",
       "logLeft": "Deixadas de fora, além das primeiras {max}: {properties}.",
+      "chooseCompanies": "Qual banco de dados de empresas ou clientes ele deve preencher? Você precisa ter acesso total a ele.",
+      "companyProperties": "Propriedades a preencher",
+      "companyPropertiesHelp": "Até {max}. Em uma nova linha, ele preenche apenas as que ainda estão vazias e nunca altera um valor. A descrição de uma propriedade diz a ele o que vai ali; desmarque as que ele não deve tocar.",
+      "noCompanyProperties": "Este banco de dados não tem nenhuma propriedade que ele possa preencher: texto, link, e-mail, telefone, número ou uma seleção com opções. Adicione uma e depois configure o agente.",
+      "companyAutofilled": "Deixadas de fora, porque o preenchimento automático com IA as preenche: {properties}.",
+      "summaryWeb": "Ele recebe acesso à web, para pesquisar as empresas.",
       "back": "Voltar",
       "next": "Avançar",
       "create": "Criar agente",
@@ -753,7 +767,8 @@
         "monthly_token_limit": "Limite mensal de tokens",
         "skills": "Habilidades",
         "schedules": "Agendamentos",
-        "shares": "Páginas compartilhadas"
+        "shares": "Páginas compartilhadas",
+        "row_changes": "Alterações em linhas"
       },
       "back": "Todas as versões",
       "compareNote": "O que mudou desta versão até a configuração atual do agente. Restaurar traz de volta o que esta versão tinha.",
@@ -1517,7 +1532,8 @@
         "deleted": "Excluiu {target} permanentemente",
         "published": "Publicou {target} na web",
         "unpublished": "Deixou de publicar {target}",
-        "publication_revoked": "Tirou {target} da web (publicada por {subject})"
+        "publication_revoked": "Tirou {target} da web (publicada por {subject})",
+        "rows_merged": "Mesclou {count, plural, one {# linha} other {# linhas}} em {target}"
       },
       "property": {
         "access_changed": "Alterou quem pode acessar “{property}” em {target}",
@@ -1576,6 +1592,7 @@
       },
       "api_token": {
         "created": "Criou o token de API {target}",
+        "updated": "Alterou o que o token de API {target} pode fazer",
         "revoked": "{hasSubject, select, yes {Revogou o token de API {target} de {subject}} other {Revogou o token de API {target}}}"
       },
       "automation": {
@@ -1621,6 +1638,10 @@
       "ai_account": {
         "attached": "Vinculou a IA do espaço de trabalho à conta de IA {target}",
         "detached": "Desvinculou a IA do espaço de trabalho da conta de IA {target}"
+      },
+      "review": {
+        "approved": "{kind, select, email_draft {Enviou o e-mail que o agente “{agent}” rascunhou em {target}} create_row {Aprovou a linha que o agente “{agent}” propôs em {target}} other {Aprovou a alteração que o agente “{agent}” propôs para {target}}}{outcome, select, failed { (falhou)} other {}}",
+        "dismissed": "{kind, select, email_draft {Descartou o e-mail que o agente “{agent}” rascunhou em {target}} create_row {Descartou a linha que o agente “{agent}” propôs em {target}} other {Descartou a alteração que o agente “{agent}” propôs para {target}}}"
       }
     },
     "decisions": {
@@ -1693,7 +1714,10 @@
     "watchedNone": "Você ainda não acompanha nenhuma página",
     "watchedNoneDescription": "Acompanhe uma página pelo menu ⋯ dela, ou um espaço de equipe inteiro pelo menu dele na barra lateral. As páginas que você edita são acompanhadas automaticamente.",
     "watchedTeamspace": "Todas as páginas deste espaço de equipe · {workspace}",
-    "stopWatching": "Parar de acompanhar"
+    "stopWatching": "Parar de acompanhar",
+    "reviewTitle": "Para revisar",
+    "reviewDescription": "Um agente propõe uma alteração em uma linha que você pode editar, ou rascunha um e-mail da sua caixa de e-mail, e ela aguarda sua revisão. Novas propostas são agrupadas até você abri-las.",
+    "reviewChannel": "Para revisar: {channel}"
   },
   "site": {
     "description": "Dê às páginas publicadas deste espaço de trabalho um endereço legível, uma página inicial e navegação entre elas.",

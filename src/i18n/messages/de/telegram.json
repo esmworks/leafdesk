@@ -93,7 +93,8 @@
   "changed": {
     "done": "Erledigt: {what}",
     "declined": "Nicht erledigt: {what}",
-    "failed": "Nicht möglich: {what}"
+    "failed": "Nicht möglich: {what}",
+    "proposed": "Zur Prüfung vorgeschlagen: {what}"
   },
   "errors": {
     "disabled": "KI ist in diesem Workspace ausgeschaltet.",

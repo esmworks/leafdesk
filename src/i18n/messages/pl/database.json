@@ -290,7 +290,9 @@
     "confirmTrash": "Przenieść {count, plural, one {# wiersz} few {# wiersze} many {# wierszy} other {# wiersza}} do kosza?",
     "skipped": "{count, plural, one {Pominięto # wiersz, ponieważ nie możesz go zmienić.} few {Pominięto # wiersze, ponieważ nie możesz ich zmienić.} many {Pominięto # wierszy, ponieważ nie możesz ich zmienić.} other {Pominięto # wiersza, ponieważ nie możesz ich zmienić.}}",
     "pasteLeftOut": "{count, plural, one {Pominięto # wklejoną komórkę: nie pasuje do swojej kolumny lub nie możesz jej zmienić.} few {Pominięto # wklejone komórki: nie pasują do swoich kolumn lub nie możesz ich zmienić.} many {Pominięto # wklejonych komórek: nie pasują do swoich kolumn lub nie możesz ich zmienić.} other {Pominięto # wklejonej komórki: nie pasują do swoich kolumn lub nie możesz ich zmienić.}}",
-    "exportDisabled": "Eksport jest wyłączony w tym obszarze roboczym."
+    "exportDisabled": "Eksport jest wyłączony w tym obszarze roboczym.",
+    "merge": "Scal",
+    "mergeHint": "Scal od 2 do 5 wierszy w jeden"
   },
   "calculate": {
     "calculate": "Oblicz",
@@ -393,7 +395,8 @@
     "startTime": "Godzina rozpoczęcia",
     "endTime": "Godzina zakończenia",
     "endDateSwitch": "Data zakończenia",
-    "includeTime": "Uwzględnij godzinę"
+    "includeTime": "Uwzględnij godzinę",
+    "hiddenByParent": "{count, plural, one {# opcja nie pasuje} few {# opcje nie pasują} many {# opcji nie pasuje} other {# opcji nie pasuje}} do „{parent}” w tym wierszu."
   },
   "checklist": {
     "addItem": "Dodaj element",
@@ -496,7 +499,16 @@
     "reminder": "Przypomnienie",
     "reminderNone": "Bez przypomnienia",
     "reminderBefore": "{days, select, 0 {W tym dniu, 9:00} 1 {1 dzień wcześniej, 9:00} 7 {1 tydzień wcześniej, 9:00} other {{days} dni wcześniej, 9:00}}",
-    "reminderHint": "Powiadamia osoby przypisane do każdego wiersza lub osobę, która go dodała, chyba że wiersz jest ukończony. 9:00 według twojej strefy czasowej; daty z godziną przypominają o tej godzinie."
+    "reminderHint": "Powiadamia osoby przypisane do każdego wiersza lub osobę, która go dodała, chyba że wiersz jest ukończony. 9:00 według twojej strefy czasowej; daty z godziną przypominają o tej godzinie.",
+    "description": "Opis",
+    "descriptionPlaceholder": "Co zawiera i jak ją wypełniać",
+    "dependsOn": "Zależy od",
+    "dependsOnNone": "Nic",
+    "dependsOnHint": "Wybierz, do których opcji „{parent}” pasuje każda opcja. Wiersze oferują tylko te; opcja bez wyboru pasuje do wszystkich.",
+    "noParentOptions": "„{parent}” nie ma jeszcze opcji.",
+    "parentOptionsLabel": "Przy „{parent}”:",
+    "parentOptionsAll": "zawsze",
+    "parentOptionToggle": "Oferuj „{option}”, gdy „{parent}” to „{value}”"
   },
   "rowProperties": {
     "noProperties": "Brak właściwości",
@@ -527,7 +539,10 @@
     "unknownPerson": "{count, plural, one {nieznana osoba} few {# nieznane osoby} many {# nieznanych osób} other {# nieznanej osoby}}",
     "checked": "zaznaczone",
     "unchecked": "niezaznaczone",
-    "checklist": "Wykonano {done} z {total}"
+    "checklist": "Wykonano {done} z {total}",
+    "merged": "<actor>{name}</actor>: scalono z tym wierszem {count, plural, one {# wiersz} few {# wiersze} many {# wierszy} other {# wiersza}}: <rows>{titles}</rows>",
+    "mergedFrom": "z {title}",
+    "approvedFrom": "(propozycja: {name})"
   },
   "rowEmail": {
     "title": "E-mail",
@@ -796,7 +811,15 @@
     "webhookBlocked": "Webhooki nie mogą trafiać do adresów sieci prywatnych ani lokalnych.",
     "agentOwnersOnly": "Akcje uruchamiające agenta mogą dodawać i zmieniać tylko właściciele obszaru roboczego i osoby, które mogą edytować tego agenta.",
     "invalidRepeat": "Ten harmonogram powtarzania jest nieprawidłowy: sprawdź dni, godzinę i strefę czasową.",
-    "tooManySchedules": "Ten obszar roboczy ma już maksymalną liczbę powtarzanych szablonów."
+    "tooManySchedules": "Ten obszar roboczy ma już maksymalną liczbę powtarzanych szablonów.",
+    "optionUnavailable": "„{value}” nie jest dostępne we właściwości „{property}” w tym wierszu.",
+    "invalidDependency": "„{property}” może zależeć tylko od innej właściwości wyboru tej bazy danych, która sama od niej nie zależy.",
+    "invalidDescription": "Opis może mieć najwyżej {max} znaków.",
+    "mergeRowCount": "Wybierz od {min} do {max} wierszy do scalenia.",
+    "mergeRowsInvalid": "Scalać można tylko wiersze jednej bazy danych, które nie są w koszu.",
+    "mergeRowsReadOnly": "Możesz tylko wyświetlać {rows}. Scalanie wymaga uprawnień do edycji każdego wiersza.",
+    "mergeLinksBlocked": "{count, plural, one {# wiersz odwołuje się} few {# wiersze odwołują się} many {# wierszy odwołuje się} other {# wiersza odwołuje się}} do tych wierszy, a nie możesz {count, plural, one {go} other {ich}} zmienić: {rows}. Nic nie scalono.",
+    "mergeChoiceInvalid": "Nie można użyć wartości wybranej dla „{property}”. Wybierz wartość innego wiersza."
   },
   "formula": {
     "title": "Formuła",
@@ -1408,5 +1431,37 @@
   "quickAdd": {
     "recognised": "Rozpoznano w tytule",
     "keep": "Zachowaj „{text}” w tytule"
+  },
+  "merge": {
+    "menuItem": "Scal z…",
+    "pickTitle": "Scal z innymi wierszami",
+    "pickHint": "Wybierz do {count, plural, one {# wiersza} few {# wierszy} many {# wierszy} other {# wiersza}} do scalenia z tym.",
+    "pickSearch": "Szukaj wierszy",
+    "pickEmpty": "Brak innych pasujących wierszy",
+    "pickLoading": "Wczytywanie wierszy…",
+    "pickContinue": "Dalej",
+    "title": "Scal {count, plural, one {# wiersz} few {# wiersze} many {# wierszy} other {# wiersza}}",
+    "keep": "Wiersz do zachowania",
+    "keepHint": "Pozostałe wiersze trafią do kosza. Ich zawartość przejdzie do zachowanego wiersza.",
+    "oldest": "Najstarszy",
+    "created": "Utworzono {date}",
+    "titleField": "Tytuł",
+    "combine": "Połącz wszystkie",
+    "hidden": "Ukryte",
+    "empty": "Puste",
+    "locked": "Nie możesz zmieniać tej właściwości, więc zostaje wartość zachowanego wiersza.",
+    "moves": "Do zachowanego wiersza przejdą też",
+    "movesThreads": "{count, plural, one {# wątek komentarzy} few {# wątki komentarzy} many {# wątków komentarzy} other {# wątku komentarzy}}",
+    "movesActivity": "{count, plural, one {# wpis aktywności} few {# wpisy aktywności} many {# wpisów aktywności} other {# wpisu aktywności}}",
+    "movesFiles": "{count, plural, one {# przesłany plik} few {# przesłane pliki} many {# przesłanych plików} other {# przesłanego pliku}}",
+    "movesEmails": "{count, plural, one {# e-mail} few {# e-maile} many {# e-maili} other {# e-maila}}",
+    "movesLinks": "Powiązania z {count, plural, one {# innego wiersza} few {# innych wierszy} many {# innych wierszy} other {# innego wiersza}}, z elementami podrzędnymi i zależnościami",
+    "movesBodies": "Treść strony {count, plural, one {# wiersza} few {# wierszy} many {# wierszy} other {# wiersza}}, każda pod nagłówkiem",
+    "movesNothing": "Nic więcej do przeniesienia.",
+    "subpages": "{count, plural, one {# strona wewnątrz scalanych wierszy trafi} few {# strony wewnątrz scalanych wierszy trafią} many {# stron wewnątrz scalanych wierszy trafi} other {# strony wewnątrz scalanych wierszy trafi}} do kosza razem z nimi.",
+    "trashNote": "Przywrócenie scalonego wiersza z kosza przywraca go jako osobny wiersz. To, co przeniesiono, zostaje w zachowanym wierszu.",
+    "confirm": "Scal wiersze",
+    "merging": "Scalanie…",
+    "bodyHeading": "Scalono z {title}"
   }
 }

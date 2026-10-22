@@ -29,9 +29,11 @@ import { uploadToPage } from "./files-cell";
 import { PropertyAccessProvider, PropertyLock, usePropertyAccess, type PropertyAccessContextValue } from "./property-access";
 import { isEmptyValue, PropertyCell } from "./property-cell";
 import { PropertyTypeIcon } from "./property-icons";
+import { usePropertyHint } from "./property-hint";
 import { AddPropertyPanel, PropertyMenu } from "./property-menu";
 import { RelationProvider, type RelationContextValue } from "./relation-context";
 import { RowActivity } from "./row-activity";
+import { RowReviewBanner } from "@/components/review/row-review-banner";
 import { RowEmails } from "./row-emails";
 import { SchemaProvider } from "./schema-context";
 import type { DerivedInput, PersonRef, Property, RelationInput, RelationTarget } from "./types";
@@ -234,6 +236,24 @@ export function RowProperties({
     await refetch();
   };
 
+  // What a property holds and how to fill it, the database's too: shown here at once, then saved.
+  const setDescription = async (propertyId: string, description: string | null) => {
+    setData(
+      (d) =>
+        d && {
+          ...d,
+          properties: d.properties.map((p) => {
+            if (p.id !== propertyId) return p;
+            const { description: _old, ...rest } = p.options;
+            return { ...p, options: description ? { ...rest, description } : rest };
+          }),
+        },
+    );
+    const res = await safe(updatePropertyAction(propertyId, { description }));
+    if (!res.ok) setError(res.error);
+    await refetch();
+  };
+
   const addAutofillProperty = async (name: string, config: AiAutofillConfig) => {
     const res = await safe(addAutofillPropertyAction(databaseId, name, config, [rowId]));
     if (!res.ok) setError(res.error);
@@ -338,6 +358,8 @@ export function RowProperties({
       onChange={(v) => void setValue(p.id, v)}
       onCreateOption={createOption}
       onPageVisibility={canSetVisibility ? (visibility) => void setPageVisibility(p.id, visibility) : undefined}
+      onDescription={canSetVisibility ? (description) => void setDescription(p.id, description) : undefined}
+      values={values}
     />
   );
 
@@ -349,6 +371,7 @@ export function RowProperties({
             <AiAutofillProvider value={aiContext}>
               <div className="mb-6 border-b border-border pb-4">
                 {offline && <OfflineNotice savedAt={offlineCopyFrom} />}
+                {!offline && <RowReviewBanner workspaceId={workspaceId} databaseId={databaseId} rowId={rowId} signal={changes} />}
                 <div className="flex flex-col gap-0.5">
                   {shown.map(propertyRow)}
                   {showMore && more.map(propertyRow)}
@@ -391,6 +414,8 @@ function PropertyRow({
   onChange,
   onCreateOption,
   onPageVisibility,
+  onDescription,
+  values,
 }: {
   prop: Property;
   rowId: string;
@@ -402,23 +427,30 @@ function PropertyRow({
   onCreateOption: (propertyId: string, name: string) => Promise<SelectOption | null>;
   /** People who may change the database's properties: whether this one shows on row pages. */
   onPageVisibility?: (visibility: PageVisibility) => void;
+  /** The same people: what the property holds and how to fill it (null for nothing). */
+  onDescription?: (description: string | null) => void;
+  /** The row's values, which decide the options a dependent select offers (lib/dependent-options). */
+  values: Record<string, unknown>;
 }) {
   const t = useTranslations("database.rowProperties");
   const access = usePropertyAccess();
   const valueAccess = access.valueAccess(row, p.id);
   const fixed = readOnly || valueAccess === "readOnly";
   const menu = useFloating<HTMLButtonElement>();
+  const [labelEl, setLabelEl] = useState<HTMLDivElement | null>(null);
+  const { hint, description } = usePropertyHint(p, labelEl, menu.open);
   const label = (
     <>
       <PropertyTypeIcon type={p.type} className="h-3.5 w-3.5 shrink-0" />
-      <span className="truncate" title={p.name}>
+      <span className="truncate" title={description ? undefined : p.name} aria-description={description || undefined}>
         {p.name}
       </span>
     </>
   );
   return (
     <div className="flex min-h-[30px] items-start gap-2">
-      <div className="flex h-[30px] w-28 shrink-0 items-center gap-1.5 text-sm text-fg-muted sm:w-40">
+      <div ref={setLabelEl} className="flex h-[30px] w-28 shrink-0 items-center gap-1.5 text-sm text-fg-muted sm:w-40">
+        {hint}
         {onPageVisibility && access.canEditSchema(p.id) ? (
           <>
             <button
@@ -432,7 +464,7 @@ function PropertyRow({
               {label}
             </button>
             <Floating open={menu.open} anchor={menu.el} onClose={menu.close}>
-              <PropertyMenu prop={p} actions={{ setPageVisibility: onPageVisibility }} onDone={menu.close} />
+              <PropertyMenu prop={p} actions={{ setPageVisibility: onPageVisibility, setDescription: onDescription }} onDone={menu.close} />
             </Floating>
           </>
         ) : (
@@ -454,6 +486,7 @@ function PropertyRow({
               readOnly={fixed}
               onChange={onChange}
               onCreateOption={onCreateOption}
+              rowValues={values}
               upload={p.type === "files" ? uploadToPage(rowId) : undefined}
             />
           </AiCell>

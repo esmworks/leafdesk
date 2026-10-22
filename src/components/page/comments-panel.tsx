@@ -7,7 +7,7 @@ import { useTranslations } from "next-intl";
 import { memo, useCallback, useEffect, useMemo, useState, type FocusEvent } from "react";
 import { muteThreadAction, mutedThreadsAction } from "@/app/actions/comments";
 import { cn, IconButton, MenuItem, Popover } from "@/components/ui";
-import { isPageThread, threadOfHash } from "@/lib/comments";
+import { isPageThread, mergedFromOf, threadOfHash } from "@/lib/comments";
 
 const FILTERS = ["open", "resolved", "all"] as const;
 type Filter = (typeof FILTERS)[number];
@@ -147,7 +147,9 @@ function Threads({ pageId, filter, onFilter }: { pageId: string; filter: Filter;
       .map((thread) => {
         const position = positions.get(thread.id);
         let referenceText: string;
-        if (isPageThread(thread.metadata)) referenceText = t("aboutPage");
+        const mergedFrom = mergedFromOf(thread.metadata);
+        // About a merged row as a whole: named after that row, the comments came with it.
+        if (isPageThread(thread.metadata)) referenceText = mergedFrom !== null ? t("mergedFrom", { title: mergedFrom }) : t("aboutPage");
         else if (!position) referenceText = deleted;
         else {
           const text = editor.transact((tr) => (tr.doc.nodeSize < position.to ? "" : tr.doc.textBetween(position.from, position.to)));

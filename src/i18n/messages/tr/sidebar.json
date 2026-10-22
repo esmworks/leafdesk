@@ -17,7 +17,9 @@
     "import": "İçe aktar",
     "graph": "Grafik",
     "skills": "Beceriler",
-    "more": "Diğer"
+    "more": "Diğer",
+    "review": "İncelenecekler",
+    "reviewCount": "{count, plural, one {# değişiklik incelemenizi bekliyor} other {# değişiklik incelemenizi bekliyor}}"
   },
   "tabs": {
     "label": "Kenar çubuğu",
@@ -79,7 +81,9 @@
     "deletePermanently": "Kalıcı olarak sil",
     "confirmDelete": "Kalıcı olarak silinsin mi? Bu işlem geri alınamaz.",
     "deletesIn": "{count, plural, other {# gün}} sonra silinecek",
-    "deletesSoon": "Yakında silinecek"
+    "deletesSoon": "Yakında silinecek",
+    "mergedInto": "{title} satırında birleştirildi",
+    "restoreMerged": "Ayrı bir satır olarak geri yükle. “{title}” satırına taşınan bağlantılar, yorumlar, etkinlik ve e-postalar orada kalır."
   },
   "newWorkspace": {
     "title": "Yeni çalışma alanı",
@@ -167,6 +171,8 @@
     "reportGone": "Çalışma artık saklanmıyor.",
     "aiAccountTitle": "Yapay zekâ hesabı kaldırıldı",
     "aiAccountDetached": "Çalışma alanının yapay zekâsı artık {actor} kişisinin anahtarıyla çalışmıyor. Ayarlar'dan başka bir yapay zekâ hesabı seçin.",
+    "reviewTitle": "İncelenecekler",
+    "review": "{count, plural, one {{agent} incelemeniz için bir değişiklik önerdi} other {# değişiklik incelemenizi bekliyor, sonuncusu: {agent}}}",
     "automationRun": "“{name}” otomasyonu"
   },
   "templates": {
