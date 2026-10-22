@@ -1110,29 +1110,29 @@ async function main() {
     database_id: dbPage.id,
     name: `Steps ${RUN}`,
     publish: false,
-    trigger: { type: "property_changed", properties: ["Priority", "Estimate"] },
+    trigger: { type: "property_changed", properties: ["Urgency", "Points"] },
     actions: [
       {
         type: "find_rows",
         id: "high",
         database_id: dbPage.id,
-        filters: [{ property: "Priority", op: "equals", value: "High" }],
-        sorts: [{ property: "Estimate", direction: "desc" }],
+        filters: [{ property: "Urgency", op: "equals", value: "Urgent" }],
+        sorts: [{ property: "Points", direction: "desc" }],
         limit: 5,
       },
       { type: "log", message: "{{high.count}} high for {{trigger.title}}" },
-      { type: "set_properties", for_each: "high", values: { Estimate: "{{high.count}}" } },
+      { type: "set_properties", for_each: "high", values: { Points: "{{high.count}}" } },
     ],
   });
   check(
     stepped.version === 0 &&
       stepped.draft?.actions?.map((a: { id: string }) => a.id).join(",") === "high,log,set" &&
-      stepped.draft.actions[0].filters?.[0]?.value === "High" &&
+      stepped.draft.actions[0].filters?.[0]?.value === "Urgent" &&
       stepped.draft.trigger.properties?.length === 2,
     "create_automation with publish false keeps a draft whose steps have ids and filters by name",
     stepped,
   );
-  const stepTarget = await mcp.ok("create_database_row", { database_id: dbPage.id, title: `Steps target ${RUN}`, properties: { Priority: "High" } });
+  const stepTarget = await mcp.ok("create_database_row", { database_id: dbPage.id, title: `Steps target ${RUN}`, properties: { Urgency: "Urgent" } });
   const noRow = await mcp.call("test_automation", { automation_id: stepped.id });
   check(noRow.isError && /needs a row/.test(noRow.text), "test_automation of a row trigger needs row_id", noRow.text);
   const stepTest = await mcp.ok("test_automation", { automation_id: stepped.id, row_id: stepTarget.id });

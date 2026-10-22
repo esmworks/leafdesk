@@ -38,7 +38,7 @@ describe("nextScheduledRun", () => {
     expect(next({ frequency: "daily", time: "09:00" }, "Europe/Istanbul", "2026-10-22T05:00:00Z")).toBe("2026-10-22T06:00:00.000Z");
     expect(next({ frequency: "daily", time: "09:00" }, "Europe/Istanbul", "2026-10-22T06:00:00Z")).toBe("2026-10-23T06:00:00.000Z");
   });
-  it("runs a time the clocks skip just after the change", () => {
+  it("runs a time the clocks skip as much later as they moved", () => {
     // 02:30 doesn't exist in Berlin on 29 March 2026.
     expect(next({ frequency: "daily", time: "02:30" }, "Europe/Berlin", "2026-03-28T12:00:00Z")).toBe("2026-03-29T01:30:00.000Z");
   });

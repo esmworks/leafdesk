@@ -5,8 +5,8 @@ import { dayString, localDay, monthDay, weekdayOf, zonedInstant, zoneOffset } fr
  * time of day, or on a cron expression, all in the automation's IANA time zone. Pure, for the
  * check that starts the runs (server/automations/scheduled.ts) and the editor alike.
  *
- * Daylight saving: a time the clocks skip (02:30 on the night they go forward) runs just after
- * the change, a time that happens twice (when they go back) runs the first time only, as agent
+ * Daylight saving: a time the clocks skip (02:30 on the night they go forward) runs as much
+ * later as they moved (03:30), a time that happens twice (when they go back) runs the first time only, as agent
  * schedules do (lib/time-zone zonedInstant). A monthly day the month doesn't have (the 31st, or
  * the 29th in February) runs on the month's last day.
  */
