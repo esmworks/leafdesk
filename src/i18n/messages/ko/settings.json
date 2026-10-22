@@ -1644,6 +1644,7 @@
     "inbox": "수신함",
     "email": "이메일",
     "push": "푸시",
+    "telegram": "Telegram",
     "pushDescription": "푸시 알림은 수신함에 표시되는 항목에 대해, 알림을 켠 기기에서 받습니다.",
     "pushDeviceTitle": "이 기기의 푸시 알림",
     "pushDeviceOff": "Leafdesk가 닫혀 있어도 수신함에 새 항목이 생길 때마다 이 기기에서 알림을 받습니다.",

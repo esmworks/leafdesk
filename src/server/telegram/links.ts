@@ -21,7 +21,7 @@ const LAST_USED_EVERY_MS = 3_600_000;
 export type TelegramStatus = {
   enabled: boolean;
   bot: string | null;
-  link: { username: string | null; displayName: string; createdAt: Date; lastUsedAt: Date | null } | null;
+  link: { username: string | null; displayName: string; createdAt: Date; lastUsedAt: Date | null; notifications: boolean } | null;
 };
 
 export type TelegramLinkRow = typeof telegramLink.$inferSelect;
@@ -50,8 +50,22 @@ export async function getTelegramStatus(userId: string): Promise<TelegramStatus>
   return {
     enabled: true,
     bot,
-    link: link ? { username: link.username, displayName: link.displayName, createdAt: link.createdAt, lastUsedAt: link.lastUsedAt } : null,
+    link: link
+      ? { username: link.username, displayName: link.displayName, createdAt: link.createdAt, lastUsedAt: link.lastUsedAt, notifications: link.notifications }
+      : null,
   };
+}
+
+/** Whether the person's notifications go to a Telegram chat they linked (see notify.ts). */
+export async function telegramNotificationsOn(userId: string): Promise<boolean> {
+  if (!env.telegramBotToken) return false;
+  const [link] = await db.select({ on: telegramLink.notifications }).from(telegramLink).where(eq(telegramLink.userId, userId)).limit(1);
+  return link?.on ?? false;
+}
+
+/** Turns sending the person's notifications to their linked Telegram chat on or off. */
+export async function setTelegramNotifications(userId: string, on: boolean) {
+  await db.update(telegramLink).set({ notifications: on }).where(eq(telegramLink.userId, userId));
 }
 
 /**

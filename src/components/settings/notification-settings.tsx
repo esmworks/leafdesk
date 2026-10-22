@@ -30,20 +30,29 @@ const LOCAL_MODE_HIDDEN_KINDS: readonly PreferenceKind[] = ["access_request", "j
 const EMAILLESS_KINDS: readonly PreferenceKind[] = ["row_email"];
 /**
  * Settings > Preferences: for each kind of notification, whether it shows in the inbox, comes by
- * email and, when the server can send them (`push`), comes as a push notification; and whether
- * this device gets push notifications at all.
+ * email, when the server can send them (`push`) comes as a push notification and, when the person
+ * linked Telegram (`telegram`), comes to their Telegram chat; and whether this device gets push
+ * notifications at all.
  */
 export function NotificationSettings({
   preferences,
   push,
+  telegram = false,
 }: {
   preferences: NotificationPreferences;
   /** The server's VAPID public key and the endpoints of the user's devices; null when push is off. */
   push: { publicKey: string; endpoints: string[] } | null;
+  /** The person's Telegram account is linked with notifications on (server/telegram/notify.ts). */
+  telegram?: boolean;
 }) {
   // On one computer no email goes out, and nobody asks to join or for access.
   const localMode = useLocalMode();
-  const channels: NotificationChannel[] = ["inbox", ...(localMode ? [] : ["email" as const]), ...(push ? ["push" as const] : [])];
+  const channels: NotificationChannel[] = [
+    "inbox",
+    ...(localMode ? [] : ["email" as const]),
+    ...(push ? ["push" as const] : []),
+    ...(telegram ? ["telegram" as const] : []),
+  ];
   const kinds = (Object.keys(KIND_KEYS) as PreferenceKind[]).filter((kind) => !(localMode && LOCAL_MODE_HIDDEN_KINDS.includes(kind)));
   return (
     <>
@@ -100,10 +109,10 @@ function NotificationKindRow({
             <span key={channel} className="flex items-center gap-2 text-sm text-fg-muted">
               <span aria-hidden>{t(channel)}</span>
               <Switch
-                // Push follows the inbox: off (and locked) while the kind stays out of the inbox.
-                checked={channel === "push" ? values.push && values.inbox : values[channel]}
+                // Push and Telegram follow the inbox: off (and locked) while the kind stays out of it.
+                checked={follows(channel) ? values[channel] && values.inbox : values[channel]}
                 label={t(`${key}Channel`, { channel: t(channel) })}
-                disabled={pending || (channel === "push" && !values.inbox)}
+                disabled={pending || (follows(channel) && !values.inbox)}
                 onChange={(next) => change(channel, next)}
               />
             </span>
@@ -113,6 +122,9 @@ function NotificationKindRow({
     />
   );
 }
+
+/** Channels that only carry what the inbox shows. */
+const follows = (channel: NotificationChannel) => channel === "push" || channel === "telegram";
 
 type DeviceState = "checking" | "unsupported" | "blocked" | "off" | "on";
 

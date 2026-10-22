@@ -17,8 +17,15 @@
   so a workspace's *Connected apps and API tokens* switch holds it: off hides the workspace, read
   only answers without changing anything, notes about the person included. The server reads the
   bot's messages by long polling, so it needs no public address (`TELEGRAM_API_URL` points at a
-  self-hosted Bot API server). Conversations show in the app's chat history. Migration 0105 adds
-  `telegram_link` and `telegram_link_code`.
+  self-hosted Bot API server). Conversations show in the app's chat history. The person's inbox
+  notifications come to the chat too, as soon as they are saved, saying what a push notification
+  says, with the workspace, a link and *Mark read* / *Snooze 1 hour* buttons; My account →
+  Preferences gets a *Telegram* column to choose them per kind (following the inbox, as push does),
+  and the Telegram card's *Send my notifications here* switch or `/notifications` turns them off.
+  Notifications of a workspace that turned connected apps off don't go there, and a chat that
+  blocked the bot gets them turned off. Migration 0105 adds `telegram_link` and
+  `telegram_link_code`; migration 0106 adds the `…_telegram` columns of `user_preference` and
+  `telegram_link.notifications`.
 - **Share an agent.** Each agent has a **Share** list in its settings: people, groups and everyone
   in the workspace (never guests), each with *Full access* (everything an owner can do with it,
   sharing and archiving too), *Can edit* (its settings, instructions, pages, skills, schedules,

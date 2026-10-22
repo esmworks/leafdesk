@@ -6,7 +6,8 @@
  * conversation, /new, /workspace, /mode, /stop, /unlink, approving and declining a change with the
  * message's buttons (only its person can), a second question while one is answered, voice
  * messages written down by speech to text, group chats, and the workspace's connected-apps
- * setting: read only (no changes offered) and off (the workspace isn't offered).
+ * setting: read only (no changes offered) and off (the workspace isn't offered); and notifications
+ * sent to the linked chat, marked read or snoozed from it, by kind and on or off.
  * Creates its own users and workspaces and deletes them afterwards.
  *
  *   pnpm tsx scripts/telegram-e2e.ts
@@ -23,6 +24,8 @@ try {
 // ── A fake Bot API ──────────────────────────────────────────────────────────────────────────────
 type Sent = { method: string; params: Record<string, unknown> };
 const sent: Sent[] = [];
+/** Chats that blocked the bot: Telegram answers 403 to messages there. */
+const blocked = new Set<number>();
 let messageIds = 1000;
 const VOICE = Buffer.from("OggS fake voice message bytes");
 const telegram: Server = createServer(async (req, res) => {
@@ -43,6 +46,10 @@ const telegram: Server = createServer(async (req, res) => {
   sent.push({ method, params });
   if (method === "getMe") return ok({ id: 1, is_bot: true, first_name: "Leafdesk", username: "leafdesk_test_bot" });
   if (method === "getFile") return ok({ file_id: params.file_id, file_path: "voice/file_1.oga", file_size: VOICE.length });
+  if (method === "sendMessage" && blocked.has(Number(params.chat_id))) {
+    res.writeHead(403, { "Content-Type": "application/json" }).end(JSON.stringify({ ok: false, error_code: 403, description: "Forbidden: bot was blocked by the user" }));
+    return;
+  }
   if (method === "sendMessage") return ok({ message_id: ++messageIds, chat: { id: Number(params.chat_id), type: "private" }, date: 0, text: params.text });
   return ok(true);
 });
@@ -59,6 +66,10 @@ const { registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
 const { createPage } = await import("@/server/pages");
 const { updateWorkspaceSettings } = await import("@/server/workspaces");
+const { recordShare } = await import("@/server/notifications");
+const { flushPush } = await import("@/server/push");
+const { getNotificationPreferences, setNotificationPreference } = await import("@/server/notification-preferences");
+const { notification } = await import("@/db/schema");
 const { resetAi, setAiEnv } = await import("@/server/ai/testing");
 const { startFakeOpenAi, textOf } = await import("@/server/ai/fake-openai");
 type FakeChatRequest = import("@/server/ai/fake-openai").FakeChatRequest;
@@ -324,6 +335,79 @@ try {
   await handleUpdate(text(MALLORY, "Hello"));
   check(said(MALLORY.id, mark).includes("aren't in a workspace I can answer from"), "someone with no workspace apps may reach is told so", said(MALLORY.id, mark));
   await updateWorkspaceSettings(ids.alice, ws, { connectedApps: "full" });
+
+  // ── Notifications ─────────────────────────────────────────────────────────────────────────────
+  const notes = await Promise.all(
+    ["Launch plan", "Budget", "Roadmap", "Hiring", "Offsite", "Retro"].map((title) =>
+      createPage({ userId: ids.alice }, { workspaceId: ws, teamspaceId: general.id, title, markdown: "…" }),
+    ),
+  );
+  /** Shares the nth page with Alice as Mallory; the Telegram messages it sent to her. */
+  const share = async (n: number) => {
+    const from = sent.length;
+    await recordShare(ids.mallory, ws, ids.alice, notes[n].id);
+    await flushPush();
+    return sent.slice(from).filter((s) => s.method === "sendMessage" && Number(s.params.chat_id) === ALICE.id);
+  };
+  const shareNote = (n: number) => db.select().from(notification).where(eq(notification.pageId, notes[n].id)).then((rows) => rows[0]);
+
+  const [first] = await share(0);
+  const firstText = String(first?.params.text);
+  const noteUrl = `https://leaf.test/w/${ws}/p/${notes[0].id}`;
+  check(
+    firstText.startsWith("<b>Launch plan</b>\nMallory shared this page with you\n") && firstText.includes(`<i>${RUN} main</i> · <a href="${noteUrl}">Open</a>`),
+    "a new notification comes to the linked chat, as the inbox says it, with its workspace and a link",
+    firstText,
+  );
+  const noteButtons = JSON.stringify(first.params.reply_markup);
+  const id0 = (await shareNote(0)).id;
+  check(noteButtons.includes(`nr:${id0}`) && noteButtons.includes(`nz:${id0}`) && noteButtons.includes("Snooze 1 hour"), "…with buttons to mark it read and snooze it", noteButtons);
+
+  mark = sent.length;
+  await handleUpdate(press(ALICE, `nr:${id0}`, 2001));
+  check((await shareNote(0)).readAt !== null, "Mark read marks it read in the inbox");
+  check(sent.slice(mark).some((s) => s.method === "answerCallbackQuery" && s.params.text === "Marked as read.") && sent.slice(mark).some((s) => s.method === "editMessageReplyMarkup"), "…says so and takes the buttons away");
+  await db.update(notification).set({ readAt: null }).where(eq(notification.id, id0));
+  mark = sent.length;
+  await handleUpdate(press(MALLORY, `nr:${id0}`, 2001));
+  check(
+    sent.slice(mark).some((s) => s.method === "answerCallbackQuery" && s.params.text === "This notification isn't in your inbox anymore.") && (await shareNote(0)).readAt === null,
+    "someone else can't answer it",
+  );
+
+  await share(1);
+  const id1 = (await shareNote(1)).id;
+  await handleUpdate(press(ALICE, `nz:${id1}`, 2002));
+  const snoozed = await shareNote(1);
+  check(snoozed.snoozedUntil && snoozed.snoozedUntil.getTime() > Date.now() + 50 * 60_000, "Snooze puts it away for an hour", snoozed.snoozedUntil);
+
+  await setNotificationPreference(ids.alice, "page_shared", "telegram", false);
+  check((await getNotificationPreferences(ids.alice)).page_shared.telegram === false, "each kind can be kept out of Telegram in the preferences");
+  check((await share(2)).length === 0, "…and then doesn't come there");
+  await setNotificationPreference(ids.alice, "page_shared", "telegram", true);
+  await setNotificationPreference(ids.alice, "page_shared", "inbox", false);
+  check((await share(3)).length === 0, "what stays out of the inbox doesn't come either");
+  await setNotificationPreference(ids.alice, "page_shared", "inbox", true);
+
+  mark = sent.length;
+  await handleUpdate(text(ALICE, "/notifications"));
+  check(said(ALICE.id, mark).includes("notifications come to this chat") && JSON.stringify(sent.at(-1)?.params.reply_markup).includes("nt:off"), "/notifications says they're on, with a button to stop them");
+  await handleUpdate(press(ALICE, "nt:off", 2003));
+  check((await share(4)).length === 0, "turned off there, none come");
+  check((await getTelegramStatus(ids.alice)).link?.notifications === false, "…which the settings show");
+  await handleUpdate(press(ALICE, "nt:on", 2004));
+
+  await updateWorkspaceSettings(ids.alice, ws, { connectedApps: "off" });
+  check((await share(5)).length === 0, "a workspace that turned connected apps off sends none");
+  await updateWorkspaceSettings(ids.alice, ws, { connectedApps: "full" });
+
+  blocked.add(ALICE.id);
+  await recordShare(ids.mallory, ws, ids.alice, notes[2].id);
+  await flushPush();
+  check((await getTelegramStatus(ids.alice)).link?.notifications === false, "a chat that blocked the bot gets its notifications turned off");
+  blocked.delete(ALICE.id);
+  await handleUpdate(press(ALICE, "nt:on", 2005));
+  check((await share(3)).length === 1, "…and gets them again once turned back on");
 
   // ── Groups ────────────────────────────────────────────────────────────────────────────────────
   mark = sent.length;

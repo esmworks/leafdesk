@@ -188,7 +188,7 @@
   },
   "telegram": {
     "title": "Telegram",
-    "description": "Yapay zekâ sohbetine Telegram’dan, yazarak ya da sesli mesajla sorun. Sizin adınıza, açabildiğiniz sayfalardan ve onlara bağlantı vererek yanıtlar; değişiklikleri buradaki sohbet gibi düğmelerle sorar.",
+    "description": "Yapay zekâ sohbetine Telegram’dan, yazarak ya da sesli mesajla sorun; bildirimleriniz de oraya gelsin. Sizin adınıza, açabildiğiniz sayfalardan ve onlara bağlantı vererek yanıtlar; değişiklikleri buradaki sohbet gibi düğmelerle sorar.",
     "notLinked": "Bağlı değil",
     "notLinkedHint": "{bot} ile konuşmak için Telegram hesabınızı bağlayın.",
     "link": "Telegram’ı bağla",
@@ -203,6 +203,8 @@
     "linkedOn": "{date} tarihinde bağlandı",
     "lastUsed": "son kullanım {time}",
     "neverUsed": "henüz kullanılmadı",
+    "notifications": "Bildirimlerimi buraya gönder",
+    "notificationsHint": "Gelen kutunuzda görünenler sohbete de gelir; hangi türlerin geleceğini Tercihler’den seçersiniz.",
     "open": "Sohbeti aç",
     "unlink": "Bağlantıyı kaldır",
     "unlinkConfirm": "Telegram bağlantısını kaldır",

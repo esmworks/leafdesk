@@ -1644,6 +1644,7 @@
     "inbox": "Caixa de entrada",
     "email": "E-mail",
     "push": "Push",
+    "telegram": "Telegram",
     "pushDescription": "Notificações push chegam para o que aparece na sua caixa de entrada, nos dispositivos em que você as ativar.",
     "pushDeviceTitle": "Notificações push neste dispositivo",
     "pushDeviceOff": "Receba uma notificação neste dispositivo para cada novo item na sua caixa de entrada, mesmo com o Leafdesk fechado.",

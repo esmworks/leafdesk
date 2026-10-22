@@ -538,7 +538,8 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   [Voice notes](#voice-notes)).
 - **AI chat from Telegram** (optional, off until the server has a Telegram bot): people link their
   Telegram account in My account → *Connected apps* and ask the AI chat there, by text or voice
-  message; answers cite their pages as links, and changes are asked about with buttons (see
+  message; answers cite their pages as links, and changes are asked about with buttons. Their
+  inbox notifications come there too, to mark read or snooze from the chat (see
   [AI chat from Telegram](#ai-chat-from-telegram)).
 - **Skills**: instructions your team reuses (how to wrap up meeting notes, reply to a customer),
   kept as pages or database rows and marked *Use as skill*; picked with `/` in the AI chat, offered
@@ -1098,7 +1099,8 @@ on this device"), and picks there, per kind of notification, whether it comes as
 the inbox and email. Push follows the inbox: a kind kept out of the inbox isn't pushed. Opening a
 notification brings an open Leafdesk tab to the page, or opens one; its "Snooze 1 hour" button
 puts it off as the inbox's snooze does (not on agents' requests to go ahead, which wait only so
-long).
+long). People who linked Telegram get the same notifications there too (see
+[AI chat from Telegram](#ai-chat-from-telegram)), with a Telegram column of their own.
 
 Push is off until the server has a VAPID key pair. Make one and add the printed lines to `.env`:
 
@@ -2190,6 +2192,7 @@ the linked account; in a group it answers commands only, to say so. Commands:
 | `/workspace` | Picks the workspace questions go to, from buttons, in a new conversation |
 | `/mode` | Picks what the chat may change: *Ask* before each change (the default), change without asking (*Auto*), or *Read only* |
 | `/stop` | Stops the answer being written; what it did so far is kept |
+| `/notifications` | Turns notifications in the chat on or off |
 | `/unlink` | Unlinks the Telegram account |
 | `/help` | Lists the commands |
 
@@ -2205,6 +2208,18 @@ to a connection's tool that changes something) comes as a message saying what an
 *Yes* and *No* buttons (and *Yes, don't ask again* for changes in the workspace). Only the linked
 person can press them; the answer waits up to 15 minutes, then goes on without the change, and
 the message's buttons go once the answer ends.
+
+**Notifications.** Each new item of the person's inbox also comes to the chat, as soon as it is
+saved: what the inbox shows for it (the page, or what it is about, then who did what), the
+workspace, and a link to where the inbox leads, with *Mark read* and *Snooze 1 hour* buttons that do
+what the inbox's do (no snooze on agents' requests to go ahead). Like a push notification, it never
+says what a comment, a changed value or an email says, since a phone's lock screen shows it to
+whoever holds the phone. My account → Preferences has a *Telegram* column next to *Inbox*,
+*Email* and *Push* for choosing, per kind, what comes there; it follows the inbox as push does (a
+kind kept out of the inbox doesn't come). The *Send my notifications here* switch on the Telegram
+card, or `/notifications` in the chat, turns them all off or on. Notifications of a workspace that
+turned connected apps off don't come. A chat that blocked the bot gets its notifications turned
+off, until the person turns them on again.
 
 **Who may reach what.** The bot acts as the person, as a connected app does: each question is
 checked like an MCP request against the person's access and against the workspace's *Connected

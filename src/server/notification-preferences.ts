@@ -4,27 +4,27 @@ import { isOwnerKind, notification, OWNER_KINDS, pendingAssignmentEmail, userPre
 
 /**
  * What each person wants to hear about, and where: in the inbox, by email, as push notifications
- * on the devices that turned them on, or any of these. Account-wide, like the other preferences;
- * everything is on until the person turns it off. Push follows the inbox: what doesn't show there
- * isn't pushed either.
+ * on the devices that turned them on, in the Telegram chat they linked, or any of these.
+ * Account-wide, like the other preferences; everything is on until the person turns it off. Push
+ * and Telegram follow the inbox: what doesn't show there isn't sent there either.
  */
 
-export type NotificationChannel = "inbox" | "email" | "push";
-export const NOTIFICATION_CHANNELS: readonly NotificationChannel[] = ["inbox", "email", "push"];
+export type NotificationChannel = "inbox" | "email" | "push" | "telegram";
+export const NOTIFICATION_CHANNELS: readonly NotificationChannel[] = ["inbox", "email", "push", "telegram"];
 export type NotificationPreferences = Record<PreferenceKind, Record<NotificationChannel, boolean>>;
 
 const COLUMNS = {
-  assignment: { inbox: "assignmentInbox", email: "assignmentEmails", push: "assignmentPush" },
-  page_shared: { inbox: "shareInbox", email: "shareEmails", push: "sharePush" },
-  comment: { inbox: "commentInbox", email: "commentEmails", push: "commentPush" },
-  mention: { inbox: "mentionInbox", email: "mentionEmails", push: "mentionPush" },
-  reminder: { inbox: "reminderInbox", email: "reminderEmails", push: "reminderPush" },
-  access_request: { inbox: "accessRequestInbox", email: "accessRequestEmails", push: "accessRequestPush" },
-  join_request: { inbox: "joinRequestInbox", email: "joinRequestEmails", push: "joinRequestPush" },
-  automation: { inbox: "automationInbox", email: "automationEmails", push: "automationPush" },
-  row_update: { inbox: "rowUpdateInbox", email: "rowUpdateEmails", push: "rowUpdatePush" },
-  page_updated: { inbox: "pageUpdateInbox", email: "pageUpdateEmails", push: "pageUpdatePush" },
-  row_email: { inbox: "rowEmailInbox", email: "rowEmailEmails", push: "rowEmailPush" },
+  assignment: { inbox: "assignmentInbox", email: "assignmentEmails", push: "assignmentPush", telegram: "assignmentTelegram" },
+  page_shared: { inbox: "shareInbox", email: "shareEmails", push: "sharePush", telegram: "shareTelegram" },
+  comment: { inbox: "commentInbox", email: "commentEmails", push: "commentPush", telegram: "commentTelegram" },
+  mention: { inbox: "mentionInbox", email: "mentionEmails", push: "mentionPush", telegram: "mentionTelegram" },
+  reminder: { inbox: "reminderInbox", email: "reminderEmails", push: "reminderPush", telegram: "reminderTelegram" },
+  access_request: { inbox: "accessRequestInbox", email: "accessRequestEmails", push: "accessRequestPush", telegram: "accessRequestTelegram" },
+  join_request: { inbox: "joinRequestInbox", email: "joinRequestEmails", push: "joinRequestPush", telegram: "joinRequestTelegram" },
+  automation: { inbox: "automationInbox", email: "automationEmails", push: "automationPush", telegram: "automationTelegram" },
+  row_update: { inbox: "rowUpdateInbox", email: "rowUpdateEmails", push: "rowUpdatePush", telegram: "rowUpdateTelegram" },
+  page_updated: { inbox: "pageUpdateInbox", email: "pageUpdateEmails", push: "pageUpdatePush", telegram: "pageUpdateTelegram" },
+  row_email: { inbox: "rowEmailInbox", email: "rowEmailEmails", push: "rowEmailPush", telegram: "rowEmailTelegram" },
 } as const satisfies Record<PreferenceKind, Record<NotificationChannel, keyof typeof userPreference.$inferSelect>>;
 
 const KINDS = Object.keys(COLUMNS) as PreferenceKind[];
@@ -37,7 +37,12 @@ export function preferencesFrom(row: Partial<typeof userPreference.$inferSelect>
   return Object.fromEntries(
     KINDS.map((kind) => [
       kind,
-      { inbox: row?.[COLUMNS[kind].inbox] ?? true, email: row?.[COLUMNS[kind].email] ?? true, push: row?.[COLUMNS[kind].push] ?? true },
+      {
+        inbox: row?.[COLUMNS[kind].inbox] ?? true,
+        email: row?.[COLUMNS[kind].email] ?? true,
+        push: row?.[COLUMNS[kind].push] ?? true,
+        telegram: row?.[COLUMNS[kind].telegram] ?? true,
+      },
     ]),
   ) as NotificationPreferences;
 }
@@ -55,6 +60,12 @@ export async function getNotificationPreferences(userId: string): Promise<Notifi
 export function pushWanted(preferences: NotificationPreferences, kind: NotificationKind) {
   if (isOwnerKind(kind)) return true;
   return preferences[kind].inbox && preferences[kind].push;
+}
+
+/** Whether a notification of `kind` goes to the person's Telegram chat: as for push (pushWanted). */
+export function telegramWanted(preferences: NotificationPreferences, kind: NotificationKind) {
+  if (isOwnerKind(kind)) return true;
+  return preferences[kind].inbox && preferences[kind].telegram;
 }
 
 /** Whether this person wants emails about `kind` (on unless they turned them off). */

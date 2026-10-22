@@ -1644,6 +1644,7 @@
     "inbox": "דואר נכנס",
     "email": "אימייל",
     "push": "Push",
+    "telegram": "Telegram",
     "pushDescription": "התראות Push נשלחות על מה שמוצג בתיבת הדואר הנכנס שלך, במכשירים שבהם הן הופעלו.",
     "pushDeviceTitle": "התראות Push במכשיר הזה",
     "pushDeviceOff": "קבלת התראה במכשיר הזה על כל פריט חדש בתיבת הדואר הנכנס, גם כש־Leafdesk סגור.",

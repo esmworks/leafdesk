@@ -3,13 +3,14 @@
   "linkedNoWorkspace": "已以 {name} 的身份关联到 Leafdesk。你还没有加入可供我回答的工作区：加入一个后，用 /workspace 选择它。",
   "notLinked": "此聊天未关联 Leafdesk 账户。在 Leafdesk 中打开 设置 → 已连接的应用 → Telegram，然后选择“关联 Telegram”。",
   "badCode": "此链接已过期或已被使用。请在 Leafdesk 中新建一个：设置 → 已连接的应用 → Telegram。",
-  "help": "提出问题或发送语音消息，我会根据你的 Leafdesk 页面回答并注明出处。\n\n/new：开始新对话\n/workspace：选择我回答所用的工作区\n/mode：选择我可以更改什么\n/stop：停止正在撰写的回答\n/unlink：取消关联此 Telegram 账户",
+  "help": "提出问题或发送语音消息，我会根据你的 Leafdesk 页面回答并注明出处。\n\n/new：开始新对话\n/workspace：选择我回答所用的工作区\n/mode：选择我可以更改什么\n/stop：停止正在撰写的回答\n/notifications：开启或关闭此聊天中的通知\n/unlink：取消关联此 Telegram 账户",
   "commands": {
     "new": "开始新对话",
     "workspace": "选择我回答所用的工作区",
     "mode": "选择我可以更改什么",
     "stop": "停止正在撰写的回答",
     "unlink": "取消关联此 Telegram 账户",
+    "notifications": "在这里开启或关闭通知",
     "help": "我能做什么"
   },
   "newConversation": "已在 {workspace} 中开始新对话。",
@@ -40,6 +41,19 @@
   "sourceGone": "你已无法打开的页面",
   "cutOff": "回答已达到长度上限，可能不完整。",
   "stoppedNote": "回答已停止。",
+  "notifications": {
+    "on": "你的 Leafdesk 通知会发送到此聊天。可在 设置 → 偏好设置 中选择哪些类型。",
+    "off": "你的 Leafdesk 通知不会发送到此聊天。",
+    "turnOn": "发送到这里",
+    "turnOff": "停止发送到这里"
+  },
+  "notify": {
+    "open": "打开",
+    "markRead": "标为已读",
+    "read": "已标为已读。",
+    "snoozed": "已推迟一小时。",
+    "gone": "此通知已不在你的收件箱中。"
+  },
   "approval": {
     "createRow": "要向 {target} 添加一行吗？",
     "updateRow": "要更改行 {title} 吗？",

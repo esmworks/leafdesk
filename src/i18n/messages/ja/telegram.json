@@ -3,13 +3,14 @@
   "linkedNoWorkspace": "{name} として Leafdesk に連携しました。まだ回答に使えるワークスペースに参加していません。参加してから /workspace で選んでください。",
   "notLinked": "このチャットは Leafdesk のアカウントに連携されていません。Leafdesk で 設定 → 接続済みアプリ → Telegram を開き、「Telegram を連携」を選んでください。",
   "badCode": "このリンクは期限切れか、すでに使われています。Leafdesk で新しいリンクを作成してください：設定 → 接続済みアプリ → Telegram。",
-  "help": "質問を送るか音声メッセージを送ると、Leafdesk のページから出典つきで答えます。\n\n/new：新しい会話を始める\n/workspace：回答に使うワークスペースを選ぶ\n/mode：変更してよい範囲を選ぶ\n/stop：作成中の回答を止める\n/unlink：この Telegram アカウントの連携を解除する",
+  "help": "質問を送るか音声メッセージを送ると、Leafdesk のページから出典つきで答えます。\n\n/new：新しい会話を始める\n/workspace：回答に使うワークスペースを選ぶ\n/mode：変更してよい範囲を選ぶ\n/stop：作成中の回答を止める\n/notifications：このチャットでの通知をオン・オフする\n/unlink：この Telegram アカウントの連携を解除する",
   "commands": {
     "new": "新しい会話を始める",
     "workspace": "回答に使うワークスペースを選ぶ",
     "mode": "変更してよい範囲を選ぶ",
     "stop": "作成中の回答を止める",
     "unlink": "この Telegram アカウントの連携を解除する",
+    "notifications": "ここでの通知をオン・オフする",
     "help": "できること"
   },
   "newConversation": "{workspace} で新しい会話を始めました。",
@@ -40,6 +41,19 @@
   "sourceGone": "開けなくなったページ",
   "cutOff": "回答が長さの上限に達したため、途中で切れている可能性があります。",
   "stoppedNote": "回答は停止されました。",
+  "notifications": {
+    "on": "Leafdesk の通知がこのチャットに届きます。届く種類は 設定 → 環境設定 で選べます。",
+    "off": "Leafdesk の通知はこのチャットに届きません。",
+    "turnOn": "ここに送る",
+    "turnOff": "ここへの送信を止める"
+  },
+  "notify": {
+    "open": "開く",
+    "markRead": "既読にする",
+    "read": "既読にしました。",
+    "snoozed": "1時間スヌーズしました。",
+    "gone": "この通知はもう受信トレイにありません。"
+  },
   "approval": {
     "createRow": "{target} に行を追加しますか？",
     "updateRow": "行 {title} を変更しますか？",

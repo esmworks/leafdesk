@@ -1644,6 +1644,7 @@
     "inbox": "Bandeja de entrada",
     "email": "Correo electrónico",
     "push": "Push",
+    "telegram": "Telegram",
     "pushDescription": "Las notificaciones push llegan por lo que aparece en tu bandeja de entrada, en los dispositivos donde las actives.",
     "pushDeviceTitle": "Notificaciones push en este dispositivo",
     "pushDeviceOff": "Recibe una notificación en este dispositivo por cada elemento nuevo de tu bandeja de entrada, aunque Leafdesk esté cerrado.",

@@ -3,13 +3,14 @@
   "linkedNoWorkspace": "{name}(으)로 Leafdesk에 연결되었습니다. 아직 답변에 쓸 수 있는 워크스페이스에 참여하지 않았습니다. 참여한 뒤 /workspace로 선택하세요.",
   "notLinked": "이 채팅은 Leafdesk 계정에 연결되어 있지 않습니다. Leafdesk에서 설정 → 연결된 앱 → Telegram을 열고 Telegram 연결을 선택하세요.",
   "badCode": "이 링크는 만료되었거나 이미 사용되었습니다. Leafdesk에서 새 링크를 만드세요: 설정 → 연결된 앱 → Telegram.",
-  "help": "질문을 보내거나 음성 메시지를 보내면 Leafdesk 페이지를 바탕으로 출처와 함께 답합니다.\n\n/new: 새 대화 시작\n/workspace: 답변에 쓸 워크스페이스 선택\n/mode: 변경해도 되는 범위 선택\n/stop: 작성 중인 답변 중지\n/unlink: 이 Telegram 계정 연결 해제",
+  "help": "질문을 보내거나 음성 메시지를 보내면 Leafdesk 페이지를 바탕으로 출처와 함께 답합니다.\n\n/new: 새 대화 시작\n/workspace: 답변에 쓸 워크스페이스 선택\n/mode: 변경해도 되는 범위 선택\n/stop: 작성 중인 답변 중지\n/notifications: 이 채팅의 알림 켜기 또는 끄기\n/unlink: 이 Telegram 계정 연결 해제",
   "commands": {
     "new": "새 대화 시작",
     "workspace": "답변에 쓸 워크스페이스 선택",
     "mode": "변경해도 되는 범위 선택",
     "stop": "작성 중인 답변 중지",
     "unlink": "이 Telegram 계정 연결 해제",
+    "notifications": "여기서 알림 켜기 또는 끄기",
     "help": "할 수 있는 일"
   },
   "newConversation": "{workspace}에서 새 대화를 시작했습니다.",
@@ -40,6 +41,19 @@
   "sourceGone": "더 이상 열 수 없는 페이지",
   "cutOff": "답변이 길이 제한에 도달해 잘렸을 수 있습니다.",
   "stoppedNote": "답변이 중지되었습니다.",
+  "notifications": {
+    "on": "Leafdesk 알림이 이 채팅으로 옵니다. 받을 종류는 설정 → 환경설정에서 고르세요.",
+    "off": "Leafdesk 알림이 이 채팅으로 오지 않습니다.",
+    "turnOn": "여기로 보내기",
+    "turnOff": "여기로 보내지 않기"
+  },
+  "notify": {
+    "open": "열기",
+    "markRead": "읽음으로 표시",
+    "read": "읽음으로 표시했습니다.",
+    "snoozed": "1시간 다시 알림으로 미뤘습니다.",
+    "gone": "이 알림은 더 이상 받은편지함에 없습니다."
+  },
   "approval": {
     "createRow": "{target}에 행을 추가할까요?",
     "updateRow": "{title} 행을 변경할까요?",

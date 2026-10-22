@@ -188,7 +188,7 @@
   },
   "telegram": {
     "title": "Telegram",
-    "description": "Ask the AI chat from Telegram, by text or voice message. It answers as you, from the pages you can open, with links to them; changes are asked about with buttons, as the chat asks here.",
+    "description": "Ask the AI chat from Telegram, by text or voice message, and get your notifications there. It answers as you, from the pages you can open, with links to them; changes are asked about with buttons, as the chat asks here.",
     "notLinked": "Not linked",
     "notLinkedHint": "Link your Telegram account to talk to {bot}.",
     "link": "Link Telegram",
@@ -203,6 +203,8 @@
     "linkedOn": "Linked {date}",
     "lastUsed": "last used {time}",
     "neverUsed": "not used yet",
+    "notifications": "Send my notifications here",
+    "notificationsHint": "What shows in your inbox comes to the chat too; Preferences chooses which kinds.",
     "open": "Open chat",
     "unlink": "Unlink",
     "unlinkConfirm": "Unlink Telegram",

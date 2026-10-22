@@ -29,6 +29,7 @@ import { mailStatus } from "@/server/mail";
 import { getNotificationPreferences } from "@/server/notification-preferences";
 import { listWatches } from "@/server/page-watch";
 import { pushEndpoints, vapidPublicKey } from "@/server/push";
+import { telegramNotificationsOn } from "@/server/telegram/links";
 import type { requireSession } from "@/server/session";
 import { env } from "@/lib/env";
 import { storageNoticeOf } from "@/lib/workspace-storage";
@@ -170,11 +171,12 @@ async function SecurityTab({ session }: { session: Session }) {
 
 async function PreferencesTab({ userId }: { userId: string }) {
   const publicKey = vapidPublicKey();
-  const [cookieStore, notificationPreferences, watches, endpoints, t, ts] = await Promise.all([
+  const [cookieStore, notificationPreferences, watches, endpoints, telegram, t, ts] = await Promise.all([
     cookies(),
     getNotificationPreferences(userId),
     listWatches(userId),
     publicKey ? pushEndpoints(userId) : [],
+    telegramNotificationsOn(userId),
     getTranslations("account"),
     getTranslations("settings"),
   ]);
@@ -203,7 +205,7 @@ async function PreferencesTab({ userId }: { userId: string }) {
             </>
           }
         >
-          <NotificationSettings preferences={notificationPreferences} push={publicKey ? { publicKey, endpoints } : null} />
+          <NotificationSettings preferences={notificationPreferences} push={publicKey ? { publicKey, endpoints } : null} telegram={telegram} />
         </SettingsGroup>
         <SettingsGroup title={ts("notifications.watchedHeading")} description={ts("notifications.watchedDescription")}>
           <WatchedPages pages={watches.pages} teamspaces={watches.teamspaces} />

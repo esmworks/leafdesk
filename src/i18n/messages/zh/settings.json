@@ -1644,6 +1644,7 @@
     "inbox": "收件箱",
     "email": "邮件",
     "push": "推送",
+    "telegram": "Telegram",
     "pushDescription": "对于显示在收件箱中的内容，会在你开启推送的设备上发送推送通知。",
     "pushDeviceTitle": "此设备上的推送通知",
     "pushDeviceOff": "收件箱中每有一条新内容，就在此设备上收到通知，即使 Leafdesk 已关闭。",

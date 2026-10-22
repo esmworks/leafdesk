@@ -3,13 +3,14 @@
   "linkedNoWorkspace": "Collegato a Leafdesk come {name}. Non sei ancora in uno spazio di lavoro da cui posso rispondere: entrane in uno, poi sceglilo con /workspace.",
   "notLinked": "Questa chat non è collegata a un account Leafdesk. In Leafdesk apri Impostazioni → App connesse → Telegram e scegli Collega Telegram.",
   "badCode": "Questo link è scaduto o è già stato usato. Creane uno nuovo in Leafdesk: Impostazioni → App connesse → Telegram.",
-  "help": "Fai una domanda o invia un messaggio vocale e rispondo dalle tue pagine Leafdesk, citandole.\n\n/new: inizia una nuova conversazione\n/workspace: scegli lo spazio di lavoro da cui rispondo\n/mode: scegli cosa posso modificare\n/stop: ferma la risposta in corso\n/unlink: scollega questo account Telegram",
+  "help": "Fai una domanda o invia un messaggio vocale e rispondo dalle tue pagine Leafdesk, citandole.\n\n/new: inizia una nuova conversazione\n/workspace: scegli lo spazio di lavoro da cui rispondo\n/mode: scegli cosa posso modificare\n/stop: ferma la risposta in corso\n/notifications: attiva o disattiva le tue notifiche in questa chat\n/unlink: scollega questo account Telegram",
   "commands": {
     "new": "Inizia una nuova conversazione",
     "workspace": "Scegli lo spazio di lavoro da cui rispondo",
     "mode": "Scegli cosa posso modificare",
     "stop": "Ferma la risposta in corso",
     "unlink": "Scollega questo account Telegram",
+    "notifications": "Attiva o disattiva le notifiche qui",
     "help": "Cosa so fare"
   },
   "newConversation": "Nuova conversazione in {workspace}.",
@@ -40,6 +41,19 @@
   "sourceGone": "Una pagina che non puoi più aprire",
   "cutOff": "La risposta ha raggiunto il limite di lunghezza e potrebbe essere troncata.",
   "stoppedNote": "La risposta è stata fermata.",
+  "notifications": {
+    "on": "Le tue notifiche di Leafdesk arrivano in questa chat. Scegli quali tipi in Impostazioni → Preferenze.",
+    "off": "Le tue notifiche di Leafdesk non arrivano in questa chat.",
+    "turnOn": "Inviale qui",
+    "turnOff": "Smetti di inviarle qui"
+  },
+  "notify": {
+    "open": "Apri",
+    "markRead": "Segna come letta",
+    "read": "Segnata come letta.",
+    "snoozed": "Posticipata di un’ora.",
+    "gone": "Questa notifica non è più nella tua posta in arrivo."
+  },
   "approval": {
     "createRow": "Aggiungere una riga a {target}?",
     "updateRow": "Modificare la riga {title}?",

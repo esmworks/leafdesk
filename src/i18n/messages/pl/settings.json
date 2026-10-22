@@ -1644,6 +1644,7 @@
     "inbox": "Skrzynka odbiorcza",
     "email": "E-mail",
     "push": "Push",
+    "telegram": "Telegram",
     "pushDescription": "Powiadomienia push dotyczą tego, co pojawia się w skrzynce odbiorczej, na urządzeniach, na których je włączysz.",
     "pushDeviceTitle": "Powiadomienia push na tym urządzeniu",
     "pushDeviceOff": "Otrzymuj na tym urządzeniu powiadomienie o każdym nowym elemencie w skrzynce odbiorczej, nawet gdy Leafdesk jest zamknięty.",

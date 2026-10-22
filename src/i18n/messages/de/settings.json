@@ -1644,6 +1644,7 @@
     "inbox": "Posteingang",
     "email": "E-Mail",
     "push": "Push",
+    "telegram": "Telegram",
     "pushDescription": "Push-Benachrichtigungen kommen für das, was in deinem Posteingang erscheint, auf die Geräte, auf denen du sie einschaltest.",
     "pushDeviceTitle": "Push-Benachrichtigungen auf diesem Gerät",
     "pushDeviceOff": "Erhalte auf diesem Gerät eine Benachrichtigung für jeden neuen Eintrag in deinem Posteingang, auch wenn Leafdesk geschlossen ist.",

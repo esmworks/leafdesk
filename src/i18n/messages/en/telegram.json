@@ -3,16 +3,17 @@
   "linkedNoWorkspace": "Linked to Leafdesk as {name}. You aren't in a workspace I can answer from yet: join one, then pick it with /workspace.",
   "notLinked": "This chat isn't linked to a Leafdesk account. In Leafdesk, open Settings → Connected apps → Telegram and choose Link Telegram.",
   "badCode": "That link has run out or was used already. Make a new one in Leafdesk: Settings → Connected apps → Telegram.",
-  "help": "Ask a question, or send a voice message, and I answer from your Leafdesk pages, citing them.\n\n/new: start a new conversation\n/workspace: choose the workspace I answer from\n/mode: choose what I may change\n/stop: stop the answer being written\n/unlink: unlink this Telegram account",
+  "help": "Ask a question, or send a voice message, and I answer from your Leafdesk pages, citing them.\n\n/new: start a new conversation\n/workspace: choose the workspace I answer from\n/mode: choose what I may change\n/stop: stop the answer being written\n/notifications: turn your notifications in this chat on or off\n/unlink: unlink this Telegram account",
   "commands": {
     "new": "Start a new conversation",
     "workspace": "Choose the workspace I answer from",
     "mode": "Choose what I may change",
     "stop": "Stop the answer being written",
     "unlink": "Unlink this Telegram account",
+    "notifications": "Turn notifications here on or off",
     "help": "What I can do"
   },
-  "newConversation":"New conversation in {workspace}.",
+  "newConversation": "New conversation in {workspace}.",
   "pickWorkspace": "Which workspace should I answer from? Now: {workspace}.",
   "pickWorkspaceNone": "Which workspace should I answer from?",
   "workspaceSet": "Questions now go to {workspace}, in a new conversation.",
@@ -40,6 +41,19 @@
   "sourceGone": "A page you can no longer open",
   "cutOff": "The answer reached the length limit and may be cut off.",
   "stoppedNote": "The answer was stopped.",
+  "notifications": {
+    "on": "Your Leafdesk notifications come to this chat. Settings → Preferences chooses which kinds.",
+    "off": "Your Leafdesk notifications don't come to this chat.",
+    "turnOn": "Send them here",
+    "turnOff": "Stop them here"
+  },
+  "notify": {
+    "open": "Open",
+    "markRead": "Mark read",
+    "read": "Marked as read.",
+    "snoozed": "Snoozed for an hour.",
+    "gone": "This notification isn't in your inbox anymore."
+  },
   "approval": {
     "createRow": "Add a row to {target}?",
     "updateRow": "Change the row {title}?",

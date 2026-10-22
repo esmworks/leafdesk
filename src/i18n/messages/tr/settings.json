@@ -1644,6 +1644,7 @@
     "inbox": "Gelen kutusu",
     "email": "E-posta",
     "push": "Anlık",
+    "telegram": "Telegram",
     "pushDescription": "Anlık bildirimler, gelen kutunuzda görünenler için, açtığınız cihazlara gelir.",
     "pushDeviceTitle": "Bu cihazda anlık bildirimler",
     "pushDeviceOff": "Gelen kutunuza düşen her yeni öğe için, Leafdesk kapalıyken bile bu cihazda bildirim alın.",

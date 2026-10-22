@@ -188,7 +188,7 @@
   },
   "telegram": {
     "title": "Telegram",
-    "description": "Fai domande alla chat IA da Telegram, con un testo o un messaggio vocale. Risponde per tuo conto, dalle pagine che puoi aprire, con i link a esse; chiede le modifiche con dei pulsanti, come la chat qui.",
+    "description": "Fai domande alla chat IA da Telegram, con un testo o un messaggio vocale, e ricevi lì le tue notifiche. Risponde per tuo conto, dalle pagine che puoi aprire, con i link a esse; chiede le modifiche con dei pulsanti, come la chat qui.",
     "notLinked": "Non collegato",
     "notLinkedHint": "Collega il tuo account Telegram per parlare con {bot}.",
     "link": "Collega Telegram",
@@ -203,6 +203,8 @@
     "linkedOn": "Collegato il {date}",
     "lastUsed": "ultimo uso {time}",
     "neverUsed": "non ancora usato",
+    "notifications": "Invia qui le mie notifiche",
+    "notificationsHint": "Ciò che compare nella tua posta in arrivo arriva anche nella chat; nelle Preferenze scegli quali tipi.",
     "open": "Apri chat",
     "unlink": "Scollega",
     "unlinkConfirm": "Scollega Telegram",

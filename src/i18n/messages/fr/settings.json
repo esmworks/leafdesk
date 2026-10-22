@@ -1644,6 +1644,7 @@
     "inbox": "Boîte de réception",
     "email": "E-mail",
     "push": "Push",
+    "telegram": "Telegram",
     "pushDescription": "Les notifications push arrivent pour ce qui s’affiche dans votre boîte de réception, sur les appareils où vous les activez.",
     "pushDeviceTitle": "Notifications push sur cet appareil",
     "pushDeviceOff": "Recevez une notification sur cet appareil pour chaque nouvel élément de votre boîte de réception, même quand Leafdesk est fermé.",

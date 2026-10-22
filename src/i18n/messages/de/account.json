@@ -188,7 +188,7 @@
   },
   "telegram": {
     "title": "Telegram",
-    "description": "Frag den KI-Chat über Telegram, per Text oder Sprachnachricht. Er antwortet als du, aus den Seiten, die du öffnen kannst, mit Links darauf; Änderungen erfragt er mit Schaltflächen, wie der Chat hier.",
+    "description": "Frag den KI-Chat über Telegram, per Text oder Sprachnachricht, und erhalte dort deine Benachrichtigungen. Er antwortet als du, aus den Seiten, die du öffnen kannst, mit Links darauf; Änderungen erfragt er mit Schaltflächen, wie der Chat hier.",
     "notLinked": "Nicht verbunden",
     "notLinkedHint": "Verbinde dein Telegram-Konto, um mit {bot} zu schreiben.",
     "link": "Telegram verbinden",
@@ -203,6 +203,8 @@
     "linkedOn": "Verbunden am {date}",
     "lastUsed": "zuletzt benutzt {time}",
     "neverUsed": "noch nicht benutzt",
+    "notifications": "Meine Benachrichtigungen hierher schicken",
+    "notificationsHint": "Was in deinem Posteingang erscheint, kommt auch in den Chat; welche Arten, wählst du unter Präferenzen.",
     "open": "Chat öffnen",
     "unlink": "Trennen",
     "unlinkConfirm": "Telegram trennen",

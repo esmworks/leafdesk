@@ -17,6 +17,7 @@ import { listWorkspaces } from "@/server/workspaces";
 import {
   answerCallback,
   downloadFile,
+  editButtons,
   editMessage,
   sendMessage,
   sendTyping,
@@ -26,7 +27,8 @@ import {
   type TelegramMessage,
   type TelegramUpdate,
 } from "./api";
-import { linkMode, linkOf, linkWithCode, touchLink, unlinkTelegram, updateLink, type TelegramLinkRow } from "./links";
+import { answerNotification } from "./notify";
+import { linkMode, linkOf, linkWithCode, setTelegramNotifications, touchLink, unlinkTelegram, updateLink, type TelegramLinkRow } from "./links";
 
 /**
  * The Telegram bot: people who linked their Telegram account (links.ts) ask the AI chat
@@ -39,7 +41,9 @@ import { linkMode, linkOf, linkWithCode, touchLink, unlinkTelegram, updateLink, 
  * linked person can press them.
  *
  * One question at a time per person: another waits until the answer is in (or /stop). Commands:
- * /start (with a link code: links the account), /help, /new, /workspace, /mode, /stop, /unlink.
+ * /start (with a link code: links the account), /help, /new, /workspace, /mode, /stop,
+ * /notifications, /unlink. The person's inbox notifications come to the chat too (notify.ts), with
+ * buttons to mark them read or snooze them.
  */
 
 type Translator = ReturnType<typeof translatorFor>;
@@ -169,6 +173,11 @@ async function onCommand(link: TelegramLinkRow, t: Translator, command: string) 
     if (!workspaces.length) return void (await send(chatId, escapeHtml(t("noWorkspace"))));
     const keyboard = { inline_keyboard: workspaces.slice(0, 50).map((w) => [{ text: `${w.id === current?.id ? "✓ " : ""}${w.icon && !w.icon.includes("/") ? `${w.icon} ` : ""}${w.name}`, callback_data: `ws:${w.id}` }]) };
     return void (await send(chatId, current ? html(t, "pickWorkspace", { workspace: escapeHtml(current.name) }) : escapeHtml(t("pickWorkspaceNone")), keyboard));
+  }
+  if (command === "notifications") {
+    const on = link.notifications;
+    const keyboard = { inline_keyboard: [[{ text: t(on ? "notifications.turnOff" : "notifications.turnOn"), callback_data: `nt:${on ? "off" : "on"}` }]] };
+    return void (await send(chatId, escapeHtml(t(on ? "notifications.on" : "notifications.off")), keyboard));
   }
   if (command === "mode") {
     const mode = linkMode(link.mode);
@@ -415,6 +424,24 @@ async function onCallback(query: TelegramCallbackQuery) {
     if (!found) return void (await editMessage(chatId, message.message_id, escapeHtml(t("noWorkspace"))).catch(() => {}));
     await updateLink(link.id, { workspaceId: found.id, conversationId: null });
     await editMessage(chatId, message.message_id, html(t, "workspaceSet", { workspace: escapeHtml(found.name) })).catch(() => {});
+    return;
+  }
+
+  const notifications = /^nt:(on|off)$/.exec(data);
+  if (notifications) {
+    const on = notifications[1] === "on";
+    await setTelegramNotifications(link.userId, on);
+    await answerCallback(query.id);
+    await editMessage(chatId, message.message_id, escapeHtml(t(on ? "notifications.on" : "notifications.off"))).catch(() => {});
+    return;
+  }
+
+  const answered = /^n([rz]):([\w-]{1,60})$/.exec(data);
+  if (answered) {
+    const action = answered[1] === "r" ? "read" : "snooze";
+    const done = await answerNotification(link.userId, answered[2], action);
+    await answerCallback(query.id, t(done ? (action === "read" ? "notify.read" : "notify.snoozed") : "notify.gone"));
+    await editButtons(chatId, message.message_id).catch(() => {});
     return;
   }
 

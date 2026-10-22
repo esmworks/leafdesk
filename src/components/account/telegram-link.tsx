@@ -3,9 +3,9 @@
 import { Send } from "lucide-react";
 import { useFormatter, useNow, useTranslations } from "next-intl";
 import { useEffect, useState, useTransition } from "react";
-import { createTelegramLinkAction, getTelegramStatusAction, unlinkTelegramAction } from "@/app/actions/telegram";
+import { createTelegramLinkAction, getTelegramStatusAction, setTelegramNotificationsAction, unlinkTelegramAction } from "@/app/actions/telegram";
 import { QrCode } from "@/components/security/qr-code";
-import { Button, buttonClass } from "@/components/ui";
+import { Button, buttonClass, Switch } from "@/components/ui";
 import type { TelegramStatus } from "@/server/telegram/links";
 
 /** How often the settings ask whether the bot was opened with the link yet. */
@@ -69,41 +69,61 @@ export function TelegramLink({ initial }: { initial: TelegramStatus }) {
       } else setError(result.error);
     });
 
+  const notify = (on: boolean) =>
+    act(async () => {
+      setStatus((s) => (s.link ? { ...s, link: { ...s.link, notifications: on } } : s));
+      const result = await setTelegramNotificationsAction(on);
+      if (result.ok) setStatus(result.data);
+      else {
+        setStatus((s) => (s.link ? { ...s, link: { ...s.link, notifications: !on } } : s));
+        setError(result.error);
+      }
+    });
+
   const linked = status.link;
   return (
     <div className="px-5 py-4">
       {linked ? (
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-6">
-          <div className="min-w-0 flex-1">
-            <div className="truncate text-sm font-medium">
-              {linked.username ? t("linkedAs", { name: `@${linked.username}` }) : t("linkedAs", { name: linked.displayName || t("yourAccount") })}
+        <div className="space-y-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-6">
+            <div className="min-w-0 flex-1">
+              <div className="truncate text-sm font-medium">
+                {linked.username ? t("linkedAs", { name: `@${linked.username}` }) : t("linkedAs", { name: linked.displayName || t("yourAccount") })}
+              </div>
+              <p className="mt-0.5 text-sm text-fg-muted">
+                {t("linkedOn", { date: format.dateTime(new Date(linked.createdAt), { dateStyle: "medium" }) })}
+                {" · "}
+                {linked.lastUsedAt ? t("lastUsed", { time: format.relativeTime(new Date(linked.lastUsedAt), now) }) : t("neverUsed")}
+              </p>
             </div>
-            <p className="mt-0.5 text-sm text-fg-muted">
-              {t("linkedOn", { date: format.dateTime(new Date(linked.createdAt), { dateStyle: "medium" }) })}
-              {" · "}
-              {linked.lastUsedAt ? t("lastUsed", { time: format.relativeTime(new Date(linked.lastUsedAt), now) }) : t("neverUsed")}
-            </p>
+            <div className="flex shrink-0 gap-1">
+              {status.bot && (
+                <a href={`https://t.me/${status.bot}`} target="_blank" rel="noreferrer" className={buttonClass({ size: "sm" })}>
+                  {t("open")}
+                </a>
+              )}
+              {confirming ? (
+                <>
+                  <Button size="sm" variant="ghost" onClick={() => setConfirming(false)} disabled={working}>
+                    {t("cancel")}
+                  </Button>
+                  <Button size="sm" variant="danger" onClick={unlink} disabled={working}>
+                    {working ? t("unlinking") : t("unlinkConfirm")}
+                  </Button>
+                </>
+              ) : (
+                <Button size="sm" onClick={() => setConfirming(true)}>
+                  {t("unlink")}
+                </Button>
+              )}
+            </div>
           </div>
-          <div className="flex shrink-0 gap-1">
-            {status.bot && (
-              <a href={`https://t.me/${status.bot}`} target="_blank" rel="noreferrer" className={buttonClass({ size: "sm" })}>
-                {t("open")}
-              </a>
-            )}
-            {confirming ? (
-              <>
-                <Button size="sm" variant="ghost" onClick={() => setConfirming(false)} disabled={working}>
-                  {t("cancel")}
-                </Button>
-                <Button size="sm" variant="danger" onClick={unlink} disabled={working}>
-                  {working ? t("unlinking") : t("unlinkConfirm")}
-                </Button>
-              </>
-            ) : (
-              <Button size="sm" onClick={() => setConfirming(true)}>
-                {t("unlink")}
-              </Button>
-            )}
+          <div className="flex items-center gap-6 border-t border-border pt-4">
+            <div className="min-w-0 flex-1">
+              <div className="text-sm font-medium">{t("notifications")}</div>
+              <p className="mt-0.5 text-sm text-fg-muted">{t("notificationsHint")}</p>
+            </div>
+            <Switch checked={linked.notifications} label={t("notifications")} disabled={working} onChange={notify} />
           </div>
         </div>
       ) : pending ? (

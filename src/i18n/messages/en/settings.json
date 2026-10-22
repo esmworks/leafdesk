@@ -1644,6 +1644,7 @@
     "inbox": "Inbox",
     "email": "Email",
     "push": "Push",
+    "telegram": "Telegram",
     "pushDescription": "Push notifications come for what shows in your inbox, on the devices where you turn them on.",
     "pushDeviceTitle": "Push notifications on this device",
     "pushDeviceOff": "Get a notification on this device for each new item in your inbox, even when Leafdesk is closed.",

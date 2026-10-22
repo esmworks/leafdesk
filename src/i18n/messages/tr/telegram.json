@@ -3,13 +3,14 @@
   "linkedNoWorkspace": "Leafdesk’e {name} olarak bağlandın. Henüz yanıt verebileceğim bir çalışma alanında değilsin: birine katıl, sonra /workspace ile seç.",
   "notLinked": "Bu sohbet bir Leafdesk hesabına bağlı değil. Leafdesk’te Ayarlar → Bağlı uygulamalar → Telegram’ı açıp Telegram’ı bağla’yı seç.",
   "badCode": "Bu bağlantının süresi dolmuş ya da zaten kullanılmış. Leafdesk’te yenisini oluştur: Ayarlar → Bağlı uygulamalar → Telegram.",
-  "help": "Bir soru sor ya da sesli mesaj gönder; Leafdesk sayfalarından, onları kaynak göstererek yanıtlarım.\n\n/new: yeni bir sohbet başlat\n/workspace: yanıt verdiğim çalışma alanını seç\n/mode: neleri değiştirebileceğimi seç\n/stop: yazılmakta olan yanıtı durdur\n/unlink: bu Telegram hesabının bağlantısını kaldır",
+  "help": "Bir soru sor ya da sesli mesaj gönder; Leafdesk sayfalarından, onları kaynak göstererek yanıtlarım.\n\n/new: yeni bir sohbet başlat\n/workspace: yanıt verdiğim çalışma alanını seç\n/mode: neleri değiştirebileceğimi seç\n/stop: yazılmakta olan yanıtı durdur\n/notifications: bu sohbetteki bildirimlerini aç ya da kapat\n/unlink: bu Telegram hesabının bağlantısını kaldır",
   "commands": {
     "new": "Yeni bir sohbet başlat",
     "workspace": "Yanıt verdiğim çalışma alanını seç",
     "mode": "Neleri değiştirebileceğimi seç",
     "stop": "Yazılmakta olan yanıtı durdur",
     "unlink": "Bu Telegram hesabının bağlantısını kaldır",
+    "notifications": "Bildirimleri burada aç ya da kapat",
     "help": "Neler yapabildiğim"
   },
   "newConversation": "{workspace} içinde yeni sohbet.",
@@ -40,6 +41,19 @@
   "sourceGone": "Artık açamadığın bir sayfa",
   "cutOff": "Yanıt uzunluk sınırına ulaştı ve kesilmiş olabilir.",
   "stoppedNote": "Yanıt durduruldu.",
+  "notifications": {
+    "on": "Leafdesk bildirimlerin bu sohbete geliyor. Hangi türlerin geleceğini Ayarlar → Tercihler’den seçebilirsin.",
+    "off": "Leafdesk bildirimlerin bu sohbete gelmiyor.",
+    "turnOn": "Buraya gönder",
+    "turnOff": "Burada durdur"
+  },
+  "notify": {
+    "open": "Aç",
+    "markRead": "Okundu",
+    "read": "Okundu olarak işaretlendi.",
+    "snoozed": "Bir saat ertelendi.",
+    "gone": "Bu bildirim artık gelen kutunda değil."
+  },
   "approval": {
     "createRow": "{target} veritabanına bir satır eklensin mi?",
     "updateRow": "{title} satırı değiştirilsin mi?",

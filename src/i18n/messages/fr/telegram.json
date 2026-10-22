@@ -3,13 +3,14 @@
   "linkedNoWorkspace": "Connecté à Leafdesk en tant que {name}. Vous n’êtes encore dans aucun espace de travail depuis lequel je peux répondre : rejoignez-en un, puis choisissez-le avec /workspace.",
   "notLinked": "Cette conversation n’est liée à aucun compte Leafdesk. Dans Leafdesk, ouvrez Paramètres → Applications connectées → Telegram et choisissez Lier Telegram.",
   "badCode": "Ce lien a expiré ou a déjà été utilisé. Créez-en un nouveau dans Leafdesk : Paramètres → Applications connectées → Telegram.",
-  "help": "Posez une question ou envoyez un message vocal, et je réponds à partir de vos pages Leafdesk, en les citant.\n\n/new : commencer une nouvelle conversation\n/workspace : choisir l’espace de travail depuis lequel je réponds\n/mode : choisir ce que je peux modifier\n/stop : arrêter la réponse en cours d’écriture\n/unlink : délier ce compte Telegram",
+  "help": "Posez une question ou envoyez un message vocal, et je réponds à partir de vos pages Leafdesk, en les citant.\n\n/new : commencer une nouvelle conversation\n/workspace : choisir l’espace de travail depuis lequel je réponds\n/mode : choisir ce que je peux modifier\n/stop : arrêter la réponse en cours d’écriture\n/notifications : activer ou désactiver vos notifications dans cette conversation\n/unlink : délier ce compte Telegram",
   "commands": {
     "new": "Commencer une nouvelle conversation",
     "workspace": "Choisir l’espace de travail depuis lequel je réponds",
     "mode": "Choisir ce que je peux modifier",
     "stop": "Arrêter la réponse en cours",
     "unlink": "Délier ce compte Telegram",
+    "notifications": "Activer ou désactiver les notifications ici",
     "help": "Ce que je sais faire"
   },
   "newConversation": "Nouvelle conversation dans {workspace}.",
@@ -40,6 +41,19 @@
   "sourceGone": "Une page que vous ne pouvez plus ouvrir",
   "cutOff": "La réponse a atteint la limite de longueur et peut être tronquée.",
   "stoppedNote": "La réponse a été arrêtée.",
+  "notifications": {
+    "on": "Vos notifications Leafdesk arrivent dans cette conversation. Choisissez lesquelles dans Paramètres → Préférences.",
+    "off": "Vos notifications Leafdesk n’arrivent pas dans cette conversation.",
+    "turnOn": "Les recevoir ici",
+    "turnOff": "Ne plus les recevoir ici"
+  },
+  "notify": {
+    "open": "Ouvrir",
+    "markRead": "Marquer comme lue",
+    "read": "Marquée comme lue.",
+    "snoozed": "Reportée d’une heure.",
+    "gone": "Cette notification n’est plus dans votre boîte de réception."
+  },
   "approval": {
     "createRow": "Ajouter une ligne à {target} ?",
     "updateRow": "Modifier la ligne {title} ?",

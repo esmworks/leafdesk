@@ -3,13 +3,14 @@
   "linkedNoWorkspace": "Conectado ao Leafdesk como {name}. Você ainda não está em nenhum espaço de trabalho de onde eu possa responder: entre em um e escolha-o com /workspace.",
   "notLinked": "Este chat não está conectado a uma conta do Leafdesk. No Leafdesk, abra Configurações → Apps conectados → Telegram e escolha Conectar Telegram.",
   "badCode": "Esse link expirou ou já foi usado. Crie um novo no Leafdesk: Configurações → Apps conectados → Telegram.",
-  "help": "Faça uma pergunta ou envie uma mensagem de voz, e eu respondo a partir das suas páginas do Leafdesk, citando-as.\n\n/new: começar uma nova conversa\n/workspace: escolher o espaço de trabalho de onde respondo\n/mode: escolher o que posso alterar\n/stop: parar a resposta que está sendo escrita\n/unlink: desconectar esta conta do Telegram",
+  "help": "Faça uma pergunta ou envie uma mensagem de voz, e eu respondo a partir das suas páginas do Leafdesk, citando-as.\n\n/new: começar uma nova conversa\n/workspace: escolher o espaço de trabalho de onde respondo\n/mode: escolher o que posso alterar\n/stop: parar a resposta que está sendo escrita\n/notifications: ativar ou desativar suas notificações neste chat\n/unlink: desconectar esta conta do Telegram",
   "commands": {
     "new": "Começar uma nova conversa",
     "workspace": "Escolher o espaço de trabalho de onde respondo",
     "mode": "Escolher o que posso alterar",
     "stop": "Parar a resposta em andamento",
     "unlink": "Desconectar esta conta do Telegram",
+    "notifications": "Ativar ou desativar as notificações aqui",
     "help": "O que eu sei fazer"
   },
   "newConversation": "Nova conversa em {workspace}.",
@@ -40,6 +41,19 @@
   "sourceGone": "Uma página que você não pode mais abrir",
   "cutOff": "A resposta atingiu o limite de tamanho e pode estar cortada.",
   "stoppedNote": "A resposta foi parada.",
+  "notifications": {
+    "on": "Suas notificações do Leafdesk chegam a este chat. Escolha quais tipos em Configurações → Preferências.",
+    "off": "Suas notificações do Leafdesk não chegam a este chat.",
+    "turnOn": "Enviar para cá",
+    "turnOff": "Parar de enviar para cá"
+  },
+  "notify": {
+    "open": "Abrir",
+    "markRead": "Marcar como lida",
+    "read": "Marcada como lida.",
+    "snoozed": "Adiada por uma hora.",
+    "gone": "Esta notificação não está mais na sua caixa de entrada."
+  },
   "approval": {
     "createRow": "Adicionar uma linha a {target}?",
     "updateRow": "Alterar a linha {title}?",

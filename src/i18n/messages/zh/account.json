@@ -188,7 +188,7 @@
   },
   "telegram": {
     "title": "Telegram",
-    "description": "通过 Telegram 用文字或语音消息向 AI 聊天提问。它以你的身份、根据你能打开的页面回答，并附上页面链接；需要更改时会像这里的聊天一样用按钮征求你的同意。",
+    "description": "通过 Telegram 用文字或语音消息向 AI 聊天提问，并在那里接收通知。它以你的身份、根据你能打开的页面回答，并附上页面链接；需要更改时会像这里的聊天一样用按钮征求你的同意。",
     "notLinked": "未关联",
     "notLinkedHint": "关联你的 Telegram 账户即可与 {bot} 对话。",
     "link": "关联 Telegram",
@@ -203,6 +203,8 @@
     "linkedOn": "关联于 {date}",
     "lastUsed": "上次使用：{time}",
     "neverUsed": "尚未使用",
+    "notifications": "把我的通知发送到这里",
+    "notificationsHint": "收件箱中显示的通知也会发送到聊天；类型可在偏好设置中选择。",
     "open": "打开聊天",
     "unlink": "取消关联",
     "unlinkConfirm": "取消关联 Telegram",

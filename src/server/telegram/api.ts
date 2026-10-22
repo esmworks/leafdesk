@@ -113,6 +113,11 @@ export async function editMessage(chatId: string, messageId: number, text: strin
   });
 }
 
+/** Replaces a message's buttons, taking them away when none are given. */
+export async function editButtons(chatId: string, messageId: number, keyboard?: InlineKeyboard) {
+  await callApi("editMessageReplyMarkup", { chat_id: chatId, message_id: messageId, reply_markup: keyboard ?? { inline_keyboard: [] } });
+}
+
 /** Shows "typing…" in the chat for a few seconds. */
 export async function sendTyping(chatId: string) {
   await callApi("sendChatAction", { chat_id: chatId, action: "typing" });

@@ -1644,6 +1644,7 @@
     "inbox": "受信トレイ",
     "email": "メール",
     "push": "プッシュ",
+    "telegram": "Telegram",
     "pushDescription": "プッシュ通知は、受信トレイに表示されるものについて、オンにしたデバイスに届きます。",
     "pushDeviceTitle": "このデバイスのプッシュ通知",
     "pushDeviceOff": "Leafdeskを閉じていても、受信トレイに新しい項目が届くたびに、このデバイスに通知を表示します。",

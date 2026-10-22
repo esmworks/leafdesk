@@ -18,7 +18,7 @@ export function startTelegram() {
   void run();
 }
 
-const COMMANDS = ["new", "workspace", "mode", "stop", "unlink", "help"] as const;
+const COMMANDS = ["new", "workspace", "mode", "stop", "notifications", "unlink", "help"] as const;
 
 async function run() {
   try {

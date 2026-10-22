@@ -3,13 +3,14 @@
   "linkedNoWorkspace": "Mit Leafdesk verbunden als {name}. Du bist noch in keinem Workspace, aus dem ich antworten kann: Tritt einem bei und wähle ihn dann mit /workspace.",
   "notLinked": "Dieser Chat ist mit keinem Leafdesk-Konto verbunden. Öffne in Leafdesk Einstellungen → Verbundene Apps → Telegram und wähle Telegram verbinden.",
   "badCode": "Dieser Link ist abgelaufen oder wurde schon benutzt. Erstelle in Leafdesk einen neuen: Einstellungen → Verbundene Apps → Telegram.",
-  "help": "Stell eine Frage oder schick eine Sprachnachricht, und ich antworte aus deinen Leafdesk-Seiten, mit Verweisen darauf.\n\n/new: ein neues Gespräch beginnen\n/workspace: den Workspace wählen, aus dem ich antworte\n/mode: wählen, was ich ändern darf\n/stop: die Antwort anhalten, die gerade geschrieben wird\n/unlink: die Verbindung dieses Telegram-Kontos trennen",
+  "help": "Stell eine Frage oder schick eine Sprachnachricht, und ich antworte aus deinen Leafdesk-Seiten, mit Verweisen darauf.\n\n/new: ein neues Gespräch beginnen\n/workspace: den Workspace wählen, aus dem ich antworte\n/mode: wählen, was ich ändern darf\n/stop: die Antwort anhalten, die gerade geschrieben wird\n/notifications: deine Benachrichtigungen in diesem Chat an- oder ausschalten\n/unlink: die Verbindung dieses Telegram-Kontos trennen",
   "commands": {
     "new": "Ein neues Gespräch beginnen",
     "workspace": "Den Workspace wählen, aus dem ich antworte",
     "mode": "Wählen, was ich ändern darf",
     "stop": "Die laufende Antwort anhalten",
     "unlink": "Die Verbindung dieses Telegram-Kontos trennen",
+    "notifications": "Benachrichtigungen hier an- oder ausschalten",
     "help": "Was ich kann"
   },
   "newConversation": "Neues Gespräch in {workspace}.",
@@ -40,6 +41,19 @@
   "sourceGone": "Eine Seite, die du nicht mehr öffnen kannst",
   "cutOff": "Die Antwort hat die Längengrenze erreicht und ist vielleicht abgeschnitten.",
   "stoppedNote": "Die Antwort wurde angehalten.",
+  "notifications": {
+    "on": "Deine Leafdesk-Benachrichtigungen kommen in diesen Chat. Welche Arten, wählst du unter Einstellungen → Präferenzen.",
+    "off": "Deine Leafdesk-Benachrichtigungen kommen nicht in diesen Chat.",
+    "turnOn": "Hierher schicken",
+    "turnOff": "Hier stoppen"
+  },
+  "notify": {
+    "open": "Öffnen",
+    "markRead": "Als gelesen markieren",
+    "read": "Als gelesen markiert.",
+    "snoozed": "Für eine Stunde zurückgestellt.",
+    "gone": "Diese Benachrichtigung ist nicht mehr in deinem Posteingang."
+  },
   "approval": {
     "createRow": "Eine Zeile zu {target} hinzufügen?",
     "updateRow": "Die Zeile {title} ändern?",

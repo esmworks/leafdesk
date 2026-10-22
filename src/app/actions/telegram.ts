@@ -4,7 +4,7 @@ import { getTranslations } from "next-intl/server";
 import type { ActionResult } from "@/app/actions/workspaces";
 import { createTranslator } from "next-intl";
 import { telegramMessages } from "@/i18n/messages/telegram";
-import { createLinkCode, getTelegramStatus, unlinkTelegram, type TelegramStatus } from "@/server/telegram/links";
+import { createLinkCode, getTelegramStatus, setTelegramNotifications, unlinkTelegram, type TelegramStatus } from "@/server/telegram/links";
 import { savedLocale } from "@/server/mail/locale";
 import { DEFAULT_LOCALE } from "@/i18n/config";
 import { requireUserId } from "@/server/session";
@@ -41,6 +41,15 @@ export async function unlinkTelegramAction(): Promise<ActionResult<TelegramStatu
     const locale = (await savedLocale(userId)) ?? DEFAULT_LOCALE;
     const t = createTranslator({ locale, messages: { telegram: telegramMessages[locale] }, namespace: "telegram" });
     await unlinkTelegram(userId, t("unlinkedInSettings"));
+    return getTelegramStatus(userId);
+  });
+}
+
+/** Turns the person's notifications in their linked Telegram chat on or off. */
+export async function setTelegramNotificationsAction(on: boolean): Promise<ActionResult<TelegramStatus>> {
+  return run(async (userId) => {
+    if (typeof on !== "boolean") throw new Error("on must be true or false");
+    await setTelegramNotifications(userId, on);
     return getTelegramStatus(userId);
   });
 }
