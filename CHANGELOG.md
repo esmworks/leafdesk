@@ -13,7 +13,8 @@
   once each, so rollups and formulas over them count again, and sub-items and dependencies move
   too. The merged rows' comments (on the same text where their content came along), activity
   (marked as coming from them), uploads, email, followers, reminders and page content (each under
-  a "Merged from" heading, the kept row's body saved to its history first) come to the kept row,
+  a "Merged from" heading in the language of the person merging, the kept row's body saved to its
+  history first) come to the kept row,
   whose activity says who merged which rows. The merged rows go to the trash, which says what they
   were merged into; links and mentions of them open the kept row, and restoring one brings it back
   as a row of its own without undoing what moved. Merging needs edit access to every row and to

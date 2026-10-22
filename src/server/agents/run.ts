@@ -738,7 +738,7 @@ async function converse(
     }
     if (databaseId && call.name === MERGE_ROWS.name && tools.includes(MERGE_ROWS)) {
       if (writes >= maxWrites) return { content: `You have made ${maxWrites} changes, the most one run may make. Finish now.`, isError: true };
-      const out = await mergeRowsTool(ctx, databaseId, call.arguments);
+      const out = await mergeRowsTool(ctx, agent, databaseId, call.arguments);
       if (!out.isError) writes += 1;
       return out;
     }
@@ -937,7 +937,7 @@ async function changeRow(ctx: ops.OperationContext, run: Run, call: { name: stri
  * merge_rows on a schedule's run: rows of the database it looks after only, made at once and
  * starting no automations, as update_row is. The merge checks the agent's access to every row.
  */
-async function mergeRowsTool(ctx: ops.OperationContext, databaseId: string, args: Record<string, unknown>): Promise<CallResult> {
+async function mergeRowsTool(ctx: ops.OperationContext, agent: Agent, databaseId: string, args: Record<string, unknown>): Promise<CallResult> {
   const keptId = typeof args.kept_row_id === "string" ? args.kept_row_id.trim() : "";
   const others = Array.isArray(args.other_row_ids) ? args.other_row_ids.filter((v): v is string => typeof v === "string").map((v) => v.trim()) : [];
   const choices =
@@ -953,8 +953,10 @@ async function mergeRowsTool(ctx: ops.OperationContext, databaseId: string, args
     }
   }
   try {
+    // The heading over each merged body is in the language of the person who set the agent up.
+    const locale = agent.createdBy ? await recipientLocale(agent.createdBy, null) : undefined;
     const out = await asAutomation(() =>
-      ops.mergeRows(ctx, { database_id: databaseId, kept_row_id: keptId, other_row_ids: others, properties: choices, title, dry_run: false }),
+      ops.mergeRows(ctx, { database_id: databaseId, kept_row_id: keptId, other_row_ids: others, properties: choices, title, dry_run: false }, { locale }),
     );
     return { content: `Merged ${others.length} ${others.length === 1 ? "row" : "rows"} into the row ${keptId}: ${JSON.stringify(out)}`, step: record("done") };
   } catch (error) {

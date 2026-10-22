@@ -1,11 +1,11 @@
 "use server";
 
 import { cookies } from "next/headers";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import type { NumberDisplay, NumberFormat, PropertyType, SelectOption, ViewConfig, ViewType } from "@/db/schema";
 import { avatarSrc } from "@/lib/avatar";
 import type { DateOptionsInput } from "@/lib/date-options";
-import { TIME_ZONE_COOKIE } from "@/i18n/config";
+import { isLocale, TIME_ZONE_COOKIE } from "@/i18n/config";
 import type { PageVisibility } from "@/lib/page-visibility";
 import type { DependencyInput } from "@/lib/dependencies";
 import type { MergeChoices } from "@/lib/merge-rows";
@@ -181,8 +181,14 @@ export async function previewMergeAction(rowIds: string[]) {
 
 /** Merges `otherRowIds` into `keptRowId`, with a row (or "combine") for each property. */
 export async function mergeRowsAction(input: { keptRowId: string; otherRowIds: string[]; choices?: MergeChoices }) {
+  // The body headings the merge writes are in the language the merger's app is in right now.
+  const locale = await getLocale();
   return run((userId) =>
-    mergeRows({ userId }, { keptRowId: String(input.keptRowId), otherRowIds: input.otherRowIds.map(String), choices: input.choices ?? {} }),
+    mergeRows(
+      { userId },
+      { keptRowId: String(input.keptRowId), otherRowIds: input.otherRowIds.map(String), choices: input.choices ?? {} },
+      { locale: isLocale(locale) ? locale : undefined },
+    ),
   );
 }
 

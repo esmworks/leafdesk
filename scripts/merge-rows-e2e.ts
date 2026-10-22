@@ -332,6 +332,14 @@ try {
   const [{ entries: activityLeft }] = [{ entries: await db.select().from(rowActivity).where(eq(rowActivity.rowId, acme2.id)) }];
   check(activityLeft.length === 0, "the restored row's old activity stays with the kept row", activityLeft);
 
+  // ── The merger's language ─────────────────────────────────────────────────────────────
+  const turkish = await row("Ege Soğutma");
+  const turkishDupe = await row("Ege Sogutma");
+  await service.replaceContent(turkishDupe.id, "İzmir deposu.", owner);
+  await mergeRows(owner, { keptRowId: turkish.id, otherRowIds: [turkishDupe.id] }, { locale: "tr" });
+  const turkishBody = (await service.readPage(turkish.id)).markdown;
+  check(turkishBody.includes("Ege Sogutma satırından birleştirildi") && !turkishBody.includes("Merged from"), "the heading is in the language the merger's app is in", turkishBody);
+
   console.log(`\n${passed} checks passed`);
 } finally {
   await db.delete(workspace).where(inArray(workspace.id, [workspaceId]));

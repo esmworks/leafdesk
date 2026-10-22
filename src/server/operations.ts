@@ -7,6 +7,7 @@
  */
 import { createHash } from "node:crypto";
 import * as z from "zod";
+import type { Locale } from "@/i18n/config";
 import { commentText, MAX_COMMENT_LENGTH } from "@/lib/comments";
 import { blockMarker, stripBlockMarkers } from "@/lib/block-edits";
 import { markdownReferences } from "@/lib/embed-blocks";
@@ -1565,6 +1566,7 @@ export async function listRowActivity(ctx: OperationContext, { row_id, limit, of
 export async function mergeRows(
   ctx: OperationContext,
   { database_id, kept_row_id, other_row_ids, properties, title, dry_run = false }: Args<"mergeRows">,
+  { locale }: { locale?: Locale } = {},
 ) {
   const { page: kept, parentDatabase } = await loadPage(ctx, kept_row_id);
   if (!parentDatabase) throw new ToolInputError("This page is not a database row.");
@@ -1585,7 +1587,7 @@ export async function mergeRows(
     if (!ids.has(title)) throw new ToolInputError(`"title": "${title}" is not a row of this merge.`);
     choices[MERGE_TITLE] = title;
   }
-  const result = await mergeRowsOp(ctx.actor, { keptRowId: kept.id, otherRowIds: other_row_ids, choices }, { dryRun: dry_run });
+  const result = await mergeRowsOp(ctx.actor, { keptRowId: kept.id, otherRowIds: other_row_ids, choices }, { dryRun: dry_run, locale });
   return {
     ...(dry_run ? { dry_run: true } : {}),
     kept_row_id: result.keptRowId,

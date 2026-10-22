@@ -33,7 +33,7 @@ import {
   threadMute,
   type RowProperties,
 } from "@/db/schema";
-import { DEFAULT_LOCALE } from "@/i18n/config";
+import { DEFAULT_LOCALE, type Locale } from "@/i18n/config";
 import { loadMessages } from "@/i18n/messages";
 import { blockedByProperty } from "@/lib/dependencies";
 import { pageLabel } from "@/lib/labels";
@@ -363,10 +363,13 @@ async function checkMergeLoops(
   }
 }
 
-/** The heading a merged row's body goes under in the kept row, in the merger's language. */
-async function mergedHeading(userId: string, title: string) {
-  const messages = await loadMessages((await savedLocale(userId)) ?? DEFAULT_LOCALE);
-  return messages.database.merge.bodyHeading.replace("{title}", pageLabel(title, messages.common.untitled));
+/**
+ * The headings merged rows' bodies go under in the kept row, in the merger's language: the one their
+ * app is in when they merge from it (`locale`), else the one they saved, else the default.
+ */
+async function mergedHeadings(userId: string, titles: string[], locale: Locale | undefined) {
+  const messages = await loadMessages(locale ?? (await savedLocale(userId)) ?? DEFAULT_LOCALE);
+  return titles.map((title) => messages.database.merge.bodyHeading.replace("{title}", pageLabel(title, messages.common.untitled)));
 }
 
 export type MergeResult = {
@@ -389,7 +392,11 @@ export type MergeResult = {
  * Merges `otherRowIds` into `keptRowId` (see the top of this file). `dryRun` checks everything and
  * returns what would happen, writing nothing.
  */
-export async function mergeRows(actor: WriteActor, input: MergeRowsInput, { dryRun = false }: { dryRun?: boolean } = {}): Promise<MergeResult> {
+export async function mergeRows(
+  actor: WriteActor,
+  input: MergeRowsInput,
+  { dryRun = false, locale }: { dryRun?: boolean; locale?: Locale } = {},
+): Promise<MergeResult> {
   const { userId } = actor;
   if (dryRun) {
     const plan = await planMerge(db, userId, input);
@@ -507,8 +514,8 @@ export async function mergeRows(actor: WriteActor, input: MergeRowsInput, { dryR
     }
   }
   try {
-    const sources = [];
-    for (const row of plan.merged) sources.push({ pageId: row.id, title: pageLabel(row.title), heading: await mergedHeading(userId, row.title) });
+    const headings = await mergedHeadings(userId, plan.merged.map((row) => row.title), locale);
+    const sources = plan.merged.map((row, i) => ({ pageId: row.id, title: pageLabel(row.title), heading: headings[i] }));
     carried = await collab.mergeInto(keptId, sources, actor);
   } catch (error) {
     // The merge stands; what didn't come along is still in the merged rows, in the trash.
