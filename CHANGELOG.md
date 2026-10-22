@@ -509,6 +509,15 @@
   rewrites the `page` and `file_text` tables once to rebuild their search vectors; it runs
   automatically when the container starts (from source, run `pnpm db:migrate`).
 
+### Changed
+
+- **The MCP tool list is smaller and has a budget.** The descriptions a client sends to its model
+  were tightened, filter rules inside groups and automation steps no longer repeat what the
+  top-level fields already say (290 KB to 265 KB), and `src/server/mcp/tools-context.test.ts` now fails when the
+  whole list passes 300 KB or one tool passes 30 KB, so a new tool has to fit or raise the budget on
+  purpose. The list stays the same for every grant: a read-only token still sees the write tools,
+  because a step-up challenge is how it asks for them.
+
 ## 0.6.2 — 2026-10-20
 
 ### Upgrading from 0.6.1
