@@ -72,6 +72,16 @@
     "action": "Open page",
     "optOut": "You get these because you set a reminder. You can turn them off in My account > Preferences."
   },
+  "pageVerification": {
+    "endsSubject": "Your verification of “{page}” ends {date}",
+    "endsHeading": "Verification ends soon",
+    "endsBody": "You verified “{page}” in {workspace} until {date}. If it is still right, verify it again from the page’s ⋯ menu to keep it verified.",
+    "endedSubject": "Your verification of “{page}” expired",
+    "endedHeading": "Verification expired",
+    "endedBody": "Your verification of “{page}” in {workspace} ended {date}. The page shows “Verification expired” until someone verifies it again.",
+    "action": "Open page",
+    "optOut": "You get these because you verified the page. You can turn them off in My account > Preferences."
+  },
   "dateReminder": {
     "subject": "Reminder: “{page}” on {date}",
     "heading": "“{page}” is on {date}",
@@ -232,6 +242,8 @@
     "pageUpdated": "{actor} edited this page",
     "rowEmail": "Email from {from}",
     "followUp": "Follow-up “{sequence}” paused: its next email needs a look",
+    "verificationEnds": "Your verification of this page ends {date}",
+    "verificationEnded": "Your verification of this page expired {date}",
     "someone": "Someone",
     "joinRequestTitle": "Join request",
     "joinRequest": "{actor} asked to join",

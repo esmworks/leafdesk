@@ -131,6 +131,8 @@ export type PushItem = {
   review?: { count: number } | null;
   /** Follow-ups: the sequence whose next email needs a look. */
   followUp?: { sequence: string } | null;
+  /** When it was recorded: a verification reminder recorded at or after its date says the verification ended. */
+  createdAt?: Date | string;
 };
 
 /** The texts of a push message (`push` in email.json), already in the recipient's language. */
@@ -228,6 +230,12 @@ export function pushPayload(
       case "follow_up":
         line = t("followUp", { sequence: item.followUp?.sequence ?? "" });
         break;
+      case "verification": {
+        // Recorded at or after the end: it ended; before it: it ends soon.
+        const ended = item.reminderDate !== null && new Date(item.createdAt ?? Date.now()) >= new Date(item.reminderDate);
+        line = t(ended ? "verificationEnded" : "verificationEnds", { date: item.reminderDate ? formatDate(item.reminderDate, reminderZone(item)) : "" });
+        break;
+      }
       case "row_email":
         // Who wrote, not the subject: a lock screen shows it to whoever holds the device.
         line = t("rowEmail", { from: item.rowEmail?.from || t("someone") });

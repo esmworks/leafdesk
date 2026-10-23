@@ -346,6 +346,36 @@ export async function recordReminder(userId: string, pageId: string, mentionId: 
 }
 
 /**
+ * The user's verification of the page ends at `until`, soon or already (when `now` is at or past
+ * it; see server/verification.ts): tells them in the inbox and, right away, by email, if they can
+ * still open the page and it isn't in the trash.
+ */
+export async function recordVerificationReminder(userId: string, pageId: string, until: Date, now: Date = new Date()) {
+  const [target] = await db
+    .select({ workspaceId: page.workspaceId })
+    .from(page)
+    .where(and(eq(page.id, pageId), isNull(page.archivedAt), sql`page_access_level(${userId}, ${page.id}) > 0`))
+    .limit(1);
+  if (!target) return;
+  const inserted = await db
+    .insert(notification)
+    .values({
+      userId,
+      workspaceId: target.workspaceId,
+      kind: "verification",
+      actorId: null,
+      pageId,
+      date: until.toISOString(),
+      // Whether it says "ends" or "ended" reads from this against `date`.
+      createdAt: now,
+      emailDueAt: mailStatus() === "disabled" ? null : now,
+    })
+    .returning({ id: notification.id });
+  signal(target.workspaceId);
+  pushNotifications(inserted.map((n) => n.id));
+}
+
+/**
  * Tells everyone in the workspace with full access to the page that `requesterId` asked for access
  * (request `requestId`), and emails them right away. The email is in each approver's language, else
  * in the requester's (`locale`, see server/share-emails.ts). Returns who was told.

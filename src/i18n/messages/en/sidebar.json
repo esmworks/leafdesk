@@ -135,6 +135,8 @@
     "automationDatePassed": "Automation “{name}”: this row’s date has come",
     "rowUpdate": "{actor} changed this row",
     "pageUpdated": "{actor} edited this page",
+    "verificationEnds": "Your verification of this page ends {date}",
+    "verificationEnded": "Your verification of this page expired {date}",
     "rowEmail": "Email from {from}",
     "followUp": "Follow-up “{sequence}” paused: its next email needs a look",
     "noSubject": "(no subject)",

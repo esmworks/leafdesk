@@ -1728,7 +1728,10 @@
     "reviewChannel": "For review: {channel}",
     "followUpTitle": "Follow-ups",
     "followUpDescription": "A follow-up you started pauses because its next email didn’t pass the check before sending.",
-    "followUpChannel": "Follow-ups: {channel}"
+    "followUpChannel": "Follow-ups: {channel}",
+    "verificationTitle": "Pages you verified",
+    "verificationDescription": "A page you verified is about to stop being verified, a few days before, and when it does.",
+    "verificationChannel": "Pages you verified: {channel}"
   },
   "site": {
     "description": "Give this workspace's published pages one readable address, a home page and navigation between them.",

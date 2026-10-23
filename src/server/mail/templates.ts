@@ -208,6 +208,22 @@ export function reminderEmail(
   });
 }
 
+/** To whoever verified a page: their verification ends in a few days, or ended (see server/verification.ts). */
+export function pageVerificationEmail(
+  locale: Locale,
+  reminder: { until: string; ended: boolean; pageTitle: string; workspaceName: string; link: string },
+): RenderedEmail {
+  const t = emailTranslator(locale);
+  const names = { date: formatIsoDate(reminder.until, locale, "long", "UTC"), page: reminder.pageTitle, workspace: reminder.workspaceName };
+  const stage = reminder.ended ? "ended" : "ends";
+  return renderEmail(locale, {
+    subject: t(`pageVerification.${stage}Subject`, names),
+    heading: t(`pageVerification.${stage}Heading`, names),
+    paragraphs: [t(`pageVerification.${stage}Body`, names), t("pageVerification.optOut")],
+    action: { label: t("pageVerification.action"), url: reminder.link },
+  });
+}
+
 /** To a row's people: the reminder of one of its date properties (see server/date-reminders). */
 export function dateReminderEmail(
   locale: Locale,

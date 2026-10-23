@@ -26,6 +26,7 @@ const KIND_KEYS = {
   row_email: "rowEmail",
   review: "review",
   follow_up: "followUp",
+  verification: "verification",
 } as const satisfies Record<PreferenceKind, string>;
 const LOCAL_MODE_HIDDEN_KINDS: readonly PreferenceKind[] = ["access_request", "join_request"];
 /** Kinds never sent by email: the email itself is already in the member's mailbox; what waits for review, and a follow-up that needs a look, is in the app. */
