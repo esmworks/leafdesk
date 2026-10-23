@@ -35,7 +35,7 @@ vi.mock("@/server/semantic-search", () => ({
   chunksOfPages: async (ids: string[]) => new Map([...chunks].filter(([id]) => ids.includes(id))),
 }));
 
-const { runTool } = await import("./ai-tools");
+const { prepareWrite, runTool } = await import("./ai-tools");
 
 const search = async (query: string, scopeId?: string) => {
   const registry = { sources: [], byKey: new Map() };
@@ -101,5 +101,76 @@ describe("search_pages and archived pages", () => {
     await search("prices", "old-page");
     expect(included()).toBe(true);
     expect(searchCalls.at(-1)![2]).toMatchObject({ withinPageId: "old-page" });
+  });
+});
+
+/**
+ * CSV files attached to the conversation: read_attachment reads on from a row, and
+ * create_database_from_csv shows the columns it would make, their types guessed from the values
+ * unless the model gives them. create_database checks what it is asked for before asking.
+ */
+describe("attached files and new databases", () => {
+  const file = {
+    kind: "csv" as const,
+    name: "orders.csv",
+    headers: ["Customer", "Amount", "Due", "Paid", "Notes"],
+    rows: Array.from({ length: 30 }, (_, i) => [`Customer ${i + 1}`, String((i + 1) * 10), `2026-11-${String(i + 1).padStart(2, "0")}`, i % 2 ? "yes" : "no", ""]),
+  };
+  const older = { kind: "csv" as const, name: "old.csv", headers: ["A"], rows: [["1"]] };
+  const read = (args: Record<string, unknown>, attachments = [older, file]) =>
+    runTool({ userId: "u" } as never, "w", undefined, { name: "read_attachment", arguments: args }, { sources: [], byKey: new Map() }, 50_000, { attachments });
+
+  it("reads the latest file, or the one named, from a row on", async () => {
+    const latest = await read({ from_row: 29 });
+    expect(latest.isError).toBeUndefined();
+    expect(latest.content).toMatch(/^Rows 29-30 of 30 of "orders.csv" \(the first line is the header\)\.\n<attachment name="orders.csv" rows="30" columns="5">\nCustomer,Amount,Due,Paid,Notes\nCustomer 29,290,/);
+    expect((await read({ name: "OLD.csv" })).content).toContain("Rows 1-1 of 1 of \"old.csv\"");
+  });
+
+  it("says which files there are when the one named isn't, and when there are none", async () => {
+    expect(await read({ name: "nope.csv" })).toEqual({ content: 'No attached file has that name. The files: "old.csv", "orders.csv".', isError: true });
+    expect(await read({}, [])).toEqual({ content: "No CSV file is attached to this conversation.", isError: true });
+    expect((await read({ from_row: 31 })).content).toBe('"orders.csv" has 30 rows.');
+  });
+
+  const prepare = (name: string, args: Record<string, unknown>, scopeId: string | null = null) =>
+    prepareWrite({ userId: "u", actor: { userId: "u" } } as never, "w", scopeId, { name, arguments: args }, { attachments: [file] });
+
+  it("shows the columns a CSV database gets, types guessed or given, before asking", async () => {
+    const prepared = await prepare("create_database_from_csv", { column_types: { notes: "skip", paid: "checkbox" } });
+    expect("action" in prepared && prepared.action).toMatchObject({
+      action: "createDatabase",
+      target: null,
+      title: "orders",
+      fromFile: { name: "orders.csv", rows: 30 },
+      properties: [
+        { name: "Customer", type: "title" },
+        { name: "Amount", type: "number" },
+        { name: "Due", type: "date" },
+        { name: "Paid", type: "checkbox" },
+      ],
+    });
+  });
+
+  it("refuses columns the file doesn't have, and types it can't make", async () => {
+    expect(await prepare("create_database_from_csv", { title_column: "Nope" })).toMatchObject({ isError: true, content: expect.stringContaining('the file has no column "Nope"') });
+    expect(await prepare("create_database_from_csv", { column_types: { Amount: "formula" } })).toMatchObject({ isError: true, content: expect.stringContaining("column_types.Amount: use one of") });
+    expect(await prepare("create_database_from_csv", { attachment: "other.csv" })).toMatchObject({ isError: true, content: expect.stringContaining('The files: "orders.csv"') });
+  });
+
+  it("checks a new database's properties before asking, and where it may go", async () => {
+    const prepared = await prepare("create_database", { title: "Tasks", properties: [{ name: "Stage", type: "status" }, { name: "Priority", type: "select", options: ["High", "Low", "High", " "] }] });
+    expect("action" in prepared && prepared.action).toMatchObject({
+      action: "createDatabase",
+      target: null,
+      title: "Tasks",
+      properties: [{ name: "Stage", type: "status" }, { name: "Priority", type: "select", options: ["High", "Low"] }],
+    });
+    expect(await prepare("create_database", { properties: [] })).toMatchObject({ content: "The change is not valid: give the database a title." });
+    expect(await prepare("create_database", { title: "T", properties: [{ name: "Title", type: "text" }] })).toMatchObject({ content: expect.stringContaining('"Title" is taken') });
+    expect(await prepare("create_database", { title: "T", properties: [{ name: "A", type: "text" }, { name: "a", type: "number" }] })).toMatchObject({ content: expect.stringContaining('"a" is taken') });
+    expect(await prepare("create_database", { title: "T", properties: [{ name: "F", type: "formula" }] })).toMatchObject({ content: expect.stringContaining("type must be one of") });
+    // In a page's chat, it goes under a page of that scope.
+    expect(await prepare("create_database", { title: "T" }, "scope")).toMatchObject({ content: expect.stringContaining("give parent_id") });
   });
 });

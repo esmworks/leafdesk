@@ -25,7 +25,7 @@ export function isCsvFile(file: { name: string; type: string }): boolean {
 
 /** A file's name as kept: one line, at most CHAT_ATTACHMENT_NAME characters. */
 export function cleanAttachmentName(name: string): string {
-  const flat = name.replace(/\p{Cc}/gu, "").replace(/\s+/g, " ").trim();
+  const flat = name.replace(/[\p{Cc}\s]+/gu, " ").trim();
   return flat.slice(0, CHAT_ATTACHMENT_NAME) || "data.csv";
 }
 
