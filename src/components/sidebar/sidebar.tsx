@@ -29,6 +29,7 @@ import {
   Settings,
   ShieldCheck,
   SlidersHorizontal,
+  Sparkles,
   SquarePen,
   Trash2,
   Upload,
@@ -86,6 +87,7 @@ import { isSettingsPath, SidebarPeekEdge, useSidebar } from "./sidebar-context";
 import { TrashDialog } from "./trash-dialog";
 import { TemplatesDialog } from "@/components/workspace/templates-dialog";
 import { ImportDialog } from "@/components/workspace/import-dialog";
+import { BuildWithAiDialog } from "@/components/workspace/build-with-ai";
 
 type Workspace = { id: string; name: string; icon: string | null; role: string };
 
@@ -194,6 +196,8 @@ export function Sidebar({
   const [importFile, setImportFile] = useState<ImportSpreadsheetDetail | null>(null);
   // The section the templates or import dialog was opened from.
   const [dialogTarget, setDialogTarget] = useState<Target>(undefined);
+  // "Build with AI", and the section it was opened from.
+  const [buildFor, setBuildFor] = useState<{ target: Target } | null>(null);
   const [inboxOpen, setInboxOpen] = useState(false);
   const [unread, setUnread] = useState(0);
   // Changes agents proposed that wait for the person (the "For review" page), counted with the inbox.
@@ -225,6 +229,9 @@ export function Sidebar({
   const { open: openDailyNote, pending: openingDailyNote, error: dailyNoteError } = useOpenDailyNote(workspaceId);
   const tOffline = useTranslations("offline");
   const tShortcuts = useTranslations("shortcuts");
+  const tBuild = useTranslations("build");
+  // Databases drafted by AI: where AI is on in the workspace, and the server can be reached.
+  const canBuild = Boolean(aiChat?.available) && !offline;
   /** Tooltip for a control that needs the server while it can't be reached. */
   const needsServer = (label: string) => (offline ? tOffline("needsConnection", { action: label }) : undefined);
 
@@ -652,6 +659,17 @@ export function Sidebar({
       >
         {t("pages.newDatabase")}
       </MenuItem>
+      {canBuild && (
+        <MenuItem
+          icon={<Sparkles className="h-4 w-4" />}
+          onClick={() => {
+            close();
+            setBuildFor({ target });
+          }}
+        >
+          {tBuild("menuItem")}
+        </MenuItem>
+      )}
       <MenuSeparator />
       <MenuItem
         icon={<LayoutTemplate className="h-4 w-4" />}
@@ -1118,6 +1136,17 @@ export function Sidebar({
                           >
                             {t("pages.newDatabase")}
                           </MenuItem>
+                          {canBuild && (
+                            <MenuItem
+                              icon={<Sparkles className="h-4 w-4" />}
+                              onClick={() => {
+                                close();
+                                setBuildFor({ target: undefined });
+                              }}
+                            >
+                              {tBuild("menuItem")}
+                            </MenuItem>
+                          )}
                           <MenuSeparator />
                           <MenuItem
                             icon={<LayoutTemplate className="h-4 w-4" />}
@@ -1395,6 +1424,7 @@ export function Sidebar({
             ? [
                 { id: "new-page", label: t("pages.newPage"), icon: <FileText className="h-4 w-4" />, run: () => create(null, "page", undefined) },
                 { id: "new-database", label: t("pages.newDatabase"), icon: <Database className="h-4 w-4" />, run: () => create(null, "database", undefined) },
+                ...(canBuild ? [{ id: "build-with-ai", label: tBuild("menuItem"), icon: <Sparkles className="h-4 w-4" />, run: () => setBuildFor({ target: undefined }) }] : []),
                 { id: "templates", label: t("pages.fromTemplate"), icon: <LayoutTemplate className="h-4 w-4" />, run: () => openTemplates(undefined) },
                 { id: "today", label: tJournal("openToday"), icon: <CalendarCheck className="h-4 w-4" />, run: () => openDailyNote() },
               ]
@@ -1431,6 +1461,18 @@ export function Sidebar({
         onClose={() => setTemplatesOpen(false)}
         teamspaceId={dialogTarget}
       />
+      {buildFor && (
+        <BuildWithAiDialog
+          workspaceId={workspaceId}
+          target={{ teamspaceId: buildFor.target }}
+          onClose={() => setBuildFor(null)}
+          onCreated={(created) => {
+            setBuildFor(null);
+            refresh();
+            router.push(`/w/${workspaceId}/p/${created.rootId}`);
+          }}
+        />
+      )}
       <ImportDialog
         workspaceId={workspaceId}
         open={importOpen}
