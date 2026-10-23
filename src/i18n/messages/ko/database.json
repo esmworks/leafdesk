@@ -250,7 +250,20 @@
     "open": "열기",
     "openPage": "전체 페이지로 열기",
     "copyLink": "링크 복사",
-    "duplicate": "복제"
+    "duplicate": "복제",
+    "search": "작업 검색…",
+    "page": "페이지",
+    "editIcon": "아이콘 편집",
+    "editProperty": "속성 편집",
+    "openIn": "열기 위치",
+    "sidePanel": "사이드 패널",
+    "fullPage": "전체 페이지",
+    "newTab": "새 탭",
+    "comment": "댓글",
+    "developer": "개발자",
+    "copyDatabaseId": "데이터베이스 ID 복사",
+    "noMatches": "일치하는 작업이 없습니다.",
+    "lastEdited": "마지막 편집"
   },
   "rowPanel": {
     "label": "행: {title}",

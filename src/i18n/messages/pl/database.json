@@ -250,7 +250,20 @@
     "open": "Otwórz",
     "openPage": "Otwórz jako pełną stronę",
     "copyLink": "Kopiuj link",
-    "duplicate": "Duplikuj"
+    "duplicate": "Duplikuj",
+    "search": "Szukaj działań…",
+    "page": "Strona",
+    "editIcon": "Edytuj ikonę",
+    "editProperty": "Edytuj właściwość",
+    "openIn": "Otwórz w",
+    "sidePanel": "Panel boczny",
+    "fullPage": "Pełna strona",
+    "newTab": "Nowa karta",
+    "comment": "Skomentuj",
+    "developer": "Deweloper",
+    "copyDatabaseId": "Kopiuj ID bazy danych",
+    "noMatches": "Brak pasujących działań.",
+    "lastEdited": "Ostatnia edycja"
   },
   "rowPanel": {
     "label": "Wiersz: {title}",

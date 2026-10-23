@@ -250,7 +250,20 @@
     "open": "פתיחה",
     "openPage": "פתיחה כדף מלא",
     "copyLink": "העתקת קישור",
-    "duplicate": "שכפול"
+    "duplicate": "שכפול",
+    "search": "חיפוש פעולות…",
+    "page": "דף",
+    "editIcon": "עריכת סמל",
+    "editProperty": "עריכת מאפיין",
+    "openIn": "פתיחה ב",
+    "sidePanel": "חלונית צד",
+    "fullPage": "דף מלא",
+    "newTab": "כרטיסייה חדשה",
+    "comment": "הוספת תגובה",
+    "developer": "מפתחים",
+    "copyDatabaseId": "העתקת מזהה מסד הנתונים",
+    "noMatches": "אין פעולות תואמות.",
+    "lastEdited": "עריכה אחרונה"
   },
   "rowPanel": {
     "label": "שורה: {title}",

@@ -4,10 +4,14 @@
 
 ### Added
 
-- **Table rows move by their handle.** The ⋯ button before each row of a table is now a handle:
-  drag it to move the row among the others (in its group, and under the same parent when sub-items
-  nest), click it for the row's menu, which also copies the row's link and duplicates it. Rows
-  move while no sort orders the view; the order is the one boards keep.
+- **Table rows move by their handle, which also opens a fuller row menu.** The ⋯ button before
+  each row of a table is now a handle: drag it to move the row among the others (in its group, and
+  under the same parent when sub-items nest) while no sort orders the view; the order is the one
+  boards keep. Clicked, it opens the row's menu, which now has a search box and adds to favorites,
+  edits the row's icon (now shown before its name in the table), opens a property's value for
+  editing, opens the row in the side panel, as a full page or in a new tab, opens its comments,
+  copies its link, duplicates it, moves it elsewhere, merges it with another row, follows it,
+  moves it to the trash and copies its or the database's id, with who last edited it and when.
 - **Skills live in a skills database.** *New skill* in the skills library, and the ready-made
   skills, now add a row to a skills database: the person's own, made private at the top of the
   workspace the first time, with *Description*, *Files*, *Tags* and *Created by* properties and its

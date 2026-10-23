@@ -27,7 +27,7 @@ import {
   type ActionResult,
 } from "@/app/actions/databases";
 import { addAutofillPropertyAction, refreshAutofillAction, setAutofillAction } from "@/app/actions/ai";
-import { archivePageAction } from "@/app/actions/pages";
+import { archivePageAction, setPageIconAction } from "@/app/actions/pages";
 import { useChannel, useChannels } from "@/components/collab/use-channel";
 import { useIsOffline, useOffline } from "@/components/offline/offline-context";
 import { databaseSnapshotKey, deleteSnapshot, loadSnapshot, saveSnapshot } from "@/components/offline/offline-store";
@@ -390,6 +390,18 @@ export function useDatabase(
           report(e);
         } finally {
           setRemoved((s) => new Set([...s].filter((id) => !rowIds.includes(id))));
+        }
+      },
+
+      /** Gives a row an icon, or takes it away (null). */
+      async setRowIcon(rowId: string, icon: string | null) {
+        setSnapshot((s) => (s ? { ...s, rows: s.rows.map((r) => (r.id === rowId ? { ...r, icon } : r)) } : s));
+        try {
+          await setPageIconAction(rowId, icon);
+        } catch (e) {
+          report(e);
+        } finally {
+          await refetch();
         }
       },
 

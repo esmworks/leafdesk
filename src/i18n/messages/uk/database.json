@@ -250,7 +250,20 @@
     "open": "Відкрити",
     "openPage": "Відкрити на всю сторінку",
     "copyLink": "Копіювати посилання",
-    "duplicate": "Дублювати"
+    "duplicate": "Дублювати",
+    "search": "Пошук дій…",
+    "page": "Сторінка",
+    "editIcon": "Змінити значок",
+    "editProperty": "Змінити властивість",
+    "openIn": "Відкрити в",
+    "sidePanel": "Бічна панель",
+    "fullPage": "Уся сторінка",
+    "newTab": "Нова вкладка",
+    "comment": "Коментувати",
+    "developer": "Розробнику",
+    "copyDatabaseId": "Копіювати ID бази даних",
+    "noMatches": "Немає відповідних дій.",
+    "lastEdited": "Остання зміна"
   },
   "rowPanel": {
     "label": "Рядок: {title}",

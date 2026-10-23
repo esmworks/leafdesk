@@ -1,9 +1,9 @@
 "use client";
 
-import { ArrowDown, ArrowUp, Bot, ChevronRight, Copy, Ellipsis, EyeOff, GripVertical, Link2, Plus, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, Bot, ChevronRight, Ellipsis, EyeOff, Plus } from "lucide-react";
 import { useTimeZone, useTranslations } from "next-intl";
 import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { cn, MenuItem, MenuSeparator } from "@/components/ui";
+import { cn, MenuItem } from "@/components/ui";
 import { PHONE_QUERY, useMediaQuery } from "@/components/use-media-query";
 import { useReorderDrag, type ReorderDragHandlers } from "@/components/use-reorder-drag";
 import type { ViewConfig } from "@/db/schema/app";
@@ -13,6 +13,7 @@ import { valueType } from "@/lib/derived";
 import { arrangeGroups, canAddToGroup, groupDefaults, groupRowsBy, type Group } from "@/lib/grouping";
 import { isEmptyValue, lostValues, planConversion } from "@/lib/convert-property";
 import { isGroupable, isSortable, moveProperty, positionBetween } from "@/lib/properties";
+import { isReadOnlyType } from "@/lib/property-types";
 import { opensNewTab } from "@/lib/row-panel";
 import { MAX_COLUMN_WIDTH, MIN_COLUMN_WIDTH } from "@/lib/views";
 import { pageLabel } from "@/lib/labels";
@@ -35,9 +36,9 @@ import { usePropertyHint } from "./property-hint";
 import { HIDE_SCROLLBAR, StickyScrollbar } from "./scroll-x";
 import { CalculationRow } from "./table-calculations";
 import { useRelations } from "./relation-context";
-import { OpenRowItems } from "./open-row-items";
 import { QuickAddContext } from "./quick-add";
-import { openRowProps, useOpenRow, useRowOpener, type RowOpener } from "./row-panel-context";
+import { RowMenu, type EditableColumn } from "./row-menu";
+import { openRowProps, useOpenRow, useRowOpener } from "./row-panel-context";
 import { useCellGrid } from "./use-cell-grid";
 import type { ShownValue } from "./use-database";
 import { useNewRow } from "./use-new-row";
@@ -361,6 +362,20 @@ export function TableView({
     void setConfig({ ...view.config, hiddenGroups: next });
   };
 
+  // What a row's menu offers under "Edit property": the columns shown that the viewer may change there.
+  const editableColumns = (row: Row): EditableColumn[] => [
+    { key: TITLE, name: t("nameColumn"), type: "title" },
+    ...visible
+      .filter((p) => !isReadOnlyType(p.type) && access.valueAccess(row, p.id) === "edit")
+      .map((p) => ({ key: p.id, name: p.name, type: p.type })),
+  ];
+  /** Opens the editor of the cell in line `at` and column `key`, as a click on it does. */
+  const editCell = (at: number, key: string) => {
+    const col = key === TITLE ? 0 : visible.findIndex((p) => p.id === key) + 1;
+    // After the menu has closed, so the editor takes the focus.
+    requestAnimationFrame(() => box.current?.querySelector<HTMLElement>(`[data-cell="${at}:${col}"] [data-cell-edit]`)?.click());
+  };
+
   /** A body row: `at` is its line among the rows the keyboard moves through, `index` its place in the body. */
   const renderRow = (line: SubItemLine<Row>, group: Group<Row> | undefined, at: number, index: number) => {
     const row = line.row;
@@ -388,11 +403,14 @@ export function TableView({
           <div className="flex items-center justify-end">
             {!readOnly && (
               <RowMenu
+                workspaceId={workspaceId}
+                databaseId={databaseId}
                 opener={opener}
-                rowId={row.id}
+                row={row}
                 drag={drag}
-                onDuplicate={() => api.duplicateRows([row.id])}
-                onDelete={() => api.deleteRow(row.id)}
+                columns={editableColumns(row)}
+                api={api}
+                onEditProperty={(key) => editCell(at, key)}
               />
             )}
             <SelectBox
@@ -411,6 +429,7 @@ export function TableView({
           <CellMark active={grid.isActive(at, 0)} selected={grid.spans && grid.isSelected(at, 0)} />
           <div className="flex font-medium" style={subItems.nested ? { paddingInlineStart: line.depth * SUB_ITEM_INDENT + 4 } : undefined}>
             {subItems.nested && <SubItemToggle line={line} title={label} onToggle={() => subItems.toggle(row.id)} className="h-[33px]" />}
+            {row.icon && <span className="flex h-[33px] shrink-0 items-center ps-2 leading-none">{row.icon}</span>}
             <div className="min-w-0 flex-1">
               <QuickAddContext value={editTitleOf === row.id ? quick : null}>
                 <PropertyCell
@@ -1054,91 +1073,6 @@ function AddPropertyButton({
       </button>
       <Floating open={menu.open} anchor={menu.el} onClose={menu.close} align="end">
         <AddPropertyPanel onCreate={onCreate} onCreateAutofill={onCreateAutofill} onDone={menu.close} />
-      </Floating>
-    </>
-  );
-}
-
-/**
- * The handle before a row: dragging it moves the row (`drag`, while no sort orders the rows),
- * clicking it opens the row's menu.
- */
-function RowMenu({
-  opener,
-  rowId,
-  drag,
-  onDuplicate,
-  onDelete,
-}: {
-  opener: RowOpener;
-  rowId: string;
-  drag?: ReorderDragHandlers;
-  onDuplicate: () => void;
-  onDelete: () => void;
-}) {
-  const t = useTranslations("database");
-  const tc = useTranslations("common");
-  const menu = useFloating<HTMLButtonElement>();
-  return (
-    <>
-      <button
-        ref={menu.ref}
-        type="button"
-        aria-label={t("table.rowActions")}
-        title={drag ? `${t("table.dragToMove")}\n${t("table.clickForMenu")}` : t("table.rowActions")}
-        aria-haspopup="menu"
-        aria-expanded={menu.open}
-        onClick={menu.toggle}
-        draggable={!!drag}
-        onDragStart={(e) => {
-          if (!drag) return;
-          menu.close();
-          drag.onDragStart(e);
-          // The whole row follows the pointer, not just the handle.
-          const row = e.currentTarget.closest("tr");
-          if (row) e.dataTransfer.setDragImage(row, e.nativeEvent.offsetX, e.nativeEvent.offsetY);
-        }}
-        onDragEnd={drag?.onDragEnd}
-        className={cn(
-          "flex h-6 w-5 items-center justify-center rounded text-fg-faint hover:bg-bg-hover hover:text-fg",
-          drag && "cursor-grab active:cursor-grabbing",
-          menu.open ? "visible" : "invisible group-hover:visible pointer-coarse:visible",
-        )}
-      >
-        <GripVertical className="h-4 w-4" />
-      </button>
-      <Floating open={menu.open} anchor={menu.el} onClose={menu.close}>
-        <OpenRowItems opener={opener} rowId={rowId} onDone={menu.close} />
-        <MenuItem
-          icon={<Link2 className="h-3.5 w-3.5" />}
-          onClick={() => {
-            menu.close();
-            // A browser that refuses the clipboard leaves things as they were.
-            navigator.clipboard.writeText(new URL(opener.href(rowId), window.location.origin).href).catch(() => {});
-          }}
-        >
-          {t("rowMenu.copyLink")}
-        </MenuItem>
-        <MenuItem
-          icon={<Copy className="h-3.5 w-3.5" />}
-          onClick={() => {
-            menu.close();
-            onDuplicate();
-          }}
-        >
-          {t("rowMenu.duplicate")}
-        </MenuItem>
-        <MenuSeparator />
-        <MenuItem
-          danger
-          icon={<Trash2 className="h-3.5 w-3.5" />}
-          onClick={() => {
-            menu.close();
-            onDelete();
-          }}
-        >
-          {tc("delete")}
-        </MenuItem>
       </Floating>
     </>
   );

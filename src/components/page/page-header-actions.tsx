@@ -913,13 +913,14 @@ function PageMenu({
 }
 
 /** Pick a new parent: any page or database in the sidebar tree except this page and its subpages. */
-function MoveDialog({
+export function MoveDialog({
   workspaceId,
   pageId,
   isDatabase,
   currentParentId,
   guest,
   onClose,
+  onMoved,
 }: {
   workspaceId: string;
   pageId: string;
@@ -927,6 +928,8 @@ function MoveDialog({
   currentParentId: string | null;
   guest: boolean;
   onClose: () => void;
+  /** After the move, besides refreshing the route (a table's rows reload on their own). */
+  onMoved?: () => void;
 }) {
   const t = useTranslations("page.move");
   const tc = useTranslations("common");
@@ -995,6 +998,7 @@ function MoveDialog({
       try {
         await movePageAction(pageId, parentId, undefined, parentId ? undefined : teamspaceId);
         onClose();
+        onMoved?.();
         router.refresh();
       } catch {
         setError(t("failed"));

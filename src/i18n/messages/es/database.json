@@ -250,7 +250,20 @@
     "open": "Abrir",
     "openPage": "Abrir como página completa",
     "copyLink": "Copiar enlace",
-    "duplicate": "Duplicar"
+    "duplicate": "Duplicar",
+    "search": "Buscar acciones…",
+    "page": "Página",
+    "editIcon": "Editar icono",
+    "editProperty": "Editar propiedad",
+    "openIn": "Abrir en",
+    "sidePanel": "Panel lateral",
+    "fullPage": "Página completa",
+    "newTab": "Nueva pestaña",
+    "comment": "Comentar",
+    "developer": "Desarrollador",
+    "copyDatabaseId": "Copiar ID de la base de datos",
+    "noMatches": "Ninguna acción coincide.",
+    "lastEdited": "Última edición"
   },
   "rowPanel": {
     "label": "Fila: {title}",

@@ -250,7 +250,20 @@
     "open": "打开",
     "openPage": "以完整页面打开",
     "copyLink": "复制链接",
-    "duplicate": "创建副本"
+    "duplicate": "创建副本",
+    "search": "搜索操作…",
+    "page": "页面",
+    "editIcon": "编辑图标",
+    "editProperty": "编辑属性",
+    "openIn": "打开方式",
+    "sidePanel": "侧边面板",
+    "fullPage": "整页",
+    "newTab": "新标签页",
+    "comment": "评论",
+    "developer": "开发者",
+    "copyDatabaseId": "复制数据库 ID",
+    "noMatches": "没有匹配的操作。",
+    "lastEdited": "最后编辑"
   },
   "rowPanel": {
     "label": "行：{title}",

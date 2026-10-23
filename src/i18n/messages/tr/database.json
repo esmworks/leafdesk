@@ -250,7 +250,20 @@
     "open": "Aç",
     "openPage": "Tam sayfa olarak aç",
     "copyLink": "Bağlantıyı kopyala",
-    "duplicate": "Kopyasını oluştur"
+    "duplicate": "Kopyasını oluştur",
+    "search": "İşlem ara…",
+    "page": "Sayfa",
+    "editIcon": "Simgeyi düzenle",
+    "editProperty": "Özelliği düzenle",
+    "openIn": "Şurada aç",
+    "sidePanel": "Yan panel",
+    "fullPage": "Tam sayfa",
+    "newTab": "Yeni sekme",
+    "comment": "Yorum yap",
+    "developer": "Geliştirici",
+    "copyDatabaseId": "Veritabanı kimliğini kopyala",
+    "noMatches": "Eşleşen işlem yok.",
+    "lastEdited": "Son düzenleme"
   },
   "rowPanel": {
     "label": "Satır: {title}",

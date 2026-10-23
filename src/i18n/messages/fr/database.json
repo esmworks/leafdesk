@@ -250,7 +250,20 @@
     "open": "Ouvrir",
     "openPage": "Ouvrir en pleine page",
     "copyLink": "Copier le lien",
-    "duplicate": "Dupliquer"
+    "duplicate": "Dupliquer",
+    "search": "Rechercher une action…",
+    "page": "Page",
+    "editIcon": "Modifier l’icône",
+    "editProperty": "Modifier la propriété",
+    "openIn": "Ouvrir dans",
+    "sidePanel": "Panneau latéral",
+    "fullPage": "Pleine page",
+    "newTab": "Nouvel onglet",
+    "comment": "Commenter",
+    "developer": "Développeur",
+    "copyDatabaseId": "Copier l’ID de la base de données",
+    "noMatches": "Aucune action ne correspond.",
+    "lastEdited": "Dernière modification"
   },
   "rowPanel": {
     "label": "Ligne : {title}",

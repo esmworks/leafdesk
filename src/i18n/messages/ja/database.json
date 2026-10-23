@@ -250,7 +250,20 @@
     "open": "開く",
     "openPage": "フルページで開く",
     "copyLink": "リンクをコピー",
-    "duplicate": "複製"
+    "duplicate": "複製",
+    "search": "アクションを検索…",
+    "page": "ページ",
+    "editIcon": "アイコンを編集",
+    "editProperty": "プロパティを編集",
+    "openIn": "開く場所",
+    "sidePanel": "サイドパネル",
+    "fullPage": "フルページ",
+    "newTab": "新しいタブ",
+    "comment": "コメント",
+    "developer": "開発者向け",
+    "copyDatabaseId": "データベース ID をコピー",
+    "noMatches": "一致するアクションはありません。",
+    "lastEdited": "最終編集"
   },
   "rowPanel": {
     "label": "行：{title}",

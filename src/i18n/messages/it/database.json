@@ -250,7 +250,20 @@
     "open": "Apri",
     "openPage": "Apri come pagina intera",
     "copyLink": "Copia link",
-    "duplicate": "Duplica"
+    "duplicate": "Duplica",
+    "search": "Cerca azioni…",
+    "page": "Pagina",
+    "editIcon": "Modifica icona",
+    "editProperty": "Modifica proprietà",
+    "openIn": "Apri in",
+    "sidePanel": "Pannello laterale",
+    "fullPage": "Pagina intera",
+    "newTab": "Nuova scheda",
+    "comment": "Commenta",
+    "developer": "Sviluppatore",
+    "copyDatabaseId": "Copia ID del database",
+    "noMatches": "Nessuna azione corrispondente.",
+    "lastEdited": "Ultima modifica"
   },
   "rowPanel": {
     "label": "Riga: {title}",
