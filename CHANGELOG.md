@@ -15,8 +15,8 @@
   own address is refused, and instance administrators can clear a workspace's list on `/admin`;
   both changes go into the audit log. Apps connected over MCP, REST API tokens and SCIM tokens
   aren't held to it. The address comes from the client address rules of `TRUSTED_PROXIES`, which
-  the collaboration websocket now follows too (before, the server's own client-address header was
-  taken from the client there). A restored backup starts without a list. Migration 0116.
+  the collaboration websocket now follows too. A restored backup starts without a list. Migration
+  0116.
 
 - **The AI chat makes PDF files.** Asked for a PDF (a quote, a letter, a report), the chat writes
   it into a page or row if it isn't in one, then makes the page's PDF on the server

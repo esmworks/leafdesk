@@ -1372,13 +1372,13 @@ sees; the person's other workspaces keep working. It covers the same ground as t
 verification (pages, exports, server actions, API routes, the live collaboration connection, which
 is checked by the address it comes from), applies to everyone in the workspace, owners and guests
 too, and comes before the other policies. A request whose address the server can't tell counts as
-outside the list. The address is the visitor's as `TRUSTED_PROXIES` reads it (see *Quick start (Docker)*
-above), so set that right before relying on this. An owner can't save a list that leaves out
-their own current address; if a list shuts everyone out anyway (a new office line, a proxy set up
-differently), an instance administrator clears it on `/admin` under *Approved networks*. Changes
-go into the audit log. Apps connected over MCP, REST API tokens and SCIM tokens are not held to the
-list: they follow the connected-apps setting. A restored backup starts without one, since its
-addresses were the old server's view. Not offered when Leafdesk runs on one computer.
+outside the list. The address is the visitor's as `TRUSTED_PROXIES` reads it (see *Quick start
+(Docker)* above), so set that right before relying on this. An owner can't save a list that leaves
+out their own current address; if a list shuts everyone out anyway (a new office line, a proxy set
+up differently), an instance administrator clears it on `/admin` under *Approved networks*.
+Changes go into the audit log. Apps connected over MCP, REST API tokens and SCIM tokens are not
+held to the list: they follow the connected-apps setting. A restored backup starts without one,
+since its addresses were the old server's view. Not offered when Leafdesk runs on one computer.
 
 Someone who lost both their authenticator app and their recovery codes can be reset by whoever
 runs the server; this turns two-step verification off and signs them out (`--passkeys` also
