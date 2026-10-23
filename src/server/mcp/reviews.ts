@@ -57,6 +57,7 @@ export function describePendingChange(v: PendingChangeView) {
     database: { id: v.database.id, title: pageLabel(v.database.title), url: pageUrl(v.workspaceId, v.database.id) },
     row: v.row ? { id: v.row.id, title: pageLabel(v.row.title), url: pageUrl(v.workspaceId, v.row.id) } : null,
     agent: v.agent ? { id: v.agent.id, name: v.agent.name } : null,
+    ...(v.sequence ? { follow_up: { sequence_id: v.sequence.sequenceId, name: v.sequence.name, enrollment_id: v.sequence.enrollmentId, step: v.sequence.step, steps: v.sequence.steps } } : {}),
     ...(v.agent && v.runId ? { run_id: v.runId, run_url: `${env.appUrl}${agentRunPath(v.workspaceId, v.agent.id, v.runId)}` } : {}),
     ...(v.kind === "email_draft"
       ? {}

@@ -16,6 +16,7 @@ const TAGS = [
   { name: "Comments", description: "Comment threads on pages." },
   { name: "Agents", description: "A workspace's agents: their settings, who they are shared with, runs asked for now, schedules, run history and monthly usage." },
   { name: "Review", description: "Changes agents proposed instead of making them: rows to add or change and email drafts, each approved (optionally edited) or dismissed by a person." },
+  { name: "Follow-ups", description: "Follow-up sequences of mail databases, and the rows they go on: emails sent one after another from a member's mailbox until the contact replies." },
 ];
 
 /** Field descriptions are shared with the MCP server and sometimes name its tools. */
@@ -795,6 +796,69 @@ const SCHEMAS: Record<string, JsonSchema> = {
     ["id", "kind", "status", "reason", "database", "row", "edited", "conflict", "can_approve", "created_at", "expires_at"],
   ),
   PendingChangeList: loose({ workspace_id: id, changes: { type: "array", items: ref("PendingChange") } }, ["workspace_id", "changes"]),
+  Sequence: loose(
+    {
+      id,
+      name: { type: "string" },
+      database_id: id,
+      steps: {
+        type: "array",
+        items: loose(
+          {
+            step: { type: "integer" },
+            wait_days: { type: "integer", description: "Days after the previous email (the first: after it starts)." },
+            mode: { type: "string", enum: ["send", "ask_first"], description: "ask_first: the email waits in the sender's For review queue." },
+            subject: { type: "string" },
+            text: { type: "string", description: "With {{Property | fallback}} variables." },
+          },
+          ["step", "wait_days", "mode", "text"],
+        ),
+      },
+      send_window: loose({ days: { type: "array", items: { type: "integer" }, description: "0 is Sunday." }, start_minute: { type: "integer" }, end_minute: { type: "integer" } }),
+      open_enrollments: { type: "integer" },
+      updated_at: { type: "string", format: "date-time" },
+      url,
+    },
+    ["id", "name", "database_id", "steps", "send_window"],
+  ),
+  SequenceList: loose({ database_id: id, sequences: { type: "array", items: ref("Sequence") } }, ["database_id", "sequences"]),
+  Enrollment: loose(
+    {
+      id,
+      sequence: loose({ id, name: { type: "string" } }, ["id", "name"]),
+      row: loose({ id, title: { type: "string" }, url }, ["id"]),
+      sender: loose({ id, name: { type: "string" } }, ["id"]),
+      status: { type: "string", enum: ["active", "waiting", "paused", "finished", "stopped"], description: "waiting: its next email is in the sender's For review queue." },
+      step: { type: "integer", description: "1-based: the next to go out (or waiting for review; for a finished one, the last)." },
+      steps: { type: "integer" },
+      sent: { type: "integer" },
+      next_at: { type: "string", format: "date-time", description: "When the next email goes out at the earliest; the send window and the daily limit may hold it later." },
+      paused_until: { type: "string", format: "date-time" },
+      reason: {
+        type: "string",
+        enum: ["outOfOffice", "checkFailed", "replied", "manual", "rowTrashed", "mailboxDisconnected", "noAccess", "emailOff", "dismissed", "draftExpired", "noAddress"],
+      },
+      problems: { type: "array", items: { type: "string" }, description: "checkFailed: what the check found in the next email." },
+      pending_change_id: id,
+      source: { type: "string", enum: ["row", "bulk", "automation", "mcp", "api"] },
+      started_at: { type: "string", format: "date-time" },
+      ended_at: { type: "string", format: "date-time" },
+      can_stop: { type: "boolean" },
+      can_resume: { type: "boolean" },
+    },
+    ["id", "sequence", "row", "sender", "status", "step", "steps", "sent", "source", "started_at", "can_stop", "can_resume"],
+  ),
+  EnrollmentList: loose({ enrollments: { type: "array", items: ref("Enrollment") } }, ["enrollments"]),
+  EnrollmentOutcomes: loose(
+    {
+      started: { type: "integer" },
+      rows: {
+        type: "array",
+        items: loose({ row_id: id, enrollment: ref("Enrollment"), skipped: { type: "string", description: "Why the row was skipped (a code)." }, reason: { type: "string" } }, ["row_id"]),
+      },
+    },
+    ["started", "rows"],
+  ),
 };
 
 const ERROR_RESPONSES: Record<string, { description: string }> = {

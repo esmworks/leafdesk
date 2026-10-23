@@ -131,7 +131,7 @@ type Enrollment = typeof sequenceEnrollment.$inferSelect;
 // ---------------------------------------------------------------------------------- sequences
 
 function sequenceView(s: Sequence, open: number): SequenceView {
-  return { id: s.id, databaseId: s.databaseId, name: s.name, steps: s.steps, window: s.window, open, updatedAt: s.updatedAt.toISOString() };
+  return { id: s.id, workspaceId: s.workspaceId, databaseId: s.databaseId, name: s.name, steps: s.steps, window: s.window, open, updatedAt: s.updatedAt.toISOString() };
 }
 
 async function openCounts(sequenceIds: string[]) {
@@ -481,6 +481,7 @@ function enrollmentView(e: Enrollment, info: { name: string; steps: number; rowT
   const open = isOpenEnrollment(e.status);
   return {
     id: e.id,
+    workspaceId: e.workspaceId,
     sequence: { id: e.sequenceId, name: info.name },
     row: { id: e.rowId, title: info.rowTitle },
     databaseId: e.databaseId,

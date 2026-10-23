@@ -169,6 +169,8 @@ import { env } from "@/lib/env";
 import { reviewPath } from "@/lib/pending-changes";
 import * as review from "@/server/pending-changes";
 import { describePendingChange, editOf, reviewInputs, withReviewErrors } from "./reviews";
+import { describeEnrollment, describeOutcomes, describeSequence, sequenceInputs, withSequenceErrors } from "./sequences";
+import * as sequences from "@/server/sequences/manage";
 import { APP_INFO } from "@/server/app-info";
 import { CONNECT_SCOPES, FILES_SCOPE, NOTIFICATIONS_SCOPE, WRITE_SCOPE, type McpPrincipal } from "./principal";
 import {
@@ -2722,6 +2724,76 @@ export function createMcpServer(principal: McpPrincipal) {
       scopeChallenge: requireWrite,
     },
     write(({ change_id }) => withReviewErrors(async () => describePendingChange(await review.dismissPendingChange(userId, change_id)))),
+  );
+
+  server.registerTool(
+    "list_sequences",
+    {
+      title: "List a database's follow-up sequences",
+      description:
+        "List the follow-up sequences of a mail database: emails that go out one after another to a row's contact, from the mailbox of whoever started them on the row, until the contact replies. Each step waits wait_days after the previous email (the first after it starts), and is sent on its own (mode send) or put in the sender's For review queue first (ask_first). Steps after the first go out as replies in the same thread. Workspace owners write them in Settings > General > Email.",
+      inputSchema: sequenceInputs.list,
+      annotations: READ,
+    },
+    ({ database_id }) =>
+      runTool(() => withSequenceErrors(async () => ({ sequences: (await sequences.listSequences(userId, database_id)).map(describeSequence) }))),
+  );
+
+  server.registerTool(
+    "enroll_in_sequence",
+    {
+      title: "Start a follow-up sequence on rows",
+      description:
+        "Start a follow-up sequence (list_sequences) on rows of its database, sending from the user's own mailbox in the workspace: its emails go out in the sender's send window and within their mailbox's daily limit, and it stops by itself when the contact replies, the row goes to the trash or the mailbox is disconnected; an out-of-office reply pauses it until the return date. Rows the user may not write email on, without an address, or in the sequence already are skipped with why. Confirm with the user first: it sends email in their name.",
+      inputSchema: sequenceInputs.enroll,
+      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+      scopeChallenge: requireWrite,
+    },
+    write(({ sequence_id, row_ids }) => withSequenceErrors(async () => describeOutcomes(await sequences.enrollRows(userId, sequence_id, row_ids, "mcp")))),
+  );
+
+  server.registerTool(
+    "stop_enrollment",
+    {
+      title: "Stop a follow-up on a row",
+      description: "Stop a follow-up sequence going on a row (list_enrollments): no more of its emails go out, and a draft of it waiting for review is withdrawn. Its sender or whoever may edit the row may stop it.",
+      inputSchema: sequenceInputs.stop,
+      annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: false },
+      scopeChallenge: requireWrite,
+    },
+    write(({ enrollment_id }) => withSequenceErrors(async () => describeEnrollment(await sequences.stopEnrollment(userId, enrollment_id)))),
+  );
+
+  server.registerTool(
+    "resume_enrollment",
+    {
+      title: "Resume a paused follow-up",
+      description:
+        "Resume a follow-up that paused (status paused: reason outOfOffice, or checkFailed when its next email didn't pass the check; fix the row or the sequence first). Only its sender may resume it; the next email is due at once, in the send window.",
+      inputSchema: sequenceInputs.resume,
+      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+      scopeChallenge: requireWrite,
+    },
+    write(({ enrollment_id }) => withSequenceErrors(async () => describeEnrollment(await sequences.resumeEnrollment(userId, enrollment_id)))),
+  );
+
+  server.registerTool(
+    "list_enrollments",
+    {
+      title: "List follow-ups on rows",
+      description:
+        "List follow-up sequences going on rows (or, with status all, ended ones kept 90 days), newest first, of rows whose email the user may read: each with its step (1-based) of steps, emails sent, when the next goes out at the earliest (next_at), and why it paused or stopped (reason: replied, manual, rowTrashed, mailboxDisconnected, noAccess, emailOff, dismissed, draftExpired, noAddress; paused: outOfOffice until paused_until, or checkFailed with the problems found). A waiting one has its draft in the sender's For review queue (pending_change_id).",
+      inputSchema: sequenceInputs.enrollments,
+      annotations: READ,
+    },
+    ({ row_id, database_id, sequence_id, workspace_id, status, limit }) =>
+      runTool(() =>
+        withSequenceErrors(async () => {
+          if (!row_id && !database_id && !sequence_id && !workspace_id) throw new ToolInputError("Give row_id, database_id, sequence_id or workspace_id.");
+          const list = await sequences.listEnrollments(userId, { rowId: row_id, databaseId: database_id, sequenceId: sequence_id, workspaceId: workspace_id }, { open: status === "open", limit });
+          return { enrollments: list.map(describeEnrollment) };
+        }),
+      ),
   );
 
   server.registerTool(

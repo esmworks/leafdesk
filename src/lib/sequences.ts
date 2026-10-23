@@ -87,6 +87,7 @@ export type EnrollmentSource = (typeof ENROLLMENT_SOURCES)[number];
 /** An enrollment as the row, MCP and the REST API show it. */
 export type EnrollmentView = {
   id: string;
+  workspaceId: string;
   sequence: { id: string; name: string };
   row: { id: string; title: string };
   databaseId: string;
@@ -116,6 +117,7 @@ export type EnrollmentView = {
 /** A sequence as its editor, the row's "Start follow-up" and the API show it. */
 export type SequenceView = {
   id: string;
+  workspaceId: string;
   databaseId: string;
   name: string;
   steps: SequenceStep[];
