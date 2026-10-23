@@ -69,6 +69,8 @@
     "recent": "최근 편집",
     "commands": "명령",
     "noCommands": "일치하는 명령 없음",
+    "setting": "설정: {tab} → {setting}",
+    "settingsTab": "설정: {tab}",
     "hint": {
       "in": "페이지 안에서",
       "type": "데이터베이스만 (또는 페이지, 행)",

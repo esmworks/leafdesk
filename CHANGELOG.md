@@ -161,6 +161,12 @@
   deleted. Removing a held person from the workspace, also over SCIM, keeps their pages, as it
   always did. Setting and releasing a hold is recorded in the audit log, and backups carry the
   holds. Migration 0121 adds them.
+- **Settings can be searched.** A box at the top of Settings' navigation finds a setting on any tab
+  you have, your account's included, by its name, its tab or other words people look for it by
+  ("dark mode", "2fa", "ip", "backup"): picking one opens its tab, scrolls to the setting and
+  highlights it for a moment. Only what you can see is found: owners' settings for owners, and
+  nothing a guest's or a one-computer Leafdesk's Settings leave out. The search box (Cmd/Ctrl+K)
+  finds them too after `>`, as *Settings: Security → Approved networks*.
 - **Table rows move by their handle, which also opens a fuller row menu.** The ⋯ button before
   each row of a table is now a handle: drag it to move the row among the others (in its group, and
   under the same parent when sub-items nest) while no sort orders the view; the order is the one

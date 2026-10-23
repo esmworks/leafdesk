@@ -49,6 +49,8 @@ import { listFavoritesAction } from "@/app/actions/page-menu";
 import { archivePageAction, createPageAction, getSidebarAction, movePageAction, renamePageAction } from "@/app/actions/pages";
 import { leaveTeamspaceAction, setTeamspaceWatchingAction } from "@/app/actions/teamspaces";
 import { setSidebarLayoutAction } from "@/app/actions/workspaces";
+import { settingsSearchAction } from "@/app/actions/settings-search";
+import type { SettingsSearchItem } from "@/lib/settings-search";
 import type { FavoritePage } from "@/server/page-meta";
 import { useChannel } from "@/components/collab/use-channel";
 import { ViewIcon } from "@/components/database/property-icons";
@@ -202,6 +204,8 @@ export function Sidebar({
   const [favorites, setFavorites] = useState(initialFavorites);
   const [expanded, setExpanded] = useState<Set<string>>(() => new Set());
   const [searchOpen, setSearchOpen] = useState(false);
+  // The settings the command list finds, asked for the first time the search opens.
+  const [settingsFound, setSettingsFound] = useState<{ workspaceId: string; items: SettingsSearchItem[] } | null>(null);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [trashOpen, setTrashOpen] = useState(false);
   const [templatesOpen, setTemplatesOpen] = useState(false);
@@ -238,6 +242,20 @@ export function Sidebar({
 
   const offline = useIsOffline();
   const aiChat = useAiChat();
+
+  const settingsAsked = useRef<string | null>(null);
+  useEffect(() => {
+    if (!searchOpen || offline || settingsAsked.current === workspaceId) return;
+    settingsAsked.current = workspaceId;
+    settingsSearchAction(workspaceId)
+      .then((result) => {
+        if (result.ok) setSettingsFound({ workspaceId, items: result.data });
+        else settingsAsked.current = null;
+      })
+      .catch(() => {
+        settingsAsked.current = null;
+      });
+  }, [searchOpen, offline, workspaceId]);
   const onChatPage = Boolean(aiChat) && isChatPath(pathname, workspaceId);
   const tAi = useTranslations("ai.chat");
   const tJournal = useTranslations("journal");
@@ -1459,6 +1477,16 @@ export function Sidebar({
           { id: "inbox", label: t("nav.inbox"), icon: <Inbox className="h-4 w-4" />, run: () => setInboxOpen(true) },
           { id: "settings", label: t("nav.settings"), icon: <Settings className="h-4 w-4" />, run: () => router.push(`/w/${workspaceId}/settings`) },
           { id: "shortcuts", label: tShortcuts("title"), icon: <Keyboard className="h-4 w-4" />, run: () => setShortcutsOpen(true) },
+          ...(settingsFound?.workspaceId === workspaceId && !offline
+            ? settingsFound.items.map((item) => ({
+                id: `setting:${item.id}`,
+                label: item.label === item.tab ? t("search.settingsTab", { tab: item.tab }) : t("search.setting", { tab: item.tab, setting: item.label }),
+                keywords: item.keywords,
+                whenTyped: true,
+                icon: <Settings className="h-4 w-4" />,
+                run: () => router.push(item.href),
+              }))
+            : []),
         ]}
       />
       <ShortcutsDialog open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />

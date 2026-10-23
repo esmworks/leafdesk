@@ -168,7 +168,7 @@ export function AgentsPanel({
       </div>
 
       {canCreate && templates.length > 0 && (
-        <SettingsGroup title={t("templates.heading")} description={t("templates.description")} className="mt-10">
+        <SettingsGroup anchor="agentTemplates" title={t("templates.heading")} description={t("templates.description")} className="mt-10">
           <ul className="divide-y divide-border">
             {templates.map((item) => (
               <li key={item.key}>

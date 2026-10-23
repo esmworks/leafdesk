@@ -69,6 +69,8 @@
     "recent": "Son düzenlenenler",
     "commands": "Komutlar",
     "noCommands": "Eşleşen komut yok",
+    "setting": "Ayarlar: {tab} → {setting}",
+    "settingsTab": "Ayarlar: {tab}",
     "hint": {
       "in": "bir sayfanın içinde",
       "type": "yalnız veritabanları (ya da page, row)",

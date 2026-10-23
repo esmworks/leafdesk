@@ -69,6 +69,8 @@
     "recent": "נערכו לאחרונה",
     "commands": "פקודות",
     "noCommands": "אין פקודה תואמת",
+    "setting": "הגדרות: {tab} ← {setting}",
+    "settingsTab": "הגדרות: {tab}",
     "hint": {
       "in": "בתוך דף",
       "type": "רק מסדי נתונים (או דף, שורה)",

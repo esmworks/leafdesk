@@ -69,6 +69,8 @@
     "recent": "最近編集したページ",
     "commands": "コマンド",
     "noCommands": "一致するコマンドはありません",
+    "setting": "設定: {tab} → {setting}",
+    "settingsTab": "設定: {tab}",
     "hint": {
       "in": "ページ内",
       "type": "データベースのみ（またはpage、row）",

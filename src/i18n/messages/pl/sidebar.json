@@ -69,6 +69,8 @@
     "recent": "Ostatnio edytowane",
     "commands": "Polecenia",
     "noCommands": "Brak pasującego polecenia",
+    "setting": "Ustawienia: {tab} → {setting}",
+    "settingsTab": "Ustawienia: {tab}",
     "hint": {
       "in": "wewnątrz strony",
       "type": "tylko bazy danych (lub strony, wiersze)",

@@ -1,5 +1,6 @@
 import { ArrowLeft, type LucideIcon } from "lucide-react";
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { SettingsNavScroller } from "./settings-nav-scroller";
 
 export type SettingsNavItem = { href: string; label: string; icon: LucideIcon; active?: boolean };
@@ -13,10 +14,13 @@ export type SettingsNavGroup = { label: string; items: SettingsNavItem[] };
 export function SettingsNav({
   label,
   back,
+  search,
   groups,
 }: {
   label: string;
   back: { href: string; label: string };
+  /** A search over the settings (settings-search.tsx), under the way back. */
+  search?: ReactNode;
   groups: SettingsNavGroup[];
 }) {
   return (
@@ -34,6 +38,7 @@ export function SettingsNav({
         <ArrowLeft className="h-4 w-4 shrink-0 text-fg-icon rtl:-scale-x-100" aria-hidden />
         <span className="truncate">{back.label}</span>
       </Link>
+      {search}
       <SettingsNavScroller className="relative mt-1 flex gap-1 overflow-x-auto [scrollbar-width:none] md:mt-4 md:flex-col md:gap-5">
         {groups.map((group) => (
           <div key={group.label} className="contents md:block">

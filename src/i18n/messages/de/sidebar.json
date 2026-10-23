@@ -69,6 +69,8 @@
     "recent": "Zuletzt bearbeitet",
     "commands": "Befehle",
     "noCommands": "Kein passender Befehl",
+    "setting": "Einstellungen: {tab} → {setting}",
+    "settingsTab": "Einstellungen: {tab}",
     "hint": {
       "in": "innerhalb einer Seite",
       "type": "nur Datenbanken (oder page, row)",

@@ -38,6 +38,7 @@ export function AccountStorage({ initial, notice }: { initial: StorageAccountsVi
 
   return (
     <SettingsGroup
+      anchor="storageAccounts"
       title={t("accounts.heading")}
       description={view.ownStorage ? t("accounts.description") : t("accounts.descriptionOff")}
       action={

@@ -69,6 +69,8 @@
     "recent": "Editados recentemente",
     "commands": "Comandos",
     "noCommands": "Nenhum comando correspondente",
+    "setting": "Configurações: {tab} → {setting}",
+    "settingsTab": "Configurações: {tab}",
     "hint": {
       "in": "dentro de uma página",
       "type": "só bancos de dados (ou página, linha)",

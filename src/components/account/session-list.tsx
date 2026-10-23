@@ -30,6 +30,7 @@ export function SessionList({ sessions }: { sessions: SessionSummary[] }) {
 
   return (
     <SettingsGroup
+      anchor="sessions"
       title={t("heading")}
       description={error ? <span className="text-danger">{error}</span> : t("description")}
       action={

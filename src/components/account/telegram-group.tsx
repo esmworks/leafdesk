@@ -8,7 +8,7 @@ export async function TelegramGroup({ userId }: { userId: string }) {
   const [status, t] = await Promise.all([getTelegramStatus(userId), getTranslations("account.telegram")]);
   if (!status.enabled) return null;
   return (
-    <SettingsGroup title={t("title")} description={t("description")}>
+    <SettingsGroup anchor="telegram" title={t("title")} description={t("description")}>
       <TelegramLink initial={status} />
     </SettingsGroup>
   );

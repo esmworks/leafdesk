@@ -83,8 +83,10 @@ import {
   isSettingsTab,
   SETTINGS_TAB_GROUPS,
   type SettingsTab,
-  visibleSettingsTabs,
 } from "@/lib/settings-tabs";
+import { settingAnchor } from "@/lib/settings-search";
+import { settingsSearchIndex, settingsTabsFor } from "@/server/settings-search";
+import { SettingsJump, SettingsSearch } from "@/components/settings/settings-search";
 import { AccessError, isGuest } from "@/server/access";
 import { proofSetupOf } from "@/server/account";
 import { connectedAppsMode } from "@/server/connected-app";
@@ -94,14 +96,13 @@ import { allowedDomainsStatus } from "@/server/allowed-domains";
 import { getMailSettings } from "@/server/row-mail/settings";
 import { storageNoticeOf, type StorageNotice } from "@/lib/workspace-storage";
 import { getStorageSettings } from "@/server/storage/settings";
-import { hasOwnStorage } from "@/server/storage/workspace";
 import { listAgents } from "@/server/agents/manage";
 import { proposedNoteCounts } from "@/server/agents/memory";
 import { webSearchUrl } from "@/server/agents/web";
 import { listConnections } from "@/server/connections/manage";
 import { oauthRedirectUrl } from "@/server/connections/client";
 import { env } from "@/lib/env";
-import { aiInfoFor, isEnabled as aiMayBeOn } from "@/server/ai";
+import { aiInfoFor } from "@/server/ai";
 import { workspaceAiUsage } from "@/server/ai-usage";
 import { workspaceAiView } from "@/server/ai-accounts";
 import { workspaceAnalytics } from "@/server/analytics";
@@ -123,7 +124,6 @@ import { getSite } from "@/server/site";
 import { listSnippets } from "@/server/snippets";
 import { canCreateTeamspace, listTeamspaces, teamspacesByMember } from "@/server/teamspaces";
 import {
-  canInviteGuests,
   countMembersWithoutTwoFactor,
   getJoinLink,
   getWorkspace,
@@ -178,12 +178,7 @@ export default async function SettingsPage({
   if (!workspace) notFound();
   const isOwner = workspace.role === "owner";
   const guest = isGuest(workspace.role);
-  const managesGuests = !guest && (await canInviteGuests(user.id, workspaceId));
-  const hasOwnStorageFor = isOwner && !env.ownStorageEnabled ? await hasOwnStorage(workspaceId) : true;
-  const tabs = visibleSettingsTabs({ guest, managesGuests, owner: isOwner, localMode: env.localMode }).filter(
-    // Storage is about storage of one's own: with it off, only for a workspace that has some from before.
-    (name) => (name !== "storage" || env.ownStorageEnabled || !isOwner || hasOwnStorageFor) && (name !== "aiUsage" || aiMayBeOn()),
-  );
+  const [tabs, searchIndex] = await Promise.all([settingsTabsFor(user.id, workspaceId, workspace.role), settingsSearchIndex(user.id, workspaceId)]);
   // The person's own snippets had a tab of their own; they are the Snippets tab's first list now.
   const requested = query.tab === "mySnippets" ? "snippets" : query.tab;
   // The person's own settings come first, then the workspace's (the workspace sidebar is hidden here).
@@ -200,6 +195,7 @@ export default async function SettingsPage({
       <SettingsNav
         label={t("title")}
         back={{ href: `/w/${workspaceId}`, label: ta("back", { workspace: workspace.name }) }}
+        search={<SettingsSearch items={searchIndex} />}
         groups={[
           {
             label: ta("title"),
@@ -225,11 +221,12 @@ export default async function SettingsPage({
 
       <div className="min-w-0 flex-1 px-4 py-8 sm:px-8 md:py-12">
         <div className="mx-auto max-w-3xl">
+          <SettingsJump setting={typeof query.setting === "string" ? query.setting : undefined} />
           {accountTab && <AccountTabContent tab={accountTabForSettings(accountTab)} session={session} query={query} />}
           {tab === "general" && (
             <>
               <SettingsHeader title={t("nav.general")} description={t("workspace.description")} />
-              <SettingsGroup title={t("workspace.heading")}>
+              <SettingsGroup anchor="workspaceName" title={t("workspace.heading")}>
                 <WorkspaceNameForm workspaceId={workspaceId} name={workspace.name} canEdit={isOwner} />
                 {/* Guests can't open the members list, where everyone else leaves from. */}
                 {guest && <LeaveWorkspaceRow workspaceId={workspaceId} userId={user.id} />}
@@ -378,7 +375,7 @@ async function AiGroup({ workspaceId, userId, isOwner }: { workspaceId: string; 
     workspaceAiView(userId, workspaceId),
   ]);
   return (
-    <SettingsGroup title={t("heading")} description={t("description")} className="mt-10">
+    <SettingsGroup anchor="ai" title={t("heading")} description={t("description")} className="mt-10">
       {account && <WorkspaceAiAccount workspaceId={workspaceId} initial={account} accountsHref={`/w/${workspaceId}/settings?tab=apps`} />}
       <AiSettings
         key={info?.accountId ?? "instance"}
@@ -397,7 +394,7 @@ async function AiGroup({ workspaceId, userId, isOwner }: { workspaceId: string; 
 async function CalloutStylesGroup({ workspaceId, userId, isOwner }: { workspaceId: string; userId: string; isOwner: boolean }) {
   const [settings, t] = await Promise.all([getWorkspaceSettings(userId, workspaceId), getTranslations("settings.calloutStyles")]);
   return (
-    <SettingsGroup title={t("heading")} description={t("description")} className="mt-10">
+    <SettingsGroup anchor="calloutStyles" title={t("heading")} description={t("description")} className="mt-10">
       <CalloutStylesSettings workspaceId={workspaceId} styles={storedCalloutStyles(settings.calloutStyles)} canEdit={isOwner} />
     </SettingsGroup>
   );
@@ -407,7 +404,7 @@ async function CalloutStylesGroup({ workspaceId, userId, isOwner }: { workspaceI
 async function LetterheadsGroup({ workspaceId, userId, isOwner }: { workspaceId: string; userId: string; isOwner: boolean }) {
   const [letterheads, t] = await Promise.all([listLetterheads(userId, workspaceId), getTranslations("settings.letterheads")]);
   return (
-    <SettingsGroup title={t("heading")}>
+    <SettingsGroup anchor="letterheads" title={t("heading")}>
       <LetterheadsSettings workspaceId={workspaceId} letterheads={letterheads} canEdit={isOwner} />
     </SettingsGroup>
   );
@@ -417,7 +414,7 @@ async function LetterheadsGroup({ workspaceId, userId, isOwner }: { workspaceId:
 async function ExportGroup({ workspaceId, userId }: { workspaceId: string; userId: string }) {
   const [settings, t] = await Promise.all([getWorkspaceSettings(userId, workspaceId), getTranslations("settings")]);
   return (
-    <SettingsGroup title={t("export.heading")} className="mt-10">
+    <SettingsGroup anchor="export" title={t("export.heading")} className="mt-10">
       <WorkspaceExport workspaceId={workspaceId} disabled={settings.export === false} />
       <WorkspaceBackup workspaceId={workspaceId} disabled={settings.export === false} />
     </SettingsGroup>
@@ -429,7 +426,7 @@ type Session = Awaited<ReturnType<typeof requireSession>>;
 async function DeleteGroup({ workspaceId, name, session }: { workspaceId: string; name: string; session: Session }) {
   const [proof, t] = await Promise.all([proofSetupOf(session), getTranslations("settings")]);
   return (
-    <SettingsGroup title={t("deleteWorkspace.heading")} className="mt-10">
+    <SettingsGroup anchor="deleteWorkspace" title={t("deleteWorkspace.heading")} className="mt-10">
       <DeleteWorkspaceRow workspaceId={workspaceId} name={name} proof={proof} />
     </SettingsGroup>
   );
@@ -463,25 +460,34 @@ async function SecurityTab({ workspaceId, userId, isOwner }: { workspaceId: stri
     <div className="space-y-10">
       <div>
         <SettingsHeader title={t("nav.security")} description={t("security.description")} />
-        <SettingsGroup title={t("security.authenticationHeading")}>
-          <RequireTwoFactorSetting
-            workspaceId={workspaceId}
-            settings={settings}
-            canEdit={isOwner}
-            ownSessionPasses={Boolean(session && isStrongSession(session))}
-            withoutTwoFactor={withoutTwoFactor}
-          />
-          {!local && <LoginMethodSetting workspaceId={workspaceId} settings={settings} canEdit={isOwner} available={canUseSso} />}
-          {!local &&
-            (isOwner ? (
-              <AllowedNetworksSetting workspaceId={workspaceId} networks={networks} clientIp={formatIpAddress(clientIp)} />
-            ) : (
-              <AllowedNetworksSummary count={networkCount} />
-            ))}
+        <SettingsGroup anchor="authentication" title={t("security.authenticationHeading")}>
+          <div id={settingAnchor("requireTwoFactor")}>
+            <RequireTwoFactorSetting
+              workspaceId={workspaceId}
+              settings={settings}
+              canEdit={isOwner}
+              ownSessionPasses={Boolean(session && isStrongSession(session))}
+              withoutTwoFactor={withoutTwoFactor}
+            />
+          </div>
+          {!local && (
+            <div id={settingAnchor("loginMethod")}>
+              <LoginMethodSetting workspaceId={workspaceId} settings={settings} canEdit={isOwner} available={canUseSso} />
+            </div>
+          )}
+          {!local && (
+            <div id={settingAnchor("allowedNetworks")}>
+              {isOwner ? (
+                <AllowedNetworksSetting workspaceId={workspaceId} networks={networks} clientIp={formatIpAddress(clientIp)} />
+              ) : (
+                <AllowedNetworksSummary count={networkCount} />
+              )}
+            </div>
+          )}
         </SettingsGroup>
       </div>
       {!local && (
-        <SettingsGroup title={t("security.membersHeading")}>
+        <SettingsGroup anchor="membership" title={t("security.membersHeading")}>
           <MembershipSettings
             workspaceId={workspaceId}
             settings={settings}
@@ -492,13 +498,13 @@ async function SecurityTab({ workspaceId, userId, isOwner }: { workspaceId: stri
         </SettingsGroup>
       )}
       {isOwner && !local && (
-        <SettingsGroup title={t("security.sso.title")} description={t("security.sso.description")}>
+        <SettingsGroup anchor="sso" title={t("security.sso.title")} description={t("security.sso.description")}>
           <SsoSetupDetails info={setup} />
           <SsoConnectionForm workspaceId={workspaceId} connection={connection} />
         </SettingsGroup>
       )}
       {isOwner && !local && (
-        <SettingsGroup title={t("security.scim.title")} description={t("security.scim.description")}>
+        <SettingsGroup anchor="scim" title={t("security.scim.title")} description={t("security.scim.description")}>
           <ScimSettings
             workspaceId={workspaceId}
             baseUrl={setup.scimBaseUrl}
@@ -514,34 +520,39 @@ async function SecurityTab({ workspaceId, userId, isOwner }: { workspaceId: stri
         </SettingsGroup>
       )}
       {!local && (
-        <SettingsGroup title={t("security.sharingHeading")}>
+        <SettingsGroup anchor="accessRequests" title={t("security.sharingHeading")}>
           <AccessRequestsSetting workspaceId={workspaceId} settings={settings} canEdit={isOwner} />
         </SettingsGroup>
       )}
       {!local && (
         <div>
-          <SettingsGroup title={t("security.guestsHeading")}>
+          <SettingsGroup anchor="guestPolicies" title={t("security.guestsHeading")}>
             <GuestInviteSetting workspaceId={workspaceId} settings={settings} canEdit={isOwner} />
             <GuestPrivatePagesSetting workspaceId={workspaceId} settings={settings} canEdit={isOwner} />
           </SettingsGroup>
         </div>
       )}
       <SettingsGroup title={t("security.dataHeading")}>
-        <ExportSetting workspaceId={workspaceId} settings={settings} canEdit={isOwner} />
-        <ConnectedAppsSetting workspaceId={workspaceId} settings={settings} canEdit={isOwner} />
+        <div id={settingAnchor("exportPolicy")}>
+          <ExportSetting workspaceId={workspaceId} settings={settings} canEdit={isOwner} />
+        </div>
+        <div id={settingAnchor("connectedAppsPolicy")}>
+          <ConnectedAppsSetting workspaceId={workspaceId} settings={settings} canEdit={isOwner} />
+        </div>
       </SettingsGroup>
       {apps && (
-        <SettingsGroup title={t("security.workspaceApps.title")} description={t("security.workspaceApps.description")}>
+        <SettingsGroup anchor="workspaceApps" title={t("security.workspaceApps.title")} description={t("security.workspaceApps.description")}>
           <WorkspaceApps workspaceId={workspaceId} apps={apps.apps} total={apps.total} mode={connectedAppsMode(settings.connectedApps)} />
         </SettingsGroup>
       )}
       {!local && (
-        <SettingsGroup title={t("security.publishingHeading")}>
+        <SettingsGroup anchor="publishing" title={t("security.publishingHeading")}>
           <PublishingSetting workspaceId={workspaceId} settings={settings} canEdit={isOwner} />
         </SettingsGroup>
       )}
       {publications && (
         <SettingsGroup
+          anchor="publications"
           title={t("security.publications.title")}
           description={t(settings.publishing === "off" ? "security.publications.off" : "security.publications.description")}
         >
@@ -550,18 +561,19 @@ async function SecurityTab({ workspaceId, userId, isOwner }: { workspaceId: stri
       )}
       {forms && (
         <SettingsGroup
+          anchor="forms"
           title={t("security.forms.title")}
           description={t(settings.publishing === "off" ? "security.forms.off" : "security.forms.description")}
         >
           <PublicForms workspaceId={workspaceId} forms={forms} />
         </SettingsGroup>
       )}
-      <SettingsGroup title={t("security.retentionHeading")}>
+      <SettingsGroup anchor="retention" title={t("security.retentionHeading")}>
         <TrashRetentionSetting workspaceId={workspaceId} settings={settings} canEdit={isOwner} />
         <HistoryRetentionNote />
       </SettingsGroup>
       {holds && (
-        <SettingsGroup title={t("legalHolds.title")} description={t("legalHolds.description")}>
+        <SettingsGroup anchor="legalHolds" title={t("legalHolds.title")} description={t("legalHolds.description")}>
           <LegalHolds workspaceId={workspaceId} holds={holds} />
         </SettingsGroup>
       )}
@@ -589,7 +601,7 @@ async function SiteTab({
     <div className="space-y-10">
       <div>
         <SettingsHeader title={t("nav.site")} description={t("site.description")} />
-        <SettingsGroup title={t("site.heading")}>
+        <SettingsGroup anchor="site" title={t("site.heading")}>
           <SiteSettings
             // A new form once the site is saved or taken down, starting from what is stored.
             key={site ? `${site.slug}:${site.homePageId}` : "none"}
@@ -602,7 +614,7 @@ async function SiteTab({
         </SettingsGroup>
       </div>
       {publications && (
-        <SettingsGroup title={t("site.pagesHeading")} description={t("site.pagesDescription")}>
+        <SettingsGroup anchor="sitePages" title={t("site.pagesHeading")} description={t("site.pagesDescription")}>
           <SitePages workspaceId={workspaceId} publications={publications} homePageId={site?.homePageId ?? null} />
         </SettingsGroup>
       )}

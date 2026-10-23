@@ -69,6 +69,8 @@
     "recent": "最近编辑",
     "commands": "命令",
     "noCommands": "没有匹配的命令",
+    "setting": "设置：{tab} → {setting}",
+    "settingsTab": "设置：{tab}",
     "hint": {
       "in": "在页面内",
       "type": "仅数据库（或页面、行）",

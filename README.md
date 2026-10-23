@@ -84,9 +84,13 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   `type:page`, `type:database`, `type:row` (database rows) or `type:journal` (your daily notes);
   filters work without words too,
   listing the pages they match, last edited first. Type `>` for commands: new page or database,
-  from a template, import, trash, inbox, settings and keyboard shortcuts. The line under the
+  from a template, import, trash, inbox, settings and keyboard shortcuts, and, once you type
+  after `>`, each setting you can see (*Settings: Security → Legal holds*). The line under the
   results puts each of these into the box. The words you typed show in bold in the text under each
   result.
+- **Settings search**: the box at the top of Settings' navigation finds a setting on any tab you
+  have, by its name, its tab or other words ("dark mode", "2fa", "ip"), opens the tab, scrolls to
+  the setting and highlights it.
 - **Page style**: at the top of a page's `⋯` menu, a typeface for the page (default, serif or
   mono), small text, and full width. It is set per page and everyone sees it, changing live for
   whoever has the page open; anyone who can edit the page can change it. Copies and templates keep
