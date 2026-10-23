@@ -7,7 +7,12 @@
  * stopping an answer; the round limit, input and rate limits and a failing provider; the page
  * scope; the workspace switch and a server without AI; and access, checked on every tool call: a
  * private page shared with nobody, a private teamspace, a page shared with a group, a guest, another
- * workspace, and a page whose access is taken back between two questions.
+ * workspace, and a page whose access is taken back between two questions. Also the model picked
+ * (sent, kept with the conversation, counted in usage by model and person), files attached to a
+ * question (their text in the prompt, images only to models that take them, only their owner may
+ * open or attach them, deleted with the conversation), research mode (read-only tools, a plan, a
+ * report saved as a page) and web search against a stand-in SearXNG server (the workspace's switch,
+ * results as cited sources, a loopback page refused, changes asked about after reading the web).
  * Creates its own users and workspaces and deletes them afterwards.
  *
  *   pnpm tsx scripts/ai-chat-e2e.ts
@@ -864,6 +869,147 @@ try {
     "an answer that changed things can't be asked again (it would change them twice)",
   );
   check((await refusal(() => startChat(alice, { workspaceId, message: "Again", replaceLast: true }))) === "invalid", "…nor can a conversation that hasn't started");
+
+  // ── Models, files, research and the web ─────────────────────────────────────────────────────
+  {
+    const { memoryAiUsageLedger } = await import("@/server/ai/usage");
+    const { chatFileForOwner, uploadChatFile } = await import("@/server/ai-chat-files");
+    const { chatOptionsFor, saveReportAsPage } = await import("@/server/ai-chat");
+    const { file } = await import("@/db/schema");
+    const { Readable } = await import("node:stream");
+    const { createServer } = await import("node:http");
+    const upload = (userId: string, name: string, contentType: string, bytes: Buffer) =>
+      uploadChatFile(userId, workspaceId, { name, contentType, body: Readable.from([bytes]), declaredSize: bytes.length });
+    // A 1×1 PNG.
+    const png = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==", "base64");
+    const toolsOf = (r: FakeChatRequest) => (r.tools ?? []).map((t) => t.function.name);
+
+    const ledger = memoryAiUsageLedger();
+    const MODELS = { ...AI, AI_CHAT_MODELS: "fake-big, fake-chat, fake-vision" };
+    setAiEnv(MODELS, { usage: ledger });
+    const options = await chatOptionsFor(alice, workspaceId);
+    check(options.models.map((m) => m.id).join() === "fake-chat,fake-big,fake-vision" && options.models.every((m) => !m.images), "the chat offers the main model and the others named, without images unless said", options);
+
+    fake.setChat(() => ({ text: "Big answer." }));
+    fake.chats.length = 0;
+    const big = await ask(alice, { workspaceId, message: "Which model?", model: "fake-big" });
+    const bigKept = await getConversation(alice, workspaceId, big.conversationId!);
+    check(big.done && fake.chats.every((r) => r.model === "fake-big") && bigKept.model === "fake-big" && bigKept.messages.at(-1)?.model === "fake-big", "the model picked answers, and the conversation keeps it", { models: fake.chats.map((r) => r.model), model: bigKept.model });
+    check(
+      ledger.rows.some((r) => r.workspaceId === workspaceId && r.feature === "chat" && r.model === "fake-big" && r.requests >= 1) && ledger.people.some((p) => p.userId === alice && p.feature === "chat"),
+      "…its usage counted by model, and by person",
+      { rows: ledger.rows, people: ledger.people },
+    );
+    fake.chats.length = 0;
+    await ask(alice, { workspaceId, conversationId: big.conversationId, message: "And now?" });
+    check(fake.chats.every((r) => r.model === "fake-big"), "a later question in the conversation goes to its model", fake.chats.map((r) => r.model));
+    fake.chats.length = 0;
+    await ask(alice, { workspaceId, message: "A new one" });
+    check(fake.chats.every((r) => r.model === "fake-big") && (await chatOptionsFor(alice, workspaceId)).defaultModel === "fake-big", "a new conversation starts with the person's latest model", fake.chats.map((r) => r.model));
+    fake.chats.length = 0;
+    await ask(alice, { workspaceId, message: "Unknown", model: "not-offered" });
+    check(fake.chats.every((r) => r.model === "fake-chat"), "a model the chat doesn't offer falls back to the main one", fake.chats.map((r) => r.model));
+
+    // Files: their text reaches the prompt; only their owner opens or attaches them.
+    const notes = await upload(alice, "launch.md", "text/markdown", Buffer.from("The launch code word is PELICAN-7."));
+    check(notes.url === `/api/ai/chat/files/${notes.id}` && (await chatFileForOwner(alice, notes.id)) !== null && (await chatFileForOwner(carol, notes.id)) === null, "an attached file opens for the person who attached it only");
+    check((await refusal(() => startChat(carol, { workspaceId, message: "Read it", attachments: [notes.id] }))) === "noAccess", "…and nobody else can attach it to a question");
+    fake.setChat(() => ({ text: "It says PELICAN-7." }));
+    fake.chats.length = 0;
+    const withFile = await ask(alice, { workspaceId, message: "What is the code word?", attachments: [notes.id] });
+    const fileAsk = everything(fake.chats[0]);
+    check(withFile.done && /<attachment name="launch\.md">\nThe launch code word is PELICAN-7\.\n<\/attachment>/.test(fileAsk) && toolsOf(fake.chats[0]).includes("read_attachment"), "a document's text goes to the model with the question, tagged as data", fileAsk.slice(0, 3000));
+    const fileKept = await getConversation(alice, workspaceId, withFile.conversationId!);
+    check(fileKept.messages[0].attachments?.[0]?.id === notes.id && fileKept.messages[0].attachments[0].url === notes.url, "the question keeps its file, shown as a chip that opens it", fileKept.messages[0]);
+    check((await refusal(() => startChat(alice, { workspaceId, message: "Again elsewhere", attachments: [notes.id] }))) === "noAccess", "a file sent in one conversation can't be attached in another");
+    fake.chats.length = 0;
+    await ask(alice, { workspaceId, conversationId: withFile.conversationId, message: "Remind me of the code word" });
+    check(everything(fake.chats[0]).includes("PELICAN-7"), "later questions in the conversation still see the file", everything(fake.chats[0]).slice(0, 2000));
+
+    const image = await upload(alice, "shot.png", "image/png", png);
+    check((await refusal(() => startChat(alice, { workspaceId, message: "What is this?", attachments: [image.id] }))) === "invalid", "an image isn't sent to a model that doesn't take images");
+    setAiEnv({ ...MODELS, AI_IMAGE_INPUT: "true" }, { usage: ledger });
+    fake.setChat(() => ({ text: "A dot." }));
+    fake.chats.length = 0;
+    const seen = await ask(alice, { workspaceId, message: "What is this?", attachments: [image.id] });
+    check(seen.done && JSON.stringify(fake.chats[0].messages).includes(`data:image/png;base64,${png.toString("base64")}`), "…and goes as an image to one that does", JSON.stringify(fake.chats[0].messages).slice(0, 500));
+    setAiEnv(MODELS, { usage: ledger });
+    await deleteConversations(alice, workspaceId, [withFile.conversationId!, seen.conversationId!]);
+    check((await db.select().from(file).where(inArray(file.id, [notes.id, image.id]))).length === 0, "a conversation's files are deleted with it");
+
+    // Research: read-only tools, a plan, a report kept as a page.
+    fake.setChat(caller([
+      { name: "plan_research", arguments: { questions: ["Who sells tyres?", "What does the fleet need?"] } },
+      { name: "search_pages", arguments: { query: "tyres" } },
+    ]));
+    fake.chats.length = 0;
+    const research = await ask(alice, { workspaceId, message: "Research our tyre situation", research: true, mode: "auto" });
+    const researchTools = toolsOf(fake.chats[0]);
+    check(
+      research.done && researchTools.includes("plan_research") && researchTools.includes("search_pages") && !researchTools.some((t) => ["create_row", "update_row", "create_page", "edit_page", "remember", "forget", "add_comment"].includes(t)),
+      "research offers the plan and the reading tools only, whatever the mode",
+      researchTools,
+    );
+    check(research.steps[0] === "plan:Who sells tyres?|What does the fleet need?" && research.steps.some((st) => st.startsWith("search:tyres:")), "…its plan and searches shown as steps", research.steps);
+    check(ledger.rows.some((r) => r.feature === "chat.research" && r.workspaceId === workspaceId), "…counted as research in the usage", ledger.rows.map((r) => r.feature));
+    const researchKept = await getConversation(alice, workspaceId, research.conversationId!);
+    const reportIndex = researchKept.messages.length - 1;
+    check(researchKept.messages[reportIndex].research === true && researchKept.messages[reportIndex - 1].research === true, "the question and its report are kept as research", researchKept.messages.map((m) => m.research));
+    const labels = { sources: "Sources", untitled: "Report" };
+    const saved = await saveReportAsPage(alice, workspaceId, research.conversationId!, reportIndex, labels);
+    const [reportPage] = await db.select().from(page).where(eq(page.id, saved.pageId));
+    check(reportPage?.createdBy === alice && reportPage.teamspaceId === null && reportPage.parentId === null && reportPage.workspaceId === workspaceId, "a report is saved as a private page of the person", reportPage);
+    check((await refusal(() => saveReportAsPage(alice, workspaceId, big.conversationId!, 1, labels))) === "invalid", "…and only a report can be");
+
+    // The web: off until the workspace's owners turn it on, then read-only and asked about.
+    const pages = [
+      { url: "https://tyres.example/prices", title: "Tyre prices 2026", content: "Winter tyres cost 90 euros." },
+      { url: "https://tyres.example/brands", title: "Tyre brands", content: "Brands compared." },
+    ];
+    const searxng = createServer((req, res) => {
+      const query = new URL(req.url ?? "/", "http://x").searchParams.get("q");
+      res.writeHead(200, { "Content-Type": "application/json" }).end(JSON.stringify({ query, results: pages }));
+    });
+    await new Promise<void>((resolve) => searxng.listen(0, "127.0.0.1", resolve));
+    const searchUrl = `http://127.0.0.1:${(searxng.address() as { port: number }).port}`;
+    process.env.WEB_SEARCH_URL = searchUrl;
+    try {
+      fake.setChat(() => ({ text: "Off." }));
+      fake.chats.length = 0;
+      await ask(alice, { workspaceId, message: "Tyre prices online?" });
+      check(!toolsOf(fake.chats[0]).includes("search_web"), "the chat has no web tools until the workspace turns web search on");
+      await updateWorkspaceSettings(owner, workspaceId, { aiWebSearch: true });
+      check((await chatOptionsFor(alice, workspaceId)).webSearch, "…which the box is told");
+      // Searches, tries a page on the server's own network, then cites the brands page by its number.
+      fake.setChat((request) => {
+        const made = request.messages.filter((m) => m.role === "assistant" && m.tool_calls?.length).length;
+        if (made === 0) return { toolCalls: [{ name: "search_web", arguments: { query: "winter tyre prices" } }] };
+        if (made === 1) return { toolCalls: [{ name: "read_web_page", arguments: { url: `${searchUrl}/secret` } }] };
+        const n = /<source n="(\d+)" url="https:\/\/tyres\.example\/brands"/.exec(everything(request))?.[1];
+        return { text: `Brands compared [${n}].` };
+      });
+      fake.chats.length = 0;
+      const web = await ask(alice, { workspaceId, message: "What do winter tyres cost?" });
+      const results = toolResults(fake.chats.at(-1)!);
+      check(toolsOf(fake.chats[0]).includes("search_web") && toolsOf(fake.chats[0]).includes("read_web_page"), "with it on, the chat may search the web and read pages", toolsOf(fake.chats[0]));
+      check(web.steps[0] === "web-search:winter tyre prices:2" && results[0]?.includes('url="https://tyres.example/prices"') && results[0].includes("Winter tyres cost 90 euros."), "web results come back as numbered sources, from the search service", { steps: web.steps, results });
+      check(web.steps.includes(`web-read:${searchUrl}/secret:failed`) && results.length === 2 && !results[1].includes("<source"), "a page on the server's own address isn't read", { steps: web.steps, results });
+      check(web.sources.some((src) => src.url === "https://tyres.example/brands" && src.pageId === null), "an answer cites a web page as a link", web.sources);
+
+      // After reading the web, a change is asked about even in Auto.
+      fake.setChat(caller([
+        { name: "search_web", arguments: { query: "spare parts" } },
+        write("create_row", { database_id: parts.id, title: "Web row" }),
+      ]));
+      const webAuto = await ask(alice, { workspaceId, message: "Find parts online and add one", mode: "auto" }, { onEvent: (e) => void (e.type === "approval" && decideChange(alice, e.id, "decline")) });
+      check(approvals(webAuto).length === 1 && (await rowsOf(parts.id, "Web row")).length === 0, "once the answer read from the web, a change is asked about also in Auto", webAuto.steps);
+      await updateWorkspaceSettings(owner, workspaceId, { aiWebSearch: false });
+    } finally {
+      delete process.env.WEB_SEARCH_URL;
+      searxng.close();
+    }
+    setAiEnv(AI);
+  }
 
   // ── Deleting ────────────────────────────────────────────────────────────────────────────────
   const aliceBefore = await listConversations(alice, workspaceId);

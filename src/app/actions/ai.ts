@@ -126,7 +126,8 @@ export async function deleteConversationAction(workspaceId: string, conversation
 export async function saveReportAsPageAction(workspaceId: string, conversationId: string, index: number) {
   return run(async (userId) => {
     if (typeof workspaceId !== "string" || typeof conversationId !== "string" || !Number.isInteger(index) || index < 0) throw new AccessError();
-    const saved = await saveReportAsPage(userId, workspaceId, conversationId, index);
+    const t = await getTranslations("ai.chat.research");
+    const saved = await saveReportAsPage(userId, workspaceId, conversationId, index, { sources: t("sourcesHeading"), untitled: t("untitled") });
     revalidatePath(`/w/${workspaceId}`, "layout");
     return saved;
   });

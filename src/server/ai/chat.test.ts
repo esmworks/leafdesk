@@ -3,7 +3,7 @@
  * calls streamed from an OpenAI-compatible server and answered with tool results.
  */
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
-import { citationLinks, citedNumbers, conversationTitle, sourceHref, stripCitations } from "@/lib/ai-chat";
+import { citationLinks, citedNumbers, conversationTitle, reportMarkdown, sourceHref, stripCitations } from "@/lib/ai-chat";
 import { startFakeOpenAi, textOf, type FakeOpenAi } from "./fake-openai";
 import { embed, stream, type AiMessage } from "./index";
 import {
@@ -43,6 +43,25 @@ describe("citations", () => {
     expect(sourceHref({ workspaceId: "w", pageId: "p", blockId: "b" })).toBe("/w/w/p/p#block-b");
     expect(sourceHref({ workspaceId: "w", pageId: "p", blockId: null })).toBe("/w/w/p/p");
     expect(sourceHref({ workspaceId: null, pageId: null, blockId: null })).toBeNull();
+    // A web source links to its address, and only to an http(s) one.
+    expect(sourceHref({ workspaceId: null, pageId: null, blockId: null, url: "https://example.com/a" })).toBe("https://example.com/a");
+    expect(sourceHref({ workspaceId: null, pageId: null, blockId: null, url: "javascript:alert(1)" })).toBeNull();
+  });
+
+  it("writes a report as a page: citations as links, the cited sources listed at the end", () => {
+    const source = (n: number, extra: Record<string, unknown>) => ({ n, pageId: null, workspaceId: null, title: null, icon: null, kind: null, blockId: null, ...extra });
+    const sources = [
+      source(1, { pageId: "p", workspaceId: "w", title: "Plan [draft]", kind: "page" }),
+      source(2, { url: "https://example.com/news", title: "News" }),
+      source(3, {}),
+      source(4, { pageId: "q", workspaceId: "w", title: "Never cited" }),
+    ];
+    const text = "## Summary\n\nThe plan [1] and the news [2, 3]. Code `a[1]` stays, an unknown [9] too.";
+    expect(reportMarkdown(text, sources, "Sources")).toBe(
+      "## Summary\n\nThe plan [[1]](/w/w/p/p) and the news [[2]](https://example.com/news)[3]. Code `a[1]` stays, an unknown [9] too." +
+        "\n\n## Sources\n\n1. [Plan draft](/w/w/p/p)\n2. [News](https://example.com/news)\n3. —",
+    );
+    expect(reportMarkdown(" No sources. ", sources, "Sources")).toBe("No sources.");
   });
 
   it("titles a conversation with the start of its first question", () => {

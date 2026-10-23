@@ -71,7 +71,6 @@ import {
   type ConversationSummary,
   thoughtText,
 } from "@/lib/ai-chat";
-import { getTranslations } from "next-intl/server";
 import { attachmentCsv } from "@/lib/chat-attachment-table";
 import { CHAT_FILE_LIMITS, chatFileKind, chatFileUrl, type ChatAttachmentView } from "@/lib/chat-attachments";
 import { pageLabel } from "@/lib/labels";
@@ -824,19 +823,25 @@ const attachmentView = (a: ChatAttachmentRecord): ChatAttachmentView => ({ ...a,
 
 /**
  * Saves a research answer of the person's conversation (the message at `index`) as a new private
- * page at the top of the workspace, its citations links to the sources; returns the page's id.
+ * page at the top of the workspace, its citations links to the sources under `labels.sources`
+ * (`labels.untitled`: the title without a question); returns the page's id.
  */
-export async function saveReportAsPage(userId: string, workspaceId: string, conversationId: string, index: number): Promise<{ pageId: string }> {
+export async function saveReportAsPage(
+  userId: string,
+  workspaceId: string,
+  conversationId: string,
+  index: number,
+  labels: { sources: string; untitled: string },
+): Promise<{ pageId: string }> {
   await requireMembership(userId, workspaceId);
   const found = await ownConversation(userId, workspaceId, conversationId).catch(() => {
     throw new AccessError();
   });
   const message = found.messages[index];
   if (!message || message.role !== "assistant" || !message.research || !message.content.trim()) refuse("invalid", "There is no report to save");
-  const t = await getTranslations("ai.chat.research");
-  const markdown = reportMarkdown(message.content, await viewSources(userId, message.sources ?? []), t("sourcesHeading"));
+  const markdown = reportMarkdown(message.content, await viewSources(userId, message.sources ?? []), labels.sources);
   const question = found.messages[index - 1];
-  const title = conversationTitle(question?.role === "user" ? question.content : found.title) || t("untitled");
+  const title = conversationTitle(question?.role === "user" ? question.content : found.title) || labels.untitled;
   const made = await createPage({ userId }, { workspaceId, teamspaceId: null, title, markdown });
   return { pageId: made.id };
 }
