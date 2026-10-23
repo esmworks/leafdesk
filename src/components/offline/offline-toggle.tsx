@@ -45,7 +45,10 @@ export function OfflineToggle({ page }: { page: OfflinePage }) {
   if (busy) progress = t("downloading");
   else if (summary && summary.syncedAt !== null)
     progress = t("downloaded", {
-      time: new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(summary.syncedAt),
+      // No year, so the line fits the menu.
+      time: new Intl.DateTimeFormat(locale, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(
+        summary.syncedAt,
+      ),
       size: formatBytes(summary.bytes),
     });
   else if (kept) progress = t("pending");

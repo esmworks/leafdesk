@@ -126,13 +126,11 @@ async function keepFiles(userId: string, ids: string[]): Promise<{ files: string
 async function downloadOne(userId: string, page: OfflinePage): Promise<Outcome> {
   let bytes = 0;
   let text = "";
-  // The document: pages and rows have a body, databases don't.
-  if (page.kind === "page") {
-    const doc = await holdDoc(userId, page.id, docSynced);
-    if (!doc.ok) return doc.denied === COLLAB_FORBIDDEN ? "gone" : "failed";
-    bytes += doc.bytes;
-    text += doc.text;
-  }
+  // The document: every page opens one, a database too (its title and description).
+  const doc = await holdDoc(userId, page.id, docSynced);
+  if (!doc.ok) return doc.denied === COLLAB_FORBIDDEN ? "gone" : "failed";
+  bytes += doc.bytes;
+  text += doc.text;
   // The rows (or a row's values), read-only offline like the copies of databases opened before.
   try {
     // Loaded here, not with the app: every page carries this module.

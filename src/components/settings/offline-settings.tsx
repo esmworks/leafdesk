@@ -91,7 +91,7 @@ export function OfflineSettings({ userId }: { userId: string }) {
               {storage.used !== null && storage.quota !== null
                 ? t("storageUsed", { used: formatBytes(storage.used), quota: formatBytes(storage.quota) })
                 : t("storageUnknown")}
-              {storage.persisted !== null && <> {storage.persisted ? t("persisted") : t("notPersisted")}</>}
+              {storage.persisted !== null && <span className="block">{storage.persisted ? t("persisted") : t("notPersisted")}</span>}
             </>
           }
           control={
@@ -141,7 +141,7 @@ export function OfflineSettings({ userId }: { userId: string }) {
             />
           );
         })}
-        <SettingsRow title={t("recent", { count: recentOnly })} />
+        {recentOnly > 0 && <SettingsRow title={t("recent", { count: recentOnly })} />}
       </SettingsGroup>
 
       <SettingsGroup bare>
