@@ -878,6 +878,7 @@
     "cannotRestrict": "此属性不能设置单独的访问权限。",
     "typeChangeRestricted": "“{property}”设有访问规则，而该类型的属性不能设置访问规则。请先移除其规则。",
     "typeChangeNamesPeople": "访问规则为“{property}”中的人员授予了访问权限。更改其类型前请先移除这些规则。",
+    "invalidRowAccess": "无法保存这些行访问规则。请刷新后重试。",
     "invalidAutomation": "无法保存此自动化。请检查其触发条件和操作。",
     "tooManyAutomations": "一个数据库最多可以有 {max} 个自动化。",
     "invalidWebhookUrl": "“{value}”不是有效的 http(s) 地址。",
@@ -1054,6 +1055,35 @@
       "warning": "{count, plural, other {{names}{more, plural, =0 {} other {及另外 # 人}}}} 拥有此数据库的完全访问权限，因此这些规则对其不适用。要限制他们，请降低其访问权限，或降低团队空间对成员的访问权限。",
       "share": "更改数据库的访问权限"
     }
+  },
+  "rowAccess": {
+    "menuItem": "行访问权限",
+    "menuHint": "为某一行中指定的人员授予对该行的访问权限",
+    "title": "行访问权限",
+    "description": "为某一行中指定的人员授予对该行及其中页面的访问权限。",
+    "loading": "正在加载…",
+    "rules": "规则",
+    "rulesHint": "每条规则为某个人员属性中的人员或行的创建者授予对其所在行的访问权限。",
+    "noPersonProperties": "添加人员属性，即可为其中指定的人员授予访问权限。行的创建者可能已有规则。",
+    "creator": "创建者",
+    "creatorDetail": "创建该行的人",
+    "personDetail": "此属性中指定的人员（在其各自所在的行中）",
+    "addRule": "添加规则",
+    "levelFor": "{name} 的访问权限",
+    "removeRule": "移除 {name}",
+    "levels": {
+      "full": "完全访问",
+      "edit": "可编辑",
+      "comment": "可评论",
+      "view": "可查看"
+    },
+    "restricted": "仅向行中指定的人员显示该行",
+    "restrictedHint": "其他可以打开数据库的人只能看到规则或行自身的分享所授予的行。",
+    "fullAccess": {
+      "warning": "{count, plural, other {{names}{more, plural, =0 {} other {及另外 # 人}}}} 拥有此数据库的完全访问权限，因此仍可看到所有行。要限制他们，请降低其访问权限，或降低团队空间对成员的访问权限。",
+      "share": "更改数据库的访问权限"
+    },
+    "note": "规则只会增加权限：若分享授予某人更多权限，则保持不变。更改行中的人员会立即改变谁可以打开该行。"
   },
   "automations": {
     "button": "自动化",

@@ -75,7 +75,7 @@ export const rowAccessInUse = (config: RowAccessConfig) => config.restricted || 
 export function remapRowAccess(config: RowAccessConfig, propertyIds: Map<string, string>): RowAccessConfig {
   return {
     restricted: config.restricted,
-    rules: config.rules.flatMap((rule) => {
+    rules: config.rules.flatMap((rule): RowAccessRule[] => {
       if (rule.kind === "creator") return [rule];
       const id = propertyIds.get(rule.propertyId);
       return id ? [{ ...rule, propertyId: id }] : [];

@@ -1529,6 +1529,7 @@
         "restored": "Hat {target} aus dem Papierkorb wiederhergestellt",
         "permission_changed": "Hat den Zugriff von {subject} auf {target} festgelegt: {level}",
         "permission_removed": "Hat {subject} aus der Freigabe von {target} entfernt",
+        "row_access_changed": "Hat geändert, wem die Zeilen von {target} Zugriff geben",
         "deleted": "Hat {target} endgültig gelöscht",
         "published": "Hat {target} im Web veröffentlicht",
         "unpublished": "Hat die Veröffentlichung von {target} beendet",

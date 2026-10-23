@@ -878,6 +878,7 @@
     "cannotRestrict": "Für diese Eigenschaft kann kein eigener Zugriff festgelegt werden.",
     "typeChangeRestricted": "„{property}“ hat Zugriffsregeln, die Eigenschaften dieses Typs nicht haben können. Entferne zuerst die Regeln.",
     "typeChangeNamesPeople": "Zugriffsregeln geben den Personen in „{property}“ Zugriff. Entferne diese Regeln, bevor du den Typ änderst.",
+    "invalidRowAccess": "Diese Zeilenzugriffsregeln können nicht gespeichert werden. Lade die Seite neu und versuche es noch einmal.",
     "invalidAutomation": "Diese Automatisierung kann nicht gespeichert werden. Prüfe ihren Auslöser und ihre Aktionen.",
     "tooManyAutomations": "Eine Datenbank kann höchstens {max} Automatisierungen haben.",
     "invalidWebhookUrl": "„{value}“ ist keine gültige http(s)-Adresse.",
@@ -1054,6 +1055,35 @@
       "warning": "{names}{more, plural, =0 {} other { und # weitere}} {count, plural, one {hat} other {haben}} Vollzugriff auf diese Datenbank, daher gelten diese Regeln nicht für {count, plural, one {diese Person} other {sie}}. Senken Sie ihren Zugriff oder den Mitgliederzugriff des Teambereichs, um sie einzuschränken.",
       "share": "Zugriff auf die Datenbank ändern"
     }
+  },
+  "rowAccess": {
+    "menuItem": "Zeilenzugriff",
+    "menuHint": "Gib den in einer Zeile genannten Personen Zugriff auf diese Zeile",
+    "title": "Zeilenzugriff",
+    "description": "Gib den in einer Zeile genannten Personen Zugriff auf diese Zeile und die Seiten darin.",
+    "loading": "Wird geladen …",
+    "rules": "Regeln",
+    "rulesHint": "Jede Regel gibt den Personen in einer Personen-Eigenschaft oder dem Ersteller der Zeile Zugriff auf ihre Zeilen.",
+    "noPersonProperties": "Füge eine Personen-Eigenschaft hinzu, um den darin genannten Personen Zugriff zu geben. Für den Ersteller der Zeile kann schon eine Regel bestehen.",
+    "creator": "Erstellt von",
+    "creatorDetail": "Die Person, die die Zeile erstellt hat",
+    "personDetail": "Die in dieser Eigenschaft genannten Personen, in ihren eigenen Zeilen",
+    "addRule": "Regel hinzufügen",
+    "levelFor": "Zugriff für {name}",
+    "removeRule": "{name} entfernen",
+    "levels": {
+      "full": "Vollzugriff",
+      "edit": "Kann bearbeiten",
+      "comment": "Kann kommentieren",
+      "view": "Kann ansehen"
+    },
+    "restricted": "Zeilen nur den genannten Personen zeigen",
+    "restrictedHint": "Andere, die die Datenbank öffnen können, sehen nur die Zeilen, die ihnen eine Regel oder die Freigabe der Zeile selbst gibt.",
+    "fullAccess": {
+      "warning": "{names}{more, plural, =0 {} other { und # weitere}} {count, plural, one {hat} other {haben}} Vollzugriff auf diese Datenbank, daher {count, plural, one {sieht diese Person} other {sehen sie}} weiterhin jede Zeile. Senken Sie ihren Zugriff oder den Mitgliederzugriff des Teambereichs, um sie einzuschränken.",
+      "share": "Zugriff auf die Datenbank ändern"
+    },
+    "note": "Eine Regel fügt nur Zugriff hinzu: Gibt eine Freigabe jemandem mehr, bleibt das bestehen. Wenn du die Personen einer Zeile änderst, ändert sich sofort, wer sie öffnen kann."
   },
   "automations": {
     "button": "Automatisierungen",

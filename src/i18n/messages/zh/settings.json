@@ -1529,6 +1529,7 @@
         "restored": "从回收站恢复了 {target}",
         "permission_changed": "将 {subject} 对 {target} 的访问权限设为：{level}",
         "permission_removed": "将 {subject} 从 {target} 的分享中移除",
+        "row_access_changed": "更改了 {target} 的行授予访问权限的对象",
         "deleted": "永久删除了 {target}",
         "published": "将 {target} 发布到了网络",
         "unpublished": "取消发布了 {target}",

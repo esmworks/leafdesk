@@ -878,6 +878,7 @@
     "cannotRestrict": "Questa proprietà non può avere un accesso proprio.",
     "typeChangeRestricted": "“{property}” ha regole di accesso, e le proprietà di quel tipo non possono averne. Rimuovi prima le sue regole.",
     "typeChangeNamesPeople": "Le regole di accesso danno accesso alle persone in “{property}”. Rimuovi quelle regole prima di cambiarne il tipo.",
+    "invalidRowAccess": "Non è possibile salvare queste regole di accesso alle righe. Ricarica la pagina e riprova.",
     "invalidAutomation": "Questa automazione non può essere salvata. Controlla il trigger e le azioni.",
     "tooManyAutomations": "Un database può avere al massimo {max} automazioni.",
     "invalidWebhookUrl": "“{value}” non è un indirizzo http(s) valido.",
@@ -1054,6 +1055,35 @@
       "warning": "{count, plural, one {{names} ha} other {{names}{more, plural, =0 {} other { e altri #}} hanno}} accesso completo a questo database, quindi queste regole non si applicano a loro. Riduci il loro accesso, o l’accesso dei membri allo spazio del team, per limitarli.",
       "share": "Cambia l’accesso al database"
     }
+  },
+  "rowAccess": {
+    "menuItem": "Accesso alle righe",
+    "menuHint": "Dai alle persone indicate in una riga l’accesso a quella riga",
+    "title": "Accesso alle righe",
+    "description": "Dai alle persone indicate in una riga l’accesso a quella riga e alle pagine al suo interno.",
+    "loading": "Caricamento…",
+    "rules": "Regole",
+    "rulesHint": "Ogni regola dà alle persone di una proprietà persona, o a chi ha creato la riga, l’accesso alle proprie righe.",
+    "noPersonProperties": "Aggiungi una proprietà persona per dare accesso alle persone che indica. Chi ha creato la riga può già avere una regola.",
+    "creator": "Creato da",
+    "creatorDetail": "La persona che ha creato la riga",
+    "personDetail": "Persone indicate in questa proprietà, nelle proprie righe",
+    "addRule": "Aggiungi una regola",
+    "levelFor": "Accesso per {name}",
+    "removeRule": "Rimuovi {name}",
+    "levels": {
+      "full": "Accesso completo",
+      "edit": "Può modificare",
+      "comment": "Può commentare",
+      "view": "Può visualizzare"
+    },
+    "restricted": "Mostra le righe solo alle persone indicate",
+    "restrictedHint": "Gli altri che possono aprire il database vedono solo le righe che una regola o la condivisione della riga stessa dà loro.",
+    "fullAccess": {
+      "warning": "{count, plural, one {{names} ha} other {{names}{more, plural, =0 {} other { e altri #}} hanno}} accesso completo a questo database, quindi {count, plural, one {vede} other {vedono}} comunque tutte le righe. Riduci il loro accesso, o l’accesso dei membri allo spazio del team, per limitarli.",
+      "share": "Cambia l’accesso al database"
+    },
+    "note": "Una regola aggiunge solo accesso: quando la condivisione dà di più a qualcuno, resta così. Cambiare le persone di una riga cambia subito chi può aprirla."
   },
   "automations": {
     "button": "Automazioni",

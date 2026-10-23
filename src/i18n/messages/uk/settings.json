@@ -1529,6 +1529,7 @@
         "restored": "Відновлено {target} з кошика",
         "permission_changed": "Задано доступ {subject} до {target}: {level}",
         "permission_removed": "Вилучено {subject} з доступу до {target}",
+        "row_access_changed": "Змінено, кому надають доступ рядки в {target}",
         "deleted": "Назавжди видалено {target}",
         "published": "Опубліковано {target} в інтернеті",
         "unpublished": "Скасовано публікацію {target}",

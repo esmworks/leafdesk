@@ -1529,6 +1529,7 @@
         "restored": "{target}をゴミ箱から復元しました",
         "permission_changed": "{target}に対する{subject}のアクセス権を設定しました：{level}",
         "permission_removed": "{target}の共有から{subject}を削除しました",
+        "row_access_changed": "{target}の行がアクセス権を与えるユーザーを変更しました",
         "deleted": "{target}を完全に削除しました",
         "published": "{target}をWebに公開しました",
         "unpublished": "{target}の公開を停止しました",

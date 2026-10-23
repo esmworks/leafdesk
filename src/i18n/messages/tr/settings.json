@@ -1529,6 +1529,7 @@
         "restored": "Çöp kutusundan geri yüklendi: {target}",
         "permission_changed": "Erişim ayarlandı: {subject}, {target} sayfasında: {level}",
         "permission_removed": "Paylaşımdan çıkarıldı: {subject}, {target} sayfasından",
+        "row_access_changed": "{target} için satır erişimi değiştirildi",
         "deleted": "Kalıcı olarak silindi: {target}",
         "published": "Web’de yayınlandı: {target}",
         "unpublished": "Yayından kaldırıldı: {target}",

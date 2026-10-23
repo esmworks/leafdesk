@@ -1,8 +1,8 @@
-import { and, eq, inArray, isNull, sql } from "drizzle-orm";
+import { and, asc, eq, inArray, isNull, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { databaseProperty, databaseRowAccess } from "@/db/schema";
+import { databaseProperty, databaseRowAccess, user } from "@/db/schema";
 import { parseRowAccess, readRowAccess, remapRowAccess, rowAccessInUse, type RowAccessConfig } from "@/lib/row-access";
-import { AccessError, requirePageAccess } from "@/server/access";
+import { AccessError, peopleWithFullAccess, requirePageAccess } from "@/server/access";
 import { recordAudit } from "@/server/audit";
 import { getCollab } from "@/server/collab/bridge";
 import { onRowChanged } from "@/server/row-events";
@@ -38,6 +38,47 @@ async function requireRowAccessDatabase(userId: string, databaseId: string, need
 export async function getRowAccess(userId: string, databaseId: string): Promise<RowAccessConfig> {
   await requireRowAccessDatabase(userId, databaseId, "view");
   return loadRowAccess(databaseId);
+}
+
+/** How many of the people with full access the settings name; the rest are a count. */
+const FULL_ACCESS_NAMES = 3;
+
+export type RowAccessSettings = RowAccessConfig & {
+  /** The database's person properties, which rules can name. */
+  personProperties: { id: string; name: string }[];
+  /** Others with full access to the database: they see every row, restricted or not. */
+  fullAccess: { count: number; names: string[] };
+};
+
+/** A database's row access for its settings dialog. Needs full access to the database. */
+export async function getRowAccessSettings(actorId: string, databaseId: string): Promise<RowAccessSettings> {
+  const database = await requireRowAccessDatabase(actorId, databaseId, "full");
+  const [config, personProperties, full] = await Promise.all([
+    loadRowAccess(databaseId),
+    db
+      .select({ id: databaseProperty.id, name: databaseProperty.name })
+      .from(databaseProperty)
+      .where(
+        and(eq(databaseProperty.databaseId, databaseId), eq(databaseProperty.type, "person"), isNull(databaseProperty.deletedAt)),
+      )
+      .orderBy(asc(databaseProperty.position)),
+    peopleWithFullAccess(database.workspaceId, databaseId, actorId),
+  ]);
+  const named = full.length
+    ? await db
+        .select({ name: user.name, email: user.email })
+        .from(user)
+        .where(inArray(user.id, full))
+        .orderBy(user.name)
+        .limit(FULL_ACCESS_NAMES)
+    : [];
+  return {
+    ...config,
+    // Rules whose property is gone don't apply; the dialog shows the ones it can name.
+    rules: config.rules.filter((r) => r.kind === "creator" || personProperties.some((p) => p.id === r.propertyId)),
+    personProperties,
+    fullAccess: { count: full.length, names: named.map((u) => u.name || u.email) },
+  };
 }
 
 /**
@@ -138,7 +179,7 @@ onRowChanged("row-access", ({ databaseId }) => {
         await getCollab().disconnectLostAccess(row.workspaceId);
         getCollab().broadcast(`ws:${row.workspaceId}`, "tree");
       })().catch((error) => console.error("[row-access] recheck failed", error));
-    }, SETTLE_MS),
+    }, SETTLE_MS).unref(),
   );
 });
 

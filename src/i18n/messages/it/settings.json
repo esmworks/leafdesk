@@ -1529,6 +1529,7 @@
         "restored": "Ha ripristinato {target} dal cestino",
         "permission_changed": "Ha impostato l’accesso di {subject} a {target}: {level}",
         "permission_removed": "Ha rimosso {subject} dalla condivisione di {target}",
+        "row_access_changed": "Ha cambiato a chi danno accesso le righe di {target}",
         "deleted": "Ha eliminato definitivamente {target}",
         "published": "Ha pubblicato {target} sul web",
         "unpublished": "Ha annullato la pubblicazione di {target}",

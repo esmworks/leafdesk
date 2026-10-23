@@ -878,6 +878,7 @@
     "cannotRestrict": "Esta propiedad no puede tener su propio acceso.",
     "typeChangeRestricted": "«{property}» tiene reglas de acceso y las propiedades de ese tipo no pueden tenerlas. Quita antes sus reglas.",
     "typeChangeNamesPeople": "Hay reglas de acceso que dan acceso a las personas de «{property}». Quítalas antes de cambiar su tipo.",
+    "invalidRowAccess": "No se pueden guardar estas reglas de acceso a las filas. Recarga la página e inténtalo de nuevo.",
     "invalidAutomation": "Esta automatización no se puede guardar. Revisa su desencadenante y sus acciones.",
     "tooManyAutomations": "Una base de datos puede tener como máximo {max} automatizaciones.",
     "invalidWebhookUrl": "«{value}» no es una dirección http(s) válida.",
@@ -1054,6 +1055,35 @@
       "warning": "{names}{more, plural, =0 {} other { y # más}} {count, plural, one {tiene} other {tienen}} acceso total a esta base de datos, así que estas reglas no {count, plural, one {le} other {les}} afectan. Reduce su acceso, o el acceso de los miembros del espacio de equipo, para restringirlos.",
       "share": "Cambiar el acceso a la base de datos"
     }
+  },
+  "rowAccess": {
+    "menuItem": "Acceso a las filas",
+    "menuHint": "Da acceso a una fila a las personas que nombra",
+    "title": "Acceso a las filas",
+    "description": "Da acceso a una fila y a las páginas que contiene a las personas que nombra.",
+    "loading": "Cargando…",
+    "rules": "Reglas",
+    "rulesHint": "Cada regla da a las personas de una propiedad de persona, o a quien creó la fila, acceso a sus filas.",
+    "noPersonProperties": "Añade una propiedad de persona para dar acceso a las personas que nombra. Quien creó la fila ya puede tener una regla.",
+    "creator": "Creado por",
+    "creatorDetail": "La persona que creó la fila",
+    "personDetail": "Las personas nombradas en esta propiedad, en sus propias filas",
+    "addRule": "Añadir una regla",
+    "levelFor": "Acceso para {name}",
+    "removeRule": "Quitar a {name}",
+    "levels": {
+      "full": "Acceso completo",
+      "edit": "Puede editar",
+      "comment": "Puede comentar",
+      "view": "Puede ver"
+    },
+    "restricted": "Mostrar las filas solo a las personas que nombran",
+    "restrictedHint": "Quienes pueden abrir la base de datos sin que una fila los nombre solo ven las filas que les da una regla o el uso compartido de la propia fila.",
+    "fullAccess": {
+      "warning": "{names}{more, plural, =0 {} other { y # más}} {count, plural, one {tiene} other {tienen}} acceso total a esta base de datos, así que {count, plural, one {sigue} other {siguen}} viendo todas las filas. Reduce su acceso, o el acceso de los miembros del espacio de equipo, para restringirlos.",
+      "share": "Cambiar el acceso a la base de datos"
+    },
+    "note": "Una regla solo añade acceso: si el uso compartido da más a alguien, se mantiene. Cambiar las personas de una fila cambia al instante quién puede abrirla."
   },
   "automations": {
     "button": "Automatizaciones",

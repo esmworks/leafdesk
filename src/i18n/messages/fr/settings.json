@@ -1529,6 +1529,7 @@
         "restored": "A restauré {target} depuis la corbeille",
         "permission_changed": "A défini l’accès de {subject} à {target} : {level}",
         "permission_removed": "A retiré {subject} du partage de {target}",
+        "row_access_changed": "A modifié à qui les lignes de {target} donnent accès",
         "deleted": "A supprimé {target} définitivement",
         "published": "A publié {target} sur le Web",
         "unpublished": "A dépublié {target}",

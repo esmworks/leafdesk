@@ -1529,6 +1529,7 @@
         "restored": "שחזור {target} מהאשפה",
         "permission_changed": "הגדרת הגישה של {subject} אל {target}: {level}",
         "permission_removed": "הסרת {subject} מהשיתוף של {target}",
+        "row_access_changed": "שינוי האנשים שהשורות של {target} נותנות להם גישה",
         "deleted": "מחיקת {target} לצמיתות",
         "published": "פרסום {target} ברשת",
         "unpublished": "ביטול הפרסום של {target}",

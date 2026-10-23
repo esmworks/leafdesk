@@ -1529,6 +1529,7 @@
         "restored": "{target}을(를) 휴지통에서 복원했습니다",
         "permission_changed": "{target}에 대한 {subject}의 액세스를 설정했습니다: {level}",
         "permission_removed": "{target}의 공유 대상에서 {subject}을(를) 제거했습니다",
+        "row_access_changed": "{target}의 행이 액세스를 부여하는 대상을 변경했습니다",
         "deleted": "{target}을(를) 영구 삭제했습니다",
         "published": "{target}을(를) 웹에 게시했습니다",
         "unpublished": "{target}의 게시를 취소했습니다",

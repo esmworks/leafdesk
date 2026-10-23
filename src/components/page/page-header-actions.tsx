@@ -18,6 +18,7 @@ import {
   LayoutTemplate,
   Link2,
   Lock,
+  LockKeyhole,
   Merge,
   MessageSquare,
   MessagesSquare,
@@ -56,6 +57,7 @@ import { cn, Dialog, IconButton, MenuItem, MenuSeparator, PageIcon, pageLabel, P
 import { useZipExport } from "@/components/use-zip-export";
 import { VoiceNoteInstructionsDialog } from "@/components/voice/voice-note-instructions-dialog";
 import { MergeWithDialog } from "@/components/database/merge-rows-dialog";
+import { RowAccessDialog } from "@/components/database/row-access-dialog";
 import type { PageKind } from "@/db/schema/app";
 import { FAVORITES_EVENT } from "@/lib/favorites-event";
 import { OPEN_SHARE_EVENT } from "@/lib/share-event";
@@ -431,10 +433,12 @@ function PageMenu({
   const tSkills = useTranslations("skills");
   const tVoice = useTranslations("page.voiceNote.instructions");
   const tMerge = useTranslations("database.merge");
+  const tRowAccess = useTranslations("database.rowAccess");
   const locale = useLocale();
   const router = useRouter();
   const [moveOpen, setMoveOpen] = useState(false);
   const [voiceInstructionsOpen, setVoiceInstructionsOpen] = useState(false);
+  const [rowAccessOpen, setRowAccessOpen] = useState(false);
   const [mergeOpen, setMergeOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
@@ -726,6 +730,19 @@ function PageMenu({
                 </div>
               </>
             )}
+            {/* Who each row gives access to (server/row-access): a database setting, like the lock. */}
+            {isDatabase && !page.archived && canManage && (
+              <MenuItem
+                icon={<LockKeyhole className="h-4 w-4" />}
+                title={tRowAccess("menuHint")}
+                onClick={() => {
+                  close();
+                  setRowAccessOpen(true);
+                }}
+              >
+                {tRowAccess("menuItem")}
+              </MenuItem>
+            )}
             {/* How voice notes saved in the database are written up: a database setting, like the lock. */}
             {isDatabase && !page.archived && canManage && info.voice && (
               <MenuItem
@@ -904,6 +921,14 @@ function PageMenu({
             else if (onOpenPage) onOpenPage(result.workspaceId, result.keptRowId);
             else router.push(`/w/${result.workspaceId}/p/${result.keptRowId}`);
           }}
+        />
+      )}
+      {isDatabase && (
+        <RowAccessDialog
+          workspaceId={workspaceId}
+          databaseId={page.id}
+          open={rowAccessOpen}
+          onClose={() => setRowAccessOpen(false)}
         />
       )}
       {isDatabase && (

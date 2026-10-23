@@ -1529,6 +1529,7 @@
         "restored": "Restauró {target} desde la papelera",
         "permission_changed": "Fijó el acceso de {subject} a {target}: {level}",
         "permission_removed": "Quitó a {subject} del uso compartido de {target}",
+        "row_access_changed": "Cambió a quién dan acceso las filas de {target}",
         "deleted": "Eliminó {target} definitivamente",
         "published": "Publicó {target} en la web",
         "unpublished": "Dejó de publicar {target}",

@@ -878,6 +878,7 @@
     "cannotRestrict": "Esta propriedade não pode ter um acesso próprio.",
     "typeChangeRestricted": "“{property}” tem regras de acesso, e propriedades desse tipo não podem ter. Remova as regras dela primeiro.",
     "typeChangeNamesPeople": "As regras de acesso dão acesso às pessoas em “{property}”. Remova essas regras antes de alterar o tipo dela.",
+    "invalidRowAccess": "Não foi possível salvar estas regras de acesso às linhas. Recarregue a página e tente de novo.",
     "invalidAutomation": "Não é possível salvar esta automação. Verifique o gatilho e as ações dela.",
     "tooManyAutomations": "Um banco de dados pode ter no máximo {max} automações.",
     "invalidWebhookUrl": "“{value}” não é um endereço http(s) válido.",
@@ -1054,6 +1055,35 @@
       "warning": "{count, plural, one {{names} tem} other {{names}{more, plural, =0 {} other { e mais #}} têm}} acesso total a este banco de dados, então estas regras não se aplicam a {count, plural, one {essa pessoa} other {essas pessoas}}. Reduza o acesso delas, ou o acesso dos membros ao espaço de equipe, para restringi-las.",
       "share": "Alterar o acesso ao banco de dados"
     }
+  },
+  "rowAccess": {
+    "menuItem": "Acesso às linhas",
+    "menuHint": "Dê às pessoas indicadas em uma linha acesso a essa linha",
+    "title": "Acesso às linhas",
+    "description": "Dê às pessoas indicadas em uma linha acesso a essa linha e às páginas dentro dela.",
+    "loading": "Carregando…",
+    "rules": "Regras",
+    "rulesHint": "Cada regra dá às pessoas de uma propriedade de pessoa, ou a quem criou a linha, acesso às próprias linhas.",
+    "noPersonProperties": "Adicione uma propriedade de pessoa para dar acesso às pessoas que ela indica. Quem criou a linha já pode ter uma regra.",
+    "creator": "Criado por",
+    "creatorDetail": "A pessoa que criou a linha",
+    "personDetail": "Pessoas indicadas nesta propriedade, nas próprias linhas",
+    "addRule": "Adicionar uma regra",
+    "levelFor": "Acesso de {name}",
+    "removeRule": "Remover {name}",
+    "levels": {
+      "full": "Acesso total",
+      "edit": "Pode editar",
+      "comment": "Pode comentar",
+      "view": "Pode ver"
+    },
+    "restricted": "Mostrar as linhas só para as pessoas indicadas",
+    "restrictedHint": "Outras pessoas que podem abrir o banco de dados veem só as linhas que uma regra ou o compartilhamento da própria linha dá a elas.",
+    "fullAccess": {
+      "warning": "{count, plural, one {{names} tem} other {{names}{more, plural, =0 {} other { e mais #}} têm}} acesso total a este banco de dados, então {count, plural, one {essa pessoa continua} other {essas pessoas continuam}} vendo todas as linhas. Reduza o acesso delas, ou o acesso dos membros ao espaço de equipe, para restringi-las.",
+      "share": "Alterar o acesso ao banco de dados"
+    },
+    "note": "Uma regra só adiciona acesso: quando o compartilhamento dá mais a alguém, isso permanece. Mudar as pessoas de uma linha muda na hora quem pode abri-la."
   },
   "automations": {
     "button": "Automações",

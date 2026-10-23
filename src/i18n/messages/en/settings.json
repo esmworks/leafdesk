@@ -1529,6 +1529,7 @@
         "restored": "Restored {target} from the trash",
         "permission_changed": "Set the access of {subject} to {target}: {level}",
         "permission_removed": "Removed {subject} from the sharing of {target}",
+        "row_access_changed": "Changed who the rows of {target} give access to",
         "deleted": "Deleted {target} for good",
         "published": "Published {target} to the web",
         "unpublished": "Unpublished {target}",

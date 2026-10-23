@@ -195,9 +195,16 @@ try {
     await tx.execute(sql`update page set properties = jsonb_build_object(${assignee}::text, jsonb_build_array(${ids.guest}::text)) where id = ${rows[1]}`);
     const rules = JSON.stringify([{ kind: "person", propertyId: assignee, level: "edit" }]);
     await tx.execute(sql`insert into database_row_access (database_id, workspace_id, restricted, rules) values (${database.id}, ${workspaceId}, true, ${rules}::jsonb)`);
+    // Full access sees every row (it can change the setting): members get edit, the owner keeps full.
+    await tx.execute(entry(database.id, null, "edit"));
+    await tx.execute(entry(database.id, ids.owner, "full"));
     return [database.id];
   }, ([rowsSeen]) => {
-    check(rowsSeen[ids.ada] === 1 && rowsSeen[ids.guest] === 1 && rowsSeen[ids.bora] === 0, "…each sees the row that names them", rowsSeen);
+    check(
+      rowsSeen[ids.ada] === 1 && rowsSeen[ids.guest] === 1 && rowsSeen[ids.bora] === 0 && rowsSeen[ids.owner] === rows.length,
+      "…each sees the row that names them, full access every row",
+      rowsSeen,
+    );
   });
   await runActingFor({ userId: ids.ada, forUserId: ids.bora }, () =>
     inCase("an agent acting for a member", async (tx) => {

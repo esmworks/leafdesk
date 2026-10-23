@@ -28,6 +28,7 @@ export const AUDIT_CATEGORIES = {
     "access_request.approved",
     "access_request.declined",
     "property.access_changed",
+    "page.row_access_changed",
   ],
   teamspaces: [
     "teamspace.created",

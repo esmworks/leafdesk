@@ -168,7 +168,7 @@ try {
 
   // Property changes
   await rejects(
-    () => changePropertyType(owner, assignee.id, { type: "text" }),
+    () => changePropertyType(owner, assignee.id, { type: "text", yes: "Yes" }),
     (e) => e instanceof PropertyValueError && e.code === "typeChangeNamesPeople",
     "a rule's person property can't change its type",
   );
@@ -189,6 +189,8 @@ try {
   check(stored.length === 0, "a setting that changes nothing isn't stored");
   check((await levels(D2, bob)) === "edit", "rows follow the database again");
 
+  // Row changes are checked again once they settle (server/row-access): let the last one run.
+  await new Promise((r) => setTimeout(r, 1_300));
   console.log(`\n${passed} checks passed`);
 } finally {
   await db.delete(workspace).where(inArray(workspace.id, [workspaceId]));

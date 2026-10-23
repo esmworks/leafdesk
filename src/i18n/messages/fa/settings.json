@@ -1529,6 +1529,7 @@
         "restored": "{target} را از سطل زباله بازیابی کرد",
         "permission_changed": "دسترسی {subject} به {target} را تنظیم کرد: {level}",
         "permission_removed": "{subject} را از اشتراک‌گذاری {target} حذف کرد",
+        "row_access_changed": "تغییر داد که ردیف‌های {target} به چه کسانی دسترسی می‌دهند",
         "deleted": "{target} را برای همیشه حذف کرد",
         "published": "{target} را در وب منتشر کرد",
         "unpublished": "انتشار {target} را لغو کرد",

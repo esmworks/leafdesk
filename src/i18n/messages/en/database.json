@@ -878,6 +878,7 @@
     "cannotRestrict": "This property can’t have its own access.",
     "typeChangeRestricted": "“{property}” has access rules, and properties of that type can’t. Remove its rules first.",
     "typeChangeNamesPeople": "Access rules give the people in “{property}” access. Remove those rules before changing its type.",
+    "invalidRowAccess": "These row access rules can’t be saved. Reload and try again.",
     "invalidAutomation": "This automation can’t be saved. Check its trigger and actions.",
     "tooManyAutomations": "A database can have at most {max} automations.",
     "invalidWebhookUrl": "“{value}” is not a valid http(s) address.",
@@ -1054,6 +1055,35 @@
       "warning": "{count, plural, one {{names} has} other {{names}{more, plural, =0 {} other { and # more}} have}} full access to this database, so these rules don't apply to them. Lower their access, or the teamspace's access for members, to restrict them.",
       "share": "Change access to the database"
     }
+  },
+  "rowAccess": {
+    "menuItem": "Row access",
+    "menuHint": "Give the people a row names access to that row",
+    "title": "Row access",
+    "description": "Give the people a row names access to that row and the pages inside it.",
+    "loading": "Loading…",
+    "rules": "Rules",
+    "rulesHint": "Each rule gives the people in a person property, or the row’s creator, access to their rows.",
+    "noPersonProperties": "Add a person property to give the people it names access. The row’s creator can have a rule already.",
+    "creator": "Created by",
+    "creatorDetail": "The person who created the row",
+    "personDetail": "People named in this property, in their own rows",
+    "addRule": "Add a rule",
+    "levelFor": "Access for {name}",
+    "removeRule": "Remove {name}",
+    "levels": {
+      "full": "Full access",
+      "edit": "Can edit",
+      "comment": "Can comment",
+      "view": "Can view"
+    },
+    "restricted": "Only show rows to the people they name",
+    "restrictedHint": "Others who can open the database see only the rows a rule or the row’s own sharing gives them.",
+    "fullAccess": {
+      "warning": "{count, plural, one {{names} has} other {{names}{more, plural, =0 {} other { and # more}} have}} full access to this database, so they still see every row. Lower their access, or the teamspace’s access for members, to restrict them.",
+      "share": "Change access to the database"
+    },
+    "note": "A rule only adds access: when sharing gives someone more, that stays. Changing a row’s people changes who can open it right away."
   },
   "automations": {
     "button": "Automations",

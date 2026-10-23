@@ -4,6 +4,14 @@
 
 ### Added
 
+- **Rows can give the people they name access.** *Row access* in a database's ⋯ menu (full
+  access) adds rules: the people in a person property, or a row's creator, get view, comment, edit
+  or full access to their rows and the pages inside them, on top of what sharing gives. A database
+  can also show each row only to the people it names: others who can open the database see only
+  the rows a rule or the row's own sharing gives them, while people with full access to the
+  database still see every row (the dialog says who). Changing a row's people changes who can open
+  it at once; search, the sidebar, the API, MCP and the AI chat follow the same rule. Copies of a
+  database keep its rules; changes go into the audit log. Migration 0119.
 - **The AI chat makes PDF files.** Asked for a PDF (a quote, a letter, a report), the chat writes
   it into a page or row if it isn't in one, then makes the page's PDF on the server
   (`create_pdf`) and attaches it at the end of the page's text, or in a row's files property, and

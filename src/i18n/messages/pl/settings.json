@@ -1529,6 +1529,7 @@
         "restored": "Przywrócono {target} z kosza",
         "permission_changed": "Ustawiono dostęp do {target} ({subject}): {level}",
         "permission_removed": "Usunięto z udostępniania {target}: {subject}",
+        "row_access_changed": "Zmieniono, komu dają dostęp wiersze: {target}",
         "deleted": "Trwale usunięto {target}",
         "published": "Opublikowano {target} w internecie",
         "unpublished": "Cofnięto publikację {target}",

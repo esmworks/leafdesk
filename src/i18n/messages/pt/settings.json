@@ -1529,6 +1529,7 @@
         "restored": "Restaurou {target} da lixeira",
         "permission_changed": "Definiu o acesso de {subject} a {target}: {level}",
         "permission_removed": "Removeu {subject} do compartilhamento de {target}",
+        "row_access_changed": "Alterou a quem as linhas de {target} dão acesso",
         "deleted": "Excluiu {target} permanentemente",
         "published": "Publicou {target} na web",
         "unpublished": "Deixou de publicar {target}",

@@ -878,6 +878,7 @@
     "cannotRestrict": "Bu özelliğe ayrı erişim verilemez.",
     "typeChangeRestricted": "“{property}” için erişim kuralları var; bu türdeki özellikler kural alamaz. Önce kurallarını kaldırın.",
     "typeChangeNamesPeople": "Erişim kuralları “{property}” içindeki kişilere erişim veriyor. Türünü değiştirmeden önce bu kuralları kaldırın.",
+    "invalidRowAccess": "Bu satır erişim kuralları kaydedilemiyor. Sayfayı yenileyip tekrar deneyin.",
     "invalidAutomation": "Bu otomasyon kaydedilemiyor. Tetikleyicisini ve eylemlerini kontrol edin.",
     "tooManyAutomations": "Bir veritabanında en fazla {max} otomasyon olabilir.",
     "invalidWebhookUrl": "“{value}” geçerli bir http(s) adresi değil.",
@@ -1054,6 +1055,35 @@
       "warning": "{names}{more, plural, =0 {} other { ve # kişi daha}} bu veritabanına tam erişime sahip, bu yüzden bu kurallar {count, plural, one {onu} other {onları}} etkilemiyor. Kısıtlamak için {count, plural, one {onun} other {onların}} erişimini ya da ekip alanının üye erişimini düşürün.",
       "share": "Veritabanının erişimini değiştir"
     }
+  },
+  "rowAccess": {
+    "menuItem": "Satır erişimi",
+    "menuHint": "Bir satırda adı geçen kişilere o satıra erişim verin",
+    "title": "Satır erişimi",
+    "description": "Bir satırda adı geçen kişilere o satıra ve içindeki sayfalara erişim verin.",
+    "loading": "Yükleniyor…",
+    "rules": "Kurallar",
+    "rulesHint": "Her kural, bir kişi özelliğindeki kişilere ya da satırı oluşturan kişiye kendi satırlarına erişim verir.",
+    "noPersonProperties": "Adı geçen kişilere erişim vermek için bir kişi özelliği ekleyin. Satırı oluşturan kişi için zaten bir kural olabilir.",
+    "creator": "Oluşturan",
+    "creatorDetail": "Satırı oluşturan kişi",
+    "personDetail": "Bu özellikte adı geçen kişiler, kendi satırlarında",
+    "addRule": "Kural ekle",
+    "levelFor": "{name} için erişim",
+    "removeRule": "Kaldır: {name}",
+    "levels": {
+      "full": "Tam erişim",
+      "edit": "Düzenleyebilir",
+      "comment": "Yorum yapabilir",
+      "view": "Görüntüleyebilir"
+    },
+    "restricted": "Satırları yalnızca adı geçen kişilere göster",
+    "restrictedHint": "Veritabanını açabilen diğer kişiler yalnızca bir kuralın ya da satırın kendi paylaşımının kendilerine verdiği satırları görür.",
+    "fullAccess": {
+      "warning": "{names}{more, plural, =0 {} other { ve # kişi daha}} bu veritabanına tam erişime sahip, bu yüzden hâlâ tüm satırları görüyor. Kısıtlamak için {count, plural, one {onun} other {onların}} erişimini ya da ekip alanının üye erişimini düşürün.",
+      "share": "Veritabanının erişimini değiştir"
+    },
+    "note": "Bir kural yalnızca erişim ekler: paylaşım birine daha fazlasını veriyorsa o korunur. Bir satırdaki kişileri değiştirmek, satırı kimin açabileceğini hemen değiştirir."
   },
   "automations": {
     "button": "Otomasyonlar",

@@ -1529,6 +1529,7 @@
         "restored": "استعاد {target} من سلة المهملات",
         "permission_changed": "ضبط وصول {subject} إلى {target}: {level}",
         "permission_removed": "أزال {subject} من مشاركة {target}",
+        "row_access_changed": "غيّر الأشخاص الذين تمنحهم صفوف {target} وصولًا",
         "deleted": "حذف {target} نهائيًا",
         "published": "نشر {target} على الويب",
         "unpublished": "ألغى نشر {target}",

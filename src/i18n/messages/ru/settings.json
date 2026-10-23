@@ -1529,6 +1529,7 @@
         "restored": "Восстановление из корзины: {target}",
         "permission_changed": "Доступ к странице {target} для {subject}: {level}",
         "permission_removed": "Удалён общий доступ к странице {target} для {subject}",
+        "row_access_changed": "Изменено, кому дают доступ строки в {target}",
         "deleted": "Удаление навсегда: {target}",
         "published": "Публикация в интернете: {target}",
         "unpublished": "Снятие с публикации: {target}",

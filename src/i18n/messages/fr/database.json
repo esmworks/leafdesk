@@ -878,6 +878,7 @@
     "cannotRestrict": "Cette propriété ne peut pas avoir son propre accès.",
     "typeChangeRestricted": "« {property} » a des règles d’accès, impossibles pour une propriété de ce type. Supprimez d’abord ses règles.",
     "typeChangeNamesPeople": "Des règles d’accès donnent accès aux personnes de « {property} ». Supprimez-les avant de changer son type.",
+    "invalidRowAccess": "Ces règles d’accès aux lignes ne peuvent pas être enregistrées. Rechargez la page et réessayez.",
     "invalidAutomation": "Cette automatisation ne peut pas être enregistrée. Vérifiez son déclencheur et ses actions.",
     "tooManyAutomations": "Une base de données peut avoir au plus {max} automatisations.",
     "invalidWebhookUrl": "« {value} » n’est pas une adresse http(s) valide.",
@@ -1054,6 +1055,35 @@
       "warning": "{names}{more, plural, =0 {} other { et # autres}} {count, plural, one {a} other {ont}} un accès complet à cette base de données : ces règles ne {count, plural, one {la concernent} other {les concernent}} pas. Réduisez leur accès, ou l'accès des membres de l'espace d'équipe, pour les restreindre.",
       "share": "Modifier l'accès à la base de données"
     }
+  },
+  "rowAccess": {
+    "menuItem": "Accès aux lignes",
+    "menuHint": "Donnez aux personnes nommées dans une ligne l’accès à cette ligne",
+    "title": "Accès aux lignes",
+    "description": "Donnez aux personnes nommées dans une ligne l’accès à cette ligne et aux pages qu’elle contient.",
+    "loading": "Chargement…",
+    "rules": "Règles",
+    "rulesHint": "Chaque règle donne aux personnes d’une propriété Personne, ou au créateur de la ligne, l’accès à leurs lignes.",
+    "noPersonProperties": "Ajoutez une propriété Personne pour donner accès aux personnes qu’elle nomme. Le créateur de la ligne peut déjà avoir une règle.",
+    "creator": "Créé par",
+    "creatorDetail": "La personne qui a créé la ligne",
+    "personDetail": "Les personnes nommées dans cette propriété, dans leurs propres lignes",
+    "addRule": "Ajouter une règle",
+    "levelFor": "Accès pour {name}",
+    "removeRule": "Retirer {name}",
+    "levels": {
+      "full": "Accès complet",
+      "edit": "Peut modifier",
+      "comment": "Peut commenter",
+      "view": "Peut consulter"
+    },
+    "restricted": "Ne montrer les lignes qu’aux personnes qu’elles nomment",
+    "restrictedHint": "Les autres personnes qui peuvent ouvrir la base de données ne voient que les lignes que leur donne une règle ou le partage de la ligne elle-même.",
+    "fullAccess": {
+      "warning": "{names}{more, plural, =0 {} other { et # autres}} {count, plural, one {a} other {ont}} un accès complet à cette base de données : {count, plural, one {cette personne voit} other {ces personnes voient}} toujours toutes les lignes. Réduisez leur accès, ou l'accès des membres de l'espace d'équipe, pour les restreindre.",
+      "share": "Modifier l'accès à la base de données"
+    },
+    "note": "Une règle ne fait qu’ajouter de l’accès : quand le partage donne plus à quelqu’un, cela reste. Modifier les personnes d’une ligne change immédiatement qui peut l’ouvrir."
   },
   "automations": {
     "button": "Automatisations",
