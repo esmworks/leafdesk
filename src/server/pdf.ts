@@ -8,6 +8,7 @@ import { isEmbedBlockType, parseLinkedView } from "@/lib/embed-blocks";
 import type { MdBlock } from "@/lib/content-markdown";
 import { env } from "@/lib/env";
 import { fileIdOf } from "@/lib/files";
+import { imageType } from "@/lib/letterheads";
 import { pageLabel } from "@/lib/labels";
 import { numberText, valueFormat } from "@/lib/number-format";
 import { cellText } from "@/lib/table-clipboard";
@@ -17,6 +18,7 @@ import { calloutStylesOf } from "@/server/callout-styles";
 import { getCollab } from "@/server/collab/bridge";
 import { assertExportAllowed, recordExport } from "@/server/export";
 import { fileForViewer, readStored } from "@/server/files";
+import { letterheadForPdf } from "@/server/letterheads";
 import { getBreadcrumbs } from "@/server/pages";
 import { pdfDocument, type PdfEmbed, type PdfSection, type PdfTable } from "@/server/pdf-document";
 import { liveChildren, printedEmbed, printRefs, syncedLabels } from "@/server/print";
@@ -25,8 +27,9 @@ import { printableBlocks } from "@/server/published-body";
 import { expandSyncedBlocks, readerStates, syncedNotice } from "@/server/synced-blocks";
 
 /**
- * A page as a PDF file, made on the server (the page menu's "Export as PDF" has the browser print
- * the print view instead). It reads the page the way the print view does (server/print.ts): as
+ * A page as a PDF file, made on the server, in one of the workspace's letterheads (server/letterheads.ts)
+ * or none: the page menu's "Export as PDF" and the AI chat's create_pdf ("Print" has the browser
+ * print the print view instead). It reads the page the way the print view does (server/print.ts): as
  * `userId`, who needs view access to it, with database blocks, mentions and synced blocks as they
  * may see them, and is an export (refused while the workspace has export turned off, recorded in
  * its audit log). Pure layout is in pdf-document.ts.
@@ -54,12 +57,19 @@ export async function renderPdf(input: Parameters<typeof pdfDocument>[0]): Promi
 /**
  * The page `pageId` as a PDF file, read as `userId`. `properties`: a database row's values are
  * listed under its title (as the print view does; off by default, since a document made for
- * someone else rarely means to show them). Throws AccessError when the page can't be viewed and
- * ExportError while export is off.
+ * someone else rarely means to show them). `letterhead`: one of the workspace's letterheads by id,
+ * "none", or left out for its default (server/letterheads.ts). Throws AccessError when the page
+ * can't be viewed, ExportError while export is off and LetterheadError for a letterhead that
+ * isn't the workspace's.
  */
-export async function pagePdf(userId: string, pageId: string, { properties = false }: { properties?: boolean } = {}): Promise<PagePdf> {
+export async function pagePdf(
+  userId: string,
+  pageId: string,
+  { properties = false, letterhead: choice }: { properties?: boolean; letterhead?: string } = {},
+): Promise<PagePdf> {
   const target = await requirePageAccess(userId, pageId, "view");
   await assertExportAllowed(target.workspaceId);
+  const letterhead = await letterheadForPdf(userId, target.workspaceId, choice);
   const [labels, locale] = await Promise.all([pdfLabels(), readerLocale()]);
   const parent = target.parentId ? (await db.select({ kind: page.kind }).from(page).where(eq(page.id, target.parentId)).limit(1))[0] : undefined;
   const isDatabase = target.kind === "database";
@@ -100,6 +110,7 @@ export async function pagePdf(userId: string, pageId: string, { properties = fal
     images: await imagesOf(userId, blocks),
     link: (url) => (url.startsWith("/") ? `${env.appUrl}${url}` : url),
     labels,
+    letterhead,
   });
   await recordExport(userId, { workspaceId: target.workspaceId, page: { id: target.id, title: target.title }, format: "pdf", pages: 1 });
   return { bytes, title: section.title, workspaceId: target.workspaceId };
@@ -180,11 +191,4 @@ async function imagesOf(userId: string, blocks: MdBlock[]): Promise<Map<string, 
     if (bytes && type) out.set(url, `data:${type};base64,${bytes.toString("base64")}`);
   }
   return out;
-}
-
-/** PNG or JPEG by the file's first bytes (what pdfmake draws); null otherwise. */
-export function imageType(bytes: Buffer): "image/png" | "image/jpeg" | null {
-  if (bytes.length > 8 && bytes.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) return "image/png";
-  if (bytes.length > 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) return "image/jpeg";
-  return null;
 }

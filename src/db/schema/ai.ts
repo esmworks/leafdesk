@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { bigint, boolean, date, doublePrecision, index, integer, jsonb, pgTable, primaryKey, real, text, timestamp } from "drizzle-orm/pg-core";
+import { bigint, boolean, date, doublePrecision, index, integer, jsonb, pgTable, primaryKey, real, text, timestamp, unique } from "drizzle-orm/pg-core";
 import { databaseProperty, page, tsvector, workspace } from "./app";
 import { agentRun } from "./agents";
 import { user } from "./auth";
@@ -190,9 +190,10 @@ export type MemoryStatus = "kept" | "proposed";
 
 /**
  * A change the AI chat may make: add a database row, change one, add a page, change a page's text,
- * or make a PDF file of a page and attach it to the page.
+ * make a PDF file of a page and attach it to the page, comment on a page, add a database (empty
+ * or from a CSV file attached to the conversation) or add a form view to a database.
  */
-export type ChatWriteAction = "createRow" | "updateRow" | "createPage" | "editPage" | "createPdf";
+export type ChatWriteAction = "createRow" | "updateRow" | "createPage" | "editPage" | "createPdf" | "addComment" | "createDatabase" | "createForm";
 
 /** A change made, as a step records it: one the chat may make, or duplicate rows an agent's run merged. */
 export type ChatWriteStepAction = ChatWriteAction | "mergeRows";
@@ -202,9 +203,9 @@ export type ChatChange = { property: string; value: string; before?: string };
 
 /**
  * A change the AI chat made (`done`), the person declined (`declined`) or that failed once
- * approved (`failed`). `targetId`: the database a row goes to, the row changed, the page a new
- * page goes under (null: the top of the workspace) or the page a PDF is made of; `pageId`: the row
- * or page made or changed.
+ * approved (`failed`). `targetId`: the database a row or form goes to, the row changed, the page a
+ * new page or database goes under (null: the top of the workspace), the page a PDF is made of or
+ * the page commented on; `pageId`: the row, page or database made or changed (a form's database).
  */
 export type ChatWriteRecord = {
   kind: "write";
@@ -221,8 +222,13 @@ export type ChatWriteRecord = {
 /** One filter rule of a database query the chat ran, as shown with the step. */
 export type ChatQueryCondition = { property: string; op: string; value: string | null };
 
-/** A file attached to a question of the AI chat (ai_chat_file), with its name, type and size then. */
-export type ChatAttachmentRecord = { id: string; name: string; contentType: string; size: number };
+/**
+ * A file attached to a question of the AI chat (ai_chat_file), with its name, type and size then:
+ * its name is unique in the conversation, so the chat's tools can name it. A CSV file also keeps
+ * how many rows and columns it has. The file stays with the conversation, so later questions see it
+ * too.
+ */
+export type ChatAttachmentRecord = { id: string; name: string; contentType: string; size: number; rows?: number; columns?: number };
 
 /** One message of an AI chat conversation, as stored. */
 export type ChatMessageRecord = {
@@ -371,4 +377,31 @@ export const aiUsage = pgTable(
     costUsd: doublePrecision("cost_usd").notNull().default(0),
   },
   (t) => [primaryKey({ columns: [t.workspaceId, t.month, t.feature, t.model, t.ownAccount] })],
+);
+
+/**
+ * The same month's AI requests by who asked and feature (server/ai/usage.ts), for the usage view's
+ * breakdown by person: `userId` is the person (an agent's own user for its runs), null for work
+ * nobody asked for (background indexing, autofill of new rows…). Counted from migration 0120 on:
+ * months before it are only in `ai_usage`. Kept and pruned with it; never what was asked.
+ */
+export const aiUsagePerson = pgTable(
+  "ai_usage_person",
+  {
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspace.id, { onDelete: "cascade" }),
+    /** The month's first day. */
+    month: date("month").notNull(),
+    userId: text("user_id").references(() => user.id, { onDelete: "cascade" }),
+    feature: text("feature").notNull(),
+    requests: integer("requests").notNull().default(0),
+    inputTokens: bigint("input_tokens", { mode: "number" }).notNull().default(0),
+    cacheReadTokens: bigint("cache_read_tokens", { mode: "number" }).notNull().default(0),
+    cacheWriteTokens: bigint("cache_write_tokens", { mode: "number" }).notNull().default(0),
+    outputTokens: bigint("output_tokens", { mode: "number" }).notNull().default(0),
+    costUsd: doublePrecision("cost_usd").notNull().default(0),
+  },
+  // Nobody's requests (a null user) add up in one row per feature too.
+  (t) => [unique("ai_usage_person_key").on(t.workspaceId, t.month, t.userId, t.feature).nullsNotDistinct()],
 );

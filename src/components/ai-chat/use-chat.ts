@@ -9,13 +9,24 @@
  * one cancels the answer too, and keeps the conversation's queued questions for when it's opened
  * again. The mode (what the chat may change) is remembered in the browser; in mode `ask` a change
  * the model wants to make waits, as `pending`, for the person's decision. A long paste shows in the
- * box as a label (lib/chat-paste.ts) and is sent in its place.
+ * box as a label (lib/chat-paste.ts) and is sent in its place. Files attached to a question
+ * (lib/chat-attachments.ts) are uploaded as they are attached (/api/ai/chat/files), shown as chips,
+ * and sent with it by their ids.
  */
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { decideChangeAction, deleteConversationAction, getConversationAction } from "@/app/actions/ai";
 import { isAiErrorCode } from "@/lib/ai";
 import { CHAT_MODES, changedThings, thoughtText, type ChatActionView, type ChatEvent, type ChatMessageView, type ChatMode } from "@/lib/ai-chat";
+import {
+  CHAT_CSV_MAX_COLUMNS,
+  CHAT_CSV_MAX_ROWS,
+  CHAT_FILE_LIMITS,
+  chatFileKind,
+  type AttachmentProblem,
+  type ChatAttachmentView,
+} from "@/lib/chat-attachments";
+import { formatBytes } from "@/lib/files";
 import { EMPTY_DRAFT, expandDraft, insertPaste, pasteLineCount, syncDraft, uniqueLabel, type ChatDraft } from "@/lib/chat-paste";
 import { browserTimeZone } from "@/lib/time-zone";
 import { holdAnswering } from "./answering";
@@ -32,8 +43,29 @@ export type PendingChange = { id: string; action: ChatActionView };
 /** A skill picked for the next question: its instructions guide the answer (server/skills). */
 export type ChatSkillPick = { id: string; title: string };
 
+/** A file attached to the question being typed: uploaded, or on its way (`uploading`, a stand-in id). */
+export type ChatFile = ChatAttachmentView & { uploading?: boolean };
+
+/** Uploads a file for a chat question; the file as shown, or why it wasn't taken. */
+async function uploadFile(workspaceId: string, file: File): Promise<{ ok: true; file: ChatAttachmentView } | { ok: false; code?: string; problem?: AttachmentProblem; limit?: number }> {
+  try {
+    const response = await fetch(`/api/ai/chat/files?workspaceId=${encodeURIComponent(workspaceId)}`, {
+      method: "POST",
+      headers: { "Content-Type": file.type || "application/octet-stream", "X-File-Name": encodeURIComponent(file.name) },
+      body: file,
+    });
+    const body = (await response.json().catch(() => null)) as (ChatAttachmentView & { code?: string; problem?: AttachmentProblem; limit?: number }) | null;
+    if (response.ok && body?.id) return { ok: true, file: body };
+    return { ok: false, code: body?.code, problem: body?.problem, limit: body?.limit };
+  } catch {
+    return { ok: false };
+  }
+}
+
+let uploads = 0;
+
 /** A question asked while an answer was on its way, waiting to be asked. */
-export type QueuedQuestion = { question: string; skill: ChatSkillPick | null; scopePageId: string | null };
+export type QueuedQuestion = { question: string; skill: ChatSkillPick | null; scopePageId: string | null; files: ChatFile[] };
 
 /**
  * The model's thinking on its current turn, as it comes (not kept): held apart from the messages so
@@ -113,6 +145,9 @@ export function useChat(
   const [mode, setModeState] = useState<ChatMode>("ask");
   const [pending, setPending] = useState<PendingChange | null>(null);
   const [skill, setSkill] = useState<ChatSkillPick | null>(null);
+  const [files, setFiles] = useState<ChatFile[]>([]);
+  const filesNow = useRef(files);
+  filesNow.current = files;
   const [queued, setQueued] = useState<QueuedQuestion[]>([]);
   const [reasoning] = useState(reasoningStore);
   const abort = useRef<AbortController | null>(null);
@@ -139,6 +174,76 @@ export function useChat(
     setDraft(next);
     return Math.min(start, end) + label.length;
   };
+  /**
+   * Attaches files to the question being typed, each uploaded at once (a chip shows it meanwhile);
+   * one that can't be attached says why (the others still are).
+   */
+  const attachFiles = async (list: readonly File[]) => {
+    const problem = (p: AttachmentProblem, limit?: number) =>
+      p === "tooManyRows"
+        ? t("files.tooManyRows", { rows: CHAT_CSV_MAX_ROWS })
+        : p === "tooManyColumns"
+          ? t("files.tooManyColumns", { columns: CHAT_CSV_MAX_COLUMNS })
+          : p === "tooLarge"
+            ? t("files.tooLarge", { size: formatBytes(limit ?? CHAT_FILE_LIMITS.bytes) })
+            : t("files.empty");
+    let failed: string | null = null;
+    const taken: File[] = [];
+    for (const file of list) {
+      if (filesNow.current.length + taken.length >= CHAT_FILE_LIMITS.perQuestion) {
+        failed = t("files.tooMany", { count: CHAT_FILE_LIMITS.perQuestion });
+        break;
+      }
+      const kind = chatFileKind(file.type, file.name);
+      if (!kind) {
+        failed = t("files.notSupported");
+        continue;
+      }
+      // Sizes first: a file far too large isn't sent at all.
+      const limit = kind === "image" ? CHAT_FILE_LIMITS.imageBytes : CHAT_FILE_LIMITS.bytes;
+      if (file.size > limit) {
+        failed = problem("tooLarge", limit);
+        continue;
+      }
+      taken.push(file);
+    }
+    setError(failed);
+    await Promise.all(
+      taken.map(async (file) => {
+        const id = `uploading-${++uploads}`;
+        const shown: ChatFile = { id, name: file.name, contentType: file.type, size: file.size, url: "", uploading: true };
+        setFilesNow([...filesNow.current, shown]);
+        const result = await uploadFile(workspaceId, file);
+        // Taken off while it was on its way: it stays off (the upload goes with the day-old ones).
+        if (!filesNow.current.some((f) => f.id === id)) return;
+        if (result.ok) {
+          setFilesNow(filesNow.current.map((f) => (f.id === id ? result.file : f)));
+          return;
+        }
+        setFilesNow(filesNow.current.filter((f) => f.id !== id));
+        setError(
+          result.problem
+            ? problem(result.problem, result.limit)
+            : result.code === "tooLarge"
+              ? problem("tooLarge", result.limit)
+              : result.code === "quotaExceeded"
+                ? t("files.quota")
+                : result.code === "badRequest"
+                  ? t("files.notSupported")
+                  : t("files.failed", { name: file.name }),
+        );
+      }),
+    );
+  };
+  const removeFile = (id: string) => {
+    filesNow.current = filesNow.current.filter((f) => f.id !== id);
+    setFiles(filesNow.current);
+  };
+  const setFilesNow = (next: ChatFile[]) => {
+    filesNow.current = next;
+    setFiles(next);
+  };
+
   // The latest callbacks, without restarting anything when the caller passes new ones.
   const callbacks = useRef({ onConversation, onAnswered });
   callbacks.current = { onConversation, onAnswered };
@@ -188,12 +293,13 @@ export function useChat(
    */
   const giveBack = (unasked: QueuedQuestion[] = []) => {
     const all = [...unasked, ...queue.current];
-    const toBox = inputNow.current.trim() ? undefined : all[0];
+    const toBox = inputNow.current.trim() || filesNow.current.length ? undefined : all[0];
     setQueue(toBox ? all.slice(1) : all);
     if (!toBox) return;
     inputNow.current = toBox.question;
     setInput(toBox.question);
     setSkill((current) => current ?? toBox.skill);
+    setFilesNow(toBox.files);
   };
 
   /** Stops the answer and leaves the conversation, its queued questions parked for its return. */
@@ -211,29 +317,43 @@ export function useChat(
    */
   async function send(scopePageId: string | null, again?: { question: string; skill?: ChatSkillPick }) {
     const question = (again?.question ?? expandDraft(draft)).trim();
-    if (!question) return;
+    const attached = again ? [] : filesNow.current;
+    if (!question && !attached.length) return;
+    // A file still on its way: the question waits for it (the box says so).
+    if (attached.some((f) => f.uploading)) return;
     if (running) {
       if (again) return;
-      setQueue([...queue.current, { question, skill, scopePageId }]);
+      setQueue([...queue.current, { question, skill, scopePageId, files: attached }]);
       setInput("");
       setSkill(null);
+      setFilesNow([]);
       return;
     }
     if (!again) {
       setInput("");
       setSkill(null);
+      setFilesNow([]);
     }
-    await ask(question, again ? (again.skill ?? null) : skill, scopePageId, Boolean(again));
+    await ask(question, again ? (again.skill ?? null) : skill, scopePageId, Boolean(again), attached);
   }
 
-  async function ask(question: string, used: ChatSkillPick | null, scopePageId: string | null, again: boolean) {
+  async function ask(question: string, used: ChatSkillPick | null, scopePageId: string | null, again: boolean, attached: ChatFile[] = []) {
     setError(null);
     const controller = new AbortController();
     abort.current = controller;
     const startedAt = Date.now();
     const before = messages;
+    // Asked again, a question keeps the files it had (the server keeps them too).
+    const shownFiles = again ? messages[messages.length - 2]?.attachments : attached;
     const asked: ChatMessage[] = [
-      { key: nextKey(), role: "user", content: question, ...(used ? { skill: used } : {}), at: new Date(startedAt).toISOString() },
+      {
+        key: nextKey(),
+        role: "user",
+        content: question,
+        ...(used ? { skill: used } : {}),
+        ...(shownFiles?.length ? { attachments: shownFiles } : {}),
+        at: new Date(startedAt).toISOString(),
+      },
       { key: nextKey(), role: "assistant", content: "", steps: [], startedAt },
     ];
     setMessages((list) => [...(again ? list.slice(0, -2) : list), ...asked]);
@@ -259,6 +379,7 @@ export function useChat(
           ...(again ? { replaceLast: true } : {}),
           ...(used ? { skillId: used.id } : {}),
           timeZone: browserTimeZone(),
+          ...(attached.length ? { attachments: attached.map((f) => f.id) } : {}),
         }),
         signal: controller.signal,
       });
@@ -350,10 +471,10 @@ export function useChat(
       // things), or ended without an answer by the server: they are given back. Stopped here, Stop or
       // leaving the conversation took care of them.
       const next = queue.current[0];
-      if (failed) giveBack(!changed && !again ? [{ question, skill: used, scopePageId }] : []);
+      if (failed) giveBack(!changed && !again ? [{ question, skill: used, scopePageId, files: attached }] : []);
       else if (finished && next) {
         setQueue(queue.current.slice(1));
-        void ask(next.question, next.skill, next.scopePageId, false);
+        void ask(next.question, next.skill, next.scopePageId, false, next.files);
       } else if (!finished && !controller.signal.aborted) giveBack();
     }
   }
@@ -389,6 +510,7 @@ export function useChat(
     setMessages([]);
     setError(null);
     setSkill(null);
+    setFilesNow([]);
     inputRef.current?.focus();
   }
 
@@ -439,6 +561,9 @@ export function useChat(
     setInput,
     pastes: draft.pastes,
     pasteInput,
+    files,
+    attachFiles,
+    removeFile,
     status,
     error,
     running,

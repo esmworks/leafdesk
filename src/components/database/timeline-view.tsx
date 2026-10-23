@@ -1,5 +1,6 @@
 "use client";
 
+import type { RowColors } from "@/lib/color-rules";
 import { ChevronRight, PanelLeftClose, PanelLeftOpen, Plus } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import {
@@ -86,6 +87,7 @@ export function TimelineView({
   readOnly,
   locked,
   onCreateDateProperty,
+  colors,
 }: {
   workspaceId: string;
   view: View;
@@ -97,6 +99,8 @@ export function TimelineView({
   readOnly?: boolean;
   locked?: boolean;
   onCreateDateProperty: () => void;
+  /** What the view's color rules color, by row id (see lib/color-rules): a colored row's bar takes its color. */
+  colors?: ReadonlyMap<string, RowColors>;
 }) {
   const t = useTranslations("database");
   const tc = useTranslations("common");
@@ -364,7 +368,9 @@ export function TimelineView({
     if (!current.includes(link.fromId)) void api.setCell(row.id, blockedBy.id, [...current, link.fromId]);
   };
 
-  const barFor = (row: Row, color: string | null) => {
+  const barFor = (row: Row, laneColor: string | null) => {
+    // A color rule's color wins over the swimlane's.
+    const color = colors?.get(row.id)?.row ?? laneColor;
     const { shown, left, right } = barBox(row.id);
     const barWidth = right - left;
     const label = pageLabel(row.title, tc("untitled"));

@@ -1,4 +1,5 @@
 import type { CalloutStyle } from "@/lib/callout-styles";
+import type { LogoPlace } from "@/lib/letterheads";
 import { getTableColumns, sql } from "drizzle-orm";
 import {
   boolean,
@@ -19,6 +20,7 @@ import {
 import type { AiAutofillConfig } from "../../lib/ai";
 import type { AggregateFn, RollupDisplay, RollupFn } from "../../lib/aggregate";
 import type { FormulaResultType } from "../../lib/formula/types";
+import type { AllowedNetwork } from "../../lib/ip-allowlist";
 import { PROPERTY_TYPES, type PropertyType, type StatusGroup } from "../../lib/property-types";
 import type { PageBackground } from "../../lib/page-background";
 import type { PageVisibility } from "../../lib/page-visibility";
@@ -197,12 +199,52 @@ export const workspace = pgTable("workspace", {
   /** Only the policies an owner changed; `workspaceSettings` fills in the rest from the defaults. */
   settings: jsonb("settings").$type<Partial<WorkspaceSettings>>().notNull().default({}),
   /**
+   * The approved networks (lib/ip-allowlist): while there are any, browser sessions from other
+   * addresses are held back from the workspace (policyHold in server/access.ts). Owners set them
+   * in Settings > Security (setAllowedNetworks); instance administrators can clear them on /admin.
+   * Apart from `settings`, which members read: the list maps where people work from.
+   */
+  allowedNetworks: jsonb("allowed_networks").$type<AllowedNetwork[]>().notNull().default([]),
+  /**
    * The AI account (OWN_AI_KEYS_ENABLED) all of the workspace's AI runs on and is paid by: one of
    * its owner's own keys (server/ai-accounts.ts). Null: the server's AI_* settings, if any.
    */
   aiAccountId: text("ai_account_id").references(() => aiAccount.id, { onDelete: "set null" }),
   ...timestamps,
 });
+
+/**
+ * A workspace's letterheads (lib/letterheads): what its PDF files print around a page, set up by
+ * its owners. The logo's bytes are kept here (PNG or JPEG, checked when uploaded), so a PDF never
+ * loads one from anywhere. At most one is the workspace's default; names are unique in it, as the
+ * AI chat picks a letterhead by name.
+ */
+export const pdfLetterhead = pgTable(
+  "pdf_letterhead",
+  {
+    id: id(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspace.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    header: text("header").notNull().default(""),
+    footer: text("footer").notNull().default(""),
+    logoPlace: text("logo_place").$type<LogoPlace>().notNull().default("left"),
+    /** `#rrggbb`, or "" for the usual gray. */
+    accent: text("accent").notNull().default(""),
+    pageNumbers: boolean("page_numbers").notNull().default(true),
+    isDefault: boolean("is_default").notNull().default(false),
+    logo: bytea("logo"),
+    logoType: text("logo_type"),
+    logoUpdatedAt: timestamp("logo_updated_at", { withTimezone: true }),
+    createdBy: text("created_by").references(() => user.id, { onDelete: "set null" }),
+    ...timestamps,
+  },
+  (t) => [
+    uniqueIndex("pdf_letterhead_name_idx").on(t.workspaceId, sql`lower(${t.name})`),
+    uniqueIndex("pdf_letterhead_default_idx").on(t.workspaceId).where(sql`${t.isDefault}`),
+  ],
+);
 
 /**
  * `owner` and `member` see every page unless a page permission restricts it; a `guest` sees only
@@ -509,6 +551,11 @@ export type SelectOption = { id: string; name: string; color: string; group?: St
 /** One entry of a checklist value; the value is a list of these, in order. */
 export type ChecklistItem = { id: string; text: string; checked: boolean };
 /**
+ * A place value: where on Earth (WGS 84 degrees), the address it was found by or written as, and
+ * the name of the place when it has one (a shop, a building).
+ */
+export type PlaceValue = { address: string; name?: string; lat: number; lng: number };
+/**
  * A relation links rows of this database to rows of another database in the same workspace.
  * Values are arrays of row ids. A two-way relation has a paired relation property on the target
  * database that is kept in sync (`pairedPropertyId`).
@@ -663,7 +710,7 @@ export const databaseProperty = pgTable(
   ],
 );
 
-export type ViewType = "table" | "board" | "calendar" | "gallery" | "list" | "timeline" | "chart" | "dashboard" | "form";
+export type ViewType = "table" | "board" | "calendar" | "gallery" | "list" | "timeline" | "map" | "chart" | "dashboard" | "form";
 /** Grouping by a date: one group per day, week (Monday to Sunday), month or year. */
 export type GroupDateBy = "day" | "week" | "month" | "year";
 export type GroupStatusBy = "option" | "group";
@@ -765,6 +812,20 @@ export type ViewWidget = {
   color?: string;
   view: { type: ViewType; config: ViewConfig };
 };
+/**
+ * One of a view's color rules (see lib/color-rules): rows matching its filters, which work as the
+ * view's own do, take its color, on the whole row or card or on one property's value.
+ */
+export type ColorRule = {
+  id: string;
+  /** One of the option colors (lib/properties SELECT_COLORS). */
+  color: string;
+  /** The property (or "title", the row's name) whose value takes the color; the whole row when missing. */
+  propertyId?: string;
+  filters: FilterEntry[];
+  /** How the top-level filters combine; missing means "and". */
+  filterCombinator?: FilterCombinator;
+};
 export type ViewConfig = {
   /** Boards: the column property. Timelines: optional swimlanes (none when missing). Charts: the bars, points or slices. */
   groupBy?: string;
@@ -776,6 +837,8 @@ export type ViewConfig = {
   zoom?: TimelineZoom;
   /** Calendars: "month" when missing. */
   calendarMode?: CalendarMode;
+  /** Map views: the place property that puts rows on the map; the first place property when missing. */
+  placeBy?: string;
   /** Views with rows (all but forms and charts): "panel" when missing. */
   openRows?: OpenRows;
   /** Timelines: whether the table of row titles shows left of the bars; shown when missing. */
@@ -803,6 +866,11 @@ export type ViewConfig = {
   filters?: FilterEntry[];
   /** How the top-level filters combine; missing means "and". */
   filterCombinator?: FilterCombinator;
+  /**
+   * Views with rows: colors for rows matching conditions, in order; the first matching rule colors
+   * its target (the row, or one property's value).
+   */
+  colorRules?: ColorRule[];
   hidden?: string[];
   /**
    * Property ids in the order this view shows them (the Name column always comes first). Properties

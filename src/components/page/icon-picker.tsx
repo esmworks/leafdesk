@@ -3,7 +3,8 @@
 import { useTranslations } from "next-intl";
 import { Popover } from "@/components/ui";
 
-const EMOJIS = [
+/** The icons a page can be given. */
+export const EMOJIS = [
   "📄", "📝", "📚", "📌", "📎", "🗂️", "📁", "🗃️", "📊", "📈", "🧾", "🗒️",
   "✅", "☑️", "⭐", "🔥", "💡", "🎯", "🚀", "🧭", "🛠️", "⚙️", "🔒", "🔑",
   "🏠", "🏢", "🌍", "🗺️", "📅", "⏰", "💬", "📣", "🤝", "👥", "🧑‍💻", "🎨",

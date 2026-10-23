@@ -208,6 +208,10 @@
       "query": "Interrogato",
       "rows": "{count, plural, =0 {nessuna riga corrispondente} one {# riga} other {# righe}}",
       "queryGone": "Interrogato un database che non puoi più aprire",
+      "plan": "Ricerca pianificata:",
+      "webSearched": "Cercato sul web «{query}» · {count, plural, =0 {nessun risultato} one {# risultato} other {# risultati}}",
+      "webRead": "Letto",
+      "webReadFailed": "Impossibile leggere",
       "write": {
         "done": {
           "createRow": "Riga aggiunta:",
@@ -215,7 +219,10 @@
           "createPage": "Pagina aggiunta:",
           "editPage": "Testo della pagina modificato:",
           "createPdf": "PDF creato:",
-          "mergeRows": "Righe unite in:"
+          "mergeRows": "Righe unite in:",
+          "addComment": "Commento aggiunto su:",
+          "createDatabase": "Database aggiunto:",
+          "createForm": "Modulo aggiunto:"
         },
         "declined": {
           "createRow": "Aggiunta della riga rifiutata:",
@@ -223,7 +230,10 @@
           "createPage": "Aggiunta della pagina rifiutata:",
           "editPage": "Modifica del testo rifiutata:",
           "createPdf": "Creazione del PDF rifiutata:",
-          "mergeRows": "Unione rifiutata per:"
+          "mergeRows": "Unione rifiutata per:",
+          "addComment": "Commento rifiutato su:",
+          "createDatabase": "Aggiunta del database rifiutata:",
+          "createForm": "Aggiunta del modulo rifiutata:"
         },
         "failed": {
           "createRow": "Impossibile aggiungere la riga:",
@@ -231,7 +241,10 @@
           "createPage": "Impossibile aggiungere la pagina:",
           "editPage": "Impossibile modificare il testo di:",
           "createPdf": "Impossibile creare il PDF:",
-          "mergeRows": "Impossibile unire le righe in:"
+          "mergeRows": "Impossibile unire le righe in:",
+          "addComment": "Impossibile commentare:",
+          "createDatabase": "Impossibile aggiungere il database:",
+          "createForm": "Impossibile aggiungere il modulo:"
         },
         "in": "in",
         "proposed": {
@@ -240,7 +253,10 @@
           "createPage": "Aggiunta di una pagina proposta da rivedere:",
           "editPage": "Modifica del testo proposta da rivedere:",
           "createPdf": "Ha proposto un PDF da rivedere:",
-          "mergeRows": "Ha proposto di unire righe, da revisionare, in:"
+          "mergeRows": "Ha proposto di unire righe, da revisionare, in:",
+          "addComment": "Ha proposto un commento da rivedere su:",
+          "createDatabase": "Ha proposto un database da rivedere:",
+          "createForm": "Ha proposto un modulo da rivedere:"
         }
       },
       "memory": {
@@ -279,7 +295,10 @@
         "forget": "Dimenticare questa nota?",
         "editPage": "Modificare il testo di questa pagina?",
         "createPdf": "Creare un PDF di questa pagina e allegarlo?",
-        "connection": "Inviare questo a {connection}?"
+        "connection": "Inviare questo a {connection}?",
+        "addComment": "Aggiungere questo commento?",
+        "createDatabase": "Aggiungere questo database?",
+        "createForm": "Aggiungere questo modulo?"
       },
       "in": "In",
       "row": "Riga",
@@ -292,7 +311,14 @@
       "waiting": "In attesa della tua approvazione",
       "page": "Pagina",
       "empty": "(vuoto)",
-      "connectionHint": "Inviato con la connessione dello spazio di lavoro: può cambiare qualcosa su {connection}"
+      "connectionHint": "Inviato con la connessione dello spazio di lavoro: può cambiare qualcosa su {connection}",
+      "fromFile": "{rows, plural, one {# riga} other {# righe}} da {name}",
+      "titleColumn": "Titolo",
+      "publicForm": {
+        "signedIn": "Link pubblico: chiunque abbia il link può rispondere dopo aver effettuato l’accesso",
+        "anonymous": "Link pubblico: chiunque abbia il link può rispondere senza accedere"
+      },
+      "letterhead": "Carta intestata: {name}"
     },
     "mode": {
       "label": "Modifiche",
@@ -309,7 +335,28 @@
       "retry": "Rispondi di nuovo"
     },
     "actionsFor": "Azioni per {name}",
-    "greeting": "Cosa vuoi sapere?"
+    "greeting": "Cosa vuoi sapere?",
+    "files": {
+      "attach": "Allega file",
+      "attachHint": "Allega immagini o file PDF, Word, Excel, CSV o di testo per fare domande su di essi",
+      "drop": "Rilascia i file per allegarli",
+      "remove": "Rimuovi {name}",
+      "size": "{rows, plural, one {# riga} other {# righe}} × {columns, plural, one {# colonna} other {# colonne}}",
+      "uploading": "Caricamento…",
+      "notSupported": "La chat legge immagini, documenti PDF, Word ed Excel e file CSV, Markdown e di testo.",
+      "tooLarge": "Il file supera {size}. Allega un file più piccolo.",
+      "tooManyRows": "Il file ha più di {rows} righe. Allega un CSV più corto o importalo come database.",
+      "tooManyColumns": "Il file ha più di {columns} colonne.",
+      "empty": "Il file è vuoto.",
+      "tooMany": "Una domanda può avere al massimo {count} file.",
+      "noImages": "Il modello scelto non accetta immagini. Scegli un altro modello o togli l’immagine.",
+      "quota": "Il file non è stato allegato: lo spazio di archiviazione di questo workspace è esaurito.",
+      "failed": "Impossibile allegare {name}."
+    },
+    "research": {
+      "sourcesHeading": "Fonti",
+      "untitled": "Rapporto di ricerca"
+    }
   },
   "memory": {
     "open": "Memoria",

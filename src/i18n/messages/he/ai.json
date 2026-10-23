@@ -208,6 +208,10 @@
       "query": "נשאל",
       "rows": "{count, plural, =0 {אין שורות תואמות} one {שורה אחת} two {שתי שורות} other {# שורות}}",
       "queryGone": "נשאל מסד נתונים שכבר אין לך גישה אליו",
+      "plan": "תכנן את המחקר:",
+      "webSearched": "חיפש ברשת את „{query}” · {count, plural, =0 {לא נמצא דבר} one {תוצאה אחת} other {# תוצאות}}",
+      "webRead": "קרא",
+      "webReadFailed": "לא ניתן היה לקרוא את",
       "write": {
         "done": {
           "createRow": "נוספה שורה:",
@@ -215,7 +219,10 @@
           "createPage": "נוסף דף:",
           "editPage": "טקסט הדף שונה:",
           "createPdf": "נוצר PDF:",
-          "mergeRows": "שורות מוזגו לתוך:"
+          "mergeRows": "שורות מוזגו לתוך:",
+          "addComment": "נוספה תגובה ב:",
+          "createDatabase": "נוסף מסד נתונים:",
+          "createForm": "נוסף טופס:"
         },
         "declined": {
           "createRow": "הוספת השורה נדחתה:",
@@ -223,7 +230,10 @@
           "createPage": "הוספת הדף נדחתה:",
           "editPage": "שינוי הטקסט נדחה:",
           "createPdf": "יצירת ה־PDF נדחתה:",
-          "mergeRows": "מיזוג השורות נדחה עבור:"
+          "mergeRows": "מיזוג השורות נדחה עבור:",
+          "addComment": "סירבת להגיב ב:",
+          "createDatabase": "סירבת להוסיף את מסד הנתונים:",
+          "createForm": "סירבת להוסיף את הטופס:"
         },
         "failed": {
           "createRow": "לא ניתן היה להוסיף את השורה:",
@@ -231,7 +241,10 @@
           "createPage": "לא ניתן היה להוסיף את הדף:",
           "editPage": "לא ניתן היה לשנות את הטקסט של:",
           "createPdf": "לא ניתן היה ליצור PDF:",
-          "mergeRows": "לא ניתן היה למזג שורות לתוך:"
+          "mergeRows": "לא ניתן היה למזג שורות לתוך:",
+          "addComment": "לא ניתן היה להגיב ב:",
+          "createDatabase": "לא ניתן היה להוסיף את מסד הנתונים:",
+          "createForm": "לא ניתן היה להוסיף את הטופס:"
         },
         "in": "ב",
         "proposed": {
@@ -240,7 +253,10 @@
           "createPage": "הוצעה לבדיקה הוספת דף:",
           "editPage": "הוצע לבדיקה שינוי טקסט:",
           "createPdf": "הציע PDF לבדיקה:",
-          "mergeRows": "הציע למזג שורות לבדיקה אל:"
+          "mergeRows": "הציע למזג שורות לבדיקה אל:",
+          "addComment": "הוצעה תגובה לבדיקה ב:",
+          "createDatabase": "הוצע מסד נתונים לבדיקה:",
+          "createForm": "הוצע טופס לבדיקה:"
         }
       },
       "memory": {
@@ -279,7 +295,10 @@
         "forget": "לשכוח את ההערה הזו?",
         "editPage": "לשנות את הטקסט של הדף הזה?",
         "createPdf": "ליצור PDF של הדף הזה ולצרף אותו?",
-        "connection": "לשלוח את זה אל {connection}?"
+        "connection": "לשלוח את זה אל {connection}?",
+        "addComment": "להוסיף את התגובה הזו?",
+        "createDatabase": "להוסיף את מסד הנתונים הזה?",
+        "createForm": "להוסיף את הטופס הזה?"
       },
       "in": "ב",
       "row": "שורה",
@@ -292,7 +311,14 @@
       "waiting": "בהמתנה לאישור שלך",
       "page": "דף",
       "empty": "(ריק)",
-      "connectionHint": "נשלח דרך החיבור של סביבת העבודה: עשוי לשנות משהו ב־{connection}"
+      "connectionHint": "נשלח דרך החיבור של סביבת העבודה: עשוי לשנות משהו ב־{connection}",
+      "fromFile": "{rows, plural, one {שורה אחת} other {# שורות}} מתוך {name}",
+      "titleColumn": "כותרת",
+      "publicForm": {
+        "signedIn": "קישור ציבורי: כל מי שיש לו את הקישור יכול לענות אחרי התחברות",
+        "anonymous": "קישור ציבורי: כל מי שיש לו את הקישור יכול לענות בלי להתחבר"
+      },
+      "letterhead": "נייר מכתבים: {name}"
     },
     "mode": {
       "label": "שינויים",
@@ -309,7 +335,28 @@
       "retry": "תשובה מחדש"
     },
     "actionsFor": "פעולות עבור {name}",
-    "greeting": "מה תרצו לדעת?"
+    "greeting": "מה תרצו לדעת?",
+    "files": {
+      "attach": "צירוף קבצים",
+      "attachHint": "צרפו תמונות או קובצי PDF, Word, Excel, CSV או טקסט כדי לשאול עליהם",
+      "drop": "שחררו את הקבצים כדי לצרף אותם",
+      "remove": "הסרת {name}",
+      "size": "{rows, plural, one {שורה אחת} other {# שורות}} × {columns, plural, one {עמודה אחת} other {# עמודות}}",
+      "uploading": "מעלה…",
+      "notSupported": "הצ׳אט קורא תמונות, מסמכי PDF, Word ו־Excel, וקובצי CSV, Markdown וטקסט.",
+      "tooLarge": "הקובץ גדול מ־{size}. צרפו קובץ קטן יותר.",
+      "tooManyRows": "בקובץ יש יותר מ־{rows} שורות. צרפו קובץ קצר יותר, או ייבאו אותו כמסד נתונים.",
+      "tooManyColumns": "בקובץ יש יותר מ־{columns} עמודות.",
+      "empty": "הקובץ ריק.",
+      "tooMany": "לשאלה אפשר לצרף עד {count} קבצים.",
+      "noImages": "המודל שנבחר לא מקבל תמונות. בחרו מודל אחר או הסירו את התמונה.",
+      "quota": "הקובץ לא צורף: נגמר נפח האחסון של סביבת העבודה הזו.",
+      "failed": "לא ניתן לצרף את {name}."
+    },
+    "research": {
+      "sourcesHeading": "מקורות",
+      "untitled": "דוח מחקר"
+    }
   },
   "memory": {
     "open": "זיכרון",

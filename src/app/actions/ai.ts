@@ -13,6 +13,7 @@ import { decideChange, type ChatDecision } from "@/server/ai-chat-approvals";
 import { AutofillError, requestAutofill, setAutofill } from "@/server/ai-properties";
 import { snapshotBeforeAiEdit } from "@/server/ai-writing";
 import * as databases from "@/server/databases";
+import { MAX_FORMULA_REQUEST, suggestFormula, type FormulaRequest } from "@/server/formula-ai";
 import { requireUserId } from "@/server/session";
 import {
   getVoiceNoteInstructions,
@@ -75,6 +76,23 @@ export async function addAutofillPropertyAction(databaseId: string, name: string
     }
     const queued = rowIds.length ? await requestAutofill(userId, created.id, rowIds.slice(0, 500)) : { queued: 0, skipped: 0 };
     return { id: created.id, ...queued };
+  });
+}
+
+/**
+ * A formula for what the person describes, checked and with what it gives on the first rows; nothing
+ * is saved (see server/formula-ai).
+ */
+export async function suggestFormulaAction(input: FormulaRequest) {
+  return run((userId) => {
+    const text = (value: unknown, max: number) => (typeof value === "string" ? value.slice(0, max) : "");
+    return suggestFormula(userId, {
+      databaseId: text(input?.databaseId, 100),
+      propertyId: typeof input?.propertyId === "string" ? input.propertyId.slice(0, 100) : null,
+      name: text(input?.name, 200),
+      description: text(input?.description, MAX_FORMULA_REQUEST),
+      titleName: text(input?.titleName, 100),
+    });
   });
 }
 

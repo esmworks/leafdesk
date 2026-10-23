@@ -20,7 +20,8 @@
     "lastEditedBy": "Last edited by",
     "lastEditedTime": "Last edited time",
     "formula": "Formula",
-    "rollup": "Rollup"
+    "rollup": "Rollup",
+    "place": "Place"
   },
   "views": {
     "table": "Table",
@@ -31,7 +32,8 @@
     "timeline": "Timeline",
     "chart": "Chart",
     "dashboard": "Dashboard",
-    "form": "Form"
+    "form": "Form",
+    "map": "Map"
   },
   "dashboardView": {
     "emptyEditable": "Show numbers, charts and lists of this database here. They stay up to date as rows change.",
@@ -241,12 +243,30 @@
     "noSearchMatches": "No rows match the search.",
     "addProperty": "Add property",
     "rowActions": "Row actions",
+    "dragToMove": "Drag to move",
+    "clickForMenu": "Click to open menu",
+    "sortedNoDrag": "Rows can't be dragged while the view is sorted",
     "sortedAscending": "Sorted ascending",
     "sortedDescending": "Sorted descending"
   },
   "rowMenu": {
     "open": "Open",
-    "openPage": "Open as full page"
+    "openPage": "Open as full page",
+    "copyLink": "Copy link",
+    "duplicate": "Duplicate",
+    "search": "Search actions…",
+    "page": "Page",
+    "editIcon": "Edit icon",
+    "editProperty": "Edit property",
+    "openIn": "Open in",
+    "sidePanel": "Side panel",
+    "fullPage": "Full page",
+    "newTab": "New tab",
+    "comment": "Comment",
+    "developer": "Developer",
+    "copyDatabaseId": "Copy database ID",
+    "noMatches": "No actions match.",
+    "lastEdited": "Last edited"
   },
   "rowPanel": {
     "label": "Row: {title}",
@@ -724,7 +744,13 @@
       "panel": "Side panel",
       "page": "Full page"
     },
-    "showOutdated": "Show archived rows"
+    "showOutdated": "Show archived rows",
+    "place": "Place property",
+    "needsPlace": "Maps place rows by a place property.",
+    "newPlaceProperty": "New place property",
+    "pinColor": "Pin color",
+    "noPinColor": "None",
+    "colorRules": "Color rules"
   },
   "gallery": {
     "new": "New",
@@ -860,6 +886,7 @@
     "cannotRestrict": "This property can’t have its own access.",
     "typeChangeRestricted": "“{property}” has access rules, and properties of that type can’t. Remove its rules first.",
     "typeChangeNamesPeople": "Access rules give the people in “{property}” access. Remove those rules before changing its type.",
+    "invalidRowAccess": "These row access rules can’t be saved. Reload and try again.",
     "invalidAutomation": "This automation can’t be saved. Check its trigger and actions.",
     "tooManyAutomations": "A database can have at most {max} automations.",
     "invalidWebhookUrl": "“{value}” is not a valid http(s) address.",
@@ -874,7 +901,11 @@
     "mergeRowsInvalid": "Only rows of one database that aren’t in the trash can be merged.",
     "mergeRowsReadOnly": "You can only view {rows}. Merging needs edit access to every row.",
     "mergeLinksBlocked": "{count, plural, one {A row links} other {# rows link}} to these rows and you can’t change {count, plural, one {it} other {them}}: {rows}. Nothing was merged.",
-    "mergeChoiceInvalid": "The value picked for “{property}” can’t be used. Pick another row’s value."
+    "mergeChoiceInvalid": "The value picked for “{property}” can’t be used. Pick another row’s value.",
+    "invalidPlace": "“{property}” takes an address or coordinates (latitude, longitude).",
+    "placeNotFound": "No place found for “{value}” in “{property}”.",
+    "geocodingOff": "Address search is off on this server: give “{property}” coordinates (latitude, longitude).",
+    "geocoderBusy": "Address search is busy. Try “{property}” again in a moment."
   },
   "formula": {
     "title": "Formula",
@@ -894,6 +925,20 @@
     "error": "Error",
     "errorTitle": "This row can’t be calculated: {message}",
     "or": "or",
+    "ai": {
+      "open": "Describe it",
+      "title": "Write the formula with AI",
+      "close": "Close",
+      "description": "What the formula should work out",
+      "placeholder": "For example: days left until the due date, or “Late” once it has passed",
+      "writing": "Writing…",
+      "write": "Write formula",
+      "again": "Write again",
+      "failed": "The AI’s formula doesn’t work: {message}",
+      "use": "Use formula",
+      "emptyValue": "Empty",
+      "noRows": "No rows to try it on yet."
+    },
     "groups": {
       "logic": "Logic",
       "text": "Text",
@@ -1037,6 +1082,35 @@
       "share": "Change access to the database"
     }
   },
+  "rowAccess": {
+    "menuItem": "Row access",
+    "menuHint": "Give the people a row names access to that row",
+    "title": "Row access",
+    "description": "Give the people a row names access to that row and the pages inside it.",
+    "loading": "Loading…",
+    "rules": "Rules",
+    "rulesHint": "Each rule gives the people in a person property, or the row’s creator, access to their rows.",
+    "noPersonProperties": "Add a person property to give the people it names access. The row’s creator can have a rule already.",
+    "creator": "Created by",
+    "creatorDetail": "The person who created the row",
+    "personDetail": "People named in this property, in their own rows",
+    "addRule": "Add a rule",
+    "levelFor": "Access for {name}",
+    "removeRule": "Remove {name}",
+    "levels": {
+      "full": "Full access",
+      "edit": "Can edit",
+      "comment": "Can comment",
+      "view": "Can view"
+    },
+    "restricted": "Only show rows to the people they name",
+    "restrictedHint": "Others who can open the database see only the rows a rule or the row’s own sharing gives them.",
+    "fullAccess": {
+      "warning": "{count, plural, one {{names} has} other {{names}{more, plural, =0 {} other { and # more}} have}} full access to this database, so they still see every row. Lower their access, or the teamspace’s access for members, to restrict them.",
+      "share": "Change access to the database"
+    },
+    "note": "A rule only adds access: when sharing gives someone more, that stays. Changing a row’s people changes who can open it right away."
+  },
   "automations": {
     "button": "Automations",
     "title": "Automations",
@@ -1130,6 +1204,7 @@
         "upsert_row": "Add or update a row",
         "wait": "Wait",
         "log": "Write to the run history",
+        "celebrate": "Celebrate with confetti",
         "approval": "Ask for approval",
         "start_sequence": "Start a follow-up"
       },
@@ -1321,7 +1396,9 @@
         "sequenceGone": "The follow-up is gone",
         "noMailbox": "The automation’s person has no mailbox connected",
         "noAddress": "The row has no email address",
-        "emailOff": "Email on rows is off"
+        "emailOff": "Email on rows is off",
+        "noPerson": "Skipped: no person's change started this run",
+        "tooLate": "Skipped: too long after the change to celebrate it"
       },
       "waitingApproval": "Waiting for approval",
       "approval": {
@@ -1421,7 +1498,9 @@
       "waitHelp": "Up to 7 days. The run waits, then goes on with the next step.",
       "logMessage": "Message",
       "logPlaceholder": "For example: Imported {template}",
-      "logHelp": "Written into the run history, with its variables filled in."
+      "logHelp": "Written into the run history, with its variables filled in.",
+      "celebrateHelp": "Confetti in the app for whoever made the change that started the run, in the windows they have open. Runs nobody started (schedules, dates passing, incoming webhooks, anonymous form answers) skip it, and so do runs that get here more than two minutes after the change.",
+      "celebrateTry": "Try it"
     },
     "variables": {
       "button": "Insert a variable",
@@ -1504,6 +1583,10 @@
         "name": "Remind about overdue rows",
         "description": "A day after a row's date passes while it isn't done, notify its people.",
         "message": "{title} is overdue."
+      },
+      "celebrateDone": {
+        "name": "Celebrate finished rows",
+        "description": "When a row is marked done, confetti for whoever did it."
       }
     }
   },
@@ -1585,5 +1668,51 @@
     "confirm": "Merge rows",
     "merging": "Merging…",
     "bodyHeading": "Merged from {title}"
+  },
+  "place": {
+    "search": "Search for an address or place",
+    "input": "{property}: address or coordinates",
+    "coordinatesHint": "Or paste coordinates, like 41.04, 29.01",
+    "searching": "Searching…",
+    "noResults": "No places found.",
+    "off": "Address search is off on this server. Paste coordinates instead.",
+    "busy": "Too many searches right now. Try again in a moment.",
+    "failed": "Address search didn’t answer. Try again.",
+    "useCoordinates": "Use {coordinates}",
+    "openMap": "Open on map",
+    "clear": "Clear",
+    "current": "Current place"
+  },
+  "map": {
+    "off": "Maps are off on this server.",
+    "needsPlaceTitle": "Maps put rows where their place property says",
+    "needsPlaceBody": "This database has no place property yet.",
+    "addPlaceProperty": "Add {name} property",
+    "defaultPlaceProperty": "Place",
+    "noLocation": "{count, plural, one {# row} other {# rows}} without {property}",
+    "noLocationTitle": "Rows without {property}",
+    "label": "Map of rows by {property}",
+    "pin": "{title}, {place}",
+    "open": "Open",
+    "closeCard": "Close",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "fit": "Show all rows",
+    "loading": "Loading map…"
+  },
+  "colorRules": {
+    "title": "Color rules",
+    "description": "Color rows, or one of their values, when they match conditions.",
+    "empty": "No color rules yet. Add one to color the rows that match it.",
+    "ruleLabel": "{color} rule",
+    "color": "Color",
+    "colors": "Colors",
+    "target": "What the rule colors",
+    "wholeRow": "The whole row",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "delete": "Delete rule",
+    "add": "Add rule",
+    "firstMatchWins": "When several rules match, the first one colors the row or value."
   }
 }

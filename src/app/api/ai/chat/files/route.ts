@@ -1,6 +1,6 @@
 import { auth } from "@/lib/auth";
 import { AccessError } from "@/server/access";
-import { uploadChatFile } from "@/server/ai-chat-files";
+import { ChatFileError, uploadChatFile } from "@/server/ai-chat-files";
 import { isCrossSite } from "@/server/cross-site";
 import { FileError } from "@/server/files";
 
@@ -8,7 +8,9 @@ import { FileError } from "@/server/files";
  * Attaches a file to an AI chat question: `POST /api/ai/chat/files?workspaceId=<id>` with the raw
  * bytes as the body, the file's type as Content-Type and its name, URI-encoded, in `X-File-Name`
  * (as /api/files). Answers 201 with the file (`id` goes with the question, `url` opens it, for the
- * person who attached it only); see server/ai-chat-files.ts for what may be attached.
+ * person who attached it only; a CSV file has its `rows` and `columns`); see server/ai-chat-files.ts
+ * for what may be attached. A CSV file that isn't a table the chat takes answers 400 (413 too
+ * large) with `problem` (lib/chat-attachments.ts AttachmentProblem).
  *
  * The custom header doubles as CSRF protection: a cross-site form can't send it, and a cross-site
  * fetch with it needs a CORS preflight this route doesn't answer. A foreign Origin is refused too.
@@ -39,7 +41,8 @@ export async function POST(request: Request) {
     if (error instanceof AccessError) return Response.json({ error: "Not found" }, { status: 404 });
     if (error instanceof FileError) {
       const status = error.code === "tooLarge" || error.code === "quotaExceeded" ? 413 : error.code === "notAllowed" ? 403 : error.code === "storageFailed" ? 502 : 400;
-      return Response.json({ error: error.message, code: error.code, limit: error.limit }, { status });
+      const problem = error instanceof ChatFileError ? { problem: error.problem } : {};
+      return Response.json({ error: error.message, code: error.code, limit: error.limit, ...problem }, { status });
     }
     throw error;
   }

@@ -5,6 +5,7 @@ import type { ChatAttachmentRecord, ChatChange, ChatConnectionRecord, ChatMemory
 import type { PageKind } from "@/db/schema/app";
 import type { BlockChange } from "./page-diff";
 import type { AiErrorCode } from "./ai";
+import type { ChatAttachmentView } from "./chat-attachments";
 
 /** Conversations kept per person and workspace; the oldest go first. */
 export const MAX_CONVERSATIONS = 50;
@@ -20,50 +21,7 @@ export type MemoryView = { id: string; text: string; app: string | null; created
 /** What the chat answers from: the whole workspace, or a page and the pages under it. */
 export type ChatScope = { pageId: string } | null;
 
-export type { ChatAttachmentRecord, ChatChange, ChatConnectionRecord, ChatMemoryRecord, ChatWebRecord, ChatWriteAction, ChatWriteStepAction };
-
-// ------------------------------------------------------------------------------ attachments
-
-const MB = 1024 * 1024;
-
-/**
- * What a question may attach (server/ai-chat-files.ts): how many files, and how large each may be;
- * images less, as providers take a few megabytes per image.
- */
-export const CHAT_FILE_LIMITS = { perQuestion: 5, bytes: 20 * MB, imageBytes: 5 * MB };
-
-/** Images the chat shows a model (those providers take). */
-export const CHAT_IMAGE_TYPES = ["image/png", "image/jpeg", "image/gif", "image/webp"] as const;
-const DOCUMENT_TYPES = [
-  "application/pdf",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-];
-const TEXT_TYPES = ["text/plain", "text/markdown", "text/x-markdown", "text/csv"];
-
-/** What the file chooser offers. */
-export const CHAT_FILE_ACCEPT = [...CHAT_IMAGE_TYPES, ".pdf", ".docx", ".xlsx", ".csv", ".md", ".markdown", ".txt"].join(",");
-
-/**
- * How the chat reads a file: an image (shown to the model), a document (PDF, Word, Excel, read to
- * text), plain text (CSV, Markdown, text); null for anything else, which can't be attached.
- */
-export function chatFileKind(contentType: string, name: string): "image" | "document" | "text" | null {
-  const type = contentType.split(";")[0].trim().toLowerCase();
-  if ((CHAT_IMAGE_TYPES as readonly string[]).includes(type)) return "image";
-  if (DOCUMENT_TYPES.includes(type)) return "document";
-  if (TEXT_TYPES.includes(type)) return "text";
-  const ext = /\.([a-z0-9]+)$/i.exec(name.trim())?.[1]?.toLowerCase();
-  if (ext === "docx" || ext === "xlsx" || ext === "pdf") return type === "application/octet-stream" || type === "application/zip" ? "document" : null;
-  if (ext === "md" || ext === "markdown" || ext === "txt" || ext === "csv") return "text";
-  return null;
-}
-
-/** Where the person who attached a chat file opens it (no one else can). */
-export const chatFileUrl = (id: string) => `/api/ai/chat/files/${id}`;
-
-/** A file attached to a question, as the chat shows it: `url` opens it. */
-export type ChatAttachmentView = ChatAttachmentRecord & { url: string };
+export type { ChatAttachmentRecord, ChatAttachmentView, ChatChange, ChatConnectionRecord, ChatMemoryRecord, ChatWebRecord, ChatWriteAction, ChatWriteStepAction };
 
 // ----------------------------------------------------------------------------------- models
 
@@ -157,6 +115,17 @@ export type ChatActionView = {
   content: string | null;
   /** A page's text changed: the blocks it changes, with one unchanged block around each. */
   diff?: BlockChange[];
+  /** A PDF: the letterhead it prints in, when it has one. */
+  letterhead?: string;
+  /**
+   * A database added: its properties, by name, with their type and options (`changes` says the
+   * same in words, for the Telegram bot). A form added: who its public link takes answers from,
+   * when it gets one.
+   */
+  properties?: { name: string; type: string; options?: string[] }[];
+  /** A database made of a CSV file attached to the conversation: the file, and the rows it adds. */
+  fromFile?: { name: string; rows: number };
+  publicForm?: "signedIn" | "anonymous";
 };
 
 /**

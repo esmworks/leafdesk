@@ -208,6 +208,10 @@
       "query": "Queried",
       "rows": "{count, plural, =0 {no rows match} one {# row} other {# rows}}",
       "queryGone": "Queried a database you can no longer open",
+      "plan": "Planned the research:",
+      "webSearched": "Searched the web for “{query}” · {count, plural, =0 {nothing found} one {# result} other {# results}}",
+      "webRead": "Read",
+      "webReadFailed": "Couldn't read",
       "write": {
         "done": {
           "createRow": "Row added:",
@@ -215,7 +219,10 @@
           "createPage": "Page added:",
           "editPage": "Page text changed:",
           "createPdf": "PDF made:",
-          "mergeRows": "Rows merged into:"
+          "mergeRows": "Rows merged into:",
+          "addComment": "Commented on:",
+          "createDatabase": "Database added:",
+          "createForm": "Form added:"
         },
         "declined": {
           "createRow": "Declined adding the row:",
@@ -223,7 +230,10 @@
           "createPage": "Declined adding the page:",
           "editPage": "Declined changing the text of:",
           "createPdf": "Declined making the PDF:",
-          "mergeRows": "Declined merging rows into:"
+          "mergeRows": "Declined merging rows into:",
+          "addComment": "Declined commenting on:",
+          "createDatabase": "Declined adding the database:",
+          "createForm": "Declined adding the form:"
         },
         "failed": {
           "createRow": "Couldn't add the row:",
@@ -231,7 +241,10 @@
           "createPage": "Couldn't add the page:",
           "editPage": "Couldn't change the text of:",
           "createPdf": "Couldn't make the PDF:",
-          "mergeRows": "Couldn't merge rows into:"
+          "mergeRows": "Couldn't merge rows into:",
+          "addComment": "Couldn't comment on:",
+          "createDatabase": "Couldn't add the database:",
+          "createForm": "Couldn't add the form:"
         },
         "in": "in",
         "proposed": {
@@ -240,7 +253,10 @@
           "createPage": "Proposed adding a page for review:",
           "editPage": "Proposed a text change for review:",
           "createPdf": "Proposed a PDF for review:",
-          "mergeRows": "Proposed merging rows for review into:"
+          "mergeRows": "Proposed merging rows for review into:",
+          "addComment": "Proposed a comment for review on:",
+          "createDatabase": "Proposed a database for review:",
+          "createForm": "Proposed a form for review:"
         }
       },
       "memory": {
@@ -279,7 +295,10 @@
         "forget": "Forget this note?",
         "editPage": "Change this page's text?",
         "createPdf": "Make a PDF of this page and attach it?",
-        "connection": "Send this to {connection}?"
+        "connection": "Send this to {connection}?",
+        "addComment": "Add this comment?",
+        "createDatabase": "Add this database?",
+        "createForm": "Add this form?"
       },
       "in": "In",
       "row": "Row",
@@ -292,7 +311,14 @@
       "waiting": "Waiting for your approval",
       "page": "Page",
       "empty": "(empty)",
-      "connectionHint": "Sent with the workspace's connection: it may change something at {connection}"
+      "connectionHint": "Sent with the workspace's connection: it may change something at {connection}",
+      "fromFile": "{rows, plural, one {# row} other {# rows}} from {name}",
+      "titleColumn": "Title",
+      "publicForm": {
+        "signedIn": "Public link: anyone with the link can answer after signing in",
+        "anonymous": "Public link: anyone with the link can answer, without signing in"
+      },
+      "letterhead": "Letterhead: {name}"
     },
     "mode": {
       "label": "Changes",
@@ -309,7 +335,28 @@
       "retry": "Answer again"
     },
     "actionsFor": "Actions for {name}",
-    "greeting": "What would you like to know?"
+    "greeting": "What would you like to know?",
+    "files": {
+      "attach": "Attach files",
+      "attachHint": "Attach images, PDF, Word, Excel, CSV or text files to ask about them",
+      "drop": "Drop the files to attach them",
+      "remove": "Remove {name}",
+      "size": "{rows, plural, one {# row} other {# rows}} × {columns, plural, one {# column} other {# columns}}",
+      "uploading": "Uploading…",
+      "notSupported": "The chat reads images, PDF, Word and Excel documents, CSV, Markdown and text files.",
+      "tooLarge": "That file is larger than {size}. Attach a smaller file.",
+      "tooManyRows": "That file has more than {rows} rows. Attach a shorter CSV file, or import it as a database.",
+      "tooManyColumns": "That file has more than {columns} columns.",
+      "empty": "That file is empty.",
+      "tooMany": "A question can have at most {count} files.",
+      "noImages": "The model picked doesn't take images. Pick another model, or take the image off.",
+      "quota": "The file wasn't attached: this workspace is out of file storage.",
+      "failed": "Couldn't attach {name}."
+    },
+    "research": {
+      "sourcesHeading": "Sources",
+      "untitled": "Research report"
+    }
   },
   "memory": {
     "open": "Memory",

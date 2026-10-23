@@ -709,7 +709,7 @@ export function stream(request: AiRequest): AiStream {
         model,
       });
       noted(target!, null);
-      await recordUsage(ledger, { workspaceId: request.workspaceId, feature: request.feature, model, ownAccount: target!.accountId !== null, ...usageNumbers(final.usage) });
+      await recordUsage(ledger, { workspaceId: request.workspaceId, userId: request.userId ?? null, feature: request.feature, model, ownAccount: target!.accountId !== null, ...usageNumbers(final.usage) });
       return result;
     } catch (error) {
       const failed = failure(final, error, { timedOut: prepared.timedOut(), cancelled: prepared.cancelled() }, {
@@ -724,7 +724,7 @@ export function stream(request: AiRequest): AiStream {
       if (target) noted(target, failed);
       // What the provider used before it failed or was stopped is billed all the same.
       if (final && target) {
-        await recordUsage(ledger, { workspaceId: request.workspaceId, feature: request.feature, model, ownAccount: target.accountId !== null, ...usageNumbers(final.usage) });
+        await recordUsage(ledger, { workspaceId: request.workspaceId, userId: request.userId ?? null, feature: request.feature, model, ownAccount: target.accountId !== null, ...usageNumbers(final.usage) });
       }
       throw failed;
     } finally {
@@ -793,7 +793,7 @@ export async function transcribe(
       detail: `bytes=${audio.bytes.size}${seconds ? ` seconds=${Math.round(seconds)}` : ""}`,
     });
     // Speech to text is priced by the minute, which the provider doesn't say: counted, at no cost.
-    await recordUsage(ledger, { workspaceId: request.workspaceId, feature: request.feature, model: stt.model, ownAccount: target.accountId !== null, inputTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0, outputTokens: 0, costUsd: 0 });
+    await recordUsage(ledger, { workspaceId: request.workspaceId, userId: request.userId ?? null, feature: request.feature, model: stt.model, ownAccount: target.accountId !== null, inputTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0, outputTokens: 0, costUsd: 0 });
     return text;
   } catch (error) {
     const failed = failure(null, error, { timedOut: timeout.aborted, cancelled: request.signal?.aborted === true }, {
@@ -844,7 +844,7 @@ export async function embed(
       model: config.embeddings?.model ?? "test",
     });
     // Embeddings' prices aren't known here: their tokens are counted, at no cost.
-    await recordUsage(ledger, { workspaceId: request.workspaceId, feature: request.feature, model: config.embeddings?.model ?? "test", ownAccount: target.accountId !== null, inputTokens: tokens, cacheReadTokens: 0, cacheWriteTokens: 0, outputTokens: 0, costUsd: 0 });
+    await recordUsage(ledger, { workspaceId: request.workspaceId, userId: request.userId ?? null, feature: request.feature, model: config.embeddings?.model ?? "test", ownAccount: target.accountId !== null, inputTokens: tokens, cacheReadTokens: 0, cacheWriteTokens: 0, outputTokens: 0, costUsd: 0 });
     return vectors;
   } catch (error) {
     const failed = failure(null, error, { timedOut: timeout.aborted, cancelled: request.signal?.aborted === true }, {

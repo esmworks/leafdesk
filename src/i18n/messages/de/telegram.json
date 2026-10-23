@@ -89,7 +89,15 @@
     "no": "Nein",
     "approved": "Bestätigt.",
     "declined": "Abgelehnt.",
-    "gone": "Diese Frage wartet nicht mehr."
+    "gone": "Diese Frage wartet nicht mehr.",
+    "addComment": "{target} kommentieren?",
+    "createDatabase": "Die Datenbank {title} unter {target} hinzufügen?",
+    "createDatabaseTop": "Die Datenbank {title} oben im Arbeitsbereich hinzufügen, nur für dich?",
+    "createForm": "Das Formular {title} zu {target} hinzufügen?",
+    "publicForm": {
+      "signedIn": "Es bekommt einen öffentlichen Link: Alle damit können nach der Anmeldung antworten.",
+      "anonymous": "Es bekommt einen öffentlichen Link: Alle damit können ohne Anmeldung antworten."
+    }
   },
   "changed": {
     "done": "Erledigt: {what}",

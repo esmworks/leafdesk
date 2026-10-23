@@ -9,7 +9,7 @@ import type { AutomationAction, AutomationTrigger } from "./automations";
 
 type GalleryProperty = { id: string; name: string; type: string; options?: { options?: { id: string; name: string }[] } };
 
-export const GALLERY_KEYS = ["approveBeforeClosing", "notifyAssignee", "remindOverdue"] as const;
+export const GALLERY_KEYS = ["approveBeforeClosing", "notifyAssignee", "remindOverdue", "celebrateDone"] as const;
 export type GalleryKey = (typeof GALLERY_KEYS)[number];
 
 /**
@@ -38,6 +38,7 @@ const ASKING = /(review|approval|pending|negotiat|ready|onay|inceleme|müzakere)
  * closing": when a select or status property changes to an option that asks for it (the first
  * that sounds like "in review"; any change when none does), the people of the first person
  * property approve it, then the property is set to the closing option ("Won", "Done"…).
+ * "Celebrate finished rows": confetti when that property changes to the closing option.
  */
 export function galleryAutomations(properties: GalleryProperty[]): GalleryAutomation[] {
   const stage = byType(properties, "status", "select");
@@ -82,6 +83,14 @@ export function galleryAutomations(properties: GalleryProperty[]): GalleryAutoma
       status: status ? { propertyId: status.id, groups: ["todo", "in_progress"] } : null,
     },
     actions: [{ id: "notify", type: "notify", userIds: [], propertyIds: person ? [person.id] : [], message: "" }],
+    messageValues: { title: TITLE },
+  });
+
+  // Confetti for whoever moves a row to its closing option ("Done", "Won"…), any change when there is none.
+  out.push({
+    key: "celebrateDone",
+    trigger: stage ? { type: "property_changed", propertyId: stage.id, ...(closed ? { to: closed.id } : {}) } : { type: "property_changed", propertyId: null },
+    actions: [{ id: "celebrate", type: "celebrate" }],
     messageValues: { title: TITLE },
   });
   return out;

@@ -28,5 +28,6 @@
     "tooLarge": "I file di questa esportazione superano in totale {size}. Esporta una parte più piccola dello spazio di lavoro.",
     "busy": "Hai già un’esportazione in corso. Attendi che il download sia terminato.",
     "disabled": "L’esportazione è disattivata in questo spazio di lavoro."
-  }
+  },
+  "celebrate": "Ottimo lavoro!"
 }

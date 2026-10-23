@@ -89,7 +89,15 @@
     "no": "Non",
     "approved": "Approuvé.",
     "declined": "Refusé.",
-    "gone": "Cette question n’attend plus de réponse."
+    "gone": "Cette question n’attend plus de réponse.",
+    "addComment": "Commenter {target} ?",
+    "createDatabase": "Ajouter la base de données {title} sous {target} ?",
+    "createDatabaseTop": "Ajouter la base de données {title} en haut de l’espace de travail, privée pour vous ?",
+    "createForm": "Ajouter le formulaire {title} à {target} ?",
+    "publicForm": {
+      "signedIn": "Il aura un lien public : toute personne l’ayant peut répondre après s’être connectée.",
+      "anonymous": "Il aura un lien public : toute personne l’ayant peut répondre sans se connecter."
+    }
   },
   "changed": {
     "done": "Fait : {what}",

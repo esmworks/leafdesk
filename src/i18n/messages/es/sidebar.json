@@ -137,6 +137,18 @@
     "pageUpdated": "{actor} editó esta página",
     "rowEmail": "Correo de {from}",
     "followUp": "Seguimiento “{sequence}” en pausa: hay que revisar su próximo correo",
+    "reaction": "{actor} reaccionó con {emoji} a tu comentario",
+    "reactionExcerpt": "«{text}»",
+    "people": "{others, plural, =0 {{name}} one {{name} y # persona más} other {{name} y # personas más}}",
+    "groupComments": "{count, plural, one {# comentario} other {# comentarios}}",
+    "groupNewComments": "{count, plural, one {# comentario nuevo} other {# comentarios nuevos}}",
+    "groupReactions": "{count, plural, one {# reacción} other {# reacciones}}",
+    "groupNewReactions": "{count, plural, one {# reacción nueva} other {# reacciones nuevas}}",
+    "groupEdits": "{count, plural, one {# edición} other {# ediciones}}",
+    "groupNewEdits": "{count, plural, one {# edición nueva} other {# ediciones nuevas}}",
+    "groupMarkRead": "Marcar como leído",
+    "groupExpand": "Mostrar las {count}",
+    "groupCollapse": "Mostrar menos",
     "noSubject": "(sin asunto)",
     "tabs": "Mostrar",
     "tabAll": "Todo",
@@ -214,7 +226,8 @@
     "private": "Privado",
     "newPrivate": "Nueva página privada",
     "more": "{count} más",
-    "less": "Mostrar menos"
+    "less": "Mostrar menos",
+    "meetings": "Reuniones"
   },
   "joinable": {
     "heading": "Espacios a los que puedes unirte",

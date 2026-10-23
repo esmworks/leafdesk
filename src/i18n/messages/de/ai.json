@@ -208,6 +208,10 @@
       "query": "Abgefragt",
       "rows": "{count, plural, =0 {keine passenden Zeilen} one {# Zeile} other {# Zeilen}}",
       "queryGone": "Eine Datenbank abgefragt, die du nicht mehr öffnen kannst",
+      "plan": "Recherche geplant:",
+      "webSearched": "Im Web nach „{query}“ gesucht · {count, plural, =0 {nichts gefunden} one {# Ergebnis} other {# Ergebnisse}}",
+      "webRead": "Gelesen",
+      "webReadFailed": "Nicht lesbar:",
       "write": {
         "done": {
           "createRow": "Zeile hinzugefügt:",
@@ -215,7 +219,10 @@
           "createPage": "Seite hinzugefügt:",
           "editPage": "Seitentext geändert:",
           "createPdf": "PDF erstellt:",
-          "mergeRows": "Zeilen zusammengeführt in:"
+          "mergeRows": "Zeilen zusammengeführt in:",
+          "addComment": "Kommentiert:",
+          "createDatabase": "Datenbank hinzugefügt:",
+          "createForm": "Formular hinzugefügt:"
         },
         "declined": {
           "createRow": "Hinzufügen der Zeile abgelehnt:",
@@ -223,7 +230,10 @@
           "createPage": "Hinzufügen der Seite abgelehnt:",
           "editPage": "Textänderung abgelehnt:",
           "createPdf": "Erstellen des PDF abgelehnt:",
-          "mergeRows": "Zusammenführen abgelehnt für:"
+          "mergeRows": "Zusammenführen abgelehnt für:",
+          "addComment": "Kommentar abgelehnt:",
+          "createDatabase": "Datenbank abgelehnt:",
+          "createForm": "Formular abgelehnt:"
         },
         "failed": {
           "createRow": "Zeile konnte nicht hinzugefügt werden:",
@@ -231,7 +241,10 @@
           "createPage": "Seite konnte nicht hinzugefügt werden:",
           "editPage": "Text konnte nicht geändert werden:",
           "createPdf": "PDF konnte nicht erstellt werden:",
-          "mergeRows": "Zeilen konnten nicht zusammengeführt werden in:"
+          "mergeRows": "Zeilen konnten nicht zusammengeführt werden in:",
+          "addComment": "Kommentar nicht möglich:",
+          "createDatabase": "Datenbank konnte nicht hinzugefügt werden:",
+          "createForm": "Formular konnte nicht hinzugefügt werden:"
         },
         "in": "in",
         "proposed": {
@@ -240,7 +253,10 @@
           "createPage": "Hinzufügen einer Seite zur Prüfung vorgeschlagen:",
           "editPage": "Textänderung zur Prüfung vorgeschlagen:",
           "createPdf": "Ein PDF zur Prüfung vorgeschlagen:",
-          "mergeRows": "Zusammenführen von Zeilen zur Prüfung vorgeschlagen in:"
+          "mergeRows": "Zusammenführen von Zeilen zur Prüfung vorgeschlagen in:",
+          "addComment": "Kommentar zur Prüfung vorgeschlagen zu:",
+          "createDatabase": "Datenbank zur Prüfung vorgeschlagen:",
+          "createForm": "Formular zur Prüfung vorgeschlagen:"
         }
       },
       "memory": {
@@ -279,7 +295,10 @@
         "forget": "Diese Notiz vergessen?",
         "editPage": "Den Text dieser Seite ändern?",
         "createPdf": "Ein PDF dieser Seite erstellen und anhängen?",
-        "connection": "Das an {connection} senden?"
+        "connection": "Das an {connection} senden?",
+        "addComment": "Diesen Kommentar hinzufügen?",
+        "createDatabase": "Diese Datenbank hinzufügen?",
+        "createForm": "Dieses Formular hinzufügen?"
       },
       "in": "In",
       "row": "Zeile",
@@ -292,7 +311,14 @@
       "waiting": "Wartet auf deine Zustimmung",
       "page": "Seite",
       "empty": "(leer)",
-      "connectionHint": "Wird mit der Verbindung des Arbeitsbereichs gesendet: Es kann bei {connection} etwas ändern"
+      "connectionHint": "Wird mit der Verbindung des Arbeitsbereichs gesendet: Es kann bei {connection} etwas ändern",
+      "fromFile": "{rows, plural, one {# Zeile} other {# Zeilen}} aus {name}",
+      "titleColumn": "Titel",
+      "publicForm": {
+        "signedIn": "Öffentlicher Link: Alle mit dem Link können nach der Anmeldung antworten",
+        "anonymous": "Öffentlicher Link: Alle mit dem Link können ohne Anmeldung antworten"
+      },
+      "letterhead": "Briefkopf: {name}"
     },
     "mode": {
       "label": "Änderungen",
@@ -309,7 +335,28 @@
       "retry": "Neu beantworten"
     },
     "actionsFor": "Aktionen für {name}",
-    "greeting": "Was möchtest du wissen?"
+    "greeting": "Was möchtest du wissen?",
+    "files": {
+      "attach": "Dateien anhängen",
+      "attachHint": "Bilder, PDF-, Word-, Excel-, CSV- oder Textdateien anhängen, um Fragen dazu zu stellen",
+      "drop": "Dateien ablegen, um sie anzuhängen",
+      "remove": "{name} entfernen",
+      "size": "{rows, plural, one {# Zeile} other {# Zeilen}} × {columns, plural, one {# Spalte} other {# Spalten}}",
+      "uploading": "Wird hochgeladen…",
+      "notSupported": "Der Chat liest Bilder, PDF-, Word- und Excel-Dokumente sowie CSV-, Markdown- und Textdateien.",
+      "tooLarge": "Die Datei ist größer als {size}. Hänge eine kleinere Datei an.",
+      "tooManyRows": "Die Datei hat mehr als {rows} Zeilen. Hänge eine kürzere CSV-Datei an oder importiere sie als Datenbank.",
+      "tooManyColumns": "Die Datei hat mehr als {columns} Spalten.",
+      "empty": "Die Datei ist leer.",
+      "tooMany": "Eine Frage kann höchstens {count} Dateien haben.",
+      "noImages": "Das gewählte Modell nimmt keine Bilder an. Wähle ein anderes Modell oder entferne das Bild.",
+      "quota": "Die Datei wurde nicht angehängt: Der Dateispeicher dieses Workspace ist voll.",
+      "failed": "{name} konnte nicht angehängt werden."
+    },
+    "research": {
+      "sourcesHeading": "Quellen",
+      "untitled": "Recherchebericht"
+    }
   },
   "memory": {
     "open": "Gedächtnis",

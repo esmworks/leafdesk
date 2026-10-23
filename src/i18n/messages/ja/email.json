@@ -232,6 +232,8 @@
     "pageUpdated": "{actor}さんがこのページを編集しました",
     "rowEmail": "{from}からのメール",
     "followUp": "フォローアップ「{sequence}」が一時停止しました：次のメールの確認が必要です",
+    "reaction": "{actor}があなたのコメントに{emoji}でリアクションしました",
+    "people": "{others, plural, =0 {{name}さん} other {{name}さんほか#人}}",
     "someone": "誰か",
     "joinRequestTitle": "参加リクエスト",
     "joinRequest": "{actor}が参加をリクエストしました",

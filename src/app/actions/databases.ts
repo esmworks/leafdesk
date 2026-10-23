@@ -1,5 +1,6 @@
 "use server";
 
+import { env } from "@/lib/env";
 import { cookies } from "next/headers";
 import { getLocale, getTranslations } from "next-intl/server";
 import type { NumberDisplay, NumberFormat, PropertyType, SelectOption, ViewConfig, ViewType } from "@/db/schema";
@@ -11,6 +12,7 @@ import type { DependencyInput } from "@/lib/dependencies";
 import type { MergeChoices } from "@/lib/merge-rows";
 import { isDatabaseErrorCode, PropertyValueError } from "@/lib/properties";
 import type { PropertyLevel } from "@/lib/property-access";
+import type { RowAccessConfig } from "@/lib/row-access";
 import type { PastedRow } from "@/lib/table-clipboard";
 import { AccessError, pageAccessOf } from "@/server/access";
 import { databaseAi } from "@/server/ai-properties";
@@ -20,6 +22,7 @@ import { duplicateRows } from "@/server/duplicate";
 import { listGroups } from "@/server/groups";
 import { pasteRows } from "@/server/paste";
 import { getPropertyAccessSettings, loadPropertyRules, setPropertyAccess } from "@/server/property-access";
+import { getRowAccessSettings, setRowAccess } from "@/server/row-access";
 import { listRowActivity } from "@/server/row-activity-feed";
 import { listMembers } from "@/server/workspaces";
 import { mergeCandidates, mergeRows, previewMerge } from "@/server/merge-rows";
@@ -83,7 +86,8 @@ export async function loadDatabaseAction(databaseId: string, options: { covers?:
       databaseAi(databaseId, snapshot.properties, snapshot.rows),
       propertyAccessManagement(userId, databaseId, snapshot.properties),
     ]);
-    return { ...snapshot, ...management, ai };
+    // Map views draw their map from the server's tile settings (MAP_TILE_URL); null: maps are off.
+    return { ...snapshot, ...management, ai, map: env.mapTiles };
   });
 }
 
@@ -202,6 +206,16 @@ export async function moveRowAction(
   move: { position?: number; groupBy?: string; groupValue?: string | null; groupFrom?: string | null },
 ) {
   return run((userId) => databases.moveRow(userId, rowId, move));
+}
+
+/** Moves a row right before or after another row of its database (server/databases moveRowBeside). */
+export async function moveRowBesideAction(rowId: string, targetId: string, side: "before" | "after") {
+  return run(async (userId) => {
+    if (typeof rowId !== "string" || typeof targetId !== "string" || (side !== "before" && side !== "after")) {
+      throw new Error("Invalid move");
+    }
+    return databases.moveRowBeside(userId, rowId, targetId, side);
+  });
 }
 
 export async function addPropertyAction(
@@ -373,6 +387,17 @@ export async function setPropertyAccessAction(
   },
 ) {
   return run((userId) => setPropertyAccess(userId, propertyId, input));
+}
+
+// Row access (see server/row-access.ts): full access to the database only.
+
+export async function loadRowAccessAction(databaseId: string) {
+  return run((userId) => getRowAccessSettings(userId, databaseId));
+}
+
+export async function setRowAccessAction(databaseId: string, input: RowAccessConfig) {
+  // Checked and narrowed by parseRowAccess against the database's properties.
+  return run((userId) => setRowAccess(userId, databaseId, input));
 }
 
 /** The browser's time zone, from its cookie (see TimeZoneCookie); unchecked, undefined without one. */

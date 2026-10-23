@@ -294,34 +294,44 @@
 /*
  * Select option colors, shared by tables, boards and property pickers. `.opt-*` paints a chip;
  * `.tint-*` only sets the palette so a board column and its cards can take the option's color.
+ * `--opt-mark` is the soft background of rows, cards and values a view's color rules color
+ * (`.color-mark`, lib/color-rules); text keeps the theme's colors on it (lib/contrast.test.ts).
  */
-.opt-gray, .tint-gray { --opt-bg: #d5dfd8; --opt-fg: #313b34; --opt-tint: #f5f8f5; --opt-card: #ffffff; }
-.opt-brown, .tint-brown { --opt-bg: #f6d5c4; --opt-fg: #4e3020; --opt-tint: #fdf5f1; --opt-card: #ffffff; }
-.opt-orange, .tint-orange { --opt-bg: #ffd2b2; --opt-fg: #562b00; --opt-tint: #fef5ee; --opt-card: #ffffff; }
-.opt-yellow, .tint-yellow { --opt-bg: #ecdca9; --opt-fg: #453601; --opt-tint: #faf7ec; --opt-card: #ffffff; }
-.opt-green, .tint-green { --opt-bg: #bfe9c9; --opt-fg: #144225; --opt-tint: #f0faf2; --opt-card: #ffffff; }
-.opt-blue, .tint-blue { --opt-bg: #bde2ff; --opt-fg: #113b58; --opt-tint: #f0f8ff; --opt-card: #ffffff; }
-.opt-purple, .tint-purple { --opt-bg: #e5d3fc; --opt-fg: #402e54; --opt-tint: #f9f5fe; --opt-card: #ffffff; }
-.opt-pink, .tint-pink { --opt-bg: #fdcde2; --opt-fg: #53273d; --opt-tint: #fff3f8; --opt-card: #ffffff; }
-.opt-red, .tint-red { --opt-bg: #ffcfcc; --opt-fg: #5b2424; --opt-tint: #fef4f3; --opt-card: #ffffff; }
+.opt-gray, .tint-gray { --opt-bg: #d5dfd8; --opt-fg: #313b34; --opt-tint: #f5f8f5; --opt-card: #ffffff; --opt-mark: #eaefec; }
+.opt-brown, .tint-brown { --opt-bg: #f6d5c4; --opt-fg: #4e3020; --opt-tint: #fdf5f1; --opt-card: #ffffff; --opt-mark: #faeae2; }
+.opt-orange, .tint-orange { --opt-bg: #ffd2b2; --opt-fg: #562b00; --opt-tint: #fef5ee; --opt-card: #ffffff; --opt-mark: #ffe8d8; }
+.opt-yellow, .tint-yellow { --opt-bg: #ecdca9; --opt-fg: #453601; --opt-tint: #faf7ec; --opt-card: #ffffff; --opt-mark: #f6eed4; }
+.opt-green, .tint-green { --opt-bg: #bfe9c9; --opt-fg: #144225; --opt-tint: #f0faf2; --opt-card: #ffffff; --opt-mark: #dff4e4; }
+.opt-blue, .tint-blue { --opt-bg: #bde2ff; --opt-fg: #113b58; --opt-tint: #f0f8ff; --opt-card: #ffffff; --opt-mark: #def0ff; }
+.opt-purple, .tint-purple { --opt-bg: #e5d3fc; --opt-fg: #402e54; --opt-tint: #f9f5fe; --opt-card: #ffffff; --opt-mark: #f2e9fe; }
+.opt-pink, .tint-pink { --opt-bg: #fdcde2; --opt-fg: #53273d; --opt-tint: #fff3f8; --opt-card: #ffffff; --opt-mark: #fee6f0; }
+.opt-red, .tint-red { --opt-bg: #ffcfcc; --opt-fg: #5b2424; --opt-tint: #fef4f3; --opt-card: #ffffff; --opt-mark: #ffe7e6; }
 
 :root:not(:has([data-print-view])) {
   @variant dark {
-    .opt-gray, .tint-gray { --opt-bg: #617267; --opt-fg: #f4f6f4; --opt-tint: #1f2120; --opt-card: #2d312f; }
-    .opt-brown, .tint-brown { --opt-bg: #8c654f; --opt-fg: #fbf3ef; --opt-tint: #251e1b; --opt-card: #3c2c22; }
-    .opt-orange, .tint-orange { --opt-bg: #9d6125; --opt-fg: #fbf5ef; --opt-tint: #272019; --opt-card: #402f1e; }
-    .opt-yellow, .tint-yellow { --opt-bg: #886e20; --opt-fg: #fbf8ef; --opt-tint: #262319; --opt-card: #3f371f; }
-    .opt-green, .tint-green { --opt-bg: #3b7d51; --opt-fg: #effbf3; --opt-tint: #1c241e; --opt-card: #253a2c; }
-    .opt-blue, .tint-blue { --opt-bg: #3a72a4; --opt-fg: #eff5fb; --opt-tint: #1b2025; --opt-card: #23303b; }
-    .opt-purple, .tint-purple { --opt-bg: #8659a6; --opt-fg: #f6effb; --opt-tint: #211b25; --opt-card: #31233b; }
-    .opt-pink, .tint-pink { --opt-bg: #a4517a; --opt-fg: #fbeff5; --opt-tint: #251b20; --opt-card: #3b232f; }
-    .opt-red, .tint-red { --opt-bg: #ad514a; --opt-fg: #fbefef; --opt-tint: #251b1b; --opt-card: #3c2422; }
+    .opt-gray, .tint-gray { --opt-bg: #617267; --opt-fg: #f4f6f4; --opt-tint: #1f2120; --opt-card: #2d312f; --opt-mark: #2f3533; }
+    .opt-brown, .tint-brown { --opt-bg: #8c654f; --opt-fg: #fbf3ef; --opt-tint: #251e1b; --opt-card: #3c2c22; --opt-mark: #3d312c; }
+    .opt-orange, .tint-orange { --opt-bg: #9d6125; --opt-fg: #fbf5ef; --opt-tint: #272019; --opt-card: #402f1e; --opt-mark: #43301e; }
+    .opt-yellow, .tint-yellow { --opt-bg: #886e20; --opt-fg: #fbf8ef; --opt-tint: #262319; --opt-card: #3f371f; --opt-mark: #3c341d; }
+    .opt-green, .tint-green { --opt-bg: #3b7d51; --opt-fg: #effbf3; --opt-tint: #1c241e; --opt-card: #253a2c; --opt-mark: #23392c; }
+    .opt-blue, .tint-blue { --opt-bg: #3a72a4; --opt-fg: #eff5fb; --opt-tint: #1b2025; --opt-card: #23303b; --opt-mark: #233547; }
+    .opt-purple, .tint-purple { --opt-bg: #8659a6; --opt-fg: #f6effb; --opt-tint: #211b25; --opt-card: #31233b; --opt-mark: #3b2d47; }
+    .opt-pink, .tint-pink { --opt-bg: #a4517a; --opt-fg: #fbeff5; --opt-tint: #251b20; --opt-card: #3b232f; --opt-mark: #452b39; }
+    .opt-red, .tint-red { --opt-bg: #ad514a; --opt-fg: #fbefef; --opt-tint: #251b1b; --opt-card: #3c2422; --opt-mark: #482b2a; }
   }
 }
 
 .opt-gray, .opt-brown, .opt-orange, .opt-yellow, .opt-green, .opt-blue, .opt-purple, .opt-pink, .opt-red {
   background: var(--opt-bg);
   color: var(--opt-fg);
+}
+
+.color-mark {
+  background: var(--opt-mark);
+}
+/* Lines that lighten on hover (list rows) lean toward the color instead. */
+.color-mark.mark-hover:hover {
+  background: color-mix(in srgb, var(--opt-mark) 75%, var(--opt-bg));
 }
 
 /*
@@ -728,10 +738,23 @@
 .board-card:hover {
   background: color-mix(in srgb, var(--opt-card, var(--bg)) 65%, var(--opt-bg, var(--bg-hover)));
 }
+/*
+ * A card a color rule colors (lib/color-rules): its own color, whatever column it is in, edged in
+ * it too, so it stands out from the cards of a column of a like color.
+ */
+.board-card.color-mark {
+  background: var(--opt-mark);
+  box-shadow: 0 0 0 1px var(--opt-bg), 0 1px 3px rgba(15, 15, 15, 0.08);
+}
+.board-card.color-mark:hover {
+  background: color-mix(in srgb, var(--opt-mark) 75%, var(--opt-bg));
+}
 
 :root:not(:has([data-print-view])) {
   @variant dark {
     .board-card { box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04), 0 1px 3px rgba(0, 0, 0, 0.3); }
+    .board-card.color-mark { box-shadow: 0 0 0 1px var(--opt-bg), 0 1px 3px rgba(0, 0, 0, 0.3); }
+    .board-card.color-mark:hover { background: color-mix(in srgb, var(--opt-mark) 75%, var(--opt-bg)); }
     /* Dark chips are mid-tone, so a lighter lean keeps the hover a tint rather than a highlight. */
     .board-card:hover { background: color-mix(in srgb, var(--opt-card, var(--bg)) 85%, var(--opt-bg, var(--bg-hover))); }
   }
@@ -764,9 +787,9 @@
   width: 100%;
   min-width: 0;
 }
-/* Room for the thread's menu (and its muted mark) at the end of the line it is about. */
+/* Room for the thread's menu (and its marks: new, come back later, muted) at the end of the line it is about. */
 .comments-panel .comments-thread .bn-header-text {
-  padding-inline-end: 3.5rem;
+  padding-inline-end: var(--thread-tools, 3.5rem);
 }
 
 /* Find in page: every match is tinted, the current one stronger and outlined. */

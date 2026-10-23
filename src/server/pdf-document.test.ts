@@ -3,6 +3,7 @@ import pdfmake from "pdfmake";
 import roboto from "pdfmake/fonts/Roboto.js";
 import type { ContentTable, ContentText, ContentUnorderedList } from "pdfmake/interfaces";
 import type { MdBlock } from "@/lib/content-markdown";
+import { tint } from "@/lib/letterheads";
 import { pdfDocument, type PdfInput, type PdfSection } from "./pdf-document";
 
 const text = (value: string, styles: Record<string, unknown> = {}) => ({ type: "text", text: value, styles });
@@ -115,6 +116,37 @@ describe("pdfDocument", () => {
   it("lists a row's values under the title when given", () => {
     const content = contentOf(input([], { properties: [{ name: "Status", value: "Sent" }] }));
     expect(JSON.stringify(content[1])).toContain("Sent");
+  });
+
+  it("prints a letterhead: its logo and lines at the top, its lines and page numbers at the foot, the body below", () => {
+    const logo = "data:image/png;base64,AAAA";
+    const letterhead = { logo, logoPlace: "left" as const, header: "3E Soğutma\nİstanbul\nTel", footer: "IBAN TR00", accent: "#0b5ea8", pageNumbers: true };
+    const table = block("table", { type: "tableContent", headerRows: 1, rows: [{ cells: [cell("A")] }, { cells: [cell("1")] }] });
+    const doc = pdfDocument({ ...input([table]), letterhead });
+    const plain = pdfDocument(input([table]));
+    const top = (doc.header as () => unknown)();
+    expect(JSON.stringify(top)).toContain(logo);
+    expect(JSON.stringify(top)).toContain("3E Soğutma");
+    expect(JSON.stringify(top)).toContain('"lineColor":"#0b5ea8"');
+    // The body starts below the letterhead, and ends above its foot.
+    const [, docTop, , docBottom] = doc.pageMargins as number[];
+    const [, plainTop, , plainBottom] = plain.pageMargins as number[];
+    expect(docTop).toBeGreaterThan(plainTop + 40);
+    expect(docBottom).toBeGreaterThanOrEqual(plainBottom);
+    const foot = (doc.footer as (c: number, t: number) => unknown)(1, 1);
+    expect(JSON.stringify(foot)).toContain("IBAN TR00");
+    expect(JSON.stringify(foot)).toContain("1 / 1");
+    // Without a letterhead a single page has no number.
+    expect((plain.footer as (c: number, t: number) => unknown)(1, 1)).toBeNull();
+    // Table headers take a tint of the accent.
+    const drawn = (doc.content as unknown[])[1] as ContentTable;
+    expect((drawn.table.body[0][0] as { fillColor?: string }).fillColor).toBe(tint("#0b5ea8", 0.86));
+  });
+
+  it("leaves the top as without one when a letterhead has neither logo nor lines there", () => {
+    const doc = pdfDocument({ ...input([]), letterhead: { logo: null, logoPlace: "center", header: "", footer: "", accent: "", pageNumbers: false } });
+    expect(doc.header).toBeUndefined();
+    expect((doc.footer as (c: number, t: number) => unknown)(1, 2)).toBeNull();
   });
 
   it("renders a PDF whose text reads back, Turkish letters included", async () => {

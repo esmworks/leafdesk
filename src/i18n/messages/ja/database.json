@@ -20,7 +20,8 @@
     "lastEditedBy": "最終更新者",
     "lastEditedTime": "最終更新日時",
     "formula": "数式",
-    "rollup": "ロールアップ"
+    "rollup": "ロールアップ",
+    "place": "場所"
   },
   "views": {
     "table": "テーブル",
@@ -31,7 +32,8 @@
     "timeline": "タイムライン",
     "chart": "グラフ",
     "dashboard": "ダッシュボード",
-    "form": "フォーム"
+    "form": "フォーム",
+    "map": "マップ"
   },
   "dashboardView": {
     "emptyEditable": "このデータベースの数値、グラフ、リストをここに表示します。行が変わると自動で更新されます。",
@@ -241,12 +243,30 @@
     "noSearchMatches": "検索に一致する行はありません。",
     "addProperty": "プロパティを追加",
     "rowActions": "行の操作",
+    "dragToMove": "ドラッグして移動",
+    "clickForMenu": "クリックしてメニューを開く",
+    "sortedNoDrag": "ビューが並べ替えられている間は行をドラッグできません",
     "sortedAscending": "昇順で並べ替え済み",
     "sortedDescending": "降順で並べ替え済み"
   },
   "rowMenu": {
     "open": "開く",
-    "openPage": "フルページで開く"
+    "openPage": "フルページで開く",
+    "copyLink": "リンクをコピー",
+    "duplicate": "複製",
+    "search": "アクションを検索…",
+    "page": "ページ",
+    "editIcon": "アイコンを編集",
+    "editProperty": "プロパティを編集",
+    "openIn": "開く場所",
+    "sidePanel": "サイドパネル",
+    "fullPage": "フルページ",
+    "newTab": "新しいタブ",
+    "comment": "コメント",
+    "developer": "開発者向け",
+    "copyDatabaseId": "データベース ID をコピー",
+    "noMatches": "一致するアクションはありません。",
+    "lastEdited": "最終編集"
   },
   "rowPanel": {
     "label": "行：{title}",
@@ -724,7 +744,13 @@
       "panel": "サイドパネル",
       "page": "フルページ"
     },
-    "showOutdated": "アーカイブした行を表示"
+    "showOutdated": "アーカイブした行を表示",
+    "place": "場所プロパティ",
+    "needsPlace": "マップは場所プロパティで行を配置します。",
+    "newPlaceProperty": "新しい場所プロパティ",
+    "pinColor": "ピンの色",
+    "noPinColor": "なし",
+    "colorRules": "色ルール"
   },
   "gallery": {
     "new": "新規",
@@ -860,6 +886,7 @@
     "cannotRestrict": "このプロパティには個別のアクセス権を設定できません。",
     "typeChangeRestricted": "「{property}」にはアクセスルールがありますが、その種類のプロパティにはアクセスルールを設定できません。先にルールを削除してください。",
     "typeChangeNamesPeople": "アクセスルールによって「{property}」に含まれるユーザーにアクセス権が与えられています。種類を変更する前に、それらのルールを削除してください。",
+    "invalidRowAccess": "これらの行のアクセスルールは保存できません。再読み込みしてもう一度お試しください。",
     "invalidAutomation": "このオートメーションは保存できません。トリガーとアクションを確認してください。",
     "tooManyAutomations": "1つのデータベースに設定できるオートメーションは最大{max}個です。",
     "invalidWebhookUrl": "「{value}」は有効なhttp(s)アドレスではありません。",
@@ -874,7 +901,11 @@
     "mergeRowsInvalid": "統合できるのは、ゴミ箱にない同じデータベースの行だけです。",
     "mergeRowsReadOnly": "{rows}は閲覧しかできません。統合するにはすべての行の編集権限が必要です。",
     "mergeLinksBlocked": "{count}行がこれらの行にリンクしていて、あなたはそれを変更できません：{rows}。何も統合されませんでした。",
-    "mergeChoiceInvalid": "「{property}」に選んだ値は使えません。別の行の値を選んでください。"
+    "mergeChoiceInvalid": "「{property}」に選んだ値は使えません。別の行の値を選んでください。",
+    "invalidPlace": "「{property}」には住所か座標（緯度, 経度）を入力します。",
+    "placeNotFound": "「{property}」で「{value}」に当たる場所が見つかりません。",
+    "geocodingOff": "このサーバーでは住所検索がオフです。「{property}」には座標（緯度, 経度）を入力してください。",
+    "geocoderBusy": "住所検索が混み合っています。少し待ってから「{property}」をもう一度試してください。"
   },
   "formula": {
     "title": "数式",
@@ -894,6 +925,20 @@
     "error": "エラー",
     "errorTitle": "この行は計算できません：{message}",
     "or": "または",
+    "ai": {
+      "open": "説明して作成",
+      "title": "AI で数式を作成",
+      "close": "閉じる",
+      "description": "数式で計算したい内容",
+      "placeholder": "例：期日までの残り日数、過ぎていたら「遅延」",
+      "writing": "作成中…",
+      "write": "数式を作成",
+      "again": "作り直す",
+      "failed": "AI が作成した数式は動作しません：{message}",
+      "use": "この数式を使う",
+      "emptyValue": "空",
+      "noRows": "試せる行がまだありません。"
+    },
     "groups": {
       "logic": "論理",
       "text": "テキスト",
@@ -1037,6 +1082,35 @@
       "share": "データベースへのアクセス権を変更"
     }
   },
+  "rowAccess": {
+    "menuItem": "行のアクセス権",
+    "menuHint": "行で指定されたユーザーに、その行へのアクセス権を与えます",
+    "title": "行のアクセス権",
+    "description": "行で指定されたユーザーに、その行と行内のページへのアクセス権を与えます。",
+    "loading": "読み込み中…",
+    "rules": "ルール",
+    "rulesHint": "各ルールは、ユーザープロパティに含まれるユーザー、または行の作成者に、それぞれの行へのアクセス権を与えます。",
+    "noPersonProperties": "指定されたユーザーにアクセス権を与えるには、ユーザープロパティを追加してください。行の作成者にはすでにルールを設定できます。",
+    "creator": "作成者",
+    "creatorDetail": "行を作成したユーザー",
+    "personDetail": "このプロパティで指定されたユーザー（自分の行のみ）",
+    "addRule": "ルールを追加",
+    "levelFor": "{name}のアクセス権",
+    "removeRule": "{name}を削除",
+    "levels": {
+      "full": "フルアクセス",
+      "edit": "編集可能",
+      "comment": "コメント可能",
+      "view": "閲覧可能"
+    },
+    "restricted": "行を指定されたユーザーにだけ表示",
+    "restrictedHint": "データベースを開けるほかのユーザーには、ルールまたは行自体の共有で許可された行だけが表示されます。",
+    "fullAccess": {
+      "warning": "{count, plural, other {{names}{more, plural, =0 {} other {ほか{more}人}}}}はこのデータベースへのフルアクセス権を持っているため、すべての行が引き続き表示されます。制限するには、その人のアクセス権、またはチームスペースのメンバーのアクセス権を下げてください。",
+      "share": "データベースへのアクセス権を変更"
+    },
+    "note": "ルールはアクセス権を追加するだけです。共有でより広い権限が与えられている場合は、それが維持されます。行のユーザーを変更すると、その行を開ける人がすぐに変わります。"
+  },
   "automations": {
     "button": "オートメーション",
     "title": "オートメーション",
@@ -1130,6 +1204,7 @@
         "upsert_row": "行を追加または更新",
         "wait": "待機",
         "log": "実行履歴に書き込む",
+        "celebrate": "紙吹雪でお祝い",
         "approval": "承認を依頼",
         "start_sequence": "フォローアップを開始"
       },
@@ -1321,7 +1396,9 @@
         "sequenceGone": "フォローアップがありません",
         "noMailbox": "オートメーションの実行ユーザーがメールボックスを接続していません",
         "noAddress": "行にメールアドレスがありません",
-        "emailOff": "行のメールがオフです"
+        "emailOff": "行のメールがオフです",
+        "noPerson": "スキップ: この実行は人による変更で始まっていません",
+        "tooLate": "スキップ: 変更から時間がたちすぎています"
       },
       "waitingApproval": "承認待ち",
       "approval": {
@@ -1421,7 +1498,9 @@
       "waitHelp": "最大 7 日。実行は待機してから次のステップに進みます。",
       "logMessage": "メッセージ",
       "logPlaceholder": "例：{template} をインポートしました",
-      "logHelp": "変数を埋めた状態で実行履歴に書き込まれます。"
+      "logHelp": "変数を埋めた状態で実行履歴に書き込まれます。",
+      "celebrateHelp": "実行のきっかけとなる変更をした人の、アプリで開いているウィンドウに紙吹雪を表示します。誰も始めていない実行（スケジュール、日付の経過、受信 Webhook、匿名のフォーム回答）と、変更から 2 分以上たってこのステップに来た実行では、スキップされます。",
+      "celebrateTry": "試す"
     },
     "variables": {
       "button": "変数を挿入",
@@ -1504,6 +1583,10 @@
         "name": "期限切れの行をリマインド",
         "description": "未完了の行の日付から1日過ぎたら、その行のユーザーに通知します。",
         "message": "{title}の期限が過ぎています。"
+      },
+      "celebrateDone": {
+        "name": "完了した行をお祝い",
+        "description": "行が完了になったとき、完了にした人に紙吹雪を表示します。"
       }
     }
   },
@@ -1585,5 +1668,51 @@
     "confirm": "行を統合",
     "merging": "統合中…",
     "bodyHeading": "{title}から統合"
+  },
+  "place": {
+    "search": "住所や場所を検索",
+    "input": "{property}：住所または座標",
+    "coordinatesHint": "または 41.04, 29.01 のような座標を貼り付け",
+    "searching": "検索中…",
+    "noResults": "場所が見つかりません。",
+    "off": "このサーバーでは住所検索がオフです。代わりに座標を貼り付けてください。",
+    "busy": "検索が集中しています。少し待ってからもう一度試してください。",
+    "failed": "住所検索から応答がありません。もう一度試してください。",
+    "useCoordinates": "{coordinates} を使う",
+    "openMap": "地図で開く",
+    "clear": "クリア",
+    "current": "現在の場所"
+  },
+  "map": {
+    "off": "このサーバーではマップがオフです。",
+    "needsPlaceTitle": "マップは行を場所プロパティが示す位置に置きます",
+    "needsPlaceBody": "このデータベースにはまだ場所プロパティがありません。",
+    "addPlaceProperty": "{name}プロパティを追加",
+    "defaultPlaceProperty": "場所",
+    "noLocation": "{property}のない行 {count, plural, other {# 件}}",
+    "noLocationTitle": "{property}のない行",
+    "label": "{property}による行のマップ",
+    "pin": "{title}、{place}",
+    "open": "開く",
+    "closeCard": "閉じる",
+    "zoomIn": "拡大",
+    "zoomOut": "縮小",
+    "fit": "すべての行を表示",
+    "loading": "マップを読み込み中…"
+  },
+  "colorRules": {
+    "title": "色ルール",
+    "description": "条件に合う行や、その値の一つに色を付けます。",
+    "empty": "色ルールはまだありません。ルールを追加すると、合う行に色が付きます。",
+    "ruleLabel": "{color}のルール",
+    "color": "色",
+    "colors": "色を付ける対象",
+    "target": "ルールが色を付ける対象",
+    "wholeRow": "行全体",
+    "moveUp": "上へ移動",
+    "moveDown": "下へ移動",
+    "delete": "ルールを削除",
+    "add": "ルールを追加",
+    "firstMatchWins": "複数のルールが合うときは、最初のルールが行や値に色を付けます。"
   }
 }

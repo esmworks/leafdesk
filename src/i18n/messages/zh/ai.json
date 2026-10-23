@@ -208,6 +208,10 @@
       "query": "已查询",
       "rows": "{count, plural, =0 {没有匹配的行} other {# 行}}",
       "queryGone": "查询了一个你已无法打开的数据库",
+      "plan": "已规划研究：",
+      "webSearched": "在网上搜索“{query}” · {count, plural, =0 {未找到} other {# 个结果}}",
+      "webRead": "已读",
+      "webReadFailed": "无法读取",
       "write": {
         "done": {
           "createRow": "已添加行：",
@@ -215,7 +219,10 @@
           "createPage": "已添加页面：",
           "editPage": "已更改页面文本：",
           "createPdf": "已生成 PDF：",
-          "mergeRows": "已将行合并到："
+          "mergeRows": "已将行合并到：",
+          "addComment": "已评论：",
+          "createDatabase": "已添加数据库：",
+          "createForm": "已添加表单："
         },
         "declined": {
           "createRow": "已拒绝添加行：",
@@ -223,7 +230,10 @@
           "createPage": "已拒绝添加页面：",
           "editPage": "已拒绝更改其文本：",
           "createPdf": "已拒绝生成 PDF：",
-          "mergeRows": "已拒绝将行合并到："
+          "mergeRows": "已拒绝将行合并到：",
+          "addComment": "已拒绝评论：",
+          "createDatabase": "已拒绝添加数据库：",
+          "createForm": "已拒绝添加表单："
         },
         "failed": {
           "createRow": "无法添加行：",
@@ -231,7 +241,10 @@
           "createPage": "无法添加页面：",
           "editPage": "无法更改其文本：",
           "createPdf": "无法生成 PDF：",
-          "mergeRows": "无法将行合并到："
+          "mergeRows": "无法将行合并到：",
+          "addComment": "无法评论：",
+          "createDatabase": "无法添加数据库：",
+          "createForm": "无法添加表单："
         },
         "in": "位于",
         "proposed": {
@@ -240,7 +253,10 @@
           "createPage": "提议添加一个页面以供审阅：",
           "editPage": "提议了一处文本更改以供审阅：",
           "createPdf": "提议了一个 PDF 供审核：",
-          "mergeRows": "建议合并行以供审核，合并到："
+          "mergeRows": "建议合并行以供审核，合并到：",
+          "addComment": "已提议一条待审核的评论：",
+          "createDatabase": "已提议一个待审核的数据库：",
+          "createForm": "已提议一个待审核的表单："
         }
       },
       "memory": {
@@ -279,7 +295,10 @@
         "forget": "要忘记这条笔记吗？",
         "editPage": "要更改此页面的文本吗？",
         "createPdf": "生成此页面的 PDF 并附加到页面？",
-        "connection": "要将此发送到 {connection} 吗？"
+        "connection": "要将此发送到 {connection} 吗？",
+        "addComment": "添加这条评论？",
+        "createDatabase": "添加这个数据库？",
+        "createForm": "添加这个表单？"
       },
       "in": "位于",
       "row": "行",
@@ -292,7 +311,14 @@
       "waiting": "等待你的批准",
       "page": "页面",
       "empty": "（空）",
-      "connectionHint": "通过工作区的连接发送：可能会更改 {connection} 中的内容"
+      "connectionHint": "通过工作区的连接发送：可能会更改 {connection} 中的内容",
+      "fromFile": "来自 {name} 的 {rows, plural, other {# 行}}",
+      "titleColumn": "标题",
+      "publicForm": {
+        "signedIn": "公开链接：任何拥有链接的人登录后即可回答",
+        "anonymous": "公开链接：任何拥有链接的人无需登录即可回答"
+      },
+      "letterhead": "信笺：{name}"
     },
     "mode": {
       "label": "更改",
@@ -309,7 +335,28 @@
       "retry": "重新回答"
     },
     "actionsFor": "{name} 的操作",
-    "greeting": "你想了解什么？"
+    "greeting": "你想了解什么？",
+    "files": {
+      "attach": "附加文件",
+      "attachHint": "附加图片或 PDF、Word、Excel、CSV、文本文件，就其提问",
+      "drop": "松开以附加文件",
+      "remove": "移除 {name}",
+      "size": "{rows, plural, other {# 行}} × {columns, plural, other {# 列}}",
+      "uploading": "正在上传…",
+      "notSupported": "聊天可读取图片、PDF、Word 和 Excel 文档，以及 CSV、Markdown 和文本文件。",
+      "tooLarge": "该文件超过 {size}。请附加更小的文件。",
+      "tooManyRows": "该文件超过 {rows} 行。请附加更短的 CSV 文件，或将其作为数据库导入。",
+      "tooManyColumns": "该文件超过 {columns} 列。",
+      "empty": "该文件是空的。",
+      "tooMany": "一个问题最多可附加 {count} 个文件。",
+      "noImages": "所选模型不支持图片。请换一个模型，或移除图片。",
+      "quota": "文件未附加：此工作区的文件存储已用完。",
+      "failed": "无法附加 {name}。"
+    },
+    "research": {
+      "sourcesHeading": "来源",
+      "untitled": "研究报告"
+    }
   },
   "memory": {
     "open": "记忆",

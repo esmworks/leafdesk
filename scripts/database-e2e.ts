@@ -1,7 +1,8 @@
 /**
  * End-to-end check of database edits against the database: deleting options clears them from rows,
  * stale relation links don't block edits, properties added later start hidden on calendars, a
- * trashed database still lists the rows trashed with it, and the page header knows guests.
+ * trashed database still lists the rows trashed with it, rows dragged beside another land there
+ * even when they share a position, and the page header knows guests and counts words.
  * Creates its own users and workspace and deletes them afterwards.
  *
  *   pnpm tsx scripts/database-e2e.ts
@@ -15,7 +16,7 @@ try {
 } catch {}
 
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
-const { eq, inArray } = await import("drizzle-orm");
+const { eq, inArray, sql } = await import("drizzle-orm");
 const { db } = await import("@/db");
 const { databaseProperty, databaseView, page, propertyPermission, user, workspace, workspaceMember } = await import("@/db/schema");
 const { registerCollab } = await import("@/server/collab/bridge");
@@ -25,6 +26,7 @@ const {
   changePropertyType,
   duplicateProperty,
   getDatabaseSnapshot,
+  moveRowBeside,
   updateProperty,
   updateRowProperties,
   updateView,
@@ -283,6 +285,31 @@ try {
     "concurrent edits of different properties of a row are all kept, and a concurrent clear too",
     merged,
   );
+
+  // A row dragged beside another lands there, also among rows that share a position (copies and
+  // imports can leave them so): the rows are numbered again in the order they show, unedited.
+  const lined = await createPage(actor, { workspaceId, kind: "database", title: "Lined up" });
+  for (const title of ["a", "b", "c", "d"]) await createPage(actor, { workspaceId, parentId: lined.id, title });
+  await db.execute(sql`update page set position = 0 where parent_id = ${lined.id}`);
+  const lineup = async () => (await getDatabaseSnapshot(ids.owner, lined.id)).rows.map((r) => r.title).join("");
+  const shown = await lineup();
+  const titled = new Map((await getDatabaseSnapshot(ids.owner, lined.id)).rows.map((r) => [r.title, r.id]));
+  const [first, second, third] = shown.split("");
+  const editedBefore3 = await editedAt(titled.get(third)!);
+  await moveRowBeside(ids.owner, titled.get(first)!, titled.get(third)!, "after");
+  check(
+    (await lineup()) === shown.replace(first, "").replace(third, third + first),
+    "a row moved after another among rows sharing a position lands right after it, the others keeping their order",
+    { shown, now: await lineup() },
+  );
+  check((await editedAt(titled.get(third)!)) === editedBefore3, "numbering the rows again doesn't edit them");
+  await moveRowBeside(ids.owner, titled.get(first)!, titled.get(second)!, "before");
+  check((await lineup()) === shown, "…and moved back before the row it followed, the order is as it was", await lineup());
+
+  // The page header counts a body's words and characters, line breaks left out
+  await db.execute(sql`update page set content_text = ${"Bir iki  üç\ndört"} where id = ${titled.get(first)!}`);
+  const counted = await getPageHeaderInfo(ids.owner, titled.get(first)!);
+  check(counted.words === 4 && counted.characters === 15, "the header counts words and characters", counted);
 
   // A trashed database lists the rows trashed with it
   await archivePage(ids.owner, tasks.id);

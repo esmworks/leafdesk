@@ -137,6 +137,18 @@
     "pageUpdated": "{actor} 编辑了此页面",
     "rowEmail": "来自 {from} 的邮件",
     "followUp": "跟进“{sequence}”已暂停：下一封邮件需要你查看",
+    "reaction": "{actor} 用 {emoji} 回应了你的评论",
+    "reactionExcerpt": "“{text}”",
+    "people": "{others, plural, =0 {{name}} other {{name} 等 # 人}}",
+    "groupComments": "{count, plural, other {# 条评论}}",
+    "groupNewComments": "{count, plural, other {# 条新评论}}",
+    "groupReactions": "{count, plural, other {# 个回应}}",
+    "groupNewReactions": "{count, plural, other {# 个新回应}}",
+    "groupEdits": "{count, plural, other {# 次编辑}}",
+    "groupNewEdits": "{count, plural, other {# 次新编辑}}",
+    "groupMarkRead": "标为已读",
+    "groupExpand": "显示全部 {count} 条",
+    "groupCollapse": "收起",
     "noSubject": "（无主题）",
     "tabs": "显示",
     "tabAll": "全部",
@@ -214,7 +226,8 @@
     "private": "私有",
     "newPrivate": "新建私有页面",
     "more": "还有 {count} 个",
-    "less": "收起"
+    "less": "收起",
+    "meetings": "会议"
   },
   "joinable": {
     "heading": "你可以加入的工作区",

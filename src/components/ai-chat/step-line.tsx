@@ -2,10 +2,11 @@
 
 /**
  * One step an AI answer or an agent's run took (a search, a page read, a database queried, a
- * change made, a note kept about the person or dropped, a call to a connection's tool, a thought),
- * as a line: an icon and what happened, the pages it names as links.
+ * change made, a note kept about the person or dropped, a call to a connection's tool, a research
+ * plan, a web search or a web page read, a thought), as a line: an icon and what happened, the
+ * pages it names as links (web pages open in a new tab).
  */
-import { Ban, BookOpen, Brain, BrainCog, CircleAlert, FileDown, FilePen, FilePlus, Filter, Lightbulb, ListPlus, Merge, PencilLine, Plug, Search } from "lucide-react";
+import { Ban, BookOpen, Brain, BrainCog, CircleAlert, ClipboardList, FileDown, FilePen, FilePlus, Filter, Globe, Lightbulb, ListPlus, ListTree, Merge, MessageSquarePlus, PencilLine, Plug, Search, Table2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { Fragment } from "react";
 import { cn, PageIcon, pageLabel } from "@/components/ui";
@@ -85,6 +86,42 @@ export function StepLine({ step, onSource }: { step: ChatStepView; onSource: (so
       </>
     );
   }
+  if (step.kind === "plan") {
+    return (
+      <>
+        <ListTree className={icon} />
+        <span className="min-w-0 break-words">
+          {t("steps.plan")}
+          <ol className="mt-0.5 list-decimal ps-4">
+            {step.questions.map((q, i) => (
+              <li key={i}>{q}</li>
+            ))}
+          </ol>
+        </span>
+      </>
+    );
+  }
+  if (step.kind === "web") {
+    if (step.action === "search") {
+      return (
+        <>
+          <Globe className={icon} />
+          <span className="min-w-0 break-words">{t("steps.webSearched", { query: step.query, count: step.results })}</span>
+        </>
+      );
+    }
+    return (
+      <>
+        {step.outcome === "failed" ? <CircleAlert className={cn(icon, "text-danger")} /> : <Globe className={icon} />}
+        <span className="flex min-w-0 items-center gap-1">
+          {step.outcome === "failed" ? t("steps.webReadFailed") : t("steps.webRead")}
+          <a href={step.url} target="_blank" rel="noopener noreferrer nofollow" className="min-w-0 truncate text-fg hover:underline" title={step.url}>
+            {step.title || step.url}
+          </a>
+        </span>
+      </>
+    );
+  }
   return (
     <>
       <Lightbulb className={icon} />
@@ -93,7 +130,17 @@ export function StepLine({ step, onSource }: { step: ChatStepView; onSource: (so
   );
 }
 
-const WRITE_ICONS = { createRow: ListPlus, updateRow: PencilLine, createPage: FilePlus, editPage: FilePen, createPdf: FileDown, mergeRows: Merge } as const;
+const WRITE_ICONS = {
+  createRow: ListPlus,
+  updateRow: PencilLine,
+  createPage: FilePlus,
+  editPage: FilePen,
+  createPdf: FileDown,
+  mergeRows: Merge,
+  addComment: MessageSquarePlus,
+  createDatabase: Table2,
+  createForm: ClipboardList,
+} as const;
 
 /**
  * A change made ("Row added: <row> · in <database>", with the values set), declined or failed. The
@@ -104,8 +151,9 @@ function WriteLine({ step, onSource }: { step: ChatWriteView; onSource: (source:
   const Icon = step.outcome === "declined" ? Ban : step.outcome === "failed" ? CircleAlert : WRITE_ICONS[step.action];
   // A row or page changed is the change's subject; a row or page added goes into its target, and
   // so does a PDF made of a page (the file is its subject, by name).
-  const changedInPlace = step.action === "updateRow" || step.action === "editPage" || step.action === "mergeRows";
-  const pdf = step.action === "createPdf";
+  const changedInPlace = step.action === "updateRow" || step.action === "editPage" || step.action === "mergeRows" || step.action === "addComment";
+  // A form is named by its title, in the database it was added to.
+  const pdf = step.action === "createPdf" || step.action === "createForm";
   const where = changedInPlace ? null : pdf ? (step.page ?? step.target) : step.target;
   const subject = pdf ? null : (step.page ?? (changedInPlace ? step.target : null));
   return (

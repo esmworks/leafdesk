@@ -208,6 +208,10 @@
       "query": "クエリ",
       "rows": "{count, plural, =0 {一致する行なし} other {{count}行}}",
       "queryGone": "現在は開けないデータベースをクエリしました",
+      "plan": "調査を計画しました:",
+      "webSearched": "ウェブで「{query}」を検索 · {count, plural, =0 {見つかりません} other {# 件}}",
+      "webRead": "読んだページ",
+      "webReadFailed": "読めませんでした:",
       "write": {
         "done": {
           "createRow": "行を追加しました：",
@@ -215,7 +219,10 @@
           "createPage": "ページを追加しました：",
           "editPage": "ページのテキストを変更しました：",
           "createPdf": "PDF を作成しました：",
-          "mergeRows": "行を統合しました："
+          "mergeRows": "行を統合しました：",
+          "addComment": "コメントしました:",
+          "createDatabase": "データベースを追加しました:",
+          "createForm": "フォームを追加しました:"
         },
         "declined": {
           "createRow": "行の追加が拒否されました：",
@@ -223,7 +230,10 @@
           "createPage": "ページの追加が拒否されました：",
           "editPage": "テキストの変更が拒否されました：",
           "createPdf": "PDF の作成が拒否されました：",
-          "mergeRows": "行の統合を却下しました："
+          "mergeRows": "行の統合を却下しました：",
+          "addComment": "コメントを却下しました:",
+          "createDatabase": "データベースの追加を却下しました:",
+          "createForm": "フォームの追加を却下しました:"
         },
         "failed": {
           "createRow": "行を追加できませんでした：",
@@ -231,7 +241,10 @@
           "createPage": "ページを追加できませんでした：",
           "editPage": "テキストを変更できませんでした：",
           "createPdf": "PDF を作成できませんでした：",
-          "mergeRows": "行を統合できませんでした："
+          "mergeRows": "行を統合できませんでした：",
+          "addComment": "コメントできませんでした:",
+          "createDatabase": "データベースを追加できませんでした:",
+          "createForm": "フォームを追加できませんでした:"
         },
         "in": "場所：",
         "proposed": {
@@ -240,7 +253,10 @@
           "createPage": "確認用にページの追加を提案しました：",
           "editPage": "確認用にテキストの変更を提案しました：",
           "createPdf": "確認用に PDF を提案しました：",
-          "mergeRows": "レビュー用に行の統合を提案しました:"
+          "mergeRows": "レビュー用に行の統合を提案しました:",
+          "addComment": "レビュー用にコメントを提案しました:",
+          "createDatabase": "レビュー用にデータベースを提案しました:",
+          "createForm": "レビュー用にフォームを提案しました:"
         }
       },
       "memory": {
@@ -279,7 +295,10 @@
         "forget": "このメモを忘れますか？",
         "editPage": "このページのテキストを変更しますか？",
         "createPdf": "このページの PDF を作成して添付しますか？",
-        "connection": "これを {connection} に送信しますか？"
+        "connection": "これを {connection} に送信しますか？",
+        "addComment": "このコメントを追加しますか？",
+        "createDatabase": "このデータベースを追加しますか？",
+        "createForm": "このフォームを追加しますか？"
       },
       "in": "場所",
       "row": "行",
@@ -292,7 +311,14 @@
       "waiting": "承認を待っています",
       "page": "ページ",
       "empty": "（空）",
-      "connectionHint": "ワークスペースの接続で送信されます：{connection} で何かが変更される場合があります"
+      "connectionHint": "ワークスペースの接続で送信されます：{connection} で何かが変更される場合があります",
+      "fromFile": "{name} から {rows, plural, other {# 行}}",
+      "titleColumn": "タイトル",
+      "publicForm": {
+        "signedIn": "公開リンク: リンクを知っている人はサインイン後に回答できます",
+        "anonymous": "公開リンク: リンクを知っている人はサインインせずに回答できます"
+      },
+      "letterhead": "レターヘッド: {name}"
     },
     "mode": {
       "label": "変更",
@@ -309,7 +335,28 @@
       "retry": "もう一度回答"
     },
     "actionsFor": "{name}の操作",
-    "greeting": "何を知りたいですか？"
+    "greeting": "何を知りたいですか？",
+    "files": {
+      "attach": "ファイルを添付",
+      "attachHint": "画像や PDF・Word・Excel・CSV・テキストファイルを添付して質問できます",
+      "drop": "ドロップしてファイルを添付",
+      "remove": "{name} を外す",
+      "size": "{rows, plural, other {# 行}} × {columns, plural, other {# 列}}",
+      "uploading": "アップロード中…",
+      "notSupported": "チャットで読めるのは画像、PDF・Word・Excel 文書、CSV・Markdown・テキストファイルです。",
+      "tooLarge": "ファイルが {size} を超えています。小さいファイルを添付してください。",
+      "tooManyRows": "ファイルが {rows} 行を超えています。短い CSV を添付するか、データベースとしてインポートしてください。",
+      "tooManyColumns": "ファイルが {columns} 列を超えています。",
+      "empty": "ファイルが空です。",
+      "tooMany": "1 つの質問に添付できるファイルは {count} 個までです。",
+      "noImages": "選択したモデルは画像を扱えません。別のモデルを選ぶか、画像を外してください。",
+      "quota": "ファイルを添付できませんでした。このワークスペースのファイル容量が上限に達しています。",
+      "failed": "{name} を添付できませんでした。"
+    },
+    "research": {
+      "sourcesHeading": "出典",
+      "untitled": "調査レポート"
+    }
   },
   "memory": {
     "open": "メモリー",

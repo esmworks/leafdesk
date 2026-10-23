@@ -59,6 +59,19 @@ describe("recording AI usage", () => {
     expect(ledger.rows.find((r) => r.workspaceId === "w2")).toMatchObject({ feature: "chat", requests: 1 });
   });
 
+  it("hands over who asked, for the breakdown by person, and nobody for background work", async () => {
+    await complete({ feature: "chat", userId: "ada", workspaceId: "w1", messages: [{ role: "user", content: "Hello" }] });
+    await stream({ feature: "agent", userId: "agent-user", workspaceId: "w1", messages: [{ role: "user", content: "Sort these" }] }).result();
+    await embed(["a page"], { feature: "search.index", workspaceId: "w1" });
+    await transcribe({ bytes: new Blob(["x"]), type: "audio/webm" }, { feature: "voice.transcribe", userId: "ada", workspaceId: "w1" });
+    expect(ledger.people.map((p) => [p.feature, p.userId])).toEqual([
+      ["chat", "ada"],
+      ["agent", "agent-user"],
+      ["search.index", null],
+      ["voice.transcribe", "ada"],
+    ]);
+  });
+
   it("keeps cache tokens apart and takes the provider's cost", () => {
     const numbers = usageNumbers({
       input: 10,

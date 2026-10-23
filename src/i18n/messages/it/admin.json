@@ -66,7 +66,8 @@
   "errors": {
     "notFound": "Account non trovato.",
     "noPassword": "Questo account non ha una password: accede in un altro modo.",
-    "self": "Cambia la tua password nella pagina del tuo account."
+    "self": "Cambia la tua password nella pagina del tuo account.",
+    "noWorkspace": "Spazio di lavoro non trovato."
   },
   "descriptionFirstAccount": "Gli account di questo server, le loro sessioni e le loro password. Vedi questa pagina perché il tuo è stato il primo account su questo server.",
   "signUp": {
@@ -81,5 +82,16 @@
     "body": "Il tuo è il primo account qui, quindi l'Amministrazione del server è tua. Chiunque raggiunga questo indirizzo può ancora registrarsi; l'Amministrazione del server spiega come chiudere le registrazioni.",
     "open": "Amministrazione del server",
     "dismiss": "Chiudi"
+  },
+  "networks": {
+    "heading": "Reti approvate",
+    "description": "Gli spazi di lavoro che si aprono solo da reti approvate. Se un elenco chiude fuori i proprietari di uno spazio di lavoro, svuotalo qui: lo spazio si aprirà da qualsiasi rete finché i proprietari non reimpostano l’elenco.",
+    "none": "Nessuno spazio di lavoro limita l’accesso a reti approvate",
+    "noneDescription": "I proprietari impostano le reti approvate in Impostazioni → Sicurezza del loro spazio di lavoro.",
+    "count": "{count, plural, one {# rete} other {# reti}}",
+    "clear": "Svuota elenco",
+    "clearTitle": "Svuotare le reti approvate di {workspace}?",
+    "clearBody": "Tutti nello spazio di lavoro potranno di nuovo aprirlo da qualsiasi rete, e il suo registro di controllo annoterà che hai svuotato l’elenco. I proprietari possono reimpostarlo in Impostazioni → Sicurezza.",
+    "clearConfirm": "Svuota elenco"
   }
 }

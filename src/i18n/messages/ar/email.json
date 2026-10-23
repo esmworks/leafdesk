@@ -232,6 +232,8 @@
     "pageUpdated": "عدّل {actor} هذه الصفحة",
     "rowEmail": "رسالة بريد من {from}",
     "followUp": "المتابعة «{sequence}» متوقفة مؤقتًا: رسالتها التالية تحتاج إلى نظرة",
+    "reaction": "تفاعل {actor} بـ {emoji} مع تعليقك",
+    "people": "{others, plural, =0 {{name}} one {{name} وشخص آخر} two {{name} وشخصان آخران} few {{name} و# أشخاص آخرين} many {{name} و# شخصًا آخر} other {{name} و# شخص آخر}}",
     "someone": "شخص ما",
     "joinRequestTitle": "طلب انضمام",
     "joinRequest": "طلب {actor} الانضمام",

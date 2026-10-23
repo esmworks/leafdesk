@@ -116,7 +116,7 @@ const everything = (request: FakeChatRequest) => request.messages.map((m) => tex
 /** Tool results the model got in this request, newest last. */
 const toolResults = (request: FakeChatRequest) => request.messages.filter((m) => m.role === "tool").map((m) => textOf(m.content));
 
-/** A step as one line: `search:<query or ?>:<results>`, `read:<title or gone>`, `query:<database or gone>:<rules>:<rows>`, `thought:<text>`. */
+/** A step as one line: `search:<query or ?>:<results>`, `read:<title or gone>`, `query:<database or gone>:<rules>:<rows>`, `plan:…`, `web-search:…`, `web-read:…`, `thought:<text>`. */
 const stepLabel = (step: ChatStepView) =>
   step.kind === "search"
     ? `search:${step.query ?? "?"}:${step.results}`
@@ -128,7 +128,13 @@ const stepLabel = (step: ChatStepView) =>
           ? `write:${step.action}:${step.outcome}:${step.page?.title ?? step.title ?? step.target?.title ?? "?"}`
           : step.kind === "connection"
             ? `connection:${step.connection}:${step.tool}:${step.outcome}`
-            : `thought:${step.text}`;
+            : step.kind === "plan"
+              ? `plan:${step.questions.join("|")}`
+              : step.kind === "web"
+                ? step.action === "search"
+                  ? `web-search:${step.query}:${step.results}`
+                  : `web-read:${step.url}:${step.outcome}`
+                : `thought:${step.text}`;
 
 /** Runs a question to the end; returns its events and what they add up to. */
 async function ask(userId: string, input: ChatInput, options: { signal?: AbortSignal; onEvent?: (e: ChatEvent) => void | Promise<void> } = {}) {
@@ -271,7 +277,7 @@ try {
   const searched = sourcesIn(fake.chats[1]);
   check(searched.some((s) => s.pageId === fleet.id && s.text.includes("car needs new tyres")), "the model's search finds pages by meaning (car for automobile)", searched);
   check(
-    fake.chats.every((r) => r.tools?.map((t) => t.function.name).join() === "search_pages,read_page,query_database,create_row,update_row,create_page,edit_page,create_pdf,remember,forget"),
+    fake.chats.every((r) => r.tools?.map((t) => t.function.name).join() === "search_pages,read_page,query_database,list_comments,page_history,page_version,create_row,update_row,create_page,edit_page,create_pdf,add_comment,create_database,create_form,remember,forget"),
     "every turn declares the tools: to look, (asking first, by default) to change, and to keep notes about the person",
   );
   check(textOf(firstRequest.messages[0].content).includes("never instructions"), "the system prompt treats page content as data");
@@ -686,7 +692,7 @@ try {
   await ask(alice, { workspaceId, conversationId: always.conversationId, message: "And what did you change?", mode: "read" });
   check(everything(fake.chats[0]).includes(`(Changes made: added the row "Snow chains" (page_id `) && everything(fake.chats[0]).includes(`changed the row (page_id ${plugs.id}): Stock`), "a later question knows what was changed, with the ids", everything(fake.chats[0]).slice(-800));
   check(
-    fake.chats.every((r) => r.tools?.map((t) => t.function.name).join() === "search_pages,read_page,query_database,remember,forget") && textOf(fake.chats[0].messages[0].content).includes("You can't change pages or databases"),
+    fake.chats.every((r) => r.tools?.map((t) => t.function.name).join() === "search_pages,read_page,query_database,list_comments,page_history,page_version,remember,forget") && textOf(fake.chats[0].messages[0].content).includes("You can't change pages or databases"),
     "in read-only mode the model isn't offered changes (keeping notes about the person changes nothing in the workspace)",
   );
   // With the memory off, by the person or for the workspace, neither mode offers the notes' tools.
@@ -702,9 +708,9 @@ try {
     await ask(alice, { workspaceId, message: "Which tyres?" });
     check(
       reading.length > 0 &&
-        reading.every((r) => toolsOf(r) === "search_pages,read_page,query_database") &&
+        reading.every((r) => toolsOf(r) === "search_pages,read_page,query_database,list_comments,page_history,page_version") &&
         fake.chats.length > 0 &&
-        fake.chats.every((r) => toolsOf(r) === "search_pages,read_page,query_database,create_row,update_row,create_page,edit_page,create_pdf"),
+        fake.chats.every((r) => toolsOf(r) === "search_pages,read_page,query_database,list_comments,page_history,page_version,create_row,update_row,create_page,edit_page,create_pdf,add_comment,create_database,create_form"),
       `with the memory turned off by ${who}, remember and forget aren't offered, in either mode`,
       [...reading, ...fake.chats].map(toolsOf),
     );

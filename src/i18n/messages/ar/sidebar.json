@@ -137,6 +137,18 @@
     "pageUpdated": "عدّل {actor} هذه الصفحة",
     "rowEmail": "رسالة بريد من {from}",
     "followUp": "المتابعة «{sequence}» متوقفة مؤقتًا: رسالتها التالية تحتاج إلى نظرة",
+    "reaction": "تفاعل {actor} بـ {emoji} مع تعليقك",
+    "reactionExcerpt": "«{text}»",
+    "people": "{others, plural, =0 {{name}} one {{name} وشخص آخر} two {{name} وشخصان آخران} few {{name} و# أشخاص آخرين} many {{name} و# شخصًا آخر} other {{name} و# شخص آخر}}",
+    "groupComments": "{count, plural, zero {لا تعليقات} one {تعليق واحد} two {تعليقان} few {# تعليقات} many {# تعليقًا} other {# تعليق}}",
+    "groupNewComments": "{count, plural, zero {لا تعليقات جديدة} one {تعليق جديد} two {تعليقان جديدان} few {# تعليقات جديدة} many {# تعليقًا جديدًا} other {# تعليق جديد}}",
+    "groupReactions": "{count, plural, zero {لا تفاعلات} one {تفاعل واحد} two {تفاعلان} few {# تفاعلات} many {# تفاعلًا} other {# تفاعل}}",
+    "groupNewReactions": "{count, plural, zero {لا تفاعلات جديدة} one {تفاعل جديد} two {تفاعلان جديدان} few {# تفاعلات جديدة} many {# تفاعلًا جديدًا} other {# تفاعل جديد}}",
+    "groupEdits": "{count, plural, zero {لا تعديلات} one {تعديل واحد} two {تعديلان} few {# تعديلات} many {# تعديلًا} other {# تعديل}}",
+    "groupNewEdits": "{count, plural, zero {لا تعديلات جديدة} one {تعديل جديد} two {تعديلان جديدان} few {# تعديلات جديدة} many {# تعديلًا جديدًا} other {# تعديل جديد}}",
+    "groupMarkRead": "تعليم كمقروء",
+    "groupExpand": "عرض الكل ({count})",
+    "groupCollapse": "عرض أقل",
     "noSubject": "(بلا موضوع)",
     "tabs": "عرض",
     "tabAll": "الكل",
@@ -214,7 +226,8 @@
     "private": "خاصة",
     "newPrivate": "صفحة خاصة جديدة",
     "more": "{count} أخرى",
-    "less": "عرض أقل"
+    "less": "عرض أقل",
+    "meetings": "الاجتماعات"
   },
   "joinable": {
     "heading": "مساحات عمل يمكنك الانضمام إليها",

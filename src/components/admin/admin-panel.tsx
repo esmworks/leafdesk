@@ -4,6 +4,7 @@ import { MoreHorizontal } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useState } from "react";
 import {
+  clearWorkspaceNetworksAction,
   requirePasswordResetAction,
   requirePasswordResetForEveryoneAction,
   signOutEveryoneAction,
@@ -15,7 +16,7 @@ import { SettingsRow } from "@/components/settings/section";
 import { useAction } from "@/components/settings/workspace-settings";
 import { Button, Dialog, IconButton, MenuItem } from "@/components/ui";
 import { UserAvatar } from "@/components/user-avatar";
-import type { InstanceUser } from "@/server/instance-admin";
+import type { InstanceUser, NetworkRestrictedWorkspace } from "@/server/instance-admin";
 
 type Confirmation = { title: string; body: string; confirm: string; action: () => Promise<ActionResult<unknown>> };
 
@@ -90,6 +91,48 @@ export function AdminSessionControls({ emailReset }: { emailReset: boolean }) {
           </Button>
         }
       />
+      {confirmation && <ConfirmDialog confirmation={confirmation} onClose={() => setConfirmation(null)} />}
+    </>
+  );
+}
+
+/**
+ * The workspaces that only open from approved networks, each with a button that clears its list:
+ * the way back in when a list shuts its owners out.
+ */
+export function AdminNetworkControls({ workspaces }: { workspaces: NetworkRestrictedWorkspace[] }) {
+  const t = useTranslations("admin.networks");
+  const [confirmation, setConfirmation] = useState<Confirmation | null>(null);
+  if (!workspaces.length) return <SettingsRow title={t("none")} description={t("noneDescription")} />;
+  return (
+    <>
+      {workspaces.map((w) => (
+        <SettingsRow
+          key={w.id}
+          title={w.name}
+          description={
+            <>
+              {t("count", { count: w.networks.length })}:{" "}
+              <span className="break-all">{w.networks.map((n) => n.range).join(", ")}</span>
+            </>
+          }
+          control={
+            <Button
+              size="sm"
+              onClick={() =>
+                setConfirmation({
+                  title: t("clearTitle", { workspace: w.name }),
+                  body: t("clearBody"),
+                  confirm: t("clearConfirm"),
+                  action: () => clearWorkspaceNetworksAction(w.id),
+                })
+              }
+            >
+              {t("clear")}
+            </Button>
+          }
+        />
+      ))}
       {confirmation && <ConfirmDialog confirmation={confirmation} onClose={() => setConfirmation(null)} />}
     </>
   );
