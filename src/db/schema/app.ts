@@ -447,6 +447,11 @@ export const page = pgTable(
      */
     voiceNoteInstructions: text("voice_note_instructions").notNull().default(""),
     /**
+     * Databases: row pages show the properties in a column beside the body where the page is wide
+     * enough, instead of above it (lib/row-layout). Pinned properties stay under the title either way.
+     */
+    propertiesBeside: boolean("properties_beside").notNull().default(false),
+    /**
      * A skill (server/skills.ts): reusable instructions, the page's body, offered in the skills
      * library, to MCP clients as prompts and in the AI chat. Pages and rows only, never templates.
      */
