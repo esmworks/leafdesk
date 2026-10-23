@@ -6,6 +6,7 @@ import { vapidFrom } from "@/lib/push";
 import { socialProvidersFrom, type SocialProvider } from "@/lib/social-providers";
 import { instanceOidcFrom, ssoTrustedOriginsFrom } from "@/lib/sso-config";
 import { parseAiMonthlyLimit } from "@/lib/ai-usage";
+import { webSearchFrom } from "@/lib/web-search";
 
 function required(name: string): string {
   const value = process.env[name];
@@ -192,6 +193,14 @@ export const env = {
       .split(",")
       .map((h) => h.trim().toLowerCase())
       .filter(Boolean);
+  },
+  /**
+   * WEB_SEARCH_PROVIDER (searxng, brave or tavily), WEB_SEARCH_URL and WEB_SEARCH_API_KEY: the web
+   * search service agents with web access, and the AI chat where owners turn it on, may ask
+   * (lib/web-search.ts); null without one.
+   */
+  get webSearch() {
+    return webSearchFrom(process.env);
   },
   /**
    * TELEGRAM_BOT_TOKEN: the token of a Telegram bot (from @BotFather) through which people talk to

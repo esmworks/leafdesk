@@ -1,7 +1,7 @@
 // Client-safe: shared by the AI chat's server side (src/server/ai-chat.ts, /api/ai/chat) and its
 // panel (src/components/ai-chat).
 
-import type { ChatChange, ChatConnectionRecord, ChatMemoryRecord, ChatStepRecord, ChatWriteAction, ChatWriteStepAction } from "@/db/schema/ai";
+import type { ChatAttachmentRecord, ChatChange, ChatConnectionRecord, ChatMemoryRecord, ChatStepRecord, ChatWebRecord, ChatWriteAction, ChatWriteStepAction } from "@/db/schema/ai";
 import type { PageKind } from "@/db/schema/app";
 import type { BlockChange } from "./page-diff";
 import type { AiErrorCode } from "./ai";
@@ -20,7 +20,60 @@ export type MemoryView = { id: string; text: string; app: string | null; created
 /** What the chat answers from: the whole workspace, or a page and the pages under it. */
 export type ChatScope = { pageId: string } | null;
 
-export type { ChatChange, ChatConnectionRecord, ChatMemoryRecord, ChatWriteAction, ChatWriteStepAction };
+export type { ChatAttachmentRecord, ChatChange, ChatConnectionRecord, ChatMemoryRecord, ChatWebRecord, ChatWriteAction, ChatWriteStepAction };
+
+// ------------------------------------------------------------------------------ attachments
+
+const MB = 1024 * 1024;
+
+/**
+ * What a question may attach (server/ai-chat-files.ts): how many files, and how large each may be;
+ * images less, as providers take a few megabytes per image.
+ */
+export const CHAT_FILE_LIMITS = { perQuestion: 5, bytes: 20 * MB, imageBytes: 5 * MB };
+
+/** Images the chat shows a model (those providers take). */
+export const CHAT_IMAGE_TYPES = ["image/png", "image/jpeg", "image/gif", "image/webp"] as const;
+const DOCUMENT_TYPES = [
+  "application/pdf",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+];
+const TEXT_TYPES = ["text/plain", "text/markdown", "text/x-markdown", "text/csv"];
+
+/** What the file chooser offers. */
+export const CHAT_FILE_ACCEPT = [...CHAT_IMAGE_TYPES, ".pdf", ".docx", ".xlsx", ".csv", ".md", ".markdown", ".txt"].join(",");
+
+/**
+ * How the chat reads a file: an image (shown to the model), a document (PDF, Word, Excel, read to
+ * text), plain text (CSV, Markdown, text); null for anything else, which can't be attached.
+ */
+export function chatFileKind(contentType: string, name: string): "image" | "document" | "text" | null {
+  const type = contentType.split(";")[0].trim().toLowerCase();
+  if ((CHAT_IMAGE_TYPES as readonly string[]).includes(type)) return "image";
+  if (DOCUMENT_TYPES.includes(type)) return "document";
+  if (TEXT_TYPES.includes(type)) return "text";
+  const ext = /\.([a-z0-9]+)$/i.exec(name.trim())?.[1]?.toLowerCase();
+  if (ext === "docx" || ext === "xlsx" || ext === "pdf") return type === "application/octet-stream" || type === "application/zip" ? "document" : null;
+  if (ext === "md" || ext === "markdown" || ext === "txt" || ext === "csv") return "text";
+  return null;
+}
+
+/** Where the person who attached a chat file opens it (no one else can). */
+export const chatFileUrl = (id: string) => `/api/ai/chat/files/${id}`;
+
+/** A file attached to a question, as the chat shows it: `url` opens it. */
+export type ChatAttachmentView = ChatAttachmentRecord & { url: string };
+
+// ----------------------------------------------------------------------------------- models
+
+/**
+ * What the chat box offers in a workspace: the models to pick from (the main one first; no picker
+ * with one), the model a new conversation starts with (the person's latest), whether the chat may
+ * search the web (owners turned it on, and the server has a search service), and whether research
+ * mode can search the web too.
+ */
+export type ChatOptions = { models: { id: string; images: boolean }[]; defaultModel: string | null; webSearch: boolean };
 
 /**
  * What the chat may change: `ask` asks the person before each change (the answer waits), `auto`
@@ -44,6 +97,8 @@ export type ChatSourceView = {
   kind: PageKind | null;
   /** The block the cited passage starts at, when known. */
   blockId: string | null;
+  /** A web page the answer read: its address (`title` its title; `pageId` null). */
+  url?: string;
 };
 
 /** A page the chat read, as the reader may see it now (null: they can no longer open it). */
@@ -63,7 +118,9 @@ export type ChatStepView =
   | ChatWriteView
   | ChatMemoryRecord
   | ChatConnectionRecord
-  | { kind: "thought"; text: string };
+  | { kind: "thought"; text: string }
+  | { kind: "plan"; questions: string[] }
+  | ChatWebRecord;
 
 /**
  * A change the chat made, the person declined or that failed: `target` is the database a row went
@@ -113,6 +170,12 @@ export type ChatMessageView = {
   content: string;
   /** Questions: the skill the answer followed. */
   skill?: { id: string; title: string };
+  /** Questions: the files attached to it (gone ones left out). */
+  attachments?: ChatAttachmentView[];
+  /** A research question, or its report. */
+  research?: boolean;
+  /** Answers: the model that wrote it. */
+  model?: string;
   sources?: ChatSourceView[];
   note?: "stopped" | "cutOff";
   /** Answers: the steps taken and how long the answer took (not kept before steps were). */
@@ -201,6 +264,42 @@ export function citationLinks(text: string): string {
     .join("");
 }
 
+/**
+ * A research report as a page's Markdown (Save as page): each citation a link to its source, and
+ * the sources listed under `heading` at the end. A source the reader can't open any more keeps its
+ * number without a link or title. Code stays as written, as in citationLinks.
+ */
+export function reportMarkdown(text: string, sources: ChatSourceView[], heading: string): string {
+  const byNumber = new Map(sources.map((s) => [s.n, s]));
+  const cited = citedNumbers(text).filter((n) => byNumber.has(n));
+  const body = text
+    .split(/(```[\s\S]*?(?:```|$)|`[^`\n]*`)/g)
+    .map((part, i) =>
+      i % 2
+        ? part
+        : part.replace(/\[(\d{1,3}(?:\s*,\s*\d{1,3})*)\](?![(:])/g, (whole, list: string) =>
+            list
+              .split(",")
+              .map((n) => {
+                const source = byNumber.get(Number(n.trim()));
+                const href = source ? sourceHref(source) : null;
+                return href ? `[[${n.trim()}]](${href})` : `[${n.trim()}]`;
+              })
+              .join(""),
+          ),
+    )
+    .join("")
+    .trim();
+  if (!cited.length) return body;
+  const list = cited.map((n) => {
+    const source = byNumber.get(n)!;
+    const href = sourceHref(source);
+    const title = (source.title ?? "").replace(/[[\]]/g, "").trim() || href || "";
+    return href ? `${n}. [${title}](${href})` : `${n}. ${title || "—"}`;
+  });
+  return `${body}\n\n## ${heading}\n\n${list.join("\n")}`;
+}
+
 /** The full-page chat, showing a conversation when given. */
 export function chatPath(workspaceId: string, conversationId?: string | null): string {
   return `/w/${workspaceId}/ai${conversationId ? `?c=${encodeURIComponent(conversationId)}` : ""}`;
@@ -211,8 +310,9 @@ export function isChatPath(pathname: string, workspaceId: string): boolean {
   return pathname === `/w/${workspaceId}/ai`;
 }
 
-/** The link to a cited passage: the page, scrolled to the block it starts at. */
-export function sourceHref(source: Pick<ChatSourceView, "workspaceId" | "pageId" | "blockId">): string | null {
+/** The link to a cited passage: the page, scrolled to the block it starts at; a web page's address. */
+export function sourceHref(source: Pick<ChatSourceView, "workspaceId" | "pageId" | "blockId" | "url">): string | null {
+  if (source.url) return /^https?:\/\//i.test(source.url) ? source.url : null;
   if (!source.pageId || !source.workspaceId) return null;
   return `/w/${source.workspaceId}/p/${source.pageId}${source.blockId ? `#block-${source.blockId}` : ""}`;
 }

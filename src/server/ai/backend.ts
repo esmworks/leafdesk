@@ -22,6 +22,11 @@ export type AiBackend = {
   model: Model<Api>;
   /** The cheaper model for simple jobs (AI_FAST_MODEL, see features.ts), at the same provider. */
   fast?: Model<Api>;
+  /**
+   * The models people may pick in the AI chat, the main one first (then the fast one and
+   * AI_CHAT_MODELS); just the main one when there is no choice.
+   */
+  choices?: Model<Api>[];
   /** Embeddings without HTTP (tests); the service uses the OpenAI-compatible endpoint otherwise. */
   embed?: (texts: string[]) => Promise<number[][]>;
   /** Speech to text without HTTP (tests); the service uses the OpenAI-compatible endpoint otherwise. */
@@ -128,7 +133,7 @@ async function resolveModel(chat: AiChatConfig, config: AiConfig): Promise<Model
     provider: chat.provider,
     baseUrl,
     reasoning: false,
-    input: ["text"],
+    input: chat.imageInput ? ["text", "image"] : ["text"],
     cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
     contextWindow: local ? config.limits.contextWindow : 128_000,
     maxTokens: config.limits.maxOutputTokens,
@@ -156,6 +161,8 @@ export async function createBackend(config: AiConfig): Promise<AiBackend | null>
   const kind = KINDS[chat.provider];
   const model = await resolveModel(chat, config);
   const fast = chat.fastModel ? await resolveModel({ ...chat, model: chat.fastModel }, config) : null;
+  const extra = await Promise.all((chat.chatModels ?? []).map((id) => resolveModel({ ...chat, model: id }, config)));
+  const choices = [model, ...(fast ? [fast] : []), ...extra];
   const streams = await kind.streams();
   const provider = createProvider({
     id: chat.provider,
@@ -170,10 +177,10 @@ export async function createBackend(config: AiConfig): Promise<AiBackend | null>
         resolve: async () => ({ auth: { apiKey: chat.apiKey ?? (kind.api === "openai-completions" ? "none" : "") }, source: "AI_API_KEY" }),
       },
     },
-    models: fast ? [model, fast] : [model],
+    models: choices,
     api: streams,
   });
   const models = createModels();
   models.setProvider(provider);
-  return { models, model, ...(fast ? { fast } : {}), sessions: kind.sessions, ...(chat.fetch ? { fetch: chat.fetch } : {}) };
+  return { models, model, ...(fast ? { fast } : {}), choices, sessions: kind.sessions, ...(chat.fetch ? { fetch: chat.fetch } : {}) };
 }

@@ -126,24 +126,40 @@ export const fileText = pgTable(
   (t) => [index("file_text_content_hash_idx").on(t.contentHash), index("file_text_search_vector_idx").using("gin", t.searchVector)],
 );
 
-/** A source an answer of the AI chat cites: a page (and the block the passage starts at). */
-export type ChatSourceRef = { n: number; pageId: string; blockId: string | null };
+/**
+ * A source an answer of the AI chat cites: a page (and the block the passage starts at), or a web
+ * page it read (its address and title then).
+ */
+export type ChatSourceRef =
+  | { n: number; pageId: string; blockId: string | null; url?: undefined }
+  | { n: number; url: string; title: string; pageId?: undefined; blockId?: undefined };
 
 /**
  * A step the AI chat took on the way to an answer: a search (`query` null for the one with the
  * question itself) and how many pages it found, a page it read, a database it queried (with the
  * filters and how many rows matched), a change it made or was refused (see ChatWriteRecord), a
  * note it kept or dropped about the person (ChatMemoryRecord), a call to a connection's tool
- * (ChatConnectionRecord), or what the model said before searching or reading.
+ * (ChatConnectionRecord), what the model said before searching or reading, the sub-questions a
+ * research answer set out to answer (`plan`), and a web search or web page read (ChatWebRecord).
  */
 export type ChatStepRecord =
   | { kind: "search"; query: string | null; results: number }
   | { kind: "read"; pageId: string }
+  | { kind: "plan"; questions: string[] }
+  | ChatWebRecord
   | { kind: "query"; databaseId: string; conditions: ChatQueryCondition[]; any?: boolean; results: number }
   | ChatWriteRecord
   | ChatMemoryRecord
   | ChatConnectionRecord
   | { kind: "thought"; text: string };
+
+/**
+ * The AI chat on the web (where owners turned it on, server/agents/web.ts): a search (`query`, how
+ * many results), or a page read (`url`, its title; `failed` when it couldn't be read, `url` as asked).
+ */
+export type ChatWebRecord =
+  | { kind: "web"; action: "search"; query: string; results: number }
+  | { kind: "web"; action: "read"; url: string; title: string; outcome: "done" | "failed" };
 
 /**
  * A call the AI chat made to a connection's tool (server/connections), with the connection's name
@@ -205,12 +221,21 @@ export type ChatWriteRecord = {
 /** One filter rule of a database query the chat ran, as shown with the step. */
 export type ChatQueryCondition = { property: string; op: string; value: string | null };
 
+/** A file attached to a question of the AI chat (ai_chat_file), with its name, type and size then. */
+export type ChatAttachmentRecord = { id: string; name: string; contentType: string; size: number };
+
 /** One message of an AI chat conversation, as stored. */
 export type ChatMessageRecord = {
   role: "user" | "assistant";
   content: string;
   /** Questions: the skill the answer followed, with its title then. */
   skill?: { id: string; title: string };
+  /** Questions: the files attached to it. */
+  attachments?: ChatAttachmentRecord[];
+  /** Questions asked in research mode, and their answers (a report). */
+  research?: boolean;
+  /** Answers: the model that wrote it. */
+  model?: string;
   /** Assistant answers: the sources the answer cites as [n]. */
   sources?: ChatSourceRef[];
   /** Answers that didn't finish: stopped by the person, or cut off at the length limit. */

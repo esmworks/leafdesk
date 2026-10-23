@@ -242,8 +242,8 @@ export type Registry = {
   byKey: Map<string, number>;
 };
 
-export function register(registry: Registry, source: { pageId: string; blockId: string | null; title: string; text: string; note?: string }) {
-  const key = `${source.pageId}#${source.blockId ?? ""}`;
+export function register(registry: Registry, source: { pageId: string; blockId: string | null; title: string; text: string; note?: string; url?: string }) {
+  const key = source.url ? `url:${source.url}` : `${source.pageId}#${source.blockId ?? ""}`;
   const known = registry.byKey.get(key);
   if (known !== undefined) {
     // Read again (a longer text): the model sees it again under the same number.
@@ -256,6 +256,10 @@ export function register(registry: Registry, source: { pageId: string; blockId: 
   registry.byKey.set(key, n);
   return entry;
 }
+
+/** A web page the chat found or read, as a numbered source (cited by its address). */
+export const registerWeb = (registry: Registry, page: { url: string; title: string; text: string; note?: string }) =>
+  register(registry, { pageId: "", blockId: null, url: page.url, title: page.title, text: page.text, note: page.note });
 
 // ---------------------------------------------------------------------------- workspace map
 

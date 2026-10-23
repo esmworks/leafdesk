@@ -46,8 +46,11 @@ export type AiToolCall = { id: string; name: string; arguments: Record<string, u
 /** A tool the model may call; `parameters` is a JSON Schema object. */
 export type AiTool = { name: string; description: string; parameters: Record<string, unknown> };
 
+/** An image a question shows the model (base64), for models that take images (see chatModelsFor). */
+export type AiImage = { data: string; mimeType: string };
+
 export type AiMessage =
-  | { role: "user"; content: string }
+  | { role: "user"; content: string; images?: AiImage[] }
   | {
       role: "assistant";
       content: string;
@@ -91,6 +94,11 @@ export type AiRequest = {
   sessionId?: string;
   /** Also stream the model's thinking as it comes (`{type: "thinking"}` events), where it shows it. */
   thinkingEvents?: boolean;
+  /**
+   * A model the person picked (one of chatModelsFor's) in place of the one `feature` runs on; a
+   * model the workspace's AI doesn't offer (any more) is ignored.
+   */
+  model?: string | null;
 };
 
 export type AiUsage = { inputTokens: number; outputTokens: number; totalTokens: number; costUsd: number };
@@ -413,32 +421,55 @@ function promptRoom(model: Model<Api>, limits: AiConfig["limits"], answerTokens:
 
 /**
  * Characters of prompt the workspace's chat model takes (see promptRoom), for the chat and agents
- * to fit their history and tool results in: the model `feature` runs on (see features.ts). Without
- * AI for the workspace, the content budget.
+ * to fit their history and tool results in: the model `feature` runs on (see features.ts), or the
+ * one picked (`chosen`, see AiRequest.model). Without AI for the workspace, the content budget.
  */
-export async function promptRoomFor(workspaceId: string, feature?: string): Promise<number> {
+export async function promptRoomFor(workspaceId: string, feature?: string, chosen?: string | null): Promise<number> {
   const target = await aiTargetFor(workspaceId);
   // A backend that can't be set up fails the request itself, with its own error.
   const backend = target && chatOn(target) ? await backendFor(target).catch(() => null) : null;
   if (!target || !backend) return contentChars(aiConfig().limits);
-  const { model } = planFor(backend, feature ?? "");
+  const { model } = planFor(backend, feature ?? "", chosen);
   const limits = target.config.limits;
   return promptRoom(model, limits, Math.min(limits.maxOutputTokens, model.maxTokens || Infinity));
 }
 
 /**
- * The model a feature runs on, and its plan there (features.ts): AI_FAST_MODEL for the features
- * marked `fast`, where the backend has one; AI_MODEL (or an own AI account's) otherwise.
+ * The model a feature runs on, and its plan there (features.ts): the one picked (`chosen`) when the
+ * backend offers it; AI_FAST_MODEL for the features marked `fast`, where the backend has one;
+ * AI_MODEL (or an own AI account's) otherwise.
  */
-function planFor(backend: AiBackend, feature: string) {
+function planFor(backend: AiBackend, feature: string, chosen?: string | null) {
   const plan = featurePlan(feature);
+  const picked = chosen ? backend.choices?.find((m) => m.id === chosen) : undefined;
+  if (picked) return { model: picked, plan: plan.orElse ? featurePlan(plan.orElse) : plan };
   if (plan.fast && backend.fast) return { model: backend.fast, plan };
   return { model: backend.model, plan: plan.orElse ? featurePlan(plan.orElse) : plan };
 }
 
+/** A model people may pick in the AI chat: its id, and whether it takes images. */
+export type ChatModelOption = { id: string; images: boolean };
+
+/**
+ * The models the workspace's AI offers the chat, its main model first: the server's AI_MODEL,
+ * AI_FAST_MODEL and AI_CHAT_MODELS, or an own AI account's one model. Empty without AI there.
+ */
+export async function chatModelsFor(workspaceId: string): Promise<ChatModelOption[]> {
+  const target = await aiTargetFor(workspaceId);
+  const backend = target && chatOn(target) ? await backendFor(target).catch(() => null) : null;
+  if (!backend) return [];
+  return (backend.choices ?? [backend.model]).map((m) => ({ id: m.id, images: m.input.includes("image") }));
+}
+
+/**
+ * Characters an image is counted as when sizing a prompt: providers take a little over a thousand
+ * tokens for a picture of the size they scale it to.
+ */
+export const IMAGE_CHARS = 5_000;
+
 function promptSize(request: AiRequest) {
   let size = request.system?.length ?? 0;
-  for (const m of request.messages) size += m.content.length;
+  for (const m of request.messages) size += m.content.length + (m.role === "user" ? (m.images?.length ?? 0) * IMAGE_CHARS : 0);
   for (const t of request.tools ?? []) size += t.description.length + JSON.stringify(t.parameters).length;
   return size;
 }
@@ -457,7 +488,12 @@ const ZERO_USAGE = {
 function toContext(request: AiRequest, model: Model<Api>): Context {
   const now = Date.now();
   const messages: Message[] = request.messages.map((m): Message => {
-    if (m.role === "user") return { role: "user", content: m.content, timestamp: now };
+    if (m.role === "user") {
+      // Images go only to a model that takes them (the chat refuses them for others first).
+      const images = model.input.includes("image") ? (m.images ?? []) : [];
+      if (!images.length) return { role: "user", content: m.content, timestamp: now };
+      return { role: "user", content: [{ type: "text", text: m.content }, ...images.map((i) => ({ type: "image" as const, data: i.data, mimeType: i.mimeType }))], timestamp: now };
+    }
     if (m.role === "tool") {
       return {
         role: "toolResult",
@@ -629,7 +665,7 @@ export function stream(request: AiRequest): AiStream {
       await holdToLimit(ledger, request.workspaceId, target!.accountId !== null);
       const backend = await backendFor(target!);
       const { models, sessions, fetch: viaFetch } = backend;
-      const { model: m, plan } = planFor(backend, request.feature);
+      const { model: m, plan } = planFor(backend, request.feature, request.model);
       model = m.id;
       const room = promptRoom(m, target!.config.limits, prepared.maxTokens(m));
       if (promptSize(request) > room) throw new AiError("tooLarge", `The request is larger than the model takes (${room} characters)`);

@@ -34,6 +34,16 @@ export type AiChatConfig = {
    * features.ts marks (AI_FAST_MODEL); those run on `model` without one.
    */
   fastModel?: string;
+  /**
+   * More models at the same provider, with the same key and endpoint, that people may pick in the
+   * AI chat besides `model` and `fastModel` (AI_CHAT_MODELS).
+   */
+  chatModels?: string[];
+  /**
+   * Models the library's catalog doesn't know (local and OpenAI-compatible servers, new ids) take
+   * images too (AI_IMAGE_INPUT); the catalog says it for the models it knows.
+   */
+  imageInput?: boolean;
   /** Overrides the provider's endpoint; required for openai-compatible. */
   baseUrl: string | null;
   apiKey: string | null;
@@ -163,6 +173,8 @@ export function readAiConfig(env: Env = process.env): AiConfig {
   const providerRaw = clean(env.AI_PROVIDER)?.toLowerCase() ?? null;
   const model = clean(env.AI_MODEL);
   const fastModel = clean(env.AI_FAST_MODEL);
+  const chatModels = [...new Set((env.AI_CHAT_MODELS ?? "").split(",").map((m) => m.trim()))].filter((m) => m && m !== model && m !== fastModel);
+  const imageInput = ["1", "true", "yes"].includes(clean(env.AI_IMAGE_INPUT)?.toLowerCase() ?? "");
   let chat: AiChatConfig | null = null;
   let provider: AiProviderKind | null = null;
   if (providerRaw !== null) {
@@ -179,12 +191,23 @@ export function readAiConfig(env: Env = process.env): AiConfig {
         // Reported above.
       } else if (provider === "openai-compatible" && !resolvedUrl) problems.push("AI_BASE_URL is required with AI_PROVIDER=openai-compatible");
       else if (keyVar && !apiKey) problems.push(`AI_API_KEY is required with AI_PROVIDER=${provider}`);
-      else chat = { provider, model, ...(fastModel && fastModel !== model ? { fastModel } : {}), baseUrl: resolvedUrl, apiKey };
+      else {
+        chat = {
+          provider,
+          model,
+          ...(fastModel && fastModel !== model ? { fastModel } : {}),
+          ...(chatModels.length ? { chatModels } : {}),
+          ...(imageInput ? { imageInput } : {}),
+          baseUrl: resolvedUrl,
+          apiKey,
+        };
+      }
     }
   } else if (model) {
     problems.push("AI_MODEL is set but AI_PROVIDER is not");
   }
   if (fastModel && providerRaw === null) problems.push("AI_FAST_MODEL is set but AI_PROVIDER is not");
+  if (chatModels.length && providerRaw === null) problems.push("AI_CHAT_MODELS is set but AI_PROVIDER is not");
 
   // Embeddings (semantic search) speak the OpenAI-compatible /embeddings API. They default to the
   // chat provider's endpoint and key; a key is only reused for that same endpoint, never sent to a
@@ -348,6 +371,7 @@ export function describeAiConfig(config: AiConfig): string {
     const where = config.chat.baseUrl ? ` at ${config.chat.baseUrl}` : "";
     parts.push(`AI: ${config.chat.provider} ${config.chat.model}${where}`);
     if (config.chat.fastModel) parts.push(`fast model: ${config.chat.fastModel}`);
+    if (config.chat.chatModels?.length) parts.push(`chat models: ${config.chat.chatModels.join(", ")}`);
   } else {
     parts.push("AI: off");
   }

@@ -1,4 +1,5 @@
 import { WEB_TOOL_NAMES, type AgentToolRecord } from "@/lib/agents";
+import { webSearchFrom, type WebSearchConfig } from "@/lib/web-search";
 import type { AiTool } from "@/server/ai";
 import { externalData, inputSummary } from "@/server/connections/tools";
 import { decodeEntities, parseLinkMeta } from "@/server/link-meta";
@@ -7,9 +8,10 @@ import { fetchRemoteFile, RemoteFetchError, type RemoteFetchOptions, type Remote
 import { ALLOWED_PORTS } from "@/server/ssrf";
 
 /**
- * An agent's way onto the web, for agents an owner gave web access: `read_web_page` reads a public
- * page as text, and `search_web` asks the server's search service (a self-hosted SearXNG at
- * WEB_SEARCH_URL), when it has one. Pages are fetched as attachments are (remote-fetch.ts): only
+ * An agent's way onto the web, for agents an owner gave web access, and the AI chat's where its
+ * owners turned web search on (ai-chat.ts): `read_web_page` reads a public page as text, and
+ * `search_web` asks the server's search service (lib/web-search.ts: a self-hosted SearXNG, Brave or
+ * Tavily), when it has one. Pages are fetched as attachments are (remote-fetch.ts): only
  * http(s) on the web's usual ports, never a host with an address that isn't public, checked again on
  * every redirect, within a time and size limit. What comes back reaches the model framed as data
  * from outside, never as instructions, and counts against what a run may read from outside.
@@ -56,16 +58,20 @@ const SEARCH_WEB: AiTool = {
 
 type Env = Record<string, string | undefined>;
 
-/** The search service's address (WEB_SEARCH_URL), or null when the server has none. */
-export function webSearchUrl(env: Env = process.env): string | null {
-  const value = env.WEB_SEARCH_URL?.trim();
-  return value ? value : null;
+/** The server's search service (lib/web-search.ts), or null when it has none. */
+export function webSearchService(env: Env = process.env): WebSearchConfig | null {
+  return webSearchFrom(env);
 }
 
 /** The web tools a run of the agent gets: none without web access; search only where the server has a search service. */
 export function webToolsFor(agent: { webAccess: boolean }, env: Env = process.env): AiTool[] {
   if (!agent.webAccess) return [];
-  return webSearchUrl(env) ? [READ_WEB_PAGE, SEARCH_WEB] : [READ_WEB_PAGE];
+  return webSearchService(env) ? [READ_WEB_PAGE, SEARCH_WEB] : [READ_WEB_PAGE];
+}
+
+/** The web tools of the AI chat where its owners turned web search on: both, while the server has a search service. */
+export function chatWebTools(env: Env = process.env): AiTool[] {
+  return webSearchService(env) ? [SEARCH_WEB, READ_WEB_PAGE] : [];
 }
 
 // ------------------------------------------------------------------------------- reading a page
@@ -244,19 +250,52 @@ export async function readWebPage(input: string, { maxChars = WEB_PAGE_CHARS, gu
 
 export type WebSearchResult = { title: string; url: string; snippet: string };
 
+/** The request a search service takes for `query`. */
+function searchRequest(service: WebSearchConfig, query: string): { url: URL; init: RequestInit } {
+  const url = new URL(service.url);
+  if (service.provider === "tavily") {
+    return {
+      url,
+      init: {
+        method: "POST",
+        headers: { accept: "application/json", "content-type": "application/json", authorization: `Bearer ${service.apiKey}` },
+        body: JSON.stringify({ query, max_results: MAX_SEARCH_RESULTS }),
+      },
+    };
+  }
+  url.searchParams.set("q", query);
+  if (service.provider === "brave") {
+    url.searchParams.set("count", String(MAX_SEARCH_RESULTS));
+    return { url, init: { headers: { accept: "application/json", "x-subscription-token": service.apiKey ?? "" } } };
+  }
+  if (url.pathname === "/" || url.pathname === "") url.pathname = "/search";
+  url.searchParams.set("format", "json");
+  return { url, init: { headers: { accept: "application/json" } } };
+}
+
+/** A search service's answer as a list of {title, url, content} (Brave keeps them under web.results, as `description`). */
+function resultsOf(service: WebSearchConfig, body: unknown): unknown[] {
+  if (!body || typeof body !== "object") return [];
+  if (service.provider === "brave") {
+    const web = (body as { web?: { results?: unknown } }).web;
+    return Array.isArray(web?.results)
+      ? web.results.map((r) => (r && typeof r === "object" ? { ...(r as object), content: (r as { description?: unknown }).description } : r))
+      : [];
+  }
+  const results = (body as { results?: unknown }).results;
+  return Array.isArray(results) ? results : [];
+}
+
 /** The search service's results for `query`: at most MAX_SEARCH_RESULTS, http(s) addresses only. */
 export async function searchWeb(query: string, { env = process.env, fetcher = fetch }: { env?: Env; fetcher?: typeof fetch } = {}): Promise<WebSearchResult[]> {
-  const base = webSearchUrl(env);
-  if (!base) throw new WebPageError("The server has no search service", "badUrl");
-  // The operator's own service, likely on a private network: it is reached as they configured it,
-  // not through the guard for addresses the agent picks.
-  const url = new URL(base);
-  if (url.pathname === "/" || url.pathname === "") url.pathname = "/search";
-  url.searchParams.set("q", query);
-  url.searchParams.set("format", "json");
+  const service = webSearchService(env);
+  if (!service) throw new WebPageError("The server has no search service", "badUrl");
+  // The operator's own service (a SearXNG likely on a private network) or the hosted one they
+  // chose: it is reached as they configured it, not through the guard for addresses the model picks.
+  const { url, init } = searchRequest(service, query);
   let res: Response;
   try {
-    res = await fetcher(url, { headers: { accept: "application/json" }, signal: AbortSignal.timeout(SEARCH_TIMEOUT_MS) });
+    res = await fetcher(url, { ...init, signal: AbortSignal.timeout(SEARCH_TIMEOUT_MS) });
   } catch (error) {
     const timedOut = error instanceof Error && (error.name === "TimeoutError" || error.name === "AbortError");
     throw new WebPageError(timedOut ? "The search service took too long" : "The search service couldn't be reached", timedOut ? "timeout" : "network");
@@ -268,14 +307,15 @@ export async function searchWeb(query: string, { env = process.env, fetcher = fe
   } catch {
     throw new WebPageError("The search service's answer wasn't JSON", "httpError");
   }
-  const results = body && typeof body === "object" && Array.isArray((body as { results?: unknown }).results) ? (body as { results: unknown[] }).results : [];
+  const results = resultsOf(service, body);
   const out: WebSearchResult[] = [];
   for (const item of results) {
     if (out.length >= MAX_SEARCH_RESULTS) break;
     if (!item || typeof item !== "object") continue;
     const { title, url: link, content } = item as Record<string, unknown>;
     if (typeof link !== "string" || !/^https?:\/\//i.test(link) || out.some((r) => r.url === link)) continue;
-    const snippet = typeof content === "string" ? content.replace(/\s+/g, " ").trim() : "";
+    // Brave marks the words found with <strong>: snippets are plain text here.
+    const snippet = typeof content === "string" ? decodeEntities(content.replace(TAG, "")).replace(/\s+/g, " ").trim() : "";
     out.push({
       title: typeof title === "string" ? title.replace(/\s+/g, " ").trim().slice(0, 300) : "",
       url: link,
