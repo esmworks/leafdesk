@@ -1086,7 +1086,12 @@
     "workspaceDeleted": "Nel frattempo qualcuno ha eliminato questo spazio di lavoro.",
     "storageNoDestination": "I file di questo spazio di lavoro sono nella tua archiviazione e, quando lo lasci, non c’è alcun posto in cui spostarli: nessun altro proprietario ha un’archiviazione predefinita e l’archiviazione di questo server non può accoglierli. Chiedi a un proprietario di configurare un’archiviazione, oppure sposta prima i file (Impostazioni > Archiviazione).",
     "storageMoveInProgress": "I file di questo spazio di lavoro vengono spostati nella tua archiviazione. Attendi che finisca, poi lascia lo spazio di lavoro.",
-    "invalidCalloutStyle": "Non è stato possibile salvare uno stile di riquadro: controlla chiave, nome e icona."
+    "invalidCalloutStyle": "Non è stato possibile salvare uno stile di riquadro: controlla chiave, nome e icona.",
+    "invalidNetwork": "{detail} non è un indirizzo IP né un intervallo. Inserisci un indirizzo come 203.0.113.7 o 2001:db8::1, oppure un intervallo come 203.0.113.0/24.",
+    "invalidNetworkLabel": "L’etichetta di {detail} è troppo lunga: al massimo 100 caratteri.",
+    "tooManyNetworks": "Uno spazio di lavoro può avere al massimo 100 reti approvate.",
+    "ipLocksYouOut": "Questo elenco non comprende il tuo indirizzo attuale, {detail}: salvarlo ti chiuderebbe fuori dallo spazio di lavoro. Aggiungi prima il tuo indirizzo o un intervallo che lo comprenda.",
+    "ipUnknown": "Il server non vede il tuo indirizzo, quindi non può verificare che questo elenco ti lasci entrare. Salvalo da una connessione di cui il server vede l’indirizzo, oppure svuota l’elenco."
   },
   "security": {
     "description": "Decidi come accedono le persone, chi può portare persone in questo spazio di lavoro, cosa possono fare gli ospiti, cosa può uscirne (esportazioni, app connesse) e chi può pubblicare pagine sul web. Solo i proprietari possono modificare queste impostazioni.",
@@ -1348,6 +1353,25 @@
       "error": "Impossibile disconnetterla. Riprova.",
       "gone": "È già disconnessa o non raggiunge più questo spazio di lavoro.",
       "shown": "Vengono mostrate le {shown} usate qui più di recente su {total}."
+    },
+    "allowedNetworks": {
+      "title": "Reti approvate",
+      "description": "Consenti di aprire questo spazio di lavoro solo da questi indirizzi e intervalli IP, come il tuo ufficio o la tua VPN: IPv4 o IPv6, un singolo indirizzo (203.0.113.7) o un intervallo CIDR (203.0.113.0/24). Vale per tutti nello spazio di lavoro, proprietari e ospiti compresi. Lascia l’elenco vuoto per consentire qualsiasi rete.",
+      "appsNote": "Le app connesse tramite MCP, i token dell’API REST e i token SCIM non vi sono soggetti: seguono l’impostazione «App connesse e token API».",
+      "range": "Indirizzo o intervallo",
+      "label": "Etichetta",
+      "rangePlaceholder": "203.0.113.0/24",
+      "labelPlaceholder": "Ufficio (facoltativo)",
+      "add": "Aggiungi rete",
+      "addMine": "Aggiungi il mio indirizzo ({ip})",
+      "remove": "Rimuovi {range}",
+      "removeRow": "Rimuovi riga",
+      "empty": "Nessuna rete approvata: lo spazio di lavoro si apre da qualsiasi rete.",
+      "addressUnknown": "Il server non vede il tuo indirizzo, quindi da questa connessione non si può salvare un elenco.",
+      "yourAddressOnList": "Il tuo indirizzo, {ip}, è nell’elenco.",
+      "yourAddressMissing": "Il tuo indirizzo, {ip}, non è nell’elenco: salvandolo resteresti fuori, quindi aggiungilo prima.",
+      "lockoutHelp": "Se un elenco dovesse chiudere fuori tutti, un amministratore dell’istanza può svuotarlo nella pagina di amministrazione.",
+      "memberView": "{count, plural, =0 {Disattivato: lo spazio di lavoro si apre da qualsiasi rete.} one {Attivato: lo spazio di lavoro si apre solo da # rete approvata.} other {Attivato: lo spazio di lavoro si apre solo da # reti approvate.}}"
     }
   },
   "audit": {
@@ -1571,7 +1595,9 @@
       "workspace": {
         "renamed": "Ha rinominato lo spazio di lavoro da {from} a {to}",
         "settings_changed": "Ha modificato le impostazioni: {settings}",
-        "domains_verified": "Ha verificato il dominio email consentito {domains}"
+        "domains_verified": "Ha verificato il dominio email consentito {domains}",
+        "networks_changed": "{count, plural, =0 {Ha rimosso le reti approvate} other {Ha impostato le reti approvate: {names}}}",
+        "networks_cleared": "Ha svuotato le reti approvate come amministratore dell’istanza"
       },
       "sso": {
         "configured": "Ha salvato la connessione single sign-on ({protocol}) per {domains}",

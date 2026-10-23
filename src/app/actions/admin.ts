@@ -5,6 +5,7 @@ import { getTranslations } from "next-intl/server";
 import {
   AdminError,
   type AdminErrorCode,
+  clearWorkspaceNetworks,
   requirePasswordReset,
   requirePasswordResetForEveryone,
   signOutEveryone,
@@ -49,4 +50,9 @@ export async function requirePasswordResetAction(userId: string) {
 export async function requirePasswordResetForEveryoneAction() {
   const current = await getSession();
   return run(() => requirePasswordResetForEveryone(current));
+}
+
+export async function clearWorkspaceNetworksAction(workspaceId: string) {
+  const current = await getSession();
+  return run(() => clearWorkspaceNetworks(current, typeof workspaceId === "string" ? workspaceId : ""));
 }

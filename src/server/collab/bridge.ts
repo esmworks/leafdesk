@@ -178,8 +178,9 @@ export interface CollabService {
   /** Drops a user's live connections to the workspace's documents (after removal from it). */
   disconnectUser(userId: string, workspaceId: string): Promise<void>;
   /**
-   * Drops the connections to the workspace's documents whose session doesn't pass two-step
-   * verification (after the workspace started requiring it).
+   * Drops the connections to the workspace's documents that its sign-in policies now hold back
+   * (after it started requiring two-step verification or single sign-on, or changed its approved
+   * networks).
    */
   disconnectHeldBack(workspaceId: string): Promise<void>;
   /**

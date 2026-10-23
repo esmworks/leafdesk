@@ -1086,7 +1086,12 @@
     "workspaceDeleted": "Jemand hat diesen Workspace inzwischen gelöscht.",
     "storageNoDestination": "Die Dateien dieses Workspaces liegen in deinem Speicher, und wenn du ihn verlässt, können sie nirgendwohin verschoben werden: Kein anderer Inhaber hat einen Standardspeicher, und der Speicher dieses Servers kann sie nicht aufnehmen. Bitte einen Inhaber, Speicher einzurichten, oder verschiebe die Dateien zuerst (Einstellungen > Speicher).",
     "storageMoveInProgress": "Die Dateien dieses Workspaces werden gerade in deinen Speicher verschoben. Warte, bis das abgeschlossen ist, und verlasse den Workspace dann.",
-    "invalidCalloutStyle": "Ein Hinweisstil konnte nicht gespeichert werden: Prüfe Schlüssel, Name und Symbol."
+    "invalidCalloutStyle": "Ein Hinweisstil konnte nicht gespeichert werden: Prüfe Schlüssel, Name und Symbol.",
+    "invalidNetwork": "{detail} ist keine IP-Adresse und kein Adressbereich. Gib eine Adresse wie 203.0.113.7 oder 2001:db8::1 ein oder einen Bereich wie 203.0.113.0/24.",
+    "invalidNetworkLabel": "Die Bezeichnung von {detail} ist zu lang: höchstens 100 Zeichen.",
+    "tooManyNetworks": "Ein Workspace kann höchstens 100 freigegebene Netzwerke haben.",
+    "ipLocksYouOut": "Deine aktuelle Adresse, {detail}, steht nicht auf dieser Liste. Gespeichert würde sie dich aus dem Workspace aussperren. Füge zuerst deine Adresse oder einen Bereich hinzu, der sie abdeckt.",
+    "ipUnknown": "Der Server kennt deine Adresse nicht und kann daher nicht prüfen, ob du mit dieser Liste Zugang behältst. Speichere sie über eine Verbindung, deren Adresse der Server sieht, oder leere die Liste."
   },
   "security": {
     "description": "Lege fest, wie sich Personen anmelden, wer andere in diesen Workspace holen darf, was Gäste tun können, was ihn verlassen darf (Exporte, verbundene Apps) und wer Seiten im Web veröffentlichen darf. Nur Inhaber können diese Einstellungen ändern.",
@@ -1348,6 +1353,25 @@
       "error": "Konnte nicht getrennt werden. Versuch es noch einmal.",
       "gone": "Sie ist schon getrennt oder erreicht diesen Workspace nicht mehr.",
       "shown": "Die {shown} hier zuletzt genutzten von {total} werden angezeigt."
+    },
+    "allowedNetworks": {
+      "title": "Freigegebene Netzwerke",
+      "description": "Der Workspace lässt sich nur von diesen IP-Adressen und -Bereichen aus öffnen, etwa aus deinem Büro oder VPN: IPv4 oder IPv6, eine einzelne Adresse (203.0.113.7) oder ein CIDR-Bereich (203.0.113.0/24). Das gilt für alle im Workspace, auch für Eigentümer und Gäste. Lass die Liste leer, um jedes Netzwerk zuzulassen.",
+      "appsNote": "Über MCP verbundene Apps, REST-API-Token und SCIM-Token sind davon ausgenommen: Für sie gilt die Einstellung „Verbundene Apps und API-Token“.",
+      "range": "Adresse oder Bereich",
+      "label": "Bezeichnung",
+      "rangePlaceholder": "203.0.113.0/24",
+      "labelPlaceholder": "Büro (optional)",
+      "add": "Netzwerk hinzufügen",
+      "addMine": "Meine Adresse hinzufügen ({ip})",
+      "remove": "{range} entfernen",
+      "removeRow": "Zeile entfernen",
+      "empty": "Keine freigegebenen Netzwerke: Der Workspace lässt sich aus jedem Netzwerk öffnen.",
+      "addressUnknown": "Der Server kennt deine Adresse nicht, daher lässt sich über diese Verbindung keine Liste speichern.",
+      "yourAddressOnList": "Deine Adresse, {ip}, steht auf der Liste.",
+      "yourAddressMissing": "Deine Adresse, {ip}, steht nicht auf der Liste: Gespeichert würdest du ausgesperrt, füge sie also zuerst hinzu.",
+      "lockoutHelp": "Sperrt eine Liste einmal alle aus, kann ein Instanz-Administrator sie auf der Admin-Seite leeren.",
+      "memberView": "{count, plural, =0 {Aus: Der Workspace lässt sich aus jedem Netzwerk öffnen.} one {An: Der Workspace lässt sich nur aus # freigegebenen Netzwerk öffnen.} other {An: Der Workspace lässt sich nur aus # freigegebenen Netzwerken öffnen.}}"
     }
   },
   "audit": {
@@ -1571,7 +1595,9 @@
       "workspace": {
         "renamed": "Hat den Workspace von {from} in {to} umbenannt",
         "settings_changed": "Hat Einstellungen geändert: {settings}",
-        "domains_verified": "Hat die zugelassene E-Mail-Domain {domains} bestätigt"
+        "domains_verified": "Hat die zugelassene E-Mail-Domain {domains} bestätigt",
+        "networks_changed": "{count, plural, =0 {Hat die freigegebenen Netzwerke entfernt} other {Hat die freigegebenen Netzwerke festgelegt: {names}}}",
+        "networks_cleared": "Hat als Instanz-Administrator die freigegebenen Netzwerke geleert"
       },
       "sso": {
         "configured": "Hat die Single-Sign-on-Verbindung ({protocol}) für {domains} gespeichert",

@@ -1,3 +1,6 @@
+import { CLIENT_IP_HEADER } from "@/lib/client-ip";
+import type { PolicyHold } from "@/server/access";
+
 /**
  * The browser session behind the request being served, for the checks deep in the data layer that
  * only get a user id (see access.ts, which holds sessions to the workspaces' sign-in policies).
@@ -13,8 +16,10 @@ export type RequestSession = {
   strong: boolean;
   /** The SSO provider it was signed in through, for "SSO only" workspaces. */
   ssoProviderId: string | null;
+  /** The address the request comes from (set by server.ts), for workspaces with approved networks. */
+  ip: string | null;
   /** Per workspace id: which of its policies holds this session back, if any. Filled by access.ts. */
-  heldBack: Map<string, Promise<"two-factor" | "sso" | null>>;
+  heldBack: Map<string, Promise<PolicyHold | null>>;
 };
 
 const byRequest = new WeakMap<object, Promise<RequestSession | null>>();
@@ -47,6 +52,7 @@ async function lookUp(requestHeaders: Headers): Promise<RequestSession | null> {
     userId: session.user.id,
     strong: isStrongSession(session),
     ssoProviderId: (session.session as { ssoProviderId?: string | null }).ssoProviderId ?? null,
+    ip: requestHeaders.get(CLIENT_IP_HEADER),
     heldBack: new Map(),
   };
 }

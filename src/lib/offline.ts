@@ -25,6 +25,8 @@ export const COLLAB_FORBIDDEN = "forbidden";
 export const COLLAB_TWO_STEP = "two-step";
 /** Members must sign in with the workspace's single sign-on first; the page is still theirs. */
 export const COLLAB_SSO = "sso";
+/** The workspace only lets people in from its approved networks, and this connection comes from elsewhere. */
+export const COLLAB_IP = "network";
 /** No valid collab token (e.g. the session expired). */
 export const COLLAB_UNAUTHORIZED = "unauthorized";
 /** The tab runs another build than the server: it must reload before it may load a page (lib/build-id). */

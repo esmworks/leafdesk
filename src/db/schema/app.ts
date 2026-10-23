@@ -19,6 +19,7 @@ import {
 import type { AiAutofillConfig } from "../../lib/ai";
 import type { AggregateFn, RollupDisplay, RollupFn } from "../../lib/aggregate";
 import type { FormulaResultType } from "../../lib/formula/types";
+import type { AllowedNetwork } from "../../lib/ip-allowlist";
 import { PROPERTY_TYPES, type PropertyType, type StatusGroup } from "../../lib/property-types";
 import type { PageBackground } from "../../lib/page-background";
 import type { PageVisibility } from "../../lib/page-visibility";
@@ -189,6 +190,13 @@ export const workspace = pgTable("workspace", {
   inviteLinkToken: text("invite_link_token").unique(),
   /** Only the policies an owner changed; `workspaceSettings` fills in the rest from the defaults. */
   settings: jsonb("settings").$type<Partial<WorkspaceSettings>>().notNull().default({}),
+  /**
+   * The approved networks (lib/ip-allowlist): while there are any, browser sessions from other
+   * addresses are held back from the workspace (policyHold in server/access.ts). Owners set them
+   * in Settings > Security (setAllowedNetworks); instance administrators can clear them on /admin.
+   * Apart from `settings`, which members read: the list maps where people work from.
+   */
+  allowedNetworks: jsonb("allowed_networks").$type<AllowedNetwork[]>().notNull().default([]),
   /**
    * The AI account (OWN_AI_KEYS_ENABLED) all of the workspace's AI runs on and is paid by: one of
    * its owner's own keys (server/ai-accounts.ts). Null: the server's AI_* settings, if any.

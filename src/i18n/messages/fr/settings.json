@@ -1086,7 +1086,12 @@
     "workspaceDeleted": "Quelqu’un a supprimé cet espace de travail entre-temps.",
     "storageNoDestination": "Les fichiers de cet espace de travail sont dans votre stockage, et ils ne pourront être déplacés nulle part si vous partez : aucun autre propriétaire n’a de stockage par défaut, et le stockage de ce serveur ne peut pas les accueillir. Demandez à un propriétaire de configurer un stockage, ou déplacez d’abord les fichiers (Paramètres > Stockage).",
     "storageMoveInProgress": "Les fichiers de cet espace de travail sont en cours de déplacement vers votre stockage. Attendez la fin, puis quittez-le.",
-    "invalidCalloutStyle": "Un style d’encadré n’a pas pu être enregistré : vérifiez sa clé, son nom et son icône."
+    "invalidCalloutStyle": "Un style d’encadré n’a pas pu être enregistré : vérifiez sa clé, son nom et son icône.",
+    "invalidNetwork": "{detail} n’est ni une adresse IP ni une plage. Saisissez une adresse comme 203.0.113.7 ou 2001:db8::1, ou une plage comme 203.0.113.0/24.",
+    "invalidNetworkLabel": "Le libellé de {detail} est trop long : 100 caractères au maximum.",
+    "tooManyNetworks": "Un espace de travail peut avoir au plus 100 réseaux approuvés.",
+    "ipLocksYouOut": "Cette liste ne contient pas votre adresse actuelle, {detail} : l’enregistrer vous fermerait l’accès à l’espace de travail. Ajoutez d’abord votre adresse ou une plage qui la couvre.",
+    "ipUnknown": "Le serveur ne voit pas votre adresse et ne peut donc pas vérifier que cette liste vous laisse entrer. Enregistrez-la depuis une connexion dont le serveur voit l’adresse, ou videz la liste."
   },
   "security": {
     "description": "Choisissez comment les personnes se connectent, qui peut faire entrer des personnes dans cet espace de travail, ce que les invités peuvent faire, ce qui peut en sortir (exportations, applications connectées) et qui peut publier des pages sur le Web. Seuls les propriétaires peuvent modifier ces paramètres.",
@@ -1348,6 +1353,25 @@
       "error": "Impossible de la déconnecter. Réessayez.",
       "gone": "Elle est déjà déconnectée, ou n’atteint plus cet espace de travail.",
       "shown": "Affichage des {shown} utilisées le plus récemment ici, sur {total}."
+    },
+    "allowedNetworks": {
+      "title": "Réseaux approuvés",
+      "description": "N’autoriser l’ouverture de cet espace de travail que depuis ces adresses et plages IP, comme votre bureau ou votre VPN : IPv4 ou IPv6, une adresse seule (203.0.113.7) ou une plage CIDR (203.0.113.0/24). Cela s’applique à tout le monde dans l’espace de travail, propriétaires et invités compris. Laissez la liste vide pour autoriser tous les réseaux.",
+      "appsNote": "Les applications connectées par MCP, les jetons d’API REST et les jetons SCIM n’y sont pas soumis : ils suivent le réglage « Applications connectées et jetons d’API ».",
+      "range": "Adresse ou plage",
+      "label": "Libellé",
+      "rangePlaceholder": "203.0.113.0/24",
+      "labelPlaceholder": "Bureau (facultatif)",
+      "add": "Ajouter un réseau",
+      "addMine": "Ajouter mon adresse ({ip})",
+      "remove": "Retirer {range}",
+      "removeRow": "Retirer la ligne",
+      "empty": "Aucun réseau approuvé : l’espace de travail s’ouvre depuis n’importe quel réseau.",
+      "addressUnknown": "Le serveur ne voit pas votre adresse : aucune liste ne peut être enregistrée depuis cette connexion.",
+      "yourAddressOnList": "Votre adresse, {ip}, figure dans la liste.",
+      "yourAddressMissing": "Votre adresse, {ip}, ne figure pas dans la liste : l’enregistrer vous fermerait l’accès, ajoutez-la d’abord.",
+      "lockoutHelp": "Si une liste ferme un jour l’accès à tout le monde, un administrateur de l’instance peut la vider sur la page d’administration.",
+      "memberView": "{count, plural, =0 {Désactivé : l’espace de travail s’ouvre depuis n’importe quel réseau.} one {Activé : l’espace de travail ne s’ouvre que depuis # réseau approuvé.} other {Activé : l’espace de travail ne s’ouvre que depuis # réseaux approuvés.}}"
     }
   },
   "audit": {
@@ -1571,7 +1595,9 @@
       "workspace": {
         "renamed": "A renommé l’espace de travail de {from} en {to}",
         "settings_changed": "A modifié des paramètres : {settings}",
-        "domains_verified": "A vérifié le domaine de messagerie autorisé {domains}"
+        "domains_verified": "A vérifié le domaine de messagerie autorisé {domains}",
+        "networks_changed": "{count, plural, =0 {A retiré les réseaux approuvés} other {A défini les réseaux approuvés : {names}}}",
+        "networks_cleared": "A vidé les réseaux approuvés en tant qu’administrateur de l’instance"
       },
       "sso": {
         "configured": "A enregistré la connexion d’authentification unique ({protocol}) pour {domains}",

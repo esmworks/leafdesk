@@ -1,24 +1,27 @@
 import { and, asc, eq, gt, ilike, inArray, isNotNull, ne, or, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { account, session, user } from "@/db/schema";
+import { account, session, user, workspace } from "@/db/schema";
+import { storedAllowedNetworks, type AllowedNetwork } from "@/lib/ip-allowlist";
 import { isInstanceAdmin } from "@/lib/instance-admin";
 import { notAgentUser } from "@/server/agents/users";
 import { getCollab } from "@/server/collab/bridge";
+import { writeNetworks } from "@/server/allowed-networks";
 import { firstAdminId, instanceAdmin } from "@/server/first-admin";
 import { workspaceCounts } from "@/server/workspaces";
 
 /**
  * What an instance administrator (ADMIN_EMAILS or the server's first account, see
  * lib/instance-admin.ts) does on /admin: look up the server's accounts, sign one or everyone out,
- * and make one or everyone with a password choose a new one at their next sign-in (see
- * server/required-password.ts).
+ * make one or everyone with a password choose a new one at their next sign-in (see
+ * server/required-password.ts), and clear a workspace's approved networks when they shut its owners
+ * out (server/allowed-networks.ts).
  *
  * Every function checks the caller itself, so a server action can't skip it. Signing out ends
  * browser sessions and their live collaboration connections; apps connected over MCP and REST
  * API tokens are grants of their own and keep working until they are revoked.
  */
 
-export type AdminErrorCode = "notFound" | "noPassword" | "self";
+export type AdminErrorCode = "notFound" | "noPassword" | "self" | "noWorkspace";
 
 export class AdminError extends Error {
   constructor(readonly code: AdminErrorCode) {
@@ -213,4 +216,30 @@ export async function countLiveSessions(caller: AdminSession | null | undefined)
     .from(session)
     .where(gt(session.expiresAt, new Date()));
   return total;
+}
+
+/** A workspace that only opens from approved networks, for the admin page. */
+export type NetworkRestrictedWorkspace = { id: string; name: string; networks: AllowedNetwork[] };
+
+/** The server's workspaces with approved networks, by name. */
+export async function listNetworkRestrictedWorkspaces(caller: AdminSession | null | undefined): Promise<NetworkRestrictedWorkspace[]> {
+  await assertAdmin(caller);
+  const rows = await db
+    .select({ id: workspace.id, name: workspace.name, networks: workspace.allowedNetworks })
+    .from(workspace)
+    .where(sql`jsonb_array_length(${workspace.allowedNetworks}) > 0`)
+    .orderBy(asc(workspace.name));
+  return rows.map((row) => ({ id: row.id, name: row.name, networks: storedAllowedNetworks(row.networks) }));
+}
+
+/**
+ * Clears a workspace's approved networks, so it opens from any network again: the way back in when
+ * a list shuts its owners out (a new office address, a proxy set up differently). In its audit log,
+ * by this administrator, whether or not they are in the workspace.
+ */
+export async function clearWorkspaceNetworks(caller: AdminSession | null | undefined, workspaceId: string) {
+  const admin = await assertAdmin(caller);
+  const [row] = await db.select({ id: workspace.id }).from(workspace).where(eq(workspace.id, workspaceId)).limit(1);
+  if (!row) throw new AdminError("noWorkspace");
+  await writeNetworks(workspaceId, [], admin.user.id, "workspace.networks_cleared");
 }

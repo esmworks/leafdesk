@@ -91,5 +91,17 @@
     "signedInAs": "Accesso effettuato come {email}.",
     "signOut": "Esci",
     "otherWorkspaces": "I tuoi altri spazi di lavoro"
+  },
+  "networkGate": {
+    "metaTitle": "Solo reti approvate",
+    "title": "{workspace} consente l’accesso solo da reti approvate",
+    "body": "I proprietari di questo spazio di lavoro lo lasciano aprire solo da reti approvate, come l’ufficio o una VPN, e questa connessione non proviene da nessuna di esse. Collegati da una rete approvata e riprova.",
+    "address": "Il tuo indirizzo:",
+    "addressUnknown": "Non è stato possibile determinare il tuo indirizzo.",
+    "askOwner": "Se dovresti poter accedere da qui, chiedi a un proprietario dello spazio di lavoro di aggiungere questo indirizzo.",
+    "tryAgain": "Riprova",
+    "signedInAs": "Accesso effettuato come {email}.",
+    "signOut": "Esci",
+    "otherWorkspaces": "I tuoi altri spazi di lavoro"
   }
 }

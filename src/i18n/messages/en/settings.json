@@ -1086,7 +1086,12 @@
     "workspaceDeleted": "Someone deleted this workspace in the meantime.",
     "storageNoDestination": "This workspace's files are in your storage, and there is nowhere they can move to when you leave: no other owner has default storage, and this server's storage can't take them. Ask an owner to set up storage, or move the files first (Settings > Storage).",
     "storageMoveInProgress": "This workspace's files are being moved into your storage. Wait for it to finish, then leave.",
-    "invalidCalloutStyle": "A callout style couldn’t be saved: check its key, name and icon."
+    "invalidCalloutStyle": "A callout style couldn’t be saved: check its key, name and icon.",
+    "invalidNetwork": "{detail} isn't an IP address or range. Enter an address like 203.0.113.7 or 2001:db8::1, or a range like 203.0.113.0/24.",
+    "invalidNetworkLabel": "The label of {detail} is too long: at most 100 characters.",
+    "tooManyNetworks": "A workspace can have at most 100 approved networks.",
+    "ipLocksYouOut": "This list leaves out your current address, {detail}, so saving it would shut you out of the workspace. Add your address, or a range that covers it, first.",
+    "ipUnknown": "The server can't tell your address, so it can't make sure this list keeps you in. Save it from a connection whose address the server sees, or clear the list."
   },
   "security": {
     "description": "Decide how people sign in, who can bring people into this workspace, what guests can do, what can leave it (exports, connected apps) and who can publish pages to the web. Only owners can change these settings.",
@@ -1348,6 +1353,25 @@
       "error": "Could not disconnect it. Try again.",
       "gone": "It's already disconnected, or no longer reaches this workspace.",
       "shown": "Showing the {shown} used here most recently of {total}."
+    },
+    "allowedNetworks": {
+      "title": "Approved networks",
+      "description": "Only let people open this workspace from these IP addresses and ranges, such as your office or VPN: IPv4 or IPv6, a single address (203.0.113.7) or a CIDR range (203.0.113.0/24). It applies to everyone in the workspace, owners and guests too. Leave the list empty to allow any network.",
+      "appsNote": "Apps connected over MCP, REST API tokens and SCIM tokens aren't held to it: they follow the “Connected apps and API tokens” setting.",
+      "range": "Address or range",
+      "label": "Label",
+      "rangePlaceholder": "203.0.113.0/24",
+      "labelPlaceholder": "Office (optional)",
+      "add": "Add network",
+      "addMine": "Add my address ({ip})",
+      "remove": "Remove {range}",
+      "removeRow": "Remove row",
+      "empty": "No approved networks: people can open the workspace from any network.",
+      "addressUnknown": "The server can't tell your address, so a list can't be saved from this connection.",
+      "yourAddressOnList": "Your address, {ip}, is on the list.",
+      "yourAddressMissing": "Your address, {ip}, isn't on the list: saving it would shut you out, so add it first.",
+      "lockoutHelp": "If a list ever shuts everyone out, an instance administrator can clear it on the admin page.",
+      "memberView": "{count, plural, =0 {Off: the workspace opens from any network.} one {On: the workspace opens only from # approved network.} other {On: the workspace opens only from # approved networks.}}"
     }
   },
   "audit": {
@@ -1571,7 +1595,9 @@
       "workspace": {
         "renamed": "Renamed the workspace from {from} to {to}",
         "settings_changed": "Changed settings: {settings}",
-        "domains_verified": "Verified the allowed email domain {domains}"
+        "domains_verified": "Verified the allowed email domain {domains}",
+        "networks_changed": "{count, plural, =0 {Removed the approved networks} other {Set the approved networks to {names}}}",
+        "networks_cleared": "Cleared the approved networks as an instance administrator"
       },
       "sso": {
         "configured": "Saved the single sign-on connection ({protocol}) for {domains}",

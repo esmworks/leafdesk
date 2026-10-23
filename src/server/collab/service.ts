@@ -28,7 +28,8 @@ import { writePageStyle } from "@/lib/page-style";
 import { syncedElementsIn, syncedFragmentName } from "@/lib/synced-blocks";
 import { requestLocale } from "@/i18n/config";
 import { env } from "@/lib/env";
-import { COLLAB_FORBIDDEN, COLLAB_SSO, COLLAB_STALE, COLLAB_TWO_STEP, COLLAB_UNAUTHORIZED } from "@/lib/offline";
+import { CLIENT_IP_HEADER } from "@/lib/client-ip";
+import { COLLAB_FORBIDDEN, COLLAB_IP, COLLAB_SSO, COLLAB_STALE, COLLAB_TWO_STEP, COLLAB_UNAUTHORIZED } from "@/lib/offline";
 import { AccessError, policyHoldFor, WorkspacePolicyError } from "@/server/access";
 import { collabSessionFacts } from "@/server/account-security";
 import { serverBuildId } from "@/server/build-id";
@@ -63,6 +64,8 @@ type Context = {
   strong?: boolean;
   /** The SSO provider the session came through, for "SSO only" workspaces. */
   ssoProviderId?: string | null;
+  /** The address the websocket came from (set by server.ts on the upgrade), for approved networks. */
+  ip?: string | null;
 };
 
 const debug = process.env.COLLAB_DEBUG ? (...args: unknown[]) => console.log("[collab]", ...args) : () => {};
@@ -408,8 +411,9 @@ export function createCollab() {
       if (!user) throw refusal(COLLAB_UNAUTHORIZED);
       if (!target) throw refusal(COLLAB_FORBIDDEN);
       try {
-        const facts = await collabSessionFacts(user.sessionId, user.userId);
-        if (!facts) throw refusal(COLLAB_UNAUTHORIZED);
+        const session = await collabSessionFacts(user.sessionId, user.userId);
+        if (!session) throw refusal(COLLAB_UNAUTHORIZED);
+        const facts = { ...session, ip: requestHeaders.get(CLIENT_IP_HEADER) };
         // People who may only read get the live document but their edits are dropped.
         const { readOnly } = await authorizeCollab(user.userId, target, facts);
         if (readOnly) connectionConfig.readOnly = true;
@@ -421,10 +425,13 @@ export function createCollab() {
           locale: requestLocale(requestHeaders),
           strong: facts.strong,
           ssoProviderId: facts.ssoProviderId,
+          ip: facts.ip,
         } satisfies Context;
       } catch (error) {
         // Browsers drop their offline copy of a page only for "forbidden" (see components/collab/socket).
-        if (error instanceof WorkspacePolicyError) throw refusal(error.hold === "sso" ? COLLAB_SSO : COLLAB_TWO_STEP);
+        if (error instanceof WorkspacePolicyError) {
+          throw refusal(error.hold === "ip" ? COLLAB_IP : error.hold === "sso" ? COLLAB_SSO : COLLAB_TWO_STEP);
+        }
         if (error instanceof AccessError) throw refusal(COLLAB_FORBIDDEN);
         throw error;
       }
@@ -1048,9 +1055,9 @@ export function createCollab() {
 
     async disconnectHeldBack(workspaceId) {
       // Browser connections only (they carry a user); the server's own have no session. Each kind
-      // of session (user, two-step, SSO provider) is asked about once.
+      // of session (user, two-step, SSO provider, address) is asked about once.
       const verdicts = new Map<string, boolean>();
-      const keyOf = (c: Context) => `${c.userId}|${c.strong === true}|${c.ssoProviderId ?? ""}`;
+      const keyOf = (c: Context) => `${c.userId}|${c.strong === true}|${c.ssoProviderId ?? ""}|${c.ip ?? ""}`;
       for (const doc of hocuspocus.documents.values()) {
         for (const connection of doc.getConnections()) {
           const context = connection.context as Context;
@@ -1059,6 +1066,7 @@ export function createCollab() {
           const hold = await policyHoldFor(context.userId, workspaceId, {
             strong: context.strong === true,
             ssoProviderId: context.ssoProviderId ?? null,
+            ip: context.ip ?? null,
           });
           verdicts.set(keyOf(context), hold !== null);
         }
