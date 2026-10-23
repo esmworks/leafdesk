@@ -907,6 +907,14 @@
     "detailHeading": "{month}: özelliklere ve modellere göre",
     "ownAccountShare": "Bunun {cost} tutarını çalışma alanının kendi yapay zekâ hesabı ödedi.",
     "empty": "Bu ay hiç yapay zekâ isteği yok.",
+    "peopleHeading": "{month}: kişilere göre",
+    "peopleDescription": "Çalışma alanının yapay zekâsını kimin kullandığı, en çok harcayandan başlayarak: kişiler ve ajanlar, her biri en çok kullandığı özelliklerle. İstekler, bu listeyi getiren Leafdesk güncellemesinden itibaren kişi bazında sayılır; daha öncekiler yalnızca toplamlarda yer alır.",
+    "people": {
+      "agent": "Ajan",
+      "nobody": "Arka plan işleri",
+      "unknown": "Silinmiş hesap",
+      "uncounted": "Kişi bazında sayımdan önce"
+    },
     "cacheTitle": "İstem önbelleğinden okunan: {read} · Önbelleğe yazılan: {write}",
     "columns": {
       "month": "Ay",
@@ -917,7 +925,10 @@
       "output": "Çıktı",
       "cost": "Harcama",
       "feature": "Özellik",
-      "model": "Model"
+      "model": "Model",
+      "person": "Kişi",
+      "share": "Pay",
+      "mostUsed": "En çok kullandığı"
     },
     "groups": {
       "chat": "Yapay zekâ sohbeti",

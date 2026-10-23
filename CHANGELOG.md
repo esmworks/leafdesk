@@ -4,6 +4,12 @@
 
 ### Added
 
+- **AI usage by person.** Settings > AI usage now breaks the month shown down by person: each
+  person and agent (marked as one) with their requests, tokens, cost and share of the month,
+  costliest first, and the features they used most; requests nobody asked for show as background
+  work. Only owners see it, as the rest of the page. Requests are counted by person from this
+  update on (migration 0120, table `ai_usage_person`); what came before stays in the totals and
+  shows as one line of its own.
 - **Automations can celebrate.** A new *Celebrate with confetti* step plays confetti in the app
   for whoever made the change that started the run, in every window they have open, a moment
   after the change; a ready-made *Celebrate finished rows* automation does it when a row is

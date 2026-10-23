@@ -2,7 +2,7 @@ import Link from "next/link";
 import { getFormatter, getTranslations } from "next-intl/server";
 import type { ReactNode } from "react";
 import { SettingsGroup, SettingsHeader } from "@/components/settings/section";
-import type { AiUsageMonth, AiUsageReport, AiUsageTotals } from "@/lib/ai-usage";
+import type { AiUsageMonth, AiUsagePerson, AiUsageReport, AiUsageTotals } from "@/lib/ai-usage";
 import { AiLimitForm } from "./ai-limit-form";
 
 // A server component (plain links, nothing to hydrate), so it cannot pull `cn` from the client-only ui module.
@@ -10,13 +10,14 @@ const cn = (...classes: (string | false | undefined)[]) => classes.filter(Boolea
 
 /**
  * Settings > AI usage, for owners: this month's cost against the limits, the owners' monthly limit,
- * and what each month cost by feature and model (see server/ai-usage.ts). `month` is the month shown
+ * and what each month cost by feature, model and person (see server/ai-usage.ts). `month` is the month shown
  * in detail ("2026-10"), this one when it isn't among the months.
  */
 export async function AiUsagePanel({ workspaceId, report, month }: { workspaceId: string; report: AiUsageReport; month?: string }) {
   const [ts, t, format] = await Promise.all([getTranslations("settings"), getTranslations("settings.aiUsage"), getFormatter()]);
   const current = report.months[0];
   const shown = report.months.find((m) => m.month === month) ?? current;
+  const people = report.people[shown.month] ?? { people: [], uncounted: shown.total };
   const usd = (n: number) =>
     format.number(n, { style: "currency", currency: "USD", minimumFractionDigits: 2, maximumFractionDigits: n > 0 && n < 1 ? 4 : 2 });
   const tokens = (n: number) => format.number(n, { notation: "compact", maximumFractionDigits: 1 });
@@ -172,8 +173,79 @@ export async function AiUsagePanel({ workspaceId, report, month }: { workspaceId
             </>
           )}
         </MonthDetail>
+
+        {shown.total.requests > 0 && (
+          <SettingsGroup title={t("peopleHeading", { month: monthName(shown.month) })} description={t("peopleDescription")} bare>
+            <div className="relative overflow-x-auto rounded-xl border border-border">
+              <table className="w-full min-w-[720px] text-sm">
+                <thead className="border-b border-border bg-bg-subtle text-xs text-fg-muted">
+                  <tr>
+                    <th scope="col" className={th}>{t("columns.person")}</th>
+                    <th scope="col" className={numHead}>{t("columns.requests")}</th>
+                    <th scope="col" className={numHead}>{t("columns.tokens")}</th>
+                    <th scope="col" className={cn(th, "w-28 text-end")}>{t("columns.cost")}</th>
+                    <th scope="col" className={cn(th, "w-32")}>{t("columns.share")}</th>
+                    <th scope="col" className={th}>{t("columns.mostUsed")}</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {people.people.map((person) => (
+                    <tr key={person.userId ?? ""}>
+                      <td className="max-w-0 px-4 py-3">
+                        <PersonName person={person} agent={t("people.agent")} nobody={t("people.nobody")} unknown={t("people.unknown")} />
+                      </td>
+                      <td className={num}>{format.number(person.requests)}</td>
+                      <td className={num}>{tokens(allTokens(person))}</td>
+                      <td className={cn(num, "font-medium")}>{usd(person.costUsd)}</td>
+                      <td className="px-4 py-3">
+                        <Share share={person.share} label={format.number(person.share, { style: "percent", maximumFractionDigits: person.share > 0 && person.share < 0.01 ? 1 : 0 })} />
+                      </td>
+                      <td className="px-4 py-3 text-fg-muted">{person.topGroups.map((g) => t(`groups.${g}`)).join(", ")}</td>
+                    </tr>
+                  ))}
+                  {people.uncounted.requests > 0 && (
+                    <tr className="text-fg-muted">
+                      <td className="px-4 py-3">{t("people.uncounted")}</td>
+                      <td className={num}>{format.number(people.uncounted.requests)}</td>
+                      <td className={num}>{tokens(allTokens(people.uncounted))}</td>
+                      <td className={num}>{usd(people.uncounted.costUsd)}</td>
+                      <td className="px-4 py-3" />
+                      <td className="px-4 py-3" />
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </SettingsGroup>
+        )}
       </div>
     </div>
+  );
+}
+
+/** Who a line of the breakdown by person is: a person, an agent (said so), nobody, or a lost account. */
+function PersonName({ person, agent, nobody, unknown }: { person: AiUsagePerson; agent: string; nobody: string; unknown: string }) {
+  if (!person.userId) return <span className="text-fg-muted">{nobody}</span>;
+  const name = person.name ?? unknown;
+  return (
+    <span className="flex min-w-0 items-baseline gap-2">
+      <span className="truncate" title={name}>
+        {name}
+      </span>
+      {person.agentId && <span className="shrink-0 text-xs text-fg-muted">{agent}</span>}
+    </span>
+  );
+}
+
+/** A share of the month, as a number and a short bar. */
+function Share({ share, label }: { share: number; label: string }) {
+  return (
+    <span className="flex items-center gap-2">
+      <span className="w-10 shrink-0 text-end tabular-nums">{label}</span>
+      <span className="h-1.5 w-16 overflow-hidden rounded-full bg-bg-hover" role="presentation">
+        <span className="block h-full rounded-full bg-accent" style={{ width: `${Math.round(share * 100)}%` }} />
+      </span>
+    </span>
   );
 }
 

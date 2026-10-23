@@ -907,6 +907,14 @@
     "detailHeading": "{month} 기능별·모델별",
     "ownAccountShare": "이 중 {cost}은(는) 워크스페이스 자체 AI 계정이 지불했습니다.",
     "empty": "이번 달에는 AI 요청이 없습니다.",
+    "peopleHeading": "{month} 사람별",
+    "peopleDescription": "워크스페이스의 AI를 누가 사용했는지 비용이 많은 순으로 보여 줍니다. 사람과 에이전트마다 가장 많이 쓴 기능도 함께 표시됩니다. 요청은 이 목록을 추가한 Leafdesk 업데이트부터 사람별로 집계되며, 그 이전 요청은 합계에만 포함됩니다.",
+    "people": {
+      "agent": "에이전트",
+      "nobody": "백그라운드 작업",
+      "unknown": "삭제된 계정",
+      "uncounted": "사람별 집계 이전"
+    },
     "cacheTitle": "프롬프트 캐시에서 읽음: {read} · 캐시에 씀: {write}",
     "columns": {
       "month": "월",
@@ -917,7 +925,10 @@
       "output": "출력",
       "cost": "비용",
       "feature": "기능",
-      "model": "모델"
+      "model": "모델",
+      "person": "사람",
+      "share": "비중",
+      "mostUsed": "주로 사용한 기능"
     },
     "groups": {
       "chat": "AI 채팅",

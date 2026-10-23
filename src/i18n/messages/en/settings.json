@@ -907,6 +907,14 @@
     "detailHeading": "{month} by feature and model",
     "ownAccountShare": "{cost} of it was paid by the workspace's own AI account.",
     "empty": "No AI requests in this month.",
+    "peopleHeading": "{month} by person",
+    "peopleDescription": "Who used the workspace's AI, costliest first: people and agents, each with the features they used most. Requests are counted by person from the Leafdesk update that added this list; earlier ones are only in the totals.",
+    "people": {
+      "agent": "Agent",
+      "nobody": "Background work",
+      "unknown": "Removed account",
+      "uncounted": "Before counting by person"
+    },
     "cacheTitle": "Read from the prompt cache: {read} · Written to it: {write}",
     "columns": {
       "month": "Month",
@@ -917,7 +925,10 @@
       "output": "Output",
       "cost": "Cost",
       "feature": "Feature",
-      "model": "Model"
+      "model": "Model",
+      "person": "Person",
+      "share": "Share",
+      "mostUsed": "Used most for"
     },
     "groups": {
       "chat": "AI chat",

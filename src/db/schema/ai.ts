@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { bigint, boolean, date, doublePrecision, index, integer, jsonb, pgTable, primaryKey, real, text, timestamp } from "drizzle-orm/pg-core";
+import { bigint, boolean, date, doublePrecision, index, integer, jsonb, pgTable, primaryKey, real, text, timestamp, unique } from "drizzle-orm/pg-core";
 import { databaseProperty, page, tsvector, workspace } from "./app";
 import { agentRun } from "./agents";
 import { user } from "./auth";
@@ -313,4 +313,31 @@ export const aiUsage = pgTable(
     costUsd: doublePrecision("cost_usd").notNull().default(0),
   },
   (t) => [primaryKey({ columns: [t.workspaceId, t.month, t.feature, t.model, t.ownAccount] })],
+);
+
+/**
+ * The same month's AI requests by who asked and feature (server/ai/usage.ts), for the usage view's
+ * breakdown by person: `userId` is the person (an agent's own user for its runs), null for work
+ * nobody asked for (background indexing, autofill of new rows…). Counted from migration 0120 on:
+ * months before it are only in `ai_usage`. Kept and pruned with it; never what was asked.
+ */
+export const aiUsagePerson = pgTable(
+  "ai_usage_person",
+  {
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspace.id, { onDelete: "cascade" }),
+    /** The month's first day. */
+    month: date("month").notNull(),
+    userId: text("user_id").references(() => user.id, { onDelete: "cascade" }),
+    feature: text("feature").notNull(),
+    requests: integer("requests").notNull().default(0),
+    inputTokens: bigint("input_tokens", { mode: "number" }).notNull().default(0),
+    cacheReadTokens: bigint("cache_read_tokens", { mode: "number" }).notNull().default(0),
+    cacheWriteTokens: bigint("cache_write_tokens", { mode: "number" }).notNull().default(0),
+    outputTokens: bigint("output_tokens", { mode: "number" }).notNull().default(0),
+    costUsd: doublePrecision("cost_usd").notNull().default(0),
+  },
+  // Nobody's requests (a null user) add up in one row per feature too.
+  (t) => [unique("ai_usage_person_key").on(t.workspaceId, t.month, t.userId, t.feature).nullsNotDistinct()],
 );
