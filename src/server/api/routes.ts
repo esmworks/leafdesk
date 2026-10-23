@@ -1006,7 +1006,7 @@ export const API_ROUTES: ApiRoute[] = [
     tag: "Review",
     summary: "List changes waiting for review",
     description:
-      "The changes agents proposed in a workspace instead of making them (agents set to propose row changes for review, and the email drafts they wrote), newest first: the agent and its reason, the row and database, what each value was, is now and would become (`conflict` where the row changed since in a value it sets), or the email, and whether the token's user may answer it (`can_approve`: edit access to the row and to each value it sets, to the database for a new row; an email draft only its sender). Proposals expire after 30 days unanswered. `status=decided` lists answered ones still kept.",
+      "The changes agents proposed in a workspace instead of making them (agents set to propose row changes for review, and the email drafts they wrote), and automations' runs waiting at an approval step (`kind: automation_approval`, with `approval`), newest first: the agent and its reason, the row and database, what each value was, is now and would become (`conflict` where the row changed since in a value it sets), or the email, and whether the token's user may answer it (`can_approve`: edit access to the row and to each value it sets, to the database for a new row; an email draft only its sender; an approval only the people it asks). Proposals expire after 30 days unanswered. `status=decided` lists answered ones still kept.",
     scope: "rows:read",
     query: z.object({
       agent_id: z.string().min(1).optional().describe("Only changes this agent proposed."),
@@ -1033,7 +1033,7 @@ export const API_ROUTES: ApiRoute[] = [
     tag: "Review",
     summary: "Approve a change",
     description:
-      "Makes a change an agent proposed, as the token's user: the row is added or changed with their access (its activity says the agent proposed it), or the email draft is sent from their mailbox. Pass `title`, `properties`, `markdown`, `subject` or `text` to approve an edited version. Answers 409 `change_conflict` when the row changed since in a value it sets, unless `force` is true, and `change_decided` when it was already answered. A change that can't be made is kept with `status: failed` and its `error`.",
+      "Makes a change an agent proposed, as the token's user: the row is added or changed with their access (its activity says the agent proposed it), or the email draft is sent from their mailbox; an automation's approval lets its run go on with the next step. Pass `title`, `properties`, `markdown`, `subject` or `text` to approve an edited version. Answers 409 `change_conflict` when the row changed since in a value it sets, unless `force` is true, and `change_decided` when it was already answered. A change that can't be made is kept with `status: failed` and its `error`.",
     scope: "rows:write",
     body: reviewInputs.approve.omit({ change_id: true }),
     conflict: true,
@@ -1052,7 +1052,7 @@ export const API_ROUTES: ApiRoute[] = [
     operationId: "dismissPendingChange",
     tag: "Review",
     summary: "Dismiss a change",
-    description: "The change an agent proposed is not made; an email draft is discarded. Answers 409 `change_decided` when it was already answered.",
+    description: "The change an agent proposed is not made; an email draft is discarded; an automation's approval is rejected and its run stops. Answers 409 `change_decided` when it was already answered.",
     scope: "rows:write",
     conflict: true,
     response: "PendingChange",

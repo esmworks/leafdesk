@@ -100,39 +100,41 @@ export const rowValue = z.union([
 export const rowProperties = z
   .record(z.string(), rowValue)
   .describe(
-    'Property values keyed by property name (case-insensitive) or id. Use option names for select / multi_select / status (an array for multi_select), for date a day (YYYY-MM-DD), a time with its zone (2026-10-12T14:30:00Z or +03:00; stored in UTC) or a range of either as \"start/end\" or {start, end}, true/false for checkbox, an email address for email, a phone number for phone, an array of item texts or {text, checked} objects for checklist, an array of row ids (or exact row titles) of the related database for relation, an array of user ids, emails, names or "me" for person, an array of files already uploaded to this workspace (their /api/files/<id> paths or urls, or the {name, url} objects query_database returns; upload new ones with attach_file and its property option) for files, and null to clear a value. Setting a relation, person, checklist or files replaces its values. created_by, created_time, last_edited_by, last_edited_time and formula properties are read-only. Example: {"Status": "In progress", "Tags": ["urgent"], "Due": "2026-10-01", "Customer": ["Acme Ltd"], "Assignee": ["me"]}',
+    'Property values keyed by name (case-insensitive) or id. select / multi_select / status: option name (array for multi_select). date: a day (YYYY-MM-DD), a time with its zone (2026-10-12T14:30:00Z or +03:00; stored in UTC), or a range of either as \"start/end\" or {start, end}. checkbox: true/false. email / phone: a string. checklist: item texts or {text, checked}. relation: row ids or exact row titles. person: user ids, emails, names or "me". files: /api/files/<id> paths, urls or {name, url} (upload with attach_file). null clears. relation, person, checklist and files are replaced, not merged. created_by, created_time, last_edited_by, last_edited_time and formula properties are read-only. Example: {"Status": "In progress", "Tags": ["urgent"], "Due": "2026-10-01", "Customer": ["Acme Ltd"], "Assignee": ["me"]}',
   );
 
-const filterRuleInput = z.object({
-  property: z.string().min(1).describe("Property name or id, or title / created_at / updated_at."),
-  op: z.enum(FILTER_OPS),
-  value: z
-    .union([z.string(), z.number(), z.boolean(), z.array(z.string()).min(1)])
-    .optional()
-    .describe(
-      `Comparison value; omit for is_empty / is_not_empty. For is_within: ${RELATIVE_DATE_RANGES.join(", ")}. For is_any_of / is_none_of: a list of option names, people or related rows.`,
+// Rules inside groups take the same fields as top-level rules; only the top level describes them,
+// because every level is spelled out in the tool list and each description would be sent again.
+const filterRule = (described: boolean) => {
+  const text = <T extends z.ZodType>(schema: T, description: string) => (described ? schema.describe(description) : schema);
+  return z.object({
+    property: text(z.string().min(1), "Property name or id, or title / created_at / updated_at."),
+    op: z.enum(FILTER_OPS),
+    value: text(
+      z.union([z.string(), z.number(), z.boolean(), z.array(z.string()).min(1)]).optional(),
+      `Value to compare; omit for is_empty / is_not_empty. is_within: ${RELATIVE_DATE_RANGES.join(", ")}. is_any_of / is_none_of: option names, people or related rows.`,
     ),
-  days: z
-    .number()
-    .int()
-    .min(1)
-    .max(MAX_RELATIVE_DAYS)
-    .optional()
-    .describe("is_within with past_n_days / next_n_days only: how many days back or ahead of today."),
-});
+    days: text(
+      z.number().int().min(1).max(MAX_RELATIVE_DAYS).optional(),
+      "is_within with past_n_days / next_n_days: days back or ahead of today.",
+    ),
+  });
+};
+const filterRuleInput = filterRule(true);
+const nestedFilterRuleInput = filterRule(false);
 const combinatorInput = z.enum(FILTER_COMBINATORS);
 const filterGroupInput = <T extends z.ZodType>(rules: T) =>
   z.object({
     type: z.literal("group"),
-    combinator: combinatorInput.default("and").describe("How the group's rules combine."),
+    combinator: combinatorInput.default("and"),
     rules: z.array(rules).min(1),
   });
 /**
  * A rule or a group. When neither fits, the error names what is wrong with the one the input was
  * meant to be (a plain union only says "Invalid input"), e.g. an unknown op.
  */
-const ruleOrGroup = <G extends z.ZodType>(group: G) =>
-  z.union([filterRuleInput, group], {
+const ruleOrGroup = <G extends z.ZodType>(group: G, rule: typeof filterRuleInput = nestedFilterRuleInput) =>
+  z.union([rule, group], {
     error: (issue) => {
       if (issue.code !== "invalid_union" || !issue.errors.length) return undefined;
       const input = issue.input as { type?: unknown } | null | undefined;
@@ -145,9 +147,9 @@ const ruleOrGroup = <G extends z.ZodType>(group: G) =>
 // rejected by toFilterEntries with a message saying so.
 const deepestGroup = z.object({ type: z.literal("group") }).loose();
 export const filtersInput = z
-  .array(ruleOrGroup(filterGroupInput(ruleOrGroup(filterGroupInput(ruleOrGroup(deepestGroup))))))
+  .array(ruleOrGroup(filterGroupInput(ruleOrGroup(filterGroupInput(ruleOrGroup(deepestGroup)))), filterRuleInput))
   .describe(
-    `Filter rules and groups. A rule is {property, op, value}; a group is {type: "group", combinator: "and" | "or", rules: [...]}; groups may hold groups, at most ${MAX_FILTER_DEPTH} levels deep. A plain list of rules keeps working.`,
+    `Filter rules and groups. A rule is {property, op, value}; a group is {type: "group", combinator: "and" (default) | "or", rules: [...]} whose rules are rules or groups, at most ${MAX_FILTER_DEPTH} levels deep. A plain list of rules keeps working.`,
   );
 export const filterCombinatorInput = combinatorInput
   .optional()

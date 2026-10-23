@@ -1,7 +1,7 @@
 {
   "metaTitle": "Do przejrzenia",
   "heading": "Do przejrzenia",
-  "description": "Zmiany, które agenci zaproponowali zamiast je wprowadzić. Zatwierdź zmianę, aby wprowadzić ją w twoim imieniu, najpierw ją edytuj albo ją odrzuć. Propozycje, których nikt nie rozpatrzy, wygasają po 30 dniach.",
+  "description": "Zmiany, które agenci zaproponowali zamiast je wprowadzić, oraz automatyzacje czekające na zatwierdzenie. Zatwierdź zmianę, aby wprowadzić ją w twoim imieniu, najpierw ją edytuj albo ją odrzuć; zatwierdź automatyzację, aby jej uruchomienie poszło dalej, albo odrzuć ją, aby je zatrzymać. Propozycje, których nikt nie rozpatrzy, wygasają po 30 dniach. Czekają tu też e-maile przypominające ustawione na „Najpierw zapytaj mnie”.",
   "filters": {
     "agent": "Agent",
     "database": "Baza danych",
@@ -29,6 +29,8 @@
     "createRow": "<agent></agent> chce dodać wiersz do <database></database>",
     "updateRow": "<agent></agent> chce zmienić <row></row>",
     "emailDraft": "<agent></agent>: przygotowano szkic e-maila w <row></row>",
+    "automationApproval": "<automation></automation> prosi o zatwierdzenie dla <row></row>",
+    "automationApprovalNoRow": "<automation></automation> prosi o zatwierdzenie",
     "sequenceDraft": "E-mail {step} z {steps} follow-upu <sequence></sequence> w <row></row>"
   },
   "inDatabase": "w <database></database>",
@@ -40,7 +42,9 @@
   "decided": {
     "approved": "Zatwierdzono: {name}, {time}",
     "dismissed": "Odrzucono: {name}, {time}",
-    "expired": "Wygasła nierozpatrzona"
+    "expired": "Wygasła nierozpatrzona",
+    "rejected": "Odrzucono: {name}, {time}",
+    "timedOut": "Nikt nie odpowiedział na czas"
   },
   "title": "Tytuł",
   "becomes": "zmienia się na",
@@ -71,7 +75,8 @@
   "dismiss": "Odrzuć",
   "cannot": {
     "email": "Tylko {name} może wysłać ten szkic, z własnej skrzynki pocztowej.",
-    "row": "Widzisz tę zmianę, ale do jej zatwierdzenia potrzebujesz uprawnień do edycji wiersza i każdej wartości, którą ustawia."
+    "row": "Widzisz tę zmianę, ale do jej zatwierdzenia potrzebujesz uprawnień do edycji wiersza i każdej wartości, którą ustawia.",
+    "approval": "Tylko osoby, które pyta automatyzacja, mogą to zatwierdzić lub odrzucić."
   },
   "errors": {
     "notFound": "Tej zmiany już nie ma albo nie możesz jej zobaczyć.",
@@ -85,5 +90,15 @@
     "bar": "{count, plural, one {# zmiana czeka na przejrzenie} few {# zmiany czekają na przejrzenie} many {# zmian czeka na przejrzenie} other {# zmiany czeka na przejrzenie}}",
     "by": "zaproponowane przez: {names}",
     "open": "Przejrzyj"
+  },
+  "unknownAutomation": "Usunięta automatyzacja",
+  "reject": "Odrzuć",
+  "approval": {
+    "next": "Po zatwierdzeniu:",
+    "nothingNext": "Po zatwierdzeniu uruchomienie się kończy: nie ma dalszych kroków.",
+    "forEach": "dla każdego wiersza z {step}",
+    "approvers": "Pyta: {names}",
+    "timeoutStop": "Jeśli nikt nie odpowie na czas, uruchomienie się zatrzyma.",
+    "timeoutContinue": "Jeśli nikt nie odpowie na czas, uruchomienie pójdzie dalej."
   }
 }

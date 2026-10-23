@@ -4,6 +4,19 @@
 
 ### Added
 
+- **Automations can ask for approval.** A new *Ask for approval* step makes a run wait until one of
+  the people it asks approves or rejects it: chosen people and the people the row's person
+  properties name, with a message that can use templates, for 1 to 30 days. The question shows
+  under *For review* and on the row like other proposals, with the message, the automation, a link
+  to the run and what the next steps will do, and its people are notified (inbox, push and
+  Telegram). Approving goes on with the next step, which can use `{{<step>.approved_by}}` and
+  `{{<step>.answered_at}}`; rejecting stops the run, which the history now shows as *Stopped*.
+  Without an answer in time the run stops, or goes on when set to. Only the people asked can
+  answer, once, and nobody can edit the question; answers are in the audit log. Test runs ask
+  nobody and say whom they would have asked. MCP's `create_automation` and `update_automation`
+  take the step, and the review tools and the REST API's pending changes answer it. The
+  automations dialog also offers templates to start from, one of them asking for approval before
+  a row is closed. Migration 0111 adds the question's kind and its links to the automation and run.
 - **Follow-ups on rows.** Owners add follow-up sequences to a mail database in Settings → General →
   Email: a name and steps, each with how many days after the one before it goes out, the text, and
   whether it is sent on its own or put in the sender's For review queue first ("ask me first").
@@ -25,7 +38,7 @@
   a draft under For review says which step of which sequence it is. Starts, stops and sends are in
   the audit log, and ended follow-ups are deleted after 90 days. The automations dialog has a
   *Start from an example* button with one that starts a follow-up when a row reaches a quote stage.
-  Migration 0111 adds `email_sequence`, `sequence_enrollment` and `sequence_send`, a daily limit,
+  Migration 0112 adds `email_sequence`, `sequence_enrollment` and `sequence_send`, a daily limit,
   time zone and next send time to `mailbox`, and the enrollment a notification is about.
 - **Property descriptions.** Every property can say what it holds and how to fill it, in plain
   text of up to 1,000 characters, set in its menu under the type. It shows as a hint when you rest
@@ -531,6 +544,15 @@
   has the word written either way still comes first, and the snippet shows where. Migration 0093
   rewrites the `page` and `file_text` tables once to rebuild their search vectors; it runs
   automatically when the container starts (from source, run `pnpm db:migrate`).
+
+### Changed
+
+- **The MCP tool list is smaller and has a budget.** The descriptions a client sends to its model
+  were tightened, filter rules inside groups and automation steps no longer repeat what the
+  top-level fields already say (290 KB to 265 KB), and `src/server/mcp/tools-context.test.ts` now fails when the
+  whole list passes 300 KB or one tool passes 30 KB, so a new tool has to fit or raise the budget on
+  purpose. The list stays the same for every grant: a read-only token still sees the write tools,
+  because a step-up challenge is how it asks for them.
 
 ## 0.6.2 — 2026-10-20
 

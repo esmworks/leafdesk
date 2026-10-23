@@ -751,7 +751,7 @@ const SCHEMAS: Record<string, JsonSchema> = {
   PendingChange: loose(
     {
       id,
-      kind: { type: "string", enum: ["create_row", "update_row", "email_draft"] },
+      kind: { type: "string", enum: ["create_row", "update_row", "email_draft", "automation_approval"], description: "automation_approval: an automation's run waits for the people it asks; approving lets it go on, dismissing stops it." },
       status: { type: "string", enum: ["pending", "approved", "dismissed", "expired", "failed"], description: "failed: approved, but it couldn't be made (`error` says why); approve it again or dismiss it." },
       error: { type: "string" },
       reason: { type: "string", description: "Why the agent proposed it." },
@@ -783,6 +783,15 @@ const SCHEMAS: Record<string, JsonSchema> = {
         subject: { type: "string" },
         text: { type: "string" },
         in_reply: { type: "boolean", description: "It answers the row's latest email." },
+      }),
+      approval: loose({
+        automation: { oneOf: [{ type: "null" }, loose({ id, name: { type: "string" } }, ["id"])] },
+        run_id: { type: ["string", "null"] },
+        version: { type: "integer", description: "The automation's version the run is pinned to." },
+        message: { type: "string" },
+        approvers: { type: "array", items: { type: "string" }, description: "The people who may answer it; only they can." },
+        next_steps: { type: "array", items: { type: "string" }, description: "What the steps after it do, in order." },
+        on_timeout: { type: "string", enum: ["stop", "continue"] },
       }),
       edited: { type: "boolean", description: "A reviewer changed it from what the agent proposed." },
       conflict: { type: "boolean", description: "The row changed since in a value it sets: approving needs `force`." },

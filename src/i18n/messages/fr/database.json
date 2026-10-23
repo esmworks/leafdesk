@@ -1088,7 +1088,8 @@
       "runAgent": "Lancer {agent}",
       "archivedAgent": "un agent archivé",
       "trash": "Mettre à la corbeille",
-      "setEach": "Définir sur les lignes trouvées"
+      "setEach": "Définir sur les lignes trouvées",
+      "approval": "Demander à {people}"
     },
     "form": {
       "name": "Nom",
@@ -1129,6 +1130,7 @@
         "upsert_row": "Ajouter ou mettre à jour une ligne",
         "wait": "Attendre",
         "log": "Écrire dans l’historique des exécutions",
+        "approval": "Demander une approbation",
         "start_sequence": "Lancer une relance"
       },
       "trashHelp": "Met la ligne à la corbeille, d’où elle peut être restaurée jusqu’à ce que la corbeille soit vidée. Rien ne peut s’exécuter après cette action.",
@@ -1187,7 +1189,9 @@
         "badCron": "L’expression cron n’est pas valide.",
         "neverRuns": "Ce planning n’arrive jamais.",
         "badExample": "Le corps d’exemple n’est pas du JSON valide.",
-        "exampleTooLong": "Le corps d’exemple est trop long."
+        "exampleTooLong": "Le corps d’exemple est trop long.",
+        "needApprovers": "Choisissez à qui demander.",
+        "needTimeout": "Saisissez un nombre entier de jours entre 1 et 30."
       },
       "agent": "Agent",
       "chooseAgent": "Choisir un agent…",
@@ -1257,13 +1261,15 @@
         "pending": "En attente",
         "running": "En cours",
         "done": "Terminée",
-        "failed": "Échouée"
+        "failed": "Échouée",
+        "stopped": "Arrêtée"
       },
       "stepStatus": {
         "pending": "en attente",
         "done": "fait",
         "failed": "échec",
-        "skipped": "ignoré"
+        "skipped": "ignoré",
+        "stopped": "arrêtée"
       },
       "notified": "{count, plural, one {# personne prévenue} other {# personnes prévenues}}",
       "attempts": "{count, plural, one {# tentative} other {# tentatives}}",
@@ -1308,11 +1314,24 @@
         "tooManyAttempts": "Trop de tentatives",
         "disabled": "L’automatisation a été désactivée",
         "rowGone": "La ligne n’existe plus",
+        "noApprovers": "Personne à qui demander",
+        "rejected": "Refusée",
+        "timedOut": "Personne n’a répondu à temps",
         "alreadyEnrolled": "Ignorée : la ligne est déjà dans cette relance",
         "sequenceGone": "La relance n’existe plus",
         "noMailbox": "La personne de l’automatisation n’a pas de boîte mail connectée",
         "noAddress": "La ligne n’a pas d’adresse e-mail",
         "emailOff": "Les e-mails sur les lignes sont désactivés"
+      },
+      "waitingApproval": "En attente d’approbation",
+      "approval": {
+        "wouldAsk": "Exécution de test : demanderait à {names}",
+        "approved": "Approuvée par {name}, {time}",
+        "rejected": "Refusée par {name}, {time} : l’exécution s’est arrêtée",
+        "timedOut": "Personne n’a répondu avant {time} : l’exécution s’est arrêtée",
+        "timedOutContinued": "Personne n’a répondu avant {time} : l’exécution a continué",
+        "waiting": "Demandé à {names}, jusqu’au {time}",
+        "closed": "Demandé à {names} ; l’exécution s’est terminée avant une réponse"
       }
     },
     "nextRun": "Prochaine exécution {time}",
@@ -1438,7 +1457,9 @@
       "until": "Attendu jusqu’à",
       "notified": "Personnes prévenues",
       "agentRunId": "ID de l’exécution de l’agent",
-      "rowId": "ID de la ligne"
+      "rowId": "ID de la ligne",
+      "approvedBy": "Qui a approuvé",
+      "answeredAt": "Date de la réponse"
     },
     "test": {
       "title": "Exécution de test",
@@ -1454,6 +1475,36 @@
       "run": "Lancer le test",
       "saveAndRun": "Enregistrer et lancer",
       "starting": "Démarrage…"
+    },
+    "approval": {
+      "people": "Demander à ces personnes",
+      "personProperties": "Personnes dans ces propriétés de la ligne",
+      "message": "Message",
+      "messagePlaceholder": "Par exemple : peut-on clôturer {template} ?",
+      "timeout": "Jours pour répondre",
+      "onTimeout": "Si personne ne répond à temps",
+      "timeoutStop": "Arrêter l’exécution",
+      "timeoutContinue": "Continuer avec les étapes suivantes",
+      "help": "L’exécution attend que l’une de ces personnes réponde dans À vérifier : approuver poursuit avec les étapes suivantes, refuser arrête l’exécution. {max} jours au plus. Les étapes suivantes peuvent utiliser qui a approuvé : {template}."
+    },
+    "gallery": {
+      "title": "Partir d’un modèle",
+      "use": "Utiliser",
+      "approveBeforeClosing": {
+        "name": "Demander une approbation avant de clôturer",
+        "description": "Quand une ligne passe en revue, les personnes qu’elle nomme l’approuvent, puis elle est marquée comme clôturée.",
+        "message": "Peut-on clôturer {title} ?"
+      },
+      "notifyAssignee": {
+        "name": "Prévenir les personnes assignées",
+        "description": "Quand la propriété Personne d’une ligne change, notifier les personnes qu’elle contient.",
+        "message": "{title} vous a été assigné."
+      },
+      "remindOverdue": {
+        "name": "Rappeler les lignes en retard",
+        "description": "Un jour après la date d’une ligne non terminée, notifier ses personnes.",
+        "message": "{title} est en retard."
+      }
     }
   },
   "subItems": {

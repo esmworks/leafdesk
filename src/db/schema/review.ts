@@ -3,6 +3,7 @@ import { check, index, jsonb, pgTable, text, timestamp } from "drizzle-orm/pg-co
 import type { PendingChangeKind, PendingChangePayload, PendingChangeSource, PendingChangeStatus, RowChangeBefore } from "../../lib/pending-changes";
 import { agentRun, workspaceAgent } from "./agents";
 import { page, workspace } from "./app";
+import { automationRun, databaseAutomation } from "./automations";
 import { user } from "./auth";
 
 /**
@@ -39,6 +40,12 @@ export const pendingChange = pgTable(
     /** The agent that proposed it, and the run (runs are pruned after a while; the proposal stays). */
     agentId: text("agent_id").references(() => workspaceAgent.id, { onDelete: "set null" }),
     agentRunId: text("agent_run_id").references(() => agentRun.id, { onDelete: "set null" }),
+    /**
+     * An automation's approval step: the automation and the run waiting for the answer. The entry
+     * goes with the run (a deleted automation's runs go with it): nothing is left to continue.
+     */
+    automationId: text("automation_id").references(() => databaseAutomation.id, { onDelete: "cascade" }),
+    automationRunId: text("automation_run_id").references(() => automationRun.id, { onDelete: "cascade" }),
     /** The agent's own user, which the row's activity credits with the change. */
     proposedBy: text("proposed_by").references(() => user.id, { onDelete: "set null" }),
     /** Email drafts: whose mailbox it goes out from; only they may send it. */
@@ -58,10 +65,11 @@ export const pendingChange = pgTable(
     index("pending_change_row_idx").on(t.rowId, t.status),
     index("pending_change_expiry_idx").on(t.status, t.expiresAt),
     index("pending_change_run_idx").on(t.agentRunId),
-    check("pending_change_kind_check", sql`${t.kind} in ('create_row', 'update_row', 'email_draft')`),
+    index("pending_change_automation_run_idx").on(t.automationRunId),
+    check("pending_change_kind_check", sql`${t.kind} in ('create_row', 'update_row', 'email_draft', 'automation_approval')`),
     check("pending_change_status_check", sql`${t.status} in ('pending', 'approved', 'dismissed', 'expired', 'failed')`),
-    // Changes and drafts are about a row; a draft goes out from someone's mailbox.
-    check("pending_change_row_check", sql`${t.kind} = 'create_row' or ${t.rowId} is not null`),
+    // Changes and drafts are about a row (an approval only when its run has one); a draft goes out from someone's mailbox.
+    check("pending_change_row_check", sql`${t.kind} in ('create_row', 'automation_approval') or ${t.rowId} is not null`),
     check("pending_change_sender_check", sql`${t.kind} <> 'email_draft' or ${t.senderId} is not null`),
   ],
 );

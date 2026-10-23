@@ -1,7 +1,7 @@
 {
   "metaTitle": "À vérifier",
   "heading": "À vérifier",
-  "description": "Les modifications que des agents ont proposées au lieu de les faire. Approuvez-en une pour la faire en votre nom, modifiez-la d’abord ou écartez-la. Les propositions que personne ne traite expirent après 30 jours.",
+  "description": "Les modifications que des agents ont proposées au lieu de les faire, et les automatisations qui attendent une approbation. Approuvez une modification pour la faire en votre nom, modifiez-la d’abord ou écartez-la ; approuvez une automatisation pour que son exécution continue, ou refusez-la pour l’arrêter. Les propositions que personne ne traite expirent après 30 jours. Les e-mails de relance réglés sur « Me demander d’abord » attendent aussi ici.",
   "filters": {
     "agent": "Agent",
     "database": "Base de données",
@@ -29,6 +29,8 @@
     "createRow": "<agent></agent> veut ajouter une ligne à <database></database>",
     "updateRow": "<agent></agent> veut modifier <row></row>",
     "emailDraft": "<agent></agent> a rédigé un e-mail sur <row></row>",
+    "automationApproval": "<automation></automation> demande une approbation pour <row></row>",
+    "automationApprovalNoRow": "<automation></automation> demande une approbation",
     "sequenceDraft": "E-mail {step} sur {steps} de la relance <sequence></sequence> sur <row></row>"
   },
   "inDatabase": "dans <database></database>",
@@ -40,7 +42,9 @@
   "decided": {
     "approved": "Approuvée par {name} {time}",
     "dismissed": "Écartée par {name} {time}",
-    "expired": "Expirée sans réponse"
+    "expired": "Expirée sans réponse",
+    "rejected": "Refusée par {name} {time}",
+    "timedOut": "Personne n’a répondu à temps"
   },
   "title": "Titre",
   "becomes": "devient",
@@ -71,7 +75,8 @@
   "dismiss": "Écarter",
   "cannot": {
     "email": "Ce brouillon ne peut être envoyé que par {name}, depuis sa propre boîte mail.",
-    "row": "Vous pouvez voir cette modification, mais pour l’approuver il faut un accès en modification à la ligne et à chaque valeur qu’elle définit."
+    "row": "Vous pouvez voir cette modification, mais pour l’approuver il faut un accès en modification à la ligne et à chaque valeur qu’elle définit.",
+    "approval": "Seules les personnes à qui l’automatisation le demande peuvent approuver ou refuser."
   },
   "errors": {
     "notFound": "Cette modification n’existe plus, ou vous ne pouvez pas la voir.",
@@ -85,5 +90,15 @@
     "bar": "{count, plural, one {# modification à vérifier} other {# modifications à vérifier}}",
     "by": "proposées par {names}",
     "open": "Vérifier"
+  },
+  "unknownAutomation": "Une automatisation supprimée",
+  "reject": "Refuser",
+  "approval": {
+    "next": "Si c’est approuvé, ensuite :",
+    "nothingNext": "Si c’est approuvé, l’exécution se termine : aucune étape ne suit.",
+    "forEach": "pour chaque ligne de {step}",
+    "approvers": "Demande à {names}",
+    "timeoutStop": "Si personne ne répond à temps, l’exécution s’arrête.",
+    "timeoutContinue": "Si personne ne répond à temps, l’exécution continue."
   }
 }

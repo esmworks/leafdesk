@@ -1,5 +1,5 @@
 {
-  "id": "425048e8-808c-4741-8a82-d01339981a51",
+  "id": "2b967e35-f367-4fa1-81ee-c54976c8fb69",
   "prevId": "4db08139-56fb-4c67-9d48-e550b3a4a808",
   "version": "7",
   "dialect": "postgresql",
@@ -4654,12 +4654,6 @@
           "type": "text",
           "primaryKey": false,
           "notNull": false
-        },
-        "sequence_enrollment_id": {
-          "name": "sequence_enrollment_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
         }
       },
       "indexes": {
@@ -4914,19 +4908,6 @@
           "tableTo": "row_email",
           "columnsFrom": [
             "row_email_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "notification_sequence_enrollment_id_sequence_enrollment_id_fk": {
-          "name": "notification_sequence_enrollment_id_sequence_enrollment_id_fk",
-          "tableFrom": "notification",
-          "tableTo": "sequence_enrollment",
-          "columnsFrom": [
-            "sequence_enrollment_id"
           ],
           "columnsTo": [
             "id"
@@ -6106,20 +6087,6 @@
           "notNull": true,
           "default": false
         },
-        "follow_up_inbox": {
-          "name": "follow_up_inbox",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": true
-        },
-        "follow_up_emails": {
-          "name": "follow_up_emails",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
         "assignment_push": {
           "name": "assignment_push",
           "type": "boolean",
@@ -6204,13 +6171,6 @@
           "notNull": true,
           "default": true
         },
-        "follow_up_push": {
-          "name": "follow_up_push",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": true
-        },
         "assignment_telegram": {
           "name": "assignment_telegram",
           "type": "boolean",
@@ -6290,13 +6250,6 @@
         },
         "review_telegram": {
           "name": "review_telegram",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": true
-        },
-        "follow_up_telegram": {
-          "name": "follow_up_telegram",
           "type": "boolean",
           "primaryKey": false,
           "notNull": true,
@@ -13717,26 +13670,6 @@
           "primaryKey": false,
           "notNull": false
         },
-        "follow_up_daily_limit": {
-          "name": "follow_up_daily_limit",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 50
-        },
-        "time_zone": {
-          "name": "time_zone",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'UTC'"
-        },
-        "follow_up_after": {
-          "name": "follow_up_after",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
         "consented_at": {
           "name": "consented_at",
           "type": "timestamp with time zone",
@@ -14690,6 +14623,18 @@
           "primaryKey": false,
           "notNull": false
         },
+        "automation_id": {
+          "name": "automation_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "automation_run_id": {
+          "name": "automation_run_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "proposed_by": {
           "name": "proposed_by",
           "type": "text",
@@ -14838,6 +14783,21 @@
           "concurrently": false,
           "method": "btree",
           "with": {}
+        },
+        "pending_change_automation_run_idx": {
+          "name": "pending_change_automation_run_idx",
+          "columns": [
+            {
+              "expression": "automation_run_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
         }
       },
       "foreignKeys": {
@@ -14906,6 +14866,32 @@
           "onDelete": "set null",
           "onUpdate": "no action"
         },
+        "pending_change_automation_id_database_automation_id_fk": {
+          "name": "pending_change_automation_id_database_automation_id_fk",
+          "tableFrom": "pending_change",
+          "tableTo": "database_automation",
+          "columnsFrom": [
+            "automation_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "pending_change_automation_run_id_automation_run_id_fk": {
+          "name": "pending_change_automation_run_id_automation_run_id_fk",
+          "tableFrom": "pending_change",
+          "tableTo": "automation_run",
+          "columnsFrom": [
+            "automation_run_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
         "pending_change_proposed_by_user_id_fk": {
           "name": "pending_change_proposed_by_user_id_fk",
           "tableFrom": "pending_change",
@@ -14952,7 +14938,7 @@
       "checkConstraints": {
         "pending_change_kind_check": {
           "name": "pending_change_kind_check",
-          "value": "\"pending_change\".\"kind\" in ('create_row', 'update_row', 'email_draft')"
+          "value": "\"pending_change\".\"kind\" in ('create_row', 'update_row', 'email_draft', 'automation_approval')"
         },
         "pending_change_status_check": {
           "name": "pending_change_status_check",
@@ -14960,616 +14946,13 @@
         },
         "pending_change_row_check": {
           "name": "pending_change_row_check",
-          "value": "\"pending_change\".\"kind\" = 'create_row' or \"pending_change\".\"row_id\" is not null"
+          "value": "\"pending_change\".\"kind\" in ('create_row', 'automation_approval') or \"pending_change\".\"row_id\" is not null"
         },
         "pending_change_sender_check": {
           "name": "pending_change_sender_check",
           "value": "\"pending_change\".\"kind\" <> 'email_draft' or \"pending_change\".\"sender_id\" is not null"
         }
       },
-      "isRLSEnabled": false
-    },
-    "public.email_sequence": {
-      "name": "email_sequence",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "workspace_id": {
-          "name": "workspace_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "database_id": {
-          "name": "database_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "steps": {
-          "name": "steps",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'[]'::jsonb"
-        },
-        "send_window": {
-          "name": "send_window",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_by": {
-          "name": "created_by",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "email_sequence_database_idx": {
-          "name": "email_sequence_database_idx",
-          "columns": [
-            {
-              "expression": "database_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "email_sequence_workspace_id_workspace_id_fk": {
-          "name": "email_sequence_workspace_id_workspace_id_fk",
-          "tableFrom": "email_sequence",
-          "tableTo": "workspace",
-          "columnsFrom": [
-            "workspace_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "email_sequence_database_id_page_id_fk": {
-          "name": "email_sequence_database_id_page_id_fk",
-          "tableFrom": "email_sequence",
-          "tableTo": "page",
-          "columnsFrom": [
-            "database_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "email_sequence_created_by_user_id_fk": {
-          "name": "email_sequence_created_by_user_id_fk",
-          "tableFrom": "email_sequence",
-          "tableTo": "user",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.sequence_enrollment": {
-      "name": "sequence_enrollment",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "workspace_id": {
-          "name": "workspace_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "sequence_id": {
-          "name": "sequence_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "database_id": {
-          "name": "database_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "row_id": {
-          "name": "row_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "sender_id": {
-          "name": "sender_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "status": {
-          "name": "status",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'active'"
-        },
-        "step": {
-          "name": "step",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "next_at": {
-          "name": "next_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "paused_until": {
-          "name": "paused_until",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "reason": {
-          "name": "reason",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "problems": {
-          "name": "problems",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "pending_change_id": {
-          "name": "pending_change_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "last_email_id": {
-          "name": "last_email_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "sent": {
-          "name": "sent",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "source": {
-          "name": "source",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "enrolled_by": {
-          "name": "enrolled_by",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "stopped_by": {
-          "name": "stopped_by",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "claimed_until": {
-          "name": "claimed_until",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "started_at": {
-          "name": "started_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "ended_at": {
-          "name": "ended_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {
-        "sequence_enrollment_open_idx": {
-          "name": "sequence_enrollment_open_idx",
-          "columns": [
-            {
-              "expression": "sequence_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "row_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "where": "\"sequence_enrollment\".\"status\" in ('active', 'waiting', 'paused')",
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "sequence_enrollment_due_idx": {
-          "name": "sequence_enrollment_due_idx",
-          "columns": [
-            {
-              "expression": "next_at",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "where": "\"sequence_enrollment\".\"status\" = 'active'",
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "sequence_enrollment_row_idx": {
-          "name": "sequence_enrollment_row_idx",
-          "columns": [
-            {
-              "expression": "row_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "started_at",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "sequence_enrollment_sender_idx": {
-          "name": "sequence_enrollment_sender_idx",
-          "columns": [
-            {
-              "expression": "sender_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "workspace_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "sequence_enrollment_ended_idx": {
-          "name": "sequence_enrollment_ended_idx",
-          "columns": [
-            {
-              "expression": "ended_at",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "where": "\"sequence_enrollment\".\"ended_at\" is not null",
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "sequence_enrollment_workspace_id_workspace_id_fk": {
-          "name": "sequence_enrollment_workspace_id_workspace_id_fk",
-          "tableFrom": "sequence_enrollment",
-          "tableTo": "workspace",
-          "columnsFrom": [
-            "workspace_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "sequence_enrollment_sequence_id_email_sequence_id_fk": {
-          "name": "sequence_enrollment_sequence_id_email_sequence_id_fk",
-          "tableFrom": "sequence_enrollment",
-          "tableTo": "email_sequence",
-          "columnsFrom": [
-            "sequence_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "sequence_enrollment_database_id_page_id_fk": {
-          "name": "sequence_enrollment_database_id_page_id_fk",
-          "tableFrom": "sequence_enrollment",
-          "tableTo": "page",
-          "columnsFrom": [
-            "database_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "sequence_enrollment_row_id_page_id_fk": {
-          "name": "sequence_enrollment_row_id_page_id_fk",
-          "tableFrom": "sequence_enrollment",
-          "tableTo": "page",
-          "columnsFrom": [
-            "row_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "sequence_enrollment_sender_id_user_id_fk": {
-          "name": "sequence_enrollment_sender_id_user_id_fk",
-          "tableFrom": "sequence_enrollment",
-          "tableTo": "user",
-          "columnsFrom": [
-            "sender_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "sequence_enrollment_pending_change_id_pending_change_id_fk": {
-          "name": "sequence_enrollment_pending_change_id_pending_change_id_fk",
-          "tableFrom": "sequence_enrollment",
-          "tableTo": "pending_change",
-          "columnsFrom": [
-            "pending_change_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        },
-        "sequence_enrollment_last_email_id_row_email_id_fk": {
-          "name": "sequence_enrollment_last_email_id_row_email_id_fk",
-          "tableFrom": "sequence_enrollment",
-          "tableTo": "row_email",
-          "columnsFrom": [
-            "last_email_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        },
-        "sequence_enrollment_enrolled_by_user_id_fk": {
-          "name": "sequence_enrollment_enrolled_by_user_id_fk",
-          "tableFrom": "sequence_enrollment",
-          "tableTo": "user",
-          "columnsFrom": [
-            "enrolled_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        },
-        "sequence_enrollment_stopped_by_user_id_fk": {
-          "name": "sequence_enrollment_stopped_by_user_id_fk",
-          "tableFrom": "sequence_enrollment",
-          "tableTo": "user",
-          "columnsFrom": [
-            "stopped_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {
-        "sequence_enrollment_status_check": {
-          "name": "sequence_enrollment_status_check",
-          "value": "\"sequence_enrollment\".\"status\" in ('active', 'waiting', 'paused', 'finished', 'stopped')"
-        }
-      },
-      "isRLSEnabled": false
-    },
-    "public.sequence_send": {
-      "name": "sequence_send",
-      "schema": "",
-      "columns": {
-        "enrollment_id": {
-          "name": "enrollment_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "step": {
-          "name": "step",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "row_email_id": {
-          "name": "row_email_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "mailbox_id": {
-          "name": "mailbox_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "sent_at": {
-          "name": "sent_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "sequence_send_mailbox_idx": {
-          "name": "sequence_send_mailbox_idx",
-          "columns": [
-            {
-              "expression": "mailbox_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "sent_at",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "sequence_send_enrollment_id_sequence_enrollment_id_fk": {
-          "name": "sequence_send_enrollment_id_sequence_enrollment_id_fk",
-          "tableFrom": "sequence_send",
-          "tableTo": "sequence_enrollment",
-          "columnsFrom": [
-            "enrollment_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "sequence_send_row_email_id_row_email_id_fk": {
-          "name": "sequence_send_row_email_id_row_email_id_fk",
-          "tableFrom": "sequence_send",
-          "tableTo": "row_email",
-          "columnsFrom": [
-            "row_email_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        },
-        "sequence_send_mailbox_id_mailbox_id_fk": {
-          "name": "sequence_send_mailbox_id_mailbox_id_fk",
-          "tableFrom": "sequence_send",
-          "tableTo": "mailbox",
-          "columnsFrom": [
-            "mailbox_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "sequence_send_enrollment_id_step_pk": {
-          "name": "sequence_send_enrollment_id_step_pk",
-          "columns": [
-            "enrollment_id",
-            "step"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
       "isRLSEnabled": false
     }
   },

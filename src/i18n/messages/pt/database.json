@@ -1088,7 +1088,8 @@
       "runAgent": "Executar {agent}",
       "archivedAgent": "um agente arquivado",
       "trash": "Mover para a lixeira",
-      "setEach": "Definir nas linhas encontradas"
+      "setEach": "Definir nas linhas encontradas",
+      "approval": "Perguntar a {people}"
     },
     "form": {
       "name": "Nome",
@@ -1129,6 +1130,7 @@
         "upsert_row": "Adicionar ou atualizar uma linha",
         "wait": "Esperar",
         "log": "Escrever no histórico de execuções",
+        "approval": "Pedir aprovação",
         "start_sequence": "Iniciar um acompanhamento"
       },
       "trashHelp": "Move a linha para a lixeira, de onde ela pode ser restaurada até a lixeira ser esvaziada. Nada pode ser executado depois desta ação.",
@@ -1187,7 +1189,9 @@
         "badCron": "A expressão cron não é válida.",
         "neverRuns": "Este agendamento nunca chega.",
         "badExample": "O corpo de exemplo não é JSON válido.",
-        "exampleTooLong": "O corpo de exemplo é longo demais."
+        "exampleTooLong": "O corpo de exemplo é longo demais.",
+        "needApprovers": "Escolha a quem perguntar.",
+        "needTimeout": "Digite um número inteiro de dias entre 1 e 30."
       },
       "agent": "Agente",
       "chooseAgent": "Escolha um agente…",
@@ -1257,13 +1261,15 @@
         "pending": "Aguardando",
         "running": "Em execução",
         "done": "Concluída",
-        "failed": "Falhou"
+        "failed": "Falhou",
+        "stopped": "Parada"
       },
       "stepStatus": {
         "pending": "aguardando",
         "done": "concluída",
         "failed": "falhou",
-        "skipped": "ignorada"
+        "skipped": "ignorada",
+        "stopped": "parada"
       },
       "notified": "{count, plural, one {# pessoa notificada} other {# pessoas notificadas}}",
       "attempts": "{count, plural, one {# tentativa} other {# tentativas}}",
@@ -1308,11 +1314,24 @@
         "tooManyAttempts": "Tentativas demais",
         "disabled": "A automação foi desativada",
         "rowGone": "A linha não existe mais",
+        "noApprovers": "Ninguém a quem perguntar",
+        "rejected": "Rejeitada",
+        "timedOut": "Ninguém respondeu a tempo",
         "alreadyEnrolled": "Ignorado: a linha já está neste acompanhamento",
         "sequenceGone": "O acompanhamento não existe mais",
         "noMailbox": "A pessoa da automação não tem caixa de e-mail conectada",
         "noAddress": "A linha não tem endereço de e-mail",
         "emailOff": "O e-mail nas linhas está desativado"
+      },
+      "waitingApproval": "Aguardando aprovação",
+      "approval": {
+        "wouldAsk": "Execução de teste: perguntaria a {names}",
+        "approved": "Aprovada por {name}, {time}",
+        "rejected": "Rejeitada por {name}, {time}: a execução parou",
+        "timedOut": "Ninguém respondeu até {time}: a execução parou",
+        "timedOutContinued": "Ninguém respondeu até {time}: a execução seguiu",
+        "waiting": "Perguntado a {names}, até {time}",
+        "closed": "Perguntado a {names}; a execução terminou antes de uma resposta"
       }
     },
     "nextRun": "Próxima execução {time}",
@@ -1438,7 +1457,9 @@
       "until": "Esperou até",
       "notified": "Pessoas notificadas",
       "agentRunId": "ID da execução do agente",
-      "rowId": "ID da linha"
+      "rowId": "ID da linha",
+      "approvedBy": "Quem aprovou",
+      "answeredAt": "Quando foi respondido"
     },
     "test": {
       "title": "Execução de teste",
@@ -1454,6 +1475,36 @@
       "run": "Executar teste",
       "saveAndRun": "Salvar e executar",
       "starting": "Iniciando…"
+    },
+    "approval": {
+      "people": "Perguntar a estas pessoas",
+      "personProperties": "Pessoas nestas propriedades da linha",
+      "message": "Mensagem",
+      "messagePlaceholder": "Por exemplo: podemos fechar {template}?",
+      "timeout": "Dias para responder",
+      "onTimeout": "Se ninguém responder a tempo",
+      "timeoutStop": "Parar a execução",
+      "timeoutContinue": "Seguir com os próximos passos",
+      "help": "A execução espera até que uma dessas pessoas responda em Para revisar: aprovar segue com os próximos passos, rejeitar para a execução. No máximo {max} dias. Os passos seguintes podem usar quem aprovou: {template}."
+    },
+    "gallery": {
+      "title": "Começar com um modelo",
+      "use": "Usar",
+      "approveBeforeClosing": {
+        "name": "Pedir aprovação antes de fechar",
+        "description": "Quando uma linha vai para revisão, as pessoas que ela indica aprovam e depois ela é marcada como fechada.",
+        "message": "{title} pode ser fechado?"
+      },
+      "notifyAssignee": {
+        "name": "Avisar as pessoas atribuídas",
+        "description": "Quando a propriedade de pessoa de uma linha muda, notificar as pessoas nela.",
+        "message": "{title} foi atribuído a você."
+      },
+      "remindOverdue": {
+        "name": "Lembrar linhas atrasadas",
+        "description": "Um dia depois que a data de uma linha não concluída passa, notificar suas pessoas.",
+        "message": "{title} está atrasado."
+      }
     }
   },
   "subItems": {

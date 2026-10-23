@@ -6,13 +6,14 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { deleteAutomationAction, listAutomationsAction, updateAutomationAction } from "@/app/actions/automations";
 import { Button, cn, Dialog, IconButton, Switch } from "@/components/ui";
+import { galleryAutomations, type GalleryAutomation } from "@/lib/automation-gallery";
 import { MAX_AUTOMATIONS, watchedProperties } from "@/lib/automations";
 import { browserTimeZone, timeZoneLabel } from "@/lib/time-zone";
 import { DatabasesProvider } from "./automations-data";
 import { AutomationEditor, Footer } from "./automations-editor";
 import { RunList } from "./automations-runs";
 import { FollowUpExampleButton, SequenceChoicesProvider } from "./automations-sequences";
-import { triggerValueName, type AgentChoice, type Automation, type Draft, type Person } from "./automations-shared";
+import { toDraft, triggerValueName, type AgentChoice, type Automation, type Draft, type Person } from "./automations-shared";
 import { usePeople } from "./person-cell";
 import { useSchema } from "./schema-context";
 
@@ -25,13 +26,16 @@ export function AutomationsButton({
   workspaceId,
   databaseId,
   databaseTitle,
+  openRun = null,
 }: {
   workspaceId: string;
   databaseId: string;
   databaseTitle: string;
+  /** A run to show when the page opens (a link from the "For review" queue): the dialog opens at it. */
+  openRun?: { automationId: string; runId: string } | null;
 }) {
   const t = useTranslations("database.automations");
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(openRun !== null);
   return (
     <>
       <button
@@ -52,6 +56,7 @@ export function AutomationsButton({
             workspaceId={workspaceId}
             databaseId={databaseId}
             databaseTitle={databaseTitle}
+            openRun={openRun}
             onClose={() => setOpen(false)}
           />,
           document.body,
@@ -60,17 +65,19 @@ export function AutomationsButton({
   );
 }
 
-type Mode = { kind: "list" } | { kind: "edit"; id: string | null; example?: Draft } | { kind: "runs"; id: string; focus: string | null };
+type Mode = { kind: "list" } | { kind: "edit"; id: string | null; start?: Draft } | { kind: "runs"; id: string; focus: string | null };
 
 function AutomationsDialog({
   workspaceId,
   databaseId,
   databaseTitle,
+  openRun,
   onClose,
 }: {
   workspaceId: string;
   databaseId: string;
   databaseTitle: string;
+  openRun: { automationId: string; runId: string } | null;
   onClose: () => void;
 }) {
   const t = useTranslations("database.automations");
@@ -82,7 +89,8 @@ function AutomationsDialog({
   const [isOwner, setIsOwner] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [mode, setMode] = useState<Mode>({ kind: "list" });
+  const [mode, setMode] = useState<Mode>(openRun ? { kind: "runs", id: openRun.automationId, focus: openRun.runId } : { kind: "list" });
+  const properties = useSchema();
 
   useEffect(() => {
     let live = true;
@@ -193,7 +201,7 @@ function AutomationsDialog({
           workspaceId={workspaceId}
           databaseId={databaseId}
           saved={current}
-          example={mode.example}
+          start={mode.kind === "edit" && !mode.id ? (mode.start ?? null) : null}
           people={people}
           agents={agents}
           isOwner={isOwner}
@@ -228,9 +236,10 @@ function AutomationsDialog({
                 ))}
               </ul>
             )}
+            {!full && <Gallery onUse={(start) => setMode({ kind: "edit", id: null, start })} properties={properties} />}
           </div>
           <Footer error={error}>
-            {!full && <FollowUpExampleButton onPick={(example) => setMode({ kind: "edit", id: null, example })} />}
+            {!full && <FollowUpExampleButton onPick={(start) => setMode({ kind: "edit", id: null, start })} />}
             <Button
               variant="primary"
               disabled={full}
@@ -246,6 +255,38 @@ function AutomationsDialog({
       </SequenceChoicesProvider>
       </DatabasesProvider>
     </Dialog>
+  );
+}
+
+/** Ready-made automations (lib/automation-gallery) fit to this database, to start a new one from. */
+function Gallery({ properties, onUse }: { properties: ReturnType<typeof useSchema>; onUse: (draft: Draft) => void }) {
+  const t = useTranslations("database.automations.gallery");
+  const items = useMemo(() => galleryAutomations(properties), [properties]);
+  const use = (item: GalleryAutomation) => {
+    const name = t(`${item.key}.name`);
+    const message = t(`${item.key}.message`, item.messageValues);
+    // Written like a saved automation, so the editor reads it as it reads one.
+    const actions = item.actions.map((a) => (a.type === "approval" || a.type === "notify" ? { ...a, message } : a));
+    const draft = toDraft({ name, enabled: true, trigger: item.trigger, actions, draft: null } as unknown as Automation, properties);
+    onUse(draft);
+  };
+  return (
+    <div className="mt-3 border-t border-border pt-3">
+      <p className="mb-1 text-xs font-medium text-fg-muted">{t("title")}</p>
+      <ul className="divide-y divide-border">
+        {items.map((item) => (
+          <li key={item.key} className="flex items-center gap-3 py-2">
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm">{t(`${item.key}.name`)}</p>
+              <p className="text-xs text-fg-muted">{t(`${item.key}.description`)}</p>
+            </div>
+            <Button size="sm" onClick={() => use(item)}>
+              {t("use")}
+            </Button>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 
@@ -387,6 +428,8 @@ function useSummary(automation: Automation, people: Person[], agents: AgentChoic
           return t("summaryAction.trash");
         case "webhook":
           return t("summaryAction.webhook");
+        case "approval":
+          return t("summaryAction.approval", { people: [...action.userIds.map((id) => people.find((p) => p.id === id)?.name ?? "?"), ...action.propertyIds.map(nameOf)].join(", ") });
         default:
           return t(`form.actionType.${action.type}`);
       }

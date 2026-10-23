@@ -1088,7 +1088,8 @@
       "runAgent": "{agent} ausführen",
       "archivedAgent": "einen archivierten Agenten",
       "trash": "In den Papierkorb",
-      "setEach": "Gefundene Zeilen setzen"
+      "setEach": "Gefundene Zeilen setzen",
+      "approval": "{people} fragen"
     },
     "form": {
       "name": "Name",
@@ -1129,6 +1130,7 @@
         "upsert_row": "Zeile hinzufügen oder aktualisieren",
         "wait": "Warten",
         "log": "In den Ausführungsverlauf schreiben",
+        "approval": "Freigabe anfragen",
         "start_sequence": "Follow-up starten"
       },
       "trashHelp": "Verschiebt die Zeile in den Papierkorb, aus dem sie wiederhergestellt werden kann, bis er geleert wird. Nach dieser Aktion kann nichts mehr laufen.",
@@ -1187,7 +1189,9 @@
         "badCron": "Der Cron-Ausdruck ist ungültig.",
         "neverRuns": "Dieser Zeitplan wird nie fällig.",
         "badExample": "Der Beispiel-Body ist kein gültiges JSON.",
-        "exampleTooLong": "Der Beispiel-Body ist zu lang."
+        "exampleTooLong": "Der Beispiel-Body ist zu lang.",
+        "needApprovers": "Wähle, wen du fragen willst.",
+        "needTimeout": "Gib eine ganze Zahl von Tagen zwischen 1 und 30 ein."
       },
       "agent": "Agent",
       "chooseAgent": "Agenten wählen…",
@@ -1257,13 +1261,15 @@
         "pending": "Wartet",
         "running": "Läuft",
         "done": "Erledigt",
-        "failed": "Fehlgeschlagen"
+        "failed": "Fehlgeschlagen",
+        "stopped": "Beendet"
       },
       "stepStatus": {
         "pending": "wartet",
         "done": "erledigt",
         "failed": "fehlgeschlagen",
-        "skipped": "übersprungen"
+        "skipped": "übersprungen",
+        "stopped": "beendet"
       },
       "notified": "{count, plural, one {# Person benachrichtigt} other {# Personen benachrichtigt}}",
       "attempts": "{count, plural, one {# Versuch} other {# Versuche}}",
@@ -1308,11 +1314,24 @@
         "tooManyAttempts": "Zu oft versucht",
         "disabled": "Die Automatisierung wurde ausgeschaltet",
         "rowGone": "Die Zeile gibt es nicht mehr",
+        "noApprovers": "Niemand zum Fragen",
+        "rejected": "Abgelehnt",
+        "timedOut": "Niemand hat rechtzeitig geantwortet",
         "alreadyEnrolled": "Übersprungen: Die Zeile ist schon in diesem Follow-up",
         "sequenceGone": "Das Follow-up gibt es nicht mehr",
         "noMailbox": "Die Person der Automatisierung hat kein Postfach verbunden",
         "noAddress": "Die Zeile hat keine E-Mail-Adresse",
         "emailOff": "E-Mails in Zeilen sind ausgeschaltet"
+      },
+      "waitingApproval": "Wartet auf Freigabe",
+      "approval": {
+        "wouldAsk": "Testausführung: würde {names} fragen",
+        "approved": "Freigegeben von {name}, {time}",
+        "rejected": "Abgelehnt von {name}, {time}: die Ausführung wurde beendet",
+        "timedOut": "Niemand hat bis {time} geantwortet: die Ausführung wurde beendet",
+        "timedOutContinued": "Niemand hat bis {time} geantwortet: die Ausführung ging weiter",
+        "waiting": "{names} gefragt, bis {time}",
+        "closed": "{names} gefragt; die Ausführung endete vor einer Antwort"
       }
     },
     "nextRun": "Nächste Ausführung {time}",
@@ -1438,7 +1457,9 @@
       "until": "Gewartet bis",
       "notified": "Benachrichtigte Personen",
       "agentRunId": "ID der Agentenausführung",
-      "rowId": "Zeilen-ID"
+      "rowId": "Zeilen-ID",
+      "approvedBy": "Wer freigegeben hat",
+      "answeredAt": "Wann geantwortet wurde"
     },
     "test": {
       "title": "Testlauf",
@@ -1454,6 +1475,36 @@
       "run": "Test ausführen",
       "saveAndRun": "Speichern und ausführen",
       "starting": "Wird gestartet…"
+    },
+    "approval": {
+      "people": "Diese Personen fragen",
+      "personProperties": "Personen in diesen Eigenschaften der Zeile",
+      "message": "Nachricht",
+      "messagePlaceholder": "Zum Beispiel: Können wir {template} abschließen?",
+      "timeout": "Tage zum Antworten",
+      "onTimeout": "Wenn niemand rechtzeitig antwortet",
+      "timeoutStop": "Ausführung beenden",
+      "timeoutContinue": "Mit den nächsten Schritten weitermachen",
+      "help": "Die Ausführung wartet, bis eine dieser Personen unter „Zu prüfen“ antwortet: Freigeben macht mit den nächsten Schritten weiter, Ablehnen beendet die Ausführung. Höchstens {max} Tage. Spätere Schritte können nutzen, wer freigegeben hat: {template}."
+    },
+    "gallery": {
+      "title": "Mit einer Vorlage beginnen",
+      "use": "Verwenden",
+      "approveBeforeClosing": {
+        "name": "Vor dem Abschließen Freigabe anfragen",
+        "description": "Wenn eine Zeile in die Prüfung geht, geben die darin genannten Personen sie frei, dann wird sie als abgeschlossen markiert.",
+        "message": "Kann {title} abgeschlossen werden?"
+      },
+      "notifyAssignee": {
+        "name": "Zugewiesene Personen benachrichtigen",
+        "description": "Wenn sich die Personen-Eigenschaft einer Zeile ändert, die Personen darin benachrichtigen.",
+        "message": "Dir wurde {title} zugewiesen."
+      },
+      "remindOverdue": {
+        "name": "An überfällige Zeilen erinnern",
+        "description": "Einen Tag nachdem das Datum einer unerledigten Zeile vorbei ist, ihre Personen benachrichtigen.",
+        "message": "{title} ist überfällig."
+      }
     }
   },
   "subItems": {

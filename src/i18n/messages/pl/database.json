@@ -1088,7 +1088,8 @@
       "runAgent": "Uruchom: {agent}",
       "archivedAgent": "zarchiwizowany agent",
       "trash": "Przenieś do kosza",
-      "setEach": "Ustaw w znalezionych wierszach"
+      "setEach": "Ustaw w znalezionych wierszach",
+      "approval": "Zapytaj: {people}"
     },
     "form": {
       "name": "Nazwa",
@@ -1129,6 +1130,7 @@
         "upsert_row": "Dodaj lub zaktualizuj wiersz",
         "wait": "Czekaj",
         "log": "Zapisz w historii uruchomień",
+        "approval": "Poproś o zatwierdzenie",
         "start_sequence": "Uruchom follow-up"
       },
       "trashHelp": "Przenosi wiersz do kosza, skąd można go przywrócić, dopóki kosz nie zostanie opróżniony. Po tej akcji nic więcej nie może się uruchomić.",
@@ -1187,7 +1189,9 @@
         "badCron": "Wyrażenie cron jest niepoprawne.",
         "neverRuns": "Ten harmonogram nigdy nie nadchodzi.",
         "badExample": "Przykładowa treść nie jest poprawnym JSON-em.",
-        "exampleTooLong": "Przykładowa treść jest za długa."
+        "exampleTooLong": "Przykładowa treść jest za długa.",
+        "needApprovers": "Wybierz, kogo zapytać.",
+        "needTimeout": "Wpisz całkowitą liczbę dni od 1 do 30."
       },
       "agent": "Agent",
       "chooseAgent": "Wybierz agenta…",
@@ -1257,13 +1261,15 @@
         "pending": "Oczekuje",
         "running": "Trwa",
         "done": "Gotowe",
-        "failed": "Niepowodzenie"
+        "failed": "Niepowodzenie",
+        "stopped": "Zatrzymane"
       },
       "stepStatus": {
         "pending": "oczekuje",
         "done": "gotowe",
         "failed": "niepowodzenie",
-        "skipped": "pominięto"
+        "skipped": "pominięto",
+        "stopped": "zatrzymany"
       },
       "notified": "{count, plural, one {Powiadomiono # osobę} few {Powiadomiono # osoby} many {Powiadomiono # osób} other {Powiadomiono # osoby}}",
       "attempts": "{count, plural, one {# próba} few {# próby} many {# prób} other {# próby}}",
@@ -1308,11 +1314,24 @@
         "tooManyAttempts": "Zbyt wiele prób",
         "disabled": "Automatyzację wyłączono",
         "rowGone": "Wiersz już nie istnieje",
+        "noApprovers": "Nie ma kogo zapytać",
+        "rejected": "Odrzucone",
+        "timedOut": "Nikt nie odpowiedział na czas",
         "alreadyEnrolled": "Pominięto: wiersz jest już w tym follow-upie",
         "sequenceGone": "Follow-up już nie istnieje",
         "noMailbox": "Osoba automatyzacji nie ma podłączonej skrzynki pocztowej",
         "noAddress": "Wiersz nie ma adresu e-mail",
         "emailOff": "E-maile w wierszach są wyłączone"
+      },
+      "waitingApproval": "Czeka na zatwierdzenie",
+      "approval": {
+        "wouldAsk": "Uruchomienie testowe: zapytałoby {names}",
+        "approved": "Zatwierdził(a) {name}, {time}",
+        "rejected": "Odrzucił(a) {name}, {time}: uruchomienie zatrzymane",
+        "timedOut": "Nikt nie odpowiedział do {time}: uruchomienie zatrzymane",
+        "timedOutContinued": "Nikt nie odpowiedział do {time}: uruchomienie poszło dalej",
+        "waiting": "Zapytano: {names}, do {time}",
+        "closed": "Zapytano: {names}; uruchomienie skończyło się przed odpowiedzią"
       }
     },
     "nextRun": "Następne uruchomienie {time}",
@@ -1438,7 +1457,9 @@
       "until": "Czekano do",
       "notified": "Powiadomione osoby",
       "agentRunId": "ID uruchomienia agenta",
-      "rowId": "ID wiersza"
+      "rowId": "ID wiersza",
+      "approvedBy": "Kto zatwierdził",
+      "answeredAt": "Kiedy odpowiedziano"
     },
     "test": {
       "title": "Uruchomienie testowe",
@@ -1454,6 +1475,36 @@
       "run": "Uruchom test",
       "saveAndRun": "Zapisz i uruchom",
       "starting": "Uruchamianie…"
+    },
+    "approval": {
+      "people": "Zapytaj te osoby",
+      "personProperties": "Osoby w tych właściwościach wiersza",
+      "message": "Wiadomość",
+      "messagePlaceholder": "Na przykład: czy możemy zamknąć {template}?",
+      "timeout": "Dni na odpowiedź",
+      "onTimeout": "Jeśli nikt nie odpowie na czas",
+      "timeoutStop": "Zatrzymaj uruchomienie",
+      "timeoutContinue": "Przejdź do kolejnych kroków",
+      "help": "Uruchomienie czeka, aż jedna z tych osób odpowie w sekcji Do przejrzenia: zatwierdzenie przechodzi do kolejnych kroków, odrzucenie zatrzymuje uruchomienie. Najwyżej {max} dni. Kolejne kroki mogą użyć tego, kto zatwierdził: {template}."
+    },
+    "gallery": {
+      "title": "Zacznij od szablonu",
+      "use": "Użyj",
+      "approveBeforeClosing": {
+        "name": "Poproś o zatwierdzenie przed zamknięciem",
+        "description": "Gdy wiersz trafia do przeglądu, wskazane w nim osoby go zatwierdzają, a potem zostaje oznaczony jako zamknięty.",
+        "message": "Czy można zamknąć {title}?"
+      },
+      "notifyAssignee": {
+        "name": "Powiadom przypisane osoby",
+        "description": "Gdy zmienia się właściwość osoby w wierszu, powiadom osoby, które zawiera.",
+        "message": "Przypisano ci {title}."
+      },
+      "remindOverdue": {
+        "name": "Przypominaj o zaległych wierszach",
+        "description": "Dzień po minięciu daty niezakończonego wiersza powiadom jego osoby.",
+        "message": "{title} jest po terminie."
+      }
     }
   },
   "subItems": {

@@ -47,6 +47,10 @@ export function editOf(args: { title?: string; properties?: Record<string, unkno
   return Object.keys(edit).length ? edit : undefined;
 }
 
+/** What a step after an approval does, as a line a model reads ("set_properties: Stage, Closed on"). */
+const nextStepLine = (s: NonNullable<PendingChangeView["approval"]>["nextSteps"][number]) =>
+  `${s.id} (${s.type}${s.forEach ? `, for each row of ${s.forEach}` : ""})${s.detail ? `: ${s.type === "wait" ? `${s.detail} minutes` : s.detail}` : ""}`;
+
 export function describePendingChange(v: PendingChangeView) {
   return {
     id: v.id,
@@ -59,7 +63,7 @@ export function describePendingChange(v: PendingChangeView) {
     agent: v.agent ? { id: v.agent.id, name: v.agent.name } : null,
     ...(v.sequence ? { follow_up: { sequence_id: v.sequence.sequenceId, name: v.sequence.name, enrollment_id: v.sequence.enrollmentId, step: v.sequence.step, steps: v.sequence.steps } } : {}),
     ...(v.agent && v.runId ? { run_id: v.runId, run_url: `${env.appUrl}${agentRunPath(v.workspaceId, v.agent.id, v.runId)}` } : {}),
-    ...(v.kind === "email_draft"
+    ...(v.kind === "email_draft" || v.kind === "automation_approval"
       ? {}
       : {
           changes: v.fields.map((f) => ({
@@ -72,6 +76,19 @@ export function describePendingChange(v: PendingChangeView) {
           })),
         }),
     ...(v.markdown ? { markdown: v.markdown } : {}),
+    ...(v.approval
+      ? {
+          approval: {
+            automation: v.approval.automation,
+            run_id: v.approval.runId,
+            version: v.approval.version,
+            message: v.approval.message,
+            approvers: v.approval.approvers.map((a) => a.name),
+            next_steps: v.approval.nextSteps.map(nextStepLine),
+            on_timeout: v.approval.onTimeout,
+          },
+        }
+      : {}),
     ...(v.email ? { email: { from: v.email.sender.name, to: v.email.to, cc: v.email.cc, subject: v.email.subject, text: v.email.text, in_reply: v.email.replyTo !== null } } : {}),
     edited: v.edited,
     conflict: v.conflict,
@@ -105,7 +122,7 @@ export async function withReviewErrors<T>(fn: () => Promise<T>): Promise<T> {
     if (error instanceof AccessError && !(error instanceof ConnectedAppReadOnlyError)) {
       throw new ToolInputError(
         error.message ||
-          "The user may not answer this change: approving or dismissing it needs edit access to the row (to the database, for a new row) and to each value it sets; an email draft only its sender answers.",
+          "The user may not answer this change: approving or dismissing it needs edit access to the row (to the database, for a new row) and to each value it sets; an email draft only its sender answers; an automation's approval only the people it asks.",
       );
     }
     throw error;

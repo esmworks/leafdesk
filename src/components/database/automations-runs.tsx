@@ -7,6 +7,7 @@ import {
   CircleCheck,
   CircleDashed,
   CircleMinus,
+  CircleSlash,
   RefreshCw,
   Search,
   Webhook,
@@ -16,7 +17,7 @@ import { useFormatter, useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { listAutomationRunsAction, testAutomationAction } from "@/app/actions/automations";
 import { Button, cn, IconButton, textareaClass } from "@/components/ui";
-import { hasRow, type AutomationStep } from "@/lib/automations";
+import { APPROVAL_TEST_CODE, hasRow, waitingApproval, type AutomationStep } from "@/lib/automations";
 import { pageLabel } from "@/lib/labels";
 import { searchFold } from "@/lib/search-fold";
 import { useDatabaseInfo, useReloadDatabase } from "./automations-data";
@@ -55,6 +56,9 @@ const STEP_CODES = [
   "noMailbox",
   "noAddress",
   "emailOff",
+  "noApprovers",
+  "rejected",
+  "timedOut",
 ] as const;
 
 /** A run waits for a wait step: the time it goes on. */
@@ -64,8 +68,8 @@ function waitingUntil(run: AutomationRun) {
   return step?.waitUntil && Date.parse(step.waitUntil) > Date.now() ? step.waitUntil : null;
 }
 
-/** Whether a run is still going (and not just waiting on purpose). */
-const going = (run: AutomationRun) => run.status === "running" || (run.status === "pending" && !waitingUntil(run));
+/** Whether a run is still going (and not just waiting on purpose: a wait step, an approval). */
+const going = (run: AutomationRun) => run.status === "running" || (run.status === "pending" && !waitingUntil(run) && !waitingApproval(run.steps));
 
 function useDuration() {
   const format = useFormatter();
@@ -195,6 +199,7 @@ function RunItem({
     if (initiallyOpen) ref.current?.scrollIntoView({ block: "nearest" });
   }, [initiallyOpen]);
   const until = waitingUntil(run);
+  const asking = run.status === "pending" ? waitingApproval(run.steps) : null;
   const failed = run.status === "failed";
   const time = (iso: string) => format.dateTime(new Date(iso), { dateStyle: "medium", timeStyle: "short" });
   // A day as a day; a time (or when a row was added or edited) with its time, in the viewer's zone.
@@ -244,7 +249,7 @@ function RunItem({
             {run.test && <Badge>{t("test")}</Badge>}
             {run.draft ? <Badge>{t("draftVersion")}</Badge> : run.version > 0 && <Badge>{t("version", { version: run.version })}</Badge>}
             <span className={cn("shrink-0 text-xs", failed ? "text-danger" : "text-fg-muted")}>
-              {until ? t("waitingUntil", { time: time(until) }) : t(`status.${run.status}`)}
+              {until ? t("waitingUntil", { time: time(until) }) : asking ? t("waitingApproval") : t(`status.${run.status}`)}
             </span>
           </div>
           <div className="text-xs text-fg-faint">
@@ -290,7 +295,7 @@ function StepSummary({ run }: { run: AutomationRun }) {
 }
 
 function StepIcon({ status }: { status: AutomationStep["status"] }) {
-  const Icon = status === "done" ? CircleCheck : status === "failed" ? CircleAlert : status === "skipped" ? CircleMinus : CircleDashed;
+  const Icon = status === "done" ? CircleCheck : status === "failed" ? CircleAlert : status === "skipped" ? CircleMinus : status === "stopped" ? CircleSlash : CircleDashed;
   return <Icon aria-hidden className={cn("h-3.5 w-3.5 shrink-0", status === "failed" ? "text-danger" : status === "done" ? "text-fg-muted" : "text-fg-faint")} />;
 }
 
@@ -337,7 +342,9 @@ function StepItem({
   const duration = useDuration();
   const [open, setOpen] = useState(step.status === "failed");
   const hasDetail = step.input !== undefined || step.output !== undefined || (step.items?.length ?? 0) > 0;
-  const code = step.code && (STEP_CODES as readonly string[]).includes(step.code) ? t(`runs.code.${step.code as (typeof STEP_CODES)[number]}`) : step.code;
+  // An approval says how it was answered in its own line; its code would only repeat it.
+  const coded = step.type === "approval" && step.approval ? undefined : step.code;
+  const code = coded && (STEP_CODES as readonly string[]).includes(coded) ? t(`runs.code.${coded as (typeof STEP_CODES)[number]}`) : coded;
   const agentRuns = step.agentRunIds?.length ? step.agentRunIds : step.agentRunId ? [step.agentRunId] : [];
 
   return (
@@ -354,6 +361,7 @@ function StepItem({
         {step.httpStatus ? <span className="text-xs text-fg-faint">· HTTP {step.httpStatus}</span> : null}
         {step.type === "notify" && step.notified !== undefined && <span className="text-xs text-fg-faint">· {t("runs.notified", { count: step.notified })}</span>}
       </div>
+      {step.approval && <ApprovalLine step={step} />}
       {(code || step.error) && (
         <p className={cn("mt-0.5 text-xs break-words", step.status === "failed" ? "text-danger" : "text-fg-muted")}>
           {code}
@@ -412,6 +420,26 @@ function StepItem({
       )}
     </li>
   );
+}
+
+/**
+ * How an approval step stands: whom it asks and until when, who approved or rejected it and when,
+ * that nobody answered in time (and whether the run went on), or, in a test run, whom it would ask.
+ */
+function ApprovalLine({ step }: { step: AutomationStep }) {
+  const t = useTranslations("database.automations.runs.approval");
+  const format = useFormatter();
+  const approval = step.approval!;
+  const time = (iso: string) => format.dateTime(new Date(iso), { dateStyle: "medium", timeStyle: "short" });
+  const names = format.list(approval.approvers.map((a) => a.name || "?"), { type: "disjunction" });
+  let text: string;
+  if (approval.test || step.code === APPROVAL_TEST_CODE) text = t("wouldAsk", { names });
+  else if (approval.answer === "approved") text = t("approved", { name: approval.answeredBy?.name || "?", time: time(approval.answeredAt ?? approval.expiresAt) });
+  else if (approval.answer === "rejected") text = t("rejected", { name: approval.answeredBy?.name || "?", time: time(approval.answeredAt ?? approval.expiresAt) });
+  else if (approval.answer === "timedOut") text = step.status === "done" ? t("timedOutContinued", { time: time(approval.expiresAt) }) : t("timedOut", { time: time(approval.expiresAt) });
+  else if (step.status === "pending") text = t("waiting", { names, time: time(approval.expiresAt) });
+  else text = t("closed", { names });
+  return <p className={cn("mt-0.5 text-xs", approval.answer === "rejected" ? "text-fg" : "text-fg-muted")}>{text}</p>;
 }
 
 /** Where a "Run an agent" step's run is: the agent's runs in Settings (owners), else a hint. */

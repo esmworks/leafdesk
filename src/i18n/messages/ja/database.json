@@ -1088,7 +1088,8 @@
       "runAgent": "{agent}を実行",
       "archivedAgent": "アーカイブ済みのエージェント",
       "trash": "ゴミ箱に移動",
-      "setEach": "見つかった行に設定"
+      "setEach": "見つかった行に設定",
+      "approval": "{people}に依頼"
     },
     "form": {
       "name": "名前",
@@ -1129,6 +1130,7 @@
         "upsert_row": "行を追加または更新",
         "wait": "待機",
         "log": "実行履歴に書き込む",
+        "approval": "承認を依頼",
         "start_sequence": "フォローアップを開始"
       },
       "trashHelp": "行をゴミ箱に移動します。ゴミ箱が空になるまでは復元できます。このアクションの後には何も実行できません。",
@@ -1187,7 +1189,9 @@
         "badCron": "cron 式が無効です。",
         "neverRuns": "このスケジュールは一度も来ません。",
         "badExample": "本文の例が有効な JSON ではありません。",
-        "exampleTooLong": "本文の例が長すぎます。"
+        "exampleTooLong": "本文の例が長すぎます。",
+        "needApprovers": "依頼する相手を選んでください。",
+        "needTimeout": "1〜30の整数で日数を入力してください。"
       },
       "agent": "エージェント",
       "chooseAgent": "エージェントを選択…",
@@ -1257,13 +1261,15 @@
         "pending": "待機中",
         "running": "実行中",
         "done": "完了",
-        "failed": "失敗"
+        "failed": "失敗",
+        "stopped": "停止"
       },
       "stepStatus": {
         "pending": "待機中",
         "done": "完了",
         "failed": "失敗",
-        "skipped": "スキップ"
+        "skipped": "スキップ",
+        "stopped": "停止"
       },
       "notified": "{count}人に通知",
       "attempts": "{count}回試行",
@@ -1308,11 +1314,24 @@
         "tooManyAttempts": "試行回数が多すぎます",
         "disabled": "オートメーションがオフになりました",
         "rowGone": "行がありません",
+        "noApprovers": "依頼できる相手がいません",
+        "rejected": "却下",
+        "timedOut": "期限までに誰も回答しませんでした",
         "alreadyEnrolled": "スキップ：行はすでにこのフォローアップに入っています",
         "sequenceGone": "フォローアップがありません",
         "noMailbox": "オートメーションの実行ユーザーがメールボックスを接続していません",
         "noAddress": "行にメールアドレスがありません",
         "emailOff": "行のメールがオフです"
+      },
+      "waitingApproval": "承認待ち",
+      "approval": {
+        "wouldAsk": "テスト実行：{names}に依頼します",
+        "approved": "{name}が承認（{time}）",
+        "rejected": "{name}が却下（{time}）：実行は停止しました",
+        "timedOut": "{time}までに誰も回答せず、実行は停止しました",
+        "timedOutContinued": "{time}までに誰も回答せず、実行は続行しました",
+        "waiting": "{names}に依頼中（{time}まで）",
+        "closed": "{names}に依頼しましたが、回答前に実行が終了しました"
       }
     },
     "nextRun": "次回の実行 {time}",
@@ -1438,7 +1457,9 @@
       "until": "待機した時刻",
       "notified": "通知したユーザー",
       "agentRunId": "エージェント実行 ID",
-      "rowId": "行 ID"
+      "rowId": "行 ID",
+      "approvedBy": "承認者",
+      "answeredAt": "回答日時"
     },
     "test": {
       "title": "テスト実行",
@@ -1454,6 +1475,36 @@
       "run": "テストを実行",
       "saveAndRun": "保存して実行",
       "starting": "開始中…"
+    },
+    "approval": {
+      "people": "次のユーザーに依頼",
+      "personProperties": "行の次のプロパティに含まれるユーザー",
+      "message": "メッセージ",
+      "messagePlaceholder": "例：{template}をクローズしてもよいですか？",
+      "timeout": "回答期限（日）",
+      "onTimeout": "期限までに誰も回答しない場合",
+      "timeoutStop": "実行を停止",
+      "timeoutContinue": "次のステップに進む",
+      "help": "誰かが「確認待ち」で回答するまで実行は待機します。承認すると次のステップに進み、却下すると実行は停止します。最長{max}日です。後のステップでは承認者を使えます：{template}。"
+    },
+    "gallery": {
+      "title": "テンプレートから始める",
+      "use": "使う",
+      "approveBeforeClosing": {
+        "name": "クローズ前に承認を依頼",
+        "description": "行がレビューに移ると、その行のユーザーが承認し、その後クローズ済みになります。",
+        "message": "{title}をクローズしてもよいですか？"
+      },
+      "notifyAssignee": {
+        "name": "割り当てられたユーザーに知らせる",
+        "description": "行のユーザープロパティが変わったら、そのユーザーに通知します。",
+        "message": "{title}が割り当てられました。"
+      },
+      "remindOverdue": {
+        "name": "期限切れの行をリマインド",
+        "description": "未完了の行の日付から1日過ぎたら、その行のユーザーに通知します。",
+        "message": "{title}の期限が過ぎています。"
+      }
     }
   },
   "subItems": {

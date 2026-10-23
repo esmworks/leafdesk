@@ -1,7 +1,7 @@
 {
   "metaTitle": "Por revisar",
   "heading": "Por revisar",
-  "description": "Cambios que los agentes propusieron en lugar de hacerlos. Aprueba uno para hacerlo en tu nombre, edítalo antes o descártalo. Las propuestas que nadie responde caducan a los 30 días.",
+  "description": "Cambios que los agentes propusieron en lugar de hacerlos, y automatizaciones que esperan una aprobación. Aprueba un cambio para hacerlo en tu nombre, edítalo antes o descártalo; aprueba una automatización para que su ejecución siga, o recházala para detenerla. Las propuestas que nadie responde caducan a los 30 días. Los correos de seguimiento configurados como «Preguntarme antes» también esperan aquí.",
   "filters": {
     "agent": "Agente",
     "database": "Base de datos",
@@ -29,6 +29,8 @@
     "createRow": "<agent></agent> quiere añadir una fila a <database></database>",
     "updateRow": "<agent></agent> quiere cambiar <row></row>",
     "emailDraft": "<agent></agent> redactó un correo en <row></row>",
+    "automationApproval": "<automation></automation> pide aprobación para <row></row>",
+    "automationApprovalNoRow": "<automation></automation> pide aprobación",
     "sequenceDraft": "Correo {step} de {steps} del seguimiento <sequence></sequence> en <row></row>"
   },
   "inDatabase": "en <database></database>",
@@ -40,7 +42,9 @@
   "decided": {
     "approved": "Aprobado por {name} {time}",
     "dismissed": "Descartado por {name} {time}",
-    "expired": "Caducó sin respuesta"
+    "expired": "Caducó sin respuesta",
+    "rejected": "Rechazada por {name} {time}",
+    "timedOut": "Nadie respondió a tiempo"
   },
   "title": "Título",
   "becomes": "pasa a ser",
@@ -71,7 +75,8 @@
   "dismiss": "Descartar",
   "cannot": {
     "email": "Solo {name} puede enviar este borrador, desde su propio buzón.",
-    "row": "Puedes ver este cambio, pero para aprobarlo necesitas acceso de edición a la fila y a cada valor que establece."
+    "row": "Puedes ver este cambio, pero para aprobarlo necesitas acceso de edición a la fila y a cada valor que establece.",
+    "approval": "Solo las personas a las que pregunta la automatización pueden aprobar o rechazar esto."
   },
   "errors": {
     "notFound": "Este cambio ya no existe o no puedes verlo.",
@@ -85,5 +90,15 @@
     "bar": "{count, plural, one {# cambio espera revisión} other {# cambios esperan revisión}}",
     "by": "propuestos por {names}",
     "open": "Revisar"
+  },
+  "unknownAutomation": "Una automatización eliminada",
+  "reject": "Rechazar",
+  "approval": {
+    "next": "Si se aprueba, después:",
+    "nothingNext": "Si se aprueba, la ejecución termina: no hay más pasos después.",
+    "forEach": "por cada fila de {step}",
+    "approvers": "Pregunta a {names}",
+    "timeoutStop": "Si nadie responde a tiempo, la ejecución se detiene.",
+    "timeoutContinue": "Si nadie responde a tiempo, la ejecución sigue."
   }
 }

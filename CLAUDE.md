@@ -115,6 +115,8 @@ because they are separate module graphs.
   `cjk_bigrams`. `src/lib/offline.test.ts`: `public/sw.js` follows `src/lib/offline.ts`.
   `src/lib/connection-catalog.test.ts`: `public/connections/*.png` matches the catalog.
   `src/lib/contrast.test.ts`: colors in `globals.css` keep their contrast.
+- `src/server/mcp/tools-context.test.ts`: the MCP tool list every client sends its model stays
+  under 275 KB in all and 25 KB per tool. Raise a number only on purpose, in the same commit.
 - `scripts/bundle-budget.ts` (CI, after `pnpm build`): client JS budgets. Raise one only on purpose,
   in the same commit.
 

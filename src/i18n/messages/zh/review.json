@@ -1,7 +1,7 @@
 {
   "metaTitle": "待审阅",
   "heading": "待审阅",
-  "description": "智能体提议而非直接做出的更改。批准后会以你的名义做出更改，也可以先编辑或将其忽略。无人处理的提议会在 30 天后过期。",
+  "description": "智能体提议而非直接做出的更改，以及等待审批的自动化。批准更改后会以你的名义做出，也可以先编辑或将其忽略；批准自动化可让其运行继续，拒绝则停止运行。无人处理的提议会在 30 天后过期。 设为“先问我”的跟进邮件也会在这里等待。",
   "filters": {
     "agent": "智能体",
     "database": "数据库",
@@ -29,6 +29,8 @@
     "createRow": "<agent></agent> 想在 <database></database> 中添加一行",
     "updateRow": "<agent></agent> 想更改 <row></row>",
     "emailDraft": "<agent></agent> 在 <row></row> 上起草了一封邮件",
+    "automationApproval": "<automation></automation> 请求审批 <row></row>",
+    "automationApprovalNoRow": "<automation></automation> 请求审批",
     "sequenceDraft": "<row></row> 上跟进 <sequence></sequence> 的第 {step} 封邮件（共 {steps} 封）"
   },
   "inDatabase": "位于 <database></database>",
@@ -40,7 +42,9 @@
   "decided": {
     "approved": "{name} 已批准（{time}）",
     "dismissed": "{name} 已忽略（{time}）",
-    "expired": "无人处理，已过期"
+    "expired": "无人处理，已过期",
+    "rejected": "{name} 已拒绝（{time}）",
+    "timedOut": "无人按时回复"
   },
   "title": "标题",
   "becomes": "变为",
@@ -71,7 +75,8 @@
   "dismiss": "忽略",
   "cannot": {
     "email": "只有 {name} 能从自己的邮箱发送此草稿。",
-    "row": "你可以查看此更改，但批准它需要对该行及其设置的每个值都有编辑权限。"
+    "row": "你可以查看此更改，但批准它需要对该行及其设置的每个值都有编辑权限。",
+    "approval": "只有自动化询问的人才能批准或拒绝。"
   },
   "errors": {
     "notFound": "此更改已不存在，或你无权查看。",
@@ -85,5 +90,15 @@
     "bar": "{count, plural, other {# 处更改等待审阅}}",
     "by": "提议者：{names}",
     "open": "审阅"
+  },
+  "unknownAutomation": "已删除的自动化",
+  "reject": "拒绝",
+  "approval": {
+    "next": "批准后接着：",
+    "nothingNext": "批准后运行结束：之后没有步骤。",
+    "forEach": "对 {step} 中的每一行",
+    "approvers": "询问 {names}",
+    "timeoutStop": "如果无人按时回复，运行会停止。",
+    "timeoutContinue": "如果无人按时回复，运行会继续。"
   }
 }

@@ -8,10 +8,13 @@ import { nextScheduledRun, parseAutomationSchedule } from "@/lib/automation-sche
 import { badTemplates, hasTemplate, TEMPLATE_ROOTS, templateRoots } from "@/lib/automation-templates";
 import {
   agentTargets,
+  APPROVAL_TIMEOUTS,
   FOR_EACH_TYPES,
   hasRow,
   HTTP_METHODS,
   isDynamicValue,
+  MAX_APPROVAL_DAYS,
+  MAX_APPROVERS,
   MAX_AUTOMATION_ACTIONS,
   MAX_AUTOMATION_NAME,
   MAX_AUTOMATIONS,
@@ -97,6 +100,8 @@ export type AutomationActionInput = (
   | { type: "log"; message: string }
   /** The sequence by id or name, of the database the step acts on. */
   | { type: "start_sequence"; sequence: string; forEach?: string | null }
+  /** People by id, email, name or "me"; person properties by name or id; `timeoutDays` 1 to 30 (30 when left out). */
+  | { type: "approval"; people?: string[]; properties?: string[]; message?: string | null; timeoutDays?: number; onTimeout?: string; forEach?: string | null }
 ) & { id?: string | null };
 
 /** An automation as typed: properties and people by id or name (see above). */
@@ -272,6 +277,7 @@ const ID_STEMS: Record<AutomationActionType, string> = {
   wait: "wait",
   log: "log",
   start_sequence: "follow_up",
+  approval: "approval",
 };
 
 /** Every step's id: the one given (checked), or a new one from its type. */
@@ -407,6 +413,35 @@ async function checkActions(
   let owner: boolean | undefined;
   let exportOn: boolean | undefined;
   const exportAllowedOnce = async () => (exportOn ??= await exportAllowed(workspaceId));
+  /** People by id, email, name or "me" (guests: by id only), as ids. */
+  const personIds = async (refs: string[]) => {
+    people ??= await workspacePeople(workspaceId);
+    // Guests name people by id only, as in person properties (resolvePersonValue): matching an
+    // address or a name would tell them who is in the workspace, and under which address.
+    const byEmailOrName = people.find((p) => p.id === userId)?.role !== "guest";
+    return [
+      ...new Set(
+        refs.map((ref) => {
+          if (ref === "me") return userId;
+          const needle = ref.trim().toLowerCase();
+          const person =
+            people!.find((p) => p.id === ref) ??
+            (byEmailOrName ? (people!.find((p) => p.email.toLowerCase() === needle) ?? people!.find((p) => p.name.toLowerCase() === needle)) : undefined);
+          if (!person) throw invalid(`"${ref}" is not in this workspace`, { value: ref });
+          return person.id;
+        }),
+      ),
+    ];
+  };
+  const personProperties = (of: Prop[], refs: string[]) => [
+    ...new Set(
+      refs.map((ref) => {
+        const prop = findProperty(of, ref);
+        if (!holdsPeople(prop.type)) throw invalid(`"${prop.name}" is not a person property`);
+        return prop.id;
+      }),
+    ),
+  ];
   const out: AutomationAction[] = [];
   /** The databases find_rows steps look in, by step id, with their properties. */
   const found = new Map<string, { id: string; props: Prop[] }>();
@@ -417,6 +452,9 @@ async function checkActions(
     const over = (action as { forEach?: unknown }).forEach;
     let target = { id: databaseId, props };
     let forEach: string | undefined;
+    if (action?.type === "approval" && typeof over === "string" && over.trim()) {
+      throw invalid(`${label}: an approval asks once for the whole run, so it can't go "for each" found row`);
+    }
     if (typeof over === "string" && over.trim()) {
       if (!(FOR_EACH_TYPES as readonly string[]).includes(action.type)) throw invalid(`${label}: only setting properties, notifying, running an agent and starting a follow-up go "for each" found row`);
       const source = found.get(over.trim());
@@ -428,35 +466,8 @@ async function checkActions(
     if (action?.type === "set_properties") {
       step = { type: "set_properties", values: await checkValues(userId, target.id, target.props, action.values, true), ...(forEach ? { forEach } : {}) };
     } else if (action?.type === "notify") {
-      const refs = action.people ?? [];
-      people ??= await workspacePeople(workspaceId);
-      // Guests name people by id only, as in person properties (resolvePersonValue): matching an
-      // address or a name would tell them who is in the workspace, and under which address.
-      const byEmailOrName = people.find((p) => p.id === userId)?.role !== "guest";
-      const userIds = [
-        ...new Set(
-          refs.map((ref) => {
-            if (ref === "me") return userId;
-            const needle = ref.trim().toLowerCase();
-            const person =
-              people!.find((p) => p.id === ref) ??
-              (byEmailOrName
-                ? (people!.find((p) => p.email.toLowerCase() === needle) ?? people!.find((p) => p.name.toLowerCase() === needle))
-                : undefined);
-            if (!person) throw invalid(`"${ref}" is not in this workspace`, { value: ref });
-            return person.id;
-          }),
-        ),
-      ];
-      const propertyIds = [
-        ...new Set(
-          (action.properties ?? []).map((ref) => {
-            const prop = findProperty(target.props, ref);
-            if (!holdsPeople(prop.type)) throw invalid(`"${prop.name}" is not a person property`);
-            return prop.id;
-          }),
-        ),
-      ];
+      const userIds = await personIds(action.people ?? []);
+      const propertyIds = personProperties(target.props, action.properties ?? []);
       if (!userIds.length && !propertyIds.length) throw invalid("A notification needs people or a person property");
       if (userIds.length > MAX_NOTIFY_PEOPLE) throw invalid(`At most ${MAX_NOTIFY_PEOPLE} people`);
       const message = checkText(action.message, "A notification's message", MAX_STEP_MESSAGE).trim();
@@ -597,9 +608,22 @@ async function checkActions(
       const sequence = sequences.find((s) => s.id === ref) ?? sequences.find((s) => s.name.toLowerCase() === ref.toLowerCase());
       if (!sequence) throw invalid(`${label}: "${ref}" is not a follow-up of the database it starts on`, { value: ref });
       step = { type: "start_sequence", sequenceId: sequence.id, ...(forEach ? { forEach } : {}) };
+    } else if (action?.type === "approval") {
+      const userIds = await personIds(action.people ?? []);
+      const propertyIds = personProperties(props, action.properties ?? []);
+      if (!userIds.length && !propertyIds.length) throw invalid(`${label}: an approval needs people to ask, or a person property whose people are asked`);
+      if (userIds.length > MAX_APPROVERS) throw invalid(`${label}: at most ${MAX_APPROVERS} people`);
+      const message = checkText(action.message, "An approval's message", MAX_STEP_MESSAGE).trim();
+      const timeoutDays = action.timeoutDays ?? MAX_APPROVAL_DAYS;
+      if (typeof timeoutDays !== "number" || !Number.isInteger(timeoutDays) || timeoutDays < 1 || timeoutDays > MAX_APPROVAL_DAYS) {
+        throw invalid(`${label}: waits for an answer a whole number of days from 1 to ${MAX_APPROVAL_DAYS}`);
+      }
+      const onTimeout = action.onTimeout ?? "stop";
+      if (!(APPROVAL_TIMEOUTS as readonly string[]).includes(onTimeout)) throw invalid(`${label}: on timeout, the run stops ("stop") or goes on ("continue")`);
+      step = { type: "approval", userIds, propertyIds, message, timeoutDays, onTimeout: onTimeout as (typeof APPROVAL_TIMEOUTS)[number] };
     } else {
       throw invalid(
-        'Each step is "set_properties", "notify", "webhook", "run_agent", "move_to_trash", "http_request", "find_rows", "create_row", "upsert_row", "wait", "log" or "start_sequence"',
+        'Each step is "set_properties", "notify", "webhook", "run_agent", "move_to_trash", "http_request", "find_rows", "create_row", "upsert_row", "wait", "log", "approval" or "start_sequence"',
       );
     }
     step.id = id;
@@ -615,6 +639,7 @@ async function checkActions(
     }
     if (!hasRow(trigger) && needsRow(step)) {
       const kind = trigger.type === "schedule" ? "a schedule" : "an incoming webhook";
+      if (step.type === "approval") throw invalid(`${label} asks the people a row names, and ${kind} has no row: name the people to ask`);
       throw invalid(`${label} acts on the row that started the automation, and ${kind} has none: find rows first and go "for each" of them`);
     }
     out.push(step);
@@ -686,6 +711,9 @@ function asInput(action: AutomationAction): AutomationActionInput {
   }
   if (action.type === "run_agent") return { id: action.id, type: "run_agent", agent: action.agentId, prompt: action.prompt, forEach: action.forEach };
   if (action.type === "start_sequence") return { id: action.id, type: "start_sequence", sequence: action.sequenceId, forEach: action.forEach };
+  if (action.type === "approval") {
+    return { id: action.id, type: "approval", people: action.userIds, properties: action.propertyIds, message: action.message, timeoutDays: action.timeoutDays, onTimeout: action.onTimeout };
+  }
   if (action.type === "find_rows") {
     return { id: action.id, type: "find_rows", database: action.databaseId, filters: action.filters, filterCombinator: action.filterCombinator, sorts: action.sorts, limit: action.limit };
   }

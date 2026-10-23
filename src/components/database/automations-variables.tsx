@@ -118,6 +118,9 @@ export function useStepVariables(
         case "wait":
           items.push(v(t("until"), id, ["until"]));
           break;
+        case "approval":
+          items.push(v(t("approvedBy"), id, ["approved_by"]), v(t("answeredAt"), id, ["answered_at"]));
+          break;
         case "notify":
           if (!step.forEach) items.push(v(t("notified"), id, ["notified"]));
           break;

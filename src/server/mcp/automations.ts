@@ -7,6 +7,8 @@ import {
   forEachOf,
   HTTP_METHODS,
   isDynamicValue,
+  MAX_APPROVAL_DAYS,
+  MAX_APPROVERS,
   MAX_AUTOMATION_ACTIONS,
   MAX_AUTOMATION_NAME,
   MAX_DATE_PASSED_DAYS,
@@ -138,36 +140,23 @@ const triggerInput = z
     }),
   ])
   .describe(
-    'What starts the automation. Row triggers: {"type": "row_created"} when a row is added (in the app, a form, an import, MCP or the API); {"type": "property_changed", "property": "Status", "to": "Done"} when a value changes; {"type": "date_passed", "date": "last_edited_time", "days": 30, "status": {"groups": ["todo", "in_progress"]}} when a date of a row is that many days past (checked every few minutes; each row runs once per value of that date, and again only after the date changes and is past again; rows that already match run at the next check, at most 100 per check). Triggers without a row: {"type": "schedule", "schedule": {"frequency": "weekly", "time": "09:00", "weekdays": [1]}} runs at those times in time_zone (a server that was down runs once for the times it missed); {"type": "incoming_webhook"} runs when a JSON POST arrives at the automation\'s secret address (hook_url in the result), with the body as {{trigger}} (at most 64 KB, 60 requests a minute; the address answers 202 with the run_id).',
+    'What starts the automation. Row triggers: {"type": "row_created"} when a row is added; {"type": "property_changed", "property": "Status", "to": "Done"} when a value changes; {"type": "date_passed", "date": "last_edited_time", "days": 30, "status": {"groups": ["todo", "in_progress"]}} that many days past (checked every few minutes; once per value, again after the date changes and is past again; matching rows run at the next check, at most 100 per check). Triggers without a row: {"type": "schedule", "schedule": {"frequency": "weekly", "time": "09:00", "weekdays": [1]}} runs at those times in time_zone (missed times run once); {"type": "incoming_webhook"} runs when a JSON POST arrives at the automation\'s secret address (hook_url in the result), with the body as {{trigger}} (at most 64 KB, 60/min; answers 202 with the run_id).',
   );
 
-const dynamicValue = z
-  .object({ $: z.enum(["now", "actor"]) })
-  .describe(
-    '{"$": "now"} sets a date to the day the automation runs; {"$": "actor"} sets a person to whoever made the change (row_created and property_changed only).',
-  );
+// Described once, in set_properties' values: the union is sent again inside every values field.
+const dynamicValue = z.object({ $: z.enum(["now", "actor"]) });
 
-const stepValues = (what: string) =>
-  z
-    .record(z.string(), z.union([rowValue, dynamicValue]))
-    .describe(
-      `Values to set on ${what}, keyed by property name or id, written as for update_database_row (option names, dates as YYYY-MM-DD, times or "start/end" ranges, people as ids, emails, names or "me", null to clear), or {"$": "now"} for a date and {"$": "actor"} for a person. Values may be templates: "{{trigger.Due}}"; a value that is one template keeps its type (rows and people give their ids to relation and person properties), and one that leads nowhere clears the property. Example: {"Status": "Done", "Completed": {"$": "now"}, "Customer": "{{find.first}}"}.`,
-    );
+const stepValues = (what: string) => z.record(z.string(), z.union([rowValue, dynamicValue])).describe(`Values to set on ${what}, written as in set_properties.`);
 
-const stepId = z
-  .string()
-  .regex(STEP_ID)
-  .optional()
-  .describe(
-    'What later steps\' templates call this step\'s output by ({{find.rows}}): lowercase letters, digits and _, starting with a letter, at most 32 characters; not "trigger" or "item". Left out, one is made from the type (find, find_2 …); list_automations shows each step\'s id.',
-  );
+// Described once, in actionsInput: every step type has one.
+const stepId = z.string().regex(STEP_ID).optional();
 
 const forEachInput = z
   .string()
   .min(1)
   .optional()
   .describe(
-    "The id of an earlier find_rows step: do this once for each row it found, one after another, with {{item}} as that row (its properties by name, id, title, url). Steps of a schedule or incoming_webhook automation, which have no row, need it.",
+    "The id of an earlier find_rows step: do this once per found row, with {{item}} as that row.",
   );
 
 const databaseInput = (what: string) => id("database").describe(`The database ${what} (an id from search or get_database; this one or another of the workspace).`);
@@ -176,7 +165,11 @@ const actionInput = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("set_properties"),
     id: stepId,
-    values: stepValues('the row (with for_each: on each found row, by that database\'s property names)'),
+    values: z
+      .record(z.string(), z.union([rowValue, dynamicValue]))
+      .describe(
+        `Values to set on the row (with for_each: on each found row, by that database's property names), keyed by property name or id, written as for update_database_row (option names, dates as YYYY-MM-DD, times or "start/end" ranges, people as ids, emails, names or "me", null to clear), or {"$": "now"} for the day the automation runs and {"$": "actor"} for whoever made the change (row_created and property_changed only). Values may be templates: "{{trigger.Due}}"; a value that is one template keeps its type (rows and people give their ids to relation and person properties), and one that leads nowhere clears the property. Example: {"Status": "Done", "Completed": {"$": "now"}, "Customer": "{{find.first}}"}.`,
+      ),
     for_each: forEachInput,
   }),
   z.object({
@@ -286,17 +279,44 @@ const actionInput = z.discriminatedUnion("type", [
     sequence: z.string().min(1).describe("The follow-up sequence to start on the row, by id or name: one of the database's (list_sequences)."),
     for_each: forEachInput,
   }),
+  z.object({
+    type: z.literal("approval"),
+    id: stepId,
+    people: z
+      .array(z.string().min(1))
+      .max(MAX_APPROVERS)
+      .optional()
+      .describe('People who may approve: user ids, emails, names or "me".'),
+    properties: z
+      .array(z.string().min(1))
+      .max(20)
+      .optional()
+      .describe("Person properties (name or id): whoever the row names in them when the run gets here may approve too (row triggers only)."),
+    message: z
+      .string()
+      .max(MAX_STEP_MESSAGE)
+      .optional()
+      .describe(`What the approvers read (at most ${MAX_STEP_MESSAGE} characters); may hold templates: "Mark {{trigger.title}} as Won for {{trigger.Amount}}?".`),
+    timeout_days: z
+      .number()
+      .int()
+      .min(1)
+      .max(MAX_APPROVAL_DAYS)
+      .optional()
+      .describe(`How many days the run waits for an answer (1-${MAX_APPROVAL_DAYS}, default ${MAX_APPROVAL_DAYS}).`),
+    on_timeout: z.enum(["stop", "continue"]).optional().describe("stop (default): unanswered in time, the run stops; continue: it goes on as if approved, with approved_by null."),
+  }),
 ]);
 
 const TEMPLATE_NOTE =
-  'Text in steps may hold templates: {{trigger.X}} is what started the run (a row trigger: the row\'s values by property name, and id, title, url, event, database, actor and changes.<Property>.before / .after; date_passed adds date; incoming_webhook: the JSON body; schedule: event, scheduledFor and database), {{item.X}} the found row of a for_each step, and {{<step id>.X}} what an earlier step gave: find_rows {rows, count, first} (rows with their values by property name, id, title, url), http_request {status, headers, body}, create_row and upsert_row {id, title, url, created}, log {message}, wait {until}, set_properties {id, values}, notify {notified}, run_agent {agentRunId}, start_sequence {enrollmentId}, and a for_each step {count, items}. Paths use dots, list positions and quotes: {{find.rows.0.title}}, {{http.body.customer["e-mail"]}}; names match exactly, then regardless of case. In text, a path that leads nowhere is empty text and a list is joined with ", "; a value that is a single template keeps its type (null when it leads nowhere). A step that uses a failed or skipped step is skipped (dependencyFailed).';
+  'Text in steps may hold templates: {{trigger.X}} is what started the run (a row trigger: the row\'s values by property name, and id, title, url, event, database, actor and changes.<Property>.before / .after; date_passed adds date; incoming_webhook: the JSON body; schedule: event, scheduledFor and database), {{item.X}} the found row of a for_each step, and {{<step id>.X}} what an earlier step gave: find_rows {rows, count, first} (rows with their values by property name, id, title, url), http_request {status, headers, body}, create_row and upsert_row {id, title, url, created}, log {message}, wait {until}, approval {approved, approved_by: {id, name}, answered_at}, set_properties {id, values}, notify {notified}, run_agent {agentRunId}, start_sequence {enrollmentId}, and a for_each step {count, items}. Paths use dots, list positions and quotes: {{find.rows.0.title}}, {{http.body.customer["e-mail"]}}; names match exactly, then regardless of case. In text, a path that leads nowhere is empty text and a list is joined with ", "; a value that is a single template keeps its type (null when it leads nowhere). A step that uses a failed or skipped step is skipped (dependencyFailed).';
 
 const actionsInput = z
   .array(actionInput)
   .min(1)
   .max(MAX_AUTOMATION_ACTIONS)
   .describe(
-    `What the automation does, in order (at most ${MAX_AUTOMATION_ACTIONS} steps; each one works or fails on its own): set_properties, notify (an inbox notification, and an email as each person chooses, to people who can open the row, or the database for a run without one), webhook, run_agent (queues a run of an agent on the row; saving the automation shares the database with the agent at edit access, taken back once no automation of the database runs it; only workspace owners and those who can edit the agent add or change run_agent steps, others may keep or remove one), move_to_trash (the row goes to the trash, restorable; it must be the last step and can't be combined with run_agent), http_request (one request, which must answer 2xx within 15 seconds; redirects aren't followed; network errors, timeouts, 502, 503 and 504 are tried again, up to 5 times in all), find_rows, create_row, upsert_row, wait (the steps after it wait in the queue), log or start_sequence (starts one of the database's follow-up sequences on the row, sending from the mailbox of the person the automation runs as; a row in it already is skipped, code alreadyEnrolled). A schedule or incoming_webhook automation has no row: set_properties, run_agent and notify with properties need for_each, and webhook and move_to_trash aren't possible. ${TEMPLATE_NOTE}`,
+    `What the automation does, in order (at most ${MAX_AUTOMATION_ACTIONS} steps; each works or fails on its own): set_properties, notify (an inbox notification, and an email as each person chooses, to people who can open the row, or the database for a run without one), webhook, run_agent (queues a run of an agent on the row), move_to_trash (the last step; not with run_agent), http_request (must answer 2xx within 15 s; no redirects; network errors, timeouts, 502, 503 and 504 retried up to 5 times), find_rows, create_row, upsert_row, wait, log, approval (asks the people it names and those in the row's person properties, in "For review"; the run waits: approved, it goes on; rejected, it stops; unanswered within timeout_days it stops, or goes on with on_timeout continue; noApprovers if nobody is found; not for_each; a test run skips it) or start_sequence (starts one of the database's follow-up sequences on the row, from the mailbox of the person the automation runs as; a row in it already is skipped: alreadyEnrolled). A schedule or incoming_webhook automation has no row: set_properties, run_agent and notify with properties need for_each (once per row of an earlier find_rows step, one after another, {{item}} holding its values by name, id, title, url); webhook and move_to_trash are impossible. Saving a run_agent step shares the database with the agent at edit access, taken back once no automation of the database runs it; only workspace owners and agent editors add or change run_agent steps, others may keep or remove one. A step's optional id is what later templates call its output by ({{find.rows}}): a-z, 0-9 and _, starting with a letter, at most 32 characters, not "trigger" or "item"; left out, it is the type (find, find_2 …), and list_automations shows it. ${TEMPLATE_NOTE}`,
   );
 
 const nameInput = z.string().min(1).max(MAX_AUTOMATION_NAME);
@@ -504,6 +524,16 @@ async function toActions(userId: string, actions: ActionsArg): Promise<Automatio
         break;
       case "start_sequence":
         step = { type: "start_sequence", sequence: a.sequence, ...forEach };
+        break;
+      case "approval":
+        step = {
+          type: "approval",
+          people: a.people ?? [],
+          properties: a.properties ?? [],
+          ...(a.message !== undefined ? { message: a.message } : {}),
+          ...(a.timeout_days !== undefined ? { timeoutDays: a.timeout_days } : {}),
+          ...(a.on_timeout !== undefined ? { onTimeout: a.on_timeout } : {}),
+        };
         break;
     }
     out.push({ ...step, ...stepId });
@@ -832,6 +862,25 @@ function describeAction(ctx: AutomationContext, action: AutomationAction, all: A
         summary: `Start the follow-up ${sequence.name !== null ? quote(sequence.name) : sequence.id} on ${over ? `each row of "${over}"` : "the row"}`,
       };
     }
+    case "approval": {
+      const people = action.userIds.map((u) => personRef(ctx, u));
+      const properties = action.propertyIds.map((p) => propertyRef(ctx.props, p));
+      const who = [
+        ...people.map((p) => p.name ?? p.id),
+        ...properties.map((p) => `the people in ${p.name !== null ? quote(p.name) : "a deleted property"}`),
+      ];
+      const days = action.timeoutDays === 1 ? "1 day" : `${action.timeoutDays} days`;
+      return {
+        ...base,
+        type: "approval",
+        people,
+        properties,
+        ...(action.message ? { message: action.message } : {}),
+        timeout_days: action.timeoutDays,
+        on_timeout: action.onTimeout,
+        summary: `Ask ${listed(who, "or")} to approve; unanswered after ${days}, ${action.onTimeout === "continue" ? "go on" : "stop"}`,
+      };
+    }
   }
 }
 
@@ -902,6 +951,19 @@ export function describeRun(run: AutomationRunView) {
       ...(s.startedAt ? { started_at: s.startedAt } : {}),
       ...(s.durationMs !== undefined ? { duration_ms: s.durationMs } : {}),
       ...(s.waitUntil ? { wait_until: s.waitUntil } : {}),
+      ...(s.approval
+        ? {
+            approval: {
+              ...(s.approval.changeId ? { change_id: s.approval.changeId } : {}),
+              approvers: s.approval.approvers.map((a) => a.name),
+              expires_at: s.approval.expiresAt,
+              ...(s.approval.test ? { test: true } : {}),
+              ...(s.approval.answer ? { answer: s.approval.answer === "timedOut" ? "timed_out" : s.approval.answer } : {}),
+              ...(s.approval.answeredBy ? { answered_by: s.approval.answeredBy.name } : {}),
+              ...(s.approval.answeredAt ? { answered_at: s.approval.answeredAt } : {}),
+            },
+          }
+        : {}),
       ...(s.input !== undefined ? { input: s.input } : {}),
       ...(s.output !== undefined ? { output: s.output } : {}),
       ...(s.items?.length ? { items: s.items.map((item) => ({ row_id: item.rowId, title: item.title, status: item.status, ...(item.code ? { code: item.code } : {}), ...(item.error ? { error: item.error } : {}) })) } : {}),

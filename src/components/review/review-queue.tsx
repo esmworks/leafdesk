@@ -8,7 +8,7 @@ import { decidePendingChangesAction, listPendingChangesAction, type ReviewQueue 
 import { useChannel } from "@/components/collab/use-channel";
 import { Button, cn, pageLabel, selectClass } from "@/components/ui";
 import type { PendingChangeFilter, PendingChangeView } from "@/lib/pending-changes";
-import { AgentBadge, ChangeBody, ChangeHeadline, ChangeMeta, NowProvider } from "./pending-change";
+import { ChangeBadge, ChangeBody, ChangeHeadline, ChangeMeta, NowProvider } from "./pending-change";
 
 type Status = "open" | "decided";
 
@@ -271,7 +271,7 @@ function CardItem({ change, workspaceId, selected, onToggle, onChanged }: ItemPr
     <li className={cn("rounded-xl border p-4", selected ? "border-accent" : "border-border")}>
       <div className="flex items-start gap-3">
         <SelectBox change={change} selected={selected} onToggle={onToggle} />
-        <AgentBadge agent={change.agent} sequence={!!change.sequence} />
+        <ChangeBadge change={change} />
         <div className="min-w-0 flex-1 space-y-3">
           <div>
             <p className="text-sm text-fg-muted">

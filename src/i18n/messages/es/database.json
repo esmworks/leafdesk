@@ -1088,7 +1088,8 @@
       "runAgent": "Ejecutar {agent}",
       "archivedAgent": "un agente archivado",
       "trash": "Mover a la papelera",
-      "setEach": "Asignar en las filas encontradas"
+      "setEach": "Asignar en las filas encontradas",
+      "approval": "Preguntar a {people}"
     },
     "form": {
       "name": "Nombre",
@@ -1129,6 +1130,7 @@
         "upsert_row": "Añadir o actualizar una fila",
         "wait": "Esperar",
         "log": "Escribir en el historial de ejecuciones",
+        "approval": "Pedir aprobación",
         "start_sequence": "Iniciar un seguimiento"
       },
       "trashHelp": "Mueve la fila a la papelera, desde donde se puede restaurar hasta que se vacíe. Después de esta acción no puede ejecutarse nada.",
@@ -1187,7 +1189,9 @@
         "badCron": "La expresión cron no es válida.",
         "neverRuns": "Esta programación nunca llega.",
         "badExample": "El cuerpo de ejemplo no es JSON válido.",
-        "exampleTooLong": "El cuerpo de ejemplo es demasiado largo."
+        "exampleTooLong": "El cuerpo de ejemplo es demasiado largo.",
+        "needApprovers": "Elige a quién preguntar.",
+        "needTimeout": "Escribe un número entero de días entre 1 y 30."
       },
       "agent": "Agente",
       "chooseAgent": "Elige un agente…",
@@ -1257,13 +1261,15 @@
         "pending": "En espera",
         "running": "En curso",
         "done": "Hecha",
-        "failed": "Fallida"
+        "failed": "Fallida",
+        "stopped": "Detenida"
       },
       "stepStatus": {
         "pending": "en espera",
         "done": "hecho",
         "failed": "fallido",
-        "skipped": "omitido"
+        "skipped": "omitido",
+        "stopped": "detenida"
       },
       "notified": "{count, plural, one {# persona avisada} other {# personas avisadas}}",
       "attempts": "{count, plural, one {# intento} other {# intentos}}",
@@ -1308,11 +1314,24 @@
         "tooManyAttempts": "Demasiados intentos",
         "disabled": "La automatización se desactivó",
         "rowGone": "La fila ya no existe",
+        "noApprovers": "No hay a quién preguntar",
+        "rejected": "Rechazada",
+        "timedOut": "Nadie respondió a tiempo",
         "alreadyEnrolled": "Omitida: la fila ya está en este seguimiento",
         "sequenceGone": "El seguimiento ya no existe",
         "noMailbox": "La persona de la automatización no tiene un buzón conectado",
         "noAddress": "La fila no tiene dirección de correo",
         "emailOff": "El correo en las filas está desactivado"
+      },
+      "waitingApproval": "Esperando aprobación",
+      "approval": {
+        "wouldAsk": "Ejecución de prueba: preguntaría a {names}",
+        "approved": "Aprobada por {name}, {time}",
+        "rejected": "Rechazada por {name}, {time}: la ejecución se detuvo",
+        "timedOut": "Nadie respondió antes de {time}: la ejecución se detuvo",
+        "timedOutContinued": "Nadie respondió antes de {time}: la ejecución siguió",
+        "waiting": "Se preguntó a {names}, hasta {time}",
+        "closed": "Se preguntó a {names}; la ejecución terminó antes de una respuesta"
       }
     },
     "nextRun": "Próxima ejecución {time}",
@@ -1438,7 +1457,9 @@
       "until": "Esperó hasta",
       "notified": "Personas avisadas",
       "agentRunId": "ID de la ejecución del agente",
-      "rowId": "ID de la fila"
+      "rowId": "ID de la fila",
+      "approvedBy": "Quién aprobó",
+      "answeredAt": "Cuándo se respondió"
     },
     "test": {
       "title": "Ejecución de prueba",
@@ -1454,6 +1475,36 @@
       "run": "Ejecutar prueba",
       "saveAndRun": "Guardar y ejecutar",
       "starting": "Iniciando…"
+    },
+    "approval": {
+      "people": "Preguntar a estas personas",
+      "personProperties": "Personas en estas propiedades de la fila",
+      "message": "Mensaje",
+      "messagePlaceholder": "Por ejemplo: ¿podemos cerrar {template}?",
+      "timeout": "Días para responder",
+      "onTimeout": "Si nadie responde a tiempo",
+      "timeoutStop": "Detener la ejecución",
+      "timeoutContinue": "Seguir con los siguientes pasos",
+      "help": "La ejecución espera hasta que una de estas personas responda en Por revisar: aprobar sigue con los siguientes pasos, rechazar detiene la ejecución. Como mucho {max} días. Los pasos posteriores pueden usar quién aprobó: {template}."
+    },
+    "gallery": {
+      "title": "Empezar con una plantilla",
+      "use": "Usar",
+      "approveBeforeClosing": {
+        "name": "Pedir aprobación antes de cerrar",
+        "description": "Cuando una fila pasa a revisión, las personas que nombra la aprueban y luego se marca como cerrada.",
+        "message": "¿Se puede cerrar {title}?"
+      },
+      "notifyAssignee": {
+        "name": "Avisar a las personas asignadas",
+        "description": "Cuando cambia la propiedad de persona de una fila, notificar a las personas que contiene.",
+        "message": "Se te asignó {title}."
+      },
+      "remindOverdue": {
+        "name": "Recordar filas atrasadas",
+        "description": "Un día después de que pase la fecha de una fila sin terminar, notificar a sus personas.",
+        "message": "{title} está atrasada."
+      }
     }
   },
   "subItems": {
