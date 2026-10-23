@@ -1,4 +1,4 @@
-import type { PageKind, PropertyOptions, PropertyType, RowProperties, ViewConfig, ViewType } from "@/db/schema/app";
+import type { FormQuestion, PageKind, PropertyOptions, PropertyType, RowProperties, ViewConfig, ViewType } from "@/db/schema/app";
 import { mapFilterRules } from "./filters";
 import { rewriteReferences, rewriteRelatedReferences } from "./formula";
 import { atLeast, type PropertyLevel, type PropertyRule } from "./property-access";
@@ -368,7 +368,14 @@ export function remapViewConfig(
   }
   // A form's questions follow the copied properties, and its default values are row values. Whether
   // it is open to the web isn't part of the config: a copy starts closed.
-  if (config.form?.questions) out.form!.questions = config.form.questions.map((q) => ({ ...q, propertyId: map(q.propertyId) }));
+  // Conditions name the question they are about, and its options, which keep their ids.
+  if (config.form?.questions) {
+    out.form!.questions = config.form.questions.map((q) => ({
+      ...structuredClone(q),
+      propertyId: map(q.propertyId),
+      ...(q.showIf ? { showIf: { ...structuredClone(q.showIf), propertyId: map(q.showIf.propertyId) } } : {}),
+    }));
+  }
   if (config.form?.defaults) out.form!.defaults = remapRowProperties(config.form.defaults, propIds, rowIdsFor);
   return withWidgetConfigs(out, (c) => remapViewConfig(c, propIds, rowIdsFor));
 }
@@ -400,8 +407,16 @@ export function dropPropertyReferences(config: ViewConfig, gone: (propertyId: st
     columnWidths: c.columnWidths && Object.fromEntries(Object.entries(c.columnWidths).filter(([k]) => !gone(k))),
     form: c.form && {
       ...c.form,
-      questions: c.form.questions?.filter((q) => !gone(q.propertyId)),
+      // A question about a property that is gone goes, and so does a condition about one.
+      questions: c.form.questions
+        ?.filter((q) => !gone(q.propertyId))
+        .map((q) => (q.showIf && gone(q.showIf.propertyId) ? withoutCondition(q) : q)),
       defaults: c.form.defaults && Object.fromEntries(Object.entries(c.form.defaults).filter(([k]) => !gone(k))),
     },
   };
+}
+
+function withoutCondition(question: FormQuestion): FormQuestion {
+  const { showIf: _showIf, ...rest } = question;
+  return rest;
 }

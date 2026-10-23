@@ -5,7 +5,7 @@ import { getTranslations } from "next-intl/server";
 import { cache } from "react";
 import { PublicFormFill } from "@/components/published/public-form";
 import { SourceFooter } from "@/components/published/source-footer";
-import { getPublicForm, issueFormTicket } from "@/server/forms";
+import { getPublicForm, issueFormTicket, listOwnPublicSubmissions } from "@/server/forms";
 import { getSession } from "@/server/session";
 
 type Params = { params: Promise<{ token: string }> };
@@ -31,6 +31,8 @@ export default async function PublicFormRoute({ params }: Params) {
   const [t, tc] = await Promise.all([getTranslations("form.public"), getTranslations("common")]);
   // Anonymous forms never look at who is signed in: nobody is recorded there.
   const session = form.anonymous ? null : await getSession();
+  // Someone signed in sees what they sent before, when the form shows people their answers.
+  const submissions = session && form.showOwnAnswers ? await listOwnPublicSubmissions(token, session.user.id) : null;
 
   return (
     <div className="flex min-h-full flex-col bg-bg text-fg">
@@ -59,6 +61,7 @@ export default async function PublicFormRoute({ params }: Params) {
             form={{ ...form, title: form.title || tc("untitled") }}
             ticket={issueFormTicket(token)}
             note={form.anonymous ? t("anonymous") : t("signedInAs", { name: session!.user.name || session!.user.email })}
+            submissions={submissions}
           />
         )}
       </main>

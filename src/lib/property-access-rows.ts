@@ -320,12 +320,24 @@ export function restoreReferences(
   const widths = Object.entries(stored.columnWidths ?? {}).filter(([id]) => gone.has(id));
   if (widths.length) out.columnWidths = { ...next.columnWidths, ...Object.fromEntries(widths) };
   if (stored.form) {
-    const questions = stored.form.questions?.filter((q) => gone.has(q.propertyId)) ?? [];
+    const before = stored.form.questions ?? [];
+    const questions = before.filter((q) => gone.has(q.propertyId));
+    // Conditions about those questions, which the saver couldn't see either, stay on their questions.
+    const conditions = new Map(before.flatMap((q) => (q.showIf && gone.has(q.showIf.propertyId) ? [[q.propertyId, q.showIf] as const] : [])));
     const defaults = Object.entries(stored.form.defaults ?? {}).filter(([id]) => gone.has(id));
-    if (questions.length || defaults.length) {
+    if (questions.length || conditions.size || defaults.length) {
+      let list = (next.form?.questions ?? []).map((q) => (!q.showIf && conditions.has(q.propertyId) ? { ...q, showIf: conditions.get(q.propertyId) } : q));
+      // Each question the saver couldn't see goes back right after the one it followed before, so
+      // conditions keep being about earlier questions.
+      before.forEach((q, i) => {
+        if (!gone.has(q.propertyId)) return;
+        const after = before.slice(0, i).findLast((prev) => list.some((x) => x.propertyId === prev.propertyId));
+        const at = after ? list.findIndex((x) => x.propertyId === after.propertyId) + 1 : 0;
+        list = [...list.slice(0, at), q, ...list.slice(at)];
+      });
       out.form = {
         ...next.form,
-        ...(questions.length ? { questions: [...(next.form?.questions ?? []), ...questions] } : {}),
+        ...(questions.length || conditions.size ? { questions: list } : {}),
         ...(defaults.length ? { defaults: { ...next.form?.defaults, ...Object.fromEntries(defaults) } } : {}),
       };
     }

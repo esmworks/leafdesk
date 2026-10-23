@@ -396,4 +396,44 @@ describe("remapViewConfig", () => {
       },
     });
   });
+
+  it("points a question's condition at the copied question, keeping its option ids", () => {
+    const ids = new Map([
+      ["status", "status2"],
+      ["tags", "tags2"],
+    ]);
+    const config = remapViewConfig(
+      {
+        form: {
+          questions: [
+            { propertyId: "status" },
+            { propertyId: "tags", showIf: { propertyId: "status", op: "is", values: ["o1"] }, maxChoices: 2 },
+            { propertyId: "title", showIf: { propertyId: "tags", op: "notEmpty" } },
+          ],
+        },
+      },
+      ids,
+      () => null,
+    );
+    expect(config.form?.questions).toEqual([
+      { propertyId: "status2" },
+      { propertyId: "tags2", showIf: { propertyId: "status2", op: "is", values: ["o1"] }, maxChoices: 2 },
+      { propertyId: "title", showIf: { propertyId: "tags2", op: "notEmpty" } },
+    ]);
+  });
+
+  it("drops conditions about properties that are left out, with their questions", () => {
+    const config = dropPropertyReferences(
+      {
+        form: {
+          questions: [
+            { propertyId: "secret" },
+            { propertyId: "tags", showIf: { propertyId: "secret", op: "notEmpty" }, required: true },
+          ],
+        },
+      },
+      (id) => id === "secret",
+    );
+    expect(config.form?.questions).toEqual([{ propertyId: "tags", required: true }]);
+  });
 });

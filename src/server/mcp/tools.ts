@@ -856,17 +856,25 @@ function formConfigPatch(props: PropertyDef[], type: ViewType, current: ViewConf
   const form = { ...current.form };
   if (input.questions) {
     const seen = new Set<string>();
+    const before = new Map((current.form?.questions ?? []).map((q) => [q.propertyId, q]));
     form.questions = input.questions.map((q) => {
       const { key, prop } = resolvePropertyKey(props, q.property);
       if (!prop && key !== FORM_TITLE) throw new ToolInputError(`"${q.property}" can't be asked in a form.`);
       if (prop && !isAskable(prop.type)) throw new ToolInputError(`"${prop.name}" is ${prop.type}, which a form can't ask for.`);
       if (seen.has(key)) throw new ToolInputError(`"${q.property}" is asked twice.`);
+      // A question asked before keeps the condition and choice limits set in the app, as long as
+      // its condition is still about a question asked before it.
+      const was = before.get(key);
+      const showIf = was?.showIf && seen.has(was.showIf.propertyId) ? was.showIf : undefined;
       seen.add(key);
       return {
         propertyId: key,
         ...(q.required ? { required: true } : {}),
         ...(q.label?.trim() ? { label: q.label.trim() } : {}),
         ...(q.description?.trim() ? { description: q.description.trim() } : {}),
+        ...(showIf ? { showIf } : {}),
+        ...(was?.minChoices !== undefined ? { minChoices: was.minChoices } : {}),
+        ...(was?.maxChoices !== undefined ? { maxChoices: was.maxChoices } : {}),
       };
     });
   }

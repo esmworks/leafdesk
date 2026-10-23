@@ -41,7 +41,7 @@ import { keepDeleted, livePropertyValues, uniqueName, withoutDeleted, type Delet
 import { filterConfigError, filterRules } from "@/lib/filters";
 import { chartGroupProperty } from "@/lib/chart";
 import { defaultDashboardWidgets } from "@/lib/dashboard";
-import { defaultFormConfig } from "@/lib/forms";
+import { defaultFormConfig, formSchemaError } from "@/lib/forms";
 import { configsOf, DEFAULT_VIEW_NAMES, galleryCover, isViewType, layoutConfigError } from "@/lib/views";
 import { holdsOptions, holdsPeople, isComputed, isDerived, isReadOnlyType, PERSON_ME, type StatusGroup } from "@/lib/property-types";
 import { canRestrict, namesPeople } from "@/lib/property-access";
@@ -2528,6 +2528,8 @@ export async function addView(userId: string, databaseId: string, input: { name:
   // Defaults come from properties the user may know of (see server/property-access).
   const [all, access] = await Promise.all([getProperties(databaseId), propertyAccessFor(userId, databaseId)]);
   const props = access.visible(all);
+  const formError = input.config?.form && formSchemaError(input.config.form, props);
+  if (formError) throw new PropertyValueError(formError, "invalidViewConfig");
   const config: ViewConfig = {};
   if (input.type === "board") config.groupBy = props.find((p) => p.type === "select" || p.type === "status")?.id;
   if (input.type === "calendar") {
@@ -2586,6 +2588,11 @@ export async function updateView(userId: string, viewId: string, patch: { name?:
   // Filters, sorts and layout stay adjustable on a locked database; renaming doesn't.
   if (patch.name !== undefined) assertUnlocked(view);
   const access = await propertyAccessFor(userId, view.databaseId);
+  // A form's conditions and choice limits must fit the properties the editor knows of.
+  if (patch.config?.form) {
+    const formError = formSchemaError(patch.config.form, access.visible(await getProperties(view.databaseId)), view.config.form);
+    if (formError) throw new PropertyValueError(formError, "invalidViewConfig");
+  }
   // A form's default values are stored like row values: checked, with option names, "me" and
   // emails turned into ids, and links the editor can't see kept as they were. Only defaults the
   // editor changes need them to be allowed to change the property's values.

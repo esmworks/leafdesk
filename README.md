@@ -247,7 +247,13 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
     aren't named, and entries about a deleted property come back with it. Text is kept with
     credentials masked; the activity goes with the row when it is deleted for good.
   - Form views collect answers as new rows, in the app or through a public link, signed in or
-    anonymous.
+    anonymous. A question can be asked only when an earlier answer is or isn't one of some
+    options, contains a text, is ticked or is empty; questions not asked aren't required and
+    their answers are dropped, which the server works out again from the answers it gets.
+    Multi-select, people, linked-row and file questions can take at least and at most a number of
+    choices. A form can show people who signed in to answer what they sent through it (only its
+    questions, never other rows or properties, even without access to the database); anonymous
+    answers are never shown.
   - Put a database inside any page, or show a view of an existing one there. A table block turns
     into a database from its block menu: its first row names the properties.
   - Lock a database to freeze its properties and views, and export its rows as CSV.

@@ -4,6 +4,23 @@
 
 ### Added
 
+- **Form questions can depend on earlier answers, take a number of choices, and show people their
+  own answers.** In the form builder, *Show only when…* asks a question only when an earlier
+  question's answer is (or isn't) one of some options, contains (or doesn't contain) a text, is
+  ticked or not, or is empty or not; the question shows and hides as people answer, in the app and
+  on the public link. A question not asked isn't required and its answer is dropped: the server
+  works out which questions were asked from the answers it gets, whatever the page sent. A
+  condition must be about an earlier question and name only its options; one whose question or
+  options are deleted, or whose property changes type, stops applying and the question is asked
+  always. Multi-select, people, linked-row and file questions take *At least* and *At most* a
+  number of choices, checked in the form and on the server. With *Show people their own answers*
+  (off by default) someone who signed in to answer sees, under the form and when they come back
+  to it, what they sent through it: only the form's questions, never other properties or rows,
+  even without access to the database; anonymous answers are never shown and the answers can't be
+  edited there. `get_database` describes conditions, limits and the setting, and replacing a form's
+  questions over MCP keeps them. Migration 0115 adds the `form_submission` table, which records the
+  form and the person behind each signed-in answer.
+
 - **Table rows move by their handle, which also opens a fuller row menu.** The ⋯ button before
   each row of a table is now a handle: drag it to move the row among the others (in its group, and
   under the same parent when sub-items nest) while no sort orders the view; the order is the one

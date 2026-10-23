@@ -14,7 +14,7 @@ export type FormActionResult<T> =
   | { ok: true; data: T }
   | { ok: false; error: string; fields?: Record<string, string> };
 
-const FIELD_CODES = ["required", "tooLong", "tooMany", "invalidText"] as const;
+const FIELD_CODES = ["required", "tooLong", "tooMany", "tooFew", "invalidText"] as const;
 
 async function answerMessages(errors: AnswerError[]) {
   const t = await getTranslations();
@@ -55,6 +55,18 @@ async function run<T>(fn: () => Promise<T>): Promise<FormActionResult<T>> {
 export async function submitFormAction(viewId: string, answers: Record<string, unknown>) {
   const userId = await requireUserId();
   return run(() => forms.submitForm(userId, viewId, answers));
+}
+
+/** What the user sent through a form in the app, when it shows people their answers (null when not). */
+export async function ownSubmissionsAction(viewId: string) {
+  const userId = await requireUserId();
+  return run(() => forms.listOwnSubmissions(userId, viewId));
+}
+
+/** What the signed-in visitor sent through a public form, when it shows them (null when not). */
+export async function ownPublicSubmissionsAction(token: string) {
+  const session = await getSession();
+  return run(() => forms.listOwnPublicSubmissions(token, session?.user.id ?? null));
 }
 
 export async function getFormSharingAction(viewId: string) {

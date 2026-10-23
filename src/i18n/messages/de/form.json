@@ -10,6 +10,30 @@
     "labelPlaceholder": "Frage",
     "helpPlaceholder": "Hilfetext hinzufügen (optional)",
     "required": "Erforderlich",
+    "showWhen": "Nur anzeigen, wenn",
+    "addCondition": "Nur anzeigen, wenn …",
+    "removeCondition": "Bedingung entfernen",
+    "conditionQuestion": "Frage, um die es in der Bedingung geht",
+    "conditionCheck": "Bedingung",
+    "conditionOptions": "Optionen, nach denen die Bedingung sucht",
+    "conditionText": "Text",
+    "conditionPickOption": "Wähle mindestens eine Option, um diese Bedingung zu speichern.",
+    "conditionTypeText": "Gib einen Text ein, um diese Bedingung zu speichern.",
+    "op": {
+      "is": "ist eine von",
+      "isNot": "ist keine von",
+      "contains": "enthält",
+      "notContains": "enthält nicht",
+      "hasAny": "enthält eine von",
+      "hasNone": "enthält keine von",
+      "checked": "ist angehakt",
+      "unchecked": "ist nicht angehakt",
+      "empty": "ist leer",
+      "notEmpty": "ist nicht leer"
+    },
+    "minChoices": "Mindestens",
+    "maxChoices": "Höchstens",
+    "anyNumber": "Beliebig",
     "moveUp": "Nach oben",
     "moveDown": "Nach unten",
     "remove": "Frage entfernen",
@@ -27,7 +51,9 @@
     "afterTitle": "Nach dem Absenden",
     "confirmationLabel": "Nachricht",
     "confirmationPlaceholder": "Danke! Deine Antwort wurde gesendet.",
-    "allowAnother": "Weitere Antworten erlauben"
+    "allowAnother": "Weitere Antworten erlauben",
+    "showOwnAnswers": "Antwortenden ihre eigenen Antworten zeigen",
+    "showOwnAnswersDescription": "Wer sich zum Antworten anmeldet, sieht, was er über dieses Formular gesendet hat, und sonst nichts aus der Datenbank. Anonyme Antworten werden nie angezeigt."
   },
   "fill": {
     "submit": "Absenden",
@@ -41,7 +67,18 @@
     "addItem": "Eintrag hinzufügen",
     "newItem": "Neuer Eintrag",
     "removeItem": "{text} entfernen",
-    "honeypot": "Dieses Feld leer lassen"
+    "honeypot": "Dieses Feld leer lassen",
+    "choicesExactly": "Wähle genau {count} aus.",
+    "choicesBetween": "Wähle {min} bis {max} aus.",
+    "choicesAtLeast": "Wähle mindestens {min} aus.",
+    "choicesAtMost": "Wähle höchstens {max} aus."
+  },
+  "own": {
+    "title": "Deine Antworten",
+    "description": "Was du über dieses Formular gesendet hast. Nur du siehst diese Liste.",
+    "none": "Du hast noch keine Antworten gesendet.",
+    "sentAt": "Gesendet {date}",
+    "empty": "Keine Antworten anzuzeigen."
   },
   "share": {
     "button": "Teilen",
@@ -69,6 +106,7 @@
     "required": "Diese Frage ist erforderlich.",
     "tooLong": "Diese Antwort ist zu lang (höchstens {max} Zeichen).",
     "tooMany": "Wähle höchstens {max} aus.",
+    "tooFew": "Wähle mindestens {min} aus.",
     "invalidText": "Diese Antwort muss Text sein.",
     "invalidAnswers": "Einige Antworten musst du noch einmal prüfen.",
     "closed": "Dieses Formular nimmt keine Antworten mehr an.",
