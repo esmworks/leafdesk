@@ -10,7 +10,7 @@
   "emptyHint": "任何页面或数据库行也都可以作为技能：打开它，在其 ⋯ 菜单中开启“用作技能”。",
   "builtins": {
     "heading": "从现成技能开始",
-    "hint": "每个技能都会成为你的私有页面：根据你的工作修改它，然后与团队共享。",
+    "hint": "每一个都会成为你技能数据库中的一行：按你的工作修改后，再与团队共享。",
     "open": "现成技能"
   },
   "noDescription": "暂无描述",
@@ -21,14 +21,17 @@
   "menu": {
     "toggle": "用作技能",
     "hint": "在 AI 聊天中以及向连接到工作区的 AI 应用提供此页面，作为可复用的说明",
-    "export": "导出为 SKILL.md"
+    "export": "导出为 SKILL.md",
+    "database": "技能数据库",
+    "databaseHint": "此数据库的每一行都是一个技能；“说明”属性写明它的用途"
   },
   "bar": {
     "label": "技能",
     "description": "此技能的用途",
     "placeholder": "说明此技能的用途以及何时使用",
     "none": "暂无描述",
-    "library": "所有技能"
+    "library": "所有技能",
+    "inDatabase": "说明在“{property}”属性中"
   },
   "chat": {
     "heading": "技能",
@@ -43,9 +46,19 @@
   },
   "errors": {
     "notAPage": "只有页面和数据库行可以作为技能，数据库不行。",
+    "notADatabase": "只有数据库可以成为技能数据库。",
     "template": "模板及其中的页面不能作为技能。",
     "inTrash": "请先从回收站恢复该页面。",
     "tooLong": "技能描述最多 {max} 个字符。",
     "notASkill": "此页面已不再是技能。"
+  },
+  "database": {
+    "title": "技能",
+    "description": "说明",
+    "files": "文件",
+    "tags": "标签",
+    "createdBy": "创建者",
+    "open": "打开技能数据库",
+    "hint": "每个新技能都是你的技能数据库中的一行，带有说明、文件和标签。"
   }
 }

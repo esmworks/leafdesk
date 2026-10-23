@@ -10,7 +10,7 @@
   "emptyHint": "Qualquer página ou linha de banco de dados também pode ser uma habilidade: abra-a e ative Usar como habilidade no menu ⋯ dela.",
   "builtins": {
     "heading": "Comece com uma habilidade pronta",
-    "hint": "Cada uma vira uma página privada sua: adapte-a ao seu trabalho e depois compartilhe-a com sua equipe.",
+    "hint": "Cada uma vira uma linha do seu banco de dados de habilidades: adapte-a ao seu trabalho e depois compartilhe com sua equipe.",
     "open": "Habilidades prontas"
   },
   "noDescription": "Nenhuma descrição ainda",
@@ -21,14 +21,17 @@
   "menu": {
     "toggle": "Usar como habilidade",
     "hint": "Oferecer esta página como instruções reutilizáveis no chat de IA e para apps de IA conectados ao espaço de trabalho",
-    "export": "Exportar como SKILL.md"
+    "export": "Exportar como SKILL.md",
+    "database": "Banco de dados de habilidades",
+    "databaseHint": "Cada linha deste banco de dados é uma habilidade; a propriedade Descrição diz para que serve"
   },
   "bar": {
     "label": "Habilidade",
     "description": "Para que serve a habilidade",
     "placeholder": "Diga para que serve esta habilidade e quando usá-la",
     "none": "Nenhuma descrição ainda",
-    "library": "Todas as habilidades"
+    "library": "Todas as habilidades",
+    "inDatabase": "A descrição está na propriedade {property}"
   },
   "chat": {
     "heading": "Habilidades",
@@ -43,9 +46,19 @@
   },
   "errors": {
     "notAPage": "Só páginas e linhas de bancos de dados podem ser habilidades, não bancos de dados.",
+    "notADatabase": "Só bancos de dados podem ser bancos de dados de habilidades.",
     "template": "Modelos e as páginas dentro deles não podem ser habilidades.",
     "inTrash": "Primeiro restaure a página da lixeira.",
     "tooLong": "A descrição de uma habilidade pode ter no máximo {max} caracteres.",
     "notASkill": "Esta página não é mais uma habilidade."
+  },
+  "database": {
+    "title": "Habilidades",
+    "description": "Descrição",
+    "files": "Arquivos",
+    "tags": "Etiquetas",
+    "createdBy": "Criado por",
+    "open": "Abrir o banco de dados de habilidades",
+    "hint": "Cada nova habilidade é uma linha do seu banco de dados de habilidades, com descrição, arquivos e etiquetas."
   }
 }

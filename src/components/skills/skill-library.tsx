@@ -1,14 +1,15 @@
 "use client";
 
-import { Download, LibraryBig, Plus, Search } from "lucide-react";
+import { Database, Download, LibraryBig, Plus, Search } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
 import { useMemo, useState, useTransition } from "react";
 import { createBuiltinSkillAction, createSkillAction } from "@/app/actions/skills";
 import { markNewPage } from "@/components/page/new-page-focus";
-import { Button, cn, Dialog, Input, PageIcon, pageLabel } from "@/components/ui";
+import { Button, buttonClass, cn, Dialog, Input, PageIcon, pageLabel } from "@/components/ui";
 import type { BuiltinSkillKey } from "@/lib/builtin-skills";
+import { withRow } from "@/lib/row-panel";
 import { searchFold } from "@/lib/search-fold";
 import type { SkillSummary } from "@/server/skills";
 
@@ -22,6 +23,7 @@ export function SkillLibrary({
   workspaceId,
   skills,
   builtins,
+  skillDatabase,
   canCreate,
   exportable,
   now,
@@ -30,7 +32,9 @@ export function SkillLibrary({
   skills: SkillSummary[];
   /** The built-in skills in their language (see lib/builtin-skills). */
   builtins: BuiltinSkillItem[];
-  /** They may add pages at the top of the workspace: New skill makes a private one there. */
+  /** The skills database New skill adds rows to (server/skills findSkillDatabase), when they have one. */
+  skillDatabase: { id: string; title: string } | null;
+  /** New skill works: they have a skills database, or may add one at the top of the workspace. */
   canCreate: boolean;
   /** The workspace lets people export pages, so each skill offers its SKILL.md. */
   exportable: boolean;
@@ -63,7 +67,7 @@ export function SkillLibrary({
         return;
       }
       markNewPage(result.data.id);
-      router.push(`/w/${workspaceId}/p/${result.data.id}`);
+      router.push(withRow(`/w/${workspaceId}/p/${result.data.databaseId}`, result.data.id));
     });
 
   // The new page has the built-in's title and text: it opens without focusing the title.
@@ -76,7 +80,7 @@ export function SkillLibrary({
         return;
       }
       setGalleryOpen(false);
-      router.push(`/w/${workspaceId}/p/${result.data.id}`);
+      router.push(withRow(`/w/${workspaceId}/p/${result.data.databaseId}`, result.data.id));
     });
 
   return (
@@ -85,17 +89,28 @@ export function SkillLibrary({
         <div className="min-w-0 flex-1 basis-64">
           <h1 className="text-2xl font-semibold tracking-tight">{t("heading")}</h1>
           <p className="mt-2 max-w-2xl text-sm text-fg-muted">{t("description")}</p>
+          {canCreate && <p className="mt-1 max-w-2xl text-sm text-fg-muted">{t("database.hint")}</p>}
         </div>
-        {canCreate && (
+        {(canCreate || skillDatabase) && (
           <div className="flex flex-wrap gap-2">
-            {skills.length > 0 && builtins.length > 0 && (
+            {skillDatabase && (
+              <Link
+                href={`/w/${workspaceId}/p/${skillDatabase.id}`}
+                className={buttonClass()}
+              >
+                <Database className="h-4 w-4" /> {pageLabel(skillDatabase.title, tc("untitled"))}
+              </Link>
+            )}
+            {canCreate && skills.length > 0 && builtins.length > 0 && (
               <Button onClick={() => setGalleryOpen(true)} disabled={pending}>
                 <LibraryBig className="h-4 w-4" /> {t("builtins.open")}
               </Button>
             )}
-            <Button variant="primary" onClick={create} disabled={pending}>
-              <Plus className="h-4 w-4" /> {t("new")}
-            </Button>
+            {canCreate && (
+              <Button variant="primary" onClick={create} disabled={pending}>
+                <Plus className="h-4 w-4" /> {t("new")}
+              </Button>
+            )}
           </div>
         )}
       </header>
@@ -161,7 +176,10 @@ export function SkillLibrary({
                 <li key={skill.id} className="group flex items-start gap-3 px-4 py-3 hover:bg-bg-hover">
                   <PageIcon icon={skill.icon} kind="page" className="mt-0.5 text-fg-muted" />
                   <div className="min-w-0 flex-1">
-                    <Link href={`/w/${workspaceId}/p/${skill.id}`} className="font-medium hover:underline">
+                    <Link
+                      href={skill.database ? withRow(`/w/${workspaceId}/p/${skill.database.id}`, skill.id) : `/w/${workspaceId}/p/${skill.id}`}
+                      className="font-medium hover:underline"
+                    >
                       {pageLabel(skill.title, tc("untitled"))}
                     </Link>
                     <p className={skill.described ? "mt-0.5 line-clamp-2 text-sm text-fg-muted" : "mt-0.5 line-clamp-2 text-sm text-fg-faint"}>

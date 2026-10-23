@@ -300,6 +300,9 @@ export const hasLevel = (level: AccessLevel, needed: RequiredLevel) => rank(leve
 /** The rank `page_access_level` returns for full access, for SQL that looks for it. */
 export const FULL_RANK = rank("full");
 
+/** The rank `page_access_level` returns for edit access. */
+export const EDIT_RANK = rank("edit");
+
 /** The level `page_access_level` returns (0–4) as a name; anything unexpected is `none`. */
 export const levelFromRank = (value: unknown): AccessLevel => PAGE_LEVELS[Number(value)] ?? "none";
 

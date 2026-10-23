@@ -9,17 +9,21 @@ import { MAX_SKILL_DESCRIPTION } from "@/lib/skills";
 
 /**
  * Under a skill's title: what the skill is for, which the AI chat's picker, MCP clients and the
- * skills library show. Saved when the field loses focus; Escape puts back the saved text.
+ * skills library show. Saved when the field loses focus; Escape puts back the saved text. A row of
+ * a skills database keeps it in a property, shown with the others: the bar then says so.
  */
 export function SkillBar({
   workspaceId,
   pageId,
   description,
+  property,
   editable,
 }: {
   workspaceId: string;
   pageId: string;
   description: string;
+  /** The skills database property holding the description, or null when the bar holds it. */
+  property: string | null;
   editable: boolean;
 }) {
   const t = useTranslations("skills.bar");
@@ -54,7 +58,9 @@ export function SkillBar({
       <div className="flex items-start gap-2">
         <ScrollText className="mt-0.5 h-4 w-4 shrink-0 text-fg-muted" />
         <span className="shrink-0 font-medium">{t("label")}</span>
-        {editable ? (
+        {property !== null ? (
+          <p className="min-w-0 flex-1 text-fg-muted">{t("inDatabase", { property })}</p>
+        ) : editable ? (
           <textarea
             ref={field}
             rows={1}

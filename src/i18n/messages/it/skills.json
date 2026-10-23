@@ -10,7 +10,7 @@
   "emptyHint": "Anche qualsiasi pagina o riga di database può diventare una competenza: aprila e attiva Usa come competenza nel suo menu ⋯.",
   "builtins": {
     "heading": "Inizia da una competenza pronta",
-    "hint": "Ognuna diventa una tua pagina privata: adattala al tuo lavoro, poi condividila con il tuo team.",
+    "hint": "Ognuna diventa una riga del tuo database delle competenze: adattala al tuo lavoro, poi condividila con il team.",
     "open": "Competenze pronte"
   },
   "noDescription": "Ancora nessuna descrizione",
@@ -21,14 +21,17 @@
   "menu": {
     "toggle": "Usa come competenza",
     "hint": "Offri questa pagina come istruzioni riutilizzabili nella chat IA e alle app di IA collegate allo spazio di lavoro",
-    "export": "Esporta come SKILL.md"
+    "export": "Esporta come SKILL.md",
+    "database": "Database delle competenze",
+    "databaseHint": "Ogni riga di questo database è una competenza; la proprietà Descrizione dice a cosa serve"
   },
   "bar": {
     "label": "Competenza",
     "description": "A cosa serve la competenza",
     "placeholder": "Spiega a cosa serve questa competenza e quando usarla",
     "none": "Ancora nessuna descrizione",
-    "library": "Tutte le competenze"
+    "library": "Tutte le competenze",
+    "inDatabase": "La descrizione è nella proprietà {property}"
   },
   "chat": {
     "heading": "Competenze",
@@ -43,9 +46,19 @@
   },
   "errors": {
     "notAPage": "Solo le pagine e le righe di database possono essere competenze, non i database.",
+    "notADatabase": "Solo i database possono essere database delle competenze.",
     "template": "I modelli e le pagine al loro interno non possono essere competenze.",
     "inTrash": "Prima ripristina la pagina dal cestino.",
     "tooLong": "La descrizione di una competenza può avere al massimo {max} caratteri.",
     "notASkill": "Questa pagina non è più una competenza."
+  },
+  "database": {
+    "title": "Competenze",
+    "description": "Descrizione",
+    "files": "File",
+    "tags": "Tag",
+    "createdBy": "Creato da",
+    "open": "Apri il database delle competenze",
+    "hint": "Ogni nuova competenza è una riga del tuo database delle competenze, con descrizione, file e tag."
   }
 }

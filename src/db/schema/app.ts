@@ -454,6 +454,16 @@ export const page = pgTable(
     /** What the skill is for and when to use it; empty reads as the start of the body. */
     skillDescription: text("skill_description").notNull().default(""),
     /**
+     * Databases: a skills database, whose rows are skills (server/skills.ts). A trigger marks each
+     * row added or moved in as one (drizzle/0113_skills_database.sql).
+     */
+    isSkillDatabase: boolean("is_skill_database").notNull().default(false),
+    /**
+     * Skills databases: the text property holding each row's description, which the trigger copies
+     * into the row's `skillDescription`. Null (or the property deleted) leaves descriptions as written.
+     */
+    skillDescriptionProperty: text("skill_description_property"),
+    /**
      * Database rows merged into another row (server/merge-rows.ts): the row they were merged into.
      * Such a row is in the trash; links and mentions that still name it open that row instead.
      * Cleared when the row is taken out of the trash, as a row of its own again.

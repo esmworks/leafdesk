@@ -10,6 +10,7 @@ import { AccessError, isGuest, pageVisibleTo, requireMembership, resolvePageAcce
 import { isOutdated, outdatedState, type OutdatedState } from "@/server/page-outdated";
 import { isWatching } from "@/server/page-watch";
 import { isFollowing } from "@/server/row-follow";
+import { skillDescriptionProperty } from "@/server/skills";
 import { exportAllowed, topLevelAccess } from "@/server/workspaces";
 
 /** What the page header shows: who made and last changed the page, the viewer's access and star. */
@@ -38,8 +39,13 @@ export type PageHeaderInfo = {
   exportable: boolean;
   /** Requests for access waiting on the page; counted for those who can answer them (full access), else 0. */
   accessRequests: number;
-  /** Set when the page is a skill: what it is for (empty until someone writes it). */
-  skill: { description: string } | null;
+  /**
+   * Set when the page is a skill: what it is for (empty until someone writes it), and for a row of
+   * a skills database the name of the property that holds it (server/skills), else null.
+   */
+  skill: { description: string; property: string | null } | null;
+  /** Databases: whether it is a skills database, whose rows are skills (server/skills). */
+  skillDatabase: boolean;
   /** Database rows: whether the user hears about others' changes to it (server/row-follow); null for other pages. */
   following: boolean | null;
   /** Other pages: whether the user hears about others' edits and new comment threads (server/page-watch); null for rows and templates. */
@@ -53,7 +59,8 @@ export async function getPageHeaderInfo(userId: string, pageId: string): Promise
   if (!found || level === "none") throw new AccessError();
   const creator = alias(user, "creator");
   const editor = alias(user, "editor");
-  const [[names], [star], membership, topLevel, ai, voice, exportable, accessRequests, following, watching, outdated] = await Promise.all([
+  const isSkill = found.isSkill && !found.inTemplate;
+  const [[names], [star], membership, topLevel, ai, voice, exportable, accessRequests, following, watching, outdated, skillProperty] = await Promise.all([
     db
       .select({ createdBy: creator.name, updatedBy: editor.name })
       .from(page)
@@ -73,6 +80,7 @@ export async function getPageHeaderInfo(userId: string, pageId: string): Promise
     found.parentId ? isFollowing(userId, pageId) : null,
     isWatching(userId, pageId),
     outdatedState(userId, pageId),
+    isSkill && found.parentId ? skillDescriptionProperty(found.parentId) : null,
   ]);
   return {
     level,
@@ -89,7 +97,8 @@ export async function getPageHeaderInfo(userId: string, pageId: string): Promise
     voice,
     exportable,
     accessRequests,
-    skill: found.isSkill && !found.inTemplate ? { description: found.skillDescription } : null,
+    skill: isSkill ? { description: found.skillDescription, property: skillProperty?.name ?? null } : null,
+    skillDatabase: found.kind === "database" && found.isSkillDatabase,
     following,
     watching,
     outdated,

@@ -10,7 +10,7 @@
   "emptyHint": "Any page or database row can be a skill too: open it and turn on Use as skill in its ⋯ menu.",
   "builtins": {
     "heading": "Start from a ready-made skill",
-    "hint": "Each one becomes a private page of yours: change it to fit your work, then share it with your team.",
+    "hint": "Each one becomes a row of your skills database: change it to fit your work, then share it with your team.",
     "open": "Ready-made skills"
   },
   "noDescription": "No description yet",
@@ -21,14 +21,17 @@
   "menu": {
     "toggle": "Use as skill",
     "hint": "Offer this page as reusable instructions in the AI chat and to AI apps connected to the workspace",
-    "export": "Export as SKILL.md"
+    "export": "Export as SKILL.md",
+    "database": "Skills database",
+    "databaseHint": "Every row of this database is a skill; its Description property says what each one is for"
   },
   "bar": {
     "label": "Skill",
     "description": "What the skill is for",
     "placeholder": "Say what this skill is for and when to use it",
     "none": "No description yet",
-    "library": "All skills"
+    "library": "All skills",
+    "inDatabase": "Its description is the {property} property"
   },
   "chat": {
     "heading": "Skills",
@@ -43,9 +46,19 @@
   },
   "errors": {
     "notAPage": "Only pages and database rows can be skills, not databases.",
+    "notADatabase": "Only databases can be skills databases.",
     "template": "Templates and the pages in them can't be skills.",
     "inTrash": "Restore the page from the trash first.",
     "tooLong": "A skill's description may have at most {max} characters.",
     "notASkill": "This page isn't a skill anymore."
+  },
+  "database": {
+    "title": "Skills",
+    "description": "Description",
+    "files": "Files",
+    "tags": "Tags",
+    "createdBy": "Created by",
+    "open": "Open the skills database",
+    "hint": "Each new skill is a row of your skills database, with a description, files and tags."
   }
 }

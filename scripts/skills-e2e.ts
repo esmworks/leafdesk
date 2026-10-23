@@ -25,8 +25,9 @@ const { db } = await import("@/db");
 const { page, teamspace, user, workspace, workspaceMember } = await import("@/db/schema");
 const { registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
-const { archivePage, createPage } = await import("@/server/pages");
+const { archivePage, createPage, movePage } = await import("@/server/pages");
 const { setPagePermission } = await import("@/server/permissions");
+const { getProperties, updateRowProperties } = await import("@/server/databases");
 const { updateWorkspaceSettings } = await import("@/server/workspaces");
 const { AccessError } = await import("@/server/access");
 const { runAsConnectedApp } = await import("@/server/connected-app");
@@ -318,7 +319,7 @@ try {
   const [placed] = await db.select({ teamspaceId: page.teamspaceId, icon: page.icon }).from(page).where(eq(page.id, fromBuiltin.id));
   check(
     placed.teamspaceId === null && placed.icon === wrapup.icon && !(await skills.listSkills(bob, workspaceId)).some((s) => s.id === fromBuiltin.id),
-    "…a private page of whoever added it, until they share it",
+    "…private to whoever added it, until they share it",
     placed,
   );
   check((await skills.listSkills(alice, workspaceId)).some((s) => s.id === fromBuiltin.id), "…listed in their library");
@@ -327,6 +328,71 @@ try {
     (await refusal(() => skills.createBuiltinSkill(owner, workspaceId, "no-such-skill" as never)))?.startsWith("other: Error: Unknown built-in skill"),
     "an unknown built-in skill is refused",
   );
+
+  // ── Skills databases ────────────────────────────────────────────────────────────────────────
+  const skillsDbId = fromBuiltin.databaseId;
+  const [builtinRow] = await db.select({ parentId: page.parentId }).from(page).where(eq(page.id, fromBuiltin.id));
+  check(builtinRow.parentId === skillsDbId, "a new skill is a row of the person's skills database");
+  const [skillsDb] = await db
+    .select({ kind: page.kind, title: page.title, teamspaceId: page.teamspaceId, isSkillDatabase: page.isSkillDatabase })
+    .from(page)
+    .where(eq(page.id, skillsDbId));
+  check(
+    skillsDb.kind === "database" && skillsDb.isSkillDatabase && skillsDb.teamspaceId === null && skillsDb.title === "Beceriler",
+    "…made for them when they had none: private, named in their language",
+    skillsDb,
+  );
+  const skillProps = await getProperties(skillsDbId);
+  check(
+    JSON.stringify(skillProps.map((p) => [p.name, p.type])) ===
+      JSON.stringify([["Açıklama", "text"], ["Dosyalar", "files"], ["Etiketler", "multi_select"], ["Oluşturan", "created_by"]]),
+    "…with a description, files, tags and who made each skill",
+    skillProps.map((p) => [p.name, p.type]),
+  );
+  const descProp = skillProps[0].id;
+  const [builtinValues] = await db.select({ properties: page.properties }).from(page).where(eq(page.id, fromBuiltin.id));
+  check(builtinValues.properties[descProp] === wrapup.description, "…the description in its property", builtinValues);
+  const second = await skills.createSkill(alice, workspaceId, { title: "Second", description: "For seconds" }, "tr");
+  check(second.databaseId === skillsDbId, "the next new skill goes to the same database");
+  check((await skills.getSkillContent(alice, second.id)).description === "For seconds", "…with its description");
+  check((await skills.findSkillDatabase(alice, workspaceId))?.id === skillsDbId, "the library finds the person's skills database");
+  check((await skills.findSkillDatabase(bob, workspaceId)) === null, "…but not someone else's private one");
+  const plainRow = await createPage(as(alice), { workspaceId, parentId: skillsDbId, title: "Plain row", properties: { [descProp]: "  Row description " } });
+  const plainListed = (await skills.listSkills(alice, workspaceId)).find((s) => s.id === plainRow.id);
+  check(plainListed?.described && plainListed.description === "Row description", "a row added to a skills database any other way is a skill too, described by its property", plainListed);
+  await updateRowProperties(alice, plainRow.id, { [descProp]: "Changed in the table" });
+  check((await skills.getSkillContent(alice, plainRow.id)).description === "Changed in the table", "changing the property changes the description");
+  await skills.setSkill(alice, plainRow.id, { description: "Changed on the page" });
+  const [plainValues] = await db.select({ properties: page.properties }).from(page).where(eq(page.id, plainRow.id));
+  check(
+    plainValues.properties[descProp] === "Changed on the page" && (await skills.getSkillContent(alice, plainRow.id)).description === "Changed on the page",
+    "…and a description written on the page goes to the property",
+    plainValues,
+  );
+  const loose = await createPage(as(alice), { workspaceId, teamspaceId: null, title: "Loose notes", markdown: "Keep it short." });
+  await movePage(alice, loose.id, skillsDbId);
+  check((await skills.listSkills(alice, workspaceId)).some((s) => s.id === loose.id), "a page moved into a skills database becomes a skill");
+  await movePage(alice, loose.id, null, undefined, null);
+  check((await skills.listSkills(alice, workspaceId)).some((s) => s.id === loose.id), "…and stays one when moved out");
+  const playbooks = await createPage(as(owner), { workspaceId, teamspaceId: general.id, kind: "database", title: "Playbooks" });
+  const coldCall = await createPage(as(owner), { workspaceId, parentId: playbooks.id, title: "Cold call", markdown: "Ask about their week." });
+  check(!(await skills.listSkills(owner, workspaceId)).some((s) => s.id === coldCall.id), "a row of an ordinary database isn't a skill");
+  check((await refusal(() => skills.setSkillDatabase(guest, playbooks.id, true))) === "access", "a guest can't turn a database into a skills database");
+  check((await refusal(() => skills.setSkillDatabase(owner, handbook.id, true))) === "notADatabase", "a page can't be a skills database");
+  await skills.setSkillDatabase(owner, playbooks.id, true, "en");
+  const playbookProps = await getProperties(playbooks.id);
+  const playbookDesc = playbookProps.find((p) => p.name === "Description" && p.type === "text");
+  check(playbookDesc, "turning a database into a skills database adds a description property", playbookProps);
+  check((await skills.listSkills(owner, workspaceId)).some((s) => s.id === coldCall.id), "…and its rows become skills");
+  await skills.setSkillDatabase(owner, playbooks.id, false);
+  await skills.setSkillDatabase(owner, playbooks.id, true, "en");
+  check(
+    (await getProperties(playbooks.id)).filter((p) => p.name === "Description").length === 1,
+    "…once: turned on again, it keeps the same description property",
+  );
+  await skills.setSkillDatabase(owner, playbooks.id, false);
+  check(!(await skills.listSkills(owner, workspaceId)).some((s) => s.id === coldCall.id), "turned back, its rows stop being skills");
+
   for (const builtin of await builtinSkills("en")) check(builtin.markdown.length < MAX_CHAT_SKILL, `the built-in skill ${builtin.key} fits in the chat`);
   fake.chats.length = 0;
   await ask(alice, { workspaceId, message: "Wrap up the notes", skillId: fromBuiltin.id });

@@ -10,7 +10,7 @@
   "emptyHint": "Auch jede Seite und jede Datenbankzeile kann ein Skill sein: Öffne sie und schalte im ⋯-Menü „Als Skill verwenden“ ein.",
   "builtins": {
     "heading": "Mit einem fertigen Skill beginnen",
-    "hint": "Jeder wird zu einer privaten Seite von dir: Pass ihn an deine Arbeit an und teile ihn dann mit deinem Team.",
+    "hint": "Jeder wird eine Zeile deiner Skills-Datenbank: Pass ihn an deine Arbeit an und teile ihn dann mit deinem Team.",
     "open": "Fertige Skills"
   },
   "noDescription": "Noch keine Beschreibung",
@@ -21,14 +21,17 @@
   "menu": {
     "toggle": "Als Skill verwenden",
     "hint": "Diese Seite als wiederverwendbare Anleitung im KI-Chat und in mit dem Workspace verbundenen KI-Apps anbieten",
-    "export": "Als SKILL.md exportieren"
+    "export": "Als SKILL.md exportieren",
+    "database": "Skills-Datenbank",
+    "databaseHint": "Jede Zeile dieser Datenbank ist ein Skill; die Eigenschaft Beschreibung sagt, wofür er gedacht ist"
   },
   "bar": {
     "label": "Skill",
     "description": "Wofür der Skill ist",
     "placeholder": "Beschreibe, wofür dieser Skill ist und wann man ihn nutzt",
     "none": "Noch keine Beschreibung",
-    "library": "Alle Skills"
+    "library": "Alle Skills",
+    "inDatabase": "Die Beschreibung steht in der Eigenschaft {property}"
   },
   "chat": {
     "heading": "Skills",
@@ -43,9 +46,19 @@
   },
   "errors": {
     "notAPage": "Nur Seiten und Datenbankzeilen können Skills sein, keine Datenbanken.",
+    "notADatabase": "Nur Datenbanken können Skills-Datenbanken sein.",
     "template": "Vorlagen und die Seiten darin können keine Skills sein.",
     "inTrash": "Stelle die Seite zuerst aus dem Papierkorb wieder her.",
     "tooLong": "Die Beschreibung eines Skills darf höchstens {max} Zeichen haben.",
     "notASkill": "Diese Seite ist kein Skill mehr."
+  },
+  "database": {
+    "title": "Skills",
+    "description": "Beschreibung",
+    "files": "Dateien",
+    "tags": "Tags",
+    "createdBy": "Erstellt von",
+    "open": "Skills-Datenbank öffnen",
+    "hint": "Jeder neue Skill ist eine Zeile deiner Skills-Datenbank, mit Beschreibung, Dateien und Tags."
   }
 }

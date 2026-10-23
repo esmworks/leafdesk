@@ -49,7 +49,7 @@ import {
   setWatchingAction,
 } from "@/app/actions/page-menu";
 import { getSidebarAction, movePageAction } from "@/app/actions/pages";
-import { setSkillAction } from "@/app/actions/skills";
+import { setSkillAction, setSkillDatabaseAction } from "@/app/actions/skills";
 import { deleteTemplateAction, saveAsTemplateAction } from "@/app/actions/templates";
 import { useAiChat } from "@/components/ai-chat/chat-panel";
 import { cn, Dialog, IconButton, MenuItem, MenuSeparator, PageIcon, pageLabel, Popover, Switch } from "@/components/ui";
@@ -544,8 +544,19 @@ function PageMenu({
   const setSkill = (on: boolean) =>
     startTransition(async () => {
       setError(null);
-      onInfo({ ...info, skill: on ? { description: info.skill?.description ?? "" } : null });
+      onInfo({ ...info, skill: on ? { description: info.skill?.description ?? "", property: info.skill?.property ?? null } : null });
       const result = await setSkillAction(page.id, { skill: on });
+      if (!result.ok) {
+        onInfo(info);
+        setError(result.error);
+      }
+    });
+
+  const setSkillDatabase = (on: boolean) =>
+    startTransition(async () => {
+      setError(null);
+      onInfo({ ...info, skillDatabase: on });
+      const result = await setSkillDatabaseAction(page.id, on);
       if (!result.ok) {
         onInfo(info);
         setError(result.error);
@@ -751,6 +762,20 @@ function PageMenu({
                   <Switch checked={Boolean(info.skill)} disabled={!canEdit || pending} onChange={setSkill} label={tSkills("menu.toggle")} />
                 </div>
               </>
+            )}
+
+            {/* Every row a skill, its description a property (server/skills): a database setting, like the lock. */}
+            {isDatabase && !page.archived && !info.template && (canManage || info.skillDatabase) && (
+              <div className="flex items-center gap-2 rounded px-2 py-1.5 text-sm" title={tSkills("menu.databaseHint")}>
+                <ScrollText className="h-4 w-4 text-fg-muted" />
+                <span className="flex-1">{tSkills("menu.database")}</span>
+                <Switch
+                  checked={info.skillDatabase}
+                  disabled={!canManage || pending}
+                  onChange={setSkillDatabase}
+                  label={tSkills("menu.database")}
+                />
+              </div>
             )}
 
             <MenuSeparator />
