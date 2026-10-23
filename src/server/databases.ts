@@ -111,6 +111,7 @@ import { computeDerived, loadProperties, withAllFormulaTypes } from "@/server/de
 import { authorizeFileReferences, fileForViewer, workspaceFiles } from "@/server/files";
 import { recordAssignments } from "@/server/notifications";
 import { getCollab } from "@/server/collab/bridge";
+import { loadRowAccess } from "@/server/row-access";
 import { rowChanged } from "@/server/row-events";
 import { recordRowWrites } from "@/server/row-activity";
 import { queueRowWrites } from "@/server/row-follow";
@@ -2315,6 +2316,11 @@ async function retypeProperty(
   }
   if (!namesPeople(input.type) && rules.some((r) => r.personPropertyId === propertyId)) {
     throw new PropertyValueError(`Access rules give the people of "${prop.name}" access`, "typeChangeNamesPeople", {
+      property: prop.name,
+    });
+  }
+  if (input.type !== "person" && (await loadRowAccess(prop.databaseId)).rules.some((r) => r.kind === "person" && r.propertyId === propertyId)) {
+    throw new PropertyValueError(`Row access gives the people of "${prop.name}" access`, "typeChangeNamesPeople", {
       property: prop.name,
     });
   }

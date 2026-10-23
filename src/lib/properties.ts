@@ -101,6 +101,7 @@ export const DATABASE_ERROR_CODES = [
   "cannotRestrict",
   "typeChangeRestricted",
   "typeChangeNamesPeople",
+  "invalidRowAccess",
   "invalidAutomation",
   "tooManyAutomations",
   "invalidWebhookUrl",
