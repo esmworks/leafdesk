@@ -307,6 +307,11 @@ function keepOfflineCopy(entry: Entry, userId: string, pageId: string): OfflineC
   };
 }
 
+/** Whether this tab holds the document right now (a page open, or kept for a moment after). */
+export function isDocOpen(name: string) {
+  return entries.has(name);
+}
+
 /** Closes every stored page copy (before sign-out wipes them; open databases would block that). */
 export async function closeOfflineDocs() {
   await Promise.all(

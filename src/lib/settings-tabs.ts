@@ -76,7 +76,7 @@ const LOCAL_MODE_HIDDEN_TABS: readonly SettingsTab[] = ["guests", "groups", "sit
  * The person's own snippets aren't among them: they are the Snippets tab's first list, beside the
  * workspace's.
  */
-export const ACCOUNT_SETTINGS_TABS = ["profile", "accountSecurity", "preferences", "mail", "apps", "about"] as const;
+export const ACCOUNT_SETTINGS_TABS = ["profile", "accountSecurity", "preferences", "offline", "mail", "apps", "about"] as const;
 export type AccountSettingsTab = (typeof ACCOUNT_SETTINGS_TABS)[number];
 
 export function accountTabForSettings(tab: AccountSettingsTab) {
@@ -85,7 +85,7 @@ export function accountTabForSettings(tab: AccountSettingsTab) {
 
 /** Where a tab of the account page (/account) is under a workspace's Settings. */
 export function settingsTabForAccount(
-  tab: "profile" | "security" | "preferences" | "mail" | "snippets" | "apps" | "about",
+  tab: "profile" | "security" | "preferences" | "offline" | "mail" | "snippets" | "apps" | "about",
 ): AccountSettingsTab | "snippets" {
   return tab === "security" ? "accountSecurity" : tab;
 }
