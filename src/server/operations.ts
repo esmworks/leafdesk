@@ -28,6 +28,7 @@ import { requirePageAccess } from "@/server/access";
 import { calloutStylesOfWorkspaces } from "@/server/callout-styles";
 import { getCollab, type WriteActor } from "@/server/collab/bridge";
 import * as comments from "@/server/comments";
+import { markedAmong } from "@/server/thread-state";
 import * as databases from "@/server/databases";
 import type { StoredFile } from "@/server/files";
 import { resolveEmbeds } from "@/server/embeds";
@@ -1728,6 +1729,7 @@ export async function listComments(ctx: OperationContext, { page_id, include_res
     threads.flatMap((t) => t.comments.map((c) => c.userId)),
   );
   const names = new Map(people.map((p) => [p.id, p.username]));
+  const marked = await markedAmong(userId, page_id, threads.map((t) => t.id));
   return {
     page_id: page.id,
     title: pageLabel(page.title),
@@ -1736,6 +1738,7 @@ export async function listComments(ctx: OperationContext, { page_id, include_res
       quote: t.quote ?? null,
       ...(t.page ? { about_page: true } : {}),
       resolved: t.resolved,
+      ...(marked.has(t.id) ? { marked: true } : {}),
       comments: t.comments.map((c) => ({
         id: c.id,
         author: names.get(c.userId) ?? "Unknown",

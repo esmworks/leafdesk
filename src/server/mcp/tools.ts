@@ -194,7 +194,7 @@ Beyond plain Markdown, page bodies know a few block forms: a callout is a GitHub
 Mentions: a link to a page of this app (\`[Roadmap](/w/<workspace_id>/p/<page_id>)\`) is a page mention, which shows the page's live title (the link text you write is ignored; get_page shows the current title, or "No access" / "Deleted page"), and \`#block-<block_id>\` after it mentions one block of the page (get_page with with_block_ids shows the ids), which opens the page there; \`[[Page title]]\` also becomes a mention of the page of that title in the page's workspace when you can open one (otherwise it stays text); that link alone on its line followed by \`<!-- leafdesk:page-link -->\` is a "Link to page" block, and followed by \`<!-- leafdesk:synced-page -->\` a synced page (the page's body shown live inside this one; its text is not part of this page's Markdown, read the page itself for it). \`@Name\` with a person's name as list_users shows it mentions them (they are notified if they can open the page), and \`@YYYY-MM-DD\` is a date. Keep mentions as they are when you rewrite a page: people aren't notified twice and reminders set on dates stay. get_page lists the pages linking to a page under linked_from, with the text around the first link (context) when there is any, and around each link (contexts) when a page links more than once; linked_from_truncated says how many pages link there when not all are listed.
 check_workspace looks a workspace over for what is worth tidying (broken links, pages nothing links to, empty and long untouched pages, likely duplicates, relations to deleted rows); it changes nothing, so ask the user before fixing what it finds.
 People discuss pages in comment threads anchored to text of the page: list_comments reads them, add_comment starts a thread on quoted text or replies to one.
-list_notifications shows the user's inbox: changes agents proposed for their review, pages shared with them, new comments in their threads, mentions of them, reminders they set on dates or that date properties send them, what database automations told them, what others changed in database rows they follow, edits by others to pages they watch, requests for access to pages they can share and, for owners, requests to join their workspaces.
+list_notifications shows the user's inbox: changes agents proposed for their review, pages shared with them, new comments in their threads, reactions to their comments, mentions of them, reminders they set on dates or that date properties send them, what database automations told them, what others changed in database rows they follow, edits by others to pages they watch, requests for access to pages they can share and, for owners, requests to join their workspaces.
 attach_file adds an image, video, audio or other file to a page, from a URL or base64 data, or (with property) to a row's files property. Files in page bodies show up in the Markdown with paths like /api/files/<id>; get_file reads one (text files and PDFs as text, images as images), as do the urls of a files property.
 duplicate_page copies a page with everything under it beside the original. list_pages with favorites true lists the pages the user starred; get_page says whether a page is starred.
 A page is live, archived or in the trash. Archived pages (set_page_archived) are out of date but kept, such as an old price list or a superseded offer; the pages under one, and the rows of an archived database, count as archived with it. They stay readable and editable by id or link, but search, list_pages and query_database leave them out unless include_archived is true (results then mark them archived: true), and get_page says archived. The trash is something else: archive_page moves a page to the trash, list_trash and restore_page bring it back.
@@ -1235,6 +1235,8 @@ export function createMcpServer(principal: McpPrincipal) {
                             ? `The follow-up "${n.followUp?.sequence ?? ""}" on "${title}" in ${pageLabel(n.databaseTitle)} is paused: its next email didn't pass the check (list_enrollments shows what it found; fix the row or the sequence, then resume it in the app)`
                           : n.kind === "row_email"
                             ? `Email from ${n.rowEmail?.from ?? "someone"} came in on "${title}" in ${pageLabel(n.databaseTitle)}`
+                          : n.kind === "reaction"
+                            ? `${n.reaction?.people.map((p) => p.name).join(", ") || who} reacted ${n.reaction?.emojis.join(" ") ?? ""} to the user's comment on "${title}" (see list_comments)`
                           : n.kind === "automation"
                             ? n.automationMessage
                               ? `Automation "${n.automationName ?? ""}" about "${title}": ${n.automationMessage}`
@@ -1250,6 +1252,7 @@ export function createMcpServer(principal: McpPrincipal) {
                 ? { database: pageLabel(n.databaseTitle), automation: n.automationName, ...(n.automationMessage ? { message: n.automationMessage } : {}) }
                 : {}),
               ...(n.kind === "reminder" ? { date: n.reminderDate } : {}),
+              ...(n.kind === "reaction" && n.reaction ? { thread_id: n.threadId, comment_id: n.reaction.commentId, comment: n.reaction.excerpt } : {}),
               ...(n.kind === "row_email" && n.rowEmail ? { database: pageLabel(n.databaseTitle), email: { from: n.rowEmail.from, subject: n.rowEmail.subject } } : {}),
               ...(n.kind === "row_update" && n.rowUpdate
                 ? {
@@ -3688,7 +3691,7 @@ export function createMcpServer(principal: McpPrincipal) {
     {
       title: "List comments on a page",
       description:
-        "List a page's comment threads, oldest first: the text each thread is about (quote; null when that text was deleted, or for a thread about the whole page, marked about_page), whether it's resolved, and its comments with author, time and text. Resolved threads are left out unless include_resolved is true.",
+        "List a page's comment threads, oldest first: the text each thread is about (quote; null when that text was deleted, or for a thread about the whole page, marked about_page), whether it's resolved, marked: true when the user marked it to come back to later, and its comments with author, time and text. Resolved threads are left out unless include_resolved is true.",
       inputSchema: ops.inputs.listComments,
       annotations: READ,
     },

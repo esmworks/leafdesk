@@ -45,6 +45,7 @@ export const BACKED_UP: Record<string, Scope> = {
   page_favorite: ofPages("page_id"),
   page_watch: ofPages("page_id"),
   thread_mute: ofPages("page_id"),
+  thread_state: ofPages("page_id"),
   row_follower: ofPages("row_id"),
   row_reminder: ofPages("row_id"),
   page_publication: ofPages("page_id"),
