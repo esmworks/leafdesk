@@ -59,7 +59,8 @@ import {
   type ConversationSummary,
   thoughtText,
 } from "@/lib/ai-chat";
-import { attachmentCsv, CHAT_MAX_ATTACHMENTS, cleanAttachmentName, readCsvAttachment, uniqueAttachmentName } from "@/lib/chat-attachments";
+import { attachmentCsv, readCsvAttachment } from "@/lib/chat-attachment-table";
+import { CHAT_MAX_ATTACHMENTS, cleanAttachmentName, uniqueAttachmentName } from "@/lib/chat-attachments";
 import { pageLabel } from "@/lib/labels";
 import { AccessError, connectedAppHold, isGuest, requireMembership, requirePageAccess, WorkspacePolicyError } from "@/server/access";
 import { asWrite } from "@/server/connected-app";

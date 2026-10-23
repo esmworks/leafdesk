@@ -1,8 +1,8 @@
-// Client-safe: CSV files attached to a question of the AI chat. The box (src/components/ai-chat)
-// reads a file to show its size and refuse one too large before sending; the server
-// (server/ai-chat.ts) reads the text again with the same limits, keeps the table with the
-// conversation and gives it to the model, cut to fit (attachmentCsv).
-import { csvTable, type CsvTable } from "./import/csv-parse";
+// Client-safe: CSV files attached to a question of the AI chat: their limits, names and sizes. The
+// box (src/components/ai-chat) reads a file (chat-attachment-table.ts, loaded only then) to show
+// its size and refuse one too large before sending; the server (server/ai-chat.ts) reads the text
+// again with the same limits, keeps the table with the conversation and gives it to the model, cut
+// to fit (attachmentCsv).
 
 /** The largest CSV file a question takes (its text, in characters), its most rows and columns. */
 export const CHAT_CSV_MAX_CHARS = 1_000_000;
@@ -29,16 +29,6 @@ export function cleanAttachmentName(name: string): string {
   return flat.slice(0, CHAT_ATTACHMENT_NAME) || "data.csv";
 }
 
-/** A CSV file's text as a table, or why it can't be attached. */
-export function readCsvAttachment(text: string): { ok: true; table: CsvTable } | { ok: false; problem: AttachmentProblem } {
-  if (text.length > CHAT_CSV_MAX_CHARS) return { ok: false, problem: "tooLarge" };
-  const table = csvTable(text);
-  if (!table.headers.length) return { ok: false, problem: "empty" };
-  if (table.headers.length > CHAT_CSV_MAX_COLUMNS) return { ok: false, problem: "tooManyColumns" };
-  if (table.rows.length > CHAT_CSV_MAX_ROWS) return { ok: false, problem: "tooManyRows" };
-  return { ok: true, table };
-}
-
 /** `name`, or "name (2).csv" and so on when one of `taken` has it (compared without case). */
 export function uniqueAttachmentName(taken: readonly string[], name: string): string {
   const used = new Set(taken.map((n) => n.toLowerCase()));
@@ -49,25 +39,4 @@ export function uniqueAttachmentName(taken: readonly string[], name: string): st
     const next = `${base} (${n})${ext}`;
     if (!used.has(next.toLowerCase())) return next;
   }
-}
-
-/** A cell as CSV: quoted when it holds a separator, a quote or a line break. */
-function cell(value: string) {
-  return /[",\r\n]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value;
-}
-
-/**
- * A table as CSV text for the model: the header, then the rows from `from` (0-based) as many as fit
- * in `maxChars` (at least the header). `shown` is how many rows it has.
- */
-export function attachmentCsv(table: CsvTable, { from = 0, maxChars }: { from?: number; maxChars: number }): { text: string; shown: number } {
-  let text = table.headers.map(cell).join(",");
-  let shown = 0;
-  for (let i = Math.max(0, from); i < table.rows.length; i++) {
-    const line = `\n${table.rows[i].map(cell).join(",")}`;
-    if (text.length + line.length > maxChars) break;
-    text += line;
-    shown += 1;
-  }
-  return { text, shown };
 }

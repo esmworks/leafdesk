@@ -15,7 +15,7 @@ import type { RowChangeBefore, RowChangePayload } from "@/lib/pending-changes";
 import { BLOCK_EDIT_OPS, blockEditProblem, MAX_BLOCK_EDITS, type BlockEdit } from "@/lib/block-edits";
 import { FILTER_OPS, MAX_FILTER_DEPTH } from "@/lib/filters";
 import { env } from "@/lib/env";
-import { attachmentCsv } from "@/lib/chat-attachments";
+import { attachmentCsv } from "@/lib/chat-attachment-table";
 import { cleanFileName, formatBytes } from "@/lib/files";
 import { CSV_COLUMN_TYPES, guessColumn, guessTitleColumn, type CsvColumnType } from "@/lib/import/csv";
 import { MAX_CONFIRMATION, MAX_FORM_DESCRIPTION, MAX_FORM_TITLE, MAX_QUESTION_DESCRIPTION, MAX_QUESTION_LABEL } from "@/lib/forms";
@@ -1262,11 +1262,12 @@ async function prepareForm(ctx: ops.OperationContext, workspaceId: string, scope
     throw error;
   }
   const title = formInput.form_title || pageLabel(target.page.title);
-  const changes: ChatChange[] = (questions ?? []).map((q) => {
+  // Each question as the person sees it asked: its label (required ones marked) and its property's type.
+  const asked = (questions ?? []).map((q) => {
     const prop = q.property.toLowerCase() === "title" ? null : properties.find((p) => p.id === q.property || p.name.toLowerCase() === q.property.toLowerCase());
-    const name = prop?.name ?? "title";
-    return { property: `${q.label || name}${q.required ? " *" : ""}`, value: name };
+    return { label: `${q.label || prop?.name || ""}${q.required ? " *" : ""}`, name: prop?.name ?? "title", type: prop?.type ?? "title" };
   });
+  const changes: ChatChange[] = asked.map((q) => ({ property: q.label, value: q.name }));
   const anonymous = isPublic && args.anonymous === true;
   return {
     action: {
@@ -1274,6 +1275,7 @@ async function prepareForm(ctx: ops.OperationContext, workspaceId: string, scope
       target: await pageView(userId, target.page.id),
       title,
       changes,
+      properties: asked.map((q) => ({ name: q.label, type: q.type })),
       content: formInput.form_description || null,
       ...(isPublic ? { publicForm: anonymous ? "anonymous" : "signedIn" } : {}),
     },

@@ -24,13 +24,11 @@ import {
   CHAT_MAX_ATTACHMENTS,
   cleanAttachmentName,
   isCsvFile,
-  readCsvAttachment,
   uniqueAttachmentName,
   type AttachmentProblem,
   type ChatAttachmentView,
 } from "@/lib/chat-attachments";
 import { EMPTY_DRAFT, expandDraft, insertPaste, pasteLineCount, syncDraft, uniqueLabel, type ChatDraft } from "@/lib/chat-paste";
-import { decodeText } from "@/lib/import/csv-parse";
 import { browserTimeZone } from "@/lib/time-zone";
 import { holdAnswering } from "./answering";
 
@@ -190,6 +188,8 @@ export function useChat(
         failed = problem("tooLarge");
         continue;
       }
+      // The parser is loaded with the first file, not with the chat.
+      const { decodeText, readCsvAttachment } = await import("@/lib/chat-attachment-table");
       const text = decodeText(new Uint8Array(await file.arrayBuffer()));
       const read = readCsvAttachment(text);
       if (!read.ok) {

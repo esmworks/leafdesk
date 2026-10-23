@@ -1,13 +1,12 @@
 import { describe, expect, it } from "vitest";
+import { attachmentCsv, readCsvAttachment } from "./chat-attachment-table";
 import {
-  attachmentCsv,
   CHAT_ATTACHMENT_NAME,
   CHAT_CSV_MAX_CHARS,
   CHAT_CSV_MAX_COLUMNS,
   CHAT_CSV_MAX_ROWS,
   cleanAttachmentName,
   isCsvFile,
-  readCsvAttachment,
   uniqueAttachmentName,
 } from "./chat-attachments";
 

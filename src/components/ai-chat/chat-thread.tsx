@@ -933,7 +933,8 @@ function ChangePrompt({
           <ul className="space-y-0.5 text-xs">
             {action.properties.map((p, i) => (
               <li key={i} className="break-words">
-                <span className="text-fg-muted">{p.name}:</span> {p.type === "title" ? t("titleColumn") : PROPERTY_TYPES.includes(p.type as PropertyType) ? typeLabel(p.type as PropertyType) : p.type}
+                {p.name && <span className="text-fg-muted">{p.name}: </span>}
+                {p.type === "title" ? t("titleColumn") : PROPERTY_TYPES.includes(p.type as PropertyType) ? typeLabel(p.type as PropertyType) : p.type}
                 {p.options && p.options.length > 0 && <span className="text-fg-muted"> · {p.options.join(", ")}</span>}
               </li>
             ))}
