@@ -49,6 +49,7 @@
     "exportZip": "Mit Unterseiten exportieren",
     "exportZipDatabase": "Mit Zeilenseiten exportieren",
     "exportPdf": "Als PDF exportieren",
+    "printView": "Drucken",
     "exportPreparing": "Export wird vorbereitet…",
     "versionHistory": "Versionsverlauf",
     "lastEdited": "Zuletzt bearbeitet von {name}",
@@ -76,11 +77,13 @@
     "filters": {
       "open": "Offen",
       "resolved": "Erledigt",
+      "marked": "Markiert",
       "all": "Alle"
     },
     "empty": {
       "open": "Keine offenen Kommentare. Markiere Text auf der Seite und wähle „Kommentieren“, um einen zu beginnen.",
       "resolved": "Keine erledigten Kommentare.",
+      "marked": "Keine Threads zum Wiederaufgreifen markiert. Wähle im Menü eines Threads „Später ansehen“.",
       "all": "Noch keine Kommentare. Markiere Text auf der Seite und wähle „Kommentieren“, um einen zu beginnen."
     },
     "threadMenu": "Optionen für den Thread",
@@ -90,7 +93,19 @@
     "unmuteHint": "Wieder über neue Antworten in diesem Thread benachrichtigt werden.",
     "muted": "Antworten stummgeschaltet",
     "mutedHint": "Du wirst nicht über Antworten in diesem Thread benachrichtigt, bis du hier antwortest oder dich hier jemand erwähnt.",
-    "mergedFrom": "Aus „{title}“"
+    "mergedFrom": "Aus „{title}“",
+    "sort": {
+      "label": "Threads sortieren",
+      "recent": "Neueste Aktivität zuerst",
+      "page": "In Reihenfolge der Seite"
+    },
+    "new": "Neu",
+    "marked": "Zum späteren Ansehen markiert",
+    "markedHint": "Du hast diesen Thread zum späteren Ansehen markiert. Nur du siehst das.",
+    "mark": "Später ansehen",
+    "unmark": "„Später ansehen“ entfernen",
+    "markHint": "Der Thread bleibt unter Markiert, bis du die Markierung entfernst. Nur du siehst sie.",
+    "unmarkHint": "Diesen Thread aus deiner Liste Markiert nehmen."
   },
   "archived": {
     "banner": "Diese Seite liegt im Papierkorb.",
@@ -332,6 +347,7 @@
     "replacePlaceholder": "Ersetzen durch",
     "noResults": "Keine Treffer",
     "matchCase": "Groß-/Kleinschreibung beachten",
+    "matchAccents": "Akzente beachten",
     "previous": "Vorheriger Treffer (Umschalt+Eingabe)",
     "next": "Nächster Treffer (Eingabe)",
     "showReplace": "Ersetzen einblenden",
@@ -576,6 +592,17 @@
     "openInNewTab": "In neuem Tab öffnen",
     "frameTitle": "PDF: {name}",
     "noPreview": "Dieser Browser kann PDFs hier nicht anzeigen. Öffne die Datei, um sie zu lesen."
+  },
+  "pdfExport": {
+    "title": "Als PDF exportieren",
+    "letterhead": "Briefkopf",
+    "none": "Ohne",
+    "defaultMark": "{name} (Standard)",
+    "noLetterheads": "Eigentümer können unter Einstellungen → PDF-Vorlagen Briefköpfe mit Logo und Firmenangaben anlegen.",
+    "properties": "Werte der Zeile einschließen",
+    "hint": "Diagramme und Formeln werden als Text gedruckt; mit Drucken erhalten Sie die Seite genau so, wie sie aussieht.",
+    "download": "Herunterladen",
+    "preparing": "Wird vorbereitet…"
   },
   "spreadsheet": {
     "untitled": "Arbeitsmappe",

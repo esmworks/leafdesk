@@ -274,6 +274,10 @@ const actionInput = z.discriminatedUnion("type", [
     message: z.string().min(1).max(MAX_STEP_MESSAGE).describe("Text written into the run's history; may hold templates."),
   }),
   z.object({
+    type: z.literal("celebrate"),
+    id: stepId,
+  }),
+  z.object({
     type: z.literal("start_sequence"),
     id: stepId,
     sequence: z.string().min(1).describe("The follow-up sequence to start on the row, by id or name: one of the database's (list_sequences)."),
@@ -316,7 +320,7 @@ const actionsInput = z
   .min(1)
   .max(MAX_AUTOMATION_ACTIONS)
   .describe(
-    `What the automation does, in order (at most ${MAX_AUTOMATION_ACTIONS} steps; each works or fails on its own): set_properties, notify (an inbox notification, and an email as each person chooses, to people who can open the row, or the database for a run without one), webhook, run_agent (queues a run of an agent on the row), move_to_trash (the last step; not with run_agent), http_request (must answer 2xx within 15 s; no redirects; network errors, timeouts, 502, 503 and 504 retried up to 5 times), find_rows, create_row, upsert_row, wait, log, approval (asks the people it names and those in the row's person properties, in "For review"; the run waits: approved, it goes on; rejected, it stops; unanswered within timeout_days it stops, or goes on with on_timeout continue; noApprovers if nobody is found; not for_each; a test run skips it) or start_sequence (starts one of the database's follow-up sequences on the row, from the mailbox of the person the automation runs as; a row in it already is skipped: alreadyEnrolled). A schedule or incoming_webhook automation has no row: set_properties, run_agent and notify with properties need for_each (once per row of an earlier find_rows step, one after another, {{item}} holding its values by name, id, title, url); webhook and move_to_trash are impossible. Saving a run_agent step shares the database with the agent at edit access, taken back once no automation of the database runs it; only workspace owners and agent editors add or change run_agent steps, others may keep or remove one. A step's optional id is what later templates call its output by ({{find.rows}}): a-z, 0-9 and _, starting with a letter, at most 32 characters, not "trigger" or "item"; left out, it is the type (find, find_2 …), and list_automations shows it. ${TEMPLATE_NOTE}`,
+    `What the automation does, in order (at most ${MAX_AUTOMATION_ACTIONS} steps; each works or fails on its own): set_properties, notify (an inbox notification, and an email as each person chooses, to people who can open the row, or the database for a run without one), webhook, run_agent (queues a run of an agent on the row), move_to_trash (the last step; not with run_agent), http_request (must answer 2xx in 15 s; no redirects; network errors, timeouts and 502-504 tried up to 5 times), find_rows, create_row, upsert_row, wait, log, celebrate (confetti for whoever made the change), approval (asks the people it names and those in the row's person properties, in "For review"; the run waits: approved, it goes on; rejected, it stops; unanswered in timeout_days it stops, or goes on with on_timeout continue; noApprovers if nobody is found; not for_each; a test run skips it) or start_sequence (starts one of the database's follow-up sequences on the row, from the mailbox of the person the automation runs as; a row in it already is skipped: alreadyEnrolled). A schedule or incoming_webhook automation has no row: set_properties, run_agent and notify with properties need for_each (once per row of an earlier find_rows step, one after another, {{item}} holding its values by name, id, title, url); webhook and move_to_trash are impossible. Saving a run_agent step shares the database with the agent at edit access, taken back once no automation of the database runs it; only workspace owners and agent editors add or change run_agent steps, others may keep or remove one. A step's optional id is what later templates call its output by ({{find.rows}}): a-z, 0-9 and _, starting with a letter, at most 32 characters, not "trigger" or "item"; left out, it is the type (find, find_2 …), and list_automations shows it. ${TEMPLATE_NOTE}`,
   );
 
 const nameInput = z.string().min(1).max(MAX_AUTOMATION_NAME);
@@ -521,6 +525,9 @@ async function toActions(userId: string, actions: ActionsArg): Promise<Automatio
         break;
       case "log":
         step = { type: "log", message: a.message };
+        break;
+      case "celebrate":
+        step = { type: "celebrate" };
         break;
       case "start_sequence":
         step = { type: "start_sequence", sequence: a.sequence, ...forEach };
@@ -853,6 +860,8 @@ function describeAction(ctx: AutomationContext, action: AutomationAction, all: A
       return { ...base, type: "wait", minutes: action.minutes, summary: `Wait ${action.minutes === 1 ? "1 minute" : `${action.minutes} minutes`}` };
     case "log":
       return { ...base, type: "log", message: action.message, summary: `Log ${quote(action.message)}` };
+    case "celebrate":
+      return { ...base, type: "celebrate", summary: "Confetti for whoever made the change" };
     case "start_sequence": {
       const sequence = { id: action.sequenceId, name: ctx.sequences.find((s) => s.id === action.sequenceId)?.name ?? null };
       return {

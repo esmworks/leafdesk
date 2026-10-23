@@ -79,6 +79,7 @@
     "createPage": "إضافة الصفحة {title} تحت {target}؟",
     "createPageTop": "إضافة الصفحة {title} في أعلى مساحة العمل، خاصة بك؟",
     "editPage": "تغيير نص {title}؟",
+    "createPdf": "إنشاء ملف PDF {title} من {target} وإرفاقه هناك؟",
     "remember": "هل أتذكر هذا عنك؟",
     "forget": "نسيان هذه الملاحظة؟",
     "connection": "إرسال هذا إلى {connection} ({tool})؟",
@@ -88,7 +89,15 @@
     "no": "لا",
     "approved": "تمت الموافقة.",
     "declined": "تم الرفض.",
-    "gone": "لم يعد هذا السؤال في الانتظار."
+    "gone": "لم يعد هذا السؤال في الانتظار.",
+    "addComment": "التعليق على {target}؟",
+    "createDatabase": "إضافة قاعدة البيانات {title} تحت {target}؟",
+    "createDatabaseTop": "إضافة قاعدة البيانات {title} في أعلى مساحة العمل، خاصة بك؟",
+    "createForm": "إضافة النموذج {title} إلى {target}؟",
+    "publicForm": {
+      "signedIn": "سيكون له رابط عام: يمكن لأي شخص لديه الرابط الإجابة بعد تسجيل الدخول.",
+      "anonymous": "سيكون له رابط عام: يمكن لأي شخص لديه الرابط الإجابة دون تسجيل الدخول."
+    }
   },
   "changed": {
     "done": "تم: {what}",

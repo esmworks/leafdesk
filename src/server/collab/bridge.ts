@@ -128,6 +128,21 @@ export interface CollabService {
     snapshot?: boolean,
   ): Promise<boolean>;
   /**
+   * Changes some props of the first block of type `type` that `find` picks (by its current props),
+   * wherever it sits, in place: only the props `update` returns are set, so edits people make to
+   * the rest of the page (or to the block's other props) at the same time are never undone.
+   * `update` gets the block's current props and returns the props to set, or null to set none.
+   * Resolves to the block's props after the change, or null when the page has no such block.
+   * Refuses a locked page or one in the trash, like the other writes.
+   */
+  updateBlockAttributes(
+    pageId: string,
+    type: string,
+    find: (props: Record<string, unknown>) => boolean,
+    update: (props: Record<string, unknown>) => Record<string, string | number> | null,
+    actor: WriteActor,
+  ): Promise<Record<string, unknown> | null>;
+  /**
    * Turns the first place the body writes `title` in plain text into a mention of `targetId` (see
    * lib/link-context linkTitle). Returns the new body's blocks, or null when the title isn't there.
    */
@@ -175,11 +190,17 @@ export interface CollabService {
   pagesTrashed(pageIds: string[], trashed: boolean): Promise<void>;
   /** Tells subscribed clients to refetch (sidebar tree, database rows). */
   broadcast(channel: Channel, event: string): void;
+  /**
+   * Sends `event` to one person's open connections to `channel` only (their other tabs included),
+   * for what concerns nobody else; returns how many connections got it.
+   */
+  sendTo(channel: Channel, userId: string, event: string): number;
   /** Drops a user's live connections to the workspace's documents (after removal from it). */
   disconnectUser(userId: string, workspaceId: string): Promise<void>;
   /**
-   * Drops the connections to the workspace's documents whose session doesn't pass two-step
-   * verification (after the workspace started requiring it).
+   * Drops the connections to the workspace's documents that its sign-in policies now hold back
+   * (after it started requiring two-step verification or single sign-on, or changed its approved
+   * networks).
    */
   disconnectHeldBack(workspaceId: string): Promise<void>;
   /**

@@ -133,6 +133,12 @@ export type AutomationAction = (
   /** Writes a message into the run's history. */
   | { type: "log"; message: string }
   /**
+   * Confetti in the app for whoever made the change that started the run, in each of their open
+   * windows (lib/celebrate-event). A run nobody started (a schedule, a date, an incoming webhook)
+   * or one that comes too late (CELEBRATE_WITHIN_MS) skips it.
+   */
+  | { type: "celebrate" }
+  /**
    * Starts a follow-up sequence of the database (lib/sequences.ts) on the row, sending from the
    * automation's person's mailbox. A row in it already is skipped.
    */
@@ -173,9 +179,16 @@ export const AUTOMATION_ACTION_TYPES = [
   "upsert_row",
   "wait",
   "log",
+  "celebrate",
   "start_sequence",
   "approval",
 ] as const satisfies AutomationActionType[];
+
+/**
+ * A "celebrate" step later than this after the change that started its run (after a wait, an
+ * approval, a busy queue) is skipped: confetti long after the change would come out of nowhere.
+ */
+export const CELEBRATE_WITHIN_MS = 2 * 60_000;
 
 /** Steps that can go "for each" over found rows. */
 export const FOR_EACH_TYPES = ["set_properties", "notify", "run_agent", "start_sequence"] as const satisfies AutomationActionType[];

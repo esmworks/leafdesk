@@ -214,21 +214,33 @@
           "updateRow": "השורה שונתה:",
           "createPage": "נוסף דף:",
           "editPage": "טקסט הדף שונה:",
-          "mergeRows": "שורות מוזגו לתוך:"
+          "createPdf": "נוצר PDF:",
+          "mergeRows": "שורות מוזגו לתוך:",
+          "addComment": "נוספה תגובה ב:",
+          "createDatabase": "נוסף מסד נתונים:",
+          "createForm": "נוסף טופס:"
         },
         "declined": {
           "createRow": "הוספת השורה נדחתה:",
           "updateRow": "השינוי נדחה:",
           "createPage": "הוספת הדף נדחתה:",
           "editPage": "שינוי הטקסט נדחה:",
-          "mergeRows": "מיזוג השורות נדחה עבור:"
+          "createPdf": "יצירת ה־PDF נדחתה:",
+          "mergeRows": "מיזוג השורות נדחה עבור:",
+          "addComment": "סירבת להגיב ב:",
+          "createDatabase": "סירבת להוסיף את מסד הנתונים:",
+          "createForm": "סירבת להוסיף את הטופס:"
         },
         "failed": {
           "createRow": "לא ניתן היה להוסיף את השורה:",
           "updateRow": "לא ניתן היה לשנות:",
           "createPage": "לא ניתן היה להוסיף את הדף:",
           "editPage": "לא ניתן היה לשנות את הטקסט של:",
-          "mergeRows": "לא ניתן היה למזג שורות לתוך:"
+          "createPdf": "לא ניתן היה ליצור PDF:",
+          "mergeRows": "לא ניתן היה למזג שורות לתוך:",
+          "addComment": "לא ניתן היה להגיב ב:",
+          "createDatabase": "לא ניתן היה להוסיף את מסד הנתונים:",
+          "createForm": "לא ניתן היה להוסיף את הטופס:"
         },
         "in": "ב",
         "proposed": {
@@ -236,7 +248,11 @@
           "updateRow": "הוצע לבדיקה שינוי:",
           "createPage": "הוצעה לבדיקה הוספת דף:",
           "editPage": "הוצע לבדיקה שינוי טקסט:",
-          "mergeRows": "הציע למזג שורות לבדיקה אל:"
+          "createPdf": "הציע PDF לבדיקה:",
+          "mergeRows": "הציע למזג שורות לבדיקה אל:",
+          "addComment": "הוצעה תגובה לבדיקה ב:",
+          "createDatabase": "הוצע מסד נתונים לבדיקה:",
+          "createForm": "הוצע טופס לבדיקה:"
         }
       },
       "memory": {
@@ -274,7 +290,11 @@
         "remember": "לזכור את זה עליך?",
         "forget": "לשכוח את ההערה הזו?",
         "editPage": "לשנות את הטקסט של הדף הזה?",
-        "connection": "לשלוח את זה אל {connection}?"
+        "createPdf": "ליצור PDF של הדף הזה ולצרף אותו?",
+        "connection": "לשלוח את זה אל {connection}?",
+        "addComment": "להוסיף את התגובה הזו?",
+        "createDatabase": "להוסיף את מסד הנתונים הזה?",
+        "createForm": "להוסיף את הטופס הזה?"
       },
       "in": "ב",
       "row": "שורה",
@@ -287,7 +307,14 @@
       "waiting": "בהמתנה לאישור שלך",
       "page": "דף",
       "empty": "(ריק)",
-      "connectionHint": "נשלח דרך החיבור של סביבת העבודה: עשוי לשנות משהו ב־{connection}"
+      "connectionHint": "נשלח דרך החיבור של סביבת העבודה: עשוי לשנות משהו ב־{connection}",
+      "fromFile": "{rows, plural, one {שורה אחת} other {# שורות}} מתוך {name}",
+      "titleColumn": "כותרת",
+      "publicForm": {
+        "signedIn": "קישור ציבורי: כל מי שיש לו את הקישור יכול לענות אחרי התחברות",
+        "anonymous": "קישור ציבורי: כל מי שיש לו את הקישור יכול לענות בלי להתחבר"
+      },
+      "letterhead": "נייר מכתבים: {name}"
     },
     "mode": {
       "label": "שינויים",
@@ -304,7 +331,20 @@
       "retry": "תשובה מחדש"
     },
     "actionsFor": "פעולות עבור {name}",
-    "greeting": "מה תרצו לדעת?"
+    "greeting": "מה תרצו לדעת?",
+    "files": {
+      "attach": "צירוף קובץ CSV",
+      "attachHint": "צרפו קובץ CSV (עד 1,000 שורות ו־1MB) כדי לשאול עליו או ליצור ממנו מסד נתונים",
+      "drop": "שחררו את קובץ ה־CSV כדי לצרף אותו",
+      "remove": "הסרת {name}",
+      "size": "{rows, plural, one {שורה אחת} other {# שורות}} × {columns, plural, one {עמודה אחת} other {# עמודות}}",
+      "notCsv": "אפשר לצרף רק קובצי CSV. שמרו קודם את הגיליון כ־CSV.",
+      "tooLarge": "הקובץ גדול מ־{size}. צרפו קובץ CSV קטן יותר.",
+      "tooManyRows": "בקובץ יש יותר מ־{rows} שורות. צרפו קובץ קצר יותר, או ייבאו אותו כמסד נתונים.",
+      "tooManyColumns": "בקובץ יש יותר מ־{columns} עמודות.",
+      "empty": "הקובץ ריק.",
+      "tooMany": "לשאלה אפשר לצרף עד {count} קבצים."
+    }
   },
   "memory": {
     "open": "זיכרון",

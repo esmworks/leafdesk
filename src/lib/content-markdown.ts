@@ -24,6 +24,7 @@ import {
 } from "./columns";
 import { DASHBOARD_BLOCK, dashboardLine, parseDashboardLine } from "./dashboard";
 import { AGENT_CHAT_BLOCK, agentChatLine, newChatId, parseAgentChatLine } from "./agent-chat";
+import { isMeetingEnd, MEETING_BLOCK, meetingMarkdown, parseMeetingBegin } from "./meetings";
 import { BLOCK_COLORS } from "./block-colors";
 import { calloutKey, calloutTitle } from "./callout-styles";
 import { TEXT_SCRIPT_TAGS, TEXT_SCRIPTS, type TextScript } from "./text-scripts";
@@ -278,6 +279,11 @@ export function prepareMarkdownExport<B extends MdBlock>(
           return paragraph(blockToken("<!-- leafdesk:toc -->"));
         case DASHBOARD_BLOCK:
           return paragraph(block.id ? blockToken(dashboardLine(block.id)) : "");
+        case MEETING_BLOCK: {
+          // Its region (lib/meetings): summary and transcript, so search, MCP and the AI read them.
+          const markdown = meetingMarkdown(block.props);
+          return paragraph(markdown ? blockToken(markdown) : "");
+        }
         case AGENT_CHAT_BLOCK: {
           // Only its ids; a block whose agent isn't chosen yet has nothing to write.
           const agentId = String(block.props?.agentId ?? "");
@@ -453,6 +459,7 @@ type Pending =
   | { type: typeof COLUMN_BLOCK; marker: ColumnMarker }
   | { type: typeof DASHBOARD_BLOCK; id: string }
   | { type: typeof AGENT_CHAT_BLOCK; agentId: string; chatId: string }
+  | { type: typeof MEETING_BLOCK; meetingId: string; markdown: string }
   | { type: typeof SYNCED_BLOCK; pageId: string; syncId: string };
 
 const FENCE_OPEN = /^ {0,3}(`{3,}|~{3,})/;
@@ -533,6 +540,17 @@ export function prepareMarkdownImport(markdown: string, nonce: string, { appUrl 
       blockLine({ type: AGENT_CHAT_BLOCK, ...agentChat });
       continue;
     }
+    // A meeting's region, up to its end line: the block comes back from the page (lib/meetings
+    // restoreMeetings), or what the region holds as plain blocks.
+    const meetingId = parseMeetingBegin(line);
+    if (meetingId) {
+      const inner: string[] = [];
+      while (i + 1 < lines.length && !isMeetingEnd(lines[i + 1])) inner.push(lines[++i]);
+      if (i + 1 < lines.length) i++;
+      blockLine({ type: MEETING_BLOCK, meetingId, markdown: inner.join("\n") });
+      continue;
+    }
+    if (isMeetingEnd(line)) continue;
     const web = WEB_LINE.exec(line);
     const webUrl = web ? parseWebUrl((web[2] ?? web[3]).replace(/^<|>$/g, ""))?.href : undefined;
     if (web && webUrl) {
@@ -836,6 +854,13 @@ export async function finishMarkdownImport<B extends MdBlock>(
       case DASHBOARD_BLOCK:
         // Only the id: the page's dashboard with it comes back whole (lib/dashboard restoreDashboards).
         return { id: pending.id, type: DASHBOARD_BLOCK, props: {}, children: [] } as unknown as B;
+      case MEETING_BLOCK:
+        // Only the id, with the region's blocks to fall back on (lib/meetings restoreMeetings).
+        return {
+          type: MEETING_BLOCK,
+          props: { meetingId: pending.meetingId },
+          children: pending.markdown.trim() ? await parse(pending.markdown) : [],
+        } as unknown as B;
       case COLUMN_BLOCK:
         return columnMarkerBlock<B>(pending.marker);
       case "quote": {

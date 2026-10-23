@@ -10,6 +10,7 @@ import { useDocumentViewName } from "@/components/page/document-title";
 import { markNewPage } from "@/components/page/new-page-focus";
 import type { ViewConfig, ViewType } from "@/db/schema/app";
 import type { LinkedView } from "@/lib/embed-blocks";
+import { colorRows, type RowColors } from "@/lib/color-rules";
 import { valueType } from "@/lib/derived";
 import { applyView, defaultsFromFilters, filterOperators, orderProperties } from "@/lib/properties";
 import { atLeast } from "@/lib/property-access";
@@ -51,6 +52,8 @@ const MemoTableView = memo(TableView);
 const MemoTimelineView = memo(TimelineView);
 // Loaded when a dashboard view opens: its grid brings the chart and linked view code along.
 const DashboardView = dynamic(() => import("./dashboard-view"), { loading: () => <DashboardSkeleton /> });
+// Loaded when a map view opens: Leaflet (which needs a browser) comes along only then.
+const MapView = memo(dynamic(() => import("./map-view"), { ssr: false, loading: () => <MapSkeleton /> }));
 
 /** A database shown inside a page body (see components/page/embed-blocks). */
 export type DatabaseEmbed = {
@@ -226,6 +229,15 @@ export function DatabasePage({
     const shown = applyView(rows, view.config, snapshot.properties, { viewerId: snapshot.viewerId, people: snapshot.people });
     return searchRows(shown, search, snapshot.properties, { people: snapshot.people, relations: snapshot.relations });
   }, [rows, view, snapshot, search]);
+  // Each shown row's colors under the view's color rules, once per change of rows or rules. Rows
+  // colored as before keep their entry, so their memoized cards don't redraw.
+  const lastColors = useRef<ReadonlyMap<string, RowColors> | undefined>(undefined);
+  const colorRules = view?.config.colorRules;
+  const rowColors = useMemo(() => {
+    const colors = colorRows(visibleRows, colorRules, snapshot?.properties ?? [], { viewerId: snapshot?.viewerId }, lastColors.current);
+    lastColors.current = colors;
+    return colors;
+  }, [visibleRows, colorRules, snapshot?.properties, snapshot?.viewerId]);
   // Rows open beside the view in the row panel, unless the view opens them as pages; phones and
   // offline always open pages (the panel loads rows from the server).
   const rowPanel = useRowPanel();
@@ -304,6 +316,16 @@ export function DatabasePage({
     if (created && view?.type === "timeline") {
       await setConfig(view, { ...view.config, ...(asEnd ? { endDateBy: created.id } : { dateBy: created.id }) });
     }
+  }, [locale, properties, t, api, view, setConfig]);
+
+  const createPlaceProperty = useCallback(async () => {
+    const lower = (s: string) => s.toLocaleLowerCase(locale);
+    const names = new Set((properties ?? []).map((p) => lower(p.name)));
+    const base = t("map.defaultPlaceProperty");
+    let name = base;
+    for (let i = 2; names.has(lower(name)); i++) name = `${base} ${i}`;
+    const created = await api.addProperty(name, "place");
+    if (created && view?.type === "map") await setConfig(view, { ...view.config, placeBy: created.id });
   }, [locale, properties, t, api, view, setConfig]);
 
   if (!snapshot) {
@@ -439,6 +461,7 @@ export function DatabasePage({
                             locked={locked}
                             onConfig={(config) => setConfig(view, config)}
                             onCreateDateProperty={createDateProperty}
+                            onCreatePlaceProperty={readOnly ? undefined : createPlaceProperty}
                             onSubItems={readOnly ? undefined : (on, propertyId) => void api.setSubItems(on, propertyId)}
                             onDependencies={readOnly ? undefined : (on, input) => void api.setDependencies(on, input)}
                           />
@@ -523,6 +546,7 @@ export function DatabasePage({
                       />
                     ) : view.type === "board" ? (
                       <MemoBoardView
+                        colors={rowColors}
                         workspaceId={workspaceId}
                         view={view}
                         properties={viewProperties}
@@ -534,6 +558,7 @@ export function DatabasePage({
                       />
                     ) : view.type === "gallery" ? (
                       <MemoGalleryView
+                        colors={rowColors}
                         workspaceId={workspaceId}
                         view={view}
                         properties={viewProperties}
@@ -543,6 +568,7 @@ export function DatabasePage({
                       />
                     ) : view.type === "list" ? (
                       <MemoListView
+                        colors={rowColors}
                         workspaceId={workspaceId}
                         view={view}
                         properties={viewProperties}
@@ -553,6 +579,7 @@ export function DatabasePage({
                       />
                     ) : view.type === "timeline" ? (
                       <MemoTimelineView
+                        colors={rowColors}
                         key={view.id}
                         workspaceId={workspaceId}
                         view={view}
@@ -563,6 +590,17 @@ export function DatabasePage({
                         readOnly={readOnly}
                         locked={locked}
                         onCreateDateProperty={createDateProperty}
+                      />
+                    ) : view.type === "map" ? (
+                      <MapView
+                        workspaceId={workspaceId}
+                        view={view}
+                        properties={viewProperties}
+                        rows={visibleRows}
+                        tiles={snapshot.map ?? null}
+                        readOnly={readOnly}
+                        locked={locked}
+                        onCreatePlaceProperty={createPlaceProperty}
                       />
                     ) : view.type === "chart" ? (
                       <MemoChartView
@@ -585,6 +623,7 @@ export function DatabasePage({
                     ) : view.type === "calendar" ? (
                       <div className="page-gutter">
                         <MemoCalendarView
+                        colors={rowColors}
                           workspaceId={workspaceId}
                           view={view}
                           properties={viewProperties}
@@ -597,6 +636,7 @@ export function DatabasePage({
                       </div>
                     ) : (
                       <MemoTableView
+                        colors={rowColors}
                         workspaceId={workspaceId}
                         databaseId={databaseId}
                         view={view}
@@ -630,6 +670,15 @@ function DashboardSkeleton() {
   return (
     <div aria-busy="true" aria-label={t("loading")} className="page-gutter">
       <div className="h-28 animate-pulse rounded-lg bg-bg-subtle" />
+    </div>
+  );
+}
+
+function MapSkeleton() {
+  const t = useTranslations("database.map");
+  return (
+    <div aria-busy="true" aria-label={t("loading")} className="page-gutter">
+      <div className="h-[min(70vh,640px)] min-h-72 animate-pulse rounded-lg bg-bg-subtle" />
     </div>
   );
 }

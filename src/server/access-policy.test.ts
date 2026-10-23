@@ -2,7 +2,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { RequestSession } from "./request-session";
 
 /**
- * The workspace sign-in policies in the access checks (two-step verification, single sign-on only):
+ * The workspace sign-in policies in the access checks (approved networks, two-step verification,
+ * single sign-on only):
  * which sessions they hold back, and that they ask the database once per request and workspace.
  * The database answers from a queue, one result per query.
  */
@@ -33,22 +34,29 @@ const {
   requireMembership,
   TwoFactorRequiredError,
   SsoRequiredError,
+  IpNotAllowedError,
   workspacesHeldBack,
 } = await import("./access");
 const { asWrite, runAsConnectedApp } = await import("./connected-app");
 const { authorizeCollab } = await import("./collab/authorize");
 
-const session = (userId: string, strong: boolean, ssoProviderId: string | null = null): RequestSession => ({
+const session = (userId: string, strong: boolean, ssoProviderId: string | null = null, ip: string | null = "192.0.2.10"): RequestSession => ({
   userId,
   strong,
   ssoProviderId,
+  ip,
   heldBack: new Map(),
 });
 const member = [{ role: "member" }];
 /** The policy lookup's row (see policyStateOf). */
-const policy = (state: { role?: string; requireTwoFactor?: boolean; loginMethod?: string | null; hasConnection?: boolean }) => [
-  { role: "member", requireTwoFactor: false, loginMethod: null, hasConnection: false, ...state },
-];
+const policy = (state: {
+  role?: string;
+  requireTwoFactor?: boolean;
+  loginMethod?: string | null;
+  hasConnection?: boolean;
+  allowedNetworks?: { range: string; label: string }[];
+}) => [{ role: "member", requireTwoFactor: false, loginMethod: null, hasConnection: false, allowedNetworks: [], ...state }];
+const office = [{ range: "192.0.2.0/24", label: "Office" }];
 const applies = policy({ requireTwoFactor: true });
 const relaxed = policy({});
 const ssoOnly = policy({ loginMethod: "sso", hasConnection: true });
@@ -154,12 +162,78 @@ describe("the single sign-on policy in access checks", () => {
   });
 });
 
+describe("approved networks in access checks", () => {
+  it("hold back a session from another address, whatever its role", async () => {
+    for (const role of ["owner", "member", "guest"]) {
+      current = session("u1", true, null, "203.0.113.9");
+      results.push([{ role }], policy({ role, allowedNetworks: office }));
+      const error = await getMembership("u1", "ws1").catch((e: unknown) => e);
+      expect(error, role).toBeInstanceOf(IpNotAllowedError);
+      expect(error).toMatchObject({ workspaceId: "ws1", hold: "ip" });
+    }
+  });
+
+  it("let through an address on the list, an IPv4-mapped one too", async () => {
+    current = session("u1", false, null, "192.0.2.77");
+    results.push(member, policy({ allowedNetworks: office }));
+    expect(await getMembership("u1", "ws1")).toEqual({ role: "member" });
+    current = session("u1", false, null, "::ffff:192.0.2.77");
+    results.push(member, policy({ allowedNetworks: office }));
+    expect(await getMembership("u1", "ws1")).toEqual({ role: "member" });
+  });
+
+  it("hold back a session whose address isn't known once there is a list, and nobody without one", async () => {
+    current = session("u1", true, null, null);
+    results.push(member, policy({ allowedNetworks: office }));
+    await expect(getMembership("u1", "ws1")).rejects.toBeInstanceOf(IpNotAllowedError);
+    current = session("u1", true, null, null);
+    results.push(member, relaxed);
+    expect(await getMembership("u1", "ws1")).toEqual({ role: "member" });
+  });
+
+  it("come before two-step verification and single sign-on: nothing else helps from another network", async () => {
+    current = session("u1", false, null, "203.0.113.9");
+    results.push(member, policy({ requireTwoFactor: true, loginMethod: "sso", hasConnection: true, allowedNetworks: office }));
+    await expect(getMembership("u1", "ws1")).rejects.toBeInstanceOf(IpNotAllowedError);
+    current = session("u1", false, null, "192.0.2.1");
+    results.push(member, policy({ requireTwoFactor: true, allowedNetworks: office }));
+    await expect(getMembership("u1", "ws1")).rejects.toBeInstanceOf(TwoFactorRequiredError);
+  });
+
+  it("hold back only the workspace that has them: the person's other workspaces keep working", async () => {
+    current = session("u1", true, null, "203.0.113.9");
+    results.push(policy({ allowedNetworks: office }), relaxed);
+    expect([...(await workspacesHeldBack("u1", ["ws1", "ws2"]))]).toEqual(["ws1"]);
+  });
+
+  it("don't apply to connected apps, which answer to their own setting", async () => {
+    await runAsConnectedApp({ userId: "u1" }, async () => {
+      current = session("u1", true, null, "203.0.113.9");
+      results.push(member, [{ mode: null }]);
+      expect(await getMembership("u1", "ws1")).toEqual({ role: "member" });
+    });
+  });
+
+  it("check collab connections by the address they come from", async () => {
+    results.push(member, policy({ allowedNetworks: office }));
+    await expect(authorizeCollab("u1", { kind: "ws", id: "ws1" }, { strong: true, ssoProviderId: null, ip: "203.0.113.9" })).rejects.toBeInstanceOf(
+      IpNotAllowedError,
+    );
+    results.push(visiblePage, policy({ allowedNetworks: office }));
+    await expect(authorizeCollab("u1", { kind: "page", id: "p1" })).rejects.toBeInstanceOf(IpNotAllowedError);
+    results.push(member, policy({ allowedNetworks: office }));
+    expect(await authorizeCollab("u1", { kind: "ws", id: "ws1" }, { strong: false, ssoProviderId: null, ip: "192.0.2.5" })).toEqual({
+      readOnly: true,
+    });
+  });
+});
+
 describe("collab connections", () => {
   it("need a session that passes when the workspace requires it", async () => {
     results.push(visiblePage, applies);
     await expect(authorizeCollab("u1", { kind: "page", id: "p1" })).rejects.toBeInstanceOf(TwoFactorRequiredError);
     results.push(visiblePage, applies);
-    expect(await authorizeCollab("u1", { kind: "page", id: "p1" }, { strong: true, ssoProviderId: null })).toEqual({
+    expect(await authorizeCollab("u1", { kind: "page", id: "p1" }, { strong: true, ssoProviderId: null, ip: null })).toEqual({
       readOnly: true,
     });
     results.push(member, applies);
@@ -180,11 +254,11 @@ describe("collab connections", () => {
 
   it("need a single sign-on session in an SSO-only workspace", async () => {
     results.push(member, ssoOnly);
-    await expect(authorizeCollab("u1", { kind: "ws", id: "ws1" }, { strong: true, ssoProviderId: null })).rejects.toBeInstanceOf(
+    await expect(authorizeCollab("u1", { kind: "ws", id: "ws1" }, { strong: true, ssoProviderId: null, ip: null })).rejects.toBeInstanceOf(
       SsoRequiredError,
     );
     results.push(member, ssoOnly);
-    expect(await authorizeCollab("u1", { kind: "ws", id: "ws1" }, { strong: false, ssoProviderId: "ws-ws1" })).toEqual({
+    expect(await authorizeCollab("u1", { kind: "ws", id: "ws1" }, { strong: false, ssoProviderId: "ws-ws1", ip: null })).toEqual({
       readOnly: true,
     });
   });

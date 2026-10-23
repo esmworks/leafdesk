@@ -137,6 +137,18 @@
     "pageUpdated": "{actor}: зміни на цій сторінці",
     "rowEmail": "Лист від {from}",
     "followUp": "Ланцюжок листів «{sequence}» призупинено: наступний лист потрібно переглянути",
+    "reaction": "{actor}: реакція {emoji} на ваш коментар",
+    "reactionExcerpt": "«{text}»",
+    "people": "{others, plural, =0 {{name}} one {{name} і ще # особа} few {{name} і ще # особи} many {{name} і ще # осіб} other {{name} і ще # особи}}",
+    "groupComments": "{count, plural, one {# коментар} few {# коментарі} many {# коментарів} other {# коментаря}}",
+    "groupNewComments": "{count, plural, one {# новий коментар} few {# нові коментарі} many {# нових коментарів} other {# нового коментаря}}",
+    "groupReactions": "{count, plural, one {# реакція} few {# реакції} many {# реакцій} other {# реакції}}",
+    "groupNewReactions": "{count, plural, one {# нова реакція} few {# нові реакції} many {# нових реакцій} other {# нової реакції}}",
+    "groupEdits": "{count, plural, one {# зміна} few {# зміни} many {# змін} other {# зміни}}",
+    "groupNewEdits": "{count, plural, one {# нова зміна} few {# нові зміни} many {# нових змін} other {# нової зміни}}",
+    "groupMarkRead": "Позначити як прочитане",
+    "groupExpand": "Показати всі ({count})",
+    "groupCollapse": "Згорнути",
     "noSubject": "(без теми)",
     "tabs": "Показати",
     "tabAll": "Усі",
@@ -214,7 +226,8 @@
     "private": "Приватні",
     "newPrivate": "Нова приватна сторінка",
     "more": "Ще {count}",
-    "less": "Показати менше"
+    "less": "Показати менше",
+    "meetings": "Зустрічі"
   },
   "joinable": {
     "heading": "Робочі простори, до яких можна приєднатися",

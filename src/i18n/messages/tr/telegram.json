@@ -79,6 +79,7 @@
     "createPage": "{title} sayfası {target} altına eklensin mi?",
     "createPageTop": "{title} sayfası çalışma alanının en üstüne, sana özel olarak eklensin mi?",
     "editPage": "{title} sayfasının metni değiştirilsin mi?",
+    "createPdf": "{target} sayfasının {title} PDF'i oluşturulup oraya eklensin mi?",
     "remember": "Bunu senin hakkında hatırlayayım mı?",
     "forget": "Bu not unutulsun mu?",
     "connection": "Bu, {connection} ({tool}) hizmetine gönderilsin mi?",
@@ -88,7 +89,15 @@
     "no": "Hayır",
     "approved": "Onaylandı.",
     "declined": "Reddedildi.",
-    "gone": "Bu soru artık beklemiyor."
+    "gone": "Bu soru artık beklemiyor.",
+    "addComment": "{target} sayfasına yorum yapılsın mı?",
+    "createDatabase": "{title} veritabanı {target} altına eklensin mi?",
+    "createDatabaseTop": "{title} veritabanı çalışma alanının en üstüne, yalnızca sana özel olarak eklensin mi?",
+    "createForm": "{title} formu {target} veritabanına eklensin mi?",
+    "publicForm": {
+      "signedIn": "Herkese açık bir bağlantısı olacak: bağlantıya sahip herkes giriş yaptıktan sonra yanıtlayabilir.",
+      "anonymous": "Herkese açık bir bağlantısı olacak: bağlantıya sahip herkes giriş yapmadan yanıtlayabilir."
+    }
   },
   "changed": {
     "done": "Yapıldı: {what}",

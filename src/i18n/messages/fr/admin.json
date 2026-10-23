@@ -66,7 +66,8 @@
   "errors": {
     "notFound": "Ce compte est introuvable.",
     "noPassword": "Ce compte n'a pas de mot de passe ; il se connecte autrement.",
-    "self": "Changez votre propre mot de passe sur la page de votre compte."
+    "self": "Changez votre propre mot de passe sur la page de votre compte.",
+    "noWorkspace": "Cet espace de travail est introuvable."
   },
   "descriptionFirstAccount": "Les comptes de ce serveur, leurs sessions et leurs mots de passe. Vous voyez cette page parce que votre compte a été le premier sur ce serveur.",
   "signUp": {
@@ -81,5 +82,16 @@
     "body": "Votre compte est le premier ici, l'Administration du serveur vous revient donc. Toute personne qui atteint cette adresse peut encore s'inscrire ; l'Administration du serveur explique comment fermer les inscriptions.",
     "open": "Administration du serveur",
     "dismiss": "Fermer"
+  },
+  "networks": {
+    "heading": "Réseaux approuvés",
+    "description": "Les espaces de travail qui ne s’ouvrent que depuis des réseaux approuvés. Si une liste ferme l’accès aux propriétaires d’un espace de travail, videz-la ici : il s’ouvre alors depuis n’importe quel réseau jusqu’à ce que ses propriétaires définissent à nouveau la liste.",
+    "none": "Aucun espace de travail ne limite la connexion à des réseaux approuvés",
+    "noneDescription": "Les propriétaires définissent les réseaux approuvés dans Paramètres → Sécurité de leur espace de travail.",
+    "count": "{count, plural, one {# réseau} other {# réseaux}}",
+    "clear": "Vider la liste",
+    "clearTitle": "Vider les réseaux approuvés de {workspace} ?",
+    "clearBody": "Tout le monde dans l’espace de travail pourra à nouveau l’ouvrir depuis n’importe quel réseau, et son journal d’audit indiquera que vous avez vidé la liste. Ses propriétaires peuvent la redéfinir dans Paramètres → Sécurité.",
+    "clearConfirm": "Vider la liste"
   }
 }

@@ -214,21 +214,33 @@
           "updateRow": "Zmieniono wiersz:",
           "createPage": "Dodano stronę:",
           "editPage": "Zmieniono tekst strony:",
-          "mergeRows": "Scalono wiersze w:"
+          "createPdf": "Utworzono PDF:",
+          "mergeRows": "Scalono wiersze w:",
+          "addComment": "Dodano komentarz do:",
+          "createDatabase": "Dodano bazę danych:",
+          "createForm": "Dodano formularz:"
         },
         "declined": {
           "createRow": "Odrzucono dodanie wiersza:",
           "updateRow": "Odrzucono zmianę:",
           "createPage": "Odrzucono dodanie strony:",
           "editPage": "Odrzucono zmianę tekstu:",
-          "mergeRows": "Odrzucono scalenie wierszy w:"
+          "createPdf": "Odrzucono utworzenie PDF:",
+          "mergeRows": "Odrzucono scalenie wierszy w:",
+          "addComment": "Odrzucono komentarz do:",
+          "createDatabase": "Odrzucono dodanie bazy danych:",
+          "createForm": "Odrzucono dodanie formularza:"
         },
         "failed": {
           "createRow": "Nie udało się dodać wiersza:",
           "updateRow": "Nie udało się zmienić:",
           "createPage": "Nie udało się dodać strony:",
           "editPage": "Nie udało się zmienić tekstu:",
-          "mergeRows": "Nie udało się scalić wierszy w:"
+          "createPdf": "Nie udało się utworzyć PDF:",
+          "mergeRows": "Nie udało się scalić wierszy w:",
+          "addComment": "Nie udało się skomentować:",
+          "createDatabase": "Nie udało się dodać bazy danych:",
+          "createForm": "Nie udało się dodać formularza:"
         },
         "in": "w",
         "proposed": {
@@ -236,7 +248,11 @@
           "updateRow": "Zaproponowano do przejrzenia zmianę:",
           "createPage": "Zaproponowano do przejrzenia dodanie strony:",
           "editPage": "Zaproponowano do przejrzenia zmianę tekstu:",
-          "mergeRows": "Zaproponowano scalenie wierszy do przejrzenia w:"
+          "createPdf": "Zaproponowano PDF do sprawdzenia:",
+          "mergeRows": "Zaproponowano scalenie wierszy do przejrzenia w:",
+          "addComment": "Zaproponowano komentarz do przeglądu przy:",
+          "createDatabase": "Zaproponowano bazę danych do przeglądu:",
+          "createForm": "Zaproponowano formularz do przeglądu:"
         }
       },
       "memory": {
@@ -274,7 +290,11 @@
         "remember": "Zapamiętać to o tobie?",
         "forget": "Zapomnieć tę notatkę?",
         "editPage": "Zmienić tekst tej strony?",
-        "connection": "Wysłać to do {connection}?"
+        "createPdf": "Utworzyć PDF tej strony i go dołączyć?",
+        "connection": "Wysłać to do {connection}?",
+        "addComment": "Dodać ten komentarz?",
+        "createDatabase": "Dodać tę bazę danych?",
+        "createForm": "Dodać ten formularz?"
       },
       "in": "W",
       "row": "Wiersz",
@@ -287,7 +307,14 @@
       "waiting": "Oczekiwanie na twoją zgodę",
       "page": "Strona",
       "empty": "(puste)",
-      "connectionHint": "Wysyłane przez połączenie obszaru roboczego: może coś zmienić w {connection}"
+      "connectionHint": "Wysyłane przez połączenie obszaru roboczego: może coś zmienić w {connection}",
+      "fromFile": "{rows, plural, one {# wiersz} few {# wiersze} many {# wierszy} other {# wiersza}} z {name}",
+      "titleColumn": "Tytuł",
+      "publicForm": {
+        "signedIn": "Link publiczny: każdy, kto ma link, może odpowiedzieć po zalogowaniu",
+        "anonymous": "Link publiczny: każdy, kto ma link, może odpowiedzieć bez logowania"
+      },
+      "letterhead": "Papier firmowy: {name}"
     },
     "mode": {
       "label": "Zmiany",
@@ -304,7 +331,20 @@
       "retry": "Odpowiedz ponownie"
     },
     "actionsFor": "Działania dla {name}",
-    "greeting": "Czego chcesz się dowiedzieć?"
+    "greeting": "Czego chcesz się dowiedzieć?",
+    "files": {
+      "attach": "Załącz plik CSV",
+      "attachHint": "Załącz plik CSV (do 1000 wierszy i 1 MB), aby zadać o nim pytanie lub utworzyć z niego bazę danych",
+      "drop": "Upuść plik CSV, aby go załączyć",
+      "remove": "Usuń {name}",
+      "size": "{rows, plural, one {# wiersz} few {# wiersze} many {# wierszy} other {# wiersza}} × {columns, plural, one {# kolumna} few {# kolumny} many {# kolumn} other {# kolumny}}",
+      "notCsv": "Można załączać tylko pliki CSV. Najpierw zapisz arkusz jako CSV.",
+      "tooLarge": "Plik jest większy niż {size}. Załącz mniejszy plik CSV.",
+      "tooManyRows": "Plik ma więcej niż {rows} wierszy. Załącz krótszy plik CSV albo zaimportuj go jako bazę danych.",
+      "tooManyColumns": "Plik ma więcej niż {columns} kolumn.",
+      "empty": "Plik jest pusty.",
+      "tooMany": "Pytanie może mieć najwyżej {count} pliki."
+    }
   },
   "memory": {
     "open": "Pamięć",

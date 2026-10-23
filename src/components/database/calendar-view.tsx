@@ -1,5 +1,6 @@
 "use client";
 
+import { cellMarkClass, colorMarkClass, type RowColors } from "@/lib/color-rules";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { memo, useCallback, useEffect, useMemo, useRef, useState, type DragEvent, type ReactNode } from "react";
@@ -59,6 +60,7 @@ export function CalendarView({
   readOnly,
   locked,
   onCreateDateProperty,
+  colors,
 }: {
   workspaceId: string;
   view: View;
@@ -68,6 +70,8 @@ export function CalendarView({
   readOnly?: boolean;
   locked?: boolean;
   onCreateDateProperty: () => void;
+  /** What the view's color rules color, by row id (see lib/color-rules). */
+  colors?: ReadonlyMap<string, RowColors>;
 }) {
   const t = useTranslations("database");
   const format = useFormatter();
@@ -243,6 +247,7 @@ export function CalendarView({
       workspaceId={workspaceId}
       row={row}
       props={entryProps}
+      color={colors?.get(row.id)}
       time={options.time}
       before={options.before}
       after={options.after}
@@ -661,6 +666,7 @@ const CalendarEntry = memo(function CalendarEntry({
   workspaceId,
   row,
   props,
+  color,
   time,
   before,
   after,
@@ -676,6 +682,8 @@ const CalendarEntry = memo(function CalendarEntry({
   workspaceId: string;
   row: Row;
   props: Property[];
+  /** What color rules color on the entry: the entry, its name or values. */
+  color?: RowColors;
   /** When it starts, for dates with times. */
   time?: string | null;
   /** A bar going on from the week before, or into the week after: that side is cut off. */
@@ -715,6 +723,7 @@ const CalendarEntry = memo(function CalendarEntry({
         block && "h-full overflow-hidden py-0.5",
         dragging && "opacity-40",
         isOpen && "outline-2 outline-accent/60",
+        color?.row && `${colorMarkClass(color.row)} mark-hover`,
       )}
     >
       {editTitle ? (
@@ -723,7 +732,7 @@ const CalendarEntry = memo(function CalendarEntry({
         <div className={cn("flex min-w-0 items-center", block ? "flex-wrap gap-x-1" : "gap-1")}>
           {time && <span className="shrink-0 tabular-nums text-fg-muted">{time}</span>}
           {row.icon && <PageIcon icon={row.icon} className="shrink-0 text-xs" />}
-          <span className={cn("truncate font-medium", block && "min-w-0 grow basis-12", !row.title && "text-fg-faint")}>
+          <span className={cn("truncate font-medium", block && "min-w-0 grow basis-12", !row.title && "text-fg-faint", cellMarkClass(color, "title"))}>
             {pageLabel(row.title, tc("untitled"))}
           </span>
         </div>
@@ -731,7 +740,7 @@ const CalendarEntry = memo(function CalendarEntry({
       {shown.length > 0 && (
         <div className="mt-0.5 flex flex-col gap-0.5 text-fg-muted">
           {shown.map((p) => (
-            <div key={p.id} className="flex min-w-0 items-center" title={p.name}>
+            <div key={p.id} className={cn("flex min-w-0 items-center", cellMarkClass(color, p.id))} title={p.name}>
               <RowValue prop={p} row={row} />
             </div>
           ))}

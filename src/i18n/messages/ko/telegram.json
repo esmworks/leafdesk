@@ -79,6 +79,7 @@
     "createPage": "{title} 페이지를 {target} 아래에 추가할까요?",
     "createPageTop": "{title} 페이지를 워크스페이스 맨 위에 나만 보는 페이지로 추가할까요?",
     "editPage": "{title}의 텍스트를 변경할까요?",
+    "createPdf": "{target}의 PDF {title}을(를) 만들어 그곳에 첨부할까요?",
     "remember": "이 내용을 기억해 둘까요?",
     "forget": "이 메모를 잊을까요?",
     "connection": "이 내용을 {connection}({tool})(으)로 보낼까요?",
@@ -88,7 +89,15 @@
     "no": "아니요",
     "approved": "승인했습니다.",
     "declined": "거절했습니다.",
-    "gone": "이 질문은 더 이상 대기 중이 아닙니다."
+    "gone": "이 질문은 더 이상 대기 중이 아닙니다.",
+    "addComment": "{target}에 댓글을 남길까요?",
+    "createDatabase": "데이터베이스 {title}을(를) {target} 아래에 추가할까요?",
+    "createDatabaseTop": "데이터베이스 {title}을(를) 워크스페이스 최상위에 나만 보도록 추가할까요?",
+    "createForm": "양식 {title}을(를) {target}에 추가할까요?",
+    "publicForm": {
+      "signedIn": "공개 링크가 생깁니다: 링크가 있는 누구나 로그인 후 응답할 수 있습니다.",
+      "anonymous": "공개 링크가 생깁니다: 링크가 있는 누구나 로그인 없이 응답할 수 있습니다."
+    }
   },
   "changed": {
     "done": "완료: {what}",

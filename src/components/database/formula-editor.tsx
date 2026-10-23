@@ -1,6 +1,7 @@
 "use client";
 
-import { ArrowLeft, Check, TriangleAlert } from "lucide-react";
+import { ArrowLeft, Check, Sparkles, TriangleAlert } from "lucide-react";
+import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import { useMemo, useRef, useState } from "react";
 import { Button, cn } from "@/components/ui";
@@ -16,10 +17,14 @@ import {
   type FormulaType,
 } from "@/lib/formula";
 import { quote } from "@/lib/formula/lexer";
+import { useAiAutofill } from "./ai-autofill";
 import { PropertyTypeIcon } from "./property-icons";
 import { useRelations } from "./relation-context";
 import { useSchema } from "./schema-context";
 import type { Property } from "./types";
+
+// Loaded when someone opens it: most formula edits never do.
+const FormulaAiBox = dynamic(() => import("./formula-ai-box").then((m) => m.FormulaAiBox));
 
 const GROUPS: FormulaFunctionGroup[] = ["logic", "text", "number", "date", "list", "style", "conversion"];
 const TYPE_NAMES: FormulaType[] = ["number", "text", "checkbox", "date", "list", "numbers", "rows", "row"];
@@ -55,7 +60,8 @@ export function useFormulaErrorMessage() {
 /**
  * Writes and checks a formula. The expression is edited with property names; it is checked on
  * every keystroke against the database's properties and saved with ids (see lib/derived). Invalid
- * formulas can't be saved; the reason shows under the field.
+ * formulas can't be saved; the reason shows under the field. Where the workspace has AI, the
+ * person may describe the formula instead and take what the AI writes (FormulaAiBox).
  */
 export function FormulaEditor({
   prop,
@@ -73,7 +79,10 @@ export function FormulaEditor({
   const t = useTranslations("database.formula");
   const tName = useTranslations("database");
   const properties = useSchema();
-  const targets = useRelations()?.targets;
+  const relations = useRelations();
+  const targets = relations?.targets;
+  const aiEnabled = useAiAutofill().enabled && Boolean(relations?.databaseId);
+  const [aiOpen, setAiOpen] = useState(false);
   const titleName = tName("nameColumn");
   const errorMessage = useFormulaErrorMessage();
   // Properties of related databases (as the viewer may know them), which prop(current, "…") reads.
@@ -124,12 +133,32 @@ export function FormulaEditor({
             <ArrowLeft className="h-3.5 w-3.5 rtl:-scale-x-100" />
           </button>
         )}
-        <span className="truncate px-1 text-sm font-medium">{t("titleFor", { name })}</span>
+        <span className="flex-1 truncate px-1 text-sm font-medium">{t("titleFor", { name })}</span>
+        {aiEnabled && !aiOpen && (
+          <Button size="sm" variant="ghost" onClick={() => setAiOpen(true)}>
+            <Sparkles className="h-3.5 w-3.5" aria-hidden />
+            {t("ai.open")}
+          </Button>
+        )}
       </div>
       <div className="p-2">
+        {aiEnabled && aiOpen && relations && (
+          <FormulaAiBox
+            databaseId={relations.databaseId}
+            prop={prop}
+            name={name}
+            titleName={titleName}
+            onClose={() => setAiOpen(false)}
+            onUse={(expression) => {
+              setText(expression);
+              setAiOpen(false);
+              requestAnimationFrame(() => area.current?.focus());
+            }}
+          />
+        )}
         <textarea
           ref={area}
-          autoFocus
+          autoFocus={!aiOpen}
           rows={3}
           value={text}
           spellCheck={false}

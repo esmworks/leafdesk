@@ -65,6 +65,20 @@ describe("audit actions", () => {
 });
 
 describe("describeAuditEvent", () => {
+  it("lists the approved networks set, and says when they went", () => {
+    const names = ["192.0.2.0/24 (Office)", "2001:db8::/32"];
+    expect(describeAuditEvent(event("workspace.networks_changed", { details: { names, count: 2 } }), t)).toBe(
+      "Set the approved networks to 192.0.2.0/24 (Office), 2001:db8::/32",
+    );
+    expect(describeAuditEvent(event("workspace.networks_changed", { details: { names: [], count: 0 } }), t)).toBe("Removed the approved networks");
+    expect(describeAuditEvent(event("workspace.networks_changed", { details: { names, count: 2 } }), tTr)).toBe(
+      "Onaylı ağları şöyle ayarladı: 192.0.2.0/24 (Office), 2001:db8::/32",
+    );
+    expect(describeAuditEvent(event("workspace.networks_cleared", { details: { names: [], count: 0 } }), t)).toBe(
+      "Cleared the approved networks as an instance administrator",
+    );
+  });
+
   it("names roles, levels and subjects", () => {
     expect(
       describeAuditEvent(event("member.role_changed", { targetLabel: "Deniz", details: { from: "member", to: "owner" } }), t),

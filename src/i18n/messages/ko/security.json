@@ -91,5 +91,17 @@
     "signedInAs": "{email}(으)로 로그인되어 있습니다.",
     "signOut": "로그아웃",
     "otherWorkspaces": "내 다른 워크스페이스"
+  },
+  "networkGate": {
+    "metaTitle": "승인된 네트워크 전용",
+    "title": "{workspace}은(는) 승인된 네트워크에서만 로그인할 수 있습니다",
+    "body": "이 워크스페이스의 소유자는 사무실이나 VPN 같은 승인된 네트워크에서만 열 수 있게 했는데, 이 연결은 그중 어디에서도 오지 않았습니다. 승인된 네트워크에 연결한 뒤 다시 시도하세요.",
+    "address": "내 주소:",
+    "addressUnknown": "주소를 확인할 수 없습니다.",
+    "askOwner": "여기에서 열 수 있어야 한다면 워크스페이스 소유자에게 이 주소를 추가해 달라고 요청하세요.",
+    "tryAgain": "다시 시도",
+    "signedInAs": "{email}(으)로 로그인했습니다.",
+    "signOut": "로그아웃",
+    "otherWorkspaces": "내 다른 워크스페이스"
   }
 }

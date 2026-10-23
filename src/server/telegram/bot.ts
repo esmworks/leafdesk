@@ -366,9 +366,12 @@ export function approvalText(t: Translator, action: ChatActionView): string {
     lines.push(escapeHtml(t(`approval.${action.action}`)), `<blockquote>${escapeHtml(action.title ?? "")}</blockquote>`);
   } else if (action.action === "createPage" && !action.target) {
     lines.push(html(t, "approval.createPageTop", { title: name(action.title) }));
+  } else if (action.action === "createDatabase" && !action.target) {
+    lines.push(html(t, "approval.createDatabaseTop", { title: name(action.title) }));
   } else {
     lines.push(html(t, `approval.${action.action}`, { title: name(action.title), target: name(action.target?.title) }));
   }
+  if (action.publicForm) lines.push(escapeHtml(t(`approval.publicForm.${action.publicForm}`)));
   for (const change of action.changes.slice(0, 20)) {
     const value = preview(change.value, 200);
     const before = change.before !== undefined ? `${escapeHtml(preview(change.before, 100))} → ` : "";

@@ -1,5 +1,6 @@
 import type { ChecklistItem, PropertyType, SelectOption } from "@/db/schema/app";
 import type { AiCellState } from "@/lib/ai";
+import type { MapTiles } from "@/lib/place";
 import type { PropertyAccessInfo } from "@/lib/property-access";
 import type { TemplateRepeatSummary } from "@/lib/schedule";
 import type {
@@ -60,6 +61,8 @@ export type DatabaseSnapshot = {
   canManageAccess?: boolean;
   /** With full access: the properties that have access rules (they don't apply to the viewer). */
   restrictedPropertyIds?: string[];
+  /** Where map views load their map from (MAP_TILE_URL); null when maps are off on the server. */
+  map?: MapTiles | null;
 };
 
 export type DatabaseAi = {

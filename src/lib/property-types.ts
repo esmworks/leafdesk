@@ -12,6 +12,7 @@ export const PROPERTY_TYPES = [
   "phone",
   "checklist",
   "files",
+  "place",
   "relation",
   "person",
   "created_by",
