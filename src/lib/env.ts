@@ -1,3 +1,4 @@
+import type { MapTiles } from "@/lib/place";
 import { connectionOAuthClientsFrom } from "@/lib/connections";
 import type { OAuthStorageKind } from "@/lib/workspace-storage";
 import { sessionDaysFrom } from "@/lib/session-lifetime";
@@ -204,6 +205,22 @@ export const env = {
   get telegramApiUrl() {
     return (process.env.TELEGRAM_API_URL?.trim() || "https://api.telegram.org").replace(/\/$/, "");
   },
+  /**
+   * GEOCODER_URL: the Nominatim-compatible search API place properties look addresses up with
+   * (server/geocoder.ts); OpenStreetMap's public one when unset, off when set empty (places then
+   * take coordinates only). One set on purpose may be on a private network.
+   */
+  get geocoder() {
+    return geocoderFrom(process.env.GEOCODER_URL);
+  },
+  /**
+   * MAP_TILE_URL ({z}/{x}/{y} template) and MAP_TILE_ATTRIBUTION: where map views load their map
+   * images from and the credit they show; OpenStreetMap's public tiles when unset, maps off when
+   * MAP_TILE_URL is set empty (see mapTilesFrom).
+   */
+  get mapTiles() {
+    return mapTilesFrom(process.env.MAP_TILE_URL, process.env.MAP_TILE_ATTRIBUTION);
+  },
   /** ADMIN_EMAILS: the instance administrators' addresses (see lib/instance-admin.ts). */
   get adminEmails() {
     return adminEmailsFrom(process.env.ADMIN_EMAILS);
@@ -252,4 +269,34 @@ export function storageOAuthAppsFrom(vars: Record<string, string | undefined>): 
     if (clientId && clientSecret) apps[kind] = { clientId, clientSecret };
   }
   return apps;
+}
+
+export const DEFAULT_GEOCODER_URL = "https://nominatim.openstreetmap.org";
+export const DEFAULT_MAP_TILE_URL = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
+export const DEFAULT_MAP_TILE_ATTRIBUTION = "© OpenStreetMap contributors";
+const OSM_COPYRIGHT = "https://www.openstreetmap.org/copyright";
+
+/**
+ * The geocoder GEOCODER_URL names: the public default when unset, none when empty or not an
+ * http(s) address. `trusted`: an address set on purpose, which may be on a private network.
+ */
+export function geocoderFrom(value: string | undefined): { url: string | null; trusted: boolean } {
+  if (value === undefined) return { url: DEFAULT_GEOCODER_URL, trusted: false };
+  const url = value.trim();
+  if (!/^https?:\/\/[^\s/]+/i.test(url)) return { url: null, trusted: false };
+  return { url: url.replace(/\/+$/, ""), trusted: url.replace(/\/+$/, "") !== DEFAULT_GEOCODER_URL };
+}
+
+
+/**
+ * The tiles MAP_TILE_URL names: OpenStreetMap's when unset, none (maps off) when empty or not an
+ * http(s) template with {z}, {x} and {y}. The attribution is plain text; OpenStreetMap's links to
+ * its copyright page.
+ */
+export function mapTilesFrom(url: string | undefined, attribution: string | undefined): MapTiles | null {
+  const template = url === undefined ? DEFAULT_MAP_TILE_URL : url.trim();
+  if (!/^https?:\/\/[^\s]+$/i.test(template) || !["{z}", "{x}", "{y}"].every((part) => template.includes(part))) return null;
+  const isDefault = template === DEFAULT_MAP_TILE_URL;
+  const credit = attribution?.trim() || (isDefault ? DEFAULT_MAP_TILE_ATTRIBUTION : "");
+  return { url: template, attribution: credit.slice(0, 300), attributionUrl: isDefault || /openstreetmap/i.test(credit) ? OSM_COPYRIGHT : null };
 }

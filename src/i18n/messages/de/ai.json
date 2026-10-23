@@ -214,21 +214,33 @@
           "updateRow": "Zeile geändert:",
           "createPage": "Seite hinzugefügt:",
           "editPage": "Seitentext geändert:",
-          "mergeRows": "Zeilen zusammengeführt in:"
+          "createPdf": "PDF erstellt:",
+          "mergeRows": "Zeilen zusammengeführt in:",
+          "addComment": "Kommentiert:",
+          "createDatabase": "Datenbank hinzugefügt:",
+          "createForm": "Formular hinzugefügt:"
         },
         "declined": {
           "createRow": "Hinzufügen der Zeile abgelehnt:",
           "updateRow": "Änderung abgelehnt:",
           "createPage": "Hinzufügen der Seite abgelehnt:",
           "editPage": "Textänderung abgelehnt:",
-          "mergeRows": "Zusammenführen abgelehnt für:"
+          "createPdf": "Erstellen des PDF abgelehnt:",
+          "mergeRows": "Zusammenführen abgelehnt für:",
+          "addComment": "Kommentar abgelehnt:",
+          "createDatabase": "Datenbank abgelehnt:",
+          "createForm": "Formular abgelehnt:"
         },
         "failed": {
           "createRow": "Zeile konnte nicht hinzugefügt werden:",
           "updateRow": "Konnte nicht geändert werden:",
           "createPage": "Seite konnte nicht hinzugefügt werden:",
           "editPage": "Text konnte nicht geändert werden:",
-          "mergeRows": "Zeilen konnten nicht zusammengeführt werden in:"
+          "createPdf": "PDF konnte nicht erstellt werden:",
+          "mergeRows": "Zeilen konnten nicht zusammengeführt werden in:",
+          "addComment": "Kommentar nicht möglich:",
+          "createDatabase": "Datenbank konnte nicht hinzugefügt werden:",
+          "createForm": "Formular konnte nicht hinzugefügt werden:"
         },
         "in": "in",
         "proposed": {
@@ -236,7 +248,11 @@
           "updateRow": "Änderung zur Prüfung vorgeschlagen:",
           "createPage": "Hinzufügen einer Seite zur Prüfung vorgeschlagen:",
           "editPage": "Textänderung zur Prüfung vorgeschlagen:",
-          "mergeRows": "Zusammenführen von Zeilen zur Prüfung vorgeschlagen in:"
+          "createPdf": "Ein PDF zur Prüfung vorgeschlagen:",
+          "mergeRows": "Zusammenführen von Zeilen zur Prüfung vorgeschlagen in:",
+          "addComment": "Kommentar zur Prüfung vorgeschlagen zu:",
+          "createDatabase": "Datenbank zur Prüfung vorgeschlagen:",
+          "createForm": "Formular zur Prüfung vorgeschlagen:"
         }
       },
       "memory": {
@@ -274,7 +290,11 @@
         "remember": "Das über dich merken?",
         "forget": "Diese Notiz vergessen?",
         "editPage": "Den Text dieser Seite ändern?",
-        "connection": "Das an {connection} senden?"
+        "createPdf": "Ein PDF dieser Seite erstellen und anhängen?",
+        "connection": "Das an {connection} senden?",
+        "addComment": "Diesen Kommentar hinzufügen?",
+        "createDatabase": "Diese Datenbank hinzufügen?",
+        "createForm": "Dieses Formular hinzufügen?"
       },
       "in": "In",
       "row": "Zeile",
@@ -287,7 +307,14 @@
       "waiting": "Wartet auf deine Zustimmung",
       "page": "Seite",
       "empty": "(leer)",
-      "connectionHint": "Wird mit der Verbindung des Arbeitsbereichs gesendet: Es kann bei {connection} etwas ändern"
+      "connectionHint": "Wird mit der Verbindung des Arbeitsbereichs gesendet: Es kann bei {connection} etwas ändern",
+      "fromFile": "{rows, plural, one {# Zeile} other {# Zeilen}} aus {name}",
+      "titleColumn": "Titel",
+      "publicForm": {
+        "signedIn": "Öffentlicher Link: Alle mit dem Link können nach der Anmeldung antworten",
+        "anonymous": "Öffentlicher Link: Alle mit dem Link können ohne Anmeldung antworten"
+      },
+      "letterhead": "Briefkopf: {name}"
     },
     "mode": {
       "label": "Änderungen",
@@ -304,7 +331,20 @@
       "retry": "Neu beantworten"
     },
     "actionsFor": "Aktionen für {name}",
-    "greeting": "Was möchtest du wissen?"
+    "greeting": "Was möchtest du wissen?",
+    "files": {
+      "attach": "CSV-Datei anhängen",
+      "attachHint": "Eine CSV-Datei anhängen (bis 1.000 Zeilen und 1 MB), um Fragen dazu zu stellen oder eine Datenbank daraus zu machen",
+      "drop": "CSV-Datei hier ablegen, um sie anzuhängen",
+      "remove": "{name} entfernen",
+      "size": "{rows, plural, one {# Zeile} other {# Zeilen}} × {columns, plural, one {# Spalte} other {# Spalten}}",
+      "notCsv": "Nur CSV-Dateien können angehängt werden. Speichere die Tabelle zuerst als CSV.",
+      "tooLarge": "Die Datei ist größer als {size}. Hänge eine kleinere CSV-Datei an.",
+      "tooManyRows": "Die Datei hat mehr als {rows} Zeilen. Hänge eine kürzere CSV-Datei an oder importiere sie als Datenbank.",
+      "tooManyColumns": "Die Datei hat mehr als {columns} Spalten.",
+      "empty": "Die Datei ist leer.",
+      "tooMany": "Eine Frage kann höchstens {count} Dateien haben."
+    }
   },
   "memory": {
     "open": "Gedächtnis",

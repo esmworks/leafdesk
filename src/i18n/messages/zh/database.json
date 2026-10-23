@@ -20,7 +20,8 @@
     "lastEditedBy": "最后编辑者",
     "lastEditedTime": "最后编辑时间",
     "formula": "公式",
-    "rollup": "汇总"
+    "rollup": "汇总",
+    "place": "地点"
   },
   "views": {
     "table": "表格",
@@ -31,7 +32,8 @@
     "timeline": "时间线",
     "chart": "图表",
     "dashboard": "仪表板",
-    "form": "表单"
+    "form": "表单",
+    "map": "地图"
   },
   "dashboardView": {
     "emptyEditable": "在这里显示此数据库的数字、图表和列表。行发生变化时它们会保持最新。",
@@ -742,7 +744,13 @@
       "panel": "侧边面板",
       "page": "完整页面"
     },
-    "showOutdated": "显示已归档的行"
+    "showOutdated": "显示已归档的行",
+    "place": "地点属性",
+    "needsPlace": "地图按地点属性放置行。",
+    "newPlaceProperty": "新建地点属性",
+    "pinColor": "图钉颜色",
+    "noPinColor": "无",
+    "colorRules": "颜色规则"
   },
   "gallery": {
     "new": "新建",
@@ -878,6 +886,7 @@
     "cannotRestrict": "此属性不能设置单独的访问权限。",
     "typeChangeRestricted": "“{property}”设有访问规则，而该类型的属性不能设置访问规则。请先移除其规则。",
     "typeChangeNamesPeople": "访问规则为“{property}”中的人员授予了访问权限。更改其类型前请先移除这些规则。",
+    "invalidRowAccess": "无法保存这些行访问规则。请刷新后重试。",
     "invalidAutomation": "无法保存此自动化。请检查其触发条件和操作。",
     "tooManyAutomations": "一个数据库最多可以有 {max} 个自动化。",
     "invalidWebhookUrl": "“{value}”不是有效的 http(s) 地址。",
@@ -892,7 +901,11 @@
     "mergeRowsInvalid": "只能合并同一数据库中不在回收站里的行。",
     "mergeRowsReadOnly": "你只能查看 {rows}。合并需要对每一行都有编辑权限。",
     "mergeLinksBlocked": "有 {count} 行关联到这些行，而你无法更改它们：{rows}。没有合并任何内容。",
-    "mergeChoiceInvalid": "为“{property}”选择的值无法使用。请选择另一行的值。"
+    "mergeChoiceInvalid": "为“{property}”选择的值无法使用。请选择另一行的值。",
+    "invalidPlace": "“{property}”接受地址或坐标（纬度, 经度）。",
+    "placeNotFound": "在“{property}”中找不到“{value}”对应的地点。",
+    "geocodingOff": "此服务器已关闭地址搜索：请为“{property}”填写坐标（纬度, 经度）。",
+    "geocoderBusy": "地址搜索繁忙。请稍后再试“{property}”。"
   },
   "formula": {
     "title": "公式",
@@ -912,6 +925,20 @@
     "error": "错误",
     "errorTitle": "无法计算这一行：{message}",
     "or": "或",
+    "ai": {
+      "open": "用描述生成",
+      "title": "用 AI 编写公式",
+      "close": "关闭",
+      "description": "公式要计算的内容",
+      "placeholder": "例如：距截止日期还剩几天，过期后显示“已逾期”",
+      "writing": "正在编写…",
+      "write": "编写公式",
+      "again": "重新编写",
+      "failed": "AI 编写的公式无法运行：{message}",
+      "use": "使用公式",
+      "emptyValue": "空",
+      "noRows": "还没有可用于试算的行。"
+    },
     "groups": {
       "logic": "逻辑",
       "text": "文本",
@@ -1055,6 +1082,35 @@
       "share": "更改数据库的访问权限"
     }
   },
+  "rowAccess": {
+    "menuItem": "行访问权限",
+    "menuHint": "为某一行中指定的人员授予对该行的访问权限",
+    "title": "行访问权限",
+    "description": "为某一行中指定的人员授予对该行及其中页面的访问权限。",
+    "loading": "正在加载…",
+    "rules": "规则",
+    "rulesHint": "每条规则为某个人员属性中的人员或行的创建者授予对其所在行的访问权限。",
+    "noPersonProperties": "添加人员属性，即可为其中指定的人员授予访问权限。行的创建者可能已有规则。",
+    "creator": "创建者",
+    "creatorDetail": "创建该行的人",
+    "personDetail": "此属性中指定的人员（在其各自所在的行中）",
+    "addRule": "添加规则",
+    "levelFor": "{name} 的访问权限",
+    "removeRule": "移除 {name}",
+    "levels": {
+      "full": "完全访问",
+      "edit": "可编辑",
+      "comment": "可评论",
+      "view": "可查看"
+    },
+    "restricted": "仅向行中指定的人员显示该行",
+    "restrictedHint": "其他可以打开数据库的人只能看到规则或行自身的分享所授予的行。",
+    "fullAccess": {
+      "warning": "{count, plural, other {{names}{more, plural, =0 {} other {及另外 # 人}}}} 拥有此数据库的完全访问权限，因此仍可看到所有行。要限制他们，请降低其访问权限，或降低团队空间对成员的访问权限。",
+      "share": "更改数据库的访问权限"
+    },
+    "note": "规则只会增加权限：若分享授予某人更多权限，则保持不变。更改行中的人员会立即改变谁可以打开该行。"
+  },
   "automations": {
     "button": "自动化",
     "title": "自动化",
@@ -1148,6 +1204,7 @@
         "upsert_row": "添加或更新一行",
         "wait": "等待",
         "log": "写入运行记录",
+        "celebrate": "撒彩纸庆祝",
         "approval": "请求审批",
         "start_sequence": "开始跟进"
       },
@@ -1339,7 +1396,9 @@
         "sequenceGone": "跟进已不存在",
         "noMailbox": "自动化的运行人员没有连接邮箱",
         "noAddress": "该行没有邮箱地址",
-        "emailOff": "行中的邮件已关闭"
+        "emailOff": "行中的邮件已关闭",
+        "noPerson": "已跳过：此次运行不是由某人的更改触发的",
+        "tooLate": "已跳过：距更改时间过久，不再庆祝"
       },
       "waitingApproval": "等待审批",
       "approval": {
@@ -1439,7 +1498,9 @@
       "waitHelp": "最多 7 天。运行会等待，然后继续执行下一步。",
       "logMessage": "消息",
       "logPlaceholder": "例如：已导入 {template}",
-      "logHelp": "填入变量后写入运行记录。"
+      "logHelp": "填入变量后写入运行记录。",
+      "celebrateHelp": "为做出触发本次运行之更改的人，在其打开的应用窗口中撒彩纸。无人触发的运行（计划、日期到期、传入的 Webhook、匿名表单回复）会跳过此步骤；在更改两分钟后才到达此步骤的运行也会跳过。",
+      "celebrateTry": "试一试"
     },
     "variables": {
       "button": "插入变量",
@@ -1522,6 +1583,10 @@
         "name": "提醒逾期的行",
         "description": "未完成的行日期过去一天后，通知该行的人。",
         "message": "{title} 已逾期。"
+      },
+      "celebrateDone": {
+        "name": "庆祝完成的行",
+        "description": "当某行被标记为完成时，为标记的人撒彩纸。"
       }
     }
   },
@@ -1603,5 +1668,51 @@
     "confirm": "合并行",
     "merging": "正在合并…",
     "bodyHeading": "合并自 {title}"
+  },
+  "place": {
+    "search": "搜索地址或地点",
+    "input": "{property}：地址或坐标",
+    "coordinatesHint": "或粘贴坐标，例如 41.04, 29.01",
+    "searching": "正在搜索…",
+    "noResults": "未找到地点。",
+    "off": "此服务器已关闭地址搜索。请改为粘贴坐标。",
+    "busy": "当前搜索过多。请稍后再试。",
+    "failed": "地址搜索没有响应。请重试。",
+    "useCoordinates": "使用 {coordinates}",
+    "openMap": "在地图中打开",
+    "clear": "清除",
+    "current": "当前地点"
+  },
+  "map": {
+    "off": "此服务器已关闭地图。",
+    "needsPlaceTitle": "地图会把行放在其地点属性所指的位置",
+    "needsPlaceBody": "此数据库还没有地点属性。",
+    "addPlaceProperty": "添加{name}属性",
+    "defaultPlaceProperty": "地点",
+    "noLocation": "{count, plural, other {# 行}}没有{property}",
+    "noLocationTitle": "没有{property}的行",
+    "label": "按{property}显示行的地图",
+    "pin": "{title}，{place}",
+    "open": "打开",
+    "closeCard": "关闭",
+    "zoomIn": "放大",
+    "zoomOut": "缩小",
+    "fit": "显示所有行",
+    "loading": "正在加载地图…"
+  },
+  "colorRules": {
+    "title": "颜色规则",
+    "description": "为符合条件的行或行中的某个值着色。",
+    "empty": "还没有颜色规则。添加一条规则,为符合的行着色。",
+    "ruleLabel": "{color}规则",
+    "color": "颜色",
+    "colors": "着色对象",
+    "target": "规则着色的对象",
+    "wholeRow": "整行",
+    "moveUp": "上移",
+    "moveDown": "下移",
+    "delete": "删除规则",
+    "add": "添加规则",
+    "firstMatchWins": "多条规则都符合时,由第一条为行或值着色。"
   }
 }

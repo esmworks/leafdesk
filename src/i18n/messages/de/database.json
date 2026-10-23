@@ -20,7 +20,8 @@
     "lastEditedBy": "Zuletzt bearbeitet von",
     "lastEditedTime": "Zuletzt bearbeitet am",
     "formula": "Formel",
-    "rollup": "Rollup"
+    "rollup": "Rollup",
+    "place": "Ort"
   },
   "views": {
     "table": "Tabelle",
@@ -31,7 +32,8 @@
     "timeline": "Zeitleiste",
     "chart": "Diagramm",
     "dashboard": "Dashboard",
-    "form": "Formular"
+    "form": "Formular",
+    "map": "Karte"
   },
   "dashboardView": {
     "emptyEditable": "Zeigen Sie hier Zahlen, Diagramme und Listen aus dieser Datenbank. Sie bleiben aktuell, wenn sich Zeilen ändern.",
@@ -742,7 +744,13 @@
       "panel": "Im Seitenbereich",
       "page": "Als ganze Seite"
     },
-    "showOutdated": "Archivierte Zeilen anzeigen"
+    "showOutdated": "Archivierte Zeilen anzeigen",
+    "place": "Ort-Eigenschaft",
+    "needsPlace": "Karten platzieren Zeilen nach einer Ort-Eigenschaft.",
+    "newPlaceProperty": "Neue Ort-Eigenschaft",
+    "pinColor": "Pinfarbe",
+    "noPinColor": "Keine",
+    "colorRules": "Farbregeln"
   },
   "gallery": {
     "new": "Neu",
@@ -878,6 +886,7 @@
     "cannotRestrict": "Für diese Eigenschaft kann kein eigener Zugriff festgelegt werden.",
     "typeChangeRestricted": "„{property}“ hat Zugriffsregeln, die Eigenschaften dieses Typs nicht haben können. Entferne zuerst die Regeln.",
     "typeChangeNamesPeople": "Zugriffsregeln geben den Personen in „{property}“ Zugriff. Entferne diese Regeln, bevor du den Typ änderst.",
+    "invalidRowAccess": "Diese Zeilenzugriffsregeln können nicht gespeichert werden. Lade die Seite neu und versuche es noch einmal.",
     "invalidAutomation": "Diese Automatisierung kann nicht gespeichert werden. Prüfe ihren Auslöser und ihre Aktionen.",
     "tooManyAutomations": "Eine Datenbank kann höchstens {max} Automatisierungen haben.",
     "invalidWebhookUrl": "„{value}“ ist keine gültige http(s)-Adresse.",
@@ -892,7 +901,11 @@
     "mergeRowsInvalid": "Nur Zeilen derselben Datenbank, die nicht im Papierkorb sind, können zusammengeführt werden.",
     "mergeRowsReadOnly": "Du kannst {rows} nur ansehen. Zum Zusammenführen brauchst du Bearbeitungsrechte für jede Zeile.",
     "mergeLinksBlocked": "{count, plural, one {Eine Zeile verweist} other {# Zeilen verweisen}} auf diese Zeilen, und du kannst {count, plural, one {sie} other {sie}} nicht ändern: {rows}. Es wurde nichts zusammengeführt.",
-    "mergeChoiceInvalid": "Der für „{property}“ gewählte Wert kann nicht verwendet werden. Wähle den Wert einer anderen Zeile."
+    "mergeChoiceInvalid": "Der für „{property}“ gewählte Wert kann nicht verwendet werden. Wähle den Wert einer anderen Zeile.",
+    "invalidPlace": "„{property}“ nimmt eine Adresse oder Koordinaten (Breite, Länge) an.",
+    "placeNotFound": "Für „{value}“ in „{property}“ wurde kein Ort gefunden.",
+    "geocodingOff": "Die Adresssuche ist auf diesem Server aus: Gib für „{property}“ Koordinaten (Breite, Länge) an.",
+    "geocoderBusy": "Die Adresssuche ist ausgelastet. Versuche „{property}“ gleich noch einmal."
   },
   "formula": {
     "title": "Formel",
@@ -912,6 +925,20 @@
     "error": "Fehler",
     "errorTitle": "Diese Zeile kann nicht berechnet werden: {message}",
     "or": "oder",
+    "ai": {
+      "open": "Beschreiben",
+      "title": "Formel mit KI schreiben",
+      "close": "Schließen",
+      "description": "Was die Formel berechnen soll",
+      "placeholder": "Zum Beispiel: Tage bis zum Fälligkeitsdatum, oder „Überfällig“, wenn es vorbei ist",
+      "writing": "Wird geschrieben…",
+      "write": "Formel schreiben",
+      "again": "Neu schreiben",
+      "failed": "Die Formel der KI funktioniert nicht: {message}",
+      "use": "Formel übernehmen",
+      "emptyValue": "Leer",
+      "noRows": "Noch keine Zeilen zum Ausprobieren."
+    },
     "groups": {
       "logic": "Logik",
       "text": "Text",
@@ -1055,6 +1082,35 @@
       "share": "Zugriff auf die Datenbank ändern"
     }
   },
+  "rowAccess": {
+    "menuItem": "Zeilenzugriff",
+    "menuHint": "Gib den in einer Zeile genannten Personen Zugriff auf diese Zeile",
+    "title": "Zeilenzugriff",
+    "description": "Gib den in einer Zeile genannten Personen Zugriff auf diese Zeile und die Seiten darin.",
+    "loading": "Wird geladen …",
+    "rules": "Regeln",
+    "rulesHint": "Jede Regel gibt den Personen in einer Personen-Eigenschaft oder dem Ersteller der Zeile Zugriff auf ihre Zeilen.",
+    "noPersonProperties": "Füge eine Personen-Eigenschaft hinzu, um den darin genannten Personen Zugriff zu geben. Für den Ersteller der Zeile kann schon eine Regel bestehen.",
+    "creator": "Erstellt von",
+    "creatorDetail": "Die Person, die die Zeile erstellt hat",
+    "personDetail": "Die in dieser Eigenschaft genannten Personen, in ihren eigenen Zeilen",
+    "addRule": "Regel hinzufügen",
+    "levelFor": "Zugriff für {name}",
+    "removeRule": "{name} entfernen",
+    "levels": {
+      "full": "Vollzugriff",
+      "edit": "Kann bearbeiten",
+      "comment": "Kann kommentieren",
+      "view": "Kann ansehen"
+    },
+    "restricted": "Zeilen nur den genannten Personen zeigen",
+    "restrictedHint": "Andere, die die Datenbank öffnen können, sehen nur die Zeilen, die ihnen eine Regel oder die Freigabe der Zeile selbst gibt.",
+    "fullAccess": {
+      "warning": "{names}{more, plural, =0 {} other { und # weitere}} {count, plural, one {hat} other {haben}} Vollzugriff auf diese Datenbank, daher {count, plural, one {sieht diese Person} other {sehen sie}} weiterhin jede Zeile. Senken Sie ihren Zugriff oder den Mitgliederzugriff des Teambereichs, um sie einzuschränken.",
+      "share": "Zugriff auf die Datenbank ändern"
+    },
+    "note": "Eine Regel fügt nur Zugriff hinzu: Gibt eine Freigabe jemandem mehr, bleibt das bestehen. Wenn du die Personen einer Zeile änderst, ändert sich sofort, wer sie öffnen kann."
+  },
   "automations": {
     "button": "Automatisierungen",
     "title": "Automatisierungen",
@@ -1148,6 +1204,7 @@
         "upsert_row": "Zeile hinzufügen oder aktualisieren",
         "wait": "Warten",
         "log": "In den Ausführungsverlauf schreiben",
+        "celebrate": "Mit Konfetti feiern",
         "approval": "Freigabe anfragen",
         "start_sequence": "Follow-up starten"
       },
@@ -1339,7 +1396,9 @@
         "sequenceGone": "Das Follow-up gibt es nicht mehr",
         "noMailbox": "Die Person der Automatisierung hat kein Postfach verbunden",
         "noAddress": "Die Zeile hat keine E-Mail-Adresse",
-        "emailOff": "E-Mails in Zeilen sind ausgeschaltet"
+        "emailOff": "E-Mails in Zeilen sind ausgeschaltet",
+        "noPerson": "Übersprungen: Diesen Lauf hat keine Änderung einer Person gestartet",
+        "tooLate": "Übersprungen: zu lange nach der Änderung, um sie zu feiern"
       },
       "waitingApproval": "Wartet auf Freigabe",
       "approval": {
@@ -1439,7 +1498,9 @@
       "waitHelp": "Bis zu 7 Tage. Die Ausführung wartet und geht dann mit dem nächsten Schritt weiter.",
       "logMessage": "Nachricht",
       "logPlaceholder": "Zum Beispiel: {template} importiert",
-      "logHelp": "Wird mit ausgefüllten Variablen in den Ausführungsverlauf geschrieben."
+      "logHelp": "Wird mit ausgefüllten Variablen in den Ausführungsverlauf geschrieben.",
+      "celebrateHelp": "Konfetti in der App für die Person, deren Änderung den Lauf gestartet hat, in ihren offenen Fenstern. Läufe, die niemand gestartet hat (Zeitpläne, verstrichene Daten, eingehende Webhooks, anonyme Formularantworten), überspringen den Schritt, ebenso Läufe, die ihn erst mehr als zwei Minuten nach der Änderung erreichen.",
+      "celebrateTry": "Ausprobieren"
     },
     "variables": {
       "button": "Variable einfügen",
@@ -1522,6 +1583,10 @@
         "name": "An überfällige Zeilen erinnern",
         "description": "Einen Tag nachdem das Datum einer unerledigten Zeile vorbei ist, ihre Personen benachrichtigen.",
         "message": "{title} ist überfällig."
+      },
+      "celebrateDone": {
+        "name": "Erledigte Zeilen feiern",
+        "description": "Wird eine Zeile als erledigt markiert, gibt es Konfetti für die Person, die das getan hat."
       }
     }
   },
@@ -1603,5 +1668,51 @@
     "confirm": "Zeilen zusammenführen",
     "merging": "Wird zusammengeführt…",
     "bodyHeading": "Zusammengeführt aus {title}"
+  },
+  "place": {
+    "search": "Nach Adresse oder Ort suchen",
+    "input": "{property}: Adresse oder Koordinaten",
+    "coordinatesHint": "Oder Koordinaten einfügen, etwa 41.04, 29.01",
+    "searching": "Suche…",
+    "noResults": "Keine Orte gefunden.",
+    "off": "Die Adresssuche ist auf diesem Server aus. Füge stattdessen Koordinaten ein.",
+    "busy": "Gerade zu viele Suchen. Versuche es gleich noch einmal.",
+    "failed": "Die Adresssuche hat nicht geantwortet. Versuche es noch einmal.",
+    "useCoordinates": "{coordinates} verwenden",
+    "openMap": "Auf Karte öffnen",
+    "clear": "Leeren",
+    "current": "Aktueller Ort"
+  },
+  "map": {
+    "off": "Karten sind auf diesem Server aus.",
+    "needsPlaceTitle": "Karten zeigen Zeilen dort, wo ihre Ort-Eigenschaft sie hinsetzt",
+    "needsPlaceBody": "Diese Datenbank hat noch keine Ort-Eigenschaft.",
+    "addPlaceProperty": "Eigenschaft {name} hinzufügen",
+    "defaultPlaceProperty": "Ort",
+    "noLocation": "{count, plural, one {# Zeile} other {# Zeilen}} ohne {property}",
+    "noLocationTitle": "Zeilen ohne {property}",
+    "label": "Karte der Zeilen nach {property}",
+    "pin": "{title}, {place}",
+    "open": "Öffnen",
+    "closeCard": "Schließen",
+    "zoomIn": "Vergrößern",
+    "zoomOut": "Verkleinern",
+    "fit": "Alle Zeilen zeigen",
+    "loading": "Karte wird geladen…"
+  },
+  "colorRules": {
+    "title": "Farbregeln",
+    "description": "Zeilen oder einen ihrer Werte einfärben, wenn sie Bedingungen erfüllen.",
+    "empty": "Noch keine Farbregeln. Füge eine hinzu, um passende Zeilen einzufärben.",
+    "ruleLabel": "Regel {color}",
+    "color": "Farbe",
+    "colors": "Färbt",
+    "target": "Was die Regel einfärbt",
+    "wholeRow": "Die ganze Zeile",
+    "moveUp": "Nach oben",
+    "moveDown": "Nach unten",
+    "delete": "Regel löschen",
+    "add": "Regel hinzufügen",
+    "firstMatchWins": "Passen mehrere Regeln, färbt die erste die Zeile oder den Wert."
   }
 }

@@ -3,16 +3,16 @@ import { cleanSidebarLayout, sidebarOrder, withSection } from "./sidebar-section
 
 describe("sidebarOrder", () => {
   it("starts from the default order", () => {
-    expect(sidebarOrder({})).toEqual(["favorites", "pages", "teamspaces", "shared", "private"]);
+    expect(sidebarOrder({})).toEqual(["favorites", "meetings", "pages", "teamspaces", "shared", "private"]);
   });
 
   it("follows the saved order and appends the sections it leaves out", () => {
-    expect(sidebarOrder({ order: ["private", "pages", "teamspaces"] })).toEqual(["private", "pages", "teamspaces", "favorites", "shared"]);
+    expect(sidebarOrder({ order: ["private", "pages", "teamspaces"] })).toEqual(["private", "pages", "teamspaces", "favorites", "meetings", "shared"]);
   });
 
   it("puts pages just above the teamspaces when the saved order doesn't list it", () => {
-    expect(sidebarOrder({ order: ["private", "teamspaces"] })).toEqual(["private", "pages", "teamspaces", "favorites", "shared"]);
-    expect(sidebarOrder({ order: ["teamspaces", "pages"] })).toEqual(["teamspaces", "pages", "favorites", "shared", "private"]);
+    expect(sidebarOrder({ order: ["private", "teamspaces"] })).toEqual(["private", "pages", "teamspaces", "favorites", "meetings", "shared"]);
+    expect(sidebarOrder({ order: ["teamspaces", "pages"] })).toEqual(["teamspaces", "pages", "favorites", "meetings", "shared", "private"]);
   });
 });
 

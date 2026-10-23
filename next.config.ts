@@ -24,11 +24,14 @@ const config = (phase: string): NextConfig => ({
   ...(process.env.LEAFDESK_STANDALONE === "1" && {
     output: "standalone",
     outputFileTracingRoot: process.cwd(),
+    // pdfmake's fonts, which it reads by path (server/pdf.ts): the trace doesn't see them. One
+    // route is enough, the packages are shared.
+    outputFileTracingIncludes: { "/api/ai/chat": ["./node_modules/.pnpm/pdfmake@*/node_modules/pdfmake/fonts/Roboto/*.ttf"] },
     images: { unoptimized: true },
     typescript: { ignoreBuildErrors: true },
   }),
   // Loaded by the custom server too; keep one copy of each in the process.
-  serverExternalPackages: ["postgres", "@blocknote/server-util", "jsdom", "yjs", "nodemailer", "@earendil-works/pi-ai", "unpdf", "web-push", "imapflow", "mailparser"],
+  serverExternalPackages: ["postgres", "@blocknote/server-util", "jsdom", "yjs", "nodemailer", "@earendil-works/pi-ai", "unpdf", "pdfmake", "web-push", "imapflow", "mailparser"],
   experimental: {
     // Dev only: with the debug channel React waits for debug data sent over the HMR websocket
     // before it hydrates or applies a navigation. The custom server restarts on every server

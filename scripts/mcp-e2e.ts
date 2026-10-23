@@ -821,6 +821,30 @@ async function main() {
   check(viaView.total === 1 && viaView.rows[0].id === rowB.id, "the new view filters rows", viaView);
   const boardUpdated = await mcp.ok("update_database_view", { database_id: dbPage.id, view_id: board.id, name: "Board", filters: [] });
   check(boardUpdated.name === "Board" && !boardUpdated.filters && boardUpdated.group_by === "Status", "update_database_view clears filters and keeps grouping", boardUpdated);
+  const colored = await mcp.ok("update_database_view", {
+    database_id: dbPage.id,
+    view_id: board.id,
+    color_rules: [
+      { color: "red", filters: [{ property: "Urgency", op: "equals", value: "Urgent" }] },
+      { color: "green", property: "title", filters: [{ type: "group", combinator: "or", rules: [{ property: "Status", op: "is_not_empty" }] }] },
+    ],
+  });
+  check(
+    colored.color_rules?.length === 2 &&
+      colored.color_rules[0].color === "red" &&
+      colored.color_rules[0].filters[0].value === "Urgent" &&
+      colored.color_rules[1].property === "title",
+    "update_database_view stores color rules by name",
+    colored,
+  );
+  const colorBad = await mcp.call("update_database_view", {
+    database_id: dbPage.id,
+    view_id: board.id,
+    color_rules: [{ color: "red", filters: [{ property: "Nope", op: "equals", value: 1 }] }],
+  });
+  check(colorBad.isError === true, "a color rule on an unknown property is refused", colorBad);
+  const uncolored = await mcp.ok("update_database_view", { database_id: dbPage.id, view_id: board.id, color_rules: [] });
+  check(!uncolored.color_rules, "an empty color_rules clears them", uncolored);
   const tagBoard = await mcp.ok("create_database_view", { database_id: dbPage.id, name: "By tag", type: "board", group_by: "Tags" });
   check(tagBoard.group_by === "Tags", "boards group by multi-select properties too", tagBoard);
   const groupedTable = await mcp.ok("create_database_view", { database_id: dbPage.id, name: "Grouped", group_by: "Status", hide_empty_groups: true });

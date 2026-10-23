@@ -91,5 +91,17 @@
     "signedInAs": "Signed in as {email}.",
     "signOut": "Sign out",
     "otherWorkspaces": "Your other workspaces"
+  },
+  "networkGate": {
+    "metaTitle": "Approved networks only",
+    "title": "{workspace} only allows sign-in from approved networks",
+    "body": "The owners of this workspace let people open it only from approved networks, such as the office or a VPN, and this connection doesn't come from one of them. Connect from an approved network and try again.",
+    "address": "Your address:",
+    "addressUnknown": "Your address couldn't be determined.",
+    "askOwner": "If you should be able to open it from here, ask an owner of the workspace to add this address.",
+    "tryAgain": "Try again",
+    "signedInAs": "Signed in as {email}.",
+    "signOut": "Sign out",
+    "otherWorkspaces": "Your other workspaces"
   }
 }

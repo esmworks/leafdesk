@@ -5,6 +5,7 @@
  * and client-safe: server/row-activity.ts records entries, server/row-activity-feed.ts lists them.
  */
 
+import { asPlace, placeLabel } from "./place";
 import { atLeast } from "./property-access";
 import type { AccessRow, PropertyAccess } from "./property-access-rows";
 import { isReadOnlyType, type PropertyType } from "./property-types";
@@ -203,6 +204,11 @@ export function resolveValue(
         };
       }
       break;
+    case "place": {
+      const place = asPlace(stored);
+      if (place) return { type: "text", text: placeLabel(place) };
+      break;
+    }
     case "checklist":
       if (Array.isArray(stored)) {
         const items = stored.filter((i): i is { checked?: unknown } => Boolean(i) && typeof i === "object");

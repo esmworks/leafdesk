@@ -232,6 +232,8 @@
     "pageUpdated": "{actor}: зміни на цій сторінці",
     "rowEmail": "Лист від {from}",
     "followUp": "Ланцюжок листів «{sequence}» призупинено: наступний лист потрібно переглянути",
+    "reaction": "{actor}: реакція {emoji} на ваш коментар",
+    "people": "{others, plural, =0 {{name}} one {{name} і ще # особа} few {{name} і ще # особи} many {{name} і ще # осіб} other {{name} і ще # особи}}",
     "someone": "Хтось",
     "joinRequestTitle": "Запит на приєднання",
     "joinRequest": "{actor} просить приєднатися",

@@ -12,6 +12,7 @@ import { findMatches, matchIndexAt, type FindMatch } from "@/lib/find-replace";
 export type FindState = {
   query: string;
   caseSensitive: boolean;
+  matchAccents: boolean;
   locale: string | undefined;
   matches: FindMatch[];
   /** Index of the current match, -1 when there are none. */
@@ -24,6 +25,7 @@ export type FindState = {
 export type FindMeta = {
   query?: string;
   caseSensitive?: boolean;
+  matchAccents?: boolean;
   locale?: string;
   /** Make this match the current one. */
   current?: number;
@@ -41,6 +43,7 @@ const CURRENT = "leafdesk-find-match leafdesk-find-current";
 const EMPTY: FindState = {
   query: "",
   caseSensitive: false,
+  matchAccents: false,
   locale: undefined,
   matches: [],
   current: -1,
@@ -73,12 +76,14 @@ function apply(tr: Transaction, prev: FindState, state: EditorState): FindState 
   if (!meta && !tr.docChanged) return prev;
   const query = meta?.query ?? prev.query;
   const caseSensitive = meta?.caseSensitive ?? prev.caseSensitive;
+  const matchAccents = meta?.matchAccents ?? prev.matchAccents;
   const locale = meta?.locale ?? prev.locale;
-  if (!query) return prev.query ? { ...EMPTY, caseSensitive, locale, reveal: prev.reveal } : prev;
+  if (!query) return prev.query ? { ...EMPTY, caseSensitive, matchAccents, locale, reveal: prev.reveal } : prev;
 
-  const searchChanged = query !== prev.query || caseSensitive !== prev.caseSensitive || locale !== prev.locale;
+  const searchChanged =
+    query !== prev.query || caseSensitive !== prev.caseSensitive || matchAccents !== prev.matchAccents || locale !== prev.locale;
   // Matches are found again after every change to the document, local or remote.
-  const matches = searchChanged || tr.docChanged ? findMatches(state.doc, query, { caseSensitive, locale }) : prev.matches;
+  const matches = searchChanged || tr.docChanged ? findMatches(state.doc, query, { caseSensitive, matchAccents, locale }) : prev.matches;
 
   let current: number;
   if (meta?.current !== undefined && matches.length > 0) current = Math.max(0, Math.min(meta.current, matches.length - 1));
@@ -89,6 +94,7 @@ function apply(tr: Transaction, prev: FindState, state: EditorState): FindState 
   return {
     query,
     caseSensitive,
+    matchAccents,
     locale,
     matches,
     current,

@@ -1,4 +1,5 @@
 import type { PropertyOptions } from "@/db/schema/app";
+import { placeText } from "./place";
 import { dateMillis, parseDateValue } from "./date-value";
 import { isErrorValue } from "./derived";
 import { asFiles } from "./files";
@@ -67,6 +68,7 @@ const VALUE_KINDS: Record<string, ValueKind> = {
   url: "text",
   email: "text",
   phone: "text",
+  place: "text",
   number: "number",
   date: "date",
   [CREATED_KEY]: "date",
@@ -169,7 +171,8 @@ function items(value: unknown, kind: ValueKind, options: PropertyOptions | undef
     case "date":
       return dateBounds(value) ? [value] : [];
     case "text":
-      return [String(value)];
+      // A place counts by its address.
+      return [typeof value === "object" ? placeText(value) : String(value)];
     case "other":
       return Array.isArray(value) ? value : [value];
   }

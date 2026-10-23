@@ -79,6 +79,7 @@
     "createPage": "להוסיף את הדף {title} תחת {target}?",
     "createPageTop": "להוסיף את הדף {title} בראש סביבת העבודה, פרטי לכם?",
     "editPage": "לשנות את הטקסט של {title}?",
+    "createPdf": "ליצור את ה־PDF {title} מ־{target} ולצרף אותו שם?",
     "remember": "לזכור את זה עליכם?",
     "forget": "לשכוח את ההערה הזו?",
     "connection": "לשלוח את זה אל {connection} ({tool})?",
@@ -88,7 +89,15 @@
     "no": "לא",
     "approved": "אושר.",
     "declined": "נדחה.",
-    "gone": "השאלה הזו כבר לא ממתינה."
+    "gone": "השאלה הזו כבר לא ממתינה.",
+    "addComment": "להגיב ב־{target}?",
+    "createDatabase": "להוסיף את מסד הנתונים {title} תחת {target}?",
+    "createDatabaseTop": "להוסיף את מסד הנתונים {title} בראש סביבת העבודה, פרטי לך?",
+    "createForm": "להוסיף את הטופס {title} ל־{target}?",
+    "publicForm": {
+      "signedIn": "יהיה לו קישור ציבורי: כל מי שיש לו אותו יכול לענות אחרי התחברות.",
+      "anonymous": "יהיה לו קישור ציבורי: כל מי שיש לו אותו יכול לענות בלי להתחבר."
+    }
   },
   "changed": {
     "done": "בוצע: {what}",

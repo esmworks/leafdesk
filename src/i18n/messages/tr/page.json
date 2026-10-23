@@ -49,6 +49,7 @@
     "exportZip": "Alt sayfalarla dışa aktar",
     "exportZipDatabase": "Satırlarla dışa aktar",
     "exportPdf": "PDF olarak dışa aktar",
+    "printView": "Yazdır",
     "exportPreparing": "Dışa aktarma hazırlanıyor…",
     "versionHistory": "Sürüm geçmişi",
     "lastEdited": "Son düzenleyen: {name}",
@@ -76,11 +77,13 @@
     "filters": {
       "open": "Açık",
       "resolved": "Çözülen",
+      "marked": "İşaretli",
       "all": "Tümü"
     },
     "empty": {
       "open": "Açık yorum yok. Yorum başlatmak için sayfada bir metin seçip Yorum'u seçin.",
       "resolved": "Çözülen yorum yok.",
+      "marked": "Daha sonra dönmek için işaretlediğiniz konuşma yok. Bir konuşmanın menüsünden “Sonra dön”ü seçin.",
       "all": "Henüz yorum yok. Yorum başlatmak için sayfada bir metin seçip Yorum'u seçin."
     },
     "threadMenu": "Yorum konusu seçenekleri",
@@ -90,7 +93,19 @@
     "unmuteHint": "Bu konudaki yeni yanıtlardan yeniden haberdar olun.",
     "muted": "Yanıtlar sessizde",
     "mutedHint": "Burada yanıt yazana ya da biri sizi burada anana kadar bu konudaki yanıtlardan haberdar olmazsınız.",
-    "mergedFrom": "“{title}” satırından"
+    "mergedFrom": "“{title}” satırından",
+    "sort": {
+      "label": "Konuşmaları sırala",
+      "recent": "En son hareket önce",
+      "page": "Sayfadaki sırayla"
+    },
+    "new": "Yeni",
+    "marked": "Sonra dönmek için işaretli",
+    "markedHint": "Bu konuşmayı daha sonra dönmek için işaretlediniz. Bunu yalnızca siz görürsünüz.",
+    "mark": "Sonra dön",
+    "unmark": "“Sonra dön” işaretini kaldır",
+    "markHint": "İşareti kaldırana kadar bu konuşma İşaretli altında kalır. Yalnızca siz görürsünüz.",
+    "unmarkHint": "Bu konuşmayı İşaretli listenizden çıkarın."
   },
   "archived": {
     "banner": "Bu sayfa çöp kutusunda.",
@@ -332,6 +347,7 @@
     "replacePlaceholder": "Şununla değiştir",
     "noResults": "Sonuç yok",
     "matchCase": "Büyük/küçük harf duyarlı",
+    "matchAccents": "Aksanları ayırt et",
     "previous": "Önceki eşleşme (Shift+Enter)",
     "next": "Sonraki eşleşme (Enter)",
     "showReplace": "Değiştirmeyi göster",
@@ -587,6 +603,17 @@
     "openInNewTab": "Yeni sekmede aç",
     "frameTitle": "PDF: {name}",
     "noPreview": "Bu tarayıcı PDF'leri burada gösteremiyor. Okumak için dosyayı açın."
+  },
+  "pdfExport": {
+    "title": "PDF olarak dışa aktar",
+    "letterhead": "Antet",
+    "none": "Antetsiz",
+    "defaultMark": "{name} (varsayılan)",
+    "noLetterheads": "Sahipler Ayarlar → PDF şablonları'ndan logolu ve şirket bilgili antet ekleyebilir.",
+    "properties": "Satırın alanlarını ekle",
+    "hint": "Diyagramlar ve denklemler metin olarak basılır; sayfayı göründüğü gibi almak için Yazdır'ı kullanın.",
+    "download": "İndir",
+    "preparing": "Hazırlanıyor…"
   },
   "spreadsheet": {
     "untitled": "Çalışma kitabı",

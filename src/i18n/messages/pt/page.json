@@ -49,6 +49,7 @@
     "exportZip": "Exportar com subpáginas",
     "exportZipDatabase": "Exportar com as páginas das linhas",
     "exportPdf": "Exportar como PDF",
+    "printView": "Imprimir",
     "exportPreparing": "Preparando a exportação…",
     "versionHistory": "Histórico de versões",
     "lastEdited": "Última edição por {name}",
@@ -76,11 +77,13 @@
     "filters": {
       "open": "Abertos",
       "resolved": "Resolvidos",
+      "marked": "Marcados",
       "all": "Todos"
     },
     "empty": {
       "open": "Nenhum comentário aberto. Selecione um texto na página e escolha Comentar para começar.",
       "resolved": "Nenhum comentário resolvido.",
+      "marked": "Nenhuma conversa marcada para voltar depois. Escolha “Voltar depois” no menu de uma conversa.",
       "all": "Nenhum comentário ainda. Selecione um texto na página e escolha Comentar para começar."
     },
     "threadMenu": "Opções da conversa",
@@ -90,7 +93,19 @@
     "unmuteHint": "Volte a ser avisado sobre novas respostas nesta conversa.",
     "muted": "Respostas silenciadas",
     "mutedHint": "Você não é avisado sobre respostas nesta conversa até responder aqui ou alguém mencionar você aqui.",
-    "mergedFrom": "De “{title}”"
+    "mergedFrom": "De “{title}”",
+    "sort": {
+      "label": "Ordenar conversas",
+      "recent": "Atividade mais recente primeiro",
+      "page": "Na ordem da página"
+    },
+    "new": "Novo",
+    "marked": "Marcada para voltar depois",
+    "markedHint": "Você marcou esta conversa para voltar depois. Só você vê isso.",
+    "mark": "Voltar depois",
+    "unmark": "Remover “Voltar depois”",
+    "markHint": "A conversa fica em Marcados até você tirar a marca. Só você a vê.",
+    "unmarkHint": "Tirar esta conversa da sua lista de Marcados."
   },
   "archived": {
     "banner": "Esta página está na lixeira.",
@@ -332,6 +347,7 @@
     "replacePlaceholder": "Substituir por",
     "noResults": "Nenhum resultado",
     "matchCase": "Diferenciar maiúsculas e minúsculas",
+    "matchAccents": "Diferenciar acentos",
     "previous": "Resultado anterior (Shift+Enter)",
     "next": "Próximo resultado (Enter)",
     "showReplace": "Mostrar substituição",
@@ -587,6 +603,17 @@
     "openInNewTab": "Abrir em uma nova aba",
     "frameTitle": "PDF: {name}",
     "noPreview": "Este navegador não consegue exibir PDFs aqui. Abra o arquivo para lê-lo."
+  },
+  "pdfExport": {
+    "title": "Exportar como PDF",
+    "letterhead": "Papel timbrado",
+    "none": "Nenhum",
+    "defaultMark": "{name} (padrão)",
+    "noLetterheads": "Os proprietários podem adicionar papéis timbrados com logotipo e dados da empresa em Configurações → Modelos de PDF.",
+    "properties": "Incluir os valores da linha",
+    "hint": "Diagramas e equações são impressos como texto; use Imprimir para ter a página exatamente como ela aparece.",
+    "download": "Baixar",
+    "preparing": "Preparando…"
   },
   "spreadsheet": {
     "untitled": "Pasta de trabalho",

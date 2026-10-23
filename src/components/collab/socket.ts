@@ -55,7 +55,10 @@ async function getCollabToken(): Promise<string> {
 export type OfflineCopy = {
   /** Whatever was stored has been loaded into the doc (or there was nothing / no storage). */
   readonly loaded: boolean;
-  /** The stored copy had a body: the page can be shown and edited before the server answers. */
+  /**
+   * The stored copy had a body, or is a downloaded one (whole even when empty): the page can be
+   * shown and edited before the server answers.
+   */
   readonly hadContent: boolean;
   /** Edits made in this browser that the server hasn't confirmed yet. */
   readonly dirty: boolean;
@@ -242,7 +245,8 @@ function keepOfflineCopy(entry: Entry, userId: string, pageId: string): OfflineC
     if (attached || !entries.has(entry.name)) return;
     attached = true;
     state.loaded = true;
-    state.hadContent = doc.getXmlFragment(COLLAB_FRAGMENT).length > 0;
+    // A downloaded copy is whole even with an empty body (a database's, a blank page's).
+    state.hadContent = doc.getXmlFragment(COLLAB_FRAGMENT).length > 0 || pageId in readOfflineState(userId).copies;
     provider.attach();
     emit();
   };
@@ -305,6 +309,11 @@ function keepOfflineCopy(entry: Entry, userId: string, pageId: string): OfflineC
       return () => void listeners.delete(listener);
     },
   };
+}
+
+/** Whether this tab holds the document right now (a page open, or kept for a moment after). */
+export function isDocOpen(name: string) {
+  return entries.has(name);
 }
 
 /** Closes every stored page copy (before sign-out wipes them; open databases would block that). */

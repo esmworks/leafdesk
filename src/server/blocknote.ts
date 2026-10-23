@@ -35,6 +35,7 @@ import {
 import { databaseBlockConfig, linkedViewBlockConfig, referenceLine, isEmbedBlockType } from "@/lib/embed-blocks";
 import { dashboardBlockConfig } from "@/lib/dashboard";
 import { agentChatBlockConfig } from "@/lib/agent-chat";
+import { meetingBlockConfig, meetingProps, parseAttendees, parseTakeaways } from "@/lib/meetings";
 import { markdownToPageBlocks } from "@/lib/page-markdown";
 import { textScriptStyleSpecs } from "@/lib/text-scripts";
 import { syncedBlockConfig } from "@/lib/synced-blocks";
@@ -129,6 +130,45 @@ const contentBlockSpecs = {
   subpages: createBlockSpec(subpagesBlockConfig, marker("subpages"))(),
 };
 
+/**
+ * A meeting on the server: its title, who came, and its takeaways as plain HTML, which published
+ * pages, the print view and HTML exports show. The transcript stays in the app (and in the page's
+ * Markdown).
+ */
+function meetingElement(raw: Record<string, unknown>) {
+  const props = meetingProps(raw);
+  const dom = document.createElement("div");
+  dom.setAttribute("data-leafdesk-meeting", "");
+  const title = document.createElement("h3");
+  title.textContent = props.title.trim() || "Meeting";
+  dom.appendChild(title);
+  const attendees = parseAttendees(props.attendees);
+  if (attendees.length) {
+    const who = document.createElement("p");
+    who.textContent = attendees.map((a) => a.name).join(", ");
+    dom.appendChild(who);
+  }
+  const sections = [
+    ["Summary", props.summary],
+    ["Decisions", props.decisions],
+    ["Action items", props.actions],
+  ] as const;
+  for (const [label, lines] of sections) {
+    const items = parseTakeaways(lines);
+    if (!items.length) continue;
+    const heading = document.createElement("h4");
+    heading.textContent = label;
+    const list = document.createElement("ul");
+    for (const item of items) {
+      const li = document.createElement("li");
+      li.textContent = item.assignee ? `${item.assignee}: ${item.text}` : item.text;
+      list.appendChild(li);
+    }
+    dom.append(heading, list);
+  }
+  return { dom };
+}
+
 const inlineMath = createInlineContentSpec(inlineMathConfig, {
   meta: { code: true },
   render: () => {
@@ -182,6 +222,8 @@ export const pageSchema = BlockNoteSchema.create({
     syncedBlock: createBlockSpec(syncedBlockConfig, marker("syncedBlock"))(),
     // Only the agent's and the chat's ids: what is said in it is each reader's own.
     agentChat: createBlockSpec(agentChatBlockConfig, marker("agentChat"))(),
+    // Everything in its props (lib/meetings); its Markdown is its region, transcript included.
+    meeting: createBlockSpec(meetingBlockConfig, { render: (block) => meetingElement(block.props) })(),
     ...columnBlockSpecs(),
   },
   inlineContentSpecs: { ...defaultInlineContentSpecs, inlineMath, footnote, mention },

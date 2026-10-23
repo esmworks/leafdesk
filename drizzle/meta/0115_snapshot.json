@@ -1,5 +1,5 @@
 {
-  "id": "efd97617-0d9b-4be4-9157-12cc1670bcd4",
+  "id": "aeb5e164-e6da-4c78-9c5b-15487db096ed",
   "prevId": "caad4613-bfbf-43ee-9577-3a6456a3965b",
   "version": "7",
   "dialect": "postgresql",
@@ -2765,12 +2765,12 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.property_comment": {
-      "name": "property_comment",
+    "public.pdf_letterhead": {
+      "name": "pdf_letterhead",
       "schema": "",
       "columns": {
-        "page_id": {
-          "name": "page_id",
+        "id": {
+          "name": "id",
           "type": "text",
           "primaryKey": true,
           "notNull": true
@@ -2781,11 +2781,84 @@
           "primaryKey": false,
           "notNull": true
         },
-        "threads": {
-          "name": "threads",
-          "type": "bytea",
+        "name": {
+          "name": "name",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
+        },
+        "header": {
+          "name": "header",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "footer": {
+          "name": "footer",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "logo_place": {
+          "name": "logo_place",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'left'"
+        },
+        "accent": {
+          "name": "accent",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "page_numbers": {
+          "name": "page_numbers",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "is_default": {
+          "name": "is_default",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "logo": {
+          "name": "logo",
+          "type": "bytea",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "logo_type": {
+          "name": "logo_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "logo_updated_at": {
+          "name": "logo_updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
         },
         "updated_at": {
           "name": "updated_at",
@@ -2795,24 +2868,49 @@
           "default": "now()"
         }
       },
-      "indexes": {},
-      "foreignKeys": {
-        "property_comment_page_id_page_id_fk": {
-          "name": "property_comment_page_id_page_id_fk",
-          "tableFrom": "property_comment",
-          "tableTo": "page",
-          "columnsFrom": [
-            "page_id"
+      "indexes": {
+        "pdf_letterhead_name_idx": {
+          "name": "pdf_letterhead_name_idx",
+          "columns": [
+            {
+              "expression": "workspace_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "lower(\"name\")",
+              "asc": true,
+              "isExpression": true,
+              "nulls": "last"
+            }
           ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
         },
-        "property_comment_workspace_id_workspace_id_fk": {
-          "name": "property_comment_workspace_id_workspace_id_fk",
-          "tableFrom": "property_comment",
+        "pdf_letterhead_default_idx": {
+          "name": "pdf_letterhead_default_idx",
+          "columns": [
+            {
+              "expression": "workspace_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "where": "\"pdf_letterhead\".\"is_default\"",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "pdf_letterhead_workspace_id_workspace_id_fk": {
+          "name": "pdf_letterhead_workspace_id_workspace_id_fk",
+          "tableFrom": "pdf_letterhead",
           "tableTo": "workspace",
           "columnsFrom": [
             "workspace_id"
@@ -2821,6 +2919,19 @@
             "id"
           ],
           "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "pdf_letterhead_created_by_user_id_fk": {
+          "name": "pdf_letterhead_created_by_user_id_fk",
+          "tableFrom": "pdf_letterhead",
+          "tableTo": "user",
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
           "onUpdate": "no action"
         }
       },
@@ -3015,7 +3126,7 @@
       "checkConstraints": {
         "row_activity_actor_kind_check": {
           "name": "row_activity_actor_kind_check",
-          "value": "\"row_activity\".\"actor_kind\" in ('user', 'agent', 'automation', 'ai', 'form', 'button')"
+          "value": "\"row_activity\".\"actor_kind\" in ('user', 'agent', 'automation', 'ai', 'form')"
         },
         "row_activity_kind_check": {
           "name": "row_activity_kind_check",

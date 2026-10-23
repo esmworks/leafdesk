@@ -132,6 +132,49 @@ describe("database blocks in page bodies", () => {
     expect(appended).toEqual([]);
   });
 
+  it("write a meeting as its region, keep it on a rewrite, and make plain blocks of it elsewhere", async () => {
+    const meeting = {
+      meetingId: "m1",
+      title: "Weekly sync",
+      status: "done",
+      seconds: 90,
+      transcript: JSON.stringify([
+        { c: 0, t: 0, d: 30, x: "We ship in May." },
+        { c: 1, t: 30, d: 30, x: "Ayşe tells the customer." },
+      ]),
+      summary: "- Shipping moves to May [00:00]",
+      actions: "- [ ] @Ayşe: Tell the customer [00:30]",
+    };
+    const existing = read(
+      docFrom([
+        { type: "paragraph", content: "Notes" },
+        { id: "meet1", type: "meeting", props: meeting },
+      ]),
+    );
+    expect(existing[1].props).toMatchObject(meeting);
+    const markdown = (await blocksToMarkdown(existing)).trim();
+    expect(markdown).toContain("<!-- leafdesk:meeting m1 -->\n### Weekly sync");
+    expect(markdown).toContain("- [00:30] Ayşe tells the customer.");
+    expect(markdown).toContain("- [ ] @Ayşe: Tell the customer [00:30]");
+    expect(markdown.endsWith("<!-- leafdesk:/meeting -->")).toBe(true);
+    expect(blocksToPlainText(existing)).toContain("Ayşe tells the customer.");
+
+    const kept = await markdownToBlocks(`${markdown}\n\nNew`, existing);
+    expect(kept.map((b) => [b.type, b.id ?? null])).toEqual([
+      ["paragraph", expect.anything()],
+      ["meeting", "meet1"],
+      ["paragraph", expect.anything()],
+    ]);
+    expect(kept[1].props).toMatchObject(meeting);
+    expect(kept[1].children).toEqual([]);
+
+    // Added to a page (or written where the page has no such meeting): its text, as blocks.
+    const appended = await markdownToBlocks(markdown, existing, { keepMissingInline: false });
+    expect(appended.some((b) => b.type === "meeting")).toBe(false);
+    expect(blocksToPlainText(appended)).toContain("Tell the customer");
+    expect(appended.find((b) => b.type === "heading")).toBeTruthy();
+  });
+
   it("points copied inline databases at their copies, not linked views", () => {
     const doc = docFrom([
       { type: "database", props: { databaseId: DB } },

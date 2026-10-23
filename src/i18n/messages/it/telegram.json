@@ -79,6 +79,7 @@
     "createPage": "Aggiungere la pagina {title} sotto {target}?",
     "createPageTop": "Aggiungere la pagina {title} in cima allo spazio di lavoro, privata per te?",
     "editPage": "Modificare il testo di {title}?",
+    "createPdf": "Creare il PDF {title} di {target} e allegarlo lì?",
     "remember": "Ricordo questo di te?",
     "forget": "Dimenticare questa nota?",
     "connection": "Inviare questo a {connection} ({tool})?",
@@ -88,7 +89,15 @@
     "no": "No",
     "approved": "Approvato.",
     "declined": "Rifiutato.",
-    "gone": "Questa domanda non è più in attesa."
+    "gone": "Questa domanda non è più in attesa.",
+    "addComment": "Commentare {target}?",
+    "createDatabase": "Aggiungere il database {title} sotto {target}?",
+    "createDatabaseTop": "Aggiungere il database {title} in cima allo spazio di lavoro, privato per te?",
+    "createForm": "Aggiungere il modulo {title} a {target}?",
+    "publicForm": {
+      "signedIn": "Avrà un link pubblico: chiunque lo abbia può rispondere dopo aver effettuato l’accesso.",
+      "anonymous": "Avrà un link pubblico: chiunque lo abbia può rispondere senza accedere."
+    }
   },
   "changed": {
     "done": "Fatto: {what}",

@@ -5,6 +5,7 @@ import type { ChatChange, ChatConnectionRecord, ChatMemoryRecord, ChatStepRecord
 import type { PageKind } from "@/db/schema/app";
 import type { BlockChange } from "./page-diff";
 import type { AiErrorCode } from "./ai";
+import type { ChatAttachmentView } from "./chat-attachments";
 
 /** Conversations kept per person and workspace; the oldest go first. */
 export const MAX_CONVERSATIONS = 50;
@@ -20,7 +21,7 @@ export type MemoryView = { id: string; text: string; app: string | null; created
 /** What the chat answers from: the whole workspace, or a page and the pages under it. */
 export type ChatScope = { pageId: string } | null;
 
-export type { ChatChange, ChatConnectionRecord, ChatMemoryRecord, ChatWriteAction, ChatWriteStepAction };
+export type { ChatAttachmentView, ChatChange, ChatConnectionRecord, ChatMemoryRecord, ChatWriteAction, ChatWriteStepAction };
 
 /**
  * What the chat may change: `ask` asks the person before each change (the answer waits), `auto`
@@ -100,6 +101,17 @@ export type ChatActionView = {
   content: string | null;
   /** A page's text changed: the blocks it changes, with one unchanged block around each. */
   diff?: BlockChange[];
+  /** A PDF: the letterhead it prints in, when it has one. */
+  letterhead?: string;
+  /**
+   * A database added: its properties, by name, with their type and options (`changes` says the
+   * same in words, for the Telegram bot). A form added: who its public link takes answers from,
+   * when it gets one.
+   */
+  properties?: { name: string; type: string; options?: string[] }[];
+  /** A database made of a CSV file attached to the conversation: the file, and the rows it adds. */
+  fromFile?: { name: string; rows: number };
+  publicForm?: "signedIn" | "anonymous";
 };
 
 /**
@@ -113,6 +125,8 @@ export type ChatMessageView = {
   content: string;
   /** Questions: the skill the answer followed. */
   skill?: { id: string; title: string };
+  /** Questions: the CSV files attached to them. */
+  attachments?: ChatAttachmentView[];
   sources?: ChatSourceView[];
   note?: "stopped" | "cutOff";
   /** Answers: the steps taken and how long the answer took (not kept before steps were). */

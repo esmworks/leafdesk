@@ -78,7 +78,7 @@ async function refLabels() {
 }
 
 /** Why a synced block prints nothing, in the reader's language (English outside a request). */
-async function syncedLabels(): Promise<SyncedLabels> {
+export async function syncedLabels(): Promise<SyncedLabels> {
   try {
     const t = await getTranslations("page.syncedBlock");
     const note = (state: keyof SyncedLabels) => t("exportNote", { state: t(`state.${state}`) });
@@ -89,7 +89,7 @@ async function syncedLabels(): Promise<SyncedLabels> {
 }
 
 /** Mentions and page links as the titles `userId` may see, never as links. */
-async function printRefs(userId: string, pageIds: string[]): Promise<Map<string, PublishedPageRef>> {
+export async function printRefs(userId: string, pageIds: string[]): Promise<Map<string, PublishedPageRef>> {
   const labels = await refLabels();
   const refs = await resolvePageRefs(userId, pageIds);
   return new Map(
@@ -104,7 +104,7 @@ async function printRefs(userId: string, pageIds: string[]): Promise<Map<string,
 }
 
 /** The database a block shows, when `userId` can open it (and it isn't in the trash). */
-async function printedEmbed(userId: string, databaseId: string, view: Parameters<typeof publishedDatabase>[2], loads: PublishedLoads) {
+export async function printedEmbed(userId: string, databaseId: string, view: Parameters<typeof publishedDatabase>[2], loads: PublishedLoads) {
   try {
     const found = await requirePageAccess(userId, databaseId, "view");
     if (found.kind !== "database" || found.archivedAt) return null;
@@ -114,7 +114,7 @@ async function printedEmbed(userId: string, databaseId: string, view: Parameters
   }
 }
 
-async function liveChildren(userId: string, parentId: string): Promise<PublishedChild[]> {
+export async function liveChildren(userId: string, parentId: string): Promise<PublishedChild[]> {
   return db
     .select({ id: page.id, title: page.title, icon: page.icon, kind: page.kind })
     .from(page)

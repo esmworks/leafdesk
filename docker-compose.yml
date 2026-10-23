@@ -188,6 +188,10 @@ services:
       # The AI chat from Telegram: off unless TELEGRAM_BOT_TOKEN is set (see the README).
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
       TELEGRAM_API_URL: ${TELEGRAM_API_URL:-}
+      # Address search and map images: OpenStreetMap's public servers unless set; empty turns them off.
+      GEOCODER_URL: ${GEOCODER_URL-https://nominatim.openstreetmap.org}
+      MAP_TILE_URL: ${MAP_TILE_URL-https://tile.openstreetmap.org/{z}/{x}/{y}.png}
+      MAP_TILE_ATTRIBUTION: ${MAP_TILE_ATTRIBUTION:-}
       # Daily cleanup of the trash and old page history: on in production unless set to off.
       RETENTION_JOB: ${RETENTION_JOB:-}
     # Lets AI_BASE_URL=http://host.docker.internal:11434/v1 reach Ollama or LM Studio on the host (Linux too).

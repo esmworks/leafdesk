@@ -214,21 +214,33 @@
           "updateRow": "已更改：",
           "createPage": "已添加页面：",
           "editPage": "已更改页面文本：",
-          "mergeRows": "已将行合并到："
+          "createPdf": "已生成 PDF：",
+          "mergeRows": "已将行合并到：",
+          "addComment": "已评论：",
+          "createDatabase": "已添加数据库：",
+          "createForm": "已添加表单："
         },
         "declined": {
           "createRow": "已拒绝添加行：",
           "updateRow": "已拒绝更改：",
           "createPage": "已拒绝添加页面：",
           "editPage": "已拒绝更改其文本：",
-          "mergeRows": "已拒绝将行合并到："
+          "createPdf": "已拒绝生成 PDF：",
+          "mergeRows": "已拒绝将行合并到：",
+          "addComment": "已拒绝评论：",
+          "createDatabase": "已拒绝添加数据库：",
+          "createForm": "已拒绝添加表单："
         },
         "failed": {
           "createRow": "无法添加行：",
           "updateRow": "无法更改：",
           "createPage": "无法添加页面：",
           "editPage": "无法更改其文本：",
-          "mergeRows": "无法将行合并到："
+          "createPdf": "无法生成 PDF：",
+          "mergeRows": "无法将行合并到：",
+          "addComment": "无法评论：",
+          "createDatabase": "无法添加数据库：",
+          "createForm": "无法添加表单："
         },
         "in": "位于",
         "proposed": {
@@ -236,7 +248,11 @@
           "updateRow": "提议了一处更改以供审阅：",
           "createPage": "提议添加一个页面以供审阅：",
           "editPage": "提议了一处文本更改以供审阅：",
-          "mergeRows": "建议合并行以供审核，合并到："
+          "createPdf": "提议了一个 PDF 供审核：",
+          "mergeRows": "建议合并行以供审核，合并到：",
+          "addComment": "已提议一条待审核的评论：",
+          "createDatabase": "已提议一个待审核的数据库：",
+          "createForm": "已提议一个待审核的表单："
         }
       },
       "memory": {
@@ -274,7 +290,11 @@
         "remember": "要记住关于你的这条信息吗？",
         "forget": "要忘记这条笔记吗？",
         "editPage": "要更改此页面的文本吗？",
-        "connection": "要将此发送到 {connection} 吗？"
+        "createPdf": "生成此页面的 PDF 并附加到页面？",
+        "connection": "要将此发送到 {connection} 吗？",
+        "addComment": "添加这条评论？",
+        "createDatabase": "添加这个数据库？",
+        "createForm": "添加这个表单？"
       },
       "in": "位于",
       "row": "行",
@@ -287,7 +307,14 @@
       "waiting": "等待你的批准",
       "page": "页面",
       "empty": "（空）",
-      "connectionHint": "通过工作区的连接发送：可能会更改 {connection} 中的内容"
+      "connectionHint": "通过工作区的连接发送：可能会更改 {connection} 中的内容",
+      "fromFile": "来自 {name} 的 {rows, plural, other {# 行}}",
+      "titleColumn": "标题",
+      "publicForm": {
+        "signedIn": "公开链接：任何拥有链接的人登录后即可回答",
+        "anonymous": "公开链接：任何拥有链接的人无需登录即可回答"
+      },
+      "letterhead": "信笺：{name}"
     },
     "mode": {
       "label": "更改",
@@ -304,7 +331,20 @@
       "retry": "重新回答"
     },
     "actionsFor": "{name} 的操作",
-    "greeting": "你想了解什么？"
+    "greeting": "你想了解什么？",
+    "files": {
+      "attach": "附加 CSV 文件",
+      "attachHint": "附加一个 CSV 文件（最多 1,000 行、1 MB），可以就它提问或用它创建数据库",
+      "drop": "松开 CSV 文件即可附加",
+      "remove": "移除 {name}",
+      "size": "{rows, plural, other {# 行}} × {columns, plural, other {# 列}}",
+      "notCsv": "只能附加 CSV 文件。请先把表格另存为 CSV。",
+      "tooLarge": "该文件超过 {size}。请附加更小的 CSV 文件。",
+      "tooManyRows": "该文件超过 {rows} 行。请附加更短的 CSV 文件，或将其作为数据库导入。",
+      "tooManyColumns": "该文件超过 {columns} 列。",
+      "empty": "该文件是空的。",
+      "tooMany": "一个问题最多可附加 {count} 个文件。"
+    }
   },
   "memory": {
     "open": "记忆",
