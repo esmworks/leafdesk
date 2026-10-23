@@ -74,6 +74,8 @@ const texts: Record<string, string> = {
   rowUpdateBody: "the text",
   untitled: "Untitled",
   snooze: "Snooze 1 hour",
+  reaction: "{actor} reacted {emoji} to your comment",
+  people: "{name} (+{others})",
 };
 const t = (key: string, values: Record<string, string | number> = {}) => texts[key].replace(/\{(\w+)\}/g, (_, name: string) => String(values[name] ?? ""));
 const date = (iso: string) => `on ${iso}`;
@@ -112,6 +114,11 @@ describe("pushPayload", () => {
     expect(pushPayload(item({ kind: "comment", pageTitle: "  " }), t, date)).toMatchObject({ title: "Untitled", body: "Ayşe commented in a thread you're in" });
     expect(pushPayload(item({ kind: "page_shared", actorName: null }), t, date)?.body).toBe("Someone shared this page with you");
     expect(pushPayload(item({ kind: "reminder", actorName: null, reminderDate: "2026-10-09" }), t, date)?.body).toBe("Reminder: on 2026-10-09");
+  });
+
+  it("says who reacted with what, not the comment, and opens its thread", () => {
+    const reacted = item({ kind: "reaction", threadId: "t1", reaction: { emojis: ["🎉", "👍"], people: [{ name: "Leo" }, { name: "Maya" }] } });
+    expect(pushPayload(reacted, t, date)).toMatchObject({ title: "Roadmap", body: "Leo (+1) reacted 🎉 👍 to your comment", url: "/w/ws1/p/p1#comment-t1" });
   });
 
   it("reads a reminder's time on the clock of the reminder's zone", () => {

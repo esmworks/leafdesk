@@ -19,7 +19,8 @@
     "security": "安全",
     "audit": "审计日志",
     "site": "站点",
-    "snippets": "片段"
+    "snippets": "片段",
+    "pdf": "PDF 模板"
   },
   "workspace": {
     "heading": "工作区",
@@ -907,6 +908,14 @@
     "detailHeading": "{month}按功能和模型",
     "ownAccountShare": "其中 {cost} 由工作区自己的 AI 账户支付。",
     "empty": "这个月没有 AI 请求。",
+    "peopleHeading": "{month}（按成员）",
+    "peopleDescription": "谁使用了工作区的 AI，按费用从高到低排列：成员和智能体，并列出各自最常用的功能。从添加此列表的 Leafdesk 更新起按成员统计请求；更早的请求只计入总计。",
+    "people": {
+      "agent": "智能体",
+      "nobody": "后台任务",
+      "unknown": "已删除的账户",
+      "uncounted": "按成员统计之前"
+    },
     "cacheTitle": "从提示缓存读取：{read} · 写入缓存：{write}",
     "columns": {
       "month": "月份",
@@ -917,12 +926,16 @@
       "output": "输出",
       "cost": "费用",
       "feature": "功能",
-      "model": "模型"
+      "model": "模型",
+      "person": "成员",
+      "share": "占比",
+      "mostUsed": "最常用于"
     },
     "groups": {
       "chat": "AI 聊天",
       "writing": "写作助手",
       "properties": "AI 自动填充",
+      "formulas": "公式",
       "agents": "智能体",
       "search": "语义搜索",
       "voice": "语音笔记",
@@ -1086,7 +1099,12 @@
     "workspaceDeleted": "在此期间有人删除了此工作区。",
     "storageNoDestination": "此工作区的文件存放在你的存储中，而在你离开时它们没有可以移动的去处：没有其他所有者设置了默认存储，这台服务器的存储也无法接收它们。请让一位所有者设置存储，或先移动这些文件（设置 > 存储）。",
     "storageMoveInProgress": "正在将此工作区的文件移入你的存储。请等待完成后再离开。",
-    "invalidCalloutStyle": "无法保存标注样式：请检查其键、名称和图标。"
+    "invalidCalloutStyle": "无法保存标注样式：请检查其键、名称和图标。",
+    "invalidNetwork": "{detail} 不是 IP 地址或地址范围。请输入 203.0.113.7 或 2001:db8::1 这样的地址，或 203.0.113.0/24 这样的范围。",
+    "invalidNetworkLabel": "{detail} 的标签太长：最多 100 个字符。",
+    "tooManyNetworks": "一个工作区最多可以有 100 个已批准的网络。",
+    "ipLocksYouOut": "此列表不包含你当前的地址 {detail}，保存后你将无法进入工作区。请先添加你的地址或包含它的范围。",
+    "ipUnknown": "服务器无法识别你的地址，因此无法确认此列表不会把你挡在外面。请从服务器能识别地址的连接保存，或清空列表。"
   },
   "security": {
     "description": "决定人们如何登录、谁可以将他人带入此工作区、访客可以做什么、哪些内容可以离开工作区（导出、已连接的应用），以及谁可以将页面发布到网络。只有所有者可以更改这些设置。",
@@ -1348,6 +1366,25 @@
       "error": "无法断开连接。请重试。",
       "gone": "它已断开连接，或已无法访问此工作区。",
       "shown": "显示 {total} 个中最近在此使用的 {shown} 个。"
+    },
+    "allowedNetworks": {
+      "title": "已批准的网络",
+      "description": "只允许从这些 IP 地址和范围打开此工作区，例如你的办公室或 VPN：IPv4 或 IPv6，单个地址（203.0.113.7）或 CIDR 范围（203.0.113.0/24）。适用于工作区中的所有人，包括所有者和访客。将列表留空即可允许任何网络。",
+      "appsNote": "通过 MCP 连接的应用、REST API 令牌和 SCIM 令牌不受此限制：它们遵循“已连接的应用和 API 令牌”设置。",
+      "range": "地址或范围",
+      "label": "标签",
+      "rangePlaceholder": "203.0.113.0/24",
+      "labelPlaceholder": "办公室（可选）",
+      "add": "添加网络",
+      "addMine": "添加我的地址（{ip}）",
+      "remove": "移除 {range}",
+      "removeRow": "移除此行",
+      "empty": "没有已批准的网络：可从任何网络打开工作区。",
+      "addressUnknown": "服务器无法识别你的地址，因此无法通过此连接保存列表。",
+      "yourAddressOnList": "你的地址 {ip} 在列表中。",
+      "yourAddressMissing": "你的地址 {ip} 不在列表中：保存后你将被挡在外面，请先添加它。",
+      "lockoutHelp": "如果列表把所有人都挡在外面，实例管理员可以在管理页面清空它。",
+      "memberView": "{count, plural, =0 {关闭：可从任何网络打开工作区。} other {开启：只能从 # 个已批准的网络打开工作区。}}"
     }
   },
   "audit": {
@@ -1529,6 +1566,7 @@
         "restored": "从回收站恢复了 {target}",
         "permission_changed": "将 {subject} 对 {target} 的访问权限设为：{level}",
         "permission_removed": "将 {subject} 从 {target} 的分享中移除",
+        "row_access_changed": "更改了 {target} 的行授予访问权限的对象",
         "deleted": "永久删除了 {target}",
         "published": "将 {target} 发布到了网络",
         "unpublished": "取消发布了 {target}",
@@ -1571,7 +1609,9 @@
       "workspace": {
         "renamed": "将工作区从 {from} 重命名为 {to}",
         "settings_changed": "更改了设置：{settings}",
-        "domains_verified": "验证了允许的邮箱域名 {domains}"
+        "domains_verified": "验证了允许的邮箱域名 {domains}",
+        "networks_changed": "{count, plural, =0 {移除了已批准的网络} other {将已批准的网络设为 {names}}}",
+        "networks_cleared": "以实例管理员身份清空了已批准的网络"
       },
       "sso": {
         "configured": "为 {domains} 保存了单点登录连接（{protocol}）",
@@ -1728,7 +1768,10 @@
     "reviewChannel": "待审阅：{channel}",
     "followUpTitle": "跟进",
     "followUpDescription": "你开始的跟进因下一封邮件未通过发送前的检查而暂停时。",
-    "followUpChannel": "跟进：{channel}"
+    "followUpChannel": "跟进：{channel}",
+    "reactionTitle": "回应",
+    "reactionDescription": "有人回应了你写的评论。对同一条评论的回应会合在一起，直到你打开它们。",
+    "reactionChannel": "回应：{channel}"
   },
   "site": {
     "description": "为此工作区已发布的页面提供一个易读的地址、一个主页以及页面之间的导航。",
@@ -2275,6 +2318,56 @@
       "color": "请选择颜色。",
       "border": "请选择边框。",
       "title": "标题最多 120 个字符。"
+    }
+  },
+  "letterheads": {
+    "heading": "信笺",
+    "description": "PDF 文件在页面周围打印的内容：徽标、顶部的公司信息和底部的几行。导出 PDF 时选择其一；除非另有要求，AI 聊天使用默认信笺。",
+    "empty": "还没有信笺。",
+    "add": "添加信笺",
+    "edit": "编辑",
+    "remove": "删除 {name}",
+    "removeConfirm": "删除信笺“{name}”？之后 PDF 将使用默认信笺。",
+    "count": "{count} / {max} 个信笺",
+    "ownersOnly": "只有所有者可以更改信笺。",
+    "default": "默认",
+    "makeDefault": "设为默认",
+    "unsetDefault": "不再作为默认",
+    "noLines": "顶部没有文字",
+    "name": "名称",
+    "namePlaceholder": "报价单",
+    "logo": "徽标",
+    "logoHelp": "PNG 或 JPEG，最大 {size}。",
+    "uploadLogo": "上传徽标",
+    "replaceLogo": "更换徽标",
+    "removeLogo": "移除",
+    "logoPlace": "徽标位置",
+    "places": {
+      "left": "徽标居左",
+      "center": "徽标居中",
+      "right": "徽标居右"
+    },
+    "header": "顶部文字",
+    "headerHelp": "最多 {max} 行，每页都会打印；第一行加粗。",
+    "headerPlaceholder": "公司名称\n地址\n电话 · 邮箱 · 税号",
+    "footer": "底部文字",
+    "footerHelp": "最多 {max} 行，例如银行信息。",
+    "footerPlaceholder": "银行 · 账号",
+    "accent": "强调色",
+    "accentHelp": "用于顶部下方的分隔线和表格标题。",
+    "noAccent": "灰色",
+    "pageNumbers": "页码",
+    "errors": {
+      "name": "请起一个不超过 60 个字符的名称。",
+      "header": "顶部最多 6 行，每行最多 140 个字符。",
+      "footer": "底部最多 4 行，每行最多 140 个字符。",
+      "logoPlace": "请选择徽标位置。",
+      "accent": "请选择一种颜色。",
+      "duplicateName": "已有同名信笺。",
+      "tooMany": "一个工作区最多可有 20 个信笺。",
+      "logoType": "徽标必须是 PNG 或 JPEG 图片。",
+      "logoSize": "徽标太大：最大 512 KB。",
+      "notFound": "该信笺已不存在。请刷新页面。"
     }
   }
 }

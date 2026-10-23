@@ -232,6 +232,8 @@
     "pageUpdated": "{actor} 编辑了此页面",
     "rowEmail": "来自 {from} 的邮件",
     "followUp": "跟进“{sequence}”已暂停：下一封邮件需要你查看",
+    "reaction": "{actor} 用 {emoji} 回应了你的评论",
+    "people": "{others, plural, =0 {{name}} other {{name} 等 # 人}}",
     "someone": "有人",
     "joinRequestTitle": "加入申请",
     "joinRequest": "{actor} 申请加入",

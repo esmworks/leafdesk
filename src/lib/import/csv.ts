@@ -18,126 +18,18 @@ export const CSV_MAX_COLUMNS = 100;
 export const CSV_COLUMN_TYPES = ["text", "number", "select", "multi_select", "date", "checkbox", "url", "email", "phone"] as const;
 export type CsvColumnType = (typeof CSV_COLUMN_TYPES)[number];
 
-export type CsvTable = { headers: string[]; rows: string[][] };
-
-/**
- * A text file's bytes as text: UTF-8 when they are (with or without a BOM), else Windows-1254,
- * what Excel on a Turkish (or, for the letters they share, Western) Windows saves CSV files in.
- */
-export function decodeText(bytes: Uint8Array): string {
-  try {
-    return new TextDecoder("utf-8", { fatal: true }).decode(bytes);
-  } catch {
-    return new TextDecoder("windows-1254").decode(bytes);
-  }
-}
-
-/** The field separator a file uses: whichever of comma, semicolon and tab its first line has most of. */
-export function detectDelimiter(text: string): string {
-  const counts: Record<string, number> = { ",": 0, ";": 0, "\t": 0 };
-  let quoted = false;
-  for (const ch of text) {
-    if (ch === '"') quoted = !quoted;
-    else if (!quoted && (ch === "\n" || ch === "\r")) break;
-    else if (!quoted && ch in counts) counts[ch]++;
-  }
-  let best = ",";
-  for (const d of [";", "\t"]) if (counts[d] > counts[best]) best = d;
-  return best;
-}
-
-/**
- * RFC 4180 records: quoted fields may hold separators, quotes ("") and line breaks; CRLF, LF and
- * CR all end a record. A leading BOM is dropped, and so is a last empty line.
- */
-export function parseCsv(text: string, delimiter = detectDelimiter(text.replace(/^\uFEFF/, ""))): string[][] {
-  const input = text.replace(/^\uFEFF/, "");
-  const records: string[][] = [];
-  let record: string[] = [];
-  let field = "";
-  let quoted = false;
-  let i = 0;
-  const endField = () => {
-    record.push(field);
-    field = "";
-  };
-  const endRecord = () => {
-    endField();
-    records.push(record);
-    record = [];
-  };
-  while (i < input.length) {
-    const ch = input[i];
-    if (quoted) {
-      if (ch === '"') {
-        if (input[i + 1] === '"') {
-          field += '"';
-          i += 2;
-          continue;
-        }
-        quoted = false;
-      } else field += ch;
-      i++;
-      continue;
-    }
-    if (ch === '"' && field === "") quoted = true;
-    else if (ch === delimiter) endField();
-    else if (ch === "\r" || ch === "\n") {
-      endRecord();
-      if (ch === "\r" && input[i + 1] === "\n") i++;
-    } else field += ch;
-    i++;
-  }
-  if (field !== "" || record.length) endRecord();
-  return records;
-}
-
-/**
- * Leafdesk's CSV export (lib/csv) puts an apostrophe before cells a spreadsheet would run as a
- * formula; importing takes it off again.
- */
-function unguard(cell: string) {
-  return /^'[=+\-@\t\r]/.test(cell) ? cell.slice(1) : cell;
-}
-
-/**
- * A CSV file as a header and rows: header names trimmed, blank ones named "Column N" and repeats
- * numbered, every row as wide as the header, and rows with nothing in them left out.
- */
-export function csvTable(text: string): CsvTable {
-  return recordsTable(parseCsv(text));
-}
-
-/**
- * Records (the first one the header) as a table, the way csvTable reads a CSV file's. Workbooks
- * (lib/import/xlsx) come in here too; their cells are never guarded with an apostrophe, so
- * `guarded: false` keeps one that starts a cell.
- */
-export function recordsTable([head = [], ...body]: string[][], { guarded = true } = {}): CsvTable {
-  const clean = guarded ? unguard : (cell: string) => cell;
-  const headers: string[] = [];
-  const taken = new Set<string>();
-  head.forEach((raw, i) => {
-    const base = clean(raw).replace(/\s+/g, " ").trim().slice(0, 100) || `Column ${i + 1}`;
-    let name = base;
-    for (let n = 2; taken.has(name.toLowerCase()); n++) name = `${base} ${n}`;
-    taken.add(name.toLowerCase());
-    headers.push(name);
-  });
-  const rows = body
-    .filter((r) => r.some((cell) => cell.trim() !== ""))
-    .map((r) => headers.map((_, i) => clean(r[i] ?? "")));
-  return { headers, rows };
-}
+export { csvTable, decodeText, detectDelimiter, parseCsv, recordsTable, type CsvTable } from "./csv-parse";
 
 // English, Turkish, German, Spanish, French, Italian, Portuguese, Polish, Russian, Ukrainian,
-// Arabic, Hebrew, Persian, Japanese, Korean and Chinese. Ukrainian's apostrophe comes typed three ways.
+// Arabic, Hebrew, Persian, Japanese, Korean, Chinese, Indonesian, Thai and Vietnamese. Ukrainian's
+// apostrophe comes typed three ways.
 const TITLE_HEADERS = [
   ...["name", "title", "page", "ad", "isim", "başlık", "baslik", "sayfa", "titel", "seite", "nombre", "título", "titulo", "página", "titre", "nom"],
   ...["nome", "titolo", "pagina", "nazwa", "imię", "tytuł", "tytul", "strona"],
   ...["название", "наименование", "имя", "заголовок", "страница", "назва", "ім'я", "ім’я", "імʼя", "сторінка"],
   ...["الاسم", "اسم", "العنوان", "عنوان", "الصفحة", "שם", "כותרת", "עמוד", "نام", "صفحه"],
   ...["名前", "名称", "タイトル", "題名", "件名", "ページ", "이름", "제목", "페이지", "名字", "标题", "页面"],
+  ...["nama", "judul", "halaman", "ชื่อ", "หัวข้อ", "หน้า", "tên", "tiêu đề", "trang"],
 ];
 
 /** The column that becomes each row's title: one called Name or Title (or Ad, Başlık, Nome, Название, 名前…), else the first. */
@@ -188,17 +80,19 @@ const TRUE_WORDS = new Set([
   ...["true", "yes", "y", "evet", "ja", "wahr", "sí", "si", "verdadero", "oui", "vrai", "checked", "✓", "✔", "[x]", "x"],
   ...["vero", "sim", "verdadeiro", "tak", "prawda", "да", "истина", "так", "істина", "نعم", "صح", "صحيح", "כן", "אמת", "بله", "آره", "درست"],
   ...["はい", "真", "예", "네", "참", "是", "对"],
+  ...["ya", "benar", "ใช่", "จริง", "có", "đúng"],
 ]);
 const FALSE_WORDS = new Set([
   ...["false", "no", "n", "hayır", "hayir", "nein", "falsch", "falso", "non", "faux", "unchecked", "[ ]", "✗"],
   ...["não", "nao", "nie", "fałsz", "falsz", "нет", "ложь", "ні", "хибність", "لا", "خطأ", "לא", "שקר", "نه", "خیر", "نادرست"],
   ...["いいえ", "偽", "아니요", "아니오", "거짓", "否", "错", "假"],
+  ...["tidak", "salah", "ไม่", "ไม่ใช่", "เท็จ", "không", "sai"],
 ]);
 
 /**
  * A checkbox cell: yes/no words (English, Turkish, German, Spanish, French, Italian, Portuguese,
- * Polish, Russian, Ukrainian, Arabic, Hebrew, Persian, Japanese, Korean, Chinese), true/false,
- * 1/0, ✓. Null for anything else.
+ * Polish, Russian, Ukrainian, Arabic, Hebrew, Persian, Japanese, Korean, Chinese, Indonesian,
+ * Thai, Vietnamese), true/false, 1/0, ✓. Null for anything else.
  */
 export function parseCheckbox(raw: string, { numbers = true } = {}): boolean | null {
   const s = raw.trim().toLocaleLowerCase("tr").replace(/ı/g, "i");
@@ -439,6 +333,9 @@ export function cellValue(
     }
     case "text":
       return raw;
+    case "place":
+      // Coordinates or an address, which the server looks up when the row is written.
+      return s.slice(0, 500);
     default:
       return INVALID;
   }

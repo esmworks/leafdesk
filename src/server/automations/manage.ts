@@ -98,6 +98,7 @@ export type AutomationActionInput = (
   | { type: "upsert_row"; database: string; match: { property: string; value: string }; title?: string | null; values?: ValuesInput }
   | { type: "wait"; minutes: number }
   | { type: "log"; message: string }
+  | { type: "celebrate" }
   /** The sequence by id or name, of the database the step acts on. */
   | { type: "start_sequence"; sequence: string; forEach?: string | null }
   /** People by id, email, name or "me"; person properties by name or id; `timeoutDays` 1 to 30 (30 when left out). */
@@ -276,6 +277,7 @@ const ID_STEMS: Record<AutomationActionType, string> = {
   upsert_row: "upsert",
   wait: "wait",
   log: "log",
+  celebrate: "celebrate",
   start_sequence: "follow_up",
   approval: "approval",
 };
@@ -602,6 +604,8 @@ async function checkActions(
       step = { type: "wait", minutes };
     } else if (action?.type === "log") {
       step = { type: "log", message: checkText(action.message, "A log message", MAX_STEP_MESSAGE, true).trim() };
+    } else if (action?.type === "celebrate") {
+      step = { type: "celebrate" };
     } else if (action?.type === "start_sequence") {
       const ref = String(action.sequence ?? "").trim();
       const sequences = await db.select({ id: emailSequence.id, name: emailSequence.name }).from(emailSequence).where(eq(emailSequence.databaseId, target.id));
@@ -623,7 +627,7 @@ async function checkActions(
       step = { type: "approval", userIds, propertyIds, message, timeoutDays, onTimeout: onTimeout as (typeof APPROVAL_TIMEOUTS)[number] };
     } else {
       throw invalid(
-        'Each step is "set_properties", "notify", "webhook", "run_agent", "move_to_trash", "http_request", "find_rows", "create_row", "upsert_row", "wait", "log", "approval" or "start_sequence"',
+        'Each step is "set_properties", "notify", "webhook", "run_agent", "move_to_trash", "http_request", "find_rows", "create_row", "upsert_row", "wait", "log", "celebrate", "approval" or "start_sequence"',
       );
     }
     step.id = id;

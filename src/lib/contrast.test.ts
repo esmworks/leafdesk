@@ -67,3 +67,24 @@ describe.each([
     expect(ratio(c.border, c.bg)).toBeGreaterThan(ratio(standard.border, standard.bg));
   });
 });
+
+// The backgrounds color rules give rows, cards and values (`--opt-mark`): the theme's text stays
+// on them, so it must read as well as on a selected row.
+describe.each([
+  ["light", css.slice(css.indexOf(".opt-gray, .tint-gray {"), css.indexOf(":root:not(:has([data-print-view]))", css.indexOf(".opt-gray, .tint-gray {"))), light, hcLight],
+  ["dark", css.slice(css.indexOf("    .opt-gray, .tint-gray {")), { ...light, ...dark }, hcDark],
+])("color rule backgrounds, %s theme", (_theme, block, c, hc) => {
+  const marks = [...block.slice(0, block.indexOf("\n\n")).matchAll(/\.tint-(\w+) \{[^}]*--opt-mark:\s*(#[0-9a-f]{6});/gi)].map((m) => [m[1], m[2]] as const);
+
+  it("has one for every option color", () => {
+    expect(marks.map(([name]) => name)).toEqual(["gray", "brown", "orange", "yellow", "green", "blue", "purple", "pink", "red"]);
+  });
+
+  it("keeps text readable on each", () => {
+    for (const [name, mark] of marks) {
+      expect(ratio(c.fg, mark), name).toBeGreaterThanOrEqual(7);
+      expect(ratio(c["fg-muted"], mark), name).toBeGreaterThanOrEqual(Math.min(4.5, ratio(c["fg-muted"], c["bg-active"])));
+      expect(ratio({ ...c, ...hc }["fg-muted"], mark), name).toBeGreaterThanOrEqual(7);
+    }
+  });
+});

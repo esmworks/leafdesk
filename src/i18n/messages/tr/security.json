@@ -91,5 +91,17 @@
     "signedInAs": "{email} olarak giriş yapıldı.",
     "signOut": "Çıkış yap",
     "otherWorkspaces": "Diğer çalışma alanlarınız"
+  },
+  "networkGate": {
+    "metaTitle": "Yalnızca onaylı ağlar",
+    "title": "{workspace} yalnızca onaylı ağlardan girişe izin veriyor",
+    "body": "Bu çalışma alanının sahipleri, alanın yalnızca ofis ya da VPN gibi onaylı ağlardan açılmasına izin veriyor ve bu bağlantı onlardan birinden gelmiyor. Onaylı bir ağa bağlanıp yeniden deneyin.",
+    "address": "Adresiniz:",
+    "addressUnknown": "Adresiniz belirlenemedi.",
+    "askOwner": "Buradan girebilmeniz gerekiyorsa çalışma alanının sahiplerinden birinden bu adresi eklemesini isteyin.",
+    "tryAgain": "Yeniden dene",
+    "signedInAs": "{email} olarak giriş yapıldı.",
+    "signOut": "Çıkış yap",
+    "otherWorkspaces": "Diğer çalışma alanlarınız"
   }
 }

@@ -9,6 +9,11 @@
  *   from the page's <meta name="leafdesk-user">) and served only when the network fails. When a
  *   different user's page comes in, the previous user's copies are dropped; signing out deletes
  *   them from the page (components/offline/offline-store.ts).
+ * - Pages downloaded for offline use (components/offline/offline-download.ts): the app sends their
+ *   paths in a "leafdesk-keep" message. Their HTML is fetched now, with the scripts it loads, and is
+ *   never dropped for newer pages; it goes once the app no longer lists the page.
+ * - Uploaded files (/api/files/<id>): always from the network; when it fails, the copy a downloaded
+ *   page kept in the same per-user cache, if there is one.
  * - Everything else (API routes, uploads, server actions, RSC requests, the collab websocket) is
  *   never touched.
  * - Push messages (server/push.ts) show as notifications; opening one brings an open Leafdesk tab
@@ -27,6 +32,7 @@ const MAX_STATIC = 800;
 // Keep in sync with src/lib/offline.ts (PAGE_PATH, readUserMarker); offline.test.ts compares them.
 const PAGE_PATH = /^\/w\/[\w-]+(?:\/p\/[\w-]+)?\/?$/;
 const USER_MARKER = /<meta\s+name="leafdesk-user"\s+content="([\w-]+)"/;
+const FILE_PATH = /^\/api\/files\/[\w-]+$/;
 const ASSET = /\/_next\/static\/[^"'\s)\\]+/g;
 
 self.addEventListener("install", (event) => {
@@ -62,6 +68,8 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(navigate(event, url));
   } else if (url.pathname.startsWith("/_next/static/")) {
     event.respondWith(cacheFirst(event, request));
+  } else if (FILE_PATH.test(url.pathname)) {
+    event.respondWith(fileOrKeptCopy(request, url));
   } else if (SHELL.includes(url.pathname) || isAppIcon(url.pathname)) {
     event.respondWith(staleWhileRevalidate(event, request));
   }
@@ -94,11 +102,13 @@ async function navigate(event, url) {
   }
 }
 
+const strings = (value) => (Array.isArray(value) ? value.filter((v) => typeof v === "string") : []);
+
 async function readMeta() {
   const cache = await caches.open(META_CACHE);
   const stored = await cache.match("/__leafdesk/meta");
   const meta = stored ? await stored.json().catch(() => null) : null;
-  return { owner: (meta && meta.owner) || null, recent: (meta && Array.isArray(meta.recent) && meta.recent) || [] };
+  return { owner: (meta && meta.owner) || null, recent: strings(meta && meta.recent), pinned: strings(meta && meta.pinned) };
 }
 
 async function writeMeta(meta) {
@@ -106,47 +116,137 @@ async function writeMeta(meta) {
   await cache.put("/__leafdesk/meta", new Response(JSON.stringify(meta), { headers: { "content-type": "application/json" } }));
 }
 
+// Changes to the metadata, one at a time: page loads and downloads both change it.
+let metaQueue = Promise.resolve();
+/** Runs `change` on the metadata; what it returns (if anything) is stored. */
+function updateMeta(change) {
+  const run = metaQueue.then(async () => {
+    const next = await change(await readMeta());
+    if (next) await writeMeta(next);
+  });
+  metaQueue = run.catch(() => {});
+  return run;
+}
+
 async function dropPageCaches() {
   const names = await caches.keys();
   await Promise.all(names.filter((n) => n.startsWith(PAGE_CACHE_PREFIX)).map((n) => caches.delete(n)));
 }
 
-/** Files a signed-in page's HTML under its user; a page that is gone (or no longer theirs) leaves. */
-async function keepPage(path, response) {
-  const meta = await readMeta();
+/**
+ * Files a signed-in page's HTML under its user; a page that is gone (or no longer theirs) leaves.
+ * `opened`: the person opened it (it becomes the most recent page); a download refreshes it only.
+ * Returns the HTML's size once kept, "gone", or null when it wasn't a page to keep.
+ */
+async function keepPage(path, response, opened = true) {
   if (response.status === 404 || response.status === 403 || response.status === 410) {
-    if (!meta.owner) return;
-    await (await caches.open(PAGE_CACHE_PREFIX + meta.owner)).delete(path);
-    await writeMeta({ owner: meta.owner, recent: meta.recent.filter((p) => p !== path) });
-    return;
+    await updateMeta(async (meta) => {
+      if (!meta.owner) return null;
+      await (await caches.open(PAGE_CACHE_PREFIX + meta.owner)).delete(path);
+      return { ...meta, recent: meta.recent.filter((p) => p !== path), pinned: meta.pinned.filter((p) => p !== path) };
+    });
+    return "gone";
   }
   const type = response.headers.get("content-type") || "";
-  if (!response.ok || response.type !== "basic" || response.redirected || !type.includes("text/html")) return;
+  if (!response.ok || response.type !== "basic" || response.redirected || !type.includes("text/html")) return null;
   const html = await response.text();
   const marker = USER_MARKER.exec(html);
-  if (!marker) return; // not a signed-in page (e.g. the sign-in form after a redirect)
+  if (!marker) return null; // not a signed-in page (e.g. the sign-in form after a redirect)
   const owner = marker[1];
-  let recent = meta.recent;
-  if (meta.owner && meta.owner !== owner) {
-    // Someone else signed in on this browser: nothing of the previous user stays.
-    await dropPageCaches();
-    recent = [];
-  }
-  const cache = await caches.open(PAGE_CACHE_PREFIX + owner);
   // The page's policy goes with it: its nonce is the one in the kept HTML.
   const headers = { "content-type": type };
   const policy = response.headers.get("content-security-policy");
   if (policy) headers["content-security-policy"] = policy;
-  await cache.put(path, new Response(html, { headers }));
-  recent = [path, ...recent.filter((p) => p !== path)];
-  await Promise.all(recent.slice(MAX_PAGES).map((p) => cache.delete(p)));
-  await writeMeta({ owner, recent: recent.slice(0, MAX_PAGES) });
+  await updateMeta(async (meta) => {
+    let { recent, pinned } = meta;
+    if (meta.owner && meta.owner !== owner) {
+      // Someone else signed in on this browser: nothing of the previous user stays.
+      await dropPageCaches();
+      recent = [];
+      pinned = [];
+    }
+    const cache = await caches.open(PAGE_CACHE_PREFIX + owner);
+    await cache.put(path, new Response(html, { headers }));
+    if (opened) recent = [path, ...recent.filter((p) => p !== path)];
+    // Downloaded pages stay, however many pages were opened since.
+    await Promise.all(recent.slice(MAX_PAGES).filter((p) => !pinned.includes(p)).map((p) => cache.delete(p)));
+    return { owner, recent: recent.slice(0, MAX_PAGES), pinned };
+  });
+  return html.length;
+}
+
+// ---------------------------------------------------------------------------------------------
+// Downloads. The app (components/offline/offline-download.ts) sends
+// { type: "leafdesk-keep", owner, kept, fetch }: every downloaded page's path, and the ones to
+// fetch now. It gets back, by path, the HTML's size, "gone" or null.
+
+self.addEventListener("message", (event) => {
+  const data = event.data;
+  if (!data || data.type !== "leafdesk-keep" || typeof data.owner !== "string" || !/^[\w-]+$/.test(data.owner)) return;
+  const port = event.ports && event.ports[0];
+  event.waitUntil(
+    keepDownloads(data.owner, strings(data.kept).filter((p) => PAGE_PATH.test(p)), strings(data.fetch).filter((p) => PAGE_PATH.test(p)))
+      .then((result) => port && port.postMessage(result))
+      .catch(() => port && port.postMessage(null)),
+  );
+});
+
+async function keepDownloads(owner, kept, paths) {
+  await updateMeta(async (meta) => {
+    if (meta.owner && meta.owner !== owner) {
+      await dropPageCaches();
+      return { owner, recent: [], pinned: kept };
+    }
+    // Pages no longer downloaded go, unless they were opened lately.
+    const cache = await caches.open(PAGE_CACHE_PREFIX + owner);
+    const recent = meta.recent.slice(0, MAX_PAGES);
+    await Promise.all(meta.pinned.filter((p) => !kept.includes(p) && !recent.includes(p)).map((p) => cache.delete(p)));
+    return { owner, recent: meta.recent, pinned: kept };
+  });
+  const result = {};
+  for (const path of paths) {
+    try {
+      const response = await fetch(path, { credentials: "same-origin", cache: "no-store", headers: { accept: "text/html" } });
+      const html = response.ok ? await response.clone().text() : "";
+      result[path] = await keepPage(path, response, false);
+      // A page never opened in this build would miss its scripts offline.
+      if (typeof result[path] === "number") await keepAssets(html);
+    } catch {
+      result[path] = null;
+    }
+  }
+  return result;
+}
+
+async function keepAssets(html) {
+  const cache = await caches.open(STATIC_CACHE);
+  const assets = [...new Set(html.match(ASSET) || [])];
+  await Promise.all(assets.map(async (url) => ((await cache.match(url)) ? undefined : cache.add(url).catch(() => {}))));
+}
+
+/** An uploaded file from the network; offline, the copy a downloaded page kept. */
+async function fileOrKeptCopy(request, url) {
+  try {
+    return await fetch(request);
+  } catch (error) {
+    const kept = await keptCopy(url.pathname);
+    if (kept) return kept;
+    throw error;
+  }
+}
+
+async function keptCopy(path) {
+  const meta = await readMeta();
+  if (!meta.owner) return null;
+  const cache = await caches.open(PAGE_CACHE_PREFIX + meta.owner);
+  return (await cache.match(path)) || null;
 }
 
 async function offlineResponse(url) {
   const meta = await readMeta();
   if (meta.owner) {
     const cache = await caches.open(PAGE_CACHE_PREFIX + meta.owner);
+    // Pages, and files opened on their own (a PDF in a frame, a file in a new tab).
     const kept = await cache.match(url.pathname);
     if (kept) return kept;
     // The installed app starts at "/", which the server sends to a workspace: open the last page.

@@ -315,6 +315,54 @@ const VOCABULARIES: Record<string, Vocabulary> = {
     // "周五前" (before Friday).
     particles: ["之前", "以前", "前"],
   },
+  id: {
+    today: ["hari ini"],
+    tomorrow: ["besok"],
+    dayAfter: ["lusa"],
+    nextWeek: ["minggu depan", "pekan depan"],
+    nextMonth: ["bulan depan"],
+    nextBefore: [],
+    // "Jumat depan" (next Friday).
+    nextAfter: ["depan"],
+    inBefore: ["dalam"],
+    // "3 hari lagi" (in 3 days).
+    inAfter: ["lagi"],
+    units: { day: ["hari"], week: ["minggu", "pekan"], month: ["bulan"] },
+    articles: ["pada", "hari", "pada hari", "sebelum"],
+    weekdays: [[], [], [], [], [], ["jum'at"], []],
+  },
+  // Thai leaves no spaces between words; dates are found where they are written apart from the
+  // rest ("ประชุม พรุ่งนี้").
+  th: {
+    today: ["วันนี้"],
+    tomorrow: ["พรุ่งนี้"],
+    dayAfter: ["มะรืนนี้", "มะรืน"],
+    nextWeek: ["สัปดาห์หน้า", "อาทิตย์หน้า"],
+    nextMonth: ["เดือนหน้า"],
+    nextBefore: [],
+    nextAfter: ["หน้า"],
+    // "อีก 3 วัน" (in 3 days).
+    inBefore: ["อีก", "ใน"],
+    inAfter: [],
+    units: { day: ["วัน"], week: ["สัปดาห์"], month: ["เดือน"] },
+    articles: ["ภายใน", "ก่อน"],
+    weekdays: [["อาทิตย์"], ["จันทร์"], ["อังคาร"], ["พุธ"], ["พฤหัส", "พฤหัสบดี"], ["ศุกร์"], ["เสาร์"]],
+  },
+  vi: {
+    today: ["hôm nay"],
+    tomorrow: ["ngày mai"],
+    dayAfter: ["ngày kia", "ngày mốt"],
+    nextWeek: ["tuần sau", "tuần tới"],
+    nextMonth: ["tháng sau", "tháng tới"],
+    nextBefore: [],
+    // "thứ Sáu tuần sau", "thứ Sáu tới" (next Friday).
+    nextAfter: ["tuần sau", "tuần tới", "tới"],
+    inBefore: ["trong", "sau"],
+    // "3 ngày nữa" (in 3 days).
+    inAfter: ["nữa"],
+    units: { day: ["ngày"], week: ["tuần"], month: ["tháng"] },
+    articles: ["vào", "trước", "hạn"],
+  },
 };
 
 /**

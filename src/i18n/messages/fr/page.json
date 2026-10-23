@@ -49,6 +49,7 @@
     "exportZip": "Exporter avec les sous-pages",
     "exportZipDatabase": "Exporter avec les pages des lignes",
     "exportPdf": "Exporter en PDF",
+    "printView": "Imprimer",
     "exportPreparing": "Préparation de l’exportation…",
     "versionHistory": "Historique des versions",
     "lastEdited": "Dernière modification par {name}",
@@ -76,11 +77,13 @@
     "filters": {
       "open": "Ouverts",
       "resolved": "Résolus",
+      "marked": "Marqués",
       "all": "Tous"
     },
     "empty": {
       "open": "Aucun commentaire ouvert. Sélectionnez du texte dans la page et choisissez Commenter pour en ajouter un.",
       "resolved": "Aucun commentaire résolu.",
+      "marked": "Aucun fil marqué pour y revenir. Choisissez « Revenir plus tard » dans le menu d’un fil.",
       "all": "Aucun commentaire pour l’instant. Sélectionnez du texte dans la page et choisissez Commenter pour en ajouter un."
     },
     "threadMenu": "Options du fil",
@@ -90,7 +93,19 @@
     "unmuteHint": "Être de nouveau averti des nouvelles réponses dans ce fil.",
     "muted": "Réponses masquées",
     "mutedHint": "Vous n’êtes pas averti des réponses dans ce fil tant que vous n’y répondez pas ou que personne ne vous y mentionne.",
-    "mergedFrom": "De « {title} »"
+    "mergedFrom": "De « {title} »",
+    "sort": {
+      "label": "Trier les fils",
+      "recent": "Activité la plus récente d’abord",
+      "page": "Dans l’ordre de la page"
+    },
+    "new": "Nouveau",
+    "marked": "Marqué pour y revenir plus tard",
+    "markedHint": "Vous avez marqué ce fil pour y revenir plus tard. Vous seul le voyez.",
+    "mark": "Revenir plus tard",
+    "unmark": "Retirer « Revenir plus tard »",
+    "markHint": "Le fil reste dans Marqués jusqu’à ce que vous retiriez la marque. Vous seul la voyez.",
+    "unmarkHint": "Retirer ce fil de votre liste Marqués."
   },
   "archived": {
     "banner": "Cette page est dans la corbeille.",
@@ -332,6 +347,7 @@
     "replacePlaceholder": "Remplacer par",
     "noResults": "Aucun résultat",
     "matchCase": "Respecter la casse",
+    "matchAccents": "Respecter les accents",
     "previous": "Résultat précédent (Maj+Entrée)",
     "next": "Résultat suivant (Entrée)",
     "showReplace": "Afficher le remplacement",
@@ -576,6 +592,17 @@
     "openInNewTab": "Ouvrir dans un nouvel onglet",
     "frameTitle": "PDF : {name}",
     "noPreview": "Ce navigateur ne peut pas afficher de PDF ici. Ouvrez le fichier pour le lire."
+  },
+  "pdfExport": {
+    "title": "Exporter en PDF",
+    "letterhead": "En-tête",
+    "none": "Aucun",
+    "defaultMark": "{name} (par défaut)",
+    "noLetterheads": "Les propriétaires peuvent ajouter des en-têtes avec logo et coordonnées dans Paramètres → Modèles PDF.",
+    "properties": "Inclure les valeurs de la ligne",
+    "hint": "Les diagrammes et les équations sont imprimés en texte ; utilisez Imprimer pour obtenir la page telle qu’elle apparaît.",
+    "download": "Télécharger",
+    "preparing": "Préparation…"
   },
   "spreadsheet": {
     "untitled": "Classeur",

@@ -1,6 +1,7 @@
 // Pure: how one viewer's property access applies to rows, views and writes (server/property-access
 // loads the rules and the viewer; this works on them). No database access, so tests can run it.
 import type { ViewConfig } from "@/db/schema";
+import { restoreColorRules } from "./color-rules";
 import { dropPropertyReferences } from "./duplicate";
 import { mapFilterRules } from "./filters";
 import { PropertyValueError } from "./properties";
@@ -291,7 +292,7 @@ export function restoreReferences(
     });
   }
   const keep = (id: string | undefined) => id !== undefined && gone.has(id);
-  for (const key of ["groupBy", "dateBy", "endDateBy", "stackBy", "frozenThrough"] as const) {
+  for (const key of ["groupBy", "dateBy", "endDateBy", "stackBy", "placeBy", "frozenThrough"] as const) {
     if (keep(stored[key])) out[key] = stored[key];
   }
   if (stored.cover?.source === "property" && gone.has(stored.cover.propertyId)) out.cover = stored.cover;
@@ -299,6 +300,7 @@ export function restoreReferences(
   if (stored.boardAggregate && gone.has(stored.boardAggregate.propertyId)) out.boardAggregate = stored.boardAggregate;
   const hiddenSorts = stored.sorts?.filter((s) => gone.has(s.propertyId)) ?? [];
   if (hiddenSorts.length) out.sorts = [...(next.sorts ?? []), ...hiddenSorts];
+  if (stored.colorRules?.length) out.colorRules = restoreColorRules(stored.colorRules, next.colorRules, (id) => gone.has(id));
   const hiddenFilters = stored.filters?.filter((f) => mentions(f, gone)) ?? [];
   if (hiddenFilters.length) out.filters = [...(next.filters ?? []), ...hiddenFilters];
   for (const key of ["hidden", "shown", "wrapped"] as const) {

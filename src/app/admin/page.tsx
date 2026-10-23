@@ -3,12 +3,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { AdminSessionControls, AdminUsersTable } from "@/components/admin/admin-panel";
+import { AdminNetworkControls, AdminSessionControls, AdminUsersTable } from "@/components/admin/admin-panel";
 import { SettingsGroup, SettingsHeader, SettingsRow } from "@/components/settings/section";
 import { Input } from "@/components/ui";
 import { env } from "@/lib/env";
 import { firstAdminId } from "@/server/first-admin";
-import { checkInstanceAdmin, countLiveSessions, listInstanceUsers } from "@/server/instance-admin";
+import { checkInstanceAdmin, countLiveSessions, listInstanceUsers, listNetworkRestrictedWorkspaces } from "@/server/instance-admin";
 import { mailStatus } from "@/server/mail";
 import { listWorkspaces } from "@/server/pages";
 import { getSession } from "@/server/session";
@@ -20,7 +20,8 @@ export async function generateMetadata(): Promise<Metadata> {
 
 /**
  * The instance admin page: the server's accounts, signing them out and asking them for a new
- * password (see server/instance-admin.ts), and how workspace creation and sign-up are set. Only for
+ * password (see server/instance-admin.ts), clearing a workspace's approved networks, and how
+ * workspace creation and sign-up are set. Only for
  * the addresses in ADMIN_EMAILS and the server's first account; everyone else, signed in or not,
  * gets a 404, so the page gives nothing away. Outside /w/ like the account page, so no workspace
  * policy stands in the way.
@@ -36,9 +37,10 @@ export default async function AdminPage({
   const [session, query] = await Promise.all([getSession(), searchParams]);
   if (!session || !(await checkInstanceAdmin(session))) notFound();
   const q = typeof query.q === "string" ? query.q : "";
-  const [{ users, total }, liveSessions, workspaces, t, firstAdmin] = await Promise.all([
+  const [{ users, total }, liveSessions, restricted, workspaces, t, firstAdmin] = await Promise.all([
     listInstanceUsers(session, q),
     countLiveSessions(session),
+    env.localMode ? [] : listNetworkRestrictedWorkspaces(session),
     listWorkspaces(session.user.id),
     getTranslations("admin"),
     firstAdminId(),
@@ -86,6 +88,12 @@ export default async function AdminPage({
             <SettingsGroup title={t("sessions.heading")} description={t("sessions.description", { count: liveSessions })}>
               <AdminSessionControls emailReset={emailReset} />
             </SettingsGroup>
+
+            {!env.localMode && (
+              <SettingsGroup title={t("networks.heading")} description={t("networks.description")}>
+                <AdminNetworkControls workspaces={restricted} />
+              </SettingsGroup>
+            )}
 
             <section className="space-y-3">
               <div className="flex flex-wrap items-end gap-3">

@@ -9,14 +9,27 @@
  * one cancels the answer too, and keeps the conversation's queued questions for when it's opened
  * again. The mode (what the chat may change) is remembered in the browser; in mode `ask` a change
  * the model wants to make waits, as `pending`, for the person's decision. A long paste shows in the
- * box as a label (lib/chat-paste.ts) and is sent in its place.
+ * box as a label (lib/chat-paste.ts) and is sent in its place. CSV files attached to a question
+ * (lib/chat-attachments.ts) are read here, shown as chips, and sent with it.
  */
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { decideChangeAction, deleteConversationAction, getConversationAction } from "@/app/actions/ai";
 import { isAiErrorCode } from "@/lib/ai";
 import { CHAT_MODES, changedThings, thoughtText, type ChatActionView, type ChatEvent, type ChatMessageView, type ChatMode } from "@/lib/ai-chat";
+import {
+  CHAT_CSV_MAX_CHARS,
+  CHAT_CSV_MAX_COLUMNS,
+  CHAT_CSV_MAX_ROWS,
+  CHAT_MAX_ATTACHMENTS,
+  cleanAttachmentName,
+  isCsvFile,
+  uniqueAttachmentName,
+  type AttachmentProblem,
+  type ChatAttachmentView,
+} from "@/lib/chat-attachments";
 import { EMPTY_DRAFT, expandDraft, insertPaste, pasteLineCount, syncDraft, uniqueLabel, type ChatDraft } from "@/lib/chat-paste";
+import { browserTimeZone } from "@/lib/time-zone";
 import { holdAnswering } from "./answering";
 
 /** What the model is doing while an answer is on its way: working on a turn, or writing. */
@@ -31,8 +44,11 @@ export type PendingChange = { id: string; action: ChatActionView };
 /** A skill picked for the next question: its instructions guide the answer (server/skills). */
 export type ChatSkillPick = { id: string; title: string };
 
+/** A CSV file attached to the question being typed: as shown, and its text (sent with the question). */
+export type ChatFile = ChatAttachmentView & { text: string };
+
 /** A question asked while an answer was on its way, waiting to be asked. */
-export type QueuedQuestion = { question: string; skill: ChatSkillPick | null; scopePageId: string | null };
+export type QueuedQuestion = { question: string; skill: ChatSkillPick | null; scopePageId: string | null; files: ChatFile[] };
 
 /**
  * The model's thinking on its current turn, as it comes (not kept): held apart from the messages so
@@ -112,6 +128,9 @@ export function useChat(
   const [mode, setModeState] = useState<ChatMode>("ask");
   const [pending, setPending] = useState<PendingChange | null>(null);
   const [skill, setSkill] = useState<ChatSkillPick | null>(null);
+  const [files, setFiles] = useState<ChatFile[]>([]);
+  const filesNow = useRef(files);
+  filesNow.current = files;
   const [queued, setQueued] = useState<QueuedQuestion[]>([]);
   const [reasoning] = useState(reasoningStore);
   const abort = useRef<AbortController | null>(null);
@@ -138,6 +157,61 @@ export function useChat(
     setDraft(next);
     return Math.min(start, end) + label.length;
   };
+  /**
+   * Attaches CSV files to the question being typed, read here with the limits the server keeps;
+   * one that can't be attached says why (the others still are).
+   */
+  const attachFiles = async (list: readonly File[]) => {
+    const problem = (p: AttachmentProblem) =>
+      p === "tooManyRows"
+        ? t("files.tooManyRows", { rows: CHAT_CSV_MAX_ROWS })
+        : p === "tooManyColumns"
+          ? t("files.tooManyColumns", { columns: CHAT_CSV_MAX_COLUMNS })
+          : p === "tooLarge"
+            ? t("files.tooLarge", { size: "1 MB" })
+            : p === "tooMany"
+              ? t("files.tooMany", { count: CHAT_MAX_ATTACHMENTS })
+              : t(`files.${p}`);
+    let next = filesNow.current;
+    let failed: string | null = null;
+    for (const file of list) {
+      if (next.length >= CHAT_MAX_ATTACHMENTS) {
+        failed = problem("tooMany");
+        break;
+      }
+      if (!isCsvFile(file)) {
+        failed = problem("notCsv");
+        continue;
+      }
+      // Bytes first: a file far too large isn't read at all.
+      if (file.size > CHAT_CSV_MAX_CHARS * 4) {
+        failed = problem("tooLarge");
+        continue;
+      }
+      // The parser is loaded with the first file, not with the chat.
+      const { decodeText, readCsvAttachment } = await import("@/lib/chat-attachment-table");
+      const text = decodeText(new Uint8Array(await file.arrayBuffer()));
+      const read = readCsvAttachment(text);
+      if (!read.ok) {
+        failed = problem(read.problem);
+        continue;
+      }
+      const name = uniqueAttachmentName(next.map((f) => f.name), cleanAttachmentName(file.name));
+      next = [...next, { name, text, rows: read.table.rows.length, columns: read.table.headers.length }];
+    }
+    filesNow.current = next;
+    setFiles(next);
+    setError(failed);
+  };
+  const removeFile = (name: string) => {
+    filesNow.current = filesNow.current.filter((f) => f.name !== name);
+    setFiles(filesNow.current);
+  };
+  const setFilesNow = (next: ChatFile[]) => {
+    filesNow.current = next;
+    setFiles(next);
+  };
+
   // The latest callbacks, without restarting anything when the caller passes new ones.
   const callbacks = useRef({ onConversation, onAnswered });
   callbacks.current = { onConversation, onAnswered };
@@ -187,12 +261,13 @@ export function useChat(
    */
   const giveBack = (unasked: QueuedQuestion[] = []) => {
     const all = [...unasked, ...queue.current];
-    const toBox = inputNow.current.trim() ? undefined : all[0];
+    const toBox = inputNow.current.trim() || filesNow.current.length ? undefined : all[0];
     setQueue(toBox ? all.slice(1) : all);
     if (!toBox) return;
     inputNow.current = toBox.question;
     setInput(toBox.question);
     setSkill((current) => current ?? toBox.skill);
+    setFilesNow(toBox.files);
   };
 
   /** Stops the answer and leaves the conversation, its queued questions parked for its return. */
@@ -210,29 +285,41 @@ export function useChat(
    */
   async function send(scopePageId: string | null, again?: { question: string; skill?: ChatSkillPick }) {
     const question = (again?.question ?? expandDraft(draft)).trim();
-    if (!question) return;
+    const attached = again ? [] : filesNow.current;
+    if (!question && !attached.length) return;
     if (running) {
       if (again) return;
-      setQueue([...queue.current, { question, skill, scopePageId }]);
+      setQueue([...queue.current, { question, skill, scopePageId, files: attached }]);
       setInput("");
       setSkill(null);
+      setFilesNow([]);
       return;
     }
     if (!again) {
       setInput("");
       setSkill(null);
+      setFilesNow([]);
     }
-    await ask(question, again ? (again.skill ?? null) : skill, scopePageId, Boolean(again));
+    await ask(question, again ? (again.skill ?? null) : skill, scopePageId, Boolean(again), attached);
   }
 
-  async function ask(question: string, used: ChatSkillPick | null, scopePageId: string | null, again: boolean) {
+  async function ask(question: string, used: ChatSkillPick | null, scopePageId: string | null, again: boolean, attached: ChatFile[] = []) {
     setError(null);
     const controller = new AbortController();
     abort.current = controller;
     const startedAt = Date.now();
     const before = messages;
+    // Asked again, a question keeps the files it had (the server keeps them too).
+    const shownFiles = again ? messages[messages.length - 2]?.attachments : attached.map(({ name, rows, columns }) => ({ name, rows, columns }));
     const asked: ChatMessage[] = [
-      { key: nextKey(), role: "user", content: question, ...(used ? { skill: used } : {}), at: new Date(startedAt).toISOString() },
+      {
+        key: nextKey(),
+        role: "user",
+        content: question,
+        ...(used ? { skill: used } : {}),
+        ...(shownFiles?.length ? { attachments: shownFiles } : {}),
+        at: new Date(startedAt).toISOString(),
+      },
       { key: nextKey(), role: "assistant", content: "", steps: [], startedAt },
     ];
     setMessages((list) => [...(again ? list.slice(0, -2) : list), ...asked]);
@@ -257,6 +344,8 @@ export function useChat(
           mode: modeRef.current,
           ...(again ? { replaceLast: true } : {}),
           ...(used ? { skillId: used.id } : {}),
+          timeZone: browserTimeZone(),
+          ...(attached.length ? { attachments: attached.map(({ name, text }) => ({ name, text })) } : {}),
         }),
         signal: controller.signal,
       });
@@ -348,10 +437,10 @@ export function useChat(
       // things), or ended without an answer by the server: they are given back. Stopped here, Stop or
       // leaving the conversation took care of them.
       const next = queue.current[0];
-      if (failed) giveBack(!changed && !again ? [{ question, skill: used, scopePageId }] : []);
+      if (failed) giveBack(!changed && !again ? [{ question, skill: used, scopePageId, files: attached }] : []);
       else if (finished && next) {
         setQueue(queue.current.slice(1));
-        void ask(next.question, next.skill, next.scopePageId, false);
+        void ask(next.question, next.skill, next.scopePageId, false, next.files);
       } else if (!finished && !controller.signal.aborted) giveBack();
     }
   }
@@ -387,6 +476,7 @@ export function useChat(
     setMessages([]);
     setError(null);
     setSkill(null);
+    setFilesNow([]);
     inputRef.current?.focus();
   }
 
@@ -437,6 +527,9 @@ export function useChat(
     setInput,
     pastes: draft.pastes,
     pasteInput,
+    files,
+    attachFiles,
+    removeFile,
     status,
     error,
     running,

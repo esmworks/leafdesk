@@ -1,4 +1,5 @@
 import type { FormQuestion, PageKind, PropertyOptions, PropertyType, RowProperties, ViewConfig, ViewType } from "@/db/schema/app";
+import { dropColorRules } from "./color-rules";
 import { mapFilterRules } from "./filters";
 import { rewriteReferences, rewriteRelatedReferences } from "./formula";
 import { atLeast, type PropertyLevel, type PropertyRule } from "./property-access";
@@ -343,18 +344,27 @@ export function remapViewConfig(
   }
   if (config.dateBy !== undefined) out.dateBy = map(config.dateBy);
   if (config.endDateBy !== undefined) out.endDateBy = map(config.endDateBy);
+  if (config.placeBy !== undefined) out.placeBy = map(config.placeBy);
   if (config.stackBy !== undefined) out.stackBy = map(config.stackBy);
   if (config.frozenThrough !== undefined) out.frozenThrough = map(config.frozenThrough);
   if (config.chartAggregate) out.chartAggregate = { ...config.chartAggregate, propertyId: map(config.chartAggregate.propertyId) };
   if (config.boardAggregate) out.boardAggregate = { ...config.boardAggregate, propertyId: map(config.boardAggregate.propertyId) };
   if (config.sorts) out.sorts = config.sorts.map((s) => ({ ...s, propertyId: map(s.propertyId) }));
-  if (config.filters) {
-    out.filters = mapFilterRules(config.filters, (f) => {
+  // Relation filter values are row ids, which follow the copied rows (in color rules too).
+  const remapFilters = (filters: NonNullable<ViewConfig["filters"]>) =>
+    mapFilterRules(filters, (f) => {
       const rowIds = rowIdsFor(f.propertyId);
       const copied = (v: unknown) => (rowIds && typeof v === "string" ? (rowIds.get(v) ?? v) : structuredClone(v));
       const value = Array.isArray(f.value) ? f.value.map(copied) : copied(f.value);
       return { ...f, propertyId: map(f.propertyId), ...(f.value !== undefined ? { value } : {}) };
     });
+  if (config.filters) out.filters = remapFilters(config.filters);
+  if (config.colorRules) {
+    out.colorRules = config.colorRules.map((rule) => ({
+      ...structuredClone(rule),
+      filters: remapFilters(rule.filters ?? []),
+      ...(rule.propertyId !== undefined ? { propertyId: map(rule.propertyId) } : {}),
+    }));
   }
   if (config.hidden) out.hidden = config.hidden.map(map);
   if (config.shown) out.shown = config.shown.map(map);
@@ -391,6 +401,7 @@ export function dropPropertyReferences(config: ViewConfig, gone: (propertyId: st
     groupBy: c.groupBy !== undefined && gone(c.groupBy) ? undefined : c.groupBy,
     dateBy: c.dateBy !== undefined && gone(c.dateBy) ? undefined : c.dateBy,
     endDateBy: c.endDateBy !== undefined && gone(c.endDateBy) ? undefined : c.endDateBy,
+    placeBy: c.placeBy !== undefined && gone(c.placeBy) ? undefined : c.placeBy,
     stackBy: c.stackBy !== undefined && gone(c.stackBy) ? undefined : c.stackBy,
     frozenThrough: c.frozenThrough !== undefined && gone(c.frozenThrough) ? undefined : c.frozenThrough,
     // A gallery that took covers from the property goes back to the default.
@@ -399,6 +410,8 @@ export function dropPropertyReferences(config: ViewConfig, gone: (propertyId: st
     boardAggregate: c.boardAggregate && gone(c.boardAggregate.propertyId) ? undefined : c.boardAggregate,
     sorts: c.sorts?.filter((s) => !gone(s.propertyId)),
     filters: c.filters && mapFilterRules(c.filters, (f) => (gone(f.propertyId) ? null : f)),
+    // A color rule naming the property goes whole (see lib/color-rules dropColorRules).
+    colorRules: dropColorRules(c.colorRules, gone),
     hidden: c.hidden?.filter((h) => !gone(h)),
     shown: c.shown?.filter((h) => !gone(h)),
     propertyOrder: c.propertyOrder?.filter((id) => !gone(id)),

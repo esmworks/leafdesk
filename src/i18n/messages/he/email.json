@@ -232,6 +232,8 @@
     "pageUpdated": "{actor} ערך את הדף הזה",
     "rowEmail": "אימייל מ־{from}",
     "followUp": "רצף המעקב “{sequence}” הושהה: צריך לבדוק את האימייל הבא שלו",
+    "reaction": "{actor} הגיב/ה {emoji} לתגובה שלך",
+    "people": "{others, plural, =0 {{name}} one {{name} ועוד אדם אחד} two {{name} ועוד שניים} other {{name} ועוד #}}",
     "someone": "מישהו",
     "joinRequestTitle": "בקשת הצטרפות",
     "joinRequest": "{actor} ביקש להצטרף",

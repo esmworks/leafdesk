@@ -59,6 +59,8 @@ const STEP_CODES = [
   "noApprovers",
   "rejected",
   "timedOut",
+  "noPerson",
+  "tooLate",
 ] as const;
 
 /** A run waits for a wait step: the time it goes on. */

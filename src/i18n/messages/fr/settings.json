@@ -19,7 +19,8 @@
     "security": "Sécurité",
     "audit": "Journal d’audit",
     "site": "Site",
-    "snippets": "Extraits"
+    "snippets": "Extraits",
+    "pdf": "Modèles PDF"
   },
   "workspace": {
     "heading": "Espace de travail",
@@ -907,6 +908,14 @@
     "detailHeading": "{month} par fonctionnalité et modèle",
     "ownAccountShare": "Le compte d'IA propre à l'espace de travail en a payé {cost}.",
     "empty": "Aucune requête d'IA ce mois-ci.",
+    "peopleHeading": "{month} par personne",
+    "peopleDescription": "Qui a utilisé l’IA de l’espace de travail, du plus coûteux au moins coûteux : personnes et agents, chacun avec les fonctions qu’il a le plus utilisées. Les requêtes sont comptées par personne depuis la mise à jour de Leafdesk qui a ajouté cette liste ; les précédentes ne figurent que dans les totaux.",
+    "people": {
+      "agent": "Agent",
+      "nobody": "Travail en arrière-plan",
+      "unknown": "Compte supprimé",
+      "uncounted": "Avant le décompte par personne"
+    },
     "cacheTitle": "Lu depuis le cache de prompt : {read} · Écrit dans le cache : {write}",
     "columns": {
       "month": "Mois",
@@ -917,12 +926,16 @@
       "output": "Sortie",
       "cost": "Coût",
       "feature": "Fonctionnalité",
-      "model": "Modèle"
+      "model": "Modèle",
+      "person": "Personne",
+      "share": "Part",
+      "mostUsed": "Surtout utilisé pour"
     },
     "groups": {
       "chat": "Chat IA",
       "writing": "Assistant d'écriture",
       "properties": "Remplissage IA",
+      "formulas": "Formules",
       "agents": "Agents",
       "search": "Recherche sémantique",
       "voice": "Notes vocales",
@@ -1086,7 +1099,12 @@
     "workspaceDeleted": "Quelqu’un a supprimé cet espace de travail entre-temps.",
     "storageNoDestination": "Les fichiers de cet espace de travail sont dans votre stockage, et ils ne pourront être déplacés nulle part si vous partez : aucun autre propriétaire n’a de stockage par défaut, et le stockage de ce serveur ne peut pas les accueillir. Demandez à un propriétaire de configurer un stockage, ou déplacez d’abord les fichiers (Paramètres > Stockage).",
     "storageMoveInProgress": "Les fichiers de cet espace de travail sont en cours de déplacement vers votre stockage. Attendez la fin, puis quittez-le.",
-    "invalidCalloutStyle": "Un style d’encadré n’a pas pu être enregistré : vérifiez sa clé, son nom et son icône."
+    "invalidCalloutStyle": "Un style d’encadré n’a pas pu être enregistré : vérifiez sa clé, son nom et son icône.",
+    "invalidNetwork": "{detail} n’est ni une adresse IP ni une plage. Saisissez une adresse comme 203.0.113.7 ou 2001:db8::1, ou une plage comme 203.0.113.0/24.",
+    "invalidNetworkLabel": "Le libellé de {detail} est trop long : 100 caractères au maximum.",
+    "tooManyNetworks": "Un espace de travail peut avoir au plus 100 réseaux approuvés.",
+    "ipLocksYouOut": "Cette liste ne contient pas votre adresse actuelle, {detail} : l’enregistrer vous fermerait l’accès à l’espace de travail. Ajoutez d’abord votre adresse ou une plage qui la couvre.",
+    "ipUnknown": "Le serveur ne voit pas votre adresse et ne peut donc pas vérifier que cette liste vous laisse entrer. Enregistrez-la depuis une connexion dont le serveur voit l’adresse, ou videz la liste."
   },
   "security": {
     "description": "Choisissez comment les personnes se connectent, qui peut faire entrer des personnes dans cet espace de travail, ce que les invités peuvent faire, ce qui peut en sortir (exportations, applications connectées) et qui peut publier des pages sur le Web. Seuls les propriétaires peuvent modifier ces paramètres.",
@@ -1348,6 +1366,25 @@
       "error": "Impossible de la déconnecter. Réessayez.",
       "gone": "Elle est déjà déconnectée, ou n’atteint plus cet espace de travail.",
       "shown": "Affichage des {shown} utilisées le plus récemment ici, sur {total}."
+    },
+    "allowedNetworks": {
+      "title": "Réseaux approuvés",
+      "description": "N’autoriser l’ouverture de cet espace de travail que depuis ces adresses et plages IP, comme votre bureau ou votre VPN : IPv4 ou IPv6, une adresse seule (203.0.113.7) ou une plage CIDR (203.0.113.0/24). Cela s’applique à tout le monde dans l’espace de travail, propriétaires et invités compris. Laissez la liste vide pour autoriser tous les réseaux.",
+      "appsNote": "Les applications connectées par MCP, les jetons d’API REST et les jetons SCIM n’y sont pas soumis : ils suivent le réglage « Applications connectées et jetons d’API ».",
+      "range": "Adresse ou plage",
+      "label": "Libellé",
+      "rangePlaceholder": "203.0.113.0/24",
+      "labelPlaceholder": "Bureau (facultatif)",
+      "add": "Ajouter un réseau",
+      "addMine": "Ajouter mon adresse ({ip})",
+      "remove": "Retirer {range}",
+      "removeRow": "Retirer la ligne",
+      "empty": "Aucun réseau approuvé : l’espace de travail s’ouvre depuis n’importe quel réseau.",
+      "addressUnknown": "Le serveur ne voit pas votre adresse : aucune liste ne peut être enregistrée depuis cette connexion.",
+      "yourAddressOnList": "Votre adresse, {ip}, figure dans la liste.",
+      "yourAddressMissing": "Votre adresse, {ip}, ne figure pas dans la liste : l’enregistrer vous fermerait l’accès, ajoutez-la d’abord.",
+      "lockoutHelp": "Si une liste ferme un jour l’accès à tout le monde, un administrateur de l’instance peut la vider sur la page d’administration.",
+      "memberView": "{count, plural, =0 {Désactivé : l’espace de travail s’ouvre depuis n’importe quel réseau.} one {Activé : l’espace de travail ne s’ouvre que depuis # réseau approuvé.} other {Activé : l’espace de travail ne s’ouvre que depuis # réseaux approuvés.}}"
     }
   },
   "audit": {
@@ -1529,6 +1566,7 @@
         "restored": "A restauré {target} depuis la corbeille",
         "permission_changed": "A défini l’accès de {subject} à {target} : {level}",
         "permission_removed": "A retiré {subject} du partage de {target}",
+        "row_access_changed": "A modifié à qui les lignes de {target} donnent accès",
         "deleted": "A supprimé {target} définitivement",
         "published": "A publié {target} sur le Web",
         "unpublished": "A dépublié {target}",
@@ -1571,7 +1609,9 @@
       "workspace": {
         "renamed": "A renommé l’espace de travail de {from} en {to}",
         "settings_changed": "A modifié des paramètres : {settings}",
-        "domains_verified": "A vérifié le domaine de messagerie autorisé {domains}"
+        "domains_verified": "A vérifié le domaine de messagerie autorisé {domains}",
+        "networks_changed": "{count, plural, =0 {A retiré les réseaux approuvés} other {A défini les réseaux approuvés : {names}}}",
+        "networks_cleared": "A vidé les réseaux approuvés en tant qu’administrateur de l’instance"
       },
       "sso": {
         "configured": "A enregistré la connexion d’authentification unique ({protocol}) pour {domains}",
@@ -1728,7 +1768,10 @@
     "reviewChannel": "À vérifier : {channel}",
     "followUpTitle": "Relances",
     "followUpDescription": "Une relance que vous avez lancée se met en pause, car son prochain e-mail n’a pas passé la vérification avant envoi.",
-    "followUpChannel": "Relances : {channel}"
+    "followUpChannel": "Relances : {channel}",
+    "reactionTitle": "Réactions",
+    "reactionDescription": "Quelqu’un réagit à un commentaire que vous avez écrit. Les réactions à un même commentaire sont regroupées jusqu’à ce que vous les ouvriez.",
+    "reactionChannel": "Réactions : {channel}"
   },
   "site": {
     "description": "Donnez aux pages publiées de cet espace de travail une adresse lisible, une page d’accueil et une navigation commune.",
@@ -2275,6 +2318,56 @@
       "color": "Choisissez une couleur.",
       "border": "Choisissez une bordure.",
       "title": "Le titre ne doit pas dépasser 120 caractères."
+    }
+  },
+  "letterheads": {
+    "heading": "En-têtes",
+    "description": "Ce que les fichiers PDF impriment autour d’une page : un logo, les coordonnées de votre entreprise en haut et des lignes en pied de page. Choisissez-en un à l’export PDF ; le chat IA utilise celui par défaut sauf demande contraire.",
+    "empty": "Aucun en-tête pour l’instant.",
+    "add": "Ajouter un en-tête",
+    "edit": "Modifier",
+    "remove": "Supprimer {name}",
+    "removeConfirm": "Supprimer l’en-tête « {name} » ? Les PDF utiliseront alors celui par défaut.",
+    "count": "{count} sur {max} en-têtes",
+    "ownersOnly": "Seuls les propriétaires peuvent modifier les en-têtes.",
+    "default": "Par défaut",
+    "makeDefault": "Définir par défaut",
+    "unsetDefault": "Ne plus utiliser par défaut",
+    "noLines": "Aucune ligne en haut",
+    "name": "Nom",
+    "namePlaceholder": "Devis",
+    "logo": "Logo",
+    "logoHelp": "PNG ou JPEG, {size} au maximum.",
+    "uploadLogo": "Importer un logo",
+    "replaceLogo": "Remplacer le logo",
+    "removeLogo": "Retirer",
+    "logoPlace": "Position du logo",
+    "places": {
+      "left": "Logo à gauche",
+      "center": "Logo centré",
+      "right": "Logo à droite"
+    },
+    "header": "Lignes du haut",
+    "headerHelp": "Jusqu’à {max} lignes, imprimées sur chaque page ; la première en gras.",
+    "headerPlaceholder": "Nom de l’entreprise\nAdresse\nTéléphone · e-mail · n° de TVA",
+    "footer": "Lignes du pied",
+    "footerHelp": "Jusqu’à {max} lignes, comme les coordonnées bancaires.",
+    "footerPlaceholder": "Banque · IBAN",
+    "accent": "Couleur d’accent",
+    "accentHelp": "Pour le filet sous l’en-tête et les en-têtes de tableau.",
+    "noAccent": "Gris",
+    "pageNumbers": "Numéros de page",
+    "errors": {
+      "name": "Donnez-lui un nom de 60 caractères au maximum.",
+      "header": "6 lignes au maximum en haut, de 140 caractères chacune.",
+      "footer": "4 lignes au maximum en pied de page, de 140 caractères chacune.",
+      "logoPlace": "Choisissez la position du logo.",
+      "accent": "Choisissez une couleur.",
+      "duplicateName": "Un autre en-tête porte ce nom.",
+      "tooMany": "Un espace de travail peut avoir 20 en-têtes au maximum.",
+      "logoType": "Le logo doit être une image PNG ou JPEG.",
+      "logoSize": "Le logo est trop lourd : 512 Ko au maximum.",
+      "notFound": "Cet en-tête n’existe plus. Rechargez la page."
     }
   }
 }

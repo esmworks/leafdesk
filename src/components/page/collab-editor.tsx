@@ -58,6 +58,7 @@ import type { PageDoc } from "./use-page-doc";
 import { SyncedFrameProvider, useSyncedFrame, useSyncedPageSlashItem } from "./synced-page";
 import { pasteSyncedBlock, useSyncedBlockSlashItem } from "./synced-block";
 import { pasteAgentChat, useAgentChatSlashItem } from "./agent-chat-block";
+import { useMeetingSlashItem } from "./meeting-block";
 import { PasteLinkMenu, useWebSlashItems } from "./web-blocks";
 import { useColorSlashItems } from "./slash-colors";
 import { withTextScriptButtons } from "./text-scripts";
@@ -430,6 +431,7 @@ function SlashMenu({
   const placeSynced = useCallback((at: string, block: Parameters<typeof placeEmbedBlock>[2]) => placeEmbedBlock(editor, at, block), [editor]);
   const syncedBlockItems = useSyncedBlockSlashItem(editor, doc, placeSynced);
   const agentChatItems = useAgentChatSlashItem(editor, placeSynced);
+  const meetingItems = useMeetingSlashItem(editor);
   const columnItems = useColumnSlashItems(editor);
   const colorItems = useColorSlashItems(editor);
   const aiItems = useAiSlashItems(assistant?.open ?? noop, assistant !== null);
@@ -449,6 +451,7 @@ function SlashMenu({
             ...syncedPageItems,
             ...syncedBlockItems,
             ...agentChatItems,
+            ...meetingItems,
             ...colorItems(),
             ...snippetItems,
             ...aiItems,

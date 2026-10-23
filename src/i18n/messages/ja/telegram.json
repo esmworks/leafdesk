@@ -79,6 +79,7 @@
     "createPage": "ページ {title} を {target} の下に追加しますか？",
     "createPageTop": "ページ {title} をワークスペースの最上位に、あなただけのページとして追加しますか？",
     "editPage": "{title} の本文を変更しますか？",
+    "createPdf": "{target} の PDF {title} を作成してそこに添付しますか？",
     "remember": "これをあなたについて覚えておきますか？",
     "forget": "このメモを忘れますか？",
     "connection": "これを {connection}（{tool}）に送信しますか？",
@@ -88,7 +89,15 @@
     "no": "いいえ",
     "approved": "承認しました。",
     "declined": "拒否しました。",
-    "gone": "この確認はもう待機していません。"
+    "gone": "この確認はもう待機していません。",
+    "addComment": "{target} にコメントしますか？",
+    "createDatabase": "データベース {title} を {target} の下に追加しますか？",
+    "createDatabaseTop": "データベース {title} をワークスペースの最上位に、あなた専用で追加しますか？",
+    "createForm": "フォーム {title} を {target} に追加しますか？",
+    "publicForm": {
+      "signedIn": "公開リンクが作られます: リンクを知っている人はサインイン後に回答できます。",
+      "anonymous": "公開リンクが作られます: リンクを知っている人はサインインせずに回答できます。"
+    }
   },
   "changed": {
     "done": "完了：{what}",

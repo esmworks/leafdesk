@@ -131,6 +131,24 @@ describe("parseQuickAdd: other languages", () => {
     expect(pl("Podatki 15 października").date).toBe("2026-10-15");
   });
 
+  it("reads Indonesian, Thai and Vietnamese", () => {
+    const id = (text: string) => parse(text, { locale: "id" });
+    expect(id("Laporan hari Jumat")).toMatchObject({ title: "Laporan", date: "2026-10-16" });
+    expect(id("Laporan Senin depan").date).toBe("2026-10-12");
+    expect(id("Laporan 3 hari lagi").date).toBe("2026-10-13");
+    expect(id("Laporan dalam 2 minggu").date).toBe("2026-10-24");
+    expect(id("Pajak 15 Oktober").date).toBe("2026-10-15");
+    const th = (text: string) => parse(text, { locale: "th" });
+    expect(th("รายงาน พรุ่งนี้")).toMatchObject({ title: "รายงาน", date: "2026-10-11" });
+    expect(th("รายงาน วันศุกร์").date).toBe("2026-10-16");
+    expect(th("รายงาน อีก 3 วัน").date).toBe("2026-10-13");
+    const vi = (text: string) => parse(text, { locale: "vi" });
+    expect(vi("Báo cáo thứ Sáu")).toMatchObject({ title: "Báo cáo", date: "2026-10-16" });
+    expect(vi("Báo cáo ngày mai").date).toBe("2026-10-11");
+    expect(vi("Báo cáo 2 tuần nữa").date).toBe("2026-10-24");
+    expect(vi("Báo cáo tuần sau").date).toBe("2026-10-12");
+  });
+
   it("reads Arabic, Hebrew and Persian, with their digits and spellings", () => {
     const ar = (text: string) => parse(text, { locale: "ar" });
     expect(ar("تقرير يوم الجمعة")).toMatchObject({ title: "تقرير", date: "2026-10-16" });

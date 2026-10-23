@@ -214,21 +214,33 @@
           "updateRow": "تغيّر الصف:",
           "createPage": "أُضيفت الصفحة:",
           "editPage": "تغيّر نص الصفحة:",
-          "mergeRows": "دُمجت الصفوف في:"
+          "createPdf": "أُنشئ ملف PDF:",
+          "mergeRows": "دُمجت الصفوف في:",
+          "addComment": "تم التعليق على:",
+          "createDatabase": "أُضيفت قاعدة البيانات:",
+          "createForm": "أُضيف النموذج:"
         },
         "declined": {
           "createRow": "رُفضت إضافة الصف:",
           "updateRow": "رُفض تغيير:",
           "createPage": "رُفضت إضافة الصفحة:",
           "editPage": "رُفض تغيير نص:",
-          "mergeRows": "رُفض دمج الصفوف في:"
+          "createPdf": "رُفض إنشاء ملف PDF:",
+          "mergeRows": "رُفض دمج الصفوف في:",
+          "addComment": "رفضتَ التعليق على:",
+          "createDatabase": "رفضتَ إضافة قاعدة البيانات:",
+          "createForm": "رفضتَ إضافة النموذج:"
         },
         "failed": {
           "createRow": "تعذّرت إضافة الصف:",
           "updateRow": "تعذّر تغيير:",
           "createPage": "تعذّرت إضافة الصفحة:",
           "editPage": "تعذّر تغيير نص:",
-          "mergeRows": "تعذّر دمج الصفوف في:"
+          "createPdf": "تعذّر إنشاء ملف PDF:",
+          "mergeRows": "تعذّر دمج الصفوف في:",
+          "addComment": "تعذّر التعليق على:",
+          "createDatabase": "تعذّرت إضافة قاعدة البيانات:",
+          "createForm": "تعذّرت إضافة النموذج:"
         },
         "in": "في",
         "proposed": {
@@ -236,7 +248,11 @@
           "updateRow": "اقترح تغييرًا للمراجعة:",
           "createPage": "اقترح إضافة صفحة للمراجعة:",
           "editPage": "اقترح تغيير نص للمراجعة:",
-          "mergeRows": "اقترح دمج صفوف للمراجعة في:"
+          "createPdf": "اقترح ملف PDF للمراجعة:",
+          "mergeRows": "اقترح دمج صفوف للمراجعة في:",
+          "addComment": "اقترح تعليقًا للمراجعة على:",
+          "createDatabase": "اقترح قاعدة بيانات للمراجعة:",
+          "createForm": "اقترح نموذجًا للمراجعة:"
         }
       },
       "memory": {
@@ -274,7 +290,11 @@
         "remember": "تذكّر هذا عنك؟",
         "forget": "نسيان هذه الملاحظة؟",
         "editPage": "تغيير نص هذه الصفحة؟",
-        "connection": "هل تريد إرسال هذا إلى {connection}؟"
+        "createPdf": "إنشاء ملف PDF لهذه الصفحة وإرفاقه؟",
+        "connection": "هل تريد إرسال هذا إلى {connection}؟",
+        "addComment": "إضافة هذا التعليق؟",
+        "createDatabase": "إضافة قاعدة البيانات هذه؟",
+        "createForm": "إضافة هذا النموذج؟"
       },
       "in": "في",
       "row": "الصف",
@@ -287,7 +307,14 @@
       "waiting": "في انتظار موافقتك",
       "page": "الصفحة",
       "empty": "(فارغ)",
-      "connectionHint": "يُرسل عبر اتصال مساحة العمل: قد يغيّر شيئًا في {connection}"
+      "connectionHint": "يُرسل عبر اتصال مساحة العمل: قد يغيّر شيئًا في {connection}",
+      "fromFile": "{rows, plural, zero {# صف} one {صف واحد} two {صفان} few {# صفوف} many {# صفًا} other {# صف}} من {name}",
+      "titleColumn": "العنوان",
+      "publicForm": {
+        "signedIn": "رابط عام: يمكن لأي شخص لديه الرابط الإجابة بعد تسجيل الدخول",
+        "anonymous": "رابط عام: يمكن لأي شخص لديه الرابط الإجابة دون تسجيل الدخول"
+      },
+      "letterhead": "الترويسة: {name}"
     },
     "mode": {
       "label": "التغييرات",
@@ -304,7 +331,20 @@
       "retry": "الإجابة مجددًا"
     },
     "actionsFor": "إجراءات {name}",
-    "greeting": "ماذا تريد أن تعرف؟"
+    "greeting": "ماذا تريد أن تعرف؟",
+    "files": {
+      "attach": "إرفاق ملف CSV",
+      "attachHint": "أرفق ملف CSV (حتى 1000 صف و1 ميغابايت) لتسأل عنه أو تنشئ منه قاعدة بيانات",
+      "drop": "أفلت ملف CSV لإرفاقه",
+      "remove": "إزالة {name}",
+      "size": "{rows, plural, zero {# صف} one {صف واحد} two {صفان} few {# صفوف} many {# صفًا} other {# صف}} × {columns, plural, zero {# عمود} one {عمود واحد} two {عمودان} few {# أعمدة} many {# عمودًا} other {# عمود}}",
+      "notCsv": "يمكن إرفاق ملفات CSV فقط. احفظ جدول البيانات بصيغة CSV أولًا.",
+      "tooLarge": "حجم الملف أكبر من {size}. أرفق ملف CSV أصغر.",
+      "tooManyRows": "يحتوي الملف على أكثر من {rows} صف. أرفق ملفًا أقصر أو استورده كقاعدة بيانات.",
+      "tooManyColumns": "يحتوي الملف على أكثر من {columns} عمود.",
+      "empty": "الملف فارغ.",
+      "tooMany": "يمكن أن يحتوي السؤال على {count} ملفات كحد أقصى."
+    }
   },
   "memory": {
     "open": "الذاكرة",

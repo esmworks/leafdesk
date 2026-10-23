@@ -12,6 +12,7 @@ import type {
   ViewType,
   ViewWidget,
 } from "@/db/schema/app";
+import { colorRulesConfigError } from "./color-rules";
 import { CHART_ACCUMULATES, CHART_SORTS, CHART_TYPES, isBoardAggregateFn, isChartAggregateFn } from "./chart";
 import { filterConfigError } from "./filters";
 import { formConfigError } from "./forms";
@@ -26,6 +27,7 @@ export const VIEW_TYPES = [
   "gallery",
   "list",
   "timeline",
+  "map",
   "chart",
   "dashboard",
   "form",
@@ -41,7 +43,7 @@ export const TIMELINE_ZOOMS = ["day", "week", "month"] as const satisfies readon
 export const CALENDAR_MODES = ["month", "week"] as const satisfies readonly CalendarMode[];
 export const OPEN_ROWS = ["panel", "page"] as const satisfies readonly OpenRows[];
 /** The views whose rows open from them; forms have none and charts list theirs as links. */
-export const ROW_VIEW_TYPES = ["table", "board", "calendar", "gallery", "list", "timeline"] as const satisfies readonly ViewType[];
+export const ROW_VIEW_TYPES = ["table", "board", "calendar", "gallery", "list", "timeline", "map"] as const satisfies readonly ViewType[];
 
 /** How narrow and how wide a table column may be saved (the table keeps a dragged column within these). */
 export const MIN_COLUMN_WIDTH = 60;
@@ -59,6 +61,7 @@ export const DEFAULT_VIEW_NAMES: Record<ViewType, string> = {
   gallery: "Gallery",
   list: "List",
   timeline: "Timeline",
+  map: "Map",
   chart: "Chart",
   dashboard: "Dashboard",
   form: "Form",
@@ -96,7 +99,7 @@ export function coverProperty<P extends { id: string; type: string }>(config: Pi
  */
 export function layoutConfigError(config: ViewConfig): string | null {
   const c = config as Record<string, unknown>;
-  for (const key of ["groupBy", "dateBy", "endDateBy", "stackBy"] as const) {
+  for (const key of ["groupBy", "dateBy", "endDateBy", "stackBy", "placeBy"] as const) {
     if (c[key] !== undefined && typeof c[key] !== "string") return `${key} must be a property id`;
   }
   if (c.subItems !== undefined && !SUB_ITEMS_DISPLAYS.includes(c.subItems as SubItemsDisplay)) {
@@ -178,6 +181,8 @@ export function layoutConfigError(config: ViewConfig): string | null {
     const error = widgetsConfigError(c.widgets);
     if (error) return error;
   }
+  const colorError = colorRulesConfigError(c.colorRules);
+  if (colorError) return colorError;
   return formConfigError(c.form);
 }
 
@@ -255,4 +260,12 @@ export function viewDateProperty<P extends { id: string; type: string }>(
   accepts: (property: P) => boolean = (p) => p.type === "date",
 ): P | undefined {
   return properties.find((p) => p.id === config.dateBy && accepts(p)) ?? properties.find((p) => p.type === "date");
+}
+
+/**
+ * The place property a map view puts rows on: the one its settings name (`placeBy`) while it is
+ * still a place property, else the first place property.
+ */
+export function viewPlaceProperty<P extends { id: string; type: string }>(config: Pick<ViewConfig, "placeBy">, properties: P[]): P | undefined {
+  return properties.find((p) => p.id === config.placeBy && p.type === "place") ?? properties.find((p) => p.type === "place");
 }
