@@ -4,6 +4,29 @@
 
 ### Added
 
+- **Follow-ups on rows.** Owners add follow-up sequences to a mail database in Settings → General →
+  Email: a name and steps, each with how many days after the one before it goes out, the text, and
+  whether it is sent on its own or put in the sender's For review queue first ("ask me first").
+  The first step has a subject; later ones answer in the same thread. Templates use the row's
+  values as `{{Company | there}}`: every variable needs a fallback, used when the row's value is
+  empty, and a sequence without one isn't saved. Start one from a row's Email section, on the rows
+  selected in a table, with an automation's new *Start a follow-up* step (sending as the person the
+  automation runs as; a row already in it is skipped), over MCP (`list_sequences`,
+  `enroll_in_sequence`, `list_enrollments`, `stop_enrollment`, `resume_enrollment`) or the REST
+  API (`/databases/{id}/sequences`, `/sequences/{id}/enrollments`, `/enrollments`, with
+  `rows:read` and `rows:write`). A row is in a sequence once at a time. Emails go out from the
+  sender's own mailbox, on weekdays from 09:00 to 17:00 in their time zone unless the sequence
+  says otherwise, at most 50 a day per mailbox (set under My account → Email and calendar), a few
+  minutes apart. Each is checked like an agent's email draft: one that doesn't pass isn't sent,
+  and the follow-up pauses and tells its sender. A follow-up stops when the contact answers, the
+  row goes to the trash, the mailbox is disconnected, a draft is dismissed or someone stops it; an
+  out-of-office reply pauses it until the day it says they are back (a week when it says none).
+  The row shows each follow-up with its step, why it paused or stopped, and *Stop* / *Resume*;
+  a draft under For review says which step of which sequence it is. Starts, stops and sends are in
+  the audit log, and ended follow-ups are deleted after 90 days. The automations dialog has a
+  *Start from an example* button with one that starts a follow-up when a row reaches a quote stage.
+  Migration 0111 adds `email_sequence`, `sequence_enrollment` and `sequence_send`, a daily limit,
+  time zone and next send time to `mailbox`, and the enrollment a notification is about.
 - **Property descriptions.** Every property can say what it holds and how to fill it, in plain
   text of up to 1,000 characters, set in its menu under the type. It shows as a hint when you rest
   on the column header or the property's name on a row page, and it guides whatever writes values

@@ -1167,6 +1167,30 @@ host name or `host:port`) to let mailboxes reach it, also without TLS. Backups k
 rows and which databases mail lands on, not the mailboxes: members connect them again after a
 restore.
 
+### Follow-ups
+
+A follow-up sequence sends a row's contact a few emails one after another until they answer.
+Owners add sequences to a database mail lands on, in Settings → Email: each step says how many days
+after the one before it goes out, its text, and whether it is sent on its own or first put in the
+sender's For review queue (approving sends it and the sequence goes on, dismissing stops it). The
+first step has a subject; later ones answer in its thread. Texts use the row's values by property
+name, plus `Name`, `Title` and `Sender`, always with a fallback: `{{Company | there}}`. A sequence
+whose template lacks one isn't saved, and an empty value takes it when the email is written.
+
+Whoever may edit a row and has a mailbox starts a sequence on it from the row's Email section, on
+selected rows from a table's bulk actions, with an automation's *Start a follow-up* step (as the
+person the automation runs as), over MCP or with the REST API. A row is in a sequence once at a
+time. Emails go out from the sender's own mailbox within the sequence's send window (weekdays
+09:00–17:00 by default) in the time zone of their mailbox, at most its daily limit (50 by default;
+both under My account → Email and calendar), a few minutes apart. Each email is checked as agents'
+drafts are (no placeholders, Markdown, HTML or internal links): one that doesn't pass isn't sent,
+and the follow-up pauses and tells its sender, who can fix the row and resume it. A follow-up stops
+when the contact's answer lands on the row, the row goes to the trash, the mailbox is disconnected
+or someone stops it; an out-of-office reply pauses it until the day it names (a week when it names
+none), while other automated mail leaves it be. Every step is recorded as sent in the same
+transaction that queues its email, so a crash or a second server never sends it twice. Ended
+follow-ups are kept 90 days. Backups keep the sequences, not the follow-ups under way.
+
 ## Social login
 
 People can also sign in with GitHub or Google. Each provider is off until you set both of its
