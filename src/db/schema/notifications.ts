@@ -80,6 +80,10 @@ export const userPreference = pgTable("user_preference", {
    */
   followUpInbox: boolean("follow_up_inbox").notNull().default(true),
   followUpEmails: boolean("follow_up_emails").notNull().default(false),
+  /** Show reminders that a page I verified is about to stop being verified, or did, in my inbox. */
+  verificationInbox: boolean("verification_inbox").notNull().default(true),
+  /** Email me those reminders. */
+  verificationEmails: boolean("verification_emails").notNull().default(true),
   /**
    * Push notifications per kind, to the devices that turned them on (see push_subscription). They
    * follow the inbox: a kind turned off there sends no push either, whatever these say, so by
@@ -98,6 +102,7 @@ export const userPreference = pgTable("user_preference", {
   rowEmailPush: boolean("row_email_push").notNull().default(true),
   reviewPush: boolean("review_push").notNull().default(true),
   followUpPush: boolean("follow_up_push").notNull().default(true),
+  verificationPush: boolean("verification_push").notNull().default(true),
   /**
    * Telegram messages per kind, to the Telegram account the person linked (see telegram_link,
    * server/telegram/notify.ts). They follow the inbox as push does.
@@ -115,6 +120,7 @@ export const userPreference = pgTable("user_preference", {
   rowEmailTelegram: boolean("row_email_telegram").notNull().default(true),
   reviewTelegram: boolean("review_telegram").notNull().default(true),
   followUpTelegram: boolean("follow_up_telegram").notNull().default(true),
+  verificationTelegram: boolean("verification_telegram").notNull().default(true),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
@@ -322,6 +328,7 @@ export const NOTIFICATION_KINDS = [
   "row_email",
   "review",
   "follow_up",
+  "verification",
   "agent_approval",
   "agent_memory",
   "agent_report",
@@ -362,7 +369,9 @@ export type PreferenceKind = Exclude<NotificationKind, OwnerKind>;
  * proposed by agent `actorId`; one unread at a time per person and workspace, which newer
  * proposals bring back to the top rather than adding more; it has no page. "follow_up": the
  * user's enrollment `sequenceEnrollmentId` of row `pageId` in a follow-up sequence paused because
- * its next email didn't pass the draft check (see server/sequences).
+ * its next email didn't pass the draft check (see server/sequences). "verification": the user's
+ * verification of page `pageId` ends at `date` (an ISO time) in a few days, or ended then (created
+ * at or after it); see server/verification.ts.
  * "ai_account_detached": the workspace's AI no longer runs on `actorId`'s own AI account (they left
  * the workspace, deleted the account or their whole account); it has no page. Unread ones are dropped when the change is
  * undone (or the request decided). Rows are recorded
