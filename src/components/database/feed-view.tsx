@@ -21,8 +21,8 @@ import { RowValue, shownValues } from "./property-cell";
 import { openRowProps, useIsOpenRow, useRowOpener } from "./row-panel-context";
 import type { Property, Row, View } from "./types";
 
-/** Events on a database's channel after which the posts on screen are read again (comments live in each row's document, which announces nothing here). */
-const REFRESH_ON = new Set(["rows", "reactions"]);
+/** Events on a database's channel after which the posts on screen are read again. */
+const REFRESH_ON = new Set(["rows", "reactions", "comments"]);
 /** Comments a post shows before "Show all comments". */
 const SHOWN_COMMENTS = 3;
 
@@ -244,14 +244,17 @@ function FeedPostView({
         color?.row && colorMarkClass(color.row),
       )}>
       <header className="flex items-center gap-2 text-sm">
-        {author?.isAgent && author.agentIcon ? (
+        {!post ? (
+          // Who wrote it comes with the post: nothing is named until then.
+          <span aria-hidden className="h-6 w-24 animate-pulse rounded-full bg-bg-subtle" />
+        ) : author?.isAgent && author.agentIcon ? (
           <span aria-hidden className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-bg-active text-xs">
             {author.agentIcon}
           </span>
         ) : (
           <UserAvatar name={authorName} image={author?.avatarUrl} size="sm" />
         )}
-        <bdi className="min-w-0 truncate font-medium">{authorName}</bdi>
+        {post && <bdi className="min-w-0 truncate font-medium">{authorName}</bdi>}
         <span aria-hidden className="text-fg-faint">
           ·
         </span>

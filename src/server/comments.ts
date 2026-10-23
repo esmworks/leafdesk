@@ -51,6 +51,8 @@ const id = (value: unknown) => {
 };
 
 const MAX_QUOTE = 1000;
+/** Announced on a row's database channel after a change to the row's comments. */
+export const COMMENTS_EVENT = "comments";
 
 function cleanAnchor(anchor: unknown): CommentAnchor | undefined {
   if (anchor === undefined || anchor === null) return undefined;
@@ -161,6 +163,8 @@ export async function changeComments(userId: string, pageId: string, op: Comment
     // Reactions to a deleted comment are about nothing any more.
     await withdrawReactions(target.workspaceId, pageId, clean.threadId, clean.commentId);
   }
+  // A row's comments show in its database's feed views (components/database/feed-view).
+  if (target.parentId) getCollab().broadcast(`db:${target.parentId}`, COMMENTS_EVENT);
   return result;
 }
 
