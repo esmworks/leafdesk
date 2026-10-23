@@ -1087,7 +1087,12 @@
     "workspaceDeleted": "Ktoś w międzyczasie usunął ten obszar roboczy.",
     "storageNoDestination": "Pliki tego obszaru roboczego są w Twoim magazynie i po Twoim odejściu nie ma dokąd ich przenieść: żaden inny właściciel nie ma domyślnego magazynu, a magazyn tego serwera nie może ich przyjąć. Poproś właściciela o skonfigurowanie magazynu albo najpierw przenieś pliki (Ustawienia > Magazyn).",
     "storageMoveInProgress": "Pliki tego obszaru roboczego są właśnie przenoszone do Twojego magazynu. Poczekaj, aż to się zakończy, a potem opuść obszar roboczy.",
-    "invalidCalloutStyle": "Nie udało się zapisać stylu wyróżnienia: sprawdź jego klucz, nazwę i ikonę."
+    "invalidCalloutStyle": "Nie udało się zapisać stylu wyróżnienia: sprawdź jego klucz, nazwę i ikonę.",
+    "invalidNetwork": "{detail} nie jest adresem IP ani zakresem. Wpisz adres, np. 203.0.113.7 lub 2001:db8::1, albo zakres, np. 203.0.113.0/24.",
+    "invalidNetworkLabel": "Etykieta {detail} jest za długa: najwyżej 100 znaków.",
+    "tooManyNetworks": "Obszar roboczy może mieć najwyżej 100 zatwierdzonych sieci.",
+    "ipLocksYouOut": "Na tej liście nie ma Twojego obecnego adresu, {detail}, więc po zapisaniu stracisz dostęp do obszaru roboczego. Najpierw dodaj swój adres lub obejmujący go zakres.",
+    "ipUnknown": "Serwer nie widzi Twojego adresu, więc nie może sprawdzić, czy ta lista zachowa Twój dostęp. Zapisz ją przez połączenie, którego adres serwer widzi, albo wyczyść listę."
   },
   "security": {
     "description": "Zdecyduj, jak osoby się logują, kto może wprowadzać osoby do tego obszaru roboczego, co mogą robić goście, co może go opuszczać (eksporty, połączone aplikacje) i kto może publikować strony w internecie. Tylko właściciele mogą zmieniać te ustawienia.",
@@ -1349,6 +1354,25 @@
       "error": "Nie udało się odłączyć. Spróbuj ponownie.",
       "gone": "Już odłączono lub nie ma już dostępu do tego obszaru roboczego.",
       "shown": "Wyświetlono {shown} ostatnio używanych tutaj z {total}."
+    },
+    "allowedNetworks": {
+      "title": "Zatwierdzone sieci",
+      "description": "Pozwól otwierać ten obszar roboczy tylko z tych adresów i zakresów IP, np. z biura lub przez VPN: IPv4 lub IPv6, pojedynczy adres (203.0.113.7) albo zakres CIDR (203.0.113.0/24). Dotyczy to wszystkich w obszarze roboczym, także właścicieli i gości. Zostaw listę pustą, aby dopuścić każdą sieć.",
+      "appsNote": "Nie dotyczy to aplikacji połączonych przez MCP, tokenów REST API ani tokenów SCIM: obowiązuje je ustawienie „Połączone aplikacje i tokeny API”.",
+      "range": "Adres lub zakres",
+      "label": "Etykieta",
+      "rangePlaceholder": "203.0.113.0/24",
+      "labelPlaceholder": "Biuro (opcjonalnie)",
+      "add": "Dodaj sieć",
+      "addMine": "Dodaj mój adres ({ip})",
+      "remove": "Usuń {range}",
+      "removeRow": "Usuń wiersz",
+      "empty": "Brak zatwierdzonych sieci: obszar roboczy otwiera się z każdej sieci.",
+      "addressUnknown": "Serwer nie widzi Twojego adresu, więc z tego połączenia nie można zapisać listy.",
+      "yourAddressOnList": "Twój adres, {ip}, jest na liście.",
+      "yourAddressMissing": "Twojego adresu, {ip}, nie ma na liście: po zapisaniu stracisz dostęp, więc najpierw go dodaj.",
+      "lockoutHelp": "Jeśli lista kiedyś odetnie wszystkich, administrator instancji może ją wyczyścić na stronie administracji.",
+      "memberView": "{count, plural, =0 {Wyłączone: obszar roboczy otwiera się z każdej sieci.} one {Włączone: obszar roboczy otwiera się tylko z # zatwierdzonej sieci.} few {Włączone: obszar roboczy otwiera się tylko z # zatwierdzonych sieci.} many {Włączone: obszar roboczy otwiera się tylko z # zatwierdzonych sieci.} other {Włączone: obszar roboczy otwiera się tylko z # zatwierdzonych sieci.}}"
     }
   },
   "audit": {
@@ -1573,7 +1597,9 @@
       "workspace": {
         "renamed": "Zmieniono nazwę obszaru roboczego z {from} na {to}",
         "settings_changed": "Zmieniono ustawienia: {settings}",
-        "domains_verified": "Zweryfikowano dozwoloną domenę e-mail {domains}"
+        "domains_verified": "Zweryfikowano dozwoloną domenę e-mail {domains}",
+        "networks_changed": "{count, plural, =0 {Usunął zatwierdzone sieci} other {Ustawił zatwierdzone sieci: {names}}}",
+        "networks_cleared": "Wyczyścił zatwierdzone sieci jako administrator instancji"
       },
       "sso": {
         "configured": "Zapisano połączenie logowania jednokrotnego ({protocol}) dla {domains}",

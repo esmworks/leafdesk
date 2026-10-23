@@ -12,6 +12,7 @@ import {
   type WorkspaceRole,
 } from "@/db/schema";
 import { env } from "@/lib/env";
+import { ipAllowed, storedAllowedNetworks, type AllowedNetwork } from "@/lib/ip-allowlist";
 import { notAgentUser } from "@/server/agents/users";
 import { INSTANCE_SSO_PROVIDER_ID, workspaceProviderId } from "@/lib/sso-config";
 import { connectedAppCall, connectedAppRefusal, connectedAppsMode, type ConnectedAppCall, type ConnectedAppsMode } from "@/server/connected-app";
@@ -29,10 +30,11 @@ import { actingFor } from "@/server/acting-for";
  * A database's row access (server/row-access.ts) adds what its rows give the people they name, and
  * may keep its rows from everyone else (last redefined in drizzle/0118_row_access.sql).
  *
- * A workspace's sign-in policies (require two-step verification, "SSO only") also hold back the
- * browser sessions that don't meet them: `getMembership` and `resolvePageAccess` (and everything
- * built on them, so server actions and API routes alike) throw a WorkspacePolicyError
- * (TwoFactorRequiredError, SsoRequiredError) for the signed-in user of such a request. The collab
+ * A workspace's sign-in policies (approved networks, require two-step verification, "SSO only")
+ * also hold back the browser sessions that don't meet them: `getMembership` and
+ * `resolvePageAccess` (and everything built on them, so server actions and API routes alike) throw
+ * a WorkspacePolicyError (IpNotAllowedError, TwoFactorRequiredError, SsoRequiredError) for the
+ * signed-in user of such a request. The collab
  * server checks its connections itself (collab/authorize.ts); MCP's OAuth tokens, the REST API's
  * personal access tokens (/api/v1) and SCIM tokens are outside the policies: they are credentials
  * handed to a program, revoked in Settings, not sign-ins. Lists filtered only in SQL
@@ -51,14 +53,15 @@ export class AccessError extends Error {
 }
 
 /**
- * Which of a workspace's sign-in policies holds a session back: "require two-step verification"
- * (`two-factor`) or the "SSO only" login method (`sso`).
+ * Which of a workspace's sign-in policies holds a session back: its approved networks (`ip`),
+ * "require two-step verification" (`two-factor`) or the "SSO only" login method (`sso`).
  */
-export type PolicyHold = "two-factor" | "sso";
+export type PolicyHold = "ip" | "two-factor" | "sso";
 
 /**
  * The workspace's sign-in policy holds back the session serving this request. Pages send it to the
- * page where it can meet the policy (`/two-step/<id>`, `/sso-required/<id>`, see policyGatePath).
+ * page where it can meet the policy (`/two-step/<id>`, `/sso-required/<id>`, `/network-required/<id>`,
+ * see policyGatePath).
  */
 export class WorkspacePolicyError extends AccessError {
   constructor(
@@ -88,6 +91,17 @@ export class SsoRequiredError extends WorkspacePolicyError {
 }
 
 /**
+ * The workspace has approved networks and the request doesn't come from one of them (or its address
+ * isn't known). Nothing the person can do in the app meets it: they have to come from another network.
+ */
+export class IpNotAllowedError extends WorkspacePolicyError {
+  constructor(workspaceId: string) {
+    super(workspaceId, "ip", "This workspace only allows sign-in from approved networks");
+    this.name = "IpNotAllowedError";
+  }
+}
+
+/**
  * The workspace lets connected apps (MCP clients, REST API tokens) only read, and this request of
  * one tried to change something. An AccessError, so whatever turns access errors away turns it away.
  */
@@ -99,6 +113,7 @@ export class ConnectedAppReadOnlyError extends AccessError {
 }
 
 export function policyError(workspaceId: string, hold: PolicyHold): WorkspacePolicyError {
+  if (hold === "ip") return new IpNotAllowedError(workspaceId);
   return hold === "sso" ? new SsoRequiredError(workspaceId) : new TwoFactorRequiredError(workspaceId);
 }
 
@@ -108,6 +123,12 @@ export type SessionFacts = {
   strong: boolean;
   /** The SSO provider the session was signed in through, if any (`session.sso_provider_id`). */
   ssoProviderId: string | null;
+  /**
+   * The address the request or connection comes from (CLIENT_IP_HEADER, see lib/client-ip), not
+   * the session's: a session signed in at the office and carried home is held back at home.
+   * Null when it isn't known, which no approved network matches.
+   */
+  ip: string | null;
 };
 
 /** A workspace's policy settings and whether its SSO is usable: what `policyHold` decides on. */
@@ -119,16 +140,21 @@ export type PolicyState = {
   hasConnection: boolean;
   /** The instance-wide provider is configured (OIDC_ISSUER…). */
   instanceSso: boolean;
+  /** The approved networks; empty: from anywhere. */
+  allowedNetworks: AllowedNetwork[];
 };
 
 /**
- * Pure: whether the policies hold back a session. Two-step applies to everyone in the workspace,
- * guests too. "SSO only" applies to members: owners keep their other ways in (a broken identity
+ * Pure: whether the policies hold back a session. Approved networks come first, for everyone in the
+ * workspace, owners and guests too (owners can't save a list that leaves out their own address, and
+ * instance administrators can clear it): no other gate helps someone on another network. Two-step
+ * applies to everyone in the workspace, guests too. "SSO only" applies to members: owners keep their other ways in (a broken identity
  * provider must not lock the workspace), and guests come from outside the organization. A session
  * counts when it came through the workspace's own connection or the instance provider. While
  * neither exists the policy has nothing to send people to, so it holds nobody back.
  */
 export function policyHold(state: PolicyState, facts: SessionFacts, workspaceId: string): PolicyHold | null {
+  if (!ipAllowed(facts.ip, state.allowedNetworks)) return "ip";
   if (state.requireTwoFactor && !facts.strong) return "two-factor";
   if (state.loginMethod !== "sso" || state.role !== "member") return null;
   if (!state.hasConnection && !state.instanceSso) return null;
@@ -148,6 +174,7 @@ export async function policyStateOf(userId: string, workspaceId: string): Promis
       hasConnection: sql<boolean>`exists (
         select 1 from ${workspaceSso} c join ${ssoProvider} p on p.provider_id = c.provider_id
         where c.workspace_id = ${workspace.id} and coalesce(p.domain_verified, false))`,
+      allowedNetworks: workspace.allowedNetworks,
     })
     .from(workspaceMember)
     .innerJoin(workspace, eq(workspace.id, workspaceMember.workspaceId))
@@ -160,6 +187,8 @@ export async function policyStateOf(userId: string, workspaceId: string): Promis
     loginMethod: row.loginMethod === "sso" ? "sso" : "any",
     hasConnection: row.hasConnection === true,
     instanceSso: env.instanceOidc !== null,
+    // On one computer (the desktop app) everyone comes from this computer.
+    allowedNetworks: env.localMode ? [] : storedAllowedNetworks(row.allowedNetworks),
   };
 }
 

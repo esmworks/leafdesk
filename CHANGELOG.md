@@ -43,6 +43,19 @@
   their rules pointed at the copied properties. MCP: `update_database_view` takes `color_rules`
   and `get_database` lists them. Exports, prints and published pages show rows without colors.
   No migration: rules live in the view's settings.
+- **Workspaces can allow sign-in only from approved networks.** Owners list IPv4 and IPv6
+  addresses and CIDR ranges, with optional labels (at most 100), under Settings → Security next to
+  the other sign-in policies. While the list has entries, browser sessions from other addresses,
+  owners' and guests' included, are held back from the workspace like the two-step and single
+  sign-on policies hold them back: pages send them to a page that shows the address the server
+  sees, actions and routes refuse them, and the live collaboration connection is checked by the
+  address it comes from (open ones close when a list is saved). An unknown address counts as
+  outside the list. Their other workspaces keep working. A list that leaves out the saving owner's
+  own address is refused, and instance administrators can clear a workspace's list on `/admin`;
+  both changes go into the audit log. Apps connected over MCP, REST API tokens and SCIM tokens
+  aren't held to it. The address comes from the client address rules of `TRUSTED_PROXIES`, which
+  the collaboration websocket now follows too. A restored backup starts without a list. Migration
+  0118.
 
 - **The AI chat makes PDF files.** Asked for a PDF (a quote, a letter, a report), the chat writes
   it into a page or row if it isn't in one, then makes the page's PDF on the server

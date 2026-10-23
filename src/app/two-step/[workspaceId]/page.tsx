@@ -5,7 +5,7 @@ import { getTranslations } from "next-intl/server";
 import { getAccountSecurity } from "@/server/account-security";
 import { findMembership, policyHoldFor } from "@/server/access";
 import { listWorkspaces } from "@/server/pages";
-import { blockedByWorkspacePolicy, policyGatePath, requireSession } from "@/server/session";
+import { blockedByWorkspacePolicy, policyGatePath, requestIp, requireSession } from "@/server/session";
 import { TwoStepGate } from "./two-step-gate";
 import { Logo } from "@/components/brand/logo";
 
@@ -29,7 +29,7 @@ export default async function TwoStepPage({ params }: { params: Promise<{ worksp
     getAccountSecurity(session.user.id),
     // A passkey sign-in is a new session that didn't come through single sign-on: in a workspace
     // that also requires it, that would only trade this page for the single sign-on one.
-    policyHoldFor(session.user.id, workspaceId, { strong: true, ssoProviderId: null }),
+    requestIp().then((ip) => policyHoldFor(session.user.id, workspaceId, { strong: true, ssoProviderId: null, ip })),
     getTranslations("security.gate"),
   ]);
   const current = workspaces.find((w) => w.id === workspaceId);

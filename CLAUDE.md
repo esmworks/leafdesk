@@ -49,7 +49,9 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   condition for lists. The rule is the SQL function `page_access_level`, last redefined in
   `drizzle/0116_row_access.sql`. Shares: `permissions.ts`; per-property rules:
   `property-access.ts`; rows giving the people they name access: `row-access.ts`; teamspace
-  membership: `teamspaces.ts`; guests: `guests.ts`.
+  membership: `teamspaces.ts`; guests: `guests.ts`. Sign-in policies (approved networks, two-step,
+  SSO only) are `policyHold` there; the request's address comes from `CLIENT_IP_HEADER`, which
+  `server.ts` sets on requests and on websocket upgrades alike.
 - **Page content.** The Yjs document is the source of truth. Writes from the server go through
   `getCollab()` (`src/server/collab/bridge.ts`: `replaceContent`, `editBlocks`, `setTitle` …), which
   only exists when the app runs through `server.ts`. Saves derive markdown and text
@@ -179,7 +181,7 @@ plus the `scripts/*-e2e.ts` of the area you touched (`pnpm tsx scripts/<name>-e2
 `pnpm lint` fails on warnings. `pnpm test` includes the translation check.
 
 - **Needs a running server** (`pnpm start` or `pnpm dev`): health, mcp, auth (and Mailpit), api,
-  columns, export, print, site, scim, security, security-switches, two-factor, account, admin (signs
+  columns, export, print, site, scim, security, security-switches, ip-allowlist, two-factor, account, admin (signs
   everyone out), sso (with a mock identity provider; see its header), scale.
 - **Needs no server on the same database**, because a server's workers would take the queued work:
   agents, agent-api, agent-approvers, agent-chat, agent-handoff, agent-memory, agent-mention,

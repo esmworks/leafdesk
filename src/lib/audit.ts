@@ -58,6 +58,8 @@ export const AUDIT_CATEGORIES = {
     "scim.token_created",
     "scim.token_revoked",
     "workspace.domains_verified",
+    "workspace.networks_changed",
+    "workspace.networks_cleared",
   ],
   pages: [
     "page.created",

@@ -400,6 +400,9 @@ jobs:
       - name: Workspace security switches end-to-end
         run: pnpm tsx scripts/security-switches-e2e.ts
 
+      - name: Approved networks end-to-end
+        run: pnpm tsx scripts/ip-allowlist-e2e.ts
+
       - name: Two-step verification end-to-end
         run: pnpm tsx scripts/two-factor-e2e.ts
 

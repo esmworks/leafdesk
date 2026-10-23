@@ -645,7 +645,8 @@ license asks you to offer them its source: publish your changes and set `SOURCE_
 `https://git.example.com/you/leafdesk/tree/my-changes`. Only `http://` and `https://` links count.
 
 `TRUSTED_PROXIES` says how many reverse proxies stand in front of the app. Public forms, uploads
-and sign-in limit attempts per visitor address, and the audit log records it; the app reads that
+and sign-in limit attempts per visitor address, the audit log records it and a workspace's approved
+networks are checked against it (the collaboration websocket too); the app reads that
 address from `X-Forwarded-For` only as far as these proxies wrote it. Left unset, it trusts one
 proxy, and only for requests that come from a private address (loopback, a private network, as a
 proxy on the same machine or Docker network does): a visitor reaching the app's port straight from
@@ -1372,6 +1373,22 @@ checked when it connects; turning the policy on closes the open connections of s
 don't pass. Apps connected over MCP and REST API tokens are not affected: they use OAuth or
 personal access tokens, not sign-in sessions, and keep working until someone revokes them under
 Connected apps.
+
+**Approved networks** (Settings → Security) limit where a workspace opens from: a list of IPv4 and
+IPv6 addresses and CIDR ranges (`203.0.113.0/24`, `2001:db8::/32`), each with an optional label, at
+most 100. While the list has entries, a browser session from any other address is sent to a page
+that says the workspace only allows sign-in from approved networks and shows the address the server
+sees; the person's other workspaces keep working. It covers the same ground as two-step
+verification (pages, exports, server actions, API routes, the live collaboration connection, which
+is checked by the address it comes from), applies to everyone in the workspace, owners and guests
+too, and comes before the other policies. A request whose address the server can't tell counts as
+outside the list. The address is the visitor's as `TRUSTED_PROXIES` reads it (see *Quick start
+(Docker)* above), so set that right before relying on this. An owner can't save a list that leaves
+out their own current address; if a list shuts everyone out anyway (a new office line, a proxy set
+up differently), an instance administrator clears it on `/admin` under *Approved networks*.
+Changes go into the audit log. Apps connected over MCP, REST API tokens and SCIM tokens are not
+held to the list: they follow the connected-apps setting. A restored backup starts without one,
+since its addresses were the old server's view. Not offered when Leafdesk runs on one computer.
 
 Someone who lost both their authenticator app and their recovery codes can be reset by whoever
 runs the server; this turns two-step verification off and signs them out (`--passkeys` also
@@ -3314,6 +3331,7 @@ Useful scripts:
 | `pnpm tsx scripts/workspace-apps-e2e.ts` | End-to-end check of the apps that reach a workspace: what its owners see, when each was last used there, and disconnecting one, against the database |
 | `pnpm tsx scripts/security-switches-e2e.ts` | End-to-end check of the workspace security switches (export, publishing, connected apps) through the settings action, the export and public routes, MCP and the REST API, against a running server |
 | `pnpm tsx scripts/auth-e2e.ts` | End-to-end password reset check against a running server with SMTP pointed at [Mailpit](https://mailpit.axllent.org) |
+| `pnpm tsx scripts/ip-allowlist-e2e.ts` | End-to-end check of a workspace's approved networks (the owner's own-address check, held-back sessions and their page, the collaboration websocket, API tokens outside the list, clearing it as an instance administrator) against a running server |
 | `pnpm tsx scripts/two-factor-e2e.ts` | End-to-end two-step verification check (sign-in challenge, recovery codes, workspace policy) against a running server |
 | `pnpm tsx scripts/admin-e2e.ts` | End-to-end instance administration check (`ADMIN_EMAILS`, `WORKSPACE_CREATION`, signing out, required password resets) against a running server with the same two settings; it signs everyone out, so only on a development or CI database |
 

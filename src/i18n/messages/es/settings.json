@@ -1087,7 +1087,12 @@
     "workspaceDeleted": "Otra persona eliminó este espacio de trabajo mientras tanto.",
     "storageNoDestination": "Los archivos de este espacio de trabajo están en tu almacenamiento y no tendrán adónde moverse cuando salgas: ningún otro propietario tiene almacenamiento predeterminado y el almacenamiento de este servidor no puede recibirlos. Pide a un propietario que configure un almacenamiento o mueve antes los archivos (Configuración > Almacenamiento).",
     "storageMoveInProgress": "Los archivos de este espacio de trabajo se están moviendo a tu almacenamiento. Espera a que termine y después sal.",
-    "invalidCalloutStyle": "No se pudo guardar un estilo de destacado: revisa su clave, su nombre y su icono."
+    "invalidCalloutStyle": "No se pudo guardar un estilo de destacado: revisa su clave, su nombre y su icono.",
+    "invalidNetwork": "{detail} no es una dirección IP ni un rango. Escribe una dirección como 203.0.113.7 o 2001:db8::1, o un rango como 203.0.113.0/24.",
+    "invalidNetworkLabel": "La etiqueta de {detail} es demasiado larga: 100 caracteres como máximo.",
+    "tooManyNetworks": "Un espacio de trabajo puede tener como máximo 100 redes aprobadas.",
+    "ipLocksYouOut": "Esta lista no incluye tu dirección actual, {detail}, así que guardarla te dejaría fuera del espacio de trabajo. Añade primero tu dirección o un rango que la incluya.",
+    "ipUnknown": "El servidor no ve tu dirección, así que no puede comprobar que esta lista te deja entrar. Guárdala desde una conexión cuya dirección vea el servidor, o vacía la lista."
   },
   "security": {
     "description": "Decide cómo inician sesión las personas, quién puede traer personas a este espacio de trabajo, qué pueden hacer los invitados, qué puede salir de él (exportaciones, apps conectadas) y quién puede publicar páginas en la web. Solo los propietarios pueden cambiar estos ajustes.",
@@ -1349,6 +1354,25 @@
       "error": "No se pudo desconectar. Inténtelo de nuevo.",
       "gone": "Ya está desconectada, o ya no llega a este espacio de trabajo.",
       "shown": "Se muestran las {shown} usadas aquí más recientemente de {total}."
+    },
+    "allowedNetworks": {
+      "title": "Redes aprobadas",
+      "description": "Permite abrir este espacio de trabajo solo desde estas direcciones y rangos IP, como tu oficina o tu VPN: IPv4 o IPv6, una sola dirección (203.0.113.7) o un rango CIDR (203.0.113.0/24). Se aplica a todos en el espacio de trabajo, propietarios e invitados incluidos. Deja la lista vacía para permitir cualquier red.",
+      "appsNote": "Las apps conectadas por MCP, los tokens de la API REST y los tokens SCIM no están sujetos a ella: siguen el ajuste «Apps conectadas y tokens de API».",
+      "range": "Dirección o rango",
+      "label": "Etiqueta",
+      "rangePlaceholder": "203.0.113.0/24",
+      "labelPlaceholder": "Oficina (opcional)",
+      "add": "Añadir red",
+      "addMine": "Añadir mi dirección ({ip})",
+      "remove": "Quitar {range}",
+      "removeRow": "Quitar fila",
+      "empty": "No hay redes aprobadas: el espacio de trabajo se abre desde cualquier red.",
+      "addressUnknown": "El servidor no ve tu dirección, así que no se puede guardar una lista desde esta conexión.",
+      "yourAddressOnList": "Tu dirección, {ip}, está en la lista.",
+      "yourAddressMissing": "Tu dirección, {ip}, no está en la lista: guardarla te dejaría fuera, así que añádela primero.",
+      "lockoutHelp": "Si alguna vez una lista deja fuera a todos, un administrador de la instancia puede vaciarla en la página de administración.",
+      "memberView": "{count, plural, =0 {Desactivado: el espacio de trabajo se abre desde cualquier red.} one {Activado: el espacio de trabajo solo se abre desde # red aprobada.} other {Activado: el espacio de trabajo solo se abre desde # redes aprobadas.}}"
     }
   },
   "audit": {
@@ -1573,7 +1597,9 @@
       "workspace": {
         "renamed": "Cambió el nombre del espacio de trabajo de {from} a {to}",
         "settings_changed": "Cambió ajustes: {settings}",
-        "domains_verified": "Verificó el dominio de correo permitido {domains}"
+        "domains_verified": "Verificó el dominio de correo permitido {domains}",
+        "networks_changed": "{count, plural, =0 {Quitó las redes aprobadas} other {Estableció las redes aprobadas: {names}}}",
+        "networks_cleared": "Vació las redes aprobadas como administrador de la instancia"
       },
       "sso": {
         "configured": "Guardó la conexión de inicio de sesión único ({protocol}) para {domains}",

@@ -39,6 +39,7 @@ import { LeaveWorkspaceRow } from "@/components/settings/leave-workspace";
 import { MembersPanel } from "@/components/settings/members-panel";
 import { PublicForms } from "@/components/settings/public-forms";
 import { PublishedPages } from "@/components/settings/published-pages";
+import { AllowedNetworksSetting, AllowedNetworksSummary } from "@/components/settings/allowed-networks-setting";
 import {
   AccessRequestsSetting,
   ConnectedAppsSetting,
@@ -113,7 +114,9 @@ import { listGuests } from "@/server/guests";
 import { listWorkspacePublications } from "@/server/publication";
 import { listScimTokens, scimManagedCount } from "@/server/scim";
 import { getSsoConnection, ssoSetupInfo } from "@/server/sso";
-import { getSession, requireWorkspaceSession, type requireSession } from "@/server/session";
+import { getSession, requestIp, requireWorkspaceSession, type requireSession } from "@/server/session";
+import { allowedNetworkCount, getAllowedNetworks } from "@/server/allowed-networks";
+import { formatIpAddress } from "@/lib/ip-allowlist";
 import { getSite } from "@/server/site";
 import { listSnippets } from "@/server/snippets";
 import { canCreateTeamspace, listTeamspaces, teamspacesByMember } from "@/server/teamspaces";
@@ -434,7 +437,7 @@ async function SecurityTab({ workspaceId, userId, isOwner }: { workspaceId: stri
   // On one computer (lib/env.ts localMode) there is no one to sign in with SSO, provision, invite,
   // ask for access or publish to: those settings are left out.
   const local = env.localMode;
-  const [settings, publications, forms, session, withoutTwoFactor, canUseSso, connection, scimTokens, scimManaged, domainStatus, apps, t] =
+  const [settings, publications, forms, session, withoutTwoFactor, canUseSso, connection, scimTokens, scimManaged, domainStatus, apps, networks, networkCount, clientIp, t] =
     await Promise.all([
       getWorkspaceSettings(userId, workspaceId),
       isOwner && !local ? listWorkspacePublications(userId, workspaceId) : null,
@@ -447,6 +450,9 @@ async function SecurityTab({ workspaceId, userId, isOwner }: { workspaceId: stri
       isOwner && !local ? scimManagedCount(workspaceId) : 0,
       allowedDomainsStatus(userId, workspaceId),
       isOwner ? listWorkspaceApps(userId, workspaceId) : null,
+      isOwner && !local ? getAllowedNetworks(userId, workspaceId) : [],
+      !isOwner && !local ? allowedNetworkCount(userId, workspaceId) : 0,
+      requestIp(),
       getTranslations("settings"),
     ]);
   const setup = ssoSetupInfo(workspaceId);
@@ -463,6 +469,12 @@ async function SecurityTab({ workspaceId, userId, isOwner }: { workspaceId: stri
             withoutTwoFactor={withoutTwoFactor}
           />
           {!local && <LoginMethodSetting workspaceId={workspaceId} settings={settings} canEdit={isOwner} available={canUseSso} />}
+          {!local &&
+            (isOwner ? (
+              <AllowedNetworksSetting workspaceId={workspaceId} networks={networks} clientIp={formatIpAddress(clientIp)} />
+            ) : (
+              <AllowedNetworksSummary count={networkCount} />
+            ))}
         </SettingsGroup>
       </div>
       {!local && (

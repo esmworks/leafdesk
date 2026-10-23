@@ -66,7 +66,8 @@
   "errors": {
     "notFound": "That account wasn't found.",
     "noPassword": "This account has no password; it signs in another way.",
-    "self": "Change your own password on your account page."
+    "self": "Change your own password on your account page.",
+    "noWorkspace": "That workspace wasn't found."
   },
   "descriptionFirstAccount": "The accounts on this server, their sessions and their passwords. You see this page because yours was the first account on this server.",
   "signUp": {
@@ -81,5 +82,16 @@
     "body": "Yours is the first account here, so Server administration is yours. Anyone who can reach this address can still sign up; Server administration shows how to close it.",
     "open": "Server administration",
     "dismiss": "Dismiss"
+  },
+  "networks": {
+    "heading": "Approved networks",
+    "description": "Workspaces that only open from approved networks. If a list shuts a workspace's owners out, clear it here: the workspace then opens from any network until its owners set the list again.",
+    "none": "No workspace limits sign-in to approved networks",
+    "noneDescription": "Owners set approved networks in their workspace's Settings → Security.",
+    "count": "{count, plural, one {# network} other {# networks}}",
+    "clear": "Clear list",
+    "clearTitle": "Clear the approved networks of {workspace}?",
+    "clearBody": "Everyone in the workspace can open it from any network again, and its audit log records that you cleared the list. Its owners can set it again in Settings → Security.",
+    "clearConfirm": "Clear list"
   }
 }
