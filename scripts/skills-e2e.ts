@@ -372,11 +372,22 @@ try {
   const loose = await createPage(as(alice), { workspaceId, teamspaceId: null, title: "Loose notes", markdown: "Keep it short." });
   await movePage(alice, loose.id, skillsDbId);
   check((await skills.listSkills(alice, workspaceId)).some((s) => s.id === loose.id), "a page moved into a skills database becomes a skill");
+  const marked = await createPage(as(alice), { workspaceId, teamspaceId: null, title: "Quote checklist", markdown: "Ask for the currency." });
+  await skills.setSkill(alice, marked.id, { skill: true, description: "Use when preparing a quote" });
+  await movePage(alice, marked.id, skillsDbId);
+  const [markedValues] = await db.select({ properties: page.properties }).from(page).where(eq(page.id, marked.id));
+  check(
+    markedValues.properties[descProp] === "Use when preparing a quote" && (await skills.getSkillContent(alice, marked.id)).description === "Use when preparing a quote",
+    "…and a skill moved in brings its description into the property",
+    markedValues,
+  );
   await movePage(alice, loose.id, null, undefined, null);
   check((await skills.listSkills(alice, workspaceId)).some((s) => s.id === loose.id), "…and stays one when moved out");
   const playbooks = await createPage(as(owner), { workspaceId, teamspaceId: general.id, kind: "database", title: "Playbooks" });
   const coldCall = await createPage(as(owner), { workspaceId, parentId: playbooks.id, title: "Cold call", markdown: "Ask about their week." });
   check(!(await skills.listSkills(owner, workspaceId)).some((s) => s.id === coldCall.id), "a row of an ordinary database isn't a skill");
+  const objections = await createPage(as(owner), { workspaceId, parentId: playbooks.id, title: "Objections" });
+  await skills.setSkill(owner, objections.id, { skill: true, description: "Use when a customer pushes back" });
   check((await refusal(() => skills.setSkillDatabase(guest, playbooks.id, true))) === "access", "a guest can't turn a database into a skills database");
   check((await refusal(() => skills.setSkillDatabase(owner, handbook.id, true))) === "notADatabase", "a page can't be a skills database");
   await skills.setSkillDatabase(owner, playbooks.id, true, "en");
@@ -384,6 +395,13 @@ try {
   const playbookDesc = playbookProps.find((p) => p.name === "Description" && p.type === "text");
   check(playbookDesc, "turning a database into a skills database adds a description property", playbookProps);
   check((await skills.listSkills(owner, workspaceId)).some((s) => s.id === coldCall.id), "…and its rows become skills");
+  const [objectionValues] = await db.select({ properties: page.properties }).from(page).where(eq(page.id, objections.id));
+  check(
+    objectionValues.properties[playbookDesc.id] === "Use when a customer pushes back" &&
+      (await skills.getSkillContent(owner, objections.id)).description === "Use when a customer pushes back",
+    "…a row that was a skill already keeps its description, now in the property",
+    objectionValues,
+  );
   await skills.setSkillDatabase(owner, playbooks.id, false);
   await skills.setSkillDatabase(owner, playbooks.id, true, "en");
   check(

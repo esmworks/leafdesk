@@ -12,8 +12,9 @@
   property: written there, on the row's skill bar or with MCP's `set_skill`. Any database can be
   turned into one, or back, from its ⋯ menu (*Skills database*, full access), which adds a
   *Description* property when it has none. The library links to the person's skills database.
-  Pages marked as skills stay as they are. Migration 0113 adds the setting and a trigger that marks
-  the rows.
+  Pages marked as skills stay as they are; moved into a skills database, or in a database turned
+  into one, they keep their description, which goes to the property. Migrations 0113 and 0114 add
+  the setting and a trigger that marks the rows.
 - **Several AI conversations can be deleted at once.** In the chat tab of the sidebar a box takes a
   conversation's dot on hover: tick some, shift-click for a range, or pick *Select all* from the
   heading's ⋯ menu (where a touch screen starts). The heading then counts them and deletes them together after asking how many
