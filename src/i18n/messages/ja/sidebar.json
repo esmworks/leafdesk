@@ -214,7 +214,8 @@
     "private": "プライベート",
     "newPrivate": "新しいプライベートページ",
     "more": "ほか{count}件",
-    "less": "表示を減らす"
+    "less": "表示を減らす",
+    "meetings": "会議"
   },
   "joinable": {
     "heading": "参加できるワークスペース",

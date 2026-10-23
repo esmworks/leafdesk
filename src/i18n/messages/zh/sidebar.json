@@ -214,7 +214,8 @@
     "private": "私有",
     "newPrivate": "新建私有页面",
     "more": "还有 {count} 个",
-    "less": "收起"
+    "less": "收起",
+    "meetings": "会议"
   },
   "joinable": {
     "heading": "你可以加入的工作区",

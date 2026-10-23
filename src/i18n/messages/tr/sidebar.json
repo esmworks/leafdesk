@@ -214,7 +214,8 @@
     "private": "Özel",
     "newPrivate": "Yeni özel sayfa",
     "more": "{count} sayfa daha",
-    "less": "Daha az göster"
+    "less": "Daha az göster",
+    "meetings": "Toplantılar"
   },
   "joinable": {
     "heading": "Katılabileceğiniz çalışma alanları",

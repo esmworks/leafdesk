@@ -214,7 +214,8 @@
     "private": "비공개",
     "newPrivate": "새 비공개 페이지",
     "more": "{count}개 더 보기",
-    "less": "간단히 보기"
+    "less": "간단히 보기",
+    "meetings": "회의"
   },
   "joinable": {
     "heading": "참여할 수 있는 워크스페이스",

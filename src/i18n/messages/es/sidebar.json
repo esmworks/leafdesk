@@ -214,7 +214,8 @@
     "private": "Privado",
     "newPrivate": "Nueva página privada",
     "more": "{count} más",
-    "less": "Mostrar menos"
+    "less": "Mostrar menos",
+    "meetings": "Reuniones"
   },
   "joinable": {
     "heading": "Espacios a los que puedes unirte",

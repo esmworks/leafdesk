@@ -214,7 +214,8 @@
     "private": "Privat",
     "newPrivate": "Neue private Seite",
     "more": "{count} weitere",
-    "less": "Weniger anzeigen"
+    "less": "Weniger anzeigen",
+    "meetings": "Besprechungen"
   },
   "joinable": {
     "heading": "Workspaces, denen du beitreten kannst",
