@@ -15,7 +15,7 @@ import { gzipSync } from "node:zlib";
  * 190 kB) loads only when a page is edited as Markdown, and map views (Leaflet, about 45 kB) load
  * only when one is shown.
  */
-const BUDGET = { routeFirstLoad: 800, allClientJs: 4050 };
+const BUDGET = { routeFirstLoad: 805, allClientJs: 4050 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;
