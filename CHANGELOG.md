@@ -4,6 +4,17 @@
 
 ### Added
 
+- **Meeting notes.** `/` *Meeting notes* (or *Add meeting notes below* in a block's menu) adds a
+  block with a title, date and time, attendees and *Start recording*. The recording goes on across
+  tabs and pages, can be paused, and is sent every 30 seconds to be transcribed, so the
+  *Transcript* fills in with `[mm:ss]` times while people talk; a piece that keeps failing is left
+  as a gap, and the audio is never stored. On *Stop and summarize* AI writes a summary, decisions
+  and action items (assigned to attendees it names), each linked to its moment in the transcript;
+  they can be edited and regenerated. *Meetings* in the sidebar lists the meeting notes you can see,
+  upcoming and past, with search, and makes new ones on private pages. The AI chat, MCP and REST
+  API read the block as Markdown, and search finds words in the transcript. Needs speech to text
+  (`STT_*`, as for voice notes); up to three hours a meeting. Migration 0117 (`meeting_note`).
+
 - **The AI chat makes PDF files.** Asked for a PDF (a quote, a letter, a report), the chat writes
   it into a page or row if it isn't in one, then makes the page's PDF on the server
   (`create_pdf`) and attaches it at the end of the page's text, or in a row's files property, and

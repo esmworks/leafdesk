@@ -51,7 +51,9 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   `property-access.ts`; teamspace membership: `teamspaces.ts`; guests: `guests.ts`.
 - **Page content.** The Yjs document is the source of truth. Writes from the server go through
   `getCollab()` (`src/server/collab/bridge.ts`: `replaceContent`, `editBlocks`, `setTitle` …), which
-  only exists when the app runs through `server.ts`. Saves derive markdown and text
+  only exists when the app runs through `server.ts`. A block whose data is all in its props, written
+  while people may be editing (meeting notes), changes them in place with `updateBlockAttributes`:
+  `editBlocks` reads, awaits, then rewrites, and can lose edits made in between. Saves derive markdown and text
   (`collab/service.ts` `persistPage`) and announce `pageChanged()` (`page-events.ts`); row value
   changes announce through `row-events.ts`. Page tree operations: `src/server/pages.ts`; databases,
   rows and properties: `databases.ts`; formulas and rollups: `derived.ts` (pure part in
@@ -79,7 +81,8 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
 - **Automations and schedules.** `src/server/automations/` (queued from `databases.ts` after row
   writes; `asAutomation` keeps an automation's writes from firing more automations) and
   `src/server/schedules.ts` (`registerScheduleHandler`).
-- **Other areas:** Telegram bot `src/server/telegram/`, mail to and from rows `row-mail/`, follow-up
+- **Other areas:** meeting notes `meetings.ts` (the block's props, `src/lib/meetings.ts`; its list
+  table synced in `persistPage` by `meeting-notes.ts`), Telegram bot `src/server/telegram/`, mail to and from rows `row-mail/`, follow-up
   sequences on rows `sequences/` (sent by a 30-second `startSequences` job; `runSequences(now)` runs
   a round as of any moment, which `scripts/follow-ups-e2e.ts` uses), SMTP
   `mail/`, inbox `notifications.ts`, push `push.ts`, files `files.ts` + `storage/` (local, S3,

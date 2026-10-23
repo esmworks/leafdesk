@@ -541,6 +541,10 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   database row whose select and multi-select properties it fills from their options. OpenAI or any
   server with an OpenAI-compatible transcription API, such as a local Whisper server (see
   [Voice notes](#voice-notes)).
+- **Meeting notes** (with speech to text): `/` *Meeting notes* in a page records a meeting of up to
+  three hours, the transcript filling in as you talk, and AI writes the summary, decisions and
+  action items, each linked to its moment in the transcript. *Meetings* in the sidebar lists them
+  (see [Meeting notes](#meeting-notes)).
 - **AI chat from Telegram** (optional, off until the server has a Telegram bot): people link their
   Telegram account in My account → *Connected apps* and ask the AI chat there, by text or voice
   message; answers cite their pages as links, and changes are asked about with buttons. Their
@@ -1958,6 +1962,7 @@ as it can (Claude Sonnet and Opus 5.5 can't stop thinking, so "off" is low effor
 | --- | --- | --- |
 | AI property values | `AI_FAST_MODEL` | off |
 | Voice notes: writing up the transcript | `AI_FAST_MODEL` | low |
+| Meeting notes: summary, decisions and action items | `AI_MODEL` | low |
 | Writing assistant: improve, fix, shorten, translate, continue, summarize | `AI_MODEL` | low |
 | Writing assistant: your own instruction | `AI_MODEL` | medium |
 | Chat | `AI_MODEL` | medium |
@@ -2277,6 +2282,41 @@ the server logs them like other AI requests (size and time, never the audio or t
 | `STT_MAX_SECONDS` | 600 | Longest recording, in seconds |
 | `STT_MAX_MB` | 25 | Largest audio file (OpenAI's own limit is 25 MB) |
 | `STT_TIMEOUT_SECONDS` | 120 | |
+
+### Meeting notes
+
+A meeting notes block records a meeting and keeps its transcript and AI summary on the page. It
+uses the speech to text set up for [voice notes](#voice-notes); without it the block's *Start
+recording* is off and says why. Add one with `/` *Meeting notes*, *Add meeting notes below* in a
+block's menu, or *New meeting note* on the *Meetings* page (a private page holding one). The block
+has a title, a date and time, and attendees chosen from the workspace's people.
+
+**Recording.** *Start recording* asks for the microphone; the recording goes on while you switch
+tabs or move to other pages of the workspace (a bar at the bottom shows the time and stops it),
+and can be paused and resumed. Every 30 seconds the piece just recorded is sent to the server and
+transcribed, and its text appears in the block's *Transcript* with its time from the start
+(`[mm:ss]`, pauses not counted). A piece that fails is sent again three times, then left in the
+transcript as a gap. One person records a meeting at a time; if their browser closes without
+stopping, after five minutes anyone who can edit the page can continue the recording or end it.
+A meeting stops by itself at three hours.
+
+**Summary.** *Stop and summarize* has AI write a summary, the decisions and the action items, the
+latter assigned (`@Name:`) when they name an attendee. Each point ends with the moment it comes from;
+clicking it opens the transcript there. The points can be edited, action items ticked, and
+*Regenerate summary* writes them again from the transcript. A long transcript is summarized in
+parts and the parts merged; each part is one AI request, and the transcription of each piece is one
+too, all counted toward `AI_RATE_LIMIT`, `AI_WORKSPACE_RATE_LIMIT` and the cost limit like other
+AI requests.
+
+**What is kept.** The transcript and the summary, in the block; the audio is never stored. The AI
+chat, MCP and the REST API read the block as Markdown (title, date, attendees, summary, decisions,
+action items and the transcript with its times), search finds words in the transcript, and the
+*Meetings* page (`/w/<workspace>/meetings`, hidden like other sidebar sections) lists the meeting
+notes on pages you can see, upcoming and past, with their length and attendees, searchable by title, attendee or the summary's
+first point.
+
+Not included: a calendar connection (meetings are not created from or added to calendars) and
+telling speakers apart in the transcript.
 
 ### Semantic search
 
