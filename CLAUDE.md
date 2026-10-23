@@ -53,8 +53,8 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   `getCollab()` (`src/server/collab/bridge.ts`: `replaceContent`, `editBlocks`, `setTitle` …), which
   only exists when the app runs through `server.ts`. A block whose data is all in its props, written
   while people may be editing (meeting notes), changes them in place with `updateBlockAttributes`:
-  `editBlocks` reads, awaits, then rewrites, and can lose edits made in between. Saves derive markdown and text
-  (`collab/service.ts` `persistPage`) and announce `pageChanged()` (`page-events.ts`); row value
+  `editBlocks` and other `writeBlocks` callers read, await, then rewrite, and can lose edits made
+  in between. Saves derive markdown and text (`collab/service.ts` `persistPage`) and announce `pageChanged()` (`page-events.ts`); row value
   changes announce through `row-events.ts`. Page tree operations: `src/server/pages.ts`; databases,
   rows and properties: `databases.ts`; formulas and rollups: `derived.ts` (pure part in
   `src/lib/derived.ts`). Row values are checked in `databases.ts` `normalizeRowProperties` (types,
