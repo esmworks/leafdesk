@@ -6,7 +6,8 @@
  * crediting the agent that proposed it (row-activity.ts asApprovedProposal); or dismisses it. An
  * email draft goes out only from its sender's own mailbox, and only they may send or dismiss it;
  * the row's other editors see it. What waits past PENDING_CHANGE_DAYS is expired by the daily
- * cleanup (retention.ts).
+ * cleanup (retention.ts). An automation's approval step (automations/approval.ts) waits here too:
+ * only the people it asks may approve it (the run goes on) or dismiss it (the run stops).
  *
  * Who sees a proposal: whoever may open its row (or, for a new row, its database) and see every
  * value it sets; an email draft, whoever reads the row's email (row-mail/access.ts). The people it
@@ -20,11 +21,13 @@ import { db } from "@/db";
 import { agentRun, notification, page, pendingChange, user, workspaceAgent } from "@/db/schema";
 import { normalizeAddress } from "@/lib/mail";
 import {
+  automationRunPath,
   MAX_PENDING_PAGE,
   MAX_PENDING_REASON,
   PENDING_CHANGE_DAYS,
   PENDING_CHANGE_HISTORY_DAYS,
   REVIEW_EVENT,
+  type ApprovalPayload,
   type EmailDraftPayload,
   type PendingChangeFilter,
   type PendingChangeKind,
@@ -51,6 +54,7 @@ import * as ops from "@/server/operations";
 import { propertyAccessFor } from "@/server/property-access";
 import { pushNotifications } from "@/server/push";
 import { asApprovedProposal } from "@/server/row-activity";
+import { wakeRun } from "@/server/automations/queue";
 import { rowMailAccess } from "@/server/row-mail/access";
 import { queueRowEmail, sendSoon } from "@/server/row-mail/send";
 import { RowMailError } from "@/server/row-mail/settings";
@@ -75,7 +79,7 @@ const OPEN = ["pending", "failed"] as const;
 const isOpen = (status: string) => (OPEN as readonly string[]).includes(status);
 
 /** Tells the workspace's sidebars (the count) and the database's open rows (their banner) that the queue changed. */
-function signalQueue(workspaceId: string, databaseIds: Iterable<string>) {
+export function signalQueue(workspaceId: string, databaseIds: Iterable<string>) {
   signalInbox(workspaceId);
   for (const id of new Set(databaseIds)) getCollab().broadcast(`db:${id}`, REVIEW_EVENT);
 }
@@ -272,7 +276,8 @@ export async function countPendingFor(userId: string, workspaceId: string): Prom
         inArray(pendingChange.status, [...OPEN]),
         or(
           and(eq(pendingChange.kind, "email_draft"), eq(pendingChange.senderId, userId)),
-          and(sql`${pendingChange.kind} <> 'email_draft'`, sql`${targetRank(userId)} >= ${EDIT_RANK}`),
+          and(eq(pendingChange.kind, "automation_approval"), sql`${pendingChange.payload}->'approverIds' @> jsonb_build_array(${userId}::text)`),
+          and(sql`${pendingChange.kind} not in ('email_draft', 'automation_approval')`, sql`${targetRank(userId)} >= ${EDIT_RANK}`),
         ),
       ),
     );
@@ -294,6 +299,7 @@ export async function pendingFacets(userId: string, workspaceId: string) {
 const effective = (c: Pick<Change, "payload" | "editedPayload">) => c.editedPayload ?? c.payload;
 const asRow = (p: PendingChangePayload) => p as RowChangePayload;
 const asEmail = (p: PendingChangePayload) => p as EmailDraftPayload;
+const asApproval = (p: PendingChangePayload) => p as ApprovalPayload;
 
 async function viewsOf(viewer: string, where: SQL | undefined, limit: number): Promise<PendingChangeView[]> {
   const rows = await db
@@ -339,9 +345,17 @@ async function viewsOf(viewer: string, where: SQL | undefined, limit: number): P
 
   type Prepared = { r: (typeof rows)[number]; fields: { property: Awaited<ReturnType<typeof getProperties>>[number] | null; before: unknown; now: unknown; after: unknown }[]; editable: boolean };
   const prepared: Prepared[] = [];
+  const approvals = new Map<string, NonNullable<PendingChangeView["approval"]>>();
   for (const r of rows) {
     const c = r.change;
     const level = levelFromRank(r.rank);
+    if (c.kind === "automation_approval") {
+      // Only the people it asks may answer it; whoever else sees the row (the database) sees it.
+      const payload = asApproval(c.payload);
+      approvals.set(c.id, await approvalView(viewer, c, payload));
+      prepared.push({ r, fields: [], editable: payload.approverIds.includes(viewer) });
+      continue;
+    }
     if (c.kind === "email_draft") {
       if (!c.rowId || r.rowArchived || !(await readsMail(c.rowId))) continue;
       prepared.push({ r, fields: [], editable: c.senderId === viewer && hasLevel(level, "edit") });
@@ -406,6 +420,7 @@ async function viewsOf(viewer: string, where: SQL | undefined, limit: number): P
       fields: views,
       markdown: c.kind === "create_row" ? (asRow(payload).markdown ?? null) : null,
       email: c.kind === "email_draft" ? { ...asEmail(payload), sender: { id: c.senderId ?? "", name: r.senderName ?? "" } } : null,
+      approval: approvals.get(c.id) ?? null,
       edited: c.editedPayload !== null,
       conflict: views.some((v) => v.conflict),
       canApprove: isOpen(c.status) && editable,
@@ -415,6 +430,27 @@ async function viewsOf(viewer: string, where: SQL | undefined, limit: number): P
       decidedBy: c.decidedBy ? { id: c.decidedBy, name: r.deciderName ?? "" } : null,
     };
   });
+}
+
+/**
+ * An approval as the viewer sees it: the automation, who may answer, what the next steps do, and a
+ * link to the run for those who see the automation's runs (full access to its database).
+ */
+async function approvalView(viewer: string, c: Change, payload: ApprovalPayload): Promise<NonNullable<PendingChangeView["approval"]>> {
+  const people = payload.approverIds.length
+    ? await db.select({ id: user.id, name: user.name }).from(user).where(inArray(user.id, payload.approverIds))
+    : [];
+  const full = hasLevel((await pageAccessOf(viewer, c.databaseId)).level, "full");
+  return {
+    automation: c.automationId ? { id: c.automationId, name: payload.automationName } : null,
+    runId: c.automationRunId,
+    runPath: full && c.automationId && c.automationRunId ? automationRunPath(c.workspaceId, c.databaseId, c.automationId, c.automationRunId) : null,
+    version: payload.version,
+    message: payload.message,
+    approvers: payload.approverIds.map((id) => ({ id, name: people.find((p) => p.id === id)?.name ?? "" })),
+    nextSteps: payload.nextSteps ?? [],
+    onTimeout: payload.onTimeout,
+  };
 }
 
 // ----------------------------------------------------------------------------------- answering
@@ -427,7 +463,9 @@ async function answerable(userId: string, changeId: string): Promise<{ change: C
   if (!change) throw new PendingChangeError("notFound", "No change waiting for review has this id, or you may not see it.");
   if (!isOpen(change.status)) throw new PendingChangeError("decided", "This change was already answered.");
   if (!view.canApprove) {
-    throw change.kind === "email_draft" ? new AccessError("Only the person whose mailbox it goes out from may send or dismiss an email draft.") : new AccessError();
+    if (change.kind === "email_draft") throw new AccessError("Only the person whose mailbox it goes out from may send or dismiss an email draft.");
+    if (change.kind === "automation_approval") throw new AccessError("Only the people the automation asks may approve or reject this.");
+    throw new AccessError();
   }
   return { change, view };
 }
@@ -440,6 +478,7 @@ async function answerable(userId: string, changeId: string): Promise<{ change: C
 async function checkEdit(userId: string, change: Change, edit: unknown): Promise<PendingChangePayload> {
   if (!edit || typeof edit !== "object" || Array.isArray(edit)) throw new PendingChangeError("invalid", "The edit must be an object.");
   const e = edit as Record<string, unknown>;
+  if (change.kind === "automation_approval") throw new PendingChangeError("invalid", "An automation's approval can't be edited: approve or reject it.");
   if (change.kind === "email_draft") {
     const was = asEmail(change.payload);
     const subject = typeof e.subject === "string" ? e.subject : was.subject;
@@ -570,6 +609,11 @@ function failure(error: unknown): string | null {
 async function make(userId: string, actor: WriteActor, change: Change): Promise<string | null> {
   const ctx: ops.OperationContext = { userId, actor };
   const payload = effective(change);
+  if (change.kind === "automation_approval") {
+    // The run goes on: it reads the answer itself (automations/approval.ts).
+    if (change.automationRunId) await wakeRun(change.automationRunId);
+    return null;
+  }
   if (change.kind === "email_draft") {
     if (!change.rowId || change.senderId !== userId) throw new AccessError();
     const email = asEmail(payload);
@@ -603,6 +647,8 @@ export async function dismissPendingChange(userId: string, changeId: string): Pr
     .where(and(eq(pendingChange.id, changeId), inArray(pendingChange.status, [...OPEN])))
     .returning();
   if (!taken) throw new PendingChangeError("decided", "This change was already answered.");
+  // A rejected approval stops its run: woken now rather than at the expiry.
+  if (change.kind === "automation_approval" && change.automationRunId) await wakeRun(change.automationRunId);
   await audit(userId, change, view, "review.dismissed");
   signalQueue(change.workspaceId, [change.databaseId]);
   return (await getPendingChange(userId, changeId)) ?? { ...view, status: "dismissed", canApprove: false };
@@ -636,7 +682,14 @@ async function audit(userId: string, change: Change, view: PendingChangeView, ac
     actorId: userId,
     action,
     target: { type: "page", id: change.rowId ?? change.databaseId, label: view.row?.title ?? view.database.title },
-    details: { kind: change.kind, agent: view.agent?.name ?? null, changeId: change.id, ...(change.editedPayload ? { edited: true } : {}), ...extra },
+    details: {
+      kind: change.kind,
+      agent: view.agent?.name ?? null,
+      changeId: change.id,
+      ...(view.approval ? { automation: view.approval.automation?.name ?? null, automationRunId: view.approval.runId } : {}),
+      ...(change.editedPayload ? { edited: true } : {}),
+      ...extra,
+    },
   });
 }
 

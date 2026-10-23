@@ -1030,7 +1030,8 @@
       "runAgent": "Run {agent}",
       "archivedAgent": "an archived agent",
       "trash": "Move to trash",
-      "setEach": "Set found rows"
+      "setEach": "Set found rows",
+      "approval": "Ask {people}"
     },
     "form": {
       "name": "Name",
@@ -1070,7 +1071,8 @@
         "create_row": "Add a row",
         "upsert_row": "Add or update a row",
         "wait": "Wait",
-        "log": "Write to the run history"
+        "log": "Write to the run history",
+        "approval": "Ask for approval"
       },
       "trashHelp": "Moves the row to the trash, where it can be restored from until the trash is emptied. Nothing can run after this action.",
       "addAction": "Add action",
@@ -1127,7 +1129,9 @@
         "badCron": "The cron expression isn’t valid.",
         "neverRuns": "This schedule never comes round.",
         "badExample": "The example body isn’t valid JSON.",
-        "exampleTooLong": "The example body is too long."
+        "exampleTooLong": "The example body is too long.",
+        "needApprovers": "Choose who to ask.",
+        "needTimeout": "Enter a whole number of days from 1 to 30."
       },
       "agent": "Agent",
       "chooseAgent": "Choose an agent…",
@@ -1191,13 +1195,15 @@
         "pending": "Waiting",
         "running": "Running",
         "done": "Done",
-        "failed": "Failed"
+        "failed": "Failed",
+        "stopped": "Stopped"
       },
       "stepStatus": {
         "pending": "waiting",
         "done": "done",
         "failed": "failed",
-        "skipped": "skipped"
+        "skipped": "skipped",
+        "stopped": "stopped"
       },
       "notified": "{count, plural, one {# person notified} other {# people notified}}",
       "attempts": "{count, plural, one {# try} other {# tries}}",
@@ -1241,7 +1247,20 @@
         "changed": "The automation changed",
         "tooManyAttempts": "Tried too many times",
         "disabled": "The automation was turned off",
-        "rowGone": "The row is gone"
+        "rowGone": "The row is gone",
+        "noApprovers": "Nobody to ask",
+        "rejected": "Rejected",
+        "timedOut": "Nobody answered in time"
+      },
+      "waitingApproval": "Waiting for approval",
+      "approval": {
+        "wouldAsk": "Test run: it would ask {names}",
+        "approved": "Approved by {name}, {time}",
+        "rejected": "Rejected by {name}, {time}: the run stopped",
+        "timedOut": "Nobody answered by {time}: the run stopped",
+        "timedOutContinued": "Nobody answered by {time}: the run went on",
+        "waiting": "Asked {names}, until {time}",
+        "closed": "Asked {names}; the run ended before an answer"
       }
     },
     "nextRun": "Next run {time}",
@@ -1367,7 +1386,9 @@
       "until": "Waited until",
       "notified": "People notified",
       "agentRunId": "Agent run ID",
-      "rowId": "Row ID"
+      "rowId": "Row ID",
+      "approvedBy": "Who approved",
+      "answeredAt": "When it was answered"
     },
     "test": {
       "title": "Test run",
@@ -1383,6 +1404,36 @@
       "run": "Run test",
       "saveAndRun": "Save and run",
       "starting": "Starting…"
+    },
+    "approval": {
+      "people": "Ask these people",
+      "personProperties": "People in these properties of the row",
+      "message": "Message",
+      "messagePlaceholder": "For example: Can we close {template}?",
+      "timeout": "Days to answer",
+      "onTimeout": "If nobody answers in time",
+      "timeoutStop": "Stop the run",
+      "timeoutContinue": "Go on with the next steps",
+      "help": "The run waits until one of them answers under For review: approving goes on with the next steps, rejecting stops the run. At most {max} days. Later steps can use who approved: {template}."
+    },
+    "gallery": {
+      "title": "Start from a template",
+      "use": "Use",
+      "approveBeforeClosing": {
+        "name": "Ask for approval before closing",
+        "description": "When a row moves to review, the people it names approve it, then it is marked closed.",
+        "message": "Can {title} be closed?"
+      },
+      "notifyAssignee": {
+        "name": "Tell people they were assigned",
+        "description": "When a row's person property changes, notify the people in it.",
+        "message": "You were assigned {title}."
+      },
+      "remindOverdue": {
+        "name": "Remind about overdue rows",
+        "description": "A day after a row's date passes while it isn't done, notify its people.",
+        "message": "{title} is overdue."
+      }
     }
   },
   "subItems": {

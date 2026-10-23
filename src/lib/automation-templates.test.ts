@@ -60,6 +60,20 @@ describe("resolveValue", () => {
   });
 });
 
+describe("an approval's output", () => {
+  const approved = { approval: { approved: true, approved_by: { id: "u2", name: "Deniz" }, answered_at: "2026-10-22T09:30:00.000Z" } };
+  it("writes who approved by name, and their id where people are set", () => {
+    expect(resolveText("Approved by {{approval.approved_by}} at {{approval.answered_at}}", approved).value).toBe(
+      "Approved by Deniz at 2026-10-22T09:30:00.000Z",
+    );
+    expect(idsOf(resolveValue("{{approval.approved_by}}", approved).value)).toEqual(["u2"]);
+  });
+  it("is empty in a test run, which asks nobody", () => {
+    const test = { approval: { approved: null, approved_by: null, answered_at: null } };
+    expect(resolveText("by {{approval.approved_by}}", test)).toEqual({ value: "by ", missing: [] });
+  });
+});
+
 describe("helpers", () => {
   it("finds roots and bad templates", () => {
     expect([...templateRoots({ x: "{{trigger.a}} {{find.b}}" })].sort()).toEqual(["find", "trigger"]);

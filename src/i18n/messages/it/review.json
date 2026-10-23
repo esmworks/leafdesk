@@ -1,7 +1,7 @@
 {
   "metaTitle": "Da rivedere",
   "heading": "Da rivedere",
-  "description": "Modifiche che gli agenti hanno proposto invece di farle. Approvane una per farla a tuo nome, modificala prima o ignorala. Le proposte che nessuno gestisce scadono dopo 30 giorni.",
+  "description": "Modifiche che gli agenti hanno proposto invece di farle, e automazioni in attesa di un’approvazione. Approva una modifica per farla a tuo nome, modificala prima o ignorala; approva un’automazione per far proseguire la sua esecuzione, o rifiutala per fermarla. Le proposte che nessuno gestisce scadono dopo 30 giorni.",
   "filters": {
     "agent": "Agente",
     "database": "Database",
@@ -28,7 +28,9 @@
   "proposes": {
     "createRow": "<agent></agent> vuole aggiungere una riga a <database></database>",
     "updateRow": "<agent></agent> vuole modificare <row></row>",
-    "emailDraft": "<agent></agent> ha preparato un’email su <row></row>"
+    "emailDraft": "<agent></agent> ha preparato un’email su <row></row>",
+    "automationApproval": "<automation></automation> chiede l’approvazione per <row></row>",
+    "automationApprovalNoRow": "<automation></automation> chiede l’approvazione"
   },
   "inDatabase": "in <database></database>",
   "unknownAgent": "Un agente eliminato",
@@ -39,7 +41,9 @@
   "decided": {
     "approved": "Approvata da {name} {time}",
     "dismissed": "Ignorata da {name} {time}",
-    "expired": "Scaduta senza risposta"
+    "expired": "Scaduta senza risposta",
+    "rejected": "Rifiutata da {name} {time}",
+    "timedOut": "Nessuno ha risposto in tempo"
   },
   "title": "Titolo",
   "becomes": "diventa",
@@ -70,7 +74,8 @@
   "dismiss": "Ignora",
   "cannot": {
     "email": "Solo {name} può inviare questa bozza, dalla propria casella di posta.",
-    "row": "Puoi vedere questa modifica, ma per approvarla serve l’accesso in modifica alla riga e a ogni valore che imposta."
+    "row": "Puoi vedere questa modifica, ma per approvarla serve l’accesso in modifica alla riga e a ogni valore che imposta.",
+    "approval": "Solo le persone a cui chiede l’automazione possono approvare o rifiutare."
   },
   "errors": {
     "notFound": "Questa modifica non c’è più, o non puoi vederla.",
@@ -84,5 +89,15 @@
     "bar": "{count, plural, one {# modifica da rivedere} other {# modifiche da rivedere}}",
     "by": "proposte da {names}",
     "open": "Rivedi"
+  },
+  "unknownAutomation": "Un’automazione eliminata",
+  "reject": "Rifiuta",
+  "approval": {
+    "next": "Se approvata, poi:",
+    "nothingNext": "Se approvata, l’esecuzione finisce: non ci sono altri passaggi.",
+    "forEach": "per ogni riga di {step}",
+    "approvers": "Chiede a {names}",
+    "timeoutStop": "Se nessuno risponde in tempo, l’esecuzione si ferma.",
+    "timeoutContinue": "Se nessuno risponde in tempo, l’esecuzione prosegue."
   }
 }

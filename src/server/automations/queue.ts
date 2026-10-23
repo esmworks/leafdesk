@@ -38,6 +38,15 @@ export function onAutomationsQueued(kick: () => void) {
 /** Wakes the worker for runs queued some other way (the "date passed" check). */
 export const kickAutomations = () => state.kick?.();
 
+/**
+ * Makes a waiting run due now and wakes the worker: an approval it waits for was answered. Taken
+ * while it runs, the worker looks at the answer again after saving it (run.ts), so it isn't lost.
+ */
+export async function wakeRun(runId: string) {
+  await db.update(automationRun).set({ nextAt: new Date() }).where(and(eq(automationRun.id, runId), eq(automationRun.status, "pending")));
+  state.kick?.();
+}
+
 export type RowChange = { rowId: string; before: Record<string, unknown>; after: Record<string, unknown> };
 
 const CHUNK = 500;

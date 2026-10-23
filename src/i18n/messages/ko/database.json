@@ -1030,7 +1030,8 @@
       "runAgent": "{agent} 실행",
       "archivedAgent": "보관된 에이전트",
       "trash": "휴지통으로 이동",
-      "setEach": "찾은 행에 설정"
+      "setEach": "찾은 행에 설정",
+      "approval": "{people}에게 요청"
     },
     "form": {
       "name": "이름",
@@ -1070,7 +1071,8 @@
         "create_row": "행 추가",
         "upsert_row": "행 추가 또는 업데이트",
         "wait": "대기",
-        "log": "실행 기록에 쓰기"
+        "log": "실행 기록에 쓰기",
+        "approval": "승인 요청"
       },
       "trashHelp": "행을 휴지통으로 이동합니다. 휴지통을 비우기 전까지 복원할 수 있습니다. 이 동작 뒤에는 다른 동작을 실행할 수 없습니다.",
       "addAction": "동작 추가",
@@ -1127,7 +1129,9 @@
         "badCron": "cron 식이 유효하지 않습니다.",
         "neverRuns": "이 일정은 한 번도 돌아오지 않습니다.",
         "badExample": "예시 본문이 유효한 JSON이 아닙니다.",
-        "exampleTooLong": "예시 본문이 너무 깁니다."
+        "exampleTooLong": "예시 본문이 너무 깁니다.",
+        "needApprovers": "요청할 사람을 선택하세요.",
+        "needTimeout": "1에서 30 사이의 정수로 일수를 입력하세요."
       },
       "agent": "에이전트",
       "chooseAgent": "에이전트 선택…",
@@ -1191,13 +1195,15 @@
         "pending": "대기 중",
         "running": "실행 중",
         "done": "완료",
-        "failed": "실패"
+        "failed": "실패",
+        "stopped": "중지됨"
       },
       "stepStatus": {
         "pending": "대기 중",
         "done": "완료",
         "failed": "실패",
-        "skipped": "건너뜀"
+        "skipped": "건너뜀",
+        "stopped": "중지됨"
       },
       "notified": "{count}명에게 알림",
       "attempts": "{count}회 시도",
@@ -1241,7 +1247,20 @@
         "changed": "자동화가 변경됨",
         "tooManyAttempts": "시도 횟수 초과",
         "disabled": "자동화가 꺼짐",
-        "rowGone": "행이 더 이상 없음"
+        "rowGone": "행이 더 이상 없음",
+        "noApprovers": "요청할 사람이 없음",
+        "rejected": "거부됨",
+        "timedOut": "기한 안에 아무도 응답하지 않음"
+      },
+      "waitingApproval": "승인 대기 중",
+      "approval": {
+        "wouldAsk": "테스트 실행: {names}에게 요청합니다",
+        "approved": "{name} 님이 승인함, {time}",
+        "rejected": "{name} 님이 거부함, {time}: 실행이 중지됨",
+        "timedOut": "{time}까지 아무도 응답하지 않아 실행이 중지됨",
+        "timedOutContinued": "{time}까지 아무도 응답하지 않아 실행이 계속됨",
+        "waiting": "{names}에게 요청함, {time}까지",
+        "closed": "{names}에게 요청했지만 응답 전에 실행이 끝남"
       }
     },
     "nextRun": "다음 실행 {time}",
@@ -1367,7 +1386,9 @@
       "until": "대기 종료 시각",
       "notified": "알림을 받은 사람",
       "agentRunId": "에이전트 실행 ID",
-      "rowId": "행 ID"
+      "rowId": "행 ID",
+      "approvedBy": "승인한 사람",
+      "answeredAt": "응답한 시각"
     },
     "test": {
       "title": "테스트 실행",
@@ -1383,6 +1404,36 @@
       "run": "테스트 실행",
       "saveAndRun": "저장 후 실행",
       "starting": "시작 중…"
+    },
+    "approval": {
+      "people": "다음 사람에게 요청",
+      "personProperties": "행의 다음 속성에 있는 사람",
+      "message": "메시지",
+      "messagePlaceholder": "예: {template}을(를) 종료해도 될까요?",
+      "timeout": "응답 기한(일)",
+      "onTimeout": "기한 안에 아무도 응답하지 않으면",
+      "timeoutStop": "실행 중지",
+      "timeoutContinue": "다음 단계로 계속",
+      "help": "누군가 검토 대기에서 응답할 때까지 실행이 기다립니다. 승인하면 다음 단계로 진행하고, 거부하면 실행이 중지됩니다. 최대 {max}일입니다. 이후 단계에서 승인한 사람을 쓸 수 있습니다: {template}."
+    },
+    "gallery": {
+      "title": "템플릿으로 시작",
+      "use": "사용",
+      "approveBeforeClosing": {
+        "name": "종료 전에 승인 요청",
+        "description": "행이 검토 단계로 넘어가면 그 행의 사람이 승인하고, 그다음 종료됨으로 표시됩니다.",
+        "message": "{title}을(를) 종료해도 될까요?"
+      },
+      "notifyAssignee": {
+        "name": "배정된 사람에게 알리기",
+        "description": "행의 사람 속성이 바뀌면 그 안의 사람에게 알림을 보냅니다.",
+        "message": "{title}이(가) 배정되었습니다."
+      },
+      "remindOverdue": {
+        "name": "기한 지난 행 알림",
+        "description": "완료되지 않은 행의 날짜가 지나고 하루 뒤 그 행의 사람에게 알림을 보냅니다.",
+        "message": "{title}의 기한이 지났습니다."
+      }
     }
   },
   "subItems": {

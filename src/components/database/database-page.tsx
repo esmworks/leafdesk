@@ -92,6 +92,12 @@ export function DatabasePage({
   const router = useRouter();
   const searchParams = useSearchParams();
   const viewParam = embedded ? null : searchParams.get("view");
+  // A link to an automation's run (the "For review" queue's): the automations open at it, once.
+  const [openRun] = useState(() => {
+    const automationId = embedded ? null : searchParams.get("automation");
+    const runId = embedded ? null : searchParams.get("run");
+    return automationId && runId ? { automationId, runId } : null;
+  });
   const [selectedViewId, setSelectedViewId] = useState<string | null>(viewParam);
   // Form views: editors switch between building the form and filling it in.
   const [formPreview, setFormPreview] = useState(false);
@@ -388,7 +394,7 @@ export function DatabasePage({
                       />
                       {view?.type === "dashboard" && canManageAutomations && (
                         <div className="flex shrink-0 items-center gap-1 self-end md:pb-1.5">
-                          <AutomationsButton workspaceId={workspaceId} databaseId={databaseId} databaseTitle={snapshot.database.title} />
+                          <AutomationsButton workspaceId={workspaceId} databaseId={databaseId} databaseTitle={snapshot.database.title} openRun={openRun} />
                         </div>
                       )}
                       {view?.type === "form" && (
@@ -407,6 +413,7 @@ export function DatabasePage({
                               workspaceId={workspaceId}
                               databaseId={databaseId}
                               databaseTitle={snapshot.database.title}
+                              openRun={openRun}
                             />
                           )}
                         </div>
@@ -440,6 +447,7 @@ export function DatabasePage({
                               workspaceId={workspaceId}
                               databaseId={databaseId}
                               databaseTitle={snapshot.database.title}
+                              openRun={openRun}
                             />
                           )}
                           {!readOnly && (

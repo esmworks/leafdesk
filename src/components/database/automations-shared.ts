@@ -6,6 +6,7 @@ import {
   FOR_EACH_TYPES,
   hasRow,
   isDynamicValue,
+  MAX_APPROVAL_DAYS,
   MAX_DATE_PASSED_DAYS,
   MAX_EXAMPLE_PAYLOAD,
   MAX_FOUND_ROWS,
@@ -20,6 +21,7 @@ import {
   type AutomationActionType,
   type AutomationTrigger,
   type AutomationTriggerType,
+  type ApprovalTimeout,
   type HttpMethod,
 } from "@/lib/automations";
 import { fromPercentPoints, isPercent, toPercentPoints } from "@/lib/number-format";
@@ -108,6 +110,8 @@ export type DraftAction = { key: string; id: string } & (
   | { type: "upsert_row"; databaseId: string; matchProperty: string; matchValue: string; title: string; entries: SetEntry[] }
   | { type: "wait"; amount: string; unit: WaitUnit }
   | { type: "log"; message: string }
+  /** `timeoutDays` as typed. */
+  | { type: "approval"; people: string[]; properties: string[]; message: string; timeoutDays: string; onTimeout: ApprovalTimeout }
 );
 
 export type DraftActionOf<T extends AutomationActionType> = Extract<DraftAction, { type: T }>;
@@ -143,6 +147,7 @@ const ID_STEMS: Record<AutomationActionType, string> = {
   upsert_row: "upsert",
   wait: "wait",
   log: "log",
+  approval: "approval",
 };
 
 export function newStepId(type: AutomationActionType, taken: string[]) {
@@ -159,6 +164,7 @@ export const goesForEach = (type: AutomationActionType) => (FOR_EACH_TYPES as re
 export function needsRowDraft(action: DraftAction) {
   if ((ROW_STEP_TYPES as readonly string[]).includes(action.type)) return !("forEach" in action && action.forEach);
   if (action.type === "notify") return !action.forEach && action.properties.length > 0;
+  if (action.type === "approval") return action.properties.length > 0;
   return false;
 }
 
@@ -301,6 +307,16 @@ export function toDraft(automation: Automation, properties: Property[]): Draft {
         return { ...base, type: "log", message: action.message };
       case "webhook":
         return { ...base, type: "webhook", url: action.url };
+      case "approval":
+        return {
+          ...base,
+          type: "approval",
+          people: action.userIds,
+          properties: action.propertyIds.filter(has),
+          message: action.message,
+          timeoutDays: String(action.timeoutDays),
+          onTimeout: action.onTimeout,
+        };
     }
   });
   return { name: automation.name, enabled: automation.enabled, trigger: toDraftTrigger(definition.trigger), actions };
@@ -335,6 +351,8 @@ export function newAction(type: AutomationActionType, actions: DraftAction[], tr
       return { ...base, type, message: "" };
     case "webhook":
       return { ...base, type, url: "" };
+    case "approval":
+      return { ...base, type, people: [], properties: [], message: "", timeoutDays: String(MAX_APPROVAL_DAYS), onTimeout: "stop" };
   }
 }
 
@@ -502,6 +520,11 @@ export function draftProblem(
         if (!action.message.trim()) problem = "needMessage";
         else if (badText(action.message)) problem = "badTemplate";
         break;
+      case "approval":
+        if (!action.people.length && !action.properties.length) problem = "needApprovers";
+        else if (wholeNumber(action.timeoutDays, 1, MAX_APPROVAL_DAYS) === null) problem = "needTimeout";
+        else if (badText(action.message)) problem = "badTemplate";
+        break;
     }
     if (problem) return at(problem);
     seen.push(action.id);
@@ -610,6 +633,16 @@ export function actionsInput(draft: Draft, properties: Property[], schemaOf: (da
         return { id, type: "log" as const, message: action.message.trim() };
       case "webhook":
         return { id, type: "webhook" as const, url: action.url.trim() };
+      case "approval":
+        return {
+          id,
+          type: "approval" as const,
+          people: action.people,
+          properties: action.properties,
+          message: action.message.trim(),
+          timeoutDays: wholeNumber(action.timeoutDays, 1, MAX_APPROVAL_DAYS) ?? MAX_APPROVAL_DAYS,
+          onTimeout: action.onTimeout,
+        };
     }
   });
 }

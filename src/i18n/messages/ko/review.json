@@ -1,7 +1,7 @@
 {
   "metaTitle": "검토 대기",
   "heading": "검토 대기",
-  "description": "에이전트가 직접 적용하는 대신 제안한 변경입니다. 승인하면 내 이름으로 적용되며, 먼저 편집하거나 무시할 수도 있습니다. 아무도 응답하지 않은 제안은 30일 후 만료됩니다.",
+  "description": "에이전트가 직접 적용하는 대신 제안한 변경과 승인을 기다리는 자동화입니다. 변경은 승인하면 내 이름으로 적용되며, 먼저 편집하거나 무시할 수도 있습니다. 자동화는 승인하면 실행이 계속되고, 거부하면 중지됩니다. 아무도 응답하지 않은 제안은 30일 후 만료됩니다.",
   "filters": {
     "agent": "에이전트",
     "database": "데이터베이스",
@@ -28,7 +28,9 @@
   "proposes": {
     "createRow": "<agent></agent>이(가) <database></database>에 행을 추가하려고 합니다",
     "updateRow": "<agent></agent>이(가) <row></row>을(를) 변경하려고 합니다",
-    "emailDraft": "<agent></agent>이(가) <row></row>에서 이메일 초안을 작성했습니다"
+    "emailDraft": "<agent></agent>이(가) <row></row>에서 이메일 초안을 작성했습니다",
+    "automationApproval": "<automation></automation>이(가) <row></row>에 대한 승인을 요청합니다",
+    "automationApprovalNoRow": "<automation></automation>이(가) 승인을 요청합니다"
   },
   "inDatabase": "<database></database>에 있음",
   "unknownAgent": "삭제된 에이전트",
@@ -39,7 +41,9 @@
   "decided": {
     "approved": "{name} 님이 {time} 승인함",
     "dismissed": "{name} 님이 {time} 무시함",
-    "expired": "응답 없이 만료됨"
+    "expired": "응답 없이 만료됨",
+    "rejected": "{name} 님이 {time} 거부함",
+    "timedOut": "기한 안에 아무도 응답하지 않음"
   },
   "title": "제목",
   "becomes": "변경 후",
@@ -70,7 +74,8 @@
   "dismiss": "무시",
   "cannot": {
     "email": "이 초안은 {name} 님만 자신의 메일함에서 보낼 수 있습니다.",
-    "row": "이 변경은 볼 수 있지만, 승인하려면 행과 이 변경이 설정하는 각 값에 대한 편집 권한이 필요합니다."
+    "row": "이 변경은 볼 수 있지만, 승인하려면 행과 이 변경이 설정하는 각 값에 대한 편집 권한이 필요합니다.",
+    "approval": "자동화가 요청한 사람만 승인하거나 거부할 수 있습니다."
   },
   "errors": {
     "notFound": "이 변경이 없어졌거나 볼 권한이 없습니다.",
@@ -84,5 +89,15 @@
     "bar": "{count, plural, other {검토 대기 중인 변경 #개}}",
     "by": "제안: {names}",
     "open": "검토"
+  },
+  "unknownAutomation": "삭제된 자동화",
+  "reject": "거부",
+  "approval": {
+    "next": "승인하면 다음을 실행:",
+    "nothingNext": "승인하면 실행이 끝납니다. 이후 단계가 없습니다.",
+    "forEach": "{step}의 각 행마다",
+    "approvers": "요청 대상: {names}",
+    "timeoutStop": "기한 안에 아무도 응답하지 않으면 실행이 중지됩니다.",
+    "timeoutContinue": "기한 안에 아무도 응답하지 않으면 실행이 계속됩니다."
   }
 }

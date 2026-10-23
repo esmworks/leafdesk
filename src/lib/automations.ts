@@ -132,7 +132,27 @@ export type AutomationAction = (
   | { type: "wait"; minutes: number }
   /** Writes a message into the run's history. */
   | { type: "log"; message: string }
+  /**
+   * Asks these people, and whoever the row's person properties `propertyIds` name, to approve the
+   * run going on (server/automations/approval.ts): it waits in the "For review" queue, with
+   * `message`, for one of them. Approved, the next step runs; rejected, the run stops. Unanswered
+   * after `timeoutDays`, it stops or (`onTimeout: "continue"`) goes on.
+   */
+  | ApprovalAction
 ) & { id?: string };
+
+export type ApprovalAction = {
+  type: "approval";
+  userIds: string[];
+  propertyIds: string[];
+  message: string;
+  timeoutDays: number;
+  onTimeout: ApprovalTimeout;
+};
+
+/** What an approval nobody answered in time does: stops the run, or lets it go on. */
+export const APPROVAL_TIMEOUTS = ["stop", "continue"] as const;
+export type ApprovalTimeout = (typeof APPROVAL_TIMEOUTS)[number];
 
 export type AutomationActionType = AutomationAction["type"];
 
@@ -148,6 +168,7 @@ export const AUTOMATION_ACTION_TYPES = [
   "upsert_row",
   "wait",
   "log",
+  "approval",
 ] as const satisfies AutomationActionType[];
 
 /** Steps that can go "for each" over found rows. */
@@ -160,6 +181,7 @@ export const ROW_STEP_TYPES = ["set_properties", "run_agent", "move_to_trash", "
 export function needsRow(action: AutomationAction) {
   if ((ROW_STEP_TYPES as readonly string[]).includes(action.type)) return !("forEach" in action && action.forEach);
   if (action.type === "notify") return !action.forEach && action.propertyIds.length > 0;
+  if (action.type === "approval") return action.propertyIds.length > 0;
   return false;
 }
 
@@ -226,6 +248,13 @@ export const MAX_HTTP_BODY = 32_000;
 export const MAX_STEP_MESSAGE = 2000;
 /** A wait step waits at most seven days. */
 export const MAX_WAIT_MINUTES = 7 * 24 * 60;
+/**
+ * An approval waits at most as long as anything waits in the "For review" queue (lib/pending-changes
+ * PENDING_CHANGE_DAYS, which the queue's daily cleanup expires), and that long when not told.
+ */
+export const MAX_APPROVAL_DAYS = 30;
+/** People an approval step names at most (its person properties may add more). */
+export const MAX_APPROVERS = 20;
 /** The example body an incoming webhook trigger keeps for the editor, as JSON text. */
 export const MAX_EXAMPLE_PAYLOAD = 16_000;
 /** An incoming webhook's body at most, and how many requests an automation takes a minute. */
@@ -419,11 +448,35 @@ export function httpRetriable(status: number | null) {
  */
 export type AutomationCheckError = "propertyDeleted" | "noAccess" | "scheduleInvalid";
 
-/** What a run is: waiting (or waiting to retry), running, done, or failed in some step. */
-export const AUTOMATION_RUN_STATUSES = ["pending", "running", "done", "failed"] as const;
+/**
+ * What a run is: waiting (or waiting to retry, or for an approval), running, done, failed in some
+ * step, or stopped by an approval that was rejected or not answered in time.
+ */
+export const AUTOMATION_RUN_STATUSES = ["pending", "running", "done", "failed", "stopped"] as const;
 export type AutomationRunStatus = (typeof AUTOMATION_RUN_STATUSES)[number];
+/** Runs that are over: kept for the history, then pruned. */
+export const FINISHED_RUN_STATUSES = ["done", "failed", "stopped"] as const satisfies AutomationRunStatus[];
 
-export type AutomationStepStatus = "pending" | "done" | "failed" | "skipped";
+/** `stopped`: an approval step that was rejected or not answered in time, which ended the run. */
+export type AutomationStepStatus = "pending" | "done" | "failed" | "skipped" | "stopped";
+
+/**
+ * An approval step's question as the run keeps it: the "For review" entry, who may answer, until
+ * when, and how it was answered (approved or rejected, by whom and when, or timed out).
+ */
+export type ApprovalState = {
+  changeId: string;
+  approvers: { id: string; name: string }[];
+  expiresAt: string;
+  answer?: "approved" | "rejected" | "timedOut";
+  answeredBy?: { id: string; name: string } | null;
+  answeredAt?: string | null;
+  /** A test run: who it would have asked (it asked no one). */
+  test?: boolean;
+};
+
+/** The code of an approval step a test run skipped: later steps go on, its output empty. */
+export const APPROVAL_TEST_CODE = "approvalTest";
 
 /** How a step went for one found row of a "for each". */
 export type AutomationStepItem = { rowId: string; title: string; status: "done" | "failed" | "skipped"; code?: string; error?: string };
@@ -454,17 +507,26 @@ export type AutomationStep = {
   durationMs?: number;
   /** Wait: when the run goes on. */
   waitUntil?: string;
+  /** Approval: the question and its answer. */
+  approval?: ApprovalState;
   input?: unknown;
   output?: unknown;
   /** For each: how it went for each found row. */
   items?: AutomationStepItem[];
 };
 
-/** A run is done when every step is; failed when one failed for good; else it still waits. */
+/**
+ * A run is done when every step is; failed when one failed for good; stopped when an approval
+ * stopped it; else it still waits.
+ */
 export function runStatusOf(steps: AutomationStep[]): AutomationRunStatus {
   if (steps.some((s) => s.status === "pending")) return "pending";
-  return steps.some((s) => s.status === "failed") ? "failed" : "done";
+  if (steps.some((s) => s.status === "failed")) return "failed";
+  return steps.some((s) => s.status === "stopped") ? "stopped" : "done";
 }
+
+/** The run waits for an approval's answer: the step that asks, if any. */
+export const waitingApproval = (steps: AutomationStep[]) => steps.find((s) => s.status === "pending" && s.type === "approval" && s.approval && !s.approval.answer) ?? null;
 
 /** Text the signature covers: the timestamp (Unix seconds), a dot, and the raw body. */
 export const signedContent = (timestamp: number, body: string) => `${timestamp}.${body}`;

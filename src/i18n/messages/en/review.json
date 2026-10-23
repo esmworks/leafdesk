@@ -1,7 +1,7 @@
 {
   "metaTitle": "For review",
   "heading": "For review",
-  "description": "Changes agents proposed instead of making them. Approve one to make it as you, edit it first, or dismiss it. Proposals no one answers expire after 30 days.",
+  "description": "Changes agents proposed instead of making them, and automations waiting for someone's approval. Approve a change to make it as you, edit it first, or dismiss it; approve an automation to let its run go on, or reject it to stop the run. Proposals no one answers expire after 30 days.",
   "filters": {
     "agent": "Agent",
     "database": "Database",
@@ -28,7 +28,9 @@
   "proposes": {
     "createRow": "<agent></agent> wants to add a row to <database></database>",
     "updateRow": "<agent></agent> wants to change <row></row>",
-    "emailDraft": "<agent></agent> drafted an email on <row></row>"
+    "emailDraft": "<agent></agent> drafted an email on <row></row>",
+    "automationApproval": "<automation></automation> asks for approval on <row></row>",
+    "automationApprovalNoRow": "<automation></automation> asks for approval"
   },
   "inDatabase": "in <database></database>",
   "unknownAgent": "A deleted agent",
@@ -39,7 +41,9 @@
   "decided": {
     "approved": "Approved by {name} {time}",
     "dismissed": "Dismissed by {name} {time}",
-    "expired": "Expired unanswered"
+    "expired": "Expired unanswered",
+    "rejected": "Rejected by {name} {time}",
+    "timedOut": "Nobody answered in time"
   },
   "title": "Title",
   "becomes": "becomes",
@@ -70,7 +74,8 @@
   "dismiss": "Dismiss",
   "cannot": {
     "email": "Only {name} can send this draft, from their own mailbox.",
-    "row": "You can see this change, but approving it needs edit access to the row and to each value it sets."
+    "row": "You can see this change, but approving it needs edit access to the row and to each value it sets.",
+    "approval": "Only the people the automation asks can approve or reject this."
   },
   "errors": {
     "notFound": "This change is gone, or you can’t see it.",
@@ -84,5 +89,15 @@
     "bar": "{count, plural, one {# change waits for review} other {# changes wait for review}}",
     "by": "proposed by {names}",
     "open": "Review"
+  },
+  "unknownAutomation": "A deleted automation",
+  "reject": "Reject",
+  "approval": {
+    "next": "If approved, then:",
+    "nothingNext": "If approved, the run ends: no steps come after this one.",
+    "forEach": "for each row from {step}",
+    "approvers": "Asks {names}",
+    "timeoutStop": "If nobody answers in time, the run stops.",
+    "timeoutContinue": "If nobody answers in time, the run goes on."
   }
 }

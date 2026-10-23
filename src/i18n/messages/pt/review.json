@@ -1,7 +1,7 @@
 {
   "metaTitle": "Para revisar",
   "heading": "Para revisar",
-  "description": "Alterações que agentes propuseram em vez de fazê-las. Aprove uma para fazê-la em seu nome, edite antes ou descarte. Propostas que ninguém responde expiram após 30 dias.",
+  "description": "Alterações que agentes propuseram em vez de fazê-las, e automações aguardando uma aprovação. Aprove uma alteração para fazê-la em seu nome, edite antes ou descarte; aprove uma automação para que a execução siga, ou rejeite para pará-la. Propostas que ninguém responde expiram após 30 dias.",
   "filters": {
     "agent": "Agente",
     "database": "Banco de dados",
@@ -28,7 +28,9 @@
   "proposes": {
     "createRow": "<agent></agent> quer adicionar uma linha a <database></database>",
     "updateRow": "<agent></agent> quer alterar <row></row>",
-    "emailDraft": "<agent></agent> rascunhou um e-mail em <row></row>"
+    "emailDraft": "<agent></agent> rascunhou um e-mail em <row></row>",
+    "automationApproval": "<automation></automation> pede aprovação para <row></row>",
+    "automationApprovalNoRow": "<automation></automation> pede aprovação"
   },
   "inDatabase": "em <database></database>",
   "unknownAgent": "Um agente excluído",
@@ -39,7 +41,9 @@
   "decided": {
     "approved": "Aprovada por {name} {time}",
     "dismissed": "Descartada por {name} {time}",
-    "expired": "Expirou sem resposta"
+    "expired": "Expirou sem resposta",
+    "rejected": "Rejeitada por {name} {time}",
+    "timedOut": "Ninguém respondeu a tempo"
   },
   "title": "Título",
   "becomes": "passa a ser",
@@ -70,7 +74,8 @@
   "dismiss": "Descartar",
   "cannot": {
     "email": "Só {name} pode enviar este rascunho, da própria caixa de e-mail.",
-    "row": "Você pode ver esta alteração, mas aprová-la exige acesso de edição à linha e a cada valor que ela define."
+    "row": "Você pode ver esta alteração, mas aprová-la exige acesso de edição à linha e a cada valor que ela define.",
+    "approval": "Só as pessoas a quem a automação pergunta podem aprovar ou rejeitar isto."
   },
   "errors": {
     "notFound": "Esta alteração não existe mais, ou você não pode vê-la.",
@@ -84,5 +89,15 @@
     "bar": "{count, plural, one {# alteração aguarda revisão} other {# alterações aguardam revisão}}",
     "by": "propostas por {names}",
     "open": "Revisar"
+  },
+  "unknownAutomation": "Uma automação excluída",
+  "reject": "Rejeitar",
+  "approval": {
+    "next": "Se aprovado, depois:",
+    "nothingNext": "Se aprovado, a execução termina: não há passos depois deste.",
+    "forEach": "para cada linha de {step}",
+    "approvers": "Pergunta a {names}",
+    "timeoutStop": "Se ninguém responder a tempo, a execução para.",
+    "timeoutContinue": "Se ninguém responder a tempo, a execução segue."
   }
 }
