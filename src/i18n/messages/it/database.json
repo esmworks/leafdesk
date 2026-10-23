@@ -20,7 +20,8 @@
     "lastEditedBy": "Ultima modifica di",
     "lastEditedTime": "Data ultima modifica",
     "formula": "Formula",
-    "rollup": "Rollup"
+    "rollup": "Rollup",
+    "place": "Luogo"
   },
   "views": {
     "table": "Tabella",
@@ -31,7 +32,8 @@
     "timeline": "Timeline",
     "chart": "Grafico",
     "dashboard": "Dashboard",
-    "form": "Modulo"
+    "form": "Modulo",
+    "map": "Mappa"
   },
   "dashboardView": {
     "emptyEditable": "Mostra qui numeri, grafici ed elenchi di questo database. Restano aggiornati quando le righe cambiano.",
@@ -742,7 +744,12 @@
       "panel": "Pannello laterale",
       "page": "Pagina intera"
     },
-    "showOutdated": "Mostra righe archiviate"
+    "showOutdated": "Mostra righe archiviate",
+    "place": "Proprietà luogo",
+    "needsPlace": "Le mappe collocano le righe in base a una proprietà luogo.",
+    "newPlaceProperty": "Nuova proprietà luogo",
+    "pinColor": "Colore dei segnaposto",
+    "noPinColor": "Nessuno"
   },
   "gallery": {
     "new": "Nuovo",
@@ -892,7 +899,11 @@
     "mergeRowsInvalid": "Si possono unire solo righe di uno stesso database che non sono nel cestino.",
     "mergeRowsReadOnly": "Puoi solo visualizzare {rows}. Per unire serve il permesso di modifica su ogni riga.",
     "mergeLinksBlocked": "{count, plural, one {Una riga è collegata} other {# righe sono collegate}} a queste righe e non puoi {count, plural, one {modificarla} other {modificarle}}: {rows}. Non è stato unito nulla.",
-    "mergeChoiceInvalid": "Il valore scelto per «{property}» non può essere usato. Scegli il valore di un’altra riga."
+    "mergeChoiceInvalid": "Il valore scelto per «{property}» non può essere usato. Scegli il valore di un’altra riga.",
+    "invalidPlace": "“{property}” accetta un indirizzo o delle coordinate (latitudine, longitudine).",
+    "placeNotFound": "Nessun luogo trovato per “{value}” in “{property}”.",
+    "geocodingOff": "La ricerca degli indirizzi è disattivata su questo server: indica le coordinate (latitudine, longitudine) per “{property}”.",
+    "geocoderBusy": "La ricerca degli indirizzi è occupata. Riprova “{property}” tra un momento."
   },
   "formula": {
     "title": "Formula",
@@ -1603,5 +1614,36 @@
     "confirm": "Unisci righe",
     "merging": "Unione in corso…",
     "bodyHeading": "Unito da {title}"
+  },
+  "place": {
+    "search": "Cerca un indirizzo o un luogo",
+    "input": "{property}: indirizzo o coordinate",
+    "coordinatesHint": "Oppure incolla delle coordinate, come 41.04, 29.01",
+    "searching": "Ricerca…",
+    "noResults": "Nessun luogo trovato.",
+    "off": "La ricerca degli indirizzi è disattivata su questo server. Incolla invece delle coordinate.",
+    "busy": "Troppe ricerche in questo momento. Riprova tra poco.",
+    "failed": "La ricerca degli indirizzi non ha risposto. Riprova.",
+    "useCoordinates": "Usa {coordinates}",
+    "openMap": "Apri sulla mappa",
+    "clear": "Cancella",
+    "current": "Luogo attuale"
+  },
+  "map": {
+    "off": "Le mappe sono disattivate su questo server.",
+    "needsPlaceTitle": "Le mappe mettono le righe dove dice la loro proprietà luogo",
+    "needsPlaceBody": "Questo database non ha ancora una proprietà luogo.",
+    "addPlaceProperty": "Aggiungi la proprietà {name}",
+    "defaultPlaceProperty": "Luogo",
+    "noLocation": "{count, plural, one {# riga} other {# righe}} senza {property}",
+    "noLocationTitle": "Righe senza {property}",
+    "label": "Mappa delle righe per {property}",
+    "pin": "{title}, {place}",
+    "open": "Apri",
+    "closeCard": "Chiudi",
+    "zoomIn": "Ingrandisci",
+    "zoomOut": "Riduci",
+    "fit": "Mostra tutte le righe",
+    "loading": "Caricamento della mappa…"
   }
 }

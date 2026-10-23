@@ -17,7 +17,7 @@ after you approve them over OAuth.
 </picture>
 
 - **Pages and databases**: a block editor with slash commands, and databases whose rows are pages,
-  shown as table, board, calendar, gallery, list, timeline, chart, dashboard or form, with relations,
+  shown as table, board, calendar, gallery, list, timeline, map, chart, dashboard or form, with relations,
   formulas and rollups; dashboards put numbers, charts and lists from several databases on a page.
 - **Realtime and offline**: edit together with live cursors, keep working without a connection.
 - **Built for AI assistants**: connect Claude or any other MCP client over OAuth 2.1 and approve
@@ -140,15 +140,16 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   replaces one or all in a single undo step. Anyone who can open the page can search it.
 - **Databases**: every row is also a page.
   - Properties: text, number, select, multi-select, status, date, checkbox, checklist, URL,
-    email, phone, files & media (uploads with image thumbnails), person, one- or two-way relations to other databases, formulas, rollups over
+    email, phone, files & media (uploads with image thumbnails), place (an address looked up on the
+    server, or coordinates; see Maps and places), person, one- or two-way relations to other databases, formulas, rollups over
     relations, and the read-only "created by", "created time", "last edited time" and
     "last edited by".
   - A two-way relation is one link shown on both rows: linking a row to another, or unlinking it,
     changes the other row's paired property too. That takes edit access to the row you change and
     being able to see the row you link, not edit access to the other database; making a two-way
     relation takes edit access to both databases, since it adds the paired property to the other.
-  - Views: table, board, calendar, gallery, list, timeline, chart and dashboard (widgets over the
-    database, see Dashboards), each with its own filters,
+  - Views: table, board, calendar, gallery, list, timeline, map (rows as pins at a place
+    property), chart and dashboard (widgets over the database, see Dashboards), each with its own filters,
     sorting, grouping and shown properties (one by one, or all hidden or shown at once). Filters
     combine with "and"/"or" in groups and take relative dates such as "this week". Text can be
     filtered on what it does or does not contain, numbers with =, ≠, <, ≤, > and ≥, dates on,
@@ -1075,6 +1076,35 @@ Apple ID) and `APPLE_TEAM_ID` secrets.
 
 To work on it, see [`desktop/`](desktop/): `pnpm install`, then `pnpm start` there (Node.js 24,
 pnpm 11).
+
+## Maps and places
+
+A *place* property holds where something is: an address, an optional name and its latitude and
+longitude. In its cell you type an address or a place's name and pick one of the suggestions, or
+paste coordinates (`41.04, 29.01`, also `geo:` links). The cell shows the name or address with a
+link that opens the spot on OpenStreetMap. Filters take "contains", "does not contain", "is empty"
+and "is not empty" on the address; sorting, CSV export and formulas read the address. MCP, the
+REST API, the AI chat, agents, automations, imports and pastes may write an address (the server
+looks it up), coordinates, or `{"lat": …, "lng": …, "address": …}`. Public forms don't ask for
+places.
+
+A *map* view puts each row with a place as a pin, fitted to the pins and following the view's
+filters; *Pin color* in the layout settings colors pins by a select or status property. Clicking a
+pin shows the row's title and shown properties, and opens the row. Rows without a place are listed
+under the map. Published pages show map views as tables.
+
+| Variable | Purpose |
+| --- | --- |
+| `GEOCODER_URL` | A Nominatim-compatible search service the server asks for addresses. Default `https://nominatim.openstreetmap.org`; empty turns address search off (places then take coordinates only). The default may not be on a private address; one you set may. Requests go from the server only, at most one a second for the whole server and 30 a minute per person, with a 5-second timeout, and answers are kept in memory for a day. |
+| `MAP_TILE_URL` | The map's image tiles, with `{z}`, `{x}` and `{y}` (and optionally `{s}`) in it. Default `https://tile.openstreetmap.org/{z}/{x}/{y}.png`; empty turns map views off ("Maps are off on this server"). Browsers load the tiles directly. |
+| `MAP_TILE_ATTRIBUTION` | The credit shown on the map, as plain text. Default `© OpenStreetMap contributors` (linked to its copyright page). Set it to what your tile provider asks for. |
+
+The OpenStreetMap defaults are free services meant for light use: their usage policies
+([search](https://operations.osmfoundation.org/policies/nominatim/),
+[tiles](https://operations.osmfoundation.org/policies/tiles/)) allow a small team's occasional
+lookups and map views, not bulk geocoding or heavy traffic. For more, run your own
+[Nominatim](https://nominatim.org) and tile server or point the variables at a commercial
+provider that offers the same interfaces. In the dark scheme the tiles are dimmed with a filter.
 
 ## Email
 
@@ -3083,7 +3113,7 @@ The tools cover:
   `change_database_property_type` (converts the values in every row; `dry_run` counts what would
   convert and what would be cleared without changing anything), `delete_database_property`,
   `create_database_view` and `update_database_view` (table, board, calendar, gallery, list,
-  timeline, chart, dashboard or form, including a form's public link and a dashboard's `widgets`; a chart over a date takes `accumulate`
+  timeline, map (with `place_by`), chart, dashboard or form, including a form's public link and a dashboard's `widgets`; a chart over a date takes `accumulate`
   for running totals or a burndown, a calendar `calendar_mode` (month or week), a board `aggregate` and `aggregate_property` for what its column headers show, and table, list and timeline views take `sub_items`;
   `update_database_view` also moves a
   view's tab with `before_view_id` or `after_view_id`), and `set_property_access` (who may

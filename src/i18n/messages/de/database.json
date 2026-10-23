@@ -20,7 +20,8 @@
     "lastEditedBy": "Zuletzt bearbeitet von",
     "lastEditedTime": "Zuletzt bearbeitet am",
     "formula": "Formel",
-    "rollup": "Rollup"
+    "rollup": "Rollup",
+    "place": "Ort"
   },
   "views": {
     "table": "Tabelle",
@@ -31,7 +32,8 @@
     "timeline": "Zeitleiste",
     "chart": "Diagramm",
     "dashboard": "Dashboard",
-    "form": "Formular"
+    "form": "Formular",
+    "map": "Karte"
   },
   "dashboardView": {
     "emptyEditable": "Zeigen Sie hier Zahlen, Diagramme und Listen aus dieser Datenbank. Sie bleiben aktuell, wenn sich Zeilen ändern.",
@@ -742,7 +744,12 @@
       "panel": "Im Seitenbereich",
       "page": "Als ganze Seite"
     },
-    "showOutdated": "Archivierte Zeilen anzeigen"
+    "showOutdated": "Archivierte Zeilen anzeigen",
+    "place": "Ort-Eigenschaft",
+    "needsPlace": "Karten platzieren Zeilen nach einer Ort-Eigenschaft.",
+    "newPlaceProperty": "Neue Ort-Eigenschaft",
+    "pinColor": "Pinfarbe",
+    "noPinColor": "Keine"
   },
   "gallery": {
     "new": "Neu",
@@ -892,7 +899,11 @@
     "mergeRowsInvalid": "Nur Zeilen derselben Datenbank, die nicht im Papierkorb sind, können zusammengeführt werden.",
     "mergeRowsReadOnly": "Du kannst {rows} nur ansehen. Zum Zusammenführen brauchst du Bearbeitungsrechte für jede Zeile.",
     "mergeLinksBlocked": "{count, plural, one {Eine Zeile verweist} other {# Zeilen verweisen}} auf diese Zeilen, und du kannst {count, plural, one {sie} other {sie}} nicht ändern: {rows}. Es wurde nichts zusammengeführt.",
-    "mergeChoiceInvalid": "Der für „{property}“ gewählte Wert kann nicht verwendet werden. Wähle den Wert einer anderen Zeile."
+    "mergeChoiceInvalid": "Der für „{property}“ gewählte Wert kann nicht verwendet werden. Wähle den Wert einer anderen Zeile.",
+    "invalidPlace": "„{property}“ nimmt eine Adresse oder Koordinaten (Breite, Länge) an.",
+    "placeNotFound": "Für „{value}“ in „{property}“ wurde kein Ort gefunden.",
+    "geocodingOff": "Die Adresssuche ist auf diesem Server aus: Gib für „{property}“ Koordinaten (Breite, Länge) an.",
+    "geocoderBusy": "Die Adresssuche ist ausgelastet. Versuche „{property}“ gleich noch einmal."
   },
   "formula": {
     "title": "Formel",
@@ -1603,5 +1614,36 @@
     "confirm": "Zeilen zusammenführen",
     "merging": "Wird zusammengeführt…",
     "bodyHeading": "Zusammengeführt aus {title}"
+  },
+  "place": {
+    "search": "Nach Adresse oder Ort suchen",
+    "input": "{property}: Adresse oder Koordinaten",
+    "coordinatesHint": "Oder Koordinaten einfügen, etwa 41.04, 29.01",
+    "searching": "Suche…",
+    "noResults": "Keine Orte gefunden.",
+    "off": "Die Adresssuche ist auf diesem Server aus. Füge stattdessen Koordinaten ein.",
+    "busy": "Gerade zu viele Suchen. Versuche es gleich noch einmal.",
+    "failed": "Die Adresssuche hat nicht geantwortet. Versuche es noch einmal.",
+    "useCoordinates": "{coordinates} verwenden",
+    "openMap": "Auf Karte öffnen",
+    "clear": "Leeren",
+    "current": "Aktueller Ort"
+  },
+  "map": {
+    "off": "Karten sind auf diesem Server aus.",
+    "needsPlaceTitle": "Karten zeigen Zeilen dort, wo ihre Ort-Eigenschaft sie hinsetzt",
+    "needsPlaceBody": "Diese Datenbank hat noch keine Ort-Eigenschaft.",
+    "addPlaceProperty": "Eigenschaft {name} hinzufügen",
+    "defaultPlaceProperty": "Ort",
+    "noLocation": "{count, plural, one {# Zeile} other {# Zeilen}} ohne {property}",
+    "noLocationTitle": "Zeilen ohne {property}",
+    "label": "Karte der Zeilen nach {property}",
+    "pin": "{title}, {place}",
+    "open": "Öffnen",
+    "closeCard": "Schließen",
+    "zoomIn": "Vergrößern",
+    "zoomOut": "Verkleinern",
+    "fit": "Alle Zeilen zeigen",
+    "loading": "Karte wird geladen…"
   }
 }

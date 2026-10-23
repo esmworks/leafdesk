@@ -20,7 +20,8 @@
     "lastEditedBy": "Última edição por",
     "lastEditedTime": "Data da última edição",
     "formula": "Fórmula",
-    "rollup": "Agregação"
+    "rollup": "Agregação",
+    "place": "Local"
   },
   "views": {
     "table": "Tabela",
@@ -31,7 +32,8 @@
     "timeline": "Linha do tempo",
     "chart": "Gráfico",
     "dashboard": "Painel",
-    "form": "Formulário"
+    "form": "Formulário",
+    "map": "Mapa"
   },
   "dashboardView": {
     "emptyEditable": "Mostre aqui números, gráficos e listas deste banco de dados. Eles se mantêm atualizados conforme as linhas mudam.",
@@ -742,7 +744,12 @@
       "panel": "Painel lateral",
       "page": "Página inteira"
     },
-    "showOutdated": "Mostrar linhas arquivadas"
+    "showOutdated": "Mostrar linhas arquivadas",
+    "place": "Propriedade de local",
+    "needsPlace": "Os mapas posicionam as linhas por uma propriedade de local.",
+    "newPlaceProperty": "Nova propriedade de local",
+    "pinColor": "Cor do marcador",
+    "noPinColor": "Nenhuma"
   },
   "gallery": {
     "new": "Novo",
@@ -892,7 +899,11 @@
     "mergeRowsInvalid": "Só é possível mesclar linhas de um mesmo banco de dados que não estejam na lixeira.",
     "mergeRowsReadOnly": "Você só pode ver {rows}. Para mesclar é preciso poder editar cada linha.",
     "mergeLinksBlocked": "{count, plural, one {Uma linha aponta} other {# linhas apontam}} para estas linhas e você não pode {count, plural, one {alterá-la} other {alterá-las}}: {rows}. Nada foi mesclado.",
-    "mergeChoiceInvalid": "O valor escolhido para “{property}” não pode ser usado. Escolha o valor de outra linha."
+    "mergeChoiceInvalid": "O valor escolhido para “{property}” não pode ser usado. Escolha o valor de outra linha.",
+    "invalidPlace": "“{property}” aceita um endereço ou coordenadas (latitude, longitude).",
+    "placeNotFound": "Nenhum local encontrado para “{value}” em “{property}”.",
+    "geocodingOff": "A busca de endereços está desativada neste servidor: informe coordenadas (latitude, longitude) em “{property}”.",
+    "geocoderBusy": "A busca de endereços está ocupada. Tente “{property}” de novo em instantes."
   },
   "formula": {
     "title": "Fórmula",
@@ -1603,5 +1614,36 @@
     "confirm": "Mesclar linhas",
     "merging": "Mesclando…",
     "bodyHeading": "Mesclado de {title}"
+  },
+  "place": {
+    "search": "Busque um endereço ou local",
+    "input": "{property}: endereço ou coordenadas",
+    "coordinatesHint": "Ou cole coordenadas, como 41.04, 29.01",
+    "searching": "Buscando…",
+    "noResults": "Nenhum local encontrado.",
+    "off": "A busca de endereços está desativada neste servidor. Cole coordenadas em vez disso.",
+    "busy": "Há buscas demais agora. Tente de novo em instantes.",
+    "failed": "A busca de endereços não respondeu. Tente de novo.",
+    "useCoordinates": "Usar {coordinates}",
+    "openMap": "Abrir no mapa",
+    "clear": "Limpar",
+    "current": "Local atual"
+  },
+  "map": {
+    "off": "Os mapas estão desativados neste servidor.",
+    "needsPlaceTitle": "Os mapas colocam as linhas onde a propriedade de local indica",
+    "needsPlaceBody": "Este banco de dados ainda não tem uma propriedade de local.",
+    "addPlaceProperty": "Adicionar a propriedade {name}",
+    "defaultPlaceProperty": "Local",
+    "noLocation": "{count, plural, one {# linha} other {# linhas}} sem {property}",
+    "noLocationTitle": "Linhas sem {property}",
+    "label": "Mapa das linhas por {property}",
+    "pin": "{title}, {place}",
+    "open": "Abrir",
+    "closeCard": "Fechar",
+    "zoomIn": "Aproximar",
+    "zoomOut": "Afastar",
+    "fit": "Mostrar todas as linhas",
+    "loading": "Carregando mapa…"
   }
 }

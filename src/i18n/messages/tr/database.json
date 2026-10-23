@@ -20,7 +20,8 @@
     "lastEditedBy": "Son düzenleyen",
     "lastEditedTime": "Son düzenlenme zamanı",
     "formula": "Formül",
-    "rollup": "Toplama"
+    "rollup": "Toplama",
+    "place": "Konum"
   },
   "views": {
     "table": "Tablo",
@@ -31,7 +32,8 @@
     "timeline": "Zaman çizelgesi",
     "chart": "Grafik",
     "dashboard": "Gösterge paneli",
-    "form": "Form"
+    "form": "Form",
+    "map": "Harita"
   },
   "dashboardView": {
     "emptyEditable": "Bu veritabanının sayılarını, grafiklerini ve listelerini burada gösterin. Satırlar değiştikçe güncel kalırlar.",
@@ -742,7 +744,12 @@
       "panel": "Yan panelde",
       "page": "Tam sayfada"
     },
-    "showOutdated": "Arşivlenen satırları göster"
+    "showOutdated": "Arşivlenen satırları göster",
+    "place": "Konum özelliği",
+    "needsPlace": "Harita, satırları bir konum özelliğine göre yerleştirir.",
+    "newPlaceProperty": "Yeni konum özelliği",
+    "pinColor": "İğne rengi",
+    "noPinColor": "Yok"
   },
   "gallery": {
     "new": "Yeni",
@@ -892,7 +899,11 @@
     "mergeRowsInvalid": "Yalnızca tek bir veritabanının, çöp kutusunda olmayan satırları birleştirilebilir.",
     "mergeRowsReadOnly": "{rows} satırlarını yalnızca görüntüleyebilirsiniz. Birleştirmek için her satırda düzenleme yetkisi gerekir.",
     "mergeLinksBlocked": "{count, plural, one {Bir satır} other {# satır}} bu satırlara bağlanıyor ve {count, plural, one {onu} other {onları}} değiştiremezsiniz: {rows}. Hiçbir şey birleştirilmedi.",
-    "mergeChoiceInvalid": "“{property}” için seçilen değer kullanılamıyor. Başka bir satırın değerini seçin."
+    "mergeChoiceInvalid": "“{property}” için seçilen değer kullanılamıyor. Başka bir satırın değerini seçin.",
+    "invalidPlace": "“{property}” bir adres ya da koordinat (enlem, boylam) alır.",
+    "placeNotFound": "“{property}” için “{value}” adına bir yer bulunamadı.",
+    "geocodingOff": "Bu sunucuda adres arama kapalı: “{property}” için koordinat (enlem, boylam) girin.",
+    "geocoderBusy": "Adres arama şu an yoğun. “{property}” için biraz sonra yeniden deneyin."
   },
   "formula": {
     "title": "Formül",
@@ -1603,5 +1614,36 @@
     "confirm": "Satırları birleştir",
     "merging": "Birleştiriliyor…",
     "bodyHeading": "{title} satırından birleştirildi"
+  },
+  "place": {
+    "search": "Adres ya da yer arayın",
+    "input": "{property}: adres ya da koordinat",
+    "coordinatesHint": "Ya da 41.04, 29.01 gibi koordinat yapıştırın",
+    "searching": "Aranıyor…",
+    "noResults": "Yer bulunamadı.",
+    "off": "Bu sunucuda adres arama kapalı. Bunun yerine koordinat yapıştırın.",
+    "busy": "Şu an çok fazla arama yapılıyor. Biraz sonra yeniden deneyin.",
+    "failed": "Adres arama yanıt vermedi. Yeniden deneyin.",
+    "useCoordinates": "{coordinates} kullan",
+    "openMap": "Haritada aç",
+    "clear": "Temizle",
+    "current": "Şu anki konum"
+  },
+  "map": {
+    "off": "Bu sunucuda haritalar kapalı.",
+    "needsPlaceTitle": "Harita, satırları konum özelliklerindeki yere koyar",
+    "needsPlaceBody": "Bu veritabanında henüz konum özelliği yok.",
+    "addPlaceProperty": "{name} özelliği ekle",
+    "defaultPlaceProperty": "Konum",
+    "noLocation": "{property} olmayan {count, plural, one {# satır} other {# satır}}",
+    "noLocationTitle": "{property} olmayan satırlar",
+    "label": "{property} özelliğine göre satırların haritası",
+    "pin": "{title}, {place}",
+    "open": "Aç",
+    "closeCard": "Kapat",
+    "zoomIn": "Yakınlaştır",
+    "zoomOut": "Uzaklaştır",
+    "fit": "Tüm satırları göster",
+    "loading": "Harita yükleniyor…"
   }
 }
