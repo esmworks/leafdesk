@@ -1,6 +1,7 @@
 "use client";
 
 import { Check, ExternalLink, Plus, TriangleAlert, X } from "lucide-react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { Fragment, useContext, useEffect, useMemo, useRef, useState, type MouseEvent, type ReactNode } from "react";
@@ -20,7 +21,7 @@ import { asFiles } from "@/lib/files";
 import { asPlace } from "@/lib/place";
 import { holdsPeople, isDerived, isReadOnlyType } from "@/lib/property-types";
 import { FilesDisplay, FilesEditor, type UploadFile } from "./files-cell";
-import { PlaceDisplay, PlaceEditor } from "./place-cell";
+import { PlaceDisplay } from "./place-cell";
 import { Floating } from "./floating";
 import { useFormulaErrorMessage } from "./formula-editor";
 import { PersonChips, PersonPicker } from "./person-cell";
@@ -39,6 +40,9 @@ import { calculationFormat, numberFormatOptions, numberText, readNumber, valueFo
 import { numberShare } from "@/lib/number-display";
 import { availableOptions, parentOf } from "@/lib/dependent-options";
 import { useSchema } from "./schema-context";
+
+// The place editor (its search and suggestions) loads when a place is first edited.
+const PlaceEditor = dynamic(() => import("./place-editor").then((m) => m.PlaceEditor), { ssr: false });
 
 export type CreateOption = (propertyId: string, name: string) => Promise<SelectOption | null>;
 
