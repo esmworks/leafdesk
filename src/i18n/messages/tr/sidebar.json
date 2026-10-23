@@ -149,6 +149,7 @@
     "groupEdits": "{count, plural, one {# düzenleme} other {# düzenleme}}",
     "groupNewEdits": "{count, plural, one {# yeni düzenleme} other {# yeni düzenleme}}",
     "groupMarkRead": "Okundu olarak işaretle",
+    "markUnread": "Okunmadı olarak işaretle",
     "groupExpand": "{count} bildirimin hepsini göster",
     "groupCollapse": "Daha az göster",
     "noSubject": "(konu yok)",

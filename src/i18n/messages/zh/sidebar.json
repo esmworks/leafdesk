@@ -149,6 +149,7 @@
     "groupEdits": "{count, plural, other {# 次编辑}}",
     "groupNewEdits": "{count, plural, other {# 次新编辑}}",
     "groupMarkRead": "标为已读",
+    "markUnread": "标记为未读",
     "groupExpand": "显示全部 {count} 条",
     "groupCollapse": "收起",
     "noSubject": "（无主题）",

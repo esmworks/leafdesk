@@ -149,6 +149,7 @@
     "groupEdits": "{count, plural, one {# зміна} few {# зміни} many {# змін} other {# зміни}}",
     "groupNewEdits": "{count, plural, one {# нова зміна} few {# нові зміни} many {# нових змін} other {# нової зміни}}",
     "groupMarkRead": "Позначити як прочитане",
+    "markUnread": "Позначити як непрочитане",
     "groupExpand": "Показати всі ({count})",
     "groupCollapse": "Згорнути",
     "noSubject": "(без теми)",

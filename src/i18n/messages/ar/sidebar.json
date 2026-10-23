@@ -149,6 +149,7 @@
     "groupEdits": "{count, plural, zero {لا تعديلات} one {تعديل واحد} two {تعديلان} few {# تعديلات} many {# تعديلًا} other {# تعديل}}",
     "groupNewEdits": "{count, plural, zero {لا تعديلات جديدة} one {تعديل جديد} two {تعديلان جديدان} few {# تعديلات جديدة} many {# تعديلًا جديدًا} other {# تعديل جديد}}",
     "groupMarkRead": "تعليم كمقروء",
+    "markUnread": "وضع علامة كغير مقروء",
     "groupExpand": "عرض الكل ({count})",
     "groupCollapse": "عرض أقل",
     "noSubject": "(بلا موضوع)",

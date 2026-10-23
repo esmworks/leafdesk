@@ -149,6 +149,7 @@
     "groupEdits": "{count, plural, one {# edición} other {# ediciones}}",
     "groupNewEdits": "{count, plural, one {# edición nueva} other {# ediciones nuevas}}",
     "groupMarkRead": "Marcar como leído",
+    "markUnread": "Marcar como no leído",
     "groupExpand": "Mostrar las {count}",
     "groupCollapse": "Mostrar menos",
     "noSubject": "(sin asunto)",

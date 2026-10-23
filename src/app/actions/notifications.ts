@@ -1,6 +1,6 @@
 "use server";
 
-import { listInbox, markRead, snoozeNotification, unreadCount } from "@/server/notifications";
+import { listInbox, markRead, markUnread, snoozeNotification, unreadCount } from "@/server/notifications";
 import { requireUserId } from "@/server/session";
 import { workspaceSettings } from "@/server/workspaces";
 
@@ -23,6 +23,13 @@ export async function unreadCountAction(workspaceId: string) {
 export async function markReadAction(workspaceId: string, notificationIds?: string[]) {
   const userId = await requireUserId();
   await markRead(userId, workspaceId, notificationIds);
+}
+
+/** Marks the given notifications unread again. */
+export async function markUnreadAction(workspaceId: string, notificationIds: string[]) {
+  const userId = await requireUserId();
+  if (!Array.isArray(notificationIds) || !notificationIds.every((id) => typeof id === "string")) return;
+  await markUnread(userId, workspaceId, notificationIds.slice(0, 500));
 }
 
 /** Snoozes a notification until `until` (ISO, the viewer's choice); false when that can't be done. */

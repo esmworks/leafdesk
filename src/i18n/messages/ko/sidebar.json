@@ -149,6 +149,7 @@
     "groupEdits": "{count, plural, other {편집 #건}}",
     "groupNewEdits": "{count, plural, other {새 편집 #건}}",
     "groupMarkRead": "읽음으로 표시",
+    "markUnread": "읽지 않음으로 표시",
     "groupExpand": "{count}개 모두 보기",
     "groupCollapse": "접기",
     "noSubject": "(제목 없음)",
