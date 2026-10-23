@@ -5,6 +5,7 @@ import { AiChatProvider } from "@/components/ai-chat/chat-panel";
 import { StaleClientScreen } from "@/components/collab/stale-client";
 import { CalloutStylesProvider } from "@/components/page/callout-styles-context";
 import { RowPanelProvider } from "@/components/database/row-panel";
+import { MeetingRecorderProvider } from "@/components/voice/meeting-recorder";
 import { OfflineProvider } from "@/components/offline/offline-context";
 import { Sidebar } from "@/components/sidebar/sidebar";
 import { FloatingSidebarButton, SidebarProvider } from "@/components/sidebar/sidebar-context";
@@ -68,6 +69,8 @@ export default async function WorkspaceLayout({
     // Database rows open in a panel at the right; the page beside it keeps clear of it. Every
     // editor in the workspace draws styled callouts with its callout styles (lib/callout-styles).
     <CalloutStylesProvider styles={calloutStyles}>
+      {/* Meetings keep recording while the person moves around the workspace (meeting-recorder.tsx). */}
+      <MeetingRecorderProvider workspaceId={workspaceId} limits={voice}>
       <RowPanelProvider workspaceId={workspaceId} user={{ id: user.id, name: user.name }}>
         <div className="flex h-full">
           <Sidebar
@@ -93,6 +96,7 @@ export default async function WorkspaceLayout({
           {firstAdmin === user.id && !env.signUpDisabled && <FirstAdminNotice workspaceId={workspaceId} />}
         </div>
       </RowPanelProvider>
+      </MeetingRecorderProvider>
     </CalloutStylesProvider>
   );
 

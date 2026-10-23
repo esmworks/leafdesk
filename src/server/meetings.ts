@@ -122,14 +122,14 @@ function assertFree(props: MeetingProps, userId: string) {
  * text, "busy", "tooLong"). Returns where the recording goes on from: the seconds recorded so far
  * and the next piece's number.
  */
-export async function startMeeting(userId: string, pageId: string, meetingId: string): Promise<{ seconds: number; nextChunk: number }> {
+export async function startMeeting(userId: string, pageId: string, meetingId: string, userName = ""): Promise<{ seconds: number; nextChunk: number }> {
   const found = await meetingPage(userId, pageId);
   if (!(await voiceNoteLimits(found.workspaceId))) throw new MeetingError("disabled", "Speech to text isn't available in this workspace");
   const props = await updateMeeting(userId, pageId, meetingId, (p) => {
     assertFree(p, userId);
     if (p.seconds >= MAX_MEETING_SECONDS) throw new MeetingError("tooLong", "This meeting reached its length limit");
     const now = nowIso();
-    return { status: "recording", recorder: userId, startedAt: p.startedAt || now, endedAt: "", lastAt: now, notice: "" };
+    return { status: "recording", recorder: userId, recorderName: userName.slice(0, 100), startedAt: p.startedAt || now, endedAt: "", lastAt: now, notice: "" };
   });
   const chunks = parseTranscript(props.transcript);
   return { seconds: props.seconds, nextChunk: chunks.reduce((max, c) => Math.max(max, c.c + 1), 0) };

@@ -214,7 +214,8 @@
     "private": "Private",
     "newPrivate": "New private page",
     "more": "{count} more",
-    "less": "Show less"
+    "less": "Show less",
+    "meetings": "Meetings"
   },
   "joinable": {
     "heading": "Workspaces you can join",

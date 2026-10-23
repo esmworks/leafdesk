@@ -2,6 +2,8 @@
 // (components/voice/meeting-recorder.tsx), the server (server/meetings.ts) and the Markdown and
 // editor schemas.
 
+import { searchFold } from "./search-fold";
+
 /**
  * Meeting notes: a page block that records a meeting from the microphone, transcribes it chunk by
  * chunk while it goes on (speech to text, as voice notes do), and has the AI write a summary, the
@@ -31,8 +33,9 @@ export const meetingBlockConfig = {
     attendees: { default: "" },
     /** "" (not started), "recording", "summarizing" or "done". */
     status: { default: "" },
-    /** Who records it while it is being recorded. */
+    /** Who records it while it is being recorded (user id), and their name to show others. */
     recorder: { default: "" },
+    recorderName: { default: "" },
     /** When the recorder last reported (ISO): a recording that goes quiet can be ended by others. */
     lastAt: { default: "" },
     /** JSON: the transcript's chunks (see TranscriptChunk). */
@@ -57,6 +60,7 @@ export type MeetingProps = {
   attendees: string;
   status: string;
   recorder: string;
+  recorderName: string;
   lastAt: string;
   transcript: string;
   summary: string;
@@ -250,6 +254,7 @@ export function meetingProps(props: Record<string, unknown> | undefined): Meetin
     attendees: s("attendees"),
     status: (MEETING_STATUSES as readonly string[]).includes(s("status")) ? s("status") : "",
     recorder: s("recorder"),
+    recorderName: s("recorderName"),
     lastAt: s("lastAt"),
     transcript: s("transcript"),
     summary: s("summary"),
@@ -393,6 +398,14 @@ export type MeetingListItem = {
   /** The summary's first point, if it has one. */
   preview: string;
 };
+
+/** Whether a listed meeting matches what was typed: every word in its title, page, attendees or summary. */
+export function matchesMeeting(item: MeetingListItem, query: string): boolean {
+  const words = searchFold(query).split(/\s+/).filter(Boolean);
+  if (!words.length) return true;
+  const haystack = [item.title, item.pageTitle, item.preview, ...item.attendees.map((a) => a.name)].map(searchFold);
+  return words.every((word) => haystack.some((text) => text.includes(word)));
+}
 
 /** Upcoming: planned for later and not recorded yet. */
 export const isUpcoming = (item: Pick<MeetingListItem, "scheduledAt" | "startedAt" | "status">, now = Date.now()) =>
