@@ -292,7 +292,8 @@
       "waiting": "בהמתנה לאישור שלך",
       "page": "דף",
       "empty": "(ריק)",
-      "connectionHint": "נשלח דרך החיבור של סביבת העבודה: עשוי לשנות משהו ב־{connection}"
+      "connectionHint": "נשלח דרך החיבור של סביבת העבודה: עשוי לשנות משהו ב־{connection}",
+      "letterhead": "נייר מכתבים: {name}"
     },
     "mode": {
       "label": "שינויים",

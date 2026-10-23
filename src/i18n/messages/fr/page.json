@@ -49,6 +49,7 @@
     "exportZip": "Exporter avec les sous-pages",
     "exportZipDatabase": "Exporter avec les pages des lignes",
     "exportPdf": "Exporter en PDF",
+    "printView": "Imprimer",
     "exportPreparing": "Préparation de l’exportation…",
     "versionHistory": "Historique des versions",
     "lastEdited": "Dernière modification par {name}",
@@ -575,6 +576,17 @@
     "openInNewTab": "Ouvrir dans un nouvel onglet",
     "frameTitle": "PDF : {name}",
     "noPreview": "Ce navigateur ne peut pas afficher de PDF ici. Ouvrez le fichier pour le lire."
+  },
+  "pdfExport": {
+    "title": "Exporter en PDF",
+    "letterhead": "En-tête",
+    "none": "Aucun",
+    "defaultMark": "{name} (par défaut)",
+    "noLetterheads": "Les propriétaires peuvent ajouter des en-têtes avec logo et coordonnées dans Paramètres → Modèles PDF.",
+    "properties": "Inclure les valeurs de la ligne",
+    "hint": "Les diagrammes et les équations sont imprimés en texte ; utilisez Imprimer pour obtenir la page telle qu’elle apparaît.",
+    "download": "Télécharger",
+    "preparing": "Préparation…"
   },
   "spreadsheet": {
     "untitled": "Classeur",

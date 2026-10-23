@@ -12,6 +12,13 @@
   log. Tables keep their layout, with amounts on the right; a row's values are left out unless
   asked for. An agent can do the same in its owner's chat. New dependency: pdfmake.
 
+- **PDF letterheads.** Owners set up the workspace's letterheads in the new Settings → PDF
+  templates tab: a logo on the left, in the middle or on the right, lines at the top of every page
+  (company, address, tax number) and at the foot (bank details), an accent color and page numbers.
+  One is the default. PDF files from the page menu and the AI chat print in it, or in another one
+  picked by name, or in none. Guests make PDFs without letterheads. Migration 0115 adds the
+  `pdf_letterhead` table.
+
 - **Skills live in a skills database.** *New skill* in the skills library, and the ready-made
   skills, now add a row to a skills database: the person's own, made private at the top of the
   workspace the first time, with *Description*, *Files*, *Tags* and *Created by* properties and its
@@ -440,6 +447,10 @@
 
 ### Changed
 
+- **"Export as PDF" downloads a PDF file.** The page menu's *Export as PDF* now makes the file on
+  the server, in a letterhead picked in its dialog (for a row, with its values if asked). The
+  browser's print dialog moved to *Print*, which still keeps the page exactly as it looks, diagrams
+  and equations included.
 - **The AI chat's text follows the app's own type scale.** Tables, code blocks and headings in an
   answer and the question box are 14px like the rest of the interface, in the app's own font, instead
   of standing out with 12, 15 and 16px.

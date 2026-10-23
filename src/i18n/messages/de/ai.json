@@ -292,7 +292,8 @@
       "waiting": "Wartet auf deine Zustimmung",
       "page": "Seite",
       "empty": "(leer)",
-      "connectionHint": "Wird mit der Verbindung des Arbeitsbereichs gesendet: Es kann bei {connection} etwas ändern"
+      "connectionHint": "Wird mit der Verbindung des Arbeitsbereichs gesendet: Es kann bei {connection} etwas ändern",
+      "letterhead": "Briefkopf: {name}"
     },
     "mode": {
       "label": "Änderungen",

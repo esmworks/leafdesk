@@ -17,6 +17,7 @@ import { FILTER_OPS, MAX_FILTER_DEPTH } from "@/lib/filters";
 import { env } from "@/lib/env";
 import { cleanFileName, formatBytes } from "@/lib/files";
 import { pageLabel } from "@/lib/labels";
+import { sameLetterheadName } from "@/lib/letterheads";
 import { isPageLocked, PAGE_LOCKED_MESSAGE } from "@/lib/page-lock";
 import { foldUnchanged, type BlockChange } from "@/lib/page-diff";
 import { reviewChanges, type ReviewBlock } from "@/lib/page-review";
@@ -34,6 +35,7 @@ import { ToolInputError } from "@/server/mcp/format";
 import { describeProperty } from "@/server/mcp/query";
 import * as ops from "@/server/operations";
 import { getTree } from "@/server/pages";
+import { listLetterheads } from "@/server/letterheads";
 import { pagePdf } from "@/server/pdf";
 import { outdatedState } from "@/server/page-outdated";
 import { chunksOfPages, inSubtree } from "@/server/semantic-search";
@@ -229,6 +231,10 @@ export const WRITE_TOOLS: AiTool[] = [
         file_name: { type: "string", description: "The file's name, without .pdf (the page's title when left out)." },
         property: { type: "string", description: "A files property of the row: the file goes into it instead of the text." },
         with_properties: { type: "boolean", description: "List the row's values under its title (default false)." },
+        letterhead: {
+          type: "string",
+          description: 'The name of one of the workspace\'s letterheads (logo, company lines) to print it in, or "none"; leave out for the default one.',
+        },
       },
       required: ["page_id"],
       additionalProperties: false,
@@ -730,13 +736,21 @@ async function preparePdf(
     return { content: PAGE_LOCKED_MESSAGE, isError: true };
   }
   const withProperties = args.with_properties === true;
+  // The letterhead by name ("none" for none); left out, the workspace's default, if it has one.
+  const letterheads = await listLetterheads(userId, workspaceId);
+  const asked = text(args.letterhead);
+  const letterhead = asked && asked.toLowerCase() !== "none" ? letterheads.find((l) => sameLetterheadName(l.name, asked)) : asked ? null : (letterheads.find((l) => l.isDefault) ?? null);
+  if (letterhead === undefined) {
+    const names = letterheads.map((l) => `"${l.name}"`).join(", ");
+    return invalidChange(`the workspace has no letterhead named "${asked}"; ${names ? `it has ${names}` : "it has none"}.`);
+  }
   const named = cleanFileName(`${(text(args.file_name) || pageLabel(target.page.title)).replace(/\.pdf$/i, "")}.pdf`);
   const changes: ChatChange[] = filesProperty ? [{ property: filesProperty.name, value: named }] : [];
   return {
-    action: { action: "createPdf", target: await pageView(userId, pageId), title: named, changes, content: null },
+    action: { action: "createPdf", target: await pageView(userId, pageId), title: named, changes, content: null, ...(letterhead ? { letterhead: letterhead.name } : {}) },
     record: { kind: "write", action: "createPdf", targetId: pageId, title: named, changes },
     execute: async () => {
-      const pdf = await pagePdf(userId, pageId, { properties: withProperties });
+      const pdf = await pagePdf(userId, pageId, { properties: withProperties, letterhead: letterhead?.id ?? "none" });
       const stored = await uploadFile(userId, pageId, {
         name: named,
         contentType: "application/pdf",
@@ -745,10 +759,11 @@ async function preparePdf(
       });
       await ops.placeFile(ctx, pageId, stored, filesProperty ? { filesPropertyId: filesProperty.id } : {});
       const where = filesProperty ? `in its "${filesProperty.name}" property` : "at the end of its text";
+      const paper = letterhead ? ` It is printed in the letterhead "${letterhead.name}".` : "";
       return {
         id: pageId,
         title: pdf.title,
-        text: `The PDF file "${stored.name}" (${formatBytes(stored.size)}) is attached to the page ${where}. Link: ${env.appUrl}${stored.url}`,
+        text: `The PDF file "${stored.name}" (${formatBytes(stored.size)}) is attached to the page ${where}.${paper} Link: ${env.appUrl}${stored.url}`,
       };
     },
   };

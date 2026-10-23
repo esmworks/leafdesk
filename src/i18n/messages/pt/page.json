@@ -49,6 +49,7 @@
     "exportZip": "Exportar com subpáginas",
     "exportZipDatabase": "Exportar com as páginas das linhas",
     "exportPdf": "Exportar como PDF",
+    "printView": "Imprimir",
     "exportPreparing": "Preparando a exportação…",
     "versionHistory": "Histórico de versões",
     "lastEdited": "Última edição por {name}",
@@ -575,6 +576,17 @@
     "openInNewTab": "Abrir em uma nova aba",
     "frameTitle": "PDF: {name}",
     "noPreview": "Este navegador não consegue exibir PDFs aqui. Abra o arquivo para lê-lo."
+  },
+  "pdfExport": {
+    "title": "Exportar como PDF",
+    "letterhead": "Papel timbrado",
+    "none": "Nenhum",
+    "defaultMark": "{name} (padrão)",
+    "noLetterheads": "Os proprietários podem adicionar papéis timbrados com logotipo e dados da empresa em Configurações → Modelos de PDF.",
+    "properties": "Incluir os valores da linha",
+    "hint": "Diagramas e equações são impressos como texto; use Imprimir para ter a página exatamente como ela aparece.",
+    "download": "Baixar",
+    "preparing": "Preparando…"
   },
   "spreadsheet": {
     "untitled": "Pasta de trabalho",

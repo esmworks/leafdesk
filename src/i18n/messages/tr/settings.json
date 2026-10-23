@@ -19,7 +19,8 @@
     "security": "Güvenlik",
     "audit": "Denetim kaydı",
     "site": "Site",
-    "snippets": "Parçacıklar"
+    "snippets": "Parçacıklar",
+    "pdf": "PDF şablonları"
   },
   "workspace": {
     "heading": "Çalışma alanı",
@@ -2275,6 +2276,56 @@
       "color": "Bir renk seçin.",
       "border": "Bir kenarlık seçin.",
       "title": "Başlık en fazla 120 karakter olabilir."
+    }
+  },
+  "letterheads": {
+    "heading": "Antetler",
+    "description": "PDF dosyalarının sayfanın çevresine bastığı şeyler: logo, üstte şirket bilgileri ve altta satırlar. PDF dışa aktarırken birini seçin; yapay zekâ sohbeti başkası istenmedikçe varsayılanı kullanır.",
+    "empty": "Henüz antet yok.",
+    "add": "Antet ekle",
+    "edit": "Düzenle",
+    "remove": "{name} antetini kaldır",
+    "removeConfirm": "“{name}” anteti kaldırılsın mı? PDF'ler bundan sonra varsayılanı kullanır.",
+    "count": "{count} / {max} antet",
+    "ownersOnly": "Antetleri yalnızca sahipler değiştirebilir.",
+    "default": "Varsayılan",
+    "makeDefault": "Varsayılan yap",
+    "unsetDefault": "Varsayılan olmaktan çıkar",
+    "noLines": "Üstte satır yok",
+    "name": "Ad",
+    "namePlaceholder": "Teklifler",
+    "logo": "Logo",
+    "logoHelp": "PNG ya da JPEG, en çok {size}.",
+    "uploadLogo": "Logo yükle",
+    "replaceLogo": "Logoyu değiştir",
+    "removeLogo": "Kaldır",
+    "logoPlace": "Logonun yeri",
+    "places": {
+      "left": "Logo solda",
+      "center": "Logo ortada",
+      "right": "Logo sağda"
+    },
+    "header": "Üst satırlar",
+    "headerHelp": "En çok {max} satır, her sayfada basılır; ilki kalın.",
+    "headerPlaceholder": "Şirket adı\nAdres\nTelefon · e-posta · vergi no",
+    "footer": "Alt satırlar",
+    "footerHelp": "En çok {max} satır, örneğin banka bilgileri.",
+    "footerPlaceholder": "Banka · IBAN",
+    "accent": "Vurgu rengi",
+    "accentHelp": "Üstteki çizgi ve tablo başlıkları için.",
+    "noAccent": "Gri",
+    "pageNumbers": "Sayfa numaraları",
+    "errors": {
+      "name": "En çok 60 karakterlik bir ad verin.",
+      "header": "Üstte en çok 6 satır olabilir, her biri en çok 140 karakter.",
+      "footer": "Altta en çok 4 satır olabilir, her biri en çok 140 karakter.",
+      "logoPlace": "Logonun yerini seçin.",
+      "accent": "Bir renk seçin.",
+      "duplicateName": "Bu adda başka bir antet var.",
+      "tooMany": "Bir çalışma alanında en çok 20 antet olabilir.",
+      "logoType": "Logo PNG ya da JPEG bir görsel olmalı.",
+      "logoSize": "Logo çok büyük: en çok 512 KB olabilir.",
+      "notFound": "Bu antet artık yok. Sayfayı yenileyin."
     }
   }
 }

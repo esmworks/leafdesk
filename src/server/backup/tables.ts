@@ -84,6 +84,7 @@ export const BACKED_UP: Record<string, Scope> = {
   email_sequence: own,
   // The workspace's own snippets; people's personal ones have no workspace and stay out.
   snippet: own,
+  pdf_letterhead: own,
 };
 
 /** Tables older backups held and later ones leave out: a restore passes over them. */

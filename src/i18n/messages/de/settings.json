@@ -19,7 +19,8 @@
     "security": "Sicherheit",
     "audit": "Audit-Log",
     "site": "Website",
-    "snippets": "Textbausteine"
+    "snippets": "Textbausteine",
+    "pdf": "PDF-Vorlagen"
   },
   "workspace": {
     "heading": "Workspace",
@@ -2275,6 +2276,56 @@
       "color": "Wähle eine Farbe.",
       "border": "Wähle einen Rand.",
       "title": "Der Titel darf höchstens 120 Zeichen lang sein."
+    }
+  },
+  "letterheads": {
+    "heading": "Briefköpfe",
+    "description": "Was PDF-Dateien um eine Seite drucken: ein Logo, oben die Angaben Ihrer Firma und unten weitere Zeilen. Wählen Sie einen beim PDF-Export; der KI-Chat nimmt den Standard, wenn nicht anders verlangt.",
+    "empty": "Noch keine Briefköpfe.",
+    "add": "Briefkopf hinzufügen",
+    "edit": "Bearbeiten",
+    "remove": "{name} entfernen",
+    "removeConfirm": "Briefkopf „{name}“ entfernen? PDFs nehmen dann den Standard.",
+    "count": "{count} von {max} Briefköpfen",
+    "ownersOnly": "Nur Eigentümer können Briefköpfe ändern.",
+    "default": "Standard",
+    "makeDefault": "Als Standard festlegen",
+    "unsetDefault": "Nicht mehr als Standard",
+    "noLines": "Keine Zeilen oben",
+    "name": "Name",
+    "namePlaceholder": "Angebote",
+    "logo": "Logo",
+    "logoHelp": "PNG oder JPEG, höchstens {size}.",
+    "uploadLogo": "Logo hochladen",
+    "replaceLogo": "Logo ersetzen",
+    "removeLogo": "Entfernen",
+    "logoPlace": "Position des Logos",
+    "places": {
+      "left": "Logo links",
+      "center": "Logo mittig",
+      "right": "Logo rechts"
+    },
+    "header": "Zeilen oben",
+    "headerHelp": "Bis zu {max} Zeilen, auf jeder Seite gedruckt; die erste fett.",
+    "headerPlaceholder": "Firmenname\nAdresse\nTelefon · E-Mail · Steuernummer",
+    "footer": "Zeilen unten",
+    "footerHelp": "Bis zu {max} Zeilen, etwa die Bankverbindung.",
+    "footerPlaceholder": "Bank · IBAN",
+    "accent": "Akzentfarbe",
+    "accentHelp": "Für die Linie unter dem Kopf und die Tabellenköpfe.",
+    "noAccent": "Grau",
+    "pageNumbers": "Seitenzahlen",
+    "errors": {
+      "name": "Geben Sie einen Namen mit höchstens 60 Zeichen ein.",
+      "header": "Oben höchstens 6 Zeilen mit je höchstens 140 Zeichen.",
+      "footer": "Unten höchstens 4 Zeilen mit je höchstens 140 Zeichen.",
+      "logoPlace": "Wählen Sie die Position des Logos.",
+      "accent": "Wählen Sie eine Farbe.",
+      "duplicateName": "Ein anderer Briefkopf hat diesen Namen.",
+      "tooMany": "Ein Arbeitsbereich kann höchstens 20 Briefköpfe haben.",
+      "logoType": "Das Logo muss ein PNG- oder JPEG-Bild sein.",
+      "logoSize": "Das Logo ist zu groß: höchstens 512 KB.",
+      "notFound": "Dieser Briefkopf existiert nicht mehr. Laden Sie die Seite neu."
     }
   }
 }

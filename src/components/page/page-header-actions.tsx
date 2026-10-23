@@ -10,6 +10,7 @@ import {
   CornerUpLeft,
   Download,
   FileArchive,
+  FileDown,
   FileCode,
   FileSpreadsheet,
   FileText,
@@ -35,7 +36,7 @@ import {
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
+import { lazy, Suspense, useCallback, useEffect, useMemo, useState, useTransition } from "react";
 import { createPortal } from "react-dom";
 import type * as Y from "yjs";
 import {
@@ -434,6 +435,7 @@ function PageMenu({
   const locale = useLocale();
   const router = useRouter();
   const [moveOpen, setMoveOpen] = useState(false);
+  const [pdfOpen, setPdfOpen] = useState(false);
   const [voiceInstructionsOpen, setVoiceInstructionsOpen] = useState(false);
   const [mergeOpen, setMergeOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -826,7 +828,17 @@ function PageMenu({
                 >
                   {zipExport.pending ? t("exportPreparing") : isDatabase ? t("exportZipDatabase") : t("exportZip")}
                 </MenuItem>
-                {/* The print view in a new tab; it opens the browser's print dialog ("Save as PDF") once loaded. */}
+                {/* A PDF made on the server, in a letterhead (pdf-export-dialog.tsx). */}
+                <MenuItem
+                  icon={<FileDown className="h-4 w-4" />}
+                  onClick={() => {
+                    close();
+                    setPdfOpen(true);
+                  }}
+                >
+                  {t("exportPdf")}
+                </MenuItem>
+                {/* The print view in a new tab; it opens the browser's print dialog once loaded. */}
                 <a
                   href={printPath(page.id, { auto: true })}
                   target="_blank"
@@ -837,7 +849,7 @@ function PageMenu({
                   <span className="flex h-4 w-4 items-center justify-center text-fg-muted">
                     <Printer className="h-4 w-4" />
                   </span>
-                  <span className="flex-1 truncate">{t("exportPdf")}</span>
+                  <span className="flex-1 truncate">{t("printView")}</span>
                 </a>
               </>
             )}
@@ -892,6 +904,14 @@ function PageMenu({
           />,
           document.body,
         )}
+      {pdfOpen &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <Suspense fallback={null}>
+            <PdfExportDialog workspaceId={workspaceId} pageId={page.id} isRow={!!page.isRow} onClose={() => setPdfOpen(false)} />
+          </Suspense>,
+          document.body,
+        )}
       {mergeOpen && (
         <MergeWithDialog
           rowId={page.id}
@@ -913,6 +933,9 @@ function PageMenu({
 }
 
 /** Pick a new parent: any page or database in the sidebar tree except this page and its subpages. */
+// The PDF dialog comes with its first use, not with every page.
+const PdfExportDialog = lazy(() => import("./pdf-export-dialog"));
+
 function MoveDialog({
   workspaceId,
   pageId,

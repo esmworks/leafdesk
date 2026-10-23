@@ -292,7 +292,8 @@
       "waiting": "Aguardando sua aprovação",
       "page": "Página",
       "empty": "(vazio)",
-      "connectionHint": "Enviado com a conexão do espaço de trabalho: pode mudar algo em {connection}"
+      "connectionHint": "Enviado com a conexão do espaço de trabalho: pode mudar algo em {connection}",
+      "letterhead": "Papel timbrado: {name}"
     },
     "mode": {
       "label": "Alterações",

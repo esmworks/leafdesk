@@ -19,7 +19,8 @@
     "security": "보안",
     "audit": "감사 로그",
     "site": "사이트",
-    "snippets": "스니펫"
+    "snippets": "스니펫",
+    "pdf": "PDF 템플릿"
   },
   "workspace": {
     "heading": "워크스페이스",
@@ -2275,6 +2276,56 @@
       "color": "색상을 고르세요.",
       "border": "테두리를 고르세요.",
       "title": "제목은 120자 이하여야 합니다."
+    }
+  },
+  "letterheads": {
+    "heading": "레터헤드",
+    "description": "PDF 파일이 페이지 둘레에 인쇄하는 내용입니다. 로고, 위쪽의 회사 정보, 아래쪽 줄. PDF를 내보낼 때 하나를 고르세요. AI 채팅은 다른 것을 요청하지 않으면 기본값을 씁니다.",
+    "empty": "아직 레터헤드가 없습니다.",
+    "add": "레터헤드 추가",
+    "edit": "편집",
+    "remove": "{name} 삭제",
+    "removeConfirm": "레터헤드 “{name}”을(를) 삭제할까요? 그러면 PDF는 기본값을 씁니다.",
+    "count": "레터헤드 {count}/{max}개",
+    "ownersOnly": "소유자만 레터헤드를 바꿀 수 있습니다.",
+    "default": "기본값",
+    "makeDefault": "기본값으로 설정",
+    "unsetDefault": "기본값에서 해제",
+    "noLines": "위쪽 줄 없음",
+    "name": "이름",
+    "namePlaceholder": "견적서",
+    "logo": "로고",
+    "logoHelp": "PNG 또는 JPEG, 최대 {size}.",
+    "uploadLogo": "로고 업로드",
+    "replaceLogo": "로고 바꾸기",
+    "removeLogo": "제거",
+    "logoPlace": "로고 위치",
+    "places": {
+      "left": "로고 왼쪽",
+      "center": "로고 가운데",
+      "right": "로고 오른쪽"
+    },
+    "header": "위쪽 줄",
+    "headerHelp": "최대 {max}줄, 모든 페이지에 인쇄되며 첫 줄은 굵게 표시됩니다.",
+    "headerPlaceholder": "회사 이름\n주소\n전화 · 이메일 · 사업자등록번호",
+    "footer": "아래쪽 줄",
+    "footerHelp": "최대 {max}줄, 예를 들어 계좌 정보.",
+    "footerPlaceholder": "은행 · 계좌번호",
+    "accent": "강조 색",
+    "accentHelp": "위쪽 구분선과 표 머리글에 씁니다.",
+    "noAccent": "회색",
+    "pageNumbers": "페이지 번호",
+    "errors": {
+      "name": "60자 이내의 이름을 지어 주세요.",
+      "header": "위쪽은 최대 6줄, 줄마다 최대 140자입니다.",
+      "footer": "아래쪽은 최대 4줄, 줄마다 최대 140자입니다.",
+      "logoPlace": "로고 위치를 고르세요.",
+      "accent": "색을 고르세요.",
+      "duplicateName": "같은 이름의 레터헤드가 이미 있습니다.",
+      "tooMany": "작업 공간의 레터헤드는 최대 20개입니다.",
+      "logoType": "로고는 PNG 또는 JPEG 이미지여야 합니다.",
+      "logoSize": "로고가 너무 큽니다. 최대 512KB입니다.",
+      "notFound": "이 레터헤드는 더 이상 없습니다. 페이지를 새로 고치세요."
     }
   }
 }

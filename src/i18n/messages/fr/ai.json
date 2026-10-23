@@ -292,7 +292,8 @@
       "waiting": "En attente de votre accord",
       "page": "Page",
       "empty": "(vide)",
-      "connectionHint": "Envoyé avec la connexion de l'espace de travail : cela peut modifier quelque chose sur {connection}"
+      "connectionHint": "Envoyé avec la connexion de l'espace de travail : cela peut modifier quelque chose sur {connection}",
+      "letterhead": "En-tête : {name}"
     },
     "mode": {
       "label": "Modifications",

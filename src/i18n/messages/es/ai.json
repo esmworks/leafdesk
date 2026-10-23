@@ -292,7 +292,8 @@
       "waiting": "Esperando tu aprobación",
       "page": "Página",
       "empty": "(vacío)",
-      "connectionHint": "Se envía con la conexión del espacio de trabajo: puede cambiar algo en {connection}"
+      "connectionHint": "Se envía con la conexión del espacio de trabajo: puede cambiar algo en {connection}",
+      "letterhead": "Membrete: {name}"
     },
     "mode": {
       "label": "Cambios",

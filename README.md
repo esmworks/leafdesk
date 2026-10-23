@@ -904,30 +904,40 @@ restore checks them against the server's per-workspace storage limit.
 
 ### PDF
 
-"Export as PDF" in the page menu opens the page's print view (`/print/<page id>`) in a new tab
-and, once its images and diagrams have loaded, the browser's print dialog: choose "Save as PDF"
-as the destination. The print view draws the page the way published pages do (headings, tables,
+"Export as PDF" in the page menu makes the page's PDF file on the server and downloads it, in one
+of the workspace's letterheads (below) or none; for a row, with its values if asked. It reads the
+page as the person exporting can see it (database blocks, synced blocks, mentions, footnotes;
+images if they are PNG or JPEG uploads), is an export (off while export is off, in the audit log)
+and lays tables out with amounts on the right. Diagrams and equations print as their text. The
+server's font (Roboto) covers Latin, Greek and Cyrillic letters, not Arabic, Hebrew or CJK text.
+
+"Print" in the same menu opens the page's print view (`/print/<page id>`) in a new tab and, once
+its images and diagrams have loaded, the browser's print dialog, where "Save as PDF" keeps the page
+exactly as it looks. The print view draws the page the way published pages do (headings, tables,
 code, images, callouts, equations, Mermaid diagrams, database blocks, footnotes with their notes at
 the end) and is always light, also in dark mode. Callouts set to *Hide when printing* in their block
 menu are left out, with the blocks nested in them. Code and tables wrap to the page width, headings stay with the text after them, and
 each page starts with its title. Links to other pages print as their titles. "Include subpages"
 in the view's bar adds the pages under it (up to 100), each starting on a new sheet; database
 rows print in their database's table. It shows what the person printing can see, like the page
-itself, and follows the workspace's two-step policy.
+itself, and follows the workspace's two-step policy. The browser's own header and footer (date,
+address, page numbers) can be turned off under "More settings" in the print dialog.
 
-The browser makes the PDF, so the server needs nothing extra (no headless browser in the image).
-Its own header and footer (date, address, page numbers) can be turned off under "More settings"
-in the print dialog.
+**Letterheads.** Owners set up the workspace's letterheads in Settings → PDF templates (up to 20):
+a name, a logo (PNG or JPEG up to 512 KB, kept in the database, never a link) on the left, in the
+middle or on the right, up to six lines at the top of every page beside it (the first in bold:
+the company, then its address, phone, tax number), up to four lines at the foot (bank details),
+an accent color for the rule under the top and the table headers, and page numbers. One of them is
+the default, which "Export as PDF" picks first and the AI chat uses unless asked for another or
+none; the first one added becomes the default. Members print in them; guests make PDFs without
+one.
 
-The AI chat (and an agent in its owner's chat) can also make a page's or row's PDF on the server
-(`create_pdf`), for a quote, a letter or a report it has just written into a page. The file is
-attached where the page's people find it: at the end of the page's text, or in a row's files
-property the chat names, and the answer links to it. It reads the page as the person asking, like
-the print view (database blocks, synced blocks, mentions, footnotes; images if they are PNG or
-JPEG uploads), is an export (off while export is off, in the audit log) and a change (asked for in
-*Ask* mode, refused without edit access or on a locked page). A row's values are left out unless
-asked for, since a document made for a customer rarely means to show them. The server's font
-(Roboto) covers Latin, Greek and Cyrillic letters, not Arabic, Hebrew or CJK text.
+The AI chat (and an agent in its owner's chat) can also make a page's or row's PDF (`create_pdf`),
+for a quote, a letter or a report it has just written into a page, in a letterhead it names or the
+default. The file is attached where the page's people find it: at the end of the page's text, or
+in a row's files property the chat names, and the answer links to it. It is a change too (asked
+for in *Ask* mode, refused without edit access or on a locked page). A row's values are left out
+unless asked for, since a document made for a customer rarely means to show them.
 
 ### Edit as Markdown
 

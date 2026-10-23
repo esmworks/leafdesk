@@ -849,6 +849,7 @@ function ChangePrompt({
             t("topLevel")
           )}
         </p>
+        {action.letterhead && <p className="text-xs break-words text-fg-muted">{t("letterhead", { name: action.letterhead })}</p>}
         {action.changes.length > 0 && (
           <ul className="space-y-0.5 text-xs">
             {action.changes.map((c, i) => (

@@ -292,7 +292,8 @@
       "waiting": "In attesa della tua approvazione",
       "page": "Pagina",
       "empty": "(vuoto)",
-      "connectionHint": "Inviato con la connessione dello spazio di lavoro: può cambiare qualcosa su {connection}"
+      "connectionHint": "Inviato con la connessione dello spazio di lavoro: può cambiare qualcosa su {connection}",
+      "letterhead": "Carta intestata: {name}"
     },
     "mode": {
       "label": "Modifiche",

@@ -4,6 +4,7 @@ import {
   ChartColumn,
   Coins,
   ContactRound,
+  FileText,
   Globe,
   HardDrive,
   HeartPulse,
@@ -65,6 +66,7 @@ import { WorkspaceBackup } from "@/components/settings/workspace-backup";
 import { WorkspaceExport } from "@/components/settings/workspace-export";
 import { WorkspaceNameForm } from "@/components/settings/workspace-settings";
 import { CalloutStylesSettings } from "@/components/settings/callout-styles-settings";
+import { LetterheadsSettings } from "@/components/settings/letterheads-settings";
 import { SnippetsTabs } from "@/components/snippets/snippets-tabs";
 import { parseAnalyticsPeriod } from "@/lib/analytics";
 import { storedCalloutStyles } from "@/lib/callout-styles";
@@ -104,6 +106,7 @@ import { workspaceAnalytics } from "@/server/analytics";
 import { auditActors, listAuditEvents } from "@/server/audit";
 import { listWorkspaceFormPublications } from "@/server/forms";
 import { listJoinRequests } from "@/server/join-requests";
+import { listLetterheads } from "@/server/letterheads";
 import { mailStatus } from "@/server/mail";
 import { groupsByMember, listGroups } from "@/server/groups";
 import { listGuests } from "@/server/guests";
@@ -142,6 +145,7 @@ const ICONS: Record<SettingsTab, LucideIcon> = {
   groups: UsersRound,
   agents: Bot,
   snippets: TextQuote,
+  pdf: FileText,
   connections: Plug,
   storage: HardDrive,
   analytics: ChartColumn,
@@ -265,6 +269,12 @@ export default async function SettingsPage({
               scope={query.scope === "workspace" ? "workspace" : "mine"}
             />
           )}
+          {tab === "pdf" && (
+            <>
+              <SettingsHeader title={t("nav.pdf")} description={t("letterheads.description")} />
+              <LetterheadsGroup workspaceId={workspaceId} userId={user.id} isOwner={isOwner} />
+            </>
+          )}
           {tab === "connections" && (
             <ConnectionsTab
               workspaceId={workspaceId}
@@ -384,6 +394,16 @@ async function CalloutStylesGroup({ workspaceId, userId, isOwner }: { workspaceI
   return (
     <SettingsGroup title={t("heading")} description={t("description")} className="mt-10">
       <CalloutStylesSettings workspaceId={workspaceId} styles={storedCalloutStyles(settings.calloutStyles)} canEdit={isOwner} />
+    </SettingsGroup>
+  );
+}
+
+/** Settings > PDF templates > Letterheads (lib/letterheads); owners change them. */
+async function LetterheadsGroup({ workspaceId, userId, isOwner }: { workspaceId: string; userId: string; isOwner: boolean }) {
+  const [letterheads, t] = await Promise.all([listLetterheads(userId, workspaceId), getTranslations("settings.letterheads")]);
+  return (
+    <SettingsGroup title={t("heading")}>
+      <LetterheadsSettings workspaceId={workspaceId} letterheads={letterheads} canEdit={isOwner} />
     </SettingsGroup>
   );
 }

@@ -19,7 +19,8 @@
     "security": "Sécurité",
     "audit": "Journal d’audit",
     "site": "Site",
-    "snippets": "Extraits"
+    "snippets": "Extraits",
+    "pdf": "Modèles PDF"
   },
   "workspace": {
     "heading": "Espace de travail",
@@ -2275,6 +2276,56 @@
       "color": "Choisissez une couleur.",
       "border": "Choisissez une bordure.",
       "title": "Le titre ne doit pas dépasser 120 caractères."
+    }
+  },
+  "letterheads": {
+    "heading": "En-têtes",
+    "description": "Ce que les fichiers PDF impriment autour d’une page : un logo, les coordonnées de votre entreprise en haut et des lignes en pied de page. Choisissez-en un à l’export PDF ; le chat IA utilise celui par défaut sauf demande contraire.",
+    "empty": "Aucun en-tête pour l’instant.",
+    "add": "Ajouter un en-tête",
+    "edit": "Modifier",
+    "remove": "Supprimer {name}",
+    "removeConfirm": "Supprimer l’en-tête « {name} » ? Les PDF utiliseront alors celui par défaut.",
+    "count": "{count} sur {max} en-têtes",
+    "ownersOnly": "Seuls les propriétaires peuvent modifier les en-têtes.",
+    "default": "Par défaut",
+    "makeDefault": "Définir par défaut",
+    "unsetDefault": "Ne plus utiliser par défaut",
+    "noLines": "Aucune ligne en haut",
+    "name": "Nom",
+    "namePlaceholder": "Devis",
+    "logo": "Logo",
+    "logoHelp": "PNG ou JPEG, {size} au maximum.",
+    "uploadLogo": "Importer un logo",
+    "replaceLogo": "Remplacer le logo",
+    "removeLogo": "Retirer",
+    "logoPlace": "Position du logo",
+    "places": {
+      "left": "Logo à gauche",
+      "center": "Logo centré",
+      "right": "Logo à droite"
+    },
+    "header": "Lignes du haut",
+    "headerHelp": "Jusqu’à {max} lignes, imprimées sur chaque page ; la première en gras.",
+    "headerPlaceholder": "Nom de l’entreprise\nAdresse\nTéléphone · e-mail · n° de TVA",
+    "footer": "Lignes du pied",
+    "footerHelp": "Jusqu’à {max} lignes, comme les coordonnées bancaires.",
+    "footerPlaceholder": "Banque · IBAN",
+    "accent": "Couleur d’accent",
+    "accentHelp": "Pour le filet sous l’en-tête et les en-têtes de tableau.",
+    "noAccent": "Gris",
+    "pageNumbers": "Numéros de page",
+    "errors": {
+      "name": "Donnez-lui un nom de 60 caractères au maximum.",
+      "header": "6 lignes au maximum en haut, de 140 caractères chacune.",
+      "footer": "4 lignes au maximum en pied de page, de 140 caractères chacune.",
+      "logoPlace": "Choisissez la position du logo.",
+      "accent": "Choisissez une couleur.",
+      "duplicateName": "Un autre en-tête porte ce nom.",
+      "tooMany": "Un espace de travail peut avoir 20 en-têtes au maximum.",
+      "logoType": "Le logo doit être une image PNG ou JPEG.",
+      "logoSize": "Le logo est trop lourd : 512 Ko au maximum.",
+      "notFound": "Cet en-tête n’existe plus. Rechargez la page."
     }
   }
 }

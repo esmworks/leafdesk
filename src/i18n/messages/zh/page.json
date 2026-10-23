@@ -49,6 +49,7 @@
     "exportZip": "连同子页面导出",
     "exportZipDatabase": "连同行页面导出",
     "exportPdf": "导出为 PDF",
+    "printView": "打印",
     "exportPreparing": "正在准备导出…",
     "versionHistory": "版本历史",
     "lastEdited": "最后由 {name} 编辑",
@@ -575,6 +576,17 @@
     "openInNewTab": "在新标签页中打开",
     "frameTitle": "PDF：{name}",
     "noPreview": "此浏览器无法在这里显示 PDF。请打开文件阅读。"
+  },
+  "pdfExport": {
+    "title": "导出为 PDF",
+    "letterhead": "信笺",
+    "none": "无",
+    "defaultMark": "{name}（默认）",
+    "noLetterheads": "所有者可以在 设置 → PDF 模板 中添加带徽标和公司信息的信笺。",
+    "properties": "包含该行的值",
+    "hint": "图表和公式会以文字形式打印；如需与页面完全一致，请使用“打印”。",
+    "download": "下载",
+    "preparing": "正在准备…"
   },
   "spreadsheet": {
     "untitled": "工作簿",
