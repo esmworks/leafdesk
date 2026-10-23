@@ -279,15 +279,16 @@ function SequenceDialog({
                 <div className="mb-2 flex flex-wrap items-center gap-2 text-sm">
                   <label className="flex items-center gap-2">
                     <span className="text-fg-muted">{t("wait")}</span>
-                    <Input
-                      type="number"
-                      min={0}
-                      max={MAX_STEP_DAYS}
-                      value={step.days}
-                      aria-label={t("waitDays")}
-                      onChange={(e) => setStep(step.key, { days: e.target.value })}
-                      className="w-16"
-                    />
+                    <span className="w-16 shrink-0">
+                      <Input
+                        type="number"
+                        min={0}
+                        max={MAX_STEP_DAYS}
+                        value={step.days}
+                        aria-label={t("waitDays")}
+                        onChange={(e) => setStep(step.key, { days: e.target.value })}
+                      />
+                    </span>
                     <span className="text-fg-muted">{i === 0 ? t("daysAfterStart", { count: Number(step.days) || 0 }) : t("daysAfterPrevious", { count: Number(step.days) || 0 })}</span>
                   </label>
                   <select
@@ -371,27 +372,29 @@ function SequenceDialog({
             ))}
           </div>
           <div className="mt-2 flex items-center gap-2 text-sm">
-            <Input
-              type="time"
-              value={clock(sendWindow.start)}
-              aria-label={t("windowStart")}
-              onChange={(e) => {
-                const m = minutesOf(e.target.value);
-                if (m !== null) setSendWindow((w) => ({ ...w, start: m }));
-              }}
-              className="w-28"
-            />
+            <span className="w-28 shrink-0">
+              <Input
+                type="time"
+                value={clock(sendWindow.start)}
+                aria-label={t("windowStart")}
+                onChange={(e) => {
+                  const m = minutesOf(e.target.value);
+                  if (m !== null) setSendWindow((w) => ({ ...w, start: m }));
+                }}
+              />
+            </span>
             <span className="text-fg-muted">–</span>
-            <Input
-              type="time"
-              value={clock(sendWindow.end)}
-              aria-label={t("windowEnd")}
-              onChange={(e) => {
-                const m = minutesOf(e.target.value);
-                if (m !== null) setSendWindow((w) => ({ ...w, end: m }));
-              }}
-              className="w-28"
-            />
+            <span className="w-28 shrink-0">
+              <Input
+                type="time"
+                value={clock(sendWindow.end)}
+                aria-label={t("windowEnd")}
+                onChange={(e) => {
+                  const m = minutesOf(e.target.value);
+                  if (m !== null) setSendWindow((w) => ({ ...w, end: m }));
+                }}
+              />
+            </span>
           </div>
           <p className="mt-1 text-xs text-fg-faint">{t("windowHelp")}</p>
         </div>
@@ -454,16 +457,17 @@ export function MailboxSending({ workspaceId, mailbox, onChange }: { workspaceId
       }
       control={
         <div className="flex flex-wrap items-center gap-2">
-          <Input
-            id={`follow-up-limit-${workspaceId}`}
-            type="number"
-            min={1}
-            max={MAX_DAILY_LIMIT}
-            value={limit}
-            aria-invalid={!valid}
-            onChange={(e) => setLimit(e.target.value)}
-            className="w-20"
-          />
+          <span className="w-20 shrink-0">
+            <Input
+              id={`follow-up-limit-${workspaceId}`}
+              type="number"
+              min={1}
+              max={MAX_DAILY_LIMIT}
+              value={limit}
+              aria-invalid={!valid}
+              onChange={(e) => setLimit(e.target.value)}
+            />
+          </span>
           <select value={zone} aria-label={t("timeZone")} onChange={(e) => setZone(e.target.value)} className={cn(selectClass, "w-48")}>
             {zones.zones.map((z) => (
               <option key={z} value={z}>

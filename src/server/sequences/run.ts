@@ -263,7 +263,8 @@ async function processEnrollment(e: Enrollment, now = Date.now()) {
       rowId: e.rowId,
       payload: { ...email, cc: [] },
       before: null,
-      reason: `Step ${e.step + 1} of ${steps.length} of the follow-up "${sequence.name}"`,
+      // Which step of which sequence it is comes with `source`, shown in the reviewer's language.
+      reason: "",
       source: { kind: "sequence", sequenceId: sequence.id, name: sequence.name, enrollmentId: e.id, step: e.step + 1, steps: steps.length },
       agent: null,
       runId: null,
