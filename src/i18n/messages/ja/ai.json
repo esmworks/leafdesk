@@ -214,6 +214,7 @@
           "updateRow": "変更しました：",
           "createPage": "ページを追加しました：",
           "editPage": "ページのテキストを変更しました：",
+          "createPdf": "PDF を作成しました：",
           "mergeRows": "行を統合しました："
         },
         "declined": {
@@ -221,6 +222,7 @@
           "updateRow": "変更が拒否されました：",
           "createPage": "ページの追加が拒否されました：",
           "editPage": "テキストの変更が拒否されました：",
+          "createPdf": "PDF の作成が拒否されました：",
           "mergeRows": "行の統合を却下しました："
         },
         "failed": {
@@ -228,6 +230,7 @@
           "updateRow": "変更できませんでした：",
           "createPage": "ページを追加できませんでした：",
           "editPage": "テキストを変更できませんでした：",
+          "createPdf": "PDF を作成できませんでした：",
           "mergeRows": "行を統合できませんでした："
         },
         "in": "場所：",
@@ -236,6 +239,7 @@
           "updateRow": "確認用に変更を提案しました：",
           "createPage": "確認用にページの追加を提案しました：",
           "editPage": "確認用にテキストの変更を提案しました：",
+          "createPdf": "確認用に PDF を提案しました：",
           "mergeRows": "レビュー用に行の統合を提案しました:"
         }
       },
@@ -274,6 +278,7 @@
         "remember": "あなたについてこれを記憶しますか？",
         "forget": "このメモを忘れますか？",
         "editPage": "このページのテキストを変更しますか？",
+        "createPdf": "このページの PDF を作成して添付しますか？",
         "connection": "これを {connection} に送信しますか？"
       },
       "in": "場所",

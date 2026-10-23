@@ -214,6 +214,7 @@
           "updateRow": "Riga modificata:",
           "createPage": "Pagina aggiunta:",
           "editPage": "Testo della pagina modificato:",
+          "createPdf": "PDF creato:",
           "mergeRows": "Righe unite in:"
         },
         "declined": {
@@ -221,6 +222,7 @@
           "updateRow": "Modifica rifiutata:",
           "createPage": "Aggiunta della pagina rifiutata:",
           "editPage": "Modifica del testo rifiutata:",
+          "createPdf": "Creazione del PDF rifiutata:",
           "mergeRows": "Unione rifiutata per:"
         },
         "failed": {
@@ -228,6 +230,7 @@
           "updateRow": "Impossibile modificare:",
           "createPage": "Impossibile aggiungere la pagina:",
           "editPage": "Impossibile modificare il testo di:",
+          "createPdf": "Impossibile creare il PDF:",
           "mergeRows": "Impossibile unire le righe in:"
         },
         "in": "in",
@@ -236,6 +239,7 @@
           "updateRow": "Modifica proposta da rivedere:",
           "createPage": "Aggiunta di una pagina proposta da rivedere:",
           "editPage": "Modifica del testo proposta da rivedere:",
+          "createPdf": "Ha proposto un PDF da rivedere:",
           "mergeRows": "Ha proposto di unire righe, da revisionare, in:"
         }
       },
@@ -274,6 +278,7 @@
         "remember": "Ricordare questo su di te?",
         "forget": "Dimenticare questa nota?",
         "editPage": "Modificare il testo di questa pagina?",
+        "createPdf": "Creare un PDF di questa pagina e allegarlo?",
         "connection": "Inviare questo a {connection}?"
       },
       "in": "In",

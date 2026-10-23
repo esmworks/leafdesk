@@ -214,6 +214,7 @@
           "updateRow": "Satır değiştirildi:",
           "createPage": "Sayfa eklendi:",
           "editPage": "Sayfa metni değiştirildi:",
+          "createPdf": "PDF oluşturuldu:",
           "mergeRows": "Satırlar şurada birleştirildi:"
         },
         "declined": {
@@ -221,6 +222,7 @@
           "updateRow": "Değişiklik reddedildi:",
           "createPage": "Sayfa ekleme reddedildi:",
           "editPage": "Metin değişikliği reddedildi:",
+          "createPdf": "PDF oluşturma reddedildi:",
           "mergeRows": "Satırların birleştirilmesi reddedildi:"
         },
         "failed": {
@@ -228,6 +230,7 @@
           "updateRow": "Değiştirilemedi:",
           "createPage": "Sayfa eklenemedi:",
           "editPage": "Metni değiştirilemedi:",
+          "createPdf": "PDF oluşturulamadı:",
           "mergeRows": "Satırlar birleştirilemedi:"
         },
         "in": "yer:",
@@ -236,6 +239,7 @@
           "updateRow": "İnceleme için bir değişiklik önerdi:",
           "createPage": "İnceleme için sayfa eklemeyi önerdi:",
           "editPage": "İnceleme için bir metin değişikliği önerdi:",
+          "createPdf": "İnceleme için bir PDF önerdi:",
           "mergeRows": "İnceleme için satırları şurada birleştirmeyi önerdi:"
         }
       },
@@ -274,6 +278,7 @@
         "remember": "Bunu senin hakkında hatırlasın mı?",
         "forget": "Bu not unutulsun mu?",
         "editPage": "Bu sayfanın metni değiştirilsin mi?",
+        "createPdf": "Bu sayfanın PDF'i oluşturulup eklensin mi?",
         "connection": "Bu, {connection} hizmetine gönderilsin mi?"
       },
       "in": "Yer:",

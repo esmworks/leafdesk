@@ -842,7 +842,7 @@ function ChangePrompt({
             t("connectionHint", { connection: action.connection?.name ?? "" })
           ) : action.target ? (
             <>
-              {t(action.action === "updateRow" ? "row" : action.action === "editPage" ? "page" : "in")}
+              {t(action.action === "updateRow" ? "row" : action.action === "editPage" || action.action === "createPdf" ? "page" : "in")}
               <PageLink page={action.target} onSource={onSource} />
             </>
           ) : (

@@ -214,6 +214,7 @@
           "updateRow": "Row changed:",
           "createPage": "Page added:",
           "editPage": "Page text changed:",
+          "createPdf": "PDF made:",
           "mergeRows": "Rows merged into:"
         },
         "declined": {
@@ -221,6 +222,7 @@
           "updateRow": "Declined changing:",
           "createPage": "Declined adding the page:",
           "editPage": "Declined changing the text of:",
+          "createPdf": "Declined making the PDF:",
           "mergeRows": "Declined merging rows into:"
         },
         "failed": {
@@ -228,6 +230,7 @@
           "updateRow": "Couldn't change:",
           "createPage": "Couldn't add the page:",
           "editPage": "Couldn't change the text of:",
+          "createPdf": "Couldn't make the PDF:",
           "mergeRows": "Couldn't merge rows into:"
         },
         "in": "in",
@@ -236,6 +239,7 @@
           "updateRow": "Proposed a change for review:",
           "createPage": "Proposed adding a page for review:",
           "editPage": "Proposed a text change for review:",
+          "createPdf": "Proposed a PDF for review:",
           "mergeRows": "Proposed merging rows for review into:"
         }
       },
@@ -274,6 +278,7 @@
         "remember": "Remember this about you?",
         "forget": "Forget this note?",
         "editPage": "Change this page's text?",
+        "createPdf": "Make a PDF of this page and attach it?",
         "connection": "Send this to {connection}?"
       },
       "in": "In",

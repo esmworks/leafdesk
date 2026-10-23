@@ -214,6 +214,7 @@
           "updateRow": "Zeile geändert:",
           "createPage": "Seite hinzugefügt:",
           "editPage": "Seitentext geändert:",
+          "createPdf": "PDF erstellt:",
           "mergeRows": "Zeilen zusammengeführt in:"
         },
         "declined": {
@@ -221,6 +222,7 @@
           "updateRow": "Änderung abgelehnt:",
           "createPage": "Hinzufügen der Seite abgelehnt:",
           "editPage": "Textänderung abgelehnt:",
+          "createPdf": "Erstellen des PDF abgelehnt:",
           "mergeRows": "Zusammenführen abgelehnt für:"
         },
         "failed": {
@@ -228,6 +230,7 @@
           "updateRow": "Konnte nicht geändert werden:",
           "createPage": "Seite konnte nicht hinzugefügt werden:",
           "editPage": "Text konnte nicht geändert werden:",
+          "createPdf": "PDF konnte nicht erstellt werden:",
           "mergeRows": "Zeilen konnten nicht zusammengeführt werden in:"
         },
         "in": "in",
@@ -236,6 +239,7 @@
           "updateRow": "Änderung zur Prüfung vorgeschlagen:",
           "createPage": "Hinzufügen einer Seite zur Prüfung vorgeschlagen:",
           "editPage": "Textänderung zur Prüfung vorgeschlagen:",
+          "createPdf": "Ein PDF zur Prüfung vorgeschlagen:",
           "mergeRows": "Zusammenführen von Zeilen zur Prüfung vorgeschlagen in:"
         }
       },
@@ -274,6 +278,7 @@
         "remember": "Das über dich merken?",
         "forget": "Diese Notiz vergessen?",
         "editPage": "Den Text dieser Seite ändern?",
+        "createPdf": "Ein PDF dieser Seite erstellen und anhängen?",
         "connection": "Das an {connection} senden?"
       },
       "in": "In",

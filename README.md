@@ -919,6 +919,16 @@ The browser makes the PDF, so the server needs nothing extra (no headless browse
 Its own header and footer (date, address, page numbers) can be turned off under "More settings"
 in the print dialog.
 
+The AI chat (and an agent in its owner's chat) can also make a page's or row's PDF on the server
+(`create_pdf`), for a quote, a letter or a report it has just written into a page. The file is
+attached where the page's people find it: at the end of the page's text, or in a row's files
+property the chat names, and the answer links to it. It reads the page as the person asking, like
+the print view (database blocks, synced blocks, mentions, footnotes; images if they are PNG or
+JPEG uploads), is an export (off while export is off, in the audit log) and a change (asked for in
+*Ask* mode, refused without edit access or on a locked page). A row's values are left out unless
+asked for, since a document made for a customer rarely means to show them. The server's font
+(Roboto) covers Latin, Greek and Cyrillic letters, not Arabic, Hebrew or CJK text.
+
 ### Edit as Markdown
 
 "Edit as Markdown" in the page menu (for people who may edit the page; not for databases, locked
@@ -2043,7 +2053,7 @@ chat is off while offline and when AI is off for the workspace. Every question c
 text), change a row's values or title (`update_row`), add a page under a page, or a private one
 at the top of the workspace (`create_page`), and change a page's or row's text block by block
 (`edit_page`: replace a block, insert after one, append or delete one, by the block ids it reads
-first), as you and only where you may edit (and, with
+first), and make a PDF file of a page or row (`create_pdf`, see [PDF](#pdf)), as you and only where you may edit (and, with
 *Answer from* a page, only under it). What it may do is picked under the question box and
 remembered in the browser: *Ask* (the default) shows each change in the box's place before it is
 made (what, where, a new row's values and the start of a new page's text; for a change to a page's

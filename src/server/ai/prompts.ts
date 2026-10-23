@@ -483,7 +483,7 @@ export function chatSystemPrompt(scopeTitle?: string | null, canChange = false, 
     "- Tasks, records and lists kept in a database (what is pending, assigned to me, due this week, above an amount): query that database with query_database and filters on its properties.",
     "- Where something is written: search_pages with a few distinctive words or names, not the whole question; try other words when nothing is found. read_page reads a whole page.",
     canChange
-      ? "- When the person asks to add or change something (a task, a row, a page): create_row, update_row or create_page, after finding the database, row or page it goes to; edit_page changes a page's text, after read_page with_block_ids. Change only what they asked for, and only when they ask. Don't ask for permission in text: the app asks the person itself when it has to. When a change is declined, don't try it again."
+      ? "- When the person asks to add or change something (a task, a row, a page): create_row, update_row or create_page, after finding the database, row or page it goes to; edit_page changes a page's text, after read_page with_block_ids. When they ask for a PDF (of an offer, a letter, a report), write it into a page or row first if it isn't in one, then make it with create_pdf and give them the link it returns. Change only what they asked for, and only when they ask. Don't ask for permission in text: the app asks the person itself when it has to. When a change is declined, don't try it again."
       : `- You can't change pages or databases in this chat. When asked to, say that changes are off; the person can allow them under the question box.${memory ? " Keeping notes about the person (remember, forget) still works here." : ""}`,
     ...(services.length
       ? [
@@ -572,6 +572,7 @@ function changeNote(step: ChatWriteRecord) {
   if (step.action === "createRow") return `added the row${title} (page_id ${step.pageId}) to the database ${step.targetId}`;
   if (step.action === "updateRow") return `changed the row${title} (page_id ${step.pageId})${step.changes.length ? `: ${step.changes.map((c) => c.property).join(", ")}` : ""}`;
   if (step.action === "editPage") return `changed the text of the page ${step.pageId}`;
+  if (step.action === "createPdf") return `made the PDF file${title} of the page ${step.pageId} and attached it there`;
   return `added the page${title} (page_id ${step.pageId})`;
 }
 
@@ -640,7 +641,7 @@ export function agentSystemPrompt(
         : "You can't change pages in this run; you may only read them, and use the tools of connected services."
       : chat
         ? chat.writes
-          ? `create_row, update_row, create_page and edit_page change pages and databases shared with you to edit, at once (read_page with_block_ids before edit_page). You may make ${MAX_AGENT_WRITES} changes per message: make only those the person asks for, and say what you changed.`
+          ? `create_row, update_row, create_page and edit_page change pages and databases shared with you to edit, at once (read_page with_block_ids before edit_page); create_pdf makes a PDF file of a page or row and attaches it there. You may make ${MAX_AGENT_WRITES} changes per message: make only those the person asks for, and say what you changed.`
           : "You can't change anything in this chat, in the workspace or in connected services: you may only read. When the person asks for a change, say what you would change instead. You see only pages that both you and this person may open."
       : scheduled?.database
       ? `update_row changes values or the title of rows of the database you look after, and only its rows; edit_page changes their text (read_page with_block_ids first). add_comment writes a comment on one of its rows. You may make ${scheduled.maxWrites} changes in all: change only what the task and your instructions call for; when nothing needs changing, change nothing.`

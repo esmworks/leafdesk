@@ -79,6 +79,7 @@
     "createPage": "Добавить страницу {title} в {target}?",
     "createPageTop": "Добавить страницу {title} в начало рабочего пространства, только для вас?",
     "editPage": "Изменить текст страницы {title}?",
+    "createPdf": "Создать PDF {title} из {target} и прикрепить его там?",
     "remember": "Запомнить это о вас?",
     "forget": "Забыть эту заметку?",
     "connection": "Отправить это в {connection} ({tool})?",

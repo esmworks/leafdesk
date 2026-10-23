@@ -79,6 +79,7 @@
     "createPage": "إضافة الصفحة {title} تحت {target}؟",
     "createPageTop": "إضافة الصفحة {title} في أعلى مساحة العمل، خاصة بك؟",
     "editPage": "تغيير نص {title}؟",
+    "createPdf": "إنشاء ملف PDF {title} من {target} وإرفاقه هناك؟",
     "remember": "هل أتذكر هذا عنك؟",
     "forget": "نسيان هذه الملاحظة؟",
     "connection": "إرسال هذا إلى {connection} ({tool})؟",

@@ -79,6 +79,7 @@
     "createPage": "Додати сторінку {title} у {target}?",
     "createPageTop": "Додати сторінку {title} на початок робочого простору, лише для вас?",
     "editPage": "Змінити текст сторінки {title}?",
+    "createPdf": "Створити PDF {title} зі сторінки {target} і прикріпити його там?",
     "remember": "Запам’ятати це про вас?",
     "forget": "Забути цю нотатку?",
     "connection": "Надіслати це до {connection} ({tool})?",

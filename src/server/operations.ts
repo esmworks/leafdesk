@@ -12,6 +12,7 @@ import { commentText, MAX_COMMENT_LENGTH } from "@/lib/comments";
 import { blockMarker, stripBlockMarkers } from "@/lib/block-edits";
 import { markdownReferences } from "@/lib/embed-blocks";
 import { env } from "@/lib/env";
+import { asFiles, blockTypeFor } from "@/lib/files";
 import { parseIcon } from "@/lib/icon";
 import { FILTER_COMBINATORS, MAX_FILTER_DEPTH, MAX_RELATIVE_DAYS, RELATIVE_DATE_RANGES } from "@/lib/filters";
 import { pageLabel } from "@/lib/labels";
@@ -28,6 +29,7 @@ import { calloutStylesOfWorkspaces } from "@/server/callout-styles";
 import { getCollab, type WriteActor } from "@/server/collab/bridge";
 import * as comments from "@/server/comments";
 import * as databases from "@/server/databases";
+import type { StoredFile } from "@/server/files";
 import { resolveEmbeds } from "@/server/embeds";
 import * as forms from "@/server/forms";
 import * as groups from "@/server/groups";
@@ -466,6 +468,27 @@ export async function loadPage(ctx: OperationContext, pageId: string) {
   const page = await pages.getPage(ctx.userId, pageId);
   const parent = page.parentId ? await pages.getPage(ctx.userId, page.parentId).catch(() => null) : null;
   return { page, parent, parentDatabase: parent?.kind === "database" ? parent : null };
+}
+
+/**
+ * Puts a file uploaded to a page (files.uploadFile) on it, as `ctx`: added to `filesPropertyId`, a
+ * files property of the row the page is, or else at the end of its body as an image, video, audio
+ * or file block chosen by its type, a history snapshot saved first. Callers check first that the
+ * person may change that value, or the page's text (not locked).
+ */
+export async function placeFile(
+  ctx: OperationContext,
+  pageId: string,
+  stored: Pick<StoredFile, "url" | "name" | "contentType">,
+  { filesPropertyId, caption = "" }: { filesPropertyId?: string; caption?: string } = {},
+) {
+  if (filesPropertyId) {
+    const page = await pages.getPage(ctx.userId, pageId);
+    const current = asFiles(page.properties?.[filesPropertyId]);
+    await databases.updateRowProperties(ctx.userId, pageId, { [filesPropertyId]: [...current, { url: stored.url }] });
+    return;
+  }
+  await getCollab().appendBlocks(pageId, [{ type: blockTypeFor(stored.contentType), props: { url: stored.url, name: stored.name, caption } }], ctx.actor, true);
 }
 
 /**

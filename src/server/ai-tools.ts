@@ -6,6 +6,7 @@
  *
  * Results are registered as numbered sources (`Registry`), which the model cites as [n].
  */
+import { Readable } from "node:stream";
 import { and, eq, inArray, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { page, type ChatChange, type ChatQueryCondition, type ChatStepRecord, type ChatWriteRecord, type PageKind } from "@/db/schema";
@@ -13,6 +14,8 @@ import type { ChatActionView, ChatPageView } from "@/lib/ai-chat";
 import type { RowChangeBefore, RowChangePayload } from "@/lib/pending-changes";
 import { BLOCK_EDIT_OPS, blockEditProblem, MAX_BLOCK_EDITS, type BlockEdit } from "@/lib/block-edits";
 import { FILTER_OPS, MAX_FILTER_DEPTH } from "@/lib/filters";
+import { env } from "@/lib/env";
+import { cleanFileName, formatBytes } from "@/lib/files";
 import { pageLabel } from "@/lib/labels";
 import { isPageLocked, PAGE_LOCKED_MESSAGE } from "@/lib/page-lock";
 import { foldUnchanged, type BlockChange } from "@/lib/page-diff";
@@ -25,10 +28,13 @@ import { formatSources, truncateText, type ChatSourceText } from "@/server/ai/pr
 import type { ChatDecision } from "@/server/ai-chat-approvals";
 import { getCollab } from "@/server/collab/bridge";
 import { getDatabase, getLookups, normalizeRowProperties } from "@/server/databases";
+import { assertExportAllowed, ExportError } from "@/server/export";
+import { uploadFile } from "@/server/files";
 import { ToolInputError } from "@/server/mcp/format";
 import { describeProperty } from "@/server/mcp/query";
 import * as ops from "@/server/operations";
 import { getTree } from "@/server/pages";
+import { pagePdf } from "@/server/pdf";
 import { outdatedState } from "@/server/page-outdated";
 import { chunksOfPages, inSubtree } from "@/server/semantic-search";
 import { bestChunkForTerms, chunkPage, passageOf } from "@/server/semantic-text";
@@ -207,6 +213,24 @@ export const WRITE_TOOLS: AiTool[] = [
         },
       },
       required: ["page_id", "edits"],
+      additionalProperties: false,
+    },
+  },
+  {
+    name: "create_pdf",
+    description: [
+      "Makes a PDF file of a page or database row, as the person: its title, text, tables and images as printed (a row's values only with with_properties), and attaches it to that page, at the end of its text or, with property, to a files property of the row.",
+      "To make a document (an offer, a letter, a report) write it into a page or row first (create_page, create_row, edit_page), then make its PDF. Returns the file's link: give it to the person.",
+    ].join(" "),
+    parameters: {
+      type: "object",
+      properties: {
+        page_id: { type: "string", description: "The page or row to make the PDF of (from a source, or the one just made)." },
+        file_name: { type: "string", description: "The file's name, without .pdf (the page's title when left out)." },
+        property: { type: "string", description: "A files property of the row: the file goes into it instead of the text." },
+        with_properties: { type: "boolean", description: "List the row's values under its title (default false)." },
+      },
+      required: ["page_id"],
       additionalProperties: false,
     },
   },
@@ -631,6 +655,7 @@ export async function prepareWrite(
         },
       };
     }
+    if (call.name === "create_pdf") return await preparePdf(ctx, workspaceId, scopeId, args);
     if (call.name === "create_page") {
       const parentId = text(args.parent_id) || undefined;
       // In a page's scope, new pages stay in it too.
@@ -666,6 +691,68 @@ export async function prepareWrite(
 
 const readOnly: ToolOutcome = { content: "The person may only read this, not change it. Tell them so.", isError: true };
 const canEdit = (level: string) => level === "edit" || level === "full";
+
+/**
+ * create_pdf: the page to make a PDF of and attach it to (in the workspace and scope, the person
+ * able to change it, export allowed), and the files property it goes into if one is named. The PDF
+ * is made once the person agrees, from the page as it is then.
+ */
+async function preparePdf(
+  ctx: ops.OperationContext,
+  workspaceId: string,
+  scopeId: string | null,
+  args: Record<string, unknown>,
+): Promise<PreparedWrite | ToolOutcome> {
+  const { userId } = ctx;
+  const pageId = text(args.page_id) ?? "";
+  const target = await writeTarget(userId, workspaceId, scopeId, pageId);
+  if (!target) return { content: "No page with that id can be changed. Use a page_id from the map or a source.", isError: true };
+  if (target.page.kind === "database") return invalidChange("page_id is a database: make the PDF of one of its rows or of a page.");
+  if (!canEdit(target.level)) return readOnly;
+  try {
+    await assertExportAllowed(workspaceId);
+  } catch (error) {
+    if (error instanceof ExportError) return { content: "The workspace's owners turned export off, so no PDF can be made. Tell the person so.", isError: true };
+    throw error;
+  }
+  const propertyName = text(args.property);
+  let filesProperty: { id: string; name: string } | null = null;
+  if (propertyName) {
+    const parent = target.page.parentId ? await writeTarget(userId, workspaceId, null, target.page.parentId) : null;
+    if (parent?.page.kind !== "database") return invalidChange("property only applies to a database row; this page is not one.");
+    const { properties, access } = await getDatabase(userId, parent.page.id);
+    const found = properties.find((p) => p.id === propertyName) ?? properties.find((p) => p.name.toLowerCase() === propertyName.toLowerCase());
+    if (!found) return invalidChange(`the row's database has no property "${propertyName}".`);
+    if (found.type !== "files") return invalidChange(`"${found.name}" is a ${found.type} property, not a files property.`);
+    access.requireValues(target.page, [found.id]);
+    filesProperty = { id: found.id, name: found.name };
+  } else if (isPageLocked(target.page)) {
+    return { content: PAGE_LOCKED_MESSAGE, isError: true };
+  }
+  const withProperties = args.with_properties === true;
+  const named = cleanFileName(`${(text(args.file_name) || pageLabel(target.page.title)).replace(/\.pdf$/i, "")}.pdf`);
+  const changes: ChatChange[] = filesProperty ? [{ property: filesProperty.name, value: named }] : [];
+  return {
+    action: { action: "createPdf", target: await pageView(userId, pageId), title: named, changes, content: null },
+    record: { kind: "write", action: "createPdf", targetId: pageId, title: named, changes },
+    execute: async () => {
+      const pdf = await pagePdf(userId, pageId, { properties: withProperties });
+      const stored = await uploadFile(userId, pageId, {
+        name: named,
+        contentType: "application/pdf",
+        body: Readable.from([pdf.bytes]),
+        declaredSize: pdf.bytes.length,
+      });
+      await ops.placeFile(ctx, pageId, stored, filesProperty ? { filesPropertyId: filesProperty.id } : {});
+      const where = filesProperty ? `in its "${filesProperty.name}" property` : "at the end of its text";
+      return {
+        id: pageId,
+        title: pdf.title,
+        text: `The PDF file "${stored.name}" (${formatBytes(stored.size)}) is attached to the page ${where}. Link: ${env.appUrl}${stored.url}`,
+      };
+    },
+  };
+}
 
 /** A page of the workspace a change may go to, with the person's access: in scope, not in the trash or a template. */
 async function writeTarget(userId: string, workspaceId: string, scopeId: string | null, pageId: string) {
@@ -762,7 +849,15 @@ export async function applyWrite(prepared: PreparedWrite, decision: ChatDecision
     const made = await prepared.execute();
     const entry = register(registry, { pageId: made.id, blockId: null, title: made.title, text: made.text || "(no values)" });
     const what =
-      record.action === "createRow" ? "Added the row" : record.action === "updateRow" ? "Changed the row" : record.action === "editPage" ? "Changed the page's text" : "Added the page";
+      record.action === "createRow"
+        ? "Added the row"
+        : record.action === "updateRow"
+          ? "Changed the row"
+          : record.action === "editPage"
+            ? "Changed the page's text"
+            : record.action === "createPdf"
+              ? "Made the PDF and attached it to the page"
+              : "Added the page";
     return { content: `${what}; it is this source now:\n${formatSources([entry])}`, step: { ...record, outcome: "done", pageId: made.id } };
   } catch (error) {
     // The page was locked since the change was checked.

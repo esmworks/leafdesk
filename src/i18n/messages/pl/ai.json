@@ -214,6 +214,7 @@
           "updateRow": "Zmieniono wiersz:",
           "createPage": "Dodano stronę:",
           "editPage": "Zmieniono tekst strony:",
+          "createPdf": "Utworzono PDF:",
           "mergeRows": "Scalono wiersze w:"
         },
         "declined": {
@@ -221,6 +222,7 @@
           "updateRow": "Odrzucono zmianę:",
           "createPage": "Odrzucono dodanie strony:",
           "editPage": "Odrzucono zmianę tekstu:",
+          "createPdf": "Odrzucono utworzenie PDF:",
           "mergeRows": "Odrzucono scalenie wierszy w:"
         },
         "failed": {
@@ -228,6 +230,7 @@
           "updateRow": "Nie udało się zmienić:",
           "createPage": "Nie udało się dodać strony:",
           "editPage": "Nie udało się zmienić tekstu:",
+          "createPdf": "Nie udało się utworzyć PDF:",
           "mergeRows": "Nie udało się scalić wierszy w:"
         },
         "in": "w",
@@ -236,6 +239,7 @@
           "updateRow": "Zaproponowano do przejrzenia zmianę:",
           "createPage": "Zaproponowano do przejrzenia dodanie strony:",
           "editPage": "Zaproponowano do przejrzenia zmianę tekstu:",
+          "createPdf": "Zaproponowano PDF do sprawdzenia:",
           "mergeRows": "Zaproponowano scalenie wierszy do przejrzenia w:"
         }
       },
@@ -274,6 +278,7 @@
         "remember": "Zapamiętać to o tobie?",
         "forget": "Zapomnieć tę notatkę?",
         "editPage": "Zmienić tekst tej strony?",
+        "createPdf": "Utworzyć PDF tej strony i go dołączyć?",
         "connection": "Wysłać to do {connection}?"
       },
       "in": "W",

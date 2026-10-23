@@ -79,6 +79,7 @@
     "createPage": "{title} 페이지를 {target} 아래에 추가할까요?",
     "createPageTop": "{title} 페이지를 워크스페이스 맨 위에 나만 보는 페이지로 추가할까요?",
     "editPage": "{title}의 텍스트를 변경할까요?",
+    "createPdf": "{target}의 PDF {title}을(를) 만들어 그곳에 첨부할까요?",
     "remember": "이 내용을 기억해 둘까요?",
     "forget": "이 메모를 잊을까요?",
     "connection": "이 내용을 {connection}({tool})(으)로 보낼까요?",

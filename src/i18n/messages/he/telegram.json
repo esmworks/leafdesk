@@ -79,6 +79,7 @@
     "createPage": "להוסיף את הדף {title} תחת {target}?",
     "createPageTop": "להוסיף את הדף {title} בראש סביבת העבודה, פרטי לכם?",
     "editPage": "לשנות את הטקסט של {title}?",
+    "createPdf": "ליצור את ה־PDF {title} מ־{target} ולצרף אותו שם?",
     "remember": "לזכור את זה עליכם?",
     "forget": "לשכוח את ההערה הזו?",
     "connection": "לשלוח את זה אל {connection} ({tool})?",

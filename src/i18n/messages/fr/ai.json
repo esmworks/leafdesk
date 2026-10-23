@@ -214,6 +214,7 @@
           "updateRow": "Ligne modifiée :",
           "createPage": "Page ajoutée :",
           "editPage": "Texte de la page modifié :",
+          "createPdf": "PDF créé :",
           "mergeRows": "Lignes fusionnées dans :"
         },
         "declined": {
@@ -221,6 +222,7 @@
           "updateRow": "Modification refusée :",
           "createPage": "Ajout de la page refusé :",
           "editPage": "Modification du texte refusée :",
+          "createPdf": "Création du PDF refusée :",
           "mergeRows": "Fusion refusée pour :"
         },
         "failed": {
@@ -228,6 +230,7 @@
           "updateRow": "Impossible de modifier :",
           "createPage": "Impossible d'ajouter la page :",
           "editPage": "Impossible de modifier le texte de :",
+          "createPdf": "Impossible de créer le PDF :",
           "mergeRows": "Impossible de fusionner les lignes dans :"
         },
         "in": "dans",
@@ -236,6 +239,7 @@
           "updateRow": "Modification proposée à la vérification :",
           "createPage": "Ajout d’une page proposé à la vérification :",
           "editPage": "Modification du texte proposée à la vérification :",
+          "createPdf": "A proposé un PDF à vérifier :",
           "mergeRows": "A proposé de fusionner des lignes, à valider, dans :"
         }
       },
@@ -274,6 +278,7 @@
         "remember": "Retenir ceci à votre sujet ?",
         "forget": "Oublier cette note ?",
         "editPage": "Modifier le texte de cette page ?",
+        "createPdf": "Créer un PDF de cette page et le joindre ?",
         "connection": "Envoyer ceci à {connection} ?"
       },
       "in": "Dans",

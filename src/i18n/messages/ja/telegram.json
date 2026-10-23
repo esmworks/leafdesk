@@ -79,6 +79,7 @@
     "createPage": "ページ {title} を {target} の下に追加しますか？",
     "createPageTop": "ページ {title} をワークスペースの最上位に、あなただけのページとして追加しますか？",
     "editPage": "{title} の本文を変更しますか？",
+    "createPdf": "{target} の PDF {title} を作成してそこに添付しますか？",
     "remember": "これをあなたについて覚えておきますか？",
     "forget": "このメモを忘れますか？",
     "connection": "これを {connection}（{tool}）に送信しますか？",

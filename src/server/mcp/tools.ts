@@ -73,7 +73,7 @@ import * as files from "@/server/files";
 import { documentKind, workbookText } from "@/server/file-text";
 import { CSV_MAX_COLUMNS, CSV_MAX_ROWS } from "@/lib/import/csv";
 import { uploadLimits } from "@/server/storage";
-import { asFiles, blockTypeFor, fileIdOf, fileUrl, formatBytes } from "@/lib/files";
+import { blockTypeFor, fileIdOf, fileUrl, formatBytes } from "@/lib/files";
 import { isPageLocked, PAGE_LOCKED_MESSAGE } from "@/lib/page-lock";
 import * as forms from "@/server/forms";
 import { labelPageLinks } from "@/server/mentions";
@@ -1477,8 +1477,7 @@ export function createMcpServer(principal: McpPrincipal) {
           throw error;
         }
         if (filesProp) {
-          const current = asFiles(page.properties?.[filesProp.id]);
-          await databases.updateRowProperties(userId, page_id, { [filesProp.id]: [...current, { url: stored.url }] });
+          await ops.placeFile(ctx, page_id, stored, { filesPropertyId: filesProp.id });
           return {
             id: stored.id,
             name: stored.name,
@@ -1491,14 +1490,7 @@ export function createMcpServer(principal: McpPrincipal) {
           };
         }
         const type = blockTypeFor(stored.contentType);
-        if (append) {
-          await getCollab().appendBlocks(
-            page_id,
-            [{ type, props: { url: stored.url, name: stored.name, caption: caption ?? "" } }],
-            actor,
-            true,
-          );
-        }
+        if (append) await ops.placeFile(ctx, page_id, stored, { caption });
         return {
           id: stored.id,
           name: stored.name,

@@ -79,6 +79,7 @@
     "createPage": "Die Seite {title} unter {target} hinzufügen?",
     "createPageTop": "Die Seite {title} oben im Workspace hinzufügen, privat für dich?",
     "editPage": "Den Text von {title} ändern?",
+    "createPdf": "Das PDF {title} von {target} erstellen und dort anhängen?",
     "remember": "Soll ich mir das über dich merken?",
     "forget": "Diese Notiz vergessen?",
     "connection": "Das an {connection} ({tool}) senden?",

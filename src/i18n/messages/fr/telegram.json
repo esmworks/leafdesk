@@ -79,6 +79,7 @@
     "createPage": "Ajouter la page {title} sous {target} ?",
     "createPageTop": "Ajouter la page {title} en haut de l’espace de travail, privée pour vous ?",
     "editPage": "Modifier le texte de {title} ?",
+    "createPdf": "Créer le PDF {title} de {target} et l’y joindre ?",
     "remember": "Retenir ceci à votre sujet ?",
     "forget": "Oublier cette note ?",
     "connection": "Envoyer ceci à {connection} ({tool}) ?",

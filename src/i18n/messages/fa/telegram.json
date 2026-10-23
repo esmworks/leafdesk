@@ -79,6 +79,7 @@
     "createPage": "صفحه {title} زیر {target} اضافه شود؟",
     "createPageTop": "صفحه {title} در بالای فضای کاری، خصوصی برای شما، اضافه شود؟",
     "editPage": "متن {title} تغییر کند؟",
+    "createPdf": "PDF {title} از {target} ساخته و همان‌جا پیوست شود؟",
     "remember": "این را درباره شما به خاطر بسپارم؟",
     "forget": "این یادداشت فراموش شود؟",
     "connection": "این به {connection} ({tool}) فرستاده شود؟",

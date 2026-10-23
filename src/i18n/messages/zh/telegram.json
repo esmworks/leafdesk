@@ -79,6 +79,7 @@
     "createPage": "要在 {target} 下添加页面 {title} 吗？",
     "createPageTop": "要在工作区顶层添加页面 {title}（仅你可见）吗？",
     "editPage": "要更改 {title} 的正文吗？",
+    "createPdf": "生成 {target} 的 PDF {title} 并附加到那里？",
     "remember": "要记住关于你的这件事吗？",
     "forget": "要忘记这条笔记吗？",
     "connection": "要将此内容发送到 {connection}（{tool}）吗？",

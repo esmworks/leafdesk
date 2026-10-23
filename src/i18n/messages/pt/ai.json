@@ -214,6 +214,7 @@
           "updateRow": "Linha alterada:",
           "createPage": "Página adicionada:",
           "editPage": "Texto da página alterado:",
+          "createPdf": "PDF criado:",
           "mergeRows": "Linhas mescladas em:"
         },
         "declined": {
@@ -221,6 +222,7 @@
           "updateRow": "Recusado alterar:",
           "createPage": "Recusado adicionar a página:",
           "editPage": "Recusado alterar o texto de:",
+          "createPdf": "Criação do PDF recusada:",
           "mergeRows": "Mesclagem recusada em:"
         },
         "failed": {
@@ -228,6 +230,7 @@
           "updateRow": "Não foi possível alterar:",
           "createPage": "Não foi possível adicionar a página:",
           "editPage": "Não foi possível alterar o texto de:",
+          "createPdf": "Não foi possível criar o PDF:",
           "mergeRows": "Não foi possível mesclar linhas em:"
         },
         "in": "em",
@@ -236,6 +239,7 @@
           "updateRow": "Propôs uma alteração para revisão:",
           "createPage": "Propôs adicionar uma página para revisão:",
           "editPage": "Propôs uma alteração de texto para revisão:",
+          "createPdf": "Propôs um PDF para revisão:",
           "mergeRows": "Propôs mesclar linhas para revisão em:"
         }
       },
@@ -274,6 +278,7 @@
         "remember": "Lembrar isto sobre você?",
         "forget": "Esquecer esta nota?",
         "editPage": "Alterar o texto desta página?",
+        "createPdf": "Criar um PDF desta página e anexá-lo?",
         "connection": "Enviar isto para {connection}?"
       },
       "in": "Em",

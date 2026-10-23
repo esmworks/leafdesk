@@ -172,8 +172,11 @@ export type ChatMemoryRecord = { kind: "memory"; action: "remember" | "propose" 
 /** A note in use (`kept`), or one an agent's run proposed that waits for an owner (`proposed`). */
 export type MemoryStatus = "kept" | "proposed";
 
-/** A change the AI chat may make: add a database row, change one, add a page, or change a page's text. */
-export type ChatWriteAction = "createRow" | "updateRow" | "createPage" | "editPage";
+/**
+ * A change the AI chat may make: add a database row, change one, add a page, change a page's text,
+ * or make a PDF file of a page and attach it to the page.
+ */
+export type ChatWriteAction = "createRow" | "updateRow" | "createPage" | "editPage" | "createPdf";
 
 /** A change made, as a step records it: one the chat may make, or duplicate rows an agent's run merged. */
 export type ChatWriteStepAction = ChatWriteAction | "mergeRows";
@@ -183,8 +186,9 @@ export type ChatChange = { property: string; value: string; before?: string };
 
 /**
  * A change the AI chat made (`done`), the person declined (`declined`) or that failed once
- * approved (`failed`). `targetId`: the database a row goes to, the row changed, or the page a new
- * page goes under (null: the top of the workspace); `pageId`: the row or page made or changed.
+ * approved (`failed`). `targetId`: the database a row goes to, the row changed, the page a new
+ * page goes under (null: the top of the workspace) or the page a PDF is made of; `pageId`: the row
+ * or page made or changed.
  */
 export type ChatWriteRecord = {
   kind: "write";

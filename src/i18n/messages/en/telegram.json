@@ -79,6 +79,7 @@
     "createPage": "Add the page {title} under {target}?",
     "createPageTop": "Add the page {title} at the top of the workspace, private to you?",
     "editPage": "Change the text of {title}?",
+    "createPdf": "Make the PDF {title} of {target} and attach it there?",
     "remember": "Remember this about you?",
     "forget": "Forget this note?",
     "connection": "Send this to {connection} ({tool})?",

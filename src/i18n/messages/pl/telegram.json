@@ -79,6 +79,7 @@
     "createPage": "Dodać stronę {title} pod {target}?",
     "createPageTop": "Dodać stronę {title} na górze obszaru roboczego, prywatną dla ciebie?",
     "editPage": "Zmienić tekst strony {title}?",
+    "createPdf": "Utworzyć PDF {title} ze strony {target} i dołączyć go tam?",
     "remember": "Zapamiętać to o tobie?",
     "forget": "Zapomnieć tę notatkę?",
     "connection": "Wysłać to do {connection} ({tool})?",

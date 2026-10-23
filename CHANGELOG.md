@@ -4,6 +4,14 @@
 
 ### Added
 
+- **The AI chat makes PDF files.** Asked for a PDF (a quote, a letter, a report), the chat writes
+  it into a page or row if it isn't in one, then makes the page's PDF on the server
+  (`create_pdf`) and attaches it at the end of the page's text, or in a row's files property, and
+  links to it in its answer. Like other changes it is asked for first in *Ask* mode and needs edit
+  access; like other exports it is off while the workspace has export off and goes into the audit
+  log. Tables keep their layout, with amounts on the right; a row's values are left out unless
+  asked for. An agent can do the same in its owner's chat. New dependency: pdfmake.
+
 - **Skills live in a skills database.** *New skill* in the skills library, and the ready-made
   skills, now add a row to a skills database: the person's own, made private at the top of the
   workspace the first time, with *Description*, *Files*, *Tags* and *Created by* properties and its
