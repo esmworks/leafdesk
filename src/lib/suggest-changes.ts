@@ -307,7 +307,7 @@ function untracked(tracked: Transform, step: Step, prevSteps: Step[], ctx: Ctx):
 /** A replace-around step (lifting, wrapping, a block's type): the blocks again, marked as new. */
 function suggestReplaceAround(tracked: Transform, doc: Node, step: ReplaceAroundStep, prevSteps: Step[], ctx: Ctx): boolean {
   // A node's type or attributes alone (setNodeMarkup): no mark can say so.
-  if (step.insert === 1 && step.slice.size === 2 && step.gapTo === step.to - 1 && step.gapFrom === step.from + 1 && step.structure) {
+  if (step.insert === 1 && step.slice.size === 2 && step.gapTo === step.to - 1 && step.gapFrom === step.from + 1 && (step as unknown as { structure?: boolean }).structure) {
     return untracked(tracked, step, prevSteps, ctx);
   }
   const applied = step.apply(doc).doc;

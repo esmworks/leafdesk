@@ -186,6 +186,14 @@ export function suggestionMarkEnd($pos: ResolvedPos, type: MarkType): number {
 export type Decision = "accept" | "reject";
 
 /**
+ * What an inbox notice about a suggestion says (kept in the "comment" notification's `message`): a
+ * new suggestion for the page's watchers, or its answer for its author.
+ */
+export type SuggestionNotice = "suggested" | "accepted" | "rejected";
+export const isSuggestionNotice = (value: unknown): value is SuggestionNotice =>
+  value === "suggested" || value === "accepted" || value === "rejected";
+
+/**
  * Accepts or rejects the suggestions whose id `which` picks: accepting keeps inserted text and new
  * formatting and removes deleted text; rejecting removes inserted text, keeps deleted text and puts
  * the formatting back. Either way their marks go, and with them the zero-width spaces the change put
