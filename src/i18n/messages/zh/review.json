@@ -28,7 +28,8 @@
   "proposes": {
     "createRow": "<agent></agent> 想在 <database></database> 中添加一行",
     "updateRow": "<agent></agent> 想更改 <row></row>",
-    "emailDraft": "<agent></agent> 在 <row></row> 上起草了一封邮件"
+    "emailDraft": "<agent></agent> 在 <row></row> 上起草了一封邮件",
+    "sequenceDraft": "<row></row> 上跟进 <sequence></sequence> 的第 {step} 封邮件（共 {steps} 封）"
   },
   "inDatabase": "位于 <database></database>",
   "unknownAgent": "已删除的智能体",

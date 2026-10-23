@@ -231,6 +231,7 @@
     "rowUpdateBody": "הטקסט",
     "pageUpdated": "{actor} ערך את הדף הזה",
     "rowEmail": "אימייל מ־{from}",
+    "followUp": "רצף המעקב “{sequence}” הושהה: צריך לבדוק את האימייל הבא שלו",
     "someone": "מישהו",
     "joinRequestTitle": "בקשת הצטרפות",
     "joinRequest": "{actor} ביקש להצטרף",

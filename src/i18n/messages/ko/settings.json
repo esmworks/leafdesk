@@ -1626,6 +1626,14 @@
         "mailbox_connected": "메일함 {target}을(를) 연결했습니다",
         "mailbox_disconnected": "메일함 {target}의 연결을 해제했습니다"
       },
+      "sequence": {
+        "created": "{target}에 팔로업 “{name}”을(를) 만들었습니다",
+        "updated": "{target}의 팔로업 “{name}”을(를) 변경했습니다",
+        "deleted": "{target}의 팔로업 “{name}”을(를) 삭제했습니다",
+        "enrolled": "{target}에서 팔로업 “{name}”을(를) 시작했습니다",
+        "stopped": "{reason, select, replied {{target}의 팔로업 “{name}”이(가) 중지되었습니다: 상대방이 답장했습니다} manual {{target}의 팔로업 “{name}”을(를) 중지했습니다} rowTrashed {{target}의 팔로업 “{name}”이(가) 중지되었습니다: 행이 휴지통으로 이동되었습니다} mailboxDisconnected {{target}의 팔로업 “{name}”이(가) 중지되었습니다: 메일함 연결이 해제되었습니다} dismissed {{target}의 팔로업 “{name}”이(가) 중지되었습니다: 초안이 거부되었습니다} other {{target}의 팔로업 “{name}”이(가) 중지되었습니다}}",
+        "sent": "{target}의 팔로업 “{name}”에서 이메일 {step}을(를) 보냈습니다"
+      },
       "storage": {
         "connected": "새 파일을 {target}에 보관하기 시작했습니다",
         "disconnected": "새 파일을 {target}에 보관하는 것을 중단했습니다",
@@ -1717,7 +1725,10 @@
     "stopWatching": "지켜보기 중지",
     "reviewTitle": "검토 대기",
     "reviewDescription": "내가 편집할 수 있는 행의 변경을 에이전트가 제안하거나 내 메일함에서 이메일 초안을 작성할 때. 제안은 내 검토를 기다립니다. 새 제안은 열어 볼 때까지 하나로 모입니다.",
-    "reviewChannel": "검토 대기: {channel}"
+    "reviewChannel": "검토 대기: {channel}",
+    "followUpTitle": "팔로업",
+    "followUpDescription": "내가 시작한 팔로업의 다음 이메일이 발송 전 검사를 통과하지 못해 일시 중지될 때.",
+    "followUpChannel": "팔로업: {channel}"
   },
   "site": {
     "description": "이 워크스페이스의 게시된 페이지에 읽기 쉬운 하나의 주소, 홈 페이지, 페이지 간 탐색을 제공합니다.",
@@ -2040,6 +2051,47 @@
       "accessDenied": "이 작업을 할 수 있는 권한이 없습니다.",
       "gone": "이 메시지는 더 이상 이 행에 없습니다."
     }
+  },
+  "followUps": {
+    "heading": "{database}의 팔로업",
+    "description": "시작한 사람의 메일함에서 행의 연락처로, 상대방이 답장할 때까지 차례로 보내는 이메일입니다.",
+    "new": "새 팔로업",
+    "edit": "편집",
+    "empty": "아직 팔로업이 없습니다. 팔로업을 만든 후 행의 이메일 섹션에서 시작하세요.",
+    "summary": "{steps, plural, other {이메일 #개}}{review, plural, =0 {} other {, #개는 먼저 검토}} · {open, plural, =0 {진행 중인 행 없음} other {#개 행에서 진행 중}}",
+    "newTitle": "새 팔로업",
+    "editTitle": "팔로업 편집",
+    "name": "이름",
+    "namePlaceholder": "견적 팔로업",
+    "emails": "이메일",
+    "emailN": "이메일 {n}",
+    "moveUp": "위로 이동",
+    "moveDown": "아래로 이동",
+    "removeEmail": "이메일 삭제",
+    "wait": "대기",
+    "waitDays": "대기 일수",
+    "daysAfterStart": "{count, plural, other {일 후(시작 기준)}}",
+    "daysAfterPrevious": "{count, plural, other {일 후(이전 이메일 기준)}}",
+    "mode": "보내는 방식",
+    "modeReview": "먼저 나에게 확인",
+    "modeAuto": "자동으로 보내기",
+    "subject": "제목",
+    "replyHint": "이전 이메일에 대한 답장으로 같은 스레드에서 보냅니다.",
+    "text": "본문",
+    "textPlaceholder": "{example}님, 안녕하세요.",
+    "insert": "삽입",
+    "addEmail": "이메일 추가",
+    "variablesHelp": "이중 중괄호에는 행의 값이 들어갑니다. 값이 비어 있는 행을 위해 각각 대체 값이 필요합니다: {example}.",
+    "window": "이메일 발송 시간",
+    "windowStart": "시작",
+    "windowEnd": "종료",
+    "windowHelp": "각 발신자 메일함의 시간대를 기준으로 합니다. 이 시간 밖에 예정된 이메일은 다음 발송 시간까지 기다립니다.",
+    "confirmDelete": "팔로업 “{name}”을(를) 삭제할까요?",
+    "confirmDeleteOpen": "팔로업 “{name}”을(를) 삭제할까요? {count, plural, other {진행 중인 행 #개에 더 이상 이메일이 발송되지 않습니다.}}",
+    "dailyLimit": "하루 팔로업 이메일 수",
+    "dailyLimitHelp": "이 메일함에서 하루에 보내는 팔로업 이메일은 모든 팔로업을 합쳐 이 수를 넘지 않습니다(최대 {max}). 나머지는 다음 날까지 기다립니다. 발송 시간은 옆에 있는 시간대를 기준으로 합니다.",
+    "useZone": "{zone} 사용",
+    "timeZone": "시간대"
   },
   "storage": {
     "description": "이 워크스페이스에 업로드된 파일이 보관되는 곳입니다. 이 서버 또는 소유자 중 한 명이 자기 계정에 연결한 저장소(S3 호환 버킷, Google Drive 또는 Dropbox)를 사용할 수 있습니다. 모든 파일은 계속 Leafdesk가 직접 제공하므로 저장소는 비공개로 유지됩니다. 멤버는 그곳에 계정이 필요 없고, 공개 액세스나 공유 설정도 필요 없습니다.",

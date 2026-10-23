@@ -231,6 +231,7 @@
     "rowUpdateBody": "Text",
     "pageUpdated": "{actor} hat diese Seite bearbeitet",
     "rowEmail": "E-Mail von {from}",
+    "followUp": "Follow-up „{sequence}“ pausiert: Die nächste E-Mail muss angesehen werden",
     "someone": "Jemand",
     "joinRequestTitle": "Beitrittsanfrage",
     "joinRequest": "{actor} möchte beitreten",

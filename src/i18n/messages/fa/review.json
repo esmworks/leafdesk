@@ -28,7 +28,8 @@
   "proposes": {
     "createRow": "<agent></agent> می‌خواهد ردیفی به <database></database> اضافه کند",
     "updateRow": "<agent></agent> می‌خواهد <row></row> را تغییر دهد",
-    "emailDraft": "<agent></agent> پیش‌نویس ایمیلی روی <row></row> نوشت"
+    "emailDraft": "<agent></agent> پیش‌نویس ایمیلی روی <row></row> نوشت",
+    "sequenceDraft": "ایمیل {step} از {steps} پیگیری <sequence></sequence> روی <row></row>"
   },
   "inDatabase": "در <database></database>",
   "unknownAgent": "یک عامل حذف‌شده",

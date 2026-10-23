@@ -28,7 +28,8 @@
   "proposes": {
     "createRow": "<agent></agent> quer adicionar uma linha a <database></database>",
     "updateRow": "<agent></agent> quer alterar <row></row>",
-    "emailDraft": "<agent></agent> rascunhou um e-mail em <row></row>"
+    "emailDraft": "<agent></agent> rascunhou um e-mail em <row></row>",
+    "sequenceDraft": "E-mail {step} de {steps} do acompanhamento <sequence></sequence> em <row></row>"
   },
   "inDatabase": "em <database></database>",
   "unknownAgent": "Um agente excluído",

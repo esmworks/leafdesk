@@ -28,7 +28,8 @@
   "proposes": {
     "createRow": "<agent></agent> хоче додати рядок до <database></database>",
     "updateRow": "<agent></agent> хоче змінити <row></row>",
-    "emailDraft": "<agent></agent>: підготовлено чернетку листа в <row></row>"
+    "emailDraft": "<agent></agent>: підготовлено чернетку листа в <row></row>",
+    "sequenceDraft": "Лист {step} з {steps} ланцюжка <sequence></sequence> у <row></row>"
   },
   "inDatabase": "у <database></database>",
   "unknownAgent": "Видалений агент",

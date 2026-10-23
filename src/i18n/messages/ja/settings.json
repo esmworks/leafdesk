@@ -1626,6 +1626,14 @@
         "mailbox_connected": "メールボックス{target}を接続しました",
         "mailbox_disconnected": "メールボックス{target}の接続を解除しました"
       },
+      "sequence": {
+        "created": "{target}でフォローアップ「{name}」を作成しました",
+        "updated": "{target}のフォローアップ「{name}」を変更しました",
+        "deleted": "{target}のフォローアップ「{name}」を削除しました",
+        "enrolled": "{target}でフォローアップ「{name}」を開始しました",
+        "stopped": "{reason, select, replied {{target}のフォローアップ「{name}」が停止しました：相手が返信しました} manual {{target}のフォローアップ「{name}」を停止しました} rowTrashed {{target}のフォローアップ「{name}」が停止しました：行がゴミ箱に移動されました} mailboxDisconnected {{target}のフォローアップ「{name}」が停止しました：メールボックスの接続が解除されました} dismissed {{target}のフォローアップ「{name}」が停止しました：下書きが破棄されました} other {{target}のフォローアップ「{name}」が停止しました}}",
+        "sent": "{target}のフォローアップ「{name}」のメール{step}を送信しました"
+      },
       "storage": {
         "connected": "新しいファイルの保存先を{target}にしました",
         "disconnected": "新しいファイルを{target}に保存するのをやめました",
@@ -1717,7 +1725,10 @@
     "stopWatching": "ウォッチをやめる",
     "reviewTitle": "確認待ち",
     "reviewDescription": "編集できる行への変更をエージェントが提案したとき、またはあなたのメールボックスからメールを下書きしたとき。提案はあなたの確認を待ちます。新しい提案は、開くまでまとめて届きます。",
-    "reviewChannel": "確認待ち：{channel}"
+    "reviewChannel": "確認待ち：{channel}",
+    "followUpTitle": "フォローアップ",
+    "followUpDescription": "あなたが開始したフォローアップで、次のメールが送信前のチェックを通過せず一時停止したとき。",
+    "followUpChannel": "フォローアップ：{channel}"
   },
   "site": {
     "description": "このワークスペースの公開ページに、わかりやすい1つのアドレス、ホームページ、ページ間のナビゲーションを用意します。",
@@ -2040,6 +2051,47 @@
       "accessDenied": "この操作を行うアクセス権がありません。",
       "gone": "このメッセージはもうこの行にありません。"
     }
+  },
+  "followUps": {
+    "heading": "{database}のフォローアップ",
+    "description": "行の連絡先に、開始した人のメールボックスから、相手が返信するまで順番に送られるメールです。",
+    "new": "新しいフォローアップ",
+    "edit": "編集",
+    "empty": "フォローアップはまだありません。作成すると、行のメール欄から開始できます。",
+    "summary": "{steps, plural, other {メール#通}}{review, plural, =0 {} other {（#通は送信前に確認）}} · {open, plural, =0 {実行中の行なし} other {#行で実行中}}",
+    "newTitle": "新しいフォローアップ",
+    "editTitle": "フォローアップを編集",
+    "name": "名前",
+    "namePlaceholder": "見積もりのフォローアップ",
+    "emails": "メール",
+    "emailN": "メール{n}",
+    "moveUp": "上に移動",
+    "moveDown": "下に移動",
+    "removeEmail": "メールを削除",
+    "wait": "待機",
+    "waitDays": "待機日数",
+    "daysAfterStart": "{count, plural, other {日後（開始から）}}",
+    "daysAfterPrevious": "{count, plural, other {日後（前のメールから）}}",
+    "mode": "送信方法",
+    "modeReview": "先に確認する",
+    "modeAuto": "自動で送信",
+    "subject": "件名",
+    "replyHint": "前のメールへの返信として、同じスレッドで送信されます。",
+    "text": "本文",
+    "textPlaceholder": "{example}様",
+    "insert": "挿入",
+    "addEmail": "メールを追加",
+    "variablesHelp": "二重の波括弧には行の値が入ります。値が空の行に備えて、それぞれに代替値が必要です：{example}。",
+    "window": "メールの送信時間帯",
+    "windowStart": "開始",
+    "windowEnd": "終了",
+    "windowHelp": "各送信者のメールボックスのタイムゾーンで判断します。この時間帯の外に予定されたメールは、次の時間帯まで待機します。",
+    "confirmDelete": "フォローアップ「{name}」を削除しますか？",
+    "confirmDeleteOpen": "フォローアップ「{name}」を削除しますか？{count, plural, other {実行中の#行には、今後このメールが送られなくなります。}}",
+    "dailyLimit": "1日のフォローアップメール数",
+    "dailyLimitHelp": "このメールボックスから1日に送信するフォローアップメールの上限です。すべてのフォローアップの合計で数えます（最大{max}）。残りは翌日まで待機します。送信時間帯は横のタイムゾーンで判断します。",
+    "useZone": "{zone}を使用",
+    "timeZone": "タイムゾーン"
   },
   "storage": {
     "description": "このワークスペースにアップロードされたファイルの保存先です。このサーバー、またはオーナーの誰かが自分のアカウントに接続したストレージ（S3 互換のバケット、Google Drive、Dropbox）を選べます。ファイルは引き続きすべて Leafdesk が配信するため、ストレージは非公開のままです。メンバーはそこにアカウントを持つ必要がなく、公開アクセスや共有設定も不要です。",

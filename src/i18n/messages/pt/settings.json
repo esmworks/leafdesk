@@ -1626,6 +1626,14 @@
         "mailbox_connected": "Conectou a caixa de e-mail {target}",
         "mailbox_disconnected": "Desconectou a caixa de e-mail {target}"
       },
+      "sequence": {
+        "created": "Criou o acompanhamento “{name}” em {target}",
+        "updated": "Alterou o acompanhamento “{name}” em {target}",
+        "deleted": "Excluiu o acompanhamento “{name}” em {target}",
+        "enrolled": "Iniciou o acompanhamento “{name}” em {target}",
+        "stopped": "{reason, select, replied {O acompanhamento “{name}” em {target} parou: o contato respondeu} manual {Interrompeu o acompanhamento “{name}” em {target}} rowTrashed {O acompanhamento “{name}” em {target} parou: a linha foi movida para a lixeira} mailboxDisconnected {O acompanhamento “{name}” em {target} parou: a caixa de e-mail foi desconectada} dismissed {O acompanhamento “{name}” em {target} parou: o rascunho dele foi descartado} other {O acompanhamento “{name}” em {target} parou}}",
+        "sent": "Enviou o passo {step} do acompanhamento “{name}” em {target}"
+      },
       "storage": {
         "connected": "Passou a guardar os novos arquivos em {target}",
         "disconnected": "Deixou de guardar os novos arquivos em {target}",
@@ -1717,7 +1725,10 @@
     "stopWatching": "Parar de acompanhar",
     "reviewTitle": "Para revisar",
     "reviewDescription": "Um agente propõe uma alteração em uma linha que você pode editar, ou rascunha um e-mail da sua caixa de e-mail, e ela aguarda sua revisão. Novas propostas são agrupadas até você abri-las.",
-    "reviewChannel": "Para revisar: {channel}"
+    "reviewChannel": "Para revisar: {channel}",
+    "followUpTitle": "Acompanhamentos",
+    "followUpDescription": "Um acompanhamento que você iniciou é pausado porque o próximo e-mail não passou na verificação antes do envio.",
+    "followUpChannel": "Acompanhamentos: {channel}"
   },
   "site": {
     "description": "Dê às páginas publicadas deste espaço de trabalho um endereço legível, uma página inicial e navegação entre elas.",
@@ -2040,6 +2051,47 @@
       "accessDenied": "Você não tem acesso para fazer isso.",
       "gone": "Essa mensagem não está mais nesta linha."
     }
+  },
+  "followUps": {
+    "heading": "Acompanhamentos em {database}",
+    "description": "E-mails enviados um após o outro ao contato de uma linha, da caixa de e-mail de quem os inicia, até o contato responder.",
+    "new": "Novo acompanhamento",
+    "edit": "Editar",
+    "empty": "Nenhum acompanhamento ainda. Depois de criar um, inicie-o na seção de e-mail de uma linha.",
+    "summary": "{steps, plural, one {# e-mail} other {# e-mails}}{review, plural, =0 {} one {, # revisado antes} other {, # revisados antes}} · {open, plural, =0 {nenhum em andamento} one {# em andamento} other {# em andamento}}",
+    "newTitle": "Novo acompanhamento",
+    "editTitle": "Editar acompanhamento",
+    "name": "Nome",
+    "namePlaceholder": "Acompanhamento de orçamento",
+    "emails": "E-mails",
+    "emailN": "E-mail {n}",
+    "moveUp": "Mover para cima",
+    "moveDown": "Mover para baixo",
+    "removeEmail": "Remover e-mail",
+    "wait": "Espera",
+    "waitDays": "Dias de espera",
+    "daysAfterStart": "{count, plural, one {dia após o início} other {dias após o início}}",
+    "daysAfterPrevious": "{count, plural, one {dia após o e-mail anterior} other {dias após o e-mail anterior}}",
+    "mode": "Como é enviado",
+    "modeReview": "Perguntar antes",
+    "modeAuto": "Enviar sozinho",
+    "subject": "Assunto",
+    "replyHint": "Vai como resposta ao e-mail anterior, na mesma conversa.",
+    "text": "Texto",
+    "textPlaceholder": "Olá {example},",
+    "insert": "Inserir",
+    "addEmail": "Adicionar e-mail",
+    "variablesHelp": "Chaves duplas preenchem os valores da linha. Cada uma precisa de um valor alternativo para as linhas em que está vazia: {example}.",
+    "window": "Quando os e-mails saem",
+    "windowStart": "De",
+    "windowEnd": "Até",
+    "windowHelp": "No fuso horário da caixa de e-mail de cada remetente. Um e-mail previsto fora desse horário espera o próximo.",
+    "confirmDelete": "Excluir o acompanhamento “{name}”?",
+    "confirmDeleteOpen": "Excluir o acompanhamento “{name}”? {count, plural, one {A linha nele deixa de receber os e-mails.} other {As # linhas nele deixam de receber os e-mails.}}",
+    "dailyLimit": "E-mails de acompanhamento por dia",
+    "dailyLimitHelp": "No máximo esta quantidade de e-mails de acompanhamento sai desta caixa de e-mail por dia, somando todos os acompanhamentos (até {max}). O resto espera o dia seguinte. As janelas de envio seguem o fuso horário ao lado.",
+    "useZone": "Usar {zone}",
+    "timeZone": "Fuso horário"
   },
   "storage": {
     "description": "Onde ficam os arquivos enviados a este espaço de trabalho: neste servidor ou em um armazenamento que um dos proprietários conectou à própria conta (um bucket compatível com S3, Google Drive ou Dropbox). O Leafdesk continua servindo cada arquivo ele mesmo, então o armazenamento continua privado: os membros não precisam de conta lá, e não é preciso acesso público nem compartilhamento.",

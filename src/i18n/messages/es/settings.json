@@ -1626,6 +1626,14 @@
         "mailbox_connected": "Conectó el buzón {target}",
         "mailbox_disconnected": "Desconectó el buzón {target}"
       },
+      "sequence": {
+        "created": "Creó el seguimiento “{name}” en {target}",
+        "updated": "Cambió el seguimiento “{name}” en {target}",
+        "deleted": "Eliminó el seguimiento “{name}” en {target}",
+        "enrolled": "Inició el seguimiento “{name}” en {target}",
+        "stopped": "{reason, select, replied {El seguimiento “{name}” en {target} se detuvo: el contacto respondió} manual {Detuvo el seguimiento “{name}” en {target}} rowTrashed {El seguimiento “{name}” en {target} se detuvo: la fila se movió a la papelera} mailboxDisconnected {El seguimiento “{name}” en {target} se detuvo: se desconectó el buzón} dismissed {El seguimiento “{name}” en {target} se detuvo: se descartó su borrador} other {El seguimiento “{name}” en {target} se detuvo}}",
+        "sent": "Envió el paso {step} del seguimiento “{name}” en {target}"
+      },
       "storage": {
         "connected": "Empezó a guardar los archivos nuevos en {target}",
         "disconnected": "Dejó de guardar los archivos nuevos en {target}",
@@ -1717,7 +1725,10 @@
     "stopWatching": "Dejar de observar",
     "reviewTitle": "Por revisar",
     "reviewDescription": "Un agente propone un cambio en una fila que puedes editar, o redacta un correo desde tu buzón, y queda esperando tu revisión. Las propuestas nuevas se agrupan hasta que las abres.",
-    "reviewChannel": "Por revisar: {channel}"
+    "reviewChannel": "Por revisar: {channel}",
+    "followUpTitle": "Seguimientos",
+    "followUpDescription": "Un seguimiento que iniciaste se pausa porque su próximo correo no pasó la comprobación previa al envío.",
+    "followUpChannel": "Seguimientos: {channel}"
   },
   "site": {
     "description": "Dale a las páginas publicadas de este espacio de trabajo una dirección legible, una página de inicio y navegación entre ellas.",
@@ -2040,6 +2051,47 @@
       "accessDenied": "No tienes acceso para hacer esto.",
       "gone": "Ese mensaje ya no está en esta fila."
     }
+  },
+  "followUps": {
+    "heading": "Seguimientos en {database}",
+    "description": "Correos que se envían uno tras otro al contacto de una fila, desde el buzón de quien los inicia, hasta que el contacto responde.",
+    "new": "Nuevo seguimiento",
+    "edit": "Editar",
+    "empty": "Todavía no hay seguimientos. Cuando exista uno, inícialo desde la sección de correo de una fila.",
+    "summary": "{steps, plural, one {# correo} other {# correos}}{review, plural, =0 {} one {, # revisado antes} other {, # revisados antes}} · {open, plural, =0 {ninguno en curso} one {# en curso} other {# en curso}}",
+    "newTitle": "Nuevo seguimiento",
+    "editTitle": "Editar seguimiento",
+    "name": "Nombre",
+    "namePlaceholder": "Seguimiento de presupuesto",
+    "emails": "Correos",
+    "emailN": "Correo {n}",
+    "moveUp": "Subir",
+    "moveDown": "Bajar",
+    "removeEmail": "Quitar correo",
+    "wait": "Espera",
+    "waitDays": "Días de espera",
+    "daysAfterStart": "{count, plural, one {día después de iniciarse} other {días después de iniciarse}}",
+    "daysAfterPrevious": "{count, plural, one {día después del correo anterior} other {días después del correo anterior}}",
+    "mode": "Cómo se envía",
+    "modeReview": "Preguntarme antes",
+    "modeAuto": "Enviar automáticamente",
+    "subject": "Asunto",
+    "replyHint": "Se envía como respuesta al correo anterior, en el mismo hilo.",
+    "text": "Texto",
+    "textPlaceholder": "Hola, {example}:",
+    "insert": "Insertar",
+    "addEmail": "Añadir correo",
+    "variablesHelp": "Las llaves dobles rellenan los valores de la fila. Cada una necesita un valor de respaldo para las filas en las que está vacía: {example}.",
+    "window": "Cuándo se envían los correos",
+    "windowStart": "Desde",
+    "windowEnd": "Hasta",
+    "windowHelp": "En la zona horaria del buzón de cada remitente. Un correo que toque fuera de este horario espera al siguiente.",
+    "confirmDelete": "¿Eliminar el seguimiento “{name}”?",
+    "confirmDeleteOpen": "¿Eliminar el seguimiento “{name}”? {count, plural, one {La fila que está en él deja de recibir sus correos.} other {Las # filas que están en él dejan de recibir sus correos.}}",
+    "dailyLimit": "Correos de seguimiento al día",
+    "dailyLimitHelp": "Desde este buzón se envían como máximo estos correos de seguimiento al día, sumando todos los seguimientos (hasta {max}). El resto espera al día siguiente. Los horarios de envío se leen en la zona horaria de al lado.",
+    "useZone": "Usar {zone}",
+    "timeZone": "Zona horaria"
   },
   "storage": {
     "description": "Dónde se guardan los archivos subidos a este espacio de trabajo: este servidor o un almacenamiento que uno de sus propietarios conectó a su cuenta (un bucket compatible con S3, Google Drive o Dropbox). Leafdesk sigue sirviendo cada archivo por sí mismo, así que el almacenamiento sigue siendo privado: los miembros no necesitan cuenta allí y no hace falta acceso público ni compartir nada.",

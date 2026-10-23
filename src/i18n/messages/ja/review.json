@@ -28,7 +28,8 @@
   "proposes": {
     "createRow": "<agent></agent>が<database></database>に行を追加しようとしています",
     "updateRow": "<agent></agent>が<row></row>を変更しようとしています",
-    "emailDraft": "<agent></agent>が<row></row>でメールを下書きしました"
+    "emailDraft": "<agent></agent>が<row></row>でメールを下書きしました",
+    "sequenceDraft": "<row></row>のフォローアップ<sequence></sequence>：メール{step}/{steps}"
   },
   "inDatabase": "<database></database>内",
   "unknownAgent": "削除されたエージェント",

@@ -136,6 +136,7 @@
     "rowUpdate": "غيّر {actor} هذا الصف",
     "pageUpdated": "عدّل {actor} هذه الصفحة",
     "rowEmail": "رسالة بريد من {from}",
+    "followUp": "المتابعة «{sequence}» متوقفة مؤقتًا: رسالتها التالية تحتاج إلى نظرة",
     "noSubject": "(بلا موضوع)",
     "tabs": "عرض",
     "tabAll": "الكل",

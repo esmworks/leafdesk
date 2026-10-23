@@ -136,6 +136,7 @@
     "rowUpdate": "{actor} این ردیف را تغییر داد",
     "pageUpdated": "{actor} این صفحه را ویرایش کرد",
     "rowEmail": "ایمیل از {from}",
+    "followUp": "پیگیری «{sequence}» متوقف شد: ایمیل بعدی آن نیاز به بررسی دارد",
     "noSubject": "(بدون موضوع)",
     "tabs": "نمایش",
     "tabAll": "همه",

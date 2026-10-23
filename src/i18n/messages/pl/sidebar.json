@@ -136,6 +136,7 @@
     "rowUpdate": "{actor} zmienia ten wiersz",
     "pageUpdated": "{actor} edytuje tę stronę",
     "rowEmail": "E-mail od {from}",
+    "followUp": "Follow-up „{sequence}” wstrzymany: jego następny e-mail wymaga sprawdzenia",
     "noSubject": "(bez tematu)",
     "tabs": "Pokaż",
     "tabAll": "Wszystko",

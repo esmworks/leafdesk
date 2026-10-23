@@ -136,6 +136,7 @@
     "rowUpdate": "{actor} 님이 이 행을 변경했습니다",
     "pageUpdated": "{actor} 님이 이 페이지를 편집했습니다",
     "rowEmail": "{from}에게서 온 이메일",
+    "followUp": "팔로업 “{sequence}” 일시 중지됨: 다음 이메일을 확인해야 합니다",
     "noSubject": "(제목 없음)",
     "tabs": "표시",
     "tabAll": "전체",

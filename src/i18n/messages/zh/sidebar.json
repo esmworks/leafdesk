@@ -136,6 +136,7 @@
     "rowUpdate": "{actor} 更改了这一行",
     "pageUpdated": "{actor} 编辑了此页面",
     "rowEmail": "来自 {from} 的邮件",
+    "followUp": "跟进“{sequence}”已暂停：下一封邮件需要你查看",
     "noSubject": "（无主题）",
     "tabs": "显示",
     "tabAll": "全部",

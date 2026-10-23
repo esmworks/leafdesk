@@ -136,6 +136,7 @@
     "rowUpdate": "{actor}さんがこの行を変更しました",
     "pageUpdated": "{actor}さんがこのページを編集しました",
     "rowEmail": "{from}からのメール",
+    "followUp": "フォローアップ「{sequence}」が一時停止しました：次のメールの確認が必要です",
     "noSubject": "（件名なし）",
     "tabs": "表示",
     "tabAll": "すべて",

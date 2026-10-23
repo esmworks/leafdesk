@@ -28,7 +28,8 @@
   "proposes": {
     "createRow": "<agent></agent>이(가) <database></database>에 행을 추가하려고 합니다",
     "updateRow": "<agent></agent>이(가) <row></row>을(를) 변경하려고 합니다",
-    "emailDraft": "<agent></agent>이(가) <row></row>에서 이메일 초안을 작성했습니다"
+    "emailDraft": "<agent></agent>이(가) <row></row>에서 이메일 초안을 작성했습니다",
+    "sequenceDraft": "<row></row>의 팔로업 <sequence></sequence> 중 이메일 {step}/{steps}"
   },
   "inDatabase": "<database></database>에 있음",
   "unknownAgent": "삭제된 에이전트",

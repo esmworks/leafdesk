@@ -28,7 +28,8 @@
   "proposes": {
     "createRow": "<agent></agent>, <database></database> veritabanına bir satır eklemek istiyor",
     "updateRow": "<agent></agent>, <row></row> satırını değiştirmek istiyor",
-    "emailDraft": "<agent></agent>, <row></row> satırında bir e-posta taslağı hazırladı"
+    "emailDraft": "<agent></agent>, <row></row> satırında bir e-posta taslağı hazırladı",
+    "sequenceDraft": "<sequence></sequence> takibi, <row></row>: e-posta {step}/{steps}"
   },
   "inDatabase": "<database></database> içinde",
   "unknownAgent": "Silinmiş bir ajan",

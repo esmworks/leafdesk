@@ -28,7 +28,8 @@
   "proposes": {
     "createRow": "<agent></agent> möchte eine Zeile zu <database></database> hinzufügen",
     "updateRow": "<agent></agent> möchte <row></row> ändern",
-    "emailDraft": "<agent></agent> hat eine E-Mail zu <row></row> entworfen"
+    "emailDraft": "<agent></agent> hat eine E-Mail zu <row></row> entworfen",
+    "sequenceDraft": "E-Mail {step} von {steps} des Follow-ups <sequence></sequence> zu <row></row>"
   },
   "inDatabase": "in <database></database>",
   "unknownAgent": "Ein gelöschter Agent",

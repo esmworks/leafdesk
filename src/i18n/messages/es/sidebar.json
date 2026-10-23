@@ -136,6 +136,7 @@
     "rowUpdate": "{actor} cambió esta fila",
     "pageUpdated": "{actor} editó esta página",
     "rowEmail": "Correo de {from}",
+    "followUp": "Seguimiento “{sequence}” en pausa: hay que revisar su próximo correo",
     "noSubject": "(sin asunto)",
     "tabs": "Mostrar",
     "tabAll": "Todo",

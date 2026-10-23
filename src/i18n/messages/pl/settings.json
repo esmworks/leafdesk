@@ -1626,6 +1626,14 @@
         "mailbox_connected": "Podłączono skrzynkę pocztową {target}",
         "mailbox_disconnected": "Odłączono skrzynkę pocztową {target}"
       },
+      "sequence": {
+        "created": "Utworzono follow-up „{name}” w {target}",
+        "updated": "Zmieniono follow-up „{name}” w {target}",
+        "deleted": "Usunięto follow-up „{name}” w {target}",
+        "enrolled": "Uruchomiono follow-up „{name}” w {target}",
+        "stopped": "{reason, select, replied {Follow-up „{name}” w {target} zatrzymał się: kontakt odpowiedział} manual {Zatrzymano follow-up „{name}” w {target}} rowTrashed {Follow-up „{name}” w {target} zatrzymał się: wiersz przeniesiono do kosza} mailboxDisconnected {Follow-up „{name}” w {target} zatrzymał się: odłączono skrzynkę pocztową} dismissed {Follow-up „{name}” w {target} zatrzymał się: odrzucono jego szkic} other {Follow-up „{name}” w {target} zatrzymał się}}",
+        "sent": "Wysłano e-mail {step} follow-upu „{name}” w {target}"
+      },
       "storage": {
         "connected": "Rozpoczęto przechowywanie nowych plików w: {target}",
         "disconnected": "Zakończono przechowywanie nowych plików w: {target}",
@@ -1717,7 +1725,10 @@
     "stopWatching": "Przestań obserwować",
     "reviewTitle": "Do przejrzenia",
     "reviewDescription": "Agent proponuje zmianę w wierszu, który możesz edytować, albo przygotowuje szkic e-maila z twojej skrzynki pocztowej, i zmiana czeka, aż ją przejrzysz. Nowe propozycje są zbierane razem, dopóki ich nie otworzysz.",
-    "reviewChannel": "Do przejrzenia: {channel}"
+    "reviewChannel": "Do przejrzenia: {channel}",
+    "followUpTitle": "Follow-upy",
+    "followUpDescription": "Uruchomiony przez ciebie follow-up zostaje wstrzymany, bo jego następny e-mail nie przeszedł kontroli przed wysłaniem.",
+    "followUpChannel": "Follow-upy: {channel}"
   },
   "site": {
     "description": "Nadaj opublikowanym stronom tego obszaru roboczego jeden czytelny adres, stronę główną i nawigację między nimi.",
@@ -2040,6 +2051,47 @@
       "accessDenied": "Nie masz dostępu, aby to zrobić.",
       "gone": "Tej wiadomości nie ma już w tym wierszu."
     }
+  },
+  "followUps": {
+    "heading": "Follow-upy w {database}",
+    "description": "E-maile wysyłane jeden po drugim do kontaktu z wiersza, ze skrzynki pocztowej osoby, która je uruchamia, dopóki kontakt nie odpowie.",
+    "new": "Nowy follow-up",
+    "edit": "Edytuj",
+    "empty": "Brak follow-upów. Gdy jakiś powstanie, uruchom go w sekcji e-mail wiersza.",
+    "summary": "{steps, plural, one {# e-mail} few {# e-maile} many {# e-maili} other {# e-maila}}{review, plural, =0 {} other {, # najpierw do przejrzenia}} · {open, plural, =0 {nic w toku} one {# w toku} other {# w toku}}",
+    "newTitle": "Nowy follow-up",
+    "editTitle": "Edytuj follow-up",
+    "name": "Nazwa",
+    "namePlaceholder": "Follow-up oferty",
+    "emails": "E-maile",
+    "emailN": "E-mail {n}",
+    "moveUp": "Przenieś wyżej",
+    "moveDown": "Przenieś niżej",
+    "removeEmail": "Usuń e-mail",
+    "wait": "Oczekiwanie",
+    "waitDays": "Dni oczekiwania",
+    "daysAfterStart": "{count, plural, one {dzień po uruchomieniu} few {dni po uruchomieniu} many {dni po uruchomieniu} other {dnia po uruchomieniu}}",
+    "daysAfterPrevious": "{count, plural, one {dzień po poprzednim e-mailu} few {dni po poprzednim e-mailu} many {dni po poprzednim e-mailu} other {dnia po poprzednim e-mailu}}",
+    "mode": "Sposób wysyłki",
+    "modeReview": "Najpierw zapytaj mnie",
+    "modeAuto": "Wysyłaj automatycznie",
+    "subject": "Temat",
+    "replyHint": "Wysyłany jako odpowiedź na poprzedni e-mail, w tym samym wątku.",
+    "text": "Tekst",
+    "textPlaceholder": "Dzień dobry {example},",
+    "insert": "Wstaw",
+    "addEmail": "Dodaj e-mail",
+    "variablesHelp": "Podwójne nawiasy klamrowe wstawiają wartości z wiersza. Każda para potrzebuje wartości zastępczej dla wierszy, w których wartość jest pusta: {example}.",
+    "window": "Kiedy wysyłać e-maile",
+    "windowStart": "Od",
+    "windowEnd": "Do",
+    "windowHelp": "W strefie czasowej skrzynki pocztowej każdego nadawcy. E-mail przypadający poza tymi godzinami czeka na kolejne okno.",
+    "confirmDelete": "Usunąć follow-up „{name}”?",
+    "confirmDeleteOpen": "Usunąć follow-up „{name}”? {count, plural, one {Wiersz, w którym trwa, przestanie dostawać jego e-maile.} few {# wiersze, w których trwa, przestaną dostawać jego e-maile.} many {# wierszy, w których trwa, przestanie dostawać jego e-maile.} other {# wiersza, w których trwa, przestanie dostawać jego e-maile.}}",
+    "dailyLimit": "E-maile follow-up dziennie",
+    "dailyLimitHelp": "Z tej skrzynki pocztowej wychodzi dziennie najwyżej tyle e-maili follow-up, łącznie ze wszystkich follow-upów (maksymalnie {max}). Pozostałe czekają na następny dzień. Okna wysyłki liczone są w strefie czasowej podanej obok.",
+    "useZone": "Użyj {zone}",
+    "timeZone": "Strefa czasowa"
   },
   "storage": {
     "description": "Miejsce, w którym przechowywane są pliki przesłane do tego obszaru roboczego: ten serwer albo magazyn, który jeden z jego właścicieli podłączył do swojego konta (zasobnik zgodny z S3, Google Drive lub Dropbox). Leafdesk nadal sam udostępnia każdy plik, więc magazyn pozostaje prywatny: członkowie nie potrzebują w nim konta i nie jest potrzebny publiczny dostęp ani udostępnianie.",

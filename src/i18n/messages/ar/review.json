@@ -28,7 +28,8 @@
   "proposes": {
     "createRow": "يريد <agent></agent> إضافة صف إلى <database></database>",
     "updateRow": "يريد <agent></agent> تغيير <row></row>",
-    "emailDraft": "كتب <agent></agent> مسودة بريد على <row></row>"
+    "emailDraft": "كتب <agent></agent> مسودة بريد على <row></row>",
+    "sequenceDraft": "الرسالة {step} من {steps} من المتابعة <sequence></sequence> على <row></row>"
   },
   "inDatabase": "في <database></database>",
   "unknownAgent": "وكيل محذوف",

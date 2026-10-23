@@ -28,7 +28,8 @@
   "proposes": {
     "createRow": "<agent></agent> רוצה להוסיף שורה ל־<database></database>",
     "updateRow": "<agent></agent> רוצה לשנות את <row></row>",
-    "emailDraft": "<agent></agent> ניסח אימייל ב־<row></row>"
+    "emailDraft": "<agent></agent> ניסח אימייל ב־<row></row>",
+    "sequenceDraft": "אימייל {step} מתוך {steps} של רצף המעקב <sequence></sequence> ב־<row></row>"
   },
   "inDatabase": "ב־<database></database>",
   "unknownAgent": "סוכן שנמחק",
