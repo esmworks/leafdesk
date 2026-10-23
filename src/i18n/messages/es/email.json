@@ -232,6 +232,8 @@
     "pageUpdated": "{actor} editó esta página",
     "rowEmail": "Correo de {from}",
     "followUp": "Seguimiento “{sequence}” en pausa: hay que revisar su próximo correo",
+    "reaction": "{actor} reaccionó con {emoji} a tu comentario",
+    "people": "{others, plural, =0 {{name}} one {{name} y # persona más} other {{name} y # personas más}}",
     "someone": "Alguien",
     "joinRequestTitle": "Solicitud de acceso",
     "joinRequest": "{actor} pidió unirse",

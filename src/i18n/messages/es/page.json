@@ -49,9 +49,11 @@
     "exportZip": "Exportar con subpáginas",
     "exportZipDatabase": "Exportar con las páginas de las filas",
     "exportPdf": "Exportar como PDF",
+    "printView": "Imprimir",
     "exportPreparing": "Preparando la exportación…",
     "versionHistory": "Historial de versiones",
     "lastEdited": "Editado por última vez por {name}",
+    "wordCount": "{words, plural, one {# palabra} other {# palabras}}, {characters, plural, one {# carácter} other {# caracteres}}",
     "actionFailed": "No se pudo completar.",
     "viewers": "{count, plural, one {# persona más está viendo esta página} other {# personas más están viendo esta página}}",
     "viewersTitle": "Viendo esta página",
@@ -75,11 +77,13 @@
     "filters": {
       "open": "Abiertos",
       "resolved": "Resueltos",
+      "marked": "Marcados",
       "all": "Todos"
     },
     "empty": {
       "open": "No hay comentarios abiertos. Selecciona texto en la página y elige Comentar para empezar uno.",
       "resolved": "No hay comentarios resueltos.",
+      "marked": "No hay hilos marcados para volver a ellos. Elige «Volver más tarde» en el menú de un hilo.",
       "all": "Todavía no hay comentarios. Selecciona texto en la página y elige Comentar para empezar uno."
     },
     "threadMenu": "Opciones del hilo",
@@ -89,7 +93,19 @@
     "unmuteHint": "Vuelve a recibir avisos de nuevas respuestas en este hilo.",
     "muted": "Respuestas silenciadas",
     "mutedHint": "No recibes avisos de respuestas en este hilo hasta que respondas aquí o alguien te mencione aquí.",
-    "mergedFrom": "De «{title}»"
+    "mergedFrom": "De «{title}»",
+    "sort": {
+      "label": "Ordenar hilos",
+      "recent": "Actividad más reciente primero",
+      "page": "En el orden de la página"
+    },
+    "new": "Nuevo",
+    "marked": "Marcado para volver más tarde",
+    "markedHint": "Marcaste este hilo para volver a él más tarde. Solo tú lo ves.",
+    "mark": "Volver más tarde",
+    "unmark": "Quitar «Volver más tarde»",
+    "markHint": "El hilo queda en Marcados hasta que quites la marca. Solo tú la ves.",
+    "unmarkHint": "Quitar este hilo de tu lista de Marcados."
   },
   "archived": {
     "banner": "Esta página está en la papelera.",
@@ -331,6 +347,7 @@
     "replacePlaceholder": "Reemplazar por",
     "noResults": "Sin resultados",
     "matchCase": "Coincidir mayúsculas y minúsculas",
+    "matchAccents": "Distinguir acentos",
     "previous": "Coincidencia anterior (Shift+Enter)",
     "next": "Coincidencia siguiente (Enter)",
     "showReplace": "Mostrar reemplazar",
@@ -575,6 +592,17 @@
     "openInNewTab": "Abrir en una pestaña nueva",
     "frameTitle": "PDF: {name}",
     "noPreview": "Este navegador no puede mostrar archivos PDF aquí. Abre el archivo para leerlo."
+  },
+  "pdfExport": {
+    "title": "Exportar como PDF",
+    "letterhead": "Membrete",
+    "none": "Ninguno",
+    "defaultMark": "{name} (predeterminado)",
+    "noLetterheads": "Los propietarios pueden añadir membretes con logotipo y datos de la empresa en Ajustes → Plantillas PDF.",
+    "properties": "Incluir los valores de la fila",
+    "hint": "Los diagramas y las ecuaciones se imprimen como texto; usa Imprimir para obtener la página tal como se ve.",
+    "download": "Descargar",
+    "preparing": "Preparando…"
   },
   "spreadsheet": {
     "untitled": "Libro",

@@ -66,7 +66,8 @@
   "errors": {
     "notFound": "Dieses Konto wurde nicht gefunden.",
     "noPassword": "Dieses Konto hat kein Passwort; es meldet sich anders an.",
-    "self": "Ändern Sie Ihr eigenes Passwort auf Ihrer Kontoseite."
+    "self": "Ändern Sie Ihr eigenes Passwort auf Ihrer Kontoseite.",
+    "noWorkspace": "Dieser Workspace wurde nicht gefunden."
   },
   "descriptionFirstAccount": "Die Konten auf diesem Server, ihre Sitzungen und Passwörter. Sie sehen diese Seite, weil Ihr Konto das erste auf diesem Server war.",
   "signUp": {
@@ -81,5 +82,16 @@
     "body": "Ihr Konto ist das erste hier, deshalb gehört die Serververwaltung Ihnen. Wer diese Adresse erreicht, kann sich noch registrieren; wie Sie das schließen, steht in der Serververwaltung.",
     "open": "Serververwaltung",
     "dismiss": "Schließen"
+  },
+  "networks": {
+    "heading": "Freigegebene Netzwerke",
+    "description": "Workspaces, die sich nur aus freigegebenen Netzwerken öffnen lassen. Sperrt eine Liste die Eigentümer eines Workspace aus, leere sie hier: Der Workspace lässt sich dann aus jedem Netzwerk öffnen, bis die Eigentümer die Liste neu festlegen.",
+    "none": "Kein Workspace beschränkt die Anmeldung auf freigegebene Netzwerke",
+    "noneDescription": "Eigentümer legen freigegebene Netzwerke unter Einstellungen → Sicherheit ihres Workspace fest.",
+    "count": "{count, plural, one {# Netzwerk} other {# Netzwerke}}",
+    "clear": "Liste leeren",
+    "clearTitle": "Freigegebene Netzwerke von {workspace} leeren?",
+    "clearBody": "Alle im Workspace können ihn wieder aus jedem Netzwerk öffnen, und sein Audit-Log hält fest, dass du die Liste geleert hast. Die Eigentümer können sie unter Einstellungen → Sicherheit neu festlegen.",
+    "clearConfirm": "Liste leeren"
   }
 }

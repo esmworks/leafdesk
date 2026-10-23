@@ -9,6 +9,7 @@ import {
   type ChartAggregate,
   type ChartSort,
   type ChartType,
+  type ColorRule,
   type FilterCombinator,
   type NumberFormat,
   type OpenRows,
@@ -45,23 +46,12 @@ import { DEPENDENCY_SHIFTS, dependencySettings } from "@/lib/dependencies";
 import { MAX_FORMULA_LENGTH } from "@/lib/formula";
 import { checkNumberFormat, MAX_DECIMALS, NUMBER_FORMATS } from "@/lib/number-format";
 import { REMINDER_DAYS, type DateOptionsInput } from "@/lib/date-options";
-import {
-  FORM_TITLE,
-  canDefault,
-  isAskable,
-  MAX_CONFIRMATION,
-  MAX_FORM_DEFAULTS,
-  MAX_FORM_DESCRIPTION,
-  MAX_FORM_QUESTIONS,
-  MAX_FORM_TITLE,
-  MAX_QUESTION_DESCRIPTION,
-  MAX_QUESTION_LABEL,
-} from "@/lib/forms";
 import { GROUP_DATE_BY } from "@/lib/grouping";
 import { pageLabel } from "@/lib/labels";
 import { valueText } from "@/lib/row-activity";
-import { diffToText, wordsToText } from "@/lib/page-diff";
-import { isGroupable, sortStatusOptions, statusColor } from "@/lib/properties";
+import { isGroupable, SELECT_COLORS, sortStatusOptions, statusColor } from "@/lib/properties";
+import { MAX_COLOR_RULES, newColorRuleId } from "@/lib/color-rules";
+import { FILTER_COMBINATORS } from "@/lib/filters";
 import { holdsOptions, holdsTimestamp, STATUS_GROUPS } from "@/lib/property-types";
 import { MAX_PROPERTY_DESCRIPTION } from "@/lib/property-description";
 import { CALENDAR_MODES, CARD_SIZES, OPEN_ROWS, ROW_VIEW_TYPES, TIMELINE_ZOOMS, VIEW_TYPES } from "@/lib/views";
@@ -76,7 +66,6 @@ import { uploadLimits } from "@/server/storage";
 import { blockTypeFor, fileIdOf, fileUrl, formatBytes } from "@/lib/files";
 import { isPageLocked, PAGE_LOCKED_MESSAGE } from "@/lib/page-lock";
 import * as forms from "@/server/forms";
-import { labelPageLinks } from "@/server/mentions";
 import * as notifications from "@/server/notifications";
 import * as pages from "@/server/pages";
 import * as personalMemory from "@/server/ai-memory";
@@ -106,7 +95,7 @@ import { dashboardsIn, describeWidgets } from "./dashboards";
 import * as workspaces from "@/server/workspaces";
 import * as ops from "@/server/operations";
 import * as skills from "@/server/skills";
-import { filterCombinatorInput, filtersInput, id, rowValue, sortsInput } from "@/server/operations";
+import { filterCombinatorInput, filtersInput, id, sortsInput } from "@/server/operations";
 import { idsFromLinks, jsonResult, MAX_MARKDOWN_CHARS, pageUrl, runTool, sliceText, ToolInputError, toolErrorFor } from "./format";
 import * as automations from "@/server/automations/manage";
 import * as agents from "@/server/agents/manage";
@@ -136,6 +125,7 @@ import {
   withAgentErrors,
   withSharingErrors,
 } from "./agents";
+import { applyFormLink, formConfigPatch, formInputs, requireProperty, type FormInput } from "./form-settings";
 import { describeMemory, memoryInputs, requireMemoryOn, withMemoryErrors } from "./memory";
 import { describeWorkspaceCheck } from "./workspace-check";
 import { checkWorkspace } from "@/server/workspace-check";
@@ -186,7 +176,7 @@ import {
 } from "./query";
 
 const INSTRUCTIONS = `Leafdesk is a workspace of pages and databases. Each user belongs to one or more workspaces.
-Pages form a tree inside a workspace. A database is a special page whose children are rows; rows are pages with typed properties (text, number, select, multi_select, status, date, checkbox, url, email, phone, checklist, files, relation, person, created_by, created_time, last_edited_by, last_edited_time, formula, rollup). A relation links rows to rows of another database in the same workspace; two-way relations show the links on both databases. A person property assigns rows to people of the workspace; "me" stands for the signed-in user. A status is a select whose options belong to the groups todo, in_progress and done. A property may have a description saying what it holds and how to fill it (see get_database): follow it when writing values. A select may depend on another select ("City" on "Country"): a row may hold only the options that go with its value of that one. A checklist holds items that can be ticked off. A files property holds files uploaded to the workspace (images show as thumbnails); its values read as [{name, url}]. created_by, created_time, last_edited_by and last_edited_time show who created or last edited each row and when; they are filled in automatically and can't be written. A formula property computes its value from the row's other properties, and a rollup calculates over the rows a relation links to (see add_database_property); neither can be written. A number property's number_format (see get_database), which a formula giving a number can have too, only changes how the app shows it: a percent property holds fractions (0.15 is 15%) and filters on it compare percent points (15). A date property holds a day (YYYY-MM-DD), a time (an ISO timestamp, returned in UTC: 2026-10-12T11:30:00.000Z), or a range of either written \"start/end\" (2026-10-12/2026-10-14; start and end both days or both times, the end not before the start). Write times with Z or an offset (2026-10-12T14:30+03:00); {\"start\", \"end\"} objects are accepted too. Its date_options can show it relatively and remind the row's people before it (a range: before its start; a time: at its time of day).
+Pages form a tree inside a workspace. A database is a special page whose children are rows; rows are pages with typed properties (text, number, select, multi_select, status, date, checkbox, url, email, phone, checklist, files, place, relation, person, created_by, created_time, last_edited_by, last_edited_time, formula, rollup). A relation links rows to rows of another database in the same workspace; two-way relations show the links on both databases. A person property assigns rows to people of the workspace; "me" stands for the signed-in user. A status is a select whose options belong to the groups todo, in_progress and done. A property may have a description saying what it holds and how to fill it (see get_database): follow it when writing values. A select may depend on another select ("City" on "Country"): a row may hold only the options that go with its value of that one. A checklist holds items that can be ticked off. A place holds where something is, read as {address, name?, lat, lng}; write an address to look up, coordinates ("41.04, 29.01") or {lat, lng, address?, name?}. A files property holds files uploaded to the workspace (images show as thumbnails); its values read as [{name, url}]. created_by, created_time, last_edited_by and last_edited_time show who created or last edited each row and when; they are filled in automatically and can't be written. A formula property computes its value from the row's other properties, and a rollup calculates over the rows a relation links to (see add_database_property); neither can be written. A number property's number_format (see get_database), which a formula giving a number can have too, only changes how the app shows it: a percent property holds fractions (0.15 is 15%) and filters on it compare percent points (15). A date property holds a day (YYYY-MM-DD), a time (an ISO timestamp, returned in UTC: 2026-10-12T11:30:00.000Z), or a range of either written \"start/end\" (2026-10-12/2026-10-14; start and end both days or both times, the end not before the start). Write times with Z or an offset (2026-10-12T14:30+03:00); {\"start\", \"end\"} objects are accepted too. Its date_options can show it relatively and remind the row's people before it (a range: before its start; a time: at its time of day).
 Start with list_workspaces or search to find ids, then get_page / list_pages / query_database. Wherever a tool takes an id (workspace_id, page_id, database_id, row_id, parent_id, view_id…), a Leafdesk link the user pasted works too (\`https://…/w/<workspace_id>/p/<page_id>\`, a view's link has \`?view=<view_id>\`).
 Teamspaces group a workspace's pages and people (list_teamspaces). A teamspace is default (everyone is in it), open (anyone can join; others can read), closed (only its members open its pages) or private (only its members know it). Its member_access is what its members get on its pages unless a page is shared otherwise (its owners and workspace owners get full access). A top-level page belongs to a teamspace, or is private to the user who made it; pages under it follow it. create_page, create_database and move_page take a teamspace_id for top-level pages ("private" for the user's private pages); without one, new top-level pages are private. Member groups (list_groups) are named sets of owners and members that pages are shared with and teamspaces joined by; someone gets the highest access they have from anywhere (their own, a group, the teamspace).
 Page bodies are read and written as Markdown. Before every content change Leafdesk saves a history snapshot, so the user can undo your edits from the page history (list_page_history / diff_page_version / restore_page_version).
@@ -194,7 +184,7 @@ Beyond plain Markdown, page bodies know a few block forms: a callout is a GitHub
 Mentions: a link to a page of this app (\`[Roadmap](/w/<workspace_id>/p/<page_id>)\`) is a page mention, which shows the page's live title (the link text you write is ignored; get_page shows the current title, or "No access" / "Deleted page"), and \`#block-<block_id>\` after it mentions one block of the page (get_page with with_block_ids shows the ids), which opens the page there; \`[[Page title]]\` also becomes a mention of the page of that title in the page's workspace when you can open one (otherwise it stays text); that link alone on its line followed by \`<!-- leafdesk:page-link -->\` is a "Link to page" block, and followed by \`<!-- leafdesk:synced-page -->\` a synced page (the page's body shown live inside this one; its text is not part of this page's Markdown, read the page itself for it). \`@Name\` with a person's name as list_users shows it mentions them (they are notified if they can open the page), and \`@YYYY-MM-DD\` is a date. Keep mentions as they are when you rewrite a page: people aren't notified twice and reminders set on dates stay. get_page lists the pages linking to a page under linked_from, with the text around the first link (context) when there is any, and around each link (contexts) when a page links more than once; linked_from_truncated says how many pages link there when not all are listed.
 check_workspace looks a workspace over for what is worth tidying (broken links, pages nothing links to, empty and long untouched pages, likely duplicates, relations to deleted rows); it changes nothing, so ask the user before fixing what it finds.
 People discuss pages in comment threads anchored to text of the page: list_comments reads them, add_comment starts a thread on quoted text or replies to one.
-list_notifications shows the user's inbox: changes agents proposed for their review, pages shared with them, new comments in their threads, mentions of them, reminders they set on dates or that date properties send them, what database automations told them, what others changed in database rows they follow, edits by others to pages they watch, requests for access to pages they can share and, for owners, requests to join their workspaces.
+list_notifications shows the user's inbox: changes agents proposed for their review, pages shared with them, new comments in their threads, reactions to their comments, mentions of them, reminders they set on dates or that date properties send them, what database automations told them, what others changed in database rows they follow, edits by others to pages they watch, requests for access to pages they can share and, for owners, requests to join their workspaces.
 attach_file adds an image, video, audio or other file to a page, from a URL or base64 data, or (with property) to a row's files property. Files in page bodies show up in the Markdown with paths like /api/files/<id>; get_file reads one (text files and PDFs as text, images as images), as do the urls of a files property.
 duplicate_page copies a page with everything under it beside the original. list_pages with favorites true lists the pages the user starred; get_page says whether a page is starred.
 A page is live, archived or in the trash. Archived pages (set_page_archived) are out of date but kept, such as an old price list or a superseded offer; the pages under one, and the rows of an archived database, count as archived with it. They stay readable and editable by id or link, but search, list_pages and query_database leave them out unless include_archived is true (results then mark them archived: true), and get_page says archived. The trash is something else: archive_page moves a page to the trash, list_trash and restore_page bring it back.
@@ -269,13 +259,6 @@ function withNumberFormat(options: PropertyDef["options"], input: NumberFormat |
   const { number: _old, ...rest } = options;
   const checked = checkNumberFormat(input);
   return checked.ok && checked.format ? { ...rest, number: checked.format } : rest;
-}
-
-/** Resolves a property by name or id; title / created_at / updated_at are not editable properties. */
-function requireProperty<P extends PropertyDef>(props: P[], ref: string): P {
-  const { prop } = resolvePropertyKey(props, ref);
-  if (!prop) throw new ToolInputError(`"${ref}" is a built-in field, not a database property.`);
-  return prop as P;
 }
 
 /** The relation a rollup reads through, for loading what describes it. */
@@ -421,6 +404,7 @@ const viewLayoutInputs = {
     .describe('Calendar only: a month of days or a week with its hours ("month" by default). Both show rows over every day their date covers.'),
   show_table: z.boolean().optional().describe("Timeline only: show row titles in a table left of the bars (true by default)."),
   card_size: z.enum(CARD_SIZES).optional().describe('Gallery only: card size (default "medium").'),
+  place_by: z.string().optional().describe("Map only: the place property of the pins."),
   cover: z
     .string()
     .min(1)
@@ -477,7 +461,34 @@ const viewLayoutInputs = {
     ),
 };
 
+/** A view's color rules (update_database_view: a new view gets them right after it is made). */
+const colorRulesInput = z
+  .array(
+    z.object({
+      color: z.enum(SELECT_COLORS),
+      property: z.string().min(1).optional().describe('Property or "title" to color; omit for the row.'),
+      // Checked against filtersInput when used: spelling the filter schema out again here would
+      // cost every client's model its size twice more.
+      filters: z.array(z.object({}).loose()).describe("As filters."),
+      filter_combinator: z.enum(FILTER_COMBINATORS).optional(),
+    }),
+  )
+  .max(MAX_COLOR_RULES)
+  .describe(
+    "Color rules in order; per target (row or property) the first match wins. Replaces current ones.",
+  );
+
+type ColorRuleInput = { color: (typeof SELECT_COLORS)[number]; property?: string; filters: unknown[]; filter_combinator?: FilterCombinator };
+
+/** A color rule's filters, checked as a view's filters are. */
+function colorRuleFilters(filters: unknown[]): FilterEntryInput[] {
+  const parsed = filtersInput.safeParse(filters);
+  if (!parsed.success) throw new ToolInputError(`A color rule's filters: ${parsed.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join("; ")}`);
+  return parsed.data as FilterEntryInput[];
+}
+
 type ViewInput = {
+  color_rules?: ColorRuleInput[];
   group_by?: string | null;
   group_date_by?: (typeof GROUP_DATE_BY)[number];
   group_status_by?: "option" | "group";
@@ -488,6 +499,7 @@ type ViewInput = {
   calendar_mode?: CalendarMode;
   show_table?: boolean;
   card_size?: CardSize;
+  place_by?: string;
   /** "first_image", "none" or a files property's name. */
   cover?: string;
   chart_type?: ChartType;
@@ -554,7 +566,7 @@ const viewWidgetsInput = z
   .array(
     z.object({
       id: z.string().min(1).optional().describe("A widget the view has (get_database lists them): keeps its settings you leave out."),
-      type: WIDGET_TYPE.optional().describe('"chart" (a number with chart_type "number"), "list", "table", "board", "calendar", "gallery" or "timeline". New widgets are charts.'),
+      type: WIDGET_TYPE.optional().describe('"chart" (a number with chart_type "number"), "list", "table", "board", "calendar", "gallery", "timeline" or "map". New widgets are charts.'),
       ...widgetInputs,
       title: z.string().max(MAX_WIDGET_TITLE).optional().describe("Shown above the widget; empty to name it after what it shows."),
     }),
@@ -589,7 +601,7 @@ function viewConfigPatch(
   };
   const grouped = type === "board" || type === "table" || type === "chart";
   if (input.group_by !== undefined) {
-    only("group_by", "board", "table", "timeline", "chart");
+    only("group_by", "board", "table", "timeline", "map", "chart");
     if (input.group_by === null) {
       if (type === "board") throw new ToolInputError("Boards always group their cards; pass a property to group by.");
       if (type === "chart") throw new ToolInputError("Charts always group their rows; pass a property to group by.");
@@ -600,6 +612,9 @@ function viewConfigPatch(
         throw new ToolInputError(
           `Views group by a select, status, multi_select, person, created_by, last_edited_by, checkbox, date, created_time, last_edited_time or relation property; "${prop.name}" is ${prop.type}.`,
         );
+      }
+      if (type === "map" && prop.type !== "select" && prop.type !== "status") {
+        throw new ToolInputError(`Maps color their pins by a select or status property; "${prop.name}" is ${prop.type}.`);
       }
       patch.groupBy = prop.id;
       if (input.group_date_by && prop.type !== "date" && !holdsTimestamp(prop.type)) {
@@ -651,6 +666,12 @@ function viewConfigPatch(
     only("show_table", "timeline");
     patch.showTable = input.show_table;
   }
+  if (input.place_by !== undefined) {
+    only("place_by", "map");
+    const prop = requireProperty(props, input.place_by);
+    if (prop.type !== "place") throw new ToolInputError(`Maps place rows by a place property; "${prop.name}" is ${prop.type}.`);
+    patch.placeBy = prop.id;
+  }
   if (input.card_size !== undefined) {
     only("card_size", "gallery");
     patch.cardSize = input.card_size;
@@ -686,6 +707,24 @@ function viewConfigPatch(
     patch.filterCombinator = input.filter_combinator === "or" ? "or" : undefined;
   }
   if (input.sorts) patch.sorts = input.sorts.map((s) => toSortRule(props, s));
+  if (input.color_rules !== undefined) {
+    only("color_rules", ...ROW_VIEW_TYPES);
+    const rules: ColorRule[] = [];
+    for (const rule of input.color_rules) {
+      const target = rule.property === undefined ? undefined : resolvePropertyKey(props, rule.property);
+      if (target && !target.prop && target.key !== "title") {
+        throw new ToolInputError(`A color rule colors the whole row, "title" or a property; "${rule.property}" is a built-in field.`);
+      }
+      rules.push({
+        id: newColorRuleId(rules),
+        color: rule.color,
+        ...(target ? { propertyId: target.key } : {}),
+        filters: toFilterEntries(props, colorRuleFilters(rule.filters), lookups),
+        ...(rule.filter_combinator === "or" ? { filterCombinator: "or" as const } : {}),
+      });
+    }
+    patch.colorRules = rules.length ? rules : undefined;
+  }
   return patch;
 }
 
@@ -780,133 +819,6 @@ function chartConfigPatch(props: PropertyDef[], input: ViewInput, current: ViewC
     }
   }
   return patch;
-}
-
-/** Form settings, shared by create_database_view and update_database_view. */
-const formInputs = {
-  questions: z
-    .array(
-      z.object({
-        property: z.string().min(1).describe('Property name or id, or "title" for the row\'s name.'),
-        required: z.boolean().optional().describe("The form can't be sent without an answer (for a checkbox: a tick)."),
-        label: z.string().max(MAX_QUESTION_LABEL).optional().describe("Question text shown instead of the property name."),
-        description: z.string().max(MAX_QUESTION_DESCRIPTION).optional().describe("Help text under the question."),
-      }),
-    )
-    .max(MAX_FORM_QUESTIONS)
-    .optional()
-    .describe(
-      'Form only: the questions, in order; replaces the current ones. A new form asks for the title (required) and every property a form can ask for. created_by, created_time, last_edited_by, last_edited_time, formula and rollup properties can\'t be asked; relation and person questions are asked in the app only, never on the public link.',
-    ),
-  form_title: z.string().max(MAX_FORM_TITLE).optional().describe("Form only: heading of the form (the database title when empty)."),
-  form_description: z.string().max(MAX_FORM_DESCRIPTION).optional().describe("Form only: text under the heading."),
-  confirmation_message: z
-    .string()
-    .max(MAX_CONFIRMATION)
-    .optional()
-    .describe("Form only: shown after an answer is sent (a generic thank-you when empty)."),
-  allow_another: z.boolean().optional().describe("Form only: offer to send another answer after one is sent (true by default)."),
-  defaults: z
-    .record(z.string(), rowValue)
-    .optional()
-    .describe(
-      'Form only: values every row sent through the form gets for properties it doesn\'t ask, keyed by property name or id, in the same form as row values; replaces the current ones. Example: {"Status": "New"}.',
-    ),
-  public: z
-    .boolean()
-    .optional()
-    .describe(
-      "Form only: true opens the form to anyone with the link (needs full access to the database and a workspace that lets the user publish); false turns the link off. Turning it on again makes a new link.",
-    ),
-  anonymous: z
-    .boolean()
-    .optional()
-    .describe(
-      "Form with a public link: true takes answers without signing in and records nobody as creator; false (the default) asks people to sign in and records them.",
-    ),
-};
-
-type FormInput = {
-  questions?: { property: string; required?: boolean; label?: string; description?: string }[];
-  form_title?: string;
-  form_description?: string;
-  confirmation_message?: string;
-  allow_another?: boolean;
-  defaults?: Record<string, unknown>;
-  public?: boolean;
-  anonymous?: boolean;
-};
-
-const FORM_SETTINGS = [
-  "questions",
-  "form_title",
-  "form_description",
-  "confirmation_message",
-  "allow_another",
-  "defaults",
-  "public",
-  "anonymous",
-] as const;
-
-/** The form settings the caller asked to change, merged into the view's form. Names become ids. */
-function formConfigPatch(props: PropertyDef[], type: ViewType, current: ViewConfig, input: FormInput): ViewConfig {
-  const given = FORM_SETTINGS.filter((key) => input[key] !== undefined);
-  if (!given.length) return {};
-  if (type !== "form") throw new ToolInputError(`${given.join(", ")} only apply to form views.`);
-  const form = { ...current.form };
-  if (input.questions) {
-    const seen = new Set<string>();
-    form.questions = input.questions.map((q) => {
-      const { key, prop } = resolvePropertyKey(props, q.property);
-      if (!prop && key !== FORM_TITLE) throw new ToolInputError(`"${q.property}" can't be asked in a form.`);
-      if (prop && !isAskable(prop.type)) throw new ToolInputError(`"${prop.name}" is ${prop.type}, which a form can't ask for.`);
-      if (seen.has(key)) throw new ToolInputError(`"${q.property}" is asked twice.`);
-      seen.add(key);
-      return {
-        propertyId: key,
-        ...(q.required ? { required: true } : {}),
-        ...(q.label?.trim() ? { label: q.label.trim() } : {}),
-        ...(q.description?.trim() ? { description: q.description.trim() } : {}),
-      };
-    });
-  }
-  if (input.form_title !== undefined) form.title = input.form_title.trim() || undefined;
-  if (input.form_description !== undefined) form.description = input.form_description.trim() || undefined;
-  if (input.confirmation_message !== undefined) form.confirmation = input.confirmation_message.trim() || undefined;
-  if (input.allow_another !== undefined) form.allowAnother = input.allow_another ? undefined : false;
-  if (input.defaults) {
-    const asked = new Set((form.questions ?? []).map((q) => q.propertyId));
-    const entries = Object.entries(input.defaults);
-    if (entries.length > MAX_FORM_DEFAULTS) throw new ToolInputError(`A form can set at most ${MAX_FORM_DEFAULTS} default values.`);
-    // Values stay as given (option names, emails, "me"…): updateView checks and stores them as ids.
-    form.defaults = Object.fromEntries(
-      entries.map(([ref, value]) => {
-        const prop = requireProperty(props, ref);
-        if (!canDefault(prop.type)) throw new ToolInputError(`"${prop.name}" is ${prop.type}; it can't have a default value.`);
-        if (asked.has(prop.id)) throw new ToolInputError(`"${prop.name}" is a question; its answer is what the row gets.`);
-        return [prop.id, value];
-      }),
-    );
-  }
-  return { form };
-}
-
-/** Opens or closes a form's public link as asked; returns the link, if any. */
-async function applyFormLink(userId: string, viewId: string, input: FormInput) {
-  try {
-    if (input.public === false) {
-      if (input.anonymous !== undefined) throw new ToolInputError("anonymous only applies while the form has a public link.");
-      await forms.unpublishForm(userId, viewId);
-    } else if (input.public || input.anonymous !== undefined) {
-      const current = (await forms.formPublicationsOf([viewId])).get(viewId);
-      if (!input.public && !current) throw new ToolInputError("anonymous only applies while the form has a public link; pass public: true.");
-      await forms.publishForm(userId, viewId, { anonymous: input.anonymous ?? current?.anonymous ?? false });
-    }
-  } catch (error) {
-    if (error instanceof forms.FormError) throw new ToolInputError(`${error.message}.`);
-    throw error;
-  }
-  return (await forms.formPublicationsOf([viewId])).get(viewId) ?? null;
 }
 
 /** Refuses settings a dashboard view doesn't have: it shows its widgets, each with its own settings. */
@@ -1235,6 +1147,8 @@ export function createMcpServer(principal: McpPrincipal) {
                             ? `The follow-up "${n.followUp?.sequence ?? ""}" on "${title}" in ${pageLabel(n.databaseTitle)} is paused: its next email didn't pass the check (list_enrollments shows what it found; fix the row or the sequence, then resume it in the app)`
                           : n.kind === "row_email"
                             ? `Email from ${n.rowEmail?.from ?? "someone"} came in on "${title}" in ${pageLabel(n.databaseTitle)}`
+                          : n.kind === "reaction"
+                            ? `${n.reaction?.people.map((p) => p.name).join(", ") || who} reacted ${n.reaction?.emojis.join(" ") ?? ""} to the user's comment on "${title}" (see list_comments)`
                           : n.kind === "automation"
                             ? n.automationMessage
                               ? `Automation "${n.automationName ?? ""}" about "${title}": ${n.automationMessage}`
@@ -1250,6 +1164,7 @@ export function createMcpServer(principal: McpPrincipal) {
                 ? { database: pageLabel(n.databaseTitle), automation: n.automationName, ...(n.automationMessage ? { message: n.automationMessage } : {}) }
                 : {}),
               ...(n.kind === "reminder" ? { date: n.reminderDate } : {}),
+              ...(n.kind === "reaction" && n.reaction ? { thread_id: n.threadId, comment_id: n.reaction.commentId, comment: n.reaction.excerpt } : {}),
               ...(n.kind === "row_email" && n.rowEmail ? { database: pageLabel(n.databaseTitle), email: { from: n.rowEmail.from, subject: n.rowEmail.subject } } : {}),
               ...(n.kind === "row_update" && n.rowUpdate
                 ? {
@@ -2145,7 +2060,7 @@ export function createMcpServer(principal: McpPrincipal) {
     "change_database_property_type",
     {
       title: "Change a database property's type",
-      description: `Change the type of a property (column) and convert its value in every row, trashed rows and row templates included. Values keep their meaning where they can: select, multi_select and status keep their options; text becomes options (one per distinct value; multi_select splits at commas), numbers, dates (one format for the whole column), checkboxes (yes/no words), links, emails, phone numbers, people (by name or email) and relation links (by exact row title); options, people and linked rows become their names as text; formulas and rollups keep what they show now. Values that can't convert are cleared, as are all values when the new type fills itself in (formula, rollup, created_by, created_time, last_edited_by, last_edited_time) and files turned into anything else. Views drop their filters on the property and what the new type can't have. Run it with dry_run first and confirm with the user when cleared is not 0. For a relation, pass related_database_id (and two_way, paired_property_name); for a formula, formula; for a rollup, rollup, as for add_database_property. A property with access rules can't become a relation or a type that fills itself in. ${FORMULA_HELP} ${ROLLUP_HELP}`,
+      description: `Change the type of a property (column) and convert its value in every row, trashed rows and row templates included. Values keep their meaning where they can: select, multi_select and status keep their options; text becomes options (one per distinct value; multi_select splits at commas), numbers, dates (one format for the whole column), checkboxes (yes/no words), links, emails, phone numbers, people (by name or email) and relation links (by exact row title); options, people and linked rows become their names as text; formulas and rollups keep what they show now. Values that can't convert are cleared, as are all values when the new type fills itself in (formula, rollup, created_by, created_time, last_edited_by, last_edited_time) and files turned into anything else. Views drop their filters on the property and what the new type can't have. Run it with dry_run first and confirm with the user when cleared is not 0. For a relation, pass related_database_id (and two_way, paired_property_name); for a formula, formula; for a rollup, rollup, as for add_database_property (whose description has the formula syntax and the rollup functions). A property with access rules can't become a relation or a type that fills itself in.`,
       inputSchema: z.object({
         database_id: id("database"),
         property: z.string().min(1).describe("Current property name or id."),
@@ -2984,7 +2899,7 @@ export function createMcpServer(principal: McpPrincipal) {
     {
       title: "Create a database view",
       description:
-        'Add a saved view to a database: a "table" (optionally grouped into collapsible sections with group_by), a "board" (cards in columns by group_by), a "calendar" (rows placed on the days of a date property, across every day of a range and at their times in the week mode; see calendar_mode), a "gallery" (cards with a cover: the first image in each row\'s body, or in a files property with cover), a "list" (one compact line per row), a "timeline" (bars from a start date to an optional end date, optionally in swimlanes by group_by), a "chart" (see chart_type), a "dashboard" (a grid of widgets over the database: numbers, charts, lists and other views, each with its own settings; see widgets. Without widgets it starts with the row count, the sum of the first number property, a chart by the first select or status property and the rows edited last) or a "form" (questions people answer to add a row; see questions, defaults and public). Views group by a select, status (per option, or per todo / in_progress / done with group_status_by "group"), multi_select, person, created_by, last_edited_by, checkbox (unchecked / checked), date, created_time or last_edited_time (per day, week from Monday, month or year with group_date_by, month by default) or relation (one group per linked row); a row with several tags, people or links shows in each of their groups. Filters (with groups and filter_combinator) and sorts use the same form as query_database; a person filter on "me" shows everyone who opens the view their own rows, and is_within date filters count from the day the view is opened.',
+        'Add a saved view to a database: a "table" (optionally grouped into collapsible sections with group_by), a "board" (cards in columns by group_by), a "calendar" (rows placed on the days of a date property, across every day of a range and at their times in the week mode; see calendar_mode), a "gallery" (cards with a cover: the first image in each row\'s body, or in a files property with cover), a "list" (one compact line per row), a "timeline" (bars from a start date to an optional end date, optionally in swimlanes by group_by), a "map" (pins at a place property; group_by a select colors them), a "chart" (see chart_type), a "dashboard" (a grid of widgets over the database: numbers, charts, lists and other views, each with its own settings; see widgets. Without widgets it starts with the row count, the sum of the first number property, a chart by the first select or status property and the rows edited last) or a "form" (questions people answer to add a row; see questions, defaults and public). Views group by a select, status (per option, or per todo / in_progress / done with group_status_by "group"), multi_select, person, created_by, last_edited_by, checkbox (unchecked / checked), date, created_time or last_edited_time (per day, week from Monday, month or year with group_date_by, month by default) or relation (one group per linked row); a row with several tags, people or links shows in each of their groups. Filters (with groups and filter_combinator) and sorts use the same form as query_database; a person filter on "me" shows everyone who opens the view their own rows, and is_within date filters count from the day the view is opened.',
       inputSchema: z.object({
         database_id: id("database"),
         name: z.string().min(1).max(100).describe("View name."),
@@ -2993,7 +2908,7 @@ export function createMcpServer(principal: McpPrincipal) {
           .string()
           .optional()
           .describe(
-            "Board, table or timeline: the property to group rows by. Boards default to the first select or status property; tables are not grouped and timelines have no swimlanes unless given.",
+            "Board, table, timeline or map (pin colors): the property to group rows by. Boards default to the first select or status property; the others are not grouped unless given.",
           ),
         ...groupSettingsInput,
         date_by: z
@@ -3062,7 +2977,7 @@ export function createMcpServer(principal: McpPrincipal) {
           .string()
           .nullable()
           .optional()
-          .describe("Board, table or timeline: the property to group rows by; null removes a table's grouping or a timeline's swimlanes."),
+          .describe("Board, table, timeline or map: the property to group rows by; null removes a table's grouping, a timeline's swimlanes or a map's colors."),
         ...groupSettingsInput,
         date_by: z
           .string()
@@ -3073,6 +2988,7 @@ export function createMcpServer(principal: McpPrincipal) {
         filters: filtersInput.optional(),
         filter_combinator: filterCombinatorInput,
         sorts: sortsInput.optional(),
+        color_rules: colorRulesInput.optional(),
         widgets: viewWidgetsInput.optional(),
       }),
       annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: false },
@@ -3233,7 +3149,7 @@ export function createMcpServer(principal: McpPrincipal) {
         before_widget_id: z.string().min(1).optional().describe("Put the widget right before this one."),
         after_widget_id: z.string().min(1).optional().describe("Put the widget right after this one."),
         database_id: id("database").optional().describe("The database the widget shows: needed for a new widget."),
-        type: WIDGET_TYPE.optional().describe('The widget\'s layout: "chart" (a number with chart_type "number"), "list", "table", "board", "calendar", "gallery" or "timeline". New widgets are charts.'),
+        type: WIDGET_TYPE.optional().describe('The widget\'s layout: "chart" (a number with chart_type "number"), "list", "table", "board", "calendar", "gallery", "timeline" or "map". New widgets are charts.'),
         ...widgetInputs,
       }),
       annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false },
@@ -3590,20 +3506,7 @@ export function createMcpServer(principal: McpPrincipal) {
       inputSchema: z.object({ page_id: id("page") }),
       annotations: READ,
     },
-    ({ page_id }) =>
-      runTool(async () => {
-        const snapshots = await pages.listSnapshots(userId, page_id);
-        return {
-          page_id,
-          versions: snapshots.map((s) => ({
-            id: s.id,
-            title: pageLabel(s.title),
-            saved_at: new Date(s.createdAt).toISOString(),
-            reason: s.reason,
-            by: s.clientName ? `${s.authorName ?? "Unknown"} via ${s.clientName}` : (s.authorName ?? null),
-          })),
-        };
-      }),
+    (args) => runTool(() => ops.listPageHistory(ctx, args)),
   );
 
   server.registerTool(
@@ -3629,21 +3532,7 @@ export function createMcpServer(principal: McpPrincipal) {
       }),
       annotations: READ,
     },
-    ({ version_id, offset }) =>
-      runTool(async () => {
-        const snap = await pages.getSnapshot(userId, version_id);
-        const body = sliceText(await labelPageLinks(userId, snap.contentMarkdown), offset);
-        return {
-          id: snap.id,
-          page_id: snap.pageId,
-          title: pageLabel(snap.title),
-          saved_at: new Date(snap.createdAt).toISOString(),
-          markdown: body.text,
-          ...(body.truncated
-            ? { markdown_truncated: true, markdown_total_chars: body.totalChars, ...("note" in body ? { note: body.note } : {}) }
-            : {}),
-        };
-      }),
+    (args) => runTool(() => ops.getPageVersion(ctx, args)),
   );
 
   server.registerTool(
@@ -3662,25 +3551,7 @@ export function createMcpServer(principal: McpPrincipal) {
       }),
       annotations: READ,
     },
-    ({ version_id, against, offset }) =>
-      runTool(async () => {
-        const { diffSnapshot } = await import("@/server/page-history");
-        const diff = await diffSnapshot(userId, version_id, against);
-        if (!diff) return { version_id, against, note: "This is the oldest saved version; there is nothing earlier to compare it with." };
-        const changed = diff.title !== null || diff.changes.some((c) => c.op !== "same");
-        const body = sliceText(changed ? diffToText(diff.changes) : "", offset);
-        return {
-          from: diff.fromId,
-          to: diff.toId ?? "current",
-          changed,
-          ...(diff.title ? { title: wordsToText(diff.title) } : {}),
-          changed_by: diff.actors.map((a) => (a.client ? `${a.name ?? "Unknown"} via ${a.client}` : a.name)),
-          diff: body.text,
-          ...(body.truncated
-            ? { diff_truncated: true, diff_total_chars: body.totalChars, ...("note" in body ? { note: body.note } : {}) }
-            : {}),
-        };
-      }),
+    (args) => runTool(() => ops.diffPageVersion(ctx, args)),
   );
 
   server.registerTool(
@@ -3688,7 +3559,7 @@ export function createMcpServer(principal: McpPrincipal) {
     {
       title: "List comments on a page",
       description:
-        "List a page's comment threads, oldest first: the text each thread is about (quote; null when that text was deleted, or for a thread about the whole page, marked about_page), whether it's resolved, and its comments with author, time and text. Resolved threads are left out unless include_resolved is true.",
+        "List a page's comment threads, oldest first: the text each thread is about (quote; null when that text was deleted, or for a thread about the whole page, marked about_page), whether it's resolved, marked: true when the user marked it to come back to later, and its comments with author, time and text. Resolved threads are left out unless include_resolved is true.",
       inputSchema: ops.inputs.listComments,
       annotations: READ,
     },

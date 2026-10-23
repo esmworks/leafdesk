@@ -19,7 +19,8 @@
     "security": "Segurança",
     "audit": "Registro de auditoria",
     "site": "Site",
-    "snippets": "Trechos"
+    "snippets": "Trechos",
+    "pdf": "Modelos de PDF"
   },
   "workspace": {
     "heading": "Espaço de trabalho",
@@ -907,6 +908,14 @@
     "detailHeading": "{month} por recurso e modelo",
     "ownAccountShare": "A conta de IA própria do espaço de trabalho pagou {cost} deste valor.",
     "empty": "Nenhum pedido de IA neste mês.",
+    "peopleHeading": "{month} por pessoa",
+    "peopleDescription": "Quem usou a IA do espaço de trabalho, do maior para o menor custo: pessoas e agentes, cada um com os recursos que mais usou. As solicitações são contadas por pessoa a partir da atualização do Leafdesk que adicionou esta lista; as anteriores estão só nos totais.",
+    "people": {
+      "agent": "Agente",
+      "nobody": "Trabalho em segundo plano",
+      "unknown": "Conta removida",
+      "uncounted": "Antes da contagem por pessoa"
+    },
     "cacheTitle": "Lido da cache de prompts: {read} · Escrito nela: {write}",
     "columns": {
       "month": "Mês",
@@ -917,12 +926,16 @@
       "output": "Saída",
       "cost": "Custo",
       "feature": "Recurso",
-      "model": "Modelo"
+      "model": "Modelo",
+      "person": "Pessoa",
+      "share": "Parcela",
+      "mostUsed": "Mais usado para"
     },
     "groups": {
       "chat": "Chat de IA",
       "writing": "Assistente de escrita",
       "properties": "Preenchimento com IA",
+      "formulas": "Fórmulas",
       "agents": "Agentes",
       "search": "Pesquisa semântica",
       "voice": "Notas de voz",
@@ -1086,7 +1099,12 @@
     "workspaceDeleted": "Alguém excluiu este espaço de trabalho nesse meio-tempo.",
     "storageNoDestination": "Os arquivos deste espaço de trabalho estão no seu armazenamento, e não há para onde movê-los quando você sair: nenhum outro proprietário tem um armazenamento padrão, e o armazenamento deste servidor não pode recebê-los. Peça a um proprietário que configure um armazenamento ou mova os arquivos primeiro (Configurações > Armazenamento).",
     "storageMoveInProgress": "Os arquivos deste espaço de trabalho estão sendo movidos para o seu armazenamento. Aguarde até terminar e depois saia.",
-    "invalidCalloutStyle": "Não foi possível salvar um estilo de destaque: verifique a chave, o nome e o ícone."
+    "invalidCalloutStyle": "Não foi possível salvar um estilo de destaque: verifique a chave, o nome e o ícone.",
+    "invalidNetwork": "{detail} não é um endereço IP nem um intervalo. Digite um endereço como 203.0.113.7 ou 2001:db8::1, ou um intervalo como 203.0.113.0/24.",
+    "invalidNetworkLabel": "O rótulo de {detail} é longo demais: no máximo 100 caracteres.",
+    "tooManyNetworks": "Um espaço de trabalho pode ter no máximo 100 redes aprovadas.",
+    "ipLocksYouOut": "Esta lista não inclui seu endereço atual, {detail}; salvá-la deixaria você fora do espaço de trabalho. Adicione antes seu endereço ou um intervalo que o inclua.",
+    "ipUnknown": "O servidor não vê seu endereço, então não consegue garantir que esta lista deixa você entrar. Salve-a de uma conexão cujo endereço o servidor vê, ou esvazie a lista."
   },
   "security": {
     "description": "Decida como as pessoas entram, quem pode trazer pessoas para este espaço de trabalho, o que os convidados podem fazer, o que pode sair dele (exportações, apps conectados) e quem pode publicar páginas na web. Só proprietários podem alterar estas configurações.",
@@ -1348,6 +1366,25 @@
       "error": "Não foi possível desconectá-lo. Tente novamente.",
       "gone": "Ele já está desconectado ou não acessa mais este espaço de trabalho.",
       "shown": "Mostrando os {shown} usados aqui mais recentemente de {total}."
+    },
+    "allowedNetworks": {
+      "title": "Redes aprovadas",
+      "description": "Permita abrir este espaço de trabalho só a partir destes endereços e intervalos IP, como seu escritório ou sua VPN: IPv4 ou IPv6, um endereço único (203.0.113.7) ou um intervalo CIDR (203.0.113.0/24). Vale para todos no espaço de trabalho, inclusive proprietários e convidados. Deixe a lista vazia para permitir qualquer rede.",
+      "appsNote": "Apps conectados por MCP, tokens da API REST e tokens SCIM não estão sujeitos a ela: seguem a configuração “Apps conectados e tokens de API”.",
+      "range": "Endereço ou intervalo",
+      "label": "Rótulo",
+      "rangePlaceholder": "203.0.113.0/24",
+      "labelPlaceholder": "Escritório (opcional)",
+      "add": "Adicionar rede",
+      "addMine": "Adicionar meu endereço ({ip})",
+      "remove": "Remover {range}",
+      "removeRow": "Remover linha",
+      "empty": "Nenhuma rede aprovada: o espaço de trabalho abre de qualquer rede.",
+      "addressUnknown": "O servidor não vê seu endereço, então não é possível salvar uma lista por esta conexão.",
+      "yourAddressOnList": "Seu endereço, {ip}, está na lista.",
+      "yourAddressMissing": "Seu endereço, {ip}, não está na lista: salvá-la deixaria você de fora, então adicione-o primeiro.",
+      "lockoutHelp": "Se uma lista algum dia deixar todos de fora, um administrador da instância pode esvaziá-la na página de administração.",
+      "memberView": "{count, plural, =0 {Desativado: o espaço de trabalho abre de qualquer rede.} one {Ativado: o espaço de trabalho só abre de # rede aprovada.} other {Ativado: o espaço de trabalho só abre de # redes aprovadas.}}"
     }
   },
   "audit": {
@@ -1529,6 +1566,7 @@
         "restored": "Restaurou {target} da lixeira",
         "permission_changed": "Definiu o acesso de {subject} a {target}: {level}",
         "permission_removed": "Removeu {subject} do compartilhamento de {target}",
+        "row_access_changed": "Alterou a quem as linhas de {target} dão acesso",
         "deleted": "Excluiu {target} permanentemente",
         "published": "Publicou {target} na web",
         "unpublished": "Deixou de publicar {target}",
@@ -1571,7 +1609,9 @@
       "workspace": {
         "renamed": "Renomeou o espaço de trabalho de {from} para {to}",
         "settings_changed": "Alterou configurações: {settings}",
-        "domains_verified": "Verificou o domínio de e-mail permitido {domains}"
+        "domains_verified": "Verificou o domínio de e-mail permitido {domains}",
+        "networks_changed": "{count, plural, =0 {Removeu as redes aprovadas} other {Definiu as redes aprovadas: {names}}}",
+        "networks_cleared": "Esvaziou as redes aprovadas como administrador da instância"
       },
       "sso": {
         "configured": "Salvou a conexão de login único ({protocol}) para {domains}",
@@ -1728,7 +1768,10 @@
     "reviewChannel": "Para revisar: {channel}",
     "followUpTitle": "Acompanhamentos",
     "followUpDescription": "Um acompanhamento que você iniciou é pausado porque o próximo e-mail não passou na verificação antes do envio.",
-    "followUpChannel": "Acompanhamentos: {channel}"
+    "followUpChannel": "Acompanhamentos: {channel}",
+    "reactionTitle": "Reações",
+    "reactionDescription": "Alguém reage a um comentário seu. As reações ao mesmo comentário ficam juntas até você abri-las.",
+    "reactionChannel": "Reações: {channel}"
   },
   "site": {
     "description": "Dê às páginas publicadas deste espaço de trabalho um endereço legível, uma página inicial e navegação entre elas.",
@@ -2275,6 +2318,56 @@
       "color": "Escolha uma cor.",
       "border": "Escolha uma borda.",
       "title": "O título pode ter no máximo 120 caracteres."
+    }
+  },
+  "letterheads": {
+    "heading": "Papéis timbrados",
+    "description": "O que os arquivos PDF imprimem em volta de uma página: um logotipo, os dados da sua empresa no topo e linhas no rodapé. Escolha um ao exportar um PDF; o chat de IA usa o padrão, a menos que outro seja pedido.",
+    "empty": "Ainda não há papéis timbrados.",
+    "add": "Adicionar papel timbrado",
+    "edit": "Editar",
+    "remove": "Remover {name}",
+    "removeConfirm": "Remover o papel timbrado “{name}”? Os PDFs passam a usar o padrão.",
+    "count": "{count} de {max} papéis timbrados",
+    "ownersOnly": "Só os proprietários podem alterar os papéis timbrados.",
+    "default": "Padrão",
+    "makeDefault": "Tornar padrão",
+    "unsetDefault": "Deixar de usar como padrão",
+    "noLines": "Sem linhas no topo",
+    "name": "Nome",
+    "namePlaceholder": "Propostas",
+    "logo": "Logotipo",
+    "logoHelp": "PNG ou JPEG, no máximo {size}.",
+    "uploadLogo": "Enviar logotipo",
+    "replaceLogo": "Trocar logotipo",
+    "removeLogo": "Remover",
+    "logoPlace": "Posição do logotipo",
+    "places": {
+      "left": "Logotipo à esquerda",
+      "center": "Logotipo centralizado",
+      "right": "Logotipo à direita"
+    },
+    "header": "Linhas do topo",
+    "headerHelp": "Até {max} linhas, impressas em todas as páginas; a primeira em negrito.",
+    "headerPlaceholder": "Nome da empresa\nEndereço\nTelefone · e-mail · CNPJ",
+    "footer": "Linhas do rodapé",
+    "footerHelp": "Até {max} linhas, como os dados bancários.",
+    "footerPlaceholder": "Banco · IBAN",
+    "accent": "Cor de destaque",
+    "accentHelp": "Para o filete abaixo do topo e os cabeçalhos das tabelas.",
+    "noAccent": "Cinza",
+    "pageNumbers": "Números de página",
+    "errors": {
+      "name": "Dê um nome de no máximo 60 caracteres.",
+      "header": "No máximo 6 linhas no topo, com até 140 caracteres cada.",
+      "footer": "No máximo 4 linhas no rodapé, com até 140 caracteres cada.",
+      "logoPlace": "Escolha onde fica o logotipo.",
+      "accent": "Escolha uma cor.",
+      "duplicateName": "Outro papel timbrado já tem esse nome.",
+      "tooMany": "Um espaço de trabalho pode ter no máximo 20 papéis timbrados.",
+      "logoType": "O logotipo precisa ser uma imagem PNG ou JPEG.",
+      "logoSize": "O logotipo é grande demais: no máximo 512 KB.",
+      "notFound": "Esse papel timbrado não existe mais. Recarregue a página."
     }
   }
 }

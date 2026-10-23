@@ -129,6 +129,9 @@ const server = createServer((req, res) => {
 });
 
 server.on("upgrade", (req: IncomingMessage, socket: Duplex, head: Buffer) => {
+  // Upgrades skip the request handler above: the collab server reads the address from here too
+  // (approved networks), so whatever the client sent under this name is overwritten here as well.
+  req.headers[CLIENT_IP_HEADER] = clientIpFrom(req.headers["x-forwarded-for"], req.socket.remoteAddress, trustedProxies);
   const { pathname } = new URL(req.url ?? "/", "http://localhost");
   if (pathname === "/collab") {
     ws.handleUpgrade(req, socket, head);

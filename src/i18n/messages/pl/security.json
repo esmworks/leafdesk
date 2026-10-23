@@ -91,5 +91,17 @@
     "signedInAs": "Zalogowano jako {email}.",
     "signOut": "Wyloguj się",
     "otherWorkspaces": "Twoje inne obszary robocze"
+  },
+  "networkGate": {
+    "metaTitle": "Tylko zatwierdzone sieci",
+    "title": "{workspace} pozwala logować się tylko z zatwierdzonych sieci",
+    "body": "Właściciele tego obszaru roboczego pozwalają otwierać go tylko z zatwierdzonych sieci, np. z biura lub przez VPN, a to połączenie nie pochodzi z żadnej z nich. Połącz się z zatwierdzonej sieci i spróbuj ponownie.",
+    "address": "Twój adres:",
+    "addressUnknown": "Nie udało się ustalić Twojego adresu.",
+    "askOwner": "Jeśli powinieneś mieć dostęp stąd, poproś właściciela obszaru roboczego o dodanie tego adresu.",
+    "tryAgain": "Spróbuj ponownie",
+    "signedInAs": "Zalogowano jako {email}.",
+    "signOut": "Wyloguj się",
+    "otherWorkspaces": "Twoje inne obszary robocze"
   }
 }

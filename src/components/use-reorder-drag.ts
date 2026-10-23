@@ -34,13 +34,15 @@ export function dropPlace(axis: "x" | "y" | "grid", box: Box, rowWidth: number |
 /**
  * Dragging items of a list to reorder them, along "x" (table columns), "y" (menus) or in a "grid"
  * (side by side, except an item as wide as its row, which goes above or below). `onMove` gets the
- * dragged item's id, the one it was dropped on and which side of it. The drag carries the id as
- * `type`; the editor ignores a drop it can't read as text, so items inside a page use their own.
+ * dragged item's id, the one it was dropped on and which side of it; `canDrop` may refuse some
+ * targets for some items. The drag carries the id as `type`; the editor ignores a drop it can't
+ * read as text, so items inside a page use their own.
  */
 export function useReorderDrag(
   axis: "x" | "y" | "grid",
   onMove: (moved: string, target: string, side: Side) => void,
   type = "text/plain",
+  canDrop?: (moved: string, target: string) => boolean,
 ) {
   const [dragged, setDragged] = useState<string | null>(null);
   const [drop, setDrop] = useState<{ id: string; side: Side; axis: "x" | "y" } | null>(null);
@@ -66,13 +68,17 @@ export function useReorderDrag(
       onDragOver: (e) => {
         // Only an item dragged from here; files and text dragged in pass through.
         if (!dragged) return;
+        if (id !== dragged && canDrop && !canDrop(dragged, id)) {
+          if (drop) setDrop(null);
+          return;
+        }
         e.preventDefault();
         e.dataTransfer.dropEffect = "move";
         const place = id === dragged ? null : placeOf(e);
         if (drop?.id !== id || drop.side !== place?.side || drop.axis !== place?.axis) setDrop(place ? { id, ...place } : null);
       },
       onDrop: (e) => {
-        if (!dragged) return;
+        if (!dragged || (id !== dragged && canDrop && !canDrop(dragged, id))) return;
         e.preventDefault();
         if (id !== dragged) onMove(dragged, id, placeOf(e).side);
         end();

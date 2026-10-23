@@ -54,7 +54,7 @@ each platform.
 | `src/navigation.ts` | Which links stay in the window, open in the browser or go nowhere |
 | `src/certificates.ts` | Certificates the system doesn't trust: fingerprint, trusting one per host |
 | `src/server-address.ts` | Turning what was typed into addresses to try |
-| `src/strings.ts` | The app's own texts in the web app's 16 languages |
+| `src/strings.ts` | The app's own texts in the web app's 19 languages |
 | `src/menu.ts`, `src/context-menu.ts` | Application and right-click menus |
 | `src/updates.ts` | Updates from GitHub releases |
 | `src/preload.cts` | The bridge the connect page uses (never given to server pages); marks every page with where the window's buttons are (macOS) |

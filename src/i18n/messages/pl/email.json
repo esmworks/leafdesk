@@ -232,6 +232,8 @@
     "pageUpdated": "{actor} edytuje tę stronę",
     "rowEmail": "E-mail od {from}",
     "followUp": "Follow-up „{sequence}” wstrzymany: jego następny e-mail wymaga sprawdzenia",
+    "reaction": "{actor} zareagował(a) {emoji} na Twój komentarz",
+    "people": "{others, plural, =0 {{name}} one {{name} i # inna osoba} few {{name} i # inne osoby} many {{name} i # innych osób} other {{name} i # innych osób}}",
     "someone": "Ktoś",
     "joinRequestTitle": "Prośba o dołączenie",
     "joinRequest": "{actor} prosi o dołączenie",

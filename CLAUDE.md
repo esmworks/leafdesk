@@ -47,17 +47,23 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
 - **Access.** `src/server/access.ts` is the one place that decides who may see or change a page:
   `requirePageAccess(userId, pageId, level)` for one page, `pageVisibleTo(userId)` as the SQL
   condition for lists. The rule is the SQL function `page_access_level`, last redefined in
-  `drizzle/0055_security_hardening.sql`. Shares: `permissions.ts`; per-property rules:
-  `property-access.ts`; teamspace membership: `teamspaces.ts`; guests: `guests.ts`.
+  `drizzle/0116_row_access.sql`. Shares: `permissions.ts`; per-property rules:
+  `property-access.ts`; rows giving the people they name access: `row-access.ts`; teamspace
+  membership: `teamspaces.ts`; guests: `guests.ts`. Sign-in policies (approved networks, two-step,
+  SSO only) are `policyHold` there; the request's address comes from `CLIENT_IP_HEADER`, which
+  `server.ts` sets on requests and on websocket upgrades alike.
 - **Page content.** The Yjs document is the source of truth. Writes from the server go through
   `getCollab()` (`src/server/collab/bridge.ts`: `replaceContent`, `editBlocks`, `setTitle` …), which
-  only exists when the app runs through `server.ts`. Saves derive markdown and text
-  (`collab/service.ts` `persistPage`) and announce `pageChanged()` (`page-events.ts`); row value
+  only exists when the app runs through `server.ts`. A block whose data is all in its props, written
+  while people may be editing (meeting notes), changes them in place with `updateBlockAttributes`:
+  `editBlocks` and other `writeBlocks` callers read, await, then rewrite, and can lose edits made
+  in between. Saves derive markdown and text (`collab/service.ts` `persistPage`) and announce `pageChanged()` (`page-events.ts`); row value
   changes announce through `row-events.ts`. Page tree operations: `src/server/pages.ts`; databases,
   rows and properties: `databases.ts`; formulas and rollups: `derived.ts` (pure part in
   `src/lib/derived.ts`). Row values are checked in `databases.ts` `normalizeRowProperties` (types,
-  property access, dependent selects); a write that stores values another way (`ai-properties.ts`
-  `saveValue`) calls `followOrRefuse` itself.
+  property access, dependent selects; a place's address is looked up there first, through
+  `geocoder.ts`, because the shared `normalizeValue` is synchronous and takes only coordinates); a
+  write that stores values another way (`ai-properties.ts` `saveValue`) calls `followOrRefuse` itself.
 - **Shared operations.** `src/server/operations.ts` is what the MCP tools, the REST API, the AI
   chat, agents and automations do with pages, databases, rows and comments. Each operation runs as
   `ctx.userId` with that person's access; the caller checks its own scopes first.
@@ -67,7 +73,9 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   OpenAPI document is generated from it. Bearer tokens only (`api/tokens.ts`).
 - **AI.** `src/server/ai/index.ts` is the only door to the model library: `complete`, `stream`,
   `embed`, `transcribe`, with limits and usage built in. Chat: `ai-chat.ts`; its tools:
-  `ai-tools.ts`; AI property values: `ai-properties.ts`; notes it keeps: `ai-memory.ts`; semantic
+  `ai-tools.ts` (writes reuse MCP's checks: form settings in `mcp/form-settings.ts`); CSV files
+  attached to questions: `src/lib/chat-attachments.ts` (limits, names) and
+  `chat-attachment-table.ts` (the parser, loaded by the box only when a file comes); AI property values: `ai-properties.ts`; notes it keeps: `ai-memory.ts`; semantic
   index and search: `semantic-index.ts`, `semantic-search.ts`. Test doubles: `ai/testing.ts`
   (`installFauxAi`, unit tests) and `ai/fake-openai.ts` (`startFakeOpenAi`, e2e scripts).
 - **Agents.** `src/server/agents/run.ts` is the worker (`agent_run`, its `source` typed in
@@ -79,14 +87,16 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
 - **Automations and schedules.** `src/server/automations/` (queued from `databases.ts` after row
   writes; `asAutomation` keeps an automation's writes from firing more automations) and
   `src/server/schedules.ts` (`registerScheduleHandler`).
-- **Other areas:** Telegram bot `src/server/telegram/`, mail to and from rows `row-mail/`, follow-up
+- **Other areas:** meeting notes `meetings.ts` (the block's props, `src/lib/meetings.ts`; its list
+  table synced in `persistPage` by `meeting-notes.ts`), Telegram bot `src/server/telegram/`, mail to and from rows `row-mail/`, follow-up
   sequences on rows `sequences/` (sent by a 30-second `startSequences` job; `runSequences(now)` runs
   a round as of any moment, which `scripts/follow-ups-e2e.ts` uses), SMTP
   `mail/`, inbox `notifications.ts`, push `push.ts`, files `files.ts` + `storage/` (local, S3,
   workspace drives), import `import/`, export `export.ts`, server-made PDFs `pdf.ts` (reads a page like `print.ts`)
   and `pdf-document.ts` (pure pdfmake layout; pdfmake must stay in `serverExternalPackages` in
   `next.config.ts`, bundled it loses its font files, and its fonts in the standalone build's
-  `outputFileTracingIncludes`), backup `backup/`, SSO `sso.ts`, SCIM
+  `outputFileTracingIncludes`), PDF letterheads `letterheads.ts` (pure part in `src/lib/letterheads.ts`;
+  the logo is document content kept in `pdf_letterhead`, not page decoration), backup `backup/`, SSO `sso.ts`, SCIM
   `scim.ts`, sealed secrets `secret-box.ts`.
 
 **Running as a person.** Every operation carries a real user id and access is worked out in SQL
@@ -177,14 +187,14 @@ plus the `scripts/*-e2e.ts` of the area you touched (`pnpm tsx scripts/<name>-e2
 `pnpm lint` fails on warnings. `pnpm test` includes the translation check.
 
 - **Needs a running server** (`pnpm start` or `pnpm dev`): health, mcp, auth (and Mailpit), api,
-  columns, export, print, site, scim, security, security-switches, two-factor, account, admin (signs
+  columns, export, print, site, scim, security, security-switches, ip-allowlist, two-factor, account, admin (signs
   everyone out), sso (with a mock identity provider; see its header), scale.
 - **Needs no server on the same database**, because a server's workers would take the queued work:
   agents, agent-api, agent-approvers, agent-chat, agent-handoff, agent-memory, agent-mention,
   agent-schedule, agent-sharing, agent-skills, automation, timed-automation, schedule,
-  row-activity, row-follow, row-mail, follow-ups (starts its own GreenMail container unless given
-  ports), page-watch, wins-log. `connector-e2e` starts its own `next dev` against `<database>_peer`, which
-  must exist; no other dev server may run in the same checkout.
+  row-activity, row-follow, row-mail, discussions, follow-ups (starts its own GreenMail container
+  unless given ports), page-watch, wins-log. `connector-e2e` starts its own `next dev` against
+  `<database>_peer`, which must exist; no other dev server may run in the same checkout.
 - Each script's header says what it needs. `.github/workflows/ci.yml` shows the env each step gets;
   not every e2e script is in CI.
 - On macOS, `HOSTNAME=localhost` binds only `::1`, while the server fetches its own JWKS from

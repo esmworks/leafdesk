@@ -48,6 +48,18 @@ describe("find plugin", () => {
     expect(find(withMeta(state, { query: "fish", caseSensitive: true })).matches).toHaveLength(1);
   });
 
+  it("ignores accents unless the accents toggle is on, and finds again when it changes", () => {
+    let state = withMeta(stateOf([{ type: "paragraph", content: "café cafe" }]), { query: "cafe" });
+    expect(find(state).matches).toHaveLength(2);
+    state = withMeta(state, { matchAccents: true });
+    expect(find(state).matches).toHaveLength(1);
+    expect(find(state).matchAccents).toBe(true);
+    // The toggle stays while the query changes.
+    state = withMeta(state, { query: "café" });
+    expect(find(state).matches).toHaveLength(1);
+    expect(currentText(state)).toBe("café");
+  });
+
   it("finds matches again after a local edit, keeping the current one", () => {
     let state = withMeta(stateOf(blocks), { query: "fish" });
     state = withMeta(state, { current: 1 });

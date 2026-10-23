@@ -1018,7 +1018,7 @@ describe("relations and calendars", () => {
     ];
     databases.getDatabase.mockResolvedValue({ ...database, views });
     const onForm = await callTool(writer, "update_database_view", { database_id: "db-1", view_id: "view-f", open_rows: "page" });
-    expect(onForm.text).toMatch(/open_rows only applies to table, board, calendar, gallery, list and timeline views/);
+    expect(onForm.text).toMatch(/open_rows only applies to table, board, calendar, gallery, list, timeline and map views/);
     const r = await callTool(writer, "update_database_view", { database_id: "db-1", view_id: "view-b", open_rows: "page" });
     expect(databases.updateView).toHaveBeenLastCalledWith("user-1", "view-b", { config: { groupBy: "prop-status", openRows: "page" } });
     expect(r.data).toMatchObject({ open_rows: "page" });
@@ -1403,11 +1403,27 @@ describe("database views", () => {
     expect(databases.addView).not.toHaveBeenCalled();
   });
 
+  it("places a map view's pins by a place property", async () => {
+    const where = { id: "prop-where", name: "Where", type: "place", options: {} };
+    databases.getDatabase.mockResolvedValue({ ...database, properties: [status, notes, where] });
+    const onTable = await callTool(writer, "create_database_view", { database_id: "db-1", name: "T", place_by: "Where" });
+    expect(onTable.text).toMatch(/place_by only applies to map views/);
+    const onText = await callTool(writer, "create_database_view", { database_id: "db-1", name: "M", type: "map", place_by: "Notes" });
+    expect(onText.text).toMatch(/Maps place rows by a place property; "Notes" is text/);
+    expect(databases.addView).not.toHaveBeenCalled();
+
+    databases.addView.mockResolvedValue({ id: "view-5", name: "Map", type: "map", config: {} });
+    const r = await callTool(writer, "create_database_view", { database_id: "db-1", name: "Map", type: "map", place_by: "Where", group_by: "Status" });
+    expect(databases.addView).toHaveBeenCalledWith("user-1", "db-1", expect.objectContaining({ type: "map" }));
+    expect(databases.updateView).toHaveBeenCalledWith("user-1", "view-5", { config: { groupBy: "prop-status", placeBy: "prop-where" } });
+    expect(r.data).toMatchObject({ type: "map", place_by: "Where", group_by: "Status" });
+  });
+
   it("groups tables by date with a bucket size, and ungroups them", async () => {
     const due = { id: "prop-due", name: "Due", type: "date", options: {} };
     databases.getDatabase.mockResolvedValue({ ...database, properties: [status, notes, due] });
     const onCalendar = await callTool(writer, "create_database_view", { database_id: "db-1", name: "C", type: "calendar", group_by: "Due" });
-    expect(onCalendar.text).toMatch(/only applies to board, table, timeline and chart/);
+    expect(onCalendar.text).toMatch(/only applies to board, table, timeline, map and chart/);
     const wrongProp = await callTool(writer, "create_database_view", {
       database_id: "db-1",
       name: "T",
@@ -2191,6 +2207,19 @@ describe("automations", () => {
       run_as: { id: "user-1", name: "Erhan" },
       url: expect.stringMatching(/\/w\/ws-1\/p\/db-1$/),
     });
+  });
+
+  it("takes a celebrate step and describes it", async () => {
+    automations.createAutomation.mockResolvedValue({ ...view, actions: [{ id: "celebrate", type: "celebrate" }] });
+    const { isError, data } = await callTool(writer, "create_automation", {
+      database_id: "db-1",
+      name: "Done!",
+      trigger: { type: "property_changed", property: "Status", to: "Done" },
+      actions: [{ type: "celebrate" }],
+    });
+    expect(isError).toBe(false);
+    expect(automations.createAutomation.mock.calls[0][2].actions).toEqual([{ type: "celebrate" }]);
+    expect(data.actions[0]).toMatchObject({ id: "celebrate", type: "celebrate", summary: expect.stringContaining("Confetti") });
   });
 
   it("leaves property out for any-property triggers; update patches only what is given", async () => {

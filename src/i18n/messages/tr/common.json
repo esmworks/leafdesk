@@ -28,5 +28,6 @@
     "tooLarge": "Bu dışa aktarmadaki dosyalar toplam {size} sınırını aşıyor. Çalışma alanının daha küçük bir bölümünü dışa aktarın.",
     "busy": "Zaten süren bir dışa aktarmanız var. İndirmenin bitmesini bekleyin.",
     "disabled": "Bu çalışma alanında dışa aktarma kapalı."
-  }
+  },
+  "celebrate": "Tebrikler!"
 }

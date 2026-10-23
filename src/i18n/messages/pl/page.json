@@ -49,9 +49,11 @@
     "exportZip": "Eksportuj z podstronami",
     "exportZipDatabase": "Eksportuj ze stronami wierszy",
     "exportPdf": "Eksportuj jako PDF",
+    "printView": "Drukuj",
     "exportPreparing": "Przygotowywanie eksportu…",
     "versionHistory": "Historia wersji",
     "lastEdited": "Ostatnio edytowane przez: {name}",
+    "wordCount": "{words, plural, one {# słowo} few {# słowa} many {# słów} other {# słowa}}, {characters, plural, one {# znak} few {# znaki} many {# znaków} other {# znaku}}",
     "actionFailed": "Nie udało się tego dokończyć.",
     "viewers": "{count, plural, one {Tę stronę ogląda # inna osoba} few {Tę stronę oglądają # inne osoby} many {Tę stronę ogląda # innych osób} other {Tę stronę ogląda # innej osoby}}",
     "viewersTitle": "Oglądają tę stronę",
@@ -75,11 +77,13 @@
     "filters": {
       "open": "Otwarte",
       "resolved": "Rozwiązane",
+      "marked": "Oznaczone",
       "all": "Wszystkie"
     },
     "empty": {
       "open": "Brak otwartych komentarzy. Zaznacz tekst na stronie i wybierz Komentarz, aby rozpocząć.",
       "resolved": "Brak rozwiązanych komentarzy.",
+      "marked": "Brak wątków oznaczonych do powrotu. Wybierz „Wróć później” w menu wątku.",
       "all": "Brak komentarzy. Zaznacz tekst na stronie i wybierz Komentarz, aby rozpocząć."
     },
     "threadMenu": "Opcje wątku",
@@ -89,7 +93,19 @@
     "unmuteHint": "Znowu otrzymuj powiadomienia o nowych odpowiedziach w tym wątku.",
     "muted": "Odpowiedzi wyciszone",
     "mutedHint": "Nie otrzymujesz powiadomień o odpowiedziach w tym wątku, dopóki tu nie odpowiesz lub ktoś cię tu nie wspomni.",
-    "mergedFrom": "Z „{title}”"
+    "mergedFrom": "Z „{title}”",
+    "sort": {
+      "label": "Sortuj wątki",
+      "recent": "Najnowsza aktywność najpierw",
+      "page": "W kolejności na stronie"
+    },
+    "new": "Nowe",
+    "marked": "Oznaczone do powrotu później",
+    "markedHint": "Oznaczono ten wątek, by do niego wrócić. Widzisz to tylko Ty.",
+    "mark": "Wróć później",
+    "unmark": "Usuń „Wróć później”",
+    "markHint": "Wątek zostaje w Oznaczonych, dopóki nie usuniesz oznaczenia. Widzisz je tylko Ty.",
+    "unmarkHint": "Usuń ten wątek z listy Oznaczonych."
   },
   "archived": {
     "banner": "Ta strona jest w koszu.",
@@ -331,6 +347,7 @@
     "replacePlaceholder": "Zamień na",
     "noResults": "Brak wyników",
     "matchCase": "Uwzględnij wielkość liter",
+    "matchAccents": "Uwzględniaj znaki diakrytyczne",
     "previous": "Poprzednie dopasowanie (Shift+Enter)",
     "next": "Następne dopasowanie (Enter)",
     "showReplace": "Pokaż zamianę",
@@ -575,6 +592,17 @@
     "openInNewTab": "Otwórz w nowej karcie",
     "frameTitle": "PDF: {name}",
     "noPreview": "Ta przeglądarka nie może tu wyświetlać plików PDF. Otwórz plik, aby go przeczytać."
+  },
+  "pdfExport": {
+    "title": "Eksportuj do PDF",
+    "letterhead": "Papier firmowy",
+    "none": "Brak",
+    "defaultMark": "{name} (domyślny)",
+    "noLetterheads": "Właściciele mogą dodać papiery firmowe z logo i danymi firmy w Ustawieniach → Szablony PDF.",
+    "properties": "Dołącz wartości wiersza",
+    "hint": "Diagramy i równania drukują się jako tekst; użyj Drukuj, aby otrzymać stronę dokładnie taką, jak wygląda.",
+    "download": "Pobierz",
+    "preparing": "Przygotowywanie…"
   },
   "spreadsheet": {
     "untitled": "Skoroszyt",

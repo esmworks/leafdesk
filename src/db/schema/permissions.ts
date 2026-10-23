@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
-import { check, index, pgTable, text, timestamp, unique } from "drizzle-orm/pg-core";
+import { boolean, check, index, jsonb, pgTable, text, timestamp, unique } from "drizzle-orm/pg-core";
+import type { RowAccessRule } from "@/lib/row-access";
 import { page, workspace } from "./app";
 import { user } from "./auth";
 
@@ -98,4 +99,28 @@ export const accessRequest = pgTable(
     index("access_request_workspace_idx").on(t.workspaceId),
     index("access_request_requester_idx").on(t.requesterId),
   ],
+);
+
+/**
+ * What a database's rows give the people they name (lib/row-access.ts): rules giving the people in
+ * a person property, or a row's creator, access to the row, and whether rows are `restricted` to
+ * those people (and people with full access to the database). One row per database that uses it;
+ * `workspaceId` is copied so page_access_level's "no row access in this workspace" fast path is
+ * one index lookup.
+ */
+export const databaseRowAccess = pgTable(
+  "database_row_access",
+  {
+    databaseId: text("database_id")
+      .primaryKey()
+      .references(() => page.id, { onDelete: "cascade" }),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspace.id, { onDelete: "cascade" }),
+    restricted: boolean("restricted").notNull().default(false),
+    rules: jsonb("rules").$type<RowAccessRule[]>().notNull().default([]),
+    updatedBy: text("updated_by").references(() => user.id, { onDelete: "set null" }),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("database_row_access_workspace_idx").on(t.workspaceId)],
 );

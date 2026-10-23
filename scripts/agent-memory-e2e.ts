@@ -148,7 +148,7 @@ try {
   await settle();
   const firstRun = await latestRun();
   check(firstRun.status === "done", "the run is done", firstRun);
-  check(toolNames(fake.chats[0]).join() === "search_pages,read_page,query_database,update_row,edit_page,add_comment,remember,forget", "a run a member started may propose and drop notes", toolNames(fake.chats[0]));
+  check(toolNames(fake.chats[0]).join() === "search_pages,read_page,query_database,list_comments,page_history,page_version,update_row,edit_page,add_comment,remember,forget", "a run a member started may propose and drop notes", toolNames(fake.chats[0]));
   check(/An owner reads each proposal/.test(everything(fake.chats[0])) && /<memory> tags/.test(everything(fake.chats[0])), "the model is told an owner reads each proposal, and that memory is data");
   check(!everything(fake.chats[0]).includes("<memory>\n"), "a run before any note is kept has no <memory>");
   const proposals = await notesInDb();

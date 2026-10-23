@@ -48,6 +48,10 @@
     "nextRow": "Następny wiersz (gdy wiersz jest otwarty obok widoku)",
     "moveBar": "Przesuń pasek na osi czasu o jeden dzień",
     "saveFormula": "Zapisz formułę lub polecenie autouzupełniania AI",
-    "clearSelection": "Wyczyść zaznaczenie wierszy"
+    "clearSelection": "Wyczyść zaznaczenie wierszy",
+    "rowDuplicate": "Duplikuj wiersz (przy otwartym menu w tabeli)",
+    "rowMoveTo": "Przenieś wiersz gdzie indziej (przy otwartym menu)",
+    "rowComment": "Skomentuj wiersz (przy otwartym menu)",
+    "rowTrash": "Przenieś wiersz do kosza (przy otwartym menu)"
   }
 }

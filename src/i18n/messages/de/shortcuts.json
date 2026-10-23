@@ -48,6 +48,10 @@
     "nextRow": "Nächste Zeile (mit einer Zeile neben der Ansicht)",
     "moveBar": "Zeitleistenbalken um einen Tag verschieben",
     "saveFormula": "Formel oder KI-Autofill-Anweisung speichern",
-    "clearSelection": "Zeilenauswahl aufheben"
+    "clearSelection": "Zeilenauswahl aufheben",
+    "rowDuplicate": "Zeile duplizieren (ihr Menü in einer Tabelle geöffnet)",
+    "rowMoveTo": "Zeile verschieben (ihr Menü geöffnet)",
+    "rowComment": "Zeile kommentieren (ihr Menü geöffnet)",
+    "rowTrash": "Zeile in den Papierkorb verschieben (ihr Menü geöffnet)"
   }
 }

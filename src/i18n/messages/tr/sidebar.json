@@ -137,6 +137,18 @@
     "pageUpdated": "{actor} bu sayfayı düzenledi",
     "rowEmail": "{from} e-posta gönderdi",
     "followUp": "“{sequence}” takibi duraklatıldı: sıradaki e-postasına bakılması gerekiyor",
+    "reaction": "{actor} yorumunuza {emoji} tepkisi verdi",
+    "reactionExcerpt": "“{text}”",
+    "people": "{others, plural, =0 {{name}} one {{name} ve # kişi daha} other {{name} ve # kişi daha}}",
+    "groupComments": "{count, plural, one {# yorum} other {# yorum}}",
+    "groupNewComments": "{count, plural, one {# yeni yorum} other {# yeni yorum}}",
+    "groupReactions": "{count, plural, one {# tepki} other {# tepki}}",
+    "groupNewReactions": "{count, plural, one {# yeni tepki} other {# yeni tepki}}",
+    "groupEdits": "{count, plural, one {# düzenleme} other {# düzenleme}}",
+    "groupNewEdits": "{count, plural, one {# yeni düzenleme} other {# yeni düzenleme}}",
+    "groupMarkRead": "Okundu olarak işaretle",
+    "groupExpand": "{count} bildirimin hepsini göster",
+    "groupCollapse": "Daha az göster",
     "noSubject": "(konu yok)",
     "tabs": "Göster",
     "tabAll": "Tümü",
@@ -214,7 +226,8 @@
     "private": "Özel",
     "newPrivate": "Yeni özel sayfa",
     "more": "{count} sayfa daha",
-    "less": "Daha az göster"
+    "less": "Daha az göster",
+    "meetings": "Toplantılar"
   },
   "joinable": {
     "heading": "Katılabileceğiniz çalışma alanları",

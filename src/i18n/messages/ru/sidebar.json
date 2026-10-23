@@ -137,6 +137,18 @@
     "pageUpdated": "{actor}: изменения на этой странице",
     "rowEmail": "Письмо от {from}",
     "followUp": "Цепочка писем «{sequence}» приостановлена: следующее письмо нужно проверить",
+    "reaction": "{actor}: реакция {emoji} на ваш комментарий",
+    "reactionExcerpt": "«{text}»",
+    "people": "{others, plural, =0 {{name}} one {{name} и ещё # человек} few {{name} и ещё # человека} many {{name} и ещё # человек} other {{name} и ещё # человека}}",
+    "groupComments": "{count, plural, one {# комментарий} few {# комментария} many {# комментариев} other {# комментария}}",
+    "groupNewComments": "{count, plural, one {# новый комментарий} few {# новых комментария} many {# новых комментариев} other {# нового комментария}}",
+    "groupReactions": "{count, plural, one {# реакция} few {# реакции} many {# реакций} other {# реакции}}",
+    "groupNewReactions": "{count, plural, one {# новая реакция} few {# новые реакции} many {# новых реакций} other {# новой реакции}}",
+    "groupEdits": "{count, plural, one {# правка} few {# правки} many {# правок} other {# правки}}",
+    "groupNewEdits": "{count, plural, one {# новая правка} few {# новые правки} many {# новых правок} other {# новой правки}}",
+    "groupMarkRead": "Отметить как прочитанное",
+    "groupExpand": "Показать все ({count})",
+    "groupCollapse": "Свернуть",
     "noSubject": "(без темы)",
     "tabs": "Показать",
     "tabAll": "Все",
@@ -214,7 +226,8 @@
     "private": "Личные",
     "newPrivate": "Новая личная страница",
     "more": "Ещё {count}",
-    "less": "Свернуть"
+    "less": "Свернуть",
+    "meetings": "Встречи"
   },
   "joinable": {
     "heading": "Рабочие пространства, к которым можно присоединиться",

@@ -10,6 +10,7 @@ import {
   CornerUpLeft,
   Download,
   FileArchive,
+  FileDown,
   FileCode,
   FileSpreadsheet,
   FileText,
@@ -18,6 +19,7 @@ import {
   LayoutTemplate,
   Link2,
   Lock,
+  LockKeyhole,
   Merge,
   MessageSquare,
   MessagesSquare,
@@ -35,7 +37,7 @@ import {
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
+import { lazy, Suspense, useCallback, useEffect, useMemo, useState, useTransition } from "react";
 import { createPortal } from "react-dom";
 import type * as Y from "yjs";
 import {
@@ -56,8 +58,10 @@ import { cn, Dialog, IconButton, MenuItem, MenuSeparator, PageIcon, pageLabel, P
 import { useZipExport } from "@/components/use-zip-export";
 import { VoiceNoteInstructionsDialog } from "@/components/voice/voice-note-instructions-dialog";
 import { MergeWithDialog } from "@/components/database/merge-rows-dialog";
+import { RowAccessDialog } from "@/components/database/row-access-dialog";
 import type { PageKind } from "@/db/schema/app";
 import { FAVORITES_EVENT } from "@/lib/favorites-event";
+import { OfflineToggle } from "@/components/offline/offline-toggle";
 import { OPEN_SHARE_EVENT } from "@/lib/share-event";
 import type { Presence } from "@/lib/presence";
 import { PAGE_FONTS, type PageStyle } from "@/lib/page-style";
@@ -110,7 +114,7 @@ export function PageHeaderActions({
   onOutdated,
 }: {
   workspaceId: string;
-  page: { id: string; kind: PageKind; parentId: string | null; archived: boolean; hasBody: boolean; isRow?: boolean };
+  page: { id: string; kind: PageKind; parentId: string | null; archived: boolean; hasBody: boolean; isRow?: boolean; title?: string; icon?: string | null };
   currentUser: { id: string; name: string };
   info: PageHeaderInfo;
   /** The page's shared doc once synced; its edits trigger a refetch of the header info. */
@@ -411,7 +415,7 @@ function PageMenu({
   onStyle,
 }: {
   workspaceId: string;
-  page: { id: string; kind: PageKind; parentId: string | null; archived: boolean; hasBody: boolean; isRow?: boolean };
+  page: { id: string; kind: PageKind; parentId: string | null; archived: boolean; hasBody: boolean; isRow?: boolean; title?: string; icon?: string | null };
   info: PageHeaderInfo;
   onInfo: (info: PageHeaderInfo) => void;
   onHistory: () => void;
@@ -431,10 +435,13 @@ function PageMenu({
   const tSkills = useTranslations("skills");
   const tVoice = useTranslations("page.voiceNote.instructions");
   const tMerge = useTranslations("database.merge");
+  const tRowAccess = useTranslations("database.rowAccess");
   const locale = useLocale();
   const router = useRouter();
   const [moveOpen, setMoveOpen] = useState(false);
+  const [pdfOpen, setPdfOpen] = useState(false);
   const [voiceInstructionsOpen, setVoiceInstructionsOpen] = useState(false);
+  const [rowAccessOpen, setRowAccessOpen] = useState(false);
   const [mergeOpen, setMergeOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
@@ -726,6 +733,19 @@ function PageMenu({
                 </div>
               </>
             )}
+            {/* Who each row gives access to (server/row-access): a database setting, like the lock. */}
+            {isDatabase && !page.archived && canManage && (
+              <MenuItem
+                icon={<LockKeyhole className="h-4 w-4" />}
+                title={tRowAccess("menuHint")}
+                onClick={() => {
+                  close();
+                  setRowAccessOpen(true);
+                }}
+              >
+                {tRowAccess("menuItem")}
+              </MenuItem>
+            )}
             {/* How voice notes saved in the database are written up: a database setting, like the lock. */}
             {isDatabase && !page.archived && canManage && info.voice && (
               <MenuItem
@@ -778,6 +798,23 @@ function PageMenu({
               </div>
             )}
 
+            {/* Downloads to this device: read access is enough, templates aren't pages to read. */}
+            {!page.archived && !info.template && page.title !== undefined && (
+              <>
+                <MenuSeparator />
+                <OfflineToggle
+                  page={{
+                    id: page.id,
+                    workspaceId,
+                    title: page.title,
+                    icon: page.icon ?? null,
+                    kind: page.kind,
+                    row: Boolean(page.isRow),
+                  }}
+                />
+              </>
+            )}
+
             <MenuSeparator />
             {/* Hidden while the workspace has export turned off; the routes refuse it too. */}
             {info.exportable && (
@@ -826,7 +863,17 @@ function PageMenu({
                 >
                   {zipExport.pending ? t("exportPreparing") : isDatabase ? t("exportZipDatabase") : t("exportZip")}
                 </MenuItem>
-                {/* The print view in a new tab; it opens the browser's print dialog ("Save as PDF") once loaded. */}
+                {/* A PDF made on the server, in a letterhead (pdf-export-dialog.tsx). */}
+                <MenuItem
+                  icon={<FileDown className="h-4 w-4" />}
+                  onClick={() => {
+                    close();
+                    setPdfOpen(true);
+                  }}
+                >
+                  {t("exportPdf")}
+                </MenuItem>
+                {/* The print view in a new tab; it opens the browser's print dialog once loaded. */}
                 <a
                   href={printPath(page.id, { auto: true })}
                   target="_blank"
@@ -837,7 +884,7 @@ function PageMenu({
                   <span className="flex h-4 w-4 items-center justify-center text-fg-muted">
                     <Printer className="h-4 w-4" />
                   </span>
-                  <span className="flex-1 truncate">{t("exportPdf")}</span>
+                  <span className="flex-1 truncate">{t("printView")}</span>
                 </a>
               </>
             )}
@@ -874,6 +921,7 @@ function PageMenu({
             <div className="px-2 pt-0.5 pb-1 text-xs text-fg-faint">
               <div className="truncate">{t("lastEdited", { name: info.updatedBy ?? t("someone") })}</div>
               <div>{edited}</div>
+              {page.hasBody && !isDatabase && <div>{t("wordCount", { words: info.words, characters: info.characters })}</div>}
             </div>
           </div>
         )}
@@ -892,6 +940,14 @@ function PageMenu({
           />,
           document.body,
         )}
+      {pdfOpen &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <Suspense fallback={null}>
+            <PdfExportDialog workspaceId={workspaceId} pageId={page.id} isRow={!!page.isRow} onClose={() => setPdfOpen(false)} />
+          </Suspense>,
+          document.body,
+        )}
       {mergeOpen && (
         <MergeWithDialog
           rowId={page.id}
@@ -906,6 +962,14 @@ function PageMenu({
         />
       )}
       {isDatabase && (
+        <RowAccessDialog
+          workspaceId={workspaceId}
+          databaseId={page.id}
+          open={rowAccessOpen}
+          onClose={() => setRowAccessOpen(false)}
+        />
+      )}
+      {isDatabase && (
         <VoiceNoteInstructionsDialog databaseId={page.id} open={voiceInstructionsOpen} onClose={() => setVoiceInstructionsOpen(false)} />
       )}
     </>
@@ -913,13 +977,17 @@ function PageMenu({
 }
 
 /** Pick a new parent: any page or database in the sidebar tree except this page and its subpages. */
-function MoveDialog({
+// The PDF dialog comes with its first use, not with every page.
+const PdfExportDialog = lazy(() => import("./pdf-export-dialog"));
+
+export function MoveDialog({
   workspaceId,
   pageId,
   isDatabase,
   currentParentId,
   guest,
   onClose,
+  onMoved,
 }: {
   workspaceId: string;
   pageId: string;
@@ -927,6 +995,8 @@ function MoveDialog({
   currentParentId: string | null;
   guest: boolean;
   onClose: () => void;
+  /** After the move, besides refreshing the route (a table's rows reload on their own). */
+  onMoved?: () => void;
 }) {
   const t = useTranslations("page.move");
   const tc = useTranslations("common");
@@ -995,6 +1065,7 @@ function MoveDialog({
       try {
         await movePageAction(pageId, parentId, undefined, parentId ? undefined : teamspaceId);
         onClose();
+        onMoved?.();
         router.refresh();
       } catch {
         setError(t("failed"));

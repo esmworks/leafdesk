@@ -9,31 +9,38 @@
 import { Readable } from "node:stream";
 import { and, eq, inArray, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { page, type ChatChange, type ChatQueryCondition, type ChatStepRecord, type ChatWriteRecord, type PageKind } from "@/db/schema";
+import { page, type ChatAttachmentRecord, type ChatChange, type ChatQueryCondition, type ChatStepRecord, type ChatWriteRecord, type PageKind } from "@/db/schema";
 import type { ChatActionView, ChatPageView } from "@/lib/ai-chat";
 import type { RowChangeBefore, RowChangePayload } from "@/lib/pending-changes";
 import { BLOCK_EDIT_OPS, blockEditProblem, MAX_BLOCK_EDITS, type BlockEdit } from "@/lib/block-edits";
 import { FILTER_OPS, MAX_FILTER_DEPTH } from "@/lib/filters";
 import { env } from "@/lib/env";
+import { attachmentCsv } from "@/lib/chat-attachment-table";
 import { cleanFileName, formatBytes } from "@/lib/files";
+import { CSV_COLUMN_TYPES, guessColumn, guessTitleColumn, type CsvColumnType } from "@/lib/import/csv";
+import { MAX_CONFIRMATION, MAX_FORM_DESCRIPTION, MAX_FORM_TITLE, MAX_QUESTION_DESCRIPTION, MAX_QUESTION_LABEL } from "@/lib/forms";
+import { holdsOptions } from "@/lib/property-types";
 import { pageLabel } from "@/lib/labels";
+import { sameLetterheadName } from "@/lib/letterheads";
 import { isPageLocked, PAGE_LOCKED_MESSAGE } from "@/lib/page-lock";
 import { foldUnchanged, type BlockChange } from "@/lib/page-diff";
 import { reviewChanges, type ReviewBlock } from "@/lib/page-review";
 import { PropertyValueError } from "@/lib/properties";
 import { anyWordTerms } from "@/lib/search-words";
-import { AccessError, pageAccessOf } from "@/server/access";
+import { AccessError, hasLevel, pageAccessOf } from "@/server/access";
 import type { AiTool } from "@/server/ai";
-import { formatSources, truncateText, type ChatSourceText } from "@/server/ai/prompts";
+import { attachmentBlock, formatSources, truncateText, type ChatSourceText } from "@/server/ai/prompts";
 import type { ChatDecision } from "@/server/ai-chat-approvals";
 import { getCollab } from "@/server/collab/bridge";
-import { getDatabase, getLookups, normalizeRowProperties } from "@/server/databases";
+import { addProperty, addView, getDatabase, getLookups, normalizeRowProperties, updateView } from "@/server/databases";
 import { assertExportAllowed, ExportError } from "@/server/export";
 import { uploadFile } from "@/server/files";
+import { applyFormLink, formConfigPatch, type FormInput } from "@/server/mcp/form-settings";
 import { ToolInputError } from "@/server/mcp/format";
 import { describeProperty } from "@/server/mcp/query";
 import * as ops from "@/server/operations";
-import { getTree } from "@/server/pages";
+import { createPage, getTree, savedSeedNames } from "@/server/pages";
+import { listLetterheads } from "@/server/letterheads";
 import { pagePdf } from "@/server/pdf";
 import { outdatedState } from "@/server/page-outdated";
 import { chunksOfPages, inSubtree } from "@/server/semantic-search";
@@ -136,7 +143,90 @@ export const CHAT_TOOLS: AiTool[] = [
       additionalProperties: false,
     },
   },
+  {
+    name: "list_comments",
+    description:
+      "Lists the comment threads of a page or row, open and resolved: the text each is about, its comments (author, time, text) and its thread_id. Returns them as a numbered source of the page.",
+    parameters: {
+      type: "object",
+      properties: { page_id: { type: "string", description: "The page_id of a source." } },
+      required: ["page_id"],
+      additionalProperties: false,
+    },
+  },
+  {
+    name: "page_history",
+    description: "Lists the saved versions of a page's text, newest first: version_id, when (UTC) and by whom each was saved. page_version reads one or compares it.",
+    parameters: {
+      type: "object",
+      properties: { page_id: { type: "string", description: "The page_id of a source." } },
+      required: ["page_id"],
+      additionalProperties: false,
+    },
+  },
+  {
+    name: "page_version",
+    description:
+      'Reads a saved version from page_history, or compares it: "current" shows what changed from it to the page now (to answer what changed since a day, compare the last version saved before that day), "previous" what it changed from the version before. Diff lines: "+" added, "-" removed, "~" changed with [-old-] {+new+} words. Returns it as a numbered source of the page.',
+    parameters: {
+      type: "object",
+      properties: {
+        version_id: { type: "string", description: "A version_id from page_history." },
+        compare: { type: "string", enum: ["none", "current", "previous"], description: 'Default "current"; "none" reads the version\'s text.' },
+      },
+      required: ["version_id"],
+      additionalProperties: false,
+    },
+  },
 ];
+
+/** Tools for the CSV files attached to the conversation, offered when it has some. */
+export const ATTACHMENT_TOOLS: AiTool[] = [
+  {
+    name: "read_attachment",
+    description: "Reads rows of a CSV file attached to the conversation, for the rows the question doesn't show.",
+    parameters: {
+      type: "object",
+      properties: {
+        name: { type: "string", description: "The file's name (the latest file when left out)." },
+        from_row: { type: "integer", description: "The first row to read, from 1 (the row after the header)." },
+      },
+      required: ["from_row"],
+      additionalProperties: false,
+    },
+  },
+];
+
+/** Property types a database the chat makes can have (no relations or computed values). */
+export const CHAT_DATABASE_TYPES = ["text", "number", "select", "multi_select", "status", "date", "checkbox", "url", "email", "phone", "person", "files", "checklist"] as const;
+/** The most properties one create_database call adds, and options one of them has. */
+const MAX_NEW_PROPERTIES = 30;
+const MAX_NEW_OPTIONS = 50;
+
+/** Writing tools for the CSV files attached to the conversation, offered when it has some (and may change things). */
+export const ATTACHMENT_WRITE_TOOLS: AiTool[] = [
+  {
+    name: "create_database_from_csv",
+    description:
+      "Makes a database of a CSV file attached to the conversation, as the person: a property per column (types guessed from the values unless given) and a row per line. Returns it as a numbered source.",
+    parameters: {
+      type: "object",
+      properties: {
+        attachment: { type: "string", description: "The file's name (the latest file when left out)." },
+        title: { type: "string", description: "The database's title (the file's name when left out)." },
+        parent_id: { type: "string", description: "The page_id of the page to put it under; without, at the top of the workspace, private to the person." },
+        title_column: { type: "string", description: "The column whose cells become the rows' titles (one called Name or Title, else the first, when left out)." },
+        column_types: {
+          type: "object",
+          description: `Types for columns by name, instead of the guess: ${CSV_COLUMN_TYPES.join(", ")}, or "skip" to leave the column out.`,
+          additionalProperties: { type: "string" },
+        },
+      },
+      additionalProperties: false,
+    },
+  },
+];
+export const ATTACHMENT_WRITE_TOOL_NAMES = new Set(ATTACHMENT_WRITE_TOOLS.map((t) => t.name));
 
 const PROPERTIES_HELP =
   'Values by property name, as the map or read_page shows them: option names for select and status (an array for multi_select), YYYY-MM-DD for dates (a time as 2026-10-12T14:30:00+03:00, a range as \"start/end\"), true/false for checkboxes, people by name or "me", relations by the related rows\' titles, null to clear. Follow each property\'s description (what it holds and how to fill it) and, for a select that depends on another, only the options listed for the row\'s value of that one. Example: {"Status": "In progress", "Due": "2026-10-12", "Assignee": ["me"]}';
@@ -229,8 +319,87 @@ export const WRITE_TOOLS: AiTool[] = [
         file_name: { type: "string", description: "The file's name, without .pdf (the page's title when left out)." },
         property: { type: "string", description: "A files property of the row: the file goes into it instead of the text." },
         with_properties: { type: "boolean", description: "List the row's values under its title (default false)." },
+        letterhead: {
+          type: "string",
+          description: 'The name of one of the workspace\'s letterheads (logo, company lines) to print it in, or "none"; leave out for the default one.',
+        },
       },
       required: ["page_id"],
+      additionalProperties: false,
+    },
+  },
+  {
+    name: "add_comment",
+    description:
+      "Comments on a page or row, as the person: quote starts a thread on that exact text of the page (copied from read_page, within one paragraph, without formatting characters); thread_id (from list_comments) replies in a thread.",
+    parameters: {
+      type: "object",
+      properties: {
+        page_id: { type: "string", description: "The page's page_id (from a source)." },
+        text: { type: "string", description: "The comment, plain text." },
+        quote: { type: "string", description: "The text of the page a new thread is about." },
+        thread_id: { type: "string", description: "The thread to reply in." },
+      },
+      required: ["page_id", "text"],
+      additionalProperties: false,
+    },
+  },
+  {
+    name: "create_database",
+    description:
+      "Makes a database (a table of rows), as the person: under a page (parent_id), or at the top of the workspace, private to the person. Without properties it gets a status and tags. Then add rows with create_row. Returns it as a numbered source.",
+    parameters: {
+      type: "object",
+      properties: {
+        title: { type: "string", description: "The database's title." },
+        parent_id: { type: "string", description: "The page_id of the page to put it under." },
+        properties: {
+          type: "array",
+          description: `Its properties besides the title, at most ${MAX_NEW_PROPERTIES}.`,
+          items: {
+            type: "object",
+            properties: {
+              name: { type: "string" },
+              type: { type: "string", enum: [...CHAT_DATABASE_TYPES] },
+              options: { type: "array", items: { type: "string" }, description: "select, multi_select and status: the option names." },
+            },
+            required: ["name", "type"],
+          },
+        },
+      },
+      required: ["title"],
+      additionalProperties: false,
+    },
+  },
+  {
+    name: "create_form",
+    description:
+      "Adds a form to a database, as the person: questions people answer to add a row, each saved to a property (\"title\" for the row's name). Without questions it asks for the title and every property a form can ask. Returns the form's links: give them to the person.",
+    parameters: {
+      type: "object",
+      properties: {
+        database_id: { type: "string", description: "The database's page_id (from the map, a source or create_database)." },
+        title: { type: "string", description: "The form's heading (the database's title when left out)." },
+        description: { type: "string", description: "Text under the heading." },
+        questions: {
+          type: "array",
+          description: "The questions, in order.",
+          items: {
+            type: "object",
+            properties: {
+              property: { type: "string", description: 'A property\'s name, or "title".' },
+              label: { type: "string", description: "The question as asked (the property's name when left out)." },
+              description: { type: "string", description: "Help under the question." },
+              required: { type: "boolean" },
+            },
+            required: ["property"],
+          },
+        },
+        confirmation: { type: "string", description: "Shown once an answer is sent." },
+        public: { type: "boolean", description: "Also open it to anyone with its link, outside the workspace (only when the person asks for that)." },
+        anonymous: { type: "boolean", description: "With public: take answers without signing in." },
+      },
+      required: ["database_id"],
       additionalProperties: false,
     },
   },
@@ -417,6 +586,7 @@ export async function runTool(
   call: { name: string; arguments: Record<string, unknown> },
   registry: Registry,
   room: number,
+  extra: ToolExtra = {},
 ): Promise<ToolOutcome> {
   if (room < 1_000) return { content: "There is no room left in this request to search or read more. Answer with what you have.", isError: true };
   if (call.name === "search_pages") {
@@ -443,7 +613,108 @@ export async function runTool(
     return { content: formatSources([entry]), step: { kind: "read", pageId } };
   }
   if (call.name === "query_database") return queryRows(ctx, workspaceId, scopeId, call.arguments, registry, room);
+  if (call.name === "list_comments" || call.name === "page_history" || call.name === "page_version") {
+    try {
+      return await readAround(ctx, workspaceId, scopeId, call, registry, Math.min(PAGE_CHARS, room - 500));
+    } catch (error) {
+      if (error instanceof AccessError || error instanceof ToolInputError) return { content: "No page or version with that id can be read. Use a page_id from a source, or a version_id from page_history.", isError: true };
+      throw error;
+    }
+  }
+  if (call.name === "read_attachment") return readAttachment(extra.attachments ?? [], call.arguments, Math.min(ATTACHMENT_READ_CHARS, room - 500));
   return { content: `Unknown tool ${call.name}.`, isError: true };
+}
+
+/** What the tools know of the conversation beyond the workspace: its attached files, the person's time zone. */
+export type ToolExtra = { attachments?: ChatAttachmentRecord[]; timeZone?: string };
+
+/** The most of a CSV file one read_attachment call returns. */
+const ATTACHMENT_READ_CHARS = 30_000;
+
+/** The attachment a tool names (by name, without case), or the latest one when it names none. */
+export function findAttachment(attachments: ChatAttachmentRecord[], name: unknown): ChatAttachmentRecord | null {
+  const wanted = typeof name === "string" ? name.trim().toLowerCase() : "";
+  if (!wanted) return attachments.at(-1) ?? null;
+  return attachments.findLast((a) => a.name.toLowerCase() === wanted) ?? null;
+}
+
+function readAttachment(attachments: ChatAttachmentRecord[], args: Record<string, unknown>, maxChars: number): ToolOutcome {
+  const found = findAttachment(attachments, args.name);
+  if (!found) {
+    const names = attachments.map((a) => `"${a.name}"`).join(", ");
+    return { content: names ? `No attached file has that name. The files: ${names}.` : "No CSV file is attached to this conversation.", isError: true };
+  }
+  const from = Math.max(1, Math.floor(Number(args.from_row) || 1));
+  if (from > found.rows.length) return { content: `"${found.name}" has ${found.rows.length} rows.`, isError: true };
+  const { text, shown } = attachmentCsv(found, { from: from - 1, maxChars });
+  const last = from + shown - 1;
+  const more = last < found.rows.length ? ` Read on with from_row ${last + 1}.` : "";
+  return { content: `Rows ${from}-${last} of ${found.rows.length} of "${found.name}" (the first line is the header).${more}\n${attachmentBlock(found, text)}` };
+}
+
+/**
+ * A page's comments, its saved versions, or one version read or compared, as the person may read
+ * them now: the page must be one of the workspace (and the chat's scope) they can open, not in the
+ * trash or a template. Comments and versions come back as a source of the page, to cite.
+ */
+async function readAround(
+  ctx: ops.OperationContext,
+  workspaceId: string,
+  scopeId: string | undefined,
+  call: { name: string; arguments: Record<string, unknown> },
+  registry: Registry,
+  maxChars: number,
+): Promise<ToolOutcome> {
+  const missing: ToolOutcome = { content: "No page or version with that id can be read. Use a page_id from a source, or a version_id from page_history.", isError: true };
+  if (call.name === "page_version") {
+    const versionId = text(call.arguments.version_id) ?? "";
+    if (!versionId || versionId.length > 100) return missing;
+    const compare = call.arguments.compare === "none" || call.arguments.compare === "previous" ? call.arguments.compare : "current";
+    // The version's page first: nothing of it is read unless the page is one to read here.
+    const version = await ops.getPageVersion(ctx, { version_id: versionId, offset: 0 }, { maxChars });
+    const target = await readTarget(ctx.userId, workspaceId, scopeId ?? null, version.page_id);
+    if (!target) return missing;
+    const saved = `the version saved ${version.saved_at} (version_id ${versionId})`;
+    let body: string;
+    if (compare === "none") body = `The text of ${saved}, titled "${version.title}"${version.markdown_truncated ? " (only its start fits)" : ""}:\n${version.markdown}`;
+    else {
+      const diff = await ops.diffPageVersion(ctx, { version_id: versionId, against: compare, offset: 0 }, { maxChars });
+      if (!("changed" in diff)) body = `${saved}: ${diff.note}`;
+      else {
+        const between = compare === "current" ? `from ${saved} to the page now` : `by ${saved}, from the version before it`;
+        const by = diff.changed_by.filter(Boolean).length ? ` Changed by: ${diff.changed_by.filter(Boolean).join(", ")}.` : "";
+        body = diff.changed
+          ? `What changed ${between}:${by}${diff.title ? `\nTitle: ${diff.title}` : ""}\n${diff.diff}${diff.diff_truncated ? "\n(The rest doesn't fit.)" : ""}`
+          : `Nothing changed ${between}.`;
+      }
+    }
+    const entry = register(registry, { pageId: target.id, blockId: null, title: pageLabel(target.title), text: truncateText(body, maxChars) });
+    return { content: formatSources([entry]), step: { kind: "read", pageId: target.id } };
+  }
+  const pageId = text(call.arguments.page_id) ?? "";
+  const target = await readTarget(ctx.userId, workspaceId, scopeId ?? null, pageId);
+  if (!target) return missing;
+  if (call.name === "page_history") {
+    const { versions } = await ops.listPageHistory(ctx, { page_id: pageId });
+    if (!versions.length) return { content: `"${pageLabel(target.title)}" has no saved versions yet.`, step: { kind: "read", pageId } };
+    const lines = versions.map((v) => `- version_id ${v.id} · saved ${v.saved_at}${v.by ? ` by ${v.by}` : ""}${v.reason ? ` (${v.reason})` : ""}`);
+    return { content: truncateText(`Saved versions of "${pageLabel(target.title)}" (page_id ${pageId}), newest first:\n${lines.join("\n")}`, maxChars), step: { kind: "read", pageId } };
+  }
+  const { threads } = await ops.listComments(ctx, { page_id: pageId, include_resolved: true });
+  const open = threads.filter((t) => !t.resolved).length;
+  const lines = [`${threads.length} comment threads (${open} open, ${threads.length - open} resolved).`];
+  for (const t of threads) {
+    const about = t.about_page ? "about the whole page" : t.quote ? `on the text "${t.quote}"` : "on text since deleted";
+    lines.push(`Thread ${t.id} (${t.resolved ? "resolved" : "open"}) ${about}:`);
+    for (const c of t.comments) lines.push(`- ${c.author}, ${new Date(c.created_at).toISOString()}: ${c.text.replace(/\s*\n\s*/g, " / ")}`);
+  }
+  const entry = register(registry, { pageId, blockId: null, title: pageLabel(target.title), text: truncateText(threads.length ? lines.join("\n") : "The page has no comments.", maxChars) });
+  return { content: formatSources([entry]), step: { kind: "read", pageId } };
+}
+
+/** A page of the workspace the person may read now: in scope, not in the trash or a template. */
+async function readTarget(userId: string, workspaceId: string, scopeId: string | null, pageId: string) {
+  return (await writeTarget(userId, workspaceId, scopeId, pageId))?.page ?? null;
 }
 
 /**
@@ -554,6 +825,7 @@ export async function prepareWrite(
   workspaceId: string,
   scopeId: string | null,
   call: { name: string; arguments: Record<string, unknown> },
+  extra: ToolExtra = {},
 ): Promise<PreparedWrite | ToolOutcome> {
   const { userId } = ctx;
   const args = call.arguments;
@@ -656,6 +928,10 @@ export async function prepareWrite(
       };
     }
     if (call.name === "create_pdf") return await preparePdf(ctx, workspaceId, scopeId, args);
+    if (call.name === "add_comment") return await prepareComment(ctx, workspaceId, scopeId, args);
+    if (call.name === "create_database") return await prepareDatabase(ctx, workspaceId, scopeId, args);
+    if (call.name === "create_database_from_csv") return await prepareCsvDatabase(ctx, workspaceId, scopeId, args, extra);
+    if (call.name === "create_form") return await prepareForm(ctx, workspaceId, scopeId, args);
     if (call.name === "create_page") {
       const parentId = text(args.parent_id) || undefined;
       // In a page's scope, new pages stay in it too.
@@ -730,13 +1006,21 @@ async function preparePdf(
     return { content: PAGE_LOCKED_MESSAGE, isError: true };
   }
   const withProperties = args.with_properties === true;
+  // The letterhead by name ("none" for none); left out, the workspace's default, if it has one.
+  const letterheads = await listLetterheads(userId, workspaceId);
+  const asked = text(args.letterhead);
+  const letterhead = asked && asked.toLowerCase() !== "none" ? letterheads.find((l) => sameLetterheadName(l.name, asked)) : asked ? null : (letterheads.find((l) => l.isDefault) ?? null);
+  if (letterhead === undefined) {
+    const names = letterheads.map((l) => `"${l.name}"`).join(", ");
+    return invalidChange(`the workspace has no letterhead named "${asked}"; ${names ? `it has ${names}` : "it has none"}.`);
+  }
   const named = cleanFileName(`${(text(args.file_name) || pageLabel(target.page.title)).replace(/\.pdf$/i, "")}.pdf`);
   const changes: ChatChange[] = filesProperty ? [{ property: filesProperty.name, value: named }] : [];
   return {
-    action: { action: "createPdf", target: await pageView(userId, pageId), title: named, changes, content: null },
+    action: { action: "createPdf", target: await pageView(userId, pageId), title: named, changes, content: null, ...(letterhead ? { letterhead: letterhead.name } : {}) },
     record: { kind: "write", action: "createPdf", targetId: pageId, title: named, changes },
     execute: async () => {
-      const pdf = await pagePdf(userId, pageId, { properties: withProperties });
+      const pdf = await pagePdf(userId, pageId, { properties: withProperties, letterhead: letterhead?.id ?? "none" });
       const stored = await uploadFile(userId, pageId, {
         name: named,
         contentType: "application/pdf",
@@ -745,11 +1029,296 @@ async function preparePdf(
       });
       await ops.placeFile(ctx, pageId, stored, filesProperty ? { filesPropertyId: filesProperty.id } : {});
       const where = filesProperty ? `in its "${filesProperty.name}" property` : "at the end of its text";
+      const paper = letterhead ? ` It is printed in the letterhead "${letterhead.name}".` : "";
       return {
         id: pageId,
         title: pdf.title,
-        text: `The PDF file "${stored.name}" (${formatBytes(stored.size)}) is attached to the page ${where}. Link: ${env.appUrl}${stored.url}`,
+        text: `The PDF file "${stored.name}" (${formatBytes(stored.size)}) is attached to the page ${where}.${paper} Link: ${env.appUrl}${stored.url}`,
       };
+    },
+  };
+}
+
+/**
+ * add_comment: a page the person may comment on, and the thread it replies in (which must be one
+ * of the page's) or the text a new thread is about (which the page must have).
+ */
+async function prepareComment(ctx: ops.OperationContext, workspaceId: string, scopeId: string | null, args: Record<string, unknown>): Promise<PreparedWrite | ToolOutcome> {
+  const { userId } = ctx;
+  const parsed = ops.inputs.addComment.safeParse({
+    page_id: text(args.page_id) ?? "",
+    text: text(args.text) ?? "",
+    quote: text(args.quote) || undefined,
+    thread_id: text(args.thread_id) || undefined,
+  });
+  if (!parsed.success) return invalidChange(issuesOf(parsed.error));
+  const input = parsed.data;
+  if (!input.quote === !input.thread_id) return invalidChange("give quote (to start a thread on that text) or thread_id (to reply), one of them.");
+  const target = await writeTarget(userId, workspaceId, scopeId, input.page_id);
+  if (!target) return { content: "No page with that id can be commented on. Use a page_id from the map or a source.", isError: true };
+  if (target.page.kind === "database") return invalidChange("page_id is a database: comment on one of its rows or a page.");
+  if (!hasLevel(target.level, "comment")) return { content: "The person may only read this page, not comment on it. Tell them so.", isError: true };
+  let about: string | null = input.quote ?? null;
+  if (input.thread_id) {
+    const { threads } = await ops.listComments(ctx, { page_id: input.page_id, include_resolved: true });
+    const thread = threads.find((t) => t.id === input.thread_id);
+    if (!thread) return invalidChange("the page has no thread with that id: use a thread_id from list_comments.");
+    about = thread.quote;
+  } else if (!flat(target.page.contentText).includes(flat(input.quote!))) {
+    return invalidChange("the page has no such text. Copy a short passage exactly from read_page, within one paragraph, without formatting characters.");
+  }
+  return {
+    action: { action: "addComment", target: await pageView(userId, input.page_id), title: about, changes: [], content: input.text },
+    record: { kind: "write", action: "addComment", targetId: input.page_id, title: null, changes: [] },
+    execute: async () => {
+      const made = await ops.addComment(ctx, input);
+      return { id: input.page_id, title: target.page.title, text: `The comment is on the page, in the thread ${made.thread_id}.` };
+    },
+  };
+}
+
+/** Text with its spaces folded, to find a quote in a page's text. */
+const flat = (value: string) => value.replace(/\s+/g, " ").trim().toLowerCase();
+
+/** Where a new database goes: under a page the person may change, or (outside a page's scope) at the top, private to them. */
+async function newDatabaseParent(userId: string, workspaceId: string, scopeId: string | null, parentId: string | undefined): Promise<{ target: ChatPageView } | ToolOutcome> {
+  if (scopeId && !parentId) return invalidChange("in this chat new databases go under the page in scope or a page under it: give parent_id.");
+  if (!parentId) return { target: null };
+  const parent = await writeTarget(userId, workspaceId, scopeId, parentId);
+  if (!parent) return { content: "No page with that id can be changed. Use a page_id from the map or a source.", isError: true };
+  if (parent.page.kind === "database") return invalidChange("parent_id is a database: a database can't go inside another one.");
+  if (!canEdit(parent.level)) return readOnly;
+  return { target: await pageView(userId, parent.page.id) };
+}
+
+/** A database's properties as the person may know them, for the model (see rowSchema). */
+async function databaseText(ctx: ops.OperationContext, databaseId: string, lead: string) {
+  const schema = await rowSchema(ctx, databaseId);
+  return `${lead} (database_id ${databaseId}). Its properties:\n${schema || "(only the title)"}`;
+}
+
+/**
+ * create_database: a database under a page or at the top, with the properties asked for (or a
+ * status and tags), checked before the person is asked. Made with its properties in one go: a
+ * property that can't be added takes the database back with it.
+ */
+async function prepareDatabase(ctx: ops.OperationContext, workspaceId: string, scopeId: string | null, args: Record<string, unknown>): Promise<PreparedWrite | ToolOutcome> {
+  const { userId } = ctx;
+  const title = (text(args.title) ?? "").slice(0, 500);
+  if (!title) return invalidChange("give the database a title.");
+  const given = args.properties === undefined ? [] : args.properties;
+  if (!Array.isArray(given)) return invalidChange("properties must be a list.");
+  if (given.length > MAX_NEW_PROPERTIES) return invalidChange(`give at most ${MAX_NEW_PROPERTIES} properties.`);
+  const props: { name: string; type: (typeof CHAT_DATABASE_TYPES)[number]; options?: string[] }[] = [];
+  const names = new Set<string>(["title"]);
+  for (const [i, entry] of given.entries()) {
+    const e = (entry && typeof entry === "object" ? entry : {}) as Record<string, unknown>;
+    const name = (text(e.name) ?? "").replace(/\s+/g, " ");
+    const type = CHAT_DATABASE_TYPES.find((t) => t === e.type);
+    if (!name || name.length > 100) return invalidChange(`properties.${i}: give a name of at most 100 characters.`);
+    if (names.has(name.toLowerCase())) return invalidChange(`properties.${i}: "${name}" is taken; each property needs its own name, and "title" is the rows' title.`);
+    if (!type) return invalidChange(`properties.${i}: type must be one of ${CHAT_DATABASE_TYPES.join(", ")}.`);
+    names.add(name.toLowerCase());
+    const options = holdsOptions(type) && Array.isArray(e.options) ? [...new Set(e.options.flatMap((o) => (typeof o === "string" && o.trim() ? [o.trim().slice(0, 200)] : [])))] : [];
+    if (options.length > MAX_NEW_OPTIONS) return invalidChange(`properties.${i}: give at most ${MAX_NEW_OPTIONS} options.`);
+    props.push({ name, type, ...(options.length ? { options } : {}) });
+  }
+  const where = await newDatabaseParent(userId, workspaceId, scopeId, text(args.parent_id) || undefined);
+  if (!("target" in where)) return where;
+  return {
+    action: {
+      action: "createDatabase",
+      target: where.target,
+      title,
+      changes: props.map((p) => ({ property: p.name, value: p.options ? `${p.type}: ${p.options.join(", ")}` : p.type })),
+      content: null,
+      properties: props,
+    },
+    record: { kind: "write", action: "createDatabase", targetId: where.target?.pageId ?? null, title, changes: [] },
+    execute: async () => {
+      const parentId = where.target?.pageId ?? null;
+      const database = await createPage(ctx.actor, {
+        workspaceId,
+        parentId,
+        teamspaceId: parentId ? undefined : null,
+        kind: "database",
+        title,
+        seedNames: await savedSeedNames(userId),
+        seedProperties: props.length === 0,
+      });
+      try {
+        for (const p of props) await addProperty(userId, database.id, { name: p.name, type: p.type, options: p.options });
+      } catch (error) {
+        const { discardDatabase } = await import("@/server/import/csv");
+        await discardDatabase(database);
+        throw error;
+      }
+      return { id: database.id, title: database.title, text: await databaseText(ctx, database.id, `The database "${pageLabel(database.title)}"`) };
+    },
+  };
+}
+
+/**
+ * create_database_from_csv: a file attached to the conversation as a new database, its columns'
+ * types guessed from their values (lib/import/csv) unless the model gives them, imported the way
+ * a CSV import is (server/import/csv: all rows or none).
+ */
+async function prepareCsvDatabase(
+  ctx: ops.OperationContext,
+  workspaceId: string,
+  scopeId: string | null,
+  args: Record<string, unknown>,
+  extra: ToolExtra,
+): Promise<PreparedWrite | ToolOutcome> {
+  const { userId } = ctx;
+  const attachments = extra.attachments ?? [];
+  const file = findAttachment(attachments, args.attachment);
+  if (!file) {
+    const names = attachments.map((a) => `"${a.name}"`).join(", ");
+    return invalidChange(names ? `no attached file has that name. The files: ${names}.` : "no CSV file is attached to this conversation.");
+  }
+  const table = { headers: file.headers, rows: file.rows };
+  const titleName = text(args.title_column);
+  const titleColumn = titleName ? table.headers.findIndex((h) => h.toLowerCase() === titleName.toLowerCase()) : guessTitleColumn(table.headers);
+  if (titleColumn === -1) return invalidChange(`the file has no column "${titleName}". Its columns: ${table.headers.join(", ")}.`);
+  const given = args.column_types && typeof args.column_types === "object" && !Array.isArray(args.column_types) ? (args.column_types as Record<string, unknown>) : {};
+  const types: (CsvColumnType | null)[] = table.headers.map((_, i) => (i === titleColumn ? null : guessColumn(table.rows.map((r) => r[i] ?? "")).type));
+  for (const [column, type] of Object.entries(given)) {
+    const i = table.headers.findIndex((h) => h.toLowerCase() === column.trim().toLowerCase());
+    if (i === -1) return invalidChange(`the file has no column "${column}". Its columns: ${table.headers.join(", ")}.`);
+    if (i === titleColumn) continue;
+    if (type === "skip") types[i] = null;
+    else {
+      const known = CSV_COLUMN_TYPES.find((t) => t === type);
+      if (!known) return invalidChange(`column_types.${column}: use one of ${CSV_COLUMN_TYPES.join(", ")} or "skip".`);
+      types[i] = known;
+    }
+  }
+  const title = ((text(args.title) || file.name.replace(/\.csv$/i, "")).trim() || file.name).slice(0, 200);
+  const where = await newDatabaseParent(userId, workspaceId, scopeId, text(args.parent_id) || undefined);
+  if (!("target" in where)) return where;
+  // What the person sees: each column kept, as the title or a property of its type.
+  const kept = table.headers.flatMap((name, i) => (i === titleColumn ? [{ name, type: "title" }] : types[i] ? [{ name, type: types[i] }] : []));
+  return {
+    action: {
+      action: "createDatabase",
+      target: where.target,
+      title,
+      changes: kept.map((p) => ({ property: p.name, value: p.type })),
+      content: null,
+      properties: kept,
+      fromFile: { name: file.name, rows: table.rows.length },
+    },
+    record: { kind: "write", action: "createDatabase", targetId: where.target?.pageId ?? null, title, changes: [] },
+    execute: async () => {
+      const { importCsvAsDatabase, recordImport } = await import("@/server/import/csv");
+      const parentId = where.target?.pageId ?? null;
+      const imported = await importCsvAsDatabase(ctx.actor, {
+        workspaceId,
+        parentId,
+        teamspaceId: parentId ? undefined : null,
+        title,
+        table,
+        titleColumn,
+        types,
+        seedNames: await savedSeedNames(userId),
+        timeZone: extra.timeZone,
+      });
+      await recordImport(
+        userId,
+        workspaceId,
+        {
+          pages: [{ id: imported.database.id, title: imported.database.title, kind: "database" }],
+          created: { pages: 0, databases: 1, rows: imported.rows.length, templates: 0, files: 0 },
+          warnings: imported.warnings.list,
+          moreWarnings: imported.warnings.more,
+        },
+        "csv",
+      );
+      const left = imported.warnings.list.flatMap((w) => (w.code === "invalidValues" ? [`${w.count} cells of "${w.column}"`] : []));
+      const lead = `The database "${pageLabel(imported.database.title)}" with ${imported.rows.length} rows from "${file.name}"${left.length ? ` (left empty as they didn't fit their property: ${left.join(", ")})` : ""}`;
+      return { id: imported.database.id, title: imported.database.title, text: await databaseText(ctx, imported.database.id, lead) };
+    },
+  };
+}
+
+/**
+ * create_form: a form view of a database the person may change, its questions and texts checked
+ * as MCP's create_database_view checks them (mcp/form-settings.ts). A public link needs full access
+ * to the database, and the workspace's publishing policy when it is made.
+ */
+async function prepareForm(ctx: ops.OperationContext, workspaceId: string, scopeId: string | null, args: Record<string, unknown>): Promise<PreparedWrite | ToolOutcome> {
+  const { userId } = ctx;
+  const target = await writeTarget(userId, workspaceId, scopeId, text(args.database_id) ?? "");
+  if (!target || target.page.kind !== "database") return { content: "No database with that id can be changed. Use a database_id from the map or a source.", isError: true };
+  if (!canEdit(target.level)) return readOnly;
+  const isPublic = args.public === true;
+  if (isPublic && target.level !== "full") return invalidChange("a public link needs full access to the database: leave public out, and the form is for the people of the workspace.");
+  const questions = Array.isArray(args.questions)
+    ? args.questions.flatMap((q) => {
+        const e = (q && typeof q === "object" ? q : {}) as Record<string, unknown>;
+        const property = text(e.property);
+        if (!property) return [];
+        return [{ property, required: e.required === true, label: text(e.label)?.slice(0, MAX_QUESTION_LABEL), description: text(e.description)?.slice(0, MAX_QUESTION_DESCRIPTION) }];
+      })
+    : undefined;
+  const formInput: FormInput = {
+    questions,
+    form_title: text(args.title)?.slice(0, MAX_FORM_TITLE),
+    form_description: text(args.description)?.slice(0, MAX_FORM_DESCRIPTION),
+    confirmation_message: text(args.confirmation)?.slice(0, MAX_CONFIRMATION),
+  };
+  const { properties } = await getDatabase(userId, target.page.id);
+  // Checked now (names to ids, types a form can ask), and again on the database as it is then.
+  try {
+    formConfigPatch(properties, "form", {}, formInput);
+  } catch (error) {
+    if (error instanceof ToolInputError) return invalidChange(error.message);
+    throw error;
+  }
+  const title = formInput.form_title || pageLabel(target.page.title);
+  // Each question as the person sees it asked: its label (required ones marked) and its property's type.
+  const asked = (questions ?? []).map((q) => {
+    const prop = q.property.toLowerCase() === "title" ? null : properties.find((p) => p.id === q.property || p.name.toLowerCase() === q.property.toLowerCase());
+    return { label: `${q.label || prop?.name || ""}${q.required ? " *" : ""}`, name: prop?.name ?? "title", type: prop?.type ?? "title" };
+  });
+  const changes: ChatChange[] = asked.map((q) => ({ property: q.label, value: q.name }));
+  const anonymous = isPublic && args.anonymous === true;
+  return {
+    action: {
+      action: "createForm",
+      target: await pageView(userId, target.page.id),
+      title,
+      changes,
+      properties: asked.map((q) => ({ name: q.label, type: q.type })),
+      content: formInput.form_description || null,
+      ...(isPublic ? { publicForm: anonymous ? "anonymous" : "signedIn" } : {}),
+    },
+    record: { kind: "write", action: "createForm", targetId: target.page.id, title, changes },
+    execute: async () => {
+      const databaseId = target.page.id;
+      const { properties: now, access } = await getDatabase(userId, databaseId);
+      const created = await addView(userId, databaseId, { name: title.slice(0, 100), type: "form" });
+      const start = access.viewConfig(created.config);
+      const config = { ...start, ...formConfigPatch(now, "form", start, formInput) };
+      if (config.form !== start.form) await updateView(userId, created.id, { config });
+      let link: { url: string; anonymous: boolean } | null = null;
+      let linkProblem = "";
+      if (isPublic) {
+        try {
+          link = await applyFormLink(userId, created.id, { public: true, anonymous });
+        } catch (error) {
+          if (!(error instanceof ToolInputError)) throw error;
+          linkProblem = error.message;
+        }
+      }
+      const inApp = `${env.appUrl}/w/${workspaceId}/p/${databaseId}?view=${created.id}`;
+      const shared = link
+        ? `Its public link, for anyone who has it${link.anonymous ? ", without signing in" : " (they sign in to answer)"}: ${env.appUrl}${link.url}`
+        : isPublic
+          ? `It got no public link: ${linkProblem} People of the workspace fill it in the app.`
+          : "It has no public link: people of the workspace fill it in the app.";
+      return { id: databaseId, title: target.page.title, text: `The form "${title}" of the database "${pageLabel(target.page.title)}". Open it in the app: ${inApp}\n${shared}` };
     },
   };
 }
@@ -857,7 +1426,13 @@ export async function applyWrite(prepared: PreparedWrite, decision: ChatDecision
             ? "Changed the page's text"
             : record.action === "createPdf"
               ? "Made the PDF and attached it to the page"
-              : "Added the page";
+              : record.action === "addComment"
+                ? "Added the comment"
+                : record.action === "createDatabase"
+                  ? "Made the database"
+                  : record.action === "createForm"
+                    ? "Made the form (give the person its links)"
+                    : "Added the page";
     return { content: `${what}; it is this source now:\n${formatSources([entry])}`, step: { ...record, outcome: "done", pageId: made.id } };
   } catch (error) {
     // The page was locked since the change was checked.

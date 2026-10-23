@@ -4,6 +4,7 @@ import { and, desc, eq, inArray, isNull } from "drizzle-orm";
 import { db } from "@/db";
 import { oauthAccessToken, oauthClient, oauthConsent, oauthRefreshToken } from "@/db/schema";
 import { isStrongSession } from "@/lib/auth-security";
+import { CLIENT_IP_HEADER } from "@/lib/client-ip";
 import { firstPolicyHold, memberWorkspaceIds } from "@/server/access";
 import { recordAudit } from "@/server/audit";
 import { forgetConnectedAppUse } from "@/server/connected-app-use";
@@ -111,9 +112,11 @@ type PolicySession = { user: { id: string; twoFactorEnabled?: boolean | null }; 
 /**
  * Where a session that one of the user's workspaces holds back goes before it may connect an app,
  * or null. A connected app reaches every workspace the user is in, outside their sign-in policies.
+ * `ip` is the request's address (CLIENT_IP_HEADER): from outside a workspace's approved networks,
+ * no app is connected either.
  */
-export async function connectingHeldBack(session: PolicySession) {
-  return firstPolicyHold(session.user.id, { strong: isStrongSession(session), ssoProviderId: session.session.ssoProviderId ?? null });
+export async function connectingHeldBack(session: PolicySession, ip: string | null) {
+  return firstPolicyHold(session.user.id, { strong: isStrongSession(session), ssoProviderId: session.session.ssoProviderId ?? null, ip });
 }
 
 /**
@@ -133,7 +136,7 @@ export function connectedAppAuditPlugin() {
             ctx.path === "/oauth2/update-consent",
           handler: createAuthMiddleware(async (ctx) => {
             const session = await getSessionFromCtx(ctx);
-            if (session && (await connectingHeldBack(session as PolicySession))) {
+            if (session && (await connectingHeldBack(session as PolicySession, ctx.headers?.get(CLIENT_IP_HEADER) ?? null))) {
               throw APIError.from("FORBIDDEN", { message: "A workspace's sign-in policy holds this session back", code: "workspace_policy" });
             }
           }),
