@@ -108,7 +108,7 @@ async function syncOne(userId: string, pageId: string) {
 function useKeepDownloads(userId: string, offline: boolean) {
   useEffect(() => {
     if (offline) return;
-    // The downloader loads only when there is something to download.
+    // The downloader loads only when there is something to download or clean up.
     const run = (background: boolean) => {
       if (wantedPages(readOfflineState(userId)).size === 0 && Object.keys(readOfflineState(userId).copies).length === 0) return;
       void import("./offline-download").then((m) => m.syncDownloads(userId, { background }));

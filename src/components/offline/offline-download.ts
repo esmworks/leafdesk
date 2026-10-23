@@ -11,8 +11,6 @@
  * offline), and the uploaded files it shows, each up to MAX_FILE_BYTES and MAX_PAGE_FILE_BYTES
  * together. Everything fails quietly: a page that couldn't be fetched is tried again next time.
  */
-import { loadDatabaseAction, loadRowAction } from "@/app/actions/databases";
-import { getSidebarAction } from "@/app/actions/pages";
 import { isDocOpen } from "@/components/collab/socket";
 import { rowSnapshotOf } from "@/components/database/row-snapshot";
 import { fileIdsIn } from "@/lib/files";
@@ -137,6 +135,8 @@ async function downloadOne(userId: string, page: OfflinePage): Promise<Outcome> 
   }
   // The rows (or a row's values), read-only offline like the copies of databases opened before.
   try {
+    // Loaded here, not with the app: every page carries this module.
+    const { loadDatabaseAction, loadRowAction } = await import("@/app/actions/databases");
     if (page.kind === "database") {
       const res = await loadDatabaseAction(page.id, { covers: false });
       if (!res.ok) return "gone";
@@ -263,6 +263,7 @@ async function syncRound(userId: string) {
   for (const root of state.kept) {
     if (!root.subpages || root.kind !== "page" || (!due.has(root.id) && !force.has(root.id) && root.children.length > 0)) continue;
     if (!trees.has(root.workspaceId)) {
+      const { getSidebarAction } = await import("@/app/actions/pages");
       trees.set(root.workspaceId, await getSidebarAction(root.workspaceId).then((s) => s.tree, () => null));
     }
     const tree = trees.get(root.workspaceId);

@@ -58,7 +58,7 @@ import type { PageKind } from "@/db/schema/app";
 import { authClient } from "@/lib/auth-client";
 import { closeOfflineDocs } from "@/components/collab/socket";
 import { useIsOffline } from "@/components/offline/offline-context";
-import { LazyOfflineToggle as OfflineToggle } from "@/components/offline/lazy-offline-toggle";
+import { OfflineToggle } from "@/components/offline/offline-toggle";
 import { useLocalMode } from "@/components/local-mode";
 import {
   loadSnapshot,
