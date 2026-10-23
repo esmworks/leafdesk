@@ -143,50 +143,53 @@ export function InboxDialog({
           className={cn("mt-1.5 h-2 w-2 shrink-0 rounded-full", item.read ? "bg-transparent" : "bg-accent")}
         />
         <span className="min-w-0 flex-1">
-          <span className={cn("flex items-center gap-1.5 text-sm", !item.read && "font-medium")}>
-            {item.kind === "agent_approval" ? (
-              <>
-                <ShieldQuestion aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
-                <span className="truncate">{t("approvalTitle", { agent: item.approval?.agentName ?? item.actorName ?? t("someone") })}</span>
-              </>
-            ) : item.kind === "agent_memory" ? (
-              <>
-                <NotebookPen aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
-                <span className="truncate">{t("memoryTitle", { agent: item.memory?.agentName ?? item.actorName ?? t("someone") })}</span>
-              </>
-            ) : item.kind === "agent_report" ? (
-              <>
-                <CalendarClock aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
-                <span className="truncate">{t("reportTitle", { agent: item.report?.agentName ?? item.actorName ?? t("someone") })}</span>
-              </>
-            ) : item.kind === "review" ? (
-              <>
-                <ClipboardCheck aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
-                <span className="truncate">{t("reviewTitle")}</span>
-              </>
-            ) : item.kind === "ai_account_detached" ? (
-              <>
-                <KeyRound aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
-                <span className="truncate">{t("aiAccountTitle")}</span>
-              </>
-            ) : item.kind === "row_email" || item.kind === "follow_up" ? (
-              <>
-                <Mail aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
-                <span className="truncate">{pageLabel(item.pageTitle ?? "", tc("untitled"))}</span>
-              </>
-            ) : item.pageId === null ? (
-              <>
-                <UserPlus aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
-                <span className="truncate">{t("joinRequestTitle")}</span>
-              </>
-            ) : (
-              <>
-                <PageIcon icon={item.pageIcon} kind="page" className="text-sm" />
-                <span className="truncate">{pageLabel(item.pageTitle ?? "", tc("untitled"))}</span>
-              </>
+          {/* Opened from its group, which names the page already. */}
+          {!nested && (
+            <span className={cn("flex items-center gap-1.5 text-sm", !item.read && "font-medium")}>
+              {item.kind === "agent_approval" ? (
+                <>
+                  <ShieldQuestion aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
+                  <span className="truncate">{t("approvalTitle", { agent: item.approval?.agentName ?? item.actorName ?? t("someone") })}</span>
+                </>
+              ) : item.kind === "agent_memory" ? (
+                <>
+                  <NotebookPen aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
+                  <span className="truncate">{t("memoryTitle", { agent: item.memory?.agentName ?? item.actorName ?? t("someone") })}</span>
+                </>
+              ) : item.kind === "agent_report" ? (
+                <>
+                  <CalendarClock aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
+                  <span className="truncate">{t("reportTitle", { agent: item.report?.agentName ?? item.actorName ?? t("someone") })}</span>
+                </>
+              ) : item.kind === "review" ? (
+                <>
+                  <ClipboardCheck aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
+                  <span className="truncate">{t("reviewTitle")}</span>
+                </>
+              ) : item.kind === "ai_account_detached" ? (
+                <>
+                  <KeyRound aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
+                  <span className="truncate">{t("aiAccountTitle")}</span>
+                </>
+              ) : item.kind === "row_email" || item.kind === "follow_up" ? (
+                <>
+                  <Mail aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
+                  <span className="truncate">{pageLabel(item.pageTitle ?? "", tc("untitled"))}</span>
+                </>
+              ) : item.pageId === null ? (
+                <>
+                  <UserPlus aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
+                  <span className="truncate">{t("joinRequestTitle")}</span>
+                </>
+              ) : (
+                <>
+                  <PageIcon icon={item.pageIcon} kind="page" className="text-sm" />
+                  <span className="truncate">{pageLabel(item.pageTitle ?? "", tc("untitled"))}</span>
+                </>
             )}
-          </span>
-          <span className="mt-0.5 block text-xs text-fg-muted">
+            </span>
+          )}
+          <span className={cn("block", nested ? cn("text-sm", !item.read && "font-medium") : "mt-0.5 text-xs text-fg-muted")}>
             {item.kind === "agent_approval"
               ? item.approval
                 ? t("approval", { tool: item.approval.tool, connection: item.approval.connectionName })
@@ -339,7 +342,7 @@ export function InboxDialog({
         <button
           type="button"
           aria-expanded={open}
-          className="flex w-full items-start gap-2.5 rounded-md px-3 py-2 pe-[4.5rem] text-start hover:bg-bg-hover"
+          className={cn("flex w-full items-start gap-2.5 rounded-md px-3 py-2 text-start hover:bg-bg-hover", entry.unread > 0 ? "pe-[6.25rem]" : "pe-[4.5rem]")}
           onClick={() => {
             if (unreadIds.length) void markRead(unreadIds);
             onClose();
@@ -365,7 +368,7 @@ export function InboxDialog({
                   />
                 ))}
               </span>
-              <span className="min-w-0 truncate">
+              <span className="min-w-0">
                 {parts.join(", ")}
                 {people.length > 0 && <> · {t("people", { name: people[0].actorName || t("someone"), others: people.length - 1 })}</>}
               </span>
