@@ -5,7 +5,7 @@
  * change made, a note kept about the person or dropped, a call to a connection's tool, a thought),
  * as a line: an icon and what happened, the pages it names as links.
  */
-import { Ban, BookOpen, Brain, BrainCog, CircleAlert, FileDown, FilePen, FilePlus, Filter, Lightbulb, ListPlus, Merge, PencilLine, Plug, Search } from "lucide-react";
+import { Ban, BookOpen, Brain, BrainCog, CircleAlert, ClipboardList, FileDown, FilePen, FilePlus, Filter, Lightbulb, ListPlus, Merge, MessageSquarePlus, PencilLine, Plug, Search, Table2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { Fragment } from "react";
 import { cn, PageIcon, pageLabel } from "@/components/ui";
@@ -93,7 +93,17 @@ export function StepLine({ step, onSource }: { step: ChatStepView; onSource: (so
   );
 }
 
-const WRITE_ICONS = { createRow: ListPlus, updateRow: PencilLine, createPage: FilePlus, editPage: FilePen, createPdf: FileDown, mergeRows: Merge } as const;
+const WRITE_ICONS = {
+  createRow: ListPlus,
+  updateRow: PencilLine,
+  createPage: FilePlus,
+  editPage: FilePen,
+  createPdf: FileDown,
+  mergeRows: Merge,
+  addComment: MessageSquarePlus,
+  createDatabase: Table2,
+  createForm: ClipboardList,
+} as const;
 
 /**
  * A change made ("Row added: <row> · in <database>", with the values set), declined or failed. The
@@ -104,8 +114,9 @@ function WriteLine({ step, onSource }: { step: ChatWriteView; onSource: (source:
   const Icon = step.outcome === "declined" ? Ban : step.outcome === "failed" ? CircleAlert : WRITE_ICONS[step.action];
   // A row or page changed is the change's subject; a row or page added goes into its target, and
   // so does a PDF made of a page (the file is its subject, by name).
-  const changedInPlace = step.action === "updateRow" || step.action === "editPage" || step.action === "mergeRows";
-  const pdf = step.action === "createPdf";
+  const changedInPlace = step.action === "updateRow" || step.action === "editPage" || step.action === "mergeRows" || step.action === "addComment";
+  // A form is named by its title, in the database it was added to.
+  const pdf = step.action === "createPdf" || step.action === "createForm";
   const where = changedInPlace ? null : pdf ? (step.page ?? step.target) : step.target;
   const subject = pdf ? null : (step.page ?? (changedInPlace ? step.target : null));
   return (

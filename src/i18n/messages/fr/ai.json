@@ -215,7 +215,10 @@
           "createPage": "Page ajoutée :",
           "editPage": "Texte de la page modifié :",
           "createPdf": "PDF créé :",
-          "mergeRows": "Lignes fusionnées dans :"
+          "mergeRows": "Lignes fusionnées dans :",
+          "addComment": "Commentaire ajouté sur :",
+          "createDatabase": "Base de données ajoutée :",
+          "createForm": "Formulaire ajouté :"
         },
         "declined": {
           "createRow": "Ajout de la ligne refusé :",
@@ -223,7 +226,10 @@
           "createPage": "Ajout de la page refusé :",
           "editPage": "Modification du texte refusée :",
           "createPdf": "Création du PDF refusée :",
-          "mergeRows": "Fusion refusée pour :"
+          "mergeRows": "Fusion refusée pour :",
+          "addComment": "Commentaire refusé sur :",
+          "createDatabase": "Ajout de la base de données refusé :",
+          "createForm": "Ajout du formulaire refusé :"
         },
         "failed": {
           "createRow": "Impossible d'ajouter la ligne :",
@@ -231,7 +237,10 @@
           "createPage": "Impossible d'ajouter la page :",
           "editPage": "Impossible de modifier le texte de :",
           "createPdf": "Impossible de créer le PDF :",
-          "mergeRows": "Impossible de fusionner les lignes dans :"
+          "mergeRows": "Impossible de fusionner les lignes dans :",
+          "addComment": "Impossible de commenter :",
+          "createDatabase": "Impossible d’ajouter la base de données :",
+          "createForm": "Impossible d’ajouter le formulaire :"
         },
         "in": "dans",
         "proposed": {
@@ -240,7 +249,10 @@
           "createPage": "Ajout d’une page proposé à la vérification :",
           "editPage": "Modification du texte proposée à la vérification :",
           "createPdf": "A proposé un PDF à vérifier :",
-          "mergeRows": "A proposé de fusionner des lignes, à valider, dans :"
+          "mergeRows": "A proposé de fusionner des lignes, à valider, dans :",
+          "addComment": "Commentaire proposé pour relecture sur :",
+          "createDatabase": "Base de données proposée pour relecture :",
+          "createForm": "Formulaire proposé pour relecture :"
         }
       },
       "memory": {
@@ -279,7 +291,10 @@
         "forget": "Oublier cette note ?",
         "editPage": "Modifier le texte de cette page ?",
         "createPdf": "Créer un PDF de cette page et le joindre ?",
-        "connection": "Envoyer ceci à {connection} ?"
+        "connection": "Envoyer ceci à {connection} ?",
+        "addComment": "Ajouter ce commentaire ?",
+        "createDatabase": "Ajouter cette base de données ?",
+        "createForm": "Ajouter ce formulaire ?"
       },
       "in": "Dans",
       "row": "Ligne",
@@ -292,7 +307,13 @@
       "waiting": "En attente de votre accord",
       "page": "Page",
       "empty": "(vide)",
-      "connectionHint": "Envoyé avec la connexion de l'espace de travail : cela peut modifier quelque chose sur {connection}"
+      "connectionHint": "Envoyé avec la connexion de l'espace de travail : cela peut modifier quelque chose sur {connection}",
+      "fromFile": "{rows, plural, one {# ligne} other {# lignes}} de {name}",
+      "titleColumn": "Titre",
+      "publicForm": {
+        "signedIn": "Lien public : toute personne ayant le lien peut répondre après s’être connectée",
+        "anonymous": "Lien public : toute personne ayant le lien peut répondre sans se connecter"
+      }
     },
     "mode": {
       "label": "Modifications",
@@ -309,7 +330,20 @@
       "retry": "Répondre à nouveau"
     },
     "actionsFor": "Actions pour {name}",
-    "greeting": "Que voulez-vous savoir ?"
+    "greeting": "Que voulez-vous savoir ?",
+    "files": {
+      "attach": "Joindre un fichier CSV",
+      "attachHint": "Joindre un fichier CSV (jusqu’à 1 000 lignes et 1 Mo) pour poser des questions dessus ou en faire une base de données",
+      "drop": "Déposez le fichier CSV pour le joindre",
+      "remove": "Retirer {name}",
+      "size": "{rows, plural, one {# ligne} other {# lignes}} × {columns, plural, one {# colonne} other {# colonnes}}",
+      "notCsv": "Seuls les fichiers CSV peuvent être joints. Enregistrez d’abord le tableur au format CSV.",
+      "tooLarge": "Ce fichier dépasse {size}. Joignez un fichier CSV plus petit.",
+      "tooManyRows": "Ce fichier a plus de {rows} lignes. Joignez un CSV plus court, ou importez-le comme base de données.",
+      "tooManyColumns": "Ce fichier a plus de {columns} colonnes.",
+      "empty": "Ce fichier est vide.",
+      "tooMany": "Une question peut avoir au plus {count} fichiers."
+    }
   },
   "memory": {
     "open": "Mémoire",

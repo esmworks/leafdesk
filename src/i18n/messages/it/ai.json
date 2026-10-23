@@ -215,7 +215,10 @@
           "createPage": "Pagina aggiunta:",
           "editPage": "Testo della pagina modificato:",
           "createPdf": "PDF creato:",
-          "mergeRows": "Righe unite in:"
+          "mergeRows": "Righe unite in:",
+          "addComment": "Commento aggiunto su:",
+          "createDatabase": "Database aggiunto:",
+          "createForm": "Modulo aggiunto:"
         },
         "declined": {
           "createRow": "Aggiunta della riga rifiutata:",
@@ -223,7 +226,10 @@
           "createPage": "Aggiunta della pagina rifiutata:",
           "editPage": "Modifica del testo rifiutata:",
           "createPdf": "Creazione del PDF rifiutata:",
-          "mergeRows": "Unione rifiutata per:"
+          "mergeRows": "Unione rifiutata per:",
+          "addComment": "Commento rifiutato su:",
+          "createDatabase": "Aggiunta del database rifiutata:",
+          "createForm": "Aggiunta del modulo rifiutata:"
         },
         "failed": {
           "createRow": "Impossibile aggiungere la riga:",
@@ -231,7 +237,10 @@
           "createPage": "Impossibile aggiungere la pagina:",
           "editPage": "Impossibile modificare il testo di:",
           "createPdf": "Impossibile creare il PDF:",
-          "mergeRows": "Impossibile unire le righe in:"
+          "mergeRows": "Impossibile unire le righe in:",
+          "addComment": "Impossibile commentare:",
+          "createDatabase": "Impossibile aggiungere il database:",
+          "createForm": "Impossibile aggiungere il modulo:"
         },
         "in": "in",
         "proposed": {
@@ -240,7 +249,10 @@
           "createPage": "Aggiunta di una pagina proposta da rivedere:",
           "editPage": "Modifica del testo proposta da rivedere:",
           "createPdf": "Ha proposto un PDF da rivedere:",
-          "mergeRows": "Ha proposto di unire righe, da revisionare, in:"
+          "mergeRows": "Ha proposto di unire righe, da revisionare, in:",
+          "addComment": "Ha proposto un commento da rivedere su:",
+          "createDatabase": "Ha proposto un database da rivedere:",
+          "createForm": "Ha proposto un modulo da rivedere:"
         }
       },
       "memory": {
@@ -279,7 +291,10 @@
         "forget": "Dimenticare questa nota?",
         "editPage": "Modificare il testo di questa pagina?",
         "createPdf": "Creare un PDF di questa pagina e allegarlo?",
-        "connection": "Inviare questo a {connection}?"
+        "connection": "Inviare questo a {connection}?",
+        "addComment": "Aggiungere questo commento?",
+        "createDatabase": "Aggiungere questo database?",
+        "createForm": "Aggiungere questo modulo?"
       },
       "in": "In",
       "row": "Riga",
@@ -292,7 +307,13 @@
       "waiting": "In attesa della tua approvazione",
       "page": "Pagina",
       "empty": "(vuoto)",
-      "connectionHint": "Inviato con la connessione dello spazio di lavoro: può cambiare qualcosa su {connection}"
+      "connectionHint": "Inviato con la connessione dello spazio di lavoro: può cambiare qualcosa su {connection}",
+      "fromFile": "{rows, plural, one {# riga} other {# righe}} da {name}",
+      "titleColumn": "Titolo",
+      "publicForm": {
+        "signedIn": "Link pubblico: chiunque abbia il link può rispondere dopo aver effettuato l’accesso",
+        "anonymous": "Link pubblico: chiunque abbia il link può rispondere senza accedere"
+      }
     },
     "mode": {
       "label": "Modifiche",
@@ -309,7 +330,20 @@
       "retry": "Rispondi di nuovo"
     },
     "actionsFor": "Azioni per {name}",
-    "greeting": "Cosa vuoi sapere?"
+    "greeting": "Cosa vuoi sapere?",
+    "files": {
+      "attach": "Allega un file CSV",
+      "attachHint": "Allega un file CSV (fino a 1.000 righe e 1 MB) per fare domande o crearne un database",
+      "drop": "Rilascia il file CSV per allegarlo",
+      "remove": "Rimuovi {name}",
+      "size": "{rows, plural, one {# riga} other {# righe}} × {columns, plural, one {# colonna} other {# colonne}}",
+      "notCsv": "Si possono allegare solo file CSV. Salva prima il foglio di calcolo come CSV.",
+      "tooLarge": "Il file supera {size}. Allega un CSV più piccolo.",
+      "tooManyRows": "Il file ha più di {rows} righe. Allega un CSV più corto o importalo come database.",
+      "tooManyColumns": "Il file ha più di {columns} colonne.",
+      "empty": "Il file è vuoto.",
+      "tooMany": "Una domanda può avere al massimo {count} file."
+    }
   },
   "memory": {
     "open": "Memoria",

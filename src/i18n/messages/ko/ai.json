@@ -215,7 +215,10 @@
           "createPage": "페이지 추가됨:",
           "editPage": "페이지 텍스트 변경됨:",
           "createPdf": "PDF를 만들었습니다:",
-          "mergeRows": "행을 병합한 곳:"
+          "mergeRows": "행을 병합한 곳:",
+          "addComment": "댓글을 남김:",
+          "createDatabase": "데이터베이스 추가됨:",
+          "createForm": "양식 추가됨:"
         },
         "declined": {
           "createRow": "행 추가 거절됨:",
@@ -223,7 +226,10 @@
           "createPage": "페이지 추가 거절됨:",
           "editPage": "텍스트 변경 거절됨:",
           "createPdf": "PDF 만들기가 거부되었습니다:",
-          "mergeRows": "행 병합을 거절함:"
+          "mergeRows": "행 병합을 거절함:",
+          "addComment": "댓글을 거절함:",
+          "createDatabase": "데이터베이스 추가를 거절함:",
+          "createForm": "양식 추가를 거절함:"
         },
         "failed": {
           "createRow": "행을 추가하지 못함:",
@@ -231,7 +237,10 @@
           "createPage": "페이지를 추가하지 못함:",
           "editPage": "텍스트를 변경하지 못함:",
           "createPdf": "PDF를 만들 수 없습니다:",
-          "mergeRows": "행을 병합하지 못함:"
+          "mergeRows": "행을 병합하지 못함:",
+          "addComment": "댓글을 남기지 못함:",
+          "createDatabase": "데이터베이스를 추가하지 못함:",
+          "createForm": "양식을 추가하지 못함:"
         },
         "in": "위치:",
         "proposed": {
@@ -240,7 +249,10 @@
           "createPage": "검토용 페이지 추가 제안:",
           "editPage": "검토용 텍스트 변경 제안:",
           "createPdf": "검토용 PDF를 제안했습니다:",
-          "mergeRows": "검토를 위해 행 병합을 제안함:"
+          "mergeRows": "검토를 위해 행 병합을 제안함:",
+          "addComment": "검토용 댓글을 제안함:",
+          "createDatabase": "검토용 데이터베이스를 제안함:",
+          "createForm": "검토용 양식을 제안함:"
         }
       },
       "memory": {
@@ -279,7 +291,10 @@
         "forget": "이 메모를 잊을까요?",
         "editPage": "이 페이지의 텍스트를 변경할까요?",
         "createPdf": "이 페이지의 PDF를 만들어 첨부할까요?",
-        "connection": "이 내용을 {connection}(으)로 보낼까요?"
+        "connection": "이 내용을 {connection}(으)로 보낼까요?",
+        "addComment": "이 댓글을 추가할까요?",
+        "createDatabase": "이 데이터베이스를 추가할까요?",
+        "createForm": "이 양식을 추가할까요?"
       },
       "in": "위치",
       "row": "행",
@@ -292,7 +307,13 @@
       "waiting": "승인 대기 중",
       "page": "페이지",
       "empty": "(비어 있음)",
-      "connectionHint": "워크스페이스의 연결로 보내집니다: {connection}에서 무언가가 바뀔 수 있습니다"
+      "connectionHint": "워크스페이스의 연결로 보내집니다: {connection}에서 무언가가 바뀔 수 있습니다",
+      "fromFile": "{name}에서 {rows, plural, other {#행}}",
+      "titleColumn": "제목",
+      "publicForm": {
+        "signedIn": "공개 링크: 링크가 있는 누구나 로그인 후 응답할 수 있습니다",
+        "anonymous": "공개 링크: 링크가 있는 누구나 로그인 없이 응답할 수 있습니다"
+      }
     },
     "mode": {
       "label": "변경",
@@ -309,7 +330,20 @@
       "retry": "다시 답변"
     },
     "actionsFor": "{name} 작업",
-    "greeting": "무엇이 궁금하세요?"
+    "greeting": "무엇이 궁금하세요?",
+    "files": {
+      "attach": "CSV 파일 첨부",
+      "attachHint": "CSV 파일(최대 1,000행, 1MB)을 첨부해 질문하거나 데이터베이스로 만들 수 있습니다",
+      "drop": "CSV 파일을 놓아 첨부하세요",
+      "remove": "{name} 제거",
+      "size": "{rows, plural, other {#행}} × {columns, plural, other {#열}}",
+      "notCsv": "CSV 파일만 첨부할 수 있습니다. 스프레드시트를 먼저 CSV로 저장하세요.",
+      "tooLarge": "파일이 {size}보다 큽니다. 더 작은 CSV 파일을 첨부하세요.",
+      "tooManyRows": "파일이 {rows}행을 넘습니다. 더 짧은 CSV 파일을 첨부하거나 데이터베이스로 가져오세요.",
+      "tooManyColumns": "파일이 {columns}열을 넘습니다.",
+      "empty": "파일이 비어 있습니다.",
+      "tooMany": "질문 하나에 파일은 최대 {count}개까지 첨부할 수 있습니다."
+    }
   },
   "memory": {
     "open": "메모리",

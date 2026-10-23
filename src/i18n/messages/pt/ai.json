@@ -215,7 +215,10 @@
           "createPage": "Página adicionada:",
           "editPage": "Texto da página alterado:",
           "createPdf": "PDF criado:",
-          "mergeRows": "Linhas mescladas em:"
+          "mergeRows": "Linhas mescladas em:",
+          "addComment": "Comentou em:",
+          "createDatabase": "Banco de dados adicionado:",
+          "createForm": "Formulário adicionado:"
         },
         "declined": {
           "createRow": "Recusado adicionar a linha:",
@@ -223,7 +226,10 @@
           "createPage": "Recusado adicionar a página:",
           "editPage": "Recusado alterar o texto de:",
           "createPdf": "Criação do PDF recusada:",
-          "mergeRows": "Mesclagem recusada em:"
+          "mergeRows": "Mesclagem recusada em:",
+          "addComment": "Recusou comentar em:",
+          "createDatabase": "Recusou adicionar o banco de dados:",
+          "createForm": "Recusou adicionar o formulário:"
         },
         "failed": {
           "createRow": "Não foi possível adicionar a linha:",
@@ -231,7 +237,10 @@
           "createPage": "Não foi possível adicionar a página:",
           "editPage": "Não foi possível alterar o texto de:",
           "createPdf": "Não foi possível criar o PDF:",
-          "mergeRows": "Não foi possível mesclar linhas em:"
+          "mergeRows": "Não foi possível mesclar linhas em:",
+          "addComment": "Não foi possível comentar em:",
+          "createDatabase": "Não foi possível adicionar o banco de dados:",
+          "createForm": "Não foi possível adicionar o formulário:"
         },
         "in": "em",
         "proposed": {
@@ -240,7 +249,10 @@
           "createPage": "Propôs adicionar uma página para revisão:",
           "editPage": "Propôs uma alteração de texto para revisão:",
           "createPdf": "Propôs um PDF para revisão:",
-          "mergeRows": "Propôs mesclar linhas para revisão em:"
+          "mergeRows": "Propôs mesclar linhas para revisão em:",
+          "addComment": "Propôs um comentário para revisão em:",
+          "createDatabase": "Propôs um banco de dados para revisão:",
+          "createForm": "Propôs um formulário para revisão:"
         }
       },
       "memory": {
@@ -279,7 +291,10 @@
         "forget": "Esquecer esta nota?",
         "editPage": "Alterar o texto desta página?",
         "createPdf": "Criar um PDF desta página e anexá-lo?",
-        "connection": "Enviar isto para {connection}?"
+        "connection": "Enviar isto para {connection}?",
+        "addComment": "Adicionar este comentário?",
+        "createDatabase": "Adicionar este banco de dados?",
+        "createForm": "Adicionar este formulário?"
       },
       "in": "Em",
       "row": "Linha",
@@ -292,7 +307,13 @@
       "waiting": "Aguardando sua aprovação",
       "page": "Página",
       "empty": "(vazio)",
-      "connectionHint": "Enviado com a conexão do espaço de trabalho: pode mudar algo em {connection}"
+      "connectionHint": "Enviado com a conexão do espaço de trabalho: pode mudar algo em {connection}",
+      "fromFile": "{rows, plural, one {# linha} other {# linhas}} de {name}",
+      "titleColumn": "Título",
+      "publicForm": {
+        "signedIn": "Link público: qualquer pessoa com o link pode responder depois de entrar",
+        "anonymous": "Link público: qualquer pessoa com o link pode responder sem entrar"
+      }
     },
     "mode": {
       "label": "Alterações",
@@ -309,7 +330,20 @@
       "retry": "Responder novamente"
     },
     "actionsFor": "Ações de {name}",
-    "greeting": "O que você quer saber?"
+    "greeting": "O que você quer saber?",
+    "files": {
+      "attach": "Anexar um arquivo CSV",
+      "attachHint": "Anexe um arquivo CSV (até 1.000 linhas e 1 MB) para perguntar sobre ele ou criar um banco de dados a partir dele",
+      "drop": "Solte o arquivo CSV para anexá-lo",
+      "remove": "Remover {name}",
+      "size": "{rows, plural, one {# linha} other {# linhas}} × {columns, plural, one {# coluna} other {# colunas}}",
+      "notCsv": "Só é possível anexar arquivos CSV. Salve a planilha como CSV primeiro.",
+      "tooLarge": "O arquivo é maior que {size}. Anexe um CSV menor.",
+      "tooManyRows": "O arquivo tem mais de {rows} linhas. Anexe um CSV mais curto ou importe-o como banco de dados.",
+      "tooManyColumns": "O arquivo tem mais de {columns} colunas.",
+      "empty": "O arquivo está vazio.",
+      "tooMany": "Uma pergunta pode ter no máximo {count} arquivos."
+    }
   },
   "memory": {
     "open": "Memória",

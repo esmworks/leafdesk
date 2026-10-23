@@ -19,7 +19,9 @@ import {
   Copy,
   Eye,
   Hand,
+  Globe,
   Loader2,
+  Paperclip,
   Pencil,
   RotateCcw,
   ScrollText,
@@ -28,12 +30,16 @@ import {
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { Fragment, lazy, Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
+import { usePropertyTypeLabel } from "@/components/database/property-icons";
 import { BlockChanges } from "@/components/page/history-diff";
 import { copyText } from "@/components/settings/copy-button";
 import { Button, cn, IconButton, MenuItem, Popover } from "@/components/ui";
 import { CHAT_MODES, changedMemory, changedThings, type ChatMode, type ChatSourceView, stripCitations } from "@/lib/ai-chat";
+import { isCsvFile } from "@/lib/chat-attachments";
+import { PROPERTY_TYPES, type PropertyType } from "@/lib/property-types";
 import { caretOutsideLabels, deleteLabel, insertDictation, normalizePaste, shouldCollapsePaste, type PastePart } from "@/lib/chat-paste";
 import type { VoiceNoteLimits } from "@/lib/voice-notes";
+import { AttachmentChip } from "./attachment-chip";
 import { DictateButton, useCanRecord, type DictationNotice } from "./dictate-button";
 import { MemoryDialog } from "./memory-dialog";
 import { SkillChip, SkillList, useSkillPicker } from "./skill-picker";
@@ -63,6 +69,10 @@ export function ChatThread({
 }) {
   const t = useTranslations("ai.chat");
   const [memoryOpen, setMemoryOpen] = useState(false);
+  // CSV files go in through the button, by dropping them on the box, or pasted.
+  const fileInput = useRef<HTMLInputElement>(null);
+  const [dropping, setDropping] = useState(false);
+  const carriesFiles = (e: React.DragEvent) => Array.from(e.dataTransfer.types).includes("Files");
   const tSkills = useTranslations("skills.chat");
   const { messages, status, error, input, setInput, running, inputRef } = chat;
   const listRef = useRef<HTMLDivElement>(null);
@@ -118,6 +128,7 @@ export function ChatThread({
     if (el && (opened || asked || el.scrollHeight - el.scrollTop - el.clientHeight < 120)) el.scrollTop = el.scrollHeight;
   }, [messages, status, chat.conversationId]);
 
+  const hasFiles = chat.files.length > 0;
   const send = () => {
     if (blocked) return;
     setDictation(null);
@@ -217,12 +228,33 @@ export function ChatThread({
                 e.preventDefault();
                 send();
               }}
+              onDragOver={(e) => {
+                if (blocked || !carriesFiles(e)) return;
+                e.preventDefault();
+                e.dataTransfer.dropEffect = "copy";
+                setDropping(true);
+              }}
+              onDragLeave={(e) => {
+                if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setDropping(false);
+              }}
+              onDrop={(e) => {
+                if (!carriesFiles(e)) return;
+                e.preventDefault();
+                setDropping(false);
+                if (!blocked) void chat.attachFiles(Array.from(e.dataTransfer.files));
+              }}
               className={cn(
                 // A faint edge that firms up a little while typing; the shadow lifts it off the page.
                 "relative border border-border/60 bg-bg transition-colors focus-within:border-border",
                 page ? "rounded-3xl px-4 pt-3 pb-2.5 shadow-[0_2px_12px_rgb(0_0_0/0.05)]" : "rounded-xl px-2 py-1.5",
+                dropping && "border-accent focus-within:border-accent",
               )}
             >
+              {dropping && (
+                <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-[inherit] bg-bg/90 text-sm text-fg-muted">
+                  {t("files.drop")}
+                </div>
+              )}
               <SkillList picker={skills} />
               {chat.skill && (
                 <SkillChip
@@ -232,6 +264,13 @@ export function ChatThread({
                     inputRef.current?.focus();
                   }}
                 />
+              )}
+              {hasFiles && (
+                <div className="mb-1.5 flex flex-wrap gap-1.5">
+                  {chat.files.map((f) => (
+                    <AttachmentChip key={f.name} file={f} onRemove={() => chat.removeFile(f.name)} />
+                  ))}
+                </div>
               )}
               <div className="relative">
                 {chips && <PasteChips text={input} pastes={chat.pastes} boxRef={chipsRef} className={boxText} />}
@@ -252,6 +291,13 @@ export function ChatThread({
                   }}
                   // A long paste goes in as a label (the text itself is sent in its place).
                   onPaste={(e) => {
+                    // A copied CSV file is attached, not pasted as its name.
+                    const pasted = Array.from(e.clipboardData.files).filter(isCsvFile);
+                    if (pasted.length) {
+                      e.preventDefault();
+                      void chat.attachFiles(pasted);
+                      return;
+                    }
                     const raw = e.clipboardData.getData("text/plain");
                     if (!raw || !shouldCollapsePaste(raw)) return;
                     e.preventDefault();
@@ -319,6 +365,27 @@ export function ChatThread({
                   >
                     <ScrollText className="h-4 w-4" />
                   </IconButton>
+                  <IconButton
+                    label={t("files.attach")}
+                    title={t("files.attachHint")}
+                    className="h-7 w-7 disabled:opacity-40 disabled:hover:bg-transparent"
+                    disabled={Boolean(blocked)}
+                    onClick={() => fileInput.current?.click()}
+                  >
+                    <Paperclip className="h-4 w-4" />
+                  </IconButton>
+                  <input
+                    ref={fileInput}
+                    type="file"
+                    accept=".csv,text/csv"
+                    multiple
+                    hidden
+                    onChange={(e) => {
+                      const picked = Array.from(e.currentTarget.files ?? []);
+                      e.currentTarget.value = "";
+                      if (picked.length) void chat.attachFiles(picked);
+                    }}
+                  />
                   {voice && canRecord && (
                     <DictateButton workspaceId={chat.workspaceId} limits={voice} disabled={Boolean(blocked)} onText={dictated} onNotice={setDictation} />
                   )}
@@ -327,7 +394,7 @@ export function ChatThread({
                     way, Stop is a ring, and a typed question can be queued beside it. */}
                 {running ? (
                   <div className="flex items-center gap-1.5">
-                    {input.trim() && (
+                    {(input.trim() || hasFiles) && (
                       <button
                         type="submit"
                         aria-label={t("queue.add")}
@@ -354,7 +421,7 @@ export function ChatThread({
                     aria-label={t("send")}
                     title={t("send")}
                     className={sendButton}
-                    disabled={Boolean(blocked) || !input.trim() || skills.open}
+                    disabled={Boolean(blocked) || (!input.trim() && !hasFiles) || skills.open}
                   >
                     <ArrowUp className="h-3.5 w-3.5" />
                   </button>
@@ -533,7 +600,14 @@ function Question({ message, page, onEdit }: { message: ChatMessage; page: boole
           <span className="min-w-0 truncate">{tSkills("used", { title: message.skill.title || tc("untitled") })}</span>
         </p>
       )}
-      <div className={cn("rounded-lg bg-bg-subtle px-3 py-2 text-sm whitespace-pre-wrap break-words", place)}>{message.content}</div>
+      {message.attachments && message.attachments.length > 0 && (
+        <div className={cn("mb-1 flex flex-wrap gap-1.5", page ? "justify-end" : "ms-8")}>
+          {message.attachments.map((f) => (
+            <AttachmentChip key={f.name} file={f} />
+          ))}
+        </div>
+      )}
+      {message.content && <div className={cn("rounded-lg bg-bg-subtle px-3 py-2 text-sm whitespace-pre-wrap break-words", place)}>{message.content}</div>}
       <div className={cn("mt-1 flex items-center justify-end gap-0.5", revealed)}>
         {message.at && <MessageTime at={message.at} />}
         {onEdit && (
@@ -796,8 +870,10 @@ function ChangePrompt({
   onSource: (source: ChatSourceView) => void;
 }) {
   const t = useTranslations("ai.chat.approval");
+  const typeLabel = usePropertyTypeLabel();
   const first = useRef<HTMLButtonElement>(null);
   const { action } = pending;
+  const comment = action.action === "addComment";
   const memory = isMemory(action);
   const call = action.action === "connection";
   const decisions = memory || call ? EACH_TIME_DECISIONS : DECISIONS;
@@ -820,7 +896,10 @@ function ChangePrompt({
     >
       <p className="font-medium">{question}</p>
       <div className="mt-1.5 space-y-1">
-        {action.title && (
+        {action.title && comment && (
+          <p className="border-s-2 border-border ps-2 text-xs break-words text-fg-muted">“{action.title}”</p>
+        )}
+        {action.title && !comment && (
           <p className="font-medium break-words text-fg">
             {memory ? (
               `“${action.title}”`
@@ -842,14 +921,25 @@ function ChangePrompt({
             t("connectionHint", { connection: action.connection?.name ?? "" })
           ) : action.target ? (
             <>
-              {t(action.action === "updateRow" ? "row" : action.action === "editPage" || action.action === "createPdf" ? "page" : "in")}
+              {t(action.action === "updateRow" ? "row" : action.action === "editPage" || action.action === "createPdf" || comment ? "page" : "in")}
               <PageLink page={action.target} onSource={onSource} />
             </>
           ) : (
             t("topLevel")
           )}
         </p>
-        {action.changes.length > 0 && (
+        {action.fromFile && <p className="text-xs text-fg-muted">{t("fromFile", { rows: action.fromFile.rows, name: action.fromFile.name })}</p>}
+        {action.properties && action.properties.length > 0 && (
+          <ul className="space-y-0.5 text-xs">
+            {action.properties.map((p, i) => (
+              <li key={i} className="break-words">
+                <span className="text-fg-muted">{p.name}:</span> {p.type === "title" ? t("titleColumn") : PROPERTY_TYPES.includes(p.type as PropertyType) ? typeLabel(p.type as PropertyType) : p.type}
+                {p.options && p.options.length > 0 && <span className="text-fg-muted"> · {p.options.join(", ")}</span>}
+              </li>
+            ))}
+          </ul>
+        )}
+        {action.changes.length > 0 && !action.properties && (
           <ul className="space-y-0.5 text-xs">
             {action.changes.map((c, i) => (
               <li key={i} className="break-words">
@@ -870,6 +960,12 @@ function ChangePrompt({
           ) : (
             <p className="line-clamp-4 rounded bg-bg-subtle px-2 py-1 text-xs whitespace-pre-wrap text-fg-muted">{action.content}</p>
           ))}
+        {action.publicForm && (
+          <p className="flex items-center gap-1.5 text-xs text-fg-muted">
+            <Globe className="h-3.5 w-3.5 shrink-0" />
+            {t(`publicForm.${action.publicForm}`)}
+          </p>
+        )}
         {action.diff && action.diff.length > 0 && (
           <div className="max-h-64 space-y-0.5 overflow-y-auto rounded bg-bg-subtle px-1 py-1 text-xs">
             <BlockChanges changes={action.diff} compact />

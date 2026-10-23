@@ -18,7 +18,8 @@ vi.mock("@/server/collab/bridge", () => ({ getCollab: vi.fn() }));
 vi.mock("@/server/pages", () => ({ getTree: vi.fn() }));
 vi.mock("@/server/databases", () => ({ normalizeRowProperties: vi.fn() }));
 const searchCalls = vi.hoisted(() => [] as unknown[][]);
-vi.mock("@/server/operations", () => ({
+vi.mock("@/server/operations", async () => ({
+  rowValue: (await import("zod")).z.any(),
   search: async (...args: unknown[]) => {
     searchCalls.push(args);
     return { results };
