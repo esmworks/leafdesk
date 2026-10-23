@@ -19,6 +19,9 @@ export const LOCALE_NAMES = {
   ja: "日本語",
   ko: "한국어",
   zh: "简体中文",
+  id: "Bahasa Indonesia",
+  th: "ไทย",
+  vi: "Tiếng Việt",
 } as const satisfies Record<string, string>;
 
 export type Locale = keyof typeof LOCALE_NAMES;

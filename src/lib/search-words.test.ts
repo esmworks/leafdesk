@@ -20,6 +20,8 @@ describe("any-word search terms", () => {
     expect(anyWordTerms("Где счёт за октябрь?")).toEqual(["счёт", "октяб"]);
     expect(anyWordTerms("أين فاتورة أكتوبر؟")).toEqual(["فاتورة", "أكتوبر"]);
     expect(anyWordTerms("para transferi")).toEqual(["para", "trans"]);
+    expect(anyWordTerms("Di mana tagihan untuk bulan Oktober?")).toEqual(["mana", "tagih", "bulan", "Oktob"]);
+    expect(anyWordTerms("Hóa đơn tháng mười ở đâu?")).toEqual(["Hóa", "đơn", "tháng", "mười"]);
   });
 
   it("lets nothing but letters and digits through, each word once", () => {

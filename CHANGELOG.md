@@ -4,6 +4,11 @@
 
 ### Added
 
+- **Indonesian, Thai and Vietnamese.** The app, its emails, templates, the editor's menus and the
+  desktop app now speak Bahasa Indonesia, ไทย and Tiếng Việt, chosen in My account → Language or
+  taken from the browser. Quick add knows their date words, CSV import their title columns and
+  yes/no words, the AI chat's search their question words, and the AI translates into them. Thai
+  is searched by whole runs of text for now: a word inside a longer run isn't found.
 - **Rows can give the people they name access.** *Row access* in a database's ⋯ menu (full
   access) adds rules: the people in a person property, or a row's creator, get view, comment, edit
   or full access to their rows and the pages inside them, on top of what sharing gives. A database
