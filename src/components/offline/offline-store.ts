@@ -4,17 +4,22 @@
  * Browser side of the offline copies (see lib/offline.ts for what is kept where). Every function
  * here fails quietly: private windows, full disks and blocked storage just mean no offline copy.
  */
+import { useSyncExternalStore } from "react";
 import {
   belongsToSomeoneElse,
+  databaseSnapshotKey,
   EMPTY_STATE,
+  filesOnlyIn,
   forgetPage,
   isOfflineStore,
+  keptSnapshotKeys,
   offlineStateKey,
   PAGE_CACHE_PREFIX,
   pageCacheName,
   pageStoreName,
   parseOfflineState,
   rememberRecent,
+  rowSnapshotKey,
   setDirty,
   snapshotStoreName,
   snapshotsToEvict,
@@ -23,20 +28,31 @@ import {
   type RecentPage,
 } from "@/lib/offline";
 
+export { databaseSnapshotKey, rowSnapshotKey, treeSnapshotKey } from "@/lib/offline";
+
 // ---------------------------------------------------------------------------------------------
-// Recently opened pages and pages with unsent edits (localStorage, small and synchronous).
+// Recently opened pages, pages with unsent edits and downloaded pages (localStorage, small and
+// synchronous).
 
 const stateListeners = new Set<() => void>();
+// The last state read per user, so React gets the same object until the stored text changes.
+const parsed = new Map<string, { raw: string | null; state: OfflineState }>();
 
 export function readOfflineState(userId: string): OfflineState {
   try {
-    return parseOfflineState(localStorage.getItem(offlineStateKey(userId)));
+    const raw = localStorage.getItem(offlineStateKey(userId));
+    const cached = parsed.get(userId);
+    if (cached && cached.raw === raw) return cached.state;
+    const state = parseOfflineState(raw);
+    parsed.set(userId, { raw, state });
+    return state;
   } catch {
     return EMPTY_STATE;
   }
 }
 
-function writeOfflineState(userId: string, change: (state: OfflineState) => OfflineState) {
+/** Changes the stored state; `change` returns its argument itself to leave it as it is. */
+export function writeOfflineState(userId: string, change: (state: OfflineState) => OfflineState) {
   try {
     const before = readOfflineState(userId);
     const after = change(before);
@@ -48,7 +64,24 @@ function writeOfflineState(userId: string, change: (state: OfflineState) => Offl
 
 export function onOfflineStateChange(listener: () => void) {
   stateListeners.add(listener);
-  return () => void stateListeners.delete(listener);
+  // Other tabs of this browser change it too.
+  const onStorage = (event: StorageEvent) => {
+    if (event.key === null || event.key.startsWith("leafdesk:offline:")) listener();
+  };
+  window.addEventListener("storage", onStorage);
+  return () => {
+    stateListeners.delete(listener);
+    window.removeEventListener("storage", onStorage);
+  };
+}
+
+/** The stored state, following changes from this tab and others. Empty without a user. */
+export function useOfflineState(userId: string | undefined): OfflineState {
+  return useSyncExternalStore(
+    onOfflineStateChange,
+    () => (userId ? readOfflineState(userId) : EMPTY_STATE),
+    () => EMPTY_STATE,
+  );
 }
 
 export function rememberPage(userId: string, page: Omit<RecentPage, "at">) {
@@ -69,9 +102,6 @@ export function markDirty(userId: string, pageId: string, dirty: boolean) {
 
 type Snapshot<T> = { key: string; savedAt: number; data: T };
 
-export const treeSnapshotKey = (workspaceId: string) => `tree:${workspaceId}`;
-export const databaseSnapshotKey = (databaseId: string, covers: boolean) => `db:${databaseId}${covers ? ":covers" : ""}`;
-export const rowSnapshotKey = (rowId: string) => `row:${rowId}`;
 const SNAPSHOTS = "snapshots";
 
 function openSnapshots(userId: string): Promise<IDBDatabase> {
@@ -109,7 +139,9 @@ export async function saveSnapshot<T>(userId: string, key: string, data: T): Pro
         req.onsuccess = () => resolve(req.result as Snapshot<unknown>[]);
         req.onerror = () => reject(req.error);
       });
-      for (const old of snapshotsToEvict(all.map(({ key, savedAt }) => ({ key, savedAt })))) store.delete(old);
+      // Downloaded pages' rows stay however many other databases were opened since.
+      const keep = keptSnapshotKeys(readOfflineState(userId));
+      for (const old of snapshotsToEvict(all.map(({ key, savedAt }) => ({ key, savedAt })), undefined, keep)) store.delete(old);
       await done(tx);
     } finally {
       db.close();
@@ -151,7 +183,7 @@ export async function deleteSnapshot(userId: string, key: string): Promise<void>
 // ---------------------------------------------------------------------------------------------
 // Wiping.
 
-function deleteDatabase(name: string) {
+export function deleteDatabase(name: string) {
   return new Promise<void>((resolve) => {
     try {
       const request = indexedDB.deleteDatabase(name);
@@ -226,18 +258,28 @@ export async function wipeAllOfflineData() {
   stateListeners.forEach((l) => l());
 }
 
-/** The server refused the page: its offline copy, cached HTML and list entries go. */
+/** The server refused the page: its offline copy, cached HTML, files and list entries go. */
 export async function forgetOfflinePage(userId: string, pageId: string) {
+  const files = filesOnlyIn(readOfflineState(userId), pageId);
   writeOfflineState(userId, (s) => forgetPage(s, pageId));
   await deleteDatabase(pageStoreName(userId, pageId));
   await Promise.all([
     deleteSnapshot(userId, rowSnapshotKey(pageId)),
     deleteSnapshot(userId, databaseSnapshotKey(pageId, false)),
     deleteSnapshot(userId, databaseSnapshotKey(pageId, true)),
+    dropCachedPage(userId, pageId, files),
   ]);
+}
+
+/** A page's kept HTML and the given files of it, from the per-user page cache. */
+export async function dropCachedPage(userId: string, pageId: string | null, files: string[]) {
   try {
     const cache = await caches.open(pageCacheName(userId));
-    const urls = (await cache.keys()).filter((req) => new URL(req.url).pathname.endsWith(`/p/${pageId}`));
+    const paths = new Set(files.map((id) => `/api/files/${id}`));
+    const urls = (await cache.keys()).filter((req) => {
+      const path = new URL(req.url).pathname;
+      return (pageId !== null && path.endsWith(`/p/${pageId}`)) || paths.has(path);
+    });
     await Promise.all(urls.map((req) => cache.delete(req)));
   } catch {}
 }

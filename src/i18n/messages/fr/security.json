@@ -91,5 +91,17 @@
     "signedInAs": "Connecté en tant que {email}.",
     "signOut": "Se déconnecter",
     "otherWorkspaces": "Vos autres espaces de travail"
+  },
+  "networkGate": {
+    "metaTitle": "Réseaux approuvés uniquement",
+    "title": "{workspace} n’autorise la connexion que depuis des réseaux approuvés",
+    "body": "Les propriétaires de cet espace de travail ne l’ouvrent que depuis des réseaux approuvés, comme le bureau ou un VPN, et cette connexion ne vient d’aucun d’eux. Connectez-vous depuis un réseau approuvé et réessayez.",
+    "address": "Votre adresse :",
+    "addressUnknown": "Votre adresse n’a pas pu être déterminée.",
+    "askOwner": "Si vous devriez pouvoir y accéder d’ici, demandez à un propriétaire de l’espace de travail d’ajouter cette adresse.",
+    "tryAgain": "Réessayer",
+    "signedInAs": "Connecté en tant que {email}.",
+    "signOut": "Se déconnecter",
+    "otherWorkspaces": "Vos autres espaces de travail"
   }
 }

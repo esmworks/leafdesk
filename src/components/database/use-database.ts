@@ -17,6 +17,7 @@ import {
   ensureOptionAction,
   loadDatabaseAction,
   moveRowAction,
+  moveRowBesideAction,
   moveViewAction,
   pasteRowsAction,
   updatePropertyAction,
@@ -27,7 +28,7 @@ import {
   type ActionResult,
 } from "@/app/actions/databases";
 import { addAutofillPropertyAction, refreshAutofillAction, setAutofillAction } from "@/app/actions/ai";
-import { archivePageAction } from "@/app/actions/pages";
+import { archivePageAction, setPageIconAction } from "@/app/actions/pages";
 import { useChannel, useChannels } from "@/components/collab/use-channel";
 import { useIsOffline, useOffline } from "@/components/offline/offline-context";
 import { databaseSnapshotKey, deleteSnapshot, loadSnapshot, saveSnapshot } from "@/components/offline/offline-store";
@@ -39,6 +40,7 @@ import { keepUnchanged } from "@/lib/keep-unchanged";
 import type { DependencyInput } from "@/lib/dependencies";
 import { compileFormulas, evaluateRow, mergeResults, relatedSchemasFrom, type CompiledFormula } from "@/lib/derived";
 import { moveGroupValue } from "@/lib/grouping";
+import { positionBetween } from "@/lib/properties";
 import type { PageVisibility } from "@/lib/page-visibility";
 import type { PastePlan } from "@/lib/table-clipboard";
 import { withoutParentOptions } from "@/lib/dependent-options";
@@ -393,6 +395,18 @@ export function useDatabase(
         }
       },
 
+      /** Gives a row an icon, or takes it away (null). */
+      async setRowIcon(rowId: string, icon: string | null) {
+        setSnapshot((s) => (s ? { ...s, rows: s.rows.map((r) => (r.id === rowId ? { ...r, icon } : r)) } : s));
+        try {
+          await setPageIconAction(rowId, icon);
+        } catch (e) {
+          report(e);
+        } finally {
+          await refetch();
+        }
+      },
+
       async duplicateRows(rowIds: string[]) {
         try {
           const result = await unwrap(duplicateRowsAction(databaseId, rowIds));
@@ -427,6 +441,26 @@ export function useDatabase(
             : s,
         );
         return mutateSchema((s) => s, () => moveRowAction(rowId, move));
+      },
+
+      /** Moves a row right before or after another (a table row dragged by its handle); the server picks its position. */
+      moveRowBeside(rowId: string, targetId: string, side: "before" | "after") {
+        return mutateSchema(
+          (s) => {
+            const moved = s.rows.find((r) => r.id === rowId);
+            const rows = s.rows.filter((r) => r.id !== rowId);
+            const at = rows.findIndex((r) => r.id === targetId);
+            if (!moved || at < 0) return s;
+            const index = side === "before" ? at : at + 1;
+            const [before, after] = [rows[index - 1], rows[index]];
+            // Between rows sharing a position it takes theirs; the rows keep their order until the server numbers them again.
+            const tied = before && after && !(before.position < after.position);
+            const position = tied ? before.position : positionBetween(before?.position, after?.position);
+            rows.splice(index, 0, { ...moved, position });
+            return { ...s, rows };
+          },
+          () => moveRowBesideAction(rowId, targetId, side),
+        );
       },
 
       addProperty(name: string, type: PropertyType, options?: string[], relation?: RelationInput, derived?: DerivedInput) {

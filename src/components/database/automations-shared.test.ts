@@ -48,3 +48,22 @@ describe("the approval template", () => {
     expect(problem(draft)).toBeNull();
   });
 });
+
+describe("a celebrate step as edited", () => {
+  it("needs nothing filled in and is saved as it is, with or without a row", () => {
+    const action = newAction("celebrate", [], { type: "row_created" }, "db");
+    expect(action).toMatchObject({ id: "celebrate", type: "celebrate" });
+    expect(problem(draftWith(action))).toBeNull();
+    // A schedule has nobody to celebrate with: the step is allowed and does nothing then.
+    expect(problem(draftWith(action, { type: "schedule", schedule: defaultSchedule() }))).toBeNull();
+    expect(actionsInput(draftWith(action), props, () => undefined, "db")).toEqual([{ id: "celebrate", type: "celebrate" }]);
+  });
+
+  it("comes back from a saved automation, from the template too", () => {
+    const item = galleryAutomations(props).find((a) => a.key === "celebrateDone")!;
+    const draft = toDraft({ name: "Celebrate", enabled: true, trigger: item.trigger, actions: item.actions, draft: null } as unknown as Automation, props);
+    expect(draft.actions).toMatchObject([{ id: "celebrate", type: "celebrate" }]);
+    expect(draft.trigger).toMatchObject({ type: "property_changed" });
+    expect(problem(draft)).toBeNull();
+  });
+});

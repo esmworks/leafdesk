@@ -1,10 +1,11 @@
-import type { Alignment, Column, Content, ContentTable, ContentText, TableCell, TDocumentDefinitions } from "pdfmake/interfaces";
+import type { Alignment, Column, Content, ContentImage, ContentTable, ContentText, TableCell, TDocumentDefinitions } from "pdfmake/interfaces";
 import { CALLOUT_BLOCK, MATH_BLOCK, MERMAID_BLOCK, BREADCRUMB_BLOCK, FOOTNOTE, INLINE_MATH, SUBPAGES_BLOCK, TOC_BLOCK } from "@/lib/content-blocks";
 import { plainText, type MdBlock } from "@/lib/content-markdown";
 import { COLUMN_BLOCK, COLUMN_LIST_BLOCK, columnWidth } from "@/lib/columns";
 import { isEmbedBlockType } from "@/lib/embed-blocks";
 import { SUBSCRIPT, SUPERSCRIPT } from "@/lib/text-scripts";
 import { BOOKMARK_BLOCK, WEB_EMBED_BLOCK } from "@/lib/web-blocks";
+import { tint, type LogoPlace } from "@/lib/letterheads";
 
 /**
  * A page as a PDF file's layout (pdfmake's document definition), drawn by server/pdf.ts. Pure: the
@@ -12,7 +13,9 @@ import { BOOKMARK_BLOCK, WEB_EMBED_BLOCK } from "@/lib/web-blocks";
  * blocks, the database tables and the images already loaded; nothing here reads a URL or a file.
  *
  * Paper in the light theme's colors (globals.css), in Roboto, which covers Latin, Greek and
- * Cyrillic scripts (not Arabic, Hebrew or CJK text, which prints as blanks).
+ * Cyrillic scripts (not Arabic, Hebrew or CJK text, which prints as blanks). A letterhead
+ * (lib/letterheads) puts its logo and lines at the top of every page and its lines and page
+ * numbers at the foot; its accent colors the rules and table headers, never text.
  */
 
 export type PdfTable = { header: string[]; rows: string[][] };
@@ -33,6 +36,9 @@ export type PdfSection = {
   children: string[];
 };
 
+/** A letterhead as the layout draws it: the logo already read, as a data URL. */
+export type PdfLetterhead = { logo: string | null; logoPlace: LogoPlace; header: string; footer: string; accent: string; pageNumbers: boolean };
+
 export type PdfInput = {
   title: string;
   sections: PdfSection[];
@@ -41,6 +47,8 @@ export type PdfInput = {
   /** A URL as a link from the file (site paths of uploads made absolute). */
   link: (url: string) => string;
   labels: { untitled: string; unavailable: string };
+  /** What every page prints around the body; without one, page numbers when there are several pages. */
+  letterhead?: PdfLetterhead | null;
 };
 
 // Light theme (globals.css): text, muted and faint text, borders, subtle fill, links.
@@ -69,6 +77,15 @@ const PAGE_MARGIN = 48;
 const CONTENT_WIDTH = 595.28 - 2 * PAGE_MARGIN;
 const MAX_IMAGE_HEIGHT = 360;
 const HEADING_SIZES: Record<number, number> = { 1: 18, 2: 15, 3: 13 };
+/** A letterhead's top: where it starts, its logo's box, its lines (the first larger) and the room under its rule. */
+const HEAD_TOP = 28;
+const LOGO_HEIGHT = 40;
+const LOGO_WIDTH = 160;
+const HEAD_FIRST_LINE = 13;
+const HEAD_LINE = 11.1;
+const HEAD_BELOW = 24;
+const FOOT_TOP = 16;
+const FOOT_LINE = 10.4;
 const INDENT = 16;
 
 type Inline = { type?: string; text?: string; content?: unknown; styles?: Record<string, unknown>; href?: string };
@@ -282,7 +299,7 @@ function blockContent(block: MdBlock, walk: Walk, width: number): Content[] {
         if (!embed) return [{ text: input.labels.unavailable, italics: true, color: FAINT, margin: [0, 0, 0, 6] }];
         return [
           { text: embed.title || input.labels.untitled, bold: true, margin: [0, 4, 0, 4] },
-          { ...dataTable(embed.table), margin: [0, 0, 0, 8] },
+          { ...dataTable(embed.table, input), margin: [0, 0, 0, 8] },
         ];
       }
       // A block of another kind: its text if it has any (as an agent chat block has none), and what is nested in it.
@@ -374,7 +391,7 @@ function table(block: MdBlock, walk: Walk): Content {
       const out: TableCell = { text: runs.length ? runs : " " };
       if (header) {
         out.bold = true;
-        out.fillColor = SUBTLE;
+        out.fillColor = headerFill(walk.input);
       }
       const fill = backgroundColor(cell.props.backgroundColor);
       if (fill) out.fillColor = fill;
@@ -430,11 +447,16 @@ const gridLayout = {
   paddingBottom: () => 4,
 };
 
+/** A table header's fill: a light tint of the letterhead's accent, or the usual gray. */
+function headerFill(input: PdfInput): string {
+  return input.letterhead?.accent ? tint(input.letterhead.accent, 0.86) : SUBTLE;
+}
+
 /** A database's rows as a table, its header shaded. */
-function dataTable(data: PdfTable): ContentTable {
+function dataTable(data: PdfTable, input: PdfInput): ContentTable {
   const columns = data.header.length;
   const body: TableCell[][] = [
-    data.header.map((name) => ({ text: name, bold: true, fillColor: SUBTLE })),
+    data.header.map((name) => ({ text: name, bold: true, fillColor: headerFill(input) })),
     ...data.rows.map((row) => Array.from({ length: columns }, (_, c) => ({ text: row[c] || " " }))),
   ];
   const texts = [data.header, ...data.rows];
@@ -457,7 +479,7 @@ function sectionContent(section: PdfSection, index: number, input: PdfInput): Co
     });
   }
   out.push(...blocksContent(blocks, walk));
-  if (section.database) out.push({ ...dataTable(section.database), margin: [0, 4, 0, 8] });
+  if (section.database) out.push({ ...dataTable(section.database, input), margin: [0, 4, 0, 8] });
   if (walk.notes.length) {
     out.push({
       stack: walk.notes.map((note, i) => ({ text: [{ text: `${i + 1}. `, color: MUTED }, note], fontSize: 9, margin: [0, 0, 0, 2] })),
@@ -467,15 +489,67 @@ function sectionContent(section: PdfSection, index: number, input: PdfInput): Co
   return out;
 }
 
-/** The document definition of `input`, on A4, page numbers at the foot of every page when there are several. */
+const linesOf = (text: string) => (text ? text.split("\n") : []);
+
+/** How tall a letterhead's top is, logo and lines; 0 when it prints nothing there. */
+function headHeight(letterhead: PdfLetterhead): number {
+  const lines = linesOf(letterhead.header).length;
+  const text = lines ? HEAD_FIRST_LINE + (lines - 1) * HEAD_LINE : 0;
+  const logo = letterhead.logo ? LOGO_HEIGHT : 0;
+  return letterhead.logoPlace === "center" ? logo + (logo && text ? 6 : 0) + text : Math.max(logo, text);
+}
+
+/** A letterhead's top: the logo on its side and the lines on the other (both centered for "center"), a rule under them. */
+function letterheadTop(letterhead: PdfLetterhead): Content | null {
+  if (!headHeight(letterhead)) return null;
+  const { logo, logoPlace } = letterhead;
+  const lines = linesOf(letterhead.header).map((line, i): ContentText => (i === 0 ? { text: line, bold: true, fontSize: 10 } : { text: line, fontSize: 8.5, color: MUTED }));
+  const image: ContentImage | null = logo ? { image: logo, fit: [LOGO_WIDTH, LOGO_HEIGHT] } : null;
+  let top: Content;
+  if (logoPlace === "center") top = { stack: [...(image ? [{ ...image, alignment: "center" as const, margin: [0, 0, 0, lines.length ? 6 : 0] as [number, number, number, number] }] : []), { stack: lines, alignment: "center" }] };
+  else if (!image) top = { stack: lines };
+  else {
+    const text: Column = { stack: lines, width: "*", alignment: logoPlace === "left" ? "right" : "left" };
+    const picture: Column = { stack: [{ ...image, alignment: logoPlace }], width: "auto" };
+    top = { columns: logoPlace === "left" ? [picture, text] : [text, picture], columnGap: 16 };
+  }
+  const rule: Content = {
+    canvas: [{ type: "line", x1: 0, y1: 0, x2: CONTENT_WIDTH, y2: 0, lineWidth: letterhead.accent ? 1.2 : 0.6, lineColor: letterhead.accent || BORDER }],
+    margin: [0, 8, 0, 0],
+  };
+  return { stack: [top, rule], margin: [PAGE_MARGIN, HEAD_TOP, PAGE_MARGIN, 0] };
+}
+
+/** A letterhead's foot: its lines over a thin rule, and "n / total" on the right. */
+function letterheadFoot(letterhead: PdfLetterhead, current: number, total: number): Content | null {
+  const lines = linesOf(letterhead.footer);
+  if (!lines.length && !letterhead.pageNumbers) return null;
+  const number: Column[] = letterhead.pageNumbers ? [{ text: `${current} / ${total}`, width: "auto", alignment: "right", fontSize: 8, color: FAINT }] : [];
+  const columns: Content = { columns: [{ stack: lines.map((line) => ({ text: line })), width: "*", fontSize: 8, color: MUTED }, ...number], columnGap: 12 };
+  const rule: Content = { canvas: [{ type: "line", x1: 0, y1: 0, x2: CONTENT_WIDTH, y2: 0, lineWidth: 0.6, lineColor: BORDER }], margin: [0, 0, 0, 6] };
+  return { stack: lines.length ? [rule, columns] : [columns], margin: [PAGE_MARGIN, FOOT_TOP, PAGE_MARGIN, 0] };
+}
+
+/** The document definition of `input` on A4: in its letterhead, or with page numbers at the foot of every page when there are several. */
 export function pdfDocument(input: PdfInput): TDocumentDefinitions {
+  const letterhead = input.letterhead ?? null;
+  const head = letterhead ? headHeight(letterhead) : 0;
+  const footLines = letterhead ? linesOf(letterhead.footer).length : 0;
+  const top = head ? HEAD_TOP + head + 8 + HEAD_BELOW : PAGE_MARGIN;
+  const bottom = footLines ? Math.max(PAGE_MARGIN + 8, FOOT_TOP + 6 + footLines * FOOT_LINE + 20) : PAGE_MARGIN + 8;
+  const headContent = letterhead ? letterheadTop(letterhead) : null;
   return {
     pageSize: "A4",
-    pageMargins: [PAGE_MARGIN, PAGE_MARGIN, PAGE_MARGIN, PAGE_MARGIN + 8],
+    pageMargins: [PAGE_MARGIN, top, PAGE_MARGIN, bottom],
     info: { title: input.title || input.labels.untitled, creator: "Leafdesk", producer: "Leafdesk" },
     defaultStyle: { font: "Roboto", fontSize: 10.5, lineHeight: 1.3, color: FG },
+    ...(headContent ? { header: () => headContent } : {}),
     footer: (current: number, total: number) =>
-      total > 1 ? { text: `${current} / ${total}`, alignment: "right", fontSize: 8, color: FAINT, margin: [PAGE_MARGIN, 16, PAGE_MARGIN, 0] } : null,
+      letterhead
+        ? letterheadFoot(letterhead, current, total)
+        : total > 1
+          ? { text: `${current} / ${total}`, alignment: "right", fontSize: 8, color: FAINT, margin: [PAGE_MARGIN, 16, PAGE_MARGIN, 0] }
+          : null,
     content: input.sections.flatMap((section, i) => sectionContent(section, i, input)),
     // A heading at the foot of a page moves to the next one, with what follows it.
     pageBreakBefore: (node, pages) => typeof node.headlineLevel === "number" && pages.getFollowingNodesOnPage().length === 0,

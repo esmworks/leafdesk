@@ -65,6 +65,7 @@
     "graphology-layout-forceatlas2": "0.10.1",
     "imapflow": "^2.5.4",
     "katex": "0.18.9",
+    "leaflet": "1.9.4",
     "lucide-react": "^1.48.0",
     "mailparser": "^3.9.45",
     "mammoth": "1.13.0",
@@ -96,6 +97,7 @@
   "devDependencies": {
     "@formatjs/icu-messageformat-parser": "3.5.20",
     "@tailwindcss/postcss": "^4.3.3",
+    "@types/leaflet": "1.9.22",
     "@types/mailparser": "^3.9.0",
     "@types/node": "^24.13.6",
     "@types/pdfmake": "0.3.3",

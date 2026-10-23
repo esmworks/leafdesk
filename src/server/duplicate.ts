@@ -42,6 +42,7 @@ import { lockLiveParent } from "@/server/pages";
 import { freezeInheritedEntries, keepFullAccess, makePagePrivate } from "@/server/permissions";
 import type { PropertyAccess } from "@/lib/property-access-rows";
 import { propertyAccessFor } from "@/server/property-access";
+import { copyRowAccess } from "@/server/row-access";
 import { placeTopLevel, TeamspaceError } from "@/server/teamspaces";
 import { requireTopLevel } from "@/server/workspaces";
 
@@ -307,6 +308,8 @@ export async function copyPageTree(
         })),
       );
     }
+    // After the properties too: a row access rule names a person property.
+    await copyRowAccess(tx, plan, source.workspaceId, userId);
     const root = rows.find((r) => r.id === plan.rootId)!;
     return {
       plan,

@@ -28,5 +28,6 @@
     "tooLarge": "Pliki w tym eksporcie zajmują łącznie ponad {size}. Wyeksportuj mniejszą część obszaru roboczego.",
     "busy": "Masz już uruchomiony eksport. Poczekaj, aż jego pobieranie się zakończy.",
     "disabled": "Eksport jest wyłączony w tym obszarze roboczym."
-  }
+  },
+  "celebrate": "Dobra robota!"
 }

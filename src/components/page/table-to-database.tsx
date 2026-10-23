@@ -25,6 +25,7 @@ import { blockPath } from "@/lib/mentions";
 import { tableRecords, type TableBlockContent } from "@/lib/table-to-database";
 import { useEmbedHost } from "./database-embed";
 import { placeEmbedBlock, type PageEditor } from "./embed-blocks";
+import { AddMeetingItem } from "./meeting-block";
 import { SaveAsSnippetItem } from "./snippets";
 import { turnIntoSyncedBlock } from "./synced-block";
 import { CalloutStyleItem, CalloutTitleItem } from "./callout-menu";
@@ -171,6 +172,7 @@ export function pageSideMenu(onError: (message: string) => void): FC<SideMenuPro
         <TurnIntoDatabaseItem onError={onError} />
         <TurnIntoSyncedBlockItem onError={onError} />
         <SaveAsSnippetItem />
+        <AddMeetingItem />
       </DragHandleMenu>
     );
   }

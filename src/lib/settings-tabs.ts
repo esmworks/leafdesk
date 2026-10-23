@@ -7,6 +7,7 @@ export const SETTINGS_TABS = [
   "groups",
   "agents",
   "snippets",
+  "pdf",
   "connections",
   "storage",
   "analytics",
@@ -27,7 +28,7 @@ export const isSettingsTab = (value: unknown): value is SettingsTab =>
  */
 export const SETTINGS_TAB_GROUPS = [
   { label: "workspace", tabs: ["general", "members", "guests", "teamspaces", "groups"] },
-  { label: "features", tabs: ["agents", "snippets", "connections", "site"] },
+  { label: "features", tabs: ["agents", "snippets", "pdf", "connections", "site"] },
   { label: "admin", tabs: ["security", "storage", "analytics", "aiUsage", "health", "audit"] },
 ] as const satisfies readonly { label: string; tabs: readonly SettingsTab[] }[];
 
@@ -44,7 +45,8 @@ const OWNER_TABS: readonly SettingsTab[] = ["connections", "storage", "analytics
  * their own mailbox under their account (Account > Email and calendar). Agents are listed to
  * members too: those shared with them, which their sharing lets them change. The health check covers
  * the pages each person can open, so owners and members get it alike. Snippets holds the person's
- * own snippets next to the workspace's, so guests get it too, with their own alone.
+ * own snippets next to the workspace's, so guests get it too, with their own alone. PDF templates (the
+ * letterheads) are for members, who print in them, and owners, who change them.
  */
 export function visibleSettingsTabs({
   guest,
@@ -76,7 +78,7 @@ const LOCAL_MODE_HIDDEN_TABS: readonly SettingsTab[] = ["guests", "groups", "sit
  * The person's own snippets aren't among them: they are the Snippets tab's first list, beside the
  * workspace's.
  */
-export const ACCOUNT_SETTINGS_TABS = ["profile", "accountSecurity", "preferences", "mail", "apps", "about"] as const;
+export const ACCOUNT_SETTINGS_TABS = ["profile", "accountSecurity", "preferences", "offline", "mail", "apps", "about"] as const;
 export type AccountSettingsTab = (typeof ACCOUNT_SETTINGS_TABS)[number];
 
 export function accountTabForSettings(tab: AccountSettingsTab) {
@@ -85,7 +87,7 @@ export function accountTabForSettings(tab: AccountSettingsTab) {
 
 /** Where a tab of the account page (/account) is under a workspace's Settings. */
 export function settingsTabForAccount(
-  tab: "profile" | "security" | "preferences" | "mail" | "snippets" | "apps" | "about",
+  tab: "profile" | "security" | "preferences" | "offline" | "mail" | "snippets" | "apps" | "about",
 ): AccountSettingsTab | "snippets" {
   return tab === "security" ? "accountSecurity" : tab;
 }

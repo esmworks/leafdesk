@@ -122,6 +122,10 @@ describe("values", () => {
     expect(parseCheckbox("1")).toBe(true);
     expect(parseCheckbox("1", { numbers: false })).toBeNull();
     expect(parseCheckbox("maybe")).toBeNull();
+    expect(parseCheckbox("Tidak")).toBe(false);
+    expect(parseCheckbox("ใช่")).toBe(true);
+    expect(parseCheckbox("Có")).toBe(true);
+    expect(parseCheckbox("Không")).toBe(false);
   });
 
   it("reads checkboxes in the other interface languages, in any script", () => {

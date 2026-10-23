@@ -2,23 +2,29 @@
 
 import { CommentsExtension, type ThreadData } from "@blocknote/core/comments";
 import { Thread, useBlockNoteEditor, useExtension, useExtensionState, useThreads } from "@blocknote/react";
-import { Bell, BellOff, MoreHorizontal, X } from "lucide-react";
+import { ArrowDownUp, Bell, BellOff, Bookmark, BookmarkX, Check, MoreHorizontal, X } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { memo, useCallback, useEffect, useMemo, useState, type FocusEvent } from "react";
-import { muteThreadAction, mutedThreadsAction } from "@/app/actions/comments";
+import { memo, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type FocusEvent } from "react";
+import { markThreadAction, muteThreadAction, mutedThreadsAction, seeThreadsAction, threadStatesAction } from "@/app/actions/comments";
 import { cn, IconButton, MenuItem, Popover } from "@/components/ui";
 import { isPageThread, mergedFromOf, threadOfHash } from "@/lib/comments";
+import { lastActivity, newThreadIds } from "@/lib/thread-activity";
 
-const FILTERS = ["open", "resolved", "all"] as const;
+const FILTERS = ["open", "resolved", "marked", "all"] as const;
 type Filter = (typeof FILTERS)[number];
+const SORTS = ["recent", "page"] as const;
+type Sort = (typeof SORTS)[number];
 
 /**
- * The page's comment threads beside the editor, in the order of the text they're about. Rendered
- * inside BlockNoteView, whose editor the threads belong to.
+ * All of the page's discussions beside the editor: its comment threads on text and about the whole
+ * page, newest activity first (or in the order of the text they're about), each marked when others
+ * wrote in it since the viewer last saw it. Each person can mark threads to come back to later and
+ * list just those. Rendered inside BlockNoteView, whose editor the threads belong to.
  */
 export function CommentsPanel({ pageId, onClose }: { pageId: string; onClose: () => void }) {
   const t = useTranslations("page.comments");
   const [filter, setFilter] = useState<Filter>("open");
+  const [sort, setSort] = useState<Sort>("recent");
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && !e.defaultPrevented && onClose();
@@ -32,8 +38,33 @@ export function CommentsPanel({ pageId, onClose }: { pageId: string; onClose: ()
       // Beside the row panel when the page is in one (it sets --comments-right to its width).
       className="comments-panel fixed top-11 inset-e-0 bottom-0 z-30 flex w-full flex-col border-s border-border bg-bg md:inset-e-[var(--comments-right,0px)] md:w-[360px]"
     >
-      <div className="flex h-11 shrink-0 items-center justify-between gap-2 px-3">
-        <h2 className="text-sm font-semibold">{t("title")}</h2>
+      <div className="flex h-11 shrink-0 items-center gap-1 px-3">
+        <h2 className="flex-1 text-sm font-semibold">{t("title")}</h2>
+        <Popover
+          align="end"
+          className="w-52"
+          trigger={({ toggle }) => (
+            <IconButton label={t("sort.label")} title={t(`sort.${sort}`)} className="h-7 w-7 text-fg-muted" onClick={toggle}>
+              <ArrowDownUp className="h-4 w-4" />
+            </IconButton>
+          )}
+        >
+          {(close) =>
+            SORTS.map((s) => (
+              <MenuItem
+                key={s}
+                pressed={sort === s}
+                trailing={sort === s ? <Check className="h-4 w-4" /> : undefined}
+                onClick={() => {
+                  close();
+                  setSort(s);
+                }}
+              >
+                {t(`sort.${s}`)}
+              </MenuItem>
+            ))
+          }
+        </Popover>
         <IconButton label={t("close")} className="h-7 w-7" onClick={onClose}>
           <X className="h-4 w-4" />
         </IconButton>
@@ -55,7 +86,7 @@ export function CommentsPanel({ pageId, onClose }: { pageId: string; onClose: ()
         ))}
       </nav>
       <div className="min-h-0 flex-1 overflow-y-auto p-3">
-        <Threads pageId={pageId} filter={filter} onFilter={setFilter} />
+        <Threads pageId={pageId} filter={filter} sort={sort} onFilter={setFilter} />
         <p className="comments-empty px-1 py-6 text-center text-sm text-fg-faint">{t(`empty.${filter}`)}</p>
       </div>
     </aside>
@@ -63,12 +94,12 @@ export function CommentsPanel({ pageId, onClose }: { pageId: string; onClose: ()
 }
 
 /**
- * The threads of the filter, in the order of the text they're about; threads about the whole page
- * (as agents write) first. Each says what it is about: a few words of its text, the page, or that
- * its text was deleted. (BlockNote's own sidebar can't tell a thread about the page from one whose
- * text is gone.)
+ * The threads of the filter, newest activity first or in the order of the text they're about
+ * (threads about the whole page, as agents write, first). Each says what it is about: a few words
+ * of its text, the page, or that its text was deleted. (BlockNote's own sidebar can't tell a thread
+ * about the page from one whose text is gone.)
  */
-function Threads({ pageId, filter, onFilter }: { pageId: string; filter: Filter; onFilter: (filter: Filter) => void }) {
+function Threads({ pageId, filter, sort, onFilter }: { pageId: string; filter: Filter; sort: Sort; onFilter: (filter: Filter) => void }) {
   const t = useTranslations("page.comments");
   const editor = useBlockNoteEditor();
   const comments = useExtension(CommentsExtension);
@@ -109,6 +140,62 @@ function Threads({ pageId, filter, onFilter }: { pageId: string; filter: Filter;
     [pageId],
   );
 
+  // The viewer's marks and when they last saw each thread, read once as the panel opens: what is
+  // new stays marked while it is open, though the server now counts everything listed as seen.
+  // Selecting a thread here sees it (and takes its mark of new away).
+  const [viewer, setViewer] = useState<{ id: string; seen: Record<string, string> } | null>(null);
+  const [marked, setMarked] = useState<ReadonlySet<string>>(() => new Set());
+  const [seenNow, setSeenNow] = useState<Record<string, string>>({});
+  const told = useRef(false);
+  useEffect(() => {
+    let current = true;
+    setViewer(null);
+    told.current = false;
+    threadStatesAction(pageId).then(
+      (states) => {
+        if (!current) return;
+        setViewer({ id: states.viewerId, seen: states.seen });
+        setMarked(new Set(states.marked));
+      },
+      () => {},
+    );
+    return () => {
+      current = false;
+    };
+  }, [pageId]);
+  useEffect(() => {
+    if (!viewer || told.current || !threads.size) return;
+    told.current = true;
+    seeThreadsAction(pageId, [...threads.keys()]).catch(() => {});
+  }, [viewer, threads, pageId]);
+  useEffect(() => {
+    if (!selectedThreadId || !viewer) return;
+    setSeenNow((prev) => ({ ...prev, [selectedThreadId]: new Date().toISOString() }));
+    seeThreadsAction(pageId, [selectedThreadId]).catch(() => {});
+  }, [selectedThreadId, viewer, pageId]);
+  const fresh = useMemo(
+    () => (viewer ? newThreadIds([...threads.values()], viewer.id, { ...viewer.seen, ...seenNow }) : new Set<string>()),
+    [viewer, threads, seenNow],
+  );
+  const onMark = useCallback(
+    async (threadId: string, mark: boolean) => {
+      const set = (on: boolean) =>
+        setMarked((prev) => {
+          const next = new Set(prev);
+          if (on) next.add(threadId);
+          else next.delete(threadId);
+          return next;
+        });
+      set(mark);
+      try {
+        await markThreadAction(pageId, threadId, mark);
+      } catch {
+        set(!mark);
+      }
+    },
+    [pageId],
+  );
+
   // The thread a link names (`#comment-<id>`): selected once it has loaded, after its text has
   // (so the page scrolls there), or a moment later for a thread whose text is gone. A resolved one
   // shows under all threads. One that was deleted leaves just the panel open.
@@ -132,18 +219,20 @@ function Threads({ pageId, filter, onFilter }: { pageId: string; filter: Filter;
     const thread = linked ? threads.get(linked) : undefined;
     if (!linked || !thread || !(positions.has(linked) || isPageThread(thread.metadata) || waited)) return;
     setLinked(undefined);
-    if (thread.resolved && filter === "open") onFilter("all");
+    if ((thread.resolved && filter === "open") || (!thread.resolved && filter === "resolved") || (filter === "marked" && !marked.has(linked))) onFilter("all");
     comments.selectThread(linked);
     requestAnimationFrame(() =>
       document.querySelector(".comments-panel .bn-thread.selected")?.scrollIntoView({ block: "nearest" }),
     );
-  }, [linked, threads, positions, waited, filter, onFilter, comments]);
+  }, [linked, threads, positions, waited, filter, onFilter, comments, marked]);
 
   const shown = useMemo(() => {
     const at = (thread: ThreadData) => (isPageThread(thread.metadata) ? -1 : (positions.get(thread.id)?.from ?? Number.MAX_VALUE));
     return [...threads.values()]
-      .filter((thread) => (thread.resolved ? filter !== "open" : filter !== "resolved"))
-      .sort((a, b) => at(a) - at(b))
+      .filter((thread) =>
+        filter === "marked" ? marked.has(thread.id) : thread.resolved ? filter !== "open" : filter !== "resolved",
+      )
+      .sort(sort === "page" ? (a, b) => at(a) - at(b) : (a, b) => lastActivity(b) - lastActivity(a))
       .map((thread) => {
         const position = positions.get(thread.id);
         let referenceText: string;
@@ -157,7 +246,7 @@ function Threads({ pageId, filter, onFilter }: { pageId: string; filter: Filter;
         }
         return { thread, referenceText, orphaned: !position && !isPageThread(thread.metadata) };
       });
-  }, [threads, positions, filter, editor, deleted, t]);
+  }, [threads, positions, filter, sort, marked, editor, deleted, t]);
 
   return (
     <div className="bn-threads-sidebar">
@@ -170,6 +259,9 @@ function Threads({ pageId, filter, onFilter }: { pageId: string; filter: Filter;
           orphaned={orphaned}
           muted={muted.has(thread.id)}
           onMute={onMute}
+          marked={marked.has(thread.id)}
+          onMark={onMark}
+          isNew={fresh.has(thread.id)}
         />
       ))}
     </div>
@@ -177,8 +269,9 @@ function Threads({ pageId, filter, onFilter }: { pageId: string; filter: Filter;
 }
 
 /**
- * One thread of the list; focusing it selects it (and its text in the page), as in BlockNote's
- * sidebar. Its menu mutes the replies in it, which shows beside the menu while it lasts.
+ * One thread of the list; focusing it selects it (and scrolls the page to its text, highlighted),
+ * as in BlockNote's sidebar. Its menu mutes the replies in it and marks it to come back to later,
+ * which show beside the menu while they last, as does that it is new to the viewer.
  */
 const SidebarThread = memo(function SidebarThread({
   thread,
@@ -187,6 +280,9 @@ const SidebarThread = memo(function SidebarThread({
   orphaned,
   muted,
   onMute,
+  marked,
+  onMark,
+  isNew,
 }: {
   thread: ThreadData;
   selected: boolean;
@@ -194,6 +290,9 @@ const SidebarThread = memo(function SidebarThread({
   orphaned: boolean;
   muted: boolean;
   onMute: (threadId: string, mute: boolean) => Promise<void>;
+  marked: boolean;
+  onMark: (threadId: string, mark: boolean) => Promise<void>;
+  isNew: boolean;
 }) {
   const t = useTranslations("page.comments");
   const comments = useExtension(CommentsExtension);
@@ -214,8 +313,10 @@ const SidebarThread = memo(function SidebarThread({
     },
     [comments],
   );
+  // Room at the end of the thread's first line for what shows there (see .comments-thread in globals.css).
+  const tools = { "--thread-tools": `${1.75 + (muted ? 1.5 : 0) + (marked ? 1.5 : 0) + (isNew ? 2.75 : 0)}rem` } as CSSProperties;
   return (
-    <div className="comments-thread relative">
+    <div className="comments-thread relative" style={tools}>
       <Thread
         thread={thread}
         selected={selected}
@@ -227,6 +328,17 @@ const SidebarThread = memo(function SidebarThread({
         tabIndex={0}
       />
       <div className="absolute top-1.5 inset-e-1.5 flex items-center gap-0.5">
+        {isNew && (
+          <span className="flex h-6 items-center gap-1 px-1 text-xs font-medium text-accent">
+            <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-accent" />
+            {t("new")}
+          </span>
+        )}
+        {marked && (
+          <span role="img" aria-label={t("marked")} title={t("markedHint")} className="flex h-6 w-6 items-center justify-center text-accent">
+            <Bookmark className="h-3.5 w-3.5 fill-current" />
+          </span>
+        )}
         {muted && (
           <span role="img" aria-label={t("muted")} title={t("mutedHint")} className="flex h-6 w-6 items-center justify-center text-fg-faint">
             <BellOff className="h-3.5 w-3.5" />
@@ -242,16 +354,28 @@ const SidebarThread = memo(function SidebarThread({
           )}
         >
           {(close) => (
-            <MenuItem
-              icon={muted ? <Bell className="h-4 w-4" /> : <BellOff className="h-4 w-4" />}
-              title={t(muted ? "unmuteHint" : "muteHint")}
-              onClick={() => {
-                close();
-                void onMute(thread.id, !muted);
-              }}
-            >
-              {t(muted ? "unmute" : "mute")}
-            </MenuItem>
+            <>
+              <MenuItem
+                icon={marked ? <BookmarkX className="h-4 w-4" /> : <Bookmark className="h-4 w-4" />}
+                title={t(marked ? "unmarkHint" : "markHint")}
+                onClick={() => {
+                  close();
+                  void onMark(thread.id, !marked);
+                }}
+              >
+                {t(marked ? "unmark" : "mark")}
+              </MenuItem>
+              <MenuItem
+                icon={muted ? <Bell className="h-4 w-4" /> : <BellOff className="h-4 w-4" />}
+                title={t(muted ? "unmuteHint" : "muteHint")}
+                onClick={() => {
+                  close();
+                  void onMute(thread.id, !muted);
+                }}
+              >
+                {t(muted ? "unmute" : "mute")}
+              </MenuItem>
+            </>
           )}
         </Popover>
       </div>

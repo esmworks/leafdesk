@@ -232,6 +232,8 @@
     "pageUpdated": "{actor} bu sayfayı düzenledi",
     "rowEmail": "{from} e-posta gönderdi",
     "followUp": "“{sequence}” takibi duraklatıldı: sıradaki e-postasına bakılması gerekiyor",
+    "reaction": "{actor} yorumunuza {emoji} tepkisi verdi",
+    "people": "{others, plural, =0 {{name}} one {{name} ve # kişi daha} other {{name} ve # kişi daha}}",
     "someone": "Biri",
     "joinRequestTitle": "Katılma isteği",
     "joinRequest": "{actor} katılmak istedi",

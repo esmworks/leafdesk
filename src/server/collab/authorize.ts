@@ -16,13 +16,13 @@ export function parseDocName(name: string): DocTarget | null {
  * documents (`ws:`, `db:`) are always read-only: the server only broadcasts on them, and nobody
  * writes into them. The
  * workspace's sign-in policies apply to the session the token was issued to (`facts`, see
- * collabSessionFacts). Throws AccessError otherwise (a WorkspacePolicyError for the policies).
+ * collabSessionFacts) and the address the websocket comes from (`facts.ip`). Throws AccessError otherwise (a WorkspacePolicyError for the policies).
  * Checked when the connection opens; turning a policy on closes the others (disconnectHeldBack).
  */
 export async function authorizeCollab(
   userId: string,
   target: DocTarget,
-  facts: SessionFacts = { strong: false, ssoProviderId: null },
+  facts: SessionFacts = { strong: false, ssoProviderId: null, ip: null },
 ): Promise<{ readOnly: boolean }> {
   if (target.kind === "ws") {
     if (!(await findMembership(userId, target.id))) throw new AccessError();

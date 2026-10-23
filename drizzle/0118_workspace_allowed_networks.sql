@@ -1,0 +1,1 @@
+ALTER TABLE "workspace" ADD COLUMN "allowed_networks" jsonb DEFAULT '[]'::jsonb NOT NULL;

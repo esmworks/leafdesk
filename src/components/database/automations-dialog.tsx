@@ -264,7 +264,8 @@ function Gallery({ properties, onUse }: { properties: ReturnType<typeof useSchem
   const items = useMemo(() => galleryAutomations(properties), [properties]);
   const use = (item: GalleryAutomation) => {
     const name = t(`${item.key}.name`);
-    const message = t(`${item.key}.message`, item.messageValues);
+    // Steps that say something get the template's message; confetti says nothing.
+    const message = item.key === "celebrateDone" ? "" : t(`${item.key}.message`, item.messageValues);
     // Written like a saved automation, so the editor reads it as it reads one.
     const actions = item.actions.map((a) => (a.type === "approval" || a.type === "notify" ? { ...a, message } : a));
     const draft = toDraft({ name, enabled: true, trigger: item.trigger, actions, draft: null } as unknown as Automation, properties);

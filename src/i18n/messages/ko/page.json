@@ -49,9 +49,11 @@
     "exportZip": "하위 페이지와 함께 내보내기",
     "exportZipDatabase": "행 페이지와 함께 내보내기",
     "exportPdf": "PDF로 내보내기",
+    "printView": "인쇄",
     "exportPreparing": "내보내기 준비 중…",
     "versionHistory": "버전 기록",
     "lastEdited": "{name}이(가) 마지막으로 편집함",
+    "wordCount": "{words}단어, {characters}자",
     "actionFailed": "작업을 완료하지 못했습니다.",
     "viewers": "다른 사람 {count}명이 이 페이지를 보고 있습니다",
     "viewersTitle": "이 페이지를 보는 사람",
@@ -75,11 +77,13 @@
     "filters": {
       "open": "열림",
       "resolved": "해결됨",
+      "marked": "표시됨",
       "all": "전체"
     },
     "empty": {
       "open": "열린 댓글이 없습니다. 페이지에서 텍스트를 선택하고 댓글을 눌러 시작하세요.",
       "resolved": "해결된 댓글이 없습니다.",
+      "marked": "나중에 다시 볼 스레드가 없습니다. 스레드 메뉴에서 “나중에 보기”를 선택하세요.",
       "all": "아직 댓글이 없습니다. 페이지에서 텍스트를 선택하고 댓글을 눌러 시작하세요."
     },
     "threadMenu": "스레드 옵션",
@@ -89,7 +93,19 @@
     "unmuteHint": "이 스레드의 새 답글 알림을 다시 받습니다.",
     "muted": "답글 알림 꺼짐",
     "mutedHint": "여기에 답글을 달거나 누군가 여기서 회원님을 멘션할 때까지 이 스레드의 답글 알림을 받지 않습니다.",
-    "mergedFrom": "‘{title}’에서"
+    "mergedFrom": "‘{title}’에서",
+    "sort": {
+      "label": "스레드 정렬",
+      "recent": "최근 활동 순",
+      "page": "페이지 순서대로"
+    },
+    "new": "새 글",
+    "marked": "나중에 보기로 표시됨",
+    "markedHint": "이 스레드를 나중에 다시 보도록 표시했습니다. 나에게만 보입니다.",
+    "mark": "나중에 보기",
+    "unmark": "“나중에 보기” 해제",
+    "markHint": "표시를 해제할 때까지 이 스레드는 표시됨 목록에 남습니다. 나에게만 보입니다.",
+    "unmarkHint": "이 스레드를 표시됨 목록에서 뺍니다."
   },
   "archived": {
     "banner": "이 페이지는 휴지통에 있습니다.",
@@ -331,6 +347,7 @@
     "replacePlaceholder": "바꿀 내용",
     "noResults": "결과 없음",
     "matchCase": "대/소문자 구분",
+    "matchAccents": "악센트 구분",
     "previous": "이전 항목 (Shift+Enter)",
     "next": "다음 항목 (Enter)",
     "showReplace": "바꾸기 표시",
@@ -575,6 +592,17 @@
     "openInNewTab": "새 탭에서 열기",
     "frameTitle": "PDF: {name}",
     "noPreview": "이 브라우저에서는 PDF를 여기에 표시할 수 없습니다. 파일을 열어 확인하세요."
+  },
+  "pdfExport": {
+    "title": "PDF로 내보내기",
+    "letterhead": "레터헤드",
+    "none": "없음",
+    "defaultMark": "{name} (기본값)",
+    "noLetterheads": "소유자는 설정 → PDF 템플릿에서 로고와 회사 정보가 담긴 레터헤드를 추가할 수 있습니다.",
+    "properties": "행의 값 포함",
+    "hint": "다이어그램과 수식은 텍스트로 인쇄됩니다. 보이는 그대로의 페이지가 필요하면 인쇄를 쓰세요.",
+    "download": "다운로드",
+    "preparing": "준비 중…"
   },
   "spreadsheet": {
     "untitled": "통합 문서",

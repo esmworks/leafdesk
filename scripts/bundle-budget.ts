@@ -11,10 +11,16 @@ import { gzipSync } from "node:zlib";
 /**
  * Gzipped kB. The largest first load of any route, and every client chunk of the build together.
  * The code block grammars (lib/code-highlighter.ts) are about 500 kB of the second, each loaded
- * only when a block in its language is shown, and the Markdown source editor (CodeMirror, about
- * 190 kB) loads only when a page is edited as Markdown.
+ * only when a block in its language is shown, the Markdown source editor (CodeMirror, about
+ * 190 kB) loads only when a page is edited as Markdown, and map views (Leaflet, about 45 kB) load
+ * only when one is shown. A database page evaluates its views' color rules on load
+ * (lib/color-rules.ts, about 3 kB with the views' marks); a page carries the AI chat panel, whose
+ * CSV files and approval cards for new databases and forms add about 2 kB (the CSV parser itself
+ * loads only with a file), the meeting block's editor spec and Markdown support (the editor
+ * needs them; its recorder loads only when recording), and the "Available offline" switch and its
+ * state (the downloader loads on demand, but Turbopack keeps a copy of it per route group).
  */
-const BUDGET = { routeFirstLoad: 800, allClientJs: 4000 };
+const BUDGET = { routeFirstLoad: 810, allClientJs: 4050 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;
