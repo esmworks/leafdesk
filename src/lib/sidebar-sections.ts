@@ -7,8 +7,9 @@
 /**
  * The sections in their default order. "pages" is the workspace's default teamspace shown as its
  * plain pages, which only Leafdesk on one computer does (lib/env.ts localMode); elsewhere it is empty.
+ * "meetings" is a link to the Meetings page; an order saved before it existed has it after the sections it lists.
  */
-export const SIDEBAR_SECTIONS = ["favorites", "pages", "teamspaces", "shared", "private"] as const;
+export const SIDEBAR_SECTIONS = ["favorites", "meetings", "pages", "teamspaces", "shared", "private"] as const;
 export type SidebarSection = (typeof SIDEBAR_SECTIONS)[number];
 
 export type SidebarLayout = {

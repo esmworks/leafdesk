@@ -24,6 +24,9 @@ const PLANS: [feature: string, plan: AiFeaturePlan][] = [
   ["property.", { fast: true, thinking: "off" }],
   // A transcript tidied into a note with a title and tags: the words are all there already.
   ["voice.rewrite", { fast: true, thinking: "low" }],
+  // A meeting's summary, decisions and action items: picking what matters out of a long
+  // transcript, once per meeting, so the main model with a little thinking.
+  ["voice.meetingSummary", { thinking: "low" }],
   // The writing assistant stays on the main model: one request per click, and what it writes goes
   // straight into a page, where the larger model's wording and translations show. Fixed tasks on
   // a selection need little thinking; an instruction of the person's own may need more.

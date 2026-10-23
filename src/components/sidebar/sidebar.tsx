@@ -11,6 +11,7 @@ import {
   ChevronsRight,
   ChevronUp,
   ClipboardCheck,
+  NotebookPen,
   CloudOff,
   BookOpen,
   Database,
@@ -446,6 +447,7 @@ export function Sidebar({
   const sectionLabel = (key: SidebarSection) =>
     ({
       favorites: t("pages.favorites"),
+      meetings: t("sections.meetings"),
       pages: t("pages.heading"),
       teamspaces: t("teamspaces.heading"),
       shared: t("sections.shared"),
@@ -739,6 +741,13 @@ export function Sidebar({
           ))}
         </ul>
       </SectionGroup>
+    ),
+    meetings: (
+      <div className="mb-2">
+        <SidebarButton icon={<NotebookPen className="h-4 w-4" />} href={`/w/${workspaceId}/meetings`} active={pathname === `/w/${workspaceId}/meetings`}>
+          {t("sections.meetings")}
+        </SidebarButton>
+      </div>
     ),
     pages: pagesSpace && (
       <SectionGroup

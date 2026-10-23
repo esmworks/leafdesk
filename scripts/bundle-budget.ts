@@ -14,11 +14,12 @@ import { gzipSync } from "node:zlib";
  * only when a block in its language is shown, the Markdown source editor (CodeMirror, about
  * 190 kB) loads only when a page is edited as Markdown, and map views (Leaflet, about 45 kB) load
  * only when one is shown. A database page evaluates its views' color rules on load
- * (lib/color-rules.ts, about 3 kB with the views' marks), and a page carries the AI chat panel,
- * whose CSV files and approval cards for new databases and forms add about 2 kB (the CSV parser
- * itself loads only with a file).
+ * (lib/color-rules.ts, about 3 kB with the views' marks); a page carries the AI chat panel, whose
+ * CSV files and approval cards for new databases and forms add about 2 kB (the CSV parser itself
+ * loads only with a file), and the meeting block's editor spec and Markdown support (the editor
+ * needs them; its recorder loads only when recording).
  */
-const BUDGET = { routeFirstLoad: 805, allClientJs: 4050 };
+const BUDGET = { routeFirstLoad: 810, allClientJs: 4050 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;

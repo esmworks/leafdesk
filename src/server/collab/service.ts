@@ -35,6 +35,7 @@ import { collabSessionFacts } from "@/server/account-security";
 import { serverBuildId } from "@/server/build-id";
 import { blocksToMarkdown, markdownToBlocks, serverEditor as editor } from "@/server/blocknote";
 import { authorizeFileReferences, referencedFileIds, unauthorizedFileIds } from "@/server/files";
+import { syncMeetingNotes } from "@/server/meeting-notes";
 import { mentionablePeople, pagesNamed, syncPageReferences } from "@/server/mentions";
 import { bodyBlocks, syncedBlocksOf } from "@/server/synced-body";
 import { pageChanged } from "@/server/page-events";
@@ -377,6 +378,8 @@ export function createCollab() {
     }
     // Every save, not only edits: a reminder changes the document but not its Markdown.
     await syncPageReferences(pageId, row.workspaceId, blocks, userId ?? null, context?.locale ?? null);
+    // The Meetings page's rows follow the body's meeting blocks (catches its own errors).
+    await syncMeetingNotes(pageId, blocks);
     if (!edited) return;
     // Semantic search indexes the page again (debounced, in the background), and the pages under
     // it after a new title, which their chunks name.
@@ -993,6 +996,36 @@ export function createCollab() {
         snapshot,
       );
       return found;
+    },
+
+    async updateBlockAttributes(pageId, type, find, update, actor) {
+      await assertWritable(pageId);
+      return transactPage(pageId, actor, (doc) => {
+        // Read and written in one synchronous run: nothing else changes the document in between.
+        const search = (parent: Y.XmlFragment | Y.XmlElement): Y.XmlElement | null => {
+          for (const child of parent.toArray()) {
+            if (!(child instanceof Y.XmlElement)) continue;
+            if (child.nodeName === type && find(child.getAttributes())) return child;
+            const inner = search(child);
+            if (inner) return inner;
+          }
+          return null;
+        };
+        const element = search(doc.getXmlFragment(COLLAB_FRAGMENT));
+        if (!element) return null;
+        const next = update(element.getAttributes());
+        if (next) {
+          doc.transact(
+            () => {
+              for (const [key, value] of Object.entries(next)) {
+                if (element.getAttribute(key) !== value) element.setAttribute(key, value as never);
+              }
+            },
+            { source: "local", context: actor },
+          );
+        }
+        return element.getAttributes() as Record<string, unknown>;
+      });
     },
 
     async linkPageMention(pageId, targetId, title, actor) {

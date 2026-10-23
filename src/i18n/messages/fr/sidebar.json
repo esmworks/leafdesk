@@ -226,7 +226,8 @@
     "private": "Privé",
     "newPrivate": "Nouvelle page privée",
     "more": "{count} de plus",
-    "less": "Afficher moins"
+    "less": "Afficher moins",
+    "meetings": "Réunions"
   },
   "joinable": {
     "heading": "Espaces que vous pouvez rejoindre",
