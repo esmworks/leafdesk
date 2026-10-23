@@ -71,7 +71,7 @@ export function ChatThread({
   const chipsRef = useRef<HTMLDivElement>(null);
   const caretWas = useRef(0);
   const chips = chat.pastes.length > 0;
-  const boxText = cn("block min-h-7 w-full py-1", page ? "px-1 text-[15px] leading-6" : "text-sm");
+  const boxText = cn("block min-h-7 w-full py-1 text-sm", page && "px-1 leading-6");
   useLayoutEffect(() => {
     if (chipsRef.current && inputRef.current) chipsRef.current.scrollTop = inputRef.current.scrollTop;
   }, [input, inputRef]);
@@ -142,7 +142,7 @@ export function ChatThread({
       <div
         ref={listRef}
         className={cn(
-          "min-h-0 flex-1 overflow-y-auto",
+          "min-h-0 flex-1 overflow-y-auto font-sans",
           page ? "px-4 py-6 md:px-8" : "px-4 py-3",
           // An empty page puts the greeting and the question box together a little above the middle.
           empty && "flex flex-col justify-end pb-6",
@@ -439,7 +439,7 @@ function Answer({
   const byNumber = useMemo(() => new Map((message.sources ?? []).map((s) => [s.n, s])), [message.sources]);
   const done = status === null && !waiting && (message.content.trim() !== "" || message.ms !== undefined);
   return (
-    <div className="group/answer text-sm leading-relaxed">
+    <div className="group/answer font-sans text-sm leading-relaxed">
       {message.steps ? (
         <Steps message={message} status={status} waiting={waiting} reasoning={reasoning} onSource={onSource} />
       ) : (

@@ -421,6 +421,9 @@
 
 ### Changed
 
+- **The AI chat's text follows the app's own type scale.** Tables, code blocks and headings in an
+  answer and the question box are 14px like the rest of the interface, in the app's own font, instead
+  of standing out with 12, 15 and 16px.
 - **The desktop app signs in to a connection's service in your browser.** Signing in to a
   connection or to Google Drive or Dropbox storage opens the service's page in the system's
   browser, where you are likely signed in to it already, instead of inside the app. Once you allow

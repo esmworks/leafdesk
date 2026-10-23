@@ -33,7 +33,7 @@ export default function AnswerMarkdown({
       ol: ({ node: _, className, ...props }) => <ol {...props} className={cn("mb-2 list-decimal space-y-0.5 ps-5 [&_ol]:mb-0 [&_ul]:mb-0", className)} />,
       // A task list item shows its checkbox instead of a bullet.
       li: ({ node: _, className, ...props }) => <li {...props} className={cn(className?.includes("task-list-item") && "list-none [&>input]:me-1.5", className)} />,
-      h1: ({ node: _, className, ...props }) => <p {...props} className={cn("mt-3 mb-1 text-base font-semibold", className)} />,
+      h1: ({ node: _, className, ...props }) => <p {...props} className={cn("mt-3 mb-1 text-sm font-semibold", className)} />,
       h2: ({ node: _, className, ...props }) => <p {...props} className={cn("mt-3 mb-1 font-semibold", className)} />,
       h3: ({ node: _, className, ...props }) => <p {...props} className={cn("mt-2 mb-1 font-semibold", className)} />,
       h4: ({ node: _, className, ...props }) => <p {...props} className={cn("mt-2 mb-1 font-medium", className)} />,
@@ -42,12 +42,12 @@ export default function AnswerMarkdown({
       blockquote: ({ node: _, className, ...props }) => <blockquote {...props} className={cn("mb-2 border-s-2 border-border ps-3 text-fg-muted", className)} />,
       hr: () => <hr className="my-3 border-border" />,
       pre: ({ node: _, className, ...props }) => (
-        <pre {...props} className={cn("mb-2 overflow-x-auto rounded bg-bg-subtle p-2 text-xs [&_code]:bg-transparent [&_code]:p-0", className)} />
+        <pre {...props} className={cn("mb-2 overflow-x-auto rounded bg-bg-subtle p-2 text-sm [&_code]:bg-transparent [&_code]:p-0", className)} />
       ),
       code: ({ node: _, className, ...props }) => <code {...props} className={cn("rounded bg-bg-active px-1 text-[0.9em]", className)} />,
       table: ({ node: _, className, ...props }) => (
         <div className="mb-2 overflow-x-auto">
-          <table {...props} className={cn("w-full border-collapse text-xs", className)} />
+          <table {...props} className={cn("w-full border-collapse text-sm", className)} />
         </div>
       ),
       th: ({ node: _, className, ...props }) => <th {...props} className={cn("border border-border bg-bg-subtle px-2 py-1 text-start font-medium", className)} />,
