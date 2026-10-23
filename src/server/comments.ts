@@ -16,10 +16,12 @@ import { AccessError, getMembership, hasLevel, isGuest, requirePageAccess, resol
 import { avatarSrc } from "@/lib/avatar";
 import { getCollab } from "@/server/collab/bridge";
 import type { CommentOpResult } from "@/server/collab/bridge";
-import { recordComment, withdrawComments } from "@/server/notifications";
+import { reactionTarget } from "@/lib/comment-reactions";
+import { recordComment, recordReaction, withdrawComments, withdrawReaction, withdrawReactions } from "@/server/notifications";
 import { newThreadAudience } from "@/server/page-watch";
 import { followOnTakingPart } from "@/server/row-follow";
 import { forgetThreadMutes, threadMuters, unmuteThread } from "@/server/thread-mute";
+import { forgetThreadStates } from "@/server/thread-state";
 import { workspacePeople } from "@/server/workspaces";
 import { agentMarks, markOf } from "@/server/agents/users";
 import { startMentionRuns } from "@/server/agents/mentions";
@@ -147,9 +149,21 @@ export async function changeComments(userId: string, pageId: string, op: Comment
     // People an edit mentions hear about it like any other mention, and it ends their mute.
     await unmuteThread(pageId, clean.threadId, mentioned);
     await recordComment(userId, target.workspaceId, pageId, clean.threadId, mentioned);
+  } else if (clean.type === "addReaction" || clean.type === "deleteReaction") {
+    // The comment's author hears about reactions by others (server/notifications recordReaction).
+    const reaction = reactionTarget(result.thread, clean.commentId, userId, clean.emoji);
+    if (reaction) {
+      const about = { pageId, threadId: clean.threadId, commentId: clean.commentId, authorId: reaction.authorId, emoji: clean.emoji };
+      if (clean.type === "addReaction" && reaction.reacted) await recordReaction(userId, target.workspaceId, { ...about, excerpt: reaction.excerpt });
+      else if (clean.type === "deleteReaction" && !reaction.reacted) await withdrawReaction(userId, target.workspaceId, about);
+    }
   } else if (clean.type === "deleteThread" || (clean.type === "deleteComment" && !result.thread)) {
     await withdrawComments(target.workspaceId, pageId, clean.threadId);
     await forgetThreadMutes(pageId, clean.threadId);
+    await forgetThreadStates(pageId, clean.threadId);
+  } else if (clean.type === "deleteComment") {
+    // Reactions to a deleted comment are about nothing any more.
+    await withdrawReactions(target.workspaceId, pageId, clean.threadId, clean.commentId);
   }
   return result;
 }

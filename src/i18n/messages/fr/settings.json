@@ -1730,7 +1730,10 @@
     "reviewChannel": "À vérifier : {channel}",
     "followUpTitle": "Relances",
     "followUpDescription": "Une relance que vous avez lancée se met en pause, car son prochain e-mail n’a pas passé la vérification avant envoi.",
-    "followUpChannel": "Relances : {channel}"
+    "followUpChannel": "Relances : {channel}",
+    "reactionTitle": "Réactions",
+    "reactionDescription": "Quelqu’un réagit à un commentaire que vous avez écrit. Les réactions à un même commentaire sont regroupées jusqu’à ce que vous les ouvriez.",
+    "reactionChannel": "Réactions : {channel}"
   },
   "site": {
     "description": "Donnez aux pages publiées de cet espace de travail une adresse lisible, une page d’accueil et une navigation commune.",

@@ -1730,7 +1730,10 @@
     "reviewChannel": "Da rivedere: {channel}",
     "followUpTitle": "Follow-up",
     "followUpDescription": "Un follow-up che hai avviato va in pausa perché la sua prossima email non ha superato il controllo prima dell’invio.",
-    "followUpChannel": "Follow-up: {channel}"
+    "followUpChannel": "Follow-up: {channel}",
+    "reactionTitle": "Reazioni",
+    "reactionDescription": "Qualcuno reagisce a un tuo commento. Le reazioni allo stesso commento restano insieme finché non le apri.",
+    "reactionChannel": "Reazioni: {channel}"
   },
   "site": {
     "description": "Dai alle pagine pubblicate di questo spazio di lavoro un unico indirizzo leggibile, una home page e la navigazione tra di loro.",

@@ -77,11 +77,13 @@
     "filters": {
       "open": "Açık",
       "resolved": "Çözülen",
+      "marked": "İşaretli",
       "all": "Tümü"
     },
     "empty": {
       "open": "Açık yorum yok. Yorum başlatmak için sayfada bir metin seçip Yorum'u seçin.",
       "resolved": "Çözülen yorum yok.",
+      "marked": "Daha sonra dönmek için işaretlediğiniz konuşma yok. Bir konuşmanın menüsünden “Sonra dön”ü seçin.",
       "all": "Henüz yorum yok. Yorum başlatmak için sayfada bir metin seçip Yorum'u seçin."
     },
     "threadMenu": "Yorum konusu seçenekleri",
@@ -91,7 +93,19 @@
     "unmuteHint": "Bu konudaki yeni yanıtlardan yeniden haberdar olun.",
     "muted": "Yanıtlar sessizde",
     "mutedHint": "Burada yanıt yazana ya da biri sizi burada anana kadar bu konudaki yanıtlardan haberdar olmazsınız.",
-    "mergedFrom": "“{title}” satırından"
+    "mergedFrom": "“{title}” satırından",
+    "sort": {
+      "label": "Konuşmaları sırala",
+      "recent": "En son hareket önce",
+      "page": "Sayfadaki sırayla"
+    },
+    "new": "Yeni",
+    "marked": "Sonra dönmek için işaretli",
+    "markedHint": "Bu konuşmayı daha sonra dönmek için işaretlediniz. Bunu yalnızca siz görürsünüz.",
+    "mark": "Sonra dön",
+    "unmark": "“Sonra dön” işaretini kaldır",
+    "markHint": "İşareti kaldırana kadar bu konuşma İşaretli altında kalır. Yalnızca siz görürsünüz.",
+    "unmarkHint": "Bu konuşmayı İşaretli listenizden çıkarın."
   },
   "archived": {
     "banner": "Bu sayfa çöp kutusunda.",

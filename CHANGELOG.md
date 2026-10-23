@@ -12,6 +12,27 @@
   database still see every row (the dialog says who). Changing a row's people changes who can open
   it at once; search, the sidebar, the API, MCP and the AI chat follow the same rule. Copies of a
   database keep its rules; changes go into the audit log. Migration 0116.
+- **Reactions to your comments reach your inbox.** When someone reacts to a comment you wrote, you
+  get “Maya reacted 👍 to your comment” with the start of the comment, opening the thread. More
+  reactions to the same comment, by anyone, gather in that one notification while it is unread
+  (“Maya and 2 others reacted 👍 🎉”), taking a reaction back takes it out again (and the
+  notification away once none is left), and deleting the comment or its thread takes them all
+  back. Your own reactions tell nobody, and agents hear about none. *Reactions* is a kind of its
+  own in Settings > Preferences: in the inbox by default, never by email, and pushed or sent to
+  Telegram only once turned on. MCP's `list_notifications` lists them too. Migration 0117.
+- **The inbox groups notifications about one page.** Comments and reactions on the same page that
+  came within a few hours of each other, or edits to the same page or row, show as one entry
+  (“5 new comments, 1 new reaction” with the people's pictures), which opens to the single ones.
+  Opening the entry, marking it read or snoozing it does so to all of them.
+- **The comments panel lists a page's discussions newest first, and keeps threads to come back
+  to.** Threads, on text or about the whole page, are now in order of their latest comment (or,
+  from the sort menu, in the order of the page), and those with comments by others since you last
+  looked at them say *New*. Choosing a thread scrolls the page to its text and highlights it, as
+  before. A thread's menu has *Come back later*, which only you see; the new *Marked* filter lists
+  those threads until you take the mark off. MCP's `list_comments` and the REST API's comments
+  say `marked: true` for threads the asking user marked. The marks and when each person saw each
+  thread are kept per person (migration 0117) and go with the thread.
+
 - **The AI chat makes PDF files.** Asked for a PDF (a quote, a letter, a report), the chat writes
   it into a page or row if it isn't in one, then makes the page's PDF on the server
   (`create_pdf`) and attaches it at the end of the page's text, or in a row's files property, and

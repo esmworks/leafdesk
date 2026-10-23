@@ -1730,7 +1730,10 @@
     "reviewChannel": "검토 대기: {channel}",
     "followUpTitle": "팔로업",
     "followUpDescription": "내가 시작한 팔로업의 다음 이메일이 발송 전 검사를 통과하지 못해 일시 중지될 때.",
-    "followUpChannel": "팔로업: {channel}"
+    "followUpChannel": "팔로업: {channel}",
+    "reactionTitle": "반응",
+    "reactionDescription": "누군가 내가 쓴 댓글에 반응할 때. 같은 댓글에 대한 반응은 열어 볼 때까지 하나로 모입니다.",
+    "reactionChannel": "반응: {channel}"
   },
   "site": {
     "description": "이 워크스페이스의 게시된 페이지에 읽기 쉬운 하나의 주소, 홈 페이지, 페이지 간 탐색을 제공합니다.",

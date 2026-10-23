@@ -1730,7 +1730,10 @@
     "reviewChannel": "Do przejrzenia: {channel}",
     "followUpTitle": "Follow-upy",
     "followUpDescription": "Uruchomiony przez ciebie follow-up zostaje wstrzymany, bo jego następny e-mail nie przeszedł kontroli przed wysłaniem.",
-    "followUpChannel": "Follow-upy: {channel}"
+    "followUpChannel": "Follow-upy: {channel}",
+    "reactionTitle": "Reakcje",
+    "reactionDescription": "Ktoś reaguje na Twój komentarz. Reakcje na ten sam komentarz są zbierane razem, dopóki ich nie otworzysz.",
+    "reactionChannel": "Reakcje: {channel}"
   },
   "site": {
     "description": "Nadaj opublikowanym stronom tego obszaru roboczego jeden czytelny adres, stronę główną i nawigację między nimi.",

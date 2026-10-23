@@ -553,6 +553,7 @@ const SCHEMAS: Record<string, JsonSchema> = {
           id,
           quote: { type: ["string", "null"] },
           resolved: { type: "boolean" },
+          marked: { type: "boolean", description: "The asking user marked the thread to come back to later." },
           comments: {
             type: "array",
             items: loose({

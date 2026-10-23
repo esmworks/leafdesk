@@ -1730,7 +1730,10 @@
     "reviewChannel": "Para revisar: {channel}",
     "followUpTitle": "Acompanhamentos",
     "followUpDescription": "Um acompanhamento que você iniciou é pausado porque o próximo e-mail não passou na verificação antes do envio.",
-    "followUpChannel": "Acompanhamentos: {channel}"
+    "followUpChannel": "Acompanhamentos: {channel}",
+    "reactionTitle": "Reações",
+    "reactionDescription": "Alguém reage a um comentário seu. As reações ao mesmo comentário ficam juntas até você abri-las.",
+    "reactionChannel": "Reações: {channel}"
   },
   "site": {
     "description": "Dê às páginas publicadas deste espaço de trabalho um endereço legível, uma página inicial e navegação entre elas.",

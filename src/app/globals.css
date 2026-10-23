@@ -764,9 +764,9 @@
   width: 100%;
   min-width: 0;
 }
-/* Room for the thread's menu (and its muted mark) at the end of the line it is about. */
+/* Room for the thread's menu (and its marks: new, come back later, muted) at the end of the line it is about. */
 .comments-panel .comments-thread .bn-header-text {
-  padding-inline-end: 3.5rem;
+  padding-inline-end: var(--thread-tools, 3.5rem);
 }
 
 /* Find in page: every match is tinted, the current one stronger and outlined. */

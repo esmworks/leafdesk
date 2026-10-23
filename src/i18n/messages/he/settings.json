@@ -1730,7 +1730,10 @@
     "reviewChannel": "לבדיקה: {channel}",
     "followUpTitle": "רצפי מעקב",
     "followUpDescription": "רצף מעקב שהפעלת מושהה כי האימייל הבא שלו לא עבר את הבדיקה לפני השליחה.",
-    "followUpChannel": "רצפי מעקב: {channel}"
+    "followUpChannel": "רצפי מעקב: {channel}",
+    "reactionTitle": "תגובות אמוג׳י",
+    "reactionDescription": "מישהו מגיב באמוג׳י לתגובה שכתבת. תגובות לאותה תגובה מתקבצות יחד עד שתפתחו אותן.",
+    "reactionChannel": "תגובות אמוג׳י: {channel}"
   },
   "site": {
     "description": "כתובת קריאה אחת לדפים המפורסמים של סביבת העבודה הזו, עם דף בית וניווט ביניהם.",

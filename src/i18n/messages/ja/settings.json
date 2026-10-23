@@ -1730,7 +1730,10 @@
     "reviewChannel": "確認待ち：{channel}",
     "followUpTitle": "フォローアップ",
     "followUpDescription": "あなたが開始したフォローアップで、次のメールが送信前のチェックを通過せず一時停止したとき。",
-    "followUpChannel": "フォローアップ：{channel}"
+    "followUpChannel": "フォローアップ：{channel}",
+    "reactionTitle": "リアクション",
+    "reactionDescription": "あなたのコメントに誰かがリアクションしたとき。同じコメントへのリアクションは、開くまでまとめて表示されます。",
+    "reactionChannel": "リアクション: {channel}"
   },
   "site": {
     "description": "このワークスペースの公開ページに、わかりやすい1つのアドレス、ホームページ、ページ間のナビゲーションを用意します。",
