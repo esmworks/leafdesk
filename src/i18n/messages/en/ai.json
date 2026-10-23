@@ -215,7 +215,10 @@
           "createPage": "Page added:",
           "editPage": "Page text changed:",
           "createPdf": "PDF made:",
-          "mergeRows": "Rows merged into:"
+          "mergeRows": "Rows merged into:",
+          "addComment": "Commented on:",
+          "createDatabase": "Database added:",
+          "createForm": "Form added:"
         },
         "declined": {
           "createRow": "Declined adding the row:",
@@ -223,7 +226,10 @@
           "createPage": "Declined adding the page:",
           "editPage": "Declined changing the text of:",
           "createPdf": "Declined making the PDF:",
-          "mergeRows": "Declined merging rows into:"
+          "mergeRows": "Declined merging rows into:",
+          "addComment": "Declined commenting on:",
+          "createDatabase": "Declined adding the database:",
+          "createForm": "Declined adding the form:"
         },
         "failed": {
           "createRow": "Couldn't add the row:",
@@ -231,7 +237,10 @@
           "createPage": "Couldn't add the page:",
           "editPage": "Couldn't change the text of:",
           "createPdf": "Couldn't make the PDF:",
-          "mergeRows": "Couldn't merge rows into:"
+          "mergeRows": "Couldn't merge rows into:",
+          "addComment": "Couldn't comment on:",
+          "createDatabase": "Couldn't add the database:",
+          "createForm": "Couldn't add the form:"
         },
         "in": "in",
         "proposed": {
@@ -240,7 +249,10 @@
           "createPage": "Proposed adding a page for review:",
           "editPage": "Proposed a text change for review:",
           "createPdf": "Proposed a PDF for review:",
-          "mergeRows": "Proposed merging rows for review into:"
+          "mergeRows": "Proposed merging rows for review into:",
+          "addComment": "Proposed a comment for review on:",
+          "createDatabase": "Proposed a database for review:",
+          "createForm": "Proposed a form for review:"
         }
       },
       "memory": {
@@ -279,7 +291,10 @@
         "forget": "Forget this note?",
         "editPage": "Change this page's text?",
         "createPdf": "Make a PDF of this page and attach it?",
-        "connection": "Send this to {connection}?"
+        "connection": "Send this to {connection}?",
+        "addComment": "Add this comment?",
+        "createDatabase": "Add this database?",
+        "createForm": "Add this form?"
       },
       "in": "In",
       "row": "Row",
@@ -293,6 +308,12 @@
       "page": "Page",
       "empty": "(empty)",
       "connectionHint": "Sent with the workspace's connection: it may change something at {connection}",
+      "fromFile": "{rows, plural, one {# row} other {# rows}} from {name}",
+      "titleColumn": "Title",
+      "publicForm": {
+        "signedIn": "Public link: anyone with the link can answer after signing in",
+        "anonymous": "Public link: anyone with the link can answer, without signing in"
+      },
       "letterhead": "Letterhead: {name}"
     },
     "mode": {
@@ -310,7 +331,20 @@
       "retry": "Answer again"
     },
     "actionsFor": "Actions for {name}",
-    "greeting": "What would you like to know?"
+    "greeting": "What would you like to know?",
+    "files": {
+      "attach": "Attach a CSV file",
+      "attachHint": "Attach a CSV file (up to 1,000 rows and 1 MB) to ask about it or make a database of it",
+      "drop": "Drop the CSV file to attach it",
+      "remove": "Remove {name}",
+      "size": "{rows, plural, one {# row} other {# rows}} × {columns, plural, one {# column} other {# columns}}",
+      "notCsv": "Only CSV files can be attached. Save a spreadsheet as CSV first.",
+      "tooLarge": "That file is larger than {size}. Attach a smaller CSV file.",
+      "tooManyRows": "That file has more than {rows} rows. Attach a shorter CSV file, or import it as a database.",
+      "tooManyColumns": "That file has more than {columns} columns.",
+      "empty": "That file is empty.",
+      "tooMany": "A question can have at most {count} files."
+    }
   },
   "memory": {
     "open": "Memory",

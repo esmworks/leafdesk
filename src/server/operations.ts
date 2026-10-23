@@ -16,6 +16,7 @@ import { asFiles, blockTypeFor } from "@/lib/files";
 import { parseIcon } from "@/lib/icon";
 import { FILTER_COMBINATORS, MAX_FILTER_DEPTH, MAX_RELATIVE_DAYS, RELATIVE_DATE_RANGES } from "@/lib/filters";
 import { pageLabel } from "@/lib/labels";
+import { diffToText, wordsToText } from "@/lib/page-diff";
 import { isPageLocked, PAGE_LOCKED_MESSAGE } from "@/lib/page-lock";
 import {
   BACKGROUND_COLORS,
@@ -1771,6 +1772,62 @@ export async function addComment(ctx: OperationContext, { page_id, text, quote, 
     thread_id: result.thread?.id,
     comment_id: result.comment?.id,
     url: pageUrl(page.workspaceId, page.id),
+  };
+}
+
+// ---------------------------------------------------------------------------- history
+
+/** A page's saved versions, newest first, with who made each change (a user, or a user through an app). */
+export async function listPageHistory(ctx: OperationContext, { page_id }: Args<"pageId">) {
+  const snapshots = await pages.listSnapshots(ctx.userId, page_id);
+  return {
+    page_id,
+    versions: snapshots.map((s) => ({
+      id: s.id,
+      title: pageLabel(s.title),
+      saved_at: new Date(s.createdAt).toISOString(),
+      reason: s.reason,
+      by: s.clientName ? `${s.authorName ?? "Unknown"} via ${s.clientName}` : (s.authorName ?? null),
+    })),
+  };
+}
+
+/** A saved version's title and Markdown body, from `offset`, cut at `maxChars`. */
+export async function getPageVersion(ctx: OperationContext, { version_id, offset }: { version_id: string; offset: number }, { maxChars }: { maxChars?: number } = {}) {
+  const snap = await pages.getSnapshot(ctx.userId, version_id);
+  const body = sliceText(await labelPageLinks(ctx.userId, snap.contentMarkdown), offset, maxChars);
+  return {
+    id: snap.id,
+    page_id: snap.pageId,
+    title: pageLabel(snap.title),
+    saved_at: new Date(snap.createdAt).toISOString(),
+    markdown: body.text,
+    ...(body.truncated ? { markdown_truncated: true, markdown_total_chars: body.totalChars, ...("note" in body ? { note: body.note } : {}) } : {}),
+  };
+}
+
+/**
+ * What changed between a saved version and the page now (`current`), or between the version saved
+ * before it and this one (`previous`), one line per block (lib/page-diff diffToText).
+ */
+export async function diffPageVersion(
+  ctx: OperationContext,
+  { version_id, against, offset }: { version_id: string; against: "current" | "previous"; offset: number },
+  { maxChars }: { maxChars?: number } = {},
+) {
+  const { diffSnapshot } = await import("@/server/page-history");
+  const diff = await diffSnapshot(ctx.userId, version_id, against);
+  if (!diff) return { version_id, against, note: "This is the oldest saved version; there is nothing earlier to compare it with." };
+  const changed = diff.title !== null || diff.changes.some((c) => c.op !== "same");
+  const body = sliceText(changed ? diffToText(diff.changes) : "", offset, maxChars);
+  return {
+    from: diff.fromId,
+    to: diff.toId ?? "current",
+    changed,
+    ...(diff.title ? { title: wordsToText(diff.title) } : {}),
+    changed_by: diff.actors.map((a) => (a.client ? `${a.name ?? "Unknown"} via ${a.client}` : a.name)),
+    diff: body.text,
+    ...(body.truncated ? { diff_truncated: true, diff_total_chars: body.totalChars, ...("note" in body ? { note: body.note } : {}) } : {}),
   };
 }
 

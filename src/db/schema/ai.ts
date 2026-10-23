@@ -174,9 +174,10 @@ export type MemoryStatus = "kept" | "proposed";
 
 /**
  * A change the AI chat may make: add a database row, change one, add a page, change a page's text,
- * or make a PDF file of a page and attach it to the page.
+ * make a PDF file of a page and attach it to the page, comment on a page, add a database (empty
+ * or from a CSV file attached to the conversation) or add a form view to a database.
  */
-export type ChatWriteAction = "createRow" | "updateRow" | "createPage" | "editPage" | "createPdf";
+export type ChatWriteAction = "createRow" | "updateRow" | "createPage" | "editPage" | "createPdf" | "addComment" | "createDatabase" | "createForm";
 
 /** A change made, as a step records it: one the chat may make, or duplicate rows an agent's run merged. */
 export type ChatWriteStepAction = ChatWriteAction | "mergeRows";
@@ -186,9 +187,9 @@ export type ChatChange = { property: string; value: string; before?: string };
 
 /**
  * A change the AI chat made (`done`), the person declined (`declined`) or that failed once
- * approved (`failed`). `targetId`: the database a row goes to, the row changed, the page a new
- * page goes under (null: the top of the workspace) or the page a PDF is made of; `pageId`: the row
- * or page made or changed.
+ * approved (`failed`). `targetId`: the database a row or form goes to, the row changed, the page a
+ * new page or database goes under (null: the top of the workspace), the page a PDF is made of or
+ * the page commented on; `pageId`: the row, page or database made or changed (a form's database).
  */
 export type ChatWriteRecord = {
   kind: "write";
@@ -205,12 +206,20 @@ export type ChatWriteRecord = {
 /** One filter rule of a database query the chat ran, as shown with the step. */
 export type ChatQueryCondition = { property: string; op: string; value: string | null };
 
+/**
+ * A CSV file attached to a question (lib/chat-attachments.ts), as read then: its name (unique in
+ * the conversation), header and rows. It stays with the conversation, so later questions see it too.
+ */
+export type ChatAttachmentRecord = { kind: "csv"; name: string; headers: string[]; rows: string[][] };
+
 /** One message of an AI chat conversation, as stored. */
 export type ChatMessageRecord = {
   role: "user" | "assistant";
   content: string;
   /** Questions: the skill the answer followed, with its title then. */
   skill?: { id: string; title: string };
+  /** Questions: the CSV files attached to them. */
+  attachments?: ChatAttachmentRecord[];
   /** Assistant answers: the sources the answer cites as [n]. */
   sources?: ChatSourceRef[];
   /** Answers that didn't finish: stopped by the person, or cut off at the length limit. */

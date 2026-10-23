@@ -215,7 +215,10 @@
           "createPage": "Página añadida:",
           "editPage": "Texto de la página cambiado:",
           "createPdf": "PDF creado:",
-          "mergeRows": "Filas combinadas en:"
+          "mergeRows": "Filas combinadas en:",
+          "addComment": "Comentario añadido en:",
+          "createDatabase": "Base de datos añadida:",
+          "createForm": "Formulario añadido:"
         },
         "declined": {
           "createRow": "Rechazado añadir la fila:",
@@ -223,7 +226,10 @@
           "createPage": "Rechazado añadir la página:",
           "editPage": "Cambio del texto rechazado:",
           "createPdf": "Se rechazó crear el PDF:",
-          "mergeRows": "Se rechazó combinar filas en:"
+          "mergeRows": "Se rechazó combinar filas en:",
+          "addComment": "Rechazaste comentar en:",
+          "createDatabase": "Rechazaste añadir la base de datos:",
+          "createForm": "Rechazaste añadir el formulario:"
         },
         "failed": {
           "createRow": "No se pudo añadir la fila:",
@@ -231,7 +237,10 @@
           "createPage": "No se pudo añadir la página:",
           "editPage": "No se pudo cambiar el texto de:",
           "createPdf": "No se pudo crear el PDF:",
-          "mergeRows": "No se pudieron combinar filas en:"
+          "mergeRows": "No se pudieron combinar filas en:",
+          "addComment": "No se pudo comentar en:",
+          "createDatabase": "No se pudo añadir la base de datos:",
+          "createForm": "No se pudo añadir el formulario:"
         },
         "in": "en",
         "proposed": {
@@ -240,7 +249,10 @@
           "createPage": "Propuso añadir una página para revisión:",
           "editPage": "Propuso un cambio de texto para revisión:",
           "createPdf": "Propuso un PDF para revisión:",
-          "mergeRows": "Propuso combinar filas para revisión en:"
+          "mergeRows": "Propuso combinar filas para revisión en:",
+          "addComment": "Propuso un comentario para revisión en:",
+          "createDatabase": "Propuso una base de datos para revisión:",
+          "createForm": "Propuso un formulario para revisión:"
         }
       },
       "memory": {
@@ -279,7 +291,10 @@
         "forget": "¿Olvidar esta nota?",
         "editPage": "¿Cambiar el texto de esta página?",
         "createPdf": "¿Crear un PDF de esta página y adjuntarlo?",
-        "connection": "¿Enviar esto a {connection}?"
+        "connection": "¿Enviar esto a {connection}?",
+        "addComment": "¿Añadir este comentario?",
+        "createDatabase": "¿Añadir esta base de datos?",
+        "createForm": "¿Añadir este formulario?"
       },
       "in": "En",
       "row": "Fila",
@@ -293,6 +308,12 @@
       "page": "Página",
       "empty": "(vacío)",
       "connectionHint": "Se envía con la conexión del espacio de trabajo: puede cambiar algo en {connection}",
+      "fromFile": "{rows, plural, one {# fila} other {# filas}} de {name}",
+      "titleColumn": "Título",
+      "publicForm": {
+        "signedIn": "Enlace público: cualquiera con el enlace puede responder tras iniciar sesión",
+        "anonymous": "Enlace público: cualquiera con el enlace puede responder sin iniciar sesión"
+      },
       "letterhead": "Membrete: {name}"
     },
     "mode": {
@@ -310,7 +331,20 @@
       "retry": "Responder de nuevo"
     },
     "actionsFor": "Acciones para {name}",
-    "greeting": "¿Qué quieres saber?"
+    "greeting": "¿Qué quieres saber?",
+    "files": {
+      "attach": "Adjuntar un archivo CSV",
+      "attachHint": "Adjunta un archivo CSV (hasta 1000 filas y 1 MB) para preguntar sobre él o crear una base de datos con él",
+      "drop": "Suelta el archivo CSV para adjuntarlo",
+      "remove": "Quitar {name}",
+      "size": "{rows, plural, one {# fila} other {# filas}} × {columns, plural, one {# columna} other {# columnas}}",
+      "notCsv": "Solo se pueden adjuntar archivos CSV. Guarda primero la hoja de cálculo como CSV.",
+      "tooLarge": "El archivo pesa más de {size}. Adjunta un CSV más pequeño.",
+      "tooManyRows": "El archivo tiene más de {rows} filas. Adjunta un CSV más corto o impórtalo como base de datos.",
+      "tooManyColumns": "El archivo tiene más de {columns} columnas.",
+      "empty": "El archivo está vacío.",
+      "tooMany": "Una pregunta puede tener como máximo {count} archivos."
+    }
   },
   "memory": {
     "open": "Memoria",

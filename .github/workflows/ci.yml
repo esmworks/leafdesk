@@ -291,6 +291,9 @@ jobs:
       - name: AI chat end-to-end
         run: pnpm tsx scripts/ai-chat-e2e.ts
 
+      - name: AI chat comments, history, files, databases and forms end-to-end
+        run: pnpm tsx scripts/ai-chat-tools-e2e.ts
+
       - name: AI chat memory end-to-end
         run: pnpm tsx scripts/ai-memory-e2e.ts
 

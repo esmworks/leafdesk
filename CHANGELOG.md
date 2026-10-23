@@ -68,6 +68,25 @@
   search, OpenStreetMap's by default, empty turns it off), `MAP_TILE_URL` and
   `MAP_TILE_ATTRIBUTION` (the map's tiles and their credit, OpenStreetMap's by default, an empty
   URL turns maps off). No migration. New dependency: Leaflet.
+- **The AI chat reads comments and page history, takes CSV files, and makes databases and
+  forms.** It lists a page's comment threads, open and resolved, with their authors, the text
+  they are on and their replies, and can comment or reply as the person (`list_comments`,
+  `add_comment`). It lists a page's saved versions and reads one or shows what changed since it
+  or by it (`page_history`, `page_version`, the same operations as MCP's history tools). A CSV
+  file can be attached to a question with the paperclip, by dropping it on the box or by pasting
+  it (up to 1,000 rows, 100 columns and 1 MB, with a clear message beyond); the question shows it
+  as a chip with its name and size, the model gets the table cut to fit and can read the rest,
+  and the file stays with the conversation for the questions after it. The chat makes a new
+  database with the properties, types and options asked for, or one from an attached file with
+  each column's type guessed from its values and its rows imported, under a page the person may
+  edit or at the top, private to them (`create_database`, `create_database_from_csv`). It adds
+  a form view to a database the person may edit, with the questions, title, description and
+  confirmation asked for, opened to the web when asked and allowed, and answers with its links
+  (`create_form`). Each change is asked for first in *Ask* mode, shown with what it would make,
+  and made as the person through the same code as the app's own edits (a new or imported
+  database goes into the audit log as one made in the app does); the Telegram bot asks the same
+  way.
+
 - **The AI chat makes PDF files.** Asked for a PDF (a quote, a letter, a report), the chat writes
   it into a page or row if it isn't in one, then makes the page's PDF on the server
   (`create_pdf`) and attaches it at the end of the page's text, or in a row's files property, and
