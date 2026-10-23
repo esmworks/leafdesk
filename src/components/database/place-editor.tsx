@@ -121,7 +121,7 @@ export function PlaceEditor({
             ) : (
               <>
                 <span className="w-full truncate text-sm">{placeLabel(place)}</span>
-                {place.name && <span className="line-clamp-2 w-full text-xs text-fg-muted">{place.address}</span>}
+                {place.name && <span className="line-clamp-2 w-full text-xs text-fg-muted">{addressAfterName(place)}</span>}
               </>
             )}
           </button>
@@ -169,4 +169,10 @@ export function PlaceEditor({
       )}
     </div>
   );
+}
+
+/** The address under a suggestion's name, without the name again when the address starts with it. */
+function addressAfterName(place: PlaceValue) {
+  const prefix = `${place.name}, `;
+  return place.name && place.address.startsWith(prefix) ? place.address.slice(prefix.length) : place.address;
 }

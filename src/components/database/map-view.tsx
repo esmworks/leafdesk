@@ -334,7 +334,7 @@ function PinCard({
         </button>
       </div>
       <p className="mt-0.5 line-clamp-2 text-xs text-fg-muted" title={place.address}>
-        {place.name ? `${place.name}, ${place.address}` : place.address}
+        {place.name && place.name !== label && !place.address.startsWith(place.name) ? `${place.name}, ${place.address}` : place.address}
       </p>
       {shown.length > 0 && (
         <dl className="mt-2 flex max-h-48 flex-col gap-1 overflow-y-auto">
