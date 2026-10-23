@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import {
   Bell,
   BellOff,
@@ -77,7 +78,6 @@ import { TeamspaceDialog } from "@/components/teamspaces/teamspace-dialog";
 import { useAiChat } from "@/components/ai-chat/chat-panel";
 import { ConversationList } from "@/components/ai-chat/conversation-list";
 import { chatPath, isChatPath } from "@/lib/ai-chat";
-import { InboxDialog } from "./inbox-dialog";
 import { NewWorkspaceDialog } from "./new-workspace-dialog";
 import { SearchDialog } from "./search-dialog";
 import { inlineSign } from "@/components/direction";
@@ -86,6 +86,9 @@ import { isSettingsPath, SidebarPeekEdge, useSidebar } from "./sidebar-context";
 import { TrashDialog } from "./trash-dialog";
 import { TemplatesDialog } from "@/components/workspace/templates-dialog";
 import { ImportDialog } from "@/components/workspace/import-dialog";
+
+// Loaded the first time the inbox opens: it is not needed to show a page.
+const InboxDialog = dynamic(() => import("./inbox-dialog").then((m) => m.InboxDialog), { ssr: false });
 
 type Workspace = { id: string; name: string; icon: string | null; role: string };
 
@@ -195,6 +198,9 @@ export function Sidebar({
   // The section the templates or import dialog was opened from.
   const [dialogTarget, setDialogTarget] = useState<Target>(undefined);
   const [inboxOpen, setInboxOpen] = useState(false);
+  // Mounted from the first opening on, so it closes with its own transition afterwards.
+  const [inboxMounted, setInboxMounted] = useState(false);
+  if (inboxOpen && !inboxMounted) setInboxMounted(true);
   const [unread, setUnread] = useState(0);
   // Changes agents proposed that wait for the person (the "For review" page), counted with the inbox.
   const [reviewCount, setReviewCount] = useState(0);
@@ -1417,13 +1423,15 @@ export function Sidebar({
         ]}
       />
       <ShortcutsDialog open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
-      <InboxDialog
-        workspaceId={workspaceId}
-        open={inboxOpen}
-        onClose={() => setInboxOpen(false)}
-        version={inboxVersion}
-        onRead={refreshInbox}
-      />
+      {inboxMounted && (
+        <InboxDialog
+          workspaceId={workspaceId}
+          open={inboxOpen}
+          onClose={() => setInboxOpen(false)}
+          version={inboxVersion}
+          onRead={refreshInbox}
+        />
+      )}
       {canCreateWorkspace && <NewWorkspaceDialog open={newWorkspaceOpen} onClose={() => setNewWorkspaceOpen(false)} />}
       <TemplatesDialog
         workspaceId={workspaceId}

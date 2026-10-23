@@ -182,7 +182,7 @@ plus the `scripts/*-e2e.ts` of the area you touched (`pnpm tsx scripts/<name>-e2
 - **Needs no server on the same database**, because a server's workers would take the queued work:
   agents, agent-api, agent-approvers, agent-chat, agent-handoff, agent-memory, agent-mention,
   agent-schedule, agent-sharing, agent-skills, automation, timed-automation, schedule,
-  row-activity, row-follow, row-mail, follow-ups (starts its own GreenMail container unless given
+  row-activity, row-follow, row-mail, discussions, follow-ups (starts its own GreenMail container unless given
   ports), page-watch, wins-log. `connector-e2e` starts its own `next dev` against `<database>_peer`, which
   must exist; no other dev server may run in the same checkout.
 - Each script's header says what it needs. `.github/workflows/ci.yml` shows the env each step gets;
