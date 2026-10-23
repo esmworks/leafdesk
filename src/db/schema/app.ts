@@ -629,6 +629,11 @@ export type PropertyOptions = {
    * always (both under "more properties", see lib/page-visibility); shown when missing.
    */
   pageVisibility?: Exclude<PageVisibility, "show">;
+  /**
+   * Row pages: the property sits in the compact strip under the row's title, whatever its
+   * pageVisibility says (a few per database, see lib/row-layout).
+   */
+  pinned?: true;
 };
 
 export const databaseProperty = pgTable(
@@ -661,7 +666,7 @@ export const databaseProperty = pgTable(
   ],
 );
 
-export type ViewType = "table" | "board" | "calendar" | "gallery" | "list" | "timeline" | "chart" | "dashboard" | "form";
+export type ViewType = "table" | "board" | "calendar" | "gallery" | "list" | "feed" | "timeline" | "chart" | "dashboard" | "form";
 /** Grouping by a date: one group per day, week (Monday to Sunday), month or year. */
 export type GroupDateBy = "day" | "week" | "month" | "year";
 export type GroupStatusBy = "option" | "group";

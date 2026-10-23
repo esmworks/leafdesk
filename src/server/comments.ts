@@ -6,6 +6,7 @@ import {
   CommentError,
   commentMentions,
   commentText,
+  isReactionEmoji,
   replyAudience,
   threadParticipants,
   type CommentAnchor,
@@ -37,13 +38,8 @@ import { redactError } from "@/lib/redact";
 /** Someone in a page's comments. Agents (see server/agents) are marked, with their icon. */
 export type CommentUser = { id: string; username: string; avatarUrl: string; isAgent: boolean; agentIcon: string | null };
 
-/** Longest reaction, in UTF-16 units: an emoji with its modifiers. */
-const MAX_EMOJI = 32;
-
 function cleanEmoji(emoji: unknown): string {
-  if (typeof emoji !== "string" || !emoji || emoji.length > MAX_EMOJI || /\s/.test(emoji) || !/\p{Extended_Pictographic}/u.test(emoji)) {
-    throw new CommentError("A reaction is one emoji", "invalidBody");
-  }
+  if (!isReactionEmoji(emoji)) throw new CommentError("A reaction is one emoji", "invalidBody");
   return emoji;
 }
 
