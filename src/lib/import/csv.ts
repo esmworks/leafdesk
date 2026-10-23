@@ -439,6 +439,9 @@ export function cellValue(
     }
     case "text":
       return raw;
+    case "place":
+      // Coordinates or an address, which the server looks up when the row is written.
+      return s.slice(0, 500);
     default:
       return INVALID;
   }

@@ -625,6 +625,8 @@ function coerce(prop: Prop, value: unknown): unknown {
     return text === "true" || text === "yes" || text === "1";
   }
   if (prop.type === "checklist") return value;
+  // A place from another row stays one; text is looked up as an address when the row is written.
+  if (prop.type === "place" && value && typeof value === "object" && !Array.isArray(value)) return value;
   if (typeof value === "object") return textOf(value);
   return value;
 }

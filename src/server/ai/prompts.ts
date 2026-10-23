@@ -172,6 +172,8 @@ export function formatValue(value: unknown): string {
   if (typeof value === "object") {
     const v = value as Record<string, unknown>;
     if (typeof v.text === "string") return `${v.checked ? "[x]" : "[ ]"} ${v.text}`;
+    // A place: its name and address.
+    if (typeof v.address === "string" && typeof v.lat === "number") return typeof v.name === "string" && v.name ? `${v.name}, ${v.address}` : v.address;
     for (const key of ["name", "title", "url"]) if (typeof v[key] === "string") return v[key] as string;
     return JSON.stringify(value);
   }
