@@ -111,6 +111,8 @@ describe("Monday.com board exports", () => {
 
   it("refuses other workbooks and files", () => {
     expect(isMondayBoard([["Name"], ["A"]])).toBe(false);
+    // A plain table: its header on top, not under a group.
+    expect(isMondayBoard([["Name", "Points"], ["A", "1"]])).toBe(false);
     expect(() => readMondayExport("x.xlsx", toXlsx([["just one cell"]]))).toThrow(expect.objectContaining({ code: "badMonday" }));
     expect(() => readMondayExport("x.csv", strToU8("one\ntwo\n"))).toThrow(expect.objectContaining({ code: "badMonday" }));
   });

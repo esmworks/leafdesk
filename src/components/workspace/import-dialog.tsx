@@ -2,12 +2,14 @@
 
 import { FileUp, FolderUp, X } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { importTargetAction, type ImportTarget } from "@/app/actions/import";
 import { usePropertyTypeLabel } from "@/components/database/property-icons";
 import { Button, cn, Dialog, IconButton, Input, pageLabel } from "@/components/ui";
 import { formatBytes } from "@/lib/files";
+import { readAsanaExport } from "@/lib/import/asana";
+import { BOARD_COLUMN_TYPES, cellText, type Board, type BoardColumnType } from "@/lib/import/board";
 import {
   CSV_COLUMN_TYPES,
   CSV_MAX_COLUMNS,
@@ -20,6 +22,7 @@ import {
   type CsvTable,
 } from "@/lib/import/csv";
 import { cleanTitle, IMPORT_LIMITS, isIgnoredPath } from "@/lib/import/markdown";
+import { readMondayExport } from "@/lib/import/monday";
 import { isVaultSettingsPath } from "@/lib/import/obsidian";
 import { ImportError, type ImportResult, type ImportWarning } from "@/lib/import/result";
 import { parseTrelloExport, readTrelloBoard, type TrelloBoard } from "@/lib/import/trello";
@@ -57,14 +60,21 @@ const DOCX_ACCEPT = ".docx,application/vnd.openxmlformats-officedocument.wordpro
 const isDocx = (file: File) => /\.docx$/i.test(file.name);
 /** What the Trello tab's file picker offers. */
 const TRELLO_ACCEPT = ".json,application/json";
+/** What the Asana and Monday.com tabs' file pickers offer. */
+const BOARD_ACCEPT = {
+  asana: ".csv,text/csv,.json,application/json",
+  monday: ".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.csv,text/csv",
+} as const;
+type BoardSource = keyof typeof BOARD_ACCEPT;
 /** The chosen CSV file or workbook; a workbook's sheets by name, and the one shown. */
 type CsvState = { file: File; table: CsvTable; guesses: CsvColumnType[]; sheets: string[]; sheet: number };
 
 /**
  * Imports Markdown files, folders and ZIPs as pages, Word documents as a page each, a CSV file
  * or Excel workbook (one of its sheets) as a new database or as rows of an existing one (with a
- * column → property mapping), or a Trello board's JSON export as a new database. Sends everything to /api/import and shows what was created and what
- * was left out.
+ * column → property mapping), or a Trello board's JSON export, an Asana project's export or a
+ * Monday.com board's as a new database. Sends everything to /api/import and shows what was created
+ * and what was left out.
  */
 export function ImportDialog({
   workspaceId,
@@ -96,6 +106,7 @@ export function ImportDialog({
   const t = useTranslations("import");
   const tc = useTranslations("common");
   const typeLabel = usePropertyTypeLabel();
+  const locale = useLocale();
 
   const flat = useMemo(() => flatten(tree), [tree]);
   const destinations = flat.filter(({ node }) => node.kind === "page" && canEdit(node));
@@ -104,7 +115,7 @@ export function ImportDialog({
   const databases = flat.filter(({ node }) => node.kind === "database" && canEdit(node));
   const activeNode = tree.find((n) => n.id === activeId);
 
-  const [tab, setTab] = useState<"pages" | "docx" | "csv" | "trello">("pages");
+  const [tab, setTab] = useState<"pages" | "docx" | "csv" | "trello" | BoardSource>("pages");
   const [destination, setDestination] = useState("");
   const [picked, setPicked] = useState<Picked[]>([]);
   // A folder that came with an Obsidian vault's settings folder (which isn't sent).
@@ -113,6 +124,9 @@ export function ImportDialog({
   const [csv, setCsv] = useState<CsvState | null>(null);
   const [trello, setTrello] = useState<{ file: File; board: TrelloBoard } | null>(null);
   const [boardName, setBoardName] = useState("");
+  // An Asana or Monday.com export, and what each of its columns becomes (null: left out).
+  const [board, setBoard] = useState<{ file: File; board: Board } | null>(null);
+  const [boardTypes, setBoardTypes] = useState<(BoardColumnType | null)[]>([]);
   const [csvMode, setCsvMode] = useState<"new" | "existing">("new");
   const [name, setName] = useState("");
   const [titleColumn, setTitleColumn] = useState<number | null>(0);
@@ -129,6 +143,7 @@ export function ImportDialog({
   const csvInput = useRef<HTMLInputElement>(null);
   const docxInput = useRef<HTMLInputElement>(null);
   const trelloInput = useRef<HTMLInputElement>(null);
+  const boardInput = useRef<HTMLInputElement>(null);
 
   // Fresh each time it opens, aimed at the page (or database) open now.
   useEffect(() => {
@@ -143,6 +158,7 @@ export function ImportDialog({
     setDocuments([]);
     setCsv(null);
     setTrello(null);
+    setBoard(null);
     setCsvMode(activeEditable && activeNode.kind === "database" ? "existing" : "new");
     setDatabaseId(activeEditable && activeNode.kind === "database" ? activeNode.id : "");
     setError(null);
@@ -256,6 +272,23 @@ export function ImportDialog({
     }
   }
 
+  /** Reads an Asana or Monday.com export, for its summary and column table, and to tell early when the file isn't one. */
+  async function chooseBoard(source: BoardSource, file: File | undefined) {
+    if (!file) return;
+    setError(null);
+    try {
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      const read = source === "asana" ? readAsanaExport(file.name, bytes) : readMondayExport(file.name, bytes);
+      setBoard({ file, board: read });
+      setBoardName(read.title || cleanTitle(file.name));
+      setBoardTypes(read.columns.map((c) => c.type));
+    } catch (e) {
+      setBoard(null);
+      const code = source === "asana" ? "badAsana" : "badMonday";
+      setError(errorText(e instanceof ImportError ? { code: e.code, params: e.params } : { code }));
+    }
+  }
+
   function errorText(body: { code?: string; params?: Record<string, string | number> } | null) {
     const code = body?.code ?? "badRequest";
     const params = { ...body?.params };
@@ -274,6 +307,8 @@ export function ImportDialog({
       "badDocx",
       "docxTooComplex",
       "badTrello",
+      "badAsana",
+      "badMonday",
       "badMapping",
       "noAccess",
       "notADatabase",
@@ -306,6 +341,13 @@ export function ImportDialog({
       form.append("parentId", destination);
       form.append("title", boardName);
       form.append("file", trello.file, trello.file.name);
+    } else if (tab === "asana" || tab === "monday") {
+      if (board?.board.source !== tab) return;
+      form.append("mode", tab);
+      form.append("parentId", destination);
+      form.append("title", boardName);
+      form.append("types", JSON.stringify(boardTypes));
+      form.append("file", board.file, board.file.name);
     } else if (csv && csvMode === "new") {
       form.append("mode", "csv-new");
       form.append("parentId", destination);
@@ -338,6 +380,8 @@ export function ImportDialog({
     switch (w.code) {
       case "invalidValues":
         return t("warnings.invalidValues", { count: w.count, column: w.column });
+      case "leftOutColumn":
+        return t("warnings.leftOutColumn", { column: w.column });
       case "missingFile":
         return t("warnings.missingFile", { path: w.path, page: w.page });
       case "unresolvedLink":
@@ -357,7 +401,9 @@ export function ImportDialog({
         ? documents.length > 0 && destinationValid
         : tab === "trello"
           ? trello !== null && destinationValid
-          : csv !== null &&
+          : tab === "asana" || tab === "monday"
+            ? board?.board.source === tab && destinationValid
+            : csv !== null &&
         (csvMode === "new"
           ? destinationValid && types.some((type, i) => type !== null || i === titleColumn)
           : target !== null && target !== "error" && mapping.some((m) => m !== null)));
@@ -417,12 +463,13 @@ export function ImportDialog({
             setDocuments([]);
             setCsv(null);
             setTrello(null);
+            setBoard(null);
           }}
         />
       ) : (
         <div className="max-h-[70vh] space-y-4 overflow-y-auto p-4" aria-busy={busy}>
-          <div role="tablist" aria-label={t("title")} className="inline-flex gap-0.5 rounded-lg bg-bg-hover p-0.5">
-            {(["pages", "docx", "csv", "trello"] as const).map((key) => (
+          <div role="tablist" aria-label={t("title")} className="inline-flex flex-wrap gap-0.5 rounded-lg bg-bg-hover p-0.5">
+            {(["pages", "docx", "csv", "trello", "asana", "monday"] as const).map((key) => (
               <button
                 key={key}
                 type="button"
@@ -622,6 +669,34 @@ export function ImportDialog({
                 </div>
               )}
             </>
+          ) : tab === "asana" || tab === "monday" ? (
+            <BoardTab
+              source={tab}
+              board={board?.board.source === tab ? board : null}
+              types={boardTypes}
+              onTypes={setBoardTypes}
+              name={boardName}
+              onName={setBoardName}
+              busy={busy}
+              locale={locale}
+              typeLabel={typeLabel}
+              destinationPicker={destinationPicker}
+              onChoose={() => boardInput.current?.click()}
+              input={
+                <input
+                  ref={boardInput}
+                  key={tab}
+                  type="file"
+                  accept={BOARD_ACCEPT[tab]}
+                  hidden
+                  data-import={tab}
+                  onChange={(e) => {
+                    void chooseBoard(tab, e.target.files?.[0]);
+                    e.target.value = "";
+                  }}
+                />
+              }
+            />
           ) : (
             <>
               <div className="flex flex-wrap items-center gap-2">
@@ -809,6 +884,117 @@ export function ImportDialog({
         </div>
       )}
     </Dialog>
+  );
+}
+
+/**
+ * The Asana and Monday.com tabs: the file picker, what the export holds, the database's name and
+ * place, and a table of the export's own columns with what each becomes (the export doesn't say
+ * what kind a column is, so it was guessed).
+ */
+function BoardTab({
+  source,
+  board,
+  types,
+  onTypes,
+  name,
+  onName,
+  busy,
+  locale,
+  typeLabel,
+  destinationPicker,
+  onChoose,
+  input,
+}: {
+  source: BoardSource;
+  board: { file: File; board: Board } | null;
+  types: (BoardColumnType | null)[];
+  onTypes: (types: (BoardColumnType | null)[]) => void;
+  name: string;
+  onName: (name: string) => void;
+  busy: boolean;
+  locale: string;
+  typeLabel: (type: BoardColumnType) => string;
+  destinationPicker: React.ReactNode;
+  onChoose: () => void;
+  input: React.ReactNode;
+}) {
+  const t = useTranslations("import");
+  const b = board?.board;
+  // Columns every export of the app has keep their kind; the others can be changed.
+  const custom = b ? b.columns.flatMap((c, i) => (c.role ? [] : [i])) : [];
+  const subitems = b ? b.items.filter((i) => i.parent !== null).length : 0;
+  const comments = b ? b.items.reduce((n, i) => n + i.comments.length, 0) : 0;
+  const leftOut = b ? [...b.leftOut, ...b.otherSheets] : [];
+  const sample = (column: number) =>
+    (b?.items ?? [])
+      .map((item) => cellText(item.cells[column] ?? "").trim())
+      .filter(Boolean)
+      .slice(0, 3)
+      .join(", ")
+      .slice(0, 60);
+  return (
+    <>
+      <p className="text-sm text-fg-muted">{t(`${source}.help`)}</p>
+      <p className="text-sm text-fg-muted">{t("board.links")}</p>
+      <div className="flex flex-wrap items-center gap-2">
+        <Button disabled={busy} onClick={onChoose}>
+          <FileUp className="h-4 w-4" />
+          {t(`${source}.choose`)}
+        </Button>
+        {b && board && (
+          <span className="text-xs text-fg-muted">
+            {t(`${source}.summary`, { name: board.file.name, groups: b.groups.length, items: b.items.length - subitems, subitems })}
+          </span>
+        )}
+        {input}
+      </div>
+      {b && comments > 0 && <p className="text-xs text-fg-muted">{t("board.comments", { count: comments })}</p>}
+      {leftOut.length > 0 && (
+        <p className="text-xs text-fg-muted">{t("board.leftOut", { list: new Intl.ListFormat(locale).format(leftOut) })}</p>
+      )}
+      {b && (
+        <>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="block">
+              <span className={labelClass}>{t("csv.name")}</span>
+              <Input value={name} maxLength={200} disabled={busy} onChange={(e) => onName(e.target.value)} />
+            </label>
+            {destinationPicker}
+          </div>
+          {custom.length > 0 && (
+            <>
+              <p className="text-xs text-fg-muted">{t("board.types")}</p>
+              <ColumnTable
+                headers={custom.map((i) => b.columns[i].name)}
+                sample={(row) => sample(custom[row])}
+                heading={t("csv.type")}
+                labels={{ column: t("csv.column"), values: t("csv.values") }}
+                render={(row) => {
+                  const i = custom[row];
+                  return (
+                    <select
+                      className={selectClass}
+                      aria-label={`${t("csv.type")}: ${b.columns[i].name}`}
+                      value={types[i] ?? ""}
+                      disabled={busy}
+                      onChange={(e) => onTypes(types.map((v, j) => (j === i ? ((e.target.value || null) as BoardColumnType | null) : v)))}
+                    >
+                      {BOARD_COLUMN_TYPES.map((type) => (
+                        <option key={type} value={type}>
+                          {typeLabel(type)}
+                        </option>
+                      ))}
+                      <option value="">{t("csv.leaveOut")}</option>
+                    </select>
+                  );
+                }}
+              />
+            </>
+          )}
+        </>
+      )}
+    </>
   );
 }
 

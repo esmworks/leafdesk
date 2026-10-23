@@ -1,6 +1,6 @@
-import { eq, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import { databaseProperty, databaseView, page, type SelectOption } from "@/db/schema";
+import { databaseView } from "@/db/schema";
 import { WarningList, type ImportResult } from "@/lib/import/result";
 import { cardBody, readTrelloBoard, type LabelColor, type TrelloBoard, type TrelloCard } from "@/lib/import/trello";
 import { pagePath } from "@/lib/mentions";
@@ -10,6 +10,7 @@ import { getCollab, type WriteActor } from "@/server/collab/bridge";
 import { addProperty, addView, type DatabaseProperty } from "@/server/databases";
 import { createPage, type DatabaseSeedNames } from "@/server/pages";
 import { workspacePeople } from "@/server/workspaces";
+import { recolor, writeIds } from "./board";
 import { checkRows, discardDatabase, recordImport, reportInvalid, writeRows } from "./csv";
 
 /**
@@ -73,9 +74,6 @@ export type TrelloImportInput = {
   /** The importing person's time zone, for the comments' times. */
   timeZone?: string;
 };
-
-/** Person values written per statement. */
-const PEOPLE_CHUNK = 500;
 
 export async function importTrello(actor: WriteActor, input: TrelloImportInput): Promise<ImportResult> {
   const { userId } = actor;
@@ -170,7 +168,7 @@ export async function importTrello(actor: WriteActor, input: TrelloImportInput):
         const ids = [...new Set(card.members.flatMap((m) => people.get(m) ?? []))];
         return ids.length ? [{ id: rows[i].id, ids }] : [];
       });
-      await writePeople(personProp.id, assigned);
+      await writeIds(personProp.id, assigned);
       getCollab().broadcast(`db:${database.id}`, "rows");
     }
 
@@ -217,17 +215,6 @@ function labelOptions(board: TrelloBoard, names: TrelloNames) {
   });
 }
 
-/** Gives a new property's options these colors, in order ("" keeps an option's own). */
-async function recolor(prop: DatabaseProperty, colors: string[]): Promise<DatabaseProperty> {
-  const options: SelectOption[] = (prop.options.options ?? []).map((o, i) => (colors[i] ? { ...o, color: colors[i] } : o));
-  const [updated] = await db
-    .update(databaseProperty)
-    .set({ options: { ...prop.options, options } })
-    .where(eq(databaseProperty.id, prop.id))
-    .returning();
-  return { ...prop, options: updated.options };
-}
-
 /**
  * Board members as people of the workspace: by full name, else by username, when exactly one
  * person has it. Empty for guests, who can't look people up.
@@ -250,23 +237,4 @@ async function memberPeople(userId: string, workspaceId: string, board: TrelloBo
     if (id) out.set(member.id, id);
   }
   return out;
-}
-
-/**
- * Writes person values straight to the rows the import just created: the people are the
- * workspace's, so there is nothing to check, and going around afterRowWrites keeps a board's
- * worth of old assignments from notifying everyone.
- */
-async function writePeople(propertyId: string, values: { id: string; ids: string[] }[]) {
-  for (let i = 0; i < values.length; i += PEOPLE_CHUNK) {
-    const chunk = values.slice(i, i + PEOPLE_CHUNK);
-    await db.execute(sql`
-      update ${page} set properties = ${page.properties} || jsonb_build_object(${propertyId}::text, v.ids)
-      from (values ${sql.join(
-        chunk.map((v) => sql`(${v.id}::text, ${JSON.stringify(v.ids)}::jsonb)`),
-        sql`, `,
-      )}) as v(id, ids)
-      where ${page.id} = v.id
-    `);
-  }
 }

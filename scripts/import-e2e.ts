@@ -6,7 +6,10 @@
  * Excel workbooks (a database exported as one comes back with the same values), Word documents
  * (a page each, titled by their first heading, pictures uploaded), Trello boards (a database on a
  * board view grouped by list, labels, members as people or text, dates, checklists, custom fields,
- * comments and card links in the rows' bodies, no assignment notifications), access, limits,
+ * comments and card links in the rows' bodies, no assignment notifications), Asana projects (CSV
+ * and JSON) and Monday.com boards (Excel) as databases on a board view (sections or groups, a
+ * status, people by email or name, typed columns, sub-items and dependencies on both sides, links
+ * between tasks, updates as comments, what was left out), access, limits,
  * taking back a failed import, and the /api/import route.
  * Creates its own users and workspaces, stores files in a temporary directory, and deletes all of
  * it afterwards.
@@ -53,6 +56,10 @@ const { importDocx } = await import("@/server/import/docx");
 const docxFixture = await import("@/server/import/docx-fixtures");
 const { importCsvAsDatabase, importCsvIntoDatabase } = await import("@/server/import/csv");
 const { importTrello } = await import("@/server/import/trello");
+const { importBoard } = await import("@/server/import/board");
+const { readAsanaExport } = await import("@/lib/import/asana");
+const { readMondayExport } = await import("@/lib/import/monday");
+const boardFixtures = await import("@/lib/import/board-fixtures");
 const { databaseCsv, databaseXlsx } = await import("@/server/export");
 const importRoute = await import("@/app/api/import/route");
 
@@ -754,6 +761,248 @@ try {
     { midway: String(midway), pagesBefore, pagesAfter },
   );
 
+  // Asana projects: a database opening on a board view grouped by section
+  const asanaCsv = boardFixtures.ASANA_CSV.replaceAll(boardFixtures.AYSE_EMAIL, `${ids.ayse}@example.test`);
+  const asanaBoard = readAsanaExport("Website_launch.csv", strToU8(asanaCsv));
+  const fromAsana = await importBoard(owner, { workspaceId, parentId: boardsHome.id, board: asanaBoard, timeZone: "Europe/Istanbul" });
+  const asanaId = fromAsana.pages[0].id;
+  const asanaWarnings = fromAsana.warnings.map((w) => `${w.code}:${"column" in w ? w.column : ""}:${"count" in w ? w.count : ""}`);
+  check(
+    fromAsana.pages[0].title === "Website launch" && fromAsana.created.rows === 6 &&
+      JSON.stringify(asanaWarnings) ===
+        JSON.stringify([
+          "invalidValues:Parent task:1",
+          "invalidValues:Blocked By (Dependencies):1",
+          "leftOutColumn:Created At:",
+          "leftOutColumn:Last Modified:",
+          "leftOutColumn:Projects:",
+        ]),
+    "an Asana project's CSV becomes a database named after the project, a row per task, with what was left out listed",
+    fromAsana,
+  );
+  const asanaDb = await databases.getDatabase(ids.owner, asanaId);
+  const asanaProp = (name: string) => asanaDb.properties.find((p) => p.name === name)!;
+  check(
+    JSON.stringify(asanaDb.properties.map((p) => `${p.name}:${p.type}`)) ===
+      JSON.stringify([
+        "Section:select",
+        "Status:status",
+        "Dates:date",
+        "Assignee:person",
+        "Assignee (others):text",
+        "Tags:multi_select",
+        "Priority:select",
+        "Estimate:number",
+        "Launch day:date",
+        "Budget link:url",
+        "Parent item:relation",
+        "Sub-items:relation",
+        "Blocked by:relation",
+        "Blocking:relation",
+      ]),
+    "…with a property for the section, completion, dates, assignee (people by email, text for the others), tags, each custom field, sub-items and dependencies",
+    asanaDb.properties.map((p) => `${p.name}:${p.type}`),
+  );
+  check(
+    (asanaProp("Section").options.options ?? []).map((o) => o.name).join() === "To do,In progress,Done" &&
+      (asanaProp("Status").options.options ?? []).map((o) => `${o.name}:${o.group}`).join() === "To do:todo,Done:done",
+    "sections are options in the order they appear; the status is to do or done",
+  );
+  const asanaViews = await db.select().from(databaseView).where(eq(databaseView.databaseId, asanaId)).orderBy(databaseView.position);
+  check(asanaViews[0]?.type === "board" && asanaViews[0].config.groupBy === asanaProp("Section").id, "…opening on a board view grouped by section", asanaViews);
+  const asanaRows = await databases.listRows(ids.owner, asanaId);
+  const task = (title: string) => asanaRows.find((r) => r.title === title)!;
+  const taskValue = (title: string, name: string) => task(title).properties[asanaProp(name).id];
+  const taskOption = (name: string, id: unknown) => asanaProp(name).options.options?.find((o) => o.id === id)?.name;
+  check(
+    taskOption("Status", taskValue("Design the mockups", "Status")) === "Done" &&
+      taskOption("Status", taskValue("Launch", "Status")) === "To do" &&
+      taskOption("Section", taskValue("Write the press release", "Section")) === "Done" &&
+      taskValue("Write the homepage copy", "Dates") === "2026-10-01/2026-10-05" &&
+      (taskValue("Write the homepage copy", "Tags") as string[]).map((id) => taskOption("Tags", id)).join() === "Content,Marketing" &&
+      taskValue("Launch", "Estimate") === 8 &&
+      taskValue("Write the homepage copy", "Budget link") === "https://docs.example.com/copy",
+    "tasks keep their completion, section (a subtask its parent's), dates as a range, tags and custom fields",
+    asanaRows.map((r) => [r.title, r.properties]),
+  );
+  check(
+    JSON.stringify(taskValue("Write the homepage copy", "Assignee")) === JSON.stringify([ids.ayse]) &&
+      JSON.stringify(taskValue("Write the press release", "Assignee")) === JSON.stringify([ids.ayse]) &&
+      taskValue("Proofread the copy", "Assignee (others)") === "Bob Stone" &&
+      taskValue("Proofread the copy", "Assignee") === undefined,
+    "an assignee is the member with their email address (or, without one, their name); the others are text",
+  );
+  const linkedTitles = (title: string, name: string) => ((taskValue(title, name) as string[] | undefined) ?? []).map((id) => asanaRows.find((r) => r.id === id)?.title).join();
+  check(
+    linkedTitles("Write the press release", "Parent item") === "Launch" &&
+      linkedTitles("Launch", "Sub-items") === "Write the press release" &&
+      linkedTitles("Launch", "Blocked by") === "Write the homepage copy,Design the mockups" &&
+      linkedTitles("Proofread the copy", "Blocked by") === "Write the homepage copy" &&
+      linkedTitles("Write the homepage copy", "Blocking") === "Proofread the copy,Launch" &&
+      asanaProp("Parent item").options.relation?.role === "parent" &&
+      asanaProp("Blocked by").options.relation?.role === "blocked_by",
+    "subtasks are sub-items and dependencies are the database's dependencies, both sides linked",
+    asanaRows.map((r) => [r.title, r.properties]),
+  );
+  const homepageCopyId = task("Write the homepage copy").id;
+  await eventually(async () => (await body(homepageCopyId)).includes("Draft the copy."), "the copy task's body");
+  check(
+    (await body(homepageCopyId)).includes(pagePath(workspaceId, task("Design the mockups").id)) && !(await body(homepageCopyId)).includes("app.asana.com"),
+    "a task's notes are its row's body, links to other tasks leading to their rows",
+    await body(homepageCopyId),
+  );
+  check(
+    (await db.select().from(notification).where(and(eq(notification.userId, ids.ayse), eq(notification.kind, "assignment")))).length === 0,
+    "imported assignees are not notified",
+  );
+  const [asanaAudit] = await db
+    .select()
+    .from(auditEvent)
+    .where(and(eq(auditEvent.workspaceId, workspaceId), eq(auditEvent.action, "page.imported"), eq(auditEvent.targetId, asanaId)));
+  check((asanaAudit?.details as { format?: string } | undefined)?.format === "asana", "an Asana import is recorded in the audit log", asanaAudit);
+
+  // The JSON export: nested subtasks, typed custom fields with colors, comments.
+  const fromAsanaJson = await importBoard(owner, {
+    workspaceId,
+    parentId: boardsHome.id,
+    board: readAsanaExport("offsite.json", strToU8(JSON.stringify(boardFixtures.ASANA_JSON).replaceAll(boardFixtures.AYSE_EMAIL, `${ids.ayse}@example.test`))),
+    timeZone: "Europe/Istanbul",
+  });
+  const offsiteDb = await databases.getDatabase(ids.owner, fromAsanaJson.pages[0].id);
+  const offsiteRows = await databases.listRows(ids.owner, fromAsanaJson.pages[0].id);
+  const offsiteProp = (name: string) => offsiteDb.properties.find((p) => p.name === name)!;
+  const offsitePlan = offsiteRows.find((r) => r.title === "Plan the offsite")!;
+  await eventually(async () => (await body(offsitePlan.id)).includes("Booked the venue."), "the offsite task's body");
+  const offsiteBody = await body(offsitePlan.id);
+  check(
+    fromAsanaJson.pages[0].title === "Team offsite" &&
+      fromAsanaJson.created.rows === 3 &&
+      JSON.stringify((offsiteProp("Priority").options.options ?? []).map((o) => `${o.name}:${o.color}`)) === JSON.stringify(["High:red", "Low:green"]) &&
+      offsitePlan.properties[offsiteProp("Cost").id] === 1250.5 &&
+      offsiteBody.indexOf("**Ayşe Yılmaz** · 2026-09-02 12:15") > 0 &&
+      offsiteBody.indexOf("**Ayşe Yılmaz**") < offsiteBody.indexOf("**Bob Stone**") &&
+      offsiteBody.includes("venue.pdf") &&
+      offsiteBody.includes(pagePath(workspaceId, offsiteRows.find((r) => r.title === "Write the agenda")!.id)),
+    "an Asana JSON export keeps its fields' types and colors, its comments under their author and time, and attachments as links",
+    { properties: offsiteDb.properties.map((p) => `${p.name}:${p.type}`), offsiteBody },
+  );
+
+  // Monday.com boards: groups, columns by kind, subitems, updates
+  const mondayBytes = boardFixtures.workbookOf([
+    { name: "Marketing board", rows: boardFixtures.MONDAY_BOARD.map((row) => row.map((v) => (v === boardFixtures.AYSE_EMAIL ? `${ids.ayse}@example.test` : v))) },
+    { name: "Updates", rows: boardFixtures.MONDAY_UPDATES },
+    { name: "Chart data", rows: [["Status", "Count"]] },
+  ]);
+  const fromMonday = await importBoard(owner, { workspaceId, parentId: boardsHome.id, board: readMondayExport("Marketing.xlsx", mondayBytes), timeZone: "Europe/Istanbul" });
+  const mondayId = fromMonday.pages[0].id;
+  const mondayWarnings = fromMonday.warnings.map((w) => `${w.code}:${"column" in w ? w.column : "path" in w ? w.path : ""}`);
+  check(
+    fromMonday.pages[0].title === "Marketing board" &&
+      fromMonday.created.rows === 7 &&
+      JSON.stringify(mondayWarnings) === JSON.stringify(["invalidValues:Dependency", "invalidValues:Item Name", "skipped:Chart data"]),
+    "a Monday.com board becomes a database named after the board, a row per item and subitem, with what was left out listed",
+    fromMonday,
+  );
+  const mondayDb = await databases.getDatabase(ids.owner, mondayId);
+  const mondayProp = (name: string) => mondayDb.properties.find((p) => p.name === name)!;
+  check(
+    JSON.stringify(mondayDb.properties.map((p) => `${p.name}:${p.type}`)) ===
+      JSON.stringify([
+        "Group:select",
+        "Owner:person",
+        "Owner (others):text",
+        "Status:status",
+        "Due date:date",
+        "Timeline:date",
+        "Budget:number",
+        "Tags:multi_select",
+        "Brief:url",
+        "Contact:email",
+        "Phone:phone",
+        "Approved:checkbox",
+        "Notes:text",
+        "Date:date",
+        "Parent item:relation",
+        "Sub-items:relation",
+        "Blocked by:relation",
+        "Blocking:relation",
+      ]),
+    "…with a property per column of the kind its name and values suggest",
+    mondayDb.properties.map((p) => `${p.name}:${p.type}`),
+  );
+  const mondayRows = await databases.listRows(ids.owner, mondayId);
+  const mItem = (title: string) => mondayRows.find((r) => r.title === title)!;
+  const mValue = (title: string, name: string) => mItem(title).properties[mondayProp(name).id];
+  const mOption = (name: string, id: unknown) => mondayProp(name).options.options?.find((o) => o.id === id);
+  check(
+    mOption("Status", mValue("Launch campaign", "Status"))?.group === "in_progress" &&
+      mOption("Status", mValue("Write brief", "Status"))?.group === "done" &&
+      mOption("Group", mValue("Book ads", "Group"))?.name === "This week" &&
+      mValue("Launch campaign", "Timeline") === "2026-10-01/2026-10-15" &&
+      mValue("Launch campaign", "Budget") === 1200 &&
+      mValue("Launch campaign", "Brief") === "https://docs.example.com/brief" &&
+      mValue("Launch campaign", "Approved") === true &&
+      mValue("Launch campaign", "Phone") === "+90 555 111 2233" &&
+      JSON.stringify(mValue("Launch campaign", "Owner")) === JSON.stringify([ids.ayse]) &&
+      JSON.stringify(mValue("Plan event", "Owner")) === JSON.stringify([ids.ayse]) &&
+      mValue("Plan event", "Owner (others)") === "Bob Stone" &&
+      mValue("Write brief", "Date") === "2026-10-05",
+    "items keep their group, status (options grouped by their labels), timeline as a range, numbers, links, checkboxes and people by name",
+    mondayRows.map((r) => [r.title, r.properties]),
+  );
+  const mIds = (title: string, name: string) => ((mValue(title, name) as string[] | undefined) ?? []).map((id) => mondayRows.find((r) => r.id === id)?.title).join();
+  check(
+    mIds("Launch campaign", "Sub-items") === "Write brief,Book ads" && mIds("Collect feedback", "Parent item") === "Retro" && mIds("Launch campaign", "Blocked by") === "Plan event",
+    "subitems are sub-items and the Dependency column the database's dependencies",
+  );
+  const launchId = mItem("Launch campaign").id;
+  await eventually(async () => (await body(launchId)).includes("The brief is ready."), "the campaign's body");
+  const launchBody = await body(launchId);
+  check(
+    launchBody.indexOf("**Bob Stone** · 2026-10-01 11:00") > 0 &&
+      launchBody.indexOf("**Bob Stone**") < launchBody.indexOf("**Ayşe Yılmaz**") &&
+      launchBody.includes(pagePath(workspaceId, mItem("Plan event").id)),
+    "updates are comments in the row's body, oldest first, links to items leading to their rows",
+    launchBody,
+  );
+
+  // Columns the importer chose otherwise, a guest's import, a failure midway.
+  const chosen = await importBoard(owner, {
+    workspaceId,
+    parentId: boardsHome.id,
+    title: "Chosen",
+    board: asanaBoard,
+    types: ["person", "multi_select", "text", null, "date", "url"],
+  });
+  const chosenDb = await databases.getDatabase(ids.owner, chosen.pages[0].id);
+  check(
+    chosenDb.properties.find((p) => p.name === "Priority")?.type === "text" && !chosenDb.properties.some((p) => p.name === "Estimate"),
+    "a column becomes the type the importer picked, or is left out",
+    chosenDb.properties.map((p) => `${p.name}:${p.type}`),
+  );
+  const guestAsana = await importBoard({ userId: ids.guest }, { workspaceId, parentId: boardsHome.id, title: "Guest tasks", board: asanaBoard });
+  const guestAsanaDb = await databases.getDatabase(ids.guest, guestAsana.pages[0].id);
+  check(
+    !guestAsanaDb.properties.some((p) => p.type === "person") && guestAsanaDb.properties.find((p) => p.name === "Assignee")?.type === "text",
+    "a guest's import writes every assignee as text",
+    guestAsanaDb.properties.map((p) => `${p.name}:${p.type}`),
+  );
+  const beforeBoard = (await db.select({ id: page.id }).from(page).where(eq(page.workspaceId, workspaceId))).length;
+  const keepContent = service.replaceContent;
+  service.replaceContent = async () => {
+    throw new Error("writing a body failed");
+  };
+  let boardFailure: unknown = null;
+  try {
+    await importBoard(owner, { workspaceId, parentId: boardsHome.id, title: "Doomed board", board: asanaBoard });
+  } catch (error) {
+    boardFailure = error;
+  } finally {
+    service.replaceContent = keepContent;
+  }
+  const afterBoard = (await db.select({ id: page.id }).from(page).where(eq(page.workspaceId, workspaceId))).length;
+  check(boardFailure instanceof Error && afterBoard === beforeBoard, "a board import failing midway takes the database back", { beforeBoard, afterBoard });
+
   // The route
   const token = randomBytes(24).toString("hex");
   await db.insert(session).values({ id: `${RUN}-session`, token, userId: ids.member, expiresAt: new Date(Date.now() + 3_600_000), updatedAt: new Date() });
@@ -856,6 +1105,26 @@ try {
   check(namedRoute.status === 201 && namedRoute.json.pages[0].title === "Relaunch", "…or under the name it is given", namedRoute);
   const notTrello = await post({ mode: "trello", workspaceId, parentId: home.id }, [{ name: "pages.json", data: '{"pages": []}' }]);
   check(notTrello.status === 400 && notTrello.json.code === "badTrello", "other JSON is refused with a code the dialog translates", notTrello);
+
+  // Asana and Monday.com through the route
+  const asanaRoute = await post({ mode: "asana", workspaceId, parentId: home.id, types: JSON.stringify(["person", "multi_select", "text", null, "date", "url"]) }, [
+    { name: "Website_launch.csv", data: asanaCsv },
+  ]);
+  check(
+    asanaRoute.status === 201 && asanaRoute.json.pages[0].title === "Website launch" && asanaRoute.json.created.rows === 6 &&
+      !(await databases.getDatabase(ids.member, asanaRoute.json.pages[0].id)).properties.some((p) => p.name === "Estimate"),
+    "the route imports an Asana export with the column types it is given",
+    asanaRoute,
+  );
+  const mondayRoute = await post({ mode: "monday", workspaceId, parentId: home.id, title: "Campaigns" }, [{ name: "Marketing.xlsx", data: mondayBytes }]);
+  check(mondayRoute.status === 201 && mondayRoute.json.pages[0].title === "Campaigns" && mondayRoute.json.created.rows === 7, "…and a Monday.com board", mondayRoute);
+  const notAsana = await post({ mode: "asana", workspaceId, parentId: home.id }, [{ name: "x.csv", data: "Name,Points\nA,1\n" }]);
+  const notMonday = await post({ mode: "monday", workspaceId, parentId: home.id }, [{ name: "x.xlsx", data: workbook.xlsx }]);
+  check(
+    notAsana.status === 400 && notAsana.json.code === "badAsana" && notMonday.status === 400 && notMonday.json.code === "badMonday",
+    "other files are refused with codes the dialog translates",
+    { notAsana, notMonday },
+  );
 
   console.log(`\n${passed} checks passed`);
 } finally {

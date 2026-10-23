@@ -14,7 +14,6 @@ import {
   oneLine,
   statusGroupFor,
   type Board,
-  type BoardCell,
   type BoardColumn,
   type BoardColumnType,
   type BoardItem,
@@ -77,7 +76,7 @@ function distinct(values: string[]) {
   return [...seen.values()];
 }
 
-/** Whether a sheet's rows look like a Monday board: a header row under a group's name (or one starting with "Name"). */
+/** Whether a sheet's rows look like a Monday board: a header row under a group's name. */
 export function isMondayBoard(rows: string[][]) {
   return headerRow(rows) !== -1;
 }
@@ -87,9 +86,9 @@ const single = (row: string[] | undefined) => !!row && !!row[0]?.trim() && fille
 const sameRow = (a: string[] | undefined, b: string[]) =>
   !!a && Math.max(a.length, b.length) > 0 && b.every((cell, i) => (a[i] ?? "").trim().toLowerCase() === cell.trim().toLowerCase()) && filledCount(a) === filledCount(b);
 
-/** The first header row: a row of several names under a group's name, or one starting with "Name". */
+/** The first header row: a row of several names under a group's name (a plain table has its header on top). */
 function headerRow(rows: string[][]) {
-  return rows.findIndex((row, i) => filledCount(row) >= 2 && !!row[0]?.trim() && (single(rows[i - 1]) || /^name$/i.test(row[0].trim())));
+  return rows.findIndex((row, i) => filledCount(row) >= 2 && !!row[0]?.trim() && single(rows[i - 1]));
 }
 
 /**

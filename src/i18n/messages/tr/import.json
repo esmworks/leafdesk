@@ -1,12 +1,14 @@
 {
   "open": "İçe aktar",
   "title": "İçe aktar",
-  "description": "Markdown dosyalarından, ZIP dışa aktarımlarından ve Word belgelerinden sayfa, CSV dosyasından veya Excel çalışma kitabından satır ya da bir Trello panosu getirin.",
+  "description": "Markdown dosyalarından, ZIP dışa aktarımlarından ve Word belgelerinden sayfa, CSV dosyasından veya Excel çalışma kitabından satır ya da bir Trello, Asana veya Monday.com panosu getirin.",
   "tabs": {
     "pages": "Markdown ve ZIP",
     "docx": "Word",
     "csv": "CSV ve Excel",
-    "trello": "Trello"
+    "trello": "Trello",
+    "asana": "Asana",
+    "monday": "Monday.com"
   },
   "destination": "Nereye",
   "topLevel": "Çalışma alanının en üst düzeyi",
@@ -67,6 +69,35 @@
       "comments": "Yorumlar"
     }
   },
+  "asana": {
+    "help": "Asana'da projenin menüsünden Dışa aktar → CSV'yi (ya da JSON'u) seçin, ardından indirilen dosyayı seçin. Proje, bölümlere göre pano görünümü olan bir veritabanına dönüşür: tamamlanma, atananlar, tarihler, etiketler, özel alanlar, notlar, alt görevler ve bağımlılıklar da gelir.",
+    "choose": "Bir Asana dışa aktarımı seçin (.csv veya .json)",
+    "summary": "{name}: {groups, plural, one {# bölüm} other {# bölüm}}, {items, plural, one {# görev} other {# görev}}, {subitems, plural, one {# alt görev} other {# alt görev}}"
+  },
+  "monday": {
+    "help": "Monday.com'da panonun menüsünden Panoyu Excel'e aktar'ı (isterseniz güncellemelerle birlikte) seçin, ardından indirilen dosyayı seçin. Pano, gruplara göre pano görünümü olan bir veritabanına dönüşür: sütunları, alt öğeleri ve güncellemeleri de gelir.",
+    "choose": "Bir Monday.com dışa aktarımı seçin (.xlsx veya .csv)",
+    "summary": "{name}: {groups, plural, one {# grup} other {# grup}}, {items, plural, one {# öğe} other {# öğe}}, {subitems, plural, one {# alt öğe} other {# alt öğe}}"
+  },
+  "board": {
+    "links": "Hiçbir şey indirilmez: dışa aktarımdaki dosyalar ve bağlantılar bağlantı olarak kalır.",
+    "comments": "{count, plural, one {# yorum} other {# yorum}} satırların sayfalarına, yazarı ve zamanıyla birlikte eklenir.",
+    "leftOut": "Dışarıda bırakılanlar: {list}.",
+    "types": "Her sütunun neye dönüşeceğini kontrol edin: dışa aktarım sütunların türünü belirtmediği için tahmin edildi.",
+    "names": {
+      "section": "Bölüm",
+      "group": "Grup",
+      "status": "Durum",
+      "toDo": "Yapılacak",
+      "done": "Bitti",
+      "assignee": "Atanan",
+      "tags": "Etiketler",
+      "dates": "Tarihler",
+      "others": "{column} (diğerleri)",
+      "attachments": "Ekler",
+      "comments": "Yorumlar"
+    }
+  },
   "import": "İçe aktar",
   "importing": "İçe aktarılıyor…",
   "done": {
@@ -86,6 +117,7 @@
   "warnings": {
     "heading": "Dışarıda kalanlar ve değişenler",
     "invalidValues": "“{column}” sütunundaki {count, plural, one {# değer} other {# değer}} özelliğe uymadığı için boş bırakıldı.",
+    "leftOutColumn": "“{column}” içe aktarılmadı.",
     "missingFile": "“{page}” sayfasının bağlantı verdiği “{path}” yüklemede yoktu.",
     "unresolvedLink": "“{page}” sayfasındaki “[[{target}]]” yüklemedeki hiçbir not ya da dosyayla eşleşmiyor; metin olarak kaldı.",
     "fileNotStored": {
@@ -120,6 +152,8 @@
     "badDocx": "“{name}” bir Word belgesi olarak okunamıyor. Yalnızca .docx dosyaları içe aktarılabilir; eski .doc dosyalarını önce .docx olarak kaydedin.",
     "docxTooComplex": "“{name}” tek bir sayfa olarak içe aktarılamayacak kadar büyük ya da karmaşık.",
     "badTrello": "Dosya bir Trello panosu dışa aktarımı değil. Trello'da panonun menüsünden JSON olarak dışa aktar'ı seçip o dosyayı seçin.",
+    "badAsana": "Dosya bir Asana projesi dışa aktarımı değil. Asana'da projenin menüsünden Dışa aktar → CSV veya JSON'u seçip o dosyayı seçin.",
+    "badMonday": "Dosya bir Monday.com panosu dışa aktarımı değil. Monday.com'da panonun menüsünden Panoyu Excel'e aktar'ı seçip o dosyayı seçin.",
     "badMapping": "En az bir sütunun hedefini seçin; her özellik yalnızca bir kez kullanılabilir.",
     "noAccess": "Oraya sayfa ekleyemezsiniz ya da artık mevcut değil.",
     "notADatabase": "Satırlar yalnızca bir veritabanına eklenebilir.",

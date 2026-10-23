@@ -1,12 +1,14 @@
 {
   "open": "Importer",
   "title": "Importer",
-  "description": "Importez des pages depuis des fichiers Markdown, des exports ZIP et des documents Word, des lignes depuis un fichier CSV ou un classeur Excel, ou un tableau Trello.",
+  "description": "Importez des pages depuis des fichiers Markdown, des exports ZIP et des documents Word, des lignes depuis un fichier CSV ou un classeur Excel, ou un tableau Trello, Asana ou Monday.com.",
   "tabs": {
     "pages": "Markdown et ZIP",
     "docx": "Word",
     "csv": "CSV et Excel",
-    "trello": "Trello"
+    "trello": "Trello",
+    "asana": "Asana",
+    "monday": "Monday.com"
   },
   "destination": "Placer sous",
   "topLevel": "Niveau supérieur de l’espace de travail",
@@ -67,6 +69,35 @@
       "comments": "Commentaires"
     }
   },
+  "asana": {
+    "help": "Dans Asana, ouvrez le menu du projet et choisissez Exporter → CSV (ou JSON), puis choisissez le fichier téléchargé. Le projet devient une base de données avec une vue tableau par section : l’achèvement, les responsables, les dates, les tags, les champs personnalisés, les notes, les sous-tâches et les dépendances suivent.",
+    "choose": "Choisir un export Asana (.csv ou .json)",
+    "summary": "{name} : {groups, plural, one {# section} other {# sections}}, {items, plural, one {# tâche} other {# tâches}}, {subitems, plural, one {# sous-tâche} other {# sous-tâches}}"
+  },
+  "monday": {
+    "help": "Dans Monday.com, ouvrez le menu du tableau et choisissez Exporter le tableau vers Excel (avec les mises à jour si vous les voulez), puis choisissez le fichier téléchargé. Le tableau devient une base de données avec une vue tableau par groupe : ses colonnes, sous-éléments et mises à jour suivent.",
+    "choose": "Choisir un export Monday.com (.xlsx ou .csv)",
+    "summary": "{name} : {groups, plural, one {# groupe} other {# groupes}}, {items, plural, one {# élément} other {# éléments}}, {subitems, plural, one {# sous-élément} other {# sous-éléments}}"
+  },
+  "board": {
+    "links": "Rien n’est téléchargé : les fichiers et liens de l’export restent des liens.",
+    "comments": "{count, plural, one {# commentaire va} other {# commentaires vont}} dans les pages des lignes, avec leur auteur et leur heure.",
+    "leftOut": "Laissé de côté : {list}.",
+    "types": "Vérifiez ce que devient chaque colonne : l’export ne dit pas de quel type elle est, il a donc été deviné.",
+    "names": {
+      "section": "Section",
+      "group": "Groupe",
+      "status": "Statut",
+      "toDo": "À faire",
+      "done": "Terminé",
+      "assignee": "Responsable",
+      "tags": "Tags",
+      "dates": "Dates",
+      "others": "{column} (autres)",
+      "attachments": "Pièces jointes",
+      "comments": "Commentaires"
+    }
+  },
   "import": "Importer",
   "importing": "Importation…",
   "done": {
@@ -86,6 +117,7 @@
   "warnings": {
     "heading": "Éléments ignorés ou modifiés",
     "invalidValues": "{count, plural, one {# valeur} other {# valeurs}} dans « {column} » ne correspondaient pas à la propriété et ont été laissées vides.",
+    "leftOutColumn": "« {column} » n’a pas été importé.",
     "missingFile": "« {path} », lié depuis « {page} », ne faisait pas partie de l’envoi.",
     "unresolvedLink": "« [[{target}]] » dans « {page} » ne correspond à aucune note ni à aucun fichier de l’envoi : il reste du texte.",
     "fileNotStored": {
@@ -120,6 +152,8 @@
     "badDocx": "« {name} » ne peut pas être lu comme un document Word. Seuls les fichiers .docx peuvent être importés ; enregistrez d’abord les anciens fichiers .doc au format .docx.",
     "docxTooComplex": "« {name} » est trop volumineux ou trop complexe pour être importé en une seule page.",
     "badTrello": "Ce fichier n’est pas un export de tableau Trello. Dans Trello, choisissez Exporter au format JSON dans le menu du tableau, puis ce fichier.",
+    "badAsana": "Le fichier n’est pas un export de projet Asana. Dans Asana, choisissez Exporter → CSV ou JSON dans le menu du projet, puis ce fichier.",
+    "badMonday": "Le fichier n’est pas un export de tableau Monday.com. Dans Monday.com, choisissez Exporter le tableau vers Excel dans le menu du tableau, puis ce fichier.",
     "badMapping": "Choisissez la destination d’au moins une colonne, et utilisez chaque propriété une seule fois.",
     "noAccess": "Vous ne pouvez pas ajouter de pages à cet endroit, ou il n’existe plus.",
     "notADatabase": "Les lignes ne peuvent être ajoutées qu’à une base de données.",

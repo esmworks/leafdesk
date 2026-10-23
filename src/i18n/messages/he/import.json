@@ -1,12 +1,14 @@
 {
   "open": "ייבוא",
   "title": "ייבוא",
-  "description": "ייבוא דפים מקובצי Markdown, מייצואי ZIP וממסמכי Word, שורות מקובץ CSV או מחוברת Excel, או לוח Trello.",
+  "description": "ייבוא דפים מקובצי Markdown, מייצואי ZIP וממסמכי Word, שורות מקובץ CSV או מחוברת Excel, או לוח מ־Trello, מ־Asana או מ־Monday.com.",
   "tabs": {
     "pages": "Markdown ו־ZIP",
     "docx": "Word",
     "csv": "CSV ו־Excel",
-    "trello": "Trello"
+    "trello": "Trello",
+    "asana": "Asana",
+    "monday": "Monday.com"
   },
   "destination": "מיקום",
   "topLevel": "הרמה העליונה של סביבת העבודה",
@@ -67,6 +69,35 @@
       "comments": "תגובות"
     }
   },
+  "asana": {
+    "help": "ב־Asana, פתחו את תפריט הפרויקט ובחרו Export → CSV (או JSON), ואז בחרו את הקובץ שהורד. הפרויקט הופך למסד נתונים עם תצוגת לוח לפי מקטעים: השלמה, אחראים, תאריכים, תגיות, שדות מותאמים, הערות, תת־משימות ותלויות עוברים איתו.",
+    "choose": "בחירת ייצוא של Asana‏ (‎.csv או ‎.json)",
+    "summary": "{name}: {groups, plural, one {מקטע אחד} two {שני מקטעים} other {# מקטעים}}, {items, plural, one {משימה אחת} two {שתי משימות} other {# משימות}}, {subitems, plural, one {תת־משימה אחת} two {שתי תת־משימות} other {# תת־משימות}}"
+  },
+  "monday": {
+    "help": "ב־Monday.com, פתחו את תפריט הלוח ובחרו Export board to Excel (עם העדכונים, אם תרצו), ואז בחרו את הקובץ שהורד. הלוח הופך למסד נתונים עם תצוגת לוח לפי קבוצות: העמודות, תת־הפריטים והעדכונים עוברים איתו.",
+    "choose": "בחירת ייצוא של Monday.com‏ (‎.xlsx או ‎.csv)",
+    "summary": "{name}: {groups, plural, one {קבוצה אחת} two {שתי קבוצות} other {# קבוצות}}, {items, plural, one {פריט אחד} two {שני פריטים} other {# פריטים}}, {subitems, plural, one {תת־פריט אחד} two {שני תת־פריטים} other {# תת־פריטים}}"
+  },
+  "board": {
+    "links": "שום דבר לא מורד: קבצים וקישורים בייצוא נשארים קישורים.",
+    "comments": "{count, plural, one {תגובה אחת נכנסת} two {שתי תגובות נכנסות} other {# תגובות נכנסות}} לדפי השורות, תחת הכותב והשעה.",
+    "leftOut": "לא יובאו: {list}.",
+    "types": "בדקו למה הופכת כל עמודה: הייצוא לא מציין את סוג העמודה, ולכן הוא נוחש.",
+    "names": {
+      "section": "מקטע",
+      "group": "קבוצה",
+      "status": "סטטוס",
+      "toDo": "לביצוע",
+      "done": "בוצע",
+      "assignee": "אחראי",
+      "tags": "תגיות",
+      "dates": "תאריכים",
+      "others": "{column} (אחרים)",
+      "attachments": "קבצים מצורפים",
+      "comments": "תגובות"
+    }
+  },
   "import": "ייבוא",
   "importing": "בייבוא…",
   "done": {
@@ -86,6 +117,7 @@
   "warnings": {
     "heading": "הושמטו או שונו",
     "invalidValues": "{count, plural, one {ערך אחד} two {שני ערכים} other {# ערכים}} ב־“{column}” לא התאימו למאפיין ונשארו ריקים.",
+    "leftOutColumn": "“{column}” לא יובא.",
     "missingFile": "“{path}”, שמקושר מ־“{page}”, לא נכלל בהעלאה.",
     "unresolvedLink": "“[[{target}]]” ב־“{page}” אינו תואם לאף פתק או קובץ בהעלאה, ולכן נשאר כטקסט.",
     "fileNotStored": {
@@ -120,6 +152,8 @@
     "badDocx": "לא ניתן לקרוא את “{name}” כמסמך Word. אפשר לייבא רק קובצי .docx; יש לשמור קודם קובצי .doc ישנים בתור .docx.",
     "docxTooComplex": "“{name}” גדול או מורכב מדי לייבוא כדף אחד.",
     "badTrello": "הקובץ אינו ייצוא של לוח Trello. ב־Trello יש לבחור ייצוא כ־JSON מתפריט הלוח, ואז לבחור את הקובץ הזה.",
+    "badAsana": "הקובץ אינו ייצוא של פרויקט Asana. ב־Asana, בחרו Export → CSV או JSON מתפריט הפרויקט ובחרו את הקובץ הזה.",
+    "badMonday": "הקובץ אינו ייצוא של לוח Monday.com. ב־Monday.com, בחרו Export board to Excel מתפריט הלוח ובחרו את הקובץ הזה.",
     "badMapping": "יש לבחור יעד לעמודה אחת לפחות, ולכל מאפיין פעם אחת בלבד.",
     "noAccess": "אין לך אפשרות להוסיף דפים לשם, או שהמיקום כבר לא קיים.",
     "notADatabase": "אפשר להוסיף שורות רק למסד נתונים.",
