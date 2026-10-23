@@ -1,0 +1,38 @@
+{
+  "menuItem": "Crear con IA",
+  "title": "Crear con IA",
+  "hint": "Describe lo que quieres organizar. La IA prepara un borrador de las bases de datos y tú lo revisas antes de crear nada.",
+  "reviewTitle": "Revisa el plan",
+  "reviewHint": "Cambia el nombre o quita lo que no necesites y luego créalo.",
+  "back": "Volver a la descripción",
+  "label": "¿Qué necesitas?",
+  "placeholder": "Un proceso de selección: candidatos que pasan por las fases de entrevista, las entrevistas con cada uno y quién entrevista a quién.",
+  "draft": "Preparar las bases de datos",
+  "drafting": "Preparando…",
+  "create": "Crear",
+  "creating": "Creando…",
+  "intro": "Añadir una página sobre ellas, «{title}», con las bases de datos dentro",
+  "exampleRows": "{count, plural, one {Añadir la fila de ejemplo} other {Añadir las # filas de ejemplo}}",
+  "databaseTitle": "Nombre de la base de datos",
+  "removeDatabase": "Quitar {name}",
+  "properties": "Propiedades",
+  "views": "Vistas",
+  "noProperties": "Solo el nombre de cada fila.",
+  "removeView": "Quitar la vista {name}",
+  "rename": "Cambiar el nombre de {name}",
+  "linksTo": "Enlaza con {database}",
+  "linksBoth": "Enlaza con {database}, en ambos sentidos",
+  "removeProperty": "Quitar {name}",
+  "slash": {
+    "title": "Crear bases de datos con IA",
+    "subtext": "Describe lo que necesitas y la IA prepara bases de datos dentro de esta página",
+    "aliases": "ia ai crear base datos bases generar plan"
+  },
+  "errors": {
+    "unusable": "La IA no pudo preparar bases de datos para eso. Prueba a describirlo con otras palabras.",
+    "invalid": "El plan no se puede crear tal como está. Vuelve atrás y prepáralo de nuevo.",
+    "parent": "Las bases de datos no pueden ir dentro de una base de datos.",
+    "noAccess": "No puedes añadir páginas aquí.",
+    "failed": "Algo del plan no encajaba, así que no se creó nada. Quita las filas de ejemplo y vuelve a intentarlo."
+  }
+}

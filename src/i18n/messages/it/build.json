@@ -1,0 +1,38 @@
+{
+  "menuItem": "Crea con l’IA",
+  "title": "Crea con l’IA",
+  "hint": "Descrivi ciò che vuoi tenere sotto controllo. L’IA prepara una bozza dei database e tu la controlli prima che venga creato qualcosa.",
+  "reviewTitle": "Controlla il piano",
+  "reviewHint": "Rinomina o rimuovi ciò che non ti serve, poi crealo.",
+  "back": "Torna alla descrizione",
+  "label": "Di cosa hai bisogno?",
+  "placeholder": "Un processo di selezione: candidati che passano per le fasi dei colloqui, i colloqui con ciascuno e chi fa il colloquio a chi.",
+  "draft": "Prepara i database",
+  "drafting": "Preparazione…",
+  "create": "Crea",
+  "creating": "Creazione…",
+  "intro": "Aggiungi una pagina su di loro, «{title}», con i database al suo interno",
+  "exampleRows": "{count, plural, one {Aggiungi la riga di esempio} other {Aggiungi le # righe di esempio}}",
+  "databaseTitle": "Nome del database",
+  "removeDatabase": "Rimuovi {name}",
+  "properties": "Proprietà",
+  "views": "Viste",
+  "noProperties": "Solo il nome di ogni riga.",
+  "removeView": "Rimuovi la vista {name}",
+  "rename": "Rinomina {name}",
+  "linksTo": "Collegata a {database}",
+  "linksBoth": "Collegata a {database}, in entrambe le direzioni",
+  "removeProperty": "Rimuovi {name}",
+  "slash": {
+    "title": "Crea database con l’IA",
+    "subtext": "Descrivi ciò che ti serve e l’IA prepara i database dentro questa pagina",
+    "aliases": "ia ai crea database genera piano"
+  },
+  "errors": {
+    "unusable": "L’IA non è riuscita a preparare database per questo. Prova a descriverlo con altre parole.",
+    "invalid": "Il piano non può essere creato così com’è. Torna indietro e preparalo di nuovo.",
+    "parent": "I database non possono stare dentro un database.",
+    "noAccess": "Non puoi aggiungere pagine qui.",
+    "failed": "Qualcosa nel piano non andava bene, quindi non è stato creato nulla. Rimuovi le righe di esempio e riprova."
+  }
+}

@@ -64,6 +64,9 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   property access, dependent selects; a place's address is looked up there first, through
   `geocoder.ts`, because the shared `normalizeValue` is synchronous and takes only coordinates); a
   write that stores values another way (`ai-properties.ts` `saveValue`) calls `followOrRefuse` itself.
+  Several linked databases at once (views, example rows, an intro page) are a plan: checked in
+  `src/lib/database-plan.ts`, created all-or-nothing by `database-plan.ts` `createFromPlan`, which
+  Build with AI (`ai-build.ts` drafts the plan) and the AI chat's `create_database` both use.
 - **Shared operations.** `src/server/operations.ts` is what the MCP tools, the REST API, the AI
   chat, agents and automations do with pages, databases, rows and comments. Each operation runs as
   `ctx.userId` with that person's access; the caller checks its own scopes first.

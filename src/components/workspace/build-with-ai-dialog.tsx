@@ -26,7 +26,7 @@ import {
   type DatabasePlan,
   type PlanDatabase,
   type PlanProperty,
-} from "@/lib/ai-build";
+} from "@/lib/database-plan";
 
 export type BuildCreated = { rootId: string; databases: { id: string; title: string }[] };
 export type BuildTarget = { parentId: string } | { teamspaceId?: string | null };

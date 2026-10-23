@@ -1,16 +1,17 @@
 "use server";
 
 import { getTranslations } from "next-intl/server";
-import type { DatabasePlan } from "@/lib/ai-build";
+import type { DatabasePlan } from "@/lib/database-plan";
 import { isDatabaseErrorCode, PropertyValueError } from "@/lib/properties";
 import { AccessError } from "@/server/access";
 import { isAiError } from "@/server/ai";
-import { BuildError, createFromPlan, draftDatabasePlan, type BuildPlace, type BuildResult } from "@/server/ai-build";
+import { draftDatabasePlan } from "@/server/ai-build";
+import { createFromPlan, PlanError, type PlanPlace, type PlanResult } from "@/server/database-plan";
 import { requireUserId } from "@/server/session";
 
 // Build with AI (server/ai-build.ts): a plan of databases drafted from a description, then created
-// as the person left it. Expected failures come back translated: Next.js hides thrown messages in
-// production.
+// as the person left it (server/database-plan.ts). Expected failures come back translated:
+// Next.js hides thrown messages in production.
 
 export type ActionResult<T> = { ok: true; data: T } | { ok: false; error: string; code?: string };
 
@@ -24,7 +25,7 @@ async function run<T>(fn: (userId: string) => Promise<T>): Promise<ActionResult<
       const seconds = error.retryAfterMs ? Math.ceil(error.retryAfterMs / 1000) : 0;
       return { ok: false, error: t(`ai.errors.${error.code}`, { seconds }), code: error.code };
     }
-    if (error instanceof BuildError) return { ok: false, error: t(`build.errors.${error.code}`), code: error.code };
+    if (error instanceof PlanError) return { ok: false, error: t(`build.errors.${error.code}`), code: error.code };
     const { code, params } = error as { code?: unknown; params?: Record<string, string> };
     if (error instanceof Error && isDatabaseErrorCode(code)) return { ok: false, error: t(`database.errors.${code}`, params ?? {}) };
     if (error instanceof AccessError) return { ok: false, error: t("build.errors.noAccess") };
@@ -41,10 +42,10 @@ export async function draftDatabasePlanAction(workspaceId: string, request: stri
 }
 
 /** Creates a plan the person reviewed: under `place.parentId`, or at the top of the workspace. */
-export async function createFromPlanAction(workspaceId: string, plan: DatabasePlan, place: BuildPlace): Promise<ActionResult<BuildResult>> {
-  const where: BuildPlace =
+export async function createFromPlanAction(workspaceId: string, plan: DatabasePlan, place: PlanPlace): Promise<ActionResult<PlanResult>> {
+  const where: PlanPlace =
     place && "parentId" in place && typeof place.parentId === "string"
       ? { parentId: place.parentId }
       : { teamspaceId: place && "teamspaceId" in place && (typeof place.teamspaceId === "string" || place.teamspaceId === null) ? place.teamspaceId : undefined };
-  return run((userId) => createFromPlan(userId, String(workspaceId), plan, where));
+  return run((userId) => createFromPlan({ userId }, String(workspaceId), plan, where));
 }

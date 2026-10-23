@@ -985,7 +985,7 @@ const BUILD_SYSTEM = [
   "You design databases for a workspace app from what a person needs. A database is a table of rows; every row has a title (its name) and typed properties. Answer with one JSON object only: no code fences, no text before or after it.",
   'Its fields: "intro" (optional: {"title", "icon", "markdown"}, a short page saying what the databases are for and how to use them; null when one database says it all) and "databases", a list of one to four databases, each:',
   '- "key": a short lowercase id ("candidates"), "title", "icon" (one emoji).',
-  '- "properties": up to 25, each {"name", "type", "description" (optional)}. Types: text, number, select, multi_select, status, date, checkbox, url, email, phone, checklist, files, person, relation, created_by, created_time, last_edited_by, last_edited_time. Never a property for the row\'s name or title: every row has one.',
+  '- "properties": up to 30, each {"name", "type", "description" (optional)}. Types: text, number, select, multi_select, status, date, checkbox, url, email, phone, checklist, files, person, relation, created_by, created_time, last_edited_by, last_edited_time. Never a property for the row\'s name or title: every row has one.',
   '  select, multi_select and status take "options": [{"name", "color"}], colors from gray, brown, orange, yellow, green, blue, purple, pink, red. A status is a stage that moves on (to do, then in progress, then done): give each option a "group", "todo", "in_progress" or "done", with at least one todo and one done option.',
   '  relation links rows to rows of a database of the plan: {"type": "relation", "database": "<its key>", "two_way": true, "paired_name": "<the property it gets on the other database>"}. Put a relation on one side only; two_way shows it on both.',
   '- "views": one to six, each {"name", "type"} with type table, board, calendar, gallery, list or timeline. board: "group_by" a select or status property (its columns). calendar and timeline: "date_by" a date property. Any view may take "filters": [{"property", "op", "value"}] (ops: equals, not_equals, contains, does_not_contain, gt, lt, is_empty, is_not_empty; a select\'s value is one of its option names, a person\'s "me", a checkbox\'s true or false, a date\'s YYYY-MM-DD) and "sorts": [{"property", "direction": "asc" | "desc"}]. Put the most useful view first.',
@@ -999,7 +999,7 @@ export function buildPlanPrompt(request: string): Prompt {
   return { system: BUILD_SYSTEM, prompt: `What the person needs:\n${tagged("request", request.trim())}` };
 }
 
-/** What the model is told when its plan didn't pass (lib/ai-build validateDatabasePlan), to answer again. */
+/** What the model is told when its plan didn't pass (lib/database-plan validateDatabasePlan), to answer again. */
 export function buildPlanRepair(problems: string[]): string {
   return [
     "The plan can't be created as it is:",

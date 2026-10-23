@@ -1,7 +1,7 @@
-// Client-safe: a plan of databases the AI drafts from what someone describes ("Build with AI", see
-// server/ai-build.ts), checked here against the property and view types Leafdesk has, shown for the
-// person to adjust, and created as it then stands. The same plan is what the AI chat's
-// create_databases change takes.
+// Client-safe: a plan of databases to create (server/database-plan.ts), checked here against the
+// property and view types Leafdesk has. "Build with AI" drafts one from what someone describes
+// (server/ai-build.ts) and shows it for the person to adjust before it is created as it then
+// stands; the AI chat's create_database change is written as one too (server/ai-tools.ts).
 //
 // A plan names everything by name (properties, options, the databases relations point at by their
 // `key`), as the model writes it; creating it turns names into ids. Checking is strict: a plan that
@@ -16,8 +16,8 @@ import { holdsOptions, isReadOnlyType, PERSON_ME, STATUS_GROUPS, type StatusGrou
 /** What someone may write to describe what they need. */
 export const MAX_BUILD_REQUEST = 2_000;
 export const MAX_PLAN_DATABASES = 4;
-export const MAX_PLAN_PROPERTIES = 25;
-export const MAX_PLAN_OPTIONS = 30;
+export const MAX_PLAN_PROPERTIES = 30;
+export const MAX_PLAN_OPTIONS = 50;
 export const MAX_PLAN_VIEWS = 6;
 export const MAX_PLAN_ROWS = 10;
 export const MAX_PLAN_FILTERS = 5;

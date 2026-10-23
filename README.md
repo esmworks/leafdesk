@@ -295,6 +295,10 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   or a small business: customers, the quotes given to them, jobs and a balance sheet, linked to each
   other, with a dashboard over all four and a weekly plan. A new workspace can start with it.
   Templates stay out of the sidebar, search, trash and published sites.
+- **Build with AI** (with AI set up): describe what you want to keep track of and AI drafts the
+  databases for it, with typed properties, options, relations between them, a few views and example
+  rows; you rename or remove what you don't need before anything is created (see
+  [Building databases with AI](#ai-features)).
 - **Comments**: select text and comment on it; reply, react, resolve and reopen threads, live for
   everyone on the page. People who can comment on a page (or edit it) write comments and viewers
   read along; full access also deletes other people's comments.
@@ -2024,6 +2028,7 @@ as it can (Claude Sonnet and Opus 5.5 can't stop thinking, so "off" is low effor
 | Writing assistant: your own instruction | `AI_MODEL` | medium |
 | Chat | `AI_MODEL` | medium |
 | Drafting an agent from a description | `AI_MODEL` | medium |
+| Building databases from a description | `AI_MODEL` | medium |
 | Agents | `AI_MODEL` | the model's default (Claude 5.5: high) |
 | Agents set to the fast model | `AI_FAST_MODEL` | low |
 
@@ -2041,6 +2046,21 @@ page, *Try again* asks again and *Discard* (or Escape) drops it. *Stop* cancels 
 a suggestion is added, the page's current version is saved in its history ("Before AI assistant
 edit"), and the change is an ordinary edit everyone sees live, which Undo takes back. Only people
 who may edit a page can use it there.
+
+**Building databases with AI.** *Build with AI* in the sidebar's *+* menus, on the home page, in
+Cmd+K (`>`) and as `/` *Build databases with AI* in a page opens a box to describe what you want
+to keep track of ("a hiring pipeline: candidates, their interviews and who interviews whom"). The
+AI drafts a plan of up to four databases: their properties with types, select options with
+colors, statuses with their groups, relations between the databases (one or both ways), up to six
+views each (tables, boards by a select or status, calendars and timelines by a date, galleries,
+lists, with filters and sorts), a few example rows and, from the menus, a page about them that
+holds them. The plan is checked against the property and view types Leafdesk has; one that doesn't
+pass goes back to the AI once with what is wrong. You then see it and rename or remove databases,
+properties and views, and leave out the example rows or the page, before *Create* makes it as you,
+where you opened the box (in a page: under it, with a database block for each). Everything is made
+or nothing is: a step that fails takes back what came before it. The AI chat's `create_database`
+creates its databases the same way. It counts as *Other* in Settings > AI usage and is held to the
+workspace's AI limits.
 
 **AI properties.** In a database, *+* → *AI autofill* adds a text property that AI fills in; any
 text property's menu has *AI autofill…* too. It can write a summary of each row's page, a
