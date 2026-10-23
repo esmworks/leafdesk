@@ -12,6 +12,7 @@ import {
   testAutomationWebhooksAction,
   updateAutomationAction,
 } from "@/app/actions/automations";
+import { celebrate } from "@/components/celebrate";
 import { copyText } from "@/components/settings/copy-button";
 import { Button, cn, IconButton, Input, Switch } from "@/components/ui";
 import { MAX_AGENT_PROMPT } from "@/lib/agents";
@@ -65,7 +66,7 @@ export { selectClass };
 /** Steps offered to add, grouped as the menu shows them. */
 const STEP_GROUPS: { group: "rows" | "people" | "outside" | "flow"; types: AutomationActionType[] }[] = [
   { group: "rows", types: ["set_properties", "find_rows", "create_row", "upsert_row", "move_to_trash"] },
-  { group: "people", types: ["notify", "approval", "run_agent", "start_sequence"] },
+  { group: "people", types: ["notify", "celebrate", "approval", "run_agent", "start_sequence"] },
   { group: "outside", types: ["http_request", "webhook"] },
   { group: "flow", types: ["wait", "log"] },
 ];
@@ -582,6 +583,15 @@ function StepBody({
       );
     case "move_to_trash":
       return <p className="text-xs text-fg-muted">{t("form.trashHelp")}</p>;
+    case "celebrate":
+      return (
+        <div className="flex items-start gap-3">
+          <p className="min-w-0 flex-1 text-xs text-fg-muted">{t("steps.celebrateHelp")}</p>
+          <Button size="sm" variant="ghost" onClick={() => celebrate(tc("celebrate"))}>
+            {t("steps.celebrateTry")}
+          </Button>
+        </div>
+      );
     case "webhook":
       return (
         <Input

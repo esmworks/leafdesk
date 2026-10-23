@@ -51,6 +51,7 @@ import { enrollRows, SequenceError, type EnrollOutcome, type SequenceErrorCode }
 import { archivePage, renamePage } from "@/server/pages";
 import { exportAllowed } from "@/server/workspaces";
 import { ApprovalStepError, askApproval, closeApprovals, readAnswer, stillWaiting } from "./approval";
+import { celebrate } from "./celebrate";
 import { HttpStepError, sendRequest } from "./http";
 import { asAutomation, kickAutomations, onAutomationsQueued } from "./queue";
 import { automationZone, followOwnEdit } from "./timed";
@@ -372,6 +373,13 @@ export async function processRun(run: Run) {
         } else if (action.type === "log") {
           const message = resolveText(action.message, ctx.scope);
           result = { input: missingNote({ message: action.message }, message.missing), output: { message: message.value } };
+        } else if (action.type === "celebrate") {
+          const outcome = celebrate(automation.workspaceId, run);
+          if (outcome.status === "skipped") {
+            Object.assign(step, { status: "skipped", code: outcome.code });
+            continue;
+          }
+          result = { output: outcome.output };
         }
         if (result) {
           const raw = finishStep(step, result);

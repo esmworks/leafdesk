@@ -1148,6 +1148,7 @@
         "upsert_row": "Añadir o actualizar una fila",
         "wait": "Esperar",
         "log": "Escribir en el historial de ejecuciones",
+        "celebrate": "Celebrar con confeti",
         "approval": "Pedir aprobación",
         "start_sequence": "Iniciar un seguimiento"
       },
@@ -1339,7 +1340,9 @@
         "sequenceGone": "El seguimiento ya no existe",
         "noMailbox": "La persona de la automatización no tiene un buzón conectado",
         "noAddress": "La fila no tiene dirección de correo",
-        "emailOff": "El correo en las filas está desactivado"
+        "emailOff": "El correo en las filas está desactivado",
+        "noPerson": "Omitido: ningún cambio de una persona inició esta ejecución",
+        "tooLate": "Omitido: ha pasado demasiado tiempo desde el cambio para celebrarlo"
       },
       "waitingApproval": "Esperando aprobación",
       "approval": {
@@ -1439,7 +1442,9 @@
       "waitHelp": "Hasta 7 días. La ejecución espera y luego sigue con el paso siguiente.",
       "logMessage": "Mensaje",
       "logPlaceholder": "Por ejemplo: Importado {template}",
-      "logHelp": "Se escribe en el historial de ejecuciones con sus variables rellenadas."
+      "logHelp": "Se escribe en el historial de ejecuciones con sus variables rellenadas.",
+      "celebrateHelp": "Confeti en la app para quien hizo el cambio que inició la ejecución, en las ventanas que tenga abiertas. Las ejecuciones que nadie inició (programaciones, fechas que pasan, webhooks entrantes, respuestas anónimas de formularios) se lo saltan, igual que las que llegan aquí más de dos minutos después del cambio.",
+      "celebrateTry": "Probar"
     },
     "variables": {
       "button": "Insertar una variable",
@@ -1522,6 +1527,10 @@
         "name": "Recordar filas atrasadas",
         "description": "Un día después de que pase la fecha de una fila sin terminar, notificar a sus personas.",
         "message": "{title} está atrasada."
+      },
+      "celebrateDone": {
+        "name": "Celebrar filas terminadas",
+        "description": "Cuando una fila se marca como hecha, confeti para quien lo hizo."
       }
     }
   },

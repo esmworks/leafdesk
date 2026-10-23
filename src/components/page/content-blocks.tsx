@@ -34,6 +34,7 @@ import {
   subpagesBlockConfig,
   tocBlockConfig,
 } from "@/lib/content-blocks";
+import { CELEBRATE_EVENT } from "@/lib/celebrate-event";
 import { resolveCallout, styledCalloutProps } from "@/lib/callout-styles";
 import { plainText } from "@/lib/content-markdown";
 import { noteParts } from "@/lib/footnotes";
@@ -528,7 +529,7 @@ const SubpagesBlock = createReactBlockSpec(subpagesBlockConfig, {
     }, [workspaceId, pageId]);
     useEffect(load, [load]);
     // Pages added, moved, renamed or trashed anywhere in the workspace, as the sidebar hears them.
-    useChannel(workspaceId ? `ws:${workspaceId}` : null, (event) => event !== "inbox" && load());
+    useChannel(workspaceId ? `ws:${workspaceId}` : null, (event) => event !== "inbox" && event !== CELEBRATE_EVENT && load());
     if (!trail) return null;
     const hidden = new Set(shown.split(" "));
     return (

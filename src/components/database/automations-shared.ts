@@ -110,6 +110,7 @@ export type DraftAction = { key: string; id: string } & (
   | { type: "upsert_row"; databaseId: string; matchProperty: string; matchValue: string; title: string; entries: SetEntry[] }
   | { type: "wait"; amount: string; unit: WaitUnit }
   | { type: "log"; message: string }
+  | { type: "celebrate" }
   | { type: "start_sequence"; sequenceId: string; forEach: string }
   /** `timeoutDays` as typed. */
   | { type: "approval"; people: string[]; properties: string[]; message: string; timeoutDays: string; onTimeout: ApprovalTimeout }
@@ -148,6 +149,7 @@ const ID_STEMS: Record<AutomationActionType, string> = {
   upsert_row: "upsert",
   wait: "wait",
   log: "log",
+  celebrate: "celebrate",
   start_sequence: "follow_up",
   approval: "approval",
 };
@@ -307,6 +309,8 @@ export function toDraft(automation: Automation, properties: Property[]): Draft {
         return { ...base, type: "wait", ...waitOf(action.minutes) };
       case "log":
         return { ...base, type: "log", message: action.message };
+      case "celebrate":
+        return { ...base, type: "celebrate" };
       case "webhook":
         return { ...base, type: "webhook", url: action.url };
       case "start_sequence":
@@ -353,6 +357,8 @@ export function newAction(type: AutomationActionType, actions: DraftAction[], tr
       return { ...base, type, amount: "1", unit: "hours" };
     case "log":
       return { ...base, type, message: "" };
+    case "celebrate":
+      return { ...base, type };
     case "webhook":
       return { ...base, type, url: "" };
     case "start_sequence":
@@ -640,6 +646,8 @@ export function actionsInput(draft: Draft, properties: Property[], schemaOf: (da
         return { id, type: "wait" as const, minutes: waitMinutes(action) ?? 1 };
       case "log":
         return { id, type: "log" as const, message: action.message.trim() };
+      case "celebrate":
+        return { id, type: "celebrate" as const };
       case "webhook":
         return { id, type: "webhook" as const, url: action.url.trim() };
       case "start_sequence":

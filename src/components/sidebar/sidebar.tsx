@@ -61,6 +61,7 @@ import { useLocalMode } from "@/components/local-mode";
 import { loadSnapshot, readOfflineState, saveSnapshot, treeSnapshotKey, wipeAllOfflineData } from "@/components/offline/offline-store";
 import { InstallAppMenuItem } from "@/components/offline/install-app";
 import { dropPushSubscription } from "@/components/settings/push-device";
+import { CELEBRATE_EVENT } from "@/lib/celebrate-event";
 import { FAVORITES_EVENT } from "@/lib/favorites-event";
 import { IMPORT_SPREADSHEET_EVENT, type ImportSpreadsheetDetail } from "@/lib/import-spreadsheet-event";
 import { comboText, isMac, opensShortcuts } from "@/lib/shortcuts";
@@ -299,6 +300,9 @@ export function Sidebar({
     if (event === "inbox") {
       refreshInbox();
       setInboxVersion((v) => v + 1);
+    } else if (event === CELEBRATE_EVENT) {
+      // Sent to this person's windows only, by an automation their change started.
+      void import("@/components/celebrate").then((m) => m.celebrate(tc("celebrate")));
     } else refresh();
   });
   // Also on focus: a signal sent while the connection was down would otherwise be missed.

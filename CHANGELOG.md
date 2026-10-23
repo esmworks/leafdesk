@@ -4,6 +4,13 @@
 
 ### Added
 
+- **Automations can celebrate.** A new *Celebrate with confetti* step plays confetti in the app
+  for whoever made the change that started the run, in every window they have open, a moment
+  after the change; a ready-made *Celebrate finished rows* automation does it when a row is
+  marked done. With reduced motion asked for, a still "🎉" note shows instead. Runs nobody
+  started (schedules, dates passing, incoming webhooks, anonymous form answers) skip the step, as
+  do runs that reach it more than two minutes after the change. MCP `create_automation` and
+  `update_automation` take it as `celebrate`.
 - **Find in page ignores accents.** Searching a page now finds "café" for "cafe", "naïve" for
   "naive" and "Çiğdem", "Şükrü" or "ışık" for "cigdem", "sukru" or "isik", whichever way round
   they are typed; accents written as separate marks after their letter count too, and Replace

@@ -246,6 +246,13 @@ export function createCollab() {
     hocuspocus.documents.get(channel)?.broadcastStateless(event);
   };
 
+  /** Sends `event` to one person's connections to `channel` only; how many got it. */
+  const sendTo = (channel: Channel, userId: string, event: string) => {
+    const connections = hocuspocus.documents.get(channel)?.getConnections().filter((c) => (c.context as Context).userId === userId) ?? [];
+    for (const connection of connections) connection.sendStateless(event);
+    return connections.length;
+  };
+
   /** Browser connections only: the server's own writes check the page themselves (assertWritable). */
   const browsersOf = (pageId: string) =>
     hocuspocus.documents.get(pageDocName(pageId))?.getConnections().filter((c) => (c.context as Context).userId !== undefined) ?? [];
@@ -1029,6 +1036,7 @@ export function createCollab() {
     },
 
     broadcast,
+    sendTo,
 
     async pageLockChanged(pageId, locked) {
       if (locked) closeForWrites(pageId);
