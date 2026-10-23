@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertTriangle, ArrowRight, Check, Pencil, X } from "lucide-react";
+import { AlertTriangle, ArrowRight, Check, Pencil, Repeat, X } from "lucide-react";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
@@ -31,8 +31,8 @@ export function NowProvider({ initial, children }: { initial: string; children: 
   return <NowContext.Provider value={now}>{children}</NowContext.Provider>;
 }
 
-/** The agent's emoji, or its initial, in a round badge. */
-export function AgentBadge({ agent, size = "md" }: { agent: PendingChangeView["agent"]; size?: "sm" | "md" }) {
+/** The agent's emoji, or its initial, in a round badge; a follow-up's (`sequence`) its sign. */
+export function AgentBadge({ agent, size = "md", sequence = false }: { agent: PendingChangeView["agent"]; size?: "sm" | "md"; sequence?: boolean }) {
   return (
     <span
       aria-hidden
@@ -41,7 +41,7 @@ export function AgentBadge({ agent, size = "md" }: { agent: PendingChangeView["a
         size === "sm" ? "h-5 w-5 text-xs" : "h-7 w-7 text-sm",
       )}
     >
-      {agent?.icon ?? (agent?.name.slice(0, 1).toUpperCase() || "?")}
+      {sequence ? <Repeat className="h-3.5 w-3.5" /> : (agent?.icon ?? (agent?.name.slice(0, 1).toUpperCase() || "?"))}
     </span>
   );
 }
@@ -72,9 +72,18 @@ export function ChangeHeadline({ change, workspaceId, showDatabase = true }: { c
   };
   // An approved new row has its row: it reads as the row it became.
   const key = change.kind === "create_row" ? "createRow" : change.kind === "email_draft" ? "emailDraft" : "updateRow";
+  // A follow-up's email: which one of the sequence it is.
+  const sequence = change.sequence;
   return (
     <span>
-      {t.rich(`proposes.${key}`, tags)}
+      {sequence
+        ? t.rich("proposes.sequenceDraft", {
+            ...tags,
+            sequence: () => <bdi className={strong}>{sequence.name}</bdi>,
+            step: sequence.step,
+            steps: sequence.steps,
+          })
+        : t.rich(`proposes.${key}`, tags)}
       {showDatabase && change.kind !== "create_row" && <span className="text-fg-muted"> · {t.rich("inDatabase", tags)}</span>}
     </span>
   );

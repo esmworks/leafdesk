@@ -578,6 +578,8 @@
     "sender": "Sends from {name}’s mailbox",
     "resume": "Resume",
     "stop": "Stop",
+    "bulkStarted": "{count, plural, =0 {Started on no rows.} one {Started on # row.} other {Started on # rows.}}",
+    "bulkSkipped": "{count, plural, one {# row skipped:} other {# rows skipped:}}",
     "state": {
       "next": "Next email {time} at the earliest",
       "going": "The next email goes out soon",

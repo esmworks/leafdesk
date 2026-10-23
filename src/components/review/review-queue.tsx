@@ -271,7 +271,7 @@ function CardItem({ change, workspaceId, selected, onToggle, onChanged }: ItemPr
     <li className={cn("rounded-xl border p-4", selected ? "border-accent" : "border-border")}>
       <div className="flex items-start gap-3">
         <SelectBox change={change} selected={selected} onToggle={onToggle} />
-        <AgentBadge agent={change.agent} />
+        <AgentBadge agent={change.agent} sequence={!!change.sequence} />
         <div className="min-w-0 flex-1 space-y-3">
           <div>
             <p className="text-sm text-fg-muted">

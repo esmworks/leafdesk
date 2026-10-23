@@ -3,7 +3,7 @@
 import { Repeat } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { enrollRowsAction, resumeEnrollmentAction, rowFollowUpsAction, stopEnrollmentAction, type RowFollowUps } from "@/app/actions/sequences";
+import { enrollRowsAction, listSequencesAction, resumeEnrollmentAction, rowFollowUpsAction, stopEnrollmentAction, type RowFollowUps } from "@/app/actions/sequences";
 import { Button, cn, MenuItem, Popover } from "@/components/ui";
 import type { EmailDraftProblem } from "@/lib/email-draft-check";
 import { isOpenEnrollment, type EnrollmentView } from "@/lib/sequences";
@@ -180,4 +180,91 @@ export function useEnrollmentState(e: EnrollmentView) {
     case "stopped":
       return t("state.stopped", { reason: e.reason ?? "manual", date: day(e.endedAt) });
   }
+}
+
+/**
+ * The table's selection bar: starts one of the database's follow-ups on the selected rows, from the
+ * viewer's mailbox, and says how many it started on and why the others were skipped.
+ */
+export function BulkFollowUp({ databaseId, rowIds, className }: { databaseId: string; rowIds: string[]; className: string }) {
+  const t = useTranslations("database.followUps");
+  const tc = useTranslations("common");
+  const [sequences, setSequences] = useState<{ id: string; name: string; steps: number }[]>([]);
+  const [open, setOpen] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [result, setResult] = useState<{ started: number; skipped: string[] } | string | null>(null);
+
+  useEffect(() => {
+    let live = true;
+    listSequencesAction(databaseId)
+      .then((res) => live && res.ok && setSequences(res.data.sequences.map((s) => ({ id: s.id, name: s.name, steps: s.steps.length }))))
+      .catch(() => undefined);
+    return () => {
+      live = false;
+    };
+  }, [databaseId]);
+
+  if (!sequences.length) return null;
+
+  const start = async (sequenceId: string) => {
+    setBusy(true);
+    try {
+      const res = await enrollRowsAction(sequenceId, rowIds, "bulk");
+      if (!res.ok) return setResult(res.error);
+      const skipped = res.data.flatMap((o) => (o.ok ? [] : [o.error]));
+      setResult({ started: res.data.length - skipped.length, skipped });
+    } catch {
+      setResult(tc("genericError"));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <Popover
+      side="top"
+      open={open}
+      onOpenChange={(next) => {
+        setOpen(next);
+        if (!next) setResult(null);
+      }}
+      trigger={({ toggle }) => (
+        <button type="button" disabled={busy} onClick={toggle} className={className} title={t("start")} aria-haspopup="menu">
+          <Repeat className="h-3.5 w-3.5 text-fg-muted" />
+          <span className="max-sm:sr-only">{t("start")}</span>
+        </button>
+      )}
+      className="w-72"
+    >
+      {result === null ? (
+        sequences.map((s) => (
+          <MenuItem
+            key={s.id}
+            icon={<Repeat className="h-3.5 w-3.5" />}
+            disabled={busy}
+            trailing={<span className="text-xs tabular-nums">{t("stepCount", { count: s.steps })}</span>}
+            onClick={() => void start(s.id)}
+          >
+            {s.name}
+          </MenuItem>
+        ))
+      ) : typeof result === "string" ? (
+        <p className="px-2 py-1.5 text-sm text-danger">{result}</p>
+      ) : (
+        <div className="space-y-1 px-2 py-1.5 text-sm">
+          <p>{t("bulkStarted", { count: result.started })}</p>
+          {result.skipped.length > 0 && (
+            <>
+              <p className="text-fg-muted">{t("bulkSkipped", { count: result.skipped.length })}</p>
+              <ul className="list-disc ps-4 text-xs text-fg-muted">
+                {[...new Set(result.skipped)].map((reason) => (
+                  <li key={reason}>{reason}</li>
+                ))}
+              </ul>
+            </>
+          )}
+        </div>
+      )}
+    </Popover>
+  );
 }
