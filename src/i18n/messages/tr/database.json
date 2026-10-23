@@ -535,7 +535,9 @@
     "addProperty": "Özellik ekle",
     "moreProperties": "{count, plural, one {# özellik daha} other {# özellik daha}}",
     "fewerProperties": "{count, plural, one {# özelliği gizle} other {# özelliği gizle}}",
-    "propertyMenu": "{name} seçenekleri"
+    "propertyMenu": "{name} seçenekleri",
+    "commentOnProperty": "{name} için yorum yap",
+    "propertyComments": "{name} üzerinde {count, plural, one {# açık yorum} other {# açık yorum}}"
   },
   "rowActivity": {
     "title": "Etkinlik",

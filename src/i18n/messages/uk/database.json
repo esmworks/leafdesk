@@ -535,7 +535,9 @@
     "addProperty": "Додати властивість",
     "moreProperties": "{count, plural, one {Ще # властивість} few {Ще # властивості} many {Ще # властивостей} other {Ще # властивості}}",
     "fewerProperties": "{count, plural, one {Сховати # властивість} few {Сховати # властивості} many {Сховати # властивостей} other {Сховати # властивості}}",
-    "propertyMenu": "Параметри «{name}»"
+    "propertyMenu": "Параметри «{name}»",
+    "commentOnProperty": "Прокоментувати {name}",
+    "propertyComments": "{count, plural, one {# відкритий коментар} few {# відкриті коментарі} many {# відкритих коментарів} other {# відкритого коментаря}} до {name}"
   },
   "rowActivity": {
     "title": "Активність",

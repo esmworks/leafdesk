@@ -535,7 +535,9 @@
     "addProperty": "إضافة خاصية",
     "moreProperties": "{count, plural, one {خاصية أخرى} two {خاصيتان أخريان} few {# خصائص أخرى} many {# خاصية أخرى} other {# خاصية أخرى}}",
     "fewerProperties": "{count, plural, one {إخفاء خاصية واحدة} two {إخفاء خاصيتين} few {إخفاء # خصائص} many {إخفاء # خاصية} other {إخفاء # خاصية}}",
-    "propertyMenu": "خيارات {name}"
+    "propertyMenu": "خيارات {name}",
+    "commentOnProperty": "التعليق على {name}",
+    "propertyComments": "{count, plural, zero {لا تعليقات مفتوحة} one {تعليق مفتوح واحد} two {تعليقان مفتوحان} few {# تعليقات مفتوحة} many {# تعليقًا مفتوحًا} other {# تعليق مفتوح}} على {name}"
   },
   "rowActivity": {
     "title": "النشاط",

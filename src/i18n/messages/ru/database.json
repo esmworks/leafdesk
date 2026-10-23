@@ -535,7 +535,9 @@
     "addProperty": "Добавить свойство",
     "moreProperties": "{count, plural, one {Ещё # свойство} few {Ещё # свойства} many {Ещё # свойств} other {Ещё # свойства}}",
     "fewerProperties": "{count, plural, one {Скрыть # свойство} few {Скрыть # свойства} many {Скрыть # свойств} other {Скрыть # свойства}}",
-    "propertyMenu": "Параметры: {name}"
+    "propertyMenu": "Параметры: {name}",
+    "commentOnProperty": "Прокомментировать {name}",
+    "propertyComments": "{count, plural, one {# открытый комментарий} few {# открытых комментария} many {# открытых комментариев} other {# открытого комментария}} к {name}"
   },
   "rowActivity": {
     "title": "Активность",

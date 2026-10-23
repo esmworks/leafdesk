@@ -6,9 +6,11 @@ import { ArrowDownUp, Bell, BellOff, Bookmark, BookmarkX, Check, MoreHorizontal,
 import { useTranslations } from "next-intl";
 import { memo, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type FocusEvent } from "react";
 import { markThreadAction, muteThreadAction, mutedThreadsAction, seeThreadsAction, threadStatesAction } from "@/app/actions/comments";
-import { cn, IconButton, MenuItem, Popover } from "@/components/ui";
-import { isPageThread, mergedFromOf, threadOfHash } from "@/lib/comments";
+import { Button, cn, IconButton, MenuItem, Popover, textareaClass } from "@/components/ui";
+import { isPageThread, mergedFromOf, propertyOf, threadOfHash } from "@/lib/comments";
+import { PROPERTY_COMMENT_EVENT, takePropertyCommentRequest, type PropertyCommentRequest } from "@/lib/comments-request";
 import { lastActivity, newThreadIds } from "@/lib/thread-activity";
+import { CommentChangeError, propertyNameOf, type ServerThreadStore } from "./comment-store";
 
 const FILTERS = ["open", "resolved", "marked", "all"] as const;
 type Filter = (typeof FILTERS)[number];
@@ -19,12 +21,25 @@ type Sort = (typeof SORTS)[number];
  * All of the page's discussions beside the editor: its comment threads on text and about the whole
  * page, newest activity first (or in the order of the text they're about), each marked when others
  * wrote in it since the viewer last saw it. Each person can mark threads to come back to later and
- * list just those. Rendered inside BlockNoteView, whose editor the threads belong to.
+ * list just those. A database row's threads on its property values show too, named after their
+ * property; a property's comment button opens the panel to start one. Rendered inside
+ * BlockNoteView, whose editor the threads belong to.
  */
-export function CommentsPanel({ pageId, onClose }: { pageId: string; onClose: () => void }) {
+export function CommentsPanel({ pageId, store, onClose }: { pageId: string; store: ServerThreadStore; onClose: () => void }) {
   const t = useTranslations("page.comments");
   const [filter, setFilter] = useState<Filter>("open");
   const [sort, setSort] = useState<Sort>("recent");
+  // The property a new thread is being written on (a row's property asked for it).
+  const [composing, setComposing] = useState<PropertyCommentRequest | null>(null);
+  useEffect(() => {
+    const fromRequest = () => {
+      const property = takePropertyCommentRequest(pageId);
+      if (property) setComposing(property);
+    };
+    fromRequest();
+    window.addEventListener(PROPERTY_COMMENT_EVENT, fromRequest);
+    return () => window.removeEventListener(PROPERTY_COMMENT_EVENT, fromRequest);
+  }, [pageId]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && !e.defaultPrevented && onClose();
@@ -86,6 +101,17 @@ export function CommentsPanel({ pageId, onClose }: { pageId: string; onClose: ()
         ))}
       </nav>
       <div className="min-h-0 flex-1 overflow-y-auto p-3">
+        {composing && (
+          <PropertyComposer
+            key={composing.propertyId}
+            store={store}
+            property={composing}
+            onDone={() => {
+              setComposing(null);
+              setFilter((f) => (f === "open" || f === "all" ? f : "open"));
+            }}
+          />
+        )}
         <Threads pageId={pageId} filter={filter} sort={sort} onFilter={setFilter} />
         <p className="comments-empty px-1 py-6 text-center text-sm text-fg-faint">{t(`empty.${filter}`)}</p>
       </div>
@@ -217,7 +243,7 @@ function Threads({ pageId, filter, sort, onFilter }: { pageId: string; filter: F
   }, [linked]);
   useEffect(() => {
     const thread = linked ? threads.get(linked) : undefined;
-    if (!linked || !thread || !(positions.has(linked) || isPageThread(thread.metadata) || waited)) return;
+    if (!linked || !thread || !(positions.has(linked) || isPageThread(thread.metadata) || propertyOf(thread.metadata) || waited)) return;
     setLinked(undefined);
     if ((thread.resolved && filter === "open") || (!thread.resolved && filter === "resolved") || (filter === "marked" && !marked.has(linked))) onFilter("all");
     comments.selectThread(linked);
@@ -227,7 +253,9 @@ function Threads({ pageId, filter, sort, onFilter }: { pageId: string; filter: F
   }, [linked, threads, positions, waited, filter, onFilter, comments, marked]);
 
   const shown = useMemo(() => {
-    const at = (thread: ThreadData) => (isPageThread(thread.metadata) ? -1 : (positions.get(thread.id)?.from ?? Number.MAX_VALUE));
+    // Threads about the whole page first, then those on the row's property values, then the text's.
+    const at = (thread: ThreadData) =>
+      isPageThread(thread.metadata) ? -2 : propertyOf(thread.metadata) ? -1 : (positions.get(thread.id)?.from ?? Number.MAX_VALUE);
     return [...threads.values()]
       .filter((thread) =>
         filter === "marked" ? marked.has(thread.id) : thread.resolved ? filter !== "open" : filter !== "resolved",
@@ -237,14 +265,16 @@ function Threads({ pageId, filter, sort, onFilter }: { pageId: string; filter: F
         const position = positions.get(thread.id);
         let referenceText: string;
         const mergedFrom = mergedFromOf(thread.metadata);
+        const property = propertyNameOf(thread.metadata);
         // About a merged row as a whole: named after that row, the comments came with it.
         if (isPageThread(thread.metadata)) referenceText = mergedFrom !== null ? t("mergedFrom", { title: mergedFrom }) : t("aboutPage");
+        else if (property !== null) referenceText = t("aboutProperty", { name: property });
         else if (!position) referenceText = deleted;
         else {
           const text = editor.transact((tr) => (tr.doc.nodeSize < position.to ? "" : tr.doc.textBetween(position.from, position.to)));
           referenceText = text.length > 15 ? `${text.slice(0, 15)}…` : text;
         }
-        return { thread, referenceText, orphaned: !position && !isPageThread(thread.metadata) };
+        return { thread, referenceText, orphaned: !position && !isPageThread(thread.metadata) && property === null };
       });
   }, [threads, positions, filter, sort, marked, editor, deleted, t]);
 
@@ -382,3 +412,74 @@ const SidebarThread = memo(function SidebarThread({
     </div>
   );
 });
+
+/**
+ * A new thread on a row's property value: plain text, a paragraph a line (replies in it then use
+ * the thread's own comment box). Once posted the thread shows, selected, in the list below.
+ */
+function PropertyComposer({ store, property, onDone }: { store: ServerThreadStore; property: PropertyCommentRequest; onDone: () => void }) {
+  const t = useTranslations("page.comments");
+  const tc = useTranslations("common");
+  const comments = useExtension(CommentsExtension);
+  const [text, setText] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const submit = async () => {
+    if (!text.trim() || busy) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const thread = await store.createPropertyThread(property.propertyId, text);
+      onDone();
+      comments.selectThread(thread.id);
+    } catch (e) {
+      setError(e instanceof CommentChangeError && e.code === "notFound" ? t("propertyGone") : tc("genericError"));
+      setBusy(false);
+    }
+  };
+  return (
+    <form
+      className="mb-3 rounded-md border border-border p-2"
+      onSubmit={(e) => {
+        e.preventDefault();
+        void submit();
+      }}
+    >
+      <label htmlFor="property-comment" className="mb-1.5 block text-xs font-medium text-fg-muted">
+        {t("onProperty", { name: property.name })}
+      </label>
+      <textarea
+        id="property-comment"
+        autoFocus
+        rows={3}
+        value={text}
+        placeholder={t("propertyPlaceholder")}
+        onChange={(e) => setText(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+            e.preventDefault();
+            void submit();
+          } else if (e.key === "Escape") {
+            // The panel closes on Escape otherwise.
+            e.preventDefault();
+            onDone();
+          }
+        }}
+        className={textareaClass}
+      />
+      {error && (
+        <p role="alert" className="mt-1 text-xs text-danger">
+          {error}
+        </p>
+      )}
+      <div className="mt-2 flex justify-end gap-2">
+        <Button size="sm" variant="ghost" onClick={onDone}>
+          {tc("cancel")}
+        </Button>
+        <Button size="sm" variant="primary" type="submit" disabled={busy || !text.trim()}>
+          {t("post")}
+        </Button>
+      </div>
+    </form>
+  );
+}

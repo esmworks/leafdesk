@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, ChevronRight, Plus } from "lucide-react";
+import { ChevronDown, ChevronRight, MessageSquare, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -37,6 +37,9 @@ import { RowEmails } from "./row-emails";
 import { SchemaProvider } from "./schema-context";
 import { rowSnapshotOf, type RowSnapshot as Loaded } from "./row-snapshot";
 import type { DerivedInput, Property, RelationInput } from "./types";
+import { usePropertyThreadCount } from "@/components/page/property-threads";
+import { cn } from "@/components/ui";
+import { requestPropertyComment } from "@/lib/comments-request";
 
 /** Editable property list shown above a database row's page body. */
 export function RowProperties({
@@ -321,6 +324,7 @@ export function RowProperties({
       onPageVisibility={canSetVisibility ? (visibility) => void setPageVisibility(p.id, visibility) : undefined}
       onDescription={canSetVisibility ? (description) => void setDescription(p.id, description) : undefined}
       values={values}
+      commentable={!offline}
     />
   );
 
@@ -377,6 +381,7 @@ function PropertyRow({
   onPageVisibility,
   onDescription,
   values,
+  commentable,
 }: {
   prop: Property;
   rowId: string;
@@ -392,6 +397,8 @@ function PropertyRow({
   onDescription?: (description: string | null) => void;
   /** The row's values, which decide the options a dependent select offers (lib/dependent-options). */
   values: Record<string, unknown>;
+  /** The value can be discussed in the row's comments (they need the server). */
+  commentable: boolean;
 }) {
   const t = useTranslations("database.rowProperties");
   const access = usePropertyAccess();
@@ -409,7 +416,7 @@ function PropertyRow({
     </>
   );
   return (
-    <div className="flex min-h-[30px] items-start gap-2">
+    <div className="group/property flex min-h-[30px] items-start gap-2">
       <div ref={setLabelEl} className="flex h-[30px] w-28 shrink-0 items-center gap-1.5 text-sm text-fg-muted sm:w-40">
         {hint}
         {onPageVisibility && access.canEditSchema(p.id) ? (
@@ -453,7 +460,32 @@ function PropertyRow({
           </AiCell>
         )}
       </div>
+      {commentable && valueAccess !== "hidden" && <PropertyComments rowId={rowId} prop={p} />}
     </div>
+  );
+}
+
+/**
+ * The comments on a property's value: how many open threads it has, and a button (shown on hover
+ * while it has none) that opens the row's comments to start one (server/property-comments.ts).
+ */
+function PropertyComments({ rowId, prop }: { rowId: string; prop: Property }) {
+  const t = useTranslations("database.rowProperties");
+  const count = usePropertyThreadCount(rowId, prop.id);
+  return (
+    <button
+      type="button"
+      aria-label={count ? t("propertyComments", { name: prop.name, count }) : t("commentOnProperty", { name: prop.name })}
+      title={count ? t("propertyComments", { name: prop.name, count }) : t("commentOnProperty", { name: prop.name })}
+      onClick={() => requestPropertyComment(rowId, { propertyId: prop.id, name: prop.name })}
+      className={cn(
+        "flex h-[30px] shrink-0 items-center gap-1 rounded-md px-1.5 text-xs text-fg-muted hover:bg-bg-hover hover:text-fg",
+        !count && "opacity-0 focus-visible:opacity-100 group-hover/property:opacity-100 pointer-coarse:opacity-100",
+      )}
+    >
+      <MessageSquare className="h-3.5 w-3.5" />
+      {count > 0 && <span>{count}</span>}
+    </button>
   );
 }
 

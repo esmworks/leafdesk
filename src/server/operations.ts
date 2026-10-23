@@ -1738,6 +1738,7 @@ export async function listComments(ctx: OperationContext, { page_id, include_res
       id: t.id,
       quote: t.quote ?? null,
       ...(t.page ? { about_page: true } : {}),
+      ...(t.property ? { property: t.property.name } : {}),
       resolved: t.resolved,
       ...(marked.has(t.id) ? { marked: true } : {}),
       comments: t.comments.map((c) => ({

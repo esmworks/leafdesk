@@ -19,6 +19,7 @@ import { pageLabel } from "@/lib/labels";
 import { PAGE_EMAIL_COOLDOWN_MS, PAGE_EMAIL_WINDOW_MS, planPageEmails } from "@/lib/page-watch";
 import { ownsWorkspace, resolvePageAccess, workspaceRoleOf } from "@/server/access";
 import { getCollab } from "@/server/collab/bridge";
+import { threadsVisibleTo } from "@/server/property-comments";
 import {
   accessRequestEmail,
   automationEmail,
@@ -291,7 +292,7 @@ async function send({
   // The latest comment someone else wrote in the thread; none when the thread or it was deleted since.
   let text = "";
   if (kind === "comment") {
-    const thread = threadId ? (await getCollab().readThreads(pageId)).find((t) => t.id === threadId) : undefined;
+    const thread = threadId ? (await threadsVisibleTo(userId, pageId)).find((t) => t.id === threadId) : undefined;
     const latest = thread?.comments.findLast((c) => c.userId === actorId && c.body);
     if (!latest) return;
     text = commentText(latest.body);

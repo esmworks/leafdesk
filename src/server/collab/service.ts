@@ -19,7 +19,7 @@ import {
   PAGE_SAVED_EVENT,
   PAGE_WRITABLE_EVENT,
 } from "@/lib/collab-constants";
-import { CommentError, isPageThread, PAGE_THREAD_METADATA, plainComment, plainThread, THREADS_MAP, type CommentOp, type PlainThread } from "@/lib/comments";
+import { CommentError, isPageThread, PAGE_THREAD_METADATA, plainComment, plainThread, THREADS_MAP, type PlainThread } from "@/lib/comments";
 import { markdownImageHint, PG_MARKDOWN_IMAGE_PATTERN } from "@/lib/cover";
 import { migrateDocTitle, readDocTitle, writeDocTitle } from "@/lib/collab-title";
 import { assertNotInTrash, assertPageUnlocked, isPageLocked } from "@/lib/page-lock";
@@ -46,6 +46,7 @@ import { queueRowSave } from "@/server/row-follow";
 import { authorizeCollab, parseDocName as parseName, type DocTarget } from "./authorize";
 import { isPageSaveFailed, pageSaveFailedError, type BodyWrite, type Channel, type CollabService, type CommentOpResult, type PageContent, type VersionCheck, type WriteActor } from "./bridge";
 import { anchorThread, reanchor, threadQuotes } from "./comment-marks";
+import { commentError, runOp } from "./comment-ops";
 import { stampPresence } from "./presence";
 import { saveOpenDocuments } from "./shutdown";
 import { touchesThreads } from "./thread-guard";
@@ -100,14 +101,6 @@ function keepingComments(doc: Y.Doc, write: () => void) {
   const quotes = threads.size ? threadQuotes(fragment) : new Map<string, string>();
   write();
   reanchor(fragment, quotes, new Set(threads.keys()));
-}
-
-/** BlockNote's thread store throws plain errors; comment callers get CommentErrors instead. */
-function commentError(error: unknown): unknown {
-  if (!(error instanceof Error) || error instanceof CommentError) return error;
-  if (error.message === "Not authorized") return new CommentError("You can't do that with this comment", "notAllowed");
-  if (/not found|already deleted/i.test(error.message)) return new CommentError("That comment doesn't exist anymore", "notFound");
-  return error;
 }
 
 /** Blocks with ids of their own (children too), to put a copy of them into another page. */
@@ -215,34 +208,6 @@ async function showsLastEdited(databaseId: string) {
     )
     .limit(1);
   return Boolean(found);
-}
-
-/** Applies one comment change through BlockNote's thread store, which checks what the actor may do. */
-function runOp(store: YjsThreadStore, threads: Y.Map<unknown>, op: CommentOp): Promise<unknown> {
-  const body = (value: unknown) => value as Parameters<YjsThreadStore["addComment"]>[0]["comment"]["body"];
-  switch (op.type) {
-    case "createThread":
-      // A thread quoting nothing is about the whole page; it says so, not that its text was deleted.
-      return store.createThread({ initialComment: { body: body(op.body) }, ...(op.anchor ? {} : { metadata: PAGE_THREAD_METADATA }) });
-    case "addComment":
-      return store.addComment({ threadId: op.threadId, comment: { body: body(op.body) } });
-    case "updateComment":
-      return store.updateComment({ threadId: op.threadId, commentId: op.commentId, comment: { body: body(op.body) } });
-    case "deleteComment":
-      return store.deleteComment({ threadId: op.threadId, commentId: op.commentId });
-    case "deleteThread":
-      // The store reads the thread before checking it exists.
-      if (!threads.has(op.threadId)) return Promise.reject(new CommentError("That thread doesn't exist anymore", "notFound"));
-      return store.deleteThread({ threadId: op.threadId });
-    case "resolveThread":
-      return store.resolveThread({ threadId: op.threadId });
-    case "unresolveThread":
-      return store.unresolveThread({ threadId: op.threadId });
-    case "addReaction":
-      return store.addReaction({ threadId: op.threadId, commentId: op.commentId, emoji: op.emoji });
-    case "deleteReaction":
-      return store.deleteReaction({ threadId: op.threadId, commentId: op.commentId, emoji: op.emoji });
-  }
 }
 
 export function createCollab() {

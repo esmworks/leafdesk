@@ -3559,7 +3559,7 @@ export function createMcpServer(principal: McpPrincipal) {
     {
       title: "List comments on a page",
       description:
-        "List a page's comment threads, oldest first: the text each thread is about (quote; null when that text was deleted, or for a thread about the whole page, marked about_page), whether it's resolved, marked: true when the user marked it to come back to later, and its comments with author, time and text. Resolved threads are left out unless include_resolved is true.",
+        "List a page's comment threads, oldest first: the text each thread is about (quote; null when that text was deleted, or for a thread about the whole page, marked about_page, or on a row property's value, named in property), whether it's resolved, marked: true when the user marked it to come back to later, and its comments with author, time and text. Resolved threads are left out unless include_resolved is true.",
       inputSchema: ops.inputs.listComments,
       annotations: READ,
     },

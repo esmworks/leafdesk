@@ -72,6 +72,7 @@
   },
   "comments": {
     "aboutPage": "About this page",
+    "aboutProperty": "On “{name}”",
     "title": "Comments",
     "close": "Close comments",
     "filters": {
@@ -105,7 +106,11 @@
     "mark": "Come back later",
     "unmark": "Remove “Come back later”",
     "markHint": "Keep this thread under Marked until you take the mark off. Only you see it.",
-    "unmarkHint": "Take this thread off your Marked list."
+    "unmarkHint": "Take this thread off your Marked list.",
+    "onProperty": "Comment on “{name}”",
+    "propertyPlaceholder": "What about this value?",
+    "post": "Comment",
+    "propertyGone": "This value can't be commented on any more."
   },
   "archived": {
     "banner": "This page is in the trash.",

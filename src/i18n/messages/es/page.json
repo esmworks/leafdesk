@@ -72,6 +72,7 @@
   },
   "comments": {
     "aboutPage": "Sobre esta página",
+    "aboutProperty": "Sobre «{name}»",
     "title": "Comentarios",
     "close": "Cerrar comentarios",
     "filters": {
@@ -105,7 +106,11 @@
     "mark": "Volver más tarde",
     "unmark": "Quitar «Volver más tarde»",
     "markHint": "El hilo queda en Marcados hasta que quites la marca. Solo tú la ves.",
-    "unmarkHint": "Quitar este hilo de tu lista de Marcados."
+    "unmarkHint": "Quitar este hilo de tu lista de Marcados.",
+    "onProperty": "Comentar sobre «{name}»",
+    "propertyPlaceholder": "¿Qué pasa con este valor?",
+    "post": "Comentar",
+    "propertyGone": "Este valor ya no se puede comentar."
   },
   "archived": {
     "banner": "Esta página está en la papelera.",

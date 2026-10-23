@@ -535,7 +535,9 @@
     "addProperty": "プロパティを追加",
     "moreProperties": "その他のプロパティ（{count}個）",
     "fewerProperties": "{count}個のプロパティを非表示",
-    "propertyMenu": "{name}のオプション"
+    "propertyMenu": "{name}のオプション",
+    "commentOnProperty": "{name} にコメント",
+    "propertyComments": "{name} に未解決のコメントが {count, plural, other {# 件}}"
   },
   "rowActivity": {
     "title": "アクティビティ",

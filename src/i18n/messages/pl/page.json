@@ -72,6 +72,7 @@
   },
   "comments": {
     "aboutPage": "O tej stronie",
+    "aboutProperty": "Do „{name}”",
     "title": "Komentarze",
     "close": "Zamknij komentarze",
     "filters": {
@@ -105,7 +106,11 @@
     "mark": "Wróć później",
     "unmark": "Usuń „Wróć później”",
     "markHint": "Wątek zostaje w Oznaczonych, dopóki nie usuniesz oznaczenia. Widzisz je tylko Ty.",
-    "unmarkHint": "Usuń ten wątek z listy Oznaczonych."
+    "unmarkHint": "Usuń ten wątek z listy Oznaczonych.",
+    "onProperty": "Komentarz do „{name}”",
+    "propertyPlaceholder": "Co z tą wartością?",
+    "post": "Skomentuj",
+    "propertyGone": "Tej wartości nie można już komentować."
   },
   "archived": {
     "banner": "Ta strona jest w koszu.",

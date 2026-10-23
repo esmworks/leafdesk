@@ -13,6 +13,11 @@ export const AUTO_SNAPSHOT_INTERVAL_MS = 10 * 60 * 1000;
  */
 export const PAGE_HEADER_EVENT = "header";
 /**
+ * Sent on a database row's own document after a change to the comments on its property values,
+ * which the document doesn't hold (server/property-comments.ts): its comments load them again.
+ */
+export const PROPERTY_COMMENTS_EVENT = "property-comments";
+/**
  * Sent on a page's own document after an AI app, the chat or an agent changed its body: the page
  * view looks for changes to review (server/page-review.ts).
  */

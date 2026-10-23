@@ -1,7 +1,8 @@
 /**
  * End-to-end check of comments on pages: who may read and write them, anchoring threads to quoted
  * text, keeping anchors through server writes, cleaning comment bodies, notifications and emails to
- * the people in a thread, muting a thread's replies, and the MCP tools.
+ * the people in a thread, muting a thread's replies, threads on a row's property values (who sees
+ * them, with property and row access), and the MCP tools.
  * Creates its own users and workspace and deletes them afterwards.
  *
  *   pnpm tsx scripts/comments-e2e.ts
@@ -31,6 +32,10 @@ const { setPagePermission } = await import("@/server/permissions");
 const { flushShareEmails, setShareMailer } = await import("@/server/share-emails");
 const { setNotificationPreference } = await import("@/server/notification-preferences");
 const { mutedThreads, setThreadMuted } = await import("@/server/thread-mute");
+const { markThreadsSeen, setThreadMarked, threadStates } = await import("@/server/thread-state");
+const { addProperty, deleteProperty, restoreProperty, updateRowProperties } = await import("@/server/databases");
+const { setPropertyAccess } = await import("@/server/property-access");
+const { setRowAccess } = await import("@/server/row-access");
 const { AccessError, requirePageAccess } = await import("@/server/access");
 const { authorizeCollab } = await import("@/server/collab/authorize");
 const { InMemoryTransport } = await import("@modelcontextprotocol/server");
@@ -405,6 +410,88 @@ try {
   });
   check((await unread(ids.editor, thread.id)).length === 1, "a person an edit mentions hears about it");
   check((await mutedThreads(ids.editor, doc.id)).length === 0, "…and their mute ends");
+
+  // Comments on a row's property values: kept out of the row's document, and only for people who
+  // see the value (property access, and the row's own access).
+  const tasks = (await createPage({ userId: ids.owner }, { workspaceId, kind: "database", title: "Tasks" })).id;
+  await setPagePermission(ids.owner, tasks, ids.owner, "full");
+  await setPagePermission(ids.owner, tasks, null, "comment");
+  const assignee = await addProperty(ids.owner, tasks, { name: "Assignee", type: "person" });
+  const budget = await addProperty(ids.owner, tasks, { name: "Budget", type: "number" });
+  const row = (await createPage({ userId: ids.owner }, { workspaceId, parentId: tasks, title: "Launch" })).id;
+  await updateRowProperties(ids.owner, row, { [assignee.id]: [ids.editor], [budget.id]: 1200 });
+  await setPropertyAccess(ids.owner, budget.id, { everyone: "none", exceptions: [{ userId: ids.editor, level: "view" }] });
+
+  const onBudget = await changeComments(ids.editor, row, { type: "createThread", body: "Isn't this too high?", propertyId: budget.id });
+  const budgetThread = onBudget.thread!;
+  check(budgetThread.property?.name === "Budget", "a thread starts on a property's value", onBudget.thread);
+  check((await threadCount(row)) === 0, "…kept out of the row's document, which everyone who opens the row receives");
+  check((await listComments(ids.editor, row)).some((t) => t.id === budgetThread.id && t.property?.id === budget.id), "people who see the value read it");
+  check(!(await listComments(ids.commenter, row)).some((t) => t.id === budgetThread.id), "people who don't see the value don't");
+  check(
+    (await failure(() => changeComments(ids.commenter, row, { type: "addComment", threadId: budgetThread.id, body: "Let me in" }))) === "notFound",
+    "…nor reply to it",
+  );
+  check(
+    (await failure(() => changeComments(ids.commenter, row, { type: "createThread", body: "Hm", propertyId: budget.id }))) === "notFound",
+    "…nor start one on that value",
+  );
+  check(
+    (await failure(() => changeComments(ids.editor, doc.id, { type: "createThread", body: "Hm", propertyId: budget.id }))) === "notFound",
+    "pages that aren't rows have no property threads",
+  );
+  const onAssignee = await changeComments(ids.commenter, row, { type: "createThread", body: "Who else could take this?", propertyId: assignee.id });
+  check(onAssignee.thread?.property?.name === "Assignee", "anyone who may comment on the row discusses a value they see");
+
+  const budgetReply = await changeComments(ids.owner, row, {
+    type: "addComment",
+    threadId: budgetThread.id,
+    body: [...mention(ids.commenter, "Commenter", " and "), ...mention(ids.editor, "Editor", " see the number")],
+  });
+  check(budgetReply.comment?.userId === ids.owner, "replies go into the property's thread");
+  check((await unread(ids.editor, budgetThread.id)).length === 1, "people in the thread hear about replies");
+  check((await unread(ids.commenter, budgetThread.id)).length === 0, "…but nobody it mentions who can't see the value");
+
+  await markThreadsSeen(ids.editor, row, [budgetThread.id]);
+  check(Boolean((await threadStates(ids.editor, row)).seen[budgetThread.id]), "a property thread is marked seen like any other");
+  await setThreadMarked(ids.editor, row, budgetThread.id, true);
+  check((await threadStates(ids.editor, row)).marked.includes(budgetThread.id), "…and marked to come back to");
+  await setThreadMuted(ids.editor, row, budgetThread.id, true);
+  check((await mutedThreads(ids.editor, row)).includes(budgetThread.id), "…and muted");
+  check(
+    (await failure(() => setThreadMarked(ids.commenter, row, budgetThread.id, true))) === "notFound",
+    "people who don't see the value can't mark its thread",
+  );
+  await changeComments(ids.editor, row, { type: "resolveThread", threadId: budgetThread.id });
+  check((await listComments(ids.editor, row)).find((t) => t.id === budgetThread.id)?.resolved === true, "property threads resolve");
+
+  const listedByEditor = await callTool(ids.editor, "list_comments", { page_id: row, include_resolved: true });
+  check(
+    listedByEditor.data?.threads.some((t: { id: string; property?: string }) => t.id === budgetThread.id && t.property === "Budget"),
+    "list_comments names the property a thread is about",
+    listedByEditor.data,
+  );
+  const listedByCommenter = await callTool(ids.commenter, "list_comments", { page_id: row, include_resolved: true });
+  check(
+    !listedByCommenter.data?.threads.some((t: { id: string }) => t.id === budgetThread.id),
+    "…and leaves out threads on values the caller doesn't see",
+    listedByCommenter.data,
+  );
+
+  await deleteProperty(ids.owner, budget.id);
+  check(!(await listComments(ids.editor, row)).some((t) => t.id === budgetThread.id), "a deleted property's threads go away");
+  await restoreProperty(ids.owner, budget.id);
+  check((await listComments(ids.editor, row)).some((t) => t.id === budgetThread.id), "…and come back with it");
+
+  // Rows kept from everyone but the people they name: those left out read none of the row's threads.
+  await setRowAccess(ids.owner, tasks, { restricted: true, rules: [{ kind: "person", propertyId: assignee.id, level: "comment" }] });
+  check((await failure(() => listComments(ids.commenter, row))) === "access", "people a restricted row doesn't name read none of its threads");
+  check(
+    (await failure(() => changeComments(ids.commenter, row, { type: "addComment", threadId: onAssignee.thread!.id, body: "Still here?" }))) === "access",
+    "…nor write in them",
+  );
+  check((await listComments(ids.editor, row)).some((t) => t.id === onAssignee.thread!.id), "the people it names still do");
+  await setRowAccess(ids.owner, tasks, { restricted: false, rules: [] });
 
   // Deleting
   await changeComments(ids.owner, doc.id, { type: "addComment", threadId: thread.id, body: "Unread one." });

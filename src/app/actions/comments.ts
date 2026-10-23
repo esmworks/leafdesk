@@ -26,6 +26,16 @@ export async function changeCommentsAction(pageId: string, op: CommentOp) {
   }
 }
 
+/**
+ * The row's threads on property values the viewer sees. They aren't in the row's document (see
+ * server/property-comments.ts), so the comments load them here, and again when told they changed.
+ */
+export async function propertyThreadsAction(pageId: string) {
+  const userId = await requireUserId();
+  if (typeof pageId !== "string") return [];
+  return comments.listPropertyThreads(userId, pageId);
+}
+
 /** Who wrote, reacted to or resolved comments; an agent's name says it is one. */
 export async function commentUsersAction(pageId: string, userIds: string[]) {
   const userId = await requireUserId();

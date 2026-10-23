@@ -535,7 +535,9 @@
     "addProperty": "הוספת מאפיין",
     "moreProperties": "{count, plural, one {מאפיין נוסף אחד} two {שני מאפיינים נוספים} other {# מאפיינים נוספים}}",
     "fewerProperties": "{count, plural, one {הסתרת מאפיין אחד} two {הסתרת שני מאפיינים} other {הסתרת # מאפיינים}}",
-    "propertyMenu": "אפשרויות עבור {name}"
+    "propertyMenu": "אפשרויות עבור {name}",
+    "commentOnProperty": "תגובה על {name}",
+    "propertyComments": "{count, plural, one {תגובה פתוחה אחת} other {# תגובות פתוחות}} על {name}"
   },
   "rowActivity": {
     "title": "פעילות",

@@ -3,7 +3,7 @@ import { db } from "@/db";
 import { threadState } from "@/db/schema";
 import { CommentError } from "@/lib/comments";
 import { requirePageAccess } from "@/server/access";
-import { getCollab } from "@/server/collab/bridge";
+import { threadsVisibleTo } from "@/server/property-comments";
 
 /**
  * Each person's own state of a page's comment threads: the threads they marked to come back to
@@ -43,7 +43,7 @@ export async function markedThreads(userId: string, pageId: string): Promise<str
 export async function setThreadMarked(userId: string, pageId: string, threadId: string, marked: boolean) {
   await requirePageAccess(userId, pageId, "view");
   if (marked) {
-    const threads = await getCollab().readThreads(pageId);
+    const threads = await threadsVisibleTo(userId, pageId);
     if (!threads.some((t) => t.id === threadId)) throw new CommentError("That comment doesn't exist anymore", "notFound");
     await db
       .insert(threadState)
@@ -63,7 +63,7 @@ export async function markThreadsSeen(userId: string, pageId: string, threadIds:
   await requirePageAccess(userId, pageId, "view");
   const wanted = new Set(threadIds.filter((id) => typeof id === "string").slice(0, MAX_SEEN));
   if (!wanted.size) return;
-  const ids = (await getCollab().readThreads(pageId)).map((t) => t.id).filter((id) => wanted.has(id));
+  const ids = (await threadsVisibleTo(userId, pageId)).map((t) => t.id).filter((id) => wanted.has(id));
   if (!ids.length) return;
   await db
     .insert(threadState)

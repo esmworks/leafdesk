@@ -72,6 +72,7 @@
   },
   "comments": {
     "aboutPage": "このページについて",
+    "aboutProperty": "「{name}」について",
     "title": "コメント",
     "close": "コメントを閉じる",
     "filters": {
@@ -105,7 +106,11 @@
     "mark": "あとで見る",
     "unmark": "「あとで見る」を外す",
     "markHint": "マークを外すまで、このスレッドは「マーク済み」に残ります。あなただけに表示されます。",
-    "unmarkHint": "このスレッドを「マーク済み」から外します。"
+    "unmarkHint": "このスレッドを「マーク済み」から外します。",
+    "onProperty": "「{name}」にコメント",
+    "propertyPlaceholder": "この値について何かありますか?",
+    "post": "コメント",
+    "propertyGone": "この値にはもうコメントできません。"
   },
   "archived": {
     "banner": "このページはゴミ箱にあります。",

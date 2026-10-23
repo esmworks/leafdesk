@@ -535,7 +535,9 @@
     "addProperty": "속성 추가",
     "moreProperties": "속성 {count}개 더 보기",
     "fewerProperties": "속성 {count}개 숨기기",
-    "propertyMenu": "{name} 옵션"
+    "propertyMenu": "{name} 옵션",
+    "commentOnProperty": "{name}에 댓글 달기",
+    "propertyComments": "{name}에 열린 댓글 {count, plural, other {#개}}"
   },
   "rowActivity": {
     "title": "활동",

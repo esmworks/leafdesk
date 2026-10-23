@@ -535,7 +535,9 @@
     "addProperty": "添加属性",
     "moreProperties": "另外 {count} 个属性",
     "fewerProperties": "隐藏 {count} 个属性",
-    "propertyMenu": "{name} 的选项"
+    "propertyMenu": "{name} 的选项",
+    "commentOnProperty": "评论 {name}",
+    "propertyComments": "{name} 上有 {count, plural, other {# 条}}未解决的评论"
   },
   "rowActivity": {
     "title": "动态",

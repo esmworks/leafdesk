@@ -42,6 +42,7 @@ vi.mock("@/server/row-follow", () => ({ followOnTakingPart: vi.fn() }));
 vi.mock("@/server/workspaces", () => ({ workspacePeople: vi.fn() }));
 vi.mock("@/server/agents/users", () => ({ agentMarks: vi.fn(), markOf: vi.fn() }));
 vi.mock("@/server/thread-state", () => ({ forgetThreadStates: vi.fn() }));
+vi.mock("@/server/property-comments", () => ({ propertyThreadOf: async () => null, seersOf: vi.fn(), propertyCommentOp: vi.fn(), threadsVisibleTo: vi.fn() }));
 vi.mock("@/server/thread-mute", () => {
   const of = (threadId: string) => state.mutes.get(threadId) ?? new Set<string>();
   return {

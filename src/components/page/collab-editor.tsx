@@ -35,7 +35,7 @@ import { yUndoPluginKey } from "y-prosemirror";
 import type * as Y from "yjs";
 import type { UndoManager } from "yjs";
 import { useEditorDictionary } from "@/i18n/blocknote";
-import { COLLAB_FRAGMENT } from "@/lib/collab-constants";
+import { COLLAB_FRAGMENT, PROPERTY_COMMENTS_EVENT } from "@/lib/collab-constants";
 import { formatBytes } from "@/lib/files";
 import { THREADS_MAP, type CommentAnchor } from "@/lib/comments";
 import { CommentComponents, commentEditorSchema } from "./comment-mentions";
@@ -101,6 +101,7 @@ export default function CollabEditor({
   nested = false,
   fragment = COLLAB_FRAGMENT,
   syncedBlock = false,
+  row = false,
 }: {
   pageDoc: PageDoc;
   user: { id: string; name: string };
@@ -133,6 +134,8 @@ export default function CollabEditor({
   fragment?: string;
   /** The editor of a synced block's blocks: no synced block may go in it. */
   syncedBlock?: boolean;
+  /** The page is a database row: its comments include the threads on its property values. */
+  row?: boolean;
 }) {
   const locale = useLocale();
   const colorScheme = useColorScheme();
@@ -171,7 +174,21 @@ export default function CollabEditor({
   const auth = useMemo(() => new CommentAuth(), []);
   auth.set(user.id, level);
   const canComment = level !== "view";
-  const threadStore = useMemo(() => new ServerThreadStore(pageId, pageDoc.doc.getMap(THREADS_MAP), auth), [pageId, pageDoc, auth]);
+  const threadStore = useMemo(
+    () => new ServerThreadStore(pageId, pageDoc.doc.getMap(THREADS_MAP), auth, row && !nested),
+    [pageId, pageDoc, auth, row, nested],
+  );
+  // A row's threads on its property values, loaded now and whenever someone changes them.
+  useEffect(() => {
+    if (!row || nested) return;
+    void threadStore.loadPropertyThreads();
+    const provider = pageDoc.provider;
+    const onStateless = ({ payload }: { payload: string }) => {
+      if (payload === PROPERTY_COMMENTS_EVENT) void threadStore.loadPropertyThreads();
+    };
+    provider.on("stateless", onStateless);
+    return () => void provider.off("stateless", onStateless);
+  }, [row, nested, threadStore, pageDoc]);
   const comments = useMemo(
     () => CommentsExtension({ threadStore, resolveUsers: (ids: string[]) => commentUsersAction(pageId, ids), schema: commentEditorSchema }),
     [pageId, threadStore],
@@ -336,7 +353,7 @@ export default function CollabEditor({
               <CommentComponents pageId={pageId}>
                 <FloatingComposerController />
                 <FloatingThreadController />
-                {commentsOpen && <CommentsPanel pageId={pageId} onClose={onCloseComments} />}
+                {commentsOpen && <CommentsPanel pageId={pageId} store={threadStore} onClose={onCloseComments} />}
               </CommentComponents>
               <EditorFiles editor={editor} editable={editable} />
             </BlockNoteView>

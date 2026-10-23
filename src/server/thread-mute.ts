@@ -3,7 +3,7 @@ import { db } from "@/db";
 import { threadMute } from "@/db/schema";
 import { CommentError } from "@/lib/comments";
 import { requirePageAccess } from "@/server/access";
-import { getCollab } from "@/server/collab/bridge";
+import { threadsVisibleTo } from "@/server/property-comments";
 
 /**
  * Muting the replies in one comment thread: the person no longer hears about new comments there
@@ -25,7 +25,7 @@ export async function mutedThreads(userId: string, pageId: string): Promise<stri
 export async function setThreadMuted(userId: string, pageId: string, threadId: string, muted: boolean) {
   await requirePageAccess(userId, pageId, "view");
   if (muted) {
-    const threads = await getCollab().readThreads(pageId);
+    const threads = await threadsVisibleTo(userId, pageId);
     if (!threads.some((t) => t.id === threadId)) throw new CommentError("That comment doesn't exist anymore", "notFound");
     await db.insert(threadMute).values({ pageId, threadId, userId }).onConflictDoNothing();
   } else {

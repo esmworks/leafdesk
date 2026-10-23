@@ -622,6 +622,7 @@ export function PageView({
                   crumbs={trail}
                   commentsOpen={commentsOpen && !offline}
                   onCloseComments={() => setCommentsOpen(false)}
+                  row={page.isRow}
                   offline={offline}
                   ai={info.ai && editable && !offline && !page.archived}
                   voice={editable && !offline && !page.archived ? info.voice : null}

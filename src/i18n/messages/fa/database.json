@@ -535,7 +535,9 @@
     "addProperty": "افزودن ویژگی",
     "moreProperties": "{count, plural, one {# ویژگی دیگر} other {# ویژگی دیگر}}",
     "fewerProperties": "{count, plural, one {پنهان کردن # ویژگی} other {پنهان کردن # ویژگی}}",
-    "propertyMenu": "گزینه‌های {name}"
+    "propertyMenu": "گزینه‌های {name}",
+    "commentOnProperty": "نظر دربارهٔ {name}",
+    "propertyComments": "{count, plural, one {# نظر باز} other {# نظر باز}} دربارهٔ {name}"
   },
   "rowActivity": {
     "title": "فعالیت",

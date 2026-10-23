@@ -72,6 +72,7 @@
   },
   "comments": {
     "aboutPage": "이 페이지에 대한 댓글",
+    "aboutProperty": "‘{name}’에 대해",
     "title": "댓글",
     "close": "댓글 닫기",
     "filters": {
@@ -105,7 +106,11 @@
     "mark": "나중에 보기",
     "unmark": "“나중에 보기” 해제",
     "markHint": "표시를 해제할 때까지 이 스레드는 표시됨 목록에 남습니다. 나에게만 보입니다.",
-    "unmarkHint": "이 스레드를 표시됨 목록에서 뺍니다."
+    "unmarkHint": "이 스레드를 표시됨 목록에서 뺍니다.",
+    "onProperty": "‘{name}’에 댓글 달기",
+    "propertyPlaceholder": "이 값에 대해 어떻게 생각하세요?",
+    "post": "댓글",
+    "propertyGone": "이 값에는 더 이상 댓글을 달 수 없습니다."
   },
   "archived": {
     "banner": "이 페이지는 휴지통에 있습니다.",

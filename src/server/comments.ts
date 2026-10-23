@@ -26,6 +26,7 @@ import { workspacePeople } from "@/server/workspaces";
 import { agentMarks, markOf } from "@/server/agents/users";
 import { startMentionRuns } from "@/server/agents/mentions";
 import { redactError } from "@/lib/redact";
+import { propertyCommentOp, propertyThreadOf, propertyThreadsFor, seersOf, threadsVisibleTo } from "@/server/property-comments";
 
 /**
  * Comments on pages. Anyone who can view a page reads its comments; anyone who can comment on it
@@ -33,7 +34,9 @@ import { redactError } from "@/lib/redact";
  * BlockNote's "editor" role; everyone else edits and deletes only their own.
  *
  * Every change goes through the server, which writes it into the page's live document, so browsers
- * never write comments themselves and who wrote what can be trusted.
+ * never write comments themselves and who wrote what can be trusted. Threads on a database row's
+ * property values are kept apart (server/property-comments.ts) and follow that property's access
+ * too: only people who see the value read, write and hear about them.
  */
 
 /** Someone in a page's comments. Agents (see server/agents) are marked, with their icon. */
@@ -73,6 +76,7 @@ function cleanAnchor(anchor: unknown): CommentAnchor | undefined {
 function cleanOp(op: CommentOp): CommentOp {
   switch (op?.type) {
     case "createThread": {
+      if (op.propertyId !== undefined) return { type: "createThread", body: cleanCommentBody(op.body), propertyId: id(op.propertyId) };
       const anchor = cleanAnchor(op.anchor);
       return { type: "createThread", body: cleanCommentBody(op.body), ...(anchor ? { anchor } : {}) };
     }
@@ -94,10 +98,16 @@ function cleanOp(op: CommentOp): CommentOp {
   }
 }
 
-/** The page's comment threads, oldest first. */
+/** The page's comment threads, oldest first, with those on property values `userId` sees. */
 export async function listComments(userId: string, pageId: string): Promise<PlainThread[]> {
   await requirePageAccess(userId, pageId, "view");
-  return getCollab().readThreads(pageId);
+  return threadsVisibleTo(userId, pageId);
+}
+
+/** The row's threads on property values that `userId` sees, oldest first (none for other pages). */
+export async function listPropertyThreads(userId: string, pageId: string): Promise<PlainThread[]> {
+  await requirePageAccess(userId, pageId, "view");
+  return propertyThreadsFor(userId, pageId);
 }
 
 /**
@@ -114,7 +124,13 @@ export async function changeComments(userId: string, pageId: string, op: Comment
   const mentioned = op?.type === "addComment" || op?.type === "createThread" || op?.type === "updateComment" ? commentMentions(op.body) : [];
   const clean = cleanOp(op);
   const role = hasLevel(level, "full") ? "editor" : "comment";
-  const result = await getCollab().commentOp(pageId, { userId, role }, clean);
+  // A thread on a property value: a new one names its property, others are looked up by id.
+  const propertyId = clean.type === "createThread" ? (clean.propertyId ?? null) : await propertyThreadOf(pageId, clean.threadId);
+  const result = propertyId
+    ? await propertyCommentOp(pageId, { userId, role }, clean, propertyId)
+    : await getCollab().commentOp(pageId, { userId, role }, clean);
+  // Only people who see the property's value hear about comments on it.
+  const hearing = (ids: string[]) => (propertyId ? seersOf(pageId, propertyId, ids) : Promise.resolve(ids));
 
   if ((clean.type === "createThread" || clean.type === "addComment") && result.thread && result.comment) {
     // Everyone who wrote in the thread before hears about a reply, but those who muted it (see
@@ -132,7 +148,7 @@ export async function changeComments(userId: string, pageId: string, op: Comment
       await unmuteThread(pageId, result.thread.id, audience.unmute);
       recipients = audience.notify;
     }
-    await recordComment(userId, target.workspaceId, pageId, result.thread.id, recipients);
+    await recordComment(userId, target.workspaceId, pageId, result.thread.id, await hearing(recipients));
     // Commenting on a database row follows it (server/row-follow).
     await followOnTakingPart(pageId, [userId]);
     // Agents it mentions answer in the thread (server/agents/mentions); an edit starts none.
@@ -142,17 +158,17 @@ export async function changeComments(userId: string, pageId: string, op: Comment
       pageId,
       threadId: result.thread.id,
       commentId: result.comment.id,
-      mentioned,
+      mentioned: await hearing(mentioned),
       text: commentText(clean.body),
     }).catch((error) => console.error("[comments] could not start the runs of agents a comment mentions", redactError(error)));
   } else if (clean.type === "updateComment" && mentioned.length) {
     // People an edit mentions hear about it like any other mention, and it ends their mute.
     await unmuteThread(pageId, clean.threadId, mentioned);
-    await recordComment(userId, target.workspaceId, pageId, clean.threadId, mentioned);
+    await recordComment(userId, target.workspaceId, pageId, clean.threadId, await hearing(mentioned));
   } else if (clean.type === "addReaction" || clean.type === "deleteReaction") {
     // The comment's author hears about reactions by others (server/notifications recordReaction).
     const reaction = reactionTarget(result.thread, clean.commentId, userId, clean.emoji);
-    if (reaction) {
+    if (reaction && (await hearing([reaction.authorId])).length) {
       const about = { pageId, threadId: clean.threadId, commentId: clean.commentId, authorId: reaction.authorId, emoji: clean.emoji };
       if (clean.type === "addReaction" && reaction.reacted) await recordReaction(userId, target.workspaceId, { ...about, excerpt: reaction.excerpt });
       else if (clean.type === "deleteReaction" && !reaction.reacted) await withdrawReaction(userId, target.workspaceId, about);
@@ -177,7 +193,7 @@ export async function commentUsers(userId: string, pageId: string, userIds: stri
   const target = await requirePageAccess(userId, pageId, "view");
   const wanted = Array.isArray(userIds) ? [...new Set(userIds.filter((v) => typeof v === "string"))].slice(0, 200) : [];
   if (!wanted.length) return [];
-  const threads = await getCollab().readThreads(pageId);
+  const threads = await threadsVisibleTo(userId, pageId);
   const inThreads = new Set(
     threads.flatMap((t) => [...(t.resolvedBy ? [t.resolvedBy] : []), ...t.comments.flatMap((c) => [c.userId, ...c.reactions.flatMap((r) => r.userIds)])]),
   );

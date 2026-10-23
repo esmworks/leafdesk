@@ -535,7 +535,9 @@
     "addProperty": "Dodaj właściwość",
     "moreProperties": "{count, plural, one {Jeszcze # właściwość} few {Jeszcze # właściwości} many {Jeszcze # właściwości} other {Jeszcze # właściwości}}",
     "fewerProperties": "{count, plural, one {Ukryj # właściwość} few {Ukryj # właściwości} many {Ukryj # właściwości} other {Ukryj # właściwości}}",
-    "propertyMenu": "Opcje: {name}"
+    "propertyMenu": "Opcje: {name}",
+    "commentOnProperty": "Skomentuj {name}",
+    "propertyComments": "{count, plural, one {# otwarty komentarz} few {# otwarte komentarze} many {# otwartych komentarzy} other {# otwartego komentarza}} do {name}"
   },
   "rowActivity": {
     "title": "Aktywność",

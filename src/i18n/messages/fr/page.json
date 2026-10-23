@@ -72,6 +72,7 @@
   },
   "comments": {
     "aboutPage": "À propos de cette page",
+    "aboutProperty": "Sur « {name} »",
     "title": "Commentaires",
     "close": "Fermer les commentaires",
     "filters": {
@@ -105,7 +106,11 @@
     "mark": "Revenir plus tard",
     "unmark": "Retirer « Revenir plus tard »",
     "markHint": "Le fil reste dans Marqués jusqu’à ce que vous retiriez la marque. Vous seul la voyez.",
-    "unmarkHint": "Retirer ce fil de votre liste Marqués."
+    "unmarkHint": "Retirer ce fil de votre liste Marqués.",
+    "onProperty": "Commenter « {name} »",
+    "propertyPlaceholder": "Qu’en est-il de cette valeur ?",
+    "post": "Commenter",
+    "propertyGone": "Cette valeur ne peut plus être commentée."
   },
   "archived": {
     "banner": "Cette page est dans la corbeille.",

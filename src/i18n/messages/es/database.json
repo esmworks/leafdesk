@@ -535,7 +535,9 @@
     "addProperty": "Añadir propiedad",
     "moreProperties": "{count, plural, one {# propiedad más} other {# propiedades más}}",
     "fewerProperties": "{count, plural, one {Ocultar # propiedad} other {Ocultar # propiedades}}",
-    "propertyMenu": "Opciones de {name}"
+    "propertyMenu": "Opciones de {name}",
+    "commentOnProperty": "Comentar {name}",
+    "propertyComments": "{count, plural, one {# comentario abierto} other {# comentarios abiertos}} sobre {name}"
   },
   "rowActivity": {
     "title": "Actividad",
