@@ -13,6 +13,7 @@ import { pdfFileId, spreadsheetFileId } from "@/lib/files";
 import { BOOKMARK_BLOCK, embedFor, isWebBlockType, parseWebUrl, type EmbedTarget } from "@/lib/web-blocks";
 import { bodyReferences, isBlockId, isPageBlockType, MENTION, mentionPlainText, mentionProps, PAGE_LINK_BLOCK } from "@/lib/mentions";
 import { withoutSyncedBlocks } from "@/lib/synced-blocks";
+import { IMAGE_BLOCK, parseImageLink } from "@/lib/image-links";
 import { serverEditor as editor, type PageBlock } from "@/server/blocknote";
 
 /**
@@ -82,6 +83,8 @@ function sanitizeValue(value: Json): Json {
     if (key === "props" && child && typeof child === "object" && !Array.isArray(child)) {
       const props = { ...(child as Record<string, Json>) };
       if ("url" in props && !isSafeMediaUrl(props.url)) props.url = "";
+      // An image's link: a web address, or a page of the app (resolveMentions decides what it becomes).
+      if ("link" in props && !parseImageLink(props.link)) props.link = "";
       next[key] = props;
     } else {
       next[key] = sanitizeValue(child);
@@ -151,6 +154,11 @@ function resolveMentions(blocks: PageBlock[], refs: Map<string, PublishedPageRef
       const at = block.type === PAGE_LINK_BLOCK && typeof blockId === "string" ? blockId : "";
       const content = pageRefInline(refs.get(String(pageId ?? "")), at);
       return { id: block.id, type: "paragraph", props: {}, content, children } as unknown as PageBlock;
+    }
+    if (block.type === IMAGE_BLOCK) {
+      // An image linking to a page links to it where it is published, or to nothing.
+      const link = parseImageLink((block.props as { link?: unknown }).link);
+      if (link?.kind === "page") return { ...block, props: { ...block.props, link: refs.get(link.pageId)?.href ?? "" }, children } as PageBlock;
     }
     return { ...block, content: resolveInline(block.content as Json, refs), children } as PageBlock;
   });
@@ -498,6 +506,20 @@ export type BodyOptions = {
   calloutStyles?: readonly CalloutStyle[];
 };
 
+/** The pages the body's images link to. */
+function imageLinkPages(blocks: PageBlock[]): string[] {
+  const out: string[] = [];
+  const walk = (list: PageBlock[]) => {
+    for (const block of list) {
+      const link = block.type === IMAGE_BLOCK ? parseImageLink((block.props as { link?: unknown }).link) : null;
+      if (link?.kind === "page") out.push(link.pageId);
+      if (block.children?.length) walk(block.children);
+    }
+  };
+  walk(blocks);
+  return out;
+}
+
 /** The blocks without the callouts hidden in print, in columns and nested blocks too. */
 function withoutHiddenInPrint(blocks: PageBlock[]): PageBlock[] {
   return blocks.flatMap((block): PageBlock[] => {
@@ -524,7 +546,7 @@ export async function bodySegmentsFromBlocks(
 ): Promise<BodySegment[]> {
   const expanded = applyCalloutStyles(expandSynced ? await expandSynced(body) : withoutSyncedBlocks(body), calloutStyles);
   const blocks = print ? withoutHiddenInPrint(expanded) : expanded;
-  const { pageIds } = bodyReferences(blocks);
+  const pageIds = [...new Set([...bodyReferences(blocks).pageIds, ...imageLinkPages(blocks)])];
   const refs = pageIds.length && resolvePages ? await resolvePages(pageIds) : new Map<string, PublishedPageRef>();
   // Every heading of the page, filled in as the runs are written; tables of contents share it.
   const headings: BodyHeading[] = [];

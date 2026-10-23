@@ -59,6 +59,7 @@ import { SyncedFrameProvider, useSyncedFrame, useSyncedPageSlashItem } from "./s
 import { pasteSyncedBlock, useSyncedBlockSlashItem } from "./synced-block";
 import { pasteAgentChat, useAgentChatSlashItem } from "./agent-chat-block";
 import { PasteLinkMenu, useWebSlashItems } from "./web-blocks";
+import { ImageLinkContext, ImageLinkDialog } from "./image-link";
 import { useColorSlashItems } from "./slash-colors";
 import { withTextScriptButtons } from "./text-scripts";
 import { withSideAlignButtons } from "./align-buttons";
@@ -147,6 +148,8 @@ export default function CollabEditor({
   const [linkAt, setLinkAt] = useState<{ at: string; type: typeof PAGE_LINK_BLOCK | typeof SYNCED_PAGE_BLOCK } | null>(null);
   const pickLink = useCallback((at: string) => setLinkAt({ at, type: PAGE_LINK_BLOCK }), []);
   const pickSynced = useCallback((at: string) => setLinkAt({ at, type: SYNCED_PAGE_BLOCK }), []);
+  // The image block whose link is being set ("Link…" in its block menu).
+  const [linkImageAt, setLinkImageAt] = useState<string | null>(null);
   const tSynced = useTranslations("page.blocks.syncedPage");
   const tSyncedBlock = useTranslations("page.syncedBlock");
   // The pages shown around this editor, for the synced pages in it (see synced-page.tsx).
@@ -296,7 +299,9 @@ export default function CollabEditor({
               */}
               {!nested && (
                 <SaveAsSnippetContext.Provider value={snippets.save}>
-                  <SideMenuController sideMenu={sideMenu} floatingUIOptions={sideMenuPlacement} />
+                  <ImageLinkContext.Provider value={setLinkImageAt}>
+                    <SideMenuController sideMenu={sideMenu} floatingUIOptions={sideMenuPlacement} />
+                  </ImageLinkContext.Provider>
                 </SaveAsSnippetContext.Provider>
               )}
               <SlashMenu
@@ -363,6 +368,7 @@ export default function CollabEditor({
             setPickAt(null);
           }}
         />
+        <ImageLinkDialog editor={editor} blockId={linkImageAt} workspaceId={workspaceId} pageId={pageId} onClose={() => setLinkImageAt(null)} />
         <PagePicker
           open={linkAt !== null}
           pageId={pageId}

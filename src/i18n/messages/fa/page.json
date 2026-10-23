@@ -571,6 +571,17 @@
     "addTitle": "افزودن عنوان",
     "removeTitle": "حذف عنوان"
   },
+  "imageLink": {
+    "menuItem": "پیوند…",
+    "editMenuItem": "ویرایش پیوند…",
+    "title": "پیوند دادن تصویر",
+    "urlLabel": "نشانی وب",
+    "toPage": "به صفحهٔ «{title}» پیوند می‌دهد",
+    "invalid": "نشانی وبی وارد کنید که با http:// یا https:// شروع شود، یا صفحه‌ای را انتخاب کنید.",
+    "pickPage": "پیوند به یک صفحه…",
+    "remove": "حذف پیوند",
+    "open": "باز کردن پیوند"
+  },
   "pdf": {
     "untitled": "PDF",
     "openInNewTab": "باز کردن در زبانه جدید",

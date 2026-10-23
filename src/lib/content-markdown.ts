@@ -25,6 +25,7 @@ import {
 import { DASHBOARD_BLOCK, dashboardLine, parseDashboardLine } from "./dashboard";
 import { AGENT_CHAT_BLOCK, agentChatLine, newChatId, parseAgentChatLine } from "./agent-chat";
 import { BLOCK_COLORS } from "./block-colors";
+import { IMAGE_BLOCK, linkedImageMarkdown, parseLinkedImageLine } from "./image-links";
 import { calloutKey, calloutTitle } from "./callout-styles";
 import { TEXT_SCRIPT_TAGS, TEXT_SCRIPTS, type TextScript } from "./text-scripts";
 import { BOOKMARK_BLOCK, markdownLinkDestination, markdownLinkText, parseWebUrl, WEB_EMBED_BLOCK } from "./web-blocks";
@@ -283,6 +284,11 @@ export function prepareMarkdownExport<B extends MdBlock>(
           const agentId = String(block.props?.agentId ?? "");
           return paragraph(agentId ? blockToken(agentChatLine(agentId, String(block.props?.chatId ?? ""))) : "");
         }
+        case IMAGE_BLOCK: {
+          // An image in a link is written as one (BlockNote's Markdown would keep only the link).
+          const linked = linkedImageMarkdown(block.props);
+          return linked ? paragraph(blockToken(linked)) : { ...block, children };
+        }
         case BREADCRUMB_BLOCK:
           return paragraph(blockToken("<!-- leafdesk:breadcrumb -->"));
         case SUBPAGES_BLOCK:
@@ -453,6 +459,7 @@ type Pending =
   | { type: typeof COLUMN_BLOCK; marker: ColumnMarker }
   | { type: typeof DASHBOARD_BLOCK; id: string }
   | { type: typeof AGENT_CHAT_BLOCK; agentId: string; chatId: string }
+  | { type: typeof IMAGE_BLOCK; url: string; name: string; caption: string; link: string }
   | { type: typeof SYNCED_BLOCK; pageId: string; syncId: string };
 
 const FENCE_OPEN = /^ {0,3}(`{3,}|~{3,})/;
@@ -531,6 +538,11 @@ export function prepareMarkdownImport(markdown: string, nonce: string, { appUrl 
     const agentChat = parseAgentChatLine(line);
     if (agentChat) {
       blockLine({ type: AGENT_CHAT_BLOCK, ...agentChat });
+      continue;
+    }
+    const image = parseLinkedImageLine(line, appUrl);
+    if (image) {
+      blockLine({ type: IMAGE_BLOCK, ...image });
       continue;
     }
     const web = WEB_LINE.exec(line);
@@ -833,6 +845,8 @@ export async function finishMarkdownImport<B extends MdBlock>(
       case AGENT_CHAT_BLOCK:
         // A line without a chat id (written by hand, or by MCP) starts the block's conversations afresh.
         return { type: AGENT_CHAT_BLOCK, props: { agentId: pending.agentId, chatId: pending.chatId || newChatId() }, children: [] } as unknown as B;
+      case IMAGE_BLOCK:
+        return { type: IMAGE_BLOCK, props: { url: pending.url, name: pending.name, caption: pending.caption, link: pending.link }, children: [] } as unknown as B;
       case DASHBOARD_BLOCK:
         // Only the id: the page's dashboard with it comes back whole (lib/dashboard restoreDashboards).
         return { id: pending.id, type: DASHBOARD_BLOCK, props: {}, children: [] } as unknown as B;

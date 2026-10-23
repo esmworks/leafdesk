@@ -34,6 +34,7 @@ import { DatabaseEmbed, useEmbedHost } from "./database-embed";
 import { FileBlock } from "./file-block";
 import { webBlockSpecs } from "./web-blocks";
 import { textScriptStyleSpecs } from "@/lib/text-scripts";
+import { linkedImageSpec } from "@/lib/image-links";
 
 export { DatabasePicker } from "./database-picker";
 
@@ -83,6 +84,8 @@ const LinkedViewBlock = createReactBlockSpec(linkedViewBlockConfig, {
 export const pageEditorSchema = BlockNoteSchema.create({
   blockSpecs: {
     ...defaultBlockSpecs,
+    // Images may link to a web address or a page (lib/image-links; editor-files.tsx opens it).
+    image: linkedImageSpec(),
     // A language menu and colored code (see code-block.tsx).
     codeBlock: CodeBlock(),
     database: DatabaseBlock(),

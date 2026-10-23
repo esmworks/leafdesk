@@ -571,6 +571,17 @@
     "addTitle": "Başlık ekle",
     "removeTitle": "Başlığı kaldır"
   },
+  "imageLink": {
+    "menuItem": "Bağlantı…",
+    "editMenuItem": "Bağlantıyı düzenle…",
+    "title": "Görsele bağlantı ver",
+    "urlLabel": "Web adresi",
+    "toPage": "“{title}” sayfasına bağlanıyor",
+    "invalid": "http:// veya https:// ile başlayan bir web adresi girin ya da bir sayfa seçin.",
+    "pickPage": "Bir sayfaya bağla…",
+    "remove": "Bağlantıyı kaldır",
+    "open": "Bağlantıyı aç"
+  },
   "pdf": {
     "untitled": "PDF",
     "openInNewTab": "Yeni sekmede aç",

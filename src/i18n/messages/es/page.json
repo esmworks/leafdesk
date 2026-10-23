@@ -571,6 +571,17 @@
     "addTitle": "Añadir título",
     "removeTitle": "Quitar título"
   },
+  "imageLink": {
+    "menuItem": "Enlace…",
+    "editMenuItem": "Editar enlace…",
+    "title": "Enlazar la imagen",
+    "urlLabel": "Dirección web",
+    "toPage": "Enlaza a la página «{title}»",
+    "invalid": "Escribe una dirección web que empiece por http:// o https://, o elige una página.",
+    "pickPage": "Enlazar a una página…",
+    "remove": "Quitar enlace",
+    "open": "Abrir enlace"
+  },
   "pdf": {
     "untitled": "PDF",
     "openInNewTab": "Abrir en una pestaña nueva",

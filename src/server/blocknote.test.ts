@@ -219,6 +219,45 @@ describe("published body segments", () => {
     expect(html).not.toContain("\uFFFC");
     expect(html).toContain("<p><br></p>");
   });
+
+  it("wrap linked images in their link: a web address, or a page where it is published", async () => {
+    const doc = docFrom([
+      { type: "image", props: { url: "https://x.test/a.png", name: "Web", link: "https://example.com/x" } },
+      { type: "image", props: { url: "https://x.test/b.png", name: "Shared", link: "/w/ws1/p/shared" } },
+      { type: "image", props: { url: "https://x.test/c.png", name: "Private", link: "/w/ws1/p/private" } },
+    ]);
+    const resolvePages = async (ids: string[]) => new Map(ids.map((id) => [id, { text: id, href: id === "shared" ? "/s/token/shared" : null }]));
+    const html = (await bodySegmentsFromYdoc(Y.encodeStateAsUpdate(doc), { resolvePages })).map((s) => (s.kind === "html" ? s.html : "")).join("");
+    expect(html).toMatch(/<a href="https:\/\/example.com\/x"[^>]*><img src="https:\/\/x.test\/a.png"/);
+    expect(html).toMatch(/<a href="\/s\/token\/shared"[^>]*><img src="https:\/\/x.test\/b.png"/);
+    expect(html).not.toContain("/w/ws1/p/");
+    expect(html).toContain('src="https://x.test/c.png"');
+  });
+});
+
+describe("linked images", () => {
+  it("round-trip through Markdown, a caption and a page link too", async () => {
+    const blocks = [
+      { type: "image", props: { url: "https://x.test/a.png", name: "Chart", link: "https://example.com/x" } },
+      { type: "image", props: { url: "/api/files/f1", name: "Plan", caption: "Draft", link: "/w/ws1/p/page-1" } },
+    ] as unknown as PageBlock[];
+    const markdown = await blocksToMarkdown(blocks);
+    expect(markdown).toContain("[![Chart](https://x.test/a.png)](https://example.com/x)");
+    const back = await markdownToBlocks(markdown);
+    expect(back.map((b) => b.props)).toMatchObject([
+      { url: "https://x.test/a.png", name: "Chart", link: "https://example.com/x" },
+      { url: "/api/files/f1", name: "Plan", caption: "Draft", link: "/w/ws1/p/page-1" },
+    ]);
+  });
+
+  it("keep their link through the Yjs document, and read a pasted image in a link", async () => {
+    const doc = docFrom([{ type: "image", props: { url: "https://x.test/a.png", link: "https://example.com/x" } }]);
+    expect(read(doc)[0].props).toMatchObject({ link: "https://example.com/x" });
+    const pasted = await serverEditor.tryParseHTMLToBlocks('<a href="https://example.com/y"><img src="https://x.test/b.png" alt="B"></a>');
+    expect(pasted[0]).toMatchObject({ type: "image", props: { url: "https://x.test/b.png", link: "https://example.com/y" } });
+    const unsafe = await serverEditor.tryParseHTMLToBlocks('<a href="javascript:alert(1)"><img src="https://x.test/b.png"></a>');
+    expect(unsafe[0]).toMatchObject({ type: "image", props: { link: "" } });
+  });
 });
 
 describe("linked view settings", () => {

@@ -571,6 +571,17 @@
     "addTitle": "タイトルを追加",
     "removeTitle": "タイトルを削除"
   },
+  "imageLink": {
+    "menuItem": "リンク…",
+    "editMenuItem": "リンクを編集…",
+    "title": "画像にリンクを設定",
+    "urlLabel": "Web アドレス",
+    "toPage": "ページ「{title}」へのリンク",
+    "invalid": "http:// または https:// で始まる Web アドレスを入力するか、ページを選んでください。",
+    "pickPage": "ページにリンク…",
+    "remove": "リンクを削除",
+    "open": "リンクを開く"
+  },
   "pdf": {
     "untitled": "PDF",
     "openInNewTab": "新しいタブで開く",

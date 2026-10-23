@@ -38,6 +38,7 @@ import { agentChatBlockConfig } from "@/lib/agent-chat";
 import { markdownToPageBlocks } from "@/lib/page-markdown";
 import { textScriptStyleSpecs } from "@/lib/text-scripts";
 import { syncedBlockConfig } from "@/lib/synced-blocks";
+import { linkedImageSpec } from "@/lib/image-links";
 import { webBlockServerSpecs } from "./web-blocks";
 
 /**
@@ -167,6 +168,8 @@ const mention = createInlineContentSpec(mentionConfig, {
 export const pageSchema = BlockNoteSchema.create({
   blockSpecs: {
     ...defaultBlockSpecs,
+    // Images may link to a web address or a page (lib/image-links).
+    image: linkedImageSpec(),
     database: createBlockSpec(databaseBlockConfig, marker("database"))(),
     linkedView: createBlockSpec(linkedViewBlockConfig, marker("linkedView"))(),
     dashboard: createBlockSpec(dashboardBlockConfig, marker("dashboard"))(),

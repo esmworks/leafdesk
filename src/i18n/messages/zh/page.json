@@ -571,6 +571,17 @@
     "addTitle": "添加标题",
     "removeTitle": "移除标题"
   },
+  "imageLink": {
+    "menuItem": "链接…",
+    "editMenuItem": "编辑链接…",
+    "title": "为图片添加链接",
+    "urlLabel": "网址",
+    "toPage": "链接到页面“{title}”",
+    "invalid": "请输入以 http:// 或 https:// 开头的网址，或选择一个页面。",
+    "pickPage": "链接到页面…",
+    "remove": "移除链接",
+    "open": "打开链接"
+  },
   "pdf": {
     "untitled": "PDF",
     "openInNewTab": "在新标签页中打开",

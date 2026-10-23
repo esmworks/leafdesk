@@ -571,6 +571,17 @@
     "addTitle": "הוספת כותרת",
     "removeTitle": "הסרת הכותרת"
   },
+  "imageLink": {
+    "menuItem": "קישור…",
+    "editMenuItem": "עריכת קישור…",
+    "title": "קישור התמונה",
+    "urlLabel": "כתובת אינטרנט",
+    "toPage": "מקשר לדף „{title}”",
+    "invalid": "יש להזין כתובת אינטרנט שמתחילה ב־http:// או https://, או לבחור דף.",
+    "pickPage": "קישור לדף…",
+    "remove": "הסרת הקישור",
+    "open": "פתיחת הקישור"
+  },
   "pdf": {
     "untitled": "PDF",
     "openInNewTab": "פתיחה בכרטיסייה חדשה",

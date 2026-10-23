@@ -1,13 +1,15 @@
 "use client";
 
 import { useEditorDOMElement, useEditorSelectionChange } from "@blocknote/react";
-import { Maximize2 } from "lucide-react";
+import { Link2, Maximize2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useLayoutEffect, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { plainClick, uploadedPath, useFileViewer, type ViewerFile } from "@/components/file-viewer";
 import type { UrlKind } from "@/lib/file-viewer";
 import { pdfFileId } from "@/lib/files";
+import { parseImageLink, type ImageLink } from "@/lib/image-links";
 import type { PageEditor } from "./embed-blocks";
 
 /**
@@ -18,6 +20,9 @@ import type { PageEditor } from "./embed-blocks";
  * `data-file-view`). An image opens with a click where the page can't be edited; where it can, a
  * click selects the image (to resize it, caption it or replace it), so an expand button shows over
  * the image under the pointer or selected, and a double click opens it too.
+ *
+ * An image that links somewhere (lib/image-links) gets a link button beside it the same way, and
+ * where the page can't be edited a click on it follows the link instead of opening the viewer.
  */
 
 type Block = { id: string; type: string; props: Record<string, unknown>; children?: Block[] };
@@ -51,6 +56,13 @@ function editorFiles(blocks: Block[]): (ViewerFile & { blockId: string })[] {
   return found;
 }
 
+/** The link of the image block `image` is the picture of, if it has one. */
+function linkOfImage(editor: PageEditor, image: HTMLImageElement): ImageLink | null {
+  const id = image.closest("[data-id]")?.getAttribute("data-id");
+  const block = id ? editor.getBlock(id) : undefined;
+  return block?.type === "image" ? parseImageLink((block.props as { link?: unknown }).link) : null;
+}
+
 /** The image of an image block an element is in (the picture itself, not its caption), or null. */
 const imageOf = (element: Element | null) => {
   const block = element?.closest('[data-content-type="image"]');
@@ -60,6 +72,8 @@ const imageOf = (element: Element | null) => {
 
 export function EditorFiles({ editor, editable }: { editor: PageEditor; editable: boolean }) {
   const t = useTranslations("page.viewer");
+  const tl = useTranslations("page.imageLink");
+  const router = useRouter();
   const root = useEditorDOMElement(editor);
   const viewer = useFileViewer();
   const [hovered, setHovered] = useState<HTMLImageElement | null>(null);
@@ -74,6 +88,15 @@ export function EditorFiles({ editor, editable }: { editor: PageEditor; editable
       else if (url) viewer.open([{ url, name: "" }], 0);
     },
     [editor, viewer],
+  );
+
+  /** Follows an image's link: a page of the app here, a web address in a new tab. */
+  const follow = useCallback(
+    (link: ImageLink) => {
+      if (link.kind === "page") router.push(link.href);
+      else window.open(link.href, "_blank", "noopener,noreferrer");
+    },
+    [router],
   );
 
   // Ours are the clicks in this editor, not in a synced page's editor inside it.
@@ -94,6 +117,12 @@ export function EditorFiles({ editor, editable }: { editor: PageEditor; editable
         return;
       }
       const image = !editor.isEditable ? imageOf(target) : null;
+      const link = image ? linkOfImage(editor, image) : null;
+      if (link) {
+        event.preventDefault();
+        follow(link);
+        return;
+      }
       if (image) {
         event.preventDefault();
         openAt(uploadedPath(image.getAttribute("src")), image.closest("[data-id]")?.getAttribute("data-id") ?? undefined);
@@ -107,8 +136,7 @@ export function EditorFiles({ editor, editable }: { editor: PageEditor; editable
     };
     const onOver = (event: MouseEvent) => {
       if (event.target instanceof Element && event.target.closest("[data-editor-image-expand]")) return;
-      const image = imageOf(own(event.target));
-      setHovered(image && uploadedPath(image.getAttribute("src")) ? image : null);
+      setHovered(imageOf(own(event.target)));
     };
     const onLeave = (event: MouseEvent) => {
       if (event.relatedTarget instanceof Element && event.relatedTarget.closest("[data-editor-image-expand]")) return;
@@ -124,17 +152,19 @@ export function EditorFiles({ editor, editable }: { editor: PageEditor; editable
       root.removeEventListener("mouseover", onOver);
       root.removeEventListener("mouseleave", onLeave);
     };
-  }, [root, editor, own, openAt]);
+  }, [root, editor, own, openAt, follow]);
 
   // A selected image block (a tap on a touch screen selects it) gets the button too.
   useEditorSelectionChange(() => {
     if (!root) return;
     const block = editor.getTextCursorPosition().block as Block;
     const image = block.type === "image" ? root.querySelector<HTMLImageElement>(`[data-id="${CSS.escape(block.id)}"] img.bn-visual-media`) : null;
-    setSelected(image && uploadedPath(image.getAttribute("src")) ? image : null);
+    setSelected(image);
   }, editor);
 
-  const target = editable ? (hovered ?? selected) : null;
+  const target = hovered ?? selected;
+  const expandable = target && editable && uploadedPath(target.getAttribute("src")) ? target : null;
+  const link = target ? linkOfImage(editor, target) : null;
   const expand = (image: HTMLImageElement) => {
     // The button goes when the pointer leaves it: focus comes back to the editor on close instead.
     if (!editor.domElement?.contains(document.activeElement)) editor.focus();
@@ -142,14 +172,25 @@ export function EditorFiles({ editor, editable }: { editor: PageEditor; editable
   };
   return (
     <>
-      {target && <ExpandOver image={target} label={t("expand")} onLeave={(to) => !(to && to === target) && setHovered(null)} onOpen={() => expand(target)} />}
+      {target && (expandable || link) && (
+        <ImageButtons
+          image={target}
+          buttons={[
+            ...(link ? [{ key: "link", label: tl("open"), icon: <Link2 className="h-3.5 w-3.5" aria-hidden />, onClick: () => follow(link) }] : []),
+            ...(expandable ? [{ key: "expand", label: t("expand"), icon: <Maximize2 className="h-3.5 w-3.5" aria-hidden />, onClick: () => expand(target) }] : []),
+          ]}
+          onLeave={(to) => !(to && to === target) && setHovered(null)}
+        />
+      )}
       {viewer.element}
     </>
   );
 }
 
-/** The expand button at the top corner of an image, following it as the page scrolls. */
-function ExpandOver({ image, label, onOpen, onLeave }: { image: HTMLImageElement; label: string; onOpen: () => void; onLeave: (to: EventTarget | null) => void }) {
+type ImageButton = { key: string; label: string; icon: ReactNode; onClick: () => void };
+
+/** The link and expand buttons at the top corner of an image, following it as the page scrolls. */
+function ImageButtons({ image, buttons, onLeave }: { image: HTMLImageElement; buttons: ImageButton[]; onLeave: (to: EventTarget | null) => void }) {
   const [rect, setRect] = useState<DOMRect | null>(null);
   useLayoutEffect(() => {
     let frame = 0;
@@ -171,20 +212,28 @@ function ExpandOver({ image, label, onOpen, onLeave }: { image: HTMLImageElement
   }, [image]);
   if (!rect || rect.width < 48 || rect.height < 40) return null;
   const rtl = getComputedStyle(image).direction === "rtl";
+  const width = buttons.length * 28 + (buttons.length - 1) * 4;
   return createPortal(
-    <button
-      type="button"
+    <div
       data-editor-image-expand=""
-      aria-label={label}
-      title={label}
-      onMouseDown={(event) => event.preventDefault()}
-      onClick={onOpen}
       onMouseLeave={(event) => onLeave(event.relatedTarget)}
-      className="fixed z-30 inline-flex h-7 w-7 items-center justify-center rounded-md bg-black/60 text-white shadow transition-colors hover:bg-black/80"
-      style={{ top: rect.top + 8, left: rtl ? rect.left + 8 : rect.right - 8 - 28 }}
+      className="fixed z-30 flex gap-1"
+      style={{ top: rect.top + 8, left: rtl ? rect.left + 8 : rect.right - 8 - width }}
     >
-      <Maximize2 className="h-3.5 w-3.5" aria-hidden />
-    </button>,
+      {buttons.map((button) => (
+        <button
+          key={button.key}
+          type="button"
+          aria-label={button.label}
+          title={button.label}
+          onMouseDown={(event) => event.preventDefault()}
+          onClick={button.onClick}
+          className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-black/60 text-white shadow transition-colors hover:bg-black/80"
+        >
+          {button.icon}
+        </button>
+      ))}
+    </div>,
     document.body,
   );
 }

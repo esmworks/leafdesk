@@ -571,6 +571,17 @@
     "addTitle": "إضافة عنوان",
     "removeTitle": "إزالة العنوان"
   },
+  "imageLink": {
+    "menuItem": "رابط…",
+    "editMenuItem": "تعديل الرابط…",
+    "title": "ربط الصورة",
+    "urlLabel": "عنوان الويب",
+    "toPage": "يربط إلى الصفحة «{title}»",
+    "invalid": "أدخل عنوان ويب يبدأ بـ http:// أو https://، أو اختر صفحة.",
+    "pickPage": "ربط بصفحة…",
+    "remove": "إزالة الرابط",
+    "open": "فتح الرابط"
+  },
   "pdf": {
     "untitled": "PDF",
     "openInNewTab": "الفتح في علامة تبويب جديدة",
