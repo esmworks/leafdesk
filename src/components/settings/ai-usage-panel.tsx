@@ -180,12 +180,12 @@ export async function AiUsagePanel({ workspaceId, report, month }: { workspaceId
               <table className="w-full min-w-[720px] text-sm">
                 <thead className="border-b border-border bg-bg-subtle text-xs text-fg-muted">
                   <tr>
-                    <th scope="col" className={th}>{t("columns.person")}</th>
+                    <th scope="col" className={cn(th, "w-[22%]")}>{t("columns.person")}</th>
                     <th scope="col" className={numHead}>{t("columns.requests")}</th>
                     <th scope="col" className={numHead}>{t("columns.tokens")}</th>
                     <th scope="col" className={cn(th, "w-28 text-end")}>{t("columns.cost")}</th>
-                    <th scope="col" className={cn(th, "w-32")}>{t("columns.share")}</th>
-                    <th scope="col" className={th}>{t("columns.mostUsed")}</th>
+                    <th scope="col" className={cn(th, "w-36")}>{t("columns.share")}</th>
+                    <th scope="col" className={cn(th, "w-[28%]")}>{t("columns.mostUsed")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
