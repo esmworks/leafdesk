@@ -621,7 +621,8 @@
       "noAddress": "La riga non ha un indirizzo email a cui scrivere.",
       "alreadyEnrolled": "La riga è già in questo follow-up.",
       "notOpen": "Questo follow-up è già terminato.",
-      "notSender": "Solo la persona da cui parte può riprenderlo."
+      "notSender": "Solo la persona da cui parte può riprenderlo.",
+      "tooManyRows": "Un follow-up parte su 200 righe al massimo alla volta."
     }
   },
   "relation": {

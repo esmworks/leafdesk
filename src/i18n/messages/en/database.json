@@ -621,7 +621,8 @@
       "noAddress": "The row has no email address to write to.",
       "alreadyEnrolled": "The row is in this follow-up already.",
       "notOpen": "This follow-up has already ended.",
-      "notSender": "Only the person it sends from can resume it."
+      "notSender": "Only the person it sends from can resume it.",
+      "tooManyRows": "A follow-up starts on at most 200 rows at once."
     }
   },
   "relation": {

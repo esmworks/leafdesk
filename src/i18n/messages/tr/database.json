@@ -621,7 +621,8 @@
       "noAddress": "Satırın yazılacak bir e-posta adresi yok.",
       "alreadyEnrolled": "Satır zaten bu takipte.",
       "notOpen": "Bu takip zaten bitti.",
-      "notSender": "Takibi yalnızca e-postaların gönderildiği kişi sürdürebilir."
+      "notSender": "Takibi yalnızca e-postaların gönderildiği kişi sürdürebilir.",
+      "tooManyRows": "Bir takip aynı anda en fazla 200 satırda başlatılabilir."
     }
   },
   "relation": {

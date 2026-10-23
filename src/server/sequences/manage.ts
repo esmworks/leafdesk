@@ -62,7 +62,8 @@ export type SequenceErrorCode =
   | "noAddress"
   | "alreadyEnrolled"
   | "notOpen"
-  | "notSender";
+  | "notSender"
+  | "tooManyRows";
 
 /** A sequence or enrollment request that can't be done as asked; `params` fill in its message (`step` is 1-based). */
 export class SequenceError extends Error {
@@ -120,6 +121,8 @@ function sequenceErrorMessage(code: SequenceErrorCode, p: Record<string, string 
       return "This follow-up isn't going on any more, or isn't paused.";
     case "notSender":
       return "Only the person whose mailbox it sends from may resume it.";
+    case "tooManyRows":
+      return `A follow-up starts on at most ${MAX_BULK_ENROLL} rows at once.`;
     default:
       return "This can't be done.";
   }
@@ -302,6 +305,7 @@ export type EnrollOutcome = { rowId: string; ok: true; enrollment: EnrollmentVie
 export async function enrollRows(userId: string, sequenceId: string, rowIds: string[], source: EnrollmentSource): Promise<EnrollOutcome[]> {
   const [sequence] = await db.select().from(emailSequence).where(eq(emailSequence.id, sequenceId));
   if (!sequence || (await pageAccessOf(userId, sequence.databaseId)).level === "none") throw new SequenceError("notFound");
+  if (new Set(rowIds).size > MAX_BULK_ENROLL) throw new SequenceError("tooManyRows");
   if (!(await workspaceSettings(sequence.workspaceId)).email) throw new SequenceError("emailOff");
   const [box] = await db
     .select({ id: mailbox.id })
@@ -311,7 +315,7 @@ export async function enrollRows(userId: string, sequenceId: string, rowIds: str
   const out: EnrollOutcome[] = [];
   const audits: Parameters<typeof recordAudit>[0] = [];
   const skip = (rowId: string, code: SequenceErrorCode) => out.push({ rowId, ok: false, code, error: sequenceErrorMessage(code, {}) });
-  for (const rowId of [...new Set(rowIds)].slice(0, MAX_BULK_ENROLL)) {
+  for (const rowId of new Set(rowIds)) {
     const access = typeof rowId === "string" ? await rowMailAccess(userId, rowId) : null;
     if (!access || access.databaseId !== sequence.databaseId) {
       skip(rowId, access ? "notFound" : "noAccess");

@@ -106,7 +106,7 @@ async function settleReviews(now: number) {
         .from(mailbox)
         .where(and(eq(mailbox.workspaceId, w.e.workspaceId), eq(mailbox.userId, w.e.senderId)));
       const moved = await db.transaction(async (tx) => {
-        await tx.insert(sequenceSend).values({ enrollmentId: w.e.id, step: w.e.step, rowEmailId: emailId, mailboxId: box?.id ?? null }).onConflictDoNothing();
+        await tx.insert(sequenceSend).values({ enrollmentId: w.e.id, step: w.e.step, rowEmailId: emailId, mailboxId: box?.id ?? null, sentAt: new Date(now) }).onConflictDoNothing();
         return tx
           .update(sequenceEnrollment)
           .set(advance(w.e, w.steps, emailId, now))
@@ -123,20 +123,25 @@ async function settleReviews(now: number) {
 }
 
 /** Ends the out-of-office pauses that are over. */
-async function wakeUp() {
+async function wakeUp(now: number) {
+  const at = new Date(now);
   await db
     .update(sequenceEnrollment)
-    .set({ status: "active", reason: null, pausedUntil: null, nextAt: sql`greatest(${sequenceEnrollment.nextAt}, now())` })
-    .where(and(eq(sequenceEnrollment.status, "paused"), eq(sequenceEnrollment.reason, "outOfOffice"), lte(sequenceEnrollment.pausedUntil, new Date())));
+    .set({ status: "active", reason: null, pausedUntil: null, nextAt: sql`greatest(${sequenceEnrollment.nextAt}, ${at.toISOString()}::timestamptz)` })
+    .where(and(eq(sequenceEnrollment.status, "paused"), eq(sequenceEnrollment.reason, "outOfOffice"), lte(sequenceEnrollment.pausedUntil, at)));
 }
 
-/** Takes due enrollments for LEASE_MINUTES. */
-async function claim(): Promise<Enrollment[]> {
+/**
+ * Takes due enrollments for LEASE_MINUTES. Times are the round's own (`now`), not the database's,
+ * so a round can be run as of any moment (scripts/follow-ups-e2e.ts).
+ */
+async function claim(now: number): Promise<Enrollment[]> {
+  const at = new Date(now).toISOString();
   const taken = await db.execute<{ id: string }>(sql`
-    update ${sequenceEnrollment} set claimed_until = now() + make_interval(mins => ${LEASE_MINUTES})
+    update ${sequenceEnrollment} set claimed_until = ${at}::timestamptz + make_interval(mins => ${LEASE_MINUTES})
     where id in (
       select id from ${sequenceEnrollment}
-      where status = 'active' and next_at <= now() and (claimed_until is null or claimed_until < now())
+      where status = 'active' and next_at <= ${at}::timestamptz and (claimed_until is null or claimed_until < ${at}::timestamptz)
       order by next_at
       limit ${BATCH}
       for update skip locked
@@ -277,7 +282,7 @@ async function processEnrollment(e: Enrollment, now = Date.now()) {
       {
         within: async (tx, emailId) => {
           // The step's record, in the email's own transaction: taken already, it went out before.
-          const [taken] = await tx.insert(sequenceSend).values({ enrollmentId: e.id, step: e.step, rowEmailId: emailId, mailboxId: box.box.id }).onConflictDoNothing().returning();
+          const [taken] = await tx.insert(sequenceSend).values({ enrollmentId: e.id, step: e.step, rowEmailId: emailId, mailboxId: box.box.id, sentAt: new Date(now) }).onConflictDoNothing().returning();
           if (!taken) throw new AlreadySent();
           await tx.update(sequenceEnrollment).set(advance(e, steps, emailId, now)).where(and(one, eq(sequenceEnrollment.step, e.step)));
           await tx.update(mailbox).set({ followUpAfter: new Date(now + spreadMs()) }).where(eq(mailbox.id, box.box.id));
@@ -311,11 +316,11 @@ async function processEnrollment(e: Enrollment, now = Date.now()) {
 export async function runSequences(now = Date.now()) {
   await stopGone();
   await settleReviews(now);
-  await wakeUp();
+  await wakeUp(now);
   let taken = 0;
   // A few batches a round: the rest wait for the next one.
   for (let i = 0; i < 10; i++) {
-    const batch = await claim();
+    const batch = await claim(now);
     if (!batch.length) break;
     for (const e of batch) {
       taken += 1;

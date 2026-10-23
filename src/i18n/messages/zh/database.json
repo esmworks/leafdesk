@@ -621,7 +621,8 @@
       "noAddress": "该行没有可发送的邮箱地址。",
       "alreadyEnrolled": "该行已在此跟进中。",
       "notOpen": "此跟进已结束。",
-      "notSender": "只有发件人本人可以继续此跟进。"
+      "notSender": "只有发件人本人可以继续此跟进。",
+      "tooManyRows": "一次最多可在 200 行上启动跟进。"
     }
   },
   "relation": {

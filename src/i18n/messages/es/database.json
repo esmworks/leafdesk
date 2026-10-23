@@ -621,7 +621,8 @@
       "noAddress": "La fila no tiene una dirección de correo a la que escribir.",
       "alreadyEnrolled": "La fila ya está en este seguimiento.",
       "notOpen": "Este seguimiento ya terminó.",
-      "notSender": "Solo la persona desde cuyo buzón se envía puede reanudarlo."
+      "notSender": "Solo la persona desde cuyo buzón se envía puede reanudarlo.",
+      "tooManyRows": "Un seguimiento se inicia en 200 filas como máximo a la vez."
     }
   },
   "relation": {

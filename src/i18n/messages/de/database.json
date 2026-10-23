@@ -621,7 +621,8 @@
       "noAddress": "Die Zeile hat keine E-Mail-Adresse, an die geschrieben werden kann.",
       "alreadyEnrolled": "Die Zeile ist schon in diesem Follow-up.",
       "notOpen": "Dieses Follow-up ist schon beendet.",
-      "notSender": "Nur die Person, aus deren Postfach es sendet, kann es fortsetzen."
+      "notSender": "Nur die Person, aus deren Postfach es sendet, kann es fortsetzen.",
+      "tooManyRows": "Ein Follow-up startet auf höchstens 200 Zeilen auf einmal."
     }
   },
   "relation": {

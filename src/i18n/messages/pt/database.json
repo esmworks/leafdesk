@@ -621,7 +621,8 @@
       "noAddress": "A linha não tem um endereço de e-mail para escrever.",
       "alreadyEnrolled": "A linha já está neste acompanhamento.",
       "notOpen": "Este acompanhamento já terminou.",
-      "notSender": "Só a pessoa de quem ele envia pode retomá-lo."
+      "notSender": "Só a pessoa de quem ele envia pode retomá-lo.",
+      "tooManyRows": "Um acompanhamento começa em no máximo 200 linhas de uma vez."
     }
   },
   "relation": {

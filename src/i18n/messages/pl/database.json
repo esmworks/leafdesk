@@ -621,7 +621,8 @@
       "noAddress": "Wiersz nie ma adresu e-mail, na który można napisać.",
       "alreadyEnrolled": "Wiersz jest już w tym follow-upie.",
       "notOpen": "Ten follow-up już się zakończył.",
-      "notSender": "Wznowić go może tylko osoba, z której skrzynki jest wysyłany."
+      "notSender": "Wznowić go może tylko osoba, z której skrzynki jest wysyłany.",
+      "tooManyRows": "Follow-up można uruchomić naraz na co najwyżej 200 wierszach."
     }
   },
   "relation": {

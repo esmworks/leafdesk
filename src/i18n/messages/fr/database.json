@@ -621,7 +621,8 @@
       "noAddress": "La ligne n’a pas d’adresse e-mail à laquelle écrire.",
       "alreadyEnrolled": "La ligne est déjà dans cette relance.",
       "notOpen": "Cette relance est déjà terminée.",
-      "notSender": "Seule la personne depuis la boîte mail de laquelle elle part peut la reprendre."
+      "notSender": "Seule la personne depuis la boîte mail de laquelle elle part peut la reprendre.",
+      "tooManyRows": "Une relance démarre sur 200 lignes au plus à la fois."
     }
   },
   "relation": {
