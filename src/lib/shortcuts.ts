@@ -15,6 +15,14 @@ export type Combo = readonly string[];
 export type Shortcut = { id: keyof Texts["items"]; combos: readonly Combo[] };
 export type ShortcutGroup = { id: keyof Texts["groups"]; shortcuts: readonly Shortcut[] };
 
+/** What a table row's menu does from the keyboard while it is open (see rowMenuShortcut). */
+export const ROW_MENU_COMBOS = {
+  duplicate: ["Mod", "D"],
+  moveTo: ["Mod", "Shift", "P"],
+  comment: ["Mod", "Shift", "M"],
+  trash: ["Del"],
+} as const satisfies Record<string, Combo>;
+
 export const SHORTCUT_GROUPS: readonly ShortcutGroup[] = [
   {
     id: "general",
@@ -92,6 +100,11 @@ export const SHORTCUT_GROUPS: readonly ShortcutGroup[] = [
       { id: "saveFormula", combos: [["Mod", "Enter"]] },
       // components/database/bulk-actions.tsx.
       { id: "clearSelection", combos: [["Esc"]] },
+      // A table row's menu, while it is open (components/database/row-menu.tsx).
+      { id: "rowDuplicate", combos: [ROW_MENU_COMBOS.duplicate] },
+      { id: "rowMoveTo", combos: [ROW_MENU_COMBOS.moveTo] },
+      { id: "rowComment", combos: [ROW_MENU_COMBOS.comment] },
+      { id: "rowTrash", combos: [ROW_MENU_COMBOS.trash] },
     ],
   },
 ];
@@ -144,4 +157,21 @@ export function opensShortcuts(e: KeyEventLike, mac: boolean): boolean {
 export function opensPresentation(e: KeyEventLike, mac: boolean): boolean {
   if (e.defaultPrevented || e.isComposing || e.shiftKey || !e.altKey || e.code !== "KeyP") return false;
   return mac ? e.metaKey && !e.ctrlKey : e.ctrlKey && !e.metaKey;
+}
+
+/**
+ * Which of a table row's menu actions a key press asks for (ROW_MENU_COMBOS), matched by the key's
+ * place so Shift and other layouts don't change it; Del only outside a field with text in it.
+ */
+export function rowMenuShortcut(e: KeyEventLike, mac: boolean): keyof typeof ROW_MENU_COMBOS | null {
+  if (e.defaultPrevented || e.isComposing || e.altKey) return null;
+  if (e.key === "Delete" && !e.metaKey && !e.ctrlKey && !e.shiftKey) {
+    const field = e.target as HTMLInputElement | null;
+    return isEditable(field) && field?.value ? null : "trash";
+  }
+  if (!(mac ? e.metaKey && !e.ctrlKey : e.ctrlKey && !e.metaKey)) return null;
+  if (e.code === "KeyD" && !e.shiftKey) return "duplicate";
+  if (e.code === "KeyP" && e.shiftKey) return "moveTo";
+  if (e.code === "KeyM" && e.shiftKey) return "comment";
+  return null;
 }

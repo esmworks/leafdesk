@@ -241,12 +241,30 @@
     "noSearchMatches": "Aramaya uyan satır yok.",
     "addProperty": "Özellik ekle",
     "rowActions": "Satır işlemleri",
+    "dragToMove": "Taşımak için sürükleyin",
+    "clickForMenu": "Menüyü açmak için tıklayın",
+    "sortedNoDrag": "Görünüm sıralıyken satırlar sürüklenemez",
     "sortedAscending": "Artan sıralı",
     "sortedDescending": "Azalan sıralı"
   },
   "rowMenu": {
     "open": "Aç",
-    "openPage": "Tam sayfa olarak aç"
+    "openPage": "Tam sayfa olarak aç",
+    "copyLink": "Bağlantıyı kopyala",
+    "duplicate": "Kopyasını oluştur",
+    "search": "İşlem ara…",
+    "page": "Sayfa",
+    "editIcon": "Simgeyi düzenle",
+    "editProperty": "Özelliği düzenle",
+    "openIn": "Şurada aç",
+    "sidePanel": "Yan panel",
+    "fullPage": "Tam sayfa",
+    "newTab": "Yeni sekme",
+    "comment": "Yorum yap",
+    "developer": "Geliştirici",
+    "copyDatabaseId": "Veritabanı kimliğini kopyala",
+    "noMatches": "Eşleşen işlem yok.",
+    "lastEdited": "Son düzenleme"
   },
   "rowPanel": {
     "label": "Satır: {title}",

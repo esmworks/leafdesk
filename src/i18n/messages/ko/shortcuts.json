@@ -48,6 +48,10 @@
     "nextRow": "다음 행(보기 옆에 행이 열려 있을 때)",
     "moveBar": "타임라인 막대를 하루씩 이동",
     "saveFormula": "수식 또는 AI 자동 채우기 프롬프트 저장",
-    "clearSelection": "행 선택 해제"
+    "clearSelection": "행 선택 해제",
+    "rowDuplicate": "행 복제(표에서 행 메뉴가 열려 있을 때)",
+    "rowMoveTo": "행을 다른 곳으로 이동(메뉴가 열려 있을 때)",
+    "rowComment": "행에 댓글(메뉴가 열려 있을 때)",
+    "rowTrash": "행을 휴지통으로 이동(메뉴가 열려 있을 때)"
   }
 }

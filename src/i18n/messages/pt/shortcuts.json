@@ -48,6 +48,10 @@
     "nextRow": "Próxima linha (com uma linha aberta ao lado da visualização)",
     "moveBar": "Mover uma barra da linha do tempo em um dia",
     "saveFormula": "Salvar uma fórmula ou um prompt de preenchimento automático com IA",
-    "clearSelection": "Limpar a seleção de linhas"
+    "clearSelection": "Limpar a seleção de linhas",
+    "rowDuplicate": "Duplicar a linha (com o menu dela aberto numa tabela)",
+    "rowMoveTo": "Mover a linha para outro lugar (com o menu aberto)",
+    "rowComment": "Comentar a linha (com o menu aberto)",
+    "rowTrash": "Mover a linha para a lixeira (com o menu aberto)"
   }
 }

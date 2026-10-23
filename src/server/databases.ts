@@ -424,7 +424,8 @@ async function readRows(
       })
       .from(page)
       .where(and(eq(page.parentId, databaseId), eq(page.isTemplate, false), isNull(page.archivedAt), childVisibleTo(userId, databaseId)))
-      .orderBy(asc(page.position), asc(page.createdAt)),
+      // The id settles ties, so rows sharing a position and created time keep one order (moveRowBeside uses it).
+      .orderBy(asc(page.position), asc(page.createdAt), asc(page.id)),
     known ?? getProperties(databaseId),
     propertyAccessFor(userId, databaseId),
     deletedPropertyIds(databaseId),
@@ -2846,6 +2847,50 @@ export async function moveRow(
   notifyRows(row.parentId);
 }
 
+/**
+ * Moves a row right before or after another row of its database (a table row dragged by its
+ * handle), in the rows' own order: position, then created time, then id. Rows sharing a position
+ * leave no room between them, so when the neighbours tie, the database's rows are numbered again
+ * first in that order, which keeps every row where it was (written as raw SQL: renumbering doesn't
+ * edit the rows). That takes edit access to the database; without it the row lands on its
+ * neighbour's position.
+ */
+export async function moveRowBeside(userId: string, rowId: string, targetId: string, side: "before" | "after") {
+  const row = await requirePageAccess(userId, rowId, "edit");
+  if (!row.parentId) throw withCode(new Error("Page is not a database row"), "notADatabaseRow");
+  const databaseId = row.parentId;
+  await requireDatabase(userId, databaseId, "view");
+  const order = (
+    await db
+      .select({ id: page.id, position: page.position })
+      .from(page)
+      .where(and(eq(page.parentId, databaseId), eq(page.isTemplate, false)))
+      .orderBy(asc(page.position), asc(page.createdAt), asc(page.id))
+  ).filter((r) => r.id !== rowId);
+  const at = order.findIndex((r) => r.id === targetId);
+  if (at < 0) throw withCode(new Error("The target is not a row of the same database"), "notADatabaseRow");
+  const index = side === "before" ? at : at + 1;
+  const between = () => positionBetween(order[index - 1]?.position, order[index]?.position);
+  const before = order[index - 1];
+  const after = order[index];
+  if (before && after && !(before.position < after.position)) {
+    const canRenumber = await requireDatabase(userId, databaseId, "edit").then(
+      () => true,
+      () => false,
+    );
+    if (canRenumber) {
+      order.forEach((r, i) => (r.position = i + 1));
+      const ids = order.map((r) => r.id);
+      await db.execute(sql`
+        update page set position = v.position
+        from jsonb_array_elements_text(${JSON.stringify(ids)}::jsonb) with ordinality as v(id, position)
+        where page.id = v.id and page.position is distinct from v.position`);
+    }
+  }
+  await db.update(page).set({ position: between(), updatedBy: userId }).where(eq(page.id, rowId));
+  notifyRows(databaseId);
+}
+
 export type DatabaseRowWithPosition = DatabaseRow & {
   position: number;
   /** Gallery cover: the first image in the row's body. Only sent while a gallery view shows covers. */
@@ -2951,7 +2996,7 @@ export async function getDatabaseSnapshot(
         childVisibleTo(userId, databaseId),
       ),
     )
-    .orderBy(asc(page.position), asc(page.createdAt));
+    .orderBy(asc(page.position), asc(page.createdAt), asc(page.id));
   const [relations, people, covers, templates] = await Promise.all([
     getRelationTargets(userId, properties),
     getPeople(userId, properties),

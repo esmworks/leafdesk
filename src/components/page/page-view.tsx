@@ -37,6 +37,7 @@ import { DarkScheme } from "@/components/theme/theme-provider";
 import { rememberPage } from "@/components/offline/offline-store";
 import { PAGE_HEADER_EVENT } from "@/lib/collab-constants";
 import { threadOfHash } from "@/lib/comments";
+import { COMMENTS_REQUEST_EVENT, takeCommentsRequest } from "@/lib/comments-request";
 import type { PageBackground } from "@/lib/page-background";
 import { DEFAULT_PAGE_STYLE, pageTextClasses, writePageStyle, type PageStyle } from "@/lib/page-style";
 import { isMac, opensPresentation } from "@/lib/shortcuts";
@@ -172,6 +173,18 @@ export function PageView({
     window.addEventListener("hashchange", fromHash);
     return () => window.removeEventListener("hashchange", fromHash);
   }, [showBody]);
+  // A table row's menu asked for this page's comments (lib/comments-request).
+  useEffect(() => {
+    if (!showBody) return;
+    const fromRequest = () => {
+      if (!takeCommentsRequest(page.id)) return;
+      setGraphOpen(false);
+      setCommentsOpen(true);
+    };
+    fromRequest();
+    window.addEventListener(COMMENTS_REQUEST_EVENT, fromRequest);
+    return () => window.removeEventListener(COMMENTS_REQUEST_EVENT, fromRequest);
+  }, [showBody, page.id]);
 
   // Someone else changed the icon or background (server/pages.ts): load them again.
   const provider = pageDoc?.provider;

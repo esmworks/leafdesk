@@ -241,12 +241,30 @@
     "noSearchMatches": "אין שורות שתואמות לחיפוש.",
     "addProperty": "הוספת מאפיין",
     "rowActions": "פעולות על השורה",
+    "dragToMove": "גררו כדי להזיז",
+    "clickForMenu": "לחצו כדי לפתוח את התפריט",
+    "sortedNoDrag": "אי אפשר לגרור שורות כשהתצוגה ממוינת",
     "sortedAscending": "ממוין בסדר עולה",
     "sortedDescending": "ממוין בסדר יורד"
   },
   "rowMenu": {
     "open": "פתיחה",
-    "openPage": "פתיחה כדף מלא"
+    "openPage": "פתיחה כדף מלא",
+    "copyLink": "העתקת קישור",
+    "duplicate": "שכפול",
+    "search": "חיפוש פעולות…",
+    "page": "דף",
+    "editIcon": "עריכת סמל",
+    "editProperty": "עריכת מאפיין",
+    "openIn": "פתיחה ב",
+    "sidePanel": "חלונית צד",
+    "fullPage": "דף מלא",
+    "newTab": "כרטיסייה חדשה",
+    "comment": "הוספת תגובה",
+    "developer": "מפתחים",
+    "copyDatabaseId": "העתקת מזהה מסד הנתונים",
+    "noMatches": "אין פעולות תואמות.",
+    "lastEdited": "עריכה אחרונה"
   },
   "rowPanel": {
     "label": "שורה: {title}",

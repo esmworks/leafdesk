@@ -874,6 +874,7 @@ function PageMenu({
             <div className="px-2 pt-0.5 pb-1 text-xs text-fg-faint">
               <div className="truncate">{t("lastEdited", { name: info.updatedBy ?? t("someone") })}</div>
               <div>{edited}</div>
+              {page.hasBody && !isDatabase && <div>{t("wordCount", { words: info.words, characters: info.characters })}</div>}
             </div>
           </div>
         )}
@@ -913,13 +914,14 @@ function PageMenu({
 }
 
 /** Pick a new parent: any page or database in the sidebar tree except this page and its subpages. */
-function MoveDialog({
+export function MoveDialog({
   workspaceId,
   pageId,
   isDatabase,
   currentParentId,
   guest,
   onClose,
+  onMoved,
 }: {
   workspaceId: string;
   pageId: string;
@@ -927,6 +929,8 @@ function MoveDialog({
   currentParentId: string | null;
   guest: boolean;
   onClose: () => void;
+  /** After the move, besides refreshing the route (a table's rows reload on their own). */
+  onMoved?: () => void;
 }) {
   const t = useTranslations("page.move");
   const tc = useTranslations("common");
@@ -995,6 +999,7 @@ function MoveDialog({
       try {
         await movePageAction(pageId, parentId, undefined, parentId ? undefined : teamspaceId);
         onClose();
+        onMoved?.();
         router.refresh();
       } catch {
         setError(t("failed"));

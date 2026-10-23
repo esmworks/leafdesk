@@ -204,6 +204,16 @@ export async function moveRowAction(
   return run((userId) => databases.moveRow(userId, rowId, move));
 }
 
+/** Moves a row right before or after another row of its database (server/databases moveRowBeside). */
+export async function moveRowBesideAction(rowId: string, targetId: string, side: "before" | "after") {
+  return run(async (userId) => {
+    if (typeof rowId !== "string" || typeof targetId !== "string" || (side !== "before" && side !== "after")) {
+      throw new Error("Invalid move");
+    }
+    return databases.moveRowBeside(userId, rowId, targetId, side);
+  });
+}
+
 export async function addPropertyAction(
   databaseId: string,
   input: {
