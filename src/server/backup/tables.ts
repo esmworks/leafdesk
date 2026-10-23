@@ -22,7 +22,9 @@ const ofAgents: Scope = (ws) => sql`agent_id in (select id from workspace_agent 
 const ofConnections: Scope = (ws) => sql`connection_id in (select id from connection where workspace_id = ${ws})`;
 /** Agents' notes: what the AI remembers about a person is theirs alone, like their chats. */
 const agentsNotes: Scope = (ws) => sql`workspace_id = ${ws} and user_id in (select user_id from workspace_agent where workspace_id = ${ws})`;
-const ofFiles: Scope = (ws) => sql`file_id in (select id from file where workspace_id = ${ws})`;
+/** The workspace's files but those attached to AI chats, which are private to their people like the chats. */
+const files = (ws: string) => sql`(select id from file where workspace_id = ${ws} and id not in (select file_id from ai_chat_file))`;
+const ofFiles: Scope = (ws) => sql`file_id in ${files(ws)}`;
 
 /** The tables a backup holds, by SQL name, with the rows of the workspace in each. */
 export const BACKED_UP: Record<string, Scope> = {
@@ -50,7 +52,7 @@ export const BACKED_UP: Record<string, Scope> = {
   page_publication: ofPages("page_id"),
   form_publication: (ws) => sql`view_id in (select id from database_view where database_id in ${pages(ws)})`,
   workspace_site: own,
-  file: own,
+  file: (ws) => sql`id in ${files(ws)}`,
   file_reference: ofFiles,
   file_text: ofFiles,
   page_link: ofPages("source_id"),
@@ -138,6 +140,7 @@ export const LEFT_OUT: Record<string, string> = {
   connection_event: "events received from connected services",
   connection_oauth: "connection sign-ins in progress",
   storage_deletion: "the old server's queue of files to delete",
+  ai_chat_file: "files attached to AI chats, private to their people like the chats (their files are left out too)",
   assignment_email: "emails waiting to go out",
   row_update_pending: "emails waiting to go out",
   page_update_pending: "emails waiting to go out",
