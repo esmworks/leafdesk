@@ -14,6 +14,7 @@ import { BOOKMARK_BLOCK, embedFor, isWebBlockType, parseWebUrl, type EmbedTarget
 import { bodyReferences, isBlockId, isPageBlockType, MENTION, mentionPlainText, mentionProps, PAGE_LINK_BLOCK } from "@/lib/mentions";
 import { withoutSyncedBlocks } from "@/lib/synced-blocks";
 import { serverEditor as editor, type PageBlock } from "@/server/blocknote";
+import { fragmentBlocks } from "@/server/synced-body";
 
 /**
  * Turns a stored page body (Yjs state) into HTML for the public, read-only view of a published page.
@@ -511,7 +512,8 @@ export async function bodySegmentsFromYdoc(state: Uint8Array | null, options: Bo
   const doc = new Y.Doc();
   try {
     Y.applyUpdate(doc, state);
-    return await bodySegmentsFromBlocks(editor.yXmlFragmentToBlocks(doc.getXmlFragment(COLLAB_FRAGMENT)), options);
+    // Suggested edits that wait for an answer aren't published (see synced-body fragmentBlocks).
+    return await bodySegmentsFromBlocks(fragmentBlocks(doc.getXmlFragment(COLLAB_FRAGMENT)), options);
   } finally {
     doc.destroy();
   }

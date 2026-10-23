@@ -38,6 +38,7 @@ import { agentChatBlockConfig } from "@/lib/agent-chat";
 import { markdownToPageBlocks } from "@/lib/page-markdown";
 import { textScriptStyleSpecs } from "@/lib/text-scripts";
 import { syncedBlockConfig } from "@/lib/synced-blocks";
+import { suggestionMarks } from "@/lib/suggestion-marks";
 import { webBlockServerSpecs } from "./web-blocks";
 
 /**
@@ -191,7 +192,8 @@ export const pageSchema = BlockNoteSchema.create({
  */
 const commentMarks = createExtension({ key: "commentMarks", tiptapExtensions: [CommentMark] });
 
-export const serverEditor = ServerBlockNoteEditor.create({ schema: pageSchema, extensions: [commentMarks] });
+// Suggested edits (lib/suggestions) too, for the same reason.
+export const serverEditor = ServerBlockNoteEditor.create({ schema: pageSchema, extensions: [commentMarks, suggestionMarks] });
 
 export type PageBlock = ReturnType<typeof serverEditor.yXmlFragmentToBlocks>[number];
 type PartialPageBlock = PartialBlock<typeof pageSchema.blockSchema, typeof pageSchema.inlineContentSchema, typeof pageSchema.styleSchema>;
