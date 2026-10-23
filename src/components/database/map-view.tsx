@@ -123,7 +123,7 @@ export default function MapView({
           className: "leafdesk-pin-icon",
           html: `<span class="leafdesk-pin"${color ? ` style="--pin: var(--chart-${color})"` : ""}></span>`,
           iconSize: [24, 24],
-          iconAnchor: [12, 28],
+          iconAnchor: [12, 26],
         }),
         title,
         alt: title,
