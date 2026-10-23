@@ -139,7 +139,8 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   databases. Where the server can transcribe, the quick note takes voice notes too (see
   [Voice notes](#voice-notes)).
 - **Desktop app** for macOS, Windows and Linux: a window on your server, or Leafdesk running on
-  the computer itself with its own database and daily backups (see [Desktop app](#desktop-app)).
+  the computer itself with its own database and daily backups (see [Desktop app](#desktop-app)). A
+  system-wide shortcut (Cmd/Ctrl+Shift+J) brings it forward on AI chat.
 - **Find and replace** in a page (Cmd/Ctrl+F): highlights every match, steps through them, and
   replaces one or all in a single undo step. Anyone who can open the page can search it.
 - **Databases**: every row is also a page.
@@ -360,7 +361,9 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   find there an agent's call waiting for approval and the notes an agent's run proposed for its
   memory. A comment notification opens the page with that thread selected. Snooze an item
   for an hour, until tomorrow morning or until next Monday (9:00 your time): it leaves the inbox and comes back unread
-  then, along with its email if that hadn't gone yet. Choose per kind whether it shows in the inbox, whether it comes by email and, on the devices where you turn them on, as a [push notification](#push-notifications).
+  then, along with its email if that hadn't gone yet. On a phone, swipe an item toward the end of
+  the line to mark it read (or unread again) and toward its start to snooze it until tomorrow
+  morning. Choose per kind whether it shows in the inbox, whether it comes by email and, on the devices where you turn them on, as a [push notification](#push-notifications).
 - **Page history**: versions are saved automatically while you edit and before every AI edit.
   You can preview and restore any version, and see what changed since it or since the version
   before, and who (or which AI app) changed it. Changes an AI app, the chat or an agent writes to a
@@ -1087,7 +1090,10 @@ windows the pages open stay in the app only when they are on your server. Menus 
 language chosen in My account, or the system's. The server's pages may use notifications, the clipboard,
 full screen and the microphone (voice notes); nothing else, and no other site. Single sign-on and
 connecting apps happen inside the app, so the sign-in it leads to stays with it. The window
-remembers its size and place. Offline editing works as in the installed web app, which needs HTTPS
+remembers its size and place. Cmd+Shift+J on macOS (Ctrl+Shift+J on Windows and Linux), pressed in
+any app, brings Leafdesk forward and opens AI chat in the workspace its window shows, or a quick
+note where AI is off there; *Go → Ask AI Shortcut* picks other keys or turns it off, and says
+when another app already has the keys. Offline editing works as in the installed web app, which needs HTTPS
 (or `localhost`) for the service worker.
 
 **Not yet.** Push notifications don't reach the desktop app (the inbox still shows what's new), and

@@ -167,6 +167,17 @@
   highlights it for a moment. Only what you can see is found: owners' settings for owners, and
   nothing a guest's or a one-computer Leafdesk's Settings leave out. The search box (Cmd/Ctrl+K)
   finds them too after `>`, as *Settings: Security → Approved networks*.
+- **Swipe inbox items on a phone.** On a touch screen, swiping an item of the inbox toward the end
+  of the line marks it read, or unread again, and swiping it toward the start snoozes it until
+  tomorrow at 9:00; what letting go will do shows behind the item as it moves. A group of
+  notifications about one page goes the same way, all of it. The buttons stay, and a mouse or pen
+  works as before.
+- **The desktop app has a system-wide shortcut to AI chat.** Pressing Cmd+Shift+J on macOS
+  (Ctrl+Shift+J on Windows and Linux) in any app brings Leafdesk forward and opens AI chat in the
+  workspace its window shows, or a quick note where AI is off in that workspace. *Go → Ask AI
+  Shortcut* switches it to Cmd/Ctrl+Shift+Space or Cmd/Ctrl+Option/Alt+L, or turns it off; when
+  another app already has the keys, the menu says so and another can be picked. The choice is kept
+  in the app's settings.
 - **Table rows move by their handle, which also opens a fuller row menu.** The ⋯ button before
   each row of a table is now a handle: drag it to move the row among the others (in its group, and
   under the same parent when sub-items nest) while no sort orders the view; the order is the one
