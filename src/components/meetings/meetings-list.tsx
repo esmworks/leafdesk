@@ -8,7 +8,7 @@ import { useMemo, useState } from "react";
 import { createMeetingNoteAction } from "@/app/actions/meetings";
 import { Button, Input } from "@/components/ui";
 import { UserAvatar } from "@/components/user-avatar";
-import { isUpcoming, matchesMeeting, type MeetingListItem } from "@/lib/meetings";
+import { isUpcoming, matchesMeeting, type MeetingListItem } from "@/lib/meeting-list";
 
 /** The Meetings page (/w/[id]/meetings): upcoming and past meeting notes, filtered as you type. */
 export function MeetingsList({ workspaceId, meetings, now }: { workspaceId: string; meetings: MeetingListItem[]; now: Date }) {

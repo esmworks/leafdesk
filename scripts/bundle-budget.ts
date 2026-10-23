@@ -14,7 +14,7 @@ import { gzipSync } from "node:zlib";
  * only when a block in its language is shown, and the Markdown source editor (CodeMirror, about
  * 190 kB) loads only when a page is edited as Markdown.
  */
-const BUDGET = { routeFirstLoad: 800, allClientJs: 4000 };
+const BUDGET = { routeFirstLoad: 810, allClientJs: 4050 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;

@@ -26,10 +26,10 @@ import {
   parseTranscript,
   serializeTranscript,
   transcriptLines,
-  type MeetingListItem,
   type MeetingProps,
   type TranscriptChunk,
 } from "@/lib/meetings";
+import type { MeetingListItem } from "@/lib/meeting-list";
 import { isPageLocked } from "@/lib/page-lock";
 import { AccessError, pageVisibleTo, requireMembership, requirePageAccess } from "@/server/access";
 import { aiConfig, AiError, complete, contentChars, transcribe } from "@/server/ai";

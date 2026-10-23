@@ -1,8 +1,10 @@
-// Client-safe: shared by the meeting block (components/page/meeting-block.tsx), its recorder
-// (components/voice/meeting-recorder.tsx), the server (server/meetings.ts) and the Markdown and
-// editor schemas.
+// Client-safe: shared by the meeting block (components/page/meeting-block.tsx), the server
+// (server/meetings.ts) and the Markdown and editor schemas. The recorder's clock is in
+// meeting-clock.ts, the Meetings page's list in meeting-list.ts.
 
-import { searchFold } from "./search-fold";
+import { formatStamp, MEETING_STALE_MS } from "./meeting-clock";
+
+export { formatStamp, MAX_MEETING_SECONDS, MEETING_CHUNK_SECONDS, MEETING_HEARTBEAT_MS, MEETING_STALE_MS } from "./meeting-clock";
 
 /**
  * Meeting notes: a page block that records a meeting from the microphone, transcribes it chunk by
@@ -76,14 +78,6 @@ export type MeetingStatus = (typeof MEETING_STATUSES)[number];
 export const MEETING_NOTICES = ["summaryFailed", "noAi", "limit", "empty"] as const;
 export type MeetingNotice = (typeof MEETING_NOTICES)[number];
 
-/** The longest meeting: recording stops by itself at three hours. */
-export const MAX_MEETING_SECONDS = 3 * 60 * 60;
-/** How long each piece of audio sent to be transcribed is. */
-export const MEETING_CHUNK_SECONDS = 30;
-/** A recording whose recorder hasn't reported for this long may be ended by anyone who can edit it. */
-export const MEETING_STALE_MS = 5 * 60 * 1000;
-/** While paused, the recorder says it is still there this often. */
-export const MEETING_HEARTBEAT_MS = 2 * 60 * 1000;
 /** Longest meeting title and most attendees. */
 export const MAX_MEETING_TITLE = 200;
 export const MAX_ATTENDEES = 50;
@@ -161,15 +155,6 @@ export function mergeChunk(chunks: TranscriptChunk[], chunk: TranscriptChunk): T
   const value: TranscriptChunk = "gap" in chunk ? chunk : { ...chunk, x: chunk.x.trim().slice(0, MAX_CHUNK_TEXT) };
   next.push(value);
   return next.sort((a, b) => a.t - b.t || a.c - b.c);
-}
-
-/** `[mm:ss]` as written in the summary and the transcript (`h:mm:ss` from an hour on). */
-export function formatStamp(seconds: number): string {
-  const s = Math.max(0, Math.floor(seconds));
-  const h = Math.floor(s / 3600);
-  const m = Math.floor((s % 3600) / 60);
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return h ? `${h}:${pad(m)}:${pad(s % 60)}` : `${pad(m)}:${pad(s % 60)}`;
 }
 
 /** Seconds of a `mm:ss` or `h:mm:ss` stamp (without brackets), or null. */
@@ -378,35 +363,3 @@ export function meetingBlocksIn<B extends AnyBlock>(blocks: B[]): B[] {
   walk(blocks);
   return out;
 }
-
-// ---------------------------------------------------------------------------------------------
-// The Meetings page
-
-/** A meeting as the Meetings page lists it. */
-export type MeetingListItem = {
-  pageId: string;
-  meetingId: string;
-  title: string;
-  pageTitle: string;
-  icon: string | null;
-  scheduledAt: string | null;
-  startedAt: string | null;
-  endedAt: string | null;
-  seconds: number;
-  attendees: Attendee[];
-  status: string;
-  /** The summary's first point, if it has one. */
-  preview: string;
-};
-
-/** Whether a listed meeting matches what was typed: every word in its title, page, attendees or summary. */
-export function matchesMeeting(item: MeetingListItem, query: string): boolean {
-  const words = searchFold(query).split(/\s+/).filter(Boolean);
-  if (!words.length) return true;
-  const haystack = [item.title, item.pageTitle, item.preview, ...item.attendees.map((a) => a.name)].map(searchFold);
-  return words.every((word) => haystack.some((text) => text.includes(word)));
-}
-
-/** Upcoming: planned for later and not recorded yet. */
-export const isUpcoming = (item: Pick<MeetingListItem, "scheduledAt" | "startedAt" | "status">, now = Date.now()) =>
-  !item.startedAt && !item.status && item.scheduledAt !== null && Date.parse(item.scheduledAt) > now;
