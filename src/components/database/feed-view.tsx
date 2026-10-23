@@ -8,6 +8,7 @@ import { feedBodyAction, feedPostsAction, setReactionAction } from "@/app/action
 import { useChannel } from "@/components/collab/use-channel";
 import { UserAvatar } from "@/components/user-avatar";
 import { Button, cn, PageIcon, Popover, textareaClass } from "@/components/ui";
+import { cellMarkClass, colorMarkClass, type RowColors } from "@/lib/color-rules";
 import type { CommentBody } from "@/lib/comments";
 import { FEED_PAGE_SIZE, REACTION_EMOJIS, type PostReaction } from "@/lib/feed";
 import { pageLabel } from "@/lib/labels";
@@ -20,8 +21,8 @@ import { RowValue, shownValues } from "./property-cell";
 import { openRowProps, useIsOpenRow, useRowOpener } from "./row-panel-context";
 import type { Property, Row, View } from "./types";
 
-/** Events on a database's channel after which the posts on screen are read again. */
-const REFRESH_ON = new Set(["rows", "reactions", "comments"]);
+/** Events on a database's channel after which the posts on screen are read again (comments live in each row's document, which announces nothing here). */
+const REFRESH_ON = new Set(["rows", "reactions"]);
 /** Comments a post shows before "Show all comments". */
 const SHOWN_COMMENTS = 3;
 
@@ -41,6 +42,7 @@ export default function FeedView({
   rows,
   readOnly,
   canComment,
+  colors,
 }: {
   workspaceId: string;
   databaseId: string;
@@ -50,6 +52,8 @@ export default function FeedView({
   readOnly?: boolean;
   /** The viewer may comment on and react to the posts (comment access, online, not in the trash). */
   canComment: boolean;
+  /** What the view's color rules color: a whole post, its title or values (lib/color-rules). */
+  colors?: ReadonlyMap<string, RowColors>;
 }) {
   const t = useTranslations("database.feed");
   const [limit, setLimit] = useState(FEED_PAGE_SIZE);
@@ -111,6 +115,7 @@ export default function FeedView({
             workspaceId={workspaceId}
             row={row}
             post={posts[row.id]}
+            color={colors?.get(row.id)}
             people={people}
             props={shownProps}
             canComment={canComment}
@@ -202,6 +207,7 @@ function FeedPostView({
   workspaceId,
   row,
   post,
+  color,
   people,
   props,
   canComment,
@@ -210,6 +216,7 @@ function FeedPostView({
 }: {
   workspaceId: string;
   row: Row;
+  color?: RowColors;
   /** Still loading while missing. */
   post: FeedPost | undefined;
   people: People;
@@ -225,13 +232,17 @@ function FeedPostView({
   const opener = useRowOpener(workspaceId);
   const isOpen = useIsOpenRow(opener, row.id);
   const shown = shownValues(props, row);
-  const author = row.createdBy ? people[row.createdBy] : undefined;
+  const author = post?.authorId ? people[post.authorId] : undefined;
   const authorName = author?.username ?? t("someone");
   const createdAt = new Date(row.createdAt);
   const label = pageLabel(row.title, tc("untitled"));
 
   return (
-    <article aria-label={label} className={cn("rounded-lg border border-border bg-bg px-4 py-3 sm:px-5 sm:py-4", isOpen && "border-fg-faint")}>
+    <article aria-label={label} className={cn(
+        "rounded-lg border border-border bg-bg px-4 py-3 sm:px-5 sm:py-4",
+        isOpen && "border-fg-faint",
+        color?.row && colorMarkClass(color.row),
+      )}>
       <header className="flex items-center gap-2 text-sm">
         {author?.isAgent && author.agentIcon ? (
           <span aria-hidden className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-bg-active text-xs">
@@ -264,13 +275,13 @@ function FeedPostView({
           className="inline-flex max-w-full items-start gap-1.5 rounded-sm text-lg leading-snug font-semibold hover:underline"
         >
           {row.icon && <PageIcon icon={row.icon} className="shrink-0" />}
-          <span className={cn("min-w-0 break-words", !row.title && "text-fg-faint")}>{label}</span>
+          <span className={cn("min-w-0 break-words", !row.title && "text-fg-faint", cellMarkClass(color, "title"))}>{label}</span>
         </a>
       </h3>
       {shown.length > 0 && (
         <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-fg-muted">
           {shown.map((p) => (
-            <span key={p.id} className="flex max-w-full min-w-0 items-center" title={p.name}>
+            <span key={p.id} className={cn("flex max-w-full min-w-0 items-center", cellMarkClass(color, p.id))} title={p.name}>
               <RowValue prop={p} row={row} />
             </span>
           ))}

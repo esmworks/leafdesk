@@ -96,6 +96,31 @@ export function feedExcerpt(
   return { markdown: kept.join("\n\n"), more };
 }
 
+/**
+ * The first part of a body as plain text, for a published feed (visitors get no Markdown renderer
+ * and no links into the workspace): links read as their text, but links to the app's pages (whose
+ * stored text names nothing, see lib/mentions) are left out with images; marks and markers go.
+ */
+export function feedPlainExcerpt(markdown: string, chars = FEED_EXCERPT_CHARS): string {
+  const { markdown: excerpt, more } = feedExcerpt(markdown, { chars });
+  const text = excerpt
+    .split("\n")
+    .filter((line) => !FENCE.test(line))
+    .map((line) =>
+      line
+        .replace(/!\[[^\]]*\]\([^)]*\)/g, "")
+        .replace(/\[([^\]]*)\]\(\/[^)]*\)/g, "")
+        .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
+        .replace(/^ {0,3}(?:#{1,6}\s+|>\s?|[*+-]\s+(?:\[[ xX]\]\s+)?|\d{1,9}[.)]\s+)/, "")
+        .replace(/(\*\*|__|~~|`)/g, "")
+        .trim(),
+    )
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+  return more && text && !text.endsWith("…") ? `${text}…` : text;
+}
+
 /** A block cut to about `chars`: at a line in fenced code (closing the fence), else at a word with "…". */
 function cutBlock(block: string, chars: number): string {
   const fence = FENCE.exec(block);

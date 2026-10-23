@@ -29,6 +29,7 @@
     "calendar": "日历",
     "gallery": "画廊",
     "list": "列表",
+    "feed": "动态",
     "timeline": "时间线",
     "chart": "图表",
     "dashboard": "仪表板",
@@ -760,6 +761,30 @@
   "list": {
     "new": "新建",
     "empty": "没有可显示的行。"
+  },
+  "feed": {
+    "someone": "某人",
+    "empty": "还没有帖子。",
+    "emptyCanPost": "还没有帖子。添加一行来写第一篇。",
+    "morePosts": "{count, plural, other {再显示 # 篇帖子}}",
+    "showMore": "显示更多",
+    "showLess": "收起",
+    "bodyCut": "其余内容在该行的页面上。",
+    "addReaction": "添加回应",
+    "reactedBy": "{names} 用 {emoji} 回应了",
+    "reactionCount": "{emoji}：{count, plural, other {# 个回应}}",
+    "comments": "评论",
+    "allComments": "{count, plural, other {显示全部 # 条评论}}",
+    "commentPlaceholder": "写评论…",
+    "send": "发送",
+    "errors": {
+      "failed": "出了点问题，请重试。",
+      "tooLong": "这条评论太长了。",
+      "notAllowed": "你不能在这里评论。",
+      "invalidEmoji": "请只选一个表情。",
+      "tooMany": "你在这篇帖子上留下的回应已达到每人上限。",
+      "inTrash": "回收站中的帖子不能添加回应。"
+    }
   },
   "chart": {
     "type": "图表类型",

@@ -29,6 +29,7 @@
     "calendar": "Calendrier",
     "gallery": "Galerie",
     "list": "Liste",
+    "feed": "Fil",
     "timeline": "Chronologie",
     "chart": "Graphique",
     "dashboard": "Tableau de bord",
@@ -760,6 +761,30 @@
   "list": {
     "new": "Nouveau",
     "empty": "Aucune ligne à afficher."
+  },
+  "feed": {
+    "someone": "Quelqu'un",
+    "empty": "Aucune publication pour l'instant.",
+    "emptyCanPost": "Aucune publication pour l'instant. Ajoutez une ligne pour écrire la première.",
+    "morePosts": "{count, plural, one {Afficher # publication de plus} other {Afficher # publications de plus}}",
+    "showMore": "Afficher plus",
+    "showLess": "Afficher moins",
+    "bodyCut": "La suite se trouve sur la page de la ligne.",
+    "addReaction": "Ajouter une réaction",
+    "reactedBy": "{names} a réagi avec {emoji}",
+    "reactionCount": "{emoji} : {count, plural, one {# réaction} other {# réactions}}",
+    "comments": "Commentaires",
+    "allComments": "{count, plural, one {Afficher # commentaire} other {Afficher les # commentaires}}",
+    "commentPlaceholder": "Écrire un commentaire…",
+    "send": "Envoyer",
+    "errors": {
+      "failed": "Une erreur s'est produite. Réessayez.",
+      "tooLong": "Ce commentaire est trop long.",
+      "notAllowed": "Vous ne pouvez pas commenter ici.",
+      "invalidEmoji": "Choisissez un seul emoji.",
+      "tooMany": "Vous avez laissé sur cette publication autant de réactions qu'une personne le peut.",
+      "inTrash": "Les publications dans la corbeille ne peuvent pas recevoir de réactions."
+    }
   },
   "chart": {
     "type": "Type de graphique",

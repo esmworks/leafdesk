@@ -29,6 +29,7 @@
     "calendar": "Kalender",
     "gallery": "Galerie",
     "list": "Liste",
+    "feed": "Feed",
     "timeline": "Zeitleiste",
     "chart": "Diagramm",
     "dashboard": "Dashboard",
@@ -760,6 +761,30 @@
   "list": {
     "new": "Neu",
     "empty": "Keine Zeilen zum Anzeigen."
+  },
+  "feed": {
+    "someone": "Jemand",
+    "empty": "Noch keine Beiträge.",
+    "emptyCanPost": "Noch keine Beiträge. Füge eine Zeile hinzu, um den ersten zu schreiben.",
+    "morePosts": "{count, plural, one {# weiteren Beitrag anzeigen} other {# weitere Beiträge anzeigen}}",
+    "showMore": "Mehr anzeigen",
+    "showLess": "Weniger anzeigen",
+    "bodyCut": "Der Rest steht auf der Seite der Zeile.",
+    "addReaction": "Reaktion hinzufügen",
+    "reactedBy": "{names} hat mit {emoji} reagiert",
+    "reactionCount": "{emoji}: {count, plural, one {# Reaktion} other {# Reaktionen}}",
+    "comments": "Kommentare",
+    "allComments": "{count, plural, one {# Kommentar anzeigen} other {Alle # Kommentare anzeigen}}",
+    "commentPlaceholder": "Kommentar schreiben…",
+    "send": "Senden",
+    "errors": {
+      "failed": "Etwas ist schiefgelaufen. Versuche es erneut.",
+      "tooLong": "Dieser Kommentar ist zu lang.",
+      "notAllowed": "Du kannst hier nicht kommentieren.",
+      "invalidEmoji": "Wähle ein einzelnes Emoji.",
+      "tooMany": "Du hast so viele Reaktionen auf diesen Beitrag hinterlassen, wie eine Person kann.",
+      "inTrash": "Beiträge im Papierkorb können keine Reaktionen erhalten."
+    }
   },
   "chart": {
     "type": "Diagrammtyp",

@@ -29,6 +29,7 @@
     "calendar": "Calendário",
     "gallery": "Galeria",
     "list": "Lista",
+    "feed": "Mural",
     "timeline": "Linha do tempo",
     "chart": "Gráfico",
     "dashboard": "Painel",
@@ -760,6 +761,30 @@
   "list": {
     "new": "Novo",
     "empty": "Nenhuma linha para mostrar."
+  },
+  "feed": {
+    "someone": "Alguém",
+    "empty": "Ainda não há publicações.",
+    "emptyCanPost": "Ainda não há publicações. Adicione uma linha para escrever a primeira.",
+    "morePosts": "{count, plural, one {Mostrar mais # publicação} other {Mostrar mais # publicações}}",
+    "showMore": "Mostrar mais",
+    "showLess": "Mostrar menos",
+    "bodyCut": "O restante está na página da linha.",
+    "addReaction": "Adicionar reação",
+    "reactedBy": "{names} reagiu com {emoji}",
+    "reactionCount": "{emoji}: {count, plural, one {# reação} other {# reações}}",
+    "comments": "Comentários",
+    "allComments": "{count, plural, one {Mostrar # comentário} other {Mostrar todos os # comentários}}",
+    "commentPlaceholder": "Escreva um comentário…",
+    "send": "Enviar",
+    "errors": {
+      "failed": "Algo deu errado. Tente novamente.",
+      "tooLong": "Esse comentário é longo demais.",
+      "notAllowed": "Você não pode comentar aqui.",
+      "invalidEmoji": "Escolha um único emoji.",
+      "tooMany": "Você já deixou nesta publicação tantas reações quanto uma pessoa pode.",
+      "inTrash": "Publicações na lixeira não podem receber reações."
+    }
   },
   "chart": {
     "type": "Tipo de gráfico",

@@ -29,6 +29,7 @@
     "calendar": "לוח שנה",
     "gallery": "גלריה",
     "list": "רשימה",
+    "feed": "פיד",
     "timeline": "ציר זמן",
     "chart": "תרשים",
     "dashboard": "לוח בקרה",
@@ -760,6 +761,30 @@
   "list": {
     "new": "חדש",
     "empty": "אין שורות להצגה."
+  },
+  "feed": {
+    "someone": "מישהו",
+    "empty": "אין עדיין פוסטים.",
+    "emptyCanPost": "אין עדיין פוסטים. אפשר להוסיף שורה כדי לכתוב את הראשון.",
+    "morePosts": "{count, plural, one {הצגת פוסט נוסף} other {הצגת # פוסטים נוספים}}",
+    "showMore": "הצגת עוד",
+    "showLess": "הצגת פחות",
+    "bodyCut": "ההמשך נמצא בדף של השורה.",
+    "addReaction": "הוספת תגובת אמוג׳י",
+    "reactedBy": "{names} הגיבו עם {emoji}",
+    "reactionCount": "{emoji}: {count, plural, one {תגובה אחת} other {# תגובות}}",
+    "comments": "תגובות",
+    "allComments": "{count, plural, one {הצגת תגובה אחת} other {הצגת כל # התגובות}}",
+    "commentPlaceholder": "כתיבת תגובה…",
+    "send": "שליחה",
+    "errors": {
+      "failed": "משהו השתבש. אפשר לנסות שוב.",
+      "tooLong": "התגובה ארוכה מדי.",
+      "notAllowed": "אין לך אפשרות להגיב כאן.",
+      "invalidEmoji": "יש לבחור אמוג׳י אחד.",
+      "tooMany": "השארת על הפוסט הזה את מספר התגובות המרבי לאדם אחד.",
+      "inTrash": "אי אפשר להגיב באמוג׳י לפוסטים שבאשפה."
+    }
   },
   "chart": {
     "type": "סוג התרשים",

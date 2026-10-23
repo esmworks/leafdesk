@@ -29,6 +29,7 @@
     "calendar": "Calendario",
     "gallery": "Galleria",
     "list": "Elenco",
+    "feed": "Bacheca",
     "timeline": "Timeline",
     "chart": "Grafico",
     "dashboard": "Dashboard",
@@ -760,6 +761,30 @@
   "list": {
     "new": "Nuovo",
     "empty": "Nessuna riga da mostrare."
+  },
+  "feed": {
+    "someone": "Qualcuno",
+    "empty": "Ancora nessun post.",
+    "emptyCanPost": "Ancora nessun post. Aggiungi una riga per scrivere il primo.",
+    "morePosts": "{count, plural, one {Mostra # altro post} other {Mostra altri # post}}",
+    "showMore": "Mostra di più",
+    "showLess": "Mostra meno",
+    "bodyCut": "Il resto è nella pagina della riga.",
+    "addReaction": "Aggiungi reazione",
+    "reactedBy": "{names} ha reagito con {emoji}",
+    "reactionCount": "{emoji}: {count, plural, one {# reazione} other {# reazioni}}",
+    "comments": "Commenti",
+    "allComments": "{count, plural, one {Mostra # commento} other {Mostra tutti i # commenti}}",
+    "commentPlaceholder": "Scrivi un commento…",
+    "send": "Invia",
+    "errors": {
+      "failed": "Qualcosa è andato storto. Riprova.",
+      "tooLong": "Questo commento è troppo lungo.",
+      "notAllowed": "Non puoi commentare qui.",
+      "invalidEmoji": "Scegli una sola emoji.",
+      "tooMany": "Hai lasciato su questo post tutte le reazioni che una persona può lasciare.",
+      "inTrash": "I post nel cestino non possono ricevere reazioni."
+    }
   },
   "chart": {
     "type": "Tipo di grafico",

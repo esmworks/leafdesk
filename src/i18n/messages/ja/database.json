@@ -29,6 +29,7 @@
     "calendar": "カレンダー",
     "gallery": "ギャラリー",
     "list": "リスト",
+    "feed": "フィード",
     "timeline": "タイムライン",
     "chart": "グラフ",
     "dashboard": "ダッシュボード",
@@ -760,6 +761,30 @@
   "list": {
     "new": "新規",
     "empty": "表示する行がありません。"
+  },
+  "feed": {
+    "someone": "だれか",
+    "empty": "まだ投稿はありません。",
+    "emptyCanPost": "まだ投稿はありません。行を追加して最初の投稿を書きましょう。",
+    "morePosts": "{count, plural, other {さらに # 件の投稿を表示}}",
+    "showMore": "もっと見る",
+    "showLess": "閉じる",
+    "bodyCut": "続きは行のページにあります。",
+    "addReaction": "リアクションを追加",
+    "reactedBy": "{names} さんが {emoji} でリアクションしました",
+    "reactionCount": "{emoji}: {count, plural, other {# 件のリアクション}}",
+    "comments": "コメント",
+    "allComments": "{count, plural, other {# 件のコメントをすべて表示}}",
+    "commentPlaceholder": "コメントを書く…",
+    "send": "送信",
+    "errors": {
+      "failed": "問題が発生しました。もう一度お試しください。",
+      "tooLong": "コメントが長すぎます。",
+      "notAllowed": "ここにはコメントできません。",
+      "invalidEmoji": "絵文字を 1 つ選んでください。",
+      "tooMany": "この投稿には 1 人が残せる上限までリアクションしています。",
+      "inTrash": "ゴミ箱の投稿にはリアクションできません。"
+    }
   },
   "chart": {
     "type": "グラフの種類",

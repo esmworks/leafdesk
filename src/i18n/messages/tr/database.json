@@ -29,6 +29,7 @@
     "calendar": "Takvim",
     "gallery": "Galeri",
     "list": "Liste",
+    "feed": "Akış",
     "timeline": "Zaman çizelgesi",
     "chart": "Grafik",
     "dashboard": "Gösterge paneli",
@@ -760,6 +761,30 @@
   "list": {
     "new": "Yeni",
     "empty": "Gösterilecek satır yok."
+  },
+  "feed": {
+    "someone": "Biri",
+    "empty": "Henüz gönderi yok.",
+    "emptyCanPost": "Henüz gönderi yok. İlkini yazmak için bir satır ekleyin.",
+    "morePosts": "{count, plural, one {# gönderi daha göster} other {# gönderi daha göster}}",
+    "showMore": "Daha fazla göster",
+    "showLess": "Daha az göster",
+    "bodyCut": "Devamı satırın sayfasında.",
+    "addReaction": "Tepki ekle",
+    "reactedBy": "{names} {emoji} ile tepki verdi",
+    "reactionCount": "{emoji}: {count, plural, one {# tepki} other {# tepki}}",
+    "comments": "Yorumlar",
+    "allComments": "{count, plural, one {# yorumu göster} other {# yorumun tümünü göster}}",
+    "commentPlaceholder": "Yorum yazın…",
+    "send": "Gönder",
+    "errors": {
+      "failed": "Bir sorun oluştu. Yeniden deneyin.",
+      "tooLong": "Bu yorum çok uzun.",
+      "notAllowed": "Burada yorum yapamazsınız.",
+      "invalidEmoji": "Tek bir emoji seçin.",
+      "tooMany": "Bu gönderiye bir kişinin bırakabileceği kadar tepki bıraktınız.",
+      "inTrash": "Çöp kutusundaki gönderilere tepki verilemez."
+    }
   },
   "chart": {
     "type": "Grafik türü",

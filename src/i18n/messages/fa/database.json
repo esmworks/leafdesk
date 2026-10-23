@@ -29,6 +29,7 @@
     "calendar": "تقویم",
     "gallery": "گالری",
     "list": "فهرست",
+    "feed": "فید",
     "timeline": "خط زمانی",
     "chart": "نمودار",
     "dashboard": "داشبورد",
@@ -760,6 +761,30 @@
   "list": {
     "new": "جدید",
     "empty": "ردیفی برای نمایش وجود ندارد."
+  },
+  "feed": {
+    "someone": "کسی",
+    "empty": "هنوز پستی نیست.",
+    "emptyCanPost": "هنوز پستی نیست. برای نوشتن اولین پست یک ردیف اضافه کنید.",
+    "morePosts": "{count, plural, one {نمایش # پست دیگر} other {نمایش # پست دیگر}}",
+    "showMore": "نمایش بیشتر",
+    "showLess": "نمایش کمتر",
+    "bodyCut": "ادامه در صفحهٔ ردیف است.",
+    "addReaction": "افزودن واکنش",
+    "reactedBy": "{names} با {emoji} واکنش نشان داد",
+    "reactionCount": "{emoji}: {count, plural, one {# واکنش} other {# واکنش}}",
+    "comments": "نظرها",
+    "allComments": "{count, plural, one {نمایش # نظر} other {نمایش همهٔ # نظر}}",
+    "commentPlaceholder": "نظری بنویسید…",
+    "send": "ارسال",
+    "errors": {
+      "failed": "مشکلی پیش آمد. دوباره امتحان کنید.",
+      "tooLong": "این نظر خیلی طولانی است.",
+      "notAllowed": "شما نمی‌توانید اینجا نظر بدهید.",
+      "invalidEmoji": "فقط یک ایموجی انتخاب کنید.",
+      "tooMany": "روی این پست به اندازهٔ حداکثر مجاز برای یک نفر واکنش گذاشته‌اید.",
+      "inTrash": "پست‌های داخل سطل زباله واکنش نمی‌گیرند."
+    }
   },
   "chart": {
     "type": "نوع نمودار",

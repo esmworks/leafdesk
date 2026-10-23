@@ -132,6 +132,7 @@ export function DatabaseEmbed({
         workspaceId={info.workspaceId}
         databaseId={databaseId}
         canEdit={hasLevel(info.level, "edit")}
+        canComment={hasLevel(info.level, "comment")}
         guest={info.guest}
         exportable={info.exportable}
         embed={embed}

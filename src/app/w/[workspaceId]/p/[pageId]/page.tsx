@@ -84,7 +84,14 @@ export default async function PageRoute({ params, searchParams }: Params & { sea
       style={p.kind === "database" ? undefined : pageStyleFromYdoc(p.ydoc)}
     >
       {p.kind === "database" ? (
-        <DatabasePage workspaceId={workspaceId} databaseId={p.id} canEdit={canEdit && !archived} guest={info.guest} exportable={info.exportable} />
+        <DatabasePage
+          workspaceId={workspaceId}
+          databaseId={p.id}
+          canEdit={canEdit && !archived}
+          canComment={(canEdit || info.level === "comment") && !archived}
+          guest={info.guest}
+          exportable={info.exportable}
+        />
       ) : isRow ? (
         <RowProperties workspaceId={workspaceId} databaseId={parent.id} rowId={p.id} readOnly={archived || !canEdit} />
       ) : null}

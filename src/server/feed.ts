@@ -24,6 +24,8 @@ export type FeedComment = Pick<PlainComment, "id" | "userId" | "createdAt" | "up
 export type FeedThread = { id: string; quote: string | null; comments: FeedComment[] };
 export type FeedPost = {
   id: string;
+  /** Who wrote the post: the row's creator (an agent too), or null when unknown. */
+  authorId: string | null;
   /** Markdown of the body's first blocks (lib/feed feedExcerpt), page links named for the viewer. */
   excerpt: string;
   /** The body goes on past the excerpt: "Show more" reads it (feedBody). */
@@ -84,6 +86,7 @@ export async function feedPosts(userId: string, databaseId: string, rowIds: stri
       const excerpt = feedExcerpt(row.head);
       return {
         id,
+        authorId: row.createdBy,
         excerpt: excerpt.markdown ? await labelPageLinks(userId, excerpt.markdown, labels) : "",
         more: excerpt.more || Number(row.length) > EXCERPT_READ,
         reactions: reactions[id] ?? [],

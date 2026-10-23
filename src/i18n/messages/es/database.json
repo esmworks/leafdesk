@@ -29,6 +29,7 @@
     "calendar": "Calendario",
     "gallery": "Galería",
     "list": "Lista",
+    "feed": "Muro",
     "timeline": "Cronograma",
     "chart": "Gráfico",
     "dashboard": "Panel",
@@ -760,6 +761,30 @@
   "list": {
     "new": "Nuevo",
     "empty": "No hay filas que mostrar."
+  },
+  "feed": {
+    "someone": "Alguien",
+    "empty": "Aún no hay publicaciones.",
+    "emptyCanPost": "Aún no hay publicaciones. Añade una fila para escribir la primera.",
+    "morePosts": "{count, plural, one {Mostrar # publicación más} other {Mostrar # publicaciones más}}",
+    "showMore": "Mostrar más",
+    "showLess": "Mostrar menos",
+    "bodyCut": "El resto está en la página de la fila.",
+    "addReaction": "Añadir reacción",
+    "reactedBy": "{names} reaccionó con {emoji}",
+    "reactionCount": "{emoji}: {count, plural, one {# reacción} other {# reacciones}}",
+    "comments": "Comentarios",
+    "allComments": "{count, plural, one {Mostrar # comentario} other {Mostrar los # comentarios}}",
+    "commentPlaceholder": "Escribe un comentario…",
+    "send": "Enviar",
+    "errors": {
+      "failed": "Algo salió mal. Inténtalo de nuevo.",
+      "tooLong": "Ese comentario es demasiado largo.",
+      "notAllowed": "No puedes comentar aquí.",
+      "invalidEmoji": "Elige un solo emoji.",
+      "tooMany": "Ya dejaste en esta publicación tantas reacciones como puede una persona.",
+      "inTrash": "Las publicaciones de la papelera no pueden recibir reacciones."
+    }
   },
   "chart": {
     "type": "Tipo de gráfico",

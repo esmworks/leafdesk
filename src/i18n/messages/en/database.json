@@ -29,6 +29,7 @@
     "calendar": "Calendar",
     "gallery": "Gallery",
     "list": "List",
+    "feed": "Feed",
     "timeline": "Timeline",
     "chart": "Chart",
     "dashboard": "Dashboard",
@@ -760,6 +761,30 @@
   "list": {
     "new": "New",
     "empty": "No rows to show."
+  },
+  "feed": {
+    "someone": "Someone",
+    "empty": "No posts yet.",
+    "emptyCanPost": "No posts yet. Add a row to write the first one.",
+    "morePosts": "{count, plural, one {Show # more post} other {Show # more posts}}",
+    "showMore": "Show more",
+    "showLess": "Show less",
+    "bodyCut": "The rest is on the row's page.",
+    "addReaction": "Add reaction",
+    "reactedBy": "{names} reacted with {emoji}",
+    "reactionCount": "{emoji}: {count, plural, one {# reaction} other {# reactions}}",
+    "comments": "Comments",
+    "allComments": "{count, plural, one {Show # comment} other {Show all # comments}}",
+    "commentPlaceholder": "Write a comment…",
+    "send": "Send",
+    "errors": {
+      "failed": "Something went wrong. Try again.",
+      "tooLong": "That comment is too long.",
+      "notAllowed": "You can't comment here.",
+      "invalidEmoji": "Pick a single emoji.",
+      "tooMany": "You've left as many reactions on this post as one person can.",
+      "inTrash": "Posts in the trash can't get reactions."
+    }
   },
   "chart": {
     "type": "Chart type",
