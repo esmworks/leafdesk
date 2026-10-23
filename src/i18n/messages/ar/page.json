@@ -52,6 +52,7 @@
     "exportPreparing": "جارٍ تحضير التصدير…",
     "versionHistory": "سجل النسخ",
     "lastEdited": "آخر تعديل بواسطة {name}",
+    "wordCount": "الكلمات: {words}، الأحرف: {characters}",
     "actionFailed": "تعذّر إتمام ذلك.",
     "viewers": "{count, plural, one {شخص آخر يشاهد هذه الصفحة} two {شخصان آخران يشاهدان هذه الصفحة} few {# أشخاص آخرين يشاهدون هذه الصفحة} many {# شخصًا آخر يشاهدون هذه الصفحة} other {# شخص آخر يشاهدون هذه الصفحة}}",
     "viewersTitle": "يشاهدون هذه الصفحة",

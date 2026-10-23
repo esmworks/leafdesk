@@ -243,6 +243,7 @@
     "rowActions": "Satır işlemleri",
     "dragToMove": "Taşımak için sürükleyin",
     "clickForMenu": "Menüyü açmak için tıklayın",
+    "sortedNoDrag": "Görünüm sıralıyken satırlar sürüklenemez",
     "sortedAscending": "Artan sıralı",
     "sortedDescending": "Azalan sıralı"
   },

@@ -243,6 +243,7 @@
     "rowActions": "Actions sur la ligne",
     "dragToMove": "Faites glisser pour déplacer",
     "clickForMenu": "Cliquez pour ouvrir le menu",
+    "sortedNoDrag": "Les lignes ne se déplacent pas tant que la vue est triée",
     "sortedAscending": "Tri croissant",
     "sortedDescending": "Tri décroissant"
   },

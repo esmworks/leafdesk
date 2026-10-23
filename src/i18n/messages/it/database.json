@@ -243,6 +243,7 @@
     "rowActions": "Azioni sulla riga",
     "dragToMove": "Trascina per spostare",
     "clickForMenu": "Fai clic per aprire il menu",
+    "sortedNoDrag": "Le righe non si possono trascinare mentre la vista è ordinata",
     "sortedAscending": "Ordinata in modo crescente",
     "sortedDescending": "Ordinata in modo decrescente"
   },

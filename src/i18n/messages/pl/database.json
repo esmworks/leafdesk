@@ -243,6 +243,7 @@
     "rowActions": "Działania na wierszu",
     "dragToMove": "Przeciągnij, aby przenieść",
     "clickForMenu": "Kliknij, aby otworzyć menu",
+    "sortedNoDrag": "Wierszy nie można przeciągać, gdy widok jest posortowany",
     "sortedAscending": "Posortowano rosnąco",
     "sortedDescending": "Posortowano malejąco"
   },

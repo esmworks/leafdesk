@@ -243,6 +243,7 @@
     "rowActions": "إجراءات الصف",
     "dragToMove": "اسحب للنقل",
     "clickForMenu": "انقر لفتح القائمة",
+    "sortedNoDrag": "لا يمكن سحب الصفوف ما دام العرض مرتبًا",
     "sortedAscending": "مرتبة تصاعديًا",
     "sortedDescending": "مرتبة تنازليًا"
   },

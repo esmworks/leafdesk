@@ -48,6 +48,10 @@
     "nextRow": "Riga successiva (con una riga aperta accanto alla vista)",
     "moveBar": "Sposta una barra della timeline di un giorno",
     "saveFormula": "Salva una formula o un prompt di compilazione automatica con l’IA",
-    "clearSelection": "Deseleziona le righe"
+    "clearSelection": "Deseleziona le righe",
+    "rowDuplicate": "Duplica la riga (con il suo menu aperto in una tabella)",
+    "rowMoveTo": "Sposta la riga altrove (con il suo menu aperto)",
+    "rowComment": "Commenta la riga (con il suo menu aperto)",
+    "rowTrash": "Sposta la riga nel cestino (con il suo menu aperto)"
   }
 }

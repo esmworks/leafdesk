@@ -1,4 +1,4 @@
-import { and, asc, eq, isNull } from "drizzle-orm";
+import { and, asc, eq, isNull, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { db } from "@/db";
 import { page, pageFavorite, type PageKind, user } from "@/db/schema";
@@ -24,6 +24,9 @@ export type PageHeaderInfo = {
   createdBy: string | null;
   updatedAt: Date;
   updatedBy: string | null;
+  /** The body's words (runs of characters between spaces) and characters, line breaks left out. */
+  words: number;
+  characters: number;
   favorite: boolean;
   locked: boolean;
   /**
@@ -62,7 +65,12 @@ export async function getPageHeaderInfo(userId: string, pageId: string): Promise
   const isSkill = found.isSkill && !found.inTemplate;
   const [[names], [star], membership, topLevel, ai, voice, exportable, accessRequests, following, watching, outdated, skillProperty] = await Promise.all([
     db
-      .select({ createdBy: creator.name, updatedBy: editor.name })
+      .select({
+        createdBy: creator.name,
+        updatedBy: editor.name,
+        words: sql<number>`(select count(*) from regexp_matches(${page.contentText}, '\\S+', 'g'))`.mapWith(Number),
+        characters: sql<number>`char_length(regexp_replace(${page.contentText}, '[\\r\\n]', '', 'g'))`.mapWith(Number),
+      })
       .from(page)
       .leftJoin(creator, eq(creator.id, page.createdBy))
       .leftJoin(editor, eq(editor.id, page.updatedBy))
@@ -90,6 +98,8 @@ export async function getPageHeaderInfo(userId: string, pageId: string): Promise
     createdBy: names?.createdBy ?? null,
     updatedAt: found.updatedAt,
     updatedBy: names?.updatedBy ?? null,
+    words: names?.words ?? 0,
+    characters: names?.characters ?? 0,
     favorite: Boolean(star),
     locked: Boolean(found.lockedAt),
     template: found.isTemplate ? (found.parentId ? "row" : "workspace") : found.inTemplate ? "inside" : null,

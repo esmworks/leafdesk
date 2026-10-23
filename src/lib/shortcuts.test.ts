@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import texts from "@/i18n/messages/en/shortcuts.json";
-import { comboText, keyLabels, opensPresentation, opensShortcuts, SHORTCUT_GROUPS } from "./shortcuts";
+import { comboText, keyLabels, opensPresentation, opensShortcuts, rowMenuShortcut, SHORTCUT_GROUPS } from "./shortcuts";
 import { SUBSCRIPT, SUPERSCRIPT, TEXT_SCRIPT_SHORTCUTS } from "./text-scripts";
 
 const press = (key: string, init: Partial<KeyboardEvent> = {}, target: unknown = null) =>
@@ -87,5 +87,30 @@ describe("opensPresentation", () => {
   it("leaves keys something else handled, and text being composed", () => {
     expect(opensPresentation(press("π", { code: "KeyP", metaKey: true, altKey: true, defaultPrevented: true }), true)).toBe(false);
     expect(opensPresentation(press("π", { code: "KeyP", metaKey: true, altKey: true, isComposing: true }), true)).toBe(false);
+  });
+});
+
+describe("rowMenuShortcut", () => {
+  it("duplicates, moves and comments with the system's Mod key, by the key's place", () => {
+    expect(rowMenuShortcut(press("d", { code: "KeyD", metaKey: true }), true)).toBe("duplicate");
+    expect(rowMenuShortcut(press("d", { code: "KeyD", ctrlKey: true }), false)).toBe("duplicate");
+    expect(rowMenuShortcut(press("P", { code: "KeyP", metaKey: true, shiftKey: true }), true)).toBe("moveTo");
+    expect(rowMenuShortcut(press("M", { code: "KeyM", ctrlKey: true, shiftKey: true }), false)).toBe("comment");
+    expect(rowMenuShortcut(press("d", { code: "KeyD", ctrlKey: true }), true)).toBe(null);
+    expect(rowMenuShortcut(press("D", { code: "KeyD", metaKey: true, shiftKey: true }), true)).toBe(null);
+    expect(rowMenuShortcut(press("p", { code: "KeyP", metaKey: true }), true)).toBe(null);
+    expect(rowMenuShortcut(press("d", { code: "KeyD" }), true)).toBe(null);
+  });
+
+  it("moves to the trash on Del, except while a field has text to delete", () => {
+    expect(rowMenuShortcut(press("Delete", {}, element(false)), true)).toBe("trash");
+    expect(rowMenuShortcut(press("Delete", {}, { ...element(true), value: "" }), true)).toBe("trash");
+    expect(rowMenuShortcut(press("Delete", {}, { ...element(true), value: "kop" }), true)).toBe(null);
+    expect(rowMenuShortcut(press("Backspace", {}, element(false)), true)).toBe(null);
+  });
+
+  it("leaves keys something else handled, and text being composed", () => {
+    expect(rowMenuShortcut(press("d", { code: "KeyD", metaKey: true, defaultPrevented: true }), true)).toBe(null);
+    expect(rowMenuShortcut(press("d", { code: "KeyD", metaKey: true, isComposing: true }), true)).toBe(null);
   });
 });

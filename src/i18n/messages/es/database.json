@@ -243,6 +243,7 @@
     "rowActions": "Acciones de fila",
     "dragToMove": "Arrastra para mover",
     "clickForMenu": "Haz clic para abrir el menú",
+    "sortedNoDrag": "Las filas no se pueden arrastrar mientras la vista está ordenada",
     "sortedAscending": "Orden ascendente",
     "sortedDescending": "Orden descendente"
   },

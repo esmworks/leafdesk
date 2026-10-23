@@ -52,6 +52,7 @@
     "exportPreparing": "내보내기 준비 중…",
     "versionHistory": "버전 기록",
     "lastEdited": "{name}이(가) 마지막으로 편집함",
+    "wordCount": "{words}단어, {characters}자",
     "actionFailed": "작업을 완료하지 못했습니다.",
     "viewers": "다른 사람 {count}명이 이 페이지를 보고 있습니다",
     "viewersTitle": "이 페이지를 보는 사람",

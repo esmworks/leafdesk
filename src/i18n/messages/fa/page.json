@@ -52,6 +52,7 @@
     "exportPreparing": "در حال آماده‌سازی برون‌بری…",
     "versionHistory": "تاریخچه نسخه‌ها",
     "lastEdited": "آخرین ویرایش توسط {name}",
+    "wordCount": "{words} واژه، {characters} نویسه",
     "actionFailed": "این کار انجام نشد.",
     "viewers": "{count, plural, one {# نفر دیگر در حال دیدن این صفحه است} other {# نفر دیگر در حال دیدن این صفحه هستند}}",
     "viewersTitle": "در حال دیدن این صفحه",

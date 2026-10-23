@@ -243,6 +243,7 @@
     "rowActions": "Ações da linha",
     "dragToMove": "Arraste para mover",
     "clickForMenu": "Clique para abrir o menu",
+    "sortedNoDrag": "As linhas não podem ser arrastadas enquanto a vista está ordenada",
     "sortedAscending": "Em ordem crescente",
     "sortedDescending": "Em ordem decrescente"
   },

@@ -52,6 +52,7 @@
     "exportPreparing": "エクスポートを準備中…",
     "versionHistory": "バージョン履歴",
     "lastEdited": "最終編集者：{name}",
+    "wordCount": "{words} 語、{characters} 文字",
     "actionFailed": "操作を完了できませんでした。",
     "viewers": "ほかに{count}人がこのページを表示しています",
     "viewersTitle": "このページを表示中",

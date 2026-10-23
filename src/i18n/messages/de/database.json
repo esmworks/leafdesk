@@ -243,6 +243,7 @@
     "rowActions": "Zeilenaktionen",
     "dragToMove": "Zum Verschieben ziehen",
     "clickForMenu": "Klicken, um das Menü zu öffnen",
+    "sortedNoDrag": "Zeilen lassen sich nicht ziehen, solange die Ansicht sortiert ist",
     "sortedAscending": "Aufsteigend sortiert",
     "sortedDescending": "Absteigend sortiert"
   },

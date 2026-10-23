@@ -243,6 +243,7 @@
     "rowActions": "פעולות על השורה",
     "dragToMove": "גררו כדי להזיז",
     "clickForMenu": "לחצו כדי לפתוח את התפריט",
+    "sortedNoDrag": "אי אפשר לגרור שורות כשהתצוגה ממוינת",
     "sortedAscending": "ממוין בסדר עולה",
     "sortedDescending": "ממוין בסדר יורד"
   },

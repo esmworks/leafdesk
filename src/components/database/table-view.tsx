@@ -12,7 +12,7 @@ import { isAutofillType } from "@/lib/ai";
 import { valueType } from "@/lib/derived";
 import { arrangeGroups, canAddToGroup, groupDefaults, groupRowsBy, type Group } from "@/lib/grouping";
 import { isEmptyValue, lostValues, planConversion } from "@/lib/convert-property";
-import { isGroupable, isSortable, moveProperty, positionBetween } from "@/lib/properties";
+import { isGroupable, isSortable, moveProperty } from "@/lib/properties";
 import { isReadOnlyType } from "@/lib/property-types";
 import { opensNewTab } from "@/lib/row-panel";
 import { MAX_COLUMN_WIDTH, MIN_COLUMN_WIDTH } from "@/lib/views";
@@ -408,6 +408,7 @@ export function TableView({
                 opener={opener}
                 row={row}
                 drag={drag}
+                sorted={!!view.config.sorts?.length}
                 columns={editableColumns(row)}
                 api={api}
                 onEditProperty={(key) => editCell(at, key)}
@@ -561,7 +562,7 @@ export function TableView({
       const others = siblings.filter((r) => r.id !== movedId);
       const at = others.findIndex((r) => r.id === rowIdOf(target)) + (side === "after" ? 1 : 0);
       if (siblings.findIndex((r) => r.id === movedId) === at) return;
-      void api.moveRow(movedId, { position: positionBetween(others[at - 1]?.position, others[at]?.position) });
+      void api.moveRowBeside(movedId, rowIdOf(target), side);
     },
     ROW_DRAG_TYPE,
     (moved, target) => siblingsOf(target).some((r) => r.id === rowIdOf(moved)) && placeOf.get(moved)?.list === placeOf.get(target)?.list,

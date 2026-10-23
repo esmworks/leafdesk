@@ -52,6 +52,7 @@
     "exportPreparing": "正在准备导出…",
     "versionHistory": "版本历史",
     "lastEdited": "最后由 {name} 编辑",
+    "wordCount": "{words} 个词，{characters} 个字符",
     "actionFailed": "无法完成该操作。",
     "viewers": "另有 {count} 人正在查看此页面",
     "viewersTitle": "正在查看此页面",
