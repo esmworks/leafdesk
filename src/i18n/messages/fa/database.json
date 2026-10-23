@@ -241,12 +241,16 @@
     "noSearchMatches": "هیچ ردیفی با جستجو مطابقت ندارد.",
     "addProperty": "افزودن ویژگی",
     "rowActions": "اقدامات ردیف",
+    "dragToMove": "برای جابه‌جایی بکشید",
+    "clickForMenu": "برای باز کردن منو کلیک کنید",
     "sortedAscending": "مرتب‌شده به‌صورت صعودی",
     "sortedDescending": "مرتب‌شده به‌صورت نزولی"
   },
   "rowMenu": {
     "open": "باز کردن",
-    "openPage": "باز کردن به‌صورت صفحه کامل"
+    "openPage": "باز کردن به‌صورت صفحه کامل",
+    "copyLink": "کپی لینک",
+    "duplicate": "تکثیر"
   },
   "rowPanel": {
     "label": "ردیف: {title}",

@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowDown, ArrowUp, Bot, ChevronRight, Ellipsis, EyeOff, Plus, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, Bot, ChevronRight, Copy, Ellipsis, EyeOff, GripVertical, Link2, Plus, Trash2 } from "lucide-react";
 import { useTimeZone, useTranslations } from "next-intl";
 import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { cn, MenuItem, MenuSeparator } from "@/components/ui";
@@ -12,7 +12,7 @@ import { isAutofillType } from "@/lib/ai";
 import { valueType } from "@/lib/derived";
 import { arrangeGroups, canAddToGroup, groupDefaults, groupRowsBy, type Group } from "@/lib/grouping";
 import { isEmptyValue, lostValues, planConversion } from "@/lib/convert-property";
-import { isGroupable, isSortable, moveProperty } from "@/lib/properties";
+import { isGroupable, isSortable, moveProperty, positionBetween } from "@/lib/properties";
 import { opensNewTab } from "@/lib/row-panel";
 import { MAX_COLUMN_WIDTH, MIN_COLUMN_WIDTH } from "@/lib/views";
 import { pageLabel } from "@/lib/labels";
@@ -61,6 +61,10 @@ const SHOWN_AS_PASTED = new Set<string>(["text", "number", "date", "checkbox", "
 type BodyItem =
   | { kind: "row"; key: string; line: SubItemLine<Row>; group?: Group<Row>; at: number }
   | { kind: "group" | "add" | "calc"; key: string; group: Group<Row> };
+/** A row's key in the body: a row with several tags shows once in each of their groups. */
+const rowKey = (rowId: string, group?: Group<Row>) => `${group?.key ?? ""}\u0000${rowId}`;
+const rowIdOf = (key: string) => key.slice(key.lastIndexOf("\u0000") + 1);
+const ROW_DRAG_TYPE = "application/x-leafdesk-row";
 /** Heights to place rows by until they are measured (see useTableWindow). */
 const ESTIMATE: Record<BodyItem["kind"], number> = { row: 34, group: 40, add: 33, calc: 34 };
 
@@ -363,17 +367,34 @@ export function TableView({
     // The row open in the panel beside the table is tinted like a selected one.
     const selected = selection.isSelected(row.id) || openRow === row.id;
     const label = pageLabel(row.title, tc("untitled"));
+    const drag = movable ? rowDrag.handlers(rowKey(row.id, group)) : undefined;
     return (
       <tr
         key={row.id}
         ref={measureRow}
         data-index={index}
         {...openRowProps(opener, row.id, false)}
-        className={cn("group", selected && "bg-accent/5")}
+        onDragOver={drag?.onDragOver}
+        onDrop={drag?.onDrop}
+        className={cn(
+          "group",
+          selected && "bg-accent/5",
+          drag?.dragging && "opacity-50",
+          drag?.dropSide === "before" && "[&>td]:shadow-[inset_0_2px_0_var(--accent)]",
+          drag?.dropSide === "after" && "[&>td]:shadow-[inset_0_-2px_0_var(--accent)]",
+        )}
       >
         <td className={cn("p-0 align-middle", frozen(-1, selected).className)} style={frozen(-1).style}>
           <div className="flex items-center justify-end">
-            {!readOnly && <RowMenu opener={opener} rowId={row.id} onDelete={() => api.deleteRow(row.id)} />}
+            {!readOnly && (
+              <RowMenu
+                opener={opener}
+                rowId={row.id}
+                drag={drag}
+                onDuplicate={() => api.duplicateRows([row.id])}
+                onDelete={() => api.deleteRow(row.id)}
+              />
+            )}
             <SelectBox
               checked={selection.isSelected(row.id)}
               label={t("bulk.selectRow")}
@@ -479,11 +500,14 @@ export function TableView({
   // the keyboard moves through (a row shows once in every group it is in, so lines count by place).
   const items: BodyItem[] = [];
   const gridRows: { line: SubItemLine<Row>; item: number }[] = [];
+  const placeOf = new Map<string, { list: SubItemLine<Row>[]; index: number }>();
   const addLines = (list: SubItemLine<Row>[], group?: Group<Row>) => {
-    for (const line of list) {
-      items.push({ kind: "row", key: `${group?.key ?? ""}\u0000${line.row.id}`, line, group, at: gridRows.length });
+    list.forEach((line, index) => {
+      const key = rowKey(line.row.id, group);
+      items.push({ kind: "row", key, line, group, at: gridRows.length });
       gridRows.push({ line, item: items.length - 1 });
-    }
+      placeOf.set(key, { list, index });
+    });
   };
   if (!grouping) addLines(lines.all);
   else
@@ -494,6 +518,35 @@ export function TableView({
       if (canAddTo(group)) items.push({ kind: "add", key: `add\u0000${group.key}`, group });
       if (calculated && group.rows.length > 0) items.push({ kind: "calc", key: `calc\u0000${group.key}`, group });
     }
+
+  // While no sort orders the rows, a row's handle moves it among the rows of its group and, when
+  // sub-items nest, under the same parent: it takes a position between the two it lands between.
+  const movable = !readOnly && !view.config.sorts?.length;
+  /** The rows the row shown as `key` moves among, in their order. */
+  const siblingsOf = (key: string) => {
+    const place = placeOf.get(key);
+    if (!place) return [];
+    const { list, index } = place;
+    const depth = list[index].depth;
+    let start = index;
+    while (start > 0 && list[start - 1].depth >= depth) start--;
+    let end = index + 1;
+    while (end < list.length && list[end].depth >= depth) end++;
+    return list.slice(start, end).filter((l) => l.depth === depth).map((l) => l.row);
+  };
+  const rowDrag = useReorderDrag(
+    "y",
+    (moved, target, side) => {
+      const movedId = rowIdOf(moved);
+      const siblings = siblingsOf(target);
+      const others = siblings.filter((r) => r.id !== movedId);
+      const at = others.findIndex((r) => r.id === rowIdOf(target)) + (side === "after" ? 1 : 0);
+      if (siblings.findIndex((r) => r.id === movedId) === at) return;
+      void api.moveRow(movedId, { position: positionBetween(others[at - 1]?.position, others[at]?.position) });
+    },
+    ROW_DRAG_TYPE,
+    (moved, target) => siblingsOf(target).some((r) => r.id === rowIdOf(moved)) && placeOf.get(moved)?.list === placeOf.get(target)?.list,
+  );
   const [thead, setThead] = useState<HTMLTableSectionElement | null>(null);
   // The body renders on its own as the page scrolls (see TableBody); what it needs from here goes
   // through these refs: how to measure a row, and how to bring one into view.
@@ -1006,7 +1059,23 @@ function AddPropertyButton({
   );
 }
 
-function RowMenu({ opener, rowId, onDelete }: { opener: RowOpener; rowId: string; onDelete: () => void }) {
+/**
+ * The handle before a row: dragging it moves the row (`drag`, while no sort orders the rows),
+ * clicking it opens the row's menu.
+ */
+function RowMenu({
+  opener,
+  rowId,
+  drag,
+  onDuplicate,
+  onDelete,
+}: {
+  opener: RowOpener;
+  rowId: string;
+  drag?: ReorderDragHandlers;
+  onDuplicate: () => void;
+  onDelete: () => void;
+}) {
   const t = useTranslations("database");
   const tc = useTranslations("common");
   const menu = useFloating<HTMLButtonElement>();
@@ -1016,16 +1085,49 @@ function RowMenu({ opener, rowId, onDelete }: { opener: RowOpener; rowId: string
         ref={menu.ref}
         type="button"
         aria-label={t("table.rowActions")}
+        title={drag ? `${t("table.dragToMove")}\n${t("table.clickForMenu")}` : t("table.rowActions")}
+        aria-haspopup="menu"
+        aria-expanded={menu.open}
         onClick={menu.toggle}
+        draggable={!!drag}
+        onDragStart={(e) => {
+          if (!drag) return;
+          menu.close();
+          drag.onDragStart(e);
+          // The whole row follows the pointer, not just the handle.
+          const row = e.currentTarget.closest("tr");
+          if (row) e.dataTransfer.setDragImage(row, e.nativeEvent.offsetX, e.nativeEvent.offsetY);
+        }}
+        onDragEnd={drag?.onDragEnd}
         className={cn(
-          "flex h-6 w-6 items-center justify-center rounded text-fg-faint hover:bg-bg-hover hover:text-fg",
+          "flex h-6 w-5 items-center justify-center rounded text-fg-faint hover:bg-bg-hover hover:text-fg",
+          drag && "cursor-grab active:cursor-grabbing",
           menu.open ? "visible" : "invisible group-hover:visible pointer-coarse:visible",
         )}
       >
-        <Ellipsis className="h-4 w-4" />
+        <GripVertical className="h-4 w-4" />
       </button>
       <Floating open={menu.open} anchor={menu.el} onClose={menu.close}>
         <OpenRowItems opener={opener} rowId={rowId} onDone={menu.close} />
+        <MenuItem
+          icon={<Link2 className="h-3.5 w-3.5" />}
+          onClick={() => {
+            menu.close();
+            // A browser that refuses the clipboard leaves things as they were.
+            navigator.clipboard.writeText(new URL(opener.href(rowId), window.location.origin).href).catch(() => {});
+          }}
+        >
+          {t("rowMenu.copyLink")}
+        </MenuItem>
+        <MenuItem
+          icon={<Copy className="h-3.5 w-3.5" />}
+          onClick={() => {
+            menu.close();
+            onDuplicate();
+          }}
+        >
+          {t("rowMenu.duplicate")}
+        </MenuItem>
         <MenuSeparator />
         <MenuItem
           danger

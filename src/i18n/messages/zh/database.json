@@ -241,12 +241,16 @@
     "noSearchMatches": "没有与搜索匹配的行。",
     "addProperty": "添加属性",
     "rowActions": "行操作",
+    "dragToMove": "拖动以移动",
+    "clickForMenu": "点击打开菜单",
     "sortedAscending": "已升序排列",
     "sortedDescending": "已降序排列"
   },
   "rowMenu": {
     "open": "打开",
-    "openPage": "以完整页面打开"
+    "openPage": "以完整页面打开",
+    "copyLink": "复制链接",
+    "duplicate": "创建副本"
   },
   "rowPanel": {
     "label": "行：{title}",

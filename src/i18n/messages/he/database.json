@@ -241,12 +241,16 @@
     "noSearchMatches": "אין שורות שתואמות לחיפוש.",
     "addProperty": "הוספת מאפיין",
     "rowActions": "פעולות על השורה",
+    "dragToMove": "גררו כדי להזיז",
+    "clickForMenu": "לחצו כדי לפתוח את התפריט",
     "sortedAscending": "ממוין בסדר עולה",
     "sortedDescending": "ממוין בסדר יורד"
   },
   "rowMenu": {
     "open": "פתיחה",
-    "openPage": "פתיחה כדף מלא"
+    "openPage": "פתיחה כדף מלא",
+    "copyLink": "העתקת קישור",
+    "duplicate": "שכפול"
   },
   "rowPanel": {
     "label": "שורה: {title}",

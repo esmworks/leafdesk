@@ -241,12 +241,16 @@
     "noSearchMatches": "Жоден рядок не відповідає пошуку.",
     "addProperty": "Додати властивість",
     "rowActions": "Дії з рядком",
+    "dragToMove": "Перетягніть, щоб перемістити",
+    "clickForMenu": "Натисніть, щоб відкрити меню",
     "sortedAscending": "Відсортовано за зростанням",
     "sortedDescending": "Відсортовано за спаданням"
   },
   "rowMenu": {
     "open": "Відкрити",
-    "openPage": "Відкрити на всю сторінку"
+    "openPage": "Відкрити на всю сторінку",
+    "copyLink": "Копіювати посилання",
+    "duplicate": "Дублювати"
   },
   "rowPanel": {
     "label": "Рядок: {title}",

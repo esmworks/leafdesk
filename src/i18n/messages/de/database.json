@@ -241,12 +241,16 @@
     "noSearchMatches": "Keine Zeilen passen zur Suche.",
     "addProperty": "Eigenschaft hinzufügen",
     "rowActions": "Zeilenaktionen",
+    "dragToMove": "Zum Verschieben ziehen",
+    "clickForMenu": "Klicken, um das Menü zu öffnen",
     "sortedAscending": "Aufsteigend sortiert",
     "sortedDescending": "Absteigend sortiert"
   },
   "rowMenu": {
     "open": "Öffnen",
-    "openPage": "Als ganze Seite öffnen"
+    "openPage": "Als ganze Seite öffnen",
+    "copyLink": "Link kopieren",
+    "duplicate": "Duplizieren"
   },
   "rowPanel": {
     "label": "Zeile: {title}",

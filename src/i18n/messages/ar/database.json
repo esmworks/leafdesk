@@ -241,12 +241,16 @@
     "noSearchMatches": "لا توجد صفوف تطابق البحث.",
     "addProperty": "إضافة خاصية",
     "rowActions": "إجراءات الصف",
+    "dragToMove": "اسحب للنقل",
+    "clickForMenu": "انقر لفتح القائمة",
     "sortedAscending": "مرتبة تصاعديًا",
     "sortedDescending": "مرتبة تنازليًا"
   },
   "rowMenu": {
     "open": "فتح",
-    "openPage": "الفتح كصفحة كاملة"
+    "openPage": "الفتح كصفحة كاملة",
+    "copyLink": "نسخ الرابط",
+    "duplicate": "تكرار"
   },
   "rowPanel": {
     "label": "الصف: {title}",

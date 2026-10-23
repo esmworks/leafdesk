@@ -241,12 +241,16 @@
     "noSearchMatches": "검색과 일치하는 행이 없습니다.",
     "addProperty": "속성 추가",
     "rowActions": "행 작업",
+    "dragToMove": "드래그하여 이동",
+    "clickForMenu": "클릭하여 메뉴 열기",
     "sortedAscending": "오름차순 정렬됨",
     "sortedDescending": "내림차순 정렬됨"
   },
   "rowMenu": {
     "open": "열기",
-    "openPage": "전체 페이지로 열기"
+    "openPage": "전체 페이지로 열기",
+    "copyLink": "링크 복사",
+    "duplicate": "복제"
   },
   "rowPanel": {
     "label": "행: {title}",

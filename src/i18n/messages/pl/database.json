@@ -241,12 +241,16 @@
     "noSearchMatches": "Żaden wiersz nie pasuje do wyszukiwania.",
     "addProperty": "Dodaj właściwość",
     "rowActions": "Działania na wierszu",
+    "dragToMove": "Przeciągnij, aby przenieść",
+    "clickForMenu": "Kliknij, aby otworzyć menu",
     "sortedAscending": "Posortowano rosnąco",
     "sortedDescending": "Posortowano malejąco"
   },
   "rowMenu": {
     "open": "Otwórz",
-    "openPage": "Otwórz jako pełną stronę"
+    "openPage": "Otwórz jako pełną stronę",
+    "copyLink": "Kopiuj link",
+    "duplicate": "Duplikuj"
   },
   "rowPanel": {
     "label": "Wiersz: {title}",

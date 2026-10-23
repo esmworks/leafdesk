@@ -241,12 +241,16 @@
     "noSearchMatches": "Nenhuma linha corresponde à pesquisa.",
     "addProperty": "Adicionar propriedade",
     "rowActions": "Ações da linha",
+    "dragToMove": "Arraste para mover",
+    "clickForMenu": "Clique para abrir o menu",
     "sortedAscending": "Em ordem crescente",
     "sortedDescending": "Em ordem decrescente"
   },
   "rowMenu": {
     "open": "Abrir",
-    "openPage": "Abrir como página inteira"
+    "openPage": "Abrir como página inteira",
+    "copyLink": "Copiar link",
+    "duplicate": "Duplicar"
   },
   "rowPanel": {
     "label": "Linha: {title}",

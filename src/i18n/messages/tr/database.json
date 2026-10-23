@@ -241,12 +241,16 @@
     "noSearchMatches": "Aramaya uyan satır yok.",
     "addProperty": "Özellik ekle",
     "rowActions": "Satır işlemleri",
+    "dragToMove": "Taşımak için sürükleyin",
+    "clickForMenu": "Menüyü açmak için tıklayın",
     "sortedAscending": "Artan sıralı",
     "sortedDescending": "Azalan sıralı"
   },
   "rowMenu": {
     "open": "Aç",
-    "openPage": "Tam sayfa olarak aç"
+    "openPage": "Tam sayfa olarak aç",
+    "copyLink": "Bağlantıyı kopyala",
+    "duplicate": "Kopyasını oluştur"
   },
   "rowPanel": {
     "label": "Satır: {title}",

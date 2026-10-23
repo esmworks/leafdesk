@@ -241,12 +241,16 @@
     "noSearchMatches": "No rows match the search.",
     "addProperty": "Add property",
     "rowActions": "Row actions",
+    "dragToMove": "Drag to move",
+    "clickForMenu": "Click to open menu",
     "sortedAscending": "Sorted ascending",
     "sortedDescending": "Sorted descending"
   },
   "rowMenu": {
     "open": "Open",
-    "openPage": "Open as full page"
+    "openPage": "Open as full page",
+    "copyLink": "Copy link",
+    "duplicate": "Duplicate"
   },
   "rowPanel": {
     "label": "Row: {title}",

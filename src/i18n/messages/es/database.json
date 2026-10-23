@@ -241,12 +241,16 @@
     "noSearchMatches": "Ninguna fila coincide con la búsqueda.",
     "addProperty": "Añadir propiedad",
     "rowActions": "Acciones de fila",
+    "dragToMove": "Arrastra para mover",
+    "clickForMenu": "Haz clic para abrir el menú",
     "sortedAscending": "Orden ascendente",
     "sortedDescending": "Orden descendente"
   },
   "rowMenu": {
     "open": "Abrir",
-    "openPage": "Abrir como página completa"
+    "openPage": "Abrir como página completa",
+    "copyLink": "Copiar enlace",
+    "duplicate": "Duplicar"
   },
   "rowPanel": {
     "label": "Fila: {title}",

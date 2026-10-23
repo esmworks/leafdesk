@@ -241,12 +241,16 @@
     "noSearchMatches": "検索に一致する行はありません。",
     "addProperty": "プロパティを追加",
     "rowActions": "行の操作",
+    "dragToMove": "ドラッグして移動",
+    "clickForMenu": "クリックしてメニューを開く",
     "sortedAscending": "昇順で並べ替え済み",
     "sortedDescending": "降順で並べ替え済み"
   },
   "rowMenu": {
     "open": "開く",
-    "openPage": "フルページで開く"
+    "openPage": "フルページで開く",
+    "copyLink": "リンクをコピー",
+    "duplicate": "複製"
   },
   "rowPanel": {
     "label": "行：{title}",
