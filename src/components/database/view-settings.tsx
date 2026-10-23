@@ -1,6 +1,7 @@
 "use client";
 
 import { ChartBarBig, ChartColumnBig, ChartLine, ChartPie, Check, Hash, ListTree, Palette, Plus, SlidersHorizontal, Waypoints } from "lucide-react";
+import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import { useState, type ReactNode } from "react";
 import { cn, MenuItem, MenuSeparator } from "@/components/ui";
@@ -33,11 +34,13 @@ import {
   dependencySettings,
   type DependencyInput,
 } from "@/lib/dependencies";
-import { ColorRulesDialog } from "./color-rules-dialog";
 import { Floating, useFloating } from "./floating";
 import { PropertyTypeIcon } from "./property-icons";
 import type { Property, View } from "./types";
 import { NativeSelect } from "./view-bar";
+
+// Opened from the menu now and then, so it loads when first opened.
+const ColorRulesDialog = dynamic(() => import("./color-rules-dialog").then((m) => m.ColorRulesDialog));
 
 /** Whether a timeline can start bars at `property`: a date, or a created or edited time (read-only there). */
 const isTimelineStart = (property: Property) => property.type === "date" || holdsTimestamp(property.type);
