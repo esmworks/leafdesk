@@ -16,8 +16,7 @@ import { useChannel, useChannels } from "@/components/collab/use-channel";
 import { useIsOffline, useOffline } from "@/components/offline/offline-context";
 import { OfflineNotice } from "@/components/offline/offline-notice";
 import { deleteSnapshot, loadSnapshot, rowSnapshotKey, saveSnapshot } from "@/components/offline/offline-store";
-import type { AiAutofillConfig, AiCellState } from "@/lib/ai";
-import type { PropertyAccessInfo } from "@/lib/property-access";
+import type { AiAutofillConfig } from "@/lib/ai";
 import { relatedSchemasFrom, withFormulas } from "@/lib/derived";
 import type { FormulaStyle } from "@/lib/formula";
 import { rowPageSections, type PageVisibility } from "@/lib/page-visibility";
@@ -36,31 +35,8 @@ import { RowActivity } from "./row-activity";
 import { RowReviewBanner } from "@/components/review/row-review-banner";
 import { RowEmails } from "./row-emails";
 import { SchemaProvider } from "./schema-context";
-import type { DerivedInput, PersonRef, Property, RelationInput, RelationTarget } from "./types";
-
-type Loaded = {
-  databaseTitle: string;
-  /** The row's title, which formulas can read. */
-  title: string;
-  /** The database's schema is locked: no new properties from here. */
-  locked: boolean;
-  properties: Property[];
-  values: Record<string, unknown>;
-  relations: Record<string, RelationTarget>;
-  people: PersonRef[];
-  viewerId: string;
-  /** AI autofill: whether AI is available, and this row's pending and failed values. */
-  ai?: { enabled: boolean; states: Record<string, AiCellState> };
-  /** Property access: values of this row left out for the viewer, and ones they can't change. */
-  hidden?: string[];
-  readOnly?: string[];
-  /** How styled formula results show. */
-  styles?: Record<string, FormulaStyle>;
-  /** The viewer's level on each restricted property. */
-  propertyAccess?: Record<string, PropertyAccessInfo>;
-  /** With full access: the properties that have access rules. */
-  restrictedPropertyIds?: string[];
-};
+import { rowSnapshotOf, type RowSnapshot as Loaded } from "./row-snapshot";
+import type { DerivedInput, Property, RelationInput } from "./types";
 
 /** Editable property list shown above a database row's page body. */
 export function RowProperties({
@@ -112,22 +88,7 @@ export function RowProperties({
     );
     if (mine !== seq.current) return;
     if (res.ok) {
-      const loaded: Loaded = {
-        databaseTitle: res.data.databaseTitle,
-        title: res.data.row.title,
-        locked: res.data.databaseLocked,
-        properties: res.data.properties,
-        values: res.data.row.properties,
-        relations: res.data.relations,
-        people: res.data.people,
-        viewerId: res.data.viewerId,
-        ai: res.data.ai,
-        hidden: res.data.row.hidden,
-        readOnly: res.data.row.readOnly,
-        styles: res.data.row.styles,
-        propertyAccess: res.data.propertyAccess,
-        restrictedPropertyIds: res.data.restrictedPropertyIds,
-      };
+      const loaded = rowSnapshotOf(res.data);
       setData(loaded);
       setOfflineCopyFrom(null);
       if (offlineUser) void saveSnapshot(offlineUser, rowSnapshotKey(rowId), loaded);

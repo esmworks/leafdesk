@@ -34,14 +34,17 @@ import { assertNotInTrash } from "@/lib/page-lock";
 import { repeatSummary, type TemplateRepeatSummary } from "@/lib/schedule";
 import { isApplicable, isRollupFn, ROLLUP_DISPLAYS, type RollupDisplay } from "@/lib/aggregate";
 import { compileFormulas, formulaForStorage, relatedDatabases, TITLE_FIELD, valueType, type RelatedSchemas } from "@/lib/derived";
-import type { FormulaResultType, FormulaStyle } from "@/lib/formula";
+import type { FormulaError, FormulaResultType, FormulaStyle } from "@/lib/formula";
 import { isEmptyValue, lostValues, planConversion, retypeViewConfig, type ConversionContext } from "@/lib/convert-property";
 import { dropPropertyReferences } from "@/lib/duplicate";
 import { keepDeleted, livePropertyValues, uniqueName, withoutDeleted, type DeletedProperty, type DeletedView } from "@/lib/deleted-schema";
+import { colorRuleFilters } from "@/lib/color-rules";
 import { filterConfigError, filterRules } from "@/lib/filters";
 import { chartGroupProperty } from "@/lib/chart";
 import { defaultDashboardWidgets } from "@/lib/dashboard";
 import { defaultFormConfig } from "@/lib/forms";
+import { readPlaceInput } from "@/lib/place";
+import { GeocoderError, geocodeAddress } from "./geocoder";
 import { configsOf, DEFAULT_VIEW_NAMES, galleryCover, isViewType, layoutConfigError } from "@/lib/views";
 import { holdsOptions, holdsPeople, isComputed, isDerived, isReadOnlyType, PERSON_ME, type StatusGroup } from "@/lib/property-types";
 import { canRestrict, namesPeople } from "@/lib/property-access";
@@ -111,6 +114,7 @@ import { computeDerived, loadProperties, withAllFormulaTypes } from "@/server/de
 import { authorizeFileReferences, fileForViewer, workspaceFiles } from "@/server/files";
 import { recordAssignments } from "@/server/notifications";
 import { getCollab } from "@/server/collab/bridge";
+import { loadRowAccess } from "@/server/row-access";
 import { rowChanged } from "@/server/row-events";
 import { recordRowWrites } from "@/server/row-activity";
 import { queueRowWrites } from "@/server/row-follow";
@@ -490,7 +494,7 @@ export async function normalizeRowProperties(
         { property: key },
       );
     }
-    const normalized = normalizeValue(prop, value);
+    const normalized = normalizeValue(prop, prop.type === "place" ? await resolvePlaceInput(userId, prop, value) : value);
     if (prop.type === "relation" && normalized) {
       const ids = await resolveRelationValue(userId, prop, normalized as string[], asIds(existing[prop.id]));
       // A row has one parent (see lib/sub-items).
@@ -532,6 +536,40 @@ export function followOrRefuse(
     "optionUnavailable",
     { value: outcome.option.name, property: outcome.prop.name, parent },
   );
+}
+
+/**
+ * A place written as an address (text, or an object without coordinates) looked up through the
+ * geocoder, counted against the writer: its best match, with the name it was given kept. Other
+ * input is left for normalizeValue to check.
+ */
+async function resolvePlaceInput(userId: string, prop: DatabaseProperty, value: unknown): Promise<unknown> {
+  if (value === null || value === undefined || value === "") return value;
+  const input = readPlaceInput(value);
+  if (input.kind !== "address") return value;
+  let found;
+  try {
+    found = await geocodeAddress(input.address, { userId });
+  } catch (error) {
+    if (error instanceof GeocoderError && error.code === "off") {
+      throw new PropertyValueError(
+        `Address search is off on this server: give "${prop.name}" coordinates ("41.04, 29.01" or {lat, lng, address})`,
+        "geocodingOff",
+        { property: prop.name },
+      );
+    }
+    if (error instanceof GeocoderError) {
+      throw new PropertyValueError(`${error.message}; "${prop.name}" was not changed`, "geocoderBusy", { property: prop.name });
+    }
+    throw error;
+  }
+  if (!found) {
+    throw new PropertyValueError(`No place found for "${input.address}" in "${prop.name}"; give coordinates instead`, "placeNotFound", {
+      value: input.address,
+      property: prop.name,
+    });
+  }
+  return { ...found, ...(input.name ? { name: input.name } : {}) };
 }
 
 async function workspaceOf(databaseId: string): Promise<string | null> {
@@ -1304,6 +1342,83 @@ async function hideInCalendars(exec: Executor, databaseId: string, propertyId: s
 }
 
 /**
+ * A formula as `userId` would save it for property `self` (a new one's id may be made up), checked
+ * against the properties they may know of (`properties`), related rows' included: the expression
+ * as stored, its result type, or its first error. `titleNames`: names that mean the row's title
+ * besides "title" (the Name column's label, as the editor shows it).
+ */
+export async function checkFormula(
+  userId: string,
+  expression: string,
+  properties: DatabaseProperty[],
+  self: { id: string; name: string },
+  titleNames: string[] = [],
+): Promise<{ stored: string; type: FormulaResultType; error: FormulaError | null }> {
+  const others = properties.filter((p) => p.id !== self.id);
+  const draft = { ...self, type: "formula" as const, options: { formula: { expression: expression.trim() } } };
+  // Properties read on related rows are checked against what the user may know of there too.
+  const related = await knownRelatedSchemas(userId, [...others, draft]);
+  const stored = formulaForStorage(expression.trim(), [...others, self], titleNames, related);
+  const props = [...others, { ...self, type: "formula" as const, options: { formula: { expression: stored } } }];
+  const compiled = compileFormulas(props, related).get(self.id);
+  return { stored, type: compiled?.type ?? "text", error: compiled?.error ?? null };
+}
+
+/** One row of a formula's preview: its title and what the formula gives there (see previewFormula). */
+export type FormulaPreviewRow = { id: string; title: string; value: unknown; hidden: boolean };
+
+/**
+ * What a checked formula (`stored`, from checkFormula) would give on the first `limit` rows of the
+ * database `userId` sees, in the database's own order, before it is saved: the database's
+ * properties with `self` holding it. Values read from properties the person may not see show as
+ * hidden, as they would in the table.
+ */
+export async function previewFormula(
+  userId: string,
+  databaseId: string,
+  self: { id: string; name: string },
+  stored: string,
+  type: FormulaResultType,
+  limit = 3,
+): Promise<FormulaPreviewRow[]> {
+  const [rows, all, access] = await Promise.all([
+    db
+      .select({
+        id: page.id,
+        title: page.title,
+        properties: page.properties,
+        createdBy: page.createdBy,
+        updatedBy: page.updatedBy,
+        createdAt: page.createdAt,
+        updatedAt: page.updatedAt,
+      })
+      .from(page)
+      .where(and(eq(page.parentId, databaseId), eq(page.isTemplate, false), isNull(page.archivedAt), childVisibleTo(userId, databaseId)))
+      .orderBy(asc(page.position), asc(page.createdAt), asc(page.id))
+      .limit(limit),
+    getProperties(databaseId),
+    propertyAccessFor(userId, databaseId),
+  ]);
+  const existing = all.find((p) => p.id === self.id);
+  const now = new Date();
+  const draft: DatabaseProperty = {
+    ...(existing ?? { id: self.id, databaseId, position: all.length, deletedAt: null, deletedBy: null, createdAt: now, updatedAt: now }),
+    name: self.name,
+    type: "formula",
+    // A formula's own options (its number format…) stay; another type's don't apply.
+    options: { ...(existing?.type === "formula" ? existing.options : {}), formula: { expression: stored, type } },
+  };
+  const props = [...all.filter((p) => p.id !== self.id), draft];
+  const computed = await withValues(userId, databaseId, rows, props, undefined, access);
+  return computed.map((row, i) => ({
+    id: rows[i].id,
+    title: rows[i].title,
+    value: row.properties[self.id] ?? null,
+    hidden: Boolean((row as { hidden?: string[] }).hidden?.includes(self.id)),
+  }));
+}
+
+/**
  * A formula as stored: names in `prop("…")` replaced by property ids, checked against the
  * database's properties (`self` is the formula property itself, new or edited). A formula that
  * can't run (a syntax or type error, an unknown property, a cycle) is refused with the reason.
@@ -1314,21 +1429,14 @@ async function formulaConfig(
   properties: DatabaseProperty[],
   self: { id: string; name: string },
 ): Promise<{ config: FormulaConfig; type: FormulaResultType }> {
-  const others = properties.filter((p) => p.id !== self.id);
-  const draft = { ...self, type: "formula" as const, options: { formula: { expression: expression.trim() } } };
-  // Properties read on related rows are checked against what the user may know of there too.
-  const related = await knownRelatedSchemas(userId, [...others, draft]);
-  const stored = formulaForStorage(expression.trim(), [...others, self], [], related);
-  const props = [...others, { ...self, type: "formula" as const, options: { formula: { expression: stored } } }];
-  const compiled = compileFormulas(props, related).get(self.id);
-  const error = compiled?.error;
+  const { stored, type, error } = await checkFormula(userId, expression, properties, self);
   if (error) {
     throw new PropertyValueError(`Invalid formula for "${self.name}": ${error.message}`, "invalidFormula", {
       property: self.name,
       message: error.message,
     });
   }
-  return { config: { expression: stored }, type: compiled?.type ?? "text" };
+  return { config: { expression: stored }, type };
 }
 
 /** A rollup's settings as given: property ids (or "title" for the related rows' titles). */
@@ -2318,6 +2426,11 @@ async function retypeProperty(
       property: prop.name,
     });
   }
+  if (input.type !== "person" && (await loadRowAccess(prop.databaseId)).rules.some((r) => r.kind === "person" && r.propertyId === propertyId)) {
+    throw new PropertyValueError(`Row access gives the people of "${prop.name}" access`, "typeChangeNamesPeople", {
+      property: prop.name,
+    });
+  }
 
   const known = await knownProperties(userId, prop.databaseId);
   const self = { id: prop.id, name: prop.name };
@@ -2538,6 +2651,8 @@ export async function addView(userId: string, databaseId: string, input: { name:
   // Timelines start without swimlanes and with a week per column; list rows and timeline bars show
   // only titles until the user picks properties (see hiddenByDefault).
   if (input.type === "timeline") config.dateBy = props.find((p) => p.type === "date")?.id;
+  // Maps put rows on the first place property.
+  if (input.type === "map") config.placeBy = props.find((p) => p.type === "place")?.id;
   // Charts count rows per option of the property a board would group by, in columns.
   if (input.type === "chart") config.groupBy = chartGroupProperty(props, {})?.id;
   // Forms start out asking for the name and every property a form can ask for.
@@ -3160,7 +3275,7 @@ export async function getPeople(userId: string, properties: DatabaseProperty[]):
     for (const prop of personProps) for (const id of asIds(values[prop.id])) referenced.add(id);
   }
   for (const config of views.flatMap((view) => configsOf(access.viewConfig(view.config)))) {
-    for (const rule of filterRules(config.filters)) {
+    for (const rule of filterRules([...(config.filters ?? []), ...colorRuleFilters(config)])) {
       const person = personProps.some((p) => p.id === rule.propertyId);
       if (!person) continue;
       for (const value of Array.isArray(rule.value) ? rule.value : [rule.value]) {

@@ -20,7 +20,8 @@
     "lastEditedBy": "Editado por última vez por",
     "lastEditedTime": "Fecha de última edición",
     "formula": "Fórmula",
-    "rollup": "Agregación"
+    "rollup": "Agregación",
+    "place": "Lugar"
   },
   "views": {
     "table": "Tabla",
@@ -31,7 +32,8 @@
     "timeline": "Cronograma",
     "chart": "Gráfico",
     "dashboard": "Panel",
-    "form": "Formulario"
+    "form": "Formulario",
+    "map": "Mapa"
   },
   "dashboardView": {
     "emptyEditable": "Muestra aquí números, gráficos y listas de esta base de datos. Se mantienen al día cuando cambian las filas.",
@@ -742,7 +744,13 @@
       "panel": "Panel lateral",
       "page": "Página completa"
     },
-    "showOutdated": "Mostrar filas archivadas"
+    "showOutdated": "Mostrar filas archivadas",
+    "place": "Propiedad de lugar",
+    "needsPlace": "Los mapas colocan las filas según una propiedad de lugar.",
+    "newPlaceProperty": "Nueva propiedad de lugar",
+    "pinColor": "Color del marcador",
+    "noPinColor": "Ninguno",
+    "colorRules": "Reglas de color"
   },
   "gallery": {
     "new": "Nuevo",
@@ -878,6 +886,7 @@
     "cannotRestrict": "Esta propiedad no puede tener su propio acceso.",
     "typeChangeRestricted": "«{property}» tiene reglas de acceso y las propiedades de ese tipo no pueden tenerlas. Quita antes sus reglas.",
     "typeChangeNamesPeople": "Hay reglas de acceso que dan acceso a las personas de «{property}». Quítalas antes de cambiar su tipo.",
+    "invalidRowAccess": "No se pueden guardar estas reglas de acceso a las filas. Recarga la página e inténtalo de nuevo.",
     "invalidAutomation": "Esta automatización no se puede guardar. Revisa su desencadenante y sus acciones.",
     "tooManyAutomations": "Una base de datos puede tener como máximo {max} automatizaciones.",
     "invalidWebhookUrl": "«{value}» no es una dirección http(s) válida.",
@@ -892,7 +901,11 @@
     "mergeRowsInvalid": "Solo se pueden combinar filas de una misma base de datos que no estén en la papelera.",
     "mergeRowsReadOnly": "Solo puedes ver {rows}. Para combinar necesitas permiso de edición en cada fila.",
     "mergeLinksBlocked": "{count, plural, one {Una fila enlaza} other {# filas enlazan}} con estas filas y no puedes {count, plural, one {cambiarla} other {cambiarlas}}: {rows}. No se combinó nada.",
-    "mergeChoiceInvalid": "No se puede usar el valor elegido para «{property}». Elige el valor de otra fila."
+    "mergeChoiceInvalid": "No se puede usar el valor elegido para «{property}». Elige el valor de otra fila.",
+    "invalidPlace": "«{property}» admite una dirección o coordenadas (latitud, longitud).",
+    "placeNotFound": "No se encontró ningún lugar para «{value}» en «{property}».",
+    "geocodingOff": "La búsqueda de direcciones está desactivada en este servidor: da coordenadas (latitud, longitud) a «{property}».",
+    "geocoderBusy": "La búsqueda de direcciones está ocupada. Vuelve a intentar «{property}» en un momento."
   },
   "formula": {
     "title": "Fórmula",
@@ -912,6 +925,20 @@
     "error": "Error",
     "errorTitle": "Esta fila no se puede calcular: {message}",
     "or": "o",
+    "ai": {
+      "open": "Descríbela",
+      "title": "Escribir la fórmula con IA",
+      "close": "Cerrar",
+      "description": "Qué debe calcular la fórmula",
+      "placeholder": "Por ejemplo: días que faltan hasta la fecha límite, o «Atrasado» cuando ya pasó",
+      "writing": "Escribiendo…",
+      "write": "Escribir fórmula",
+      "again": "Escribir de nuevo",
+      "failed": "La fórmula de la IA no funciona: {message}",
+      "use": "Usar fórmula",
+      "emptyValue": "Vacío",
+      "noRows": "Todavía no hay filas para probarla."
+    },
     "groups": {
       "logic": "Lógica",
       "text": "Texto",
@@ -1055,6 +1082,35 @@
       "share": "Cambiar el acceso a la base de datos"
     }
   },
+  "rowAccess": {
+    "menuItem": "Acceso a las filas",
+    "menuHint": "Da acceso a una fila a las personas que nombra",
+    "title": "Acceso a las filas",
+    "description": "Da acceso a una fila y a las páginas que contiene a las personas que nombra.",
+    "loading": "Cargando…",
+    "rules": "Reglas",
+    "rulesHint": "Cada regla da a las personas de una propiedad de persona, o a quien creó la fila, acceso a sus filas.",
+    "noPersonProperties": "Añade una propiedad de persona para dar acceso a las personas que nombra. Quien creó la fila ya puede tener una regla.",
+    "creator": "Creado por",
+    "creatorDetail": "La persona que creó la fila",
+    "personDetail": "Las personas nombradas en esta propiedad, en sus propias filas",
+    "addRule": "Añadir una regla",
+    "levelFor": "Acceso para {name}",
+    "removeRule": "Quitar a {name}",
+    "levels": {
+      "full": "Acceso completo",
+      "edit": "Puede editar",
+      "comment": "Puede comentar",
+      "view": "Puede ver"
+    },
+    "restricted": "Mostrar las filas solo a las personas que nombran",
+    "restrictedHint": "Quienes pueden abrir la base de datos sin que una fila los nombre solo ven las filas que les da una regla o el uso compartido de la propia fila.",
+    "fullAccess": {
+      "warning": "{names}{more, plural, =0 {} other { y # más}} {count, plural, one {tiene} other {tienen}} acceso total a esta base de datos, así que {count, plural, one {sigue} other {siguen}} viendo todas las filas. Reduce su acceso, o el acceso de los miembros del espacio de equipo, para restringirlos.",
+      "share": "Cambiar el acceso a la base de datos"
+    },
+    "note": "Una regla solo añade acceso: si el uso compartido da más a alguien, se mantiene. Cambiar las personas de una fila cambia al instante quién puede abrirla."
+  },
   "automations": {
     "button": "Automatizaciones",
     "title": "Automatizaciones",
@@ -1148,6 +1204,7 @@
         "upsert_row": "Añadir o actualizar una fila",
         "wait": "Esperar",
         "log": "Escribir en el historial de ejecuciones",
+        "celebrate": "Celebrar con confeti",
         "approval": "Pedir aprobación",
         "start_sequence": "Iniciar un seguimiento"
       },
@@ -1339,7 +1396,9 @@
         "sequenceGone": "El seguimiento ya no existe",
         "noMailbox": "La persona de la automatización no tiene un buzón conectado",
         "noAddress": "La fila no tiene dirección de correo",
-        "emailOff": "El correo en las filas está desactivado"
+        "emailOff": "El correo en las filas está desactivado",
+        "noPerson": "Omitido: ningún cambio de una persona inició esta ejecución",
+        "tooLate": "Omitido: ha pasado demasiado tiempo desde el cambio para celebrarlo"
       },
       "waitingApproval": "Esperando aprobación",
       "approval": {
@@ -1439,7 +1498,9 @@
       "waitHelp": "Hasta 7 días. La ejecución espera y luego sigue con el paso siguiente.",
       "logMessage": "Mensaje",
       "logPlaceholder": "Por ejemplo: Importado {template}",
-      "logHelp": "Se escribe en el historial de ejecuciones con sus variables rellenadas."
+      "logHelp": "Se escribe en el historial de ejecuciones con sus variables rellenadas.",
+      "celebrateHelp": "Confeti en la app para quien hizo el cambio que inició la ejecución, en las ventanas que tenga abiertas. Las ejecuciones que nadie inició (programaciones, fechas que pasan, webhooks entrantes, respuestas anónimas de formularios) se lo saltan, igual que las que llegan aquí más de dos minutos después del cambio.",
+      "celebrateTry": "Probar"
     },
     "variables": {
       "button": "Insertar una variable",
@@ -1522,6 +1583,10 @@
         "name": "Recordar filas atrasadas",
         "description": "Un día después de que pase la fecha de una fila sin terminar, notificar a sus personas.",
         "message": "{title} está atrasada."
+      },
+      "celebrateDone": {
+        "name": "Celebrar filas terminadas",
+        "description": "Cuando una fila se marca como hecha, confeti para quien lo hizo."
       }
     }
   },
@@ -1603,5 +1668,51 @@
     "confirm": "Combinar filas",
     "merging": "Combinando…",
     "bodyHeading": "Combinado desde {title}"
+  },
+  "place": {
+    "search": "Busca una dirección o un lugar",
+    "input": "{property}: dirección o coordenadas",
+    "coordinatesHint": "O pega coordenadas, como 41.04, 29.01",
+    "searching": "Buscando…",
+    "noResults": "No se encontraron lugares.",
+    "off": "La búsqueda de direcciones está desactivada en este servidor. Pega coordenadas en su lugar.",
+    "busy": "Hay demasiadas búsquedas ahora. Vuelve a intentarlo en un momento.",
+    "failed": "La búsqueda de direcciones no respondió. Vuelve a intentarlo.",
+    "useCoordinates": "Usar {coordinates}",
+    "openMap": "Abrir en el mapa",
+    "clear": "Borrar",
+    "current": "Lugar actual"
+  },
+  "map": {
+    "off": "Los mapas están desactivados en este servidor.",
+    "needsPlaceTitle": "Los mapas colocan las filas donde indica su propiedad de lugar",
+    "needsPlaceBody": "Esta base de datos aún no tiene una propiedad de lugar.",
+    "addPlaceProperty": "Añadir la propiedad {name}",
+    "defaultPlaceProperty": "Lugar",
+    "noLocation": "{count, plural, one {# fila} other {# filas}} sin {property}",
+    "noLocationTitle": "Filas sin {property}",
+    "label": "Mapa de filas por {property}",
+    "pin": "{title}, {place}",
+    "open": "Abrir",
+    "closeCard": "Cerrar",
+    "zoomIn": "Acercar",
+    "zoomOut": "Alejar",
+    "fit": "Mostrar todas las filas",
+    "loading": "Cargando mapa…"
+  },
+  "colorRules": {
+    "title": "Reglas de color",
+    "description": "Colorea filas, o uno de sus valores, cuando cumplen condiciones.",
+    "empty": "Aún no hay reglas de color. Añade una para colorear las filas que la cumplan.",
+    "ruleLabel": "Regla {color}",
+    "color": "Color",
+    "colors": "Colorea",
+    "target": "Qué colorea la regla",
+    "wholeRow": "Toda la fila",
+    "moveUp": "Subir",
+    "moveDown": "Bajar",
+    "delete": "Eliminar regla",
+    "add": "Añadir regla",
+    "firstMatchWins": "Si se cumplen varias reglas, la primera colorea la fila o el valor."
   }
 }

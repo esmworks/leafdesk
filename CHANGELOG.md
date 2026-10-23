@@ -4,6 +4,144 @@
 
 ### Added
 
+- **Indonesian, Thai and Vietnamese.** The app, its emails, templates, the editor's menus and the
+  desktop app now speak Bahasa Indonesia, ไทย and Tiếng Việt, chosen in My account → Language or
+  taken from the browser. Quick add knows their date words, CSV import their title columns and
+  yes/no words, the AI chat's search their question words, and the AI translates into them. Thai
+  is searched by whole runs of text for now: a word inside a longer run isn't found.
+- **Rows can give the people they name access.** *Row access* in a database's ⋯ menu (full
+  access) adds rules: the people in a person property, or a row's creator, get view, comment, edit
+  or full access to their rows and the pages inside them, on top of what sharing gives. A database
+  can also show each row only to the people it names: others who can open the database see only
+  the rows a rule or the row's own sharing gives them, while people with full access to the
+  database still see every row (the dialog says who). Changing a row's people changes who can open
+  it at once; search, the sidebar, the API, MCP and the AI chat follow the same rule. Copies of a
+  database keep its rules; changes go into the audit log. Migration 0116.
+- **Reactions to your comments reach your inbox.** When someone reacts to a comment you wrote, you
+  get “Maya reacted 👍 to your comment” with the start of the comment, opening the thread. More
+  reactions to the same comment, by anyone, gather in that one notification while it is unread
+  (“Maya and 2 others reacted 👍 🎉”), taking a reaction back takes it out again (and the
+  notification away once none is left), and deleting the comment or its thread takes them all
+  back. Your own reactions tell nobody, and agents hear about none. *Reactions* is a kind of its
+  own in Settings > Preferences: in the inbox by default, never by email, and pushed or sent to
+  Telegram only once turned on. MCP's `list_notifications` lists them too. Migration 0117.
+- **The inbox groups notifications about one page.** Comments and reactions on the same page that
+  came within a few hours of each other, or edits to the same page or row, show as one entry
+  (“5 new comments, 1 new reaction” with the people's pictures), which opens to the single ones.
+  Opening the entry, marking it read or snoozing it does so to all of them.
+- **The comments panel lists a page's discussions newest first, and keeps threads to come back
+  to.** Threads, on text or about the whole page, are now in order of their latest comment (or,
+  from the sort menu, in the order of the page), and those with comments by others since you last
+  looked at them say *New*. Choosing a thread scrolls the page to its text and highlights it, as
+  before. A thread's menu has *Come back later*, which only you see; the new *Marked* filter lists
+  those threads until you take the mark off. MCP's `list_comments` and the REST API's comments
+  say `marked: true` for threads the asking user marked. The marks and when each person saw each
+  thread are kept per person (migration 0117) and go with the thread.
+- **Views color rows by rules.** *Color rules* in a view's layout menu (tables, boards, galleries,
+  lists, calendars and timelines) colors the rows that match conditions: each rule has a color
+  from the option palette, colors the whole row or card or one property's value, and tests rows
+  with the same filters, groups and and/or as the view's filters, formulas, rollups, relations,
+  people ("me") and relative dates included. For each target the first matching rule wins, so
+  rules can be moved up and down. Timeline bars take a row's color. Someone who can't see a
+  property doesn't get the rules that name it, and saving the view keeps those rules; deleting a
+  property sets aside the rules that name it until it is restored, and copies of a database keep
+  their rules pointed at the copied properties. MCP: `update_database_view` takes `color_rules`
+  and `get_database` lists them. Exports, prints and published pages show rows without colors.
+  No migration: rules live in the view's settings.
+- **Workspaces can allow sign-in only from approved networks.** Owners list IPv4 and IPv6
+  addresses and CIDR ranges, with optional labels (at most 100), under Settings → Security next to
+  the other sign-in policies. While the list has entries, browser sessions from other addresses,
+  owners' and guests' included, are held back from the workspace like the two-step and single
+  sign-on policies hold them back: pages send them to a page that shows the address the server
+  sees, actions and routes refuse them, and the live collaboration connection is checked by the
+  address it comes from (open ones close when a list is saved). An unknown address counts as
+  outside the list. Their other workspaces keep working. A list that leaves out the saving owner's
+  own address is refused, and instance administrators can clear a workspace's list on `/admin`;
+  both changes go into the audit log. Apps connected over MCP, REST API tokens and SCIM tokens
+  aren't held to it. The address comes from the client address rules of `TRUSTED_PROXIES`, which
+  the collaboration websocket now follows too. A restored backup starts without a list. Migration
+  0118.
+
+- **Place properties and map views.** A *place* property holds an address with its coordinates:
+  its cell suggests places as you type an address or name (looked up by the server) and takes
+  pasted coordinates, and links to the spot on a map. It can be filtered on its address, sorted,
+  exported, read by formulas and written through MCP, the REST API, the AI chat and imports as an
+  address, coordinates or `{lat, lng, address}`. A *map* view shows a database's rows as pins at a
+  place property, colored by a select or status if wished; a pin's card shows the row's shown
+  properties and opens the row, and rows without a place are listed under the map. Linked views,
+  dashboards, MCP and the AI chat can make map views. New env vars: `GEOCODER_URL` (address
+  search, OpenStreetMap's by default, empty turns it off), `MAP_TILE_URL` and
+  `MAP_TILE_ATTRIBUTION` (the map's tiles and their credit, OpenStreetMap's by default, an empty
+  URL turns maps off). No migration. New dependency: Leaflet.
+- **The AI chat reads comments and page history, takes CSV files, and makes databases and
+  forms.** It lists a page's comment threads, open and resolved, with their authors, the text
+  they are on and their replies, and can comment or reply as the person (`list_comments`,
+  `add_comment`). It lists a page's saved versions and reads one or shows what changed since it
+  or by it (`page_history`, `page_version`, the same operations as MCP's history tools). A CSV
+  file can be attached to a question with the paperclip, by dropping it on the box or by pasting
+  it (up to 1,000 rows, 100 columns and 1 MB, with a clear message beyond); the question shows it
+  as a chip with its name and size, the model gets the table cut to fit and can read the rest,
+  and the file stays with the conversation for the questions after it. The chat makes a new
+  database with the properties, types and options asked for, or one from an attached file with
+  each column's type guessed from its values and its rows imported, under a page the person may
+  edit or at the top, private to them (`create_database`, `create_database_from_csv`). It adds
+  a form view to a database the person may edit, with the questions, title, description and
+  confirmation asked for, opened to the web when asked and allowed, and answers with its links
+  (`create_form`). Each change is asked for first in *Ask* mode, shown with what it would make,
+  and made as the person through the same code as the app's own edits (a new or imported
+  database goes into the audit log as one made in the app does); the Telegram bot asks the same
+  way.
+- **Write a formula by describing it.** Where the workspace has AI, the formula editor has a
+  *Describe it* box: say what the formula should work out ("days left until the due date") and the
+  AI writes it from the database's properties you may know of (names and types, never row values)
+  and the formula functions. The formula is checked like one you type; one that doesn't work goes
+  back to the AI once with the error, and if it fails again the error shows instead. A working one
+  shows with what it gives on the first rows; *Use formula* puts it in the editor, where you save
+  it as usual. It counts as *Formulas* in Settings > AI usage and is held to the workspace's AI
+  limits.
+- **AI usage by person.** Settings > AI usage now breaks the month shown down by person: each
+  person and agent (marked as one) with their requests, tokens, cost and share of the month,
+  costliest first, and the features they used most; requests nobody asked for show as background
+  work. Only owners see it, as the rest of the page. Requests are counted by person from this
+  update on (migration 0119, table `ai_usage_person`); what came before stays in the totals and
+  shows as one line of its own.
+- **Automations can celebrate.** A new *Celebrate with confetti* step plays confetti in the app
+  for whoever made the change that started the run, in every window they have open, a moment
+  after the change; a ready-made *Celebrate finished rows* automation does it when a row is
+  marked done. With reduced motion asked for, a still "🎉" note shows instead. Runs nobody
+  started (schedules, dates passing, incoming webhooks, anonymous form answers) skip the step, as
+  do runs that reach it more than two minutes after the change. MCP `create_automation` and
+  `update_automation` take it as `celebrate`.
+- **Find in page ignores accents.** Searching a page now finds "café" for "cafe", "naïve" for
+  "naive" and "Çiğdem", "Şükrü" or "ışık" for "cigdem", "sukru" or "isik", whichever way round
+  they are typed; accents written as separate marks after their letter count too, and Replace
+  takes them along. A new *Match accents* button next to *Match case* makes accented letters match
+  only themselves again, with the Turkish pairing of "I" with "ı" kept as it was.
+- **Meeting notes.** `/` *Meeting notes* (or *Add meeting notes below* in a block's menu) adds a
+  block with a title, date and time, attendees and *Start recording*. The recording goes on across
+  tabs and pages, can be paused, and is sent every 30 seconds to be transcribed, so the
+  *Transcript* fills in with `[mm:ss]` times while people talk; a piece that keeps failing is left
+  as a gap, and the audio is never stored. On *Stop and summarize* AI writes a summary, decisions
+  and action items (assigned to attendees it names), each linked to its moment in the transcript;
+  they can be edited and regenerated. *Meetings* in the sidebar lists the meeting notes you can see,
+  upcoming and past, with search, and makes new ones on private pages. The AI chat, MCP and REST
+  API read the block as Markdown, and search finds words in the transcript. Needs speech to text
+  (`STT_*`, as for voice notes); up to three hours a meeting. Migration 0120 (`meeting_note`).
+
+- **Pages can be downloaded for offline use.** "Available offline" in a page's ⋯ menu, or in the
+  menu beside a page in the sidebar, downloads the page to this device now: its content, the page
+  itself, a database's rows or a row's values, and the files and images it shows (up to 10 MB each
+  and 50 MB per page). "Include sub-pages" (for a database, "Include rows") brings up to 50 pages
+  under it along. Downloaded pages are fetched again in the background while the app is open and
+  online (shortly after it starts and every 15 minutes), and they are never pushed out by newer
+  recently opened pages. Favorites are downloaded too unless "Keep my favorites available offline"
+  is turned off. A quiet mark in the sidebar shows which pages are downloaded, and the offline page
+  lists them beside the recently opened ones. The new Settings → Offline tab lists what this device
+  keeps, with each page's size, when it was last updated and whether it holds edits not yet sent.
+  There you can remove one page or all offline copies (with a warning when edits would be lost),
+  and see how much storage the browser uses and whether it keeps the copies persistently. Leafdesk
+  asks for persistent storage the first time a page is downloaded. Downloads are per device and,
+  like all offline copies, are removed on sign-out. No migration.
 - **The AI chat makes PDF files.** Asked for a PDF (a quote, a letter, a report), the chat writes
   it into a page or row if it isn't in one, then makes the page's PDF on the server
   (`create_pdf`) and attaches it at the end of the page's text, or in a row's files property, and
@@ -24,6 +162,13 @@
   the row, ⌘⇧P moves it, ⌘⇧M opens its comments and Del moves it to the trash; the menu shows
   the keys, and so does the shortcuts list. The page ⋯ menu counts a page's words and characters
   too.
+- **PDF letterheads.** Owners set up the workspace's letterheads in the new Settings → PDF
+  templates tab: a logo on the left, in the middle or on the right, lines at the top of every page
+  (company, address, tax number) and at the foot (bank details), an accent color and page numbers.
+  One is the default. PDF files from the page menu and the AI chat print in it, or in another one
+  picked by name, or in none. Guests make PDFs without letterheads. Migration 0115 adds the
+  `pdf_letterhead` table.
+
 - **Skills live in a skills database.** *New skill* in the skills library, and the ready-made
   skills, now add a row to a skills database: the person's own, made private at the top of the
   workspace the first time, with *Description*, *Files*, *Tags* and *Created by* properties and its
@@ -452,6 +597,10 @@
 
 ### Changed
 
+- **"Export as PDF" downloads a PDF file.** The page menu's *Export as PDF* now makes the file on
+  the server, in a letterhead picked in its dialog (for a row, with its values if asked). The
+  browser's print dialog moved to *Print*, which still keeps the page exactly as it looks, diagrams
+  and equations included.
 - **The AI chat's text follows the app's own type scale.** Tables, code blocks and headings in an
   answer and the question box are 14px like the rest of the interface, in the app's own font, instead
   of standing out with 12, 15 and 16px.

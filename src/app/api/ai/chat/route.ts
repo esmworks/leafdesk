@@ -1,6 +1,7 @@
 import * as z from "zod";
 import { auth } from "@/lib/auth";
 import { CHAT_MODES } from "@/lib/ai-chat";
+import { CHAT_CSV_MAX_CHARS, CHAT_MAX_ATTACHMENTS } from "@/lib/chat-attachments";
 import { AccessError } from "@/server/access";
 import { aiErrorStatus, isAiError } from "@/server/ai";
 import { startChat } from "@/server/ai-chat";
@@ -19,13 +20,18 @@ const chatInput = z.object({
   replaceLast: z.boolean().optional(),
   skillId: z.string().min(1).max(100).nullish(),
   timeZone: z.string().max(100).nullish(),
+  // Read again and checked against the chat's limits by startChat.
+  attachments: z
+    .array(z.object({ name: z.string().max(1_000), text: z.string().max(CHAT_CSV_MAX_CHARS + 1) }))
+    .max(CHAT_MAX_ATTACHMENTS + 1)
+    .nullish(),
 });
 
 /**
  * The AI chat (#41): `POST /api/ai/chat` with `{workspaceId, conversationId?, message, scope?, mode?,
- * replaceLast?, skillId?, timeZone?}` (`replaceLast`: ask again in place of the last question and
+ * replaceLast?, skillId?, timeZone?, attachments?}` (`replaceLast`: ask again in place of the last question and
  * answer; `skillId`: a skill whose instructions the answer follows; `timeZone`: the browser's, for
- * what today is).
+ * what today is; `attachments`: CSV files, `{name, text}`, read in the browser).
  * Answers with newline-delimited JSON as the assistant works (see ChatEvent in lib/ai-chat.ts); in
  * mode `ask` the answer waits on each change for decideChangeAction.
  * Checks that fail before anything is sent answer with a status and `{"error":{"code","message"}}`.

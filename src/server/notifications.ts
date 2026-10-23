@@ -22,6 +22,8 @@ import {
   type JoinRequestKind,
   type NotificationKind,
 } from "@/db/schema";
+import { addReactor, parseReactors, reactionSummary, removeReactor, type Reactor } from "@/lib/comment-reactions";
+import { avatarSrc } from "@/lib/avatar";
 import { callConnectionName, callToSend, inboxCallInput, isScheduleRun, type AgentRunCode, type AgentRunStatus } from "@/lib/agents";
 import { newAssignees } from "@/lib/properties";
 import type { PropertyType } from "@/lib/property-types";
@@ -216,23 +218,133 @@ export async function recordComment(actorId: string, workspaceId: string, pageId
   }
 }
 
-/** Takes back unread notifications about a thread that was deleted; never throws. */
+/**
+ * Takes back unread notifications about a thread that was deleted, and every reaction notification
+ * about its comments (read ones too: they quote the comment); never throws.
+ */
 export async function withdrawComments(workspaceId: string, pageId: string, threadId: string) {
   try {
     const dropped = await db
       .delete(notification)
       .where(
         and(
-          eq(notification.kind, "comment"),
           eq(notification.pageId, pageId),
           eq(notification.threadId, threadId),
-          isNull(notification.readAt),
+          or(and(eq(notification.kind, "comment"), isNull(notification.readAt)), eq(notification.kind, "reaction")),
         ),
       )
       .returning({ id: notification.id });
     if (dropped.length) signal(workspaceId);
   } catch (error) {
     console.error("could not withdraw comment notifications", error);
+  }
+}
+
+/**
+ * The unread reaction notification of `userId` about comment `commentId` (in thread `threadId` of
+ * page `pageId`), locked for the change; a snoozed one only when `snoozedToo`.
+ */
+const unreadReaction = (userId: string, pageId: string, threadId: string, commentId: string, snoozedToo: boolean) =>
+  and(
+    eq(notification.kind, "reaction"),
+    eq(notification.userId, userId),
+    eq(notification.pageId, pageId),
+    eq(notification.threadId, threadId),
+    eq(notification.commentId, commentId),
+    isNull(notification.readAt),
+    snoozedToo ? undefined : isNull(notification.snoozedUntil),
+  );
+
+/**
+ * Tells `authorId` that `actorId` reacted with `emoji` to their comment `commentId`. While they
+ * haven't read it, more reactions to the same comment go into the same notification, moved up to
+ * the latest; a snoozed one waits for its time as it is. Only people who can open the page hear
+ * about it (not agents), never about their own reactions, and never by email. Pushed (where the
+ * author turned that on) only when the notification is new, not for each reaction it collects.
+ * Never throws: the reaction went through.
+ */
+export async function recordReaction(
+  actorId: string,
+  workspaceId: string,
+  { pageId, threadId, commentId, authorId, emoji, excerpt }: { pageId: string; threadId: string; commentId: string; authorId: string; emoji: string; excerpt: string },
+) {
+  if (actorId === authorId) return;
+  try {
+    if (!(await pageRecipients([authorId], pageId)).length) return;
+    const reactor: Reactor = { userId: actorId, emoji };
+    const inserted = await db.transaction(async (tx) => {
+      const [earlier] = await tx
+        .select({ id: notification.id, reactions: notification.reactions })
+        .from(notification)
+        .where(unreadReaction(authorId, pageId, threadId, commentId, false))
+        .orderBy(desc(notification.createdAt))
+        .limit(1)
+        .for("update");
+      if (earlier) {
+        await tx
+          .update(notification)
+          .set({ reactions: addReactor(parseReactors(earlier.reactions), reactor), actorId, message: excerpt, createdAt: new Date() })
+          .where(eq(notification.id, earlier.id));
+        return [];
+      }
+      return tx
+        .insert(notification)
+        .values({ userId: authorId, workspaceId, kind: "reaction", actorId, pageId, threadId, commentId, reactions: [reactor], message: excerpt })
+        .returning({ id: notification.id });
+    });
+    signal(workspaceId);
+    pushNotifications(inserted.map((n) => n.id));
+  } catch (error) {
+    console.error("could not record reaction notification", error);
+  }
+}
+
+/**
+ * Takes `actorId`'s reaction with `emoji` back out of `authorId`'s unread notification about the
+ * comment (snoozed or not), and the notification away once no reaction is left in it; never throws.
+ */
+export async function withdrawReaction(
+  actorId: string,
+  workspaceId: string,
+  { pageId, threadId, commentId, authorId, emoji }: { pageId: string; threadId: string; commentId: string; authorId: string; emoji: string },
+) {
+  try {
+    const changed = await db.transaction(async (tx) => {
+      const rows = await tx
+        .select({ id: notification.id, reactions: notification.reactions })
+        .from(notification)
+        .where(unreadReaction(authorId, pageId, threadId, commentId, true))
+        .for("update");
+      for (const row of rows) {
+        const left = removeReactor(parseReactors(row.reactions), { userId: actorId, emoji });
+        if (!left.length) await tx.delete(notification).where(eq(notification.id, row.id));
+        else await tx.update(notification).set({ reactions: left, actorId: left.at(-1)!.userId }).where(eq(notification.id, row.id));
+      }
+      return rows.length > 0;
+    });
+    if (changed) signal(workspaceId);
+  } catch (error) {
+    console.error("could not withdraw reaction notification", error);
+  }
+}
+
+/** Takes back every notification about reactions to a comment that was deleted (they quote it); never throws. */
+export async function withdrawReactions(workspaceId: string, pageId: string, threadId: string, commentId: string) {
+  try {
+    const dropped = await db
+      .delete(notification)
+      .where(
+        and(
+          eq(notification.kind, "reaction"),
+          eq(notification.pageId, pageId),
+          eq(notification.threadId, threadId),
+          eq(notification.commentId, commentId),
+        ),
+      )
+      .returning({ id: notification.id });
+    if (dropped.length) signal(workspaceId);
+  } catch (error) {
+    console.error("could not withdraw reaction notifications", error);
   }
 }
 
@@ -583,7 +695,10 @@ export type InboxItem = {
   workspaceName: string;
   createdAt: Date;
   read: boolean;
+  actorId: string | null;
   actorName: string | null;
+  /** The actor's profile picture (`user.image`), for the inbox's avatars. */
+  actorImage: string | null;
   /** Null for join requests only. */
   pageId: string | null;
   pageTitle: string | null;
@@ -619,6 +734,16 @@ export type InboxItem = {
   review: { count: number } | null;
   /** Follow-ups: the sequence of the row (`pageId`) whose next email didn't pass the check. */
   followUp: { sequence: string } | null;
+  /** Reactions: to which comment of thread `threadId`, with what and by whom (the latest first). */
+  reaction: InboxReaction | null;
+};
+
+export type InboxReaction = {
+  commentId: string;
+  emojis: string[];
+  people: { id: string; name: string; image: string | null }[];
+  /** The start of the comment, as it read when reacted to. */
+  excerpt: string;
 };
 
 export type InboxRowEmail = { id: string; from: string; subject: string; snippet: string };
@@ -759,7 +884,9 @@ export async function listNotifications(
       workspaceName: workspace.name,
       createdAt: notification.createdAt,
       readAt: notification.readAt,
+      actorId: notification.actorId,
       actorName: actor.name,
+      actorImage: actor.image,
       pageId: page.id,
       pageTitle: page.title,
       pageIcon: page.icon,
@@ -784,6 +911,8 @@ export async function listNotifications(
       changes: notification.changes,
       rowEmailId: notification.rowEmailId,
       followUpSequence: emailSequence.name,
+      commentId: notification.commentId,
+      reactions: notification.reactions,
     })
     .from(notification)
     .leftJoin(page, eq(page.id, notification.pageId))
@@ -821,13 +950,14 @@ export async function listNotifications(
   };
   const runsOf = (kind: NotificationKind) => rows.flatMap((r) => (r.kind === kind && r.agentRunId ? [r.agentRunId] : []));
   const reviewWorkspaces = [...new Set(rows.filter((r) => r.kind === "review").map((r) => r.workspaceId))];
-  const [approvals, proposals, reports, updates, emails, reviews] = await Promise.all([
+  const [approvals, proposals, reports, updates, emails, reviews, reactions] = await Promise.all([
     approvalsOf(userId, runsOf("agent_approval")),
     inboxProposals(userId, runsOf("agent_memory")),
     reportsOf(userId, runsOf("agent_report")),
     rowUpdatesOf(userId, rows.filter((r) => r.kind === "row_update")),
     rowEmailsOf(userId, rows.filter((r) => r.kind === "row_email")),
     Promise.all(reviewWorkspaces.map(async (id) => [id, await countPendingFor(userId, id)] as const)).then((counts) => new Map(counts)),
+    reactionsOf(rows.filter((r) => r.kind === "reaction")),
   ]);
   // A row update with nothing left the user may see (a property's access changed since) isn't shown,
   // nor a call the user no longer answers (they can't open its row any more).
@@ -841,8 +971,12 @@ export async function listNotifications(
       !(r.kind === "agent_approval" && r.agentRunId && approvals.get(r.agentRunId) === null),
   );
   return Promise.all(
-    shown.map(async ({ readAt, actorEmail, requestId, requestMessage, requesterRole, agentRunId, rowDatabaseId, rowCreatedBy, rowProperties, changes, rowEmailId, followUpSequence, ...row }) => ({
+    shown.map(async ({ readAt, actorEmail, actorImage, requestId, requestMessage, requesterRole, agentRunId, rowDatabaseId, rowCreatedBy, rowProperties, changes, rowEmailId, followUpSequence, commentId, reactions: _reactions, automationMessage, ...row }) => ({
       ...row,
+      actorImage: avatarSrc(actorImage),
+      // A reaction's message is the comment it quotes (see reaction below).
+      automationMessage: row.kind === "reaction" ? null : automationMessage,
+      reaction: reactions.get(row.id) ?? null,
       rowUpdate: updates.get(row.id) ?? null,
       rowEmail: emails.get(row.id) ?? null,
       review: row.kind === "review" ? { count: reviews.get(row.workspaceId) ?? 0 } : null,
@@ -863,6 +997,29 @@ export async function listNotifications(
           : null,
     })),
   );
+}
+
+/** What these reaction notifications tell: who reacted with what, the latest first, and to which comment. */
+async function reactionsOf(rows: { id: string; commentId: string | null; reactions: unknown; automationMessage: string | null }[]) {
+  const out = new Map<string, InboxReaction>();
+  const summaries = rows.flatMap((r) => (r.commentId ? [{ row: r, commentId: r.commentId, ...reactionSummary(parseReactors(r.reactions)) }] : []));
+  const ids = [...new Set(summaries.flatMap((s) => s.userIds))];
+  if (!ids.length) return out;
+  const people = new Map(
+    (await db.select({ id: user.id, name: user.name, image: user.image }).from(user).where(inArray(user.id, ids))).map((p) => [
+      p.id,
+      { id: p.id, name: p.name, image: avatarSrc(p.image) },
+    ]),
+  );
+  for (const s of summaries) {
+    out.set(s.row.id, {
+      commentId: s.commentId,
+      emojis: s.emojis,
+      people: s.userIds.flatMap((id) => people.get(id) ?? []),
+      excerpt: s.row.automationMessage ?? "",
+    });
+  }
+  return out;
 }
 
 /** The messages these row emails in `viewer`'s inbox are about, of those they may still read. */

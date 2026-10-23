@@ -85,6 +85,12 @@ export const userPreference = pgTable("user_preference", {
   /** Email me those reminders. */
   verificationEmails: boolean("verification_emails").notNull().default(true),
   /**
+   * Reactions to my comments: show them in my inbox. No email goes out about them (`reactionEmails`
+   * is kept for the shape every kind has, and unused); push and Telegram are off until turned on.
+   */
+  reactionInbox: boolean("reaction_inbox").notNull().default(true),
+  reactionEmails: boolean("reaction_emails").notNull().default(false),
+  /**
    * Push notifications per kind, to the devices that turned them on (see push_subscription). They
    * follow the inbox: a kind turned off there sends no push either, whatever these say, so by
    * default push is on exactly for what shows in the inbox, and each kind can be silenced on its own.
@@ -102,6 +108,7 @@ export const userPreference = pgTable("user_preference", {
   rowEmailPush: boolean("row_email_push").notNull().default(true),
   reviewPush: boolean("review_push").notNull().default(true),
   followUpPush: boolean("follow_up_push").notNull().default(true),
+  reactionPush: boolean("reaction_push").notNull().default(false),
   verificationPush: boolean("verification_push").notNull().default(true),
   /**
    * Telegram messages per kind, to the Telegram account the person linked (see telegram_link,
@@ -120,6 +127,7 @@ export const userPreference = pgTable("user_preference", {
   rowEmailTelegram: boolean("row_email_telegram").notNull().default(true),
   reviewTelegram: boolean("review_telegram").notNull().default(true),
   followUpTelegram: boolean("follow_up_telegram").notNull().default(true),
+  reactionTelegram: boolean("reaction_telegram").notNull().default(false),
   verificationTelegram: boolean("verification_telegram").notNull().default(true),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
@@ -255,6 +263,30 @@ export const threadMute = pgTable(
   (t) => [primaryKey({ columns: [t.pageId, t.threadId, t.userId] }), index("thread_mute_user_idx").on(t.userId)],
 );
 
+/**
+ * One person's state of one comment thread of a page (see server/thread-state.ts): whether they
+ * marked it to come back to later, and when they last saw it in the page's comments, which tells
+ * replies since apart. Like thread_mute, `thread_id` refers to nothing here; the rows go with the
+ * thread, the page or the person.
+ */
+export const threadState = pgTable(
+  "thread_state",
+  {
+    pageId: text("page_id")
+      .notNull()
+      .references(() => page.id, { onDelete: "cascade" }),
+    threadId: text("thread_id").notNull(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    /** Marked "come back later"; null when not. */
+    markedAt: timestamp("marked_at", { withTimezone: true }),
+    /** When the person last had the thread in front of them in the page's comments; null when never. */
+    seenAt: timestamp("seen_at", { withTimezone: true }),
+  },
+  (t) => [primaryKey({ columns: [t.pageId, t.threadId, t.userId] }), index("thread_state_user_idx").on(t.userId)],
+);
+
 /** People who watch every page of a teamspace, unless they muted the page (see server/page-watch.ts). */
 export const teamspaceWatch = pgTable(
   "teamspace_watch",
@@ -328,6 +360,7 @@ export const NOTIFICATION_KINDS = [
   "row_email",
   "review",
   "follow_up",
+  "reaction",
   "verification",
   "agent_approval",
   "agent_memory",
@@ -369,8 +402,11 @@ export type PreferenceKind = Exclude<NotificationKind, OwnerKind>;
  * proposed by agent `actorId`; one unread at a time per person and workspace, which newer
  * proposals bring back to the top rather than adding more; it has no page. "follow_up": the
  * user's enrollment `sequenceEnrollmentId` of row `pageId` in a follow-up sequence paused because
- * its next email didn't pass the draft check (see server/sequences). "verification": the user's
- * verification of page `pageId` ends at `date` (an ISO time) in a few days, or ended then (created
+ * its next email didn't pass the draft check (see server/sequences). "reaction": people reacted
+ * to the user's comment `commentId` in thread `threadId` of page `pageId`; `reactions` says who
+ * with what, `actorId` is the latest of them and `message` a few words of the comment. One unread
+ * one per comment, which more reactions add to and taking a reaction back takes from.
+ * "verification": the user's verification of page `pageId` ends at `date` (an ISO time) in a few days, or ended then (created
  * at or after it); see server/verification.ts.
  * "ai_account_detached": the workspace's AI no longer runs on `actorId`'s own AI account (they left
  * the workspace, deleted the account or their whole account); it has no page. Unread ones are dropped when the change is
@@ -396,6 +432,10 @@ export const notification = pgTable(
     propertyId: text("property_id").references(() => databaseProperty.id, { onDelete: "cascade" }),
     /** Comment notifications: the thread (in the page's document) they are about. */
     threadId: text("thread_id"),
+    /** Reaction notifications: the comment (in thread `threadId`) reacted to. */
+    commentId: text("comment_id"),
+    /** Reaction notifications: who reacted with what, oldest first. */
+    reactions: jsonb("reactions").$type<{ userId: string; emoji: string }[]>(),
     /** Mention and reminder notifications: the mention (in the page's document) they are about. */
     mentionId: text("mention_id"),
     /** Access request notifications: the request, so answering it takes all of them away. */
@@ -404,7 +444,10 @@ export const notification = pgTable(
     joinRequestId: text("join_request_id").references(() => workspaceJoinRequest.id, { onDelete: "cascade" }),
     /** Automation notifications: the automation that sent it. */
     automationId: text("automation_id").references(() => databaseAutomation.id, { onDelete: "cascade" }),
-    /** "automation": the message its notify step wrote, templates resolved; null without one. */
+    /**
+     * "automation": the message its notify step wrote, templates resolved; null without one.
+     * "reaction": the start of the comment reacted to, as it read then.
+     */
     message: text("message"),
     /** Agent approval, memory and report notifications: the run whose call or notes wait, or that finished. */
     agentRunId: text("agent_run_id").references(() => agentRun.id, { onDelete: "cascade" }),

@@ -3,6 +3,7 @@
  * how full-text and semantic rankings are merged. No database or network here, so it's unit-tested
  * (semantic-text.test.ts); server/semantic-index.ts and server/semantic-search.ts use it.
  */
+import { placeText } from "@/lib/place";
 import { createHash } from "node:crypto";
 import { blocksToPlainText, type BlockLike } from "@/lib/blocks";
 import { displayValue } from "@/lib/properties";
@@ -36,7 +37,7 @@ const PATH_SEPARATOR = " › ";
  * pages' titles and people's names, which the row's readers may not be allowed to see. Formulas and
  * rollups can reach through relations too.
  */
-const INDEXED_TYPES = new Set(["text", "number", "select", "multi_select", "status", "date", "url", "email", "phone", "checklist"]);
+const INDEXED_TYPES = new Set(["text", "number", "select", "multi_select", "status", "date", "url", "email", "phone", "checklist", "place"]);
 
 export type IndexedProperty = Parameters<typeof displayValue>[0];
 
@@ -53,7 +54,7 @@ export function rowPropertyLines(
   const lines: string[] = [];
   for (const prop of properties) {
     if (!INDEXED_TYPES.has(prop.type) || restricted.has(prop.id)) continue;
-    const shown = formatValue(displayValue(prop, values[prop.id])).trim();
+    const shown = (prop.type === "place" ? placeText(values[prop.id]) : formatValue(displayValue(prop, values[prop.id]))).trim();
     if (shown) lines.push(`${prop.name.trim() || "?"}: ${shown.replace(/\s+/g, " ")}`);
   }
   return lines;

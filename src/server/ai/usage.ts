@@ -1,7 +1,7 @@
 /**
  * What AI requests cost each workspace, and its monthly cost limit (see lib/ai-usage.ts). index.ts
  * holds every request to the limit before it is sent, then adds what it used to the workspace's
- * month (`ai_usage`, by feature and model): answers, failures the provider still billed, embeddings
+ * month (`ai_usage`, by feature and model, and `ai_usage_person`, by who asked): answers, failures the provider still billed, embeddings
  * and transcriptions alike. Only counts and cost are kept, never what was asked or answered.
  *
  * The limit is checked before each request, so requests under way at once can each finish past it:
@@ -18,6 +18,11 @@ import { AiError } from "./errors";
 /** One request's usage, as index.ts hands it over. */
 export type AiUsageEntry = {
   workspaceId: string;
+  /**
+   * Who asked (AiRequest.userId): a person, or an agent's own user for its runs; null for work
+   * nobody asked for. Counted by person apart from the workspace's totals (ai_usage_person).
+   */
+  userId?: string | null;
   feature: string;
   model: string;
   /** Paid by the workspace's own AI account rather than the server's AI_* key. */
@@ -87,12 +92,16 @@ export async function usageLedger(override: { usage?: AiUsageLedger } | undefine
 /** A ledger in memory, for tests: `limits` are the owners' limits by workspace. */
 export function memoryAiUsageLedger(limits: Record<string, number | null> = {}) {
   const rows: (AiUsageRow & { workspaceId: string })[] = [];
-  const ledger: AiUsageLedger & { rows: typeof rows; limits: typeof limits } = {
+  /** Requests by who asked, one entry each. */
+  const people: { workspaceId: string; month: string; userId: string | null; feature: string; costUsd: number }[] = [];
+  const ledger: AiUsageLedger & { rows: typeof rows; people: typeof people; limits: typeof limits } = {
     rows,
+    people,
     limits,
     async record(entry, now) {
       const month = monthOf(now).slice(0, 7);
       const { workspaceId, feature, model, ownAccount } = entry;
+      people.push({ workspaceId, month, userId: entry.userId ?? null, feature, costUsd: entry.costUsd });
       let row = rows.find((r) => r.workspaceId === workspaceId && r.month === month && r.feature === feature && r.model === model && r.ownAccount === ownAccount);
       if (!row) rows.push((row = { workspaceId, month, feature, model, ownAccount, ...ZERO_AI_USAGE }));
       row.requests += 1;

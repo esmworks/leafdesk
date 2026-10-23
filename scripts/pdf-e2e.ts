@@ -2,9 +2,11 @@
  * End-to-end check of PDF files made on the server (server/pdf.ts) and the AI chat's create_pdf:
  * a row's body printed with its table, Turkish text and an uploaded image, its values only when
  * asked for; the chat making the PDF and attaching it to a row's files property or to the end of a
- * page, after the person agrees (and not when they decline); and the refusals: someone who may only
- * view the page, a locked page, a database, and a workspace whose owners turned export off. The
- * PDFs' text is read back with unpdf. A fake OpenAI-compatible server plays the model.
+ * page, after the person agrees (and not when they decline); letterheads (server/letterheads.ts):
+ * owners only, the first the default, logos PNG or JPEG only, printed at the top and foot of PDFs
+ * (the default, another by id or name, or none; never for guests), picked by name in the chat; and
+ * the refusals: someone who may only view the page, a locked page, a database, and a workspace
+ * whose owners turned export off. The PDFs' text is read back with unpdf. A fake OpenAI-compatible server plays the model.
  * Creates its own users and workspace, stores files in a temporary directory, and deletes all of
  * it afterwards.
  *
@@ -41,6 +43,8 @@ const ops = await import("@/server/operations");
 const { setPagePermission } = await import("@/server/permissions");
 const { updateWorkspaceSettings } = await import("@/server/workspaces");
 const { pagePdf } = await import("@/server/pdf");
+const letterheads = await import("@/server/letterheads");
+const { AccessError } = await import("@/server/access");
 const { ExportError } = await import("@/server/export");
 const { resetAi, setAiEnv } = await import("@/server/ai/testing");
 const { startFakeOpenAi, textOf } = await import("@/server/ai/fake-openai");
@@ -113,9 +117,9 @@ const lastToolResult = () =>
     .map((m) => textOf(m.content))
     .at(-1) ?? "";
 
-const ids = { owner: `${RUN}-owner`, alice: `${RUN}-alice`, bob: `${RUN}-bob` };
+const ids = { owner: `${RUN}-owner`, alice: `${RUN}-alice`, bob: `${RUN}-bob`, guest: `${RUN}-guest` };
 const userIds = Object.values(ids);
-const { owner, alice, bob } = ids;
+const { owner, alice, bob, guest } = ids;
 const workspaceId = `${RUN}-ws`;
 // A 1×1 PNG.
 const PNG = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==", "base64");
@@ -137,6 +141,7 @@ try {
     { workspaceId, userId: owner, role: "owner" },
     { workspaceId, userId: alice, role: "member" },
     { workspaceId, userId: bob, role: "member" },
+    { workspaceId, userId: guest, role: "guest" },
   ]);
   const [general] = await db.select({ id: teamspace.id }).from(teamspace).where(eq(teamspace.workspaceId, workspaceId));
   const ctx = { userId: owner, actor: { userId: owner } };
@@ -211,6 +216,60 @@ try {
   const after = (await getCollab().readBlocks(letter.id)).blocks as { type: string; props: { name?: string; url?: string } }[];
   const last = after.at(-1);
   check(last?.type === "file" && last.props.name === "Cover letter.pdf", "the file goes at the end of the page, named after it", after);
+
+  // ── Letterheads ───────────────────────────────────────────────────────────────────────────
+  const failure = async (work: Promise<unknown>) => work.then(() => null, (error: unknown) => error);
+  check((await failure(letterheads.createLetterhead(alice, workspaceId, { name: "Mine" }))) instanceof AccessError, "only owners add letterheads");
+  const offerPaper = await letterheads.createLetterhead(owner, workspaceId, {
+    name: "Teklif",
+    header: "3E Soğutma A.Ş.\nİkitelli OSB, İstanbul",
+    footer: "IBAN TR00 0001",
+    accent: "#0b5ea8",
+  });
+  const letterPaper = await letterheads.createLetterhead(owner, workspaceId, { name: "Mektup", header: "3E Mektup Antedi" });
+  check(offerPaper.isDefault && !letterPaper.isDefault, "the workspace's first letterhead becomes its default, later ones don't");
+  const duplicate = await failure(letterheads.createLetterhead(owner, workspaceId, { name: " teklif " }));
+  check(duplicate instanceof letterheads.LetterheadError && duplicate.code === "duplicateName", "two letterheads can't share a name, whatever its case", String(duplicate));
+  const svg = await failure(letterheads.setLetterheadLogo(owner, offerPaper.id, Buffer.from("<svg xmlns='http://www.w3.org/2000/svg'/>")));
+  check(svg instanceof letterheads.LetterheadError && svg.code === "logoType", "a logo that isn't PNG or JPEG is refused", String(svg));
+  check((await letterheads.setLetterheadLogo(owner, offerPaper.id, PNG)).hasLogo, "a PNG logo goes on");
+  check((await letterheads.letterheadLogo(bob, offerPaper.id))?.type === "image/png", "members can load the logo");
+  check((await letterheads.letterheadLogo(guest, offerPaper.id)) === null && (await letterheads.listLetterheads(guest, workspaceId)).length === 0, "guests see no letterheads");
+
+  const images = (bytes: Uint8Array) => Buffer.from(bytes).toString("latin1").split("/Subtype /Image").length - 1;
+  const inDefault = await pagePdf(alice, row.id);
+  const inDefaultText = await textOfPdf(inDefault.bytes);
+  check(inDefaultText.includes("3E Soğutma A.Ş.") && inDefaultText.includes("İkitelli OSB, İstanbul") && inDefaultText.includes("IBAN TR00 0001"), "a PDF prints in the default letterhead", inDefaultText);
+  check(images(inDefault.bytes) > images(plain.bytes), "…with its logo", { with: images(inDefault.bytes), without: images(plain.bytes) });
+  const inNone = await textOfPdf((await pagePdf(alice, row.id, { letterhead: "none" })).bytes);
+  check(!inNone.includes("3E Soğutma A.Ş.") && !inNone.includes("IBAN"), "…or in none when asked", inNone);
+  const inLetter = await textOfPdf((await pagePdf(alice, row.id, { letterhead: letterPaper.id })).bytes);
+  check(inLetter.includes("3E Mektup Antedi") && !inLetter.includes("IBAN"), "…or in another by its id", inLetter);
+  const foreign = await failure(pagePdf(alice, row.id, { letterhead: "no-such-letterhead" }));
+  check(foreign instanceof letterheads.LetterheadError, "a letterhead that isn't the workspace's is refused", String(foreign));
+  await setPagePermission(owner, letter.id, guest, "view");
+  const byGuest = await textOfPdf((await pagePdf(guest, letter.id)).bytes);
+  check(byGuest.includes("Dear customer") && !byGuest.includes("3E Soğutma A.Ş."), "a guest's PDF has no letterhead", byGuest);
+
+  fake.setChat(pdfMaker({ page_id: letter.id, letterhead: "teklif", file_name: "Letter in Teklif" }));
+  const named = await ask(alice, { workspaceId, message: "PDF of the letter on the offer paper", mode: "ask" }, "approve");
+  check(named.approvals[0]?.action.letterhead === "Teklif", "the chat says which letterhead it will use", named.approvals[0]?.action);
+  check(lastToolResult().includes('letterhead "Teklif"'), "…and tells the model", lastToolResult());
+  const madeBlock = ((await getCollab().readBlocks(letter.id)).blocks as { type: string; props: { name?: string; url?: string } }[]).at(-1);
+  const [namedFile] = await db.select().from(file).where(eq(file.id, madeBlock!.props.url!.split("/").pop()!));
+  check((await textOfPdf((await files.readStored(namedFile))!)).includes("3E Soğutma A.Ş."), "the PDF it attached is in that letterhead");
+  fake.setChat(pdfMaker({ page_id: letter.id, letterhead: "Fatura" }));
+  await ask(alice, { workspaceId, message: "PDF on invoice paper", mode: "auto" });
+  check(lastToolResult().includes('no letterhead named "Fatura"') && lastToolResult().includes('"Teklif", "Mektup"'), "an unknown letterhead is refused, naming the workspace's", lastToolResult());
+  await letterheads.setDefaultLetterhead(owner, letterPaper.id, true);
+  const listed = await letterheads.listLetterheads(alice, workspaceId);
+  check(listed.filter((l) => l.isDefault).map((l) => l.name).join() === "Mektup", "making another the default leaves one default", listed);
+  fake.setChat(pdfMaker({ page_id: letter.id }));
+  await ask(alice, { workspaceId, message: "PDF of the letter", mode: "auto" });
+  check(lastToolResult().includes('letterhead "Mektup"'), "the chat uses the default unless asked for another", lastToolResult());
+  await letterheads.deleteLetterhead(owner, letterPaper.id);
+  const afterDelete = await textOfPdf((await pagePdf(alice, row.id)).bytes);
+  check(!afterDelete.includes("3E Mektup Antedi") && !afterDelete.includes("3E Soğutma A.Ş."), "with the default removed, PDFs have none", afterDelete);
 
   // ── Refusals ──────────────────────────────────────────────────────────────────────────────
   fake.setChat(pdfMaker({ page_id: letter.id }));

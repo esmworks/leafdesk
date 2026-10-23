@@ -66,7 +66,8 @@
   "errors": {
     "notFound": "Bu hesap bulunamadı.",
     "noPassword": "Bu hesabın parolası yok; başka bir yolla giriş yapıyor.",
-    "self": "Kendi parolanızı hesap sayfanızdan değiştirin."
+    "self": "Kendi parolanızı hesap sayfanızdan değiştirin.",
+    "noWorkspace": "Bu çalışma alanı bulunamadı."
   },
   "descriptionFirstAccount": "Bu sunucudaki hesaplar, oturumları ve parolaları. Bu sayfayı, bu sunucudaki ilk hesap sizinki olduğu için görüyorsunuz.",
   "signUp": {
@@ -81,5 +82,16 @@
     "body": "Buradaki ilk hesap sizinki, bu yüzden Sunucu yönetimi size ait. Bu adrese ulaşabilen herkes hâlâ kaydolabilir; nasıl kapatılacağı Sunucu yönetiminde.",
     "open": "Sunucu yönetimi",
     "dismiss": "Kapat"
+  },
+  "networks": {
+    "heading": "Onaylı ağlar",
+    "description": "Yalnızca onaylı ağlardan açılan çalışma alanları. Bir liste çalışma alanının sahiplerini dışarıda bırakırsa buradan temizleyin: sahipleri listeyi yeniden ayarlayana kadar çalışma alanı her ağdan açılır.",
+    "none": "Girişi onaylı ağlarla sınırlayan çalışma alanı yok",
+    "noneDescription": "Sahipler onaylı ağları çalışma alanlarının Ayarlar → Güvenlik bölümünden ayarlar.",
+    "count": "{count, plural, one {# ağ} other {# ağ}}",
+    "clear": "Listeyi temizle",
+    "clearTitle": "{workspace} için onaylı ağlar temizlensin mi?",
+    "clearBody": "Çalışma alanındaki herkes onu yeniden her ağdan açabilir; listeyi sizin temizlediğiniz denetim kaydına yazılır. Sahipleri listeyi Ayarlar → Güvenlik bölümünden yeniden ayarlayabilir.",
+    "clearConfirm": "Listeyi temizle"
   }
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { cellMarkClass, colorMarkClass, type RowColors } from "@/lib/color-rules";
 import { Ellipsis, Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { memo, useCallback, useMemo, useState } from "react";
@@ -30,6 +31,7 @@ export function GalleryView({
   rows,
   api,
   readOnly,
+  colors,
 }: {
   workspaceId: string;
   view: View;
@@ -37,6 +39,8 @@ export function GalleryView({
   rows: Row[];
   api: DatabaseApi;
   readOnly?: boolean;
+  /** What the view's color rules color, by row id (see lib/color-rules). */
+  colors?: ReadonlyMap<string, RowColors>;
 }) {
   const t = useTranslations("database");
   const { editTitleOf, typed, create: createNew, stopEditing, quick } = useNewRow(api, view, properties);
@@ -74,6 +78,7 @@ export function GalleryView({
               workspaceId={workspaceId}
               row={row}
               props={cardProps}
+              color={colors?.get(row.id)}
               coverUrl={withCover ? coverOf(row) : null}
               coverClass={withCover ? COVER_HEIGHT[size] : null}
               readOnly={readOnly}
@@ -107,6 +112,7 @@ const GalleryCard = memo(function GalleryCard({
   workspaceId,
   row,
   props,
+  color,
   coverUrl,
   coverClass,
   readOnly,
@@ -118,6 +124,8 @@ const GalleryCard = memo(function GalleryCard({
   workspaceId: string;
   row: Row;
   props: Property[];
+  /** What color rules color on the card: the card, its name or values. */
+  color?: RowColors;
   /** The card's cover image, if it has one. */
   coverUrl: string | null;
   /** Height of the cover area, or null when the view shows no covers. */
@@ -148,6 +156,7 @@ const GalleryCard = memo(function GalleryCard({
       }}
       className={cn(
         "board-card group relative flex min-w-0 cursor-pointer flex-col overflow-hidden rounded-lg",
+        colorMarkClass(color?.row),
         isOpen && "outline-2 outline-accent/60",
       )}
     >
@@ -179,7 +188,7 @@ const GalleryCard = memo(function GalleryCard({
         ) : (
           <div className="flex min-w-0 gap-1.5 pe-6 text-sm leading-5 font-medium">
             {row.icon && (!coverClass || cover) && <span className="shrink-0">{row.icon}</span>}
-            <span className={cn("min-w-0 break-words", !row.title && "text-fg-faint")}>
+            <span className={cn("min-w-0 break-words", !row.title && "text-fg-faint", cellMarkClass(color, "title"))}>
               {pageLabel(row.title, tc("untitled"))}
             </span>
           </div>
@@ -187,7 +196,7 @@ const GalleryCard = memo(function GalleryCard({
         {shown.length > 0 && (
           <div className="mt-2 flex flex-col items-start gap-1.5 text-xs">
             {shown.map((p) => (
-              <div key={p.id} className="flex max-w-full min-w-0 items-center text-fg-muted" title={p.name}>
+              <div key={p.id} className={cn("flex max-w-full min-w-0 items-center text-fg-muted", cellMarkClass(color, p.id))} title={p.name}>
                 <RowValue prop={p} row={row} />
               </div>
             ))}

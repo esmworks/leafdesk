@@ -209,6 +209,11 @@ export function toFilterRule(props: PropertyDef[], input: FilterInput, lookups: 
     throw new PropertyValueError(`Checklist "${prop.name}" supports is_empty and is_not_empty`);
   } else if (prop?.type === "files") {
     throw new PropertyValueError(`Files "${prop.name}" supports is_empty and is_not_empty`);
+  } else if (prop?.type === "place") {
+    if (input.op !== "contains" && input.op !== "does_not_contain") {
+      throw new PropertyValueError(`Place "${prop.name}" supports contains and does_not_contain (on its address), is_empty and is_not_empty`);
+    }
+    value = String(value);
   } else if (prop && filtersByDay(prop)) {
     if (!DAY_OPS.has(input.op)) {
       throw new PropertyValueError(
@@ -402,6 +407,7 @@ export function describeViewConfig(props: PropertyDef[], config: ViewConfig, loo
     ...(config.groupBy ? { group_by: keyName(props, config.groupBy), ...describeGrouping(byId.get(config.groupBy), config) } : {}),
     ...(config.dateBy ? { date_by: keyName(props, config.dateBy) } : {}),
     ...(config.endDateBy ? { end_date_by: keyName(props, config.endDateBy) } : {}),
+    ...(config.placeBy ? { place_by: keyName(props, config.placeBy) } : {}),
     ...(config.zoom ? { zoom: config.zoom } : {}),
     ...(config.calendarMode ? { calendar_mode: config.calendarMode } : {}),
     ...(config.showTable === false ? { show_table: false } : {}),
@@ -415,6 +421,16 @@ export function describeViewConfig(props: PropertyDef[], config: ViewConfig, loo
     ...(config.filters?.length && config.filterCombinator === "or" ? { filter_combinator: "or" } : {}),
     ...(config.sorts?.length
       ? { sorts: config.sorts.map((s) => ({ property: keyName(props, s.propertyId), direction: s.direction })) }
+      : {}),
+    ...(config.colorRules?.length
+      ? {
+          color_rules: config.colorRules.map((r) => ({
+            color: r.color,
+            ...(r.propertyId !== undefined ? { property: keyName(props, r.propertyId) } : {}),
+            filters: (r.filters ?? []).map(describeEntry),
+            ...(r.filterCombinator === "or" ? { filter_combinator: "or" } : {}),
+          })),
+        }
       : {}),
     ...(config.form ? { form: describeForm(props, config.form, lookups) } : {}),
     ...(type === "dashboard"

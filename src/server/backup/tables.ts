@@ -40,12 +40,15 @@ export const BACKED_UP: Record<string, Scope> = {
   page_snapshot: ofPages("page_id"),
   row_activity: own,
   page_permission: own,
+  database_row_access: own,
   page_group_permission: ofPages("page_id"),
   property_permission: own,
   page_favorite: ofPages("page_id"),
+  meeting_note: ofPages("page_id"),
   page_watch: ofPages("page_id"),
   page_verification: ofPages("page_id"),
   thread_mute: ofPages("page_id"),
+  thread_state: ofPages("page_id"),
   row_follower: ofPages("row_id"),
   row_reminder: ofPages("row_id"),
   page_publication: ofPages("page_id"),
@@ -86,6 +89,7 @@ export const BACKED_UP: Record<string, Scope> = {
   email_sequence: own,
   // The workspace's own snippets; people's personal ones have no workspace and stay out.
   snippet: own,
+  pdf_letterhead: own,
 };
 
 /** Tables older backups held and later ones leave out: a restore passes over them. */
@@ -156,6 +160,7 @@ export const LEFT_OUT: Record<string, string> = {
   ai_conversation: "people's AI chats, which only each of them may read",
   agent_conversation: "people's chats with agents, which only each of them may read (their answers are agent runs, not backed up either)",
   ai_account: "people's own AI provider keys; the workspace uses the new server's AI until an owner attaches one again",
+  ai_usage_person: "AI usage by person, which names people of the old server; the workspace's own totals (ai_usage) are backed up",
 };
 
 export type BackupColumn = {

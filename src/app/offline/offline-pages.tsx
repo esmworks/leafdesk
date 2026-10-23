@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { Button, PageIcon, pageLabel } from "@/components/ui";
 import { readOfflineState } from "@/components/offline/offline-store";
-import { OFFLINE_STATE_PREFIX, type RecentPage } from "@/lib/offline";
+import { OFFLINE_STATE_PREFIX, wantedPages, type RecentPage } from "@/lib/offline";
 import { sameOriginPath } from "@/lib/same-origin";
 
 /**
@@ -16,7 +16,7 @@ import { sameOriginPath } from "@/lib/same-origin";
 export function OfflinePages() {
   const t = useTranslations("offline.page");
   const tc = useTranslations("common");
-  const [pages, setPages] = useState<(RecentPage & { dirty: boolean })[] | null>(null);
+  const [pages, setPages] = useState<(Omit<RecentPage, "at"> & { kind?: "page" | "database"; dirty: boolean })[] | null>(null);
   const [back, setBack] = useState<string | null>(null);
 
   useEffect(() => {
@@ -26,7 +26,11 @@ export function OfflinePages() {
       userId = key ? key.slice(OFFLINE_STATE_PREFIX.length) : null;
     } catch {}
     const state = userId ? readOfflineState(userId) : null;
-    setPages(state ? state.recent.map((p) => ({ ...p, dirty: state.dirty.includes(p.id) })) : []);
+    // Recently opened pages first, then the downloaded ones not among them.
+    const recent = state?.recent ?? [];
+    const kept = state ? [...wantedPages(state).values()].filter((p) => !recent.some((r) => r.id === p.id)) : [];
+    const listed = [...recent, ...kept.map((p) => ({ id: p.id, workspaceId: p.workspaceId, title: p.title, icon: p.icon, kind: p.kind }))];
+    setPages(listed.map((p) => ({ ...p, dirty: state?.dirty.includes(p.id) ?? false })));
     // The service worker sends people here from the page they asked for; "Try again" goes back there.
     const from = new URLSearchParams(window.location.search).get("from");
     setBack(sameOriginPath(from, window.location.origin) ?? "/");
@@ -45,7 +49,7 @@ export function OfflinePages() {
                   href={`/w/${p.workspaceId}/p/${p.id}`}
                   className="flex h-8 items-center gap-2 rounded-md px-2 text-sm hover:bg-bg-hover"
                 >
-                  <PageIcon icon={p.icon} kind="page" className="text-sm" />
+                  <PageIcon icon={p.icon} kind={p.kind ?? "page"} className="text-sm" />
                   <span className="min-w-0 flex-1 truncate">{pageLabel(p.title, tc("untitled"))}</span>
                   {p.dirty && <span className="shrink-0 text-xs text-fg-faint">{t("unsynced")}</span>}
                 </a>

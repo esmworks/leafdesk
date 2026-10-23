@@ -416,6 +416,9 @@ async function fitThisServer(manifest: BackupManifest, rows: Rows) {
   ws.invite_link_token = null;
   // An own AI account is someone's on the old server (and its key never leaves it).
   ws.ai_account_id = null;
+  // Approved networks are addresses as the old server saw them (its proxies, its network); whoever
+  // restores the workspace may not be on them here. Its owners set them again.
+  ws.allowed_networks = [];
   let ssoOnlyTurnedOff = false;
   if (ws.settings && typeof ws.settings === "object") {
     // Domains are proven by DNS for a server's own workspaces; the proof doesn't travel.

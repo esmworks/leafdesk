@@ -1,7 +1,34 @@
 import { sql } from "drizzle-orm";
-import { boolean, index, pgTable, primaryKey, text, timestamp } from "drizzle-orm/pg-core";
+import { boolean, index, integer, jsonb, pgTable, primaryKey, text, timestamp } from "drizzle-orm/pg-core";
+import type { Attendee } from "@/lib/meetings";
 import { databaseView, page, workspace } from "./app";
 import { user } from "./auth";
+
+/**
+ * A meeting block of a page (lib/meetings), for the Meetings page: derived from the page's body on
+ * every save (server/meetings.ts syncMeetingNotes), so the block stays the source of truth. Who may
+ * see one, and whether its page is in the trash, is worked out from its page when it is listed.
+ */
+export const meetingNote = pgTable(
+  "meeting_note",
+  {
+    pageId: text("page_id")
+      .notNull()
+      .references(() => page.id, { onDelete: "cascade" }),
+    meetingId: text("meeting_id").notNull(),
+    title: text("title").notNull().default(""),
+    scheduledAt: timestamp("scheduled_at", { withTimezone: true }),
+    startedAt: timestamp("started_at", { withTimezone: true }),
+    endedAt: timestamp("ended_at", { withTimezone: true }),
+    seconds: integer("seconds").notNull().default(0),
+    attendees: jsonb("attendees").$type<Attendee[]>().notNull().default([]),
+    status: text("status").notNull().default(""),
+    /** The summary's first point. */
+    preview: text("preview").notNull().default(""),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.pageId, t.meetingId] })],
+);
 
 /** Pages a user starred; listed under Favorites in their sidebar. Private to that user. */
 export const pageFavorite = pgTable(

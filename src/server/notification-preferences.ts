@@ -1,11 +1,12 @@
-import { and, eq, isNotNull } from "drizzle-orm";
+import { and, eq, getTableColumns, isNotNull } from "drizzle-orm";
 import { db } from "@/db";
 import { isOwnerKind, notification, OWNER_KINDS, pendingAssignmentEmail, userPreference, type NotificationKind, type PreferenceKind } from "@/db/schema";
 
 /**
  * What each person wants to hear about, and where: in the inbox, by email, as push notifications
  * on the devices that turned them on, in the Telegram chat they linked, or any of these.
- * Account-wide, like the other preferences; everything is on until the person turns it off. Push
+ * Account-wide, like the other preferences; everything is on until the person turns it off, but
+ * push and Telegram messages about reactions, which wait until turned on. Push
  * and Telegram follow the inbox: what doesn't show there isn't sent there either.
  */
 
@@ -27,10 +28,15 @@ const COLUMNS = {
   row_email: { inbox: "rowEmailInbox", email: "rowEmailEmails", push: "rowEmailPush", telegram: "rowEmailTelegram" },
   review: { inbox: "reviewInbox", email: "reviewEmails", push: "reviewPush", telegram: "reviewTelegram" },
   follow_up: { inbox: "followUpInbox", email: "followUpEmails", push: "followUpPush", telegram: "followUpTelegram" },
+  reaction: { inbox: "reactionInbox", email: "reactionEmails", push: "reactionPush", telegram: "reactionTelegram" },
   verification: { inbox: "verificationInbox", email: "verificationEmails", push: "verificationPush", telegram: "verificationTelegram" },
 } as const satisfies Record<PreferenceKind, Record<NotificationChannel, keyof typeof userPreference.$inferSelect>>;
 
 const KINDS = Object.keys(COLUMNS) as PreferenceKind[];
+
+/** A choice nobody made yet: the column's default (on, but for reactions' push and Telegram). */
+const columns = getTableColumns(userPreference);
+const defaultOf = (column: keyof typeof columns) => columns[column].default !== false;
 
 /**
  * The choices stored in a person's preferences row (none yet: everything on). `push` is what the
@@ -41,10 +47,10 @@ export function preferencesFrom(row: Partial<typeof userPreference.$inferSelect>
     KINDS.map((kind) => [
       kind,
       {
-        inbox: row?.[COLUMNS[kind].inbox] ?? true,
-        email: row?.[COLUMNS[kind].email] ?? true,
-        push: row?.[COLUMNS[kind].push] ?? true,
-        telegram: row?.[COLUMNS[kind].telegram] ?? true,
+        inbox: row?.[COLUMNS[kind].inbox] ?? defaultOf(COLUMNS[kind].inbox),
+        email: row?.[COLUMNS[kind].email] ?? defaultOf(COLUMNS[kind].email),
+        push: row?.[COLUMNS[kind].push] ?? defaultOf(COLUMNS[kind].push),
+        telegram: row?.[COLUMNS[kind].telegram] ?? defaultOf(COLUMNS[kind].telegram),
       },
     ]),
   ) as NotificationPreferences;
