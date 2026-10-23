@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { boardColor, boardDate, boardValue, columnOptions, guessBoardColumn, itemBody, statusGroupFor } from "./board";
+import { boardColor, boardDate, boardPlace, boardValue, columnOptions, guessBoardColumn, itemBody, statusGroupFor } from "./board";
 import { INVALID } from "./csv";
 
 describe("board imports", () => {
@@ -52,6 +52,14 @@ describe("board imports", () => {
       { name: "Bob", email: null },
     ]);
     expect(boardValue("date", "")).toBeNull();
+  });
+
+  it("reads places that carry their coordinates, and no address alone", () => {
+    expect(boardPlace("Galata Tower, Istanbul (41.0256, 28.9741)")).toEqual({ address: "Galata Tower, Istanbul", lat: 41.0256, lng: 28.9741 });
+    expect(boardPlace("Sydney Opera House - -33.8568, 151.2153")).toEqual({ address: "Sydney Opera House", lat: -33.8568, lng: 151.2153 });
+    expect(boardPlace("41.0082, 28.9784")).toEqual({ address: "41.0082, 28.9784", lat: 41.0082, lng: 28.9784 });
+    expect(boardPlace("Galata Tower, Istanbul")).toBeNull();
+    expect(boardValue("place", "Galata Tower, Istanbul")).toBe(INVALID);
   });
 
   it("guesses labelled links and Monday's checkboxes", () => {

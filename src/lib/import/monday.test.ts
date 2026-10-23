@@ -41,6 +41,7 @@ describe("Monday.com board exports", () => {
       "Phone:phone",
       "Approved:checkbox",
       "Notes:text",
+      "Location:place",
       "Date:date",
     ]);
     expect(board().columns[1].options).toEqual([
@@ -107,6 +108,8 @@ describe("Monday.com board exports", () => {
     expect(guessMondayColumn("Timeline", ["2026-10-01 - 2026-10-05", ""]).type).toBe("date");
     expect(guessMondayColumn("Week", ["2026-10-01 - 2026-10-05"]).type).toBe("date");
     expect(guessMondayColumn("Priority", ["High", "Low", "High"]).type).toBe("select");
+    expect(guessMondayColumn("Location", ["Galata Tower (41.0256, 28.9741)"]).type).toBe("place");
+    expect(guessMondayColumn("Location", ["Galata Tower, Istanbul"]).type).toBe("text");
   });
 
   it("refuses other workbooks and files", () => {

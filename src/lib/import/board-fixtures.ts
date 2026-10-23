@@ -93,7 +93,7 @@ export const ASANA_JSON = {
 export const MONDAY_BOARD: XlsxValue[][] = [
   ["Marketing board"],
   ["This week"],
-  ["Name", "Subitems", "Owner", "Status", "Due date", "Timeline", "Budget", "Tags", "Brief", "Contact", "Phone", "Approved", "Notes", "Dependency", "Item ID"],
+  ["Name", "Subitems", "Owner", "Status", "Due date", "Timeline", "Budget", "Tags", "Brief", "Contact", "Phone", "Approved", "Notes", "Dependency", "Location", "Item ID"],
   [
     "Launch campaign",
     "Write brief, Book ads",
@@ -109,16 +109,17 @@ export const MONDAY_BOARD: XlsxValue[][] = [
     "v",
     "Plan first: https://acme.monday.com/boards/123/pulses/1002",
     "Plan event",
+    "Galata Tower, Istanbul (41.0256, 28.9741)",
     1001,
   ],
   [null, "Subitems", "Owner", "Status", "Date"],
   [null, "Write brief", "Bob Stone", "Done", { date: "2026-10-05" }],
   [null, "Book ads", null, "Stuck", null],
-  ["Plan event", null, "Bob Stone, Ayşe Yılmaz", "Done", { date: "2026-10-10" }, null, 300, "Social", null, null, null, null, null, null, 1002],
+  ["Plan event", null, "Bob Stone, Ayşe Yılmaz", "Done", { date: "2026-10-10" }, null, 300, "Social", null, null, null, null, null, null, "41.0082, 28.9784", 1002],
   [],
   ["Next week"],
-  ["Name", "Subitems", "Owner", "Status", "Due date", "Timeline", "Budget", "Tags", "Brief", "Contact", "Phone", "Approved", "Notes", "Dependency", "Item ID"],
-  ["Retro", "Collect feedback", null, null, null, null, null, null, null, null, null, null, null, "Nothing like it", 1003],
+  ["Name", "Subitems", "Owner", "Status", "Due date", "Timeline", "Budget", "Tags", "Brief", "Contact", "Phone", "Approved", "Notes", "Dependency", "Location", "Item ID"],
+  ["Retro", "Collect feedback", null, null, null, null, null, null, null, null, null, null, null, "Nothing like it", null, 1003],
   ["Newsletter"],
 ];
 

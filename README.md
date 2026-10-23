@@ -532,7 +532,9 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   the like people, matched by name when exactly one person in the workspace has it (text
   otherwise); dates a date, timelines (`2026-10-01 - 2026-10-05`) a date range, numbers a number,
   Tags and Dropdown a multi-select, links a URL (the address, without its text), email addresses
-  and phone numbers their own types, `v` checkboxes a checkbox, and the rest text. A *Dependency*
+  and phone numbers their own types, `v` checkboxes a checkbox, a *Location* column a place when
+  every value carries its coordinates (an address alone stays text: the import doesn't look
+  addresses up), and the rest text. A *Dependency*
   column becomes the database's dependencies, by item name. Updates become comments in the row's
   body under their author and time, where links to items of the board lead to their rows; files
   and links stay links. Other sheets of the workbook, and updates or dependencies naming no item,

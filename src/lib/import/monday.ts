@@ -4,6 +4,7 @@ import { ImportError } from "./result";
 import { readWorkbook, isWorkbook } from "./xlsx";
 import {
   boardDateFormat,
+  boardPlace,
   breakLoops,
   checkBoardSize,
   exportInstant,
@@ -51,7 +52,9 @@ export function mondayItemId(url: string): string | null {
  * A column's kind from its name and values. By name: Status (and Stage, State) is a status whose
  * options' groups follow their names (Done is done, Working on it and Stuck in progress); Person,
  * People, Owner, Assignee and the like are people (matched by name); Tags and Dropdown a
- * multi-select; Phone a phone number when every value is one; Email an email address. By values:
+ * multi-select; Phone a phone number when every value is one; Email an email address; Location
+ * (Address, Place) a place when every value carries its coordinates (an address alone stays text:
+ * the import doesn't look addresses up). By values:
  * numbers, dates and timelines ("2026-10-01 - 2026-10-05", a range), "v" checkboxes, links
  * ("Docs - https://…" keeps the address), yes/no words, repeating values (a select) and lists of
  * them (a multi-select), else text.
@@ -67,6 +70,7 @@ export function guessMondayColumn(name: string, values: string[]): { type: Board
   if (/phone|mobile/.test(header) && filled.length && filled.every((v) => isPhoneNumber(v))) return { type: "phone" };
   if (/e-?mail/.test(header) && filled.length && filled.every((v) => isEmailAddress(v.replace(/^.* - /, "")))) return { type: "email" };
   if (/timeline|date|deadline|due/.test(header) && boardDateFormat(filled)) return { type: "date" };
+  if (/^(location|address|place|venue|map)$/.test(header) && filled.length && filled.every((v) => boardPlace(v))) return { type: "place" };
   return guessBoardColumn(filled);
 }
 

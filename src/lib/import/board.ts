@@ -1,4 +1,5 @@
 import { checkDateInput } from "../date-value";
+import { formatCoordinates, MAX_PLACE_ADDRESS, parseCoordinates, type PlaceValue } from "../place";
 import { isEmailAddress, isPhoneNumber, SELECT_COLORS } from "../properties";
 import type { StatusGroup } from "../property-types";
 import { isTimeZone, zoneOffset } from "../time-zone";
@@ -29,7 +30,7 @@ import { ImportError } from "./result";
  */
 
 /** What a column can become; the import dialog offers these (or leaving the column out). */
-export const BOARD_COLUMN_TYPES = ["text", "number", "select", "multi_select", "status", "person", "date", "checkbox", "url", "email", "phone"] as const;
+export const BOARD_COLUMN_TYPES = ["text", "number", "select", "multi_select", "status", "person", "date", "checkbox", "url", "email", "phone", "place"] as const;
 export type BoardColumnType = (typeof BOARD_COLUMN_TYPES)[number];
 
 export type BoardColor = (typeof SELECT_COLORS)[number];
@@ -195,6 +196,21 @@ function emailAddress(raw: string): string | null {
   return found && isEmailAddress(found) ? found : null;
 }
 
+/**
+ * A place cell that carries its coordinates: "41.01, 28.97", or an address followed by them
+ * ("Galata Tower, Istanbul (41.0256, 28.9741)", "… - 41.0256, 28.9741"). Null for an address
+ * alone: an import doesn't look addresses up (the geocoder takes about one a second).
+ */
+export function boardPlace(raw: string): PlaceValue | null {
+  const s = raw.trim();
+  const whole = parseCoordinates(s);
+  if (whole) return { address: formatCoordinates(whole.lat, whole.lng), ...whole };
+  const m = /^(.+?)\s*(?:\(([^()]+)\)|\[([^[\]]+)\]|\s-\s+(.+))$/.exec(s);
+  const coords = m && parseCoordinates(m[2] ?? m[3] ?? m[4]);
+  if (!m || !coords) return null;
+  return { address: oneLine(m[1]).slice(0, MAX_PLACE_ADDRESS) || formatCoordinates(coords.lat, coords.lng), ...coords };
+}
+
 /** Checkbox cells: Monday writes a checked one as "v". */
 function boardCheckbox(raw: string): boolean | null {
   return /^v$/i.test(raw.trim()) ? true : parseCheckbox(raw);
@@ -253,6 +269,8 @@ export function boardValue(type: BoardColumnType, cell: BoardCell, { dateFormat,
       return cellList(cell).map((v) => v.slice(0, 200));
     case "person":
       return cellPeople(cell);
+    case "place":
+      return boardPlace(text) ?? INVALID;
   }
 }
 

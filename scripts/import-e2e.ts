@@ -921,6 +921,7 @@ try {
         "Phone:phone",
         "Approved:checkbox",
         "Notes:text",
+        "Location:place",
         "Date:date",
         "Parent item:relation",
         "Sub-items:relation",
@@ -946,8 +947,10 @@ try {
       JSON.stringify(mValue("Launch campaign", "Owner")) === JSON.stringify([ids.ayse]) &&
       JSON.stringify(mValue("Plan event", "Owner")) === JSON.stringify([ids.ayse]) &&
       mValue("Plan event", "Owner (others)") === "Bob Stone" &&
-      mValue("Write brief", "Date") === "2026-10-05",
-    "items keep their group, status (options grouped by their labels), timeline as a range, numbers, links, checkboxes and people by name",
+      mValue("Write brief", "Date") === "2026-10-05" &&
+      (mValue("Launch campaign", "Location") as { address?: string; lat?: number })?.address === "Galata Tower, Istanbul" &&
+      (mValue("Launch campaign", "Location") as { lat?: number }).lat === 41.0256,
+    "items keep their group, status (options grouped by their labels), timeline as a range, numbers, links, checkboxes, places with their coordinates and people by name",
     mondayRows.map((r) => [r.title, r.properties]),
   );
   const mIds = (title: string, name: string) => ((mValue(title, name) as string[] | undefined) ?? []).map((id) => mondayRows.find((r) => r.id === id)?.title).join();
