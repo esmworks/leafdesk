@@ -25,6 +25,7 @@ import { forgetThreadStates } from "@/server/thread-state";
 import { workspacePeople } from "@/server/workspaces";
 import { agentMarks, markOf } from "@/server/agents/users";
 import { startMentionRuns } from "@/server/agents/mentions";
+import { queueCommentCreated } from "@/server/page-webhooks/queue";
 import { redactError } from "@/lib/redact";
 
 /**
@@ -133,6 +134,12 @@ export async function changeComments(userId: string, pageId: string, op: Comment
       recipients = audience.notify;
     }
     await recordComment(userId, target.workspaceId, pageId, result.thread.id, recipients);
+    await queueCommentCreated(pageId, userId, {
+      threadId: result.thread.id,
+      commentId: result.comment.id,
+      reply: clean.type === "addComment",
+      text: commentText(clean.body),
+    });
     // Commenting on a database row follows it (server/row-follow).
     await followOnTakingPart(pageId, [userId]);
     // Agents it mentions answer in the thread (server/agents/mentions); an edit starts none.

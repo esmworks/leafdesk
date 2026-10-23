@@ -57,6 +57,7 @@ import { PAGE_HEADER_EVENT } from "@/lib/collab-constants";
 import { searchFold } from "@/lib/search-fold";
 import { parseSearchQuery } from "@/lib/search-query";
 import { pageChanged } from "@/server/page-events";
+import { beforePagesDeleted, queuePageCreated, queuePageMoved, queuePagesDeleted, queuePageTrashed } from "@/server/page-webhooks/queue";
 import { searchFoldSql } from "@/server/search-fold-sql";
 import { sweepDocuments } from "@/server/file-text";
 import { listedPage, isOutdated, outdatedIds } from "@/server/page-outdated";
@@ -431,6 +432,8 @@ export async function createPage(actor: WriteActor, input: CreatePageInput, { au
     if (input.markdown?.trim()) await collab.replaceContent(created.id, input.markdown, actor);
   } finally {
     pageChanged({ pageId: created.id });
+    // Page webhooks hear about it a few seconds on, with the body written by then.
+    await queuePageCreated(created.id, userId);
     collab.broadcast(`ws:${workspaceId}`, "tree");
     if (parentKind === "database") collab.broadcast(`db:${input.parentId}`, "rows");
   }
@@ -529,6 +532,8 @@ export async function archivePage(userId: string, pageId: string) {
   const trashed = [...(await sweep()), ...(await sweep())];
   // Open editors stop writing at once: a page in the trash doesn't change (assertNotInTrash).
   await getCollab().pagesTrashed(trashed.map((t) => t.id), true);
+  // One event for the page, not for each page under it.
+  if (!p.archivedAt) await queuePageTrashed(p.id, userId);
   if (!p.archivedAt && (await auditedAsPage(p))) {
     await recordAudit({
       workspaceId: p.workspaceId,
@@ -622,6 +627,7 @@ export async function restorePage(userId: string, pageId: string) {
       details: { kind: p.kind },
     });
   }
+  if (p.archivedAt) await queuePageTrashed(pageId, userId, true);
   // Back in search; the index catches up if it was left behind meanwhile (with the pages under it
   // when it was lifted to the top: their chunks name the pages above).
   pageChanged({ pageId, subtree: parentId !== p.parentId });
@@ -645,6 +651,8 @@ export async function deletePagePermanently(userId: string, pageId: string) {
  */
 export async function deleteTrashedPages(workspaceId: string, pageIds: string[], actorId: string | null = null) {
   if (!pageIds.length) return [];
+  // Page webhooks: what their deliveries say about the pages, read while they are still there.
+  const forWebhooks = await beforePagesDeleted(workspaceId, pageIds);
   const deleted = await db
     .delete(page)
     .where(and(eq(page.workspaceId, workspaceId), inArray(page.id, pageIds), isNotNull(page.archivedAt)))
@@ -659,6 +667,12 @@ export async function deleteTrashedPages(workspaceId: string, pageIds: string[],
       target: { type: "page" as const, id: d.id, label: d.title },
       details: { kind: d.kind },
     })),
+  );
+  await queuePagesDeleted(
+    workspaceId,
+    forWebhooks,
+    deleted.map((d) => d.id),
+    actorId,
   );
 
   getCollab().broadcast(`ws:${workspaceId}`, "tree");
@@ -813,6 +827,7 @@ export async function movePage(
   if (p.parentId !== newParentId || changesSpace) await getCollab().disconnectLostAccess(p.workspaceId);
   // Semantic search names the pages above in every chunk: the page and those under it are indexed again.
   if (p.parentId !== newParentId) pageChanged({ pageId, subtree: true });
+  if (moved) await queuePageMoved(pageId, userId, { parentId: p.parentId, teamspaceId: p.teamspaceId });
 }
 
 export type SearchHit = {

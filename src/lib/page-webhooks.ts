@@ -67,7 +67,7 @@ export type DeliveryCode =
  * made then, as the subscription's person may see it). `actorId`: who did it (null when nobody
  * did, like the trash emptying itself). Edits: whether the title and the body changed. Moves:
  * where the page was. Deletions: the page's title and kind, as it can't be read any more, and
- * whether the person could open it right before. Comments: the thread and the comment.
+ * whether the person could open it right before. Comments: the thread, the comment and its text.
  */
 export type DeliveryDetails = {
   actorId?: string | null;
@@ -75,7 +75,7 @@ export type DeliveryDetails = {
   body?: boolean;
   from?: { parentId: string | null; teamspaceId: string | null };
   deleted?: { title: string; kind: string; visible: boolean };
-  comment?: { threadId: string; commentId: string; reply: boolean };
+  comment?: { threadId: string; commentId: string; reply: boolean; text?: string };
 };
 
 /** Subscriptions a workspace may have. */
