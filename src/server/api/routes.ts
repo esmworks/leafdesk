@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import * as z from "zod";
 import { db } from "@/db";
-import { page, user, workspaceAgent } from "@/db/schema";
+import { emailSequence, page, sequenceEnrollment, user, workspaceAgent } from "@/db/schema";
 import type { ApiTokenScope } from "@/lib/api-scopes";
 import type { AgentView } from "@/lib/agents";
 import { AccessError, ConnectedAppReadOnlyError } from "@/server/access";
@@ -25,6 +25,8 @@ import {
 import { getPage } from "@/server/pages";
 import * as review from "@/server/pending-changes";
 import { describePendingChange, editOf, reviewInputs } from "@/server/mcp/reviews";
+import { describeEnrollment, describeOutcomes, describeSequence, sequenceInputs } from "@/server/mcp/sequences";
+import * as sequences from "@/server/sequences/manage";
 import * as ops from "@/server/operations";
 import { MAX_ACTIVITY_PAGE } from "@/server/row-activity-feed";
 import { voiceAudioType } from "@/lib/voice-notes";
@@ -61,7 +63,7 @@ export type ApiRoute<Q extends Schema = Schema, B extends Schema = Schema> = {
   /** Relative to /api/v1, with `{name}` path parameters. */
   path: string;
   operationId: string;
-  tag: "Account" | "Workspaces" | "Pages" | "Databases" | "Rows" | "Comments" | "Agents" | "Review";
+  tag: "Account" | "Workspaces" | "Pages" | "Databases" | "Rows" | "Comments" | "Agents" | "Review" | "Follow-ups";
   summary: string;
   description?: string;
   /** What the token needs to call it; null for any token (GET /me). */
@@ -124,6 +126,14 @@ async function pendingChangeFor(principal: ApiPrincipal, changeId: string) {
   const change = await review.getPendingChange(principal.userId, changeId);
   if (!change || (principal.workspaceId && change.workspaceId !== principal.workspaceId)) throw new AccessError();
   return change;
+}
+
+/** A sequence or enrollment of the token's workspace (refused for a token of another workspace). */
+async function requireFollowUpInWorkspace(principal: ApiPrincipal, kind: "sequence" | "enrollment", id: string) {
+  if (!principal.workspaceId) return;
+  const table = kind === "sequence" ? emailSequence : sequenceEnrollment;
+  const [row] = await db.select({ workspaceId: table.workspaceId }).from(table).where(eq(table.id, id)).limit(1);
+  if (!row || row.workspaceId !== principal.workspaceId) throw new AccessError();
 }
 
 /** Answers a change the user can see: being refused it then is a 403, not a 404 that hides it. */
@@ -1049,6 +1059,92 @@ export const API_ROUTES: ApiRoute[] = [
     handler: async ({ principal, params }) => {
       await pendingChangeFor(principal, params.change_id);
       return answering(async () => describePendingChange(await review.dismissPendingChange(principal.userId, params.change_id)));
+    },
+  }),
+  defineRoute({
+    method: "GET",
+    path: "/databases/{database_id}/sequences",
+    operationId: "listSequences",
+    tag: "Follow-ups",
+    summary: "List a database's follow-up sequences",
+    description:
+      "The follow-up sequences of a database email lands on: emails that go out one after another to a row's contact, from the mailbox of whoever started them on the row, until the contact replies. Each step waits `wait_days` after the previous email (the first after it starts) and is sent on its own (`send`) or put in the sender's For review queue first (`ask_first`); steps after the first go out as replies in the same thread. Workspace owners write them in the app.",
+    scope: "rows:read",
+    response: "SequenceList",
+    handler: async ({ principal, params }) => {
+      await requirePageInWorkspace(principal, params.database_id);
+      return { database_id: params.database_id, sequences: (await sequences.listSequences(principal.userId, params.database_id)).map(describeSequence) };
+    },
+  }),
+  defineRoute({
+    method: "POST",
+    path: "/sequences/{sequence_id}/enrollments",
+    operationId: "enrollInSequence",
+    tag: "Follow-ups",
+    summary: "Start a sequence on rows",
+    description:
+      "Starts a follow-up sequence on rows of its database, sending from the token's user's own mailbox in the workspace, within their send window and daily limit. It stops by itself when the contact replies, the row goes to the trash or the mailbox is disconnected; an out-of-office reply pauses it until the return date. Rows the user may not write email on, without an address, or in the sequence already come back `skipped` with the reason.",
+    scope: "rows:write",
+    body: sequenceInputs.enroll.omit({ sequence_id: true }),
+    response: "EnrollmentOutcomes",
+    handler: async ({ principal, params, body }) => {
+      await requireFollowUpInWorkspace(principal, "sequence", params.sequence_id);
+      return describeOutcomes(await sequences.enrollRows(principal.userId, params.sequence_id, body.row_ids, "api"));
+    },
+  }),
+  defineRoute({
+    method: "GET",
+    path: "/enrollments",
+    operationId: "listEnrollments",
+    tag: "Follow-ups",
+    summary: "List follow-ups on rows",
+    description:
+      "Follow-ups going on rows (`status=all`: ended ones kept 90 days too), newest first, of rows whose email the token's user may read, narrowed by `row_id`, `database_id`, `sequence_id` or `workspace_id` (one is needed). Each says its `step` of `steps`, the emails `sent`, when the next goes out at the earliest (`next_at`) and why it paused or stopped (`reason`).",
+    scope: "rows:read",
+    query: sequenceInputs.enrollments,
+    response: "EnrollmentList",
+    handler: async ({ principal, query }) => {
+      if (!query.row_id && !query.database_id && !query.sequence_id && !query.workspace_id) {
+        throw new ApiError(400, "invalid_request", "Give row_id, database_id, sequence_id or workspace_id.");
+      }
+      if (query.workspace_id) requireWorkspace(principal, query.workspace_id);
+      if (query.row_id) await requirePageInWorkspace(principal, query.row_id);
+      if (query.database_id) await requirePageInWorkspace(principal, query.database_id);
+      if (query.sequence_id) await requireFollowUpInWorkspace(principal, "sequence", query.sequence_id);
+      const list = await sequences.listEnrollments(
+        principal.userId,
+        { rowId: query.row_id, databaseId: query.database_id, sequenceId: query.sequence_id, workspaceId: query.workspace_id ?? principal.workspaceId },
+        { open: query.status === "open", limit: query.limit },
+      );
+      return { enrollments: list.map(describeEnrollment) };
+    },
+  }),
+  defineRoute({
+    method: "POST",
+    path: "/enrollments/{enrollment_id}/stop",
+    operationId: "stopEnrollment",
+    tag: "Follow-ups",
+    summary: "Stop a follow-up",
+    description: "No more of its emails go out, and a draft of it waiting for review is withdrawn. Its sender or whoever may edit the row may stop it.",
+    scope: "rows:write",
+    response: "Enrollment",
+    handler: async ({ principal, params }) => {
+      await requireFollowUpInWorkspace(principal, "enrollment", params.enrollment_id);
+      return describeEnrollment(await sequences.stopEnrollment(principal.userId, params.enrollment_id));
+    },
+  }),
+  defineRoute({
+    method: "POST",
+    path: "/enrollments/{enrollment_id}/resume",
+    operationId: "resumeEnrollment",
+    tag: "Follow-ups",
+    summary: "Resume a paused follow-up",
+    description: "Resumes a follow-up that paused after an out-of-office reply or because its next email didn't pass the check. Only its sender may.",
+    scope: "rows:write",
+    response: "Enrollment",
+    handler: async ({ principal, params }) => {
+      await requireFollowUpInWorkspace(principal, "enrollment", params.enrollment_id);
+      return describeEnrollment(await sequences.resumeEnrollment(principal.userId, params.enrollment_id));
     },
   }),
 ];

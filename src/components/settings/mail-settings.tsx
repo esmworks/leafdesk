@@ -8,6 +8,8 @@ import { updateWorkspaceSettingsAction } from "@/app/actions/workspaces";
 import { Button, cn, IconButton, Input, PageIcon, pageLabel, selectClass, Switch } from "@/components/ui";
 import { MAIL_PROVIDERS, providerFor, type MailboxServers, type MailboxView, type MailSettingsView, type OwnMailbox } from "@/lib/mail";
 import { relativeTime } from "@/lib/relative-time";
+import { browserTimeZone } from "@/lib/time-zone";
+import { MailboxSending, SequencesGroups } from "./follow-up-settings";
 import { SettingsGroup, SettingsRow } from "./section";
 import { useAction } from "./workspace-settings";
 
@@ -55,6 +57,7 @@ export function MailSettings({ workspaceId, initial }: { workspaceId: string; in
         />
       </SettingsGroup>
       {view.enabled && view.canManage && <DatabasesGroup workspaceId={workspaceId} view={view} onChange={setView} />}
+      {view.enabled && view.canManage && <SequencesGroups databases={view.databases} />}
       {view.enabled && view.canManage && view.members.length > 0 && <MembersGroup members={view.members} />}
     </div>
   );
@@ -246,6 +249,7 @@ function MailboxGroup({
             </div>
           }
         />
+        {enabled && <MailboxSending workspaceId={workspaceId} mailbox={mailbox} onChange={onChange} />}
       </SettingsGroup>
     );
   }
@@ -318,6 +322,7 @@ function MailboxForm({
               username: username.trim() || address.trim(),
               password,
               consent,
+              timeZone: browserTimeZone(),
             }),
           onSaved,
         );

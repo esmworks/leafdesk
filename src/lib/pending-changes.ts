@@ -1,5 +1,6 @@
 import type { PropertyType } from "./property-types";
 import type { ActivityValue } from "./row-activity";
+import type { SequenceDraftInfo } from "./sequences";
 
 /**
  * The "For review" queue: changes AI agents (and, later, other automated writers) propose instead
@@ -75,10 +76,14 @@ export type PendingChangePayload = RowChangePayload | EmailDraftPayload | Approv
 export type RowChangeBefore = { title?: string; properties: Record<string, unknown> };
 
 /**
- * What proposed it: an agent's run (one an automation started, with `automationRunId`), or an
- * automation's run itself. Kept by kind, so other sources can be added.
+ * What proposed it: an agent's run (one an automation started, with `automationRunId`), an
+ * automation's run itself, or a step of a follow-up sequence (lib/sequences.ts) whose sender asked
+ * to see it first. Kept by kind, so other sources can be added.
  */
-export type PendingChangeSource = { kind: "agent_run"; runId: string; automationRunId?: string | null } | { kind: "automation_run"; automationRunId: string };
+export type PendingChangeSource =
+  | { kind: "agent_run"; runId: string; automationRunId?: string | null }
+  | { kind: "automation_run"; automationRunId: string }
+  | ({ kind: "sequence" } & SequenceDraftInfo);
 
 export const isPendingChangeKind = (value: unknown): value is PendingChangeKind =>
   typeof value === "string" && (PENDING_CHANGE_KINDS as readonly string[]).includes(value);
@@ -120,6 +125,8 @@ export type PendingChangeView = {
   markdown: string | null;
   /** Email drafts: the message, and whose mailbox it goes out from. */
   email: (EmailDraftPayload & { sender: { id: string; name: string } }) | null;
+  /** A follow-up's step: which sequence, and which of its steps. */
+  sequence: SequenceDraftInfo | null;
   /** An automation's approval: its run, who may answer, and what the steps after it do. */
   approval: ApprovalView | null;
   /** A reviewer changed what was proposed. */

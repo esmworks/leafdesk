@@ -43,8 +43,14 @@ function addresses(values: unknown): string[] {
   return [...new Set(out as string[])];
 }
 
-/** Queues a message from the user's mailbox on row `rowId` (edit access); returns its id. */
-export async function queueRowEmail(userId: string, rowId: string, draft: RowEmailDraft): Promise<string> {
+type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
+
+/**
+ * Queues a message from the user's mailbox on row `rowId` (edit access); returns its id. `within`
+ * runs in the same transaction once the message is in (a follow-up recording the step it sent):
+ * when it throws, the message isn't queued.
+ */
+export async function queueRowEmail(userId: string, rowId: string, draft: RowEmailDraft, { within }: { within?: (tx: Tx, id: string) => Promise<void> } = {}): Promise<string> {
   const access = await rowMailAccess(userId, rowId);
   if (!access || (access.level !== "edit" && access.level !== "full")) throw new AccessError();
   if (!(await workspaceSettings(access.workspaceId)).email) throw new RowMailError("disabled");
@@ -104,6 +110,7 @@ export async function queueRowEmail(userId: string, rowId: string, draft: RowEma
         sentBy: userId,
       })
       .returning({ id: rowEmail.id });
+    await within?.(tx, queued.id);
     return queued.id;
   });
 }

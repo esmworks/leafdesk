@@ -8,6 +8,7 @@ import { Button, cn, Input, textareaClass } from "@/components/ui";
 import { quoteText, replySubject, rowEmailFromHash, type RowEmailView } from "@/lib/mail";
 import { relativeTime } from "@/lib/relative-time";
 import type { RowEmailList } from "@/server/row-mail/list";
+import { FollowUpList, StartFollowUp, useRowFollowUps } from "./follow-ups";
 
 /** How long after sending the section looks again, to show a message going from queued to sent. */
 const RECHECK_MS = [3_000, 15_000];
@@ -52,6 +53,11 @@ export function RowEmails({ rowId }: { rowId: string }) {
   useEffect(() => {
     void load();
   }, [load]);
+
+  // Follow-ups send from the section's mailbox: one that starts may send right away.
+  const followUps = useRowFollowUps(rowId, () => {
+    for (const ms of RECHECK_MS) setTimeout(() => void load(), ms);
+  });
 
   // A link to one message (the inbox, a push notification) opens it.
   useEffect(() => {
@@ -105,6 +111,7 @@ export function RowEmails({ rowId }: { rowId: string }) {
             {t("new")}
           </Button>
         )}
+        {open && list.canSend && !draft && <StartFollowUp state={followUps} />}
       </div>
       {open && (
         <div className="mt-1 space-y-1 px-1">
@@ -122,6 +129,7 @@ export function RowEmails({ rowId }: { rowId: string }) {
               }}
             />
           )}
+          <FollowUpList state={followUps} />
           {list.emails.length === 0 && !draft && <p className="text-sm text-fg-faint">{t("empty")}</p>}
           <ol className="space-y-1">
             {list.emails.map((email) => (

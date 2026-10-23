@@ -1,6 +1,6 @@
 import { and, eq, inArray, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { page, pendingChange, user, workspaceAgent } from "@/db/schema";
+import { emailSequence, page, pendingChange, user, workspaceAgent } from "@/db/schema";
 import { forEachOf, MAX_STEP_MESSAGE, stepIds, type ApprovalAction, type ApprovalState, type AutomationAction } from "@/lib/automations";
 import { resolveText, type TemplateScope } from "@/lib/automation-templates";
 import { pageLabel } from "@/lib/labels";
@@ -84,16 +84,19 @@ export async function nextStepsOf(actions: AutomationAction[], index: number, da
   const databaseIds = new Set<string>([databaseId]);
   const userIds = new Set<string>();
   const agentIds = new Set<string>();
+  const sequenceIds = new Set<string>();
   for (const a of later) {
     databaseIds.add(sourceOf(a));
     if (a.type === "find_rows" || a.type === "create_row" || a.type === "upsert_row") databaseIds.add(a.databaseId);
     if (a.type === "notify" || a.type === "approval") a.userIds.forEach((id) => userIds.add(id));
     if (a.type === "run_agent") agentIds.add(a.agentId);
+    if (a.type === "start_sequence") sequenceIds.add(a.sequenceId);
   }
-  const [titles, names, agents, schemas] = await Promise.all([
+  const [titles, names, agents, sequences, schemas] = await Promise.all([
     db.select({ id: page.id, title: page.title }).from(page).where(inArray(page.id, [...databaseIds])),
     userIds.size ? db.select({ id: user.id, name: user.name }).from(user).where(inArray(user.id, [...userIds])) : [],
     agentIds.size ? db.select({ id: workspaceAgent.id, name: workspaceAgent.name }).from(workspaceAgent).where(inArray(workspaceAgent.id, [...agentIds])) : [],
+    sequenceIds.size ? db.select({ id: emailSequence.id, name: emailSequence.name }).from(emailSequence).where(inArray(emailSequence.id, [...sequenceIds])) : [],
     Promise.all([...databaseIds].map(async (id) => [id, await getProperties(id)] as const)).then((all) => new Map(all)),
   ]);
   const title = (id: string) => pageLabel(titles.find((t) => t.id === id)?.title ?? "");
@@ -134,6 +137,8 @@ export async function nextStepsOf(actions: AutomationAction[], index: number, da
         return line(a.message);
       case "move_to_trash":
         return line();
+      case "start_sequence":
+        return line(sequences.find((x) => x.id === a.sequenceId)?.name);
     }
   });
 }

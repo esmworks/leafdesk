@@ -1626,6 +1626,14 @@
         "mailbox_connected": "{target} posta kutusunu bağladı",
         "mailbox_disconnected": "{target} posta kutusunun bağlantısını kesti"
       },
+      "sequence": {
+        "created": "{target} üzerinde “{name}” takibini oluşturdu",
+        "updated": "{target} üzerindeki “{name}” takibini değiştirdi",
+        "deleted": "{target} üzerindeki “{name}” takibini sildi",
+        "enrolled": "{target} üzerinde “{name}” takibini başlattı",
+        "stopped": "{reason, select, replied {{target} üzerindeki “{name}” takibi durdu: kişi yanıt verdi} manual {{target} üzerindeki “{name}” takibini durdurdu} rowTrashed {{target} üzerindeki “{name}” takibi durdu: satır çöp kutusuna taşındı} mailboxDisconnected {{target} üzerindeki “{name}” takibi durdu: posta kutusunun bağlantısı kesildi} dismissed {{target} üzerindeki “{name}” takibi durdu: taslağı reddedildi} other {{target} üzerindeki “{name}” takibi durdu}}",
+        "sent": "{target} üzerindeki “{name}” takibinin {step}. adımını gönderdi"
+      },
       "storage": {
         "connected": "Yeni dosyaları şurada tutmaya başladı: {target}",
         "disconnected": "Yeni dosyaları şurada tutmayı bıraktı: {target}",
@@ -1717,7 +1725,10 @@
     "stopWatching": "İzlemeyi bırak",
     "reviewTitle": "İncelenecekler",
     "reviewDescription": "Bir ajan, düzenleyebildiğiniz bir satırda değişiklik önerir ya da posta kutunuzdan bir e-posta taslağı hazırlar ve bu, incelemenizi bekler. Yeni öneriler, siz açana kadar bir arada toplanır.",
-    "reviewChannel": "İncelenecekler: {channel}"
+    "reviewChannel": "İncelenecekler: {channel}",
+    "followUpTitle": "Takipler",
+    "followUpDescription": "Başlattığınız bir takip, sıradaki e-postası gönderim öncesi kontrolden geçemediği için duraklar.",
+    "followUpChannel": "Takipler: {channel}"
   },
   "site": {
     "description": "Bu çalışma alanının yayındaki sayfalarına okunabilir tek bir adres, bir ana sayfa ve aralarında gezinme menüsü verin.",
@@ -2040,6 +2051,47 @@
       "noInbox": "Posta sunucusu bir gelen kutusu göstermiyor.",
       "accessDenied": "Bunu yapmaya yetkiniz yok."
     }
+  },
+  "followUps": {
+    "heading": "{database} için takipler",
+    "description": "Bir satırdaki kişiye, takibi başlatanın posta kutusundan art arda giden e-postalar; kişi yanıt verene kadar sürer.",
+    "new": "Yeni takip",
+    "edit": "Düzenle",
+    "empty": "Henüz takip yok. Bir takip oluşturduğunuzda onu bir satırın e-posta bölümünden başlatabilirsiniz.",
+    "summary": "{steps, plural, one {# e-posta} other {# e-posta}}{review, plural, =0 {} other {, # tanesi önce incelenir}} · {open, plural, =0 {devam eden yok} one {# devam ediyor} other {# devam ediyor}}",
+    "newTitle": "Yeni takip",
+    "editTitle": "Takibi düzenle",
+    "name": "Ad",
+    "namePlaceholder": "Teklif takibi",
+    "emails": "E-postalar",
+    "emailN": "{n}. e-posta",
+    "moveUp": "Yukarı taşı",
+    "moveDown": "Aşağı taşı",
+    "removeEmail": "E-postayı kaldır",
+    "wait": "Bekleme",
+    "waitDays": "Beklenecek gün",
+    "daysAfterStart": "{count, plural, one {gün sonra (başladıktan itibaren)} other {gün sonra (başladıktan itibaren)}}",
+    "daysAfterPrevious": "{count, plural, one {gün sonra (önceki e-postadan itibaren)} other {gün sonra (önceki e-postadan itibaren)}}",
+    "mode": "Nasıl gönderilir",
+    "modeReview": "Önce bana sor",
+    "modeAuto": "Kendiliğinden gönder",
+    "subject": "Konu",
+    "replyHint": "Önceki e-postaya yanıt olarak, aynı yazışmada gider.",
+    "text": "Metin",
+    "textPlaceholder": "Merhaba {example},",
+    "insert": "Ekle",
+    "addEmail": "E-posta ekle",
+    "variablesHelp": "Çift süslü parantezler satırın değerleriyle doldurulur. Her birinin, değerin boş olduğu satırlar için bir yedeği olmalı: {example}.",
+    "window": "E-postaların gittiği saatler",
+    "windowStart": "Başlangıç",
+    "windowEnd": "Bitiş",
+    "windowHelp": "Her gönderenin posta kutusunun saat dilimine göre. Bu saatlerin dışına denk gelen bir e-posta bir sonraki aralığı bekler.",
+    "confirmDelete": "“{name}” takibi silinsin mi?",
+    "confirmDeleteOpen": "“{name}” takibi silinsin mi? {count, plural, one {İçindeki satıra artık e-postaları gitmez.} other {İçindeki # satıra artık e-postaları gitmez.}}",
+    "dailyLimit": "Günlük takip e-postası",
+    "dailyLimitHelp": "Bu posta kutusundan günde en fazla bu kadar takip e-postası gider, tüm takipler birlikte ({max} adede kadar). Kalanlar ertesi günü bekler. Gönderim saatleri yanındaki saat dilimine göre okunur.",
+    "useZone": "{zone} kullan",
+    "timeZone": "Saat dilimi"
   },
   "storage": {
     "description": "Bu çalışma alanının yüklenen dosyalarının tutulduğu yer: bu sunucu ya da sahiplerinden birinin kendi hesabına bağladığı bir depolama (S3 uyumlu bir bucket, Google Drive ya da Dropbox). Her dosyayı yine Leafdesk sunar, bu yüzden depolama gizli kalır: üyelerin orada hesabı olması gerekmez, herkese açık erişim ya da paylaşım da gerekmez.",

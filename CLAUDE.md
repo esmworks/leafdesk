@@ -79,7 +79,9 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
 - **Automations and schedules.** `src/server/automations/` (queued from `databases.ts` after row
   writes; `asAutomation` keeps an automation's writes from firing more automations) and
   `src/server/schedules.ts` (`registerScheduleHandler`).
-- **Other areas:** Telegram bot `src/server/telegram/`, mail to and from rows `row-mail/`, SMTP
+- **Other areas:** Telegram bot `src/server/telegram/`, mail to and from rows `row-mail/`, follow-up
+  sequences on rows `sequences/` (sent by a 30-second `startSequences` job; `runSequences(now)` runs
+  a round as of any moment, which `scripts/follow-ups-e2e.ts` uses), SMTP
   `mail/`, inbox `notifications.ts`, push `push.ts`, files `files.ts` + `storage/` (local, S3,
   workspace drives), import `import/`, export `export.ts`, backup `backup/`, SSO `sso.ts`, SCIM
   `scim.ts`, sealed secrets `secret-box.ts`.
@@ -177,7 +179,8 @@ plus the `scripts/*-e2e.ts` of the area you touched (`pnpm tsx scripts/<name>-e2
 - **Needs no server on the same database**, because a server's workers would take the queued work:
   agents, agent-api, agent-approvers, agent-chat, agent-handoff, agent-memory, agent-mention,
   agent-schedule, agent-sharing, agent-skills, automation, timed-automation, schedule,
-  row-activity, row-follow, row-mail, page-watch, wins-log. `connector-e2e` starts its own `next dev` against `<database>_peer`, which
+  row-activity, row-follow, row-mail, follow-ups (starts its own GreenMail container unless given
+  ports), page-watch, wins-log. `connector-e2e` starts its own `next dev` against `<database>_peer`, which
   must exist; no other dev server may run in the same checkout.
 - Each script's header says what it needs. `.github/workflows/ci.yml` shows the env each step gets;
   not every e2e script is in CI.

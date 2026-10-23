@@ -1626,6 +1626,14 @@
         "mailbox_connected": "Ha collegato la casella di posta {target}",
         "mailbox_disconnected": "Ha scollegato la casella di posta {target}"
       },
+      "sequence": {
+        "created": "Ha creato il follow-up “{name}” su {target}",
+        "updated": "Ha modificato il follow-up “{name}” su {target}",
+        "deleted": "Ha eliminato il follow-up “{name}” su {target}",
+        "enrolled": "Ha avviato il follow-up “{name}” su {target}",
+        "stopped": "{reason, select, replied {Il follow-up “{name}” su {target} si è fermato: il contatto ha risposto} manual {Ha fermato il follow-up “{name}” su {target}} rowTrashed {Il follow-up “{name}” su {target} si è fermato: la riga è stata spostata nel cestino} mailboxDisconnected {Il follow-up “{name}” su {target} si è fermato: la casella di posta è stata scollegata} dismissed {Il follow-up “{name}” su {target} si è fermato: la sua bozza è stata scartata} other {Il follow-up “{name}” su {target} si è fermato}}",
+        "sent": "Ha inviato l’email {step} del follow-up “{name}” su {target}"
+      },
       "storage": {
         "connected": "Ha iniziato a conservare i nuovi file in {target}",
         "disconnected": "Ha smesso di conservare i nuovi file in {target}",
@@ -1717,7 +1725,10 @@
     "stopWatching": "Smetti di osservare",
     "reviewTitle": "Da rivedere",
     "reviewDescription": "Un agente propone una modifica a una riga che puoi modificare, o prepara la bozza di un’email dalla tua casella di posta, e attende la tua revisione. Le nuove proposte vengono raggruppate finché non le apri.",
-    "reviewChannel": "Da rivedere: {channel}"
+    "reviewChannel": "Da rivedere: {channel}",
+    "followUpTitle": "Follow-up",
+    "followUpDescription": "Un follow-up che hai avviato va in pausa perché la sua prossima email non ha superato il controllo prima dell’invio.",
+    "followUpChannel": "Follow-up: {channel}"
   },
   "site": {
     "description": "Dai alle pagine pubblicate di questo spazio di lavoro un unico indirizzo leggibile, una home page e la navigazione tra di loro.",
@@ -2040,6 +2051,47 @@
       "accessDenied": "Non hai l’accesso necessario per farlo.",
       "gone": "Quel messaggio non è più su questa riga."
     }
+  },
+  "followUps": {
+    "heading": "Follow-up su {database}",
+    "description": "Email che partono una dopo l’altra verso il contatto di una riga, dalla casella di posta di chi le avvia, finché il contatto non risponde.",
+    "new": "Nuovo follow-up",
+    "edit": "Modifica",
+    "empty": "Ancora nessun follow-up. Una volta creato, avvialo dalla sezione email di una riga.",
+    "summary": "{steps, plural, one {# email} other {# email}}{review, plural, =0 {} one {, # da rivedere prima} other {, # da rivedere prima}} · {open, plural, =0 {nessuno in corso} one {# in corso} other {# in corso}}",
+    "newTitle": "Nuovo follow-up",
+    "editTitle": "Modifica follow-up",
+    "name": "Nome",
+    "namePlaceholder": "Follow-up preventivo",
+    "emails": "Email",
+    "emailN": "Email {n}",
+    "moveUp": "Sposta su",
+    "moveDown": "Sposta giù",
+    "removeEmail": "Rimuovi email",
+    "wait": "Attesa",
+    "waitDays": "Giorni di attesa",
+    "daysAfterStart": "{count, plural, one {giorno dopo l’avvio} other {giorni dopo l’avvio}}",
+    "daysAfterPrevious": "{count, plural, one {giorno dopo l’email precedente} other {giorni dopo l’email precedente}}",
+    "mode": "Come parte",
+    "modeReview": "Chiedimelo prima",
+    "modeAuto": "Invia in automatico",
+    "subject": "Oggetto",
+    "replyHint": "Parte come risposta all’email precedente, nella stessa conversazione.",
+    "text": "Testo",
+    "textPlaceholder": "Ciao {example},",
+    "insert": "Inserisci",
+    "addEmail": "Aggiungi email",
+    "variablesHelp": "Le doppie graffe inseriscono i valori della riga. Ognuna richiede un valore di riserva per le righe in cui è vuota: {example}.",
+    "window": "Quando partono le email",
+    "windowStart": "Da",
+    "windowEnd": "A",
+    "windowHelp": "Nel fuso orario della casella di posta di ciascun mittente. Un’email prevista fuori da questi orari attende la fascia successiva.",
+    "confirmDelete": "Eliminare il follow-up “{name}”?",
+    "confirmDeleteOpen": "Eliminare il follow-up “{name}”? {count, plural, one {La riga su cui è in corso non riceverà più le sue email.} other {Le # righe su cui è in corso non riceveranno più le sue email.}}",
+    "dailyLimit": "Email di follow-up al giorno",
+    "dailyLimitHelp": "Da questa casella di posta partono al massimo queste email di follow-up al giorno, contando tutti i follow-up insieme (fino a {max}). Le altre attendono il giorno dopo. Le fasce di invio seguono il fuso orario indicato accanto.",
+    "useZone": "Usa {zone}",
+    "timeZone": "Fuso orario"
   },
   "storage": {
     "description": "Dove vengono conservati i file caricati in questo spazio di lavoro: su questo server o in un’archiviazione che uno dei suoi proprietari ha collegato al proprio account (un bucket compatibile con S3, Google Drive o Dropbox). Leafdesk continua a servire ogni file da sé, quindi l’archiviazione resta privata: i membri non hanno bisogno di un account lì e non servono accesso pubblico né condivisioni.",

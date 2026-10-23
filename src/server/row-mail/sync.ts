@@ -21,7 +21,7 @@ import { knownMessage, storeIncoming } from "./store";
 
 /** Messages read from a folder in one go; the rest wait for the next sweep. */
 const BATCH = 200;
-const HEADERS = ["references", "auto-submitted", "precedence", "authentication-results"];
+const HEADERS = ["references", "auto-submitted", "precedence", "authentication-results", "x-autoreply", "x-autorespond"];
 
 type Box = typeof mailbox.$inferSelect;
 
@@ -116,6 +116,12 @@ async function readMessage(client: ImapFlow, box: Box, kind: "inbox" | "sent", m
     sentAt: envelope.date ? new Date(envelope.date) : new Date(),
     unverifiedSender: kind === "inbox" && dmarcFailed(fields.get("authentication-results")),
     automated: isAutomated({ autoSubmitted: fields.get("auto-submitted")?.[0], precedence: fields.get("precedence")?.[0] }),
+    autoReply: {
+      autoSubmitted: fields.get("auto-submitted")?.[0] ?? null,
+      precedence: fields.get("precedence")?.[0] ?? null,
+      xAutoreply: fields.get("x-autoreply")?.[0] ?? null,
+      xAutorespond: fields.get("x-autorespond")?.[0] ?? null,
+    },
     parsed,
   });
 }

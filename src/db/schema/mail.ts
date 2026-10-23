@@ -59,6 +59,12 @@ export const mailbox = pgTable(
     status: text("status").$type<MailboxStatus>().notNull().default("connecting"),
     statusError: text("status_error"),
     syncedAt: timestamp("synced_at", { withTimezone: true }),
+    /** Follow-up sequences (server/sequences): how many of their emails it sends at most a day, all sequences together. */
+    followUpDailyLimit: integer("follow_up_daily_limit").notNull().default(50),
+    /** The owner's IANA time zone, which sequences' send windows and the daily limit go by. */
+    timeZone: text("time_zone").notNull().default("UTC"),
+    /** The next sequence email waits until then, so a batch of them is spread out. */
+    followUpAfter: timestamp("follow_up_after", { withTimezone: true }),
     /** When its owner agreed that mail matched to rows shows to everyone who sees those rows. */
     consentedAt: timestamp("consented_at", { withTimezone: true }).notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

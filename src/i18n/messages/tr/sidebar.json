@@ -136,6 +136,7 @@
     "rowUpdate": "{actor} bu satırı değiştirdi",
     "pageUpdated": "{actor} bu sayfayı düzenledi",
     "rowEmail": "{from} e-posta gönderdi",
+    "followUp": "“{sequence}” takibi duraklatıldı: sıradaki e-postasına bakılması gerekiyor",
     "noSubject": "(konu yok)",
     "tabs": "Göster",
     "tabAll": "Tümü",

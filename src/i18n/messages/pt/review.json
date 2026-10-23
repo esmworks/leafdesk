@@ -1,7 +1,7 @@
 {
   "metaTitle": "Para revisar",
   "heading": "Para revisar",
-  "description": "Alterações que agentes propuseram em vez de fazê-las, e automações aguardando uma aprovação. Aprove uma alteração para fazê-la em seu nome, edite antes ou descarte; aprove uma automação para que a execução siga, ou rejeite para pará-la. Propostas que ninguém responde expiram após 30 dias.",
+  "description": "Alterações que agentes propuseram em vez de fazê-las, e automações aguardando uma aprovação. Aprove uma alteração para fazê-la em seu nome, edite antes ou descarte; aprove uma automação para que a execução siga, ou rejeite para pará-la. Propostas que ninguém responde expiram após 30 dias. Os e-mails de acompanhamento definidos como “Perguntar-me antes” também esperam aqui.",
   "filters": {
     "agent": "Agente",
     "database": "Banco de dados",
@@ -30,7 +30,8 @@
     "updateRow": "<agent></agent> quer alterar <row></row>",
     "emailDraft": "<agent></agent> rascunhou um e-mail em <row></row>",
     "automationApproval": "<automation></automation> pede aprovação para <row></row>",
-    "automationApprovalNoRow": "<automation></automation> pede aprovação"
+    "automationApprovalNoRow": "<automation></automation> pede aprovação",
+    "sequenceDraft": "E-mail {step} de {steps} do acompanhamento <sequence></sequence> em <row></row>"
   },
   "inDatabase": "em <database></database>",
   "unknownAgent": "Um agente excluído",

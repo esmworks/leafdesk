@@ -231,6 +231,7 @@
     "rowUpdateBody": "текст",
     "pageUpdated": "{actor}: изменения на этой странице",
     "rowEmail": "Письмо от {from}",
+    "followUp": "Цепочка писем «{sequence}» приостановлена: следующее письмо нужно проверить",
     "someone": "Кто-то",
     "joinRequestTitle": "Запрос на вступление",
     "joinRequest": "{actor} просит принять в пространство",

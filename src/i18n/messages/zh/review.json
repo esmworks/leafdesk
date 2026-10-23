@@ -1,7 +1,7 @@
 {
   "metaTitle": "待审阅",
   "heading": "待审阅",
-  "description": "智能体提议而非直接做出的更改，以及等待审批的自动化。批准更改后会以你的名义做出，也可以先编辑或将其忽略；批准自动化可让其运行继续，拒绝则停止运行。无人处理的提议会在 30 天后过期。",
+  "description": "智能体提议而非直接做出的更改，以及等待审批的自动化。批准更改后会以你的名义做出，也可以先编辑或将其忽略；批准自动化可让其运行继续，拒绝则停止运行。无人处理的提议会在 30 天后过期。 设为“先问我”的跟进邮件也会在这里等待。",
   "filters": {
     "agent": "智能体",
     "database": "数据库",
@@ -30,7 +30,8 @@
     "updateRow": "<agent></agent> 想更改 <row></row>",
     "emailDraft": "<agent></agent> 在 <row></row> 上起草了一封邮件",
     "automationApproval": "<automation></automation> 请求审批 <row></row>",
-    "automationApprovalNoRow": "<automation></automation> 请求审批"
+    "automationApprovalNoRow": "<automation></automation> 请求审批",
+    "sequenceDraft": "<row></row> 上跟进 <sequence></sequence> 的第 {step} 封邮件（共 {steps} 封）"
   },
   "inDatabase": "位于 <database></database>",
   "unknownAgent": "已删除的智能体",

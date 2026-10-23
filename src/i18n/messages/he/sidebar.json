@@ -136,6 +136,7 @@
     "rowUpdate": "{actor} שינה את השורה הזו",
     "pageUpdated": "{actor} ערך את הדף הזה",
     "rowEmail": "אימייל מ־{from}",
+    "followUp": "רצף המעקב “{sequence}” הושהה: צריך לבדוק את האימייל הבא שלו",
     "noSubject": "(ללא נושא)",
     "tabs": "הצגה",
     "tabAll": "הכול",

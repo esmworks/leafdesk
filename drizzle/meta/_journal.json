@@ -785,6 +785,13 @@
       "when": 1792701716315,
       "tag": "0111_automation_approval",
       "breakpoints": true
+    },
+    {
+      "idx": 112,
+      "version": "7",
+      "when": 1792736673243,
+      "tag": "0112_follow_up_sequences",
+      "breakpoints": true
     }
   ]
 }

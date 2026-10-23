@@ -1,7 +1,7 @@
 {
   "metaTitle": "For review",
   "heading": "For review",
-  "description": "Changes agents proposed instead of making them, and automations waiting for someone's approval. Approve a change to make it as you, edit it first, or dismiss it; approve an automation to let its run go on, or reject it to stop the run. Proposals no one answers expire after 30 days.",
+  "description": "Changes agents proposed instead of making them, and automations waiting for someone's approval. Approve a change to make it as you, edit it first, or dismiss it; approve an automation to let its run go on, or reject it to stop the run. Proposals no one answers expire after 30 days. Follow-up emails set to “ask me first” wait here too.",
   "filters": {
     "agent": "Agent",
     "database": "Database",
@@ -30,7 +30,8 @@
     "updateRow": "<agent></agent> wants to change <row></row>",
     "emailDraft": "<agent></agent> drafted an email on <row></row>",
     "automationApproval": "<automation></automation> asks for approval on <row></row>",
-    "automationApprovalNoRow": "<automation></automation> asks for approval"
+    "automationApprovalNoRow": "<automation></automation> asks for approval",
+    "sequenceDraft": "Email {step} of {steps} of the follow-up <sequence></sequence> on <row></row>"
   },
   "inDatabase": "in <database></database>",
   "unknownAgent": "A deleted agent",

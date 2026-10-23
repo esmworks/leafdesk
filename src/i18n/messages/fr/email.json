@@ -231,6 +231,7 @@
     "rowUpdateBody": "le texte",
     "pageUpdated": "{actor} a modifié cette page",
     "rowEmail": "E-mail de {from}",
+    "followUp": "Relance « {sequence} » en pause : son prochain e-mail est à vérifier",
     "someone": "Quelqu’un",
     "joinRequestTitle": "Demande d'accès",
     "joinRequest": "{actor} a demandé à rejoindre l'espace",

@@ -54,6 +54,7 @@ import {
 import { FindRowsEditor, HttpRequestEditor, RowWriteEditor, WaitEditor } from "./automations-steps";
 import { DatePassedPreview, TriggerEditor } from "./automations-trigger";
 import { PeoplePicker, selectClass, ValuesEditor } from "./automations-values";
+import { StartSequenceEditor } from "./automations-sequences";
 import { TemplateField, useStepVariables, VariablesProvider } from "./automations-variables";
 import { PropertyTypeIcon } from "./property-icons";
 import { useSchema } from "./schema-context";
@@ -64,7 +65,7 @@ export { selectClass };
 /** Steps offered to add, grouped as the menu shows them. */
 const STEP_GROUPS: { group: "rows" | "people" | "outside" | "flow"; types: AutomationActionType[] }[] = [
   { group: "rows", types: ["set_properties", "find_rows", "create_row", "upsert_row", "move_to_trash"] },
-  { group: "people", types: ["notify", "approval", "run_agent"] },
+  { group: "people", types: ["notify", "approval", "run_agent", "start_sequence"] },
   { group: "outside", types: ["http_request", "webhook"] },
   { group: "flow", types: ["wait", "log"] },
 ];
@@ -520,6 +521,7 @@ function StepCard({
           workspaceId={workspaceId}
           databaseId={databaseId}
           action={action}
+          target={target}
           targetProps={targetProps}
           people={people}
           agents={agents}
@@ -537,6 +539,7 @@ function StepBody({
   workspaceId,
   databaseId,
   action,
+  target,
   targetProps,
   people,
   agents,
@@ -548,6 +551,8 @@ function StepBody({
   workspaceId: string;
   databaseId: string;
   action: DraftAction;
+  /** The database whose rows the step acts on. */
+  target: string;
   /** The properties of the database the step writes to; undefined while they load. */
   targetProps: Property[] | undefined;
   people: Person[];
@@ -592,6 +597,8 @@ function StepBody({
       );
     case "run_agent":
       return <RunAgentEditor workspaceId={workspaceId} action={action} agents={agents} isOwner={isOwner} onChange={onChange} />;
+    case "start_sequence":
+      return <StartSequenceEditor action={action} sameDatabase={target === databaseId} onChange={onChange} />;
     case "http_request":
       return <HttpRequestEditor action={action} onChange={onChange} />;
     case "find_rows":

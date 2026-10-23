@@ -139,6 +139,9 @@ export type MailboxView = {
   status: MailboxStatus;
   statusError: string | null;
   syncedAt: string | null;
+  /** Follow-ups (lib/sequences.ts): the most they send from it in a day, and the time zone their send window reads in. */
+  followUpDailyLimit: number;
+  timeZone: string;
 };
 
 /** The workspace's email settings as the settings section shows them. */

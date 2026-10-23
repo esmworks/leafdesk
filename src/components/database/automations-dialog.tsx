@@ -12,6 +12,7 @@ import { browserTimeZone, timeZoneLabel } from "@/lib/time-zone";
 import { DatabasesProvider } from "./automations-data";
 import { AutomationEditor, Footer } from "./automations-editor";
 import { RunList } from "./automations-runs";
+import { FollowUpExampleButton, SequenceChoicesProvider } from "./automations-sequences";
 import { toDraft, triggerValueName, type AgentChoice, type Automation, type Draft, type Person } from "./automations-shared";
 import { usePeople } from "./person-cell";
 import { useSchema } from "./schema-context";
@@ -158,6 +159,7 @@ function AutomationsDialog({
   return (
     <Dialog open onClose={close} className="max-w-2xl">
       <DatabasesProvider workspaceId={workspaceId}>
+      <SequenceChoicesProvider databaseId={databaseId}>
       <div className="flex items-start gap-3 border-b border-border px-5 py-4">
         {mode.kind !== "list" && (
           <IconButton label={t("back")} onClick={() => setMode({ kind: "list" })} className="mt-1">
@@ -237,6 +239,7 @@ function AutomationsDialog({
             {!full && <Gallery onUse={(start) => setMode({ kind: "edit", id: null, start })} properties={properties} />}
           </div>
           <Footer error={error}>
+            {!full && <FollowUpExampleButton onPick={(start) => setMode({ kind: "edit", id: null, start })} />}
             <Button
               variant="primary"
               disabled={full}
@@ -249,6 +252,7 @@ function AutomationsDialog({
           </Footer>
         </>
       )}
+      </SequenceChoicesProvider>
       </DatabasesProvider>
     </Dialog>
   );

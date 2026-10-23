@@ -1626,6 +1626,14 @@
         "mailbox_connected": "连接了邮箱 {target}",
         "mailbox_disconnected": "断开了邮箱 {target}"
       },
+      "sequence": {
+        "created": "在 {target} 上创建了跟进“{name}”",
+        "updated": "更改了 {target} 上的跟进“{name}”",
+        "deleted": "删除了 {target} 上的跟进“{name}”",
+        "enrolled": "在 {target} 上开始了跟进“{name}”",
+        "stopped": "{reason, select, replied {{target} 上的跟进“{name}”已停止：联系人已回复} manual {停止了 {target} 上的跟进“{name}”} rowTrashed {{target} 上的跟进“{name}”已停止：该行已移到回收站} mailboxDisconnected {{target} 上的跟进“{name}”已停止：邮箱已断开连接} dismissed {{target} 上的跟进“{name}”已停止：其草稿已被忽略} other {{target} 上的跟进“{name}”已停止}}",
+        "sent": "发送了 {target} 上跟进“{name}”的第 {step} 步"
+      },
       "storage": {
         "connected": "开始将新文件存到 {target}",
         "disconnected": "停止将新文件存到 {target}",
@@ -1717,7 +1725,10 @@
     "stopWatching": "停止关注",
     "reviewTitle": "待审阅",
     "reviewDescription": "智能体提议更改你可编辑的某一行，或从你的邮箱起草一封邮件，并等待你审阅时。新的提议会合并在一起，直到你打开它们。",
-    "reviewChannel": "待审阅：{channel}"
+    "reviewChannel": "待审阅：{channel}",
+    "followUpTitle": "跟进",
+    "followUpDescription": "你开始的跟进因下一封邮件未通过发送前的检查而暂停时。",
+    "followUpChannel": "跟进：{channel}"
   },
   "site": {
     "description": "为此工作区已发布的页面提供一个易读的地址、一个主页以及页面之间的导航。",
@@ -2040,6 +2051,47 @@
       "accessDenied": "你没有执行此操作的权限。",
       "gone": "该邮件已不在这一行中。"
     }
+  },
+  "followUps": {
+    "heading": "{database} 的跟进",
+    "description": "从发起人的邮箱向某一行的联系人逐封发送的邮件，直到联系人回复为止。",
+    "new": "新建跟进",
+    "edit": "编辑",
+    "empty": "还没有跟进。创建后，可在某一行的邮件部分开始跟进。",
+    "summary": "{steps, plural, other {# 封邮件}}{review, plural, =0 {} other {，# 封需先审阅}} · {open, plural, =0 {无进行中} other {# 个进行中}}",
+    "newTitle": "新建跟进",
+    "editTitle": "编辑跟进",
+    "name": "名称",
+    "namePlaceholder": "报价跟进",
+    "emails": "邮件",
+    "emailN": "第 {n} 封邮件",
+    "moveUp": "上移",
+    "moveDown": "下移",
+    "removeEmail": "移除邮件",
+    "wait": "等待",
+    "waitDays": "等待天数",
+    "daysAfterStart": "{count, plural, other {天后（从开始算起）}}",
+    "daysAfterPrevious": "{count, plural, other {天后（从上一封邮件算起）}}",
+    "mode": "发送方式",
+    "modeReview": "先问我",
+    "modeAuto": "自动发送",
+    "subject": "主题",
+    "replyHint": "作为对上一封邮件的回复发送，位于同一会话中。",
+    "text": "正文",
+    "textPlaceholder": "{example}，你好：",
+    "insert": "插入",
+    "addEmail": "添加邮件",
+    "variablesHelp": "双花括号会填入该行的值。每个都需要一个在该行值为空时使用的备用值：{example}。",
+    "window": "发送时段",
+    "windowStart": "从",
+    "windowEnd": "到",
+    "windowHelp": "按每位发件人邮箱的时区计算。到期时间不在此时段内的邮件会等到下一个时段。",
+    "confirmDelete": "要删除跟进“{name}”吗？",
+    "confirmDeleteOpen": "要删除跟进“{name}”吗？{count, plural, other {其中的 # 行将不再收到邮件。}}",
+    "dailyLimit": "每天的跟进邮件数",
+    "dailyLimitHelp": "此邮箱每天最多发送这么多封跟进邮件，所有跟进合计（最多 {max} 封）。其余的等到第二天。发送时段按旁边的时区计算。",
+    "useZone": "使用 {zone}",
+    "timeZone": "时区"
   },
   "storage": {
     "description": "此工作区上传的文件的存放位置：这台服务器，或某位所有者连接到自己账户的存储（兼容 S3 的存储桶、Google Drive 或 Dropbox）。每个文件仍由 Leafdesk 自己提供，因此存储保持私有：成员无需在那里拥有账户，也无需公开访问或共享。",

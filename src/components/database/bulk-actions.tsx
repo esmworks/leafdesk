@@ -14,6 +14,7 @@ import { PropertyTypeIcon } from "./property-icons";
 import { RelationPicker } from "./relation-cell";
 import type { Property, Row } from "./types";
 import type { DatabaseApi } from "./use-database";
+import { BulkFollowUp } from "./follow-ups";
 
 /** Property types a selection can be edited in, each with an editor below. */
 const BULK_EDITABLE = new Set<string>([
@@ -255,6 +256,7 @@ export function BulkActionBar({
           </button>
         </>
       )}
+      {!readOnly && <BulkFollowUp databaseId={databaseId} rowIds={ids} className={action} />}
       {/* Duplicates into one: they go to the trash, which guests don't have. */}
       {!readOnly && !guest && ids.length >= MIN_MERGE_ROWS && ids.length <= MAX_MERGE_ROWS && (
         <button type="button" disabled={busy} onClick={() => setMerging(ids)} className={action} title={t("mergeHint")}>

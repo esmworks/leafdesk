@@ -1,6 +1,8 @@
 import { and, asc, eq, inArray, isNull, notInArray } from "drizzle-orm";
 import { db } from "@/db";
 import { databaseProperty, mailbox, mailDatabase, page, user } from "@/db/schema";
+import { MAX_DAILY_LIMIT } from "@/lib/sequences";
+import { isTimeZone } from "@/lib/time-zone";
 import { normalizeAddress, type MailboxFolders, type MailboxServers, type MailboxView, type MailSettingsView, type OwnMailbox } from "@/lib/mail";
 import { isGuest, requireMembership } from "@/server/access";
 import { recordAudit } from "@/server/audit";
@@ -43,6 +45,8 @@ function mailboxView(m: typeof mailbox.$inferSelect): MailboxView {
     status: m.status,
     statusError: m.statusError,
     syncedAt: m.syncedAt?.toISOString() ?? null,
+    followUpDailyLimit: m.followUpDailyLimit,
+    timeZone: m.timeZone,
   };
 }
 
@@ -184,6 +188,8 @@ export type MailboxInput = {
   password: string;
   /** The member agreed that mail matched to rows shows to everyone who sees those rows. */
   consent: boolean;
+  /** The member's IANA time zone, which follow-ups' send windows read in (kept when not given). */
+  timeZone?: string | null;
 };
 
 const host = (value: unknown) => typeof value === "string" && /^[a-z0-9.\-[\]:]{1,253}$/i.test(value.trim());
@@ -250,6 +256,7 @@ export async function connectMailbox(userId: string, workspaceId: string, input:
     status: "ok" as const,
     statusError: null,
     consentedAt: new Date(),
+    ...(isTimeZone(input.timeZone) ? { timeZone: input.timeZone } : {}),
   };
   const [saved] = await db
     .insert(mailbox)
@@ -262,6 +269,23 @@ export async function connectMailbox(userId: string, workspaceId: string, input:
     action: "mail.mailbox_connected",
     target: { type: "mailbox", id: saved.id, label: address },
   });
+  return mailboxView(saved);
+}
+
+/**
+ * How follow-ups send from the member's mailbox in the workspace: at most `dailyLimit` emails a
+ * day, all sequences together, in send windows read in `timeZone`.
+ */
+export async function setMailboxSending(userId: string, workspaceId: string, input: { dailyLimit: number; timeZone: string }): Promise<MailboxView> {
+  await requireMembership(userId, workspaceId);
+  const limit = input?.dailyLimit;
+  if (!Number.isInteger(limit) || limit < 1 || limit > MAX_DAILY_LIMIT || !isTimeZone(input.timeZone)) throw new RowMailError("invalid");
+  const [saved] = await db
+    .update(mailbox)
+    .set({ followUpDailyLimit: limit, timeZone: input.timeZone })
+    .where(and(eq(mailbox.workspaceId, workspaceId), eq(mailbox.userId, userId)))
+    .returning();
+  if (!saved) throw new RowMailError("noMailbox");
   return mailboxView(saved);
 }
 

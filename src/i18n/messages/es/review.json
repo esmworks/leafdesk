@@ -1,7 +1,7 @@
 {
   "metaTitle": "Por revisar",
   "heading": "Por revisar",
-  "description": "Cambios que los agentes propusieron en lugar de hacerlos, y automatizaciones que esperan una aprobación. Aprueba un cambio para hacerlo en tu nombre, edítalo antes o descártalo; aprueba una automatización para que su ejecución siga, o recházala para detenerla. Las propuestas que nadie responde caducan a los 30 días.",
+  "description": "Cambios que los agentes propusieron en lugar de hacerlos, y automatizaciones que esperan una aprobación. Aprueba un cambio para hacerlo en tu nombre, edítalo antes o descártalo; aprueba una automatización para que su ejecución siga, o recházala para detenerla. Las propuestas que nadie responde caducan a los 30 días. Los correos de seguimiento configurados como «Preguntarme antes» también esperan aquí.",
   "filters": {
     "agent": "Agente",
     "database": "Base de datos",
@@ -30,7 +30,8 @@
     "updateRow": "<agent></agent> quiere cambiar <row></row>",
     "emailDraft": "<agent></agent> redactó un correo en <row></row>",
     "automationApproval": "<automation></automation> pide aprobación para <row></row>",
-    "automationApprovalNoRow": "<automation></automation> pide aprobación"
+    "automationApprovalNoRow": "<automation></automation> pide aprobación",
+    "sequenceDraft": "Correo {step} de {steps} del seguimiento <sequence></sequence> en <row></row>"
   },
   "inDatabase": "en <database></database>",
   "unknownAgent": "Un agente eliminado",

@@ -1626,6 +1626,14 @@
         "mailbox_connected": "A connecté la boîte mail {target}",
         "mailbox_disconnected": "A déconnecté la boîte mail {target}"
       },
+      "sequence": {
+        "created": "A créé la relance « {name} » sur {target}",
+        "updated": "A modifié la relance « {name} » sur {target}",
+        "deleted": "A supprimé la relance « {name} » sur {target}",
+        "enrolled": "A lancé la relance « {name} » sur {target}",
+        "stopped": "{reason, select, replied {La relance « {name} » sur {target} s’est arrêtée : le contact a répondu} manual {A arrêté la relance « {name} » sur {target}} rowTrashed {La relance « {name} » sur {target} s’est arrêtée : la ligne a été mise à la corbeille} mailboxDisconnected {La relance « {name} » sur {target} s’est arrêtée : la boîte mail a été déconnectée} dismissed {La relance « {name} » sur {target} s’est arrêtée : son brouillon a été écarté} other {La relance « {name} » sur {target} s’est arrêtée}}",
+        "sent": "A envoyé l’étape {step} de la relance « {name} » sur {target}"
+      },
       "storage": {
         "connected": "A commencé à conserver les nouveaux fichiers dans {target}",
         "disconnected": "A cessé de conserver les nouveaux fichiers dans {target}",
@@ -1717,7 +1725,10 @@
     "stopWatching": "Ne plus surveiller",
     "reviewTitle": "À vérifier",
     "reviewDescription": "Un agent propose une modification d’une ligne que vous pouvez modifier, ou rédige un e-mail depuis votre boîte mail, et elle attend votre vérification. Les nouvelles propositions sont regroupées jusqu’à ce que vous les ouvriez.",
-    "reviewChannel": "À vérifier : {channel}"
+    "reviewChannel": "À vérifier : {channel}",
+    "followUpTitle": "Relances",
+    "followUpDescription": "Une relance que vous avez lancée se met en pause, car son prochain e-mail n’a pas passé la vérification avant envoi.",
+    "followUpChannel": "Relances : {channel}"
   },
   "site": {
     "description": "Donnez aux pages publiées de cet espace de travail une adresse lisible, une page d’accueil et une navigation commune.",
@@ -2040,6 +2051,47 @@
       "accessDenied": "Vous n’avez pas l’accès nécessaire pour faire cela.",
       "gone": "Ce message n’est plus sur cette ligne."
     }
+  },
+  "followUps": {
+    "heading": "Relances sur {database}",
+    "description": "Des e-mails envoyés l’un après l’autre au contact d’une ligne, depuis la boîte mail de la personne qui les lance, jusqu’à ce que le contact réponde.",
+    "new": "Nouvelle relance",
+    "edit": "Modifier",
+    "empty": "Aucune relance pour l’instant. Une fois créée, lancez-la depuis la section e-mail d’une ligne.",
+    "summary": "{steps, plural, one {# e-mail} other {# e-mails}}{review, plural, =0 {} one {, # vérifié d’abord} other {, # vérifiés d’abord}} · {open, plural, =0 {aucune en cours} one {# en cours} other {# en cours}}",
+    "newTitle": "Nouvelle relance",
+    "editTitle": "Modifier la relance",
+    "name": "Nom",
+    "namePlaceholder": "Relance de devis",
+    "emails": "E-mails",
+    "emailN": "E-mail {n}",
+    "moveUp": "Monter",
+    "moveDown": "Descendre",
+    "removeEmail": "Retirer l’e-mail",
+    "wait": "Attente",
+    "waitDays": "Jours d’attente",
+    "daysAfterStart": "{count, plural, one {jour après le lancement} other {jours après le lancement}}",
+    "daysAfterPrevious": "{count, plural, one {jour après l’e-mail précédent} other {jours après l’e-mail précédent}}",
+    "mode": "Mode d’envoi",
+    "modeReview": "Me demander d’abord",
+    "modeAuto": "Envoyer automatiquement",
+    "subject": "Objet",
+    "replyHint": "Part en réponse à l’e-mail précédent, dans le même fil.",
+    "text": "Texte",
+    "textPlaceholder": "Bonjour {example},",
+    "insert": "Insérer",
+    "addEmail": "Ajouter un e-mail",
+    "variablesHelp": "Les doubles accolades insèrent les valeurs de la ligne. Chacune a besoin d’une valeur de repli pour les lignes où elle est vide : {example}.",
+    "window": "Quand les e-mails partent",
+    "windowStart": "De",
+    "windowEnd": "À",
+    "windowHelp": "Dans le fuseau horaire de la boîte mail de chaque expéditeur. Un e-mail prévu en dehors de ces heures attend la plage suivante.",
+    "confirmDelete": "Supprimer la relance « {name} » ?",
+    "confirmDeleteOpen": "Supprimer la relance « {name} » ? {count, plural, one {La ligne concernée ne recevra plus ses e-mails.} other {Les # lignes concernées ne recevront plus ses e-mails.}}",
+    "dailyLimit": "E-mails de relance par jour",
+    "dailyLimitHelp": "Au plus ce nombre d’e-mails de relance partent de cette boîte mail par jour, toutes relances confondues (jusqu’à {max}). Les autres attendent le lendemain. Les plages d’envoi suivent le fuseau horaire indiqué à côté.",
+    "useZone": "Utiliser {zone}",
+    "timeZone": "Fuseau horaire"
   },
   "storage": {
     "description": "L’endroit où sont conservés les fichiers téléversés dans cet espace de travail : ce serveur, ou un stockage qu’un de ses propriétaires a connecté à son compte (un bucket compatible S3, Google Drive ou Dropbox). Leafdesk continue de servir lui-même chaque fichier, le stockage reste donc privé : les membres n’y ont besoin d’aucun compte, et aucun accès public ni partage n’est nécessaire.",

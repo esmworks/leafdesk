@@ -1,7 +1,7 @@
 {
   "metaTitle": "Zu prüfen",
   "heading": "Zu prüfen",
-  "description": "Änderungen, die Agenten vorgeschlagen haben, statt sie vorzunehmen, und Automatisierungen, die auf eine Freigabe warten. Gib eine Änderung frei, um sie in deinem Namen vorzunehmen, bearbeite sie vorher oder verwirf sie; gib eine Automatisierung frei, damit ihre Ausführung weitergeht, oder lehne sie ab, um sie zu beenden. Vorschläge, die niemand beantwortet, laufen nach 30 Tagen ab.",
+  "description": "Änderungen, die Agenten vorgeschlagen haben, statt sie vorzunehmen, und Automatisierungen, die auf eine Freigabe warten. Gib eine Änderung frei, um sie in deinem Namen vorzunehmen, bearbeite sie vorher oder verwirf sie; gib eine Automatisierung frei, damit ihre Ausführung weitergeht, oder lehne sie ab, um sie zu beenden. Vorschläge, die niemand beantwortet, laufen nach 30 Tagen ab. Follow-up-E-Mails mit „Erst mich fragen“ warten ebenfalls hier.",
   "filters": {
     "agent": "Agent",
     "database": "Datenbank",
@@ -30,7 +30,8 @@
     "updateRow": "<agent></agent> möchte <row></row> ändern",
     "emailDraft": "<agent></agent> hat eine E-Mail zu <row></row> entworfen",
     "automationApproval": "<automation></automation> bittet um Freigabe für <row></row>",
-    "automationApprovalNoRow": "<automation></automation> bittet um Freigabe"
+    "automationApprovalNoRow": "<automation></automation> bittet um Freigabe",
+    "sequenceDraft": "E-Mail {step} von {steps} des Follow-ups <sequence></sequence> zu <row></row>"
   },
   "inDatabase": "in <database></database>",
   "unknownAgent": "Ein gelöschter Agent",

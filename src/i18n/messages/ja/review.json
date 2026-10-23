@@ -1,7 +1,7 @@
 {
   "metaTitle": "確認待ち",
   "heading": "確認待ち",
-  "description": "エージェントが実行する代わりに提案した変更と、承認を待っているオートメーションです。変更は承認するとあなたの名前で反映され、先に編集することも、却下することもできます。オートメーションは承認すると実行が続き、却下すると停止します。誰も対応しない提案は30日後に期限切れになります。",
+  "description": "エージェントが実行する代わりに提案した変更と、承認を待っているオートメーションです。変更は承認するとあなたの名前で反映され、先に編集することも、却下することもできます。オートメーションは承認すると実行が続き、却下すると停止します。誰も対応しない提案は30日後に期限切れになります。 「先に確認する」に設定したフォローアップメールもここで待機します。",
   "filters": {
     "agent": "エージェント",
     "database": "データベース",
@@ -30,7 +30,8 @@
     "updateRow": "<agent></agent>が<row></row>を変更しようとしています",
     "emailDraft": "<agent></agent>が<row></row>でメールを下書きしました",
     "automationApproval": "<automation></automation>が<row></row>の承認を依頼しています",
-    "automationApprovalNoRow": "<automation></automation>が承認を依頼しています"
+    "automationApprovalNoRow": "<automation></automation>が承認を依頼しています",
+    "sequenceDraft": "<row></row>のフォローアップ<sequence></sequence>：メール{step}/{steps}"
   },
   "inDatabase": "<database></database>内",
   "unknownAgent": "削除されたエージェント",

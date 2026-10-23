@@ -1,7 +1,7 @@
 {
   "metaTitle": "İncelenecekler",
   "heading": "İncelenecekler",
-  "description": "Ajanların yapmak yerine önerdiği değişiklikler ve birinin onayını bekleyen otomasyonlar. Bir değişikliği onaylayarak sizin adınıza yapılmasını sağlayın, önce düzenleyin ya da reddedin; bir otomasyonu onaylayınca çalışması devam eder, reddedince durur. Kimsenin yanıtlamadığı önerilerin süresi 30 gün sonra dolar.",
+  "description": "Ajanların yapmak yerine önerdiği değişiklikler ve birinin onayını bekleyen otomasyonlar. Bir değişikliği onaylayarak sizin adınıza yapılmasını sağlayın, önce düzenleyin ya da reddedin; bir otomasyonu onaylayınca çalışması devam eder, reddedince durur. Kimsenin yanıtlamadığı önerilerin süresi 30 gün sonra dolar. “Önce bana sor” olarak ayarlanan takip e-postaları da burada bekler.",
   "filters": {
     "agent": "Ajan",
     "database": "Veritabanı",
@@ -30,7 +30,8 @@
     "updateRow": "<agent></agent>, <row></row> satırını değiştirmek istiyor",
     "emailDraft": "<agent></agent>, <row></row> satırında bir e-posta taslağı hazırladı",
     "automationApproval": "<automation></automation>, <row></row> için onay istiyor",
-    "automationApprovalNoRow": "<automation></automation> onay istiyor"
+    "automationApprovalNoRow": "<automation></automation> onay istiyor",
+    "sequenceDraft": "<sequence></sequence> takibi, <row></row>: e-posta {step}/{steps}"
   },
   "inDatabase": "<database></database> içinde",
   "unknownAgent": "Silinmiş bir ajan",

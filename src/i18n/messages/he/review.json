@@ -1,7 +1,7 @@
 {
   "metaTitle": "לבדיקה",
   "heading": "לבדיקה",
-  "description": "שינויים שסוכנים הציעו במקום לבצע אותם, ואוטומציות שממתינות לאישור. אפשר לאשר שינוי כדי לבצע אותו בשמך, לערוך אותו קודם או לדחות אותו; אישור אוטומציה ממשיך את ההרצה שלה, ודחייה עוצרת אותה. הצעות שאף אחד לא עונה עליהן פגות אחרי 30 יום.",
+  "description": "שינויים שסוכנים הציעו במקום לבצע אותם, ואוטומציות שממתינות לאישור. אפשר לאשר שינוי כדי לבצע אותו בשמך, לערוך אותו קודם או לדחות אותו; אישור אוטומציה ממשיך את ההרצה שלה, ודחייה עוצרת אותה. הצעות שאף אחד לא עונה עליהן פגות אחרי 30 יום. גם הודעות מעקב שהוגדרו כ\"שאל אותי קודם\" ממתינות כאן.",
   "filters": {
     "agent": "סוכן",
     "database": "מסד נתונים",
@@ -30,7 +30,8 @@
     "updateRow": "<agent></agent> רוצה לשנות את <row></row>",
     "emailDraft": "<agent></agent> ניסח אימייל ב־<row></row>",
     "automationApproval": "<automation></automation> מבקשת אישור עבור <row></row>",
-    "automationApprovalNoRow": "<automation></automation> מבקשת אישור"
+    "automationApprovalNoRow": "<automation></automation> מבקשת אישור",
+    "sequenceDraft": "אימייל {step} מתוך {steps} של רצף המעקב <sequence></sequence> ב־<row></row>"
   },
   "inDatabase": "ב־<database></database>",
   "unknownAgent": "סוכן שנמחק",

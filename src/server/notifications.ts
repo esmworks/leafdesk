@@ -8,10 +8,12 @@ import {
   connection,
   databaseAutomation,
   databaseProperty,
+  emailSequence,
   notification,
   OWNER_KINDS,
   page,
   rowEmail,
+  sequenceEnrollment,
   user,
   workspace,
   workspaceAgent,
@@ -585,6 +587,8 @@ export type InboxItem = {
   rowEmail: InboxRowEmail | null;
   /** Changes waiting for review: how many the user could answer now (the item shows while there are any). */
   review: { count: number } | null;
+  /** Follow-ups: the sequence of the row (`pageId`) whose next email didn't pass the check. */
+  followUp: { sequence: string } | null;
 };
 
 export type InboxRowEmail = { id: string; from: string; subject: string; snippet: string };
@@ -749,6 +753,7 @@ export async function listNotifications(
       rowProperties: page.properties,
       changes: notification.changes,
       rowEmailId: notification.rowEmailId,
+      followUpSequence: emailSequence.name,
     })
     .from(notification)
     .leftJoin(page, eq(page.id, notification.pageId))
@@ -759,6 +764,8 @@ export async function listNotifications(
     .leftJoin(databaseProperty, eq(databaseProperty.id, notification.propertyId))
     .leftJoin(accessRequest, eq(accessRequest.id, notification.accessRequestId))
     .leftJoin(databaseAutomation, eq(databaseAutomation.id, notification.automationId))
+    .leftJoin(sequenceEnrollment, eq(sequenceEnrollment.id, notification.sequenceEnrollmentId))
+    .leftJoin(emailSequence, eq(emailSequence.id, sequenceEnrollment.sequenceId))
     .where(
       and(
         filter,
@@ -804,11 +811,12 @@ export async function listNotifications(
       !(r.kind === "agent_approval" && r.agentRunId && approvals.get(r.agentRunId) === null),
   );
   return Promise.all(
-    shown.map(async ({ readAt, actorEmail, requestId, requestMessage, requesterRole, agentRunId, rowDatabaseId, rowCreatedBy, rowProperties, changes, rowEmailId, ...row }) => ({
+    shown.map(async ({ readAt, actorEmail, requestId, requestMessage, requesterRole, agentRunId, rowDatabaseId, rowCreatedBy, rowProperties, changes, rowEmailId, followUpSequence, ...row }) => ({
       ...row,
       rowUpdate: updates.get(row.id) ?? null,
       rowEmail: emails.get(row.id) ?? null,
       review: row.kind === "review" ? { count: reviews.get(row.workspaceId) ?? 0 } : null,
+      followUp: row.kind === "follow_up" ? { sequence: followUpSequence ?? "" } : null,
       read: readAt !== null,
       approval: agentRunId && row.kind === "agent_approval" ? (approvals.get(agentRunId) ?? null) : null,
       memory: agentRunId && row.kind === "agent_memory" ? (proposals.get(agentRunId) ?? null) : null,

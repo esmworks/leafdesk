@@ -1626,6 +1626,14 @@
         "mailbox_connected": "Hat das Postfach {target} verbunden",
         "mailbox_disconnected": "Hat die Verbindung zum Postfach {target} getrennt"
       },
+      "sequence": {
+        "created": "Hat das Follow-up „{name}“ in {target} erstellt",
+        "updated": "Hat das Follow-up „{name}“ in {target} geändert",
+        "deleted": "Hat das Follow-up „{name}“ in {target} gelöscht",
+        "enrolled": "Hat das Follow-up „{name}“ in {target} gestartet",
+        "stopped": "{reason, select, replied {Das Follow-up „{name}“ in {target} wurde gestoppt: Der Kontakt hat geantwortet} manual {Hat das Follow-up „{name}“ in {target} gestoppt} rowTrashed {Das Follow-up „{name}“ in {target} wurde gestoppt: Die Zeile wurde in den Papierkorb verschoben} mailboxDisconnected {Das Follow-up „{name}“ in {target} wurde gestoppt: Die Verbindung zum Postfach wurde getrennt} dismissed {Das Follow-up „{name}“ in {target} wurde gestoppt: Sein Entwurf wurde verworfen} other {Das Follow-up „{name}“ in {target} wurde gestoppt}}",
+        "sent": "Hat Schritt {step} des Follow-ups „{name}“ in {target} gesendet"
+      },
       "storage": {
         "connected": "Hat begonnen, neue Dateien in {target} abzulegen",
         "disconnected": "Hat aufgehört, neue Dateien in {target} abzulegen",
@@ -1717,7 +1725,10 @@
     "stopWatching": "Nicht mehr beobachten",
     "reviewTitle": "Zu prüfen",
     "reviewDescription": "Ein Agent schlägt eine Änderung an einer Zeile vor, die du bearbeiten kannst, oder entwirft eine E-Mail aus deinem Postfach, und sie wartet auf deine Prüfung. Neue Vorschläge werden gesammelt, bis du sie öffnest.",
-    "reviewChannel": "Zu prüfen: {channel}"
+    "reviewChannel": "Zu prüfen: {channel}",
+    "followUpTitle": "Follow-ups",
+    "followUpDescription": "Ein Follow-up, das du gestartet hast, pausiert, weil seine nächste E-Mail die Prüfung vor dem Senden nicht bestanden hat.",
+    "followUpChannel": "Follow-ups: {channel}"
   },
   "site": {
     "description": "Gib den veröffentlichten Seiten dieses Workspace eine gemeinsame, gut lesbare Adresse, eine Startseite und eine Navigation zwischen ihnen.",
@@ -2040,6 +2051,47 @@
       "accessDenied": "Du hast keinen Zugriff, um das zu tun.",
       "gone": "Diese Nachricht ist nicht mehr in dieser Zeile."
     }
+  },
+  "followUps": {
+    "heading": "Follow-ups in {database}",
+    "description": "E-Mails, die nacheinander an den Kontakt einer Zeile gehen, aus dem Postfach der Person, die sie startet, bis der Kontakt antwortet.",
+    "new": "Neues Follow-up",
+    "edit": "Bearbeiten",
+    "empty": "Noch keine Follow-ups. Sobald es eines gibt, startest du es im E-Mail-Bereich einer Zeile.",
+    "summary": "{steps, plural, one {# E-Mail} other {# E-Mails}}{review, plural, =0 {} other {, # vorher geprüft}} · {open, plural, =0 {keines läuft} one {# läuft} other {# laufen}}",
+    "newTitle": "Neues Follow-up",
+    "editTitle": "Follow-up bearbeiten",
+    "name": "Name",
+    "namePlaceholder": "Angebots-Follow-up",
+    "emails": "E-Mails",
+    "emailN": "E-Mail {n}",
+    "moveUp": "Nach oben",
+    "moveDown": "Nach unten",
+    "removeEmail": "E-Mail entfernen",
+    "wait": "Warten",
+    "waitDays": "Wartezeit in Tagen",
+    "daysAfterStart": "{count, plural, one {Tag nach dem Start} other {Tage nach dem Start}}",
+    "daysAfterPrevious": "{count, plural, one {Tag nach der vorherigen E-Mail} other {Tage nach der vorherigen E-Mail}}",
+    "mode": "Versand",
+    "modeReview": "Erst mich fragen",
+    "modeAuto": "Automatisch senden",
+    "subject": "Betreff",
+    "replyHint": "Wird als Antwort auf die vorherige E-Mail im selben Verlauf gesendet.",
+    "text": "Text",
+    "textPlaceholder": "Hallo {example},",
+    "insert": "Einfügen",
+    "addEmail": "E-Mail hinzufügen",
+    "variablesHelp": "Doppelte geschweifte Klammern setzen die Werte der Zeile ein. Jede braucht einen Ersatzwert für Zeilen, in denen der Wert leer ist: {example}.",
+    "window": "Wann E-Mails gesendet werden",
+    "windowStart": "Von",
+    "windowEnd": "Bis",
+    "windowHelp": "In der Zeitzone des Postfachs der jeweiligen absendenden Person. Eine E-Mail, die außerhalb dieser Zeiten fällig ist, wartet auf das nächste Zeitfenster.",
+    "confirmDelete": "Follow-up „{name}“ löschen?",
+    "confirmDeleteOpen": "Follow-up „{name}“ löschen? {count, plural, one {Die Zeile darin bekommt dann keine E-Mails mehr davon.} other {Die # Zeilen darin bekommen dann keine E-Mails mehr davon.}}",
+    "dailyLimit": "Follow-up-E-Mails pro Tag",
+    "dailyLimitHelp": "Höchstens so viele Follow-up-E-Mails gehen pro Tag aus diesem Postfach raus, alle Follow-ups zusammen (bis zu {max}). Der Rest wartet bis zum nächsten Tag. Versandzeiten gelten in der Zeitzone daneben.",
+    "useZone": "{zone} verwenden",
+    "timeZone": "Zeitzone"
   },
   "storage": {
     "description": "Wo die hochgeladenen Dateien dieses Workspaces liegen: auf diesem Server oder in Speicher, den einer seiner Inhaber mit seinem Konto verbunden hat (ein S3-kompatibler Bucket, Google Drive oder Dropbox). Leafdesk liefert weiterhin jede Datei selbst aus, der Speicher bleibt also privat: Mitglieder brauchen dort kein Konto, und öffentlicher Zugriff oder Freigaben sind nicht nötig.",

@@ -1,7 +1,7 @@
 {
   "metaTitle": "Do przejrzenia",
   "heading": "Do przejrzenia",
-  "description": "Zmiany, które agenci zaproponowali zamiast je wprowadzić, oraz automatyzacje czekające na zatwierdzenie. Zatwierdź zmianę, aby wprowadzić ją w twoim imieniu, najpierw ją edytuj albo ją odrzuć; zatwierdź automatyzację, aby jej uruchomienie poszło dalej, albo odrzuć ją, aby je zatrzymać. Propozycje, których nikt nie rozpatrzy, wygasają po 30 dniach.",
+  "description": "Zmiany, które agenci zaproponowali zamiast je wprowadzić, oraz automatyzacje czekające na zatwierdzenie. Zatwierdź zmianę, aby wprowadzić ją w twoim imieniu, najpierw ją edytuj albo ją odrzuć; zatwierdź automatyzację, aby jej uruchomienie poszło dalej, albo odrzuć ją, aby je zatrzymać. Propozycje, których nikt nie rozpatrzy, wygasają po 30 dniach. Czekają tu też e-maile przypominające ustawione na „Najpierw zapytaj mnie”.",
   "filters": {
     "agent": "Agent",
     "database": "Baza danych",
@@ -30,7 +30,8 @@
     "updateRow": "<agent></agent> chce zmienić <row></row>",
     "emailDraft": "<agent></agent>: przygotowano szkic e-maila w <row></row>",
     "automationApproval": "<automation></automation> prosi o zatwierdzenie dla <row></row>",
-    "automationApprovalNoRow": "<automation></automation> prosi o zatwierdzenie"
+    "automationApprovalNoRow": "<automation></automation> prosi o zatwierdzenie",
+    "sequenceDraft": "E-mail {step} z {steps} follow-upu <sequence></sequence> w <row></row>"
   },
   "inDatabase": "w <database></database>",
   "unknownAgent": "Usunięty agent",

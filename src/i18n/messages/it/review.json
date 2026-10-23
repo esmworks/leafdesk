@@ -1,7 +1,7 @@
 {
   "metaTitle": "Da rivedere",
   "heading": "Da rivedere",
-  "description": "Modifiche che gli agenti hanno proposto invece di farle, e automazioni in attesa di un’approvazione. Approva una modifica per farla a tuo nome, modificala prima o ignorala; approva un’automazione per far proseguire la sua esecuzione, o rifiutala per fermarla. Le proposte che nessuno gestisce scadono dopo 30 giorni.",
+  "description": "Modifiche che gli agenti hanno proposto invece di farle, e automazioni in attesa di un’approvazione. Approva una modifica per farla a tuo nome, modificala prima o ignorala; approva un’automazione per far proseguire la sua esecuzione, o rifiutala per fermarla. Le proposte che nessuno gestisce scadono dopo 30 giorni. Anche le email di follow-up impostate su «Chiedimi prima» aspettano qui.",
   "filters": {
     "agent": "Agente",
     "database": "Database",
@@ -30,7 +30,8 @@
     "updateRow": "<agent></agent> vuole modificare <row></row>",
     "emailDraft": "<agent></agent> ha preparato un’email su <row></row>",
     "automationApproval": "<automation></automation> chiede l’approvazione per <row></row>",
-    "automationApprovalNoRow": "<automation></automation> chiede l’approvazione"
+    "automationApprovalNoRow": "<automation></automation> chiede l’approvazione",
+    "sequenceDraft": "Email {step} di {steps} del follow-up <sequence></sequence> su <row></row>"
   },
   "inDatabase": "in <database></database>",
   "unknownAgent": "Un agente eliminato",

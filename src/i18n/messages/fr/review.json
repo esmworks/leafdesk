@@ -1,7 +1,7 @@
 {
   "metaTitle": "À vérifier",
   "heading": "À vérifier",
-  "description": "Les modifications que des agents ont proposées au lieu de les faire, et les automatisations qui attendent une approbation. Approuvez une modification pour la faire en votre nom, modifiez-la d’abord ou écartez-la ; approuvez une automatisation pour que son exécution continue, ou refusez-la pour l’arrêter. Les propositions que personne ne traite expirent après 30 jours.",
+  "description": "Les modifications que des agents ont proposées au lieu de les faire, et les automatisations qui attendent une approbation. Approuvez une modification pour la faire en votre nom, modifiez-la d’abord ou écartez-la ; approuvez une automatisation pour que son exécution continue, ou refusez-la pour l’arrêter. Les propositions que personne ne traite expirent après 30 jours. Les e-mails de relance réglés sur « Me demander d’abord » attendent aussi ici.",
   "filters": {
     "agent": "Agent",
     "database": "Base de données",
@@ -30,7 +30,8 @@
     "updateRow": "<agent></agent> veut modifier <row></row>",
     "emailDraft": "<agent></agent> a rédigé un e-mail sur <row></row>",
     "automationApproval": "<automation></automation> demande une approbation pour <row></row>",
-    "automationApprovalNoRow": "<automation></automation> demande une approbation"
+    "automationApprovalNoRow": "<automation></automation> demande une approbation",
+    "sequenceDraft": "E-mail {step} sur {steps} de la relance <sequence></sequence> sur <row></row>"
   },
   "inDatabase": "dans <database></database>",
   "unknownAgent": "Un agent supprimé",

@@ -8,6 +8,7 @@ import { GroupError } from "@/lib/groups";
 import { TeamspaceError } from "@/lib/teamspace-error";
 import { PAGE_LOCKED_MESSAGE } from "@/lib/page-lock";
 import { PendingChangeError } from "@/server/pending-changes";
+import { SequenceError } from "@/server/sequences/manage";
 import { isPageSaveFailed } from "@/server/collab/bridge";
 
 /** Every error code the REST API answers with, for the docs. */
@@ -56,6 +57,7 @@ export const API_ERROR_CODES = {
     status: 409,
     description: "Voice notes can't be made: the server has no speech to text set up, or the workspace turned AI off.",
   },
+  follow_up_ended: { status: 409, description: "The follow-up has ended already, or isn't paused (resume)." },
   change_decided: { status: 409, description: "The change waiting for review was already approved, dismissed or expired." },
   change_conflict: {
     status: 409,
@@ -156,6 +158,12 @@ export function apiErrorFor(error: unknown): ApiError {
     if (error.code === "notFound") return new ApiError(404, "not_found", error.message);
     if (error.code === "decided") return new ApiError(409, "change_decided", error.message);
     if (error.code === "conflict") return new ApiError(409, "change_conflict", error.message);
+    return new ApiError(400, "invalid_request", error.message);
+  }
+  if (error instanceof SequenceError) {
+    if (error.code === "notFound") return new ApiError(404, "not_found", error.message);
+    if (error.code === "noAccess" || error.code === "notSender") return new ApiError(403, "forbidden", error.message);
+    if (error.code === "notOpen") return new ApiError(409, "follow_up_ended", error.message);
     return new ApiError(400, "invalid_request", error.message);
   }
   if (error instanceof AiError) return apiErrorForAi(error);

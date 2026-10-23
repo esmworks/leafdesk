@@ -1626,6 +1626,14 @@
         "mailbox_connected": "Connected the mailbox {target}",
         "mailbox_disconnected": "Disconnected the mailbox {target}"
       },
+      "sequence": {
+        "created": "Created the follow-up “{name}” on {target}",
+        "updated": "Changed the follow-up “{name}” on {target}",
+        "deleted": "Deleted the follow-up “{name}” on {target}",
+        "enrolled": "Started the follow-up “{name}” on {target}",
+        "stopped": "{reason, select, replied {The follow-up “{name}” on {target} stopped: the contact replied} manual {Stopped the follow-up “{name}” on {target}} rowTrashed {The follow-up “{name}” on {target} stopped: the row was moved to the trash} mailboxDisconnected {The follow-up “{name}” on {target} stopped: the mailbox was disconnected} dismissed {The follow-up “{name}” on {target} stopped: its draft was dismissed} other {The follow-up “{name}” on {target} stopped}}",
+        "sent": "Sent step {step} of the follow-up “{name}” on {target}"
+      },
       "storage": {
         "connected": "Started keeping new files in {target}",
         "disconnected": "Stopped keeping new files in {target}",
@@ -1717,7 +1725,10 @@
     "stopWatching": "Stop watching",
     "reviewTitle": "For review",
     "reviewDescription": "An agent proposes a change to a row you can edit, or drafts an email from your mailbox, and it waits for your review. New proposals come together until you open them.",
-    "reviewChannel": "For review: {channel}"
+    "reviewChannel": "For review: {channel}",
+    "followUpTitle": "Follow-ups",
+    "followUpDescription": "A follow-up you started pauses because its next email didn’t pass the check before sending.",
+    "followUpChannel": "Follow-ups: {channel}"
   },
   "site": {
     "description": "Give this workspace's published pages one readable address, a home page and navigation between them.",
@@ -2040,6 +2051,47 @@
       "accessDenied": "You don't have access to do this.",
       "gone": "That message isn't on this row any more."
     }
+  },
+  "followUps": {
+    "heading": "Follow-ups on {database}",
+    "description": "Emails that go out one after another to a row’s contact, from the mailbox of whoever starts them, until the contact replies.",
+    "new": "New follow-up",
+    "edit": "Edit",
+    "empty": "No follow-ups yet. Start one from a row’s email section once it exists.",
+    "summary": "{steps, plural, one {# email} other {# emails}}{review, plural, =0 {} other {, # reviewed first}} · {open, plural, =0 {none going} one {# going} other {# going}}",
+    "newTitle": "New follow-up",
+    "editTitle": "Edit follow-up",
+    "name": "Name",
+    "namePlaceholder": "Quote follow-up",
+    "emails": "Emails",
+    "emailN": "Email {n}",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "removeEmail": "Remove email",
+    "wait": "Wait",
+    "waitDays": "Days to wait",
+    "daysAfterStart": "{count, plural, one {day after it starts} other {days after it starts}}",
+    "daysAfterPrevious": "{count, plural, one {day after the previous email} other {days after the previous email}}",
+    "mode": "How it goes out",
+    "modeReview": "Ask me first",
+    "modeAuto": "Send on its own",
+    "subject": "Subject",
+    "replyHint": "Goes out as a reply to the previous email, in the same thread.",
+    "text": "Text",
+    "textPlaceholder": "Hi {example},",
+    "insert": "Insert",
+    "addEmail": "Add email",
+    "variablesHelp": "Double braces fill in the row’s values. Each needs a fallback for rows where it is empty: {example}.",
+    "window": "When emails go out",
+    "windowStart": "From",
+    "windowEnd": "Until",
+    "windowHelp": "In the time zone of each sender’s mailbox. An email due outside these hours waits for the next one.",
+    "confirmDelete": "Delete the follow-up “{name}”?",
+    "confirmDeleteOpen": "Delete the follow-up “{name}”? {count, plural, one {The row in it stops getting its emails.} other {The # rows in it stop getting its emails.}}",
+    "dailyLimit": "Follow-up emails a day",
+    "dailyLimitHelp": "At most this many follow-up emails go out from this mailbox a day, all follow-ups together (up to {max}). The rest wait for the next day. Send windows read in the time zone next to it.",
+    "useZone": "Use {zone}",
+    "timeZone": "Time zone"
   },
   "storage": {
     "description": "Where this workspace's uploaded files are kept: this server, or storage one of its owners connected to their account (an S3-compatible bucket, Google Drive or Dropbox). Leafdesk still serves every file itself, so the storage stays private: members need no account there, and no public access or sharing is needed.",

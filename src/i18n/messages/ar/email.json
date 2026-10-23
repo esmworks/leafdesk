@@ -231,6 +231,7 @@
     "rowUpdateBody": "النص",
     "pageUpdated": "عدّل {actor} هذه الصفحة",
     "rowEmail": "رسالة بريد من {from}",
+    "followUp": "المتابعة «{sequence}» متوقفة مؤقتًا: رسالتها التالية تحتاج إلى نظرة",
     "someone": "شخص ما",
     "joinRequestTitle": "طلب انضمام",
     "joinRequest": "طلب {actor} الانضمام",
