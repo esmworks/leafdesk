@@ -10,7 +10,7 @@
   "emptyHint": "Her sayfa ya da veritabanı satırı da beceri olabilir: sayfanın ⋯ menüsünde Beceri olarak kullan'ı aç.",
   "builtins": {
     "heading": "Hazır bir beceriyle başla",
-    "hint": "Her biri senin özel sayfan olur: işine göre değiştir, sonra ekibinle paylaş.",
+    "hint": "Her biri beceriler veritabanında bir satır olur: işine göre değiştir, sonra ekibinle paylaş.",
     "open": "Hazır beceriler"
   },
   "noDescription": "Henüz açıklama yok",
@@ -21,14 +21,17 @@
   "menu": {
     "toggle": "Beceri olarak kullan",
     "hint": "Bu sayfayı AI sohbetinde ve çalışma alanına bağlı AI uygulamalarında tekrar kullanılabilir talimat olarak sun",
-    "export": "SKILL.md olarak dışa aktar"
+    "export": "SKILL.md olarak dışa aktar",
+    "database": "Beceri veritabanı",
+    "databaseHint": "Bu veritabanının her satırı bir beceridir; Açıklama alanı her birinin ne işe yaradığını söyler"
   },
   "bar": {
     "label": "Beceri",
     "description": "Becerinin ne işe yaradığı",
     "placeholder": "Bu becerinin ne işe yaradığını ve ne zaman kullanılacağını yaz",
     "none": "Henüz açıklama yok",
-    "library": "Tüm beceriler"
+    "library": "Tüm beceriler",
+    "inDatabase": "Açıklaması {property} alanında"
   },
   "chat": {
     "heading": "Beceriler",
@@ -43,9 +46,19 @@
   },
   "errors": {
     "notAPage": "Yalnızca sayfalar ve veritabanı satırları beceri olabilir, veritabanları olamaz.",
+    "notADatabase": "Yalnızca veritabanları beceri veritabanı olabilir.",
     "template": "Şablonlar ve içlerindeki sayfalar beceri olamaz.",
     "inTrash": "Önce sayfayı çöp kutusundan geri yükle.",
     "tooLong": "Bir becerinin açıklaması en fazla {max} karakter olabilir.",
     "notASkill": "Bu sayfa artık bir beceri değil."
+  },
+  "database": {
+    "title": "Beceriler",
+    "description": "Açıklama",
+    "files": "Dosyalar",
+    "tags": "Etiketler",
+    "createdBy": "Oluşturan",
+    "open": "Beceriler veritabanını aç",
+    "hint": "Her yeni beceri, beceriler veritabanında açıklaması, dosyaları ve etiketleriyle bir satır olur."
   }
 }

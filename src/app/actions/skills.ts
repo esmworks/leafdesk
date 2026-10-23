@@ -3,7 +3,6 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import type { BuiltinSkillKey } from "@/lib/builtin-skills";
 import { AccessError } from "@/server/access";
-import * as pages from "@/server/pages";
 import { requireUserId } from "@/server/session";
 import * as skills from "@/server/skills";
 import { TeamspaceError } from "@/server/teamspaces";
@@ -42,16 +41,17 @@ export async function listSkillsAction(workspaceId: string) {
   );
 }
 
-/** A new private page, already a skill, for the library's New skill button. */
+/** A new skill, a row of the person's skills database (made when they have none), for the library's New skill button. */
 export async function createSkillAction(workspaceId: string) {
-  return run("create skill", async (userId) => {
-    const created = await pages.createPage({ userId }, { workspaceId: String(workspaceId), teamspaceId: null });
-    await skills.setSkill(userId, created.id, { skill: true });
-    return { id: created.id };
-  });
+  return run("create skill", async (userId) => skills.createSkill(userId, String(workspaceId), {}, await getLocale()));
 }
 
-/** A new private skill from a built-in one, in the person's language, for the library's gallery. */
+/** Turns a database into a skills database, or back (full access, see server/skills). */
+export async function setSkillDatabaseAction(databaseId: string, on: boolean) {
+  return run("set skills database", async (userId) => skills.setSkillDatabase(userId, String(databaseId), Boolean(on), await getLocale()));
+}
+
+/** A new skill from a built-in one, in the person's language, in their skills database, for the library's gallery. */
 export async function createBuiltinSkillAction(workspaceId: string, key: BuiltinSkillKey) {
   return run("create built-in skill", async (userId) => skills.createBuiltinSkill(userId, String(workspaceId), key, await getLocale()));
 }

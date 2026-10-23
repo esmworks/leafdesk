@@ -4,6 +4,16 @@
 
 ### Added
 
+- **Skills live in a skills database.** *New skill* in the skills library, and the ready-made
+  skills, now add a row to a skills database: the person's own, made private at the top of the
+  workspace the first time, with *Description*, *Files*, *Tags* and *Created by* properties and its
+  rows opening beside the table. Every row of a skills database is a skill, however it was added
+  (the table, MCP, the REST API, an import or a move), and its description is the *Description*
+  property: written there, on the row's skill bar or with MCP's `set_skill`. Any database can be
+  turned into one, or back, from its ⋯ menu (*Skills database*, full access), which adds a
+  *Description* property when it has none. The library links to the person's skills database.
+  Pages marked as skills stay as they are. Migration 0113 adds the setting and a trigger that marks
+  the rows.
 - **Several AI conversations can be deleted at once.** In the chat tab of the sidebar a box takes a
   conversation's dot on hover: tick some, shift-click for a range, or pick *Select all* from the
   heading's ⋯ menu (where a touch screen starts). The heading then counts them and deletes them together after asking how many

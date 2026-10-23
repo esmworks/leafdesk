@@ -569,7 +569,13 @@ export function PageView({
               )}
             </div>
             {skillNow && !wide && !page.archived && (
-              <SkillBar workspaceId={workspaceId} pageId={page.id} description={skillNow.description} editable={canEdit && !offline} />
+              <SkillBar
+                workspaceId={workspaceId}
+                pageId={page.id}
+                description={skillNow.description}
+                property={skillNow.property}
+                editable={canEdit && !offline}
+              />
             )}
             {showBody && !wide && (
               <AiReviewBar pageId={page.id} pageDoc={pageDoc} enabled={!page.archived && canEdit && !locked && !offline && synced} />

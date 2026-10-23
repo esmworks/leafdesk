@@ -10,7 +10,7 @@
   "emptyHint": "Umiejętnością może być też każda strona lub wiersz bazy danych: otwórz element i włącz „Użyj jako umiejętności” w menu ⋯.",
   "builtins": {
     "heading": "Zacznij od gotowej umiejętności",
-    "hint": "Każda staje się twoją prywatną stroną: dostosuj ją do swojej pracy, a potem udostępnij zespołowi.",
+    "hint": "Każda staje się wierszem Twojej bazy umiejętności: dopasuj ją do swojej pracy, a potem udostępnij zespołowi.",
     "open": "Gotowe umiejętności"
   },
   "noDescription": "Brak opisu",
@@ -21,14 +21,17 @@
   "menu": {
     "toggle": "Użyj jako umiejętności",
     "hint": "Udostępnij tę stronę jako instrukcje wielokrotnego użytku na czacie AI i aplikacjom AI połączonym z obszarem roboczym",
-    "export": "Eksportuj jako SKILL.md"
+    "export": "Eksportuj jako SKILL.md",
+    "database": "Baza umiejętności",
+    "databaseHint": "Każdy wiersz tej bazy to umiejętność; właściwość Opis mówi, do czego służy"
   },
   "bar": {
     "label": "Umiejętność",
     "description": "Do czego służy umiejętność",
     "placeholder": "Opisz, do czego służy ta umiejętność i kiedy jej używać",
     "none": "Brak opisu",
-    "library": "Wszystkie umiejętności"
+    "library": "Wszystkie umiejętności",
+    "inDatabase": "Opis jest we właściwości {property}"
   },
   "chat": {
     "heading": "Umiejętności",
@@ -43,9 +46,19 @@
   },
   "errors": {
     "notAPage": "Umiejętnościami mogą być tylko strony i wiersze baz danych, nie bazy danych.",
+    "notADatabase": "Tylko bazy danych mogą być bazami umiejętności.",
     "template": "Szablony i znajdujące się w nich strony nie mogą być umiejętnościami.",
     "inTrash": "Najpierw przywróć stronę z kosza.",
     "tooLong": "Opis umiejętności może mieć najwyżej {max, plural, one {# znak} few {# znaki} many {# znaków} other {# znaku}}.",
     "notASkill": "Ta strona nie jest już umiejętnością."
+  },
+  "database": {
+    "title": "Umiejętności",
+    "description": "Opis",
+    "files": "Pliki",
+    "tags": "Tagi",
+    "createdBy": "Utworzone przez",
+    "open": "Otwórz bazę umiejętności",
+    "hint": "Każda nowa umiejętność to wiersz Twojej bazy umiejętności, z opisem, plikami i tagami."
   }
 }

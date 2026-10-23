@@ -10,7 +10,7 @@
   "emptyHint": "Toute page ou ligne de base de données peut aussi devenir une compétence : ouvrez-la et activez « Utiliser comme compétence » dans son menu ⋯.",
   "builtins": {
     "heading": "Partir d’une compétence prête à l’emploi",
-    "hint": "Chacune devient une page privée à vous : adaptez-la à votre travail, puis partagez-la avec votre équipe.",
+    "hint": "Chacune devient une ligne de ta base de compétences : adapte-la à ton travail, puis partage-la avec ton équipe.",
     "open": "Compétences prêtes à l’emploi"
   },
   "noDescription": "Pas encore de description",
@@ -21,14 +21,17 @@
   "menu": {
     "toggle": "Utiliser comme compétence",
     "hint": "Proposer cette page comme instructions réutilisables dans le chat IA et aux apps d’IA connectées à l’espace de travail",
-    "export": "Exporter en SKILL.md"
+    "export": "Exporter en SKILL.md",
+    "database": "Base de compétences",
+    "databaseHint": "Chaque ligne de cette base est une compétence ; sa propriété Description dit à quoi elle sert"
   },
   "bar": {
     "label": "Compétence",
     "description": "À quoi sert la compétence",
     "placeholder": "Dites à quoi sert cette compétence et quand l’utiliser",
     "none": "Pas encore de description",
-    "library": "Toutes les compétences"
+    "library": "Toutes les compétences",
+    "inDatabase": "Sa description est dans la propriété {property}"
   },
   "chat": {
     "heading": "Compétences",
@@ -43,9 +46,19 @@
   },
   "errors": {
     "notAPage": "Seules les pages et les lignes de base de données peuvent être des compétences, pas les bases de données.",
+    "notADatabase": "Seules les bases de données peuvent être des bases de compétences.",
     "template": "Les modèles et les pages qu’ils contiennent ne peuvent pas être des compétences.",
     "inTrash": "Restaurez d’abord la page depuis la corbeille.",
     "tooLong": "La description d’une compétence peut contenir au plus {max} caractères.",
     "notASkill": "Cette page n’est plus une compétence."
+  },
+  "database": {
+    "title": "Compétences",
+    "description": "Description",
+    "files": "Fichiers",
+    "tags": "Étiquettes",
+    "createdBy": "Créé par",
+    "open": "Ouvrir la base de compétences",
+    "hint": "Chaque nouvelle compétence est une ligne de ta base de compétences, avec une description, des fichiers et des étiquettes."
   }
 }
