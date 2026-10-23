@@ -626,6 +626,34 @@
 }
 
 /*
+ * Suggested edits (components/page/suggesting.ts): inserted text underlined in the colors of added
+ * text, deleted text kept and struck through in those of removed text, reformatted text dotted.
+ * Their comment thread's highlight gives way to them.
+ */
+.leafdesk-editor .suggestion-insertion {
+  background: var(--added-bg);
+  color: var(--added-fg);
+  text-decoration: underline;
+  text-decoration-color: var(--added-bar);
+}
+.leafdesk-editor .suggestion-deletion {
+  background: var(--removed-bg);
+  color: var(--removed-fg);
+  text-decoration: line-through;
+  text-decoration-color: var(--removed-bar);
+}
+.leafdesk-editor .suggestion-modification {
+  text-decoration: underline dotted;
+  text-decoration-color: var(--accent);
+  text-underline-offset: 3px;
+}
+.leafdesk-editor .bn-thread-mark:has(.suggestion-insertion, .suggestion-deletion),
+.leafdesk-editor .suggestion-insertion .bn-thread-mark,
+.leafdesk-editor .suggestion-deletion .bn-thread-mark {
+  background: transparent;
+}
+
+/*
  * The comments panel (360px, fixed at the right) would cover the end of every line. A page keeps
  * its place while it clears the panel; otherwise it moves left, and narrows once it reaches the edge.
  */

@@ -57,6 +57,11 @@
     "action": "打开页面",
     "optOut": "你收到这类邮件是因为你参与了此评论讨论。你可以在“我的账户 > 偏好设置”中关闭它们。"
   },
+  "suggestion": {
+    "subject": "{actor} 建议修改“{page}”",
+    "heading": "{actor} 建议修改“{page}”",
+    "body": "建议位于 {workspace} 中的“{page}”。可在页面上接受或拒绝，或在其讨论中回复。"
+  },
   "mention": {
     "subject": "{actor} 在“{page}”中提及了你",
     "heading": "{actor} 在“{page}”中提及了你",
@@ -220,6 +225,9 @@
     "assignment": "{actor} 将你分配到了“{property}”",
     "pageShared": "{actor} 与你分享了此页面",
     "comment": "{actor} 在你参与的讨论中发表了评论",
+    "suggested": "{actor} 建议修改此页面",
+    "suggestionAccepted": "{actor} 接受了你建议的修改",
+    "suggestionRejected": "{actor} 拒绝了你建议的修改",
     "mention": "{actor} 提及了你",
     "reminder": "提醒：{date}",
     "accessRequest": "{actor} 申请访问此页面",

@@ -16,6 +16,14 @@
     "createdBy": "{name}が作成",
     "someone": "誰か",
     "comments": "コメント",
+    "suggesting": {
+      "editing": "編集",
+      "suggesting": "提案",
+      "label": "モード: {mode}",
+      "editingHint": "ページを直接変更します",
+      "suggestingHint": "変更は、他のメンバーが承認または却下できる提案として表示されます",
+      "forcedHint": "このページにはコメントできるため、変更は編集者が承認または却下できる提案になります"
+    },
     "share": "共有",
     "accessRequests": "{count}件のアクセスリクエスト",
     "addFavorite": "お気に入りに追加",
@@ -51,6 +59,9 @@
     "exportPdf": "PDFとしてエクスポート",
     "printView": "印刷",
     "exportPreparing": "エクスポートを準備中…",
+    "acceptAllSuggestions": "すべての提案を承認",
+    "rejectAllSuggestions": "すべての提案を却下",
+    "rejectAllConfirm": "このページの編集の提案をすべて却下しますか？",
     "versionHistory": "バージョン履歴",
     "lastEdited": "最終編集者：{name}",
     "wordCount": "{words} 語、{characters} 文字",
@@ -94,6 +105,20 @@
     "muted": "返信をミュート中",
     "mutedHint": "ここで返信するか、誰かにここでメンションされるまで、このスレッドの返信の通知は届きません。",
     "mergedFrom": "「{title}」から",
+    "suggestion": {
+      "label": "編集の提案",
+      "byAi": "AI による編集の提案",
+      "accept": "承認",
+      "reject": "却下",
+      "withdraw": "取り下げ",
+      "errors": {
+        "notAllowed": "この提案には回答できません。",
+        "notFound": "この提案はすでに回答済みか、取り下げられています。",
+        "pageLocked": "ページはロックされています。",
+        "pageInTrash": "ページはゴミ箱にあります。",
+        "failed": "提案に回答できませんでした。もう一度お試しください。"
+      }
+    },
     "sort": {
       "label": "スレッドの並べ替え",
       "recent": "新しいアクティビティ順",

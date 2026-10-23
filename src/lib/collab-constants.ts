@@ -38,6 +38,3 @@ export const PAGE_WRITABLE_EVENT = "writable";
  * sent, and edits after it build on it.
  */
 export const SUGGESTION_REFUSED_EVENT = "suggestion-refused";
-
-/** Sent to a page's document when its suggested edits were answered, so the open tabs read them again. */
-export const SUGGESTIONS_EVENT = "suggestions";

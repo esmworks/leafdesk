@@ -5,7 +5,7 @@ import { IndexeddbPersistence } from "y-indexeddb";
 import * as Y from "yjs";
 import { forgetOfflinePage, markDirty, readOfflineState } from "@/components/offline/offline-store";
 import { BUILD_PARAM, CLIENT_BUILD } from "@/lib/build-id";
-import { COLLAB_FRAGMENT, PAGE_WRITABLE_EVENT } from "@/lib/collab-constants";
+import { COLLAB_FRAGMENT, PAGE_WRITABLE_EVENT, SUGGESTION_REFUSED_EVENT } from "@/lib/collab-constants";
 import { COLLAB_FORBIDDEN, COLLAB_STALE, COLLAB_UNAUTHORIZED, pageStoreName } from "@/lib/offline";
 import { markStale, noteServerBuild, onStale, whenFresh } from "./freshness";
 
@@ -138,6 +138,7 @@ export function acquireDoc(name: string, { offlineFor }: { offlineFor?: string }
         // page is open): sync, so it gets the edits it turned down meanwhile. Once per document,
         // however many views of the page share it.
         if (payload === PAGE_WRITABLE_EVENT) provider.forceSync();
+        if (payload === SUGGESTION_REFUSED_EVENT) void afterRefusedSuggestion(created, offlineFor, pageId);
         listeners.forEach((l) => l(payload));
       },
       onAuthenticated: () => {
@@ -207,6 +208,30 @@ export function acquireDoc(name: string, { offlineFor }: { offlineFor?: string }
       }, RELEASE_DELAY_MS);
     },
   };
+}
+
+/** A tab reloads after a refused change at most this often, so a change refused again can't loop. */
+const REFUSED_RELOAD_MS = 60_000;
+
+/**
+ * The server turned down a change of this tab to a page the person may only suggest edits to
+ * (collab/suggest-guard.ts) and closed the connection: the copy here holds the change, so it goes
+ * (this browser's offline copy too) and the page loads again from the server.
+ */
+async function afterRefusedSuggestion(entry: Entry, userId: string | undefined, pageId: string | undefined) {
+  const stored = entry.persistence;
+  entry.persistence = undefined;
+  try {
+    await stored?.clearData();
+  } catch {}
+  if (userId && pageId) forgetOfflinePage(userId, pageId);
+  const key = `leafdesk.suggestionRefused.${entry.name}`;
+  let last = 0;
+  try {
+    last = Number(sessionStorage.getItem(key)) || 0;
+    sessionStorage.setItem(key, String(Date.now()));
+  } catch {}
+  if (Date.now() - last > REFUSED_RELOAD_MS) window.location.reload();
 }
 
 /**

@@ -57,6 +57,11 @@
     "action": "ページを開く",
     "optOut": "このコメントスレッドに参加しているため、このメールが届いています。「マイアカウント > 環境設定」でオフにできます。"
   },
+  "suggestion": {
+    "subject": "{actor}が「{page}」への編集を提案しました",
+    "heading": "{actor}が「{page}」への編集を提案しました",
+    "body": "提案は {workspace} の「{page}」にあります。ページで承認または却下するか、提案のスレッドで返信してください。"
+  },
   "mention": {
     "subject": "{actor}が「{page}」であなたをメンションしました",
     "heading": "{actor}が「{page}」であなたをメンションしました",
@@ -220,6 +225,9 @@
     "assignment": "{actor}があなたを「{property}」に割り当てました",
     "pageShared": "{actor}がこのページをあなたと共有しました",
     "comment": "{actor}があなたの参加しているスレッドにコメントしました",
+    "suggested": "{actor}がこのページへの編集を提案しました",
+    "suggestionAccepted": "{actor}があなたの編集の提案を承認しました",
+    "suggestionRejected": "{actor}があなたの編集の提案を却下しました",
     "mention": "{actor}があなたをメンションしました",
     "reminder": "リマインダー：{date}",
     "accessRequest": "{actor}がこのページへのアクセスをリクエストしました",

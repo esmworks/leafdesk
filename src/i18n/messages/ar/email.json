@@ -57,6 +57,11 @@
     "action": "فتح الصفحة",
     "optOut": "تصلك هذه الرسائل لأنك شاركت في سلسلة التعليقات هذه. يمكنك إيقافها من حسابي > التفضيلات."
   },
+  "suggestion": {
+    "subject": "اقترح {actor} تعديلات على “{page}”",
+    "heading": "اقترح {actor} تعديلات على “{page}”",
+    "body": "الاقتراح في “{page}” ضمن {workspace}. اقبله أو ارفضه من الصفحة، أو رُدّ في محادثته."
+  },
   "mention": {
     "subject": "أشار إليك {actor} في «{page}»",
     "heading": "أشار إليك {actor} في «{page}»",
@@ -220,6 +225,9 @@
     "assignment": "أسند إليك {actor} في «{property}»",
     "pageShared": "شارك {actor} هذه الصفحة معك",
     "comment": "علّق {actor} في محادثة أنت مشارك فيها",
+    "suggested": "اقترح {actor} تعديلات على هذه الصفحة",
+    "suggestionAccepted": "قبل {actor} التعديل الذي اقترحته",
+    "suggestionRejected": "رفض {actor} التعديل الذي اقترحته",
     "mention": "أشار إليك {actor}",
     "reminder": "تذكير: {date}",
     "accessRequest": "طلب {actor} الوصول إلى هذه الصفحة",

@@ -16,6 +16,14 @@
     "createdBy": "Created by {name}",
     "someone": "Someone",
     "comments": "Comments",
+    "suggesting": {
+      "editing": "Editing",
+      "suggesting": "Suggesting",
+      "label": "Mode: {mode}",
+      "editingHint": "Change the page directly",
+      "suggestingHint": "Your changes show as suggestions that others can accept or reject",
+      "forcedHint": "You may comment on this page, so your changes are suggestions its editors can accept or reject"
+    },
     "share": "Share",
     "accessRequests": "{count, plural, one {# access request} other {# access requests}}",
     "addFavorite": "Add to favorites",
@@ -51,6 +59,9 @@
     "exportPdf": "Export as PDF",
     "printView": "Print",
     "exportPreparing": "Preparing export…",
+    "acceptAllSuggestions": "Accept all suggestions",
+    "rejectAllSuggestions": "Reject all suggestions",
+    "rejectAllConfirm": "Reject every suggested edit on this page?",
     "versionHistory": "Version history",
     "lastEdited": "Last edited by {name}",
     "wordCount": "{words, plural, one {# word} other {# words}}, {characters, plural, one {# character} other {# characters}}",
@@ -94,6 +105,20 @@
     "muted": "Replies muted",
     "mutedHint": "You don't hear about replies in this thread until you reply here or someone mentions you here.",
     "mergedFrom": "From “{title}”",
+    "suggestion": {
+      "label": "Suggested edit",
+      "byAi": "Suggested edit by AI",
+      "accept": "Accept",
+      "reject": "Reject",
+      "withdraw": "Withdraw",
+      "errors": {
+        "notAllowed": "You can't answer this suggestion.",
+        "notFound": "This suggestion was already answered or withdrawn.",
+        "pageLocked": "The page is locked.",
+        "pageInTrash": "The page is in the trash.",
+        "failed": "The suggestion couldn't be answered. Try again."
+      }
+    },
     "sort": {
       "label": "Sort threads",
       "recent": "Newest activity first",

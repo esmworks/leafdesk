@@ -3,8 +3,10 @@
 import { getTranslations } from "next-intl/server";
 import { CommentError, type CommentOp } from "@/lib/comments";
 import { AccessError } from "@/server/access";
+import type { Decision } from "@/lib/suggestions";
 import * as comments from "@/server/comments";
 import { requireUserId } from "@/server/session";
+import { answerSuggestions } from "@/server/suggested-edits";
 import { mutedThreads, setThreadMuted } from "@/server/thread-mute";
 import { markThreadsSeen, setThreadMarked, threadStates } from "@/server/thread-state";
 
@@ -22,6 +24,28 @@ export async function changeCommentsAction(pageId: string, op: CommentOp) {
   } catch (error) {
     if (error instanceof CommentError) return { ok: false as const, code: error.code as CommentFailure };
     if (error instanceof AccessError) return { ok: false as const, code: "notAllowed" as CommentFailure };
+    throw error;
+  }
+}
+
+export type SuggestionFailure = "notAllowed" | "notFound" | "pageLocked" | "pageInTrash";
+
+/**
+ * Accepts or rejects suggested edits of the page: `ids`, or every pending one (null). How many it
+ * answered comes back (none: they were answered or withdrawn already); the page changes for
+ * everyone through its document.
+ */
+export async function answerSuggestionsAction(pageId: string, decision: Decision, ids: string[] | null) {
+  const userId = await requireUserId();
+  if (typeof pageId !== "string" || !pageId) return { ok: false as const, code: "notFound" as SuggestionFailure };
+  try {
+    const answered = await answerSuggestions(userId, pageId, decision, ids);
+    return { ok: true as const, count: answered.length };
+  } catch (error) {
+    if (error instanceof AccessError) return { ok: false as const, code: "notAllowed" as SuggestionFailure };
+    if (error instanceof CommentError) return { ok: false as const, code: "notFound" as SuggestionFailure };
+    const code = (error as { code?: unknown }).code;
+    if (code === "pageLocked" || code === "pageInTrash") return { ok: false as const, code: code as SuggestionFailure };
     throw error;
   }
 }
