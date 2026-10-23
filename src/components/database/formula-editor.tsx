@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowLeft, Check, Sparkles, TriangleAlert } from "lucide-react";
+import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import { useMemo, useRef, useState } from "react";
 import { Button, cn } from "@/components/ui";
@@ -17,11 +18,13 @@ import {
 } from "@/lib/formula";
 import { quote } from "@/lib/formula/lexer";
 import { useAiAutofill } from "./ai-autofill";
-import { FormulaAiBox } from "./formula-ai-box";
 import { PropertyTypeIcon } from "./property-icons";
 import { useRelations } from "./relation-context";
 import { useSchema } from "./schema-context";
 import type { Property } from "./types";
+
+// Loaded when someone opens it: most formula edits never do.
+const FormulaAiBox = dynamic(() => import("./formula-ai-box").then((m) => m.FormulaAiBox));
 
 const GROUPS: FormulaFunctionGroup[] = ["logic", "text", "number", "date", "list", "style", "conversion"];
 const TYPE_NAMES: FormulaType[] = ["number", "text", "checkbox", "date", "list", "numbers", "rows", "row"];

@@ -12,7 +12,6 @@ import {
   testAutomationWebhooksAction,
   updateAutomationAction,
 } from "@/app/actions/automations";
-import { celebrate } from "@/components/celebrate";
 import { copyText } from "@/components/settings/copy-button";
 import { Button, cn, IconButton, Input, Switch } from "@/components/ui";
 import { MAX_AGENT_PROMPT } from "@/lib/agents";
@@ -587,7 +586,7 @@ function StepBody({
       return (
         <div className="flex items-start gap-3">
           <p className="min-w-0 flex-1 text-xs text-fg-muted">{t("steps.celebrateHelp")}</p>
-          <Button size="sm" variant="ghost" onClick={() => celebrate(tc("celebrate"))}>
+          <Button size="sm" variant="ghost" onClick={() => void import("@/components/celebrate").then((m) => m.celebrate(tc("celebrate")))}>
             {t("steps.celebrateTry")}
           </Button>
         </div>
