@@ -3,6 +3,7 @@ import { formatCoordinates, MAX_PLACE_ADDRESS, parseCoordinates, type PlaceValue
 import { isEmailAddress, isPhoneNumber, SELECT_COLORS } from "../properties";
 import type { StatusGroup } from "../property-types";
 import { isTimeZone, zoneOffset } from "../time-zone";
+import type { BoardColumnType } from "./board-columns";
 import {
   CSV_MAX_COLUMNS,
   CSV_MAX_ROWS,
@@ -29,9 +30,7 @@ import { ImportError } from "./result";
  * links.
  */
 
-/** What a column can become; the import dialog offers these (or leaving the column out). */
-export const BOARD_COLUMN_TYPES = ["text", "number", "select", "multi_select", "status", "person", "date", "checkbox", "url", "email", "phone", "place"] as const;
-export type BoardColumnType = (typeof BOARD_COLUMN_TYPES)[number];
+export { BOARD_COLUMN_TYPES, type BoardColumnType } from "./board-columns";
 
 export type BoardColor = (typeof SELECT_COLORS)[number];
 export type BoardOption = { name: string; color?: BoardColor; group?: StatusGroup };

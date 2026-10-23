@@ -8,8 +8,8 @@ import { importTargetAction, type ImportTarget } from "@/app/actions/import";
 import { usePropertyTypeLabel } from "@/components/database/property-icons";
 import { Button, cn, Dialog, IconButton, Input, pageLabel } from "@/components/ui";
 import { formatBytes } from "@/lib/files";
-import { readAsanaExport } from "@/lib/import/asana";
-import { BOARD_COLUMN_TYPES, cellText, type Board, type BoardColumnType } from "@/lib/import/board";
+import type { Board } from "@/lib/import/board";
+import { BOARD_COLUMN_TYPES, type BoardColumnType } from "@/lib/import/board-columns";
 import {
   CSV_COLUMN_TYPES,
   CSV_MAX_COLUMNS,
@@ -22,7 +22,6 @@ import {
   type CsvTable,
 } from "@/lib/import/csv";
 import { cleanTitle, IMPORT_LIMITS, isIgnoredPath } from "@/lib/import/markdown";
-import { readMondayExport } from "@/lib/import/monday";
 import { isVaultSettingsPath } from "@/lib/import/obsidian";
 import { ImportError, type ImportResult, type ImportWarning } from "@/lib/import/result";
 import { parseTrelloExport, readTrelloBoard, type TrelloBoard } from "@/lib/import/trello";
@@ -125,7 +124,7 @@ export function ImportDialog({
   const [trello, setTrello] = useState<{ file: File; board: TrelloBoard } | null>(null);
   const [boardName, setBoardName] = useState("");
   // An Asana or Monday.com export, and what each of its columns becomes (null: left out).
-  const [board, setBoard] = useState<{ file: File; board: Board } | null>(null);
+  const [board, setBoard] = useState<ChosenBoard | null>(null);
   const [boardTypes, setBoardTypes] = useState<(BoardColumnType | null)[]>([]);
   const [csvMode, setCsvMode] = useState<"new" | "existing">("new");
   const [name, setName] = useState("");
@@ -278,8 +277,22 @@ export function ImportDialog({
     setError(null);
     try {
       const bytes = new Uint8Array(await file.arrayBuffer());
-      const read = source === "asana" ? readAsanaExport(file.name, bytes) : readMondayExport(file.name, bytes);
-      setBoard({ file, board: read });
+      // The readers load only now: most people never open these tabs.
+      const [{ cellText }, read] = await Promise.all([
+        import("@/lib/import/board"),
+        source === "asana"
+          ? import("@/lib/import/asana").then((m) => m.readAsanaExport(file.name, bytes))
+          : import("@/lib/import/monday").then((m) => m.readMondayExport(file.name, bytes)),
+      ]);
+      const samples = read.columns.map((_, column) =>
+        read.items
+          .map((item) => cellText(item.cells[column] ?? "").trim())
+          .filter(Boolean)
+          .slice(0, 3)
+          .join(", ")
+          .slice(0, 60),
+      );
+      setBoard({ file, board: read, samples });
       setBoardName(read.title || cleanTitle(file.name));
       setBoardTypes(read.columns.map((c) => c.type));
     } catch (e) {
@@ -887,6 +900,9 @@ export function ImportDialog({
   );
 }
 
+/** An Asana or Monday.com export the person chose, read, with a few values of each column to show. */
+type ChosenBoard = { file: File; board: Board; samples: string[] };
+
 /**
  * The Asana and Monday.com tabs: the file picker, what the export holds, the database's name and
  * place, and a table of the export's own columns with what each becomes (the export doesn't say
@@ -907,7 +923,7 @@ function BoardTab({
   input,
 }: {
   source: BoardSource;
-  board: { file: File; board: Board } | null;
+  board: ChosenBoard | null;
   types: (BoardColumnType | null)[];
   onTypes: (types: (BoardColumnType | null)[]) => void;
   name: string;
@@ -926,13 +942,6 @@ function BoardTab({
   const subitems = b ? b.items.filter((i) => i.parent !== null).length : 0;
   const comments = b ? b.items.reduce((n, i) => n + i.comments.length, 0) : 0;
   const leftOut = b ? [...b.leftOut, ...b.otherSheets] : [];
-  const sample = (column: number) =>
-    (b?.items ?? [])
-      .map((item) => cellText(item.cells[column] ?? "").trim())
-      .filter(Boolean)
-      .slice(0, 3)
-      .join(", ")
-      .slice(0, 60);
   return (
     <>
       <p className="text-sm text-fg-muted">{t(`${source}.help`)}</p>
@@ -967,7 +976,7 @@ function BoardTab({
               <p className="text-xs text-fg-muted">{t("board.types")}</p>
               <ColumnTable
                 headers={custom.map((i) => b.columns[i].name)}
-                sample={(row) => sample(custom[row])}
+                sample={(row) => board?.samples[custom[row]] ?? ""}
                 heading={t("csv.type")}
                 labels={{ column: t("csv.column"), values: t("csv.values") }}
                 render={(row) => {
