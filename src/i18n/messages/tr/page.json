@@ -52,6 +52,7 @@
     "exportPreparing": "Dışa aktarma hazırlanıyor…",
     "versionHistory": "Sürüm geçmişi",
     "lastEdited": "Son düzenleyen: {name}",
+    "wordCount": "{words} kelime, {characters} karakter",
     "actionFailed": "İşlem tamamlanamadı.",
     "viewers": "{count, plural, other {Bu sayfayı # kişi daha görüntülüyor}}",
     "viewersTitle": "Bu sayfayı görüntüleyenler",

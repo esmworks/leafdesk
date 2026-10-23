@@ -52,6 +52,7 @@
     "exportPreparing": "Підготовка експорту…",
     "versionHistory": "Історія версій",
     "lastEdited": "Останні зміни: {name}",
+    "wordCount": "{words, plural, one {# слово} few {# слова} many {# слів} other {# слова}}, {characters, plural, one {# символ} few {# символи} many {# символів} other {# символу}}",
     "actionFailed": "Не вдалося завершити дію.",
     "viewers": "{count, plural, one {Цю сторінку переглядає ще # особа} few {Цю сторінку переглядають ще # особи} many {Цю сторінку переглядають ще # осіб} other {Цю сторінку переглядають ще # особи}}",
     "viewersTitle": "Переглядають цю сторінку",

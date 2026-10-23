@@ -52,6 +52,7 @@
     "exportPreparing": "Preparazione dell’esportazione…",
     "versionHistory": "Cronologia delle versioni",
     "lastEdited": "Ultima modifica di {name}",
+    "wordCount": "{words, plural, one {# parola} other {# parole}}, {characters, plural, one {# carattere} other {# caratteri}}",
     "actionFailed": "Impossibile completare l’operazione.",
     "viewers": "{count, plural, one {Un’altra persona sta guardando questa pagina} other {Altre # persone stanno guardando questa pagina}}",
     "viewersTitle": "Stanno guardando questa pagina",

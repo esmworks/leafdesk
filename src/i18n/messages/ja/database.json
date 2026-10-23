@@ -243,6 +243,7 @@
     "rowActions": "行の操作",
     "dragToMove": "ドラッグして移動",
     "clickForMenu": "クリックしてメニューを開く",
+    "sortedNoDrag": "ビューが並べ替えられている間は行をドラッグできません",
     "sortedAscending": "昇順で並べ替え済み",
     "sortedDescending": "降順で並べ替え済み"
   },

@@ -24,7 +24,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { createPortal } from "react-dom";
 import { getPageHeaderAction, setFavoriteAction, setFollowingAction } from "@/app/actions/page-menu";
 import { EMOJIS } from "@/components/page/icon-picker";
@@ -33,6 +33,7 @@ import { cn, MenuItem, MenuSeparator } from "@/components/ui";
 import type { ReorderDragHandlers } from "@/components/use-reorder-drag";
 import { requestComments } from "@/lib/comments-request";
 import { FAVORITES_EVENT } from "@/lib/favorites-event";
+import { comboText, isMac, ROW_MENU_COMBOS, rowMenuShortcut } from "@/lib/shortcuts";
 import { searchFold } from "@/lib/search-fold";
 import type { PageHeaderInfo } from "@/server/page-meta";
 import { Floating, useFloating } from "./floating";
@@ -45,7 +46,17 @@ import type { DatabaseApi } from "./use-database";
 /** A column whose value the menu's "Edit property" opens in the row's cell. */
 export type EditableColumn = { key: string; name: string; type: Property["type"] | "title" };
 
-type Item = { key: string; label: string; icon: React.ReactNode; run: () => void; submenu?: boolean; danger?: boolean; title?: string };
+type Item = {
+  key: string;
+  label: string;
+  icon: React.ReactNode;
+  run: () => void;
+  submenu?: boolean;
+  danger?: boolean;
+  title?: string;
+  /** Its key while the menu is open (lib/shortcuts ROW_MENU_COMBOS). */
+  shortcut?: keyof typeof ROW_MENU_COMBOS;
+};
 type Page = "main" | "icon" | "property" | "openIn" | "developer";
 
 const icon = (Icon: React.ComponentType<{ className?: string }>) => <Icon className="h-3.5 w-3.5" />;
@@ -61,6 +72,7 @@ export function RowMenu({
   opener,
   row,
   drag,
+  sorted,
   columns,
   api,
   onEditProperty,
@@ -70,6 +82,8 @@ export function RowMenu({
   opener: RowOpener;
   row: Row;
   drag?: ReorderDragHandlers;
+  /** The view is sorted, so rows don't move by dragging (the handle says so). */
+  sorted?: boolean;
   /** The columns shown whose value the viewer may change in this row. */
   columns: EditableColumn[];
   api: DatabaseApi;
@@ -79,7 +93,7 @@ export function RowMenu({
   const th = useTranslations("page.header");
   const ti = useTranslations("page.icon");
   const locale = useLocale();
-  const menu = useFloating<HTMLButtonElement>();
+  const menu = useFloating<HTMLDivElement>();
   const [page, setPage] = useState<Page>("main");
   const [query, setQuery] = useState("");
   const [info, setInfo] = useState<PageHeaderInfo | null>(null);
@@ -159,6 +173,7 @@ export function RowMenu({
             key: "comment",
             label: t("rowMenu.comment"),
             icon: icon(MessageSquare),
+            shortcut: "comment" as const,
             run: then(() => {
               opener.open(row.id);
               requestComments(row.id);
@@ -169,8 +184,16 @@ export function RowMenu({
   ];
   const rowItems: Item[] = [
     { key: "copyLink", label: t("rowMenu.copyLink"), icon: icon(Link2), run: copy(new URL(opener.href(row.id), window.location.origin).href) },
-    { key: "duplicate", label: t("rowMenu.duplicate"), icon: icon(Copy), run: then(() => void api.duplicateRows([row.id])) },
-    ...(canManage ? [{ key: "move", label: th("moveTo"), icon: icon(CornerUpLeft), run: then(() => setDialog("move")) }] : []),
+    {
+      key: "duplicate",
+      label: t("rowMenu.duplicate"),
+      icon: icon(Copy),
+      shortcut: "duplicate" as const,
+      run: then(() => void api.duplicateRows([row.id])),
+    },
+    ...(canManage
+      ? [{ key: "move", label: th("moveTo"), icon: icon(CornerUpLeft), shortcut: "moveTo" as const, run: then(() => setDialog("move")) }]
+      : []),
     // The rows merged into this one go to the trash, which guests don't have.
     ...(info && canEdit && !info.guest && !info.template
       ? [{ key: "merge", label: t("merge.menuItem"), icon: icon(Merge), run: then(() => setDialog("merge")) }]
@@ -189,12 +212,40 @@ export function RowMenu({
           },
         ]
       : []),
-    { key: "trash", label: th("moveToTrash"), icon: icon(Trash2), danger: true, run: then(() => void api.deleteRow(row.id)) },
+    {
+      key: "trash",
+      label: th("moveToTrash"),
+      icon: icon(Trash2),
+      danger: true,
+      shortcut: "trash" as const,
+      run: then(() => void api.deleteRow(row.id)),
+    },
   ];
   const developerItems: Item[] = [
     { key: "developer", label: t("rowMenu.developer"), icon: icon(Braces), run: () => setPage("developer"), submenu: true },
   ];
   const sections = [pageItems, openItems, rowItems, developerItems];
+
+  // The menu's keys work while it is open, wherever the focus is in it (or on the page behind).
+  const byShortcut = useRef(new Map<string, () => void>());
+  const shortcuts = new Map(sections.flat().flatMap((item) => (item.shortcut ? [[item.shortcut, item.run] as const] : [])));
+  useEffect(() => {
+    byShortcut.current = shortcuts;
+  });
+  useEffect(() => {
+    if (!menu.open) return;
+    const mac = isMac();
+    const onKey = (e: KeyboardEvent) => {
+      const action = rowMenuShortcut(e, mac);
+      const run = action && byShortcut.current.get(action);
+      if (!run) return;
+      e.preventDefault();
+      e.stopPropagation();
+      run();
+    };
+    window.addEventListener("keydown", onKey, true);
+    return () => window.removeEventListener("keydown", onKey, true);
+  }, [menu.open]);
 
   const q = searchFold(query.trim());
   const matches = q ? sections.flat().filter((item) => searchFold(item.label).includes(q)) : null;
@@ -205,7 +256,13 @@ export function RowMenu({
       icon={item.icon}
       danger={item.danger}
       title={item.title}
-      trailing={item.submenu ? <ChevronRight className="h-3.5 w-3.5 rtl:-scale-x-100" /> : undefined}
+      trailing={
+        item.submenu ? (
+          <ChevronRight className="h-3.5 w-3.5 rtl:-scale-x-100" />
+        ) : item.shortcut ? (
+          <kbd className="font-sans text-xs text-fg-faint pointer-coarse:hidden">{comboText(ROW_MENU_COMBOS[item.shortcut], isMac())}</kbd>
+        ) : undefined
+      }
       onClick={item.run}
     >
       {item.label}
@@ -264,6 +321,7 @@ export function RowMenu({
             <div className="font-medium">{t("rowMenu.lastEdited")}</div>
             <div className="mt-1 truncate text-fg-muted">{info.updatedBy ?? th("someone")}</div>
             <div>{edited}</div>
+            <div className="mt-1">{th("wordCount", { words: info.words, characters: info.characters })}</div>
           </div>
         </>
       )}
@@ -363,14 +421,22 @@ export function RowMenu({
 
   return (
     <>
-      <button
+      {/* A div rather than a button: some browsers don't start a drag from a button. */}
+      <div
         ref={menu.ref}
-        type="button"
+        role="button"
+        tabIndex={0}
         aria-label={t("table.rowActions")}
-        title={drag ? `${t("table.dragToMove")}\n${t("table.clickForMenu")}` : t("table.rowActions")}
+        title={drag ? `${t("table.dragToMove")}\n${t("table.clickForMenu")}` : sorted ? t("table.sortedNoDrag") : t("table.rowActions")}
         aria-haspopup="menu"
         aria-expanded={menu.open}
         onClick={() => (menu.open ? close() : menu.setOpen(true))}
+        onKeyDown={(e) => {
+          if (e.key !== "Enter" && e.key !== " ") return;
+          e.preventDefault();
+          if (menu.open) close();
+          else menu.setOpen(true);
+        }}
         draggable={!!drag}
         onDragStart={(e) => {
           if (!drag) return;
@@ -382,13 +448,13 @@ export function RowMenu({
         }}
         onDragEnd={drag?.onDragEnd}
         className={cn(
-          "flex h-6 w-5 items-center justify-center rounded text-fg-faint hover:bg-bg-hover hover:text-fg",
-          drag && "cursor-grab active:cursor-grabbing",
+          "flex h-6 w-5 items-center justify-center rounded text-fg-faint select-none hover:bg-bg-hover hover:text-fg",
+          drag ? "cursor-grab active:cursor-grabbing" : "cursor-pointer",
           menu.open ? "visible" : "invisible group-hover:visible pointer-coarse:visible",
         )}
       >
         <GripVertical className="h-4 w-4" />
-      </button>
+      </div>
       <Floating open={menu.open} anchor={menu.el} onClose={close} className={cn("w-64", pending && "pointer-events-none opacity-70")}>
         {content}
       </Floating>

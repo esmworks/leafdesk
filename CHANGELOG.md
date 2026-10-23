@@ -11,7 +11,11 @@
   edits the row's icon (now shown before its name in the table), opens a property's value for
   editing, opens the row in the side panel, as a full page or in a new tab, opens its comments,
   copies its link, duplicates it, moves it elsewhere, merges it with another row, follows it,
-  moves it to the trash and copies its or the database's id, with who last edited it and when.
+  moves it to the trash and copies its or the database's id, with who last edited it and when
+  and how many words and characters its body has. While the menu is open ⌘D (Ctrl+D) duplicates
+  the row, ⌘⇧P moves it, ⌘⇧M opens its comments and Del moves it to the trash; the menu shows
+  the keys, and so does the shortcuts list. The page ⋯ menu counts a page's words and characters
+  too.
 - **Skills live in a skills database.** *New skill* in the skills library, and the ready-made
   skills, now add a row to a skills database: the person's own, made private at the top of the
   workspace the first time, with *Description*, *Files*, *Tags* and *Created by* properties and its
@@ -535,6 +539,12 @@
 
 ### Fixed
 
+- **Dragging a table row works where rows share a position.** Rows copied or imported can sit
+  on one position, which left no room between them: a row dropped there stayed put. The server now
+  places the dragged row itself and, when its neighbours tie, numbers the database's rows again in
+  the order they show, without marking them edited. Rows sharing a position and created time now
+  always show in the same order. The handle also drags in browsers that don't drag buttons, and
+  says so when the view is sorted, which keeps rows from moving.
 - **A copied database keeps its AI translations.** Duplicating a database (or a page holding one)
   pointed an AI property's translation source at the original database's property, so the copy's
   translations came out empty; the source, and the properties an AI value waits for, now point at

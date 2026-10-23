@@ -243,6 +243,7 @@
     "rowActions": "행 작업",
     "dragToMove": "드래그하여 이동",
     "clickForMenu": "클릭하여 메뉴 열기",
+    "sortedNoDrag": "보기가 정렬된 동안에는 행을 끌 수 없습니다",
     "sortedAscending": "오름차순 정렬됨",
     "sortedDescending": "내림차순 정렬됨"
   },

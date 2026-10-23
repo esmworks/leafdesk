@@ -243,6 +243,7 @@
     "rowActions": "行操作",
     "dragToMove": "拖动以移动",
     "clickForMenu": "点击打开菜单",
+    "sortedNoDrag": "视图已排序时无法拖动行",
     "sortedAscending": "已升序排列",
     "sortedDescending": "已降序排列"
   },

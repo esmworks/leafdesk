@@ -874,6 +874,7 @@ function PageMenu({
             <div className="px-2 pt-0.5 pb-1 text-xs text-fg-faint">
               <div className="truncate">{t("lastEdited", { name: info.updatedBy ?? t("someone") })}</div>
               <div>{edited}</div>
+              {page.hasBody && !isDatabase && <div>{t("wordCount", { words: info.words, characters: info.characters })}</div>}
             </div>
           </div>
         )}

@@ -243,6 +243,7 @@
     "rowActions": "Row actions",
     "dragToMove": "Drag to move",
     "clickForMenu": "Click to open menu",
+    "sortedNoDrag": "Rows can't be dragged while the view is sorted",
     "sortedAscending": "Sorted ascending",
     "sortedDescending": "Sorted descending"
   },
