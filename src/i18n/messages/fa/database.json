@@ -241,12 +241,29 @@
     "noSearchMatches": "هیچ ردیفی با جستجو مطابقت ندارد.",
     "addProperty": "افزودن ویژگی",
     "rowActions": "اقدامات ردیف",
+    "dragToMove": "برای جابه‌جایی بکشید",
+    "clickForMenu": "برای باز کردن منو کلیک کنید",
     "sortedAscending": "مرتب‌شده به‌صورت صعودی",
     "sortedDescending": "مرتب‌شده به‌صورت نزولی"
   },
   "rowMenu": {
     "open": "باز کردن",
-    "openPage": "باز کردن به‌صورت صفحه کامل"
+    "openPage": "باز کردن به‌صورت صفحه کامل",
+    "copyLink": "کپی لینک",
+    "duplicate": "تکثیر",
+    "search": "جستجوی کارها…",
+    "page": "صفحه",
+    "editIcon": "ویرایش نماد",
+    "editProperty": "ویرایش ویژگی",
+    "openIn": "باز کردن در",
+    "sidePanel": "پنل کناری",
+    "fullPage": "صفحهٔ کامل",
+    "newTab": "زبانهٔ جدید",
+    "comment": "نظر دادن",
+    "developer": "توسعه‌دهنده",
+    "copyDatabaseId": "کپی شناسهٔ پایگاه داده",
+    "noMatches": "کاری پیدا نشد.",
+    "lastEdited": "آخرین ویرایش"
   },
   "rowPanel": {
     "label": "ردیف: {title}",

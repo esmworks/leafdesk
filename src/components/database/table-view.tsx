@@ -1,9 +1,9 @@
 "use client";
 
-import { ArrowDown, ArrowUp, Bot, ChevronRight, Ellipsis, EyeOff, Plus, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, Bot, ChevronRight, Ellipsis, EyeOff, Plus } from "lucide-react";
 import { useTimeZone, useTranslations } from "next-intl";
 import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { cn, MenuItem, MenuSeparator } from "@/components/ui";
+import { cn, MenuItem } from "@/components/ui";
 import { PHONE_QUERY, useMediaQuery } from "@/components/use-media-query";
 import { useReorderDrag, type ReorderDragHandlers } from "@/components/use-reorder-drag";
 import type { ViewConfig } from "@/db/schema/app";
@@ -12,7 +12,8 @@ import { isAutofillType } from "@/lib/ai";
 import { valueType } from "@/lib/derived";
 import { arrangeGroups, canAddToGroup, groupDefaults, groupRowsBy, type Group } from "@/lib/grouping";
 import { isEmptyValue, lostValues, planConversion } from "@/lib/convert-property";
-import { isGroupable, isSortable, moveProperty } from "@/lib/properties";
+import { isGroupable, isSortable, moveProperty, positionBetween } from "@/lib/properties";
+import { isReadOnlyType } from "@/lib/property-types";
 import { opensNewTab } from "@/lib/row-panel";
 import { MAX_COLUMN_WIDTH, MIN_COLUMN_WIDTH } from "@/lib/views";
 import { pageLabel } from "@/lib/labels";
@@ -35,9 +36,9 @@ import { usePropertyHint } from "./property-hint";
 import { HIDE_SCROLLBAR, StickyScrollbar } from "./scroll-x";
 import { CalculationRow } from "./table-calculations";
 import { useRelations } from "./relation-context";
-import { OpenRowItems } from "./open-row-items";
 import { QuickAddContext } from "./quick-add";
-import { openRowProps, useOpenRow, useRowOpener, type RowOpener } from "./row-panel-context";
+import { RowMenu, type EditableColumn } from "./row-menu";
+import { openRowProps, useOpenRow, useRowOpener } from "./row-panel-context";
 import { useCellGrid } from "./use-cell-grid";
 import type { ShownValue } from "./use-database";
 import { useNewRow } from "./use-new-row";
@@ -61,6 +62,10 @@ const SHOWN_AS_PASTED = new Set<string>(["text", "number", "date", "checkbox", "
 type BodyItem =
   | { kind: "row"; key: string; line: SubItemLine<Row>; group?: Group<Row>; at: number }
   | { kind: "group" | "add" | "calc"; key: string; group: Group<Row> };
+/** A row's key in the body: a row with several tags shows once in each of their groups. */
+const rowKey = (rowId: string, group?: Group<Row>) => `${group?.key ?? ""}\u0000${rowId}`;
+const rowIdOf = (key: string) => key.slice(key.lastIndexOf("\u0000") + 1);
+const ROW_DRAG_TYPE = "application/x-leafdesk-row";
 /** Heights to place rows by until they are measured (see useTableWindow). */
 const ESTIMATE: Record<BodyItem["kind"], number> = { row: 34, group: 40, add: 33, calc: 34 };
 
@@ -357,23 +362,57 @@ export function TableView({
     void setConfig({ ...view.config, hiddenGroups: next });
   };
 
+  // What a row's menu offers under "Edit property": the columns shown that the viewer may change there.
+  const editableColumns = (row: Row): EditableColumn[] => [
+    { key: TITLE, name: t("nameColumn"), type: "title" },
+    ...visible
+      .filter((p) => !isReadOnlyType(p.type) && access.valueAccess(row, p.id) === "edit")
+      .map((p) => ({ key: p.id, name: p.name, type: p.type })),
+  ];
+  /** Opens the editor of the cell in line `at` and column `key`, as a click on it does. */
+  const editCell = (at: number, key: string) => {
+    const col = key === TITLE ? 0 : visible.findIndex((p) => p.id === key) + 1;
+    // After the menu has closed, so the editor takes the focus.
+    requestAnimationFrame(() => box.current?.querySelector<HTMLElement>(`[data-cell="${at}:${col}"] [data-cell-edit]`)?.click());
+  };
+
   /** A body row: `at` is its line among the rows the keyboard moves through, `index` its place in the body. */
   const renderRow = (line: SubItemLine<Row>, group: Group<Row> | undefined, at: number, index: number) => {
     const row = line.row;
     // The row open in the panel beside the table is tinted like a selected one.
     const selected = selection.isSelected(row.id) || openRow === row.id;
     const label = pageLabel(row.title, tc("untitled"));
+    const drag = movable ? rowDrag.handlers(rowKey(row.id, group)) : undefined;
     return (
       <tr
         key={row.id}
         ref={measureRow}
         data-index={index}
         {...openRowProps(opener, row.id, false)}
-        className={cn("group", selected && "bg-accent/5")}
+        onDragOver={drag?.onDragOver}
+        onDrop={drag?.onDrop}
+        className={cn(
+          "group",
+          selected && "bg-accent/5",
+          drag?.dragging && "opacity-50",
+          drag?.dropSide === "before" && "[&>td]:shadow-[inset_0_2px_0_var(--accent)]",
+          drag?.dropSide === "after" && "[&>td]:shadow-[inset_0_-2px_0_var(--accent)]",
+        )}
       >
         <td className={cn("p-0 align-middle", frozen(-1, selected).className)} style={frozen(-1).style}>
           <div className="flex items-center justify-end">
-            {!readOnly && <RowMenu opener={opener} rowId={row.id} onDelete={() => api.deleteRow(row.id)} />}
+            {!readOnly && (
+              <RowMenu
+                workspaceId={workspaceId}
+                databaseId={databaseId}
+                opener={opener}
+                row={row}
+                drag={drag}
+                columns={editableColumns(row)}
+                api={api}
+                onEditProperty={(key) => editCell(at, key)}
+              />
+            )}
             <SelectBox
               checked={selection.isSelected(row.id)}
               label={t("bulk.selectRow")}
@@ -390,6 +429,7 @@ export function TableView({
           <CellMark active={grid.isActive(at, 0)} selected={grid.spans && grid.isSelected(at, 0)} />
           <div className="flex font-medium" style={subItems.nested ? { paddingInlineStart: line.depth * SUB_ITEM_INDENT + 4 } : undefined}>
             {subItems.nested && <SubItemToggle line={line} title={label} onToggle={() => subItems.toggle(row.id)} className="h-[33px]" />}
+            {row.icon && <span className="flex h-[33px] shrink-0 items-center ps-2 leading-none">{row.icon}</span>}
             <div className="min-w-0 flex-1">
               <QuickAddContext value={editTitleOf === row.id ? quick : null}>
                 <PropertyCell
@@ -479,11 +519,14 @@ export function TableView({
   // the keyboard moves through (a row shows once in every group it is in, so lines count by place).
   const items: BodyItem[] = [];
   const gridRows: { line: SubItemLine<Row>; item: number }[] = [];
+  const placeOf = new Map<string, { list: SubItemLine<Row>[]; index: number }>();
   const addLines = (list: SubItemLine<Row>[], group?: Group<Row>) => {
-    for (const line of list) {
-      items.push({ kind: "row", key: `${group?.key ?? ""}\u0000${line.row.id}`, line, group, at: gridRows.length });
+    list.forEach((line, index) => {
+      const key = rowKey(line.row.id, group);
+      items.push({ kind: "row", key, line, group, at: gridRows.length });
       gridRows.push({ line, item: items.length - 1 });
-    }
+      placeOf.set(key, { list, index });
+    });
   };
   if (!grouping) addLines(lines.all);
   else
@@ -494,6 +537,35 @@ export function TableView({
       if (canAddTo(group)) items.push({ kind: "add", key: `add\u0000${group.key}`, group });
       if (calculated && group.rows.length > 0) items.push({ kind: "calc", key: `calc\u0000${group.key}`, group });
     }
+
+  // While no sort orders the rows, a row's handle moves it among the rows of its group and, when
+  // sub-items nest, under the same parent: it takes a position between the two it lands between.
+  const movable = !readOnly && !view.config.sorts?.length;
+  /** The rows the row shown as `key` moves among, in their order. */
+  const siblingsOf = (key: string) => {
+    const place = placeOf.get(key);
+    if (!place) return [];
+    const { list, index } = place;
+    const depth = list[index].depth;
+    let start = index;
+    while (start > 0 && list[start - 1].depth >= depth) start--;
+    let end = index + 1;
+    while (end < list.length && list[end].depth >= depth) end++;
+    return list.slice(start, end).filter((l) => l.depth === depth).map((l) => l.row);
+  };
+  const rowDrag = useReorderDrag(
+    "y",
+    (moved, target, side) => {
+      const movedId = rowIdOf(moved);
+      const siblings = siblingsOf(target);
+      const others = siblings.filter((r) => r.id !== movedId);
+      const at = others.findIndex((r) => r.id === rowIdOf(target)) + (side === "after" ? 1 : 0);
+      if (siblings.findIndex((r) => r.id === movedId) === at) return;
+      void api.moveRow(movedId, { position: positionBetween(others[at - 1]?.position, others[at]?.position) });
+    },
+    ROW_DRAG_TYPE,
+    (moved, target) => siblingsOf(target).some((r) => r.id === rowIdOf(moved)) && placeOf.get(moved)?.list === placeOf.get(target)?.list,
+  );
   const [thead, setThead] = useState<HTMLTableSectionElement | null>(null);
   // The body renders on its own as the page scrolls (see TableBody); what it needs from here goes
   // through these refs: how to measure a row, and how to bring one into view.
@@ -1001,42 +1073,6 @@ function AddPropertyButton({
       </button>
       <Floating open={menu.open} anchor={menu.el} onClose={menu.close} align="end">
         <AddPropertyPanel onCreate={onCreate} onCreateAutofill={onCreateAutofill} onDone={menu.close} />
-      </Floating>
-    </>
-  );
-}
-
-function RowMenu({ opener, rowId, onDelete }: { opener: RowOpener; rowId: string; onDelete: () => void }) {
-  const t = useTranslations("database");
-  const tc = useTranslations("common");
-  const menu = useFloating<HTMLButtonElement>();
-  return (
-    <>
-      <button
-        ref={menu.ref}
-        type="button"
-        aria-label={t("table.rowActions")}
-        onClick={menu.toggle}
-        className={cn(
-          "flex h-6 w-6 items-center justify-center rounded text-fg-faint hover:bg-bg-hover hover:text-fg",
-          menu.open ? "visible" : "invisible group-hover:visible pointer-coarse:visible",
-        )}
-      >
-        <Ellipsis className="h-4 w-4" />
-      </button>
-      <Floating open={menu.open} anchor={menu.el} onClose={menu.close}>
-        <OpenRowItems opener={opener} rowId={rowId} onDone={menu.close} />
-        <MenuSeparator />
-        <MenuItem
-          danger
-          icon={<Trash2 className="h-3.5 w-3.5" />}
-          onClick={() => {
-            menu.close();
-            onDelete();
-          }}
-        >
-          {tc("delete")}
-        </MenuItem>
       </Floating>
     </>
   );

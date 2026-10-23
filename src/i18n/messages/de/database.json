@@ -241,12 +241,29 @@
     "noSearchMatches": "Keine Zeilen passen zur Suche.",
     "addProperty": "Eigenschaft hinzufügen",
     "rowActions": "Zeilenaktionen",
+    "dragToMove": "Zum Verschieben ziehen",
+    "clickForMenu": "Klicken, um das Menü zu öffnen",
     "sortedAscending": "Aufsteigend sortiert",
     "sortedDescending": "Absteigend sortiert"
   },
   "rowMenu": {
     "open": "Öffnen",
-    "openPage": "Als ganze Seite öffnen"
+    "openPage": "Als ganze Seite öffnen",
+    "copyLink": "Link kopieren",
+    "duplicate": "Duplizieren",
+    "search": "Aktionen suchen…",
+    "page": "Seite",
+    "editIcon": "Symbol bearbeiten",
+    "editProperty": "Eigenschaft bearbeiten",
+    "openIn": "Öffnen in",
+    "sidePanel": "Seitenleiste",
+    "fullPage": "Ganze Seite",
+    "newTab": "Neuer Tab",
+    "comment": "Kommentieren",
+    "developer": "Entwickler",
+    "copyDatabaseId": "Datenbank-ID kopieren",
+    "noMatches": "Keine passenden Aktionen.",
+    "lastEdited": "Zuletzt bearbeitet"
   },
   "rowPanel": {
     "label": "Zeile: {title}",

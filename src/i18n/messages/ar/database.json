@@ -241,12 +241,29 @@
     "noSearchMatches": "لا توجد صفوف تطابق البحث.",
     "addProperty": "إضافة خاصية",
     "rowActions": "إجراءات الصف",
+    "dragToMove": "اسحب للنقل",
+    "clickForMenu": "انقر لفتح القائمة",
     "sortedAscending": "مرتبة تصاعديًا",
     "sortedDescending": "مرتبة تنازليًا"
   },
   "rowMenu": {
     "open": "فتح",
-    "openPage": "الفتح كصفحة كاملة"
+    "openPage": "الفتح كصفحة كاملة",
+    "copyLink": "نسخ الرابط",
+    "duplicate": "تكرار",
+    "search": "ابحث عن إجراء…",
+    "page": "الصفحة",
+    "editIcon": "تعديل الأيقونة",
+    "editProperty": "تعديل الخاصية",
+    "openIn": "فتح في",
+    "sidePanel": "اللوحة الجانبية",
+    "fullPage": "صفحة كاملة",
+    "newTab": "علامة تبويب جديدة",
+    "comment": "تعليق",
+    "developer": "للمطورين",
+    "copyDatabaseId": "نسخ معرّف قاعدة البيانات",
+    "noMatches": "لا توجد إجراءات مطابقة.",
+    "lastEdited": "آخر تعديل"
   },
   "rowPanel": {
     "label": "الصف: {title}",
