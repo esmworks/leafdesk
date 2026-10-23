@@ -1728,7 +1728,10 @@
     "reviewChannel": "Por revisar: {channel}",
     "followUpTitle": "Seguimientos",
     "followUpDescription": "Un seguimiento que iniciaste se pausa porque su próximo correo no pasó la comprobación previa al envío.",
-    "followUpChannel": "Seguimientos: {channel}"
+    "followUpChannel": "Seguimientos: {channel}",
+    "reactionTitle": "Reacciones",
+    "reactionDescription": "Alguien reacciona a un comentario tuyo. Las reacciones a un mismo comentario se juntan hasta que las abres.",
+    "reactionChannel": "Reacciones: {channel}"
   },
   "site": {
     "description": "Dale a las páginas publicadas de este espacio de trabajo una dirección legible, una página de inicio y navegación entre ellas.",

@@ -1728,7 +1728,10 @@
     "reviewChannel": "待审阅：{channel}",
     "followUpTitle": "跟进",
     "followUpDescription": "你开始的跟进因下一封邮件未通过发送前的检查而暂停时。",
-    "followUpChannel": "跟进：{channel}"
+    "followUpChannel": "跟进：{channel}",
+    "reactionTitle": "回应",
+    "reactionDescription": "有人回应了你写的评论。对同一条评论的回应会合在一起，直到你打开它们。",
+    "reactionChannel": "回应：{channel}"
   },
   "site": {
     "description": "为此工作区已发布的页面提供一个易读的地址、一个主页以及页面之间的导航。",

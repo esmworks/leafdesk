@@ -1728,7 +1728,10 @@
     "reviewChannel": "Zu prüfen: {channel}",
     "followUpTitle": "Follow-ups",
     "followUpDescription": "Ein Follow-up, das du gestartet hast, pausiert, weil seine nächste E-Mail die Prüfung vor dem Senden nicht bestanden hat.",
-    "followUpChannel": "Follow-ups: {channel}"
+    "followUpChannel": "Follow-ups: {channel}",
+    "reactionTitle": "Reaktionen",
+    "reactionDescription": "Jemand reagiert auf einen Kommentar von dir. Reaktionen auf denselben Kommentar werden zusammengefasst, bis du sie öffnest.",
+    "reactionChannel": "Reaktionen: {channel}"
   },
   "site": {
     "description": "Gib den veröffentlichten Seiten dieses Workspace eine gemeinsame, gut lesbare Adresse, eine Startseite und eine Navigation zwischen ihnen.",

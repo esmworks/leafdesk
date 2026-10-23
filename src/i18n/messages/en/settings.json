@@ -1728,7 +1728,10 @@
     "reviewChannel": "For review: {channel}",
     "followUpTitle": "Follow-ups",
     "followUpDescription": "A follow-up you started pauses because its next email didn’t pass the check before sending.",
-    "followUpChannel": "Follow-ups: {channel}"
+    "followUpChannel": "Follow-ups: {channel}",
+    "reactionTitle": "Reactions",
+    "reactionDescription": "Someone reacts to a comment you wrote. Reactions to the same comment come together until you open them.",
+    "reactionChannel": "Reactions: {channel}"
   },
   "site": {
     "description": "Give this workspace's published pages one readable address, a home page and navigation between them.",

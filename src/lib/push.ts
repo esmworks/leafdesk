@@ -233,9 +233,8 @@ export function pushPayload(
       case "reaction":
         // Not the comment: a lock screen shows it to whoever holds the device.
         line = t("reaction", {
-          actor: item.reaction?.people[0]?.name || actor,
+          actor: t("people", { name: item.reaction?.people[0]?.name || actor, others: Math.max(0, (item.reaction?.people.length ?? 1) - 1) }),
           emoji: item.reaction?.emojis.join(" ") ?? "",
-          others: Math.max(0, (item.reaction?.people.length ?? 1) - 1),
         });
         break;
       case "row_email":

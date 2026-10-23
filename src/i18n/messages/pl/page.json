@@ -76,11 +76,13 @@
     "filters": {
       "open": "Otwarte",
       "resolved": "Rozwiązane",
+      "marked": "Oznaczone",
       "all": "Wszystkie"
     },
     "empty": {
       "open": "Brak otwartych komentarzy. Zaznacz tekst na stronie i wybierz Komentarz, aby rozpocząć.",
       "resolved": "Brak rozwiązanych komentarzy.",
+      "marked": "Brak wątków oznaczonych do powrotu. Wybierz „Wróć później” w menu wątku.",
       "all": "Brak komentarzy. Zaznacz tekst na stronie i wybierz Komentarz, aby rozpocząć."
     },
     "threadMenu": "Opcje wątku",
@@ -90,7 +92,19 @@
     "unmuteHint": "Znowu otrzymuj powiadomienia o nowych odpowiedziach w tym wątku.",
     "muted": "Odpowiedzi wyciszone",
     "mutedHint": "Nie otrzymujesz powiadomień o odpowiedziach w tym wątku, dopóki tu nie odpowiesz lub ktoś cię tu nie wspomni.",
-    "mergedFrom": "Z „{title}”"
+    "mergedFrom": "Z „{title}”",
+    "sort": {
+      "label": "Sortuj wątki",
+      "recent": "Najnowsza aktywność najpierw",
+      "page": "W kolejności na stronie"
+    },
+    "new": "Nowe",
+    "marked": "Oznaczone do powrotu później",
+    "markedHint": "Oznaczono ten wątek, by do niego wrócić. Widzisz to tylko Ty.",
+    "mark": "Wróć później",
+    "unmark": "Usuń „Wróć później”",
+    "markHint": "Wątek zostaje w Oznaczonych, dopóki nie usuniesz oznaczenia. Widzisz je tylko Ty.",
+    "unmarkHint": "Usuń ten wątek z listy Oznaczonych."
   },
   "archived": {
     "banner": "Ta strona jest w koszu.",

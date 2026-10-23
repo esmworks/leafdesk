@@ -1728,7 +1728,10 @@
     "reviewChannel": "İncelenecekler: {channel}",
     "followUpTitle": "Takipler",
     "followUpDescription": "Başlattığınız bir takip, sıradaki e-postası gönderim öncesi kontrolden geçemediği için duraklar.",
-    "followUpChannel": "Takipler: {channel}"
+    "followUpChannel": "Takipler: {channel}",
+    "reactionTitle": "Tepkiler",
+    "reactionDescription": "Biri yazdığınız bir yoruma tepki verir. Aynı yoruma gelen tepkiler siz açana kadar bir arada durur.",
+    "reactionChannel": "Tepkiler: {channel}"
   },
   "site": {
     "description": "Bu çalışma alanının yayındaki sayfalarına okunabilir tek bir adres, bir ana sayfa ve aralarında gezinme menüsü verin.",

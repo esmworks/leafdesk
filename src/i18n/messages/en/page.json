@@ -76,11 +76,13 @@
     "filters": {
       "open": "Open",
       "resolved": "Resolved",
+      "marked": "Marked",
       "all": "All"
     },
     "empty": {
       "open": "No open comments. Select text in the page and choose Comment to start one.",
       "resolved": "No resolved comments.",
+      "marked": "No threads marked to come back to. Choose “Come back later” in a thread’s menu.",
       "all": "No comments yet. Select text in the page and choose Comment to start one."
     },
     "threadMenu": "Thread options",
@@ -90,7 +92,19 @@
     "unmuteHint": "Hear about new replies in this thread again.",
     "muted": "Replies muted",
     "mutedHint": "You don't hear about replies in this thread until you reply here or someone mentions you here.",
-    "mergedFrom": "From “{title}”"
+    "mergedFrom": "From “{title}”",
+    "sort": {
+      "label": "Sort threads",
+      "recent": "Newest activity first",
+      "page": "In page order"
+    },
+    "new": "New",
+    "marked": "Marked to come back later",
+    "markedHint": "You marked this thread to come back to later. Only you see this.",
+    "mark": "Come back later",
+    "unmark": "Remove “Come back later”",
+    "markHint": "Keep this thread under Marked until you take the mark off. Only you see it.",
+    "unmarkHint": "Take this thread off your Marked list."
   },
   "archived": {
     "banner": "This page is in the trash.",

@@ -1728,7 +1728,10 @@
     "reviewChannel": "للمراجعة: {channel}",
     "followUpTitle": "المتابعات",
     "followUpDescription": "تتوقف متابعة بدأتها مؤقتًا لأن رسالتها التالية لم تجتز الفحص قبل الإرسال.",
-    "followUpChannel": "المتابعات: {channel}"
+    "followUpChannel": "المتابعات: {channel}",
+    "reactionTitle": "التفاعلات",
+    "reactionDescription": "يتفاعل أحدهم مع تعليق كتبته. تُجمع التفاعلات مع التعليق نفسه معًا حتى تفتحها.",
+    "reactionChannel": "التفاعلات: {channel}"
   },
   "site": {
     "description": "امنح الصفحات المنشورة لمساحة العمل هذه عنوانًا واحدًا سهل القراءة، وصفحة رئيسية، وتنقلًا بينها.",

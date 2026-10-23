@@ -76,11 +76,13 @@
     "filters": {
       "open": "Abertos",
       "resolved": "Resolvidos",
+      "marked": "Marcados",
       "all": "Todos"
     },
     "empty": {
       "open": "Nenhum comentário aberto. Selecione um texto na página e escolha Comentar para começar.",
       "resolved": "Nenhum comentário resolvido.",
+      "marked": "Nenhuma conversa marcada para voltar depois. Escolha “Voltar depois” no menu de uma conversa.",
       "all": "Nenhum comentário ainda. Selecione um texto na página e escolha Comentar para começar."
     },
     "threadMenu": "Opções da conversa",
@@ -90,7 +92,19 @@
     "unmuteHint": "Volte a ser avisado sobre novas respostas nesta conversa.",
     "muted": "Respostas silenciadas",
     "mutedHint": "Você não é avisado sobre respostas nesta conversa até responder aqui ou alguém mencionar você aqui.",
-    "mergedFrom": "De “{title}”"
+    "mergedFrom": "De “{title}”",
+    "sort": {
+      "label": "Ordenar conversas",
+      "recent": "Atividade mais recente primeiro",
+      "page": "Na ordem da página"
+    },
+    "new": "Novo",
+    "marked": "Marcada para voltar depois",
+    "markedHint": "Você marcou esta conversa para voltar depois. Só você vê isso.",
+    "mark": "Voltar depois",
+    "unmark": "Remover “Voltar depois”",
+    "markHint": "A conversa fica em Marcados até você tirar a marca. Só você a vê.",
+    "unmarkHint": "Tirar esta conversa da sua lista de Marcados."
   },
   "archived": {
     "banner": "Esta página está na lixeira.",

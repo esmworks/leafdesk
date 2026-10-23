@@ -76,11 +76,13 @@
     "filters": {
       "open": "Aperti",
       "resolved": "Risolti",
+      "marked": "Segnati",
       "all": "Tutti"
     },
     "empty": {
       "open": "Nessun commento aperto. Seleziona del testo nella pagina e scegli Commenta per iniziarne uno.",
       "resolved": "Nessun commento risolto.",
+      "marked": "Nessuna discussione segnata da riprendere. Scegli “Riprendi più tardi” nel menu di una discussione.",
       "all": "Ancora nessun commento. Seleziona del testo nella pagina e scegli Commenta per iniziarne uno."
     },
     "threadMenu": "Opzioni della discussione",
@@ -90,7 +92,19 @@
     "unmuteHint": "Ricevi di nuovo avvisi sulle nuove risposte in questa discussione.",
     "muted": "Risposte silenziate",
     "mutedHint": "Non ricevi avvisi sulle risposte in questa discussione finché non rispondi qui o qualcuno non ti menziona qui.",
-    "mergedFrom": "Da «{title}»"
+    "mergedFrom": "Da «{title}»",
+    "sort": {
+      "label": "Ordina le discussioni",
+      "recent": "Attività più recente prima",
+      "page": "Nell’ordine della pagina"
+    },
+    "new": "Nuovo",
+    "marked": "Segnata da riprendere più tardi",
+    "markedHint": "Hai segnato questa discussione da riprendere più tardi. La vedi solo tu.",
+    "mark": "Riprendi più tardi",
+    "unmark": "Togli “Riprendi più tardi”",
+    "markHint": "La discussione resta tra i Segnati finché non togli il segno. Lo vedi solo tu.",
+    "unmarkHint": "Togli questa discussione dalla tua lista dei Segnati."
   },
   "archived": {
     "banner": "Questa pagina è nel cestino.",

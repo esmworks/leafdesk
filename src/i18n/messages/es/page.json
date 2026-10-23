@@ -76,11 +76,13 @@
     "filters": {
       "open": "Abiertos",
       "resolved": "Resueltos",
+      "marked": "Marcados",
       "all": "Todos"
     },
     "empty": {
       "open": "No hay comentarios abiertos. Selecciona texto en la página y elige Comentar para empezar uno.",
       "resolved": "No hay comentarios resueltos.",
+      "marked": "No hay hilos marcados para volver a ellos. Elige «Volver más tarde» en el menú de un hilo.",
       "all": "Todavía no hay comentarios. Selecciona texto en la página y elige Comentar para empezar uno."
     },
     "threadMenu": "Opciones del hilo",
@@ -90,7 +92,19 @@
     "unmuteHint": "Vuelve a recibir avisos de nuevas respuestas en este hilo.",
     "muted": "Respuestas silenciadas",
     "mutedHint": "No recibes avisos de respuestas en este hilo hasta que respondas aquí o alguien te mencione aquí.",
-    "mergedFrom": "De «{title}»"
+    "mergedFrom": "De «{title}»",
+    "sort": {
+      "label": "Ordenar hilos",
+      "recent": "Actividad más reciente primero",
+      "page": "En el orden de la página"
+    },
+    "new": "Nuevo",
+    "marked": "Marcado para volver más tarde",
+    "markedHint": "Marcaste este hilo para volver a él más tarde. Solo tú lo ves.",
+    "mark": "Volver más tarde",
+    "unmark": "Quitar «Volver más tarde»",
+    "markHint": "El hilo queda en Marcados hasta que quites la marca. Solo tú la ves.",
+    "unmarkHint": "Quitar este hilo de tu lista de Marcados."
   },
   "archived": {
     "banner": "Esta página está en la papelera.",
