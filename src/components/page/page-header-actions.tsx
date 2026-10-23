@@ -61,6 +61,7 @@ import { MergeWithDialog } from "@/components/database/merge-rows-dialog";
 import { RowAccessDialog } from "@/components/database/row-access-dialog";
 import type { PageKind } from "@/db/schema/app";
 import { FAVORITES_EVENT } from "@/lib/favorites-event";
+import { OfflineToggle } from "@/components/offline/offline-toggle";
 import { OPEN_SHARE_EVENT } from "@/lib/share-event";
 import type { Presence } from "@/lib/presence";
 import { PAGE_FONTS, type PageStyle } from "@/lib/page-style";
@@ -113,7 +114,7 @@ export function PageHeaderActions({
   onOutdated,
 }: {
   workspaceId: string;
-  page: { id: string; kind: PageKind; parentId: string | null; archived: boolean; hasBody: boolean; isRow?: boolean };
+  page: { id: string; kind: PageKind; parentId: string | null; archived: boolean; hasBody: boolean; isRow?: boolean; title?: string; icon?: string | null };
   currentUser: { id: string; name: string };
   info: PageHeaderInfo;
   /** The page's shared doc once synced; its edits trigger a refetch of the header info. */
@@ -414,7 +415,7 @@ function PageMenu({
   onStyle,
 }: {
   workspaceId: string;
-  page: { id: string; kind: PageKind; parentId: string | null; archived: boolean; hasBody: boolean; isRow?: boolean };
+  page: { id: string; kind: PageKind; parentId: string | null; archived: boolean; hasBody: boolean; isRow?: boolean; title?: string; icon?: string | null };
   info: PageHeaderInfo;
   onInfo: (info: PageHeaderInfo) => void;
   onHistory: () => void;
@@ -795,6 +796,23 @@ function PageMenu({
                   label={tSkills("menu.database")}
                 />
               </div>
+            )}
+
+            {/* Downloads to this device: read access is enough, templates aren't pages to read. */}
+            {!page.archived && !info.template && page.title !== undefined && (
+              <>
+                <MenuSeparator />
+                <OfflineToggle
+                  page={{
+                    id: page.id,
+                    workspaceId,
+                    title: page.title,
+                    icon: page.icon ?? null,
+                    kind: page.kind,
+                    row: Boolean(page.isRow),
+                  }}
+                />
+              </>
             )}
 
             <MenuSeparator />

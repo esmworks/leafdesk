@@ -16,8 +16,9 @@ import { gzipSync } from "node:zlib";
  * only when one is shown. A database page evaluates its views' color rules on load
  * (lib/color-rules.ts, about 3 kB with the views' marks); a page carries the AI chat panel, whose
  * CSV files and approval cards for new databases and forms add about 2 kB (the CSV parser itself
- * loads only with a file), and the meeting block's editor spec and Markdown support (the editor
- * needs them; its recorder loads only when recording).
+ * loads only with a file), the meeting block's editor spec and Markdown support (the editor
+ * needs them; its recorder loads only when recording), and the "Available offline" switch and its
+ * state (the downloader loads on demand, but Turbopack keeps a copy of it per route group).
  */
 const BUDGET = { routeFirstLoad: 810, allClientJs: 4050 };
 
