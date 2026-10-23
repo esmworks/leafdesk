@@ -18,6 +18,7 @@ import { env } from "@/lib/env";
 import { attachmentCsv } from "@/lib/chat-attachment-table";
 import { cleanFileName, formatBytes } from "@/lib/files";
 import { CSV_COLUMN_TYPES, guessColumn, guessTitleColumn, type CsvColumnType } from "@/lib/import/csv";
+import { validateDatabasePlan } from "@/lib/database-plan";
 import { MAX_CONDITION_VALUES, MAX_CONFIRMATION, MAX_FORM_DESCRIPTION, MAX_FORM_TITLE, MAX_QUESTION_DESCRIPTION, MAX_QUESTION_LABEL } from "@/lib/forms";
 import { holdsOptions } from "@/lib/property-types";
 import { pageLabel } from "@/lib/labels";
@@ -32,14 +33,15 @@ import type { AiTool } from "@/server/ai";
 import { attachmentBlock, formatSources, truncateText, type ChatSourceText } from "@/server/ai/prompts";
 import type { ChatDecision } from "@/server/ai-chat-approvals";
 import { getCollab } from "@/server/collab/bridge";
-import { addProperty, addView, getDatabase, getLookups, normalizeRowProperties, updateView } from "@/server/databases";
+import { addView, getDatabase, getLookups, normalizeRowProperties, updateView } from "@/server/databases";
+import { createFromPlan } from "@/server/database-plan";
 import { assertExportAllowed, ExportError } from "@/server/export";
 import { uploadFile } from "@/server/files";
 import { applyFormLink, formConfigPatch, type FormInput } from "@/server/mcp/form-settings";
 import { ToolInputError } from "@/server/mcp/format";
 import { describeProperty } from "@/server/mcp/query";
 import * as ops from "@/server/operations";
-import { createPage, getTree, savedSeedNames } from "@/server/pages";
+import { getTree, savedSeedNames } from "@/server/pages";
 import { listLetterheads } from "@/server/letterheads";
 import { pagePdf } from "@/server/pdf";
 import { outdatedState } from "@/server/page-outdated";
@@ -1116,8 +1118,9 @@ async function databaseText(ctx: ops.OperationContext, databaseId: string, lead:
 
 /**
  * create_database: a database under a page or at the top, with the properties asked for (or a
- * status and tags), checked before the person is asked. Made with its properties in one go: a
- * property that can't be added takes the database back with it.
+ * status and tags), checked before the person is asked. Written as a plan of one database and made
+ * the way every plan is (server/database-plan): a property that can't be added takes the database
+ * back with it.
  */
 async function prepareDatabase(ctx: ops.OperationContext, workspaceId: string, scopeId: string | null, args: Record<string, unknown>): Promise<PreparedWrite | ToolOutcome> {
   const { userId } = ctx;
@@ -1140,6 +1143,9 @@ async function prepareDatabase(ctx: ops.OperationContext, workspaceId: string, s
     if (options.length > MAX_NEW_OPTIONS) return invalidChange(`properties.${i}: give at most ${MAX_NEW_OPTIONS} options.`);
     props.push({ name, type, ...(options.length ? { options } : {}) });
   }
+  const plan = { intro: null, databases: [{ key: "database", title, properties: props.map((p) => ({ name: p.name, type: p.type, options: p.options })) }] };
+  const checked = validateDatabasePlan(plan);
+  if (!checked.ok) return invalidChange(checked.problems.join(" ").replace(/Database "[^"]*"(, )?/g, ""));
   const where = await newDatabaseParent(userId, workspaceId, scopeId, text(args.parent_id) || undefined);
   if (!("target" in where)) return where;
   return {
@@ -1153,23 +1159,9 @@ async function prepareDatabase(ctx: ops.OperationContext, workspaceId: string, s
     },
     record: { kind: "write", action: "createDatabase", targetId: where.target?.pageId ?? null, title, changes: [] },
     execute: async () => {
-      const parentId = where.target?.pageId ?? null;
-      const database = await createPage(ctx.actor, {
-        workspaceId,
-        parentId,
-        teamspaceId: parentId ? undefined : null,
-        kind: "database",
-        title,
-        seedNames: await savedSeedNames(userId),
-        seedProperties: props.length === 0,
-      });
-      try {
-        for (const p of props) await addProperty(userId, database.id, { name: p.name, type: p.type, options: p.options });
-      } catch (error) {
-        const { discardDatabase } = await import("@/server/import/csv");
-        await discardDatabase(database);
-        throw error;
-      }
+      const parentId = where.target?.pageId;
+      const made = await createFromPlan(ctx.actor, workspaceId, checked.plan, parentId ? { parentId } : { teamspaceId: null }, { seedEmpty: true });
+      const database = made.databases[0];
       return { id: database.id, title: database.title, text: await databaseText(ctx, database.id, `The database "${pageLabel(database.title)}"`) };
     },
   };

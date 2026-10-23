@@ -1,0 +1,38 @@
+{
+  "menuItem": "AIで作成",
+  "title": "AIで作成",
+  "hint": "管理したい内容を説明してください。AIがデータベースの案を作り、作成前にあなたが確認します。",
+  "reviewTitle": "プランを確認",
+  "reviewHint": "不要なものは名前を変えるか削除してから、作成してください。",
+  "back": "説明に戻る",
+  "label": "何が必要ですか？",
+  "placeholder": "採用パイプライン：面接の各段階を進む候補者、それぞれとの面接、誰が誰を面接するか。",
+  "draft": "データベースの案を作成",
+  "drafting": "作成中…",
+  "create": "作成",
+  "creating": "作成中…",
+  "intro": "これらについてのページ「{title}」を追加し、その中にデータベースを置く",
+  "exampleRows": "{count, plural, other {# 件のサンプル行を追加}}",
+  "databaseTitle": "データベース名",
+  "removeDatabase": "{name} を削除",
+  "properties": "プロパティ",
+  "views": "ビュー",
+  "noProperties": "各行の名前のみ。",
+  "removeView": "ビュー {name} を削除",
+  "rename": "{name} の名前を変更",
+  "linksTo": "{database} にリンク",
+  "linksBoth": "{database} に双方向でリンク",
+  "removeProperty": "{name} を削除",
+  "slash": {
+    "title": "AIでデータベースを作成",
+    "subtext": "必要なものを説明すると、AIがこのページ内にデータベースの案を作ります",
+    "aliases": "ai 作成 データベース 生成 プラン"
+  },
+  "errors": {
+    "unusable": "AIはこれに合うデータベースを作れませんでした。別の言葉で説明してみてください。",
+    "invalid": "このままではプランを作成できません。戻って案を作り直してください。",
+    "parent": "データベースの中にデータベースは置けません。",
+    "noAccess": "ここにはページを追加できません。",
+    "failed": "プランの一部が合わなかったため、何も作成されませんでした。サンプル行を外してもう一度お試しください。"
+  }
+}

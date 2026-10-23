@@ -1,0 +1,38 @@
+{
+  "menuItem": "AI ile oluştur",
+  "title": "AI ile oluştur",
+  "hint": "Neyi takip etmek istediğinizi anlatın. AI veritabanlarını taslak olarak hazırlar, siz de bir şey oluşturulmadan önce gözden geçirirsiniz.",
+  "reviewTitle": "Planı gözden geçirin",
+  "reviewHint": "Gerekmeyen her şeyi yeniden adlandırın ya da kaldırın, sonra oluşturun.",
+  "back": "Açıklamaya dön",
+  "label": "Neye ihtiyacınız var?",
+  "placeholder": "Bir işe alım süreci: mülakat aşamalarından geçen adaylar, her biriyle yapılan mülakatlar ve kimin kimle görüştüğü.",
+  "draft": "Veritabanlarını hazırla",
+  "drafting": "Hazırlanıyor…",
+  "create": "Oluştur",
+  "creating": "Oluşturuluyor…",
+  "intro": "Bunlar hakkında bir sayfa ekle, “{title}”, veritabanları onun içinde olsun",
+  "exampleRows": "{count, plural, one {Örnek satırı ekle} other {# örnek satırı ekle}}",
+  "databaseTitle": "Veritabanı adı",
+  "removeDatabase": "Kaldır: {name}",
+  "properties": "Özellikler",
+  "views": "Görünümler",
+  "noProperties": "Her satırın yalnızca adı.",
+  "removeView": "Görünümü kaldır: {name}",
+  "rename": "Yeniden adlandır: {name}",
+  "linksTo": "{database} ile bağlantılı",
+  "linksBoth": "{database} ile iki yönlü bağlantılı",
+  "removeProperty": "Kaldır: {name}",
+  "slash": {
+    "title": "AI ile veritabanları oluştur",
+    "subtext": "Neye ihtiyacınız olduğunu anlatın, AI bu sayfanın içinde veritabanları hazırlasın",
+    "aliases": "ai yapay zeka oluştur veritabanı veritabanları plan build database"
+  },
+  "errors": {
+    "unusable": "AI bunun için veritabanı hazırlayamadı. Başka sözcüklerle anlatmayı deneyin.",
+    "invalid": "Plan bu haliyle oluşturulamıyor. Geri dönüp yeniden hazırlayın.",
+    "parent": "Veritabanları bir veritabanının içine konamaz.",
+    "noAccess": "Buraya sayfa ekleyemezsiniz.",
+    "failed": "Plandaki bir şey uymadığı için hiçbir şey oluşturulmadı. Örnek satırları kaldırıp yeniden deneyin."
+  }
+}

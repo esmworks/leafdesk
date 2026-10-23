@@ -118,6 +118,18 @@
   and made as the person through the same code as the app's own edits (a new or imported
   database goes into the audit log as one made in the app does); the Telegram bot asks the same
   way.
+- **Build databases with AI.** *Build with AI* in the sidebar's *+* menus, on the home page, in
+  Cmd+K and as `/` *Build databases with AI* in a page: describe what you want to keep track of and
+  the AI drafts up to four databases for it, with typed properties, select options with colors,
+  statuses with their groups, relations between them, a few views (boards, calendars, timelines,
+  galleries and lists, with grouping, filters and sorts), example rows linked to each other, and a
+  page about them. The plan is checked against the real property and view types (one that doesn't
+  pass goes back to the AI once with what is wrong), shown to rename or remove databases,
+  properties and views and to leave out the example rows or the page, and then created as you,
+  where you opened it, all of it or nothing. The AI chat's `create_database` (still one
+  database with its properties) now goes through the same check and creation, so a status it
+  makes needs a done option. It counts
+  as *Other* in Settings > AI usage and is held to the workspace's AI limits. No migration.
 - **Write a formula by describing it.** Where the workspace has AI, the formula editor has a
   *Describe it* box: say what the formula should work out ("days left until the due date") and the
   AI writes it from the database's properties you may know of (names and types, never row values)

@@ -1599,7 +1599,7 @@ export async function addProperty(
     date
       ? { date }
       : input.type === "select" || input.type === "multi_select"
-      ? { options: (input.options ?? []).map((o, i) => makeOption(typeof o === "string" ? o : o.name, i)) }
+      ? { options: (input.options ?? []).map((o, i) => makeOption(typeof o === "string" ? o : o.name, i, typeof o === "string" ? undefined : o.color)) }
       : input.type === "status"
         ? { options: makeStatusOptions(input.options) }
         : target
@@ -1809,7 +1809,8 @@ export async function setDependencies(
  * An option to create: its name, or for status properties its name and group (options given by
  * name only are spread over the groups, see makeStatusOptions).
  */
-export type OptionInput = string | { name: string; group?: StatusGroup };
+/** An option to add: its name, or its name with a status group and one of the select colors. */
+export type OptionInput = string | { name: string; group?: StatusGroup; color?: string };
 
 /**
  * For row writes that follow a schema change (a deleted property or option): the rows weren't
@@ -1817,8 +1818,10 @@ export type OptionInput = string | { name: string; group?: StatusGroup };
  */
 const KEEP_EDIT_TIME = { updatedAt: sql<Date>`${page.updatedAt}` };
 
-export function makeOption(name: string, index = 0): SelectOption {
-  return { id: crypto.randomUUID(), name: name.trim(), color: SELECT_COLORS[index % SELECT_COLORS.length] };
+/** A new option, colored `color` when it is one of the select colors, else by its place. */
+export function makeOption(name: string, index = 0, color?: string): SelectOption {
+  const picked = color && (SELECT_COLORS as readonly string[]).includes(color) ? color : SELECT_COLORS[index % SELECT_COLORS.length];
+  return { id: crypto.randomUUID(), name: name.trim(), color: picked };
 }
 
 /**

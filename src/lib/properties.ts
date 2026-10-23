@@ -185,10 +185,11 @@ const STATUS_COLORS: Record<StatusGroup, string> = { todo: "gray", in_progress: 
 /**
  * Options for a new status property. Options given by name are spread over the groups by
  * position: the first is to do, the last done and the ones between in progress (a lone option
- * is to do). Without options it gets Not started / In progress / Done.
+ * is to do). Without options it gets Not started / In progress / Done. An option without one of
+ * the select colors gets its group's.
  */
 export function makeStatusOptions(
-  input: (string | { name: string; group?: StatusGroup })[] = [],
+  input: (string | { name: string; group?: StatusGroup; color?: string })[] = [],
   newId: () => string = () => crypto.randomUUID(),
 ): SelectOption[] {
   const entries = input.length ? input : ["Not started", "In progress", "Done"];
@@ -197,7 +198,8 @@ export function makeStatusOptions(
     const name = (typeof entry === "string" ? entry : entry.name).trim();
     const byPosition: StatusGroup = i === 0 ? "todo" : i === last ? "done" : "in_progress";
     const group = typeof entry === "object" && entry.group ? entry.group : byPosition;
-    return { id: newId(), name, color: STATUS_COLORS[group], group };
+    const color = typeof entry === "object" && (SELECT_COLORS as readonly unknown[]).includes(entry.color) ? entry.color! : STATUS_COLORS[group];
+    return { id: newId(), name, color, group };
   });
   return sortStatusOptions(options);
 }
