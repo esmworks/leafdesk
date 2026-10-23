@@ -2059,8 +2059,8 @@ pass goes back to the AI once with what is wrong. You then see it and rename or 
 properties and views, and leave out the example rows or the page, before *Create* makes it as you,
 where you opened the box (in a page: under it, with a database block for each). Everything is made
 or nothing is: a step that fails takes back what came before it. The AI chat's `create_database`
-creates its databases the same way. It counts as *Other* in Settings > AI usage and is held to the
-workspace's AI limits.
+(one database with its properties) goes through the same check and creation. It counts as *Other*
+in Settings > AI usage and is held to the workspace's AI limits.
 
 **AI properties.** In a database, *+* → *AI autofill* adds a text property that AI fills in; any
 text property's menu has *AI autofill…* too. It can write a summary of each row's page, a

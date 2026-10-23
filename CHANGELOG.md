@@ -99,8 +99,9 @@
   page about them. The plan is checked against the real property and view types (one that doesn't
   pass goes back to the AI once with what is wrong), shown to rename or remove databases,
   properties and views and to leave out the example rows or the page, and then created as you,
-  where you opened it, all of it or nothing. The AI chat's `create_database` now creates its
-  database the same way, so its statuses are checked for a done option like the app's. It counts
+  where you opened it, all of it or nothing. The AI chat's `create_database` (still one
+  database with its properties) now goes through the same check and creation, so a status it
+  makes needs a done option. It counts
   as *Other* in Settings > AI usage and is held to the workspace's AI limits. No migration.
 - **Write a formula by describing it.** Where the workspace has AI, the formula editor has a
   *Describe it* box: say what the formula should work out ("days left until the due date") and the
