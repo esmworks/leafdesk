@@ -958,8 +958,26 @@ export const rowActivity = pgTable(
   (t) => [
     // A row's feed, newest first; also the newest entry about a value, for merging.
     index("row_activity_row_time_idx").on(t.rowId, t.createdAt.desc(), t.id.desc()),
-    check("row_activity_actor_kind_check", sql`${t.actorKind} in ('user', 'agent', 'automation', 'ai', 'form')`),
+    check("row_activity_actor_kind_check", sql`${t.actorKind} in ('user', 'agent', 'automation', 'ai', 'form', 'button')`),
     check("row_activity_kind_check", sql`${t.kind} in ('created', 'title', 'property', 'merged')`),
     check("row_activity_property_check", sql`(${t.kind} = 'property') = (${t.propertyId} is not null)`),
   ],
 );
+
+/**
+ * The comment threads on a database row's property values (server/property-comments.ts), in the
+ * same form as a page's own (a Yjs `threads` map, each thread's metadata naming its property), but
+ * kept here rather than in the row's document: everyone who opens the row gets its document, and a
+ * thread about a property must stay with the people who can see that property. One per row that
+ * has any; goes with the row.
+ */
+export const propertyComment = pgTable("property_comment", {
+  pageId: text("page_id")
+    .primaryKey()
+    .references(() => page.id, { onDelete: "cascade" }),
+  workspaceId: text("workspace_id")
+    .notNull()
+    .references(() => workspace.id, { onDelete: "cascade" }),
+  threads: bytea("threads").notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});

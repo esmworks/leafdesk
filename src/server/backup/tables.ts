@@ -39,6 +39,7 @@ export const BACKED_UP: Record<string, Scope> = {
   database_view: ofPages("database_id"),
   page_snapshot: ofPages("page_id"),
   row_activity: own,
+  property_comment: own,
   page_permission: own,
   page_group_permission: ofPages("page_id"),
   property_permission: own,
