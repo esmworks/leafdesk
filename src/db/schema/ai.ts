@@ -240,11 +240,44 @@ export const aiConversation = pgTable(
       .notNull()
       .references(() => workspace.id, { onDelete: "cascade" }),
     title: text("title").notNull().default(""),
+    /**
+     * The model the person picked for it, one of those the workspace's AI offers the chat (see
+     * server/ai chatModelsFor); null: the workspace's main model. A new conversation starts with the
+     * model of the person's latest one.
+     */
+    model: text("model"),
     messages: jsonb("messages").$type<ChatMessageRecord[]>().notNull().default([]),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index("ai_conversation_user_idx").on(t.userId, t.workspaceId, t.updatedAt)],
+);
+
+/**
+ * A file someone attached to a question of the AI chat (server/ai-chat-files.ts): an uploaded
+ * `file` of the workspace that no page holds (`file.page_id` null), readable by the person who
+ * attached it alone, never through a page (files.ts fileForViewer doesn't know it) or a backup.
+ * `conversationId` is set once the question it went with is kept; until then (uploaded, not sent)
+ * the upload cleanup removes it after a day. Deleting the conversation deletes its files; when the
+ * conversation goes another way (the person leaves the workspace, deletes their account), this row
+ * goes with it and the file is removed as an orphan.
+ */
+export const aiChatFile = pgTable(
+  "ai_chat_file",
+  {
+    fileId: text("file_id")
+      .primaryKey()
+      .references(() => file.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspace.id, { onDelete: "cascade" }),
+    conversationId: text("conversation_id").references(() => aiConversation.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("ai_chat_file_user_idx").on(t.userId, t.workspaceId), index("ai_chat_file_conversation_idx").on(t.conversationId)],
 );
 
 /**
