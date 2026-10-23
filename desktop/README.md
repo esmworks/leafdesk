@@ -27,6 +27,11 @@ address, trusted certificates, cookies, Leafdesk on this computer) in a `Leafdes
 to an installed app's; start Electron with `--user-data-dir=<folder>` to keep another one, and set
 `LEAFDESK_DISABLE_UPDATES=1` to skip the update check.
 
+A system-wide shortcut (⇧⌘J on macOS, Ctrl+Shift+J elsewhere; Go → *Ask AI Shortcut* picks
+another or none) brings the app forward from any other app on the server's `/ai`, which opens AI
+chat in the window's workspace, or a quick note where AI is off. The choice is `globalShortcut` in
+the profile's `settings.json`; keys another app already holds are marked in that menu.
+
 **On this computer** (local mode) runs Leafdesk inside the app: a PostgreSQL 18 of its own
 (`src/local-db.ts`) and the Leafdesk server (run by Electron's Node), on 127.0.0.1 with a port kept
 from one start to the next. The first start makes the computer's one account
@@ -56,6 +61,7 @@ each platform.
 | `src/server-address.ts` | Turning what was typed into addresses to try |
 | `src/strings.ts` | The app's own texts in the web app's 16 languages |
 | `src/menu.ts`, `src/context-menu.ts` | Application and right-click menus |
+| `src/global-shortcut.ts` | The system-wide shortcut to AI chat (Go → Ask AI Shortcut): its choices, labels and the server's `/ai` address |
 | `src/updates.ts` | Updates from GitHub releases |
 | `src/preload.cts` | The bridge the connect page uses (never given to server pages); marks every page with where the window's buttons are (macOS) |
 | `src/pages/app.ts`, `pages/` | The connect, certificate, starting and problem screens |
