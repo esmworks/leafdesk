@@ -738,9 +738,13 @@
 .board-card:hover {
   background: color-mix(in srgb, var(--opt-card, var(--bg)) 65%, var(--opt-bg, var(--bg-hover)));
 }
-/* A card a color rule colors (lib/color-rules): its own color, whatever column it is in. */
+/*
+ * A card a color rule colors (lib/color-rules): its own color, whatever column it is in, edged in
+ * it too, so it stands out from the cards of a column of a like color.
+ */
 .board-card.color-mark {
   background: var(--opt-mark);
+  box-shadow: 0 0 0 1px var(--opt-bg), 0 1px 3px rgba(15, 15, 15, 0.08);
 }
 .board-card.color-mark:hover {
   background: color-mix(in srgb, var(--opt-mark) 75%, var(--opt-bg));
@@ -749,6 +753,8 @@
 :root:not(:has([data-print-view])) {
   @variant dark {
     .board-card { box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04), 0 1px 3px rgba(0, 0, 0, 0.3); }
+    .board-card.color-mark { box-shadow: 0 0 0 1px var(--opt-bg), 0 1px 3px rgba(0, 0, 0, 0.3); }
+    .board-card.color-mark:hover { background: color-mix(in srgb, var(--opt-mark) 75%, var(--opt-bg)); }
     /* Dark chips are mid-tone, so a lighter lean keeps the hover a tint rather than a highlight. */
     .board-card:hover { background: color-mix(in srgb, var(--opt-card, var(--bg)) 85%, var(--opt-bg, var(--bg-hover))); }
   }

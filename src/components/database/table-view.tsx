@@ -387,7 +387,8 @@ export function TableView({
     const selected = selection.isSelected(row.id) || openRow === row.id;
     const label = pageLabel(row.title, tc("untitled"));
     const drag = movable ? rowDrag.handlers(rowKey(row.id, group)) : undefined;
-    // Color rules tint the whole row (its cells, the frozen ones too) or single cells.
+    // Color rules tint the whole row (its cells, the frozen ones too, but not the handles in the
+    // gutter before it) or single cells.
     const colored = colors?.get(row.id);
     const mark = (key?: string) => {
       const cell = key ? colored?.cells?.[key] : undefined;
@@ -410,7 +411,7 @@ export function TableView({
           drag?.dropSide === "after" && "[&>td]:shadow-[inset_0_-2px_0_var(--accent)]",
         )}
       >
-        <td className={cn("p-0 align-middle", frozen(-1, selected).className, mark())} style={frozen(-1).style}>
+        <td className={cn("p-0 align-middle", frozen(-1, selected).className)} style={frozen(-1).style}>
           <div className="flex items-center justify-end">
             {!readOnly && (
               <RowMenu
