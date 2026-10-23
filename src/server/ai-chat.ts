@@ -59,6 +59,7 @@ import { AccessError, connectedAppHold, isGuest, requireMembership, requirePageA
 import { asWrite } from "@/server/connected-app";
 import { AiError, isAiError, promptRoomFor, stream, takeRateLimit, takeWorkspaceCapacity, type AiMessage, type AiResult } from "@/server/ai";
 import { dropOldToolResults } from "@/server/ai/compact";
+import { browserTimeZone, isTimeZone } from "@/lib/time-zone";
 import { chatHistory, chatQuestionPrompt, chatSystemPrompt } from "@/server/ai/prompts";
 import { getSkillContent, SkillError } from "@/server/skills";
 import { aiAvailable } from "@/server/ai-writing";
@@ -107,6 +108,8 @@ export type ChatInput = {
   replaceLast?: boolean;
   /** A skill of the workspace whose instructions the answer follows (server/skills). */
   skillId?: string | null;
+  /** The person's IANA time zone, for what today is (the server's when missing or unknown). */
+  timeZone?: string | null;
 };
 
 /** Refusals before anything is sent: access problems look like missing things. */
@@ -182,6 +185,7 @@ export async function startChat(userId: string, input: ChatInput, signal?: Abort
     replaced,
     connections: !isGuest(membership.role),
     memoryChanges: !appReadOnly,
+    timeZone: isTimeZone(input.timeZone) ? input.timeZone : browserTimeZone(),
   } as const;
   return runChat(userId, input.workspaceId, message, chat, signal);
 }
@@ -209,6 +213,7 @@ async function* runChat(
     replaced,
     connections,
     memoryChanges,
+    timeZone,
   }: {
     scope: { id: string; title: string } | null;
     skill: ChatSkill | null;
@@ -220,6 +225,8 @@ async function* runChat(
     connections: boolean;
     /** Notes about the person may be kept or dropped (not where a connected app may only read). */
     memoryChanges: boolean;
+    /** The person's time zone, for what today is. */
+    timeZone: string;
   },
   signal?: AbortSignal,
 ): AsyncGenerator<ChatEvent> {
@@ -321,7 +328,7 @@ async function* runChat(
     const memory = remembers ? await memoryForPrompt(userId, workspaceId, Math.floor(room() * MEMORY_SHARE)) : { text: "", count: 0 };
     const mapRoom = Math.min(MAP_CHARS, room() - sizeOf(history) - message.length - (skill?.body.length ?? 0) - memory.text.length - 2_000);
     const map = mapRoom >= 500 ? await workspaceMap(ctx, workspaceId, scope?.id ?? null, mapRoom) : "";
-    const question: AiMessage = { role: "user", content: chatQuestionPrompt(message, map, skill?.body, memory.text) };
+    const question: AiMessage = { role: "user", content: chatQuestionPrompt(message, map, skill?.body, memory.text, { now: new Date(), timeZone }) };
     const messages: AiMessage[] = [...history, question];
     // When the model finds it all too long: old tool results go first (it can call the tool again),
     // then the earlier conversation. False when there's nothing left to drop.

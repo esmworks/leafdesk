@@ -535,6 +535,10 @@
 
 ### Fixed
 
+- **The AI chat knows today's date.** Each question now carries the date, weekday and time in the
+  asker's time zone (the browser's), so "today", "this week" and dates written into quotes come out
+  right instead of the chat saying it can't tell the date.
+
 - **A copied database keeps its AI translations.** Duplicating a database (or a page holding one)
   pointed an AI property's translation source at the original database's property, so the copy's
   translations came out empty; the source, and the properties an AI value waits for, now point at

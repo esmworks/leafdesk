@@ -17,6 +17,7 @@ import { decideChangeAction, deleteConversationAction, getConversationAction } f
 import { isAiErrorCode } from "@/lib/ai";
 import { CHAT_MODES, changedThings, thoughtText, type ChatActionView, type ChatEvent, type ChatMessageView, type ChatMode } from "@/lib/ai-chat";
 import { EMPTY_DRAFT, expandDraft, insertPaste, pasteLineCount, syncDraft, uniqueLabel, type ChatDraft } from "@/lib/chat-paste";
+import { browserTimeZone } from "@/lib/time-zone";
 import { holdAnswering } from "./answering";
 
 /** What the model is doing while an answer is on its way: working on a turn, or writing. */
@@ -257,6 +258,7 @@ export function useChat(
           mode: modeRef.current,
           ...(again ? { replaceLast: true } : {}),
           ...(used ? { skillId: used.id } : {}),
+          timeZone: browserTimeZone(),
         }),
         signal: controller.signal,
       });

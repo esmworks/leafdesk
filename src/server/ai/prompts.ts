@@ -7,6 +7,7 @@ import { AUTOFILL_BODY, AUTOFILL_TITLE, languageName, type AiAutofillConfig, typ
 import type { ChatStepRecord, ChatWriteRecord } from "@/db/schema/ai";
 import { MAX_AGENT_WRITES } from "@/lib/agents";
 import { stripCitations } from "@/lib/ai-chat";
+import { dayString, localDay } from "@/lib/time-zone";
 
 export type Prompt = { system: string; prompt: string };
 
@@ -527,11 +528,26 @@ export function formatSources(sources: ChatSourceText[]): string {
  * The latest question with the map of the workspace (see ai-chat.ts workspaceMap), the skill it
  * uses and what the chat remembers about the person (see ai-memory.ts memoryForPrompt).
  */
-export function chatQuestionPrompt(question: string, map: string, skill?: string, memory?: string): string {
+export function chatQuestionPrompt(
+  question: string,
+  map: string,
+  skill?: string,
+  memory?: string,
+  clock?: { now: Date; timeZone: string },
+): string {
   const notes = memory ? `What you remember about the person:\n${tagged("memory", memory)}\n\n` : "";
   const workspace = map ? `The workspace as the person can see it:\n${tagged("workspace", map)}\n\n` : "";
   const instructions = skill !== undefined ? `The skill's instructions:\n${tagged("skill", skill)}\n\n` : "";
-  return `${notes}${workspace}${instructions}Question:\n${tagged("question", question)}`;
+  const today = clock ? `${nowLine(clock.now, clock.timeZone)}\n\n` : "";
+  return `${notes}${workspace}${instructions}${today}Question:\n${tagged("question", question)}`;
+}
+
+/** What day and time it is for the person: "It is Friday, 2026-10-23, 22:03 in Europe/Istanbul." */
+export function nowLine(now: Date, timeZone: string): string {
+  const day = dayString(localDay(now.getTime(), timeZone));
+  const parts = new Intl.DateTimeFormat("en-US", { timeZone, weekday: "long", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).formatToParts(now);
+  const part = (type: string) => parts.find((p) => p.type === type)?.value ?? "";
+  return `It is ${part("weekday")}, ${day}, ${part("hour")}:${part("minute")} in ${timeZone}.`;
 }
 
 /**
