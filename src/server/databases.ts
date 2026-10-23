@@ -38,6 +38,7 @@ import type { FormulaResultType, FormulaStyle } from "@/lib/formula";
 import { isEmptyValue, lostValues, planConversion, retypeViewConfig, type ConversionContext } from "@/lib/convert-property";
 import { dropPropertyReferences } from "@/lib/duplicate";
 import { keepDeleted, livePropertyValues, uniqueName, withoutDeleted, type DeletedProperty, type DeletedView } from "@/lib/deleted-schema";
+import { colorRuleFilters } from "@/lib/color-rules";
 import { filterConfigError, filterRules } from "@/lib/filters";
 import { chartGroupProperty } from "@/lib/chart";
 import { defaultDashboardWidgets } from "@/lib/dashboard";
@@ -3166,7 +3167,7 @@ export async function getPeople(userId: string, properties: DatabaseProperty[]):
     for (const prop of personProps) for (const id of asIds(values[prop.id])) referenced.add(id);
   }
   for (const config of views.flatMap((view) => configsOf(access.viewConfig(view.config)))) {
-    for (const rule of filterRules(config.filters)) {
+    for (const rule of filterRules([...(config.filters ?? []), ...colorRuleFilters(config)])) {
       const person = personProps.some((p) => p.id === rule.propertyId);
       if (!person) continue;
       for (const value of Array.isArray(rule.value) ? rule.value : [rule.value]) {

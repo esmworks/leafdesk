@@ -12,9 +12,10 @@ import { gzipSync } from "node:zlib";
  * Gzipped kB. The largest first load of any route, and every client chunk of the build together.
  * The code block grammars (lib/code-highlighter.ts) are about 500 kB of the second, each loaded
  * only when a block in its language is shown, and the Markdown source editor (CodeMirror, about
- * 190 kB) loads only when a page is edited as Markdown.
+ * 190 kB) loads only when a page is edited as Markdown. A database page evaluates its views' color
+ * rules on load (lib/color-rules.ts, about 3 kB with the views' marks).
  */
-const BUDGET = { routeFirstLoad: 800, allClientJs: 4000 };
+const BUDGET = { routeFirstLoad: 805, allClientJs: 4000 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;

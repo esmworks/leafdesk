@@ -792,6 +792,20 @@ export type ViewWidget = {
   color?: string;
   view: { type: ViewType; config: ViewConfig };
 };
+/**
+ * One of a view's color rules (see lib/color-rules): rows matching its filters, which work as the
+ * view's own do, take its color, on the whole row or card or on one property's value.
+ */
+export type ColorRule = {
+  id: string;
+  /** One of the option colors (lib/properties SELECT_COLORS). */
+  color: string;
+  /** The property (or "title", the row's name) whose value takes the color; the whole row when missing. */
+  propertyId?: string;
+  filters: FilterEntry[];
+  /** How the top-level filters combine; missing means "and". */
+  filterCombinator?: FilterCombinator;
+};
 export type ViewConfig = {
   /** Boards: the column property. Timelines: optional swimlanes (none when missing). Charts: the bars, points or slices. */
   groupBy?: string;
@@ -830,6 +844,11 @@ export type ViewConfig = {
   filters?: FilterEntry[];
   /** How the top-level filters combine; missing means "and". */
   filterCombinator?: FilterCombinator;
+  /**
+   * Views with rows: colors for rows matching conditions, in order; the first matching rule colors
+   * its target (the row, or one property's value).
+   */
+  colorRules?: ColorRule[];
   hidden?: string[];
   /**
    * Property ids in the order this view shows them (the Name column always comes first). Properties

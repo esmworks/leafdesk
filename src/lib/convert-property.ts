@@ -3,6 +3,7 @@ import { aggregateFunctions } from "./aggregate";
 import { dateValueText, parseDateValue } from "./date-value";
 import { isErrorValue, valueType } from "./derived";
 import { asFiles } from "./files";
+import { colorRuleMentions } from "./color-rules";
 import { mapFilterRules } from "./filters";
 import { detectDateFormat, parseChecklist, parseCheckbox, parseDate, parseNumber, splitList, type DateFormat } from "./import/csv";
 import { asChecklist, isEmailAddress, isGroupable, isPhoneNumber, isSortable, SELECT_COLORS, sortStatusOptions } from "./properties";
@@ -326,6 +327,8 @@ export function retypeViewConfig(
   return {
     ...c,
     filters: c.filters && mapFilterRules(c.filters, (f) => (f.propertyId === id ? null : f)),
+    // Color rules testing it compared old values too; one coloring its value keeps doing so.
+    colorRules: c.colorRules?.filter((r) => !colorRuleMentions({ ...r, propertyId: undefined }, (p) => p === id)),
     sorts: isSortable(type) ? c.sorts : c.sorts?.filter((s) => s.propertyId !== id),
     groupBy: c.groupBy === id && !isGroupable(type) ? undefined : c.groupBy,
     groupOrder: regrouped ? undefined : c.groupOrder,

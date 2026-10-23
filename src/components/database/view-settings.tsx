@@ -1,8 +1,9 @@
 "use client";
 
-import { ChartBarBig, ChartColumnBig, ChartLine, ChartPie, Check, Hash, ListTree, Plus, SlidersHorizontal, Waypoints } from "lucide-react";
+import { ChartBarBig, ChartColumnBig, ChartLine, ChartPie, Check, Hash, ListTree, Palette, Plus, SlidersHorizontal, Waypoints } from "lucide-react";
+import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { cn, MenuItem, MenuSeparator } from "@/components/ui";
 import type { ChartAccumulate, ChartSort, GroupDateBy, ViewConfig } from "@/db/schema/app";
 import type { AggregateFn } from "@/lib/aggregate";
@@ -37,6 +38,9 @@ import { Floating, useFloating } from "./floating";
 import { PropertyTypeIcon } from "./property-icons";
 import type { Property, View } from "./types";
 import { NativeSelect } from "./view-bar";
+
+// Opened from the menu now and then, so it loads when first opened.
+const ColorRulesDialog = dynamic(() => import("./color-rules-dialog").then((m) => m.ColorRulesDialog));
 
 /** Whether a timeline can start bars at `property`: a date, or a created or edited time (read-only there). */
 const isTimelineStart = (property: Property) => property.type === "date" || holdsTimestamp(property.type);
@@ -96,6 +100,7 @@ export function ViewLayoutMenu({
 }) {
   const t = useTranslations("database.layout");
   const menu = useFloating<HTMLButtonElement>();
+  const [colorRules, setColorRules] = useState(false);
   const nesting = NESTING_VIEWS.has(view.type);
   const rows = opensRows(view.type);
   if (readOnly || (!rows && view.type !== "chart")) return null;
@@ -208,8 +213,21 @@ export function ViewLayoutMenu({
           <Toggle on={!!config.showOutdated} onChange={(on) => set({ showOutdated: on || undefined })}>
             {t("showOutdated")}
           </Toggle>
+          {rows && (
+            <MenuItem
+              icon={<Palette className="h-3.5 w-3.5" />}
+              trailing={config.colorRules?.length ? <span className="text-xs text-fg-muted">{config.colorRules.length}</span> : undefined}
+              onClick={() => {
+                menu.close();
+                setColorRules(true);
+              }}
+            >
+              {t("colorRules")}
+            </MenuItem>
+          )}
         </div>
       </Floating>
+      {colorRules && <ColorRulesDialog view={view} properties={properties} onConfig={onConfig} onClose={() => setColorRules(false)} />}
     </>
   );
 }

@@ -416,6 +416,16 @@ export function describeViewConfig(props: PropertyDef[], config: ViewConfig, loo
     ...(config.sorts?.length
       ? { sorts: config.sorts.map((s) => ({ property: keyName(props, s.propertyId), direction: s.direction })) }
       : {}),
+    ...(config.colorRules?.length
+      ? {
+          color_rules: config.colorRules.map((r) => ({
+            color: r.color,
+            ...(r.propertyId !== undefined ? { property: keyName(props, r.propertyId) } : {}),
+            filters: (r.filters ?? []).map(describeEntry),
+            ...(r.filterCombinator === "or" ? { filter_combinator: "or" } : {}),
+          })),
+        }
+      : {}),
     ...(config.form ? { form: describeForm(props, config.form, lookups) } : {}),
     ...(type === "dashboard"
       ? {

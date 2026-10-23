@@ -742,7 +742,8 @@
       "panel": "Painel lateral",
       "page": "Página inteira"
     },
-    "showOutdated": "Mostrar linhas arquivadas"
+    "showOutdated": "Mostrar linhas arquivadas",
+    "colorRules": "Regras de cor"
   },
   "gallery": {
     "new": "Novo",
@@ -1633,5 +1634,20 @@
     "confirm": "Mesclar linhas",
     "merging": "Mesclando…",
     "bodyHeading": "Mesclado de {title}"
+  },
+  "colorRules": {
+    "title": "Regras de cor",
+    "description": "Colora linhas, ou um dos seus valores, quando cumprem condições.",
+    "empty": "Ainda não há regras de cor. Adicione uma para colorir as linhas que a cumprem.",
+    "ruleLabel": "Regra {color}",
+    "color": "Cor",
+    "colors": "Colora",
+    "target": "O que a regra colora",
+    "wholeRow": "A linha inteira",
+    "moveUp": "Mover para cima",
+    "moveDown": "Mover para baixo",
+    "delete": "Excluir regra",
+    "add": "Adicionar regra",
+    "firstMatchWins": "Quando várias regras correspondem, a primeira colora a linha ou o valor."
   }
 }

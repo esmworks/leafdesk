@@ -742,7 +742,8 @@
       "panel": "Yan panelde",
       "page": "Tam sayfada"
     },
-    "showOutdated": "Arşivlenen satırları göster"
+    "showOutdated": "Arşivlenen satırları göster",
+    "colorRules": "Renk kuralları"
   },
   "gallery": {
     "new": "Yeni",
@@ -1633,5 +1634,20 @@
     "confirm": "Satırları birleştir",
     "merging": "Birleştiriliyor…",
     "bodyHeading": "{title} satırından birleştirildi"
+  },
+  "colorRules": {
+    "title": "Renk kuralları",
+    "description": "Koşullara uyan satırları ya da bu satırlardaki bir değeri renklendirin.",
+    "empty": "Henüz renk kuralı yok. Uyan satırları renklendirmek için bir kural ekleyin.",
+    "ruleLabel": "{color} renk kuralı",
+    "color": "Renk",
+    "colors": "Renklendirilen",
+    "target": "Kuralın renklendirdiği yer",
+    "wholeRow": "Satırın tamamı",
+    "moveUp": "Yukarı taşı",
+    "moveDown": "Aşağı taşı",
+    "delete": "Kuralı sil",
+    "add": "Kural ekle",
+    "firstMatchWins": "Birden fazla kural uyduğunda satırı ya da değeri ilk kural renklendirir."
   }
 }

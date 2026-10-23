@@ -742,7 +742,8 @@
       "panel": "Panel boczny",
       "page": "Pełna strona"
     },
-    "showOutdated": "Pokaż zarchiwizowane wiersze"
+    "showOutdated": "Pokaż zarchiwizowane wiersze",
+    "colorRules": "Reguły kolorów"
   },
   "gallery": {
     "new": "Nowy",
@@ -1633,5 +1634,20 @@
     "confirm": "Scal wiersze",
     "merging": "Scalanie…",
     "bodyHeading": "Scalono z {title}"
+  },
+  "colorRules": {
+    "title": "Reguły kolorów",
+    "description": "Koloruj wiersze lub jedną z ich wartości, gdy spełniają warunki.",
+    "empty": "Nie ma jeszcze reguł kolorów. Dodaj regułę, aby kolorować pasujące wiersze.",
+    "ruleLabel": "Reguła: {color}",
+    "color": "Kolor",
+    "colors": "Koloruje",
+    "target": "Co koloruje reguła",
+    "wholeRow": "Cały wiersz",
+    "moveUp": "Przenieś w górę",
+    "moveDown": "Przenieś w dół",
+    "delete": "Usuń regułę",
+    "add": "Dodaj regułę",
+    "firstMatchWins": "Gdy pasuje kilka reguł, wiersz lub wartość koloruje pierwsza z nich."
   }
 }

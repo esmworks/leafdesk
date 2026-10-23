@@ -742,7 +742,8 @@
       "panel": "サイドパネル",
       "page": "フルページ"
     },
-    "showOutdated": "アーカイブした行を表示"
+    "showOutdated": "アーカイブした行を表示",
+    "colorRules": "色ルール"
   },
   "gallery": {
     "new": "新規",
@@ -1633,5 +1634,20 @@
     "confirm": "行を統合",
     "merging": "統合中…",
     "bodyHeading": "{title}から統合"
+  },
+  "colorRules": {
+    "title": "色ルール",
+    "description": "条件に合う行や、その値の一つに色を付けます。",
+    "empty": "色ルールはまだありません。ルールを追加すると、合う行に色が付きます。",
+    "ruleLabel": "{color}のルール",
+    "color": "色",
+    "colors": "色を付ける対象",
+    "target": "ルールが色を付ける対象",
+    "wholeRow": "行全体",
+    "moveUp": "上へ移動",
+    "moveDown": "下へ移動",
+    "delete": "ルールを削除",
+    "add": "ルールを追加",
+    "firstMatchWins": "複数のルールが合うときは、最初のルールが行や値に色を付けます。"
   }
 }

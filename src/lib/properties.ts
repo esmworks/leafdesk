@@ -745,6 +745,29 @@ export function compareSortKeys(a: unknown[], b: unknown[], sorts: SortRule[]): 
   return 0;
 }
 
+/**
+ * Whether a row matches a filter tree, as a view filters it (incomplete rules left out, "me" for
+ * the viewer, dates in their time zone); null when nothing in the tree filters yet. View filters
+ * and color rules (lib/color-rules) both test rows this way, so they always agree.
+ */
+export function filterPredicate<T extends RowLike>(
+  filters: FilterEntry[] = [],
+  filterCombinator: FilterCombinator | undefined,
+  props: PropertyDef[] = [],
+  { viewerId, now = new Date(), timeZone }: Omit<ViewViewer, "people"> = {},
+): ((row: T) => boolean) | null {
+  const byId = new Map(props.map((p) => [p.id, p]));
+  return compileFilters<T>(
+    pruneFilters(filters, (rule) => !isIncompleteFilter(rule)),
+    filterCombinator,
+    (rule) => {
+      const prop = byId.get(rule.propertyId);
+      const resolved = resolveViewer(rule, prop, viewerId);
+      return (row) => matches(row, resolved, prop, now, timeZone);
+    },
+  );
+}
+
 export function applyView<T extends RowLike>(
   rows: T[],
   {
@@ -757,16 +780,7 @@ export function applyView<T extends RowLike>(
   { viewerId, people = [], now = new Date(), timeZone }: ViewViewer = {},
 ): T[] {
   if (!showOutdated && rows.some((row) => row.outdated)) rows = rows.filter((row) => !row.outdated);
-  const byId = new Map(props.map((p) => [p.id, p]));
-  const test = compileFilters<T>(
-    pruneFilters(filters, (rule) => !isIncompleteFilter(rule)),
-    filterCombinator,
-    (rule) => {
-      const prop = byId.get(rule.propertyId);
-      const resolved = resolveViewer(rule, prop, viewerId);
-      return (row) => matches(row, resolved, prop, now, timeZone);
-    },
-  );
+  const test = filterPredicate<T>(filters, filterCombinator, props, { viewerId, now, timeZone });
   const filtered = test ? rows.filter(test) : rows;
   if (!sorts.length) return filtered;
   const keyOf = sortKeyReader<T>(sorts, props, people);

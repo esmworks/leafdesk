@@ -742,7 +742,8 @@
       "panel": "Panneau latéral",
       "page": "Pleine page"
     },
-    "showOutdated": "Afficher les lignes archivées"
+    "showOutdated": "Afficher les lignes archivées",
+    "colorRules": "Règles de couleur"
   },
   "gallery": {
     "new": "Nouveau",
@@ -1633,5 +1634,20 @@
     "confirm": "Fusionner les lignes",
     "merging": "Fusion…",
     "bodyHeading": "Fusionné depuis {title}"
+  },
+  "colorRules": {
+    "title": "Règles de couleur",
+    "description": "Colorez des lignes, ou l’une de leurs valeurs, quand elles remplissent des conditions.",
+    "empty": "Aucune règle de couleur pour l’instant. Ajoutez-en une pour colorer les lignes qui y répondent.",
+    "ruleLabel": "Règle {color}",
+    "color": "Couleur",
+    "colors": "Colore",
+    "target": "Ce que la règle colore",
+    "wholeRow": "Toute la ligne",
+    "moveUp": "Monter",
+    "moveDown": "Descendre",
+    "delete": "Supprimer la règle",
+    "add": "Ajouter une règle",
+    "firstMatchWins": "Si plusieurs règles correspondent, la première colore la ligne ou la valeur."
   }
 }
