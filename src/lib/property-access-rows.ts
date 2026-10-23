@@ -292,7 +292,7 @@ export function restoreReferences(
     });
   }
   const keep = (id: string | undefined) => id !== undefined && gone.has(id);
-  for (const key of ["groupBy", "dateBy", "endDateBy", "stackBy", "frozenThrough"] as const) {
+  for (const key of ["groupBy", "dateBy", "endDateBy", "stackBy", "placeBy", "frozenThrough"] as const) {
     if (keep(stored[key])) out[key] = stored[key];
   }
   if (stored.cover?.source === "property" && gone.has(stored.cover.propertyId)) out.cover = stored.cover;

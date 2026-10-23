@@ -3,6 +3,7 @@ import { isErrorValue } from "./derived";
 import { asFiles } from "./files";
 import { cellValue, detectDateFormat, INVALID, isImportableType, parseCsv, type DateFormat } from "./import/csv";
 import { asChecklist, displayValue } from "./properties";
+import { placeText } from "./place";
 import { holdsPeople } from "./property-types";
 import type { PropertyOptions, PropertyType } from "@/db/schema/app";
 
@@ -87,6 +88,8 @@ export function cellText(prop: CellProperty, value: unknown, ctx: CellTextContex
   if (isErrorValue(value)) return `#ERROR: ${value.error.message}`;
   if (prop.type === "files") return asFiles(value).map(ctx.fileText).join("\n") || null;
   if (prop.type === "date") return dateValueText(value);
+  // A place as its address, which pasting (or importing) looks up again.
+  if (prop.type === "place") return placeText(value) || null;
   if (prop.type === "checklist") {
     return (
       asChecklist(value)

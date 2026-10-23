@@ -544,6 +544,11 @@ export type SelectOption = { id: string; name: string; color: string; group?: St
 /** One entry of a checklist value; the value is a list of these, in order. */
 export type ChecklistItem = { id: string; text: string; checked: boolean };
 /**
+ * A place value: where on Earth (WGS 84 degrees), the address it was found by or written as, and
+ * the name of the place when it has one (a shop, a building).
+ */
+export type PlaceValue = { address: string; name?: string; lat: number; lng: number };
+/**
  * A relation links rows of this database to rows of another database in the same workspace.
  * Values are arrays of row ids. A two-way relation has a paired relation property on the target
  * database that is kept in sync (`pairedPropertyId`).
@@ -698,7 +703,7 @@ export const databaseProperty = pgTable(
   ],
 );
 
-export type ViewType = "table" | "board" | "calendar" | "gallery" | "list" | "timeline" | "chart" | "dashboard" | "form";
+export type ViewType = "table" | "board" | "calendar" | "gallery" | "list" | "timeline" | "map" | "chart" | "dashboard" | "form";
 /** Grouping by a date: one group per day, week (Monday to Sunday), month or year. */
 export type GroupDateBy = "day" | "week" | "month" | "year";
 export type GroupStatusBy = "option" | "group";
@@ -825,6 +830,8 @@ export type ViewConfig = {
   zoom?: TimelineZoom;
   /** Calendars: "month" when missing. */
   calendarMode?: CalendarMode;
+  /** Map views: the place property that puts rows on the map; the first place property when missing. */
+  placeBy?: string;
   /** Views with rows (all but forms and charts): "panel" when missing. */
   openRows?: OpenRows;
   /** Timelines: whether the table of row titles shows left of the bars; shown when missing. */

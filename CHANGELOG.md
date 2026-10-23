@@ -57,6 +57,17 @@
   the collaboration websocket now follows too. A restored backup starts without a list. Migration
   0118.
 
+- **Place properties and map views.** A *place* property holds an address with its coordinates:
+  its cell suggests places as you type an address or name (looked up by the server) and takes
+  pasted coordinates, and links to the spot on a map. It can be filtered on its address, sorted,
+  exported, read by formulas and written through MCP, the REST API, the AI chat and imports as an
+  address, coordinates or `{lat, lng, address}`. A *map* view shows a database's rows as pins at a
+  place property, colored by a select or status if wished; a pin's card shows the row's shown
+  properties and opens the row, and rows without a place are listed under the map. Linked views,
+  dashboards, MCP and the AI chat can make map views. New env vars: `GEOCODER_URL` (address
+  search, OpenStreetMap's by default, empty turns it off), `MAP_TILE_URL` and
+  `MAP_TILE_ATTRIBUTION` (the map's tiles and their credit, OpenStreetMap's by default, an empty
+  URL turns maps off). No migration. New dependency: Leaflet.
 - **The AI chat makes PDF files.** Asked for a PDF (a quote, a letter, a report), the chat writes
   it into a page or row if it isn't in one, then makes the page's PDF on the server
   (`create_pdf`) and attaches it at the end of the page's text, or in a row's files property, and

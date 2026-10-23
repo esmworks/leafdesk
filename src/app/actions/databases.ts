@@ -1,5 +1,6 @@
 "use server";
 
+import { env } from "@/lib/env";
 import { cookies } from "next/headers";
 import { getLocale, getTranslations } from "next-intl/server";
 import type { NumberDisplay, NumberFormat, PropertyType, SelectOption, ViewConfig, ViewType } from "@/db/schema";
@@ -85,7 +86,8 @@ export async function loadDatabaseAction(databaseId: string, options: { covers?:
       databaseAi(databaseId, snapshot.properties, snapshot.rows),
       propertyAccessManagement(userId, databaseId, snapshot.properties),
     ]);
-    return { ...snapshot, ...management, ai };
+    // Map views draw their map from the server's tile settings (MAP_TILE_URL); null: maps are off.
+    return { ...snapshot, ...management, ai, map: env.mapTiles };
   });
 }
 

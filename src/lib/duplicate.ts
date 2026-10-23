@@ -344,6 +344,7 @@ export function remapViewConfig(
   }
   if (config.dateBy !== undefined) out.dateBy = map(config.dateBy);
   if (config.endDateBy !== undefined) out.endDateBy = map(config.endDateBy);
+  if (config.placeBy !== undefined) out.placeBy = map(config.placeBy);
   if (config.stackBy !== undefined) out.stackBy = map(config.stackBy);
   if (config.frozenThrough !== undefined) out.frozenThrough = map(config.frozenThrough);
   if (config.chartAggregate) out.chartAggregate = { ...config.chartAggregate, propertyId: map(config.chartAggregate.propertyId) };
@@ -393,6 +394,7 @@ export function dropPropertyReferences(config: ViewConfig, gone: (propertyId: st
     groupBy: c.groupBy !== undefined && gone(c.groupBy) ? undefined : c.groupBy,
     dateBy: c.dateBy !== undefined && gone(c.dateBy) ? undefined : c.dateBy,
     endDateBy: c.endDateBy !== undefined && gone(c.endDateBy) ? undefined : c.endDateBy,
+    placeBy: c.placeBy !== undefined && gone(c.placeBy) ? undefined : c.placeBy,
     stackBy: c.stackBy !== undefined && gone(c.stackBy) ? undefined : c.stackBy,
     frozenThrough: c.frozenThrough !== undefined && gone(c.frozenThrough) ? undefined : c.frozenThrough,
     // A gallery that took covers from the property goes back to the default.

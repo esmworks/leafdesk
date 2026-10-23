@@ -1,6 +1,7 @@
 "use client";
 
 import { Check, ExternalLink, Plus, TriangleAlert, X } from "lucide-react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { Fragment, useContext, useEffect, useMemo, useRef, useState, type MouseEvent, type ReactNode } from "react";
@@ -17,8 +18,10 @@ import {
 import { derivedType, isErrorValue, rollupFormat } from "@/lib/derived";
 import { asFormulaStyle, styleClasses, type FormulaStyle } from "@/lib/formula";
 import { asFiles } from "@/lib/files";
+import { asPlace } from "@/lib/place";
 import { holdsPeople, isDerived, isReadOnlyType } from "@/lib/property-types";
 import { FilesDisplay, FilesEditor, type UploadFile } from "./files-cell";
+import { PlaceDisplay } from "./place-cell";
 import { Floating } from "./floating";
 import { useFormulaErrorMessage } from "./formula-editor";
 import { PersonChips, PersonPicker } from "./person-cell";
@@ -37,6 +40,9 @@ import { calculationFormat, numberFormatOptions, numberText, readNumber, valueFo
 import { numberShare } from "@/lib/number-display";
 import { availableOptions, parentOf } from "@/lib/dependent-options";
 import { useSchema } from "./schema-context";
+
+// The place editor (its search and suggestions) loads when a place is first edited.
+const PlaceEditor = dynamic(() => import("./place-editor").then((m) => m.PlaceEditor), { ssr: false });
 
 export type CreateOption = (propertyId: string, name: string) => Promise<SelectOption | null>;
 
@@ -184,6 +190,7 @@ export function isEmptyValue(prop: ShownProperty, value: unknown) {
   if (prop.type === "relation" || holdsPeople(prop.type)) return !Array.isArray(value) || value.length === 0;
   if (prop.type === "checklist") return asChecklist(value).length === 0;
   if (prop.type === "files") return asFiles(value).length === 0;
+  if (prop.type === "place") return asPlace(value) === null;
   if (Array.isArray(value)) return selectedOptions(prop, value).length === 0;
   if (prop.type === "select" || prop.type === "status") return selectedOptions(prop, value).length === 0;
   if (prop.type === "checkbox") return value !== true;
@@ -244,6 +251,8 @@ export function PropertyDisplay({ prop, value, wrap, style }: { prop: ShownPrope
       return <ChecklistDisplay value={value} wrap={wrap} />;
     case "files":
       return <FilesDisplay value={value} wrap={wrap} />;
+    case "place":
+      return <PlaceDisplay value={value} wrap={wrap} />;
     case "checkbox":
       return <CheckboxBox checked={value === true} />;
     case "relation":
@@ -666,6 +675,12 @@ function CellEditor({
       return (
         <Floating open anchor={anchor} onClose={onClose} className="w-80 p-0">
           <FilesEditor name={prop.name} value={value} onChange={onChange} upload={upload} />
+        </Floating>
+      );
+    case "place":
+      return (
+        <Floating open anchor={anchor} onClose={onClose} className="w-80 p-0">
+          <PlaceEditor name={prop.name} value={value} onChange={onChange} onDone={onClose} />
         </Floating>
       );
     case "date":

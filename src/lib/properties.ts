@@ -40,6 +40,7 @@ import {
 } from "./property-types";
 import { isPercent, toPercentPoints, valueFormat } from "./number-format";
 import { moveBeside } from "./reorder";
+import { asPlace, placeText, readPlaceInput, type PlaceValue } from "./place";
 
 export const SELECT_COLORS = ["gray", "brown", "orange", "yellow", "green", "blue", "purple", "pink", "red"] as const;
 
@@ -52,6 +53,10 @@ export const DATABASE_ERROR_CODES = [
   "invalidEmail",
   "invalidPhone",
   "invalidChecklist",
+  "invalidPlace",
+  "placeNotFound",
+  "geocodingOff",
+  "geocoderBusy",
   "invalidFile",
   "invalidNumber",
   "invalidCheckbox",
@@ -320,6 +325,21 @@ function normalizeFiles(prop: PropertyDef, value: unknown): FileValue[] | null {
   return out.length ? out : null;
 }
 
+/**
+ * Place input with coordinates (see lib/place readPlaceInput). An address without them has to be
+ * looked up first, which only the server does (databases.normalizeRowProperties), so here it is
+ * refused like any other value that isn't a place.
+ */
+function normalizePlace(prop: PropertyDef, value: unknown): PlaceValue {
+  const input = readPlaceInput(value);
+  if (input.kind === "place") return input.place;
+  throw new PropertyValueError(
+    `"${prop.name}" takes an address, coordinates ("41.04, 29.01") or {lat, lng, address}`,
+    "invalidPlace",
+    { property: prop.name },
+  );
+}
+
 function findOption(options: SelectOption[] | undefined, input: unknown): SelectOption | undefined {
   if (typeof input !== "string") return undefined;
   const needle = input.trim().toLowerCase();
@@ -354,6 +374,8 @@ export function normalizeValue(prop: PropertyDef, value: unknown): unknown {
       return normalizeChecklist(prop, value);
     case "files":
       return normalizeFiles(prop, value);
+    case "place":
+      return normalizePlace(prop, value);
     case "url": {
       const url = String(value).trim();
       if (!/^https?:\/\//i.test(url) && !/^mailto:/i.test(url)) {
@@ -445,6 +467,7 @@ export function displayValue(prop: PropertyDef, value: unknown): unknown {
     const files = asFiles(value).map(({ name, url }) => ({ name, url }));
     return files.length ? files : null;
   }
+  if (prop.type === "place") return asPlace(value);
   return value;
 }
 
@@ -506,6 +529,8 @@ function liveValue(row: RowLike, key: string, prop: PropertyDef | undefined, tim
   }
   // So do numbers shown as percentages.
   if (prop?.type === "number" && isPercent(prop.options.number) && typeof v === "number") return toPercentPoints(v);
+  // Places filter by their address.
+  if (prop?.type === "place") return placeText(v);
   if (!prop || !holdsOptions(prop.type)) return v;
   const known = (id: unknown) => (prop.options.options ?? []).some((o) => o.id === id);
   if (Array.isArray(v)) return v.filter(known);
@@ -723,6 +748,8 @@ export function sortKeyReader<T extends RowLike>(
     if (prop?.type === "date") return dateSortKey(v);
     // Files sort by how many a row holds; rows without any go last.
     if (prop?.type === "files") return asFiles(v).length || null;
+    // Places sort by their address.
+    if (prop?.type === "place") return placeText(v) || null;
     if (prop && holdsPeople(prop.type)) {
       const names = (Array.isArray(v) ? v : []).flatMap((id) => {
         const name = typeof id === "string" ? nameOf.get(id) : undefined;
@@ -824,6 +851,13 @@ export function filterOperators(type: PropertyType | "title"): { op: FilterOp; l
     { op: "is_not_empty" as const, label: "isNotEmpty" as const },
   ];
   switch (type) {
+    case "place":
+      // By the address: does it name a city, a street…
+      return [
+        { op: "contains", label: "contains" },
+        { op: "does_not_contain", label: "doesNotContain" },
+        ...empty,
+      ];
     case "title":
     case "text":
     case "url":
@@ -1089,14 +1123,16 @@ export function groupRows<T extends { properties: Record<string, unknown> }>(
 }
 
 /**
- * Board and gallery cards stay short: long text and numbers start hidden there until the user
+ * Board, gallery and map cards stay short: long text and numbers start hidden there until the user
  * shows them. List rows and timeline bars are one line, so every property starts hidden there;
  * so it does in charts, which show properties only in the rows behind a bar and when published.
  * Other views show every property unless hidden.
  */
 export function hiddenByDefault(viewType: ViewType, propType: PropertyType): boolean {
   if (viewType === "list" || viewType === "timeline" || viewType === "chart") return true;
-  return (viewType === "board" || viewType === "gallery") && (propType === "text" || propType === "number");
+  // Map cards too; and the place a map card stands for goes without saying there.
+  if (viewType === "map" && propType === "place") return true;
+  return (viewType === "board" || viewType === "gallery" || viewType === "map") && (propType === "text" || propType === "number");
 }
 
 export function isHiddenInView(

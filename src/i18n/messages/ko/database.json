@@ -20,7 +20,8 @@
     "lastEditedBy": "최종 편집자",
     "lastEditedTime": "최종 편집 일시",
     "formula": "수식",
-    "rollup": "롤업"
+    "rollup": "롤업",
+    "place": "장소"
   },
   "views": {
     "table": "표",
@@ -31,7 +32,8 @@
     "timeline": "타임라인",
     "chart": "차트",
     "dashboard": "대시보드",
-    "form": "양식"
+    "form": "양식",
+    "map": "지도"
   },
   "dashboardView": {
     "emptyEditable": "이 데이터베이스의 숫자, 차트, 목록을 여기에 표시하세요. 행이 바뀌면 자동으로 최신 상태로 유지됩니다.",
@@ -743,6 +745,11 @@
       "page": "전체 페이지"
     },
     "showOutdated": "보관된 행 표시",
+    "place": "장소 속성",
+    "needsPlace": "지도는 장소 속성에 따라 행을 배치합니다.",
+    "newPlaceProperty": "새 장소 속성",
+    "pinColor": "핀 색상",
+    "noPinColor": "없음",
     "colorRules": "색상 규칙"
   },
   "gallery": {
@@ -894,7 +901,11 @@
     "mergeRowsInvalid": "휴지통에 없는 같은 데이터베이스의 행만 병합할 수 있습니다.",
     "mergeRowsReadOnly": "{rows}은(는) 보기만 할 수 있습니다. 병합하려면 모든 행의 편집 권한이 필요합니다.",
     "mergeLinksBlocked": "행 {count}개가 이 행들에 연결되어 있는데 변경할 수 없습니다: {rows}. 아무것도 병합하지 않았습니다.",
-    "mergeChoiceInvalid": "‘{property}’에 고른 값은 사용할 수 없습니다. 다른 행의 값을 고르세요."
+    "mergeChoiceInvalid": "‘{property}’에 고른 값은 사용할 수 없습니다. 다른 행의 값을 고르세요.",
+    "invalidPlace": "“{property}”에는 주소나 좌표(위도, 경도)를 입력합니다.",
+    "placeNotFound": "“{property}”에서 “{value}”에 해당하는 장소를 찾지 못했습니다.",
+    "geocodingOff": "이 서버에서는 주소 검색이 꺼져 있습니다. “{property}”에 좌표(위도, 경도)를 입력하세요.",
+    "geocoderBusy": "주소 검색이 혼잡합니다. 잠시 후 “{property}”을(를) 다시 시도하세요."
   },
   "formula": {
     "title": "수식",
@@ -1634,6 +1645,37 @@
     "confirm": "행 병합",
     "merging": "병합하는 중…",
     "bodyHeading": "{title}에서 병합됨"
+  },
+  "place": {
+    "search": "주소나 장소 검색",
+    "input": "{property}: 주소 또는 좌표",
+    "coordinatesHint": "또는 41.04, 29.01 같은 좌표를 붙여 넣으세요",
+    "searching": "검색 중…",
+    "noResults": "장소를 찾지 못했습니다.",
+    "off": "이 서버에서는 주소 검색이 꺼져 있습니다. 대신 좌표를 붙여 넣으세요.",
+    "busy": "지금 검색이 너무 많습니다. 잠시 후 다시 시도하세요.",
+    "failed": "주소 검색이 응답하지 않았습니다. 다시 시도하세요.",
+    "useCoordinates": "{coordinates} 사용",
+    "openMap": "지도에서 열기",
+    "clear": "지우기",
+    "current": "현재 장소"
+  },
+  "map": {
+    "off": "이 서버에서는 지도가 꺼져 있습니다.",
+    "needsPlaceTitle": "지도는 행을 장소 속성이 가리키는 위치에 놓습니다",
+    "needsPlaceBody": "이 데이터베이스에는 아직 장소 속성이 없습니다.",
+    "addPlaceProperty": "{name} 속성 추가",
+    "defaultPlaceProperty": "장소",
+    "noLocation": "{property} 없는 행 {count, plural, other {#개}}",
+    "noLocationTitle": "{property} 없는 행",
+    "label": "{property} 기준 행 지도",
+    "pin": "{title}, {place}",
+    "open": "열기",
+    "closeCard": "닫기",
+    "zoomIn": "확대",
+    "zoomOut": "축소",
+    "fit": "모든 행 보기",
+    "loading": "지도 불러오는 중…"
   },
   "colorRules": {
     "title": "색상 규칙",

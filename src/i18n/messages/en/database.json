@@ -20,7 +20,8 @@
     "lastEditedBy": "Last edited by",
     "lastEditedTime": "Last edited time",
     "formula": "Formula",
-    "rollup": "Rollup"
+    "rollup": "Rollup",
+    "place": "Place"
   },
   "views": {
     "table": "Table",
@@ -31,7 +32,8 @@
     "timeline": "Timeline",
     "chart": "Chart",
     "dashboard": "Dashboard",
-    "form": "Form"
+    "form": "Form",
+    "map": "Map"
   },
   "dashboardView": {
     "emptyEditable": "Show numbers, charts and lists of this database here. They stay up to date as rows change.",
@@ -743,6 +745,11 @@
       "page": "Full page"
     },
     "showOutdated": "Show archived rows",
+    "place": "Place property",
+    "needsPlace": "Maps place rows by a place property.",
+    "newPlaceProperty": "New place property",
+    "pinColor": "Pin color",
+    "noPinColor": "None",
     "colorRules": "Color rules"
   },
   "gallery": {
@@ -894,7 +901,11 @@
     "mergeRowsInvalid": "Only rows of one database that aren’t in the trash can be merged.",
     "mergeRowsReadOnly": "You can only view {rows}. Merging needs edit access to every row.",
     "mergeLinksBlocked": "{count, plural, one {A row links} other {# rows link}} to these rows and you can’t change {count, plural, one {it} other {them}}: {rows}. Nothing was merged.",
-    "mergeChoiceInvalid": "The value picked for “{property}” can’t be used. Pick another row’s value."
+    "mergeChoiceInvalid": "The value picked for “{property}” can’t be used. Pick another row’s value.",
+    "invalidPlace": "“{property}” takes an address or coordinates (latitude, longitude).",
+    "placeNotFound": "No place found for “{value}” in “{property}”.",
+    "geocodingOff": "Address search is off on this server: give “{property}” coordinates (latitude, longitude).",
+    "geocoderBusy": "Address search is busy. Try “{property}” again in a moment."
   },
   "formula": {
     "title": "Formula",
@@ -1634,6 +1645,37 @@
     "confirm": "Merge rows",
     "merging": "Merging…",
     "bodyHeading": "Merged from {title}"
+  },
+  "place": {
+    "search": "Search for an address or place",
+    "input": "{property}: address or coordinates",
+    "coordinatesHint": "Or paste coordinates, like 41.04, 29.01",
+    "searching": "Searching…",
+    "noResults": "No places found.",
+    "off": "Address search is off on this server. Paste coordinates instead.",
+    "busy": "Too many searches right now. Try again in a moment.",
+    "failed": "Address search didn’t answer. Try again.",
+    "useCoordinates": "Use {coordinates}",
+    "openMap": "Open on map",
+    "clear": "Clear",
+    "current": "Current place"
+  },
+  "map": {
+    "off": "Maps are off on this server.",
+    "needsPlaceTitle": "Maps put rows where their place property says",
+    "needsPlaceBody": "This database has no place property yet.",
+    "addPlaceProperty": "Add {name} property",
+    "defaultPlaceProperty": "Place",
+    "noLocation": "{count, plural, one {# row} other {# rows}} without {property}",
+    "noLocationTitle": "Rows without {property}",
+    "label": "Map of rows by {property}",
+    "pin": "{title}, {place}",
+    "open": "Open",
+    "closeCard": "Close",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "fit": "Show all rows",
+    "loading": "Loading map…"
   },
   "colorRules": {
     "title": "Color rules",

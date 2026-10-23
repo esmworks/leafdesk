@@ -4,6 +4,7 @@ import { dateValueText, parseDateValue } from "./date-value";
 import { isErrorValue, valueType } from "./derived";
 import { asFiles } from "./files";
 import { colorRuleMentions } from "./color-rules";
+import { asPlace, placeText, readPlaceInput } from "./place";
 import { mapFilterRules } from "./filters";
 import { detectDateFormat, parseChecklist, parseCheckbox, parseDate, parseNumber, splitList, type DateFormat } from "./import/csv";
 import { asChecklist, isEmailAddress, isGroupable, isPhoneNumber, isSortable, SELECT_COLORS, sortStatusOptions } from "./properties";
@@ -88,6 +89,11 @@ function texts(from: ConversionSide, value: unknown, ctx: ConversionContext): st
     case "created_time":
     case "last_edited_time":
       return typeof value === "string" ? [value.slice(0, 10)] : [];
+    case "place": {
+      // A place as its address.
+      const address = placeText(value);
+      return address ? [address] : [];
+    }
     case "date": {
       // A day as itself, a range as "start → end", times as ISO timestamps (UTC).
       const text = dateValueText(value);
@@ -261,6 +267,16 @@ export function planConversion(
       };
     case "files":
       return { convert: (value) => (from.type === "files" && asFiles(value).length ? asFiles(value) : null) };
+    case "place":
+      // Text that is coordinates becomes a place; an address would need looking up, which a type
+      // change doesn't do (it would ask the geocoder once per row), so it is left out.
+      return {
+        convert: (value) => {
+          if (from.type === "place") return asPlace(value);
+          const input = readPlaceInput(single(value));
+          return input.kind === "place" ? input.place : null;
+        },
+      };
     case "relation": {
       const rows = ctx.targetRows ?? [];
       const find = (title: string) => {
@@ -336,6 +352,7 @@ export function retypeViewConfig(
     collapsedGroups: regrouped ? undefined : c.collapsedGroups,
     dateBy: c.dateBy === id && !dates ? undefined : c.dateBy,
     endDateBy: c.endDateBy === id && !dates ? undefined : c.endDateBy,
+    placeBy: c.placeBy === id && to.type !== "place" ? undefined : c.placeBy,
     cover: c.cover?.source === "property" && c.cover.propertyId === id && type !== "files" ? undefined : c.cover,
     chartAggregate: c.chartAggregate?.propertyId === id ? undefined : c.chartAggregate,
     boardAggregate:

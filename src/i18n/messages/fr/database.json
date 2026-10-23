@@ -20,7 +20,8 @@
     "lastEditedBy": "Dernière modification par",
     "lastEditedTime": "Date de dernière modification",
     "formula": "Formule",
-    "rollup": "Agrégation"
+    "rollup": "Agrégation",
+    "place": "Lieu"
   },
   "views": {
     "table": "Table",
@@ -31,7 +32,8 @@
     "timeline": "Chronologie",
     "chart": "Graphique",
     "dashboard": "Tableau de bord",
-    "form": "Formulaire"
+    "form": "Formulaire",
+    "map": "Carte"
   },
   "dashboardView": {
     "emptyEditable": "Affichez ici des chiffres, graphiques et listes tirés de cette base de données. Ils restent à jour quand les lignes changent.",
@@ -743,6 +745,11 @@
       "page": "Pleine page"
     },
     "showOutdated": "Afficher les lignes archivées",
+    "place": "Propriété de lieu",
+    "needsPlace": "Les cartes placent les lignes selon une propriété de lieu.",
+    "newPlaceProperty": "Nouvelle propriété de lieu",
+    "pinColor": "Couleur des repères",
+    "noPinColor": "Aucune",
     "colorRules": "Règles de couleur"
   },
   "gallery": {
@@ -894,7 +901,11 @@
     "mergeRowsInvalid": "Seules des lignes d’une même base de données, hors corbeille, peuvent être fusionnées.",
     "mergeRowsReadOnly": "Vous pouvez seulement consulter {rows}. La fusion exige le droit de modifier chaque ligne.",
     "mergeLinksBlocked": "{count, plural, one {Une ligne renvoie} other {# lignes renvoient}} à ces lignes et vous ne pouvez pas {count, plural, one {la} other {les}} modifier : {rows}. Rien n’a été fusionné.",
-    "mergeChoiceInvalid": "La valeur choisie pour « {property} » ne peut pas être utilisée. Choisissez la valeur d’une autre ligne."
+    "mergeChoiceInvalid": "La valeur choisie pour « {property} » ne peut pas être utilisée. Choisissez la valeur d’une autre ligne.",
+    "invalidPlace": "« {property} » accepte une adresse ou des coordonnées (latitude, longitude).",
+    "placeNotFound": "Aucun lieu trouvé pour « {value} » dans « {property} ».",
+    "geocodingOff": "La recherche d’adresses est désactivée sur ce serveur : donnez à « {property} » des coordonnées (latitude, longitude).",
+    "geocoderBusy": "La recherche d’adresses est saturée. Réessayez « {property} » dans un instant."
   },
   "formula": {
     "title": "Formule",
@@ -1634,6 +1645,37 @@
     "confirm": "Fusionner les lignes",
     "merging": "Fusion…",
     "bodyHeading": "Fusionné depuis {title}"
+  },
+  "place": {
+    "search": "Rechercher une adresse ou un lieu",
+    "input": "{property} : adresse ou coordonnées",
+    "coordinatesHint": "Ou collez des coordonnées, comme 41.04, 29.01",
+    "searching": "Recherche…",
+    "noResults": "Aucun lieu trouvé.",
+    "off": "La recherche d’adresses est désactivée sur ce serveur. Collez plutôt des coordonnées.",
+    "busy": "Trop de recherches en ce moment. Réessayez dans un instant.",
+    "failed": "La recherche d’adresses n’a pas répondu. Réessayez.",
+    "useCoordinates": "Utiliser {coordinates}",
+    "openMap": "Ouvrir sur la carte",
+    "clear": "Effacer",
+    "current": "Lieu actuel"
+  },
+  "map": {
+    "off": "Les cartes sont désactivées sur ce serveur.",
+    "needsPlaceTitle": "Les cartes placent les lignes là où l’indique leur propriété de lieu",
+    "needsPlaceBody": "Cette base de données n’a pas encore de propriété de lieu.",
+    "addPlaceProperty": "Ajouter la propriété {name}",
+    "defaultPlaceProperty": "Lieu",
+    "noLocation": "{count, plural, one {# ligne} other {# lignes}} sans {property}",
+    "noLocationTitle": "Lignes sans {property}",
+    "label": "Carte des lignes par {property}",
+    "pin": "{title}, {place}",
+    "open": "Ouvrir",
+    "closeCard": "Fermer",
+    "zoomIn": "Zoom avant",
+    "zoomOut": "Zoom arrière",
+    "fit": "Afficher toutes les lignes",
+    "loading": "Chargement de la carte…"
   },
   "colorRules": {
     "title": "Règles de couleur",

@@ -43,6 +43,8 @@ import { filterConfigError, filterRules } from "@/lib/filters";
 import { chartGroupProperty } from "@/lib/chart";
 import { defaultDashboardWidgets } from "@/lib/dashboard";
 import { defaultFormConfig } from "@/lib/forms";
+import { readPlaceInput } from "@/lib/place";
+import { GeocoderError, geocodeAddress } from "./geocoder";
 import { configsOf, DEFAULT_VIEW_NAMES, galleryCover, isViewType, layoutConfigError } from "@/lib/views";
 import { holdsOptions, holdsPeople, isComputed, isDerived, isReadOnlyType, PERSON_ME, type StatusGroup } from "@/lib/property-types";
 import { canRestrict, namesPeople } from "@/lib/property-access";
@@ -492,7 +494,7 @@ export async function normalizeRowProperties(
         { property: key },
       );
     }
-    const normalized = normalizeValue(prop, value);
+    const normalized = normalizeValue(prop, prop.type === "place" ? await resolvePlaceInput(userId, prop, value) : value);
     if (prop.type === "relation" && normalized) {
       const ids = await resolveRelationValue(userId, prop, normalized as string[], asIds(existing[prop.id]));
       // A row has one parent (see lib/sub-items).
@@ -534,6 +536,40 @@ export function followOrRefuse(
     "optionUnavailable",
     { value: outcome.option.name, property: outcome.prop.name, parent },
   );
+}
+
+/**
+ * A place written as an address (text, or an object without coordinates) looked up through the
+ * geocoder, counted against the writer: its best match, with the name it was given kept. Other
+ * input is left for normalizeValue to check.
+ */
+async function resolvePlaceInput(userId: string, prop: DatabaseProperty, value: unknown): Promise<unknown> {
+  if (value === null || value === undefined || value === "") return value;
+  const input = readPlaceInput(value);
+  if (input.kind !== "address") return value;
+  let found;
+  try {
+    found = await geocodeAddress(input.address, { userId });
+  } catch (error) {
+    if (error instanceof GeocoderError && error.code === "off") {
+      throw new PropertyValueError(
+        `Address search is off on this server: give "${prop.name}" coordinates ("41.04, 29.01" or {lat, lng, address})`,
+        "geocodingOff",
+        { property: prop.name },
+      );
+    }
+    if (error instanceof GeocoderError) {
+      throw new PropertyValueError(`${error.message}; "${prop.name}" was not changed`, "geocoderBusy", { property: prop.name });
+    }
+    throw error;
+  }
+  if (!found) {
+    throw new PropertyValueError(`No place found for "${input.address}" in "${prop.name}"; give coordinates instead`, "placeNotFound", {
+      value: input.address,
+      property: prop.name,
+    });
+  }
+  return { ...found, ...(input.name ? { name: input.name } : {}) };
 }
 
 async function workspaceOf(databaseId: string): Promise<string | null> {
@@ -2545,6 +2581,8 @@ export async function addView(userId: string, databaseId: string, input: { name:
   // Timelines start without swimlanes and with a week per column; list rows and timeline bars show
   // only titles until the user picks properties (see hiddenByDefault).
   if (input.type === "timeline") config.dateBy = props.find((p) => p.type === "date")?.id;
+  // Maps put rows on the first place property.
+  if (input.type === "map") config.placeBy = props.find((p) => p.type === "place")?.id;
   // Charts count rows per option of the property a board would group by, in columns.
   if (input.type === "chart") config.groupBy = chartGroupProperty(props, {})?.id;
   // Forms start out asking for the name and every property a form can ask for.

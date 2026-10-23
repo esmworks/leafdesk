@@ -20,7 +20,8 @@
     "lastEditedBy": "Ostatnio edytowane przez",
     "lastEditedTime": "Czas ostatniej edycji",
     "formula": "Formuła",
-    "rollup": "Agregacja"
+    "rollup": "Agregacja",
+    "place": "Miejsce"
   },
   "views": {
     "table": "Tabela",
@@ -31,7 +32,8 @@
     "timeline": "Oś czasu",
     "chart": "Wykres",
     "dashboard": "Pulpit",
-    "form": "Formularz"
+    "form": "Formularz",
+    "map": "Mapa"
   },
   "dashboardView": {
     "emptyEditable": "Wyświetlaj tutaj liczby, wykresy i listy z tej bazy danych. Aktualizują się wraz ze zmianami wierszy.",
@@ -743,6 +745,11 @@
       "page": "Pełna strona"
     },
     "showOutdated": "Pokaż zarchiwizowane wiersze",
+    "place": "Właściwość miejsca",
+    "needsPlace": "Mapy rozmieszczają wiersze według właściwości miejsca.",
+    "newPlaceProperty": "Nowa właściwość miejsca",
+    "pinColor": "Kolor pinezek",
+    "noPinColor": "Brak",
     "colorRules": "Reguły kolorów"
   },
   "gallery": {
@@ -894,7 +901,11 @@
     "mergeRowsInvalid": "Scalać można tylko wiersze jednej bazy danych, które nie są w koszu.",
     "mergeRowsReadOnly": "Możesz tylko wyświetlać {rows}. Scalanie wymaga uprawnień do edycji każdego wiersza.",
     "mergeLinksBlocked": "{count, plural, one {# wiersz odwołuje się} few {# wiersze odwołują się} many {# wierszy odwołuje się} other {# wiersza odwołuje się}} do tych wierszy, a nie możesz {count, plural, one {go} other {ich}} zmienić: {rows}. Nic nie scalono.",
-    "mergeChoiceInvalid": "Nie można użyć wartości wybranej dla „{property}”. Wybierz wartość innego wiersza."
+    "mergeChoiceInvalid": "Nie można użyć wartości wybranej dla „{property}”. Wybierz wartość innego wiersza.",
+    "invalidPlace": "„{property}” przyjmuje adres lub współrzędne (szerokość, długość).",
+    "placeNotFound": "Nie znaleziono miejsca dla „{value}” w „{property}”.",
+    "geocodingOff": "Wyszukiwanie adresów jest na tym serwerze wyłączone: podaj w „{property}” współrzędne (szerokość, długość).",
+    "geocoderBusy": "Wyszukiwanie adresów jest zajęte. Spróbuj „{property}” ponownie za chwilę."
   },
   "formula": {
     "title": "Formuła",
@@ -1634,6 +1645,37 @@
     "confirm": "Scal wiersze",
     "merging": "Scalanie…",
     "bodyHeading": "Scalono z {title}"
+  },
+  "place": {
+    "search": "Wyszukaj adres lub miejsce",
+    "input": "{property}: adres lub współrzędne",
+    "coordinatesHint": "Albo wklej współrzędne, np. 41.04, 29.01",
+    "searching": "Wyszukiwanie…",
+    "noResults": "Nie znaleziono miejsc.",
+    "off": "Wyszukiwanie adresów jest na tym serwerze wyłączone. Wklej zamiast tego współrzędne.",
+    "busy": "Zbyt wiele wyszukiwań naraz. Spróbuj ponownie za chwilę.",
+    "failed": "Wyszukiwanie adresów nie odpowiedziało. Spróbuj ponownie.",
+    "useCoordinates": "Użyj {coordinates}",
+    "openMap": "Otwórz na mapie",
+    "clear": "Wyczyść",
+    "current": "Obecne miejsce"
+  },
+  "map": {
+    "off": "Mapy są na tym serwerze wyłączone.",
+    "needsPlaceTitle": "Mapy umieszczają wiersze tam, gdzie wskazuje ich właściwość miejsca",
+    "needsPlaceBody": "Ta baza danych nie ma jeszcze właściwości miejsca.",
+    "addPlaceProperty": "Dodaj właściwość {name}",
+    "defaultPlaceProperty": "Miejsce",
+    "noLocation": "{count, plural, one {# wiersz} few {# wiersze} many {# wierszy} other {# wiersza}} bez {property}",
+    "noLocationTitle": "Wiersze bez {property}",
+    "label": "Mapa wierszy według {property}",
+    "pin": "{title}, {place}",
+    "open": "Otwórz",
+    "closeCard": "Zamknij",
+    "zoomIn": "Powiększ",
+    "zoomOut": "Pomniejsz",
+    "fit": "Pokaż wszystkie wiersze",
+    "loading": "Ładowanie mapy…"
   },
   "colorRules": {
     "title": "Reguły kolorów",

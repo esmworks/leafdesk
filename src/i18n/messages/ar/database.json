@@ -20,7 +20,8 @@
     "lastEditedBy": "آخر تعديل بواسطة",
     "lastEditedTime": "وقت آخر تعديل",
     "formula": "صيغة",
-    "rollup": "تلخيص"
+    "rollup": "تلخيص",
+    "place": "مكان"
   },
   "views": {
     "table": "جدول",
@@ -31,7 +32,8 @@
     "timeline": "مخطط زمني",
     "chart": "مخطط بياني",
     "dashboard": "لوحة معلومات",
-    "form": "نموذج"
+    "form": "نموذج",
+    "map": "خريطة"
   },
   "dashboardView": {
     "emptyEditable": "اعرض هنا أرقامًا ومخططات بيانية وقوائم من قاعدة البيانات هذه. تظل محدّثة مع تغيّر الصفوف.",
@@ -743,6 +745,11 @@
       "page": "صفحة كاملة"
     },
     "showOutdated": "إظهار الصفوف المؤرشفة",
+    "place": "خاصية المكان",
+    "needsPlace": "تضع الخرائط الصفوف حسب خاصية مكان.",
+    "newPlaceProperty": "خاصية مكان جديدة",
+    "pinColor": "لون الدبوس",
+    "noPinColor": "بلا",
     "colorRules": "قواعد الألوان"
   },
   "gallery": {
@@ -894,7 +901,11 @@
     "mergeRowsInvalid": "لا يمكن دمج إلا صفوف من قاعدة بيانات واحدة ليست في سلة المهملات.",
     "mergeRowsReadOnly": "يمكنك عرض {rows} فقط. يتطلب الدمج صلاحية التعديل على كل صف.",
     "mergeLinksBlocked": "{count, plural, zero {# صف يرتبط} one {صف واحد يرتبط} two {صفان يرتبطان} few {# صفوف ترتبط} many {# صفًا يرتبط} other {# صف يرتبط}} بهذه الصفوف ولا يمكنك {count, plural, one {تغييره} other {تغييرها}}: {rows}. لم يُدمج شيء.",
-    "mergeChoiceInvalid": "لا يمكن استخدام القيمة المختارة لـ «{property}». اختر قيمة صف آخر."
+    "mergeChoiceInvalid": "لا يمكن استخدام القيمة المختارة لـ «{property}». اختر قيمة صف آخر.",
+    "invalidPlace": "تقبل «{property}» عنوانًا أو إحداثيات (خط العرض، خط الطول).",
+    "placeNotFound": "لم يُعثر على مكان لـ«{value}» في «{property}».",
+    "geocodingOff": "البحث عن العناوين معطّل على هذا الخادم: أدخل في «{property}» إحداثيات (خط العرض، خط الطول).",
+    "geocoderBusy": "البحث عن العناوين مشغول. أعد المحاولة في «{property}» بعد قليل."
   },
   "formula": {
     "title": "الصيغة",
@@ -1634,6 +1645,37 @@
     "confirm": "دمج الصفوف",
     "merging": "جارٍ الدمج…",
     "bodyHeading": "مدموج من {title}"
+  },
+  "place": {
+    "search": "ابحث عن عنوان أو مكان",
+    "input": "{property}: عنوان أو إحداثيات",
+    "coordinatesHint": "أو الصق إحداثيات، مثل 41.04, 29.01",
+    "searching": "جارٍ البحث…",
+    "noResults": "لم يُعثر على أماكن.",
+    "off": "البحث عن العناوين معطّل على هذا الخادم. الصق إحداثيات بدلًا من ذلك.",
+    "busy": "عمليات البحث كثيرة الآن. أعد المحاولة بعد قليل.",
+    "failed": "لم يستجب البحث عن العناوين. أعد المحاولة.",
+    "useCoordinates": "استخدام {coordinates}",
+    "openMap": "فتح على الخريطة",
+    "clear": "مسح",
+    "current": "المكان الحالي"
+  },
+  "map": {
+    "off": "الخرائط معطّلة على هذا الخادم.",
+    "needsPlaceTitle": "تضع الخرائط الصفوف حيث تشير خاصية المكان فيها",
+    "needsPlaceBody": "لا تحتوي قاعدة البيانات هذه على خاصية مكان بعد.",
+    "addPlaceProperty": "إضافة خاصية {name}",
+    "defaultPlaceProperty": "مكان",
+    "noLocation": "{count, plural, zero {# صف} one {# صف} two {# صفان} few {# صفوف} many {# صفًا} other {# صف}} بلا {property}",
+    "noLocationTitle": "صفوف بلا {property}",
+    "label": "خريطة الصفوف حسب {property}",
+    "pin": "{title}، {place}",
+    "open": "فتح",
+    "closeCard": "إغلاق",
+    "zoomIn": "تكبير",
+    "zoomOut": "تصغير",
+    "fit": "عرض كل الصفوف",
+    "loading": "جارٍ تحميل الخريطة…"
   },
   "colorRules": {
     "title": "قواعد الألوان",
