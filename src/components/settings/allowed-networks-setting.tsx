@@ -88,7 +88,6 @@ export function AllowedNetworksSetting({
               <div className="hidden gap-2 text-xs font-medium text-fg-muted sm:flex" aria-hidden>
                 <span className="flex-[3]">{t("range")}</span>
                 <span className="flex-[2]">{t("label")}</span>
-                <span className="w-6" />
               </div>
               {rows.map((row, index) => (
                 <div key={row.key} role="listitem" className="flex flex-col gap-2 sm:flex-row sm:items-center">

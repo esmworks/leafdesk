@@ -24,8 +24,8 @@ export function NetworkGate({
   return (
     <div className="space-y-5">
       <div className="space-y-2">
-        <div className="flex items-center gap-2">
-          <ShieldAlert className="h-5 w-5 shrink-0 text-fg-muted" aria-hidden />
+        <div className="flex items-start gap-2">
+          <ShieldAlert className="mt-0.5 h-5 w-5 shrink-0 text-fg-muted" aria-hidden />
           <h1 className="text-base font-semibold">{t("title", { workspace: workspaceName })}</h1>
         </div>
         <p className="text-sm text-fg-muted">{t("body")}</p>
