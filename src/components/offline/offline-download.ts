@@ -11,13 +11,10 @@
  * offline), and the uploaded files it shows, each up to MAX_FILE_BYTES and MAX_PAGE_FILE_BYTES
  * together. Everything fails quietly: a page that couldn't be fetched is tried again next time.
  */
-import { useSyncExternalStore } from "react";
-import * as Y from "yjs";
 import { loadDatabaseAction, loadRowAction } from "@/app/actions/databases";
 import { getSidebarAction } from "@/app/actions/pages";
-import { acquireDoc, isDocOpen, type SharedDoc } from "@/components/collab/socket";
+import { isDocOpen } from "@/components/collab/socket";
 import { rowSnapshotOf } from "@/components/database/row-snapshot";
-import { COLLAB_FRAGMENT } from "@/lib/collab-constants";
 import { fileIdsIn } from "@/lib/files";
 import {
   COLLAB_FORBIDDEN,
@@ -49,81 +46,11 @@ import {
   saveSnapshot,
   writeOfflineState,
 } from "./offline-store";
+import { docSynced, holdDoc } from "./offline-doc";
+import { setBusy } from "./offline-status";
 
-/** How long one page's document may take to arrive. */
-const DOC_TIMEOUT_MS = 20_000;
 /** How long the service worker may take to fetch a page's HTML. */
 const HTML_TIMEOUT_MS = 30_000;
-
-// ---------------------------------------------------------------------------------------------
-// What is downloading right now, for the menus and Settings > Offline.
-
-let busy = new Set<string>();
-const busyListeners = new Set<() => void>();
-function setBusy(pageId: string, on: boolean) {
-  const next = new Set(busy);
-  if (on) next.add(pageId);
-  else next.delete(pageId);
-  busy = next;
-  busyListeners.forEach((l) => l());
-}
-const onBusy = (listener: () => void) => {
-  busyListeners.add(listener);
-  return () => void busyListeners.delete(listener);
-};
-const noneBusy = new Set<string>();
-
-/** The pages being downloaded in this tab. */
-export function useDownloading(): ReadonlySet<string> {
-  return useSyncExternalStore(onBusy, () => busy, () => noneBusy);
-}
-
-// ---------------------------------------------------------------------------------------------
-// Documents.
-
-/**
- * Opens a page's document with its offline copy, until `done` says it has what it waited for,
- * the server refuses it, or `ms` pass.
- */
-export function holdDoc(
-  userId: string,
-  pageId: string,
-  done: (shared: SharedDoc) => boolean,
-  ms = DOC_TIMEOUT_MS,
-): Promise<{ ok: boolean; denied: string | null; bytes: number; text: string }> {
-  return new Promise((resolve) => {
-    const { shared, release } = acquireDoc(`page:${pageId}`, { offlineFor: userId });
-    const copy = shared.offline;
-    let settled = false;
-    let stop = () => {};
-    const finish = (ok: boolean) => {
-      if (settled) return;
-      settled = true;
-      clearTimeout(timer);
-      stop();
-      shared.provider.off("authenticationFailed", refused);
-      shared.provider.off("synced", check);
-      const bytes = ok ? Y.encodeStateAsUpdate(shared.doc).byteLength : 0;
-      const text = ok ? shared.doc.getXmlFragment(COLLAB_FRAGMENT).toString() : "";
-      const denied = shared.denied;
-      release();
-      resolve({ ok, denied, bytes, text });
-    };
-    const refused = () => finish(false);
-    const check = () => {
-      if (done(shared)) finish(true);
-    };
-    const timer = setTimeout(() => finish(false), ms);
-    if (!copy) return finish(false);
-    stop = copy.on(check);
-    shared.provider.on("synced", check);
-    shared.provider.on("authenticationFailed", refused);
-    check();
-  });
-}
-
-/** The page's document is in this browser and matches the server's. */
-const docSynced = (shared: SharedDoc) => Boolean(shared.offline?.loaded && shared.provider.isSynced);
 
 // ---------------------------------------------------------------------------------------------
 // One page.
@@ -362,11 +289,4 @@ async function syncRound(userId: string) {
   // A database kept with its rows found them just now: those come next, in another round.
   const tried = new Set(queue.map((p) => p.id));
   if (copiesDue(readOfflineState(userId), now, REFRESH_MS).some((p) => !tried.has(p.id))) again = true;
-}
-
-/** Asks the browser to keep this site's storage (once, when someone first downloads a page). */
-export async function askToPersist() {
-  try {
-    if (navigator.storage && !(await navigator.storage.persisted())) await navigator.storage.persist();
-  } catch {}
 }

@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { getSocket, onSocketStatus, type SocketStatus } from "@/components/collab/socket";
 import { REFRESH_MS, wantedPages } from "@/lib/offline";
-import { holdDoc, syncDownloads } from "./offline-download";
+import { holdDoc } from "./offline-doc";
 import { onOfflineStateChange, readOfflineState, wipeOtherUsers } from "./offline-store";
 
 type OfflineContextValue = {
@@ -108,8 +108,13 @@ async function syncOne(userId: string, pageId: string) {
 function useKeepDownloads(userId: string, offline: boolean) {
   useEffect(() => {
     if (offline) return;
-    const start = setTimeout(() => void syncDownloads(userId, { background: true }), 4000);
-    const every = setInterval(() => void syncDownloads(userId, { background: true }), REFRESH_MS);
+    // The downloader loads only when there is something to download.
+    const run = (background: boolean) => {
+      if (wantedPages(readOfflineState(userId)).size === 0 && Object.keys(readOfflineState(userId).copies).length === 0) return;
+      void import("./offline-download").then((m) => m.syncDownloads(userId, { background }));
+    };
+    const start = setTimeout(() => run(true), 4000);
+    const every = setInterval(() => run(true), REFRESH_MS);
     const signature = () => {
       const state = readOfflineState(userId);
       return [...wantedPages(state).keys()].sort().join() + `|${state.kept.filter((p) => p.subpages).map((p) => p.id).join()}`;
@@ -121,7 +126,7 @@ function useKeepDownloads(userId: string, offline: boolean) {
       if (now === last) return;
       last = now;
       clearTimeout(timer);
-      timer = setTimeout(() => void syncDownloads(userId), 300);
+      timer = setTimeout(() => run(false), 300);
     });
     return () => {
       clearTimeout(start);

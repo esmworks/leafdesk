@@ -4,6 +4,20 @@
 
 ### Added
 
+- **Pages can be downloaded for offline use.** "Available offline" in a page's ⋯ menu, or in the
+  menu beside a page in the sidebar, downloads the page to this device now: its content, the page
+  itself, a database's rows or a row's values, and the files and images it shows (up to 10 MB each
+  and 50 MB per page). "Include sub-pages" (for a database, "Include rows") brings up to 50 pages
+  under it along. Downloaded pages are fetched again in the background while the app is open and
+  online (shortly after it starts and every 15 minutes), and they are never pushed out by newer
+  recently opened pages. Favorites are downloaded too unless "Keep my favorites available offline"
+  is turned off. A quiet mark in the sidebar shows which pages are downloaded, and the offline page
+  lists them beside the recently opened ones. The new Settings → Offline tab lists what this device
+  keeps, with each page's size, when it was last updated and whether it holds edits not yet sent.
+  There you can remove one page or all offline copies (with a warning when edits would be lost),
+  and see how much storage the browser uses and whether it keeps the copies persistently. Leafdesk
+  asks for persistent storage the first time a page is downloaded. Downloads are per device and,
+  like all offline copies, are removed on sign-out. No migration.
 - **The AI chat makes PDF files.** Asked for a PDF (a quote, a letter, a report), the chat writes
   it into a page or row if it isn't in one, then makes the page's PDF on the server
   (`create_pdf`) and attaches it at the end of the page's text, or in a row's files property, and

@@ -58,7 +58,7 @@ import { VoiceNoteInstructionsDialog } from "@/components/voice/voice-note-instr
 import { MergeWithDialog } from "@/components/database/merge-rows-dialog";
 import type { PageKind } from "@/db/schema/app";
 import { FAVORITES_EVENT } from "@/lib/favorites-event";
-import { OfflineToggle } from "@/components/offline/offline-toggle";
+import { LazyOfflineToggle as OfflineToggle } from "@/components/offline/lazy-offline-toggle";
 import { OPEN_SHARE_EVENT } from "@/lib/share-event";
 import type { Presence } from "@/lib/presence";
 import { PAGE_FONTS, type PageStyle } from "@/lib/page-style";

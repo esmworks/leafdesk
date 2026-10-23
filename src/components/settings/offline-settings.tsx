@@ -4,7 +4,7 @@ import { Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
-import { askToPersist, removeAllCopies, removeCopy, syncDownloads, useDownloading } from "@/components/offline/offline-download";
+import { askToPersist, useDownloading } from "@/components/offline/offline-status";
 import { readOfflineState, useOfflineState, writeOfflineState } from "@/components/offline/offline-store";
 import { Button, Dialog, IconButton, PageIcon, Switch } from "@/components/ui";
 import { formatBytes } from "@/lib/files";
@@ -53,6 +53,7 @@ export function OfflineSettings({ userId }: { userId: string }) {
     const page = state.kept.find((p) => p.id === pageId);
     if (!page) return;
     writeOfflineState(userId, (s) => keepPage(s, page, { manual: false }));
+    const { removeCopy, syncDownloads } = await import("@/components/offline/offline-download");
     for (const id of copiesToDrop(readOfflineState(userId))) await removeCopy(userId, id);
     // The service worker hears which pages stay (a run in the workspace does this too).
     void syncDownloads(userId);
@@ -60,6 +61,7 @@ export function OfflineSettings({ userId }: { userId: string }) {
 
   const removeAll = async () => {
     setRemoving(true);
+    const { removeAllCopies } = await import("@/components/offline/offline-download");
     await removeAllCopies(userId);
     setRemoving(false);
     setConfirming(false);

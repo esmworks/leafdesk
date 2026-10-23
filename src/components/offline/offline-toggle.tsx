@@ -7,7 +7,7 @@ import { formatBytes } from "@/lib/files";
 import { pageLabel } from "@/lib/labels";
 import { keepPage, keptSummaries, MAX_SUBPAGES, type OfflinePage } from "@/lib/offline";
 import { useOffline } from "./offline-context";
-import { askToPersist, useDownloading } from "./offline-download";
+import { askToPersist, useDownloading } from "./offline-status";
 import { useOfflineState, writeOfflineState } from "./offline-store";
 
 /**
