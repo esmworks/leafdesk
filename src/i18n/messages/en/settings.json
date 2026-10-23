@@ -957,6 +957,8 @@
     "moveToTrash": "Move to trash",
     "confirmTrash": "Move “{title}” to the trash?",
     "lastEdited": "Last edited {when}",
+    "verificationEndedBy": "Verified by {name}, ended {when}",
+    "verificationEnded": "Verification ended {when}",
     "alike": "{similarity, number, percent} alike",
     "inProperty": "{property} in {database}",
     "removeFromRelation": "Remove",
@@ -980,6 +982,11 @@
       "title": "Untouched pages",
       "description": "Pages nobody edited in the last {months} months, longest untouched first. They may be out of date.",
       "none": "Every page was edited recently."
+    },
+    "expiredVerifications": {
+      "title": "Expired verifications",
+      "description": "Pages someone verified until a day that has passed. Check them and verify them again, or remove the verification.",
+      "none": "No verification has expired."
     },
     "duplicates": {
       "title": "Possible duplicates",
@@ -1568,6 +1575,8 @@
         "permission_removed": "Removed {subject} from the sharing of {target}",
         "row_access_changed": "Changed who the rows of {target} give access to",
         "deleted": "Deleted {target} for good",
+        "verified": "Verified {target}",
+        "unverified": "Removed the verification of {target}",
         "published": "Published {target} to the web",
         "unpublished": "Unpublished {target}",
         "publication_revoked": "Took {target} off the web (published by {subject})",
@@ -1639,6 +1648,11 @@
         "created": "Created the automation “{name}” in {target}",
         "updated": "{change, select, on {Turned on the automation “{name}” in {target}} off {Turned off the automation “{name}” in {target}} other {Changed the automation “{name}” in {target}}}",
         "deleted": "Deleted the automation “{name}” in {target}"
+      },
+      "webhook": {
+        "created": "Added the webhook “{target}”",
+        "updated": "{change, select, on {Turned on the webhook “{target}”} off {Turned off the webhook “{target}”} other {Changed the webhook “{target}”}}",
+        "deleted": "Removed the webhook “{target}”"
       },
       "export": {
         "workspace": "Exported the workspace ({count, plural, one {# page} other {# pages}})",

@@ -2,8 +2,8 @@
  * The workspace check (server/workspace-check.ts gathers it, Settings > Health and the MCP tool
  * check_workspace show it): what is worth tidying among the pages someone can open. Links to pages
  * in the trash or deleted, pages nothing leads to, pages with a title and no body, pages nobody
- * edited for months, pages that say nearly the same thing, and relations to rows in the trash or
- * deleted. Everything here is plain data and pure functions, shared by the server and the browser.
+ * edited for months, pages whose verification ended, pages that say nearly the same thing, and
+ * relations to rows in the trash or deleted. Everything here is plain data and pure functions, shared by the server and the browser.
  */
 
 export type CheckPageKind = "page" | "database" | "row";
@@ -29,6 +29,9 @@ export type BrokenLink = { source: CheckPage; target: DeadTarget };
 export type Orphan = CheckPage & { linkFrom?: { id: string; title: string; icon: string | null } };
 
 export type StalePage = CheckPage & { updatedAt: string };
+
+/** A page whose verification ended (server/verification.ts): who verified it, and when it ended. */
+export type ExpiredVerification = CheckPage & { by: string | null; until: string };
 
 export type DuplicatePair = { a: CheckPage; b: CheckPage; similarity: number };
 
@@ -63,11 +66,12 @@ export type WorkspaceCheck = {
   orphans: CheckSection<Orphan>;
   empty: CheckSection<CheckPage>;
   stale: CheckSection<StalePage>;
+  expiredVerifications: CheckSection<ExpiredVerification>;
   duplicates: DuplicateSection;
   brokenRelations: CheckSection<BrokenRelation>;
 };
 
-export const CHECK_SECTIONS = ["brokenLinks", "orphans", "empty", "stale", "duplicates", "brokenRelations"] as const;
+export const CHECK_SECTIONS = ["brokenLinks", "orphans", "empty", "stale", "expiredVerifications", "duplicates", "brokenRelations"] as const;
 export type CheckSectionKey = (typeof CHECK_SECTIONS)[number];
 
 /** Pages one check looks at at most; past this the ones edited longest ago are left out. */
@@ -184,6 +188,7 @@ export function findingCount(check: WorkspaceCheck): number {
     check.orphans.total +
     check.empty.total +
     check.stale.total +
+    check.expiredVerifications.total +
     (check.duplicates.status === "done" ? check.duplicates.total : 0) +
     check.brokenRelations.total
   );

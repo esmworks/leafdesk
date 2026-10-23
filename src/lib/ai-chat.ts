@@ -45,6 +45,8 @@ export type ChatSourceView = {
   kind: PageKind | null;
   /** The block the cited passage starts at, when known. */
   blockId: string | null;
+  /** The page is verified now (server/verification.ts). */
+  verified?: boolean;
 };
 
 /** A page the chat read, as the reader may see it now (null: they can no longer open it). */

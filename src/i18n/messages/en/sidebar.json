@@ -63,6 +63,8 @@
     "semantic": "Similar meaning",
     "semanticHint": "Found by meaning: the words differ from your search.",
     "archived": "Archived",
+    "verified": "Verified",
+    "verifiedHint": "Someone with full access verified this page. Type is:verified to find only verified pages.",
     "includeArchived": "Include archived",
     "includeArchivedHint": "Also find archived pages",
     "inDocument": "Found in the document {name} on this page",

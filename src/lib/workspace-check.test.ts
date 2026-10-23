@@ -140,11 +140,12 @@ describe("sections", () => {
       orphans: { items: [], total: 3 },
       empty: none,
       stale: { items: [], total: 1 },
+      expiredVerifications: { items: [], total: 5 },
       duplicates: { status: "skipped", reason: "noEmbeddings" },
       brokenRelations: { items: [], total: 4 },
     };
-    expect(findingCount(check)).toBe(10);
-    expect(findingCount({ ...check, duplicates: { status: "done", minSimilarity: 0.9, compared: 5, items: [], total: 2 } })).toBe(12);
+    expect(findingCount(check)).toBe(15);
+    expect(findingCount({ ...check, duplicates: { status: "done", minSimilarity: 0.9, compared: 5, items: [], total: 2 } })).toBe(17);
   });
 });
 

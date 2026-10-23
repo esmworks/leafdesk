@@ -57,6 +57,7 @@ export async function HealthPanel({ workspaceId, check }: { workspaceId: string;
     orphans: check.orphans.total,
     empty: check.empty.total,
     stale: check.stale.total,
+    expiredVerifications: check.expiredVerifications.total,
     duplicates: check.duplicates.status === "done" ? check.duplicates.total : null,
     brokenRelations: check.brokenRelations.total,
   };
@@ -167,6 +168,23 @@ export async function HealthPanel({ workspaceId, check }: { workspaceId: string;
               detail={
                 <time dateTime={p.updatedAt} title={format.dateTime(new Date(p.updatedAt), { dateStyle: "medium" })}>
                   {t("lastEdited", { when: format.relativeTime(new Date(p.updatedAt), now) })}
+                </time>
+              }
+            >
+              {pageLink(p)}
+            </Row>
+          ))}
+        </Section>
+
+        <Section id="expiredVerifications" t={t} section={check.expiredVerifications}>
+          {check.expiredVerifications.items.map((p) => (
+            <Row
+              key={p.id}
+              detail={
+                <time dateTime={p.until} title={format.dateTime(new Date(p.until), { dateStyle: "medium" })}>
+                  {p.by
+                    ? t("verificationEndedBy", { name: p.by, when: format.relativeTime(new Date(p.until), now) })
+                    : t("verificationEnded", { when: format.relativeTime(new Date(p.until), now) })}
                 </time>
               }
             >

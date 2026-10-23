@@ -120,6 +120,39 @@
     "unarchive": "Unarchive",
     "hint": "Archived pages stay out of the sidebar, search and pickers, but can still be read and edited."
   },
+  "verification": {
+    "byUntil": "Verified by {name} until {date}",
+    "by": "Verified by {name}",
+    "until": "Verified until {date}",
+    "plain": "Verified",
+    "expiredOn": "Verification expired {date}",
+    "hint": "Someone with full access checked this page and marked it as right. Editing it keeps it verified.",
+    "change": "Change or remove the verification",
+    "menu": "Verify page…",
+    "menuVerified": "Verification…",
+    "menuHint": "Mark the page as checked and right: search ranks it higher and the AI chat prefers it",
+    "title": "Verify page",
+    "description": "Mark this page as checked and right, for a while or with no end. Search ranks verified pages higher, marks them and finds them with is:verified, and the AI chat prefers them. Editing the page keeps it verified; you hear a few days before it ends.",
+    "durationLabel": "Verified for",
+    "durations": {
+      "week": "1 week",
+      "month": "1 month",
+      "quarter": "3 months",
+      "year": "1 year",
+      "until": "Until a day",
+      "forever": "With no end"
+    },
+    "dateLabel": "Verified until",
+    "verify": "Verify",
+    "verifyAgain": "Verify again",
+    "remove": "Remove verification",
+    "searchBadge": "Verified",
+    "errors": {
+      "template": "Templates and the pages in them aren’t verified.",
+      "inTrash": "Restore the page from the trash first.",
+      "invalidEnd": "Choose a day after today, within five years."
+    }
+  },
   "icon": {
     "add": "Add icon",
     "remove": "Remove icon"

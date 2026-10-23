@@ -4,6 +4,7 @@ import {
   Archive,
   ArchiveRestore,
   ArrowRightLeft,
+  BadgeCheck,
   Bell,
   BellOff,
   Copy,
@@ -112,6 +113,8 @@ export function PageHeaderActions({
   onLocked,
   onSkill,
   onOutdated,
+  onVerified,
+  onVerify,
 }: {
   workspaceId: string;
   page: { id: string; kind: PageKind; parentId: string | null; archived: boolean; hasBody: boolean; isRow?: boolean; title?: string; icon?: string | null };
@@ -148,6 +151,10 @@ export function PageHeaderActions({
   onSkill?: (skill: PageHeaderInfo["skill"]) => void;
   /** Hears whether the page is archived, likewise. */
   onOutdated?: (outdated: PageHeaderInfo["outdated"]) => void;
+  /** Hears whether the page is verified, likewise. */
+  onVerified?: (verified: PageHeaderInfo["verified"]) => void;
+  /** Opens the dialog that verifies the page; unset for those who can't (full access only). */
+  onVerify?: () => void;
 }) {
   const t = useTranslations("page.header");
   const tOffline = useTranslations("offline");
@@ -155,6 +162,7 @@ export function PageHeaderActions({
   useEffect(() => onLocked?.(info.locked), [info.locked, onLocked]);
   useEffect(() => onSkill?.(info.skill), [info.skill, onSkill]);
   useEffect(() => onOutdated?.(info.outdated), [info.outdated, onOutdated]);
+  useEffect(() => onVerified?.(info.verified), [info.verified, onVerified]);
   const offlineTitle = (label: string) => (offline ? tOffline("needsConnection", { action: label }) : label);
   const aiChat = useAiChat();
   const tAi = useTranslations("ai.chat");
@@ -296,6 +304,7 @@ export function PageHeaderActions({
         onGraph={onGraph}
         onMoveToTrash={onMoveToTrash}
         onOpenPage={onOpenPage}
+        onVerify={onVerify}
         offline={offline}
         style={style}
         onStyle={onStyle}
@@ -410,6 +419,7 @@ function PageMenu({
   onGraph,
   onMoveToTrash,
   onOpenPage,
+  onVerify,
   offline,
   style,
   onStyle,
@@ -425,6 +435,7 @@ function PageMenu({
   onGraph?: () => void;
   onMoveToTrash: () => void;
   onOpenPage?: (workspaceId: string, pageId: string) => void;
+  onVerify?: () => void;
   offline: boolean;
   style?: PageStyle;
   onStyle?: (change: Partial<PageStyle>) => void;
@@ -435,6 +446,7 @@ function PageMenu({
   const tSkills = useTranslations("skills");
   const tVoice = useTranslations("page.voiceNote.instructions");
   const tMerge = useTranslations("database.merge");
+  const tVerify = useTranslations("page.verification");
   const tRowAccess = useTranslations("database.rowAccess");
   const locale = useLocale();
   const router = useRouter();
@@ -699,6 +711,18 @@ function PageMenu({
                 onClick={() => setOutdated(!info.outdated, close)}
               >
                 {info.outdated ? t("unarchive") : t("archive")}
+              </MenuItem>
+            )}
+            {onVerify && (
+              <MenuItem
+                icon={<BadgeCheck className="h-4 w-4" />}
+                title={tVerify("menuHint")}
+                onClick={() => {
+                  close();
+                  onVerify();
+                }}
+              >
+                {info.verified ? tVerify("menuVerified") : tVerify("menu")}
               </MenuItem>
             )}
             {!page.archived && canEdit && !templateRoot && (

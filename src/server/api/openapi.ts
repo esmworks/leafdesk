@@ -211,6 +211,16 @@ const SCHEMAS: Record<string, JsonSchema> = {
     ["id", "title", "kind", "url"],
   ),
   PageList: loose({ pages: { type: "array", items: ref("PageSummary") }, ...cursorFields }, ["pages", "next_cursor", "has_more"]),
+  Verification: {
+    type: ["object", "null"],
+    description: "Someone with full access marked the page as checked and right, until `until` (null: no end). Null when nobody verified it.",
+    properties: {
+      by: { type: ["string", "null"], description: "Who verified it; null when their account is gone." },
+      at: { type: "string", format: "date-time" },
+      until: { type: ["string", "null"], format: "date-time" },
+      expired: { type: "boolean", description: "`until` has passed: the page needs checking again." },
+    },
+  },
   SearchResults: loose(
     {
       results: {
@@ -230,6 +240,7 @@ const SCHEMAS: Record<string, JsonSchema> = {
             properties: { id, name: { type: "string" } },
           },
           archived: { type: "boolean", description: "Archived (out of date but kept; not the trash), itself or through a page above it. Only with include_archived." },
+          verified: { ...ref("Verification"), description: "Verified right now (ranked above otherwise equal matches); null otherwise." },
           updated_at: { type: "string", format: "date-time" },
           url,
         }),
@@ -269,6 +280,7 @@ const SCHEMAS: Record<string, JsonSchema> = {
         description:
           "Nobody can change the page's title, icon, background or body (for a database: its properties and views) until someone unlocks it in the app.",
       },
+      verified: ref("Verification"),
       favorite: { type: "boolean", description: "The user starred the page (Favorites in the sidebar)." },
       watching: {
         type: "boolean",

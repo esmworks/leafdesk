@@ -74,6 +74,7 @@ import { applyMemory, memoryForPrompt, memoryOn, MEMORY_TOOL_NAMES, MEMORY_TOOLS
 import { awaitDecision, type ChatDecision } from "@/server/ai-chat-approvals";
 import { chatToolNow, chatToolset, inputSummary, runConnectionTool, type ConnectionToolEntry } from "@/server/connections/tools";
 import * as ops from "@/server/operations";
+import { activeVerifications } from "@/server/verification";
 import {
   applyWrite,
   ATTACHMENT_TOOLS,
@@ -597,10 +598,12 @@ export async function viewStep(userId: string, record: ChatStepRecord, pages?: A
 /** Cited pages as the person may see them now: pages they can't open lose id and title. */
 export async function viewSources(userId: string, refs: ChatSourceRef[]): Promise<ChatSourceView[]> {
   const visible = await visiblePages(userId, refs.map((r) => r.pageId));
+  // Verified as of now, not when the answer was written.
+  const verified = await activeVerifications([...visible.keys()]);
   return refs.map((r) => {
     const seen = visible.get(r.pageId);
     return seen
-      ? { n: r.n, pageId: r.pageId, workspaceId: seen.workspaceId, title: seen.title, icon: seen.icon, kind: seen.kind, blockId: r.blockId }
+      ? { n: r.n, pageId: r.pageId, workspaceId: seen.workspaceId, title: seen.title, icon: seen.icon, kind: seen.kind, blockId: r.blockId, verified: verified.has(r.pageId) }
       : { n: r.n, pageId: null, workspaceId: null, title: null, icon: null, kind: null, blockId: null };
   });
 }

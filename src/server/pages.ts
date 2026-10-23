@@ -61,6 +61,7 @@ import { searchFoldSql } from "@/server/search-fold-sql";
 import { sweepDocuments } from "@/server/file-text";
 import { listedPage, isOutdated, outdatedIds } from "@/server/page-outdated";
 import { searchScope, semanticSearch, type SearchScope } from "@/server/semantic-search";
+import { activeVerification } from "@/server/verification";
 import { reciprocalRankFusion, snippetOf } from "@/server/semantic-text";
 import { assertNestable, subtreeHeight } from "@/server/page-depth";
 import { followNewSpace, freezeInheritedEntries, keepFullAccess, makePagePrivate } from "@/server/permissions";
@@ -834,6 +835,8 @@ export type SearchHit = {
   file?: { id: string; name: string };
   /** The page is archived, itself or through a page above it; only searches that include archived pages find one. */
   outdated: boolean;
+  /** Verified right now (server/verification): ranked above an otherwise equal page, and marked. */
+  verified: boolean;
 };
 
 export type SearchOptions = SearchScope & {
@@ -887,13 +890,17 @@ export async function searchPages(userId: string, query: string, options: Search
             snippet,
             updatedAt: m.updatedAt,
             outdated: m.outdated,
+            verified: m.verified,
             match: "semantic",
             passage: m.passage,
             blockId: m.blockId,
           },
     );
   }
+  // Equal fused scores: a verified page first (sort is stable, so the fusion's order stays otherwise).
   return reciprocalRankFusion([text.map((h) => h.id), meaning.map((m) => m.id)])
+    .map((r) => ({ ...r, verified: byId.get(r.id)!.verified }))
+    .sort((a, b) => b.score - a.score || Number(b.verified) - Number(a.verified))
     .slice(0, limit)
     .map(({ id }) => byId.get(id)!);
 }
@@ -983,6 +990,7 @@ export async function fullTextSearch(
     file_name: string | null;
     file_text: string | null;
     outdated: boolean;
+    verified: boolean;
   }>(sql`
     with candidates as (
       select p.id, ${rank} as rank, null::text as file_id
@@ -1007,11 +1015,12 @@ export async function fullTextSearch(
       -- Ranked first, then checked in that order until enough pass: the check is a function call
       -- per page, which a common word (or the first letters of one) would make for most pages.
       -- "offset 0" keeps the check out of the ranked set, and the ranked set in its order.
-      select r.id, r.rank, r.updated_at, r.file_id from (
-        select s.id, s.rank, p.updated_at, s.file_id
+      -- A verified page goes above an otherwise equal one (server/verification).
+      select r.id, r.rank, r.verified, r.updated_at, r.file_id from (
+        select s.id, s.rank, ${activeVerification("p")} as verified, p.updated_at, s.file_id
         from scored s
         join ${page} p on p.id = s.id
-        order by s.rank desc, p.updated_at desc
+        order by s.rank desc, verified desc, p.updated_at desc
         offset 0
       ) r
       where ${pageVisibleTo(userId, "r")}
@@ -1022,13 +1031,14 @@ export async function fullTextSearch(
       case when p.parent_id is not null and ${pageVisibleTo(userId, "parent")} then p.parent_id end as parent_id,
       p.kind, p.title, p.icon, p.content_text, p.updated_at,
       h.file_id, f.name as file_name, left(ft.text, 80000) as file_text,
-      ${includeOutdated ? isOutdated(workspaces, "p") : sql`false`} as outdated
+      ${includeOutdated ? isOutdated(workspaces, "p") : sql`false`} as outdated,
+      h.verified
     from hits h
     join ${page} p on p.id = h.id
     left join ${page} parent on parent.id = p.parent_id
     left join ${file} f on f.id = h.file_id
     left join ${fileText} ft on ft.file_id = h.file_id
-    order by h.rank desc, h.updated_at desc
+    order by h.rank desc, h.verified desc, h.updated_at desc
   `);
   const needles = anyWord ? terms : [q, ...q.split(/\s+/)];
   return rows.map((r) => ({
@@ -1042,6 +1052,7 @@ export async function fullTextSearch(
     snippet: makeSnippet(r.file_id ? (r.file_text ?? "") : r.content_text, needles),
     updatedAt: new Date(r.updated_at),
     outdated: Boolean(r.outdated),
+    verified: Boolean(r.verified),
     ...(r.file_id ? { file: { id: r.file_id, name: r.file_name ?? "" } } : {}),
   }));
 }
@@ -1186,10 +1197,10 @@ export async function searchWithQuery(
   /** Archived pages too (server/page-outdated.ts): the search box's "Include archived". */
   { includeOutdated = false }: { includeOutdated?: boolean } = {},
 ): Promise<SearchHit[]> {
-  const { text, within, kinds } = parseSearchQuery(query);
+  const { text, within, kinds, verified } = parseSearchQuery(query);
   const withinPageIds = within.length ? await pagesTitled(userId, workspaceId, within, 20, { includeOutdated }) : undefined;
   if (withinPageIds && !withinPageIds.length) return [];
-  return searchPages(userId, text, { workspaceId, limit, withinPageIds, kinds, includeOutdated });
+  return searchPages(userId, text, { workspaceId, limit, withinPageIds, kinds, includeOutdated, verifiedOnly: verified });
 }
 
 /**

@@ -30,6 +30,7 @@ import { anyWordTerms } from "@/lib/search-words";
 import { AccessError, hasLevel, pageAccessOf } from "@/server/access";
 import type { AiTool } from "@/server/ai";
 import { attachmentBlock, formatSources, truncateText, type ChatSourceText } from "@/server/ai/prompts";
+import { activeVerifications } from "@/server/verification";
 import type { ChatDecision } from "@/server/ai-chat-approvals";
 import { getCollab } from "@/server/collab/bridge";
 import { addProperty, addView, getDatabase, getLookups, normalizeRowProperties, updateView } from "@/server/databases";
@@ -411,13 +412,13 @@ export type Registry = {
   byKey: Map<string, number>;
 };
 
-export function register(registry: Registry, source: { pageId: string; blockId: string | null; title: string; text: string; note?: string }) {
+export function register(registry: Registry, source: { pageId: string; blockId: string | null; title: string; text: string; note?: string; verified?: boolean }) {
   const key = `${source.pageId}#${source.blockId ?? ""}`;
   const known = registry.byKey.get(key);
   if (known !== undefined) {
     // Read again (a longer text): the model sees it again under the same number.
     const entry = registry.sources[known - 1];
-    return { ...entry, text: source.text, note: source.note };
+    return { ...entry, text: source.text, note: source.note, verified: source.verified ?? entry.verified };
   }
   const n = registry.sources.length + 1;
   const entry = { n, ...source };
@@ -506,6 +507,7 @@ async function searchSources(
       blockId: best?.passage ? best.blockId : null,
       title: r.title,
       text: truncateText([head, passage].filter(Boolean).join("\n"), maxChars),
+      verified: Boolean(r.verified),
     });
   });
 }
@@ -609,7 +611,8 @@ export async function runTool(
       throw error;
     });
     if (!read) return missing;
-    const entry = register(registry, { pageId, blockId: null, title: read.title, text: read.text, note: read.note });
+    const verified = (await activeVerifications([pageId])).has(pageId);
+    const entry = register(registry, { pageId, blockId: null, title: read.title, text: read.text, note: read.note, verified });
     return { content: formatSources([entry]), step: { kind: "read", pageId } };
   }
   if (call.name === "query_database") return queryRows(ctx, workspaceId, scopeId, call.arguments, registry, room);
