@@ -136,7 +136,7 @@ try {
   const open = await ops.addComment(ownerCtx, { page_id: plan.id, text: "Can we move this to May?", quote: "We launch in April." });
   await ops.addComment(ownerCtx, { page_id: plan.id, text: "Fine by me.", thread_id: open.thread_id });
   const closed = await ops.addComment(ownerCtx, { page_id: plan.id, text: "Settled last week.", quote: "The budget is tight." });
-  await changeComments(owner, plan.id, { type: "resolveThread", threadId: closed.thread_id });
+  await changeComments(owner, plan.id, { type: "resolveThread", threadId: closed.thread_id! });
 
   const diary = await createPage(ownerCtx.actor, { workspaceId, teamspaceId: null, title: "Owner diary", markdown: "Private thoughts." });
   await ops.addComment(ownerCtx, { page_id: diary.id, text: "SECRET-COMMENT about the diary", quote: "Private thoughts." });

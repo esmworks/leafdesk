@@ -92,7 +92,7 @@ import { dashboardsIn, describeWidgets } from "./dashboards";
 import * as workspaces from "@/server/workspaces";
 import * as ops from "@/server/operations";
 import * as skills from "@/server/skills";
-import { filterCombinatorInput, filtersInput, id, rowValue, sortsInput } from "@/server/operations";
+import { filterCombinatorInput, filtersInput, id, sortsInput } from "@/server/operations";
 import { idsFromLinks, jsonResult, MAX_MARKDOWN_CHARS, pageUrl, runTool, sliceText, ToolInputError, toolErrorFor } from "./format";
 import * as automations from "@/server/automations/manage";
 import * as agents from "@/server/agents/manage";
