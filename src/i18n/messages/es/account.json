@@ -124,7 +124,10 @@
     "blockedList": "Espacios de trabajo que debes transferir:",
     "storageStuckBody": "Hay archivos de espacios de trabajo de los que saldrías en tu propio almacenamiento, y no tienen adónde moverse: ningún otro propietario tiene almacenamiento predeterminado y el almacenamiento de este servidor no puede recibirlos. Pide a un propietario que configure un almacenamiento o mueve los archivos (Configuración > Almacenamiento) y después elimina tu cuenta.",
     "storageStuckList": "Espacios de trabajo cuyos archivos no tienen adónde ir:",
-    "storageMovesList": "Sus archivos en tu almacenamiento se mueven primero al almacenamiento de un propietario (hasta entonces, tu almacenamiento los sigue sirviendo):"
+    "storageMovesList": "Sus archivos en tu almacenamiento se mueven primero al almacenamiento de un propietario (hasta entonces, tu almacenamiento los sigue sirviendo):",
+    "legalHoldTitle": "Una retención legal conserva tu cuenta",
+    "legalHoldBody": "Una retención legal abarca lo que creaste o editaste en estos espacios de trabajo, así que tu cuenta no puede eliminarse mientras dure. Pide a un propietario de allí que la levante.",
+    "legalHoldList": "Espacios de trabajo con una retención:"
   },
   "confirmEmail": {
     "metaTitle": "Confirmar dirección de correo",
@@ -163,7 +166,8 @@
     "avatarTooLarge": "La foto es demasiado grande (2 MB como máximo).",
     "samePassword": "Elige una contraseña distinta de la anterior.",
     "resetStepExpired": "Este paso ha caducado. Vuelve a iniciar sesión con tu contraseña anterior.",
-    "storageStuck": "Los archivos de {workspaces} están en tu almacenamiento y no tienen adónde moverse. Pide a sus propietarios que configuren un almacenamiento o mueve antes los archivos."
+    "storageStuck": "Los archivos de {workspaces} están en tu almacenamiento y no tienen adónde moverse. Pide a sus propietarios que configuren un almacenamiento o mueve antes los archivos.",
+    "legalHold": "Una retención legal en {workspaces} conserva tu cuenta. Pide primero a un propietario de allí que la levante."
   },
   "mail": {
     "description": "Tus buzones y direcciones de calendario, en todos tus espacios de trabajo.",

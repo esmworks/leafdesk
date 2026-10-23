@@ -427,6 +427,13 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   connected apps, exports), with the app or identity provider it went through and the address it
   came from, newest first, filtered by person, kind of change and dates, and as CSV. Events are
   kept for a year.
+- **Legal holds**: owners put a named hold, with its reason, on people of the workspace (members,
+  guests, or people who have left) in Settings → Security. While it stands, nothing they created
+  or edited there is deleted for good: their pages and rows (and pages above them, with their
+  history, comments and files) can go to the trash and come back, but *Delete forever*, the trash
+  and history retention, the file cleanups, deleting templates, deleted properties' values and
+  comments keep them or refuse with a message, and neither the workspace nor their accounts can be
+  deleted. Setting and releasing a hold is in the audit log.
 - **Publish to the web**: a read-only public link for a page and its subpages, kept out of search
   engines unless you allow them. Published databases show the views you pick (tables, boards,
   lists, galleries) and visitors switch between them; their browsers get each property's name,
@@ -848,7 +855,8 @@ Pages stay in the trash for the time owners choose in Settings > Security > Data
 days by default, or forever); once a day the server deletes the pages whose time is up, with their
 files, and prunes old page history (versions older than 90 days or past the newest 200 of a page;
 saved versions and those from before a restore stay a year) and the audit log's events older than
-a year. Production servers run this cleanup; set `RETENTION_JOB=on` or `off` to decide otherwise
+a year. Pages a legal hold keeps (see Settings > Security > Legal holds) stay in the trash, with all
+their history, until the hold is released. Production servers run this cleanup; set `RETENTION_JOB=on` or `off` to decide otherwise
 (a dev server doesn't run it unless it is `on`).
 
 The ZIP is streamed while it is built, one download at a time per person. Larger exports are

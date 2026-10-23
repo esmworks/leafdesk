@@ -4,6 +4,17 @@
 
 ### Added
 
+- **Owners can put people under a legal hold.** Settings → Security → Legal holds lists the holds
+  of the workspace, each with its name, reason, who set it and when, and the people it covers:
+  members, guests, or people who have left but created or edited something there. While a hold
+  stands, nothing they created or edited (a page they made, last edited, saved a version of,
+  changed a value of, uploaded a file to or commented on, and any page above one) is deleted for
+  good: it can still go to the trash and come back, but *Delete forever*, the trash and history
+  retention, the file cleanups, deleting a template, a deleted property's values or a comment keep
+  it or refuse with a message, the workspace can't be deleted, and the people's accounts can't be
+  deleted. Removing a held person from the workspace, also over SCIM, keeps their pages, as it
+  always did. Setting and releasing a hold is recorded in the audit log, and backups carry the
+  holds. Migration 0115 adds them.
 - **Table rows move by their handle, which also opens a fuller row menu.** The ⋯ button before
   each row of a table is now a handle: drag it to move the row among the others (in its group, and
   under the same parent when sub-items nest) while no sort orders the view; the order is the one

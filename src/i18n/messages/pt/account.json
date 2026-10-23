@@ -124,7 +124,10 @@
     "blockedList": "Espaços de trabalho a transferir:",
     "storageStuckBody": "Os arquivos de espaços de trabalho dos quais você sairia estão no seu próprio armazenamento, e não há para onde movê-los: nenhum outro proprietário tem um armazenamento padrão, e o armazenamento deste servidor não pode recebê-los. Peça a um proprietário que configure um armazenamento ou mova os arquivos (Configurações > Armazenamento) e depois exclua sua conta.",
     "storageStuckList": "Espaços de trabalho cujos arquivos não têm para onde ir:",
-    "storageMovesList": "Os arquivos deles no seu armazenamento vão primeiro para o armazenamento de um proprietário (até lá, seu armazenamento continua a servi-los):"
+    "storageMovesList": "Os arquivos deles no seu armazenamento vão primeiro para o armazenamento de um proprietário (até lá, seu armazenamento continua a servi-los):",
+    "legalHoldTitle": "Uma retenção legal preserva sua conta",
+    "legalHoldBody": "Uma retenção legal inclui o que você criou ou editou nestes espaços de trabalho, então sua conta não pode ser excluída enquanto ela estiver ativa. Peça a um proprietário de lá para liberá-la.",
+    "legalHoldList": "Espaços de trabalho com uma retenção:"
   },
   "confirmEmail": {
     "metaTitle": "Confirmar endereço de e-mail",
@@ -163,7 +166,8 @@
     "avatarTooLarge": "A foto é grande demais (no máximo 2 MB).",
     "samePassword": "Escolha uma senha diferente da antiga.",
     "resetStepExpired": "Esta etapa expirou. Entre com sua senha antiga de novo.",
-    "storageStuck": "Os arquivos de {workspaces} estão no seu armazenamento e não têm para onde ser movidos. Peça aos proprietários que configurem um armazenamento ou mova os arquivos primeiro."
+    "storageStuck": "Os arquivos de {workspaces} estão no seu armazenamento e não têm para onde ser movidos. Peça aos proprietários que configurem um armazenamento ou mova os arquivos primeiro.",
+    "legalHold": "Uma retenção legal em {workspaces} preserva sua conta. Peça primeiro a um proprietário de lá para liberá-la."
   },
   "mail": {
     "description": "Suas caixas de e-mail e endereços de calendário, em todos os seus espaços de trabalho.",

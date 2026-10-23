@@ -124,7 +124,10 @@
     "blockedList": "Workspaces to hand over:",
     "storageStuckBody": "Files of workspaces you would leave are in your own storage, and there is nowhere they can move to: no other owner has default storage, and this server's storage can't take them. Ask an owner to set up storage, or move the files (Settings > Storage), then delete your account.",
     "storageStuckList": "Workspaces whose files have nowhere to go:",
-    "storageMovesList": "Their files in your storage move to an owner's storage first (your storage keeps serving them until then):"
+    "storageMovesList": "Their files in your storage move to an owner's storage first (your storage keeps serving them until then):",
+    "legalHoldTitle": "A legal hold keeps your account",
+    "legalHoldBody": "A legal hold covers what you created or edited in these workspaces, so your account can't be deleted while it stands. Ask an owner there to release it.",
+    "legalHoldList": "Workspaces with a hold:"
   },
   "confirmEmail": {
     "metaTitle": "Confirm email address",
@@ -163,7 +166,8 @@
     "avatarTooLarge": "The picture is too large (2 MB at most).",
     "samePassword": "Choose a password different from the old one.",
     "resetStepExpired": "This step has expired. Sign in with your old password again.",
-    "storageStuck": "The files of {workspaces} are in your storage and have nowhere to move to. Ask their owners to set up storage, or move the files first."
+    "storageStuck": "The files of {workspaces} are in your storage and have nowhere to move to. Ask their owners to set up storage, or move the files first.",
+    "legalHold": "A legal hold in {workspaces} keeps your account. Ask an owner there to release it first."
   },
   "mail": {
     "description": "Your mailboxes and calendar addresses, in every workspace you're in.",

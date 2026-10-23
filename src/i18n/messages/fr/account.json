@@ -124,7 +124,10 @@
     "blockedList": "Espaces de travail à transférer :",
     "storageStuckBody": "Des fichiers d’espaces de travail que vous quitteriez sont dans votre propre stockage, et ils ne peuvent être déplacés nulle part : aucun autre propriétaire n’a de stockage par défaut, et le stockage de ce serveur ne peut pas les accueillir. Demandez à un propriétaire de configurer un stockage, ou déplacez les fichiers (Paramètres > Stockage), puis supprimez votre compte.",
     "storageStuckList": "Espaces de travail dont les fichiers n’ont nulle part où aller :",
-    "storageMovesList": "Leurs fichiers dans votre stockage sont d’abord déplacés vers le stockage d’un propriétaire (votre stockage continue de les servir d’ici là) :"
+    "storageMovesList": "Leurs fichiers dans votre stockage sont d’abord déplacés vers le stockage d’un propriétaire (votre stockage continue de les servir d’ici là) :",
+    "legalHoldTitle": "Une conservation légale protège votre compte",
+    "legalHoldBody": "Une conservation légale couvre ce que vous avez créé ou modifié dans ces espaces de travail : votre compte ne peut pas être supprimé tant qu'elle est en place. Demandez à un propriétaire de ces espaces de la lever.",
+    "legalHoldList": "Espaces de travail avec une conservation :"
   },
   "confirmEmail": {
     "metaTitle": "Confirmer l’adresse e-mail",
@@ -163,7 +166,8 @@
     "avatarTooLarge": "La photo est trop volumineuse (2 Mo maximum).",
     "samePassword": "Choisissez un mot de passe différent de l'ancien.",
     "resetStepExpired": "Cette étape a expiré. Reconnectez-vous avec votre ancien mot de passe.",
-    "storageStuck": "Les fichiers de {workspaces} sont dans votre stockage et ne peuvent être déplacés nulle part. Demandez à leurs propriétaires de configurer un stockage, ou déplacez d’abord les fichiers."
+    "storageStuck": "Les fichiers de {workspaces} sont dans votre stockage et ne peuvent être déplacés nulle part. Demandez à leurs propriétaires de configurer un stockage, ou déplacez d’abord les fichiers.",
+    "legalHold": "Une conservation légale dans {workspaces} protège votre compte. Demandez d'abord à un propriétaire de la lever."
   },
   "mail": {
     "description": "Vos boîtes mail et adresses de calendrier, dans tous vos espaces de travail.",

@@ -1350,6 +1350,49 @@
       "shown": "전체 {total}개 중 여기에서 가장 최근에 사용된 {shown}개를 표시합니다."
     }
   },
+  "legalHolds": {
+    "title": "법적 보존",
+    "description": "보존이 유지되는 동안 대상자가 이 워크스페이스에서 만들거나 편집한 것은 영구 삭제할 수 없습니다. 페이지와 행은 여전히 휴지통으로 옮길 수 있지만 기록, 댓글, 파일과 함께 그대로 남고, 워크스페이스와 대상자의 계정은 삭제할 수 없습니다.",
+    "holds": "보존",
+    "holdsDescription": "보존 설정과 해제는 감사 로그에 기록됩니다.",
+    "empty": "보존이 없습니다.",
+    "new": "새 보존",
+    "setBy": "{name}님이 {date, date, medium}에 설정",
+    "setOn": "{date, date, medium}에 설정",
+    "people": "{count, plural, other {#명}}",
+    "left": "나감",
+    "guest": "게스트",
+    "release": "해제",
+    "confirmRelease": "{name} 해제",
+    "form": {
+      "title": "새 법적 보존",
+      "description": "대상자를 선택하세요: 멤버, 게스트, 또는 나갔지만 여기서 무언가를 만들거나 편집한 사람.",
+      "name": "이름",
+      "namePlaceholder": "사안 또는 사건",
+      "reason": "사유",
+      "reasonPlaceholder": "선택 사항: 이유와 요청한 사람",
+      "people": "대상자 ({count})",
+      "search": "사람 검색",
+      "loading": "불러오는 중…",
+      "nobody": "일치하는 사람이 없습니다.",
+      "submit": "보존 설정"
+    },
+    "errors": {
+      "pageHeld": "법적 보존이 이 페이지 또는 그 아래 페이지를 보존하고 있습니다. 보존이 유지되는 동안 영구 삭제할 수 없으며 휴지통에 남습니다.",
+      "templateHeld": "법적 보존이 이 템플릿을 보존하고 있습니다. 보존이 유지되는 동안 삭제할 수 없습니다.",
+      "propertyHeld": "법적 보존이 이 속성의 값을 보존하고 있습니다. 보존이 유지되는 동안 영구 삭제할 수 없습니다.",
+      "commentHeld": "법적 보존이 이 댓글을 보존하고 있습니다. 보존이 유지되는 동안 삭제할 수 없습니다.",
+      "workspaceHeld": "이 워크스페이스에 법적 보존이 있습니다. 워크스페이스를 삭제하기 전에 해제하세요 (설정 > 보안).",
+      "nameRequired": "보존 이름을 입력하세요.",
+      "nameTooLong": "이름은 200자 이하로 입력하세요.",
+      "reasonTooLong": "사유는 2,000자 이하로 입력하세요.",
+      "noPeople": "보존 대상자를 선택하세요.",
+      "tooManyPeople": "보존 하나의 대상자는 최대 200명입니다.",
+      "unknownPerson": "선택한 사람이 더 이상 이 워크스페이스에 없습니다.",
+      "notFound": "그 보존은 이미 해제되었습니다.",
+      "ownersOnly": "법적 보존은 소유자만 관리합니다."
+    }
+  },
   "audit": {
     "description": "이 워크스페이스에서 누가 무엇을 변경했는지 기록합니다: 멤버와 역할, 초대, 공유, 팀스페이스와 그룹, 설정, 보안, 페이지 생성·이동·휴지통 이동·삭제, 게시, 연결된 앱, 내보내기. 소유자만 볼 수 있습니다.",
     "filters": "감사 로그 필터",
@@ -1581,6 +1624,10 @@
       "scim": {
         "token_created": "SCIM 토큰 {target}을(를) 만들었습니다",
         "token_revoked": "SCIM 토큰 {target}을(를) 취소했습니다"
+      },
+      "legal_hold": {
+        "set": "{names}에게 법적 보존 {target}을(를) 설정함",
+        "released": "{names}의 법적 보존 {target}을(를) 해제함"
       },
       "site": {
         "saved": "{slug} 주소의 사이트를 저장했습니다",

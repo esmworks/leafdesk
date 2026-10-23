@@ -124,7 +124,10 @@
     "blockedList": "Zu übergebende Workspaces:",
     "storageStuckBody": "Dateien von Workspaces, die du verlassen würdest, liegen in deinem eigenen Speicher und können nirgendwohin verschoben werden: Kein anderer Inhaber hat einen Standardspeicher, und der Speicher dieses Servers kann sie nicht aufnehmen. Bitte einen Inhaber, Speicher einzurichten, oder verschiebe die Dateien (Einstellungen > Speicher) und lösche dann dein Konto.",
     "storageStuckList": "Workspaces, deren Dateien nirgendwohin können:",
-    "storageMovesList": "Ihre Dateien in deinem Speicher ziehen zuerst in den Speicher eines Inhabers um (bis dahin liefert dein Speicher sie weiter aus):"
+    "storageMovesList": "Ihre Dateien in deinem Speicher ziehen zuerst in den Speicher eines Inhabers um (bis dahin liefert dein Speicher sie weiter aus):",
+    "legalHoldTitle": "Eine rechtliche Aufbewahrung schützt Ihr Konto",
+    "legalHoldBody": "Eine rechtliche Aufbewahrung betrifft, was Sie in diesen Workspaces erstellt oder bearbeitet haben; solange sie besteht, kann Ihr Konto nicht gelöscht werden. Bitten Sie dort einen Inhaber, sie aufzuheben.",
+    "legalHoldList": "Workspaces mit einer Aufbewahrung:"
   },
   "confirmEmail": {
     "metaTitle": "E-Mail-Adresse bestätigen",
@@ -163,7 +166,8 @@
     "avatarTooLarge": "Das Bild ist zu groß (höchstens 2 MB).",
     "samePassword": "Wählen Sie ein anderes Passwort als das alte.",
     "resetStepExpired": "Dieser Schritt ist abgelaufen. Melden Sie sich erneut mit Ihrem alten Passwort an.",
-    "storageStuck": "Die Dateien von {workspaces} liegen in deinem Speicher und können nirgendwohin verschoben werden. Bitte ihre Inhaber, Speicher einzurichten, oder verschiebe die Dateien zuerst."
+    "storageStuck": "Die Dateien von {workspaces} liegen in deinem Speicher und können nirgendwohin verschoben werden. Bitte ihre Inhaber, Speicher einzurichten, oder verschiebe die Dateien zuerst.",
+    "legalHold": "Eine rechtliche Aufbewahrung in {workspaces} schützt Ihr Konto. Bitten Sie dort zuerst einen Inhaber, sie aufzuheben."
   },
   "mail": {
     "description": "Deine Postfächer und Kalenderadressen, in allen deinen Workspaces.",

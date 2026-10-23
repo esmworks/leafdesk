@@ -317,11 +317,18 @@ export function PageView({
 
   function deleteForever() {
     if (!confirm(t("archived.confirmDelete"))) return;
-    run(async () => {
-      await deletePagePermanentlyAction(page.id);
-      if (panelRef.current) return panelRef.current.onGone();
-      router.push(`/w/${workspaceId}`);
-      router.refresh();
+    setActionError(null);
+    startTransition(async () => {
+      try {
+        const result = await deletePagePermanentlyAction(page.id);
+        // A legal hold keeps it: said in place of the generic failure.
+        if (!result.ok) return setActionError(result.error);
+        if (panelRef.current) return panelRef.current.onGone();
+        router.push(`/w/${workspaceId}`);
+        router.refresh();
+      } catch {
+        setActionError(t("header.actionFailed"));
+      }
     });
   }
 

@@ -1350,6 +1350,49 @@
       "shown": "Mostrando os {shown} usados aqui mais recentemente de {total}."
     }
   },
+  "legalHolds": {
+    "title": "Retenções legais",
+    "description": "Enquanto uma retenção estiver ativa, nada do que as pessoas incluídas criaram ou editaram neste espaço de trabalho pode ser excluído para sempre. As páginas e linhas delas ainda podem ir para a lixeira, mas ficam lá com histórico, comentários e arquivos; o espaço de trabalho e as contas delas não podem ser excluídos.",
+    "holds": "Retenções",
+    "holdsDescription": "Aplicar e liberar uma retenção fica registrado no log de auditoria.",
+    "empty": "Nenhuma retenção.",
+    "new": "Nova retenção",
+    "setBy": "Aplicada por {name} em {date, date, medium}",
+    "setOn": "Aplicada em {date, date, medium}",
+    "people": "{count, plural, one {# pessoa} other {# pessoas}}",
+    "left": "saiu",
+    "guest": "convidado",
+    "release": "Liberar",
+    "confirmRelease": "Liberar {name}",
+    "form": {
+      "title": "Nova retenção legal",
+      "description": "Escolha as pessoas incluídas: membros, convidados ou pessoas que saíram mas criaram ou editaram algo aqui.",
+      "name": "Nome",
+      "namePlaceholder": "Assunto ou processo",
+      "reason": "Motivo",
+      "reasonPlaceholder": "Opcional: por quê e quem pediu",
+      "people": "Pessoas ({count})",
+      "search": "Pesquisar pessoas",
+      "loading": "Carregando…",
+      "nobody": "Ninguém corresponde.",
+      "submit": "Aplicar retenção"
+    },
+    "errors": {
+      "pageHeld": "Uma retenção legal preserva esta página, ou uma página abaixo dela: ela não pode ser excluída para sempre enquanto a retenção estiver ativa e fica na lixeira.",
+      "templateHeld": "Uma retenção legal preserva este modelo: ele não pode ser excluído enquanto a retenção estiver ativa.",
+      "propertyHeld": "Uma retenção legal preserva os valores desta propriedade: ela não pode ser excluída para sempre enquanto a retenção estiver ativa.",
+      "commentHeld": "Uma retenção legal preserva este comentário: ele não pode ser excluído enquanto a retenção estiver ativa.",
+      "workspaceHeld": "Este espaço de trabalho tem uma retenção legal. Libere-a (Configurações > Segurança) antes de excluir o espaço de trabalho.",
+      "nameRequired": "Dê um nome à retenção.",
+      "nameTooLong": "Use no máximo 200 caracteres no nome.",
+      "reasonTooLong": "Use no máximo 2.000 caracteres no motivo.",
+      "noPeople": "Escolha quem a retenção inclui.",
+      "tooManyPeople": "Uma retenção inclui no máximo 200 pessoas.",
+      "unknownPerson": "Alguém que você escolheu não está mais neste espaço de trabalho.",
+      "notFound": "Essa retenção já foi liberada.",
+      "ownersOnly": "Só proprietários gerenciam retenções legais."
+    }
+  },
   "audit": {
     "description": "Um registro de quem alterou o quê neste espaço de trabalho: membros e funções, convites, compartilhamento, espaços de equipe e grupos, configurações, segurança, páginas criadas, movidas, enviadas para a lixeira e excluídas, publicação, apps conectados e exportações. Só proprietários podem vê-lo.",
     "filters": "Filtrar o registro de auditoria",
@@ -1581,6 +1624,10 @@
       "scim": {
         "token_created": "Criou o token SCIM {target}",
         "token_revoked": "Revogou o token SCIM {target}"
+      },
+      "legal_hold": {
+        "set": "Aplicou a retenção legal {target} a {names}",
+        "released": "Liberou a retenção legal {target} de {names}"
       },
       "site": {
         "saved": "Salvou o site em {slug}",

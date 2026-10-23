@@ -1350,6 +1350,49 @@
       "shown": "显示 {total} 个中最近在此使用的 {shown} 个。"
     }
   },
+  "legalHolds": {
+    "title": "法律保留",
+    "description": "保留生效期间，保留对象在此工作区中创建或编辑的任何内容都不能被永久删除。他们的页面和行仍可移到回收站，但会连同历史、评论和文件一起留在那里；工作区和他们的账户也不能被删除。",
+    "holds": "保留",
+    "holdsDescription": "设置和解除保留都会记录在审计日志中。",
+    "empty": "没有保留。",
+    "new": "新建保留",
+    "setBy": "由 {name} 于 {date, date, medium} 设置",
+    "setOn": "于 {date, date, medium} 设置",
+    "people": "{count, plural, other {# 人}}",
+    "left": "已离开",
+    "guest": "访客",
+    "release": "解除",
+    "confirmRelease": "解除 {name}",
+    "form": {
+      "title": "新建法律保留",
+      "description": "选择保留对象：成员、访客，或已离开但在这里创建或编辑过内容的人。",
+      "name": "名称",
+      "namePlaceholder": "事项或案件",
+      "reason": "原因",
+      "reasonPlaceholder": "可选：原因以及由谁提出",
+      "people": "对象（{count}）",
+      "search": "搜索人员",
+      "loading": "正在加载…",
+      "nobody": "没有匹配的人。",
+      "submit": "设置保留"
+    },
+    "errors": {
+      "pageHeld": "法律保留保留着此页面或其下的页面：保留生效期间不能永久删除，它会留在回收站中。",
+      "templateHeld": "法律保留保留着此模板：保留生效期间不能删除。",
+      "propertyHeld": "法律保留保留着此属性的值：保留生效期间不能永久删除。",
+      "commentHeld": "法律保留保留着此评论：保留生效期间不能删除。",
+      "workspaceHeld": "此工作区有法律保留。请先解除（设置 > 安全），再删除工作区。",
+      "nameRequired": "请为保留命名。",
+      "nameTooLong": "名称最多 200 个字符。",
+      "reasonTooLong": "原因最多 2,000 个字符。",
+      "noPeople": "请选择保留对象。",
+      "tooManyPeople": "一个保留最多包含 200 人。",
+      "unknownPerson": "你选择的某人已不在此工作区。",
+      "notFound": "该保留已被解除。",
+      "ownersOnly": "只有所有者可以管理法律保留。"
+    }
+  },
   "audit": {
     "description": "记录在此工作区中谁更改了什么：成员和角色、邀请、分享、团队空间和用户组、设置、安全、页面的创建、移动、移到回收站和删除、发布、已连接的应用和导出。只有所有者可以看到。",
     "filters": "筛选审计日志",
@@ -1581,6 +1624,10 @@
       "scim": {
         "token_created": "创建了 SCIM 令牌 {target}",
         "token_revoked": "撤销了 SCIM 令牌 {target}"
+      },
+      "legal_hold": {
+        "set": "为 {names} 设置了法律保留 {target}",
+        "released": "解除了 {names} 的法律保留 {target}"
       },
       "site": {
         "saved": "保存了位于 {slug} 的站点",

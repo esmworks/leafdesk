@@ -35,6 +35,7 @@ import { MailSettings } from "@/components/settings/mail-settings";
 import { StorageSettings } from "@/components/settings/storage-settings";
 import { DeleteWorkspaceRow } from "@/components/settings/delete-workspace";
 import { LeaveWorkspaceRow } from "@/components/settings/leave-workspace";
+import { LegalHolds } from "@/components/settings/legal-holds";
 import { MembersPanel } from "@/components/settings/members-panel";
 import { PublicForms } from "@/components/settings/public-forms";
 import { PublishedPages } from "@/components/settings/published-pages";
@@ -110,6 +111,7 @@ import { listGuests } from "@/server/guests";
 import { listWorkspacePublications } from "@/server/publication";
 import { listScimTokens, scimManagedCount } from "@/server/scim";
 import { getSsoConnection, ssoSetupInfo } from "@/server/sso";
+import { listLegalHolds } from "@/server/legal-hold";
 import { getSession, requireWorkspaceSession, type requireSession } from "@/server/session";
 import { getSite } from "@/server/site";
 import { listSnippets } from "@/server/snippets";
@@ -414,7 +416,7 @@ async function SecurityTab({ workspaceId, userId, isOwner }: { workspaceId: stri
   // On one computer (lib/env.ts localMode) there is no one to sign in with SSO, provision, invite,
   // ask for access or publish to: those settings are left out.
   const local = env.localMode;
-  const [settings, publications, forms, session, withoutTwoFactor, canUseSso, connection, scimTokens, scimManaged, domainStatus, apps, t] =
+  const [settings, publications, forms, session, withoutTwoFactor, canUseSso, connection, scimTokens, scimManaged, domainStatus, apps, holds, t] =
     await Promise.all([
       getWorkspaceSettings(userId, workspaceId),
       isOwner && !local ? listWorkspacePublications(userId, workspaceId) : null,
@@ -427,6 +429,7 @@ async function SecurityTab({ workspaceId, userId, isOwner }: { workspaceId: stri
       isOwner && !local ? scimManagedCount(workspaceId) : 0,
       allowedDomainsStatus(userId, workspaceId),
       isOwner ? listWorkspaceApps(userId, workspaceId) : null,
+      isOwner ? listLegalHolds(userId, workspaceId) : null,
       getTranslations("settings"),
     ]);
   const setup = ssoSetupInfo(workspaceId);
@@ -525,6 +528,11 @@ async function SecurityTab({ workspaceId, userId, isOwner }: { workspaceId: stri
         <TrashRetentionSetting workspaceId={workspaceId} settings={settings} canEdit={isOwner} />
         <HistoryRetentionNote />
       </SettingsGroup>
+      {holds && (
+        <SettingsGroup title={t("legalHolds.title")} description={t("legalHolds.description")}>
+          <LegalHolds workspaceId={workspaceId} holds={holds} />
+        </SettingsGroup>
+      )}
     </div>
   );
 }

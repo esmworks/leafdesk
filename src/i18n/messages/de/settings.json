@@ -1350,6 +1350,49 @@
       "shown": "Die {shown} hier zuletzt genutzten von {total} werden angezeigt."
     }
   },
+  "legalHolds": {
+    "title": "Rechtliche Aufbewahrung",
+    "description": "Solange eine Aufbewahrung besteht, kann nichts endgültig gelöscht werden, was die betroffenen Personen in diesem Workspace erstellt oder bearbeitet haben. Ihre Seiten und Zeilen können weiter in den Papierkorb, bleiben dort aber mit Verlauf, Kommentaren und Dateien; der Workspace und ihre Konten können nicht gelöscht werden.",
+    "holds": "Aufbewahrungen",
+    "holdsDescription": "Das Setzen und Aufheben einer Aufbewahrung wird im Audit-Log festgehalten.",
+    "empty": "Keine Aufbewahrungen.",
+    "new": "Neue Aufbewahrung",
+    "setBy": "Gesetzt von {name} am {date, date, medium}",
+    "setOn": "Gesetzt am {date, date, medium}",
+    "people": "{count, plural, one {# Person} other {# Personen}}",
+    "left": "ausgetreten",
+    "guest": "Gast",
+    "release": "Aufheben",
+    "confirmRelease": "{name} aufheben",
+    "form": {
+      "title": "Neue rechtliche Aufbewahrung",
+      "description": "Wählen Sie die Personen, die sie betrifft: Mitglieder, Gäste oder Personen, die ausgetreten sind, aber hier etwas erstellt oder bearbeitet haben.",
+      "name": "Name",
+      "namePlaceholder": "Angelegenheit oder Verfahren",
+      "reason": "Grund",
+      "reasonPlaceholder": "Optional: warum, und wer sie verlangt hat",
+      "people": "Personen ({count})",
+      "search": "Personen suchen",
+      "loading": "Wird geladen …",
+      "nobody": "Niemand passt.",
+      "submit": "Aufbewahrung setzen"
+    },
+    "errors": {
+      "pageHeld": "Eine rechtliche Aufbewahrung schützt diese Seite oder eine Seite darunter: Sie kann nicht endgültig gelöscht werden, solange die Aufbewahrung besteht, und bleibt im Papierkorb.",
+      "templateHeld": "Eine rechtliche Aufbewahrung schützt diese Vorlage: Sie kann nicht gelöscht werden, solange die Aufbewahrung besteht.",
+      "propertyHeld": "Eine rechtliche Aufbewahrung schützt die Werte dieser Eigenschaft: Sie kann nicht endgültig gelöscht werden, solange die Aufbewahrung besteht.",
+      "commentHeld": "Eine rechtliche Aufbewahrung schützt diesen Kommentar: Er kann nicht gelöscht werden, solange die Aufbewahrung besteht.",
+      "workspaceHeld": "Für diesen Workspace besteht eine rechtliche Aufbewahrung. Heben Sie sie auf (Einstellungen > Sicherheit), bevor Sie den Workspace löschen.",
+      "nameRequired": "Geben Sie der Aufbewahrung einen Namen.",
+      "nameTooLong": "Der Name darf höchstens 200 Zeichen lang sein.",
+      "reasonTooLong": "Der Grund darf höchstens 2.000 Zeichen lang sein.",
+      "noPeople": "Wählen Sie, wen die Aufbewahrung betrifft.",
+      "tooManyPeople": "Eine Aufbewahrung betrifft höchstens 200 Personen.",
+      "unknownPerson": "Eine gewählte Person ist nicht mehr in diesem Workspace.",
+      "notFound": "Diese Aufbewahrung wurde bereits aufgehoben.",
+      "ownersOnly": "Nur Inhaber verwalten rechtliche Aufbewahrungen."
+    }
+  },
   "audit": {
     "description": "Wer in diesem Workspace was geändert hat: Mitglieder und Rollen, Einladungen, Freigaben, Teamspaces und Gruppen, Einstellungen, Sicherheit, erstellte, verschobene, in den Papierkorb gelegte und gelöschte Seiten, Veröffentlichungen, verbundene Apps und Exporte. Nur Inhaber sehen es.",
     "filters": "Audit-Log filtern",
@@ -1581,6 +1624,10 @@
       "scim": {
         "token_created": "Hat das SCIM-Token {target} erstellt",
         "token_revoked": "Hat das SCIM-Token {target} widerrufen"
+      },
+      "legal_hold": {
+        "set": "Hat die rechtliche Aufbewahrung {target} für {names} gesetzt",
+        "released": "Hat die rechtliche Aufbewahrung {target} für {names} aufgehoben"
       },
       "site": {
         "saved": "Hat die Website unter {slug} gespeichert",

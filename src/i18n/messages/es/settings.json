@@ -1350,6 +1350,49 @@
       "shown": "Se muestran las {shown} usadas aquí más recientemente de {total}."
     }
   },
+  "legalHolds": {
+    "title": "Retenciones legales",
+    "description": "Mientras dure una retención, nada de lo que las personas incluidas crearon o editaron en este espacio de trabajo puede eliminarse para siempre. Sus páginas y filas pueden seguir yendo a la papelera, pero se quedan allí con su historial, comentarios y archivos; el espacio de trabajo y sus cuentas no pueden eliminarse.",
+    "holds": "Retenciones",
+    "holdsDescription": "Aplicar y levantar una retención queda registrado en el registro de auditoría.",
+    "empty": "No hay retenciones.",
+    "new": "Nueva retención",
+    "setBy": "Aplicada por {name} el {date, date, medium}",
+    "setOn": "Aplicada el {date, date, medium}",
+    "people": "{count, plural, one {# persona} other {# personas}}",
+    "left": "se fue",
+    "guest": "invitado",
+    "release": "Levantar",
+    "confirmRelease": "Levantar {name}",
+    "form": {
+      "title": "Nueva retención legal",
+      "description": "Elige a las personas que abarca: miembros, invitados o personas que se fueron pero crearon o editaron algo aquí.",
+      "name": "Nombre",
+      "namePlaceholder": "Asunto o caso",
+      "reason": "Motivo",
+      "reasonPlaceholder": "Opcional: por qué y quién la pidió",
+      "people": "Personas ({count})",
+      "search": "Buscar personas",
+      "loading": "Cargando…",
+      "nobody": "Nadie coincide.",
+      "submit": "Aplicar retención"
+    },
+    "errors": {
+      "pageHeld": "Una retención legal conserva esta página, o una página debajo de ella: no puede eliminarse para siempre mientras dure la retención y se queda en la papelera.",
+      "templateHeld": "Una retención legal conserva esta plantilla: no puede eliminarse mientras dure la retención.",
+      "propertyHeld": "Una retención legal conserva los valores de esta propiedad: no puede eliminarse para siempre mientras dure la retención.",
+      "commentHeld": "Una retención legal conserva este comentario: no puede eliminarse mientras dure la retención.",
+      "workspaceHeld": "Este espacio de trabajo tiene una retención legal. Levántala (Configuración > Seguridad) antes de eliminar el espacio de trabajo.",
+      "nameRequired": "Ponle un nombre a la retención.",
+      "nameTooLong": "Usa como máximo 200 caracteres para el nombre.",
+      "reasonTooLong": "Usa como máximo 2000 caracteres para el motivo.",
+      "noPeople": "Elige a quién abarca la retención.",
+      "tooManyPeople": "Una retención abarca como máximo 200 personas.",
+      "unknownPerson": "Alguien que elegiste ya no está en este espacio de trabajo.",
+      "notFound": "Esa retención ya se levantó.",
+      "ownersOnly": "Solo los propietarios gestionan las retenciones legales."
+    }
+  },
   "audit": {
     "description": "Quién cambió qué en este espacio de trabajo: miembros y roles, invitaciones, uso compartido, espacios de equipo y grupos, ajustes, seguridad, páginas creadas, movidas, enviadas a la papelera y eliminadas, publicaciones, apps conectadas y exportaciones. Solo los propietarios pueden verlo.",
     "filters": "Filtrar el registro de auditoría",
@@ -1581,6 +1624,10 @@
       "scim": {
         "token_created": "Creó el token SCIM {target}",
         "token_revoked": "Revocó el token SCIM {target}"
+      },
+      "legal_hold": {
+        "set": "Aplicó la retención legal {target} a {names}",
+        "released": "Levantó la retención legal {target} de {names}"
       },
       "site": {
         "saved": "Guardó el sitio en {slug}",

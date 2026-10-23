@@ -1350,6 +1350,49 @@
       "shown": "Affichage des {shown} utilisées le plus récemment ici, sur {total}."
     }
   },
+  "legalHolds": {
+    "title": "Conservations légales",
+    "description": "Tant qu'une conservation est en place, rien de ce que les personnes concernées ont créé ou modifié dans cet espace de travail ne peut être supprimé définitivement. Leurs pages et lignes peuvent toujours aller à la corbeille, mais y restent avec leur historique, leurs commentaires et leurs fichiers ; l'espace de travail et leurs comptes ne peuvent pas être supprimés.",
+    "holds": "Conservations",
+    "holdsDescription": "La mise en place et la levée d'une conservation sont enregistrées dans le journal d'audit.",
+    "empty": "Aucune conservation.",
+    "new": "Nouvelle conservation",
+    "setBy": "Mise en place par {name} le {date, date, medium}",
+    "setOn": "Mise en place le {date, date, medium}",
+    "people": "{count, plural, one {# personne} other {# personnes}}",
+    "left": "partie",
+    "guest": "invité",
+    "release": "Lever",
+    "confirmRelease": "Lever {name}",
+    "form": {
+      "title": "Nouvelle conservation légale",
+      "description": "Choisissez les personnes concernées : membres, invités, ou personnes parties qui ont créé ou modifié quelque chose ici.",
+      "name": "Nom",
+      "namePlaceholder": "Affaire ou dossier",
+      "reason": "Motif",
+      "reasonPlaceholder": "Facultatif : pourquoi, et qui l'a demandée",
+      "people": "Personnes ({count})",
+      "search": "Rechercher des personnes",
+      "loading": "Chargement…",
+      "nobody": "Personne ne correspond.",
+      "submit": "Mettre en conservation"
+    },
+    "errors": {
+      "pageHeld": "Une conservation légale protège cette page, ou une page en dessous : elle ne peut pas être supprimée définitivement tant que la conservation est en place, et reste dans la corbeille.",
+      "templateHeld": "Une conservation légale protège ce modèle : il ne peut pas être supprimé tant que la conservation est en place.",
+      "propertyHeld": "Une conservation légale protège les valeurs de cette propriété : elle ne peut pas être supprimée définitivement tant que la conservation est en place.",
+      "commentHeld": "Une conservation légale protège ce commentaire : il ne peut pas être supprimé tant que la conservation est en place.",
+      "workspaceHeld": "Cet espace de travail a une conservation légale. Levez-la (Paramètres > Sécurité) avant de supprimer l'espace de travail.",
+      "nameRequired": "Donnez un nom à la conservation.",
+      "nameTooLong": "Utilisez au plus 200 caractères pour le nom.",
+      "reasonTooLong": "Utilisez au plus 2 000 caractères pour le motif.",
+      "noPeople": "Choisissez qui la conservation concerne.",
+      "tooManyPeople": "Une conservation concerne au plus 200 personnes.",
+      "unknownPerson": "Une personne choisie n'est plus dans cet espace de travail.",
+      "notFound": "Cette conservation a déjà été levée.",
+      "ownersOnly": "Seuls les propriétaires gèrent les conservations légales."
+    }
+  },
   "audit": {
     "description": "Qui a modifié quoi dans cet espace de travail : membres et rôles, invitations, partage, espaces d’équipe et groupes, paramètres, sécurité, pages créées, déplacées, mises à la corbeille et supprimées, publications, applications connectées et exportations. Seuls les propriétaires peuvent le voir.",
     "filters": "Filtrer le journal d’audit",
@@ -1581,6 +1624,10 @@
       "scim": {
         "token_created": "A créé le jeton SCIM {target}",
         "token_revoked": "A révoqué le jeton SCIM {target}"
+      },
+      "legal_hold": {
+        "set": "A mis la conservation légale {target} sur {names}",
+        "released": "A levé la conservation légale {target} sur {names}"
       },
       "site": {
         "saved": "A enregistré le site à l’adresse {slug}",

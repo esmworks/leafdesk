@@ -124,7 +124,10 @@
     "blockedList": "Spazi di lavoro da cedere:",
     "storageStuckBody": "I file degli spazi di lavoro che lasceresti sono nella tua archiviazione e non c’è alcun posto in cui spostarli: nessun altro proprietario ha un’archiviazione predefinita e l’archiviazione di questo server non può accoglierli. Chiedi a un proprietario di configurare un’archiviazione, oppure sposta i file (Impostazioni > Archiviazione), poi elimina il tuo account.",
     "storageStuckList": "Spazi di lavoro i cui file non hanno dove andare:",
-    "storageMovesList": "I loro file nella tua archiviazione vengono prima spostati nell’archiviazione di un proprietario (fino ad allora la tua archiviazione continua a servirli):"
+    "storageMovesList": "I loro file nella tua archiviazione vengono prima spostati nell’archiviazione di un proprietario (fino ad allora la tua archiviazione continua a servirli):",
+    "legalHoldTitle": "Una conservazione legale protegge il tuo account",
+    "legalHoldBody": "Una conservazione legale include ciò che hai creato o modificato in questi spazi di lavoro, quindi il tuo account non può essere eliminato finché è attiva. Chiedi a un proprietario di revocarla.",
+    "legalHoldList": "Spazi di lavoro con una conservazione:"
   },
   "confirmEmail": {
     "metaTitle": "Conferma indirizzo email",
@@ -163,7 +166,8 @@
     "avatarTooLarge": "L’immagine è troppo grande (massimo 2 MB).",
     "samePassword": "Scegli una password diversa da quella precedente.",
     "resetStepExpired": "Questo passaggio è scaduto. Accedi di nuovo con la vecchia password.",
-    "storageStuck": "I file di {workspaces} sono nella tua archiviazione e non hanno un posto in cui essere spostati. Chiedi ai loro proprietari di configurare un’archiviazione, oppure sposta prima i file."
+    "storageStuck": "I file di {workspaces} sono nella tua archiviazione e non hanno un posto in cui essere spostati. Chiedi ai loro proprietari di configurare un’archiviazione, oppure sposta prima i file.",
+    "legalHold": "Una conservazione legale in {workspaces} protegge il tuo account. Chiedi prima a un proprietario di revocarla."
   },
   "mail": {
     "description": "Le tue caselle di posta e i tuoi indirizzi di calendario, in tutti i tuoi spazi di lavoro.",

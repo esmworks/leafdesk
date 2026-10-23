@@ -124,7 +124,10 @@
     "blockedList": "Obszary robocze do przekazania:",
     "storageStuckBody": "Pliki obszarów roboczych, które opuścisz, są w twoim własnym magazynie i nie ma dokąd ich przenieść: żaden inny właściciel nie ma domyślnego magazynu, a magazyn tego serwera nie może ich przyjąć. Poproś właściciela o skonfigurowanie magazynu albo przenieś pliki (Ustawienia > Magazyn), a potem usuń konto.",
     "storageStuckList": "Obszary robocze, których pliki nie mają dokąd trafić:",
-    "storageMovesList": "Ich pliki z twojego magazynu zostaną najpierw przeniesione do magazynu właściciela (do tego czasu twój magazyn nadal je udostępnia):"
+    "storageMovesList": "Ich pliki z twojego magazynu zostaną najpierw przeniesione do magazynu właściciela (do tego czasu twój magazyn nadal je udostępnia):",
+    "legalHoldTitle": "Blokada prawna chroni Twoje konto",
+    "legalHoldBody": "Blokada prawna obejmuje to, co utworzyłeś lub edytowałeś w tych obszarach roboczych, więc Twojego konta nie można usunąć, dopóki obowiązuje. Poproś właściciela o jej zdjęcie.",
+    "legalHoldList": "Obszary robocze z blokadą:"
   },
   "confirmEmail": {
     "metaTitle": "Potwierdź adres e-mail",
@@ -163,7 +166,8 @@
     "avatarTooLarge": "Zdjęcie jest za duże (najwyżej 2 MB).",
     "samePassword": "Wybierz hasło inne niż poprzednie.",
     "resetStepExpired": "Ten krok wygasł. Zaloguj się ponownie starym hasłem.",
-    "storageStuck": "Pliki tych obszarów roboczych są w twoim magazynie i nie mają dokąd zostać przeniesione: {workspaces}. Poproś ich właścicieli o skonfigurowanie magazynu albo najpierw przenieś pliki."
+    "storageStuck": "Pliki tych obszarów roboczych są w twoim magazynie i nie mają dokąd zostać przeniesione: {workspaces}. Poproś ich właścicieli o skonfigurowanie magazynu albo najpierw przenieś pliki.",
+    "legalHold": "Blokada prawna w {workspaces} chroni Twoje konto. Najpierw poproś tamtejszego właściciela o jej zdjęcie."
   },
   "mail": {
     "description": "Twoje skrzynki pocztowe i adresy kalendarzy we wszystkich twoich obszarach roboczych.",

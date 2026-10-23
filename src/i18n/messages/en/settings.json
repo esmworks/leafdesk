@@ -1350,6 +1350,49 @@
       "shown": "Showing the {shown} used here most recently of {total}."
     }
   },
+  "legalHolds": {
+    "title": "Legal holds",
+    "description": "While a hold stands, nothing the people on it created or edited in this workspace can be deleted for good. Their pages and rows can still go to the trash, but stay there with their history, comments and files; the workspace and their accounts can't be deleted.",
+    "holds": "Holds",
+    "holdsDescription": "Setting and releasing a hold is recorded in the audit log.",
+    "empty": "No holds.",
+    "new": "New hold",
+    "setBy": "Set by {name} on {date, date, medium}",
+    "setOn": "Set on {date, date, medium}",
+    "people": "{count, plural, one {# person} other {# people}}",
+    "left": "left",
+    "guest": "guest",
+    "release": "Release",
+    "confirmRelease": "Release {name}",
+    "form": {
+      "title": "New legal hold",
+      "description": "Choose the people it covers: members, guests, or people who have left but created or edited something here.",
+      "name": "Name",
+      "namePlaceholder": "Matter or case",
+      "reason": "Reason",
+      "reasonPlaceholder": "Optional: why, and who asked for it",
+      "people": "People ({count})",
+      "search": "Search people",
+      "loading": "Loading…",
+      "nobody": "Nobody matches.",
+      "submit": "Put on hold"
+    },
+    "errors": {
+      "pageHeld": "A legal hold keeps this page, or a page under it: it can't be deleted for good while the hold stands, and stays in the trash.",
+      "templateHeld": "A legal hold keeps this template: it can't be deleted while the hold stands.",
+      "propertyHeld": "A legal hold keeps this property's values: it can't be deleted for good while the hold stands.",
+      "commentHeld": "A legal hold keeps this comment: it can't be deleted while the hold stands.",
+      "workspaceHeld": "This workspace has a legal hold. Release it (Settings > Security) before deleting the workspace.",
+      "nameRequired": "Give the hold a name.",
+      "nameTooLong": "Use at most 200 characters for the name.",
+      "reasonTooLong": "Use at most 2,000 characters for the reason.",
+      "noPeople": "Choose who the hold is on.",
+      "tooManyPeople": "One hold covers at most 200 people.",
+      "unknownPerson": "Someone you chose isn't in this workspace any more.",
+      "notFound": "That hold was released already.",
+      "ownersOnly": "Only owners manage legal holds."
+    }
+  },
   "audit": {
     "description": "A record of who changed what in this workspace: members and roles, invitations, sharing, teamspaces and groups, settings, security, pages created, moved, trashed and deleted, publishing, connected apps and exports. Only owners can see it.",
     "filters": "Filter the audit log",
@@ -1581,6 +1624,10 @@
       "scim": {
         "token_created": "Created the SCIM token {target}",
         "token_revoked": "Revoked the SCIM token {target}"
+      },
+      "legal_hold": {
+        "set": "Put the legal hold {target} on {names}",
+        "released": "Released the legal hold {target} on {names}"
       },
       "site": {
         "saved": "Saved the site at {slug}",

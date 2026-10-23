@@ -57,6 +57,7 @@ import { PAGE_HEADER_EVENT } from "@/lib/collab-constants";
 import { searchFold } from "@/lib/search-fold";
 import { parseSearchQuery } from "@/lib/search-query";
 import { pageChanged } from "@/server/page-events";
+import { heldPageIds, refuseHeldPages } from "@/server/legal-hold";
 import { searchFoldSql } from "@/server/search-fold-sql";
 import { sweepDocuments } from "@/server/file-text";
 import { listedPage, isOutdated, outdatedIds } from "@/server/page-outdated";
@@ -631,22 +632,28 @@ export async function restorePage(userId: string, pageId: string) {
 export async function deletePagePermanently(userId: string, pageId: string) {
   const p = await requirePageAccess(userId, pageId, "full");
   if (!p.archivedAt) throw new Error("Move the page to the trash before deleting it");
+  // Said, rather than left in the trash without a word (deleteTrashedPages keeps it either way).
+  await refuseHeldPages(p.workspaceId, [pageId]);
   await deleteTrashedPages(p.workspaceId, [pageId], userId);
 }
 
 /**
  * Deletes pages of the trash for good, with their subpages (and their history, comments and so on,
  * which go with the page), then the uploads no other page shows. Pages taken out of the trash in
- * the meantime are left alone. Returns the ids deleted. No access check: deletePagePermanently
- * checks the person, the retention cleanup (server/retention.ts) acts for the workspace.
+ * the meantime are left alone, and so are those a legal hold keeps (server/legal-hold.ts). Returns
+ * the ids deleted. No access check: deletePagePermanently checks the person, the retention cleanup
+ * (server/retention.ts) acts for the workspace.
  *
  * Each page deleted is recorded in the audit log, as `actorId`'s doing or, for null, the server's.
  */
 export async function deleteTrashedPages(workspaceId: string, pageIds: string[], actorId: string | null = null) {
   if (!pageIds.length) return [];
+  const held = await heldPageIds(workspaceId, pageIds);
+  const ids = pageIds.filter((id) => !held.has(id));
+  if (!ids.length) return [];
   const deleted = await db
     .delete(page)
-    .where(and(eq(page.workspaceId, workspaceId), inArray(page.id, pageIds), isNotNull(page.archivedAt)))
+    .where(and(eq(page.workspaceId, workspaceId), inArray(page.id, ids), isNotNull(page.archivedAt)))
     .returning({ id: page.id, title: page.title, kind: page.kind });
   if (!deleted.length) return [];
   // After the delete, which is one statement: the titles came back from it.

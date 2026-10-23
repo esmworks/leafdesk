@@ -124,7 +124,10 @@
     "blockedList": "Devredilecek çalışma alanları:",
     "storageStuckBody": "Ayrılacağınız çalışma alanlarının dosyaları sizin kendi depolamanızda ve taşınabilecekleri bir yer yok: başka hiçbir sahibin varsayılan depolaması yok, bu sunucunun depolaması da onları alamıyor. Bir sahipten depolama kurmasını isteyin ya da dosyaları taşıyın (Ayarlar > Depolama), ardından hesabınızı silin.",
     "storageStuckList": "Dosyalarının gidecek yeri olmayan çalışma alanları:",
-    "storageMovesList": "Sizin depolamanızdaki dosyaları önce bir sahibin depolamasına taşınır (o zamana kadar dosyaları sizin depolamanız sunmaya devam eder):"
+    "storageMovesList": "Sizin depolamanızdaki dosyaları önce bir sahibin depolamasına taşınır (o zamana kadar dosyaları sizin depolamanız sunmaya devam eder):",
+    "legalHoldTitle": "Hesabınızı yasal saklama koruyor",
+    "legalHoldBody": "Bu çalışma alanlarında oluşturduğunuz veya düzenlediğiniz şeyler yasal saklama kapsamında; saklama sürdükçe hesabınız silinemez. Oradaki bir sahipten saklamayı kaldırmasını isteyin.",
+    "legalHoldList": "Saklama olan çalışma alanları:"
   },
   "confirmEmail": {
     "metaTitle": "E-posta adresini onayla",
@@ -163,7 +166,8 @@
     "avatarTooLarge": "Fotoğraf çok büyük (en fazla 2 MB).",
     "samePassword": "Eskisinden farklı bir parola seçin.",
     "resetStepExpired": "Bu adımın süresi doldu. Eski parolanızla yeniden giriş yapın.",
-    "storageStuck": "Şu çalışma alanlarının dosyaları sizin depolamanızda ve taşınabilecekleri bir yer yok: {workspaces}. Sahiplerinden depolama kurmalarını isteyin ya da önce dosyaları taşıyın."
+    "storageStuck": "Şu çalışma alanlarının dosyaları sizin depolamanızda ve taşınabilecekleri bir yer yok: {workspaces}. Sahiplerinden depolama kurmalarını isteyin ya da önce dosyaları taşıyın.",
+    "legalHold": "{workspaces} içindeki yasal saklama hesabınızı koruyor. Önce oradaki bir sahipten saklamayı kaldırmasını isteyin."
   },
   "mail": {
     "description": "Posta kutularınız ve takvim adresleriniz, bulunduğunuz tüm çalışma alanlarında.",

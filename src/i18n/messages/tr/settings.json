@@ -1350,6 +1350,49 @@
       "shown": "{total} uygulama ve anahtardan burada en son kullanılan {shown} tanesi gösteriliyor."
     }
   },
+  "legalHolds": {
+    "title": "Yasal saklama",
+    "description": "Saklama sürdükçe, kapsadığı kişilerin bu çalışma alanında oluşturduğu veya düzenlediği hiçbir şey kalıcı olarak silinemez. Sayfaları ve satırları yine çöp kutusuna taşınabilir, ama geçmişleri, yorumları ve dosyalarıyla orada kalır; çalışma alanı ve bu kişilerin hesapları silinemez.",
+    "holds": "Saklamalar",
+    "holdsDescription": "Saklama koymak ve kaldırmak denetim günlüğüne kaydedilir.",
+    "empty": "Saklama yok.",
+    "new": "Yeni saklama",
+    "setBy": "{name} koydu, {date, date, medium}",
+    "setOn": "{date, date, medium} tarihinde konuldu",
+    "people": "{count, plural, one {# kişi} other {# kişi}}",
+    "left": "ayrıldı",
+    "guest": "misafir",
+    "release": "Kaldır",
+    "confirmRelease": "{name} saklamasını kaldır",
+    "form": {
+      "title": "Yeni yasal saklama",
+      "description": "Kapsayacağı kişileri seçin: üyeler, misafirler veya ayrılmış ama burada bir şey oluşturmuş ya da düzenlemiş kişiler.",
+      "name": "Ad",
+      "namePlaceholder": "Dosya veya dava",
+      "reason": "Gerekçe",
+      "reasonPlaceholder": "İsteğe bağlı: neden ve kimin isteğiyle",
+      "people": "Kişiler ({count})",
+      "search": "Kişi ara",
+      "loading": "Yükleniyor…",
+      "nobody": "Eşleşen kimse yok.",
+      "submit": "Saklamaya al"
+    },
+    "errors": {
+      "pageHeld": "Bu sayfayı veya altındaki bir sayfayı yasal saklama koruyor: saklama sürdükçe kalıcı olarak silinemez ve çöp kutusunda kalır.",
+      "templateHeld": "Bu şablonu yasal saklama koruyor: saklama sürdükçe silinemez.",
+      "propertyHeld": "Bu özelliğin değerlerini yasal saklama koruyor: saklama sürdükçe kalıcı olarak silinemez.",
+      "commentHeld": "Bu yorumu yasal saklama koruyor: saklama sürdükçe silinemez.",
+      "workspaceHeld": "Bu çalışma alanında yasal saklama var. Çalışma alanını silmeden önce saklamayı kaldırın (Ayarlar > Güvenlik).",
+      "nameRequired": "Saklamaya bir ad verin.",
+      "nameTooLong": "Ad en fazla 200 karakter olabilir.",
+      "reasonTooLong": "Gerekçe en fazla 2.000 karakter olabilir.",
+      "noPeople": "Saklamanın kimi kapsayacağını seçin.",
+      "tooManyPeople": "Bir saklama en fazla 200 kişiyi kapsar.",
+      "unknownPerson": "Seçtiğiniz biri artık bu çalışma alanında değil.",
+      "notFound": "Bu saklama zaten kaldırılmış.",
+      "ownersOnly": "Yasal saklamaları yalnızca sahipler yönetir."
+    }
+  },
   "audit": {
     "description": "Bu çalışma alanında kimin neyi değiştirdiğinin kaydı: üyeler ve roller, davetler, paylaşım, ekip alanları ve gruplar, ayarlar, güvenlik, sayfa oluşturma, taşıma, çöpe atma ve silme, yayınlama, bağlı uygulamalar ve dışa aktarmalar. Yalnızca sahipler görebilir.",
     "filters": "Denetim kaydını filtrele",
@@ -1581,6 +1624,10 @@
       "scim": {
         "token_created": "SCIM anahtarı oluşturuldu: {target}",
         "token_revoked": "SCIM anahtarı iptal edildi: {target}"
+      },
+      "legal_hold": {
+        "set": "{names} için {target} yasal saklamasını koydu",
+        "released": "{names} için {target} yasal saklamasını kaldırdı"
       },
       "site": {
         "saved": "Site kaydedildi: {slug}",
