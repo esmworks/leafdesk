@@ -136,6 +136,8 @@
     "ownersOnly": "Só proprietários podem alterar isto.",
     "memory": "Memória da IA",
     "memoryHint": "Quando ativada, o chat de IA guarda notas curtas sobre as pessoas que falam de si mesmas para ele e as envia junto com as perguntas seguintes delas. Cada pessoa pode desativá-la para si. Quando desativada, a tela Memória fica oculta e as perguntas de ninguém levam notas; as notas são mantidas, não excluídas. As execuções dos agentes também passam a não levar notas nem propor novas.",
+    "webSearch": "Pesquisa na web no chat de IA",
+    "webSearchHint": "Quando ativada, o chat de IA pode pesquisar na web com o serviço de pesquisa do servidor e ler páginas web, só lendo: depois de ler da web, cada alteração que quiser fazer é perguntada. O modo pesquisa também pesquisa na web. As perguntas e o texto com que pesquisa saem do espaço de trabalho para o serviço de pesquisa.",
     "provider": "Provedor",
     "providerValue": "{provider}, modelo {model}",
     "notConfigured": "Nenhum provedor de IA ou modelo de embeddings está configurado neste servidor, então os recursos de IA estão desativados. Um administrador pode configurá-los com as variáveis de ambiente AI_PROVIDER e AI_MODEL (e AI_EMBEDDINGS_MODEL) (veja o README).",
@@ -329,6 +331,11 @@
       "read": "Somente leitura",
       "readHint": "Não altera nada"
     },
+    "model": {
+      "label": "Modelo",
+      "hint": "O modelo que responde nesta conversa",
+      "images": "Lê imagens"
+    },
     "actions": {
       "edit": "Editar",
       "cancel": "Cancelar",
@@ -355,7 +362,15 @@
     },
     "research": {
       "sourcesHeading": "Fontes",
-      "untitled": "Relatório de pesquisa"
+      "untitled": "Relatório de pesquisa",
+      "toggle": "Pesquisa",
+      "toggleHint": "Modo pesquisa: planeja subperguntas, pesquisa e lê o espaço de trabalho (e a web, onde estiver ativada) e escreve um relatório longo com fontes. Não altera nada.",
+      "placeholder": "O que deve pesquisar?",
+      "asked": "Pesquisa",
+      "readOnly": "A pesquisa só lê: não altera nada",
+      "save": "Salvar como página",
+      "openPage": "Abrir a página",
+      "saveFailed": "Não foi possível salvar o relatório como página."
     }
   },
   "memory": {

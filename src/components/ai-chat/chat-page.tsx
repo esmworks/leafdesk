@@ -32,6 +32,7 @@ export function ChatPage({ workspaceId, available, memory }: { workspaceId: stri
   // The conversation the page shows (or null: a new chat), as far as the address is concerned.
   const shown = useRef<string | null | undefined>(undefined);
   const chat = useChat(workspaceId, {
+    options: context?.options,
     onConversation: (id) => {
       shown.current = id;
       // Without a navigation: the answer is still streaming in. A source open beside it stays.

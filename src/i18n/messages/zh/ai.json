@@ -136,6 +136,8 @@
     "ownersOnly": "只有所有者可以更改此设置。",
     "memory": "AI 记忆",
     "memoryHint": "开启后，AI 聊天会为向它介绍自己的人保存简短笔记，并在他们之后提问时一并发送。每个人都可以为自己关闭此功能。关闭后，“记忆”视图将隐藏，任何人的提问都不会附带笔记；笔记会保留，不会删除。此时智能体的运行也不会附带笔记，也不会提议新笔记。",
+    "webSearch": "AI 聊天中的网络搜索",
+    "webSearchHint": "开启后，AI 聊天可以通过服务器的搜索服务搜索网络并阅读网页，仅限读取：从网络读取内容后，它想做的每项更改都会先询问。研究模式也会搜索网络。用于搜索的问题和文本会离开工作区发送给搜索服务。",
     "provider": "提供方",
     "providerValue": "{provider}，模型 {model}",
     "notConfigured": "此服务器未配置 AI 提供方或嵌入模型，因此 AI 功能已关闭。管理员可以通过环境变量 AI_PROVIDER 和 AI_MODEL（以及 AI_EMBEDDINGS_MODEL）进行配置（参见 README）。",
@@ -329,6 +331,11 @@
       "read": "只读",
       "readHint": "不做任何更改"
     },
+    "model": {
+      "label": "模型",
+      "hint": "在此对话中回答的模型",
+      "images": "可读取图片"
+    },
     "actions": {
       "edit": "编辑",
       "cancel": "取消",
@@ -355,7 +362,15 @@
     },
     "research": {
       "sourcesHeading": "来源",
-      "untitled": "研究报告"
+      "untitled": "研究报告",
+      "toggle": "深入研究",
+      "toggleHint": "研究模式：拆分子问题，搜索并阅读工作区（开启时也包括网络），然后写出附带来源的长篇报告。不会更改任何内容。",
+      "placeholder": "要研究什么？",
+      "asked": "深入研究",
+      "readOnly": "研究只读取，不更改任何内容",
+      "save": "另存为页面",
+      "openPage": "打开页面",
+      "saveFailed": "无法将报告另存为页面。"
     }
   },
   "memory": {

@@ -531,9 +531,12 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   summarize a page, as a suggestion you accept or discard; database properties that AI fills in
   (text: a summary, a translation or your own prompt over the row's values; a select, multi-select,
   status, number or checkbox from your prompt); a chat, on its own page
-  or in a panel beside a page, that answers questions from the pages you can read, citing them, and
-  remembers what you tell it about yourself (asking first; each person, or a workspace's owners for
-  everyone, can turn the memory off, see [Memory](#ai-features)); and semantic search with an
+  or in a panel beside a page, that answers questions from the pages you can read, citing them,
+  reads the images, documents and CSV files you attach, writes long cited reports in research mode
+  (from the web too, where owners turn web search on), answers with the model you pick where the
+  server offers several, and remembers what you tell it about yourself (asking first; each person,
+  or a workspace's owners for everyone, can turn the memory off, see [Memory](#ai-features)); and
+  semantic search with an
   embeddings model. Anthropic, OpenAI, Google, any OpenAI-compatible server, or a local model
   with Ollama or LM Studio (see [AI features](#ai-features)).
 - **Voice notes** (optional, off until speech to text is set up): speak in the quick note or with
@@ -2022,7 +2025,8 @@ as it can (Claude Sonnet and Opus 5.5 can't stop thinking, so "off" is low effor
 | Meeting notes: summary, decisions and action items | `AI_MODEL` | low |
 | Writing assistant: improve, fix, shorten, translate, continue, summarize | `AI_MODEL` | low |
 | Writing assistant: your own instruction | `AI_MODEL` | medium |
-| Chat | `AI_MODEL` | medium |
+| Chat | `AI_MODEL` (or the model picked, see `AI_CHAT_MODELS`) | medium |
+| Chat in research mode | `AI_MODEL` (or the model picked) | the model's default |
 | Drafting an agent from a description | `AI_MODEL` | medium |
 | Agents | `AI_MODEL` | the model's default (Claude 5.5: high) |
 | Agents set to the fast model | `AI_FAST_MODEL` | low |
@@ -2128,6 +2132,48 @@ waits, and stopping the answer, leaving the page or 15 minutes without an answer
 Changes made, declined or failed show among the answer's steps with links, are kept with the
 conversation (also when the answer itself didn't come), and later questions know them.
 
+**Files in the chat.** The paperclip under the question box attaches files to a question, and so
+does dropping them on the box or pasting them: images (PNG, JPEG, GIF, WebP), PDF, Word and Excel
+documents, CSV, Markdown and text files, up to 5 per question, 20 MB each (images 5 MB). Each is
+uploaded as it is attached and shows as a chip with its name and size (a CSV file's rows and
+columns), in the box and then on the question, where it opens the file. A question may be only
+files. Documents are read to text the way search reads them (the first 50 pages or 200,000
+characters), CSV files as tables (up to 1,000 rows and 100 columns, refused with a message
+beyond), and the files stay with the conversation: every later question sends them again, newest
+first and cut to fit, and the model reads on in one with `read_attachment` and can make a
+database of a CSV file (`create_database_from_csv`, its columns' types guessed from the values).
+Images go to the model as images, with their own question only, where the model takes them (the
+catalog says so for the models it knows; `AI_IMAGE_INPUT=true` says it for others); otherwise the
+box says so and nothing is sent. What a file says is data for the model, never instructions.
+Attached files count against the workspace's storage, are stored apart from its pages (only the
+person who attached them can open them, and backups and exports leave them out), and are deleted
+with their conversation; one attached but never sent goes after a day.
+
+**Picking the model.** `AI_CHAT_MODELS` lists more models at the same provider (same key and
+endpoint), comma-separated, that the chat's box offers next to `AI_MODEL` and `AI_FAST_MODEL`.
+Where there is more than one, a model picker sits under the box: a conversation keeps the model it
+was last asked with, and a new one starts with the model of your latest. Usage and cost are counted
+per model (see *Usage and cost limits*). A workspace on its own AI account answers with that
+account's model, without a picker.
+
+```bash
+AI_MODEL=claude-sonnet-5-5
+AI_FAST_MODEL=claude-haiku-5-5
+AI_CHAT_MODELS=claude-opus-5-5
+```
+
+**Research.** The telescope button under the box turns on research mode for the questions that
+follow. The model first plans the sub-questions that together answer the question (shown as a
+step), then searches the workspace (full text and by meaning, as you), reads the best pages and
+databases, reads attached files and, where web search is on, searches the web and reads the best
+results, and finally writes a long report in Markdown with a summary, a section per sub-question
+and what remains open, citing every source by number (web sources as links). It only reads:
+nothing is changed, no note is kept and no other service is called, whatever the mode under the
+box. It takes up to 14 turns and 400,000 tokens (each turn also counts against the rate and cost
+limits like any other); past them it writes the report with what it has. *Save as page* under a
+report makes it a private page at the top of the workspace, its citations links to the sources
+with a list of them at the end.
+
 **Reviewing AI changes.** After an AI app, the chat or an agent writes to a page's body, the page
 shows a bar above the body with how many blocks changed and who changed them. *Review* opens the
 changes block by block, with *Keep* and *Undo* for each, next to *Keep all* and *Undo all*. Undoing
@@ -2178,14 +2224,25 @@ the workspace's usage (see *Usage and cost limits*), never its content.
 With a hosted provider, what is sent is subject to that provider's terms; a local model keeps
 everything on your machines.
 
-**Web search for agents.** Agents an owner gave web access (see [Agents](#agents)) can also search
-the web when the server has a search service: set `WEB_SEARCH_URL` to a self-hosted
-[SearXNG](https://docs.searxng.org) instance with its JSON output turned on (`json` listed under
-`search.formats` in its `settings.yml`), e.g. `WEB_SEARCH_URL=http://searxng:8080`. Leafdesk asks
-`<WEB_SEARCH_URL>/search?q=…&format=json` (an address with a path of its own is used as it is) and
-waits 10 seconds at most. The service is the server's own, so it may be on a private network; the
-pages agents then read may not. Unset, agents with web access read only the pages whose links they
-are given or find in the workspace.
+**Web search.** Agents an owner gave web access (see [Agents](#agents)) can also search the web
+when the server has a search service, and so can the AI chat where a workspace's owners turn on
+Settings → General → AI → *Web search in the AI chat* (off by default; research mode searches the
+web there too). The service is set with `WEB_SEARCH_PROVIDER`:
+
+| `WEB_SEARCH_PROVIDER` | Needs |
+| --- | --- |
+| `searxng` (the default when only `WEB_SEARCH_URL` is set) | `WEB_SEARCH_URL`: a self-hosted [SearXNG](https://docs.searxng.org) instance with its JSON output turned on (`json` listed under `search.formats` in its `settings.yml`), e.g. `http://searxng:8080`, asked at `<WEB_SEARCH_URL>/search?q=…&format=json` (an address with a path of its own is used as it is) |
+| `brave` | `WEB_SEARCH_API_KEY` from the Brave Search API |
+| `tavily` | `WEB_SEARCH_API_KEY` from Tavily |
+
+For `brave` and `tavily`, `WEB_SEARCH_URL` overrides their address. A search waits 10 seconds at
+most. The service is the server's own, so it may be on a private network; the pages read from the
+web may not (the same checks as for links to files, with size and time limits). Unset, agents with
+web access read only the pages whose links they are given or find in the workspace, and the chat
+has no web tools. In the chat, web search only reads (`search_web`, `read_web_page`): web pages
+are written by anyone, so what they say reaches the model framed as outside data, and once an
+answer read from the web every change and note it wants is asked about, also in *Auto*. The words
+it searches with leave the workspace for the search service.
 
 **Limits.**
 
@@ -2198,6 +2255,8 @@ are given or find in the workspace.
 | `AI_WORKSPACE_RATE_LIMIT` | 120 | Requests per workspace per minute, AI property values included (they wait for their turn) |
 | `AI_CONCURRENCY` | 2 | AI property values worked out at the same time |
 | `AI_CONTEXT_WINDOW` | 32768 | Context size, in tokens, assumed for OpenAI-compatible and local models (the chat and agents fit their prompt in it) |
+| `AI_CHAT_MODELS` | none | More models the chat's box offers to pick from, comma-separated (see *Picking the model*) |
+| `AI_IMAGE_INPUT` | false | Models the catalog doesn't know (OpenAI-compatible and local ones) take images attached to a chat question |
 | `AI_MONTHLY_LIMIT_USD` | none | The most each workspace's AI may cost the server's `AI_*` key in a calendar month, in US dollars (see below) |
 
 ### Usage and cost limits

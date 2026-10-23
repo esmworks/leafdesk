@@ -11,13 +11,15 @@
  * the model wants to make waits, as `pending`, for the person's decision. A long paste shows in the
  * box as a label (lib/chat-paste.ts) and is sent in its place. Files attached to a question
  * (lib/chat-attachments.ts) are uploaded as they are attached (/api/ai/chat/files), shown as chips,
- * and sent with it by their ids.
+ * and sent with it by their ids. Where the workspace's AI offers several models, the question goes
+ * to the one picked (the conversation's, or for a new one the person's latest); research mode asks
+ * for a long cited report instead of an answer, and only reads.
  */
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { decideChangeAction, deleteConversationAction, getConversationAction } from "@/app/actions/ai";
+import { decideChangeAction, deleteConversationAction, getConversationAction, saveReportAsPageAction } from "@/app/actions/ai";
 import { isAiErrorCode } from "@/lib/ai";
-import { CHAT_MODES, changedThings, thoughtText, type ChatActionView, type ChatEvent, type ChatMessageView, type ChatMode } from "@/lib/ai-chat";
+import { CHAT_MODES, changedThings, thoughtText, type ChatActionView, type ChatEvent, type ChatMessageView, type ChatMode, type ChatOptions } from "@/lib/ai-chat";
 import {
   CHAT_CSV_MAX_COLUMNS,
   CHAT_CSV_MAX_ROWS,
@@ -65,7 +67,10 @@ async function uploadFile(workspaceId: string, file: File): Promise<{ ok: true; 
 let uploads = 0;
 
 /** A question asked while an answer was on its way, waiting to be asked. */
-export type QueuedQuestion = { question: string; skill: ChatSkillPick | null; scopePageId: string | null; files: ChatFile[] };
+export type QueuedQuestion = { question: string; skill: ChatSkillPick | null; scopePageId: string | null; files: ChatFile[]; research: boolean };
+
+/** Without options from the server (the full page outside the provider): one model, no picker. */
+const NO_OPTIONS: ChatOptions = { models: [], defaultModel: null, webSearch: false };
 
 /**
  * The model's thinking on its current turn, as it comes (not kept): held apart from the messages so
@@ -125,9 +130,12 @@ function savedMode(): ChatMode {
 export function useChat(
   workspaceId: string,
   {
+    options = NO_OPTIONS,
     onConversation,
     onAnswered,
   }: {
+    /** What the box offers: the models, the one a new conversation starts with (chatOptionsFor). */
+    options?: ChatOptions;
     /** A conversation was started (by the first question) or opened. */
     onConversation?: (id: string | null) => void;
     /** An answer finished or failed: the conversation list may have changed. */
@@ -146,6 +154,13 @@ export function useChat(
   const [pending, setPending] = useState<PendingChange | null>(null);
   const [skill, setSkill] = useState<ChatSkillPick | null>(null);
   const [files, setFiles] = useState<ChatFile[]>([]);
+  // The model questions go to (null: the workspace's main one), and research mode.
+  const [model, setModel] = useState<string | null>(options.defaultModel);
+  const [research, setResearch] = useState(false);
+  const modelNow = useRef(model);
+  modelNow.current = model;
+  /** Whether the model picked (or the only one) takes images. */
+  const takesImages = (id: string | null) => (options.models.find((m) => m.id === id) ?? options.models[0])?.images ?? false;
   const filesNow = useRef(files);
   filesNow.current = files;
   const [queued, setQueued] = useState<QueuedQuestion[]>([]);
@@ -197,6 +212,10 @@ export function useChat(
       const kind = chatFileKind(file.type, file.name);
       if (!kind) {
         failed = t("files.notSupported");
+        continue;
+      }
+      if (kind === "image" && !takesImages(modelNow.current)) {
+        failed = t("files.noImages");
         continue;
       }
       // Sizes first: a file far too large isn't sent at all.
@@ -300,6 +319,7 @@ export function useChat(
     setInput(toBox.question);
     setSkill((current) => current ?? toBox.skill);
     setFilesNow(toBox.files);
+    setResearch(toBox.research);
   };
 
   /** Stops the answer and leaves the conversation, its queued questions parked for its return. */
@@ -321,9 +341,14 @@ export function useChat(
     if (!question && !attached.length) return;
     // A file still on its way: the question waits for it (the box says so).
     if (attached.some((f) => f.uploading)) return;
+    // The model was changed after an image was attached.
+    if (attached.some((f) => f.contentType.startsWith("image/")) && !takesImages(modelNow.current)) {
+      setError(t("files.noImages"));
+      return;
+    }
     if (running) {
       if (again) return;
-      setQueue([...queue.current, { question, skill, scopePageId, files: attached }]);
+      setQueue([...queue.current, { question, skill, scopePageId, files: attached, research }]);
       setInput("");
       setSkill(null);
       setFilesNow([]);
@@ -334,10 +359,10 @@ export function useChat(
       setSkill(null);
       setFilesNow([]);
     }
-    await ask(question, again ? (again.skill ?? null) : skill, scopePageId, Boolean(again), attached);
+    await ask(question, again ? (again.skill ?? null) : skill, scopePageId, Boolean(again), attached, again ? Boolean(messages[messages.length - 2]?.research) : research);
   }
 
-  async function ask(question: string, used: ChatSkillPick | null, scopePageId: string | null, again: boolean, attached: ChatFile[] = []) {
+  async function ask(question: string, used: ChatSkillPick | null, scopePageId: string | null, again: boolean, attached: ChatFile[] = [], researching = false) {
     setError(null);
     const controller = new AbortController();
     abort.current = controller;
@@ -352,9 +377,10 @@ export function useChat(
         content: question,
         ...(used ? { skill: used } : {}),
         ...(shownFiles?.length ? { attachments: shownFiles } : {}),
+        ...(researching ? { research: true } : {}),
         at: new Date(startedAt).toISOString(),
       },
-      { key: nextKey(), role: "assistant", content: "", steps: [], startedAt },
+      { key: nextKey(), role: "assistant", content: "", steps: [], startedAt, ...(researching ? { research: true } : {}) },
     ];
     setMessages((list) => [...(again ? list.slice(0, -2) : list), ...asked]);
     setStatus("thinking");
@@ -380,6 +406,9 @@ export function useChat(
           ...(used ? { skillId: used.id } : {}),
           timeZone: browserTimeZone(),
           ...(attached.length ? { attachments: attached.map((f) => f.id) } : {}),
+          // Only where there is a choice: otherwise the workspace's model answers.
+          ...(options.models.length > 1 && modelNow.current ? { model: modelNow.current } : {}),
+          ...(researching ? { research: true } : {}),
         }),
         signal: controller.signal,
       });
@@ -471,10 +500,10 @@ export function useChat(
       // things), or ended without an answer by the server: they are given back. Stopped here, Stop or
       // leaving the conversation took care of them.
       const next = queue.current[0];
-      if (failed) giveBack(!changed && !again ? [{ question, skill: used, scopePageId, files: attached }] : []);
+      if (failed) giveBack(!changed && !again ? [{ question, skill: used, scopePageId, files: attached, research: researching }] : []);
       else if (finished && next) {
         setQueue(queue.current.slice(1));
-        void ask(next.question, next.skill, next.scopePageId, false, next.files);
+        void ask(next.question, next.skill, next.scopePageId, false, next.files, next.research);
       } else if (!finished && !controller.signal.aborted) giveBack();
     }
   }
@@ -525,6 +554,8 @@ export function useChat(
     setError(null);
     setConversationId(result.data.id);
     setMessages(result.data.messages.map((m) => ({ ...m, key: nextKey() })));
+    // The conversation goes on with its model, when it is still offered.
+    if (result.data.model && options.models.some((m) => m.id === result.data.model)) setModel(result.data.model);
     // Questions left waiting here come back.
     const left = parked.get(result.data.id);
     if (left) {
@@ -532,6 +563,17 @@ export function useChat(
       giveBack(left);
     }
     return true;
+  }
+
+  /** Saves the research report at `index` of the open conversation as a private page; its id, or null (the error is shown). */
+  async function saveReport(index: number): Promise<string | null> {
+    if (!conversationId) return null;
+    const result = await saveReportAsPageAction(workspaceId, conversationId, index);
+    if (!result.ok) {
+      setError(t("research.saveFailed"));
+      return null;
+    }
+    return result.data.pageId;
   }
 
   /** Deletes a conversation (or all of them); the open one is replaced by a new chat. True when done. */
@@ -564,6 +606,12 @@ export function useChat(
     files,
     attachFiles,
     removeFile,
+    options,
+    model,
+    setModel,
+    research,
+    setResearch,
+    saveReport,
     status,
     error,
     running,

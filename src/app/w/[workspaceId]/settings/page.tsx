@@ -383,6 +383,7 @@ async function AiGroup({ workspaceId, userId, isOwner }: { workspaceId: string; 
         workspaceId={workspaceId}
         enabled={settings.ai !== false}
         memory={settings.aiMemory !== false}
+        webSearch={webSearchService() ? settings.aiWebSearch === true : null}
         canEdit={isOwner}
         provider={info && { provider: info.provider, model: info.model }}
         embeddings={info?.embeddings ?? null}

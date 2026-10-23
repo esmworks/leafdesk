@@ -136,6 +136,8 @@
     "ownersOnly": "Seuls les propriétaires peuvent modifier ce réglage.",
     "memory": "Mémoire de l’IA",
     "memoryHint": "Activée, le chat IA garde de courtes notes sur les personnes qui lui parlent d’elles-mêmes et les envoie avec leurs questions suivantes. Chacun peut la désactiver pour soi. Désactivée, la vue Mémoire est masquée et aucune question n’emporte de notes ; les notes sont conservées, pas supprimées. Les exécutions des agents n’emportent alors aucune note et n’en proposent pas non plus.",
+    "webSearch": "Recherche web dans le chat IA",
+    "webSearchHint": "Activé, le chat IA peut chercher sur le web avec le service de recherche du serveur et lire des pages web, en lecture seule : après avoir lu sur le web, chaque modification qu’il veut faire est demandée. Le mode recherche cherche aussi sur le web. Les questions et le texte avec lesquels il cherche quittent l’espace de travail vers le service de recherche.",
     "provider": "Fournisseur",
     "providerValue": "{provider}, modèle {model}",
     "notConfigured": "Aucun fournisseur d’IA ni modèle d’embeddings n’est configuré sur ce serveur, les fonctions d’IA sont donc désactivées. Un administrateur peut les configurer avec les variables d’environnement AI_PROVIDER et AI_MODEL (et AI_EMBEDDINGS_MODEL) (voir le README).",
@@ -329,6 +331,11 @@
       "read": "Lecture seule",
       "readHint": "Ne modifie rien"
     },
+    "model": {
+      "label": "Modèle",
+      "hint": "Le modèle qui répond dans cette conversation",
+      "images": "Lit les images"
+    },
     "actions": {
       "edit": "Modifier",
       "cancel": "Annuler",
@@ -355,7 +362,15 @@
     },
     "research": {
       "sourcesHeading": "Sources",
-      "untitled": "Rapport de recherche"
+      "untitled": "Rapport de recherche",
+      "toggle": "Recherche",
+      "toggleHint": "Mode recherche : planifie des sous-questions, cherche et lit dans l’espace de travail (et sur le web, s’il est activé), puis rédige un long rapport avec ses sources. Ne modifie rien.",
+      "placeholder": "Que faut-il rechercher ?",
+      "asked": "Recherche",
+      "readOnly": "La recherche ne fait que lire : elle ne modifie rien",
+      "save": "Enregistrer comme page",
+      "openPage": "Ouvrir la page",
+      "saveFailed": "Impossible d’enregistrer le rapport comme page."
     }
   },
   "memory": {

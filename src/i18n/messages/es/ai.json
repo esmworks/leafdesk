@@ -136,6 +136,8 @@
     "ownersOnly": "Solo los propietarios pueden cambiar esto.",
     "memory": "Memoria de la IA",
     "memoryHint": "Si está activada, el chat de IA guarda notas breves sobre las personas que le cuentan algo de sí mismas y las envía con sus preguntas posteriores. Cada persona puede desactivarla para sí. Si está desactivada, la vista Memoria se oculta y ninguna pregunta lleva notas; las notas se conservan, no se eliminan. Las ejecuciones de los agentes tampoco llevan notas ni proponen ninguna.",
+    "webSearch": "Búsqueda web en el chat de IA",
+    "webSearchHint": "Si está activada, el chat de IA puede buscar en la web con el servicio de búsqueda del servidor y leer páginas web, solo leyendo: después de leer de la web, pregunta antes de cada cambio que quiera hacer. El modo investigación también busca en la web. Las preguntas y el texto con que busca salen del espacio de trabajo hacia el servicio de búsqueda.",
     "provider": "Proveedor",
     "providerValue": "{provider}, modelo {model}",
     "notConfigured": "No hay ningún proveedor de IA ni modelo de embeddings configurado en este servidor, así que las funciones de IA están desactivadas. Un administrador puede configurarlos con las variables de entorno AI_PROVIDER y AI_MODEL (y AI_EMBEDDINGS_MODEL) (consulta el README).",
@@ -329,6 +331,11 @@
       "read": "Solo lectura",
       "readHint": "No cambia nada"
     },
+    "model": {
+      "label": "Modelo",
+      "hint": "El modelo que responde en esta conversación",
+      "images": "Lee imágenes"
+    },
     "actions": {
       "edit": "Editar",
       "cancel": "Cancelar",
@@ -355,7 +362,15 @@
     },
     "research": {
       "sourcesHeading": "Fuentes",
-      "untitled": "Informe de investigación"
+      "untitled": "Informe de investigación",
+      "toggle": "Investigar",
+      "toggleHint": "Modo investigación: plantea subpreguntas, busca y lee en el espacio de trabajo (y en la web, si está activada) y escribe un informe extenso con fuentes. No cambia nada.",
+      "placeholder": "¿Qué quieres investigar?",
+      "asked": "Investigación",
+      "readOnly": "La investigación solo lee: no cambia nada",
+      "save": "Guardar como página",
+      "openPage": "Abrir la página",
+      "saveFailed": "No se pudo guardar el informe como página."
     }
   },
   "memory": {

@@ -136,6 +136,8 @@
     "ownersOnly": "Bunu yalnızca sahipler değiştirebilir.",
     "memory": "Yapay zekâ hafızası",
     "memoryHint": "Açıkken yapay zekâ sohbeti kendinden bahseden kişiler hakkında kısa notlar tutar ve sonraki sorularıyla birlikte gönderir. Herkes kendisi için kapatabilir. Kapalıyken Hafıza görünümü gizlenir ve hiçbir soru not taşımaz; notlar silinmez, saklanır. Ajan çalışmaları da o zaman not taşımaz ve not önermez.",
+    "webSearch": "AI sohbetinde web araması",
+    "webSearchHint": "Açıkken AI sohbeti sunucunun arama hizmetiyle web’de arayabilir ve web sayfalarını okuyabilir, yalnızca okuyarak: web’den okuduktan sonra yapmak istediği her değişiklik sorulur. Araştırma modu da web’de arar. Aramada kullandığı sorular ve metinler çalışma alanından arama hizmetine gider.",
     "provider": "Sağlayıcı",
     "providerValue": "{provider}, model {model}",
     "notConfigured": "Bu sunucuda bir yapay zekâ sağlayıcısı ya da embedding modeli ayarlanmamış, bu yüzden yapay zekâ özellikleri kapalı. Bir yönetici AI_PROVIDER ve AI_MODEL (ve AI_EMBEDDINGS_MODEL) ortam değişkenleriyle ayarlayabilir (README'ye bak).",
@@ -329,6 +331,11 @@
       "read": "Sadece oku",
       "readHint": "Hiçbir şeyi değiştirmez"
     },
+    "model": {
+      "label": "Model",
+      "hint": "Bu sohbette yanıt veren model",
+      "images": "Görselleri okur"
+    },
     "actions": {
       "edit": "Düzenle",
       "cancel": "Vazgeç",
@@ -355,7 +362,15 @@
     },
     "research": {
       "sourcesHeading": "Kaynaklar",
-      "untitled": "Araştırma raporu"
+      "untitled": "Araştırma raporu",
+      "toggle": "Araştırma",
+      "toggleHint": "Araştırma modu: alt soruları planlar, çalışma alanında (açıksa web’de de) arar ve okur, sonra kaynaklı uzun bir rapor yazar. Hiçbir şeyi değiştirmez.",
+      "placeholder": "Neyi araştırsın?",
+      "asked": "Araştırma",
+      "readOnly": "Araştırma yalnızca okur: hiçbir şeyi değiştirmez",
+      "save": "Sayfa olarak kaydet",
+      "openPage": "Sayfayı aç",
+      "saveFailed": "Rapor sayfa olarak kaydedilemedi."
     }
   },
   "memory": {

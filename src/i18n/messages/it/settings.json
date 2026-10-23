@@ -1501,6 +1501,7 @@
       "loginMethod": "Come accedono i membri",
       "ai": "Funzioni IA",
       "aiMemory": "Memoria IA",
+      "aiWebSearch": "Ricerca web della chat IA",
       "aiMonthlyLimitUsd": "Limite mensile di costo dell'IA",
       "trashRetentionDays": "Elimina le pagine nel cestino dopo",
       "export": "Consenti l’esportazione",

@@ -136,6 +136,8 @@
     "ownersOnly": "Only owners can change this.",
     "memory": "AI memory",
     "memoryHint": "When on, the AI chat keeps short notes about people who tell it about themselves, and sends them with their later questions. Each person can turn it off for themselves. When off, the Memory view is hidden and nobody's questions carry notes; the notes are kept, not deleted. Agents' runs then carry no notes and propose none either.",
+    "webSearch": "Web search in the AI chat",
+    "webSearchHint": "When on, the AI chat may search the web with the server's search service and read web pages, only reading: after it read from the web, every change it wants to make is asked about. Research mode searches the web too. Questions and page text it searches with leave the workspace for the search service.",
     "provider": "Provider",
     "providerValue": "{provider}, model {model}",
     "notConfigured": "No AI provider or embeddings model is set up on this server, so AI features are off. An admin can set them up with the AI_PROVIDER and AI_MODEL (and AI_EMBEDDINGS_MODEL) environment variables (see the README).",
@@ -329,6 +331,11 @@
       "read": "Read only",
       "readHint": "Doesn't change anything"
     },
+    "model": {
+      "label": "Model",
+      "hint": "The model that answers in this conversation",
+      "images": "Reads images"
+    },
     "actions": {
       "edit": "Edit",
       "cancel": "Cancel",
@@ -355,7 +362,15 @@
     },
     "research": {
       "sourcesHeading": "Sources",
-      "untitled": "Research report"
+      "untitled": "Research report",
+      "toggle": "Research",
+      "toggleHint": "Research mode: plans sub-questions, searches and reads the workspace (and the web, where on), then writes a long report with sources. Changes nothing.",
+      "placeholder": "What should it research?",
+      "asked": "Research",
+      "readOnly": "Research only reads: it changes nothing",
+      "save": "Save as page",
+      "openPage": "Open the page",
+      "saveFailed": "The report couldn't be saved as a page."
     }
   },
   "memory": {

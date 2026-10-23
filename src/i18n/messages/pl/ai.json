@@ -136,6 +136,8 @@
     "ownersOnly": "Tylko właściciele mogą to zmienić.",
     "memory": "Pamięć AI",
     "memoryHint": "Gdy włączona, czat AI zachowuje krótkie notatki o osobach, które coś o sobie mówią, i wysyła je razem z ich kolejnymi pytaniami. Każdy może ją wyłączyć dla siebie. Gdy wyłączona, widok Pamięć jest ukryty, a niczyje pytania nie zawierają notatek; notatki są zachowywane, a nie usuwane. Uruchomienia agentów również nie zawierają wtedy notatek ani ich nie proponują.",
+    "webSearch": "Wyszukiwanie w sieci w czacie AI",
+    "webSearchHint": "Po włączeniu czat AI może szukać w sieci usługą wyszukiwania serwera i czytać strony internetowe, tylko czytając: po przeczytaniu czegoś z sieci pyta o każdą zmianę, którą chce wprowadzić. Tryb badania też szuka w sieci. Pytania i tekst, którymi szuka, opuszczają obszar roboczy i trafiają do usługi wyszukiwania.",
     "provider": "Dostawca",
     "providerValue": "{provider}, model {model}",
     "notConfigured": "Na tym serwerze nie skonfigurowano dostawcy AI ani modelu embeddingów, więc funkcje AI są wyłączone. Administrator może je skonfigurować za pomocą zmiennych środowiskowych AI_PROVIDER i AI_MODEL (oraz AI_EMBEDDINGS_MODEL) (zobacz README).",
@@ -329,6 +331,11 @@
       "read": "Tylko odczyt",
       "readHint": "Niczego nie zmienia"
     },
+    "model": {
+      "label": "Model",
+      "hint": "Model, który odpowiada w tej rozmowie",
+      "images": "Czyta obrazy"
+    },
     "actions": {
       "edit": "Edytuj",
       "cancel": "Anuluj",
@@ -355,7 +362,15 @@
     },
     "research": {
       "sourcesHeading": "Źródła",
-      "untitled": "Raport z badania"
+      "untitled": "Raport z badania",
+      "toggle": "Badanie",
+      "toggleHint": "Tryb badania: planuje pytania szczegółowe, przeszukuje i czyta obszar roboczy (oraz sieć, jeśli włączona), a potem pisze obszerny raport ze źródłami. Niczego nie zmienia.",
+      "placeholder": "Co zbadać?",
+      "asked": "Badanie",
+      "readOnly": "Badanie tylko czyta: niczego nie zmienia",
+      "save": "Zapisz jako stronę",
+      "openPage": "Otwórz stronę",
+      "saveFailed": "Nie udało się zapisać raportu jako strony."
     }
   },
   "memory": {

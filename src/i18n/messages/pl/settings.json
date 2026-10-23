@@ -1501,6 +1501,7 @@
       "loginMethod": "Jak logują się członkowie",
       "ai": "Funkcje AI",
       "aiMemory": "Pamięć AI",
+      "aiWebSearch": "Wyszukiwanie w sieci w czacie AI",
       "aiMonthlyLimitUsd": "Miesięczny limit kosztów AI",
       "trashRetentionDays": "Usuwaj strony z kosza po",
       "export": "Zezwól na eksport",

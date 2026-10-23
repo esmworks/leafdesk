@@ -5,8 +5,9 @@
  * Answers render as markdown with their citations (numbered links to the pages, no list of sources
  * below), under the steps taken to them
  * (searches, pages read, changes made): listed as they happen, then folded into how long it took.
- * Under the box, what the chat may change (ask, auto, read only); a change it asks about takes the
- * box's place until the person decides. Questions asked while an answer is on its way wait in a
+ * Under the box, what the chat may change (ask, auto, read only), the model (where there is a
+ * choice) and research mode; a change it asks about takes the box's place until the person decides.
+ * A research report can be saved as a page. Questions asked while an answer is on its way wait in a
  * strip above the box.
  */
 import {
@@ -17,7 +18,10 @@ import {
   ChevronRight,
   Clock,
   Copy,
+  Cpu,
+  ExternalLink,
   Eye,
+  FilePlus,
   Hand,
   Globe,
   Loader2,
@@ -26,6 +30,7 @@ import {
   RotateCcw,
   ScrollText,
   Square,
+  Telescope,
   Zap,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
@@ -194,6 +199,8 @@ export function ChatThread({
                       }
                       onSource={onSource}
                       onMemory={() => setMemoryOpen(true)}
+                      onSaveReport={m.research && chat.conversationId ? () => chat.saveReport(i) : undefined}
+                      workspaceId={chat.workspaceId}
                       labels={{ stopped: t("stopped"), cutOff: t("cutOff"), thinking: t("thinking") }}
                     />
                   )}
@@ -337,7 +344,7 @@ export function ChatThread({
                   }}
                   rows={Math.min(6, Math.max(page ? 2 : 1, input.split("\n").length))}
                   disabled={Boolean(blocked)}
-                  placeholder={running ? t("placeholderBusy") : t("placeholder")}
+                  placeholder={running ? t("placeholderBusy") : chat.research ? t("research.placeholder") : t("placeholder")}
                   aria-label={t("placeholder")}
                   className={cn(
                     boxText,
@@ -354,7 +361,17 @@ export function ChatThread({
               )}
               <div className={cn("flex items-center justify-between gap-2", page && "mt-1")}>
                 <div className="flex items-center gap-0.5">
-                  <ModePicker mode={chat.mode} onChange={chat.setMode} />
+                  <ModePicker mode={chat.mode} onChange={chat.setMode} research={chat.research} />
+                  {chat.options.models.length > 1 && <ModelPicker models={chat.options.models} model={chat.model ?? chat.options.models[0].id} onChange={chat.setModel} />}
+                  <IconButton
+                    label={t("research.toggle")}
+                    title={t("research.toggleHint")}
+                    aria-pressed={chat.research}
+                    className={cn("h-7 w-7", chat.research && "bg-bg-active text-fg")}
+                    onClick={() => chat.setResearch(!chat.research)}
+                  >
+                    <Telescope className="h-4 w-4" />
+                  </IconButton>
                   <IconButton
                     label={tSkills("pick")}
                     title={tSkills("pickHint")}
@@ -486,6 +503,8 @@ function Answer({
   onRetry,
   onSource,
   onMemory,
+  onSaveReport,
+  workspaceId,
   labels,
 }: {
   message: ChatMessage;
@@ -500,9 +519,15 @@ function Answer({
   onSource: (source: ChatSourceView) => void;
   /** Opens the Memory dialog (from the line saying the answer kept or dropped a note). */
   onMemory: () => void;
+  /** A research report: saves it as a page, giving its id (null when it couldn't). */
+  onSaveReport?: () => Promise<string | null>;
+  workspaceId: string;
   labels: Labels;
 }) {
   const t = useTranslations("ai.chat.actions");
+  const tResearch = useTranslations("ai.chat.research");
+  const [saving, setSaving] = useState(false);
+  const [savedPage, setSavedPage] = useState<string | null>(null);
   const tMemory = useTranslations("ai.memory");
   // Kept across renders: a new one would redraw the answer's citation buttons as new elements.
   const byNumber = useMemo(() => new Map((message.sources ?? []).map((s) => [s.n, s])), [message.sources]);
@@ -533,6 +558,28 @@ function Answer({
       {done && (
         <div className={cn("mt-1.5 -ms-1 flex items-center gap-0.5", !last && revealed)}>
           {message.content.trim() && <CopyAction text={stripCitations(message.content).trim()} />}
+          {onSaveReport && message.content.trim() && !message.note && (
+            savedPage ? (
+              <a href={`/w/${workspaceId}/p/${savedPage}`} className="flex h-7 items-center gap-1 rounded px-1.5 text-xs text-fg-muted hover:bg-bg-hover hover:text-fg">
+                <ExternalLink className="h-3.5 w-3.5" />
+                {tResearch("openPage")}
+              </a>
+            ) : (
+              <button
+                type="button"
+                disabled={saving}
+                onClick={async () => {
+                  setSaving(true);
+                  setSavedPage(await onSaveReport());
+                  setSaving(false);
+                }}
+                className="flex h-7 items-center gap-1 rounded px-1.5 text-xs text-fg-muted hover:bg-bg-hover hover:text-fg disabled:opacity-60"
+              >
+                {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FilePlus className="h-3.5 w-3.5" />}
+                {tResearch("save")}
+              </button>
+            )
+          )}
           {onRetry && (
             <IconButton label={t("retry")} className="h-7 w-7" onClick={onRetry}>
               <RotateCcw className="h-3.5 w-3.5" />
@@ -596,6 +643,12 @@ function Question({ message, page, onEdit }: { message: ChatMessage; page: boole
   }
   return (
     <div className="group/question">
+      {message.research && (
+        <p className={cn("mb-1 flex items-center gap-1.5 text-xs text-fg-muted", page ? "justify-end" : "ms-8")}>
+          <Telescope className="h-3.5 w-3.5 shrink-0" />
+          <span>{t("research.asked")}</span>
+        </p>
+      )}
       {message.skill && (
         <p className={cn("mb-1 flex items-center gap-1.5 text-xs text-fg-muted", page ? "justify-end" : "ms-8")}>
           <ScrollText className="h-3.5 w-3.5 shrink-0" />
@@ -796,9 +849,19 @@ function QueueStrip({ queued, onClear }: { queued: QueuedQuestion[]; onClear: ()
 const MODE_ICONS = { ask: Hand, auto: Zap, read: Eye } as const;
 
 /** What the chat may change, under the question box. */
-function ModePicker({ mode, onChange }: { mode: ChatMode; onChange: (mode: ChatMode) => void }) {
+function ModePicker({ mode, onChange, research }: { mode: ChatMode; onChange: (mode: ChatMode) => void; research: boolean }) {
   const t = useTranslations("ai.chat.mode");
+  const tResearch = useTranslations("ai.chat.research");
   const Icon = MODE_ICONS[mode];
+  // Research only reads, whatever the mode.
+  if (research) {
+    return (
+      <span title={tResearch("readOnly")} className="-ms-1 flex h-7 items-center gap-1 rounded px-1.5 text-xs text-fg-muted">
+        <Eye className="h-3.5 w-3.5" />
+        <span>{t("read")}</span>
+      </span>
+    );
+  }
   return (
     <Popover
       side="top"
@@ -844,6 +907,56 @@ function ModePicker({ mode, onChange }: { mode: ChatMode; onChange: (mode: ChatM
               </MenuItem>
             );
           })}
+        </div>
+      )}
+    </Popover>
+  );
+}
+
+/** The model questions go to, where the workspace's AI offers more than one. */
+function ModelPicker({ models, model, onChange }: { models: { id: string; images: boolean }[]; model: string; onChange: (model: string) => void }) {
+  const t = useTranslations("ai.chat.model");
+  return (
+    <Popover
+      side="top"
+      className="w-64"
+      trigger={({ open, toggle }) => (
+        <button
+          type="button"
+          onClick={toggle}
+          aria-expanded={open}
+          aria-haspopup="menu"
+          aria-label={`${t("label")}: ${model}`}
+          title={t("hint")}
+          className="flex h-7 max-w-40 min-w-0 items-center gap-1 rounded px-1.5 text-xs text-fg-muted hover:bg-bg-hover hover:text-fg"
+        >
+          <Cpu className="h-3.5 w-3.5 shrink-0" />
+          <span className="min-w-0 truncate">{model}</span>
+          <ChevronDown className="h-3 w-3 shrink-0" />
+        </button>
+      )}
+    >
+      {(close) => (
+        <div role="menu" aria-label={t("label")}>
+          <p className="px-2 pt-1 pb-1.5 text-xs font-medium text-fg-muted">{t("label")}</p>
+          {models.map((m) => (
+            <MenuItem
+              key={m.id}
+              active={m.id === model}
+              onClick={() => {
+                onChange(m.id);
+                close();
+              }}
+            >
+              <span className="flex min-w-0 flex-1 flex-col">
+                <span className="flex items-center justify-between gap-2">
+                  <span className="min-w-0 truncate">{m.id}</span>
+                  {m.id === model && <Check className="h-3.5 w-3.5 shrink-0 text-fg-muted" />}
+                </span>
+                {m.images && <span className="text-xs text-fg-muted">{t("images")}</span>}
+              </span>
+            </MenuItem>
+          ))}
         </div>
       )}
     </Popover>

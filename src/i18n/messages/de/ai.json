@@ -136,6 +136,8 @@
     "ownersOnly": "Nur Eigentümer können dies ändern.",
     "memory": "KI-Gedächtnis",
     "memoryHint": "Wenn an, hält der KI-Chat kurze Notizen über Personen fest, die ihm etwas über sich erzählen, und schickt sie mit ihren späteren Fragen mit. Jede Person kann es für sich ausschalten. Wenn aus, ist die Gedächtnis-Ansicht ausgeblendet und keine Frage enthält Notizen; die Notizen bleiben erhalten und werden nicht gelöscht. Auch die Läufe von Agenten enthalten dann keine Notizen und schlagen keine vor.",
+    "webSearch": "Websuche im KI-Chat",
+    "webSearchHint": "Wenn eingeschaltet, darf der KI-Chat mit dem Suchdienst des Servers im Web suchen und Webseiten lesen, nur lesend: Nachdem er aus dem Web gelesen hat, wird jede Änderung, die er machen will, erfragt. Der Recherchemodus sucht auch im Web. Fragen und Text, mit denen er sucht, verlassen den Workspace zum Suchdienst.",
     "provider": "Anbieter",
     "providerValue": "{provider}, Modell {model}",
     "notConfigured": "Auf diesem Server ist weder ein KI-Anbieter noch ein Embedding-Modell eingerichtet, daher sind KI-Funktionen aus. Eine Administratorin oder ein Administrator kann sie mit den Umgebungsvariablen AI_PROVIDER und AI_MODEL (und AI_EMBEDDINGS_MODEL) einrichten (siehe README).",
@@ -329,6 +331,11 @@
       "read": "Nur lesen",
       "readHint": "Ändert nichts"
     },
+    "model": {
+      "label": "Modell",
+      "hint": "Das Modell, das in dieser Unterhaltung antwortet",
+      "images": "Liest Bilder"
+    },
     "actions": {
       "edit": "Bearbeiten",
       "cancel": "Abbrechen",
@@ -355,7 +362,15 @@
     },
     "research": {
       "sourcesHeading": "Quellen",
-      "untitled": "Recherchebericht"
+      "untitled": "Recherchebericht",
+      "toggle": "Recherche",
+      "toggleHint": "Recherchemodus: plant Teilfragen, durchsucht und liest den Workspace (und das Web, wo eingeschaltet) und schreibt dann einen langen Bericht mit Quellen. Ändert nichts.",
+      "placeholder": "Was soll recherchiert werden?",
+      "asked": "Recherche",
+      "readOnly": "Recherche liest nur: Sie ändert nichts",
+      "save": "Als Seite speichern",
+      "openPage": "Seite öffnen",
+      "saveFailed": "Der Bericht konnte nicht als Seite gespeichert werden."
     }
   },
   "memory": {
