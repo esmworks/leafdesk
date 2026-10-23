@@ -742,7 +742,8 @@
       "panel": "사이드 패널",
       "page": "전체 페이지"
     },
-    "showOutdated": "보관된 행 표시"
+    "showOutdated": "보관된 행 표시",
+    "colorRules": "색상 규칙"
   },
   "gallery": {
     "new": "새로 만들기",
@@ -1603,5 +1604,20 @@
     "confirm": "행 병합",
     "merging": "병합하는 중…",
     "bodyHeading": "{title}에서 병합됨"
+  },
+  "colorRules": {
+    "title": "색상 규칙",
+    "description": "조건에 맞는 행이나 그 행의 값 하나에 색을 입힙니다.",
+    "empty": "아직 색상 규칙이 없습니다. 규칙을 추가해 맞는 행에 색을 입히세요.",
+    "ruleLabel": "{color} 규칙",
+    "color": "색상",
+    "colors": "적용 대상",
+    "target": "규칙이 색을 입히는 대상",
+    "wholeRow": "행 전체",
+    "moveUp": "위로 이동",
+    "moveDown": "아래로 이동",
+    "delete": "규칙 삭제",
+    "add": "규칙 추가",
+    "firstMatchWins": "여러 규칙이 맞으면 첫 번째 규칙이 행이나 값에 색을 입힙니다."
   }
 }

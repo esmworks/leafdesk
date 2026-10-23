@@ -742,7 +742,8 @@
       "panel": "Side panel",
       "page": "Full page"
     },
-    "showOutdated": "Show archived rows"
+    "showOutdated": "Show archived rows",
+    "colorRules": "Color rules"
   },
   "gallery": {
     "new": "New",
@@ -1603,5 +1604,20 @@
     "confirm": "Merge rows",
     "merging": "Merging…",
     "bodyHeading": "Merged from {title}"
+  },
+  "colorRules": {
+    "title": "Color rules",
+    "description": "Color rows, or one of their values, when they match conditions.",
+    "empty": "No color rules yet. Add one to color the rows that match it.",
+    "ruleLabel": "{color} rule",
+    "color": "Color",
+    "colors": "Colors",
+    "target": "What the rule colors",
+    "wholeRow": "The whole row",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "delete": "Delete rule",
+    "add": "Add rule",
+    "firstMatchWins": "When several rules match, the first one colors the row or value."
   }
 }

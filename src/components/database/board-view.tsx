@@ -1,5 +1,6 @@
 "use client";
 
+import { cellMarkClass, colorMarkClass, type RowColors } from "@/lib/color-rules";
 import { Check, EyeOff, Ellipsis, Pencil, Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Fragment, memo, useCallback, useContext, useEffect, useMemo, useRef, useState, type DragEvent } from "react";
@@ -47,6 +48,7 @@ export function BoardView({
   readOnly,
   locked,
   onCreateGroupProperty,
+  colors,
 }: {
   workspaceId: string;
   view: View;
@@ -57,6 +59,8 @@ export function BoardView({
   /** The schema is locked: groups can't be added, renamed, recolored or deleted. */
   locked?: boolean;
   onCreateGroupProperty: () => void;
+  /** What the view's color rules color, by row id (see lib/color-rules). */
+  colors?: ReadonlyMap<string, RowColors>;
 }) {
   const t = useTranslations("database");
   const { viewerId } = usePeople();
@@ -415,6 +419,7 @@ export function BoardView({
                           row={row}
                           group={key}
                           props={cardProps}
+                          color={colors?.get(row.id)}
                           readOnly={readOnly}
                           dragging={dragId === row.id}
                           editTitle={editTitleOf === row.id}
@@ -766,6 +771,7 @@ const Card = memo(function Card({
   row,
   group,
   props,
+  color,
   readOnly,
   dragging,
   editTitle,
@@ -780,6 +786,8 @@ const Card = memo(function Card({
   /** The column the card is in: a card with several values shows in several. */
   group: string;
   props: Property[];
+  /** What color rules color on the card: the card, its name or values. */
+  color?: RowColors;
   readOnly?: boolean;
   dragging: boolean;
   editTitle: boolean;
@@ -807,6 +815,7 @@ const Card = memo(function Card({
       onClick={(e) => !editTitle && opener.open(row.id, e)}
       className={cn(
         "board-card group relative cursor-pointer rounded-lg px-3 py-2.5",
+        colorMarkClass(color?.row),
         dragging && "opacity-40",
         isOpen && "outline-2 outline-accent/60",
       )}
@@ -816,7 +825,7 @@ const Card = memo(function Card({
       ) : (
         <div className="flex gap-1.5 pe-6 text-sm leading-5 font-medium">
           {row.icon && <span className="shrink-0">{row.icon}</span>}
-          <span className={cn("min-w-0 break-words", !row.title && "text-fg-faint")}>
+          <span className={cn("min-w-0 break-words", !row.title && "text-fg-faint", cellMarkClass(color, "title"))}>
             {pageLabel(row.title, tc("untitled"))}
           </span>
         </div>
@@ -824,7 +833,7 @@ const Card = memo(function Card({
       {shown.length > 0 && (
         <div className="mt-2 flex flex-col items-start gap-1.5 text-xs">
           {shown.map((p) => (
-            <div key={p.id} className="flex max-w-full min-w-0 items-center text-fg-muted" title={p.name}>
+            <div key={p.id} className={cn("flex max-w-full min-w-0 items-center text-fg-muted", cellMarkClass(color, p.id))} title={p.name}>
               <RowValue prop={p} row={row} />
             </div>
           ))}

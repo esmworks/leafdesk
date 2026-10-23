@@ -742,7 +742,8 @@
       "panel": "Pannello laterale",
       "page": "Pagina intera"
     },
-    "showOutdated": "Mostra righe archiviate"
+    "showOutdated": "Mostra righe archiviate",
+    "colorRules": "Regole di colore"
   },
   "gallery": {
     "new": "Nuovo",
@@ -1603,5 +1604,20 @@
     "confirm": "Unisci righe",
     "merging": "Unione in corso…",
     "bodyHeading": "Unito da {title}"
+  },
+  "colorRules": {
+    "title": "Regole di colore",
+    "description": "Colora le righe, o uno dei loro valori, quando soddisfano delle condizioni.",
+    "empty": "Ancora nessuna regola di colore. Aggiungine una per colorare le righe che la soddisfano.",
+    "ruleLabel": "Regola {color}",
+    "color": "Colore",
+    "colors": "Colora",
+    "target": "Cosa colora la regola",
+    "wholeRow": "L’intera riga",
+    "moveUp": "Sposta su",
+    "moveDown": "Sposta giù",
+    "delete": "Elimina regola",
+    "add": "Aggiungi regola",
+    "firstMatchWins": "Se più regole corrispondono, la prima colora la riga o il valore."
   }
 }

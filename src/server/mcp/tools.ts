@@ -9,6 +9,7 @@ import {
   type ChartAggregate,
   type ChartSort,
   type ChartType,
+  type ColorRule,
   type FilterCombinator,
   type NumberFormat,
   type OpenRows,
@@ -61,7 +62,9 @@ import { GROUP_DATE_BY } from "@/lib/grouping";
 import { pageLabel } from "@/lib/labels";
 import { valueText } from "@/lib/row-activity";
 import { diffToText, wordsToText } from "@/lib/page-diff";
-import { isGroupable, sortStatusOptions, statusColor } from "@/lib/properties";
+import { isGroupable, SELECT_COLORS, sortStatusOptions, statusColor } from "@/lib/properties";
+import { MAX_COLOR_RULES, newColorRuleId } from "@/lib/color-rules";
+import { FILTER_COMBINATORS } from "@/lib/filters";
 import { holdsOptions, holdsTimestamp, STATUS_GROUPS } from "@/lib/property-types";
 import { MAX_PROPERTY_DESCRIPTION } from "@/lib/property-description";
 import { CALENDAR_MODES, CARD_SIZES, OPEN_ROWS, ROW_VIEW_TYPES, TIMELINE_ZOOMS, VIEW_TYPES } from "@/lib/views";
@@ -477,7 +480,34 @@ const viewLayoutInputs = {
     ),
 };
 
+/** A view's color rules (update_database_view: a new view gets them right after it is made). */
+const colorRulesInput = z
+  .array(
+    z.object({
+      color: z.enum(SELECT_COLORS),
+      property: z.string().min(1).optional().describe('Property or "title" to color; omit for the row.'),
+      // Checked against filtersInput when used: spelling the filter schema out again here would
+      // cost every client's model its size twice more.
+      filters: z.array(z.object({}).loose()).describe("As filters."),
+      filter_combinator: z.enum(FILTER_COMBINATORS).optional(),
+    }),
+  )
+  .max(MAX_COLOR_RULES)
+  .describe(
+    "Color rules in order; per target (row or property) the first match wins. Replaces current ones.",
+  );
+
+type ColorRuleInput = { color: (typeof SELECT_COLORS)[number]; property?: string; filters: unknown[]; filter_combinator?: FilterCombinator };
+
+/** A color rule's filters, checked as a view's filters are. */
+function colorRuleFilters(filters: unknown[]): FilterEntryInput[] {
+  const parsed = filtersInput.safeParse(filters);
+  if (!parsed.success) throw new ToolInputError(`A color rule's filters: ${parsed.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join("; ")}`);
+  return parsed.data as FilterEntryInput[];
+}
+
 type ViewInput = {
+  color_rules?: ColorRuleInput[];
   group_by?: string | null;
   group_date_by?: (typeof GROUP_DATE_BY)[number];
   group_status_by?: "option" | "group";
@@ -686,6 +716,24 @@ function viewConfigPatch(
     patch.filterCombinator = input.filter_combinator === "or" ? "or" : undefined;
   }
   if (input.sorts) patch.sorts = input.sorts.map((s) => toSortRule(props, s));
+  if (input.color_rules !== undefined) {
+    only("color_rules", ...ROW_VIEW_TYPES);
+    const rules: ColorRule[] = [];
+    for (const rule of input.color_rules) {
+      const target = rule.property === undefined ? undefined : resolvePropertyKey(props, rule.property);
+      if (target && !target.prop && target.key !== "title") {
+        throw new ToolInputError(`A color rule colors the whole row, "title" or a property; "${rule.property}" is a built-in field.`);
+      }
+      rules.push({
+        id: newColorRuleId(rules),
+        color: rule.color,
+        ...(target ? { propertyId: target.key } : {}),
+        filters: toFilterEntries(props, colorRuleFilters(rule.filters), lookups),
+        ...(rule.filter_combinator === "or" ? { filterCombinator: "or" as const } : {}),
+      });
+    }
+    patch.colorRules = rules.length ? rules : undefined;
+  }
   return patch;
 }
 
@@ -3073,6 +3121,7 @@ export function createMcpServer(principal: McpPrincipal) {
         filters: filtersInput.optional(),
         filter_combinator: filterCombinatorInput,
         sorts: sortsInput.optional(),
+        color_rules: colorRulesInput.optional(),
         widgets: viewWidgetsInput.optional(),
       }),
       annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: false },

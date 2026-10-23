@@ -12,6 +12,7 @@ import type {
   ViewType,
   ViewWidget,
 } from "@/db/schema/app";
+import { colorRulesConfigError } from "./color-rules";
 import { CHART_ACCUMULATES, CHART_SORTS, CHART_TYPES, isBoardAggregateFn, isChartAggregateFn } from "./chart";
 import { filterConfigError } from "./filters";
 import { formConfigError } from "./forms";
@@ -178,6 +179,8 @@ export function layoutConfigError(config: ViewConfig): string | null {
     const error = widgetsConfigError(c.widgets);
     if (error) return error;
   }
+  const colorError = colorRulesConfigError(c.colorRules);
+  if (colorError) return colorError;
   return formConfigError(c.form);
 }
 

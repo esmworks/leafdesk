@@ -742,7 +742,8 @@
       "panel": "Im Seitenbereich",
       "page": "Als ganze Seite"
     },
-    "showOutdated": "Archivierte Zeilen anzeigen"
+    "showOutdated": "Archivierte Zeilen anzeigen",
+    "colorRules": "Farbregeln"
   },
   "gallery": {
     "new": "Neu",
@@ -1603,5 +1604,20 @@
     "confirm": "Zeilen zusammenführen",
     "merging": "Wird zusammengeführt…",
     "bodyHeading": "Zusammengeführt aus {title}"
+  },
+  "colorRules": {
+    "title": "Farbregeln",
+    "description": "Zeilen oder einen ihrer Werte einfärben, wenn sie Bedingungen erfüllen.",
+    "empty": "Noch keine Farbregeln. Füge eine hinzu, um passende Zeilen einzufärben.",
+    "ruleLabel": "Regel {color}",
+    "color": "Farbe",
+    "colors": "Färbt",
+    "target": "Was die Regel einfärbt",
+    "wholeRow": "Die ganze Zeile",
+    "moveUp": "Nach oben",
+    "moveDown": "Nach unten",
+    "delete": "Regel löschen",
+    "add": "Regel hinzufügen",
+    "firstMatchWins": "Passen mehrere Regeln, färbt die erste die Zeile oder den Wert."
   }
 }

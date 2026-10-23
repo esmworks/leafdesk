@@ -1,8 +1,8 @@
 "use client";
 
-import { ChartBarBig, ChartColumnBig, ChartLine, ChartPie, Check, Hash, ListTree, Plus, SlidersHorizontal, Waypoints } from "lucide-react";
+import { ChartBarBig, ChartColumnBig, ChartLine, ChartPie, Check, Hash, ListTree, Palette, Plus, SlidersHorizontal, Waypoints } from "lucide-react";
 import { useTranslations } from "next-intl";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { cn, MenuItem, MenuSeparator } from "@/components/ui";
 import type { ChartAccumulate, ChartSort, GroupDateBy, ViewConfig } from "@/db/schema/app";
 import type { AggregateFn } from "@/lib/aggregate";
@@ -33,6 +33,7 @@ import {
   dependencySettings,
   type DependencyInput,
 } from "@/lib/dependencies";
+import { ColorRulesDialog } from "./color-rules-dialog";
 import { Floating, useFloating } from "./floating";
 import { PropertyTypeIcon } from "./property-icons";
 import type { Property, View } from "./types";
@@ -96,6 +97,7 @@ export function ViewLayoutMenu({
 }) {
   const t = useTranslations("database.layout");
   const menu = useFloating<HTMLButtonElement>();
+  const [colorRules, setColorRules] = useState(false);
   const nesting = NESTING_VIEWS.has(view.type);
   const rows = opensRows(view.type);
   if (readOnly || (!rows && view.type !== "chart")) return null;
@@ -208,8 +210,21 @@ export function ViewLayoutMenu({
           <Toggle on={!!config.showOutdated} onChange={(on) => set({ showOutdated: on || undefined })}>
             {t("showOutdated")}
           </Toggle>
+          {rows && (
+            <MenuItem
+              icon={<Palette className="h-3.5 w-3.5" />}
+              trailing={config.colorRules?.length ? <span className="text-xs text-fg-muted">{config.colorRules.length}</span> : undefined}
+              onClick={() => {
+                menu.close();
+                setColorRules(true);
+              }}
+            >
+              {t("colorRules")}
+            </MenuItem>
+          )}
         </div>
       </Floating>
+      {colorRules && <ColorRulesDialog view={view} properties={properties} onConfig={onConfig} onClose={() => setColorRules(false)} />}
     </>
   );
 }

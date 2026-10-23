@@ -9,6 +9,7 @@ import { useReorderDrag, type ReorderDragHandlers } from "@/components/use-reord
 import type { ViewConfig } from "@/db/schema/app";
 import type { AggregateFn } from "@/lib/aggregate";
 import { isAutofillType } from "@/lib/ai";
+import type { RowColors } from "@/lib/color-rules";
 import { valueType } from "@/lib/derived";
 import { arrangeGroups, canAddToGroup, groupDefaults, groupRowsBy, type Group } from "@/lib/grouping";
 import { isEmptyValue, lostValues, planConversion } from "@/lib/convert-property";
@@ -101,6 +102,7 @@ export function TableView({
   guest,
   exportable,
   onFilter,
+  colors,
 }: {
   workspaceId: string;
   databaseId: string;
@@ -125,6 +127,8 @@ export function TableView({
   exportable?: boolean;
   /** Adds a filter on a column (property id or "title") and opens the view's filters. */
   onFilter?: (columnId: string) => void;
+  /** What the view's color rules color, by row id (see lib/color-rules). */
+  colors?: ReadonlyMap<string, RowColors>;
 }) {
   const t = useTranslations("database");
   const tc = useTranslations("common");
@@ -383,6 +387,12 @@ export function TableView({
     const selected = selection.isSelected(row.id) || openRow === row.id;
     const label = pageLabel(row.title, tc("untitled"));
     const drag = movable ? rowDrag.handlers(rowKey(row.id, group)) : undefined;
+    // Color rules tint the whole row (its cells, the frozen ones too) or single cells.
+    const colored = colors?.get(row.id);
+    const mark = (key?: string) => {
+      const cell = key ? colored?.cells?.[key] : undefined;
+      return cell ? `tint-${cell} color-mark` : colored?.row ? "color-mark" : undefined;
+    };
     return (
       <tr
         key={row.id}
@@ -393,13 +403,14 @@ export function TableView({
         onDrop={drag?.onDrop}
         className={cn(
           "group",
+          colored?.row && `tint-${colored.row}`,
           selected && "bg-accent/5",
           drag?.dragging && "opacity-50",
           drag?.dropSide === "before" && "[&>td]:shadow-[inset_0_2px_0_var(--accent)]",
           drag?.dropSide === "after" && "[&>td]:shadow-[inset_0_-2px_0_var(--accent)]",
         )}
       >
-        <td className={cn("p-0 align-middle", frozen(-1, selected).className)} style={frozen(-1).style}>
+        <td className={cn("p-0 align-middle", frozen(-1, selected).className, mark())} style={frozen(-1).style}>
           <div className="flex items-center justify-end">
             {!readOnly && (
               <RowMenu
@@ -424,7 +435,7 @@ export function TableView({
         </td>
         <td
           {...grid.cellProps(at, 0)}
-          className={cn("relative border-b border-border p-0 align-top outline-none", frozen(0, selected).className)}
+          className={cn("relative border-b border-border p-0 align-top outline-none", frozen(0, selected).className, mark(TITLE))}
           style={frozen(0).style}
         >
           <CellMark active={grid.isActive(at, 0)} selected={grid.spans && grid.isSelected(at, 0)} />
@@ -475,7 +486,7 @@ export function TableView({
             <td
               key={p.id}
               {...grid.cellProps(at, i + 1)}
-              className={cn("relative border-b border-s border-border p-0 align-top outline-none", frozen(i + 1, selected).className)}
+              className={cn("relative border-b border-s border-border p-0 align-top outline-none", frozen(i + 1, selected).className, mark(p.id))}
               style={frozen(i + 1).style}
             >
               <CellMark active={grid.isActive(at, i + 1)} selected={grid.spans && grid.isSelected(at, i + 1)} />
@@ -502,7 +513,7 @@ export function TableView({
             </td>
           );
         })}
-        {!readOnly && <td className="border-b border-s border-border" />}
+        {!readOnly && <td className={cn("border-b border-s border-border", mark())} />}
       </tr>
     );
   };

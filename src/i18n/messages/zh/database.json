@@ -742,7 +742,8 @@
       "panel": "侧边面板",
       "page": "完整页面"
     },
-    "showOutdated": "显示已归档的行"
+    "showOutdated": "显示已归档的行",
+    "colorRules": "颜色规则"
   },
   "gallery": {
     "new": "新建",
@@ -1603,5 +1604,20 @@
     "confirm": "合并行",
     "merging": "正在合并…",
     "bodyHeading": "合并自 {title}"
+  },
+  "colorRules": {
+    "title": "颜色规则",
+    "description": "为符合条件的行或行中的某个值着色。",
+    "empty": "还没有颜色规则。添加一条规则,为符合的行着色。",
+    "ruleLabel": "{color}规则",
+    "color": "颜色",
+    "colors": "着色对象",
+    "target": "规则着色的对象",
+    "wholeRow": "整行",
+    "moveUp": "上移",
+    "moveDown": "下移",
+    "delete": "删除规则",
+    "add": "添加规则",
+    "firstMatchWins": "多条规则都符合时,由第一条为行或值着色。"
   }
 }

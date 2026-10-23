@@ -4,6 +4,18 @@
 
 ### Added
 
+- **Views color rows by rules.** *Color rules* in a view's layout menu (tables, boards, galleries,
+  lists, calendars and timelines) colors the rows that match conditions: each rule has a color
+  from the option palette, colors the whole row or card or one property's value, and tests rows
+  with the same filters, groups and and/or as the view's filters, formulas, rollups, relations,
+  people ("me") and relative dates included. For each target the first matching rule wins, so
+  rules can be moved up and down. Timeline bars take a row's color. Someone who can't see a
+  property doesn't get the rules that name it, and saving the view keeps those rules; deleting a
+  property sets aside the rules that name it until it is restored, and copies of a database keep
+  their rules pointed at the copied properties. MCP: `update_database_view` takes `color_rules`
+  and `get_database` lists them. Exports, prints and published pages show rows without colors.
+  No migration: rules live in the view's settings.
+
 - **The AI chat makes PDF files.** Asked for a PDF (a quote, a letter, a report), the chat writes
   it into a page or row if it isn't in one, then makes the page's PDF on the server
   (`create_pdf`) and attaches it at the end of the page's text, or in a row's files property, and
