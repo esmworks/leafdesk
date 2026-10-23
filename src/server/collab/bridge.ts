@@ -128,6 +128,21 @@ export interface CollabService {
     snapshot?: boolean,
   ): Promise<boolean>;
   /**
+   * Changes some props of the first block of type `type` that `find` picks (by its current props),
+   * wherever it sits, in place: only the props `update` returns are set, so edits people make to
+   * the rest of the page (or to the block's other props) at the same time are never undone.
+   * `update` gets the block's current props and returns the props to set, or null to set none.
+   * Resolves to the block's props after the change, or null when the page has no such block.
+   * Refuses a locked page or one in the trash, like the other writes.
+   */
+  updateBlockAttributes(
+    pageId: string,
+    type: string,
+    find: (props: Record<string, unknown>) => boolean,
+    update: (props: Record<string, unknown>) => Record<string, string | number> | null,
+    actor: WriteActor,
+  ): Promise<Record<string, unknown> | null>;
+  /**
    * Turns the first place the body writes `title` in plain text into a mention of `targetId` (see
    * lib/link-context linkTitle). Returns the new body's blocks, or null when the title isn't there.
    */
