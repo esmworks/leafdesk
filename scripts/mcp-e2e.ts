@@ -643,6 +643,51 @@ async function main() {
   const missing = await mcp.call("get_page", { page_id: "00000000-0000-0000-0000-000000000000" });
   check(missing.isError && missing.text.includes("Not found"), "unknown id → tool error, not a 500", missing.text);
 
+  // ---- follow-ups: listed, started on rows (skipping one without an address), listed, stopped
+  {
+    const { db } = await import("@/db");
+    const { mailbox } = await import("@/db/schema");
+    const { updateWorkspaceSettings } = await import("@/server/workspaces");
+    const { setMailDatabases } = await import("@/server/row-mail/settings");
+    const { createSequence } = await import("@/server/sequences/manage");
+    const leads = await mcp.ok("create_database", { parent_id: root.id, title: "Leads" });
+    await mcp.ok("add_database_property", { database_id: leads.id, name: "Email", type: "email" });
+    const emailId = (await mcp.ok("get_database", { database_id: leads.id })).properties.find((p: { name: string }) => p.name === "Email")?.id;
+    await updateWorkspaceSettings(userIds[0], ws, { email: true });
+    await setMailDatabases(userIds[0], ws, [{ databaseId: leads.id, propertyIds: [emailId] }]);
+    // Stored as connecting one would; never reached, the first step being days away.
+    await db.insert(mailbox).values({
+      workspaceId: ws,
+      userId: userIds[0],
+      address: `mcp.${RUN}@example.test`,
+      imapHost: "127.0.0.1",
+      imapPort: 1,
+      imapSecure: false,
+      smtpHost: "127.0.0.1",
+      smtpPort: 1,
+      smtpSecure: false,
+      username: "mcp",
+      secret: "unused",
+      consentedAt: new Date(),
+    });
+    const made = await createSequence(userIds[0], leads.id, { name: "Nudge", steps: [{ days: 30, subject: "Hello", text: "Hi {{Name | there}}, any news?", mode: "review" }] });
+    const lead = await mcp.ok("create_database_row", { database_id: leads.id, title: "Lead", properties: { Email: `lead.${RUN}@example.test` } });
+    const noAddress = await mcp.ok("create_database_row", { database_id: leads.id, title: "No address" });
+    const listedSequences = await mcp.ok("list_sequences", { database_id: leads.id });
+    check(listedSequences.sequences?.[0]?.id === made.id && listedSequences.sequences[0].steps[0].mode === "ask_first", "list_sequences lists a database's follow-ups", listedSequences);
+    const started = await mcp.ok("enroll_in_sequence", { sequence_id: made.id, row_ids: [lead.id, noAddress.id] });
+    check(started.started === 1 && started.rows[1].skipped === "noAddress", "enroll_in_sequence starts it, skipping a row without an address", started);
+    const enrollmentId = started.rows[0].enrollment.id;
+    const going = await mcp.ok("list_enrollments", { row_id: lead.id });
+    check(going.enrollments?.length === 1 && going.enrollments[0].id === enrollmentId && going.enrollments[0].source === "mcp", "list_enrollments lists the row's", going);
+    const stoppedNow = await mcp.ok("stop_enrollment", { enrollment_id: enrollmentId });
+    check(stoppedNow.status === "stopped" && stoppedNow.reason === "manual", "stop_enrollment stops it", stoppedNow);
+    const resumeStopped = await mcp.call("resume_enrollment", { enrollment_id: enrollmentId });
+    check(resumeStopped.isError, "a stopped one can't be resumed", resumeStopped.text);
+    await db.delete(mailbox).where((await import("drizzle-orm")).eq(mailbox.workspaceId, ws));
+    await updateWorkspaceSettings(userIds[0], ws, { email: false });
+  }
+
   // ---- moving pages
   const moved = await mcp.ok("create_page", { workspace_id: ws, title: `MCP e2e move ${RUN}` });
   await mcp.ok("move_page", { page_id: moved.id, parent_id: child.id });

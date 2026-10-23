@@ -20,10 +20,14 @@ try {
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
 const { eq, inArray, sql } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { apiIdempotencyKey, apiToken, user, workspace, workspaceMember } = await import("@/db/schema");
+const { apiIdempotencyKey, apiToken, mailbox, user, workspace, workspaceMember } = await import("@/db/schema");
 const { registerCollab } = await import("@/server/collab/bridge");
 const { createPage } = await import("@/server/pages");
 const { setPagePermission } = await import("@/server/permissions");
+const { addProperty } = await import("@/server/databases");
+const { setMailDatabases } = await import("@/server/row-mail/settings");
+const { updateWorkspaceSettings } = await import("@/server/workspaces");
+const { createSequence } = await import("@/server/sequences/manage");
 const { createApiToken, revokeApiToken, listApiTokens, updateApiTokenScopes, verifyApiToken } = await import("@/server/api/tokens");
 const { pruneIdempotencyKeys } = await import("@/server/api/idempotency");
 const { API_ROUTES } = await import("@/server/api/routes");
@@ -329,6 +333,53 @@ try {
   check(errorCode(await api("PATCH", `/rows/${alpha}`, R, { title: "no" })) === "insufficient_scope", "a read token can't change rows");
   const badPatchValue = await api("PATCH", `/rows/${alpha}`, W, { properties: { Status: "Bogus" } });
   check(badPatchValue.body.error?.param === "properties.Status", "a bad value in PATCH /rows/{id} names the property in param", badPatchValue.body);
+
+  // ------------------------------------------------------------------ follow-ups
+  // A mailbox stored as connecting one would (never reached: the sequence's first step is days away).
+  const leads = await createPage({ userId: ids.alice }, { workspaceId: wsA, kind: "database", title: `${RUN} Leads` });
+  const leadEmail = await addProperty(ids.alice, leads.id, { name: "Email", type: "email" });
+  await updateWorkspaceSettings(ids.alice, wsA, { email: true });
+  await setMailDatabases(ids.alice, wsA, [{ databaseId: leads.id, propertyIds: [leadEmail.id] }]);
+  await db.insert(mailbox).values({
+    workspaceId: wsA,
+    userId: ids.alice,
+    address: `alice.${RUN}@example.test`,
+    imapHost: "127.0.0.1",
+    imapPort: 1,
+    imapSecure: false,
+    smtpHost: "127.0.0.1",
+    smtpPort: 1,
+    smtpSecure: false,
+    username: "alice",
+    secret: "unused",
+    consentedAt: new Date(),
+  });
+  const sequence = await createSequence(ids.alice, leads.id, { name: "Nudge", steps: [{ days: 30, subject: "Hello", text: "Hi {{Name | there}}, any news?", mode: "auto" }] });
+  const lead = await createPage({ userId: ids.alice }, { workspaceId: wsA, parentId: leads.id, title: "Lead", properties: { [leadEmail.id]: `lead.${RUN}@example.test` } });
+  const noAddress = await createPage({ userId: ids.alice }, { workspaceId: wsA, parentId: leads.id, title: "No address" });
+  const sequences = await api("GET", `/databases/${leads.id}/sequences`, R);
+  check(sequences.status === 200 && sequences.body.sequences?.[0]?.name === "Nudge" && sequences.body.sequences[0].steps[0].mode === "send", "GET /databases/{id}/sequences lists its follow-ups", sequences.body);
+  check(errorCode(await api("POST", `/sequences/${sequence.id}/enrollments`, R, { row_ids: [lead.id] })) === "insufficient_scope", "a read token can't start one");
+  const started = await api("POST", `/sequences/${sequence.id}/enrollments`, W, { row_ids: [lead.id, noAddress.id] });
+  check(
+    started.status === 200 && started.body.started === 1 && started.body.rows[1].skipped === "noAddress",
+    "POST /sequences/{id}/enrollments starts it on rows, skipping one without an address",
+    started.body,
+  );
+  const again = await api("POST", `/sequences/${sequence.id}/enrollments`, W, { row_ids: [lead.id] });
+  check(again.body.started === 0 && again.body.rows[0].skipped === "alreadyEnrolled", "…and a row already in it", again.body);
+  const enrollment = started.body.rows[0].enrollment;
+  check(enrollment.status === "active" && enrollment.source === "api" && enrollment.steps === 1, "…saying where it stands", enrollment);
+  const going = await api("GET", `/enrollments?row_id=${lead.id}`, R);
+  check(going.status === 200 && going.body.enrollments?.length === 1 && going.body.enrollments[0].id === enrollment.id, "GET /enrollments lists a row's", going.body);
+  check(errorCode(await api("GET", "/enrollments", R)) === "invalid_request", "…and needs something to narrow them by");
+  const stopped = await api("POST", `/enrollments/${enrollment.id}/stop`, W);
+  check(stopped.status === 200 && stopped.body.status === "stopped" && stopped.body.reason === "manual", "POST /enrollments/{id}/stop stops it", stopped.body);
+  const stoppedAgain = await api("POST", `/enrollments/${enrollment.id}/stop`, W);
+  check(stoppedAgain.status === 409 && errorCode(stoppedAgain) === "follow_up_ended", "…once", stoppedAgain.body);
+  check((await api("POST", `/enrollments/${enrollment.id}/resume`, W)).status === 409, "a stopped one can't be resumed");
+  check((await api("GET", `/enrollments?row_id=${lead.id}&status=all`, R)).body.enrollments?.length === 1, "…but is still listed with status=all");
+  check((await api("POST", `/sequences/${RUN}-nope/enrollments`, W, { row_ids: [lead.id] })).status === 404, "an unknown sequence is a 404");
 
   // ------------------------------------------------------------------ what the user can't see
   const secret = await createPage({ userId: ids.bob }, { workspaceId: wsA, title: `${RUN} Bob's secret` });
