@@ -15,9 +15,10 @@
  *
  *   pnpm tsx scripts/follow-ups-e2e.ts
  *
- * Env: DATABASE_URL (read from .env when present). Needs Docker and the greenmail/standalone:2.1.14
- * image (pulled when missing). Migrations must be applied. Run it while no app server uses the same
- * database: the server's own sweeps would send the queue and read the mailboxes.
+ * Env: DATABASE_URL (read from .env when present). With GREENMAIL_SMTP_PORT and GREENMAIL_IMAP_PORT
+ * (on 127.0.0.1) it uses that server (CI's service); without, it needs Docker and starts
+ * greenmail/standalone:2.1.14 itself. Migrations must be applied. Run it while no app server uses the
+ * same database: the server's own sweeps would send the queue and read the mailboxes.
  */
 export {};
 
@@ -44,25 +45,28 @@ function freePort(): Promise<number> {
   });
 }
 
-const SMTP_PORT = await freePort();
-const IMAP_PORT = await freePort();
+const given = process.env.GREENMAIL_SMTP_PORT && process.env.GREENMAIL_IMAP_PORT;
+const SMTP_PORT = given ? Number(process.env.GREENMAIL_SMTP_PORT) : await freePort();
+const IMAP_PORT = given ? Number(process.env.GREENMAIL_IMAP_PORT) : await freePort();
 const docker = (...args: string[]) => execFileSync("docker", args, { stdio: ["ignore", "pipe", "pipe"] }).toString().trim();
-try {
-  docker("rm", "-f", CONTAINER);
-} catch {}
-docker(
-  "run",
-  "-d",
-  "--name",
-  CONTAINER,
-  "-p",
-  `${HOST}:${SMTP_PORT}:3025`,
-  "-p",
-  `${HOST}:${IMAP_PORT}:3143`,
-  "-e",
-  "GREENMAIL_OPTS=-Dgreenmail.setup.test.smtp -Dgreenmail.setup.test.imap -Dgreenmail.hostname=0.0.0.0 -Dgreenmail.auth.disabled",
-  "greenmail/standalone:2.1.14",
-);
+if (!given) {
+  try {
+    docker("rm", "-f", CONTAINER);
+  } catch {}
+  docker(
+    "run",
+    "-d",
+    "--name",
+    CONTAINER,
+    "-p",
+    `${HOST}:${SMTP_PORT}:3025`,
+    "-p",
+    `${HOST}:${IMAP_PORT}:3143`,
+    "-e",
+    "GREENMAIL_OPTS=-Dgreenmail.setup.test.smtp -Dgreenmail.setup.test.imap -Dgreenmail.hostname=0.0.0.0 -Dgreenmail.auth.disabled",
+    "greenmail/standalone:2.1.14",
+  );
+}
 
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
 const { and, eq, inArray } = await import("drizzle-orm");
@@ -71,7 +75,7 @@ const { ImapFlow } = await import("imapflow");
 const { db } = await import("@/db");
 const schema = await import("@/db/schema");
 const { auditEvent, automationRun, mailbox, notification, pendingChange, rowEmail, sequenceEnrollment, sequenceSend, user, workspace, workspaceMember } = schema;
-const { addProperty, createRows, updateRowProperties } = await import("@/server/databases");
+const { addProperty, updateRowProperties } = await import("@/server/databases");
 const { createPage, archivePage } = await import("@/server/pages");
 const { updateWorkspaceSettings } = await import("@/server/workspaces");
 const { connectMailbox, disconnectMailbox, setMailboxSending, setMailDatabases } = await import("@/server/row-mail/settings");
@@ -196,7 +200,7 @@ const enroll = async (userId: string, sequenceId: string, rowId: string) => {
   return outcome.enrollment.id;
 };
 
-let containerUp = true;
+let containerUp = !given;
 try {
   await serverUp();
   await db.insert(user).values([
@@ -227,7 +231,7 @@ try {
   const connect = (userId: string, address: string) =>
     connectMailbox(userId, workspaceId, { address, servers, username: address, password: "app-password", consent: true, displayName: userId === ids.ada ? "Ada" : "Owner", timeZone: TIME_ZONE });
   const adaBox = await connect(ids.ada, adaAddress);
-  const ownerBox = await connect(ids.owner, ownerAddress);
+  await connect(ids.owner, ownerAddress);
   check(adaBox.timeZone === TIME_ZONE && adaBox.followUpDailyLimit === 50, "a mailbox keeps its owner's time zone, and sends 50 follow-ups a day unless told otherwise", adaBox);
   await setMailDatabases(ids.owner, workspaceId, [{ databaseId: leads.id, propertyIds: [email.id] }]);
 
