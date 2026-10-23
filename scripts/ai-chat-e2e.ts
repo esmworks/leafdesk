@@ -863,6 +863,20 @@ try {
   const aliceBefore = await listConversations(alice, workspaceId);
   await deleteConversations(alice, workspaceId, [aliceBefore[0].id]);
   check((await listConversations(alice, workspaceId)).length === aliceBefore.length - 1, "a conversation can be deleted");
+  // Several in one go, as the chat list's selection deletes them: only the person's own are gone.
+  fake.setChat(() => ({ text: "Noted." }));
+  const picked: string[] = [];
+  for (const message of ["One", "Two", "Three"]) picked.push((await ask(alice, { workspaceId, message })).conversationId!);
+  const daveOwn = (await listConversations(dave, workspaceId))[0].id;
+  const beforeSome = await listConversations(alice, workspaceId);
+  await deleteConversations(alice, workspaceId, [picked[0], picked[2], daveOwn]);
+  const afterSome = (await listConversations(alice, workspaceId)).map((c) => c.id);
+  check(
+    afterSome.length === beforeSome.length - 2 && !afterSome.includes(picked[0]) && !afterSome.includes(picked[2]) && afterSome.includes(picked[1]),
+    "several conversations can be deleted at once, the others stay",
+    afterSome,
+  );
+  check((await listConversations(dave, workspaceId)).some((c) => c.id === daveOwn), "…and someone else's among them is left alone");
   await deleteConversations(alice, workspaceId, "all");
   check((await listConversations(alice, workspaceId)).length === 0, "…or all of them");
   check((await listConversations(dave, workspaceId)).length > 0, "…leaving other people's alone");

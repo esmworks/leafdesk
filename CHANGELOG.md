@@ -4,6 +4,10 @@
 
 ### Added
 
+- **Several AI conversations can be deleted at once.** In the chat tab of the sidebar a box takes a
+  conversation's dot on hover: tick some, shift-click for a range, or pick *Select all* from the
+  heading's ⋯ menu (where a touch screen starts). The heading then counts them and deletes them together after asking how many
+  will go; Escape or × clears the selection.
 - **Automations can ask for approval.** A new *Ask for approval* step makes a run wait until one of
   the people it asks approves or rejects it: chosen people and the people the row's person
   properties name, with a message that can use templates, for 1 to 30 days. The question shows

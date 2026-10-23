@@ -2,7 +2,7 @@
 
 import { getTranslations } from "next-intl/server";
 import type { AiAutofillConfig } from "@/lib/ai";
-import { MAX_MEMORIES, MAX_MEMORY_CHARS } from "@/lib/ai-chat";
+import { MAX_CONVERSATIONS, MAX_MEMORIES, MAX_MEMORY_CHARS } from "@/lib/ai-chat";
 import { isDatabaseErrorCode, PropertyValueError } from "@/lib/properties";
 import { AccessError } from "@/server/access";
 import { isAiError } from "@/server/ai";
@@ -92,9 +92,14 @@ export async function getConversationAction(workspaceId: string, conversationId:
   return run((userId) => getConversation(userId, String(workspaceId), String(conversationId)));
 }
 
-/** Deletes one of the person's conversations, or all of them in the workspace. */
-export async function deleteConversationAction(workspaceId: string, conversationId: string | "all") {
-  return run((userId) => deleteConversations(userId, String(workspaceId), conversationId === "all" ? "all" : [String(conversationId)]));
+/**
+ * Deletes some of the person's conversations (one id, or the ids picked in the list), or all of them
+ * in the workspace. Ids of conversations that aren't theirs are left alone.
+ */
+export async function deleteConversationAction(workspaceId: string, conversationId: string | string[] | "all") {
+  // No list shows more than MAX_CONVERSATIONS.
+  const ids = Array.isArray(conversationId) ? [...new Set(conversationId.map(String))].slice(0, MAX_CONVERSATIONS) : [String(conversationId)];
+  return run((userId) => deleteConversations(userId, String(workspaceId), conversationId === "all" ? "all" : ids));
 }
 
 /** What the AI chat remembers about the person in a workspace, oldest first. */

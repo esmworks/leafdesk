@@ -20,7 +20,8 @@ import { takesNumberFormat } from "@/lib/number-format";
 import type { SubItemLine } from "@/lib/sub-items";
 import { cellText, type PasteColumn, type PastePlan } from "@/lib/table-clipboard";
 import { AiCell, useAiAutofill } from "./ai-autofill";
-import { BulkActionBar, SelectBox, useRowSelection } from "./bulk-actions";
+import { SelectBox, useSelection } from "@/components/selection";
+import { BulkActionBar } from "./bulk-actions";
 import { uploadToPage } from "./files-cell";
 import { Floating, useFloating } from "./floating";
 import { GroupLabel, HiddenGroups, useGroupContext, useGroupName } from "./group-label";
@@ -166,7 +167,7 @@ export function TableView({
       unique(grouping.shown.filter((g) => !collapsed.has(g.key)).flatMap((g) => (lines.groups.get(g.key) ?? []).map((l) => l.row))),
     ];
   }, [grouping, rows, collapsed, lines, parentsOnly]);
-  const selection = useRowSelection(expanded);
+  const selection = useSelection(expanded);
   // Row controls before the Name column: the selection checkbox, plus the row menu for editors.
   const handles = readOnly ? 32 : 56;
   const phone = useMediaQuery(PHONE_QUERY);
