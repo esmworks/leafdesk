@@ -12,6 +12,11 @@ export type FindMatch = { from: number; to: number };
 
 export type FindOptions = {
   caseSensitive?: boolean;
+  /**
+   * Off (the default), letters match whatever accents they carry: "cafe" finds "café", "ç" pairs
+   * with "c", "ş" with "s", "ı" with "i". On, an accented letter only matches itself.
+   */
+  matchAccents?: boolean;
   /** Case folding follows the reader's language: in Turkish "I" pairs with "ı" and "İ" with "i". */
   locale?: string;
 };
@@ -20,17 +25,123 @@ export type FindOptions = {
 const OBJECT = "￼";
 
 /**
+ * What folding writes in place of a character the search skips: a combining accent written on its
+ * own after its letter ("e" followed by U+0301), when accents don't matter. Keeping a character
+ * there, instead of dropping it, keeps every index pointing at the same character. (A NUL in the
+ * text itself is skipped the same way; pages don't hold them.)
+ */
+export const SKIPPED = "\u0000";
+
+/**
+ * Combining accents of Latin, Greek and Cyrillic letters. Marks other scripts spell with (kana
+ * voicing marks, Indic vowel signs, Hebrew and Arabic vowel points) are left alone: there they make
+ * a different letter rather than an accented one.
+ */
+const ACCENT = /[̀-ͯ᪰-᫿᷀-᷿︠-︯]/g;
+const ACCENT_ONLY = /^[̀-ͯ᪰-᫿᷀-᷿︠-︯]$/;
+
+/** Letters that read as another with an accent taken off, but that don't decompose into one. */
+const BASE_LETTERS: Record<string, string> = {
+  ı: "i",
+  ø: "o",
+  Ø: "O",
+  đ: "d",
+  Đ: "D",
+  ð: "d",
+  Ð: "D",
+  ł: "l",
+  Ł: "L",
+  ħ: "h",
+  Ħ: "H",
+};
+
+/** One character lower-cased as `locale` does, in as many UTF-16 units as it had. */
+function lowerChar(ch: string, locale: string | undefined): string {
+  const lower = ch.toLocaleLowerCase(locale);
+  // Only "İ" grows (to "i" and a combining dot); keeping the "i" is what a reader means by it.
+  return lower.length === ch.length ? lower : lower.slice(0, ch.length);
+}
+
+/** One character without its accents, in as many UTF-16 units as it had; SKIPPED for an accent on its own. */
+function baseChar(ch: string): string {
+  if (ACCENT_ONLY.test(ch)) return SKIPPED;
+  const listed = BASE_LETTERS[ch];
+  if (listed) return listed;
+  const base = ch.normalize("NFD").replace(ACCENT, "");
+  // Anything that doesn't come apart into one letter and accents (Hangul, ligatures…) stays itself.
+  return base.length === ch.length ? base : ch;
+}
+
+/**
  * Lower-cases `text` one character at a time so every index still points at the same character.
  * (Plain lower-casing can change the length: "İ" becomes "i" plus a combining dot outside Turkish.)
  */
 export function foldCase(text: string, locale?: string): string {
   let out = "";
-  for (const ch of text) {
-    const lower = ch.toLocaleLowerCase(locale);
-    // Only "İ" grows (to "i" and a combining dot); keeping the "i" is what a reader means by it.
-    out += lower.length === ch.length ? lower : lower.slice(0, ch.length);
-  }
+  for (const ch of text) out += lowerChar(ch, locale);
   return out;
+}
+
+/**
+ * A folder for `options`: text as the search compares it, one character at a time and as long as
+ * it was, so every index still points at the same character. Each distinct character is folded once.
+ */
+export function textFolder(options: FindOptions = {}): (text: string) => string {
+  const { caseSensitive = false, matchAccents = false, locale } = options;
+  if (caseSensitive && matchAccents) return (text) => text;
+  const known = new Map<string, string>();
+  const foldChar = (ch: string) => {
+    let out = known.get(ch);
+    if (out === undefined) {
+      // Case first: in Turkish "I" lower-cases to "ı", which then reads as "i" when accents don't matter.
+      out = caseSensitive ? ch : lowerChar(ch, locale);
+      if (!matchAccents) out = baseChar(out);
+      known.set(ch, out);
+    }
+    return out;
+  };
+  return (text) => {
+    let out = "";
+    for (const ch of text) out += foldChar(ch);
+    return out;
+  };
+}
+
+/**
+ * Text as the search compares it (see textFolder): the same length, with SKIPPED in place of
+ * accents written on their own when accents don't matter.
+ */
+export function foldForSearch(text: string, options: FindOptions = {}): string {
+  return textFolder(options)(text);
+}
+
+/**
+ * Where `needle` occurs in `haystack` (both folded), skipping SKIPPED characters on both sides, as
+ * [start, end) index pairs that don't overlap. A match takes in the accents written after its last
+ * letter, so replacing it leaves none behind.
+ */
+export function matchRanges(haystack: string, needle: string): [number, number][] {
+  const wanted = needle.split(SKIPPED).join("");
+  if (!wanted) return [];
+  let compact = haystack;
+  let at: number[] | null = null;
+  if (haystack.includes(SKIPPED)) {
+    compact = "";
+    at = [];
+    for (let i = 0; i < haystack.length; i++) {
+      if (haystack[i] === SKIPPED) continue;
+      compact += haystack[i];
+      at.push(i);
+    }
+  }
+  const ranges: [number, number][] = [];
+  for (let i = compact.indexOf(wanted); i >= 0; i = compact.indexOf(wanted, i + wanted.length)) {
+    const start = at ? at[i] : i;
+    let end = (at ? at[i + wanted.length - 1] : i + wanted.length - 1) + 1;
+    while (end < haystack.length && haystack[end] === SKIPPED) end++;
+    ranges.push([start, end]);
+  }
+  return ranges;
 }
 
 /**
@@ -40,7 +151,7 @@ export function foldCase(text: string, locale?: string): string {
  */
 export function findMatches(doc: PMNode, query: string, options: FindOptions = {}): FindMatch[] {
   if (!query || query.includes(OBJECT)) return [];
-  const fold = (s: string) => (options.caseSensitive ? s : foldCase(s, options.locale));
+  const fold = textFolder(options);
   const needle = fold(query);
   const matches: FindMatch[] = [];
   doc.descendants((node, pos) => {
@@ -60,9 +171,7 @@ export function findMatches(doc: PMNode, query: string, options: FindOptions = {
       }
     });
     const haystack = fold(text);
-    for (let i = haystack.indexOf(needle); i >= 0; i = haystack.indexOf(needle, i + needle.length)) {
-      matches.push({ from: at[i], to: at[i + needle.length - 1] + 1 });
-    }
+    for (const [start, end] of matchRanges(haystack, needle)) matches.push({ from: at[start], to: at[end - 1] + 1 });
     return false;
   });
   return matches;

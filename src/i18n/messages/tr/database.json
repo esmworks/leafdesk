@@ -925,6 +925,20 @@
     "error": "Hata",
     "errorTitle": "Bu satır hesaplanamıyor: {message}",
     "or": "veya",
+    "ai": {
+      "open": "Tarif et",
+      "title": "Formülü yapay zekâyla yaz",
+      "close": "Kapat",
+      "description": "Formülün neyi hesaplaması gerektiği",
+      "placeholder": "Örneğin: bitiş tarihine kalan gün sayısı, tarih geçtiyse “Gecikti”",
+      "writing": "Yazılıyor…",
+      "write": "Formülü yaz",
+      "again": "Yeniden yaz",
+      "failed": "Yapay zekânın yazdığı formül çalışmıyor: {message}",
+      "use": "Formülü kullan",
+      "emptyValue": "Boş",
+      "noRows": "Denenecek satır henüz yok."
+    },
     "groups": {
       "logic": "Mantık",
       "text": "Metin",
@@ -1190,6 +1204,7 @@
         "upsert_row": "Satır ekle veya güncelle",
         "wait": "Bekle",
         "log": "Çalışma geçmişine yaz",
+        "celebrate": "Konfetiyle kutla",
         "approval": "Onay iste",
         "start_sequence": "Takip başlat"
       },
@@ -1381,7 +1396,9 @@
         "sequenceGone": "Takip artık yok",
         "noMailbox": "Otomasyonun kişisinin bağlı bir posta kutusu yok",
         "noAddress": "Satırın e-posta adresi yok",
-        "emailOff": "Satırlarda e-posta kapalı"
+        "emailOff": "Satırlarda e-posta kapalı",
+        "noPerson": "Atlandı: bu çalışmayı bir kişinin değişikliği başlatmadı",
+        "tooLate": "Atlandı: kutlamak için değişikliğin üzerinden çok zaman geçti"
       },
       "waitingApproval": "Onay bekliyor",
       "approval": {
@@ -1481,7 +1498,9 @@
       "waitHelp": "En çok 7 gün. Çalışma bekler, sonra sonraki adımla devam eder.",
       "logMessage": "Mesaj",
       "logPlaceholder": "Örneğin: {template} içe aktarıldı",
-      "logHelp": "Değişkenleri doldurulmuş olarak çalışma geçmişine yazılır."
+      "logHelp": "Değişkenleri doldurulmuş olarak çalışma geçmişine yazılır.",
+      "celebrateHelp": "Çalışmayı başlatan değişikliği kim yaptıysa, uygulamada açık olan pencerelerinde konfeti patlar. Kimsenin başlatmadığı çalışmalar (zamanlamalar, geçen tarihler, gelen webhook'lar, adsız form yanıtları) bu adımı atlar; değişiklikten iki dakikadan uzun süre sonra buraya gelen çalışmalar da.",
+      "celebrateTry": "Dene"
     },
     "variables": {
       "button": "Değişken ekle",
@@ -1564,6 +1583,10 @@
         "name": "Geciken satırları hatırlat",
         "description": "Satırın tarihi geçtikten bir gün sonra hâlâ bitmemişse kişilerine bildirim gönder.",
         "message": "{title} gecikti."
+      },
+      "celebrateDone": {
+        "name": "Biten satırları kutla",
+        "description": "Bir satır tamamlandı olarak işaretlenince, işaretleyen kişiye konfeti."
       }
     }
   },

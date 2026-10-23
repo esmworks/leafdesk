@@ -908,6 +908,14 @@
     "detailHeading": "{month} por recurso e modelo",
     "ownAccountShare": "A conta de IA própria do espaço de trabalho pagou {cost} deste valor.",
     "empty": "Nenhum pedido de IA neste mês.",
+    "peopleHeading": "{month} por pessoa",
+    "peopleDescription": "Quem usou a IA do espaço de trabalho, do maior para o menor custo: pessoas e agentes, cada um com os recursos que mais usou. As solicitações são contadas por pessoa a partir da atualização do Leafdesk que adicionou esta lista; as anteriores estão só nos totais.",
+    "people": {
+      "agent": "Agente",
+      "nobody": "Trabalho em segundo plano",
+      "unknown": "Conta removida",
+      "uncounted": "Antes da contagem por pessoa"
+    },
     "cacheTitle": "Lido da cache de prompts: {read} · Escrito nela: {write}",
     "columns": {
       "month": "Mês",
@@ -918,12 +926,16 @@
       "output": "Saída",
       "cost": "Custo",
       "feature": "Recurso",
-      "model": "Modelo"
+      "model": "Modelo",
+      "person": "Pessoa",
+      "share": "Parcela",
+      "mostUsed": "Mais usado para"
     },
     "groups": {
       "chat": "Chat de IA",
       "writing": "Assistente de escrita",
       "properties": "Preenchimento com IA",
+      "formulas": "Fórmulas",
       "agents": "Agentes",
       "search": "Pesquisa semântica",
       "voice": "Notas de voz",

@@ -347,6 +347,7 @@
     "replacePlaceholder": "جایگزینی با",
     "noResults": "نتیجه‌ای یافت نشد",
     "matchCase": "تطبیق بزرگی و کوچکی حروف",
+    "matchAccents": "تطبیق اعراب و علائم",
     "previous": "مورد قبلی (Shift+Enter)",
     "next": "مورد بعدی (Enter)",
     "showReplace": "نمایش جایگزینی",

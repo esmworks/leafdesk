@@ -347,6 +347,7 @@
     "replacePlaceholder": "Şununla değiştir",
     "noResults": "Sonuç yok",
     "matchCase": "Büyük/küçük harf duyarlı",
+    "matchAccents": "Aksanları ayırt et",
     "previous": "Önceki eşleşme (Shift+Enter)",
     "next": "Sonraki eşleşme (Enter)",
     "showReplace": "Değiştirmeyi göster",

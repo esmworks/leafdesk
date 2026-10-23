@@ -76,7 +76,7 @@ export function rollupFormat(fn: RollupFn | undefined): RollupFormat {
 }
 
 /** How a formula sees a property's values. */
-function baseType(prop: { type: PropertyType; options: PropertyOptions }): FormulaType | null {
+export function baseType(prop: { type: PropertyType; options: PropertyOptions }): FormulaType | null {
   if (prop.type === "rollup") {
     const format = rollupFormat(prop.options.rollup?.function);
     return format === "list" ? "list" : format === "date" ? "date" : "number";

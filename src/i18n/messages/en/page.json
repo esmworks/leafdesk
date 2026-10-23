@@ -347,6 +347,7 @@
     "replacePlaceholder": "Replace with",
     "noResults": "No results",
     "matchCase": "Match case",
+    "matchAccents": "Match accents",
     "previous": "Previous match (Shift+Enter)",
     "next": "Next match (Enter)",
     "showReplace": "Show replace",

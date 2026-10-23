@@ -908,6 +908,14 @@
     "detailHeading": "{month} według funkcji i modelu",
     "ownAccountShare": "Z tego {cost} zapłaciło własne konto AI przestrzeni roboczej.",
     "empty": "Brak żądań AI w tym miesiącu.",
+    "peopleHeading": "{month} według osób",
+    "peopleDescription": "Kto korzystał z AI obszaru roboczego, od najdroższych: osoby i agenci, każdy z funkcjami, których używał najczęściej. Żądania są liczone według osób od aktualizacji Leafdesk, która dodała tę listę; wcześniejsze są tylko w sumach.",
+    "people": {
+      "agent": "Agent",
+      "nobody": "Praca w tle",
+      "unknown": "Usunięte konto",
+      "uncounted": "Przed liczeniem według osób"
+    },
     "cacheTitle": "Odczytane z pamięci podręcznej promptów: {read} · Zapisane do niej: {write}",
     "columns": {
       "month": "Miesiąc",
@@ -918,12 +926,16 @@
       "output": "Wyjście",
       "cost": "Koszt",
       "feature": "Funkcja",
-      "model": "Model"
+      "model": "Model",
+      "person": "Osoba",
+      "share": "Udział",
+      "mostUsed": "Najczęściej do"
     },
     "groups": {
       "chat": "Czat AI",
       "writing": "Asystent pisania",
       "properties": "Autouzupełnianie AI",
+      "formulas": "Formuły",
       "agents": "Agenci",
       "search": "Wyszukiwanie semantyczne",
       "voice": "Notatki głosowe",

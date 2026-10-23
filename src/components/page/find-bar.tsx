@@ -42,6 +42,7 @@ export function FindBar({ editor, editable }: { editor: PageEditor; editable: bo
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [caseSensitive, setCaseSensitive] = useState(false);
+  const [matchAccents, setMatchAccents] = useState(false);
   const [replaceOpen, setReplaceOpen] = useState(false);
   const [replacement, setReplacement] = useState("");
   const rootRef = useRef<HTMLDivElement>(null);
@@ -60,8 +61,8 @@ export function FindBar({ editor, editable }: { editor: PageEditor; editable: bo
   // The plugin searches for what the bar shows; closing clears the highlights.
   useEffect(() => {
     if (!open && !findKey.getState(editor.prosemirrorState)?.query) return;
-    dispatch({ query: open ? query : "", caseSensitive, locale, reveal: open });
-  }, [editor, dispatch, open, query, caseSensitive, locale]);
+    dispatch({ query: open ? query : "", caseSensitive, matchAccents, locale, reveal: open });
+  }, [editor, dispatch, open, query, caseSensitive, matchAccents, locale]);
 
   useEffect(() => {
     if (focusRequest === 0) return;
@@ -224,6 +225,15 @@ export function FindBar({ editor, editable }: { editor: PageEditor; editable: bo
               onClick={() => setCaseSensitive((v) => !v)}
             >
               <CaseSensitive className="h-4 w-4" />
+            </IconButton>
+            <IconButton
+              label={t("matchAccents")}
+              aria-pressed={matchAccents}
+              className={cn("h-7 w-7", matchAccents && "bg-bg-active text-fg")}
+              onClick={() => setMatchAccents((v) => !v)}
+            >
+              {/* No icon set draws accents; a letter with one says it at the same size as the case icon. */}
+              <span aria-hidden className="text-[15px] leading-none font-medium">é</span>
             </IconButton>
             <IconButton label={t("previous")} className="h-7 w-7 disabled:pointer-events-none disabled:opacity-40" disabled={count === 0} onClick={() => step(-1)}>
               <ChevronUp className="h-4 w-4" />

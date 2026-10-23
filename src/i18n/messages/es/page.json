@@ -347,6 +347,7 @@
     "replacePlaceholder": "Reemplazar por",
     "noResults": "Sin resultados",
     "matchCase": "Coincidir mayúsculas y minúsculas",
+    "matchAccents": "Distinguir acentos",
     "previous": "Coincidencia anterior (Shift+Enter)",
     "next": "Coincidencia siguiente (Enter)",
     "showReplace": "Mostrar reemplazar",

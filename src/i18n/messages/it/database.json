@@ -925,6 +925,20 @@
     "error": "Errore",
     "errorTitle": "Questa riga non può essere calcolata: {message}",
     "or": "o",
+    "ai": {
+      "open": "Descrivila",
+      "title": "Scrivi la formula con l’IA",
+      "close": "Chiudi",
+      "description": "Cosa deve calcolare la formula",
+      "placeholder": "Per esempio: giorni mancanti alla scadenza, oppure «In ritardo» quando è passata",
+      "writing": "Scrittura in corso…",
+      "write": "Scrivi formula",
+      "again": "Riscrivi",
+      "failed": "La formula dell’IA non funziona: {message}",
+      "use": "Usa formula",
+      "emptyValue": "Vuoto",
+      "noRows": "Non ci sono ancora righe su cui provarla."
+    },
     "groups": {
       "logic": "Logica",
       "text": "Testo",
@@ -1190,6 +1204,7 @@
         "upsert_row": "Aggiungi o aggiorna una riga",
         "wait": "Attendi",
         "log": "Scrivi nella cronologia delle esecuzioni",
+        "celebrate": "Festeggia con i coriandoli",
         "approval": "Chiedi approvazione",
         "start_sequence": "Avvia un follow-up"
       },
@@ -1381,7 +1396,9 @@
         "sequenceGone": "Il follow-up non esiste più",
         "noMailbox": "La persona dell’automazione non ha collegato una casella di posta",
         "noAddress": "La riga non ha un indirizzo email",
-        "emailOff": "Le email sulle righe sono disattivate"
+        "emailOff": "Le email sulle righe sono disattivate",
+        "noPerson": "Saltato: nessuna modifica di una persona ha avviato questa esecuzione",
+        "tooLate": "Saltato: è passato troppo tempo dalla modifica per festeggiarla"
       },
       "waitingApproval": "In attesa di approvazione",
       "approval": {
@@ -1481,7 +1498,9 @@
       "waitHelp": "Fino a 7 giorni. L’esecuzione attende, poi prosegue con il passaggio successivo.",
       "logMessage": "Messaggio",
       "logPlaceholder": "Ad esempio: Importato {template}",
-      "logHelp": "Scritto nella cronologia delle esecuzioni, con le variabili compilate."
+      "logHelp": "Scritto nella cronologia delle esecuzioni, con le variabili compilate.",
+      "celebrateHelp": "Coriandoli nell’app per chi ha fatto la modifica che ha avviato l’esecuzione, nelle finestre che ha aperte. Le esecuzioni che nessuno ha avviato (pianificazioni, date trascorse, webhook in arrivo, risposte anonime ai moduli) lo saltano, come quelle che ci arrivano più di due minuti dopo la modifica.",
+      "celebrateTry": "Prova"
     },
     "variables": {
       "button": "Inserisci una variabile",
@@ -1564,6 +1583,10 @@
         "name": "Ricorda le righe in ritardo",
         "description": "Un giorno dopo la data di una riga non completata, notifica le sue persone.",
         "message": "{title} è in ritardo."
+      },
+      "celebrateDone": {
+        "name": "Festeggia le righe completate",
+        "description": "Quando una riga viene segnata come fatta, coriandoli per chi l’ha segnata."
       }
     }
   },

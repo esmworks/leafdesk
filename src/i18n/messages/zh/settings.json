@@ -908,6 +908,14 @@
     "detailHeading": "{month}按功能和模型",
     "ownAccountShare": "其中 {cost} 由工作区自己的 AI 账户支付。",
     "empty": "这个月没有 AI 请求。",
+    "peopleHeading": "{month}（按成员）",
+    "peopleDescription": "谁使用了工作区的 AI，按费用从高到低排列：成员和智能体，并列出各自最常用的功能。从添加此列表的 Leafdesk 更新起按成员统计请求；更早的请求只计入总计。",
+    "people": {
+      "agent": "智能体",
+      "nobody": "后台任务",
+      "unknown": "已删除的账户",
+      "uncounted": "按成员统计之前"
+    },
     "cacheTitle": "从提示缓存读取：{read} · 写入缓存：{write}",
     "columns": {
       "month": "月份",
@@ -918,12 +926,16 @@
       "output": "输出",
       "cost": "费用",
       "feature": "功能",
-      "model": "模型"
+      "model": "模型",
+      "person": "成员",
+      "share": "占比",
+      "mostUsed": "最常用于"
     },
     "groups": {
       "chat": "AI 聊天",
       "writing": "写作助手",
       "properties": "AI 自动填充",
+      "formulas": "公式",
       "agents": "智能体",
       "search": "语义搜索",
       "voice": "语音笔记",

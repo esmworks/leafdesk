@@ -925,6 +925,20 @@
     "error": "Fehler",
     "errorTitle": "Diese Zeile kann nicht berechnet werden: {message}",
     "or": "oder",
+    "ai": {
+      "open": "Beschreiben",
+      "title": "Formel mit KI schreiben",
+      "close": "Schließen",
+      "description": "Was die Formel berechnen soll",
+      "placeholder": "Zum Beispiel: Tage bis zum Fälligkeitsdatum, oder „Überfällig“, wenn es vorbei ist",
+      "writing": "Wird geschrieben…",
+      "write": "Formel schreiben",
+      "again": "Neu schreiben",
+      "failed": "Die Formel der KI funktioniert nicht: {message}",
+      "use": "Formel übernehmen",
+      "emptyValue": "Leer",
+      "noRows": "Noch keine Zeilen zum Ausprobieren."
+    },
     "groups": {
       "logic": "Logik",
       "text": "Text",
@@ -1190,6 +1204,7 @@
         "upsert_row": "Zeile hinzufügen oder aktualisieren",
         "wait": "Warten",
         "log": "In den Ausführungsverlauf schreiben",
+        "celebrate": "Mit Konfetti feiern",
         "approval": "Freigabe anfragen",
         "start_sequence": "Follow-up starten"
       },
@@ -1381,7 +1396,9 @@
         "sequenceGone": "Das Follow-up gibt es nicht mehr",
         "noMailbox": "Die Person der Automatisierung hat kein Postfach verbunden",
         "noAddress": "Die Zeile hat keine E-Mail-Adresse",
-        "emailOff": "E-Mails in Zeilen sind ausgeschaltet"
+        "emailOff": "E-Mails in Zeilen sind ausgeschaltet",
+        "noPerson": "Übersprungen: Diesen Lauf hat keine Änderung einer Person gestartet",
+        "tooLate": "Übersprungen: zu lange nach der Änderung, um sie zu feiern"
       },
       "waitingApproval": "Wartet auf Freigabe",
       "approval": {
@@ -1481,7 +1498,9 @@
       "waitHelp": "Bis zu 7 Tage. Die Ausführung wartet und geht dann mit dem nächsten Schritt weiter.",
       "logMessage": "Nachricht",
       "logPlaceholder": "Zum Beispiel: {template} importiert",
-      "logHelp": "Wird mit ausgefüllten Variablen in den Ausführungsverlauf geschrieben."
+      "logHelp": "Wird mit ausgefüllten Variablen in den Ausführungsverlauf geschrieben.",
+      "celebrateHelp": "Konfetti in der App für die Person, deren Änderung den Lauf gestartet hat, in ihren offenen Fenstern. Läufe, die niemand gestartet hat (Zeitpläne, verstrichene Daten, eingehende Webhooks, anonyme Formularantworten), überspringen den Schritt, ebenso Läufe, die ihn erst mehr als zwei Minuten nach der Änderung erreichen.",
+      "celebrateTry": "Ausprobieren"
     },
     "variables": {
       "button": "Variable einfügen",
@@ -1564,6 +1583,10 @@
         "name": "An überfällige Zeilen erinnern",
         "description": "Einen Tag nachdem das Datum einer unerledigten Zeile vorbei ist, ihre Personen benachrichtigen.",
         "message": "{title} ist überfällig."
+      },
+      "celebrateDone": {
+        "name": "Erledigte Zeilen feiern",
+        "description": "Wird eine Zeile als erledigt markiert, gibt es Konfetti für die Person, die das getan hat."
       }
     }
   },

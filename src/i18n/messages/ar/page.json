@@ -347,6 +347,7 @@
     "replacePlaceholder": "الاستبدال بـ",
     "noResults": "لا نتائج",
     "matchCase": "مطابقة حالة الأحرف",
+    "matchAccents": "مطابقة علامات التشكيل",
     "previous": "التطابق السابق (Shift+Enter)",
     "next": "التطابق التالي (Enter)",
     "showReplace": "إظهار الاستبدال",

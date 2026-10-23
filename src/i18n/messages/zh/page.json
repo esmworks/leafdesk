@@ -347,6 +347,7 @@
     "replacePlaceholder": "替换为",
     "noResults": "无结果",
     "matchCase": "区分大小写",
+    "matchAccents": "区分重音符号",
     "previous": "上一个匹配项（Shift+Enter）",
     "next": "下一个匹配项（Enter）",
     "showReplace": "显示替换",

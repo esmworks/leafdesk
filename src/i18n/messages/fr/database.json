@@ -925,6 +925,20 @@
     "error": "Erreur",
     "errorTitle": "Cette ligne ne peut pas être calculée : {message}",
     "or": "ou",
+    "ai": {
+      "open": "Décrire",
+      "title": "Écrire la formule avec l’IA",
+      "close": "Fermer",
+      "description": "Ce que la formule doit calculer",
+      "placeholder": "Par exemple : jours restants avant l’échéance, ou « En retard » une fois passée",
+      "writing": "Rédaction…",
+      "write": "Écrire la formule",
+      "again": "Réécrire",
+      "failed": "La formule de l’IA ne fonctionne pas : {message}",
+      "use": "Utiliser la formule",
+      "emptyValue": "Vide",
+      "noRows": "Pas encore de lignes pour l’essayer."
+    },
     "groups": {
       "logic": "Logique",
       "text": "Texte",
@@ -1190,6 +1204,7 @@
         "upsert_row": "Ajouter ou mettre à jour une ligne",
         "wait": "Attendre",
         "log": "Écrire dans l’historique des exécutions",
+        "celebrate": "Fêter avec des confettis",
         "approval": "Demander une approbation",
         "start_sequence": "Lancer une relance"
       },
@@ -1381,7 +1396,9 @@
         "sequenceGone": "La relance n’existe plus",
         "noMailbox": "La personne de l’automatisation n’a pas de boîte mail connectée",
         "noAddress": "La ligne n’a pas d’adresse e-mail",
-        "emailOff": "Les e-mails sur les lignes sont désactivés"
+        "emailOff": "Les e-mails sur les lignes sont désactivés",
+        "noPerson": "Ignoré : aucune modification d’une personne n’a lancé cette exécution",
+        "tooLate": "Ignoré : trop longtemps après la modification pour la fêter"
       },
       "waitingApproval": "En attente d’approbation",
       "approval": {
@@ -1481,7 +1498,9 @@
       "waitHelp": "Jusqu’à 7 jours. L’exécution attend, puis continue avec l’étape suivante.",
       "logMessage": "Message",
       "logPlaceholder": "Par exemple : {template} importé",
-      "logHelp": "Écrit dans l’historique des exécutions, avec ses variables remplies."
+      "logHelp": "Écrit dans l’historique des exécutions, avec ses variables remplies.",
+      "celebrateHelp": "Des confettis dans l’app pour la personne dont la modification a lancé l’exécution, dans les fenêtres qu’elle a ouvertes. Les exécutions que personne n’a lancées (planifications, dates passées, webhooks entrants, réponses anonymes à un formulaire) l’ignorent, tout comme celles qui y arrivent plus de deux minutes après la modification.",
+      "celebrateTry": "Essayer"
     },
     "variables": {
       "button": "Insérer une variable",
@@ -1564,6 +1583,10 @@
         "name": "Rappeler les lignes en retard",
         "description": "Un jour après la date d’une ligne non terminée, notifier ses personnes.",
         "message": "{title} est en retard."
+      },
+      "celebrateDone": {
+        "name": "Fêter les lignes terminées",
+        "description": "Quand une ligne est marquée comme terminée, des confettis pour la personne qui l’a fait."
       }
     }
   },

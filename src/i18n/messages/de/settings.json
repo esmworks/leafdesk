@@ -908,6 +908,14 @@
     "detailHeading": "{month} nach Funktion und Modell",
     "ownAccountShare": "Davon hat das eigene KI-Konto des Workspace {cost} bezahlt.",
     "empty": "Keine KI-Anfragen in diesem Monat.",
+    "peopleHeading": "{month} nach Person",
+    "peopleDescription": "Wer die KI des Arbeitsbereichs genutzt hat, die teuersten zuerst: Personen und Agenten, jeweils mit den Funktionen, die sie am meisten genutzt haben. Anfragen werden ab dem Leafdesk-Update, das diese Liste gebracht hat, pro Person gezählt; frühere stehen nur in den Summen.",
+    "people": {
+      "agent": "Agent",
+      "nobody": "Hintergrundarbeit",
+      "unknown": "Entferntes Konto",
+      "uncounted": "Vor der Zählung nach Person"
+    },
     "cacheTitle": "Aus dem Prompt-Cache gelesen: {read} · In ihn geschrieben: {write}",
     "columns": {
       "month": "Monat",
@@ -918,12 +926,16 @@
       "output": "Ausgabe",
       "cost": "Kosten",
       "feature": "Funktion",
-      "model": "Modell"
+      "model": "Modell",
+      "person": "Person",
+      "share": "Anteil",
+      "mostUsed": "Am meisten genutzt für"
     },
     "groups": {
       "chat": "KI-Chat",
       "writing": "Schreibassistent",
       "properties": "KI-Autofill",
+      "formulas": "Formeln",
       "agents": "Agenten",
       "search": "Semantische Suche",
       "voice": "Sprachnotizen",

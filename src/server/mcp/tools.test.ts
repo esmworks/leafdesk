@@ -2209,6 +2209,19 @@ describe("automations", () => {
     });
   });
 
+  it("takes a celebrate step and describes it", async () => {
+    automations.createAutomation.mockResolvedValue({ ...view, actions: [{ id: "celebrate", type: "celebrate" }] });
+    const { isError, data } = await callTool(writer, "create_automation", {
+      database_id: "db-1",
+      name: "Done!",
+      trigger: { type: "property_changed", property: "Status", to: "Done" },
+      actions: [{ type: "celebrate" }],
+    });
+    expect(isError).toBe(false);
+    expect(automations.createAutomation.mock.calls[0][2].actions).toEqual([{ type: "celebrate" }]);
+    expect(data.actions[0]).toMatchObject({ id: "celebrate", type: "celebrate", summary: expect.stringContaining("Confetti") });
+  });
+
   it("leaves property out for any-property triggers; update patches only what is given", async () => {
     automations.createAutomation.mockResolvedValue({ ...view, trigger: { type: "property_changed", propertyId: null }, secret: null });
     const created = await callTool(writer, "create_automation", {

@@ -347,6 +347,7 @@
     "replacePlaceholder": "Zamień na",
     "noResults": "Brak wyników",
     "matchCase": "Uwzględnij wielkość liter",
+    "matchAccents": "Uwzględniaj znaki diakrytyczne",
     "previous": "Poprzednie dopasowanie (Shift+Enter)",
     "next": "Następne dopasowanie (Enter)",
     "showReplace": "Pokaż zamianę",

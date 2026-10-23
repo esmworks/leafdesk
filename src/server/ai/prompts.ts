@@ -7,6 +7,7 @@ import { AUTOFILL_BODY, AUTOFILL_TITLE, languageName, type AiAutofillConfig, typ
 import type { ChatAttachmentRecord, ChatStepRecord, ChatWriteRecord } from "@/db/schema/ai";
 import { MAX_AGENT_WRITES } from "@/lib/agents";
 import { stripCitations } from "@/lib/ai-chat";
+import { quote } from "@/lib/formula/lexer";
 import { dayString, localDay } from "@/lib/time-zone";
 
 export type Prompt = { system: string; prompt: string };
@@ -848,4 +849,46 @@ export function agentDraftPrompt(description: string, candidates: { id: string; 
       `Pages and databases the agent may be given (one JSON object a line):\n${tagged("candidates", lines.join("\n") || "(none)")}`,
     ].join("\n\n"),
   };
+}
+
+const FORMULA_SYSTEM = [
+  "You write formulas for a database property in Leafdesk, a workspace app. A formula works out a value for each row from that row's properties.",
+  "Write one formula in the formula language below that does what the person describes, using only the database's properties listed, by their exact names.",
+  "Answer with the formula alone, on one line or a few: no explanation, no quotes around it, no code fence.",
+  "If something can't be done with these properties, write the closest formula that can.",
+].join("\n");
+
+/** A property as a formula prompt lists it: what a formula reads it as, and a select's options. */
+export type FormulaPromptProperty = { name: string; type: string; reads: string | null; options?: string[]; related?: { name: string; type: string }[] };
+
+/**
+ * The prompt for writing a formula (server/formula-ai.ts): the language reference, the database's
+ * properties the person may know of (never row values), and their description.
+ */
+export function formulaPrompt(input: { description: string; name: string; properties: FormulaPromptProperty[]; reference: string; today: string }): Prompt {
+  const lines = input.properties.map((p) => {
+    // Names and options as the formula writes them: quoted, with \" inside.
+    const parts = [quote(p.name), p.type === p.reads || !p.reads ? p.type : `${p.type}, reads as ${p.reads}`];
+    if (p.options?.length) parts.push(`options: ${p.options.map(quote).join(", ")}`);
+    if (p.related?.length) parts.push(`its rows' properties: ${p.related.map((r) => `${quote(r.name)} (${r.type})`).join(", ")}`);
+    return `- ${parts.join("; ")}`;
+  });
+  return {
+    system: `${FORMULA_SYSTEM}\n\n${tagged("reference", input.reference)}`,
+    prompt: [
+      `The formula property is called "${attr(input.name)}". Today is ${input.today}.`,
+      `The database's properties:\n${tagged("properties", ['- "title" (the row\'s title, text)', ...lines].join("\n"))}`,
+      `What the formula should work out:\n${tagged("description", input.description.trim())}`,
+    ].join("\n\n"),
+  };
+}
+
+/** The formula in a model's answer: without a code fence, a leading "Formula:" or wrapping backticks. */
+export function formulaAnswer(text: string): string {
+  let out = text.trim();
+  const fence = /```[a-z]*\s*\n?([\s\S]*?)```/i.exec(out);
+  if (fence) out = fence[1].trim();
+  out = out.replace(/^formula\s*:\s*/i, "").trim();
+  if (out.startsWith("`") && out.endsWith("`") && out.length > 1) out = out.slice(1, -1).trim();
+  return out;
 }

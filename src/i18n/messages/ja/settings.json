@@ -908,6 +908,14 @@
     "detailHeading": "{month}の機能別・モデル別",
     "ownAccountShare": "このうち {cost} はワークスペース独自の AI アカウントが支払いました。",
     "empty": "この月の AI リクエストはありません。",
+    "peopleHeading": "{month}のユーザー別",
+    "peopleDescription": "ワークスペースの AI を誰が使ったか、費用の多い順に表示します。ユーザーとエージェントごとに、よく使った機能も示します。リクエストはこの一覧を追加した Leafdesk の更新からユーザー別に数えられ、それより前のものは合計にのみ含まれます。",
+    "people": {
+      "agent": "エージェント",
+      "nobody": "バックグラウンド処理",
+      "unknown": "削除されたアカウント",
+      "uncounted": "ユーザー別集計の開始前"
+    },
     "cacheTitle": "プロンプトキャッシュからの読み込み: {read} · キャッシュへの書き込み: {write}",
     "columns": {
       "month": "月",
@@ -918,12 +926,16 @@
       "output": "出力",
       "cost": "費用",
       "feature": "機能",
-      "model": "モデル"
+      "model": "モデル",
+      "person": "ユーザー",
+      "share": "割合",
+      "mostUsed": "よく使った機能"
     },
     "groups": {
       "chat": "AI チャット",
       "writing": "文章アシスタント",
       "properties": "AI 自動入力",
+      "formulas": "数式",
       "agents": "エージェント",
       "search": "セマンティック検索",
       "voice": "ボイスメモ",

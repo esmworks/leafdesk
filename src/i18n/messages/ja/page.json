@@ -347,6 +347,7 @@
     "replacePlaceholder": "置換後の文字列",
     "noResults": "結果がありません",
     "matchCase": "大文字と小文字を区別",
+    "matchAccents": "アクセント記号を区別",
     "previous": "前の一致（Shift+Enter）",
     "next": "次の一致（Enter）",
     "showReplace": "置換を表示",

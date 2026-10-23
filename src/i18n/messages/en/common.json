@@ -28,5 +28,6 @@
     "tooLarge": "The files in this export add up to more than {size}. Export a smaller part of the workspace.",
     "busy": "You already have an export running. Wait for its download to finish.",
     "disabled": "Export is turned off in this workspace."
-  }
+  },
+  "celebrate": "Nice work!"
 }

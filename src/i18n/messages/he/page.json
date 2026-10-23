@@ -347,6 +347,7 @@
     "replacePlaceholder": "החלפה ב־",
     "noResults": "אין תוצאות",
     "matchCase": "התאמת רישיות",
+    "matchAccents": "התאמת סימני ניקוד",
     "previous": "ההתאמה הקודמת (Shift+Enter)",
     "next": "ההתאמה הבאה (Enter)",
     "showReplace": "הצגת החלפה",

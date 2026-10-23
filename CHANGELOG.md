@@ -86,6 +86,32 @@
   and made as the person through the same code as the app's own edits (a new or imported
   database goes into the audit log as one made in the app does); the Telegram bot asks the same
   way.
+- **Write a formula by describing it.** Where the workspace has AI, the formula editor has a
+  *Describe it* box: say what the formula should work out ("days left until the due date") and the
+  AI writes it from the database's properties you may know of (names and types, never row values)
+  and the formula functions. The formula is checked like one you type; one that doesn't work goes
+  back to the AI once with the error, and if it fails again the error shows instead. A working one
+  shows with what it gives on the first rows; *Use formula* puts it in the editor, where you save
+  it as usual. It counts as *Formulas* in Settings > AI usage and is held to the workspace's AI
+  limits.
+- **AI usage by person.** Settings > AI usage now breaks the month shown down by person: each
+  person and agent (marked as one) with their requests, tokens, cost and share of the month,
+  costliest first, and the features they used most; requests nobody asked for show as background
+  work. Only owners see it, as the rest of the page. Requests are counted by person from this
+  update on (migration 0119, table `ai_usage_person`); what came before stays in the totals and
+  shows as one line of its own.
+- **Automations can celebrate.** A new *Celebrate with confetti* step plays confetti in the app
+  for whoever made the change that started the run, in every window they have open, a moment
+  after the change; a ready-made *Celebrate finished rows* automation does it when a row is
+  marked done. With reduced motion asked for, a still "🎉" note shows instead. Runs nobody
+  started (schedules, dates passing, incoming webhooks, anonymous form answers) skip the step, as
+  do runs that reach it more than two minutes after the change. MCP `create_automation` and
+  `update_automation` take it as `celebrate`.
+- **Find in page ignores accents.** Searching a page now finds "café" for "cafe", "naïve" for
+  "naive" and "Çiğdem", "Şükrü" or "ışık" for "cigdem", "sukru" or "isik", whichever way round
+  they are typed; accents written as separate marks after their letter count too, and Replace
+  takes them along. A new *Match accents* button next to *Match case* makes accented letters match
+  only themselves again, with the Turkish pairing of "I" with "ı" kept as it was.
 
 - **The AI chat makes PDF files.** Asked for a PDF (a quote, a letter, a report), the chat writes
   it into a page or row if it isn't in one, then makes the page's PDF on the server

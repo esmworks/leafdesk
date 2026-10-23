@@ -20,7 +20,7 @@ export function parseAiMonthlyLimit(value: unknown): number | null | undefined {
 }
 
 /** The groups the usage view adds features up in, each named in the view. */
-export const AI_USAGE_GROUPS = ["chat", "writing", "properties", "agents", "search", "voice", "other"] as const;
+export const AI_USAGE_GROUPS = ["chat", "writing", "properties", "formulas", "agents", "search", "voice", "other"] as const;
 export type AiUsageGroup = (typeof AI_USAGE_GROUPS)[number];
 
 /** The group of an AiRequest feature ("editor.improve", "property.summary", "chat", "agent", …). */
@@ -33,6 +33,8 @@ export function aiUsageGroup(feature: string): AiUsageGroup {
       return "writing";
     case "property":
       return "properties";
+    case "formula":
+      return "formulas";
     case "agent":
       return "agents";
     case "search":
@@ -76,8 +78,39 @@ export type AiLimitView = {
   server: number | null;
 };
 
+/** One stored row by person: a month's usage of one feature by who asked (null: nobody did). */
+export type AiUsagePersonRow = AiUsageTotals & {
+  month: string;
+  feature: string;
+  userId: string | null;
+  /** Their name, or the agent's when the user is an agent's; null for nobody, or a lost account. */
+  name: string | null;
+  agentId: string | null;
+};
+
+/** A person's line in a month: what they used, their share of the month, what they used it for most. */
+export type AiUsagePerson = AiUsageTotals & {
+  userId: string | null;
+  name: string | null;
+  agentId: string | null;
+  /** Of the month's cost (of its requests while nothing cost anything), 0 to 1. */
+  share: number;
+  /** The feature groups they used most, costliest first, at most MAX_TOP_GROUPS. */
+  topGroups: AiUsageGroup[];
+};
+
+/**
+ * A month by person, costliest first; `uncounted` is what the month's totals hold beyond them:
+ * requests from before usage was counted by person (migration 0120).
+ */
+export type AiUsagePeople = { people: AiUsagePerson[]; uncounted: AiUsageTotals };
+
+export const MAX_TOP_GROUPS = 3;
+
 export type AiUsageReport = {
   months: AiUsageMonth[];
+  /** The months by person, by month ("2026-10"). */
+  people: Record<string, AiUsagePeople>;
   limit: AiLimitView;
   /** This month's spending against the limits: all of it, and what the server's key paid. */
   spent: { totalUsd: number; serverUsd: number };
@@ -130,6 +163,53 @@ export function summarizeAiUsage(rows: AiUsageRow[], current: string): AiUsageMo
       byGroup: [...m.groups.entries()].map(([group, totals]) => ({ group, ...totals })).sort(byCost),
       byModel: [...m.models.entries()].map(([model, totals]) => ({ model, ...totals })).sort(byCost),
     }));
+}
+
+/** A month's usage by person (see AiUsagePeople), from its rows by person and its totals. */
+export function summarizeAiUsageByPerson(rows: AiUsagePersonRow[], month: Pick<AiUsageMonth, "month" | "total">): AiUsagePeople {
+  type Line = { totals: AiUsageTotals; userId: string | null; name: string | null; agentId: string | null; groups: Map<AiUsageGroup, AiUsageTotals> };
+  const lines = new Map<string, Line>();
+  const counted = { ...ZERO_AI_USAGE };
+  for (const row of rows) {
+    if (row.month !== month.month) continue;
+    const key = row.userId ?? "";
+    let line = lines.get(key);
+    if (!line) lines.set(key, (line = { totals: { ...ZERO_AI_USAGE }, userId: row.userId, name: row.name, agentId: row.agentId, groups: new Map() }));
+    add(line.totals, row);
+    add(counted, row);
+    const group = aiUsageGroup(row.feature);
+    if (!line.groups.has(group)) line.groups.set(group, { ...ZERO_AI_USAGE });
+    add(line.groups.get(group)!, row);
+  }
+  const total = month.total;
+  // Free models cost nothing: shares are of requests then.
+  const shareOf = (t: AiUsageTotals) =>
+    total.costUsd > 0 ? Math.min(1, t.costUsd / total.costUsd) : total.requests > 0 ? Math.min(1, t.requests / total.requests) : 0;
+  const people = [...lines.values()]
+    .map((line) => ({
+      ...line.totals,
+      userId: line.userId,
+      name: line.name,
+      agentId: line.agentId,
+      share: shareOf(line.totals),
+      topGroups: [...line.groups.entries()]
+        .map(([group, totals]) => ({ group, ...totals }))
+        .sort(byCost)
+        .slice(0, MAX_TOP_GROUPS)
+        .map((g) => g.group),
+    }))
+    .sort(byCost);
+  const left = (key: keyof AiUsageTotals) => Math.max(0, total[key] - counted[key]);
+  const uncounted: AiUsageTotals = {
+    requests: left("requests"),
+    inputTokens: left("inputTokens"),
+    cacheReadTokens: left("cacheReadTokens"),
+    cacheWriteTokens: left("cacheWriteTokens"),
+    outputTokens: left("outputTokens"),
+    // Sums of floats: what is left of rounding isn't usage.
+    costUsd: left("costUsd") < 1e-9 ? 0 : left("costUsd"),
+  };
+  return { people, uncounted };
 }
 
 /** Which limit a request would go past: the owners' ("workspace"), the server's ("server"), or none. */

@@ -347,6 +347,7 @@
     "replacePlaceholder": "Ersetzen durch",
     "noResults": "Keine Treffer",
     "matchCase": "Groß-/Kleinschreibung beachten",
+    "matchAccents": "Akzente beachten",
     "previous": "Vorheriger Treffer (Umschalt+Eingabe)",
     "next": "Nächster Treffer (Eingabe)",
     "showReplace": "Ersetzen einblenden",

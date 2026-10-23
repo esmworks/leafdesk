@@ -925,6 +925,20 @@
     "error": "错误",
     "errorTitle": "无法计算这一行：{message}",
     "or": "或",
+    "ai": {
+      "open": "用描述生成",
+      "title": "用 AI 编写公式",
+      "close": "关闭",
+      "description": "公式要计算的内容",
+      "placeholder": "例如：距截止日期还剩几天，过期后显示“已逾期”",
+      "writing": "正在编写…",
+      "write": "编写公式",
+      "again": "重新编写",
+      "failed": "AI 编写的公式无法运行：{message}",
+      "use": "使用公式",
+      "emptyValue": "空",
+      "noRows": "还没有可用于试算的行。"
+    },
     "groups": {
       "logic": "逻辑",
       "text": "文本",
@@ -1190,6 +1204,7 @@
         "upsert_row": "添加或更新一行",
         "wait": "等待",
         "log": "写入运行记录",
+        "celebrate": "撒彩纸庆祝",
         "approval": "请求审批",
         "start_sequence": "开始跟进"
       },
@@ -1381,7 +1396,9 @@
         "sequenceGone": "跟进已不存在",
         "noMailbox": "自动化的运行人员没有连接邮箱",
         "noAddress": "该行没有邮箱地址",
-        "emailOff": "行中的邮件已关闭"
+        "emailOff": "行中的邮件已关闭",
+        "noPerson": "已跳过：此次运行不是由某人的更改触发的",
+        "tooLate": "已跳过：距更改时间过久，不再庆祝"
       },
       "waitingApproval": "等待审批",
       "approval": {
@@ -1481,7 +1498,9 @@
       "waitHelp": "最多 7 天。运行会等待，然后继续执行下一步。",
       "logMessage": "消息",
       "logPlaceholder": "例如：已导入 {template}",
-      "logHelp": "填入变量后写入运行记录。"
+      "logHelp": "填入变量后写入运行记录。",
+      "celebrateHelp": "为做出触发本次运行之更改的人，在其打开的应用窗口中撒彩纸。无人触发的运行（计划、日期到期、传入的 Webhook、匿名表单回复）会跳过此步骤；在更改两分钟后才到达此步骤的运行也会跳过。",
+      "celebrateTry": "试一试"
     },
     "variables": {
       "button": "插入变量",
@@ -1564,6 +1583,10 @@
         "name": "提醒逾期的行",
         "description": "未完成的行日期过去一天后，通知该行的人。",
         "message": "{title} 已逾期。"
+      },
+      "celebrateDone": {
+        "name": "庆祝完成的行",
+        "description": "当某行被标记为完成时，为标记的人撒彩纸。"
       }
     }
   },

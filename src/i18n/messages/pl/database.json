@@ -925,6 +925,20 @@
     "error": "Błąd",
     "errorTitle": "Nie można obliczyć tego wiersza: {message}",
     "or": "lub",
+    "ai": {
+      "open": "Opisz",
+      "title": "Napisz formułę z AI",
+      "close": "Zamknij",
+      "description": "Co formuła ma obliczać",
+      "placeholder": "Na przykład: dni do terminu albo „Opóźnione”, gdy termin minął",
+      "writing": "Piszę…",
+      "write": "Napisz formułę",
+      "again": "Napisz ponownie",
+      "failed": "Formuła napisana przez AI nie działa: {message}",
+      "use": "Użyj formuły",
+      "emptyValue": "Puste",
+      "noRows": "Nie ma jeszcze wierszy, na których można ją wypróbować."
+    },
     "groups": {
       "logic": "Logika",
       "text": "Tekst",
@@ -1190,6 +1204,7 @@
         "upsert_row": "Dodaj lub zaktualizuj wiersz",
         "wait": "Czekaj",
         "log": "Zapisz w historii uruchomień",
+        "celebrate": "Świętuj konfetti",
         "approval": "Poproś o zatwierdzenie",
         "start_sequence": "Uruchom follow-up"
       },
@@ -1381,7 +1396,9 @@
         "sequenceGone": "Follow-up już nie istnieje",
         "noMailbox": "Osoba automatyzacji nie ma podłączonej skrzynki pocztowej",
         "noAddress": "Wiersz nie ma adresu e-mail",
-        "emailOff": "E-maile w wierszach są wyłączone"
+        "emailOff": "E-maile w wierszach są wyłączone",
+        "noPerson": "Pominięto: tego przebiegu nie uruchomiła zmiana żadnej osoby",
+        "tooLate": "Pominięto: od zmiany minęło zbyt dużo czasu, by ją świętować"
       },
       "waitingApproval": "Czeka na zatwierdzenie",
       "approval": {
@@ -1481,7 +1498,9 @@
       "waitHelp": "Do 7 dni. Uruchomienie czeka, a potem przechodzi do następnego kroku.",
       "logMessage": "Wiadomość",
       "logPlaceholder": "Na przykład: Zaimportowano {template}",
-      "logHelp": "Zapisywana w historii uruchomień z uzupełnionymi zmiennymi."
+      "logHelp": "Zapisywana w historii uruchomień z uzupełnionymi zmiennymi.",
+      "celebrateHelp": "Konfetti w aplikacji dla osoby, której zmiana uruchomiła przebieg, w otwartych przez nią oknach. Przebiegi, których nikt nie uruchomił (harmonogramy, mijające daty, przychodzące webhooki, anonimowe odpowiedzi na formularze), pomijają ten krok, podobnie jak te, które docierają do niego później niż dwie minuty po zmianie.",
+      "celebrateTry": "Wypróbuj"
     },
     "variables": {
       "button": "Wstaw zmienną",
@@ -1564,6 +1583,10 @@
         "name": "Przypominaj o zaległych wierszach",
         "description": "Dzień po minięciu daty niezakończonego wiersza powiadom jego osoby.",
         "message": "{title} jest po terminie."
+      },
+      "celebrateDone": {
+        "name": "Świętuj ukończone wiersze",
+        "description": "Gdy wiersz zostanie oznaczony jako gotowy, konfetti dla osoby, która to zrobiła."
       }
     }
   },

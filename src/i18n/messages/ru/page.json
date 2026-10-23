@@ -347,6 +347,7 @@
     "replacePlaceholder": "Заменить на",
     "noResults": "Нет результатов",
     "matchCase": "С учётом регистра",
+    "matchAccents": "Учитывать диакритические знаки",
     "previous": "Предыдущее совпадение (Shift+Enter)",
     "next": "Следующее совпадение (Enter)",
     "showReplace": "Показать замену",

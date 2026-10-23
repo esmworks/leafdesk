@@ -175,6 +175,11 @@ export interface CollabService {
   pagesTrashed(pageIds: string[], trashed: boolean): Promise<void>;
   /** Tells subscribed clients to refetch (sidebar tree, database rows). */
   broadcast(channel: Channel, event: string): void;
+  /**
+   * Sends `event` to one person's open connections to `channel` only (their other tabs included),
+   * for what concerns nobody else; returns how many connections got it.
+   */
+  sendTo(channel: Channel, userId: string, event: string): number;
   /** Drops a user's live connections to the workspace's documents (after removal from it). */
   disconnectUser(userId: string, workspaceId: string): Promise<void>;
   /**
