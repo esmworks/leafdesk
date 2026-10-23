@@ -708,14 +708,7 @@ async function readAround(
 
 /** A page of the workspace the person may read now: in scope, not in the trash or a template. */
 async function readTarget(userId: string, workspaceId: string, scopeId: string | null, pageId: string) {
-  if (!pageId || pageId.length > 100) return null;
-  const { page: found, level } = await pageAccessOf(userId, pageId);
-  if (!found || level === "none" || found.workspaceId !== workspaceId || found.archivedAt || found.inTemplate) return null;
-  if (scopeId) {
-    const [inside] = await db.execute<{ one: number }>(sql`select 1 as one from ${page} p where p.id = ${pageId} and ${inSubtree(scopeId)}`);
-    if (!inside) return null;
-  }
-  return found;
+  return (await writeTarget(userId, workspaceId, scopeId, pageId))?.page ?? null;
 }
 
 /**
