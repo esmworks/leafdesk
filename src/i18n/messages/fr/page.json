@@ -332,6 +332,7 @@
     "replacePlaceholder": "Remplacer par",
     "noResults": "Aucun résultat",
     "matchCase": "Respecter la casse",
+    "matchAccents": "Respecter les accents",
     "previous": "Résultat précédent (Maj+Entrée)",
     "next": "Résultat suivant (Entrée)",
     "showReplace": "Afficher le remplacement",

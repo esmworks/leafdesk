@@ -332,6 +332,7 @@
     "replacePlaceholder": "Замінити на",
     "noResults": "Нічого не знайдено",
     "matchCase": "З урахуванням регістру",
+    "matchAccents": "Враховувати діакритичні знаки",
     "previous": "Попередній збіг (Shift+Enter)",
     "next": "Наступний збіг (Enter)",
     "showReplace": "Показати заміну",

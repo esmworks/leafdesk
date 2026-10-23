@@ -332,6 +332,7 @@
     "replacePlaceholder": "Sostituisci con",
     "noResults": "Nessun risultato",
     "matchCase": "Maiuscole/minuscole",
+    "matchAccents": "Distingui accenti",
     "previous": "Risultato precedente (Shift+Enter)",
     "next": "Risultato successivo (Enter)",
     "showReplace": "Mostra sostituzione",

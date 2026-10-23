@@ -4,6 +4,12 @@
 
 ### Added
 
+- **Find in page ignores accents.** Searching a page now finds "café" for "cafe", "naïve" for
+  "naive" and "Çiğdem", "Şükrü" or "ışık" for "cigdem", "sukru" or "isik", whichever way round
+  they are typed; accents written as separate marks after their letter count too, and Replace
+  takes them along. A new *Match accents* button next to *Match case* makes accented letters match
+  only themselves again, with the Turkish pairing of "I" with "ı" kept as it was.
+
 - **The AI chat makes PDF files.** Asked for a PDF (a quote, a letter, a report), the chat writes
   it into a page or row if it isn't in one, then makes the page's PDF on the server
   (`create_pdf`) and attaches it at the end of the page's text, or in a row's files property, and
