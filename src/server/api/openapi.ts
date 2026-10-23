@@ -80,7 +80,7 @@ const propertyValues = {
   type: "object",
   additionalProperties: true,
   description:
-    "Values by property name: text, numbers, booleans, option names, dates as written by the date property (a day YYYY-MM-DD, a UTC time 2026-10-12T11:30:00.000Z, or a range \"start/end\" of either), relations as [{id, title}], people as [{id, name}], checklists as [{text, checked}], files as [{name, url}].",
+    "Values by property name: text, numbers, booleans, option names, dates as written by the date property (a day YYYY-MM-DD, a UTC time 2026-10-12T11:30:00.000Z, or a range \"start/end\" of either), relations as [{id, title}], people as [{id, name}], checklists as [{text, checked}], files as [{name, url}], places as {address, name?, lat, lng} (written as that, as coordinates \"41.04, 29.01\" or as an address the server looks up).",
 };
 /** What property access keeps from the user in a row (see "Property access" above). */
 const rowAccessFields = {

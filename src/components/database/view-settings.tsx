@@ -24,7 +24,7 @@ import {
 import { GROUP_DATE_BY, groupDateByOf } from "@/lib/grouping";
 import { isGroupable } from "@/lib/properties";
 import { holdsTimestamp } from "@/lib/property-types";
-import { CARD_SIZES, coverProperty, galleryCover, OPEN_ROWS, openRowsOf, opensRows, viewDateProperty } from "@/lib/views";
+import { CARD_SIZES, coverProperty, galleryCover, OPEN_ROWS, openRowsOf, opensRows, viewDateProperty, viewPlaceProperty } from "@/lib/views";
 import { parentProperty, SUB_ITEMS_DISPLAYS, subItemsDisplay, subItemsProperty } from "@/lib/sub-items";
 import {
   blockedByProperty,
@@ -78,6 +78,7 @@ export function ViewLayoutMenu({
   properties,
   onConfig,
   onCreateDateProperty,
+  onCreatePlaceProperty,
   onSubItems,
   onDependencies,
   readOnly,
@@ -87,6 +88,8 @@ export function ViewLayoutMenu({
   properties: Property[];
   onConfig: (config: ViewConfig) => void;
   onCreateDateProperty: () => void;
+  /** Map views: adds a place property for the map to put rows on; missing when the user can't. */
+  onCreatePlaceProperty?: () => void;
   /** Turns sub-items on (new properties, or the given relation) or off; missing when the user can't. */
   onSubItems?: (on: boolean, propertyId?: string) => void;
   /** Missing when the user can't change dependencies. */
@@ -152,6 +155,20 @@ export function ViewLayoutMenu({
                 {t("covers.none")}
               </Choice>
             </>
+          ) : view.type === "map" ? (
+            <MapSettings
+              view={view}
+              properties={properties}
+              onSet={set}
+              onCreatePlaceProperty={
+                onCreatePlaceProperty && !locked
+                  ? () => {
+                      menu.close();
+                      onCreatePlaceProperty();
+                    }
+                  : undefined
+              }
+            />
           ) : view.type === "timeline" ? (
             <TimelineSettings
               view={view}
@@ -183,7 +200,7 @@ export function ViewLayoutMenu({
           {rows && (
             <>
               {/* After the view's own settings; a table, list or board may have none. */}
-              {(view.type === "gallery" || view.type === "timeline" || subItems) && <MenuSeparator />}
+              {(view.type === "gallery" || view.type === "timeline" || view.type === "map" || subItems) && <MenuSeparator />}
               <Heading>{t("openRows")}</Heading>
               {OPEN_ROWS.map((where) => (
                 <Choice key={where} active={openRowsOf(config) === where} onClick={() => set({ openRows: where === "page" ? "page" : undefined })}>
@@ -210,6 +227,60 @@ export function ViewLayoutMenu({
           </Toggle>
         </div>
       </Floating>
+    </>
+  );
+}
+
+/** The select or status property a map colors its pins by, while it still is one. */
+export function mapColorProperty(view: View, properties: Property[]) {
+  return properties.find((p) => p.id === view.config.groupBy && (p.type === "select" || p.type === "status")) ?? null;
+}
+
+/** Map views: the place property that puts rows on the map, and what colors the pins. */
+function MapSettings({
+  view,
+  properties,
+  onSet,
+  onCreatePlaceProperty,
+}: {
+  view: View;
+  properties: Property[];
+  onSet: (patch: ViewConfig) => void;
+  onCreatePlaceProperty?: () => void;
+}) {
+  const t = useTranslations("database.layout");
+  const places = properties.filter((p) => p.type === "place");
+  const place = viewPlaceProperty(view.config, properties);
+  const colors = properties.filter((p) => p.type === "select" || p.type === "status");
+  const color = mapColorProperty(view, properties);
+  return (
+    <>
+      <Heading>{t("place")}</Heading>
+      {!places.length && <p className="px-2 pb-1.5 text-xs text-fg-faint">{t("needsPlace")}</p>}
+      {places.map((p) => (
+        <Choice key={p.id} active={place?.id === p.id} onClick={() => onSet({ placeBy: p.id })}>
+          {p.name}
+        </Choice>
+      ))}
+      {onCreatePlaceProperty && (
+        <MenuItem icon={<Plus className="h-3.5 w-3.5" />} onClick={onCreatePlaceProperty}>
+          {t("newPlaceProperty")}
+        </MenuItem>
+      )}
+      {colors.length > 0 && (
+        <>
+          <MenuSeparator />
+          <Heading>{t("pinColor")}</Heading>
+          <Choice active={!color} onClick={() => onSet({ groupBy: undefined })}>
+            {t("noPinColor")}
+          </Choice>
+          {colors.map((p) => (
+            <Choice key={p.id} active={color?.id === p.id} onClick={() => onSet({ groupBy: p.id })}>
+              {p.name}
+            </Choice>
+          ))}
+        </>
+      )}
     </>
   );
 }

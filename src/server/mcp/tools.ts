@@ -186,7 +186,7 @@ import {
 } from "./query";
 
 const INSTRUCTIONS = `Leafdesk is a workspace of pages and databases. Each user belongs to one or more workspaces.
-Pages form a tree inside a workspace. A database is a special page whose children are rows; rows are pages with typed properties (text, number, select, multi_select, status, date, checkbox, url, email, phone, checklist, files, relation, person, created_by, created_time, last_edited_by, last_edited_time, formula, rollup). A relation links rows to rows of another database in the same workspace; two-way relations show the links on both databases. A person property assigns rows to people of the workspace; "me" stands for the signed-in user. A status is a select whose options belong to the groups todo, in_progress and done. A property may have a description saying what it holds and how to fill it (see get_database): follow it when writing values. A select may depend on another select ("City" on "Country"): a row may hold only the options that go with its value of that one. A checklist holds items that can be ticked off. A files property holds files uploaded to the workspace (images show as thumbnails); its values read as [{name, url}]. created_by, created_time, last_edited_by and last_edited_time show who created or last edited each row and when; they are filled in automatically and can't be written. A formula property computes its value from the row's other properties, and a rollup calculates over the rows a relation links to (see add_database_property); neither can be written. A number property's number_format (see get_database), which a formula giving a number can have too, only changes how the app shows it: a percent property holds fractions (0.15 is 15%) and filters on it compare percent points (15). A date property holds a day (YYYY-MM-DD), a time (an ISO timestamp, returned in UTC: 2026-10-12T11:30:00.000Z), or a range of either written \"start/end\" (2026-10-12/2026-10-14; start and end both days or both times, the end not before the start). Write times with Z or an offset (2026-10-12T14:30+03:00); {\"start\", \"end\"} objects are accepted too. Its date_options can show it relatively and remind the row's people before it (a range: before its start; a time: at its time of day).
+Pages form a tree inside a workspace. A database is a special page whose children are rows; rows are pages with typed properties (text, number, select, multi_select, status, date, checkbox, url, email, phone, checklist, files, place, relation, person, created_by, created_time, last_edited_by, last_edited_time, formula, rollup). A relation links rows to rows of another database in the same workspace; two-way relations show the links on both databases. A person property assigns rows to people of the workspace; "me" stands for the signed-in user. A status is a select whose options belong to the groups todo, in_progress and done. A property may have a description saying what it holds and how to fill it (see get_database): follow it when writing values. A select may depend on another select ("City" on "Country"): a row may hold only the options that go with its value of that one. A checklist holds items that can be ticked off. A place holds where something is, read as {address, name?, lat, lng}; write an address to look up, coordinates ("41.04, 29.01") or {lat, lng, address?, name?}. A files property holds files uploaded to the workspace (images show as thumbnails); its values read as [{name, url}]. created_by, created_time, last_edited_by and last_edited_time show who created or last edited each row and when; they are filled in automatically and can't be written. A formula property computes its value from the row's other properties, and a rollup calculates over the rows a relation links to (see add_database_property); neither can be written. A number property's number_format (see get_database), which a formula giving a number can have too, only changes how the app shows it: a percent property holds fractions (0.15 is 15%) and filters on it compare percent points (15). A date property holds a day (YYYY-MM-DD), a time (an ISO timestamp, returned in UTC: 2026-10-12T11:30:00.000Z), or a range of either written \"start/end\" (2026-10-12/2026-10-14; start and end both days or both times, the end not before the start). Write times with Z or an offset (2026-10-12T14:30+03:00); {\"start\", \"end\"} objects are accepted too. Its date_options can show it relatively and remind the row's people before it (a range: before its start; a time: at its time of day).
 Start with list_workspaces or search to find ids, then get_page / list_pages / query_database. Wherever a tool takes an id (workspace_id, page_id, database_id, row_id, parent_id, view_id…), a Leafdesk link the user pasted works too (\`https://…/w/<workspace_id>/p/<page_id>\`, a view's link has \`?view=<view_id>\`).
 Teamspaces group a workspace's pages and people (list_teamspaces). A teamspace is default (everyone is in it), open (anyone can join; others can read), closed (only its members open its pages) or private (only its members know it). Its member_access is what its members get on its pages unless a page is shared otherwise (its owners and workspace owners get full access). A top-level page belongs to a teamspace, or is private to the user who made it; pages under it follow it. create_page, create_database and move_page take a teamspace_id for top-level pages ("private" for the user's private pages); without one, new top-level pages are private. Member groups (list_groups) are named sets of owners and members that pages are shared with and teamspaces joined by; someone gets the highest access they have from anywhere (their own, a group, the teamspace).
 Page bodies are read and written as Markdown. Before every content change Leafdesk saves a history snapshot, so the user can undo your edits from the page history (list_page_history / diff_page_version / restore_page_version).
@@ -421,6 +421,7 @@ const viewLayoutInputs = {
     .describe('Calendar only: a month of days or a week with its hours ("month" by default). Both show rows over every day their date covers.'),
   show_table: z.boolean().optional().describe("Timeline only: show row titles in a table left of the bars (true by default)."),
   card_size: z.enum(CARD_SIZES).optional().describe('Gallery only: card size (default "medium").'),
+  place_by: z.string().optional().describe("Map only: the place property of the pins."),
   cover: z
     .string()
     .min(1)
@@ -488,6 +489,7 @@ type ViewInput = {
   calendar_mode?: CalendarMode;
   show_table?: boolean;
   card_size?: CardSize;
+  place_by?: string;
   /** "first_image", "none" or a files property's name. */
   cover?: string;
   chart_type?: ChartType;
@@ -554,7 +556,7 @@ const viewWidgetsInput = z
   .array(
     z.object({
       id: z.string().min(1).optional().describe("A widget the view has (get_database lists them): keeps its settings you leave out."),
-      type: WIDGET_TYPE.optional().describe('"chart" (a number with chart_type "number"), "list", "table", "board", "calendar", "gallery" or "timeline". New widgets are charts.'),
+      type: WIDGET_TYPE.optional().describe('"chart" (a number with chart_type "number"), "list", "table", "board", "calendar", "gallery", "timeline" or "map". New widgets are charts.'),
       ...widgetInputs,
       title: z.string().max(MAX_WIDGET_TITLE).optional().describe("Shown above the widget; empty to name it after what it shows."),
     }),
@@ -589,7 +591,7 @@ function viewConfigPatch(
   };
   const grouped = type === "board" || type === "table" || type === "chart";
   if (input.group_by !== undefined) {
-    only("group_by", "board", "table", "timeline", "chart");
+    only("group_by", "board", "table", "timeline", "map", "chart");
     if (input.group_by === null) {
       if (type === "board") throw new ToolInputError("Boards always group their cards; pass a property to group by.");
       if (type === "chart") throw new ToolInputError("Charts always group their rows; pass a property to group by.");
@@ -600,6 +602,9 @@ function viewConfigPatch(
         throw new ToolInputError(
           `Views group by a select, status, multi_select, person, created_by, last_edited_by, checkbox, date, created_time, last_edited_time or relation property; "${prop.name}" is ${prop.type}.`,
         );
+      }
+      if (type === "map" && prop.type !== "select" && prop.type !== "status") {
+        throw new ToolInputError(`Maps color their pins by a select or status property; "${prop.name}" is ${prop.type}.`);
       }
       patch.groupBy = prop.id;
       if (input.group_date_by && prop.type !== "date" && !holdsTimestamp(prop.type)) {
@@ -650,6 +655,12 @@ function viewConfigPatch(
   if (input.show_table !== undefined) {
     only("show_table", "timeline");
     patch.showTable = input.show_table;
+  }
+  if (input.place_by !== undefined) {
+    only("place_by", "map");
+    const prop = requireProperty(props, input.place_by);
+    if (prop.type !== "place") throw new ToolInputError(`Maps place rows by a place property; "${prop.name}" is ${prop.type}.`);
+    patch.placeBy = prop.id;
   }
   if (input.card_size !== undefined) {
     only("card_size", "gallery");
@@ -2984,7 +2995,7 @@ export function createMcpServer(principal: McpPrincipal) {
     {
       title: "Create a database view",
       description:
-        'Add a saved view to a database: a "table" (optionally grouped into collapsible sections with group_by), a "board" (cards in columns by group_by), a "calendar" (rows placed on the days of a date property, across every day of a range and at their times in the week mode; see calendar_mode), a "gallery" (cards with a cover: the first image in each row\'s body, or in a files property with cover), a "list" (one compact line per row), a "timeline" (bars from a start date to an optional end date, optionally in swimlanes by group_by), a "chart" (see chart_type), a "dashboard" (a grid of widgets over the database: numbers, charts, lists and other views, each with its own settings; see widgets. Without widgets it starts with the row count, the sum of the first number property, a chart by the first select or status property and the rows edited last) or a "form" (questions people answer to add a row; see questions, defaults and public). Views group by a select, status (per option, or per todo / in_progress / done with group_status_by "group"), multi_select, person, created_by, last_edited_by, checkbox (unchecked / checked), date, created_time or last_edited_time (per day, week from Monday, month or year with group_date_by, month by default) or relation (one group per linked row); a row with several tags, people or links shows in each of their groups. Filters (with groups and filter_combinator) and sorts use the same form as query_database; a person filter on "me" shows everyone who opens the view their own rows, and is_within date filters count from the day the view is opened.',
+        'Add a saved view to a database: a "table" (optionally grouped into collapsible sections with group_by), a "board" (cards in columns by group_by), a "calendar" (rows placed on the days of a date property, across every day of a range and at their times in the week mode; see calendar_mode), a "gallery" (cards with a cover: the first image in each row\'s body, or in a files property with cover), a "list" (one compact line per row), a "timeline" (bars from a start date to an optional end date, optionally in swimlanes by group_by), a "map" (pins at a place property; group_by a select colors them), a "chart" (see chart_type), a "dashboard" (a grid of widgets over the database: numbers, charts, lists and other views, each with its own settings; see widgets. Without widgets it starts with the row count, the sum of the first number property, a chart by the first select or status property and the rows edited last) or a "form" (questions people answer to add a row; see questions, defaults and public). Views group by a select, status (per option, or per todo / in_progress / done with group_status_by "group"), multi_select, person, created_by, last_edited_by, checkbox (unchecked / checked), date, created_time or last_edited_time (per day, week from Monday, month or year with group_date_by, month by default) or relation (one group per linked row); a row with several tags, people or links shows in each of their groups. Filters (with groups and filter_combinator) and sorts use the same form as query_database; a person filter on "me" shows everyone who opens the view their own rows, and is_within date filters count from the day the view is opened.',
       inputSchema: z.object({
         database_id: id("database"),
         name: z.string().min(1).max(100).describe("View name."),
@@ -2993,7 +3004,7 @@ export function createMcpServer(principal: McpPrincipal) {
           .string()
           .optional()
           .describe(
-            "Board, table or timeline: the property to group rows by. Boards default to the first select or status property; tables are not grouped and timelines have no swimlanes unless given.",
+            "Board, table, timeline or map (pin colors): the property to group rows by. Boards default to the first select or status property; the others are not grouped unless given.",
           ),
         ...groupSettingsInput,
         date_by: z
@@ -3062,7 +3073,7 @@ export function createMcpServer(principal: McpPrincipal) {
           .string()
           .nullable()
           .optional()
-          .describe("Board, table or timeline: the property to group rows by; null removes a table's grouping or a timeline's swimlanes."),
+          .describe("Board, table, timeline or map: the property to group rows by; null removes a table's grouping, a timeline's swimlanes or a map's colors."),
         ...groupSettingsInput,
         date_by: z
           .string()
@@ -3233,7 +3244,7 @@ export function createMcpServer(principal: McpPrincipal) {
         before_widget_id: z.string().min(1).optional().describe("Put the widget right before this one."),
         after_widget_id: z.string().min(1).optional().describe("Put the widget right after this one."),
         database_id: id("database").optional().describe("The database the widget shows: needed for a new widget."),
-        type: WIDGET_TYPE.optional().describe('The widget\'s layout: "chart" (a number with chart_type "number"), "list", "table", "board", "calendar", "gallery" or "timeline". New widgets are charts.'),
+        type: WIDGET_TYPE.optional().describe('The widget\'s layout: "chart" (a number with chart_type "number"), "list", "table", "board", "calendar", "gallery", "timeline" or "map". New widgets are charts.'),
         ...widgetInputs,
       }),
       annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false },

@@ -51,6 +51,8 @@ const MemoTableView = memo(TableView);
 const MemoTimelineView = memo(TimelineView);
 // Loaded when a dashboard view opens: its grid brings the chart and linked view code along.
 const DashboardView = dynamic(() => import("./dashboard-view"), { loading: () => <DashboardSkeleton /> });
+// Loaded when a map view opens: Leaflet (which needs a browser) comes along only then.
+const MapView = memo(dynamic(() => import("./map-view"), { ssr: false, loading: () => <MapSkeleton /> }));
 
 /** A database shown inside a page body (see components/page/embed-blocks). */
 export type DatabaseEmbed = {
@@ -306,6 +308,16 @@ export function DatabasePage({
     }
   }, [locale, properties, t, api, view, setConfig]);
 
+  const createPlaceProperty = useCallback(async () => {
+    const lower = (s: string) => s.toLocaleLowerCase(locale);
+    const names = new Set((properties ?? []).map((p) => lower(p.name)));
+    const base = t("map.defaultPlaceProperty");
+    let name = base;
+    for (let i = 2; names.has(lower(name)); i++) name = `${base} ${i}`;
+    const created = await api.addProperty(name, "place");
+    if (created && view?.type === "map") await setConfig(view, { ...view.config, placeBy: created.id });
+  }, [locale, properties, t, api, view, setConfig]);
+
   if (!snapshot) {
     return (
       <div className="page-gutter">
@@ -439,6 +451,7 @@ export function DatabasePage({
                             locked={locked}
                             onConfig={(config) => setConfig(view, config)}
                             onCreateDateProperty={createDateProperty}
+                            onCreatePlaceProperty={readOnly ? undefined : createPlaceProperty}
                             onSubItems={readOnly ? undefined : (on, propertyId) => void api.setSubItems(on, propertyId)}
                             onDependencies={readOnly ? undefined : (on, input) => void api.setDependencies(on, input)}
                           />
@@ -564,6 +577,17 @@ export function DatabasePage({
                         locked={locked}
                         onCreateDateProperty={createDateProperty}
                       />
+                    ) : view.type === "map" ? (
+                      <MapView
+                        workspaceId={workspaceId}
+                        view={view}
+                        properties={viewProperties}
+                        rows={visibleRows}
+                        tiles={snapshot.map ?? null}
+                        readOnly={readOnly}
+                        locked={locked}
+                        onCreatePlaceProperty={createPlaceProperty}
+                      />
                     ) : view.type === "chart" ? (
                       <MemoChartView
                         workspaceId={workspaceId}
@@ -630,6 +654,15 @@ function DashboardSkeleton() {
   return (
     <div aria-busy="true" aria-label={t("loading")} className="page-gutter">
       <div className="h-28 animate-pulse rounded-lg bg-bg-subtle" />
+    </div>
+  );
+}
+
+function MapSkeleton() {
+  const t = useTranslations("database.map");
+  return (
+    <div aria-busy="true" aria-label={t("loading")} className="page-gutter">
+      <div className="h-[min(70vh,640px)] min-h-72 animate-pulse rounded-lg bg-bg-subtle" />
     </div>
   );
 }
