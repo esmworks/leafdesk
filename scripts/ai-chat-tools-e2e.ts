@@ -346,6 +346,16 @@ try {
   const renamed = await getConversation(alice, workspaceId, again.conversationId!);
   check(renamed.messages.at(-2)?.attachments?.[0]?.name === "invoices (2).csv", "a second file with the same name gets its own name", renamed.messages.at(-2));
 
+  fake.setChat(() => ({ text: "It lists two products." }));
+  fake.chats.length = 0;
+  const fileOnly = await ask(alice, { workspaceId, message: "", attachments: [{ name: "products.csv", text: "Product,Price\nLamp,40\nDesk,250" }] });
+  const fileOnlyKept = await getConversation(alice, workspaceId, fileOnly.conversationId!);
+  check(
+    fileOnly.done && everything(fake.chats[0]).includes('<attachment name="products.csv"') && fileOnlyKept.messages[0].attachments?.[0]?.name === "products.csv" && fileOnlyKept.title.includes("products.csv"),
+    "a file sent without a question is asked about, the conversation named after it",
+    { title: fileOnlyKept.title, first: fileOnlyKept.messages[0] },
+  );
+
   const tooMany = ["a", ...Array.from({ length: 1_001 }, (_, i) => String(i))].join("\n");
   check((await refusal(() => startChat(alice, { workspaceId, message: "Read it", attachments: [{ name: "big.csv", text: tooMany }] }))) === "tooLarge", "a file of more than 1,000 rows is refused before anything is sent");
   check((await refusal(() => startChat(alice, { workspaceId, message: "Read it", attachments: [{ name: "empty.csv", text: "" }] }))) === "invalid", "…an empty one too");
