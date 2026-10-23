@@ -20,7 +20,7 @@ export function parseAiMonthlyLimit(value: unknown): number | null | undefined {
 }
 
 /** The groups the usage view adds features up in, each named in the view. */
-export const AI_USAGE_GROUPS = ["chat", "writing", "properties", "agents", "search", "voice", "other"] as const;
+export const AI_USAGE_GROUPS = ["chat", "writing", "properties", "formulas", "agents", "search", "voice", "other"] as const;
 export type AiUsageGroup = (typeof AI_USAGE_GROUPS)[number];
 
 /** The group of an AiRequest feature ("editor.improve", "property.summary", "chat", "agent", …). */
@@ -33,6 +33,8 @@ export function aiUsageGroup(feature: string): AiUsageGroup {
       return "writing";
     case "property":
       return "properties";
+    case "formula":
+      return "formulas";
     case "agent":
       return "agents";
     case "search":

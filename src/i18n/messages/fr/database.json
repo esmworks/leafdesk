@@ -912,6 +912,20 @@
     "error": "Erreur",
     "errorTitle": "Cette ligne ne peut pas être calculée : {message}",
     "or": "ou",
+    "ai": {
+      "open": "Décrire",
+      "title": "Écrire la formule avec l’IA",
+      "close": "Fermer",
+      "description": "Ce que la formule doit calculer",
+      "placeholder": "Par exemple : jours restants avant l’échéance, ou « En retard » une fois passée",
+      "writing": "Rédaction…",
+      "write": "Écrire la formule",
+      "again": "Réécrire",
+      "failed": "La formule de l’IA ne fonctionne pas : {message}",
+      "use": "Utiliser la formule",
+      "emptyValue": "Vide",
+      "noRows": "Pas encore de lignes pour l’essayer."
+    },
     "groups": {
       "logic": "Logique",
       "text": "Texte",

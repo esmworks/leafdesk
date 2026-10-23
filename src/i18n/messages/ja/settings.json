@@ -934,6 +934,7 @@
       "chat": "AI チャット",
       "writing": "文章アシスタント",
       "properties": "AI 自動入力",
+      "formulas": "数式",
       "agents": "エージェント",
       "search": "セマンティック検索",
       "voice": "ボイスメモ",

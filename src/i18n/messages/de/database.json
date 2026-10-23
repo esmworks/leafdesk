@@ -912,6 +912,20 @@
     "error": "Fehler",
     "errorTitle": "Diese Zeile kann nicht berechnet werden: {message}",
     "or": "oder",
+    "ai": {
+      "open": "Beschreiben",
+      "title": "Formel mit KI schreiben",
+      "close": "Schließen",
+      "description": "Was die Formel berechnen soll",
+      "placeholder": "Zum Beispiel: Tage bis zum Fälligkeitsdatum, oder „Überfällig“, wenn es vorbei ist",
+      "writing": "Wird geschrieben…",
+      "write": "Formel schreiben",
+      "again": "Neu schreiben",
+      "failed": "Die Formel der KI funktioniert nicht: {message}",
+      "use": "Formel übernehmen",
+      "emptyValue": "Leer",
+      "noRows": "Noch keine Zeilen zum Ausprobieren."
+    },
     "groups": {
       "logic": "Logik",
       "text": "Text",

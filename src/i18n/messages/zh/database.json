@@ -912,6 +912,20 @@
     "error": "错误",
     "errorTitle": "无法计算这一行：{message}",
     "or": "或",
+    "ai": {
+      "open": "用描述生成",
+      "title": "用 AI 编写公式",
+      "close": "关闭",
+      "description": "公式要计算的内容",
+      "placeholder": "例如：距截止日期还剩几天，过期后显示“已逾期”",
+      "writing": "正在编写…",
+      "write": "编写公式",
+      "again": "重新编写",
+      "failed": "AI 编写的公式无法运行：{message}",
+      "use": "使用公式",
+      "emptyValue": "空",
+      "noRows": "还没有可用于试算的行。"
+    },
     "groups": {
       "logic": "逻辑",
       "text": "文本",

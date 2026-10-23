@@ -912,6 +912,20 @@
     "error": "오류",
     "errorTitle": "이 행을 계산할 수 없습니다: {message}",
     "or": "또는",
+    "ai": {
+      "open": "설명으로 작성",
+      "title": "AI로 수식 작성",
+      "close": "닫기",
+      "description": "수식이 계산할 내용",
+      "placeholder": "예: 마감일까지 남은 일수, 지났으면 “지연”",
+      "writing": "작성 중…",
+      "write": "수식 작성",
+      "again": "다시 작성",
+      "failed": "AI가 작성한 수식이 작동하지 않습니다: {message}",
+      "use": "수식 사용",
+      "emptyValue": "비어 있음",
+      "noRows": "아직 시험해 볼 행이 없습니다."
+    },
     "groups": {
       "logic": "논리",
       "text": "텍스트",

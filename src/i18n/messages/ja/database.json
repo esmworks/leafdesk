@@ -912,6 +912,20 @@
     "error": "エラー",
     "errorTitle": "この行は計算できません：{message}",
     "or": "または",
+    "ai": {
+      "open": "説明して作成",
+      "title": "AI で数式を作成",
+      "close": "閉じる",
+      "description": "数式で計算したい内容",
+      "placeholder": "例：期日までの残り日数、過ぎていたら「遅延」",
+      "writing": "作成中…",
+      "write": "数式を作成",
+      "again": "作り直す",
+      "failed": "AI が作成した数式は動作しません：{message}",
+      "use": "この数式を使う",
+      "emptyValue": "空",
+      "noRows": "試せる行がまだありません。"
+    },
     "groups": {
       "logic": "論理",
       "text": "テキスト",

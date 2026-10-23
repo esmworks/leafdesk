@@ -4,6 +4,14 @@
 
 ### Added
 
+- **Write a formula by describing it.** Where the workspace has AI, the formula editor has a
+  *Describe it* box: say what the formula should work out ("days left until the due date") and the
+  AI writes it from the database's properties you may know of (names and types, never row values)
+  and the formula functions. The formula is checked like one you type; one that doesn't work goes
+  back to the AI once with the error, and if it fails again the error shows instead. A working one
+  shows with what it gives on the first rows; *Use formula* puts it in the editor, where you save
+  it as usual. It counts as *Formulas* in Settings > AI usage and is held to the workspace's AI
+  limits.
 - **AI usage by person.** Settings > AI usage now breaks the month shown down by person: each
   person and agent (marked as one) with their requests, tokens, cost and share of the month,
   costliest first, and the features they used most; requests nobody asked for show as background

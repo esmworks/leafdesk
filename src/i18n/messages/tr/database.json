@@ -912,6 +912,20 @@
     "error": "Hata",
     "errorTitle": "Bu satır hesaplanamıyor: {message}",
     "or": "veya",
+    "ai": {
+      "open": "Tarif et",
+      "title": "Formülü yapay zekâyla yaz",
+      "close": "Kapat",
+      "description": "Formülün neyi hesaplaması gerektiği",
+      "placeholder": "Örneğin: bitiş tarihine kalan gün sayısı, tarih geçtiyse “Gecikti”",
+      "writing": "Yazılıyor…",
+      "write": "Formülü yaz",
+      "again": "Yeniden yaz",
+      "failed": "Yapay zekânın yazdığı formül çalışmıyor: {message}",
+      "use": "Formülü kullan",
+      "emptyValue": "Boş",
+      "noRows": "Denenecek satır henüz yok."
+    },
     "groups": {
       "logic": "Mantık",
       "text": "Metin",

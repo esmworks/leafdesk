@@ -912,6 +912,20 @@
     "error": "Error",
     "errorTitle": "This row can’t be calculated: {message}",
     "or": "or",
+    "ai": {
+      "open": "Describe it",
+      "title": "Write the formula with AI",
+      "close": "Close",
+      "description": "What the formula should work out",
+      "placeholder": "For example: days left until the due date, or “Late” once it has passed",
+      "writing": "Writing…",
+      "write": "Write formula",
+      "again": "Write again",
+      "failed": "The AI’s formula doesn’t work: {message}",
+      "use": "Use formula",
+      "emptyValue": "Empty",
+      "noRows": "No rows to try it on yet."
+    },
     "groups": {
       "logic": "Logic",
       "text": "Text",

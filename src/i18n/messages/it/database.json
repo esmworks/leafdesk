@@ -912,6 +912,20 @@
     "error": "Errore",
     "errorTitle": "Questa riga non può essere calcolata: {message}",
     "or": "o",
+    "ai": {
+      "open": "Descrivila",
+      "title": "Scrivi la formula con l’IA",
+      "close": "Chiudi",
+      "description": "Cosa deve calcolare la formula",
+      "placeholder": "Per esempio: giorni mancanti alla scadenza, oppure «In ritardo» quando è passata",
+      "writing": "Scrittura in corso…",
+      "write": "Scrivi formula",
+      "again": "Riscrivi",
+      "failed": "La formula dell’IA non funziona: {message}",
+      "use": "Usa formula",
+      "emptyValue": "Vuoto",
+      "noRows": "Non ci sono ancora righe su cui provarla."
+    },
     "groups": {
       "logic": "Logica",
       "text": "Testo",

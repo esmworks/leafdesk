@@ -29,6 +29,9 @@ const PLANS: [feature: string, plan: AiFeaturePlan][] = [
   // a selection need little thinking; an instruction of the person's own may need more.
   ["editor.custom", { thinking: "medium" }],
   ["editor.", { thinking: "low" }],
+  // A formula from a description, checked before it is offered: the main model (the language is
+  // its own and the check sends failures back), with a little thinking while the person waits.
+  ["formula.", { thinking: "low" }],
   // Questions over the workspace's pages, often with figures, while the person waits.
   ["chat", { thinking: "medium" }],
   // An agent drafted from an owner's description: instructions it will follow alone, so the main

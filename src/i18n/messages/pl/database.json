@@ -912,6 +912,20 @@
     "error": "Błąd",
     "errorTitle": "Nie można obliczyć tego wiersza: {message}",
     "or": "lub",
+    "ai": {
+      "open": "Opisz",
+      "title": "Napisz formułę z AI",
+      "close": "Zamknij",
+      "description": "Co formuła ma obliczać",
+      "placeholder": "Na przykład: dni do terminu albo „Opóźnione”, gdy termin minął",
+      "writing": "Piszę…",
+      "write": "Napisz formułę",
+      "again": "Napisz ponownie",
+      "failed": "Formuła napisana przez AI nie działa: {message}",
+      "use": "Użyj formuły",
+      "emptyValue": "Puste",
+      "noRows": "Nie ma jeszcze wierszy, na których można ją wypróbować."
+    },
     "groups": {
       "logic": "Logika",
       "text": "Tekst",

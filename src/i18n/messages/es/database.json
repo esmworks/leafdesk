@@ -912,6 +912,20 @@
     "error": "Error",
     "errorTitle": "Esta fila no se puede calcular: {message}",
     "or": "o",
+    "ai": {
+      "open": "Descríbela",
+      "title": "Escribir la fórmula con IA",
+      "close": "Cerrar",
+      "description": "Qué debe calcular la fórmula",
+      "placeholder": "Por ejemplo: días que faltan hasta la fecha límite, o «Atrasado» cuando ya pasó",
+      "writing": "Escribiendo…",
+      "write": "Escribir fórmula",
+      "again": "Escribir de nuevo",
+      "failed": "La fórmula de la IA no funciona: {message}",
+      "use": "Usar fórmula",
+      "emptyValue": "Vacío",
+      "noRows": "Todavía no hay filas para probarla."
+    },
     "groups": {
       "logic": "Lógica",
       "text": "Texto",
