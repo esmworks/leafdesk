@@ -98,10 +98,11 @@ import { SIDEBAR_WIDTH } from "@/lib/sidebar-layout";
 import { isSettingsPath, SidebarPeekEdge, useSidebar } from "./sidebar-context";
 import { TrashDialog } from "./trash-dialog";
 import { TemplatesDialog } from "@/components/workspace/templates-dialog";
-import { ImportDialog } from "@/components/workspace/import-dialog";
 
 // Loaded the first time the inbox opens: it is not needed to show a page.
 const InboxDialog = dynamic(() => import("./inbox-dialog").then((m) => m.InboxDialog), { ssr: false });
+// Loaded the first time the import dialog opens, with the readers of every format it takes.
+const ImportDialog = dynamic(() => import("@/components/workspace/import-dialog").then((m) => m.ImportDialog), { ssr: false });
 
 type Workspace = { id: string; name: string; icon: string | null; role: string };
 
@@ -208,6 +209,9 @@ export function Sidebar({
   const [importOpen, setImportOpen] = useState(false);
   // A workbook a page shows, to import as a database under that page (see IMPORT_SPREADSHEET_EVENT).
   const [importFile, setImportFile] = useState<ImportSpreadsheetDetail | null>(null);
+  // Mounted from the first opening on, like the inbox.
+  const [importMounted, setImportMounted] = useState(false);
+  if (importOpen && !importMounted) setImportMounted(true);
   // The section the templates or import dialog was opened from.
   const [dialogTarget, setDialogTarget] = useState<Target>(undefined);
   const [inboxOpen, setInboxOpen] = useState(false);
@@ -1478,20 +1482,22 @@ export function Sidebar({
         onClose={() => setTemplatesOpen(false)}
         teamspaceId={dialogTarget}
       />
-      <ImportDialog
-        workspaceId={workspaceId}
-        open={importOpen}
-        onClose={() => {
-          setImportOpen(false);
-          setImportFile(null);
-        }}
-        tree={tree}
-        topLevel={Boolean(topLevel)}
-        // From a section's menu it starts at that section's top rather than at the open page.
-        activeId={dialogTarget === undefined ? activeId : null}
-        teamspaceId={dialogTarget}
-        file={importFile}
-      />
+      {importMounted && (
+        <ImportDialog
+          workspaceId={workspaceId}
+          open={importOpen}
+          onClose={() => {
+            setImportOpen(false);
+            setImportFile(null);
+          }}
+          tree={tree}
+          topLevel={Boolean(topLevel)}
+          // From a section's menu it starts at that section's top rather than at the open page.
+          activeId={dialogTarget === undefined ? activeId : null}
+          teamspaceId={dialogTarget}
+          file={importFile}
+        />
+      )}
       <TeamspaceDialog
         workspaceId={workspaceId}
         open={teamspaceDialog !== null}

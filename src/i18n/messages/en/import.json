@@ -1,12 +1,14 @@
 {
   "open": "Import",
   "title": "Import",
-  "description": "Bring pages in from Markdown files, ZIP exports and Word documents, rows from a CSV file or Excel workbook, or a Trello board.",
+  "description": "Bring pages in from Markdown files, ZIP exports and Word documents, rows from a CSV file or Excel workbook, or a Trello, Asana or Monday.com board.",
   "tabs": {
     "pages": "Markdown & ZIP",
     "docx": "Word",
     "csv": "CSV & Excel",
-    "trello": "Trello"
+    "trello": "Trello",
+    "asana": "Asana",
+    "monday": "Monday.com"
   },
   "destination": "Put under",
   "topLevel": "Top level of the workspace",
@@ -67,6 +69,35 @@
       "comments": "Comments"
     }
   },
+  "asana": {
+    "help": "In Asana, open the project's menu and choose Export → CSV (or JSON), then pick the downloaded file. The project becomes a database with a board view by section: completion, assignees, dates, tags, custom fields, notes, subtasks and dependencies come along.",
+    "choose": "Choose an Asana export (.csv or .json)",
+    "summary": "{name}: {groups, plural, one {# section} other {# sections}}, {items, plural, one {# task} other {# tasks}}, {subitems, plural, one {# subtask} other {# subtasks}}"
+  },
+  "monday": {
+    "help": "In Monday.com, open the board's menu and choose Export board to Excel (with updates if you want them), then pick the downloaded file. The board becomes a database with a board view by group: its columns, subitems and updates come along.",
+    "choose": "Choose a Monday.com export (.xlsx or .csv)",
+    "summary": "{name}: {groups, plural, one {# group} other {# groups}}, {items, plural, one {# item} other {# items}}, {subitems, plural, one {# subitem} other {# subitems}}"
+  },
+  "board": {
+    "links": "Nothing is downloaded: files and links in the export stay links.",
+    "comments": "{count, plural, one {# comment goes} other {# comments go}} in the rows' pages, under their author and time.",
+    "leftOut": "Left out: {list}.",
+    "types": "Check what each column becomes: the export doesn't say what kind a column is, so it was guessed.",
+    "names": {
+      "section": "Section",
+      "group": "Group",
+      "status": "Status",
+      "toDo": "To do",
+      "done": "Done",
+      "assignee": "Assignee",
+      "tags": "Tags",
+      "dates": "Dates",
+      "others": "{column} (others)",
+      "attachments": "Attachments",
+      "comments": "Comments"
+    }
+  },
   "import": "Import",
   "importing": "Importing…",
   "done": {
@@ -86,6 +117,7 @@
   "warnings": {
     "heading": "Left out or changed",
     "invalidValues": "{count, plural, one {# value} other {# values}} in “{column}” didn't fit the property and were left empty.",
+    "leftOutColumn": "“{column}” wasn't imported.",
     "missingFile": "“{path}”, linked from “{page}”, wasn't in the upload.",
     "unresolvedLink": "“[[{target}]]” in “{page}” doesn't match a note or file of the upload, so it stays as text.",
     "fileNotStored": {
@@ -120,6 +152,8 @@
     "badDocx": "“{name}” can't be read as a Word document. Only .docx files can be imported; save older .doc files as .docx first.",
     "docxTooComplex": "“{name}” is too large or complex to import as one page.",
     "badTrello": "The file isn't a Trello board export. In Trello, choose Export as JSON from the board's menu and pick that file.",
+    "badAsana": "The file isn't an Asana project export. In Asana, choose Export → CSV or JSON from the project's menu and pick that file.",
+    "badMonday": "The file isn't a Monday.com board export. In Monday.com, choose Export board to Excel from the board's menu and pick that file.",
     "badMapping": "Choose where at least one column goes, and each property only once.",
     "noAccess": "You can't add pages there, or it no longer exists.",
     "notADatabase": "Rows can only be added to a database.",

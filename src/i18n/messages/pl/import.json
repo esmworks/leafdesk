@@ -1,12 +1,14 @@
 {
   "open": "Importuj",
   "title": "Import",
-  "description": "Przenieś strony z plików Markdown, eksportów ZIP i dokumentów Word, wiersze z pliku CSV lub skoroszytu Excel albo tablicę Trello.",
+  "description": "Przenieś strony z plików Markdown, eksportów ZIP i dokumentów Word, wiersze z pliku CSV lub skoroszytu Excel albo tablicę z Trello, Asany lub Monday.com.",
   "tabs": {
     "pages": "Markdown i ZIP",
     "docx": "Word",
     "csv": "CSV i Excel",
-    "trello": "Trello"
+    "trello": "Trello",
+    "asana": "Asana",
+    "monday": "Monday.com"
   },
   "destination": "Umieść w",
   "topLevel": "Najwyższy poziom obszaru roboczego",
@@ -67,6 +69,35 @@
       "comments": "Komentarze"
     }
   },
+  "asana": {
+    "help": "W Asanie otwórz menu projektu i wybierz Eksportuj → CSV (lub JSON), a potem pobrany plik. Projekt staje się bazą danych z widokiem tablicy według sekcji: przenoszone są ukończenie, osoby przypisane, daty, tagi, pola niestandardowe, notatki, podzadania i zależności.",
+    "choose": "Wybierz eksport z Asany (.csv lub .json)",
+    "summary": "{name}: {groups, plural, one {# sekcja} few {# sekcje} many {# sekcji} other {# sekcji}}, {items, plural, one {# zadanie} few {# zadania} many {# zadań} other {# zadania}}, {subitems, plural, one {# podzadanie} few {# podzadania} many {# podzadań} other {# podzadania}}"
+  },
+  "monday": {
+    "help": "W Monday.com otwórz menu tablicy i wybierz Eksportuj tablicę do Excela (z aktualizacjami, jeśli ich chcesz), a potem pobrany plik. Tablica staje się bazą danych z widokiem tablicy według grup: przenoszone są jej kolumny, podelementy i aktualizacje.",
+    "choose": "Wybierz eksport z Monday.com (.xlsx lub .csv)",
+    "summary": "{name}: {groups, plural, one {# grupa} few {# grupy} many {# grup} other {# grupy}}, {items, plural, one {# element} few {# elementy} many {# elementów} other {# elementu}}, {subitems, plural, one {# podelement} few {# podelementy} many {# podelementów} other {# podelementu}}"
+  },
+  "board": {
+    "links": "Nic nie jest pobierane: pliki i linki z eksportu pozostają linkami.",
+    "comments": "{count, plural, one {# komentarz trafi} few {# komentarze trafią} many {# komentarzy trafi} other {# komentarza trafi}} na strony wierszy, z autorem i czasem.",
+    "leftOut": "Pominięte: {list}.",
+    "types": "Sprawdź, czym stanie się każda kolumna: eksport nie mówi, jakiego rodzaju jest kolumna, więc zostało to odgadnięte.",
+    "names": {
+      "section": "Sekcja",
+      "group": "Grupa",
+      "status": "Status",
+      "toDo": "Do zrobienia",
+      "done": "Gotowe",
+      "assignee": "Osoba przypisana",
+      "tags": "Tagi",
+      "dates": "Daty",
+      "others": "{column} (pozostali)",
+      "attachments": "Załączniki",
+      "comments": "Komentarze"
+    }
+  },
   "import": "Importuj",
   "importing": "Importowanie…",
   "done": {
@@ -86,6 +117,7 @@
   "warnings": {
     "heading": "Pominięte lub zmienione",
     "invalidValues": "W kolumnie „{column}” {count, plural, one {# wartość nie pasowała do właściwości i pozostawiono ją pustą} few {# wartości nie pasowały do właściwości i pozostawiono je puste} many {# wartości nie pasowało do właściwości i pozostawiono je puste} other {# wartości nie pasowało do właściwości i pozostawiono je puste}}.",
+    "leftOutColumn": "Kolumna „{column}” nie została zaimportowana.",
     "missingFile": "Brak w przesłanych plikach: „{path}” (link na stronie „{page}”).",
     "unresolvedLink": "„[[{target}]]” na stronie „{page}” nie pasuje do żadnej notatki ani pliku z przesłanych, więc pozostaje tekstem.",
     "fileNotStored": {
@@ -120,6 +152,8 @@
     "badDocx": "Nie można odczytać „{name}” jako dokumentu Word. Importować można tylko pliki .docx; starsze pliki .doc najpierw zapisz jako .docx.",
     "docxTooComplex": "Plik „{name}” jest zbyt duży lub złożony, aby zaimportować go jako jedną stronę.",
     "badTrello": "Ten plik nie jest eksportem tablicy Trello. W Trello wybierz Eksportuj jako JSON z menu tablicy i wskaż ten plik.",
+    "badAsana": "Ten plik nie jest eksportem projektu z Asany. W Asanie wybierz Eksportuj → CSV lub JSON z menu projektu i wybierz ten plik.",
+    "badMonday": "Ten plik nie jest eksportem tablicy z Monday.com. W Monday.com wybierz Eksportuj tablicę do Excela z menu tablicy i wybierz ten plik.",
     "badMapping": "Wybierz miejsce docelowe dla co najmniej jednej kolumny, a każdą właściwość tylko raz.",
     "noAccess": "Nie możesz tam dodawać stron lub to miejsce już nie istnieje.",
     "notADatabase": "Wiersze można dodawać tylko do bazy danych.",

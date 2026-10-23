@@ -25,7 +25,7 @@ after you approve them over OAuth.
   tell it, reusable skills, and agents that work on database rows, with Anthropic, OpenAI, Google
   or a local model.
 - **Bring your pages**: import a Notion *Markdown & CSV* export, an Obsidian vault, a Trello board,
-  Markdown files, Word documents, a folder or CSV.
+  an Asana project, a Monday.com board, Markdown files, Word documents, a folder or CSV.
 - **Ready for a team**: teamspaces, page permissions, guests, single sign-on (OIDC, SAML), SCIM,
   two-step verification, passkeys and an audit log.
 - **Yours to run**: one `docker compose up` on your own server, data in your PostgreSQL,
@@ -513,6 +513,40 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   to Trello, and images in descriptions become links. Archived lists and cards are left out and
   counted before importing. Trello's export holds only a board's more recent actions, so the oldest
   comments of a busy board may be missing.
+- **Import from Asana**: in Asana, choose *Export → CSV* (or *JSON*) in the project's menu, and
+  pick the downloaded file on Import's Asana tab. The project becomes a database named after it
+  that opens on a board view grouped by section: sections become a select in the order they come,
+  completion a status (to do or done), the assignee a person when exactly one person in the
+  workspace has their email address (by name when the export has no address) and text otherwise,
+  start and due dates one date (a range when both are set), tags a multi-select, and custom fields
+  properties typed by their values (number, date, select and so on; the JSON export says their
+  types and option colors itself), which the Import dialog shows and lets you change before
+  importing. Subtasks become sub-items of their task, and *Blocked By* and *Blocking* the
+  database's dependencies; both find tasks by id, else by name when exactly one task has it. Notes
+  become the row's body, where links to tasks of the project lead to their rows; the JSON export's
+  comments follow under their author and time and its attachments as links (nothing is
+  downloaded). *Created At*, *Last Modified* and other projects a task is in are left out and
+  listed in the result, as are parents and dependencies that name no task of the export. Tested
+  against files built from Asana's documented export format, not yet a real export.
+- **Import from Monday.com**: in Monday.com, choose *Export board to Excel* in the board's menu
+  (with updates, if you want them), and pick the downloaded `.xlsx` (or its sheet saved as CSV) on
+  Import's Monday.com tab. The board becomes a database named after it that opens on a board view
+  grouped by group, and subitems become sub-items of their item. The export doesn't say what kind
+  each column is, so it is guessed from the column's name and values, shown in the Import dialog
+  and changeable there: *Status* (and Stage, State) becomes a status whose labels are options (Done
+  and the like done, Working on it and Stuck in progress, others to do); Person, People, Owner and
+  the like people, matched by name when exactly one person in the workspace has it (text
+  otherwise); dates a date, timelines (`2026-10-01 - 2026-10-05`) a date range, numbers a number,
+  Tags and Dropdown a multi-select, links a URL (the address, without its text), email addresses
+  and phone numbers their own types, `v` checkboxes a checkbox, a *Location* column a place when
+  every value carries its coordinates (an address alone stays text: the import doesn't look
+  addresses up), and the rest text. A *Dependency*
+  column becomes the database's dependencies, by item name. Updates become comments in the row's
+  body under their author and time, where links to items of the board lead to their rows; files
+  and links stay links. Other sheets of the workbook, and updates or dependencies naming no item,
+  are listed in the result. Read as the documented layout: the board's name on top, each group's
+  name over its header row, subitems one column in under their item, updates on a sheet of their
+  own. Tested against files built from that layout, not yet a real export.
 - **Workspaces and members**: add people by email (several at once) as owners or members, send
   an invitation link to people who don't have an account yet (or whose account's address was
   never verified: anyone can sign up with someone else's address), or turn on a join link anyone
@@ -3503,7 +3537,7 @@ published under the Apache License 2.0 and stay available under it.
 
 Notion is a trademark of Notion Labs, Inc. Leafdesk is an independent project, not affiliated with,
 endorsed by or sponsored by Notion Labs, Inc. The name appears only to describe what Leafdesk is an
-alternative to and what it imports from. Obsidian and Trello are trademarks of their owners;
+alternative to and what it imports from. Obsidian, Trello, Asana and Monday.com are trademarks of their owners;
 Leafdesk is not affiliated with them either, and names them only to describe what it imports. The names and logos of
 the services in the connection catalog are trademarks of their owners; Leafdesk shows them only to
 identify the service a connection reaches, and is not affiliated with or endorsed by them.

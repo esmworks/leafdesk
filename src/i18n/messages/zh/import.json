@@ -1,12 +1,14 @@
 {
   "open": "导入",
   "title": "导入",
-  "description": "从 Markdown 文件、ZIP 导出和 Word 文档导入页面，从 CSV 文件或 Excel 工作簿导入行，或导入一个 Trello 看板。",
+  "description": "从 Markdown 文件、ZIP 导出和 Word 文档导入页面，从 CSV 文件或 Excel 工作簿导入行，或导入一个 Trello、Asana 或 Monday.com 看板。",
   "tabs": {
     "pages": "Markdown 和 ZIP",
     "docx": "Word",
     "csv": "CSV 和 Excel",
-    "trello": "Trello"
+    "trello": "Trello",
+    "asana": "Asana",
+    "monday": "Monday.com"
   },
   "destination": "放在",
   "topLevel": "工作区顶层",
@@ -67,6 +69,35 @@
       "comments": "评论"
     }
   },
+  "asana": {
+    "help": "在 Asana 中打开项目菜单，选择“导出 → CSV”（或 JSON），然后选择下载的文件。项目会成为一个按分区显示看板视图的数据库：完成状态、负责人、日期、标签、自定义字段、备注、子任务和依赖关系都会带过来。",
+    "choose": "选择 Asana 导出文件（.csv 或 .json）",
+    "summary": "{name}：{groups} 个分区，{items} 个任务，{subitems} 个子任务"
+  },
+  "monday": {
+    "help": "在 Monday.com 中打开看板菜单，选择“将看板导出到 Excel”（需要的话包含更新），然后选择下载的文件。看板会成为一个按分组显示看板视图的数据库：它的列、子项和更新都会带过来。",
+    "choose": "选择 Monday.com 导出文件（.xlsx 或 .csv）",
+    "summary": "{name}：{groups} 个分组，{items} 个项目，{subitems} 个子项"
+  },
+  "board": {
+    "links": "不会下载任何内容：导出中的文件和链接仍是链接。",
+    "comments": "{count} 条评论会连同作者和时间放进各行的页面。",
+    "leftOut": "不导入：{list}。",
+    "types": "请检查每列会变成什么：导出没有说明列的类型，所以是推测的。",
+    "names": {
+      "section": "分区",
+      "group": "分组",
+      "status": "状态",
+      "toDo": "待办",
+      "done": "已完成",
+      "assignee": "负责人",
+      "tags": "标签",
+      "dates": "日期",
+      "others": "{column}（其他）",
+      "attachments": "附件",
+      "comments": "评论"
+    }
+  },
   "import": "导入",
   "importing": "正在导入…",
   "done": {
@@ -86,6 +117,7 @@
   "warnings": {
     "heading": "已省略或更改的内容",
     "invalidValues": "“{column}”中有 {count} 个值与属性不符，已留空。",
+    "leftOutColumn": "“{column}”未导入。",
     "missingFile": "“{page}”中链接的“{path}”不在上传的内容中。",
     "unresolvedLink": "“{page}”中的“[[{target}]]”与上传内容中的任何笔记或文件都不匹配，因此保留为文本。",
     "fileNotStored": {
@@ -120,6 +152,8 @@
     "badDocx": "无法将“{name}”作为 Word 文档读取。只能导入 .docx 文件；请先将较旧的 .doc 文件另存为 .docx。",
     "docxTooComplex": "“{name}”过大或过于复杂，无法作为一个页面导入。",
     "badTrello": "该文件不是 Trello 看板的导出文件。请在 Trello 的看板菜单中选择“导出为 JSON”，然后选择该文件。",
+    "badAsana": "该文件不是 Asana 项目导出。请在 Asana 的项目菜单中选择“导出 → CSV”或 JSON，然后选择该文件。",
+    "badMonday": "该文件不是 Monday.com 看板导出。请在 Monday.com 的看板菜单中选择“将看板导出到 Excel”，然后选择该文件。",
     "badMapping": "请至少为一列选择导入位置，且每个属性只能使用一次。",
     "noAccess": "你无法在那里添加页面，或它已不存在。",
     "notADatabase": "只能向数据库添加行。",

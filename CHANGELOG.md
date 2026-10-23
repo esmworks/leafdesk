@@ -20,6 +20,17 @@
   edited there. `get_database` describes conditions, limits and the setting, and replacing a form's
   questions over MCP keeps them. Migration 0121 adds the `form_submission` table, which records the
   form and the person behind each signed-in answer.
+- **Import from Asana and Monday.com.** Import has an Asana tab that takes a project's CSV or JSON
+  export and a Monday.com tab that takes a board exported to Excel (or saved as CSV). Each becomes
+  a database opening on a board grouped by section or group, with Asana's completion as a status,
+  assignees and people as people (by email address, else by name, when one person in the
+  workspace matches; text otherwise), start and due dates and Monday's timelines as dates, tags as
+  a multi-select, locations with their coordinates as places, and the other columns typed by
+  their names and values, shown and changeable in the dialog before importing. Subtasks and subitems become sub-items, Asana's *Blocked By* and
+  *Blocking* and Monday's *Dependency* column the database's dependencies, notes the rows' bodies
+  and comments and updates follow there under their author and time, with links between items
+  leading to their rows. Nothing is downloaded; columns left out (such as *Created At*) are listed
+  in the result.
 - **Indonesian, Thai and Vietnamese.** The app, its emails, templates, the editor's menus and the
   desktop app now speak Bahasa Indonesia, ไทย and Tiếng Việt, chosen in My account → Language or
   taken from the browser. Quick add knows their date words, CSV import their title columns and
