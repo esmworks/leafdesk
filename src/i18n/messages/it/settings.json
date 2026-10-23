@@ -19,7 +19,8 @@
     "security": "Sicurezza",
     "audit": "Registro di controllo",
     "site": "Sito",
-    "snippets": "Frammenti"
+    "snippets": "Frammenti",
+    "pdf": "Modelli PDF"
   },
   "workspace": {
     "heading": "Spazio di lavoro",
@@ -2276,6 +2277,56 @@
       "color": "Scegli un colore.",
       "border": "Scegli un bordo.",
       "title": "Il titolo può avere al massimo 120 caratteri."
+    }
+  },
+  "letterheads": {
+    "heading": "Carte intestate",
+    "description": "Ciò che i file PDF stampano attorno a una pagina: un logo, i dati della tua azienda in alto e righe a piè di pagina. Scegline una quando esporti un PDF; la chat IA usa quella predefinita salvo richiesta diversa.",
+    "empty": "Ancora nessuna carta intestata.",
+    "add": "Aggiungi carta intestata",
+    "edit": "Modifica",
+    "remove": "Rimuovi {name}",
+    "removeConfirm": "Rimuovere la carta intestata «{name}»? I PDF useranno quella predefinita.",
+    "count": "{count} di {max} carte intestate",
+    "ownersOnly": "Solo i proprietari possono modificare le carte intestate.",
+    "default": "Predefinita",
+    "makeDefault": "Imposta come predefinita",
+    "unsetDefault": "Non usare più come predefinita",
+    "noLines": "Nessuna riga in alto",
+    "name": "Nome",
+    "namePlaceholder": "Offerte",
+    "logo": "Logo",
+    "logoHelp": "PNG o JPEG, al massimo {size}.",
+    "uploadLogo": "Carica logo",
+    "replaceLogo": "Sostituisci logo",
+    "removeLogo": "Rimuovi",
+    "logoPlace": "Posizione del logo",
+    "places": {
+      "left": "Logo a sinistra",
+      "center": "Logo al centro",
+      "right": "Logo a destra"
+    },
+    "header": "Righe in alto",
+    "headerHelp": "Fino a {max} righe, stampate su ogni pagina; la prima in grassetto.",
+    "headerPlaceholder": "Nome dell’azienda\nIndirizzo\nTelefono · e-mail · partita IVA",
+    "footer": "Righe a piè di pagina",
+    "footerHelp": "Fino a {max} righe, come le coordinate bancarie.",
+    "footerPlaceholder": "Banca · IBAN",
+    "accent": "Colore di accento",
+    "accentHelp": "Per la linea sotto l’intestazione e le intestazioni delle tabelle.",
+    "noAccent": "Grigio",
+    "pageNumbers": "Numeri di pagina",
+    "errors": {
+      "name": "Dai un nome di al massimo 60 caratteri.",
+      "header": "Al massimo 6 righe in alto, di al massimo 140 caratteri ciascuna.",
+      "footer": "Al massimo 4 righe a piè di pagina, di al massimo 140 caratteri ciascuna.",
+      "logoPlace": "Scegli dove va il logo.",
+      "accent": "Scegli un colore.",
+      "duplicateName": "Un’altra carta intestata ha questo nome.",
+      "tooMany": "Uno spazio di lavoro può avere al massimo 20 carte intestate.",
+      "logoType": "Il logo deve essere un’immagine PNG o JPEG.",
+      "logoSize": "Il logo è troppo grande: al massimo 512 KB.",
+      "notFound": "Questa carta intestata non esiste più. Ricarica la pagina."
     }
   }
 }

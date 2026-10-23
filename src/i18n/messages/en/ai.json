@@ -292,7 +292,8 @@
       "waiting": "Waiting for your approval",
       "page": "Page",
       "empty": "(empty)",
-      "connectionHint": "Sent with the workspace's connection: it may change something at {connection}"
+      "connectionHint": "Sent with the workspace's connection: it may change something at {connection}",
+      "letterhead": "Letterhead: {name}"
     },
     "mode": {
       "label": "Changes",

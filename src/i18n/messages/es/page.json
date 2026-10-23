@@ -49,6 +49,7 @@
     "exportZip": "Exportar con subpáginas",
     "exportZipDatabase": "Exportar con las páginas de las filas",
     "exportPdf": "Exportar como PDF",
+    "printView": "Imprimir",
     "exportPreparing": "Preparando la exportación…",
     "versionHistory": "Historial de versiones",
     "lastEdited": "Editado por última vez por {name}",
@@ -576,6 +577,17 @@
     "openInNewTab": "Abrir en una pestaña nueva",
     "frameTitle": "PDF: {name}",
     "noPreview": "Este navegador no puede mostrar archivos PDF aquí. Abre el archivo para leerlo."
+  },
+  "pdfExport": {
+    "title": "Exportar como PDF",
+    "letterhead": "Membrete",
+    "none": "Ninguno",
+    "defaultMark": "{name} (predeterminado)",
+    "noLetterheads": "Los propietarios pueden añadir membretes con logotipo y datos de la empresa en Ajustes → Plantillas PDF.",
+    "properties": "Incluir los valores de la fila",
+    "hint": "Los diagramas y las ecuaciones se imprimen como texto; usa Imprimir para obtener la página tal como se ve.",
+    "download": "Descargar",
+    "preparing": "Preparando…"
   },
   "spreadsheet": {
     "untitled": "Libro",

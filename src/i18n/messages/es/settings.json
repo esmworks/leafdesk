@@ -19,7 +19,8 @@
     "security": "Seguridad",
     "audit": "Registro de auditoría",
     "site": "Sitio",
-    "snippets": "Fragmentos"
+    "snippets": "Fragmentos",
+    "pdf": "Plantillas PDF"
   },
   "workspace": {
     "heading": "Espacio de trabajo",
@@ -2276,6 +2277,56 @@
       "color": "Elige un color.",
       "border": "Elige un borde.",
       "title": "El título puede tener como máximo 120 caracteres."
+    }
+  },
+  "letterheads": {
+    "heading": "Membretes",
+    "description": "Lo que los archivos PDF imprimen alrededor de una página: un logotipo, los datos de tu empresa arriba y líneas al pie. Elige uno al exportar un PDF; el chat de IA usa el predeterminado salvo que se pida otro.",
+    "empty": "Aún no hay membretes.",
+    "add": "Añadir membrete",
+    "edit": "Editar",
+    "remove": "Quitar {name}",
+    "removeConfirm": "¿Quitar el membrete «{name}»? Los PDF usarán entonces el predeterminado.",
+    "count": "{count} de {max} membretes",
+    "ownersOnly": "Solo los propietarios pueden cambiar los membretes.",
+    "default": "Predeterminado",
+    "makeDefault": "Hacer predeterminado",
+    "unsetDefault": "Dejar de usar como predeterminado",
+    "noLines": "Sin líneas arriba",
+    "name": "Nombre",
+    "namePlaceholder": "Ofertas",
+    "logo": "Logotipo",
+    "logoHelp": "PNG o JPEG, como máximo {size}.",
+    "uploadLogo": "Subir logotipo",
+    "replaceLogo": "Cambiar logotipo",
+    "removeLogo": "Quitar",
+    "logoPlace": "Posición del logotipo",
+    "places": {
+      "left": "Logotipo a la izquierda",
+      "center": "Logotipo centrado",
+      "right": "Logotipo a la derecha"
+    },
+    "header": "Líneas de arriba",
+    "headerHelp": "Hasta {max} líneas, impresas en cada página; la primera en negrita.",
+    "headerPlaceholder": "Nombre de la empresa\nDirección\nTeléfono · correo · NIF",
+    "footer": "Líneas del pie",
+    "footerHelp": "Hasta {max} líneas, como los datos bancarios.",
+    "footerPlaceholder": "Banco · IBAN",
+    "accent": "Color de acento",
+    "accentHelp": "Para la línea bajo la cabecera y los encabezados de tabla.",
+    "noAccent": "Gris",
+    "pageNumbers": "Números de página",
+    "errors": {
+      "name": "Ponle un nombre de 60 caracteres como máximo.",
+      "header": "Como máximo 6 líneas arriba, de 140 caracteres cada una.",
+      "footer": "Como máximo 4 líneas al pie, de 140 caracteres cada una.",
+      "logoPlace": "Elige dónde va el logotipo.",
+      "accent": "Elige un color.",
+      "duplicateName": "Ya hay otro membrete con ese nombre.",
+      "tooMany": "Un espacio de trabajo puede tener como máximo 20 membretes.",
+      "logoType": "El logotipo debe ser una imagen PNG o JPEG.",
+      "logoSize": "El logotipo es demasiado grande: como máximo 512 KB.",
+      "notFound": "Ese membrete ya no existe. Recarga la página."
     }
   }
 }

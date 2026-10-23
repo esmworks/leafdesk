@@ -49,6 +49,7 @@
     "exportZip": "하위 페이지와 함께 내보내기",
     "exportZipDatabase": "행 페이지와 함께 내보내기",
     "exportPdf": "PDF로 내보내기",
+    "printView": "인쇄",
     "exportPreparing": "내보내기 준비 중…",
     "versionHistory": "버전 기록",
     "lastEdited": "{name}이(가) 마지막으로 편집함",
@@ -576,6 +577,17 @@
     "openInNewTab": "새 탭에서 열기",
     "frameTitle": "PDF: {name}",
     "noPreview": "이 브라우저에서는 PDF를 여기에 표시할 수 없습니다. 파일을 열어 확인하세요."
+  },
+  "pdfExport": {
+    "title": "PDF로 내보내기",
+    "letterhead": "레터헤드",
+    "none": "없음",
+    "defaultMark": "{name} (기본값)",
+    "noLetterheads": "소유자는 설정 → PDF 템플릿에서 로고와 회사 정보가 담긴 레터헤드를 추가할 수 있습니다.",
+    "properties": "행의 값 포함",
+    "hint": "다이어그램과 수식은 텍스트로 인쇄됩니다. 보이는 그대로의 페이지가 필요하면 인쇄를 쓰세요.",
+    "download": "다운로드",
+    "preparing": "준비 중…"
   },
   "spreadsheet": {
     "untitled": "통합 문서",

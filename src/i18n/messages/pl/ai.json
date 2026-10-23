@@ -292,7 +292,8 @@
       "waiting": "Oczekiwanie na twoją zgodę",
       "page": "Strona",
       "empty": "(puste)",
-      "connectionHint": "Wysyłane przez połączenie obszaru roboczego: może coś zmienić w {connection}"
+      "connectionHint": "Wysyłane przez połączenie obszaru roboczego: może coś zmienić w {connection}",
+      "letterhead": "Papier firmowy: {name}"
     },
     "mode": {
       "label": "Zmiany",

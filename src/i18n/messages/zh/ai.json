@@ -292,7 +292,8 @@
       "waiting": "等待你的批准",
       "page": "页面",
       "empty": "（空）",
-      "connectionHint": "通过工作区的连接发送：可能会更改 {connection} 中的内容"
+      "connectionHint": "通过工作区的连接发送：可能会更改 {connection} 中的内容",
+      "letterhead": "信笺：{name}"
     },
     "mode": {
       "label": "更改",

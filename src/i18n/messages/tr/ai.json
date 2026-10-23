@@ -292,7 +292,8 @@
       "waiting": "Onayını bekliyor",
       "page": "Sayfa:",
       "empty": "(boş)",
-      "connectionHint": "Çalışma alanının bağlantısıyla gönderilir: {connection} tarafında bir şeyi değiştirebilir"
+      "connectionHint": "Çalışma alanının bağlantısıyla gönderilir: {connection} tarafında bir şeyi değiştirebilir",
+      "letterhead": "Antet: {name}"
     },
     "mode": {
       "label": "Değişiklikler",

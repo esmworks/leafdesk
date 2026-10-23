@@ -47,8 +47,9 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
 - **Access.** `src/server/access.ts` is the one place that decides who may see or change a page:
   `requirePageAccess(userId, pageId, level)` for one page, `pageVisibleTo(userId)` as the SQL
   condition for lists. The rule is the SQL function `page_access_level`, last redefined in
-  `drizzle/0055_security_hardening.sql`. Shares: `permissions.ts`; per-property rules:
-  `property-access.ts`; teamspace membership: `teamspaces.ts`; guests: `guests.ts`.
+  `drizzle/0116_row_access.sql`. Shares: `permissions.ts`; per-property rules:
+  `property-access.ts`; rows giving the people they name access: `row-access.ts`; teamspace
+  membership: `teamspaces.ts`; guests: `guests.ts`.
 - **Page content.** The Yjs document is the source of truth. Writes from the server go through
   `getCollab()` (`src/server/collab/bridge.ts`: `replaceContent`, `editBlocks`, `setTitle` …), which
   only exists when the app runs through `server.ts`. Saves derive markdown and text
@@ -86,7 +87,8 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   workspace drives), import `import/`, export `export.ts`, server-made PDFs `pdf.ts` (reads a page like `print.ts`)
   and `pdf-document.ts` (pure pdfmake layout; pdfmake must stay in `serverExternalPackages` in
   `next.config.ts`, bundled it loses its font files, and its fonts in the standalone build's
-  `outputFileTracingIncludes`), backup `backup/`, SSO `sso.ts`, SCIM
+  `outputFileTracingIncludes`), PDF letterheads `letterheads.ts` (pure part in `src/lib/letterheads.ts`;
+  the logo is document content kept in `pdf_letterhead`, not page decoration), backup `backup/`, SSO `sso.ts`, SCIM
   `scim.ts`, sealed secrets `secret-box.ts`.
 
 **Running as a person.** Every operation carries a real user id and access is worked out in SQL

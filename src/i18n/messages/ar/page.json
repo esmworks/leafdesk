@@ -49,6 +49,7 @@
     "exportZip": "تصدير مع الصفحات الفرعية",
     "exportZipDatabase": "تصدير مع صفحات الصفوف",
     "exportPdf": "تصدير بصيغة PDF",
+    "printView": "طباعة",
     "exportPreparing": "جارٍ تحضير التصدير…",
     "versionHistory": "سجل النسخ",
     "lastEdited": "آخر تعديل بواسطة {name}",
@@ -576,6 +577,17 @@
     "openInNewTab": "الفتح في علامة تبويب جديدة",
     "frameTitle": "PDF: {name}",
     "noPreview": "لا يستطيع هذا المتصفح عرض ملفات PDF هنا. افتح الملف لقراءته."
+  },
+  "pdfExport": {
+    "title": "تصدير بصيغة PDF",
+    "letterhead": "الترويسة",
+    "none": "بدون",
+    "defaultMark": "{name} (افتراضية)",
+    "noLetterheads": "يمكن للمالكين إضافة ترويسات بشعار وبيانات الشركة من الإعدادات ← قوالب PDF.",
+    "properties": "تضمين قيم الصف",
+    "hint": "تُطبع المخططات والمعادلات نصًا؛ استخدم «طباعة» للحصول على الصفحة كما تظهر تمامًا.",
+    "download": "تنزيل",
+    "preparing": "جارٍ التحضير…"
   },
   "spreadsheet": {
     "untitled": "مصنف",

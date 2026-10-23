@@ -49,6 +49,7 @@
     "exportZip": "サブページを含めてエクスポート",
     "exportZipDatabase": "行のページを含めてエクスポート",
     "exportPdf": "PDFとしてエクスポート",
+    "printView": "印刷",
     "exportPreparing": "エクスポートを準備中…",
     "versionHistory": "バージョン履歴",
     "lastEdited": "最終編集者：{name}",
@@ -576,6 +577,17 @@
     "openInNewTab": "新しいタブで開く",
     "frameTitle": "PDF：{name}",
     "noPreview": "このブラウザではここにPDFを表示できません。ファイルを開いてお読みください。"
+  },
+  "pdfExport": {
+    "title": "PDF として書き出す",
+    "letterhead": "レターヘッド",
+    "none": "なし",
+    "defaultMark": "{name}（既定）",
+    "noLetterheads": "オーナーは 設定 → PDF テンプレート で、ロゴと会社情報入りのレターヘッドを追加できます。",
+    "properties": "行の値を含める",
+    "hint": "図や数式はテキストとして印刷されます。見たままのページが必要なら「印刷」を使ってください。",
+    "download": "ダウンロード",
+    "preparing": "準備中…"
   },
   "spreadsheet": {
     "untitled": "ブック",

@@ -49,6 +49,7 @@
     "exportZip": "Alt sayfalarla dışa aktar",
     "exportZipDatabase": "Satırlarla dışa aktar",
     "exportPdf": "PDF olarak dışa aktar",
+    "printView": "Yazdır",
     "exportPreparing": "Dışa aktarma hazırlanıyor…",
     "versionHistory": "Sürüm geçmişi",
     "lastEdited": "Son düzenleyen: {name}",
@@ -576,6 +577,17 @@
     "openInNewTab": "Yeni sekmede aç",
     "frameTitle": "PDF: {name}",
     "noPreview": "Bu tarayıcı PDF'leri burada gösteremiyor. Okumak için dosyayı açın."
+  },
+  "pdfExport": {
+    "title": "PDF olarak dışa aktar",
+    "letterhead": "Antet",
+    "none": "Antetsiz",
+    "defaultMark": "{name} (varsayılan)",
+    "noLetterheads": "Sahipler Ayarlar → PDF şablonları'ndan logolu ve şirket bilgili antet ekleyebilir.",
+    "properties": "Satırın alanlarını ekle",
+    "hint": "Diyagramlar ve denklemler metin olarak basılır; sayfayı göründüğü gibi almak için Yazdır'ı kullanın.",
+    "download": "İndir",
+    "preparing": "Hazırlanıyor…"
   },
   "spreadsheet": {
     "untitled": "Çalışma kitabı",

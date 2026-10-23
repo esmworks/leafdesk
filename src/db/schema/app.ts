@@ -1,4 +1,5 @@
 import type { CalloutStyle } from "@/lib/callout-styles";
+import type { LogoPlace } from "@/lib/letterheads";
 import { getTableColumns, sql } from "drizzle-orm";
 import {
   boolean,
@@ -196,6 +197,39 @@ export const workspace = pgTable("workspace", {
   aiAccountId: text("ai_account_id").references(() => aiAccount.id, { onDelete: "set null" }),
   ...timestamps,
 });
+
+/**
+ * A workspace's letterheads (lib/letterheads): what its PDF files print around a page, set up by
+ * its owners. The logo's bytes are kept here (PNG or JPEG, checked when uploaded), so a PDF never
+ * loads one from anywhere. At most one is the workspace's default; names are unique in it, as the
+ * AI chat picks a letterhead by name.
+ */
+export const pdfLetterhead = pgTable(
+  "pdf_letterhead",
+  {
+    id: id(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspace.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    header: text("header").notNull().default(""),
+    footer: text("footer").notNull().default(""),
+    logoPlace: text("logo_place").$type<LogoPlace>().notNull().default("left"),
+    /** `#rrggbb`, or "" for the usual gray. */
+    accent: text("accent").notNull().default(""),
+    pageNumbers: boolean("page_numbers").notNull().default(true),
+    isDefault: boolean("is_default").notNull().default(false),
+    logo: bytea("logo"),
+    logoType: text("logo_type"),
+    logoUpdatedAt: timestamp("logo_updated_at", { withTimezone: true }),
+    createdBy: text("created_by").references(() => user.id, { onDelete: "set null" }),
+    ...timestamps,
+  },
+  (t) => [
+    uniqueIndex("pdf_letterhead_name_idx").on(t.workspaceId, sql`lower(${t.name})`),
+    uniqueIndex("pdf_letterhead_default_idx").on(t.workspaceId).where(sql`${t.isDefault}`),
+  ],
+);
 
 /**
  * `owner` and `member` see every page unless a page permission restricts it; a `guest` sees only

@@ -49,6 +49,7 @@
     "exportZip": "Eksportuj z podstronami",
     "exportZipDatabase": "Eksportuj ze stronami wierszy",
     "exportPdf": "Eksportuj jako PDF",
+    "printView": "Drukuj",
     "exportPreparing": "Przygotowywanie eksportu…",
     "versionHistory": "Historia wersji",
     "lastEdited": "Ostatnio edytowane przez: {name}",
@@ -576,6 +577,17 @@
     "openInNewTab": "Otwórz w nowej karcie",
     "frameTitle": "PDF: {name}",
     "noPreview": "Ta przeglądarka nie może tu wyświetlać plików PDF. Otwórz plik, aby go przeczytać."
+  },
+  "pdfExport": {
+    "title": "Eksportuj do PDF",
+    "letterhead": "Papier firmowy",
+    "none": "Brak",
+    "defaultMark": "{name} (domyślny)",
+    "noLetterheads": "Właściciele mogą dodać papiery firmowe z logo i danymi firmy w Ustawieniach → Szablony PDF.",
+    "properties": "Dołącz wartości wiersza",
+    "hint": "Diagramy i równania drukują się jako tekst; użyj Drukuj, aby otrzymać stronę dokładnie taką, jak wygląda.",
+    "download": "Pobierz",
+    "preparing": "Przygotowywanie…"
   },
   "spreadsheet": {
     "untitled": "Skoroszyt",

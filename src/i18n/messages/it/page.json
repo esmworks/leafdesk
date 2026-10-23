@@ -49,6 +49,7 @@
     "exportZip": "Esporta con le sottopagine",
     "exportZipDatabase": "Esporta con le pagine delle righe",
     "exportPdf": "Esporta come PDF",
+    "printView": "Stampa",
     "exportPreparing": "Preparazione dell’esportazione…",
     "versionHistory": "Cronologia delle versioni",
     "lastEdited": "Ultima modifica di {name}",
@@ -576,6 +577,17 @@
     "openInNewTab": "Apri in una nuova scheda",
     "frameTitle": "PDF: {name}",
     "noPreview": "Questo browser non può mostrare i PDF qui. Apri il file per leggerlo."
+  },
+  "pdfExport": {
+    "title": "Esporta come PDF",
+    "letterhead": "Carta intestata",
+    "none": "Nessuna",
+    "defaultMark": "{name} (predefinita)",
+    "noLetterheads": "I proprietari possono aggiungere carte intestate con logo e dati aziendali in Impostazioni → Modelli PDF.",
+    "properties": "Includi i valori della riga",
+    "hint": "Diagrammi ed equazioni vengono stampati come testo; usa Stampa per avere la pagina esattamente com’è.",
+    "download": "Scarica",
+    "preparing": "Preparazione…"
   },
   "spreadsheet": {
     "untitled": "Cartella di lavoro",

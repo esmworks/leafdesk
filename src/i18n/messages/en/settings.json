@@ -19,7 +19,8 @@
     "security": "Security",
     "audit": "Audit log",
     "site": "Site",
-    "snippets": "Snippets"
+    "snippets": "Snippets",
+    "pdf": "PDF templates"
   },
   "workspace": {
     "heading": "Workspace",
@@ -2276,6 +2277,56 @@
       "color": "Choose a color.",
       "border": "Choose a border.",
       "title": "Keep the title to 120 characters."
+    }
+  },
+  "letterheads": {
+    "heading": "Letterheads",
+    "description": "What PDF files print around a page: a logo, your company's lines at the top and lines at the foot. Pick one when exporting a PDF; the AI chat uses the default unless asked for another.",
+    "empty": "No letterheads yet.",
+    "add": "Add letterhead",
+    "edit": "Edit",
+    "remove": "Remove {name}",
+    "removeConfirm": "Remove the letterhead “{name}”? PDFs then use the default.",
+    "count": "{count} of {max} letterheads",
+    "ownersOnly": "Only owners can change letterheads.",
+    "default": "Default",
+    "makeDefault": "Make default",
+    "unsetDefault": "Stop using as default",
+    "noLines": "No lines at the top",
+    "name": "Name",
+    "namePlaceholder": "Offers",
+    "logo": "Logo",
+    "logoHelp": "PNG or JPEG, at most {size}.",
+    "uploadLogo": "Upload logo",
+    "replaceLogo": "Replace logo",
+    "removeLogo": "Remove",
+    "logoPlace": "Logo position",
+    "places": {
+      "left": "Logo on the left",
+      "center": "Logo centered",
+      "right": "Logo on the right"
+    },
+    "header": "Lines at the top",
+    "headerHelp": "Up to {max} lines, printed on every page; the first in bold.",
+    "headerPlaceholder": "Company name\nAddress\nPhone · email · tax number",
+    "footer": "Lines at the foot",
+    "footerHelp": "Up to {max} lines, such as bank details.",
+    "footerPlaceholder": "Bank · IBAN",
+    "accent": "Accent color",
+    "accentHelp": "For the rule under the top and the table headers.",
+    "noAccent": "Gray",
+    "pageNumbers": "Page numbers",
+    "errors": {
+      "name": "Give it a name of at most 60 characters.",
+      "header": "At most 6 lines at the top, of at most 140 characters each.",
+      "footer": "At most 4 lines at the foot, of at most 140 characters each.",
+      "logoPlace": "Pick where the logo goes.",
+      "accent": "Pick a color.",
+      "duplicateName": "Another letterhead has that name.",
+      "tooMany": "A workspace can have at most 20 letterheads.",
+      "logoType": "The logo must be a PNG or JPEG image.",
+      "logoSize": "The logo is too large: at most 512 KB.",
+      "notFound": "That letterhead isn't there anymore. Reload the page."
     }
   }
 }

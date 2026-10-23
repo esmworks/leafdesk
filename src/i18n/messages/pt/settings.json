@@ -19,7 +19,8 @@
     "security": "Segurança",
     "audit": "Registro de auditoria",
     "site": "Site",
-    "snippets": "Trechos"
+    "snippets": "Trechos",
+    "pdf": "Modelos de PDF"
   },
   "workspace": {
     "heading": "Espaço de trabalho",
@@ -2276,6 +2277,56 @@
       "color": "Escolha uma cor.",
       "border": "Escolha uma borda.",
       "title": "O título pode ter no máximo 120 caracteres."
+    }
+  },
+  "letterheads": {
+    "heading": "Papéis timbrados",
+    "description": "O que os arquivos PDF imprimem em volta de uma página: um logotipo, os dados da sua empresa no topo e linhas no rodapé. Escolha um ao exportar um PDF; o chat de IA usa o padrão, a menos que outro seja pedido.",
+    "empty": "Ainda não há papéis timbrados.",
+    "add": "Adicionar papel timbrado",
+    "edit": "Editar",
+    "remove": "Remover {name}",
+    "removeConfirm": "Remover o papel timbrado “{name}”? Os PDFs passam a usar o padrão.",
+    "count": "{count} de {max} papéis timbrados",
+    "ownersOnly": "Só os proprietários podem alterar os papéis timbrados.",
+    "default": "Padrão",
+    "makeDefault": "Tornar padrão",
+    "unsetDefault": "Deixar de usar como padrão",
+    "noLines": "Sem linhas no topo",
+    "name": "Nome",
+    "namePlaceholder": "Propostas",
+    "logo": "Logotipo",
+    "logoHelp": "PNG ou JPEG, no máximo {size}.",
+    "uploadLogo": "Enviar logotipo",
+    "replaceLogo": "Trocar logotipo",
+    "removeLogo": "Remover",
+    "logoPlace": "Posição do logotipo",
+    "places": {
+      "left": "Logotipo à esquerda",
+      "center": "Logotipo centralizado",
+      "right": "Logotipo à direita"
+    },
+    "header": "Linhas do topo",
+    "headerHelp": "Até {max} linhas, impressas em todas as páginas; a primeira em negrito.",
+    "headerPlaceholder": "Nome da empresa\nEndereço\nTelefone · e-mail · CNPJ",
+    "footer": "Linhas do rodapé",
+    "footerHelp": "Até {max} linhas, como os dados bancários.",
+    "footerPlaceholder": "Banco · IBAN",
+    "accent": "Cor de destaque",
+    "accentHelp": "Para o filete abaixo do topo e os cabeçalhos das tabelas.",
+    "noAccent": "Cinza",
+    "pageNumbers": "Números de página",
+    "errors": {
+      "name": "Dê um nome de no máximo 60 caracteres.",
+      "header": "No máximo 6 linhas no topo, com até 140 caracteres cada.",
+      "footer": "No máximo 4 linhas no rodapé, com até 140 caracteres cada.",
+      "logoPlace": "Escolha onde fica o logotipo.",
+      "accent": "Escolha uma cor.",
+      "duplicateName": "Outro papel timbrado já tem esse nome.",
+      "tooMany": "Um espaço de trabalho pode ter no máximo 20 papéis timbrados.",
+      "logoType": "O logotipo precisa ser uma imagem PNG ou JPEG.",
+      "logoSize": "O logotipo é grande demais: no máximo 512 KB.",
+      "notFound": "Esse papel timbrado não existe mais. Recarregue a página."
     }
   }
 }

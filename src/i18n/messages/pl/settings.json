@@ -19,7 +19,8 @@
     "security": "Bezpieczeństwo",
     "audit": "Dziennik inspekcji",
     "site": "Witryna",
-    "snippets": "Fragmenty"
+    "snippets": "Fragmenty",
+    "pdf": "Szablony PDF"
   },
   "workspace": {
     "heading": "Obszar roboczy",
@@ -2276,6 +2277,56 @@
       "color": "Wybierz kolor.",
       "border": "Wybierz obramowanie.",
       "title": "Tytuł może mieć najwyżej 120 znaków."
+    }
+  },
+  "letterheads": {
+    "heading": "Papiery firmowe",
+    "description": "To, co pliki PDF drukują wokół strony: logo, dane firmy u góry i wiersze w stopce. Wybierz jeden przy eksporcie do PDF; czat AI używa domyślnego, chyba że poprosisz o inny.",
+    "empty": "Nie ma jeszcze papierów firmowych.",
+    "add": "Dodaj papier firmowy",
+    "edit": "Edytuj",
+    "remove": "Usuń {name}",
+    "removeConfirm": "Usunąć papier firmowy „{name}”? Pliki PDF będą wtedy używać domyślnego.",
+    "count": "{count} z {max} papierów firmowych",
+    "ownersOnly": "Tylko właściciele mogą zmieniać papiery firmowe.",
+    "default": "Domyślny",
+    "makeDefault": "Ustaw jako domyślny",
+    "unsetDefault": "Przestań używać jako domyślny",
+    "noLines": "Brak wierszy u góry",
+    "name": "Nazwa",
+    "namePlaceholder": "Oferty",
+    "logo": "Logo",
+    "logoHelp": "PNG lub JPEG, najwyżej {size}.",
+    "uploadLogo": "Prześlij logo",
+    "replaceLogo": "Zmień logo",
+    "removeLogo": "Usuń",
+    "logoPlace": "Położenie logo",
+    "places": {
+      "left": "Logo po lewej",
+      "center": "Logo na środku",
+      "right": "Logo po prawej"
+    },
+    "header": "Wiersze u góry",
+    "headerHelp": "Do {max} wierszy, drukowanych na każdej stronie; pierwszy pogrubiony.",
+    "headerPlaceholder": "Nazwa firmy\nAdres\nTelefon · e-mail · NIP",
+    "footer": "Wiersze w stopce",
+    "footerHelp": "Do {max} wierszy, np. dane bankowe.",
+    "footerPlaceholder": "Bank · IBAN",
+    "accent": "Kolor akcentu",
+    "accentHelp": "Dla linii pod nagłówkiem i nagłówków tabel.",
+    "noAccent": "Szary",
+    "pageNumbers": "Numery stron",
+    "errors": {
+      "name": "Nadaj nazwę o długości najwyżej 60 znaków.",
+      "header": "Najwyżej 6 wierszy u góry, każdy do 140 znaków.",
+      "footer": "Najwyżej 4 wiersze w stopce, każdy do 140 znaków.",
+      "logoPlace": "Wybierz położenie logo.",
+      "accent": "Wybierz kolor.",
+      "duplicateName": "Inny papier firmowy ma już tę nazwę.",
+      "tooMany": "Obszar roboczy może mieć najwyżej 20 papierów firmowych.",
+      "logoType": "Logo musi być obrazem PNG lub JPEG.",
+      "logoSize": "Logo jest za duże: najwyżej 512 KB.",
+      "notFound": "Tego papieru firmowego już nie ma. Odśwież stronę."
     }
   }
 }

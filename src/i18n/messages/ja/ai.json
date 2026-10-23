@@ -292,7 +292,8 @@
       "waiting": "承認を待っています",
       "page": "ページ",
       "empty": "（空）",
-      "connectionHint": "ワークスペースの接続で送信されます：{connection} で何かが変更される場合があります"
+      "connectionHint": "ワークスペースの接続で送信されます：{connection} で何かが変更される場合があります",
+      "letterhead": "レターヘッド: {name}"
     },
     "mode": {
       "label": "変更",

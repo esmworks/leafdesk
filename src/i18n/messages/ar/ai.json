@@ -292,7 +292,8 @@
       "waiting": "في انتظار موافقتك",
       "page": "الصفحة",
       "empty": "(فارغ)",
-      "connectionHint": "يُرسل عبر اتصال مساحة العمل: قد يغيّر شيئًا في {connection}"
+      "connectionHint": "يُرسل عبر اتصال مساحة العمل: قد يغيّر شيئًا في {connection}",
+      "letterhead": "الترويسة: {name}"
     },
     "mode": {
       "label": "التغييرات",

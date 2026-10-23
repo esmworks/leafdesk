@@ -19,7 +19,8 @@
     "security": "セキュリティ",
     "audit": "監査ログ",
     "site": "サイト",
-    "snippets": "スニペット"
+    "snippets": "スニペット",
+    "pdf": "PDF テンプレート"
   },
   "workspace": {
     "heading": "ワークスペース",
@@ -2276,6 +2277,56 @@
       "color": "色を選んでください。",
       "border": "枠線を選んでください。",
       "title": "タイトルは120文字以内にしてください。"
+    }
+  },
+  "letterheads": {
+    "heading": "レターヘッド",
+    "description": "PDF ファイルがページの周りに印刷する内容です。ロゴ、上部の会社情報、下部の行。PDF を書き出すときに選べます。AI チャットは、ほかを指定されない限り既定のものを使います。",
+    "empty": "レターヘッドはまだありません。",
+    "add": "レターヘッドを追加",
+    "edit": "編集",
+    "remove": "{name} を削除",
+    "removeConfirm": "レターヘッド「{name}」を削除しますか？ PDF は既定のものを使うようになります。",
+    "count": "{count} / {max} 件のレターヘッド",
+    "ownersOnly": "レターヘッドを変更できるのはオーナーだけです。",
+    "default": "既定",
+    "makeDefault": "既定にする",
+    "unsetDefault": "既定から外す",
+    "noLines": "上部の行なし",
+    "name": "名前",
+    "namePlaceholder": "見積書",
+    "logo": "ロゴ",
+    "logoHelp": "PNG または JPEG、{size} まで。",
+    "uploadLogo": "ロゴをアップロード",
+    "replaceLogo": "ロゴを差し替え",
+    "removeLogo": "削除",
+    "logoPlace": "ロゴの位置",
+    "places": {
+      "left": "ロゴを左に",
+      "center": "ロゴを中央に",
+      "right": "ロゴを右に"
+    },
+    "header": "上部の行",
+    "headerHelp": "{max} 行まで。各ページに印刷され、1 行目は太字になります。",
+    "headerPlaceholder": "会社名\n住所\n電話 · メール · 登録番号",
+    "footer": "下部の行",
+    "footerHelp": "{max} 行まで。振込先などに。",
+    "footerPlaceholder": "銀行 · 口座番号",
+    "accent": "アクセントカラー",
+    "accentHelp": "上部の罫線と表の見出しに使います。",
+    "noAccent": "グレー",
+    "pageNumbers": "ページ番号",
+    "errors": {
+      "name": "60 文字以内の名前を付けてください。",
+      "header": "上部は 6 行まで、各行 140 文字までです。",
+      "footer": "下部は 4 行まで、各行 140 文字までです。",
+      "logoPlace": "ロゴの位置を選んでください。",
+      "accent": "色を選んでください。",
+      "duplicateName": "同じ名前のレターヘッドがすでにあります。",
+      "tooMany": "ワークスペースのレターヘッドは 20 件までです。",
+      "logoType": "ロゴは PNG または JPEG 画像にしてください。",
+      "logoSize": "ロゴが大きすぎます。512 KB までです。",
+      "notFound": "このレターヘッドはもうありません。ページを再読み込みしてください。"
     }
   }
 }

@@ -19,7 +19,8 @@
     "security": "安全",
     "audit": "审计日志",
     "site": "站点",
-    "snippets": "片段"
+    "snippets": "片段",
+    "pdf": "PDF 模板"
   },
   "workspace": {
     "heading": "工作区",
@@ -2276,6 +2277,56 @@
       "color": "请选择颜色。",
       "border": "请选择边框。",
       "title": "标题最多 120 个字符。"
+    }
+  },
+  "letterheads": {
+    "heading": "信笺",
+    "description": "PDF 文件在页面周围打印的内容：徽标、顶部的公司信息和底部的几行。导出 PDF 时选择其一；除非另有要求，AI 聊天使用默认信笺。",
+    "empty": "还没有信笺。",
+    "add": "添加信笺",
+    "edit": "编辑",
+    "remove": "删除 {name}",
+    "removeConfirm": "删除信笺“{name}”？之后 PDF 将使用默认信笺。",
+    "count": "{count} / {max} 个信笺",
+    "ownersOnly": "只有所有者可以更改信笺。",
+    "default": "默认",
+    "makeDefault": "设为默认",
+    "unsetDefault": "不再作为默认",
+    "noLines": "顶部没有文字",
+    "name": "名称",
+    "namePlaceholder": "报价单",
+    "logo": "徽标",
+    "logoHelp": "PNG 或 JPEG，最大 {size}。",
+    "uploadLogo": "上传徽标",
+    "replaceLogo": "更换徽标",
+    "removeLogo": "移除",
+    "logoPlace": "徽标位置",
+    "places": {
+      "left": "徽标居左",
+      "center": "徽标居中",
+      "right": "徽标居右"
+    },
+    "header": "顶部文字",
+    "headerHelp": "最多 {max} 行，每页都会打印；第一行加粗。",
+    "headerPlaceholder": "公司名称\n地址\n电话 · 邮箱 · 税号",
+    "footer": "底部文字",
+    "footerHelp": "最多 {max} 行，例如银行信息。",
+    "footerPlaceholder": "银行 · 账号",
+    "accent": "强调色",
+    "accentHelp": "用于顶部下方的分隔线和表格标题。",
+    "noAccent": "灰色",
+    "pageNumbers": "页码",
+    "errors": {
+      "name": "请起一个不超过 60 个字符的名称。",
+      "header": "顶部最多 6 行，每行最多 140 个字符。",
+      "footer": "底部最多 4 行，每行最多 140 个字符。",
+      "logoPlace": "请选择徽标位置。",
+      "accent": "请选择一种颜色。",
+      "duplicateName": "已有同名信笺。",
+      "tooMany": "一个工作区最多可有 20 个信笺。",
+      "logoType": "徽标必须是 PNG 或 JPEG 图片。",
+      "logoSize": "徽标太大：最大 512 KB。",
+      "notFound": "该信笺已不存在。请刷新页面。"
     }
   }
 }

@@ -100,6 +100,8 @@ export type ChatActionView = {
   content: string | null;
   /** A page's text changed: the blocks it changes, with one unchanged block around each. */
   diff?: BlockChange[];
+  /** A PDF: the letterhead it prints in, when it has one. */
+  letterhead?: string;
 };
 
 /**

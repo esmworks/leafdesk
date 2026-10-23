@@ -4,7 +4,7 @@
  * the pages under it, on top of what they have from sharing. A database whose rows are
  * `restricted` shows each row only to those a rule or the row's own sharing names, and to people
  * with full access to the database. The SQL function `page_access_level` applies both (see
- * drizzle/0118_row_access.sql); this module is the shape and the checks, shared with the client.
+ * drizzle/0116_row_access.sql); this module is the shape and the checks, shared with the client.
  */
 
 import { PropertyValueError } from "./properties";

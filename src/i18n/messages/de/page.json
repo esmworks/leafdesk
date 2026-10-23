@@ -49,6 +49,7 @@
     "exportZip": "Mit Unterseiten exportieren",
     "exportZipDatabase": "Mit Zeilenseiten exportieren",
     "exportPdf": "Als PDF exportieren",
+    "printView": "Drucken",
     "exportPreparing": "Export wird vorbereitet…",
     "versionHistory": "Versionsverlauf",
     "lastEdited": "Zuletzt bearbeitet von {name}",
@@ -576,6 +577,17 @@
     "openInNewTab": "In neuem Tab öffnen",
     "frameTitle": "PDF: {name}",
     "noPreview": "Dieser Browser kann PDFs hier nicht anzeigen. Öffne die Datei, um sie zu lesen."
+  },
+  "pdfExport": {
+    "title": "Als PDF exportieren",
+    "letterhead": "Briefkopf",
+    "none": "Ohne",
+    "defaultMark": "{name} (Standard)",
+    "noLetterheads": "Eigentümer können unter Einstellungen → PDF-Vorlagen Briefköpfe mit Logo und Firmenangaben anlegen.",
+    "properties": "Werte der Zeile einschließen",
+    "hint": "Diagramme und Formeln werden als Text gedruckt; mit Drucken erhalten Sie die Seite genau so, wie sie aussieht.",
+    "download": "Herunterladen",
+    "preparing": "Wird vorbereitet…"
   },
   "spreadsheet": {
     "untitled": "Arbeitsmappe",

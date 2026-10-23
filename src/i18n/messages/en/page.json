@@ -49,6 +49,7 @@
     "exportZip": "Export with subpages",
     "exportZipDatabase": "Export with row pages",
     "exportPdf": "Export as PDF",
+    "printView": "Print",
     "exportPreparing": "Preparing export…",
     "versionHistory": "Version history",
     "lastEdited": "Last edited by {name}",
@@ -576,6 +577,17 @@
     "openInNewTab": "Open in a new tab",
     "frameTitle": "PDF: {name}",
     "noPreview": "This browser can't show PDFs here. Open the file to read it."
+  },
+  "pdfExport": {
+    "title": "Export as PDF",
+    "letterhead": "Letterhead",
+    "none": "None",
+    "defaultMark": "{name} (default)",
+    "noLetterheads": "Owners can add letterheads with a logo and company details in Settings → PDF templates.",
+    "properties": "Include the row's values",
+    "hint": "Diagrams and equations print as text; use Print for the page exactly as it looks.",
+    "download": "Download",
+    "preparing": "Preparing…"
   },
   "spreadsheet": {
     "untitled": "Workbook",
