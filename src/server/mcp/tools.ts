@@ -75,6 +75,7 @@ import { AccessError, ConnectedAppReadOnlyError, requirePageAccess } from "@/ser
 import {
   DASHBOARD_BLOCK,
   DASHBOARD_COLUMNS,
+  DASHBOARD_LAYOUTS,
   defaultSpan,
   MAX_WIDGET_TITLE,
   MAX_WIDGETS,
@@ -3112,23 +3113,26 @@ export function createMcpServer(principal: McpPrincipal) {
           .min(1)
           .max(MAX_WIDGETS)
           .describe("The widgets, in reading order (left to right, then down)."),
+        layout: z.enum(DASHBOARD_LAYOUTS).optional().describe('"tabs": one widget at a time, each named on its tab. "grid" by default.'),
       }),
       annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
       scopeChallenge: requireWrite,
     },
-    ({ page_id, widgets }) =>
+    ({ page_id, widgets, layout = "grid" }) =>
       runTool(async () => {
         assertWrite();
         const page = await dashboardPage(page_id);
         const built: DashboardWidget[] = [];
         for (const input of widgets) built.push(await widgetFrom(input, built));
         const blockId = crypto.randomUUID();
-        await getCollab().appendBlocks(page_id, [{ id: blockId, type: DASHBOARD_BLOCK, props: { widgets: serializeDashboard(built) } }], actor, true);
-        // The grid needs the room, as when a dashboard is added in the editor.
-        await getCollab().setPageStyle(page_id, { fullWidth: true }, actor);
+        const props = { widgets: serializeDashboard(built), ...(layout === "tabs" ? { layout } : {}) };
+        await getCollab().appendBlocks(page_id, [{ id: blockId, type: DASHBOARD_BLOCK, props }], actor, true);
+        // The grid needs the room, as when a dashboard is added in the editor; tabs show one view at a time.
+        if (layout === "grid") await getCollab().setPageStyle(page_id, { fullWidth: true }, actor);
         return {
           dashboard_id: blockId,
           page_id,
+          layout,
           widgets: await describeWidgets(userId, built),
           url: pageUrl(page.workspaceId, page.id),
           snapshot: "Saved the previous version to page history before adding the dashboard.",

@@ -9,7 +9,7 @@ import {
   type PartialBlock,
 } from "@blocknote/core";
 import { createReactBlockSpec, type DefaultReactSuggestionItem } from "@blocknote/react";
-import { Database, LayoutDashboard, SquareArrowOutUpRight } from "lucide-react";
+import { Database, LayoutDashboard, PanelsTopLeft, SquareArrowOutUpRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 import { createInlineDatabaseAction } from "@/app/actions/embeds";
@@ -201,6 +201,15 @@ export function useEmbedSlashItems(
           placeEmbedBlock(editor, editor.getTextCursorPosition().block.id, { type: DASHBOARD_BLOCK, props: { widgets: "" } });
           onDashboard?.();
         },
+      },
+      {
+        title: t("slash.databaseTabs.title"),
+        subtext: t("slash.databaseTabs.subtext"),
+        aliases: t("slash.databaseTabs.aliases").split(" "),
+        group,
+        icon: <PanelsTopLeft size={18} />,
+        // A dashboard shown as tabs (lib/dashboard): its "Add tab" button picks the first database.
+        onItemClick: () => placeEmbedBlock(editor, editor.getTextCursorPosition().block.id, { type: DASHBOARD_BLOCK, props: { widgets: "", layout: "tabs" } }),
       },
     ];
   }, [editor, host, t, onCreateError, onPickDatabase, onDashboard]);

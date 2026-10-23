@@ -2,13 +2,15 @@
 
 import { createReactBlockSpec } from "@blocknote/react";
 import { useMemo } from "react";
-import { dashboardBlockConfig, parseDashboard, serializeDashboard, type DashboardWidget } from "@/lib/dashboard";
+import { dashboardBlockConfig, dashboardLayout, parseDashboard, serializeDashboard, type DashboardWidget } from "@/lib/dashboard";
 import { Dashboard } from "./dashboard-grid";
+import { DashboardTabs } from "./dashboard-tabs";
 import { useEmbedHost } from "./database-embed";
 
 /**
- * The dashboard block (see lib/dashboard): widgets in a grid (components/page/dashboard-grid),
- * each a view of a database the reader may see, kept in the block's props.
+ * The dashboard block (see lib/dashboard): widgets in a grid (components/page/dashboard-grid) or
+ * as tabs (components/page/dashboard-tabs), each a view of a database the reader may see, kept in
+ * the block's props.
  */
 export const DashboardBlock = createReactBlockSpec(dashboardBlockConfig, {
   meta: { selectable: false },
@@ -27,7 +29,9 @@ export const DashboardBlock = createReactBlockSpec(dashboardBlockConfig, {
           : undefined,
       [editable, editor, block.id],
     );
-    return <Dashboard widgets={widgets} onChange={onChange} workspaceId={host?.workspaceId ?? null} />;
+    const workspaceId = host?.workspaceId ?? null;
+    if (dashboardLayout(block.props.layout) === "tabs") return <DashboardTabs widgets={widgets} onChange={onChange} workspaceId={workspaceId} />;
+    return <Dashboard widgets={widgets} onChange={onChange} workspaceId={workspaceId} />;
   },
   toExternalHTML: () => <div />,
 });

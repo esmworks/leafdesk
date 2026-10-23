@@ -21,7 +21,7 @@ import {
 import { timestampDay } from "@/lib/time-zone";
 import { PG_MARKDOWN_IMAGE_PATTERN } from "@/lib/cover";
 import type { FormulaStyle } from "@/lib/formula";
-import { LIST_WIDGET_ROWS, type DashboardWidget, type WidgetColor, type WidgetSpan } from "@/lib/dashboard";
+import { LIST_WIDGET_ROWS, type DashboardLayout, type DashboardWidget, type WidgetColor, type WidgetSpan } from "@/lib/dashboard";
 import type { EmbedBlockType, LinkedView } from "@/lib/embed-blocks";
 import { arrangeGroups, boardGroupProperty, groupRowsBy, isGroupable, type GroupValue } from "@/lib/grouping";
 import { parsePageBackground, type PageBackground } from "@/lib/page-background";
@@ -389,7 +389,7 @@ export type PublishedBlock =
   | { kind: "pdf"; fileId: string; name: string; caption: string }
   | { kind: "spreadsheet"; fileId: string; name: string; caption: string }
   | { kind: "columns"; columns: PublishedColumn<PublishedBlock>[] }
-  | { kind: "dashboard"; widgets: PublishedWidget[] }
+  | { kind: "dashboard"; widgets: PublishedWidget[]; layout: DashboardLayout }
   | { kind: "footnotes"; notes: BodyFootnote[] }
   | {
       kind: "embed";
@@ -757,7 +757,11 @@ async function publishedBody(
           };
         }
         if (segment.kind === "dashboard") {
-          return { kind: "dashboard", widgets: await Promise.all(segment.widgets.map((w) => publishedWidget(publisher, rootId, outside, w, loads))) };
+          return {
+            kind: "dashboard",
+            layout: segment.layout,
+            widgets: await Promise.all(segment.widgets.map((w) => publishedWidget(publisher, rootId, outside, w, loads))),
+          };
         }
         if (segment.kind !== "embed") return segment;
         return { kind: "embed", type: segment.type, database: await publishedEmbed(publisher, rootId, outside, segment.databaseId, segment.view, loads) };

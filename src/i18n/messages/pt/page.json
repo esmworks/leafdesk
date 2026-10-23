@@ -334,6 +334,11 @@
         "title": "Painel",
         "subtext": "Números, gráficos e listas dos seus bancos de dados",
         "aliases": "dashboard widgets kpi metrics charts numbers painel gráficos números métricas indicadores"
+      },
+      "databaseTabs": {
+        "title": "Abas de bancos de dados",
+        "subtext": "Vários bancos de dados ou visualizações, uma aba cada",
+        "aliases": "abas guias banco de dados visualizações alternar tabs"
       }
     }
   },
@@ -676,6 +681,19 @@
     "filters": "{count, plural, one {# filtro} other {# filtros}}",
     "updatedNow": "atualizado agora mesmo",
     "updated": "atualizado {time}"
+  },
+  "databaseTabs": {
+    "title": "Abas de bancos de dados",
+    "empty": "Estas abas ainda não mostram nenhum banco de dados.",
+    "emptyEditable": "Mostre vários bancos de dados, ou visualizações de um, como abas. Cada aba é uma visualização própria.",
+    "add": "Adicionar aba",
+    "full": "As abas comportam até {max} visualizações.",
+    "menu": "Opções da aba",
+    "rename": "Renomear",
+    "remove": "Remover aba",
+    "nameLabel": "Nome da aba",
+    "namePlaceholder": "O nome do banco de dados",
+    "noAccess": "Sem acesso"
   },
   "voiceNote": {
     "record": "Gravar uma nota de voz",

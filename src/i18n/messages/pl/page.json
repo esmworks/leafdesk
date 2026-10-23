@@ -334,6 +334,11 @@
         "title": "Pulpit",
         "subtext": "Liczby, wykresy i listy z twoich baz danych",
         "aliases": "pulpit widżety wskaźniki wykresy liczby dashboard widgets kpi metrics charts numbers"
+      },
+      "databaseTabs": {
+        "title": "Karty baz danych",
+        "subtext": "Kilka baz danych lub widoków, każdy na osobnej karcie",
+        "aliases": "karty zakładki baza danych widoki przełącz tabs"
       }
     }
   },
@@ -676,6 +681,19 @@
     "filters": "{count, plural, one {# filtr} few {# filtry} many {# filtrów} other {# filtra}}",
     "updatedNow": "zaktualizowano przed chwilą",
     "updated": "zaktualizowano {time}"
+  },
+  "databaseTabs": {
+    "title": "Karty baz danych",
+    "empty": "Te karty nie pokazują jeszcze żadnej bazy danych.",
+    "emptyEditable": "Pokaż kilka baz danych albo widoków jednej bazy jako karty. Każda karta to osobny widok.",
+    "add": "Dodaj kartę",
+    "full": "Karty mieszczą do {max} widoków.",
+    "menu": "Opcje karty",
+    "rename": "Zmień nazwę",
+    "remove": "Usuń kartę",
+    "nameLabel": "Nazwa karty",
+    "namePlaceholder": "Nazwa bazy danych",
+    "noAccess": "Brak dostępu"
   },
   "voiceNote": {
     "record": "Nagraj notatkę głosową",

@@ -334,6 +334,11 @@
         "title": "Dashboard",
         "subtext": "Zahlen, Diagramme und Listen aus Ihren Datenbanken",
         "aliases": "dashboard widgets kpi metrics charts kennzahlen diagramme zahlen"
+      },
+      "databaseTabs": {
+        "title": "Datenbank-Tabs",
+        "subtext": "Mehrere Datenbanken oder Ansichten, je ein Tab",
+        "aliases": "tabs reiter datenbank ansichten wechseln"
       }
     }
   },
@@ -676,6 +681,19 @@
     "filters": "{count, plural, one {# Filter} other {# Filter}}",
     "updatedNow": "gerade aktualisiert",
     "updated": "aktualisiert {time}"
+  },
+  "databaseTabs": {
+    "title": "Datenbank-Tabs",
+    "empty": "Diese Tabs zeigen noch keine Datenbanken.",
+    "emptyEditable": "Zeige mehrere Datenbanken oder Ansichten einer Datenbank als Tabs. Jeder Tab ist eine eigene Ansicht.",
+    "add": "Tab hinzufügen",
+    "full": "Tabs fassen bis zu {max} Ansichten.",
+    "menu": "Tab-Optionen",
+    "rename": "Umbenennen",
+    "remove": "Tab entfernen",
+    "nameLabel": "Tab-Name",
+    "namePlaceholder": "Der Name der Datenbank",
+    "noAccess": "Kein Zugriff"
   },
   "voiceNote": {
     "record": "Sprachnotiz aufnehmen",

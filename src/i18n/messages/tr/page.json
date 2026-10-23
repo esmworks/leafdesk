@@ -334,6 +334,11 @@
         "title": "Gösterge paneli",
         "subtext": "Veritabanlarınızdan sayılar, grafikler ve listeler",
         "aliases": "dashboard widgets kpi metrics charts gösterge paneli gosterge panel grafik sayı sayi metrik"
+      },
+      "databaseTabs": {
+        "title": "Veritabanı sekmeleri",
+        "subtext": "Birden çok veritabanı ya da görünüm, her biri bir sekmede",
+        "aliases": "sekme sekmeler veritabanı görünüm geçiş tabs"
       }
     }
   },
@@ -676,6 +681,19 @@
     "filters": "{count, plural, one {# süzgeç} other {# süzgeç}}",
     "updatedNow": "az önce güncellendi",
     "updated": "{time} güncellendi"
+  },
+  "databaseTabs": {
+    "title": "Veritabanı sekmeleri",
+    "empty": "Bu sekmeler henüz hiçbir veritabanı göstermiyor.",
+    "emptyEditable": "Birden çok veritabanını ya da bir veritabanının görünümlerini sekmeler hâlinde gösterin. Her sekme kendi görünümüdür.",
+    "add": "Sekme ekle",
+    "full": "Sekmeler en fazla {max} görünüm alır.",
+    "menu": "Sekme seçenekleri",
+    "rename": "Yeniden adlandır",
+    "remove": "Sekmeyi kaldır",
+    "nameLabel": "Sekme adı",
+    "namePlaceholder": "Veritabanının adı",
+    "noAccess": "Erişim yok"
   },
   "voiceNote": {
     "record": "Sesli not kaydet",

@@ -16,8 +16,9 @@ import { pageLabel } from "@/lib/labels";
 import { holdsNothing, rowPageSections } from "@/lib/page-visibility";
 import { publishedHref, type PublishedLinks } from "@/lib/site";
 import { displayHost } from "@/lib/web-blocks";
-import type { PublishedBlock, PublishedChild, PublishedCrumb, PublishedEmbed, PublishedPage } from "@/server/publication";
+import type { PublishedBlock, PublishedChild, PublishedCrumb, PublishedEmbed, PublishedPage, PublishedWidget } from "@/server/publication";
 import { PublishedDatabaseView } from "./published-database";
+import { PublishedTabs } from "./published-tabs";
 import styles from "./published-body.module.css";
 
 // `cn` from components/ui is a client export; server components join classes themselves.
@@ -78,7 +79,7 @@ export async function PublishedBody({
   unavailable: string;
   print?: boolean;
 }) {
-  const [tc, tb, tw, tp, ts, td, ta] = await Promise.all([
+  const [tc, tb, tw, tp, ts, td, ta, tt] = await Promise.all([
     getTranslations("common"),
     getTranslations("page.blocks"),
     getTranslations("page.web"),
@@ -86,6 +87,7 @@ export async function PublishedBody({
     getTranslations("page.spreadsheet"),
     getTranslations("page.dashboard"),
     getTranslations("page.agentChat"),
+    getTranslations("page.databaseTabs"),
   ]);
   const untitled = tc("untitled");
   const titles = new Map(crumbs.map((c) => [c.id, c.title]));
@@ -121,18 +123,47 @@ export async function PublishedBody({
             </div>
           </div>
         );
-      case "dashboard":
+      case "dashboard": {
+        const title = (widget: PublishedWidget, database: PublishedEmbed) => widget.title || pageLabel(database.title, untitled);
+        const view = (widget: PublishedWidget, database: PublishedEmbed) => {
+          const more = widget.rowCount - database.table.rows.length;
+          return (
+            <>
+              <PublishedDatabaseView table={database.table} links={linksOf(database)} print={print} compact className="min-w-0" />
+              {database.table.layout === "list" && more > 0 && <p className="mt-1 text-xs text-fg-faint">{td("more", { count: more })}</p>}
+            </>
+          );
+        };
+        // As tabs, a visitor gets the tabs of the databases published with the page; on paper each tab
+        // is printed, one under another.
+        const tabs = block.layout === "tabs";
+        if (tabs && !print) {
+          const shown = block.widgets.flatMap((w) => (w.database ? [{ widget: w, database: w.database }] : []));
+          if (!shown.length) return null;
+          return (
+            <div key={i} className={cn("my-4", pad)}>
+              <PublishedTabs label={tt("title")} tabs={shown.map(({ widget, database }) => ({ id: widget.id, name: title(widget, database), icon: database.icon }))}>
+                {shown.map(({ widget, database }) => view(widget, database))}
+              </PublishedTabs>
+            </div>
+          );
+        }
         // Each widget is its database as its view shows it: a number, a chart's figures, a list or a table.
         return (
           <div key={i} className={cn("my-4", DASHBOARD_CLASS, pad)}>
             <div className={DASHBOARD_GRID_CLASS}>
               {block.widgets.map((widget) => {
                 const { database } = widget;
-                const more = database ? widget.rowCount - database.table.rows.length : 0;
+                if (tabs && !database) return null;
                 return (
                   <section
                     key={widget.id}
-                    className={cn("flex min-w-0 flex-col rounded-lg border p-3", widgetBoxClass(widget.color), styles.keep, WIDGET_SPAN_CLASS[widget.span])}
+                    className={cn(
+                      "flex min-w-0 flex-col rounded-lg border p-3",
+                      widgetBoxClass(widget.color),
+                      styles.keep,
+                      WIDGET_SPAN_CLASS[tabs ? 4 : widget.span],
+                    )}
                   >
                     {database ? (
                       <>
@@ -140,14 +171,13 @@ export async function PublishedBody({
                           <PageIcon icon={database.icon} kind="database" className="text-base" />
                           {href && !database.outside ? (
                             <Link href={href(database.id, database.title)} className="truncate hover:underline">
-                              {widget.title || pageLabel(database.title, untitled)}
+                              {title(widget, database)}
                             </Link>
                           ) : (
-                            <span className="truncate">{widget.title || pageLabel(database.title, untitled)}</span>
+                            <span className="truncate">{title(widget, database)}</span>
                           )}
                         </h2>
-                        <PublishedDatabaseView table={database.table} links={linksOf(database)} print={print} compact className="min-w-0" />
-                        {database.table.layout === "list" && more > 0 && <p className="mt-1 text-xs text-fg-faint">{td("more", { count: more })}</p>}
+                        {view(widget, database)}
                       </>
                     ) : (
                       <p className="text-sm text-fg-faint">{unavailable}</p>
@@ -158,6 +188,7 @@ export async function PublishedBody({
             </div>
           </div>
         );
+      }
       case "toc":
         return (
           <div key={i} className={cn("my-2", pad)}>

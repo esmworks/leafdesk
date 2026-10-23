@@ -334,6 +334,11 @@
         "title": "仪表板",
         "subtext": "来自数据库的数字、图表和列表",
         "aliases": "dashboard widgets kpi metrics charts numbers 仪表板 仪表盘 组件 指标 图表 数字"
+      },
+      "databaseTabs": {
+        "title": "数据库标签页",
+        "subtext": "多个数据库或视图，每个一个标签页",
+        "aliases": "标签页 选项卡 数据库 视图 切换 tabs"
       }
     }
   },
@@ -676,6 +681,19 @@
     "filters": "{count} 个筛选条件",
     "updatedNow": "刚刚更新",
     "updated": "更新于 {time}"
+  },
+  "databaseTabs": {
+    "title": "数据库标签页",
+    "empty": "这些标签页还没有显示任何数据库。",
+    "emptyEditable": "以标签页显示多个数据库，或同一数据库的多个视图。每个标签页都是独立的视图。",
+    "add": "添加标签页",
+    "full": "标签页最多容纳 {max} 个视图。",
+    "menu": "标签页选项",
+    "rename": "重命名",
+    "remove": "移除标签页",
+    "nameLabel": "标签页名称",
+    "namePlaceholder": "数据库的名称",
+    "noAccess": "无权访问"
   },
   "voiceNote": {
     "record": "录制语音笔记",

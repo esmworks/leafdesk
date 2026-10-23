@@ -1018,7 +1018,7 @@ describe("relations and calendars", () => {
     ];
     databases.getDatabase.mockResolvedValue({ ...database, views });
     const onForm = await callTool(writer, "update_database_view", { database_id: "db-1", view_id: "view-f", open_rows: "page" });
-    expect(onForm.text).toMatch(/open_rows only applies to table, board, calendar, gallery, list, timeline and map views/);
+    expect(onForm.text).toMatch(/open_rows only applies to table, board, calendar, gallery, list, feed, timeline and map views/);
     const r = await callTool(writer, "update_database_view", { database_id: "db-1", view_id: "view-b", open_rows: "page" });
     expect(databases.updateView).toHaveBeenLastCalledWith("user-1", "view-b", { config: { groupBy: "prop-status", openRows: "page" } });
     expect(r.data).toMatchObject({ open_rows: "page" });
@@ -3238,6 +3238,23 @@ describe("dashboards", () => {
     expect(collab.setPageStyle).toHaveBeenCalledWith("page-1", { fullWidth: true }, expect.anything());
   });
 
+  it("adds tabs: a dashboard showing one widget at a time, which leaves the page's width alone", async () => {
+    const r = await callTool(writer, "add_dashboard", {
+      page_id: "page-1",
+      layout: "tabs",
+      widgets: [{ database_id: "db-1", type: "feed", title: "News" }, { database_id: "db-1", type: "board", group_by: "Status" }],
+    });
+    expect(r.isError).toBe(false);
+    const [, blocks] = collab.appendBlocks.mock.calls[0];
+    expect(blocks[0].props.layout).toBe("tabs");
+    expect(widgetsOf(blocks[0].props).map((w: { title: string; view: { type: string } }) => [w.title, w.view.type])).toEqual([
+      ["News", "feed"],
+      ["", "board"],
+    ]);
+    expect(r.data.layout).toBe("tabs");
+    expect(collab.setPageStyle).not.toHaveBeenCalled();
+  });
+
   it("refuses forms and settings a layout doesn't have, before writing", async () => {
     const form = await callTool(writer, "add_dashboard", { page_id: "page-1", widgets: [{ database_id: "db-1", type: "form" }] });
     expect(form.isError).toBe(true);
@@ -3334,6 +3351,7 @@ describe("dashboards", () => {
     expect(r.data.dashboards).toEqual([
       {
         id: "dash-1",
+        layout: "grid",
         widgets: [
           expect.objectContaining({ id: "w1", title: "Open", width: 1, accessible: true, type: "chart", chart_type: "number" }),
           expect.objectContaining({ id: "w2", title: null, width: 2, accessible: true, group_by: "Status", chart_type: "donut" }),
