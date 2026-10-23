@@ -144,7 +144,15 @@ export type WorkspaceErrorCode =
   /** Leaving: the person's storage holds the workspace's files and there is nowhere they may move to. */
   | "storageNoDestination"
   /** Leaving: the workspace's files are being moved into the person's storage right now. */
-  | "storageMoveInProgress";
+  | "storageMoveInProgress"
+  /** Approved networks: an entry that isn't an address or range; the detail is its text. */
+  | "invalidNetwork"
+  /** Approved networks: a label longer than MAX_NETWORK_LABEL; the detail is its entry. */
+  | "invalidNetworkLabel"
+  /** Approved networks: more than MAX_ALLOWED_NETWORKS. */
+  | "tooManyNetworks"
+  /** Approved networks: the list leaves out the saving owner's own address (the detail; empty when unknown). */
+  | "ipLocksYouOut";
 
 /**
  * An expected failure the user can act on. `code` is stable and translated by the UI; the

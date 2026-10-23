@@ -66,7 +66,8 @@
   "errors": {
     "notFound": "No se encontró esa cuenta.",
     "noPassword": "Esta cuenta no tiene contraseña; inicia sesión de otra forma.",
-    "self": "Cambia tu propia contraseña en la página de tu cuenta."
+    "self": "Cambia tu propia contraseña en la página de tu cuenta.",
+    "noWorkspace": "No se encontró ese espacio de trabajo."
   },
   "descriptionFirstAccount": "Las cuentas de este servidor, sus sesiones y sus contraseñas. Ves esta página porque la tuya fue la primera cuenta de este servidor.",
   "signUp": {
@@ -81,5 +82,16 @@
     "body": "La tuya es la primera cuenta aquí, así que la Administración del servidor es tuya. Cualquiera que llegue a esta dirección aún puede registrarse; en Administración del servidor se explica cómo cerrarlo.",
     "open": "Administración del servidor",
     "dismiss": "Cerrar"
+  },
+  "networks": {
+    "heading": "Redes aprobadas",
+    "description": "Espacios de trabajo que solo se abren desde redes aprobadas. Si una lista deja fuera a los propietarios de un espacio de trabajo, vacíala aquí: se abrirá desde cualquier red hasta que sus propietarios vuelvan a definir la lista.",
+    "none": "Ningún espacio de trabajo limita el inicio de sesión a redes aprobadas",
+    "noneDescription": "Los propietarios definen las redes aprobadas en Ajustes → Seguridad de su espacio de trabajo.",
+    "count": "{count, plural, one {# red} other {# redes}}",
+    "clear": "Vaciar lista",
+    "clearTitle": "¿Vaciar las redes aprobadas de {workspace}?",
+    "clearBody": "Todos en el espacio de trabajo podrán abrirlo de nuevo desde cualquier red, y su registro de auditoría anotará que vaciaste la lista. Sus propietarios pueden volver a definirla en Ajustes → Seguridad.",
+    "clearConfirm": "Vaciar lista"
   }
 }

@@ -19,7 +19,8 @@
     "security": "보안",
     "audit": "감사 로그",
     "site": "사이트",
-    "snippets": "스니펫"
+    "snippets": "스니펫",
+    "pdf": "PDF 템플릿"
   },
   "workspace": {
     "heading": "워크스페이스",
@@ -907,6 +908,14 @@
     "detailHeading": "{month} 기능별·모델별",
     "ownAccountShare": "이 중 {cost}은(는) 워크스페이스 자체 AI 계정이 지불했습니다.",
     "empty": "이번 달에는 AI 요청이 없습니다.",
+    "peopleHeading": "{month} 사람별",
+    "peopleDescription": "워크스페이스의 AI를 누가 사용했는지 비용이 많은 순으로 보여 줍니다. 사람과 에이전트마다 가장 많이 쓴 기능도 함께 표시됩니다. 요청은 이 목록을 추가한 Leafdesk 업데이트부터 사람별로 집계되며, 그 이전 요청은 합계에만 포함됩니다.",
+    "people": {
+      "agent": "에이전트",
+      "nobody": "백그라운드 작업",
+      "unknown": "삭제된 계정",
+      "uncounted": "사람별 집계 이전"
+    },
     "cacheTitle": "프롬프트 캐시에서 읽음: {read} · 캐시에 씀: {write}",
     "columns": {
       "month": "월",
@@ -917,12 +926,16 @@
       "output": "출력",
       "cost": "비용",
       "feature": "기능",
-      "model": "모델"
+      "model": "모델",
+      "person": "사람",
+      "share": "비중",
+      "mostUsed": "주로 사용한 기능"
     },
     "groups": {
       "chat": "AI 채팅",
       "writing": "글쓰기 도우미",
       "properties": "AI 자동 채우기",
+      "formulas": "수식",
       "agents": "에이전트",
       "search": "시맨틱 검색",
       "voice": "음성 메모",
@@ -1086,7 +1099,12 @@
     "workspaceDeleted": "그 사이에 다른 사람이 이 워크스페이스를 삭제했습니다.",
     "storageNoDestination": "이 워크스페이스의 파일이 내 저장소에 있는데, 내가 나갈 때 옮길 곳이 없습니다. 기본 저장소가 있는 다른 소유자가 없고, 이 서버의 저장소도 받을 수 없습니다. 소유자에게 저장소 설정을 요청하거나 먼저 파일을 이동하세요(설정 > 저장소).",
     "storageMoveInProgress": "이 워크스페이스의 파일을 내 저장소로 이동하는 중입니다. 끝날 때까지 기다린 다음 나가세요.",
-    "invalidCalloutStyle": "콜아웃 스타일을 저장하지 못했습니다. 키, 이름, 아이콘을 확인하세요."
+    "invalidCalloutStyle": "콜아웃 스타일을 저장하지 못했습니다. 키, 이름, 아이콘을 확인하세요.",
+    "invalidNetwork": "{detail}은(는) IP 주소나 범위가 아닙니다. 203.0.113.7 또는 2001:db8::1 같은 주소나 203.0.113.0/24 같은 범위를 입력하세요.",
+    "invalidNetworkLabel": "{detail}의 레이블이 너무 깁니다. 최대 100자까지 입력할 수 있습니다.",
+    "tooManyNetworks": "워크스페이스에는 승인된 네트워크를 최대 100개까지 둘 수 있습니다.",
+    "ipLocksYouOut": "이 목록에 현재 내 주소({detail})가 없어 저장하면 워크스페이스에 들어갈 수 없게 됩니다. 먼저 내 주소나 이를 포함하는 범위를 추가하세요.",
+    "ipUnknown": "서버가 내 주소를 알 수 없어 이 목록이 나를 막지 않는지 확인할 수 없습니다. 서버가 주소를 알 수 있는 연결에서 저장하거나 목록을 비우세요."
   },
   "security": {
     "description": "로그인 방법, 이 워크스페이스에 사람을 들일 수 있는 사람, 게스트가 할 수 있는 일, 워크스페이스 밖으로 나갈 수 있는 것(내보내기, 연결된 앱), 웹에 페이지를 게시할 수 있는 사람을 정합니다. 소유자만 이 설정을 변경할 수 있습니다.",
@@ -1348,6 +1366,25 @@
       "error": "연결을 해제할 수 없습니다. 다시 시도하세요.",
       "gone": "이미 연결이 해제되었거나 더 이상 이 워크스페이스에 접근하지 않습니다.",
       "shown": "전체 {total}개 중 여기에서 가장 최근에 사용된 {shown}개를 표시합니다."
+    },
+    "allowedNetworks": {
+      "title": "승인된 네트워크",
+      "description": "사무실이나 VPN처럼 이 IP 주소와 범위에서만 워크스페이스를 열 수 있게 합니다. IPv4 또는 IPv6의 단일 주소(203.0.113.7)나 CIDR 범위(203.0.113.0/24)를 쓸 수 있습니다. 소유자와 게스트를 포함해 워크스페이스의 모든 사람에게 적용됩니다. 모든 네트워크를 허용하려면 목록을 비워 두세요.",
+      "appsNote": "MCP로 연결된 앱, REST API 토큰, SCIM 토큰에는 적용되지 않으며, 이들은 “연결된 앱 및 API 토큰” 설정을 따릅니다.",
+      "range": "주소 또는 범위",
+      "label": "레이블",
+      "rangePlaceholder": "203.0.113.0/24",
+      "labelPlaceholder": "사무실(선택 사항)",
+      "add": "네트워크 추가",
+      "addMine": "내 주소 추가({ip})",
+      "remove": "{range} 제거",
+      "removeRow": "행 제거",
+      "empty": "승인된 네트워크가 없습니다. 어느 네트워크에서나 워크스페이스를 열 수 있습니다.",
+      "addressUnknown": "서버가 내 주소를 알 수 없어 이 연결에서는 목록을 저장할 수 없습니다.",
+      "yourAddressOnList": "내 주소({ip})가 목록에 있습니다.",
+      "yourAddressMissing": "내 주소({ip})가 목록에 없습니다. 저장하면 들어갈 수 없게 되니 먼저 추가하세요.",
+      "lockoutHelp": "목록 때문에 아무도 들어갈 수 없게 되면 인스턴스 관리자가 관리 페이지에서 목록을 비울 수 있습니다.",
+      "memberView": "{count, plural, =0 {꺼짐: 어느 네트워크에서나 워크스페이스를 열 수 있습니다.} other {켜짐: 승인된 네트워크 #개에서만 워크스페이스를 열 수 있습니다.}}"
     }
   },
   "legalHolds": {
@@ -1382,6 +1419,7 @@
       "templateHeld": "법적 보존이 이 템플릿을 보존하고 있습니다. 보존이 유지되는 동안 삭제할 수 없습니다.",
       "propertyHeld": "법적 보존이 이 속성의 값을 보존하고 있습니다. 보존이 유지되는 동안 영구 삭제할 수 없습니다.",
       "commentHeld": "법적 보존이 이 댓글을 보존하고 있습니다. 보존이 유지되는 동안 삭제할 수 없습니다.",
+      "letterheadHeld": "법적 보존이 이 레터헤드를 보존하고 있습니다. 보존이 유지되는 동안 삭제할 수 없습니다.",
       "workspaceHeld": "이 워크스페이스에 법적 보존이 있습니다. 워크스페이스를 삭제하기 전에 해제하세요 (설정 > 보안).",
       "nameRequired": "보존 이름을 입력하세요.",
       "nameTooLong": "이름은 200자 이하로 입력하세요.",
@@ -1572,6 +1610,7 @@
         "restored": "{target}을(를) 휴지통에서 복원했습니다",
         "permission_changed": "{target}에 대한 {subject}의 액세스를 설정했습니다: {level}",
         "permission_removed": "{target}의 공유 대상에서 {subject}을(를) 제거했습니다",
+        "row_access_changed": "{target}의 행이 액세스를 부여하는 대상을 변경했습니다",
         "deleted": "{target}을(를) 영구 삭제했습니다",
         "published": "{target}을(를) 웹에 게시했습니다",
         "unpublished": "{target}의 게시를 취소했습니다",
@@ -1614,7 +1653,9 @@
       "workspace": {
         "renamed": "워크스페이스 이름을 {from}에서 {to}(으)로 변경했습니다",
         "settings_changed": "설정을 변경했습니다: {settings}",
-        "domains_verified": "허용된 이메일 도메인 {domains}을(를) 인증했습니다"
+        "domains_verified": "허용된 이메일 도메인 {domains}을(를) 인증했습니다",
+        "networks_changed": "{count, plural, =0 {승인된 네트워크를 제거함} other {승인된 네트워크를 {names}(으)로 설정함}}",
+        "networks_cleared": "인스턴스 관리자로서 승인된 네트워크를 비움"
       },
       "sso": {
         "configured": "{domains}의 SSO 연결({protocol})을 저장했습니다",
@@ -1775,7 +1816,10 @@
     "reviewChannel": "검토 대기: {channel}",
     "followUpTitle": "팔로업",
     "followUpDescription": "내가 시작한 팔로업의 다음 이메일이 발송 전 검사를 통과하지 못해 일시 중지될 때.",
-    "followUpChannel": "팔로업: {channel}"
+    "followUpChannel": "팔로업: {channel}",
+    "reactionTitle": "반응",
+    "reactionDescription": "누군가 내가 쓴 댓글에 반응할 때. 같은 댓글에 대한 반응은 열어 볼 때까지 하나로 모입니다.",
+    "reactionChannel": "반응: {channel}"
   },
   "site": {
     "description": "이 워크스페이스의 게시된 페이지에 읽기 쉬운 하나의 주소, 홈 페이지, 페이지 간 탐색을 제공합니다.",
@@ -2322,6 +2366,56 @@
       "color": "색상을 고르세요.",
       "border": "테두리를 고르세요.",
       "title": "제목은 120자 이하여야 합니다."
+    }
+  },
+  "letterheads": {
+    "heading": "레터헤드",
+    "description": "PDF 파일이 페이지 둘레에 인쇄하는 내용입니다. 로고, 위쪽의 회사 정보, 아래쪽 줄. PDF를 내보낼 때 하나를 고르세요. AI 채팅은 다른 것을 요청하지 않으면 기본값을 씁니다.",
+    "empty": "아직 레터헤드가 없습니다.",
+    "add": "레터헤드 추가",
+    "edit": "편집",
+    "remove": "{name} 삭제",
+    "removeConfirm": "레터헤드 “{name}”을(를) 삭제할까요? 그러면 PDF는 기본값을 씁니다.",
+    "count": "레터헤드 {count}/{max}개",
+    "ownersOnly": "소유자만 레터헤드를 바꿀 수 있습니다.",
+    "default": "기본값",
+    "makeDefault": "기본값으로 설정",
+    "unsetDefault": "기본값에서 해제",
+    "noLines": "위쪽 줄 없음",
+    "name": "이름",
+    "namePlaceholder": "견적서",
+    "logo": "로고",
+    "logoHelp": "PNG 또는 JPEG, 최대 {size}.",
+    "uploadLogo": "로고 업로드",
+    "replaceLogo": "로고 바꾸기",
+    "removeLogo": "제거",
+    "logoPlace": "로고 위치",
+    "places": {
+      "left": "로고 왼쪽",
+      "center": "로고 가운데",
+      "right": "로고 오른쪽"
+    },
+    "header": "위쪽 줄",
+    "headerHelp": "최대 {max}줄, 모든 페이지에 인쇄되며 첫 줄은 굵게 표시됩니다.",
+    "headerPlaceholder": "회사 이름\n주소\n전화 · 이메일 · 사업자등록번호",
+    "footer": "아래쪽 줄",
+    "footerHelp": "최대 {max}줄, 예를 들어 계좌 정보.",
+    "footerPlaceholder": "은행 · 계좌번호",
+    "accent": "강조 색",
+    "accentHelp": "위쪽 구분선과 표 머리글에 씁니다.",
+    "noAccent": "회색",
+    "pageNumbers": "페이지 번호",
+    "errors": {
+      "name": "60자 이내의 이름을 지어 주세요.",
+      "header": "위쪽은 최대 6줄, 줄마다 최대 140자입니다.",
+      "footer": "아래쪽은 최대 4줄, 줄마다 최대 140자입니다.",
+      "logoPlace": "로고 위치를 고르세요.",
+      "accent": "색을 고르세요.",
+      "duplicateName": "같은 이름의 레터헤드가 이미 있습니다.",
+      "tooMany": "작업 공간의 레터헤드는 최대 20개입니다.",
+      "logoType": "로고는 PNG 또는 JPEG 이미지여야 합니다.",
+      "logoSize": "로고가 너무 큽니다. 최대 512KB입니다.",
+      "notFound": "이 레터헤드는 더 이상 없습니다. 페이지를 새로 고치세요."
     }
   }
 }

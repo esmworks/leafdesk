@@ -79,6 +79,7 @@
     "createPage": "要在 {target} 下添加页面 {title} 吗？",
     "createPageTop": "要在工作区顶层添加页面 {title}（仅你可见）吗？",
     "editPage": "要更改 {title} 的正文吗？",
+    "createPdf": "生成 {target} 的 PDF {title} 并附加到那里？",
     "remember": "要记住关于你的这件事吗？",
     "forget": "要忘记这条笔记吗？",
     "connection": "要将此内容发送到 {connection}（{tool}）吗？",
@@ -88,7 +89,15 @@
     "no": "否",
     "approved": "已批准。",
     "declined": "已拒绝。",
-    "gone": "此问题已不再等待回复。"
+    "gone": "此问题已不再等待回复。",
+    "addComment": "评论 {target}？",
+    "createDatabase": "在 {target} 下添加数据库 {title}？",
+    "createDatabaseTop": "在工作区顶层添加数据库 {title}，仅你可见？",
+    "createForm": "向 {target} 添加表单 {title}？",
+    "publicForm": {
+      "signedIn": "它会有一个公开链接：任何拥有链接的人登录后即可回答。",
+      "anonymous": "它会有一个公开链接：任何拥有链接的人无需登录即可回答。"
+    }
   },
   "changed": {
     "done": "已完成：{what}",

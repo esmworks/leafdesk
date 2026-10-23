@@ -28,6 +28,7 @@ export const AUDIT_CATEGORIES = {
     "access_request.approved",
     "access_request.declined",
     "property.access_changed",
+    "page.row_access_changed",
   ],
   teamspaces: [
     "teamspace.created",
@@ -57,6 +58,8 @@ export const AUDIT_CATEGORIES = {
     "scim.token_created",
     "scim.token_revoked",
     "workspace.domains_verified",
+    "workspace.networks_changed",
+    "workspace.networks_cleared",
     "legal_hold.set",
     "legal_hold.released",
   ],

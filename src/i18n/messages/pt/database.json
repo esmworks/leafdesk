@@ -20,7 +20,8 @@
     "lastEditedBy": "Última edição por",
     "lastEditedTime": "Data da última edição",
     "formula": "Fórmula",
-    "rollup": "Agregação"
+    "rollup": "Agregação",
+    "place": "Local"
   },
   "views": {
     "table": "Tabela",
@@ -31,7 +32,8 @@
     "timeline": "Linha do tempo",
     "chart": "Gráfico",
     "dashboard": "Painel",
-    "form": "Formulário"
+    "form": "Formulário",
+    "map": "Mapa"
   },
   "dashboardView": {
     "emptyEditable": "Mostre aqui números, gráficos e listas deste banco de dados. Eles se mantêm atualizados conforme as linhas mudam.",
@@ -742,7 +744,13 @@
       "panel": "Painel lateral",
       "page": "Página inteira"
     },
-    "showOutdated": "Mostrar linhas arquivadas"
+    "showOutdated": "Mostrar linhas arquivadas",
+    "place": "Propriedade de local",
+    "needsPlace": "Os mapas posicionam as linhas por uma propriedade de local.",
+    "newPlaceProperty": "Nova propriedade de local",
+    "pinColor": "Cor do marcador",
+    "noPinColor": "Nenhuma",
+    "colorRules": "Regras de cor"
   },
   "gallery": {
     "new": "Novo",
@@ -878,6 +886,7 @@
     "cannotRestrict": "Esta propriedade não pode ter um acesso próprio.",
     "typeChangeRestricted": "“{property}” tem regras de acesso, e propriedades desse tipo não podem ter. Remova as regras dela primeiro.",
     "typeChangeNamesPeople": "As regras de acesso dão acesso às pessoas em “{property}”. Remova essas regras antes de alterar o tipo dela.",
+    "invalidRowAccess": "Não foi possível salvar estas regras de acesso às linhas. Recarregue a página e tente de novo.",
     "invalidAutomation": "Não é possível salvar esta automação. Verifique o gatilho e as ações dela.",
     "tooManyAutomations": "Um banco de dados pode ter no máximo {max} automações.",
     "invalidWebhookUrl": "“{value}” não é um endereço http(s) válido.",
@@ -892,7 +901,11 @@
     "mergeRowsInvalid": "Só é possível mesclar linhas de um mesmo banco de dados que não estejam na lixeira.",
     "mergeRowsReadOnly": "Você só pode ver {rows}. Para mesclar é preciso poder editar cada linha.",
     "mergeLinksBlocked": "{count, plural, one {Uma linha aponta} other {# linhas apontam}} para estas linhas e você não pode {count, plural, one {alterá-la} other {alterá-las}}: {rows}. Nada foi mesclado.",
-    "mergeChoiceInvalid": "O valor escolhido para “{property}” não pode ser usado. Escolha o valor de outra linha."
+    "mergeChoiceInvalid": "O valor escolhido para “{property}” não pode ser usado. Escolha o valor de outra linha.",
+    "invalidPlace": "“{property}” aceita um endereço ou coordenadas (latitude, longitude).",
+    "placeNotFound": "Nenhum local encontrado para “{value}” em “{property}”.",
+    "geocodingOff": "A busca de endereços está desativada neste servidor: informe coordenadas (latitude, longitude) em “{property}”.",
+    "geocoderBusy": "A busca de endereços está ocupada. Tente “{property}” de novo em instantes."
   },
   "formula": {
     "title": "Fórmula",
@@ -912,6 +925,20 @@
     "error": "Erro",
     "errorTitle": "Não é possível calcular esta linha: {message}",
     "or": "ou",
+    "ai": {
+      "open": "Descrever",
+      "title": "Escrever a fórmula com IA",
+      "close": "Fechar",
+      "description": "O que a fórmula deve calcular",
+      "placeholder": "Por exemplo: dias até o prazo, ou “Atrasado” depois que ele passar",
+      "writing": "Escrevendo…",
+      "write": "Escrever fórmula",
+      "again": "Escrever de novo",
+      "failed": "A fórmula da IA não funciona: {message}",
+      "use": "Usar fórmula",
+      "emptyValue": "Vazio",
+      "noRows": "Ainda não há linhas para testá-la."
+    },
     "groups": {
       "logic": "Lógica",
       "text": "Texto",
@@ -1055,6 +1082,35 @@
       "share": "Alterar o acesso ao banco de dados"
     }
   },
+  "rowAccess": {
+    "menuItem": "Acesso às linhas",
+    "menuHint": "Dê às pessoas indicadas em uma linha acesso a essa linha",
+    "title": "Acesso às linhas",
+    "description": "Dê às pessoas indicadas em uma linha acesso a essa linha e às páginas dentro dela.",
+    "loading": "Carregando…",
+    "rules": "Regras",
+    "rulesHint": "Cada regra dá às pessoas de uma propriedade de pessoa, ou a quem criou a linha, acesso às próprias linhas.",
+    "noPersonProperties": "Adicione uma propriedade de pessoa para dar acesso às pessoas que ela indica. Quem criou a linha já pode ter uma regra.",
+    "creator": "Criado por",
+    "creatorDetail": "A pessoa que criou a linha",
+    "personDetail": "Pessoas indicadas nesta propriedade, nas próprias linhas",
+    "addRule": "Adicionar uma regra",
+    "levelFor": "Acesso de {name}",
+    "removeRule": "Remover {name}",
+    "levels": {
+      "full": "Acesso total",
+      "edit": "Pode editar",
+      "comment": "Pode comentar",
+      "view": "Pode ver"
+    },
+    "restricted": "Mostrar as linhas só para as pessoas indicadas",
+    "restrictedHint": "Outras pessoas que podem abrir o banco de dados veem só as linhas que uma regra ou o compartilhamento da própria linha dá a elas.",
+    "fullAccess": {
+      "warning": "{count, plural, one {{names} tem} other {{names}{more, plural, =0 {} other { e mais #}} têm}} acesso total a este banco de dados, então {count, plural, one {essa pessoa continua} other {essas pessoas continuam}} vendo todas as linhas. Reduza o acesso delas, ou o acesso dos membros ao espaço de equipe, para restringi-las.",
+      "share": "Alterar o acesso ao banco de dados"
+    },
+    "note": "Uma regra só adiciona acesso: quando o compartilhamento dá mais a alguém, isso permanece. Mudar as pessoas de uma linha muda na hora quem pode abri-la."
+  },
   "automations": {
     "button": "Automações",
     "title": "Automações",
@@ -1148,6 +1204,7 @@
         "upsert_row": "Adicionar ou atualizar uma linha",
         "wait": "Esperar",
         "log": "Escrever no histórico de execuções",
+        "celebrate": "Celebrar com confetes",
         "approval": "Pedir aprovação",
         "start_sequence": "Iniciar um acompanhamento"
       },
@@ -1339,7 +1396,9 @@
         "sequenceGone": "O acompanhamento não existe mais",
         "noMailbox": "A pessoa da automação não tem caixa de e-mail conectada",
         "noAddress": "A linha não tem endereço de e-mail",
-        "emailOff": "O e-mail nas linhas está desativado"
+        "emailOff": "O e-mail nas linhas está desativado",
+        "noPerson": "Ignorado: nenhuma alteração de uma pessoa iniciou esta execução",
+        "tooLate": "Ignorado: passou tempo demais desde a alteração para celebrá-la"
       },
       "waitingApproval": "Aguardando aprovação",
       "approval": {
@@ -1439,7 +1498,9 @@
       "waitHelp": "Até 7 dias. A execução espera e depois segue com o próximo passo.",
       "logMessage": "Mensagem",
       "logPlaceholder": "Por exemplo: {template} importado",
-      "logHelp": "Escrita no histórico de execuções, com as variáveis preenchidas."
+      "logHelp": "Escrita no histórico de execuções, com as variáveis preenchidas.",
+      "celebrateHelp": "Confetes no app para quem fez a alteração que iniciou a execução, nas janelas que tiver abertas. Execuções que ninguém iniciou (agendamentos, datas que passam, webhooks recebidos, respostas anônimas de formulários) pulam esta etapa, assim como as que chegam aqui mais de dois minutos depois da alteração.",
+      "celebrateTry": "Experimentar"
     },
     "variables": {
       "button": "Inserir uma variável",
@@ -1522,6 +1583,10 @@
         "name": "Lembrar linhas atrasadas",
         "description": "Um dia depois que a data de uma linha não concluída passa, notificar suas pessoas.",
         "message": "{title} está atrasado."
+      },
+      "celebrateDone": {
+        "name": "Celebrar linhas concluídas",
+        "description": "Quando uma linha é marcada como concluída, confetes para quem a marcou."
       }
     }
   },
@@ -1603,5 +1668,51 @@
     "confirm": "Mesclar linhas",
     "merging": "Mesclando…",
     "bodyHeading": "Mesclado de {title}"
+  },
+  "place": {
+    "search": "Busque um endereço ou local",
+    "input": "{property}: endereço ou coordenadas",
+    "coordinatesHint": "Ou cole coordenadas, como 41.04, 29.01",
+    "searching": "Buscando…",
+    "noResults": "Nenhum local encontrado.",
+    "off": "A busca de endereços está desativada neste servidor. Cole coordenadas em vez disso.",
+    "busy": "Há buscas demais agora. Tente de novo em instantes.",
+    "failed": "A busca de endereços não respondeu. Tente de novo.",
+    "useCoordinates": "Usar {coordinates}",
+    "openMap": "Abrir no mapa",
+    "clear": "Limpar",
+    "current": "Local atual"
+  },
+  "map": {
+    "off": "Os mapas estão desativados neste servidor.",
+    "needsPlaceTitle": "Os mapas colocam as linhas onde a propriedade de local indica",
+    "needsPlaceBody": "Este banco de dados ainda não tem uma propriedade de local.",
+    "addPlaceProperty": "Adicionar a propriedade {name}",
+    "defaultPlaceProperty": "Local",
+    "noLocation": "{count, plural, one {# linha} other {# linhas}} sem {property}",
+    "noLocationTitle": "Linhas sem {property}",
+    "label": "Mapa das linhas por {property}",
+    "pin": "{title}, {place}",
+    "open": "Abrir",
+    "closeCard": "Fechar",
+    "zoomIn": "Aproximar",
+    "zoomOut": "Afastar",
+    "fit": "Mostrar todas as linhas",
+    "loading": "Carregando mapa…"
+  },
+  "colorRules": {
+    "title": "Regras de cor",
+    "description": "Colora linhas, ou um dos seus valores, quando cumprem condições.",
+    "empty": "Ainda não há regras de cor. Adicione uma para colorir as linhas que a cumprem.",
+    "ruleLabel": "Regra {color}",
+    "color": "Cor",
+    "colors": "Colora",
+    "target": "O que a regra colora",
+    "wholeRow": "A linha inteira",
+    "moveUp": "Mover para cima",
+    "moveDown": "Mover para baixo",
+    "delete": "Excluir regra",
+    "add": "Adicionar regra",
+    "firstMatchWins": "Quando várias regras correspondem, a primeira colora a linha ou o valor."
   }
 }

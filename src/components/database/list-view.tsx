@@ -1,5 +1,6 @@
 "use client";
 
+import { cellMarkClass, colorMarkClass, type RowColors } from "@/lib/color-rules";
 import { Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { cn, PageIcon } from "@/components/ui";
@@ -26,6 +27,7 @@ export function ListView({
   allRows = rows,
   api,
   readOnly,
+  colors,
 }: {
   workspaceId: string;
   view: View;
@@ -35,6 +37,8 @@ export function ListView({
   allRows?: Row[];
   api: DatabaseApi;
   readOnly?: boolean;
+  /** What the view's color rules color, by row id (see lib/color-rules). */
+  colors?: ReadonlyMap<string, RowColors>;
 }) {
   const t = useTranslations("database");
   const { editTitleOf, typed, create: createNew, stopEditing, quick } = useNewRow(api, view, properties);
@@ -65,6 +69,7 @@ export function ListView({
               onToggle={() => subItems.toggle(line.row.id)}
               onAddSubItem={canAddSubItem ? () => void addSubItem(line.row) : undefined}
               props={shownProps}
+              color={colors?.get(line.row.id)}
               readOnly={readOnly}
               editTitle={editTitleOf === line.row.id}
               typed={typed}
@@ -99,6 +104,7 @@ function ListRow({
   onToggle,
   onAddSubItem,
   props,
+  color,
   readOnly,
   editTitle,
   typed,
@@ -112,6 +118,8 @@ function ListRow({
   onToggle: () => void;
   onAddSubItem?: () => void;
   props: Property[];
+  /** What color rules color on the line: the whole line, its name or values. */
+  color?: RowColors;
   readOnly?: boolean;
   editTitle: boolean;
   /** Typed before the title editor opened. */
@@ -131,6 +139,7 @@ function ListRow({
       className={cn(
         "group relative flex min-h-9 items-center gap-2 border-b border-border px-2 hover:bg-bg-hover",
         isOpen && "bg-bg-hover",
+        color?.row && `${colorMarkClass(color.row)} mark-hover`,
       )}
       style={nested ? { paddingInlineStart: 4 + line.depth * SUB_ITEM_INDENT } : undefined}
     >
@@ -149,14 +158,14 @@ function ListRow({
         {editTitle ? (
           <CardTitleInput initial={typed || row.title} onDone={onTitle} />
         ) : (
-          <span className={cn("min-w-0 truncate text-sm font-medium", !row.title && "text-fg-faint")}>{label}</span>
+          <span className={cn("min-w-0 truncate text-sm font-medium", !row.title && "text-fg-faint", cellMarkClass(color, "title"))}>{label}</span>
         )}
         {!nested && <SubItemCount count={line.children} />}
         {shown.length > 0 && (
           // Values are chips: they shrink from the left on narrow screens so the title keeps its room.
           <div className="ms-auto flex max-w-[60%] min-w-0 shrink items-center justify-end gap-3 overflow-hidden text-xs text-fg-muted">
             {shown.map((p) => (
-              <span key={p.id} className="flex min-w-0 shrink-0 items-center last:shrink" title={p.name}>
+              <span key={p.id} className={cn("flex min-w-0 shrink-0 items-center last:shrink", cellMarkClass(color, p.id))} title={p.name}>
                 <RowValue prop={p} row={row} />
               </span>
             ))}

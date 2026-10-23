@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { cache } from "react";
 import { auth } from "@/lib/auth";
 import { isStrongSession } from "@/lib/auth-security";
+import { CLIENT_IP_HEADER } from "@/lib/client-ip";
 import { policyHoldFor, type PolicyHold } from "@/server/access";
 
 export const getSession = cache(async () => {
@@ -38,21 +39,28 @@ export async function requireUser() {
 
 type Session = NonNullable<Awaited<ReturnType<typeof getSession>>>;
 
-/** What the workspace policies look at in a session (see SessionFacts in access.ts). */
-export function sessionFacts(session: Session) {
+/** The address of the request being served (set by server.ts, see lib/client-ip); null when unknown. */
+export async function requestIp(): Promise<string | null> {
+  const ip = (await headers()).get(CLIENT_IP_HEADER);
+  return ip && ip !== "unknown" ? ip : null;
+}
+
+/** What the workspace policies look at in a session and this request (see SessionFacts in access.ts). */
+export async function sessionFacts(session: Session) {
   return {
     strong: isStrongSession(session),
     ssoProviderId: (session.session as { ssoProviderId?: string | null }).ssoProviderId ?? null,
+    ip: await requestIp(),
   };
 }
 
 /**
- * Which of the workspace's sign-in policies holds back this session: two-step verification
- * (isStrongSession) or "SSO only". Non-members get null: their own access checks turn them away,
- * without learning the workspace's policy.
+ * Which of the workspace's sign-in policies holds back this session: its approved networks (the
+ * request's address), two-step verification (isStrongSession) or "SSO only". Non-members get null:
+ * their own access checks turn them away, without learning the workspace's policy.
  */
 export async function blockedByWorkspacePolicy(session: Session, workspaceId: string): Promise<PolicyHold | null> {
-  return policyHoldFor(session.user.id, workspaceId, sessionFacts(session));
+  return policyHoldFor(session.user.id, workspaceId, await sessionFacts(session));
 }
 
 /**
@@ -70,14 +78,15 @@ export async function requireWorkspaceSession(workspaceId: string) {
 
 export const twoStepPath = (workspaceId: string) => `/two-step/${encodeURIComponent(workspaceId)}`;
 export const ssoRequiredPath = (workspaceId: string) => `/sso-required/${encodeURIComponent(workspaceId)}`;
+export const networkRequiredPath = (workspaceId: string) => `/network-required/${encodeURIComponent(workspaceId)}`;
 
 /** The 403 body of routes that answer a held-back session without a page. */
 export const policyRefusal = (hold: PolicyHold) =>
-  hold === "sso" ? "Single sign-on required" : "Two-step verification required";
+  hold === "ip" ? "Not on an approved network" : hold === "sso" ? "Single sign-on required" : "Two-step verification required";
 
-/** Where a session held back by `hold` goes to meet the policy. */
+/** Where a session held back by `hold` goes to meet the policy (or, for `ip`, to learn why it can't). */
 export const policyGatePath = (workspaceId: string, hold: PolicyHold) =>
-  hold === "sso" ? ssoRequiredPath(workspaceId) : twoStepPath(workspaceId);
+  hold === "ip" ? networkRequiredPath(workspaceId) : hold === "sso" ? ssoRequiredPath(workspaceId) : twoStepPath(workspaceId);
 
 /** For server actions: throws instead of redirecting. */
 export async function requireUserId() {

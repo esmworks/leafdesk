@@ -17,7 +17,7 @@ after you approve them over OAuth.
 </picture>
 
 - **Pages and databases**: a block editor with slash commands, and databases whose rows are pages,
-  shown as table, board, calendar, gallery, list, timeline, chart, dashboard or form, with relations,
+  shown as table, board, calendar, gallery, list, timeline, map, chart, dashboard or form, with relations,
   formulas and rollups; dashboards put numbers, charts and lists from several databases on a page.
 - **Realtime and offline**: edit together with live cursors, keep working without a connection.
 - **Built for AI assistants**: connect Claude or any other MCP client over OAuth 2.1 and approve
@@ -29,7 +29,7 @@ after you approve them over OAuth.
 - **Ready for a team**: teamspaces, page permissions, guests, single sign-on (OIDC, SAML), SCIM,
   two-step verification, passkeys and an audit log.
 - **Yours to run**: one `docker compose up` on your own server, data in your PostgreSQL,
-  AGPL-3.0 licensed, in 16 languages.
+  AGPL-3.0 licensed, in 19 languages.
 - **Or on your computer**: the desktop app for macOS, Windows and Linux runs Leafdesk on its own,
   with no server to set up, and backs your workspace up every day; it connects to a server too.
 
@@ -140,15 +140,16 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   replaces one or all in a single undo step. Anyone who can open the page can search it.
 - **Databases**: every row is also a page.
   - Properties: text, number, select, multi-select, status, date, checkbox, checklist, URL,
-    email, phone, files & media (uploads with image thumbnails), person, one- or two-way relations to other databases, formulas, rollups over
+    email, phone, files & media (uploads with image thumbnails), place (an address looked up on the
+    server, or coordinates; see Maps and places), person, one- or two-way relations to other databases, formulas, rollups over
     relations, and the read-only "created by", "created time", "last edited time" and
     "last edited by".
   - A two-way relation is one link shown on both rows: linking a row to another, or unlinking it,
     changes the other row's paired property too. That takes edit access to the row you change and
     being able to see the row you link, not edit access to the other database; making a two-way
     relation takes edit access to both databases, since it adds the paired property to the other.
-  - Views: table, board, calendar, gallery, list, timeline, chart and dashboard (widgets over the
-    database, see Dashboards), each with its own filters,
+  - Views: table, board, calendar, gallery, list, timeline, map (rows as pins at a place
+    property), chart and dashboard (widgets over the database, see Dashboards), each with its own filters,
     sorting, grouping and shown properties (one by one, or all hidden or shown at once). Filters
     combine with "and"/"or" in groups and take relative dates such as "this week". Text can be
     filtered on what it does or does not contain, numbers with =, ≠, <, ≤, > and ≥, dates on,
@@ -548,6 +549,10 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   database row whose select and multi-select properties it fills from their options. OpenAI or any
   server with an OpenAI-compatible transcription API, such as a local Whisper server (see
   [Voice notes](#voice-notes)).
+- **Meeting notes** (with speech to text): `/` *Meeting notes* in a page records a meeting of up to
+  three hours, the transcript filling in as you talk, and AI writes the summary, decisions and
+  action items, each linked to its moment in the transcript. *Meetings* in the sidebar lists them
+  (see [Meeting notes](#meeting-notes)).
 - **AI chat from Telegram** (optional, off until the server has a Telegram bot): people link their
   Telegram account in My account → *Connected apps* and ask the AI chat there, by text or voice
   message; answers cite their pages as links, and changes are asked about with buttons. Their
@@ -557,7 +562,7 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   kept as pages or database rows and marked *Use as skill*; picked with `/` in the AI chat, offered
   to MCP clients as prompts and tools, listed in the workspace's skills library and exported as
   `SKILL.md` (see [Skills](#skills)).
-- **16 interface languages**: English, Turkish, German, Spanish, French, Italian, Portuguese, Polish, Russian, Ukrainian, Arabic, Hebrew, Persian, Japanese, Korean and Chinese, chosen in My account or taken from the
+- **19 interface languages**: English, Turkish, German, Spanish, French, Italian, Portuguese, Polish, Russian, Ukrainian, Arabic, Hebrew, Persian, Japanese, Korean, Chinese, Indonesian, Thai and Vietnamese, chosen in My account or taken from the
   browser; Arabic, Hebrew and Persian lay the app out right to left (see [Languages](#languages)).
 - **Light and dark themes**: following the system, or chosen for the browser in Preferences, each
   with a high contrast option (stronger secondary text, lines and focus) that also follows the
@@ -652,7 +657,8 @@ license asks you to offer them its source: publish your changes and set `SOURCE_
 `https://git.example.com/you/leafdesk/tree/my-changes`. Only `http://` and `https://` links count.
 
 `TRUSTED_PROXIES` says how many reverse proxies stand in front of the app. Public forms, uploads
-and sign-in limit attempts per visitor address, and the audit log records it; the app reads that
+and sign-in limit attempts per visitor address, the audit log records it and a workspace's approved
+networks are checked against it (the collaboration websocket too); the app reads that
 address from `X-Forwarded-For` only as far as these proxies wrote it. Left unset, it trusts one
 proxy, and only for requests that come from a private address (loopback, a private network, as a
 proxy on the same machine or Docker network does): a visitor reaching the app's port straight from
@@ -912,20 +918,40 @@ restore checks them against the server's per-workspace storage limit.
 
 ### PDF
 
-"Export as PDF" in the page menu opens the page's print view (`/print/<page id>`) in a new tab
-and, once its images and diagrams have loaded, the browser's print dialog: choose "Save as PDF"
-as the destination. The print view draws the page the way published pages do (headings, tables,
+"Export as PDF" in the page menu makes the page's PDF file on the server and downloads it, in one
+of the workspace's letterheads (below) or none; for a row, with its values if asked. It reads the
+page as the person exporting can see it (database blocks, synced blocks, mentions, footnotes;
+images if they are PNG or JPEG uploads), is an export (off while export is off, in the audit log)
+and lays tables out with amounts on the right. Diagrams and equations print as their text. The
+server's font (Roboto) covers Latin, Greek and Cyrillic letters, not Arabic, Hebrew or CJK text.
+
+"Print" in the same menu opens the page's print view (`/print/<page id>`) in a new tab and, once
+its images and diagrams have loaded, the browser's print dialog, where "Save as PDF" keeps the page
+exactly as it looks. The print view draws the page the way published pages do (headings, tables,
 code, images, callouts, equations, Mermaid diagrams, database blocks, footnotes with their notes at
 the end) and is always light, also in dark mode. Callouts set to *Hide when printing* in their block
 menu are left out, with the blocks nested in them. Code and tables wrap to the page width, headings stay with the text after them, and
 each page starts with its title. Links to other pages print as their titles. "Include subpages"
 in the view's bar adds the pages under it (up to 100), each starting on a new sheet; database
 rows print in their database's table. It shows what the person printing can see, like the page
-itself, and follows the workspace's two-step policy.
+itself, and follows the workspace's two-step policy. The browser's own header and footer (date,
+address, page numbers) can be turned off under "More settings" in the print dialog.
 
-The browser makes the PDF, so the server needs nothing extra (no headless browser in the image).
-Its own header and footer (date, address, page numbers) can be turned off under "More settings"
-in the print dialog.
+**Letterheads.** Owners set up the workspace's letterheads in Settings → PDF templates (up to 20):
+a name, a logo (PNG or JPEG up to 512 KB, kept in the database, never a link) on the left, in the
+middle or on the right, up to six lines at the top of every page beside it (the first in bold:
+the company, then its address, phone, tax number), up to four lines at the foot (bank details),
+an accent color for the rule under the top and the table headers, and page numbers. One of them is
+the default, which "Export as PDF" picks first and the AI chat uses unless asked for another or
+none; the first one added becomes the default. Members print in them; guests make PDFs without
+one.
+
+The AI chat (and an agent in its owner's chat) can also make a page's or row's PDF (`create_pdf`),
+for a quote, a letter or a report it has just written into a page, in a letterhead it names or the
+default. The file is attached where the page's people find it: at the end of the page's text, or
+in a row's files property the chat names, and the answer links to it. It is a change too (asked
+for in *Ask* mode, refused without edit access or on a locked page). A row's values are left out
+unless asked for, since a document made for a customer rarely means to show them.
 
 ### Edit as Markdown
 
@@ -1073,6 +1099,35 @@ Apple ID) and `APPLE_TEAM_ID` secrets.
 
 To work on it, see [`desktop/`](desktop/): `pnpm install`, then `pnpm start` there (Node.js 24,
 pnpm 11).
+
+## Maps and places
+
+A *place* property holds where something is: an address, an optional name and its latitude and
+longitude. In its cell you type an address or a place's name and pick one of the suggestions, or
+paste coordinates (`41.04, 29.01`, also `geo:` links). The cell shows the name or address with a
+link that opens the spot on OpenStreetMap. Filters take "contains", "does not contain", "is empty"
+and "is not empty" on the address; sorting, CSV export and formulas read the address. MCP, the
+REST API, the AI chat, agents, automations, imports and pastes may write an address (the server
+looks it up), coordinates, or `{"lat": …, "lng": …, "address": …}`. Public forms don't ask for
+places.
+
+A *map* view puts each row with a place as a pin, fitted to the pins and following the view's
+filters; *Pin color* in the layout settings colors pins by a select or status property. Clicking a
+pin shows the row's title and shown properties, and opens the row. Rows without a place are listed
+under the map. Published pages show map views as tables.
+
+| Variable | Purpose |
+| --- | --- |
+| `GEOCODER_URL` | A Nominatim-compatible search service the server asks for addresses. Default `https://nominatim.openstreetmap.org`; empty turns address search off (places then take coordinates only). The default may not be on a private address; one you set may. Requests go from the server only, at most one a second for the whole server and 30 a minute per person, with a 5-second timeout, and answers are kept in memory for a day. |
+| `MAP_TILE_URL` | The map's image tiles, with `{z}`, `{x}` and `{y}` (and optionally `{s}`) in it. Default `https://tile.openstreetmap.org/{z}/{x}/{y}.png`; empty turns map views off ("Maps are off on this server"). Browsers load the tiles directly. |
+| `MAP_TILE_ATTRIBUTION` | The credit shown on the map, as plain text. Default `© OpenStreetMap contributors` (linked to its copyright page). Set it to what your tile provider asks for. |
+
+The OpenStreetMap defaults are free services meant for light use: their usage policies
+([search](https://operations.osmfoundation.org/policies/nominatim/),
+[tiles](https://operations.osmfoundation.org/policies/tiles/)) allow a small team's occasional
+lookups and map views, not bulk geocoding or heavy traffic. For more, run your own
+[Nominatim](https://nominatim.org) and tile server or point the variables at a commercial
+provider that offers the same interfaces. In the dark scheme the tiles are dimmed with a filter.
 
 ## Email
 
@@ -1360,6 +1415,22 @@ checked when it connects; turning the policy on closes the open connections of s
 don't pass. Apps connected over MCP and REST API tokens are not affected: they use OAuth or
 personal access tokens, not sign-in sessions, and keep working until someone revokes them under
 Connected apps.
+
+**Approved networks** (Settings → Security) limit where a workspace opens from: a list of IPv4 and
+IPv6 addresses and CIDR ranges (`203.0.113.0/24`, `2001:db8::/32`), each with an optional label, at
+most 100. While the list has entries, a browser session from any other address is sent to a page
+that says the workspace only allows sign-in from approved networks and shows the address the server
+sees; the person's other workspaces keep working. It covers the same ground as two-step
+verification (pages, exports, server actions, API routes, the live collaboration connection, which
+is checked by the address it comes from), applies to everyone in the workspace, owners and guests
+too, and comes before the other policies. A request whose address the server can't tell counts as
+outside the list. The address is the visitor's as `TRUSTED_PROXIES` reads it (see *Quick start
+(Docker)* above), so set that right before relying on this. An owner can't save a list that leaves
+out their own current address; if a list shuts everyone out anyway (a new office line, a proxy set
+up differently), an instance administrator clears it on `/admin` under *Approved networks*.
+Changes go into the audit log. Apps connected over MCP, REST API tokens and SCIM tokens are not
+held to the list: they follow the connected-apps setting. A restored backup starts without one,
+since its addresses were the old server's view. Not offered when Leafdesk runs on one computer.
 
 Someone who lost both their authenticator app and their recovery codes can be reset by whoever
 runs the server; this turns two-step verification off and signs them out (`--passkeys` also
@@ -1956,6 +2027,7 @@ as it can (Claude Sonnet and Opus 5.5 can't stop thinking, so "off" is low effor
 | --- | --- | --- |
 | AI property values | `AI_FAST_MODEL` | off |
 | Voice notes: writing up the transcript | `AI_FAST_MODEL` | low |
+| Meeting notes: summary, decisions and action items | `AI_MODEL` | low |
 | Writing assistant: improve, fix, shorten, translate, continue, summarize | `AI_MODEL` | low |
 | Writing assistant: your own instruction | `AI_MODEL` | medium |
 | Chat | `AI_MODEL` | medium |
@@ -2051,7 +2123,7 @@ chat is off while offline and when AI is off for the workspace. Every question c
 text), change a row's values or title (`update_row`), add a page under a page, or a private one
 at the top of the workspace (`create_page`), and change a page's or row's text block by block
 (`edit_page`: replace a block, insert after one, append or delete one, by the block ids it reads
-first), as you and only where you may edit (and, with
+first), and make a PDF file of a page or row (`create_pdf`, see [PDF](#pdf)), as you and only where you may edit (and, with
 *Answer from* a page, only under it). What it may do is picked under the question box and
 remembered in the browser: *Ask* (the default) shows each change in the box's place before it is
 made (what, where, a new row's values and the start of a new page's text; for a change to a page's
@@ -2275,6 +2347,41 @@ the server logs them like other AI requests (size and time, never the audio or t
 | `STT_MAX_SECONDS` | 600 | Longest recording, in seconds |
 | `STT_MAX_MB` | 25 | Largest audio file (OpenAI's own limit is 25 MB) |
 | `STT_TIMEOUT_SECONDS` | 120 | |
+
+### Meeting notes
+
+A meeting notes block records a meeting and keeps its transcript and AI summary on the page. It
+uses the speech to text set up for [voice notes](#voice-notes); without it the block's *Start
+recording* is off and says why. Add one with `/` *Meeting notes*, *Add meeting notes below* in a
+block's menu, or *New meeting note* on the *Meetings* page (a private page holding one). The block
+has a title, a date and time, and attendees chosen from the workspace's people.
+
+**Recording.** *Start recording* asks for the microphone; the recording goes on while you switch
+tabs or move to other pages of the workspace (a bar at the bottom shows the time and stops it),
+and can be paused and resumed. Every 30 seconds the piece just recorded is sent to the server and
+transcribed, and its text appears in the block's *Transcript* with its time from the start
+(`[mm:ss]`, pauses not counted). A piece that fails is sent again three times, then left in the
+transcript as a gap. One person records a meeting at a time; if their browser closes without
+stopping, after five minutes anyone who can edit the page can continue the recording or end it.
+A meeting stops by itself at three hours.
+
+**Summary.** *Stop and summarize* has AI write a summary, the decisions and the action items, the
+latter assigned (`@Name:`) when they name an attendee. Each point ends with the moment it comes from;
+clicking it opens the transcript there. The points can be edited, action items ticked, and
+*Regenerate summary* writes them again from the transcript. A long transcript is summarized in
+parts and the parts merged; each part is one AI request, and the transcription of each piece is one
+too, all counted toward `AI_RATE_LIMIT`, `AI_WORKSPACE_RATE_LIMIT` and the cost limit like other
+AI requests.
+
+**What is kept.** The transcript and the summary, in the block; the audio is never stored. The AI
+chat, MCP and the REST API read the block as Markdown (title, date, attendees, summary, decisions,
+action items and the transcript with its times), search finds words in the transcript, and the
+*Meetings* page (`/w/<workspace>/meetings`, hidden like other sidebar sections) lists the meeting
+notes on pages you can see, upcoming and past, with their length and attendees, searchable by title, attendee or the summary's
+first point.
+
+Not included: a calendar connection (meetings are not created from or added to calendars) and
+telling speakers apart in the transcript.
 
 ### Semantic search
 
@@ -3081,7 +3188,7 @@ The tools cover:
   `change_database_property_type` (converts the values in every row; `dry_run` counts what would
   convert and what would be cleared without changing anything), `delete_database_property`,
   `create_database_view` and `update_database_view` (table, board, calendar, gallery, list,
-  timeline, chart, dashboard or form, including a form's public link and a dashboard's `widgets`; a chart over a date takes `accumulate`
+  timeline, map (with `place_by`), chart, dashboard or form, including a form's public link and a dashboard's `widgets`; a chart over a date takes `accumulate`
   for running totals or a burndown, a calendar `calendar_mode` (month or week), a board `aggregate` and `aggregate_property` for what its column headers show, and table, list and timeline views take `sub_items`;
   `update_database_view` also moves a
   view's tab with `before_view_id` or `after_view_id`), and `set_property_access` (who may
@@ -3293,7 +3400,7 @@ Useful scripts:
 | `pnpm mail:test you@example.com` | Send a test email with the SMTP settings from `.env` |
 | `pnpm db:generate` | New migration from schema changes in `src/db/schema` |
 | `pnpm search:index [workspace-id…]` | Builds or catches up the semantic search index (see [Semantic search](#semantic-search)) |
-| `pnpm tsx scripts/access-e2e.ts` | End-to-end checks against the database for page permissions, guests and publishing. The other `scripts/*-e2e.ts` files do the same for their areas (teamspaces, membership policies and join requests, databases, filters, bulk actions, AI features, semantic search and AI chat (with a stand-in OpenAI-compatible server), property types, people, trash and its retention, views, formulas, charts, dashboards, forms, inline databases, publishing options, sites and duplicating published pages, presence, offline editing, uploads and who may read the files pages show, import, Notion import, export, full-text search, upserts and guarded bulk row edits, deleting stored files, the search box's filters, backlinks and unlinked mentions, synced pages, the graph, the workspace health check, skills (MCP prompts over an in-memory transport, the AI chat with a stand-in model), and `roundtrip-e2e.ts` for an export imported again); `mcp-e2e.ts` and `auth-e2e.ts` below need a running server. |
+| `pnpm tsx scripts/access-e2e.ts` | End-to-end checks against the database for page permissions, guests and publishing. The other `scripts/*-e2e.ts` files do the same for their areas (teamspaces, membership policies and join requests, databases, filters, bulk actions, AI features, semantic search and AI chat (with a stand-in OpenAI-compatible server), property types, places and map views (with a stand-in address search), people, trash and its retention, views, formulas, charts, dashboards, forms, inline databases, publishing options, sites and duplicating published pages, presence, offline editing, uploads and who may read the files pages show, import, Notion import, export, full-text search, upserts and guarded bulk row edits, deleting stored files, the search box's filters, backlinks and unlinked mentions, synced pages, the graph, the workspace health check, skills (MCP prompts over an in-memory transport, the AI chat with a stand-in model), and `roundtrip-e2e.ts` for an export imported again); `mcp-e2e.ts` and `auth-e2e.ts` below need a running server. |
 | `pnpm tsx scripts/sw-e2e.ts` | Checks the service worker (`public/sw.js`) in headless Chrome against a stand-in server: offline pages, per-user copies, the offline page (set `CHROME_PATH` outside macOS) |
 | `pnpm tsx scripts/mcp-e2e.ts` | End-to-end OAuth + MCP check against a running server (see the header of the file) |
 | `pnpm tsx scripts/api-e2e.ts` | End-to-end REST API check (tokens, every endpoint, access, rate limits, OpenAPI) against a running server |
@@ -3302,6 +3409,7 @@ Useful scripts:
 | `pnpm tsx scripts/workspace-apps-e2e.ts` | End-to-end check of the apps that reach a workspace: what its owners see, when each was last used there, and disconnecting one, against the database |
 | `pnpm tsx scripts/security-switches-e2e.ts` | End-to-end check of the workspace security switches (export, publishing, connected apps) through the settings action, the export and public routes, MCP and the REST API, against a running server |
 | `pnpm tsx scripts/auth-e2e.ts` | End-to-end password reset check against a running server with SMTP pointed at [Mailpit](https://mailpit.axllent.org) |
+| `pnpm tsx scripts/ip-allowlist-e2e.ts` | End-to-end check of a workspace's approved networks (the owner's own-address check, held-back sessions and their page, the collaboration websocket, API tokens outside the list, clearing it as an instance administrator) against a running server |
 | `pnpm tsx scripts/two-factor-e2e.ts` | End-to-end two-step verification check (sign-in challenge, recovery codes, workspace policy) against a running server |
 | `pnpm tsx scripts/admin-e2e.ts` | End-to-end instance administration check (`ADMIN_EMAILS`, `WORKSPACE_CREATION`, signing out, required password resets) against a running server with the same two settings; it signs everyone out, so only on a development or CI database |
 
@@ -3314,19 +3422,21 @@ workspace storage checks, which need an S3 server) are run by hand.
 The interface is available in English, Turkish (Türkçe), German (Deutsch), Spanish (Español),
 French (Français), Italian (Italiano), Brazilian Portuguese (Português), Polish (Polski), Russian
 (Русский), Ukrainian (Українська), Arabic (العربية), Hebrew (עברית), Persian (فارسی), Japanese
-(日本語), Korean (한국어) and Simplified Chinese (简体中文). Arabic, Hebrew and Persian run right to
+(日本語), Korean (한국어), Simplified Chinese (简体中文), Indonesian (Bahasa Indonesia), Thai (ไทย)
+and Vietnamese (Tiếng Việt). Arabic, Hebrew and Persian run right to
 left: the sidebar, menus and panels mirror, and emails follow. In every language each paragraph of
 a page follows the direction of its own text, and its alignment runs with it: a right-to-left
 paragraph starts on the right without being aligned, and the align buttons put it on the side they
 show. CSV import knows each language's title column names and yes/no words, quick add its date
 words (Japanese and Chinese ones also without spaces, "来週の金曜日に打ち合わせ"), and the AI chat's
-search leaves out its question words. Each person picks a language in My account → Language, stored per browser;
+search leaves out its question words. Thai, written without spaces, is searched by whole runs of
+text: a word inside a longer run isn't found yet. Each person picks a language in My account → Language, stored per browser;
 without a choice the app follows the browser's `Accept-Language` and falls back to English. Dates
 and numbers are formatted for the language. Emails go out in the recipient's language: the one they
 last picked in My account → Language, else their browser's when they first signed in, stored with
 their account (signing in on another device doesn't trade a picked language for that browser's). Until they have signed in once since, and for invitations to addresses without
 an account, emails use the language of whoever caused them. The editor's own menus use [BlockNote](https://www.blocknotejs.org)'s dictionaries, except
-Turkish, which is ours (`src/i18n/blocknote/tr.ts`), and Hebrew, where `src/i18n/blocknote/index.ts`
+Turkish, Indonesian and Thai, which are ours (`src/i18n/blocknote/tr.ts`, `id.ts`, `th.ts`), and Hebrew, where `src/i18n/blocknote/index.ts`
 corrects the wording for resolving a comment thread.
 
 Texts live in `src/i18n/messages/<locale>/*.json` (app, `email.json`, `templates.json` for the

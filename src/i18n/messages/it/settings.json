@@ -19,7 +19,8 @@
     "security": "Sicurezza",
     "audit": "Registro di controllo",
     "site": "Sito",
-    "snippets": "Frammenti"
+    "snippets": "Frammenti",
+    "pdf": "Modelli PDF"
   },
   "workspace": {
     "heading": "Spazio di lavoro",
@@ -907,6 +908,14 @@
     "detailHeading": "{month} per funzione e modello",
     "ownAccountShare": "{cost} sono stati pagati dall'account di IA dello spazio di lavoro.",
     "empty": "Nessuna richiesta di IA in questo mese.",
+    "peopleHeading": "{month} per persona",
+    "peopleDescription": "Chi ha usato l’IA dello spazio di lavoro, dal più costoso: persone e agenti, ciascuno con le funzioni che ha usato di più. Le richieste sono contate per persona dall’aggiornamento di Leafdesk che ha aggiunto questo elenco; quelle precedenti sono solo nei totali.",
+    "people": {
+      "agent": "Agente",
+      "nobody": "Lavoro in background",
+      "unknown": "Account rimosso",
+      "uncounted": "Prima del conteggio per persona"
+    },
     "cacheTitle": "Letti dalla cache dei prompt: {read} · Scritti nella cache: {write}",
     "columns": {
       "month": "Mese",
@@ -917,12 +926,16 @@
       "output": "Output",
       "cost": "Costo",
       "feature": "Funzione",
-      "model": "Modello"
+      "model": "Modello",
+      "person": "Persona",
+      "share": "Quota",
+      "mostUsed": "Usato soprattutto per"
     },
     "groups": {
       "chat": "Chat IA",
       "writing": "Assistente di scrittura",
       "properties": "Compilazione IA",
+      "formulas": "Formule",
       "agents": "Agenti",
       "search": "Ricerca semantica",
       "voice": "Note vocali",
@@ -1086,7 +1099,12 @@
     "workspaceDeleted": "Nel frattempo qualcuno ha eliminato questo spazio di lavoro.",
     "storageNoDestination": "I file di questo spazio di lavoro sono nella tua archiviazione e, quando lo lasci, non c’è alcun posto in cui spostarli: nessun altro proprietario ha un’archiviazione predefinita e l’archiviazione di questo server non può accoglierli. Chiedi a un proprietario di configurare un’archiviazione, oppure sposta prima i file (Impostazioni > Archiviazione).",
     "storageMoveInProgress": "I file di questo spazio di lavoro vengono spostati nella tua archiviazione. Attendi che finisca, poi lascia lo spazio di lavoro.",
-    "invalidCalloutStyle": "Non è stato possibile salvare uno stile di riquadro: controlla chiave, nome e icona."
+    "invalidCalloutStyle": "Non è stato possibile salvare uno stile di riquadro: controlla chiave, nome e icona.",
+    "invalidNetwork": "{detail} non è un indirizzo IP né un intervallo. Inserisci un indirizzo come 203.0.113.7 o 2001:db8::1, oppure un intervallo come 203.0.113.0/24.",
+    "invalidNetworkLabel": "L’etichetta di {detail} è troppo lunga: al massimo 100 caratteri.",
+    "tooManyNetworks": "Uno spazio di lavoro può avere al massimo 100 reti approvate.",
+    "ipLocksYouOut": "Questo elenco non comprende il tuo indirizzo attuale, {detail}: salvarlo ti chiuderebbe fuori dallo spazio di lavoro. Aggiungi prima il tuo indirizzo o un intervallo che lo comprenda.",
+    "ipUnknown": "Il server non vede il tuo indirizzo, quindi non può verificare che questo elenco ti lasci entrare. Salvalo da una connessione di cui il server vede l’indirizzo, oppure svuota l’elenco."
   },
   "security": {
     "description": "Decidi come accedono le persone, chi può portare persone in questo spazio di lavoro, cosa possono fare gli ospiti, cosa può uscirne (esportazioni, app connesse) e chi può pubblicare pagine sul web. Solo i proprietari possono modificare queste impostazioni.",
@@ -1348,6 +1366,25 @@
       "error": "Impossibile disconnetterla. Riprova.",
       "gone": "È già disconnessa o non raggiunge più questo spazio di lavoro.",
       "shown": "Vengono mostrate le {shown} usate qui più di recente su {total}."
+    },
+    "allowedNetworks": {
+      "title": "Reti approvate",
+      "description": "Consenti di aprire questo spazio di lavoro solo da questi indirizzi e intervalli IP, come il tuo ufficio o la tua VPN: IPv4 o IPv6, un singolo indirizzo (203.0.113.7) o un intervallo CIDR (203.0.113.0/24). Vale per tutti nello spazio di lavoro, proprietari e ospiti compresi. Lascia l’elenco vuoto per consentire qualsiasi rete.",
+      "appsNote": "Le app connesse tramite MCP, i token dell’API REST e i token SCIM non vi sono soggetti: seguono l’impostazione «App connesse e token API».",
+      "range": "Indirizzo o intervallo",
+      "label": "Etichetta",
+      "rangePlaceholder": "203.0.113.0/24",
+      "labelPlaceholder": "Ufficio (facoltativo)",
+      "add": "Aggiungi rete",
+      "addMine": "Aggiungi il mio indirizzo ({ip})",
+      "remove": "Rimuovi {range}",
+      "removeRow": "Rimuovi riga",
+      "empty": "Nessuna rete approvata: lo spazio di lavoro si apre da qualsiasi rete.",
+      "addressUnknown": "Il server non vede il tuo indirizzo, quindi da questa connessione non si può salvare un elenco.",
+      "yourAddressOnList": "Il tuo indirizzo, {ip}, è nell’elenco.",
+      "yourAddressMissing": "Il tuo indirizzo, {ip}, non è nell’elenco: salvandolo resteresti fuori, quindi aggiungilo prima.",
+      "lockoutHelp": "Se un elenco dovesse chiudere fuori tutti, un amministratore dell’istanza può svuotarlo nella pagina di amministrazione.",
+      "memberView": "{count, plural, =0 {Disattivato: lo spazio di lavoro si apre da qualsiasi rete.} one {Attivato: lo spazio di lavoro si apre solo da # rete approvata.} other {Attivato: lo spazio di lavoro si apre solo da # reti approvate.}}"
     }
   },
   "legalHolds": {
@@ -1382,6 +1419,7 @@
       "templateHeld": "Una conservazione legale protegge questo modello: non può essere eliminato finché la conservazione è attiva.",
       "propertyHeld": "Una conservazione legale protegge i valori di questa proprietà: non può essere eliminata definitivamente finché la conservazione è attiva.",
       "commentHeld": "Una conservazione legale protegge questo commento: non può essere eliminato finché la conservazione è attiva.",
+      "letterheadHeld": "Una conservazione legale protegge questa carta intestata: non può essere eliminata finché la conservazione è attiva.",
       "workspaceHeld": "Questo spazio di lavoro ha una conservazione legale. Revocala (Impostazioni > Sicurezza) prima di eliminare lo spazio di lavoro.",
       "nameRequired": "Dai un nome alla conservazione.",
       "nameTooLong": "Usa al massimo 200 caratteri per il nome.",
@@ -1572,6 +1610,7 @@
         "restored": "Ha ripristinato {target} dal cestino",
         "permission_changed": "Ha impostato l’accesso di {subject} a {target}: {level}",
         "permission_removed": "Ha rimosso {subject} dalla condivisione di {target}",
+        "row_access_changed": "Ha cambiato a chi danno accesso le righe di {target}",
         "deleted": "Ha eliminato definitivamente {target}",
         "published": "Ha pubblicato {target} sul web",
         "unpublished": "Ha annullato la pubblicazione di {target}",
@@ -1614,7 +1653,9 @@
       "workspace": {
         "renamed": "Ha rinominato lo spazio di lavoro da {from} a {to}",
         "settings_changed": "Ha modificato le impostazioni: {settings}",
-        "domains_verified": "Ha verificato il dominio email consentito {domains}"
+        "domains_verified": "Ha verificato il dominio email consentito {domains}",
+        "networks_changed": "{count, plural, =0 {Ha rimosso le reti approvate} other {Ha impostato le reti approvate: {names}}}",
+        "networks_cleared": "Ha svuotato le reti approvate come amministratore dell’istanza"
       },
       "sso": {
         "configured": "Ha salvato la connessione single sign-on ({protocol}) per {domains}",
@@ -1775,7 +1816,10 @@
     "reviewChannel": "Da rivedere: {channel}",
     "followUpTitle": "Follow-up",
     "followUpDescription": "Un follow-up che hai avviato va in pausa perché la sua prossima email non ha superato il controllo prima dell’invio.",
-    "followUpChannel": "Follow-up: {channel}"
+    "followUpChannel": "Follow-up: {channel}",
+    "reactionTitle": "Reazioni",
+    "reactionDescription": "Qualcuno reagisce a un tuo commento. Le reazioni allo stesso commento restano insieme finché non le apri.",
+    "reactionChannel": "Reazioni: {channel}"
   },
   "site": {
     "description": "Dai alle pagine pubblicate di questo spazio di lavoro un unico indirizzo leggibile, una home page e la navigazione tra di loro.",
@@ -2322,6 +2366,56 @@
       "color": "Scegli un colore.",
       "border": "Scegli un bordo.",
       "title": "Il titolo può avere al massimo 120 caratteri."
+    }
+  },
+  "letterheads": {
+    "heading": "Carte intestate",
+    "description": "Ciò che i file PDF stampano attorno a una pagina: un logo, i dati della tua azienda in alto e righe a piè di pagina. Scegline una quando esporti un PDF; la chat IA usa quella predefinita salvo richiesta diversa.",
+    "empty": "Ancora nessuna carta intestata.",
+    "add": "Aggiungi carta intestata",
+    "edit": "Modifica",
+    "remove": "Rimuovi {name}",
+    "removeConfirm": "Rimuovere la carta intestata «{name}»? I PDF useranno quella predefinita.",
+    "count": "{count} di {max} carte intestate",
+    "ownersOnly": "Solo i proprietari possono modificare le carte intestate.",
+    "default": "Predefinita",
+    "makeDefault": "Imposta come predefinita",
+    "unsetDefault": "Non usare più come predefinita",
+    "noLines": "Nessuna riga in alto",
+    "name": "Nome",
+    "namePlaceholder": "Offerte",
+    "logo": "Logo",
+    "logoHelp": "PNG o JPEG, al massimo {size}.",
+    "uploadLogo": "Carica logo",
+    "replaceLogo": "Sostituisci logo",
+    "removeLogo": "Rimuovi",
+    "logoPlace": "Posizione del logo",
+    "places": {
+      "left": "Logo a sinistra",
+      "center": "Logo al centro",
+      "right": "Logo a destra"
+    },
+    "header": "Righe in alto",
+    "headerHelp": "Fino a {max} righe, stampate su ogni pagina; la prima in grassetto.",
+    "headerPlaceholder": "Nome dell’azienda\nIndirizzo\nTelefono · e-mail · partita IVA",
+    "footer": "Righe a piè di pagina",
+    "footerHelp": "Fino a {max} righe, come le coordinate bancarie.",
+    "footerPlaceholder": "Banca · IBAN",
+    "accent": "Colore di accento",
+    "accentHelp": "Per la linea sotto l’intestazione e le intestazioni delle tabelle.",
+    "noAccent": "Grigio",
+    "pageNumbers": "Numeri di pagina",
+    "errors": {
+      "name": "Dai un nome di al massimo 60 caratteri.",
+      "header": "Al massimo 6 righe in alto, di al massimo 140 caratteri ciascuna.",
+      "footer": "Al massimo 4 righe a piè di pagina, di al massimo 140 caratteri ciascuna.",
+      "logoPlace": "Scegli dove va il logo.",
+      "accent": "Scegli un colore.",
+      "duplicateName": "Un’altra carta intestata ha questo nome.",
+      "tooMany": "Uno spazio di lavoro può avere al massimo 20 carte intestate.",
+      "logoType": "Il logo deve essere un’immagine PNG o JPEG.",
+      "logoSize": "Il logo è troppo grande: al massimo 512 KB.",
+      "notFound": "Questa carta intestata non esiste più. Ricarica la pagina."
     }
   }
 }

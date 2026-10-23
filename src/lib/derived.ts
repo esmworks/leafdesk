@@ -1,4 +1,5 @@
 import type { PropertyOptions, PropertyType } from "@/db/schema/app";
+import { placeText } from "./place";
 import {
   asFieldValue,
   checkFormula,
@@ -75,7 +76,7 @@ export function rollupFormat(fn: RollupFn | undefined): RollupFormat {
 }
 
 /** How a formula sees a property's values. */
-function baseType(prop: { type: PropertyType; options: PropertyOptions }): FormulaType | null {
+export function baseType(prop: { type: PropertyType; options: PropertyOptions }): FormulaType | null {
   if (prop.type === "rollup") {
     const format = rollupFormat(prop.options.rollup?.function);
     return format === "list" ? "list" : format === "date" ? "date" : "number";
@@ -85,6 +86,7 @@ function baseType(prop: { type: PropertyType; options: PropertyOptions }): Formu
     case "url":
     case "email":
     case "phone":
+    case "place":
     case "select":
     case "status":
       return "text";
@@ -453,6 +455,9 @@ function readValue(prop: Prop, value: unknown, ctx: FormulaContext, names: () =>
     case "email":
     case "phone":
       return value === null || value === undefined ? "" : String(value);
+    case "place":
+      // Its address, like filters and sorts read it.
+      return placeText(value);
     case "number":
       return typeof value === "number" && Number.isFinite(value) ? value : null;
     case "checkbox":

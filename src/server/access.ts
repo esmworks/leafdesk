@@ -12,6 +12,7 @@ import {
   type WorkspaceRole,
 } from "@/db/schema";
 import { env } from "@/lib/env";
+import { ipAllowed, storedAllowedNetworks, type AllowedNetwork } from "@/lib/ip-allowlist";
 import { notAgentUser } from "@/server/agents/users";
 import { INSTANCE_SSO_PROVIDER_ID, workspaceProviderId } from "@/lib/sso-config";
 import { connectedAppCall, connectedAppRefusal, connectedAppsMode, type ConnectedAppCall, type ConnectedAppsMode } from "@/server/connected-app";
@@ -26,11 +27,14 @@ import { actingFor } from "@/server/acting-for";
  * The rule itself is the SQL function `page_access_level` (drizzle/0003_page_permission.sql):
  * workspace members get full access unless a page permission on the page or its nearest ancestor
  * says otherwise, and anyone in the workspace can be given access to a page and its subpages.
+ * A database's row access (server/row-access.ts) adds what its rows give the people they name, and
+ * may keep its rows from everyone else (last redefined in drizzle/0118_row_access.sql).
  *
- * A workspace's sign-in policies (require two-step verification, "SSO only") also hold back the
- * browser sessions that don't meet them: `getMembership` and `resolvePageAccess` (and everything
- * built on them, so server actions and API routes alike) throw a WorkspacePolicyError
- * (TwoFactorRequiredError, SsoRequiredError) for the signed-in user of such a request. The collab
+ * A workspace's sign-in policies (approved networks, require two-step verification, "SSO only")
+ * also hold back the browser sessions that don't meet them: `getMembership` and
+ * `resolvePageAccess` (and everything built on them, so server actions and API routes alike) throw
+ * a WorkspacePolicyError (IpNotAllowedError, TwoFactorRequiredError, SsoRequiredError) for the
+ * signed-in user of such a request. The collab
  * server checks its connections itself (collab/authorize.ts); MCP's OAuth tokens, the REST API's
  * personal access tokens (/api/v1) and SCIM tokens are outside the policies: they are credentials
  * handed to a program, revoked in Settings, not sign-ins. Lists filtered only in SQL
@@ -49,14 +53,15 @@ export class AccessError extends Error {
 }
 
 /**
- * Which of a workspace's sign-in policies holds a session back: "require two-step verification"
- * (`two-factor`) or the "SSO only" login method (`sso`).
+ * Which of a workspace's sign-in policies holds a session back: its approved networks (`ip`),
+ * "require two-step verification" (`two-factor`) or the "SSO only" login method (`sso`).
  */
-export type PolicyHold = "two-factor" | "sso";
+export type PolicyHold = "ip" | "two-factor" | "sso";
 
 /**
  * The workspace's sign-in policy holds back the session serving this request. Pages send it to the
- * page where it can meet the policy (`/two-step/<id>`, `/sso-required/<id>`, see policyGatePath).
+ * page where it can meet the policy (`/two-step/<id>`, `/sso-required/<id>`, `/network-required/<id>`,
+ * see policyGatePath).
  */
 export class WorkspacePolicyError extends AccessError {
   constructor(
@@ -86,6 +91,17 @@ export class SsoRequiredError extends WorkspacePolicyError {
 }
 
 /**
+ * The workspace has approved networks and the request doesn't come from one of them (or its address
+ * isn't known). Nothing the person can do in the app meets it: they have to come from another network.
+ */
+export class IpNotAllowedError extends WorkspacePolicyError {
+  constructor(workspaceId: string) {
+    super(workspaceId, "ip", "This workspace only allows sign-in from approved networks");
+    this.name = "IpNotAllowedError";
+  }
+}
+
+/**
  * The workspace lets connected apps (MCP clients, REST API tokens) only read, and this request of
  * one tried to change something. An AccessError, so whatever turns access errors away turns it away.
  */
@@ -97,6 +113,7 @@ export class ConnectedAppReadOnlyError extends AccessError {
 }
 
 export function policyError(workspaceId: string, hold: PolicyHold): WorkspacePolicyError {
+  if (hold === "ip") return new IpNotAllowedError(workspaceId);
   return hold === "sso" ? new SsoRequiredError(workspaceId) : new TwoFactorRequiredError(workspaceId);
 }
 
@@ -106,6 +123,12 @@ export type SessionFacts = {
   strong: boolean;
   /** The SSO provider the session was signed in through, if any (`session.sso_provider_id`). */
   ssoProviderId: string | null;
+  /**
+   * The address the request or connection comes from (CLIENT_IP_HEADER, see lib/client-ip), not
+   * the session's: a session signed in at the office and carried home is held back at home.
+   * Null when it isn't known, which no approved network matches.
+   */
+  ip: string | null;
 };
 
 /** A workspace's policy settings and whether its SSO is usable: what `policyHold` decides on. */
@@ -117,16 +140,21 @@ export type PolicyState = {
   hasConnection: boolean;
   /** The instance-wide provider is configured (OIDC_ISSUER…). */
   instanceSso: boolean;
+  /** The approved networks; empty: from anywhere. */
+  allowedNetworks: AllowedNetwork[];
 };
 
 /**
- * Pure: whether the policies hold back a session. Two-step applies to everyone in the workspace,
- * guests too. "SSO only" applies to members: owners keep their other ways in (a broken identity
+ * Pure: whether the policies hold back a session. Approved networks come first, for everyone in the
+ * workspace, owners and guests too (owners can't save a list that leaves out their own address, and
+ * instance administrators can clear it): no other gate helps someone on another network. Two-step
+ * applies to everyone in the workspace, guests too. "SSO only" applies to members: owners keep their other ways in (a broken identity
  * provider must not lock the workspace), and guests come from outside the organization. A session
  * counts when it came through the workspace's own connection or the instance provider. While
  * neither exists the policy has nothing to send people to, so it holds nobody back.
  */
 export function policyHold(state: PolicyState, facts: SessionFacts, workspaceId: string): PolicyHold | null {
+  if (!ipAllowed(facts.ip, state.allowedNetworks)) return "ip";
   if (state.requireTwoFactor && !facts.strong) return "two-factor";
   if (state.loginMethod !== "sso" || state.role !== "member") return null;
   if (!state.hasConnection && !state.instanceSso) return null;
@@ -146,6 +174,7 @@ export async function policyStateOf(userId: string, workspaceId: string): Promis
       hasConnection: sql<boolean>`exists (
         select 1 from ${workspaceSso} c join ${ssoProvider} p on p.provider_id = c.provider_id
         where c.workspace_id = ${workspace.id} and coalesce(p.domain_verified, false))`,
+      allowedNetworks: workspace.allowedNetworks,
     })
     .from(workspaceMember)
     .innerJoin(workspace, eq(workspace.id, workspaceMember.workspaceId))
@@ -158,6 +187,8 @@ export async function policyStateOf(userId: string, workspaceId: string): Promis
     loginMethod: row.loginMethod === "sso" ? "sso" : "any",
     hasConnection: row.hasConnection === true,
     instanceSso: env.instanceOidc !== null,
+    // On one computer (the desktop app) everyone comes from this computer.
+    allowedNetworks: env.localMode ? [] : storedAllowedNetworks(row.allowedNetworks),
   };
 }
 
@@ -471,7 +502,8 @@ export function pageVisibleTo(userId: string, alias?: string): SQL {
  * pageVisibleTo for the pages under `parentId` (a database's rows), worked out once for the parent
  * instead of once per page where that gives the same answer: page_access_level reads a page's
  * access from the entries on it and above it, so a page with no entries of its own, in its
- * parent's workspace and teamspace, has its parent's access. The walk up from the page goes one
+ * parent's workspace and teamspace, has its parent's access. Not the rows of a database with row
+ * access: what each row gives depends on its values. The walk up from the page goes one
  * step further than from the parent and stops after 64 (page_access_level), so that holds while the
  * parent's walk reaches the top within 63. Every other page is asked on its own.
  */
@@ -494,6 +526,7 @@ export function childVisibleTo(userId: string, parentId: string, alias?: string)
       )
       and not exists (select 1 from page_permission pp where pp.page_id = ${child})
       and not exists (select 1 from page_group_permission gp where gp.page_id = ${child})
+      and not exists (select 1 from database_row_access ra where ra.database_id = ${parentId})
     then (select ${accessRank(userId, sql`${parentId}`)})
     else ${accessRank(userId, child)}
   end) > 0`;
@@ -504,8 +537,8 @@ export function childVisibleTo(userId: string, parentId: string, alias?: string)
  * agent, through a teamspace, a group or the pages' own sharing) may edit: what keeps a page from
  * being an agent's skill (server/agents/skills.ts). page_access_level decides, asked only of who
  * could reach edit at all (page_access_level's sources): people and groups given edit or full on
- * the page or above it, and everyone in the workspace when the page is in a teamspace or
- * "everyone" may edit it. A private page shared with no one costs no access check.
+ * the page or above it, people a row on the way up gives edit or full (row access), and everyone
+ * in the workspace when the page is in a teamspace or "everyone" may edit it. A private page shared with no one costs no access check.
  */
 export async function pagesOthersMayEdit(workspaceId: string, pageIds: string[]): Promise<Set<string>> {
   if (!pageIds.length) return new Set();
@@ -527,6 +560,18 @@ export async function pagesOthersMayEdit(workspaceId: string, pageIds: string[])
       select c.page_id, gm.user_id from chain c
         join page_group_permission gp on gp.page_id = c.id and gp.level in ${editing}
         join member_group_member gm on gm.group_id = gp.group_id
+      union
+      select c.page_id, named.user_id from chain c
+        join database_row_access ra on ra.database_id = c.parent_id
+        join page r on r.id = c.id
+        cross join lateral jsonb_array_elements(ra.rules) rule
+        cross join lateral (
+          select r.created_by as user_id where rule->>'kind' = 'creator'
+          union all
+          select jsonb_array_elements_text(r.properties -> (rule->>'propertyId'))
+          where rule->>'kind' = 'person' and jsonb_typeof(r.properties -> (rule->>'propertyId')) = 'array'
+        ) named
+      where rule->>'level' in ${editing} and named.user_id is not null
       union
       select t.id, wm.user_id from page t
         join ${workspaceMember} wm on wm.workspace_id = ${workspaceId}

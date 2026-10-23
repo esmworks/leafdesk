@@ -19,7 +19,8 @@
     "security": "Sicherheit",
     "audit": "Audit-Log",
     "site": "Website",
-    "snippets": "Textbausteine"
+    "snippets": "Textbausteine",
+    "pdf": "PDF-Vorlagen"
   },
   "workspace": {
     "heading": "Workspace",
@@ -907,6 +908,14 @@
     "detailHeading": "{month} nach Funktion und Modell",
     "ownAccountShare": "Davon hat das eigene KI-Konto des Workspace {cost} bezahlt.",
     "empty": "Keine KI-Anfragen in diesem Monat.",
+    "peopleHeading": "{month} nach Person",
+    "peopleDescription": "Wer die KI des Arbeitsbereichs genutzt hat, die teuersten zuerst: Personen und Agenten, jeweils mit den Funktionen, die sie am meisten genutzt haben. Anfragen werden ab dem Leafdesk-Update, das diese Liste gebracht hat, pro Person gezählt; frühere stehen nur in den Summen.",
+    "people": {
+      "agent": "Agent",
+      "nobody": "Hintergrundarbeit",
+      "unknown": "Entferntes Konto",
+      "uncounted": "Vor der Zählung nach Person"
+    },
     "cacheTitle": "Aus dem Prompt-Cache gelesen: {read} · In ihn geschrieben: {write}",
     "columns": {
       "month": "Monat",
@@ -917,12 +926,16 @@
       "output": "Ausgabe",
       "cost": "Kosten",
       "feature": "Funktion",
-      "model": "Modell"
+      "model": "Modell",
+      "person": "Person",
+      "share": "Anteil",
+      "mostUsed": "Am meisten genutzt für"
     },
     "groups": {
       "chat": "KI-Chat",
       "writing": "Schreibassistent",
       "properties": "KI-Autofill",
+      "formulas": "Formeln",
       "agents": "Agenten",
       "search": "Semantische Suche",
       "voice": "Sprachnotizen",
@@ -1086,7 +1099,12 @@
     "workspaceDeleted": "Jemand hat diesen Workspace inzwischen gelöscht.",
     "storageNoDestination": "Die Dateien dieses Workspaces liegen in deinem Speicher, und wenn du ihn verlässt, können sie nirgendwohin verschoben werden: Kein anderer Inhaber hat einen Standardspeicher, und der Speicher dieses Servers kann sie nicht aufnehmen. Bitte einen Inhaber, Speicher einzurichten, oder verschiebe die Dateien zuerst (Einstellungen > Speicher).",
     "storageMoveInProgress": "Die Dateien dieses Workspaces werden gerade in deinen Speicher verschoben. Warte, bis das abgeschlossen ist, und verlasse den Workspace dann.",
-    "invalidCalloutStyle": "Ein Hinweisstil konnte nicht gespeichert werden: Prüfe Schlüssel, Name und Symbol."
+    "invalidCalloutStyle": "Ein Hinweisstil konnte nicht gespeichert werden: Prüfe Schlüssel, Name und Symbol.",
+    "invalidNetwork": "{detail} ist keine IP-Adresse und kein Adressbereich. Gib eine Adresse wie 203.0.113.7 oder 2001:db8::1 ein oder einen Bereich wie 203.0.113.0/24.",
+    "invalidNetworkLabel": "Die Bezeichnung von {detail} ist zu lang: höchstens 100 Zeichen.",
+    "tooManyNetworks": "Ein Workspace kann höchstens 100 freigegebene Netzwerke haben.",
+    "ipLocksYouOut": "Deine aktuelle Adresse, {detail}, steht nicht auf dieser Liste. Gespeichert würde sie dich aus dem Workspace aussperren. Füge zuerst deine Adresse oder einen Bereich hinzu, der sie abdeckt.",
+    "ipUnknown": "Der Server kennt deine Adresse nicht und kann daher nicht prüfen, ob du mit dieser Liste Zugang behältst. Speichere sie über eine Verbindung, deren Adresse der Server sieht, oder leere die Liste."
   },
   "security": {
     "description": "Lege fest, wie sich Personen anmelden, wer andere in diesen Workspace holen darf, was Gäste tun können, was ihn verlassen darf (Exporte, verbundene Apps) und wer Seiten im Web veröffentlichen darf. Nur Inhaber können diese Einstellungen ändern.",
@@ -1348,6 +1366,25 @@
       "error": "Konnte nicht getrennt werden. Versuch es noch einmal.",
       "gone": "Sie ist schon getrennt oder erreicht diesen Workspace nicht mehr.",
       "shown": "Die {shown} hier zuletzt genutzten von {total} werden angezeigt."
+    },
+    "allowedNetworks": {
+      "title": "Freigegebene Netzwerke",
+      "description": "Der Workspace lässt sich nur von diesen IP-Adressen und -Bereichen aus öffnen, etwa aus deinem Büro oder VPN: IPv4 oder IPv6, eine einzelne Adresse (203.0.113.7) oder ein CIDR-Bereich (203.0.113.0/24). Das gilt für alle im Workspace, auch für Eigentümer und Gäste. Lass die Liste leer, um jedes Netzwerk zuzulassen.",
+      "appsNote": "Über MCP verbundene Apps, REST-API-Token und SCIM-Token sind davon ausgenommen: Für sie gilt die Einstellung „Verbundene Apps und API-Token“.",
+      "range": "Adresse oder Bereich",
+      "label": "Bezeichnung",
+      "rangePlaceholder": "203.0.113.0/24",
+      "labelPlaceholder": "Büro (optional)",
+      "add": "Netzwerk hinzufügen",
+      "addMine": "Meine Adresse hinzufügen ({ip})",
+      "remove": "{range} entfernen",
+      "removeRow": "Zeile entfernen",
+      "empty": "Keine freigegebenen Netzwerke: Der Workspace lässt sich aus jedem Netzwerk öffnen.",
+      "addressUnknown": "Der Server kennt deine Adresse nicht, daher lässt sich über diese Verbindung keine Liste speichern.",
+      "yourAddressOnList": "Deine Adresse, {ip}, steht auf der Liste.",
+      "yourAddressMissing": "Deine Adresse, {ip}, steht nicht auf der Liste: Gespeichert würdest du ausgesperrt, füge sie also zuerst hinzu.",
+      "lockoutHelp": "Sperrt eine Liste einmal alle aus, kann ein Instanz-Administrator sie auf der Admin-Seite leeren.",
+      "memberView": "{count, plural, =0 {Aus: Der Workspace lässt sich aus jedem Netzwerk öffnen.} one {An: Der Workspace lässt sich nur aus # freigegebenen Netzwerk öffnen.} other {An: Der Workspace lässt sich nur aus # freigegebenen Netzwerken öffnen.}}"
     }
   },
   "legalHolds": {
@@ -1382,6 +1419,7 @@
       "templateHeld": "Eine rechtliche Aufbewahrung schützt diese Vorlage: Sie kann nicht gelöscht werden, solange die Aufbewahrung besteht.",
       "propertyHeld": "Eine rechtliche Aufbewahrung schützt die Werte dieser Eigenschaft: Sie kann nicht endgültig gelöscht werden, solange die Aufbewahrung besteht.",
       "commentHeld": "Eine rechtliche Aufbewahrung schützt diesen Kommentar: Er kann nicht gelöscht werden, solange die Aufbewahrung besteht.",
+      "letterheadHeld": "Eine rechtliche Aufbewahrung schützt diesen Briefkopf: Er kann nicht gelöscht werden, solange die Aufbewahrung besteht.",
       "workspaceHeld": "Für diesen Workspace besteht eine rechtliche Aufbewahrung. Heben Sie sie auf (Einstellungen > Sicherheit), bevor Sie den Workspace löschen.",
       "nameRequired": "Geben Sie der Aufbewahrung einen Namen.",
       "nameTooLong": "Der Name darf höchstens 200 Zeichen lang sein.",
@@ -1572,6 +1610,7 @@
         "restored": "Hat {target} aus dem Papierkorb wiederhergestellt",
         "permission_changed": "Hat den Zugriff von {subject} auf {target} festgelegt: {level}",
         "permission_removed": "Hat {subject} aus der Freigabe von {target} entfernt",
+        "row_access_changed": "Hat geändert, wem die Zeilen von {target} Zugriff geben",
         "deleted": "Hat {target} endgültig gelöscht",
         "published": "Hat {target} im Web veröffentlicht",
         "unpublished": "Hat die Veröffentlichung von {target} beendet",
@@ -1614,7 +1653,9 @@
       "workspace": {
         "renamed": "Hat den Workspace von {from} in {to} umbenannt",
         "settings_changed": "Hat Einstellungen geändert: {settings}",
-        "domains_verified": "Hat die zugelassene E-Mail-Domain {domains} bestätigt"
+        "domains_verified": "Hat die zugelassene E-Mail-Domain {domains} bestätigt",
+        "networks_changed": "{count, plural, =0 {Hat die freigegebenen Netzwerke entfernt} other {Hat die freigegebenen Netzwerke festgelegt: {names}}}",
+        "networks_cleared": "Hat als Instanz-Administrator die freigegebenen Netzwerke geleert"
       },
       "sso": {
         "configured": "Hat die Single-Sign-on-Verbindung ({protocol}) für {domains} gespeichert",
@@ -1775,7 +1816,10 @@
     "reviewChannel": "Zu prüfen: {channel}",
     "followUpTitle": "Follow-ups",
     "followUpDescription": "Ein Follow-up, das du gestartet hast, pausiert, weil seine nächste E-Mail die Prüfung vor dem Senden nicht bestanden hat.",
-    "followUpChannel": "Follow-ups: {channel}"
+    "followUpChannel": "Follow-ups: {channel}",
+    "reactionTitle": "Reaktionen",
+    "reactionDescription": "Jemand reagiert auf einen Kommentar von dir. Reaktionen auf denselben Kommentar werden zusammengefasst, bis du sie öffnest.",
+    "reactionChannel": "Reaktionen: {channel}"
   },
   "site": {
     "description": "Gib den veröffentlichten Seiten dieses Workspace eine gemeinsame, gut lesbare Adresse, eine Startseite und eine Navigation zwischen ihnen.",
@@ -2322,6 +2366,56 @@
       "color": "Wähle eine Farbe.",
       "border": "Wähle einen Rand.",
       "title": "Der Titel darf höchstens 120 Zeichen lang sein."
+    }
+  },
+  "letterheads": {
+    "heading": "Briefköpfe",
+    "description": "Was PDF-Dateien um eine Seite drucken: ein Logo, oben die Angaben Ihrer Firma und unten weitere Zeilen. Wählen Sie einen beim PDF-Export; der KI-Chat nimmt den Standard, wenn nicht anders verlangt.",
+    "empty": "Noch keine Briefköpfe.",
+    "add": "Briefkopf hinzufügen",
+    "edit": "Bearbeiten",
+    "remove": "{name} entfernen",
+    "removeConfirm": "Briefkopf „{name}“ entfernen? PDFs nehmen dann den Standard.",
+    "count": "{count} von {max} Briefköpfen",
+    "ownersOnly": "Nur Eigentümer können Briefköpfe ändern.",
+    "default": "Standard",
+    "makeDefault": "Als Standard festlegen",
+    "unsetDefault": "Nicht mehr als Standard",
+    "noLines": "Keine Zeilen oben",
+    "name": "Name",
+    "namePlaceholder": "Angebote",
+    "logo": "Logo",
+    "logoHelp": "PNG oder JPEG, höchstens {size}.",
+    "uploadLogo": "Logo hochladen",
+    "replaceLogo": "Logo ersetzen",
+    "removeLogo": "Entfernen",
+    "logoPlace": "Position des Logos",
+    "places": {
+      "left": "Logo links",
+      "center": "Logo mittig",
+      "right": "Logo rechts"
+    },
+    "header": "Zeilen oben",
+    "headerHelp": "Bis zu {max} Zeilen, auf jeder Seite gedruckt; die erste fett.",
+    "headerPlaceholder": "Firmenname\nAdresse\nTelefon · E-Mail · Steuernummer",
+    "footer": "Zeilen unten",
+    "footerHelp": "Bis zu {max} Zeilen, etwa die Bankverbindung.",
+    "footerPlaceholder": "Bank · IBAN",
+    "accent": "Akzentfarbe",
+    "accentHelp": "Für die Linie unter dem Kopf und die Tabellenköpfe.",
+    "noAccent": "Grau",
+    "pageNumbers": "Seitenzahlen",
+    "errors": {
+      "name": "Geben Sie einen Namen mit höchstens 60 Zeichen ein.",
+      "header": "Oben höchstens 6 Zeilen mit je höchstens 140 Zeichen.",
+      "footer": "Unten höchstens 4 Zeilen mit je höchstens 140 Zeichen.",
+      "logoPlace": "Wählen Sie die Position des Logos.",
+      "accent": "Wählen Sie eine Farbe.",
+      "duplicateName": "Ein anderer Briefkopf hat diesen Namen.",
+      "tooMany": "Ein Arbeitsbereich kann höchstens 20 Briefköpfe haben.",
+      "logoType": "Das Logo muss ein PNG- oder JPEG-Bild sein.",
+      "logoSize": "Das Logo ist zu groß: höchstens 512 KB.",
+      "notFound": "Dieser Briefkopf existiert nicht mehr. Laden Sie die Seite neu."
     }
   }
 }

@@ -506,6 +506,22 @@ function withoutHiddenInPrint(blocks: PageBlock[]): PageBlock[] {
   });
 }
 
+/**
+ * The body's blocks the way a PDF file draws them (server/pdf.ts), after the same steps as the
+ * print view: synced blocks as the reader may see them (left out without `expandSynced`), callout
+ * styles applied, callouts hidden in print left out, unsafe links and media cleared, and mentions
+ * and page links as `resolvePages` shows them (left out without it).
+ */
+export async function printableBlocks(
+  body: PageBlock[],
+  { resolvePages, expandSynced, calloutStyles = [] }: Pick<BodyOptions, "resolvePages" | "expandSynced" | "calloutStyles"> = {},
+): Promise<PageBlock[]> {
+  const blocks = withoutHiddenInPrint(applyCalloutStyles(expandSynced ? await expandSynced(body) : withoutSyncedBlocks(body), calloutStyles));
+  const { pageIds } = bodyReferences(blocks);
+  const refs = pageIds.length && resolvePages ? await resolvePages(pageIds) : new Map<string, PublishedPageRef>();
+  return resolveMentions(sanitizeBlocks(blocks), refs);
+}
+
 export async function bodySegmentsFromYdoc(state: Uint8Array | null, options: BodyOptions = {}): Promise<BodySegment[]> {
   if (!state || state.byteLength === 0) return [];
   const doc = new Y.Doc();

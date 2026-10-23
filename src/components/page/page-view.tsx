@@ -471,6 +471,8 @@ export function PageView({
                 archived: page.archived,
                 hasBody: showBody,
                 isRow: page.isRow,
+                title,
+                icon,
               }}
               currentUser={user}
               info={info}

@@ -4,6 +4,7 @@ import {
   ChartColumn,
   Coins,
   ContactRound,
+  FileText,
   Globe,
   HardDrive,
   HeartPulse,
@@ -39,6 +40,7 @@ import { LegalHolds } from "@/components/settings/legal-holds";
 import { MembersPanel } from "@/components/settings/members-panel";
 import { PublicForms } from "@/components/settings/public-forms";
 import { PublishedPages } from "@/components/settings/published-pages";
+import { AllowedNetworksSetting, AllowedNetworksSummary } from "@/components/settings/allowed-networks-setting";
 import {
   AccessRequestsSetting,
   ConnectedAppsSetting,
@@ -66,6 +68,7 @@ import { WorkspaceBackup } from "@/components/settings/workspace-backup";
 import { WorkspaceExport } from "@/components/settings/workspace-export";
 import { WorkspaceNameForm } from "@/components/settings/workspace-settings";
 import { CalloutStylesSettings } from "@/components/settings/callout-styles-settings";
+import { LetterheadsSettings } from "@/components/settings/letterheads-settings";
 import { SnippetsTabs } from "@/components/snippets/snippets-tabs";
 import { parseAnalyticsPeriod } from "@/lib/analytics";
 import { storedCalloutStyles } from "@/lib/callout-styles";
@@ -105,6 +108,7 @@ import { workspaceAnalytics } from "@/server/analytics";
 import { auditActors, listAuditEvents } from "@/server/audit";
 import { listWorkspaceFormPublications } from "@/server/forms";
 import { listJoinRequests } from "@/server/join-requests";
+import { listLetterheads } from "@/server/letterheads";
 import { mailStatus } from "@/server/mail";
 import { groupsByMember, listGroups } from "@/server/groups";
 import { listGuests } from "@/server/guests";
@@ -112,7 +116,9 @@ import { listWorkspacePublications } from "@/server/publication";
 import { listScimTokens, scimManagedCount } from "@/server/scim";
 import { getSsoConnection, ssoSetupInfo } from "@/server/sso";
 import { listLegalHolds } from "@/server/legal-hold";
-import { getSession, requireWorkspaceSession, type requireSession } from "@/server/session";
+import { getSession, requestIp, requireWorkspaceSession, type requireSession } from "@/server/session";
+import { allowedNetworkCount, getAllowedNetworks } from "@/server/allowed-networks";
+import { formatIpAddress } from "@/lib/ip-allowlist";
 import { getSite } from "@/server/site";
 import { listSnippets } from "@/server/snippets";
 import { canCreateTeamspace, listTeamspaces, teamspacesByMember } from "@/server/teamspaces";
@@ -144,6 +150,7 @@ const ICONS: Record<SettingsTab, LucideIcon> = {
   groups: UsersRound,
   agents: Bot,
   snippets: TextQuote,
+  pdf: FileText,
   connections: Plug,
   storage: HardDrive,
   analytics: ChartColumn,
@@ -266,6 +273,12 @@ export default async function SettingsPage({
               guest={guest}
               scope={query.scope === "workspace" ? "workspace" : "mine"}
             />
+          )}
+          {tab === "pdf" && (
+            <>
+              <SettingsHeader title={t("nav.pdf")} description={t("letterheads.description")} />
+              <LetterheadsGroup workspaceId={workspaceId} userId={user.id} isOwner={isOwner} />
+            </>
           )}
           {tab === "connections" && (
             <ConnectionsTab
@@ -390,6 +403,16 @@ async function CalloutStylesGroup({ workspaceId, userId, isOwner }: { workspaceI
   );
 }
 
+/** Settings > PDF templates > Letterheads (lib/letterheads); owners change them. */
+async function LetterheadsGroup({ workspaceId, userId, isOwner }: { workspaceId: string; userId: string; isOwner: boolean }) {
+  const [letterheads, t] = await Promise.all([listLetterheads(userId, workspaceId), getTranslations("settings.letterheads")]);
+  return (
+    <SettingsGroup title={t("heading")}>
+      <LetterheadsSettings workspaceId={workspaceId} letterheads={letterheads} canEdit={isOwner} />
+    </SettingsGroup>
+  );
+}
+
 /** Settings > General > Export and backup, for owners: off while the workspace has export turned off. */
 async function ExportGroup({ workspaceId, userId }: { workspaceId: string; userId: string }) {
   const [settings, t] = await Promise.all([getWorkspaceSettings(userId, workspaceId), getTranslations("settings")]);
@@ -416,7 +439,7 @@ async function SecurityTab({ workspaceId, userId, isOwner }: { workspaceId: stri
   // On one computer (lib/env.ts localMode) there is no one to sign in with SSO, provision, invite,
   // ask for access or publish to: those settings are left out.
   const local = env.localMode;
-  const [settings, publications, forms, session, withoutTwoFactor, canUseSso, connection, scimTokens, scimManaged, domainStatus, apps, holds, t] =
+  const [settings, publications, forms, session, withoutTwoFactor, canUseSso, connection, scimTokens, scimManaged, domainStatus, apps, holds, networks, networkCount, clientIp, t] =
     await Promise.all([
       getWorkspaceSettings(userId, workspaceId),
       isOwner && !local ? listWorkspacePublications(userId, workspaceId) : null,
@@ -430,6 +453,9 @@ async function SecurityTab({ workspaceId, userId, isOwner }: { workspaceId: stri
       allowedDomainsStatus(userId, workspaceId),
       isOwner ? listWorkspaceApps(userId, workspaceId) : null,
       isOwner ? listLegalHolds(userId, workspaceId) : null,
+      isOwner && !local ? getAllowedNetworks(userId, workspaceId) : [],
+      !isOwner && !local ? allowedNetworkCount(userId, workspaceId) : 0,
+      requestIp(),
       getTranslations("settings"),
     ]);
   const setup = ssoSetupInfo(workspaceId);
@@ -446,6 +472,12 @@ async function SecurityTab({ workspaceId, userId, isOwner }: { workspaceId: stri
             withoutTwoFactor={withoutTwoFactor}
           />
           {!local && <LoginMethodSetting workspaceId={workspaceId} settings={settings} canEdit={isOwner} available={canUseSso} />}
+          {!local &&
+            (isOwner ? (
+              <AllowedNetworksSetting workspaceId={workspaceId} networks={networks} clientIp={formatIpAddress(clientIp)} />
+            ) : (
+              <AllowedNetworksSummary count={networkCount} />
+            ))}
         </SettingsGroup>
       </div>
       {!local && (

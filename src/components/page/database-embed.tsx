@@ -193,10 +193,11 @@ function startingConfig(type: ViewType, config: ViewConfig, properties: Property
   if (type === "board" && !next.groupBy) next.groupBy = properties.find((p) => p.type === "select" || p.type === "status")?.id;
   if (type === "chart" && !next.groupBy) next.groupBy = chartGroupProperty(properties, {})?.id;
   if ((type === "calendar" || type === "timeline") && !next.dateBy) next.dateBy = firstDate;
+  if (type === "map" && !next.placeBy) next.placeBy = properties.find((p) => p.type === "place")?.id;
   return next;
 }
 
-/** A linked view picks its own layout: table, board, calendar, gallery, list, timeline or chart. */
+/** A linked view picks its own layout: table, board, calendar, gallery, list, timeline, map or chart. */
 function LayoutMenu({
   view,
   properties,

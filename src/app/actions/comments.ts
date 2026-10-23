@@ -7,6 +7,7 @@ import { AccessError } from "@/server/access";
 import * as comments from "@/server/comments";
 import { requireUserId } from "@/server/session";
 import { mutedThreads, setThreadMuted } from "@/server/thread-mute";
+import { markThreadsSeen, setThreadMarked, threadStates } from "@/server/thread-state";
 
 export type CommentFailure = "notAllowed" | "notFound" | "invalidBody" | "tooLong" | "commentHeld";
 
@@ -50,4 +51,26 @@ export async function mutedThreadsAction(pageId: string) {
 export async function muteThreadAction(pageId: string, threadId: string, muted: boolean) {
   const userId = await requireUserId();
   return setThreadMuted(userId, pageId, threadId, muted);
+}
+
+/**
+ * The viewer's own state of the page's threads: who they are, which threads they marked to come
+ * back to later, and when they last saw each one.
+ */
+export async function threadStatesAction(pageId: string) {
+  const userId = await requireUserId();
+  return { viewerId: userId, ...(await threadStates(userId, pageId)) };
+}
+
+/** Marks a thread of the page to come back to later, or takes the mark off. */
+export async function markThreadAction(pageId: string, threadId: string, marked: boolean) {
+  const userId = await requireUserId();
+  return setThreadMarked(userId, pageId, threadId, marked);
+}
+
+/** The viewer has these threads of the page in front of them now. */
+export async function seeThreadsAction(pageId: string, threadIds: string[]) {
+  const userId = await requireUserId();
+  if (!Array.isArray(threadIds)) return;
+  await markThreadsSeen(userId, pageId, threadIds);
 }

@@ -131,6 +131,8 @@ export type PushItem = {
   review?: { count: number } | null;
   /** Follow-ups: the sequence whose next email needs a look. */
   followUp?: { sequence: string } | null;
+  /** Reactions: with what, and who reacted (the latest first). */
+  reaction?: { emojis: string[]; people: { name: string }[] } | null;
 };
 
 /** The texts of a push message (`push` in email.json), already in the recipient's language. */
@@ -148,7 +150,7 @@ export function pushLink(item: PushItem): string {
   if (item.kind === "ai_account_detached") return `/w/${item.workspaceId}/settings`;
   if (item.pageId === null) return `/w/${item.workspaceId}/settings?tab=members&view=requests`;
   if (item.kind === "row_email" && item.rowEmail) return `/w/${item.workspaceId}/p/${item.pageId}${rowEmailHash(item.rowEmail.id)}`;
-  return `/w/${item.workspaceId}/p/${item.pageId}${item.kind === "comment" && item.threadId ? commentHash(item.threadId) : ""}`;
+  return `/w/${item.workspaceId}/p/${item.pageId}${(item.kind === "comment" || item.kind === "reaction") && item.threadId ? commentHash(item.threadId) : ""}`;
 }
 
 /** The zone a reminder's time reads in: the one stored with the reminder, UTC without a valid one. */
@@ -227,6 +229,13 @@ export function pushPayload(
         break;
       case "follow_up":
         line = t("followUp", { sequence: item.followUp?.sequence ?? "" });
+        break;
+      case "reaction":
+        // Not the comment: a lock screen shows it to whoever holds the device.
+        line = t("reaction", {
+          actor: t("people", { name: item.reaction?.people[0]?.name || actor, others: Math.max(0, (item.reaction?.people.length ?? 1) - 1) }),
+          emoji: item.reaction?.emojis.join(" ") ?? "",
+        });
         break;
       case "row_email":
         // Who wrote, not the subject: a lock screen shows it to whoever holds the device.

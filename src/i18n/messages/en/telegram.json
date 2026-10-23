@@ -79,6 +79,7 @@
     "createPage": "Add the page {title} under {target}?",
     "createPageTop": "Add the page {title} at the top of the workspace, private to you?",
     "editPage": "Change the text of {title}?",
+    "createPdf": "Make the PDF {title} of {target} and attach it there?",
     "remember": "Remember this about you?",
     "forget": "Forget this note?",
     "connection": "Send this to {connection} ({tool})?",
@@ -88,7 +89,15 @@
     "no": "No",
     "approved": "Approved.",
     "declined": "Declined.",
-    "gone": "This question isn't waiting anymore."
+    "gone": "This question isn't waiting anymore.",
+    "addComment": "Comment on {target}?",
+    "createDatabase": "Add the database {title} under {target}?",
+    "createDatabaseTop": "Add the database {title} at the top of the workspace, private to you?",
+    "createForm": "Add the form {title} to {target}?",
+    "publicForm": {
+      "signedIn": "It gets a public link: anyone with it can answer after signing in.",
+      "anonymous": "It gets a public link: anyone with it can answer, without signing in."
+    }
   },
   "changed": {
     "done": "Done: {what}",

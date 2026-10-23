@@ -970,7 +970,8 @@ export function FilterEditor({
   );
 }
 
-function defaultRule(col: Column): FilterRule {
+/** A new rule on `col` with its first operator (the filter menu's and the color rules' "Add filter"). */
+export function defaultRule(col: Column): FilterRule {
   return { propertyId: col.id, op: filterOperators(col.type)[0].op };
 }
 

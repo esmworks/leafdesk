@@ -136,6 +136,7 @@ export async function nextStepsOf(actions: AutomationAction[], index: number, da
       case "log":
         return line(a.message);
       case "move_to_trash":
+      case "celebrate":
         return line();
       case "start_sequence":
         return line(sequences.find((x) => x.id === a.sequenceId)?.name);

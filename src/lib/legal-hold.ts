@@ -10,8 +10,8 @@ export const LEGAL_HOLD_MAX_PEOPLE = 200;
 
 /**
  * - `pageHeld`: the page, or a page under it, was created or edited by someone under a hold;
- * - `templateHeld`, `propertyHeld`, `commentHeld`: the same for a template, a deleted property's
- *   values, a comment;
+ * - `templateHeld`, `propertyHeld`, `commentHeld`, `letterheadHeld`: the same for a template, a
+ *   deleted property's values, a comment, a PDF letterhead;
  * - `workspaceHeld`: the workspace has a hold, so it can't be deleted;
  * - the rest are about setting or releasing a hold.
  */
@@ -20,6 +20,7 @@ export type LegalHoldErrorCode =
   | "templateHeld"
   | "propertyHeld"
   | "commentHeld"
+  | "letterheadHeld"
   | "workspaceHeld"
   | "nameRequired"
   | "nameTooLong"
@@ -34,6 +35,7 @@ export const LEGAL_HOLD_ERROR_CODES: readonly LegalHoldErrorCode[] = [
   "templateHeld",
   "propertyHeld",
   "commentHeld",
+  "letterheadHeld",
   "workspaceHeld",
   "nameRequired",
   "nameTooLong",

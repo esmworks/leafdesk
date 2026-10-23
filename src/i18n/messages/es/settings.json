@@ -19,7 +19,8 @@
     "security": "Seguridad",
     "audit": "Registro de auditoría",
     "site": "Sitio",
-    "snippets": "Fragmentos"
+    "snippets": "Fragmentos",
+    "pdf": "Plantillas PDF"
   },
   "workspace": {
     "heading": "Espacio de trabajo",
@@ -907,6 +908,14 @@
     "detailHeading": "{month} por función y modelo",
     "ownAccountShare": "La cuenta de IA propia del espacio de trabajo pagó {cost} de esto.",
     "empty": "No hubo solicitudes de IA este mes.",
+    "peopleHeading": "{month} por persona",
+    "peopleDescription": "Quién usó la IA del espacio de trabajo, de mayor a menor costo: personas y agentes, cada uno con las funciones que más usó. Las solicitudes se cuentan por persona desde la actualización de Leafdesk que añadió esta lista; las anteriores solo están en los totales.",
+    "people": {
+      "agent": "Agente",
+      "nobody": "Trabajo en segundo plano",
+      "unknown": "Cuenta eliminada",
+      "uncounted": "Antes del recuento por persona"
+    },
     "cacheTitle": "Leído de la caché de prompts: {read} · Escrito en ella: {write}",
     "columns": {
       "month": "Mes",
@@ -917,12 +926,16 @@
       "output": "Salida",
       "cost": "Coste",
       "feature": "Función",
-      "model": "Modelo"
+      "model": "Modelo",
+      "person": "Persona",
+      "share": "Proporción",
+      "mostUsed": "Más usado para"
     },
     "groups": {
       "chat": "Chat de IA",
       "writing": "Asistente de escritura",
       "properties": "Autocompletado con IA",
+      "formulas": "Fórmulas",
       "agents": "Agentes",
       "search": "Búsqueda semántica",
       "voice": "Notas de voz",
@@ -1086,7 +1099,12 @@
     "workspaceDeleted": "Otra persona eliminó este espacio de trabajo mientras tanto.",
     "storageNoDestination": "Los archivos de este espacio de trabajo están en tu almacenamiento y no tendrán adónde moverse cuando salgas: ningún otro propietario tiene almacenamiento predeterminado y el almacenamiento de este servidor no puede recibirlos. Pide a un propietario que configure un almacenamiento o mueve antes los archivos (Configuración > Almacenamiento).",
     "storageMoveInProgress": "Los archivos de este espacio de trabajo se están moviendo a tu almacenamiento. Espera a que termine y después sal.",
-    "invalidCalloutStyle": "No se pudo guardar un estilo de destacado: revisa su clave, su nombre y su icono."
+    "invalidCalloutStyle": "No se pudo guardar un estilo de destacado: revisa su clave, su nombre y su icono.",
+    "invalidNetwork": "{detail} no es una dirección IP ni un rango. Escribe una dirección como 203.0.113.7 o 2001:db8::1, o un rango como 203.0.113.0/24.",
+    "invalidNetworkLabel": "La etiqueta de {detail} es demasiado larga: 100 caracteres como máximo.",
+    "tooManyNetworks": "Un espacio de trabajo puede tener como máximo 100 redes aprobadas.",
+    "ipLocksYouOut": "Esta lista no incluye tu dirección actual, {detail}, así que guardarla te dejaría fuera del espacio de trabajo. Añade primero tu dirección o un rango que la incluya.",
+    "ipUnknown": "El servidor no ve tu dirección, así que no puede comprobar que esta lista te deja entrar. Guárdala desde una conexión cuya dirección vea el servidor, o vacía la lista."
   },
   "security": {
     "description": "Decide cómo inician sesión las personas, quién puede traer personas a este espacio de trabajo, qué pueden hacer los invitados, qué puede salir de él (exportaciones, apps conectadas) y quién puede publicar páginas en la web. Solo los propietarios pueden cambiar estos ajustes.",
@@ -1348,6 +1366,25 @@
       "error": "No se pudo desconectar. Inténtelo de nuevo.",
       "gone": "Ya está desconectada, o ya no llega a este espacio de trabajo.",
       "shown": "Se muestran las {shown} usadas aquí más recientemente de {total}."
+    },
+    "allowedNetworks": {
+      "title": "Redes aprobadas",
+      "description": "Permite abrir este espacio de trabajo solo desde estas direcciones y rangos IP, como tu oficina o tu VPN: IPv4 o IPv6, una sola dirección (203.0.113.7) o un rango CIDR (203.0.113.0/24). Se aplica a todos en el espacio de trabajo, propietarios e invitados incluidos. Deja la lista vacía para permitir cualquier red.",
+      "appsNote": "Las apps conectadas por MCP, los tokens de la API REST y los tokens SCIM no están sujetos a ella: siguen el ajuste «Apps conectadas y tokens de API».",
+      "range": "Dirección o rango",
+      "label": "Etiqueta",
+      "rangePlaceholder": "203.0.113.0/24",
+      "labelPlaceholder": "Oficina (opcional)",
+      "add": "Añadir red",
+      "addMine": "Añadir mi dirección ({ip})",
+      "remove": "Quitar {range}",
+      "removeRow": "Quitar fila",
+      "empty": "No hay redes aprobadas: el espacio de trabajo se abre desde cualquier red.",
+      "addressUnknown": "El servidor no ve tu dirección, así que no se puede guardar una lista desde esta conexión.",
+      "yourAddressOnList": "Tu dirección, {ip}, está en la lista.",
+      "yourAddressMissing": "Tu dirección, {ip}, no está en la lista: guardarla te dejaría fuera, así que añádela primero.",
+      "lockoutHelp": "Si alguna vez una lista deja fuera a todos, un administrador de la instancia puede vaciarla en la página de administración.",
+      "memberView": "{count, plural, =0 {Desactivado: el espacio de trabajo se abre desde cualquier red.} one {Activado: el espacio de trabajo solo se abre desde # red aprobada.} other {Activado: el espacio de trabajo solo se abre desde # redes aprobadas.}}"
     }
   },
   "legalHolds": {
@@ -1382,6 +1419,7 @@
       "templateHeld": "Una retención legal conserva esta plantilla: no puede eliminarse mientras dure la retención.",
       "propertyHeld": "Una retención legal conserva los valores de esta propiedad: no puede eliminarse para siempre mientras dure la retención.",
       "commentHeld": "Una retención legal conserva este comentario: no puede eliminarse mientras dure la retención.",
+      "letterheadHeld": "Una retención legal conserva este membrete: no puede eliminarse mientras dure la retención.",
       "workspaceHeld": "Este espacio de trabajo tiene una retención legal. Levántala (Configuración > Seguridad) antes de eliminar el espacio de trabajo.",
       "nameRequired": "Ponle un nombre a la retención.",
       "nameTooLong": "Usa como máximo 200 caracteres para el nombre.",
@@ -1572,6 +1610,7 @@
         "restored": "Restauró {target} desde la papelera",
         "permission_changed": "Fijó el acceso de {subject} a {target}: {level}",
         "permission_removed": "Quitó a {subject} del uso compartido de {target}",
+        "row_access_changed": "Cambió a quién dan acceso las filas de {target}",
         "deleted": "Eliminó {target} definitivamente",
         "published": "Publicó {target} en la web",
         "unpublished": "Dejó de publicar {target}",
@@ -1614,7 +1653,9 @@
       "workspace": {
         "renamed": "Cambió el nombre del espacio de trabajo de {from} a {to}",
         "settings_changed": "Cambió ajustes: {settings}",
-        "domains_verified": "Verificó el dominio de correo permitido {domains}"
+        "domains_verified": "Verificó el dominio de correo permitido {domains}",
+        "networks_changed": "{count, plural, =0 {Quitó las redes aprobadas} other {Estableció las redes aprobadas: {names}}}",
+        "networks_cleared": "Vació las redes aprobadas como administrador de la instancia"
       },
       "sso": {
         "configured": "Guardó la conexión de inicio de sesión único ({protocol}) para {domains}",
@@ -1775,7 +1816,10 @@
     "reviewChannel": "Por revisar: {channel}",
     "followUpTitle": "Seguimientos",
     "followUpDescription": "Un seguimiento que iniciaste se pausa porque su próximo correo no pasó la comprobación previa al envío.",
-    "followUpChannel": "Seguimientos: {channel}"
+    "followUpChannel": "Seguimientos: {channel}",
+    "reactionTitle": "Reacciones",
+    "reactionDescription": "Alguien reacciona a un comentario tuyo. Las reacciones a un mismo comentario se juntan hasta que las abres.",
+    "reactionChannel": "Reacciones: {channel}"
   },
   "site": {
     "description": "Dale a las páginas publicadas de este espacio de trabajo una dirección legible, una página de inicio y navegación entre ellas.",
@@ -2322,6 +2366,56 @@
       "color": "Elige un color.",
       "border": "Elige un borde.",
       "title": "El título puede tener como máximo 120 caracteres."
+    }
+  },
+  "letterheads": {
+    "heading": "Membretes",
+    "description": "Lo que los archivos PDF imprimen alrededor de una página: un logotipo, los datos de tu empresa arriba y líneas al pie. Elige uno al exportar un PDF; el chat de IA usa el predeterminado salvo que se pida otro.",
+    "empty": "Aún no hay membretes.",
+    "add": "Añadir membrete",
+    "edit": "Editar",
+    "remove": "Quitar {name}",
+    "removeConfirm": "¿Quitar el membrete «{name}»? Los PDF usarán entonces el predeterminado.",
+    "count": "{count} de {max} membretes",
+    "ownersOnly": "Solo los propietarios pueden cambiar los membretes.",
+    "default": "Predeterminado",
+    "makeDefault": "Hacer predeterminado",
+    "unsetDefault": "Dejar de usar como predeterminado",
+    "noLines": "Sin líneas arriba",
+    "name": "Nombre",
+    "namePlaceholder": "Ofertas",
+    "logo": "Logotipo",
+    "logoHelp": "PNG o JPEG, como máximo {size}.",
+    "uploadLogo": "Subir logotipo",
+    "replaceLogo": "Cambiar logotipo",
+    "removeLogo": "Quitar",
+    "logoPlace": "Posición del logotipo",
+    "places": {
+      "left": "Logotipo a la izquierda",
+      "center": "Logotipo centrado",
+      "right": "Logotipo a la derecha"
+    },
+    "header": "Líneas de arriba",
+    "headerHelp": "Hasta {max} líneas, impresas en cada página; la primera en negrita.",
+    "headerPlaceholder": "Nombre de la empresa\nDirección\nTeléfono · correo · NIF",
+    "footer": "Líneas del pie",
+    "footerHelp": "Hasta {max} líneas, como los datos bancarios.",
+    "footerPlaceholder": "Banco · IBAN",
+    "accent": "Color de acento",
+    "accentHelp": "Para la línea bajo la cabecera y los encabezados de tabla.",
+    "noAccent": "Gris",
+    "pageNumbers": "Números de página",
+    "errors": {
+      "name": "Ponle un nombre de 60 caracteres como máximo.",
+      "header": "Como máximo 6 líneas arriba, de 140 caracteres cada una.",
+      "footer": "Como máximo 4 líneas al pie, de 140 caracteres cada una.",
+      "logoPlace": "Elige dónde va el logotipo.",
+      "accent": "Elige un color.",
+      "duplicateName": "Ya hay otro membrete con ese nombre.",
+      "tooMany": "Un espacio de trabajo puede tener como máximo 20 membretes.",
+      "logoType": "El logotipo debe ser una imagen PNG o JPEG.",
+      "logoSize": "El logotipo es demasiado grande: como máximo 512 KB.",
+      "notFound": "Ese membrete ya no existe. Recarga la página."
     }
   }
 }

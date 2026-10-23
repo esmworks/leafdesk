@@ -1,4 +1,4 @@
-import { Info, KeyRound, Mails, Plug, SlidersHorizontal, TextQuote, UserRound, type LucideIcon } from "lucide-react";
+import { HardDriveDownload, Info, KeyRound, Mails, Plug, SlidersHorizontal, TextQuote, UserRound, type LucideIcon } from "lucide-react";
 import { cookies } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { AiAccountsGroup } from "@/components/account/ai-accounts-group";
@@ -18,6 +18,7 @@ import { LanguageSettings } from "@/components/settings/language-settings";
 import { OwnMailboxes } from "@/components/settings/mail-settings";
 import { McpInstructions } from "@/components/settings/mcp-instructions";
 import { NotificationSettings } from "@/components/settings/notification-settings";
+import { OfflineSettings } from "@/components/settings/offline-settings";
 import { WatchedPages } from "@/components/settings/watched-pages";
 import { SettingsGroup, SettingsHeader } from "@/components/settings/section";
 import { ContrastSettings, ThemeSettings } from "@/components/settings/theme-settings";
@@ -45,12 +46,13 @@ import { listSnippets } from "@/server/snippets";
  * usual way in) and on the account page (/account), which stays open outside any workspace to
  * someone a workspace's two-step policy holds back or who has no workspace at all.
  */
-export const ACCOUNT_TABS = ["profile", "security", "preferences", "mail", "snippets", "apps", "about"] as const;
+export const ACCOUNT_TABS = ["profile", "security", "preferences", "offline", "mail", "snippets", "apps", "about"] as const;
 export type AccountTab = (typeof ACCOUNT_TABS)[number];
 export const ACCOUNT_ICONS: Record<AccountTab, LucideIcon> = {
   profile: UserRound,
   security: KeyRound,
   preferences: SlidersHorizontal,
+  offline: HardDriveDownload,
   mail: Mails,
   snippets: TextQuote,
   apps: Plug,
@@ -64,6 +66,7 @@ export async function AccountTabContent({ tab, session, query = {} }: { tab: Acc
   if (tab === "security") return <SecurityTab session={session} />;
   if (tab === "preferences") return <PreferencesTab userId={session.user.id} />;
   if (tab === "mail") return <MailTab userId={session.user.id} />;
+  if (tab === "offline") return <OfflineTab userId={session.user.id} />;
   if (tab === "about") return <AboutLeafdesk />;
   if (tab === "snippets") return <SnippetsTab userId={session.user.id} name={session.user.name} />;
   const [t, storage] = await Promise.all([getTranslations("account"), instanceAdmin(session.user).then((isAdmin) => getStorageAccounts(session.user.id, { isAdmin }))]);
@@ -78,6 +81,17 @@ export async function AccountTabContent({ tab, session, query = {} }: { tab: Acc
         <McpInstructions />
         <ApiTokens />
       </div>
+    </>
+  );
+}
+
+/** What this device keeps for offline use: read from the browser, so the tab itself is a shell. */
+async function OfflineTab({ userId }: { userId: string }) {
+  const [t, to] = await Promise.all([getTranslations("account"), getTranslations("offline.settings")]);
+  return (
+    <>
+      <SettingsHeader title={t("nav.offline")} description={to("description")} />
+      <OfflineSettings userId={userId} />
     </>
   );
 }

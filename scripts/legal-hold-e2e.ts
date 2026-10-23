@@ -13,6 +13,7 @@
  * Env: DATABASE_URL (read from .env when present). Migrations must be applied. No server needed.
  */
 import { Readable } from "node:stream";
+import type * as Yjs from "yjs";
 
 export {};
 
@@ -23,7 +24,7 @@ try {
 const { and, eq, inArray } = await import("drizzle-orm");
 const Y = await import("yjs");
 const { db } = await import("@/db");
-const { auditEvent, databaseProperty, file, legalHold, page, pageSnapshot, user, workspace, workspaceMember } = await import("@/db/schema");
+const { auditEvent, databaseProperty, file, legalHold, page, pageSnapshot, pdfLetterhead, user, workspace, workspaceMember } = await import("@/db/schema");
 const { LegalHoldError } = await import("@/lib/legal-hold");
 const { THREADS_MAP } = await import("@/lib/comments");
 const { AccessError, requirePageAccess } = await import("@/server/access");
@@ -33,6 +34,7 @@ const { changeComments } = await import("@/server/comments");
 const { purgeProperty } = await import("@/server/databases");
 const { purgeOrphanFiles, purgeUnusedUploads, storeFile } = await import("@/server/files");
 const { heldPageIds, legalHoldCandidates, listLegalHolds, releaseLegalHold, setLegalHold } = await import("@/server/legal-hold");
+const { deleteLetterhead } = await import("@/server/letterheads");
 const { createPage, deletePagePermanently } = await import("@/server/pages");
 const { runRetention } = await import("@/server/retention");
 const { instanceStorage } = await import("@/server/storage");
@@ -95,7 +97,7 @@ async function exists(...pageIds: string[]) {
 function docWithComment(userId: string) {
   const doc = new Y.Doc();
   const thread = new Y.Map<unknown>();
-  const comments = new Y.Array<Y.Map<unknown>>();
+  const comments = new Y.Array<Yjs.Map<unknown>>();
   const comment = new Y.Map<unknown>();
   comment.set("id", "c1");
   comment.set("userId", userId);
@@ -151,8 +153,12 @@ try {
     { pageId: id("live"), title: "v", ydoc: emptyDoc, reason: "auto", createdBy: owner, createdAt: ago(400) },
     { pageId: id("live"), title: "v", ydoc: emptyDoc, reason: "auto", createdBy: owner, createdAt: ago(1) },
   ]);
-  const upload = (pageId: string | null, by: string) =>
-    storeFile({ workspaceId: ws, pageId, uploadedBy: by }, { name: "note.txt", contentType: "text/plain", body: Readable.from([Buffer.from("hold")]), declaredSize: 4 });
+  // An upload left without a page (its page deleted for good) when `pageId` is null.
+  const upload = async (pageId: string | null, by: string) => {
+    const stored = await storeFile({ workspaceId: ws, pageId: pageId ?? id("byFile"), uploadedBy: by }, { name: "note.txt", contentType: "text/plain", body: Readable.from([Buffer.from("hold")]), declaredSize: 4 });
+    if (!pageId) await db.update(file).set({ pageId: null }).where(eq(file.id, stored.id));
+    return stored;
+  };
   await upload(id("byFile"), ann);
   const annOrphan = await upload(null, ann);
   const ownerOrphan = await upload(null, owner);
@@ -212,6 +218,15 @@ try {
   check(held("propertyHeld")(await failure(() => purgeProperty(owner, deletedProp.id))), "deleting a property with held values for good is refused");
   check(held("commentHeld")(await failure(() => changeComments(owner, commentOnLive, { type: "deleteComment", threadId: "t1", commentId: "c1" }))), "deleting a held comment is refused");
   check(held("commentHeld")(await failure(() => changeComments(owner, commentOnLive, { type: "deleteThread", threadId: "t1" }))), "…and its thread");
+  const [annLetterhead, ownerLetterhead] = await db
+    .insert(pdfLetterhead)
+    .values([
+      { workspaceId: ws, name: "Ann's", createdBy: ann },
+      { workspaceId: ws, name: "Owner's", createdBy: owner },
+    ])
+    .returning({ id: pdfLetterhead.id });
+  check(held("letterheadHeld")(await failure(() => deleteLetterhead(owner, annLetterhead.id))), "deleting a held person's letterhead is refused");
+  check((await failure(() => deleteLetterhead(owner, ownerLetterhead.id))) === null, "…while other letterheads can go");
 
   // ── The workspace and the accounts ───────────────────────────────────────────────────────────
   check(
@@ -249,6 +264,7 @@ try {
   check((await db.select().from(file).where(and(eq(file.workspaceId, ws), eq(file.id, annOrphan.id)))).length === 0, "the file cleanups remove the upload");
   await deleteTemplate(owner, id("template"));
   check((await exists(id("template"))).join() === "false", "the template can be deleted");
+  check((await failure(() => deleteLetterhead(owner, annLetterhead.id))) === null, "the letterhead can be deleted");
   check((await failure(() => changeComments(owner, commentOnLive, { type: "deleteComment", threadId: "t1", commentId: "c1" }))) === null, "the comment can be deleted");
   check(!(await accountDeletionPlan(gone)).legalHolds, "the account isn't kept any more");
   // Last: the session just made counts as a fresh sign-in, so the workspace really goes.

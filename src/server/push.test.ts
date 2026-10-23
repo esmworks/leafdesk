@@ -11,6 +11,14 @@ describe("push preferences", () => {
     expect(pushWanted(preferences, "mention")).toBe(true);
   });
 
+  it("are off for reactions until turned on, which never email", () => {
+    const preferences = preferencesFrom(undefined);
+    expect(preferences.reaction).toEqual({ inbox: true, email: false, push: false, telegram: false });
+    expect(pushWanted(preferences, "reaction")).toBe(false);
+    expect(telegramWanted(preferences, "reaction")).toBe(false);
+    expect(pushWanted(preferencesFrom({ reactionPush: true }), "reaction")).toBe(true);
+  });
+
   it("follow the inbox: a kind kept out of it isn't pushed, whatever push says", () => {
     const preferences = preferencesFrom({ mentionInbox: false, commentPush: false, assignmentInbox: false, assignmentPush: true });
     expect(pushWanted(preferences, "mention")).toBe(false);

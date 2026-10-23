@@ -32,7 +32,7 @@ describe("where a view opens its rows", () => {
   });
 
   it("is a setting of every view with rows to open: not forms or charts", () => {
-    expect(VIEW_TYPES.filter(opensRows)).toEqual(["table", "board", "calendar", "gallery", "list", "timeline"]);
+    expect(VIEW_TYPES.filter(opensRows)).toEqual(["table", "board", "calendar", "gallery", "list", "timeline", "map"]);
   });
 
   it("refuses anything but panel or page", () => {

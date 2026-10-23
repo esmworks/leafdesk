@@ -12,7 +12,8 @@ import { AccountError } from "@/server/account";
 import { revokeFormPublication } from "@/server/forms";
 import { approveJoinRequest, declineJoinRequest, joinFromSwitcher } from "@/server/join-requests";
 import { revokePublication } from "@/server/publication";
-import { getSession, requireUserId } from "@/server/session";
+import { setAllowedNetworks } from "@/server/allowed-networks";
+import { getSession, requestIp, requireUserId } from "@/server/session";
 import { createWorkspaceWithBuiltin } from "@/server/templates";
 import { deleteWorkspace } from "@/server/workspace-deletion";
 import {
@@ -52,7 +53,9 @@ async function run<T>(fn: () => Promise<T>): Promise<ActionResult<T>> {
 
 async function fail(code: WorkspaceErrorCode | "ownersOnly" | "unknownRole", detail = ""): Promise<{ ok: false; error: string; code: string }> {
   const t = await getTranslations("settings.errors");
-  return { ok: false, error: code === "invalidDomain" ? t(code, { detail }) : t(code), code };
+  if (code === "ipLocksYouOut" && !detail) return { ok: false, error: t("ipUnknown"), code };
+  const withDetail = code === "invalidDomain" || code === "invalidNetwork" || code === "invalidNetworkLabel" || code === "ipLocksYouOut";
+  return { ok: false, error: withDetail ? t(code, { detail }) : t(code), code };
 }
 
 const ROLES: WorkspaceRole[] = ["owner", "member", "guest"];
@@ -76,6 +79,18 @@ export async function updateWorkspaceSettingsAction(workspaceId: string, patch: 
   if (!session) throw new Error("Unauthorized");
   const strongSession = isStrongSession(session);
   const result = await run(() => updateWorkspaceSettings(session.user.id, workspaceId, patch, { strongSession }));
+  refresh(workspaceId);
+  return result;
+}
+
+/**
+ * Replaces the workspace's approved networks. The owner's own address is the request's (set by
+ * server.ts), so a list that leaves it out is refused before it can shut them out.
+ */
+export async function setAllowedNetworksAction(workspaceId: string, networks: { range: string; label: string }[]) {
+  const userId = await requireUserId();
+  const clientIp = await requestIp();
+  const result = await run(() => setAllowedNetworks(userId, workspaceId, networks, { clientIp }));
   refresh(workspaceId);
   return result;
 }

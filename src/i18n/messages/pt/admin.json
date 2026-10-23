@@ -66,7 +66,8 @@
   "errors": {
     "notFound": "Essa conta não foi encontrada.",
     "noPassword": "Esta conta não tem senha; ela entra de outra forma.",
-    "self": "Altere sua própria senha na página da sua conta."
+    "self": "Altere sua própria senha na página da sua conta.",
+    "noWorkspace": "Esse espaço de trabalho não foi encontrado."
   },
   "descriptionFirstAccount": "As contas deste servidor, suas sessões e senhas. Você vê esta página porque a sua foi a primeira conta deste servidor.",
   "signUp": {
@@ -81,5 +82,16 @@
     "body": "A sua é a primeira conta aqui, então a Administração do servidor é sua. Qualquer pessoa que chegue a este endereço ainda pode se cadastrar; a Administração do servidor mostra como fechar o cadastro.",
     "open": "Administração do servidor",
     "dismiss": "Fechar"
+  },
+  "networks": {
+    "heading": "Redes aprovadas",
+    "description": "Espaços de trabalho que só abrem a partir de redes aprovadas. Se uma lista deixar os proprietários de um espaço de trabalho de fora, esvazie-a aqui: ele passa a abrir de qualquer rede até os proprietários definirem a lista de novo.",
+    "none": "Nenhum espaço de trabalho limita a entrada a redes aprovadas",
+    "noneDescription": "Os proprietários definem as redes aprovadas em Configurações → Segurança do espaço de trabalho.",
+    "count": "{count, plural, one {# rede} other {# redes}}",
+    "clear": "Esvaziar lista",
+    "clearTitle": "Esvaziar as redes aprovadas de {workspace}?",
+    "clearBody": "Todos no espaço de trabalho poderão abri-lo de novo de qualquer rede, e o registro de auditoria anotará que você esvaziou a lista. Os proprietários podem defini-la de novo em Configurações → Segurança.",
+    "clearConfirm": "Esvaziar lista"
   }
 }
