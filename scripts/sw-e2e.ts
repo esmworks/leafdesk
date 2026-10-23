@@ -8,6 +8,9 @@
  * - pages are kept per user: another user's page coming in drops the previous user's copies, and
  *   a page that answers 404 is dropped;
  * - API responses and signed-out pages are never kept;
+ * - pages downloaded for offline use ("leafdesk-keep" messages): their HTML is fetched with the
+ *   scripts it loads, is never pushed out by pages opened since, and goes once no longer listed;
+ *   uploaded files a downloaded page kept answer offline;
  * - a push message shows a notification (a generic one when its data is unusable), and opening it
  *   takes an open tab to the notification's page, never to another origin.
  *
@@ -48,8 +51,8 @@ function html(res: ServerResponse, body: string, status = 200) {
 }
 
 const register = `<script>navigator.serviceWorker.register("/sw.js", { scope: "/", updateViaCache: "none" });</script>`;
-const signedIn = (userId: string, title: string) =>
-  `<meta name="leafdesk-user" content="${userId}"><title>${title}</title>${register}<script src="/_next/static/chunks/app-1.js"></script><body><h1>${title}</h1></body>`;
+const signedIn = (userId: string, title: string, chunk = "app-1") =>
+  `<meta name="leafdesk-user" content="${userId}"><title>${title}</title>${register}<script src="/_next/static/chunks/${chunk}.js"></script><body><h1>${title}</h1></body>`;
 
 const app = createServer((req, res) => {
   if (offline) {
@@ -73,6 +76,10 @@ const app = createServer((req, res) => {
   if (path === "/offline") {
     return html(res, `<title>Offline</title><script src="/_next/static/chunks/offline-1.js"></script><body><h1>You're offline</h1></body>`);
   }
+  if (/^\/api\/files\/[\w-]+$/.test(path)) {
+    res.writeHead(200, { "content-type": "text/plain" });
+    return res.end(`file ${path}`);
+  }
   if (path === "/api/data") {
     res.writeHead(200, { "content-type": "application/json" });
     return res.end(JSON.stringify({ at: Date.now() }));
@@ -87,7 +94,8 @@ const app = createServer((req, res) => {
     const [, ws, pageId] = m;
     // Pages of "ws2" are signed in as another user; "signed-out" is the sign-in form.
     if (pageId === "signed-out") return html(res, `<title>Sign in</title><body><h1>Sign in</h1></body>`);
-    return html(res, signedIn(ws === "ws2" ? "user-2" : "user-1", `Page ${pageId ?? "home"}`));
+    // A downloaded page loads a script no page opened before loaded.
+    return html(res, signedIn(ws === "ws2" ? "user-2" : "user-1", `Page ${pageId ?? "home"}`, pageId === "kept" ? "kept-1" : "app-1"));
   }
   html(res, "<title>?</title>", 404);
 });
@@ -207,6 +215,40 @@ try {
   await settle();
   keys = await cacheKeys();
   check(JSON.stringify(keys["leafdesk-pages-user-1"]) === JSON.stringify(["/w/ws1/p/a"]), "a page that answers 404 (deleted, no access) is dropped", keys);
+
+  // Downloads: the app lists its downloaded pages and asks for the ones to fetch now.
+  const keep = (kept: string[], fetchNow: string[]) =>
+    evaluate<Record<string, number | string | null>>(
+      `new Promise((resolve) => { const c = new MessageChannel(); c.port1.onmessage = (e) => resolve(e.data); navigator.serviceWorker.controller.postMessage({ type: "leafdesk-keep", owner: "user-1", kept: ${JSON.stringify(kept)}, fetch: ${JSON.stringify(fetchNow)} }, [c.port2]); })`,
+    );
+  const kept = await keep(["/w/ws1/p/kept", "/w/ws1/p/never-there"], ["/w/ws1/p/kept", "/api/data"]);
+  check(typeof kept["/w/ws1/p/kept"] === "number" && !("/api/data" in kept), "a downloaded page's HTML is fetched (only page paths are)", kept);
+  keys = await cacheKeys();
+  check(keys["leafdesk-pages-user-1"]?.includes("/w/ws1/p/kept"), "…and kept under its user", keys);
+  check(keys["leafdesk-static-1"]?.includes("/_next/static/chunks/kept-1.js"), "…with the scripts it loads, never loaded before", keys);
+  // A file the page kept (the app stores those itself, offline-download.ts).
+  await evaluate(`caches.open("leafdesk-pages-user-1").then((c) => c.put("/api/files/kept-file", new Response("kept bytes")))`);
+  check((await evaluate<string>(`fetch("/api/files/kept-file").then((r) => r.text())`)) === "file /api/files/kept-file", "online, files come from the server");
+  // More pages opened since than the worker keeps: the downloaded page stays, the oldest opened goes.
+  for (let i = 0; i < 51; i++) await go(`/w/ws1/p/n${i}`);
+  await settle();
+  keys = await cacheKeys();
+  const userPages = keys["leafdesk-pages-user-1"] ?? [];
+  check(userPages.includes("/w/ws1/p/kept") && !userPages.includes("/w/ws1/p/a") && userPages.includes("/w/ws1/p/n50"), "pages opened since never push a downloaded page out", userPages);
+  offline = true;
+  await go("/w/ws1/p/kept");
+  now = await page();
+  check(now.h1 === "Page kept" && now.script === "/_next/static/chunks/kept-1.js", "offline, a downloaded page opens with its scripts", now);
+  check((await evaluate<string>(`fetch("/api/files/kept-file").then((r) => r.text())`)) === "kept bytes", "offline, a file a downloaded page kept answers from the copy");
+  check(
+    (await evaluate<string>(`fetch("/api/files/not-kept").then(() => "answered", () => "failed")`)) === "failed",
+    "…and a file no page kept still fails",
+  );
+  offline = false;
+  await go("/w/ws1/p/n50");
+  await keep([], []);
+  keys = await cacheKeys();
+  check(!keys["leafdesk-pages-user-1"]?.includes("/w/ws1/p/kept") && keys["leafdesk-pages-user-1"]?.includes("/w/ws1/p/n50"), "a page no longer downloaded goes, opened pages stay", keys);
 
   // Someone else signs in on this browser: nothing of the first user stays.
   await go("/w/ws2/p/c");

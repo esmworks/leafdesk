@@ -79,6 +79,7 @@
     "createPage": "¿Añadir la página {title} dentro de {target}?",
     "createPageTop": "¿Añadir la página {title} arriba del espacio de trabajo, privada para ti?",
     "editPage": "¿Cambiar el texto de {title}?",
+    "createPdf": "¿Crear el PDF {title} de {target} y adjuntarlo allí?",
     "remember": "¿Recuerdo esto sobre ti?",
     "forget": "¿Olvidar esta nota?",
     "connection": "¿Enviar esto a {connection} ({tool})?",
@@ -88,7 +89,15 @@
     "no": "No",
     "approved": "Aprobado.",
     "declined": "Rechazado.",
-    "gone": "Esta pregunta ya no está esperando."
+    "gone": "Esta pregunta ya no está esperando.",
+    "addComment": "¿Comentar en {target}?",
+    "createDatabase": "¿Añadir la base de datos {title} dentro de {target}?",
+    "createDatabaseTop": "¿Añadir la base de datos {title} en la parte superior del espacio de trabajo, privada para ti?",
+    "createForm": "¿Añadir el formulario {title} a {target}?",
+    "publicForm": {
+      "signedIn": "Tendrá un enlace público: cualquiera con él puede responder tras iniciar sesión.",
+      "anonymous": "Tendrá un enlace público: cualquiera con él puede responder sin iniciar sesión."
+    }
   },
   "changed": {
     "done": "Hecho: {what}",

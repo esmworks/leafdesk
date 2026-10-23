@@ -19,7 +19,8 @@
     "security": "Güvenlik",
     "audit": "Denetim kaydı",
     "site": "Site",
-    "snippets": "Parçacıklar"
+    "snippets": "Parçacıklar",
+    "pdf": "PDF şablonları"
   },
   "workspace": {
     "heading": "Çalışma alanı",
@@ -907,6 +908,14 @@
     "detailHeading": "{month}: özelliklere ve modellere göre",
     "ownAccountShare": "Bunun {cost} tutarını çalışma alanının kendi yapay zekâ hesabı ödedi.",
     "empty": "Bu ay hiç yapay zekâ isteği yok.",
+    "peopleHeading": "{month}: kişilere göre",
+    "peopleDescription": "Çalışma alanının yapay zekâsını kimin kullandığı, en çok harcayandan başlayarak: kişiler ve ajanlar, her biri en çok kullandığı özelliklerle. İstekler, bu listeyi getiren Leafdesk güncellemesinden itibaren kişi bazında sayılır; daha öncekiler yalnızca toplamlarda yer alır.",
+    "people": {
+      "agent": "Ajan",
+      "nobody": "Arka plan işleri",
+      "unknown": "Silinmiş hesap",
+      "uncounted": "Kişi bazında sayımdan önce"
+    },
     "cacheTitle": "İstem önbelleğinden okunan: {read} · Önbelleğe yazılan: {write}",
     "columns": {
       "month": "Ay",
@@ -917,12 +926,16 @@
       "output": "Çıktı",
       "cost": "Harcama",
       "feature": "Özellik",
-      "model": "Model"
+      "model": "Model",
+      "person": "Kişi",
+      "share": "Pay",
+      "mostUsed": "En çok kullandığı"
     },
     "groups": {
       "chat": "Yapay zekâ sohbeti",
       "writing": "Yazma yardımcısı",
       "properties": "Yapay zekâyla doldurma",
+      "formulas": "Formüller",
       "agents": "Ajanlar",
       "search": "Anlamsal arama",
       "voice": "Sesli notlar",
@@ -1086,7 +1099,12 @@
     "workspaceDeleted": "Bu çalışma alanını bu arada başka biri sildi.",
     "storageNoDestination": "Bu çalışma alanının dosyaları sizin depolamanızda ve siz ayrıldığınızda taşınabilecekleri bir yer yok: başka hiçbir sahibin varsayılan depolaması yok, bu sunucunun depolaması da onları alamıyor. Bir sahipten depolama kurmasını isteyin ya da önce dosyaları taşıyın (Ayarlar > Depolama).",
     "storageMoveInProgress": "Bu çalışma alanının dosyaları sizin depolamanıza taşınıyor. Bitmesini bekleyin, ardından ayrılın.",
-    "invalidCalloutStyle": "Kutu stili kaydedilemedi: anahtarını, adını ve simgesini kontrol edin."
+    "invalidCalloutStyle": "Kutu stili kaydedilemedi: anahtarını, adını ve simgesini kontrol edin.",
+    "invalidNetwork": "{detail} bir IP adresi ya da aralığı değil. 203.0.113.7 veya 2001:db8::1 gibi bir adres ya da 203.0.113.0/24 gibi bir aralık girin.",
+    "invalidNetworkLabel": "{detail} için yazılan etiket çok uzun: en fazla 100 karakter olabilir.",
+    "tooManyNetworks": "Bir çalışma alanında en fazla 100 onaylı ağ olabilir.",
+    "ipLocksYouOut": "Bu listede şu anki adresiniz ({detail}) yok; kaydederseniz çalışma alanının dışında kalırsınız. Önce adresinizi ya da onu kapsayan bir aralığı ekleyin.",
+    "ipUnknown": "Sunucu adresinizi göremiyor, bu yüzden listenin sizi dışarıda bırakmayacağından emin olamıyor. Listeyi, adresini sunucunun görebildiği bir bağlantıdan kaydedin ya da listeyi boşaltın."
   },
   "security": {
     "description": "İnsanların nasıl giriş yapacağını, bu çalışma alanına kimlerin kişi getirebileceğini, misafirlerin neler yapabileceğini, nelerin dışarı çıkabileceğini (dışa aktarma, bağlı uygulamalar) ve kimlerin sayfaları web'de yayınlayabileceğini belirleyin. Bu ayarları yalnızca sahipler değiştirebilir.",
@@ -1348,6 +1366,25 @@
       "error": "Bağlantı kesilemedi. Tekrar deneyin.",
       "gone": "Bağlantı zaten kesilmiş ya da artık bu çalışma alanına ulaşmıyor.",
       "shown": "{total} uygulama ve anahtardan burada en son kullanılan {shown} tanesi gösteriliyor."
+    },
+    "allowedNetworks": {
+      "title": "Onaylı ağlar",
+      "description": "Bu çalışma alanı yalnızca bu IP adreslerinden ve aralıklarından açılabilsin; örneğin ofisiniz ya da VPN'iniz. IPv4 veya IPv6, tek bir adres (203.0.113.7) ya da CIDR aralığı (203.0.113.0/24) yazabilirsiniz. Sahipler ve misafirler dahil çalışma alanındaki herkes için geçerlidir. Her ağdan girilebilmesi için listeyi boş bırakın.",
+      "appsNote": "MCP ile bağlanan uygulamalar, REST API anahtarları ve SCIM anahtarları bu kurala tabi değildir; onlar için “Bağlı uygulamalar ve API anahtarları” ayarı geçerlidir.",
+      "range": "Adres ya da aralık",
+      "label": "Etiket",
+      "rangePlaceholder": "203.0.113.0/24",
+      "labelPlaceholder": "Ofis (isteğe bağlı)",
+      "add": "Ağ ekle",
+      "addMine": "Adresimi ekle ({ip})",
+      "remove": "{range} adresini kaldır",
+      "removeRow": "Satırı kaldır",
+      "empty": "Onaylı ağ yok: çalışma alanı her ağdan açılabilir.",
+      "addressUnknown": "Sunucu adresinizi göremiyor, bu bağlantıdan liste kaydedilemez.",
+      "yourAddressOnList": "Adresiniz ({ip}) listede.",
+      "yourAddressMissing": "Adresiniz ({ip}) listede değil: böyle kaydederseniz dışarıda kalırsınız, önce onu ekleyin.",
+      "lockoutHelp": "Bir liste herkesi dışarıda bırakırsa sunucu yöneticisi onu yönetim sayfasından temizleyebilir.",
+      "memberView": "{count, plural, =0 {Kapalı: çalışma alanı her ağdan açılabilir.} one {Açık: çalışma alanı yalnızca # onaylı ağdan açılabilir.} other {Açık: çalışma alanı yalnızca # onaylı ağdan açılabilir.}}"
     }
   },
   "audit": {
@@ -1529,6 +1566,7 @@
         "restored": "Çöp kutusundan geri yüklendi: {target}",
         "permission_changed": "Erişim ayarlandı: {subject}, {target} sayfasında: {level}",
         "permission_removed": "Paylaşımdan çıkarıldı: {subject}, {target} sayfasından",
+        "row_access_changed": "{target} için satır erişimi değiştirildi",
         "deleted": "Kalıcı olarak silindi: {target}",
         "published": "Web’de yayınlandı: {target}",
         "unpublished": "Yayından kaldırıldı: {target}",
@@ -1571,7 +1609,9 @@
       "workspace": {
         "renamed": "Çalışma alanı yeniden adlandırıldı: {from} → {to}",
         "settings_changed": "Ayarlar değiştirildi: {settings}",
-        "domains_verified": "İzin verilen e-posta alan adı doğrulandı: {domains}"
+        "domains_verified": "İzin verilen e-posta alan adı doğrulandı: {domains}",
+        "networks_changed": "{count, plural, =0 {Onaylı ağları kaldırdı} other {Onaylı ağları şöyle ayarladı: {names}}}",
+        "networks_cleared": "Sunucu yöneticisi olarak onaylı ağları temizledi"
       },
       "sso": {
         "configured": "Çoklu oturum açma bağlantısı kaydedildi ({protocol}): {domains}",
@@ -1728,7 +1768,10 @@
     "reviewChannel": "İncelenecekler: {channel}",
     "followUpTitle": "Takipler",
     "followUpDescription": "Başlattığınız bir takip, sıradaki e-postası gönderim öncesi kontrolden geçemediği için duraklar.",
-    "followUpChannel": "Takipler: {channel}"
+    "followUpChannel": "Takipler: {channel}",
+    "reactionTitle": "Tepkiler",
+    "reactionDescription": "Biri yazdığınız bir yoruma tepki verir. Aynı yoruma gelen tepkiler siz açana kadar bir arada durur.",
+    "reactionChannel": "Tepkiler: {channel}"
   },
   "site": {
     "description": "Bu çalışma alanının yayındaki sayfalarına okunabilir tek bir adres, bir ana sayfa ve aralarında gezinme menüsü verin.",
@@ -2275,6 +2318,56 @@
       "color": "Bir renk seçin.",
       "border": "Bir kenarlık seçin.",
       "title": "Başlık en fazla 120 karakter olabilir."
+    }
+  },
+  "letterheads": {
+    "heading": "Antetler",
+    "description": "PDF dosyalarının sayfanın çevresine bastığı şeyler: logo, üstte şirket bilgileri ve altta satırlar. PDF dışa aktarırken birini seçin; yapay zekâ sohbeti başkası istenmedikçe varsayılanı kullanır.",
+    "empty": "Henüz antet yok.",
+    "add": "Antet ekle",
+    "edit": "Düzenle",
+    "remove": "{name} antetini kaldır",
+    "removeConfirm": "“{name}” anteti kaldırılsın mı? PDF'ler bundan sonra varsayılanı kullanır.",
+    "count": "{count} / {max} antet",
+    "ownersOnly": "Antetleri yalnızca sahipler değiştirebilir.",
+    "default": "Varsayılan",
+    "makeDefault": "Varsayılan yap",
+    "unsetDefault": "Varsayılan olmaktan çıkar",
+    "noLines": "Üstte satır yok",
+    "name": "Ad",
+    "namePlaceholder": "Teklifler",
+    "logo": "Logo",
+    "logoHelp": "PNG ya da JPEG, en çok {size}.",
+    "uploadLogo": "Logo yükle",
+    "replaceLogo": "Logoyu değiştir",
+    "removeLogo": "Kaldır",
+    "logoPlace": "Logonun yeri",
+    "places": {
+      "left": "Logo solda",
+      "center": "Logo ortada",
+      "right": "Logo sağda"
+    },
+    "header": "Üst satırlar",
+    "headerHelp": "En çok {max} satır, her sayfada basılır; ilki kalın.",
+    "headerPlaceholder": "Şirket adı\nAdres\nTelefon · e-posta · vergi no",
+    "footer": "Alt satırlar",
+    "footerHelp": "En çok {max} satır, örneğin banka bilgileri.",
+    "footerPlaceholder": "Banka · IBAN",
+    "accent": "Vurgu rengi",
+    "accentHelp": "Üstteki çizgi ve tablo başlıkları için.",
+    "noAccent": "Gri",
+    "pageNumbers": "Sayfa numaraları",
+    "errors": {
+      "name": "En çok 60 karakterlik bir ad verin.",
+      "header": "Üstte en çok 6 satır olabilir, her biri en çok 140 karakter.",
+      "footer": "Altta en çok 4 satır olabilir, her biri en çok 140 karakter.",
+      "logoPlace": "Logonun yerini seçin.",
+      "accent": "Bir renk seçin.",
+      "duplicateName": "Bu adda başka bir antet var.",
+      "tooMany": "Bir çalışma alanında en çok 20 antet olabilir.",
+      "logoType": "Logo PNG ya da JPEG bir görsel olmalı.",
+      "logoSize": "Logo çok büyük: en çok 512 KB olabilir.",
+      "notFound": "Bu antet artık yok. Sayfayı yenileyin."
     }
   }
 }

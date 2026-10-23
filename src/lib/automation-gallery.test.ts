@@ -31,6 +31,13 @@ describe("galleryAutomations", () => {
     expect(approve.actions[1]).toEqual({ id: "set", type: "set_properties", values: {} });
     expect(notify.actions[0]).toMatchObject({ type: "notify", propertyIds: [] });
     expect(remind.trigger).toMatchObject({ type: "date_passed", date: "", status: null });
+    expect(all[3].trigger).toEqual({ type: "property_changed", propertyId: null });
+  });
+
+  it("celebrates a row moving to the closing option", () => {
+    const celebrate = galleryAutomations([stage, owner]).find((a) => a.key === "celebrateDone")!;
+    expect(celebrate.trigger).toEqual({ type: "property_changed", propertyId: "stage", to: "won" });
+    expect(celebrate.actions).toEqual([{ id: "celebrate", type: "celebrate" }]);
   });
 
   it("changes on any option when none sounds like asking, and finds closing options across languages", () => {

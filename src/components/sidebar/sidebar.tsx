@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import {
   Bell,
   BellOff,
@@ -10,6 +11,7 @@ import {
   ChevronsRight,
   ChevronUp,
   ClipboardCheck,
+  NotebookPen,
   CloudOff,
   BookOpen,
   Database,
@@ -35,6 +37,7 @@ import {
   UserRound,
   Users,
   Waypoints,
+  HardDriveDownload,
 } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
@@ -57,10 +60,21 @@ import type { PageKind } from "@/db/schema/app";
 import { authClient } from "@/lib/auth-client";
 import { closeOfflineDocs } from "@/components/collab/socket";
 import { useIsOffline } from "@/components/offline/offline-context";
+import { OfflineToggle } from "@/components/offline/offline-toggle";
 import { useLocalMode } from "@/components/local-mode";
-import { loadSnapshot, readOfflineState, saveSnapshot, treeSnapshotKey, wipeAllOfflineData } from "@/components/offline/offline-store";
+import {
+  loadSnapshot,
+  readOfflineState,
+  saveSnapshot,
+  treeSnapshotKey,
+  useOfflineState,
+  wipeAllOfflineData,
+  writeOfflineState,
+} from "@/components/offline/offline-store";
+import { reconcileFavorites, wantedPages } from "@/lib/offline";
 import { InstallAppMenuItem } from "@/components/offline/install-app";
 import { dropPushSubscription } from "@/components/settings/push-device";
+import { CELEBRATE_EVENT } from "@/lib/celebrate-event";
 import { FAVORITES_EVENT } from "@/lib/favorites-event";
 import { IMPORT_SPREADSHEET_EVENT, type ImportSpreadsheetDetail } from "@/lib/import-spreadsheet-event";
 import { comboText, isMac, opensShortcuts } from "@/lib/shortcuts";
@@ -77,7 +91,6 @@ import { TeamspaceDialog } from "@/components/teamspaces/teamspace-dialog";
 import { useAiChat } from "@/components/ai-chat/chat-panel";
 import { ConversationList } from "@/components/ai-chat/conversation-list";
 import { chatPath, isChatPath } from "@/lib/ai-chat";
-import { InboxDialog } from "./inbox-dialog";
 import { NewWorkspaceDialog } from "./new-workspace-dialog";
 import { SearchDialog } from "./search-dialog";
 import { inlineSign } from "@/components/direction";
@@ -86,6 +99,9 @@ import { isSettingsPath, SidebarPeekEdge, useSidebar } from "./sidebar-context";
 import { TrashDialog } from "./trash-dialog";
 import { TemplatesDialog } from "@/components/workspace/templates-dialog";
 import { ImportDialog } from "@/components/workspace/import-dialog";
+
+// Loaded the first time the inbox opens: it is not needed to show a page.
+const InboxDialog = dynamic(() => import("./inbox-dialog").then((m) => m.InboxDialog), { ssr: false });
 
 type Workspace = { id: string; name: string; icon: string | null; role: string };
 
@@ -195,6 +211,9 @@ export function Sidebar({
   // The section the templates or import dialog was opened from.
   const [dialogTarget, setDialogTarget] = useState<Target>(undefined);
   const [inboxOpen, setInboxOpen] = useState(false);
+  // Mounted from the first opening on, so it closes with its own transition afterwards.
+  const [inboxMounted, setInboxMounted] = useState(false);
+  if (inboxOpen && !inboxMounted) setInboxMounted(true);
   const [unread, setUnread] = useState(0);
   // Changes agents proposed that wait for the person (the "For review" page), counted with the inbox.
   const [reviewCount, setReviewCount] = useState(0);
@@ -243,6 +262,20 @@ export function Sidebar({
   useEffect(() => setTeamspaces(initialTeamspaces), [initialTeamspaces]);
   useEffect(() => setJournalPageId(initialJournalPageId), [initialJournalPageId]);
   useEffect(() => setFavorites(initialFavorites), [initialFavorites]);
+  // Favorites are downloaded for offline use too, unless the person turned that off on this device.
+  const offlineState = useOfflineState(user.id);
+  const keepFavorites = offlineState.keepFavorites;
+  useEffect(() => {
+    writeOfflineState(user.id, (s) =>
+      reconcileFavorites(
+        s,
+        workspaceId,
+        favorites.filter((f) => !f.outdated).map((f) => ({ id: f.id, title: f.title, icon: f.icon, kind: f.kind })),
+      ),
+    );
+  }, [favorites, keepFavorites, user.id, workspaceId]);
+  // Pages downloaded to this device: a quiet mark beside them in the tree.
+  const keptOffline = useMemo(() => new Set(wantedPages(offlineState).keys()), [offlineState]);
 
   const refreshFavorites = useCallback(() => {
     listFavoritesAction(workspaceId).then(setFavorites).catch(() => {});
@@ -299,6 +332,9 @@ export function Sidebar({
     if (event === "inbox") {
       refreshInbox();
       setInboxVersion((v) => v + 1);
+    } else if (event === CELEBRATE_EVENT) {
+      // Sent to this person's windows only, by an automation their change started.
+      void import("@/components/celebrate").then((m) => m.celebrate(tc("celebrate")));
     } else refresh();
   });
   // Also on focus: a signal sent while the connection was down would otherwise be missed.
@@ -436,6 +472,7 @@ export function Sidebar({
   const sectionLabel = (key: SidebarSection) =>
     ({
       favorites: t("pages.favorites"),
+      meetings: t("sections.meetings"),
       pages: t("pages.heading"),
       teamspaces: t("teamspaces.heading"),
       shared: t("sections.shared"),
@@ -702,6 +739,7 @@ export function Sidebar({
     onDragging: setDragging,
     canDrop,
     offline,
+    keptOffline,
   };
 
   if (isSettingsPath(pathname)) return null;
@@ -729,6 +767,13 @@ export function Sidebar({
           ))}
         </ul>
       </SectionGroup>
+    ),
+    meetings: (
+      <div className="mb-2">
+        <SidebarButton icon={<NotebookPen className="h-4 w-4" />} href={`/w/${workspaceId}/meetings`} active={pathname === `/w/${workspaceId}/meetings`}>
+          {t("sections.meetings")}
+        </SidebarButton>
+      </div>
     ),
     pages: pagesSpace && (
       <SectionGroup
@@ -1417,13 +1462,15 @@ export function Sidebar({
         ]}
       />
       <ShortcutsDialog open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
-      <InboxDialog
-        workspaceId={workspaceId}
-        open={inboxOpen}
-        onClose={() => setInboxOpen(false)}
-        version={inboxVersion}
-        onRead={refreshInbox}
-      />
+      {inboxMounted && (
+        <InboxDialog
+          workspaceId={workspaceId}
+          open={inboxOpen}
+          onClose={() => setInboxOpen(false)}
+          version={inboxVersion}
+          onRead={refreshInbox}
+        />
+      )}
       {canCreateWorkspace && <NewWorkspaceDialog open={newWorkspaceOpen} onClose={() => setNewWorkspaceOpen(false)} />}
       <TemplatesDialog
         workspaceId={workspaceId}
@@ -1955,6 +2002,8 @@ type TreeContext = {
   canDrop: (draggedId: string, parentId: string | null, section: TreeSection) => boolean;
   /** No server: no creating, trashing or moving pages. */
   offline: boolean;
+  /** Pages downloaded to this device for offline use. */
+  keptOffline: ReadonlySet<string>;
 };
 
 type TreeProps = TreeContext & { depth: number };
@@ -1978,8 +2027,9 @@ function TreeItem({
   ...props
 }: TreeProps & { node: TreeNode; prev?: TreeNode; next?: TreeNode }) {
   const { depth, childrenOf, expanded, activeId, activeViewId, workspaceId, onToggle, onCreate, onArchive, onRename, onMove } = props;
-  const { dragging, onDragging, canDrop } = props;
+  const { dragging, onDragging, canDrop, keptOffline } = props;
   const t = useTranslations("sidebar");
+  const tOffline = useTranslations("offline.keep");
   const tc = useTranslations("common");
   const kids = childrenOf.get(node.id) ?? [];
   const isOpen = expanded.has(node.id);
@@ -2109,9 +2159,18 @@ function TreeItem({
               <PageIcon icon={node.icon} kind={node.kind} className="hidden text-sm pointer-coarse:inline" />
             )}
             <span className="truncate">{pageLabel(node.title, tc("untitled"))}</span>
+            {keptOffline.has(node.id) && (
+              <HardDriveDownload
+                aria-label={tOffline("badge")}
+                className="h-3 w-3 shrink-0 text-fg-faint group-hover:hidden group-has-[[data-open]]:hidden pointer-coarse:hidden"
+              >
+                <title>{tOffline("badge")}</title>
+              </HardDriveDownload>
+            )}
           </Link>
         )}
-        {editable && !renaming && (
+        {/* Downloading needs only read access; renaming, trashing and adding pages need edit access. */}
+        {!props.offline && !renaming && (
           <div className="hidden items-center group-hover:flex focus-within:flex has-[[data-open]]:flex pointer-coarse:flex">
             <Popover
               align="end"
@@ -2122,30 +2181,38 @@ function TreeItem({
               )}
             >
               {(close) => (
-                <>
-                  <MenuItem
-                    icon={<Pencil className="h-4 w-4" />}
-                    onClick={() => {
-                      close();
-                      setRenaming(true);
-                    }}
-                  >
-                    {t("pages.rename")}
-                  </MenuItem>
-                  <MenuItem
-                    danger
-                    icon={<Trash2 className="h-4 w-4" />}
-                    onClick={() => {
-                      close();
-                      onArchive(node.id);
-                    }}
-                  >
-                    {t("pages.moveToTrash")}
-                  </MenuItem>
-                </>
+                <div className="w-56">
+                  {editable && (
+                    <>
+                      <MenuItem
+                        icon={<Pencil className="h-4 w-4" />}
+                        onClick={() => {
+                          close();
+                          setRenaming(true);
+                        }}
+                      >
+                        {t("pages.rename")}
+                      </MenuItem>
+                      <MenuItem
+                        danger
+                        icon={<Trash2 className="h-4 w-4" />}
+                        onClick={() => {
+                          close();
+                          onArchive(node.id);
+                        }}
+                      >
+                        {t("pages.moveToTrash")}
+                      </MenuItem>
+                      <MenuSeparator />
+                    </>
+                  )}
+                  <OfflineToggle
+                    page={{ id: node.id, workspaceId, title: node.title, icon: node.icon, kind: node.kind, row: false }}
+                  />
+                </div>
               )}
             </Popover>
-            {canNest && (
+            {canNest && editable && (
               <IconButton label={t("pages.addInside")} onClick={() => onCreate(node.id)}>
                 <Plus className="h-3.5 w-3.5" />
               </IconButton>

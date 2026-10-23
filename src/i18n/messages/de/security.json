@@ -91,5 +91,17 @@
     "signedInAs": "Angemeldet als {email}.",
     "signOut": "Abmelden",
     "otherWorkspaces": "Deine anderen Workspaces"
+  },
+  "networkGate": {
+    "metaTitle": "Nur freigegebene Netzwerke",
+    "title": "{workspace} erlaubt die Anmeldung nur aus freigegebenen Netzwerken",
+    "body": "Die Eigentümer dieses Workspace lassen ihn nur aus freigegebenen Netzwerken öffnen, etwa aus dem Büro oder über ein VPN, und diese Verbindung kommt aus keinem davon. Verbinde dich mit einem freigegebenen Netzwerk und versuche es erneut.",
+    "address": "Deine Adresse:",
+    "addressUnknown": "Deine Adresse ließ sich nicht ermitteln.",
+    "askOwner": "Wenn du von hier aus Zugang haben solltest, bitte einen Eigentümer des Workspace, diese Adresse hinzuzufügen.",
+    "tryAgain": "Erneut versuchen",
+    "signedInAs": "Angemeldet als {email}.",
+    "signOut": "Abmelden",
+    "otherWorkspaces": "Deine anderen Workspaces"
   }
 }

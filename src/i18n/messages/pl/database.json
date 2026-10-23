@@ -20,7 +20,8 @@
     "lastEditedBy": "Ostatnio edytowane przez",
     "lastEditedTime": "Czas ostatniej edycji",
     "formula": "Formuła",
-    "rollup": "Agregacja"
+    "rollup": "Agregacja",
+    "place": "Miejsce"
   },
   "views": {
     "table": "Tabela",
@@ -31,7 +32,8 @@
     "timeline": "Oś czasu",
     "chart": "Wykres",
     "dashboard": "Pulpit",
-    "form": "Formularz"
+    "form": "Formularz",
+    "map": "Mapa"
   },
   "dashboardView": {
     "emptyEditable": "Wyświetlaj tutaj liczby, wykresy i listy z tej bazy danych. Aktualizują się wraz ze zmianami wierszy.",
@@ -742,7 +744,13 @@
       "panel": "Panel boczny",
       "page": "Pełna strona"
     },
-    "showOutdated": "Pokaż zarchiwizowane wiersze"
+    "showOutdated": "Pokaż zarchiwizowane wiersze",
+    "place": "Właściwość miejsca",
+    "needsPlace": "Mapy rozmieszczają wiersze według właściwości miejsca.",
+    "newPlaceProperty": "Nowa właściwość miejsca",
+    "pinColor": "Kolor pinezek",
+    "noPinColor": "Brak",
+    "colorRules": "Reguły kolorów"
   },
   "gallery": {
     "new": "Nowy",
@@ -878,6 +886,7 @@
     "cannotRestrict": "Ta właściwość nie może mieć własnych uprawnień dostępu.",
     "typeChangeRestricted": "„{property}” ma reguły dostępu, a właściwości tego typu nie mogą ich mieć. Najpierw usuń jej reguły.",
     "typeChangeNamesPeople": "Reguły dostępu nadają dostęp osobom wskazanym w „{property}”. Usuń te reguły, zanim zmienisz jej typ.",
+    "invalidRowAccess": "Nie można zapisać tych reguł dostępu do wierszy. Odśwież stronę i spróbuj ponownie.",
     "invalidAutomation": "Nie można zapisać tej automatyzacji. Sprawdź jej wyzwalacz i akcje.",
     "tooManyAutomations": "Baza danych może mieć najwyżej {max, plural, one {# automatyzację} few {# automatyzacje} many {# automatyzacji} other {# automatyzacji}}.",
     "invalidWebhookUrl": "„{value}” nie jest prawidłowym adresem http(s).",
@@ -892,7 +901,11 @@
     "mergeRowsInvalid": "Scalać można tylko wiersze jednej bazy danych, które nie są w koszu.",
     "mergeRowsReadOnly": "Możesz tylko wyświetlać {rows}. Scalanie wymaga uprawnień do edycji każdego wiersza.",
     "mergeLinksBlocked": "{count, plural, one {# wiersz odwołuje się} few {# wiersze odwołują się} many {# wierszy odwołuje się} other {# wiersza odwołuje się}} do tych wierszy, a nie możesz {count, plural, one {go} other {ich}} zmienić: {rows}. Nic nie scalono.",
-    "mergeChoiceInvalid": "Nie można użyć wartości wybranej dla „{property}”. Wybierz wartość innego wiersza."
+    "mergeChoiceInvalid": "Nie można użyć wartości wybranej dla „{property}”. Wybierz wartość innego wiersza.",
+    "invalidPlace": "„{property}” przyjmuje adres lub współrzędne (szerokość, długość).",
+    "placeNotFound": "Nie znaleziono miejsca dla „{value}” w „{property}”.",
+    "geocodingOff": "Wyszukiwanie adresów jest na tym serwerze wyłączone: podaj w „{property}” współrzędne (szerokość, długość).",
+    "geocoderBusy": "Wyszukiwanie adresów jest zajęte. Spróbuj „{property}” ponownie za chwilę."
   },
   "formula": {
     "title": "Formuła",
@@ -912,6 +925,20 @@
     "error": "Błąd",
     "errorTitle": "Nie można obliczyć tego wiersza: {message}",
     "or": "lub",
+    "ai": {
+      "open": "Opisz",
+      "title": "Napisz formułę z AI",
+      "close": "Zamknij",
+      "description": "Co formuła ma obliczać",
+      "placeholder": "Na przykład: dni do terminu albo „Opóźnione”, gdy termin minął",
+      "writing": "Piszę…",
+      "write": "Napisz formułę",
+      "again": "Napisz ponownie",
+      "failed": "Formuła napisana przez AI nie działa: {message}",
+      "use": "Użyj formuły",
+      "emptyValue": "Puste",
+      "noRows": "Nie ma jeszcze wierszy, na których można ją wypróbować."
+    },
     "groups": {
       "logic": "Logika",
       "text": "Tekst",
@@ -1055,6 +1082,35 @@
       "share": "Zmień dostęp do bazy danych"
     }
   },
+  "rowAccess": {
+    "menuItem": "Dostęp do wierszy",
+    "menuHint": "Daj osobom wskazanym w wierszu dostęp do tego wiersza",
+    "title": "Dostęp do wierszy",
+    "description": "Daj osobom wskazanym w wierszu dostęp do tego wiersza i stron w nim.",
+    "loading": "Ładowanie…",
+    "rules": "Reguły",
+    "rulesHint": "Każda reguła daje osobom wskazanym we właściwości osób, albo twórcy wiersza, dostęp do ich wierszy.",
+    "noPersonProperties": "Dodaj właściwość osób, aby dać dostęp wskazanym w niej osobom. Twórca wiersza może już mieć regułę.",
+    "creator": "Utworzone przez",
+    "creatorDetail": "Osoba, która utworzyła wiersz",
+    "personDetail": "Osoby wskazane w tej właściwości, we własnych wierszach",
+    "addRule": "Dodaj regułę",
+    "levelFor": "Dostęp dla: {name}",
+    "removeRule": "Usuń {name}",
+    "levels": {
+      "full": "Pełny dostęp",
+      "edit": "Może edytować",
+      "comment": "Może komentować",
+      "view": "Może wyświetlać"
+    },
+    "restricted": "Pokazuj wiersze tylko wskazanym osobom",
+    "restrictedHint": "Inne osoby, które mogą otworzyć bazę danych, widzą tylko wiersze, do których dostęp daje im reguła lub udostępnienie samego wiersza.",
+    "fullAccess": {
+      "warning": "{count, plural, one {{names} ma} few {{names}{more, plural, =0 {} one { i # inna osoba} few { i # inne osoby} many { i # innych osób} other { i # innej osoby}} mają} many {{names}{more, plural, =0 {} one { i # inna osoba} few { i # inne osoby} many { i # innych osób} other { i # innej osoby}} mają} other {{names}{more, plural, =0 {} one { i # inna osoba} few { i # inne osoby} many { i # innych osób} other { i # innej osoby}} mają}} pełny dostęp do tej bazy danych, więc nadal widzą wszystkie wiersze. Aby ich ograniczyć, obniż ich dostęp lub dostęp członków przestrzeni zespołu.",
+      "share": "Zmień dostęp do bazy danych"
+    },
+    "note": "Reguła tylko dodaje dostęp: gdy udostępnienie daje komuś więcej, to zostaje. Zmiana osób w wierszu od razu zmienia, kto może go otworzyć."
+  },
   "automations": {
     "button": "Automatyzacje",
     "title": "Automatyzacje",
@@ -1148,6 +1204,7 @@
         "upsert_row": "Dodaj lub zaktualizuj wiersz",
         "wait": "Czekaj",
         "log": "Zapisz w historii uruchomień",
+        "celebrate": "Świętuj konfetti",
         "approval": "Poproś o zatwierdzenie",
         "start_sequence": "Uruchom follow-up"
       },
@@ -1339,7 +1396,9 @@
         "sequenceGone": "Follow-up już nie istnieje",
         "noMailbox": "Osoba automatyzacji nie ma podłączonej skrzynki pocztowej",
         "noAddress": "Wiersz nie ma adresu e-mail",
-        "emailOff": "E-maile w wierszach są wyłączone"
+        "emailOff": "E-maile w wierszach są wyłączone",
+        "noPerson": "Pominięto: tego przebiegu nie uruchomiła zmiana żadnej osoby",
+        "tooLate": "Pominięto: od zmiany minęło zbyt dużo czasu, by ją świętować"
       },
       "waitingApproval": "Czeka na zatwierdzenie",
       "approval": {
@@ -1439,7 +1498,9 @@
       "waitHelp": "Do 7 dni. Uruchomienie czeka, a potem przechodzi do następnego kroku.",
       "logMessage": "Wiadomość",
       "logPlaceholder": "Na przykład: Zaimportowano {template}",
-      "logHelp": "Zapisywana w historii uruchomień z uzupełnionymi zmiennymi."
+      "logHelp": "Zapisywana w historii uruchomień z uzupełnionymi zmiennymi.",
+      "celebrateHelp": "Konfetti w aplikacji dla osoby, której zmiana uruchomiła przebieg, w otwartych przez nią oknach. Przebiegi, których nikt nie uruchomił (harmonogramy, mijające daty, przychodzące webhooki, anonimowe odpowiedzi na formularze), pomijają ten krok, podobnie jak te, które docierają do niego później niż dwie minuty po zmianie.",
+      "celebrateTry": "Wypróbuj"
     },
     "variables": {
       "button": "Wstaw zmienną",
@@ -1522,6 +1583,10 @@
         "name": "Przypominaj o zaległych wierszach",
         "description": "Dzień po minięciu daty niezakończonego wiersza powiadom jego osoby.",
         "message": "{title} jest po terminie."
+      },
+      "celebrateDone": {
+        "name": "Świętuj ukończone wiersze",
+        "description": "Gdy wiersz zostanie oznaczony jako gotowy, konfetti dla osoby, która to zrobiła."
       }
     }
   },
@@ -1603,5 +1668,51 @@
     "confirm": "Scal wiersze",
     "merging": "Scalanie…",
     "bodyHeading": "Scalono z {title}"
+  },
+  "place": {
+    "search": "Wyszukaj adres lub miejsce",
+    "input": "{property}: adres lub współrzędne",
+    "coordinatesHint": "Albo wklej współrzędne, np. 41.04, 29.01",
+    "searching": "Wyszukiwanie…",
+    "noResults": "Nie znaleziono miejsc.",
+    "off": "Wyszukiwanie adresów jest na tym serwerze wyłączone. Wklej zamiast tego współrzędne.",
+    "busy": "Zbyt wiele wyszukiwań naraz. Spróbuj ponownie za chwilę.",
+    "failed": "Wyszukiwanie adresów nie odpowiedziało. Spróbuj ponownie.",
+    "useCoordinates": "Użyj {coordinates}",
+    "openMap": "Otwórz na mapie",
+    "clear": "Wyczyść",
+    "current": "Obecne miejsce"
+  },
+  "map": {
+    "off": "Mapy są na tym serwerze wyłączone.",
+    "needsPlaceTitle": "Mapy umieszczają wiersze tam, gdzie wskazuje ich właściwość miejsca",
+    "needsPlaceBody": "Ta baza danych nie ma jeszcze właściwości miejsca.",
+    "addPlaceProperty": "Dodaj właściwość {name}",
+    "defaultPlaceProperty": "Miejsce",
+    "noLocation": "{count, plural, one {# wiersz} few {# wiersze} many {# wierszy} other {# wiersza}} bez {property}",
+    "noLocationTitle": "Wiersze bez {property}",
+    "label": "Mapa wierszy według {property}",
+    "pin": "{title}, {place}",
+    "open": "Otwórz",
+    "closeCard": "Zamknij",
+    "zoomIn": "Powiększ",
+    "zoomOut": "Pomniejsz",
+    "fit": "Pokaż wszystkie wiersze",
+    "loading": "Ładowanie mapy…"
+  },
+  "colorRules": {
+    "title": "Reguły kolorów",
+    "description": "Koloruj wiersze lub jedną z ich wartości, gdy spełniają warunki.",
+    "empty": "Nie ma jeszcze reguł kolorów. Dodaj regułę, aby kolorować pasujące wiersze.",
+    "ruleLabel": "Reguła: {color}",
+    "color": "Kolor",
+    "colors": "Koloruje",
+    "target": "Co koloruje reguła",
+    "wholeRow": "Cały wiersz",
+    "moveUp": "Przenieś w górę",
+    "moveDown": "Przenieś w dół",
+    "delete": "Usuń regułę",
+    "add": "Dodaj regułę",
+    "firstMatchWins": "Gdy pasuje kilka reguł, wiersz lub wartość koloruje pierwsza z nich."
   }
 }

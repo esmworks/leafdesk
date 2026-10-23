@@ -40,6 +40,7 @@ import {
 } from "./property-types";
 import { isPercent, toPercentPoints, valueFormat } from "./number-format";
 import { moveBeside } from "./reorder";
+import { asPlace, placeText, readPlaceInput, type PlaceValue } from "./place";
 
 export const SELECT_COLORS = ["gray", "brown", "orange", "yellow", "green", "blue", "purple", "pink", "red"] as const;
 
@@ -52,6 +53,10 @@ export const DATABASE_ERROR_CODES = [
   "invalidEmail",
   "invalidPhone",
   "invalidChecklist",
+  "invalidPlace",
+  "placeNotFound",
+  "geocodingOff",
+  "geocoderBusy",
   "invalidFile",
   "invalidNumber",
   "invalidCheckbox",
@@ -101,6 +106,7 @@ export const DATABASE_ERROR_CODES = [
   "cannotRestrict",
   "typeChangeRestricted",
   "typeChangeNamesPeople",
+  "invalidRowAccess",
   "invalidAutomation",
   "tooManyAutomations",
   "invalidWebhookUrl",
@@ -319,6 +325,21 @@ function normalizeFiles(prop: PropertyDef, value: unknown): FileValue[] | null {
   return out.length ? out : null;
 }
 
+/**
+ * Place input with coordinates (see lib/place readPlaceInput). An address without them has to be
+ * looked up first, which only the server does (databases.normalizeRowProperties), so here it is
+ * refused like any other value that isn't a place.
+ */
+function normalizePlace(prop: PropertyDef, value: unknown): PlaceValue {
+  const input = readPlaceInput(value);
+  if (input.kind === "place") return input.place;
+  throw new PropertyValueError(
+    `"${prop.name}" takes an address, coordinates ("41.04, 29.01") or {lat, lng, address}`,
+    "invalidPlace",
+    { property: prop.name },
+  );
+}
+
 function findOption(options: SelectOption[] | undefined, input: unknown): SelectOption | undefined {
   if (typeof input !== "string") return undefined;
   const needle = input.trim().toLowerCase();
@@ -353,6 +374,8 @@ export function normalizeValue(prop: PropertyDef, value: unknown): unknown {
       return normalizeChecklist(prop, value);
     case "files":
       return normalizeFiles(prop, value);
+    case "place":
+      return normalizePlace(prop, value);
     case "url": {
       const url = String(value).trim();
       if (!/^https?:\/\//i.test(url) && !/^mailto:/i.test(url)) {
@@ -444,6 +467,7 @@ export function displayValue(prop: PropertyDef, value: unknown): unknown {
     const files = asFiles(value).map(({ name, url }) => ({ name, url }));
     return files.length ? files : null;
   }
+  if (prop.type === "place") return asPlace(value);
   return value;
 }
 
@@ -505,6 +529,8 @@ function liveValue(row: RowLike, key: string, prop: PropertyDef | undefined, tim
   }
   // So do numbers shown as percentages.
   if (prop?.type === "number" && isPercent(prop.options.number) && typeof v === "number") return toPercentPoints(v);
+  // Places filter by their address.
+  if (prop?.type === "place") return placeText(v);
   if (!prop || !holdsOptions(prop.type)) return v;
   const known = (id: unknown) => (prop.options.options ?? []).some((o) => o.id === id);
   if (Array.isArray(v)) return v.filter(known);
@@ -722,6 +748,8 @@ export function sortKeyReader<T extends RowLike>(
     if (prop?.type === "date") return dateSortKey(v);
     // Files sort by how many a row holds; rows without any go last.
     if (prop?.type === "files") return asFiles(v).length || null;
+    // Places sort by their address.
+    if (prop?.type === "place") return placeText(v) || null;
     if (prop && holdsPeople(prop.type)) {
       const names = (Array.isArray(v) ? v : []).flatMap((id) => {
         const name = typeof id === "string" ? nameOf.get(id) : undefined;
@@ -744,6 +772,29 @@ export function compareSortKeys(a: unknown[], b: unknown[], sorts: SortRule[]): 
   return 0;
 }
 
+/**
+ * Whether a row matches a filter tree, as a view filters it (incomplete rules left out, "me" for
+ * the viewer, dates in their time zone); null when nothing in the tree filters yet. View filters
+ * and color rules (lib/color-rules) both test rows this way, so they always agree.
+ */
+export function filterPredicate<T extends RowLike>(
+  filters: FilterEntry[] = [],
+  filterCombinator: FilterCombinator | undefined,
+  props: PropertyDef[] = [],
+  { viewerId, now = new Date(), timeZone }: Omit<ViewViewer, "people"> = {},
+): ((row: T) => boolean) | null {
+  const byId = new Map(props.map((p) => [p.id, p]));
+  return compileFilters<T>(
+    pruneFilters(filters, (rule) => !isIncompleteFilter(rule)),
+    filterCombinator,
+    (rule) => {
+      const prop = byId.get(rule.propertyId);
+      const resolved = resolveViewer(rule, prop, viewerId);
+      return (row) => matches(row, resolved, prop, now, timeZone);
+    },
+  );
+}
+
 export function applyView<T extends RowLike>(
   rows: T[],
   {
@@ -756,16 +807,7 @@ export function applyView<T extends RowLike>(
   { viewerId, people = [], now = new Date(), timeZone }: ViewViewer = {},
 ): T[] {
   if (!showOutdated && rows.some((row) => row.outdated)) rows = rows.filter((row) => !row.outdated);
-  const byId = new Map(props.map((p) => [p.id, p]));
-  const test = compileFilters<T>(
-    pruneFilters(filters, (rule) => !isIncompleteFilter(rule)),
-    filterCombinator,
-    (rule) => {
-      const prop = byId.get(rule.propertyId);
-      const resolved = resolveViewer(rule, prop, viewerId);
-      return (row) => matches(row, resolved, prop, now, timeZone);
-    },
-  );
+  const test = filterPredicate<T>(filters, filterCombinator, props, { viewerId, now, timeZone });
   const filtered = test ? rows.filter(test) : rows;
   if (!sorts.length) return filtered;
   const keyOf = sortKeyReader<T>(sorts, props, people);
@@ -809,6 +851,13 @@ export function filterOperators(type: PropertyType | "title"): { op: FilterOp; l
     { op: "is_not_empty" as const, label: "isNotEmpty" as const },
   ];
   switch (type) {
+    case "place":
+      // By the address: does it name a city, a street…
+      return [
+        { op: "contains", label: "contains" },
+        { op: "does_not_contain", label: "doesNotContain" },
+        ...empty,
+      ];
     case "title":
     case "text":
     case "url":
@@ -1074,7 +1123,7 @@ export function groupRows<T extends { properties: Record<string, unknown> }>(
 }
 
 /**
- * Board and gallery cards stay short: long text and numbers start hidden there until the user
+ * Board, gallery and map cards stay short: long text and numbers start hidden there until the user
  * shows them. List rows and timeline bars are one line, so every property starts hidden there;
  * so it does in charts, which show properties only in the rows behind a bar and when published.
  * A feed post names who wrote it and when above its text, and long text stays out of its way, so
@@ -1083,7 +1132,9 @@ export function groupRows<T extends { properties: Record<string, unknown> }>(
 export function hiddenByDefault(viewType: ViewType, propType: PropertyType): boolean {
   if (viewType === "list" || viewType === "timeline" || viewType === "chart") return true;
   if (viewType === "feed") return propType === "text" || propType === "created_by" || propType === "created_time";
-  return (viewType === "board" || viewType === "gallery") && (propType === "text" || propType === "number");
+  // Map cards too; and the place a map card stands for goes without saying there.
+  if (viewType === "map" && propType === "place") return true;
+  return (viewType === "board" || viewType === "gallery" || viewType === "map") && (propType === "text" || propType === "number");
 }
 
 export function isHiddenInView(

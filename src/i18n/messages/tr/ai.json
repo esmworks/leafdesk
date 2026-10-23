@@ -214,21 +214,33 @@
           "updateRow": "Satır değiştirildi:",
           "createPage": "Sayfa eklendi:",
           "editPage": "Sayfa metni değiştirildi:",
-          "mergeRows": "Satırlar şurada birleştirildi:"
+          "createPdf": "PDF oluşturuldu:",
+          "mergeRows": "Satırlar şurada birleştirildi:",
+          "addComment": "Yorum yapıldı:",
+          "createDatabase": "Veritabanı eklendi:",
+          "createForm": "Form eklendi:"
         },
         "declined": {
           "createRow": "Satır ekleme reddedildi:",
           "updateRow": "Değişiklik reddedildi:",
           "createPage": "Sayfa ekleme reddedildi:",
           "editPage": "Metin değişikliği reddedildi:",
-          "mergeRows": "Satırların birleştirilmesi reddedildi:"
+          "createPdf": "PDF oluşturma reddedildi:",
+          "mergeRows": "Satırların birleştirilmesi reddedildi:",
+          "addComment": "Yorum yapmayı reddettin:",
+          "createDatabase": "Veritabanını eklemeyi reddettin:",
+          "createForm": "Formu eklemeyi reddettin:"
         },
         "failed": {
           "createRow": "Satır eklenemedi:",
           "updateRow": "Değiştirilemedi:",
           "createPage": "Sayfa eklenemedi:",
           "editPage": "Metni değiştirilemedi:",
-          "mergeRows": "Satırlar birleştirilemedi:"
+          "createPdf": "PDF oluşturulamadı:",
+          "mergeRows": "Satırlar birleştirilemedi:",
+          "addComment": "Yorum yapılamadı:",
+          "createDatabase": "Veritabanı eklenemedi:",
+          "createForm": "Form eklenemedi:"
         },
         "in": "yer:",
         "proposed": {
@@ -236,7 +248,11 @@
           "updateRow": "İnceleme için bir değişiklik önerdi:",
           "createPage": "İnceleme için sayfa eklemeyi önerdi:",
           "editPage": "İnceleme için bir metin değişikliği önerdi:",
-          "mergeRows": "İnceleme için satırları şurada birleştirmeyi önerdi:"
+          "createPdf": "İnceleme için bir PDF önerdi:",
+          "mergeRows": "İnceleme için satırları şurada birleştirmeyi önerdi:",
+          "addComment": "İnceleme için bir yorum önerdi:",
+          "createDatabase": "İnceleme için bir veritabanı önerdi:",
+          "createForm": "İnceleme için bir form önerdi:"
         }
       },
       "memory": {
@@ -274,7 +290,11 @@
         "remember": "Bunu senin hakkında hatırlasın mı?",
         "forget": "Bu not unutulsun mu?",
         "editPage": "Bu sayfanın metni değiştirilsin mi?",
-        "connection": "Bu, {connection} hizmetine gönderilsin mi?"
+        "createPdf": "Bu sayfanın PDF'i oluşturulup eklensin mi?",
+        "connection": "Bu, {connection} hizmetine gönderilsin mi?",
+        "addComment": "Bu yorum eklensin mi?",
+        "createDatabase": "Bu veritabanı eklensin mi?",
+        "createForm": "Bu form eklensin mi?"
       },
       "in": "Yer:",
       "row": "Satır:",
@@ -287,7 +307,14 @@
       "waiting": "Onayını bekliyor",
       "page": "Sayfa:",
       "empty": "(boş)",
-      "connectionHint": "Çalışma alanının bağlantısıyla gönderilir: {connection} tarafında bir şeyi değiştirebilir"
+      "connectionHint": "Çalışma alanının bağlantısıyla gönderilir: {connection} tarafında bir şeyi değiştirebilir",
+      "fromFile": "{name} dosyasından {rows, plural, one {# satır} other {# satır}}",
+      "titleColumn": "Başlık",
+      "publicForm": {
+        "signedIn": "Herkese açık bağlantı: bağlantıya sahip herkes giriş yaptıktan sonra yanıtlayabilir",
+        "anonymous": "Herkese açık bağlantı: bağlantıya sahip herkes giriş yapmadan yanıtlayabilir"
+      },
+      "letterhead": "Antet: {name}"
     },
     "mode": {
       "label": "Değişiklikler",
@@ -304,7 +331,20 @@
       "retry": "Yeniden yanıtla"
     },
     "actionsFor": "{name} için işlemler",
-    "greeting": "Ne öğrenmek istersin?"
+    "greeting": "Ne öğrenmek istersin?",
+    "files": {
+      "attach": "CSV dosyası ekle",
+      "attachHint": "Hakkında soru sormak ya da ondan veritabanı oluşturmak için bir CSV dosyası ekle (en çok 1.000 satır ve 1 MB)",
+      "drop": "Eklemek için CSV dosyasını bırak",
+      "remove": "{name} dosyasını kaldır",
+      "size": "{rows, plural, one {# satır} other {# satır}} × {columns, plural, one {# sütun} other {# sütun}}",
+      "notCsv": "Yalnızca CSV dosyaları eklenebilir. Tabloyu önce CSV olarak kaydet.",
+      "tooLarge": "Bu dosya {size} sınırından büyük. Daha küçük bir CSV dosyası ekle.",
+      "tooManyRows": "Bu dosyada {rows} satırdan fazlası var. Daha kısa bir CSV dosyası ekle ya da dosyayı veritabanı olarak içe aktar.",
+      "tooManyColumns": "Bu dosyada {columns} sütundan fazlası var.",
+      "empty": "Bu dosya boş.",
+      "tooMany": "Bir soruya en çok {count} dosya eklenebilir."
+    }
   },
   "memory": {
     "open": "Hafıza",

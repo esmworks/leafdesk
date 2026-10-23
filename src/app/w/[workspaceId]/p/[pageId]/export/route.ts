@@ -22,7 +22,9 @@ import {
   startExport,
 } from "@/server/export";
 import { exportLabels } from "@/server/export-labels";
+import { LetterheadError } from "@/server/letterheads";
 import { getPage } from "@/server/pages";
+import { pagePdf } from "@/server/pdf";
 import { getSkillContent, SkillError } from "@/server/skills";
 import { blockedByWorkspacePolicy, getSession, policyRefusal } from "@/server/session";
 
@@ -50,7 +52,9 @@ async function requestedRows(request: Request): Promise<string[] | null> {
 /**
  * A page as Markdown, or a database's rows as CSV (all of them, or with POST the selected ones);
  * `?format=xlsx` gives the rows as an Excel workbook instead, and `?format=skill` a skill as a ZIP of
- * `<name>/SKILL.md` (the folder AI assistants install skills from).
+ * `<name>/SKILL.md` (the folder AI assistants install skills from), and `?format=pdf` the page as a
+ * PDF file made on the server (server/pdf.ts), in `?letterhead=<id>` (or `none`; the workspace's
+ * default when left out), a row with its values under the title with `&properties=1`.
  * With `?subpages=1`, the page or database with everything under it as a ZIP (see server/export);
  * adding `check=1` only answers whether that export can be made (JSON), so the page menu can say
  * why not before starting a download. Pages the user can't see are 404; with export turned off in
@@ -83,6 +87,18 @@ export async function GET(request: Request, { params }: { params: Promise<{ page
       }
     }
 
+    if (query.get("format") === "pdf") {
+      // Drawing a PDF takes a while: one at a time per person, like the archives.
+      const release = startExport(userId);
+      try {
+        const pdf = await pagePdf(userId, pageId, { properties: query.get("properties") === "1", letterhead: query.get("letterhead") ?? undefined });
+        return new Response(new Uint8Array(pdf.bytes), {
+          headers: { "Content-Type": "application/pdf", "Content-Disposition": attachment(pdf.title, "pdf"), "Cache-Control": "no-store" },
+        });
+      } finally {
+        release();
+      }
+    }
     if (query.get("format") === "skill") {
       const skill = await getSkillContent(userId, pageId);
       const { body } = await pageMarkdown(userId, pageId, labels);
@@ -109,7 +125,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ page
     await recordExport(userId, { workspaceId: target.workspaceId, page: { id: pageId, title: name }, format: "markdown" });
     return download(markdownFile(name, body), "text/markdown", attachment(pageLabel(name, labels.untitled), "md"));
   } catch (error) {
-    if (error instanceof AccessError || error instanceof SkillError) return new Response("Not found", { status: 404 });
+    if (error instanceof AccessError || error instanceof SkillError || error instanceof LetterheadError) return new Response("Not found", { status: 404 });
     if (error instanceof ExportError) return exportErrorResponse(error);
     throw error;
   }

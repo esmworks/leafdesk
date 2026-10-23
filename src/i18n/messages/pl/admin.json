@@ -66,7 +66,8 @@
   "errors": {
     "notFound": "Nie znaleziono tego konta.",
     "noPassword": "To konto nie ma hasła; loguje się w inny sposób.",
-    "self": "Swoje hasło zmienisz na stronie konta."
+    "self": "Swoje hasło zmienisz na stronie konta.",
+    "noWorkspace": "Nie znaleziono tego obszaru roboczego."
   },
   "descriptionFirstAccount": "Konta na tym serwerze, ich sesje i hasła. Widzisz tę stronę, ponieważ twoje konto było pierwszym na tym serwerze.",
   "signUp": {
@@ -81,5 +82,16 @@
     "body": "Twoje konto jest tu pierwsze, więc Administracja serwerem należy do ciebie. Każdy, kto dotrze pod ten adres, nadal może się zarejestrować; w Administracji serwerem znajdziesz, jak to zamknąć.",
     "open": "Administracja serwerem",
     "dismiss": "Zamknij"
+  },
+  "networks": {
+    "heading": "Zatwierdzone sieci",
+    "description": "Obszary robocze, które otwierają się tylko z zatwierdzonych sieci. Jeśli lista odetnie właścicieli obszaru roboczego, wyczyść ją tutaj: obszar otworzy się wtedy z każdej sieci, dopóki właściciele nie ustawią listy ponownie.",
+    "none": "Żaden obszar roboczy nie ogranicza logowania do zatwierdzonych sieci",
+    "noneDescription": "Właściciele ustawiają zatwierdzone sieci w Ustawieniach → Bezpieczeństwo swojego obszaru roboczego.",
+    "count": "{count, plural, one {# sieć} few {# sieci} many {# sieci} other {# sieci}}",
+    "clear": "Wyczyść listę",
+    "clearTitle": "Wyczyścić zatwierdzone sieci obszaru {workspace}?",
+    "clearBody": "Wszyscy w obszarze roboczym znów będą mogli otwierać go z każdej sieci, a dziennik audytu odnotuje, że wyczyściłeś listę. Właściciele mogą ustawić ją ponownie w Ustawieniach → Bezpieczeństwo.",
+    "clearConfirm": "Wyczyść listę"
   }
 }

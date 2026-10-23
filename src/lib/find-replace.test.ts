@@ -1,7 +1,7 @@
 import { EditorState } from "prosemirror-state";
 import { describe, expect, it } from "vitest";
 import { serverEditor } from "@/server/blocknote";
-import { findMatches, foldCase, matchIndexAt, replaceAllMatches, replaceMatch, stepIndex } from "./find-replace";
+import { findMatches, foldCase, foldForSearch, matchIndexAt, matchRanges, replaceAllMatches, replaceMatch, SKIPPED, stepIndex } from "./find-replace";
 
 // Page bodies in the page schema (BlockNote's blocks plus the database blocks).
 const docOf = (blocks: unknown[]) => serverEditor._blocksToProsemirrorNode(blocks as any);
@@ -70,9 +70,9 @@ describe("findMatches", () => {
     const [istanbul] = findMatches(doc, "istanbul", { locale: "en" });
     expect(doc.textBetween(istanbul.from, istanbul.to)).toBe("İSTANBUL");
     expect(findMatches(doc, "istanbul", { locale: "tr" })).toHaveLength(1);
-    // Turkish pairs "I" with the dotless "ı".
-    expect(findMatches(doc, "ırmak", { locale: "tr" })).toHaveLength(1);
-    expect(findMatches(doc, "ırmak", { locale: "en" })).toHaveLength(0);
+    // Turkish pairs "I" with the dotless "ı" (with accents mattering, "ı" and "i" stay apart).
+    expect(findMatches(doc, "ırmak", { locale: "tr", matchAccents: true })).toHaveLength(1);
+    expect(findMatches(doc, "ırmak", { locale: "en", matchAccents: true })).toHaveLength(0);
   });
 
   it("keeps character positions when folding", () => {
@@ -92,6 +92,106 @@ describe("findMatches", () => {
     expect(findMatches(doc, "onetwo")).toEqual([]);
     const [two] = findMatches(doc, "two");
     expect(doc.textBetween(two.from, two.to)).toBe("two");
+  });
+});
+
+describe("accents", () => {
+  const textOf = (doc: ReturnType<typeof docOf>, query: string, options = {}) =>
+    findMatches(doc, query, options).map((m) => doc.textBetween(m.from, m.to));
+
+  it("matches letters whatever accents they carry, unless accents matter", () => {
+    const doc = docOf([{ type: "paragraph", content: "Café cafe naïve naive Ångström" }]);
+    expect(textOf(doc, "cafe")).toEqual(["Café", "cafe"]);
+    expect(textOf(doc, "café")).toEqual(["Café", "cafe"]);
+    expect(textOf(doc, "naive")).toEqual(["naïve", "naive"]);
+    expect(textOf(doc, "angstrom")).toEqual(["Ångström"]);
+    expect(textOf(doc, "cafe", { matchAccents: true })).toEqual(["cafe"]);
+    expect(textOf(doc, "café", { matchAccents: true })).toEqual(["Café"]);
+  });
+
+  it("folds the Turkish letters to their plain ones", () => {
+    const doc = docOf([{ type: "paragraph", content: "Çiğdem Şükrü Öğüt ışık" }]);
+    expect(textOf(doc, "cigdem")).toEqual(["Çiğdem"]);
+    expect(textOf(doc, "sukru")).toEqual(["Şükrü"]);
+    expect(textOf(doc, "ogut")).toEqual(["Öğüt"]);
+    expect(textOf(doc, "isik")).toEqual(["ışık"]);
+    expect(textOf(doc, "CIGDEM", { locale: "tr" })).toEqual(["Çiğdem"]);
+    expect(textOf(doc, "cigdem", { matchAccents: true })).toEqual([]);
+    expect(textOf(doc, "çiğdem", { matchAccents: true })).toEqual(["Çiğdem"]);
+  });
+
+  it("keeps the Turkish case rule when accents matter, and lets ı meet i when they don't", () => {
+    const doc = docOf([{ type: "paragraph", content: "IRMAK irmak ırmak" }]);
+    // Accents matter: Turkish pairs "I" with "ı" only; English pairs "I" with "i" only.
+    expect(textOf(doc, "ırmak", { locale: "tr", matchAccents: true })).toEqual(["IRMAK", "ırmak"]);
+    expect(textOf(doc, "irmak", { locale: "tr", matchAccents: true })).toEqual(["irmak"]);
+    expect(textOf(doc, "irmak", { locale: "en", matchAccents: true })).toEqual(["IRMAK", "irmak"]);
+    expect(textOf(doc, "ırmak", { locale: "en", matchAccents: true })).toEqual(["ırmak"]);
+    // Accents don't matter: all three are the same word in either language.
+    expect(textOf(doc, "irmak", { locale: "tr" })).toEqual(["IRMAK", "irmak", "ırmak"]);
+    expect(textOf(doc, "ırmak", { locale: "en" })).toEqual(["IRMAK", "irmak", "ırmak"]);
+    // "İ" still folds to a plain "i".
+    expect(foldForSearch("İSTANBUL", { locale: "en" })).toBe("istanbul");
+  });
+
+  it("folds accents but not case when case matters", () => {
+    const doc = docOf([{ type: "paragraph", content: "Élan élan" }]);
+    expect(textOf(doc, "Elan", { caseSensitive: true })).toEqual(["Élan"]);
+    expect(textOf(doc, "elan", { caseSensitive: true })).toEqual(["élan"]);
+    expect(textOf(doc, "elan", { caseSensitive: true, matchAccents: true })).toEqual([]);
+  });
+
+  it("keeps every character where it was", () => {
+    const samples = ["Çağrı İŞÇİ", "naïve café", "été", "😀 café 👍🏽", "한국어 がぎ", "ﬁne Ǆ"];
+    for (const text of samples) {
+      for (const options of [{}, { locale: "tr" }, { caseSensitive: true }, { matchAccents: true }]) {
+        expect(foldForSearch(text, options).length).toBe(text.length);
+      }
+    }
+    // Letters that don't come apart into a letter and accents stay as they are.
+    expect(foldForSearch("한국어 がぎ ﬁ")).toBe("한국어 がぎ ﬁ");
+    expect(foldForSearch("😀 Ç")).toBe("😀 c");
+  });
+
+  it("skips accents written on their own after their letter", () => {
+    // "e" followed by a combining acute, as decomposed text holds it.
+    expect(foldForSearch("café")).toBe(`cafe${SKIPPED}`);
+    expect(matchRanges(foldForSearch("café x"), "cafe")).toEqual([[0, 5]]);
+    expect(matchRanges(foldForSearch("résumé"), "resume")).toEqual([[0, 8]]);
+    // A query with them skips them too; a query of accents alone finds nothing.
+    expect(matchRanges("resume", foldForSearch("résumé"))).toEqual([[0, 6]]);
+    expect(matchRanges("abc", foldForSearch("́"))).toEqual([]);
+
+    const doc = docOf([{ type: "paragraph", content: "a café and a café" }]);
+    const matches = findMatches(doc, "café");
+    expect(matches.map((m) => doc.textBetween(m.from, m.to))).toEqual(["café", "café"]);
+    // The decomposed one is a character longer, and the second match starts where it should.
+    expect(matches[0].to - matches[0].from).toBe(5);
+    expect(matches[1].to - matches[1].from).toBe(4);
+    // With accents mattering, the marks are ordinary characters again.
+    expect(textOf(doc, "cafe", { matchAccents: true })).toEqual(["cafe"]);
+  });
+
+  it("keeps offsets after emoji and other surrogate pairs", () => {
+    const doc = docOf([{ type: "paragraph", content: "😀👍🏽 Ölçü 𝒳 olcu" }]);
+    const matches = findMatches(doc, "olcu");
+    expect(matches.map((m) => doc.textBetween(m.from, m.to))).toEqual(["Ölçü", "olcu"]);
+    expect(textOf(doc, "👍🏽")).toEqual(["👍🏽"]);
+    expect(textOf(doc, "𝒳")).toEqual(["𝒳"]);
+  });
+
+  it("replaces folded matches, the accents written on their own included", () => {
+    const state = stateOf([{ type: "paragraph", content: "Şeker, seker and sekeré" }]);
+    const matches = findMatches(state.doc, "seker");
+    expect(matches).toHaveLength(3);
+    const next = state.apply(replaceAllMatches(state.tr, matches, "şeker"));
+    expect(texts(next)).toEqual(["şeker, şeker and şekeré"]);
+
+    const decomposed = stateOf([{ type: "paragraph", content: "un café noir" }]);
+    const [match] = findMatches(decomposed.doc, "cafe");
+    const replaced = decomposed.apply(replaceMatch(decomposed.tr, match, "thé"));
+    // The accent went with its letter: none is left hanging on the next character.
+    expect(texts(replaced)).toEqual(["un thé noir"]);
   });
 });
 

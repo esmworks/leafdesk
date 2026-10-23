@@ -91,5 +91,17 @@
     "signedInAs": "已登录为 {email}。",
     "signOut": "退出登录",
     "otherWorkspaces": "你的其他工作区"
+  },
+  "networkGate": {
+    "metaTitle": "仅限已批准的网络",
+    "title": "{workspace} 只允许从已批准的网络登录",
+    "body": "此工作区的所有者只允许从已批准的网络（例如办公室或 VPN）打开它，而此连接并非来自其中任何一个。请连接到已批准的网络后重试。",
+    "address": "你的地址：",
+    "addressUnknown": "无法确定你的地址。",
+    "askOwner": "如果你应当能从这里访问，请让工作区的所有者添加这个地址。",
+    "tryAgain": "重试",
+    "signedInAs": "已以 {email} 身份登录。",
+    "signOut": "退出登录",
+    "otherWorkspaces": "你的其他工作区"
   }
 }

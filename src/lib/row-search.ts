@@ -1,4 +1,5 @@
 import { isErrorValue } from "./derived";
+import { asPlace } from "./place";
 import { asFiles } from "./files";
 import { asChecklist, type RowLike } from "./properties";
 import { holdsPeople, type PropertyType } from "./property-types";
@@ -70,6 +71,11 @@ function valueTexts(prop: Prop, value: unknown, names: Map<string, string>, cont
     case "files":
       for (const file of asFiles(value)) out.push(file.name);
       return;
+    case "place": {
+      const place = asPlace(value);
+      if (place) out.push(place.name ? `${place.name} ${place.address}` : place.address);
+      return;
+    }
     case "relation": {
       const rows = context.relations?.[prop.id]?.rows ?? [];
       for (const id of Array.isArray(value) ? value : []) {
