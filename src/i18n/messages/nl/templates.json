@@ -231,6 +231,79 @@
       }
     }
   },
+  "sprints": {
+    "title": "Sprints",
+    "description": "Taken gepland in sprints van twee weken: de huidige sprint op een bord, sprintplanning en een backlog.",
+    "page": "Teamsprints",
+    "markdown": "Plan het werk van het team in sprints van twee weken. **Huidige sprint** toont de taken van deze sprint per status, **Sprintplanning** de taken van elke komende sprint en **Backlog** de taken die nog in geen enkele sprint zitten. Is een sprint voorbij, open dan **Sprints** in het menu van de database en kies **Sprint afronden**: de volgende sprint begint en onafgeronde taken gaan daarnaartoe.",
+    "database": "Taken",
+    "table": "Alle taken",
+    "board": "Bord",
+    "properties": {
+      "assignee": "Toegewezen aan",
+      "priority": "Prioriteit",
+      "points": "Punten"
+    },
+    "options": {
+      "high": "Hoog",
+      "medium": "Gemiddeld",
+      "low": "Laag"
+    },
+    "rowTemplate": {
+      "title": "Nieuwe taak",
+      "markdown": "## Wat\n\n\n\n## Klaar als\n\n- [ ] \n\n## Notities\n\n"
+    },
+    "rows": {
+      "goal": "Het sprintdoel afspreken",
+      "signup": "Het nieuwe aanmeldformulier bouwen",
+      "emails": "De welkomstmails schrijven",
+      "tests": "Aanmelden testen op telefoons",
+      "pricing": "De prijzenpagina bijwerken",
+      "feedback": "De klantfeedback van vorige maand sorteren"
+    }
+  },
+  "docs": {
+    "title": "Documentatie",
+    "description": "Handleidingen, naslag en beleid op één plek, met per document een categorie, een eigenaar en wanneer het voor het laatst is bewerkt.",
+    "markdown": "Elk document is een pagina in de bibliotheek hieronder, met een categorie en een eigenaar. Heb je gecontroleerd dat een document klopt, kies dan **Pagina verifiëren** in het menu ervan: zoeken zet geverifieerde documenten bovenaan en markeert ze, `is:verified` vindt alleen die documenten en de AI-chat geeft er de voorkeur aan.",
+    "database": "Documentbibliotheek",
+    "table": "Alle documenten",
+    "board": "Per categorie",
+    "recent": "Onlangs bewerkt",
+    "properties": {
+      "category": "Categorie",
+      "owner": "Eigenaar",
+      "edited": "Laatst bewerkt"
+    },
+    "categories": {
+      "guide": "Handleiding",
+      "reference": "Naslag",
+      "policy": "Beleid",
+      "onboarding": "Onboarding"
+    },
+    "rowTemplate": {
+      "title": "Nieuw document",
+      "markdown": "## Samenvatting\n\n\n\n## Details\n\n\n\n## Gerelateerd\n\n- "
+    },
+    "rows": {
+      "writing": {
+        "title": "Hoe we documenten schrijven",
+        "markdown": "## Samenvatting\n\nEén document per onderwerp, geschreven voor iemand die er nieuw in is.\n\n## Details\n\n- Begin met wat de lezer moet doen.\n- Houd stappen kort en in volgorde.\n- Wijs een eigenaar aan en verifieer het document als je het hebt gecontroleerd."
+      },
+      "onboarding": {
+        "title": "Checklist voor de eerste week",
+        "markdown": "## Samenvatting\n\nWat een nieuwe collega in de eerste week doet.\n\n## Details\n\n- [ ] Stel je accounts in\n- [ ] Maak kennis met je team\n- [ ] Lees de documenten van je vakgebied"
+      },
+      "release": {
+        "title": "Releaseproces",
+        "markdown": "## Samenvatting\n\nHoe een wijziging van review bij klanten komt.\n\n## Details\n\n1. Review de wijziging en voeg haar samen.\n2. Test haar op de stagingserver.\n3. Breng haar uit en laat het het team weten."
+      },
+      "expenses": {
+        "title": "Onkostenbeleid",
+        "markdown": "## Samenvatting\n\nWat het bedrijf betaalt en hoe je het declareert.\n\n## Details\n\n- Bewaar het bonnetje.\n- Declareer binnen 30 dagen.\n- Overleg met je manager voordat je meer uitgeeft dan gewoonlijk."
+      }
+    }
+  },
   "journal": {
     "title": "Dagboek",
     "markdown": "## Focus\n\n- [ ] \n\n## Notities\n\n## Vandaag gedaan\n"

@@ -39,6 +39,8 @@ const { AccessError } = await import("@/server/access");
 const { InMemoryTransport } = await import("@modelcontextprotocol/server");
 const { createMcpServer } = await import("@/server/mcp/tools");
 const { READ_SCOPE, WRITE_SCOPE } = await import("@/server/mcp/principal");
+const { getSprints } = await import("@/server/sprints");
+const { activeVerifications } = await import("@/server/verification");
 
 const RUN = `templates-e2e-${Date.now().toString(36)}`;
 
@@ -476,6 +478,70 @@ try {
   );
   check(!(await templates.listTemplates(ids.member, workspaceId)).some((t) => t.id === tracker.id), "built-ins don't add workspace templates");
   check((await failure(() => templates.createFromBuiltin({ userId: ids.guest }, workspaceId, "weekly-plan"))) === "access", "guests can't add built-ins at the top level");
+
+  // Sprints: a page holding the tasks, with sprints turned on and the example tasks in sprints.
+  const sprintsMade = await templates.createFromBuiltin(member, workspaceId, "sprints", { locale: "en" });
+  const sprintsHost = await row(sprintsMade.id);
+  const underHost = await db.select().from(page).where(eq(page.parentId, sprintsMade.id));
+  const tasksDb = underHost.find((p) => p.title === "Tasks");
+  const sprintsDb = underHost.find((p) => p.title === "Sprints");
+  check(
+    sprintsHost.title === "Team sprints" && sprintsHost.kind === "page" && !!tasksDb && tasksDb.kind === "database" && !!sprintsDb,
+    "the sprints template makes a page holding the tasks and, beside them, their sprints",
+    underHost.map((p) => p.title),
+  );
+  check((await getCollab().readPage(sprintsMade.id)).markdown.includes("Complete sprint"), "…with its introduction and the tasks shown in it");
+  const sprintInfo = await getSprints(ids.member, tasksDb!.id);
+  check(sprintInfo.side === "tasks" && sprintInfo.on && sprintInfo.weeks === 2 && !!sprintInfo.current && !!sprintInfo.next, "…with two-week sprints on, one current and one next", sprintInfo);
+  const taskSnapshot = await databases.getDatabaseSnapshot(ids.member, tasksDb!.id);
+  check(
+    ["All tasks", "Board", "Current sprint", "Sprint planning", "Backlog"].every((name) => taskSnapshot.views.some((v) => v.name === name)) &&
+      taskSnapshot.views.find((v) => v.name === "Board")?.type === "board",
+    "…a board by status, the current sprint, planning and the backlog",
+    taskSnapshot.views.map((v) => v.name),
+  );
+  const sprintProp = taskSnapshot.properties.find((p) => p.name === "Sprint")!;
+  const inSprint = (id: string | undefined) => taskSnapshot.rows.filter((r) => JSON.stringify(r.properties[sprintProp.id] ?? null) === JSON.stringify(id ? [id] : null)).length;
+  if (sprintInfo.side === "tasks" && sprintInfo.on) {
+    check(
+      taskSnapshot.rows.length === 6 && inSprint(sprintInfo.current?.id) === 3 && inSprint(sprintInfo.next?.id) === 1 && inSprint(undefined) === 2,
+      "…three example tasks in the current sprint, one next and two in the backlog",
+      taskSnapshot.rows.map((r) => [r.title, r.properties[sprintProp.id]]),
+    );
+  }
+
+  // Docs: a library of docs with a category, an owner and when each was last edited; two verified.
+  const docsMade = await templates.createFromBuiltin(member, workspaceId, "docs", { locale: "en" });
+  const [library] = await db.select().from(page).where(eq(page.parentId, docsMade.id));
+  const docsDb = await databases.getDatabaseSnapshot(ids.member, library.id);
+  check(
+    (await row(docsMade.id)).title === "Docs" &&
+      library.title === "Doc library" &&
+      ["Category", "Owner", "Last edited"].every((name) => docsDb.properties.some((p) => p.name === name)) &&
+      docsDb.properties.find((p) => p.name === "Last edited")?.type === "last_edited_time",
+    "the docs template makes a doc library with a category, an owner and the last edit",
+    docsDb.properties.map((p) => [p.name, p.type]),
+  );
+  const ownerProp = docsDb.properties.find((p) => p.name === "Owner")!;
+  check(
+    docsDb.rows.length === 4 && docsDb.rows.every((r) => JSON.stringify(r.properties[ownerProp.id]) === JSON.stringify([ids.member])),
+    "…four example docs owned by whoever picked it",
+    docsDb.rows.map((r) => r.properties[ownerProp.id]),
+  );
+  check(
+    (await getCollab().readPage(docsDb.rows.find((r) => r.title === "Release process")!.id)).markdown.includes("staging"),
+    "…each with a body",
+  );
+  const verified = await activeVerifications(docsDb.rows.map((r) => r.id));
+  check(
+    verified.size === 2 && [...verified.values()].every((v) => v.byId === ids.member && !!v.until),
+    "…two verified by them, for a while",
+    [...verified.values()],
+  );
+  check(
+    docsDb.views.some((v) => v.name === "By category" && v.type === "board") && docsDb.views.some((v) => v.name === "Recently edited"),
+    "…on a board by category and sorted by the last edit",
+  );
 
   // ---------------------------------------------------------------------------------------------
   // A subpage saved as a template keeps the access it had from above

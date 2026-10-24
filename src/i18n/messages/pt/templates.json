@@ -231,6 +231,79 @@
       }
     }
   },
+  "sprints": {
+    "title": "Sprints",
+    "description": "Tarefas planejadas em sprints de duas semanas: o sprint atual em um quadro, o planejamento de sprints e um backlog.",
+    "page": "Sprints da equipe",
+    "markdown": "Planeje o trabalho da equipe em sprints de duas semanas. **Sprint atual** mostra as tarefas deste sprint por estado, **Planejamento de sprints** as tarefas de cada sprint futuro e **Backlog** as tarefas que ainda não estão em nenhum sprint. Quando um sprint termina, abra **Sprints** no menu do banco de dados e escolha **Concluir sprint**: o próximo sprint começa e as tarefas não concluídas passam para ele.",
+    "database": "Tarefas",
+    "table": "Todas as tarefas",
+    "board": "Quadro",
+    "properties": {
+      "assignee": "Responsável",
+      "priority": "Prioridade",
+      "points": "Pontos"
+    },
+    "options": {
+      "high": "Alta",
+      "medium": "Média",
+      "low": "Baixa"
+    },
+    "rowTemplate": {
+      "title": "Nova tarefa",
+      "markdown": "## O quê\n\n\n\n## Pronta quando\n\n- [ ] \n\n## Anotações\n\n"
+    },
+    "rows": {
+      "goal": "Combinar a meta do sprint",
+      "signup": "Criar o novo formulário de cadastro",
+      "emails": "Escrever os e-mails de boas-vindas",
+      "tests": "Testar o cadastro em celulares",
+      "pricing": "Atualizar a página de preços",
+      "feedback": "Organizar o feedback dos clientes do mês passado"
+    }
+  },
+  "docs": {
+    "title": "Documentos",
+    "description": "Guias práticos, referências e políticas em um só lugar, com categoria, responsável e data da última edição de cada um.",
+    "markdown": "Cada documento é uma página da biblioteca abaixo, com sua categoria e seu responsável. Depois de conferir que um documento está correto, escolha **Verificar página** no menu dele: a busca mostra primeiro os documentos verificados e os marca, `is:verified` encontra só eles e o chat de IA dá preferência a eles.",
+    "database": "Biblioteca de documentos",
+    "table": "Todos os documentos",
+    "board": "Por categoria",
+    "recent": "Editados recentemente",
+    "properties": {
+      "category": "Categoria",
+      "owner": "Responsável",
+      "edited": "Última edição"
+    },
+    "categories": {
+      "guide": "Guia prático",
+      "reference": "Referência",
+      "policy": "Política",
+      "onboarding": "Integração"
+    },
+    "rowTemplate": {
+      "title": "Novo documento",
+      "markdown": "## Resumo\n\n\n\n## Detalhes\n\n\n\n## Relacionados\n\n- "
+    },
+    "rows": {
+      "writing": {
+        "title": "Como escrevemos documentos",
+        "markdown": "## Resumo\n\nUm documento para um assunto, escrito para quem é novo nele.\n\n## Detalhes\n\n- Comece pelo que o leitor precisa fazer.\n- Mantenha as etapas curtas e em ordem.\n- Defina um responsável e verifique o documento depois de conferi-lo."
+      },
+      "onboarding": {
+        "title": "Checklist da primeira semana",
+        "markdown": "## Resumo\n\nO que uma pessoa nova na equipe faz na primeira semana.\n\n## Detalhes\n\n- [ ] Configure suas contas\n- [ ] Conheça sua equipe\n- [ ] Leia os documentos da sua área"
+      },
+      "release": {
+        "title": "Processo de lançamento",
+        "markdown": "## Resumo\n\nComo uma mudança vai da revisão até os clientes.\n\n## Detalhes\n\n1. Revise e mescle a mudança.\n2. Teste-a no servidor de homologação.\n3. Lance-a e avise a equipe."
+      },
+      "expenses": {
+        "title": "Política de despesas",
+        "markdown": "## Resumo\n\nO que a empresa paga e como pedir o reembolso.\n\n## Detalhes\n\n- Guarde o comprovante.\n- Peça o reembolso em até 30 dias.\n- Fale com seu gestor antes de gastar mais do que o normal."
+      }
+    }
+  },
   "journal": {
     "title": "Diário",
     "markdown": "## Foco\n\n- [ ] \n\n## Notas\n\n## Feito hoje\n"

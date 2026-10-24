@@ -231,6 +231,79 @@
       }
     }
   },
+  "sprints": {
+    "title": "Sprintit",
+    "description": "Kahden viikon sprinteissä suunnitellut tehtävät: nykyinen sprintti taululla, sprintin suunnittelu ja työjono.",
+    "page": "Tiimin sprintit",
+    "markdown": "Suunnittele tiimin työ kahden viikon sprinteissä. **Nykyinen sprintti** näyttää tämän sprintin tehtävät tilan mukaan, **Sprintin suunnittelu** kunkin tulevan sprintin tehtävät ja **Työjono** tehtävät, joilla ei vielä ole sprinttiä. Kun sprintti päättyy, avaa tietokannan valikosta **Sprintit** ja valitse **Päätä sprintti**: seuraava sprintti alkaa ja keskeneräiset tehtävät siirtyvät siihen.",
+    "database": "Tehtävät",
+    "table": "Kaikki tehtävät",
+    "board": "Taulu",
+    "properties": {
+      "assignee": "Tekijä",
+      "priority": "Prioriteetti",
+      "points": "Pisteet"
+    },
+    "options": {
+      "high": "Korkea",
+      "medium": "Keskitaso",
+      "low": "Matala"
+    },
+    "rowTemplate": {
+      "title": "Uusi tehtävä",
+      "markdown": "## Mitä\n\n\n\n## Valmis, kun\n\n- [ ] \n\n## Muistiinpanot\n\n"
+    },
+    "rows": {
+      "goal": "Sovi sprintin tavoite",
+      "signup": "Rakenna uusi rekisteröitymislomake",
+      "emails": "Kirjoita tervetulosähköpostit",
+      "tests": "Testaa rekisteröityminen puhelimilla",
+      "pricing": "Päivitä hinnastosivu",
+      "feedback": "Lajittele viime kuun asiakaspalaute"
+    }
+  },
+  "docs": {
+    "title": "Dokumentaatio",
+    "description": "Ohjeet, viitetiedot ja käytännöt yhdessä paikassa, kullakin luokka, vastuuhenkilö ja viimeisin muokkausaika.",
+    "markdown": "Jokainen dokumentti on sivu alla olevassa kirjastossa, ja sillä on luokka ja vastuuhenkilö. Kun olet tarkistanut, että dokumentti pitää paikkansa, valitse sen valikosta **Vahvista sivu**: haku nostaa vahvistetut dokumentit ensimmäisiksi ja merkitsee ne, `is:verified` löytää vain ne, ja tekoälychat suosii niitä.",
+    "database": "Dokumenttikirjasto",
+    "table": "Kaikki dokumentit",
+    "board": "Luokittain",
+    "recent": "Viimeksi muokatut",
+    "properties": {
+      "category": "Luokka",
+      "owner": "Vastuuhenkilö",
+      "edited": "Viimeksi muokattu"
+    },
+    "categories": {
+      "guide": "Ohje",
+      "reference": "Viiteaineisto",
+      "policy": "Käytäntö",
+      "onboarding": "Perehdytys"
+    },
+    "rowTemplate": {
+      "title": "Uusi dokumentti",
+      "markdown": "## Yhteenveto\n\n\n\n## Tiedot\n\n\n\n## Liittyvät\n\n- "
+    },
+    "rows": {
+      "writing": {
+        "title": "Näin kirjoitamme dokumentteja",
+        "markdown": "## Yhteenveto\n\nYksi dokumentti yhdestä aiheesta, kirjoitettuna aiheeseen vasta tutustuvalle.\n\n## Tiedot\n\n- Aloita siitä, mitä lukijan pitää tehdä.\n- Pidä vaiheet lyhyinä ja järjestyksessä.\n- Nimeä vastuuhenkilö ja vahvista dokumentti, kun olet tarkistanut sen."
+      },
+      "onboarding": {
+        "title": "Ensimmäisen viikon tarkistuslista",
+        "markdown": "## Yhteenveto\n\nMitä uusi tiimiläinen tekee ensimmäisellä viikollaan.\n\n## Tiedot\n\n- [ ] Ota tilisi käyttöön\n- [ ] Tapaa tiimisi\n- [ ] Lue oman alueesi dokumentit"
+      },
+      "release": {
+        "title": "Julkaisuprosessi",
+        "markdown": "## Yhteenveto\n\nMiten muutos etenee katselmoinnista asiakkaille.\n\n## Tiedot\n\n1. Katselmoi ja yhdistä muutos.\n2. Testaa se testipalvelimella.\n3. Julkaise se ja kerro tiimille."
+      },
+      "expenses": {
+        "title": "Kulukäytäntö",
+        "markdown": "## Yhteenveto\n\nMistä yritys maksaa ja miten kulut korvataan.\n\n## Tiedot\n\n- Säilytä kuitti.\n- Hae korvausta 30 päivän kuluessa.\n- Kysy esihenkilöltäsi ennen kuin käytät tavallista enemmän."
+      }
+    }
+  },
   "journal": {
     "title": "Päiväkirja",
     "markdown": "## Painopiste\n\n- [ ] \n\n## Muistiinpanot\n\n## Tehty tänään\n"

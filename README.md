@@ -386,9 +386,13 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   opening its day makes a new one. Guests can keep one only where they may add private pages.
 - **Templates**: save a page or database (with its subpages) as a template and create new pages
   from it, or start from built-in templates for meeting notes, a weekly plan, a project tracker, a
-  wins log (a dashboard of wins by month, type, area and impact over the database that holds them)
-  or a small business: customers, the quotes given to them, jobs and a balance sheet, linked to each
-  other, with a dashboard over all four and a weekly plan. A new workspace can start with it.
+  wins log (a dashboard of wins by month, type, area and impact over the database that holds them),
+  a small business (customers, the quotes given to them, jobs and a balance sheet, linked to each
+  other, with a dashboard over all four and a weekly plan; a new workspace can start with it),
+  sprints (a page holding a task database with two-week sprints turned on: a board by status, the
+  current sprint, sprint planning and a backlog, with example tasks in them) or docs (a doc library
+  with a category, an owner and the last edit, on a board by category and sorted by the last edit,
+  with example docs, two of them verified by you for three months).
   Templates stay out of the sidebar, search, trash and published sites.
 - **Build with AI** (with AI set up): describe what you want to keep track of and AI drafts the
   databases for it, with typed properties, options, relations between them, a few views and example

@@ -24,7 +24,7 @@ import { smallBusiness } from "./small-business-template";
  * has) is below, the texts are in `i18n/messages/<locale>/templates.json`.
  */
 
-export const BUILTIN_TEMPLATE_KEYS = ["meeting-notes", "weekly-plan", "project-tracker", "wins-log", "small-business"] as const;
+export const BUILTIN_TEMPLATE_KEYS = ["meeting-notes", "weekly-plan", "project-tracker", "wins-log", "small-business", "sprints", "docs"] as const;
 export type BuiltinTemplateKey = (typeof BUILTIN_TEMPLATE_KEYS)[number];
 
 export const isBuiltinTemplateKey = (value: unknown): value is BuiltinTemplateKey =>
@@ -86,14 +86,23 @@ export type BuiltinDatabaseTemplate = Common & {
   /** Views added after the starter table, in order. */
   views: BuiltinView[];
   /**
-   * With a dashboard, picking the template makes a page (`title`, `icon`, the intro `markdown`)
-   * holding the dashboard and, below it, the database inline, named `database`.
+   * With a dashboard, picking the template makes a page (`title`, or `page` when given, `icon`, the
+   * intro `markdown`) holding the dashboard (none without widgets) and, below it, the database
+   * inline, named `database`.
    */
-  dashboard?: { database: string; markdown: string; widgets: BuiltinWidget[] };
+  dashboard?: { database: string; markdown: string; widgets: BuiltinWidget[]; page?: string };
+  /**
+   * Sprints turned on for the database (server/sprints.ts), sprints this many weeks long: a
+   * sprints database beside it and views of the current sprint, sprint planning and the backlog.
+   */
+  sprints?: { weeks: number };
   /** Becomes the database's default row template. Values are keyed by property name. */
   rowTemplate: { title: string; markdown: string; properties: Record<string, unknown> };
-  /** A few example rows. */
-  rows: { title: string; properties: Record<string, unknown> }[];
+  /**
+   * A few example rows: with a body, in the current or next sprint (with `sprints`), and verified
+   * by the person who picked the template (server/verification.ts).
+   */
+  rows: { title: string; properties: Record<string, unknown>; markdown?: string; sprint?: "current" | "next"; verified?: boolean }[];
 };
 
 /** An option of a select or status: status options name their stage, and any may set its color. */
@@ -171,6 +180,87 @@ const WINS_ROWS: { key: keyof WinsTexts["rows"]; type: WinType; area: WinArea; i
   { key: "thanks", type: "feedback", area: "sales", impact: "medium", daysAgo: 71 },
 ];
 
+type SprintTexts = Texts["sprints"];
+
+/** The sprint board's example tasks: some in the current sprint at each stage, one next, two in the backlog. */
+const SPRINT_ROWS: { key: keyof SprintTexts["rows"]; status: Status; priority: Priority; points: number; sprint?: "current" | "next" }[] = [
+  { key: "goal", status: "done", priority: "high", points: 1, sprint: "current" },
+  { key: "signup", status: "inProgress", priority: "high", points: 5, sprint: "current" },
+  { key: "emails", status: "notStarted", priority: "medium", points: 3, sprint: "current" },
+  { key: "tests", status: "notStarted", priority: "medium", points: 2, sprint: "next" },
+  { key: "pricing", status: "notStarted", priority: "low", points: 2 },
+  { key: "feedback", status: "notStarted", priority: "low", points: 3 },
+];
+
+type DocsTexts = Texts["docs"];
+
+/** The doc library's examples: the first two verified, so search shows what that looks like. */
+const DOC_ROWS: { key: keyof DocsTexts["rows"]; category: keyof DocsTexts["categories"]; verified: boolean }[] = [
+  { key: "writing", category: "reference", verified: true },
+  { key: "onboarding", category: "onboarding", verified: true },
+  { key: "release", category: "guide", verified: false },
+  { key: "expenses", category: "policy", verified: false },
+];
+
+function sprints(texts: SprintTexts, seedNames: BuiltinDatabaseTemplate["seedNames"]): BuiltinDatabaseTemplate {
+  const names = texts.properties;
+  const values = (status: Status, priority: Priority) => ({ [seedNames.status]: seedNames[status], [names.priority]: texts.options[priority] });
+  return {
+    key: "sprints",
+    kind: "database",
+    icon: "🏃",
+    title: texts.title,
+    description: texts.description,
+    seedNames: { ...seedNames, table: texts.table },
+    seedProperties: true,
+    properties: [
+      { name: names.assignee, type: "person" },
+      { name: names.priority, type: "select", options: [texts.options.high, texts.options.medium, texts.options.low] },
+      { name: names.points, type: "number" },
+    ],
+    views: [{ name: texts.board, type: "board", config: { groupBy: seedNames.status } }],
+    dashboard: { page: texts.page, database: texts.database, markdown: texts.markdown, widgets: [] },
+    sprints: { weeks: 2 },
+    rowTemplate: { ...texts.rowTemplate, properties: values("notStarted", "medium") },
+    rows: SPRINT_ROWS.map((row) => ({
+      title: texts.rows[row.key],
+      properties: { ...values(row.status, row.priority), [names.points]: row.points },
+      ...(row.sprint ? { sprint: row.sprint } : {}),
+    })),
+  };
+}
+
+function docs(texts: DocsTexts, seedNames: BuiltinDatabaseTemplate["seedNames"]): BuiltinDatabaseTemplate {
+  const names = texts.properties;
+  return {
+    key: "docs",
+    kind: "database",
+    icon: "📚",
+    title: texts.title,
+    description: texts.description,
+    // Only the table's name is used: a doc has no status to move through.
+    seedNames: { ...seedNames, table: texts.table },
+    seedProperties: false,
+    properties: [
+      { name: names.category, type: "select", options: Object.values(texts.categories) },
+      { name: names.owner, type: "person" },
+      { name: names.edited, type: "last_edited_time" },
+    ],
+    views: [
+      { name: texts.board, type: "board", config: { groupBy: names.category } },
+      { name: texts.recent, type: "table", config: { sorts: [{ property: names.edited, direction: "desc" }] } },
+    ],
+    dashboard: { database: texts.database, markdown: texts.markdown, widgets: [] },
+    rowTemplate: { ...texts.rowTemplate, properties: { [names.owner]: "me" } },
+    rows: DOC_ROWS.map((row) => ({
+      title: texts.rows[row.key].title,
+      markdown: texts.rows[row.key].markdown,
+      properties: { [names.category]: texts.categories[row.category], [names.owner]: "me" },
+      verified: row.verified,
+    })),
+  };
+}
+
 /** The day `days` before `today`, as a date property stores a day (YYYY-MM-DD, UTC). */
 function dayBefore(today: Date, days: number) {
   return new Date(today.getTime() - days * 86_400_000).toISOString().slice(0, 10);
@@ -247,6 +337,8 @@ function build(texts: Texts, today: Date): BuiltinTemplate[] {
       rows: WINS_ROWS.map((row) => ({ title: wins.rows[row.key], properties: { ...win(row), [w.date]: dayBefore(today, row.daysAgo) } })),
     },
     smallBusiness(texts["small-business"], texts["weekly-plan"]),
+    sprints(texts.sprints, seedNames),
+    docs(texts.docs, seedNames),
   ];
 }
 

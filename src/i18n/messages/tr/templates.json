@@ -231,6 +231,79 @@
       }
     }
   },
+  "sprints": {
+    "title": "Sprintler",
+    "description": "İki haftalık sprintlerle planlanan görevler: panoda güncel sprint, sprint planlaması ve bekleyen işler.",
+    "page": "Ekip sprintleri",
+    "markdown": "Ekibin işini iki haftalık sprintlerle planlayın. **Güncel sprint** bu sprintin görevlerini duruma göre, **Sprint planlaması** sıradaki her sprintin görevlerini, **Bekleyen işler** ise henüz hiçbir sprinte girmemiş görevleri gösterir. Bir sprint bittiğinde veritabanı menüsünden **Sprintler** bölümünü açın ve **Sprinti tamamla** seçeneğini seçin: sonraki sprint başlar ve bitmemiş görevler ona taşınır.",
+    "database": "Görevler",
+    "table": "Tüm görevler",
+    "board": "Pano",
+    "properties": {
+      "assignee": "Atanan",
+      "priority": "Öncelik",
+      "points": "Puan"
+    },
+    "options": {
+      "high": "Yüksek",
+      "medium": "Orta",
+      "low": "Düşük"
+    },
+    "rowTemplate": {
+      "title": "Yeni görev",
+      "markdown": "## Ne yapılacak\n\n\n\n## Tamamlanma koşulu\n\n- [ ] \n\n## Notlar\n\n"
+    },
+    "rows": {
+      "goal": "Sprint hedefinde uzlaş",
+      "signup": "Yeni kayıt formunu oluştur",
+      "emails": "Hoş geldin e-postalarını yaz",
+      "tests": "Kaydı telefonlarda test et",
+      "pricing": "Fiyatlandırma sayfasını güncelle",
+      "feedback": "Geçen ayın müşteri geri bildirimlerini sınıflandır"
+    }
+  },
+  "docs": {
+    "title": "Dokümanlar",
+    "description": "Nasıl yapılır kılavuzları, referans belgeleri ve politikalar tek yerde: her birinin kategorisi, sorumlusu ve son düzenlenme zamanıyla.",
+    "markdown": "Her doküman, aşağıdaki kütüphanede kategorisi ve sorumlusuyla birlikte duran bir sayfadır. Bir dokümanın doğru olduğunu kontrol ettiğinizde menüsünden **Sayfayı doğrula** seçeneğini seçin: arama doğrulanmış dokümanları en üste koyar ve işaretler, `is:verified` yalnızca onları bulur, yapay zekâ sohbeti de onları tercih eder.",
+    "database": "Doküman kütüphanesi",
+    "table": "Tüm dokümanlar",
+    "board": "Kategoriye göre",
+    "recent": "Son düzenlenenler",
+    "properties": {
+      "category": "Kategori",
+      "owner": "Sorumlu",
+      "edited": "Son düzenleme"
+    },
+    "categories": {
+      "guide": "Nasıl yapılır",
+      "reference": "Referans",
+      "policy": "Politika",
+      "onboarding": "Oryantasyon"
+    },
+    "rowTemplate": {
+      "title": "Yeni doküman",
+      "markdown": "## Özet\n\n\n\n## Ayrıntılar\n\n\n\n## İlgili\n\n- "
+    },
+    "rows": {
+      "writing": {
+        "title": "Dokümanları nasıl yazıyoruz",
+        "markdown": "## Özet\n\nHer konu için tek doküman, o konuya yeni biri için yazılır.\n\n## Ayrıntılar\n\n- Okuyucunun ne yapması gerektiğiyle başlayın.\n- Adımları kısa ve sıralı tutun.\n- Bir sorumlu belirleyin ve dokümanı kontrol ettiğinizde doğrulayın."
+      },
+      "onboarding": {
+        "title": "İlk hafta kontrol listesi",
+        "markdown": "## Özet\n\nYeni bir ekip arkadaşının ilk haftasında yaptıkları.\n\n## Ayrıntılar\n\n- [ ] Hesaplarınızı kurun\n- [ ] Ekibinizle tanışın\n- [ ] Kendi alanınızın dokümanlarını okuyun"
+      },
+      "release": {
+        "title": "Sürüm süreci",
+        "markdown": "## Özet\n\nBir değişikliğin incelemeden müşteriye nasıl ulaştığı.\n\n## Ayrıntılar\n\n1. Değişikliği inceleyin ve birleştirin.\n2. Test sunucusunda deneyin.\n3. Yayınlayın ve ekibe haber verin."
+      },
+      "expenses": {
+        "title": "Harcama politikası",
+        "markdown": "## Özet\n\nŞirketin neleri karşıladığı ve bunların nasıl talep edileceği.\n\n## Ayrıntılar\n\n- Fişi saklayın.\n- 30 gün içinde talep edin.\n- Olağandan fazla harcamadan önce yöneticinize danışın."
+      }
+    }
+  },
   "journal": {
     "title": "Günlük",
     "markdown": "## Odak\n\n- [ ] \n\n## Notlar\n\n## Bugün bitenler\n"

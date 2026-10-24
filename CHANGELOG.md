@@ -19,6 +19,11 @@
   words whole, side by side and in that order, in the search box, the REST API and MCP; Chinese
   and Japanese phrases too. A page found only by meaning isn't listed for such a search. A quote
   still being typed searches its words as before, and the AI chat's searches leave quotes alone.
+- **Sprints and Docs templates.** *Sprints* makes a page holding a task database with two-week
+  sprints turned on: a board by status, the current sprint, sprint planning and a backlog, with
+  example tasks in the current and next sprint and the backlog. *Docs* makes a doc library with a
+  category, an owner and the last edit, a board by category and a view by last edit, and four
+  example docs, two of them verified by you for three months. Both in every language.
 - **Danish, Dutch, Norwegian, Finnish and Swedish.** The app, its emails, templates, the editor's
   menus and the desktop app now speak Dansk, Nederlands, Norsk bokmål, Suomi and Svenska, chosen in
   My account → Language or taken from the browser (one asking for Norwegian or Nynorsk gets
