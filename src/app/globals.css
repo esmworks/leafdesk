@@ -1423,3 +1423,8 @@ input.leafdesk-callout-title-input {
 .snippet-preview .bn-block-content::after {
   content: none !important;
 }
+
+/* Blocks scrolled to their top (tables of contents, the floating outline) stop under the sticky page header. */
+.leafdesk-editor .bn-block-outer {
+  scroll-margin-top: 4rem;
+}

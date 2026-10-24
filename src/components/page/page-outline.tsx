@@ -1,16 +1,51 @@
 import Link from "next/link";
+import type { Node as PMNode } from "prosemirror-model";
 import { PageIcon } from "@/components/ui";
 import type { PageKind } from "@/db/schema/app";
 import { pageLabel } from "@/lib/labels";
 
 /**
  * What the table of contents, breadcrumb and subpages blocks show, in the editor (components/page/
- * content-blocks.tsx) and on published pages alike. No hooks and no client-only code, so server
- * components can draw them too.
+ * content-blocks.tsx) and on published pages alike, and the page's floating outline
+ * (floating-outline.tsx). No hooks and no client-only code, so server components can draw them too.
  */
 
 export type TrailCrumb = { id: string; title: string; icon: string | null; kind: PageKind };
 export type OutlineHeading = { key: string; level: number; text: string };
+
+/**
+ * The headings of an editor's document (its ProseMirror document, read without turning it into
+ * blocks: the floating outline reads it after every change), nested ones and those in columns
+ * included, keyed by their block's id.
+ */
+export function headingsOfDoc(doc: PMNode): OutlineHeading[] {
+  const out: OutlineHeading[] = [];
+  doc.descendants((node) => {
+    if (node.type.name !== "blockContainer") return !node.isTextblock && !node.isAtom;
+    const content = node.firstChild;
+    if (content?.type.name === "heading") {
+      out.push({ key: String(node.attrs.id ?? ""), level: Number(content.attrs.level) || 1, text: content.textContent });
+    }
+    return true;
+  });
+  return out;
+}
+
+export const sameHeadings = (a: OutlineHeading[], b: OutlineHeading[]) =>
+  a.length === b.length && a.every((h, i) => h.key === b[i].key && h.level === b[i].level && h.text === b[i].text);
+
+/**
+ * The heading being read: the last one whose top is above `line` (a distance from the top of the
+ * window), from their tops in order. A heading not shown (in a collapsed toggle) is null and never
+ * counts. -1 above the first.
+ */
+export function currentHeading(tops: (number | null)[], line: number): number {
+  let current = -1;
+  tops.forEach((top, i) => {
+    if (top !== null && top <= line) current = i;
+  });
+  return current;
+}
 
 /** Links to the headings of a page, indented by level (counted from the shallowest one used). */
 export function HeadingList({

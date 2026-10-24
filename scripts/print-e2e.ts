@@ -2,7 +2,8 @@
  * End-to-end check of "Export as PDF", the print view (`/print/<pageId>`): what it holds for the
  * person printing (headings, tables, code, images, diagrams, a database), pages the body links to
  * printed as their titles (and "No access" for pages hidden from them), subpages in sidebar order
- * without the hidden ones, and database rows as text. With PRINT_E2E_URL pointing at a running
+ * without the hidden ones, database rows as text, links shown as mentions as links with their title
+ * and cropped images as their part. With PRINT_E2E_URL pointing at a running
  * server, also over HTTP: sign-in needed, 404 for people who can't view the page, the page's
  * content in the HTML, its title as the document title, uploaded images loading with the same
  * session, and the workspace's two-step policy.
@@ -137,6 +138,21 @@ try {
     ].join("\n"),
     owner,
   );
+  // A link shown as a mention, and a cropped image (lib/image-crop).
+  await service.appendBlocks(
+    report.id,
+    [
+      {
+        type: "paragraph",
+        content: [
+          { type: "text", text: "Docs: ", styles: {} },
+          { type: "mention", props: { kind: "link", url: "https://example.com/guide", title: "The guide", favicon: "https://example.com/i.ico", siteName: "Example" } },
+        ],
+      },
+      { type: "image", props: { url: `/api/files/${photo.id}`, name: "crop.png", previewWidth: 300, crop: JSON.stringify({ x: 0.5, y: 0, w: 0.5, h: 0.5, ar: 2 }) } },
+    ],
+    owner,
+  );
   // The HTTP server reads the stored document; wait for the store hook to write it.
   await eventually(async () => {
     const [row] = await db.select({ md: page.contentMarkdown }).from(page).where(eq(page.id, report.id));
@@ -152,6 +168,12 @@ try {
   check(ownHtml.includes("<table") && ownHtml.includes("North") && ownHtml.includes("1200"), "tables print", ownHtml);
   check(ownHtml.includes("<pre") && ownHtml.includes("wrap-me-wrap-me"), "code blocks print", ownHtml);
   check(ownHtml.includes(`/api/files/${photo.id}`), "uploaded images point at the file route", ownHtml);
+  check(/<a href="https:\/\/example\.com\/guide"[^>]*>The guide<\/a>/.test(ownHtml) && !ownHtml.includes("i.ico"), "a link shown as a mention prints as a link with its title", ownHtml);
+  check(
+    /<div data-image-crop="" style="position:relative;overflow:hidden;aspect-ratio:2;[^"]*width:300px;max-width:100%"[^>]*><img[^>]*style="position:absolute;max-width:none;width:200%;height:200%;left:-100%;top:0%"/.test(ownHtml),
+    "a cropped image prints as its part",
+    ownHtml,
+  );
   check(own.sections[0].body.some((b) => b.kind === "mermaid" && b.source.includes("Start-->Finish")), "Mermaid diagrams come as their source, drawn in the browser");
   check(ownHtml.includes("Child page") && ownHtml.includes("Secret plans"), "linked pages print as their titles", ownHtml);
   const columns = own.sections[0].body.find((b) => b.kind === "columns");

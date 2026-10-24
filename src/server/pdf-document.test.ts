@@ -103,6 +103,19 @@ describe("pdfDocument", () => {
     expect(JSON.stringify(content[2])).toContain('"link":"https://app.example/api/files/bbbbbbbbbbbbbbbbbbbbbbbb"');
   });
 
+  it("draws a cropped image as an SVG showing only its part", () => {
+    const url = "/api/files/aaaaaaaaaaaaaaaaaaaaaaaa";
+    const images = new Map([[url, "data:image/png;base64,AAAA"]]);
+    const crop = JSON.stringify({ x: 0.25, y: 0.5, w: 0.5, h: 0.25, ar: 2 });
+    const content = contentOf(input([block("image", undefined, { url, name: "a.png", caption: "", crop })], {}, images));
+    const svg = (content[1] as { stack: { svg?: string; image?: string }[] }).stack[0];
+    expect(svg.image).toBeUndefined();
+    // The image is 1000 by 500; the part starts at (250, 250) and is 500 by 125.
+    expect(svg.svg).toContain('viewBox="250 250 500 125"');
+    expect(svg.svg).toContain('width="1000" height="500"');
+    expect(svg.svg).toContain('xlink:href="data:image/png;base64,AAAA"');
+  });
+
   it("prints a database block as its table, or a note when the reader can't see it", () => {
     const shown = block("database", undefined, { databaseId: "d1" });
     const hidden = block("database", undefined, { databaseId: "d2" });

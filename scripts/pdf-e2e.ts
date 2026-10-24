@@ -1,7 +1,7 @@
 /**
  * End-to-end check of PDF files made on the server (server/pdf.ts) and the AI chat's create_pdf:
  * a row's body printed with its table, Turkish text and an uploaded image, its values only when
- * asked for; the chat making the PDF and attaching it to a row's files property or to the end of a
+ * asked for; a cropped image drawn clipped to its part; the chat making the PDF and attaching it to a row's files property or to the end of a
  * page, after the person agrees (and not when they decline); letterheads (server/letterheads.ts):
  * owners only, the first the default, logos PNG or JPEG only, printed at the top and foot of PDFs
  * (the default, another by id or name, or none; never for guests), picked by name in the chat; and
@@ -24,6 +24,7 @@ const { mkdtemp, rm } = await import("node:fs/promises");
 const { tmpdir } = await import("node:os");
 const { join } = await import("node:path");
 const { Readable } = await import("node:stream");
+const zlib = await import("node:zlib");
 
 const uploadDir = await mkdtemp(join(tmpdir(), "leafdesk-pdf-e2e-"));
 process.env.STORAGE_DRIVER = "local";
@@ -78,6 +79,23 @@ function check(condition: unknown, label: string, detail?: unknown): asserts con
   }
   passed++;
   console.log(`ok    ${label}`);
+}
+
+/** How many clipping paths a PDF's content streams set (\`W n\`), its streams inflated. */
+function clipsOfPdf(bytes: Uint8Array) {
+  const { inflateSync } = zlib;
+  const buffer = Buffer.from(bytes);
+  const text = buffer.toString("latin1");
+  let count = 0;
+  for (const match of text.matchAll(/stream\r?\n/g)) {
+    const start = match.index + match[0].length;
+    const end = text.indexOf("endstream", start);
+    if (end < 0) continue;
+    try {
+      count += (inflateSync(buffer.subarray(start, end)).toString("latin1").match(/\bW\s+n\b/g) ?? []).length;
+    } catch {}
+  }
+  return count;
 }
 
 async function textOfPdf(bytes: Uint8Array) {
@@ -181,6 +199,18 @@ try {
     .from(auditEvent)
     .where(and(eq(auditEvent.workspaceId, workspaceId), eq(auditEvent.action, "export.page")));
   check(audits.length === 2 && audits.every((a) => (a.details as { format?: string }).format === "pdf"), "each PDF is recorded as an export", audits);
+
+  // ── A cropped image ───────────────────────────────────────────────────────────────────────
+  // Drawn as the whole file clipped to its part (lib/image-crop); the page's own image isn't.
+  const photos = await createPage(ctx.actor, { workspaceId, teamspaceId: general.id, title: "Cropped photo" });
+  const photo = await files.uploadFile(owner, photos.id, { name: "photo.png", contentType: "image/png", body: Readable.from([PNG]), declaredSize: PNG.length });
+  const imageBlock = (crop: string) => ({ type: "image", props: { url: photo.url, name: "photo.png", crop } });
+  await getCollab().appendBlocks(photos.id, [imageBlock("")], ctx.actor);
+  const whole = await pagePdf(owner, photos.id);
+  await getCollab().appendBlocks(photos.id, [imageBlock(JSON.stringify({ x: 0.25, y: 0.25, w: 0.5, h: 0.5, ar: 1 }))], ctx.actor);
+  const cropped = await pagePdf(owner, photos.id);
+  check(whole.bytes.includes("/Subtype /Image") && cropped.bytes.includes("/Subtype /Image"), "an image prints whole, and cropped");
+  check(clipsOfPdf(cropped.bytes) > clipsOfPdf(whole.bytes), "…a cropped one clipped to its part", { whole: clipsOfPdf(whole.bytes), cropped: clipsOfPdf(cropped.bytes) });
 
   // ── The chat makes one into a files property ──────────────────────────────────────────────
   fake.setChat(pdfMaker({ page_id: row.id, property: "offer pdf", file_name: "Teklif ESM" }));

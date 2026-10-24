@@ -601,6 +601,7 @@
       "label": "Tempel sebagai",
       "bookmark": "Markah",
       "embed": "Sematan",
+      "mention": "Sebutan",
       "keep": "Biarkan sebagai tautan"
     },
     "invalidUrl": "Masukkan alamat web, seperti https://example.com",
@@ -636,6 +637,7 @@
     "deleted": "Halaman yang dihapus",
     "loading": "Memuat…",
     "atBlock": "Terbuka di sebuah blok halaman",
+    "showAsMention": "Tampilkan sebagai sebutan",
     "personLeft": "{name} (tidak lagi di ruang kerja)",
     "date": "Tanggal",
     "reminder": "Pengingat",
@@ -1084,6 +1086,8 @@
       "open": "Pengaturan tombol",
       "icon": "Emoji",
       "label": "Label",
+      "color": "Warna",
+      "colorDefault": "Bawaan",
       "confirm": "Tanya sebelum menjalankan",
       "confirmHelp": "Siapa pun yang mengeklik akan mengonfirmasi terlebih dahulu.",
       "steps": "Saat diklik",
@@ -1143,5 +1147,14 @@
       "error": "Terjadi kesalahan.",
       "step": "Langkah {step} ({type}) tidak berjalan: {reason}"
     }
+  },
+  "imageCrop": {
+    "menuItem": "Pangkas…",
+    "title": "Pangkas gambar",
+    "hint": "Seret bingkai atau tepinya. Berkasnya tetap utuh, jadi Anda bisa mengubahnya nanti.",
+    "frame": "Bagian gambar yang ditampilkan. Tombol panah menggesernya; dengan Shift mengubah ukurannya.",
+    "reset": "Tampilkan seluruh gambar",
+    "loading": "Memuat gambar…",
+    "failed": "Gambar tidak dapat dimuat."
   }
 }

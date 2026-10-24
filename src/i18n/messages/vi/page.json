@@ -601,6 +601,7 @@
       "label": "Dán dưới dạng",
       "bookmark": "Dấu trang",
       "embed": "Nhúng",
+      "mention": "Nhắc đến",
       "keep": "Giữ dưới dạng liên kết"
     },
     "invalidUrl": "Hãy nhập một địa chỉ web, như https://example.com",
@@ -636,6 +637,7 @@
     "deleted": "Trang đã xóa",
     "loading": "Đang tải…",
     "atBlock": "Mở tại một khối của trang",
+    "showAsMention": "Hiển thị dạng nhắc đến",
     "personLeft": "{name} (không còn trong không gian làm việc)",
     "date": "Ngày",
     "reminder": "Lời nhắc",
@@ -1084,6 +1086,8 @@
       "open": "Cài đặt nút",
       "icon": "Biểu tượng cảm xúc",
       "label": "Nhãn",
+      "color": "Màu",
+      "colorDefault": "Mặc định",
       "confirm": "Hỏi trước khi chạy",
       "confirmHelp": "Người nhấp sẽ xác nhận trước.",
       "steps": "Khi nhấp",
@@ -1143,5 +1147,14 @@
       "error": "Đã xảy ra lỗi.",
       "step": "Bước {step} ({type}) không chạy: {reason}"
     }
+  },
+  "imageCrop": {
+    "menuItem": "Cắt ảnh…",
+    "title": "Cắt ảnh",
+    "hint": "Kéo khung hoặc các cạnh của khung. Tệp vẫn còn nguyên nên bạn có thể đổi lại sau.",
+    "frame": "Phần ảnh được hiển thị. Phím mũi tên để di chuyển; giữ Shift để đổi kích thước.",
+    "reset": "Hiện toàn bộ ảnh",
+    "loading": "Đang tải ảnh…",
+    "failed": "Không tải được ảnh."
   }
 }

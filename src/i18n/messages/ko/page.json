@@ -601,6 +601,7 @@
       "label": "붙여넣기 형식",
       "bookmark": "북마크",
       "embed": "임베드",
+      "mention": "멘션",
       "keep": "링크로 유지"
     },
     "invalidUrl": "https://example.com 같은 웹 주소를 입력하세요",
@@ -636,6 +637,7 @@
     "deleted": "삭제된 페이지",
     "loading": "불러오는 중…",
     "atBlock": "페이지의 블록 위치에서 엽니다",
+    "showAsMention": "멘션으로 표시",
     "personLeft": "{name}(워크스페이스에 없음)",
     "date": "날짜",
     "reminder": "리마인더",
@@ -1084,6 +1086,8 @@
       "open": "버튼 설정",
       "icon": "이모지",
       "label": "레이블",
+      "color": "색상",
+      "colorDefault": "기본",
       "confirm": "실행 전에 확인",
       "confirmHelp": "클릭한 사람이 먼저 확인합니다.",
       "steps": "클릭하면",
@@ -1143,5 +1147,14 @@
       "error": "문제가 발생했습니다.",
       "step": "{step}단계({type})가 실행되지 않았습니다: {reason}"
     }
+  },
+  "imageCrop": {
+    "menuItem": "자르기…",
+    "title": "이미지 자르기",
+    "hint": "프레임이나 가장자리를 끌어 보세요. 파일은 그대로 남으므로 나중에 바꿀 수 있습니다.",
+    "frame": "보여 줄 이미지 부분입니다. 화살표 키로 옮기고, Shift와 함께 누르면 크기를 바꿉니다.",
+    "reset": "이미지 전체 보기",
+    "loading": "이미지를 불러오는 중…",
+    "failed": "이미지를 불러올 수 없습니다."
   }
 }

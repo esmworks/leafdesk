@@ -601,6 +601,7 @@
       "label": "Paste as",
       "bookmark": "Bookmark",
       "embed": "Embed",
+      "mention": "Mention",
       "keep": "Keep as link"
     },
     "invalidUrl": "Enter a web address, like https://example.com",
@@ -636,6 +637,7 @@
     "deleted": "Deleted page",
     "loading": "Loading…",
     "atBlock": "Opens at a block of the page",
+    "showAsMention": "Show as mention",
     "personLeft": "{name} (no longer in the workspace)",
     "date": "Date",
     "reminder": "Reminder",
@@ -1084,6 +1086,8 @@
       "open": "Button settings",
       "icon": "Emoji",
       "label": "Label",
+      "color": "Color",
+      "colorDefault": "Default",
       "confirm": "Ask before running",
       "confirmHelp": "Whoever clicks confirms first.",
       "steps": "When clicked",
@@ -1143,5 +1147,14 @@
       "error": "Something went wrong.",
       "step": "Step {step} ({type}) didn’t run: {reason}"
     }
+  },
+  "imageCrop": {
+    "menuItem": "Crop…",
+    "title": "Crop the image",
+    "hint": "Drag the frame or its edges. The file stays whole, so you can change this later.",
+    "frame": "Part of the image to show. Arrow keys move it; with Shift they resize it.",
+    "reset": "Show the whole image",
+    "loading": "Loading the image…",
+    "failed": "The image couldn’t be loaded."
   }
 }

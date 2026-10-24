@@ -601,6 +601,7 @@
       "label": "Coller comme",
       "bookmark": "Signet",
       "embed": "Intégration",
+      "mention": "Mention",
       "keep": "Garder le lien"
     },
     "invalidUrl": "Saisissez une adresse web, comme https://example.com",
@@ -636,6 +637,7 @@
     "deleted": "Page supprimée",
     "loading": "Chargement…",
     "atBlock": "Ouvre la page à un bloc",
+    "showAsMention": "Afficher comme mention",
     "personLeft": "{name} (ne fait plus partie de l’espace de travail)",
     "date": "Date",
     "reminder": "Rappel",
@@ -1084,6 +1086,8 @@
       "open": "Paramètres du bouton",
       "icon": "Emoji",
       "label": "Libellé",
+      "color": "Couleur",
+      "colorDefault": "Par défaut",
       "confirm": "Demander avant d’exécuter",
       "confirmHelp": "La personne qui clique confirme d’abord.",
       "steps": "Au clic",
@@ -1143,5 +1147,14 @@
       "error": "Un problème est survenu.",
       "step": "L’étape {step} ({type}) ne s’est pas exécutée : {reason}"
     }
+  },
+  "imageCrop": {
+    "menuItem": "Rogner…",
+    "title": "Rogner l’image",
+    "hint": "Faites glisser le cadre ou ses bords. Le fichier reste entier : vous pourrez changer cela plus tard.",
+    "frame": "Partie de l’image affichée. Les flèches la déplacent ; avec Maj, elles la redimensionnent.",
+    "reset": "Afficher l’image entière",
+    "loading": "Chargement de l’image…",
+    "failed": "Impossible de charger l’image."
   }
 }

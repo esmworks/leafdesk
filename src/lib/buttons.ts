@@ -2,6 +2,7 @@
 // server that runs it (server/buttons.ts) and the Markdown and editor schemas.
 
 import { isDynamicValue, MAX_NOTIFY_PEOPLE, MAX_STEP_MESSAGE, MAX_WEBHOOK_URL, type StepValues } from "./automations";
+import { SELECT_COLORS } from "./properties";
 import type { FilterCombinator, FilterEntry } from "@/db/schema/app";
 
 /**
@@ -18,10 +19,18 @@ export const BUTTON_BLOCK = "button";
 
 export const buttonBlockConfig = {
   type: BUTTON_BLOCK,
-  // `config`: the steps and "ask first" as JSON (ButtonConfig, see parseButtonConfig).
-  propSchema: { label: { default: "" }, icon: { default: "" }, config: { default: "" } },
+  // `config`: the steps and "ask first" as JSON (ButtonConfig, see parseButtonConfig). `color`: one
+  // of BUTTON_COLORS, or "" for the plain button.
+  propSchema: { label: { default: "" }, icon: { default: "" }, config: { default: "" }, color: { default: "" } },
   content: "none",
 } as const;
+
+/** A button's colors: the option palette's (`.opt-*` in globals.css), so they follow the theme. */
+export const BUTTON_COLORS = SELECT_COLORS;
+export type ButtonColor = (typeof BUTTON_COLORS)[number];
+
+/** A button's color as it is kept, or null for the plain button (anything else reads as plain). */
+export const buttonColor = (value: unknown): ButtonColor | null => BUTTON_COLORS.find((color) => color === value) ?? null;
 
 /** Where inserted blocks go: the page's top, its end, or right below the button. */
 export const INSERT_PLACES = ["below", "top", "bottom"] as const;

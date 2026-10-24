@@ -15,7 +15,9 @@ import { columnsOf, FilterEditor } from "@/components/database/view-bar";
 import type { FilterCombinator, FilterEntry } from "@/db/schema/app";
 import { MAX_STEP_MESSAGE, MAX_WEBHOOK_URL } from "@/lib/automations";
 import {
+  BUTTON_COLORS,
   BUTTON_STEP_TYPES,
+  buttonColor,
   cleanButtonLabel,
   INSERT_PLACES,
   MAX_BUTTON_LABEL,
@@ -24,6 +26,7 @@ import {
   MAX_INSERT_MARKDOWN,
   parseButtonConfig,
   serializeButtonConfig,
+  type ButtonColor,
   type ButtonStep,
   type ButtonStepType,
   type InsertPlace,
@@ -36,7 +39,7 @@ import { loadedPageTitle, PagePicker } from "./mentions";
 import type { PageEditor } from "./embed-blocks";
 
 /**
- * A button's settings (lib/buttons.ts): its label and emoji, whether it asks first, and its steps
+ * A button's settings (lib/buttons.ts): its label, emoji and color, whether it asks first, and its steps
  * in order. Loaded only when someone who may edit the page opens them; saved into the block's
  * props, so they sync, undo and version with the page.
  */
@@ -127,13 +130,21 @@ export default function ButtonSettings({
 function SettingsDialog({ editor, blockId, pageId, onClose }: { editor: PageEditor; blockId: string; pageId: string; onClose: () => void }) {
   const t = useTranslations("page.button");
   const tc = useTranslations("common");
+  const tColor = useTranslations("database.colors");
   const [initial] = useState(() => {
-    const props = (editor.getBlock(blockId)?.props ?? {}) as { label?: unknown; icon?: unknown; config?: unknown };
+    const props = (editor.getBlock(blockId)?.props ?? {}) as { label?: unknown; icon?: unknown; config?: unknown; color?: unknown };
     const config = parseButtonConfig(props.config);
-    return { label: cleanButtonLabel(props.label), icon: typeof props.icon === "string" ? props.icon : "", confirm: config.confirm, steps: config.steps.map(toDraft) };
+    return {
+      label: cleanButtonLabel(props.label),
+      icon: typeof props.icon === "string" ? props.icon : "",
+      color: buttonColor(props.color),
+      confirm: config.confirm,
+      steps: config.steps.map(toDraft),
+    };
   });
   const [label, setLabel] = useState(initial.label);
   const [icon, setIcon] = useState(initial.icon);
+  const [color, setColor] = useState<ButtonColor | null>(initial.color);
   const [confirm, setConfirm] = useState(initial.confirm);
   const [steps, setSteps] = useState<DraftStep[]>(initial.steps);
   const [settings, setSettings] = useState<{ secret: string; people: Person[] } | null>(null);
@@ -175,7 +186,7 @@ function SettingsDialog({ editor, blockId, pageId, onClose }: { editor: PageEdit
   const save = () => {
     if (editor.getBlock(blockId)) {
       const config = serializeButtonConfig({ confirm, steps: steps.map((s) => toStep(s, (id) => schemas[id])) });
-      editor.updateBlock(blockId, { props: { label: cleanButtonLabel(label), icon, config } });
+      editor.updateBlock(blockId, { props: { label: cleanButtonLabel(label), icon, config, color: color ?? "" } });
     }
     onClose();
   };
@@ -208,6 +219,32 @@ function SettingsDialog({ editor, blockId, pageId, onClose }: { editor: PageEdit
               <span className="mb-1 block text-xs text-fg-muted">{t("settings.label")}</span>
               <Input autoFocus value={label} maxLength={MAX_BUTTON_LABEL} placeholder={t("placeholder")} onChange={(e) => setLabel(e.target.value)} />
             </label>
+          </div>
+          <div>
+            <span id={`button-color-${blockId}`} className="mb-1 block text-xs text-fg-muted">
+              {t("settings.color")}
+            </span>
+            <div role="radiogroup" aria-labelledby={`button-color-${blockId}`} className="flex flex-wrap gap-1.5">
+              {[null, ...BUTTON_COLORS].map((option) => {
+                const name = option ? tColor(option) : t("settings.colorDefault");
+                return (
+                  <button
+                    key={option ?? "default"}
+                    type="button"
+                    role="radio"
+                    aria-checked={option === color}
+                    aria-label={name}
+                    title={name}
+                    onClick={() => setColor(option)}
+                    className={cn(
+                      "h-6 w-6 rounded-md border",
+                      option ? `opt-${option} border-transparent high-contrast:border-(--opt-fg)` : "border-border bg-bg",
+                      option === color ? "ring-2 ring-accent ring-offset-1 ring-offset-bg" : "hover:ring-1 hover:ring-border",
+                    )}
+                  />
+                );
+              })}
+            </div>
           </div>
           <label className="flex items-center justify-between gap-3 text-sm">
             <span>

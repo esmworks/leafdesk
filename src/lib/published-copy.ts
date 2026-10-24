@@ -61,6 +61,7 @@ function copyInline(items: Json[], refs: CopyRefs): Json[] {
       const props = mentionProps(node.props);
       if (props.kind === "user") return [textNode(mentionText(props))];
       if (props.kind === "date") return [{ ...node, props: { ...props, remindAt: "" } }];
+      if (props.kind === "link") return [node];
       const copy = refs.pageIds.get(props.pageId);
       return copy ? [{ ...node, props: { ...props, pageId: copy } }] : outsideInline(props.pageId, refs);
     }

@@ -30,6 +30,7 @@ import { BLOCK_COLORS } from "./block-colors";
 import { IMAGE_BLOCK, linkedImageMarkdown, parseLinkedImageLine } from "./image-links";
 import { calloutKey, calloutTitle } from "./callout-styles";
 import { TEXT_SCRIPT_TAGS, TEXT_SCRIPTS, type TextScript } from "./text-scripts";
+import { linkMentionMarkdown } from "./link-mentions";
 import { BOOKMARK_BLOCK, markdownLinkDestination, markdownLinkText, parseWebUrl, WEB_EMBED_BLOCK } from "./web-blocks";
 import {
   EMPTY_MENTION,
@@ -236,7 +237,13 @@ export function prepareMarkdownExport<B extends MdBlock>(
       if (node?.type === MENTION) {
         const props = mentionProps((node as { props?: unknown }).props);
         const markdown =
-          props.kind === "page" ? (props.pageId ? pageLinkMarkdown(pageText(props.pageId), workspaceId, props.pageId, props.blockId) : "") : mentionText(props);
+          props.kind === "page"
+            ? props.pageId
+              ? pageLinkMarkdown(pageText(props.pageId), workspaceId, props.pageId, props.blockId)
+              : ""
+            : props.kind === "link"
+              ? linkMentionMarkdown(props)
+              : mentionText(props);
         return { type: "text", text: `leafdesk${nonce}i${inlineMarkdown.push(markdown) - 1}x`, styles: {} };
       }
       if (node?.type === FOOTNOTE) {

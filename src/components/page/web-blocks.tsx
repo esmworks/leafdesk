@@ -2,7 +2,7 @@
 
 import { insertOrUpdateBlockForSlashMenu } from "@blocknote/core/extensions";
 import { createReactBlockSpec, type DefaultReactSuggestionItem } from "@blocknote/react";
-import { Bookmark, Link2, MonitorPlay, RefreshCw } from "lucide-react";
+import { AtSign, Bookmark, Link2, MonitorPlay, RefreshCw } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { createPortal } from "react-dom";
@@ -22,6 +22,7 @@ import { linkedPageRef } from "@/lib/mentions";
 import { useEmbedHost } from "./database-embed";
 import type { PageEditor } from "./embed-blocks";
 import { BookmarkCard, EmbedFrame } from "./web-card";
+import { linkToMention } from "./link-mention-toolbar";
 import { isRtl } from "@/components/direction";
 
 /**
@@ -298,7 +299,19 @@ export function useWebSlashItems(editor: PageEditor): DefaultReactSuggestionItem
 // ---------------------------------------------------------------------------------------------
 // Pasting a link
 
-type PastedLink = { blockId: string; url: string; top: number; left: number };
+/**
+ * A link just pasted: in block `blockId`, from `from` (a document position) on. `line`: it is
+ * the whole line, so it may also become a bookmark or an embed; else only a mention.
+ */
+type PastedLink = { blockId: string; url: string; from: number; line: boolean; top: number; left: number };
+type PasteChoice = "bookmark" | "embed" | "mention" | "keep";
+
+/** Whether the document holds `url` as text from `from` on (the paste landed there). */
+function holdsAt(editor: PageEditor, from: number, url: string) {
+  const doc = editor.prosemirrorState.doc;
+  const to = from + url.length;
+  return to <= doc.content.size && doc.textBetween(from, to, "\n", "\ufffc") === url;
+}
 
 /** Whether a block is a paragraph holding exactly `url` (as a link or as text). */
 function holdsOnly(editor: PageEditor, blockId: string, url: string) {
@@ -312,8 +325,9 @@ function holdsOnly(editor: PageEditor, blockId: string, url: string) {
 }
 
 /**
- * After a lone URL is pasted into an empty line, offers to turn it into a bookmark or an embed (or
- * leave it a link). The paste itself happens as usual; the menu only changes the block afterwards.
+ * After a lone URL is pasted into an empty line, offers to turn it into a bookmark, an embed or a
+ * mention (or leave it a link); pasted within text, a mention (link-mention-toolbar.tsx) or a link. The
+ * paste itself happens as usual; the menu only changes the block afterwards.
  * Arrow keys pick an option and Enter takes it; any other key, a click elsewhere or scrolling
  * closes the menu and leaves the link.
  */
@@ -333,19 +347,25 @@ export function PasteLinkMenu({ editor }: { editor: PageEditor }) {
       // A page of this app becomes a mention instead (see components/page/mentions.tsx).
       if (!isLoneUrl(text) || linkedPageRef(text.trim(), window.location.origin)) return;
       const cursor = editor.getTextCursorPosition().block;
-      const empty = cursor.type === "paragraph" && Array.isArray(cursor.content) && cursor.content.length === 0;
-      if (!empty || !editor.prosemirrorState.selection.empty) return;
+      const selection = editor.prosemirrorState.selection;
+      // Text only: not code, where a link is just text, and not a table cell.
+      if (!selection.empty || !Array.isArray(cursor.content) || cursor.type === "codeBlock") return;
+      const line = cursor.type === "paragraph" && cursor.content.length === 0;
       const url = text.trim();
       const blockId = cursor.id;
+      const from = selection.from;
       // Let the paste land first, then offer the menu under the new link.
       setTimeout(() => {
-        if (!holdsOnly(editor, blockId, url)) return;
+        if (!holdsAt(editor, from, url) || (line && !holdsOnly(editor, blockId, url))) return;
         const element = root.querySelector(`[data-node-type="blockOuter"][data-id="${CSS.escape(blockId)}"]`);
-        const rect = element?.getBoundingClientRect();
-        if (!rect) return;
+        if (!element) return;
+        const rtl = isRtl(element);
+        let rect: { top: number; bottom: number; left: number; right: number } = element.getBoundingClientRect();
+        // Within text, under the link's end.
+        if (!line) rect = editor.prosemirrorView.coordsAtPos(from + url.length);
         setActive(-1);
-        // Under the block, from its start edge (its right edge right to left; the menu is 224px).
-        setPasted({ blockId, url, top: rect.bottom + 4, left: element && isRtl(element) ? rect.right - 224 : rect.left });
+        // From the start edge (the right edge right to left; the menu is 224px).
+        setPasted({ blockId, url, from, line, top: rect.bottom + 4, left: rtl ? rect.right - 224 : rect.left });
       });
     };
     document.addEventListener("paste", onPaste, true);
@@ -353,20 +373,27 @@ export function PasteLinkMenu({ editor }: { editor: PageEditor }) {
   }, [editor, canEdit]);
 
   const embeddable = pasted ? embedFor(pasted.url) !== null : false;
+  const line = pasted?.line ?? false;
   const options = useMemo(() => {
-    const list: { key: "bookmark" | "embed" | "keep"; icon: React.JSX.Element }[] = [{ key: "bookmark", icon: <Bookmark className="h-4 w-4" /> }];
-    if (embeddable) list.push({ key: "embed", icon: <MonitorPlay className="h-4 w-4" /> });
+    const list: { key: PasteChoice; icon: React.JSX.Element }[] = [];
+    if (line) list.push({ key: "bookmark", icon: <Bookmark className="h-4 w-4" /> });
+    if (line && embeddable) list.push({ key: "embed", icon: <MonitorPlay className="h-4 w-4" /> });
+    list.push({ key: "mention", icon: <AtSign className="h-4 w-4" /> });
     list.push({ key: "keep", icon: <Link2 className="h-4 w-4" /> });
     return list;
-  }, [embeddable]);
+  }, [embeddable, line]);
 
   const choose = useCallback(
-    (key: "bookmark" | "embed" | "keep") => {
+    (key: PasteChoice) => {
       const current = pasted;
       setPasted(null);
-      if (!current || key === "keep" || !holdsOnly(editor, current.blockId, current.url)) return;
+      if (!current || key === "keep" || !holdsAt(editor, current.from, current.url)) return;
+      if (key === "mention") {
+        linkToMention(editor, current.from, current.from + current.url.length, current.url);
+        return;
+      }
       const url = parseWebUrl(current.url)?.href;
-      if (!url) return;
+      if (!url || !current.line || !holdsOnly(editor, current.blockId, current.url)) return;
       editor.updateBlock(current.blockId, key === "embed" ? { type: WEB_EMBED_BLOCK, props: { url } } : { type: BOOKMARK_BLOCK, props: { url } });
       moveCursorAfter(editor, current.blockId);
     },

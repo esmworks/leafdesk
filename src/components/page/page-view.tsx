@@ -131,6 +131,8 @@ export function PageView({
   const rowLayout = useMemo<RowLayoutHost>(() => ({ setBeside: setPropertiesBeside, aside: beside ? asideEl : null }), [beside, asideEl]);
   // The graph and the comments share the room beside the page: opening one closes the other.
   const [graphOpen, setGraphOpen] = useState(false);
+  // Where the body's floating outline goes (collab-editor.tsx draws it), while one is shown.
+  const [outlineEl, setOutlineEl] = useState<HTMLDivElement | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const canEdit = hasLevel(info.level, "edit");
@@ -588,6 +590,11 @@ export function PageView({
           </div>
         )}
 
+        {/* The floating outline's place: at the page's end edge as it scrolls, not on narrow
+            screens, beside the comments or graph panel, in the row panel or in print. */}
+        {showBody && !wide && !inPanel && !commentsOpen && !graphOpen && (
+          <div ref={setOutlineEl} className="pointer-events-none sticky top-11 z-20 h-0 max-lg:hidden print:hidden" />
+        )}
         <div
           className={cn(
             "w-full flex-1 pb-32",
@@ -693,6 +700,7 @@ export function PageView({
                       offline={offline}
                       ai={info.ai && editable && !offline && !page.archived}
                       voice={editable && !offline && !page.archived ? info.voice : null}
+                      outlineSlot={showBody && !wide && !inPanel && !commentsOpen && !graphOpen ? outlineEl : null}
                     />
                   ) : (
                     // Without a connection the error above explains why nothing loads.

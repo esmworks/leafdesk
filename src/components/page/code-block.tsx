@@ -2,6 +2,7 @@
 
 import {
   createCodeBlockConfig,
+  createExtension,
   createCodeBlockSpec,
   parsePreCode,
   parsePreCodeContent,
@@ -10,17 +11,39 @@ import {
 import { createReactBlockSpec } from "@blocknote/react";
 import { useTranslations } from "next-intl";
 import { codeHighlighter } from "@/lib/code-highlighter";
+import { codeLineBreak } from "@/lib/code-indent";
 import { CODE_LANGUAGES, codeLanguage, highlightLanguage, PLAIN_TEXT } from "@/lib/code-languages";
 
 /**
  * Code blocks with a language menu and colored code. The block is BlockNote's own (same type,
- * props, parsing and keys: Tab indents, Enter adds a line), drawn by us so that a language the
+ * props, parsing and keys: Tab indents, Enter adds a line, keeping the line's indentation here), drawn by us so that a language the
  * menu doesn't list (an imported ```dockerfile2, say) stays as written instead of breaking the
  * block, and so the menu speaks the interface language. The server keeps BlockNote's spec
  * (server/blocknote.ts): the two only have to agree on the props.
  */
 
 const builtIn = createCodeBlockSpec({ defaultLanguage: PLAIN_TEXT });
+
+/**
+ * Enter in a code block starts the new line at the indentation of the one before (lib/code-indent).
+ * Ahead of BlockNote's keys for the block, which add a bare line break and leave the block on an
+ * Enter after an empty last line: it still does where there is no indentation to keep.
+ */
+const KeepIndent = createExtension({
+  key: "codeBlockKeepIndent",
+  runsBefore: ["code-block-keyboard-shortcuts"],
+  keyboardShortcuts: {
+    Enter: ({ editor }) =>
+      editor.transact((tr) => {
+        const { $from, $to } = tr.selection;
+        if ($from.parent.type.name !== "codeBlock" || $to.parent !== $from.parent) return false;
+        const edit = codeLineBreak($from.parent.textContent, $from.parentOffset, $to.parentOffset);
+        if (!edit) return false;
+        tr.insertText(edit.insert, $from.start() + edit.from, $from.start() + edit.to);
+        return true;
+      }),
+  },
+});
 
 /** Plain text first, then the languages by name. */
 const LANGUAGE_OPTIONS = Object.entries(CODE_LANGUAGES)
@@ -81,7 +104,7 @@ export const CodeBlock = createReactBlockSpec(
       </pre>
     ),
   },
-  builtIn.extensions,
+  [KeepIndent, ...(builtIn.extensions ?? [])],
 );
 
 /** The editor extension that colors code blocks, loading each language's grammar when first used. */

@@ -15,12 +15,15 @@ import {
   FormattingToolbarController,
   getDefaultReactSlashMenuItems,
   getFormattingToolbarItems,
+  LinkToolbarController,
   SideMenuController,
   SuggestionMenuController,
   useCreateBlockNote,
+  type LinkToolbarProps,
 } from "@blocknote/react";
 import { DirectionProvider } from "@mantine/core";
 import { X } from "lucide-react";
+import dynamic from "next/dynamic";
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useBlockFocus } from "./block-focus";
@@ -62,7 +65,9 @@ import { pasteAgentChat, useAgentChatSlashItem } from "./agent-chat-block";
 import { useButtonSlashItem } from "./button-block";
 import { useMeetingSlashItem } from "./meeting-block";
 import { PasteLinkMenu, useWebSlashItems } from "./web-blocks";
+import { LinkToolbarWithMention } from "./link-mention-toolbar";
 import { ImageLinkContext, ImageLinkDialog } from "./image-link";
+import { ImageCropContext } from "./image-crop-item";
 import { useColorSlashItems } from "./slash-colors";
 import { withTextScriptButtons } from "./text-scripts";
 import { withSideAlignButtons } from "./align-buttons";
@@ -70,6 +75,10 @@ import { pageSideMenu } from "./table-to-database";
 import { SaveAsSnippetContext, SnippetMenu, useSnippets, useSnippetSlashItems } from "./snippets";
 import { readDocTitle } from "@/lib/collab-title";
 import { suggestingExtension, type SuggestingMode } from "./suggesting";
+
+/** The page's floating outline, loaded once the page has a place for it (see floating-outline.tsx). */
+const FloatingOutline = dynamic(() => import("./floating-outline"), { ssr: false });
+const ImageCropDialog = dynamic(() => import("./image-crop-dialog"), { ssr: false });
 
 /**
  * y-prosemirror's undo plugin keeps its Y.UndoManager in plugin state but destroys it whenever the
@@ -118,6 +127,7 @@ export default function CollabEditor({
   row = false,
   suggestOnly = false,
   suggesting = false,
+  outlineSlot = null,
 }: {
   pageDoc: PageDoc;
   user: { id: string; name: string };
@@ -160,6 +170,8 @@ export default function CollabEditor({
   syncedBlock?: boolean;
   /** The page is a database row: its comments include the threads on its property values. */
   row?: boolean;
+  /** Where the page's floating outline goes (page-view.tsx keeps it), or null for none. */
+  outlineSlot?: HTMLElement | null;
 }) {
   const locale = useLocale();
   const colorScheme = useColorScheme();
@@ -186,6 +198,7 @@ export default function CollabEditor({
   const pickSynced = useCallback((at: string) => setLinkAt({ at, type: SYNCED_PAGE_BLOCK }), []);
   // The image block whose link is being set ("Link…" in its block menu).
   const [linkImageAt, setLinkImageAt] = useState<string | null>(null);
+  const [cropImageAt, setCropImageAt] = useState<string | null>(null);
   const tSynced = useTranslations("page.blocks.syncedPage");
   const tSyncedBlock = useTranslations("page.syncedBlock");
   // The pages shown around this editor, for the synced pages in it (see synced-page.tsx).
@@ -329,6 +342,14 @@ export default function CollabEditor({
   // The editor's menus and its block handles follow the interface language's direction: right to
   // left, the handles sit to the right of the blocks and submenus open to the left.
   const dir = useDirection();
+  // A link in the text can become a mention (link-mention-toolbar.tsx) for people who may edit.
+  const linkToolbar = useMemo(
+    () =>
+      function PageLinkToolbar(props: LinkToolbarProps) {
+        return <LinkToolbarWithMention {...props} editor={editor} mentionable={editable} />;
+      },
+    [editor, editable],
+  );
   const sideMenuPlacement = useMemo(
     () => ({ useFloatingOptions: { placement: dir === "rtl" ? ("right-start" as const) : ("left-start" as const) } }),
     [dir],
@@ -341,6 +362,7 @@ export default function CollabEditor({
         <PageTrailProvider value={trail}>
           {/* Search works for everyone; replacing only for people who may edit. */}
           {!nested && <FindBar editor={editor} editable={editable} />}
+          {!nested && outlineSlot && <FloatingOutline editor={editor} slot={outlineSlot} />}
           <DirectionProvider initialDirection={dir}>
             <BlockNoteView
               key={locale}
@@ -350,6 +372,7 @@ export default function CollabEditor({
               slashMenu={false}
               sideMenu={false}
               formattingToolbar={false}
+              linkToolbar={false}
               comments={false}
               className="leafdesk-editor"
             >
@@ -361,7 +384,9 @@ export default function CollabEditor({
               {!nested && (editable || !typing) && (
                 <SaveAsSnippetContext.Provider value={snippets.save}>
                   <ImageLinkContext.Provider value={setLinkImageAt}>
-                    <SideMenuController sideMenu={sideMenu} floatingUIOptions={sideMenuPlacement} />
+                    <ImageCropContext.Provider value={setCropImageAt}>
+                      <SideMenuController sideMenu={sideMenu} floatingUIOptions={sideMenuPlacement} />
+                    </ImageCropContext.Provider>
                   </ImageLinkContext.Provider>
                 </SaveAsSnippetContext.Provider>
               )}
@@ -385,6 +410,7 @@ export default function CollabEditor({
               {editable && <MentionMenu editor={editor} workspaceId={workspaceId} pageId={pageId} />}
               {editable && <PageLinkMenu editor={editor} workspaceId={workspaceId} pageId={pageId} offline={offline} />}
               <PasteLinkMenu editor={editor} />
+              <LinkToolbarController linkToolbar={linkToolbar} />
               {/* People who may only read get no toolbar; commenting shows it on read-only pages too. */}
               {(editable || canComment) && (
                 <FormattingToolbarController
@@ -444,6 +470,7 @@ export default function CollabEditor({
           }}
         />
         <ImageLinkDialog editor={editor} blockId={linkImageAt} workspaceId={workspaceId} pageId={pageId} onClose={() => setLinkImageAt(null)} />
+        {cropImageAt && <ImageCropDialog editor={editor} blockId={cropImageAt} onClose={() => setCropImageAt(null)} />}
         {buildAt !== null && (
           <BuildWithAiDialog
             workspaceId={workspaceId}

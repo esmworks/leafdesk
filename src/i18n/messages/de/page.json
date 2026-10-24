@@ -601,6 +601,7 @@
       "label": "Einfügen als",
       "bookmark": "Lesezeichen",
       "embed": "Einbettung",
+      "mention": "Erwähnung",
       "keep": "Als Link belassen"
     },
     "invalidUrl": "Gib eine Webadresse ein, zum Beispiel https://example.com",
@@ -636,6 +637,7 @@
     "deleted": "Gelöschte Seite",
     "loading": "Wird geladen…",
     "atBlock": "Öffnet die Seite an einem Block",
+    "showAsMention": "Als Erwähnung anzeigen",
     "personLeft": "{name} (nicht mehr im Workspace)",
     "date": "Datum",
     "reminder": "Erinnerung",
@@ -1084,6 +1086,8 @@
       "open": "Einstellungen der Schaltfläche",
       "icon": "Emoji",
       "label": "Beschriftung",
+      "color": "Farbe",
+      "colorDefault": "Standard",
       "confirm": "Vor dem Ausführen nachfragen",
       "confirmHelp": "Wer klickt, bestätigt zuerst.",
       "steps": "Beim Klicken",
@@ -1143,5 +1147,14 @@
       "error": "Etwas ist schiefgelaufen.",
       "step": "Schritt {step} ({type}) wurde nicht ausgeführt: {reason}"
     }
+  },
+  "imageCrop": {
+    "menuItem": "Zuschneiden…",
+    "title": "Bild zuschneiden",
+    "hint": "Ziehe den Rahmen oder seine Kanten. Die Datei bleibt vollständig, du kannst das später ändern.",
+    "frame": "Angezeigter Teil des Bildes. Pfeiltasten verschieben ihn, mit Umschalt ändern sie die Größe.",
+    "reset": "Ganzes Bild zeigen",
+    "loading": "Bild wird geladen…",
+    "failed": "Das Bild konnte nicht geladen werden."
   }
 }

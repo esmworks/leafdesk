@@ -42,7 +42,9 @@ import {
   pagePath,
   type MentionProps,
 } from "@/lib/mentions";
+import { linkMentionHref, linkMentionTitle } from "@/lib/link-mentions";
 import { openBlockLink } from "./block-focus";
+import { LinkMentionChip } from "./link-mention";
 import { LINK_PLACEHOLDER } from "@/lib/link-context";
 import type { Backlink, MentionCandidates, PageRef, UnlinkedMention } from "@/server/mentions";
 import type { AgentCandidate } from "@/server/agents/mentions";
@@ -53,7 +55,8 @@ import { isRtl } from "@/components/direction";
 
 /**
  * The editor's side of mentions and page links (configs shared with the server in lib/mentions):
- * the `@` menu, mention chips, the "Link to page" block and its picker, and the page's backlinks.
+ * the `@` menu, mention chips (links shown as mentions: link-mention.tsx), the "Link to page" block
+ * and its picker, and the page's backlinks.
  */
 
 // ---------------------------------------------------------------------------------------------
@@ -390,6 +393,7 @@ const Mention = createReactInlineContentSpec(mentionConfig, {
     );
     if (props.kind === "page") return <PageMentionChip pageId={props.pageId} blockId={props.blockId} />;
     if (props.kind === "user") return <PersonMentionChip name={props.name} />;
+    if (props.kind === "link") return <LinkMentionChip props={props} onChange={editor.isEditable ? change : null} />;
     return <DateMentionChip props={props} onChange={editor.isEditable ? change : null} />;
   },
   // Copied out of the editor: plain text and links other apps understand, never a title the
@@ -398,6 +402,10 @@ const Mention = createReactInlineContentSpec(mentionConfig, {
     const props = mentionProps(inlineContent.props);
     if (props.kind === "user") return <span>@{props.name}</span>;
     if (props.kind === "date") return <span>{props.date}</span>;
+    if (props.kind === "link") {
+      const href = linkMentionHref(props);
+      return href ? <a href={href}>{linkMentionTitle(props)}</a> : <span />;
+    }
     const ref = refs.get(props.pageId);
     return ref?.status === "ok" ? <a href={pageOrBlockPath(ref.workspaceId, ref.id, props.blockId)}>{ref.title}</a> : <span />;
   },

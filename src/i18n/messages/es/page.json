@@ -601,6 +601,7 @@
       "label": "Pegar como",
       "bookmark": "Marcador",
       "embed": "Incrustado",
+      "mention": "Mención",
       "keep": "Mantener como enlace"
     },
     "invalidUrl": "Escribe una dirección web, como https://example.com",
@@ -636,6 +637,7 @@
     "deleted": "Página eliminada",
     "loading": "Cargando…",
     "atBlock": "Abre la página en un bloque",
+    "showAsMention": "Mostrar como mención",
     "personLeft": "{name} (ya no está en el espacio de trabajo)",
     "date": "Fecha",
     "reminder": "Recordatorio",
@@ -1084,6 +1086,8 @@
       "open": "Ajustes del botón",
       "icon": "Emoji",
       "label": "Texto",
+      "color": "Color",
+      "colorDefault": "Predeterminado",
       "confirm": "Preguntar antes de ejecutar",
       "confirmHelp": "Quien hace clic confirma primero.",
       "steps": "Al hacer clic",
@@ -1143,5 +1147,14 @@
       "error": "Algo salió mal.",
       "step": "El paso {step} ({type}) no se ejecutó: {reason}"
     }
+  },
+  "imageCrop": {
+    "menuItem": "Recortar…",
+    "title": "Recortar la imagen",
+    "hint": "Arrastra el marco o sus bordes. El archivo queda entero, así que puedes cambiarlo más tarde.",
+    "frame": "Parte de la imagen que se muestra. Las flechas la mueven; con Mayús cambian su tamaño.",
+    "reset": "Mostrar la imagen entera",
+    "loading": "Cargando la imagen…",
+    "failed": "No se pudo cargar la imagen."
   }
 }

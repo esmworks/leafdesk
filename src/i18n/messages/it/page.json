@@ -601,6 +601,7 @@
       "label": "Incolla come",
       "bookmark": "Segnalibro",
       "embed": "Contenuto incorporato",
+      "mention": "Menzione",
       "keep": "Mantieni come link"
     },
     "invalidUrl": "Inserisci un indirizzo web, ad esempio https://example.com",
@@ -636,6 +637,7 @@
     "deleted": "Pagina eliminata",
     "loading": "Caricamento…",
     "atBlock": "Apre la pagina a un blocco",
+    "showAsMention": "Mostra come menzione",
     "personLeft": "{name} (non più nello spazio di lavoro)",
     "date": "Data",
     "reminder": "Promemoria",
@@ -1084,6 +1086,8 @@
       "open": "Impostazioni del pulsante",
       "icon": "Emoji",
       "label": "Etichetta",
+      "color": "Colore",
+      "colorDefault": "Predefinito",
       "confirm": "Chiedi prima di eseguire",
       "confirmHelp": "Chi clicca conferma prima.",
       "steps": "Al clic",
@@ -1143,5 +1147,14 @@
       "error": "Qualcosa è andato storto.",
       "step": "Il passaggio {step} ({type}) non è stato eseguito: {reason}"
     }
+  },
+  "imageCrop": {
+    "menuItem": "Ritaglia…",
+    "title": "Ritaglia l’immagine",
+    "hint": "Trascina la cornice o i suoi bordi. Il file resta intero, quindi puoi cambiarlo in seguito.",
+    "frame": "Parte dell’immagine mostrata. Le frecce la spostano; con Maiusc la ridimensionano.",
+    "reset": "Mostra l’immagine intera",
+    "loading": "Caricamento dell’immagine…",
+    "failed": "Impossibile caricare l’immagine."
   }
 }

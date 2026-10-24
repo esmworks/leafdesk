@@ -1,4 +1,5 @@
 import { createBlockSpec, createImageBlockConfig, imageParse, imageRender, imageToExternalHTML } from "@blocknote/core";
+import { cropCss, cropStyles, parseImageCrop } from "./image-crop";
 import { linkedPageRef } from "./mentions";
 import { markdownLinkDestination, markdownLinkText } from "./web-blocks";
 
@@ -13,6 +14,9 @@ import { markdownLinkDestination, markdownLinkText } from "./web-blocks";
  * HTML). In Markdown it is `[![alt](src)](href)`, or with a caption the HTML BlockNote writes for
  * one with the `<a>` around the `<img>`; lib/content-markdown writes and reads both forms itself
  * (linkedImageMarkdown, parseLinkedImageLine), so Markdown writes (MCP, the source view) keep it.
+ *
+ * Images may also be cropped (`crop`, lib/image-crop): the block shows a part of its file. The
+ * editor draws it with the same styles as the block's HTML (published pages, print, export).
  *
  * Pure apart from BlockNote's DOM helpers: the spec is shared by the editor (embed-blocks.tsx) and
  * the server (server/blocknote.ts).
@@ -51,7 +55,7 @@ const base = createImageBlockConfig({});
 
 export const imageBlockConfig = {
   ...base,
-  propSchema: { ...base.propSchema, link: { default: "" as const } },
+  propSchema: { ...base.propSchema, link: { default: "" as const }, crop: { default: "" as const } },
 } as const;
 
 /** The link `element` (an image, or a figure holding one) sits in, as an image keeps it. */
@@ -72,10 +76,35 @@ export const linkedImageSpec = createBlockSpec(imageBlockConfig, {
   render: (block, editor) => {
     const rendered = imageRender()(block as never, editor as never);
     if (block.props.link) rendered.dom.setAttribute("data-image-link", "");
+    const crop = block.props.url && block.props.showPreview ? parseImageCrop(block.props.crop) : null;
+    const box = crop && rendered.dom.querySelector<HTMLElement>(".bn-visual-media-wrapper");
+    const image = box && box.querySelector<HTMLElement>("img");
+    if (crop && box && image) {
+      const styles = cropStyles(crop);
+      box.setAttribute("data-image-crop", "");
+      Object.assign(box.style, styles.box, { width: "100%" });
+      Object.assign(image.style, styles.image);
+      // The image no longer sizes the block: without a width of its own it takes the line's.
+      if (!block.props.previewWidth) rendered.dom.style.width = "100%";
+    }
     return rendered;
   },
   toExternalHTML: (block, editor) => {
     const out = imageToExternalHTML()(block as never, editor as never);
+    const crop = block.props.url && block.props.showPreview ? parseImageCrop(block.props.crop) : null;
+    const img = crop ? (out.dom.tagName === "IMG" ? out.dom : out.dom.querySelector("img")) : null;
+    if (crop && img) {
+      // The part of the image in a box of its shape, as wide as the image was shown.
+      const styles = cropStyles(crop);
+      const box = document.createElement("div");
+      box.setAttribute("data-image-crop", "");
+      const width = block.props.previewWidth ? `${Number(block.props.previewWidth)}px` : "100%";
+      box.setAttribute("style", `${cropCss(styles.box)};width:${width};max-width:100%`);
+      img.setAttribute("style", cropCss(styles.image));
+      img.replaceWith(box);
+      box.appendChild(img);
+      if (out.dom === img) out.dom = box;
+    }
     // A web address, or a path of this site: the page's own, or where a published page shows it.
     const link = typeof block.props.link === "string" && /^(https?:\/\/|\/(?![/\\]))/i.test(block.props.link.trim()) ? block.props.link.trim() : "";
     if (!link || !block.props.url || !block.props.showPreview) return out;

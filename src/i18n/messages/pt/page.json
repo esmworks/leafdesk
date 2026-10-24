@@ -601,6 +601,7 @@
       "label": "Colar como",
       "bookmark": "Marcador",
       "embed": "Incorporação",
+      "mention": "Menção",
       "keep": "Manter como link"
     },
     "invalidUrl": "Digite um endereço web, como https://example.com",
@@ -636,6 +637,7 @@
     "deleted": "Página excluída",
     "loading": "Carregando…",
     "atBlock": "Abre a página num bloco",
+    "showAsMention": "Mostrar como menção",
     "personLeft": "{name} (não está mais no espaço de trabalho)",
     "date": "Data",
     "reminder": "Lembrete",
@@ -1084,6 +1086,8 @@
       "open": "Configurações do botão",
       "icon": "Emoji",
       "label": "Rótulo",
+      "color": "Cor",
+      "colorDefault": "Padrão",
       "confirm": "Perguntar antes de executar",
       "confirmHelp": "Quem clicar confirma primeiro.",
       "steps": "Ao clicar",
@@ -1143,5 +1147,14 @@
       "error": "Algo deu errado.",
       "step": "O passo {step} ({type}) não foi executado: {reason}"
     }
+  },
+  "imageCrop": {
+    "menuItem": "Recortar…",
+    "title": "Recortar a imagem",
+    "hint": "Arraste a moldura ou as bordas. O arquivo continua inteiro, então você pode mudar isso depois.",
+    "frame": "Parte da imagem que aparece. As setas a movem; com Shift, mudam o tamanho.",
+    "reset": "Mostrar a imagem inteira",
+    "loading": "Carregando a imagem…",
+    "failed": "Não foi possível carregar a imagem."
   }
 }

@@ -2,8 +2,10 @@
  * End-to-end check of ZIP exports: a page with its subpages and a whole workspace as Markdown,
  * database CSVs and the uploaded files they show; the folder layout; links rewritten into the
  * archive; only what the exporting user can view (hidden subpages, pages shared on their own,
- * guests, owners-only workspace export); the trash and templates; comments when asked for (only
- * those the exporter can see); limits, one export at a time, and streaming. With EXPORT_E2E_URL pointing at a running server, also the export routes over HTTP.
+ * guests, owners-only workspace export); comments when asked for (only those the exporter can see);
+ * link mentions as links and cropped images whole; the trash and templates; limits, one export at
+ * a time, and streaming. With EXPORT_E2E_URL pointing at a running server, also the export routes
+ * over HTTP.
  * Creates its own users, workspace and files, and deletes all of it afterwards.
  *
  *   pnpm tsx scripts/export-e2e.ts
@@ -167,6 +169,19 @@ try {
     `See ${link(plan.id)}, ${link(secret.id)} and ${link(elsewhere.id)}.\n\n![](/api/files/${photo.id})\n\n\`\`\`\n${link(plan.id)}\n\`\`\``,
     owner,
   );
+  // A link shown as a mention and a cropped image: Markdown has the link and the whole image.
+  await getCollab().appendBlocks(
+    project.id,
+    [
+      { type: "paragraph", content: [{ type: "mention", props: { kind: "link", url: "https://example.com/guide", title: "The guide", siteName: "Example" } }] },
+      { type: "image", props: { url: `/api/files/${photo.id}`, name: "cropped", crop: JSON.stringify({ x: 0.5, y: 0, w: 0.5, h: 0.5, ar: 2 }) } },
+    ],
+    owner,
+  );
+  await eventually(async () => {
+    const [row] = await db.select({ md: page.contentMarkdown }).from(page).where(eq(page.id, project.id));
+    return Boolean(row?.md.includes("The guide"));
+  }, "the project's appended blocks");
   // The store hook records which files each body shows; exports go by that.
   const shown = async (pageId: string, fileId: string) =>
     (await db.select().from(fileReference).where(and(eq(fileReference.pageId, pageId), eq(fileReference.fileId, fileId)))).length > 0;
@@ -214,6 +229,8 @@ try {
   check(projectMd.includes("[Plan](Project/Plan.md)") && projectMd.includes("[Secret](Project/Secret.md)"), "links to exported pages point into the archive", projectMd);
   check(projectMd.includes(`[Elsewhere](${env.appUrl}/w/${workspaceId}/p/${elsewhere.id})`), "links to pages left out point at the app", projectMd);
   check(projectMd.includes("](files/photo.png)"), "uploaded images point at their copy", projectMd);
+  check(projectMd.includes("[The guide](https://example.com/guide)"), "a link shown as a mention exports as a link with its title", projectMd);
+  check(projectMd.includes("![cropped](files/photo.png)"), "…and a cropped image as the whole image", projectMd);
   check(projectMd.includes(`\n[x](/w/${workspaceId}/p/${plan.id})\n\`\`\``), "fenced code is left alone", projectMd);
   const planMd = own.text("Project/Plan.md")!;
   check(planMd.includes("](../files/photo.png)") && planMd.includes("](../files/notes.txt)"), "…from nested folders too, absolute app URLs included", planMd);

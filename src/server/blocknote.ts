@@ -35,7 +35,7 @@ import {
 import { databaseBlockConfig, linkedViewBlockConfig, referenceLine, isEmbedBlockType } from "@/lib/embed-blocks";
 import { dashboardBlockConfig } from "@/lib/dashboard";
 import { agentChatBlockConfig } from "@/lib/agent-chat";
-import { buttonBlockConfig, cleanButtonLabel } from "@/lib/buttons";
+import { buttonBlockConfig, buttonColor, cleanButtonLabel } from "@/lib/buttons";
 import { meetingBlockConfig, meetingProps, parseAttendees, parseTakeaways } from "@/lib/meetings";
 import { markdownToPageBlocks } from "@/lib/page-markdown";
 import { textScriptStyleSpecs } from "@/lib/text-scripts";
@@ -132,13 +132,19 @@ const contentBlockSpecs = {
   subpages: createBlockSpec(subpagesBlockConfig, marker("subpages"))(),
 };
 
-/** A button on the server (published pages, the print view, HTML exports): its label, disabled. */
-function buttonElement(props: { label?: unknown; icon?: unknown }) {
+/**
+ * A button on the server (published pages, the print view, HTML exports): its label, disabled, in
+ * its color (`opt-*` from globals.css, a name checked against the palette).
+ */
+function buttonElement(props: { label?: unknown; icon?: unknown; color?: unknown }) {
   const dom = document.createElement("p");
   dom.setAttribute("data-leafdesk-button", "");
+  const color = buttonColor(props.color);
+  if (color) dom.setAttribute("data-button-color", color);
   const button = document.createElement("button");
   button.setAttribute("type", "button");
   button.setAttribute("disabled", "");
+  if (color) button.setAttribute("class", `opt-${color}`);
   button.textContent = [typeof props.icon === "string" ? props.icon : "", cleanButtonLabel(props.label)].filter(Boolean).join(" ");
   dom.appendChild(button);
   return { dom };

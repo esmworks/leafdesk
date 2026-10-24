@@ -601,6 +601,7 @@
       "label": "Şu şekilde yapıştır",
       "bookmark": "Yer imi",
       "embed": "Gömülü içerik",
+      "mention": "Bahsetme",
       "keep": "Bağlantı olarak bırak"
     },
     "invalidUrl": "https://example.com gibi bir web adresi girin",
@@ -636,6 +637,7 @@
     "deleted": "Silinmiş sayfa",
     "loading": "Yükleniyor…",
     "atBlock": "Sayfayı bir blokta açar",
+    "showAsMention": "Bahsetme olarak göster",
     "personLeft": "{name} (artık çalışma alanında değil)",
     "date": "Tarih",
     "reminder": "Hatırlatma",
@@ -1084,6 +1086,8 @@
       "open": "Düğme ayarları",
       "icon": "Emoji",
       "label": "Etiket",
+      "color": "Renk",
+      "colorDefault": "Varsayılan",
       "confirm": "Çalıştırmadan önce sor",
       "confirmHelp": "Tıklayan kişi önce onaylar.",
       "steps": "Tıklanınca",
@@ -1143,5 +1147,14 @@
       "error": "Bir sorun oluştu.",
       "step": "{step}. adım ({type}) çalışmadı: {reason}"
     }
+  },
+  "imageCrop": {
+    "menuItem": "Kırp…",
+    "title": "Görseli kırp",
+    "hint": "Çerçeveyi ya da kenarlarını sürükleyin. Dosya bütün kalır, bunu sonra değiştirebilirsiniz.",
+    "frame": "Görselin gösterilecek kısmı. Ok tuşları onu taşır; Shift ile boyutunu değiştirir.",
+    "reset": "Görselin tamamını göster",
+    "loading": "Görsel yükleniyor…",
+    "failed": "Görsel yüklenemedi."
   }
 }

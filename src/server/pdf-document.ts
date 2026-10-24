@@ -5,6 +5,7 @@ import { COLUMN_BLOCK, COLUMN_LIST_BLOCK, columnWidth } from "@/lib/columns";
 import { commentText } from "@/lib/comments";
 import { isEmbedBlockType } from "@/lib/embed-blocks";
 import type { ExportedThread } from "@/lib/export-comments";
+import { cropSvg, parseImageCrop } from "@/lib/image-crop";
 import { SUBSCRIPT, SUPERSCRIPT } from "@/lib/text-scripts";
 import { BOOKMARK_BLOCK, WEB_EMBED_BLOCK } from "@/lib/web-blocks";
 import { tint, type LogoPlace } from "@/lib/letterheads";
@@ -256,8 +257,14 @@ function blockContent(block: MdBlock, walk: Walk, width: number): Content[] {
       const preview = Number(prop(block, "previewWidth"));
       const fitWidth = Math.min(width, Number.isFinite(preview) && preview > 0 ? preview * 0.75 : width);
       const align = alignment(prop(block, "textAlignment"));
+      // A cropped image is drawn as an SVG that shows only its part (lib/image-crop).
+      const crop = data ? parseImageCrop(prop(block, "crop")) : null;
       const shown: Content = data
-        ? { image: data, fit: [fitWidth, MAX_IMAGE_HEIGHT], ...(align ? { alignment: align } : {}) }
+        ? {
+            ...(crop ? { svg: cropSvg(crop, data) } : { image: data }),
+            fit: [fitWidth, MAX_IMAGE_HEIGHT],
+            ...(align ? { alignment: align } : {}),
+          }
         : fileLine(block, input);
       return [{ stack: [shown, ...captionLine(caption, align)], margin: [0, 2, 0, 8], unbreakable: true }];
     }

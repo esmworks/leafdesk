@@ -8,7 +8,7 @@ import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
 import { pressButtonAction } from "@/app/actions/buttons";
 import { cn, IconButton } from "@/components/ui";
-import { BUTTON_BLOCK, buttonBlockConfig, cleanButtonLabel, parseButtonConfig } from "@/lib/buttons";
+import { BUTTON_BLOCK, buttonBlockConfig, buttonColor, cleanButtonLabel, parseButtonConfig } from "@/lib/buttons";
 import { useEmbedHost } from "./database-embed";
 import type { PageEditor } from "./embed-blocks";
 
@@ -39,6 +39,7 @@ export const ButtonBlock = createReactBlockSpec(buttonBlockConfig, {
     const router = useRouter();
     const label = cleanButtonLabel(block.props.label);
     const icon = block.props.icon;
+    const color = buttonColor(block.props.color);
     const config = useMemo(() => parseButtonConfig(block.props.config), [block.props.config]);
     const editable = Boolean(host?.editable) && editor.isEditable;
     const [setting, setSetting] = useState(() => {
@@ -87,9 +88,14 @@ export const ButtonBlock = createReactBlockSpec(buttonBlockConfig, {
           onClick={() => void press()}
           aria-busy={running || undefined}
           className={cn(
-            "inline-flex min-h-8 max-w-full items-center gap-1.5 rounded-md border border-border bg-bg px-3 py-1 text-sm font-medium shadow-sm transition-colors",
-            "hover:bg-bg-hover focus-visible:outline-2 focus-visible:outline-accent disabled:cursor-default disabled:opacity-70",
-            !label && "text-fg-muted",
+            "inline-flex min-h-8 max-w-full items-center gap-1.5 rounded-md border px-3 py-1 text-sm font-medium shadow-sm transition-colors",
+            "focus-visible:outline-2 focus-visible:outline-accent disabled:cursor-default disabled:opacity-70",
+            // A colored button is an option chip's colors (opt-*), hovered a shade deeper; high
+            // contrast outlines it in its text color.
+            color
+              ? `opt-${color} border-transparent hover:brightness-95 dark:hover:brightness-110 high-contrast:border-(--opt-fg)`
+              : "border-border bg-bg hover:bg-bg-hover",
+            !label && !color && "text-fg-muted",
           )}
         >
           {running ? <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin" aria-hidden /> : icon ? <span aria-hidden>{icon}</span> : <MousePointerClick className="h-3.5 w-3.5 shrink-0" aria-hidden />}

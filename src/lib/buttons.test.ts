@@ -11,6 +11,7 @@ import {
   parseButtonConfig,
   parseButtonLine,
   restoreButtons,
+  buttonColor,
   serializeButtonConfig,
 } from "./buttons";
 
@@ -95,6 +96,14 @@ describe("button Markdown lines", () => {
   it("become a line of their own in exports, outside code only", () => {
     const markdown = ["Intro", buttonLine("b1", "Go"), "```", buttonLine("b2", "Code"), "```"].join("\n");
     expect(mapButtonLines(markdown, ({ label }) => `*Button ${label}*`).split("\n")).toEqual(["Intro", "*Button Go*", "```", buttonLine("b2", "Code"), "```"]);
+  });
+
+  it("take a color of the option palette only", () => {
+    expect(buttonColor("green")).toBe("green");
+    expect(buttonColor("")).toBeNull();
+    expect(buttonColor("Green")).toBeNull();
+    expect(buttonColor("url(x)")).toBeNull();
+    expect(buttonColor(undefined)).toBeNull();
   });
 
   it("read as their icon and label", () => {

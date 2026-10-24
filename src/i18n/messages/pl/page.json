@@ -601,6 +601,7 @@
       "label": "Wklej jako",
       "bookmark": "Zakładka",
       "embed": "Osadzenie",
+      "mention": "Wzmianka",
       "keep": "Zostaw jako link"
     },
     "invalidUrl": "Wpisz adres internetowy, np. https://example.com",
@@ -636,6 +637,7 @@
     "deleted": "Usunięta strona",
     "loading": "Ładowanie…",
     "atBlock": "Otwiera stronę w miejscu bloku",
+    "showAsMention": "Pokaż jako wzmiankę",
     "personLeft": "{name} (nie należy już do obszaru roboczego)",
     "date": "Data",
     "reminder": "Przypomnienie",
@@ -1084,6 +1086,8 @@
       "open": "Ustawienia przycisku",
       "icon": "Emoji",
       "label": "Etykieta",
+      "color": "Kolor",
+      "colorDefault": "Domyślny",
       "confirm": "Pytaj przed uruchomieniem",
       "confirmHelp": "Osoba, która kliknie, najpierw potwierdza.",
       "steps": "Po kliknięciu",
@@ -1143,5 +1147,14 @@
       "error": "Coś poszło nie tak.",
       "step": "Krok {step} ({type}) nie został wykonany: {reason}"
     }
+  },
+  "imageCrop": {
+    "menuItem": "Przytnij…",
+    "title": "Przytnij obraz",
+    "hint": "Przeciągnij ramkę lub jej krawędzie. Plik pozostaje cały, więc możesz to później zmienić.",
+    "frame": "Pokazywana część obrazu. Strzałki ją przesuwają, a z Shift zmieniają jej rozmiar.",
+    "reset": "Pokaż cały obraz",
+    "loading": "Wczytywanie obrazu…",
+    "failed": "Nie udało się wczytać obrazu."
   }
 }
