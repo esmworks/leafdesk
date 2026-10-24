@@ -30,4 +30,9 @@ export const EDITOR_DICTIONARY_LOADERS: Record<Locale, () => Promise<Dictionary>
   id: () => import("./id").then((m) => m.id),
   th: () => import("./th").then((m) => m.th),
   vi: () => import("./locales/vi").then((m) => m.vi),
+  da: () => import("./da").then((m) => m.da),
+  nl: () => import("./locales/nl").then((m) => m.nl),
+  nb: () => import("./locales/nb").then((m) => m.nb),
+  fi: () => import("./fi").then((m) => m.fi),
+  sv: () => import("./sv").then((m) => m.sv),
 };
