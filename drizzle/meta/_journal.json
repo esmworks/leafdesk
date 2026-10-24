@@ -932,6 +932,27 @@
       "when": 1792855269782,
       "tag": "0132_siem_dlp",
       "breakpoints": true
+    },
+    {
+      "idx": 133,
+      "version": "7",
+      "when": 1792860835538,
+      "tag": "0133_desktop_links",
+      "breakpoints": true
+    },
+    {
+      "idx": 134,
+      "version": "7",
+      "when": 1792861185525,
+      "tag": "0134_github_sync",
+      "breakpoints": true
+    },
+    {
+      "idx": 135,
+      "version": "7",
+      "when": 1792861653110,
+      "tag": "0135_ai_saved_prompts",
+      "breakpoints": true
     }
   ]
 }

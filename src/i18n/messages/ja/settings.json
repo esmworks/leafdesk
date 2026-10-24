@@ -41,6 +41,7 @@
       "language": "言語 翻訳 ロケール",
       "theme": "ダークモード ライトモード 色",
       "contrast": "アクセシビリティ ハイコントラスト",
+      "desktopLinks": "デスクトップ windows mac タブ リンクを開く",
       "notifications": "プッシュ メール アラート 通知",
       "watchedPages": "フォロー 購読 ウォッチ",
       "offlineDevice": "オフライン ダウンロード キャッシュ 容量",
@@ -1119,6 +1120,20 @@
       "note": "高コントラストにすると、どちらのテーマでも補助テキスト、線、フォーカスの枠線がはっきりします。この設定はこのブラウザにのみ適用されます。システムに合わせる場合は、デバイスのコントラストを上げる設定に従います。"
     }
   },
+  "desktopLinks": {
+    "heading": "デスクトップアプリ",
+    "label": "リンクをデスクトップアプリで開く",
+    "note": "デスクトップアプリが入ったコンピュータのブラウザで Leafdesk のページを開くと、アプリの専用のタブで続きを開けます。アプリの中では何も変わりません。",
+    "off": "オフ",
+    "ask": "開くか確認する",
+    "always": "常に開く",
+    "banner": {
+      "text": "このページをデスクトップアプリで開きますか？",
+      "open": "アプリで開く",
+      "always": "常に",
+      "dismiss": "閉じる"
+    }
+  },
   "language": {
     "heading": "言語",
     "label": "表示言語",
@@ -1863,6 +1878,11 @@
       "sensitive_content": {
         "found": "{target}で{kind}（{excerpt}）を検出しました",
         "dismissed": "{target}で検出された{kind}（{excerpt}）を却下しました"
+      },
+      "github_sync": {
+        "created": "{target}に GitHub のプルリクエストを設定しました",
+        "updated": "{target}の GitHub 設定を変更しました",
+        "deleted": "{target}の GitHub 設定を削除しました"
       }
     },
     "decisions": {

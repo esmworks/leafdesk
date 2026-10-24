@@ -34,7 +34,27 @@
     "stopped": "Stopped. You can still keep what was written so far.",
     "applyFailed": "The suggestion couldn't be added to the page.",
     "asSuggestions": "Add as suggested edits",
-    "selectionChanged": "The selected text changed meanwhile, so the suggestion was added below it."
+    "selectionChanged": "The selected text changed meanwhile, so the suggestion was added below it.",
+    "saved": {
+      "title": "Saved prompts",
+      "empty": "Save an instruction you use often with the bookmark next to Send. Instructions for the whole team are <skills>skills</skills>.",
+      "saveInstruction": "Save prompt",
+      "name": "Name",
+      "namePlaceholder": "Name this prompt",
+      "save": "Save",
+      "cancel": "Cancel",
+      "rename": "New name",
+      "renameNamed": "Rename {name}",
+      "deleteNamed": "Delete {name}",
+      "errors": {
+        "emptyName": "Give the prompt a name.",
+        "emptyPrompt": "There is no instruction to save.",
+        "nameTooLong": "Names can be at most {max} characters.",
+        "promptTooLong": "Prompts can be at most {max} characters.",
+        "full": "You can keep at most {max} saved prompts. Delete one to save another.",
+        "notFound": "This saved prompt no longer exists."
+      }
+    }
   },
   "errors": {
     "disabled": "AI isn't available in this workspace.",

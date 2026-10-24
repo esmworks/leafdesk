@@ -41,6 +41,7 @@
       "language": "언어 번역 지역",
       "theme": "다크 모드 라이트 모드 색상",
       "contrast": "접근성 고대비",
+      "desktopLinks": "데스크톱 windows mac 탭 링크 열기",
       "notifications": "푸시 이메일 알림 경고",
       "watchedPages": "팔로우 구독 지켜보기",
       "offlineDevice": "오프라인 다운로드 캐시 공간",
@@ -1119,6 +1120,20 @@
       "note": "고대비는 어느 테마에서든 보조 텍스트, 선, 포커스 테두리를 더 진하게 합니다. 이 설정은 이 브라우저에만 적용됩니다. 시스템 설정을 사용하면 기기의 대비 높이기 옵션을 따릅니다."
     }
   },
+  "desktopLinks": {
+    "heading": "데스크톱 앱",
+    "label": "링크를 데스크톱 앱에서 열기",
+    "note": "데스크톱 앱이 설치된 컴퓨터의 브라우저에서 Leafdesk 페이지를 열면 앱의 별도 탭에서 이어서 열 수 있습니다. 앱 안에서는 달라지는 것이 없습니다.",
+    "off": "끄기",
+    "ask": "열지 묻기",
+    "always": "항상 열기",
+    "banner": {
+      "text": "이 페이지를 데스크톱 앱에서 여시겠습니까?",
+      "open": "앱에서 열기",
+      "always": "항상",
+      "dismiss": "닫기"
+    }
+  },
   "language": {
     "heading": "언어",
     "label": "인터페이스 언어",
@@ -1863,6 +1878,11 @@
       "sensitive_content": {
         "found": "{target}에서 {kind}({excerpt})을(를) 발견함",
         "dismissed": "{target}에서 발견된 {kind}({excerpt})을(를) 무시함"
+      },
+      "github_sync": {
+        "created": "{target}에 GitHub 풀 리퀘스트를 설정했습니다",
+        "updated": "{target}의 GitHub 설정을 바꿨습니다",
+        "deleted": "{target}의 GitHub 설정을 제거했습니다"
       }
     },
     "decisions": {

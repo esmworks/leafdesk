@@ -41,6 +41,7 @@
       "language": "Sprache Übersetzung Gebietsschema",
       "theme": "Dunkelmodus Hellmodus Farben",
       "contrast": "Barrierefreiheit hoher Kontrast",
+      "desktopLinks": "desktop windows mac tabs links öffnen",
       "notifications": "Push E-Mail Hinweise Benachrichtigung",
       "watchedPages": "folgen abonnieren beobachten",
       "offlineDevice": "offline herunterladen Cache Speicherplatz",
@@ -1119,6 +1120,20 @@
       "note": "Hoher Kontrast macht Nebentexte, Linien und Fokusrahmen in beiden Designs deutlicher. Diese Einstellung gilt nur für diesen Browser. Mit der Systemeinstellung folgt sie der Option Ihres Geräts, den Kontrast zu erhöhen."
     }
   },
+  "desktopLinks": {
+    "heading": "Desktop-App",
+    "label": "Links in der Desktop-App öffnen",
+    "note": "Wenn du eine Leafdesk-Seite im Browser auf einem Computer mit der Desktop-App öffnest, kann sie in der App weitergehen, in einem eigenen Tab. In der App selbst ändert sich nichts.",
+    "off": "Aus",
+    "ask": "Öffnen anbieten",
+    "always": "Immer öffnen",
+    "banner": {
+      "text": "Diese Seite in der Desktop-App öffnen?",
+      "open": "In der App öffnen",
+      "always": "Immer",
+      "dismiss": "Schließen"
+    }
+  },
   "language": {
     "heading": "Sprache",
     "label": "Sprache der Oberfläche",
@@ -1863,6 +1878,11 @@
       "sensitive_content": {
         "found": "Hat {kind} ({excerpt}) in {target} gefunden",
         "dismissed": "Hat den Hinweis auf {kind} ({excerpt}) in {target} verworfen"
+      },
+      "github_sync": {
+        "created": "GitHub-Pull-Requests in {target} eingerichtet",
+        "updated": "GitHub-Einrichtung von {target} geändert",
+        "deleted": "GitHub-Einrichtung von {target} entfernt"
       }
     },
     "decisions": {

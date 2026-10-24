@@ -1178,7 +1178,8 @@
       "invalidTarget": "開くリンクが正しくありません。",
       "buttonGone": "ボタンはページから削除されました。",
       "error": "問題が発生しました。",
-      "step": "ステップ {step}({type})は実行されませんでした: {reason}"
+      "step": "ステップ {step}({type})は実行されませんでした: {reason}",
+      "templateGone": "行テンプレートはもう存在しません。"
     }
   },
   "imageCrop": {

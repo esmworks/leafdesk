@@ -1336,9 +1336,10 @@ input.leafdesk-callout-title-input {
 }
 
 /*
- * The desktop app on macOS has no title bar: the window's buttons sit over the page's top-left
- * corner, centered on the 44px header row, and that row moves the window (desktop/src/main.ts and
- * preload.cts set <html data-window-controls>; data-full-screen when macOS hides the buttons).
+ * Desktop app versions before tabs, on macOS, have no title bar: the window's buttons sit over the
+ * page's top-left corner, centered on the 44px header row, and that row moves the window (their
+ * preload sets <html data-window-controls>; data-full-screen when macOS hides the buttons). Newer
+ * versions put the buttons in their own tab strip above the page and mark it data-desktop-app.
  * The sidebar, and the navigation that takes its place in settings and admin, starts below them;
  * a header the buttons would cover (no sidebar beside it, or the sidebar on the right) leaves
  * their width free. The region dragging the window is a strip over the whole width (the root

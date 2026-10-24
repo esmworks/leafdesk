@@ -58,6 +58,8 @@ const { flushAutomations } = await import("@/server/automations/run");
 const { AccessError } = await import("@/server/access");
 const { listInbox } = await import("@/server/notifications");
 const { ButtonError, buttonSettings, pressButton } = await import("@/server/buttons");
+const { createRowTemplate, setDefaultRowTemplate } = await import("@/server/templates");
+const { today: dayIn } = await import("@/lib/journal");
 
 const RUN = `button-e2e-${Date.now().toString(36)}`;
 
@@ -164,12 +166,32 @@ try {
     ],
   });
   const goOnly = serializeButtonConfig({ confirm: false, steps: [{ type: "open", target: "https://example.com/docs" }] });
+
+  // Adding rows from a row template of another database.
+  const requests = (await createPage({ userId: ids.owner }, { workspaceId, kind: "database", title: "Requests" })).id;
+  const owner = await addProperty(ids.owner, requests, { name: "Owner", type: "person" });
+  const opened = await addProperty(ids.owner, requests, { name: "Opened", type: "date" });
+  const urgent = await addProperty(ids.owner, requests, { name: "Urgent", type: "checkbox" });
+  await setPagePermission(ids.owner, requests, ids.editor, "edit");
+  const intake = await createRowTemplate({ userId: ids.owner }, requests, { title: "Intake", properties: { Owner: ["me"], Opened: "today", Urgent: true } });
+  const quick = await createRowTemplate({ userId: ids.owner }, requests, { title: "Quick", properties: { Urgent: true } });
+  await setDefaultRowTemplate(ids.owner, requests, quick.id);
+  const fromTemplate = serializeButtonConfig({
+    confirm: false,
+    steps: [
+      { type: "add_row", databaseId: requests, title: "", values: { [urgent.id]: false }, template: intake.id },
+      { type: "add_row", databaseId: requests, title: "Default {{today}}", values: {}, template: "default" },
+    ],
+  });
+  const fromGone = serializeButtonConfig({ confirm: false, steps: [{ type: "add_row", databaseId: requests, title: "", values: {}, template: "no-such-template" }] });
   await storeBody(weekly, [
     { type: "paragraph", content: "Intro" },
     { id: "start", type: "button", props: { label: "Start the week", icon: "🚀", config: start, color: "green" } },
     { id: "add", type: "button", props: { label: "Add a task", icon: "", config: addOnly, color: "url(evil)" } },
     { id: "finish", type: "button", props: { label: "Finish", icon: "", config: finish } },
     { id: "go", type: "button", props: { label: "Docs", icon: "", config: goOnly } },
+    { id: "templated", type: "button", props: { label: "New request", icon: "", config: fromTemplate } },
+    { id: "gone", type: "button", props: { label: "Old request", icon: "", config: fromGone } },
     { id: "empty", type: "button", props: { label: "Nothing yet", icon: "", config: "" } },
     { type: "paragraph", content: "Outro" },
   ]);
@@ -254,6 +276,27 @@ try {
   check(changed.length === 1 && changed[0].actorKind === "button", "…and the change reads as made through a button", changed);
   const ends = (await getCollab().readPage(weekly)).markdown.trim();
   check(ends.startsWith(`Finished on ${today}`) && ends.endsWith("The end."), "blocks go at the top and at the end of the page", ends);
+
+  // Rows from a row template: its values, with the step's over them, "me" the clicker and "today" theirs.
+  const templated = await pressButton(ids.editor, weekly, "templated", { timeZone: "Pacific/Auckland" });
+  check(templated.ok && templated.done === 2, "a button adds rows from row templates", templated);
+  const made = await db
+    .select({ title: page.title, properties: page.properties })
+    .from(page)
+    .where(and(eq(page.parentId, requests), eq(page.isTemplate, false)));
+  const fromIntake = made.find((r) => r.title === "Intake");
+  check(
+    fromIntake &&
+      JSON.stringify(fromIntake.properties[owner.id]) === JSON.stringify([ids.editor]) &&
+      fromIntake.properties[opened.id] === dayIn("Pacific/Auckland") &&
+      fromIntake.properties[urgent.id] === false,
+    "…with the template's title and values, its \"me\" and \"today\" the clicker's and the step's values over its own",
+    made,
+  );
+  const fromDefault = made.find((r) => r.title.startsWith("Default "));
+  check(fromDefault && fromDefault.properties[urgent.id] === true, "…or from the database's default template, with the step's title", made);
+  const gone = await pressButton(ids.editor, weekly, "gone", { timeZone: zone });
+  check(!gone.ok && gone.type === "add_row" && gone.code === "templateGone", "a template that is gone stops the button", gone);
 
   // Too many clicks
   const outcomes: (string | null)[] = [];

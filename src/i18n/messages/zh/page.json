@@ -1178,7 +1178,8 @@
       "invalidTarget": "要打开的链接无效。",
       "buttonGone": "按钮已从页面中移除。",
       "error": "出了点问题。",
-      "step": "第 {step} 步({type})未运行:{reason}"
+      "step": "第 {step} 步({type})未运行:{reason}",
+      "templateGone": "行模板已不存在。"
     }
   },
   "imageCrop": {

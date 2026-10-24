@@ -157,9 +157,11 @@ registerScheduleHandler("row_template", async ({ schedule: row, runAs, at }) => 
   // A database in the trash makes no rows; it carries on if the database comes back.
   if (!database || database.archivedAt) return false;
   try {
+    // The template's "me" is whoever set it to repeat, "today" the day in the schedule's zone.
     await createRow({ userId: runAs }, row.databaseId, {
       templateId: row.templateId,
       title: scheduledRowTitle(template.title, at, row.timeZone, row.settings),
+      timeZone: row.timeZone,
     });
   } catch (error) {
     if (error instanceof AccessError) throw new ScheduleRunError("accessLost", error.message);

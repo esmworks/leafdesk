@@ -1178,7 +1178,8 @@
       "invalidTarget": "הקישור לפתיחה אינו תקין.",
       "buttonGone": "הכפתור הוסר מהדף.",
       "error": "משהו השתבש.",
-      "step": "שלב {step} ({type}) לא רץ: {reason}"
+      "step": "שלב {step} ({type}) לא רץ: {reason}",
+      "templateGone": "תבנית השורה כבר לא קיימת."
     }
   },
   "imageCrop": {

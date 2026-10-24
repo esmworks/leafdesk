@@ -41,6 +41,7 @@
       "language": "langue traduction région",
       "theme": "mode sombre mode clair couleurs",
       "contrast": "accessibilité contraste élevé",
+      "desktopLinks": "bureau windows mac onglets ouvrir liens",
       "notifications": "push e-mail alertes notification",
       "watchedPages": "suivre s'abonner surveiller",
       "offlineDevice": "hors ligne télécharger cache espace",
@@ -1119,6 +1120,20 @@
       "note": "Le contraste élevé renforce les textes secondaires, les lignes et les contours de focus, dans les deux thèmes. Ce réglage ne s'applique qu'à ce navigateur. Avec le réglage du système, il suit l'option d'augmentation du contraste de votre appareil."
     }
   },
+  "desktopLinks": {
+    "heading": "Application de bureau",
+    "label": "Ouvrir les liens dans l’application de bureau",
+    "note": "Quand vous ouvrez une page Leafdesk dans un navigateur sur un ordinateur où l’application de bureau est installée, elle peut continuer dans l’application, dans son propre onglet. Dans l’application, rien ne change.",
+    "off": "Désactivé",
+    "ask": "Proposer de les ouvrir",
+    "always": "Toujours les ouvrir",
+    "banner": {
+      "text": "Ouvrir cette page dans l’application de bureau ?",
+      "open": "Ouvrir dans l’application",
+      "always": "Toujours",
+      "dismiss": "Fermer"
+    }
+  },
   "language": {
     "heading": "Langue",
     "label": "Langue de l’interface",
@@ -1863,6 +1878,11 @@
       "sensitive_content": {
         "found": "A trouvé {kind} ({excerpt}) dans {target}",
         "dismissed": "A écarté un résultat dans {target} : {kind} ({excerpt})"
+      },
+      "github_sync": {
+        "created": "A configuré les pull requests GitHub dans {target}",
+        "updated": "A modifié la configuration GitHub de {target}",
+        "deleted": "A supprimé la configuration GitHub de {target}"
       }
     },
     "decisions": {

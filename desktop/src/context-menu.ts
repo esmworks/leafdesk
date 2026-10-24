@@ -3,9 +3,10 @@ import type { Strings } from "./strings.ts";
 
 /**
  * The right-click menu Electron leaves out: spelling suggestions, editing and links. Leafdesk's
- * own menus (the editor's, a table's) open on their own and never reach this.
+ * own menus (the editor's, a table's) open on their own and never reach this. `openInTab`: the link
+ * leads to a page of the server, which opens in a new tab rather than in the browser.
  */
-export function showContextMenu(contents: WebContents, params: ContextMenuParams, t: Strings) {
+export function showContextMenu(contents: WebContents, params: ContextMenuParams, t: Strings, openInTab?: (url: string) => void) {
   const items: MenuItemConstructorOptions[] = [];
 
   if (params.misspelledWord) {
@@ -19,7 +20,13 @@ export function showContextMenu(contents: WebContents, params: ContextMenuParams
     items.push({ type: "separator" });
   }
 
-  if (/^https?:|^mailto:/.test(params.linkURL)) {
+  if (openInTab) {
+    items.push(
+      { label: t.openLinkInNewTab, click: () => openInTab(params.linkURL) },
+      { label: t.copyLink, click: () => clipboard.writeText(params.linkURL) },
+      { type: "separator" },
+    );
+  } else if (/^https?:|^mailto:/.test(params.linkURL)) {
     items.push(
       { label: t.openLinkInBrowser, click: () => void shell.openExternal(params.linkURL) },
       { label: t.copyLink, click: () => clipboard.writeText(params.linkURL) },

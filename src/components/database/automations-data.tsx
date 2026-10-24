@@ -20,6 +20,9 @@ export type DatabaseInfo = {
   people: PersonRef[];
   viewerId: string;
   rows: { id: string; title: string }[];
+  /** Row templates a step that adds a row can start from, and the database's default one. */
+  templates: { id: string; title: string; icon: string | null }[];
+  defaultTemplateId: string | null;
 };
 
 type DatabasesValue = {
@@ -63,6 +66,8 @@ export function DatabasesProvider({ workspaceId, children }: { workspaceId: stri
                 people: res.data.people,
                 viewerId: res.data.viewerId,
                 rows: res.data.rows.map((r) => ({ id: r.id, title: r.title })),
+                templates: res.data.templates.map((r) => ({ id: r.id, title: r.title, icon: r.icon })),
+                defaultTemplateId: res.data.database.defaultTemplateId,
               }
             : null,
         })),

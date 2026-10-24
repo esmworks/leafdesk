@@ -34,7 +34,27 @@
     "stopped": "Dihentikan. Anda masih dapat menyimpan apa yang sudah ditulis sejauh ini.",
     "applyFailed": "Saran tidak dapat ditambahkan ke halaman.",
     "asSuggestions": "Tambahkan sebagai saran edit",
-    "selectionChanged": "Teks yang dipilih berubah sementara itu, jadi saran ditambahkan di bawahnya."
+    "selectionChanged": "Teks yang dipilih berubah sementara itu, jadi saran ditambahkan di bawahnya.",
+    "saved": {
+      "title": "Prompt tersimpan",
+      "empty": "Simpan instruksi yang sering Anda pakai dengan penanda di samping Kirim. Instruksi untuk seluruh tim adalah <skills>keahlian</skills>.",
+      "saveInstruction": "Simpan prompt",
+      "name": "Nama",
+      "namePlaceholder": "Beri nama prompt ini",
+      "save": "Simpan",
+      "cancel": "Batal",
+      "rename": "Nama baru",
+      "renameNamed": "Ganti nama {name}",
+      "deleteNamed": "Hapus {name}",
+      "errors": {
+        "emptyName": "Beri nama prompt.",
+        "emptyPrompt": "Tidak ada instruksi untuk disimpan.",
+        "nameTooLong": "Nama paling banyak {max} karakter.",
+        "promptTooLong": "Prompt paling banyak {max} karakter.",
+        "full": "Anda bisa menyimpan paling banyak {max} prompt. Hapus satu untuk menyimpan yang lain.",
+        "notFound": "Prompt tersimpan ini sudah tidak ada."
+      }
+    }
   },
   "errors": {
     "disabled": "AI tidak tersedia di ruang kerja ini.",

@@ -1178,7 +1178,8 @@
       "invalidTarget": "O link a abrir não é válido.",
       "buttonGone": "O botão foi removido da página.",
       "error": "Algo deu errado.",
-      "step": "O passo {step} ({type}) não foi executado: {reason}"
+      "step": "O passo {step} ({type}) não foi executado: {reason}",
+      "templateGone": "O modelo de linha já não existe."
     }
   },
   "imageCrop": {

@@ -140,6 +140,8 @@ export async function nextStepsOf(actions: AutomationAction[], index: number, da
         return line();
       case "start_sequence":
         return line(sequences.find((x) => x.id === a.sequenceId)?.name);
+      case "slack":
+        return line(a.hint.split("/")[0]);
     }
   });
 }

@@ -724,6 +724,11 @@ export type PropertyOptions = {
   /** Unique ID properties: the prefix IDs show with ("TASK" for TASK-12); plain numbers when missing. */
   uniqueId?: UniqueIdOptions;
   /**
+   * URL properties: row pages show the linked page's icon, title and image under the link
+   * (server/url-preview.ts); just the link when missing.
+   */
+  url?: { preview: true };
+  /**
    * Row pages: "hide_empty" leaves the property out while the row has no value for it, "hide"
    * always (both under "more properties", see lib/page-visibility); shown when missing.
    */

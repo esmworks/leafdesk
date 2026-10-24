@@ -1255,6 +1255,35 @@ async function main() {
   check(oldHook.status === 404, "the old address no longer works", oldHook.status);
   await mcp.ok("delete_automation", { automation_id: hooked.id });
 
+  // Send to Slack: the address goes in once and only its hint comes back.
+  const slackSecret = "mcpSl4ckXyz9";
+  const badSlack = await mcp.call("create_automation", {
+    database_id: dbPage.id,
+    name: `Slack ${RUN}`,
+    trigger: { type: "row_created" },
+    actions: [{ type: "slack", url: "https://example.com/services/T0/B0/x", message: "New: {{trigger.title}}" }],
+  });
+  check(badSlack.isError, "create_automation refuses a Slack step whose address isn't a Slack incoming webhook", badSlack.text);
+  const slacked = await mcp.ok("create_automation", {
+    database_id: dbPage.id,
+    name: `Slack ${RUN}`,
+    trigger: { type: "row_created" },
+    actions: [{ type: "slack", url: `https://hooks.slack.com/services/T0/B0/${slackSecret}`, message: "New: {{trigger.title}}" }],
+  });
+  check(
+    slacked.actions[0].type === "slack" && slacked.actions[0].url === "hooks.slack.com/services/…Xyz9" && !JSON.stringify(slacked).includes(slackSecret),
+    "create_automation takes a Slack step and names its address back only as a hint",
+    slacked.actions,
+  );
+  const reslacked = await mcp.ok("update_automation", { automation_id: slacked.id, actions: [{ type: "slack", id: slacked.actions[0].id, message: "Added: {{trigger.title}}" }] });
+  const listedSlack = await mcp.ok("list_automations", { database_id: dbPage.id });
+  check(
+    reslacked.actions[0].url === slacked.actions[0].url && reslacked.actions[0].message === "Added: {{trigger.title}}" && !JSON.stringify(listedSlack).includes(slackSecret),
+    "update_automation without the address keeps the saved one, and list_automations never shows it",
+    reslacked.actions,
+  );
+  await mcp.ok("delete_automation", { automation_id: slacked.id });
+
   // A workspace that lets connected apps only read refuses agent changes with that reason.
   const { updateWorkspaceSettings } = await import("@/server/workspaces");
   await updateWorkspaceSettings(userIds[0], ws, { connectedApps: "read" });

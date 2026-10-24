@@ -14,8 +14,11 @@ import {
 } from "@/lib/builtin-templates";
 import { DASHBOARD_BLOCK, newWidgetId, serializeDashboard, type DashboardWidget } from "@/lib/dashboard";
 import { DATABASE_BLOCK } from "@/lib/embed-blocks";
+import { DEFAULT_ROW_TEMPLATE } from "@/lib/automations";
 import { holdsOptions } from "@/lib/property-types";
+import { namesMe, resolveMarkers } from "@/lib/template-values";
 import { AccessError, accessRank, levelFromRank, pageVisibleTo, requireMembership, requirePageAccess, type AccessLevel } from "@/server/access";
+import { isAgentUser } from "@/server/agents/users";
 import { recordAudit } from "@/server/audit";
 import { getCollab, type WriteActor } from "@/server/collab/bridge";
 import {
@@ -190,6 +193,11 @@ export type FromTemplateInput = {
   properties?: Record<string, unknown>;
   /** At the top level: the teamspace, null for a private page, undefined for the default one (see createPage). */
   teamspaceId?: string | null;
+  /**
+   * The time zone of whoever adds the row, for a row template's "today" (lib/template-values):
+   * their browser's, a button's clicker's, a schedule's or an automation's. UTC when missing.
+   */
+  timeZone?: string;
 };
 
 /**
@@ -256,6 +264,13 @@ export async function createFromTemplate(
     // still applies, without writing around the rules and without refusing it whole. Values given
     // here are the user's own and are checked like any others: a restricted one is refused.
     let values = root.inTemplate ? root.properties : await dropCopiedSubItems(root.id, parentId!, root.properties);
+    // The template's "me", "today" and "now" become whoever adds the row, and when.
+    const before = values;
+    if (template.isTemplate && !root.inTemplate) {
+      const types = Object.fromEntries((await getProperties(parentId!)).map((p) => [p.id, p.type]));
+      const person = Object.values(values).some(namesMe) && (await isAgentUser(userId)) ? null : userId;
+      values = resolveMarkers(values, types, { userId: person, now: new Date(), timeZone: input.timeZone });
+    }
     if (input.properties && Object.keys(input.properties).length) {
       const normalized = await normalizeRowProperties(userId, parentId!, input.properties, values, { createdBy: userId });
       values = { ...values };
@@ -263,8 +278,8 @@ export async function createFromTemplate(
         if (value === null) delete values[id];
         else values[id] = value;
       }
-      await db.update(page).set({ properties: values }).where(eq(page.id, root.id));
     }
+    if (values !== before) await db.update(page).set({ properties: values }).where(eq(page.id, root.id));
     if (!root.inTemplate) {
       await syncPairedRelations(root.id, parentId!, {}, values);
       await afterRowWrites(userId, parentId!, [{ rowId: root.id, before: {}, after: values }], { created: true });
@@ -284,7 +299,7 @@ export async function createFromTemplate(
 export async function createRow(
   actor: WriteActor,
   databaseId: string,
-  input: { title?: string; properties?: Record<string, unknown>; templateId?: string | null; useDefault?: boolean },
+  input: { title?: string; properties?: Record<string, unknown>; templateId?: string | null; useDefault?: boolean; timeZone?: string },
 ): Promise<{ id: string; position: number; templateId: string | null }> {
   const database = await requireDatabase(actor.userId, databaseId, "edit");
   let templateId = input.templateId ?? null;
@@ -295,7 +310,7 @@ export async function createRow(
   if (templateId) {
     const template = await requireTemplate(actor.userId, templateId, "view");
     if (template.parentId !== databaseId) throw withCode(new Error("Not a row template of this database"), "notATemplate");
-    const created = await createFromTemplate(actor, templateId, { title: input.title, properties: input.properties });
+    const created = await createFromTemplate(actor, templateId, { title: input.title, properties: input.properties, timeZone: input.timeZone });
     const [row] = await db.select({ position: page.position }).from(page).where(eq(page.id, created.id));
     return { id: created.id, position: row?.position ?? 0, templateId };
   }
@@ -306,6 +321,21 @@ export async function createRow(
     properties: input.properties,
   });
   return { id: created.id, position: created.position, templateId: null };
+}
+
+/**
+ * What `createRow` takes for a button's or automation's row template (lib/automations
+ * DEFAULT_ROW_TEMPLATE, a template's id or nothing); null when that template is no longer one of
+ * the database's. Access to it is checked when the row is made.
+ */
+export async function rowTemplateInput(databaseId: string, template: string | undefined): Promise<{ templateId: string | null; useDefault: boolean } | null> {
+  if (!template) return { templateId: null, useDefault: false };
+  if (template === DEFAULT_ROW_TEMPLATE) return { templateId: null, useDefault: true };
+  const [found] = await db
+    .select({ id: page.id })
+    .from(page)
+    .where(and(eq(page.id, template), eq(page.parentId, databaseId), eq(page.isTemplate, true), isNull(page.archivedAt)));
+  return found ? { templateId: found.id, useDefault: false } : null;
 }
 
 async function resolveLevel(userId: string, pageId: string) {

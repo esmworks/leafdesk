@@ -34,7 +34,27 @@
     "stopped": "Đã dừng. Bạn vẫn có thể giữ phần đã viết cho đến lúc này.",
     "applyFailed": "Không thể thêm gợi ý vào trang.",
     "asSuggestions": "Thêm dưới dạng đề xuất chỉnh sửa",
-    "selectionChanged": "Văn bản đã chọn đã thay đổi trong lúc đó, nên gợi ý được thêm bên dưới nó."
+    "selectionChanged": "Văn bản đã chọn đã thay đổi trong lúc đó, nên gợi ý được thêm bên dưới nó.",
+    "saved": {
+      "title": "Lời nhắc đã lưu",
+      "empty": "Lưu chỉ dẫn bạn hay dùng bằng dấu trang cạnh nút Gửi. Chỉ dẫn cho cả nhóm là <skills>kỹ năng</skills>.",
+      "saveInstruction": "Lưu lời nhắc",
+      "name": "Tên",
+      "namePlaceholder": "Đặt tên lời nhắc",
+      "save": "Lưu",
+      "cancel": "Hủy",
+      "rename": "Tên mới",
+      "renameNamed": "Đổi tên {name}",
+      "deleteNamed": "Xóa {name}",
+      "errors": {
+        "emptyName": "Hãy đặt tên cho lời nhắc.",
+        "emptyPrompt": "Không có chỉ dẫn nào để lưu.",
+        "nameTooLong": "Tên dài tối đa {max} ký tự.",
+        "promptTooLong": "Lời nhắc dài tối đa {max} ký tự.",
+        "full": "Bạn có thể lưu tối đa {max} lời nhắc. Hãy xóa một cái để lưu cái khác.",
+        "notFound": "Lời nhắc đã lưu này không còn nữa."
+      }
+    }
   },
   "errors": {
     "disabled": "AI không khả dụng trong không gian làm việc này.",

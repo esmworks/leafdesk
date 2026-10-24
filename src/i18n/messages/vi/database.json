@@ -550,7 +550,9 @@
     "parentOptionToggle": "Đưa ra “{option}” khi “{parent}” là “{value}”",
     "sortOptionsAsc": "Sắp xếp A → Z",
     "sortOptionsDesc": "Sắp xếp Z → A",
-    "dragOption": "Kéo để di chuyển {name}"
+    "dragOption": "Kéo để di chuyển {name}",
+    "urlPreview": "Hiển thị dưới dạng xem trước liên kết",
+    "urlPreviewHint": "Trang hàng hiển thị biểu tượng, tiêu đề và hình ảnh của trang được liên kết bên dưới liên kết."
   },
   "rowProperties": {
     "noProperties": "Không có thuộc tính",
@@ -971,7 +973,8 @@
     "sprintsDatabase": "Cơ sở dữ liệu này lưu sprint của một cơ sở dữ liệu khác: hãy bật hoặc tắt sprint ở đó.",
     "noCurrentSprint": "Không có sprint nào là hiện tại. Hãy đánh dấu một sprint là hiện tại trước.",
     "invalidSprints": "Không thể thiết lập sprint như vậy: hãy kiểm tra độ dài sprint, ngày đầu tiên và cơ sở dữ liệu sprint.",
-    "sprintStateOption": "Tùy chọn này đánh dấu trạng thái của sprint. Bạn có thể đổi tên, hoặc tắt sprint trước khi xóa nó."
+    "sprintStateOption": "Tùy chọn này đánh dấu trạng thái của sprint. Bạn có thể đổi tên, hoặc tắt sprint trước khi xóa nó.",
+    "invalidSlackUrl": "Không phải địa chỉ webhook đến của Slack (https://hooks.slack.com/services/…)."
   },
   "formula": {
     "title": "Công thức",
@@ -1272,7 +1275,8 @@
         "log": "Ghi vào lịch sử chạy",
         "celebrate": "Ăn mừng bằng pháo giấy",
         "approval": "Yêu cầu phê duyệt",
-        "start_sequence": "Bắt đầu một chuỗi theo dõi"
+        "start_sequence": "Bắt đầu một chuỗi theo dõi",
+        "slack": "Gửi tới Slack"
       },
       "trashHelp": "Chuyển hàng vào thùng rác, nơi có thể khôi phục cho đến khi thùng rác được làm trống. Không có gì chạy được sau hành động này.",
       "addAction": "Thêm hành động",
@@ -1332,7 +1336,8 @@
         "badExample": "Nội dung ví dụ không phải là JSON hợp lệ.",
         "exampleTooLong": "Nội dung ví dụ quá dài.",
         "needApprovers": "Hãy chọn người cần hỏi.",
-        "needTimeout": "Hãy nhập một số ngày nguyên từ 1 đến 30."
+        "needTimeout": "Hãy nhập một số ngày nguyên từ 1 đến 30.",
+        "needSlackUrl": "Nhập địa chỉ webhook đến của Slack."
       },
       "agent": "Tác tử",
       "chooseAgent": "Chọn một tác tử…",
@@ -1464,7 +1469,8 @@
         "noAddress": "Hàng không có địa chỉ email",
         "emailOff": "Email trên hàng đã bị tắt",
         "noPerson": "Đã bỏ qua: không có thay đổi của ai đã bắt đầu lần chạy này",
-        "tooLate": "Đã bỏ qua: quá lâu sau thay đổi để ăn mừng"
+        "tooLate": "Đã bỏ qua: quá lâu sau thay đổi để ăn mừng",
+        "templateGone": "Mẫu hàng không còn tồn tại"
       },
       "waitingApproval": "Đang chờ phê duyệt",
       "approval": {
@@ -1566,7 +1572,19 @@
       "logPlaceholder": "Ví dụ: Đã nhập {template}",
       "logHelp": "Được ghi vào lịch sử chạy, với các biến đã được điền.",
       "celebrateHelp": "Pháo giấy trong ứng dụng dành cho người đã thực hiện thay đổi bắt đầu lần chạy, trong các cửa sổ họ đang mở. Các lần chạy không do ai bắt đầu (lịch, ngày đến hạn, webhook đến, câu trả lời biểu mẫu ẩn danh) sẽ bỏ qua, và các lần chạy đến đây sau thay đổi hơn hai phút cũng vậy.",
-      "celebrateTry": "Thử xem"
+      "celebrateTry": "Thử xem",
+      "slackUrl": "Webhook đến của Slack",
+      "slackReplace": "Dán địa chỉ mới để thay địa chỉ đã lưu",
+      "slackSaved": "Địa chỉ đã lưu:",
+      "slackMessage": "Tin nhắn",
+      "slackPlaceholder": "Ví dụ: Sẵn sàng để duyệt: {template}",
+      "slackHelp": "Đăng tin nhắn vào kênh Slack của webhook đến, kèm liên kết tới hàng. Định dạng Slack (*đậm*, _nghiêng_) dùng được. Địa chỉ được giữ bí mật và chỉ hiện dạng rút gọn.",
+      "rowTemplate": "Mẫu hàng",
+      "rowTemplateNone": "Không (hàng trống)",
+      "rowTemplateDefault": "Mẫu mặc định của cơ sở dữ liệu",
+      "rowTemplateDefaultNamed": "Mẫu mặc định ({name})",
+      "rowTemplateGone": "Mẫu không còn tồn tại",
+      "rowTemplateHelp": "Hàng bắt đầu là bản sao của mẫu. Giá trị đặt ở đây thay cho giá trị của mẫu; tiêu đề trống sẽ giữ tiêu đề của mẫu."
     },
     "variables": {
       "button": "Chèn một biến",
@@ -1851,5 +1869,122 @@
       "allView": "Tất cả sprint",
       "boardView": "Theo trạng thái"
     }
+  },
+  "github": {
+    "menuItem": "Pull request GitHub",
+    "menuHint": "Thêm liên kết của pull request nêu hàng theo ID và chuyển trạng thái của hàng",
+    "title": "Pull request GitHub",
+    "intro": "Pull request nêu một hàng theo ID, như {example}, trong tiêu đề, mô tả hoặc nhánh sẽ thêm liên kết của nó vào hàng đó và có thể chuyển trạng thái của hàng.",
+    "needUniqueId": "Hãy thêm thuộc tính ID vào cơ sở dữ liệu này trước: pull request nêu hàng theo ID.",
+    "needPrefix": "Hãy đặt tiền tố cho thuộc tính ID “{property}” trước, như TASK: pull request nêu hàng bằng nó.",
+    "linkProperty": "Thêm liên kết pull request vào",
+    "noLinks": "Không thêm liên kết",
+    "newProperty": "Thuộc tính văn bản mới…",
+    "newPropertyName": "Pull request",
+    "newPropertyLabel": "Tên thuộc tính mới",
+    "linkHelp": "Thuộc tính văn bản giữ mọi pull request, mỗi cái một dòng; thuộc tính URL giữ cái mới nhất.",
+    "statusProperty": "Chuyển trạng thái trong",
+    "noStatus": "Không đổi trạng thái",
+    "noStatusProperty": "Cơ sở dữ liệu này không có thuộc tính trạng thái nên chỉ thêm liên kết.",
+    "statusOff": "Trạng thái giữ nguyên.",
+    "statusHelp": "Pull request nháp thêm liên kết nhưng không chuyển gì cho đến khi sẵn sàng để duyệt. Hàng đã ở trạng thái hoàn thành chỉ chuyển khi một pull request được merge.",
+    "move": {
+      "opened": "Mở hoặc sẵn sàng để duyệt",
+      "merged": "Đã merge",
+      "closed": "Đóng mà không merge"
+    },
+    "leave": "Giữ nguyên",
+    "setUp": "Thiết lập",
+    "save": "Lưu",
+    "change": "Thay đổi",
+    "whatItDoes": "Tác dụng",
+    "linksTo": "Thêm liên kết pull request vào “{property}”.",
+    "noLinksSaved": "Không thêm liên kết.",
+    "movesIn": "Chuyển “{property}”: {moves}.",
+    "moves": {
+      "opened": "mở sang {option}",
+      "merged": "merge sang {option}",
+      "closed": "đóng không merge sang {option}"
+    },
+    "noMoves": "Giữ nguyên trạng thái.",
+    "inGithub": "Trong GitHub",
+    "steps": "Trong Settings của kho, mở Webhooks, chọn Add webhook, điền các trường bên dưới, chọn “Let me select individual events” và chỉ đánh dấu Pull requests.",
+    "payloadUrl": "Payload URL",
+    "secret": "Khóa bí mật",
+    "showSecret": "Hiện khóa bí mật",
+    "hideSecret": "Ẩn khóa bí mật",
+    "secretUnreadable": "Không thể đọc khóa bí mật trên máy chủ này nữa. Hãy tạo khóa mới và đưa cho GitHub.",
+    "rotate": "Tạo khóa bí mật mới",
+    "rotateConfirm": "Tạo khóa bí mật mới? Các lần gửi ký bằng khóa cũ sẽ bị từ chối cho đến khi bạn đưa khóa mới cho GitHub.",
+    "contentType": "Content type",
+    "events": "Sự kiện",
+    "eventsValue": "Pull requests",
+    "deliveries": "Lần gửi gần đây",
+    "refresh": "Làm mới",
+    "noDeliveries": "Chưa có gì đến. Khi bạn thêm webhook, GitHub gửi một ping sẽ hiện ở đây.",
+    "ping": "Ping từ GitHub",
+    "pingOk": "Webhook đã kết nối.",
+    "otherEvent": "Sự kiện {event}",
+    "handling": "Đang xử lý…",
+    "ignored": "Không có gì để làm với “{action}”.",
+    "noIds": "Không nêu hàng nào của cơ sở dữ liệu này.",
+    "outcome": {
+      "updated": "đã cập nhật",
+      "unchanged": "đã mới nhất",
+      "notFound": "không tìm thấy",
+      "noAccess": "không có quyền sửa",
+      "failed": "thất bại"
+    },
+    "deliveryErrors": {
+      "noUniqueId": "Cơ sở dữ liệu không còn thuộc tính ID có tiền tố.",
+      "runAsGone": "Người mà nó chạy dưới danh nghĩa không còn nữa. Hãy lưu lại thiết lập.",
+      "accessLost": "Người mà nó chạy dưới danh nghĩa không còn sửa được cơ sở dữ liệu này. Hãy lưu lại thiết lập.",
+      "inTrash": "Cơ sở dữ liệu đang ở thùng rác.",
+      "failed": "Đã có lỗi khi xử lý."
+    },
+    "runsAs": "Thay đổi được thực hiện dưới danh nghĩa {name}, người lưu gần nhất.",
+    "runsAsGone": "Người mà nó chạy dưới danh nghĩa không còn nữa: hãy lưu lại để nó chạy dưới danh nghĩa bạn.",
+    "remove": "Gỡ",
+    "removeConfirm": "Gỡ thiết lập GitHub? Từ đó các lần gửi của GitHub bị từ chối; liên kết đã thêm vẫn giữ.",
+    "errors": {
+      "noUniqueId": "Hãy thêm thuộc tính ID có tiền tố vào cơ sở dữ liệu này trước.",
+      "invalidProperty": "Chọn thuộc tính văn bản hoặc URL cho liên kết, thuộc tính trạng thái và các tùy chọn của nó.",
+      "notSetUp": "Cơ sở dữ liệu này chưa có thiết lập GitHub."
+    }
+  },
+  "slack": {
+    "menuItem": "Thông báo Slack",
+    "menuHint": "Đăng vào kênh Slack khi thêm hàng hoặc thuộc tính thay đổi",
+    "title": "Thông báo Slack",
+    "intro": "Đăng vào kênh Slack khi thêm hàng hoặc thuộc tính thay đổi. Được lưu thành một tự động hóa bạn có thể thay đổi sau.",
+    "url": "Webhook đến của Slack",
+    "urlHelp": "Trong Slack, thêm ứng dụng Incoming WebHooks vào kênh và sao chép URL webhook của nó. URL được giữ bí mật và chỉ hiện dạng rút gọn.",
+    "when": "Khi nào",
+    "rowAdded": "Một hàng được thêm",
+    "propertyChanges": "{property} thay đổi",
+    "to": "Thành",
+    "anyValue": "Giá trị bất kỳ",
+    "checked": "Đã chọn",
+    "unchecked": "Chưa chọn",
+    "message": "Tin nhắn",
+    "messageHelp": "Biến trong cặp ngoặc nhọn kép được điền từ hàng. Liên kết tới hàng được thêm ở cuối.",
+    "defaultAdded": "{actor} đã thêm một hàng vào {database}",
+    "defaultChanged": "{actor} đã đổi {property} thành {value}",
+    "nameAdded": "Slack: hàng mới",
+    "nameChanged": "Slack: {property} thay đổi",
+    "nameChangedTo": "Slack: {property} là {value}",
+    "create": "Tạo",
+    "created": "Đã tạo tự động hóa “{name}”.",
+    "existing": "Tự động hóa đăng lên Slack",
+    "existingHelp": "Thay đổi hoặc tắt chúng trong tự động hóa của cơ sở dữ liệu.",
+    "off": "tắt"
+  },
+  "templateValues": {
+    "me": "Tôi",
+    "today": "Hôm nay",
+    "now": "Bây giờ",
+    "hint": "Được điền khi thêm hàng từ mẫu này",
+    "dateWhen": "Đặt khi thêm hàng",
+    "meOption": "Người thêm hàng"
   }
 }

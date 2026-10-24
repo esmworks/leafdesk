@@ -41,6 +41,7 @@
       "language": "dil çeviri yerel",
       "theme": "koyu mod açık mod renkler tema",
       "contrast": "erişilebilirlik yüksek kontrast",
+      "desktopLinks": "masaüstü windows mac sekme bağlantı aç",
       "notifications": "anlık e-posta uyarı bildirim",
       "watchedPages": "takip abone izle",
       "offlineDevice": "çevrimdışı indir önbellek alan",
@@ -1119,6 +1120,20 @@
       "note": "Yüksek kontrast, iki temada da ikincil metinleri, çizgileri ve odak çerçevelerini belirginleştirir. Bu ayar yalnızca bu tarayıcı için geçerlidir. Sistem ayarında cihazınızın kontrastı artırma seçeneğine uyar."
     }
   },
+  "desktopLinks": {
+    "heading": "Masaüstü uygulaması",
+    "label": "Bağlantıları masaüstü uygulamasında aç",
+    "note": "Masaüstü uygulamasının kurulu olduğu bir bilgisayarda bir Leafdesk sayfasını tarayıcıda açtığınızda, sayfa uygulamada kendi sekmesinde açılabilir. Uygulamanın içinde hiçbir şey değişmez.",
+    "off": "Kapalı",
+    "ask": "Açmayı öner",
+    "always": "Her zaman aç",
+    "banner": {
+      "text": "Bu sayfa masaüstü uygulamasında açılsın mı?",
+      "open": "Uygulamada aç",
+      "always": "Her zaman",
+      "dismiss": "Kapat"
+    }
+  },
   "language": {
     "heading": "Dil",
     "label": "Arayüz dili",
@@ -1863,6 +1878,11 @@
       "sensitive_content": {
         "found": "{target} içinde {kind} bulundu ({excerpt})",
         "dismissed": "{target} içinde bulunan {kind} ({excerpt}) yok sayıldı"
+      },
+      "github_sync": {
+        "created": "{target} içinde GitHub pull request’leri kuruldu",
+        "updated": "{target} GitHub kurulumu değiştirildi",
+        "deleted": "{target} GitHub kurulumu kaldırıldı"
       }
     },
     "decisions": {

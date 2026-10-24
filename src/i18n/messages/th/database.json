@@ -550,7 +550,9 @@
     "parentOptionToggle": "เสนอ “{option}” เมื่อ “{parent}” เป็น “{value}”",
     "sortOptionsAsc": "เรียง ก → ฮ",
     "sortOptionsDesc": "เรียง ฮ → ก",
-    "dragOption": "ลากเพื่อย้าย {name}"
+    "dragOption": "ลากเพื่อย้าย {name}",
+    "urlPreview": "แสดงเป็นตัวอย่างลิงก์",
+    "urlPreviewHint": "หน้าแถวจะแสดงไอคอน ชื่อ และรูปภาพของหน้าที่ลิงก์ไว้ใต้ลิงก์"
   },
   "rowProperties": {
     "noProperties": "ไม่มีคุณสมบัติ",
@@ -971,7 +973,8 @@
     "sprintsDatabase": "ฐานข้อมูลนี้เก็บสปรินต์ของฐานข้อมูลอื่น เปิดหรือปิดสปรินต์ที่ฐานข้อมูลนั้น",
     "noCurrentSprint": "ไม่มีสปรินต์ปัจจุบัน ทำเครื่องหมายสปรินต์หนึ่งเป็นปัจจุบันก่อน",
     "invalidSprints": "ตั้งค่าสปรินต์แบบนี้ไม่ได้ ตรวจสอบความยาวสปรินต์ วันแรก และฐานข้อมูลสปรินต์",
-    "sprintStateOption": "ตัวเลือกนี้ระบุสถานะของสปรินต์ เปลี่ยนชื่อได้ หรือปิดสปรินต์ก่อนลบ"
+    "sprintStateOption": "ตัวเลือกนี้ระบุสถานะของสปรินต์ เปลี่ยนชื่อได้ หรือปิดสปรินต์ก่อนลบ",
+    "invalidSlackUrl": "ไม่ใช่ที่อยู่ของ Incoming Webhook ของ Slack (https://hooks.slack.com/services/…)"
   },
   "formula": {
     "title": "สูตร",
@@ -1272,7 +1275,8 @@
         "log": "เขียนลงประวัติการทำงาน",
         "celebrate": "ฉลองด้วยกระดาษสี",
         "approval": "ขออนุมัติ",
-        "start_sequence": "เริ่มการติดตามผล"
+        "start_sequence": "เริ่มการติดตามผล",
+        "slack": "ส่งไปที่ Slack"
       },
       "trashHelp": "ย้ายแถวไปถังขยะ ซึ่งกู้คืนได้จนกว่าจะล้างถังขยะ จะไม่มีอะไรทำงานต่อหลังจากการดำเนินการนี้",
       "addAction": "เพิ่มการดำเนินการ",
@@ -1332,7 +1336,8 @@
         "badExample": "เนื้อหาตัวอย่างไม่ใช่ JSON ที่ถูกต้อง",
         "exampleTooLong": "เนื้อหาตัวอย่างยาวเกินไป",
         "needApprovers": "เลือกผู้ที่จะขออนุมัติ",
-        "needTimeout": "ป้อนจำนวนวันเต็มตั้งแต่ 1 ถึง 30"
+        "needTimeout": "ป้อนจำนวนวันเต็มตั้งแต่ 1 ถึง 30",
+        "needSlackUrl": "ใส่ที่อยู่ของ Incoming Webhook ของ Slack"
       },
       "agent": "เอเจนต์",
       "chooseAgent": "เลือกเอเจนต์…",
@@ -1464,7 +1469,8 @@
         "noAddress": "แถวไม่มีที่อยู่อีเมล",
         "emailOff": "อีเมลบนแถวถูกปิด",
         "noPerson": "ข้ามแล้ว: ไม่มีการเปลี่ยนแปลงของบุคคลใดเริ่มการทำงานนี้",
-        "tooLate": "ข้ามแล้ว: ผ่านไปนานเกินกว่าจะฉลองการเปลี่ยนแปลงนั้น"
+        "tooLate": "ข้ามแล้ว: ผ่านไปนานเกินกว่าจะฉลองการเปลี่ยนแปลงนั้น",
+        "templateGone": "เทมเพลตแถวไม่มีอยู่แล้ว"
       },
       "waitingApproval": "รอการอนุมัติ",
       "approval": {
@@ -1566,7 +1572,19 @@
       "logPlaceholder": "ตัวอย่าง: นำเข้า {template}",
       "logHelp": "เขียนลงประวัติการทำงาน โดยเติมตัวแปรให้แล้ว",
       "celebrateHelp": "กระดาษสีในแอปสำหรับผู้ที่ทำการเปลี่ยนแปลงซึ่งเริ่มการทำงาน ในหน้าต่างที่พวกเขาเปิดอยู่ การทำงานที่ไม่มีใครเริ่ม (กำหนดการ วันที่มาถึง เว็บฮุกขาเข้า คำตอบแบบฟอร์มไม่ระบุตัวตน) จะข้ามขั้นตอนนี้ เช่นเดียวกับการทำงานที่มาถึงตรงนี้หลังการเปลี่ยนแปลงเกินสองนาที",
-      "celebrateTry": "ลองดู"
+      "celebrateTry": "ลองดู",
+      "slackUrl": "Incoming Webhook ของ Slack",
+      "slackReplace": "วางที่อยู่ใหม่เพื่อแทนที่อยู่ที่บันทึกไว้",
+      "slackSaved": "ที่อยู่ที่บันทึกไว้:",
+      "slackMessage": "ข้อความ",
+      "slackPlaceholder": "ตัวอย่าง: พร้อมให้รีวิว: {template}",
+      "slackHelp": "โพสต์ข้อความไปยังช่อง Slack ของ Incoming Webhook พร้อมลิงก์ไปยังแถว ใช้รูปแบบของ Slack (*ตัวหนา*, _ตัวเอียง_) ได้ ที่อยู่จะถูกเก็บเป็นความลับและแสดงแบบย่อเท่านั้น",
+      "rowTemplate": "เทมเพลตแถว",
+      "rowTemplateNone": "ไม่มี (แถวว่าง)",
+      "rowTemplateDefault": "เทมเพลตเริ่มต้นของฐานข้อมูล",
+      "rowTemplateDefaultNamed": "เทมเพลตเริ่มต้น ({name})",
+      "rowTemplateGone": "เทมเพลตที่ไม่มีอยู่แล้ว",
+      "rowTemplateHelp": "แถวเริ่มจากสำเนาของเทมเพลต ค่าที่ตั้งที่นี่จะแทนค่าของเทมเพลต ชื่อที่ว่างจะใช้ชื่อของเทมเพลต"
     },
     "variables": {
       "button": "แทรกตัวแปร",
@@ -1851,5 +1869,122 @@
       "allView": "สปรินต์ทั้งหมด",
       "boardView": "ตามสถานะ"
     }
+  },
+  "github": {
+    "menuItem": "Pull request ของ GitHub",
+    "menuHint": "เพิ่มลิงก์ของ pull request ที่อ้างถึงแถวด้วย ID และเลื่อนสถานะของแถว",
+    "title": "Pull request ของ GitHub",
+    "intro": "Pull request ที่อ้างถึงแถวด้วย ID เช่น {example} ในชื่อ คำอธิบาย หรือ branch จะเพิ่มลิงก์ของตนให้แถวนั้น และเลื่อนสถานะของแถวได้",
+    "needUniqueId": "เพิ่มคุณสมบัติ ID ให้ฐานข้อมูลนี้ก่อน: pull request อ้างถึงแถวด้วย ID",
+    "needPrefix": "ตั้งคำนำหน้าให้คุณสมบัติ ID “{property}” ก่อน เช่น TASK: pull request อ้างถึงแถวด้วยคำนำหน้านี้",
+    "linkProperty": "เพิ่มลิงก์ pull request ไปที่",
+    "noLinks": "ไม่เพิ่มลิงก์",
+    "newProperty": "คุณสมบัติข้อความใหม่…",
+    "newPropertyName": "Pull request",
+    "newPropertyLabel": "ชื่อคุณสมบัติใหม่",
+    "linkHelp": "คุณสมบัติข้อความเก็บทุก pull request บรรทัดละหนึ่งรายการ คุณสมบัติ URL เก็บรายการล่าสุด",
+    "statusProperty": "เลื่อนสถานะใน",
+    "noStatus": "ไม่เปลี่ยนสถานะ",
+    "noStatusProperty": "ฐานข้อมูลนี้ไม่มีคุณสมบัติสถานะ จึงเพิ่มเฉพาะลิงก์",
+    "statusOff": "สถานะคงเดิม",
+    "statusHelp": "Pull request ฉบับร่างจะเพิ่มลิงก์แต่ไม่เลื่อนอะไรจนกว่าจะพร้อมให้รีวิว แถวที่อยู่ในสถานะเสร็จแล้วจะเลื่อนเฉพาะเมื่อ pull request ถูก merge",
+    "move": {
+      "opened": "เปิดหรือพร้อมให้รีวิว",
+      "merged": "Merge แล้ว",
+      "closed": "ปิดโดยไม่ merge"
+    },
+    "leave": "คงเดิม",
+    "setUp": "ตั้งค่า",
+    "save": "บันทึก",
+    "change": "เปลี่ยน",
+    "whatItDoes": "สิ่งที่ทำ",
+    "linksTo": "เพิ่มลิงก์ pull request ไปที่ “{property}”",
+    "noLinksSaved": "ไม่เพิ่มลิงก์",
+    "movesIn": "เลื่อน “{property}”: {moves}",
+    "moves": {
+      "opened": "เปิดแล้วเป็น {option}",
+      "merged": "merge แล้วเป็น {option}",
+      "closed": "ปิดโดยไม่ merge เป็น {option}"
+    },
+    "noMoves": "คงสถานะเดิม",
+    "inGithub": "ใน GitHub",
+    "steps": "ใน Settings ของ repository เปิด Webhooks เลือก Add webhook กรอกช่องด้านล่าง เลือก “Let me select individual events” แล้วติ๊กเฉพาะ Pull requests",
+    "payloadUrl": "Payload URL",
+    "secret": "Secret",
+    "showSecret": "แสดง secret",
+    "hideSecret": "ซ่อน secret",
+    "secretUnreadable": "เซิร์ฟเวอร์นี้อ่าน secret ไม่ได้แล้ว สร้างอันใหม่แล้วใส่ใน GitHub",
+    "rotate": "สร้าง secret ใหม่",
+    "rotateConfirm": "สร้าง secret ใหม่ไหม การส่งที่ลงนามด้วยอันเก่าจะถูกปฏิเสธจนกว่าคุณจะใส่อันใหม่ใน GitHub",
+    "contentType": "Content type",
+    "events": "เหตุการณ์",
+    "eventsValue": "Pull requests",
+    "deliveries": "การส่งล่าสุด",
+    "refresh": "รีเฟรช",
+    "noDeliveries": "ยังไม่มีอะไรเข้ามา เมื่อคุณเพิ่ม webhook แล้ว GitHub จะส่ง ping ที่แสดงตรงนี้",
+    "ping": "Ping จาก GitHub",
+    "pingOk": "เชื่อมต่อ webhook แล้ว",
+    "otherEvent": "เหตุการณ์ {event}",
+    "handling": "กำลังดำเนินการ…",
+    "ignored": "ไม่มีอะไรต้องทำสำหรับ “{action}”",
+    "noIds": "ไม่ได้อ้างถึงแถวใดของฐานข้อมูลนี้",
+    "outcome": {
+      "updated": "อัปเดตแล้ว",
+      "unchanged": "เป็นปัจจุบันแล้ว",
+      "notFound": "ไม่พบ",
+      "noAccess": "ไม่มีสิทธิ์แก้ไข",
+      "failed": "ล้มเหลว"
+    },
+    "deliveryErrors": {
+      "noUniqueId": "ฐานข้อมูลไม่มีคุณสมบัติ ID ที่มีคำนำหน้าแล้ว",
+      "runAsGone": "บุคคลที่ใช้ทำงานแทนไม่มีอยู่แล้ว บันทึกการตั้งค่าอีกครั้ง",
+      "accessLost": "บุคคลที่ใช้ทำงานแทนแก้ไขฐานข้อมูลนี้ไม่ได้แล้ว บันทึกการตั้งค่าอีกครั้ง",
+      "inTrash": "ฐานข้อมูลอยู่ในถังขยะ",
+      "failed": "เกิดข้อผิดพลาดระหว่างดำเนินการ"
+    },
+    "runsAs": "การเปลี่ยนแปลงทำในนามของ {name} ผู้บันทึกล่าสุด",
+    "runsAsGone": "บุคคลที่เคยใช้ทำงานแทนไม่มีอยู่แล้ว: บันทึกอีกครั้งเพื่อให้ทำงานในนามของคุณ",
+    "remove": "นำออก",
+    "removeConfirm": "นำการตั้งค่า GitHub ออกไหม หลังจากนั้นการส่งจาก GitHub จะถูกปฏิเสธ ลิงก์ที่เพิ่มไปแล้วยังอยู่",
+    "errors": {
+      "noUniqueId": "เพิ่มคุณสมบัติ ID ที่มีคำนำหน้าให้ฐานข้อมูลนี้ก่อน",
+      "invalidProperty": "เลือกคุณสมบัติข้อความหรือ URL สำหรับลิงก์ คุณสมบัติสถานะ และตัวเลือกของมัน",
+      "notSetUp": "ฐานข้อมูลนี้ไม่มีการตั้งค่า GitHub"
+    }
+  },
+  "slack": {
+    "menuItem": "การแจ้งเตือน Slack",
+    "menuHint": "โพสต์ไปยังช่อง Slack เมื่อมีการเพิ่มแถวหรือคุณสมบัติเปลี่ยน",
+    "title": "การแจ้งเตือน Slack",
+    "intro": "โพสต์ไปยังช่อง Slack เมื่อมีการเพิ่มแถวหรือคุณสมบัติเปลี่ยน บันทึกเป็นระบบอัตโนมัติที่คุณเปลี่ยนได้ภายหลัง",
+    "url": "Incoming Webhook ของ Slack",
+    "urlHelp": "ใน Slack ให้เพิ่มแอป Incoming WebHooks ลงในช่องแล้วคัดลอก URL ของ webhook ระบบจะเก็บเป็นความลับและแสดงแบบย่อเท่านั้น",
+    "when": "เมื่อใด",
+    "rowAdded": "มีการเพิ่มแถว",
+    "propertyChanges": "{property} เปลี่ยน",
+    "to": "เป็น",
+    "anyValue": "ค่าใดก็ได้",
+    "checked": "ติ๊กแล้ว",
+    "unchecked": "ไม่ได้ติ๊ก",
+    "message": "ข้อความ",
+    "messageHelp": "ตัวแปรในวงเล็บปีกกาคู่จะถูกเติมจากแถว และจะเพิ่มลิงก์ไปยังแถวไว้ท้ายข้อความ",
+    "defaultAdded": "{actor} เพิ่มแถวใน {database}",
+    "defaultChanged": "{actor} เปลี่ยน {property} เป็น {value}",
+    "nameAdded": "Slack: แถวใหม่",
+    "nameChanged": "Slack: {property} เปลี่ยน",
+    "nameChangedTo": "Slack: {property} เป็น {value}",
+    "create": "สร้าง",
+    "created": "สร้างระบบอัตโนมัติ “{name}” แล้ว",
+    "existing": "ระบบอัตโนมัติที่โพสต์ไปยัง Slack",
+    "existingHelp": "เปลี่ยนหรือปิดได้ในระบบอัตโนมัติของฐานข้อมูล",
+    "off": "ปิด"
+  },
+  "templateValues": {
+    "me": "ฉัน",
+    "today": "วันนี้",
+    "now": "ตอนนี้",
+    "hint": "เติมเมื่อเพิ่มแถวจากเทมเพลตนี้",
+    "dateWhen": "กำหนดเมื่อเพิ่มแถว",
+    "meOption": "ผู้ที่เพิ่มแถว"
   }
 }

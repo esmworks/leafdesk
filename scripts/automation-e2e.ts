@@ -4,7 +4,8 @@
  * changing, a value becoming an option) and which don't (the same value saved again, a disabled
  * automation, an automation's own changes); setting values (including "now" and "who made the
  * change"), notifying people who can open the row, and signed webhooks with retries; runs as the
- * saver, stopping when they lose full access; run history and the audit log.
+ * saver, stopping when they lose full access; Send to Slack (addresses checked, sealed, kept on
+ * save, the message escaped with the row's link); run history and the audit log.
  * Creates its own users and workspace and deletes them afterwards.
  *
  *   pnpm tsx scripts/automation-e2e.ts
@@ -21,13 +22,13 @@ try {
 } catch {}
 
 // Webhooks go to a server on this machine, which only allowed hosts may reach.
-const received: { headers: http.IncomingHttpHeaders; body: string }[] = [];
+const received: { url: string; headers: http.IncomingHttpHeaders; body: string }[] = [];
 let answers: number[] = [];
 const receiver = http.createServer((req, res) => {
   let body = "";
   req.on("data", (c) => (body += c));
   req.on("end", () => {
-    received.push({ headers: req.headers, body });
+    received.push({ url: req.url ?? "", headers: req.headers, body });
     res.writeHead(answers.shift() ?? 200);
     res.end();
   });
@@ -40,13 +41,14 @@ const hook = `http://127.0.0.1:${port}/hook`;
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
 const { and, eq, inArray, sql } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { auditEvent, automationRun, notification, page, user, workspace, workspaceMember } = await import("@/db/schema");
+const { auditEvent, databaseAutomation: automationTable, automationRun, notification, page, user, workspace, workspaceMember } = await import("@/db/schema");
 const { registerCollab } = await import("@/server/collab/bridge");
 const { addProperty, createRows, moveRow, updateRowProperties, updateRowsProperties } = await import("@/server/databases");
 const { createPage } = await import("@/server/pages");
 const { duplicatePage } = await import("@/server/duplicate");
 const { setPagePermission } = await import("@/server/permissions");
 const manage = await import("@/server/automations/manage");
+const quick = await import("@/server/automations/slack-setup");
 const { flushAutomations } = await import("@/server/automations/run");
 const { MAX_WAITING_RUNS } = await import("@/server/automations/queue");
 const { webhookSecret } = await import("@/server/automations/webhook");
@@ -285,6 +287,118 @@ try {
   const [refused] = (await runsOf(added.id)).slice(-1);
   check(refused.status === "failed" && refused.steps[0].httpStatus === 400, "a 400 fails without a retry", refused);
 
+  // ------------------------------------------------------------------ Send to Slack
+  // Slack's own addresses, or (as here) one on a host the administrator allows.
+  const slackPath = "/services/T0001/B0002/sl4ckS3cret";
+  const slackHook = `http://127.0.0.1:${port}${slackPath}`;
+  check(
+    await failsWith(
+      manage.createAutomation(ids.owner, tasks.id, { name: "x", trigger: { type: "row_created" }, actions: [{ type: "slack", url: "https://example.com/services/T/B/x", message: "hi" }] }),
+      "invalidSlackUrl",
+    ),
+    "Send to Slack refuses an address that isn't a Slack incoming webhook",
+  );
+  check(
+    await failsWith(
+      manage.createAutomation(ids.owner, tasks.id, { name: "x", trigger: { type: "row_created" }, actions: [{ type: "slack", url: "https://hooks.slack.com/other/x", message: "hi" }] }),
+      "invalidSlackUrl",
+    ),
+    "…and a hooks.slack.com address that isn't a webhook's",
+  );
+  const slack = await manage.createAutomation(ids.owner, tasks.id, {
+    name: "Flagged to Slack",
+    trigger: { type: "property_changed", property: "Flag", to: true },
+    actions: [{ type: "slack", url: slackHook, message: "*Flagged* by {{trigger.actor.name}}: {{trigger.title}}" }],
+  });
+  const slackStep = slack.actions[0];
+  check(
+    slackStep.type === "slack" && !("sealed" in slackStep) && slackStep.hint === `127.0.0.1:${port}/services/…cret` && !JSON.stringify(slack).includes("sl4ckS3cret"),
+    "a Slack step is shown by a hint of its address, never the address",
+    slack.actions,
+  );
+  check(!JSON.stringify(await manage.listAutomations(ids.owner, tasks.id)).includes("sl4ckS3cret"), "…in the list too");
+  const [storedSlack] = await db.select({ actions: automationTable.actions }).from(automationTable).where(eq(automationTable.id, slack.id));
+  const storedStep = storedSlack.actions[0] as { sealed?: string };
+  check(!!storedStep.sealed && !storedStep.sealed.includes("sl4ckS3cret"), "…and it is stored sealed", storedSlack.actions);
+
+  received.length = 0;
+  const flaggedRow = await createPage(owner, { workspaceId, parentId: tasks.id, title: "<!channel> & co" });
+  await flushAutomations();
+  received.length = 0;
+  await updateRowProperties(ids.member, flaggedRow.id, { Flag: true });
+  await flushAutomations();
+  const posted = received.filter((r) => r.url === slackPath);
+  const slackText = posted.length ? (JSON.parse(posted[0].body) as { text: string }).text : "";
+  check(
+    posted.length === 1 &&
+      slackText.startsWith("*Flagged* by Member Mert: &lt;!channel&gt; &amp; co\n<") &&
+      slackText.endsWith(`/p/${flaggedRow.id}|&lt;!channel&gt; &amp; co>`),
+    "the message goes to Slack with its markup, the row's values escaped and the row's link last",
+    { posted, slackText },
+  );
+  const [slackRun] = await runsOf(slack.id);
+  check(slackRun.status === "done" && !JSON.stringify(slackRun.steps).includes("sl4ckS3cret"), "the run history names the address by its hint only", slackRun.steps);
+
+  const kept = await manage.updateAutomation(ids.owner, slack.id, {
+    name: "Flagged to Slack",
+    actions: [{ type: "slack", id: slackStep.id, urlFrom: slackStep.id, message: "Flagged: {{trigger.title}}" }],
+  });
+  check(kept.actions[0].type === "slack" && kept.actions[0].hint === slackStep.hint, "saving without the address keeps the saved one", kept.actions);
+  check(
+    await failsWith(
+      manage.updateAutomation(ids.owner, slack.id, { name: "Flagged to Slack", actions: [{ type: "slack", id: "other", message: "x" }] }),
+      "invalidAutomation",
+    ),
+    "…but a new step without an address is refused",
+  );
+  received.length = 0;
+  await updateRowProperties(ids.member, flaggedRow.id, { Flag: false });
+  await updateRowProperties(ids.member, flaggedRow.id, { Flag: true });
+  await flushAutomations();
+  const again = received.filter((r) => r.url === slackPath);
+  check(again.length === 1 && JSON.parse(again[0].body).text.startsWith("Flagged: &lt;!channel&gt;"), "…and posts there with the new message", again);
+  answers = [404];
+  await updateRowProperties(ids.member, flaggedRow.id, { Flag: false });
+  await updateRowProperties(ids.member, flaggedRow.id, { Flag: true });
+  await flushAutomations();
+  const [, gone] = (await runsOf(slack.id)).slice(-2);
+  check(gone.status === "failed" && /^Slack answered 404/.test(gone.steps[0].error ?? "") && !JSON.stringify(gone).includes("sl4ckS3cret"), "a 404 from Slack fails the run without showing the address", gone);
+  answers = [];
+  await manage.deleteAutomation(ids.owner, slack.id);
+
+  // The menu's quick setup makes the same kind of automation, from ids as its form sends them.
+  const quickDone = await quick.createSlackAutomation(ids.owner, tasks.id, { name: "Slack: Stage is Done", url: slackHook, message: "Done: {{trigger.title}}", when: stage.id, to: DONE });
+  const quickFlag = await quick.createSlackAutomation(ids.owner, tasks.id, { name: "Slack: Flag", url: slackHook, message: "Flagged", when: flag.id, to: true });
+  const quickAdded = await quick.createSlackAutomation(ids.owner, tasks.id, { name: "Slack: new rows", url: slackHook, message: "New", when: "row_created" });
+  check(
+    quickDone.trigger.type === "property_changed" &&
+      quickDone.trigger.propertyId === stage.id &&
+      quickDone.trigger.to === DONE &&
+      quickFlag.trigger.type === "property_changed" &&
+      quickFlag.trigger.to === true &&
+      quickAdded.trigger.type === "row_created" &&
+      quickDone.enabled,
+    "the Slack quick setup makes published automations for a value, a checkbox and new rows",
+    [quickDone.trigger, quickFlag.trigger, quickAdded.trigger],
+  );
+  const setup = await quick.slackSetup(ids.owner, tasks.id);
+  check(
+    setup.automations.map((a) => a.name).sort().join() === "Slack: Flag,Slack: Stage is Done,Slack: new rows" &&
+      setup.automations.every((a) => a.hints[0] === slackStep.hint) &&
+      !JSON.stringify(setup).includes("sl4ckS3cret") &&
+      setup.properties.some((p) => p.id === stage.id && p.options.length === 2),
+    "…and lists them by the hint of their address, with the properties it can watch",
+    setup,
+  );
+  check(await failsWith(quick.slackSetup(ids.viewer, tasks.id), "access"), "…only for people with full access");
+  received.length = 0;
+  const quickRow = await createPage(owner, { workspaceId, parentId: tasks.id, title: "quick" });
+  await updateRowProperties(ids.owner, quickRow.id, { Stage: "Done" });
+  await flushAutomations();
+  const quickTexts = received.filter((r) => r.url === slackPath).map((r) => (JSON.parse(r.body) as { text: string }).text.split("\n")[0]).sort();
+  check(quickTexts.join() === "Done: quick,New", "…which post when a row is added and when it becomes Done", quickTexts);
+  for (const a of [quickDone, quickFlag, quickAdded]) await manage.deleteAutomation(ids.owner, a.id);
+
   // Export off: webhooks send rows out of the workspace, so none is added or sent.
   await updateWorkspaceSettings(ids.owner, workspaceId, { export: false });
   check(
@@ -412,8 +526,8 @@ try {
     .where(eq(auditEvent.workspaceId, workspaceId));
   const actions = audit.map((a) => a.action);
   check(
-    // Three here, and the guest's one above.
-    actions.filter((a) => a === "automation.created").length === 4 && actions.includes("automation.updated"),
+    // Three here, the four Slack ones and the guest's one above.
+    actions.filter((a) => a === "automation.created").length === 8 && actions.includes("automation.updated"),
     "creating and changing automations is in the audit log",
     actions,
   );

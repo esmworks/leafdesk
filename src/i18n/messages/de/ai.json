@@ -34,7 +34,27 @@
     "stopped": "Gestoppt. Du kannst den bisher geschriebenen Text trotzdem übernehmen.",
     "applyFailed": "Der Vorschlag konnte der Seite nicht hinzugefügt werden.",
     "asSuggestions": "Als Änderungsvorschläge einfügen",
-    "selectionChanged": "Der ausgewählte Text hat sich inzwischen geändert, daher wurde der Vorschlag darunter eingefügt."
+    "selectionChanged": "Der ausgewählte Text hat sich inzwischen geändert, daher wurde der Vorschlag darunter eingefügt.",
+    "saved": {
+      "title": "Gespeicherte Prompts",
+      "empty": "Speichere eine oft genutzte Anweisung mit dem Lesezeichen neben „Senden“. Anweisungen für das ganze Team sind <skills>Skills</skills>.",
+      "saveInstruction": "Prompt speichern",
+      "name": "Name",
+      "namePlaceholder": "Prompt benennen",
+      "save": "Speichern",
+      "cancel": "Abbrechen",
+      "rename": "Neuer Name",
+      "renameNamed": "{name} umbenennen",
+      "deleteNamed": "{name} löschen",
+      "errors": {
+        "emptyName": "Gib dem Prompt einen Namen.",
+        "emptyPrompt": "Es gibt keine Anweisung zum Speichern.",
+        "nameTooLong": "Namen dürfen höchstens {max} Zeichen lang sein.",
+        "promptTooLong": "Prompts dürfen höchstens {max} Zeichen lang sein.",
+        "full": "Du kannst höchstens {max} Prompts speichern. Lösche einen, um einen neuen zu speichern.",
+        "notFound": "Diesen gespeicherten Prompt gibt es nicht mehr."
+      }
+    }
   },
   "errors": {
     "disabled": "KI ist in diesem Workspace nicht verfügbar.",

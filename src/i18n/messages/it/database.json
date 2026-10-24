@@ -550,7 +550,9 @@
     "parentOptionToggle": "Offri “{option}” quando “{parent}” è “{value}”",
     "sortOptionsAsc": "Ordina A → Z",
     "sortOptionsDesc": "Ordina Z → A",
-    "dragOption": "Trascina per spostare {name}"
+    "dragOption": "Trascina per spostare {name}",
+    "urlPreview": "Mostra come anteprima del link",
+    "urlPreviewHint": "Le pagine delle righe mostrano icona, titolo e immagine della pagina collegata sotto il link."
   },
   "rowProperties": {
     "noProperties": "Nessuna proprietà",
@@ -971,7 +973,8 @@
     "sprintsDatabase": "Questo database contiene gli sprint di un altro database: attiva o disattiva gli sprint da lì.",
     "noCurrentSprint": "Nessuno sprint è in corso. Segna prima uno sprint come in corso.",
     "invalidSprints": "Gli sprint non si possono impostare così: controlla la durata dello sprint, il primo giorno e il database degli sprint.",
-    "sprintStateOption": "Questa opzione indica lo stato di uno sprint. Puoi rinominarla oppure disattivare gli sprint prima di eliminarla."
+    "sprintStateOption": "Questa opzione indica lo stato di uno sprint. Puoi rinominarla oppure disattivare gli sprint prima di eliminarla.",
+    "invalidSlackUrl": "Non è l’indirizzo di un webhook in entrata di Slack (https://hooks.slack.com/services/…)."
   },
   "formula": {
     "title": "Formula",
@@ -1272,7 +1275,8 @@
         "log": "Scrivi nella cronologia delle esecuzioni",
         "celebrate": "Festeggia con i coriandoli",
         "approval": "Chiedi approvazione",
-        "start_sequence": "Avvia un follow-up"
+        "start_sequence": "Avvia un follow-up",
+        "slack": "Invia a Slack"
       },
       "trashHelp": "Sposta la riga nel cestino, da cui può essere ripristinata finché il cestino non viene svuotato. Dopo questa azione non può essere eseguito nient’altro.",
       "addAction": "Aggiungi azione",
@@ -1332,7 +1336,8 @@
         "badExample": "Il corpo di esempio non è JSON valido.",
         "exampleTooLong": "Il corpo di esempio è troppo lungo.",
         "needApprovers": "Scegli a chi chiedere.",
-        "needTimeout": "Inserisci un numero intero di giorni tra 1 e 30."
+        "needTimeout": "Inserisci un numero intero di giorni tra 1 e 30.",
+        "needSlackUrl": "Inserisci l’indirizzo del webhook in entrata di Slack."
       },
       "agent": "Agente",
       "chooseAgent": "Scegli un agente…",
@@ -1464,7 +1469,8 @@
         "noAddress": "La riga non ha un indirizzo email",
         "emailOff": "Le email sulle righe sono disattivate",
         "noPerson": "Saltato: nessuna modifica di una persona ha avviato questa esecuzione",
-        "tooLate": "Saltato: è passato troppo tempo dalla modifica per festeggiarla"
+        "tooLate": "Saltato: è passato troppo tempo dalla modifica per festeggiarla",
+        "templateGone": "Il modello di riga non esiste più"
       },
       "waitingApproval": "In attesa di approvazione",
       "approval": {
@@ -1566,7 +1572,19 @@
       "logPlaceholder": "Ad esempio: Importato {template}",
       "logHelp": "Scritto nella cronologia delle esecuzioni, con le variabili compilate.",
       "celebrateHelp": "Coriandoli nell’app per chi ha fatto la modifica che ha avviato l’esecuzione, nelle finestre che ha aperte. Le esecuzioni che nessuno ha avviato (pianificazioni, date trascorse, webhook in arrivo, risposte anonime ai moduli) lo saltano, come quelle che ci arrivano più di due minuti dopo la modifica.",
-      "celebrateTry": "Prova"
+      "celebrateTry": "Prova",
+      "slackUrl": "Webhook in entrata di Slack",
+      "slackReplace": "Incolla un nuovo indirizzo per sostituire quello salvato",
+      "slackSaved": "Indirizzo salvato:",
+      "slackMessage": "Messaggio",
+      "slackPlaceholder": "Per esempio: Pronto per la revisione: {template}",
+      "slackHelp": "Pubblica il messaggio nel canale Slack del webhook in entrata, con un link alla riga. La formattazione di Slack (*grassetto*, _corsivo_) funziona. L’indirizzo resta segreto ed è mostrato solo abbreviato.",
+      "rowTemplate": "Modello di riga",
+      "rowTemplateNone": "Nessuno (riga vuota)",
+      "rowTemplateDefault": "Modello predefinito del database",
+      "rowTemplateDefaultNamed": "Il modello predefinito ({name})",
+      "rowTemplateGone": "Un modello che non esiste più",
+      "rowTemplateHelp": "La riga parte come copia del modello. I valori impostati qui sostituiscono quelli del modello; un titolo vuoto mantiene quello del modello."
     },
     "variables": {
       "button": "Inserisci una variabile",
@@ -1851,5 +1869,122 @@
       "allView": "Tutti gli sprint",
       "boardView": "Per stato"
     }
+  },
+  "github": {
+    "menuItem": "Pull request di GitHub",
+    "menuHint": "Aggiungi i link delle pull request che nominano una riga con il suo ID e sposta lo stato della riga",
+    "title": "Pull request di GitHub",
+    "intro": "Una pull request che nomina una riga con il suo ID, come {example}, nel titolo, nella descrizione o nel branch aggiunge il proprio link alla riga e può spostarne lo stato.",
+    "needUniqueId": "Aggiungi prima una proprietà ID a questo database: le pull request nominano le righe con il loro ID.",
+    "needPrefix": "Dai prima un prefisso alla proprietà ID “{property}”, come TASK: le pull request nominano le righe con esso.",
+    "linkProperty": "Aggiungi i link delle pull request a",
+    "noLinks": "Non aggiungere link",
+    "newProperty": "Nuova proprietà di testo…",
+    "newPropertyName": "Pull request",
+    "newPropertyLabel": "Nome della nuova proprietà",
+    "linkHelp": "Una proprietà di testo conserva ogni pull request, una per riga; una proprietà URL conserva la più recente.",
+    "statusProperty": "Sposta lo stato in",
+    "noStatus": "Non cambiare lo stato",
+    "noStatusProperty": "Questo database non ha una proprietà di stato, quindi si aggiungono solo link.",
+    "statusOff": "Lo stato resta com’è.",
+    "statusHelp": "Le bozze aggiungono il loro link ma non spostano nulla finché non sono pronte per la revisione. Una riga già in uno stato completato si sposta solo quando una pull request viene unita.",
+    "move": {
+      "opened": "Aperta o pronta per la revisione",
+      "merged": "Unita",
+      "closed": "Chiusa senza unire"
+    },
+    "leave": "Lascia com’è",
+    "setUp": "Configura",
+    "save": "Salva",
+    "change": "Modifica",
+    "whatItDoes": "Cosa fa",
+    "linksTo": "Aggiunge i link delle pull request a “{property}”.",
+    "noLinksSaved": "Non aggiunge link.",
+    "movesIn": "Sposta “{property}”: {moves}.",
+    "moves": {
+      "opened": "aperta su {option}",
+      "merged": "unita su {option}",
+      "closed": "chiusa senza unire su {option}"
+    },
+    "noMoves": "Lascia lo stato com’è.",
+    "inGithub": "In GitHub",
+    "steps": "Nelle Settings del repository apri Webhooks, scegli Add webhook, compila i campi qui sotto, scegli “Let me select individual events” e spunta solo Pull requests.",
+    "payloadUrl": "Payload URL",
+    "secret": "Secret",
+    "showSecret": "Mostra il secret",
+    "hideSecret": "Nascondi il secret",
+    "secretUnreadable": "Il secret non può più essere letto su questo server. Creane uno nuovo e dallo a GitHub.",
+    "rotate": "Crea un nuovo secret",
+    "rotateConfirm": "Creare un nuovo secret? Gli invii firmati con quello vecchio vengono rifiutati finché non dai il nuovo a GitHub.",
+    "contentType": "Content type",
+    "events": "Eventi",
+    "eventsValue": "Pull requests",
+    "deliveries": "Invii recenti",
+    "refresh": "Aggiorna",
+    "noDeliveries": "Non è ancora arrivato nulla. Quando aggiungi il webhook, GitHub invia un ping che compare qui.",
+    "ping": "Ping da GitHub",
+    "pingOk": "Il webhook è collegato.",
+    "otherEvent": "Evento {event}",
+    "handling": "In elaborazione…",
+    "ignored": "Niente da fare per “{action}”.",
+    "noIds": "Non nomina nessuna riga di questo database.",
+    "outcome": {
+      "updated": "aggiornata",
+      "unchanged": "già aggiornata",
+      "notFound": "non trovata",
+      "noAccess": "nessun accesso in modifica",
+      "failed": "non riuscita"
+    },
+    "deliveryErrors": {
+      "noUniqueId": "Il database non ha più una proprietà ID con prefisso.",
+      "runAsGone": "La persona con cui viene eseguita non esiste più. Salva di nuovo la configurazione.",
+      "accessLost": "La persona con cui viene eseguita non può più modificare questo database. Salva di nuovo la configurazione.",
+      "inTrash": "Il database è nel cestino.",
+      "failed": "Qualcosa è andato storto durante l’elaborazione."
+    },
+    "runsAs": "Le modifiche sono fatte come {name}, che l’ha salvata per ultimo.",
+    "runsAsGone": "La persona con cui veniva eseguita non esiste più: salvala di nuovo perché venga eseguita come te.",
+    "remove": "Rimuovi",
+    "removeConfirm": "Rimuovere la configurazione di GitHub? Da allora gli invii di GitHub vengono rifiutati; i link già aggiunti restano.",
+    "errors": {
+      "noUniqueId": "Aggiungi prima a questo database una proprietà ID con prefisso.",
+      "invalidProperty": "Scegli una proprietà di testo o URL per i link, una proprietà di stato e le sue opzioni.",
+      "notSetUp": "Questo database non ha una configurazione di GitHub."
+    }
+  },
+  "slack": {
+    "menuItem": "Notifiche Slack",
+    "menuHint": "Pubblica in un canale Slack quando si aggiunge una riga o cambia una proprietà",
+    "title": "Notifiche Slack",
+    "intro": "Pubblica in un canale Slack quando si aggiunge una riga o cambia una proprietà. Viene salvata come un’automazione che puoi modificare in seguito.",
+    "url": "Webhook in entrata di Slack",
+    "urlHelp": "In Slack aggiungi l’app Incoming WebHooks al canale e copia l’URL del suo webhook. Resta segreto ed è mostrato solo abbreviato.",
+    "when": "Quando",
+    "rowAdded": "Si aggiunge una riga",
+    "propertyChanges": "Cambia {property}",
+    "to": "In",
+    "anyValue": "Qualsiasi valore",
+    "checked": "Spuntata",
+    "unchecked": "Non spuntata",
+    "message": "Messaggio",
+    "messageHelp": "Le variabili tra doppie graffe vengono riempite dalla riga. Alla fine si aggiunge un link alla riga.",
+    "defaultAdded": "{actor} ha aggiunto una riga a {database}",
+    "defaultChanged": "{actor} ha cambiato {property} in {value}",
+    "nameAdded": "Slack: nuove righe",
+    "nameChanged": "Slack: {property} cambiata",
+    "nameChangedTo": "Slack: {property} è {value}",
+    "create": "Crea",
+    "created": "Automazione “{name}” creata.",
+    "existing": "Automazioni che pubblicano su Slack",
+    "existingHelp": "Modificale o disattivale nelle automazioni del database.",
+    "off": "disattivata"
+  },
+  "templateValues": {
+    "me": "Io",
+    "today": "Oggi",
+    "now": "Adesso",
+    "hint": "Compilato quando si aggiunge una riga da questo modello",
+    "dateWhen": "Impostato quando si aggiunge una riga",
+    "meOption": "Chi aggiunge la riga"
   }
 }

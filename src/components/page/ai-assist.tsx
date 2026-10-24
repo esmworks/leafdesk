@@ -13,6 +13,7 @@ import { FormattingToolbarExtension, ShowSelectionExtension } from "@blocknote/c
 import { useComponentsContext, useExtension, type DefaultReactSuggestionItem } from "@blocknote/react";
 import {
   ArrowLeft,
+  Bookmark,
   Bot,
   CheckCheck,
   FileText,
@@ -41,6 +42,7 @@ import { editorBlocksToMarkdown, editorMarkdownToBlocks } from "@/lib/editor-mar
 import type { PageEditor } from "./embed-blocks";
 import { knownPageTitle } from "./mentions";
 import { suggestAsAi } from "./suggesting";
+import { SavedPromptList, SavePromptForm, useSavedPrompts } from "./ai-saved-prompts";
 import { isRtl } from "@/components/direction";
 
 type AnyBlock = PageEditor["document"][number];
@@ -81,10 +83,13 @@ export type AiAssist = {
 };
 
 /** The assistant's state for one editor. `enabled`: the person may edit and AI is available. */
-export function useAiAssist(editor: PageEditor, pageId: string, enabled: boolean): AiAssist {
+export function useAiAssist(editor: PageEditor, pageId: string, workspaceId: string, enabled: boolean): AiAssist {
   const t = useTranslations("ai");
   const locale = useLocale();
   const [target, setTarget] = useState<Target | null>(null);
+  // Naming the instruction to save it (ai-saved-prompts.tsx).
+  const [savingPrompt, setSavingPrompt] = useState(false);
+  const savedPrompts = useSavedPrompts(workspaceId, target !== null);
   const [phase, setPhase] = useState<Phase>({ step: "menu" });
   const [result, setResult] = useState("");
   const [instruction, setInstruction] = useState("");
@@ -117,6 +122,7 @@ export function useAiAssist(editor: PageEditor, pageId: string, enabled: boolean
     setResult("");
     setInstruction("");
     setNotice(null);
+    setSavingPrompt(false);
     showSelection(false);
   }, [showSelection]);
 
@@ -353,10 +359,16 @@ export function useAiAssist(editor: PageEditor, pageId: string, enabled: boolean
                 aria-label={t(hasSelection ? "assistant.placeholderSelection" : "assistant.placeholder")}
                 className="h-7 min-w-0 flex-1 bg-transparent outline-none placeholder:text-fg-faint"
               />
+              <PanelIconButton label={t("assistant.saved.saveInstruction")} onClick={() => setSavingPrompt(true)} disabled={!instruction.trim()}>
+                <Bookmark className="h-3.5 w-3.5" />
+              </PanelIconButton>
               <PanelIconButton label={t("assistant.send")} type="submit" disabled={!instruction.trim()}>
                 <SendHorizontal className="h-3.5 w-3.5 rtl:-scale-x-100" />
               </PanelIconButton>
             </form>
+            {savingPrompt && instruction.trim() && (
+              <SavePromptForm prompts={savedPrompts} prompt={instruction} onDone={() => setSavingPrompt(false)} />
+            )}
             <div role="menu" className="p-1">
               {hasSelection && (
                 <>
@@ -370,6 +382,7 @@ export function useAiAssist(editor: PageEditor, pageId: string, enabled: boolean
               {item("continue", <ListEnd className="h-3.5 w-3.5" />, () => start({ action: "continue" }))}
               {item("summarize", <FileText className="h-3.5 w-3.5" />, () => start({ action: "summarize" }))}
             </div>
+            <SavedPromptList prompts={savedPrompts} workspaceId={workspaceId} onUse={(prompt) => start({ action: "custom", instruction: prompt })} />
           </>
         )}
         {phase.step === "language" && (

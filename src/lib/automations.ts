@@ -121,8 +121,11 @@ export type AutomationAction = (
       sorts?: SortRule[];
       limit: number;
     }
-  /** Adds a row to a database (this one or another), with these values (property ids). */
-  | { type: "create_row"; databaseId: string; title?: string; values: StepValues }
+  /**
+   * Adds a row to a database (this one or another), with these values (property ids), from a row
+   * template of it when `template` says so (see RowTemplateChoice); the values go over the template's.
+   */
+  | { type: "create_row"; databaseId: string; title?: string; values: StepValues; template?: string }
   /**
    * Changes the first row of a database whose `matchPropertyId` ("title" for the row's title)
    * equals `matchValue`, or adds one with it when there is none.
@@ -150,6 +153,13 @@ export type AutomationAction = (
    * after `timeoutDays`, it stops or (`onTimeout: "continue"`) goes on.
    */
   | ApprovalAction
+  /**
+   * Posts `message` (text with templates, in Slack's markup) to a Slack incoming webhook, with the
+   * row (or the database, for a run without one) as a link (lib/slack). The address is a secret:
+   * `sealed` (server/secret-box) is kept with the step and never leaves the server; `hint` is what
+   * is shown of it.
+   */
+  | { type: "slack"; sealed?: string; hint: string; message: string }
 ) & { id?: string };
 
 export type ApprovalAction = {
@@ -182,6 +192,7 @@ export const AUTOMATION_ACTION_TYPES = [
   "celebrate",
   "start_sequence",
   "approval",
+  "slack",
 ] as const satisfies AutomationActionType[];
 
 /**
@@ -296,6 +307,19 @@ export const UNSETTABLE_TYPES = [
   "last_edited_time",
   "unique_id",
 ] as const;
+
+/**
+ * The row template a step that adds a row starts from (server/templates.ts rowTemplateInput): a
+ * template of the step's database by id, or DEFAULT_ROW_TEMPLATE for the database's default one
+ * (a blank row when it has none). Missing: a blank row.
+ */
+export const DEFAULT_ROW_TEMPLATE = "default";
+
+/** A step's row template as it is kept: DEFAULT_ROW_TEMPLATE, an id, or undefined for none. */
+export function cleanRowTemplate(value: unknown): string | undefined {
+  if (value === DEFAULT_ROW_TEMPLATE) return value;
+  return typeof value === "string" && /^[\w-]{1,100}$/.test(value) ? value : undefined;
+}
 
 export function isDynamicValue(value: unknown): value is AutomationDynamicValue {
   return (

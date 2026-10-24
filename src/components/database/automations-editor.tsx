@@ -66,7 +66,7 @@ export { selectClass };
 const STEP_GROUPS: { group: "rows" | "people" | "outside" | "flow"; types: AutomationActionType[] }[] = [
   { group: "rows", types: ["set_properties", "find_rows", "create_row", "upsert_row", "move_to_trash"] },
   { group: "people", types: ["notify", "celebrate", "approval", "run_agent", "start_sequence"] },
-  { group: "outside", types: ["http_request", "webhook"] },
+  { group: "outside", types: ["slack", "http_request", "webhook"] },
   { group: "flow", types: ["wait", "log"] },
 ];
 
@@ -625,6 +625,36 @@ function StepBody({
           personProperties={rowRun ? (targetProps ?? []).filter((p) => namesPeopleType(p.type)) : []}
           onChange={onChange}
         />
+      );
+    case "slack":
+      return (
+        <div className="space-y-1.5">
+          <Input
+            type="url"
+            inputMode="url"
+            dir="ltr"
+            autoComplete="off"
+            value={action.url}
+            maxLength={MAX_WEBHOOK_URL}
+            aria-label={t("steps.slackUrl")}
+            placeholder={action.hint ? t("steps.slackReplace") : "https://hooks.slack.com/services/…"}
+            onChange={(e) => onChange({ ...action, url: e.target.value })}
+          />
+          {action.hint && !action.url.trim() && (
+            <p className="text-xs text-fg-muted">
+              {t("steps.slackSaved")} <span dir="ltr">{action.hint}</span>
+            </p>
+          )}
+          <TemplateField
+            rows={3}
+            value={action.message}
+            maxLength={MAX_STEP_MESSAGE}
+            aria-label={t("steps.slackMessage")}
+            placeholder={t("steps.slackPlaceholder", { template: "{{trigger.title}}" })}
+            onChange={(message) => onChange({ ...action, message })}
+          />
+          <p className="text-xs text-fg-faint">{t("steps.slackHelp")}</p>
+        </div>
       );
     case "log":
       return (

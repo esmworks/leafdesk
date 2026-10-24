@@ -34,7 +34,27 @@
     "stopped": "Durduruldu. Şimdiye kadar yazılanı yine de tutabilirsin.",
     "applyFailed": "Öneri sayfaya eklenemedi.",
     "asSuggestions": "Önerilen değişiklik olarak ekle",
-    "selectionChanged": "Seçili metin bu arada değişti, bu yüzden öneri altına eklendi."
+    "selectionChanged": "Seçili metin bu arada değişti, bu yüzden öneri altına eklendi.",
+    "saved": {
+      "title": "Kayıtlı istemler",
+      "empty": "Sık kullandığınız bir talimatı Gönder’in yanındaki yer imiyle kaydedin. Tüm ekip için talimatlar <skills>yeteneklerdir</skills>.",
+      "saveInstruction": "İstemi kaydet",
+      "name": "Ad",
+      "namePlaceholder": "Bu isteme ad verin",
+      "save": "Kaydet",
+      "cancel": "Vazgeç",
+      "rename": "Yeni ad",
+      "renameNamed": "{name} adını değiştir",
+      "deleteNamed": "{name} sil",
+      "errors": {
+        "emptyName": "İsteme bir ad verin.",
+        "emptyPrompt": "Kaydedilecek bir talimat yok.",
+        "nameTooLong": "Ad en fazla {max} karakter olabilir.",
+        "promptTooLong": "İstem en fazla {max} karakter olabilir.",
+        "full": "En fazla {max} istem kaydedebilirsiniz. Yenisini kaydetmek için birini silin.",
+        "notFound": "Bu kayıtlı istem artık yok."
+      }
+    }
   },
   "errors": {
     "disabled": "Bu çalışma alanında yapay zekâ kullanılamıyor.",

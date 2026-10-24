@@ -41,6 +41,8 @@ import { numberShare } from "@/lib/number-display";
 import { availableOptions, parentOf } from "@/lib/dependent-options";
 import { formatUniqueId, uniqueIdPrefix } from "@/lib/unique-id";
 import { useSchema } from "./schema-context";
+import { MarkerChip, useRowCell } from "./row-cell-context";
+import { dateMarker, DATE_MARKERS } from "@/lib/template-values";
 
 // The place editor (its search and suggestions) loads when a place is first edited.
 const PlaceEditor = dynamic(() => import("./place-editor").then((m) => m.PlaceEditor), { ssr: false });
@@ -245,8 +247,10 @@ export function PropertyDisplay({ prop, value, wrap, style }: { prop: ShownPrope
           {String(value)}
         </a>
       );
-    case "date":
-      return <DateValue prop={prop} value={String(value)} />;
+    case "date": {
+      const marker = dateMarker(value);
+      return marker ? <MarkerChip marker={marker} /> : <DateValue prop={prop} value={String(value)} />;
+    }
     case "created_time":
     case "last_edited_time":
       return <span className="truncate">{formatDateTime(String(value))}</span>;
@@ -908,9 +912,12 @@ function DateEditor({
   onClose: () => void;
 }) {
   const t = useTranslations("database.cell");
+  const tm = useTranslations("database.templateValues");
+  const template = useRowCell()?.template === true;
   const timeZone = useViewerTimeZone();
   const today = useToday();
   const [draft, setDraft] = useState<DateDraft | null>(() => dateDraft(value, timeZone));
+  const marker = dateMarker(value);
   const input = useRef<HTMLInputElement>(null);
   useEffect(() => input.current?.focus(), []);
   const save = (next: DateDraft | null) => {
@@ -945,6 +952,31 @@ function DateEditor({
   const time = draft?.time === true;
   return (
     <Floating open anchor={anchor} onClose={onClose} className="w-72 p-2">
+      {template && (
+        // A row template's date may be the day (or moment) a row is added from it.
+        <div className="mb-2 border-b border-border px-1 pb-2">
+          <div className="pb-1 text-xs text-fg-muted">{tm("dateWhen")}</div>
+          <div className="flex gap-1.5">
+            {DATE_MARKERS.map((m) => (
+              <button
+                key={m}
+                type="button"
+                aria-pressed={marker === m}
+                onClick={() => {
+                  onChange(m);
+                  onClose();
+                }}
+                className={cn(
+                  "inline-flex h-7 flex-1 items-center justify-center rounded-md border px-2 text-xs",
+                  marker === m ? "border-accent bg-accent/10 text-accent" : "border-border text-fg-muted hover:bg-bg-hover hover:text-fg",
+                )}
+              >
+                {tm(m)}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
       <div className="flex flex-col gap-1.5">
         <div className="flex gap-1.5">
           <input

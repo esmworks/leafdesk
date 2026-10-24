@@ -407,3 +407,27 @@ export const aiUsagePerson = pgTable(
   // Nobody's requests (a null user) add up in one row per feature too.
   (t) => [unique("ai_usage_person_key").on(t.workspaceId, t.month, t.userId, t.feature).nullsNotDistinct()],
 );
+
+/**
+ * Prompts a person saved to reuse in the editor's AI assistant (lib/ai-saved-prompts), in one
+ * workspace. Theirs alone: nobody else lists them, and team-wide instructions are skills.
+ */
+export const aiSavedPrompt = pgTable(
+  "ai_saved_prompt",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspace.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    prompt: text("prompt").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("ai_saved_prompt_user_idx").on(t.userId, t.workspaceId, t.createdAt)],
+);

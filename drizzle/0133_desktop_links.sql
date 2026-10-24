@@ -1,0 +1,1 @@
+ALTER TABLE "user_preference" ADD COLUMN "desktop_links" text DEFAULT 'off' NOT NULL;

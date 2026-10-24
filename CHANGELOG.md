@@ -4,6 +4,46 @@
 
 ### Added
 
+- **Tabs in the desktop app.** Each desktop window holds tabs in a strip that follows Leafdesk's
+  light or dark look, with the window's own buttons on macOS, Windows and Linux. Cmd/Ctrl+T opens
+  a tab on the workspace's home, Cmd/Ctrl+W closes one (the last one closes the window),
+  Cmd/Ctrl+Shift+T reopens the last closed tab, Ctrl+Tab and Ctrl+Shift+Tab move between them,
+  Cmd/Ctrl+1–9 pick one and Cmd/Ctrl+Shift+N opens a new window; all are in the File and Window
+  menus. Cmd/Ctrl+click or a middle click on a link to a page of the server opens it in a tab
+  behind the current one. Tabs show their page's title and emoji, reorder by dragging and have a
+  menu with *Close*, *Close Other Tabs*, *Duplicate Tab* and *Reopen Closed Tab*; every window
+  comes back with its tabs at the next start, and all tabs share one sign-in. Reload, zoom, back
+  and forward act on the current tab. A file the server shows (a PDF, an image, an export) still
+  opens in a window of its own with the system's title bar.
+- **Open Leafdesk links in the desktop app.** *My account → Preferences → Desktop app* (*Off*, *Offer to open
+  them* or *Always open them*) lets a browser hand Leafdesk pages to the desktop app: the offer is a
+  card to open the page there, with an *Always* box; *Always open them* tries the app
+  once per browser tab and stays on the web page when it isn't installed. The app accepts
+  `leafdesk://open?url=…` only for the server it is connected to (same scheme, host and port) and
+  opens the page in a new tab. Not shown in Leafdesk on this computer. Migration
+  `drizzle/0133_desktop_links.sql` adds the person's choice to `user_preference`.
+- **Row templates can say "Me", "Today" and "Now".** In a row template, a person property's picker
+  has *Me – whoever adds the row* and a date's has *Today* and *Now*; the template shows them as
+  chips. A row added from the template gets the person who adds it and the day (in their time
+  zone) or moment it is added, whether by hand, a button, an automation, a repeating template (as
+  the person who set the repeat, in the repeat's time zone), the AI chat, the REST API or MCP (in
+  UTC). An agent adding a row leaves "Me" empty. No migration.
+- **Buttons and automations can add rows from a row template.** A button's *Add a row* step and an
+  automation's *Create a row* step have a *Row template*: none, the database's default, or one of
+  its templates (MCP: `template_id` on the step, `"default"` for the default one). The row gets the
+  template's values and content, with the values the step sets on top. A step whose template was
+  deleted stops and says the row template is gone. No migration.
+- **Saved prompts in the AI writing assistant.** An instruction typed into *Ask AI* can be saved,
+  with a name, from the bookmark next to *Send*; the menu lists your saved prompts under its
+  actions to run, rename or delete. They are yours alone, up to 50 per workspace, and left out of
+  workspace backups like AI chats; while there are none the menu points to skills for instructions
+  the whole team shares. Migration `0135_ai_saved_prompts`.
+- **Link previews for URL properties.** A URL property's menu has *Show as link preview* (off by
+  default): row pages then show the linked page's icon, title and image under the link. The server
+  fetches the address stored in the row, never one the browser sends, behind the same guard as
+  bookmarks, keeps each preview a day (an hour after a failure) and counts only actual fetches
+  towards a person's limit. No migration.
+
 - **Task databases can be planned in sprints.** A view's settings have *Sprints*: asked only for
   the sprint length (one to four weeks) and the first sprint's day, it adds a Sprints database
   beside the task database (dates and a state of current, next, future or completed; the first
@@ -67,6 +107,23 @@
   email domains, every account on the server with an address in them: whether it is in the
   workspace and as what, when it was last active and how it signs in, with *Add as member* and
   *Remove*.
+- **GitHub pull requests update tasks.** A database with an ID property with a prefix has *GitHub
+  pull requests* in its ••• menu: a payload URL and a secret to add as a repository webhook. A pull
+  request that names rows by their ID (`TASK-12`, in its title, description or branch) adds its
+  link to a text or URL property (a new *Pull requests* property if wanted) and can move a status
+  property when it is opened or ready for review, merged, or closed without merging. Drafts only
+  link, and a row already done moves only for a merge. Deliveries are checked against the secret
+  and taken once, the writes are made as whoever saved the setup with their access when the
+  delivery comes (rows they can't edit are skipped), the dialog lists the latest deliveries, and
+  setting it up, changing and removing it are in the audit log. Migration
+  `drizzle/0134_github_sync.sql` adds the `github_sync` and `github_delivery` tables. No new
+  settings.
+- **Send to Slack.** Automations have a *Send to Slack* step that posts a message, with variables
+  and Slack formatting, to a Slack incoming webhook with a link to the row. The address is stored
+  sealed and shown again only as a hint, in the app, MCP and the run history. *Slack
+  notifications* in a database's ••• menu makes such an automation for a row added or a property
+  changing (to a value). Addresses other than `https://hooks.slack.com/services/…` are refused,
+  except on hosts in `AUTOMATION_WEBHOOK_ALLOWED_HOSTS`.
 - **Page views and page analytics.** Opening a page, database or row in the app now records a
   view, once the page has been open two seconds and at most once per person and page every five
   minutes, kept as one count per page, person and UTC day and deleted after a year. Only owners

@@ -28,6 +28,7 @@ import { pageLabel } from "@/lib/labels";
 import { holdsOptions, holdsPeople } from "@/lib/property-types";
 import { coerceValue } from "./values";
 import { isCredentialKey, REDACTED, redactError, redactText, redactValue } from "@/lib/redact";
+import { escapeSlackValues, slackPayload, slackWebhookUrl } from "@/lib/slack";
 import { dayString, localDay } from "@/lib/time-zone";
 import { resolvePageAccess } from "@/server/access";
 import {
@@ -50,13 +51,15 @@ import { notAgentUser } from "@/server/agents/users";
 import { recordAudit, runAsAuditOrigin } from "@/server/audit";
 import { enrollRows, SequenceError, type EnrollOutcome, type SequenceErrorCode } from "@/server/sequences/manage";
 import { archivePage, renamePage } from "@/server/pages";
+import { open } from "@/server/secret-box";
+import { createRow as createRowFromTemplate, rowTemplateInput } from "@/server/templates";
 import { exportAllowed } from "@/server/workspaces";
 import { ApprovalStepError, askApproval, closeApprovals, readAnswer, stillWaiting } from "./approval";
 import { celebrate } from "./celebrate";
 import { HttpStepError, sendRequest } from "./http";
 import { asAutomation, kickAutomations, onAutomationsQueued } from "./queue";
 import { automationZone, followOwnEdit } from "./timed";
-import { sendWebhook, WebhookError, webhookSecret } from "./webhook";
+import { allowedHost, sendWebhook, WebhookError, webhookSecret } from "./webhook";
 
 /**
  * The automation worker: takes queued runs (server/automations/queue) and does their steps, as
@@ -364,6 +367,8 @@ export async function processRun(run: Run) {
           result = { output: { status }, httpStatus: status };
         } else if (action.type === "http_request") {
           result = await httpRequest(ctx, action, step);
+        } else if (action.type === "slack") {
+          result = await sendToSlack(ctx, action);
         } else if (action.type === "find_rows") {
           result = await findRows(ctx, action);
         } else if (action.type === "create_row") {
@@ -403,7 +408,12 @@ export async function processRun(run: Run) {
             (action.type === "http_request" &&
               error instanceof HttpStepError &&
               (error.code === "unreachable" || error.code === "timeout" || error.code === "http") &&
-              httpRetriable(httpStatus)));
+              httpRetriable(httpStatus)) ||
+            // Slack's own refusals (invalid_payload, no_service) are final; being busy (429) isn't.
+            (action.type === "slack" &&
+              error instanceof HttpStepError &&
+              (error.code === "unreachable" || error.code === "timeout" || error.code === "http") &&
+              retriable(httpStatus)));
         if (again) {
           // Steps run in order: the ones after it wait for it.
           retryAt = new Date(Date.now() + retryDelayMs(step.attempts));
@@ -527,6 +537,52 @@ function finishStep(step: AutomationStep, result: StepResult): unknown {
 
 /** The input, with the templates that led nowhere when there were any. */
 const missingNote = <T extends object>(input: T, missing: string[]) => (missing.length ? { ...input, missing: [...new Set(missing)] } : input);
+
+/**
+ * A "Send to Slack" step: the message, with its variables' values escaped for Slack, and the row's
+ * link (the database's, for a run without a row) to the step's sealed address. The history shows
+ * the message and the address's hint only, and errors never carry the address.
+ */
+async function sendToSlack(ctx: StepContext, action: Extract<AutomationAction, { type: "slack" }>): Promise<StepResult> {
+  const { automation, row } = ctx;
+  if (!(await exportAllowed(automation.workspaceId))) throw new StepFailure("webhookExportOff", "The workspace's owners turned export off");
+  const message = resolveText(action.message, escapeSlackValues(ctx.scope));
+  const input = missingNote({ message: message.value, to: action.hint }, message.missing);
+  const fail = (code: string, text: string, httpStatus: number | null = null) => Object.assign(new HttpStepError(code as HttpStepError["code"], text, httpStatus), { input });
+  let url: string;
+  try {
+    url = open(action.sealed ?? "");
+  } catch {
+    throw fail("invalidUrl", "The Slack address can't be read: give it again");
+  }
+  // An address on a host the administrator no longer allows isn't sent to.
+  if (!slackWebhookUrl(url, (u) => allowedHost(u))) throw fail("invalidUrl", "Not a Slack incoming webhook address");
+  let link: { url: string; title: string };
+  if (row) link = { url: rowUrl(automation.workspaceId, row.id), title: pageLabel(row.title) };
+  else {
+    const [database] = await db.select({ title: page.title }).from(page).where(eq(page.id, automation.databaseId));
+    link = { url: rowUrl(automation.workspaceId, automation.databaseId), title: pageLabel(database?.title ?? "") };
+  }
+  try {
+    const answer = await sendRequest({ method: "POST", url, headers: [], body: slackPayload(message.value, link) });
+    return { input, output: { status: answer.status }, httpStatus: answer.status };
+  } catch (error) {
+    if (!(error instanceof HttpStepError)) throw error;
+    // Slack says why in a word ("invalid_payload", "no_service"); the address stays out of it.
+    const said = typeof error.response?.body === "string" ? error.response.body.trim().slice(0, 80) : "";
+    const text =
+      error.code === "http"
+        ? `Slack answered ${error.httpStatus}${said && /^[\w.-]+$/.test(said) ? `: ${said}` : ""}`
+        : error.code === "timeout"
+          ? "Slack didn't answer in time"
+          : error.code === "blocked"
+            ? "The address is on a private or local network"
+            : error.code === "redirect"
+              ? "Slack answered with a redirect"
+              : "Couldn't reach Slack";
+    throw fail(error.code, text, error.httpStatus);
+  }
+}
 
 async function canManage(userId: string, databaseId: string) {
   try {
@@ -910,6 +966,16 @@ async function createRow(ctx: StepContext, action: Extract<AutomationAction, { t
   const title = action.title ? resolveText(action.title, scope) : { value: "", missing: [] };
   const { patch, shown, missing } = await resolveRowValues(ctx, action.databaseId, action.values, scope);
   const input = missingNote({ database: { id: database.id, title: pageLabel(database.title) }, title: title.value, values: shown }, [...title.missing, ...missing]);
+  if (action.template) {
+    // From a row template: the step's values go over the template's; "me" is the automation's person.
+    const template = await rowTemplateInput(action.databaseId, action.template);
+    if (!template) throw Object.assign(new StepFailure("templateGone", "The row template is gone"), { input });
+    const made = await asAutomation(() =>
+      createRowFromTemplate({ userId: ctx.runAs }, action.databaseId, { title: title.value.trim(), properties: patch, ...template, timeZone: ctx.timeZone }),
+    );
+    const [row] = await db.select({ title: page.title }).from(page).where(eq(page.id, made.id));
+    return { input, output: { id: made.id, title: pageLabel(row?.title ?? ""), url: rowUrl(database.workspaceId, made.id), created: true } };
+  }
   const [created] = await asAutomation(() => createRows(ctx.runAs, action.databaseId, [{ title: title.value.trim(), properties: patch }]));
   const output = { id: created.id, title: pageLabel(created.title), url: rowUrl(database.workspaceId, created.id), created: true };
   return { input, output };

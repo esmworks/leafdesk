@@ -550,7 +550,9 @@
     "parentOptionToggle": "“{parent}”이(가) “{value}”일 때 “{option}” 표시",
     "sortOptionsAsc": "오름차순 정렬 (A → Z)",
     "sortOptionsDesc": "내림차순 정렬 (Z → A)",
-    "dragOption": "끌어서 {name} 이동"
+    "dragOption": "끌어서 {name} 이동",
+    "urlPreview": "링크 미리보기로 표시",
+    "urlPreviewHint": "행 페이지에서 링크 아래에 링크된 페이지의 아이콘, 제목, 이미지를 보여 줍니다."
   },
   "rowProperties": {
     "noProperties": "속성 없음",
@@ -971,7 +973,8 @@
     "sprintsDatabase": "이 데이터베이스는 다른 데이터베이스의 스프린트를 보관합니다. 스프린트는 그쪽에서 켜거나 끄세요.",
     "noCurrentSprint": "현재 스프린트가 없습니다. 먼저 스프린트 하나를 현재로 표시하세요.",
     "invalidSprints": "이렇게는 스프린트를 설정할 수 없습니다. 스프린트 길이, 첫날, 스프린트 데이터베이스를 확인하세요.",
-    "sprintStateOption": "이 옵션은 스프린트 상태를 나타냅니다. 이름은 바꿀 수 있으며, 삭제하려면 먼저 스프린트를 끄세요."
+    "sprintStateOption": "이 옵션은 스프린트 상태를 나타냅니다. 이름은 바꿀 수 있으며, 삭제하려면 먼저 스프린트를 끄세요.",
+    "invalidSlackUrl": "Slack 수신 웹후크 주소가 아닙니다(https://hooks.slack.com/services/…)."
   },
   "formula": {
     "title": "수식",
@@ -1272,7 +1275,8 @@
         "log": "실행 기록에 쓰기",
         "celebrate": "색종이로 축하하기",
         "approval": "승인 요청",
-        "start_sequence": "팔로업 시작"
+        "start_sequence": "팔로업 시작",
+        "slack": "Slack으로 보내기"
       },
       "trashHelp": "행을 휴지통으로 이동합니다. 휴지통을 비우기 전까지 복원할 수 있습니다. 이 동작 뒤에는 다른 동작을 실행할 수 없습니다.",
       "addAction": "동작 추가",
@@ -1332,7 +1336,8 @@
         "badExample": "예시 본문이 유효한 JSON이 아닙니다.",
         "exampleTooLong": "예시 본문이 너무 깁니다.",
         "needApprovers": "요청할 사람을 선택하세요.",
-        "needTimeout": "1에서 30 사이의 정수로 일수를 입력하세요."
+        "needTimeout": "1에서 30 사이의 정수로 일수를 입력하세요.",
+        "needSlackUrl": "Slack 수신 웹후크 주소를 입력하세요."
       },
       "agent": "에이전트",
       "chooseAgent": "에이전트 선택…",
@@ -1464,7 +1469,8 @@
         "noAddress": "행에 이메일 주소가 없음",
         "emailOff": "행의 이메일이 꺼져 있음",
         "noPerson": "건너뜀: 사람의 변경으로 시작된 실행이 아닙니다",
-        "tooLate": "건너뜀: 변경 후 너무 오래 지나 축하하지 않았습니다"
+        "tooLate": "건너뜀: 변경 후 너무 오래 지나 축하하지 않았습니다",
+        "templateGone": "행 템플릿이 더 이상 없습니다"
       },
       "waitingApproval": "승인 대기 중",
       "approval": {
@@ -1566,7 +1572,19 @@
       "logPlaceholder": "예: {template} 가져옴",
       "logHelp": "변수를 채운 상태로 실행 기록에 기록됩니다.",
       "celebrateHelp": "실행을 시작한 변경을 한 사람이 앱에서 열어 둔 창에 색종이가 날립니다. 아무도 시작하지 않은 실행(일정, 날짜 경과, 수신 웹훅, 익명 양식 응답)과 변경 후 2분이 지나서 이 단계에 이른 실행은 건너뜁니다.",
-      "celebrateTry": "미리 보기"
+      "celebrateTry": "미리 보기",
+      "slackUrl": "Slack 수신 웹후크",
+      "slackReplace": "저장된 주소를 바꾸려면 새 주소를 붙여 넣으세요",
+      "slackSaved": "저장된 주소:",
+      "slackMessage": "메시지",
+      "slackPlaceholder": "예: 리뷰 준비됨: {template}",
+      "slackHelp": "수신 웹후크의 Slack 채널에 행 링크와 함께 메시지를 게시합니다. Slack 서식(*굵게*, _기울임_)을 쓸 수 있습니다. 주소는 비밀로 보관되며 줄여서만 표시됩니다.",
+      "rowTemplate": "행 템플릿",
+      "rowTemplateNone": "없음(빈 행)",
+      "rowTemplateDefault": "데이터베이스의 기본 템플릿",
+      "rowTemplateDefaultNamed": "기본 템플릿({name})",
+      "rowTemplateGone": "더 이상 없는 템플릿",
+      "rowTemplateHelp": "행은 템플릿의 사본으로 시작합니다. 여기서 설정한 값이 템플릿 값보다 우선하며, 제목이 비어 있으면 템플릿 제목을 유지합니다."
     },
     "variables": {
       "button": "변수 삽입",
@@ -1851,5 +1869,122 @@
       "allView": "모든 스프린트",
       "boardView": "상태별"
     }
+  },
+  "github": {
+    "menuItem": "GitHub 풀 리퀘스트",
+    "menuHint": "행을 ID로 언급하는 풀 리퀘스트의 링크를 추가하고 행의 상태를 옮깁니다",
+    "title": "GitHub 풀 리퀘스트",
+    "intro": "제목, 설명 또는 브랜치에서 {example}처럼 행을 ID로 언급하는 풀 리퀘스트는 그 행에 링크를 추가하고 상태를 옮길 수 있습니다.",
+    "needUniqueId": "먼저 이 데이터베이스에 ID 속성을 추가하세요. 풀 리퀘스트는 행을 ID로 언급합니다.",
+    "needPrefix": "먼저 ID 속성 “{property}”에 TASK 같은 접두사를 지정하세요. 풀 리퀘스트는 이것으로 행을 언급합니다.",
+    "linkProperty": "풀 리퀘스트 링크를 추가할 곳",
+    "noLinks": "링크 추가 안 함",
+    "newProperty": "새 텍스트 속성…",
+    "newPropertyName": "풀 리퀘스트",
+    "newPropertyLabel": "새 속성 이름",
+    "linkHelp": "텍스트 속성은 모든 풀 리퀘스트를 한 줄에 하나씩 보관하고, URL 속성은 최신 것만 보관합니다.",
+    "statusProperty": "상태를 옮길 속성",
+    "noStatus": "상태 바꾸지 않음",
+    "noStatusProperty": "이 데이터베이스에는 상태 속성이 없어서 링크만 추가합니다.",
+    "statusOff": "상태는 그대로 둡니다.",
+    "statusHelp": "초안 풀 리퀘스트는 링크를 추가하지만 리뷰 준비가 될 때까지 아무것도 옮기지 않습니다. 이미 완료 상태인 행은 풀 리퀘스트가 병합될 때만 옮겨집니다.",
+    "move": {
+      "opened": "열림 또는 리뷰 준비됨",
+      "merged": "병합됨",
+      "closed": "병합 없이 닫힘"
+    },
+    "leave": "그대로 두기",
+    "setUp": "설정",
+    "save": "저장",
+    "change": "변경",
+    "whatItDoes": "하는 일",
+    "linksTo": "풀 리퀘스트 링크를 “{property}”에 추가합니다.",
+    "noLinksSaved": "링크를 추가하지 않습니다.",
+    "movesIn": "“{property}”을(를) 옮깁니다: {moves}.",
+    "moves": {
+      "opened": "열리면 {option}",
+      "merged": "병합되면 {option}",
+      "closed": "병합 없이 닫히면 {option}"
+    },
+    "noMoves": "상태를 그대로 둡니다.",
+    "inGithub": "GitHub에서",
+    "steps": "저장소의 Settings에서 Webhooks를 열고 Add webhook을 선택한 뒤 아래 항목을 채우고 “Let me select individual events”를 선택해 Pull requests만 체크하세요.",
+    "payloadUrl": "Payload URL",
+    "secret": "시크릿",
+    "showSecret": "시크릿 보기",
+    "hideSecret": "시크릿 숨기기",
+    "secretUnreadable": "이 서버에서 더 이상 시크릿을 읽을 수 없습니다. 새로 만들어 GitHub에 입력하세요.",
+    "rotate": "새 시크릿 만들기",
+    "rotateConfirm": "새 시크릿을 만들까요? GitHub에 새 시크릿을 입력할 때까지 이전 시크릿으로 서명된 전송은 거부됩니다.",
+    "contentType": "Content type",
+    "events": "이벤트",
+    "eventsValue": "Pull requests",
+    "deliveries": "최근 전송",
+    "refresh": "새로 고침",
+    "noDeliveries": "아직 도착한 것이 없습니다. 웹후크를 추가하면 GitHub가 ping을 보내고 여기에 표시됩니다.",
+    "ping": "GitHub의 ping",
+    "pingOk": "웹후크가 연결되었습니다.",
+    "otherEvent": "이벤트 {event}",
+    "handling": "처리 중…",
+    "ignored": "“{action}”에는 할 일이 없습니다.",
+    "noIds": "이 데이터베이스의 행을 언급하지 않습니다.",
+    "outcome": {
+      "updated": "업데이트됨",
+      "unchanged": "이미 최신",
+      "notFound": "찾을 수 없음",
+      "noAccess": "편집 권한 없음",
+      "failed": "실패"
+    },
+    "deliveryErrors": {
+      "noUniqueId": "데이터베이스에 접두사가 있는 ID 속성이 더 이상 없습니다.",
+      "runAsGone": "실행 주체인 사람이 더 이상 없습니다. 설정을 다시 저장하세요.",
+      "accessLost": "실행 주체인 사람이 더 이상 이 데이터베이스를 편집할 수 없습니다. 설정을 다시 저장하세요.",
+      "inTrash": "데이터베이스가 휴지통에 있습니다.",
+      "failed": "처리하는 중에 문제가 생겼습니다."
+    },
+    "runsAs": "변경은 마지막으로 저장한 {name}의 이름으로 이루어집니다.",
+    "runsAsGone": "실행 주체였던 사람이 더 이상 없습니다. 내 이름으로 실행되게 하려면 다시 저장하세요.",
+    "remove": "제거",
+    "removeConfirm": "GitHub 설정을 제거할까요? 이후 GitHub의 전송은 거부되며, 이미 추가된 링크는 남습니다.",
+    "errors": {
+      "noUniqueId": "먼저 이 데이터베이스에 접두사가 있는 ID 속성을 추가하세요.",
+      "invalidProperty": "링크용 텍스트 또는 URL 속성, 상태 속성과 그 옵션을 선택하세요.",
+      "notSetUp": "이 데이터베이스에는 GitHub 설정이 없습니다."
+    }
+  },
+  "slack": {
+    "menuItem": "Slack 알림",
+    "menuHint": "행이 추가되거나 속성이 바뀌면 Slack 채널에 게시합니다",
+    "title": "Slack 알림",
+    "intro": "행이 추가되거나 속성이 바뀌면 Slack 채널에 게시합니다. 나중에 바꿀 수 있는 자동화로 저장됩니다.",
+    "url": "Slack 수신 웹후크",
+    "urlHelp": "Slack에서 채널에 Incoming WebHooks 앱을 추가하고 웹후크 URL을 복사하세요. 비밀로 보관되며 줄여서만 표시됩니다.",
+    "when": "언제",
+    "rowAdded": "행이 추가될 때",
+    "propertyChanges": "{property}이(가) 바뀔 때",
+    "to": "바뀐 값",
+    "anyValue": "모든 값",
+    "checked": "체크됨",
+    "unchecked": "체크 안 됨",
+    "message": "메시지",
+    "messageHelp": "이중 중괄호 안의 변수는 행에서 채워집니다. 끝에 행 링크가 추가됩니다.",
+    "defaultAdded": "{actor}님이 {database}에 행을 추가했습니다",
+    "defaultChanged": "{actor}님이 {property}을(를) {value}(으)로 바꿨습니다",
+    "nameAdded": "Slack: 새 행",
+    "nameChanged": "Slack: {property} 변경",
+    "nameChangedTo": "Slack: {property}이(가) {value}",
+    "create": "만들기",
+    "created": "자동화 “{name}”을(를) 만들었습니다.",
+    "existing": "Slack에 게시하는 자동화",
+    "existingHelp": "데이터베이스의 자동화에서 바꾸거나 끌 수 있습니다.",
+    "off": "꺼짐"
+  },
+  "templateValues": {
+    "me": "나",
+    "today": "오늘",
+    "now": "지금",
+    "hint": "이 템플릿으로 행을 추가할 때 채워집니다",
+    "dateWhen": "행을 추가할 때 설정",
+    "meOption": "행을 추가한 사람"
   }
 }

@@ -31,6 +31,8 @@ export type RowSnapshot = {
   beside?: boolean;
   /** Full access: the viewer may set how the database's row pages look. */
   canSetLayout?: boolean;
+  /** The row is one of its database's row templates (its values may say "me", "today", "now"). */
+  template?: boolean;
 };
 
 type LoadedRow = Extract<Awaited<ReturnType<typeof loadRowAction>>, { ok: true }>["data"];
@@ -53,5 +55,6 @@ export function rowSnapshotOf(data: LoadedRow): RowSnapshot {
     restrictedPropertyIds: data.restrictedPropertyIds,
     beside: data.propertiesBeside,
     canSetLayout: data.canManageAccess,
+    template: data.row.template,
   };
 }

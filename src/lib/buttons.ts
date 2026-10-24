@@ -1,7 +1,7 @@
 // Client-safe: shared by the button block (components/page/button-block.tsx), its settings, the
 // server that runs it (server/buttons.ts) and the Markdown and editor schemas.
 
-import { isDynamicValue, MAX_NOTIFY_PEOPLE, MAX_STEP_MESSAGE, MAX_WEBHOOK_URL, type StepValues } from "./automations";
+import { cleanRowTemplate, isDynamicValue, MAX_NOTIFY_PEOPLE, MAX_STEP_MESSAGE, MAX_WEBHOOK_URL, type StepValues } from "./automations";
 import { SELECT_COLORS } from "./properties";
 import type { FilterCombinator, FilterEntry } from "@/db/schema/app";
 
@@ -44,8 +44,12 @@ export type InsertPlace = (typeof INSERT_PLACES)[number];
 export type ButtonStep =
   /** Blocks written in Markdown, put on the button's page. */
   | { type: "insert"; at: InsertPlace; markdown: string }
-  /** Adds a row to a database, with these values (property ids). */
-  | { type: "add_row"; databaseId: string; title: string; values: StepValues }
+  /**
+   * Adds a row to a database, with these values (property ids), from one of its row templates when
+   * `template` says so (lib/automations DEFAULT_ROW_TEMPLATE or a template's id); the values go over
+   * the template's, and a title left empty keeps the template's.
+   */
+  | { type: "add_row"; databaseId: string; title: string; values: StepValues; template?: string }
   /** Sets these values on the rows of a database the filters match (at most MAX_BUTTON_ROWS). */
   | { type: "update_rows"; databaseId: string; filters: FilterEntry[]; filterCombinator: FilterCombinator; values: StepValues }
   /** An inbox notification to these people, about the page, with a message. */
@@ -102,8 +106,16 @@ function cleanStep(step: unknown): ButtonStep | null {
       const at = INSERT_PLACES.includes(step.at as InsertPlace) ? (step.at as InsertPlace) : "below";
       return { type: "insert", at, markdown: text(step.markdown, MAX_INSERT_MARKDOWN) };
     }
-    case "add_row":
-      return { type: "add_row", databaseId: id(step.databaseId) ?? "", title: text(step.title, MAX_STEP_MESSAGE), values: cleanValues(step.values) };
+    case "add_row": {
+      const template = cleanRowTemplate(step.template);
+      return {
+        type: "add_row",
+        databaseId: id(step.databaseId) ?? "",
+        title: text(step.title, MAX_STEP_MESSAGE),
+        values: cleanValues(step.values),
+        ...(template ? { template } : {}),
+      };
+    }
     case "update_rows": {
       const filters = Array.isArray(step.filters) && countEntries(step.filters) <= MAX_FILTER_ENTRIES ? (step.filters.filter(isRecord) as FilterEntry[]) : [];
       return {

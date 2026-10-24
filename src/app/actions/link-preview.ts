@@ -6,6 +6,7 @@ import type { BookmarkProps } from "@/lib/web-blocks";
 import { AccessError, requirePageAccess } from "@/server/access";
 import { fetchLinkPreview, LinkPreviewError } from "@/server/link-preview";
 import { requireUserId } from "@/server/session";
+import { urlPropertyPreview, type UrlPreview } from "@/server/url-preview";
 
 /** A bookmark's details; the card keeps the width it has. */
 export type LinkPreviewResult = { ok: true; data: Omit<BookmarkProps, "width"> } | { ok: false; error: string };
@@ -39,5 +40,19 @@ export async function fetchLinkPreviewAction(pageId: string, url: string): Promi
     if (error instanceof LinkPreviewError) return { ok: false, error: t(error.code) };
     console.error("[link preview]", error);
     return { ok: false, error: t("unreachable") };
+  }
+}
+
+/**
+ * The preview of the link in a URL property of a row, for its row page (server/url-preview.ts):
+ * null when the property doesn't show one or there is none to show. Needs view access to the row.
+ */
+export async function urlPreviewAction(rowId: string, propertyId: string): Promise<{ ok: true; data: UrlPreview | null } | { ok: false; error: string }> {
+  const userId = await requireUserId();
+  try {
+    return { ok: true, data: await urlPropertyPreview(userId, String(rowId), String(propertyId)) };
+  } catch (error) {
+    if (error instanceof AccessError) return { ok: false, error: (await getTranslations("page.web.errors"))("accessDenied") };
+    throw error;
   }
 }

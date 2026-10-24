@@ -41,6 +41,7 @@
       "language": "idioma tradução região",
       "theme": "modo escuro modo claro cores",
       "contrast": "acessibilidade alto contraste",
+      "desktopLinks": "desktop windows mac abas abrir links",
       "notifications": "push e-mail alertas notificação",
       "watchedPages": "seguir assinar acompanhar",
       "offlineDevice": "offline baixar cache espaço",
@@ -1119,6 +1120,20 @@
       "note": "O alto contraste deixa mais fortes o texto secundário, as linhas e os contornos de foco, em qualquer tema. Esta configuração vale só para este navegador. Com a configuração do sistema, ele segue a opção do seu dispositivo de aumentar o contraste."
     }
   },
+  "desktopLinks": {
+    "heading": "Aplicativo para desktop",
+    "label": "Abrir links no aplicativo para desktop",
+    "note": "Quando você abre uma página do Leafdesk em um navegador num computador com o aplicativo para desktop, ela pode seguir para o aplicativo, numa aba própria. Dentro do aplicativo nada muda.",
+    "off": "Desativado",
+    "ask": "Oferecer para abri-los",
+    "always": "Sempre abri-los",
+    "banner": {
+      "text": "Abrir esta página no aplicativo para desktop?",
+      "open": "Abrir no aplicativo",
+      "always": "Sempre",
+      "dismiss": "Fechar"
+    }
+  },
   "language": {
     "heading": "Idioma",
     "label": "Idioma da interface",
@@ -1863,6 +1878,11 @@
       "sensitive_content": {
         "found": "Encontrou {kind} ({excerpt}) em {target}",
         "dismissed": "Dispensou a ocorrência de {kind} ({excerpt}) em {target}"
+      },
+      "github_sync": {
+        "created": "Configurou as pull requests do GitHub em {target}",
+        "updated": "Alterou a configuração do GitHub de {target}",
+        "deleted": "Removeu a configuração do GitHub de {target}"
       }
     },
     "decisions": {

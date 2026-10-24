@@ -124,7 +124,14 @@ export async function createRowAction(
 ) {
   return run(async (userId) => {
     if (input.templateId || input.useDefault) {
-      const created = await templates.createRow({ userId }, databaseId, input);
+      // A template's "today" is the day on the person's clock (lib/template-values).
+      const created = await templates.createRow({ userId }, databaseId, {
+        title: input.title,
+        properties: input.properties,
+        templateId: input.templateId,
+        useDefault: input.useDefault,
+        timeZone: await cookieTimeZone(),
+      });
       return { id: created.id, position: created.position };
     }
     const created = await pages.createPage(
@@ -324,6 +331,7 @@ export async function updatePropertyAction(
     description?: string | null;
     dependsOn?: string | null;
     prefix?: string | null;
+    urlPreview?: boolean;
   },
 ) {
   return run((userId) => databases.updateProperty(userId, propertyId, patch));
