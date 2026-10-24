@@ -57,6 +57,8 @@
     "exportZip": "Exportar com subpáginas",
     "exportZipDatabase": "Exportar com as páginas das linhas",
     "exportPdf": "Exportar como PDF",
+    "exportComments": "Incluir comentários",
+    "exportCommentsHint": "Adiciona as conversas de comentários que você pode ver às exportações em Markdown, ZIP e PDF, depois de cada página",
     "printView": "Imprimir",
     "exportPreparing": "Preparando a exportação…",
     "acceptAllSuggestions": "Aceitar todas as sugestões",
@@ -142,7 +144,12 @@
     "onProperty": "Comentar sobre “{name}”",
     "propertyPlaceholder": "E quanto a este valor?",
     "post": "Comentar",
-    "propertyGone": "Este valor não pode mais ser comentado."
+    "propertyGone": "Este valor não pode mais ser comentado.",
+    "export": {
+      "quote": "“{quote}”",
+      "removed": "Sobre um texto que foi removido",
+      "unknown": "Alguém"
+    }
   },
   "archived": {
     "banner": "Esta página está na lixeira.",
@@ -698,6 +705,7 @@
     "defaultMark": "{name} (padrão)",
     "noLetterheads": "Os proprietários podem adicionar papéis timbrados com logotipo e dados da empresa em Configurações → Modelos de PDF.",
     "properties": "Incluir os valores da linha",
+    "comments": "Incluir comentários",
     "hint": "Diagramas e equações são impressos como texto; use Imprimir para ter a página exatamente como ela aparece.",
     "download": "Baixar",
     "preparing": "Preparando…"

@@ -57,6 +57,8 @@
     "exportZip": "하위 페이지와 함께 내보내기",
     "exportZipDatabase": "행 페이지와 함께 내보내기",
     "exportPdf": "PDF로 내보내기",
+    "exportComments": "댓글 포함",
+    "exportCommentsHint": "볼 수 있는 댓글 스레드를 Markdown, ZIP, PDF 내보내기의 각 페이지 뒤에 추가합니다",
     "printView": "인쇄",
     "exportPreparing": "내보내기 준비 중…",
     "acceptAllSuggestions": "모든 제안 수락",
@@ -142,7 +144,12 @@
     "onProperty": "‘{name}’에 댓글 달기",
     "propertyPlaceholder": "이 값에 대해 어떻게 생각하세요?",
     "post": "댓글",
-    "propertyGone": "이 값에는 더 이상 댓글을 달 수 없습니다."
+    "propertyGone": "이 값에는 더 이상 댓글을 달 수 없습니다.",
+    "export": {
+      "quote": "‘{quote}’",
+      "removed": "삭제된 텍스트에 대해",
+      "unknown": "알 수 없는 사용자"
+    }
   },
   "archived": {
     "banner": "이 페이지는 휴지통에 있습니다.",
@@ -698,6 +705,7 @@
     "defaultMark": "{name} (기본값)",
     "noLetterheads": "소유자는 설정 → PDF 템플릿에서 로고와 회사 정보가 담긴 레터헤드를 추가할 수 있습니다.",
     "properties": "행의 값 포함",
+    "comments": "댓글 포함",
     "hint": "다이어그램과 수식은 텍스트로 인쇄됩니다. 보이는 그대로의 페이지가 필요하면 인쇄를 쓰세요.",
     "download": "다운로드",
     "preparing": "준비 중…"

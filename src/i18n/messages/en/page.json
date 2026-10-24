@@ -57,6 +57,8 @@
     "exportZip": "Export with subpages",
     "exportZipDatabase": "Export with row pages",
     "exportPdf": "Export as PDF",
+    "exportComments": "Include comments",
+    "exportCommentsHint": "Adds the comment threads you can see to Markdown, ZIP and PDF exports, after each page",
     "printView": "Print",
     "exportPreparing": "Preparing export…",
     "acceptAllSuggestions": "Accept all suggestions",
@@ -142,7 +144,12 @@
     "onProperty": "Comment on “{name}”",
     "propertyPlaceholder": "What about this value?",
     "post": "Comment",
-    "propertyGone": "This value can't be commented on any more."
+    "propertyGone": "This value can't be commented on any more.",
+    "export": {
+      "quote": "“{quote}”",
+      "removed": "On text that was removed",
+      "unknown": "Someone"
+    }
   },
   "archived": {
     "banner": "This page is in the trash.",
@@ -698,6 +705,7 @@
     "defaultMark": "{name} (default)",
     "noLetterheads": "Owners can add letterheads with a logo and company details in Settings → PDF templates.",
     "properties": "Include the row's values",
+    "comments": "Include comments",
     "hint": "Diagrams and equations print as text; use Print for the page exactly as it looks.",
     "download": "Download",
     "preparing": "Preparing…"

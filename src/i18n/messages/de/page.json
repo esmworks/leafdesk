@@ -57,6 +57,8 @@
     "exportZip": "Mit Unterseiten exportieren",
     "exportZipDatabase": "Mit Zeilenseiten exportieren",
     "exportPdf": "Als PDF exportieren",
+    "exportComments": "Kommentare einschließen",
+    "exportCommentsHint": "Fügt die Kommentar-Threads, die du sehen kannst, nach jeder Seite in Markdown-, ZIP- und PDF-Exporte ein",
     "printView": "Drucken",
     "exportPreparing": "Export wird vorbereitet…",
     "acceptAllSuggestions": "Alle Vorschläge annehmen",
@@ -142,7 +144,12 @@
     "onProperty": "Kommentar zu „{name}“",
     "propertyPlaceholder": "Was ist mit diesem Wert?",
     "post": "Kommentieren",
-    "propertyGone": "Dieser Wert kann nicht mehr kommentiert werden."
+    "propertyGone": "Dieser Wert kann nicht mehr kommentiert werden.",
+    "export": {
+      "quote": "„{quote}“",
+      "removed": "Zu Text, der entfernt wurde",
+      "unknown": "Jemand"
+    }
   },
   "archived": {
     "banner": "Diese Seite liegt im Papierkorb.",
@@ -698,6 +705,7 @@
     "defaultMark": "{name} (Standard)",
     "noLetterheads": "Eigentümer können unter Einstellungen → PDF-Vorlagen Briefköpfe mit Logo und Firmenangaben anlegen.",
     "properties": "Werte der Zeile einschließen",
+    "comments": "Kommentare einschließen",
     "hint": "Diagramme und Formeln werden als Text gedruckt; mit Drucken erhalten Sie die Seite genau so, wie sie aussieht.",
     "download": "Herunterladen",
     "preparing": "Wird vorbereitet…"

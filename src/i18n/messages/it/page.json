@@ -57,6 +57,8 @@
     "exportZip": "Esporta con le sottopagine",
     "exportZipDatabase": "Esporta con le pagine delle righe",
     "exportPdf": "Esporta come PDF",
+    "exportComments": "Includi i commenti",
+    "exportCommentsHint": "Aggiunge i thread di commenti che puoi vedere alle esportazioni Markdown, ZIP e PDF, dopo ogni pagina",
     "printView": "Stampa",
     "exportPreparing": "Preparazione dell’esportazione…",
     "acceptAllSuggestions": "Accetta tutti i suggerimenti",
@@ -142,7 +144,12 @@
     "onProperty": "Commenta «{name}»",
     "propertyPlaceholder": "Che ne dici di questo valore?",
     "post": "Commenta",
-    "propertyGone": "Questo valore non si può più commentare."
+    "propertyGone": "Questo valore non si può più commentare.",
+    "export": {
+      "quote": "«{quote}»",
+      "removed": "Su un testo che è stato rimosso",
+      "unknown": "Qualcuno"
+    }
   },
   "archived": {
     "banner": "Questa pagina è nel cestino.",
@@ -698,6 +705,7 @@
     "defaultMark": "{name} (predefinita)",
     "noLetterheads": "I proprietari possono aggiungere carte intestate con logo e dati aziendali in Impostazioni → Modelli PDF.",
     "properties": "Includi i valori della riga",
+    "comments": "Includi i commenti",
     "hint": "Diagrammi ed equazioni vengono stampati come testo; usa Stampa per avere la pagina esattamente com’è.",
     "download": "Scarica",
     "preparing": "Preparazione…"

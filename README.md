@@ -983,6 +983,15 @@ the app. An export holds only what the person exporting can see: pages they can'
 out and links to them say "No access". Pages in the trash are left out; exporting a page from the
 trash brings the subpages trashed with it.
 
+"Include comments", above the exports in the page menu, adds the comment threads to the Markdown
+file, to every page and row file of the ZIP and (a switch in its dialog) to the PDF. They follow
+the page under a rule and a `## Comments` heading, oldest thread first: each under a `###` heading
+saying what it is about (the text it quotes, "About this page", a property's value such as
+`On “Status”`, or text since removed), marked *Resolved* when it is, then its comments as quotes
+under their author and the time they were written in UTC (`**Ada Demir** · 2026-10-24 09:12 UTC`).
+Deleted comments and reactions stay out, and so do threads the exporter can't see: those on a
+property value they may not see. The CSV and Excel exports of a database don't carry comments.
+
 A page in the trash can be read but not changed: its content, title, icon, cover and properties
 stay as they are until it is restored, and nothing can be moved or added under it.
 

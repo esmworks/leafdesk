@@ -4,6 +4,12 @@
 
 ### Added
 
+- **Exports can include the comments.** "Include comments" in the page menu adds the comment
+  threads you can see after each page in Markdown and ZIP exports, and a switch in "Export as PDF"
+  adds them to the PDF: each thread under the text it quotes (or the page, or a property's value),
+  marked when resolved, its comments under their author and time. Comments on property values you
+  may not see stay out. The format is in the README's Export section.
+
 - **Ask for more access to a page you can open.** Someone who can view or comment on a page can
   ask to comment on it or edit it from its Share menu, with an optional message, and sees that
   the request waits until it is answered. The people with full access hear about it in their

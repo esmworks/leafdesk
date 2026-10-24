@@ -57,6 +57,8 @@
     "exportZip": "Exportar con subpáginas",
     "exportZipDatabase": "Exportar con las páginas de las filas",
     "exportPdf": "Exportar como PDF",
+    "exportComments": "Incluir comentarios",
+    "exportCommentsHint": "Añade los hilos de comentarios que puedes ver a las exportaciones en Markdown, ZIP y PDF, después de cada página",
     "printView": "Imprimir",
     "exportPreparing": "Preparando la exportación…",
     "acceptAllSuggestions": "Aceptar todas las sugerencias",
@@ -142,7 +144,12 @@
     "onProperty": "Comentar sobre «{name}»",
     "propertyPlaceholder": "¿Qué pasa con este valor?",
     "post": "Comentar",
-    "propertyGone": "Este valor ya no se puede comentar."
+    "propertyGone": "Este valor ya no se puede comentar.",
+    "export": {
+      "quote": "«{quote}»",
+      "removed": "Sobre un texto que se eliminó",
+      "unknown": "Alguien"
+    }
   },
   "archived": {
     "banner": "Esta página está en la papelera.",
@@ -698,6 +705,7 @@
     "defaultMark": "{name} (predeterminado)",
     "noLetterheads": "Los propietarios pueden añadir membretes con logotipo y datos de la empresa en Ajustes → Plantillas PDF.",
     "properties": "Incluir los valores de la fila",
+    "comments": "Incluir comentarios",
     "hint": "Los diagramas y las ecuaciones se imprimen como texto; usa Imprimir para obtener la página tal como se ve.",
     "download": "Descargar",
     "preparing": "Preparando…"

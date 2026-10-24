@@ -57,6 +57,8 @@
     "exportZip": "Ekspor beserta subhalaman",
     "exportZipDatabase": "Ekspor beserta halaman baris",
     "exportPdf": "Ekspor sebagai PDF",
+    "exportComments": "Sertakan komentar",
+    "exportCommentsHint": "Menambahkan utas komentar yang bisa Anda lihat ke ekspor Markdown, ZIP, dan PDF, setelah setiap halaman",
     "printView": "Cetak",
     "exportPreparing": "Menyiapkan ekspor…",
     "acceptAllSuggestions": "Terima semua saran",
@@ -142,7 +144,12 @@
     "onProperty": "Komentari “{name}”",
     "propertyPlaceholder": "Bagaimana dengan nilai ini?",
     "post": "Komentari",
-    "propertyGone": "Nilai ini tidak dapat dikomentari lagi."
+    "propertyGone": "Nilai ini tidak dapat dikomentari lagi.",
+    "export": {
+      "quote": "“{quote}”",
+      "removed": "Tentang teks yang sudah dihapus",
+      "unknown": "Seseorang"
+    }
   },
   "archived": {
     "banner": "Halaman ini ada di sampah.",
@@ -698,6 +705,7 @@
     "defaultMark": "{name} (bawaan)",
     "noLetterheads": "Pemilik dapat menambahkan kop surat dengan logo dan rincian perusahaan di Pengaturan → Templat PDF.",
     "properties": "Sertakan nilai baris",
+    "comments": "Sertakan komentar",
     "hint": "Diagram dan persamaan dicetak sebagai teks; gunakan Cetak untuk halaman persis seperti tampilannya.",
     "download": "Unduh",
     "preparing": "Menyiapkan…"

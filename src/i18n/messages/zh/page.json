@@ -57,6 +57,8 @@
     "exportZip": "连同子页面导出",
     "exportZipDatabase": "连同行页面导出",
     "exportPdf": "导出为 PDF",
+    "exportComments": "包含评论",
+    "exportCommentsHint": "将你能看到的评论串添加到 Markdown、ZIP 和 PDF 导出中，放在每个页面之后",
     "printView": "打印",
     "exportPreparing": "正在准备导出…",
     "acceptAllSuggestions": "接受所有建议",
@@ -142,7 +144,12 @@
     "onProperty": "评论“{name}”",
     "propertyPlaceholder": "这个值有什么问题吗?",
     "post": "评论",
-    "propertyGone": "这个值已无法再评论。"
+    "propertyGone": "这个值已无法再评论。",
+    "export": {
+      "quote": "“{quote}”",
+      "removed": "关于已删除的文本",
+      "unknown": "某人"
+    }
   },
   "archived": {
     "banner": "此页面在回收站中。",
@@ -698,6 +705,7 @@
     "defaultMark": "{name}（默认）",
     "noLetterheads": "所有者可以在 设置 → PDF 模板 中添加带徽标和公司信息的信笺。",
     "properties": "包含该行的值",
+    "comments": "包含评论",
     "hint": "图表和公式会以文字形式打印；如需与页面完全一致，请使用“打印”。",
     "download": "下载",
     "preparing": "正在准备…"

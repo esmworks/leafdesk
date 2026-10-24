@@ -524,6 +524,8 @@ function PageMenu({
   const router = useRouter();
   const [moveOpen, setMoveOpen] = useState(false);
   const [pdfOpen, setPdfOpen] = useState(false);
+  // Whether the exports below (Markdown, ZIP, the PDF dialog's first choice) carry the comments.
+  const [exportComments, setExportComments] = useState(false);
   const [voiceInstructionsOpen, setVoiceInstructionsOpen] = useState(false);
   const [rowAccessOpen, setRowAccessOpen] = useState(false);
   // Mounted from its first opening on, so it closes the way it opens.
@@ -918,8 +920,13 @@ function PageMenu({
             {/* Hidden while the workspace has export turned off; the routes refuse it too. */}
             {info.exportable && (
               <>
+                <div className="flex items-center gap-2 rounded px-2 py-1.5 text-sm" title={t("exportCommentsHint")}>
+                  <MessageSquare className="h-4 w-4 text-fg-muted" />
+                  <span className="flex-1">{t("exportComments")}</span>
+                  <Switch checked={exportComments} onChange={setExportComments} label={t("exportComments")} />
+                </div>
                 <a
-                  href={`/w/${workspaceId}/p/${page.id}/export`}
+                  href={`/w/${workspaceId}/p/${page.id}/export${exportComments && !isDatabase ? "?comments=1" : ""}`}
                   download
                   onClick={() => close()}
                   className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-start text-sm hover:bg-bg-hover"
@@ -958,7 +965,7 @@ function PageMenu({
                 )}
                 <MenuItem
                   icon={<FileArchive className="h-4 w-4" />}
-                  onClick={() => void zipExport.start(`/w/${workspaceId}/p/${page.id}/export?subpages=1`, close)}
+                  onClick={() => void zipExport.start(`/w/${workspaceId}/p/${page.id}/export?subpages=1${exportComments ? "&comments=1" : ""}`, close)}
                 >
                   {zipExport.pending ? t("exportPreparing") : isDatabase ? t("exportZipDatabase") : t("exportZip")}
                 </MenuItem>
@@ -1069,7 +1076,13 @@ function PageMenu({
         typeof document !== "undefined" &&
         createPortal(
           <Suspense fallback={null}>
-            <PdfExportDialog workspaceId={workspaceId} pageId={page.id} isRow={!!page.isRow} onClose={() => setPdfOpen(false)} />
+            <PdfExportDialog
+              workspaceId={workspaceId}
+              pageId={page.id}
+              isRow={!!page.isRow}
+              comments={exportComments}
+              onClose={() => setPdfOpen(false)}
+            />
           </Suspense>,
           document.body,
         )}

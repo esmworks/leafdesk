@@ -57,6 +57,8 @@
     "exportZip": "Alt sayfalarla dışa aktar",
     "exportZipDatabase": "Satırlarla dışa aktar",
     "exportPdf": "PDF olarak dışa aktar",
+    "exportComments": "Yorumları ekle",
+    "exportCommentsHint": "Görebildiğin yorum dizilerini Markdown, ZIP ve PDF dışa aktarımlarında her sayfanın sonuna ekler",
     "printView": "Yazdır",
     "exportPreparing": "Dışa aktarma hazırlanıyor…",
     "acceptAllSuggestions": "Tüm önerileri kabul et",
@@ -142,7 +144,12 @@
     "onProperty": "“{name}” hakkında yorum",
     "propertyPlaceholder": "Bu değerle ilgili ne düşünüyorsunuz?",
     "post": "Yorum yap",
-    "propertyGone": "Bu değere artık yorum yapılamaz."
+    "propertyGone": "Bu değere artık yorum yapılamaz.",
+    "export": {
+      "quote": "“{quote}”",
+      "removed": "Kaldırılan bir metin hakkında",
+      "unknown": "Biri"
+    }
   },
   "archived": {
     "banner": "Bu sayfa çöp kutusunda.",
@@ -698,6 +705,7 @@
     "defaultMark": "{name} (varsayılan)",
     "noLetterheads": "Sahipler Ayarlar → PDF şablonları'ndan logolu ve şirket bilgili antet ekleyebilir.",
     "properties": "Satırın alanlarını ekle",
+    "comments": "Yorumları ekle",
     "hint": "Diyagramlar ve denklemler metin olarak basılır; sayfayı göründüğü gibi almak için Yazdır'ı kullanın.",
     "download": "İndir",
     "preparing": "Hazırlanıyor…"

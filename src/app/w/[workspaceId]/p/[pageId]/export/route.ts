@@ -55,6 +55,8 @@ async function requestedRows(request: Request): Promise<string[] | null> {
  * `<name>/SKILL.md` (the folder AI assistants install skills from), and `?format=pdf` the page as a
  * PDF file made on the server (server/pdf.ts), in `?letterhead=<id>` (or `none`; the workspace's
  * default when left out), a row with its values under the title with `&properties=1`.
+ * `comments=1` adds the comment threads the user can see after each page, in Markdown, ZIP and PDF
+ * exports (lib/export-comments).
  * With `?subpages=1`, the page or database with everything under it as a ZIP (see server/export);
  * adding `check=1` only answers whether that export can be made (JSON), so the page menu can say
  * why not before starting a download. Pages the user can't see are 404; with export turned off in
@@ -66,6 +68,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ page
   const userId = session.user.id;
   const { pageId } = await params;
   const query = new URL(request.url).searchParams;
+  const comments = query.get("comments") === "1";
   try {
     const target = await getPage(userId, pageId);
     const hold = await blockedByWorkspacePolicy(session, target.workspaceId);
@@ -80,7 +83,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ page
       }
       const release = startExport(userId);
       try {
-        return await archiveResponse(userId, await planExport(userId, { pageId }, labels), labels, release);
+        return await archiveResponse(userId, await planExport(userId, { pageId }, labels), labels, release, { comments });
       } catch (error) {
         release();
         throw error;
@@ -91,7 +94,11 @@ export async function GET(request: Request, { params }: { params: Promise<{ page
       // Drawing a PDF takes a while: one at a time per person, like the archives.
       const release = startExport(userId);
       try {
-        const pdf = await pagePdf(userId, pageId, { properties: query.get("properties") === "1", letterhead: query.get("letterhead") ?? undefined });
+        const pdf = await pagePdf(userId, pageId, {
+          properties: query.get("properties") === "1",
+          letterhead: query.get("letterhead") ?? undefined,
+          comments,
+        });
         return new Response(new Uint8Array(pdf.bytes), {
           headers: { "Content-Type": "application/pdf", "Content-Disposition": attachment(pdf.title, "pdf"), "Cache-Control": "no-store" },
         });
@@ -120,9 +127,9 @@ export async function GET(request: Request, { params }: { params: Promise<{ page
       const { title, csv } = await databaseCsv(userId, pageId, await requestedRows(request));
       return download(csv, "text/csv", attachment(title, "csv"));
     }
-    const { title, body } = await pageMarkdown(userId, pageId, labels);
+    const { title, body } = await pageMarkdown(userId, pageId, labels, { comments });
     const name = title || target.title;
-    await recordExport(userId, { workspaceId: target.workspaceId, page: { id: pageId, title: name }, format: "markdown" });
+    await recordExport(userId, { workspaceId: target.workspaceId, page: { id: pageId, title: name }, format: "markdown", comments });
     return download(markdownFile(name, body), "text/markdown", attachment(pageLabel(name, labels.untitled), "md"));
   } catch (error) {
     if (error instanceof AccessError || error instanceof SkillError || error instanceof LetterheadError) return new Response("Not found", { status: 404 });

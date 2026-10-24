@@ -7,6 +7,7 @@ import { page, type PropertyOptions } from "@/db/schema";
 import { isEmbedBlockType, parseLinkedView } from "@/lib/embed-blocks";
 import type { MdBlock } from "@/lib/content-markdown";
 import { env } from "@/lib/env";
+import { ENGLISH_COMMENT_LABELS } from "@/lib/export-comments";
 import { fileIdOf } from "@/lib/files";
 import { imageType } from "@/lib/letterheads";
 import { pageLabel } from "@/lib/labels";
@@ -16,7 +17,8 @@ import { requirePageAccess } from "@/server/access";
 import type { PageBlock } from "@/server/blocknote";
 import { calloutStylesOf } from "@/server/callout-styles";
 import { getCollab } from "@/server/collab/bridge";
-import { assertExportAllowed, recordExport } from "@/server/export";
+import { assertExportAllowed, pageThreads, recordExport } from "@/server/export";
+import { commentExportLabels } from "@/server/export-labels";
 import { fileForViewer, readStored } from "@/server/files";
 import { letterheadForPdf } from "@/server/letterheads";
 import { getBreadcrumbs } from "@/server/pages";
@@ -60,12 +62,13 @@ export async function renderPdf(input: Parameters<typeof pdfDocument>[0]): Promi
  * someone else rarely means to show them). `letterhead`: one of the workspace's letterheads by id,
  * "none", or left out for its default (server/letterheads.ts). Throws AccessError when the page
  * can't be viewed, ExportError while export is off and LetterheadError for a letterhead that
- * isn't the workspace's.
+ * isn't the workspace's. `comments`: the comment threads `userId` can see on the page follow the
+ * body (lib/export-comments).
  */
 export async function pagePdf(
   userId: string,
   pageId: string,
-  { properties = false, letterhead: choice }: { properties?: boolean; letterhead?: string } = {},
+  { properties = false, letterhead: choice, comments = false }: { properties?: boolean; letterhead?: string; comments?: boolean } = {},
 ): Promise<PagePdf> {
   const target = await requirePageAccess(userId, pageId, "view");
   await assertExportAllowed(target.workspaceId);
@@ -90,6 +93,7 @@ export async function pagePdf(
       })) as MdBlock[])
     : [];
   const title = content?.title || target.title;
+  const commentLabels = comments ? await commentExportLabels().catch(() => ENGLISH_COMMENT_LABELS) : null;
   const section: PdfSection = {
     title: pageLabel(title, labels.untitled),
     blocks,
@@ -103,6 +107,9 @@ export async function pagePdf(
     embeds: await embedsOf(userId, blocks, labels.name, locale),
     crumbs: crumbs.map((c) => pageLabel(c.title, labels.untitled)),
     children: children.map((c) => pageLabel(c.title, labels.untitled)),
+    comments: commentLabels
+      ? { heading: commentLabels.heading, resolved: commentLabels.resolved, threads: await pageThreads(userId, target.id, commentLabels) }
+      : null,
   };
   const bytes = await renderPdf({
     title: section.title,
@@ -112,7 +119,7 @@ export async function pagePdf(
     labels,
     letterhead,
   });
-  await recordExport(userId, { workspaceId: target.workspaceId, page: { id: target.id, title: target.title }, format: "pdf", pages: 1 });
+  await recordExport(userId, { workspaceId: target.workspaceId, page: { id: target.id, title: target.title }, format: "pdf", comments, pages: 1 });
   return { bytes, title: section.title, workspaceId: target.workspaceId };
 }
 

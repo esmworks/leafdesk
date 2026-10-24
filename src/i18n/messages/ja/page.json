@@ -57,6 +57,8 @@
     "exportZip": "サブページを含めてエクスポート",
     "exportZipDatabase": "行のページを含めてエクスポート",
     "exportPdf": "PDFとしてエクスポート",
+    "exportComments": "コメントを含める",
+    "exportCommentsHint": "表示できるコメントスレッドを、Markdown・ZIP・PDF のエクスポートで各ページの後に追加します",
     "printView": "印刷",
     "exportPreparing": "エクスポートを準備中…",
     "acceptAllSuggestions": "すべての提案を承認",
@@ -142,7 +144,12 @@
     "onProperty": "「{name}」にコメント",
     "propertyPlaceholder": "この値について何かありますか?",
     "post": "コメント",
-    "propertyGone": "この値にはもうコメントできません。"
+    "propertyGone": "この値にはもうコメントできません。",
+    "export": {
+      "quote": "「{quote}」",
+      "removed": "削除されたテキストについて",
+      "unknown": "不明なユーザー"
+    }
   },
   "archived": {
     "banner": "このページはゴミ箱にあります。",
@@ -698,6 +705,7 @@
     "defaultMark": "{name}（既定）",
     "noLetterheads": "オーナーは 設定 → PDF テンプレート で、ロゴと会社情報入りのレターヘッドを追加できます。",
     "properties": "行の値を含める",
+    "comments": "コメントを含める",
     "hint": "図や数式はテキストとして印刷されます。見たままのページが必要なら「印刷」を使ってください。",
     "download": "ダウンロード",
     "preparing": "準備中…"

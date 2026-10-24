@@ -57,6 +57,8 @@
     "exportZip": "Eksportuj z podstronami",
     "exportZipDatabase": "Eksportuj ze stronami wierszy",
     "exportPdf": "Eksportuj jako PDF",
+    "exportComments": "Dołącz komentarze",
+    "exportCommentsHint": "Dodaje wątki komentarzy, które widzisz, do eksportów Markdown, ZIP i PDF, po każdej stronie",
     "printView": "Drukuj",
     "exportPreparing": "Przygotowywanie eksportu…",
     "acceptAllSuggestions": "Przyjmij wszystkie sugestie",
@@ -142,7 +144,12 @@
     "onProperty": "Komentarz do „{name}”",
     "propertyPlaceholder": "Co z tą wartością?",
     "post": "Skomentuj",
-    "propertyGone": "Tej wartości nie można już komentować."
+    "propertyGone": "Tej wartości nie można już komentować.",
+    "export": {
+      "quote": "„{quote}”",
+      "removed": "Do tekstu, który usunięto",
+      "unknown": "Ktoś"
+    }
   },
   "archived": {
     "banner": "Ta strona jest w koszu.",
@@ -698,6 +705,7 @@
     "defaultMark": "{name} (domyślny)",
     "noLetterheads": "Właściciele mogą dodać papiery firmowe z logo i danymi firmy w Ustawieniach → Szablony PDF.",
     "properties": "Dołącz wartości wiersza",
+    "comments": "Dołącz komentarze",
     "hint": "Diagramy i równania drukują się jako tekst; użyj Drukuj, aby otrzymać stronę dokładnie taką, jak wygląda.",
     "download": "Pobierz",
     "preparing": "Przygotowywanie…"

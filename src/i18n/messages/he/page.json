@@ -57,6 +57,8 @@
     "exportZip": "ייצוא עם דפי המשנה",
     "exportZipDatabase": "ייצוא עם דפי השורות",
     "exportPdf": "ייצוא כ־PDF",
+    "exportComments": "לכלול תגובות",
+    "exportCommentsHint": "מוסיף את שרשורי התגובות שאפשר לראות לייצוא Markdown,‏ ZIP ו־PDF, אחרי כל דף",
     "printView": "הדפסה",
     "exportPreparing": "בהכנת הייצוא…",
     "acceptAllSuggestions": "קבלת כל ההצעות",
@@ -142,7 +144,12 @@
     "onProperty": "תגובה על „{name}”",
     "propertyPlaceholder": "מה לגבי הערך הזה?",
     "post": "הגבה",
-    "propertyGone": "אי אפשר עוד להגיב על הערך הזה."
+    "propertyGone": "אי אפשר עוד להגיב על הערך הזה.",
+    "export": {
+      "quote": "„{quote}”",
+      "removed": "על טקסט שהוסר",
+      "unknown": "מישהו"
+    }
   },
   "archived": {
     "banner": "הדף הזה נמצא באשפה.",
@@ -698,6 +705,7 @@
     "defaultMark": "{name} (ברירת מחדל)",
     "noLetterheads": "בעלים יכולים להוסיף ניירות מכתבים עם לוגו ופרטי חברה בהגדרות ← תבניות PDF.",
     "properties": "לכלול את ערכי השורה",
+    "comments": "לכלול תגובות",
     "hint": "תרשימים ומשוואות מודפסים כטקסט; כדי לקבל את הדף בדיוק כפי שהוא נראה, השתמשו ב„הדפסה”.",
     "download": "הורדה",
     "preparing": "מכין…"

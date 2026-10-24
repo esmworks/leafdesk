@@ -57,6 +57,8 @@
     "exportZip": "Xuất kèm các trang con",
     "exportZipDatabase": "Xuất kèm các trang hàng",
     "exportPdf": "Xuất dưới dạng PDF",
+    "exportComments": "Kèm bình luận",
+    "exportCommentsHint": "Thêm các chuỗi bình luận bạn xem được vào bản xuất Markdown, ZIP và PDF, sau mỗi trang",
     "printView": "In",
     "exportPreparing": "Đang chuẩn bị xuất…",
     "acceptAllSuggestions": "Chấp nhận tất cả đề xuất",
@@ -142,7 +144,12 @@
     "onProperty": "Bình luận về “{name}”",
     "propertyPlaceholder": "Giá trị này thì sao?",
     "post": "Bình luận",
-    "propertyGone": "Không thể bình luận về giá trị này nữa."
+    "propertyGone": "Không thể bình luận về giá trị này nữa.",
+    "export": {
+      "quote": "“{quote}”",
+      "removed": "Về đoạn văn bản đã bị xóa",
+      "unknown": "Một người nào đó"
+    }
   },
   "archived": {
     "banner": "Trang này đang ở trong thùng rác.",
@@ -698,6 +705,7 @@
     "defaultMark": "{name} (mặc định)",
     "noLetterheads": "Chủ sở hữu có thể thêm tiêu đề thư kèm logo và thông tin công ty trong Cài đặt → Mẫu PDF.",
     "properties": "Bao gồm các giá trị của hàng",
+    "comments": "Kèm bình luận",
     "hint": "Sơ đồ và phương trình được in dưới dạng văn bản; hãy dùng In để có trang đúng như hiển thị.",
     "download": "Tải xuống",
     "preparing": "Đang chuẩn bị…"

@@ -57,6 +57,8 @@
     "exportZip": "تصدير مع الصفحات الفرعية",
     "exportZipDatabase": "تصدير مع صفحات الصفوف",
     "exportPdf": "تصدير بصيغة PDF",
+    "exportComments": "تضمين التعليقات",
+    "exportCommentsHint": "يضيف سلاسل التعليقات التي يمكنك رؤيتها إلى تصدير Markdown وZIP وPDF، بعد كل صفحة",
     "printView": "طباعة",
     "exportPreparing": "جارٍ تحضير التصدير…",
     "acceptAllSuggestions": "قبول كل الاقتراحات",
@@ -142,7 +144,12 @@
     "onProperty": "تعليق على «{name}»",
     "propertyPlaceholder": "ما رأيك في هذه القيمة؟",
     "post": "تعليق",
-    "propertyGone": "لم يعد بالإمكان التعليق على هذه القيمة."
+    "propertyGone": "لم يعد بالإمكان التعليق على هذه القيمة.",
+    "export": {
+      "quote": "«{quote}»",
+      "removed": "على نص تمت إزالته",
+      "unknown": "شخص ما"
+    }
   },
   "archived": {
     "banner": "هذه الصفحة في سلة المهملات.",
@@ -698,6 +705,7 @@
     "defaultMark": "{name} (افتراضية)",
     "noLetterheads": "يمكن للمالكين إضافة ترويسات بشعار وبيانات الشركة من الإعدادات ← قوالب PDF.",
     "properties": "تضمين قيم الصف",
+    "comments": "تضمين التعليقات",
     "hint": "تُطبع المخططات والمعادلات نصًا؛ استخدم «طباعة» للحصول على الصفحة كما تظهر تمامًا.",
     "download": "تنزيل",
     "preparing": "جارٍ التحضير…"

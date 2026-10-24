@@ -149,6 +149,34 @@ describe("pdfDocument", () => {
     expect((doc.footer as (c: number, t: number) => unknown)(1, 2)).toBeNull();
   });
 
+  it("prints the comment threads after the body when given, and nothing without them", async () => {
+    const comments: PdfSection["comments"] = {
+      heading: "Comments",
+      resolved: "Resolved",
+      threads: [
+        {
+          about: "“Invoices downloadable as PDF”",
+          resolved: true,
+          comments: [
+            { author: "Ada Demir", date: "2026-10-24 09:12 UTC", body: [{ type: "paragraph", content: [text("Also by email?") as never] }] },
+            { author: "Bora Kaya", date: "2026-10-24 09:15 UTC", body: [{ type: "paragraph", content: [text("Yes") as never] }] },
+          ],
+        },
+      ],
+    };
+    expect(JSON.stringify(contentOf(input([block("paragraph", [text("Body")])], { comments: null })))).not.toContain("Comments");
+    pdfmake.setFonts(roboto);
+    pdfmake.setUrlAccessPolicy(() => false);
+    pdfmake.setLocalAccessPolicy(() => true);
+    const bytes = await pdfmake.createPdf(pdfDocument(input([block("paragraph", [text("Body")])], { comments }))).getBuffer();
+    const { extractText, getDocumentProxy } = await import("unpdf");
+    const { text: read } = await extractText(await getDocumentProxy(new Uint8Array(bytes)), { mergePages: true });
+    expect(read.indexOf("Body")).toBeLessThan(read.indexOf("Comments"));
+    for (const expected of ["Invoices downloadable as PDF", "Resolved", "Ada Demir", "2026-10-24 09:12 UTC", "Also by email?", "Bora Kaya", "Yes"]) {
+      expect(read).toContain(expected);
+    }
+  });
+
   it("renders a PDF whose text reads back, Turkish letters included", async () => {
     pdfmake.setFonts(roboto);
     pdfmake.setUrlAccessPolicy(() => false);
