@@ -1,0 +1,97 @@
+{
+  "metaTitle": "Serveradministrasjon",
+  "title": "Serveradministrasjon",
+  "description": "Kontoene på denne serveren, øktene deres og passordene deres. Du ser denne siden fordi den bekreftede e-postadressen din står i ADMIN_EMAILS.",
+  "back": "Tilbake til {workspace}",
+  "backHome": "Tilbake",
+  "workspaces": {
+    "heading": "Oppretting av arbeidsområder",
+    "everyone": "Alle kan opprette arbeidsområder",
+    "admins": "Bare administratorer kan opprette arbeidsområder",
+    "description": "Angis med WORKSPACE_CREATION på serveren (everyone eller admins). Alle får likevel et personlig arbeidsområde når de registrerer seg."
+  },
+  "sessions": {
+    "heading": "Alle",
+    "description": "{count, plural, one {# pålogget økt} other {# påloggede økter}} på denne serveren.",
+    "signOutEveryone": "Logg av alle",
+    "signOutEveryoneDescription": "Avslutter alle økter på alle enheter unntatt din i denne nettleseren, og sider som er åpne der, slutter å synkronisere. Tilkoblede apper og API-tokener fortsetter å virke.",
+    "signOutEveryoneTitle": "Logge av alle?",
+    "signOutEveryoneBody": "Alle på denne serveren må logge på igjen, også du på de andre enhetene dine.",
+    "signOutEveryoneConfirm": "Logg av alle",
+    "resetEveryone": "Krev nye passord",
+    "resetEveryoneDescription": "Alle som logger på med passord, unntatt deg, blir logget av og må velge et nytt passord neste gang de logger på. Kontoer som bare logger på med enkel pålogging, GitHub eller Google, berøres ikke.",
+    "resetByEmail": "Når de logger på, får de en lenke på e-post for å velge det.",
+    "resetInApp": "E-post er ikke satt opp på denne serveren, så de velger det rett etter at de har logget på med det gamle passordet (og en totrinnskode, hvis de bruker det).",
+    "resetEveryoneTitle": "Kreve nye passord fra alle?",
+    "resetEveryoneBody": "Alle med passord, unntatt deg, blir logget av nå og kan ikke logge på med det nåværende passordet igjen.",
+    "resetEveryoneConfirm": "Krev nye passord"
+  },
+  "users": {
+    "heading": "Kontoer",
+    "count": "{count, plural, one {# konto} other {# kontoer}}",
+    "countPartial": "Viser {shown} av {total} kontoer. Søk for å finne de andre.",
+    "search": "Søk etter navn eller e-post",
+    "noMatches": "Ingen kontoer samsvarer med dette søket.",
+    "none": "Ingen kontoer ennå.",
+    "columns": {
+      "user": "Konto",
+      "workspaces": "Arbeidsområder",
+      "lastActive": "Sist aktiv",
+      "twoFactor": "Totrinns",
+      "password": "Passord",
+      "actions": "Handlinger"
+    },
+    "you": "(deg)",
+    "admin": "Administrator",
+    "unverified": "Ikke bekreftet",
+    "signedOut": "Ikke pålogget",
+    "on": "På",
+    "off": "Av",
+    "hasPassword": "Angitt",
+    "noPassword": "Ingen",
+    "resetPending": "Nytt kreves",
+    "actionsFor": "Handlinger for {name}",
+    "signOut": "Logg av overalt",
+    "signOutTitle": "Logge av {name} overalt?",
+    "signOutBody": "{count, plural, one {Den # økten deres avsluttes} other {De # øktene deres avsluttes}}, og sider de har åpne, slutter å synkronisere. Tilkoblede apper og API-tokener fortsetter å virke.",
+    "signOutSelfBody": "{count, plural, one {Den # økten din avsluttes} other {De # øktene dine avsluttes}}, unntatt den i denne nettleseren.",
+    "signOutConfirm": "Logg av",
+    "requireReset": "Krev nytt passord",
+    "resetTitle": "Kreve nytt passord fra {name}?",
+    "resetBody": "Personen blir logget av nå og må velge et nytt passord neste gang vedkommende logger på med passord.",
+    "resetByEmail": "Når de logger på, får de en lenke på e-post for å velge det.",
+    "resetInApp": "E-post er ikke satt opp på denne serveren, så de velger det rett etter at de har logget på med det gamle passordet (og en totrinnskode, hvis de bruker det).",
+    "resetConfirm": "Krev nytt passord"
+  },
+  "errors": {
+    "notFound": "Fant ikke den kontoen.",
+    "noPassword": "Denne kontoen har ikke passord; den logger på på en annen måte.",
+    "self": "Endre ditt eget passord på kontosiden din.",
+    "noWorkspace": "Fant ikke det arbeidsområdet."
+  },
+  "descriptionFirstAccount": "Kontoene på denne serveren, øktene deres og passordene deres. Du ser denne siden fordi kontoen din var den første på denne serveren.",
+  "signUp": {
+    "heading": "Registrering",
+    "open": "Alle kan registrere seg",
+    "openDescription": "Alle som kan åpne adressen til denne serveren, kan opprette en konto. For å stenge registreringen setter du DISABLE_SIGNUP=true på serveren (med Docker i .env-filen ved siden av docker-compose.yml, og kjører deretter docker compose up -d). Eksisterende kontoer kan fortsatt logge på, og personer du inviterer, kan fortsatt bli med.",
+    "closed": "Registreringen er stengt",
+    "closedDescription": "Angis med DISABLE_SIGNUP på serveren. Eksisterende kontoer kan fortsatt logge på, og personer du inviterer, kan fortsatt bli med via invitasjonslenken sin."
+  },
+  "firstAdmin": {
+    "title": "Du administrerer denne serveren",
+    "body": "Din konto er den første her, så Serveradministrasjon er din. Alle som når denne adressen, kan fortsatt registrere seg; Serveradministrasjon viser hvordan du stenger det.",
+    "open": "Serveradministrasjon",
+    "dismiss": "Lukk"
+  },
+  "networks": {
+    "heading": "Godkjente nettverk",
+    "description": "Arbeidsområder som bare åpnes fra godkjente nettverk. Hvis en liste stenger ute eierne av et arbeidsområde, tømmer du den her: arbeidsområdet åpnes da fra alle nettverk til eierne angir listen på nytt.",
+    "none": "Ingen arbeidsområder begrenser pålogging til godkjente nettverk",
+    "noneDescription": "Eiere angir godkjente nettverk under Innstillinger → Sikkerhet i arbeidsområdet sitt.",
+    "count": "{count, plural, one {# nettverk} other {# nettverk}}",
+    "clear": "Tøm listen",
+    "clearTitle": "Tømme de godkjente nettverkene for {workspace}?",
+    "clearBody": "Alle i arbeidsområdet kan åpne det fra alle nettverk igjen, og revisjonsloggen registrerer at du tømte listen. Eierne kan angi den på nytt under Innstillinger → Sikkerhet.",
+    "clearConfirm": "Tøm listen"
+  }
+}

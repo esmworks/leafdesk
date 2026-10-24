@@ -1,0 +1,124 @@
+{
+  "copyTitle": "{title} (kopi)",
+  "errors": {
+    "triggerRequired": "Gi tekstbiten en utløser.",
+    "triggerInvalid": "En utløser består av opptil {max} små bokstaver (a–z), sifre, bindestreker og understreker.",
+    "triggerTaken": "En annen tekstbit her har allerede denne utløseren.",
+    "titleTooLong": "En tittel kan ha opptil {max} tegn.",
+    "bodyRequired": "Skriv hva tekstbiten skal sette inn.",
+    "bodyTooLong": "En tekstbit kan ha opptil {max} tegn.",
+    "tooMany": "Det kan være opptil {max} tekstbiter her. Slett noen for å legge til flere.",
+    "notFound": "Denne tekstbiten finnes ikke lenger.",
+    "ownersOnly": "Bare eierne av arbeidsområdet kan endre tekstbitene der.",
+    "accessDenied": "Du har ikke tilgang til disse tekstbitene.",
+    "importInvalid": "Dette er ikke en fil med tekstbiter. Bruk en eksport fra Leafdesk eller en liste med objekter som har en id og en label.",
+    "importTooLarge": "Filen er for stor til å importeres."
+  },
+  "menu": {
+    "group": "Tekstbiter",
+    "personal": "Mine tekstbiter",
+    "workspace": "Tekstbiter i arbeidsområdet",
+    "insertFailed": "Kunne ikke sette inn tekstbiten. {error}"
+  },
+  "save": {
+    "menuItem": "Lagre som tekstbit",
+    "saved": "Lagret. Skriv ;{trigger} for å sette den inn."
+  },
+  "form": {
+    "newTitle": "Ny tekstbit",
+    "editTitle": "Rediger tekstbit",
+    "title": "Tittel",
+    "titlePlaceholder": "Møtenotater",
+    "trigger": "Utløser",
+    "triggerPlaceholder": "mote",
+    "triggerHint": "Skriv ;{trigger} på en side, eller finn den under Tekstbiter i /-menyen.",
+    "target": "Lagre i",
+    "targetPersonal": "Mine tekstbiter (bare du)",
+    "targetWorkspace": "{workspace} (alle i arbeidsområdet)",
+    "body": "Innhold (Markdown)",
+    "bodyPlaceholder": "## Agenda\n- ",
+    "placeholders": "Fylles ut ved innsetting:",
+    "placeholder": {
+      "date": "Dagens dato",
+      "time": "Klokkeslettet nå",
+      "datetime": "Dagens dato og klokkeslett",
+      "me": "Navnet ditt",
+      "page": "Tittelen på siden",
+      "cursor": "Hvor markøren havner"
+    },
+    "length": "{count} av {max} tegn",
+    "preview": "Forhåndsvisning",
+    "previewPage": "Sidetittel",
+    "previewEmpty": "Blokkene tekstbiten setter inn, vises her.",
+    "create": "Opprett tekstbit"
+  },
+  "settings": {
+    "personalDescription": "Innhold du setter inn mens du skriver: skriv ; og utløseren til en tekstbit på hvilken som helst side, eller velg den under Tekstbiter i /-menyen. Bare du ser disse.",
+    "description": "Innhold du setter inn mens du skriver: skriv ; og utløseren til en tekstbit på hvilken som helst side, eller velg den under Tekstbiter i /-menyen.",
+    "tabsLabel": "Tekstbiter",
+    "tabs": {
+      "mine": "Mine",
+      "workspace": "Arbeidsområde"
+    },
+    "mineNote": "Bare du ser disse, og du kan bruke dem i alle arbeidsområdene du er med i.",
+    "workspaceNote": "Alle i {workspace} kan bruke disse. Bare eiere legger til og endrer dem.",
+    "workspaceNoteOwner": "Alle i {workspace} kan bruke disse. Eiere legger til og endrer dem.",
+    "search": "Søk i tekstbiter",
+    "new": "Ny tekstbit",
+    "import": "Importer",
+    "importing": "Importerer…",
+    "export": "Eksporter",
+    "count": "{count} av {max}",
+    "noMatches": "Ingen tekstbiter passer.",
+    "empty": "Arbeidsområdet har ingen delte tekstbiter ennå.",
+    "emptyOwner": "Ingen tekstbiter ennå. Start med et eksempel, eller lag din egen.",
+    "emptyWorkspaceOwner": "Arbeidsområdet har ingen delte tekstbiter ennå. Lag en som alle kan bruke.",
+    "examplesHeading": "Eksempler",
+    "addExample": "Legg til",
+    "actionsFor": "Handlinger for {title}",
+    "edit": "Rediger",
+    "duplicate": "Dupliser",
+    "delete": "Slett",
+    "deleteTitle": "Vil du slette «{title}»?",
+    "deleteBody": "Sider den er satt inn i, beholder teksten.",
+    "imported": "{count, plural, =0 {Ingen tekstbiter lagt til.} one {# tekstbit lagt til.} other {# tekstbiter lagt til.}}",
+    "skipped": "{count, plural, one {# hoppet over:} other {# hoppet over:}}",
+    "skip": {
+      "triggerRequired": "ingen utløser",
+      "triggerInvalid": "utløseren er ikke tillatt",
+      "titleTooLong": "tittelen er for lang",
+      "bodyRequired": "tom",
+      "bodyTooLong": "for lang",
+      "duplicate": "to ganger i filen",
+      "exists": "utløseren er allerede i bruk",
+      "tooMany": "over grensen"
+    },
+    "untitledTrigger": "(ingen utløser)",
+    "importFailed": "Kunne ikke importere. {error}"
+  },
+  "examples": {
+    "meeting": {
+      "trigger": "mote",
+      "title": "Møtenotater",
+      "attendees": "Deltakere",
+      "agenda": "Agenda",
+      "notes": "Notater",
+      "actions": "Oppgaver"
+    },
+    "log": {
+      "trigger": "logg",
+      "title": "Datert logglinje"
+    },
+    "decision": {
+      "trigger": "beslutning",
+      "title": "Beslutningsnotat",
+      "heading": "Beslutning",
+      "date": "Dato",
+      "decidedBy": "Besluttet av",
+      "context": "Bakgrunn",
+      "options": "Vurderte alternativer",
+      "outcome": "Hva vi besluttet",
+      "consequences": "Konsekvenser"
+    }
+  }
+}

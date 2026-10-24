@@ -1,0 +1,55 @@
+{
+  "metaTitle": "Graf",
+  "heading": "Graf",
+  "count": "{pages, plural, one {# side} other {# sider}} · {edges, plural, one {# kobling} other {# koblinger}}",
+  "reload": "Last inn på nytt",
+  "find": "Finn en side å fokusere på",
+  "focus": "Rundt",
+  "depth": "Steg",
+  "clearFocus": "Vis hele grafen",
+  "tree": "Undersider",
+  "rows": "Databaserader",
+  "orphans": "Sider uten koblinger",
+  "kinds": {
+    "page": "Side",
+    "database": "Database",
+    "row": "Rad"
+  },
+  "edges": {
+    "link": "Lenke",
+    "relation": "Relasjon",
+    "child": "Underside"
+  },
+  "truncated": "Viser de {count} sidene som er redigert sist.",
+  "canvas": "Graf over sidene i arbeidsområdet",
+  "empty": "Ingen sider å vise.",
+  "focusMissing": "Den siden er ikke i grafen: Den kan ligge i papirkurven eller ikke være delt med deg.",
+  "local": {
+    "title": "Graf over denne siden",
+    "close": "Lukk grafen",
+    "openFull": "Åpne i hele grafen",
+    "canvas": "Graf over sidene rundt denne siden",
+    "empty": "Ingen sider er koblet til denne ennå.",
+    "failed": "Kunne ikke laste inn grafen."
+  },
+  "zoomIn": "Zoom inn",
+  "zoomOut": "Zoom ut",
+  "fit": "Tilpass grafen",
+  "hint": "Klikk for å velge, dobbeltklikk for å åpne",
+  "fewEdges": {
+    "title": "Få lenker mellom sidene ennå",
+    "body": "Grafen viser lenkene sidene har til hverandre, og relasjonene mellom databaserader. Skriv [[ eller @ på en side for å lenke til en annen, eller legg til en relasjonsegenskap i en database; lenkene vises her.",
+    "showTree": "Vis lenker til undersider"
+  },
+  "inspector": {
+    "open": "Åpne siden",
+    "focus": "Fokuser rundt den",
+    "expandRows": "{count, plural, one {Vis # rad} other {Vis # rader}}",
+    "collapseRows": "Samle radene",
+    "rows": "{count, plural, one {# rad} other {# rader}}",
+    "none": "Ikke koblet til noen annen side.",
+    "more": "og {count} til",
+    "close": "Fjern utvalget",
+    "parent": "Ligger i"
+  }
+}

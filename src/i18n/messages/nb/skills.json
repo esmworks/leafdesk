@@ -1,0 +1,64 @@
+{
+  "metaTitle": "Ferdigheter",
+  "heading": "Ferdigheter",
+  "description": "Instruksjoner teamet ditt bruker om igjen, lagret som sider: hvordan du rydder opp i møtenotater, svarer en kunde eller sorterer en forespørsel. Velg en i KI-chatten med /, eller fra en KI-app som er koblet til arbeidsområdet. Hver ferdighet er en side eller en databaserad; folk ser ferdighetene de kan åpne.",
+  "new": "Ny ferdighet",
+  "search": "Søk i ferdigheter",
+  "count": "{count, plural, one {# ferdighet} other {# ferdigheter}}",
+  "noMatches": "Ingen ferdigheter samsvarer med søket ditt.",
+  "emptyTitle": "Ingen ferdigheter ennå",
+  "emptyHint": "Alle sider og databaserader kan også være ferdigheter: Åpne den og slå på «Bruk som ferdighet» i ⋯-menyen.",
+  "builtins": {
+    "heading": "Start fra en ferdiglaget ferdighet",
+    "hint": "Hver av dem blir en rad i ferdighetsdatabasen din: Tilpass den til arbeidet ditt, og del den deretter med teamet ditt.",
+    "open": "Ferdiglagde ferdigheter"
+  },
+  "noDescription": "Ingen beskrivelse ennå",
+  "inDatabase": "I {database}",
+  "updated": "Oppdatert {time}",
+  "download": "Last ned {title} som SKILL.md",
+  "downloadHint": "En ZIP-fil med SKILL.md for ferdigheten, for KI-assistenter som installerer ferdigheter",
+  "menu": {
+    "toggle": "Bruk som ferdighet",
+    "hint": "Tilby denne siden som gjenbrukbare instruksjoner i KI-chatten og til KI-apper som er koblet til arbeidsområdet",
+    "export": "Eksporter som SKILL.md",
+    "database": "Ferdighetsdatabase",
+    "databaseHint": "Hver rad i denne databasen er en ferdighet; egenskapen Beskrivelse sier hva hver av dem er til"
+  },
+  "bar": {
+    "label": "Ferdighet",
+    "description": "Hva ferdigheten er til",
+    "placeholder": "Si hva denne ferdigheten er til, og når den skal brukes",
+    "none": "Ingen beskrivelse ennå",
+    "library": "Alle ferdigheter",
+    "inDatabase": "Beskrivelsen er egenskapen {property}"
+  },
+  "chat": {
+    "heading": "Ferdigheter",
+    "none": "Ingen ferdigheter ennå.",
+    "library": "Åpne ferdighetsbiblioteket",
+    "noMatches": "Ingen ferdigheter samsvarer.",
+    "using": "Bruker ferdigheten {title}",
+    "remove": "Fjern ferdigheten",
+    "pick": "Bruk en ferdighet",
+    "pickHint": "Bruk en ferdighet (eller skriv / i den tomme boksen)",
+    "used": "Brukte ferdigheten {title}"
+  },
+  "errors": {
+    "notAPage": "Bare sider og databaserader kan være ferdigheter, ikke databaser.",
+    "notADatabase": "Bare databaser kan være ferdighetsdatabaser.",
+    "template": "Maler og sidene i dem kan ikke være ferdigheter.",
+    "inTrash": "Gjenopprett siden fra papirkurven først.",
+    "tooLong": "Beskrivelsen av en ferdighet kan ha høyst {max} tegn.",
+    "notASkill": "Denne siden er ikke lenger en ferdighet."
+  },
+  "database": {
+    "title": "Ferdigheter",
+    "description": "Beskrivelse",
+    "files": "Filer",
+    "tags": "Etiketter",
+    "createdBy": "Opprettet av",
+    "open": "Åpne ferdighetsdatabasen",
+    "hint": "Hver nye ferdighet er en rad i ferdighetsdatabasen din, med beskrivelse, filer og etiketter."
+  }
+}

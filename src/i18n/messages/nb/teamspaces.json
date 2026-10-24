@@ -1,0 +1,98 @@
+{
+  "access": {
+    "default": "Standard",
+    "open": "Åpent",
+    "closed": "Lukket",
+    "private": "Privat"
+  },
+  "accessHint": {
+    "default": "Alle i arbeidsområdet er med i det og kan ikke forlate det.",
+    "open": "Alle i arbeidsområdet kan se det og bli med. Til de blir med, kan de lese og kommentere sidene i det.",
+    "closed": "Alle i arbeidsområdet kan se at det finnes. Bare medlemmene åpner sidene i det; eierne legger dem til.",
+    "private": "Bare medlemmene kan se det."
+  },
+  "roles": {
+    "owner": "Eier",
+    "member": "Medlem"
+  },
+  "errors": {
+    "nameRequired": "Gi teamområdet et navn.",
+    "creationRestricted": "Bare eiere av arbeidsområdet kan opprette teamområder her.",
+    "ownersOnly": "Bare eiere av arbeidsområdet kan endre hvilke teamområder alle er med i.",
+    "cannotLeaveDefault": "Alle er med i dette teamområdet; det kan ikke forlates.",
+    "lastOwner": "Gjør noen andre til eier av teamområdet først.",
+    "notJoinable": "Be en eier av dette teamområdet om å legge deg til.",
+    "archived": "Dette teamområdet er arkivert.",
+    "notMember": "Bare eiere og medlemmer av arbeidsområdet kan være med i teamområdene i det.",
+    "invalidAccess": "Velg hvem som kan se teamområdet.",
+    "inGroup": "Denne personen er med i teamområdet via en gruppe. Fjern vedkommende fra gruppen i stedet.",
+    "everyoneIn": "Alle i arbeidsområdet er allerede med i dette teamområdet.",
+    "accessDenied": "Du kan ikke gjøre det i dette teamområdet.",
+    "invalidMemberLevel": "Velg hva medlemmer får på sidene i teamområdet.",
+    "invalidIcon": "Ikonet må være en emoji.",
+    "notConvertible": "Bare en side kan bli et teamområde: ikke en database, en rad eller en mal."
+  },
+  "dialog": {
+    "createTitle": "Nytt teamområde",
+    "editTitle": "Rediger teamområdet",
+    "name": "Navn",
+    "namePlaceholder": "Markedsføring, Utvikling…",
+    "icon": "Velg et ikon",
+    "description": "Beskrivelse",
+    "descriptionPlaceholder": "Hva er dette teamområdet til?",
+    "access": "Hvem som kan se det",
+    "defaultLocked": "Bare eiere av arbeidsområdet kan endre tilgangen til et standard teamområde.",
+    "becomesDefault": "Alle i arbeidsområdet blir med i det og kan ikke forlate det.",
+    "leavesDefault": "Alle blir værende i det inntil videre, men kan forlate det, og nye medlemmer av arbeidsområdet legges ikke til.",
+    "create": "Opprett teamområde",
+    "creating": "Oppretter…",
+    "memberLevel": "Medlemmenes tilgang til sidene",
+    "memberLevelHint": "Det medlemmer får på sider som ikke angir det selv. Eierne av teamområdet og eierne av arbeidsområdet får alltid full tilgang; delingsinnstillingene til en side overstyrer fortsatt dette.",
+    "memberLevelLocked": "Bare eiere av arbeidsområdet kan endre hva alle får i et standard teamområde."
+  },
+  "members": {
+    "title": "Medlemmer av {name}",
+    "everyone": "Alle i arbeidsområdet er med i dette teamområdet. Eierne kan redigere og administrere det.",
+    "readOnly": "Bare eierne av dette teamområdet kan endre hvem som er med i det.",
+    "add": "Legg til personer",
+    "search": "Søk etter personer",
+    "addSelected": "{count, plural, =0 {Legg til personer} other {Legg til #}}",
+    "addAs": "Legg til som",
+    "noOneToAdd": "Alle i arbeidsområdet er allerede med i dette teamområdet.",
+    "noMatches": "Ingen samsvarer med søket ditt.",
+    "empty": "Ingen er med i dette teamområdet.",
+    "list": "Personer i dette teamområdet",
+    "roleOf": "Rollen til {name}",
+    "remove": "Fjern {name}",
+    "you": "(deg)",
+    "select": "Velg {name}",
+    "viaGroups": "Via {groups}",
+    "groups": "Grupper",
+    "groupsHint": "Alle i disse gruppene er medlemmer av teamområdet så lenge de er med i gruppen.",
+    "noGroups": "Ingen grupper i dette teamområdet.",
+    "chooseGroup": "Velg en gruppe",
+    "addGroupButton": "Legg til gruppe",
+    "removeGroup": "Fjern {name}",
+    "groupMemberCount": "{count, plural, =0 {Ingen medlemmer} one {# medlem} other {# medlemmer}}"
+  },
+  "memberLevel": {
+    "full": "Full tilgang",
+    "edit": "Kan redigere",
+    "comment": "Kan kommentere",
+    "view": "Kan lese"
+  },
+  "fromPage": {
+    "menu": "Gjør om til teamområde",
+    "title": "Gjør om til teamområde",
+    "intro": "Et nytt teamområde tar over denne siden og sidene under den, og personene siden er delt med, blir med i det.",
+    "pages": "{count, plural, =0 {Denne siden blir den første siden i det.} one {Denne siden og siden under den blir de første sidene i det.} other {Denne siden og de # sidene under den blir de første sidene i det.}}",
+    "owners": "Eiere: {names}",
+    "members": "Medlemmer, som kan redigere sidene: {names}",
+    "groups": "{count, plural, one {# gruppe blir med} other {# grupper blir med}} som medlemmer.",
+    "kept": "{count, plural, one {# annen person som er nevnt på siden, beholder} other {# andre personer som er nevnt på siden, beholder}} tilgangen de har.",
+    "access": "{access}: {hint}",
+    "submit": "Gjør om til teamområde",
+    "working": "Gjør om…",
+    "failed": "Kunne ikke gjøre om siden til et teamområde."
+  }
+}

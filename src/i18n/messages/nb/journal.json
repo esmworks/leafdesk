@@ -1,0 +1,21 @@
+{
+  "todayNote": "Dagens notat",
+  "openToday": "Åpne dagens notat",
+  "startToday": "Start dagens notat",
+  "calendar": "Kalender for dagsnotater",
+  "previousMonth": "Forrige måned",
+  "nextMonth": "Neste måned",
+  "hasNote": "{day} – har et notat",
+  "openDay": "Åpne notatet for den dagen",
+  "recent": "Tidligere notater",
+  "startWith": "Nye notater starter med",
+  "startDefault": "Noen overskrifter",
+  "startBlank": "En tom side",
+  "startTemplates": "Maler",
+  "openFailed": "Kunne ikke åpne dagsnotatet",
+  "saveFailed": "Kunne ikke lagre innstillingen",
+  "searchHint": "dagsnotatene dine",
+  "yesterday": "Gårsdagens notat",
+  "notes": "Notater",
+  "noNotes": "Ingen notater ennå. Velg en dag for å starte et."
+}

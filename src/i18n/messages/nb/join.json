@@ -1,0 +1,20 @@
+{
+  "metaTitle": "Bli med i arbeidsområdet",
+  "title": "Bli med i «{workspace}»",
+  "invalidTitle": "Fant ikke lenken",
+  "invalidBody": "Denne bli med-lenken er ugyldig eller er slått av. Be en eier av arbeidsområdet om en ny.",
+  "home": "Gå til Leafdesk",
+  "body": "Du blir med som medlem, med mindre du ble invitert med en annen rolle.",
+  "join": "Bli med i arbeidsområdet",
+  "joining": "Blir med…",
+  "alreadyMember": "Du er allerede medlem av dette arbeidsområdet.",
+  "open": "Åpne arbeidsområdet",
+  "signInBody": "Logg på med kontoen din for å bli med. Denne serveren tillater ikke nye kontoer.",
+  "signIn": "Logg på",
+  "requestBody": "En eier godkjenner nye medlemmer av dette arbeidsområdet. Send en forespørsel, så får du svar på e-post.",
+  "request": "Be om å bli med",
+  "requesting": "Sender…",
+  "requestedTitle": "Forespørselen er sendt",
+  "requestedBody": "En eier av arbeidsområdet ser på forespørselen din. Du får en e-post når vedkommende har bestemt seg.",
+  "pendingBody": "Du har allerede bedt om å bli med i dette arbeidsområdet. En eier tar seg av det; du får en e-post når vedkommende har bestemt seg."
+}

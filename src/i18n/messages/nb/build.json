@@ -1,0 +1,38 @@
+{
+  "menuItem": "Bygg med KI",
+  "title": "Bygg med KI",
+  "hint": "Beskriv hva du vil holde oversikt over. KI lager utkast til databasene, og du går gjennom dem før noe opprettes.",
+  "reviewTitle": "Gå gjennom planen",
+  "reviewHint": "Gi nytt navn til eller fjern det du ikke trenger, og opprett det deretter.",
+  "back": "Tilbake til beskrivelsen",
+  "label": "Hva trenger du?",
+  "placeholder": "En rekrutteringsprosess: kandidater som går gjennom intervjurundene, intervjuene med hver av dem og hvem som intervjuer hvem.",
+  "draft": "Lag utkast til databasene",
+  "drafting": "Lager utkast…",
+  "create": "Opprett",
+  "creating": "Oppretter…",
+  "intro": "Legg til en side om dem, «{title}», med databasene inni",
+  "exampleRows": "{count, plural, one {Legg til eksempelraden} other {Legg til de # eksempelradene}}",
+  "databaseTitle": "Databasenavn",
+  "removeDatabase": "Fjern {name}",
+  "properties": "Egenskaper",
+  "views": "Visninger",
+  "noProperties": "Bare navnet på hver rad.",
+  "removeView": "Fjern visningen {name}",
+  "rename": "Gi nytt navn til {name}",
+  "linksTo": "Kobler til {database}",
+  "linksBoth": "Kobler til {database}, begge veier",
+  "removeProperty": "Fjern {name}",
+  "slash": {
+    "title": "Bygg databaser med KI",
+    "subtext": "Beskriv hva du trenger, så lager KI utkast til databaser på denne siden",
+    "aliases": "ai build database databases generate plan ki bygg databaser generer"
+  },
+  "errors": {
+    "unusable": "KI kunne ikke lage utkast til databaser for det. Prøv å beskrive det med andre ord.",
+    "invalid": "Planen kan ikke opprettes slik den er. Gå tilbake og lag et nytt utkast.",
+    "parent": "Databaser kan ikke ligge inni en database.",
+    "noAccess": "Du kan ikke legge til sider her.",
+    "failed": "Noe i planen passet ikke, så ingenting ble opprettet. Fjern eksempelradene og prøv igjen."
+  }
+}
