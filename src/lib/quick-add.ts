@@ -50,6 +50,14 @@ type Vocabulary = {
   inBefore: string[];
   /** After "3 days": "3 gün sonra". */
   inAfter: string[];
+  /** The day before today. Like the "ago" words, only for dates on their own (parseDateText). */
+  yesterday: string[];
+  /** Before "3 days": "vor 3 Tagen". */
+  agoBefore: string[];
+  /** After "3 days": "3 days ago". */
+  agoAfter: string[];
+  /** Both words are needed: "for 3 dage siden" (Danish "for" alone is "for"). */
+  agoAround?: boolean;
   units: { day: string[]; week: string[]; month: string[] };
   /** Before a date, taken with it: "on friday", "am Freitag". */
   articles: string[];
@@ -75,6 +83,9 @@ const VOCABULARIES: Record<string, Vocabulary> = {
     nextAfter: [],
     inBefore: ["in"],
     inAfter: [],
+    yesterday: ["yesterday"],
+    agoBefore: [],
+    agoAfter: ["ago"],
     units: { day: ["day", "days"], week: ["week", "weeks"], month: ["month", "months"] },
     articles: ["on", "by", "due"],
   },
@@ -88,6 +99,9 @@ const VOCABULARIES: Record<string, Vocabulary> = {
     nextAfter: [],
     inBefore: [],
     inAfter: ["sonra"],
+    yesterday: ["dün"],
+    agoBefore: [],
+    agoAfter: ["önce"],
     units: { day: ["gun"], week: ["hafta"], month: ["ay"] },
     articles: [],
   },
@@ -101,6 +115,9 @@ const VOCABULARIES: Record<string, Vocabulary> = {
     nextAfter: [],
     inBefore: ["in"],
     inAfter: [],
+    yesterday: ["gestern"],
+    agoBefore: ["vor"],
+    agoAfter: [],
     units: { day: ["tag", "tagen", "tage"], week: ["woche", "wochen"], month: ["monat", "monaten", "monate"] },
     articles: ["am", "bis"],
   },
@@ -114,6 +131,9 @@ const VOCABULARIES: Record<string, Vocabulary> = {
     nextAfter: ["que viene"],
     inBefore: ["en", "dentro de"],
     inAfter: [],
+    yesterday: ["ayer"],
+    agoBefore: ["hace"],
+    agoAfter: [],
     units: { day: ["dia", "dias"], week: ["semana", "semanas"], month: ["mes", "meses"] },
     articles: ["el"],
   },
@@ -127,6 +147,9 @@ const VOCABULARIES: Record<string, Vocabulary> = {
     nextAfter: ["prochain", "prochaine"],
     inBefore: ["dans"],
     inAfter: [],
+    yesterday: ["hier"],
+    agoBefore: ["il y a"],
+    agoAfter: [],
     units: { day: ["jour", "jours"], week: ["semaine", "semaines"], month: ["mois"] },
     articles: ["le"],
   },
@@ -140,6 +163,9 @@ const VOCABULARIES: Record<string, Vocabulary> = {
     nextAfter: ["prossimo", "prossima"],
     inBefore: ["tra", "fra"],
     inAfter: [],
+    yesterday: ["ieri"],
+    agoBefore: [],
+    agoAfter: ["fa"],
     units: { day: ["giorno", "giorni"], week: ["settimana", "settimane"], month: ["mese", "mesi"] },
     articles: ["entro il", "entro", "per il", "per", "il"],
   },
@@ -153,6 +179,9 @@ const VOCABULARIES: Record<string, Vocabulary> = {
     nextAfter: ["que vem"],
     inBefore: ["em", "daqui a", "dentro de"],
     inAfter: [],
+    yesterday: ["ontem"],
+    agoBefore: ["há"],
+    agoAfter: ["atrás"],
     units: { day: ["dia", "dias"], week: ["semana", "semanas"], month: ["mês", "meses"] },
     articles: ["na", "no", "até", "em"],
     // "sexta" alone is also "sixth", "segunda" "second": only with "feira", hyphen or not.
@@ -168,6 +197,9 @@ const VOCABULARIES: Record<string, Vocabulary> = {
     nextAfter: [],
     inBefore: ["za"],
     inAfter: [],
+    yesterday: ["wczoraj"],
+    agoBefore: [],
+    agoAfter: ["temu"],
     units: { day: ["dzień", "dni"], week: ["tydzień", "tygodnie", "tygodni"], month: ["miesiąc", "miesiące", "miesięcy"] },
     articles: ["w", "we", "do", "na"],
     // "w środę", "do piątku".
@@ -183,6 +215,9 @@ const VOCABULARIES: Record<string, Vocabulary> = {
     nextAfter: [],
     inBefore: ["через"],
     inAfter: [],
+    yesterday: ["вчера"],
+    agoBefore: [],
+    agoAfter: ["назад"],
     units: { day: ["день", "дня", "дней"], week: ["неделя", "неделю", "недели", "недель"], month: ["месяц", "месяца", "месяцев"] },
     articles: ["в", "во", "на", "до", "к", "ко"],
     // "в пятницу", "до пятницы", "к пятнице". Not "среды", "среде": they are "environment" too.
@@ -206,6 +241,9 @@ const VOCABULARIES: Record<string, Vocabulary> = {
     nextAfter: [],
     inBefore: ["через", "за"],
     inAfter: [],
+    yesterday: ["вчора"],
+    agoBefore: [],
+    agoAfter: ["тому"],
     units: { day: ["день", "дні", "днів"], week: ["тиждень", "тижні", "тижнів"], month: ["місяць", "місяці", "місяців"] },
     articles: ["в", "у", "до", "на"],
     // "у п'ятницю", "до п'ятниці".
@@ -221,6 +259,9 @@ const VOCABULARIES: Record<string, Vocabulary> = {
     nextAfter: ["القادم", "القادمة", "المقبل", "المقبلة"],
     inBefore: ["بعد", "خلال"],
     inAfter: [],
+    yesterday: ["أمس", "البارحة"],
+    agoBefore: ["قبل", "منذ"],
+    agoAfter: [],
     units: { day: ["يوم", "أيام"], week: ["أسبوع", "أسابيع"], month: ["شهر", "أشهر", "شهور"] },
     // "يوم الجمعة": the weekday's name comes after "يوم" (day).
     articles: ["يوم", "في", "في يوم", "قبل", "قبل يوم"],
@@ -235,6 +276,9 @@ const VOCABULARIES: Record<string, Vocabulary> = {
     nextAfter: ["הבא", "הבאה", "הקרוב", "הקרובה"],
     inBefore: ["בעוד", "תוך"],
     inAfter: [],
+    yesterday: ["אתמול"],
+    agoBefore: ["לפני"],
+    agoAfter: [],
     units: { day: ["יום", "ימים"], week: ["שבוע", "שבועות"], month: ["חודש", "חודשים"] },
     articles: ["עד"],
     // Weekdays are "יום שישי" (day six), "on" is a prefix: "ביום שישי". Saturday is "שבת" too.
@@ -250,6 +294,9 @@ const VOCABULARIES: Record<string, Vocabulary> = {
     nextAfter: ["بعد", "آینده"],
     inBefore: [],
     inAfter: ["بعد", "دیگر"],
+    yesterday: ["دیروز"],
+    agoBefore: [],
+    agoAfter: ["پیش", "قبل"],
     units: { day: ["روز"], week: ["هفته"], month: ["ماه"] },
     articles: ["تا"],
     // Intl writes these as one word; people also part them: "پنج‌شنبه".
@@ -268,6 +315,9 @@ const VOCABULARIES: Record<string, Vocabulary> = {
     inBefore: [],
     // The unit comes with the number: "3일 후".
     inAfter: ["후", "뒤"],
+    yesterday: ["어제"],
+    agoBefore: [],
+    agoAfter: ["전"],
     units: { day: ["일"], week: ["주", "주일"], month: ["달", "개월"] },
     articles: [],
     // Particles: "금요일까지" (by Friday), "금요일에" (on Friday).
@@ -284,6 +334,9 @@ const VOCABULARIES: Record<string, Vocabulary> = {
     inBefore: [],
     // "3日後" (in 3 days).
     inAfter: ["後"],
+    yesterday: ["昨日"],
+    agoBefore: [],
+    agoAfter: ["前"],
     units: { day: ["日", "日間"], week: ["週間", "週"], month: ["か月", "ヶ月", "カ月", "ヵ月"] },
     // "今週金曜日": this week's Friday, the next one.
     articles: ["今週の", "今週"],
@@ -301,6 +354,9 @@ const VOCABULARIES: Record<string, Vocabulary> = {
     nextAfter: [],
     inBefore: [],
     inAfter: ["以后", "之后", "后"],
+    yesterday: ["昨天"],
+    agoBefore: [],
+    agoAfter: ["前", "以前", "之前"],
     units: { day: ["天"], week: ["个星期", "星期", "周"], month: ["个月"] },
     articles: ["这个", "这", "本"],
     weekdays: [
@@ -327,6 +383,9 @@ const VOCABULARIES: Record<string, Vocabulary> = {
     inBefore: ["dalam"],
     // "3 hari lagi" (in 3 days).
     inAfter: ["lagi"],
+    yesterday: ["kemarin"],
+    agoBefore: [],
+    agoAfter: ["lalu", "yang lalu"],
     units: { day: ["hari"], week: ["minggu", "pekan"], month: ["bulan"] },
     articles: ["pada", "hari", "pada hari", "sebelum"],
     weekdays: [[], [], [], [], [], ["jum'at"], []],
@@ -344,6 +403,9 @@ const VOCABULARIES: Record<string, Vocabulary> = {
     // "อีก 3 วัน" (in 3 days).
     inBefore: ["อีก", "ใน"],
     inAfter: [],
+    yesterday: ["เมื่อวาน", "เมื่อวานนี้"],
+    agoBefore: [],
+    agoAfter: ["ที่แล้ว", "ก่อน"],
     units: { day: ["วัน"], week: ["สัปดาห์"], month: ["เดือน"] },
     articles: ["ภายใน", "ก่อน"],
     weekdays: [["อาทิตย์"], ["จันทร์"], ["อังคาร"], ["พุธ"], ["พฤหัส", "พฤหัสบดี"], ["ศุกร์"], ["เสาร์"]],
@@ -360,6 +422,9 @@ const VOCABULARIES: Record<string, Vocabulary> = {
     inBefore: ["trong", "sau"],
     // "3 ngày nữa" (in 3 days).
     inAfter: ["nữa"],
+    yesterday: ["hôm qua"],
+    agoBefore: [],
+    agoAfter: ["trước"],
     units: { day: ["ngày"], week: ["tuần"], month: ["tháng"] },
     articles: ["vào", "trước", "hạn"],
   },
@@ -374,6 +439,10 @@ const VOCABULARIES: Record<string, Vocabulary> = {
     nextAfter: [],
     inBefore: ["om"],
     inAfter: [],
+    yesterday: ["i går"],
+    agoBefore: ["for"],
+    agoAfter: ["siden"],
+    agoAround: true,
     units: { day: ["dag", "dage"], week: ["uge", "uger"], month: ["maned", "maneder"] },
     articles: ["pa", "inden", "senest"],
   },
@@ -387,6 +456,10 @@ const VOCABULARIES: Record<string, Vocabulary> = {
     nextAfter: [],
     inBefore: ["om"],
     inAfter: [],
+    yesterday: ["i går"],
+    agoBefore: ["for"],
+    agoAfter: ["siden"],
+    agoAround: true,
     units: { day: ["dag", "dager"], week: ["uke", "uker"], month: ["maned", "maneder"] },
     articles: ["pa", "innen", "senest"],
   },
@@ -400,6 +473,10 @@ const VOCABULARIES: Record<string, Vocabulary> = {
     nextAfter: [],
     inBefore: ["om"],
     inAfter: [],
+    yesterday: ["igår", "i går"],
+    agoBefore: ["för"],
+    agoAfter: ["sedan"],
+    agoAround: true,
     units: { day: ["dag", "dagar"], week: ["vecka", "veckor"], month: ["manad", "manader"] },
     articles: ["pa", "senast"],
   },
@@ -413,6 +490,9 @@ const VOCABULARIES: Record<string, Vocabulary> = {
     nextAfter: [],
     inBefore: ["over", "binnen"],
     inAfter: [],
+    yesterday: ["gisteren"],
+    agoBefore: [],
+    agoAfter: ["geleden"],
     units: { day: ["dag", "dagen"], week: ["week", "weken"], month: ["maand", "maanden"] },
     articles: ["op", "voor", "uiterlijk"],
   },
@@ -427,6 +507,9 @@ const VOCABULARIES: Record<string, Vocabulary> = {
     inBefore: [],
     // "3 päivän päästä", "2 viikon kuluttua" (in 3 days, in 2 weeks): the unit in the genitive.
     inAfter: ["paasta", "kuluttua"],
+    yesterday: ["eilen"],
+    agoBefore: [],
+    agoAfter: ["sitten"],
     units: { day: ["paiva", "paivaa", "paivan"], week: ["viikko", "viikkoa", "viikon"], month: ["kuukausi", "kuukautta", "kuukauden"] },
     articles: [],
     // "perjantaina" (on Friday) besides "perjantai".
@@ -480,9 +563,10 @@ function spellings(phrase: string): string[] {
 
 const foldPhrases = (phrases: string[]) => phrases.flatMap((phrase) => spellings(fold(phrase)));
 
-function foldVocabulary({ units, weekdays, endings, ...phrases }: Vocabulary): Vocabulary {
+function foldVocabulary({ units, weekdays, endings, agoAround, ...phrases }: Vocabulary): Vocabulary {
   return {
-    ...(Object.fromEntries(Object.entries(phrases).map(([key, list]) => [key, foldPhrases(list)])) as Omit<Vocabulary, "units" | "weekdays" | "endings">),
+    ...(Object.fromEntries(Object.entries(phrases).map(([key, list]) => [key, foldPhrases(list)])) as Omit<Vocabulary, "units" | "weekdays" | "endings" | "agoAround">),
+    agoAround,
     units: { day: foldPhrases(units.day), week: foldPhrases(units.week), month: foldPhrases(units.month) },
     weekdays: weekdays?.map(foldPhrases),
     // Longest first: "에는" before "에".
@@ -491,9 +575,10 @@ function foldVocabulary({ units, weekdays, endings, ...phrases }: Vocabulary): V
 }
 
 /** A vocabulary of a GLUED language with its phrases written a character at a time. */
-function spaceVocabulary({ units, weekdays, endings, ...phrases }: Vocabulary): Vocabulary {
+function spaceVocabulary({ units, weekdays, endings, agoAround, ...phrases }: Vocabulary): Vocabulary {
   return {
-    ...(Object.fromEntries(Object.entries(phrases).map(([key, list]) => [key, list.map(spaced)])) as Omit<Vocabulary, "units" | "weekdays" | "endings">),
+    ...(Object.fromEntries(Object.entries(phrases).map(([key, list]) => [key, list.map(spaced)])) as Omit<Vocabulary, "units" | "weekdays" | "endings" | "agoAround">),
+    agoAround,
     units: { day: units.day.map(spaced), week: units.week.map(spaced), month: units.month.map(spaced) },
     weekdays: weekdays?.map((forms) => forms.map(spaced)),
     endings,
@@ -637,9 +722,14 @@ const YEAR = /^(\d{4})$/;
 
 type Found = { length: number; day: number };
 
-function dateAt(tokens: Token[], i: number, lang: Language, today: number): Found | null {
+function dateAt(tokens: Token[], i: number, lang: Language, today: number, past = false): Found | null {
   const v = lang.vocabulary;
   const word = (k: number) => (i + k < tokens.length ? bare(tokens[i + k].word) : "");
+
+  if (past) {
+    const n = phraseAt(tokens, i, v.yesterday);
+    if (n) return { length: n, day: today - 1 };
+  }
 
   let n = phraseAt(tokens, i, v.dayAfter);
   if (n) return { length: n, day: today + 2 };
@@ -671,7 +761,7 @@ function dateAt(tokens: Token[], i: number, lang: Language, today: number): Foun
   }
 
   // "in 3 days", "3 gün sonra", "dans 2 semaines"; the unit may come with the number ("3일 후").
-  const counted = (k: number): Found | null => {
+  const counted = (k: number, sign = 1): Found | null => {
     const number = /^(\d{1,3})(\D*)$/.exec(word(k));
     const count = Number(number?.[1]);
     if (!number || !count) return null;
@@ -679,11 +769,11 @@ function dateAt(tokens: Token[], i: number, lang: Language, today: number): Foun
     // it is ("週 間"); -1 when there is no such unit.
     const unit = (units: string[]) => (number[2] ? (units.includes(number[2]) ? 0 : -1) : phraseAt(tokens, i + k + 1, units) || -1);
     const days = unit(v.units.day);
-    if (days >= 0) return { length: k + 1 + days, day: today + count };
+    if (days >= 0) return { length: k + 1 + days, day: today + sign * count };
     const weeks = unit(v.units.week);
-    if (weeks >= 0) return { length: k + 1 + weeks, day: today + 7 * count };
+    if (weeks >= 0) return { length: k + 1 + weeks, day: today + sign * 7 * count };
     const months = unit(v.units.month);
-    if (months >= 0) return { length: k + 1 + months, day: addMonths(today, count) };
+    if (months >= 0) return { length: k + 1 + months, day: addMonths(today, sign * count) };
     return null;
   };
   const before = phraseAt(tokens, i, v.inBefore);
@@ -694,6 +784,13 @@ function dateAt(tokens: Token[], i: number, lang: Language, today: number): Foun
     const found = counted(0);
     const after = found ? phraseAt(tokens, i + found.length, v.inAfter) : 0;
     if (found && after) return { ...found, length: found.length + after };
+  }
+  // "3 days ago", "vor 3 Tagen", "for 3 dage siden".
+  if (past) {
+    const ago = phraseAt(tokens, i, v.agoBefore);
+    const found = counted(ago, -1);
+    const after = found ? phraseAt(tokens, i + found.length, v.agoAfter) : 0;
+    if (found && (v.agoAround ? ago && after : ago || after)) return { ...found, length: found.length + after };
   }
 
   const token = tokens[i].word;
@@ -747,10 +844,10 @@ function dateAt(tokens: Token[], i: number, lang: Language, today: number): Foun
 }
 
 /** A date at `i`, with an article before it ("on friday") and a particle after it ("金曜日までに") taken along. */
-function dateFrom(tokens: Token[], i: number, lang: Language, today: number): Found | null {
+function dateFrom(tokens: Token[], i: number, lang: Language, today: number, past = false): Found | null {
   const article = phraseAt(tokens, i, lang.vocabulary.articles);
-  const afterArticle = article && i + article < tokens.length ? dateAt(tokens, i + article, lang, today) : null;
-  const found = afterArticle ? { ...afterArticle, length: afterArticle.length + article } : dateAt(tokens, i, lang, today);
+  const afterArticle = article && i + article < tokens.length ? dateAt(tokens, i + article, lang, today, past) : null;
+  const found = afterArticle ? { ...afterArticle, length: afterArticle.length + article } : dateAt(tokens, i, lang, today, past);
   if (!found) return null;
   return { ...found, length: found.length + phraseAt(tokens, i + found.length, lang.vocabulary.particles ?? []) };
 }
@@ -841,4 +938,21 @@ export function parseQuickAdd(text: string, context: QuickAddContext): QuickAddR
     options,
     matches,
   };
+}
+
+/**
+ * A date written on its own, the whole text and nothing else ("next friday", "in 3 days", "3 days
+ * ago", "yesterday", "15. Oktober", "2026-10-15"), read in the interface language and in English as
+ * quick add reads dates, and past ones too: YYYY-MM-DD, or null. The @ menu offers it as a date.
+ */
+export function parseDateText(text: string, context: { locale: string; today: string }): string | null {
+  const today = dayNumber(context.today);
+  const code = context.locale.split("-")[0];
+  const tokens = tokenize(text.trim(), GLUED.has(code));
+  if (!tokens.length) return null;
+  for (const lang of [language(code), ...(code === "en" ? [] : [language("en")])]) {
+    const found = dateFrom(readAs(tokens, lang), 0, lang, today, true);
+    if (found && found.length === tokens.length) return dayString(found.day);
+  }
+  return null;
 }

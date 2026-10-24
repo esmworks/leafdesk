@@ -110,6 +110,7 @@
       "you": "{name} (du)"
     },
     "threadMenu": "Alternativ för tråden",
+    "copyLink": "Kopiera länk",
     "mute": "Tysta svar",
     "unmute": "Slå på svar igen",
     "muteHint": "Sluta få veta om nya svar i den här tråden. Om du svarar här, eller nämns här, slås det på igen.",
@@ -621,7 +622,8 @@
       "submit": "Bädda in",
       "providers": "YouTube, Vimeo, Loom, Figma, publicerade Google Dokument, Kalkylark och Presentationer, CodePen, Spotify och Google Maps. Andra länkar blir ett bokmärke.",
       "frameTitle": "Inbäddat innehåll från {host}",
-      "label": "Inbäddning"
+      "label": "Inbäddning",
+      "resize": "Dra för att ändra inbäddningens bredd"
     },
     "paste": {
       "label": "Klistra in som",
@@ -711,6 +713,11 @@
   },
   "blockMenu": {
     "copyLink": "Kopiera länk till blocket",
+    "download": "Ladda ned",
+    "alignLeft": "Vänsterjustera",
+    "alignCenter": "Centrera",
+    "alignRight": "Högerjustera",
+    "wideColumns": "Breda kolumner",
     "hideInPrint": "Dölj vid utskrift",
     "calloutStyle": "Inforutestil",
     "turnIntoCallout": "Gör om till inforuta",
@@ -956,7 +963,8 @@
     "markdownImage": "Bild: {alt}",
     "markdownImageUntitled": "Bild",
     "expand": "Öppna i visaren",
-    "view": "Visa {name}"
+    "view": "Visa {name}",
+    "resize": "Dra för att ändra bredden"
   },
   "presentation": {
     "previous": "Föregående bild",
@@ -1191,5 +1199,16 @@
     "reset": "Visa hela bilden",
     "loading": "Läser in bilden…",
     "failed": "Bilden kunde inte läsas in."
+  },
+  "commentRef": {
+    "pasteTitle": "Klistra in länk till en kommentar",
+    "pasteAsMention": "Klistra in som omnämnande",
+    "pasteAsPreview": "Klistra in som förhandsvisning",
+    "pasteAsLink": "Klistra in som länk",
+    "noAccess": "Ingen åtkomst till den här kommentaren",
+    "onPage": "På {title}",
+    "replies": "{count, plural, =0 {Inga svar} one {# svar} other {# svar}}",
+    "openThread": "Öppna tråd",
+    "resolved": "Löst"
   }
 }

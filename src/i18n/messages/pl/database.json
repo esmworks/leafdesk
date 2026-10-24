@@ -76,6 +76,10 @@
       "blank": "Pusty wiersz",
       "setDefault": "Używaj dla „Nowy”",
       "isDefault": "Używany dla „Nowy”",
+      "isViewDefault": "Używany dla „Nowy” w tym widoku",
+      "forThisView": "Dla tego widoku",
+      "forAllViews": "Dla wszystkich widoków",
+      "followAllViews": "Użyj tu domyślnego dla wszystkich widoków",
       "edit": "Edytuj szablon",
       "delete": "Usuń szablon",
       "confirmDelete": "Usunąć ten szablon wiersza na stałe? Wiersze już z niego utworzone pozostaną bez zmian.",
@@ -225,7 +229,14 @@
     "relative": {
       "today": "Dzisiaj",
       "thisWeek": "Ten tydzień",
+      "lastWeek": "Poprzedni tydzień",
+      "nextWeek": "Następny tydzień",
       "thisMonth": "Ten miesiąc",
+      "lastMonth": "Poprzedni miesiąc",
+      "nextMonth": "Następny miesiąc",
+      "thisYear": "Ten rok",
+      "lastYear": "Poprzedni rok",
+      "nextYear": "Następny rok",
       "pastNDays": "Ostatnie N dni",
       "nextNDays": "Następne N dni",
       "pastDays": "{count, plural, one {Ostatni dzień} few {Ostatnie # dni} many {Ostatnie # dni} other {Ostatnie # dnia}}",
@@ -253,7 +264,8 @@
     "clickForMenu": "Kliknij, aby otworzyć menu",
     "sortedNoDrag": "Wierszy nie można przeciągać, gdy widok jest posortowany",
     "sortedAscending": "Posortowano rosnąco",
-    "sortedDescending": "Posortowano malejąco"
+    "sortedDescending": "Posortowano malejąco",
+    "fillHandle": "Przeciągnij w górę lub w dół, aby wypełnić komórki tą wartością"
   },
   "rowMenu": {
     "open": "Otwórz",
@@ -567,7 +579,13 @@
       "default": "Domyślny",
       "12h": "12-godzinny",
       "24h": "24-godzinny"
-    }
+    },
+    "onePerson": "Ogranicz do jednej osoby",
+    "onePersonHint": "Każdy wiersz wskazuje najwyżej jedną osobę. Wiersze, które wskazują więcej, zachowują je do czasu zmiany.",
+    "oneRow": "Ogranicz do jednej strony",
+    "oneRowHint": "Każdy wiersz łączy się najwyżej z jedną stroną. Wiersze, które łączą więcej, zachowują je do czasu zmiany.",
+    "statusCheckbox": "Pokaż jako pole wyboru",
+    "statusCheckboxHint": "Pole zaznaczone, gdy status jest ukończony. Zaznaczenie wybiera pierwszy status ukończony, odznaczenie pierwszy do zrobienia."
   },
   "rowProperties": {
     "noProperties": "Brak właściwości",
@@ -711,16 +729,12 @@
     "open": "Otwórz {title}",
     "unlink": "Usuń połączenie z {title}",
     "options": "Ustawienia relacji",
-    "limit": "Limit",
-    "limitAny": "Bez limitu",
-    "limitOne": "1 strona",
-    "limitHint": "Każdy wiersz łączy się z jednym wierszem. Wybranie innego go zastępuje.",
     "rowPage": "Na stronach wierszy",
     "displayInline": "W linii",
     "displaySection": "Jako sekcja",
     "sectionHint": "Połączone wiersze są pod właściwościami, a ich właściwości można tam edytować.",
     "shows": "Połączone wiersze pokazują",
-    "showsHint": "Widoczne w komórkach tabeli, kartach i na stronach wierszy.",
+    "showsHint": "Widoczne w komórkach tabeli, kartach, na stronach wierszy i w wyborze wierszy.",
     "titlePart": "Tytuł",
     "addPart": "Dodaj właściwość…",
     "moveUp": "Przenieś {name} w górę",
@@ -808,6 +822,7 @@
     "showTable": "Pokaż tabelę",
     "showWeekends": "Pokazuj weekendy",
     "showIcons": "Pokazuj ikony stron",
+    "showVerticalLines": "Pokazuj linie pionowe",
     "openRows": "Otwieraj wiersze w",
     "openRowsIn": {
       "panel": "Panel boczny",
@@ -961,6 +976,7 @@
     "pageLocked": "Ta strona jest zablokowana. Odblokuj ją w jej menu, aby zmienić tytuł, ikonę, tło lub tekst.",
     "pageInTrash": "Ta strona jest w koszu. Przywróć ją, aby ją zmienić.",
     "invalidPerson": "„{property}” może zawierać tylko osoby z tego obszaru roboczego.",
+    "onePerson": "„{property}” może zawierać tylko jedną osobę.",
     "readOnlyProperty": "„{property}” jest wypełniane automatycznie i nie można tego zmienić.",
     "invalidFilter": "Nie można zapisać tego filtra. Odśwież stronę i spróbuj ponownie.",
     "tooManyRows": "Naraz możesz zmienić najwyżej {max, plural, one {# wiersz} few {# wiersze} many {# wierszy} other {# wiersza}}.",
@@ -1010,7 +1026,7 @@
     "invalidSprints": "Nie można tak skonfigurować sprintów: sprawdź długość sprintu, pierwszy dzień i bazę danych sprintów.",
     "sprintStateOption": "Ta opcja oznacza stan sprintu. Możesz zmienić jej nazwę albo wyłączyć sprinty przed jej usunięciem.",
     "invalidSlackUrl": "To nie jest adres przychodzącego webhooka Slacka (https://hooks.slack.com/services/…).",
-    "relationLimit": "„{property}” łączy co najwyżej jeden wiersz. Wybierz jeden wiersz.",
+    "oneRow": "„{property}” łączy tylko jedną stronę. Wybierz jedną.",
     "invalidRelationOptions": "Nie można zapisać tych ustawień relacji."
   },
   "formula": {

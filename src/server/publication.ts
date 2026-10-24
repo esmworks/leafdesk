@@ -46,7 +46,8 @@ import { expandSyncedBlocks, syncedSources } from "@/server/synced-blocks";
 import { propertyAccessFor } from "@/server/property-access";
 import { canPublish, publishingOn } from "@/server/workspaces";
 import { calloutStylesOfPage } from "@/server/callout-styles";
-import type { BodyFootnote, BodyHeading, BodySegment, PublishedBookmark, PublishedColumn } from "@/server/published-body";
+import type { BodyFootnote, BodyHeading, BodySegment, MediaPlacement, PublishedBookmark, PublishedColumn } from "@/server/published-body";
+import type { MediaAlignment } from "@/lib/media-placement";
 import type { EmbedTarget } from "@/lib/web-blocks";
 import { refuseInLocalMode } from "@/server/local-mode";
 import { env } from "@/lib/env";
@@ -379,6 +380,8 @@ export type PublishedDatabase = {
   noIcons?: true;
   /** Board and gallery cards: long values take more lines instead of being cut off. */
   wrap?: true;
+  /** Tables: no lines between columns, only between rows. */
+  noVerticalLines?: true;
   /** Charts (layout "chart"). */
   chart?: PublishedChart;
 };
@@ -394,10 +397,10 @@ export type PublishedBlock =
   | { kind: "subpages" }
   | { kind: "mermaid"; source: string }
   | { kind: "agentChat" }
-  | { kind: "bookmark"; bookmark: PublishedBookmark }
-  | { kind: "webEmbed"; url: string; embed: EmbedTarget }
-  | { kind: "pdf"; fileId: string; name: string; caption: string }
-  | { kind: "spreadsheet"; fileId: string; name: string; caption: string }
+  | { kind: "bookmark"; bookmark: PublishedBookmark; align: MediaAlignment }
+  | ({ kind: "webEmbed"; url: string; embed: EmbedTarget } & MediaPlacement)
+  | ({ kind: "pdf"; fileId: string; name: string; caption: string } & MediaPlacement)
+  | ({ kind: "spreadsheet"; fileId: string; name: string; caption: string } & MediaPlacement)
   | { kind: "columns"; columns: PublishedColumn<PublishedBlock>[] }
   | { kind: "dashboard"; widgets: PublishedWidget[]; layout: DashboardLayout }
   | { kind: "footnotes"; notes: BodyFootnote[] }
@@ -1144,6 +1147,8 @@ export async function publishedDatabase(
     ...(icons ? {} : { noIcons: true as const }),
     // Board and gallery cards wrapping long values (see ViewConfig wrapProperties).
     ...((layout === "board" || layout === "gallery") && chosen.config.wrapProperties ? { wrap: true as const } : {}),
+    // Tables without lines between their columns (see ViewConfig showVerticalLines).
+    ...(layout === "table" && chosen.config.showVerticalLines === false ? { noVerticalLines: true as const } : {}),
   };
 }
 

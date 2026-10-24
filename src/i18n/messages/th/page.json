@@ -109,6 +109,7 @@
       "you": "{name} (คุณ)"
     },
     "threadMenu": "ตัวเลือกของเธรด",
+    "copyLink": "คัดลอกลิงก์",
     "mute": "ปิดการแจ้งเตือนการตอบกลับ",
     "unmute": "เปิดการแจ้งเตือนการตอบกลับ",
     "muteHint": "หยุดรับแจ้งการตอบกลับใหม่ในเธรดนี้ การตอบกลับหรือถูกกล่าวถึงที่นี่จะเปิดการแจ้งเตือนอีกครั้ง",
@@ -621,7 +622,8 @@
       "submit": "ฝัง",
       "providers": "YouTube, Vimeo, Loom, Figma, Google Docs, Sheets และ Slides ที่เผยแพร่แล้ว, CodePen, Spotify และ Google Maps ลิงก์อื่นจะกลายเป็นบุ๊กมาร์ก",
       "frameTitle": "เนื้อหาที่ฝังจาก {host}",
-      "label": "ฝัง"
+      "label": "ฝัง",
+      "resize": "ลากเพื่อเปลี่ยนความกว้างของเนื้อหาที่ฝัง"
     },
     "paste": {
       "label": "วางเป็น",
@@ -711,6 +713,11 @@
   },
   "blockMenu": {
     "copyLink": "คัดลอกลิงก์ไปยังบล็อก",
+    "download": "ดาวน์โหลด",
+    "alignLeft": "จัดชิดซ้าย",
+    "alignCenter": "จัดกึ่งกลาง",
+    "alignRight": "จัดชิดขวา",
+    "wideColumns": "คอลัมน์แบบกว้าง",
     "hideInPrint": "ซ่อนเมื่อพิมพ์",
     "calloutStyle": "รูปแบบกล่องเน้นข้อความ",
     "turnIntoCallout": "แปลงเป็นกล่องเน้นข้อความ",
@@ -956,7 +963,8 @@
     "markdownImage": "รูปภาพ: {alt}",
     "markdownImageUntitled": "รูปภาพ",
     "expand": "เปิดในตัวแสดง",
-    "view": "ดู {name}"
+    "view": "ดู {name}",
+    "resize": "ลากเพื่อเปลี่ยนความกว้าง"
   },
   "presentation": {
     "previous": "สไลด์ก่อนหน้า",
@@ -1191,5 +1199,16 @@
     "reset": "แสดงรูปทั้งหมด",
     "loading": "กำลังโหลดรูป…",
     "failed": "โหลดรูปไม่ได้"
+  },
+  "commentRef": {
+    "pasteTitle": "วางลิงก์ไปยังความคิดเห็น",
+    "pasteAsMention": "วางเป็นการกล่าวถึง",
+    "pasteAsPreview": "วางเป็นตัวอย่าง",
+    "pasteAsLink": "วางเป็นลิงก์",
+    "noAccess": "ไม่มีสิทธิ์เข้าถึงความคิดเห็นนี้",
+    "onPage": "ใน {title}",
+    "replies": "{count, plural, =0 {ยังไม่มีการตอบกลับ} other {# การตอบกลับ}}",
+    "openThread": "เปิดเธรด",
+    "resolved": "แก้ไขแล้ว"
   }
 }

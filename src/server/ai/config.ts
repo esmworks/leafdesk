@@ -1,6 +1,6 @@
 /**
  * AI settings from the environment. AI is off unless AI_PROVIDER and AI_MODEL are set (plus a key
- * for hosted providers); nothing is sent anywhere while it is off. See the README's AI section.
+ * for hosted providers); nothing is sent anywhere while it is off. See docs/ai.md.
  */
 
 export const AI_PROVIDERS = ["anthropic", "openai", "google", "opencode-go", "openai-compatible", "ollama", "lmstudio"] as const;
@@ -60,7 +60,7 @@ export type AiEmbeddingsConfig = {
   dimensions: number | null;
   /**
    * Semantic search leaves out passages less similar to the query than this (cosine, 0-1). What
-   * counts as similar depends on the model; see AI_EMBEDDINGS_MIN_SIMILARITY in the README.
+   * counts as similar depends on the model; see AI_EMBEDDINGS_MIN_SIMILARITY in docs/ai.md.
    */
   minSimilarity: number;
   fetch?: typeof fetch;

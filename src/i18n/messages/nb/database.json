@@ -76,6 +76,10 @@
       "blank": "Tom rad",
       "setDefault": "Bruk for «Ny»",
       "isDefault": "Brukes for «Ny»",
+      "isViewDefault": "Brukes for «Ny» i denne visningen",
+      "forThisView": "For denne visningen",
+      "forAllViews": "For alle visninger",
+      "followAllViews": "Bruk standarden for alle visninger her",
       "edit": "Rediger mal",
       "delete": "Slett mal",
       "confirmDelete": "Vil du slette denne radmalen permanent? Rader som allerede er laget fra den, forblir som de er.",
@@ -225,7 +229,14 @@
     "relative": {
       "today": "I dag",
       "thisWeek": "Denne uken",
+      "lastWeek": "Forrige uke",
+      "nextWeek": "Neste uke",
       "thisMonth": "Denne måneden",
+      "lastMonth": "Forrige måned",
+      "nextMonth": "Neste måned",
+      "thisYear": "I år",
+      "lastYear": "I fjor",
+      "nextYear": "Neste år",
       "pastNDays": "Siste N dager",
       "nextNDays": "Neste N dager",
       "pastDays": "{count, plural, one {Siste dag} other {Siste # dager}}",
@@ -253,7 +264,8 @@
     "clickForMenu": "Klikk for å åpne menyen",
     "sortedNoDrag": "Rader kan ikke dras mens visningen er sortert",
     "sortedAscending": "Sortert stigende",
-    "sortedDescending": "Sortert synkende"
+    "sortedDescending": "Sortert synkende",
+    "fillHandle": "Dra opp eller ned for å fylle cellene med denne verdien"
   },
   "rowMenu": {
     "open": "Åpne",
@@ -567,7 +579,13 @@
       "default": "Standard",
       "12h": "12 timer",
       "24h": "24 timer"
-    }
+    },
+    "onePerson": "Begrens til én person",
+    "onePersonHint": "Hver rad nevner høyst én person. Rader med flere beholder dem til de endres.",
+    "oneRow": "Begrens til én side",
+    "oneRowHint": "Hver rad kobler til høyst én side. Rader med flere beholder dem til de endres.",
+    "statusCheckbox": "Vis som avkrysningsboks",
+    "statusCheckboxHint": "En boks som er krysset av mens statusen er ferdig. Avkrysning velger den første ferdig-statusen, fjerning den første å gjøre-statusen."
   },
   "rowProperties": {
     "noProperties": "Ingen egenskaper",
@@ -711,16 +729,12 @@
     "open": "Åpne {title}",
     "unlink": "Fjern koblingen til {title}",
     "options": "Relasjonsinnstillinger",
-    "limit": "Grense",
-    "limitAny": "Ingen grense",
-    "limitOne": "1 side",
-    "limitHint": "Hver rad kobles til én rad. Velger du en annen, erstatter den den.",
     "rowPage": "På radsider",
     "displayInline": "Innebygd",
     "displaySection": "Som egen del",
     "sectionHint": "Koblede rader vises under egenskapene, der egenskapene deres kan redigeres.",
     "shows": "Koblede rader viser",
-    "showsHint": "Vises i tabellceller, kort og radsider.",
+    "showsHint": "Vises i tabellceller, kort, radsider og radvelgeren.",
     "titlePart": "Tittel",
     "addPart": "Legg til en egenskap…",
     "moveUp": "Flytt {name} opp",
@@ -808,6 +822,7 @@
     "showTable": "Vis tabell",
     "showWeekends": "Vis helger",
     "showIcons": "Vis sideikoner",
+    "showVerticalLines": "Vis loddrette linjer",
     "openRows": "Åpne rader i",
     "openRowsIn": {
       "panel": "Sidepanel",
@@ -961,6 +976,7 @@
     "pageLocked": "Denne siden er låst. Lås den opp fra menyen for å endre tittel, ikon, bakgrunn eller tekst.",
     "pageInTrash": "Denne siden ligger i papirkurven. Gjenopprett den for å endre den.",
     "invalidPerson": "«{property}» kan bare inneholde personer i dette arbeidsområdet.",
+    "onePerson": "«{property}» kan bare ha én person.",
     "readOnlyProperty": "«{property}» fylles ut automatisk og kan ikke endres.",
     "invalidFilter": "Dette filteret kan ikke lagres. Last inn siden på nytt og prøv igjen.",
     "tooManyRows": "Du kan endre høyst {max} rader om gangen.",
@@ -1010,7 +1026,7 @@
     "invalidSprints": "Sprinter kan ikke settes opp slik: kontroller sprintlengden, den første dagen og sprintdatabasen.",
     "sprintStateOption": "Dette alternativet angir tilstanden til en sprint. Gi det gjerne nytt navn, eller slå av sprinter før du sletter det.",
     "invalidSlackUrl": "Ikke en adresse til en innkommende webhook i Slack (https://hooks.slack.com/services/…).",
-    "relationLimit": "«{property}» kobler til høyst én rad. Velg én rad.",
+    "oneRow": "«{property}» kan bare koble til én side. Velg én.",
     "invalidRelationOptions": "Disse relasjonsinnstillingene kan ikke lagres."
   },
   "formula": {

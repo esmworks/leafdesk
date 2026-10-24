@@ -76,6 +76,10 @@
       "blank": "빈 행",
       "setDefault": "“새로 만들기”에 사용",
       "isDefault": "“새로 만들기”에 사용 중",
+      "isViewDefault": "이 보기에서 “새로 만들기”에 사용 중",
+      "forThisView": "이 보기에",
+      "forAllViews": "모든 보기에",
+      "followAllViews": "여기서 모든 보기의 기본값 사용",
       "edit": "템플릿 편집",
       "delete": "템플릿 삭제",
       "confirmDelete": "이 행 템플릿을 영구 삭제할까요? 이 템플릿으로 이미 만든 행은 그대로 유지됩니다.",
@@ -225,7 +229,14 @@
     "relative": {
       "today": "오늘",
       "thisWeek": "이번 주",
+      "lastWeek": "지난주",
+      "nextWeek": "다음 주",
       "thisMonth": "이번 달",
+      "lastMonth": "지난달",
+      "nextMonth": "다음 달",
+      "thisYear": "올해",
+      "lastYear": "작년",
+      "nextYear": "내년",
       "pastNDays": "지난 N일",
       "nextNDays": "다음 N일",
       "pastDays": "지난 {count}일",
@@ -253,7 +264,8 @@
     "clickForMenu": "클릭하여 메뉴 열기",
     "sortedNoDrag": "보기가 정렬된 동안에는 행을 끌 수 없습니다",
     "sortedAscending": "오름차순 정렬됨",
-    "sortedDescending": "내림차순 정렬됨"
+    "sortedDescending": "내림차순 정렬됨",
+    "fillHandle": "위나 아래로 끌어 이 값으로 셀 채우기"
   },
   "rowMenu": {
     "open": "열기",
@@ -567,7 +579,13 @@
       "default": "기본값",
       "12h": "12시간제",
       "24h": "24시간제"
-    }
+    },
+    "onePerson": "한 명으로 제한",
+    "onePersonHint": "각 행에는 최대 한 명만 지정됩니다. 이미 여러 명이 지정된 행은 변경될 때까지 그대로 유지됩니다.",
+    "oneRow": "한 페이지로 제한",
+    "oneRowHint": "각 행은 최대 한 페이지만 연결합니다. 이미 여러 페이지가 연결된 행은 변경될 때까지 그대로 유지됩니다.",
+    "statusCheckbox": "체크박스로 표시",
+    "statusCheckboxHint": "상태가 완료인 동안 체크됩니다. 체크하면 첫 번째 완료 상태가, 해제하면 첫 번째 할 일 상태가 선택됩니다."
   },
   "rowProperties": {
     "noProperties": "속성 없음",
@@ -711,16 +729,12 @@
     "open": "{title} 열기",
     "unlink": "{title} 연결 제거",
     "options": "관계 설정",
-    "limit": "제한",
-    "limitAny": "제한 없음",
-    "limitOne": "1페이지",
-    "limitHint": "각 행은 행 하나에만 연결됩니다. 다른 행을 고르면 바뀝니다.",
     "rowPage": "행 페이지에서",
     "displayInline": "인라인",
     "displaySection": "섹션으로",
     "sectionHint": "연결된 행이 속성 아래에 표시되고, 그 자리에서 속성을 편집할 수 있습니다.",
     "shows": "연결된 행에 표시할 항목",
-    "showsHint": "표 셀, 카드, 행 페이지에 표시됩니다.",
+    "showsHint": "표 셀, 카드, 행 페이지, 행 선택 목록에 표시됩니다.",
     "titlePart": "제목",
     "addPart": "속성 추가…",
     "moveUp": "{name} 위로 이동",
@@ -808,6 +822,7 @@
     "showTable": "표 표시",
     "showWeekends": "주말 표시",
     "showIcons": "페이지 아이콘 표시",
+    "showVerticalLines": "세로선 표시",
     "openRows": "행 열기 위치",
     "openRowsIn": {
       "panel": "사이드 패널",
@@ -961,6 +976,7 @@
     "pageLocked": "이 페이지는 잠겨 있습니다. 제목, 아이콘, 배경 또는 텍스트를 변경하려면 메뉴에서 잠금을 해제하세요.",
     "pageInTrash": "이 페이지는 휴지통에 있습니다. 변경하려면 복원하세요.",
     "invalidPerson": "“{property}”에는 이 워크스페이스의 사람만 넣을 수 있습니다.",
+    "onePerson": "“{property}”에는 한 명만 지정할 수 있습니다.",
     "readOnlyProperty": "“{property}”은(는) 자동으로 채워지며 변경할 수 없습니다.",
     "invalidFilter": "이 필터를 저장할 수 없습니다. 페이지를 새로고침한 후 다시 시도하세요.",
     "tooManyRows": "한 번에 최대 {max}개 행까지 변경할 수 있습니다.",
@@ -1010,7 +1026,7 @@
     "invalidSprints": "이렇게는 스프린트를 설정할 수 없습니다. 스프린트 길이, 첫날, 스프린트 데이터베이스를 확인하세요.",
     "sprintStateOption": "이 옵션은 스프린트 상태를 나타냅니다. 이름은 바꿀 수 있으며, 삭제하려면 먼저 스프린트를 끄세요.",
     "invalidSlackUrl": "Slack 수신 웹후크 주소가 아닙니다(https://hooks.slack.com/services/…).",
-    "relationLimit": "‘{property}’에는 행을 하나만 연결할 수 있습니다. 행 하나를 고르세요.",
+    "oneRow": "“{property}”에는 한 페이지만 연결할 수 있습니다. 하나를 고르세요.",
     "invalidRelationOptions": "이 관계 설정은 저장할 수 없습니다."
   },
   "formula": {

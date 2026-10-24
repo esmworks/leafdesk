@@ -128,8 +128,11 @@ export function layoutConfigError(config: ViewConfig): string | null {
   if (c.openRows !== undefined && !OPEN_ROWS.includes(c.openRows as OpenRows)) {
     return `openRows must be one of: ${OPEN_ROWS.join(", ")}`;
   }
-  for (const key of ["showTable", "showValues", "showLegend", "showWeekends", "showIcons", "wrapProperties"] as const) {
+  for (const key of ["showTable", "showValues", "showLegend", "showWeekends", "showIcons", "wrapProperties", "showVerticalLines"] as const) {
     if (c[key] !== undefined && typeof c[key] !== "boolean") return `${key} must be true or false`;
+  }
+  if (c.defaultTemplateId !== undefined && c.defaultTemplateId !== null && (typeof c.defaultTemplateId !== "string" || !c.defaultTemplateId)) {
+    return "defaultTemplateId must be a row template's id, or null for blank rows";
   }
   if (c.cardSize !== undefined && !CARD_SIZES.includes(c.cardSize as CardSize)) {
     return `Card size must be one of: ${CARD_SIZES.join(", ")}`;

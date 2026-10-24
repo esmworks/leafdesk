@@ -119,8 +119,9 @@ export async function createRowAction(
     properties?: Record<string, unknown>;
     /** Copy this row template of the database (see server/templates.ts). */
     templateId?: string | null;
-    /** Start from the database's default row template, when it has one. */
+    /** Start from the default row template of the view (`viewId`) or else the database, when it has one. */
     useDefault?: boolean;
+    viewId?: string;
   } = {},
 ) {
   return run(async (userId) => {
@@ -131,6 +132,7 @@ export async function createRowAction(
         properties: input.properties,
         templateId: input.templateId,
         useDefault: input.useDefault,
+        viewId: typeof input.viewId === "string" ? input.viewId : undefined,
         timeZone: await cookieTimeZone(),
         // And its "@today" in the title is written in their language.
         locale: await getLocale(),
@@ -182,6 +184,14 @@ const isPastedRow = (row: PastedRow) =>
 
 export async function archiveRowsAction(databaseId: string, rowIds: string[]) {
   return run((userId) => pages.archiveRows(userId, databaseId, rowIds));
+}
+
+/** Undoes archiveRowsAction: the rows it moved to the trash come back. */
+export async function restoreRowsAction(rowIds: string[]) {
+  return run(async (userId) => {
+    if (!Array.isArray(rowIds)) throw new Error("Invalid rows");
+    for (const id of rowIds.map(String)) await pages.restorePage(userId, id);
+  });
 }
 
 /** "Set icon" and "Remove icon" (null) on selected rows. */
@@ -336,6 +346,9 @@ export async function updatePropertyAction(
     prefix?: string | null;
     urlPreview?: boolean;
     relation?: RelationOptionsInput;
+    onePerson?: boolean;
+    oneRow?: boolean;
+    statusDisplay?: "checkbox" | "option";
   },
 ) {
   return run((userId) => databases.updateProperty(userId, propertyId, patch));
@@ -353,6 +366,11 @@ export async function setPropertiesBesideAction(databaseId: string, beside: bool
 
 export async function ensureOptionAction(propertyId: string, name: string) {
   return run((userId) => databases.ensureOption(userId, propertyId, name));
+}
+
+/** Makes a one-way relation two-way (see databases.makeRelationTwoWay). */
+export async function makeRelationTwoWayAction(propertyId: string, pairedName?: string) {
+  return run((userId) => databases.makeRelationTwoWay(userId, String(propertyId), typeof pairedName === "string" ? pairedName : undefined));
 }
 
 /** Copies a property, its values and its access rules right after it (see databases.duplicateProperty). */

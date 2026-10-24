@@ -49,7 +49,14 @@ export const FILTER_COMBINATORS = ["and", "or"] as const satisfies readonly Filt
 export const RELATIVE_DATE_RANGES = [
   "today",
   "this_week",
+  "last_week",
+  "next_week",
   "this_month",
+  "last_month",
+  "next_month",
+  "this_year",
+  "last_year",
+  "next_year",
   "past_n_days",
   "next_n_days",
 ] as const satisfies readonly RelativeDateRange[];
@@ -185,6 +192,19 @@ export function rangeNeedsDays(range: RelativeDateRange) {
   return range === "past_n_days" || range === "next_n_days";
 }
 
+/** How many weeks, months or years a range lies from the current one. */
+const SHIFT = {
+  this_week: 0,
+  last_week: -1,
+  next_week: 1,
+  this_month: 0,
+  last_month: -1,
+  next_month: 1,
+  this_year: 0,
+  last_year: -1,
+  next_year: 1,
+} as const;
+
 /** A local calendar day as YYYY-MM-DD. */
 export function dayString(date: Date) {
   const pad = (n: number) => String(n).padStart(2, "0");
@@ -207,8 +227,9 @@ export function valueDay(value: unknown, timeZone?: string): string | null {
 /**
  * First and last day (inclusive, YYYY-MM-DD) of a relative range as seen on `now`'s day in
  * `timeZone` (the runtime's when left out), or null for an unknown range or a missing day count.
- * Weeks start on Monday (ISO 8601, as in Turkey and most of Europe). "Past N days" runs from N days
- * ago through today and "next N days" from today through N days ahead, so every range includes today.
+ * Weeks start on Monday (ISO 8601, as in Turkey and most of Europe); last and next week, month and
+ * year are the whole ones before and after the current one. "Past N days" runs from N days ago
+ * through today and "next N days" from today through N days ahead, so both include today.
  */
 export function relativeDateRange(
   range: unknown,
@@ -222,14 +243,24 @@ export function relativeDateRange(
   switch (range) {
     case "today":
       return { start: day(0), end: day(0) };
-    case "this_week": {
-      const sinceMonday = (weekdayOf(today) + 6) % 7;
-      return { start: day(-sinceMonday), end: day(6 - sinceMonday) };
+    case "this_week":
+    case "last_week":
+    case "next_week": {
+      const monday = -((weekdayOf(today) + 6) % 7) + 7 * SHIFT[range];
+      return { start: day(monday), end: day(monday + 6) };
     }
-    case "this_month": {
+    case "this_month":
+    case "last_month":
+    case "next_month": {
       const [y, m] = day(0).split("-").map(Number);
-      const month = y * 12 + m - 1;
+      const month = y * 12 + m - 1 + SHIFT[range];
       return { start: dayOfNumber(monthDay(month, 1)), end: dayOfNumber(monthDay(month + 1, 1) - 1) };
+    }
+    case "this_year":
+    case "last_year":
+    case "next_year": {
+      const year = Number(day(0).slice(0, 4)) + SHIFT[range];
+      return { start: dayOfNumber(monthDay(year * 12, 1)), end: dayOfNumber(monthDay((year + 1) * 12, 1) - 1) };
     }
     case "past_n_days":
       return isDayCount(days) ? { start: day(-days), end: day(0) } : null;

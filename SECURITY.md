@@ -102,10 +102,10 @@ won't take action against it.
   a second policy added by your reverse proxy applies on top of it, and anything either one
   forbids is blocked.
 - Close sign-up with `DISABLE_SIGNUP=true` once your accounts exist, and choose who may create
-  workspaces with `WORKSPACE_CREATION` (see [Instance administrators](README.md#instance-administrators)).
+  workspaces with `WORKSPACE_CREATION` (see [Instance administrators](docs/self-hosting.md#instance-administrators)).
 - Workspace owners decide in Settings → Security what may leave the workspace, who may join, and
   whether two-step verification is required (see
-  [Workspace security switches](README.md#workspace-security-switches)).
+  [Workspace security switches](docs/account-and-security.md#workspace-security-switches)).
 - Watch the repository's releases, and upgrade when one fixes a vulnerability.
 - Protect the database and its backups like the secrets in your environment. Passwords and API
   keys are stored hashed, connected apps' tokens and signing secrets sealed with

@@ -747,6 +747,8 @@ export function describeProperty(
         }
       : {}),
     ...(prop.type === "unique_id" ? { prefix: uniqueIdPrefix(prop) } : {}),
+    // Each row names one person at most: a write naming more is refused.
+    ...(prop.type === "person" && prop.options.person?.single ? { one_person: true } : {}),
     ...(holdsOptions(prop.type) ? { options: (prop.options.options ?? []).map((o) => o.name) } : {}),
     ...describeDependency(prop, props),
     ...(prop.type === "status" ? { status_groups: statusGroups(prop) } : {}),
@@ -756,8 +758,8 @@ export function describeProperty(
           ...(target && !target.database ? {} : { related_database_id: relation.databaseId }),
           ...(target?.database ? { related_database: pageLabel(target.database.title) } : {}),
           two_way: Boolean(relation.pairedPropertyId),
-          // Each row links to one row at most (see update_database_property relation_limit).
-          ...(relation.limit === "one" ? { links_one_row: true } : {}),
+          // Each row links one row at most: a write linking more is refused (update_database_property one_row).
+          ...(relation.single ? { one_row: true } : {}),
           ...(target?.pairedName ? { paired_property: target.pairedName } : {}),
           // Sub-items (see set_sub_items): this property holds each row's parent, or lists its sub-items.
           ...(relation.role === "parent"

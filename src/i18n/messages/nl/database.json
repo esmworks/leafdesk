@@ -76,6 +76,10 @@
       "blank": "Lege rij",
       "setDefault": "Gebruiken voor “Nieuw”",
       "isDefault": "Gebruikt voor “Nieuw”",
+      "isViewDefault": "Gebruikt voor “Nieuw” in deze weergave",
+      "forThisView": "Voor deze weergave",
+      "forAllViews": "Voor alle weergaven",
+      "followAllViews": "Hier de standaard van alle weergaven gebruiken",
       "edit": "Sjabloon bewerken",
       "delete": "Sjabloon verwijderen",
       "confirmDelete": "Dit rijsjabloon definitief verwijderen? Rijen die er al mee zijn gemaakt, blijven zoals ze zijn.",
@@ -225,7 +229,14 @@
     "relative": {
       "today": "Vandaag",
       "thisWeek": "Deze week",
+      "lastWeek": "Vorige week",
+      "nextWeek": "Volgende week",
       "thisMonth": "Deze maand",
+      "lastMonth": "Vorige maand",
+      "nextMonth": "Volgende maand",
+      "thisYear": "Dit jaar",
+      "lastYear": "Vorig jaar",
+      "nextYear": "Volgend jaar",
       "pastNDays": "Afgelopen N dagen",
       "nextNDays": "Komende N dagen",
       "pastDays": "{count, plural, one {Afgelopen dag} other {Afgelopen # dagen}}",
@@ -253,7 +264,8 @@
     "clickForMenu": "Klik om het menu te openen",
     "sortedNoDrag": "Rijen kunnen niet worden versleept zolang de weergave gesorteerd is",
     "sortedAscending": "Oplopend gesorteerd",
-    "sortedDescending": "Aflopend gesorteerd"
+    "sortedDescending": "Aflopend gesorteerd",
+    "fillHandle": "Sleep omhoog of omlaag om de cellen met deze waarde te vullen"
   },
   "rowMenu": {
     "open": "Openen",
@@ -567,7 +579,13 @@
       "default": "Standaard",
       "12h": "12-uurs",
       "24h": "24-uurs"
-    }
+    },
+    "onePerson": "Beperken tot één persoon",
+    "onePersonHint": "Elke rij noemt hoogstens één persoon. Rijen met meer houden die tot ze worden gewijzigd.",
+    "oneRow": "Beperken tot één pagina",
+    "oneRowHint": "Elke rij koppelt hoogstens één pagina. Rijen met meer houden die tot ze worden gewijzigd.",
+    "statusCheckbox": "Tonen als selectievakje",
+    "statusCheckboxHint": "Een vakje dat is aangevinkt zolang de status klaar is. Aanvinken kiest de eerste klaar-status, uitvinken de eerste te-doen-status."
   },
   "rowProperties": {
     "noProperties": "Geen eigenschappen",
@@ -711,16 +729,12 @@
     "open": "{title} openen",
     "unlink": "Koppeling met {title} verwijderen",
     "options": "Relatie-instellingen",
-    "limit": "Limiet",
-    "limitAny": "Geen limiet",
-    "limitOne": "1 pagina",
-    "limitHint": "Elke rij koppelt één rij. Een andere kiezen vervangt die.",
     "rowPage": "Op rijpagina’s",
     "displayInline": "Inline",
     "displaySection": "Als sectie",
     "sectionHint": "Gekoppelde rijen staan onder de eigenschappen, met hun eigenschappen daar bewerkbaar.",
     "shows": "Gekoppelde rijen tonen",
-    "showsHint": "Te zien in tabelcellen, kaarten en rijpagina’s.",
+    "showsHint": "Te zien in tabelcellen, kaarten, rijpagina’s en de rijkiezer.",
     "titlePart": "Titel",
     "addPart": "Eigenschap toevoegen…",
     "moveUp": "{name} omhoog",
@@ -808,6 +822,7 @@
     "showTable": "Tabel tonen",
     "showWeekends": "Weekenden tonen",
     "showIcons": "Paginapictogrammen tonen",
+    "showVerticalLines": "Verticale lijnen tonen",
     "openRows": "Rijen openen in",
     "openRowsIn": {
       "panel": "Zijpaneel",
@@ -961,6 +976,7 @@
     "pageLocked": "Deze pagina is vergrendeld. Ontgrendel haar via het menu om de titel, het pictogram, de achtergrond of de tekst te wijzigen.",
     "pageInTrash": "Deze pagina staat in de prullenbak. Zet haar terug om haar te wijzigen.",
     "invalidPerson": "“{property}” kan alleen personen uit deze werkruimte bevatten.",
+    "onePerson": "“{property}” bevat maar één persoon.",
     "readOnlyProperty": "“{property}” wordt automatisch ingevuld en kan niet worden gewijzigd.",
     "invalidFilter": "Dit filter kan niet worden opgeslagen. Laad de pagina opnieuw en probeer het nog eens.",
     "tooManyRows": "Je kunt maximaal {max} rijen tegelijk wijzigen.",
@@ -1010,7 +1026,7 @@
     "invalidSprints": "Sprints kunnen zo niet worden ingesteld: controleer de sprintlengte, de eerste dag en de sprintdatabase.",
     "sprintStateOption": "Deze optie geeft de status van een sprint aan. Hernoem haar als je wilt, of zet sprints uit voordat je haar verwijdert.",
     "invalidSlackUrl": "Geen adres van een inkomende Slack-webhook (https://hooks.slack.com/services/…).",
-    "relationLimit": "‘{property}’ koppelt hoogstens één rij. Kies één rij.",
+    "oneRow": "“{property}” koppelt maar één pagina. Kies er één.",
     "invalidRelationOptions": "Deze relatie-instellingen kunnen niet worden opgeslagen."
   },
   "formula": {

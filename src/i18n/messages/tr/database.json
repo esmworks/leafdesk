@@ -76,6 +76,10 @@
       "blank": "Boş satır",
       "setDefault": "“Yeni” için kullan",
       "isDefault": "“Yeni” için kullanılıyor",
+      "isViewDefault": "Bu görünümde “Yeni” için kullanılıyor",
+      "forThisView": "Bu görünüm için",
+      "forAllViews": "Tüm görünümler için",
+      "followAllViews": "Burada tüm görünümlerinkini kullan",
       "edit": "Şablonu düzenle",
       "delete": "Şablonu sil",
       "confirmDelete": "Bu satır şablonu kalıcı olarak silinsin mi? Ondan oluşturulmuş satırlar olduğu gibi kalır.",
@@ -225,7 +229,14 @@
     "relative": {
       "today": "Bugün",
       "thisWeek": "Bu hafta",
+      "lastWeek": "Geçen hafta",
+      "nextWeek": "Gelecek hafta",
       "thisMonth": "Bu ay",
+      "lastMonth": "Geçen ay",
+      "nextMonth": "Gelecek ay",
+      "thisYear": "Bu yıl",
+      "lastYear": "Geçen yıl",
+      "nextYear": "Gelecek yıl",
       "pastNDays": "Son N gün",
       "nextNDays": "Önümüzdeki N gün",
       "pastDays": "Son {count} gün",
@@ -253,7 +264,8 @@
     "clickForMenu": "Menüyü açmak için tıklayın",
     "sortedNoDrag": "Görünüm sıralıyken satırlar sürüklenemez",
     "sortedAscending": "Artan sıralı",
-    "sortedDescending": "Azalan sıralı"
+    "sortedDescending": "Azalan sıralı",
+    "fillHandle": "Hücreleri bu değerle doldurmak için yukarı ya da aşağı sürükleyin"
   },
   "rowMenu": {
     "open": "Aç",
@@ -567,7 +579,13 @@
       "default": "Varsayılan",
       "12h": "12 saat",
       "24h": "24 saat"
-    }
+    },
+    "onePerson": "Tek kişiyle sınırla",
+    "onePersonHint": "Her satır en fazla bir kişiyi gösterir. Daha fazla kişi içeren satırlar değiştirilene kadar onları korur.",
+    "oneRow": "Tek sayfayla sınırla",
+    "oneRowHint": "Her satır en fazla bir sayfaya bağlanır. Daha fazlasına bağlı satırlar değiştirilene kadar onları korur.",
+    "statusCheckbox": "Onay kutusu olarak göster",
+    "statusCheckboxHint": "Durum tamamlandıyken işaretli bir kutu. İşaretlemek ilk tamamlandı durumunu, işareti kaldırmak ilk yapılacak durumunu seçer."
   },
   "rowProperties": {
     "noProperties": "Özellik yok",
@@ -711,16 +729,12 @@
     "open": "{title} sayfasını aç",
     "unlink": "{title} bağlantısını kaldır",
     "options": "İlişki ayarları",
-    "limit": "Sınır",
-    "limitAny": "Sınırsız",
-    "limitOne": "1 sayfa",
-    "limitHint": "Her satır tek bir satıra bağlanır. Başkasını seçmek onun yerine geçer.",
     "rowPage": "Satır sayfalarında",
     "displayInline": "Satır içinde",
     "displaySection": "Ayrı bölüm olarak",
     "sectionHint": "Bağlı satırlar özelliklerin altında görünür; özellikleri orada düzenlenebilir.",
     "shows": "Bağlı satırlarda görünenler",
-    "showsHint": "Tablo hücrelerinde, kartlarda ve satır sayfalarında gösterilir.",
+    "showsHint": "Tablo hücrelerinde, kartlarda, satır sayfalarında ve satır seçicide gösterilir.",
     "titlePart": "Başlık",
     "addPart": "Özellik ekle…",
     "moveUp": "{name} yukarı taşı",
@@ -808,6 +822,7 @@
     "showTable": "Tabloyu göster",
     "showWeekends": "Hafta sonlarını göster",
     "showIcons": "Sayfa simgelerini göster",
+    "showVerticalLines": "Dikey çizgileri göster",
     "openRows": "Satırları aç",
     "openRowsIn": {
       "panel": "Yan panelde",
@@ -961,6 +976,7 @@
     "pageLocked": "Bu sayfa kilitli. Başlığını, simgesini, arka planını veya metnini değiştirmek için sayfanın menüsünden kilidi açın.",
     "pageInTrash": "Bu sayfa çöp kutusunda. Değiştirmek için geri yükleyin.",
     "invalidPerson": "“{property}” yalnızca bu çalışma alanındaki kişileri içerebilir.",
+    "onePerson": "“{property}” yalnızca bir kişi tutar.",
     "readOnlyProperty": "“{property}” otomatik doldurulur, değiştirilemez.",
     "invalidFilter": "Bu filtre kaydedilemedi. Sayfayı yenileyip tekrar deneyin.",
     "tooManyRows": "Tek seferde en fazla {max} satır değiştirilebilir.",
@@ -1010,7 +1026,7 @@
     "invalidSprints": "Sprintler bu şekilde kurulamaz: sprint uzunluğunu, ilk günü ve sprint veritabanını kontrol edin.",
     "sprintStateOption": "Bu seçenek bir sprintin durumunu belirtir. Adını değiştirebilirsiniz; silmek için önce sprintleri kapatın.",
     "invalidSlackUrl": "Bu bir Slack gelen webhook adresi değil (https://hooks.slack.com/services/…).",
-    "relationLimit": "“{property}” en fazla bir satıra bağlanır. Bir satır seçin.",
+    "oneRow": "“{property}” yalnızca bir sayfaya bağlanır. Birini seçin.",
     "invalidRelationOptions": "Bu ilişki ayarları kaydedilemiyor."
   },
   "formula": {

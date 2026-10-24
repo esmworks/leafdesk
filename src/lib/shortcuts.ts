@@ -23,6 +23,20 @@ export const ROW_MENU_COMBOS = {
   trash: ["Del"],
 } as const satisfies Record<string, Combo>;
 
+/**
+ * The editor's own keys besides BlockNote's (components/page/editor-shortcuts.ts binds them, in
+ * ProseMirror's notation: these joined with "-"). Strikethrough has BlockNote's Mod+Shift+S too.
+ */
+export const STRIKE_COMBO = ["Mod", "Shift", "X"] as const satisfies Combo;
+export const COPY_BLOCK_LINK_COMBO = ["Alt", "Shift", "L"] as const satisfies Combo;
+/** Opens or closes every toggle and group on the page (see opensToggleAll). */
+export const TOGGLE_ALL_COMBO = ["Mod", "Alt", "T"] as const satisfies Combo;
+/**
+ * In a table's selected cells: fills each column down from the range's top cell, or with the
+ * cells of one row selected duplicates that row (see cellGridShortcut).
+ */
+export const FILL_DOWN_COMBO = ["Mod", "D"] as const satisfies Combo;
+
 export const SHORTCUT_GROUPS: readonly ShortcutGroup[] = [
   {
     id: "general",
@@ -33,6 +47,8 @@ export const SHORTCUT_GROUPS: readonly ShortcutGroup[] = [
       { id: "close", combos: [["Esc"]] },
       // components/page/page-view.tsx; the keys inside it are presentation.tsx's.
       { id: "present", combos: [["Mod", "Alt", "P"]] },
+      // components/toggle-all.ts, on pages and databases: toggles and grouped views' groups.
+      { id: "toggleAll", combos: [TOGGLE_ALL_COMBO] },
     ],
   },
   {
@@ -55,7 +71,7 @@ export const SHORTCUT_GROUPS: readonly ShortcutGroup[] = [
       { id: "bold", combos: [["Mod", "B"]] },
       { id: "italic", combos: [["Mod", "I"]] },
       { id: "underline", combos: [["Mod", "U"]] },
-      { id: "strike", combos: [["Mod", "Shift", "S"]] },
+      { id: "strike", combos: [["Mod", "Shift", "S"], STRIKE_COMBO] },
       { id: "code", combos: [["Mod", "E"]] },
       { id: "superscript", combos: [["Mod", "."]] },
       { id: "subscript", combos: [["Mod", ","]] },
@@ -82,6 +98,8 @@ export const SHORTCUT_GROUPS: readonly ShortcutGroup[] = [
       { id: "outdent", combos: [["Shift", "Tab"]] },
       { id: "moveUp", combos: [["Mod", "Shift", "ArrowUp"]] },
       { id: "moveDown", combos: [["Mod", "Shift", "ArrowDown"]] },
+      // components/page/editor-shortcuts.ts.
+      { id: "copyBlockLink", combos: [COPY_BLOCK_LINK_COMBO] },
       { id: "undo", combos: [["Mod", "Z"]] },
       { id: "redo", combos: [["Mod", "Shift", "Z"], ["Mod", "Y"]] },
     ],
@@ -100,6 +118,8 @@ export const SHORTCUT_GROUPS: readonly ShortcutGroup[] = [
       { id: "saveFormula", combos: [["Mod", "Enter"]] },
       // components/database/bulk-actions.tsx.
       { id: "clearSelection", combos: [["Esc"]] },
+      // The selected cells of a table (components/database/use-cell-grid.ts).
+      { id: "fillDown", combos: [FILL_DOWN_COMBO] },
       // A table row's menu, while it is open (components/database/row-menu.tsx).
       { id: "rowDuplicate", combos: [ROW_MENU_COMBOS.duplicate] },
       { id: "rowMoveTo", combos: [ROW_MENU_COMBOS.moveTo] },
@@ -174,4 +194,24 @@ export function rowMenuShortcut(e: KeyEventLike, mac: boolean): keyof typeof ROW
   if (e.code === "KeyP" && e.shiftKey) return "moveTo";
   if (e.code === "KeyM" && e.shiftKey) return "comment";
   return null;
+}
+
+/**
+ * Whether a key press opens or closes every toggle and group: Mod+Alt+T, matched by the key's place
+ * (Option+T types "†" on a Mac, and Ctrl+Alt is AltGr on many other keyboards).
+ */
+export function opensToggleAll(e: KeyEventLike, mac: boolean): boolean {
+  if (e.defaultPrevented || e.isComposing || e.shiftKey || !e.altKey || e.code !== "KeyT") return false;
+  return mac ? e.metaKey && !e.ctrlKey : e.ctrlKey && !e.metaKey;
+}
+
+/**
+ * Which of the table grid's actions a key press asks for: "fillDown" for Mod+D (FILL_DOWN_COMBO),
+ * matched by the key's place like rowMenuShortcut. What it does depends on the selection: see
+ * components/database/use-cell-grid.ts.
+ */
+export function cellGridShortcut(e: KeyEventLike, mac: boolean): "fillDown" | null {
+  if (e.defaultPrevented || e.isComposing || e.altKey || e.shiftKey) return null;
+  if (!(mac ? e.metaKey && !e.ctrlKey : e.ctrlKey && !e.metaKey)) return null;
+  return e.code === "KeyD" ? "fillDown" : null;
 }

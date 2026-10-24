@@ -29,5 +29,14 @@
     "busy": "Une exportation est déjà en cours. Attendez la fin de son téléchargement.",
     "disabled": "L’exportation est désactivée dans cet espace de travail."
   },
-  "celebrate": "Bravo !"
+  "celebrate": "Bravo !",
+  "toast": {
+    "undo": "Annuler",
+    "dismiss": "Fermer",
+    "movedTo": "Déplacée vers",
+    "movedToPlace": "Déplacée vers {place}",
+    "trashed": "Déplacée dans la corbeille",
+    "rowsTrashed": "{count, plural, one {Ligne déplacée dans la corbeille} other {# lignes déplacées dans la corbeille}}",
+    "undoFailed": "Impossible d’annuler."
+  }
 }

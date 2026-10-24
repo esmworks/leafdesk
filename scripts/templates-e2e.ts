@@ -338,6 +338,52 @@ try {
     "…and is only the default of its own database",
   );
 
+  // A view's own default template: "New" in that view starts from it, other views keep the database's
+  const feature = await templates.createRowTemplate(owner, tasks.id, { title: "Feature" });
+  const featureView = await databases.addView(ids.owner, tasks.id, { name: "Features", type: "board" });
+  const plainView = await databases.addView(ids.owner, tasks.id, { name: "Plain", type: "list" });
+  await databases.updateView(ids.owner, featureView.id, { config: { defaultTemplateId: feature.id } });
+  const inFeatureView = await templates.createRow(owner, tasks.id, { useDefault: true, viewId: featureView.id });
+  check(inFeatureView.templateId === feature.id && (await row(inFeatureView.id)).title === "Feature", "New in a view starts from the view's own default template");
+  const inPlainView = await templates.createRow(owner, tasks.id, { useDefault: true, viewId: plainView.id });
+  check(inPlainView.templateId === bug.id, "…while other views keep the database's default");
+  check((await templates.createRow(owner, tasks.id, { useDefault: true })).templateId === bug.id, "…and so does a row made outside any view");
+  check(
+    (await templates.createRow(owner, tasks.id, { useDefault: true, viewId: featureView.id, properties: { Status: "Done" } })).templateId === feature.id,
+    "…with values given too, as New in the view gives its filters' values",
+  );
+  const otherView = await databases.addView(ids.owner, other.id, { name: "Elsewhere", type: "table" });
+  await databases.updateView(ids.owner, otherView.id, { config: { defaultTemplateId: feature.id } });
+  check(
+    (await templates.createRow(owner, tasks.id, { useDefault: true, viewId: otherView.id })).templateId === bug.id,
+    "another database's view doesn't choose this database's template",
+  );
+  await databases.updateView(ids.owner, featureView.id, { config: { defaultTemplateId: null } });
+  check((await templates.createRow(owner, tasks.id, { useDefault: true, viewId: featureView.id })).templateId === null, "a view can start its rows blank");
+  check(
+    (await failure(() => databases.updateView(ids.owner, featureView.id, { config: { defaultTemplateId: 7 as never } }))) === "invalidViewConfig",
+    "…and a malformed choice is refused",
+  );
+  await databases.updateView(ids.owner, featureView.id, { config: { defaultTemplateId: feature.id } });
+  await databases.updateView(ids.owner, plainView.id, { config: { defaultTemplateId: null } });
+  await templates.setDefaultRowTemplate(ids.owner, tasks.id, feature.id, { allViews: true });
+  const afterAll = (await databases.getDatabaseSnapshot(ids.owner, tasks.id)).views;
+  check(
+    afterAll.every((v) => v.config.defaultTemplateId === undefined) &&
+      (await templates.createRow(owner, tasks.id, { useDefault: true, viewId: plainView.id })).templateId === feature.id,
+    "choosing a default for all views drops the views' own choices",
+    afterAll.map((v) => v.config),
+  );
+  await templates.setDefaultRowTemplate(ids.owner, tasks.id, bug.id);
+  await databases.updateView(ids.owner, featureView.id, { config: { defaultTemplateId: feature.id } });
+  await templates.deleteTemplate(ids.owner, feature.id);
+  check(
+    (await templates.createRow(owner, tasks.id, { useDefault: true, viewId: featureView.id })).templateId === bug.id,
+    "a view whose template was deleted falls back to the database's default",
+  );
+  await databases.deleteView(ids.owner, featureView.id);
+  await databases.deleteView(ids.owner, plainView.id);
+
   // Saving a row as a row template; duplicating a database keeps its templates
   const savedRow = await templates.saveAsTemplate(owner, chosen.id);
   const savedRowPage = await row(savedRow.id);

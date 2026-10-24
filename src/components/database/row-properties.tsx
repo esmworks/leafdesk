@@ -36,7 +36,6 @@ import { PropertyAccessProvider, PropertyLock, usePropertyAccess, type PropertyA
 import { isEmptyValue, PropertyCell } from "./property-cell";
 import { PropertyTypeIcon } from "./property-icons";
 import { usePropertyHint } from "./property-hint";
-import { AddPropertyPanel, PropertyMenu } from "./property-menu";
 import { RelationProvider, type RelationContextValue } from "./relation-context";
 import { RowActivity } from "./row-activity";
 import { RowReviewBanner } from "@/components/review/row-review-banner";
@@ -52,6 +51,9 @@ import { requestPropertyComment } from "@/lib/comments-request";
 const UrlPreview = dynamic(() => import("./url-preview"), { ssr: false });
 // Only relations shown as a section of their own need it (lib/relation-options).
 const RelationSection = dynamic(() => import("./relation-section"), { ssr: false });
+// A property's menu and the new-property panel open on a click: loaded then.
+const PropertyMenu = dynamic(() => import("./property-menu").then((m) => m.PropertyMenu), { ssr: false });
+const AddPropertyPanel = dynamic(() => import("./property-menu").then((m) => m.AddPropertyPanel), { ssr: false });
 
 /**
  * Editable property list of a database row's page: the properties its database pins in a strip under

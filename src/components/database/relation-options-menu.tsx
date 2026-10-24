@@ -15,10 +15,10 @@ const choiceClass = (on: boolean) =>
     : "h-7 truncate rounded-md border border-border px-1 text-xs text-fg-muted hover:bg-bg-hover hover:text-fg";
 
 /**
- * A relation's settings (lib/relation-options): whether a row links to one row or any number,
- * whether row pages show the linked rows inline or as a section of their own, and which properties
- * of the related database linked rows show beside their title, in order. Each change is saved
- * right away; the parent applies it to `prop` optimistically.
+ * How a relation shows (lib/relation-options): whether row pages show the linked rows inline or as
+ * a section of their own, and which properties of the related database linked rows show beside
+ * their title, in order, in cells, cards, row pages and the row picker. Each change is saved right
+ * away; the parent applies it to `prop` optimistically. Its limit to one row is a menu item.
  */
 export function RelationOptionsEditor({
   prop,
@@ -36,9 +36,7 @@ export function RelationOptionsEditor({
   const relation = prop.options.relation;
   // Edited here and saved per change, so quick changes build on each other.
   const [parts, setParts] = useState(() => shownParts(relation));
-  const [limit, setLimit] = useState<"one" | "any">(relation?.limit === "one" ? "one" : "any");
   const [display, setDisplay] = useState<"section" | "inline">(relation?.display === "section" ? "section" : "inline");
-  const parent = relation?.role === "parent";
   const properties = target?.properties ?? [];
   const nameOf = (id: string) => (id === TITLE_FIELD ? t("titlePart") : (properties.find((p) => p.id === id)?.name ?? ""));
   const typeOf = (id: string) => properties.find((p) => p.id === id)?.type;
@@ -70,30 +68,6 @@ export function RelationOptionsEditor({
         <span className="truncate px-1 text-sm font-medium">{t("options")}</span>
       </div>
       <div className="space-y-3 p-2">
-        {!parent && (
-          <div>
-            <span className="mb-1 block text-xs text-fg-muted">{t("limit")}</span>
-            <div className="grid grid-cols-2 gap-1" role="radiogroup" aria-label={t("limit")}>
-              {(["any", "one"] as const).map((value) => (
-                <button
-                  key={value}
-                  type="button"
-                  role="radio"
-                  aria-checked={limit === value}
-                  onClick={() => {
-                    if (limit === value) return;
-                    setLimit(value);
-                    onChange({ limit: value });
-                  }}
-                  className={choiceClass(limit === value)}
-                >
-                  {t(value === "one" ? "limitOne" : "limitAny")}
-                </button>
-              ))}
-            </div>
-            {limit === "one" && <p className="mt-1 text-xs text-fg-faint">{t("limitHint")}</p>}
-          </div>
-        )}
         <div>
           <span className="mb-1 block text-xs text-fg-muted">{t("rowPage")}</span>
           <div className="grid grid-cols-2 gap-1" role="radiogroup" aria-label={t("rowPage")}>

@@ -12,20 +12,16 @@ const targets = [
 ];
 
 describe("relation options", () => {
-  it("limits to one row and back", () => {
-    const one = checkRelationOptions({ limit: "one" }, base, targets);
-    expect(one).toEqual({ ok: true, relation: { databaseId: "db-2", limit: "one" } });
-    expect(linksOne(one.ok ? one.relation : null)).toBe(true);
-    expect(checkRelationOptions({ limit: "any" }, { ...base, limit: "one" }, targets)).toEqual({ ok: true, relation: base });
-    expect(checkRelationOptions({ limit: null }, { ...base, limit: "one" }, targets)).toEqual({ ok: true, relation: base });
+  it("links one row for parents and single relations", () => {
+    expect(linksOne({ ...base, single: true })).toBe(true);
     expect(linksOne({ ...base, role: "parent" })).toBe(true);
     expect(linksOne(base)).toBe(false);
   });
 
   it("shows as a section or inline, keeping the other options", () => {
-    expect(checkRelationOptions({ display: "section" }, { ...base, limit: "one" }, targets)).toEqual({
+    expect(checkRelationOptions({ display: "section" }, { ...base, single: true }, targets)).toEqual({
       ok: true,
-      relation: { databaseId: "db-2", limit: "one", display: "section" },
+      relation: { databaseId: "db-2", single: true, display: "section" },
     });
     expect(checkRelationOptions({ display: "inline" }, { ...base, display: "section" }, targets)).toEqual({ ok: true, relation: base });
   });
@@ -44,7 +40,6 @@ describe("relation options", () => {
     expect(checkRelationOptions({ show: ["nope"] }, base, targets).ok).toBe(false);
     expect(checkRelationOptions({ show: ["total"] }, base, targets).ok).toBe(false);
     expect(checkRelationOptions({ show: ["status", "owner", "due", "a", "b"] }, base, targets).ok).toBe(false);
-    expect(checkRelationOptions({ limit: "two" as never }, base, targets).ok).toBe(false);
     expect(checkRelationOptions({ display: "page" as never }, base, targets).ok).toBe(false);
     expect(checkRelationOptions({ show: [1] as never }, base, targets).ok).toBe(false);
     expect(MAX_RELATION_SHOW).toBe(4);

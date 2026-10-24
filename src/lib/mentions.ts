@@ -48,7 +48,7 @@ export const PAGE_LINK_MARKER = "<!-- leafdesk:page-link -->";
 export const SYNCED_PAGE_BLOCK = "syncedPage";
 export const SYNCED_PAGE_MARKER = "<!-- leafdesk:synced-page -->";
 
-export type MentionKind = "user" | "group" | "page" | "date" | "link";
+export type MentionKind = "user" | "group" | "page" | "date" | "link" | "comment";
 
 /**
  * - `id`: this mention, for people, groups and dates. A person hears about a mention once (the
@@ -59,6 +59,7 @@ export type MentionKind = "user" | "group" | "page" | "date" | "link";
  * - `pageId`: the page. `blockId`: a block of it the mention opens the page at, or "".
  * - `date`: YYYY-MM-DD. `remindAt`: an ISO instant, or "" for no reminder. The reminder goes to
  *   whoever set it (the server records who, see server/mentions.ts).
+ * - `threadId`: a comment mention's thread, of the page `pageId` (lib/comment-refs).
  * - `url`: a link mention's address (http or https). `title`, `favicon` and `siteName`: the
  *   linked page's details, fetched once like a bookmark's (server/link-preview.ts) and stored, so
  *   showing the mention fetches nothing but the icon. `fetchedAt`: when, or "" until then.
@@ -66,13 +67,14 @@ export type MentionKind = "user" | "group" | "page" | "date" | "link";
 export const mentionConfig = {
   type: MENTION,
   propSchema: {
-    kind: { default: "page", values: ["user", "group", "page", "date", "link"] },
+    kind: { default: "page", values: ["user", "group", "page", "date", "link", "comment"] },
     id: { default: "" },
     userId: { default: "" },
     groupId: { default: "" },
     name: { default: "" },
     pageId: { default: "" },
     blockId: { default: "" },
+    threadId: { default: "" },
     date: { default: "" },
     remindAt: { default: "" },
     url: { default: "" },
@@ -112,6 +114,7 @@ export type MentionProps = {
   name: string;
   pageId: string;
   blockId: string;
+  threadId: string;
   date: string;
   remindAt: string;
   url: string;
@@ -129,6 +132,7 @@ export const EMPTY_MENTION: MentionProps = {
   name: "",
   pageId: "",
   blockId: "",
+  threadId: "",
   date: "",
   remindAt: "",
   url: "",
@@ -195,7 +199,7 @@ export function isIsoDate(value: unknown): value is string {
 export function mentionProps(props: unknown): MentionProps {
   const p = (props && typeof props === "object" ? props : {}) as Record<string, unknown>;
   const str = (key: keyof MentionProps) => (typeof p[key] === "string" ? (p[key] as string) : "");
-  const kind = p.kind === "user" || p.kind === "group" || p.kind === "date" || p.kind === "link" ? p.kind : "page";
+  const kind = p.kind === "user" || p.kind === "group" || p.kind === "date" || p.kind === "link" || p.kind === "comment" ? p.kind : "page";
   const blockId = isBlockId(p.blockId) ? p.blockId : "";
   return {
     kind,
@@ -205,6 +209,7 @@ export function mentionProps(props: unknown): MentionProps {
     name: str("name"),
     pageId: str("pageId"),
     blockId,
+    threadId: typeof p.threadId === "string" && /^[\w-]{1,128}$/.test(p.threadId) ? p.threadId : "",
     date: str("date"),
     remindAt: str("remindAt"),
     url: str("url"),

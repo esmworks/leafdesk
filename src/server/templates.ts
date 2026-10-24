@@ -313,8 +313,9 @@ async function titleWithMarkers(userId: string, title: string, input: FromTempla
 }
 
 /**
- * A new row: from the database's default row template when it has one the user can see and no
- * values are given (`useDefault`), else blank like any new row.
+ * A new row: with `useDefault`, from the default row template of the view it is made in (`viewId`,
+ * see ViewConfig defaultTemplateId) or else the database's, when it has one the user can see;
+ * otherwise from `templateId`, or blank like any new row.
  */
 export async function createRow(
   actor: WriteActor,
@@ -324,15 +325,21 @@ export async function createRow(
     properties?: Record<string, unknown>;
     templateId?: string | null;
     useDefault?: boolean;
+    /** The view "New" was pressed in: its own default template comes before the database's. */
+    viewId?: string;
     timeZone?: string;
     locale?: string;
   },
 ): Promise<{ id: string; position: number; templateId: string | null }> {
   const database = await requireDatabase(actor.userId, databaseId, "edit");
   let templateId = input.templateId ?? null;
-  if (!templateId && input.useDefault && database.defaultTemplateId) {
-    const { level } = await resolveLevel(actor.userId, database.defaultTemplateId);
-    if (level !== "none") templateId = database.defaultTemplateId;
+  if (!templateId && input.useDefault) {
+    const own = input.viewId ? await viewDefaultTemplate(input.viewId, databaseId) : undefined;
+    const fallback = own === undefined ? database.defaultTemplateId : own;
+    if (fallback) {
+      const { level } = await resolveLevel(actor.userId, fallback);
+      if (level !== "none") templateId = fallback;
+    }
   }
   if (templateId) {
     const template = await requireTemplate(actor.userId, templateId, "view");
@@ -353,6 +360,22 @@ export async function createRow(
     properties: input.properties,
   });
   return { id: created.id, position: created.position, templateId: null };
+}
+
+/**
+ * A view's own default row template (ViewConfig defaultTemplateId): its id while it is still a
+ * row template of the database, null for blank rows, undefined when the view has none (or names
+ * a template since deleted, or isn't a view of this database): the database's default applies.
+ */
+async function viewDefaultTemplate(viewId: string, databaseId: string): Promise<string | null | undefined> {
+  const [view] = await db
+    .select({ config: databaseView.config })
+    .from(databaseView)
+    .where(and(eq(databaseView.id, viewId), eq(databaseView.databaseId, databaseId), isNull(databaseView.deletedAt)));
+  const own = view?.config.defaultTemplateId;
+  if (own === null) return null;
+  if (typeof own !== "string") return undefined;
+  return (await rowTemplateInput(databaseId, own))?.templateId ?? undefined;
 }
 
 /**
@@ -396,15 +419,24 @@ export async function createRowTemplate(
   return { id: created.id };
 }
 
-/** Picks the row template "New" starts from, or none (null) for blank rows. Needs edit access. */
-export async function setDefaultRowTemplate(userId: string, databaseId: string, templateId: string | null) {
+/**
+ * Picks the row template "New" starts from, or none (null) for blank rows. Needs edit access.
+ * `allViews` also drops the views' own choices (ViewConfig defaultTemplateId), so every view uses it.
+ */
+export async function setDefaultRowTemplate(userId: string, databaseId: string, templateId: string | null, { allViews = false } = {}) {
   await requireDatabase(userId, databaseId, "edit");
   if (templateId) {
     const template = await requireTemplate(userId, templateId, "view");
     if (template.parentId !== databaseId) throw withCode(new Error("Not a row template of this database"), "notATemplate");
   }
   await db.update(page).set({ defaultTemplateId: templateId, updatedBy: userId }).where(eq(page.id, databaseId));
-  getCollab().broadcast(`db:${databaseId}`, "rows");
+  if (allViews) {
+    await db.execute(sql`
+      update ${databaseView} set config = config - 'defaultTemplateId'
+      where ${databaseView.databaseId} = ${databaseId} and config ? 'defaultTemplateId'
+    `);
+  }
+  getCollab().broadcast(`db:${databaseId}`, allViews ? "schema" : "rows");
 }
 
 /**

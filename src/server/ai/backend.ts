@@ -169,7 +169,7 @@ export async function createBackend(config: AiConfig): Promise<AiBackend | null>
     name: chat.provider,
     baseUrl: model.baseUrl,
     // The key comes from our settings, never from the provider's own environment variables or a
-    // credential store: what the README documents is what gets used.
+    // credential store: what docs/ai.md documents is what gets used.
     auth: {
       apiKey: {
         name: "AI_API_KEY",

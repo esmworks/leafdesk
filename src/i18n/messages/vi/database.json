@@ -76,6 +76,10 @@
       "blank": "Hàng trống",
       "setDefault": "Dùng cho “Mới”",
       "isDefault": "Đang dùng cho “Mới”",
+      "isViewDefault": "Đang dùng cho “Mới” trong chế độ xem này",
+      "forThisView": "Cho chế độ xem này",
+      "forAllViews": "Cho mọi chế độ xem",
+      "followAllViews": "Dùng mặc định của mọi chế độ xem ở đây",
       "edit": "Chỉnh sửa mẫu",
       "delete": "Xóa mẫu",
       "confirmDelete": "Xóa vĩnh viễn mẫu hàng này? Các hàng đã tạo từ nó vẫn giữ nguyên.",
@@ -225,7 +229,14 @@
     "relative": {
       "today": "Hôm nay",
       "thisWeek": "Tuần này",
+      "lastWeek": "Tuần trước",
+      "nextWeek": "Tuần sau",
       "thisMonth": "Tháng này",
+      "lastMonth": "Tháng trước",
+      "nextMonth": "Tháng sau",
+      "thisYear": "Năm nay",
+      "lastYear": "Năm ngoái",
+      "nextYear": "Năm sau",
       "pastNDays": "N ngày qua",
       "nextNDays": "N ngày tới",
       "pastDays": "{count, plural, other {# ngày qua}}",
@@ -253,7 +264,8 @@
     "clickForMenu": "Nhấp để mở menu",
     "sortedNoDrag": "Không thể kéo các hàng khi chế độ xem đang được sắp xếp",
     "sortedAscending": "Đã sắp xếp tăng dần",
-    "sortedDescending": "Đã sắp xếp giảm dần"
+    "sortedDescending": "Đã sắp xếp giảm dần",
+    "fillHandle": "Kéo lên hoặc xuống để điền giá trị này vào các ô"
   },
   "rowMenu": {
     "open": "Mở",
@@ -567,7 +579,13 @@
       "default": "Mặc định",
       "12h": "12 giờ",
       "24h": "24 giờ"
-    }
+    },
+    "onePerson": "Giới hạn một người",
+    "onePersonHint": "Mỗi hàng chỉ ghi tối đa một người. Các hàng đang ghi nhiều người sẽ giữ nguyên cho đến khi được thay đổi.",
+    "oneRow": "Giới hạn một trang",
+    "oneRowHint": "Mỗi hàng chỉ liên kết tối đa một trang. Các hàng đang liên kết nhiều trang sẽ giữ nguyên cho đến khi được thay đổi.",
+    "statusCheckbox": "Hiển thị dạng ô đánh dấu",
+    "statusCheckboxHint": "Ô được đánh dấu khi trạng thái đã xong. Đánh dấu sẽ chọn trạng thái xong đầu tiên, bỏ đánh dấu sẽ chọn trạng thái cần làm đầu tiên."
   },
   "rowProperties": {
     "noProperties": "Không có thuộc tính",
@@ -711,16 +729,12 @@
     "open": "Mở {title}",
     "unlink": "Xóa liên kết đến {title}",
     "options": "Cài đặt quan hệ",
-    "limit": "Giới hạn",
-    "limitAny": "Không giới hạn",
-    "limitOne": "1 trang",
-    "limitHint": "Mỗi hàng chỉ liên kết một hàng. Chọn hàng khác sẽ thay thế hàng đó.",
     "rowPage": "Trên trang hàng",
     "displayInline": "Cùng dòng",
     "displaySection": "Thành một mục riêng",
     "sectionHint": "Các hàng liên kết hiện bên dưới thuộc tính, có thể sửa thuộc tính của chúng ngay tại đó.",
     "shows": "Hàng liên kết hiển thị",
-    "showsHint": "Hiện trong ô bảng, thẻ và trang hàng.",
+    "showsHint": "Hiện trong ô bảng, thẻ, trang hàng và bộ chọn hàng.",
     "titlePart": "Tiêu đề",
     "addPart": "Thêm thuộc tính…",
     "moveUp": "Đưa {name} lên",
@@ -808,6 +822,7 @@
     "showTable": "Hiện bảng",
     "showWeekends": "Hiện cuối tuần",
     "showIcons": "Hiện biểu tượng trang",
+    "showVerticalLines": "Hiện đường kẻ dọc",
     "openRows": "Mở các hàng trong",
     "openRowsIn": {
       "panel": "Bảng bên",
@@ -961,6 +976,7 @@
     "pageLocked": "Trang này đang bị khóa. Hãy mở khóa từ menu của nó để thay đổi tiêu đề, biểu tượng, hình nền hoặc nội dung.",
     "pageInTrash": "Trang này đang ở trong thùng rác. Hãy khôi phục để thay đổi nó.",
     "invalidPerson": "“{property}” chỉ có thể chứa những người của không gian làm việc này.",
+    "onePerson": "“{property}” chỉ chứa một người.",
     "readOnlyProperty": "“{property}” được điền tự động và không thể thay đổi.",
     "invalidFilter": "Không thể lưu bộ lọc này. Hãy tải lại trang và thử lại.",
     "tooManyRows": "Bạn chỉ có thể thay đổi tối đa {max} hàng cùng lúc.",
@@ -1010,7 +1026,7 @@
     "invalidSprints": "Không thể thiết lập sprint như vậy: hãy kiểm tra độ dài sprint, ngày đầu tiên và cơ sở dữ liệu sprint.",
     "sprintStateOption": "Tùy chọn này đánh dấu trạng thái của sprint. Bạn có thể đổi tên, hoặc tắt sprint trước khi xóa nó.",
     "invalidSlackUrl": "Không phải địa chỉ webhook đến của Slack (https://hooks.slack.com/services/…).",
-    "relationLimit": "“{property}” chỉ liên kết tối đa một hàng. Hãy chọn một hàng.",
+    "oneRow": "“{property}” chỉ liên kết một trang. Hãy chọn một.",
     "invalidRelationOptions": "Không thể lưu các cài đặt quan hệ này."
   },
   "formula": {

@@ -45,6 +45,8 @@ import {
 import { linkMentionHref, linkMentionTitle } from "@/lib/link-mentions";
 import { openBlockLink } from "./block-focus";
 import { LinkMentionChip } from "./link-mention";
+import { CommentMentionChip, CommentPasteChooser, type PastedComment } from "./comment-refs";
+import { linkedCommentRef } from "@/lib/comment-refs";
 import { LINK_PLACEHOLDER } from "@/lib/link-context";
 import type { Backlink, MentionCandidates, PageRef, UnlinkedMention } from "@/server/mentions";
 import type { AgentCandidate } from "@/server/agents/mentions";
@@ -409,6 +411,7 @@ const Mention = createReactInlineContentSpec(mentionConfig, {
     if (props.kind === "user") return <PersonMentionChip name={props.name} />;
     if (props.kind === "group") return <GroupMentionChip groupId={props.groupId} name={props.name} />;
     if (props.kind === "link") return <LinkMentionChip props={props} onChange={editor.isEditable ? change : null} />;
+    if (props.kind === "comment") return <CommentMentionChip pageId={props.pageId} threadId={props.threadId} />;
     return <DateMentionChip props={props} onChange={editor.isEditable ? change : null} />;
   },
   // Copied out of the editor: plain text and links other apps understand, never a title the
@@ -417,6 +420,8 @@ const Mention = createReactInlineContentSpec(mentionConfig, {
     const props = mentionProps(inlineContent.props);
     if (props.kind === "user" || props.kind === "group") return <span>@{props.name}</span>;
     if (props.kind === "date") return <span>{props.date}</span>;
+    // A thread's text is the reader's to see only in the app (comment-refs.tsx).
+    if (props.kind === "comment") return <span />;
     if (props.kind === "link") {
       const href = linkMentionHref(props);
       return href ? <a href={href}>{linkMentionTitle(props)}</a> : <span />;
@@ -608,17 +613,25 @@ export function MentionMenu({ editor, workspaceId, pageId }: { editor: PageEdito
           },
         ];
       });
-      if (isIsoDate(query.trim())) {
-        const date = query.trim();
+      // A date written out: "2026-10-16", "next friday", "in 3 days", "3 days ago", in the
+      // interface language or English (lib/quick-add, loaded when the query could be one).
+      const written = query.trim();
+      const date = isIsoDate(written)
+        ? written
+        : /[\p{L}\p{N}]/u.test(query) && query.trim().length <= 40
+          ? (await import("@/lib/quick-add")).parseDateText(written, { locale, today: localIsoDate(0) })
+          : null;
+      if (date && !DATE_ITEMS.some((d) => localIsoDate(d.days) === date && dates.some((item) => item.title === t(d.key)))) {
         dates.unshift({
           title: formatIsoDate(date, locale),
-          subtext: date,
+          subtext: written === date ? date : `${written} · ${new Intl.DateTimeFormat(locale, { weekday: "long" }).format(new Date(`${date}T12:00:00`))}`,
           group: t("dates"),
           icon: <CalendarDays size={18} />,
           onItemClick: () => insert({ kind: "date", id: newMentionId(), date }),
         });
       }
-      return [...people, ...groups, ...pages, ...dates];
+      // A query that reads as a date is most likely meant as one.
+      return date ? [...dates, ...people, ...groups, ...pages] : [...people, ...groups, ...pages, ...dates];
     },
     [editor, workspaceId, pageId, insert, pageItem, t, locale],
   );
@@ -746,9 +759,15 @@ export function PageLinkMenu({ editor, workspaceId, pageId, offline }: { editor:
   }, [query, load, suggestionMenu, editor, workspaceId]);
 
   usePastedWikilinks(editor, workspaceId, pageId);
-  usePastedPageLinks(editor);
+  const [pastedComment, setPastedComment] = useState<PastedComment | null>(null);
+  usePastedPageLinks(editor, workspaceId, setPastedComment);
 
-  return <SuggestionMenuController triggerCharacter={PAGE_LINK_TRIGGER} getItems={getItems} />;
+  return (
+    <>
+      <SuggestionMenuController triggerCharacter={PAGE_LINK_TRIGGER} getItems={getItems} />
+      {pastedComment && <CommentPasteChooser editor={editor} pasted={pastedComment} onDone={() => setPastedComment(null)} />}
+    </>
+  );
 }
 
 type EditorBlock = PageEditor["document"][number];
@@ -820,13 +839,21 @@ function usePastedWikilinks(editor: PageEditor, workspaceId: string, pageId: str
  * live title instead of an address, and a link backlinks count. Pasted over a selection, it links
  * the selected text as usual.
  */
-function usePastedPageLinks(editor: PageEditor) {
+function usePastedPageLinks(editor: PageEditor, workspaceId: string, onComment: (pasted: PastedComment) => void) {
   useEffect(() => {
     const onPaste = (event: ClipboardEvent) => {
       const root = editor.domElement;
       if (!root || !(event.target instanceof Node) || !root.contains(event.target) || !editor.isEditable) return;
       const text = (event.clipboardData?.getData("text/plain") ?? "").trim();
       if (!text || /\s/.test(text) || !editor.prosemirrorState.selection.empty) return;
+      // A link to a comment thread of this workspace: mention, preview or link (comment-refs.tsx).
+      const thread = linkedCommentRef(text, window.location.origin);
+      if (thread && thread.workspaceId === workspaceId) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        onComment({ url: text, pageId: thread.pageId, threadId: thread.threadId });
+        return;
+      }
       const linked = linkedPageRef(text, window.location.origin);
       if (!linked) return;
       event.preventDefault();
@@ -837,7 +864,7 @@ function usePastedPageLinks(editor: PageEditor) {
     };
     document.addEventListener("paste", onPaste, true);
     return () => document.removeEventListener("paste", onPaste, true);
-  }, [editor]);
+  }, [editor, workspaceId, onComment]);
 }
 
 // ---------------------------------------------------------------------------------------------

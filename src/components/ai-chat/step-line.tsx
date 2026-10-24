@@ -217,7 +217,18 @@ const OP_LABELS = {
   is_not_empty: "isNotEmpty",
   is_within: "isWithin",
 } as const;
-const RANGE_LABELS = { today: "today", this_week: "thisWeek", this_month: "thisMonth" } as const;
+const RANGE_LABELS = {
+  today: "today",
+  this_week: "thisWeek",
+  last_week: "lastWeek",
+  next_week: "nextWeek",
+  this_month: "thisMonth",
+  last_month: "lastMonth",
+  next_month: "nextMonth",
+  this_year: "thisYear",
+  last_year: "lastYear",
+  next_year: "nextYear",
+} as const;
 
 /** A query step's filter rules, "or" between them when any may match. */
 function Conditions({ conditions, any }: { conditions: ChatQueryCondition[]; any: boolean }) {

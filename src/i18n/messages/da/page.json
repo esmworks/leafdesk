@@ -110,6 +110,7 @@
       "you": "{name} (dig)"
     },
     "threadMenu": "Indstillinger for tråd",
+    "copyLink": "Kopiér link",
     "mute": "Slå lyden fra på svar",
     "unmute": "Slå lyden til på svar",
     "muteHint": "Få ikke længere besked om nye svar i denne tråd. Hvis du svarer her eller bliver omtalt her, slås det til igen.",
@@ -621,7 +622,8 @@
       "submit": "Indlejr",
       "providers": "YouTube, Vimeo, Loom, Figma, udgivne Google Docs, Sheets og Slides, CodePen, Spotify og Google Maps. Andre links bliver til et bogmærke.",
       "frameTitle": "Indlejret indhold fra {host}",
-      "label": "Indlejring"
+      "label": "Indlejring",
+      "resize": "Træk for at ændre indlejringens bredde"
     },
     "paste": {
       "label": "Indsæt som",
@@ -711,6 +713,11 @@
   },
   "blockMenu": {
     "copyLink": "Kopiér link til blok",
+    "download": "Hent",
+    "alignLeft": "Venstrejustér",
+    "alignCenter": "Centrér",
+    "alignRight": "Højrejustér",
+    "wideColumns": "Brede kolonner",
     "hideInPrint": "Skjul ved udskrivning",
     "calloutStyle": "Infoboksstil",
     "turnIntoCallout": "Lav om til infoboks",
@@ -956,7 +963,8 @@
     "markdownImage": "Billede: {alt}",
     "markdownImageUntitled": "Billede",
     "expand": "Åbn i fremviser",
-    "view": "Vis {name}"
+    "view": "Vis {name}",
+    "resize": "Træk for at ændre bredden"
   },
   "presentation": {
     "previous": "Forrige dias",
@@ -1191,5 +1199,16 @@
     "reset": "Vis hele billedet",
     "loading": "Indlæser billedet…",
     "failed": "Billedet kunne ikke indlæses."
+  },
+  "commentRef": {
+    "pasteTitle": "Indsæt link til en kommentar",
+    "pasteAsMention": "Indsæt som omtale",
+    "pasteAsPreview": "Indsæt som forhåndsvisning",
+    "pasteAsLink": "Indsæt som link",
+    "noAccess": "Ingen adgang til denne kommentar",
+    "onPage": "På {title}",
+    "replies": "{count, plural, =0 {Ingen svar} one {# svar} other {# svar}}",
+    "openThread": "Åbn tråd",
+    "resolved": "Løst"
   }
 }

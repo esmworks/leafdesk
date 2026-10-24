@@ -76,6 +76,10 @@
       "blank": "Linha vazia",
       "setDefault": "Usar em “Novo”",
       "isDefault": "Usado em “Novo”",
+      "isViewDefault": "Usado em “Novo” nesta visualização",
+      "forThisView": "Para esta visualização",
+      "forAllViews": "Para todas as visualizações",
+      "followAllViews": "Usar aqui o padrão de todas as visualizações",
       "edit": "Editar modelo",
       "delete": "Excluir modelo",
       "confirmDelete": "Excluir este modelo de linha de vez? As linhas já criadas a partir dele continuam como estão.",
@@ -225,7 +229,14 @@
     "relative": {
       "today": "Hoje",
       "thisWeek": "Esta semana",
+      "lastWeek": "Semana passada",
+      "nextWeek": "Próxima semana",
       "thisMonth": "Este mês",
+      "lastMonth": "Mês passado",
+      "nextMonth": "Próximo mês",
+      "thisYear": "Este ano",
+      "lastYear": "Ano passado",
+      "nextYear": "Próximo ano",
       "pastNDays": "Últimos N dias",
       "nextNDays": "Próximos N dias",
       "pastDays": "{count, plural, one {Último dia} other {Últimos # dias}}",
@@ -253,7 +264,8 @@
     "clickForMenu": "Clique para abrir o menu",
     "sortedNoDrag": "As linhas não podem ser arrastadas enquanto a vista está ordenada",
     "sortedAscending": "Em ordem crescente",
-    "sortedDescending": "Em ordem decrescente"
+    "sortedDescending": "Em ordem decrescente",
+    "fillHandle": "Arraste para cima ou para baixo para preencher as células com este valor"
   },
   "rowMenu": {
     "open": "Abrir",
@@ -567,7 +579,13 @@
       "default": "Padrão",
       "12h": "12 horas",
       "24h": "24 horas"
-    }
+    },
+    "onePerson": "Limitar a uma pessoa",
+    "onePersonHint": "Cada linha indica no máximo uma pessoa. Linhas que indicam mais as mantêm até serem alteradas.",
+    "oneRow": "Limitar a uma página",
+    "oneRowHint": "Cada linha vincula no máximo uma página. Linhas que vinculam mais as mantêm até serem alteradas.",
+    "statusCheckbox": "Mostrar como caixa de seleção",
+    "statusCheckboxHint": "Uma caixa marcada enquanto o status estiver concluído. Marcá-la escolhe o primeiro status concluído; desmarcá-la, o primeiro a fazer."
   },
   "rowProperties": {
     "noProperties": "Nenhuma propriedade",
@@ -711,16 +729,12 @@
     "open": "Abrir {title}",
     "unlink": "Remover vínculo com {title}",
     "options": "Configurações da relação",
-    "limit": "Limite",
-    "limitAny": "Sem limite",
-    "limitOne": "1 página",
-    "limitHint": "Cada linha vincula uma única linha. Escolher outra a substitui.",
     "rowPage": "Nas páginas de linha",
     "displayInline": "Em linha",
     "displaySection": "Como seção",
     "sectionHint": "As linhas vinculadas aparecem abaixo das propriedades, com suas propriedades editáveis ali.",
     "shows": "As linhas vinculadas mostram",
-    "showsHint": "Aparece em células de tabela, cartões e páginas de linha.",
+    "showsHint": "Aparece em células de tabela, cartões, páginas de linha e no seletor de linhas.",
     "titlePart": "Título",
     "addPart": "Adicionar uma propriedade…",
     "moveUp": "Mover {name} para cima",
@@ -808,6 +822,7 @@
     "showTable": "Mostrar tabela",
     "showWeekends": "Mostrar fins de semana",
     "showIcons": "Mostrar ícones de página",
+    "showVerticalLines": "Mostrar linhas verticais",
     "openRows": "Abrir linhas em",
     "openRowsIn": {
       "panel": "Painel lateral",
@@ -961,6 +976,7 @@
     "pageLocked": "Esta página está bloqueada. Desbloqueie-a pelo menu dela para alterar o título, o ícone, o fundo ou o texto.",
     "pageInTrash": "Esta página está na lixeira. Restaure-a para alterá-la.",
     "invalidPerson": "“{property}” só pode conter pessoas deste espaço de trabalho.",
+    "onePerson": "“{property}” comporta apenas uma pessoa.",
     "readOnlyProperty": "“{property}” é preenchida automaticamente e não pode ser alterada.",
     "invalidFilter": "Não é possível salvar este filtro. Recarregue a página e tente novamente.",
     "tooManyRows": "Você pode alterar no máximo {max} linhas de uma vez.",
@@ -1010,7 +1026,7 @@
     "invalidSprints": "Os sprints não podem ser configurados assim: verifique a duração do sprint, o primeiro dia e o banco de dados de sprints.",
     "sprintStateOption": "Esta opção marca o estado de um sprint. Pode renomeá-la ou desativar os sprints antes de a eliminar.",
     "invalidSlackUrl": "Não é o endereço de um webhook de entrada do Slack (https://hooks.slack.com/services/…).",
-    "relationLimit": "“{property}” vincula no máximo uma linha. Escolha uma linha.",
+    "oneRow": "“{property}” vincula apenas uma página. Escolha uma.",
     "invalidRelationOptions": "Não é possível salvar estas configurações de relação."
   },
   "formula": {

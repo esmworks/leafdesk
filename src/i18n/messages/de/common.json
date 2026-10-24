@@ -29,5 +29,14 @@
     "busy": "Du hast bereits einen laufenden Export. Warte, bis sein Download abgeschlossen ist.",
     "disabled": "In diesem Workspace ist der Export ausgeschaltet."
   },
-  "celebrate": "Gut gemacht!"
+  "celebrate": "Gut gemacht!",
+  "toast": {
+    "undo": "Rückgängig",
+    "dismiss": "Schließen",
+    "movedTo": "Verschoben nach",
+    "movedToPlace": "Verschoben nach {place}",
+    "trashed": "In den Papierkorb verschoben",
+    "rowsTrashed": "{count, plural, one {Zeile in den Papierkorb verschoben} other {# Zeilen in den Papierkorb verschoben}}",
+    "undoFailed": "Das ließ sich nicht rückgängig machen."
+  }
 }

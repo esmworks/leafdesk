@@ -1575,7 +1575,7 @@ export function createMcpServer(principal: McpPrincipal) {
     {
       title: "Query database rows",
       description:
-        'List rows of a database with optional filters and sorts. Filters reference properties by name (or "title", "created_at", "updated_at") and use select / status option names as values; all must match unless filter_combinator is "or", and groups ({type: "group", combinator, rules}) mix the two, e.g. Status is Done and (Assignee contains me or Priority is High). Ops: contains, does_not_contain, equals, not_equals, is_any_of, is_none_of, is_empty, is_not_empty, gt, gte, lt, lte, is_within. Text contains / does_not_contain ignore case. For a relation use contains / not_equals with a related row id or title; for a person, created_by or last_edited_by, contains / not_equals with a user id, email, name or "me". is_any_of / is_none_of take a list: option names on select and status, and on multi_select, relation and people the row holds at least one / none, e.g. {"property": "Status", "op": "is_any_of", "value": ["Todo", "In progress"]}; people lists may include "me". Numbers compare with gt, gte, lt and lte. Dates, created_time and last_edited_time use equals (that day), gt/gte/lt/lte with YYYY-MM-DD, and is_within takes today, this_week (Monday to Sunday), this_month, or past_n_days / next_n_days with "days" (both include today), counted from the current date on the server. A range matches when any of its days does; times count on their day in the server time zone. Dates sort by their start. Checklists and files only support is_empty / is_not_empty. Sorting follows the grouping order of a status and the start of a date. Returns property values by name; relations as [{id, title}], people as [{id, name}], checklists as [{text, checked}], files as [{name, url}]. Values the user may not see are left out and named in hidden_properties; properties hidden in every row cannot be filtered or sorted by. Rows come a page at a time (limit, at most 200): when has_more is true, call again with cursor set to next_cursor and the same filters, sorts and view_id to read on, until next_cursor is null; total is how many rows match. properties (names) narrows each row to those values, to keep large reads small. Rows archived on their own are left out unless include_archived is true or view_id names a view that shows them.',
+        'List rows of a database with optional filters and sorts. Filters reference properties by name (or "title", "created_at", "updated_at") and use select / status option names as values; all must match unless filter_combinator is "or", and groups ({type: "group", combinator, rules}) mix the two, e.g. Status is Done and (Assignee contains me or Priority is High). Ops: contains, does_not_contain, equals, not_equals, is_any_of, is_none_of, is_empty, is_not_empty, gt, gte, lt, lte, is_within. Text contains / does_not_contain ignore case. For a relation use contains / not_equals with a related row id or title; for a person, created_by or last_edited_by, contains / not_equals with a user id, email, name or "me". is_any_of / is_none_of take a list: option names on select and status, and on multi_select, relation and people the row holds at least one / none, e.g. {"property": "Status", "op": "is_any_of", "value": ["Todo", "In progress"]}; people lists may include "me". Numbers compare with gt, gte, lt and lte. Dates, created_time and last_edited_time use equals (that day), gt/gte/lt/lte with YYYY-MM-DD, and is_within takes today, {this,last,next}_{week,month,year} (weeks from Monday), or past_n_days / next_n_days with "days" (both include today), counted from the current date on the server. A range matches when any of its days does; times count on their day in the server time zone. Dates sort by their start. Checklists and files only support is_empty / is_not_empty. Sorting follows the grouping order of a status and the start of a date. Returns property values by name; relations as [{id, title}], people as [{id, name}], checklists as [{text, checked}], files as [{name, url}]. Values the user may not see are left out and named in hidden_properties; properties hidden in every row cannot be filtered or sorted by. Rows come a page at a time (limit, at most 200): when has_more is true, call again with cursor set to next_cursor and the same filters, sorts and view_id to read on, until next_cursor is null; total is how many rows match. properties (names) narrows each row to those values, to keep large reads small. Rows archived on their own are left out unless include_archived is true or view_id names a view that shows them.',
       inputSchema: ops.inputs.queryDatabase,
       annotations: READ,
     },
@@ -1932,7 +1932,7 @@ export function createMcpServer(principal: McpPrincipal) {
     {
       title: "Update a database property",
       description:
-        `Change a database property: its name, options (add, rename or remove by name; status options also move between todo, in_progress and done), formula, rollup, number_format, date_options, prefix, description, depends_on with option_parents, or relation_limit. Renaming an option keeps it on every row that uses it; removing one clears it from those rows. Renaming a property keeps the formulas that use it working. A number format never changes the stored values. ${NUMBER_FORMAT_HELP} ${DATE_OPTIONS_HELP}`,
+        `Change a database property: its name, options (add, rename or remove by name; status options also move between todo, in_progress and done), formula, rollup, number_format, date_options, prefix, description, depends_on with option_parents, or one_row. Renaming an option keeps it on every row that uses it; removing one clears it from those rows. Renaming a property keeps the formulas that use it working. A number format never changes the stored values. ${NUMBER_FORMAT_HELP} ${DATE_OPTIONS_HELP}`,
       inputSchema: z.object({
         database_id: id("database"),
         property: z.string().min(1).describe("Current property name or id."),
@@ -1965,10 +1965,7 @@ export function createMcpServer(principal: McpPrincipal) {
         description: descriptionInput.nullable().optional().describe("The new description (null or \"\" for none). " + descriptionInput.description),
         depends_on: dependsOnInput.nullable().optional().describe(`${dependsOnInput.description} null: depend on nothing. Changing it forgets the options' lists.`),
         option_parents: optionParentsInput.optional(),
-        relation_limit: z
-          .enum(["one", "any"])
-          .optional()
-          .describe('Relation: "one" row per row at most, or "any".'),
+        one_row: z.boolean().optional().describe("Relation: each row links one row at most (true) or any."),
       }),
       annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false },
       scopeChallenge: requireWrite,
@@ -1989,7 +1986,7 @@ export function createMcpServer(principal: McpPrincipal) {
       description,
       depends_on,
       option_parents,
-      relation_limit,
+      one_row,
     }) =>
       runTool(async () => {
         assertWrite();
@@ -2005,11 +2002,11 @@ export function createMcpServer(principal: McpPrincipal) {
           description?: string | null;
           dependsOn?: string | null;
           prefix?: string | null;
-          relation?: { limit: "one" | "any" };
+          oneRow?: boolean;
         } = {};
-        if (relation_limit !== undefined) {
-          if (prop.type !== "relation") throw new ToolInputError(`"${prop.name}" is a ${prop.type} property; only relations have a limit.`);
-          patch.relation = { limit: relation_limit };
+        if (one_row !== undefined) {
+          if (prop.type !== "relation") throw new ToolInputError(`"${prop.name}" is a ${prop.type} property; only relations link one row.`);
+          patch.oneRow = one_row;
         }
         if (description !== undefined) patch.description = description;
         if (prefix !== undefined) {
@@ -2090,10 +2087,10 @@ export function createMcpServer(principal: McpPrincipal) {
           patch.description === undefined &&
           patch.dependsOn === undefined &&
           patch.prefix === undefined &&
-          !patch.relation
+          patch.oneRow === undefined
         ) {
           throw new ToolInputError(
-            "Nothing to change: provide name, option changes, formula, rollup, number_format, date_options, prefix, description, depends_on, option_parents or relation_limit.",
+            "Nothing to change: provide name, option changes, formula, rollup, number_format, date_options, prefix, description, depends_on, option_parents or one_row.",
           );
         }
         const { date: storedDate } = await databases.updateProperty(userId, prop.id, patch);
@@ -2116,7 +2113,7 @@ export function createMcpServer(principal: McpPrincipal) {
           ),
         );
         // Descriptions and dependencies as stored (cleaned there).
-        const stored = patch.description !== undefined || patch.dependsOn !== undefined || option_parents?.length || patch.relation
+        const stored = patch.description !== undefined || patch.dependsOn !== undefined || option_parents?.length || patch.oneRow !== undefined
           ? (await databases.getProperties(database_id)).find((p) => p.id === prop.id)
           : undefined;
         const found = after.find((p) => p.id === prop.id)!;

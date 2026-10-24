@@ -16,6 +16,7 @@ import { SiteAnalytics } from "./site-analytics";
 import { SiteHeaderLinks } from "./site-header-links";
 import { SiteNav } from "./site-nav";
 import { SourceFooter } from "./source-footer";
+import { PublishedCodeCopy } from "@/components/page/code-copy";
 
 // `cn` from components/ui is a client export; server components join classes themselves.
 const cn = (...classes: (string | false | null | undefined)[]) => classes.filter(Boolean).join(" ");
@@ -167,6 +168,8 @@ export async function PublishedView({ loaded }: { loaded: LoadedPage }) {
                   unavailable={t("embedUnavailable")}
                 />
               )}
+              {/* Copy buttons on the body's code blocks, once in the browser. */}
+              {data.body.length > 0 && <PublishedCodeCopy />}
 
               {data.database && (
                 <PublishedDatabaseView table={data.database} links={data.links} viewPath={href(data.id, data.title)} className="page-gutter mt-6" />

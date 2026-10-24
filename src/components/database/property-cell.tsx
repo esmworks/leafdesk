@@ -10,9 +10,12 @@ import {
   asChecklist,
   checklistProgress,
   isEmailAddress,
+  isDoneStatus,
   isPhoneNumber,
+  optionOf,
   phoneHref,
   sortStatusOptions,
+  statusFromCheckbox,
   statusGroupOf,
 } from "@/lib/properties";
 import { derivedType, isErrorValue, rollupFormat } from "@/lib/derived";
@@ -225,6 +228,7 @@ export function isEmptyValue(prop: ShownProperty, value: unknown) {
 export function PropertyDisplay({ prop, value, wrap, style }: { prop: ShownProperty; value: unknown; wrap?: boolean; style?: FormulaStyle }) {
   const formatDateTime = useFormatDateTime();
   const formatNumber = useFormatNumber();
+  if (prop.type === "status" && prop.options.statusDisplay === "checkbox") return <CheckboxBox checked={isDoneStatus(prop, value)} />;
   if (value === null || value === undefined || value === "") return null;
   switch (prop.type) {
     case "text":
@@ -281,7 +285,7 @@ export function PropertyDisplay({ prop, value, wrap, style }: { prop: ShownPrope
     case "checkbox":
       return <CheckboxBox checked={value === true} />;
     case "relation":
-      return <RelationChips prop={prop} value={value} wrap={wrap} renderValue={relatedValue} />;
+      return <RelationChips prop={prop} value={value} wrap={wrap} />;
     case "person":
     case "created_by":
     case "last_edited_by":
@@ -295,7 +299,7 @@ export function PropertyDisplay({ prop, value, wrap, style }: { prop: ShownPrope
       const selected = selectedOptions(prop, value);
       if (!selected.length) return null;
       return (
-        <span className={cn("flex min-w-0 gap-1", wrap ? "flex-wrap" : "overflow-hidden")}>
+        <span data-cut-list="" className={cn("flex min-w-0 gap-1", wrap ? "flex-wrap" : "overflow-hidden")}>
           {selected.map((o) => (
             <OptionChip key={o.id} option={o} dot={prop.type === "status"} />
           ))}
@@ -306,8 +310,6 @@ export function PropertyDisplay({ prop, value, wrap, style }: { prop: ShownPrope
 }
 
 /** A value of a related row beside its title in a relation's chips (lib/relation-options). */
-const relatedValue = (prop: ShownProperty, value: unknown) => <PropertyDisplay prop={prop} value={value} />;
-
 type RowValues = { properties: Record<string, unknown>; hidden?: string[]; styles?: Record<string, FormulaStyle> };
 
 /**
@@ -579,8 +581,11 @@ export function PropertyCell({
   style?: FormulaStyle;
   /** The viewer may not see this value (property access): a lock stands in for it. */
   hidden?: boolean;
-  /** "list": a compact value in a list view's line, at the size of its other values. */
-  variant?: "table" | "panel" | "list";
+  /**
+   * "list": a compact value in a list view's line, at the size of its other values. "card": a
+   * value on a board or gallery card, where it shows as it does there.
+   */
+  variant?: "table" | "panel" | "list" | "card";
   wrap?: boolean;
   /** Start in edit mode (e.g. the title of a freshly created row). */
   autoEdit?: boolean;
@@ -599,18 +604,46 @@ export function PropertyCell({
 
   const base = cn(
     "flex min-w-0 items-center",
-    variant === "list" ? "max-w-full rounded px-1 py-0.5 text-xs" : "w-full text-sm",
+    variant === "list" ? "max-w-full rounded px-1 py-0.5 text-xs" : variant !== "card" && "w-full text-sm",
+    // Lit on hover without moving the value from where the card shows it.
+    variant === "card" && "-mx-1 -my-0.5 max-w-[calc(100%+0.5rem)] rounded px-1 py-0.5 text-xs",
     variant === "table" && "min-h-[33px] px-2 py-1",
     variant === "panel" && "min-h-[30px] rounded-md px-2 py-1",
     !readOnly && "cursor-pointer",
     !readOnly && variant === "panel" && "hover:bg-bg-hover",
     !readOnly && variant === "list" && "hover:bg-bg-active",
+    !readOnly && variant === "card" && "hover:bg-fg/5",
   );
 
   if (hidden) {
     return (
       <div className={base}>
         <HiddenValue />
+      </div>
+    );
+  }
+
+  // A status shown as a checkbox ticks the first done option, or unticks to the first to-do one.
+  if (prop.type === "status" && prop.options.statusDisplay === "checkbox") {
+    const done = isDoneStatus(prop, value);
+    return (
+      <div className={cn(base, "cursor-default")}>
+        <button
+          type="button"
+          role="checkbox"
+          aria-checked={done}
+          aria-label={prop.name}
+          title={optionOf(prop, value)?.name}
+          disabled={readOnly}
+          data-cell-edit={readOnly ? undefined : ""}
+          className="inline-flex disabled:cursor-default"
+          onClick={() => {
+            const next = statusFromCheckbox(prop, !done);
+            if (next !== undefined) onChange(next);
+          }}
+        >
+          <CheckboxBox checked={done} />
+        </button>
       </div>
     );
   }

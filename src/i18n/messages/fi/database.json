@@ -76,6 +76,10 @@
       "blank": "Tyhjä rivi",
       "setDefault": "Käytä ”Uusi”-painikkeelle",
       "isDefault": "Käytössä ”Uusi”-painikkeella",
+      "isViewDefault": "Käytössä ”Uusi”-painikkeella tässä näkymässä",
+      "forThisView": "Tähän näkymään",
+      "forAllViews": "Kaikkiin näkymiin",
+      "followAllViews": "Käytä tässä kaikkien näkymien oletusta",
       "edit": "Muokkaa mallia",
       "delete": "Poista malli",
       "confirmDelete": "Poistetaanko tämä rivimalli pysyvästi? Siitä jo luodut rivit säilyvät ennallaan.",
@@ -225,7 +229,14 @@
     "relative": {
       "today": "Tänään",
       "thisWeek": "Tällä viikolla",
+      "lastWeek": "Viime viikolla",
+      "nextWeek": "Ensi viikolla",
       "thisMonth": "Tässä kuussa",
+      "lastMonth": "Viime kuussa",
+      "nextMonth": "Ensi kuussa",
+      "thisYear": "Tänä vuonna",
+      "lastYear": "Viime vuonna",
+      "nextYear": "Ensi vuonna",
       "pastNDays": "Viimeiset N päivää",
       "nextNDays": "Seuraavat N päivää",
       "pastDays": "{count, plural, one {Edellinen päivä} other {Viimeiset # päivää}}",
@@ -253,7 +264,8 @@
     "clickForMenu": "Avaa valikko napsauttamalla",
     "sortedNoDrag": "Rivejä ei voi vetää, kun näkymä on lajiteltu",
     "sortedAscending": "Lajiteltu nousevasti",
-    "sortedDescending": "Lajiteltu laskevasti"
+    "sortedDescending": "Lajiteltu laskevasti",
+    "fillHandle": "Täytä solut tällä arvolla vetämällä ylös tai alas"
   },
   "rowMenu": {
     "open": "Avaa",
@@ -567,7 +579,13 @@
       "default": "Oletus",
       "12h": "12 tuntia",
       "24h": "24 tuntia"
-    }
+    },
+    "onePerson": "Rajoita yhteen henkilöön",
+    "onePersonHint": "Kukin rivi nimeää enintään yhden henkilön. Rivit, joilla on useampia, säilyttävät ne, kunnes niitä muutetaan.",
+    "oneRow": "Rajoita yhteen sivuun",
+    "oneRowHint": "Kukin rivi linkittää enintään yhden sivun. Rivit, joilla on useampia, säilyttävät ne, kunnes niitä muutetaan.",
+    "statusCheckbox": "Näytä valintaruutuna",
+    "statusCheckboxHint": "Ruutu on valittuna, kun tila on valmis. Valitseminen asettaa ensimmäisen valmis-tilan, valinnan poistaminen ensimmäisen tekemättä-tilan."
   },
   "rowProperties": {
     "noProperties": "Ei ominaisuuksia",
@@ -711,16 +729,12 @@
     "open": "Avaa {title}",
     "unlink": "Poista linkki kohteeseen {title}",
     "options": "Relaation asetukset",
-    "limit": "Raja",
-    "limitAny": "Ei rajaa",
-    "limitOne": "1 sivu",
-    "limitHint": "Jokainen rivi linkittyy yhteen riviin. Toisen valitseminen korvaa sen.",
     "rowPage": "Rivisivuilla",
     "displayInline": "Rivin sisällä",
     "displaySection": "Omana osionaan",
     "sectionHint": "Linkitetyt rivit näkyvät ominaisuuksien alla, ja niiden ominaisuuksia voi muokata siellä.",
     "shows": "Linkitetyt rivit näyttävät",
-    "showsHint": "Näkyy taulukon soluissa, korteilla ja rivisivuilla.",
+    "showsHint": "Näkyy taulukon soluissa, korteilla, rivisivuilla ja rivien valitsimessa.",
     "titlePart": "Otsikko",
     "addPart": "Lisää ominaisuus…",
     "moveUp": "Siirrä {name} ylös",
@@ -808,6 +822,7 @@
     "showTable": "Näytä taulukko",
     "showWeekends": "Näytä viikonloput",
     "showIcons": "Näytä sivujen kuvakkeet",
+    "showVerticalLines": "Näytä pystyviivat",
     "openRows": "Avaa rivit kohteessa",
     "openRowsIn": {
       "panel": "Sivupaneeli",
@@ -961,6 +976,7 @@
     "pageLocked": "Tämä sivu on lukittu. Avaa lukitus sen valikosta muuttaaksesi otsikkoa, kuvaketta, taustaa tai tekstiä.",
     "pageInTrash": "Tämä sivu on roskakorissa. Palauta se muuttaaksesi sitä.",
     "invalidPerson": "Ominaisuus ”{property}” voi sisältää vain tämän työtilan henkilöitä.",
+    "onePerson": "”{property}” voi sisältää vain yhden henkilön.",
     "readOnlyProperty": "Ominaisuus ”{property}” täytetään automaattisesti, eikä sitä voi muuttaa.",
     "invalidFilter": "Tätä suodatinta ei voi tallentaa. Lataa sivu uudelleen ja yritä uudestaan.",
     "tooManyRows": "Voit muuttaa enintään {max} riviä kerralla.",
@@ -1010,7 +1026,7 @@
     "invalidSprints": "Sprinttejä ei voi määrittää näin: tarkista sprintin pituus, ensimmäinen päivä ja sprinttien tietokanta.",
     "sprintStateOption": "Tämä vaihtoehto merkitsee sprintin tilaa. Voit nimetä sen uudelleen tai poistaa sprintit käytöstä ennen sen poistamista.",
     "invalidSlackUrl": "Tämä ei ole Slackin saapuvan webhookin osoite (https://hooks.slack.com/services/…).",
-    "relationLimit": "”{property}” linkittää enintään yhden rivin. Valitse yksi rivi.",
+    "oneRow": "”{property}” voi linkittää vain yhden sivun. Valitse yksi.",
     "invalidRelationOptions": "Näitä relaation asetuksia ei voi tallentaa."
   },
   "formula": {

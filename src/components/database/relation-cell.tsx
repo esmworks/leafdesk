@@ -3,19 +3,17 @@
 import { ArrowLeft, Check, ExternalLink, Plus, X } from "lucide-react";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
-import { Fragment, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { listDatabasesAction } from "@/app/actions/databases";
 import { Button, cn, Input, PageIcon } from "@/components/ui";
 import { pageLabel } from "@/lib/labels";
+import { PropertyDisplay } from "./property-cell";
 import { linkedRows, useRelations } from "./relation-context";
 import type { Property, RelationInput, RelationTargetRow } from "./types";
 import type { RelationTargetProperty } from "@/server/databases";
 import { PeopleProvider, usePeople } from "./person-cell";
-import { linksOne, shownParts, TITLE_FIELD } from "@/lib/relation-options";
+import { linksOne, shownParts, shownPropertyIds, TITLE_FIELD } from "@/lib/relation-options";
 import { searchFold } from "@/lib/search-fold";
-
-/** Draws a value of a property of the related database, read-only (PropertyDisplay, passed in to keep the modules apart). */
-export type RelatedValueRenderer = (prop: RelationTargetProperty, value: unknown) => ReactNode;
 
 /**
  * Read-only list of linked rows (table cells, cards, panels): each row's title with the properties
@@ -25,12 +23,10 @@ export function RelationChips({
   prop,
   value,
   wrap,
-  renderValue,
 }: {
   prop: Pick<Property, "id"> & { options: Pick<Property["options"], "relation"> };
   value: unknown;
   wrap?: boolean;
-  renderValue?: RelatedValueRenderer;
 }) {
   const ctx = useRelations();
   const target = ctx?.targets[prop.id];
@@ -42,11 +38,11 @@ export function RelationChips({
     [target?.people, outer],
   );
   if (!rows.length) return null;
-  const parts = renderValue ? shownParts(prop.options.relation) : [TITLE_FIELD];
+  const parts = shownParts(prop.options.relation);
   const chips = (
-    <span className={cn("flex min-w-0 gap-x-2 gap-y-0.5", wrap ? "flex-wrap" : "overflow-hidden")}>
+    <span data-cut-list="" className={cn("flex min-w-0 gap-x-2 gap-y-0.5", wrap ? "flex-wrap" : "overflow-hidden")}>
       {rows.map((row) => (
-        <RelationChip key={row.id} row={row} parts={parts} properties={target?.properties} renderValue={renderValue} />
+        <RelationChip key={row.id} row={row} parts={parts} properties={target?.properties} />
       ))}
     </span>
   );
@@ -57,12 +53,10 @@ function RelationChip({
   row,
   parts,
   properties,
-  renderValue,
 }: {
   row: RelationTargetRow;
   parts: string[];
   properties?: RelationTargetProperty[];
-  renderValue?: RelatedValueRenderer;
 }) {
   const tc = useTranslations("common");
   return (
@@ -78,10 +72,10 @@ function RelationChip({
         }
         const related = properties?.find((p) => p.id === part);
         const shown = related && !row.hidden?.includes(part) ? row.values?.[part] : undefined;
-        if (!related || shown === undefined || !renderValue) return null;
+        if (!related || shown === undefined) return null;
         return (
           <span key={part} className="inline-flex max-w-32 min-w-0 shrink-[4] items-center overflow-hidden text-fg-muted">
-            {renderValue(related, shown)}
+            <PropertyDisplay prop={related} value={shown} />
           </span>
         );
       })}
@@ -173,8 +167,11 @@ export function RelationPicker({
     else toggle(item.row.id);
   };
 
+  // What linked rows show beside their titles in cells and cards shows here too (lib/relation-options).
+  const shown = shownPropertyIds(prop.options.relation).flatMap((id) => target.properties.filter((p) => p.id === id));
+
   return (
-    <div className="w-80">
+    <div className={shown.length ? "w-[28rem] max-w-[calc(100vw-1rem)]" : "w-80"}>
       <div className="flex items-center gap-1.5 border-b border-border bg-bg-subtle px-2 py-1.5">
         <PageIcon icon={database.icon} kind="database" className="h-3.5 w-3.5 shrink-0 text-xs" />
         <input
@@ -267,6 +264,15 @@ export function RelationPicker({
             >
               <PageIcon icon={item.row.icon} className="h-3.5 w-3.5 shrink-0 text-xs" />
               <span className="flex-1 truncate">{pageLabel(item.row.title, tc("untitled"))}</span>
+              {shown.length > 0 && (
+                <span className="flex max-w-[55%] min-w-0 shrink-0 items-center gap-2 overflow-hidden text-xs text-fg-muted">
+                  {shown.map((p) => (
+                    <span key={p.id} className="flex min-w-0 max-w-32 items-center">
+                      {!item.row.hidden?.includes(p.id) && <PropertyDisplay prop={p} value={item.row.values?.[p.id]} />}
+                    </span>
+                  ))}
+                </span>
+              )}
               {item.row.uniqueId && <span className="shrink-0 text-xs text-fg-faint tabular-nums">{item.row.uniqueId}</span>}
               {selectedIds.includes(item.row.id) && <Check className="h-3.5 w-3.5 shrink-0 text-fg-muted" />}
             </button>

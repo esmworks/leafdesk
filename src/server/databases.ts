@@ -49,7 +49,16 @@ import { defaultFormConfig, formSchemaError } from "@/lib/forms";
 import { readPlaceInput } from "@/lib/place";
 import { GeocoderError, geocodeAddress } from "./geocoder";
 import { configsOf, DEFAULT_VIEW_NAMES, galleryCover, isViewType, layoutConfigError } from "@/lib/views";
-import { holdsOptions, holdsPeople, isComputed, isDerived, isNumbered, isReadOnlyType, PERSON_ME, type StatusGroup } from "@/lib/property-types";
+import {
+  holdsOptions,
+  holdsPeople,
+  isComputed,
+  isDerived,
+  isNumbered,
+  isReadOnlyType,
+  PERSON_ME,
+  type StatusGroup,
+} from "@/lib/property-types";
 import { dateMarker } from "@/lib/template-values";
 import { checkedPrefix, claimPrefix, refuseSecondUniqueId } from "@/server/unique-ids";
 import { formatUniqueId, uniqueIdPrefix } from "@/lib/unique-id";
@@ -517,10 +526,10 @@ export async function normalizeRowProperties(
     const normalized = normalizeValue(prop, prop.type === "place" ? await resolvePlaceInput(userId, prop, value) : value);
     if (prop.type === "relation" && normalized) {
       const ids = await resolveRelationValue(userId, prop, normalized as string[], asIds(existing[prop.id]));
-      // A relation limited to one row takes one (lib/relation-options); a value that already holds
-      // more stays as it is until it is written.
-      if (prop.options.relation?.limit === "one" && !isParentProperty(prop) && ids.length > 1) {
-        throw new PropertyValueError(`"${prop.name}" links to one row at most; give one row (${ids.length} given)`, "relationLimit", {
+      // A relation limited to one row takes one, as a person property limited to one person does
+      // (lib/properties); a value that already holds more stays as it is until it is written.
+      if (prop.options.relation?.single && !isParentProperty(prop) && ids.length > 1) {
+        throw new PropertyValueError(`"${prop.name}" links one row; give one (${ids.length} given)`, "oneRow", {
           property: prop.name,
         });
       }
@@ -843,13 +852,13 @@ export async function syncPairedRelationsMany(
   const props = all.filter((p) => p.type === "relation" && p.options.relation?.pairedPropertyId);
   if (!props.length) return;
   const parentKey = parentProperty(all)?.id;
-  // Paired properties that link to one row (a limit of one, lib/relation-options): a row linked
+  // Paired properties that link to one row (RelationConfig `single`): a row linked
   // from here leaves the row it linked to before, as sub-items leave their old parent.
   const paired = await db
     .select({ id: databaseProperty.id, options: databaseProperty.options })
     .from(databaseProperty)
     .where(inArray(databaseProperty.id, props.map((p) => p.options.relation!.pairedPropertyId!)));
-  const single = new Set(paired.filter((p) => p.options.relation?.limit === "one").map((p) => p.id));
+  const single = new Set(paired.filter((p) => p.options.relation?.single).map((p) => p.id));
   const touched = new Set<string>();
   for (const { rowId, before, after } of changes) {
     for (const prop of props) {
@@ -2061,9 +2070,30 @@ export async function updateProperty(
     urlPreview?: boolean;
     /** Relations: how many rows a row links to, where row pages show them, what linked rows show. */
     relation?: RelationOptionsInput;
+    /** People: whether a row names one person at most (rows naming more keep them until changed). */
+    onePerson?: boolean;
+    /** Relations: whether a row links one row at most (rows linking more keep them until changed). */
+    oneRow?: boolean;
+    /** Statuses: shown as a checkbox ticked for done options, or as the option. */
+    statusDisplay?: "checkbox" | "option";
   },
 ) {
   const prop = await requireProperty(userId, propertyId);
+  if (patch.statusDisplay !== undefined && prop.type !== "status") {
+    throw new PropertyValueError(`"${prop.name}" is a ${prop.type} property; only statuses show as a checkbox`, "unsupportedType", {
+      type: prop.type,
+    });
+  }
+  if (patch.onePerson !== undefined && prop.type !== "person") {
+    throw new PropertyValueError(`"${prop.name}" is a ${prop.type} property; only people can be limited to one`, "unsupportedType", {
+      type: prop.type,
+    });
+  }
+  if (patch.oneRow !== undefined && (prop.type !== "relation" || isParentProperty(prop))) {
+    throw new PropertyValueError(`"${prop.name}" is a ${prop.type} property; only relations can be limited to one row`, "unsupportedType", {
+      type: prop.type,
+    });
+  }
   if (patch.urlPreview !== undefined && prop.type !== "url") {
     throw new PropertyValueError(`"${prop.name}" is a ${prop.type} property; only URLs show link previews`, "unsupportedType", {
       type: prop.type,
@@ -2156,6 +2186,13 @@ export async function updateProperty(
   // An expression that no longer gives a number drops its bar or ring.
   else if (formula && formula.type !== "number" && prop.options.numberDisplay) change((o) => without(o, "numberDisplay"));
   if (relation) change((o) => ({ ...o, relation }));
+  if (patch.oneRow !== undefined && prop.options.relation) {
+    const on = patch.oneRow === true;
+    change((o) => {
+      const { single: _single, ...rest } = o.relation ?? prop.options.relation!;
+      return { ...o, relation: on ? { ...rest, single: true } : rest };
+    });
+  }
   if (patch.pageVisibility !== undefined) {
     const visibility = patch.pageVisibility;
     change((o) => (visibility === "show" ? without(o, "pageVisibility") : { ...o, pageVisibility: visibility }));
@@ -2164,6 +2201,10 @@ export async function updateProperty(
   if (dependsOn !== undefined) change((o) => (dependsOn ? { ...o, dependsOn } : without(o, "dependsOn")));
   if (prefix !== undefined) change((o) => (prefix ? { ...o, uniqueId: { prefix } } : without(o, "uniqueId")));
   if (patch.urlPreview !== undefined) change((o) => (patch.urlPreview === true ? { ...o, url: { preview: true } } : without(o, "url")));
+  if (patch.statusDisplay !== undefined) {
+    change((o) => (patch.statusDisplay === "checkbox" ? { ...o, statusDisplay: "checkbox" } : without(o, "statusDisplay")));
+  }
+  if (patch.onePerson !== undefined) change((o) => (patch.onePerson === true ? { ...o, person: { single: true } } : without(o, "person")));
   // Options of this property others depend on that go away leave their lists (lib/dependent-options).
   const dependents = removed.length ? dependentsOf(prop.id, siblings) : [];
   const workspaceId = prefix ? await workspaceOf(prop.databaseId) : null;
@@ -2234,6 +2275,60 @@ export async function setPropertyPinned(userId: string, propertyId: string, pinn
     .set({ options: pinned ? { ...rest, pinned: true } : rest })
     .where(eq(databaseProperty.id, propertyId));
   notifySchema(prop.databaseId);
+}
+
+/**
+ * Makes a one-way relation two-way: adds the paired property to the related database (named
+ * `pairedName`, or after this database) and links every row back from the rows it links to. Like
+ * making a two-way relation, it takes edit access to both databases. Relations with a role (sub-items,
+ * dependencies, sprints) are set up by their feature and are left alone.
+ */
+export async function makeRelationTwoWay(userId: string, propertyId: string, pairedName?: string) {
+  const prop = await requireProperty(userId, propertyId);
+  const relation = prop.type === "relation" ? prop.options.relation : undefined;
+  if (!relation || relation.role) throw withCode(new Error("Not a plain relation property"), "unsupportedType");
+  if (relation.pairedPropertyId) return prop;
+  const database = await requireDatabase(userId, prop.databaseId, "edit");
+  const target = await relationTarget(userId, database, { databaseId: relation.databaseId, twoWay: true });
+  const linked = await db.transaction(async (tx) => {
+    // Held until the pair is written, so making it two-way twice at once adds one paired property.
+    const [locked] = await tx.select().from(databaseProperty).where(eq(databaseProperty.id, propertyId)).for("update");
+    if (!locked || locked.deletedAt || locked.options.relation?.pairedPropertyId) return null;
+    const [paired] = await tx
+      .insert(databaseProperty)
+      .values({
+        databaseId: target.id,
+        name: await uniquePropertyName(target.id, pairedName?.trim() || database.title.trim() || "Related", tx),
+        type: "relation",
+        options: { relation: { databaseId: prop.databaseId, pairedPropertyId: propertyId } },
+        position: await nextPropertyPosition(target.id, tx),
+      })
+      .returning();
+    await hideInCalendars(tx, target.id, paired.id);
+    const [updated] = await tx
+      .update(databaseProperty)
+      .set({ options: { ...locked.options, relation: { ...locked.options.relation!, pairedPropertyId: paired.id } } })
+      .where(eq(databaseProperty.id, propertyId))
+      .returning();
+    return updated;
+  });
+  if (!linked) return (await db.select().from(databaseProperty).where(eq(databaseProperty.id, propertyId)))[0];
+  // Every row linking somewhere is linked back from there, as a new two-way relation's rows are.
+  const rows = await db
+    .select({ id: page.id, value: sql<unknown>`${page.properties} -> ${propertyId}::text` })
+    .from(page)
+    .where(and(eq(page.parentId, prop.databaseId), sql`${page.properties} ? ${propertyId}::text`));
+  await syncPairedRelationsMany(
+    prop.databaseId,
+    rows.flatMap((r) => (Array.isArray(r.value) && r.value.length ? [{ rowId: r.id, before: {}, after: { [propertyId]: r.value } }] : [])),
+  );
+  notifySchema(prop.databaseId);
+  notifyRows(prop.databaseId);
+  if (target.id !== prop.databaseId) {
+    notifySchema(target.id);
+    notifyRows(target.id);
+  }
+  return linked;
 }
 
 /** Shows a database's row properties beside the row's body on wide pages, or above it (lib/row-layout); full access. */
@@ -2557,10 +2652,10 @@ export async function duplicateProperty(userId: string, propertyId: string, name
     .limit(1);
   const options: PropertyOptions = structuredClone(prop.options);
   // The copy links one way and stands for nothing: sub-items keep their one parent property. It
-  // keeps its limit and how its linked rows show (lib/relation-options).
+  // keeps its limit to one row and how its linked rows show (lib/relation-options).
   if (options.relation) {
-    const { databaseId, limit, display, show } = options.relation;
-    options.relation = { databaseId, pairedPropertyId: null, ...(limit ? { limit } : {}), ...(display ? { display } : {}), ...(show ? { show } : {}) };
+    const { databaseId, single, display, show } = options.relation;
+    options.relation = { databaseId, pairedPropertyId: null, ...(single ? { single } : {}), ...(display ? { display } : {}), ...(show ? { show } : {}) };
   }
   const copied = await db.transaction(async (tx) => {
     const [created] = await tx

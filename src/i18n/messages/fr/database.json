@@ -76,6 +76,10 @@
       "blank": "Ligne vide",
       "setDefault": "Utiliser pour « Nouveau »",
       "isDefault": "Utilisé pour « Nouveau »",
+      "isViewDefault": "Utilisé pour « Nouveau » dans cette vue",
+      "forThisView": "Pour cette vue",
+      "forAllViews": "Pour toutes les vues",
+      "followAllViews": "Utiliser ici celui de toutes les vues",
       "edit": "Modifier le modèle",
       "delete": "Supprimer le modèle",
       "confirmDelete": "Supprimer définitivement ce modèle de ligne ? Les lignes déjà créées à partir de lui restent inchangées.",
@@ -225,7 +229,14 @@
     "relative": {
       "today": "Aujourd’hui",
       "thisWeek": "Cette semaine",
+      "lastWeek": "La semaine dernière",
+      "nextWeek": "La semaine prochaine",
       "thisMonth": "Ce mois-ci",
+      "lastMonth": "Le mois dernier",
+      "nextMonth": "Le mois prochain",
+      "thisYear": "Cette année",
+      "lastYear": "L’année dernière",
+      "nextYear": "L’année prochaine",
       "pastNDays": "N derniers jours",
       "nextNDays": "N prochains jours",
       "pastDays": "{count, plural, one {Dernier jour} other {# derniers jours}}",
@@ -253,7 +264,8 @@
     "clickForMenu": "Cliquez pour ouvrir le menu",
     "sortedNoDrag": "Les lignes ne se déplacent pas tant que la vue est triée",
     "sortedAscending": "Tri croissant",
-    "sortedDescending": "Tri décroissant"
+    "sortedDescending": "Tri décroissant",
+    "fillHandle": "Faites glisser vers le haut ou le bas pour remplir les cellules avec cette valeur"
   },
   "rowMenu": {
     "open": "Ouvrir",
@@ -567,7 +579,13 @@
       "default": "Par défaut",
       "12h": "12 heures",
       "24h": "24 heures"
-    }
+    },
+    "onePerson": "Limiter à une personne",
+    "onePersonHint": "Chaque ligne nomme une personne au plus. Les lignes qui en nomment davantage les gardent jusqu’à ce qu’on les modifie.",
+    "oneRow": "Limiter à une page",
+    "oneRowHint": "Chaque ligne relie une page au plus. Les lignes qui en relient davantage les gardent jusqu’à ce qu’on les modifie.",
+    "statusCheckbox": "Afficher comme case à cocher",
+    "statusCheckboxHint": "Une case cochée tant que le statut est terminé. La cocher choisit le premier statut terminé, la décocher le premier statut à faire."
   },
   "rowProperties": {
     "noProperties": "Aucune propriété",
@@ -711,16 +729,12 @@
     "open": "Ouvrir {title}",
     "unlink": "Supprimer le lien vers {title}",
     "options": "Réglages de la relation",
-    "limit": "Limite",
-    "limitAny": "Sans limite",
-    "limitOne": "1 page",
-    "limitHint": "Chaque ligne est reliée à une seule ligne. En choisir une autre la remplace.",
     "rowPage": "Sur les pages de ligne",
     "displayInline": "En ligne",
     "displaySection": "En section",
     "sectionHint": "Les lignes liées s’affichent sous les propriétés, avec leurs propriétés modifiables.",
     "shows": "Les lignes liées affichent",
-    "showsHint": "Visible dans les cellules, les cartes et les pages de ligne.",
+    "showsHint": "Visible dans les cellules, les cartes, les pages de ligne et le sélecteur de lignes.",
     "titlePart": "Titre",
     "addPart": "Ajouter une propriété…",
     "moveUp": "Monter {name}",
@@ -808,6 +822,7 @@
     "showTable": "Afficher la table",
     "showWeekends": "Afficher les week-ends",
     "showIcons": "Afficher les icônes de page",
+    "showVerticalLines": "Afficher les lignes verticales",
     "openRows": "Ouvrir les lignes dans",
     "openRowsIn": {
       "panel": "Panneau latéral",
@@ -961,6 +976,7 @@
     "pageLocked": "Cette page est verrouillée. Déverrouillez-la depuis son menu pour modifier son titre, son icône, son arrière-plan ou son texte.",
     "pageInTrash": "Cette page est dans la corbeille. Restaurez-la pour la modifier.",
     "invalidPerson": "« {property} » ne peut contenir que des personnes de cet espace de travail.",
+    "onePerson": "« {property} » ne contient qu’une personne.",
     "readOnlyProperty": "« {property} » est rempli automatiquement et ne peut pas être modifié.",
     "invalidFilter": "Ce filtre ne peut pas être enregistré. Rechargez la page et réessayez.",
     "tooManyRows": "Vous pouvez modifier au maximum {max} lignes à la fois.",
@@ -1010,7 +1026,7 @@
     "invalidSprints": "Les sprints ne peuvent pas être configurés ainsi : vérifiez la durée du sprint, le premier jour et la base de données des sprints.",
     "sprintStateOption": "Cette option indique l’état d’un sprint. Renommez-la si vous le souhaitez, ou désactivez les sprints avant de la supprimer.",
     "invalidSlackUrl": "Ce n’est pas l’adresse d’un webhook entrant Slack (https://hooks.slack.com/services/…).",
-    "relationLimit": "« {property} » relie au plus une ligne. Choisissez une ligne.",
+    "oneRow": "« {property} » ne relie qu’une page. Choisissez-en une.",
     "invalidRelationOptions": "Ces réglages de relation ne peuvent pas être enregistrés."
   },
   "formula": {

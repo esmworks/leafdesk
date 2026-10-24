@@ -76,6 +76,10 @@
       "blank": "Tom række",
       "setDefault": "Brug til “Ny”",
       "isDefault": "Bruges til “Ny”",
+      "isViewDefault": "Bruges til “Ny” i denne visning",
+      "forThisView": "Til denne visning",
+      "forAllViews": "Til alle visninger",
+      "followAllViews": "Brug standarden for alle visninger her",
       "edit": "Redigér skabelon",
       "delete": "Slet skabelon",
       "confirmDelete": "Vil du slette denne rækkeskabelon permanent? Rækker, der allerede er lavet ud fra den, forbliver som de er.",
@@ -225,7 +229,14 @@
     "relative": {
       "today": "I dag",
       "thisWeek": "Denne uge",
+      "lastWeek": "Sidste uge",
+      "nextWeek": "Næste uge",
       "thisMonth": "Denne måned",
+      "lastMonth": "Sidste måned",
+      "nextMonth": "Næste måned",
+      "thisYear": "I år",
+      "lastYear": "Sidste år",
+      "nextYear": "Næste år",
       "pastNDays": "Seneste N dage",
       "nextNDays": "Næste N dage",
       "pastDays": "{count, plural, one {Seneste dag} other {Seneste # dage}}",
@@ -253,7 +264,8 @@
     "clickForMenu": "Klik for at åbne menuen",
     "sortedNoDrag": "Rækker kan ikke trækkes, mens visningen er sorteret",
     "sortedAscending": "Sorteret stigende",
-    "sortedDescending": "Sorteret faldende"
+    "sortedDescending": "Sorteret faldende",
+    "fillHandle": "Træk op eller ned for at udfylde cellerne med denne værdi"
   },
   "rowMenu": {
     "open": "Åbn",
@@ -567,7 +579,13 @@
       "default": "Standard",
       "12h": "12 timer",
       "24h": "24 timer"
-    }
+    },
+    "onePerson": "Begræns til én person",
+    "onePersonHint": "Hver række nævner højst én person. Rækker med flere beholder dem, indtil de ændres.",
+    "oneRow": "Begræns til én side",
+    "oneRowHint": "Hver række kobler højst én side. Rækker med flere beholder dem, indtil de ændres.",
+    "statusCheckbox": "Vis som afkrydsningsfelt",
+    "statusCheckboxHint": "Et felt, der er afkrydset, mens status er færdig. Afkrydsning vælger den første færdige status, fjernelse den første at gøre-status."
   },
   "rowProperties": {
     "noProperties": "Ingen egenskaber",
@@ -711,16 +729,12 @@
     "open": "Åbn {title}",
     "unlink": "Fjern link til {title}",
     "options": "Relationsindstillinger",
-    "limit": "Grænse",
-    "limitAny": "Ingen grænse",
-    "limitOne": "1 side",
-    "limitHint": "Hver række kobles til én række. Vælger du en anden, erstatter den den.",
     "rowPage": "På rækkesider",
     "displayInline": "Indlejret",
     "displaySection": "Som sektion",
     "sectionHint": "Koblede rækker vises under egenskaberne, hvor deres egenskaber kan redigeres.",
     "shows": "Koblede rækker viser",
-    "showsHint": "Vises i tabelceller, kort og rækkesider.",
+    "showsHint": "Vises i tabelceller, kort, rækkesider og rækkevælgeren.",
     "titlePart": "Titel",
     "addPart": "Tilføj en egenskab…",
     "moveUp": "Flyt {name} op",
@@ -808,6 +822,7 @@
     "showTable": "Vis tabel",
     "showWeekends": "Vis weekender",
     "showIcons": "Vis sideikoner",
+    "showVerticalLines": "Vis lodrette linjer",
     "openRows": "Åbn rækker i",
     "openRowsIn": {
       "panel": "Sidepanel",
@@ -961,6 +976,7 @@
     "pageLocked": "Denne side er låst. Lås den op fra dens menu for at ændre titel, ikon, baggrund eller tekst.",
     "pageInTrash": "Denne side ligger i papirkurven. Gendan den for at ændre den.",
     "invalidPerson": "“{property}” kan kun indeholde personer fra dette arbejdsområde.",
+    "onePerson": "“{property}” kan kun have én person.",
     "readOnlyProperty": "“{property}” udfyldes automatisk og kan ikke ændres.",
     "invalidFilter": "Dette filter kan ikke gemmes. Genindlæs siden, og prøv igen.",
     "tooManyRows": "Du kan højst ændre {max} rækker ad gangen.",
@@ -1010,7 +1026,7 @@
     "invalidSprints": "Sprints kan ikke sættes op sådan: tjek sprintlængden, den første dag og sprintdatabasen.",
     "sprintStateOption": "Denne mulighed markerer en sprints tilstand. Omdøb den, hvis du vil, eller slå sprints fra, før du sletter den.",
     "invalidSlackUrl": "Ikke en adresse til en indgående Slack-webhook (https://hooks.slack.com/services/…).",
-    "relationLimit": "“{property}” kobler højst én række. Vælg én række.",
+    "oneRow": "“{property}” kan kun koble én side. Vælg én.",
     "invalidRelationOptions": "Disse relationsindstillinger kan ikke gemmes."
   },
   "formula": {

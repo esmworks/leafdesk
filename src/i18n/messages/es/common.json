@@ -29,5 +29,14 @@
     "busy": "Ya tienes una exportación en curso. Espera a que termine su descarga.",
     "disabled": "La exportación está desactivada en este espacio de trabajo."
   },
-  "celebrate": "¡Buen trabajo!"
+  "celebrate": "¡Buen trabajo!",
+  "toast": {
+    "undo": "Deshacer",
+    "dismiss": "Cerrar",
+    "movedTo": "Movida a",
+    "movedToPlace": "Movida a {place}",
+    "trashed": "Movida a la papelera",
+    "rowsTrashed": "{count, plural, one {Fila movida a la papelera} other {# filas movidas a la papelera}}",
+    "undoFailed": "No se pudo deshacer."
+  }
 }

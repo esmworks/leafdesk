@@ -99,28 +99,29 @@ try {
   const t2 = await row(tasks, "Review spec");
 
   // A relation limited to one row.
-  await databases.updateProperty(ids.owner, project.id, { relation: { limit: "one" } });
+  await databases.updateProperty(ids.owner, project.id, { oneRow: true });
   const limited = (await databases.getProperties(tasks)).find((p) => p.id === project.id)!;
-  check(limited.options.relation?.limit === "one" && limited.options.relation.pairedPropertyId === pairedId, "a relation takes a limit of one row, keeping its pairing");
+  check(limited.options.relation?.single === true && limited.options.relation.pairedPropertyId === pairedId, "a relation takes a limit of one row, keeping its pairing");
+  check((await refused(() => databases.updateProperty(ids.owner, hours.id, { oneRow: true }))) === "unsupportedType", "…and only relations do");
   check(
-    (await refused(() => databases.updateRowProperties(ids.owner, t1, { [project.id]: [alpha, beta] }))) === "relationLimit",
+    (await refused(() => databases.updateRowProperties(ids.owner, t1, { [project.id]: [alpha, beta] }))) === "oneRow",
     "…and refuses two rows with a clear error",
   );
   check((await refused(() => databases.updateRowProperties(ids.owner, t1, { Project: ["Alpha"] }))) === null, "…while one row, by title, goes in");
   check(JSON.stringify((await valuesOf(alpha))[pairedId]) === JSON.stringify([t1]), "…and shows on the other side");
   check(
-    (await refused(() => databases.createRows(ids.owner, tasks, [{ title: "Bulk", properties: { [project.id]: [alpha, gamma] } }]))) === "relationLimit",
+    (await refused(() => databases.createRows(ids.owner, tasks, [{ title: "Bulk", properties: { [project.id]: [alpha, gamma] } }]))) === "oneRow",
     "…and new rows are held to it too",
   );
 
   // Values from before the limit stay until the property is written.
-  await databases.updateProperty(ids.owner, project.id, { relation: { limit: "any" } });
+  await databases.updateProperty(ids.owner, project.id, { oneRow: false });
   await databases.updateRowProperties(ids.owner, t2, { [project.id]: [beta, gamma] });
-  await databases.updateProperty(ids.owner, project.id, { relation: { limit: "one" } });
+  await databases.updateProperty(ids.owner, project.id, { oneRow: true });
   await databases.updateRowProperties(ids.owner, t2, { [hours.id]: 1 });
   check(((await valuesOf(t2))[project.id] as string[]).length === 2, "a value holding more stays while other properties are written");
   check(
-    (await refused(() => databases.updateRowProperties(ids.owner, t2, { [project.id]: [beta, gamma] }))) === "relationLimit",
+    (await refused(() => databases.updateRowProperties(ids.owner, t2, { [project.id]: [beta, gamma] }))) === "oneRow",
     "…and must come down to one when the relation itself is written",
   );
   await databases.updateRowProperties(ids.owner, t2, { [project.id]: [gamma] });
@@ -149,6 +150,9 @@ try {
     "…and not formulas",
   );
   await databases.updateProperty(ids.owner, pairedId, { relation: { show: [status.id, "title", lead.id, secret.id], display: "section" } });
+  await databases.updateProperty(ids.owner, project.id, { relation: { display: "section" } });
+  check((await databases.getProperties(tasks)).find((p) => p.id === project.id)!.options.relation?.single === true, "…and keeps it when the relation's other options change");
+  await databases.updateProperty(ids.owner, project.id, { relation: { display: "inline" } });
   const shown = (await databases.getProperties(projects)).find((p) => p.id === pairedId)!.options.relation!;
   check(
     JSON.stringify(shown.show) === JSON.stringify([status.id, "title", lead.id, secret.id]) && shown.display === "section",

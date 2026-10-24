@@ -110,6 +110,7 @@
       "you": "{name} (ty)"
     },
     "threadMenu": "Opcje wątku",
+    "copyLink": "Kopiuj link",
     "mute": "Wycisz odpowiedzi",
     "unmute": "Wyłącz wyciszenie odpowiedzi",
     "muteHint": "Nie otrzymuj powiadomień o nowych odpowiedziach w tym wątku. Odpowiedź tutaj lub wzmianka o tobie tutaj włącza je ponownie.",
@@ -621,7 +622,8 @@
       "submit": "Osadź",
       "providers": "YouTube, Vimeo, Loom, Figma, opublikowane Dokumenty, Arkusze i Prezentacje Google, CodePen, Spotify i Mapy Google. Inne linki stają się zakładką.",
       "frameTitle": "Osadzona treść z {host}",
-      "label": "Osadzenie"
+      "label": "Osadzenie",
+      "resize": "Przeciągnij, aby zmienić szerokość osadzenia"
     },
     "paste": {
       "label": "Wklej jako",
@@ -711,6 +713,11 @@
   },
   "blockMenu": {
     "copyLink": "Kopiuj link do bloku",
+    "download": "Pobierz",
+    "alignLeft": "Wyrównaj do lewej",
+    "alignCenter": "Wyśrodkuj",
+    "alignRight": "Wyrównaj do prawej",
+    "wideColumns": "Szerokie kolumny",
     "hideInPrint": "Ukryj przy drukowaniu",
     "calloutStyle": "Styl wyróżnienia",
     "turnIntoCallout": "Zamień na wyróżnienie",
@@ -956,7 +963,8 @@
     "markdownImage": "Obraz: {alt}",
     "markdownImageUntitled": "Obraz",
     "expand": "Otwórz w przeglądarce plików",
-    "view": "Wyświetl {name}"
+    "view": "Wyświetl {name}",
+    "resize": "Przeciągnij, aby zmienić szerokość"
   },
   "presentation": {
     "previous": "Poprzedni slajd",
@@ -1191,5 +1199,16 @@
     "reset": "Pokaż cały obraz",
     "loading": "Wczytywanie obrazu…",
     "failed": "Nie udało się wczytać obrazu."
+  },
+  "commentRef": {
+    "pasteTitle": "Wklej link do komentarza",
+    "pasteAsMention": "Wklej jako wzmiankę",
+    "pasteAsPreview": "Wklej jako podgląd",
+    "pasteAsLink": "Wklej jako link",
+    "noAccess": "Brak dostępu do tego komentarza",
+    "onPage": "Na stronie {title}",
+    "replies": "{count, plural, =0 {Brak odpowiedzi} one {# odpowiedź} few {# odpowiedzi} many {# odpowiedzi} other {# odpowiedzi}}",
+    "openThread": "Otwórz wątek",
+    "resolved": "Rozwiązany"
   }
 }

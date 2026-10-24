@@ -603,10 +603,11 @@ export type RelationConfig = {
    */
   sprints?: SprintConfig;
   /**
-   * "one": a row links to one row at most (databases.normalizeRowProperties refuses more; values
-   * that already hold more stay until the property is next written). Any number when missing.
+   * A row links to one row at most (updateProperty's oneRow; databases.normalizeRowProperties
+   * refuses more, as person properties' `single` does). Rows linking more keep them until the
+   * relation is next written. Any number when missing.
    */
-  limit?: "one";
+  single?: true;
   /**
    * "section": row pages show the linked rows as a section of their own under the properties,
    * with the `show` properties of each editable there (lib/relation-options). Inline when missing.
@@ -614,7 +615,8 @@ export type RelationConfig = {
   display?: "section";
   /**
    * What a linked row shows besides its title, in order: ids of properties of the related database
-   * and "title" for where its title goes ("status", "title", "person"). The title alone when missing.
+   * and "title" for where its title goes ("status", "title", "person"), in table cells, cards, row
+   * pages and the row picker. The title alone when missing.
    */
   show?: string[];
 };
@@ -759,6 +761,17 @@ export type PropertyOptions = {
    */
   url?: { preview: true };
   /**
+   * Person properties: a row names one person at most (lib/properties normalizeValue refuses more);
+   * any number when missing. Rows naming more when it is turned on keep them until changed.
+   */
+  person?: { single: true };
+  /**
+   * Status properties: "checkbox" shows a box, ticked while the option is in the done group;
+   * ticking it picks the first done option, unticking the first to-do one (lib/properties
+   * statusFromCheckbox). The option shows when missing. Values stay options either way.
+   */
+  statusDisplay?: "checkbox";
+  /**
    * Row pages: "hide_empty" leaves the property out while the row has no value for it, "hide"
    * always (both under "more properties", see lib/page-visibility); shown when missing.
    */
@@ -826,7 +839,19 @@ export type FilterOp =
   | "lte"
   | "is_within";
 /** Values of an `is_within` rule: date ranges relative to the day the view is looked at. */
-export type RelativeDateRange = "today" | "this_week" | "this_month" | "past_n_days" | "next_n_days";
+export type RelativeDateRange =
+  | "today"
+  | "this_week"
+  | "last_week"
+  | "next_week"
+  | "this_month"
+  | "last_month"
+  | "next_month"
+  | "this_year"
+  | "last_year"
+  | "next_year"
+  | "past_n_days"
+  | "next_n_days";
 /**
  * `days` is only used by `is_within` rules with a `past_n_days` / `next_n_days` value. `is_any_of` and
  * `is_none_of` rules hold a list of values (option, person or row ids).
@@ -966,6 +991,14 @@ export type ViewConfig = {
   showIcons?: boolean;
   /** Timelines: whether the table of row titles shows left of the bars; shown when missing. */
   showTable?: boolean;
+  /** Table views: the lines between columns, published tables too; shown when missing. */
+  showVerticalLines?: boolean;
+  /**
+   * The row template "New" starts from in this view, over the database's default (see
+   * server/templates.ts createRow): a template's id, or null for blank rows. The database's
+   * default when missing, or when the template is no longer one of the database's.
+   */
+  defaultTemplateId?: string | null;
   /** Galleries: "medium" when missing. */
   cardSize?: CardSize;
   /** Boards and galleries: long values on cards wrap onto more lines instead of cutting off; cut off when missing. */

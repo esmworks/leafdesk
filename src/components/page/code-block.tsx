@@ -11,6 +11,7 @@ import {
 import { createReactBlockSpec } from "@blocknote/react";
 import { useTranslations } from "next-intl";
 import { codeHighlighter } from "@/lib/code-highlighter";
+import { CodeCopyButton, codeText } from "./code-copy";
 import { codeLineBreak } from "@/lib/code-indent";
 import { CODE_LANGUAGES, codeLanguage, highlightLanguage, PLAIN_TEXT } from "@/lib/code-languages";
 
@@ -65,7 +66,10 @@ export const CodeBlock = createReactBlockSpec(
       const value = known ?? (stored.trim() ? stored : PLAIN_TEXT);
       const name = (id: string) => (id === PLAIN_TEXT ? t("plainText") : (CODE_LANGUAGES[id]?.name ?? id));
       return (
-        <div className="relative w-full">
+        <div className="group/code relative w-full">
+          <div contentEditable={false} className="absolute right-3 top-2 select-none">
+            <CodeCopyButton text={() => codeText(editor.getBlock(block.id)?.content ?? block.content)} />
+          </div>
           <div contentEditable={false} className="absolute left-4 top-2 select-none">
             {editor.isEditable ? (
               <select

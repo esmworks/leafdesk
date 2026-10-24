@@ -1,10 +1,10 @@
 import type { RelationConfig } from "@/db/schema/app";
 
 /**
- * Options of relation properties (RelationConfig `limit`, `display`, `show`): whether a row links to
- * one row or any number, whether row pages show the linked rows as a section of their own, and what
- * a linked row shows besides its title, in table cells, cards, row pages and that section. Pure and
- * client-safe.
+ * Options of relation properties (RelationConfig `single`, `display`, `show`): whether a row links
+ * to one row or any number, whether row pages show the linked rows as a section of their own, and
+ * what a linked row shows besides its title, in table cells, cards, row pages, that section and the
+ * row picker. Pure and client-safe.
  */
 
 /** Where a linked row's title goes among what it shows (lib/derived TITLE_FIELD). */
@@ -24,7 +24,7 @@ export function showableType(type: string): boolean {
 
 /** A row links to one row at most: a row's parent (sub-items), or a relation limited to one. */
 export function linksOne(relation: RelationConfig | undefined | null): boolean {
-  return relation?.role === "parent" || relation?.limit === "one";
+  return relation?.role === "parent" || relation?.single === true;
 }
 
 /** What a linked row shows, in order, with "title" where its title goes. */
@@ -37,9 +37,8 @@ export function shownPropertyIds(relation: RelationConfig | undefined | null): s
   return (relation?.show ?? []).filter((id) => id !== TITLE_FIELD);
 }
 
-/** What the app or MCP asks for; null (or "inline", "any") puts an option back to how it was. */
+/** What the app asks for; null (or "inline") puts an option back to how it was. The limit is updateProperty's oneRow. */
 export type RelationOptionsInput = {
-  limit?: "one" | "any" | null;
   display?: "section" | "inline" | null;
   show?: string[] | null;
 };
@@ -55,19 +54,12 @@ export function checkRelationOptions(
   current: RelationConfig,
   targetProperties: { id: string; name: string; type: string }[] | null,
 ): { ok: true; relation: RelationConfig } | { ok: false; message: string } {
-  if (!input || typeof input !== "object") return { ok: false, message: "Relation options are an object {limit, display, show}" };
-  const { limit, display, show } = input;
-  if (limit !== undefined && limit !== null && limit !== "one" && limit !== "any") {
-    return { ok: false, message: 'A relation\'s limit is "one" or "any"' };
-  }
+  if (!input || typeof input !== "object") return { ok: false, message: "Relation options are an object {display, show}" };
+  const { display, show } = input;
   if (display !== undefined && display !== null && display !== "section" && display !== "inline") {
     return { ok: false, message: 'A relation shows "inline" or as a "section"' };
   }
   const next: RelationConfig = { ...current };
-  if (limit !== undefined) {
-    if (limit === "one") next.limit = "one";
-    else delete next.limit;
-  }
   if (display !== undefined) {
     if (display === "section") next.display = "section";
     else delete next.display;

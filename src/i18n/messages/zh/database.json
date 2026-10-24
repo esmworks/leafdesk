@@ -76,6 +76,10 @@
       "blank": "空白行",
       "setDefault": "用于“新建”",
       "isDefault": "已用于“新建”",
+      "isViewDefault": "已在此视图中用于“新建”",
+      "forThisView": "用于此视图",
+      "forAllViews": "用于所有视图",
+      "followAllViews": "在此使用所有视图的默认设置",
       "edit": "编辑模板",
       "delete": "删除模板",
       "confirmDelete": "要永久删除此行模板吗？已基于它创建的行会保持不变。",
@@ -225,7 +229,14 @@
     "relative": {
       "today": "今天",
       "thisWeek": "本周",
+      "lastWeek": "上周",
+      "nextWeek": "下周",
       "thisMonth": "本月",
+      "lastMonth": "上个月",
+      "nextMonth": "下个月",
+      "thisYear": "今年",
+      "lastYear": "去年",
+      "nextYear": "明年",
       "pastNDays": "过去 N 天",
       "nextNDays": "未来 N 天",
       "pastDays": "{count, plural, other {过去 # 天}}",
@@ -253,7 +264,8 @@
     "clickForMenu": "点击打开菜单",
     "sortedNoDrag": "视图已排序时无法拖动行",
     "sortedAscending": "已升序排列",
-    "sortedDescending": "已降序排列"
+    "sortedDescending": "已降序排列",
+    "fillHandle": "向上或向下拖动，用此值填充单元格"
   },
   "rowMenu": {
     "open": "打开",
@@ -567,7 +579,13 @@
       "default": "默认",
       "12h": "12 小时制",
       "24h": "24 小时制"
-    }
+    },
+    "onePerson": "限制为一人",
+    "onePersonHint": "每行最多指定一人。已指定多人的行在修改前保持不变。",
+    "oneRow": "限制为一个页面",
+    "oneRowHint": "每行最多关联一个页面。已关联多个页面的行在修改前保持不变。",
+    "statusCheckbox": "显示为复选框",
+    "statusCheckboxHint": "状态为已完成时勾选。勾选会选择第一个已完成状态，取消勾选会选择第一个待办状态。"
   },
   "rowProperties": {
     "noProperties": "没有属性",
@@ -711,16 +729,12 @@
     "open": "打开 {title}",
     "unlink": "移除指向 {title} 的链接",
     "options": "关联设置",
-    "limit": "上限",
-    "limitAny": "不限",
-    "limitOne": "1 个页面",
-    "limitHint": "每行只关联一行。选择另一行会替换它。",
     "rowPage": "在行页面上",
     "displayInline": "内嵌",
     "displaySection": "作为单独区块",
     "sectionHint": "关联的行显示在属性下方，可在那里直接编辑它们的属性。",
     "shows": "关联的行显示",
-    "showsHint": "显示在表格单元格、卡片和行页面中。",
+    "showsHint": "显示在表格单元格、卡片、行页面和行选择器中。",
     "titlePart": "标题",
     "addPart": "添加属性…",
     "moveUp": "上移 {name}",
@@ -808,6 +822,7 @@
     "showTable": "显示表格",
     "showWeekends": "显示周末",
     "showIcons": "显示页面图标",
+    "showVerticalLines": "显示竖线",
     "openRows": "行的打开方式",
     "openRowsIn": {
       "panel": "侧边面板",
@@ -961,6 +976,7 @@
     "pageLocked": "此页面已锁定。请在其菜单中解锁，才能更改其标题、图标、背景或正文。",
     "pageInTrash": "此页面在回收站中。请先恢复它，才能进行更改。",
     "invalidPerson": "“{property}”只能包含此工作区的人员。",
+    "onePerson": "“{property}”只能指定一人。",
     "readOnlyProperty": "“{property}”是自动填写的，无法更改。",
     "invalidFilter": "无法保存此筛选条件。请重新加载页面后重试。",
     "tooManyRows": "一次最多可更改 {max} 行。",
@@ -1010,7 +1026,7 @@
     "invalidSprints": "无法这样设置冲刺：请检查冲刺长度、第一天和冲刺数据库。",
     "sprintStateOption": "此选项标记冲刺的状态。可以重命名；如要删除，请先关闭冲刺。",
     "invalidSlackUrl": "这不是 Slack 传入 Webhook 的地址（https://hooks.slack.com/services/…）。",
-    "relationLimit": "“{property}”最多只能关联一行。请选择一行。",
+    "oneRow": "“{property}”只能关联一个页面。请选择一个。",
     "invalidRelationOptions": "无法保存这些关联设置。"
   },
   "formula": {
