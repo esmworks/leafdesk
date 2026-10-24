@@ -1878,6 +1878,11 @@
       "sensitive_content": {
         "found": "พบ{kind} ({excerpt}) ใน {target}",
         "dismissed": "ละเว้น{kind} ({excerpt}) ที่พบใน {target}"
+      },
+      "github_sync": {
+        "created": "ตั้งค่า pull request ของ GitHub ใน {target}",
+        "updated": "เปลี่ยนการตั้งค่า GitHub ของ {target}",
+        "deleted": "นำการตั้งค่า GitHub ของ {target} ออก"
       }
     },
     "decisions": {

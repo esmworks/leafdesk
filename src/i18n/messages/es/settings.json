@@ -1878,6 +1878,11 @@
       "sensitive_content": {
         "found": "Encontró {kind} ({excerpt}) en {target}",
         "dismissed": "Descartó el hallazgo de {kind} ({excerpt}) en {target}"
+      },
+      "github_sync": {
+        "created": "Configuró las pull requests de GitHub en {target}",
+        "updated": "Cambió la configuración de GitHub de {target}",
+        "deleted": "Quitó la configuración de GitHub de {target}"
       }
     },
     "decisions": {

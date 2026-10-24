@@ -971,7 +971,8 @@
     "sprintsDatabase": "This database holds the sprints of another database: turn sprints on or off there.",
     "noCurrentSprint": "No sprint is current. Mark one sprint as current first.",
     "invalidSprints": "Sprints can’t be set up like this: check the sprint length, the first day and the sprints database.",
-    "sprintStateOption": "This option marks a sprint’s state. Rename it if you like, or turn sprints off before deleting it."
+    "sprintStateOption": "This option marks a sprint’s state. Rename it if you like, or turn sprints off before deleting it.",
+    "invalidSlackUrl": "Not a Slack incoming webhook address (https://hooks.slack.com/services/…)."
   },
   "formula": {
     "title": "Formula",
@@ -1272,7 +1273,8 @@
         "log": "Write to the run history",
         "celebrate": "Celebrate with confetti",
         "approval": "Ask for approval",
-        "start_sequence": "Start a follow-up"
+        "start_sequence": "Start a follow-up",
+        "slack": "Send to Slack"
       },
       "trashHelp": "Moves the row to the trash, where it can be restored from until the trash is emptied. Nothing can run after this action.",
       "addAction": "Add action",
@@ -1332,7 +1334,8 @@
         "badExample": "The example body isn’t valid JSON.",
         "exampleTooLong": "The example body is too long.",
         "needApprovers": "Choose who to ask.",
-        "needTimeout": "Enter a whole number of days from 1 to 30."
+        "needTimeout": "Enter a whole number of days from 1 to 30.",
+        "needSlackUrl": "Enter the Slack incoming webhook’s address."
       },
       "agent": "Agent",
       "chooseAgent": "Choose an agent…",
@@ -1566,7 +1569,13 @@
       "logPlaceholder": "For example: Imported {template}",
       "logHelp": "Written into the run history, with its variables filled in.",
       "celebrateHelp": "Confetti in the app for whoever made the change that started the run, in the windows they have open. Runs nobody started (schedules, dates passing, incoming webhooks, anonymous form answers) skip it, and so do runs that get here more than two minutes after the change.",
-      "celebrateTry": "Try it"
+      "celebrateTry": "Try it",
+      "slackUrl": "Slack incoming webhook",
+      "slackReplace": "Paste a new address to replace the saved one",
+      "slackSaved": "Saved address:",
+      "slackMessage": "Message",
+      "slackPlaceholder": "For example: Ready for review: {template}",
+      "slackHelp": "Posts the message to the Slack channel of the incoming webhook, with a link to the row. Slack formatting (*bold*, _italic_) works. The address is kept secret and shown only shortened."
     },
     "variables": {
       "button": "Insert a variable",
@@ -1851,5 +1860,114 @@
       "allView": "All sprints",
       "boardView": "By state"
     }
+  },
+  "github": {
+    "menuItem": "GitHub pull requests",
+    "menuHint": "Add links to pull requests that name a row by its ID, and move the row’s status",
+    "title": "GitHub pull requests",
+    "intro": "A pull request that names a row by its ID, like {example}, in its title, description or branch adds its link to that row and can move the row’s status.",
+    "needUniqueId": "Add an ID property to this database first: pull requests name rows by their ID.",
+    "needPrefix": "Give the ID property “{property}” a prefix first, like TASK: pull requests name rows by it.",
+    "linkProperty": "Add pull request links to",
+    "noLinks": "Don’t add links",
+    "newProperty": "New text property…",
+    "newPropertyName": "Pull requests",
+    "newPropertyLabel": "Name of the new property",
+    "linkHelp": "A text property keeps every pull request, one per line; a URL property keeps the latest.",
+    "statusProperty": "Move the status in",
+    "noStatus": "Don’t change the status",
+    "noStatusProperty": "This database has no status property, so only links are added.",
+    "statusOff": "The status stays as it is.",
+    "statusHelp": "Draft pull requests add their link but move nothing until they are ready for review. A row already in a done status moves only when a pull request is merged.",
+    "move": {
+      "opened": "Opened or ready for review",
+      "merged": "Merged",
+      "closed": "Closed without merging"
+    },
+    "leave": "Leave as it is",
+    "setUp": "Set up",
+    "save": "Save",
+    "change": "Change",
+    "whatItDoes": "What it does",
+    "linksTo": "Adds pull request links to “{property}”.",
+    "noLinksSaved": "Adds no links.",
+    "movesIn": "Moves “{property}”: {moves}.",
+    "moves": {
+      "opened": "opened to {option}",
+      "merged": "merged to {option}",
+      "closed": "closed without merging to {option}"
+    },
+    "noMoves": "Leaves the status as it is.",
+    "inGithub": "In GitHub",
+    "steps": "In the repository’s Settings, open Webhooks, choose Add webhook, fill in the fields below, choose “Let me select individual events” and tick Pull requests only.",
+    "payloadUrl": "Payload URL",
+    "secret": "Secret",
+    "showSecret": "Show the secret",
+    "hideSecret": "Hide the secret",
+    "secretUnreadable": "The secret can’t be read on this server any more. Make a new one and give it to GitHub.",
+    "rotate": "Make a new secret",
+    "rotateConfirm": "Make a new secret? Deliveries signed with the old one are refused until you give GitHub the new one.",
+    "contentType": "Content type",
+    "events": "Events",
+    "eventsValue": "Pull requests",
+    "deliveries": "Recent deliveries",
+    "refresh": "Refresh",
+    "noDeliveries": "Nothing has arrived yet. When you add the webhook, GitHub sends a ping that shows here.",
+    "ping": "Ping from GitHub",
+    "pingOk": "The webhook is connected.",
+    "otherEvent": "Event {event}",
+    "handling": "Being handled…",
+    "ignored": "Nothing to do for “{action}”.",
+    "noIds": "Names no row of this database.",
+    "outcome": {
+      "updated": "updated",
+      "unchanged": "already up to date",
+      "notFound": "not found",
+      "noAccess": "no edit access",
+      "failed": "failed"
+    },
+    "deliveryErrors": {
+      "noUniqueId": "The database has no ID property with a prefix any more.",
+      "runAsGone": "The person it runs as is gone. Save the setup again.",
+      "accessLost": "The person it runs as can no longer edit this database. Save the setup again.",
+      "inTrash": "The database is in the trash.",
+      "failed": "Something went wrong while handling it."
+    },
+    "runsAs": "Changes are made as {name}, who saved it last.",
+    "runsAsGone": "The person it ran as is gone: save it again to run as you.",
+    "remove": "Remove",
+    "removeConfirm": "Remove the GitHub setup? GitHub’s deliveries are refused from then on; links already added stay.",
+    "errors": {
+      "noUniqueId": "Add an ID property with a prefix to this database first.",
+      "invalidProperty": "Choose a text or URL property for the links, a status property and its options.",
+      "notSetUp": "This database has no GitHub setup."
+    }
+  },
+  "slack": {
+    "menuItem": "Slack notifications",
+    "menuHint": "Post to a Slack channel when a row is added or a property changes",
+    "title": "Slack notifications",
+    "intro": "Posts to a Slack channel when a row is added or a property changes. It is saved as an automation you can change later.",
+    "url": "Slack incoming webhook",
+    "urlHelp": "In Slack, add the Incoming WebHooks app to the channel and copy its webhook URL. It is kept secret and shown only shortened.",
+    "when": "When",
+    "rowAdded": "A row is added",
+    "propertyChanges": "{property} changes",
+    "to": "To",
+    "anyValue": "Any value",
+    "checked": "Checked",
+    "unchecked": "Unchecked",
+    "message": "Message",
+    "messageHelp": "Variables in double braces are filled in from the row. A link to the row is added at the end.",
+    "defaultAdded": "{actor} added a row to {database}",
+    "defaultChanged": "{actor} changed {property} to {value}",
+    "nameAdded": "Slack: new rows",
+    "nameChanged": "Slack: {property} changed",
+    "nameChangedTo": "Slack: {property} is {value}",
+    "create": "Create",
+    "created": "Created the automation “{name}”.",
+    "existing": "Automations that post to Slack",
+    "existingHelp": "Change or turn them off in the database’s automations.",
+    "off": "off"
   }
 }

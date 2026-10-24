@@ -1878,6 +1878,11 @@
       "sensitive_content": {
         "found": "Hat {kind} ({excerpt}) in {target} gefunden",
         "dismissed": "Hat den Hinweis auf {kind} ({excerpt}) in {target} verworfen"
+      },
+      "github_sync": {
+        "created": "GitHub-Pull-Requests in {target} eingerichtet",
+        "updated": "GitHub-Einrichtung von {target} geändert",
+        "deleted": "GitHub-Einrichtung von {target} entfernt"
       }
     },
     "decisions": {

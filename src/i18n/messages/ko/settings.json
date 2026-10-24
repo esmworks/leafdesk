@@ -1878,6 +1878,11 @@
       "sensitive_content": {
         "found": "{target}에서 {kind}({excerpt})을(를) 발견함",
         "dismissed": "{target}에서 발견된 {kind}({excerpt})을(를) 무시함"
+      },
+      "github_sync": {
+        "created": "{target}에 GitHub 풀 리퀘스트를 설정했습니다",
+        "updated": "{target}의 GitHub 설정을 바꿨습니다",
+        "deleted": "{target}의 GitHub 설정을 제거했습니다"
       }
     },
     "decisions": {

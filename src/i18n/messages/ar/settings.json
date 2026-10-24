@@ -1878,6 +1878,11 @@
       "sensitive_content": {
         "found": "عثر على {kind} ({excerpt}) في {target}",
         "dismissed": "تجاهل ما عُثر عليه في {target}: {kind} ({excerpt})"
+      },
+      "github_sync": {
+        "created": "أعدّ طلبات السحب في GitHub في {target}",
+        "updated": "غيّر إعداد GitHub في {target}",
+        "deleted": "أزال إعداد GitHub من {target}"
       }
     },
     "decisions": {

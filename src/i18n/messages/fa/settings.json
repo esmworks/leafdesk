@@ -1878,6 +1878,11 @@
       "sensitive_content": {
         "found": "{kind} ({excerpt}) را در {target} پیدا کرد",
         "dismissed": "{kind} ({excerpt}) پیداشده در {target} را نادیده گرفت"
+      },
+      "github_sync": {
+        "created": "درخواست‌های ادغام GitHub را در {target} راه‌اندازی کرد",
+        "updated": "راه‌اندازی GitHub در {target} را تغییر داد",
+        "deleted": "راه‌اندازی GitHub را از {target} برداشت"
       }
     },
     "decisions": {

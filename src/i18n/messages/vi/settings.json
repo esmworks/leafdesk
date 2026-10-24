@@ -1878,6 +1878,11 @@
       "sensitive_content": {
         "found": "Đã tìm thấy {kind} ({excerpt}) trong {target}",
         "dismissed": "Đã bỏ qua {kind} ({excerpt}) tìm thấy trong {target}"
+      },
+      "github_sync": {
+        "created": "Đã thiết lập pull request GitHub trong {target}",
+        "updated": "Đã thay đổi thiết lập GitHub của {target}",
+        "deleted": "Đã gỡ thiết lập GitHub của {target}"
       }
     },
     "decisions": {

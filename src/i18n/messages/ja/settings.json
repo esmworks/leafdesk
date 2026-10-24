@@ -1878,6 +1878,11 @@
       "sensitive_content": {
         "found": "{target}で{kind}（{excerpt}）を検出しました",
         "dismissed": "{target}で検出された{kind}（{excerpt}）を却下しました"
+      },
+      "github_sync": {
+        "created": "{target}に GitHub のプルリクエストを設定しました",
+        "updated": "{target}の GitHub 設定を変更しました",
+        "deleted": "{target}の GitHub 設定を削除しました"
       }
     },
     "decisions": {

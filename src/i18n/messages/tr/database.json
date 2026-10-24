@@ -971,7 +971,8 @@
     "sprintsDatabase": "Bu veritabanı başka bir veritabanının sprintlerini tutuyor: sprintleri orada açıp kapatın.",
     "noCurrentSprint": "Hiçbir sprint güncel değil. Önce bir sprinti güncel olarak işaretleyin.",
     "invalidSprints": "Sprintler bu şekilde kurulamaz: sprint uzunluğunu, ilk günü ve sprint veritabanını kontrol edin.",
-    "sprintStateOption": "Bu seçenek bir sprintin durumunu belirtir. Adını değiştirebilirsiniz; silmek için önce sprintleri kapatın."
+    "sprintStateOption": "Bu seçenek bir sprintin durumunu belirtir. Adını değiştirebilirsiniz; silmek için önce sprintleri kapatın.",
+    "invalidSlackUrl": "Bu bir Slack gelen webhook adresi değil (https://hooks.slack.com/services/…)."
   },
   "formula": {
     "title": "Formül",
@@ -1272,7 +1273,8 @@
         "log": "Çalışma geçmişine yaz",
         "celebrate": "Konfetiyle kutla",
         "approval": "Onay iste",
-        "start_sequence": "Takip başlat"
+        "start_sequence": "Takip başlat",
+        "slack": "Slack’e gönder"
       },
       "trashHelp": "Satırı çöp kutusuna taşır; çöp kutusu boşaltılana kadar oradan geri yüklenebilir. Bu eylemden sonra başka eylem çalışamaz.",
       "addAction": "Eylem ekle",
@@ -1332,7 +1334,8 @@
         "badExample": "Örnek gövde geçerli bir JSON değil.",
         "exampleTooLong": "Örnek gövde çok uzun.",
         "needApprovers": "Kime sorulacağını seçin.",
-        "needTimeout": "1 ile 30 arasında tam gün sayısı girin."
+        "needTimeout": "1 ile 30 arasında tam gün sayısı girin.",
+        "needSlackUrl": "Slack gelen webhook’unun adresini girin."
       },
       "agent": "Ajan",
       "chooseAgent": "Bir ajan seçin…",
@@ -1566,7 +1569,13 @@
       "logPlaceholder": "Örneğin: {template} içe aktarıldı",
       "logHelp": "Değişkenleri doldurulmuş olarak çalışma geçmişine yazılır.",
       "celebrateHelp": "Çalışmayı başlatan değişikliği kim yaptıysa, uygulamada açık olan pencerelerinde konfeti patlar. Kimsenin başlatmadığı çalışmalar (zamanlamalar, geçen tarihler, gelen webhook'lar, adsız form yanıtları) bu adımı atlar; değişiklikten iki dakikadan uzun süre sonra buraya gelen çalışmalar da.",
-      "celebrateTry": "Dene"
+      "celebrateTry": "Dene",
+      "slackUrl": "Slack gelen webhook’u",
+      "slackReplace": "Kayıtlı adresin yerine yenisini yapıştırın",
+      "slackSaved": "Kayıtlı adres:",
+      "slackMessage": "Mesaj",
+      "slackPlaceholder": "Örneğin: İncelemeye hazır: {template}",
+      "slackHelp": "Mesajı, satırın bağlantısıyla birlikte gelen webhook’un Slack kanalına gönderir. Slack biçimlendirmesi (*kalın*, _italik_) çalışır. Adres gizli tutulur ve yalnızca kısaltılmış gösterilir."
     },
     "variables": {
       "button": "Değişken ekle",
@@ -1851,5 +1860,114 @@
       "allView": "Tüm sprintler",
       "boardView": "Duruma göre"
     }
+  },
+  "github": {
+    "menuItem": "GitHub pull request’leri",
+    "menuHint": "Bir satırı kimliğiyle anan pull request’lerin bağlantısını ekle ve satırın durumunu ilerlet",
+    "title": "GitHub pull request’leri",
+    "intro": "Başlığında, açıklamasında ya da dalında bir satırı {example} gibi kimliğiyle anan pull request, o satıra bağlantısını ekler ve satırın durumunu ilerletebilir.",
+    "needUniqueId": "Önce bu veritabanına bir kimlik özelliği ekleyin: pull request’ler satırları kimlikleriyle anar.",
+    "needPrefix": "Önce “{property}” kimlik özelliğine TASK gibi bir önek verin: pull request’ler satırları onunla anar.",
+    "linkProperty": "Pull request bağlantılarını şuraya ekle",
+    "noLinks": "Bağlantı ekleme",
+    "newProperty": "Yeni metin özelliği…",
+    "newPropertyName": "Pull request’ler",
+    "newPropertyLabel": "Yeni özelliğin adı",
+    "linkHelp": "Metin özelliği her pull request’i satır satır tutar; URL özelliği en sonuncuyu tutar.",
+    "statusProperty": "Durumu şurada ilerlet",
+    "noStatus": "Durumu değiştirme",
+    "noStatusProperty": "Bu veritabanında durum özelliği yok, bu yüzden yalnızca bağlantı eklenir.",
+    "statusOff": "Durum olduğu gibi kalır.",
+    "statusHelp": "Taslak pull request’ler bağlantısını ekler ama incelemeye hazır olana kadar durumu değiştirmez. Zaten tamamlandı durumundaki bir satır yalnızca bir pull request birleştirildiğinde ilerler.",
+    "move": {
+      "opened": "Açıldı ya da incelemeye hazır",
+      "merged": "Birleştirildi",
+      "closed": "Birleştirilmeden kapatıldı"
+    },
+    "leave": "Olduğu gibi bırak",
+    "setUp": "Kur",
+    "save": "Kaydet",
+    "change": "Değiştir",
+    "whatItDoes": "Ne yapar",
+    "linksTo": "Pull request bağlantılarını “{property}” özelliğine ekler.",
+    "noLinksSaved": "Bağlantı eklemez.",
+    "movesIn": "“{property}” özelliğini ilerletir: {moves}.",
+    "moves": {
+      "opened": "açılınca {option}",
+      "merged": "birleştirilince {option}",
+      "closed": "birleştirilmeden kapanınca {option}"
+    },
+    "noMoves": "Durumu olduğu gibi bırakır.",
+    "inGithub": "GitHub’da",
+    "steps": "Deponun Settings bölümünde Webhooks’u açın, Add webhook’u seçin, aşağıdaki alanları doldurun, “Let me select individual events” seçeneğini seçin ve yalnızca Pull requests’i işaretleyin.",
+    "payloadUrl": "Payload URL",
+    "secret": "Gizli anahtar",
+    "showSecret": "Gizli anahtarı göster",
+    "hideSecret": "Gizli anahtarı gizle",
+    "secretUnreadable": "Gizli anahtar bu sunucuda artık okunamıyor. Yenisini oluşturup GitHub’a verin.",
+    "rotate": "Yeni gizli anahtar oluştur",
+    "rotateConfirm": "Yeni gizli anahtar oluşturulsun mu? Yenisini GitHub’a verene kadar eskisiyle imzalanan gönderimler reddedilir.",
+    "contentType": "Content type",
+    "events": "Olaylar",
+    "eventsValue": "Pull requests",
+    "deliveries": "Son gönderimler",
+    "refresh": "Yenile",
+    "noDeliveries": "Henüz bir şey gelmedi. Webhook’u eklediğinizde GitHub burada görünen bir ping gönderir.",
+    "ping": "GitHub’dan ping",
+    "pingOk": "Webhook bağlı.",
+    "otherEvent": "{event} olayı",
+    "handling": "İşleniyor…",
+    "ignored": "“{action}” için yapılacak bir şey yok.",
+    "noIds": "Bu veritabanından hiçbir satırı anmıyor.",
+    "outcome": {
+      "updated": "güncellendi",
+      "unchanged": "zaten güncel",
+      "notFound": "bulunamadı",
+      "noAccess": "düzenleme erişimi yok",
+      "failed": "başarısız"
+    },
+    "deliveryErrors": {
+      "noUniqueId": "Veritabanında artık önekli bir kimlik özelliği yok.",
+      "runAsGone": "Adına çalıştığı kişi artık yok. Kurulumu yeniden kaydedin.",
+      "accessLost": "Adına çalıştığı kişi artık bu veritabanını düzenleyemiyor. Kurulumu yeniden kaydedin.",
+      "inTrash": "Veritabanı çöp kutusunda.",
+      "failed": "İşlenirken bir şeyler ters gitti."
+    },
+    "runsAs": "Değişiklikler, kurulumu en son kaydeden {name} adına yapılır.",
+    "runsAsGone": "Adına çalıştığı kişi artık yok: sizin adınıza çalışması için yeniden kaydedin.",
+    "remove": "Kaldır",
+    "removeConfirm": "GitHub kurulumu kaldırılsın mı? Bundan sonra GitHub’ın gönderimleri reddedilir; eklenmiş bağlantılar kalır.",
+    "errors": {
+      "noUniqueId": "Önce bu veritabanına önekli bir kimlik özelliği ekleyin.",
+      "invalidProperty": "Bağlantılar için bir metin ya da URL özelliği, bir durum özelliği ve seçeneklerini seçin.",
+      "notSetUp": "Bu veritabanının GitHub kurulumu yok."
+    }
+  },
+  "slack": {
+    "menuItem": "Slack bildirimleri",
+    "menuHint": "Bir satır eklendiğinde ya da bir özellik değiştiğinde bir Slack kanalına yaz",
+    "title": "Slack bildirimleri",
+    "intro": "Bir satır eklendiğinde ya da bir özellik değiştiğinde bir Slack kanalına yazar. Sonradan değiştirebileceğiniz bir otomasyon olarak kaydedilir.",
+    "url": "Slack gelen webhook’u",
+    "urlHelp": "Slack’te kanala Incoming WebHooks uygulamasını ekleyip webhook URL’sini kopyalayın. Gizli tutulur ve yalnızca kısaltılmış gösterilir.",
+    "when": "Ne zaman",
+    "rowAdded": "Bir satır eklenince",
+    "propertyChanges": "{property} değişince",
+    "to": "Şu değere",
+    "anyValue": "Herhangi bir değer",
+    "checked": "İşaretli",
+    "unchecked": "İşaretsiz",
+    "message": "Mesaj",
+    "messageHelp": "Çift süslü parantez içindeki değişkenler satırdan doldurulur. Sona satırın bağlantısı eklenir.",
+    "defaultAdded": "{actor}, {database} veritabanına bir satır ekledi",
+    "defaultChanged": "{actor}, {property} değerini {value} yaptı",
+    "nameAdded": "Slack: yeni satırlar",
+    "nameChanged": "Slack: {property} değişti",
+    "nameChangedTo": "Slack: {property} {value} oldu",
+    "create": "Oluştur",
+    "created": "“{name}” otomasyonu oluşturuldu.",
+    "existing": "Slack’e yazan otomasyonlar",
+    "existingHelp": "Bunları veritabanının otomasyonlarından değiştirin ya da kapatın.",
+    "off": "kapalı"
   }
 }

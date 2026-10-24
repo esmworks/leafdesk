@@ -1878,6 +1878,11 @@
       "sensitive_content": {
         "found": "Menemukan {kind} ({excerpt}) di {target}",
         "dismissed": "Mengabaikan {kind} ({excerpt}) yang ditemukan di {target}"
+      },
+      "github_sync": {
+        "created": "Menyiapkan pull request GitHub di {target}",
+        "updated": "Mengubah pengaturan GitHub di {target}",
+        "deleted": "Menghapus pengaturan GitHub di {target}"
       }
     },
     "decisions": {

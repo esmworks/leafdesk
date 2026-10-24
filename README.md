@@ -343,8 +343,10 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   value), a date of a row is some days past (optionally only for rows in some status groups), a
   schedule comes round or another service POSTs to the automation's secret address, do up to 20
   steps: set properties, notify people with a message, send the row to a webhook signed with
-  HMAC-SHA256, run an agent, move the row to the trash, send an HTTP request, find rows, create a
-  row or update the one that matches, wait, ask people for approval, or log. Steps go for each row an earlier step found
+  HMAC-SHA256, post to a Slack channel, run an agent, move the row to the trash, send an HTTP
+  request, find rows, create a row or update the one that matches, wait, ask people for approval,
+  or log. *Slack notifications* in a database's ••• menu makes one that posts when a row is added
+  or a property changes (to a value) in two steps. Steps go for each row an earlier step found
   and use the trigger's and earlier steps' values through `{{templates}}`. Changes can wait in a
   draft, be tried with a test run and be published as numbered versions, and a 30-day run history
   shows each step's input and output (see [Automations and webhooks](#automations-and-webhooks)).
@@ -754,6 +756,20 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   it is changed in the database's sync dialog (the ⟳ button on its toolbar), where people with
   full access can also sync now, change the query or sign-in, or stop syncing (the rows stay).
   Tested against a stand-in Jira (`scripts/jira-sync-e2e.ts`), not yet a real site.
+- **GitHub pull requests update tasks**: *GitHub pull requests* in the ••• menu of a database with
+  an ID property with a prefix gives a payload URL and a secret to add as a repository webhook
+  (JSON, *Pull requests* events). A pull request that names rows by their ID (`TASK-12`, in any
+  case, in its title, description or branch; at most 20 per pull request) adds its link to a text
+  property (one per line, the last 30) or a URL property (the latest), and can move a status
+  property: one option when it is opened or ready for review, one when it is merged and,
+  optionally, one when it is closed without merging. Drafts only add their link, and a row
+  already in a done status moves only for a merge, so a later pull request never moves a finished
+  task back. Deliveries are checked against the secret (`X-Hub-Signature-256`) and taken once
+  (`X-GitHub-Delivery`), and the writes are made as whoever last saved the setup, with their access
+  when the delivery comes: rows they can't edit are skipped, and automations follow the changes.
+  The dialog lists the latest deliveries with the rows each changed; setting up, changing and
+  removing it are in the audit log. Tested with signed deliveries (`scripts/github-sync-e2e.ts`),
+  not yet against GitHub itself.
 - **Workspaces and members**: add people by email (several at once) as owners or members, send
   an invitation link to people who don't have an account yet (or whose account's address was
   never verified: anyone can sign up with someone else's address), or turn on a join link anyone
@@ -1650,7 +1666,7 @@ the REST API.
   publishing is turned on again.
 - **Export:** on by default. Off removes Markdown, CSV, ZIP and PDF export (and the print view)
   for everyone, owners included, and the export routes answer `403`. Calendar feeds stop, and
-  automations can't get a webhook or an HTTP request step nor send one (`webhookExportOff`; one
+  automations can't get a webhook, HTTP request or Send to Slack step nor send one (`webhookExportOff`; one
   saved before may stay, and its runs and test pings fail until export is back on). The member list CSV in
   Settings → Members stays, as it is an owner's own administration tool.
 - **Connected apps and API tokens:** what MCP apps and personal access tokens may do in the
@@ -2118,6 +2134,14 @@ use what it gave):
   automation moves to the trash, with the automation and its person as the one who did it.
 - *HTTP request*: a `GET`, `POST`, `PUT`, `PATCH` or `DELETE` to an https address, with headers and
   a JSON body (see [HTTP requests](#http-requests)). Its answer is there for the steps after it.
+- *Send to Slack*: posts a message, written with the same `{{templates}}` and Slack's own
+  formatting, to a Slack incoming webhook (`https://hooks.slack.com/services/…`, or an address on
+  a host in `AUTOMATION_WEBHOOK_ALLOWED_HOSTS`), with a link to the row (or the database) on a line
+  of its own. Values from rows are escaped, so a title can't become a mention or a link. The
+  address is a secret: it is stored sealed, shown again only as a hint
+  (`hooks.slack.com/services/…x9Ab`) in the app, MCP and the run history, and kept when the
+  automation is saved without it. Like webhooks, it needs export to be on. *Slack notifications*
+  in a database's ••• menu sets one up for a row added or a property changing (to a value).
 - *Find rows* of this database or another one of the workspace the automation's person can open,
   with filters and sorts as a view has them, up to 100 rows (20 unless set otherwise).
 - *Create a row* in this database or another one the automation's person can edit, with a title
@@ -3948,6 +3972,7 @@ Useful scripts:
 | `pnpm tsx scripts/mcp-e2e.ts` | End-to-end OAuth + MCP check against a running server (see the header of the file) |
 | `pnpm tsx scripts/api-e2e.ts` | End-to-end REST API check (tokens, every endpoint, access, rate limits, OpenAPI) against a running server |
 | `pnpm tsx scripts/voice-api-e2e.ts` | End-to-end check of voice notes over the REST API: a recording saved as a private page or a database row, the transcript toggle, the AI falling back to the transcript, workspace-bound tokens and every refusal, with a faux model and transcription, against the database |
+| `pnpm tsx scripts/github-sync-e2e.ts` | End-to-end check of a database's GitHub setup with signed pull request deliveries handed to the route's handler: links and status moves, drafts, done rows, duplicates, bad signatures, the setup person's access when a delivery comes, the deliveries list and the audit log, against the database |
 | `pnpm tsx scripts/jira-sync-e2e.ts` | End-to-end check of Jira syncs against a stand-in Jira Cloud the script starts on 127.0.0.1: setting one up, due runs writing changes and new issues, assignment notices, pausing on refused credentials or queries, too many issues and endless page tokens, against the database with no server on it |
 | `pnpm tsx scripts/agent-api-e2e.ts` | End-to-end check of agents over the REST API: settings, runs asked for on a row or on none, the asking owner's access, usage by month and the monthly limit, with a fake AI server, against the database |
 | `pnpm tsx scripts/workspace-apps-e2e.ts` | End-to-end check of the apps that reach a workspace: what its owners see, when each was last used there, and disconnecting one, against the database |

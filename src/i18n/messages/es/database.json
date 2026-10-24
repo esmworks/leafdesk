@@ -971,7 +971,8 @@
     "sprintsDatabase": "Esta base de datos guarda los sprints de otra base de datos: activa o desactiva los sprints allí.",
     "noCurrentSprint": "Ningún sprint está en curso. Marca primero un sprint como actual.",
     "invalidSprints": "Los sprints no se pueden configurar así: revisa la duración del sprint, el primer día y la base de datos de sprints.",
-    "sprintStateOption": "Esta opción marca el estado de un sprint. Puedes cambiarle el nombre o desactivar los sprints antes de eliminarla."
+    "sprintStateOption": "Esta opción marca el estado de un sprint. Puedes cambiarle el nombre o desactivar los sprints antes de eliminarla.",
+    "invalidSlackUrl": "No es la dirección de un webhook entrante de Slack (https://hooks.slack.com/services/…)."
   },
   "formula": {
     "title": "Fórmula",
@@ -1272,7 +1273,8 @@
         "log": "Escribir en el historial de ejecuciones",
         "celebrate": "Celebrar con confeti",
         "approval": "Pedir aprobación",
-        "start_sequence": "Iniciar un seguimiento"
+        "start_sequence": "Iniciar un seguimiento",
+        "slack": "Enviar a Slack"
       },
       "trashHelp": "Mueve la fila a la papelera, desde donde se puede restaurar hasta que se vacíe. Después de esta acción no puede ejecutarse nada.",
       "addAction": "Añadir acción",
@@ -1332,7 +1334,8 @@
         "badExample": "El cuerpo de ejemplo no es JSON válido.",
         "exampleTooLong": "El cuerpo de ejemplo es demasiado largo.",
         "needApprovers": "Elige a quién preguntar.",
-        "needTimeout": "Escribe un número entero de días entre 1 y 30."
+        "needTimeout": "Escribe un número entero de días entre 1 y 30.",
+        "needSlackUrl": "Escribe la dirección del webhook entrante de Slack."
       },
       "agent": "Agente",
       "chooseAgent": "Elige un agente…",
@@ -1566,7 +1569,13 @@
       "logPlaceholder": "Por ejemplo: Importado {template}",
       "logHelp": "Se escribe en el historial de ejecuciones con sus variables rellenadas.",
       "celebrateHelp": "Confeti en la app para quien hizo el cambio que inició la ejecución, en las ventanas que tenga abiertas. Las ejecuciones que nadie inició (programaciones, fechas que pasan, webhooks entrantes, respuestas anónimas de formularios) se lo saltan, igual que las que llegan aquí más de dos minutos después del cambio.",
-      "celebrateTry": "Probar"
+      "celebrateTry": "Probar",
+      "slackUrl": "Webhook entrante de Slack",
+      "slackReplace": "Pega una dirección nueva para sustituir la guardada",
+      "slackSaved": "Dirección guardada:",
+      "slackMessage": "Mensaje",
+      "slackPlaceholder": "Por ejemplo: Listo para revisión: {template}",
+      "slackHelp": "Publica el mensaje en el canal de Slack del webhook entrante, con un enlace a la fila. El formato de Slack (*negrita*, _cursiva_) funciona. La dirección se guarda en secreto y solo se muestra abreviada."
     },
     "variables": {
       "button": "Insertar una variable",
@@ -1851,5 +1860,114 @@
       "allView": "Todos los sprints",
       "boardView": "Por estado"
     }
+  },
+  "github": {
+    "menuItem": "Pull requests de GitHub",
+    "menuHint": "Añadir enlaces a las pull requests que nombran una fila por su ID y mover su estado",
+    "title": "Pull requests de GitHub",
+    "intro": "Una pull request que nombra una fila por su ID, como {example}, en su título, descripción o rama añade su enlace a esa fila y puede mover su estado.",
+    "needUniqueId": "Primero añade una propiedad ID a esta base de datos: las pull requests nombran las filas por su ID.",
+    "needPrefix": "Primero da un prefijo a la propiedad ID «{property}», como TASK: las pull requests nombran las filas con él.",
+    "linkProperty": "Añadir enlaces de pull requests a",
+    "noLinks": "No añadir enlaces",
+    "newProperty": "Nueva propiedad de texto…",
+    "newPropertyName": "Pull requests",
+    "newPropertyLabel": "Nombre de la nueva propiedad",
+    "linkHelp": "Una propiedad de texto guarda todas las pull requests, una por línea; una propiedad URL guarda la más reciente.",
+    "statusProperty": "Mover el estado en",
+    "noStatus": "No cambiar el estado",
+    "noStatusProperty": "Esta base de datos no tiene propiedad de estado, así que solo se añaden enlaces.",
+    "statusOff": "El estado queda como está.",
+    "statusHelp": "Los borradores añaden su enlace pero no mueven nada hasta que están listos para revisión. Una fila que ya está en un estado terminado solo se mueve cuando se fusiona una pull request.",
+    "move": {
+      "opened": "Abierta o lista para revisión",
+      "merged": "Fusionada",
+      "closed": "Cerrada sin fusionar"
+    },
+    "leave": "Dejar como está",
+    "setUp": "Configurar",
+    "save": "Guardar",
+    "change": "Cambiar",
+    "whatItDoes": "Qué hace",
+    "linksTo": "Añade enlaces de pull requests a «{property}».",
+    "noLinksSaved": "No añade enlaces.",
+    "movesIn": "Mueve «{property}»: {moves}.",
+    "moves": {
+      "opened": "abierta a {option}",
+      "merged": "fusionada a {option}",
+      "closed": "cerrada sin fusionar a {option}"
+    },
+    "noMoves": "Deja el estado como está.",
+    "inGithub": "En GitHub",
+    "steps": "En los Settings del repositorio, abre Webhooks, elige Add webhook, rellena los campos de abajo, elige «Let me select individual events» y marca solo Pull requests.",
+    "payloadUrl": "Payload URL",
+    "secret": "Secreto",
+    "showSecret": "Mostrar el secreto",
+    "hideSecret": "Ocultar el secreto",
+    "secretUnreadable": "El secreto ya no se puede leer en este servidor. Crea uno nuevo y dáselo a GitHub.",
+    "rotate": "Crear un secreto nuevo",
+    "rotateConfirm": "¿Crear un secreto nuevo? Los envíos firmados con el anterior se rechazan hasta que des el nuevo a GitHub.",
+    "contentType": "Content type",
+    "events": "Eventos",
+    "eventsValue": "Pull requests",
+    "deliveries": "Envíos recientes",
+    "refresh": "Actualizar",
+    "noDeliveries": "Aún no ha llegado nada. Cuando añades el webhook, GitHub envía un ping que aparece aquí.",
+    "ping": "Ping de GitHub",
+    "pingOk": "El webhook está conectado.",
+    "otherEvent": "Evento {event}",
+    "handling": "Procesando…",
+    "ignored": "Nada que hacer para «{action}».",
+    "noIds": "No nombra ninguna fila de esta base de datos.",
+    "outcome": {
+      "updated": "actualizada",
+      "unchanged": "ya al día",
+      "notFound": "no encontrada",
+      "noAccess": "sin acceso de edición",
+      "failed": "falló"
+    },
+    "deliveryErrors": {
+      "noUniqueId": "La base de datos ya no tiene una propiedad ID con prefijo.",
+      "runAsGone": "La persona con la que se ejecuta ya no existe. Guarda la configuración de nuevo.",
+      "accessLost": "La persona con la que se ejecuta ya no puede editar esta base de datos. Guarda la configuración de nuevo.",
+      "inTrash": "La base de datos está en la papelera.",
+      "failed": "Algo salió mal al procesarlo."
+    },
+    "runsAs": "Los cambios se hacen como {name}, quien la guardó por última vez.",
+    "runsAsGone": "La persona con la que se ejecutaba ya no existe: guárdala de nuevo para que se ejecute como tú.",
+    "remove": "Quitar",
+    "removeConfirm": "¿Quitar la configuración de GitHub? A partir de entonces se rechazan los envíos de GitHub; los enlaces ya añadidos se quedan.",
+    "errors": {
+      "noUniqueId": "Primero añade a esta base de datos una propiedad ID con prefijo.",
+      "invalidProperty": "Elige una propiedad de texto o URL para los enlaces, una propiedad de estado y sus opciones.",
+      "notSetUp": "Esta base de datos no tiene configuración de GitHub."
+    }
+  },
+  "slack": {
+    "menuItem": "Notificaciones de Slack",
+    "menuHint": "Publicar en un canal de Slack cuando se añade una fila o cambia una propiedad",
+    "title": "Notificaciones de Slack",
+    "intro": "Publica en un canal de Slack cuando se añade una fila o cambia una propiedad. Se guarda como una automatización que puedes cambiar después.",
+    "url": "Webhook entrante de Slack",
+    "urlHelp": "En Slack, añade la app Incoming WebHooks al canal y copia la URL de su webhook. Se guarda en secreto y solo se muestra abreviada.",
+    "when": "Cuándo",
+    "rowAdded": "Se añade una fila",
+    "propertyChanges": "Cambia {property}",
+    "to": "A",
+    "anyValue": "Cualquier valor",
+    "checked": "Marcada",
+    "unchecked": "Sin marcar",
+    "message": "Mensaje",
+    "messageHelp": "Las variables entre llaves dobles se rellenan con la fila. Al final se añade un enlace a la fila.",
+    "defaultAdded": "{actor} añadió una fila a {database}",
+    "defaultChanged": "{actor} cambió {property} a {value}",
+    "nameAdded": "Slack: filas nuevas",
+    "nameChanged": "Slack: {property} cambió",
+    "nameChangedTo": "Slack: {property} es {value}",
+    "create": "Crear",
+    "created": "Se creó la automatización «{name}».",
+    "existing": "Automatizaciones que publican en Slack",
+    "existingHelp": "Cámbialas o desactívalas en las automatizaciones de la base de datos.",
+    "off": "desactivada"
   }
 }

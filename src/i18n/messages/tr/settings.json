@@ -1878,6 +1878,11 @@
       "sensitive_content": {
         "found": "{target} içinde {kind} bulundu ({excerpt})",
         "dismissed": "{target} içinde bulunan {kind} ({excerpt}) yok sayıldı"
+      },
+      "github_sync": {
+        "created": "{target} içinde GitHub pull request’leri kuruldu",
+        "updated": "{target} GitHub kurulumu değiştirildi",
+        "deleted": "{target} GitHub kurulumu kaldırıldı"
       }
     },
     "decisions": {

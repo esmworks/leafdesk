@@ -1878,6 +1878,11 @@
       "sensitive_content": {
         "found": "נמצא {kind} ({excerpt}) ב־{target}",
         "dismissed": "דחיית ממצא ב־{target}: {kind} ({excerpt})"
+      },
+      "github_sync": {
+        "created": "הגדרת בקשות משיכה של GitHub ב־{target}",
+        "updated": "שינוי הגדרת GitHub של {target}",
+        "deleted": "הסרת הגדרת GitHub של {target}"
       }
     },
     "decisions": {

@@ -1878,6 +1878,11 @@
       "sensitive_content": {
         "found": "Обнаружено в «{target}»: {kind} ({excerpt})",
         "dismissed": "Отклонена находка в «{target}»: {kind} ({excerpt})"
+      },
+      "github_sync": {
+        "created": "Настроены pull request’ы GitHub в {target}",
+        "updated": "Изменена настройка GitHub в {target}",
+        "deleted": "Удалена настройка GitHub в {target}"
       }
     },
     "decisions": {

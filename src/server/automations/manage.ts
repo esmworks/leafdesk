@@ -50,11 +50,13 @@ import { holdsPeople, STATUS_GROUPS, type StatusGroup } from "@/lib/property-typ
 import { isTimeZone } from "@/lib/time-zone";
 import type { FilterCombinator, FilterEntry, SortRule } from "@/db/schema/app";
 import { getMembership, pageVisibleTo } from "@/server/access";
+import { slackUrlHint, slackWebhookUrl } from "@/lib/slack";
 import { LinkPreviewError } from "@/server/link-preview";
 import { recordAudit } from "@/server/audit";
 import { releaseDatabaseFromAgents, shareDatabaseWithAgents } from "@/server/agents/manage";
 import { agentLevel } from "@/server/agents/sharing";
 import { getProperties, normalizeRowProperties, requireDatabase } from "@/server/databases";
+import { seal } from "@/server/secret-box";
 import { exportAllowed, workspacePeople } from "@/server/workspaces";
 import { checkHeader, HttpStepError, parseRequestUrl } from "./http";
 import { hookUrl, newHookSalt } from "./incoming";
@@ -62,7 +64,7 @@ import { kickAutomations } from "./queue";
 import { forHistory } from "./run";
 import { nextRunOf } from "./scheduled";
 import { automationZone, countDatePassedMatches, forgetFired } from "./timed";
-import { newSecretSalt, parseWebhookUrl, sendWebhook, WebhookError, webhookSecret, webhookTarget } from "./webhook";
+import { allowedHost, newSecretSalt, parseWebhookUrl, sendWebhook, WebhookError, webhookSecret, webhookTarget } from "./webhook";
 
 /**
  * Managing a database's automations. Only people with full access to the database see or change
@@ -103,6 +105,11 @@ export type AutomationActionInput = (
   | { type: "start_sequence"; sequence: string; forEach?: string | null }
   /** People by id, email, name or "me"; person properties by name or id; `timeoutDays` 1 to 30 (30 when left out). */
   | { type: "approval"; people?: string[]; properties?: string[]; message?: string | null; timeoutDays?: number; onTimeout?: string; forEach?: string | null }
+  /**
+   * `url`: the Slack incoming webhook's address. Left out, the step keeps the address of the saved
+   * Slack step `urlFrom` (its own id when not given), which is never shown.
+   */
+  | { type: "slack"; url?: string | null; message?: string | null; urlFrom?: string | null }
 ) & { id?: string | null };
 
 /** An automation as typed: properties and people by id or name (see above). */
@@ -280,6 +287,7 @@ const ID_STEMS: Record<AutomationActionType, string> = {
   celebrate: "celebrate",
   start_sequence: "follow_up",
   approval: "approval",
+  slack: "slack",
 };
 
 /** Every step's id: the one given (checked), or a new one from its type. */
@@ -397,7 +405,7 @@ async function checkRequestUrl(value: unknown) {
  * the trigger and earlier steps, "for each" over an earlier find_rows step, and no step that needs
  * a row in a run without one. `current`: the steps as saved (published and draft), which anyone
  * who may change the automation may keep as they are (a webhook while export is off, an agent's
- * task only owners may write).
+ * task only owners may write). `stored`: the saved steps a Slack step may keep the address of.
  */
 async function checkActions(
   userId: string,
@@ -407,6 +415,7 @@ async function checkActions(
   input: AutomationActionInput[],
   trigger: AutomationTrigger,
   current: AutomationAction[] = [],
+  stored: AutomationAction[] = current,
 ) {
   if (!Array.isArray(input) || !input.length) throw invalid("An automation needs at least one step");
   if (input.length > MAX_AUTOMATION_ACTIONS) throw invalid(`At most ${MAX_AUTOMATION_ACTIONS} steps`);
@@ -625,9 +634,31 @@ async function checkActions(
       const onTimeout = action.onTimeout ?? "stop";
       if (!(APPROVAL_TIMEOUTS as readonly string[]).includes(onTimeout)) throw invalid(`${label}: on timeout, the run stops ("stop") or goes on ("continue")`);
       step = { type: "approval", userIds, propertyIds, message, timeoutDays, onTimeout: onTimeout as (typeof APPROVAL_TIMEOUTS)[number] };
+    } else if (action?.type === "slack") {
+      const message = checkText(action.message, "A Slack message", MAX_STEP_MESSAGE).trim();
+      const typed = typeof action.url === "string" ? action.url.trim() : "";
+      let sealed: string;
+      let hint: string;
+      if (typed) {
+        const url = slackWebhookUrl(typed, (u) => allowedHost(u));
+        if (!url) throw new PropertyValueError("Not a Slack incoming webhook address (https://hooks.slack.com/services/…)", "invalidSlackUrl", {});
+        sealed = seal(url.toString());
+        hint = slackUrlHint(url.toString());
+      } else {
+        const from = typeof action.urlFrom === "string" && action.urlFrom.trim() ? action.urlFrom.trim() : id;
+        const saved = stored.find((a): a is Extract<AutomationAction, { type: "slack" }> => a.type === "slack" && a.id === from && !!a.sealed);
+        if (!saved?.sealed) throw invalid(`${label}: give the Slack incoming webhook's address`);
+        ({ sealed, hint } = { sealed: saved.sealed, hint: saved.hint });
+      }
+      // Slack gets the row's values: as webhooks, not while export is off (a saved address may stay).
+      const kept = current.some((a) => a.type === "slack" && a.sealed === sealed);
+      if (!kept && !(await exportAllowedOnce())) {
+        throw new PropertyValueError("The workspace's owners turned export off, so automations can't send to Slack", "webhookExportOff", {});
+      }
+      step = { type: "slack", sealed, hint, message };
     } else {
       throw invalid(
-        'Each step is "set_properties", "notify", "webhook", "run_agent", "move_to_trash", "http_request", "find_rows", "create_row", "upsert_row", "wait", "log", "celebrate", "approval" or "start_sequence"',
+        'Each step is "set_properties", "notify", "webhook", "run_agent", "move_to_trash", "http_request", "find_rows", "create_row", "upsert_row", "wait", "log", "celebrate", "approval", "start_sequence" or "slack"',
       );
     }
     step.id = id;
@@ -670,7 +701,9 @@ const auditDetails = (a: { name: string; enabled: boolean; trigger: AutomationTr
   enabled: a.enabled,
   trigger: a.trigger.type,
   actions: a.actions.map((x) => x.type).join(", "),
-  webhooks: a.actions.flatMap((x) => (x.type === "webhook" || x.type === "http_request" ? [hostOf(x.url)] : [])).join(", ") || undefined,
+  webhooks:
+    a.actions.flatMap((x) => (x.type === "webhook" || x.type === "http_request" ? [hostOf(x.url)] : x.type === "slack" ? [x.hint.split("/")[0]] : [])).join(", ") ||
+    undefined,
   ...(a.version !== undefined ? { version: a.version } : {}),
 });
 
@@ -700,10 +733,11 @@ async function checkDefinition(
   automation: { databaseId: string; workspaceId: string },
   input: { trigger: AutomationInput["trigger"]; actions: AutomationActionInput[]; timeZone: string },
   current: AutomationAction[],
+  stored: AutomationAction[] = current,
 ): Promise<AutomationDefinition> {
   const props = await getProperties(automation.databaseId);
   const trigger = await checkTrigger(userId, automation.databaseId, props, input.trigger, input.timeZone);
-  const actions = await checkActions(userId, automation.databaseId, automation.workspaceId, props, input.actions, trigger, current);
+  const actions = await checkActions(userId, automation.databaseId, automation.workspaceId, props, input.actions, trigger, current, stored);
   checkActorFits(trigger, actions);
   return { trigger, actions, timeZone: input.timeZone };
 }
@@ -725,6 +759,8 @@ function asInput(action: AutomationAction): AutomationActionInput {
   if (action.type === "upsert_row") {
     return { id: action.id, type: "upsert_row", database: action.databaseId, match: { property: action.matchPropertyId, value: action.matchValue }, title: action.title, values: action.values };
   }
+  // The address stays sealed: the step keeps the saved one.
+  if (action.type === "slack") return { id: action.id, type: "slack", message: action.message, urlFrom: action.id };
   return action as AutomationActionInput;
 }
 
@@ -887,6 +923,7 @@ export async function publishAutomation(userId: string, automationId: string) {
     current,
     { trigger: triggerAsInput(draft.trigger), actions: draft.actions.map(asInput), timeZone: draft.timeZone },
     current.version > 0 ? current.actions : [],
+    savedActions(current),
   );
   const updated = await publishDefinition(userId, current, definition);
   await recordAudit({
@@ -1048,6 +1085,14 @@ export async function testAutomationWebhooks(userId: string, automationId: strin
 
 export type AutomationView = Awaited<ReturnType<typeof describe>>[number];
 
+/** Steps as they leave the server: a Slack step's sealed address stays behind (its hint shows). */
+const shownActions = (actions: AutomationAction[]): AutomationAction[] =>
+  actions.map((a) => {
+    if (a.type !== "slack") return a;
+    const { sealed: _sealed, ...shown } = a;
+    return shown;
+  });
+
 /** Automations as the settings show them: who they run as, their secret and address, their draft and latest run. */
 async function describe(automations: Automation[]) {
   if (!automations.length) return [];
@@ -1075,13 +1120,13 @@ async function describe(automations: Automation[]) {
       name: a.name,
       enabled: a.enabled,
       trigger: a.trigger,
-      actions: a.actions,
+      actions: shownActions(a.actions),
       /** The time zone a "date passed" trigger counts days in and a schedule runs in. */
       timeZone: a.timeZone,
       /** The published version; 0 when only a draft was saved (it doesn't run). */
       version: a.version,
       /** Unpublished changes: what a test run runs and publishing makes live. */
-      draft: a.draft ? { trigger: a.draft.trigger, actions: a.draft.actions, timeZone: a.draft.timeZone, savedAt: a.draft.savedAt } : null,
+      draft: a.draft ? { trigger: a.draft.trigger, actions: shownActions(a.draft.actions), timeZone: a.draft.timeZone, savedAt: a.draft.savedAt } : null,
       runAs: a.runAs ? { id: a.runAs, name: names.find((n) => n.id === a.runAs)?.name ?? "" } : null,
       /** Only automations with a webhook have one to show. */
       secret: steps.some((x) => x.type === "webhook") ? webhookSecret(a.secretSalt) : null,

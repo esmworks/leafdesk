@@ -971,7 +971,8 @@
     "sprintsDatabase": "Ta baza danych przechowuje sprinty innej bazy danych: włącz lub wyłącz sprinty tam.",
     "noCurrentSprint": "Żaden sprint nie jest bieżący. Najpierw oznacz jeden sprint jako bieżący.",
     "invalidSprints": "Nie można tak skonfigurować sprintów: sprawdź długość sprintu, pierwszy dzień i bazę danych sprintów.",
-    "sprintStateOption": "Ta opcja oznacza stan sprintu. Możesz zmienić jej nazwę albo wyłączyć sprinty przed jej usunięciem."
+    "sprintStateOption": "Ta opcja oznacza stan sprintu. Możesz zmienić jej nazwę albo wyłączyć sprinty przed jej usunięciem.",
+    "invalidSlackUrl": "To nie jest adres przychodzącego webhooka Slacka (https://hooks.slack.com/services/…)."
   },
   "formula": {
     "title": "Formuła",
@@ -1272,7 +1273,8 @@
         "log": "Zapisz w historii uruchomień",
         "celebrate": "Świętuj konfetti",
         "approval": "Poproś o zatwierdzenie",
-        "start_sequence": "Uruchom follow-up"
+        "start_sequence": "Uruchom follow-up",
+        "slack": "Wyślij do Slacka"
       },
       "trashHelp": "Przenosi wiersz do kosza, skąd można go przywrócić, dopóki kosz nie zostanie opróżniony. Po tej akcji nic więcej nie może się uruchomić.",
       "addAction": "Dodaj akcję",
@@ -1332,7 +1334,8 @@
         "badExample": "Przykładowa treść nie jest poprawnym JSON-em.",
         "exampleTooLong": "Przykładowa treść jest za długa.",
         "needApprovers": "Wybierz, kogo zapytać.",
-        "needTimeout": "Wpisz całkowitą liczbę dni od 1 do 30."
+        "needTimeout": "Wpisz całkowitą liczbę dni od 1 do 30.",
+        "needSlackUrl": "Wpisz adres przychodzącego webhooka Slacka."
       },
       "agent": "Agent",
       "chooseAgent": "Wybierz agenta…",
@@ -1566,7 +1569,13 @@
       "logPlaceholder": "Na przykład: Zaimportowano {template}",
       "logHelp": "Zapisywana w historii uruchomień z uzupełnionymi zmiennymi.",
       "celebrateHelp": "Konfetti w aplikacji dla osoby, której zmiana uruchomiła przebieg, w otwartych przez nią oknach. Przebiegi, których nikt nie uruchomił (harmonogramy, mijające daty, przychodzące webhooki, anonimowe odpowiedzi na formularze), pomijają ten krok, podobnie jak te, które docierają do niego później niż dwie minuty po zmianie.",
-      "celebrateTry": "Wypróbuj"
+      "celebrateTry": "Wypróbuj",
+      "slackUrl": "Przychodzący webhook Slacka",
+      "slackReplace": "Wklej nowy adres, aby zastąpić zapisany",
+      "slackSaved": "Zapisany adres:",
+      "slackMessage": "Wiadomość",
+      "slackPlaceholder": "Na przykład: Gotowe do przeglądu: {template}",
+      "slackHelp": "Publikuje wiadomość na kanale Slacka przychodzącego webhooka, z linkiem do wiersza. Formatowanie Slacka (*pogrubienie*, _kursywa_) działa. Adres jest tajny i pokazywany tylko w skrócie."
     },
     "variables": {
       "button": "Wstaw zmienną",
@@ -1851,5 +1860,114 @@
       "allView": "Wszystkie sprinty",
       "boardView": "Według stanu"
     }
+  },
+  "github": {
+    "menuItem": "Pull requesty z GitHuba",
+    "menuHint": "Dodawaj linki pull requestów, które wskazują wiersz jego ID, i zmieniaj status wiersza",
+    "title": "Pull requesty z GitHuba",
+    "intro": "Pull request, który wskazuje wiersz jego ID, np. {example}, w tytule, opisie lub gałęzi, dodaje do tego wiersza swój link i może zmienić jego status.",
+    "needUniqueId": "Najpierw dodaj do tej bazy danych właściwość ID: pull requesty wskazują wiersze ich ID.",
+    "needPrefix": "Najpierw nadaj właściwości ID „{property}” prefiks, np. TASK: pull requesty wskazują nim wiersze.",
+    "linkProperty": "Dodawaj linki pull requestów do",
+    "noLinks": "Nie dodawaj linków",
+    "newProperty": "Nowa właściwość tekstowa…",
+    "newPropertyName": "Pull requesty",
+    "newPropertyLabel": "Nazwa nowej właściwości",
+    "linkHelp": "Właściwość tekstowa przechowuje każdy pull request, po jednym w linii; właściwość URL przechowuje najnowszy.",
+    "statusProperty": "Zmieniaj status w",
+    "noStatus": "Nie zmieniaj statusu",
+    "noStatusProperty": "Ta baza danych nie ma właściwości statusu, więc dodawane są tylko linki.",
+    "statusOff": "Status zostaje bez zmian.",
+    "statusHelp": "Wersje robocze dodają link, ale nic nie zmieniają, dopóki nie są gotowe do przeglądu. Wiersz ze statusem ukończonym zmienia się tylko po scaleniu pull requesta.",
+    "move": {
+      "opened": "Otwarty lub gotowy do przeglądu",
+      "merged": "Scalony",
+      "closed": "Zamknięty bez scalenia"
+    },
+    "leave": "Bez zmian",
+    "setUp": "Skonfiguruj",
+    "save": "Zapisz",
+    "change": "Zmień",
+    "whatItDoes": "Co robi",
+    "linksTo": "Dodaje linki pull requestów do „{property}”.",
+    "noLinksSaved": "Nie dodaje linków.",
+    "movesIn": "Zmienia „{property}”: {moves}.",
+    "moves": {
+      "opened": "otwarty na {option}",
+      "merged": "scalony na {option}",
+      "closed": "zamknięty bez scalenia na {option}"
+    },
+    "noMoves": "Zostawia status bez zmian.",
+    "inGithub": "W GitHubie",
+    "steps": "W Settings repozytorium otwórz Webhooks, wybierz Add webhook, wypełnij pola poniżej, wybierz „Let me select individual events” i zaznacz tylko Pull requests.",
+    "payloadUrl": "Payload URL",
+    "secret": "Sekret",
+    "showSecret": "Pokaż sekret",
+    "hideSecret": "Ukryj sekret",
+    "secretUnreadable": "Na tym serwerze nie da się już odczytać sekretu. Utwórz nowy i podaj go GitHubowi.",
+    "rotate": "Utwórz nowy sekret",
+    "rotateConfirm": "Utworzyć nowy sekret? Dostawy podpisane starym są odrzucane, dopóki nie podasz GitHubowi nowego.",
+    "contentType": "Content type",
+    "events": "Zdarzenia",
+    "eventsValue": "Pull requests",
+    "deliveries": "Ostatnie dostawy",
+    "refresh": "Odśwież",
+    "noDeliveries": "Jeszcze nic nie dotarło. Po dodaniu webhooka GitHub wysyła ping, który pojawi się tutaj.",
+    "ping": "Ping z GitHuba",
+    "pingOk": "Webhook jest połączony.",
+    "otherEvent": "Zdarzenie {event}",
+    "handling": "Przetwarzanie…",
+    "ignored": "Nic do zrobienia dla „{action}”.",
+    "noIds": "Nie wskazuje żadnego wiersza tej bazy danych.",
+    "outcome": {
+      "updated": "zaktualizowano",
+      "unchanged": "już aktualny",
+      "notFound": "nie znaleziono",
+      "noAccess": "brak dostępu do edycji",
+      "failed": "błąd"
+    },
+    "deliveryErrors": {
+      "noUniqueId": "Baza danych nie ma już właściwości ID z prefiksem.",
+      "runAsGone": "Osoba, jako która działa, już nie istnieje. Zapisz konfigurację ponownie.",
+      "accessLost": "Osoba, jako która działa, nie może już edytować tej bazy danych. Zapisz konfigurację ponownie.",
+      "inTrash": "Baza danych jest w koszu.",
+      "failed": "Podczas przetwarzania coś poszło nie tak."
+    },
+    "runsAs": "Zmiany są wprowadzane jako {name}, kto zapisał ją ostatni.",
+    "runsAsGone": "Osoba, jako która działała, już nie istnieje: zapisz ponownie, aby działała jako ty.",
+    "remove": "Usuń",
+    "removeConfirm": "Usunąć konfigurację GitHuba? Dostawy z GitHuba będą odtąd odrzucane; dodane linki zostaną.",
+    "errors": {
+      "noUniqueId": "Najpierw dodaj do tej bazy danych właściwość ID z prefiksem.",
+      "invalidProperty": "Wybierz właściwość tekstową lub URL na linki, właściwość statusu i jej opcje.",
+      "notSetUp": "Ta baza danych nie ma konfiguracji GitHuba."
+    }
+  },
+  "slack": {
+    "menuItem": "Powiadomienia Slack",
+    "menuHint": "Publikuj na kanale Slacka, gdy dodano wiersz lub zmieniła się właściwość",
+    "title": "Powiadomienia Slack",
+    "intro": "Publikuje na kanale Slacka, gdy dodano wiersz lub zmieniła się właściwość. Zapisuje się jako automatyzacja, którą możesz później zmienić.",
+    "url": "Przychodzący webhook Slacka",
+    "urlHelp": "W Slacku dodaj do kanału aplikację Incoming WebHooks i skopiuj URL jej webhooka. Jest tajny i pokazywany tylko w skrócie.",
+    "when": "Kiedy",
+    "rowAdded": "Dodano wiersz",
+    "propertyChanges": "Zmienia się {property}",
+    "to": "Na",
+    "anyValue": "Dowolna wartość",
+    "checked": "Zaznaczone",
+    "unchecked": "Niezaznaczone",
+    "message": "Wiadomość",
+    "messageHelp": "Zmienne w podwójnych nawiasach klamrowych są wypełniane z wiersza. Na końcu dodawany jest link do wiersza.",
+    "defaultAdded": "{actor} dodaje wiersz do {database}",
+    "defaultChanged": "{actor} zmienia {property} na {value}",
+    "nameAdded": "Slack: nowe wiersze",
+    "nameChanged": "Slack: zmiana {property}",
+    "nameChangedTo": "Slack: {property} to {value}",
+    "create": "Utwórz",
+    "created": "Utworzono automatyzację „{name}”.",
+    "existing": "Automatyzacje publikujące na Slacku",
+    "existingHelp": "Zmieniaj je lub wyłączaj w automatyzacjach bazy danych.",
+    "off": "wyłączona"
   }
 }

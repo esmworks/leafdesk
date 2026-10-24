@@ -23,6 +23,7 @@ import {
   type SaveOptions,
   type TestRunInput,
 } from "@/server/automations/manage";
+import { createSlackAutomation, slackSetup, type SlackQuickInput } from "@/server/automations/slack-setup";
 import { requireDatabase } from "@/server/databases";
 import { requireUserId } from "@/server/session";
 import { listMembers } from "@/server/workspaces";
@@ -85,6 +86,25 @@ export async function listAutomationsAction(databaseId: string) {
       isOwner: membership?.role === "owner",
     };
   });
+}
+
+/** What the quick setup of Slack notifications shows: the properties to watch and the automations that send to Slack. */
+export async function slackSetupAction(databaseId: string) {
+  return run((userId) => slackSetup(userId, String(databaseId)));
+}
+
+/** Makes a "Send to Slack" automation from the quick setup. */
+export async function createSlackAutomationAction(databaseId: string, input: SlackQuickInput) {
+  return run((userId) =>
+    createSlackAutomation(userId, String(databaseId), {
+      name: String(input?.name ?? ""),
+      url: String(input?.url ?? ""),
+      message: String(input?.message ?? ""),
+      when: String(input?.when ?? ""),
+      to: typeof input?.to === "string" || typeof input?.to === "boolean" ? input.to : null,
+      timeZone: typeof input?.timeZone === "string" ? input.timeZone : undefined,
+    }),
+  );
 }
 
 /** Creates an automation, published at once or (`publish: false`) as a draft that doesn't run yet. */
