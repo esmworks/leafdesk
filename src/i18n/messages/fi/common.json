@@ -29,5 +29,14 @@
     "busy": "Sinulla on jo vienti käynnissä. Odota, että sen lataus valmistuu.",
     "disabled": "Vienti on poistettu käytöstä tässä työtilassa."
   },
-  "celebrate": "Hienoa työtä!"
+  "celebrate": "Hienoa työtä!",
+  "toast": {
+    "undo": "Kumoa",
+    "dismiss": "Sulje",
+    "movedTo": "Siirretty kohteeseen",
+    "movedToPlace": "Siirretty kohteeseen {place}",
+    "trashed": "Siirretty roskakoriin",
+    "rowsTrashed": "{count, plural, one {Rivi siirrettiin roskakoriin} other {# riviä siirrettiin roskakoriin}}",
+    "undoFailed": "Kumoaminen epäonnistui."
+  }
 }

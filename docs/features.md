@@ -4,7 +4,8 @@
 
 - **Pages**: nested pages, a block editor (BlockNote) with slash menu (block text and background
   colors included) and markdown shortcuts, icons (beside the title), backgrounds (a color that suits the light and dark theme, or black, with an optional faint
-  pattern), favorites, duplicate, move, trash with restore (emptied after a time owners choose), archive (an outdated page, such
+  pattern), favorites, duplicate, move, trash with restore (emptied after a time owners choose; moving a page, or
+  trashing pages or rows, shows a note with *Undo*, and a move links to where the page went), archive (an outdated page, such
   as an old price list, leaves the sidebar, search, pickers and database views with the pages and rows under it, yet stays
   readable, editable and linked; a banner on it says who archived it and when, and search finds it with *Include archived*), export as Markdown or PDF (or, with
   subpages, as a ZIP; owners can export the whole workspace, see [Export](export.md#export)), and search

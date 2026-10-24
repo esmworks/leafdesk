@@ -13,6 +13,7 @@ import {
   setPageBackgroundAction,
   setPageIconAction,
 } from "@/app/actions/pages";
+import { showToast } from "@/components/toast";
 import { setPageLockedAction, setPageOutdatedAction } from "@/app/actions/page-menu";
 import { createRowAction } from "@/app/actions/databases";
 import { createFromTemplateAction } from "@/app/actions/templates";
@@ -350,6 +351,17 @@ export function PageView({
       // The panel closes: the row left its view.
       if (panelRef.current) panelRef.current.onGone();
       else router.refresh();
+      showToast({
+        message: tc("toast.trashed"),
+        undo: async () => {
+          try {
+            await restorePageAction(page.id);
+          } catch {
+            showToast({ message: tc("toast.undoFailed") });
+          }
+          router.refresh();
+        },
+      });
     });
   }
 

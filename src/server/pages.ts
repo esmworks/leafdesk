@@ -865,6 +865,8 @@ export async function movePage(
   // Semantic search names the pages above in every chunk: the page and those under it are indexed again.
   if (p.parentId !== newParentId) pageChanged({ pageId, subtree: true });
   if (moved) await queuePageMoved(pageId, userId, { parentId: p.parentId, teamspaceId: p.teamspaceId });
+  // Where it was, for an undo: moving it there again puts it back in its old place.
+  return { parentId: p.parentId, position: p.position, teamspaceId: p.teamspaceId };
 }
 
 export type SearchHit = {

@@ -29,5 +29,14 @@
     "busy": "Zaten süren bir dışa aktarmanız var. İndirmenin bitmesini bekleyin.",
     "disabled": "Bu çalışma alanında dışa aktarma kapalı."
   },
-  "celebrate": "Tebrikler!"
+  "celebrate": "Tebrikler!",
+  "toast": {
+    "undo": "Geri al",
+    "dismiss": "Kapat",
+    "movedTo": "Taşındığı yer:",
+    "movedToPlace": "{place} konumuna taşındı",
+    "trashed": "Çöp kutusuna taşındı",
+    "rowsTrashed": "{count, plural, one {Satır çöp kutusuna taşındı} other {# satır çöp kutusuna taşındı}}",
+    "undoFailed": "Geri alınamadı."
+  }
 }

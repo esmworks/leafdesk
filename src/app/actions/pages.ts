@@ -93,10 +93,13 @@ export async function deletePagePermanentlyAction(pageId: string): Promise<{ ok:
   }
 }
 
-/** `teamspaceId` (top level only): the teamspace to move it to, null for the private pages. */
+/**
+ * `teamspaceId` (top level only): the teamspace to move it to, null for the private pages. Returns
+ * where the page was, which moving it to again undoes the move.
+ */
 export async function movePageAction(pageId: string, parentId: string | null, position?: number, teamspaceId?: string | null) {
   const userId = await requireUserId();
-  await pages.movePage(userId, pageId, parentId, position, teamspaceId);
+  return pages.movePage(userId, pageId, parentId, position, teamspaceId);
 }
 
 /** The pages directly under a page that the user can open, in the sidebar's order (subpages blocks). */

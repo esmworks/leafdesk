@@ -48,7 +48,8 @@ import { Fragment, useCallback, useEffect, useMemo, useRef, useState, useTransit
 import { unreadCountAction } from "@/app/actions/notifications";
 import { pendingCountAction } from "@/app/actions/review";
 import { listFavoritesAction } from "@/app/actions/page-menu";
-import { archivePageAction, createPageAction, getSidebarAction, movePageAction, renamePageAction } from "@/app/actions/pages";
+import { archivePageAction, createPageAction, getSidebarAction, movePageAction, renamePageAction, restorePageAction } from "@/app/actions/pages";
+import { showToast } from "@/components/toast";
 import { leaveTeamspaceAction, setTeamspaceWatchingAction } from "@/app/actions/teamspaces";
 import { setSidebarLayoutAction } from "@/app/actions/workspaces";
 import { settingsSearchAction } from "@/app/actions/settings-search";
@@ -604,6 +605,18 @@ export function Sidebar({
       try {
         await archivePageAction(id);
         if (activeId === id) router.refresh();
+        showToast({
+          message: tc("toast.trashed"),
+          undo: async () => {
+            try {
+              await restorePageAction(id);
+            } catch {
+              showToast({ message: tc("toast.undoFailed") });
+            }
+            refresh();
+            if (activeId === id) router.refresh();
+          },
+        });
       } catch {
         setActionError(tc("genericError"));
       } finally {

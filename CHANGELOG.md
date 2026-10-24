@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Added
+
+- **Undo a move or a trip to the trash.** Moving a page with *Move to* shows a note at the bottom of
+  the window with a link to where it went and *Undo*, which puts it back in its old place among its
+  siblings. Moving a page to the trash (from the sidebar or the page) and moving database rows to
+  the trash show a note with *Undo* too, which brings them back. The note closes after a few
+  seconds; a new one replaces it.
+
 ### Changed
 
 - **The documentation moved from the README into `docs/`.** README.md keeps the overview, the

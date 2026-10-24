@@ -26,10 +26,12 @@ import {
   updateRowPropertiesAction,
   updateRowsPropertiesAction,
   updateViewAction,
+  restoreRowsAction,
   type ActionResult,
 } from "@/app/actions/databases";
 import { addAutofillPropertyAction, refreshAutofillAction, setAutofillAction } from "@/app/actions/ai";
-import { archivePageAction, setPageIconAction } from "@/app/actions/pages";
+import { archivePageAction, restorePageAction, setPageIconAction } from "@/app/actions/pages";
+import { showToast } from "@/components/toast";
 import { useChannel, useChannels } from "@/components/collab/use-channel";
 import { useIsOffline, useOffline } from "@/components/offline/offline-context";
 import { databaseSnapshotKey, deleteSnapshot, loadSnapshot, saveSnapshot } from "@/components/offline/offline-store";
@@ -371,6 +373,17 @@ export function useDatabase(
         try {
           await archivePageAction(rowId);
           await refetch();
+          showToast({
+            message: tc("toast.rowsTrashed", { count: 1 }),
+            undo: async () => {
+              try {
+                await restorePageAction(rowId);
+              } catch {
+                showToast({ message: tc("toast.undoFailed") });
+              }
+              await refetch();
+            },
+          });
         } catch (e) {
           report(e);
         } finally {
@@ -389,6 +402,16 @@ export function useDatabase(
           const result = await unwrap(archiveRowsAction(databaseId, rowIds));
           if (result.skipped.length) setError(tb("skipped", { count: result.skipped.length }));
           await refetch();
+          if (result.done.length) {
+            showToast({
+              message: tc("toast.rowsTrashed", { count: result.done.length }),
+              undo: async () => {
+                const restored = await restoreRowsAction(result.done);
+                if (!restored.ok) showToast({ message: tc("toast.undoFailed") });
+                await refetch();
+              },
+            });
+          }
         } catch (e) {
           report(e);
         } finally {

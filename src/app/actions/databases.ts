@@ -181,6 +181,14 @@ export async function archiveRowsAction(databaseId: string, rowIds: string[]) {
   return run((userId) => pages.archiveRows(userId, databaseId, rowIds));
 }
 
+/** Undoes archiveRowsAction: the rows it moved to the trash come back. */
+export async function restoreRowsAction(rowIds: string[]) {
+  return run(async (userId) => {
+    if (!Array.isArray(rowIds)) throw new Error("Invalid rows");
+    for (const id of rowIds.map(String)) await pages.restorePage(userId, id);
+  });
+}
+
 /** "Set icon" and "Remove icon" (null) on selected rows. */
 export async function setRowsIconAction(databaseId: string, rowIds: string[], icon: string | null) {
   return run((userId) => {

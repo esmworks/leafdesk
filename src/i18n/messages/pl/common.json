@@ -29,5 +29,14 @@
     "busy": "Masz już uruchomiony eksport. Poczekaj, aż jego pobieranie się zakończy.",
     "disabled": "Eksport jest wyłączony w tym obszarze roboczym."
   },
-  "celebrate": "Dobra robota!"
+  "celebrate": "Dobra robota!",
+  "toast": {
+    "undo": "Cofnij",
+    "dismiss": "Zamknij",
+    "movedTo": "Przeniesiono do",
+    "movedToPlace": "Przeniesiono do: {place}",
+    "trashed": "Przeniesiono do kosza",
+    "rowsTrashed": "{count, plural, one {Przeniesiono wiersz do kosza} few {Przeniesiono # wiersze do kosza} many {Przeniesiono # wierszy do kosza} other {Przeniesiono # wiersza do kosza}}",
+    "undoFailed": "Nie udało się cofnąć."
+  }
 }
