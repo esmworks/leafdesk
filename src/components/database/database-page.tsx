@@ -558,7 +558,6 @@ export function DatabasePage({
                       <ActiveRulesBar
                         view={view}
                         properties={snapshot.properties}
-                        readOnly={configReadOnly && !personalRules}
                         onReset={
                           ownViewRules
                             ? () =>
