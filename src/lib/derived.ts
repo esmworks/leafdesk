@@ -92,6 +92,8 @@ export function baseType(prop: { type: PropertyType; options: PropertyOptions })
       return "text";
     case "number":
     case "checklist":
+    // An ID's number (lib/unique-id), without its prefix.
+    case "unique_id":
       return "number";
     case "checkbox":
       return "checkbox";
@@ -459,6 +461,7 @@ function readValue(prop: Prop, value: unknown, ctx: FormulaContext, names: () =>
       // Its address, like filters and sorts read it.
       return placeText(value);
     case "number":
+    case "unique_id":
       return typeof value === "number" && Number.isFinite(value) ? value : null;
     case "checkbox":
       return value === true;

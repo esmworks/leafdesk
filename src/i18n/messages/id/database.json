@@ -21,7 +21,8 @@
     "lastEditedTime": "Waktu terakhir diedit",
     "formula": "Rumus",
     "rollup": "Rollup",
-    "place": "Tempat"
+    "place": "Tempat",
+    "uniqueId": "ID"
   },
   "views": {
     "table": "Tabel",
@@ -505,6 +506,13 @@
     "decimalsAuto": "Otomatis",
     "percentHint": "Ketik 15 untuk {percent}",
     "dateOptions": "Pengaturan tanggal",
+    "uniqueIdPrefix": "Prefiks ID",
+    "uniqueIdPrefixNone": "Tidak ada",
+    "uniqueIdPrefixPlaceholder": "TASK",
+    "uniqueIdPrefixHint": "Hingga {max} huruf (A–Z) dan angka. Kosongkan untuk nomor saja.",
+    "uniqueIdPreview": "Baris berikutnya:",
+    "uniqueIdCreate": "Tambahkan ID",
+    "uniqueIdHint": "Setiap baris baru mendapat nomor berikutnya. Nomor tidak pernah berubah dan tidak pernah dipakai dua kali.",
     "rowPage": "Di halaman baris",
     "pageVisibility": {
       "show": "Selalu tampilkan",
@@ -948,7 +956,10 @@
     "invalidPlace": "“{property}” menerima alamat atau koordinat (lintang, bujur).",
     "placeNotFound": "Tidak ada tempat ditemukan untuk “{value}” di “{property}”.",
     "geocodingOff": "Pencarian alamat nonaktif di server ini: berikan koordinat (lintang, bujur) untuk “{property}”.",
-    "geocoderBusy": "Pencarian alamat sedang sibuk. Coba “{property}” lagi sebentar lagi."
+    "geocoderBusy": "Pencarian alamat sedang sibuk. Coba “{property}” lagi sebentar lagi.",
+    "invalidUniqueIdPrefix": "Prefiks ID berisi paling banyak {max} huruf (A–Z) dan angka, misalnya TASK.",
+    "uniqueIdPrefixTaken": "Database lain di ruang kerja ini sudah memakai prefiks ID “{prefix}”.",
+    "oneUniqueId": "Database ini sudah menomori barisnya di “{property}”."
   },
   "formula": {
     "title": "Rumus",

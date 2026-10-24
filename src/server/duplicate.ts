@@ -44,6 +44,7 @@ import type { PropertyAccess } from "@/lib/property-access-rows";
 import { propertyAccessFor } from "@/server/property-access";
 import { copyRowAccess } from "@/server/row-access";
 import { placeTopLevel, TeamspaceError } from "@/server/teamspaces";
+import { freeCopiedPrefixes } from "@/server/unique-ids";
 import { requireTopLevel } from "@/server/workspaces";
 
 /** Larger subtrees are refused rather than copied in one long transaction. */
@@ -282,8 +283,11 @@ export async function copyPageTree(
     await inheritFileReferences(tx, rows.map((r) => ({ id: r.id, sourceId: r.source_id })));
 
     if (plan.properties.length) {
+      // After the rows, which bring their IDs along (drizzle/*_unique_id.sql); a prefix the
+      // workspace's databases have stays with them.
+      const properties = await freeCopiedPrefixes(tx, source.workspaceId, plan.properties, (id) => inTemplate.get(id) ?? false);
       await tx.insert(databaseProperty).values(
-        plan.properties.map(({ id, databaseId, name, type, options, position }) => ({
+        properties.map(({ id, databaseId, name, type, options, position }) => ({
           id,
           databaseId,
           name,

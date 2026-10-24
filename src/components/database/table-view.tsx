@@ -79,6 +79,7 @@ export function titleProperty(databaseId: string, name: string): Property {
     type: "text",
     options: {},
     position: 0,
+    lastNumber: 0,
     deletedAt: null,
     deletedBy: null,
     createdAt: new Date(0),
@@ -771,6 +772,7 @@ export function TableView({
                       setNumberFormat:
                         fixed || !takesNumberFormat(p.type, p.options.formula?.type) ? undefined : (format) => api.setNumberFormat(p, format),
                       setDateOptions: fixed || p.type !== "date" ? undefined : (input) => api.setDateOptions(p, input),
+                      setUniqueIdPrefix: fixed || p.type !== "unique_id" ? undefined : (prefix) => api.setUniqueIdPrefix(p, prefix),
                       setNumberDisplay: fixed || p.type !== "number" ? undefined : (display) => api.setNumberDisplay(p, display),
                       setPageVisibility: fixed ? undefined : (visibility) => api.setPageVisibility(p, visibility),
                       setAutofill: fixed || !ai.enabled || !isAutofillType(p.type) ? undefined : (config) => api.setAutofill(p, config),

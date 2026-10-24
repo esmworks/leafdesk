@@ -536,6 +536,14 @@ export function useDatabase(
         );
       },
 
+      /** Saves the prefix a unique ID property shows its rows' numbers with (null for none); the server checks it's free. */
+      setUniqueIdPrefix(prop: Property, prefix: string | null) {
+        const { uniqueId: _old, ...rest } = prop.options;
+        return mutateSchema(patchProperty(prop.id, { options: prefix ? { ...rest, uniqueId: { prefix } } : rest }), () =>
+          updatePropertyAction(prop.id, { prefix }),
+        );
+      },
+
       /** Saves a date property's display and reminder (see lib/date-options); the server checks it. */
       setDateOptions(prop: Property, input: DateOptionsInput) {
         const checked = checkDateOptions(input, prop.options.date, new Date());

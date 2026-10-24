@@ -42,6 +42,7 @@ import {
 import { isPercent, toPercentPoints, valueFormat } from "./number-format";
 import { moveBeside } from "./reorder";
 import { asPlace, placeText, readPlaceInput, type PlaceValue } from "./place";
+import { formatUniqueId, parseUniqueId, uniqueIdPrefix } from "./unique-id";
 
 export const SELECT_COLORS = ["gray", "brown", "orange", "yellow", "green", "blue", "purple", "pink", "red"] as const;
 
@@ -121,6 +122,9 @@ export const DATABASE_ERROR_CODES = [
   "mergeRowsReadOnly",
   "mergeLinksBlocked",
   "mergeChoiceInvalid",
+  "invalidUniqueIdPrefix",
+  "uniqueIdPrefixTaken",
+  "oneUniqueId",
 ] as const;
 export type DatabaseErrorCode = (typeof DATABASE_ERROR_CODES)[number];
 export type DatabaseErrorParams = Record<string, string>;
@@ -472,6 +476,8 @@ export function displayValue(prop: PropertyDef, value: unknown): unknown {
     return files.length ? files : null;
   }
   if (prop.type === "place") return asPlace(value);
+  // An ID as it shows, "TASK-12".
+  if (prop.type === "unique_id") return formatUniqueId(value, uniqueIdPrefix(prop)) || null;
   return value;
 }
 
@@ -697,6 +703,15 @@ export function isIncompleteFilter(rule: FilterRule) {
 }
 
 /**
+ * A unique ID rule's value as the number it names: "TASK-12", "task-12" or 12 (lib/unique-id). Text
+ * that names none of the property's IDs matches no row ("is not" every row).
+ */
+function resolveUniqueId(rule: FilterRule, prop: PropertyDef | undefined): FilterRule {
+  if (prop?.type !== "unique_id" || !filterNeedsValue(rule.op)) return rule;
+  return { ...rule, value: parseUniqueId(rule.value, uniqueIdPrefix(prop)) ?? Number.NaN };
+}
+
+/**
  * Who is looking at a view (person filters on "me" match their rows), the names of the people
  * rows hold, which person sorts order by, and when and where: relative date filters ("this
  * week") count from `now`'s day (the current time when left out) in `timeZone`, and times count
@@ -796,7 +811,7 @@ export function filterPredicate<T extends RowLike>(
     filterCombinator,
     (rule) => {
       const prop = byId.get(rule.propertyId);
-      const resolved = resolveViewer(rule, prop, viewerId);
+      const resolved = resolveUniqueId(resolveViewer(rule, prop, viewerId), prop);
       return (row) => matches(row, resolved, prop, now, timeZone);
     },
   );
@@ -877,7 +892,9 @@ export function filterOperators(type: PropertyType | "title"): { op: FilterOp; l
         { op: "not_equals", label: "isNot" },
         ...empty,
       ];
+    // IDs compare by their number: "ID is TASK-12", "ID is after TASK-100".
     case "number":
+    case "unique_id":
       return [
         { op: "equals", label: "equals" },
         { op: "not_equals", label: "notEquals" },

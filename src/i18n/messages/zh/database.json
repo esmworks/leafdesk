@@ -21,7 +21,8 @@
     "lastEditedTime": "最后编辑时间",
     "formula": "公式",
     "rollup": "汇总",
-    "place": "地点"
+    "place": "地点",
+    "uniqueId": "ID"
   },
   "views": {
     "table": "表格",
@@ -505,6 +506,13 @@
     "decimalsAuto": "自动",
     "percentHint": "输入 15 表示 {percent}",
     "dateOptions": "日期设置",
+    "uniqueIdPrefix": "ID 前缀",
+    "uniqueIdPrefixNone": "无",
+    "uniqueIdPrefixPlaceholder": "TASK",
+    "uniqueIdPrefixHint": "最多 {max} 个字母（A–Z）和数字。留空则只显示编号。",
+    "uniqueIdPreview": "下一行：",
+    "uniqueIdCreate": "添加 ID",
+    "uniqueIdHint": "每个新行都会得到下一个编号。编号不会改变，也不会重复分配。",
     "rowPage": "在行页面上",
     "pageVisibility": {
       "show": "始终显示",
@@ -948,7 +956,10 @@
     "invalidPlace": "“{property}”接受地址或坐标（纬度, 经度）。",
     "placeNotFound": "在“{property}”中找不到“{value}”对应的地点。",
     "geocodingOff": "此服务器已关闭地址搜索：请为“{property}”填写坐标（纬度, 经度）。",
-    "geocoderBusy": "地址搜索繁忙。请稍后再试“{property}”。"
+    "geocoderBusy": "地址搜索繁忙。请稍后再试“{property}”。",
+    "invalidUniqueIdPrefix": "ID 前缀最多 {max} 个字母（A–Z）和数字，例如 TASK。",
+    "uniqueIdPrefixTaken": "此工作区中的另一个数据库已在使用 ID 前缀“{prefix}”。",
+    "oneUniqueId": "此数据库已在“{property}”中为行编号。"
   },
   "formula": {
     "title": "公式",

@@ -21,6 +21,7 @@ export const PROPERTY_TYPES = [
   "last_edited_time",
   "formula",
   "rollup",
+  "unique_id",
 ] as const;
 export type PropertyType = (typeof PROPERTY_TYPES)[number];
 
@@ -51,9 +52,17 @@ export function isDerived(type: string) {
   return type === "formula" || type === "rollup";
 }
 
-/** Types nobody writes: system values and derived values. */
+/**
+ * Types whose values Leafdesk numbers itself (lib/unique-id): stored like any value, but given out
+ * when a row is made, never written.
+ */
+export function isNumbered(type: string) {
+  return type === "unique_id";
+}
+
+/** Types nobody writes: system values, derived values and row numbers. */
 export function isReadOnlyType(type: string) {
-  return isComputed(type) || isDerived(type);
+  return isComputed(type) || isDerived(type) || isNumbered(type);
 }
 
 /** Types whose values are points in time (ISO timestamps), filtered by day like dates. */

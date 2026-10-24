@@ -11,6 +11,7 @@ import { detectDateFormat, parseChecklist, parseCheckbox, parseDate, parseNumber
 import { asChecklist, isEmailAddress, isGroupable, isPhoneNumber, isSortable, SELECT_COLORS, sortStatusOptions } from "./properties";
 import { holdsOptions, holdsPeople, holdsTimestamp, isDerived, isReadOnlyType } from "./property-types";
 import { withWidgetConfigs } from "./views";
+import { formatUniqueId, uniqueIdPrefix } from "./unique-id";
 
 /**
  * Changing a property's type: what each value becomes. Pure, so the column menu counts the values
@@ -20,7 +21,8 @@ import { withWidgetConfigs } from "./views";
  * as the viewer's "Yes"), then parsed the way CSV import reads cells. Values that already mean the
  * same thing skip the text: options keep their ids between select, multi-select and status, people
  * between person types. Types Leafdesk works out itself (formulas, rollups, created and edited
- * by/time) keep no values, and neither do files once they are something else.
+ * by/time) keep no values, and neither do files once they are something else. A unique ID keeps
+ * none either: Postgres numbers the rows anew (drizzle/*_unique_id.sql).
  */
 
 export type ConversionSide = { type: PropertyType; options: PropertyOptions };
@@ -94,6 +96,11 @@ function texts(from: ConversionSide, value: unknown, ctx: ConversionContext): st
       // A place as its address.
       const address = placeText(value);
       return address ? [address] : [];
+    }
+    case "unique_id": {
+      // An ID as it shows, "TASK-12" (a number target takes the number itself).
+      const id = formatUniqueId(value, uniqueIdPrefix(from));
+      return id ? [id] : [];
     }
     case "date": {
       // A day as itself, a range as "start → end", times as ISO timestamps (UTC).

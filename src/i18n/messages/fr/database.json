@@ -21,7 +21,8 @@
     "lastEditedTime": "Date de dernière modification",
     "formula": "Formule",
     "rollup": "Agrégation",
-    "place": "Lieu"
+    "place": "Lieu",
+    "uniqueId": "ID"
   },
   "views": {
     "table": "Table",
@@ -505,6 +506,13 @@
     "decimalsAuto": "Automatique",
     "percentHint": "Tapez 15 pour {percent}",
     "dateOptions": "Réglages de date",
+    "uniqueIdPrefix": "Préfixe d’ID",
+    "uniqueIdPrefixNone": "Aucun",
+    "uniqueIdPrefixPlaceholder": "TASK",
+    "uniqueIdPrefixHint": "Jusqu’à {max} lettres (A–Z) et chiffres. Laissez vide pour de simples numéros.",
+    "uniqueIdPreview": "Ligne suivante :",
+    "uniqueIdCreate": "Ajouter l’ID",
+    "uniqueIdHint": "Chaque nouvelle ligne reçoit le numéro suivant. Les numéros ne changent jamais et ne sont jamais attribués deux fois.",
     "rowPage": "Sur les pages de ligne",
     "pageVisibility": {
       "show": "Toujours afficher",
@@ -948,7 +956,10 @@
     "invalidPlace": "« {property} » accepte une adresse ou des coordonnées (latitude, longitude).",
     "placeNotFound": "Aucun lieu trouvé pour « {value} » dans « {property} ».",
     "geocodingOff": "La recherche d’adresses est désactivée sur ce serveur : donnez à « {property} » des coordonnées (latitude, longitude).",
-    "geocoderBusy": "La recherche d’adresses est saturée. Réessayez « {property} » dans un instant."
+    "geocoderBusy": "La recherche d’adresses est saturée. Réessayez « {property} » dans un instant.",
+    "invalidUniqueIdPrefix": "Un préfixe d’ID comporte au plus {max} lettres (A–Z) et chiffres, comme TASK.",
+    "uniqueIdPrefixTaken": "Une autre base de données de cet espace de travail utilise déjà le préfixe d’ID « {prefix} ».",
+    "oneUniqueId": "Cette base de données numérote déjà ses lignes dans « {property} »."
   },
   "formula": {
     "title": "Formule",

@@ -37,7 +37,7 @@ const PATH_SEPARATOR = " › ";
  * pages' titles and people's names, which the row's readers may not be allowed to see. Formulas and
  * rollups can reach through relations too.
  */
-const INDEXED_TYPES = new Set(["text", "number", "select", "multi_select", "status", "date", "url", "email", "phone", "checklist", "place"]);
+const INDEXED_TYPES = new Set(["text", "number", "select", "multi_select", "status", "date", "url", "email", "phone", "checklist", "place", "unique_id"]);
 
 export type IndexedProperty = Parameters<typeof displayValue>[0];
 

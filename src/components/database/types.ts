@@ -29,8 +29,11 @@ export type {
   SelectOption,
 };
 
-/** Settings of a derived property being added: a formula's expression (with property ids), a rollup's settings. */
-export type DerivedInput = { formula?: { expression: string }; rollup?: RollupInput };
+/**
+ * Settings of a property being added that its type needs: a formula's expression (with property
+ * ids), a rollup's settings, a unique ID's prefix.
+ */
+export type DerivedInput = { formula?: { expression: string }; rollup?: RollupInput; prefix?: string | null };
 
 export type DatabaseSnapshot = {
   database: {

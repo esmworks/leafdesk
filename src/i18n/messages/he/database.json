@@ -21,7 +21,8 @@
     "lastEditedTime": "זמן עריכה אחרון",
     "formula": "נוסחה",
     "rollup": "צבירה",
-    "place": "מקום"
+    "place": "מקום",
+    "uniqueId": "מזהה"
   },
   "views": {
     "table": "טבלה",
@@ -505,6 +506,13 @@
     "decimalsAuto": "אוטומטי",
     "percentHint": "הקלדת 15 עבור {percent}",
     "dateOptions": "הגדרות תאריך",
+    "uniqueIdPrefix": "קידומת מזהה",
+    "uniqueIdPrefixNone": "ללא",
+    "uniqueIdPrefixPlaceholder": "TASK",
+    "uniqueIdPrefixHint": "עד {max} אותיות (A–Z) וספרות. השאירו ריק למספרים בלבד.",
+    "uniqueIdPreview": "השורה הבאה:",
+    "uniqueIdCreate": "הוספת מזהה",
+    "uniqueIdHint": "כל שורה חדשה מקבלת את המספר הבא. המספרים לעולם לא משתנים ואינם ניתנים פעמיים.",
     "rowPage": "בדפי השורות",
     "pageVisibility": {
       "show": "הצגה תמיד",
@@ -948,7 +956,10 @@
     "invalidPlace": "„{property}” מקבל כתובת או קואורדינטות (קו רוחב, קו אורך).",
     "placeNotFound": "לא נמצא מקום עבור „{value}” ב„{property}”.",
     "geocodingOff": "חיפוש כתובות כבוי בשרת הזה: יש להזין ב„{property}” קואורדינטות (קו רוחב, קו אורך).",
-    "geocoderBusy": "חיפוש הכתובות עמוס. נסו שוב את „{property}” בעוד רגע."
+    "geocoderBusy": "חיפוש הכתובות עמוס. נסו שוב את „{property}” בעוד רגע.",
+    "invalidUniqueIdPrefix": "קידומת מזהה היא עד {max} אותיות (A–Z) וספרות, למשל TASK.",
+    "uniqueIdPrefixTaken": "מסד נתונים אחר בסביבת העבודה הזו כבר משתמש בקידומת המזהה “{prefix}”.",
+    "oneUniqueId": "מסד הנתונים הזה כבר ממספר את השורות שלו ב־“{property}”."
   },
   "formula": {
     "title": "נוסחה",

@@ -39,6 +39,7 @@ import type { DateOptions, FormulaConfig, NumberFormat, PropertyOptions } from "
 import { calculationFormat, numberFormatOptions, numberText, readNumber, valueFormat } from "@/lib/number-format";
 import { numberShare } from "@/lib/number-display";
 import { availableOptions, parentOf } from "@/lib/dependent-options";
+import { formatUniqueId, uniqueIdPrefix } from "@/lib/unique-id";
 import { useSchema } from "./schema-context";
 
 // The place editor (its search and suggestions) loads when a place is first edited.
@@ -253,6 +254,8 @@ export function PropertyDisplay({ prop, value, wrap, style }: { prop: ShownPrope
       return <FilesDisplay value={value} wrap={wrap} />;
     case "place":
       return <PlaceDisplay value={value} wrap={wrap} />;
+    case "unique_id":
+      return <span className="truncate tabular-nums">{formatUniqueId(value, uniqueIdPrefix(prop))}</span>;
     case "checkbox":
       return <CheckboxBox checked={value === true} />;
     case "relation":

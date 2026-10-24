@@ -17,6 +17,7 @@ import {
   Copy,
   Eye,
   EyeOff,
+  Fingerprint,
   Hash,
   ListFilter,
   Lock,
@@ -49,6 +50,7 @@ import type { NumberDisplay } from "@/lib/number-display";
 import { takesNumberFormat, type NumberFormat } from "@/lib/number-format";
 import { PAGE_VISIBILITIES, pageVisibilityOf, type PageVisibility } from "@/lib/page-visibility";
 import { isPinned, MAX_PINNED } from "@/lib/row-layout";
+import { cleanUniqueIdPrefix, formatUniqueId, MAX_UNIQUE_ID_PREFIX, uniqueIdPrefix } from "@/lib/unique-id";
 import { AutofillEditor } from "./ai-autofill";
 import { DateOptionsEditor } from "./date-options-menu";
 import { FormulaEditor } from "./formula-editor";
@@ -77,13 +79,13 @@ export function AddPropertyPanel({
   const ta = useTranslations("ai.autofill");
   const typeLabel = usePropertyTypeLabel();
   const [name, setName] = useState("");
-  const [step, setStep] = useState<"type" | "relation" | "formula" | "rollup" | "autofill">("type");
+  const [step, setStep] = useState<"type" | "relation" | "formula" | "rollup" | "unique_id" | "autofill">("type");
   const input = useRef<HTMLInputElement>(null);
   useEffect(() => input.current?.focus(), []);
   // A new property without a name is named after its type, in the user's language.
   const nameFor = (type: PropertyType) => name.trim() || typeLabel(type);
   const create = (type: PropertyType) => {
-    if (type === "relation" || type === "formula" || type === "rollup") {
+    if (type === "relation" || type === "formula" || type === "rollup" || type === "unique_id") {
       setStep(type);
       return;
     }
@@ -124,6 +126,18 @@ export function AddPropertyPanel({
         onBack={() => setStep("type")}
         onSave={(rollup) => {
           void onCreate(nameFor("rollup"), "rollup", undefined, { rollup });
+          onDone();
+        }}
+      />
+    );
+  }
+  if (step === "unique_id") {
+    return (
+      <UniqueIdEditor
+        prop={null}
+        onBack={() => setStep("type")}
+        onSave={(prefix) => {
+          void onCreate(nameFor("unique_id"), "unique_id", undefined, { prefix });
           onDone();
         }}
       />
@@ -230,6 +244,8 @@ export type PropertyMenuActions = {
   setNumberDisplay?: (display: NumberDisplay | null) => void;
   /** Dates: saves how values show and the reminder (see lib/date-options). */
   setDateOptions?: (input: DateOptionsInput) => void;
+  /** Unique IDs: saves the prefix they show with (null for none; see lib/unique-id). */
+  setUniqueIdPrefix?: (prefix: string | null) => void;
   /** Text properties, when AI is available: turns AI autofill on, changes it or (null) turns it off. */
   setAutofill?: (config: AiAutofillConfig | null) => void;
   /** Autofill properties: works the values of the view's rows out again. */
@@ -272,6 +288,7 @@ export function PropertyMenu({
     | "rollup"
     | "number-format"
     | "date-options"
+    | "unique-id"
     | "page-visibility"
     | "autofill"
     | "calculate"
@@ -448,6 +465,19 @@ export function PropertyMenu({
     return <DateOptionsEditor prop={prop} onChange={actions.setDateOptions} onBack={() => setPage("main")} />;
   }
 
+  if (page === "unique-id" && prop && actions.setUniqueIdPrefix) {
+    return (
+      <UniqueIdEditor
+        prop={prop}
+        onBack={() => setPage("main")}
+        onSave={(prefix) => {
+          if (prefix !== uniqueIdPrefix(prop)) actions.setUniqueIdPrefix?.(prefix);
+          onDone();
+        }}
+      />
+    );
+  }
+
   if (page === "page-visibility" && prop && actions.setPageVisibility) {
     const current = pageVisibilityOf(prop);
     return (
@@ -568,6 +598,21 @@ export function PropertyMenu({
         onClick={() => setPage("number-format")}
       >
         {t("numberFormat")}
+      </MenuItem>
+    ),
+    prop?.type === "unique_id" && actions.setUniqueIdPrefix && (
+      <MenuItem
+        key="unique-id"
+        icon={icon(Fingerprint)}
+        trailing={
+          <>
+            <span className="me-1 text-xs">{uniqueIdPrefix(prop) ?? t("uniqueIdPrefixNone")}</span>
+            <ChevronRight className="h-3.5 w-3.5 rtl:-scale-x-100" />
+          </>
+        }
+        onClick={() => setPage("unique-id")}
+      >
+        {t("uniqueIdPrefix")}
       </MenuItem>
     ),
     prop?.type === "date" && actions.setDateOptions && (
@@ -784,6 +829,7 @@ export function PropertyMenu({
           )}
           {prop.type === "relation" && <RelationInfo prop={prop} />}
           {isComputed(prop.type) && <div className="px-2 pb-1 text-xs text-fg-faint">{t("readOnlyHint")}</div>}
+          {prop.type === "unique_id" && <div className="px-2 pb-1 text-xs text-fg-faint">{t("uniqueIdHint")}</div>}
           {isDerived(prop.type) && (
             <div className="px-2 pb-1 text-xs text-fg-faint">{t(prop.type === "rollup" ? "rollupHint" : "formulaHint")}</div>
           )}
@@ -842,6 +888,56 @@ function PairedDeleteNote({ propertyId }: { propertyId: string }) {
 }
 
 /** A submenu's title line with a way back to the menu it opened from. */
+/**
+ * A unique ID property's prefix (lib/unique-id), typed in upper case, with the ID the next row
+ * gets. `prop` is null while the property is being added.
+ */
+function UniqueIdEditor({ prop, onBack, onSave }: { prop: Property | null; onBack: () => void; onSave: (prefix: string | null) => void }) {
+  const t = useTranslations("database.propertyMenu");
+  const tc = useTranslations("common");
+  const [value, setValue] = useState(prop ? (uniqueIdPrefix(prop) ?? "") : "");
+  const prefix = cleanUniqueIdPrefix(value);
+  const save = () => prefix !== undefined && onSave(prefix);
+  return (
+    <div className="w-64">
+      <SubmenuHeader title={t("uniqueIdPrefix")} onBack={onBack} />
+      <MenuSeparator />
+      <div className="p-2">
+        <Input
+          value={value}
+          autoFocus
+          placeholder={t("uniqueIdPrefixPlaceholder")}
+          aria-label={t("uniqueIdPrefix")}
+          aria-invalid={prefix === undefined}
+          maxLength={MAX_UNIQUE_ID_PREFIX + 1}
+          onChange={(e) => setValue(e.target.value.toUpperCase())}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              save();
+            }
+          }}
+          className="h-7"
+        />
+        <p className={cn("mt-1.5 text-xs", prefix === undefined ? "text-danger" : "text-fg-faint")}>
+          {t("uniqueIdPrefixHint", { max: MAX_UNIQUE_ID_PREFIX })}
+        </p>
+        {prefix !== undefined && (
+          <p className="mt-2 text-sm">
+            <span className="text-fg-muted">{t("uniqueIdPreview")}</span>{" "}
+            <span className="font-medium tabular-nums">{formatUniqueId((prop?.lastNumber ?? 0) + 1, prefix)}</span>
+          </p>
+        )}
+        <div className="mt-3 flex justify-end">
+          <Button size="sm" variant="primary" disabled={prefix === undefined} onClick={save}>
+            {prop ? tc("save") : t("uniqueIdCreate")}
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function SubmenuHeader({ title, onBack }: { title: string; onBack: () => void }) {
   const t = useTranslations("database.propertyMenu");
   return (

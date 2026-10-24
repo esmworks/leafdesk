@@ -21,7 +21,8 @@
     "lastEditedTime": "Czas ostatniej edycji",
     "formula": "Formuła",
     "rollup": "Agregacja",
-    "place": "Miejsce"
+    "place": "Miejsce",
+    "uniqueId": "ID"
   },
   "views": {
     "table": "Tabela",
@@ -505,6 +506,13 @@
     "decimalsAuto": "Automatycznie",
     "percentHint": "Wpisz 15, aby uzyskać {percent}",
     "dateOptions": "Ustawienia daty",
+    "uniqueIdPrefix": "Prefiks ID",
+    "uniqueIdPrefixNone": "Brak",
+    "uniqueIdPrefixPlaceholder": "TASK",
+    "uniqueIdPrefixHint": "Do {max} liter (A–Z) i cyfr. Zostaw puste, aby były same numery.",
+    "uniqueIdPreview": "Następny wiersz:",
+    "uniqueIdCreate": "Dodaj ID",
+    "uniqueIdHint": "Każdy nowy wiersz dostaje kolejny numer. Numery nigdy się nie zmieniają i nie są nadawane dwa razy.",
     "rowPage": "Na stronach wierszy",
     "pageVisibility": {
       "show": "Zawsze pokazuj",
@@ -948,7 +956,10 @@
     "invalidPlace": "„{property}” przyjmuje adres lub współrzędne (szerokość, długość).",
     "placeNotFound": "Nie znaleziono miejsca dla „{value}” w „{property}”.",
     "geocodingOff": "Wyszukiwanie adresów jest na tym serwerze wyłączone: podaj w „{property}” współrzędne (szerokość, długość).",
-    "geocoderBusy": "Wyszukiwanie adresów jest zajęte. Spróbuj „{property}” ponownie za chwilę."
+    "geocoderBusy": "Wyszukiwanie adresów jest zajęte. Spróbuj „{property}” ponownie za chwilę.",
+    "invalidUniqueIdPrefix": "Prefiks ID to najwyżej {max} liter (A–Z) i cyfr, na przykład TASK.",
+    "uniqueIdPrefixTaken": "Inna baza danych w tym obszarze roboczym używa już prefiksu ID „{prefix}”.",
+    "oneUniqueId": "Ta baza danych już numeruje swoje wiersze we właściwości „{property}”."
   },
   "formula": {
     "title": "Formuła",

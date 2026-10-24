@@ -21,7 +21,8 @@
     "lastEditedTime": "最終更新日時",
     "formula": "数式",
     "rollup": "ロールアップ",
-    "place": "場所"
+    "place": "場所",
+    "uniqueId": "ID"
   },
   "views": {
     "table": "テーブル",
@@ -505,6 +506,13 @@
     "decimalsAuto": "自動",
     "percentHint": "{percent}にするには15と入力",
     "dateOptions": "日付の設定",
+    "uniqueIdPrefix": "IDの接頭辞",
+    "uniqueIdPrefixNone": "なし",
+    "uniqueIdPrefixPlaceholder": "TASK",
+    "uniqueIdPrefixHint": "英字（A–Z）と数字で{max}文字まで。空欄にすると番号だけになります。",
+    "uniqueIdPreview": "次の行:",
+    "uniqueIdCreate": "IDを追加",
+    "uniqueIdHint": "新しい行には次の番号が付きます。番号は変わらず、二度使われることもありません。",
     "rowPage": "行のページでの表示",
     "pageVisibility": {
       "show": "常に表示",
@@ -948,7 +956,10 @@
     "invalidPlace": "「{property}」には住所か座標（緯度, 経度）を入力します。",
     "placeNotFound": "「{property}」で「{value}」に当たる場所が見つかりません。",
     "geocodingOff": "このサーバーでは住所検索がオフです。「{property}」には座標（緯度, 経度）を入力してください。",
-    "geocoderBusy": "住所検索が混み合っています。少し待ってから「{property}」をもう一度試してください。"
+    "geocoderBusy": "住所検索が混み合っています。少し待ってから「{property}」をもう一度試してください。",
+    "invalidUniqueIdPrefix": "IDの接頭辞は{max}文字以内の英字（A–Z）と数字です（例: TASK）。",
+    "uniqueIdPrefixTaken": "このワークスペースの別のデータベースが、すでにIDの接頭辞「{prefix}」を使っています。",
+    "oneUniqueId": "このデータベースはすでに「{property}」で行に番号を付けています。"
   },
   "formula": {
     "title": "数式",

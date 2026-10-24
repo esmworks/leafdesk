@@ -21,7 +21,8 @@
     "lastEditedTime": "Last edited time",
     "formula": "Formula",
     "rollup": "Rollup",
-    "place": "Place"
+    "place": "Place",
+    "uniqueId": "ID"
   },
   "views": {
     "table": "Table",
@@ -505,6 +506,13 @@
     "decimalsAuto": "Automatic",
     "percentHint": "Type 15 for {percent}",
     "dateOptions": "Date settings",
+    "uniqueIdPrefix": "ID prefix",
+    "uniqueIdPrefixNone": "None",
+    "uniqueIdPrefixPlaceholder": "TASK",
+    "uniqueIdPrefixHint": "Up to {max} letters (A–Z) and digits. Leave it empty for plain numbers.",
+    "uniqueIdPreview": "Next row:",
+    "uniqueIdCreate": "Add ID",
+    "uniqueIdHint": "Every new row gets the next number. Numbers never change and are never given out twice.",
     "rowPage": "On row pages",
     "pageVisibility": {
       "show": "Always show",
@@ -948,7 +956,10 @@
     "invalidPlace": "“{property}” takes an address or coordinates (latitude, longitude).",
     "placeNotFound": "No place found for “{value}” in “{property}”.",
     "geocodingOff": "Address search is off on this server: give “{property}” coordinates (latitude, longitude).",
-    "geocoderBusy": "Address search is busy. Try “{property}” again in a moment."
+    "geocoderBusy": "Address search is busy. Try “{property}” again in a moment.",
+    "invalidUniqueIdPrefix": "An ID prefix is up to {max} letters (A–Z) and digits, like TASK.",
+    "uniqueIdPrefixTaken": "Another database in this workspace already uses the ID prefix “{prefix}”.",
+    "oneUniqueId": "This database already numbers its rows in “{property}”."
   },
   "formula": {
     "title": "Formula",

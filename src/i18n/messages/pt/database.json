@@ -21,7 +21,8 @@
     "lastEditedTime": "Data da última edição",
     "formula": "Fórmula",
     "rollup": "Agregação",
-    "place": "Local"
+    "place": "Local",
+    "uniqueId": "ID"
   },
   "views": {
     "table": "Tabela",
@@ -505,6 +506,13 @@
     "decimalsAuto": "Automático",
     "percentHint": "Digite 15 para {percent}",
     "dateOptions": "Configurações de data",
+    "uniqueIdPrefix": "Prefixo de ID",
+    "uniqueIdPrefixNone": "Nenhum",
+    "uniqueIdPrefixPlaceholder": "TASK",
+    "uniqueIdPrefixHint": "Até {max} letras (A–Z) e dígitos. Deixe vazio para usar só números.",
+    "uniqueIdPreview": "Próxima linha:",
+    "uniqueIdCreate": "Adicionar ID",
+    "uniqueIdHint": "Cada nova linha recebe o próximo número. Os números nunca mudam nem se repetem.",
     "rowPage": "Nas páginas das linhas",
     "pageVisibility": {
       "show": "Sempre mostrar",
@@ -948,7 +956,10 @@
     "invalidPlace": "“{property}” aceita um endereço ou coordenadas (latitude, longitude).",
     "placeNotFound": "Nenhum local encontrado para “{value}” em “{property}”.",
     "geocodingOff": "A busca de endereços está desativada neste servidor: informe coordenadas (latitude, longitude) em “{property}”.",
-    "geocoderBusy": "A busca de endereços está ocupada. Tente “{property}” de novo em instantes."
+    "geocoderBusy": "A busca de endereços está ocupada. Tente “{property}” de novo em instantes.",
+    "invalidUniqueIdPrefix": "Um prefixo de ID tem no máximo {max} letras (A–Z) e dígitos, como TASK.",
+    "uniqueIdPrefixTaken": "Outro banco de dados deste espaço de trabalho já usa o prefixo de ID “{prefix}”.",
+    "oneUniqueId": "Este banco de dados já numera suas linhas em “{property}”."
   },
   "formula": {
     "title": "Fórmula",

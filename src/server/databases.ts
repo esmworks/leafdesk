@@ -48,7 +48,8 @@ import { defaultFormConfig, formSchemaError } from "@/lib/forms";
 import { readPlaceInput } from "@/lib/place";
 import { GeocoderError, geocodeAddress } from "./geocoder";
 import { configsOf, DEFAULT_VIEW_NAMES, galleryCover, isViewType, layoutConfigError } from "@/lib/views";
-import { holdsOptions, holdsPeople, isComputed, isDerived, isReadOnlyType, PERSON_ME, type StatusGroup } from "@/lib/property-types";
+import { holdsOptions, holdsPeople, isComputed, isDerived, isNumbered, isReadOnlyType, PERSON_ME, type StatusGroup } from "@/lib/property-types";
+import { checkedPrefix, claimPrefix, refuseSecondUniqueId } from "@/server/unique-ids";
 import { canRestrict, namesPeople } from "@/lib/property-access";
 import { moveGroupValue } from "@/lib/grouping";
 import {
@@ -1407,7 +1408,7 @@ export async function previewFormula(
   const existing = all.find((p) => p.id === self.id);
   const now = new Date();
   const draft: DatabaseProperty = {
-    ...(existing ?? { id: self.id, databaseId, position: all.length, deletedAt: null, deletedBy: null, createdAt: now, updatedAt: now }),
+    ...(existing ?? { id: self.id, databaseId, position: all.length, lastNumber: 0, deletedAt: null, deletedBy: null, createdAt: now, updatedAt: now }),
     name: self.name,
     type: "formula",
     // A formula's own options (its number format…) stay; another type's don't apply.
@@ -1580,10 +1581,13 @@ export async function addProperty(
     date?: DateOptionsInput;
     /** What it holds and how to fill it (see lib/property-description). */
     description?: string | null;
+    /** Unique IDs: the prefix they show with ("TASK" for TASK-12); none when left out. */
+    prefix?: string | null;
   },
 ) {
   const database = await requireDatabase(userId, databaseId, "edit");
   const description = input.description !== undefined ? checkedDescription(input.description) : null;
+  const prefix = input.type === "unique_id" ? checkedPrefix(input.prefix) : null;
   assertUnlocked(database);
   if (!PROPERTY_TYPES.includes(input.type)) {
     throw new PropertyValueError(`Unsupported type "${input.type}"`, "unsupportedType", { type: String(input.type) });
@@ -1613,11 +1617,18 @@ export async function addProperty(
             ? { formula: formula.config }
             : rollup
               ? { rollup }
-              : {};
+              : prefix
+                ? { uniqueId: { prefix } }
+                : {};
   // A formula keeps its expression beside its format.
   const formatted: PropertyOptions = number ? { ...typeOptions, number } : typeOptions;
   const options: PropertyOptions = description ? { description, ...formatted } : formatted;
   const created = await db.transaction(async (tx) => {
+    // The rows are numbered as it goes in (drizzle/*_unique_id.sql).
+    if (input.type === "unique_id") {
+      await refuseSecondUniqueId(tx, databaseId);
+      await claimPrefix(tx, database.workspaceId, prefix);
+    }
     const [created] = await tx
       .insert(databaseProperty)
       .values({
@@ -1655,6 +1666,7 @@ export async function addProperty(
     return linked;
   });
   notifySchema(databaseId);
+  if (isNumbered(input.type)) notifyRows(databaseId);
   if (target && target.id !== databaseId) notifySchema(target.id);
   return created;
 }
@@ -1909,10 +1921,18 @@ export async function updateProperty(
      * lib/dependent-options); null for none. Changing it forgets which options went under which.
      */
     dependsOn?: string | null;
+    /** Unique IDs: the prefix they show with; null for none. Only how IDs show changes, not their numbers. */
+    prefix?: string | null;
   },
 ) {
   const prop = await requireProperty(userId, propertyId);
   const description = patch.description !== undefined ? checkedDescription(patch.description) : undefined;
+  if (patch.prefix !== undefined && prop.type !== "unique_id") {
+    throw new PropertyValueError(`"${prop.name}" is a ${prop.type} property; only unique IDs have a prefix`, "unsupportedType", {
+      type: prop.type,
+    });
+  }
+  const prefix = patch.prefix !== undefined ? checkedPrefix(patch.prefix) : undefined;
   if (patch.pageVisibility !== undefined && !isPageVisibility(patch.pageVisibility)) {
     throw new PropertyValueError(`Unknown page visibility "${String(patch.pageVisibility)}"`, "invalidPageVisibility");
   }
@@ -1979,9 +1999,12 @@ export async function updateProperty(
   }
   if (description !== undefined) change((o) => (description ? { ...o, description } : without(o, "description")));
   if (dependsOn !== undefined) change((o) => (dependsOn ? { ...o, dependsOn } : without(o, "dependsOn")));
+  if (prefix !== undefined) change((o) => (prefix ? { ...o, uniqueId: { prefix } } : without(o, "uniqueId")));
   // Options of this property others depend on that go away leave their lists (lib/dependent-options).
   const dependents = removed.length ? dependentsOf(prop.id, siblings) : [];
+  const workspaceId = prefix ? await workspaceOf(prop.databaseId) : null;
   await db.transaction(async (tx) => {
+    if (prefix && workspaceId) await claimPrefix(tx, workspaceId, prefix, prop.id);
     for (const child of dependents) {
       const pruned = cleanParentOptions(child.options.options ?? [], { options: { options: patch.options } });
       await tx
@@ -2021,7 +2044,8 @@ export async function updateProperty(
     }
   });
   notifySchema(prop.databaseId);
-  if (removed.length) notifyRows(prop.databaseId);
+  // A new prefix changes how every row's ID shows.
+  if (removed.length || prefix !== undefined) notifyRows(prop.databaseId);
   // Date options as stored (a reminder's zone and start are decided here): undefined when unchanged.
   return { date };
 }
@@ -2216,6 +2240,8 @@ export async function restoreProperty(userId: string, propertyId: string) {
     const props = detach ? (await unpair(tx, pair)).slice(0, 1) : pair;
     const out: DatabaseProperty[] = [];
     for (const p of props) {
+      // Its rows' numbers come back with it; those made meanwhile are numbered (drizzle/*_unique_id.sql).
+      if (p.type === "unique_id") await refuseSecondUniqueId(tx, p.databaseId, p.id);
       const name = await uniquePropertyName(p.databaseId, p.name, tx, p.id);
       let options = p.options;
       const role = options.relation?.role;
@@ -2354,6 +2380,8 @@ async function eraseProperties(tx: Executor, props: DatabaseProperty[]) {
  */
 export async function duplicateProperty(userId: string, propertyId: string, name: string) {
   const prop = await requireProperty(userId, propertyId);
+  // A copy would number the rows a second time.
+  if (prop.type === "unique_id") await refuseSecondUniqueId(db, prop.databaseId);
   const [next] = await db
     .select({ position: databaseProperty.position })
     .from(databaseProperty)
@@ -2477,6 +2505,7 @@ async function retypeProperty(
     });
   }
 
+  if (input.type === "unique_id") await refuseSecondUniqueId(db, prop.databaseId, prop.id);
   const known = await knownProperties(userId, prop.databaseId);
   const self = { id: prop.id, name: prop.name };
   const formula = input.type === "formula" ? await formulaConfig(userId, input.formula?.expression ?? "", known, self) : undefined;
@@ -2565,6 +2594,8 @@ async function retypeProperty(
       ...(pinned ? { pinned } : {}),
     };
     // New values by row id; null removes one. Unticked boxes and types Leafdesk works out store none.
+    // A unique ID's rows are numbered when the type changes (drizzle/*_unique_id.sql), and keep
+    // their number through the write below.
     const next: Record<string, unknown> = {};
     rows.forEach((row, i) => {
       const value = isReadOnlyType(input.type) ? null : conversion.convert(values[i]);
@@ -2574,7 +2605,11 @@ async function retypeProperty(
     // Counted on the rows the user sees: the others aren't theirs to know about.
     const seen = values.filter((_, i) => visible.has(rows[i].id));
     const cleared = lostValues(seen, conversion);
-    const converted = isReadOnlyType(input.type) ? 0 : seen.filter((v) => !isEmptyValue(conversion.convert(v))).length;
+    const converted = isNumbered(input.type)
+      ? rows.filter((r) => visible.has(r.id)).length
+      : isReadOnlyType(input.type)
+        ? 0
+        : seen.filter((v) => !isEmptyValue(conversion.convert(v))).length;
     return { options, next, converted, cleared };
   };
 
