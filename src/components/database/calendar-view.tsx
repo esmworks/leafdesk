@@ -10,9 +10,11 @@ import type { CalendarMode } from "@/db/schema/app";
 import {
   calendarEvent,
   dayBlocks,
+  eventsOffGrid,
   eventsOn,
   firstDayOfWeek,
   isAllDay,
+  isWeekend,
   MINUTES_PER_DAY,
   monthWeeks,
   weekBars,
@@ -45,11 +47,17 @@ type RowEvent = CalendarEvent & { row: Row };
 /** A day number as a Date at its midnight in UTC: days are formatted in UTC so zones never shift them. */
 const utcDay = (day: number) => new Date(day * 86_400_000);
 
+/** The days a calendar gives columns: all of them, or without Saturdays and Sundays. */
+const EVERY_DAY = () => true;
+const WORKDAYS = (day: number) => !isWeekend(day);
+
 /**
  * Rows on the days of a date property: a month of days, or a week with its hours. A date over
  * several days is a bar across them; in the week, dates with times sit on the hours and all-day
  * ones (and times over several days) in a strip above. Dragging a row moves its whole date, both
- * ends, keeping whether it has times.
+ * ends, keeping whether it has times. Without weekends (`showWeekends` false) Saturdays and Sundays
+ * have no column; rows only on those days are listed under the calendar, where they can be opened
+ * and dragged onto a weekday, rather than drawn on a neighbouring day they aren't on.
  */
 export function CalendarView({
   workspaceId,
@@ -93,6 +101,9 @@ export function CalendarView({
   // On phones the days are a compact grid, and the rows of the picked day are listed under it.
   const phone = useMediaQuery(PHONE_QUERY);
   const access = usePropertyAccess();
+  const [showWeekendRows, setShowWeekendRows] = useState(false);
+  const shownDay = view.config.showWeekends === false ? WORKDAYS : EVERY_DAY;
+  const showIcons = view.config.showIcons !== false;
 
   const dateBy = viewDateProperty(view.config, properties);
   const weekStart = firstDayOfWeek(locale);
@@ -179,7 +190,13 @@ export function CalendarView({
   const undated = rows.filter((r) => !parseDateValue(r.properties[dateBy.id]));
   const canAdd = !readOnly && access.canEditValues(dateBy.id);
   const todayDay = dayNumber(today);
-  const days = weeks.flatMap((start) => Array.from({ length: 7 }, (_, i) => start + i));
+  const days = weeks.flatMap((start) => Array.from({ length: 7 }, (_, i) => start + i).filter(shownDay));
+  // Columns of a week: 7, or 5 without weekends.
+  const columns = days.length / weeks.length;
+  const gridColumns = { gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` };
+  const lastDay = weeks[weeks.length - 1] + 6;
+  // Rows on none of the days shown (only on a Saturday or Sunday) are listed apart.
+  const weekendRows = shownDay === EVERY_DAY ? [] : eventsOffGrid(events, weeks[0], lastDay, shownDay);
 
   const move = (delta: number) => {
     if (mode === "week") return setAnchor(dayString(anchorDay + 7 * delta));
@@ -246,6 +263,7 @@ export function CalendarView({
       key={row.id}
       workspaceId={workspaceId}
       row={row}
+      showIcon={showIcons}
       props={entryProps}
       color={colors?.get(row.id)}
       time={options.time}
@@ -269,17 +287,17 @@ export function CalendarView({
    * the pointer through to them. Month weeks have the day numbers on top of their cells.
    */
   const weekRow = (start: number, list: RowEvent[], header: boolean) => {
-    const { bars, lanes } = weekBars(list, start);
+    const { bars, lanes } = weekBars(list, start, shownDay);
     const first = header ? 2 : 1;
     return (
       <div
-        className={cn("grid grid-cols-7", header && "min-h-28")}
+        className={cn("grid", header && "min-h-28")}
         style={{
+          ...gridColumns,
           gridTemplateRows: `${header ? "1.75rem " : ""}${lanes ? `repeat(${lanes}, auto) ` : ""}minmax(${header ? "1.5rem" : "1.75rem"}, 1fr)`,
         }}
       >
-        {Array.from({ length: 7 }, (_, i) => {
-          const day = start + i;
+        {Array.from({ length: 7 }, (_, i) => start + i).filter(shownDay).map((day, i) => {
           const key = dayString(day);
           const inMonth = mode === "week" || utcDay(day).getUTCMonth() === month;
           return (
@@ -331,8 +349,8 @@ export function CalendarView({
   };
 
   const weekdayHeader = (
-    <div className="grid grid-cols-7 border-b border-border bg-bg-subtle">
-      {days.slice(0, 7).map((day) => (
+    <div className="grid border-b border-border bg-bg-subtle" style={gridColumns}>
+      {days.slice(0, columns).map((day) => (
         <div key={day} className="px-2 py-1.5 text-xs text-fg-muted">
           {format.dateTime(utcDay(day), { weekday: "short", timeZone: "UTC" })}
         </div>
@@ -358,7 +376,7 @@ export function CalendarView({
       <div className="min-w-[42rem] overflow-hidden rounded-lg border border-border">
         <div className="flex border-b border-border bg-bg-subtle">
           <div className="w-14 shrink-0" />
-          <div className="grid min-w-0 flex-1 grid-cols-7">
+          <div className="grid min-w-0 flex-1" style={gridColumns}>
             {days.map((day) => (
               <div key={day} className="group flex items-center justify-between gap-1 border-s border-border px-1.5 py-1">
                 <span className="flex min-w-0 items-center gap-1 text-xs text-fg-muted">
@@ -452,7 +470,7 @@ export function CalendarView({
 
   const title =
     mode === "week"
-      ? format.dateTimeRange(utcDay(days[0]), utcDay(days[6]), { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" })
+      ? format.dateTimeRange(utcDay(days[0]), utcDay(days[days.length - 1]), { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" })
       : format.dateTime(utcDay(monthDay(year * 12 + month, 1)), { month: "long", year: "numeric", timeZone: "UTC" });
   const previous = mode === "week" ? t("calendar.previousWeek") : t("calendar.previous");
   const next = mode === "week" ? t("calendar.nextWeek") : t("calendar.next");
@@ -505,6 +523,7 @@ export function CalendarView({
         {phone ? (
           <PhoneDays
             days={days}
+            columns={columns}
             inRange={(day) => mode === "week" || utcDay(day).getUTCMonth() === month}
             today={todayDay}
             selected={anchorDay}
@@ -518,6 +537,32 @@ export function CalendarView({
           weekGrid
         ) : (
           monthGrid
+        )}
+
+        {weekendRows.length > 0 && (
+          <div className="mt-3">
+            <button
+              type="button"
+              aria-expanded={showWeekendRows}
+              onClick={() => setShowWeekendRows((v) => !v)}
+              className="inline-flex h-7 items-center gap-1 rounded-md px-1.5 text-sm text-fg-muted hover:bg-bg-hover hover:text-fg"
+            >
+              <ChevronRight className={cn("h-3.5 w-3.5 transition-transform", showWeekendRows ? "rotate-90" : "rtl:rotate-180")} />
+              {t("calendar.weekendRows", { count: weekendRows.length })}
+            </button>
+            {showWeekendRows && (
+              <section
+                aria-label={t("calendar.weekendRowsTitle")}
+                className="mt-1 grid grid-cols-[repeat(auto-fill,minmax(12rem,1fr))] gap-1.5"
+              >
+                {/* Each with the day it is on (and its time), since no column says so. */}
+                {weekendRows.map((e) => {
+                  const on = format.dateTime(utcDay(Math.max(e.start, weeks[0])), { weekday: "short", day: "numeric", timeZone: "UTC" });
+                  return entry(e.row, { time: e.time && !isAllDay(e) ? `${on} ${clock(e.startMinutes)}` : on });
+                })}
+              </section>
+            )}
+          </div>
         )}
 
         {undated.length > 0 && (
@@ -572,6 +617,7 @@ function DayNumber({ day, today, faint }: { day: number; today: boolean; faint?:
  */
 function PhoneDays({
   days,
+  columns,
   inRange,
   today,
   selected,
@@ -582,6 +628,8 @@ function PhoneDays({
   onAdd,
 }: {
   days: number[];
+  /** Days a week shows: 7, or 5 without weekends. */
+  columns: number;
   /** Whether a day belongs to the month shown (others are dimmed). */
   inRange: (day: number) => boolean;
   today: number;
@@ -599,14 +647,14 @@ function PhoneDays({
   return (
     <>
       <div className="overflow-hidden rounded-lg border border-border">
-        <div className="grid grid-cols-7 border-b border-border bg-bg-subtle">
-          {days.slice(0, 7).map((day) => (
+        <div className="grid border-b border-border bg-bg-subtle" style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}>
+          {days.slice(0, columns).map((day) => (
             <div key={day} className="py-1.5 text-center text-xs text-fg-muted">
               {format.dateTime(utcDay(day), { weekday: "narrow", timeZone: "UTC" })}
             </div>
           ))}
         </div>
-        <div className="grid grid-cols-7">
+        <div className="grid" style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}>
           {days.map((day, i) => {
             const n = count(day);
             const shown = inRange(day);
@@ -619,7 +667,7 @@ function PhoneDays({
                 onClick={() => onPick(day)}
                 className={cn(
                   "flex h-12 min-w-0 flex-col items-center justify-start gap-1 pt-1",
-                  i >= 7 && "border-t border-border",
+                  i >= columns && "border-t border-border",
                   !shown && "bg-bg-subtle",
                   day === selected && "bg-bg-active",
                 )}
@@ -665,6 +713,7 @@ function PhoneDays({
 const CalendarEntry = memo(function CalendarEntry({
   workspaceId,
   row,
+  showIcon,
   props,
   color,
   time,
@@ -681,6 +730,8 @@ const CalendarEntry = memo(function CalendarEntry({
 }: {
   workspaceId: string;
   row: Row;
+  /** The view shows rows' page icons (see ViewConfig showIcons). */
+  showIcon: boolean;
   props: Property[];
   /** What color rules color on the entry: the entry, its name or values. */
   color?: RowColors;
@@ -731,7 +782,7 @@ const CalendarEntry = memo(function CalendarEntry({
       ) : (
         <div className={cn("flex min-w-0 items-center", block ? "flex-wrap gap-x-1" : "gap-1")}>
           {time && <span className="shrink-0 tabular-nums text-fg-muted">{time}</span>}
-          {row.icon && <PageIcon icon={row.icon} className="shrink-0 text-xs" />}
+          {showIcon && row.icon && <PageIcon icon={row.icon} className="shrink-0 text-xs" />}
           <span className={cn("truncate font-medium", block && "min-w-0 grow basis-12", !row.title && "text-fg-faint", cellMarkClass(color, "title"))}>
             {pageLabel(row.title, tc("untitled"))}
           </span>

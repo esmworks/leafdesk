@@ -569,16 +569,25 @@ define("first", pick("first(list)", (list) => list[0], [LISTS]));
 define("last", pick("last(list)", (list) => list[list.length - 1], [LISTS]));
 define("at", pick("at(list, index)", (list, [, index]) => list.at(Math.trunc(asNum(index) ?? 0)), [LISTS, NUM]));
 define("sum", fixed("list", "sum(numbers)", [NUMBERS], "number", (values) => numbersOf(values).reduce((a, b) => a + b, 0), { min: 1, max: Infinity }));
+const meanOf = (values: Value[]) => {
+  const nums = numbersOf(values);
+  return nums.length ? nums.reduce((a, b) => a + b, 0) / nums.length : null;
+};
+define("average", fixed("list", "average(numbers)", [NUMBERS], "number", meanOf, { min: 1, max: Infinity }));
+// average() under the name statistics and spreadsheets use too.
+define("mean", fixed("list", "mean(numbers)", [NUMBERS], "number", meanOf, { min: 1, max: Infinity }));
 define(
-  "average",
+  "median",
   fixed(
     "list",
-    "average(numbers)",
+    "median(numbers)",
     [NUMBERS],
     "number",
     (values) => {
-      const nums = numbersOf(values);
-      return nums.length ? nums.reduce((a, b) => a + b, 0) / nums.length : null;
+      const nums = numbersOf(values).sort((a, b) => a - b);
+      if (!nums.length) return null;
+      const mid = nums.length >> 1;
+      return nums.length % 2 ? nums[mid] : (nums[mid - 1] + nums[mid]) / 2;
     },
     { min: 1, max: Infinity },
   ),

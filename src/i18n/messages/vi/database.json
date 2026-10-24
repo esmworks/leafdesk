@@ -166,6 +166,10 @@
   },
   "activeRules": {
     "clear": "Xóa",
+    "personal": "Chỉ cho bạn",
+    "personalTitle": "Các bộ lọc và cách sắp xếp này không được lưu vào chế độ xem: không ai khác thấy chúng và chúng sẽ mất khi bạn rời trang.",
+    "reset": "Đặt lại",
+    "resetTitle": "Quay lại bộ lọc và cách sắp xếp của chế độ xem",
     "unknownProperty": "Không xác định",
     "unknownFilter": "Bộ lọc không xác định",
     "filterWithValue": "{property} {operator} {value}",
@@ -700,6 +704,8 @@
     "addOnDay": "Thêm một hàng vào {date}",
     "noDate": "{count, plural, other {# hàng}} không có {property}",
     "noDateTitle": "Các hàng không có {property}",
+    "weekendRows": "{count, plural, other {# hàng}} vào cuối tuần",
+    "weekendRowsTitle": "Các hàng vào thứ Bảy và Chủ nhật",
     "dayRows": "{date}: {count, plural, =0 {không có hàng} other {# hàng}}",
     "emptyDay": "Không có hàng nào trong ngày này.",
     "month": "Tháng",
@@ -749,6 +755,8 @@
     "groupBy": "Nhóm theo",
     "noGrouping": "Không có",
     "showTable": "Hiện bảng",
+    "showWeekends": "Hiện cuối tuần",
+    "showIcons": "Hiện biểu tượng trang",
     "openRows": "Mở các hàng trong",
     "openRowsIn": {
       "panel": "Bảng bên",

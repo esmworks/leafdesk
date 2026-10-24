@@ -166,6 +166,10 @@
   },
   "activeRules": {
     "clear": "Temizle",
+    "personal": "Yalnızca sizin için",
+    "personalTitle": "Bu filtreler ve sıralamalar görünüme kaydedilmez: başka kimse görmez ve sayfadan ayrıldığınızda kaybolur.",
+    "reset": "Sıfırla",
+    "resetTitle": "Görünümün kendi filtre ve sıralamalarına dön",
     "unknownProperty": "Bilinmeyen",
     "unknownFilter": "Bilinmeyen filtre",
     "filterWithValue": "{property} {operator} {value}",
@@ -700,6 +704,8 @@
     "addOnDay": "{date} için satır ekle",
     "noDate": "{property} olmayan {count, plural, other {# satır}}",
     "noDateTitle": "{property} olmayan satırlar",
+    "weekendRows": "Hafta sonunda {count, plural, other {# satır}}",
+    "weekendRowsTitle": "Cumartesi ve pazar günlerindeki satırlar",
     "dayRows": "{date}: {count, plural, =0 {satır yok} other {# satır}}",
     "emptyDay": "Bu günde satır yok.",
     "month": "Ay",
@@ -749,6 +755,8 @@
     "groupBy": "Grupla",
     "noGrouping": "Yok",
     "showTable": "Tabloyu göster",
+    "showWeekends": "Hafta sonlarını göster",
+    "showIcons": "Sayfa simgelerini göster",
     "openRows": "Satırları aç",
     "openRowsIn": {
       "panel": "Yan panelde",

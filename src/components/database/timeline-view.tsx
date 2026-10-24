@@ -116,6 +116,7 @@ export function TimelineView({
   const [localTable, setLocalTable] = useState<boolean | null>(null);
   const zoom = localZoom ?? view.config.zoom ?? "week";
   const showTable = localTable ?? view.config.showTable !== false;
+  const showIcons = view.config.showIcons !== false;
   const [drag, setDrag] = useState<Drag | null>(null);
   const [dropDay, setDropDay] = useState<number | null>(null);
   const [dragUndated, setDragUndated] = useState<string | null>(null);
@@ -406,7 +407,7 @@ export function TimelineView({
       >
         {inside && (
           <span className="flex min-w-0 items-center gap-1 px-2">
-            {row.icon && <PageIcon icon={row.icon} className="shrink-0 text-xs" />}
+            {showIcons && row.icon && <PageIcon icon={row.icon} className="shrink-0 text-xs" />}
             <span className={cn("truncate font-medium", !row.title && "opacity-60")}>{label}</span>
           </span>
         )}
@@ -488,7 +489,7 @@ export function TimelineView({
         style={subItems.nested ? { paddingLeft: 4 + line.depth * SUB_ITEM_INDENT } : undefined}
       >
         {subItems.nested && <SubItemToggle line={line} title={label} onToggle={() => subItems.toggle(row.id)} className="-mr-1 h-6" />}
-        <PageIcon icon={row.icon} className="shrink-0" />
+        {showIcons && <PageIcon icon={row.icon} className="shrink-0" />}
         {editTitleOf === row.id ? (
           <CardTitleInput
             initial={typed || row.title}
@@ -837,7 +838,7 @@ export function TimelineView({
                         dragUndated === row.id && "opacity-40",
                       )}
                     >
-                      <PageIcon icon={row.icon} className="shrink-0 text-xs" />
+                      {showIcons && <PageIcon icon={row.icon} className="shrink-0 text-xs" />}
                       <span className={cn("truncate font-medium", !row.title && "text-fg-faint")}>
                         {pageLabel(row.title, tc("untitled"))}
                       </span>

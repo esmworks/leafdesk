@@ -166,6 +166,10 @@
   },
   "activeRules": {
     "clear": "پاک کردن",
+    "personal": "فقط برای شما",
+    "personalTitle": "این فیلترها و مرتب‌سازی‌ها در نما ذخیره نمی‌شوند: کس دیگری آن‌ها را نمی‌بیند و با ترک صفحه از بین می‌روند.",
+    "reset": "بازنشانی",
+    "resetTitle": "بازگشت به فیلترها و مرتب‌سازی‌های خود نما",
     "unknownProperty": "ناشناخته",
     "unknownFilter": "فیلتر ناشناخته",
     "filterWithValue": "{property} {operator} {value}",
@@ -700,6 +704,8 @@
     "addOnDay": "افزودن ردیف در {date}",
     "noDate": "{count, plural, one {# ردیف} other {# ردیف}} بدون {property}",
     "noDateTitle": "ردیف‌های بدون {property}",
+    "weekendRows": "{count, plural, other {# ردیف}} در آخر هفته",
+    "weekendRowsTitle": "ردیف‌های شنبه‌ها و یکشنبه‌ها",
     "dayRows": "{date}: {count, plural, =0 {بدون ردیف} one {# ردیف} other {# ردیف}}",
     "emptyDay": "در این روز ردیفی وجود ندارد.",
     "month": "ماه",
@@ -749,6 +755,8 @@
     "groupBy": "گروه‌بندی بر اساس",
     "noGrouping": "هیچ",
     "showTable": "نمایش جدول",
+    "showWeekends": "نمایش آخر هفته‌ها",
+    "showIcons": "نمایش نماد صفحه‌ها",
     "openRows": "باز کردن ردیف‌ها در",
     "openRowsIn": {
       "panel": "پنل کناری",

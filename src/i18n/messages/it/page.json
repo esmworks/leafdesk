@@ -34,6 +34,7 @@
     "unfollowHint": "Ricevi un avviso nella posta in arrivo quando qualcun altro modifica questa riga.",
     "linkCopied": "Link copiato",
     "duplicate": "Duplica",
+    "duplicateWithoutRows": "Duplica senza righe",
     "duplicateSuffix": " (copia)",
     "duplicateFailed": "Impossibile duplicare la pagina.",
     "moveTo": "Sposta in",

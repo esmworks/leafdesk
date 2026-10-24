@@ -86,13 +86,19 @@ function order<T extends CalendarEvent>(events: T[]): T[] {
     .map(({ event }) => event);
 }
 
-/** An event in a week's rows: from column `col` (0–6) across `span` days, in lane `lane`. */
+/** Whether a day number is a Saturday or a Sunday: the days a calendar without weekends leaves out. */
+export const isWeekend = (day: number) => {
+  const weekday = weekdayOf(day);
+  return weekday === 0 || weekday === 6;
+};
+
+/** An event in a week's rows: from column `col` (0–6, of the days shown) across `span` days, in lane `lane`. */
 export type WeekBar<T> = {
   event: T;
   col: number;
   span: number;
   lane: number;
-  /** Whether it goes on before the week's first day or after its last. */
+  /** Whether it goes on before its first column or after its last (into another week or a day not shown). */
   before: boolean;
   after: boolean;
 };
@@ -102,12 +108,29 @@ export type WeekBar<T> = {
  * row of bars that don't overlap. Events starting earlier come first, then longer ones (so bars
  * over several days stay at the top), then all-day before timed, then by time, then in the order
  * given (the view's sort). Bars are cut at the week's edges.
+ *
+ * Only the days `shown` keeps have columns (a calendar without weekends): bars are cut at the days
+ * left out too, and an event on none of the shown days has no bar (see eventsOffGrid).
  */
-export function weekBars<T extends CalendarEvent>(events: T[], weekStart: number): { bars: WeekBar<T>[]; lanes: number } {
+export function weekBars<T extends CalendarEvent>(
+  events: T[],
+  weekStart: number,
+  shown: (day: number) => boolean = () => true,
+): { bars: WeekBar<T>[]; lanes: number } {
   const weekEnd = weekStart + 6;
+  // Each day's column, -1 for a day left out.
+  const columns: number[] = [];
+  let count = 0;
+  for (let day = weekStart; day <= weekEnd; day++) columns.push(shown(day) ? count++ : -1);
+  const column = (day: number) => columns[day - weekStart];
   const touching = events
-    .map((event, index) => ({ event, index, from: Math.max(event.start, weekStart), to: Math.min(event.end, weekEnd) }))
-    .filter(({ from, to }) => from <= to)
+    .flatMap((event, index) => {
+      let from = Math.max(event.start, weekStart);
+      let to = Math.min(event.end, weekEnd);
+      while (from <= to && column(from) === -1) from++;
+      while (to >= from && column(to) === -1) to--;
+      return from <= to ? [{ event, index, from, to }] : [];
+    })
     .sort(
       (a, b) =>
         a.from - b.from ||
@@ -119,12 +142,27 @@ export function weekBars<T extends CalendarEvent>(events: T[], weekStart: number
   // The last column each lane is taken up to.
   const taken: number[] = [];
   const bars = touching.map(({ event, from, to }) => {
-    let lane = taken.findIndex((last) => last < from);
+    const first = column(from);
+    const last = column(to);
+    let lane = taken.findIndex((end) => end < first);
     if (lane === -1) lane = taken.length;
-    taken[lane] = to;
-    return { event, col: from - weekStart, span: to - from + 1, lane, before: event.start < weekStart, after: event.end > weekEnd };
+    taken[lane] = last;
+    return { event, col: first, span: last - first + 1, lane, before: event.start < from, after: event.end > to };
   });
   return { bars, lanes: taken.length };
+}
+
+/**
+ * The events touching the days `first` to `last` that cover none of the days `shown` keeps: on a
+ * calendar without weekends, the rows dated only on a Saturday or Sunday, listed apart so they
+ * stay in reach.
+ */
+export function eventsOffGrid<T extends CalendarEvent>(events: T[], first: number, last: number, shown: (day: number) => boolean): T[] {
+  return events.filter((event) => {
+    const to = Math.min(event.end, last);
+    for (let day = Math.max(event.start, first); day <= to; day++) if (shown(day)) return false;
+    return event.start <= last && event.end >= first;
+  });
 }
 
 /** A timed event on a day's hours: from `top` to `bottom` minutes, in column `col` of `cols` side by side. */

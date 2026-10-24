@@ -178,6 +178,13 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
     before, after, on or before and on or after a day, and selects, statuses, tags, relations and
     people on any of several values or none of them in one rule. A "Me" filter (also inside such a
     list) shows each viewer their own rows.
+  - People who can only view a database (or a view whose settings they can't change) still filter
+    and sort it for themselves: their rules replace the view's for them alone, marked *Only for
+    you*, are never saved, and *Reset* brings back the view's own.
+  - Each view with rows can leave out the rows' page icons (Layout → *Show page icons*; published
+    views too), and a calendar can leave out Saturdays and Sundays (*Show weekends*, month and
+    week alike): its weekdays then share the width, and rows only on a weekend are listed under it
+    with their day, to open or drag onto a weekday.
   - Table views calculate column totals, averages, counts and more over the filtered rows.
   - Board columns show how many cards they hold next to their name, and can show one calculation
     over a property for their cards on the line under it, the same in every column: the sum of the
@@ -193,7 +200,8 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
     From 120 rows on, a table renders only the rows near the visible part of the page.
   - Formulas read the row's properties and, through a relation, the properties of the linked rows
     (`sum(map(prop("Tasks"), prop(current, "Hours")))`, with `filter`, `find`, `some`, `every`,
-    `first`, `last` and `at`), one step away and up to 200 linked rows. `style()` shows a result
+    `first`, `last` and `at`), one step away and up to 200 linked rows. `sum`, `average` (also
+    written `mean`) and `median` take numbers or a list of them. `style()` shows a result
     bold, italic, underlined, struck through, as code or in the option colors, in every view, row
     pages and published pages; sorting, filtering, grouping and exports use the plain value.
   - Number properties show as a number, percentage or amount of money, or as a colored bar or
@@ -283,6 +291,9 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
     into a database from its block menu: its first row names the properties.
   - Lock a database to freeze its properties and views, and export its rows as CSV.
   - Row templates with preset properties and content; pick one as the default for "New".
+  - *Duplicate without rows* (the database's page menu) copies a database's properties, views,
+    row templates and its own page, as an empty database to fill anew. Relations, forms and access
+    rules come along as with *Duplicate*; automations stay with the original either way.
   - Repeating templates: a row template adds a row by itself every day, every few weeks on chosen
     weekdays, every month or every year, at a time in a time zone, optionally with the date in its
     title. The rows are added as the person who set the repeat, with their access at the time, and
@@ -3439,7 +3450,7 @@ The tools cover:
   creates at the top is private to the user, so nothing an app makes is shared before they
   decide; the user moves it to share it.
 - **Pages:** `get_page`, `create_page`, `update_page`, `move_page`, `duplicate_page` (a copy with
-  everything under it, beside the original), `archive_page`, `list_trash`, `restore_page` (the
+  everything under it, beside the original; `without_rows` copies databases without their rows), `archive_page`, `list_trash`, `restore_page` (the
   trash), `set_page_archived` (archive an outdated page or unarchive it; `search`, `list_pages`
   and `query_database` leave archived pages and rows out unless `include_archived` is true).
   `list_pages` with `favorites: true` lists the user's starred pages, and `get_page` says whether a
@@ -3496,7 +3507,7 @@ The tools cover:
   convert and what would be cleared without changing anything), `delete_database_property`,
   `create_database_view` and `update_database_view` (table, board, calendar, gallery, list, feed,
   timeline, map (with `place_by`), chart, dashboard or form, including a form's public link and a dashboard's `widgets`; a chart over a date takes `accumulate`
-  for running totals or a burndown, a calendar `calendar_mode` (month or week), a board `aggregate` and `aggregate_property` for what its column headers show, and table, list and timeline views take `sub_items`;
+  for running totals or a burndown, a calendar `calendar_mode` (month or week) and `show_weekends`, views with rows `show_icons`, a board `aggregate` and `aggregate_property` for what its column headers show, and table, list and timeline views take `sub_items`;
   `update_database_view` also moves a
   view's tab with `before_view_id` or `after_view_id`), and `set_property_access` (who may
   see and change a property). `query_database` returns `next_cursor` and `has_more`: passing the

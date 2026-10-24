@@ -166,6 +166,10 @@
   },
   "activeRules": {
     "clear": "Очистить",
+    "personal": "Только для вас",
+    "personalTitle": "Эти фильтры и сортировки не сохраняются в представлении: их никто больше не видит, и они пропадут, когда вы уйдёте со страницы.",
+    "reset": "Сбросить",
+    "resetTitle": "Вернуть фильтры и сортировки представления",
     "unknownProperty": "Неизвестно",
     "unknownFilter": "Неизвестный фильтр",
     "filterWithValue": "{property} {operator} {value}",
@@ -700,6 +704,8 @@
     "addOnDay": "Добавить строку на {date}",
     "noDate": "{count, plural, one {# строка} few {# строки} many {# строк} other {# строки}} без значения «{property}»",
     "noDateTitle": "Строки без значения «{property}»",
+    "weekendRows": "{count, plural, one {# строка} few {# строки} many {# строк} other {# строки}} в выходные",
+    "weekendRowsTitle": "Строки на субботы и воскресенья",
     "dayRows": "{date}: {count, plural, =0 {нет строк} one {# строка} few {# строки} many {# строк} other {# строки}}",
     "emptyDay": "В этот день нет строк.",
     "month": "Месяц",
@@ -749,6 +755,8 @@
     "groupBy": "Группировать по",
     "noGrouping": "Нет",
     "showTable": "Показывать таблицу",
+    "showWeekends": "Показывать выходные",
+    "showIcons": "Показывать значки страниц",
     "openRows": "Открывать строки",
     "openRowsIn": {
       "panel": "В боковой панели",

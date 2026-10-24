@@ -174,6 +174,11 @@ export function ViewLayoutMenu({
                   : undefined
               }
             />
+          ) : view.type === "calendar" ? (
+            // Saturdays and Sundays, in the month and the week alike.
+            <Toggle on={config.showWeekends !== false} onChange={(on) => set({ showWeekends: on ? undefined : false })}>
+              {t("showWeekends")}
+            </Toggle>
           ) : view.type === "timeline" ? (
             <TimelineSettings
               view={view}
@@ -205,7 +210,9 @@ export function ViewLayoutMenu({
           {rows && (
             <>
               {/* After the view's own settings; a table, list or board may have none. */}
-              {(view.type === "gallery" || view.type === "timeline" || view.type === "map" || subItems) && <MenuSeparator />}
+              {(view.type === "gallery" || view.type === "timeline" || view.type === "map" || view.type === "calendar" || subItems) && (
+                <MenuSeparator />
+              )}
               <Heading>{t("openRows")}</Heading>
               {OPEN_ROWS.map((where) => (
                 <Choice key={where} active={openRowsOf(config) === where} onClick={() => set({ openRows: where === "page" ? "page" : undefined })}>
@@ -227,6 +234,11 @@ export function ViewLayoutMenu({
           )}
           {/* Rows archived on their own stay out of the view unless it shows them (server/page-outdated.ts). */}
           <MenuSeparator />
+          {rows && (
+            <Toggle on={config.showIcons !== false} onChange={(on) => set({ showIcons: on ? undefined : false })}>
+              {t("showIcons")}
+            </Toggle>
+          )}
           <Toggle on={!!config.showOutdated} onChange={(on) => set({ showOutdated: on || undefined })}>
             {t("showOutdated")}
           </Toggle>

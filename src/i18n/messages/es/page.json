@@ -34,6 +34,7 @@
     "unfollowHint": "Te enteras en tu bandeja de entrada cuando otra persona cambia esta fila.",
     "linkCopied": "Enlace copiado",
     "duplicate": "Duplicar",
+    "duplicateWithoutRows": "Duplicar sin filas",
     "duplicateSuffix": " (copia)",
     "duplicateFailed": "No se pudo duplicar la página.",
     "moveTo": "Mover a",

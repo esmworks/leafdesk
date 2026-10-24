@@ -19,6 +19,29 @@
   domain, their titles no longer end in "Leafdesk", and the favicon is the home page's emoji, drawn
   as SVG. Migration 0128 adds the columns.
 
+- **People who can only view a database filter and sort it for themselves.** The view's Filter
+  and Sort menus now show for them too, locked databases included: the rules apply only in their
+  own window, replace the view's while set, are marked *Only for you* beside them, and are never
+  saved, so nobody else's view changes; *Reset* goes back to the view's own filters and sorts.
+- **Duplicate a database without its rows.** The database's page menu has *Duplicate without
+  rows*: the copy gets the properties, views (forms start closed, as with any copy), row templates
+  and the database's own page, but no rows and nothing inside them. Relations behave as in a full
+  copy (a relation to the database itself points at the copy; one to another database becomes
+  one-way), and automations are not copied, as before. MCP's `duplicate_page` takes `without_rows`,
+  which empties every database it copies.
+- **Calendars without weekends, and views without page icons.** A calendar's Layout menu has
+  *Show weekends* (on by default): turned off, the month and the week show Monday to Friday across
+  the whole width, bars are cut where a weekend interrupts them, and rows dated only on a Saturday
+  or Sunday are listed under the calendar with their day (and time), where they open and can be
+  dragged onto a weekday, instead of being drawn on a day they aren't on. Every view with rows has
+  *Show page icons* (on by default) to leave the rows' icons out of the table, board, gallery,
+  list, feed, timeline, calendar and map; published views leave them out too. MCP's
+  `create_database_view` and `update_database_view` take `show_weekends` and `show_icons`, and
+  `get_database` reports them.
+- **Formulas take the median and the mean of numbers.** `median(numbers)` gives the middle
+  number (the mean of the two middle ones for an even count) and `mean(numbers)` is another name
+  for `average`; both take numbers or a list of them and leave empty values out. The editor's
+  function list, the reference AI formula writing reads and the MCP description list them.
 - **Keep a database of Jira issues in sync.** Import has a Jira tab: connect a Jira Cloud site
   with an email address and API token, pick a project or write a JQL query, and get a database
   whose rows are the issues (key, summary, status, assignee, priority, type, labels, due date and a

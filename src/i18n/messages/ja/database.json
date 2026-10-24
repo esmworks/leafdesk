@@ -166,6 +166,10 @@
   },
   "activeRules": {
     "clear": "クリア",
+    "personal": "自分だけ",
+    "personalTitle": "これらのフィルターと並べ替えはビューに保存されません。他の人には表示されず、ページを離れると消えます。",
+    "reset": "リセット",
+    "resetTitle": "ビュー本来のフィルターと並べ替えに戻す",
     "unknownProperty": "不明",
     "unknownFilter": "不明なフィルター",
     "filterWithValue": "{property}：{operator} {value}",
@@ -700,6 +704,8 @@
     "addOnDay": "{date}に行を追加",
     "noDate": "{property}のない行：{count}行",
     "noDateTitle": "{property}のない行",
+    "weekendRows": "週末の行：{count, plural, other {# 件}}",
+    "weekendRowsTitle": "土曜日と日曜日の行",
     "dayRows": "{date}：{count, plural, =0 {行なし} other {{count}行}}",
     "emptyDay": "この日に行はありません。",
     "month": "月",
@@ -749,6 +755,8 @@
     "groupBy": "グループ化",
     "noGrouping": "なし",
     "showTable": "テーブルを表示",
+    "showWeekends": "週末を表示",
+    "showIcons": "ページアイコンを表示",
     "openRows": "行を開く場所",
     "openRowsIn": {
       "panel": "サイドパネル",

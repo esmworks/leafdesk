@@ -34,6 +34,7 @@
     "unfollowHint": "Dowiadujesz się w skrzynce odbiorczej, gdy ktoś inny zmieni ten wiersz.",
     "linkCopied": "Skopiowano link",
     "duplicate": "Duplikuj",
+    "duplicateWithoutRows": "Duplikuj bez wierszy",
     "duplicateSuffix": " (kopia)",
     "duplicateFailed": "Nie udało się zduplikować strony.",
     "moveTo": "Przenieś do",

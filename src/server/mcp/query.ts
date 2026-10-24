@@ -412,6 +412,8 @@ export function describeViewConfig(props: PropertyDef[], config: ViewConfig, loo
     ...(config.zoom ? { zoom: config.zoom } : {}),
     ...(config.calendarMode ? { calendar_mode: config.calendarMode } : {}),
     ...(config.showTable === false ? { show_table: false } : {}),
+    ...(config.showWeekends === false ? { show_weekends: false } : {}),
+    ...(config.showIcons === false ? { show_icons: false } : {}),
     ...(config.cardSize ? { card_size: config.cardSize } : {}),
     ...(config.cover ? { cover: config.cover.source === "property" ? keyName(props, config.cover.propertyId) : config.cover.source } : {}),
     ...(config.subItems ? { sub_items: config.subItems } : {}),

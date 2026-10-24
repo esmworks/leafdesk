@@ -214,7 +214,7 @@ const EMBED_NOTE =
 
 /** How formulas are written, for tool descriptions. */
 const FORMULA_HELP =
-  'Reference properties with prop("Name") (prop("title") is the row title). Operators: + - * / % ^, == != < <= > >=, and or not; "+" also joins text. Functions: if, ifs, empty, and, or, not; concat, length, lower, upper, trim, contains, startsWith, endsWith, replace, replaceAll, slice, join, format; round, floor, ceil, abs, sqrt, sign, pow, min, max; toNumber, parseDate; now, today, dateAdd, dateSubtract, dateBetween (units: years, quarters, months, weeks, days, hours, minutes, seconds), formatDate (tokens YYYY MM DD HH mm…), year, month, day, weekday, hour, minute, timestamp, dateStart, dateEnd (the start and end of a range; other functions use the start). Select and status read as their option name; multi-select, relation, person and files (their names) as lists; checklists as the share of ticked items; dates work in UTC. Invalid formulas are refused with the reason. Formula values are read-only; query_database returns them and can filter and sort on them like values of their result type.';
+  'Reference properties with prop("Name") (prop("title") is the row title). Operators: + - * / % ^, == != < <= > >=, and or not; "+" also joins text. Functions: if, ifs, empty, and, or, not; concat, length, lower, upper, trim, contains, startsWith, endsWith, replace, replaceAll, slice, join, format; round, floor, ceil, abs, sqrt, sign, pow, min, max; sum, average, mean, median; toNumber, parseDate; now, today, dateAdd, dateSubtract, dateBetween (units: years, quarters, months, weeks, days, hours, minutes, seconds), formatDate (tokens YYYY MM DD HH mm…), year, month, day, weekday, hour, minute, timestamp, dateStart, dateEnd (the start and end of a range; other functions use the start). Select and status read as their option name; multi-select, relation, person and files (their names) as lists; checklists as the share of ticked items; dates work in UTC. Invalid formulas are refused with the reason. Formula values are read-only; query_database returns them and can filter and sort on them like values of their result type.';
 const formulaInput = z.string().max(MAX_FORMULA_LENGTH);
 
 /** How rollups are set up, for tool descriptions. */
@@ -462,6 +462,12 @@ const viewLayoutInputs = {
     ),
 };
 
+/** Display settings offered on views themselves, not on dashboard widgets (each widget's list stays short). */
+const viewDisplayInputs = {
+  show_weekends: z.boolean().optional().describe("Calendar only: show Saturdays and Sundays (true by default)."),
+  show_icons: z.boolean().optional().describe("Views with rows: show page icons by row titles (true by default)."),
+};
+
 /** A view's color rules (update_database_view: a new view gets them right after it is made). */
 const colorRulesInput = z
   .array(
@@ -499,6 +505,8 @@ type ViewInput = {
   zoom?: TimelineZoom;
   calendar_mode?: CalendarMode;
   show_table?: boolean;
+  show_weekends?: boolean;
+  show_icons?: boolean;
   card_size?: CardSize;
   place_by?: string;
   /** "first_image", "none" or a files property's name. */
@@ -666,6 +674,14 @@ function viewConfigPatch(
   if (input.show_table !== undefined) {
     only("show_table", "timeline");
     patch.showTable = input.show_table;
+  }
+  if (input.show_weekends !== undefined) {
+    only("show_weekends", "calendar");
+    patch.showWeekends = input.show_weekends ? undefined : false;
+  }
+  if (input.show_icons !== undefined) {
+    only("show_icons", ...ROW_VIEW_TYPES);
+    patch.showIcons = input.show_icons ? undefined : false;
   }
   if (input.place_by !== undefined) {
     only("place_by", "map");
@@ -2927,6 +2943,7 @@ export function createMcpServer(principal: McpPrincipal) {
             "Calendar: the date property that places rows on days. Timeline: the date (or created_time / last_edited_time) property where bars start. Defaults to the first date property.",
           ),
         ...viewLayoutInputs,
+        ...viewDisplayInputs,
         ...formInputs,
         filters: filtersInput.optional(),
         filter_combinator: filterCombinatorInput,
@@ -2993,6 +3010,7 @@ export function createMcpServer(principal: McpPrincipal) {
           .optional()
           .describe("Calendar: the date property that places rows on days. Timeline: the property where bars start."),
         ...viewLayoutInputs,
+        ...viewDisplayInputs,
         ...formInputs,
         filters: filtersInput.optional(),
         filter_combinator: filterCombinatorInput,
@@ -3266,16 +3284,20 @@ export function createMcpServer(principal: McpPrincipal) {
       inputSchema: z.object({
         page_id: id("page"),
         title: z.string().min(1).max(500).optional().describe('Title of the copy. Default: the original\'s title plus " (copy)".'),
+        without_rows: z
+          .boolean()
+          .optional()
+          .describe("Copy databases (this one, or those under the page) with their properties, views and row templates but no rows."),
       }),
       annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
       scopeChallenge: requireWrite,
     },
-    write(async ({ page_id, title }: { page_id: string; title?: string }) => {
+    write(async ({ page_id, title, without_rows }: { page_id: string; title?: string; without_rows?: boolean }) => {
       const { page } = await ops.loadPage(ctx, page_id);
       if (page.archivedAt) throw new ToolInputError("This page is in the trash. Restore it with restore_page before duplicating it.");
       let copy: { id: string };
       try {
-        copy = await duplicatePage(actor, page_id, " (copy)");
+        copy = await duplicatePage(actor, page_id, " (copy)", { withoutRows: without_rows === true });
       } catch (error) {
         // The page limit is a plain Error; everything else keeps its own mapping.
         if (error instanceof Error && error.message.startsWith("Can't duplicate more than")) {

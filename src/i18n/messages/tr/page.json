@@ -34,6 +34,7 @@
     "unfollowHint": "Bu satırı başka biri değiştirdiğinde gelen kutunuzda haber alıyorsunuz.",
     "linkCopied": "Bağlantı kopyalandı",
     "duplicate": "Kopyasını oluştur",
+    "duplicateWithoutRows": "Satırlar olmadan kopyasını oluştur",
     "duplicateSuffix": " (kopya)",
     "duplicateFailed": "Kopya oluşturulamadı.",
     "moveTo": "Taşı",

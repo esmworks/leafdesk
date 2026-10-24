@@ -59,6 +59,7 @@ export default function MapView({
   const tc = useTranslations("common");
   const opener = useRowOpener(workspaceId);
   const placeProp = viewPlaceProperty(view.config, properties);
+  const showIcons = view.config.showIcons !== false;
   const colorProp = mapColorProperty(view, properties);
   const cardProps = useMemo(
     () => properties.filter((p) => p.id !== placeProp?.id && !isHiddenInView(view, p)),
@@ -227,6 +228,7 @@ export default function MapView({
               key={pin.row.id}
               pin={pin}
               point={point}
+              showIcon={showIcons}
               props={cardProps}
               opener={opener}
               onClose={() => setSelected(null)}
@@ -260,7 +262,7 @@ export default function MapView({
                     onClick={(e) => opener.open(row.id, e)}
                     className="flex w-full min-w-0 items-center gap-1.5 rounded-md border border-border bg-bg px-2 py-1.5 text-start text-sm hover:bg-bg-hover"
                   >
-                    <PageIcon icon={row.icon} className="shrink-0" />
+                    {showIcons && <PageIcon icon={row.icon} className="shrink-0" />}
                     <span className="truncate">{pageLabel(row.title, tc("untitled"))}</span>
                   </button>
                 </li>
@@ -277,6 +279,7 @@ export default function MapView({
 function PinCard({
   pin,
   point,
+  showIcon,
   props,
   opener,
   onClose,
@@ -284,6 +287,8 @@ function PinCard({
 }: {
   pin: Pin;
   point: { x: number; y: number; width: number };
+  /** The view shows rows' page icons (see ViewConfig showIcons). */
+  showIcon: boolean;
   props: Property[];
   opener: ReturnType<typeof useRowOpener>;
   onClose: () => void;
@@ -320,7 +325,7 @@ function PinCard({
           onClick={(e) => opener.open(row.id, e)}
           className="flex min-w-0 flex-1 items-center gap-1.5 text-start text-sm font-medium hover:underline"
         >
-          <PageIcon icon={row.icon} className="shrink-0" />
+          {showIcon && <PageIcon icon={row.icon} className="shrink-0" />}
           <span className="truncate">{label}</span>
         </button>
         <button

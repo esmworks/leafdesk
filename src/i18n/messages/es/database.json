@@ -166,6 +166,10 @@
   },
   "activeRules": {
     "clear": "Borrar",
+    "personal": "Solo para ti",
+    "personalTitle": "Estos filtros y ordenaciones no se guardan en la vista: nadie más los ve y desaparecen al salir de la página.",
+    "reset": "Restablecer",
+    "resetTitle": "Volver a los filtros y ordenaciones de la vista",
     "unknownProperty": "Desconocida",
     "unknownFilter": "Filtro desconocido",
     "filterWithValue": "{property} {operator} {value}",
@@ -700,6 +704,8 @@
     "addOnDay": "Añadir una fila el {date}",
     "noDate": "{count, plural, one {# fila} other {# filas}} sin {property}",
     "noDateTitle": "Filas sin {property}",
+    "weekendRows": "{count, plural, one {# fila} other {# filas}} en fin de semana",
+    "weekendRowsTitle": "Filas en sábados y domingos",
     "dayRows": "{date}: {count, plural, =0 {sin filas} one {# fila} other {# filas}}",
     "emptyDay": "No hay filas en este día.",
     "month": "Mes",
@@ -749,6 +755,8 @@
     "groupBy": "Agrupar por",
     "noGrouping": "Ninguno",
     "showTable": "Mostrar tabla",
+    "showWeekends": "Mostrar fines de semana",
+    "showIcons": "Mostrar iconos de página",
     "openRows": "Abrir filas en",
     "openRowsIn": {
       "panel": "Panel lateral",

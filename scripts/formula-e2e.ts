@@ -151,6 +151,15 @@ try {
   check(tv.get("Build")![late.id] === true && tv.get("Design")![late.id] === false && tv.get("Ship")![late.id] === false, "date and logic functions work");
   const types = Object.fromEntries((await getProperties(tasks.id)).filter((p) => p.type === "formula").map((p) => [p.name, p.options.formula?.type]));
   check(types.Cost === "number" && types.Label === "text" && types.Late === "checkbox", "formulas come with their result type", types);
+  // median(), and mean() (average() by another name), over a row's numbers.
+  const middle = await addProperty(ids.owner, tasks.id, {
+    name: "Middle",
+    type: "formula",
+    formula: { expression: 'median(prop("Hours"), 1, 100) + mean(prop("Hours"), 1)' },
+  });
+  tv = await valuesOf(tasks.id);
+  check(tv.get("Design")![middle.id] === 5 && tv.get("Build")![middle.id] === 8, "median() and mean() work out per row", tv.get("Design"));
+  await deleteProperty(ids.owner, middle.id);
 
   const byCost = await listRows(ids.owner, tasks.id, {
     filters: [{ propertyId: cost.id, op: "gt", value: 100 }],

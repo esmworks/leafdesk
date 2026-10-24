@@ -34,6 +34,7 @@
     "unfollowHint": "其他人更改这一行时，你会在收件箱中收到通知。",
     "linkCopied": "链接已复制",
     "duplicate": "创建副本",
+    "duplicateWithoutRows": "创建不含行的副本",
     "duplicateSuffix": "（副本）",
     "duplicateFailed": "无法创建页面副本。",
     "moveTo": "移动到",

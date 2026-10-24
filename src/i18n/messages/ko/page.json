@@ -34,6 +34,7 @@
     "unfollowHint": "다른 사람이 이 행을 변경하면 받은편지함으로 알림을 받습니다.",
     "linkCopied": "링크가 복사되었습니다",
     "duplicate": "복제",
+    "duplicateWithoutRows": "행 없이 복제",
     "duplicateSuffix": " (사본)",
     "duplicateFailed": "페이지를 복제하지 못했습니다.",
     "moveTo": "이동",

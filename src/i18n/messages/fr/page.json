@@ -34,6 +34,7 @@
     "unfollowHint": "Vous êtes averti dans votre boîte de réception quand quelqu’un d’autre modifie cette ligne.",
     "linkCopied": "Lien copié",
     "duplicate": "Dupliquer",
+    "duplicateWithoutRows": "Dupliquer sans les lignes",
     "duplicateSuffix": " (copie)",
     "duplicateFailed": "Impossible de dupliquer la page.",
     "moveTo": "Déplacer vers",

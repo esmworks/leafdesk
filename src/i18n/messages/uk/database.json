@@ -166,6 +166,10 @@
   },
   "activeRules": {
     "clear": "Очистити",
+    "personal": "Лише для вас",
+    "personalTitle": "Ці фільтри й сортування не зберігаються в поданні: їх ніхто більше не бачить, і вони зникнуть, коли ви підете зі сторінки.",
+    "reset": "Скинути",
+    "resetTitle": "Повернути фільтри й сортування подання",
     "unknownProperty": "Невідома",
     "unknownFilter": "Невідомий фільтр",
     "filterWithValue": "{property} {operator} {value}",
@@ -700,6 +704,8 @@
     "addOnDay": "Додати рядок на {date}",
     "noDate": "{count, plural, one {# рядок} few {# рядки} many {# рядків} other {# рядка}} без значення «{property}»",
     "noDateTitle": "Рядки без значення «{property}»",
+    "weekendRows": "{count, plural, one {# рядок} few {# рядки} many {# рядків} other {# рядка}} у вихідні",
+    "weekendRowsTitle": "Рядки на суботи й неділі",
     "dayRows": "{date}: {count, plural, =0 {немає рядків} one {# рядок} few {# рядки} many {# рядків} other {# рядка}}",
     "emptyDay": "У цей день немає рядків.",
     "month": "Місяць",
@@ -749,6 +755,8 @@
     "groupBy": "Групувати за",
     "noGrouping": "Немає",
     "showTable": "Показати таблицю",
+    "showWeekends": "Показувати вихідні",
+    "showIcons": "Показувати значки сторінок",
     "openRows": "Відкривати рядки в",
     "openRowsIn": {
       "panel": "Бічній панелі",

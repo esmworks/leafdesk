@@ -212,7 +212,7 @@ function ListRow({ row, table, href }: { row: PublishedRow; table: PublishedData
   return (
     <div role="listitem" className="relative flex min-h-9 min-w-0 items-center gap-2 border-b border-border px-2 hover:bg-bg-hover">
       <RowLink row={row} href={href} className={cn("flex min-w-0 items-center gap-2", href && STRETCH)}>
-        <PageIcon icon={row.icon} className="shrink-0" />
+        {!table.noIcons && <PageIcon icon={row.icon} className="shrink-0" />}
         <Title row={row} className="truncate text-sm font-medium" />
       </RowLink>
       {shown.length > 0 && (

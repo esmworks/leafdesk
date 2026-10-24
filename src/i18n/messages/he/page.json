@@ -34,6 +34,7 @@
     "unfollowHint": "תיבת הדואר הנכנס שלך מודיעה לך כשמישהו אחר משנה את השורה הזו.",
     "linkCopied": "הקישור הועתק",
     "duplicate": "שכפול",
+    "duplicateWithoutRows": "שכפול ללא שורות",
     "duplicateSuffix": " (עותק)",
     "duplicateFailed": "לא ניתן היה לשכפל את הדף.",
     "moveTo": "העברה אל",

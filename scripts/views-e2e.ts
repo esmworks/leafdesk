@@ -2,7 +2,9 @@
  * End-to-end check of gallery, list and timeline views against the database: the settings new
  * views start with, config validation, gallery covers in the database snapshot (read from row
  * bodies, only while a gallery shows them, and only for rows the viewer can see), timeline edits
- * writing start and end together, and creating and updating these views over MCP.
+ * writing start and end together, creating and updating these views over MCP, calendars without
+ * weekends and views without page icons (published ones too), and duplicating a database without
+ * its rows (in the app and over MCP).
  * Creates its own users and workspace and deletes them afterwards.
  *
  *   pnpm tsx scripts/views-e2e.ts
@@ -155,6 +157,8 @@ try {
     ["show table", { showTable: "yes" }],
     ["end date", { endDateBy: 42 }],
     ["open rows", { openRows: "tab" }],
+    ["show weekends", { showWeekends: 1 }],
+    ["show icons", { showIcons: "no" }],
   ];
   for (const [label, config] of bad) {
     check(
@@ -251,6 +255,41 @@ try {
     copiedTimeline.config,
   );
 
+  // Duplicating without rows: properties, views, row templates and the page, no rows (nor what's in them)
+  const template = await createPage(actor, { workspaceId, parentId: tasks.id, title: "Bug report", template: true });
+  await createPage(actor, { workspaceId, parentId: r1.id, title: "Notes inside a row" });
+  const childrenOf = async (id: string) =>
+    db.select({ id: page.id, title: page.title, isTemplate: page.isTemplate }).from(page).where(eq(page.parentId, id));
+  const source = await getDatabaseSnapshot(ids.owner, tasks.id);
+  const empty = await duplicatePage(actor, tasks.id, " (empty)", { withoutRows: true });
+  const emptied = await getDatabaseSnapshot(ids.owner, empty.id);
+  const emptyChildren = await childrenOf(empty.id);
+  check(emptied.rows.length === 0 && source.rows.length > 0, "a database duplicated without rows has none", emptied.rows.length);
+  check(
+    emptyChildren.length === 1 && emptyChildren[0].isTemplate && emptyChildren[0].title === template.title,
+    "…but keeps its row templates",
+    emptyChildren,
+  );
+  check(
+    emptied.properties.map((p) => p.name).join() === source.properties.map((p) => p.name).join() &&
+      emptied.views.map((v) => `${v.type}:${v.name}`).join() === source.views.map((v) => `${v.type}:${v.name}`).join(),
+    "…and its properties and views",
+    emptied.views.map((v) => v.name),
+  );
+  const emptiedTimeline = emptied.views.find((v) => v.type === "timeline" && v.name === "Plan")!;
+  check(
+    emptiedTimeline.config.endDateBy === emptied.properties.find((p) => p.name === "Ends")!.id,
+    "…whose views point at the copied properties",
+    emptiedTimeline.config,
+  );
+  check((await getDatabaseSnapshot(ids.owner, tasks.id)).rows.length === source.rows.length, "the original keeps its rows");
+  const overMcp = await callTool(ids.owner, "duplicate_page", { page_id: tasks.id, title: "Blank tasks", without_rows: true });
+  check(
+    !overMcp.isError && (await childrenOf(overMcp.data.id)).every((c) => c.isTemplate),
+    "MCP duplicates a database without its rows",
+    overMcp.text,
+  );
+
   // Deleting the end property turns bars back into one-day bars
   await deleteProperty(ids.owner, ends.id);
   const afterDelete = (await getDatabaseSnapshot(ids.owner, tasks.id)).views.find((v) => v.id === timeline.id)!.config;
@@ -300,6 +339,28 @@ try {
   check(roadmap?.type === "timeline" && roadmap.show_table === false, "get_database describes timeline settings", roadmap);
   const galleryDescribed = described.data.views.find((v: { id: string }) => v.id === cards.data.id);
   check(galleryDescribed?.open_rows === "page" && !("open_rows" in roadmap), "get_database tells which views open rows as pages", galleryDescribed);
+  const workweek = await callTool(ids.owner, "create_database_view", {
+    database_id: tasks.id,
+    name: "Work week",
+    type: "calendar",
+    show_weekends: false,
+    show_icons: false,
+  });
+  check(
+    !workweek.isError && workweek.data.show_weekends === false && workweek.data.show_icons === false,
+    "MCP creates a calendar without weekends and page icons",
+    workweek.text,
+  );
+  const storedWeek = (await getDatabaseSnapshot(ids.owner, tasks.id)).views.find((v) => v.id === workweek.data.id)!.config;
+  check(storedWeek.showWeekends === false && storedWeek.showIcons === false, "…stored as the view's settings", storedWeek);
+  const weekendsOnGallery = await callTool(ids.owner, "update_database_view", { database_id: tasks.id, view_id: cards.data.id, show_weekends: false });
+  check(weekendsOnGallery.isError && /only applies to calendar/.test(weekendsOnGallery.text), "MCP refuses weekends on a gallery", weekendsOnGallery.text);
+  const iconsBack = await callTool(ids.owner, "update_database_view", { database_id: tasks.id, view_id: workweek.data.id, show_icons: true, show_weekends: true });
+  check(
+    !iconsBack.isError && !("show_icons" in iconsBack.data) && !("show_weekends" in iconsBack.data),
+    "MCP shows weekends and icons again, back to the defaults",
+    iconsBack.text,
+  );
 
   // A published database shows the columns its first view shows, whatever the view's type
   const published = await createPage(actor, { workspaceId, kind: "database", title: "Public list" });
@@ -316,6 +377,20 @@ try {
     "a published list shows only the properties the list shows",
     publicColumns,
   );
+
+  // A published view without page icons sends none
+  const withIcon = await createPage(actor, { workspaceId, parentId: published.id, title: "Starred" });
+  await db.update(page).set({ icon: "⭐" }).where(eq(page.id, withIcon.id));
+  const iconOf = async () => (await getPublishedPage(token))?.database;
+  check((await iconOf())?.rows.find((r) => r.id === withIcon.id)?.icon === "⭐", "a published view shows its rows' icons");
+  await updateView(ids.owner, compact.id, { config: { shown: [when.id], showIcons: false } });
+  const iconless = await iconOf();
+  check(
+    iconless?.noIcons === true && iconless.rows.find((r) => r.id === withIcon.id)?.icon === null,
+    "a published view without page icons leaves them out",
+    iconless?.rows,
+  );
+  await updateView(ids.owner, compact.id, { config: { shown: [when.id] } });
 
   // Moving view tabs
   const tabs = async (id: string) => (await getDatabaseSnapshot(ids.owner, id)).views.map((v) => v.name);

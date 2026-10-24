@@ -45,6 +45,7 @@ export function GalleryView({
   const t = useTranslations("database");
   const { editTitleOf, typed, create: createNew, stopEditing, quick } = useNewRow(api, view, properties);
   const size = view.config.cardSize ?? "medium";
+  const showIcons = view.config.showIcons !== false;
   // Covers come from each row's body (first_image) or from a files property's first image.
   const source = galleryCover(view.config);
   const coverProp = coverProperty(view.config, properties);
@@ -77,6 +78,7 @@ export function GalleryView({
               key={row.id}
               workspaceId={workspaceId}
               row={row}
+              showIcon={showIcons}
               props={cardProps}
               color={colors?.get(row.id)}
               coverUrl={withCover ? coverOf(row) : null}
@@ -111,6 +113,7 @@ export function GalleryView({
 const GalleryCard = memo(function GalleryCard({
   workspaceId,
   row,
+  showIcon,
   props,
   color,
   coverUrl,
@@ -123,6 +126,8 @@ const GalleryCard = memo(function GalleryCard({
 }: {
   workspaceId: string;
   row: Row;
+  /** The view shows rows' page icons (see ViewConfig showIcons). */
+  showIcon: boolean;
   props: Property[];
   /** What color rules color on the card: the card, its name or values. */
   color?: RowColors;
@@ -174,6 +179,7 @@ const GalleryCard = memo(function GalleryCard({
               className="h-full w-full object-cover"
             />
           ) : (
+            showIcon &&
             row.icon && (
               <div className="flex h-full items-center justify-center">
                 <PageIcon icon={row.icon} className="text-4xl" />
@@ -187,7 +193,7 @@ const GalleryCard = memo(function GalleryCard({
           <CardTitleInput initial={typed || row.title} onDone={(title) => onTitle(row, title)} />
         ) : (
           <div className="flex min-w-0 gap-1.5 pe-6 text-sm leading-5 font-medium">
-            {row.icon && (!coverClass || cover) && <span className="shrink-0">{row.icon}</span>}
+            {showIcon && row.icon && (!coverClass || cover) && <span className="shrink-0">{row.icon}</span>}
             <span className={cn("min-w-0 break-words", !row.title && "text-fg-faint", cellMarkClass(color, "title"))}>
               {pageLabel(row.title, tc("untitled"))}
             </span>

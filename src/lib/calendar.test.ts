@@ -1,5 +1,16 @@
 import { describe, expect, it } from "vitest";
-import { calendarEvent, dayBlocks, eventsOn, isAllDay, monthWeeks, weekBars, weekDays, type CalendarEvent } from "./calendar";
+import {
+  calendarEvent,
+  dayBlocks,
+  eventsOffGrid,
+  eventsOn,
+  isAllDay,
+  isWeekend,
+  monthWeeks,
+  weekBars,
+  weekDays,
+  type CalendarEvent,
+} from "./calendar";
 import { moveDateStart } from "./date-value";
 import { dayNumber, dayString } from "./time-zone";
 
@@ -83,6 +94,47 @@ describe("weekBars", () => {
       ["timed-late", 2],
     ]);
     expect(eventsOn(events, d("2026-10-13")).map((e) => e.id)).toEqual(["day", "timed-early", "timed-late"]);
+  });
+});
+
+describe("weeks without weekends", () => {
+  const workdays = (day: number) => !isWeekend(day);
+
+  it("knows Saturdays and Sundays", () => {
+    expect(["2026-10-23", "2026-10-24", "2026-10-25", "2026-10-26"].map((day) => isWeekend(d(day)))).toEqual([false, true, true, false]);
+  });
+
+  it("gives bars columns of the shown days and cuts them where days are left out", () => {
+    // Weeks from Monday: Saturday and Sunday are the last two columns.
+    const monday = d("2026-10-12");
+    const events = [event("friday", "2026-10-16"), event("into-sunday", "2026-10-15/2026-10-18"), event("sunday", "2026-10-18")];
+    const { bars } = weekBars(events, monday, workdays);
+    const byId = Object.fromEntries(bars.map((b) => [b.event.id, b]));
+    expect(byId["into-sunday"]).toMatchObject({ col: 3, span: 2, before: false, after: true });
+    expect(byId.friday).toMatchObject({ col: 4, span: 1 });
+    expect(byId.sunday).toBeUndefined();
+  });
+
+  it("starts a week from Sunday on Monday's column", () => {
+    const sunday = d("2026-10-11");
+    const events = [event("weekend-start", "2026-10-11/2026-10-13"), event("saturday", "2026-10-17")];
+    const { bars, lanes } = weekBars(events, sunday, workdays);
+    expect(bars).toHaveLength(1);
+    expect(bars[0]).toMatchObject({ col: 0, span: 2, before: true, after: false });
+    expect(lanes).toBe(1);
+  });
+
+  it("lists the events on none of the shown days", () => {
+    const events = [
+      event("saturday", "2026-10-17"),
+      event("weekend", "2026-10-17/2026-10-18"),
+      event("into-monday", "2026-10-18/2026-10-19"),
+      event("timed-sunday", "2026-10-18T10:00:00.000Z"),
+      event("other-month", "2026-11-07"),
+    ];
+    const off = eventsOffGrid(events, d("2026-09-28"), d("2026-11-01"), workdays);
+    expect(off.map((e) => e.id)).toEqual(["saturday", "weekend", "timed-sunday"]);
+    expect(eventsOffGrid(events, d("2026-09-28"), d("2026-11-01"), () => true)).toEqual([]);
   });
 });
 

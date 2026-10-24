@@ -180,6 +180,23 @@ describe("evaluation", () => {
     expect(value('toNumber("1,5") + toNumber(true)')).toBe(2.5);
   });
 
+  it("averages numbers and takes their median", () => {
+    const hours: Fields = { Hours: { type: "numbers", value: [7, 1, 4, 2] }, None: { type: "numbers", value: [] } };
+    expect(value('average(prop("Hours"))', hours)).toBe(3.5);
+    expect(value('mean(prop("Hours"))', hours)).toBe(3.5);
+    expect(value('median(prop("Hours"))', hours)).toBe(3);
+    expect(value("median(5, 1, 3)")).toBe(3);
+    expect(value("median(2)")).toBe(2);
+    expect(value("mean(1, 2) + median(10, 20)")).toBe(16.5);
+    // Empty values aren't numbers; nothing to take a middle or a mean of gives nothing.
+    expect(value('median(prop("Empty"), 4, 8)', fields)).toBe(6);
+    expect(value('median(prop("None"))', hours)).toBeNull();
+    expect(value('mean(prop("None"))', hours)).toBeNull();
+    expect(run("median(1)").type).toBe("number");
+    expect(error('median("a")')).toBe("argumentType");
+    expect(error("mean()")).toBe("argumentCount");
+  });
+
   it("counts missing values, blank text and zero as empty", () => {
     expect(value('empty(prop("Empty"))', fields)).toBe(true);
     expect(value('empty(prop("Blank"))', fields)).toBe(true);

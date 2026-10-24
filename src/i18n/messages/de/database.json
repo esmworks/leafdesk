@@ -166,6 +166,10 @@
   },
   "activeRules": {
     "clear": "Zurücksetzen",
+    "personal": "Nur für dich",
+    "personalTitle": "Diese Filter und Sortierungen werden nicht in der Ansicht gespeichert: Niemand sonst sieht sie, und sie verschwinden, wenn du die Seite verlässt.",
+    "reset": "Zurücksetzen",
+    "resetTitle": "Zu den Filtern und Sortierungen der Ansicht zurückkehren",
     "unknownProperty": "Unbekannt",
     "unknownFilter": "Unbekannter Filter",
     "filterWithValue": "{property} {operator} {value}",
@@ -700,6 +704,8 @@
     "addOnDay": "Zeile am {date} hinzufügen",
     "noDate": "{count, plural, one {# Zeile} other {# Zeilen}} ohne {property}",
     "noDateTitle": "Zeilen ohne {property}",
+    "weekendRows": "{count, plural, one {# Zeile} other {# Zeilen}} am Wochenende",
+    "weekendRowsTitle": "Zeilen an Samstagen und Sonntagen",
     "dayRows": "{date}: {count, plural, =0 {keine Zeilen} one {# Zeile} other {# Zeilen}}",
     "emptyDay": "An diesem Tag gibt es keine Zeilen.",
     "month": "Monat",
@@ -749,6 +755,8 @@
     "groupBy": "Gruppieren nach",
     "noGrouping": "Keine",
     "showTable": "Tabelle anzeigen",
+    "showWeekends": "Wochenenden anzeigen",
+    "showIcons": "Seitensymbole anzeigen",
     "openRows": "Zeilen öffnen",
     "openRowsIn": {
       "panel": "Im Seitenbereich",

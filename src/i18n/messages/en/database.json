@@ -166,6 +166,10 @@
   },
   "activeRules": {
     "clear": "Clear",
+    "personal": "Only for you",
+    "personalTitle": "These filters and sorts aren't saved to the view: no one else sees them, and they go when you leave the page.",
+    "reset": "Reset",
+    "resetTitle": "Go back to the view's own filters and sorts",
     "unknownProperty": "Unknown",
     "unknownFilter": "Unknown filter",
     "filterWithValue": "{property} {operator} {value}",
@@ -700,6 +704,8 @@
     "addOnDay": "Add a row on {date}",
     "noDate": "{count, plural, one {# row} other {# rows}} without {property}",
     "noDateTitle": "Rows without {property}",
+    "weekendRows": "{count, plural, one {# row} other {# rows}} on weekends",
+    "weekendRowsTitle": "Rows on Saturdays and Sundays",
     "dayRows": "{date}: {count, plural, =0 {no rows} one {# row} other {# rows}}",
     "emptyDay": "No rows on this day.",
     "month": "Month",
@@ -749,6 +755,8 @@
     "groupBy": "Group by",
     "noGrouping": "None",
     "showTable": "Show table",
+    "showWeekends": "Show weekends",
+    "showIcons": "Show page icons",
     "openRows": "Open rows in",
     "openRowsIn": {
       "panel": "Side panel",

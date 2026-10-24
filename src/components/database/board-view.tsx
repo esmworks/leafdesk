@@ -66,6 +66,7 @@ export function BoardView({
   const t = useTranslations("database");
   const { viewerId } = usePeople();
   const groupBy = boardGroupProperty(properties, view.config.groupBy);
+  const showIcons = view.config.showIcons !== false;
   const groupContext = useGroupContext(groupBy);
   const groupName = useGroupName(groupBy ?? { name: "" });
   const [dragId, setDragId] = useState<string | null>(null);
@@ -418,6 +419,7 @@ export function BoardView({
                         <Card
                           workspaceId={workspaceId}
                           row={row}
+                          showIcon={showIcons}
                           group={key}
                           props={cardProps}
                           color={colors?.get(row.id)}
@@ -770,6 +772,7 @@ function DropLine() {
 const Card = memo(function Card({
   workspaceId,
   row,
+  showIcon,
   group,
   props,
   color,
@@ -784,6 +787,8 @@ const Card = memo(function Card({
 }: {
   workspaceId: string;
   row: Row;
+  /** The view shows rows' page icons (see ViewConfig showIcons). */
+  showIcon: boolean;
   /** The column the card is in: a card with several values shows in several. */
   group: string;
   props: Property[];
@@ -825,7 +830,7 @@ const Card = memo(function Card({
         <CardTitleInput initial={typed || row.title} onDone={(title) => onTitle(row, title)} />
       ) : (
         <div className="flex gap-1.5 pe-6 text-sm leading-5 font-medium">
-          {row.icon && <span className="shrink-0">{row.icon}</span>}
+          {showIcon && row.icon && <span className="shrink-0">{row.icon}</span>}
           <span className={cn("min-w-0 break-words", !row.title && "text-fg-faint", cellMarkClass(color, "title"))}>
             {pageLabel(row.title, tc("untitled"))}
           </span>

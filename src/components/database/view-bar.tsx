@@ -14,9 +14,11 @@ import {
   ListFilter,
   Pencil,
   Plus,
+  RotateCcw,
   Rows3,
   Search,
   Trash2,
+  UserRound,
   X,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
@@ -417,6 +419,7 @@ export function ViewToolbar({
   onCreateGroupProperty,
   onCreateDateProperty,
   readOnly,
+  personal,
   locked,
   deleted,
 }: {
@@ -428,6 +431,11 @@ export function ViewToolbar({
   onCreateGroupProperty: () => void;
   onCreateDateProperty: () => void;
   readOnly?: boolean;
+  /**
+   * With `readOnly`: filters and sorts the viewer sets for themselves, kept by the page and never
+   * saved, so only Filter and Sort show.
+   */
+  personal?: boolean;
   /** The schema is locked: no creating properties from the group and calendar menus. */
   locked?: boolean;
   /** Set for people who may change the database's schema: the Properties menu lists deleted ones. */
@@ -475,7 +483,7 @@ export function ViewToolbar({
     onConfig({ ...config, propertyOrder: moveProperty(properties, moved, target, side) }),
   );
 
-  if (readOnly) return null;
+  if (readOnly && !personal) return null;
   return (
     <div className="flex shrink-0 items-center gap-0.5">
       <ToolbarButton
@@ -513,7 +521,7 @@ export function ViewToolbar({
         />
       </Floating>
 
-      {(view.type === "board" || view.type === "table") && (
+      {!readOnly && (view.type === "board" || view.type === "table") && (
         <>
           <ToolbarButton
             icon={<Rows3 className="h-4 w-4" />}
@@ -571,7 +579,7 @@ export function ViewToolbar({
         </>
       )}
 
-      {view.type === "calendar" && (
+      {!readOnly && view.type === "calendar" && (
         <>
           <ToolbarButton
             icon={<CalendarDays className="h-4 w-4" />}
@@ -615,13 +623,15 @@ export function ViewToolbar({
         </>
       )}
 
-      <ToolbarButton
-        icon={<EyeOff className="h-4 w-4" />}
-        label={t("toolbar.properties")}
-        count={hiddenCount || undefined}
-        buttonRef={propsMenu.ref}
-        onClick={propsMenu.toggle}
-      />
+      {!readOnly && (
+        <ToolbarButton
+          icon={<EyeOff className="h-4 w-4" />}
+          label={t("toolbar.properties")}
+          count={hiddenCount || undefined}
+          buttonRef={propsMenu.ref}
+          onClick={propsMenu.toggle}
+        />
+      )}
       <Floating open={propsMenu.open} anchor={propsMenu.el} onClose={closeProps} align="end">
         {showDeleted && deleted ? (
           <DeletedSchemaList kind="properties" {...deleted} onBack={() => setShowDeleted(false)} />
@@ -759,18 +769,21 @@ export function ActiveRulesBar({
   properties,
   onConfig,
   readOnly,
+  onReset,
 }: {
   view: View;
   properties: Property[];
   onConfig: (config: ViewConfig) => void;
   readOnly?: boolean;
+  /** Set while the rules are the viewer's own, not the view's: says so, and goes back to the view's. */
+  onReset?: () => void;
 }) {
   const t = useTranslations("database");
   const locale = useLocale();
   const describeFilter = useDescribeFilter();
   const filters = view.config.filters ?? [];
   const sorts = view.config.sorts ?? [];
-  if (!filters.length && !sorts.length) return null;
+  if (!filters.length && !sorts.length && !onReset) return null;
   const columns = columnsOf(properties, t("nameColumn"));
   const nameOf = (id: string) => columns.find((c) => c.id === id)?.name ?? t("activeRules.unknownProperty");
   const word = (combinator: FilterCombinator) => lowerFirst(t(`filter.${combinator}`), locale);
@@ -804,6 +817,12 @@ export function ActiveRulesBar({
           </span>
         </Fragment>
       ))}
+      {onReset && (
+        <span title={t("activeRules.personalTitle")} className="inline-flex h-6 items-center gap-1 px-1 text-fg-faint">
+          <UserRound className="h-3 w-3" />
+          {t("activeRules.personal")}
+        </span>
+      )}
       {!readOnly && (
         <button
           type="button"
@@ -812,6 +831,17 @@ export function ActiveRulesBar({
         >
           <X className="h-3 w-3" />
           {t("activeRules.clear")}
+        </button>
+      )}
+      {onReset && (
+        <button
+          type="button"
+          title={t("activeRules.resetTitle")}
+          onClick={onReset}
+          className="inline-flex h-6 items-center gap-1 rounded-md px-1.5 text-fg-muted hover:bg-bg-hover hover:text-fg"
+        >
+          <RotateCcw className="h-3 w-3" />
+          {t("activeRules.reset")}
         </button>
       )}
     </div>
