@@ -550,7 +550,9 @@
     "parentOptionToggle": "Tawarkan “{option}” saat “{parent}” adalah “{value}”",
     "sortOptionsAsc": "Urutkan A → Z",
     "sortOptionsDesc": "Urutkan Z → A",
-    "dragOption": "Seret untuk memindahkan {name}"
+    "dragOption": "Seret untuk memindahkan {name}",
+    "urlPreview": "Tampilkan sebagai pratinjau tautan",
+    "urlPreviewHint": "Halaman baris menampilkan ikon, judul, dan gambar halaman tertaut di bawah tautan."
   },
   "rowProperties": {
     "noProperties": "Tidak ada properti",

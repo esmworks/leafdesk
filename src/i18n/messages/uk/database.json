@@ -550,7 +550,9 @@
     "parentOptionToggle": "Пропонувати «{option}», коли «{parent}» — «{value}»",
     "sortOptionsAsc": "Сортувати А → Я",
     "sortOptionsDesc": "Сортувати Я → А",
-    "dragOption": "Перетягніть, щоб перемістити {name}"
+    "dragOption": "Перетягніть, щоб перемістити {name}",
+    "urlPreview": "Показувати як попередній перегляд посилання",
+    "urlPreviewHint": "Сторінки рядків показують під посиланням значок, заголовок і зображення пов’язаної сторінки."
   },
   "rowProperties": {
     "noProperties": "Немає властивостей",

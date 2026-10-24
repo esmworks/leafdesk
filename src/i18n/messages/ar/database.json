@@ -550,7 +550,9 @@
     "parentOptionToggle": "اعرض «{option}» عندما تكون «{parent}» «{value}»",
     "sortOptionsAsc": "فرز أ ← ي",
     "sortOptionsDesc": "فرز ي ← أ",
-    "dragOption": "اسحب لنقل {name}"
+    "dragOption": "اسحب لنقل {name}",
+    "urlPreview": "عرض كمعاينة للرابط",
+    "urlPreviewHint": "تعرض صفحات الصفوف أيقونة الصفحة المرتبطة وعنوانها وصورتها تحت الرابط."
   },
   "rowProperties": {
     "noProperties": "لا خصائص",

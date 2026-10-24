@@ -550,7 +550,9 @@
     "parentOptionToggle": "当“{parent}”为“{value}”时提供“{option}”",
     "sortOptionsAsc": "按 A → Z 排序",
     "sortOptionsDesc": "按 Z → A 排序",
-    "dragOption": "拖动以移动{name}"
+    "dragOption": "拖动以移动{name}",
+    "urlPreview": "显示为链接预览",
+    "urlPreviewHint": "行页面会在链接下方显示所链接页面的图标、标题和图片。"
   },
   "rowProperties": {
     "noProperties": "没有属性",

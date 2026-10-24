@@ -550,7 +550,9 @@
     "parentOptionToggle": "پیشنهاد «{option}» وقتی «{parent}» برابر «{value}» است",
     "sortOptionsAsc": "مرتب‌سازی الف ← ی",
     "sortOptionsDesc": "مرتب‌سازی ی ← الف",
-    "dragOption": "برای جابه‌جا کردن {name} بکشید"
+    "dragOption": "برای جابه‌جا کردن {name} بکشید",
+    "urlPreview": "نمایش به‌صورت پیش‌نمایش پیوند",
+    "urlPreviewHint": "صفحه‌های ردیف نماد، عنوان و تصویر صفحهٔ پیوندشده را زیر پیوند نشان می‌دهند."
   },
   "rowProperties": {
     "noProperties": "بدون ویژگی",

@@ -550,7 +550,9 @@
     "parentOptionToggle": "เสนอ “{option}” เมื่อ “{parent}” เป็น “{value}”",
     "sortOptionsAsc": "เรียง ก → ฮ",
     "sortOptionsDesc": "เรียง ฮ → ก",
-    "dragOption": "ลากเพื่อย้าย {name}"
+    "dragOption": "ลากเพื่อย้าย {name}",
+    "urlPreview": "แสดงเป็นตัวอย่างลิงก์",
+    "urlPreviewHint": "หน้าแถวจะแสดงไอคอน ชื่อ และรูปภาพของหน้าที่ลิงก์ไว้ใต้ลิงก์"
   },
   "rowProperties": {
     "noProperties": "ไม่มีคุณสมบัติ",

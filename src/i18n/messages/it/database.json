@@ -550,7 +550,9 @@
     "parentOptionToggle": "Offri “{option}” quando “{parent}” è “{value}”",
     "sortOptionsAsc": "Ordina A → Z",
     "sortOptionsDesc": "Ordina Z → A",
-    "dragOption": "Trascina per spostare {name}"
+    "dragOption": "Trascina per spostare {name}",
+    "urlPreview": "Mostra come anteprima del link",
+    "urlPreviewHint": "Le pagine delle righe mostrano icona, titolo e immagine della pagina collegata sotto il link."
   },
   "rowProperties": {
     "noProperties": "Nessuna proprietà",

@@ -550,7 +550,9 @@
     "parentOptionToggle": "Offer “{option}” when “{parent}” is “{value}”",
     "sortOptionsAsc": "Sort A → Z",
     "sortOptionsDesc": "Sort Z → A",
-    "dragOption": "Drag to move {name}"
+    "dragOption": "Drag to move {name}",
+    "urlPreview": "Show as link preview",
+    "urlPreviewHint": "Row pages show the linked page's icon, title and image under the link."
   },
   "rowProperties": {
     "noProperties": "No properties",

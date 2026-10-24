@@ -550,7 +550,9 @@
     "parentOptionToggle": "“{parent}” “{value}” olduğunda “{option}” sunulsun",
     "sortOptionsAsc": "A → Z sırala",
     "sortOptionsDesc": "Z → A sırala",
-    "dragOption": "{name} seçeneğini taşımak için sürükleyin"
+    "dragOption": "{name} seçeneğini taşımak için sürükleyin",
+    "urlPreview": "Bağlantı önizlemesi olarak göster",
+    "urlPreviewHint": "Satır sayfaları bağlantının altında bağlanan sayfanın simgesini, başlığını ve görselini gösterir."
   },
   "rowProperties": {
     "noProperties": "Özellik yok",

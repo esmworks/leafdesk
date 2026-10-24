@@ -550,7 +550,9 @@
     "parentOptionToggle": "Предлагать «{option}», когда «{parent}» — «{value}»",
     "sortOptionsAsc": "Сортировать А → Я",
     "sortOptionsDesc": "Сортировать Я → А",
-    "dragOption": "Перетащите, чтобы переместить {name}"
+    "dragOption": "Перетащите, чтобы переместить {name}",
+    "urlPreview": "Показывать как превью ссылки",
+    "urlPreviewHint": "На страницах строк под ссылкой видны значок, заголовок и изображение связанной страницы."
   },
   "rowProperties": {
     "noProperties": "Нет свойств",

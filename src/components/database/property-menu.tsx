@@ -24,6 +24,7 @@ import {
   Hash,
   ListFilter,
   Lock,
+  PanelTop,
   Pin,
   Percent,
   PinOff,
@@ -250,6 +251,8 @@ export type PropertyMenuActions = {
   setDateOptions?: (input: DateOptionsInput) => void;
   /** Unique IDs: saves the prefix they show with (null for none; see lib/unique-id). */
   setUniqueIdPrefix?: (prefix: string | null) => void;
+  /** URLs: whether row pages show a preview of the linked page (server/url-preview.ts). */
+  setUrlPreview?: (on: boolean) => void;
   /** Text properties, when AI is available: turns AI autofill on, changes it or (null) turns it off. */
   setAutofill?: (config: AiAutofillConfig | null) => void;
   /** Autofill properties: works the values of the view's rows out again. */
@@ -628,6 +631,18 @@ export function PropertyMenu({
         onClick={() => setPage("date-options")}
       >
         {t("dateOptions")}
+      </MenuItem>
+    ),
+    prop?.type === "url" && actions.setUrlPreview && (
+      <MenuItem
+        key="url-preview"
+        icon={icon(PanelTop)}
+        pressed={Boolean(prop.options.url?.preview)}
+        trailing={prop.options.url?.preview ? icon(Check) : undefined}
+        title={t("urlPreviewHint")}
+        onClick={run(() => actions.setUrlPreview?.(!prop.options.url?.preview))}
+      >
+        {t("urlPreview")}
       </MenuItem>
     ),
     isAutofillType(prop?.type) && prop?.options.ai && actions.updateAllAutofill && (

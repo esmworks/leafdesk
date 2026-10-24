@@ -550,7 +550,9 @@
     "parentOptionToggle": "Oferuj „{option}”, gdy „{parent}” to „{value}”",
     "sortOptionsAsc": "Sortuj A → Z",
     "sortOptionsDesc": "Sortuj Z → A",
-    "dragOption": "Przeciągnij, aby przenieść {name}"
+    "dragOption": "Przeciągnij, aby przenieść {name}",
+    "urlPreview": "Pokaż jako podgląd linku",
+    "urlPreviewHint": "Strony wierszy pokazują pod linkiem ikonę, tytuł i obraz podlinkowanej strony."
   },
   "rowProperties": {
     "noProperties": "Brak właściwości",

@@ -559,6 +559,14 @@ export function useDatabase(
         );
       },
 
+      /** Shows a preview of the linked page under a URL property's links on row pages, or stops. */
+      setUrlPreview(prop: Property, on: boolean) {
+        const { url: _old, ...rest } = prop.options;
+        return mutateSchema(patchProperty(prop.id, { options: on ? { ...rest, url: { preview: true } } : rest }), () =>
+          updatePropertyAction(prop.id, { urlPreview: on }),
+        );
+      },
+
       /** Saves a date property's display and reminder (see lib/date-options); the server checks it. */
       setDateOptions(prop: Property, input: DateOptionsInput) {
         const checked = checkDateOptions(input, prop.options.date, new Date());

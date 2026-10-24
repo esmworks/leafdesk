@@ -550,7 +550,9 @@
     "parentOptionToggle": "Ofrecer “{option}” cuando “{parent}” sea “{value}”",
     "sortOptionsAsc": "Ordenar A → Z",
     "sortOptionsDesc": "Ordenar Z → A",
-    "dragOption": "Arrastra para mover {name}"
+    "dragOption": "Arrastra para mover {name}",
+    "urlPreview": "Mostrar como vista previa del enlace",
+    "urlPreviewHint": "Las páginas de fila muestran el icono, el título y la imagen de la página enlazada bajo el enlace."
   },
   "rowProperties": {
     "noProperties": "Sin propiedades",

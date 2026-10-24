@@ -550,7 +550,9 @@
     "parentOptionToggle": "„{option}“ anbieten, wenn „{parent}“ „{value}“ ist",
     "sortOptionsAsc": "Sortieren A → Z",
     "sortOptionsDesc": "Sortieren Z → A",
-    "dragOption": "Ziehen, um {name} zu verschieben"
+    "dragOption": "Ziehen, um {name} zu verschieben",
+    "urlPreview": "Als Linkvorschau anzeigen",
+    "urlPreviewHint": "Zeilenseiten zeigen Symbol, Titel und Bild der verlinkten Seite unter dem Link."
   },
   "rowProperties": {
     "noProperties": "Keine Eigenschaften",

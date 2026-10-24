@@ -550,7 +550,9 @@
     "parentOptionToggle": "להציע את “{option}” כש“{parent}” הוא “{value}”",
     "sortOptionsAsc": "מיון א ← ת",
     "sortOptionsDesc": "מיון ת ← א",
-    "dragOption": "גררו כדי להזיז את {name}"
+    "dragOption": "גררו כדי להזיז את {name}",
+    "urlPreview": "הצגה כתצוגה מקדימה של הקישור",
+    "urlPreviewHint": "דפי שורה מציגים את הסמל, הכותרת והתמונה של הדף המקושר מתחת לקישור."
   },
   "rowProperties": {
     "noProperties": "אין מאפיינים",

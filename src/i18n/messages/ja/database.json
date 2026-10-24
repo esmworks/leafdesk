@@ -550,7 +550,9 @@
     "parentOptionToggle": "「{parent}」が「{value}」のとき「{option}」を表示",
     "sortOptionsAsc": "昇順に並べ替え (A → Z)",
     "sortOptionsDesc": "降順に並べ替え (Z → A)",
-    "dragOption": "ドラッグして{name}を移動"
+    "dragOption": "ドラッグして{name}を移動",
+    "urlPreview": "リンクプレビューとして表示",
+    "urlPreviewHint": "行ページのリンクの下に、リンク先ページのアイコン、タイトル、画像を表示します。"
   },
   "rowProperties": {
     "noProperties": "プロパティなし",

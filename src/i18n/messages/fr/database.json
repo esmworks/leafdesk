@@ -550,7 +550,9 @@
     "parentOptionToggle": "Proposer « {option} » quand « {parent} » vaut « {value} »",
     "sortOptionsAsc": "Trier de A à Z",
     "sortOptionsDesc": "Trier de Z à A",
-    "dragOption": "Faire glisser pour déplacer {name}"
+    "dragOption": "Faire glisser pour déplacer {name}",
+    "urlPreview": "Afficher en aperçu du lien",
+    "urlPreviewHint": "Les pages de ligne affichent l’icône, le titre et l’image de la page liée sous le lien."
   },
   "rowProperties": {
     "noProperties": "Aucune propriété",

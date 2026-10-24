@@ -550,7 +550,9 @@
     "parentOptionToggle": "Đưa ra “{option}” khi “{parent}” là “{value}”",
     "sortOptionsAsc": "Sắp xếp A → Z",
     "sortOptionsDesc": "Sắp xếp Z → A",
-    "dragOption": "Kéo để di chuyển {name}"
+    "dragOption": "Kéo để di chuyển {name}",
+    "urlPreview": "Hiển thị dưới dạng xem trước liên kết",
+    "urlPreviewHint": "Trang hàng hiển thị biểu tượng, tiêu đề và hình ảnh của trang được liên kết bên dưới liên kết."
   },
   "rowProperties": {
     "noProperties": "Không có thuộc tính",

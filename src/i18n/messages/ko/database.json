@@ -550,7 +550,9 @@
     "parentOptionToggle": "“{parent}”이(가) “{value}”일 때 “{option}” 표시",
     "sortOptionsAsc": "오름차순 정렬 (A → Z)",
     "sortOptionsDesc": "내림차순 정렬 (Z → A)",
-    "dragOption": "끌어서 {name} 이동"
+    "dragOption": "끌어서 {name} 이동",
+    "urlPreview": "링크 미리보기로 표시",
+    "urlPreviewHint": "행 페이지에서 링크 아래에 링크된 페이지의 아이콘, 제목, 이미지를 보여 줍니다."
   },
   "rowProperties": {
     "noProperties": "속성 없음",

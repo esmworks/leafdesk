@@ -139,7 +139,8 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
 - **Buttons**: the `/button` block, with a label, an emoji and a color from the option palette
   (light, dark and high contrast alike, on published pages and in print too), does a few things in order when
   someone clicks it: insert blocks written in Markdown below it or at the top or end of the page,
-  add a row to a database, change the rows of a database that filters match (up to 100), notify
+  add a row to a database (optionally from one of its row templates, or its default one; values the
+  step sets go over the template's), change the rows of a database that filters match (up to 100), notify
   people, send the page to a webhook (signed like automations' webhooks, when the workspace lets
   content leave it) and open a web address or a page. Texts take `{{today}}`, `{{now}}` and
   `{{me}}`, and values can be today or whoever clicked; a button can ask before it runs. It runs as
@@ -184,6 +185,9 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
     server, or coordinates; see Maps and places), person, one- or two-way relations to other databases, formulas, rollups over
     relations, and the read-only "created by", "created time", "last edited time" and
     "last edited by".
+  - A URL property can *Show as link preview*: row pages then show the linked page's icon, title
+    and image under the link, fetched on the server behind the same SSRF guard as bookmarks and
+    kept for a day.
   - An ID property numbers a database's rows 1, 2, 3… as they are made, with an optional prefix
     (`TASK-12`). Adding one numbers the rows already there in the order they were made, numbers
     are never given out twice, and search, quick find and relation pickers find a row by its ID.
@@ -327,7 +331,10 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   - Put a database inside any page, or show a view of an existing one there. A table block turns
     into a database from its block menu: its first row names the properties.
   - Lock a database to freeze its properties and views, and export its rows as CSV.
-  - Row templates with preset properties and content; pick one as the default for "New".
+  - Row templates with preset properties and content; pick one as the default for "New". A
+    template's person can be *Me* and its date *Today* or *Now*: filled in with whoever adds the
+    row and the day (in their time zone) or moment they add it, whether by hand, a button, an
+    automation, a repeating template (as the person who set the repeat), the API or MCP (in UTC).
   - *Duplicate without rows* (the database's page menu) copies a database's properties, views,
     row templates and its own page, as an empty database to fill anew. Relations, forms and access
     rules come along as with *Duplicate*; automations stay with the original either way.
@@ -344,7 +351,7 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   schedule comes round or another service POSTs to the automation's secret address, do up to 20
   steps: set properties, notify people with a message, send the row to a webhook signed with
   HMAC-SHA256, run an agent, move the row to the trash, send an HTTP request, find rows, create a
-  row or update the one that matches, wait, ask people for approval, or log. Steps go for each row an earlier step found
+  row (optionally from one of the database's row templates) or update the one that matches, wait, ask people for approval, or log. Steps go for each row an earlier step found
   and use the trigger's and earlier steps' values through `{{templates}}`. Changes can wait in a
   draft, be tried with a test run and be published as numbered versions, and a 30-day run history
   shows each step's input and output (see [Automations and webhooks](#automations-and-webhooks)).
@@ -2402,7 +2409,9 @@ like any other. Semantic search and the speech-to-text step of voice notes use t
 **Writing assistant.** Select text and choose *Ask AI* in the formatting toolbar, or type `/` and
 pick *Ask AI*, *Continue writing* or *Summarize page*. On a selection: improve writing, fix
 spelling and grammar, make shorter, translate (choose the language), or type your own
-instruction. The answer streams into a panel; *Replace selection* or *Insert below* adds it to the
+instruction. An instruction you use often can be saved with the bookmark next to *Send*: your saved
+prompts (up to 50 per workspace, yours alone; instructions for the whole team are skills) are listed
+under the actions to run, rename or delete. The answer streams into a panel; *Replace selection* or *Insert below* adds it to the
 page, *Try again* asks again and *Discard* (or Escape) drops it. *Stop* cancels the request. Before
 a suggestion is added, the page's current version is saved in its history ("Before AI assistant
 edit"), and the change is an ordinary edit everyone sees live, which Undo takes back. Only people
