@@ -1,14 +1,15 @@
 {
   "open": "İçe aktar",
   "title": "İçe aktar",
-  "description": "Markdown dosyalarından, ZIP dışa aktarımlarından ve Word belgelerinden sayfa, CSV dosyasından veya Excel çalışma kitabından satır ya da bir Trello, Asana veya Monday.com panosu getirin.",
+  "description": "Markdown dosyalarından, ZIP dışa aktarımlarından ve Word belgelerinden sayfa, CSV dosyasından veya Excel çalışma kitabından satır, bir Trello, Asana veya Monday.com panosu ya da eşitlenmeye devam eden Jira kayıtları getirin.",
   "tabs": {
     "pages": "Markdown ve ZIP",
     "docx": "Word",
     "csv": "CSV ve Excel",
     "trello": "Trello",
     "asana": "Asana",
-    "monday": "Monday.com"
+    "monday": "Monday.com",
+    "jira": "Jira"
   },
   "destination": "Nereye",
   "topLevel": "Çalışma alanının en üst düzeyi",
@@ -78,6 +79,62 @@
     "help": "Monday.com'da panonun menüsünden Panoyu Excel'e aktar'ı (isterseniz güncellemelerle birlikte) seçin, ardından indirilen dosyayı seçin. Pano, gruplara göre pano görünümü olan bir veritabanına dönüşür: sütunları, alt öğeleri ve güncellemeleri de gelir.",
     "choose": "Bir Monday.com dışa aktarımı seçin (.xlsx veya .csv)",
     "summary": "{name}: {groups, plural, one {# grup} other {# grup}}, {items, plural, one {# öğe} other {# öğe}}, {subitems, plural, one {# alt öğe} other {# alt öğe}}"
+  },
+  "jira": {
+    "help": "Bir Jira Cloud sitesini bağlayın, kayıtlarının güncel kalan bir veritabanını alın: her kayıt anahtarı, durumu, atananı, önceliği, türü, etiketleri, bitiş tarihi ve Jira'ya dönen bir bağlantısıyla bir satır olur. Değişiklikler tek yönde, Jira'dan Leafdesk'e gelir.",
+    "site": "Jira sitesi",
+    "sitePlaceholder": "your-team.atlassian.net",
+    "email": "E-posta adresi",
+    "token": "API anahtarı",
+    "tokenHelp": "Atlassian hesabınızda Security → API tokens altından bir tane oluşturun. Sunucuda mühürlü saklanır ve yalnızca kayıtları okumak için kullanılır.",
+    "tokenLink": "API anahtarı oluştur",
+    "connect": "Bağlan",
+    "connecting": "Bağlanıyor…",
+    "connected": "{name} olarak giriş yapıldı",
+    "change": "Değiştir",
+    "from": "Kayıtların kaynağı",
+    "project": "Bir proje",
+    "jql": "Bir JQL sorgusu",
+    "chooseProject": "Bir proje seçin",
+    "noProjects": "Bu hesap hiçbir proje göremiyor. Bunun yerine bir JQL sorgusu yazın.",
+    "jqlPlaceholder": "project = OPS AND resolution = Unresolved",
+    "every": "Eşitle",
+    "intervals": {
+      "m15": "15 dakikada bir",
+      "m60": "Saatte bir",
+      "m360": "6 saatte bir",
+      "m1440": "Günde bir",
+      "manual": "Yalnızca istendiğinde"
+    },
+    "submit": "İçe aktar ve eşitlemeyi sürdür",
+    "submitting": "İçe aktarılıyor…",
+    "names": {
+      "key": "Anahtar",
+      "status": "Durum",
+      "assignee": "Atanan",
+      "others": "{column} (diğerleri)",
+      "priority": "Öncelik",
+      "type": "Tür",
+      "labels": "Etiketler",
+      "due": "Bitiş tarihi",
+      "link": "Jira bağlantısı"
+    },
+    "errors": {
+      "unauthorized": "Jira e-posta adresini ve API anahtarını kabul etmedi.",
+      "forbidden": "Bu Jira hesabı orada arama yapamıyor.",
+      "notFound": "Bu adreste yanıt veren bir Jira Cloud sitesi yok ya da proje mevcut değil.",
+      "badQuery": "Jira sorguyu kabul etmedi.",
+      "badQueryDetail": "Jira sorguyu kabul etmedi: {detail}",
+      "tooManyIssues": "Sorgu {limit} kayıttan fazlasını buluyor. Daraltın.",
+      "unreachable": "Jira'ya ulaşılamadı. Eşitleme bir sonraki seferde yeniden dener.",
+      "runAsGone": "Eşitlemeyi kuran kişinin artık hesabı yok.",
+      "accessLost": "Eşitlemenin adına çalıştığı kişi artık bu veritabanını düzenleyemiyor.",
+      "keyGone": "Anahtar özelliği silindi ya da türü değişti, bu yüzden kayıtlar satırlarla eşleştirilemiyor.",
+      "failed": "Eşitleme başarısız oldu. Bir sonraki seferde yeniden dener.",
+      "invalidSite": "Bu, Leafdesk'in ulaşabileceği bir adres değil.",
+      "invalidInput": "E-posta adresini, API anahtarını ve neyin eşitleneceğini doldurun.",
+      "alreadyRunning": "Bir eşitleme sürüyor. Birazdan yeniden deneyin."
+    }
   },
   "board": {
     "links": "Hiçbir şey indirilmez: dışa aktarımdaki dosyalar ve bağlantılar bağlantı olarak kalır.",

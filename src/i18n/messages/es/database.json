@@ -1714,5 +1714,26 @@
     "delete": "Eliminar regla",
     "add": "Añadir regla",
     "firstMatchWins": "Si se cumplen varias reglas, la primera colorea la fila o el valor."
+  },
+  "jiraSync": {
+    "button": "Sincronizado desde Jira",
+    "buttonPaused": "Sincronización con Jira en pausa",
+    "title": "Sincronización con Jira",
+    "site": "Sitio",
+    "project": "Proyecto {key}",
+    "jql": "JQL",
+    "account": "Sesión iniciada como {email}",
+    "lastRun": "Última sincronización {when}, {count, plural, one {# incidencia} other {# incidencias}}",
+    "never": "Aún sin sincronizar",
+    "running": "Sincronizando…",
+    "paused": "En pausa",
+    "overwrite": "Jira es la fuente: las propiedades sincronizadas y los títulos de las filas se sobrescriben en cada sincronización, así que cámbialos en Jira. Las propiedades que agregues tú se quedan como están, y las filas cuya incidencia deja de coincidir no se tocan.",
+    "syncNow": "Sincronizar ahora",
+    "changeQuery": "Cambiar qué se sincroniza",
+    "changeSignIn": "Cambiar el inicio de sesión",
+    "save": "Guardar y sincronizar",
+    "stop": "Dejar de sincronizar",
+    "stopConfirm": "¿Dejar de sincronizar esta base de datos? Sus filas se quedan como están y el inicio de sesión se olvida.",
+    "viewOnly": "Solo las personas con acceso completo a la base de datos pueden cambiar la sincronización."
   }
 }

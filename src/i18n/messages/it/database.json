@@ -1714,5 +1714,26 @@
     "delete": "Elimina regola",
     "add": "Aggiungi regola",
     "firstMatchWins": "Se più regole corrispondono, la prima colora la riga o il valore."
+  },
+  "jiraSync": {
+    "button": "Sincronizzato da Jira",
+    "buttonPaused": "Sincronizzazione Jira in pausa",
+    "title": "Sincronizzazione Jira",
+    "site": "Sito",
+    "project": "Progetto {key}",
+    "jql": "JQL",
+    "account": "Accesso effettuato come {email}",
+    "lastRun": "Ultima sincronizzazione {when}, {count, plural, one {# ticket} other {# ticket}}",
+    "never": "Non ancora sincronizzato",
+    "running": "Sincronizzazione…",
+    "paused": "In pausa",
+    "overwrite": "La fonte è Jira: le proprietà sincronizzate e i titoli delle righe vengono sovrascritti a ogni sincronizzazione, quindi modificali in Jira. Le proprietà che aggiungi tu restano come sono, e le righe il cui ticket non corrisponde più non vengono toccate.",
+    "syncNow": "Sincronizza ora",
+    "changeQuery": "Cambia cosa sincronizzare",
+    "changeSignIn": "Cambia l'accesso",
+    "save": "Salva e sincronizza",
+    "stop": "Interrompi la sincronizzazione",
+    "stopConfirm": "Interrompere la sincronizzazione di questo database? Le sue righe restano come sono e l'accesso viene dimenticato.",
+    "viewOnly": "Solo chi ha accesso completo al database può modificare la sincronizzazione."
   }
 }

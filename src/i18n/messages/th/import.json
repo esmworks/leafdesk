@@ -1,14 +1,15 @@
 {
   "open": "นำเข้า",
   "title": "นำเข้า",
-  "description": "นำหน้าเข้ามาจากไฟล์ Markdown ไฟล์ส่งออก ZIP และเอกสาร Word นำแถวเข้ามาจากไฟล์ CSV หรือสมุดงาน Excel หรือนำบอร์ด Trello เข้ามา",
+  "description": "นำหน้าเข้ามาจากไฟล์ Markdown ไฟล์ส่งออก ZIP และเอกสาร Word นำแถวเข้ามาจากไฟล์ CSV หรือสมุดงาน Excel นำบอร์ด Trello, Asana หรือ Monday.com เข้ามา หรือนำ Issue ของ Jira เข้ามาโดยให้ซิงก์กันอยู่เสมอ",
   "tabs": {
     "pages": "Markdown และ ZIP",
     "docx": "Word",
     "csv": "CSV และ Excel",
     "trello": "Trello",
     "asana": "Asana",
-    "monday": "Monday.com"
+    "monday": "Monday.com",
+    "jira": "Jira"
   },
   "destination": "วางไว้ใต้",
   "topLevel": "ระดับบนสุดของพื้นที่ทำงาน",
@@ -78,6 +79,62 @@
     "help": "ใน Monday.com ให้เปิดเมนูของบอร์ดแล้วเลือก Export board to Excel (พร้อมอัปเดตหากต้องการ) จากนั้นเลือกไฟล์ที่ดาวน์โหลดมา บอร์ดจะกลายเป็นฐานข้อมูลที่มีมุมมองบอร์ดตามกลุ่ม คอลัมน์ รายการย่อย และอัปเดตจะถูกนำเข้ามาด้วย",
     "choose": "เลือกไฟล์ส่งออกจาก Monday.com (.xlsx หรือ .csv)",
     "summary": "{name}: {groups, plural, other {# กลุ่ม}} {items, plural, other {# รายการ}} {subitems, plural, other {# รายการย่อย}}"
+  },
+  "jira": {
+    "help": "เชื่อมต่อไซต์ Jira Cloud เพื่อให้ได้ฐานข้อมูลของ Issue ที่ตามทันกันอยู่เสมอ แต่ละ Issue จะเป็นแถวที่มีคีย์ สถานะ ผู้รับผิดชอบ ลำดับความสำคัญ ประเภท ป้ายกำกับ วันครบกำหนด และลิงก์กลับไปยัง Jira การเปลี่ยนแปลงไปทางเดียว จาก Jira มายัง Leafdesk",
+    "site": "ไซต์ Jira",
+    "sitePlaceholder": "your-team.atlassian.net",
+    "email": "ที่อยู่อีเมล",
+    "token": "โทเค็น API",
+    "tokenHelp": "สร้างโทเค็นได้ในบัญชี Atlassian ของคุณที่ Security → API tokens โทเค็นจะถูกเก็บแบบปิดผนึกไว้บนเซิร์ฟเวอร์และใช้เพื่ออ่าน Issue เท่านั้น",
+    "tokenLink": "สร้างโทเค็น API",
+    "connect": "เชื่อมต่อ",
+    "connecting": "กำลังเชื่อมต่อ…",
+    "connected": "ลงชื่อเข้าใช้ในชื่อ {name}",
+    "change": "เปลี่ยน",
+    "from": "Issue จาก",
+    "project": "โปรเจกต์",
+    "jql": "คิวรี JQL",
+    "chooseProject": "เลือกโปรเจกต์",
+    "noProjects": "บัญชีนี้มองไม่เห็นโปรเจกต์ใดเลย ให้เขียนคิวรี JQL แทน",
+    "jqlPlaceholder": "project = OPS AND resolution = Unresolved",
+    "every": "ซิงก์",
+    "intervals": {
+      "m15": "ทุก 15 นาที",
+      "m60": "ทุกชั่วโมง",
+      "m360": "ทุก 6 ชั่วโมง",
+      "m1440": "วันละครั้ง",
+      "manual": "เฉพาะเมื่อสั่ง"
+    },
+    "submit": "นำเข้าและซิงก์ต่อไป",
+    "submitting": "กำลังนำเข้า…",
+    "names": {
+      "key": "คีย์",
+      "status": "สถานะ",
+      "assignee": "ผู้รับผิดชอบ",
+      "others": "{column} (คนอื่น)",
+      "priority": "ลำดับความสำคัญ",
+      "type": "ประเภท",
+      "labels": "ป้ายกำกับ",
+      "due": "วันครบกำหนด",
+      "link": "ลิงก์ Jira"
+    },
+    "errors": {
+      "unauthorized": "Jira ปฏิเสธที่อยู่อีเมลและโทเค็น API",
+      "forbidden": "บัญชี Jira นี้ไม่มีสิทธิ์ค้นหาที่นั่น",
+      "notFound": "ไม่มีไซต์ Jira Cloud ตอบกลับที่ที่อยู่นี้ หรือไม่มีโปรเจกต์นี้อยู่",
+      "badQuery": "Jira ปฏิเสธคิวรี",
+      "badQueryDetail": "Jira ปฏิเสธคิวรี: {detail}",
+      "tooManyIssues": "คิวรีพบ Issue มากกว่า {limit} รายการ โปรดจำกัดให้แคบลง",
+      "unreachable": "ติดต่อ Jira ไม่ได้ การซิงก์จะลองอีกครั้งในรอบถัดไป",
+      "runAsGone": "ผู้ที่ตั้งค่าการซิงก์ไม่มีบัญชีแล้ว",
+      "accessLost": "ผู้ที่การซิงก์ทำงานในนามของเขาแก้ไขฐานข้อมูลนี้ไม่ได้แล้ว",
+      "keyGone": "คุณสมบัติคีย์ถูกลบหรือเปลี่ยนประเภทไปแล้ว จึงจับคู่ Issue กับแถวไม่ได้",
+      "failed": "การซิงก์ล้มเหลว จะลองอีกครั้งในรอบถัดไป",
+      "invalidSite": "Leafdesk เข้าถึงที่อยู่นี้ไม่ได้",
+      "invalidInput": "กรอกที่อยู่อีเมล โทเค็น API และสิ่งที่จะซิงก์",
+      "alreadyRunning": "กำลังซิงก์อยู่ ลองอีกครั้งในอีกสักครู่"
+    }
   },
   "board": {
     "links": "จะไม่มีการดาวน์โหลดสิ่งใด: ไฟล์และลิงก์ในไฟล์ส่งออกจะยังเป็นลิงก์",

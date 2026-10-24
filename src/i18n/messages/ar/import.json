@@ -1,14 +1,15 @@
 {
   "open": "استيراد",
   "title": "استيراد",
-  "description": "استورد صفحات من ملفات Markdown وملفات ZIP المصدَّرة ومستندات Word، أو صفوفًا من ملف CSV أو مصنّف Excel، أو لوحة من Trello أو Asana أو Monday.com.",
+  "description": "استورد صفحات من ملفات Markdown وملفات ZIP المصدَّرة ومستندات Word، أو صفوفًا من ملف CSV أو مصنّف Excel، أو لوحة من Trello أو Asana أو Monday.com، أو مهام Jira التي تبقى متزامنة.",
   "tabs": {
     "pages": "Markdown و ZIP",
     "docx": "Word",
     "csv": "CSV و Excel",
     "trello": "Trello",
     "asana": "Asana",
-    "monday": "Monday.com"
+    "monday": "Monday.com",
+    "jira": "Jira"
   },
   "destination": "الوضع تحت",
   "topLevel": "المستوى الأعلى من مساحة العمل",
@@ -78,6 +79,62 @@
     "help": "في Monday.com، افتح قائمة اللوحة واختر Export board to Excel (مع التحديثات إن أردتها)، ثم اختر الملف الذي نزل. تصبح اللوحة قاعدة بيانات بعرض لوحة حسب المجموعات: تنتقل معها أعمدتها وعناصرها الفرعية وتحديثاتها.",
     "choose": "اختر ملفًا مصدَّرًا من Monday.com (‎.xlsx أو ‎.csv)",
     "summary": "{name}: {groups, plural, zero {لا مجموعات} one {مجموعة واحدة} two {مجموعتان} few {# مجموعات} many {# مجموعة} other {# مجموعة}}، {items, plural, zero {لا عناصر} one {عنصر واحد} two {عنصران} few {# عناصر} many {# عنصرًا} other {# عنصر}}، {subitems, plural, zero {لا عناصر فرعية} one {عنصر فرعي واحد} two {عنصران فرعيان} few {# عناصر فرعية} many {# عنصرًا فرعيًا} other {# عنصر فرعي}}"
+  },
+  "jira": {
+    "help": "اربط موقع Jira Cloud لتحصل على قاعدة بيانات لمهامه تبقى مواكبة له: تصبح كل مهمة صفًا فيه مفتاحها وحالتها والمكلَّف بها وأولويتها ونوعها وتسمياتها وتاريخ استحقاقها ورابط إليها. تسير التغييرات في اتجاه واحد، من Jira إلى Leafdesk.",
+    "site": "موقع Jira",
+    "sitePlaceholder": "your-team.atlassian.net",
+    "email": "عنوان البريد الإلكتروني",
+    "token": "رمز API",
+    "tokenHelp": "أنشئ رمزًا في حسابك على Atlassian من Security → API tokens. يُحفظ مختومًا على الخادم ولا يُستخدم إلا لقراءة المهام.",
+    "tokenLink": "إنشاء رمز API",
+    "connect": "اتصال",
+    "connecting": "جارٍ الاتصال…",
+    "connected": "مسجّل الدخول باسم {name}",
+    "change": "تغيير",
+    "from": "المهام من",
+    "project": "مشروع",
+    "jql": "استعلام JQL",
+    "chooseProject": "اختر مشروعًا",
+    "noProjects": "لا يرى هذا الحساب أي مشروع. اكتب استعلام JQL بدلًا من ذلك.",
+    "jqlPlaceholder": "project = OPS AND resolution = Unresolved",
+    "every": "المزامنة",
+    "intervals": {
+      "m15": "كل 15 دقيقة",
+      "m60": "كل ساعة",
+      "m360": "كل 6 ساعات",
+      "m1440": "مرة يوميًا",
+      "manual": "عند الطلب فقط"
+    },
+    "submit": "استيراد مع إبقائها متزامنة",
+    "submitting": "جارٍ الاستيراد…",
+    "names": {
+      "key": "المفتاح",
+      "status": "الحالة",
+      "assignee": "المكلَّف",
+      "others": "{column} (آخرون)",
+      "priority": "الأولوية",
+      "type": "النوع",
+      "labels": "التسميات",
+      "due": "تاريخ الاستحقاق",
+      "link": "رابط Jira"
+    },
+    "errors": {
+      "unauthorized": "رفض Jira عنوان البريد الإلكتروني ورمز API.",
+      "forbidden": "لا يُسمح لحساب Jira هذا بالبحث هناك.",
+      "notFound": "لم يستجب أي موقع Jira Cloud على هذا العنوان، أو أن المشروع غير موجود.",
+      "badQuery": "رفض Jira الاستعلام.",
+      "badQueryDetail": "رفض Jira الاستعلام: {detail}",
+      "tooManyIssues": "يجد الاستعلام أكثر من {limit} مهمة. ضيّق نطاقه.",
+      "unreachable": "تعذّر الوصول إلى Jira. ستحاول المزامنة مجددًا في المرة القادمة.",
+      "runAsGone": "لم يعد للشخص الذي أعدّ المزامنة حساب.",
+      "accessLost": "لم يعد بإمكان الشخص الذي تعمل المزامنة باسمه تعديل قاعدة البيانات هذه.",
+      "keyGone": "حُذفت خاصية المفتاح أو تغيّر نوعها، لذا لا يمكن مطابقة المهام مع الصفوف.",
+      "failed": "فشلت المزامنة. ستحاول مجددًا في المرة القادمة.",
+      "invalidSite": "هذا ليس عنوانًا يستطيع Leafdesk الوصول إليه.",
+      "invalidInput": "املأ عنوان البريد الإلكتروني ورمز API وما تريد مزامنته.",
+      "alreadyRunning": "هناك مزامنة جارية. حاول مجددًا بعد قليل."
+    }
   },
   "board": {
     "links": "لا يُنزَّل شيء: تبقى الملفات والروابط في الملف المصدَّر روابط.",

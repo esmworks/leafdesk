@@ -1,14 +1,15 @@
 {
   "open": "Importieren",
   "title": "Importieren",
-  "description": "Importiere Seiten aus Markdown-Dateien, ZIP-Exporten und Word-Dokumenten, Zeilen aus einer CSV-Datei oder Excel-Arbeitsmappe oder ein Board aus Trello, Asana oder Monday.com.",
+  "description": "Importiere Seiten aus Markdown-Dateien, ZIP-Exporten und Word-Dokumenten, Zeilen aus einer CSV-Datei oder Excel-Arbeitsmappe, ein Board aus Trello, Asana oder Monday.com oder Jira-Vorgänge, die synchron bleiben.",
   "tabs": {
     "pages": "Markdown & ZIP",
     "docx": "Word",
     "csv": "CSV & Excel",
     "trello": "Trello",
     "asana": "Asana",
-    "monday": "Monday.com"
+    "monday": "Monday.com",
+    "jira": "Jira"
   },
   "destination": "Einfügen unter",
   "topLevel": "Oberste Ebene des Workspace",
@@ -78,6 +79,62 @@
     "help": "Öffne in Monday.com das Menü des Boards und wähle Board nach Excel exportieren (mit Updates, wenn du sie willst), dann die heruntergeladene Datei. Das Board wird eine Datenbank mit einer Board-Ansicht nach Gruppen: Spalten, Unterelemente und Updates kommen mit.",
     "choose": "Monday.com-Export wählen (.xlsx oder .csv)",
     "summary": "{name}: {groups, plural, one {# Gruppe} other {# Gruppen}}, {items, plural, one {# Element} other {# Elemente}}, {subitems, plural, one {# Unterelement} other {# Unterelemente}}"
+  },
+  "jira": {
+    "help": "Verbinde eine Jira-Cloud-Site und erhalte eine Datenbank ihrer Vorgänge, die auf dem gleichen Stand bleibt: Jeder Vorgang wird eine Zeile mit Schlüssel, Status, zuständiger Person, Priorität, Typ, Labels, Fälligkeitsdatum und einem Link zurück. Änderungen gehen nur in eine Richtung, von Jira zu Leafdesk.",
+    "site": "Jira-Site",
+    "sitePlaceholder": "your-team.atlassian.net",
+    "email": "E-Mail-Adresse",
+    "token": "API-Token",
+    "tokenHelp": "Erstelle eines in deinem Atlassian-Konto unter Security → API tokens. Es wird auf dem Server versiegelt aufbewahrt und nur zum Lesen von Vorgängen verwendet.",
+    "tokenLink": "API-Token erstellen",
+    "connect": "Verbinden",
+    "connecting": "Wird verbunden…",
+    "connected": "Angemeldet als {name}",
+    "change": "Ändern",
+    "from": "Vorgänge aus",
+    "project": "Einem Projekt",
+    "jql": "Einer JQL-Abfrage",
+    "chooseProject": "Projekt wählen",
+    "noProjects": "Dieses Konto sieht kein Projekt. Schreibe stattdessen eine JQL-Abfrage.",
+    "jqlPlaceholder": "project = OPS AND resolution = Unresolved",
+    "every": "Synchronisieren",
+    "intervals": {
+      "m15": "Alle 15 Minuten",
+      "m60": "Stündlich",
+      "m360": "Alle 6 Stunden",
+      "m1440": "Einmal täglich",
+      "manual": "Nur auf Anfrage"
+    },
+    "submit": "Importieren und synchron halten",
+    "submitting": "Wird importiert…",
+    "names": {
+      "key": "Schlüssel",
+      "status": "Status",
+      "assignee": "Zuständig",
+      "others": "{column} (weitere)",
+      "priority": "Priorität",
+      "type": "Typ",
+      "labels": "Labels",
+      "due": "Fälligkeitsdatum",
+      "link": "Jira-Link"
+    },
+    "errors": {
+      "unauthorized": "Jira hat die E-Mail-Adresse und das API-Token abgelehnt.",
+      "forbidden": "Dieses Jira-Konto darf dort nicht suchen.",
+      "notFound": "Unter dieser Adresse hat keine Jira-Cloud-Site geantwortet, oder das Projekt existiert nicht.",
+      "badQuery": "Jira hat die Abfrage abgelehnt.",
+      "badQueryDetail": "Jira hat die Abfrage abgelehnt: {detail}",
+      "tooManyIssues": "Die Abfrage findet mehr als {limit} Vorgänge. Grenze sie weiter ein.",
+      "unreachable": "Jira war nicht erreichbar. Die Synchronisierung versucht es beim nächsten Mal erneut.",
+      "runAsGone": "Die Person, die die Synchronisierung eingerichtet hat, hat kein Konto mehr.",
+      "accessLost": "Die Person, als die die Synchronisierung läuft, kann diese Datenbank nicht mehr bearbeiten.",
+      "keyGone": "Die Eigenschaft Schlüssel wurde gelöscht oder ihr Typ geändert, daher lassen sich Vorgänge keinen Zeilen mehr zuordnen.",
+      "failed": "Die Synchronisierung ist fehlgeschlagen. Sie versucht es beim nächsten Mal erneut.",
+      "invalidSite": "Diese Adresse kann Leafdesk nicht erreichen.",
+      "invalidInput": "Gib die E-Mail-Adresse, das API-Token und an, was synchronisiert werden soll.",
+      "alreadyRunning": "Eine Synchronisierung läuft gerade. Versuche es gleich noch einmal."
+    }
   },
   "board": {
     "links": "Nichts wird heruntergeladen: Dateien und Links im Export bleiben Links.",

@@ -219,6 +219,10 @@ jobs:
           GREENMAIL_SMTP_PORT: "3025"
           GREENMAIL_IMAP_PORT: "3143"
 
+      # Jira syncs against a stand-in Jira Cloud the script starts on 127.0.0.1.
+      - name: Jira sync end-to-end
+        run: pnpm tsx scripts/jira-sync-e2e.ts
+
       # The service worker in headless Chrome (preinstalled on the runner), against a stand-in server
       # the script starts on 127.0.0.1. Ubuntu 24.04's AppArmor keeps Chrome's sandbox from making
       # user namespaces unless that restriction is lifted.

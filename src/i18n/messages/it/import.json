@@ -1,14 +1,15 @@
 {
   "open": "Importa",
   "title": "Importa",
-  "description": "Porta dentro pagine da file Markdown, esportazioni ZIP e documenti Word, righe da un file CSV o da una cartella di lavoro Excel, oppure una bacheca Trello, Asana o Monday.com.",
+  "description": "Porta dentro pagine da file Markdown, esportazioni ZIP e documenti Word, righe da un file CSV o da una cartella di lavoro Excel, una bacheca Trello, Asana o Monday.com, oppure ticket Jira che restano sincronizzati.",
   "tabs": {
     "pages": "Markdown e ZIP",
     "docx": "Word",
     "csv": "CSV ed Excel",
     "trello": "Trello",
     "asana": "Asana",
-    "monday": "Monday.com"
+    "monday": "Monday.com",
+    "jira": "Jira"
   },
   "destination": "Inserisci in",
   "topLevel": "Livello principale dello spazio di lavoro",
@@ -78,6 +79,62 @@
     "help": "In Monday.com, apri il menu della bacheca e scegli Esporta bacheca in Excel (con gli aggiornamenti, se li vuoi), poi scegli il file scaricato. La bacheca diventa un database con una vista bacheca per gruppo: colonne, sottoelementi e aggiornamenti vengono importati.",
     "choose": "Scegli un'esportazione di Monday.com (.xlsx o .csv)",
     "summary": "{name}: {groups, plural, one {# gruppo} other {# gruppi}}, {items, plural, one {# elemento} other {# elementi}}, {subitems, plural, one {# sottoelemento} other {# sottoelementi}}"
+  },
+  "jira": {
+    "help": "Collega un sito Jira Cloud per avere un database dei suoi ticket che resta allineato: ogni ticket è una riga con chiave, stato, assegnatario, priorità, tipo, etichette, data di scadenza e un link di ritorno. Le modifiche vanno in un solo senso, da Jira a Leafdesk.",
+    "site": "Sito Jira",
+    "sitePlaceholder": "your-team.atlassian.net",
+    "email": "Indirizzo email",
+    "token": "Token API",
+    "tokenHelp": "Creane uno nel tuo account Atlassian, in Security → API tokens. Viene conservato sigillato sul server e usato solo per leggere i ticket.",
+    "tokenLink": "Crea un token API",
+    "connect": "Collega",
+    "connecting": "Collegamento in corso…",
+    "connected": "Accesso effettuato come {name}",
+    "change": "Cambia",
+    "from": "Ticket da",
+    "project": "Un progetto",
+    "jql": "Una query JQL",
+    "chooseProject": "Scegli un progetto",
+    "noProjects": "Questo account non vede nessun progetto. Scrivi invece una query JQL.",
+    "jqlPlaceholder": "project = OPS AND resolution = Unresolved",
+    "every": "Sincronizza",
+    "intervals": {
+      "m15": "Ogni 15 minuti",
+      "m60": "Ogni ora",
+      "m360": "Ogni 6 ore",
+      "m1440": "Una volta al giorno",
+      "manual": "Solo su richiesta"
+    },
+    "submit": "Importa e mantieni sincronizzato",
+    "submitting": "Importazione in corso…",
+    "names": {
+      "key": "Chiave",
+      "status": "Stato",
+      "assignee": "Assegnatario",
+      "others": "{column} (altri)",
+      "priority": "Priorità",
+      "type": "Tipo",
+      "labels": "Etichette",
+      "due": "Data di scadenza",
+      "link": "Link Jira"
+    },
+    "errors": {
+      "unauthorized": "Jira ha rifiutato l'indirizzo email e il token API.",
+      "forbidden": "Questo account Jira non può cercare lì.",
+      "notFound": "Nessun sito Jira Cloud ha risposto a questo indirizzo, oppure il progetto non esiste.",
+      "badQuery": "Jira ha rifiutato la query.",
+      "badQueryDetail": "Jira ha rifiutato la query: {detail}",
+      "tooManyIssues": "La query trova più di {limit} ticket. Restringila.",
+      "unreachable": "Impossibile raggiungere Jira. La sincronizzazione riproverà la prossima volta.",
+      "runAsGone": "La persona che ha impostato la sincronizzazione non ha più un account.",
+      "accessLost": "La persona per conto della quale gira la sincronizzazione non può più modificare questo database.",
+      "keyGone": "La proprietà Chiave è stata eliminata o ha cambiato tipo, quindi i ticket non possono essere abbinati alle righe.",
+      "failed": "La sincronizzazione non è riuscita. Riproverà la prossima volta.",
+      "invalidSite": "Leafdesk non può raggiungere questo indirizzo.",
+      "invalidInput": "Compila l'indirizzo email, il token API e cosa sincronizzare.",
+      "alreadyRunning": "È in corso una sincronizzazione. Riprova tra un momento."
+    }
   },
   "board": {
     "links": "Non viene scaricato nulla: file e link dell'esportazione restano link.",

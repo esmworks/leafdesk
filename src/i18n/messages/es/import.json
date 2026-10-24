@@ -1,14 +1,15 @@
 {
   "open": "Importar",
   "title": "Importar",
-  "description": "Trae páginas desde archivos Markdown, exportaciones ZIP y documentos de Word, filas desde un archivo CSV o un libro de Excel, o un tablero de Trello, Asana o Monday.com.",
+  "description": "Trae páginas desde archivos Markdown, exportaciones ZIP y documentos de Word, filas desde un archivo CSV o un libro de Excel, un tablero de Trello, Asana o Monday.com, o incidencias de Jira que se mantienen sincronizadas.",
   "tabs": {
     "pages": "Markdown y ZIP",
     "docx": "Word",
     "csv": "CSV y Excel",
     "trello": "Trello",
     "asana": "Asana",
-    "monday": "Monday.com"
+    "monday": "Monday.com",
+    "jira": "Jira"
   },
   "destination": "Colocar dentro de",
   "topLevel": "Nivel superior del espacio de trabajo",
@@ -78,6 +79,62 @@
     "help": "En Monday.com, abre el menú del tablero y elige Exportar tablero a Excel (con las actualizaciones, si las quieres); luego elige el archivo descargado. El tablero se convierte en una base de datos con una vista de tablero por grupo: se traen sus columnas, subelementos y actualizaciones.",
     "choose": "Elegir una exportación de Monday.com (.xlsx o .csv)",
     "summary": "{name}: {groups, plural, one {# grupo} other {# grupos}}, {items, plural, one {# elemento} other {# elementos}}, {subitems, plural, one {# subelemento} other {# subelementos}}"
+  },
+  "jira": {
+    "help": "Conecta un sitio de Jira Cloud para tener una base de datos de sus incidencias que se mantiene al día: cada incidencia es una fila con su clave, estado, responsable, prioridad, tipo, etiquetas, fecha de vencimiento y un enlace de vuelta. Los cambios van en un solo sentido, de Jira a Leafdesk.",
+    "site": "Sitio de Jira",
+    "sitePlaceholder": "your-team.atlassian.net",
+    "email": "Correo electrónico",
+    "token": "Token de API",
+    "tokenHelp": "Crea uno en tu cuenta de Atlassian, en Security → API tokens. Se guarda sellado en el servidor y solo se usa para leer incidencias.",
+    "tokenLink": "Crear un token de API",
+    "connect": "Conectar",
+    "connecting": "Conectando…",
+    "connected": "Sesión iniciada como {name}",
+    "change": "Cambiar",
+    "from": "Incidencias de",
+    "project": "Un proyecto",
+    "jql": "Una consulta JQL",
+    "chooseProject": "Elegir un proyecto",
+    "noProjects": "Esta cuenta no ve ningún proyecto. Escribe una consulta JQL en su lugar.",
+    "jqlPlaceholder": "project = OPS AND resolution = Unresolved",
+    "every": "Sincronizar",
+    "intervals": {
+      "m15": "Cada 15 minutos",
+      "m60": "Cada hora",
+      "m360": "Cada 6 horas",
+      "m1440": "Una vez al día",
+      "manual": "Solo cuando se pida"
+    },
+    "submit": "Importar y mantener sincronizado",
+    "submitting": "Importando…",
+    "names": {
+      "key": "Clave",
+      "status": "Estado",
+      "assignee": "Responsable",
+      "others": "{column} (otros)",
+      "priority": "Prioridad",
+      "type": "Tipo",
+      "labels": "Etiquetas",
+      "due": "Fecha de vencimiento",
+      "link": "Enlace de Jira"
+    },
+    "errors": {
+      "unauthorized": "Jira rechazó el correo electrónico y el token de API.",
+      "forbidden": "Esta cuenta de Jira no puede buscar ahí.",
+      "notFound": "Ningún sitio de Jira Cloud respondió en esta dirección, o el proyecto no existe.",
+      "badQuery": "Jira rechazó la consulta.",
+      "badQueryDetail": "Jira rechazó la consulta: {detail}",
+      "tooManyIssues": "La consulta encuentra más de {limit} incidencias. Acótala.",
+      "unreachable": "No se pudo contactar con Jira. La sincronización lo intentará de nuevo la próxima vez.",
+      "runAsGone": "La persona que configuró la sincronización ya no tiene cuenta.",
+      "accessLost": "La persona en cuyo nombre se ejecuta la sincronización ya no puede editar esta base de datos.",
+      "keyGone": "La propiedad Clave se eliminó o cambió de tipo, así que las incidencias no se pueden emparejar con las filas.",
+      "failed": "La sincronización falló. Lo intentará de nuevo la próxima vez.",
+      "invalidSite": "Esa no es una dirección a la que Leafdesk pueda llegar.",
+      "invalidInput": "Completa el correo electrónico, el token de API y qué sincronizar.",
+      "alreadyRunning": "Hay una sincronización en curso. Vuelve a intentarlo en un momento."
+    }
   },
   "board": {
     "links": "No se descarga nada: los archivos y enlaces de la exportación siguen siendo enlaces.",

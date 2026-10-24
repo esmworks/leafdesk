@@ -1,14 +1,15 @@
 {
   "open": "ייבוא",
   "title": "ייבוא",
-  "description": "ייבוא דפים מקובצי Markdown, מייצואי ZIP וממסמכי Word, שורות מקובץ CSV או מחוברת Excel, או לוח מ־Trello, מ־Asana או מ־Monday.com.",
+  "description": "ייבוא דפים מקובצי Markdown, מייצואי ZIP וממסמכי Word, שורות מקובץ CSV או מחוברת Excel, לוח מ־Trello, מ־Asana או מ־Monday.com, או משימות Jira שנשארות מסונכרנות.",
   "tabs": {
     "pages": "Markdown ו־ZIP",
     "docx": "Word",
     "csv": "CSV ו־Excel",
     "trello": "Trello",
     "asana": "Asana",
-    "monday": "Monday.com"
+    "monday": "Monday.com",
+    "jira": "Jira"
   },
   "destination": "מיקום",
   "topLevel": "הרמה העליונה של סביבת העבודה",
@@ -78,6 +79,62 @@
     "help": "ב־Monday.com, פתחו את תפריט הלוח ובחרו Export board to Excel (עם העדכונים, אם תרצו), ואז בחרו את הקובץ שהורד. הלוח הופך למסד נתונים עם תצוגת לוח לפי קבוצות: העמודות, תת־הפריטים והעדכונים עוברים איתו.",
     "choose": "בחירת ייצוא של Monday.com‏ (‎.xlsx או ‎.csv)",
     "summary": "{name}: {groups, plural, one {קבוצה אחת} two {שתי קבוצות} other {# קבוצות}}, {items, plural, one {פריט אחד} two {שני פריטים} other {# פריטים}}, {subitems, plural, one {תת־פריט אחד} two {שני תת־פריטים} other {# תת־פריטים}}"
+  },
+  "jira": {
+    "help": "חברו אתר Jira Cloud כדי לקבל מסד נתונים של המשימות שלו שמתעדכן איתו: כל משימה היא שורה עם המפתח, הסטטוס, האחראי, העדיפות, הסוג, התוויות, תאריך היעד וקישור חזרה. השינויים זורמים בכיוון אחד, מ־Jira אל Leafdesk.",
+    "site": "אתר Jira",
+    "sitePlaceholder": "your-team.atlassian.net",
+    "email": "כתובת אימייל",
+    "token": "אסימון API",
+    "tokenHelp": "צרו אסימון בחשבון Atlassian שלכם, תחת Security → API tokens. הוא נשמר חתום בשרת ומשמש רק לקריאת משימות.",
+    "tokenLink": "יצירת אסימון API",
+    "connect": "התחברות",
+    "connecting": "מתחבר…",
+    "connected": "מחובר בתור {name}",
+    "change": "שינוי",
+    "from": "משימות מתוך",
+    "project": "פרויקט",
+    "jql": "שאילתת JQL",
+    "chooseProject": "בחירת פרויקט",
+    "noProjects": "החשבון הזה לא רואה אף פרויקט. כתבו במקום זאת שאילתת JQL.",
+    "jqlPlaceholder": "project = OPS AND resolution = Unresolved",
+    "every": "סנכרון",
+    "intervals": {
+      "m15": "כל 15 דקות",
+      "m60": "כל שעה",
+      "m360": "כל 6 שעות",
+      "m1440": "פעם ביום",
+      "manual": "רק לפי בקשה"
+    },
+    "submit": "ייבוא וסנכרון שוטף",
+    "submitting": "בייבוא…",
+    "names": {
+      "key": "מפתח",
+      "status": "סטטוס",
+      "assignee": "אחראי",
+      "others": "{column} (אחרים)",
+      "priority": "עדיפות",
+      "type": "סוג",
+      "labels": "תוויות",
+      "due": "תאריך יעד",
+      "link": "קישור ל־Jira"
+    },
+    "errors": {
+      "unauthorized": "Jira דחה את כתובת האימייל ואת אסימון ה־API.",
+      "forbidden": "לחשבון ה־Jira הזה אסור לחפש שם.",
+      "notFound": "אף אתר Jira Cloud לא ענה בכתובת הזו, או שהפרויקט לא קיים.",
+      "badQuery": "Jira דחה את השאילתה.",
+      "badQueryDetail": "Jira דחה את השאילתה: {detail}",
+      "tooManyIssues": "השאילתה מוצאת יותר מ־{limit} משימות. צמצמו אותה.",
+      "unreachable": "לא ניתן היה להגיע ל־Jira. הסנכרון ינסה שוב בפעם הבאה.",
+      "runAsGone": "לאדם שהגדיר את הסנכרון כבר אין חשבון.",
+      "accessLost": "האדם שהסנכרון פועל בשמו כבר לא יכול לערוך את מסד הנתונים הזה.",
+      "keyGone": "המאפיין מפתח נמחק או שסוגו השתנה, ולכן אי אפשר להתאים משימות לשורות.",
+      "failed": "הסנכרון נכשל. הוא ינסה שוב בפעם הבאה.",
+      "invalidSite": "זו לא כתובת ש־Leafdesk יכול להגיע אליה.",
+      "invalidInput": "מלאו את כתובת האימייל, את אסימון ה־API ואת מה שיש לסנכרן.",
+      "alreadyRunning": "סנכרון כבר פועל. נסו שוב בעוד רגע."
+    }
   },
   "board": {
     "links": "שום דבר לא מורד: קבצים וקישורים בייצוא נשארים קישורים.",

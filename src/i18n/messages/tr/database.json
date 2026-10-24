@@ -1714,5 +1714,26 @@
     "delete": "Kuralı sil",
     "add": "Kural ekle",
     "firstMatchWins": "Birden fazla kural uyduğunda satırı ya da değeri ilk kural renklendirir."
+  },
+  "jiraSync": {
+    "button": "Jira'dan eşitlenmiş",
+    "buttonPaused": "Jira eşitlemesi duraklatıldı",
+    "title": "Jira eşitlemesi",
+    "site": "Site",
+    "project": "{key} projesi",
+    "jql": "JQL",
+    "account": "{email} olarak giriş yapıldı",
+    "lastRun": "Son eşitleme {when}, {count, plural, one {# kayıt} other {# kayıt}}",
+    "never": "Henüz eşitlenmedi",
+    "running": "Eşitleniyor…",
+    "paused": "Duraklatıldı",
+    "overwrite": "Kaynak Jira'dır: eşitlenen özellikler ve satır başlıkları her eşitlemede üzerine yazılır, bu yüzden onları Jira'da değiştirin. Kendi eklediğiniz özellikler olduğu gibi kalır; kaydı artık eşleşmeyen satırlara dokunulmaz.",
+    "syncNow": "Şimdi eşitle",
+    "changeQuery": "Neyin eşitleneceğini değiştir",
+    "changeSignIn": "Girişi değiştir",
+    "save": "Kaydet ve eşitle",
+    "stop": "Eşitlemeyi durdur",
+    "stopConfirm": "Bu veritabanının eşitlemesi durdurulsun mu? Satırları olduğu gibi kalır ve giriş bilgileri unutulur.",
+    "viewOnly": "Eşitlemeyi yalnızca veritabanına tam erişimi olan kişiler değiştirebilir."
   }
 }

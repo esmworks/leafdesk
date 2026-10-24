@@ -191,6 +191,12 @@ export function jiraSiteUrl(value: unknown): string | null {
 
 export const isJiraInterval = (value: unknown): value is JiraInterval => JIRA_INTERVALS.includes(value as JiraInterval);
 
+/** An interval's text key (under `import.jira.intervals`). */
+export const jiraIntervalKey = (minutes: number) => (minutes === 0 ? "manual" : (`m${minutes}` as `m${Exclude<JiraInterval, 0>}`));
+
+/** Where people make an API token for their Atlassian account. */
+export const ATLASSIAN_TOKENS_URL = "https://id.atlassian.com/manage-profile/security/api-tokens";
+
 /** A status's stage from its Jira category ("new", "indeterminate", "done"). */
 export function statusGroupOf(category: unknown): StatusGroup {
   if (category === "done") return "done";

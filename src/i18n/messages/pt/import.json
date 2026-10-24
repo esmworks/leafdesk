@@ -1,14 +1,15 @@
 {
   "open": "Importar",
   "title": "Importar",
-  "description": "Traga páginas de arquivos Markdown, exportações ZIP e documentos do Word, linhas de um arquivo CSV ou pasta de trabalho do Excel, ou um quadro do Trello, Asana ou Monday.com.",
+  "description": "Traga páginas de arquivos Markdown, exportações ZIP e documentos do Word, linhas de um arquivo CSV ou pasta de trabalho do Excel, um quadro do Trello, Asana ou Monday.com, ou itens do Jira que continuam sincronizados.",
   "tabs": {
     "pages": "Markdown e ZIP",
     "docx": "Word",
     "csv": "CSV e Excel",
     "trello": "Trello",
     "asana": "Asana",
-    "monday": "Monday.com"
+    "monday": "Monday.com",
+    "jira": "Jira"
   },
   "destination": "Colocar em",
   "topLevel": "Nível superior do espaço de trabalho",
@@ -78,6 +79,62 @@
     "help": "No Monday.com, abra o menu do quadro e escolha Exportar quadro para Excel (com as atualizações, se quiser) e depois escolha o arquivo baixado. O quadro vira um banco de dados com uma visualização de quadro por grupo: colunas, subitens e atualizações vêm junto.",
     "choose": "Escolher uma exportação do Monday.com (.xlsx ou .csv)",
     "summary": "{name}: {groups, plural, one {# grupo} other {# grupos}}, {items, plural, one {# item} other {# itens}}, {subitems, plural, one {# subitem} other {# subitens}}"
+  },
+  "jira": {
+    "help": "Conecte um site do Jira Cloud para ter um banco de dados dos itens dele que acompanha as mudanças: cada item vira uma linha com chave, status, responsável, prioridade, tipo, etiquetas, data de entrega e um link de volta. As mudanças vão em um só sentido, do Jira para o Leafdesk.",
+    "site": "Site do Jira",
+    "sitePlaceholder": "your-team.atlassian.net",
+    "email": "Endereço de e-mail",
+    "token": "Token de API",
+    "tokenHelp": "Crie um na sua conta Atlassian, em Security → API tokens. Ele fica guardado selado no servidor e só é usado para ler itens.",
+    "tokenLink": "Criar um token de API",
+    "connect": "Conectar",
+    "connecting": "Conectando…",
+    "connected": "Conectado como {name}",
+    "change": "Alterar",
+    "from": "Itens de",
+    "project": "Um projeto",
+    "jql": "Uma consulta JQL",
+    "chooseProject": "Escolha um projeto",
+    "noProjects": "Esta conta não vê nenhum projeto. Escreva uma consulta JQL em vez disso.",
+    "jqlPlaceholder": "project = OPS AND resolution = Unresolved",
+    "every": "Sincronizar",
+    "intervals": {
+      "m15": "A cada 15 minutos",
+      "m60": "A cada hora",
+      "m360": "A cada 6 horas",
+      "m1440": "Uma vez por dia",
+      "manual": "Só quando pedido"
+    },
+    "submit": "Importar e manter sincronizado",
+    "submitting": "Importando…",
+    "names": {
+      "key": "Chave",
+      "status": "Status",
+      "assignee": "Responsável",
+      "others": "{column} (outros)",
+      "priority": "Prioridade",
+      "type": "Tipo",
+      "labels": "Etiquetas",
+      "due": "Data de entrega",
+      "link": "Link do Jira"
+    },
+    "errors": {
+      "unauthorized": "O Jira recusou o endereço de e-mail e o token de API.",
+      "forbidden": "Esta conta do Jira não pode pesquisar ali.",
+      "notFound": "Nenhum site do Jira Cloud respondeu neste endereço, ou o projeto não existe.",
+      "badQuery": "O Jira recusou a consulta.",
+      "badQueryDetail": "O Jira recusou a consulta: {detail}",
+      "tooManyIssues": "A consulta encontra mais de {limit} itens. Restrinja-a.",
+      "unreachable": "Não foi possível acessar o Jira. A sincronização tenta de novo da próxima vez.",
+      "runAsGone": "A pessoa que configurou a sincronização não tem mais conta.",
+      "accessLost": "A pessoa em nome de quem a sincronização roda não pode mais editar este banco de dados.",
+      "keyGone": "A propriedade Chave foi excluída ou mudou de tipo, então os itens não podem ser associados às linhas.",
+      "failed": "A sincronização falhou. Ela tenta de novo da próxima vez.",
+      "invalidSite": "Esse não é um endereço que o Leafdesk consegue acessar.",
+      "invalidInput": "Preencha o endereço de e-mail, o token de API e o que sincronizar.",
+      "alreadyRunning": "Uma sincronização está em andamento. Tente de novo em instantes."
+    }
   },
   "board": {
     "links": "Nada é baixado: arquivos e links da exportação continuam sendo links.",

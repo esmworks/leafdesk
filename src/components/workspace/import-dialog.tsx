@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { importTargetAction, type ImportTarget } from "@/app/actions/import";
+import { createJiraSyncAction } from "@/app/actions/jira-sync";
 import { usePropertyTypeLabel } from "@/components/database/property-icons";
 import { Button, cn, Dialog, IconButton, Input, pageLabel } from "@/components/ui";
 import { formatBytes } from "@/lib/files";
@@ -27,6 +28,7 @@ import { ImportError, type ImportResult, type ImportWarning } from "@/lib/import
 import { parseTrelloExport, readTrelloBoard, type TrelloBoard } from "@/lib/import/trello";
 import { isWorkbook, readWorkbook } from "@/lib/import/xlsx";
 import type { TreeNode } from "@/server/pages";
+import { JiraTab, type JiraSetup } from "./jira-import";
 
 const selectClass = "h-8 w-full rounded-md border border-border bg-bg px-2 text-sm outline-none focus:border-accent disabled:opacity-60";
 const labelClass = "mb-1 block text-xs font-medium text-fg-muted";
@@ -114,7 +116,7 @@ export function ImportDialog({
   const databases = flat.filter(({ node }) => node.kind === "database" && canEdit(node));
   const activeNode = tree.find((n) => n.id === activeId);
 
-  const [tab, setTab] = useState<"pages" | "docx" | "csv" | "trello" | BoardSource>("pages");
+  const [tab, setTab] = useState<"pages" | "docx" | "csv" | "trello" | BoardSource | "jira">("pages");
   const [destination, setDestination] = useState("");
   const [picked, setPicked] = useState<Picked[]>([]);
   // A folder that came with an Obsidian vault's settings folder (which isn't sent).
@@ -126,6 +128,8 @@ export function ImportDialog({
   // An Asana or Monday.com export, and what each of its columns becomes (null: left out).
   const [board, setBoard] = useState<ChosenBoard | null>(null);
   const [boardTypes, setBoardTypes] = useState<(BoardColumnType | null)[]>([]);
+  // The Jira tab's sync, once it is filled in.
+  const [jira, setJira] = useState<JiraSetup | null>(null);
   const [csvMode, setCsvMode] = useState<"new" | "existing">("new");
   const [name, setName] = useState("");
   const [titleColumn, setTitleColumn] = useState<number | null>(0);
@@ -158,6 +162,7 @@ export function ImportDialog({
     setCsv(null);
     setTrello(null);
     setBoard(null);
+    setJira(null);
     setCsvMode(activeEditable && activeNode.kind === "database" ? "existing" : "new");
     setDatabaseId(activeEditable && activeNode.kind === "database" ? activeNode.id : "");
     setError(null);
@@ -331,6 +336,7 @@ export function ImportDialog({
 
   async function submit() {
     setError(null);
+    if (tab === "jira") return submitJira();
     const form = new FormData();
     form.append("workspaceId", workspaceId);
     if (teamspaceId !== undefined) form.append("teamspaceId", teamspaceId ?? "private");
@@ -389,6 +395,26 @@ export function ImportDialog({
     }
   }
 
+  /** Sets a Jira sync up: a server action, as nothing is uploaded. */
+  async function submitJira() {
+    if (!jira) return;
+    setBusy(true);
+    try {
+      const response = await createJiraSyncAction({
+        ...jira,
+        workspaceId,
+        parentId: destination || null,
+        teamspaceId: teamspaceId === undefined ? undefined : (teamspaceId ?? "private"),
+      });
+      if (!response.ok) setError(response.error);
+      else setResult(response.data);
+    } catch {
+      setError(tc("genericError"));
+    } finally {
+      setBusy(false);
+    }
+  }
+
   function warningText(w: ImportWarning) {
     switch (w.code) {
       case "invalidValues":
@@ -416,7 +442,9 @@ export function ImportDialog({
           ? trello !== null && destinationValid
           : tab === "asana" || tab === "monday"
             ? board?.board.source === tab && destinationValid
-            : csv !== null &&
+            : tab === "jira"
+              ? jira !== null && destinationValid
+              : csv !== null &&
         (csvMode === "new"
           ? destinationValid && types.some((type, i) => type !== null || i === titleColumn)
           : target !== null && target !== "error" && mapping.some((m) => m !== null)));
@@ -482,7 +510,7 @@ export function ImportDialog({
       ) : (
         <div className="max-h-[70vh] space-y-4 overflow-y-auto p-4" aria-busy={busy}>
           <div role="tablist" aria-label={t("title")} className="inline-flex flex-wrap gap-0.5 rounded-lg bg-bg-hover p-0.5">
-            {(["pages", "docx", "csv", "trello", "asana", "monday"] as const).map((key) => (
+            {(["pages", "docx", "csv", "trello", "asana", "monday", "jira"] as const).map((key) => (
               <button
                 key={key}
                 type="button"
@@ -682,6 +710,8 @@ export function ImportDialog({
                 </div>
               )}
             </>
+          ) : tab === "jira" ? (
+            <JiraTab busy={busy} destinationPicker={destinationPicker} onSetup={setJira} />
           ) : tab === "asana" || tab === "monday" ? (
             <BoardTab
               source={tab}
@@ -891,7 +921,7 @@ export function ImportDialog({
               {tc("cancel")}
             </Button>
             <Button variant="primary" disabled={!ready} onClick={() => void submit()}>
-              {busy ? t("importing") : t("import")}
+              {tab === "jira" ? (busy ? t("jira.submitting") : t("jira.submit")) : busy ? t("importing") : t("import")}
             </Button>
           </div>
         </div>

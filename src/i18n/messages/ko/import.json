@@ -1,14 +1,15 @@
 {
   "open": "가져오기",
   "title": "가져오기",
-  "description": "Markdown 파일, ZIP 내보내기, Word 문서에서 페이지를, CSV 파일이나 Excel 통합 문서에서 행을, 또는 Trello, Asana, Monday.com 보드를 가져옵니다.",
+  "description": "Markdown 파일, ZIP 내보내기, Word 문서에서 페이지를, CSV 파일이나 Excel 통합 문서에서 행을, Trello, Asana, Monday.com 보드를, 또는 계속 동기화되는 Jira 이슈를 가져옵니다.",
   "tabs": {
     "pages": "Markdown 및 ZIP",
     "docx": "Word",
     "csv": "CSV 및 Excel",
     "trello": "Trello",
     "asana": "Asana",
-    "monday": "Monday.com"
+    "monday": "Monday.com",
+    "jira": "Jira"
   },
   "destination": "넣을 위치",
   "topLevel": "워크스페이스 최상위",
@@ -78,6 +79,62 @@
     "help": "Monday.com에서 보드 메뉴를 열고 보드를 Excel로 내보내기(원하면 업데이트 포함)를 선택한 다음 다운로드한 파일을 고르세요. 보드는 그룹별 보드 보기가 있는 데이터베이스가 되며, 열, 하위 아이템, 업데이트도 함께 가져옵니다.",
     "choose": "Monday.com 내보내기 선택(.xlsx 또는 .csv)",
     "summary": "{name}: 그룹 {groups}개, 아이템 {items}개, 하위 아이템 {subitems}개"
+  },
+  "jira": {
+    "help": "Jira Cloud 사이트를 연결하면 그 이슈가 계속 반영되는 데이터베이스가 생깁니다. 각 이슈는 키, 상태, 담당자, 우선순위, 유형, 레이블, 기한, Jira로 돌아가는 링크가 있는 행이 됩니다. 변경은 Jira에서 Leafdesk로 한 방향으로만 이루어집니다.",
+    "site": "Jira 사이트",
+    "sitePlaceholder": "your-team.atlassian.net",
+    "email": "이메일 주소",
+    "token": "API 토큰",
+    "tokenHelp": "Atlassian 계정의 Security → API tokens에서 만드세요. 서버에 봉인되어 보관되며 이슈를 읽는 데만 사용됩니다.",
+    "tokenLink": "API 토큰 만들기",
+    "connect": "연결",
+    "connecting": "연결 중…",
+    "connected": "{name}(으)로 로그인됨",
+    "change": "변경",
+    "from": "이슈 가져올 곳",
+    "project": "프로젝트",
+    "jql": "JQL 쿼리",
+    "chooseProject": "프로젝트 선택",
+    "noProjects": "이 계정에서 볼 수 있는 프로젝트가 없습니다. 대신 JQL 쿼리를 작성하세요.",
+    "jqlPlaceholder": "project = OPS AND resolution = Unresolved",
+    "every": "동기화",
+    "intervals": {
+      "m15": "15분마다",
+      "m60": "1시간마다",
+      "m360": "6시간마다",
+      "m1440": "하루에 한 번",
+      "manual": "요청할 때만"
+    },
+    "submit": "가져오고 계속 동기화",
+    "submitting": "가져오는 중…",
+    "names": {
+      "key": "키",
+      "status": "상태",
+      "assignee": "담당자",
+      "others": "{column}(기타)",
+      "priority": "우선순위",
+      "type": "유형",
+      "labels": "레이블",
+      "due": "기한",
+      "link": "Jira 링크"
+    },
+    "errors": {
+      "unauthorized": "Jira가 이메일 주소와 API 토큰을 거부했습니다.",
+      "forbidden": "이 Jira 계정은 그곳을 검색할 수 없습니다.",
+      "notFound": "이 주소에서 응답하는 Jira Cloud 사이트가 없거나 프로젝트가 존재하지 않습니다.",
+      "badQuery": "Jira가 쿼리를 거부했습니다.",
+      "badQueryDetail": "Jira가 쿼리를 거부했습니다: {detail}",
+      "tooManyIssues": "쿼리에서 이슈가 {limit}개 넘게 찾아집니다. 범위를 좁히세요.",
+      "unreachable": "Jira에 연결할 수 없습니다. 다음 번에 동기화를 다시 시도합니다.",
+      "runAsGone": "동기화를 설정한 사람의 계정이 더 이상 없습니다.",
+      "accessLost": "동기화를 실행하는 사람이 더 이상 이 데이터베이스를 편집할 수 없습니다.",
+      "keyGone": "키 속성이 삭제되었거나 유형이 바뀌어 이슈를 행과 짝지을 수 없습니다.",
+      "failed": "동기화에 실패했습니다. 다음 번에 다시 시도합니다.",
+      "invalidSite": "Leafdesk가 접근할 수 있는 주소가 아닙니다.",
+      "invalidInput": "이메일 주소, API 토큰, 동기화할 대상을 입력하세요.",
+      "alreadyRunning": "동기화가 진행 중입니다. 잠시 후 다시 시도하세요."
+    }
   },
   "board": {
     "links": "아무것도 다운로드하지 않습니다. 내보내기의 파일과 링크는 링크로 남습니다.",

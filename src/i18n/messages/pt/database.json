@@ -1714,5 +1714,26 @@
     "delete": "Excluir regra",
     "add": "Adicionar regra",
     "firstMatchWins": "Quando várias regras correspondem, a primeira colora a linha ou o valor."
+  },
+  "jiraSync": {
+    "button": "Sincronizado do Jira",
+    "buttonPaused": "Sincronização do Jira pausada",
+    "title": "Sincronização do Jira",
+    "site": "Site",
+    "project": "Projeto {key}",
+    "jql": "JQL",
+    "account": "Conectado como {email}",
+    "lastRun": "Última sincronização {when}, {count, plural, one {# item} other {# itens}}",
+    "never": "Ainda não sincronizado",
+    "running": "Sincronizando…",
+    "paused": "Pausado",
+    "overwrite": "O Jira é a fonte: as propriedades sincronizadas e os títulos das linhas são sobrescritos a cada sincronização, então altere-os no Jira. As propriedades que você mesmo adicionar ficam como estão, e as linhas cujo item deixar de corresponder não são mexidas.",
+    "syncNow": "Sincronizar agora",
+    "changeQuery": "Alterar o que é sincronizado",
+    "changeSignIn": "Alterar o login",
+    "save": "Salvar e sincronizar",
+    "stop": "Parar de sincronizar",
+    "stopConfirm": "Parar de sincronizar este banco de dados? As linhas dele ficam como estão, e o login é esquecido.",
+    "viewOnly": "Só pessoas com acesso total ao banco de dados podem alterar a sincronização."
   }
 }

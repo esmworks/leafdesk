@@ -1,14 +1,15 @@
 {
   "open": "Nhập",
   "title": "Nhập",
-  "description": "Đưa trang vào từ tệp Markdown, tệp xuất ZIP và tài liệu Word, đưa hàng vào từ tệp CSV hoặc sổ làm việc Excel, hoặc từ một bảng Trello.",
+  "description": "Đưa trang vào từ tệp Markdown, tệp xuất ZIP và tài liệu Word, đưa hàng vào từ tệp CSV hoặc sổ làm việc Excel, từ một bảng Trello, Asana hoặc Monday.com, hoặc đưa vào các issue Jira luôn được đồng bộ.",
   "tabs": {
     "pages": "Markdown & ZIP",
     "docx": "Word",
     "csv": "CSV & Excel",
     "trello": "Trello",
     "asana": "Asana",
-    "monday": "Monday.com"
+    "monday": "Monday.com",
+    "jira": "Jira"
   },
   "destination": "Đặt dưới",
   "topLevel": "Cấp cao nhất của không gian làm việc",
@@ -78,6 +79,62 @@
     "help": "Trong Monday.com, hãy mở menu của bảng và chọn Xuất bảng sang Excel (kèm các cập nhật nếu bạn muốn), rồi chọn tệp đã tải về. Bảng sẽ trở thành một cơ sở dữ liệu với chế độ xem bảng Kanban theo nhóm: các cột, mục con và cập nhật của nó đều được nhập kèm.",
     "choose": "Chọn một tệp xuất từ Monday.com (.xlsx hoặc .csv)",
     "summary": "{name}: {groups, plural, other {# nhóm}}, {items, plural, other {# mục}}, {subitems, plural, other {# mục con}}"
+  },
+  "jira": {
+    "help": "Kết nối một trang Jira Cloud để có một cơ sở dữ liệu các issue của nó luôn bắt kịp thay đổi: mỗi issue là một hàng với khóa, trạng thái, người được giao, mức ưu tiên, loại, nhãn, ngày đến hạn và một liên kết quay lại. Thay đổi chỉ đi một chiều, từ Jira sang Leafdesk.",
+    "site": "Trang Jira",
+    "sitePlaceholder": "your-team.atlassian.net",
+    "email": "Địa chỉ email",
+    "token": "Token API",
+    "tokenHelp": "Tạo một token trong tài khoản Atlassian của bạn, tại Security → API tokens. Token được niêm phong trên máy chủ và chỉ dùng để đọc issue.",
+    "tokenLink": "Tạo token API",
+    "connect": "Kết nối",
+    "connecting": "Đang kết nối…",
+    "connected": "Đã đăng nhập với tư cách {name}",
+    "change": "Thay đổi",
+    "from": "Lấy issue từ",
+    "project": "Một dự án",
+    "jql": "Một truy vấn JQL",
+    "chooseProject": "Chọn một dự án",
+    "noProjects": "Tài khoản này không thấy dự án nào. Hãy viết một truy vấn JQL thay thế.",
+    "jqlPlaceholder": "project = OPS AND resolution = Unresolved",
+    "every": "Đồng bộ",
+    "intervals": {
+      "m15": "Mỗi 15 phút",
+      "m60": "Mỗi giờ",
+      "m360": "Mỗi 6 giờ",
+      "m1440": "Mỗi ngày một lần",
+      "manual": "Chỉ khi được yêu cầu"
+    },
+    "submit": "Nhập và giữ đồng bộ",
+    "submitting": "Đang nhập…",
+    "names": {
+      "key": "Khóa",
+      "status": "Trạng thái",
+      "assignee": "Người được giao",
+      "others": "{column} (khác)",
+      "priority": "Ưu tiên",
+      "type": "Loại",
+      "labels": "Nhãn",
+      "due": "Ngày đến hạn",
+      "link": "Liên kết Jira"
+    },
+    "errors": {
+      "unauthorized": "Jira đã từ chối địa chỉ email và token API.",
+      "forbidden": "Tài khoản Jira này không được phép tìm kiếm ở đó.",
+      "notFound": "Không có trang Jira Cloud nào phản hồi tại địa chỉ này, hoặc dự án không tồn tại.",
+      "badQuery": "Jira đã từ chối truy vấn.",
+      "badQueryDetail": "Jira đã từ chối truy vấn: {detail}",
+      "tooManyIssues": "Truy vấn tìm thấy hơn {limit} issue. Hãy thu hẹp lại.",
+      "unreachable": "Không thể kết nối tới Jira. Lần sau việc đồng bộ sẽ thử lại.",
+      "runAsGone": "Người thiết lập đồng bộ không còn tài khoản.",
+      "accessLost": "Người mà việc đồng bộ chạy dưới danh nghĩa không còn chỉnh sửa được cơ sở dữ liệu này.",
+      "keyGone": "Thuộc tính Khóa đã bị xóa hoặc đổi loại, nên không thể khớp issue với hàng.",
+      "failed": "Đồng bộ thất bại. Lần sau sẽ thử lại.",
+      "invalidSite": "Đó không phải là địa chỉ Leafdesk có thể truy cập.",
+      "invalidInput": "Hãy điền địa chỉ email, token API và nội dung cần đồng bộ.",
+      "alreadyRunning": "Đang có một lần đồng bộ chạy. Hãy thử lại sau giây lát."
+    }
   },
   "board": {
     "links": "Không có gì được tải xuống: các tệp và liên kết trong bản xuất vẫn là liên kết.",

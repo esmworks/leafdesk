@@ -1,14 +1,15 @@
 {
   "open": "Importuj",
   "title": "Import",
-  "description": "Przenieś strony z plików Markdown, eksportów ZIP i dokumentów Word, wiersze z pliku CSV lub skoroszytu Excel albo tablicę z Trello, Asany lub Monday.com.",
+  "description": "Przenieś strony z plików Markdown, eksportów ZIP i dokumentów Word, wiersze z pliku CSV lub skoroszytu Excel, tablicę z Trello, Asany lub Monday.com albo zgłoszenia z Jiry, które pozostają zsynchronizowane.",
   "tabs": {
     "pages": "Markdown i ZIP",
     "docx": "Word",
     "csv": "CSV i Excel",
     "trello": "Trello",
     "asana": "Asana",
-    "monday": "Monday.com"
+    "monday": "Monday.com",
+    "jira": "Jira"
   },
   "destination": "Umieść w",
   "topLevel": "Najwyższy poziom obszaru roboczego",
@@ -78,6 +79,62 @@
     "help": "W Monday.com otwórz menu tablicy i wybierz Eksportuj tablicę do Excela (z aktualizacjami, jeśli ich chcesz), a potem pobrany plik. Tablica staje się bazą danych z widokiem tablicy według grup: przenoszone są jej kolumny, podelementy i aktualizacje.",
     "choose": "Wybierz eksport z Monday.com (.xlsx lub .csv)",
     "summary": "{name}: {groups, plural, one {# grupa} few {# grupy} many {# grup} other {# grupy}}, {items, plural, one {# element} few {# elementy} many {# elementów} other {# elementu}}, {subitems, plural, one {# podelement} few {# podelementy} many {# podelementów} other {# podelementu}}"
+  },
+  "jira": {
+    "help": "Połącz witrynę Jira Cloud, aby mieć bazę danych jej zgłoszeń, która nadąża za zmianami: każde zgłoszenie to wiersz z kluczem, statusem, osobą przypisaną, priorytetem, typem, etykietami, terminem i linkiem do Jiry. Zmiany płyną w jedną stronę, z Jiry do Leafdesk.",
+    "site": "Witryna Jira",
+    "sitePlaceholder": "your-team.atlassian.net",
+    "email": "Adres e-mail",
+    "token": "Token API",
+    "tokenHelp": "Utwórz go na swoim koncie Atlassian w sekcji Security → API tokens. Jest przechowywany na serwerze w zaszyfrowanej postaci i służy tylko do odczytu zgłoszeń.",
+    "tokenLink": "Utwórz token API",
+    "connect": "Połącz",
+    "connecting": "Łączenie…",
+    "connected": "Zalogowano jako {name}",
+    "change": "Zmień",
+    "from": "Zgłoszenia z",
+    "project": "Projektu",
+    "jql": "Zapytania JQL",
+    "chooseProject": "Wybierz projekt",
+    "noProjects": "To konto nie widzi żadnego projektu. Napisz zamiast tego zapytanie JQL.",
+    "jqlPlaceholder": "project = OPS AND resolution = Unresolved",
+    "every": "Synchronizuj",
+    "intervals": {
+      "m15": "Co 15 minut",
+      "m60": "Co godzinę",
+      "m360": "Co 6 godzin",
+      "m1440": "Raz dziennie",
+      "manual": "Tylko na żądanie"
+    },
+    "submit": "Importuj i synchronizuj",
+    "submitting": "Importowanie…",
+    "names": {
+      "key": "Klucz",
+      "status": "Status",
+      "assignee": "Osoba przypisana",
+      "others": "{column} (pozostali)",
+      "priority": "Priorytet",
+      "type": "Typ",
+      "labels": "Etykiety",
+      "due": "Termin",
+      "link": "Link do Jiry"
+    },
+    "errors": {
+      "unauthorized": "Jira odrzuciła adres e-mail i token API.",
+      "forbidden": "To konto Jira nie może tam wyszukiwać.",
+      "notFound": "Pod tym adresem nie odpowiedziała żadna witryna Jira Cloud albo projekt nie istnieje.",
+      "badQuery": "Jira odrzuciła zapytanie.",
+      "badQueryDetail": "Jira odrzuciła zapytanie: {detail}",
+      "tooManyIssues": "Zapytanie znajduje ponad {limit} zgłoszeń. Zawęź je.",
+      "unreachable": "Nie udało się połączyć z Jirą. Synchronizacja spróbuje ponownie następnym razem.",
+      "runAsGone": "Osoba, która skonfigurowała synchronizację, nie ma już konta.",
+      "accessLost": "Osoba, w imieniu której działa synchronizacja, nie może już edytować tej bazy danych.",
+      "keyGone": "Właściwość Klucz została usunięta lub zmieniła typ, więc nie da się dopasować zgłoszeń do wierszy.",
+      "failed": "Synchronizacja się nie powiodła. Spróbuje ponownie następnym razem.",
+      "invalidSite": "Leafdesk nie może połączyć się z tym adresem.",
+      "invalidInput": "Podaj adres e-mail, token API i to, co ma być synchronizowane.",
+      "alreadyRunning": "Trwa synchronizacja. Spróbuj ponownie za chwilę."
+    }
   },
   "board": {
     "links": "Nic nie jest pobierane: pliki i linki z eksportu pozostają linkami.",

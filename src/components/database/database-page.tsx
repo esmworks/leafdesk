@@ -18,6 +18,7 @@ import { searchRows } from "@/lib/row-search";
 import { opensNewTab } from "@/lib/row-panel";
 import { galleryCover, openRowsOf, opensRows } from "@/lib/views";
 import { AutomationsButton } from "./automations-dialog";
+import { JiraSyncButton } from "./jira-sync-button";
 import { BoardView } from "./board-view";
 import { CalendarView } from "./calendar-view";
 import { ChartView } from "./chart-view";
@@ -465,6 +466,9 @@ export function DatabasePage({
                             onSubItems={readOnly ? undefined : (on, propertyId) => void api.setSubItems(on, propertyId)}
                             onDependencies={readOnly ? undefined : (on, input) => void api.setDependencies(on, input)}
                           />
+                          {snapshot.sync && !linked && (
+                            <JiraSyncButton databaseId={databaseId} sync={snapshot.sync} onChanged={() => void api.refetch()} />
+                          )}
                           {canManageAutomations && (
                             <AutomationsButton
                               workspaceId={workspaceId}

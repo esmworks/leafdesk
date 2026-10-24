@@ -4,6 +4,15 @@
 
 ### Added
 
+- **Keep a database of Jira issues in sync.** Import has a Jira tab: connect a Jira Cloud site
+  with an email address and API token, pick a project or write a JQL query, and get a database
+  whose rows are the issues (key, summary, status, assignee, priority, type, labels, due date and a
+  link back) on a board by status. It syncs every 15 minutes, hour, 6 hours or day, or only when
+  asked, one way from Jira: synced properties and titles follow Jira, properties added in Leafdesk
+  stay, and an assignee whose Jira email address is a member's becomes that person, who is told
+  when assigned later. The database's ⟳ button shows when it last synced and why it paused, and
+  lets people with full access sync now, change the query, sign-in or interval, or stop syncing.
+  Migration 0122 adds the `database_sync` table.
 - **Form questions can depend on earlier answers, take a number of choices, and show people their
   own answers.** In the form builder, *Show only when…* asks a question only when an earlier
   question's answer is (or isn't) one of some options, contains (or doesn't contain) a text, is

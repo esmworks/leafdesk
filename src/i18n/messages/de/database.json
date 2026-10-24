@@ -1714,5 +1714,26 @@
     "delete": "Regel löschen",
     "add": "Regel hinzufügen",
     "firstMatchWins": "Passen mehrere Regeln, färbt die erste die Zeile oder den Wert."
+  },
+  "jiraSync": {
+    "button": "Aus Jira synchronisiert",
+    "buttonPaused": "Jira-Synchronisierung pausiert",
+    "title": "Jira-Synchronisierung",
+    "site": "Site",
+    "project": "Projekt {key}",
+    "jql": "JQL",
+    "account": "Angemeldet als {email}",
+    "lastRun": "Zuletzt synchronisiert {when}, {count, plural, one {# Vorgang} other {# Vorgänge}}",
+    "never": "Noch nicht synchronisiert",
+    "running": "Wird synchronisiert…",
+    "paused": "Pausiert",
+    "overwrite": "Jira ist die Quelle: Die synchronisierten Eigenschaften und Zeilentitel werden bei jeder Synchronisierung überschrieben, ändere sie also in Jira. Eigenschaften, die du selbst hinzufügst, bleiben, wie sie sind, und Zeilen, deren Vorgang nicht mehr passt, bleiben unberührt.",
+    "syncNow": "Jetzt synchronisieren",
+    "changeQuery": "Ändern, was synchronisiert wird",
+    "changeSignIn": "Anmeldung ändern",
+    "save": "Speichern und synchronisieren",
+    "stop": "Synchronisierung beenden",
+    "stopConfirm": "Synchronisierung dieser Datenbank beenden? Ihre Zeilen bleiben, wie sie sind, und die Anmeldung wird vergessen.",
+    "viewOnly": "Nur Personen mit Vollzugriff auf die Datenbank können die Synchronisierung ändern."
   }
 }

@@ -1,14 +1,15 @@
 {
   "open": "Impor",
   "title": "Impor",
-  "description": "Bawa masuk halaman dari berkas Markdown, ekspor ZIP, dan dokumen Word, baris dari berkas CSV atau buku kerja Excel, atau papan Trello.",
+  "description": "Bawa masuk halaman dari berkas Markdown, ekspor ZIP, dan dokumen Word, baris dari berkas CSV atau buku kerja Excel, papan Trello, Asana, atau Monday.com, atau isu Jira yang tetap tersinkron.",
   "tabs": {
     "pages": "Markdown & ZIP",
     "docx": "Word",
     "csv": "CSV & Excel",
     "trello": "Trello",
     "asana": "Asana",
-    "monday": "Monday.com"
+    "monday": "Monday.com",
+    "jira": "Jira"
   },
   "destination": "Letakkan di bawah",
   "topLevel": "Tingkat teratas ruang kerja",
@@ -78,6 +79,62 @@
     "help": "Di Monday.com, buka menu papan lalu pilih Ekspor papan ke Excel (beserta pembaruan jika Anda mau), kemudian pilih berkas yang diunduh. Papan menjadi basis data dengan tampilan papan menurut grup: kolom, subitem, dan pembaruannya ikut terbawa.",
     "choose": "Pilih ekspor Monday.com (.xlsx atau .csv)",
     "summary": "{name}: {groups, plural, other {# grup}}, {items, plural, other {# item}}, {subitems, plural, other {# subitem}}"
+  },
+  "jira": {
+    "help": "Hubungkan situs Jira Cloud untuk mendapatkan basis data isu-isunya yang selalu mengikuti perubahan: setiap isu menjadi baris dengan kunci, status, penerima tugas, prioritas, tipe, label, tanggal jatuh tempo, dan tautan kembali. Perubahan berjalan satu arah, dari Jira ke Leafdesk.",
+    "site": "Situs Jira",
+    "sitePlaceholder": "your-team.atlassian.net",
+    "email": "Alamat email",
+    "token": "Token API",
+    "tokenHelp": "Buat token di akun Atlassian Anda, di Security → API tokens. Token disimpan tersegel di server dan hanya dipakai untuk membaca isu.",
+    "tokenLink": "Buat token API",
+    "connect": "Hubungkan",
+    "connecting": "Menghubungkan…",
+    "connected": "Masuk sebagai {name}",
+    "change": "Ubah",
+    "from": "Isu dari",
+    "project": "Sebuah proyek",
+    "jql": "Kueri JQL",
+    "chooseProject": "Pilih proyek",
+    "noProjects": "Akun ini tidak dapat melihat proyek apa pun. Tulis kueri JQL sebagai gantinya.",
+    "jqlPlaceholder": "project = OPS AND resolution = Unresolved",
+    "every": "Sinkronkan",
+    "intervals": {
+      "m15": "Setiap 15 menit",
+      "m60": "Setiap jam",
+      "m360": "Setiap 6 jam",
+      "m1440": "Sekali sehari",
+      "manual": "Hanya saat diminta"
+    },
+    "submit": "Impor dan tetap sinkronkan",
+    "submitting": "Mengimpor…",
+    "names": {
+      "key": "Kunci",
+      "status": "Status",
+      "assignee": "Penerima tugas",
+      "others": "{column} (lainnya)",
+      "priority": "Prioritas",
+      "type": "Tipe",
+      "labels": "Label",
+      "due": "Tanggal jatuh tempo",
+      "link": "Tautan Jira"
+    },
+    "errors": {
+      "unauthorized": "Jira menolak alamat email dan token API.",
+      "forbidden": "Akun Jira ini tidak boleh mencari di sana.",
+      "notFound": "Tidak ada situs Jira Cloud yang menjawab di alamat ini, atau proyeknya tidak ada.",
+      "badQuery": "Jira menolak kueri.",
+      "badQueryDetail": "Jira menolak kueri: {detail}",
+      "tooManyIssues": "Kueri menemukan lebih dari {limit} isu. Persempit kuerinya.",
+      "unreachable": "Jira tidak dapat dihubungi. Sinkronisasi akan mencoba lagi lain kali.",
+      "runAsGone": "Orang yang menyiapkan sinkronisasi sudah tidak punya akun.",
+      "accessLost": "Orang yang menjadi identitas sinkronisasi tidak dapat lagi mengedit basis data ini.",
+      "keyGone": "Properti Kunci dihapus atau tipenya diubah, jadi isu tidak dapat dicocokkan dengan baris.",
+      "failed": "Sinkronisasi gagal. Akan dicoba lagi lain kali.",
+      "invalidSite": "Itu bukan alamat yang dapat dijangkau Leafdesk.",
+      "invalidInput": "Isi alamat email, token API, dan apa yang akan disinkronkan.",
+      "alreadyRunning": "Sinkronisasi sedang berjalan. Coba lagi sebentar lagi."
+    }
   },
   "board": {
     "links": "Tidak ada yang diunduh: berkas dan tautan dalam ekspor tetap menjadi tautan.",

@@ -1714,5 +1714,26 @@
     "delete": "ルールを削除",
     "add": "ルールを追加",
     "firstMatchWins": "複数のルールが合うときは、最初のルールが行や値に色を付けます。"
+  },
+  "jiraSync": {
+    "button": "Jiraから同期",
+    "buttonPaused": "Jira同期は一時停止中",
+    "title": "Jira同期",
+    "site": "サイト",
+    "project": "プロジェクト {key}",
+    "jql": "JQL",
+    "account": "{email}としてログイン中",
+    "lastRun": "最終同期 {when}、{count, plural, other {#件の課題}}",
+    "never": "まだ同期されていません",
+    "running": "同期中…",
+    "paused": "一時停止中",
+    "overwrite": "Jiraが元データです。同期されるプロパティと行のタイトルは同期のたびに上書きされるため、Jiraで変更してください。自分で追加したプロパティはそのまま残り、課題が条件に合わなくなった行もそのままにされます。",
+    "syncNow": "今すぐ同期",
+    "changeQuery": "同期する対象を変更",
+    "changeSignIn": "ログイン情報を変更",
+    "save": "保存して同期",
+    "stop": "同期を停止",
+    "stopConfirm": "このデータベースの同期を停止しますか？行はそのまま残り、ログイン情報は破棄されます。",
+    "viewOnly": "同期を変更できるのは、データベースへのフルアクセス権を持つ人だけです。"
   }
 }

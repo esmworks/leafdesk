@@ -1714,5 +1714,26 @@
     "delete": "删除规则",
     "add": "添加规则",
     "firstMatchWins": "多条规则都符合时,由第一条为行或值着色。"
+  },
+  "jiraSync": {
+    "button": "从 Jira 同步",
+    "buttonPaused": "Jira 同步已暂停",
+    "title": "Jira 同步",
+    "site": "站点",
+    "project": "项目 {key}",
+    "jql": "JQL",
+    "account": "已登录为 {email}",
+    "lastRun": "上次同步：{when}，{count, plural, other {# 个事务}}",
+    "never": "尚未同步",
+    "running": "正在同步…",
+    "paused": "已暂停",
+    "overwrite": "Jira 是数据来源：同步的属性和行标题会在每次同步时被覆盖，所以请在 Jira 中更改它们。你自己添加的属性保持不变，事务不再匹配的行也不会被改动。",
+    "syncNow": "立即同步",
+    "changeQuery": "更改同步内容",
+    "changeSignIn": "更改登录信息",
+    "save": "保存并同步",
+    "stop": "停止同步",
+    "stopConfirm": "停止同步此数据库？其行保持不变，登录信息将被清除。",
+    "viewOnly": "只有对数据库拥有完全访问权限的人才能更改同步。"
   }
 }

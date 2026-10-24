@@ -1714,5 +1714,26 @@
     "delete": "Supprimer la règle",
     "add": "Ajouter une règle",
     "firstMatchWins": "Si plusieurs règles correspondent, la première colore la ligne ou la valeur."
+  },
+  "jiraSync": {
+    "button": "Synchronisé depuis Jira",
+    "buttonPaused": "Synchronisation Jira en pause",
+    "title": "Synchronisation Jira",
+    "site": "Site",
+    "project": "Projet {key}",
+    "jql": "JQL",
+    "account": "Connecté en tant que {email}",
+    "lastRun": "Dernière synchronisation {when}, {count, plural, one {# ticket} other {# tickets}}",
+    "never": "Pas encore synchronisé",
+    "running": "Synchronisation…",
+    "paused": "En pause",
+    "overwrite": "Jira est la source : les propriétés synchronisées et les titres des lignes sont réécrits à chaque synchronisation, modifiez-les donc dans Jira. Les propriétés que vous ajoutez vous-même restent telles quelles, et les lignes dont le ticket ne correspond plus sont laissées en l’état.",
+    "syncNow": "Synchroniser maintenant",
+    "changeQuery": "Modifier ce qui est synchronisé",
+    "changeSignIn": "Modifier la connexion",
+    "save": "Enregistrer et synchroniser",
+    "stop": "Arrêter la synchronisation",
+    "stopConfirm": "Arrêter la synchronisation de cette base de données ? Ses lignes restent telles quelles, et la connexion est oubliée.",
+    "viewOnly": "Seules les personnes ayant un accès complet à la base de données peuvent modifier la synchronisation."
   }
 }

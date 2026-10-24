@@ -1,14 +1,15 @@
 {
   "open": "インポート",
   "title": "インポート",
-  "description": "Markdownファイル、ZIPエクスポート、Word文書からページを、CSVファイルやExcelブックから行を、またはTrello、Asana、Monday.comのボードを取り込みます。",
+  "description": "Markdownファイル、ZIPエクスポート、Word文書からページを、CSVファイルやExcelブックから行を、Trello、Asana、Monday.comのボードを、または同期され続けるJiraの課題を取り込みます。",
   "tabs": {
     "pages": "MarkdownとZIP",
     "docx": "Word",
     "csv": "CSVとExcel",
     "trello": "Trello",
     "asana": "Asana",
-    "monday": "Monday.com"
+    "monday": "Monday.com",
+    "jira": "Jira"
   },
   "destination": "配置先",
   "topLevel": "ワークスペースの最上位",
@@ -78,6 +79,62 @@
     "help": "Monday.comでボードのメニューを開き、ボードをExcelにエクスポート（必要なら更新も含めて）を選んで、ダウンロードしたファイルを選びます。ボードはグループごとのボードビューを持つデータベースになり、列、サブアイテム、更新も取り込まれます。",
     "choose": "Monday.comのエクスポートを選ぶ（.xlsx または .csv）",
     "summary": "{name}: {groups}個のグループ、{items}件のアイテム、{subitems}件のサブアイテム"
+  },
+  "jira": {
+    "help": "Jira Cloudのサイトを接続すると、その課題のデータベースができ、常に最新の状態に保たれます。各課題は、キー、ステータス、担当者、優先度、種類、ラベル、期日、Jiraへのリンクを持つ行になります。変更はJiraからLeafdeskへの一方向です。",
+    "site": "Jiraサイト",
+    "sitePlaceholder": "your-team.atlassian.net",
+    "email": "メールアドレス",
+    "token": "APIトークン",
+    "tokenHelp": "AtlassianアカウントのSecurity → API tokensで作成してください。サーバー上で封印して保管され、課題の読み取りにのみ使われます。",
+    "tokenLink": "APIトークンを作成",
+    "connect": "接続",
+    "connecting": "接続中…",
+    "connected": "{name}としてログイン中",
+    "change": "変更",
+    "from": "課題の取得元",
+    "project": "プロジェクト",
+    "jql": "JQLクエリ",
+    "chooseProject": "プロジェクトを選択",
+    "noProjects": "このアカウントからは見えるプロジェクトがありません。代わりにJQLクエリを書いてください。",
+    "jqlPlaceholder": "project = OPS AND resolution = Unresolved",
+    "every": "同期",
+    "intervals": {
+      "m15": "15分ごと",
+      "m60": "1時間ごと",
+      "m360": "6時間ごと",
+      "m1440": "1日1回",
+      "manual": "求められたときだけ"
+    },
+    "submit": "インポートして同期を続ける",
+    "submitting": "インポート中…",
+    "names": {
+      "key": "キー",
+      "status": "ステータス",
+      "assignee": "担当者",
+      "others": "{column}（その他）",
+      "priority": "優先度",
+      "type": "種類",
+      "labels": "ラベル",
+      "due": "期日",
+      "link": "Jiraリンク"
+    },
+    "errors": {
+      "unauthorized": "JiraがメールアドレスとAPIトークンを受け付けませんでした。",
+      "forbidden": "このJiraアカウントはそこを検索できません。",
+      "notFound": "このアドレスで応答するJira Cloudサイトがないか、プロジェクトが存在しません。",
+      "badQuery": "Jiraがクエリを受け付けませんでした。",
+      "badQueryDetail": "Jiraがクエリを受け付けませんでした：{detail}",
+      "tooManyIssues": "このクエリでは{limit}件を超える課題が見つかります。条件を絞り込んでください。",
+      "unreachable": "Jiraに接続できませんでした。同期は次回また試みます。",
+      "runAsGone": "同期を設定した人のアカウントがもうありません。",
+      "accessLost": "同期の実行者として設定された人が、このデータベースを編集できなくなりました。",
+      "keyGone": "キーのプロパティが削除されたか種類が変わったため、課題を行に対応づけられません。",
+      "failed": "同期に失敗しました。次回また試みます。",
+      "invalidSite": "Leafdeskから到達できるアドレスではありません。",
+      "invalidInput": "メールアドレス、APIトークン、同期する対象を入力してください。",
+      "alreadyRunning": "同期の実行中です。しばらくしてからもう一度お試しください。"
+    }
   },
   "board": {
     "links": "何もダウンロードしません。エクスポート内のファイルとリンクはリンクのままです。",

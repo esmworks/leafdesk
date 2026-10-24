@@ -25,7 +25,8 @@ after you approve them over OAuth.
   tell it, reusable skills, and agents that work on database rows, with Anthropic, OpenAI, Google
   or a local model.
 - **Bring your pages**: import a Notion *Markdown & CSV* export, an Obsidian vault, a Trello board,
-  an Asana project, a Monday.com board, Markdown files, Word documents, a folder or CSV.
+  an Asana project, a Monday.com board, Markdown files, Word documents, a folder or CSV, and keep a
+  database of Jira issues in sync.
 - **Ready for a team**: teamspaces, page permissions, guests, single sign-on (OIDC, SAML), SCIM,
   two-step verification, passkeys and an audit log.
 - **Yours to run**: one `docker compose up` on your own server, data in your PostgreSQL,
@@ -551,6 +552,22 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   are listed in the result. Read as the documented layout: the board's name on top, each group's
   name over its header row, subitems one column in under their item, updates on a sheet of their
   own. Tested against files built from that layout, not yet a real export.
+- **Sync Jira issues**: Import's Jira tab takes a Jira Cloud site, an email address and an
+  [API token](https://id.atlassian.com/manage-profile/security/api-tokens) (kept sealed like a
+  connection's secrets), then a project or a JQL query, and makes a database whose rows are the
+  issues: key, summary as the title, status (grouped to do, in progress and done by Jira's status
+  category), assignee as a person when their Jira email address is a member's (Jira usually hides
+  it; then the name goes in *Assignee (others)*), priority, type, labels, due date and a link back,
+  opening on a board by status. It syncs every 15 minutes, hour, 6 hours, day or only on demand,
+  one way: each run writes Jira's values over the synced properties and titles and adds new issues
+  as rows, while properties added in Leafdesk stay, rows whose issue stops matching are left alone
+  and rows in the trash stay there. Changes after the first run count as edits, so automations,
+  row activity and assignment notices follow them. A run goes through as whoever last set the sync
+  up or synced it by hand, and needs them to still be able to edit the database. Refused
+  credentials, a refused query, a deleted *Key* property or more than 2,000 issues pause it until
+  it is changed in the database's sync dialog (the ⟳ button on its toolbar), where people with
+  full access can also sync now, change the query or sign-in, or stop syncing (the rows stay).
+  Tested against a stand-in Jira (`scripts/jira-sync-e2e.ts`), not yet a real site.
 - **Workspaces and members**: add people by email (several at once) as owners or members, send
   an invitation link to people who don't have an account yet (or whose account's address was
   never verified: anyone can sign up with someone else's address), or turn on a join link anyone
@@ -3457,6 +3474,7 @@ Useful scripts:
 | `pnpm tsx scripts/mcp-e2e.ts` | End-to-end OAuth + MCP check against a running server (see the header of the file) |
 | `pnpm tsx scripts/api-e2e.ts` | End-to-end REST API check (tokens, every endpoint, access, rate limits, OpenAPI) against a running server |
 | `pnpm tsx scripts/voice-api-e2e.ts` | End-to-end check of voice notes over the REST API: a recording saved as a private page or a database row, the transcript toggle, the AI falling back to the transcript, workspace-bound tokens and every refusal, with a faux model and transcription, against the database |
+| `pnpm tsx scripts/jira-sync-e2e.ts` | End-to-end check of Jira syncs against a stand-in Jira Cloud the script starts on 127.0.0.1: setting one up, due runs writing changes and new issues, assignment notices, pausing on refused credentials or queries, too many issues and endless page tokens, against the database with no server on it |
 | `pnpm tsx scripts/agent-api-e2e.ts` | End-to-end check of agents over the REST API: settings, runs asked for on a row or on none, the asking owner's access, usage by month and the monthly limit, with a fake AI server, against the database |
 | `pnpm tsx scripts/workspace-apps-e2e.ts` | End-to-end check of the apps that reach a workspace: what its owners see, when each was last used there, and disconnecting one, against the database |
 | `pnpm tsx scripts/security-switches-e2e.ts` | End-to-end check of the workspace security switches (export, publishing, connected apps) through the settings action, the export and public routes, MCP and the REST API, against a running server |
@@ -3557,7 +3575,7 @@ published under the Apache License 2.0 and stay available under it.
 
 Notion is a trademark of Notion Labs, Inc. Leafdesk is an independent project, not affiliated with,
 endorsed by or sponsored by Notion Labs, Inc. The name appears only to describe what Leafdesk is an
-alternative to and what it imports from. Obsidian, Trello, Asana and Monday.com are trademarks of their owners;
-Leafdesk is not affiliated with them either, and names them only to describe what it imports. The names and logos of
+alternative to and what it imports from. Obsidian, Trello, Asana, Monday.com, Jira and Atlassian are trademarks of their owners;
+Leafdesk is not affiliated with them either, and names them only to describe what it imports or syncs. The names and logos of
 the services in the connection catalog are trademarks of their owners; Leafdesk shows them only to
 identify the service a connection reaches, and is not affiliated with or endorsed by them.

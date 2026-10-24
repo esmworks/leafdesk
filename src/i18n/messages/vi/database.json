@@ -1714,5 +1714,26 @@
     "delete": "Xóa quy tắc",
     "add": "Thêm quy tắc",
     "firstMatchWins": "Khi nhiều quy tắc khớp, quy tắc đầu tiên tô màu cho hàng hoặc giá trị."
+  },
+  "jiraSync": {
+    "button": "Đồng bộ từ Jira",
+    "buttonPaused": "Đồng bộ Jira đã tạm dừng",
+    "title": "Đồng bộ Jira",
+    "site": "Trang",
+    "project": "Dự án {key}",
+    "jql": "JQL",
+    "account": "Đã đăng nhập với tư cách {email}",
+    "lastRun": "Đồng bộ lần cuối {when}, {count, plural, other {# issue}}",
+    "never": "Chưa đồng bộ",
+    "running": "Đang đồng bộ…",
+    "paused": "Tạm dừng",
+    "overwrite": "Jira là nguồn: các thuộc tính được đồng bộ và tiêu đề hàng bị ghi đè mỗi lần đồng bộ, vì vậy hãy thay đổi chúng trong Jira. Các thuộc tính bạn tự thêm vẫn giữ nguyên, và những hàng có issue không còn khớp sẽ không bị động đến.",
+    "syncNow": "Đồng bộ ngay",
+    "changeQuery": "Thay đổi nội dung đồng bộ",
+    "changeSignIn": "Thay đổi thông tin đăng nhập",
+    "save": "Lưu và đồng bộ",
+    "stop": "Dừng đồng bộ",
+    "stopConfirm": "Dừng đồng bộ cơ sở dữ liệu này? Các hàng vẫn giữ nguyên, và thông tin đăng nhập sẽ bị quên.",
+    "viewOnly": "Chỉ những người có toàn quyền với cơ sở dữ liệu mới có thể thay đổi việc đồng bộ."
   }
 }

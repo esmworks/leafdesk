@@ -1714,5 +1714,26 @@
     "delete": "Usuń regułę",
     "add": "Dodaj regułę",
     "firstMatchWins": "Gdy pasuje kilka reguł, wiersz lub wartość koloruje pierwsza z nich."
+  },
+  "jiraSync": {
+    "button": "Synchronizowane z Jiry",
+    "buttonPaused": "Synchronizacja z Jirą wstrzymana",
+    "title": "Synchronizacja z Jirą",
+    "site": "Witryna",
+    "project": "Projekt {key}",
+    "jql": "JQL",
+    "account": "Zalogowano jako {email}",
+    "lastRun": "Ostatnia synchronizacja {when}, {count, plural, one {# zgłoszenie} few {# zgłoszenia} many {# zgłoszeń} other {# zgłoszenia}}",
+    "never": "Jeszcze nie zsynchronizowano",
+    "running": "Synchronizowanie…",
+    "paused": "Wstrzymana",
+    "overwrite": "Źródłem jest Jira: zsynchronizowane właściwości i tytuły wierszy są nadpisywane przy każdej synchronizacji, więc zmieniaj je w Jirze. Właściwości dodane przez ciebie zostają bez zmian, a wiersze, których zgłoszenie przestaje pasować, pozostają nietknięte.",
+    "syncNow": "Synchronizuj teraz",
+    "changeQuery": "Zmień, co jest synchronizowane",
+    "changeSignIn": "Zmień logowanie",
+    "save": "Zapisz i synchronizuj",
+    "stop": "Zatrzymaj synchronizację",
+    "stopConfirm": "Zatrzymać synchronizację tej bazy danych? Jej wiersze zostaną bez zmian, a dane logowania zostaną zapomniane.",
+    "viewOnly": "Tylko osoby z pełnym dostępem do bazy danych mogą zmienić synchronizację."
   }
 }

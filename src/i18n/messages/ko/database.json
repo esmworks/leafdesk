@@ -1714,5 +1714,26 @@
     "delete": "규칙 삭제",
     "add": "규칙 추가",
     "firstMatchWins": "여러 규칙이 맞으면 첫 번째 규칙이 행이나 값에 색을 입힙니다."
+  },
+  "jiraSync": {
+    "button": "Jira에서 동기화됨",
+    "buttonPaused": "Jira 동기화 일시 중지됨",
+    "title": "Jira 동기화",
+    "site": "사이트",
+    "project": "프로젝트 {key}",
+    "jql": "JQL",
+    "account": "{email}(으)로 로그인됨",
+    "lastRun": "마지막 동기화 {when}, {count, plural, other {이슈 #개}}",
+    "never": "아직 동기화되지 않음",
+    "running": "동기화 중…",
+    "paused": "일시 중지됨",
+    "overwrite": "Jira가 원본입니다. 동기화되는 속성과 행 제목은 동기화할 때마다 덮어쓰이므로 Jira에서 변경하세요. 직접 추가한 속성은 그대로 유지되고, 이슈가 더 이상 조건에 맞지 않는 행도 건드리지 않습니다.",
+    "syncNow": "지금 동기화",
+    "changeQuery": "동기화 대상 변경",
+    "changeSignIn": "로그인 정보 변경",
+    "save": "저장하고 동기화",
+    "stop": "동기화 중지",
+    "stopConfirm": "이 데이터베이스의 동기화를 중지할까요? 행은 그대로 남고 로그인 정보는 삭제됩니다.",
+    "viewOnly": "데이터베이스에 대한 전체 액세스 권한이 있는 사람만 동기화를 변경할 수 있습니다."
   }
 }

@@ -1714,5 +1714,26 @@
     "delete": "Hapus aturan",
     "add": "Tambahkan aturan",
     "firstMatchWins": "Saat beberapa aturan cocok, aturan pertama yang mewarnai baris atau nilai."
+  },
+  "jiraSync": {
+    "button": "Disinkronkan dari Jira",
+    "buttonPaused": "Sinkronisasi Jira dijeda",
+    "title": "Sinkronisasi Jira",
+    "site": "Situs",
+    "project": "Proyek {key}",
+    "jql": "JQL",
+    "account": "Masuk sebagai {email}",
+    "lastRun": "Terakhir disinkronkan {when}, {count, plural, other {# isu}}",
+    "never": "Belum disinkronkan",
+    "running": "Menyinkronkan…",
+    "paused": "Dijeda",
+    "overwrite": "Jira adalah sumbernya: properti yang disinkronkan dan judul baris ditimpa pada setiap sinkronisasi, jadi ubahlah di Jira. Properti yang Anda tambahkan sendiri tetap seperti adanya, dan baris yang isunya tidak lagi cocok dibiarkan.",
+    "syncNow": "Sinkronkan sekarang",
+    "changeQuery": "Ubah apa yang disinkronkan",
+    "changeSignIn": "Ubah info masuk",
+    "save": "Simpan dan sinkronkan",
+    "stop": "Hentikan sinkronisasi",
+    "stopConfirm": "Hentikan sinkronisasi basis data ini? Barisnya tetap seperti adanya, dan info masuk dilupakan.",
+    "viewOnly": "Hanya orang dengan akses penuh ke basis data yang dapat mengubah sinkronisasi."
   }
 }

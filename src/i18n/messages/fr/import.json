@@ -1,14 +1,15 @@
 {
   "open": "Importer",
   "title": "Importer",
-  "description": "Importez des pages depuis des fichiers Markdown, des exports ZIP et des documents Word, des lignes depuis un fichier CSV ou un classeur Excel, ou un tableau Trello, Asana ou Monday.com.",
+  "description": "Importez des pages depuis des fichiers Markdown, des exports ZIP et des documents Word, des lignes depuis un fichier CSV ou un classeur Excel, un tableau Trello, Asana ou Monday.com, ou des tickets Jira qui restent synchronisés.",
   "tabs": {
     "pages": "Markdown et ZIP",
     "docx": "Word",
     "csv": "CSV et Excel",
     "trello": "Trello",
     "asana": "Asana",
-    "monday": "Monday.com"
+    "monday": "Monday.com",
+    "jira": "Jira"
   },
   "destination": "Placer sous",
   "topLevel": "Niveau supérieur de l’espace de travail",
@@ -78,6 +79,62 @@
     "help": "Dans Monday.com, ouvrez le menu du tableau et choisissez Exporter le tableau vers Excel (avec les mises à jour si vous les voulez), puis choisissez le fichier téléchargé. Le tableau devient une base de données avec une vue tableau par groupe : ses colonnes, sous-éléments et mises à jour suivent.",
     "choose": "Choisir un export Monday.com (.xlsx ou .csv)",
     "summary": "{name} : {groups, plural, one {# groupe} other {# groupes}}, {items, plural, one {# élément} other {# éléments}}, {subitems, plural, one {# sous-élément} other {# sous-éléments}}"
+  },
+  "jira": {
+    "help": "Connectez un site Jira Cloud pour obtenir une base de données de ses tickets qui reste à jour : chaque ticket devient une ligne avec sa clé, son statut, son responsable, sa priorité, son type, ses étiquettes, sa date d’échéance et un lien vers Jira. Les changements vont dans un seul sens, de Jira vers Leafdesk.",
+    "site": "Site Jira",
+    "sitePlaceholder": "your-team.atlassian.net",
+    "email": "Adresse e-mail",
+    "token": "Jeton d’API",
+    "tokenHelp": "Créez-en un dans votre compte Atlassian, sous Security → API tokens. Il est conservé scellé sur le serveur et ne sert qu’à lire les tickets.",
+    "tokenLink": "Créer un jeton d’API",
+    "connect": "Connecter",
+    "connecting": "Connexion…",
+    "connected": "Connecté en tant que {name}",
+    "change": "Modifier",
+    "from": "Tickets de",
+    "project": "Un projet",
+    "jql": "Une requête JQL",
+    "chooseProject": "Choisir un projet",
+    "noProjects": "Ce compte ne voit aucun projet. Écrivez plutôt une requête JQL.",
+    "jqlPlaceholder": "project = OPS AND resolution = Unresolved",
+    "every": "Synchroniser",
+    "intervals": {
+      "m15": "Toutes les 15 minutes",
+      "m60": "Toutes les heures",
+      "m360": "Toutes les 6 heures",
+      "m1440": "Une fois par jour",
+      "manual": "Seulement sur demande"
+    },
+    "submit": "Importer et garder synchronisé",
+    "submitting": "Importation…",
+    "names": {
+      "key": "Clé",
+      "status": "Statut",
+      "assignee": "Responsable",
+      "others": "{column} (autres)",
+      "priority": "Priorité",
+      "type": "Type",
+      "labels": "Étiquettes",
+      "due": "Date d’échéance",
+      "link": "Lien Jira"
+    },
+    "errors": {
+      "unauthorized": "Jira a refusé l’adresse e-mail et le jeton d’API.",
+      "forbidden": "Ce compte Jira n’a pas le droit de chercher à cet endroit.",
+      "notFound": "Aucun site Jira Cloud n’a répondu à cette adresse, ou le projet n’existe pas.",
+      "badQuery": "Jira a refusé la requête.",
+      "badQueryDetail": "Jira a refusé la requête : {detail}",
+      "tooManyIssues": "La requête trouve plus de {limit} tickets. Affinez-la.",
+      "unreachable": "Impossible de joindre Jira. La synchronisation réessaiera la prochaine fois.",
+      "runAsGone": "La personne qui a configuré la synchronisation n’a plus de compte.",
+      "accessLost": "La personne au nom de laquelle la synchronisation s’exécute ne peut plus modifier cette base de données.",
+      "keyGone": "La propriété Clé a été supprimée ou a changé de type : les tickets ne peuvent plus être associés aux lignes.",
+      "failed": "La synchronisation a échoué. Elle réessaiera la prochaine fois.",
+      "invalidSite": "Leafdesk ne peut pas joindre cette adresse.",
+      "invalidInput": "Renseignez l’adresse e-mail, le jeton d’API et ce qu’il faut synchroniser.",
+      "alreadyRunning": "Une synchronisation est en cours. Réessayez dans un instant."
+    }
   },
   "board": {
     "links": "Rien n’est téléchargé : les fichiers et liens de l’export restent des liens.",

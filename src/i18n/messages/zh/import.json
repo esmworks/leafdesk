@@ -1,14 +1,15 @@
 {
   "open": "导入",
   "title": "导入",
-  "description": "从 Markdown 文件、ZIP 导出和 Word 文档导入页面，从 CSV 文件或 Excel 工作簿导入行，或导入一个 Trello、Asana 或 Monday.com 看板。",
+  "description": "从 Markdown 文件、ZIP 导出和 Word 文档导入页面，从 CSV 文件或 Excel 工作簿导入行，导入一个 Trello、Asana 或 Monday.com 看板，或导入保持同步的 Jira 事务。",
   "tabs": {
     "pages": "Markdown 和 ZIP",
     "docx": "Word",
     "csv": "CSV 和 Excel",
     "trello": "Trello",
     "asana": "Asana",
-    "monday": "Monday.com"
+    "monday": "Monday.com",
+    "jira": "Jira"
   },
   "destination": "放在",
   "topLevel": "工作区顶层",
@@ -78,6 +79,62 @@
     "help": "在 Monday.com 中打开看板菜单，选择“将看板导出到 Excel”（需要的话包含更新），然后选择下载的文件。看板会成为一个按分组显示看板视图的数据库：它的列、子项和更新都会带过来。",
     "choose": "选择 Monday.com 导出文件（.xlsx 或 .csv）",
     "summary": "{name}：{groups} 个分组，{items} 个项目，{subitems} 个子项"
+  },
+  "jira": {
+    "help": "连接一个 Jira Cloud 站点，得到一个与其事务保持同步的数据库：每个事务成为一行，包含其键、状态、负责人、优先级、类型、标签、截止日期和回到 Jira 的链接。更改只单向流动，从 Jira 到 Leafdesk。",
+    "site": "Jira 站点",
+    "sitePlaceholder": "your-team.atlassian.net",
+    "email": "电子邮件地址",
+    "token": "API 令牌",
+    "tokenHelp": "在你的 Atlassian 账户中的 Security → API tokens 下创建一个。它在服务器上密封保存，只用于读取事务。",
+    "tokenLink": "创建 API 令牌",
+    "connect": "连接",
+    "connecting": "正在连接…",
+    "connected": "已登录为 {name}",
+    "change": "更改",
+    "from": "事务来源",
+    "project": "一个项目",
+    "jql": "一个 JQL 查询",
+    "chooseProject": "选择项目",
+    "noProjects": "此账户看不到任何项目。请改为编写 JQL 查询。",
+    "jqlPlaceholder": "project = OPS AND resolution = Unresolved",
+    "every": "同步",
+    "intervals": {
+      "m15": "每 15 分钟",
+      "m60": "每小时",
+      "m360": "每 6 小时",
+      "m1440": "每天一次",
+      "manual": "仅在请求时"
+    },
+    "submit": "导入并保持同步",
+    "submitting": "正在导入…",
+    "names": {
+      "key": "键",
+      "status": "状态",
+      "assignee": "负责人",
+      "others": "{column}（其他）",
+      "priority": "优先级",
+      "type": "类型",
+      "labels": "标签",
+      "due": "截止日期",
+      "link": "Jira 链接"
+    },
+    "errors": {
+      "unauthorized": "Jira 拒绝了该电子邮件地址和 API 令牌。",
+      "forbidden": "此 Jira 账户无权在那里搜索。",
+      "notFound": "此地址没有 Jira Cloud 站点响应，或者该项目不存在。",
+      "badQuery": "Jira 拒绝了该查询。",
+      "badQueryDetail": "Jira 拒绝了该查询：{detail}",
+      "tooManyIssues": "该查询找到超过 {limit} 个事务。请缩小范围。",
+      "unreachable": "无法连接到 Jira。同步会在下次重试。",
+      "runAsGone": "设置此同步的人已没有账户。",
+      "accessLost": "同步所代表的人已无法编辑此数据库。",
+      "keyGone": "“键”属性已被删除或更改了类型，因此无法将事务与行对应。",
+      "failed": "同步失败。将在下次重试。",
+      "invalidSite": "Leafdesk 无法访问该地址。",
+      "invalidInput": "请填写电子邮件地址、API 令牌和要同步的内容。",
+      "alreadyRunning": "同步正在进行中。请稍后再试。"
+    }
   },
   "board": {
     "links": "不会下载任何内容：导出中的文件和链接仍是链接。",
