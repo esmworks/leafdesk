@@ -556,7 +556,10 @@
     "onePerson": "Ogranicz do jednej osoby",
     "onePersonHint": "Każdy wiersz wskazuje najwyżej jedną osobę. Wiersze, które wskazują więcej, zachowują je do czasu zmiany.",
     "statusCheckbox": "Pokaż jako pole wyboru",
-    "statusCheckboxHint": "Pole zaznaczone, gdy status jest ukończony. Zaznaczenie wybiera pierwszy status ukończony, odznaczenie pierwszy do zrobienia."
+    "statusCheckboxHint": "Pole zaznaczone, gdy status jest ukończony. Zaznaczenie wybiera pierwszy status ukończony, odznaczenie pierwszy do zrobienia.",
+    "pickerProperties": "Pokaż w wyborze wierszy",
+    "pickerPropertiesHint": "Do trzech właściwości wyświetlanych obok nazwy każdego wiersza podczas łączenia wierszy.",
+    "pickerPropertiesNone": "Powiązana baza danych nie ma właściwości do pokazania."
   },
   "rowProperties": {
     "noProperties": "Brak właściwości",

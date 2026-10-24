@@ -556,7 +556,10 @@
     "onePerson": "Limiter à une personne",
     "onePersonHint": "Chaque ligne nomme une personne au plus. Les lignes qui en nomment davantage les gardent jusqu’à ce qu’on les modifie.",
     "statusCheckbox": "Afficher comme case à cocher",
-    "statusCheckboxHint": "Une case cochée tant que le statut est terminé. La cocher choisit le premier statut terminé, la décocher le premier statut à faire."
+    "statusCheckboxHint": "Une case cochée tant que le statut est terminé. La cocher choisit le premier statut terminé, la décocher le premier statut à faire.",
+    "pickerProperties": "Afficher dans le sélecteur de lignes",
+    "pickerPropertiesHint": "Jusqu’à trois propriétés affichées à côté du nom de chaque ligne lors de la liaison.",
+    "pickerPropertiesNone": "La base de données liée n’a aucune propriété à afficher."
   },
   "rowProperties": {
     "noProperties": "Aucune propriété",

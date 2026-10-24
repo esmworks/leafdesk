@@ -556,7 +556,10 @@
     "onePerson": "Giới hạn một người",
     "onePersonHint": "Mỗi hàng chỉ ghi tối đa một người. Các hàng đang ghi nhiều người sẽ giữ nguyên cho đến khi được thay đổi.",
     "statusCheckbox": "Hiển thị dạng ô đánh dấu",
-    "statusCheckboxHint": "Ô được đánh dấu khi trạng thái đã xong. Đánh dấu sẽ chọn trạng thái xong đầu tiên, bỏ đánh dấu sẽ chọn trạng thái cần làm đầu tiên."
+    "statusCheckboxHint": "Ô được đánh dấu khi trạng thái đã xong. Đánh dấu sẽ chọn trạng thái xong đầu tiên, bỏ đánh dấu sẽ chọn trạng thái cần làm đầu tiên.",
+    "pickerProperties": "Hiển thị trong bộ chọn hàng",
+    "pickerPropertiesHint": "Tối đa ba thuộc tính hiển thị bên cạnh tên mỗi hàng khi liên kết hàng.",
+    "pickerPropertiesNone": "Cơ sở dữ liệu liên quan không có thuộc tính nào để hiển thị."
   },
   "rowProperties": {
     "noProperties": "Không có thuộc tính",

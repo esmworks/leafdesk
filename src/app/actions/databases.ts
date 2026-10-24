@@ -361,6 +361,17 @@ export async function ensureOptionAction(propertyId: string, name: string) {
   return run((userId) => databases.ensureOption(userId, propertyId, name));
 }
 
+/** Which properties of the related database a relation's row picker shows (see databases.setRelationPickerProperties). */
+export async function setRelationPickerPropertiesAction(propertyId: string, propertyIds: string[]) {
+  const ids = Array.isArray(propertyIds) ? propertyIds.filter((id): id is string => typeof id === "string") : [];
+  return run((userId) => databases.setRelationPickerProperties(userId, String(propertyId), ids));
+}
+
+/** Makes a one-way relation two-way (see databases.makeRelationTwoWay). */
+export async function makeRelationTwoWayAction(propertyId: string, pairedName?: string) {
+  return run((userId) => databases.makeRelationTwoWay(userId, String(propertyId), typeof pairedName === "string" ? pairedName : undefined));
+}
+
 /** Copies a property, its values and its access rules right after it (see databases.duplicateProperty). */
 export async function duplicatePropertyAction(propertyId: string, name: string) {
   return run((userId) => databases.duplicateProperty(userId, propertyId, name));

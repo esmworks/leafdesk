@@ -556,7 +556,10 @@
     "onePerson": "Limitar a una persona",
     "onePersonHint": "Cada fila nombra como máximo a una persona. Las filas con más las conservan hasta que se cambien.",
     "statusCheckbox": "Mostrar como casilla",
-    "statusCheckboxHint": "Una casilla marcada mientras el estado está completado. Al marcarla se elige el primer estado completado; al desmarcarla, el primero pendiente."
+    "statusCheckboxHint": "Una casilla marcada mientras el estado está completado. Al marcarla se elige el primer estado completado; al desmarcarla, el primero pendiente.",
+    "pickerProperties": "Mostrar en el selector de filas",
+    "pickerPropertiesHint": "Hasta tres propiedades junto al nombre de cada fila al vincular filas.",
+    "pickerPropertiesNone": "La base de datos relacionada no tiene propiedades que mostrar."
   },
   "rowProperties": {
     "noProperties": "Sin propiedades",

@@ -556,7 +556,10 @@
     "onePerson": "Rajoita yhteen henkilöön",
     "onePersonHint": "Kukin rivi nimeää enintään yhden henkilön. Rivit, joilla on useampia, säilyttävät ne, kunnes niitä muutetaan.",
     "statusCheckbox": "Näytä valintaruutuna",
-    "statusCheckboxHint": "Ruutu on valittuna, kun tila on valmis. Valitseminen asettaa ensimmäisen valmis-tilan, valinnan poistaminen ensimmäisen tekemättä-tilan."
+    "statusCheckboxHint": "Ruutu on valittuna, kun tila on valmis. Valitseminen asettaa ensimmäisen valmis-tilan, valinnan poistaminen ensimmäisen tekemättä-tilan.",
+    "pickerProperties": "Näytä rivivalitsimessa",
+    "pickerPropertiesHint": "Enintään kolme ominaisuutta kunkin rivin nimen vieressä rivejä linkitettäessä.",
+    "pickerPropertiesNone": "Liittyvässä tietokannassa ei ole näytettäviä ominaisuuksia."
   },
   "rowProperties": {
     "noProperties": "Ei ominaisuuksia",

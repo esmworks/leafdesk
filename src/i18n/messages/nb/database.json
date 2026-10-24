@@ -556,7 +556,10 @@
     "onePerson": "Begrens til én person",
     "onePersonHint": "Hver rad nevner høyst én person. Rader med flere beholder dem til de endres.",
     "statusCheckbox": "Vis som avkrysningsboks",
-    "statusCheckboxHint": "En boks som er krysset av mens statusen er ferdig. Avkrysning velger den første ferdig-statusen, fjerning den første å gjøre-statusen."
+    "statusCheckboxHint": "En boks som er krysset av mens statusen er ferdig. Avkrysning velger den første ferdig-statusen, fjerning den første å gjøre-statusen.",
+    "pickerProperties": "Vis i radvelgeren",
+    "pickerPropertiesHint": "Opptil tre egenskaper vist ved siden av hver rads navn når rader kobles.",
+    "pickerPropertiesNone": "Den relaterte databasen har ingen egenskaper å vise."
   },
   "rowProperties": {
     "noProperties": "Ingen egenskaper",

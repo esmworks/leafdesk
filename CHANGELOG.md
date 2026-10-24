@@ -28,6 +28,11 @@
 - **Show a status as a checkbox.** *Show as checkbox* in a status column's menu shows a box,
   ticked while the row's status is in the done group. Ticking it picks the first done status,
   unticking it the first to-do one; filters, groups and the API still see the status itself.
+- **Make a relation two-way later, and see more of each row when linking.** A one-way relation's
+  column menu offers *Show on <database> too*, which adds the paired property there and links every
+  row back from the rows it already links to (edit access to both databases). *Show in row picker*
+  picks up to three properties of the related database to show beside each row's name in the
+  picker.
 
 ### Changed
 

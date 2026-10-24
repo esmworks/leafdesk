@@ -12,6 +12,8 @@ import {
   createRowAction,
   deletePropertyAction,
   duplicatePropertyAction,
+  makeRelationTwoWayAction,
+  setRelationPickerPropertiesAction,
   deleteViewAction,
   duplicateRowsAction,
   setRowsIconAction,
@@ -662,6 +664,22 @@ export function useDatabase(
           report(e);
           return null;
         }
+      },
+
+      /** Shows these properties of the related database beside each title in a relation's row picker. */
+      setPickerProperties(prop: Property, ids: string[]) {
+        const relation = prop.options.relation;
+        if (!relation) return;
+        const { pickerProperties: _old, ...rest } = relation;
+        return mutateSchema(
+          patchProperty(prop.id, { options: { ...prop.options, relation: ids.length ? { ...rest, pickerProperties: ids } : rest } }),
+          () => setRelationPickerPropertiesAction(prop.id, ids),
+        );
+      },
+
+      /** Makes a one-way relation two-way: the related database gets the paired property. */
+      makeTwoWay(prop: Property, pairedName?: string) {
+        return mutateSchema((s) => s, () => makeRelationTwoWayAction(prop.id, pairedName));
       },
 
       /** Copies a property with its values right after it; returns the copy. */

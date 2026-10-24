@@ -556,7 +556,10 @@
     "onePerson": "Limit to one person",
     "onePersonHint": "Each row names one person at most. Rows naming more keep them until they're changed.",
     "statusCheckbox": "Show as checkbox",
-    "statusCheckboxHint": "A box ticked while the status is done. Ticking it picks the first done status, unticking the first to-do one."
+    "statusCheckboxHint": "A box ticked while the status is done. Ticking it picks the first done status, unticking the first to-do one.",
+    "pickerProperties": "Show in row picker",
+    "pickerPropertiesHint": "Up to three properties shown beside each row's name when linking rows.",
+    "pickerPropertiesNone": "The related database has no properties to show."
   },
   "rowProperties": {
     "noProperties": "No properties",

@@ -556,7 +556,10 @@
     "onePerson": "1人に限定",
     "onePersonHint": "各行に指定できるのは1人までです。すでに複数指定されている行は、変更されるまでそのままです。",
     "statusCheckbox": "チェックボックスで表示",
-    "statusCheckboxHint": "ステータスが完了のあいだチェックが入ります。チェックすると最初の完了ステータス、外すと最初の未着手ステータスになります。"
+    "statusCheckboxHint": "ステータスが完了のあいだチェックが入ります。チェックすると最初の完了ステータス、外すと最初の未着手ステータスになります。",
+    "pickerProperties": "行の選択画面に表示",
+    "pickerPropertiesHint": "行をリンクするとき、各行の名前の横に最大3つのプロパティを表示します。",
+    "pickerPropertiesNone": "関連データベースに表示できるプロパティがありません。"
   },
   "rowProperties": {
     "noProperties": "プロパティなし",

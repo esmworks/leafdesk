@@ -556,7 +556,10 @@
     "onePerson": "Beperken tot één persoon",
     "onePersonHint": "Elke rij noemt hoogstens één persoon. Rijen met meer houden die tot ze worden gewijzigd.",
     "statusCheckbox": "Tonen als selectievakje",
-    "statusCheckboxHint": "Een vakje dat is aangevinkt zolang de status klaar is. Aanvinken kiest de eerste klaar-status, uitvinken de eerste te-doen-status."
+    "statusCheckboxHint": "Een vakje dat is aangevinkt zolang de status klaar is. Aanvinken kiest de eerste klaar-status, uitvinken de eerste te-doen-status.",
+    "pickerProperties": "Tonen in de rijkiezer",
+    "pickerPropertiesHint": "Tot drie eigenschappen naast de naam van elke rij bij het koppelen van rijen.",
+    "pickerPropertiesNone": "De gekoppelde database heeft geen eigenschappen om te tonen."
   },
   "rowProperties": {
     "noProperties": "Geen eigenschappen",

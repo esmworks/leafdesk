@@ -556,7 +556,10 @@
     "onePerson": "Tek kişiyle sınırla",
     "onePersonHint": "Her satır en fazla bir kişiyi gösterir. Daha fazla kişi içeren satırlar değiştirilene kadar onları korur.",
     "statusCheckbox": "Onay kutusu olarak göster",
-    "statusCheckboxHint": "Durum tamamlandıyken işaretli bir kutu. İşaretlemek ilk tamamlandı durumunu, işareti kaldırmak ilk yapılacak durumunu seçer."
+    "statusCheckboxHint": "Durum tamamlandıyken işaretli bir kutu. İşaretlemek ilk tamamlandı durumunu, işareti kaldırmak ilk yapılacak durumunu seçer.",
+    "pickerProperties": "Satır seçicide göster",
+    "pickerPropertiesHint": "Satır bağlarken her satırın adının yanında en fazla üç özellik gösterilir.",
+    "pickerPropertiesNone": "İlişkili veritabanında gösterilecek özellik yok."
   },
   "rowProperties": {
     "noProperties": "Özellik yok",

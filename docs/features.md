@@ -164,6 +164,9 @@
     changes the other row's paired property too. That takes edit access to the row you change and
     being able to see the row you link, not edit access to the other database; making a two-way
     relation takes edit access to both databases, since it adds the paired property to the other.
+    A one-way relation can be made two-way later from its menu (*Show on … too*), which links the
+    rows back from the rows they already link to. *Show in row picker* shows up to three properties
+    of the related database beside each row's name when picking rows to link.
   - Views: table, board, calendar, gallery, list, feed (rows as posts, newest first, with the
     start of their bodies, emoji reactions and their comments), timeline, map (rows as pins at a place
     property), chart and dashboard (widgets over the database, see Dashboards), each with its own filters,

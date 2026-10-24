@@ -556,7 +556,10 @@
     "onePerson": "Limitar a uma pessoa",
     "onePersonHint": "Cada linha indica no máximo uma pessoa. Linhas que indicam mais as mantêm até serem alteradas.",
     "statusCheckbox": "Mostrar como caixa de seleção",
-    "statusCheckboxHint": "Uma caixa marcada enquanto o status estiver concluído. Marcá-la escolhe o primeiro status concluído; desmarcá-la, o primeiro a fazer."
+    "statusCheckboxHint": "Uma caixa marcada enquanto o status estiver concluído. Marcá-la escolhe o primeiro status concluído; desmarcá-la, o primeiro a fazer.",
+    "pickerProperties": "Mostrar no seletor de linhas",
+    "pickerPropertiesHint": "Até três propriedades exibidas ao lado do nome de cada linha ao vincular linhas.",
+    "pickerPropertiesNone": "O banco de dados relacionado não tem propriedades para mostrar."
   },
   "rowProperties": {
     "noProperties": "Nenhuma propriedade",

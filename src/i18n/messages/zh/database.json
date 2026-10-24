@@ -556,7 +556,10 @@
     "onePerson": "限制为一人",
     "onePersonHint": "每行最多指定一人。已指定多人的行在修改前保持不变。",
     "statusCheckbox": "显示为复选框",
-    "statusCheckboxHint": "状态为已完成时勾选。勾选会选择第一个已完成状态，取消勾选会选择第一个待办状态。"
+    "statusCheckboxHint": "状态为已完成时勾选。勾选会选择第一个已完成状态，取消勾选会选择第一个待办状态。",
+    "pickerProperties": "在行选择器中显示",
+    "pickerPropertiesHint": "关联行时，在每行名称旁最多显示三个属性。",
+    "pickerPropertiesNone": "关联的数据库没有可显示的属性。"
   },
   "rowProperties": {
     "noProperties": "没有属性",

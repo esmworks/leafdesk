@@ -556,7 +556,10 @@
     "onePerson": "Limita a una persona",
     "onePersonHint": "Ogni riga indica al massimo una persona. Le righe che ne indicano di più le mantengono finché non vengono modificate.",
     "statusCheckbox": "Mostra come casella",
-    "statusCheckboxHint": "Una casella spuntata finché lo stato è completato. Spuntarla sceglie il primo stato completato, togliere la spunta il primo da fare."
+    "statusCheckboxHint": "Una casella spuntata finché lo stato è completato. Spuntarla sceglie il primo stato completato, togliere la spunta il primo da fare.",
+    "pickerProperties": "Mostra nel selettore di righe",
+    "pickerPropertiesHint": "Fino a tre proprietà mostrate accanto al nome di ogni riga quando si collegano righe.",
+    "pickerPropertiesNone": "Il database collegato non ha proprietà da mostrare."
   },
   "rowProperties": {
     "noProperties": "Nessuna proprietà",

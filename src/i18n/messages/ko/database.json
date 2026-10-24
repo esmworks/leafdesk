@@ -556,7 +556,10 @@
     "onePerson": "한 명으로 제한",
     "onePersonHint": "각 행에는 최대 한 명만 지정됩니다. 이미 여러 명이 지정된 행은 변경될 때까지 그대로 유지됩니다.",
     "statusCheckbox": "체크박스로 표시",
-    "statusCheckboxHint": "상태가 완료인 동안 체크됩니다. 체크하면 첫 번째 완료 상태가, 해제하면 첫 번째 할 일 상태가 선택됩니다."
+    "statusCheckboxHint": "상태가 완료인 동안 체크됩니다. 체크하면 첫 번째 완료 상태가, 해제하면 첫 번째 할 일 상태가 선택됩니다.",
+    "pickerProperties": "행 선택기에 표시",
+    "pickerPropertiesHint": "행을 연결할 때 각 행 이름 옆에 최대 세 개의 속성을 표시합니다.",
+    "pickerPropertiesNone": "관련 데이터베이스에 표시할 속성이 없습니다."
   },
   "rowProperties": {
     "noProperties": "속성 없음",

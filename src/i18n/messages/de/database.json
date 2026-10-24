@@ -556,7 +556,10 @@
     "onePerson": "Auf eine Person beschränken",
     "onePersonHint": "Jede Zeile nennt höchstens eine Person. Zeilen mit mehreren behalten sie, bis sie geändert werden.",
     "statusCheckbox": "Als Kontrollkästchen anzeigen",
-    "statusCheckboxHint": "Ein Kästchen, das angehakt ist, solange der Status erledigt ist. Anhaken wählt den ersten Erledigt-Status, Abhaken den ersten Zu-erledigen-Status."
+    "statusCheckboxHint": "Ein Kästchen, das angehakt ist, solange der Status erledigt ist. Anhaken wählt den ersten Erledigt-Status, Abhaken den ersten Zu-erledigen-Status.",
+    "pickerProperties": "In der Zeilenauswahl zeigen",
+    "pickerPropertiesHint": "Bis zu drei Eigenschaften neben dem Namen jeder Zeile, wenn Zeilen verknüpft werden.",
+    "pickerPropertiesNone": "Die verknüpfte Datenbank hat keine Eigenschaften zum Anzeigen."
   },
   "rowProperties": {
     "noProperties": "Keine Eigenschaften",

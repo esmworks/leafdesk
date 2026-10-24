@@ -598,6 +598,11 @@ export type RelationConfig = {
   /** A "blocked_by" relation: how waiting rows follow when the rows they wait for move. */
   dependencies?: DependencyConfig;
   /**
+   * Properties of the related database whose values the row picker shows beside each row's
+   * title (up to three, see databases.setRelationPickerProperties); just titles when missing.
+   */
+  pickerProperties?: string[];
+  /**
    * A "sprint" relation: how the sprints database it links to is laid out. Kept when sprints are
    * turned off (only the role goes), so turning them on again picks the same sprints up.
    */
