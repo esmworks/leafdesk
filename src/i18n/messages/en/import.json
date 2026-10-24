@@ -1,10 +1,11 @@
 {
   "open": "Import",
   "title": "Import",
-  "description": "Bring pages in from Markdown files, ZIP exports and Word documents, rows from a CSV file or Excel workbook, a Trello, Asana or Monday.com board, or Jira issues that stay in sync.",
+  "description": "Bring pages in from Markdown files, ZIP exports, Word documents and PDFs, rows from a CSV file or Excel workbook, a Trello, Asana or Monday.com board, or Jira issues that stay in sync.",
   "tabs": {
     "pages": "Markdown & ZIP",
     "docx": "Word",
+    "pdf": "PDF",
     "csv": "CSV & Excel",
     "trello": "Trello",
     "asana": "Asana",
@@ -28,6 +29,12 @@
   "docx": {
     "help": "Each Word document (.docx) becomes a page, with its headings, lists, tables, links, pictures and footnotes. A heading at the very top becomes the page's title; otherwise the file name does.",
     "choose": "Choose Word files"
+  },
+  "pdf": {
+    "help": "Each PDF becomes a page made of its text: larger lines become headings, and paragraphs and numbered or bulleted lists come along, also across page breaks. Running headers, footers and page numbers are left out. A heading at the very top becomes the page's title; otherwise the file name does.",
+    "scans": "A scanned PDF has no text to read and can't be imported: run text recognition (OCR) on it first, or upload it to a page as a file.",
+    "choose": "Choose PDF files",
+    "attach": "Also attach each PDF to its page, for its pictures, tables and layout"
   },
   "csv": {
     "choose": "Choose a CSV or Excel file",
@@ -208,6 +215,9 @@
     "unsupportedWorkbook": "Only .xlsx workbooks without a password can be imported. Save the file as an Excel Workbook (.xlsx) without a password and try again.",
     "badDocx": "“{name}” can't be read as a Word document. Only .docx files can be imported; save older .doc files as .docx first.",
     "docxTooComplex": "“{name}” is too large or complex to import as one page.",
+    "badPdf": "“{name}” can't be read as a PDF. It may be damaged or protected with a password.",
+    "pdfNoText": "“{name}” has no text to import: it looks like a scan. Run text recognition (OCR) on it first, or upload it to a page as a file.",
+    "pdfTooComplex": "“{name}” is too large to import as one page.",
     "badTrello": "The file isn't a Trello board export. In Trello, choose Export as JSON from the board's menu and pick that file.",
     "badAsana": "The file isn't an Asana project export. In Asana, choose Export → CSV or JSON from the project's menu and pick that file.",
     "badMonday": "The file isn't a Monday.com board export. In Monday.com, choose Export board to Excel from the board's menu and pick that file.",

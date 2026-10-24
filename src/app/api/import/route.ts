@@ -16,6 +16,7 @@ import { importBoard } from "@/server/import/board";
 import { importCsvAsDatabase, importCsvIntoDatabase, recordImport, type ColumnTarget } from "@/server/import/csv";
 import { importDocx } from "@/server/import/docx";
 import { importPages } from "@/server/import/markdown";
+import { importPdf } from "@/server/import/pdf";
 import { importTrello } from "@/server/import/trello";
 import { TeamspaceError } from "@/server/teamspaces";
 
@@ -27,6 +28,8 @@ import { TeamspaceError } from "@/server/teamspaces";
  *                   level of `workspaceId`). Each `file` may have a `path` (its place in a folder).
  *                   `vault=1`: the files are an Obsidian vault whose `.obsidian` folder wasn't sent.
  *   mode=docx       Word documents (.docx), each `file` a page under `parentId` / `workspaceId`.
+ *   mode=pdf        PDFs, each `file` a page of its text under `parentId` / `workspaceId`;
+ *                   `attach=1`: each PDF is also uploaded to its page and shown at its top.
  *   mode=csv-new    One CSV or Excel (.xlsx) `file` as a new database under `parentId` /
  *                   `workspaceId`, called `title`, with `titleColumn` (a column index, or empty for
  *                   none) and `types` (JSON: a property type or null per column; guessed when missing).
@@ -97,6 +100,9 @@ export async function POST(request: Request) {
     } else if (mode === "docx") {
       const files = await Promise.all(uploads.map(async (f) => ({ name: f.name, data: new Uint8Array(await f.arrayBuffer()) })));
       result = await importDocx(actor, { workspaceId, parentId, teamspaceId, files });
+    } else if (mode === "pdf") {
+      const files = await Promise.all(uploads.map(async (f) => ({ name: f.name, data: new Uint8Array(await f.arrayBuffer()) })));
+      result = await importPdf(actor, { workspaceId, parentId, teamspaceId, files, attach: field("attach") === "1" });
     } else if (mode === "trello") {
       if (uploads.length !== 1) return fail(400, "badRequest", "Send one Trello export");
       const board = parseTrelloExport(decodeText(new Uint8Array(await uploads[0].arrayBuffer())));

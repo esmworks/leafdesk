@@ -1,10 +1,11 @@
 {
   "open": "Importer",
   "title": "Importer",
-  "description": "Importez des pages depuis des fichiers Markdown, des exports ZIP et des documents Word, des lignes depuis un fichier CSV ou un classeur Excel, un tableau Trello, Asana ou Monday.com, ou des tickets Jira qui restent synchronisés.",
+  "description": "Importez des pages depuis des fichiers Markdown, des exports ZIP, des documents Word et des PDF, des lignes depuis un fichier CSV ou un classeur Excel, un tableau Trello, Asana ou Monday.com, ou des tickets Jira qui restent synchronisés.",
   "tabs": {
     "pages": "Markdown et ZIP",
     "docx": "Word",
+    "pdf": "PDF",
     "csv": "CSV et Excel",
     "trello": "Trello",
     "asana": "Asana",
@@ -28,6 +29,12 @@
   "docx": {
     "help": "Chaque document Word (.docx) devient une page, avec ses titres, listes, tableaux, liens, images et notes de bas de page. Un titre placé tout en haut devient le titre de la page ; sinon, c’est le nom du fichier.",
     "choose": "Choisir des fichiers Word"
+  },
+  "pdf": {
+    "help": "Chaque PDF devient une page faite de son texte : les lignes plus grandes deviennent des titres, et les paragraphes ainsi que les listes numérotées ou à puces suivent, y compris d'une page à l'autre. Les en-têtes et pieds de page répétés et les numéros de page sont laissés de côté. Un titre tout en haut devient le titre de la page ; sinon, c'est le nom du fichier.",
+    "scans": "Un PDF scanné n'a pas de texte à lire et ne peut pas être importé : passez-le d'abord à la reconnaissance de texte (OCR), ou téléversez-le sur une page en tant que fichier.",
+    "choose": "Choisir des fichiers PDF",
+    "attach": "Joindre aussi chaque PDF à sa page, pour ses images, ses tableaux et sa mise en page"
   },
   "csv": {
     "choose": "Choisir un fichier CSV ou Excel",
@@ -208,6 +215,9 @@
     "unsupportedWorkbook": "Seuls les classeurs .xlsx sans mot de passe peuvent être importés. Enregistrez le fichier en tant que classeur Excel (.xlsx) sans mot de passe, puis réessayez.",
     "badDocx": "« {name} » ne peut pas être lu comme un document Word. Seuls les fichiers .docx peuvent être importés ; enregistrez d’abord les anciens fichiers .doc au format .docx.",
     "docxTooComplex": "« {name} » est trop volumineux ou trop complexe pour être importé en une seule page.",
+    "badPdf": "« {name} » ne peut pas être lu comme un PDF. Il est peut-être endommagé ou protégé par un mot de passe.",
+    "pdfNoText": "« {name} » n'a pas de texte à importer : il semble s'agir d'un scan. Passez-le d'abord à la reconnaissance de texte (OCR), ou téléversez-le sur une page en tant que fichier.",
+    "pdfTooComplex": "« {name} » est trop volumineux pour être importé en une seule page.",
     "badTrello": "Ce fichier n’est pas un export de tableau Trello. Dans Trello, choisissez Exporter au format JSON dans le menu du tableau, puis ce fichier.",
     "badAsana": "Le fichier n’est pas un export de projet Asana. Dans Asana, choisissez Exporter → CSV ou JSON dans le menu du projet, puis ce fichier.",
     "badMonday": "Le fichier n’est pas un export de tableau Monday.com. Dans Monday.com, choisissez Exporter le tableau vers Excel dans le menu du tableau, puis ce fichier.",

@@ -59,6 +59,9 @@ type Picked = { file: File; path: string };
 /** What the Word tab's file picker offers, and what it takes from a drop. */
 const DOCX_ACCEPT = ".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 const isDocx = (file: File) => /\.docx$/i.test(file.name);
+/** What the PDF tab's file picker offers, and what it takes from a drop. */
+const PDF_ACCEPT = ".pdf,application/pdf";
+const isPdf = (file: File) => /\.pdf$/i.test(file.name);
 /** What the Trello tab's file picker offers. */
 const TRELLO_ACCEPT = ".json,application/json";
 /** What the Asana and Monday.com tabs' file pickers offer. */
@@ -71,7 +74,7 @@ type BoardSource = keyof typeof BOARD_ACCEPT;
 type CsvState = { file: File; table: CsvTable; guesses: CsvColumnType[]; sheets: string[]; sheet: number };
 
 /**
- * Imports Markdown files, folders and ZIPs as pages, Word documents as a page each, a CSV file
+ * Imports Markdown files, folders and ZIPs as pages, Word documents and PDFs as a page each, a CSV file
  * or Excel workbook (one of its sheets) as a new database or as rows of an existing one (with a
  * column → property mapping), or a Trello board's JSON export, an Asana project's export or a
  * Monday.com board's as a new database. Sends everything to /api/import and shows what was created
@@ -116,12 +119,15 @@ export function ImportDialog({
   const databases = flat.filter(({ node }) => node.kind === "database" && canEdit(node));
   const activeNode = tree.find((n) => n.id === activeId);
 
-  const [tab, setTab] = useState<"pages" | "docx" | "csv" | "trello" | BoardSource | "jira">("pages");
+  const [tab, setTab] = useState<"pages" | "docx" | "pdf" | "csv" | "trello" | BoardSource | "jira">("pages");
   const [destination, setDestination] = useState("");
   const [picked, setPicked] = useState<Picked[]>([]);
   // A folder that came with an Obsidian vault's settings folder (which isn't sent).
   const [vault, setVault] = useState(false);
   const [documents, setDocuments] = useState<File[]>([]);
+  const [pdfs, setPdfs] = useState<File[]>([]);
+  // Each PDF is uploaded to its page too, for its pictures, tables and layout.
+  const [attachPdf, setAttachPdf] = useState(true);
   const [csv, setCsv] = useState<CsvState | null>(null);
   const [trello, setTrello] = useState<{ file: File; board: TrelloBoard } | null>(null);
   const [boardName, setBoardName] = useState("");
@@ -145,6 +151,7 @@ export function ImportDialog({
   const folderInput = useRef<HTMLInputElement>(null);
   const csvInput = useRef<HTMLInputElement>(null);
   const docxInput = useRef<HTMLInputElement>(null);
+  const pdfInput = useRef<HTMLInputElement>(null);
   const trelloInput = useRef<HTMLInputElement>(null);
   const boardInput = useRef<HTMLInputElement>(null);
 
@@ -159,6 +166,8 @@ export function ImportDialog({
     setPicked([]);
     setVault(false);
     setDocuments([]);
+    setPdfs([]);
+    setAttachPdf(true);
     setCsv(null);
     setTrello(null);
     setBoard(null);
@@ -215,6 +224,7 @@ export function ImportDialog({
   const destinationValid = destination ? destination === filePage || destinations.some((d) => d.node.id === destination) : topLevel;
   const totalSize = picked.reduce((sum, p) => sum + p.file.size, 0);
   const documentsSize = documents.reduce((sum, f) => sum + f.size, 0);
+  const pdfsSize = pdfs.reduce((sum, f) => sum + f.size, 0);
 
   function addFiles(list: FileList | File[] | null) {
     if (!list) return;
@@ -232,6 +242,14 @@ export function ImportDialog({
     if (!list) return;
     const next = [...list].filter(isDocx);
     setDocuments((prev) => [...prev.filter((f) => !next.some((n) => n.name === f.name)), ...next]);
+    setError(null);
+  }
+
+  /** Adds PDFs to the list (by name: choosing one again replaces it); other files are passed over. */
+  function addPdfs(list: FileList | File[] | null) {
+    if (!list) return;
+    const next = [...list].filter(isPdf);
+    setPdfs((prev) => [...prev.filter((f) => !next.some((n) => n.name === f.name)), ...next]);
     setError(null);
   }
 
@@ -324,6 +342,9 @@ export function ImportDialog({
       "unsupportedWorkbook",
       "badDocx",
       "docxTooComplex",
+      "badPdf",
+      "pdfNoText",
+      "pdfTooComplex",
       "badTrello",
       "badAsana",
       "badMonday",
@@ -354,6 +375,12 @@ export function ImportDialog({
       form.append("mode", "docx");
       form.append("parentId", destination);
       for (const file of documents) form.append("file", file, file.name);
+    } else if (tab === "pdf") {
+      if (pdfsSize > IMPORT_LIMITS.uploadBytes) return setError(t("errors.tooLarge", { limit: formatBytes(IMPORT_LIMITS.uploadBytes) }));
+      form.append("mode", "pdf");
+      form.append("parentId", destination);
+      if (attachPdf) form.append("attach", "1");
+      for (const file of pdfs) form.append("file", file, file.name);
     } else if (tab === "trello") {
       if (!trello) return;
       form.append("mode", "trello");
@@ -438,6 +465,8 @@ export function ImportDialog({
       ? picked.length > 0 && destinationValid
       : tab === "docx"
         ? documents.length > 0 && destinationValid
+        : tab === "pdf"
+          ? pdfs.length > 0 && destinationValid
         : tab === "trello"
           ? trello !== null && destinationValid
           : tab === "asana" || tab === "monday"
@@ -502,6 +531,7 @@ export function ImportDialog({
             setPicked([]);
             setVault(false);
             setDocuments([]);
+            setPdfs([]);
             setCsv(null);
             setTrello(null);
             setBoard(null);
@@ -510,7 +540,7 @@ export function ImportDialog({
       ) : (
         <div className="max-h-[70vh] space-y-4 overflow-y-auto p-4" aria-busy={busy}>
           <div role="tablist" aria-label={t("title")} className="inline-flex flex-wrap gap-0.5 rounded-lg bg-bg-hover p-0.5">
-            {(["pages", "docx", "csv", "trello", "asana", "monday", "jira"] as const).map((key) => (
+            {(["pages", "docx", "pdf", "csv", "trello", "asana", "monday", "jira"] as const).map((key) => (
               <button
                 key={key}
                 type="button"
@@ -667,6 +697,74 @@ export function ImportDialog({
                   </ul>
                 </div>
               )}
+              {destinationPicker}
+            </>
+          ) : tab === "pdf" ? (
+            <>
+              <p className="text-sm text-fg-muted">{t("pdf.help")}</p>
+              <p className="text-sm text-fg-muted">{t("pdf.scans")}</p>
+              <div
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setDragOver(true);
+                }}
+                onDragLeave={() => setDragOver(false)}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setDragOver(false);
+                  addPdfs(e.dataTransfer.files);
+                }}
+                className={cn(
+                  "flex flex-wrap items-center gap-2 rounded-lg border border-dashed border-border px-3 py-3",
+                  dragOver && "border-accent bg-accent/5",
+                )}
+              >
+                <Button disabled={busy} onClick={() => pdfInput.current?.click()}>
+                  <FileUp className="h-4 w-4" />
+                  {t("pdf.choose")}
+                </Button>
+                <span className="text-xs text-fg-faint">{t("pages.drop")}</span>
+                <input
+                  ref={pdfInput}
+                  type="file"
+                  multiple
+                  hidden
+                  accept={PDF_ACCEPT}
+                  data-import="pdf"
+                  onChange={(e) => {
+                    addPdfs(e.target.files);
+                    e.target.value = "";
+                  }}
+                />
+              </div>
+              {pdfs.length > 0 && (
+                <div className="rounded-lg border border-border">
+                  <div className="flex items-center justify-between border-b border-border px-3 py-1.5 text-xs text-fg-muted">
+                    <span>{t("pages.selected", { count: pdfs.length, size: formatBytes(pdfsSize) })}</span>
+                    <Button size="sm" variant="ghost" disabled={busy} onClick={() => setPdfs([])}>
+                      {t("pages.clear")}
+                    </Button>
+                  </div>
+                  <ul className="max-h-32 overflow-y-auto px-3 py-1.5 text-xs text-fg-muted">
+                    {pdfs.slice(0, 50).map((file) => (
+                      <li key={file.name} className="truncate">
+                        {file.name}
+                      </li>
+                    ))}
+                    {pdfs.length > 50 && <li>…</li>}
+                  </ul>
+                </div>
+              )}
+              <label className="flex items-start gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  className="mt-0.5"
+                  checked={attachPdf}
+                  disabled={busy}
+                  onChange={(e) => setAttachPdf(e.target.checked)}
+                />
+                <span>{t("pdf.attach")}</span>
+              </label>
               {destinationPicker}
             </>
           ) : tab === "trello" ? (

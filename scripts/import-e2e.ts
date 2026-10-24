@@ -4,7 +4,9 @@
  * as page links, images uploaded, an Obsidian vault's wikilinks, embeds, aliases and callouts), CSV files as new databases (guessed and chosen types) and into
  * existing ones (column mapping, new options, people and relations by name, cells that don't fit),
  * Excel workbooks (a database exported as one comes back with the same values), Word documents
- * (a page each, titled by their first heading, pictures uploaded), Trello boards (a database on a
+ * (a page each, titled by their first heading, pictures uploaded), PDFs (a page of their text: headings
+ * by size, paragraphs joined across lines and page breaks, lists, running headers and footers left
+ * out, the PDF itself attached; a scan refused), Trello boards (a database on a
  * board view grouped by list, labels, members as people or text, dates, checklists, custom fields,
  * comments and card links in the rows' bodies, no assignment notifications), Asana projects (CSV
  * and JSON) and Monday.com boards (Excel) as databases on a board view (sections or groups, a
@@ -54,6 +56,8 @@ const { AccessError } = await import("@/server/access");
 const { importPages } = await import("@/server/import/markdown");
 const { importDocx } = await import("@/server/import/docx");
 const docxFixture = await import("@/server/import/docx-fixtures");
+const { importPdf } = await import("@/server/import/pdf");
+const { default: pdfmake } = await import("pdfmake");
 const { importCsvAsDatabase, importCsvIntoDatabase } = await import("@/server/import/csv");
 const { importTrello } = await import("@/server/import/trello");
 const { importBoard } = await import("@/server/import/board");
@@ -566,6 +570,117 @@ try {
     "Word documents go only where the user may add pages",
   );
 
+  // PDFs: a page of their text each (generated here with the standard Helvetica font, so they stay small)
+  pdfmake.setFonts({ Helvetica: { normal: "Helvetica", bold: "Helvetica-Bold", italics: "Helvetica-Oblique", bolditalics: "Helvetica-BoldOblique" } });
+  pdfmake.setUrlAccessPolicy(() => false);
+  pdfmake.setLocalAccessPolicy((path) => /^Helvetica/.test(path));
+  const makePdf = async (content: unknown[], furniture = false) =>
+    new Uint8Array(
+      await pdfmake
+        .createPdf({
+          defaultStyle: { font: "Helvetica", fontSize: 11 },
+          ...(furniture
+            ? {
+                header: { text: "Acme Cooling — service report", fontSize: 9, margin: [40, 20, 40, 0] },
+                footer: (current: number, count: number) => ({ text: `Page ${current} of ${count}`, alignment: "center", fontSize: 9 }),
+              }
+            : {}),
+          content,
+        } as never)
+        .getBuffer(),
+    );
+  const sentence = "Cold rooms keep food fresh when their doors close well and their compressors run. ";
+  const reportPdf = await makePdf(
+    [
+      { text: "Service report", fontSize: 24, margin: [0, 0, 0, 12] },
+      { text: "We serviced every cold room this quarter, and this paragraph wraps over more than one line of the page before it ends." },
+      { text: "What we found", fontSize: 16, margin: [0, 12, 0, 6] },
+      { text: "• Two compressors needed new oil." },
+      { text: "• One fan was replaced." },
+      { text: "Next steps", fontSize: 16, margin: [0, 12, 0, 6] },
+      { text: "1. Order the spare parts." },
+      { text: "2. Book the second visit." },
+      { text: `${sentence.repeat(150)}The end.`, margin: [0, 12, 0, 0] },
+      { text: "Details", fontSize: 13, margin: [0, 12, 0, 6] },
+      { text: "Last words." },
+    ],
+    true,
+  );
+  const scanPdf = await makePdf([{ canvas: [{ type: "rect", x: 0, y: 0, w: 300, h: 400, color: "#888888" }] }]);
+  const memoPdf = await makePdf([{ text: "A short memo." }]);
+  const pdfHome = await createPage(owner, { workspaceId, title: "PDFs" });
+  const fromPdf = await importPdf(owner, { workspaceId, parentId: pdfHome.id, files: [{ name: "Service.pdf", data: reportPdf }, { name: "Memo notes.pdf", data: memoPdf }], attach: true });
+  check(
+    JSON.stringify(fromPdf.pages.map((p) => p.title)) === JSON.stringify(["Service report", "Memo notes"]) && fromPdf.created.pages === 2,
+    "each PDF becomes a page, titled by the heading it starts with or else by its file name",
+    fromPdf,
+  );
+  const memoId = fromPdf.pages[1].id;
+  await eventually(async () => (await body(memoId)).includes("A short memo."), "the memo body");
+  const memoBody = await body(memoId);
+  const [storedPdf] = await db.select().from(file).where(eq(file.pageId, memoId));
+  check(
+    fromPdf.created.files === 1 && storedPdf?.name === "Memo notes.pdf" && storedPdf.contentType === "application/pdf" &&
+      memoBody.includes(`/api/files/${storedPdf.id}`) && memoBody.indexOf(`/api/files/${storedPdf.id}`) < memoBody.indexOf("A short memo."),
+    "…the PDF itself uploaded to it and shown at its top",
+    { storedPdf, memoBody },
+  );
+  check(
+    JSON.stringify(fromPdf.warnings) === JSON.stringify([{ code: "fileNotStored", path: "Service.pdf", reason: "tooLarge" }]) &&
+      (await db.select().from(file).where(eq(file.pageId, fromPdf.pages[0].id))).length === 0,
+    "…unless it is over the upload limit: then its page has the text only, and the import says so",
+    fromPdf.warnings,
+  );
+  const pdfId = fromPdf.pages[0].id;
+  await eventually(async () => (await body(pdfId)).includes("Last words."), "the PDF page body");
+  const pdfBody = await body(pdfId);
+  const paragraphs = pdfBody.split(/\n{2,}/);
+  check(
+    !pdfBody.includes("# Service report") && pdfBody.includes("## What we found") && pdfBody.includes("### Details") &&
+      paragraphs.includes("We serviced every cold room this quarter, and this paragraph wraps over more than one line of the page before it ends."),
+    "…with headings by font size, the title heading out of the body, and wrapped lines joined into one paragraph",
+    pdfBody,
+  );
+  check(
+    /^[-*] Two compressors needed new oil\.$/m.test(pdfBody) && /^[-*] One fan was replaced\.$/m.test(pdfBody) && /^1\. Order the spare parts\.$/m.test(pdfBody) && /^2\. Book the second visit\.$/m.test(pdfBody),
+    "…bulleted and numbered lines as lists",
+    pdfBody,
+  );
+  check(
+    paragraphs.some((p) => p.startsWith("Cold rooms keep") && p.endsWith("The end.") && p.split("Cold rooms keep").length === 151) &&
+      !pdfBody.includes("Acme Cooling") && !/Page \d of \d/.test(pdfBody),
+    "…a paragraph running over a page break kept whole, running headers, footers and page numbers left out",
+    pdfBody,
+  );
+  const [pdfAudit] = await db
+    .select()
+    .from(auditEvent)
+    .where(and(eq(auditEvent.workspaceId, workspaceId), eq(auditEvent.action, "page.imported"), eq(auditEvent.actorUserId, ids.owner)))
+    .orderBy(desc(auditEvent.createdAt))
+    .limit(1);
+  check((pdfAudit?.details as { format?: string } | undefined)?.format === "pdf", "a PDF import is recorded in the audit log", pdfAudit);
+  const unattached = await importPdf(owner, { workspaceId, parentId: pdfHome.id, files: [{ name: "Memo.pdf", data: memoPdf }] });
+  check(
+    unattached.created.files === 0 && (await db.select().from(file).where(eq(file.pageId, unattached.pages[0].id))).length === 0,
+    "without attaching, the PDF itself isn't uploaded",
+    unattached,
+  );
+  const pdfsBefore = (await titles(pdfHome.id)).length;
+  check(
+    (await failure(() => importPdf(owner, { workspaceId, parentId: pdfHome.id, files: [{ name: "Memo.pdf", data: memoPdf }, { name: "Scan.pdf", data: scanPdf }] }))) === "pdfNoText" &&
+      (await titles(pdfHome.id)).length === pdfsBefore,
+    "a scan without a text layer stops the import before any page is created",
+  );
+  check(
+    (await failure(() => importPdf(owner, { workspaceId, parentId: pdfHome.id, files: [{ name: "Broken.pdf", data: reportPdf.slice(0, 400) }] }))) === "badPdf" &&
+      (await failure(() => importPdf(owner, { workspaceId, parentId: pdfHome.id, files: [{ name: "memo.txt", data: memoPdf }] }))) === "badPdf",
+    "a damaged PDF, or a file that isn't one, is refused",
+  );
+  check(
+    (await failure(() => importPdf({ userId: ids.guest }, { workspaceId, parentId: pdfHome.id, files: [{ name: "x.pdf", data: memoPdf }] }))) === "access",
+    "PDFs go only where the user may add pages",
+  );
+
   // Trello boards: a database opening on a board view grouped by list
   const trelloBoard = JSON.parse(await readFile(new URL("../src/lib/import/trello-fixture.json", import.meta.url), "utf8")) as Record<string, unknown>;
   const boardsHome = await createPage(owner, { workspaceId, title: "Boards" });
@@ -1052,6 +1167,14 @@ try {
     brokenWord.status === 400 && brokenWord.json.code === "badDocx" && brokenWord.json.params.name === "Broken.docx",
     "…and refuses a damaged one with a code the dialog translates",
     brokenWord,
+  );
+  const pdfRoute = await post({ mode: "pdf", workspaceId, parentId: home.id, attach: "1" }, [{ name: "Memo.pdf", data: memoPdf }]);
+  check(pdfRoute.status === 201 && pdfRoute.json.pages[0].title === "Memo" && pdfRoute.json.created.files === 1, "…PDFs as pages, attached when asked", pdfRoute);
+  const scanRoute = await post({ mode: "pdf", workspaceId, parentId: home.id }, [{ name: "Scan.pdf", data: scanPdf }]);
+  check(
+    scanRoute.status === 400 && scanRoute.json.code === "pdfNoText" && scanRoute.json.params.name === "Scan.pdf",
+    "…and refuses a scan with a code the dialog translates",
+    scanRoute,
   );
   const empty = await post({ mode: "csv-new", workspaceId, parentId: home.id }, [{ name: "e.csv", data: "" }]);
   check(empty.status === 400 && empty.json.code === "emptyCsv", "an empty CSV is refused with a code the dialog translates", empty);

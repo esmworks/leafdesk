@@ -1,10 +1,11 @@
 {
   "open": "Importar",
   "title": "Importar",
-  "description": "Traga páginas de arquivos Markdown, exportações ZIP e documentos do Word, linhas de um arquivo CSV ou pasta de trabalho do Excel, um quadro do Trello, Asana ou Monday.com, ou itens do Jira que continuam sincronizados.",
+  "description": "Traga páginas de arquivos Markdown, exportações ZIP, documentos do Word e PDFs, linhas de um arquivo CSV ou pasta de trabalho do Excel, um quadro do Trello, Asana ou Monday.com, ou itens do Jira que continuam sincronizados.",
   "tabs": {
     "pages": "Markdown e ZIP",
     "docx": "Word",
+    "pdf": "PDF",
     "csv": "CSV e Excel",
     "trello": "Trello",
     "asana": "Asana",
@@ -28,6 +29,12 @@
   "docx": {
     "help": "Cada documento do Word (.docx) vira uma página, com títulos, listas, tabelas, links, imagens e notas de rodapé. Um título logo no início vira o título da página; caso contrário, o nome do arquivo é usado.",
     "choose": "Escolher arquivos do Word"
+  },
+  "pdf": {
+    "help": "Cada PDF vira uma página feita do seu texto: as linhas maiores viram títulos, e parágrafos e listas numeradas ou com marcadores também vêm, inclusive entre quebras de página. Cabeçalhos e rodapés repetidos e números de página ficam de fora. Um título bem no topo vira o título da página; caso contrário, o nome do arquivo.",
+    "scans": "Um PDF digitalizado não tem texto para ler e não pode ser importado: rode primeiro um reconhecimento de texto (OCR) nele ou envie-o para uma página como arquivo.",
+    "choose": "Escolher arquivos PDF",
+    "attach": "Anexar também cada PDF à sua página, pelas imagens, tabelas e layout"
   },
   "csv": {
     "choose": "Escolher um arquivo CSV ou Excel",
@@ -208,6 +215,9 @@
     "unsupportedWorkbook": "Só é possível importar pastas de trabalho .xlsx sem senha. Salve o arquivo como Pasta de Trabalho do Excel (.xlsx) sem senha e tente novamente.",
     "badDocx": "Não foi possível ler “{name}” como documento do Word. Só arquivos .docx podem ser importados; salve arquivos .doc antigos como .docx primeiro.",
     "docxTooComplex": "“{name}” é grande ou complexo demais para importar como uma página.",
+    "badPdf": "Não é possível ler “{name}” como PDF. Ele pode estar danificado ou protegido por senha.",
+    "pdfNoText": "“{name}” não tem texto para importar: parece uma digitalização. Rode primeiro um reconhecimento de texto (OCR) nele ou envie-o para uma página como arquivo.",
+    "pdfTooComplex": "“{name}” é grande demais para importar como uma só página.",
     "badTrello": "O arquivo não é uma exportação de quadro do Trello. No Trello, escolha Exportar como JSON no menu do quadro e escolha esse arquivo.",
     "badAsana": "O arquivo não é uma exportação de projeto do Asana. No Asana, escolha Exportar → CSV ou JSON no menu do projeto e escolha esse arquivo.",
     "badMonday": "O arquivo não é uma exportação de quadro do Monday.com. No Monday.com, escolha Exportar quadro para Excel no menu do quadro e escolha esse arquivo.",

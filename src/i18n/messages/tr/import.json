@@ -1,10 +1,11 @@
 {
   "open": "İçe aktar",
   "title": "İçe aktar",
-  "description": "Markdown dosyalarından, ZIP dışa aktarımlarından ve Word belgelerinden sayfa, CSV dosyasından veya Excel çalışma kitabından satır, bir Trello, Asana veya Monday.com panosu ya da eşitlenmeye devam eden Jira kayıtları getirin.",
+  "description": "Markdown dosyalarından, ZIP dışa aktarımlarından, Word belgelerinden ve PDF'lerden sayfa, CSV dosyasından veya Excel çalışma kitabından satır, bir Trello, Asana veya Monday.com panosu ya da eşitlenmeye devam eden Jira kayıtları getirin.",
   "tabs": {
     "pages": "Markdown ve ZIP",
     "docx": "Word",
+    "pdf": "PDF",
     "csv": "CSV ve Excel",
     "trello": "Trello",
     "asana": "Asana",
@@ -28,6 +29,12 @@
   "docx": {
     "help": "Her Word belgesi (.docx) başlıkları, listeleri, tabloları, bağlantıları, resimleri ve dipnotlarıyla birlikte bir sayfa olur. En baştaki başlık sayfanın adı olur; yoksa dosya adı kullanılır.",
     "choose": "Word dosyalarını seçin"
+  },
+  "pdf": {
+    "help": "Her PDF, metninden oluşan bir sayfa olur: daha büyük satırlar başlığa dönüşür, paragraflar ile numaralı ve madde işaretli listeler de sayfa sonlarının ötesine geçerek gelir. Tekrarlanan üst ve alt bilgiler ile sayfa numaraları alınmaz. En üstteki başlık sayfanın adı olur; yoksa dosya adı.",
+    "scans": "Taranmış bir PDF'te okunacak metin yoktur ve içe aktarılamaz: önce metin tanıma (OCR) uygulayın ya da bir sayfaya dosya olarak yükleyin.",
+    "choose": "PDF dosyalarını seçin",
+    "attach": "Resimleri, tabloları ve düzeni için her PDF'i kendi sayfasına da ekle"
   },
   "csv": {
     "choose": "CSV veya Excel dosyası seç",
@@ -208,6 +215,9 @@
     "unsupportedWorkbook": "Yalnızca parolasız .xlsx çalışma kitapları içe aktarılabilir. Dosyayı parolasız Excel Çalışma Kitabı (.xlsx) olarak kaydedip yeniden deneyin.",
     "badDocx": "“{name}” bir Word belgesi olarak okunamıyor. Yalnızca .docx dosyaları içe aktarılabilir; eski .doc dosyalarını önce .docx olarak kaydedin.",
     "docxTooComplex": "“{name}” tek bir sayfa olarak içe aktarılamayacak kadar büyük ya da karmaşık.",
+    "badPdf": "“{name}” PDF olarak okunamıyor. Bozuk ya da parolayla korunuyor olabilir.",
+    "pdfNoText": "“{name}” içinde içe aktarılacak metin yok: taranmış bir belgeye benziyor. Önce metin tanıma (OCR) uygulayın ya da bir sayfaya dosya olarak yükleyin.",
+    "pdfTooComplex": "“{name}” tek bir sayfa olarak içe aktarılamayacak kadar büyük.",
     "badTrello": "Dosya bir Trello panosu dışa aktarımı değil. Trello'da panonun menüsünden JSON olarak dışa aktar'ı seçip o dosyayı seçin.",
     "badAsana": "Dosya bir Asana projesi dışa aktarımı değil. Asana'da projenin menüsünden Dışa aktar → CSV veya JSON'u seçip o dosyayı seçin.",
     "badMonday": "Dosya bir Monday.com panosu dışa aktarımı değil. Monday.com'da panonun menüsünden Panoyu Excel'e aktar'ı seçip o dosyayı seçin.",

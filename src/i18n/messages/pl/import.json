@@ -1,10 +1,11 @@
 {
   "open": "Importuj",
   "title": "Import",
-  "description": "Przenieś strony z plików Markdown, eksportów ZIP i dokumentów Word, wiersze z pliku CSV lub skoroszytu Excel, tablicę z Trello, Asany lub Monday.com albo zgłoszenia z Jiry, które pozostają zsynchronizowane.",
+  "description": "Przenieś strony z plików Markdown, eksportów ZIP, dokumentów Word i plików PDF, wiersze z pliku CSV lub skoroszytu Excel, tablicę z Trello, Asany lub Monday.com albo zgłoszenia z Jiry, które pozostają zsynchronizowane.",
   "tabs": {
     "pages": "Markdown i ZIP",
     "docx": "Word",
+    "pdf": "PDF",
     "csv": "CSV i Excel",
     "trello": "Trello",
     "asana": "Asana",
@@ -28,6 +29,12 @@
   "docx": {
     "help": "Każdy dokument Word (.docx) staje się stroną z nagłówkami, listami, tabelami, linkami, obrazami i przypisami. Nagłówek na samej górze staje się tytułem strony; w przeciwnym razie tytułem jest nazwa pliku.",
     "choose": "Wybierz pliki Word"
+  },
+  "pdf": {
+    "help": "Każdy PDF staje się stroną z jego tekstu: większe wiersze stają się nagłówkami, a akapity oraz listy numerowane i punktowane przechodzą również przez podziały stron. Powtarzające się nagłówki, stopki i numery stron są pomijane. Nagłówek na samej górze staje się tytułem strony; w przeciwnym razie tytułem jest nazwa pliku.",
+    "scans": "Zeskanowany PDF nie ma tekstu do odczytania i nie można go zaimportować: najpierw uruchom na nim rozpoznawanie tekstu (OCR) albo prześlij go na stronę jako plik.",
+    "choose": "Wybierz pliki PDF",
+    "attach": "Dołącz też każdy PDF do jego strony, dla obrazów, tabel i układu"
   },
   "csv": {
     "choose": "Wybierz plik CSV lub Excel",
@@ -208,6 +215,9 @@
     "unsupportedWorkbook": "Można importować tylko skoroszyty .xlsx bez hasła. Zapisz plik jako Skoroszyt programu Excel (.xlsx) bez hasła i spróbuj ponownie.",
     "badDocx": "Nie można odczytać „{name}” jako dokumentu Word. Importować można tylko pliki .docx; starsze pliki .doc najpierw zapisz jako .docx.",
     "docxTooComplex": "Plik „{name}” jest zbyt duży lub złożony, aby zaimportować go jako jedną stronę.",
+    "badPdf": "Nie można odczytać „{name}” jako PDF. Może być uszkodzony albo chroniony hasłem.",
+    "pdfNoText": "„{name}” nie ma tekstu do zaimportowania: wygląda na skan. Najpierw uruchom na nim rozpoznawanie tekstu (OCR) albo prześlij go na stronę jako plik.",
+    "pdfTooComplex": "„{name}” jest za duży, by zaimportować go jako jedną stronę.",
     "badTrello": "Ten plik nie jest eksportem tablicy Trello. W Trello wybierz Eksportuj jako JSON z menu tablicy i wskaż ten plik.",
     "badAsana": "Ten plik nie jest eksportem projektu z Asany. W Asanie wybierz Eksportuj → CSV lub JSON z menu projektu i wybierz ten plik.",
     "badMonday": "Ten plik nie jest eksportem tablicy z Monday.com. W Monday.com wybierz Eksportuj tablicę do Excela z menu tablicy i wybierz ten plik.",

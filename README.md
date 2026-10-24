@@ -25,7 +25,7 @@ after you approve them over OAuth.
   tell it, reusable skills, and agents that work on database rows, with Anthropic, OpenAI, Google
   or a local model.
 - **Bring your pages**: import a Notion *Markdown & CSV* export, an Obsidian vault, a Trello board,
-  an Asana project, a Monday.com board, Markdown files, Word documents, a folder or CSV, and keep a
+  an Asana project, a Monday.com board, Markdown files, Word documents, PDFs, a folder or CSV, and keep a
   database of Jira issues in sync.
 - **Ready for a team**: teamspaces, page permissions, guests, single sign-on (OIDC, SAML), SCIM,
   two-step verification, passkeys and an audit log.
@@ -543,6 +543,22 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   left out and listed in the result; comments and page breaks are dropped. Old `.doc` files need
   saving as `.docx` first. A document is read in a separate worker with a time and memory limit,
   and one that can't be read stops the import before any page is created.
+- **Import from PDF**: choose one or more PDFs on Import's PDF tab; each becomes a page made of
+  its text layer, read by the same reader search uses for PDFs. A PDF has no structure of its own,
+  so it is read from the layout: the size most of the text has is the body's, and short lines in a
+  larger size become headings (the largest size a first-level one, then second and third); lines
+  close under each other join into paragraphs (a word hyphenated at a line's end is joined again),
+  and a paragraph that runs over a page break stays whole; lines starting with a bullet character
+  or a number (`1.`, `1)`) become bulleted or numbered lists, nested by how far in they stand.
+  What recurs at the top or bottom of most pages (running headers and footers) and page numbers
+  there are left out. A heading at the very top becomes the page's title, otherwise the file name
+  does. With *Also attach each PDF to its page* (on by default) the PDF itself is uploaded and
+  shown at the top of the page, for its pictures, tables and layout; one over the upload limit is
+  left off and listed in the result. Bullets drawn as shapes rather than characters, bold and
+  italic, links, tables and columns side by side don't come through as such (columns are read
+  line by line across). A scan without a text layer is refused with a note to run text
+  recognition (OCR) first; so are PDFs over 25 MB or 500 pages, and damaged or password-protected
+  ones. As with Word, one that can't be read stops the import before any page is created.
 - **Import from Notion**: in Notion, export a page or the workspace as *Markdown & CSV* with
   subpages, and choose the downloaded ZIP in Import (a large export split into parts, an
   `Export-….zip` holding `…-Part-1.zip` and so on, works as it is). Pages keep their tree, without
