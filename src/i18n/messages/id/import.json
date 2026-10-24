@@ -1,10 +1,11 @@
 {
   "open": "Impor",
   "title": "Impor",
-  "description": "Bawa masuk halaman dari berkas Markdown, ekspor ZIP, dokumen Word, dan PDF, baris dari berkas CSV atau buku kerja Excel, papan Trello, Asana, atau Monday.com, atau isu Jira yang tetap tersinkron.",
+  "description": "Bawa masuk halaman dari berkas Markdown, ekspor ZIP, dokumen Word, dokumen Google, dan PDF, baris dari berkas CSV atau buku kerja Excel, papan Trello, Asana, atau Monday.com, atau isu Jira yang tetap tersinkron.",
   "tabs": {
     "pages": "Markdown & ZIP",
     "docx": "Word",
+    "googleDocs": "Google Docs",
     "pdf": "PDF",
     "csv": "CSV & Excel",
     "trello": "Trello",
@@ -29,6 +30,31 @@
   "docx": {
     "help": "Setiap dokumen Word (.docx) menjadi sebuah halaman, beserta judul, daftar, tabel, tautan, gambar, dan catatan kakinya. Judul di bagian paling atas menjadi judul halaman; jika tidak, nama berkas yang dipakai.",
     "choose": "Pilih berkas Word"
+  },
+  "googleDocs": {
+    "help": "Setiap dokumen Google menjadi halaman, dibaca melalui koneksi Google Drive ruang kerja seperti dokumen Word: judul, daftar, tabel, tautan, gambar, dan catatan kaki. Judul di paling atas menjadi judul halaman; jika tidak ada, nama dokumen.",
+    "loading": "Mencari koneksi Google Drive…",
+    "noConnection": "Tidak ada koneksi Google Drive yang dapat Anda gunakan untuk mengimpor. Pemilik menambahkan Google Drive di Pengaturan → Koneksi; anggota dapat memakainya setelah pemilik mencentang “Di obrolan” untuk alat download_file_content.",
+    "connection": "Koneksi Google Drive",
+    "through": "Melalui “{name}”",
+    "links": "Tautan ke dokumen Google",
+    "linksPlaceholder": "https://docs.google.com/document/d/… (satu per baris)",
+    "invalidLink": "Bukan tautan ke dokumen Google: “{link}”",
+    "search": "Cari",
+    "searching": "Mencari…",
+    "searchPlaceholder": "Kata dalam judul (kosong: dokumen terbaru)",
+    "noneFound": "Tidak ada dokumen Google yang ditemukan.",
+    "more": "Tampilkan lagi",
+    "linksOnly": "Koneksi ini tidak mengizinkan pencarian: tempel tautan ke dokumen.",
+    "chosen": "{count, plural, other {# dokumen dipilih}}",
+    "tooMany": "Pilih paling banyak {limit} dokumen sekaligus.",
+    "errors": {
+      "noConnection": "Koneksi Google Drive itu tidak dapat digunakan. Minta pemilik memeriksanya di Pengaturan → Koneksi.",
+      "unreachable": "“{name}” tidak dapat dijangkau. Coba lagi nanti, atau minta pemilik memeriksa koneksinya.",
+      "signIn": "“{name}” perlu masuk ke Google lagi: pemilik melakukannya di Pengaturan → Koneksi.",
+      "notFound": "Sebuah dokumen tidak dapat dibaca melalui “{name}”: periksa tautannya, dan bahwa akun Google koneksi boleh membukanya.",
+      "notADocument": "“{id}” bukan dokumen Google."
+    }
   },
   "pdf": {
     "help": "Setiap PDF menjadi halaman dari teksnya: baris yang lebih besar menjadi judul, dan paragraf serta daftar bernomor atau berpoin ikut terbawa, juga melewati batas halaman. Header, footer berulang, dan nomor halaman tidak diikutkan. Judul di bagian paling atas menjadi judul halaman; jika tidak ada, nama berkasnya.",

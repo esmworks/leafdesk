@@ -1,10 +1,11 @@
 {
   "open": "Importa",
   "title": "Importa",
-  "description": "Porta dentro pagine da file Markdown, esportazioni ZIP, documenti Word e PDF, righe da un file CSV o da una cartella di lavoro Excel, una bacheca Trello, Asana o Monday.com, oppure ticket Jira che restano sincronizzati.",
+  "description": "Porta dentro pagine da file Markdown, esportazioni ZIP, documenti Word, documenti Google e PDF, righe da un file CSV o da una cartella di lavoro Excel, una bacheca Trello, Asana o Monday.com, oppure ticket Jira che restano sincronizzati.",
   "tabs": {
     "pages": "Markdown e ZIP",
     "docx": "Word",
+    "googleDocs": "Google Docs",
     "pdf": "PDF",
     "csv": "CSV ed Excel",
     "trello": "Trello",
@@ -29,6 +30,31 @@
   "docx": {
     "help": "Ogni documento Word (.docx) diventa una pagina, con intestazioni, elenchi, tabelle, link, immagini e note a piè di pagina. Un’intestazione all’inizio del documento diventa il titolo della pagina; altrimenti lo diventa il nome del file.",
     "choose": "Scegli file Word"
+  },
+  "googleDocs": {
+    "help": "Ogni documento Google diventa una pagina, letto tramite la connessione Google Drive dello spazio di lavoro come un documento Word: titoli, elenchi, tabelle, link, immagini e note a piè di pagina. Un titolo in cima diventa il titolo della pagina; altrimenti il nome del documento.",
+    "loading": "Ricerca delle connessioni Google Drive…",
+    "noConnection": "Non c'è nessuna connessione Google Drive tramite cui puoi importare. Un proprietario aggiunge Google Drive in Impostazioni → Connessioni; i membri possono usarla quando un proprietario spunta «Nella chat» per il suo strumento download_file_content.",
+    "connection": "Connessione Google Drive",
+    "through": "Tramite «{name}»",
+    "links": "Link a documenti Google",
+    "linksPlaceholder": "https://docs.google.com/document/d/… (uno per riga)",
+    "invalidLink": "Non è un link a un documento Google: «{link}»",
+    "search": "Cerca",
+    "searching": "Ricerca…",
+    "searchPlaceholder": "Parole nel titolo (vuoto: i documenti più recenti)",
+    "noneFound": "Nessun documento Google trovato.",
+    "more": "Mostra altri",
+    "linksOnly": "Questa connessione non consente la ricerca: incolla i link ai documenti.",
+    "chosen": "{count, plural, one {# documento scelto} other {# documenti scelti}}",
+    "tooMany": "Scegli al massimo {limit} documenti alla volta.",
+    "errors": {
+      "noConnection": "Questa connessione Google Drive non può essere usata. Chiedi a un proprietario di controllarla in Impostazioni → Connessioni.",
+      "unreachable": "Impossibile raggiungere «{name}». Riprova più tardi o chiedi a un proprietario di controllare la connessione.",
+      "signIn": "«{name}» deve accedere di nuovo a Google: lo fa un proprietario in Impostazioni → Connessioni.",
+      "notFound": "Un documento non può essere letto tramite «{name}»: controlla il link e che l'account Google della connessione possa aprirlo.",
+      "notADocument": "«{id}» non è un documento Google."
+    }
   },
   "pdf": {
     "help": "Ogni PDF diventa una pagina fatta del suo testo: le righe più grandi diventano titoli, e paragrafi ed elenchi numerati o puntati vengono mantenuti, anche tra un'interruzione di pagina e l'altra. Intestazioni e piè di pagina ripetuti e numeri di pagina vengono tralasciati. Un titolo in cima diventa il titolo della pagina; altrimenti lo diventa il nome del file.",

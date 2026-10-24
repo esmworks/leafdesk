@@ -1603,6 +1603,7 @@
       "csv": "CSV",
       "xlsx": "Excel",
       "docx": "Word",
+      "google-docs": "Google 文档",
       "markdown": "Markdown",
       "pdf": "PDF",
       "skill": "技能（SKILL.md）",

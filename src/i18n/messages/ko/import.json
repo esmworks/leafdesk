@@ -1,10 +1,11 @@
 {
   "open": "가져오기",
   "title": "가져오기",
-  "description": "Markdown 파일, ZIP 내보내기, Word 문서, PDF에서 페이지를, CSV 파일이나 Excel 통합 문서에서 행을, Trello, Asana, Monday.com 보드를, 또는 계속 동기화되는 Jira 이슈를 가져옵니다.",
+  "description": "Markdown 파일, ZIP 내보내기, Word 문서, Google 문서, PDF에서 페이지를, CSV 파일이나 Excel 통합 문서에서 행을, Trello, Asana, Monday.com 보드를, 또는 계속 동기화되는 Jira 이슈를 가져옵니다.",
   "tabs": {
     "pages": "Markdown 및 ZIP",
     "docx": "Word",
+    "googleDocs": "Google 문서",
     "pdf": "PDF",
     "csv": "CSV 및 Excel",
     "trello": "Trello",
@@ -29,6 +30,31 @@
   "docx": {
     "help": "각 Word 문서(.docx)는 제목, 목록, 표, 링크, 그림, 각주를 포함한 페이지가 됩니다. 맨 위의 제목이 페이지 제목이 되고, 없으면 파일 이름이 페이지 제목이 됩니다.",
     "choose": "Word 파일 선택"
+  },
+  "googleDocs": {
+    "help": "각 Google 문서는 워크스페이스의 Google Drive 연결을 통해 Word 문서처럼 읽혀 하나의 페이지가 됩니다: 제목, 목록, 표, 링크, 그림, 각주. 맨 위의 제목이 페이지 제목이 되고, 없으면 문서 이름이 쓰입니다.",
+    "loading": "Google Drive 연결을 찾는 중…",
+    "noConnection": "가져오기에 쓸 수 있는 Google Drive 연결이 없습니다. 소유자가 설정 → 연결에서 Google Drive를 추가하고, download_file_content 도구에 “채팅에서 사용”을 체크하면 멤버도 쓸 수 있습니다.",
+    "connection": "Google Drive 연결",
+    "through": "“{name}” 통해",
+    "links": "Google 문서 링크",
+    "linksPlaceholder": "https://docs.google.com/document/d/… (한 줄에 하나)",
+    "invalidLink": "Google 문서 링크가 아닙니다: “{link}”",
+    "search": "검색",
+    "searching": "검색 중…",
+    "searchPlaceholder": "제목의 단어 (비우면: 최근 문서)",
+    "noneFound": "Google 문서를 찾지 못했습니다.",
+    "more": "더 보기",
+    "linksOnly": "이 연결로는 검색할 수 없습니다: 문서 링크를 붙여 넣으세요.",
+    "chosen": "{count, plural, other {문서 #개 선택됨}}",
+    "tooMany": "한 번에 최대 {limit}개 문서를 선택하세요.",
+    "errors": {
+      "noConnection": "그 Google Drive 연결은 사용할 수 없습니다. 설정 → 연결에서 확인해 달라고 소유자에게 요청하세요.",
+      "unreachable": "“{name}”에 연결할 수 없습니다. 나중에 다시 시도하거나 소유자에게 연결 확인을 요청하세요.",
+      "signIn": "“{name}”은(는) Google에 다시 로그인해야 합니다: 소유자가 설정 → 연결에서 합니다.",
+      "notFound": "“{name}”을(를) 통해 문서를 읽을 수 없습니다: 링크와, 연결의 Google 계정이 그 문서를 열 수 있는지 확인하세요.",
+      "notADocument": "“{id}”은(는) Google 문서가 아닙니다."
+    }
   },
   "pdf": {
     "help": "각 PDF는 그 텍스트로 이루어진 페이지가 됩니다. 더 큰 줄은 제목이 되고, 문단과 번호 매기기·글머리 기호 목록도 페이지 나눔을 넘어 함께 옵니다. 반복되는 머리글·바닥글과 페이지 번호는 빠집니다. 맨 위의 제목은 페이지 제목이 되고, 없으면 파일 이름이 제목이 됩니다.",

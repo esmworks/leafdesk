@@ -1,10 +1,11 @@
 {
   "open": "导入",
   "title": "导入",
-  "description": "从 Markdown 文件、ZIP 导出、Word 文档和 PDF 导入页面，从 CSV 文件或 Excel 工作簿导入行，导入一个 Trello、Asana 或 Monday.com 看板，或导入保持同步的 Jira 事务。",
+  "description": "从 Markdown 文件、ZIP 导出、Word 文档、Google 文档和 PDF 导入页面，从 CSV 文件或 Excel 工作簿导入行，导入一个 Trello、Asana 或 Monday.com 看板，或导入保持同步的 Jira 事务。",
   "tabs": {
     "pages": "Markdown 和 ZIP",
     "docx": "Word",
+    "googleDocs": "Google 文档",
     "pdf": "PDF",
     "csv": "CSV 和 Excel",
     "trello": "Trello",
@@ -29,6 +30,31 @@
   "docx": {
     "help": "每个 Word 文档（.docx）都会成为一个页面，包括其中的标题、列表、表格、链接、图片和脚注。文档最开头的标题会成为页面标题；否则使用文件名。",
     "choose": "选择 Word 文件"
+  },
+  "googleDocs": {
+    "help": "每个 Google 文档都会成为一个页面，通过工作区的 Google Drive 连接像 Word 文档一样读取：标题、列表、表格、链接、图片和脚注。最顶部的标题成为页面标题，否则使用文档名称。",
+    "loading": "正在查找 Google Drive 连接…",
+    "noConnection": "没有可供你导入的 Google Drive 连接。所有者在 设置 → 连接 中添加 Google Drive；所有者为其 download_file_content 工具勾选“在聊天中”后，成员也可以使用。",
+    "connection": "Google Drive 连接",
+    "through": "通过“{name}”",
+    "links": "Google 文档链接",
+    "linksPlaceholder": "https://docs.google.com/document/d/…（每行一个）",
+    "invalidLink": "不是 Google 文档的链接：“{link}”",
+    "search": "搜索",
+    "searching": "正在搜索…",
+    "searchPlaceholder": "标题中的词（留空：最新文档）",
+    "noneFound": "未找到 Google 文档。",
+    "more": "显示更多",
+    "linksOnly": "此连接不允许搜索：请粘贴文档链接。",
+    "chosen": "{count, plural, other {已选择 # 个文档}}",
+    "tooMany": "每次最多选择 {limit} 个文档。",
+    "errors": {
+      "noConnection": "无法使用该 Google Drive 连接。请让所有者在 设置 → 连接 中检查。",
+      "unreachable": "无法访问“{name}”。请稍后再试，或让所有者检查连接。",
+      "signIn": "“{name}”需要重新登录 Google：由所有者在 设置 → 连接 中完成。",
+      "notFound": "无法通过“{name}”读取某个文档：请检查链接，以及连接的 Google 账号能否打开它。",
+      "notADocument": "“{id}”不是 Google 文档。"
+    }
   },
   "pdf": {
     "help": "每个 PDF 会变成由其文字组成的页面：较大的行成为标题，段落以及编号和项目符号列表也会保留，跨越分页也一样。重复的页眉、页脚和页码会被略去。最顶部的标题成为页面标题，否则使用文件名。",

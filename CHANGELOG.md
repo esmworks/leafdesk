@@ -861,6 +861,14 @@
   exports show the block without the chat. MCP's `list_agent_runs` describes chat runs. Migration
   0103 adds the `agent_conversation` table.
 
+- **Google documents can be imported through the workspace's Google Drive connection.** Import
+  has a Google Docs tab: paste links to documents or search the connection's Drive by title, tick
+  up to 20, and each becomes a page the way a Word document does (Drive exports it as one), titled
+  by its top heading or its name, pictures included, all or nothing. Owners may import through any
+  signed-in Google Drive connection; members only through one whose `download_file_content` tool
+  an owner allowed in the AI chat (searching needs `search_files` allowed too); guests never. Each
+  call is recorded in the audit log like the chat's, and the import as from Google Docs.
+
 ### Changed
 
 - **Enter in a code block keeps the line's indentation.** The new line starts with the spaces or

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { importTargetAction, type ImportTarget } from "@/app/actions/import";
+import { importGoogleDocsAction } from "@/app/actions/google-docs-import";
 import { createJiraSyncAction } from "@/app/actions/jira-sync";
 import { usePropertyTypeLabel } from "@/components/database/property-icons";
 import { Button, cn, Dialog, IconButton, Input, pageLabel } from "@/components/ui";
@@ -28,6 +29,7 @@ import { ImportError, type ImportResult, type ImportWarning } from "@/lib/import
 import { parseTrelloExport, readTrelloBoard, type TrelloBoard } from "@/lib/import/trello";
 import { isWorkbook, readWorkbook } from "@/lib/import/xlsx";
 import type { TreeNode } from "@/server/pages";
+import { GoogleDocsTab, type GoogleDocsSetup } from "./google-docs-import";
 import { JiraTab, type JiraSetup } from "./jira-import";
 
 const selectClass = "h-8 w-full rounded-md border border-border bg-bg px-2 text-sm outline-none focus:border-accent disabled:opacity-60";
@@ -119,7 +121,7 @@ export function ImportDialog({
   const databases = flat.filter(({ node }) => node.kind === "database" && canEdit(node));
   const activeNode = tree.find((n) => n.id === activeId);
 
-  const [tab, setTab] = useState<"pages" | "docx" | "pdf" | "csv" | "trello" | BoardSource | "jira">("pages");
+  const [tab, setTab] = useState<"pages" | "docx" | "googleDocs" | "pdf" | "csv" | "trello" | BoardSource | "jira">("pages");
   const [destination, setDestination] = useState("");
   const [picked, setPicked] = useState<Picked[]>([]);
   // A folder that came with an Obsidian vault's settings folder (which isn't sent).
@@ -136,6 +138,8 @@ export function ImportDialog({
   const [boardTypes, setBoardTypes] = useState<(BoardColumnType | null)[]>([]);
   // The Jira tab's sync, once it is filled in.
   const [jira, setJira] = useState<JiraSetup | null>(null);
+  // The Google Docs tab's connection and documents, once some are chosen.
+  const [googleDocs, setGoogleDocs] = useState<GoogleDocsSetup | null>(null);
   const [csvMode, setCsvMode] = useState<"new" | "existing">("new");
   const [name, setName] = useState("");
   const [titleColumn, setTitleColumn] = useState<number | null>(0);
@@ -172,6 +176,7 @@ export function ImportDialog({
     setTrello(null);
     setBoard(null);
     setJira(null);
+    setGoogleDocs(null);
     setCsvMode(activeEditable && activeNode.kind === "database" ? "existing" : "new");
     setDatabaseId(activeEditable && activeNode.kind === "database" ? activeNode.id : "");
     setError(null);
@@ -358,6 +363,7 @@ export function ImportDialog({
   async function submit() {
     setError(null);
     if (tab === "jira") return submitJira();
+    if (tab === "googleDocs") return submitGoogleDocs();
     const form = new FormData();
     form.append("workspaceId", workspaceId);
     if (teamspaceId !== undefined) form.append("teamspaceId", teamspaceId ?? "private");
@@ -442,6 +448,26 @@ export function ImportDialog({
     }
   }
 
+  /** Imports Google documents through a connection: a server action, as nothing is uploaded. */
+  async function submitGoogleDocs() {
+    if (!googleDocs) return;
+    setBusy(true);
+    try {
+      const response = await importGoogleDocsAction({
+        ...googleDocs,
+        workspaceId,
+        parentId: destination || null,
+        teamspaceId: teamspaceId === undefined ? undefined : (teamspaceId ?? "private"),
+      });
+      if (!response.ok) setError(response.error);
+      else setResult(response.data);
+    } catch {
+      setError(tc("genericError"));
+    } finally {
+      setBusy(false);
+    }
+  }
+
   function warningText(w: ImportWarning) {
     switch (w.code) {
       case "invalidValues":
@@ -465,6 +491,8 @@ export function ImportDialog({
       ? picked.length > 0 && destinationValid
       : tab === "docx"
         ? documents.length > 0 && destinationValid
+        : tab === "googleDocs"
+          ? googleDocs !== null && destinationValid
         : tab === "pdf"
           ? pdfs.length > 0 && destinationValid
         : tab === "trello"
@@ -540,7 +568,7 @@ export function ImportDialog({
       ) : (
         <div className="max-h-[70vh] space-y-4 overflow-y-auto p-4" aria-busy={busy}>
           <div role="tablist" aria-label={t("title")} className="inline-flex flex-wrap gap-0.5 rounded-lg bg-bg-hover p-0.5">
-            {(["pages", "docx", "pdf", "csv", "trello", "asana", "monday", "jira"] as const).map((key) => (
+            {(["pages", "docx", "googleDocs", "pdf", "csv", "trello", "asana", "monday", "jira"] as const).map((key) => (
               <button
                 key={key}
                 type="button"
@@ -808,6 +836,8 @@ export function ImportDialog({
                 </div>
               )}
             </>
+          ) : tab === "googleDocs" ? (
+            <GoogleDocsTab workspaceId={workspaceId} busy={busy} destinationPicker={destinationPicker} onSetup={setGoogleDocs} />
           ) : tab === "jira" ? (
             <JiraTab busy={busy} destinationPicker={destinationPicker} onSetup={setJira} />
           ) : tab === "asana" || tab === "monday" ? (
