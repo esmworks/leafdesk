@@ -547,8 +547,11 @@ export function PropertyCell({
   style?: FormulaStyle;
   /** The viewer may not see this value (property access): a lock stands in for it. */
   hidden?: boolean;
-  /** "list": a compact value in a list view's line, at the size of its other values. */
-  variant?: "table" | "panel" | "list";
+  /**
+   * "list": a compact value in a list view's line, at the size of its other values. "card": a
+   * value on a board or gallery card, where it shows as it does there.
+   */
+  variant?: "table" | "panel" | "list" | "card";
   wrap?: boolean;
   /** Start in edit mode (e.g. the title of a freshly created row). */
   autoEdit?: boolean;
@@ -567,12 +570,15 @@ export function PropertyCell({
 
   const base = cn(
     "flex min-w-0 items-center",
-    variant === "list" ? "max-w-full rounded px-1 py-0.5 text-xs" : "w-full text-sm",
+    variant === "list" ? "max-w-full rounded px-1 py-0.5 text-xs" : variant !== "card" && "w-full text-sm",
+    // Lit on hover without moving the value from where the card shows it.
+    variant === "card" && "-mx-1 -my-0.5 max-w-[calc(100%+0.5rem)] rounded px-1 py-0.5 text-xs",
     variant === "table" && "min-h-[33px] px-2 py-1",
     variant === "panel" && "min-h-[30px] rounded-md px-2 py-1",
     !readOnly && "cursor-pointer",
     !readOnly && variant === "panel" && "hover:bg-bg-hover",
     !readOnly && variant === "list" && "hover:bg-bg-active",
+    !readOnly && variant === "card" && "hover:bg-fg/5",
   );
 
   if (hidden) {

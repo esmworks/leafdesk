@@ -38,7 +38,7 @@ import {
   WrapText,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useId, useRef, useState } from "react";
 import { useReorderDrag, type ReorderDragHandlers } from "@/components/use-reorder-drag";
 import { useDirection } from "@/components/direction";
 import { Button, cn, Input, MenuItem, MenuSeparator } from "@/components/ui";
@@ -67,9 +67,15 @@ import { PropertyTypeIcon, usePropertyTypeLabel } from "./property-icons";
 import { RelationSetup } from "./relation-cell";
 import { useRelations } from "./relation-context";
 import { useSchema } from "./schema-context";
+import { newPropertyName, typesMatching } from "@/lib/property-type-search";
 import type { DerivedInput, Property, PropertyType, RelationInput, RollupInput, SelectOption } from "./types";
 
-/** Name + type picker used by the table "+" header and the row page "Add property". */
+/**
+ * Name + type picker used by the table "+" header and the row page "Add property". The name also
+ * finds types: typing narrows the list to the types it names, arrows move through it and Enter
+ * makes the one marked (text when the name names none), named after its type when that is all the
+ * name says.
+ */
 export function AddPropertyPanel({
   onCreate,
   onCreateAutofill,
@@ -86,9 +92,20 @@ export function AddPropertyPanel({
   const [name, setName] = useState("");
   const [step, setStep] = useState<"type" | "relation" | "formula" | "rollup" | "unique_id" | "autofill">("type");
   const input = useRef<HTMLInputElement>(null);
+  const listId = useId();
   useEffect(() => input.current?.focus(), []);
-  // A new property without a name is named after its type, in the user's language.
-  const nameFor = (type: PropertyType) => name.trim() || typeLabel(type);
+  const matching = typesMatching(PROPERTY_TYPES, typeLabel, name);
+  const listed = matching.length ? matching : PROPERTY_TYPES;
+  // The type Enter makes: the one moved to with the arrows, else the first found, else text.
+  const [moved, setMoved] = useState<number | null>(null);
+  const marked = moved ?? (matching.length ? 0 : Math.max(0, listed.indexOf("text")));
+  const types = useRef<HTMLDivElement>(null);
+  // A block body: scrollIntoView returns a promise in newer browsers, and an effect may only return a cleanup.
+  useEffect(() => {
+    types.current?.querySelector("[data-marked]")?.scrollIntoView({ block: "nearest" });
+  }, [marked]);
+  // A new property without a name, or named just as a type is, is named after its type in the user's language.
+  const nameFor = (type: PropertyType) => newPropertyName(type, typeLabel, name);
   const create = (type: PropertyType) => {
     if (type === "relation" || type === "formula" || type === "rollup" || type === "unique_id") {
       setStep(type);
@@ -168,17 +185,32 @@ export function AddPropertyPanel({
           value={name}
           placeholder={t("name")}
           aria-label={t("name")}
-          onChange={(e) => setName(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && create("text")}
+          onChange={(e) => {
+            setName(e.target.value);
+            setMoved(null);
+          }}
+          onKeyDown={(e) => {
+            if (e.nativeEvent.isComposing) return;
+            if (e.key === "Enter") create(listed[marked] ?? "text");
+            else if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+              e.preventDefault();
+              setMoved((marked + (e.key === "ArrowDown" ? 1 : listed.length - 1)) % listed.length);
+            }
+          }}
+          aria-controls={listId}
           className="h-7"
         />
       </div>
       <div className="px-2 pt-1.5 pb-1 text-xs text-fg-muted">{t("type")}</div>
-      {PROPERTY_TYPES.map((type) => (
-        <MenuItem key={type} icon={<PropertyTypeIcon type={type} />} onClick={() => create(type)}>
-          {typeLabel(type)}
-        </MenuItem>
-      ))}
+      <div ref={types} id={listId}>
+        {listed.map((type, i) => (
+          <div key={type} data-marked={i === marked ? "" : undefined}>
+            <MenuItem icon={<PropertyTypeIcon type={type} />} active={i === marked} onClick={() => create(type)}>
+              {typeLabel(type)}
+            </MenuItem>
+          </div>
+        ))}
+      </div>
       {onCreateAutofill && (
         <>
           <MenuSeparator />
