@@ -1,0 +1,20 @@
+{
+  "metaTitle": "Bliv medlem af arbejdsområdet",
+  "title": "Bliv medlem af “{workspace}”",
+  "invalidTitle": "Linket blev ikke fundet",
+  "invalidBody": "Dette link er ugyldigt eller slået fra. Bed en ejer af arbejdsområdet om et nyt.",
+  "home": "Gå til Leafdesk",
+  "body": "Du bliver medlem, medmindre du er inviteret med en anden rolle.",
+  "join": "Bliv medlem af arbejdsområdet",
+  "joining": "Tilmelder…",
+  "alreadyMember": "Du er allerede medlem af dette arbejdsområde.",
+  "open": "Åbn arbejdsområdet",
+  "signInBody": "Log ind med din konto for at blive medlem. Denne server tillader ikke nye konti.",
+  "signIn": "Log ind",
+  "requestBody": "En ejer godkender nye medlemmer af dette arbejdsområde. Send en anmodning, så får du svar via e-mail.",
+  "request": "Anmod om at blive medlem",
+  "requesting": "Sender…",
+  "requestedTitle": "Anmodningen er sendt",
+  "requestedBody": "En ejer af arbejdsområdet ser på din anmodning. Du får en e-mail, når der er truffet en beslutning.",
+  "pendingBody": "Du har allerede bedt om at blive medlem af dette arbejdsområde. En ejer ser på det; du får en e-mail, når der er truffet en beslutning."
+}

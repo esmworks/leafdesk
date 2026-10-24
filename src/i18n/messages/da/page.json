@@ -1,0 +1,1194 @@
+{
+  "documentTitle": "{title} · Leafdesk",
+  "documentViewTitle": "{title} · {view} · Leafdesk",
+  "header": {
+    "history": "Sidehistorik",
+    "analytics": "Statistik",
+    "more": "Mere",
+    "copyLink": "Kopiér link",
+    "copyId": "Kopiér ID",
+    "moveToTrash": "Flyt til papirkurven",
+    "archive": "Arkivér",
+    "unarchive": "Fjern fra arkiv",
+    "archiveHint": "Behold siden, men tag den ud af sidepanelet, søgning og vælgere. Dens undersider følger med.",
+    "edited": "Redigeret {time}",
+    "activity": "Aktivitet",
+    "editedBy": "Redigeret af {name}",
+    "createdBy": "Oprettet af {name}",
+    "someone": "Nogen",
+    "comments": "Kommentarer",
+    "suggesting": {
+      "editing": "Redigerer",
+      "suggesting": "Foreslår",
+      "label": "Tilstand: {mode}",
+      "editingHint": "Ændr siden direkte",
+      "suggestingHint": "Dine ændringer vises som forslag, som andre kan acceptere eller afvise",
+      "forcedHint": "Du må kommentere denne side, så dine ændringer er forslag, som dens redaktører kan acceptere eller afvise"
+    },
+    "share": "Del",
+    "accessRequests": "{count, plural, one {# adgangsanmodning} other {# adgangsanmodninger}}",
+    "addFavorite": "Føj til favoritter",
+    "removeFavorite": "Fjern fra favoritter",
+    "follow": "Følg",
+    "unfollow": "Stop med at følge",
+    "followHint": "Få besked i din indbakke, når en anden ændrer denne række.",
+    "unfollowHint": "Du får besked i din indbakke, når en anden ændrer denne række.",
+    "linkCopied": "Link kopieret",
+    "duplicate": "Duplikér",
+    "duplicateWithoutRows": "Duplikér uden rækker",
+    "duplicateSuffix": " (kopi)",
+    "duplicateFailed": "Siden kunne ikke duplikeres.",
+    "moveTo": "Flyt til",
+    "style": {
+      "font": "Skrifttype",
+      "default": "Standard",
+      "serif": "Serif",
+      "mono": "Mono",
+      "smallText": "Lille tekst",
+      "fullWidth": "Fuld bredde"
+    },
+    "lockDatabase": "Lås database",
+    "lockHint": "Mens den er låst, kan egenskaber og visninger ikke ændres; rækker kan stadig redigeres.",
+    "locked": "Låst",
+    "unlock": "Lås op",
+    "lockPage": "Lås side",
+    "lockPageHint": "Mens den er låst, kan ingen ændre titel, ikon, baggrund eller tekst. Kommentarer, deling og flytning virker stadig.",
+    "exportMarkdown": "Eksportér som Markdown",
+    "exportCsv": "Eksportér som CSV",
+    "exportXlsx": "Eksportér som Excel (.xlsx)",
+    "exportZip": "Eksportér med undersider",
+    "exportZipDatabase": "Eksportér med rækkesider",
+    "exportPdf": "Eksportér som PDF",
+    "exportComments": "Medtag kommentarer",
+    "exportCommentsHint": "Tilføjer de kommentartråde, du kan se, til Markdown-, ZIP- og PDF-eksporter efter hver side",
+    "printView": "Udskriv",
+    "exportPreparing": "Forbereder eksport…",
+    "acceptAllSuggestions": "Acceptér alle forslag",
+    "rejectAllSuggestions": "Afvis alle forslag",
+    "rejectAllConfirm": "Vil du afvise alle foreslåede ændringer på denne side?",
+    "versionHistory": "Versionshistorik",
+    "lastEdited": "Sidst redigeret af {name}",
+    "wordCount": "{words, plural, one {# ord} other {# ord}}, {characters, plural, one {# tegn} other {# tegn}}",
+    "actionFailed": "Det kunne ikke gennemføres.",
+    "viewers": "{count, plural, one {# anden person ser denne side} other {# andre personer ser denne side}}",
+    "viewersTitle": "Ser denne side",
+    "saveAsTemplate": "Gem som skabelon",
+    "saveAsRowTemplate": "Gem som rækkeskabelon",
+    "deleteTemplate": "Slet skabelon",
+    "exportDisabled": "Eksport er slået fra",
+    "exportDisabledBody": "Ejerne af dette arbejdsområde har slået eksport og udskrivning af dets sider fra.",
+    "showInGraph": "Vis i graf",
+    "present": "Præsentér",
+    "watch": "Følg",
+    "watchHint": "Få besked i din indbakke, når en anden redigerer denne side eller starter en kommentartråd på den.",
+    "mute": "Slå lyden fra",
+    "muteHint": "Du får besked i din indbakke, når en anden redigerer denne side eller starter en kommentartråd på den. Slå lyden fra for at stoppe.",
+    "editMarkdown": "Redigér som Markdown"
+  },
+  "comments": {
+    "aboutPage": "Om denne side",
+    "aboutProperty": "Om “{name}”",
+    "title": "Kommentarer",
+    "close": "Luk kommentarer",
+    "filters": {
+      "open": "Åbne",
+      "resolved": "Løste",
+      "marked": "Markerede",
+      "all": "Alle"
+    },
+    "empty": {
+      "open": "Ingen åbne kommentarer. Markér tekst på siden, og vælg Kommentér for at starte en.",
+      "resolved": "Ingen løste kommentarer.",
+      "marked": "Ingen tråde er markeret til at vende tilbage til. Vælg “Vend tilbage senere” i en tråds menu.",
+      "all": "Ingen kommentarer endnu. Markér tekst på siden, og vælg Kommentér for at starte en.",
+      "person": "Ingen af disse tråde har en kommentar fra denne person."
+    },
+    "person": {
+      "label": "Vis tråde efter person",
+      "active": "Tråde, {name} har skrevet i",
+      "everyone": "Alle",
+      "you": "{name} (dig)"
+    },
+    "threadMenu": "Indstillinger for tråd",
+    "mute": "Slå lyden fra på svar",
+    "unmute": "Slå lyden til på svar",
+    "muteHint": "Få ikke længere besked om nye svar i denne tråd. Hvis du svarer her eller bliver omtalt her, slås det til igen.",
+    "unmuteHint": "Få besked om nye svar i denne tråd igen.",
+    "muted": "Lyden er slået fra på svar",
+    "mutedHint": "Du får ikke besked om svar i denne tråd, før du svarer her, eller nogen omtaler dig her.",
+    "mergedFrom": "Fra “{title}”",
+    "suggestion": {
+      "label": "Foreslået ændring",
+      "byAi": "Ændring foreslået af AI",
+      "accept": "Acceptér",
+      "reject": "Afvis",
+      "withdraw": "Træk tilbage",
+      "errors": {
+        "notAllowed": "Du kan ikke besvare dette forslag.",
+        "notFound": "Dette forslag er allerede besvaret eller trukket tilbage.",
+        "pageLocked": "Siden er låst.",
+        "pageInTrash": "Siden ligger i papirkurven.",
+        "failed": "Forslaget kunne ikke besvares. Prøv igen."
+      }
+    },
+    "sort": {
+      "label": "Sortér tråde",
+      "recent": "Nyeste aktivitet først",
+      "page": "I sidens rækkefølge"
+    },
+    "new": "Ny",
+    "marked": "Markeret til senere",
+    "markedHint": "Du har markeret denne tråd til at vende tilbage til senere. Kun du ser dette.",
+    "mark": "Vend tilbage senere",
+    "unmark": "Fjern “Vend tilbage senere”",
+    "markHint": "Behold denne tråd under Markerede, indtil du fjerner markeringen. Kun du ser den.",
+    "unmarkHint": "Fjern denne tråd fra din liste over markerede.",
+    "onProperty": "Kommentér “{name}”",
+    "propertyPlaceholder": "Hvad med denne værdi?",
+    "post": "Kommentér",
+    "propertyGone": "Denne værdi kan ikke længere kommenteres.",
+    "export": {
+      "quote": "“{quote}”",
+      "removed": "På tekst, der er fjernet",
+      "unknown": "Nogen"
+    }
+  },
+  "archived": {
+    "banner": "Denne side ligger i papirkurven.",
+    "deletePermanently": "Slet permanent",
+    "confirmDelete": "Vil du slette denne side og alt i den permanent? Det kan ikke fortrydes."
+  },
+  "outdated": {
+    "byOn": "Arkiveret af {name} den {date}.",
+    "on": "Arkiveret den {date}.",
+    "with": "Arkiveret sammen med <link>{title}</link>.",
+    "above": "Arkiveret sammen med en side over denne.",
+    "unarchive": "Fjern fra arkiv",
+    "hint": "Arkiverede sider holdes ude af sidepanelet, søgning og vælgere, men kan stadig læses og redigeres."
+  },
+  "verification": {
+    "byUntil": "Verificeret af {name} indtil {date}",
+    "by": "Verificeret af {name}",
+    "until": "Verificeret indtil {date}",
+    "plain": "Verificeret",
+    "expiredOn": "Verificeringen udløb {date}",
+    "hint": "En person med fuld adgang har tjekket denne side og markeret den som korrekt. Redigering af den bevarer verificeringen.",
+    "change": "Ændr eller fjern verificeringen",
+    "menu": "Verificér side…",
+    "menuVerified": "Verificering…",
+    "menuHint": "Markér siden som tjekket og korrekt: søgning rangerer den højere, og AI-chatten foretrækker den",
+    "title": "Verificér side",
+    "description": "Markér denne side som tjekket og korrekt, for en periode eller uden slutdato. Søgning rangerer verificerede sider højere, markerer dem og finder dem med is:verified, og AI-chatten foretrækker dem. Redigering af siden bevarer verificeringen; du får besked nogle dage før den udløber.",
+    "durationLabel": "Verificeret i",
+    "durations": {
+      "week": "1 uge",
+      "month": "1 måned",
+      "quarter": "3 måneder",
+      "year": "1 år",
+      "until": "Indtil en dato",
+      "forever": "Uden slutdato"
+    },
+    "dateLabel": "Verificeret indtil",
+    "verify": "Verificér",
+    "verifyAgain": "Verificér igen",
+    "remove": "Fjern verificering",
+    "searchBadge": "Verificeret",
+    "errors": {
+      "template": "Skabeloner og siderne i dem verificeres ikke.",
+      "inTrash": "Gendan først siden fra papirkurven.",
+      "invalidEnd": "Vælg en dag efter i dag, inden for fem år."
+    }
+  },
+  "icon": {
+    "add": "Tilføj ikon",
+    "remove": "Fjern ikon"
+  },
+  "background": {
+    "add": "Tilføj baggrund",
+    "change": "Baggrund",
+    "colors": "Farve",
+    "patterns": "Mønster",
+    "none": "Ingen",
+    "remove": "Fjern baggrund",
+    "colorNames": {
+      "gray": "Grå",
+      "blue": "Blå",
+      "green": "Grøn",
+      "purple": "Lilla",
+      "pink": "Lyserød",
+      "red": "Rød",
+      "orange": "Orange",
+      "black": "Sort"
+    },
+    "patternNames": {
+      "dots": "Prikker",
+      "plus": "Kryds",
+      "grid": "Gitter",
+      "lines": "Linjer"
+    }
+  },
+  "title": {
+    "label": "Sidens titel"
+  },
+  "connection": {
+    "live": "Live",
+    "connecting": "Forbinder",
+    "offline": "Offline",
+    "reconnecting": "Genopretter forbindelse",
+    "noAccess": "Ingen adgang",
+    "syncing": "Synkroniserer…",
+    "synced": "Synkroniseret",
+    "offlinePending": "Offline · ændringer gemt her",
+    "offlineHint": "Du er offline. Fortsæt med at redigere: ændringer gemmes i denne browser og synkroniseres, når forbindelsen er tilbage.",
+    "notSaved": "Ikke gemt",
+    "notSavedHint": "Leafdesk kunne ikke gemme dine seneste ændringer. Hold siden åben: din næste redigering gemmer dem igen."
+  },
+  "errors": {
+    "accessLost": "Du har ikke længere adgang til denne side.",
+    "connectionFailed": "Kunne ikke forbinde til liveredigering. Prøver igen…",
+    "notAvailableOffline": "Denne side er endnu ikke gemt på denne enhed. Åbn den én gang, mens du er online, for at bruge den offline."
+  },
+  "history": {
+    "title": "Sidehistorik",
+    "previewTitle": "Forhåndsvisning af version",
+    "modes": {
+      "version": "Version",
+      "current": "Sammenlign med nuværende",
+      "previous": "Sammenlign med forrige"
+    },
+    "reasons": {
+      "auto": "Automatisk gemt",
+      "beforeRestore": "Før gendannelse",
+      "manual": "Gemt version",
+      "beforeAiEdit": "Før AI-redigering",
+      "beforeAiEditBy": "Før redigering af {client}",
+      "beforeAssistantEdit": "Før redigering med AI-assistent",
+      "beforeMarkdownEdit": "Før Markdown-redigering",
+      "beforeMerge": "Før fletning af rækker"
+    },
+    "empty": "Ingen versioner endnu. Versioner gemmes automatisk, mens du redigerer, og før en AI-app ændrer denne side.",
+    "restore": "Gendan denne version",
+    "restoring": "Gendanner…",
+    "restoreHint": "Det nuværende indhold gemmes først som en version.",
+    "diff": {
+      "rangeCurrent": "Ændringer fra versionen fra {from} til den nuværende side",
+      "rangePrevious": "Ændringer fra {from} til {to}",
+      "earlier": "versionen før",
+      "changedBy": "Ændret af {names}",
+      "actorApp": "{client} for {name}",
+      "none": "Ingen ændringer.",
+      "oldest": "Dette er den ældste gemte version, så der er intet tidligere at sammenligne med.",
+      "showUnchanged": "{count, plural, one {Vis # uændret blok} other {Vis # uændrede blokke}}",
+      "formatOnly": "Formatering ændret"
+    },
+    "errors": {
+      "list": "Sidehistorikken kunne ikke indlæses. Genindlæs siden, og prøv igen.",
+      "version": "Denne version kunne ikke indlæses.",
+      "restore": "Denne version kunne ikke gendannes.",
+      "diff": "Disse versioner kunne ikke sammenlignes."
+    }
+  },
+  "analytics": {
+    "title": "Sidestatistik",
+    "period": "Periode",
+    "days": "{days} dage",
+    "views": "Visninger",
+    "viewers": "Besøgende",
+    "viewedBy": "Set af",
+    "editedBy": "Redigeret af",
+    "noViews": "Ingen åbnede denne side i denne periode.",
+    "noEdits": "Ingen redigeringer i denne periode.",
+    "viewCount": "{count, plural, one {# visning} other {# visninger}}",
+    "editCount": "{count, plural, one {# redigering} other {# redigeringer}}",
+    "chartLabel": "Visninger pr. dag",
+    "dayViews": "{day}: {count, plural, one {# visning} other {# visninger}}",
+    "notRecorded": "Dette arbejdsområde registrerer ikke sidevisninger, så kun redigeringer vises. Ejere kan slå det til under Indstillinger > Statistik.",
+    "howCounted": "En visning er en ejer eller et medlem, der åbner siden; åbner man den igen inden for 5 minutter, tæller det ikke. Dage er i UTC.",
+    "howEditsCounted": "Redigeringer tælles ud fra sidehistorikken og sidens seneste ændring.",
+    "noAccess": "Kun arbejdsområdets ejere og medlemmer, der kan redigere denne side, kan se dens statistik.",
+    "failed": "Statistikken kunne ikke indlæses."
+  },
+  "move": {
+    "title": "Flyt til",
+    "search": "Søg i sider…",
+    "empty": "Ingen matchende sider.",
+    "failed": "Siden kunne ikke flyttes dertil.",
+    "teamspaceHint": "Øverst i dette teamområde: dets medlemmer får adgang",
+    "private": "Privat",
+    "privateHint": "Øverst i dine private sider: kun personer, den er delt med, får adgang"
+  },
+  "share": {
+    "tabShare": "Del",
+    "tabPublish": "Udgiv",
+    "addPeople": "Tilføj personer, grupper eller e-mails",
+    "noMatches": "Ingen matchende medlemmer eller grupper.",
+    "addPeopleOrAgents": "Tilføj personer, grupper, agenter eller e-mails",
+    "noMatchesWithAgents": "Ingen matchende medlemmer, grupper eller agenter.",
+    "agentPaused": "Agent, på pause",
+    "groupMembers": "{count, plural, =0 {Gruppe uden medlemmer} one {Gruppe med # medlem} other {Gruppe med # medlemmer}}",
+    "membersOnly": "Du kan dele med medlemmer af arbejdsområdet. Dette arbejdsområde tillader ikke deling med personer uden for det.",
+    "guestHint": "Skriv en fuld e-mailadresse for at dele med en person uden for arbejdsområdet. Personen kommer med som gæst og ser kun de sider, der er delt med vedkommende.",
+    "shareWith": "Del med {email}",
+    "asGuest": "Kommer med som gæst",
+    "pending": "Inviteret, er ikke kommet med endnu",
+    "cancelInvite": "Annuller invitation",
+    "invitedSent": "Invitation sendt til {email}.",
+    "invitedNoEmail": "{email} er inviteret, men der kunne ikke sendes en e-mail. Send personen invitationslinket.",
+    "copyInvite": "Kopiér invitationslink",
+    "you": "Dig",
+    "inherited": "Fra {title}",
+    "groupInherited": "Gruppe, fra {title}",
+    "inheritedAbove": "Fra en side ovenfor",
+    "groupInheritedAbove": "Gruppe, fra en side ovenfor",
+    "hiddenGroup": "En gruppe",
+    "group": "Gruppe",
+    "viaGeneral": "{level} (fra generel adgang)",
+    "viaOwner": "{level} (som ejer)",
+    "overridden": "Den generelle adgang er højere ({level}), så dette har ingen effekt.",
+    "remove": "Fjern",
+    "generalAccess": "Generel adgang",
+    "everyone": "Alle i arbejdsområdet",
+    "everyoneHint": "Medlemmer får mindst denne adgang, uanset hvad du giver dem enkeltvis. Sæt den til “Ingen adgang” for kun at åbne siden for de personer, du tilføjer.",
+    "everyoneIn": "Alle i {name}",
+    "everyoneTeamspace": "Alle i teamområdet",
+    "everyoneTeamspaceHint": "Medlemmer af teamområdet får mindst denne adgang, uanset hvad du giver dem enkeltvis. Sæt den til “Ingen adgang” for kun at åbne siden for de personer, du tilføjer.",
+    "readOnly": "Kun personer med fuld adgang kan ændre deling.",
+    "copyLink": "Kopiér link",
+    "copied": "Kopieret",
+    "loading": "Indlæser…",
+    "requests": {
+      "heading": "Anmodninger",
+      "message": "“{message}”",
+      "level": "Adgangsniveau",
+      "approve": "Del",
+      "decline": "Afvis",
+      "outsider": "Ikke i arbejdsområdet: deling tilføjer personen som gæst.",
+      "cantInvite": "Ikke i arbejdsområdet, og dette arbejdsområde tillader ikke deling med personer uden for det.",
+      "asksMore": "Beder om “{level}”, har “{current}” nu"
+    },
+    "askMore": {
+      "title": "Bed om mere adgang",
+      "description": "Du har “{level}”. De personer, der har fuld adgang til siden, bestemmer.",
+      "level": "Adgang, der skal bedes om",
+      "messagePlaceholder": "Besked (valgfrit)",
+      "send": "Spørg",
+      "sending": "Spørger…",
+      "pending": "Du har bedt om “{level}”. De personer, der har fuld adgang til siden, svarer.",
+      "rateLimited": "Du har spurgt for ofte. Prøv igen om et stykke tid.",
+      "unavailable": "Du kan ikke bede om mere adgang til denne side lige nu."
+    },
+    "levels": {
+      "full": "Fuld adgang",
+      "edit": "Kan redigere",
+      "comment": "Kan kommentere",
+      "view": "Kan se",
+      "none": "Ingen adgang"
+    },
+    "errors": {
+      "notMember": "Denne person er ikke medlem af arbejdsområdet.",
+      "lastFullAccess": "Nogen skal beholde fuld adgang til siden. Giv først en anden fuld adgang.",
+      "accessDenied": "Du kan ikke ændre deling for denne side.",
+      "invalidEmail": "Angiv en gyldig e-mailadresse.",
+      "invitesRestricted": "Dette arbejdsområde tillader ikke, at du deler sider med personer uden for det. Spørg en ejer.",
+      "generic": "Delingen kunne ikke opdateres.",
+      "agentFullAccess": "Agenter kan se, kommentere eller redigere en side, men får aldrig fuld adgang."
+    },
+    "everyoneFromTeamspaceHint": "Angivet af teamområdet. Dets ejere og arbejdsområdets ejere har fuld adgang. Vælg et niveau her for at angive det for denne side og dens undersider."
+  },
+  "noAccess": {
+    "metaTitle": "Ingen adgang",
+    "title": "Du har ikke adgang til denne side",
+    "description": "Bed om adgang, så får de personer, der kan dele denne side, din anmodning.",
+    "descriptionNoRequests": "Bed den person, der sendte dig linket, om at dele denne side med dig.",
+    "messageLabel": "Besked (valgfrit)",
+    "messagePlaceholder": "Tilføj en note til de personer, der kan dele den",
+    "request": "Anmod om adgang",
+    "sending": "Sender…",
+    "sentTitle": "Anmodningen er sendt",
+    "sentDescription": "Når nogen deler siden med dig, åbner dette link den.",
+    "rateLimited": "Du har bedt om adgang for mange gange. Prøv igen om et stykke tid.",
+    "signedInAs": "Du er logget ind som {email}.",
+    "home": "Gå til dit arbejdsområde"
+  },
+  "embed": {
+    "label": "Database",
+    "linkedLabel": "Linket visning af en database",
+    "unavailable": "Denne database er ikke tilgængelig. Den er måske slettet, eller du har ikke adgang til den.",
+    "inTrash": "Denne database ligger i papirkurven.",
+    "creating": "Opretter database…",
+    "createFailed": "Databasen kunne ikke oprettes: {error}",
+    "turnIntoDatabase": "Lav om til database",
+    "convertFailed": "Tabellen kunne ikke laves om til en database: {error}",
+    "tableTooLarge": "Tabeller med op til {rows} rækker og {columns} kolonner kan blive til en database.",
+    "open": "Åbn som side",
+    "linked": "Linket visning",
+    "layout": "Layout",
+    "viewOnly": "Kun personer, der kan redigere denne side, kan ændre denne visning.",
+    "picker": {
+      "title": "Vælg en database",
+      "search": "Søg i databaser",
+      "empty": "Ingen databaser fundet.",
+      "failed": "Databaserne kunne ikke indlæses."
+    },
+    "slash": {
+      "database": {
+        "title": "Database",
+        "subtext": "En ny database på denne side",
+        "aliases": "database db inline table tabel"
+      },
+      "linkedView": {
+        "title": "Linket visning af database",
+        "subtext": "Vis en eksisterende database med sin egen visning",
+        "aliases": "linked view database db linket visning"
+      },
+      "dashboard": {
+        "title": "Dashboard",
+        "subtext": "Tal, diagrammer og lister fra dine databaser",
+        "aliases": "dashboard widgets kpi metrics charts numbers nøgletal diagrammer tal"
+      },
+      "databaseTabs": {
+        "title": "Databasefaner",
+        "subtext": "Flere databaser eller visninger, én fane hver",
+        "aliases": "tabs tabbed database views switch faner visninger skift"
+      }
+    }
+  },
+  "textStyle": {
+    "superscript": "Hævet skrift",
+    "subscript": "Sænket skrift"
+  },
+  "find": {
+    "label": "Find på siden",
+    "placeholder": "Find",
+    "replacePlaceholder": "Erstat med",
+    "noResults": "Ingen resultater",
+    "matchCase": "Forskel på store og små bogstaver",
+    "matchAccents": "Forskel på accenter",
+    "previous": "Forrige match (Shift+Enter)",
+    "next": "Næste match (Enter)",
+    "showReplace": "Vis erstat",
+    "hideReplace": "Skjul erstat",
+    "replace": "Erstat",
+    "replaceAll": "Erstat alle",
+    "close": "Luk (Esc)"
+  },
+  "template": {
+    "workspace": "Dette er en skabelon. Nye sider, der laves ud fra den, kopierer dens indhold og undersider.",
+    "row": "Dette er en rækkeskabelon. Nye rækker, der laves ud fra den, får dens egenskaber og indhold.",
+    "inside": "Denne side er en del af en skabelon.",
+    "use": "Brug skabelon",
+    "confirmDelete": "Vil du slette denne skabelon permanent? Sider, der allerede er lavet ud fra den, forbliver som de er."
+  },
+  "blocks": {
+    "callout": {
+      "title": "Infoboks",
+      "subtext": "Tekst med et ikon på en farvet baggrund",
+      "aliases": "callout note tip warning alert box infoboks bemærkning advarsel boks",
+      "icon": "Skift ikon",
+      "hiddenInPrint": "Skjult ved udskrivning",
+      "titleField": "Infoboksens titel",
+      "titlePlaceholder": "Titel",
+      "builtin": {
+        "frame": "Ramme"
+      },
+      "styleSubtext": "Infoboksstil",
+      "group": "Infobokse"
+    },
+    "code": {
+      "language": "Sprog",
+      "plainText": "Almindelig tekst",
+      "format": "Formatér kode",
+      "formatSyntaxError": "Koden blev ikke formateret: der er en syntaksfejl i linje {line}.",
+      "formatFailed": "Koden kunne ikke formateres."
+    },
+    "math": {
+      "title": "Ligning",
+      "subtext": "En fremhævet ligning skrevet i TeX",
+      "aliases": "math equation latex tex katex formula ligning formel matematik",
+      "placeholder": "Tilføj en TeX-ligning",
+      "sourcePlaceholder": "E = mc^2",
+      "error": "Ligningen har en fejl"
+    },
+    "inlineMath": {
+      "title": "Indlejret ligning",
+      "subtext": "En ligning inde i teksten",
+      "aliases": "inline math equation latex tex katex formula ligning formel",
+      "placeholder": "Ny ligning",
+      "sourcePlaceholder": "x^2",
+      "error": "Fejl i ligningen"
+    },
+    "footnote": {
+      "title": "Fodnote",
+      "subtext": "En nummereret note nederst på siden",
+      "aliases": "footnote note reference source citation fodnote kilde henvisning",
+      "placeholder": "Ny fodnote",
+      "sourcePlaceholder": "Notens tekst",
+      "list": "Fodnoter",
+      "goTo": "Gå til fodnoten i teksten",
+      "back": "Tilbage til teksten"
+    },
+    "mermaid": {
+      "title": "Mermaid-diagram",
+      "subtext": "Rutediagrammer, sekvensdiagrammer og mere, tegnet ud fra tekst",
+      "aliases": "mermaid diagram flowchart chart graph sequence gantt rutediagram",
+      "placeholder": "Tilføj et Mermaid-diagram",
+      "sourcePlaceholder": "graph TD\n  A --> B",
+      "loading": "Tegner diagrammet…",
+      "error": "Diagrammet har en fejl",
+      "syntaxError": "Syntaksfejl",
+      "label": "Diagram"
+    },
+    "toc": {
+      "title": "Indholdsfortegnelse",
+      "subtext": "Links til overskrifterne på denne side",
+      "aliases": "toc table contents headings outline indhold indholdsfortegnelse overskrifter",
+      "label": "Indholdsfortegnelse",
+      "empty": "Tilføj overskrifter til denne side, så vises de her."
+    },
+    "breadcrumb": {
+      "title": "Brødkrummesti",
+      "subtext": "Siderne over denne, som links",
+      "aliases": "breadcrumb path parents location sti placering",
+      "label": "Brødkrummesti"
+    },
+    "subpages": {
+      "title": "Undersider",
+      "subtext": "Siderne under denne, som links",
+      "aliases": "subpages children child pages list index undersider",
+      "label": "Undersider",
+      "empty": "Sider, du tilføjer under denne, vises her."
+    },
+    "columns": {
+      "two": {
+        "title": "2 kolonner",
+        "subtext": "To kolonner med blokke side om side",
+        "aliases": "columns column layout side 2 two kolonner to"
+      },
+      "three": {
+        "title": "3 kolonner",
+        "subtext": "Tre kolonner med blokke side om side",
+        "aliases": "columns column layout side 3 three kolonner tre"
+      },
+      "add": {
+        "title": "Tilføj kolonne",
+        "subtext": "En ny kolonne til højre for denne (op til 5)",
+        "aliases": "column columns add new layout kolonne tilføj"
+      }
+    },
+    "pageLink": {
+      "title": "Link til side",
+      "subtext": "Et link til en anden side med dens aktuelle titel",
+      "aliases": "link page mention reference side omtale"
+    },
+    "syncedPage": {
+      "title": "Synkroniseret side",
+      "subtext": "En anden sides indhold, live og redigerbart her",
+      "aliases": "synced sync embed mirror transclude page synkroniseret side"
+    },
+    "colors": {
+      "group": "Farver",
+      "text": "{color} tekst",
+      "background": "{color} baggrund",
+      "textDefault": "Standardtekstfarve",
+      "backgroundDefault": "Ingen baggrund",
+      "textAliases": "color colour text font farve tekst skrift",
+      "backgroundAliases": "background highlight color colour baggrund fremhæv farve"
+    },
+    "syncedBlock": {
+      "title": "Synkroniseret blok",
+      "subtext": "Blokke, du kan vise og redigere på flere sider",
+      "aliases": "synced sync reuse shared blocks synkroniseret genbrug delte blokke"
+    }
+  },
+  "web": {
+    "bookmark": {
+      "title": "Webbogmærke",
+      "subtext": "Et link vist som et kort med titel og billede",
+      "aliases": "bookmark link url web card preview bogmærke kort",
+      "placeholder": "Indsæt et link, der skal bogmærkes",
+      "submit": "Opret bogmærke",
+      "loading": "Henter siden…",
+      "refresh": "Opdatér forhåndsvisning",
+      "resize": "Træk for at ændre kortets bredde",
+      "label": "Bogmærke"
+    },
+    "embed": {
+      "title": "Indlejring",
+      "subtext": "YouTube, Figma, Google Docs, Maps og mere",
+      "aliases": "embed iframe youtube vimeo loom figma google docs sheets slides codepen spotify maps video indlejr",
+      "placeholder": "Indsæt et link, der skal indlejres",
+      "submit": "Indlejr",
+      "providers": "YouTube, Vimeo, Loom, Figma, udgivne Google Docs, Sheets og Slides, CodePen, Spotify og Google Maps. Andre links bliver til et bogmærke.",
+      "frameTitle": "Indlejret indhold fra {host}",
+      "label": "Indlejring"
+    },
+    "paste": {
+      "label": "Indsæt som",
+      "bookmark": "Bogmærke",
+      "embed": "Indlejring",
+      "mention": "Omtale",
+      "keep": "Behold som link"
+    },
+    "invalidUrl": "Angiv en webadresse, f.eks. https://example.com",
+    "errors": {
+      "accessDenied": "Du kan ikke redigere denne side.",
+      "rateLimited": "For mange linkforhåndsvisninger på én gang. Prøv igen om et minut.",
+      "invalidUrl": "Det er ikke en webadresse.",
+      "blocked": "Denne adresse kan ikke forhåndsvises.",
+      "unreachable": "Siden kunne ikke nås.",
+      "timeout": "Siden var for længe om at svare.",
+      "tooManyRedirects": "Siden omdirigerer for mange gange.",
+      "httpError": "Siden svarede med en fejl."
+    }
+  },
+  "upload": {
+    "tooLarge": "{name} er for stor. Filer må højst være {limit}.",
+    "quotaExceeded": "{name} blev ikke uploadet: dette arbejdsområde har brugt sine {limit} fillagring.",
+    "failed": "{name} kunne ikke uploades.",
+    "storageFailed": "{name} blev ikke uploadet: arbejdsområdets egen lagring tog ikke imod den. Ejerne kan se hvorfor under Indstillinger > Lagring."
+  },
+  "mention": {
+    "people": "Personer",
+    "agents": "Agenter",
+    "groups": "Grupper",
+    "groupMembers": "{count, plural, =0 {Ingen medlemmer} one {# medlem} other {# medlemmer}}",
+    "pages": "Sider",
+    "dates": "Datoer",
+    "newPage": "Ny side: {title}",
+    "newPageHint": "Inde i denne side",
+    "today": "I dag",
+    "tomorrow": "I morgen",
+    "yesterday": "I går",
+    "nextWeek": "Næste uge",
+    "noAccess": "Ingen adgang",
+    "deleted": "Slettet side",
+    "loading": "Indlæser…",
+    "atBlock": "Åbner ved en blok på siden",
+    "showAsMention": "Vis som omtale",
+    "personLeft": "{name} (ikke længere i arbejdsområdet)",
+    "date": "Dato",
+    "reminder": "Påmindelse",
+    "remindNone": "Ingen påmindelse",
+    "remindSameDay": "På dagen kl. 9.00",
+    "remindDayBefore": "Dagen før kl. 9.00",
+    "remindWeekBefore": "En uge før kl. 9.00",
+    "reminderSet": "Påmindelse: {when}",
+    "reminderHint": "Du får den i din indbakke og via e-mail.",
+    "reminderPast": "Det tidspunkt er passeret; vælg en senere dato eller påmindelse.",
+    "done": "Færdig"
+  },
+  "preview": {
+    "editedBy": "Redigeret af {name} {when}",
+    "edited": "Redigeret {when}",
+    "members": "{count, plural, =0 {Ingen er i denne gruppe endnu} one {# medlem} other {# medlemmer}}",
+    "moreMembers": "og {count} mere"
+  },
+  "pageLinkPicker": {
+    "title": "Link til side",
+    "search": "Søg i sider…",
+    "empty": "Ingen sider fundet",
+    "failed": "Siderne kunne ikke indlæses."
+  },
+  "syncedPage": {
+    "label": "Synkroniseret side",
+    "viewOnly": "Kun visning",
+    "cycle": "Denne side vises allerede ovenfor, så den er kun linket her."
+  },
+  "backlinks": {
+    "title": "Linket fra",
+    "titleCount": "Linket fra · {count}",
+    "count": "{count, plural, one {# side linker hertil} other {# sider linker hertil}}",
+    "unlinked": "Omtaler uden link · {count}",
+    "unlinkedHint": "Sider, der skriver denne sides titel uden at linke til den",
+    "link": "Link",
+    "linkLabel": "Link omtalen i {title}",
+    "linkFailed": "Titlen står ikke længere som almindelig tekst dér.",
+    "locked": "Den side er låst, så den kan ikke ændres.",
+    "morePlaces": "{count, plural, one {# sted mere} other {# steder mere}}",
+    "fewerPlaces": "Vis færre",
+    "morePages": "{count, plural, one {Vis # side mere} other {Vis # sider mere}}"
+  },
+  "blockMenu": {
+    "copyLink": "Kopiér link til blok",
+    "hideInPrint": "Skjul ved udskrivning",
+    "calloutStyle": "Infoboksstil",
+    "turnIntoCallout": "Lav om til infoboks",
+    "plainCallout": "Almindelig infoboks",
+    "addTitle": "Tilføj titel",
+    "removeTitle": "Fjern titel"
+  },
+  "imageLink": {
+    "menuItem": "Link…",
+    "editMenuItem": "Redigér link…",
+    "title": "Link billedet",
+    "urlLabel": "Webadresse",
+    "toPage": "Linker til siden “{title}”",
+    "invalid": "Angiv en webadresse, der starter med http:// eller https://, eller vælg en side.",
+    "pickPage": "Link til en side…",
+    "remove": "Fjern link",
+    "open": "Åbn link"
+  },
+  "pdf": {
+    "untitled": "PDF",
+    "openInNewTab": "Åbn i en ny fane",
+    "frameTitle": "PDF: {name}",
+    "noPreview": "Denne browser kan ikke vise PDF’er her. Åbn filen for at læse den."
+  },
+  "pdfExport": {
+    "title": "Eksportér som PDF",
+    "letterhead": "Brevpapir",
+    "none": "Intet",
+    "defaultMark": "{name} (standard)",
+    "noLetterheads": "Ejere kan tilføje brevpapir med logo og firmaoplysninger under Indstillinger → PDF-skabeloner.",
+    "properties": "Medtag rækkens værdier",
+    "comments": "Medtag kommentarer",
+    "hint": "Diagrammer og ligninger udskrives som tekst; brug Udskriv for at få siden præcis, som den ser ud.",
+    "download": "Hent",
+    "preparing": "Forbereder…"
+  },
+  "spreadsheet": {
+    "untitled": "Projektmappe",
+    "download": "Hent",
+    "loading": "Læser projektmappen…",
+    "tooLarge": "Denne projektmappe er for stor til at blive vist her. Hent den for at åbne den.",
+    "unreadable": "Denne projektmappe kan ikke vises her: den er måske beskadiget, beskyttet med adgangskode eller en gammel .xls-fil. Hent den for at åbne den.",
+    "empty": "Dette ark er tomt.",
+    "sheets": "Ark",
+    "tableLabel": "{name}, ark {sheet}",
+    "partial": "De første {rows} rækker og {columns} kolonner vises",
+    "convert": "Lav om til en database",
+    "convertTitle": "Importér et ark fra denne projektmappe som en ny database"
+  },
+  "print": {
+    "print": "Udskriv, eller gem som PDF",
+    "back": "Tilbage til siden",
+    "includeSubpages": "Medtag undersider",
+    "preparing": "Indlæser billeder og diagrammer…",
+    "hint": "Vælg “Gem som PDF” som destination i udskriftsdialogen.",
+    "truncated": "Kun de første {count} sider er medtaget.",
+    "lastUpdated": "Sidst opdateret {date}",
+    "subpages": "Sider",
+    "embedUnavailable": "Denne database er ikke tilgængelig for dig."
+  },
+  "quickNote": {
+    "documentTitle": "Hurtig note",
+    "heading": "Hurtig note",
+    "description": "Gemmes som en privat side, som kun du ser. Du kan flytte eller dele den senere.",
+    "workspace": "Arbejdsområde",
+    "title": "Titel",
+    "body": "Note",
+    "bodyPlaceholder": "Skriv noget, eller indsæt et link",
+    "save": "Gem note",
+    "shortcut": "Ny hurtig note",
+    "shortcutShort": "Hurtig note",
+    "destination": "Gem i",
+    "privatePage": "Privat side"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "empty": "Dette dashboard har ingen widgets endnu.",
+    "emptyEditable": "Vis tal, diagrammer og lister fra arbejdsområdets databaser her. De holdes opdateret, når rækker ændres.",
+    "add": "Tilføj widget",
+    "full": "Et dashboard kan højst have {max} widgets.",
+    "menu": "Indstillinger for widget",
+    "edit": "Redigér",
+    "done": "Færdig",
+    "remove": "Fjern widget",
+    "moveBefore": "Flyt før",
+    "moveAfter": "Flyt efter",
+    "width": "Bredde",
+    "widths": {
+      "1": "En fjerdedel af bredden",
+      "2": "Halvdelen af bredden",
+      "3": "Tre fjerdedele af bredden",
+      "4": "Hele bredden"
+    },
+    "color": "Farve",
+    "colorNone": "Ingen farve",
+    "titleLabel": "Widgetens titel",
+    "titlePlaceholder": "Titel (databasens, når den er tom)",
+    "unavailable": "Du har ikke adgang til disse data.",
+    "inTrash": "Denne database ligger i papirkurven.",
+    "loadFailed": "Denne widget kunne ikke indlæses.",
+    "retry": "Prøv igen",
+    "noGroup": "Databasen har endnu intet at gruppere efter: tilføj en valg-, status- eller datoegenskab.",
+    "more": "{count, plural, one {# række mere} other {# rækker mere}}",
+    "rows": "{count, plural, one {# række} other {# rækker}}",
+    "byGroup": "efter {property}",
+    "filters": "{count, plural, one {# filter} other {# filtre}}",
+    "updatedNow": "opdateret lige nu",
+    "updated": "opdateret {time}"
+  },
+  "databaseTabs": {
+    "title": "Databasefaner",
+    "empty": "Disse faner viser endnu ingen databaser.",
+    "emptyEditable": "Vis flere databaser, eller visninger af én, som faner. Hver fane er sin egen visning.",
+    "add": "Tilføj fane",
+    "full": "Faner kan højst have {max} visninger.",
+    "menu": "Indstillinger for fane",
+    "rename": "Omdøb",
+    "remove": "Fjern fane",
+    "nameLabel": "Fanens navn",
+    "namePlaceholder": "Databasens navn",
+    "noAccess": "Ingen adgang"
+  },
+  "voiceNote": {
+    "record": "Optag en stemmenote",
+    "recording": "Optager",
+    "stop": "Stop, og skriv ud",
+    "discard": "Kassér",
+    "cancel": "Annuller",
+    "retry": "Indsæt igen",
+    "close": "Luk",
+    "limit": "Op til {minutes} min.",
+    "chooseFile": "Eller vælg en lydfil",
+    "transcribing": "Skriver ned, hvad du sagde…",
+    "writing": "AI skriver noten…",
+    "autoStopped": "Optagelsen stoppede ved grænsen på {minutes} min.",
+    "review": "AI har skrevet denne note ud fra din optagelse. Tjek den, før du gemmer.",
+    "notRewritten": "AI kunne ikke skrive optagelsen ud, så noten er udskriften, som den blev hørt.",
+    "transcriptKept": "Udskriften gemmes under noten.",
+    "propertiesPicked": "{count, plural, one {# egenskab blev udfyldt ud fra noten.} other {# egenskaber blev udfyldt ud fra noten.}}",
+    "transcriptToggle": "Udskrift",
+    "shortcut": "Ny stemmenote",
+    "shortcutShort": "Stemmenote",
+    "dialogTitle": "Stemmenote",
+    "dialogDescription": "Tal, så skriver AI en ren note her. Udskriften placeres under den.",
+    "slashTitle": "Stemmenote",
+    "slashSubtext": "Tal, så skriver AI det ud her",
+    "slashAliases": "voice audio record dictate speech microphone transcribe stemme lyd optag diktér tale mikrofon",
+    "errors": {
+      "unsupported": "Denne browser kan ikke optage lyd. Vælg en lydfil i stedet.",
+      "insecure": "Optagelse kræver en sikker (https) forbindelse. Vælg en lydfil i stedet.",
+      "denied": "Leafdesk har ikke tilladelse til at bruge mikrofonen. Tillad det i browserens indstillinger for webstedet, og prøv igen.",
+      "noDevice": "Der blev ikke fundet en mikrofon.",
+      "failed": "Optagelsen kunne ikke starte. Prøv igen.",
+      "fileType": "Denne type lydfil understøttes ikke.",
+      "fileTooLarge": "Optagelser må højst være {max}.",
+      "disabled": "Stemmenoter er ikke tilgængelige i dette arbejdsområde.",
+      "noAccess": "Du kan ikke tilføje noter her.",
+      "tooLarge": "Optagelsen er for stor. Optagelser må højst være {max}.",
+      "rateLimited": "For mange AI-anmodninger. Prøv igen om et øjeblik.",
+      "timeout": "Det tog for lang tid at skrive optagelsen ned. Prøv igen, eller optag en kortere note.",
+      "aborted": "Annulleret.",
+      "provider": "Optagelsen kunne ikke skrives ned. Prøv igen senere, eller bed en administrator om at tjekke indstillingerne for tale til tekst.",
+      "empty": "Der blev ikke hørt noget i optagelsen. Prøv igen tættere på mikrofonen.",
+      "invalid": "Optagelsen kunne ikke læses. Prøv igen.",
+      "interrupted": "Serveren genstartede, mens dette blev behandlet. Prøv igen.",
+      "limitReached": "Dette arbejdsområde har nået sin månedlige grænse for AI-omkostninger, så AI-anmodninger afvises indtil næste måned. Ejere kan se detaljerne under Indstillinger i AI-forbrug.",
+      "insert": "Noten kunne ikke føjes til siden."
+    },
+    "instructions": {
+      "menu": "Instruktioner til stemmenoter",
+      "menuHint": "Hvordan AI skriver de stemmenoter ud, der gemmes i denne database",
+      "title": "Instruktioner til stemmenoter",
+      "description": "AI følger disse, når den skriver en stemmenote ud, der gemmes i denne database. De gælder alle, der optager i den.",
+      "placeholder": "For eksempel: Note fra kundebesøg. Dæk virksomheden, den person, du mødte, hvad der blev drøftet, status på tilbuddet og næste skridt.",
+      "followed": "Stemmenoter, der gemmes her, følger denne databases skriveinstruktioner."
+    }
+  },
+  "review": {
+    "bar": "{count, plural, one {# AI-ændring til gennemgang} other {# AI-ændringer til gennemgang}}",
+    "by": "af {names}",
+    "open": "Gennemgå",
+    "keepAll": "Behold alle",
+    "undoAll": "Fortryd alle",
+    "keep": "Behold",
+    "undo": "Fortryd",
+    "title": "Gennemgå AI-ændringer",
+    "hint": "Behold eller fortryd hver ændring. Fortryd alle gemmer først siden, som den er nu, i dens historik.",
+    "stale": "Siden er ændret i mellemtiden: dette er ændringerne, som de er nu.",
+    "failed": "Det virkede ikke. Prøv igen."
+  },
+  "syncedBlock": {
+    "label": "Synkroniseret blok",
+    "from": "Synkroniseret fra",
+    "viewOnly": "Kun visning",
+    "copy": "Kopiér synkroniseret blok",
+    "copied": "Kopieret",
+    "copyHint": "Indsæt den på en anden side for at vise disse blokke dér, live",
+    "shownOn": "{count, plural, one {Vises på # side} other {Vises på # sider}}",
+    "notShownShort": "Vises ikke andre steder",
+    "notShown": "Kopiér denne synkroniserede blok, og indsæt den på en anden side for at vise den dér.",
+    "hiddenPages": "{count, plural, one {og # side, du ikke kan se} other {og # sider, du ikke kan se}}",
+    "unsync": "Fjern synkronisering",
+    "unsyncHint": "Lav om til en almindelig kopi af disse blokke",
+    "nested": "En synkroniseret blok kan ikke ligge i en anden synkroniseret blok.",
+    "turnInto": "Lav om til synkroniseret blok",
+    "state": {
+      "noAccess": "Ingen adgang",
+      "trashed": "Siden med den oprindelige synkroniserede blok ligger i papirkurven",
+      "deleted": "Siden med den oprindelige synkroniserede blok er slettet",
+      "removed": "Den oprindelige synkroniserede blok er slettet"
+    },
+    "exportNote": "Synkroniseret blok: {state}"
+  },
+  "viewer": {
+    "untitled": "Fil",
+    "counter": "{index} af {count}",
+    "announce": "{name}, {index} af {count}",
+    "previous": "Forrige fil",
+    "next": "Næste fil",
+    "close": "Luk",
+    "download": "Hent",
+    "openInNewTab": "Åbn i en ny fane",
+    "zoom": "Zoom",
+    "zoomIn": "Zoom ind",
+    "zoomOut": "Zoom ud",
+    "zoomReset": "Tilpas til skærmen",
+    "zoomResetLevel": "{percent} %, tilpas til skærmen",
+    "loading": "Indlæser…",
+    "readingDocument": "Læser dokumentet…",
+    "unavailable": "Denne fil kan ikke åbnes. Den er måske fjernet, eller du har måske ikke længere adgang til den.",
+    "imageFailed": "Dette billede kan ikke vises her. Hent det for at åbne det.",
+    "empty": "Denne fil er tom.",
+    "noPreview": "Der er ingen forhåndsvisning af denne filtype.",
+    "unknownType": "Ukendt type",
+    "cannotPlay": "Denne browser kan ikke afspille denne fil. Hent den for at afspille den et andet sted.",
+    "truncated": "Kun de første {size} af denne fil vises. Hent den for at se det hele.",
+    "csvPartial": "En del af denne fil vises ({rows} rækker). Hent den for at se det hele.",
+    "documentTooLarge": "Dette dokument er for stort til forhåndsvisning. Hent det for at åbne det.",
+    "documentUnreadable": "Dette dokument kan ikke forhåndsvises: det er måske beskadiget, beskyttet med adgangskode eller en gammel .doc-fil. Hent det for at åbne det.",
+    "documentBusy": "Serveren er optaget af at læse andre dokumenter. Prøv igen om et øjeblik.",
+    "picturesLeftOut": "Nogle billeder i dette dokument vises ikke her.",
+    "retry": "Prøv igen",
+    "markdownImage": "Billede: {alt}",
+    "markdownImageUntitled": "Billede",
+    "expand": "Åbn i fremviser",
+    "view": "Vis {name}"
+  },
+  "presentation": {
+    "previous": "Forrige dias",
+    "next": "Næste dias",
+    "exit": "Afslut præsentation",
+    "counter": "{index} af {count}",
+    "announce": "Dias {index} af {count}"
+  },
+  "markdownSource": {
+    "title": "Redigér som Markdown",
+    "sourceTab": "Markdown",
+    "previewTab": "Forhåndsvisning",
+    "toolbar": "Formatering",
+    "placeholder": "Skriv Markdown…",
+    "close": "Luk",
+    "retry": "Prøv igen",
+    "unsaved": "Ikke-gemte ændringer",
+    "offline": "Offline: det kræver forbindelse at gemme",
+    "saveHint": "Gem på siden (Ctrl+S eller ⌘S)",
+    "tools": {
+      "bold": "Fed",
+      "italic": "Kursiv",
+      "code": "Indlejret kode",
+      "link": "Link",
+      "heading": "Overskrift {level}",
+      "bulletList": "Punktliste",
+      "numberedList": "Nummereret liste",
+      "taskList": "To do-liste"
+    },
+    "errors": {
+      "noAccess": "Du kan ikke redigere denne side.",
+      "database": "Databaser har ingen tekst, der kan redigeres som Markdown.",
+      "trashed": "Denne side ligger i papirkurven.",
+      "locked": "Denne side er låst. Lås den op for at redigere den.",
+      "saveFailed": "Siden kunne ikke gemmes. Prøv igen om et øjeblik.",
+      "failed": "Noget gik galt. Prøv igen."
+    },
+    "losses": {
+      "title": "Noget af denne side bevares ikke",
+      "body": "Markdown kan ikke rumme alt på denne side. Når du gemmer, skrives siden ud fra Markdown, så dette forsvinder:",
+      "kinds": {
+        "textColor": "Tekstfarver",
+        "backgroundColor": "Baggrundsfarver og fremhævninger",
+        "alignment": "Tekstjustering",
+        "mediaSize": "Størrelser på billeder og video",
+        "callout": "Farver og ikoner på infobokse, som Markdown ikke har en form for",
+        "textStyle": "Noget tekstformatering, f.eks. understregning",
+        "table": "Kolonnebredder, overskriftsrækker, flettede celler og cellefarver i tabeller",
+        "blockSetting": "Andre blokindstillinger",
+        "content": "Noget indhold, som Markdown ikke kan rumme"
+      },
+      "synced": "{count, plural, one {Dine ændringer inde i en synkroniseret blok: redigér den på siden i stedet} other {Dine ændringer inde i # synkroniserede blokke: redigér dem på siden i stedet}}",
+      "confirm": "Gem alligevel"
+    },
+    "conflict": {
+      "title": "En anden har ændret denne side",
+      "body": "Siden er ændret, efter du åbnede dens Markdown. Indlæs siden, som den er nu (dine ændringer her kasseres), eller gem dine oven i den.",
+      "reload": "Indlæs den nuværende side",
+      "overwrite": "Gem mine oven i den"
+    },
+    "discard": {
+      "title": "Vil du kassere dine ændringer?",
+      "body": "Dine Markdown-ændringer er ikke gemt.",
+      "keep": "Fortsæt med at redigere",
+      "confirm": "Kassér"
+    }
+  },
+  "siblings": {
+    "label": "Sider ved siden af {title}",
+    "empty": "Ingen andre sider her",
+    "failed": "Siderne her kunne ikke indlæses.",
+    "openDatabase": "Åbn database",
+    "allRows": "Se alle rækker i databasen"
+  },
+  "agentChat": {
+    "label": "Agentchat",
+    "exportLine": "Agentchat: {name}",
+    "elsewhere": "Agentchat: tilgængelig i appen for medlemmer af arbejdsområdet.",
+    "choose": "Vælg en agent",
+    "noAgent": "Vælg den agent, folk chatter med her.",
+    "noAgentReadOnly": "Der er ikke valgt en agent til denne chat.",
+    "loadFailed": "Denne chat kunne ikke indlæses.",
+    "retry": "Prøv igen",
+    "states": {
+      "guest": "Agentchats er ikke tilgængelige for gæster.",
+      "gone": "Denne agent er ikke længere tilgængelig.",
+      "paused": "Denne agent er sat på pause, så den kan ikke svare.",
+      "aiOff": "AI er slået fra i dette arbejdsområde, så agenten kan ikke svare.",
+      "limitReached": "Denne agent har brugt sine tokens for måneden, så den kan ikke svare før næste måned.",
+      "noAccess": "Du har ikke adgang til denne agent."
+    },
+    "empty": {
+      "full": "Spørg {name} om noget, eller giv den en opgave. Den arbejder med sin egen adgang, sine færdigheder og sin hukommelse, og hvert svar er en af dens kørsler.",
+      "readOnly": "Stil {name} et spørgsmål. Svarene kommer kun fra sider, I begge kan se, og den kan ikke ændre noget."
+    },
+    "readOnly": "Skrivebeskyttet",
+    "readOnlyHint": "Svarene kommer kun fra sider, som både du og agenten kan se.",
+    "placeholder": "Skriv til {name}…",
+    "send": "Send",
+    "working": "Arbejder…",
+    "waiting": "Venter på en ledig AI-plads…",
+    "approval": "Agenten vil bruge et værktøj. Godkend kaldet for at lade den fortsætte.",
+    "steps": "{count, plural, one {# trin} other {# trin}}",
+    "conversations": "Samtaler",
+    "newConversation": "Ny samtale",
+    "deleteConversation": "Slet denne samtale",
+    "failed": {
+      "aiOff": "AI er slået fra i dette arbejdsområde.",
+      "agentDisabled": "Agenten blev sat på pause eller arkiveret.",
+      "noAccess": "Du kan ikke længere chatte med denne agent her.",
+      "provider": "AI-udbyderen svarede ikke.",
+      "timeout": "Agenten var for længe om at svare.",
+      "tooManyAttempts": "Arbejdsområdets AI-kvote forblev opbrugt, så agenten kunne ikke starte.",
+      "approvalTimeout": "Ingen svarede på dens kald i tide, så intet blev sendt.",
+      "limitReached": "Agenten har brugt sine tokens for måneden.",
+      "costLimit": "Arbejdsområdet har nået sin månedlige grænse for AI-omkostninger.",
+      "error": "Noget gik galt."
+    },
+    "errors": {
+      "invalid": "Skriv først en besked.",
+      "tooLong": "En besked må højst have {max} tegn.",
+      "busy": "Agenten svarer stadig på din sidste besked.",
+      "rateLimited": "For mange beskeder på én gang. Prøv igen om et øjeblik.",
+      "noAccess": "Denne chat er ikke tilgængelig for dig.",
+      "notOnPage": "Denne chat er ikke længere på siden.",
+      "guest": "Agentchats er ikke tilgængelige for gæster.",
+      "gone": "Denne agent er ikke længere tilgængelig.",
+      "paused": "Denne agent er sat på pause, så den kan ikke svare.",
+      "aiOff": "AI er slået fra i dette arbejdsområde, så agenten kan ikke svare.",
+      "limitReached": "Denne agent har brugt sine tokens for måneden."
+    },
+    "picker": {
+      "search": "Søg i agenter",
+      "empty": "Ingen agenter at chatte med. Ejere opretter dem under Indstillinger i Agenter.",
+      "failed": "Agenterne kunne ikke indlæses.",
+      "paused": "På pause"
+    },
+    "slash": {
+      "title": "Agentchat",
+      "subtext": "Chat med en af arbejdsområdets agenter på denne side",
+      "aliases": "agent chat bot assistant ai ask assistent spørg"
+    },
+    "tab": {
+      "hint": "Indsæt denne agents link på en side for at placere en chat med den dér. Medlemmer kan chatte i den skrivebeskyttet.",
+      "copyLink": "Kopiér link"
+    },
+    "awaitingOwner": "Venter på, at en ejer af arbejdsområdet godkender et kald…"
+  },
+  "button": {
+    "untitled": "Knap",
+    "placeholder": "Knaptekst",
+    "done": "Færdig",
+    "confirm": "Vil du køre “{label}”?",
+    "blockLabel": "Knap “{label}”",
+    "slash": {
+      "title": "Knap",
+      "subtext": "Gør nogle ting i rækkefølge, når der klikkes",
+      "aliases": "button action click run knap handling klik kør"
+    },
+    "settings": {
+      "open": "Knapindstillinger",
+      "icon": "Emoji",
+      "label": "Tekst",
+      "color": "Farve",
+      "colorDefault": "Standard",
+      "confirm": "Spørg før kørsel",
+      "confirmHelp": "Den, der klikker, bekræfter først.",
+      "steps": "Ved klik",
+      "stepsHelp": "Trinene kører i rækkefølge som den, der klikker, og med vedkommendes adgang. Et trin, personen ikke kan udføre, stopper knappen dér.",
+      "addStep": "Tilføj et trin",
+      "moveUp": "Flyt op",
+      "moveDown": "Flyt ned",
+      "insertAt": "Hvor",
+      "at": {
+        "below": "Under knappen",
+        "top": "Øverst på siden",
+        "bottom": "Nederst på siden"
+      },
+      "markdown": "Blokke i Markdown",
+      "people": "Personer",
+      "message": "Besked",
+      "notifyHelp": "Kun personer, der kan åbne denne side, får besked.",
+      "url": "Adresse",
+      "secret": "Signeringshemmelighed",
+      "copySecret": "Kopiér hemmeligheden",
+      "webhookHelp": "Sender denne side som JSON, signeret med hemmeligheden, hvis arbejdsområdet tillader, at indhold forlader det.",
+      "target": "Webadresse eller side",
+      "pickPage": "Vælg en side",
+      "toPage": "Åbner “{title}”",
+      "rowTitle": "Titel",
+      "values": "Værdier",
+      "updateHelp": "Ændrer højst {max} rækker, der matcher filtrene, og som den, der klikker, kan se."
+    },
+    "variables": {
+      "group": "Knap",
+      "today": "I dag",
+      "now": "Nu",
+      "me": "Den, der klikkede"
+    },
+    "steps": {
+      "insert": "Indsæt blokke",
+      "add_row": "Tilføj en række",
+      "update_rows": "Ændr rækker",
+      "notify": "Giv personer besked",
+      "webhook": "Send en webhook",
+      "open": "Åbn et link eller en side"
+    },
+    "failed": {
+      "notFound": "Denne knap er ikke længere på siden.",
+      "noSteps": "Denne knap gør ikke noget endnu.",
+      "inTrash": "Knapper på sider i papirkurven kører ikke.",
+      "rateLimited": "Der er klikket på denne knap for ofte. Vent et øjeblik, og prøv igen.",
+      "noAccess": "Du har ikke adgang til at gøre dette.",
+      "locked": "Siden er låst.",
+      "notConfigured": "Dette trin er ikke sat op.",
+      "databaseGone": "Databasen findes ikke længere eller ligger i papirkurven.",
+      "invalidValue": "En værdi passer ikke til sin egenskab.",
+      "exportOff": "Dette arbejdsområde tillader ikke, at indhold forlader det.",
+      "webhookFailed": "Adressen tog ikke imod webhooken.",
+      "invalidTarget": "Linket, der skal åbnes, er ikke gyldigt.",
+      "buttonGone": "Knappen blev fjernet fra siden.",
+      "error": "Noget gik galt.",
+      "step": "Trin {step} ({type}) kørte ikke: {reason}",
+      "templateGone": "Rækkeskabelonen findes ikke længere."
+    }
+  },
+  "imageCrop": {
+    "menuItem": "Beskær…",
+    "title": "Beskær billedet",
+    "hint": "Træk i rammen eller dens kanter. Filen forbliver hel, så du kan ændre dette senere.",
+    "frame": "Den del af billedet, der skal vises. Piletasterne flytter den; med Shift ændrer de størrelsen.",
+    "reset": "Vis hele billedet",
+    "loading": "Indlæser billedet…",
+    "failed": "Billedet kunne ikke indlæses."
+  }
+}

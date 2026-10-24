@@ -1,0 +1,300 @@
+{
+  "footer": "Det här e-postmeddelandet skickades av Leafdesk på {appUrl}.",
+  "actionFallback": "Om knappen inte fungerar klistrar du in den här länken i din webbläsare:",
+  "test": {
+    "subject": "Testmeddelande från Leafdesk",
+    "heading": "E-postleveransen fungerar",
+    "body": "Det här är ett testmeddelande från din Leafdesk-server på {appUrl}. Om du kan läsa det är e-posten rätt konfigurerad."
+  },
+  "invitation": {
+    "subject": "{inviter} har bjudit in dig till ”{workspace}” på Leafdesk",
+    "heading": "Gå med i ”{workspace}”",
+    "body": "{inviter} har bjudit in dig att gå med i ”{workspace}” på Leafdesk som {role}.",
+    "expires": "Länken fungerar i 7 dagar. Skapa ett konto med {email} för att tacka ja.",
+    "action": "Tacka ja till inbjudan",
+    "roles": {
+      "owner": "ägare",
+      "member": "medlem",
+      "guest": "gäst"
+    }
+  },
+  "passwordReset": {
+    "subject": "Återställ ditt lösenord för Leafdesk",
+    "heading": "Återställ ditt lösenord",
+    "body": "Hej {name}! Någon har bett om att återställa lösenordet för ditt Leafdesk-konto. Om det var du väljer du ett nytt lösenord med knappen nedan.",
+    "expires": "Länken fungerar i {minutes} minuter och bara en gång. Om du inte har bett om detta kan du strunta i det här meddelandet; ditt lösenord förblir detsamma.",
+    "action": "Välj ett nytt lösenord"
+  },
+  "assignment": {
+    "subject": "{actor} tilldelade dig ”{row}”",
+    "heading": "Du har tilldelats ”{row}”",
+    "body": "{actor} lade till dig i ”{property}” i {database}.",
+    "bodyHidden": "{actor} lade till dig i ”{property}”.",
+    "action": "Öppna",
+    "untitled": "Namnlös",
+    "someone": "Någon",
+    "optOut": "Du kan stänga av de här meddelandena under Mitt konto > Preferenser."
+  },
+  "share": {
+    "subject": "{actor} delade ”{page}” med dig",
+    "heading": "{actor} delade en sida med dig",
+    "body": "Du kan nu {level} ”{page}” i {workspace}.",
+    "levels": {
+      "view": "visa",
+      "comment": "visa och kommentera",
+      "edit": "redigera",
+      "full": "visa, redigera och dela"
+    },
+    "action": "Öppna sidan",
+    "untitled": "Namnlös",
+    "optOut": "Du kan stänga av de här meddelandena under Mitt konto > Preferenser."
+  },
+  "comment": {
+    "subject": "{actor} kommenterade ”{page}”",
+    "heading": "{actor} kommenterade ”{page}”",
+    "quote": "”{text}”",
+    "body": "Kommentaren finns på ”{page}” i {workspace}. Svara på den eller markera den som löst från sidan.",
+    "action": "Öppna sidan",
+    "optOut": "Du får de här meddelandena eftersom du deltog i den här kommentarstråden. Du kan stänga av dem under Mitt konto > Preferenser."
+  },
+  "suggestion": {
+    "subject": "{actor} föreslog ändringar på ”{page}”",
+    "heading": "{actor} föreslog ändringar på ”{page}”",
+    "body": "Förslaget finns på ”{page}” i {workspace}. Godta eller avvisa det från sidan, eller svara i dess tråd."
+  },
+  "mention": {
+    "subject": "{actor} nämnde dig på ”{page}”",
+    "heading": "{actor} nämnde dig på ”{page}”",
+    "body": "Omnämnandet finns på ”{page}” i {workspace}.",
+    "action": "Öppna sidan",
+    "someone": "Någon",
+    "optOut": "Du får de här meddelandena eftersom någon nämnde dig. Du kan stänga av dem under Mitt konto > Preferenser."
+  },
+  "reminder": {
+    "subject": "Påminnelse: {date} på ”{page}”",
+    "heading": "Påminnelse: {date}",
+    "body": "Du bad om en påminnelse om {date} på ”{page}” i {workspace}.",
+    "action": "Öppna sidan",
+    "optOut": "Du får de här meddelandena eftersom du har ställt in en påminnelse. Du kan stänga av dem under Mitt konto > Preferenser."
+  },
+  "pageVerification": {
+    "endsSubject": "Din verifiering av ”{page}” upphör {date}",
+    "endsHeading": "Verifieringen upphör snart",
+    "endsBody": "Du verifierade ”{page}” i {workspace} till och med {date}. Om den fortfarande stämmer verifierar du den igen från sidans ⋯-meny så att den förblir verifierad.",
+    "endedSubject": "Din verifiering av ”{page}” har gått ut",
+    "endedHeading": "Verifieringen har gått ut",
+    "endedBody": "Din verifiering av ”{page}” i {workspace} upphörde {date}. Sidan visar ”Verifieringen har gått ut” tills någon verifierar den igen.",
+    "action": "Öppna sidan",
+    "optOut": "Du får de här meddelandena eftersom du verifierade sidan. Du kan stänga av dem under Mitt konto > Preferenser."
+  },
+  "dateReminder": {
+    "subject": "Påminnelse: ”{page}” den {date}",
+    "heading": "”{page}” är den {date}",
+    "body": "”{page}” i {database} ({workspace}) har {property} den {date}.",
+    "bodyHidden": "”{page}” ({workspace}) har {property} den {date}.",
+    "action": "Öppna raden",
+    "optOut": "Du får de här meddelandena eftersom {database} påminner personerna på sina rader. Du kan stänga av påminnelser under Mitt konto > Preferenser.",
+    "optOutHidden": "Du får de här meddelandena eftersom dess databas påminner personerna på sina rader. Du kan stänga av påminnelser under Mitt konto > Preferenser."
+  },
+  "automation": {
+    "subject": "Automatisering ”{automation}”: ”{page}”",
+    "heading": "Automatiseringen ”{automation}” meddelar dig om ”{page}”",
+    "body": "{actor} lade till eller ändrade ”{page}” i {database} ({workspace}).",
+    "bodyHidden": "{actor} lade till eller ändrade ”{page}” ({workspace}).",
+    "bodyDatePassed": "”{page}” i {database} ({workspace}) har nått datumet som den här automatiseringen väntar på.",
+    "bodyDatePassedHidden": "”{page}” ({workspace}) har nått datumet som den här automatiseringen väntar på.",
+    "action": "Öppna raden",
+    "someone": "Någon",
+    "optOut": "Du får de här meddelandena eftersom en databasautomatisering meddelar dig. Du kan stänga av dem under Mitt konto > Preferenser."
+  },
+  "rowUpdate": {
+    "subject": "{actor} ändrade ”{page}”",
+    "heading": "{actor} ändrade ”{page}”",
+    "intro": "{actor} ändrade ”{page}” i {database} ({workspace}):",
+    "introHidden": "{actor} ändrade ”{page}” ({workspace}):",
+    "change": "{property}: {from} → {to}",
+    "title": "Titel",
+    "body": "Radens text redigerades.",
+    "empty": "inget",
+    "checked": "ikryssad",
+    "unchecked": "inte ikryssad",
+    "deletedOption": "{count, plural, one {ett raderat alternativ} other {# raderade alternativ}}",
+    "unknownPerson": "{count, plural, one {någon okänd} other {# okända personer}}",
+    "noAccess": "Ingen åtkomst",
+    "untitled": "Namnlös",
+    "checklist": "{done} av {total} klara",
+    "action": "Öppna raden",
+    "someone": "Någon",
+    "optOut": "Du får de här meddelandena eftersom du följer den här raden. Sluta följa den från radens sidmeny, eller stäng av de här meddelandena under Mitt konto > Preferenser."
+  },
+  "pageUpdate": {
+    "subject": "{actor} redigerade ”{page}”",
+    "heading": "{actor} redigerade ”{page}”",
+    "body": "”{page}” i {workspace} har ändrats. Öppna den för att se vad som är nytt; dess historik visar varje ändring.",
+    "someone": "Någon",
+    "action": "Öppna sidan",
+    "optOut": "Du får de här meddelandena eftersom du bevakar den här sidan: du skapade eller redigerade den, valde att bevaka den eller bevakar dess teamyta. Tysta den från sidans ⋯-meny, eller stäng av de här meddelandena under Mitt konto > Preferenser.",
+    "digestSubject": "{count, plural, one {# sida som du bevakar har redigerats} other {# sidor som du bevakar har redigerats}}",
+    "digestIntro": "Du har redan fått dagens meddelanden om sidor du bevakar, så de här ändringarna kommer samlat:",
+    "digestPage": "”{page}” i {workspace}, redigerad av {actor}: {link}",
+    "digestAction": "Öppna Leafdesk"
+  },
+  "accessRequest": {
+    "subject": "{requester} bad om åtkomst till ”{page}”",
+    "heading": "{requester} bad om åtkomst till ”{page}”",
+    "body": "{requester} ({email}) vill öppna ”{page}” i {workspace}.",
+    "bodyWithoutEmail": "{requester} vill öppna ”{page}” i {workspace}.",
+    "message": "Personens meddelande: ”{message}”",
+    "moreSubject": "{requester} bad om att få {level, select, comment {kommentera} other {redigera}} ”{page}”",
+    "moreHeading": "{requester} bad om mer åtkomst till ”{page}”",
+    "moreBody": "{requester} ({email}) kan öppna ”{page}” i {workspace} och vill {level, select, comment {kommentera den} other {redigera den}}.",
+    "moreBodyWithoutEmail": "{requester} kan öppna ”{page}” i {workspace} och vill {level, select, comment {kommentera den} other {redigera den}}.",
+    "answer": "Dela sidan med personen och välj vad hen får göra, eller avböj begäran. Du kan svara från din inkorg eller från Dela på sidan.",
+    "action": "Öppna sidan",
+    "optOut": "Du får de här meddelandena eftersom du har full åtkomst till sidan. Du kan stänga av dem under Mitt konto > Preferenser."
+  },
+  "accessApproved": {
+    "subject": "Nu kan du öppna ”{page}”",
+    "heading": "{actor} godkände din begäran",
+    "body": "Du kan nu {level} ”{page}” i {workspace}.",
+    "action": "Öppna sidan"
+  },
+  "accessDeclined": {
+    "subject": "Din begäran om åtkomst avböjdes",
+    "heading": "Din begäran avböjdes",
+    "body": "Din begäran om åtkomst till den här sidan avböjdes: {link}",
+    "hint": "Om du fortfarande behöver den kan du fråga personen som skickade länken till dig.",
+    "moreBody": "Din begäran om att få {level, select, comment {kommentera} other {redigera}} ”{page}” avböjdes. Du kan fortfarande öppna den som tidigare: {link}"
+  },
+  "emailChange": {
+    "subject": "Bekräfta din nya e-postadress",
+    "heading": "Bekräfta din nya e-postadress",
+    "body": "Hej {name}! Du har bett om att använda den här adressen för ditt Leafdesk-konto i stället för {old}. Bekräfta den med knappen nedan.",
+    "expires": "Länken fungerar i {hours} timmar och bara en gång. Om du inte har bett om detta kan du strunta i det här meddelandet; inget ändras.",
+    "action": "Bekräfta e-postadress"
+  },
+  "emailChanged": {
+    "subject": "E-postadressen för ditt Leafdesk-konto har ändrats",
+    "heading": "Din e-postadress har ändrats",
+    "body": "Hej {name}! E-postadressen för ditt Leafdesk-konto har ändrats från {old} till {new}. Från och med nu loggar du in med den nya adressen.",
+    "warning": "Om det inte var du som gjorde ändringen ska du genast kontakta en ägare av din arbetsyta."
+  },
+  "passwordChanged": {
+    "subject": "Ditt lösenord för Leafdesk har ändrats",
+    "heading": "Ditt lösenord har ändrats",
+    "body": "Hej {name}! Lösenordet för ditt Leafdesk-konto har just ändrats.",
+    "warning": "Om det inte var du som gjorde ändringen ska du återställa ditt lösenord från inloggningssidan och kontakta en ägare av din arbetsyta."
+  },
+  "joinRequest": {
+    "join": {
+      "subject": "{asker} bad om att få gå med i ”{workspace}”",
+      "heading": "{asker} bad om att få gå med",
+      "body": "{asker} ({email}) bad om att få gå med i ”{workspace}” på Leafdesk. Godkänn eller avböj förfrågan under Inställningar > Medlemmar."
+    },
+    "invite": {
+      "subject": "{asker} bad om att få bjuda in {email} till ”{workspace}”",
+      "heading": "En medlem bad om att få bjuda in någon",
+      "body": "{asker} vill bjuda in {email} till ”{workspace}” på Leafdesk. Inbjudan skickas när en ägare har godkänt den."
+    },
+    "action": "Granska förfrågningar",
+    "optOut": "Du kan stänga av de här meddelandena under Mitt konto > Preferenser."
+  },
+  "joinDecision": {
+    "joinApproved": {
+      "subject": "Du har gått med i ”{workspace}”",
+      "heading": "Välkommen till ”{workspace}”",
+      "body": "En ägare har godkänt din förfrågan om att gå med i ”{workspace}” på Leafdesk."
+    },
+    "joinDeclined": {
+      "subject": "Din förfrågan om att gå med i ”{workspace}”",
+      "heading": "Din förfrågan godkändes inte",
+      "body": "En ägare av ”{workspace}” avböjde din förfrågan om att gå med. Du kan be någon av dess ägare om en inbjudan."
+    },
+    "inviteApproved": {
+      "subject": "{email} har bjudits in till ”{workspace}”",
+      "heading": "Din inbjudan har skickats",
+      "body": "En ägare har godkänt din förfrågan, och {email} har bjudits in till ”{workspace}” på Leafdesk."
+    },
+    "inviteDeclined": {
+      "subject": "Din förfrågan om att bjuda in {email}",
+      "heading": "Din förfrågan godkändes inte",
+      "body": "En ägare av ”{workspace}” avböjde din förfrågan om att bjuda in {email}."
+    },
+    "action": "Öppna Leafdesk"
+  },
+  "verification": {
+    "subject": "Verifiera din e-postadress för Leafdesk",
+    "heading": "Verifiera din e-postadress",
+    "body": "Hej {name}! Bekräfta att den här adressen är din med knappen nedan.",
+    "ignore": "Om du inte har skapat något Leafdesk-konto kan du strunta i det här meddelandet.",
+    "action": "Verifiera e-postadress"
+  },
+  "passwordResetRequired": {
+    "subject": "Välj ett nytt lösenord för Leafdesk",
+    "heading": "Välj ett nytt lösenord",
+    "body": "Hej {name}! En administratör av den här Leafdesk-servern har bett dig välja ett nytt lösenord. Ditt gamla lösenord fungerar inte längre för inloggning.",
+    "expires": "Länken fungerar i {minutes} minuter och bara en gång. Om du loggar in med ditt gamla lösenord igen skickas en ny.",
+    "action": "Välj ett nytt lösenord"
+  },
+  "push": {
+    "assignment": "{actor} tilldelade dig ”{property}”",
+    "pageShared": "{actor} delade den här sidan med dig",
+    "comment": "{actor} kommenterade i en tråd som du deltar i",
+    "suggested": "{actor} föreslog ändringar på den här sidan",
+    "suggestionAccepted": "{actor} godtog din föreslagna ändring",
+    "suggestionRejected": "{actor} avvisade din föreslagna ändring",
+    "mention": "{actor} nämnde dig",
+    "reminder": "Påminnelse: {date}",
+    "accessRequest": "{actor} bad om åtkomst till den här sidan",
+    "accessRequestMore": "{actor} bad om att få {level, select, comment {kommentera} other {redigera}} den här sidan",
+    "automation": "Automatisering ”{name}”: {actor} lade till eller ändrade den här raden",
+    "automationDatePassed": "Automatisering ”{name}”: datumet för den här raden har kommit",
+    "button": "{actor} skickade den här sidan till dig med en knapp",
+    "rowUpdate": "{actor} ändrade {fields}",
+    "rowUpdateSome": "{actor} ändrade den här raden",
+    "rowUpdateTitle": "titeln",
+    "rowUpdateBody": "texten",
+    "pageUpdated": "{actor} redigerade den här sidan",
+    "rowEmail": "E-post från {from}",
+    "followUp": "Uppföljningen ”{sequence}” är pausad: dess nästa e-postmeddelande behöver ses över",
+    "reaction": "{actor} reagerade med {emoji} på din kommentar",
+    "people": "{others, plural, =0 {{name}} one {{name} och # till} other {{name} och # till}}",
+    "verificationEnds": "Din verifiering av den här sidan upphör {date}",
+    "verificationEnded": "Din verifiering av den här sidan gick ut {date}",
+    "someone": "Någon",
+    "joinRequestTitle": "Förfrågan om att gå med",
+    "joinRequest": "{actor} bad om att få gå med",
+    "inviteRequest": "{actor} bad om att få bjuda in {email}",
+    "approvalTitle": "{agent} ber om att få fortsätta",
+    "approval": "Vill anropa ”{tool}” på {connection}",
+    "memoryTitle": "{agent} vill komma ihåg",
+    "memory": "{count, plural, one {Föreslår en anteckning till sitt minne} other {Föreslår # anteckningar till sitt minne}}",
+    "reportTitle": "Rapport från {agent}",
+    "reportDone": "Dess schemalagda körning är klar",
+    "reportFailed": "Dess schemalagda körning misslyckades",
+    "untitled": "Namnlös",
+    "snooze": "Snooza 1 timme",
+    "read": "Markera som läst",
+    "aiAccountTitle": "AI-kontot har tagits bort",
+    "aiAccountDetached": "Arbetsytans AI körs inte längre med {actor}s nyckel.",
+    "reviewTitle": "Att granska",
+    "review": "{count, plural, one {{agent} föreslog en ändring för din granskning} other {# ändringar väntar på din granskning, den senaste från {agent}}}",
+    "sensitiveContent": "Hittade {kind, select, card {ett betalkortsnummer} iban {ett IBAN} national_id {ett personnummer} private_key {en privat nyckel} aws_key {en AWS-åtkomstnyckel} github_token {en GitHub-token} slack_token {en Slack-token} api_key {en API-nyckel} jwt {en JSON Web Token} other {känsligt innehåll}} på den här sidan."
+  },
+  "agentReply": {
+    "aiOff": "Jag kan inte svara: AI är avstängt i den här arbetsytan.",
+    "agentDisabled": "Jag kan inte svara: jag är pausad. En ägare av arbetsytan kan aktivera mig igen i Inställningar.",
+    "limitReached": "Jag kan inte svara: jag har använt min tokengräns för den här månaden. En ägare av arbetsytan kan höja den i Inställningar.",
+    "costLimit": "Jag kan inte svara: arbetsytan har nått sin månatliga kostnadsgräns för AI.",
+    "timeout": "Jag hann inte bli klar. Försök igen med en mindre begäran.",
+    "approvalTimeout": "Jag kunde inte slutföra: ingen godkände det jag behövde göra inom ett dygn, så jag stoppade.",
+    "empty": "Jag har tittat på det, men har inget att tillägga.",
+    "failed": "Tyvärr kunde jag inte slutföra det här. En ägare av arbetsytan kan se vad som hände i mina körningar i Inställningar."
+  },
+  "workspaceDeleted": {
+    "subject": "{workspace} har raderats",
+    "heading": "{workspace} har raderats",
+    "body": "Hej {name}! {by} har raderat Leafdesk-arbetsytan {workspace}, med alla dess sidor, databaser och filer. Du kan inte längre öppna den.",
+    "note": "Raderade arbetsytor kan inte återställas. Om du inte väntade dig detta kan du prata med {by} eller en annan ägare av arbetsytan."
+  }
+}

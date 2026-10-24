@@ -1,0 +1,37 @@
+{
+  "metaTitle": "Auktorisera app",
+  "expired": {
+    "title": "Den här länken har gått ut",
+    "body": "Auktoriseringsbegäran är ogiltig eller för gammal. Gå tillbaka till appen du höll på att ansluta och börja om."
+  },
+  "unknownClient": {
+    "title": "Okänd app",
+    "body": "Appen som begär åtkomst är inte registrerad hos Leafdesk eller har inaktiverats. Gå tillbaka och försök ansluta igen."
+  },
+  "heading": "{client} vill få åtkomst till ditt Leafdesk-konto",
+  "identifiedBy": "Den här appen identifieras av {host}.",
+  "unverified": "Den här appen registrerade sig automatiskt och har inte granskats av Leafdesk. Fortsätt bara om det var du som startade anslutningen.",
+  "notYou": "Inte du?",
+  "willAllow": "Detta ger {client} möjlighet att:",
+  "readOnlyHint": "Avmarkera för att bara ge läsåtkomst. Varje ändring sparas först i sidans historik, så du kan ångra den.",
+  "access": {
+    "all": "Åtkomsten gäller alla arbetsytor du tillhör. Du kan när som helst koppla från appen i Inställningar.",
+    "listed": "Åtkomsten gäller alla arbetsytor du tillhör: {workspaces}. Du kan när som helst koppla från appen i Inställningar."
+  },
+  "deny": "Neka",
+  "denying": "Nekar…",
+  "allow": "Tillåt",
+  "allowing": "Tillåter…",
+  "redirectNotice": "Du skickas tillbaka till {host}.",
+  "error": "Det gick inte att slutföra begäran. Gå tillbaka till appen och försök igen.",
+  "scopes": {
+    "openid": "Bekräfta vem du är",
+    "profile": "Se ditt namn och din profilbild",
+    "email": "Se din e-postadress",
+    "offlineAccess": "Förbli ansluten utan att be dig logga in igen",
+    "pagesRead": "Läsa sidor och databaser i dina arbetsytor",
+    "pagesWrite": "Skapa och redigera sidor och databasrader samt flytta sidor till papperskorgen",
+    "notificationsRead": "Läsa aviseringarna i din inkorg",
+    "filesWrite": "Ladda upp filer till sidor, från en länk eller från själva appen"
+  }
+}

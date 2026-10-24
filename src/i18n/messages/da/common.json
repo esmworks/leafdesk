@@ -1,0 +1,33 @@
+{
+  "appDescription": "Arbejdsområde med åben kildekode til dokumenter og databaser, med MCP-adgang for AI-agenter.",
+  "untitled": "Uden titel",
+  "sourceCode": "Kildekode",
+  "agent": "Agent",
+  "agentName": "{name} (agent)",
+  "cancel": "Annuller",
+  "save": "Gem",
+  "saving": "Gemmer…",
+  "saved": "Gemt.",
+  "close": "Luk",
+  "delete": "Slet",
+  "remove": "Fjern",
+  "restore": "Gendan",
+  "loading": "Indlæser…",
+  "copy": "Kopiér",
+  "copied": "Kopieret",
+  "genericError": "Noget gik galt. Prøv igen.",
+  "errorPage": {
+    "title": "Noget gik galt",
+    "description": "Siden kunne ikke vises, eller din seneste ændring blev ikke gemt.",
+    "retry": "Prøv igen",
+    "home": "Gå til Hjem"
+  },
+  "export": {
+    "failed": "Eksporten kunne ikke startes. Prøv igen.",
+    "tooManyPages": "Det er for meget at eksportere på én gang: en eksport kan højst indeholde {limit} sider. Eksportér en mindre del af arbejdsområdet.",
+    "tooLarge": "Filerne i denne eksport fylder tilsammen mere end {size}. Eksportér en mindre del af arbejdsområdet.",
+    "busy": "Du har allerede en eksport i gang. Vent, til den er hentet.",
+    "disabled": "Eksport er slået fra i dette arbejdsområde."
+  },
+  "celebrate": "Godt klaret!"
+}

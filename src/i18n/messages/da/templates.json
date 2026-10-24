@@ -1,0 +1,238 @@
+{
+  "meeting-notes": {
+    "title": "Mødenoter",
+    "description": "Dagsorden, noter, beslutninger og handlingspunkter.",
+    "markdown": "**Dato:** \n\n**Deltagere:** \n\n## Dagsorden\n\n1. \n\n## Noter\n\n\n\n## Beslutninger\n\n- \n\n## Handlingspunkter\n\n- [ ] "
+  },
+  "weekly-plan": {
+    "title": "Ugeplan",
+    "description": "Ugens mål og en tjekliste for hver dag.",
+    "markdown": "## Mål for ugen\n\n- [ ] \n\n### Mandag\n\n- [ ] \n\n### Tirsdag\n\n- [ ] \n\n### Onsdag\n\n- [ ] \n\n### Torsdag\n\n- [ ] \n\n### Fredag\n\n- [ ] \n\n## Noter til næste uge\n"
+  },
+  "project-tracker": {
+    "title": "Projektstyring",
+    "description": "Opgaver med status, prioritet, ansvarlig og frist i en tabel og på en tavle.",
+    "seedNames": {
+      "status": "Status",
+      "notStarted": "Ikke startet",
+      "inProgress": "I gang",
+      "done": "Færdig",
+      "tags": "Tags",
+      "table": "Alle opgaver"
+    },
+    "properties": {
+      "priority": "Prioritet",
+      "owner": "Ansvarlig",
+      "due": "Frist"
+    },
+    "options": {
+      "high": "Høj",
+      "medium": "Mellem",
+      "low": "Lav"
+    },
+    "board": "Tavle",
+    "rowTemplate": {
+      "title": "Ny opgave",
+      "markdown": "## Mål\n\n\n\n## Trin\n\n- [ ] \n\n## Noter\n\n"
+    },
+    "rows": {
+      "brief": "Skriv projektbeskrivelsen",
+      "milestone": "Planlæg den første milepæl",
+      "team": "Invitér teamet"
+    }
+  },
+  "wins-log": {
+    "title": "Sejrslog",
+    "description": "Sejre, ros og afsluttet arbejde samlet ét sted med diagrammer efter måned, type og område.",
+    "markdown": "Hver sejr, hver ros og hvert stykke afsluttet arbejde samles her med et link til, hvor det skete. Tilføj dem manuelt, eller lad agenten Sejrslogger tilføje dem fra dine forbindelser.",
+    "database": "Sejre",
+    "table": "Alle sejre",
+    "board": "Efter type",
+    "properties": {
+      "type": "Type",
+      "area": "Område",
+      "date": "Dato",
+      "impact": "Effekt",
+      "source": "Kilde",
+      "person": "Personer"
+    },
+    "types": {
+      "feedback": "Feedback",
+      "delivery": "Levering",
+      "metric": "Nøgletal",
+      "event": "Begivenhed",
+      "other": "Andet"
+    },
+    "areas": {
+      "product": "Produkt",
+      "customers": "Kunder",
+      "team": "Team",
+      "operations": "Drift",
+      "sales": "Salg"
+    },
+    "impacts": {
+      "high": "Høj",
+      "medium": "Mellem",
+      "low": "Lav"
+    },
+    "widgets": {
+      "total": "Sejre",
+      "byMonth": "Sejre pr. måned",
+      "byArea": "Efter område",
+      "byImpact": "Efter effekt"
+    },
+    "rowTemplate": {
+      "title": "Ny sejr",
+      "markdown": "## Hvad skete der\n\n\n\n## Hvorfor det betyder noget\n\n\n\n## Dokumentation\n\n- "
+    },
+    "rows": {
+      "praise": "En kunde roste den nye onboarding",
+      "launch": "Faktureringseksporten er lanceret",
+      "response": "Supportsvar tager nu under to timer",
+      "talk": "Holdt et oplæg på teamets seminar",
+      "thanks": "Salg takkede os for demo-opsætningen"
+    }
+  },
+  "small-business": {
+    "title": "Lille virksomhed",
+    "description": "Kunder, de tilbud, du giver dem, opgaver og en balance, forbundet med hinanden, med et dashboard og en ugeplan.",
+    "currency": "DKK",
+    "dashboard": {
+      "title": "Dashboard",
+      "markdown": "> [!NOTE]\n> Opgaver, tilbud, kunder og balancen på én skærm. Widgetterne følger databaserne, efterhånden som de ændres.\n\nTilføj først dine kunder og derefter de tilbud, du giver dem. Når et tilbud bliver accepteret, så tilføj en opgave, og forbind den med tilbuddet og kunden. Indtast balancen med den dag, du opgør den: widgetterne viser denne måneds poster.",
+      "widgets": {
+        "openJobs": "Åbne opgaver",
+        "dueJobs": "Forfaldne eller over frist",
+        "openQuotes": "Åbne tilbud",
+        "netWorth": "Nettoformue denne måned",
+        "jobsByPerson": "Åbne opgaver efter person og prioritet",
+        "upcomingJobs": "Åbne opgaver efter frist",
+        "quotesByStatus": "Tilbud efter status",
+        "quoteFollowUps": "Opfølgning på tilbud",
+        "customersByStage": "Kunder efter fase",
+        "customerFollowUps": "Opfølgning på kunder",
+        "balanceBreakdown": "Balance denne måned",
+        "netWorthByDate": "Nettoformue efter dato"
+      }
+    },
+    "customers": {
+      "title": "Kunder",
+      "table": "Alle kunder",
+      "board": "Efter fase",
+      "properties": {
+        "stage": "Fase",
+        "city": "By",
+        "contact": "Kontaktperson",
+        "phone": "Telefon",
+        "email": "E-mail",
+        "nextStep": "Næste skridt",
+        "nextStepDate": "Næste skridt den",
+        "quotes": "Tilbud",
+        "jobs": "Opgaver",
+        "quoted": "Tilbudt i alt"
+      },
+      "stages": {
+        "lead": "Lead",
+        "prospect": "Emne",
+        "customer": "Kunde",
+        "inactive": "Inaktiv"
+      }
+    },
+    "quotes": {
+      "title": "Tilbud",
+      "table": "Alle tilbud",
+      "board": "Efter status",
+      "calendar": "Opfølgninger",
+      "properties": {
+        "customer": "Kunde",
+        "status": "Status",
+        "amount": "Beløb",
+        "followUp": "Følg op den",
+        "date": "Dato",
+        "validUntil": "Gyldigt til",
+        "preparedBy": "Udarbejdet af",
+        "jobs": "Opgaver"
+      },
+      "statuses": {
+        "draft": "Kladde",
+        "sent": "Sendt",
+        "revision": "Ændring ønsket",
+        "accepted": "Accepteret",
+        "lost": "Tabt"
+      },
+      "rowTemplate": {
+        "title": "Nyt tilbud",
+        "markdown": "## Poster\n\n- \n\n## Betingelser\n\n**Betaling:** \n\n**Levering:** \n\n## Noter\n"
+      }
+    },
+    "jobs": {
+      "title": "Opgaver",
+      "table": "Alle opgaver",
+      "board": "Tavle",
+      "byPerson": "Efter person",
+      "calendar": "Kalender",
+      "properties": {
+        "status": "Status",
+        "priority": "Prioritet",
+        "assignee": "Ansvarlig",
+        "due": "Frist",
+        "customer": "Kunde",
+        "quote": "Tilbud",
+        "notes": "Noter"
+      },
+      "statuses": {
+        "todo": "Skal gøres",
+        "waiting": "Venter",
+        "inProgress": "I gang",
+        "done": "Færdig"
+      },
+      "priorities": {
+        "urgent": "Haster",
+        "high": "Høj",
+        "normal": "Normal",
+        "low": "Lav"
+      },
+      "rowTemplate": {
+        "title": "Ny opgave",
+        "markdown": "## Trin\n\n- [ ] \n"
+      }
+    },
+    "balance": {
+      "title": "Balance",
+      "table": "Alle poster",
+      "byDate": "Efter dato",
+      "netWorth": "Nettoformue",
+      "thisMonth": "Denne måned",
+      "properties": {
+        "date": "Dato",
+        "side": "Side",
+        "group": "Gruppe",
+        "amount": "Beløb",
+        "net": "Nettoeffekt",
+        "note": "Note"
+      },
+      "sides": {
+        "asset": "Aktiv",
+        "liability": "Passiv"
+      },
+      "groups": {
+        "cash": "Kasse og bank",
+        "receivables": "Tilgodehavender",
+        "chequesIn": "Modtagne checks",
+        "stock": "Varelager",
+        "equipment": "Udstyr",
+        "payables": "Leverandørgæld",
+        "chequesOut": "Udstedte checks",
+        "card": "Kreditkortgæld",
+        "loans": "Banklån",
+        "taxes": "Skatter og afgifter",
+        "wages": "Skyldig løn",
+        "other": "Andet"
+      }
+    }
+  },
+  "journal": {
+    "title": "Dagbog",
+    "markdown": "## Fokus\n\n- [ ] \n\n## Noter\n\n## Klaret i dag\n"
+  }
+}

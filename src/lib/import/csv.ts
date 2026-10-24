@@ -21,8 +21,9 @@ export type CsvColumnType = (typeof CSV_COLUMN_TYPES)[number];
 export { csvTable, decodeText, detectDelimiter, parseCsv, recordsTable, type CsvTable } from "./csv-parse";
 
 // English, Turkish, German, Spanish, French, Italian, Portuguese, Polish, Russian, Ukrainian,
-// Arabic, Hebrew, Persian, Japanese, Korean, Chinese, Indonesian, Thai and Vietnamese. Ukrainian's
-// apostrophe comes typed three ways.
+// Arabic, Hebrew, Persian, Japanese, Korean, Chinese, Indonesian, Thai, Vietnamese, Danish, Dutch,
+// Norwegian, Finnish and Swedish. Ukrainian's apostrophe comes typed three ways. The Danish and
+// Norwegian page, "side", is an English word too: left out.
 const TITLE_HEADERS = [
   ...["name", "title", "page", "ad", "isim", "başlık", "baslik", "sayfa", "titel", "seite", "nombre", "título", "titulo", "página", "titre", "nom"],
   ...["nome", "titolo", "pagina", "nazwa", "imię", "tytuł", "tytul", "strona"],
@@ -30,6 +31,7 @@ const TITLE_HEADERS = [
   ...["الاسم", "اسم", "العنوان", "عنوان", "الصفحة", "שם", "כותרת", "עמוד", "نام", "صفحه"],
   ...["名前", "名称", "タイトル", "題名", "件名", "ページ", "이름", "제목", "페이지", "名字", "标题", "页面"],
   ...["nama", "judul", "halaman", "ชื่อ", "หัวข้อ", "หน้า", "tên", "tiêu đề", "trang"],
+  ...["navn", "tittel", "namn", "sida", "naam", "nimi", "otsikko", "sivu"],
 ];
 
 /** The column that becomes each row's title: one called Name or Title (or Ad, Başlık, Nome, Название, 名前…), else the first. */
@@ -81,18 +83,21 @@ const TRUE_WORDS = new Set([
   ...["vero", "sim", "verdadeiro", "tak", "prawda", "да", "истина", "так", "істина", "نعم", "صح", "صحيح", "כן", "אמת", "بله", "آره", "درست"],
   ...["はい", "真", "예", "네", "참", "是", "对"],
   ...["ya", "benar", "ใช่", "จริง", "có", "đúng"],
+  ...["sand", "sann", "sant", "waar", "kyllä", "tosi"],
 ]);
 const FALSE_WORDS = new Set([
   ...["false", "no", "n", "hayır", "hayir", "nein", "falsch", "falso", "non", "faux", "unchecked", "[ ]", "✗"],
   ...["não", "nao", "nie", "fałsz", "falsz", "нет", "ложь", "ні", "хибність", "لا", "خطأ", "לא", "שקר", "نه", "خیر", "نادرست"],
   ...["いいえ", "偽", "아니요", "아니오", "거짓", "否", "错", "假"],
   ...["tidak", "salah", "ไม่", "ไม่ใช่", "เท็จ", "không", "sai"],
+  ...["nej", "nei", "falsk", "falskt", "nee", "onwaar", "ei", "epätosi"],
 ]);
 
 /**
  * A checkbox cell: yes/no words (English, Turkish, German, Spanish, French, Italian, Portuguese,
  * Polish, Russian, Ukrainian, Arabic, Hebrew, Persian, Japanese, Korean, Chinese, Indonesian,
- * Thai, Vietnamese), true/false, 1/0, ✓. Null for anything else.
+ * Thai, Vietnamese, Danish, Dutch, Norwegian, Finnish, Swedish), true/false, 1/0, ✓. Null for
+ * anything else.
  */
 export function parseCheckbox(raw: string, { numbers = true } = {}): boolean | null {
   const s = raw.trim().toLocaleLowerCase("tr").replace(/ı/g, "i");

@@ -1,0 +1,14 @@
+{
+  "metaTitle": "Personer",
+  "heading": "Personer",
+  "description": "Ägarna och medlemmarna i den här arbetsytan, med deras teamytor, grupper och sidor de nyligen har redigerat. Gäster visas inte.",
+  "search": "Sök på namn, e-post, teamyta eller grupp",
+  "count": "{count, plural, one {# person} other {# personer}}",
+  "noMatches": "Ingen matchar din sökning.",
+  "you": "(du)",
+  "teamspaces": "Teamytor",
+  "groups": "Grupper",
+  "recentPages": "Nyligen redigerade",
+  "none": "Inga",
+  "noRecentPages": "Inga nyliga ändringar som du kan öppna."
+}

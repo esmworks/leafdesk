@@ -1,0 +1,141 @@
+{
+  "heading": "Personlige adgangstokens",
+  "description": "Tokens lader scripts og andre programmer bruge Leafdesks REST API som dig, med din adgang til sider. Hold dem hemmelige som en adgangskode.",
+  "docs": "API-dokumentation",
+  "empty": "Du har ingen tokens endnu.",
+  "create": "Nyt token",
+  "form": {
+    "title": "Nyt personligt adgangstoken",
+    "name": "Navn",
+    "namePlaceholder": "f.eks. Script til ugerapport",
+    "access": "Adgang",
+    "workspace": "Arbejdsområde",
+    "allWorkspaces": "Alle mine arbejdsområder",
+    "expiry": "Udløber efter",
+    "days": "{count, plural, one {# dag} other {# dage}}",
+    "never": "Aldrig",
+    "submit": "Opret token",
+    "creating": "Opretter…"
+  },
+  "created": {
+    "title": "Kopiér dit nye token",
+    "body": "Det er eneste gang, tokenet vises. Gem det et sikkert sted; hvis du mister det, så tilbagekald det, og opret et nyt.",
+    "done": "Færdig"
+  },
+  "row": {
+    "readOnly": "Kun læse",
+    "readWrite": "Læse og skrive",
+    "allWorkspaces": "Alle arbejdsområder",
+    "createdAt": "Oprettet {date}",
+    "lastUsed": "sidst brugt {date}",
+    "neverUsed": "aldrig brugt",
+    "expires": "udløber {date}",
+    "expired": "udløb {date}",
+    "noExpiry": "udløber ikke",
+    "legacy": "oprettet før adgang pr. ressource"
+  },
+  "revoke": "Tilbagekald",
+  "revoking": "Tilbagekalder…",
+  "confirmRevoke": "Tilbagekald {name}",
+  "revokeError": "Tokenet kunne ikke tilbagekaldes. Prøv igen.",
+  "errors": {
+    "name": "Giv tokenet et navn på højst 100 tegn.",
+    "scopes": "Vælg, hvad tokenet må gøre.",
+    "workspace": "Du er ikke medlem af det arbejdsområde.",
+    "expiry": "Vælg, hvornår tokenet udløber.",
+    "limit": "Du har det højeste antal tilladte tokens. Tilbagekald et først.",
+    "generic": "Tokenet kunne ikke oprettes. Prøv igen.",
+    "notFound": "Dette token findes ikke længere.",
+    "ownerScope": "Kun et arbejdsområdes ejere kan lade et token læse dets revisionslog, og kun et token, der er begrænset til det arbejdsområde."
+  },
+  "docsPage": {
+    "metaTitle": "REST API",
+    "openapi": "OpenAPI-dokument (JSON)",
+    "tokensWhere": "Opret et token under Min konto → Forbundne apps.",
+    "quickStart": "Kom hurtigt i gang",
+    "baseUrl": "Basis-URL",
+    "errors": "Fejl",
+    "code": "Kode",
+    "status": "Status",
+    "endpoints": "Endpoints",
+    "parameters": "Parametre",
+    "inPath": "sti",
+    "inQuery": "forespørgsel",
+    "body": "Anmodningens indhold (JSON)",
+    "formBody": "Anmodningens indhold (multipart-formulardata)",
+    "response": "Svar {status}",
+    "name": "Navn",
+    "type": "Type",
+    "description": "Beskrivelse",
+    "required": "påkrævet",
+    "scopes": "Adgangsområder",
+    "scope": "Adgangsområde",
+    "access": "Adgang",
+    "read": "Læse",
+    "write": "Skrive",
+    "inHeader": "header"
+  },
+  "scopes": {
+    "presets": {
+      "readAll": "Læse alt",
+      "all": "Læse og skrive alt"
+    },
+    "read": "Læse",
+    "write": "Skrive",
+    "toggle": "{access}: {resource}",
+    "resources": {
+      "workspaces": {
+        "name": "Arbejdsområder",
+        "hint": "Arbejdsområder, deres teamområder og grupper."
+      },
+      "pages": {
+        "name": "Sider",
+        "hint": "Sider, undersider og dagsnoter; skrivning omfatter også stemmenoter."
+      },
+      "search": {
+        "name": "Søgning",
+        "hint": "Søg på tværs af sider og rækker."
+      },
+      "databases": {
+        "name": "Databaser",
+        "hint": "En databases egenskaber og visninger."
+      },
+      "rows": {
+        "name": "Rækker",
+        "hint": "Forespørg rækker, og læs deres aktivitet; skrivning tilføjer og ændrer rækker."
+      },
+      "comments": {
+        "name": "Kommentarer",
+        "hint": "Kommentartråde; skrivning starter tråde og svar."
+      },
+      "agents": {
+        "name": "Agenter",
+        "hint": "Agenters indstillinger, kørsler, tidsplaner og deling."
+      },
+      "webhooks": {
+        "name": "Webhooks",
+        "hint": "Sidewebhooks og deres leveringer; skrivning tilføjer, ændrer og tester dem (kun ejere)."
+      },
+      "audit": {
+        "name": "Revisionslog",
+        "hint": "Arbejdsområdets revisionslog (kun ejere, for et token, der er begrænset til et arbejdsområde, de ejer)."
+      }
+    },
+    "summary": {
+      "read": "{resource}: læse",
+      "readWrite": "{resource}: læse og skrive"
+    }
+  },
+  "edit": {
+    "button": "Skift adgang",
+    "title": "Skift, hvad {name} må gøre",
+    "body": "Tokenet beholder sin hemmelighed; ændringen gælder fra næste anmodning.",
+    "legacy": "Dette token blev oprettet, før adgang blev valgt pr. ressource, så det kan læse alt (og skrive alt, hvis det blev oprettet til skrivning), også det, der tilføjes senere. Når du gemmer, får det præcis det, du vælger her.",
+    "errors": {
+      "scopes": "Vælg mindst én ting, tokenet må gøre.",
+      "notFound": "Dette token findes ikke længere.",
+      "generic": "Tokenet kunne ikke ændres. Prøv igen.",
+      "ownerScope": "Kun et arbejdsområdes ejere kan lade et token læse dets revisionslog, og kun et token, der er begrænset til det arbejdsområde."
+    }
+  }
+}

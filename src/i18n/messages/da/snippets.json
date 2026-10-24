@@ -1,0 +1,124 @@
+{
+  "copyTitle": "{title} (kopi)",
+  "errors": {
+    "triggerRequired": "Giv tekstbidden en genvej.",
+    "triggerInvalid": "En genvej består af op til {max} små bogstaver, cifre, bindestreger og understregninger.",
+    "triggerTaken": "En anden tekstbid her har allerede denne genvej.",
+    "titleTooLong": "En titel må højst have {max} tegn.",
+    "bodyRequired": "Skriv, hvad tekstbidden indsætter.",
+    "bodyTooLong": "En tekstbid må højst have {max} tegn.",
+    "tooMany": "Der kan højst være {max} tekstbidder her. Slet nogle for at tilføje flere.",
+    "notFound": "Denne tekstbid findes ikke længere.",
+    "ownersOnly": "Kun arbejdsområdets ejere kan ændre dets tekstbidder.",
+    "accessDenied": "Du har ikke adgang til disse tekstbidder.",
+    "importInvalid": "Dette er ikke en fil med tekstbidder. Brug en eksport fra Leafdesk eller en liste af objekter med et id og en etiket.",
+    "importTooLarge": "Filen er for stor til at blive importeret."
+  },
+  "menu": {
+    "group": "Tekstbidder",
+    "personal": "Mine tekstbidder",
+    "workspace": "Arbejdsområdets tekstbidder",
+    "insertFailed": "Tekstbidden kunne ikke indsættes. {error}"
+  },
+  "save": {
+    "menuItem": "Gem som tekstbid",
+    "saved": "Gemt. Skriv ;{trigger} for at indsætte den."
+  },
+  "form": {
+    "newTitle": "Ny tekstbid",
+    "editTitle": "Redigér tekstbid",
+    "title": "Titel",
+    "titlePlaceholder": "Mødenoter",
+    "trigger": "Genvej",
+    "triggerPlaceholder": "moede",
+    "triggerHint": "Skriv ;{trigger} på en side, eller find den under Tekstbidder i /-menuen.",
+    "target": "Gem i",
+    "targetPersonal": "Mine tekstbidder (kun dig)",
+    "targetWorkspace": "{workspace} (alle i arbejdsområdet)",
+    "body": "Indhold (Markdown)",
+    "bodyPlaceholder": "## Dagsorden\n- ",
+    "placeholders": "Udfyldes ved indsættelse:",
+    "placeholder": {
+      "date": "Dagens dato",
+      "time": "Klokkeslættet nu",
+      "datetime": "Dagens dato og klokkeslæt",
+      "me": "Dit navn",
+      "page": "Sidens titel",
+      "cursor": "Hvor markøren placeres"
+    },
+    "length": "{count} af {max} tegn",
+    "preview": "Forhåndsvisning",
+    "previewPage": "Sidens titel",
+    "previewEmpty": "De blokke, tekstbidden indsætter, vises her.",
+    "create": "Opret tekstbid"
+  },
+  "settings": {
+    "personalDescription": "Stykker indhold, du indsætter, mens du skriver: skriv ; og en tekstbids genvej på en hvilken som helst side, eller vælg den under Tekstbidder i /-menuen. Kun du ser disse.",
+    "description": "Stykker indhold, du indsætter, mens du skriver: skriv ; og en tekstbids genvej på en hvilken som helst side, eller vælg den under Tekstbidder i /-menuen.",
+    "tabsLabel": "Tekstbidder",
+    "tabs": {
+      "mine": "Mine",
+      "workspace": "Arbejdsområde"
+    },
+    "mineNote": "Kun du ser disse, og du kan bruge dem i alle de arbejdsområder, du er med i.",
+    "workspaceNote": "Alle i {workspace} kan bruge disse. Kun ejere tilføjer og ændrer dem.",
+    "workspaceNoteOwner": "Alle i {workspace} kan bruge disse. Ejere tilføjer og ændrer dem.",
+    "search": "Søg i tekstbidder",
+    "new": "Ny tekstbid",
+    "import": "Importér",
+    "importing": "Importerer…",
+    "export": "Eksportér",
+    "count": "{count} af {max}",
+    "noMatches": "Ingen tekstbidder matcher.",
+    "empty": "Arbejdsområdet har endnu ingen delte tekstbidder.",
+    "emptyOwner": "Ingen tekstbidder endnu. Start med et eksempel, eller opret din egen.",
+    "emptyWorkspaceOwner": "Arbejdsområdet har endnu ingen delte tekstbidder. Opret en, som alle kan bruge.",
+    "examplesHeading": "Eksempler",
+    "addExample": "Tilføj",
+    "actionsFor": "Handlinger for {title}",
+    "edit": "Redigér",
+    "duplicate": "Duplikér",
+    "delete": "Slet",
+    "deleteTitle": "Vil du slette “{title}”?",
+    "deleteBody": "Sider, den er indsat på, beholder deres tekst.",
+    "imported": "{count, plural, =0 {Ingen tekstbidder tilføjet.} one {# tekstbid tilføjet.} other {# tekstbidder tilføjet.}}",
+    "skipped": "{count, plural, one {# sprunget over:} other {# sprunget over:}}",
+    "skip": {
+      "triggerRequired": "ingen genvej",
+      "triggerInvalid": "genvejen er ikke tilladt",
+      "titleTooLong": "titlen er for lang",
+      "bodyRequired": "tom",
+      "bodyTooLong": "for lang",
+      "duplicate": "to gange i filen",
+      "exists": "genvejen er allerede i brug",
+      "tooMany": "over grænsen"
+    },
+    "untitledTrigger": "(ingen genvej)",
+    "importFailed": "Kunne ikke importere. {error}"
+  },
+  "examples": {
+    "meeting": {
+      "trigger": "moede",
+      "title": "Mødenoter",
+      "attendees": "Deltagere",
+      "agenda": "Dagsorden",
+      "notes": "Noter",
+      "actions": "Handlingspunkter"
+    },
+    "log": {
+      "trigger": "log",
+      "title": "Dateret loglinje"
+    },
+    "decision": {
+      "trigger": "beslutning",
+      "title": "Beslutningsnotat",
+      "heading": "Beslutning",
+      "date": "Dato",
+      "decidedBy": "Besluttet af",
+      "context": "Baggrund",
+      "options": "Overvejede muligheder",
+      "outcome": "Hvad vi besluttede",
+      "consequences": "Konsekvenser"
+    }
+  }
+}

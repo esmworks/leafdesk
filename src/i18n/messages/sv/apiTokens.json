@@ -1,0 +1,141 @@
+{
+  "heading": "Personliga åtkomsttoken",
+  "description": "Med token kan skript och andra program använda Leafdesks REST API som dig, med din åtkomst till sidor. Håll dem hemliga, som ett lösenord.",
+  "docs": "API-dokumentation",
+  "empty": "Du har inga token än.",
+  "create": "Ny token",
+  "form": {
+    "title": "Ny personlig åtkomsttoken",
+    "name": "Namn",
+    "namePlaceholder": "t.ex. Skript för veckorapport",
+    "access": "Åtkomst",
+    "workspace": "Arbetsyta",
+    "allWorkspaces": "Alla mina arbetsytor",
+    "expiry": "Går ut efter",
+    "days": "{count, plural, one {# dag} other {# dagar}}",
+    "never": "Aldrig",
+    "submit": "Skapa token",
+    "creating": "Skapar…"
+  },
+  "created": {
+    "title": "Kopiera din nya token",
+    "body": "Det här är enda gången token visas. Förvara den på ett säkert ställe; om du tappar bort den återkallar du den och skapar en ny.",
+    "done": "Klar"
+  },
+  "row": {
+    "readOnly": "Bara läsa",
+    "readWrite": "Läsa och skriva",
+    "allWorkspaces": "Alla arbetsytor",
+    "createdAt": "Skapad {date}",
+    "lastUsed": "senast använd {date}",
+    "neverUsed": "aldrig använd",
+    "expires": "går ut {date}",
+    "expired": "gick ut {date}",
+    "noExpiry": "går inte ut",
+    "legacy": "skapad före åtkomst per resurs"
+  },
+  "revoke": "Återkalla",
+  "revoking": "Återkallar…",
+  "confirmRevoke": "Återkalla {name}",
+  "revokeError": "Det gick inte att återkalla token. Försök igen.",
+  "errors": {
+    "name": "Ge token ett namn på högst 100 tecken.",
+    "scopes": "Välj vad token får göra.",
+    "workspace": "Du är inte medlem i den arbetsytan.",
+    "expiry": "Välj när token ska gå ut.",
+    "limit": "Du har det högsta tillåtna antalet token. Återkalla en först.",
+    "generic": "Det gick inte att skapa token. Försök igen.",
+    "notFound": "Den här token finns inte längre.",
+    "ownerScope": "Bara en arbetsytas ägare kan låta en token läsa dess granskningslogg, och bara en token som är begränsad till den arbetsytan."
+  },
+  "docsPage": {
+    "metaTitle": "REST API",
+    "openapi": "OpenAPI-dokument (JSON)",
+    "tokensWhere": "Skapa en token under Mitt konto → Anslutna appar.",
+    "quickStart": "Snabbstart",
+    "baseUrl": "Bas-URL",
+    "errors": "Fel",
+    "code": "Kod",
+    "status": "Status",
+    "endpoints": "Slutpunkter",
+    "parameters": "Parametrar",
+    "inPath": "sökväg",
+    "inQuery": "fråga",
+    "body": "Begärandetext (JSON)",
+    "formBody": "Begärandetext (multipart-formulärdata)",
+    "response": "Svar {status}",
+    "name": "Namn",
+    "type": "Typ",
+    "description": "Beskrivning",
+    "required": "obligatorisk",
+    "scopes": "Behörigheter",
+    "scope": "Behörighet",
+    "access": "Åtkomst",
+    "read": "Läsa",
+    "write": "Skriva",
+    "inHeader": "huvud"
+  },
+  "scopes": {
+    "presets": {
+      "readAll": "Läsa allt",
+      "all": "Läsa och skriva allt"
+    },
+    "read": "Läsa",
+    "write": "Skriva",
+    "toggle": "{access}: {resource}",
+    "resources": {
+      "workspaces": {
+        "name": "Arbetsytor",
+        "hint": "Arbetsytor, deras teamytor och grupper."
+      },
+      "pages": {
+        "name": "Sidor",
+        "hint": "Sidor, undersidor och daganteckningar; skrivning omfattar även röstanteckningar."
+      },
+      "search": {
+        "name": "Sök",
+        "hint": "Sök i sidor och rader."
+      },
+      "databases": {
+        "name": "Databaser",
+        "hint": "En databas egenskaper och vyer."
+      },
+      "rows": {
+        "name": "Rader",
+        "hint": "Fråga rader och läs deras aktivitet; skrivning lägger till och ändrar rader."
+      },
+      "comments": {
+        "name": "Kommentarer",
+        "hint": "Kommentarstrådar; skrivning startar trådar och svar."
+      },
+      "agents": {
+        "name": "Agenter",
+        "hint": "Agenters inställningar, körningar, scheman och delning."
+      },
+      "webhooks": {
+        "name": "Webhooks",
+        "hint": "Sidwebhooks och deras leveranser; skrivning lägger till, ändrar och testar dem (bara ägare)."
+      },
+      "audit": {
+        "name": "Granskningslogg",
+        "hint": "Arbetsytans granskningslogg (bara ägare, för en token som är begränsad till en arbetsyta de äger)."
+      }
+    },
+    "summary": {
+      "read": "{resource}: läsa",
+      "readWrite": "{resource}: läsa och skriva"
+    }
+  },
+  "edit": {
+    "button": "Ändra åtkomst",
+    "title": "Ändra vad {name} får göra",
+    "body": "Token behåller sin hemlighet; ändringen gäller från dess nästa begäran.",
+    "legacy": "Den här token skapades innan åtkomst valdes per resurs, så den kan läsa allt (och skriva allt, om den skapades för skrivning), även det som läggs till senare. När du sparar får den exakt det du väljer här.",
+    "errors": {
+      "scopes": "Välj minst en sak som token får göra.",
+      "notFound": "Den här token finns inte längre.",
+      "generic": "Det gick inte att ändra token. Försök igen.",
+      "ownerScope": "Bara en arbetsytas ägare kan låta en token läsa dess granskningslogg, och bara en token som är begränsad till den arbetsytan."
+    }
+  }
+}

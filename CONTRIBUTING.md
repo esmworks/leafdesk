@@ -52,7 +52,7 @@ take the idea and write it yourself.
 
 ## Translations
 
-Leafdesk's interface is available in English, Turkish, German, Spanish, French, Italian, Portuguese, Polish, Russian, Ukrainian, Arabic, Hebrew, Persian, Japanese, Korean, Chinese, Indonesian, Thai and Vietnamese.
+Leafdesk's interface is available in English, Turkish, German, Spanish, French, Italian, Portuguese, Polish, Russian, Ukrainian, Arabic, Hebrew, Persian, Japanese, Korean, Chinese, Indonesian, Thai, Vietnamese, Danish, Dutch, Norwegian, Finnish and Swedish.
 English is the source language: every other language is compared with it, and any text a language lacks is shown
 in English until someone translates it.
 

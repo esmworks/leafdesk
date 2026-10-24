@@ -1,0 +1,98 @@
+{
+  "access": {
+    "default": "Standard",
+    "open": "Öppen",
+    "closed": "Stängd",
+    "private": "Privat"
+  },
+  "accessHint": {
+    "default": "Alla i arbetsytan ingår i den och kan inte lämna den.",
+    "open": "Alla i arbetsytan kan se den och gå med. Tills de går med kan de läsa och kommentera dess sidor.",
+    "closed": "Alla i arbetsytan kan se att den finns. Bara dess medlemmar öppnar dess sidor; dess ägare lägger till dem.",
+    "private": "Bara dess medlemmar kan se den."
+  },
+  "roles": {
+    "owner": "Ägare",
+    "member": "Medlem"
+  },
+  "errors": {
+    "nameRequired": "Ge teamytan ett namn.",
+    "creationRestricted": "Bara arbetsytans ägare kan skapa teamytor här.",
+    "ownersOnly": "Bara arbetsytans ägare kan ändra vilka teamytor alla ingår i.",
+    "cannotLeaveDefault": "Alla ingår i den här teamytan; den går inte att lämna.",
+    "lastOwner": "Gör först någon annan till ägare av teamytan.",
+    "notJoinable": "Be en ägare av den här teamytan att lägga till dig.",
+    "archived": "Den här teamytan är arkiverad.",
+    "notMember": "Bara ägare och medlemmar i arbetsytan kan ingå i dess teamytor.",
+    "invalidAccess": "Välj vem som kan se teamytan.",
+    "inGroup": "Den här personen ingår i teamytan via en grupp. Ta bort personen från gruppen i stället.",
+    "everyoneIn": "Alla i arbetsytan ingår redan i den här teamytan.",
+    "accessDenied": "Du kan inte göra det i den här teamytan.",
+    "invalidMemberLevel": "Välj vad medlemmar får på teamytans sidor.",
+    "invalidIcon": "Ikonen måste vara en emoji.",
+    "notConvertible": "Bara en sida kan bli en teamyta: inte en databas, en rad eller en mall."
+  },
+  "dialog": {
+    "createTitle": "Ny teamyta",
+    "editTitle": "Redigera teamyta",
+    "name": "Namn",
+    "namePlaceholder": "Marknad, Utveckling…",
+    "icon": "Välj en ikon",
+    "description": "Beskrivning",
+    "descriptionPlaceholder": "Vad är den här teamytan till för?",
+    "access": "Vem som kan se den",
+    "defaultLocked": "Bara arbetsytans ägare kan ändra åtkomsten för en standardteamyta.",
+    "becomesDefault": "Alla i arbetsytan går med i den och kan inte lämna den.",
+    "leavesDefault": "Alla stannar kvar i den tills vidare men kan lämna den, och nya medlemmar i arbetsytan läggs inte till.",
+    "create": "Skapa teamyta",
+    "creating": "Skapar…",
+    "memberLevel": "Medlemmars åtkomst till dess sidor",
+    "memberLevelHint": "Vad medlemmar får på sidor som inte själva anger det. Teamytans ägare och arbetsytans ägare får alltid full åtkomst; en sidas delningsinställningar gäller ändå före detta.",
+    "memberLevelLocked": "Bara arbetsytans ägare kan ändra vad alla får i en standardteamyta."
+  },
+  "members": {
+    "title": "Medlemmar i {name}",
+    "everyone": "Alla i arbetsytan ingår i den här teamytan. Dess ägare kan redigera och hantera den.",
+    "readOnly": "Bara ägarna av den här teamytan kan ändra vilka som ingår i den.",
+    "add": "Lägg till personer",
+    "search": "Sök personer",
+    "addSelected": "{count, plural, =0 {Lägg till personer} other {Lägg till #}}",
+    "addAs": "Lägg till som",
+    "noOneToAdd": "Alla i arbetsytan ingår redan i den här teamytan.",
+    "noMatches": "Ingen matchar din sökning.",
+    "empty": "Ingen ingår i den här teamytan.",
+    "list": "Personer i den här teamytan",
+    "roleOf": "Roll för {name}",
+    "remove": "Ta bort {name}",
+    "you": "(du)",
+    "select": "Markera {name}",
+    "viaGroups": "Via {groups}",
+    "groups": "Grupper",
+    "groupsHint": "Alla i de här grupperna är medlemmar i teamytan så länge de ingår i gruppen.",
+    "noGroups": "Inga grupper i den här teamytan.",
+    "chooseGroup": "Välj en grupp",
+    "addGroupButton": "Lägg till grupp",
+    "removeGroup": "Ta bort {name}",
+    "groupMemberCount": "{count, plural, =0 {Inga medlemmar} one {# medlem} other {# medlemmar}}"
+  },
+  "memberLevel": {
+    "full": "Full åtkomst",
+    "edit": "Kan redigera",
+    "comment": "Kan kommentera",
+    "view": "Kan visa"
+  },
+  "fromPage": {
+    "menu": "Gör om till teamyta",
+    "title": "Gör om till teamyta",
+    "intro": "En ny teamyta tar över den här sidan och sidorna under den, och de personer som sidan är delad med går med i den.",
+    "pages": "{count, plural, =0 {Den här sidan blir dess första sida.} one {Den här sidan och sidan under den blir dess första sidor.} other {Den här sidan och de # sidorna under den blir dess första sidor.}}",
+    "owners": "Ägare: {names}",
+    "members": "Medlemmar, som kan redigera dess sidor: {names}",
+    "groups": "{count, plural, one {# grupp går med} other {# grupper går med}} som medlemmar.",
+    "kept": "{count, plural, one {# annan person som nämns på sidan behåller} other {# andra personer som nämns på sidan behåller}} den åtkomst de har.",
+    "access": "{access}: {hint}",
+    "submit": "Gör om till teamyta",
+    "working": "Gör om…",
+    "failed": "Det gick inte att göra om sidan till en teamyta."
+  }
+}

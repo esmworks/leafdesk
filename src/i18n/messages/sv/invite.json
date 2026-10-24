@@ -1,0 +1,13 @@
+{
+  "metaTitle": "Inbjudan",
+  "title": "Gå med i ”{workspace}”",
+  "invalidTitle": "Inbjudan hittades inte",
+  "invalidBody": "Den här inbjudningslänken är ogiltig, har gått ut eller har dragits tillbaka. Be personen som bjöd in dig om en ny.",
+  "home": "Gå till Leafdesk",
+  "wrongAccount": "Den här inbjudan gäller {email}, men du är inloggad som {current}. Logga ut och öppna länken igen.",
+  "acceptBody": "Du har bjudits in att gå med som {role}.",
+  "signInBody": "Det finns redan ett konto för {email}. Logga in för att tacka ja till inbjudan.",
+  "signIn": "Logga in",
+  "join": "Gå med i arbetsytan",
+  "joining": "Går med…"
+}

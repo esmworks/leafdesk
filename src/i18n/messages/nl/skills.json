@@ -1,0 +1,64 @@
+{
+  "metaTitle": "Vaardigheden",
+  "heading": "Vaardigheden",
+  "description": "Instructies die je team hergebruikt, bewaard als pagina’s: hoe je vergadernotities afrondt, een klant antwoordt of een verzoek beoordeelt. Kies er een in de AI-chat met /, of vanuit een AI-app die aan de werkruimte is gekoppeld. Elke vaardigheid is een pagina of databaserij; iedereen ziet de vaardigheden die hij of zij kan openen.",
+  "new": "Nieuwe vaardigheid",
+  "search": "Vaardigheden zoeken",
+  "count": "{count, plural, one {# vaardigheid} other {# vaardigheden}}",
+  "noMatches": "Geen vaardigheid komt overeen met je zoekopdracht.",
+  "emptyTitle": "Nog geen vaardigheden",
+  "emptyHint": "Elke pagina of databaserij kan ook een vaardigheid zijn: open die en zet Gebruiken als vaardigheid aan in het ⋯-menu.",
+  "builtins": {
+    "heading": "Begin met een kant-en-klare vaardigheid",
+    "hint": "Elke vaardigheid wordt een rij in je vaardighedendatabase: pas die aan je werk aan en deel haar daarna met je team.",
+    "open": "Kant-en-klare vaardigheden"
+  },
+  "noDescription": "Nog geen beschrijving",
+  "inDatabase": "In {database}",
+  "updated": "Bijgewerkt {time}",
+  "download": "{title} downloaden als SKILL.md",
+  "downloadHint": "Een ZIP met de SKILL.md van de vaardigheid, voor AI-assistenten die vaardigheden installeren",
+  "menu": {
+    "toggle": "Gebruiken als vaardigheid",
+    "hint": "Deze pagina aanbieden als herbruikbare instructies in de AI-chat en aan AI-apps die aan de werkruimte zijn gekoppeld",
+    "export": "Exporteren als SKILL.md",
+    "database": "Vaardighedendatabase",
+    "databaseHint": "Elke rij van deze database is een vaardigheid; de eigenschap Beschrijving zegt waarvoor elke vaardigheid dient"
+  },
+  "bar": {
+    "label": "Vaardigheid",
+    "description": "Waarvoor de vaardigheid dient",
+    "placeholder": "Beschrijf waarvoor deze vaardigheid dient en wanneer je haar gebruikt",
+    "none": "Nog geen beschrijving",
+    "library": "Alle vaardigheden",
+    "inDatabase": "De beschrijving is de eigenschap {property}"
+  },
+  "chat": {
+    "heading": "Vaardigheden",
+    "none": "Nog geen vaardigheden.",
+    "library": "De vaardighedenbibliotheek openen",
+    "noMatches": "Geen vaardigheid gevonden.",
+    "using": "Gebruikt de vaardigheid {title}",
+    "remove": "Vaardigheid verwijderen",
+    "pick": "Een vaardigheid gebruiken",
+    "pickHint": "Een vaardigheid gebruiken (of typ / in het lege vak)",
+    "used": "Heeft de vaardigheid {title} gebruikt"
+  },
+  "errors": {
+    "notAPage": "Alleen pagina’s en databaserijen kunnen vaardigheden zijn, geen databases.",
+    "notADatabase": "Alleen databases kunnen vaardighedendatabases zijn.",
+    "template": "Sjablonen en de pagina’s daarin kunnen geen vaardigheden zijn.",
+    "inTrash": "Zet de pagina eerst terug uit de prullenbak.",
+    "tooLong": "De beschrijving van een vaardigheid mag hooguit {max} tekens hebben.",
+    "notASkill": "Deze pagina is geen vaardigheid meer."
+  },
+  "database": {
+    "title": "Vaardigheden",
+    "description": "Beschrijving",
+    "files": "Bestanden",
+    "tags": "Labels",
+    "createdBy": "Gemaakt door",
+    "open": "De vaardighedendatabase openen",
+    "hint": "Elke nieuwe vaardigheid is een rij in je vaardighedendatabase, met een beschrijving, bestanden en labels."
+  }
+}

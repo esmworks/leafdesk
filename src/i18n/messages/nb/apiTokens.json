@@ -1,0 +1,141 @@
+{
+  "heading": "Personlige tilgangstokener",
+  "description": "Med tokener kan skript og andre programmer bruke Leafdesks REST API som deg, med din tilgang til sider. Hold dem hemmelige, som et passord.",
+  "docs": "API-dokumentasjon",
+  "empty": "Du har ingen tokener ennå.",
+  "create": "Nytt token",
+  "form": {
+    "title": "Nytt personlig tilgangstoken",
+    "name": "Navn",
+    "namePlaceholder": "f.eks. Skript for ukerapport",
+    "access": "Tilgang",
+    "workspace": "Arbeidsområde",
+    "allWorkspaces": "Alle arbeidsområdene mine",
+    "expiry": "Utløper etter",
+    "days": "{count, plural, one {# dag} other {# dager}}",
+    "never": "Aldri",
+    "submit": "Opprett token",
+    "creating": "Oppretter…"
+  },
+  "created": {
+    "title": "Kopier det nye tokenet",
+    "body": "Dette er den eneste gangen tokenet vises. Oppbevar det et trygt sted; hvis du mister det, tilbakekaller du det og oppretter et nytt.",
+    "done": "Ferdig"
+  },
+  "row": {
+    "readOnly": "Bare lesing",
+    "readWrite": "Lesing og skriving",
+    "allWorkspaces": "Alle arbeidsområder",
+    "createdAt": "Opprettet {date}",
+    "lastUsed": "sist brukt {date}",
+    "neverUsed": "aldri brukt",
+    "expires": "utløper {date}",
+    "expired": "utløp {date}",
+    "noExpiry": "utløper ikke",
+    "legacy": "laget før tilgang per ressurs"
+  },
+  "revoke": "Tilbakekall",
+  "revoking": "Tilbakekaller…",
+  "confirmRevoke": "Tilbakekall {name}",
+  "revokeError": "Kunne ikke tilbakekalle tokenet. Prøv igjen.",
+  "errors": {
+    "name": "Gi tokenet et navn på høyst 100 tegn.",
+    "scopes": "Velg hva tokenet kan gjøre.",
+    "workspace": "Du er ikke medlem av det arbeidsområdet.",
+    "expiry": "Velg når tokenet utløper.",
+    "limit": "Du har så mange tokener som er tillatt. Tilbakekall et først.",
+    "generic": "Kunne ikke opprette tokenet. Prøv igjen.",
+    "notFound": "Dette tokenet finnes ikke lenger.",
+    "ownerScope": "Bare eierne av et arbeidsområde kan la et token lese revisjonsloggen der, og bare et token som er begrenset til det arbeidsområdet."
+  },
+  "docsPage": {
+    "metaTitle": "REST API",
+    "openapi": "OpenAPI-dokument (JSON)",
+    "tokensWhere": "Opprett et token under Min konto → Tilkoblede apper.",
+    "quickStart": "Kom i gang",
+    "baseUrl": "Basis-URL",
+    "errors": "Feil",
+    "code": "Kode",
+    "status": "Status",
+    "endpoints": "Endepunkter",
+    "parameters": "Parametere",
+    "inPath": "sti",
+    "inQuery": "spørring",
+    "body": "Forespørselstekst (JSON)",
+    "formBody": "Forespørselstekst (multipart-skjemadata)",
+    "response": "Svar {status}",
+    "name": "Navn",
+    "type": "Type",
+    "description": "Beskrivelse",
+    "required": "påkrevd",
+    "scopes": "Omfang",
+    "scope": "Omfang",
+    "access": "Tilgang",
+    "read": "Lese",
+    "write": "Skrive",
+    "inHeader": "header"
+  },
+  "scopes": {
+    "presets": {
+      "readAll": "Lese alt",
+      "all": "Lese og skrive alt"
+    },
+    "read": "Lese",
+    "write": "Skrive",
+    "toggle": "{access}: {resource}",
+    "resources": {
+      "workspaces": {
+        "name": "Arbeidsområder",
+        "hint": "Arbeidsområder med teamområder og grupper."
+      },
+      "pages": {
+        "name": "Sider",
+        "hint": "Sider, undersider og dagsnotater; skriving omfatter også talenotater."
+      },
+      "search": {
+        "name": "Søk",
+        "hint": "Søk på tvers av sider og rader."
+      },
+      "databases": {
+        "name": "Databaser",
+        "hint": "Egenskapene og visningene til en database."
+      },
+      "rows": {
+        "name": "Rader",
+        "hint": "Spørre etter rader og lese aktiviteten deres; skriving legger til og endrer rader."
+      },
+      "comments": {
+        "name": "Kommentarer",
+        "hint": "Kommentartråder; skriving starter tråder og svarer."
+      },
+      "agents": {
+        "name": "Agenter",
+        "hint": "Innstillinger, kjøringer, tidsplaner og deling for agenter."
+      },
+      "webhooks": {
+        "name": "Webhooker",
+        "hint": "Sidewebhooker og leveringene deres; skriving legger til, endrer og tester dem (bare eiere)."
+      },
+      "audit": {
+        "name": "Revisjonslogg",
+        "hint": "Revisjonsloggen til arbeidsområdet (bare eiere, for et token som er begrenset til et arbeidsområde de eier)."
+      }
+    },
+    "summary": {
+      "read": "{resource}: lese",
+      "readWrite": "{resource}: lese og skrive"
+    }
+  },
+  "edit": {
+    "button": "Endre tilgang",
+    "title": "Endre hva {name} kan gjøre",
+    "body": "Tokenet beholder hemmeligheten sin; endringen gjelder fra neste forespørsel.",
+    "legacy": "Dette tokenet ble laget før tilgang ble valgt per ressurs, så det kan lese alt (og skrive alt, hvis det ble laget for skriving), også det som legges til senere. Når du lagrer, får det nøyaktig det du velger her.",
+    "errors": {
+      "scopes": "Velg minst én ting tokenet kan gjøre.",
+      "notFound": "Dette tokenet finnes ikke lenger.",
+      "generic": "Kunne ikke endre tokenet. Prøv igjen.",
+      "ownerScope": "Bare eierne av et arbeidsområde kan la et token lese revisjonsloggen der, og bare et token som er begrenset til det arbeidsområdet."
+    }
+  }
+}

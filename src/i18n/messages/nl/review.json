@@ -1,0 +1,104 @@
+{
+  "metaTitle": "Ter beoordeling",
+  "heading": "Ter beoordeling",
+  "description": "Wijzigingen die agents hebben voorgesteld in plaats van ze door te voeren, en automatiseringen die op iemands goedkeuring wachten. Keur een wijziging goed om haar als jezelf door te voeren, bewerk haar eerst, of wijs haar af; keur een automatisering goed om de run te laten doorgaan, of weiger haar om de run te stoppen. Voorstellen waarop niemand reageert, verlopen na 30 dagen. Opvolgmails die op “eerst aan mij vragen” staan, wachten hier ook.",
+  "filters": {
+    "agent": "Agent",
+    "database": "Database",
+    "status": "Tonen",
+    "allAgents": "Alle agents",
+    "allDatabases": "Alle databases",
+    "open": "Wachtend",
+    "decided": "Beantwoord",
+    "allRows": "Alle rijen tonen",
+    "clear": "Filters wissen"
+  },
+  "count": "{count, plural, one {# wijziging} other {# wijzigingen}}",
+  "select": "Deze wijziging selecteren",
+  "selectAll": "Alles selecteren",
+  "selected": "{count} geselecteerd",
+  "approveSelected": "{count} goedkeuren",
+  "dismissSelected": "{count} afwijzen",
+  "bulkSkipped": "{count, plural, one {Eén wijziging kon niet worden beantwoord: ze was al beantwoord, de rij is sindsdien gewijzigd, of je kunt haar niet beantwoorden.} other {# wijzigingen konden niet worden beantwoord: ze waren al beantwoord, hun rijen zijn sindsdien gewijzigd, of je kunt ze niet beantwoorden.}}",
+  "empty": {
+    "open": "Er wacht niets op jouw beoordeling.",
+    "decided": "Er zijn de afgelopen 30 dagen geen wijzigingen beantwoord.",
+    "filtered": "Geen wijzigingen komen overeen met deze filters."
+  },
+  "proposes": {
+    "createRow": "<agent></agent> wil een rij toevoegen aan <database></database>",
+    "updateRow": "<agent></agent> wil <row></row> wijzigen",
+    "emailDraft": "<agent></agent> heeft een e-mail opgesteld bij <row></row>",
+    "automationApproval": "<automation></automation> vraagt om goedkeuring bij <row></row>",
+    "automationApprovalNoRow": "<automation></automation> vraagt om goedkeuring",
+    "sequenceDraft": "E-mail {step} van {steps} van de opvolgreeks <sequence></sequence> bij <row></row>"
+  },
+  "inDatabase": "in <database></database>",
+  "unknownAgent": "Een verwijderde agent",
+  "someone": "Iemand",
+  "viewRun": "Run bekijken",
+  "edited": "Bewerkt",
+  "expires": "Verloopt {time}",
+  "decided": {
+    "approved": "Goedgekeurd door {name} {time}",
+    "dismissed": "Afgewezen door {name} {time}",
+    "expired": "Onbeantwoord verlopen",
+    "rejected": "Geweigerd door {name} {time}",
+    "timedOut": "Niemand heeft op tijd gereageerd"
+  },
+  "title": "Titel",
+  "becomes": "wordt",
+  "changedSince": "Gewijzigd sinds het voorstel, nu <value></value>",
+  "conflictNotice": "Deze rij is gewijzigd sinds de agent dit voorstelde. Goedkeuren overschrijft wat er nu staat.",
+  "failedNote": "Het is goedgekeurd maar kon niet worden doorgevoerd: {error} Bewerk het en keur het opnieuw goed, of wijs het af.",
+  "failed": {
+    "error": "er ging iets mis.",
+    "pageLocked": "de rij is vergrendeld."
+  },
+  "email": {
+    "from": "Van",
+    "to": "Aan",
+    "cc": "Cc",
+    "subject": "Onderwerp",
+    "text": "Tekst",
+    "reply": "Een antwoord op de laatste e-mail van de rij"
+  },
+  "markdown": "Paginatekst",
+  "notEditable": "Behouden of weglaten; wijzig het daarna in de rij.",
+  "leaveOut": "Weglaten",
+  "keep": "Behouden",
+  "approve": "Goedkeuren",
+  "approveAnyway": "Toch goedkeuren",
+  "send": "Versturen",
+  "edit": "Bewerken",
+  "save": "Bewerking opslaan",
+  "dismiss": "Afwijzen",
+  "cannot": {
+    "email": "Alleen {name} kan dit concept versturen, vanuit de eigen mailbox.",
+    "row": "Je kunt deze wijziging zien, maar om haar goed te keuren heb je bewerkrechten nodig voor de rij en voor elke waarde die ze instelt.",
+    "approval": "Alleen de personen aan wie de automatisering het vraagt, kunnen dit goedkeuren of weigeren."
+  },
+  "errors": {
+    "notFound": "Deze wijziging bestaat niet meer, of je kunt haar niet zien.",
+    "decided": "Iemand heeft deze wijziging al beantwoord.",
+    "conflict": "De rij is gewijzigd sinds dit werd voorgesteld. Bekijk haar opnieuw en keur het dan toch goed of wijs het af.",
+    "invalid": "Deze bewerking is niet geldig: {message}",
+    "accessDenied": "Je kunt deze wijziging niet beantwoorden."
+  },
+  "banner": {
+    "title": "Wijzigingen wachten op beoordeling",
+    "bar": "{count, plural, one {# wijziging wacht op beoordeling} other {# wijzigingen wachten op beoordeling}}",
+    "by": "voorgesteld door {names}",
+    "open": "Beoordelen"
+  },
+  "unknownAutomation": "Een verwijderde automatisering",
+  "reject": "Weigeren",
+  "approval": {
+    "next": "Na goedkeuring:",
+    "nothingNext": "Na goedkeuring eindigt de run: er komen geen stappen meer na deze.",
+    "forEach": "voor elke rij uit {step}",
+    "approvers": "Vraagt {names}",
+    "timeoutStop": "Als niemand op tijd reageert, stopt de run.",
+    "timeoutContinue": "Als niemand op tijd reageert, gaat de run door."
+  }
+}

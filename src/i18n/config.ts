@@ -22,6 +22,11 @@ export const LOCALE_NAMES = {
   id: "Bahasa Indonesia",
   th: "ไทย",
   vi: "Tiếng Việt",
+  da: "Dansk",
+  nl: "Nederlands",
+  nb: "Norsk bokmål",
+  fi: "Suomi",
+  sv: "Svenska",
 } as const satisfies Record<string, string>;
 
 export type Locale = keyof typeof LOCALE_NAMES;
@@ -46,12 +51,16 @@ export function isLocale(value: unknown): value is Locale {
   return typeof value === "string" && Object.hasOwn(LOCALE_NAMES, value);
 }
 
+/** Tags browsers send for a language under another code: Norwegian ("no", Nynorsk "nn") reads Bokmål. */
+const LOCALE_ALIASES: Readonly<Record<string, Locale>> = { no: "nb", nn: "nb" };
+
 /** The supported language for a BCP 47 tag: an exact match ("pt-br"), else its base language ("de-AT" → "de"). */
 function matchLocale(tag: string): Locale | null {
   const lower = tag.toLowerCase();
   if (isLocale(lower)) return lower;
   const base = lower.split("-")[0];
-  return isLocale(base) ? base : null;
+  if (isLocale(base)) return base;
+  return LOCALE_ALIASES[base] ?? null;
 }
 
 /** Picks the best supported locale from an Accept-Language header. */

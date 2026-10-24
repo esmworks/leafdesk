@@ -1,0 +1,13 @@
+{
+  "metaTitle": "Invitation",
+  "title": "Bliv medlem af “{workspace}”",
+  "invalidTitle": "Invitationen blev ikke fundet",
+  "invalidBody": "Dette invitationslink er ugyldigt, udløbet eller annulleret. Bed den person, der inviterede dig, om et nyt.",
+  "home": "Gå til Leafdesk",
+  "wrongAccount": "Denne invitation er til {email}, men du er logget ind som {current}. Log ud, og åbn linket igen.",
+  "acceptBody": "Du er inviteret som {role}.",
+  "signInBody": "Der findes allerede en konto med {email}. Log ind for at acceptere invitationen.",
+  "signIn": "Log ind",
+  "join": "Bliv medlem af arbejdsområdet",
+  "joining": "Tilmelder…"
+}

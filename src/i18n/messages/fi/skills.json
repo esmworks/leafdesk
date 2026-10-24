@@ -1,0 +1,64 @@
+{
+  "metaTitle": "Taidot",
+  "heading": "Taidot",
+  "description": "Ohjeet, joita tiimisi käyttää uudelleen, sivuina tallennettuina: miten kokousmuistiinpanoista tehdään yhteenveto, miten asiakkaalle vastataan tai miten pyyntö luokitellaan. Valitse taito tekoälychatissa /-merkillä tai työtilaan yhdistetystä tekoälysovelluksesta. Jokainen taito on sivu tai tietokannan rivi; käyttäjät näkevät ne taidot, jotka he voivat avata.",
+  "new": "Uusi taito",
+  "search": "Hae taitoja",
+  "count": "{count, plural, one {# taito} other {# taitoa}}",
+  "noMatches": "Haullasi ei löytynyt taitoja.",
+  "emptyTitle": "Ei vielä taitoja",
+  "emptyHint": "Myös mikä tahansa sivu tai tietokannan rivi voi olla taito: avaa se ja ota käyttöön Käytä taitona sen ⋯-valikosta.",
+  "builtins": {
+    "heading": "Aloita valmiista taidosta",
+    "hint": "Jokaisesta tulee rivi taitotietokantaasi: muokkaa se työhösi sopivaksi ja jaa sitten tiimillesi.",
+    "open": "Valmiit taidot"
+  },
+  "noDescription": "Ei vielä kuvausta",
+  "inDatabase": "Tietokannassa {database}",
+  "updated": "Päivitetty {time}",
+  "download": "Lataa {title} SKILL.md-tiedostona",
+  "downloadHint": "ZIP-tiedosto, jossa on taidon SKILL.md, taitoja asentaville tekoälyavustajille",
+  "menu": {
+    "toggle": "Käytä taitona",
+    "hint": "Tarjoa tämä sivu uudelleenkäytettävinä ohjeina tekoälychatissa ja työtilaan yhdistetyille tekoälysovelluksille",
+    "export": "Vie SKILL.md-tiedostona",
+    "database": "Taitotietokanta",
+    "databaseHint": "Tämän tietokannan jokainen rivi on taito; sen Kuvaus-ominaisuus kertoo, mihin kukin on tarkoitettu"
+  },
+  "bar": {
+    "label": "Taito",
+    "description": "Mihin taito on tarkoitettu",
+    "placeholder": "Kerro, mihin tämä taito on tarkoitettu ja milloin sitä käytetään",
+    "none": "Ei vielä kuvausta",
+    "library": "Kaikki taidot",
+    "inDatabase": "Sen kuvaus on ominaisuus {property}"
+  },
+  "chat": {
+    "heading": "Taidot",
+    "none": "Ei vielä taitoja.",
+    "library": "Avaa taitokirjasto",
+    "noMatches": "Ei vastaavia taitoja.",
+    "using": "Käytetään taitoa {title}",
+    "remove": "Poista taito",
+    "pick": "Käytä taitoa",
+    "pickHint": "Käytä taitoa (tai kirjoita / tyhjään kenttään)",
+    "used": "Käytti taitoa {title}"
+  },
+  "errors": {
+    "notAPage": "Vain sivut ja tietokannan rivit voivat olla taitoja, eivät tietokannat.",
+    "notADatabase": "Vain tietokannat voivat olla taitotietokantoja.",
+    "template": "Mallit ja niiden sivut eivät voi olla taitoja.",
+    "inTrash": "Palauta sivu ensin roskakorista.",
+    "tooLong": "Taidon kuvauksessa voi olla enintään {max} merkkiä.",
+    "notASkill": "Tämä sivu ei ole enää taito."
+  },
+  "database": {
+    "title": "Taidot",
+    "description": "Kuvaus",
+    "files": "Tiedostot",
+    "tags": "Tunnisteet",
+    "createdBy": "Luonut",
+    "open": "Avaa taitotietokanta",
+    "hint": "Jokainen uusi taito on rivi taitotietokannassasi, ja siinä on kuvaus, tiedostot ja tunnisteet."
+  }
+}

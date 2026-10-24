@@ -1,0 +1,20 @@
+{
+  "metaTitle": "Liity työtilaan",
+  "title": "Liity työtilaan ”{workspace}”",
+  "invalidTitle": "Linkkiä ei löytynyt",
+  "invalidBody": "Tämä liittymislinkki on virheellinen tai se on poistettu käytöstä. Pyydä työtilan omistajalta uusi.",
+  "home": "Siirry Leafdeskiin",
+  "body": "Liityt jäsenenä, ellei sinua ole kutsuttu eri roolilla.",
+  "join": "Liity työtilaan",
+  "joining": "Liitytään…",
+  "alreadyMember": "Olet jo tämän työtilan jäsen.",
+  "open": "Avaa työtila",
+  "signInBody": "Kirjaudu sisään tililläsi liittyäksesi. Tämä palvelin ei salli uusia tilejä.",
+  "signIn": "Kirjaudu sisään",
+  "requestBody": "Omistaja hyväksyy tämän työtilan uudet jäsenet. Lähetä pyyntö, niin saat vastauksen sähköpostitse.",
+  "request": "Pyydä liittymistä",
+  "requesting": "Lähetetään…",
+  "requestedTitle": "Pyyntö lähetetty",
+  "requestedBody": "Työtilan omistaja käsittelee pyyntösi. Saat sähköpostin, kun hän on tehnyt päätöksen.",
+  "pendingBody": "Olet jo pyytänyt liittymistä tähän työtilaan. Omistaja käsittelee pyynnön; saat sähköpostin, kun hän on tehnyt päätöksen."
+}

@@ -1,0 +1,33 @@
+{
+  "appDescription": "Arbetsyta med öppen källkod för dokument och databaser, med MCP-åtkomst för AI-agenter.",
+  "untitled": "Namnlös",
+  "sourceCode": "Källkod",
+  "agent": "Agent",
+  "agentName": "{name} (agent)",
+  "cancel": "Avbryt",
+  "save": "Spara",
+  "saving": "Sparar…",
+  "saved": "Sparat.",
+  "close": "Stäng",
+  "delete": "Radera",
+  "remove": "Ta bort",
+  "restore": "Återställ",
+  "loading": "Läser in…",
+  "copy": "Kopiera",
+  "copied": "Kopierat",
+  "genericError": "Något gick fel. Försök igen.",
+  "errorPage": {
+    "title": "Något gick fel",
+    "description": "Sidan kunde inte visas, eller så gick din senaste ändring inte igenom.",
+    "retry": "Försök igen",
+    "home": "Till startsidan"
+  },
+  "export": {
+    "failed": "Det gick inte att starta exporten. Försök igen.",
+    "tooManyPages": "Det här är för mycket att exportera på en gång: en export rymmer högst {limit} sidor. Exportera en mindre del av arbetsytan.",
+    "tooLarge": "Filerna i den här exporten är tillsammans större än {size}. Exportera en mindre del av arbetsytan.",
+    "busy": "Du har redan en export som pågår. Vänta tills nedladdningen är klar.",
+    "disabled": "Export är avstängt i den här arbetsytan."
+  },
+  "celebrate": "Bra jobbat!"
+}

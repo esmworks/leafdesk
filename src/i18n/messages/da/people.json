@@ -1,0 +1,14 @@
+{
+  "metaTitle": "Personer",
+  "heading": "Personer",
+  "description": "Ejerne og medlemmerne af dette arbejdsområde med deres teamområder, grupper og de sider, de har redigeret for nylig. Gæster vises ikke.",
+  "search": "Søg efter navn, e-mail, teamområde eller gruppe",
+  "count": "{count, plural, one {# person} other {# personer}}",
+  "noMatches": "Ingen matcher din søgning.",
+  "you": "(dig)",
+  "teamspaces": "Teamområder",
+  "groups": "Grupper",
+  "recentPages": "Redigeret for nylig",
+  "none": "Ingen",
+  "noRecentPages": "Ingen nylige redigeringer, du kan åbne."
+}

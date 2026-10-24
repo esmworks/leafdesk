@@ -1,0 +1,238 @@
+{
+  "meeting-notes": {
+    "title": "Kokousmuistiinpanot",
+    "description": "Asialista, muistiinpanot, päätökset ja toimenpiteet.",
+    "markdown": "**Päivämäärä:** \n\n**Osallistujat:** \n\n## Asialista\n\n1. \n\n## Muistiinpanot\n\n\n\n## Päätökset\n\n- \n\n## Toimenpiteet\n\n- [ ] "
+  },
+  "weekly-plan": {
+    "title": "Viikkosuunnitelma",
+    "description": "Viikon tavoitteet ja tarkistuslista jokaiselle päivälle.",
+    "markdown": "## Tämän viikon tavoitteet\n\n- [ ] \n\n### Maanantai\n\n- [ ] \n\n### Tiistai\n\n- [ ] \n\n### Keskiviikko\n\n- [ ] \n\n### Torstai\n\n- [ ] \n\n### Perjantai\n\n- [ ] \n\n## Muistiinpanoja ensi viikolle\n"
+  },
+  "project-tracker": {
+    "title": "Projektiseuranta",
+    "description": "Tehtävät tilan, prioriteetin, vastuuhenkilön ja määräpäivän kera taulukossa ja taululla.",
+    "seedNames": {
+      "status": "Tila",
+      "notStarted": "Ei aloitettu",
+      "inProgress": "Työn alla",
+      "done": "Valmis",
+      "tags": "Tunnisteet",
+      "table": "Kaikki tehtävät"
+    },
+    "properties": {
+      "priority": "Prioriteetti",
+      "owner": "Vastuuhenkilö",
+      "due": "Määräpäivä"
+    },
+    "options": {
+      "high": "Korkea",
+      "medium": "Keskitaso",
+      "low": "Matala"
+    },
+    "board": "Taulu",
+    "rowTemplate": {
+      "title": "Uusi tehtävä",
+      "markdown": "## Tavoite\n\n\n\n## Vaiheet\n\n- [ ] \n\n## Muistiinpanot\n\n"
+    },
+    "rows": {
+      "brief": "Kirjoita projektin kuvaus",
+      "milestone": "Suunnittele ensimmäinen välitavoite",
+      "team": "Kutsu tiimi"
+    }
+  },
+  "wins-log": {
+    "title": "Onnistumisloki",
+    "description": "Onnistumiset, kehut ja valmiit työt yhdessä paikassa, kaavioina kuukausittain, tyypeittäin ja alueittain.",
+    "markdown": "Jokainen onnistuminen, kehu ja valmis työ kirjataan tänne linkin kera paikkaan, jossa se tapahtui. Lisää ne käsin tai anna Onnistumisten kirjaaja -agentin lisätä ne yhteyksistäsi.",
+    "database": "Onnistumiset",
+    "table": "Kaikki onnistumiset",
+    "board": "Tyypeittäin",
+    "properties": {
+      "type": "Tyyppi",
+      "area": "Alue",
+      "date": "Päivämäärä",
+      "impact": "Vaikutus",
+      "source": "Lähde",
+      "person": "Henkilöt"
+    },
+    "types": {
+      "feedback": "Palaute",
+      "delivery": "Toimitus",
+      "metric": "Mittari",
+      "event": "Tapahtuma",
+      "other": "Muu"
+    },
+    "areas": {
+      "product": "Tuote",
+      "customers": "Asiakkaat",
+      "team": "Tiimi",
+      "operations": "Toiminnot",
+      "sales": "Myynti"
+    },
+    "impacts": {
+      "high": "Suuri",
+      "medium": "Keskisuuri",
+      "low": "Pieni"
+    },
+    "widgets": {
+      "total": "Onnistumiset",
+      "byMonth": "Onnistumiset kuukausittain",
+      "byArea": "Alueittain",
+      "byImpact": "Vaikutuksen mukaan"
+    },
+    "rowTemplate": {
+      "title": "Uusi onnistuminen",
+      "markdown": "## Mitä tapahtui\n\n\n\n## Miksi sillä on merkitystä\n\n\n\n## Näyttö\n\n- "
+    },
+    "rows": {
+      "praise": "Asiakas kehui uutta käyttöönottoa",
+      "launch": "Laskutusvienti julkaistiin",
+      "response": "Tuen vastaukset tulevat nyt alle kahdessa tunnissa",
+      "talk": "Pidin esityksen tiimin virkistyspäivillä",
+      "thanks": "Myynti kiitti meitä demoympäristöstä"
+    }
+  },
+  "small-business": {
+    "title": "Pienyritys",
+    "description": "Asiakkaat, heille antamasi tarjoukset, työt ja tase toisiinsa linkitettyinä, koontinäytön ja viikkosuunnitelman kera.",
+    "currency": "EUR",
+    "dashboard": {
+      "title": "Koontinäyttö",
+      "markdown": "> [!NOTE]\n> Työt, tarjoukset, asiakkaat ja tase yhdellä näytöllä. Pienoisohjelmat seuraavat tietokantojen muutoksia.\n\nLisää ensin asiakkaasi ja sitten heille antamasi tarjoukset. Kun tarjous hyväksytään, lisää työ ja linkitä se tarjoukseen ja asiakkaaseen. Kirjaa tase sen päivän kanssa, jolloin lasket sen: pienoisohjelmat näyttävät tämän kuun kirjaukset.",
+      "widgets": {
+        "openJobs": "Avoimet työt",
+        "dueJobs": "Erääntyvät tai myöhässä",
+        "openQuotes": "Avoimet tarjoukset",
+        "netWorth": "Nettovarallisuus tässä kuussa",
+        "jobsByPerson": "Avoimet työt henkilön ja prioriteetin mukaan",
+        "upcomingJobs": "Avoimet työt määräpäivän mukaan",
+        "quotesByStatus": "Tarjoukset tilan mukaan",
+        "quoteFollowUps": "Tarjousten seuranta",
+        "customersByStage": "Asiakkaat vaiheen mukaan",
+        "customerFollowUps": "Asiakkaiden seuranta",
+        "balanceBreakdown": "Tase tässä kuussa",
+        "netWorthByDate": "Nettovarallisuus päivämäärän mukaan"
+      }
+    },
+    "customers": {
+      "title": "Asiakkaat",
+      "table": "Kaikki asiakkaat",
+      "board": "Vaiheen mukaan",
+      "properties": {
+        "stage": "Vaihe",
+        "city": "Kaupunki",
+        "contact": "Yhteyshenkilö",
+        "phone": "Puhelin",
+        "email": "Sähköposti",
+        "nextStep": "Seuraava askel",
+        "nextStepDate": "Seuraavan askeleen päivä",
+        "quotes": "Tarjoukset",
+        "jobs": "Työt",
+        "quoted": "Tarjottu yhteensä"
+      },
+      "stages": {
+        "lead": "Liidi",
+        "prospect": "Prospekti",
+        "customer": "Asiakas",
+        "inactive": "Ei aktiivinen"
+      }
+    },
+    "quotes": {
+      "title": "Tarjoukset",
+      "table": "Kaikki tarjoukset",
+      "board": "Tilan mukaan",
+      "calendar": "Seurannat",
+      "properties": {
+        "customer": "Asiakas",
+        "status": "Tila",
+        "amount": "Summa",
+        "followUp": "Seuranta",
+        "date": "Päivämäärä",
+        "validUntil": "Voimassa asti",
+        "preparedBy": "Laatija",
+        "jobs": "Työt"
+      },
+      "statuses": {
+        "draft": "Luonnos",
+        "sent": "Lähetetty",
+        "revision": "Muutoksia pyydetty",
+        "accepted": "Hyväksytty",
+        "lost": "Hävitty"
+      },
+      "rowTemplate": {
+        "title": "Uusi tarjous",
+        "markdown": "## Tuotteet\n\n- \n\n## Ehdot\n\n**Maksu:** \n\n**Toimitus:** \n\n## Muistiinpanot\n"
+      }
+    },
+    "jobs": {
+      "title": "Työt",
+      "table": "Kaikki työt",
+      "board": "Taulu",
+      "byPerson": "Henkilöittäin",
+      "calendar": "Kalenteri",
+      "properties": {
+        "status": "Tila",
+        "priority": "Prioriteetti",
+        "assignee": "Tekijä",
+        "due": "Määräpäivä",
+        "customer": "Asiakas",
+        "quote": "Tarjous",
+        "notes": "Muistiinpanot"
+      },
+      "statuses": {
+        "todo": "Tekemättä",
+        "waiting": "Odottaa",
+        "inProgress": "Työn alla",
+        "done": "Valmis"
+      },
+      "priorities": {
+        "urgent": "Kiireellinen",
+        "high": "Korkea",
+        "normal": "Normaali",
+        "low": "Matala"
+      },
+      "rowTemplate": {
+        "title": "Uusi työ",
+        "markdown": "## Vaiheet\n\n- [ ] \n"
+      }
+    },
+    "balance": {
+      "title": "Tase",
+      "table": "Kaikki kirjaukset",
+      "byDate": "Päivämäärän mukaan",
+      "netWorth": "Nettovarallisuus",
+      "thisMonth": "Tämä kuukausi",
+      "properties": {
+        "date": "Päivämäärä",
+        "side": "Puoli",
+        "group": "Ryhmä",
+        "amount": "Summa",
+        "net": "Nettovaikutus",
+        "note": "Huomautus"
+      },
+      "sides": {
+        "asset": "Vastaavaa",
+        "liability": "Vastattavaa"
+      },
+      "groups": {
+        "cash": "Kassa ja pankki",
+        "receivables": "Myyntisaamiset",
+        "chequesIn": "Saadut shekit",
+        "stock": "Varasto",
+        "equipment": "Kalusto",
+        "payables": "Ostovelat",
+        "chequesOut": "Annetut shekit",
+        "card": "Luottokorttivelka",
+        "loans": "Pankkilainat",
+        "taxes": "Verot ja sosiaaliturvamaksut",
+        "wages": "Maksamattomat palkat",
+        "other": "Muu"
+      }
+    }
+  },
+  "journal": {
+    "title": "Päiväkirja",
+    "markdown": "## Painopiste\n\n- [ ] \n\n## Muistiinpanot\n\n## Tehty tänään\n"
+  }
+}

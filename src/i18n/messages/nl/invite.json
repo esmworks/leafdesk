@@ -1,0 +1,13 @@
+{
+  "metaTitle": "Uitnodiging",
+  "title": "Word lid van “{workspace}”",
+  "invalidTitle": "Uitnodiging niet gevonden",
+  "invalidBody": "Deze uitnodigingslink is ongeldig, verlopen of ingetrokken. Vraag de persoon die je heeft uitgenodigd om een nieuwe.",
+  "home": "Naar Leafdesk",
+  "wrongAccount": "Deze uitnodiging is voor {email}, maar je bent ingelogd als {current}. Log uit en open de link opnieuw.",
+  "acceptBody": "Je bent uitgenodigd om lid te worden als {role}.",
+  "signInBody": "Er bestaat al een account met {email}. Log in om de uitnodiging te accepteren.",
+  "signIn": "Inloggen",
+  "join": "Lid worden van werkruimte",
+  "joining": "Lid worden…"
+}

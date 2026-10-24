@@ -1,0 +1,55 @@
+{
+  "metaTitle": "Graf",
+  "heading": "Graf",
+  "count": "{pages, plural, one {# sida} other {# sidor}} · {edges, plural, one {# koppling} other {# kopplingar}}",
+  "reload": "Läs in igen",
+  "find": "Hitta en sida att fokusera på",
+  "focus": "Runt",
+  "depth": "Steg",
+  "clearFocus": "Visa hela grafen",
+  "tree": "Undersidor",
+  "rows": "Databasrader",
+  "orphans": "Sidor utan kopplingar",
+  "kinds": {
+    "page": "Sida",
+    "database": "Databas",
+    "row": "Rad"
+  },
+  "edges": {
+    "link": "Länk",
+    "relation": "Relation",
+    "child": "Undersida"
+  },
+  "truncated": "Visar de {count} senast redigerade sidorna.",
+  "canvas": "Graf över arbetsytans sidor",
+  "empty": "Inga sidor att visa.",
+  "focusMissing": "Den sidan finns inte i grafen: den kan ligga i papperskorgen eller inte vara delad med dig.",
+  "local": {
+    "title": "Graf för den här sidan",
+    "close": "Stäng grafen",
+    "openFull": "Öppna i hela grafen",
+    "canvas": "Graf över sidorna runt den här sidan",
+    "empty": "Inga sidor är kopplade till den här än.",
+    "failed": "Det gick inte att läsa in grafen."
+  },
+  "zoomIn": "Zooma in",
+  "zoomOut": "Zooma ut",
+  "fit": "Anpassa grafen",
+  "hint": "Klicka för att markera, dubbelklicka för att öppna",
+  "fewEdges": {
+    "title": "Få länkar mellan sidor än",
+    "body": "Grafen visar länkarna som sidor gör till varandra och relationerna mellan databasrader. Skriv [[ eller @ på en sida för att länka till en annan, eller lägg till en relationsegenskap i en databas; länkarna visas här.",
+    "showTree": "Visa länkar till undersidor"
+  },
+  "inspector": {
+    "open": "Öppna sidan",
+    "focus": "Fokusera runt den",
+    "expandRows": "{count, plural, one {Visa # rad} other {Visa # rader}}",
+    "collapseRows": "Samla raderna",
+    "rows": "{count, plural, one {# rad} other {# rader}}",
+    "none": "Inte kopplad till någon annan sida.",
+    "more": "och {count} till",
+    "close": "Rensa markeringen",
+    "parent": "Ligger i"
+  }
+}

@@ -1,0 +1,1194 @@
+{
+  "documentTitle": "{title} · Leafdesk",
+  "documentViewTitle": "{title} · {view} · Leafdesk",
+  "header": {
+    "history": "Sidhistorik",
+    "analytics": "Statistik",
+    "more": "Mer",
+    "copyLink": "Kopiera länk",
+    "copyId": "Kopiera ID",
+    "moveToTrash": "Flytta till papperskorgen",
+    "archive": "Arkivera",
+    "unarchive": "Ta ur arkivet",
+    "archiveHint": "Behåll sidan men ta bort den från sidofältet, sökningen och väljare. Dess undersidor följer med.",
+    "edited": "Redigerad {time}",
+    "activity": "Aktivitet",
+    "editedBy": "Redigerad av {name}",
+    "createdBy": "Skapad av {name}",
+    "someone": "Någon",
+    "comments": "Kommentarer",
+    "suggesting": {
+      "editing": "Redigerar",
+      "suggesting": "Föreslår",
+      "label": "Läge: {mode}",
+      "editingHint": "Ändra sidan direkt",
+      "suggestingHint": "Dina ändringar visas som förslag som andra kan godta eller avvisa",
+      "forcedHint": "Du får kommentera den här sidan, så dina ändringar blir förslag som dess redigerare kan godta eller avvisa"
+    },
+    "share": "Dela",
+    "accessRequests": "{count, plural, one {# begäran om åtkomst} other {# begäranden om åtkomst}}",
+    "addFavorite": "Lägg till i favoriter",
+    "removeFavorite": "Ta bort från favoriter",
+    "follow": "Följ",
+    "unfollow": "Sluta följa",
+    "followHint": "Få veta i din inkorg när någon annan ändrar den här raden.",
+    "unfollowHint": "Du får veta i din inkorg när någon annan ändrar den här raden.",
+    "linkCopied": "Länken har kopierats",
+    "duplicate": "Duplicera",
+    "duplicateWithoutRows": "Duplicera utan rader",
+    "duplicateSuffix": " (kopia)",
+    "duplicateFailed": "Det gick inte att duplicera sidan.",
+    "moveTo": "Flytta till",
+    "style": {
+      "font": "Typsnitt",
+      "default": "Standard",
+      "serif": "Serif",
+      "mono": "Mono",
+      "smallText": "Liten text",
+      "fullWidth": "Full bredd"
+    },
+    "lockDatabase": "Lås databasen",
+    "lockHint": "Medan den är låst kan egenskaper och vyer inte ändras; rader går fortfarande att redigera.",
+    "locked": "Låst",
+    "unlock": "Lås upp",
+    "lockPage": "Lås sidan",
+    "lockPageHint": "Medan den är låst kan ingen ändra titeln, ikonen, bakgrunden eller texten. Kommentarer, delning och flytt fungerar fortfarande.",
+    "exportMarkdown": "Exportera som Markdown",
+    "exportCsv": "Exportera som CSV",
+    "exportXlsx": "Exportera som Excel (.xlsx)",
+    "exportZip": "Exportera med undersidor",
+    "exportZipDatabase": "Exportera med radsidor",
+    "exportPdf": "Exportera som PDF",
+    "exportComments": "Ta med kommentarer",
+    "exportCommentsHint": "Lägger till de kommentarstrådar du kan se i Markdown-, ZIP- och PDF-exporter, efter varje sida",
+    "printView": "Skriv ut",
+    "exportPreparing": "Förbereder exporten…",
+    "acceptAllSuggestions": "Godta alla förslag",
+    "rejectAllSuggestions": "Avvisa alla förslag",
+    "rejectAllConfirm": "Avvisa alla ändringsförslag på den här sidan?",
+    "versionHistory": "Versionshistorik",
+    "lastEdited": "Senast redigerad av {name}",
+    "wordCount": "{words, plural, one {# ord} other {# ord}}, {characters, plural, one {# tecken} other {# tecken}}",
+    "actionFailed": "Det gick inte att slutföra.",
+    "viewers": "{count, plural, one {# annan person tittar på den här sidan} other {# andra personer tittar på den här sidan}}",
+    "viewersTitle": "Tittar på den här sidan",
+    "saveAsTemplate": "Spara som mall",
+    "saveAsRowTemplate": "Spara som radmall",
+    "deleteTemplate": "Radera mallen",
+    "exportDisabled": "Export är avstängt",
+    "exportDisabledBody": "Ägarna av den här arbetsytan har stängt av export och utskrift av dess sidor.",
+    "showInGraph": "Visa i grafen",
+    "present": "Presentera",
+    "watch": "Bevaka",
+    "watchHint": "Få veta i din inkorg när någon annan redigerar den här sidan eller startar en kommentarstråd på den.",
+    "mute": "Tysta",
+    "muteHint": "Du får veta i din inkorg när någon annan redigerar den här sidan eller startar en kommentarstråd på den. Tysta den för att sluta.",
+    "editMarkdown": "Redigera som Markdown"
+  },
+  "comments": {
+    "aboutPage": "Om den här sidan",
+    "aboutProperty": "Om ”{name}”",
+    "title": "Kommentarer",
+    "close": "Stäng kommentarer",
+    "filters": {
+      "open": "Öppna",
+      "resolved": "Lösta",
+      "marked": "Markerade",
+      "all": "Alla"
+    },
+    "empty": {
+      "open": "Inga öppna kommentarer. Markera text på sidan och välj Kommentera för att starta en.",
+      "resolved": "Inga lösta kommentarer.",
+      "marked": "Inga trådar är markerade för att komma tillbaka till. Välj ”Återkom senare” i en tråds meny.",
+      "all": "Inga kommentarer än. Markera text på sidan och välj Kommentera för att starta en.",
+      "person": "Ingen av de här trådarna har en kommentar av den här personen."
+    },
+    "person": {
+      "label": "Visa trådar per person",
+      "active": "Trådar som {name} har skrivit i",
+      "everyone": "Alla",
+      "you": "{name} (du)"
+    },
+    "threadMenu": "Alternativ för tråden",
+    "mute": "Tysta svar",
+    "unmute": "Slå på svar igen",
+    "muteHint": "Sluta få veta om nya svar i den här tråden. Om du svarar här, eller nämns här, slås det på igen.",
+    "unmuteHint": "Få veta om nya svar i den här tråden igen.",
+    "muted": "Svar tystade",
+    "mutedHint": "Du får inte veta om svar i den här tråden förrän du svarar här eller någon nämner dig här.",
+    "mergedFrom": "Från ”{title}”",
+    "suggestion": {
+      "label": "Ändringsförslag",
+      "byAi": "Ändringsförslag från AI",
+      "accept": "Godta",
+      "reject": "Avvisa",
+      "withdraw": "Dra tillbaka",
+      "errors": {
+        "notAllowed": "Du kan inte besvara det här förslaget.",
+        "notFound": "Det här förslaget har redan besvarats eller dragits tillbaka.",
+        "pageLocked": "Sidan är låst.",
+        "pageInTrash": "Sidan ligger i papperskorgen.",
+        "failed": "Förslaget kunde inte besvaras. Försök igen."
+      }
+    },
+    "sort": {
+      "label": "Sortera trådar",
+      "recent": "Senaste aktivitet först",
+      "page": "I sidans ordning"
+    },
+    "new": "Ny",
+    "marked": "Markerad för att återkomma senare",
+    "markedHint": "Du har markerat den här tråden för att komma tillbaka till den senare. Bara du ser detta.",
+    "mark": "Återkom senare",
+    "unmark": "Ta bort ”Återkom senare”",
+    "markHint": "Behåll den här tråden under Markerade tills du tar bort markeringen. Bara du ser den.",
+    "unmarkHint": "Ta bort den här tråden från din lista Markerade.",
+    "onProperty": "Kommentera ”{name}”",
+    "propertyPlaceholder": "Vad gäller det här värdet?",
+    "post": "Kommentera",
+    "propertyGone": "Det här värdet kan inte längre kommenteras.",
+    "export": {
+      "quote": "”{quote}”",
+      "removed": "På text som har tagits bort",
+      "unknown": "Någon"
+    }
+  },
+  "archived": {
+    "banner": "Den här sidan ligger i papperskorgen.",
+    "deletePermanently": "Radera permanent",
+    "confirmDelete": "Radera den här sidan och allt i den permanent? Det går inte att ångra."
+  },
+  "outdated": {
+    "byOn": "Arkiverad av {name} den {date}.",
+    "on": "Arkiverad den {date}.",
+    "with": "Arkiverad tillsammans med <link>{title}</link>.",
+    "above": "Arkiverad tillsammans med en sida ovanför den här.",
+    "unarchive": "Ta ur arkivet",
+    "hint": "Arkiverade sidor visas inte i sidofältet, sökningen och väljare, men kan fortfarande läsas och redigeras."
+  },
+  "verification": {
+    "byUntil": "Verifierad av {name} till och med {date}",
+    "by": "Verifierad av {name}",
+    "until": "Verifierad till och med {date}",
+    "plain": "Verifierad",
+    "expiredOn": "Verifieringen gick ut {date}",
+    "hint": "Någon med full åtkomst har kontrollerat den här sidan och markerat den som korrekt. Redigering behåller verifieringen.",
+    "change": "Ändra eller ta bort verifieringen",
+    "menu": "Verifiera sidan…",
+    "menuVerified": "Verifiering…",
+    "menuHint": "Markera sidan som kontrollerad och korrekt: sökningen rankar den högre och AI-chatten föredrar den",
+    "title": "Verifiera sidan",
+    "description": "Markera den här sidan som kontrollerad och korrekt, en tid eller utan slut. Sökningen rankar verifierade sidor högre, markerar dem och hittar dem med is:verified, och AI-chatten föredrar dem. Redigering behåller verifieringen; du får veta några dagar innan den upphör.",
+    "durationLabel": "Verifierad i",
+    "durations": {
+      "week": "1 vecka",
+      "month": "1 månad",
+      "quarter": "3 månader",
+      "year": "1 år",
+      "until": "Till ett visst datum",
+      "forever": "Utan slut"
+    },
+    "dateLabel": "Verifierad till och med",
+    "verify": "Verifiera",
+    "verifyAgain": "Verifiera igen",
+    "remove": "Ta bort verifieringen",
+    "searchBadge": "Verifierad",
+    "errors": {
+      "template": "Mallar och sidorna i dem verifieras inte.",
+      "inTrash": "Återställ först sidan från papperskorgen.",
+      "invalidEnd": "Välj en dag efter i dag, inom fem år."
+    }
+  },
+  "icon": {
+    "add": "Lägg till ikon",
+    "remove": "Ta bort ikon"
+  },
+  "background": {
+    "add": "Lägg till bakgrund",
+    "change": "Bakgrund",
+    "colors": "Färg",
+    "patterns": "Mönster",
+    "none": "Ingen",
+    "remove": "Ta bort bakgrund",
+    "colorNames": {
+      "gray": "Grå",
+      "blue": "Blå",
+      "green": "Grön",
+      "purple": "Lila",
+      "pink": "Rosa",
+      "red": "Röd",
+      "orange": "Orange",
+      "black": "Svart"
+    },
+    "patternNames": {
+      "dots": "Prickar",
+      "plus": "Kryss",
+      "grid": "Rutnät",
+      "lines": "Linjer"
+    }
+  },
+  "title": {
+    "label": "Sidans titel"
+  },
+  "connection": {
+    "live": "Live",
+    "connecting": "Ansluter",
+    "offline": "Offline",
+    "reconnecting": "Återansluter",
+    "noAccess": "Ingen åtkomst",
+    "syncing": "Synkar…",
+    "synced": "Synkad",
+    "offlinePending": "Offline · ändringar sparas här",
+    "offlineHint": "Du är offline. Fortsätt redigera: ändringarna sparas i den här webbläsaren och synkas när anslutningen är tillbaka.",
+    "notSaved": "Inte sparat",
+    "notSavedHint": "Leafdesk kunde inte spara dina senaste ändringar. Håll den här sidan öppen: nästa ändring du gör sparar dem igen."
+  },
+  "errors": {
+    "accessLost": "Du har inte längre åtkomst till den här sidan.",
+    "connectionFailed": "Det gick inte att ansluta till liveredigering. Försöker igen…",
+    "notAvailableOffline": "Den här sidan är inte sparad på den här enheten än. Öppna den en gång när du är online för att kunna använda den offline."
+  },
+  "history": {
+    "title": "Sidhistorik",
+    "previewTitle": "Förhandsvisning av version",
+    "modes": {
+      "version": "Version",
+      "current": "Jämför med nuvarande",
+      "previous": "Jämför med föregående"
+    },
+    "reasons": {
+      "auto": "Autosparad",
+      "beforeRestore": "Före återställning",
+      "manual": "Sparad version",
+      "beforeAiEdit": "Före AI-ändring",
+      "beforeAiEditBy": "Före ändring av {client}",
+      "beforeAssistantEdit": "Före ändring av AI-assistenten",
+      "beforeMarkdownEdit": "Före Markdown-redigering",
+      "beforeMerge": "Före sammanfogning av rader"
+    },
+    "empty": "Inga versioner än. Versioner sparas automatiskt medan du redigerar och innan någon AI-app ändrar den här sidan.",
+    "restore": "Återställ den här versionen",
+    "restoring": "Återställer…",
+    "restoreHint": "Det nuvarande innehållet sparas först som en version.",
+    "diff": {
+      "rangeCurrent": "Ändringar från versionen från {from} till den nuvarande sidan",
+      "rangePrevious": "Ändringar från {from} till {to}",
+      "earlier": "versionen före",
+      "changedBy": "Ändrad av {names}",
+      "actorApp": "{client} för {name}",
+      "none": "Inga ändringar.",
+      "oldest": "Det här är den äldsta sparade versionen, så det finns inget tidigare att jämföra med.",
+      "showUnchanged": "{count, plural, one {Visa # oförändrat block} other {Visa # oförändrade block}}",
+      "formatOnly": "Formateringen ändrades"
+    },
+    "errors": {
+      "list": "Det gick inte att läsa in sidhistoriken. Läs in sidan igen och försök på nytt.",
+      "version": "Det gick inte att läsa in den här versionen.",
+      "restore": "Det gick inte att återställa den här versionen.",
+      "diff": "Det gick inte att jämföra de här versionerna."
+    }
+  },
+  "analytics": {
+    "title": "Sidstatistik",
+    "period": "Period",
+    "days": "{days} dagar",
+    "views": "Visningar",
+    "viewers": "Besökare",
+    "viewedBy": "Visad av",
+    "editedBy": "Redigerad av",
+    "noViews": "Ingen öppnade den här sidan under perioden.",
+    "noEdits": "Inga ändringar under perioden.",
+    "viewCount": "{count, plural, one {# visning} other {# visningar}}",
+    "editCount": "{count, plural, one {# ändring} other {# ändringar}}",
+    "chartLabel": "Visningar per dag",
+    "dayViews": "{day}: {count, plural, one {# visning} other {# visningar}}",
+    "notRecorded": "Den här arbetsytan registrerar inte sidvisningar, så bara ändringar visas. Ägare kan aktivera dem i Inställningar > Statistik.",
+    "howCounted": "En visning är när en ägare eller medlem öppnar sidan; att öppna den igen inom 5 minuter räknas inte. Dagarna anges i UTC.",
+    "howEditsCounted": "Ändringar räknas utifrån sidhistoriken och sidans senaste ändring.",
+    "noAccess": "Bara arbetsytans ägare och medlemmar som kan redigera den här sidan ser dess statistik.",
+    "failed": "Det gick inte att läsa in statistiken."
+  },
+  "move": {
+    "title": "Flytta till",
+    "search": "Sök sidor…",
+    "empty": "Inga matchande sidor.",
+    "failed": "Det gick inte att flytta sidan dit.",
+    "teamspaceHint": "Högst upp i den här teamytan: dess medlemmar får åtkomst",
+    "private": "Privat",
+    "privateHint": "Högst upp bland dina privata sidor: bara de som den delas med får åtkomst"
+  },
+  "share": {
+    "tabShare": "Dela",
+    "tabPublish": "Publicera",
+    "addPeople": "Lägg till personer, grupper eller e-postadresser",
+    "noMatches": "Inga matchande medlemmar eller grupper.",
+    "addPeopleOrAgents": "Lägg till personer, grupper, agenter eller e-postadresser",
+    "noMatchesWithAgents": "Inga matchande medlemmar, grupper eller agenter.",
+    "agentPaused": "Agent, pausad",
+    "groupMembers": "{count, plural, =0 {Grupp utan medlemmar} one {Grupp med # medlem} other {Grupp med # medlemmar}}",
+    "membersOnly": "Du kan dela med arbetsytans medlemmar. Den här arbetsytan låter dig inte dela med personer utanför den.",
+    "guestHint": "Skriv en fullständig e-postadress för att dela med någon utanför arbetsytan. Personen går med som gäst och ser bara de sidor som delas med hen.",
+    "shareWith": "Dela med {email}",
+    "asGuest": "Går med som gäst",
+    "pending": "Inbjuden, har inte gått med än",
+    "cancelInvite": "Dra tillbaka inbjudan",
+    "invitedSent": "Inbjudan har skickats till {email}.",
+    "invitedNoEmail": "{email} har bjudits in, men inget e-postmeddelande kunde skickas. Skicka inbjudningslänken till personen.",
+    "copyInvite": "Kopiera inbjudningslänken",
+    "you": "Du",
+    "inherited": "Från {title}",
+    "groupInherited": "Grupp, från {title}",
+    "inheritedAbove": "Från en sida ovanför",
+    "groupInheritedAbove": "Grupp, från en sida ovanför",
+    "hiddenGroup": "En grupp",
+    "group": "Grupp",
+    "viaGeneral": "{level} (från allmän åtkomst)",
+    "viaOwner": "{level} (som ägare)",
+    "overridden": "Den allmänna åtkomsten är högre ({level}), så det här har ingen effekt.",
+    "remove": "Ta bort",
+    "generalAccess": "Allmän åtkomst",
+    "everyone": "Alla i arbetsytan",
+    "everyoneHint": "Medlemmar får minst så här mycket åtkomst, oavsett vad du ger dem individuellt. Ställ in ”Ingen åtkomst” för att bara öppna sidan för de personer du lägger till.",
+    "everyoneIn": "Alla i {name}",
+    "everyoneTeamspace": "Alla i teamytan",
+    "everyoneTeamspaceHint": "Teamytans medlemmar får minst så här mycket åtkomst, oavsett vad du ger dem individuellt. Ställ in ”Ingen åtkomst” för att bara öppna sidan för de personer du lägger till.",
+    "readOnly": "Bara personer med full åtkomst kan ändra delningen.",
+    "copyLink": "Kopiera länk",
+    "copied": "Kopierad",
+    "loading": "Läser in…",
+    "requests": {
+      "heading": "Förfrågningar",
+      "message": "”{message}”",
+      "level": "Åtkomstnivå",
+      "approve": "Dela",
+      "decline": "Avböj",
+      "outsider": "Inte med i arbetsytan: delning lägger till personen som gäst.",
+      "cantInvite": "Inte med i arbetsytan, och den här arbetsytan låter dig inte dela med personer utanför den.",
+      "asksMore": "Ber om ”{level}”, har ”{current}” nu"
+    },
+    "askMore": {
+      "title": "Be om mer åtkomst",
+      "description": "Du har ”{level}”. De som har full åtkomst till sidan bestämmer.",
+      "level": "Åtkomst att be om",
+      "messagePlaceholder": "Meddelande (valfritt)",
+      "send": "Fråga",
+      "sending": "Frågar…",
+      "pending": "Du har bett om ”{level}”. De som har full åtkomst till sidan svarar.",
+      "rateLimited": "Du har frågat för ofta. Försök igen om en stund.",
+      "unavailable": "Du kan inte be om mer åtkomst till den här sidan just nu."
+    },
+    "levels": {
+      "full": "Full åtkomst",
+      "edit": "Kan redigera",
+      "comment": "Kan kommentera",
+      "view": "Kan visa",
+      "none": "Ingen åtkomst"
+    },
+    "errors": {
+      "notMember": "Den här personen är inte medlem i arbetsytan.",
+      "lastFullAccess": "Någon måste behålla full åtkomst till sidan. Ge först någon annan full åtkomst.",
+      "accessDenied": "Du kan inte ändra delningen av den här sidan.",
+      "invalidEmail": "Ange en giltig e-postadress.",
+      "invitesRestricted": "Den här arbetsytan låter dig inte dela sidor med personer utanför den. Fråga en ägare.",
+      "generic": "Det gick inte att uppdatera delningen.",
+      "agentFullAccess": "Agenter kan visa, kommentera eller redigera en sida, men får aldrig full åtkomst."
+    },
+    "everyoneFromTeamspaceHint": "Anges av teamytan. Dess ägare och arbetsytans ägare har full åtkomst. Välj en nivå här för att ange den för den här sidan och dess undersidor."
+  },
+  "noAccess": {
+    "metaTitle": "Ingen åtkomst",
+    "title": "Du har inte åtkomst till den här sidan",
+    "description": "Be om åtkomst så får de som kan dela den här sidan din förfrågan.",
+    "descriptionNoRequests": "Be personen som skickade länken till dig att dela den här sidan med dig.",
+    "messageLabel": "Meddelande (valfritt)",
+    "messagePlaceholder": "Lägg till en kommentar till dem som kan dela den",
+    "request": "Be om åtkomst",
+    "sending": "Skickar…",
+    "sentTitle": "Förfrågan skickad",
+    "sentDescription": "När någon delar sidan med dig öppnar den här länken den.",
+    "rateLimited": "Du har bett om åtkomst för många gånger. Försök igen om en stund.",
+    "signedInAs": "Du är inloggad som {email}.",
+    "home": "Gå till din arbetsyta"
+  },
+  "embed": {
+    "label": "Databas",
+    "linkedLabel": "Länkad vy av en databas",
+    "unavailable": "Den här databasen är inte tillgänglig. Den kan ha raderats, eller så har du inte åtkomst till den.",
+    "inTrash": "Den här databasen ligger i papperskorgen.",
+    "creating": "Skapar databas…",
+    "createFailed": "Det gick inte att skapa databasen: {error}",
+    "turnIntoDatabase": "Gör om till databas",
+    "convertFailed": "Det gick inte att göra om tabellen till en databas: {error}",
+    "tableTooLarge": "Tabeller med upp till {rows} rader och {columns} kolumner kan bli en databas.",
+    "open": "Öppna som sida",
+    "linked": "Länkad vy",
+    "layout": "Layout",
+    "viewOnly": "Bara personer som kan redigera den här sidan kan ändra den här vyn.",
+    "picker": {
+      "title": "Välj en databas",
+      "search": "Sök databaser",
+      "empty": "Inga databaser hittades.",
+      "failed": "Det gick inte att läsa in databaser."
+    },
+    "slash": {
+      "database": {
+        "title": "Databas",
+        "subtext": "En ny databas i den här sidan",
+        "aliases": "databas db tabell inbäddad database inline table"
+      },
+      "linkedView": {
+        "title": "Länkad vy av databas",
+        "subtext": "Visa en befintlig databas med en egen vy",
+        "aliases": "länkad vy databas db linked view database"
+      },
+      "dashboard": {
+        "title": "Instrumentpanel",
+        "subtext": "Siffror, diagram och listor från dina databaser",
+        "aliases": "instrumentpanel widgetar nyckeltal diagram siffror dashboard widgets kpi metrics charts"
+      },
+      "databaseTabs": {
+        "title": "Databasflikar",
+        "subtext": "Flera databaser eller vyer, en flik var",
+        "aliases": "flikar databas vyer växla tabs tabbed database views switch"
+      }
+    }
+  },
+  "textStyle": {
+    "superscript": "Upphöjd",
+    "subscript": "Nedsänkt"
+  },
+  "find": {
+    "label": "Sök på sidan",
+    "placeholder": "Sök",
+    "replacePlaceholder": "Ersätt med",
+    "noResults": "Inga resultat",
+    "matchCase": "Matcha skiftläge",
+    "matchAccents": "Matcha accenter",
+    "previous": "Föregående träff (Shift+Enter)",
+    "next": "Nästa träff (Enter)",
+    "showReplace": "Visa ersätt",
+    "hideReplace": "Dölj ersätt",
+    "replace": "Ersätt",
+    "replaceAll": "Ersätt alla",
+    "close": "Stäng (Esc)"
+  },
+  "template": {
+    "workspace": "Det här är en mall. Nya sidor som skapas från den kopierar dess innehåll och undersidor.",
+    "row": "Det här är en radmall. Nya rader som skapas från den får dess egenskaper och innehåll.",
+    "inside": "Den här sidan är en del av en mall.",
+    "use": "Använd mallen",
+    "confirmDelete": "Radera den här mallen för gott? Sidor som redan skapats från den förblir som de är."
+  },
+  "blocks": {
+    "callout": {
+      "title": "Inforuta",
+      "subtext": "Text med en ikon på färgad bakgrund",
+      "aliases": "inforuta notis tips varning ruta callout note tip warning alert box",
+      "icon": "Byt ikon",
+      "hiddenInPrint": "Dold vid utskrift",
+      "titleField": "Inforutans titel",
+      "titlePlaceholder": "Titel",
+      "builtin": {
+        "frame": "Ram"
+      },
+      "styleSubtext": "Inforutestil",
+      "group": "Inforutor"
+    },
+    "code": {
+      "language": "Språk",
+      "plainText": "Oformaterad text",
+      "format": "Formatera koden",
+      "formatSyntaxError": "Koden formaterades inte: det finns ett syntaxfel på rad {line}.",
+      "formatFailed": "Koden kunde inte formateras."
+    },
+    "math": {
+      "title": "Ekvation",
+      "subtext": "En fristående ekvation skriven i TeX",
+      "aliases": "matte matematik ekvation formel math equation latex tex katex formula",
+      "placeholder": "Lägg till en TeX-ekvation",
+      "sourcePlaceholder": "E = mc^2",
+      "error": "Ekvationen innehåller ett fel"
+    },
+    "inlineMath": {
+      "title": "Ekvation i texten",
+      "subtext": "En ekvation inne i texten",
+      "aliases": "inline matte ekvation formel math equation latex tex katex formula",
+      "placeholder": "Ny ekvation",
+      "sourcePlaceholder": "x^2",
+      "error": "Fel i ekvationen"
+    },
+    "footnote": {
+      "title": "Fotnot",
+      "subtext": "En numrerad anteckning i slutet av sidan",
+      "aliases": "fotnot not referens källa citat footnote note reference source citation",
+      "placeholder": "Ny fotnot",
+      "sourcePlaceholder": "Fotnotens text",
+      "list": "Fotnoter",
+      "goTo": "Gå till fotnoten i texten",
+      "back": "Tillbaka till texten"
+    },
+    "mermaid": {
+      "title": "Mermaid-diagram",
+      "subtext": "Flödesscheman, sekvensdiagram med mera, ritade från text",
+      "aliases": "mermaid diagram flödesschema graf sekvens gantt flowchart chart graph sequence",
+      "placeholder": "Lägg till ett Mermaid-diagram",
+      "sourcePlaceholder": "graph TD\n  A --> B",
+      "loading": "Ritar diagrammet…",
+      "error": "Diagrammet innehåller ett fel",
+      "syntaxError": "Syntaxfel",
+      "label": "Diagram"
+    },
+    "toc": {
+      "title": "Innehållsförteckning",
+      "subtext": "Länkar till rubrikerna på den här sidan",
+      "aliases": "innehållsförteckning innehåll rubriker disposition toc table contents headings outline",
+      "label": "Innehållsförteckning",
+      "empty": "Lägg till rubriker på den här sidan så listas de här."
+    },
+    "breadcrumb": {
+      "title": "Sökväg",
+      "subtext": "Sidorna ovanför den här, som länkar",
+      "aliases": "sökväg brödsmulor överordnade plats breadcrumb path parents location",
+      "label": "Sökväg"
+    },
+    "subpages": {
+      "title": "Undersidor",
+      "subtext": "Sidorna under den här, som länkar",
+      "aliases": "undersidor underordnade sidor lista index subpages children child pages list",
+      "label": "Undersidor",
+      "empty": "Sidor som du lägger till under den här listas här."
+    },
+    "columns": {
+      "two": {
+        "title": "2 kolumner",
+        "subtext": "Två kolumner med block sida vid sida",
+        "aliases": "kolumner kolumn layout sida 2 två columns column side two"
+      },
+      "three": {
+        "title": "3 kolumner",
+        "subtext": "Tre kolumner med block sida vid sida",
+        "aliases": "kolumner kolumn layout sida 3 tre columns column side three"
+      },
+      "add": {
+        "title": "Lägg till kolumn",
+        "subtext": "En ny kolumn till höger om den här (upp till 5)",
+        "aliases": "kolumn kolumner lägg till ny layout column columns add new"
+      }
+    },
+    "pageLink": {
+      "title": "Länk till sida",
+      "subtext": "En länk till en annan sida, med dess aktuella titel",
+      "aliases": "länk sida omnämnande referens link page mention reference"
+    },
+    "syncedPage": {
+      "title": "Synkad sida",
+      "subtext": "En annan sidas innehåll, live och redigerbart här",
+      "aliases": "synkad synk bädda in spegel sida synced sync embed mirror transclude page"
+    },
+    "colors": {
+      "group": "Färger",
+      "text": "{color} text",
+      "background": "{color} bakgrund",
+      "textDefault": "Standardtextfärg",
+      "backgroundDefault": "Ingen bakgrund",
+      "textAliases": "färg text typsnitt color colour font",
+      "backgroundAliases": "bakgrund markering färg background highlight color colour"
+    },
+    "syncedBlock": {
+      "title": "Synkat block",
+      "subtext": "Block som du kan visa och redigera på flera sidor",
+      "aliases": "synkat synk återanvänd delade block synced sync reuse shared blocks"
+    }
+  },
+  "web": {
+    "bookmark": {
+      "title": "Webbokmärke",
+      "subtext": "En länk som visas som ett kort med titel och bild",
+      "aliases": "bokmärke länk url webb kort förhandsvisning bookmark link web card preview",
+      "placeholder": "Klistra in en länk att bokmärka",
+      "submit": "Bokmärk",
+      "loading": "Hämtar sidan…",
+      "refresh": "Uppdatera förhandsvisningen",
+      "resize": "Dra för att ändra kortets bredd",
+      "label": "Bokmärke"
+    },
+    "embed": {
+      "title": "Bädda in",
+      "subtext": "YouTube, Figma, Google Dokument, Maps med mera",
+      "aliases": "bädda in inbäddning iframe youtube vimeo loom figma google docs sheets slides codepen spotify maps video embed",
+      "placeholder": "Klistra in en länk att bädda in",
+      "submit": "Bädda in",
+      "providers": "YouTube, Vimeo, Loom, Figma, publicerade Google Dokument, Kalkylark och Presentationer, CodePen, Spotify och Google Maps. Andra länkar blir ett bokmärke.",
+      "frameTitle": "Inbäddat innehåll från {host}",
+      "label": "Inbäddning"
+    },
+    "paste": {
+      "label": "Klistra in som",
+      "bookmark": "Bokmärke",
+      "embed": "Inbäddning",
+      "mention": "Omnämnande",
+      "keep": "Behåll som länk"
+    },
+    "invalidUrl": "Ange en webbadress, som https://example.com",
+    "errors": {
+      "accessDenied": "Du kan inte redigera den här sidan.",
+      "rateLimited": "För många länkförhandsvisningar på en gång. Försök igen om en minut.",
+      "invalidUrl": "Det är ingen webbadress.",
+      "blocked": "Den här adressen kan inte förhandsvisas.",
+      "unreachable": "Det gick inte att nå sidan.",
+      "timeout": "Sidan tog för lång tid att svara.",
+      "tooManyRedirects": "Sidan omdirigerar för många gånger.",
+      "httpError": "Sidan svarade med ett fel."
+    }
+  },
+  "upload": {
+    "tooLarge": "{name} är för stor. Filer får vara högst {limit}.",
+    "quotaExceeded": "{name} laddades inte upp: den här arbetsytan har använt sina {limit} fillagring.",
+    "failed": "Det gick inte att ladda upp {name}.",
+    "storageFailed": "{name} laddades inte upp: arbetsytans egen lagring tog inte emot den. Ägarna kan se varför i Inställningar > Lagring."
+  },
+  "mention": {
+    "people": "Personer",
+    "agents": "Agenter",
+    "groups": "Grupper",
+    "groupMembers": "{count, plural, =0 {Inga medlemmar} one {# medlem} other {# medlemmar}}",
+    "pages": "Sidor",
+    "dates": "Datum",
+    "newPage": "Ny sida: {title}",
+    "newPageHint": "I den här sidan",
+    "today": "I dag",
+    "tomorrow": "I morgon",
+    "yesterday": "I går",
+    "nextWeek": "Nästa vecka",
+    "noAccess": "Ingen åtkomst",
+    "deleted": "Raderad sida",
+    "loading": "Läser in…",
+    "atBlock": "Öppnas vid ett block på sidan",
+    "showAsMention": "Visa som omnämnande",
+    "personLeft": "{name} (inte längre med i arbetsytan)",
+    "date": "Datum",
+    "reminder": "Påminnelse",
+    "remindNone": "Ingen påminnelse",
+    "remindSameDay": "Samma dag 9.00",
+    "remindDayBefore": "Dagen innan 9.00",
+    "remindWeekBefore": "En vecka innan 9.00",
+    "reminderSet": "Påminnelse: {when}",
+    "reminderHint": "Du får den i din inkorg och via e-post.",
+    "reminderPast": "Den tiden har passerat; välj ett senare datum eller en senare påminnelse.",
+    "done": "Klar"
+  },
+  "preview": {
+    "editedBy": "Redigerad av {name} {when}",
+    "edited": "Redigerad {when}",
+    "members": "{count, plural, =0 {Ingen ingår i den här gruppen än} one {# medlem} other {# medlemmar}}",
+    "moreMembers": "och {count} till"
+  },
+  "pageLinkPicker": {
+    "title": "Länk till sida",
+    "search": "Sök sidor…",
+    "empty": "Inga sidor hittades",
+    "failed": "Det gick inte att läsa in sidor."
+  },
+  "syncedPage": {
+    "label": "Synkad sida",
+    "viewOnly": "Endast visning",
+    "cycle": "Den här sidan visas redan ovanför, så den länkas bara här."
+  },
+  "backlinks": {
+    "title": "Länkad från",
+    "titleCount": "Länkad från · {count}",
+    "count": "{count, plural, one {# sida länkar hit} other {# sidor länkar hit}}",
+    "unlinked": "Olänkade omnämnanden · {count}",
+    "unlinkedHint": "Sidor som skriver den här sidans titel utan att länka till den",
+    "link": "Länka",
+    "linkLabel": "Länka omnämnandet i {title}",
+    "linkFailed": "Titeln står inte längre där som vanlig text.",
+    "locked": "Den sidan är låst, så den kan inte ändras.",
+    "morePlaces": "{count, plural, one {# ställe till} other {# ställen till}}",
+    "fewerPlaces": "Visa färre",
+    "morePages": "{count, plural, one {Visa # sida till} other {Visa # sidor till}}"
+  },
+  "blockMenu": {
+    "copyLink": "Kopiera länk till blocket",
+    "hideInPrint": "Dölj vid utskrift",
+    "calloutStyle": "Inforutestil",
+    "turnIntoCallout": "Gör om till inforuta",
+    "plainCallout": "Enkel inforuta",
+    "addTitle": "Lägg till titel",
+    "removeTitle": "Ta bort titel"
+  },
+  "imageLink": {
+    "menuItem": "Länk…",
+    "editMenuItem": "Redigera länk…",
+    "title": "Länka bilden",
+    "urlLabel": "Webbadress",
+    "toPage": "Länkar till sidan ”{title}”",
+    "invalid": "Ange en webbadress som börjar med http:// eller https://, eller välj en sida.",
+    "pickPage": "Länka till en sida…",
+    "remove": "Ta bort länken",
+    "open": "Öppna länken"
+  },
+  "pdf": {
+    "untitled": "PDF",
+    "openInNewTab": "Öppna i en ny flik",
+    "frameTitle": "PDF: {name}",
+    "noPreview": "Den här webbläsaren kan inte visa PDF-filer här. Öppna filen för att läsa den."
+  },
+  "pdfExport": {
+    "title": "Exportera som PDF",
+    "letterhead": "Brevhuvud",
+    "none": "Inget",
+    "defaultMark": "{name} (standard)",
+    "noLetterheads": "Ägare kan lägga till brevhuvuden med logotyp och företagsuppgifter i Inställningar → PDF-mallar.",
+    "properties": "Ta med radens värden",
+    "comments": "Ta med kommentarer",
+    "hint": "Diagram och ekvationer skrivs ut som text; använd Skriv ut för att få sidan exakt som den ser ut.",
+    "download": "Ladda ned",
+    "preparing": "Förbereder…"
+  },
+  "spreadsheet": {
+    "untitled": "Arbetsbok",
+    "download": "Ladda ned",
+    "loading": "Läser arbetsboken…",
+    "tooLarge": "Den här arbetsboken är för stor för att visas här. Ladda ned den för att öppna den.",
+    "unreadable": "Den här arbetsboken kan inte visas här: den kan vara skadad, lösenordsskyddad eller en gammal .xls-fil. Ladda ned den för att öppna den.",
+    "empty": "Det här bladet är tomt.",
+    "sheets": "Blad",
+    "tableLabel": "{name}, blad {sheet}",
+    "partial": "De första {rows} raderna och {columns} kolumnerna visas",
+    "convert": "Gör om till en databas",
+    "convertTitle": "Importera ett blad i den här arbetsboken som en ny databas"
+  },
+  "print": {
+    "print": "Skriv ut eller spara som PDF",
+    "back": "Tillbaka till sidan",
+    "includeSubpages": "Ta med undersidor",
+    "preparing": "Läser in bilder och diagram…",
+    "hint": "Välj ”Spara som PDF” som mål i utskriftsdialogen.",
+    "truncated": "Bara de första {count} sidorna tas med.",
+    "lastUpdated": "Senast uppdaterad {date}",
+    "subpages": "Sidor",
+    "embedUnavailable": "Den här databasen är inte tillgänglig för dig."
+  },
+  "quickNote": {
+    "documentTitle": "Snabbanteckning",
+    "heading": "Snabbanteckning",
+    "description": "Sparas som en privat sida som bara du ser. Du kan flytta eller dela den senare.",
+    "workspace": "Arbetsyta",
+    "title": "Titel",
+    "body": "Anteckning",
+    "bodyPlaceholder": "Skriv något eller klistra in en länk",
+    "save": "Spara anteckningen",
+    "shortcut": "Ny snabbanteckning",
+    "shortcutShort": "Snabbanteckning",
+    "destination": "Spara i",
+    "privatePage": "Privat sida"
+  },
+  "dashboard": {
+    "title": "Instrumentpanel",
+    "empty": "Den här instrumentpanelen har inga widgetar än.",
+    "emptyEditable": "Visa siffror, diagram och listor från arbetsytans databaser här. De hålls uppdaterade när rader ändras.",
+    "add": "Lägg till widget",
+    "full": "En instrumentpanel rymmer upp till {max} widgetar.",
+    "menu": "Widgetalternativ",
+    "edit": "Redigera",
+    "done": "Klar",
+    "remove": "Ta bort widget",
+    "moveBefore": "Flytta före",
+    "moveAfter": "Flytta efter",
+    "width": "Bredd",
+    "widths": {
+      "1": "En fjärdedel av bredden",
+      "2": "Halva bredden",
+      "3": "Tre fjärdedelar av bredden",
+      "4": "Hela bredden"
+    },
+    "color": "Färg",
+    "colorNone": "Ingen färg",
+    "titleLabel": "Widgetens titel",
+    "titlePlaceholder": "Titel (databasens när den är tom)",
+    "unavailable": "Du har inte åtkomst till de här uppgifterna.",
+    "inTrash": "Den här databasen ligger i papperskorgen.",
+    "loadFailed": "Den här widgeten kunde inte läsas in.",
+    "retry": "Försök igen",
+    "noGroup": "Databasen har inget att gruppera efter än: lägg till en egenskap av typen urval, status eller datum.",
+    "more": "{count, plural, one {# rad till} other {# rader till}}",
+    "rows": "{count, plural, one {# rad} other {# rader}}",
+    "byGroup": "efter {property}",
+    "filters": "{count, plural, one {# filter} other {# filter}}",
+    "updatedNow": "uppdaterad nyss",
+    "updated": "uppdaterad {time}"
+  },
+  "databaseTabs": {
+    "title": "Databasflikar",
+    "empty": "De här flikarna visar inga databaser än.",
+    "emptyEditable": "Visa flera databaser, eller vyer av en, som flikar. Varje flik är en egen vy.",
+    "add": "Lägg till flik",
+    "full": "Flikarna rymmer upp till {max} vyer.",
+    "menu": "Flikalternativ",
+    "rename": "Byt namn",
+    "remove": "Ta bort flik",
+    "nameLabel": "Flikens namn",
+    "namePlaceholder": "Databasens namn",
+    "noAccess": "Ingen åtkomst"
+  },
+  "voiceNote": {
+    "record": "Spela in en röstanteckning",
+    "recording": "Spelar in",
+    "stop": "Stoppa och skriv ut",
+    "discard": "Släng",
+    "cancel": "Avbryt",
+    "retry": "Infoga igen",
+    "close": "Stäng",
+    "limit": "Upp till {minutes} min",
+    "chooseFile": "Eller välj en ljudfil",
+    "transcribing": "Skriver ned det du sa…",
+    "writing": "AI skriver anteckningen…",
+    "autoStopped": "Inspelningen stoppades vid gränsen på {minutes} min.",
+    "review": "AI skrev den här anteckningen utifrån din inspelning. Kontrollera den innan du sparar.",
+    "notRewritten": "AI kunde inte skriva ut den här inspelningen, så anteckningen är transkriptionen så som den hördes.",
+    "transcriptKept": "Transkriptionen sparas under anteckningen.",
+    "propertiesPicked": "{count, plural, one {# egenskap fylldes i utifrån anteckningen.} other {# egenskaper fylldes i utifrån anteckningen.}}",
+    "transcriptToggle": "Transkription",
+    "shortcut": "Ny röstanteckning",
+    "shortcutShort": "Röstanteckning",
+    "dialogTitle": "Röstanteckning",
+    "dialogDescription": "Prata, så skriver AI en ren anteckning här. Transkriptionen hamnar under den.",
+    "slashTitle": "Röstanteckning",
+    "slashSubtext": "Prata, så skriver AI ut det här",
+    "slashAliases": "röst ljud spela in diktera tal mikrofon transkribera voice audio record dictate speech microphone transcribe",
+    "errors": {
+      "unsupported": "Den här webbläsaren kan inte spela in ljud. Välj en ljudfil i stället.",
+      "insecure": "Inspelning kräver en säker (https) anslutning. Välj en ljudfil i stället.",
+      "denied": "Leafdesk får inte använda mikrofonen. Tillåt det i webbläsarens webbplatsinställningar och försök igen.",
+      "noDevice": "Ingen mikrofon hittades.",
+      "failed": "Inspelningen kunde inte starta. Försök igen.",
+      "fileType": "Den här typen av ljudfil stöds inte.",
+      "fileTooLarge": "Inspelningar får vara högst {max}.",
+      "disabled": "Röstanteckningar är inte tillgängliga i den här arbetsytan.",
+      "noAccess": "Du kan inte lägga till anteckningar här.",
+      "tooLarge": "Inspelningen är för stor. Inspelningar får vara högst {max}.",
+      "rateLimited": "För många AI-begäranden. Försök igen om en stund.",
+      "timeout": "Det tog för lång tid att skriva ned inspelningen. Försök igen, eller spela in en kortare anteckning.",
+      "aborted": "Avbrutet.",
+      "provider": "Inspelningen kunde inte skrivas ned. Försök igen senare, eller be en administratör att kontrollera inställningarna för tal till text.",
+      "empty": "Inget hördes i inspelningen. Försök igen närmare mikrofonen.",
+      "invalid": "Inspelningen kunde inte läsas. Försök igen.",
+      "interrupted": "Servern startades om medan detta beräknades. Försök igen.",
+      "limitReached": "Den här arbetsytan har nått sin månatliga kostnadsgräns för AI, så AI-begäranden avvisas till nästa månad. Ägare ser detaljerna i Inställningar under AI-användning.",
+      "insert": "Anteckningen kunde inte läggas till på sidan."
+    },
+    "instructions": {
+      "menu": "Instruktioner för röstanteckningar",
+      "menuHint": "Hur AI skriver ut röstanteckningarna som sparas i den här databasen",
+      "title": "Instruktioner för röstanteckningar",
+      "description": "AI följer dessa när den skriver ut en röstanteckning som sparas i den här databasen. De gäller alla som spelar in i den.",
+      "placeholder": "Till exempel: Anteckning från kundbesök. Ta upp företaget, personen vi träffade, vad som diskuterades, offertens status och nästa steg.",
+      "followed": "Röstanteckningar som sparas här följer den här databasens skrivinstruktioner."
+    }
+  },
+  "review": {
+    "bar": "{count, plural, one {# AI-ändring att granska} other {# AI-ändringar att granska}}",
+    "by": "av {names}",
+    "open": "Granska",
+    "keepAll": "Behåll alla",
+    "undoAll": "Ångra alla",
+    "keep": "Behåll",
+    "undo": "Ångra",
+    "title": "Granska AI-ändringar",
+    "hint": "Behåll eller ångra varje ändring. Ångra alla sparar först sidan som den är nu i dess historik.",
+    "stale": "Sidan har ändrats under tiden: det här är ändringarna som de ser ut nu.",
+    "failed": "Det fungerade inte. Försök igen."
+  },
+  "syncedBlock": {
+    "label": "Synkat block",
+    "from": "Synkat från",
+    "viewOnly": "Endast visning",
+    "copy": "Kopiera synkat block",
+    "copied": "Kopierat",
+    "copyHint": "Klistra in det på en annan sida för att visa de här blocken där, live",
+    "shownOn": "{count, plural, one {Visas på # sida} other {Visas på # sidor}}",
+    "notShownShort": "Visas inte någon annanstans",
+    "notShown": "Kopiera det här synkade blocket och klistra in det på en annan sida för att visa det där.",
+    "hiddenPages": "{count, plural, one {och # sida som du inte kan se} other {och # sidor som du inte kan se}}",
+    "unsync": "Avsynka",
+    "unsyncHint": "Gör om till en vanlig kopia av de här blocken",
+    "nested": "Ett synkat block kan inte ligga i ett annat synkat block.",
+    "turnInto": "Gör om till synkat block",
+    "state": {
+      "noAccess": "Ingen åtkomst",
+      "trashed": "Sidan med det ursprungliga synkade blocket ligger i papperskorgen",
+      "deleted": "Sidan med det ursprungliga synkade blocket har raderats",
+      "removed": "Det ursprungliga synkade blocket har raderats"
+    },
+    "exportNote": "Synkat block: {state}"
+  },
+  "viewer": {
+    "untitled": "Fil",
+    "counter": "{index} av {count}",
+    "announce": "{name}, {index} av {count}",
+    "previous": "Föregående fil",
+    "next": "Nästa fil",
+    "close": "Stäng",
+    "download": "Ladda ned",
+    "openInNewTab": "Öppna i en ny flik",
+    "zoom": "Zoom",
+    "zoomIn": "Zooma in",
+    "zoomOut": "Zooma ut",
+    "zoomReset": "Anpassa till skärmen",
+    "zoomResetLevel": "{percent} %, anpassa till skärmen",
+    "loading": "Läser in…",
+    "readingDocument": "Läser dokumentet…",
+    "unavailable": "Den här filen kan inte öppnas. Den kan ha tagits bort, eller så har du inte längre åtkomst till den.",
+    "imageFailed": "Den här bilden kan inte visas här. Ladda ned den för att öppna den.",
+    "empty": "Den här filen är tom.",
+    "noPreview": "Det finns ingen förhandsvisning för den här typen av fil.",
+    "unknownType": "Okänd typ",
+    "cannotPlay": "Den här webbläsaren kan inte spela upp filen. Ladda ned den för att spela upp den någon annanstans.",
+    "truncated": "Bara de första {size} av den här filen visas. Ladda ned den för att se allt.",
+    "csvPartial": "En del av den här filen visas ({rows} rader). Ladda ned den för att se allt.",
+    "documentTooLarge": "Det här dokumentet är för stort för att förhandsvisas. Ladda ned det för att öppna det.",
+    "documentUnreadable": "Det här dokumentet kan inte förhandsvisas: det kan vara skadat, lösenordsskyddat eller en gammal .doc-fil. Ladda ned det för att öppna det.",
+    "documentBusy": "Servern är upptagen med att läsa andra dokument. Försök igen om en stund.",
+    "picturesLeftOut": "Vissa bilder i det här dokumentet visas inte här.",
+    "retry": "Försök igen",
+    "markdownImage": "Bild: {alt}",
+    "markdownImageUntitled": "Bild",
+    "expand": "Öppna i visaren",
+    "view": "Visa {name}"
+  },
+  "presentation": {
+    "previous": "Föregående bild",
+    "next": "Nästa bild",
+    "exit": "Avsluta presentationen",
+    "counter": "{index} av {count}",
+    "announce": "Bild {index} av {count}"
+  },
+  "markdownSource": {
+    "title": "Redigera som Markdown",
+    "sourceTab": "Markdown",
+    "previewTab": "Förhandsvisning",
+    "toolbar": "Formatering",
+    "placeholder": "Skriv Markdown…",
+    "close": "Stäng",
+    "retry": "Försök igen",
+    "unsaved": "Osparade ändringar",
+    "offline": "Offline: sparande kräver en anslutning",
+    "saveHint": "Spara till sidan (Ctrl+S eller ⌘S)",
+    "tools": {
+      "bold": "Fetstil",
+      "italic": "Kursiv",
+      "code": "Kod i löptext",
+      "link": "Länk",
+      "heading": "Rubrik {level}",
+      "bulletList": "Punktlista",
+      "numberedList": "Numrerad lista",
+      "taskList": "Att göra-lista"
+    },
+    "errors": {
+      "noAccess": "Du kan inte redigera den här sidan.",
+      "database": "Databaser har ingen text att redigera som Markdown.",
+      "trashed": "Den här sidan ligger i papperskorgen.",
+      "locked": "Den här sidan är låst. Lås upp den för att redigera den.",
+      "saveFailed": "Sidan kunde inte sparas. Försök igen om en stund.",
+      "failed": "Något gick fel. Försök igen."
+    },
+    "losses": {
+      "title": "En del av den här sidan behålls inte",
+      "body": "Markdown kan inte rymma allt på den här sidan. När du sparar skrivs sidan utifrån Markdown, så det här försvinner:",
+      "kinds": {
+        "textColor": "Textfärger",
+        "backgroundColor": "Bakgrundsfärger och markeringar",
+        "alignment": "Textjustering",
+        "mediaSize": "Storlekar på bilder och videor",
+        "callout": "Färger och ikoner på inforutor som Markdown saknar form för",
+        "textStyle": "Viss textformatering, som understrykning",
+        "table": "Tabellers kolumnbredder, rubrikrader, sammanslagna celler och cellfärger",
+        "blockSetting": "Andra blockinställningar",
+        "content": "Visst innehåll som Markdown inte kan rymma"
+      },
+      "synced": "{count, plural, one {Dina ändringar i ett synkat block: redigera det på sidan i stället} other {Dina ändringar i # synkade block: redigera dem på sidan i stället}}",
+      "confirm": "Spara ändå"
+    },
+    "conflict": {
+      "title": "Någon annan har ändrat den här sidan",
+      "body": "Sidan ändrades efter att du öppnade dess Markdown. Läs in sidan som den är nu (dina ändringar här slängs), eller spara dina över den.",
+      "reload": "Läs in den nuvarande sidan",
+      "overwrite": "Spara mina över den"
+    },
+    "discard": {
+      "title": "Släng dina ändringar?",
+      "body": "Dina Markdown-ändringar har inte sparats.",
+      "keep": "Fortsätt redigera",
+      "confirm": "Släng"
+    }
+  },
+  "siblings": {
+    "label": "Sidor bredvid {title}",
+    "empty": "Inga andra sidor här",
+    "failed": "Det gick inte att läsa in sidorna här.",
+    "openDatabase": "Öppna databasen",
+    "allRows": "Visa alla rader i databasen"
+  },
+  "agentChat": {
+    "label": "Agentchatt",
+    "exportLine": "Agentchatt: {name}",
+    "elsewhere": "Agentchatt: tillgänglig i appen för medlemmar i arbetsytan.",
+    "choose": "Välj en agent",
+    "noAgent": "Välj agenten som personer chattar med här.",
+    "noAgentReadOnly": "Ingen agent har valts för den här chatten.",
+    "loadFailed": "Det gick inte att läsa in den här chatten.",
+    "retry": "Försök igen",
+    "states": {
+      "guest": "Agentchattar är inte tillgängliga för gäster.",
+      "gone": "Den här agenten är inte längre tillgänglig.",
+      "paused": "Den här agenten är pausad, så den kan inte svara.",
+      "aiOff": "AI är avstängt i den här arbetsytan, så agenten kan inte svara.",
+      "limitReached": "Den här agenten har använt sina token för månaden, så den kan inte svara förrän nästa månad.",
+      "noAccess": "Du har inte åtkomst till den här agenten."
+    },
+    "empty": {
+      "full": "Fråga {name} något eller ge den en uppgift. Den arbetar med sin egen åtkomst, sina färdigheter och sitt minne, och varje svar är en av dess körningar.",
+      "readOnly": "Ställ en fråga till {name}. Svaren kommer bara från sidor som ni båda kan se, och den kan inte ändra något."
+    },
+    "readOnly": "Skrivskyddad",
+    "readOnlyHint": "Svaren kommer bara från sidor som både du och agenten kan se.",
+    "placeholder": "Skriv till {name}…",
+    "send": "Skicka",
+    "working": "Arbetar…",
+    "waiting": "Väntar på en ledig AI-plats…",
+    "approval": "Agenten vill använda ett verktyg. Godkänn anropet för att låta den fortsätta.",
+    "steps": "{count, plural, one {# steg} other {# steg}}",
+    "conversations": "Konversationer",
+    "newConversation": "Ny konversation",
+    "deleteConversation": "Radera den här konversationen",
+    "failed": {
+      "aiOff": "AI är avstängt i den här arbetsytan.",
+      "agentDisabled": "Agenten har pausats eller arkiverats.",
+      "noAccess": "Du kan inte längre chatta med den här agenten här.",
+      "provider": "AI-leverantören svarade inte.",
+      "timeout": "Agenten tog för lång tid att svara.",
+      "tooManyAttempts": "Arbetsytans AI-kvot förblev förbrukad, så agenten kunde inte starta.",
+      "approvalTimeout": "Ingen besvarade dess anrop i tid, så inget skickades.",
+      "limitReached": "Agenten har använt sina token för månaden.",
+      "costLimit": "Arbetsytan har nått sin månatliga kostnadsgräns för AI.",
+      "error": "Något gick fel."
+    },
+    "errors": {
+      "invalid": "Skriv ett meddelande först.",
+      "tooLong": "Ett meddelande får vara högst {max} tecken.",
+      "busy": "Agenten svarar fortfarande på ditt förra meddelande.",
+      "rateLimited": "För många meddelanden på en gång. Försök igen om en stund.",
+      "noAccess": "Den här chatten är inte tillgänglig för dig.",
+      "notOnPage": "Den här chatten finns inte längre på sidan.",
+      "guest": "Agentchattar är inte tillgängliga för gäster.",
+      "gone": "Den här agenten är inte längre tillgänglig.",
+      "paused": "Den här agenten är pausad, så den kan inte svara.",
+      "aiOff": "AI är avstängt i den här arbetsytan, så agenten kan inte svara.",
+      "limitReached": "Den här agenten har använt sina token för månaden."
+    },
+    "picker": {
+      "search": "Sök agenter",
+      "empty": "Inga agenter att chatta med. Ägare skapar dem i Inställningar, under Agenter.",
+      "failed": "Det gick inte att läsa in agenterna.",
+      "paused": "Pausad"
+    },
+    "slash": {
+      "title": "Agentchatt",
+      "subtext": "Chatta med en av arbetsytans agenter på den här sidan",
+      "aliases": "agent chatt bot assistent ai fråga chat assistant ask"
+    },
+    "tab": {
+      "hint": "Klistra in den här agentens länk på en sida för att lägga en chatt med den där. Medlemmar kan chatta i den skrivskyddat.",
+      "copyLink": "Kopiera länk"
+    },
+    "awaitingOwner": "Väntar på att en ägare av arbetsytan ska godkänna ett anrop…"
+  },
+  "button": {
+    "untitled": "Knapp",
+    "placeholder": "Knappens etikett",
+    "done": "Klar",
+    "confirm": "Kör ”{label}”?",
+    "blockLabel": "Knappen ”{label}”",
+    "slash": {
+      "title": "Knapp",
+      "subtext": "Gör några saker i tur och ordning när den klickas",
+      "aliases": "knapp åtgärd klicka kör button action click run"
+    },
+    "settings": {
+      "open": "Knappinställningar",
+      "icon": "Emoji",
+      "label": "Etikett",
+      "color": "Färg",
+      "colorDefault": "Standard",
+      "confirm": "Fråga innan den körs",
+      "confirmHelp": "Den som klickar bekräftar först.",
+      "steps": "När den klickas",
+      "stepsHelp": "Stegen körs i tur och ordning, som den som klickar och med dennes åtkomst. Ett steg som personen inte kan utföra stoppar knappen där.",
+      "addStep": "Lägg till ett steg",
+      "moveUp": "Flytta upp",
+      "moveDown": "Flytta ned",
+      "insertAt": "Var",
+      "at": {
+        "below": "Under knappen",
+        "top": "Högst upp på sidan",
+        "bottom": "I slutet av sidan"
+      },
+      "markdown": "Block i Markdown",
+      "people": "Personer",
+      "message": "Meddelande",
+      "notifyHelp": "Bara personer som kan öppna den här sidan meddelas.",
+      "url": "Adress",
+      "secret": "Signeringshemlighet",
+      "copySecret": "Kopiera hemligheten",
+      "webhookHelp": "Skickar den här sidan som JSON, signerad med hemligheten, om arbetsytan tillåter att innehåll lämnar den.",
+      "target": "Webbadress eller sida",
+      "pickPage": "Välj en sida",
+      "toPage": "Öppnar ”{title}”",
+      "rowTitle": "Titel",
+      "values": "Värden",
+      "updateHelp": "Ändrar högst {max} rader som matchar filtren och som den som klickar kan se."
+    },
+    "variables": {
+      "group": "Knapp",
+      "today": "I dag",
+      "now": "Nu",
+      "me": "Den som klickade"
+    },
+    "steps": {
+      "insert": "Infoga block",
+      "add_row": "Lägg till en rad",
+      "update_rows": "Ändra rader",
+      "notify": "Meddela personer",
+      "webhook": "Skicka en webhook",
+      "open": "Öppna en länk eller sida"
+    },
+    "failed": {
+      "notFound": "Den här knappen finns inte längre på sidan.",
+      "noSteps": "Den här knappen gör inget än.",
+      "inTrash": "Knappar på sidor i papperskorgen körs inte.",
+      "rateLimited": "Den här knappen klickades för ofta. Vänta en stund och försök igen.",
+      "noAccess": "Du har inte åtkomst att göra detta.",
+      "locked": "Sidan är låst.",
+      "notConfigured": "Det här steget är inte konfigurerat.",
+      "databaseGone": "Databasen finns inte längre eller ligger i papperskorgen.",
+      "invalidValue": "Ett värde passar inte sin egenskap.",
+      "exportOff": "Den här arbetsytan tillåter inte att innehåll lämnar den.",
+      "webhookFailed": "Adressen tog inte emot webhooken.",
+      "invalidTarget": "Länken att öppna är inte giltig.",
+      "buttonGone": "Knappen har tagits bort från sidan.",
+      "error": "Något gick fel.",
+      "step": "Steg {step} ({type}) kördes inte: {reason}",
+      "templateGone": "Radmallen finns inte längre."
+    }
+  },
+  "imageCrop": {
+    "menuItem": "Beskär…",
+    "title": "Beskär bilden",
+    "hint": "Dra ramen eller dess kanter. Filen förblir hel, så du kan ändra detta senare.",
+    "frame": "Den del av bilden som ska visas. Piltangenterna flyttar den; med Skift ändrar de storleken.",
+    "reset": "Visa hela bilden",
+    "loading": "Läser in bilden…",
+    "failed": "Bilden kunde inte läsas in."
+  }
+}

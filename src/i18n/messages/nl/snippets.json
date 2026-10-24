@@ -1,0 +1,124 @@
+{
+  "copyTitle": "{title} (kopie)",
+  "errors": {
+    "triggerRequired": "Geef het tekstfragment een trigger.",
+    "triggerInvalid": "Een trigger bestaat uit maximaal {max} kleine letters, cijfers, koppeltekens en underscores.",
+    "triggerTaken": "Een ander tekstfragment hier heeft deze trigger al.",
+    "titleTooLong": "Een titel heeft maximaal {max} tekens.",
+    "bodyRequired": "Schrijf wat het tekstfragment invoegt.",
+    "bodyTooLong": "Een tekstfragment heeft maximaal {max} tekens.",
+    "tooMany": "Er kunnen hier maximaal {max} tekstfragmenten zijn. Verwijder er een paar om meer toe te voegen.",
+    "notFound": "Dit tekstfragment bestaat niet meer.",
+    "ownersOnly": "Alleen de eigenaren van de werkruimte wijzigen de tekstfragmenten.",
+    "accessDenied": "Je hebt geen toegang tot deze tekstfragmenten.",
+    "importInvalid": "Dit is geen bestand met tekstfragmenten. Gebruik een Leafdesk-export, of een lijst met objecten met een id en een label.",
+    "importTooLarge": "Het bestand is te groot om te importeren."
+  },
+  "menu": {
+    "group": "Tekstfragmenten",
+    "personal": "Mijn tekstfragmenten",
+    "workspace": "Tekstfragmenten van de werkruimte",
+    "insertFailed": "Kan het tekstfragment niet invoegen. {error}"
+  },
+  "save": {
+    "menuItem": "Opslaan als tekstfragment",
+    "saved": "Opgeslagen. Typ ;{trigger} om het in te voegen."
+  },
+  "form": {
+    "newTitle": "Nieuw tekstfragment",
+    "editTitle": "Tekstfragment bewerken",
+    "title": "Titel",
+    "titlePlaceholder": "Vergadernotities",
+    "trigger": "Trigger",
+    "triggerPlaceholder": "vergadering",
+    "triggerHint": "Typ ;{trigger} op een pagina, of zoek het onder Tekstfragmenten in het /-menu.",
+    "target": "Opslaan in",
+    "targetPersonal": "Mijn tekstfragmenten (alleen jij)",
+    "targetWorkspace": "{workspace} (iedereen in de werkruimte)",
+    "body": "Inhoud (Markdown)",
+    "bodyPlaceholder": "## Agenda\n- ",
+    "placeholders": "Ingevuld bij het invoegen:",
+    "placeholder": {
+      "date": "De datum van vandaag",
+      "time": "De huidige tijd",
+      "datetime": "De datum van vandaag en de tijd",
+      "me": "Je naam",
+      "page": "De titel van de pagina",
+      "cursor": "Waar de cursor komt"
+    },
+    "length": "{count} van {max} tekens",
+    "preview": "Voorbeeld",
+    "previewPage": "Paginatitel",
+    "previewEmpty": "De blokken die het tekstfragment invoegt, verschijnen hier.",
+    "create": "Tekstfragment aanmaken"
+  },
+  "settings": {
+    "personalDescription": "Stukjes inhoud die je tijdens het typen invoegt: typ ; en de trigger van een tekstfragment op een willekeurige pagina, of kies het onder Tekstfragmenten in het /-menu. Alleen jij ziet deze.",
+    "description": "Stukjes inhoud die je tijdens het typen invoegt: typ ; en de trigger van een tekstfragment op een willekeurige pagina, of kies het onder Tekstfragmenten in het /-menu.",
+    "tabsLabel": "Tekstfragmenten",
+    "tabs": {
+      "mine": "Van mij",
+      "workspace": "Werkruimte"
+    },
+    "mineNote": "Alleen jij ziet deze, en je kunt ze gebruiken in elke werkruimte waarin je zit.",
+    "workspaceNote": "Iedereen in {workspace} kan deze gebruiken. Alleen eigenaren voegen ze toe en wijzigen ze.",
+    "workspaceNoteOwner": "Iedereen in {workspace} kan deze gebruiken. Eigenaren voegen ze toe en wijzigen ze.",
+    "search": "Tekstfragmenten zoeken",
+    "new": "Nieuw tekstfragment",
+    "import": "Importeren",
+    "importing": "Importeren…",
+    "export": "Exporteren",
+    "count": "{count} van {max}",
+    "noMatches": "Geen tekstfragmenten gevonden.",
+    "empty": "De werkruimte heeft nog geen gedeelde tekstfragmenten.",
+    "emptyOwner": "Nog geen tekstfragmenten. Begin met een voorbeeld, of maak je eigen.",
+    "emptyWorkspaceOwner": "De werkruimte heeft nog geen gedeelde tekstfragmenten. Maak er een die iedereen kan gebruiken.",
+    "examplesHeading": "Voorbeelden",
+    "addExample": "Toevoegen",
+    "actionsFor": "Acties voor {title}",
+    "edit": "Bewerken",
+    "duplicate": "Dupliceren",
+    "delete": "Verwijderen",
+    "deleteTitle": "“{title}” verwijderen?",
+    "deleteBody": "Pagina’s waarin het is ingevoegd, houden hun tekst.",
+    "imported": "{count, plural, =0 {Geen tekstfragmenten toegevoegd.} one {# tekstfragment toegevoegd.} other {# tekstfragmenten toegevoegd.}}",
+    "skipped": "{count, plural, one {# overgeslagen:} other {# overgeslagen:}}",
+    "skip": {
+      "triggerRequired": "geen trigger",
+      "triggerInvalid": "trigger niet toegestaan",
+      "titleTooLong": "titel te lang",
+      "bodyRequired": "leeg",
+      "bodyTooLong": "te lang",
+      "duplicate": "dubbel in het bestand",
+      "exists": "trigger al in gebruik",
+      "tooMany": "boven de limiet"
+    },
+    "untitledTrigger": "(geen trigger)",
+    "importFailed": "Kan niet importeren. {error}"
+  },
+  "examples": {
+    "meeting": {
+      "trigger": "vergadering",
+      "title": "Vergadernotities",
+      "attendees": "Deelnemers",
+      "agenda": "Agenda",
+      "notes": "Notities",
+      "actions": "Actiepunten"
+    },
+    "log": {
+      "trigger": "log",
+      "title": "Logregel met datum"
+    },
+    "decision": {
+      "trigger": "besluit",
+      "title": "Besluitvastlegging",
+      "heading": "Besluit",
+      "date": "Datum",
+      "decidedBy": "Besloten door",
+      "context": "Context",
+      "options": "Overwogen opties",
+      "outcome": "Wat we hebben besloten",
+      "consequences": "Gevolgen"
+    }
+  }
+}

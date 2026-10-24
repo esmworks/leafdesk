@@ -1,0 +1,104 @@
+{
+  "metaTitle": "Tarkistettavat",
+  "heading": "Tarkistettavat",
+  "description": "Muutokset, jotka agentit ehdottivat tekemisen sijaan, ja automaatiot, jotka odottavat jonkun hyväksyntää. Hyväksy muutos tehdäksesi sen omissa nimissäsi, muokkaa sitä ensin tai hylkää se; hyväksy automaatio antaaksesi sen ajon jatkua tai torju se pysäyttääksesi ajon. Ehdotukset, joihin kukaan ei vastaa, vanhenevat 30 päivän kuluttua. Myös seurantaviestit, joissa on asetus ”kysy minulta ensin”, odottavat täällä.",
+  "filters": {
+    "agent": "Agentti",
+    "database": "Tietokanta",
+    "status": "Näytä",
+    "allAgents": "Kaikki agentit",
+    "allDatabases": "Kaikki tietokannat",
+    "open": "Odottavat",
+    "decided": "Vastatut",
+    "allRows": "Näytä kaikki rivit",
+    "clear": "Tyhjennä suodattimet"
+  },
+  "count": "{count, plural, one {# muutos} other {# muutosta}}",
+  "select": "Valitse tämä muutos",
+  "selectAll": "Valitse kaikki",
+  "selected": "{count} valittu",
+  "approveSelected": "Hyväksy {count}",
+  "dismissSelected": "Hylkää {count}",
+  "bulkSkipped": "{count, plural, one {Yhteen muutokseen ei voitu vastata: siihen oli jo vastattu, sen rivi on muuttunut sen jälkeen tai et voi vastata siihen.} other {# muutokseen ei voitu vastata: niihin oli jo vastattu, niiden rivit ovat muuttuneet sen jälkeen tai et voi vastata niihin.}}",
+  "empty": {
+    "open": "Mikään ei odota tarkistustasi.",
+    "decided": "Muutoksiin ei ole vastattu viimeisten 30 päivän aikana.",
+    "filtered": "Näitä suodattimia vastaavia muutoksia ei ole."
+  },
+  "proposes": {
+    "createRow": "<agent></agent> haluaa lisätä rivin tietokantaan <database></database>",
+    "updateRow": "<agent></agent> haluaa muuttaa riviä <row></row>",
+    "emailDraft": "<agent></agent> laati sähköpostiluonnoksen riville <row></row>",
+    "automationApproval": "<automation></automation> pyytää hyväksyntää riville <row></row>",
+    "automationApprovalNoRow": "<automation></automation> pyytää hyväksyntää",
+    "sequenceDraft": "Seurantasarjan <sequence></sequence> sähköposti {step}/{steps} riville <row></row>"
+  },
+  "inDatabase": "tietokannassa <database></database>",
+  "unknownAgent": "Poistettu agentti",
+  "someone": "Joku",
+  "viewRun": "Näytä ajo",
+  "edited": "Muokattu",
+  "expires": "Vanhenee {time}",
+  "decided": {
+    "approved": "Hyväksyjä: {name} {time}",
+    "dismissed": "Hylkääjä: {name} {time}",
+    "expired": "Vanheni vastaamatta",
+    "rejected": "Torjuja: {name} {time}",
+    "timedOut": "Kukaan ei vastannut ajoissa"
+  },
+  "title": "Otsikko",
+  "becomes": "muuttuu",
+  "changedSince": "Muuttunut ehdotuksen jälkeen, nyt <value></value>",
+  "conflictNotice": "Tämä rivi on muuttunut sen jälkeen, kun agentti ehdotti tätä. Hyväksyminen korvaa sen nykyisen sisällön.",
+  "failedNote": "Muutos hyväksyttiin, mutta sitä ei voitu tehdä: {error} Muokkaa sitä ja hyväksy uudelleen tai hylkää se.",
+  "failed": {
+    "error": "jokin meni vikaan.",
+    "pageLocked": "rivi on lukittu."
+  },
+  "email": {
+    "from": "Lähettäjä",
+    "to": "Vastaanottaja",
+    "cc": "Kopio",
+    "subject": "Aihe",
+    "text": "Teksti",
+    "reply": "Vastaus rivin viimeisimpään sähköpostiin"
+  },
+  "markdown": "Sivun teksti",
+  "notEditable": "Säilytä tai jätä pois; muuta sitä rivillä jälkikäteen.",
+  "leaveOut": "Jätä pois",
+  "keep": "Säilytä",
+  "approve": "Hyväksy",
+  "approveAnyway": "Hyväksy silti",
+  "send": "Lähetä",
+  "edit": "Muokkaa",
+  "save": "Tallenna muokkaus",
+  "dismiss": "Hylkää",
+  "cannot": {
+    "email": "Vain {name} voi lähettää tämän luonnoksen omasta postilaatikostaan.",
+    "row": "Näet tämän muutoksen, mutta sen hyväksyminen vaatii muokkausoikeuden riviin ja jokaiseen sen asettamaan arvoon.",
+    "approval": "Vain henkilöt, joilta automaatio pyytää hyväksyntää, voivat hyväksyä tai torjua tämän."
+  },
+  "errors": {
+    "notFound": "Tätä muutosta ei enää ole, tai et näe sitä.",
+    "decided": "Joku on jo vastannut tähän muutokseen.",
+    "conflict": "Rivi on muuttunut tämän ehdotuksen jälkeen. Katso se uudelleen ja hyväksy silti tai hylkää.",
+    "invalid": "Tämä muokkaus ei kelpaa: {message}",
+    "accessDenied": "Et voi vastata tähän muutokseen."
+  },
+  "banner": {
+    "title": "Tarkistusta odottavat muutokset",
+    "bar": "{count, plural, one {# muutos odottaa tarkistusta} other {# muutosta odottaa tarkistusta}}",
+    "by": "ehdottanut: {names}",
+    "open": "Tarkista"
+  },
+  "unknownAutomation": "Poistettu automaatio",
+  "reject": "Torju",
+  "approval": {
+    "next": "Jos hyväksytään, sitten:",
+    "nothingNext": "Jos hyväksytään, ajo päättyy: tämän jälkeen ei ole vaiheita.",
+    "forEach": "jokaiselle vaiheen {step} riville",
+    "approvers": "Pyytää henkilöiltä {names}",
+    "timeoutStop": "Jos kukaan ei vastaa ajoissa, ajo pysähtyy.",
+    "timeoutContinue": "Jos kukaan ei vastaa ajoissa, ajo jatkuu."
+  }
+}

@@ -1,0 +1,141 @@
+{
+  "heading": "Persoonlijke toegangstokens",
+  "description": "Met tokens kunnen scripts en andere programma’s de Leafdesk REST API als jou gebruiken, met jouw toegang tot pagina’s. Houd ze geheim, net als een wachtwoord.",
+  "docs": "API-documentatie",
+  "empty": "Je hebt nog geen tokens.",
+  "create": "Nieuw token",
+  "form": {
+    "title": "Nieuw persoonlijk toegangstoken",
+    "name": "Naam",
+    "namePlaceholder": "bijv. Script voor weekrapport",
+    "access": "Toegang",
+    "workspace": "Werkruimte",
+    "allWorkspaces": "Al mijn werkruimtes",
+    "expiry": "Verloopt na",
+    "days": "{count, plural, one {# dag} other {# dagen}}",
+    "never": "Nooit",
+    "submit": "Token aanmaken",
+    "creating": "Aanmaken…"
+  },
+  "created": {
+    "title": "Kopieer je nieuwe token",
+    "body": "Het token wordt alleen nu getoond. Bewaar het op een veilige plek; als je het kwijtraakt, trek het dan in en maak een nieuw.",
+    "done": "Klaar"
+  },
+  "row": {
+    "readOnly": "Alleen lezen",
+    "readWrite": "Lezen en schrijven",
+    "allWorkspaces": "Alle werkruimtes",
+    "createdAt": "Aangemaakt {date}",
+    "lastUsed": "laatst gebruikt {date}",
+    "neverUsed": "nooit gebruikt",
+    "expires": "verloopt {date}",
+    "expired": "verlopen {date}",
+    "noExpiry": "verloopt niet",
+    "legacy": "gemaakt vóór toegang per onderdeel"
+  },
+  "revoke": "Intrekken",
+  "revoking": "Intrekken…",
+  "confirmRevoke": "{name} intrekken",
+  "revokeError": "Kan het token niet intrekken. Probeer het opnieuw.",
+  "errors": {
+    "name": "Geef het token een naam van maximaal 100 tekens.",
+    "scopes": "Kies wat het token mag doen.",
+    "workspace": "Je bent geen lid van die werkruimte.",
+    "expiry": "Kies wanneer het token verloopt.",
+    "limit": "Je hebt het maximale aantal tokens. Trek er eerst een in.",
+    "generic": "Kan het token niet aanmaken. Probeer het opnieuw.",
+    "notFound": "Dit token bestaat niet meer.",
+    "ownerScope": "Alleen de eigenaren van een werkruimte kunnen een token het auditlogboek laten lezen, en alleen een token dat tot die werkruimte is beperkt."
+  },
+  "docsPage": {
+    "metaTitle": "REST API",
+    "openapi": "OpenAPI-document (JSON)",
+    "tokensWhere": "Maak een token aan onder Mijn account → Gekoppelde apps.",
+    "quickStart": "Snel aan de slag",
+    "baseUrl": "Basis-URL",
+    "errors": "Fouten",
+    "code": "Code",
+    "status": "Status",
+    "endpoints": "Endpoints",
+    "parameters": "Parameters",
+    "inPath": "pad",
+    "inQuery": "query",
+    "body": "Request-body (JSON)",
+    "formBody": "Request-body (multipart form data)",
+    "response": "Response {status}",
+    "name": "Naam",
+    "type": "Type",
+    "description": "Beschrijving",
+    "required": "verplicht",
+    "scopes": "Scopes",
+    "scope": "Scope",
+    "access": "Toegang",
+    "read": "Lezen",
+    "write": "Schrijven",
+    "inHeader": "header"
+  },
+  "scopes": {
+    "presets": {
+      "readAll": "Alles lezen",
+      "all": "Alles lezen en schrijven"
+    },
+    "read": "Lezen",
+    "write": "Schrijven",
+    "toggle": "{access}: {resource}",
+    "resources": {
+      "workspaces": {
+        "name": "Werkruimtes",
+        "hint": "Werkruimtes, met hun teamruimtes en groepen."
+      },
+      "pages": {
+        "name": "Pagina’s",
+        "hint": "Pagina’s, subpagina’s en dagnotities; schrijven omvat ook spraaknotities."
+      },
+      "search": {
+        "name": "Zoeken",
+        "hint": "Zoeken in pagina’s en rijen."
+      },
+      "databases": {
+        "name": "Databases",
+        "hint": "De eigenschappen en weergaven van een database."
+      },
+      "rows": {
+        "name": "Rijen",
+        "hint": "Rijen bevragen en hun activiteit lezen; schrijven voegt rijen toe en wijzigt ze."
+      },
+      "comments": {
+        "name": "Opmerkingen",
+        "hint": "Opmerkingenthreads; schrijven start threads en antwoorden."
+      },
+      "agents": {
+        "name": "Agents",
+        "hint": "Instellingen, runs, planningen en delen van agents."
+      },
+      "webhooks": {
+        "name": "Webhooks",
+        "hint": "Paginawebhooks en hun leveringen; schrijven voegt ze toe, wijzigt en test ze (alleen eigenaren)."
+      },
+      "audit": {
+        "name": "Auditlogboek",
+        "hint": "Het auditlogboek van de werkruimte (alleen eigenaren, voor een token dat beperkt is tot een werkruimte waarvan ze eigenaar zijn)."
+      }
+    },
+    "summary": {
+      "read": "{resource}: lezen",
+      "readWrite": "{resource}: lezen en schrijven"
+    }
+  },
+  "edit": {
+    "button": "Toegang wijzigen",
+    "title": "Wijzigen wat {name} mag doen",
+    "body": "Het token behoudt zijn geheim; de wijziging geldt vanaf het volgende verzoek.",
+    "legacy": "Dit token is gemaakt voordat toegang per onderdeel werd gekozen, dus het kan alles lezen (en alles schrijven, als het voor schrijven is gemaakt), ook wat later wordt toegevoegd. Opslaan geeft het precies wat je hier kiest.",
+    "errors": {
+      "scopes": "Kies minstens één ding dat het token mag doen.",
+      "notFound": "Dit token bestaat niet meer.",
+      "generic": "Kan het token niet wijzigen. Probeer het opnieuw.",
+      "ownerScope": "Alleen de eigenaren van een werkruimte kunnen een token het auditlogboek laten lezen, en alleen een token dat tot die werkruimte is beperkt."
+    }
+  }
+}

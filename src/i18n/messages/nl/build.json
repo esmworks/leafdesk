@@ -1,0 +1,38 @@
+{
+  "menuItem": "Bouwen met AI",
+  "title": "Bouwen met AI",
+  "hint": "Beschrijf wat je wilt bijhouden. AI maakt een ontwerp van de databases en jij bekijkt ze voordat er iets wordt aangemaakt.",
+  "reviewTitle": "Plan bekijken",
+  "reviewHint": "Hernoem of verwijder wat je niet nodig hebt en maak het dan aan.",
+  "back": "Terug naar de beschrijving",
+  "label": "Wat heb je nodig?",
+  "placeholder": "Een wervingsproces: kandidaten die door de sollicitatierondes gaan, de gesprekken met elk van hen en wie wie interviewt.",
+  "draft": "Databases ontwerpen",
+  "drafting": "Ontwerpen…",
+  "create": "Aanmaken",
+  "creating": "Aanmaken…",
+  "intro": "Een pagina erover toevoegen, “{title}”, met de databases erin",
+  "exampleRows": "{count, plural, one {De voorbeeldrij toevoegen} other {De # voorbeeldrijen toevoegen}}",
+  "databaseTitle": "Naam van de database",
+  "removeDatabase": "{name} verwijderen",
+  "properties": "Eigenschappen",
+  "views": "Weergaven",
+  "noProperties": "Alleen de naam van elke rij.",
+  "removeView": "De weergave {name} verwijderen",
+  "rename": "{name} hernoemen",
+  "linksTo": "Koppelt naar {database}",
+  "linksBoth": "Koppelt naar {database}, in beide richtingen",
+  "removeProperty": "{name} verwijderen",
+  "slash": {
+    "title": "Databases bouwen met AI",
+    "subtext": "Beschrijf wat je nodig hebt en AI ontwerpt databases in deze pagina",
+    "aliases": "ai build database databases generate plan bouwen genereren ontwerpen"
+  },
+  "errors": {
+    "unusable": "AI kon daarvoor geen databases ontwerpen. Probeer het met andere woorden te beschrijven.",
+    "invalid": "Het plan kan zo niet worden aangemaakt. Ga terug en laat het opnieuw ontwerpen.",
+    "parent": "Databases kunnen niet in een database staan.",
+    "noAccess": "Je kunt hier geen pagina’s toevoegen.",
+    "failed": "Iets in het plan paste niet, dus er is niets aangemaakt. Verwijder de voorbeeldrijen en probeer het opnieuw."
+  }
+}

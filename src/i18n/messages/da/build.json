@@ -1,0 +1,38 @@
+{
+  "menuItem": "Byg med AI",
+  "title": "Byg med AI",
+  "hint": "Beskriv, hvad du vil holde styr på. AI laver udkast til databaserne, og du gennemgår dem, før noget oprettes.",
+  "reviewTitle": "Gennemgå planen",
+  "reviewHint": "Omdøb eller fjern det, du ikke har brug for, og opret det derefter.",
+  "back": "Tilbage til beskrivelsen",
+  "label": "Hvad har du brug for?",
+  "placeholder": "En rekrutteringsproces: kandidater, der bevæger sig gennem samtalerunder, samtalerne med hver af dem, og hvem der interviewer hvem.",
+  "draft": "Lav udkast til databaserne",
+  "drafting": "Laver udkast…",
+  "create": "Opret",
+  "creating": "Opretter…",
+  "intro": "Tilføj en side om dem, “{title}”, med databaserne indeni",
+  "exampleRows": "{count, plural, one {Tilføj eksempelrækken} other {Tilføj de # eksempelrækker}}",
+  "databaseTitle": "Databasens navn",
+  "removeDatabase": "Fjern {name}",
+  "properties": "Egenskaber",
+  "views": "Visninger",
+  "noProperties": "Kun navnet på hver række.",
+  "removeView": "Fjern visningen {name}",
+  "rename": "Omdøb {name}",
+  "linksTo": "Linker til {database}",
+  "linksBoth": "Linker til {database} begge veje",
+  "removeProperty": "Fjern {name}",
+  "slash": {
+    "title": "Byg databaser med AI",
+    "subtext": "Beskriv, hvad du har brug for, så laver AI udkast til databaser på denne side",
+    "aliases": "ai build database databases generate plan byg databaser generér plan"
+  },
+  "errors": {
+    "unusable": "AI kunne ikke lave databaser ud fra det. Prøv at beskrive det med andre ord.",
+    "invalid": "Planen kan ikke oprettes, som den er. Gå tilbage, og lav et nyt udkast.",
+    "parent": "Databaser kan ikke ligge i en database.",
+    "noAccess": "Du kan ikke tilføje sider her.",
+    "failed": "Noget i planen passede ikke, så intet blev oprettet. Fjern eksempelrækkerne, og prøv igen."
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "metaTitle": "Gå med i arbetsytan",
+  "title": "Gå med i ”{workspace}”",
+  "invalidTitle": "Länken hittades inte",
+  "invalidBody": "Den här länken är ogiltig eller har stängts av. Be en ägare av arbetsytan om en ny.",
+  "home": "Gå till Leafdesk",
+  "body": "Du går med som medlem, om du inte har bjudits in med en annan roll.",
+  "join": "Gå med i arbetsytan",
+  "joining": "Går med…",
+  "alreadyMember": "Du är redan medlem i den här arbetsytan.",
+  "open": "Öppna arbetsytan",
+  "signInBody": "Logga in med ditt konto för att gå med. Den här servern tillåter inga nya konton.",
+  "signIn": "Logga in",
+  "requestBody": "En ägare godkänner nya medlemmar i den här arbetsytan. Skicka en förfrågan så får du svar via e-post.",
+  "request": "Be om att få gå med",
+  "requesting": "Skickar…",
+  "requestedTitle": "Förfrågan skickad",
+  "requestedBody": "En ägare av arbetsytan tittar på din förfrågan. Du får ett e-postmeddelande när de har bestämt sig.",
+  "pendingBody": "Du har redan bett om att få gå med i den här arbetsytan. En ägare tar hand om det; du får ett e-postmeddelande när de har bestämt sig."
+}

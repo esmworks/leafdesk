@@ -1,0 +1,55 @@
+{
+  "metaTitle": "Graafi",
+  "heading": "Graafi",
+  "count": "{pages, plural, one {# sivu} other {# sivua}} · {edges, plural, one {# yhteys} other {# yhteyttä}}",
+  "reload": "Lataa uudelleen",
+  "find": "Etsi sivu, johon keskittyä",
+  "focus": "Keskipiste",
+  "depth": "Askeleet",
+  "clearFocus": "Näytä koko graafi",
+  "tree": "Alasivut",
+  "rows": "Tietokantojen rivit",
+  "orphans": "Sivut ilman yhteyksiä",
+  "kinds": {
+    "page": "Sivu",
+    "database": "Tietokanta",
+    "row": "Rivi"
+  },
+  "edges": {
+    "link": "Linkki",
+    "relation": "Relaatio",
+    "child": "Alasivu"
+  },
+  "truncated": "Näytetään {count} viimeksi muokattua sivua.",
+  "canvas": "Työtilan sivujen graafi",
+  "empty": "Ei näytettäviä sivuja.",
+  "focusMissing": "Sivu ei ole graafissa: se voi olla roskakorissa tai sitä ei ole jaettu kanssasi.",
+  "local": {
+    "title": "Tämän sivun graafi",
+    "close": "Sulje graafi",
+    "openFull": "Avaa koko graafissa",
+    "canvas": "Tätä sivua ympäröivien sivujen graafi",
+    "empty": "Tähän sivuun ei ole vielä yhdistetty muita sivuja.",
+    "failed": "Graafin lataaminen epäonnistui."
+  },
+  "zoomIn": "Lähennä",
+  "zoomOut": "Loitonna",
+  "fit": "Sovita graafi",
+  "hint": "Valitse napsauttamalla, avaa kaksoisnapsauttamalla",
+  "fewEdges": {
+    "title": "Sivujen välillä on vielä vähän linkkejä",
+    "body": "Graafi näyttää sivujen väliset linkit ja tietokantojen rivien väliset relaatiot. Kirjoita sivulle [[ tai @ linkittääksesi toiseen sivuun, tai lisää tietokantaan relaatio-ominaisuus; linkit näkyvät täällä.",
+    "showTree": "Näytä alasivulinkit"
+  },
+  "inspector": {
+    "open": "Avaa sivu",
+    "focus": "Keskitä sen ympärille",
+    "expandRows": "{count, plural, one {Näytä # rivi} other {Näytä # riviä}}",
+    "collapseRows": "Kokoa rivit",
+    "rows": "{count, plural, one {# rivi} other {# riviä}}",
+    "none": "Ei yhteydessä muihin sivuihin.",
+    "more": "ja {count} muuta",
+    "close": "Tyhjennä valinta",
+    "parent": "Sijainti"
+  }
+}

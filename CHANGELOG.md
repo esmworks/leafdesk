@@ -4,6 +4,12 @@
 
 ### Added
 
+- **Danish, Dutch, Norwegian, Finnish and Swedish.** The app, its emails, templates, the editor's
+  menus and the desktop app now speak Dansk, Nederlands, Norsk bokmål, Suomi and Svenska, chosen in
+  My account → Language or taken from the browser (one asking for Norwegian or Nynorsk gets
+  Bokmål). Quick add knows their date words ("i morgen", "ensi viikolla", "over 2 weken"), CSV
+  import their title columns and yes/no words, the AI chat's search their question words, and the
+  AI translates into them.
 - **Tabs in the desktop app.** Each desktop window holds tabs in a strip that follows Leafdesk's
   light or dark look, with the window's own buttons on macOS, Windows and Linux. Cmd/Ctrl+T opens
   a tab on the workspace's home, Cmd/Ctrl+W closes one (the last one closes the window),

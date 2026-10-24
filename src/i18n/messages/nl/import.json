@@ -1,0 +1,273 @@
+{
+  "open": "Importeren",
+  "title": "Importeren",
+  "description": "Haal pagina’s binnen uit Markdown-bestanden, ZIP-exports, Word-documenten, Google-documenten en pdf’s, notitieboeken uit Evernote, rijen uit een CSV-bestand of Excel-werkmap, een bord uit Trello, Asana of Monday.com, of Jira-issues die gesynchroniseerd blijven.",
+  "tabs": {
+    "pages": "Markdown en ZIP",
+    "docx": "Word",
+    "pdf": "PDF",
+    "evernote": "Evernote",
+    "csv": "CSV en Excel",
+    "trello": "Trello",
+    "asana": "Asana",
+    "monday": "Monday.com",
+    "jira": "Jira",
+    "googleDocs": "Google Docs"
+  },
+  "destination": "Plaatsen onder",
+  "topLevel": "Hoogste niveau van de werkruimte",
+  "filePage": "De pagina met het bestand",
+  "noDestination": "Er is geen pagina waaraan je pagina’s kunt toevoegen.",
+  "pages": {
+    "help": "Markdown-bestanden worden pagina’s en mappen behouden hun structuur. CSV-bestanden worden databases, en afbeeldingen waarnaar pagina’s linken, worden geüpload.",
+    "notion": "Vanuit Notion: exporteer als “Markdown & CSV” met subpagina’s, en kies de ZIP zoals die is gedownload (gesplitste exports werken ook). Subpagina’s, databases, relaties, callouts, uitklapblokken en afbeeldingen komen mee.",
+    "obsidian": "Vanuit Obsidian: kies de map van de vault, of een ZIP ervan. Links tussen notities (ook [[wikilinks]]), ingesloten afbeeldingen en bestanden, en callouts komen mee.",
+    "chooseFiles": "Bestanden kiezen",
+    "chooseFolder": "Een map kiezen",
+    "drop": "of sleep bestanden hierheen",
+    "selected": "{count, plural, one {# bestand} other {# bestanden}}, {size}",
+    "clear": "Wissen"
+  },
+  "docx": {
+    "help": "Elk Word-document (.docx) wordt een pagina, met de koppen, lijsten, tabellen, links, afbeeldingen en voetnoten. Een kop helemaal bovenaan wordt de titel van de pagina; anders wordt dat de bestandsnaam.",
+    "choose": "Word-bestanden kiezen"
+  },
+  "pdf": {
+    "help": "Elke pdf wordt een pagina met de tekst ervan: grotere regels worden koppen, en alinea’s en genummerde lijsten of opsommingslijsten komen mee, ook over pagina-einden heen. Kop- en voetteksten en paginanummers worden weggelaten. Een kop helemaal bovenaan wordt de titel van de pagina; anders wordt dat de bestandsnaam.",
+    "scans": "Een gescande pdf heeft geen leesbare tekst en kan niet worden geïmporteerd: laat er eerst tekstherkenning (OCR) op los, of upload hem als bestand naar een pagina.",
+    "choose": "Pdf-bestanden kiezen",
+    "attach": "Elke pdf ook als bijlage aan de pagina toevoegen, voor de afbeeldingen, tabellen en opmaak"
+  },
+  "evernote": {
+    "help": "Elke Evernote-export (.enex) wordt een database met de naam van het bestand, met een rij per notitie. Tags, de aanmaak- en bijwerktijd, de auteur en de bron-URL worden eigenschappen, en de notitie wordt de pagina van de rij, met opmaak, lijsten, taken, tabellen, codeblokken, afbeeldingen en bijlagen. Versleutelde tekst wordt weggelaten.",
+    "export": "Selecteer in Evernote notities of een notitieboek en kies Exporteren → ENEX (.enex), en kies daarna de gedownloade bestanden. Een ZIP met meerdere exports werkt ook.",
+    "choose": "Evernote-exports kiezen (.enex)",
+    "names": {
+      "tags": "Labels",
+      "created": "Aangemaakt",
+      "updated": "Bijgewerkt",
+      "author": "Auteur",
+      "sourceUrl": "Bron-URL",
+      "encrypted": "Versleutelde tekst is bij de import weggelaten."
+    }
+  },
+  "csv": {
+    "choose": "Een CSV- of Excel-bestand kiezen",
+    "summary": "{name}: {rows, plural, one {# rij} other {# rijen}}, {columns, plural, one {# kolom} other {# kolommen}}",
+    "sheet": "Blad",
+    "mode": "Importeren als",
+    "newDatabase": "Een nieuwe database",
+    "existing": "Rijen van een database",
+    "name": "Naam",
+    "titleColumn": "Rijtitels uit",
+    "noTitle": "Geen kolom (naamloze rijen)",
+    "column": "Kolom",
+    "type": "Type",
+    "target": "Gaat naar",
+    "values": "Waarden",
+    "leaveOut": "Weglaten",
+    "rowTitle": "Rijtitel",
+    "database": "Database",
+    "chooseDatabase": "Kies een database",
+    "noDatabases": "Er is geen database waaraan je rijen kunt toevoegen.",
+    "cantLoad": "De eigenschappen van deze database konden niet worden geladen.",
+    "newOptions": "Selectiewaarden die de database nog niet heeft, worden als opties toegevoegd."
+  },
+  "trello": {
+    "help": "Open in Trello het menu van het bord en kies Afdrukken, exporteren en delen → Exporteren als JSON, en kies daarna het gedownloade bestand. Het bord wordt een database met een bordweergave: lijsten, labels, leden, datums, checklists, aangepaste velden, beschrijvingen en opmerkingen komen mee. Gearchiveerde lijsten en kaarten worden weggelaten.",
+    "attachments": "Er wordt niets uit Trello gedownload: gekoppelde bijlagen blijven links, en bestanden die naar Trello zijn geüpload, worden gelinkt vanaf de pagina van elke kaart.",
+    "choose": "Een Trello-export kiezen (.json)",
+    "summary": "{name}: {lists, plural, one {# lijst} other {# lijsten}}, {cards, plural, one {# kaart} other {# kaarten}}",
+    "archived": "Gearchiveerd, dus weggelaten: {lists, plural, one {# lijst} other {# lijsten}} en {cards, plural, one {# kaart} other {# kaarten}}.",
+    "names": {
+      "list": "Lijst",
+      "labels": "Labels",
+      "members": "Leden",
+      "otherMembers": "Andere leden",
+      "dates": "Datums",
+      "complete": "Voltooid",
+      "checklist": "Checklist",
+      "link": "Link",
+      "attachments": "Bijlagen",
+      "comments": "Opmerkingen"
+    }
+  },
+  "asana": {
+    "help": "Open in Asana het menu van het project en kies Exporteren → CSV (of JSON), en kies daarna het gedownloade bestand. Het project wordt een database met een bordweergave per sectie: voltooiing, toegewezen personen, datums, tags, aangepaste velden, notities, subtaken en afhankelijkheden komen mee.",
+    "choose": "Een Asana-export kiezen (.csv of .json)",
+    "summary": "{name}: {groups, plural, one {# sectie} other {# secties}}, {items, plural, one {# taak} other {# taken}}, {subitems, plural, one {# subtaak} other {# subtaken}}"
+  },
+  "monday": {
+    "help": "Open in Monday.com het menu van het bord en kies Bord exporteren naar Excel (met updates als je die wilt), en kies daarna het gedownloade bestand. Het bord wordt een database met een bordweergave per groep: de kolommen, subitems en updates komen mee.",
+    "choose": "Een Monday.com-export kiezen (.xlsx of .csv)",
+    "summary": "{name}: {groups, plural, one {# groep} other {# groepen}}, {items, plural, one {# item} other {# items}}, {subitems, plural, one {# subitem} other {# subitems}}"
+  },
+  "jira": {
+    "help": "Koppel een Jira Cloud-site om een database met de issues te krijgen die gelijk blijft lopen: elk issue is een rij met de sleutel, status, toegewezen persoon, prioriteit, type, labels, deadline en een link terug. Wijzigingen gaan één kant op, van Jira naar Leafdesk.",
+    "site": "Jira-site",
+    "sitePlaceholder": "jouw-team.atlassian.net",
+    "email": "E-mailadres",
+    "token": "API-token",
+    "tokenHelp": "Maak er een aan in je Atlassian-account onder Beveiliging → API-tokens. Het wordt versleuteld op de server bewaard en alleen gebruikt om issues te lezen.",
+    "tokenLink": "Een API-token aanmaken",
+    "connect": "Koppelen",
+    "connecting": "Koppelen…",
+    "connected": "Ingelogd als {name}",
+    "change": "Wijzigen",
+    "from": "Issues uit",
+    "project": "Een project",
+    "jql": "Een JQL-query",
+    "chooseProject": "Kies een project",
+    "noProjects": "Dit account kan geen enkel project zien. Schrijf in plaats daarvan een JQL-query.",
+    "jqlPlaceholder": "project = OPS AND resolution = Unresolved",
+    "every": "Synchroniseren",
+    "intervals": {
+      "m15": "Elke 15 minuten",
+      "m60": "Elk uur",
+      "m360": "Elke 6 uur",
+      "m1440": "Eén keer per dag",
+      "manual": "Alleen op verzoek"
+    },
+    "submit": "Importeren en gesynchroniseerd houden",
+    "submitting": "Importeren…",
+    "names": {
+      "key": "Sleutel",
+      "status": "Status",
+      "assignee": "Toegewezen aan",
+      "others": "{column} (overige)",
+      "priority": "Prioriteit",
+      "type": "Type",
+      "labels": "Labels",
+      "due": "Deadline",
+      "link": "Jira-link"
+    },
+    "errors": {
+      "unauthorized": "Jira heeft het e-mailadres en het API-token geweigerd.",
+      "forbidden": "Dit Jira-account mag daar niet zoeken.",
+      "notFound": "Er antwoordde geen Jira Cloud-site op dit adres, of het project bestaat niet.",
+      "badQuery": "Jira heeft de query geweigerd.",
+      "badQueryDetail": "Jira heeft de query geweigerd: {detail}",
+      "tooManyIssues": "De query vindt meer dan {limit} issues. Beperk haar verder.",
+      "unreachable": "Jira kon niet worden bereikt. De synchronisatie probeert het de volgende keer opnieuw.",
+      "runAsGone": "De persoon die de synchronisatie heeft ingesteld, heeft geen account meer.",
+      "accessLost": "De persoon namens wie de synchronisatie draait, kan deze database niet meer bewerken.",
+      "keyGone": "De eigenschap Sleutel is verwijderd of van type veranderd, dus issues kunnen niet aan rijen worden gekoppeld.",
+      "failed": "De synchronisatie is mislukt. Ze probeert het de volgende keer opnieuw.",
+      "invalidSite": "Dat is geen adres dat Leafdesk kan bereiken.",
+      "invalidInput": "Vul het e-mailadres, het API-token en wat er gesynchroniseerd moet worden in.",
+      "alreadyRunning": "Er loopt een synchronisatie. Probeer het zo meteen opnieuw."
+    }
+  },
+  "board": {
+    "links": "Er wordt niets gedownload: bestanden en links in de export blijven links.",
+    "comments": "{count, plural, one {# opmerking komt} other {# opmerkingen komen}} in de pagina’s van de rijen, met auteur en tijdstip.",
+    "leftOut": "Weggelaten: {list}.",
+    "types": "Controleer wat elke kolom wordt: de export zegt niet wat voor soort kolom het is, dus dat is geraden.",
+    "names": {
+      "section": "Sectie",
+      "group": "Groep",
+      "status": "Status",
+      "toDo": "Te doen",
+      "done": "Klaar",
+      "assignee": "Toegewezen aan",
+      "tags": "Labels",
+      "dates": "Datums",
+      "others": "{column} (overige)",
+      "attachments": "Bijlagen",
+      "comments": "Opmerkingen"
+    }
+  },
+  "import": "Importeren",
+  "importing": "Importeren…",
+  "done": {
+    "title": "Import voltooid",
+    "created": "{list} aangemaakt.",
+    "nothing": "Er is niets nieuws aangemaakt.",
+    "open": "Openen",
+    "again": "Meer importeren"
+  },
+  "counts": {
+    "pages": "{count, plural, one {# pagina} other {# pagina’s}}",
+    "databases": "{count, plural, one {# database} other {# databases}}",
+    "rows": "{count, plural, one {# rij} other {# rijen}}",
+    "templates": "{count, plural, one {# sjabloon} other {# sjablonen}}",
+    "files": "{count, plural, one {# bestand} other {# bestanden}}"
+  },
+  "warnings": {
+    "heading": "Weggelaten of gewijzigd",
+    "invalidValues": "{count, plural, one {# waarde} other {# waarden}} in “{column}” paste niet bij de eigenschap en is leeg gelaten.",
+    "leftOutColumn": "“{column}” is niet geïmporteerd.",
+    "missingFile": "“{path}”, gelinkt vanuit “{page}”, zat niet in de upload.",
+    "unresolvedLink": "“[[{target}]]” in “{page}” komt niet overeen met een notitie of bestand uit de upload, dus het blijft tekst.",
+    "encryptedText": "“{page}” bevatte versleutelde tekst, die is weggelaten.",
+    "fileNotStored": {
+      "tooLarge": "“{path}” is groter dan de uploadlimiet en is niet opgeslagen.",
+      "quotaExceeded": "“{path}” is niet opgeslagen: de bestandsopslag van de werkruimte is vol.",
+      "failed": "“{path}” kon niet worden opgeslagen.",
+      "external": "“{path}” is weggelaten: de afbeelding is van buiten het document gelinkt.",
+      "unsupportedType": "“{path}” is weggelaten: pagina’s kunnen afbeeldingen van dit type niet tonen."
+    },
+    "skipped": {
+      "nestedZip": "“{path}” is een te diep geneste ZIP en is weggelaten.",
+      "nestedDatabase": "“{path}” zou een database in een database worden en is weggelaten.",
+      "duplicate": "“{path}” is weggelaten: de volledige versie van dezelfde database is geïmporteerd.",
+      "tooLarge": "“{path}” is te groot voor één pagina en is weggelaten.",
+      "unused": "“{path}” is weggelaten: geen enkele pagina toont het of linkt ernaar.",
+      "unsafePath": "“{path}” is weggelaten: het pad leidt buiten de ZIP.",
+      "otherSheet": "Het blad “{path}” is weggelaten: er wordt maar één blad tegelijk geïmporteerd.",
+      "badNote": "De notitie “{path}” kan niet worden gelezen en is weggelaten.",
+      "notEnex": "“{path}” is weggelaten: het is geen Evernote-export (.enex)."
+    },
+    "more": "…en nog {count, plural, one {#} other {#}}."
+  },
+  "errors": {
+    "tooLarge": "De upload is groter dan {limit}.",
+    "tooManyFiles": "Een import kan maximaal {limit} bestanden bevatten.",
+    "tooManyPages": "Een import kan maximaal {limit} pagina’s aanmaken.",
+    "tooManyRows": "Een bestand kan maximaal {limit} rijen hebben.",
+    "tooManyColumns": "Een bestand kan maximaal {limit} kolommen hebben.",
+    "badZip": "Het ZIP-bestand kan niet worden gelezen.",
+    "nothingToImport": "Er is geen Markdown- of CSV-bestand om te importeren.",
+    "emptyCsv": "Het bestand heeft geen kopregel.",
+    "badWorkbook": "Het Excel-bestand kan niet worden gelezen.",
+    "unsupportedWorkbook": "Alleen .xlsx-werkmappen zonder wachtwoord kunnen worden geïmporteerd. Sla het bestand op als Excel-werkmap (.xlsx) zonder wachtwoord en probeer het opnieuw.",
+    "badDocx": "“{name}” kan niet als Word-document worden gelezen. Alleen .docx-bestanden kunnen worden geïmporteerd; sla oudere .doc-bestanden eerst op als .docx.",
+    "docxTooComplex": "“{name}” is te groot of te complex om als één pagina te importeren.",
+    "badPdf": "“{name}” kan niet als pdf worden gelezen. Misschien is het bestand beschadigd of met een wachtwoord beveiligd.",
+    "pdfNoText": "“{name}” heeft geen tekst om te importeren: het lijkt een scan. Laat er eerst tekstherkenning (OCR) op los, of upload het als bestand naar een pagina.",
+    "pdfTooComplex": "“{name}” is te groot om als één pagina te importeren.",
+    "badEnex": "“{name}” kan niet als Evernote-export worden gelezen. Exporteer de notities in Evernote als ENEX (.enex) en kies dat bestand.",
+    "badTrello": "Het bestand is geen export van een Trello-bord. Kies in Trello Exporteren als JSON in het menu van het bord en kies dat bestand.",
+    "badAsana": "Het bestand is geen export van een Asana-project. Kies in Asana Exporteren → CSV of JSON in het menu van het project en kies dat bestand.",
+    "badMonday": "Het bestand is geen export van een Monday.com-bord. Kies in Monday.com Bord exporteren naar Excel in het menu van het bord en kies dat bestand.",
+    "badMapping": "Kies waar minstens één kolom naartoe gaat, en elke eigenschap maar één keer.",
+    "noAccess": "Je kunt daar geen pagina’s toevoegen, of het bestaat niet meer.",
+    "notADatabase": "Rijen kunnen alleen aan een database worden toegevoegd.",
+    "badRequest": "De import is niet gelukt. Er is niets gewijzigd."
+  },
+  "googleDocs": {
+    "help": "Elk Google-document wordt een pagina, gelezen via de Google Drive-koppeling van de werkruimte zoals een Word-document: koppen, lijsten, tabellen, links, afbeeldingen en voetnoten. Een kop helemaal bovenaan wordt de titel van de pagina; anders wordt dat de naam van het document.",
+    "loading": "Google Drive-koppelingen zoeken…",
+    "noConnection": "Er is geen Google Drive-koppeling waarlangs je kunt importeren. Een eigenaar voegt Google Drive toe via Instellingen → Koppelingen; leden kunnen haar gebruiken zodra een eigenaar “In chat” aanvinkt voor de tool download_file_content.",
+    "connection": "Google Drive-koppeling",
+    "through": "Via “{name}”",
+    "links": "Links naar Google-documenten",
+    "linksPlaceholder": "https://docs.google.com/document/d/… (één per regel)",
+    "invalidLink": "Geen link naar een Google-document: “{link}”",
+    "search": "Zoeken",
+    "searching": "Zoeken…",
+    "searchPlaceholder": "Woorden in de titel (leeg: de nieuwste documenten)",
+    "noneFound": "Geen Google-documenten gevonden.",
+    "more": "Meer tonen",
+    "linksOnly": "Zoeken is via deze koppeling niet toegestaan: plak links naar de documenten.",
+    "chosen": "{count, plural, one {# document gekozen} other {# documenten gekozen}}",
+    "tooMany": "Kies hooguit {limit} documenten tegelijk.",
+    "errors": {
+      "noConnection": "Die Google Drive-koppeling kan niet worden gebruikt. Vraag een eigenaar om haar te controleren in Instellingen → Koppelingen.",
+      "unreachable": "“{name}” kon niet worden bereikt. Probeer het later opnieuw, of vraag een eigenaar om de koppeling te controleren.",
+      "signIn": "Voor “{name}” moet opnieuw bij Google worden ingelogd: een eigenaar doet dat in Instellingen → Koppelingen.",
+      "notFound": "Een document kan niet via “{name}” worden gelezen: controleer de link, en of het Google-account van de koppeling het mag openen.",
+      "notADocument": "“{id}” is geen Google-document."
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "metaTitle": "Lid worden van werkruimte",
+  "title": "Word lid van “{workspace}”",
+  "invalidTitle": "Link niet gevonden",
+  "invalidBody": "Deze lidmaatschapslink is ongeldig of is uitgeschakeld. Vraag een eigenaar van de werkruimte om een nieuwe.",
+  "home": "Naar Leafdesk",
+  "body": "Je wordt lid, tenzij je met een andere rol bent uitgenodigd.",
+  "join": "Lid worden van werkruimte",
+  "joining": "Lid worden…",
+  "alreadyMember": "Je bent al lid van deze werkruimte.",
+  "open": "Werkruimte openen",
+  "signInBody": "Log in met je account om lid te worden. Deze server staat geen nieuwe accounts toe.",
+  "signIn": "Inloggen",
+  "requestBody": "Een eigenaar keurt nieuwe leden van deze werkruimte goed. Stuur een verzoek; je hoort per e-mail van ons.",
+  "request": "Verzoek om lid te worden",
+  "requesting": "Versturen…",
+  "requestedTitle": "Verzoek verstuurd",
+  "requestedBody": "Een eigenaar van de werkruimte bekijkt je verzoek. Je krijgt een e-mail zodra die een beslissing neemt.",
+  "pendingBody": "Je hebt al gevraagd om lid te worden van deze werkruimte. Een eigenaar pakt het op; je krijgt een e-mail zodra die een beslissing neemt."
+}

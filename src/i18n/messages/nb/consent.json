@@ -1,0 +1,37 @@
+{
+  "metaTitle": "Godkjenn app",
+  "expired": {
+    "title": "Denne lenken har utløpt",
+    "body": "Godkjenningsforespørselen er ugyldig eller for gammel. Gå tilbake til appen du koblet til, og start på nytt."
+  },
+  "unknownClient": {
+    "title": "Ukjent app",
+    "body": "Appen som ber om tilgang, er ikke registrert hos Leafdesk eller er deaktivert. Gå tilbake og prøv å koble til på nytt."
+  },
+  "heading": "{client} vil ha tilgang til Leafdesk-kontoen din",
+  "identifiedBy": "Denne appen identifiseres av {host}.",
+  "unverified": "Denne appen registrerte seg automatisk og er ikke gjennomgått av Leafdesk. Fortsett bare hvis det var du som startet denne tilkoblingen.",
+  "notYou": "Ikke deg?",
+  "willAllow": "Dette gir {client} tillatelse til å:",
+  "readOnlyHint": "Fjern avmerkingen for å gi skrivebeskyttet tilgang. Hver endring lagres først i sidehistorikken, så du kan angre den.",
+  "access": {
+    "all": "Tilgangen gjelder alle arbeidsområder du er med i. Du kan når som helst koble fra appen under Innstillinger.",
+    "listed": "Tilgangen gjelder alle arbeidsområder du er med i: {workspaces}. Du kan når som helst koble fra appen under Innstillinger."
+  },
+  "deny": "Avslå",
+  "denying": "Avslår…",
+  "allow": "Tillat",
+  "allowing": "Tillater…",
+  "redirectNotice": "Du blir sendt tilbake til {host}.",
+  "error": "Kunne ikke fullføre forespørselen. Gå tilbake til appen og prøv igjen.",
+  "scopes": {
+    "openid": "Bekrefte hvem du er",
+    "profile": "Se navnet og profilbildet ditt",
+    "email": "Se e-postadressen din",
+    "offlineAccess": "Holde seg tilkoblet uten å be deg logge på igjen",
+    "pagesRead": "Lese sider og databaser i arbeidsområdene dine",
+    "pagesWrite": "Opprette og redigere sider og databaserader og flytte sider til papirkurven",
+    "notificationsRead": "Lese varslene i innboksen din",
+    "filesWrite": "Laste opp filer til sider, fra en lenke eller fra selve appen"
+  }
+}

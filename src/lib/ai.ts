@@ -44,7 +44,7 @@ export const SELECTION_ACTIONS: readonly EditorAction[] = ["improve", "shorten",
  * Target languages offered for translation (BCP 47). The prompt names them in English; the UI
  * names them in the reader's language with Intl.DisplayNames.
  */
-export const AI_LANGUAGES = ["en", "tr", "de", "fr", "es", "it", "pt", "nl", "pl", "ru", "uk", "ar", "he", "fa", "ja", "ko", "zh", "id", "th", "vi"] as const;
+export const AI_LANGUAGES = ["en", "tr", "de", "fr", "es", "it", "pt", "nl", "pl", "ru", "uk", "ar", "he", "fa", "ja", "ko", "zh", "id", "th", "vi", "da", "nb", "fi", "sv"] as const;
 export type AiLanguage = (typeof AI_LANGUAGES)[number];
 
 export const isAiLanguage = (value: unknown): value is AiLanguage =>

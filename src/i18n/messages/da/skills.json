@@ -1,0 +1,64 @@
+{
+  "metaTitle": "Færdigheder",
+  "heading": "Færdigheder",
+  "description": "Instruktioner, dit team genbruger, gemt som sider: hvordan man afslutter mødenoter, svarer en kunde eller sorterer en henvendelse. Vælg en i AI-chatten med /, eller fra en AI-app, der er forbundet med arbejdsområdet. Hver færdighed er en side eller en databaserække; man ser de færdigheder, man kan åbne.",
+  "new": "Ny færdighed",
+  "search": "Søg i færdigheder",
+  "count": "{count, plural, one {# færdighed} other {# færdigheder}}",
+  "noMatches": "Ingen færdighed matcher din søgning.",
+  "emptyTitle": "Ingen færdigheder endnu",
+  "emptyHint": "Enhver side eller databaserække kan også være en færdighed: åbn den, og slå Brug som færdighed til i dens ⋯-menu.",
+  "builtins": {
+    "heading": "Start fra en færdiglavet færdighed",
+    "hint": "Hver af dem bliver en række i din færdighedsdatabase: tilpas den til dit arbejde, og del den derefter med dit team.",
+    "open": "Færdiglavede færdigheder"
+  },
+  "noDescription": "Ingen beskrivelse endnu",
+  "inDatabase": "I {database}",
+  "updated": "Opdateret {time}",
+  "download": "Hent {title} som SKILL.md",
+  "downloadHint": "En ZIP-fil med færdighedens SKILL.md til AI-assistenter, der installerer færdigheder",
+  "menu": {
+    "toggle": "Brug som færdighed",
+    "hint": "Tilbyd denne side som genbrugelige instruktioner i AI-chatten og til AI-apps, der er forbundet med arbejdsområdet",
+    "export": "Eksportér som SKILL.md",
+    "database": "Færdighedsdatabase",
+    "databaseHint": "Hver række i denne database er en færdighed; dens egenskab Beskrivelse fortæller, hvad hver enkelt er til"
+  },
+  "bar": {
+    "label": "Færdighed",
+    "description": "Hvad færdigheden er til",
+    "placeholder": "Skriv, hvad denne færdighed er til, og hvornår den skal bruges",
+    "none": "Ingen beskrivelse endnu",
+    "library": "Alle færdigheder",
+    "inDatabase": "Dens beskrivelse er egenskaben {property}"
+  },
+  "chat": {
+    "heading": "Færdigheder",
+    "none": "Ingen færdigheder endnu.",
+    "library": "Åbn biblioteket med færdigheder",
+    "noMatches": "Ingen færdighed matcher.",
+    "using": "Bruger færdigheden {title}",
+    "remove": "Fjern færdighed",
+    "pick": "Brug en færdighed",
+    "pickHint": "Brug en færdighed (eller skriv / i det tomme felt)",
+    "used": "Brugte færdigheden {title}"
+  },
+  "errors": {
+    "notAPage": "Kun sider og databaserækker kan være færdigheder, ikke databaser.",
+    "notADatabase": "Kun databaser kan være færdighedsdatabaser.",
+    "template": "Skabeloner og siderne i dem kan ikke være færdigheder.",
+    "inTrash": "Gendan først siden fra papirkurven.",
+    "tooLong": "En færdigheds beskrivelse må højst have {max} tegn.",
+    "notASkill": "Denne side er ikke længere en færdighed."
+  },
+  "database": {
+    "title": "Færdigheder",
+    "description": "Beskrivelse",
+    "files": "Filer",
+    "tags": "Tags",
+    "createdBy": "Oprettet af",
+    "open": "Åbn færdighedsdatabasen",
+    "hint": "Hver ny færdighed er en række i din færdighedsdatabase med en beskrivelse, filer og tags."
+  }
+}

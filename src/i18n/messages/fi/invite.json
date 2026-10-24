@@ -1,0 +1,13 @@
+{
+  "metaTitle": "Kutsu",
+  "title": "Liity työtilaan ”{workspace}”",
+  "invalidTitle": "Kutsua ei löytynyt",
+  "invalidBody": "Tämä kutsulinkki on virheellinen, vanhentunut tai peruttu. Pyydä kutsujalta uusi.",
+  "home": "Siirry Leafdeskiin",
+  "wrongAccount": "Tämä kutsu on osoitteelle {email}, mutta olet kirjautunut sisään käyttäjänä {current}. Kirjaudu ulos ja avaa linkki uudelleen.",
+  "acceptBody": "Sinut on kutsuttu liittymään. Roolisi: {role}.",
+  "signInBody": "Osoitteella {email} on jo tili. Hyväksy kutsu kirjautumalla sisään.",
+  "signIn": "Kirjaudu sisään",
+  "join": "Liity työtilaan",
+  "joining": "Liitytään…"
+}

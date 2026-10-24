@@ -62,7 +62,7 @@ each platform.
 | `src/last-page.ts` | The page the window opens on at start: the last one shown, on the same server only |
 | `src/certificates.ts` | Certificates the system doesn't trust: fingerprint, trusting one per host |
 | `src/server-address.ts` | Turning what was typed into addresses to try |
-| `src/strings.ts` | The app's own texts in the web app's 19 languages |
+| `src/strings.ts` | The app's own texts in the web app's 24 languages |
 | `src/menu.ts`, `src/context-menu.ts` | Application and right-click menus |
 | `src/global-shortcut.ts` | The system-wide shortcut to AI chat (Go → Ask AI Shortcut): its choices, labels and the server's `/ai` address |
 | `src/updates.ts` | Updates from GitHub releases |

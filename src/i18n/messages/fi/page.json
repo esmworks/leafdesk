@@ -1,0 +1,1194 @@
+{
+  "documentTitle": "{title} · Leafdesk",
+  "documentViewTitle": "{title} · {view} · Leafdesk",
+  "header": {
+    "history": "Sivun historia",
+    "analytics": "Analytiikka",
+    "more": "Lisää",
+    "copyLink": "Kopioi linkki",
+    "copyId": "Kopioi tunniste",
+    "moveToTrash": "Siirrä roskakoriin",
+    "archive": "Arkistoi",
+    "unarchive": "Palauta arkistosta",
+    "archiveHint": "Säilytä sivu, mutta poista se sivupalkista, hausta ja valitsimista. Sen alasivut menevät mukana.",
+    "edited": "Muokattu {time}",
+    "activity": "Toiminta",
+    "editedBy": "Muokannut: {name}",
+    "createdBy": "Luonut: {name}",
+    "someone": "Joku",
+    "comments": "Kommentit",
+    "suggesting": {
+      "editing": "Muokkaus",
+      "suggesting": "Ehdotus",
+      "label": "Tila: {mode}",
+      "editingHint": "Muuta sivua suoraan",
+      "suggestingHint": "Muutoksesi näkyvät ehdotuksina, jotka muut voivat hyväksyä tai hylätä",
+      "forcedHint": "Voit kommentoida tätä sivua, joten muutoksesi ovat ehdotuksia, jotka sen muokkaajat voivat hyväksyä tai hylätä"
+    },
+    "share": "Jaa",
+    "accessRequests": "{count, plural, one {# käyttöoikeuspyyntö} other {# käyttöoikeuspyyntöä}}",
+    "addFavorite": "Lisää suosikkeihin",
+    "removeFavorite": "Poista suosikeista",
+    "follow": "Seuraa",
+    "unfollow": "Lopeta seuraaminen",
+    "followHint": "Saat ilmoituksen saapuneisiin, kun joku muu muuttaa tätä riviä.",
+    "unfollowHint": "Saat ilmoituksen saapuneisiin, kun joku muu muuttaa tätä riviä.",
+    "linkCopied": "Linkki kopioitu",
+    "duplicate": "Monista",
+    "duplicateWithoutRows": "Monista ilman rivejä",
+    "duplicateSuffix": " (kopio)",
+    "duplicateFailed": "Sivun monistaminen epäonnistui.",
+    "moveTo": "Siirrä kohteeseen",
+    "style": {
+      "font": "Fontti",
+      "default": "Oletus",
+      "serif": "Serif",
+      "mono": "Mono",
+      "smallText": "Pieni teksti",
+      "fullWidth": "Täysi leveys"
+    },
+    "lockDatabase": "Lukitse tietokanta",
+    "lockHint": "Lukittuna ominaisuuksia ja näkymiä ei voi muuttaa; rivejä voi yhä muokata.",
+    "locked": "Lukittu",
+    "unlock": "Avaa lukitus",
+    "lockPage": "Lukitse sivu",
+    "lockPageHint": "Lukittuna kukaan ei voi muuttaa otsikkoa, kuvaketta, taustaa tai tekstiä. Kommentointi, jakaminen ja siirtäminen toimivat yhä.",
+    "exportMarkdown": "Vie Markdownina",
+    "exportCsv": "Vie CSV-tiedostona",
+    "exportXlsx": "Vie Excel-tiedostona (.xlsx)",
+    "exportZip": "Vie alasivuineen",
+    "exportZipDatabase": "Vie rivisivuineen",
+    "exportPdf": "Vie PDF-tiedostona",
+    "exportComments": "Sisällytä kommentit",
+    "exportCommentsHint": "Lisää näkemäsi kommenttiketjut Markdown-, ZIP- ja PDF-vienteihin kunkin sivun perään",
+    "printView": "Tulosta",
+    "exportPreparing": "Valmistellaan vientiä…",
+    "acceptAllSuggestions": "Hyväksy kaikki ehdotukset",
+    "rejectAllSuggestions": "Hylkää kaikki ehdotukset",
+    "rejectAllConfirm": "Hylätäänkö kaikki tämän sivun muokkausehdotukset?",
+    "versionHistory": "Versiohistoria",
+    "lastEdited": "Viimeksi muokannut: {name}",
+    "wordCount": "{words, plural, one {# sana} other {# sanaa}}, {characters, plural, one {# merkki} other {# merkkiä}}",
+    "actionFailed": "Toiminto epäonnistui.",
+    "viewers": "{count, plural, one {# muu henkilö katselee tätä sivua} other {# muuta henkilöä katselee tätä sivua}}",
+    "viewersTitle": "Katselee tätä sivua",
+    "saveAsTemplate": "Tallenna mallina",
+    "saveAsRowTemplate": "Tallenna rivimallina",
+    "deleteTemplate": "Poista malli",
+    "exportDisabled": "Vienti on poistettu käytöstä",
+    "exportDisabledBody": "Tämän työtilan omistajat ovat poistaneet sen sivujen viennin ja tulostamisen käytöstä.",
+    "showInGraph": "Näytä graafissa",
+    "present": "Esitä",
+    "watch": "Tarkkaile",
+    "watchHint": "Saat ilmoituksen saapuneisiin, kun joku muu muokkaa tätä sivua tai aloittaa siinä kommenttiketjun.",
+    "mute": "Mykistä",
+    "muteHint": "Saat ilmoituksen saapuneisiin, kun joku muu muokkaa tätä sivua tai aloittaa siinä kommenttiketjun. Mykistä lopettaaksesi.",
+    "editMarkdown": "Muokkaa Markdownina"
+  },
+  "comments": {
+    "aboutPage": "Tästä sivusta",
+    "aboutProperty": "Kohteesta ”{name}”",
+    "title": "Kommentit",
+    "close": "Sulje kommentit",
+    "filters": {
+      "open": "Avoimet",
+      "resolved": "Ratkaistut",
+      "marked": "Merkityt",
+      "all": "Kaikki"
+    },
+    "empty": {
+      "open": "Ei avoimia kommentteja. Valitse sivulta tekstiä ja valitse Kommentoi aloittaaksesi.",
+      "resolved": "Ei ratkaistuja kommentteja.",
+      "marked": "Ei myöhemmin palattavaksi merkittyjä ketjuja. Valitse ketjun valikosta ”Palaa myöhemmin”.",
+      "all": "Ei vielä kommentteja. Valitse sivulta tekstiä ja valitse Kommentoi aloittaaksesi.",
+      "person": "Missään näistä ketjuista ei ole tämän henkilön kommenttia."
+    },
+    "person": {
+      "label": "Näytä ketjut henkilön mukaan",
+      "active": "Ketjut, joihin {name} on kirjoittanut",
+      "everyone": "Kaikki",
+      "you": "{name} (sinä)"
+    },
+    "threadMenu": "Ketjun asetukset",
+    "mute": "Mykistä vastaukset",
+    "unmute": "Poista vastausten mykistys",
+    "muteHint": "Lopeta ilmoitukset tämän ketjun uusista vastauksista. Vastaaminen tai mainituksi tuleminen täällä ottaa ne taas käyttöön.",
+    "unmuteHint": "Saat taas ilmoituksia tämän ketjun uusista vastauksista.",
+    "muted": "Vastaukset mykistetty",
+    "mutedHint": "Et saa ilmoituksia tämän ketjun vastauksista, ennen kuin vastaat täällä tai joku mainitsee sinut täällä.",
+    "mergedFrom": "Sivulta ”{title}”",
+    "suggestion": {
+      "label": "Muokkausehdotus",
+      "byAi": "Tekoälyn muokkausehdotus",
+      "accept": "Hyväksy",
+      "reject": "Hylkää",
+      "withdraw": "Peru",
+      "errors": {
+        "notAllowed": "Et voi vastata tähän ehdotukseen.",
+        "notFound": "Tähän ehdotukseen on jo vastattu tai se on peruttu.",
+        "pageLocked": "Sivu on lukittu.",
+        "pageInTrash": "Sivu on roskakorissa.",
+        "failed": "Ehdotukseen vastaaminen epäonnistui. Yritä uudelleen."
+      }
+    },
+    "sort": {
+      "label": "Lajittele ketjut",
+      "recent": "Uusin toiminta ensin",
+      "page": "Sivun järjestyksessä"
+    },
+    "new": "Uusi",
+    "marked": "Merkitty palattavaksi myöhemmin",
+    "markedHint": "Merkitsit tämän ketjun palataksesi siihen myöhemmin. Vain sinä näet tämän.",
+    "mark": "Palaa myöhemmin",
+    "unmark": "Poista ”Palaa myöhemmin”",
+    "markHint": "Pidä tämä ketju Merkityissä, kunnes poistat merkinnän. Vain sinä näet sen.",
+    "unmarkHint": "Poista tämä ketju Merkityt-luettelostasi.",
+    "onProperty": "Kommentoi kohdetta ”{name}”",
+    "propertyPlaceholder": "Mitä tästä arvosta?",
+    "post": "Kommentoi",
+    "propertyGone": "Tätä arvoa ei voi enää kommentoida.",
+    "export": {
+      "quote": "”{quote}”",
+      "removed": "Poistetusta tekstistä",
+      "unknown": "Joku"
+    }
+  },
+  "archived": {
+    "banner": "Tämä sivu on roskakorissa.",
+    "deletePermanently": "Poista pysyvästi",
+    "confirmDelete": "Poistetaanko tämä sivu ja kaikki sen sisältö pysyvästi? Tätä ei voi kumota."
+  },
+  "outdated": {
+    "byOn": "Arkistoinut {name} {date}.",
+    "on": "Arkistoitu {date}.",
+    "with": "Arkistoitu yhdessä sivun <link>{title}</link> kanssa.",
+    "above": "Arkistoitu yhdessä tämän yläpuolella olevan sivun kanssa.",
+    "unarchive": "Palauta arkistosta",
+    "hint": "Arkistoidut sivut eivät näy sivupalkissa, haussa eivätkä valitsimissa, mutta niitä voi yhä lukea ja muokata."
+  },
+  "verification": {
+    "byUntil": "Vahvistanut {name}, voimassa {date} asti",
+    "by": "Vahvistanut {name}",
+    "until": "Vahvistettu {date} asti",
+    "plain": "Vahvistettu",
+    "expiredOn": "Vahvistus päättyi {date}",
+    "hint": "Joku, jolla on täydet oikeudet, tarkisti tämän sivun ja merkitsi sen oikeaksi. Muokkaaminen ei poista vahvistusta.",
+    "change": "Muuta tai poista vahvistus",
+    "menu": "Vahvista sivu…",
+    "menuVerified": "Vahvistus…",
+    "menuHint": "Merkitse sivu tarkistetuksi ja oikeaksi: haku nostaa sen korkeammalle ja tekoälychat suosii sitä",
+    "title": "Vahvista sivu",
+    "description": "Merkitse tämä sivu tarkistetuksi ja oikeaksi joksikin aikaa tai toistaiseksi. Haku nostaa vahvistetut sivut korkeammalle, merkitsee ne ja löytää ne hakuehdolla is:verified, ja tekoälychat suosii niitä. Sivun muokkaaminen ei poista vahvistusta; saat ilmoituksen muutamaa päivää ennen kuin se päättyy.",
+    "durationLabel": "Vahvistettu ajaksi",
+    "durations": {
+      "week": "1 viikko",
+      "month": "1 kuukausi",
+      "quarter": "3 kuukautta",
+      "year": "1 vuosi",
+      "until": "Tiettyyn päivään asti",
+      "forever": "Toistaiseksi"
+    },
+    "dateLabel": "Vahvistettu asti",
+    "verify": "Vahvista",
+    "verifyAgain": "Vahvista uudelleen",
+    "remove": "Poista vahvistus",
+    "searchBadge": "Vahvistettu",
+    "errors": {
+      "template": "Malleja ja niiden sivuja ei vahvisteta.",
+      "inTrash": "Palauta sivu ensin roskakorista.",
+      "invalidEnd": "Valitse päivä tämän päivän jälkeen, viiden vuoden sisällä."
+    }
+  },
+  "icon": {
+    "add": "Lisää kuvake",
+    "remove": "Poista kuvake"
+  },
+  "background": {
+    "add": "Lisää tausta",
+    "change": "Tausta",
+    "colors": "Väri",
+    "patterns": "Kuvio",
+    "none": "Ei mitään",
+    "remove": "Poista tausta",
+    "colorNames": {
+      "gray": "Harmaa",
+      "blue": "Sininen",
+      "green": "Vihreä",
+      "purple": "Violetti",
+      "pink": "Vaaleanpunainen",
+      "red": "Punainen",
+      "orange": "Oranssi",
+      "black": "Musta"
+    },
+    "patternNames": {
+      "dots": "Pisteet",
+      "plus": "Ristit",
+      "grid": "Ruudukko",
+      "lines": "Viivat"
+    }
+  },
+  "title": {
+    "label": "Sivun otsikko"
+  },
+  "connection": {
+    "live": "Yhdistetty",
+    "connecting": "Yhdistetään",
+    "offline": "Offline-tilassa",
+    "reconnecting": "Yhdistetään uudelleen",
+    "noAccess": "Ei käyttöoikeutta",
+    "syncing": "Synkronoidaan…",
+    "synced": "Synkronoitu",
+    "offlinePending": "Offline-tilassa · muutokset säilytetään täällä",
+    "offlineHint": "Olet offline-tilassa. Jatka muokkaamista: muutokset tallennetaan tähän selaimeen ja synkronoidaan, kun yhteys palaa.",
+    "notSaved": "Ei tallennettu",
+    "notSavedHint": "Leafdesk ei voinut tallentaa viimeisimpiä muutoksiasi. Pidä tämä sivu auki: seuraava muokkauksesi tallentaa ne uudelleen."
+  },
+  "errors": {
+    "accessLost": "Sinulla ei ole enää pääsyä tälle sivulle.",
+    "connectionFailed": "Yhteyden muodostaminen reaaliaikaiseen muokkaukseen epäonnistui. Yritetään uudelleen…",
+    "notAvailableOffline": "Tätä sivua ei ole vielä tallennettu tälle laitteelle. Avaa se kerran verkossa ollessasi, niin voit käyttää sitä offline-tilassa."
+  },
+  "history": {
+    "title": "Sivun historia",
+    "previewTitle": "Version esikatselu",
+    "modes": {
+      "version": "Versio",
+      "current": "Vertaa nykyiseen",
+      "previous": "Vertaa edelliseen"
+    },
+    "reasons": {
+      "auto": "Automaattinen tallennus",
+      "beforeRestore": "Ennen palautusta",
+      "manual": "Tallennettu versio",
+      "beforeAiEdit": "Ennen tekoälyn muokkausta",
+      "beforeAiEditBy": "Ennen muokkausta: {client}",
+      "beforeAssistantEdit": "Ennen tekoälyavustajan muokkausta",
+      "beforeMarkdownEdit": "Ennen Markdown-muokkausta",
+      "beforeMerge": "Ennen rivien yhdistämistä"
+    },
+    "empty": "Ei vielä versioita. Versiot tallennetaan automaattisesti muokatessasi ja ennen kuin mikään tekoälysovellus muuttaa tätä sivua.",
+    "restore": "Palauta tämä versio",
+    "restoring": "Palautetaan…",
+    "restoreHint": "Nykyinen sisältö tallennetaan ensin versioksi.",
+    "diff": {
+      "rangeCurrent": "Muutokset version {from} jälkeen nykyiseen sivuun",
+      "rangePrevious": "Muutokset {from} – {to}",
+      "earlier": "edellinen versio",
+      "changedBy": "Muuttanut: {names}",
+      "actorApp": "{client} käyttäjälle {name}",
+      "none": "Ei muutoksia.",
+      "oldest": "Tämä on vanhin tallennettu versio, joten aiempaa ei ole verrattavaksi.",
+      "showUnchanged": "{count, plural, one {Näytä # muuttumaton lohko} other {Näytä # muuttumatonta lohkoa}}",
+      "formatOnly": "Muotoilu muuttui"
+    },
+    "errors": {
+      "list": "Sivun historian lataaminen epäonnistui. Lataa sivu uudelleen ja yritä uudelleen.",
+      "version": "Tämän version lataaminen epäonnistui.",
+      "restore": "Tämän version palauttaminen epäonnistui.",
+      "diff": "Näiden versioiden vertaaminen epäonnistui."
+    }
+  },
+  "analytics": {
+    "title": "Sivun analytiikka",
+    "period": "Ajanjakso",
+    "days": "{days} päivää",
+    "views": "Katselukerrat",
+    "viewers": "Katsojat",
+    "viewedBy": "Katsonut",
+    "editedBy": "Muokannut",
+    "noViews": "Kukaan ei avannut tätä sivua tällä ajanjaksolla.",
+    "noEdits": "Ei muokkauksia tällä ajanjaksolla.",
+    "viewCount": "{count, plural, one {# katselukerta} other {# katselukertaa}}",
+    "editCount": "{count, plural, one {# muokkaus} other {# muokkausta}}",
+    "chartLabel": "Katselukerrat päivittäin",
+    "dayViews": "{day}: {count, plural, one {# katselukerta} other {# katselukertaa}}",
+    "notRecorded": "Tämä työtila ei tallenna sivujen katselukertoja, joten vain muokkaukset näytetään. Omistajat voivat ottaa ne käyttöön kohdassa Asetukset > Analytiikka.",
+    "howCounted": "Katselukerta tarkoittaa, että omistaja tai jäsen avaa sivun; uudelleen avaaminen 5 minuutin sisällä ei lasketa. Päivät ovat UTC-ajassa.",
+    "howEditsCounted": "Muokkaukset lasketaan sivun historiasta ja sivun viimeisimmästä muutoksesta.",
+    "noAccess": "Vain työtilan omistajat ja jäsenet, jotka voivat muokata tätä sivua, näkevät sen analytiikan.",
+    "failed": "Analytiikan lataaminen epäonnistui."
+  },
+  "move": {
+    "title": "Siirrä kohteeseen",
+    "search": "Hae sivuja…",
+    "empty": "Ei vastaavia sivuja.",
+    "failed": "Sivun siirtäminen sinne epäonnistui.",
+    "teamspaceHint": "Tämän tiimitilan ylimpään tasoon: sen jäsenet saavat pääsyn",
+    "private": "Yksityinen",
+    "privateHint": "Yksityisten sivujesi ylimpään tasoon: pääsy vain niillä, joiden kanssa se on jaettu"
+  },
+  "share": {
+    "tabShare": "Jaa",
+    "tabPublish": "Julkaise",
+    "addPeople": "Lisää henkilöitä, ryhmiä tai sähköpostiosoitteita",
+    "noMatches": "Ei vastaavia jäseniä tai ryhmiä.",
+    "addPeopleOrAgents": "Lisää henkilöitä, ryhmiä, agentteja tai sähköpostiosoitteita",
+    "noMatchesWithAgents": "Ei vastaavia jäseniä, ryhmiä tai agentteja.",
+    "agentPaused": "Agentti, keskeytetty",
+    "groupMembers": "{count, plural, =0 {Ryhmä ilman jäseniä} one {Ryhmä, jossa # jäsen} other {Ryhmä, jossa # jäsentä}}",
+    "membersOnly": "Voit jakaa työtilan jäsenten kanssa. Tämä työtila ei salli jakamista sen ulkopuolisille.",
+    "guestHint": "Kirjoita koko sähköpostiosoite jakaaksesi jollekulle työtilan ulkopuolelta. Hän liittyy vieraana ja näkee vain hänen kanssaan jaetut sivut.",
+    "shareWith": "Jaa osoitteeseen {email}",
+    "asGuest": "Liittyy vieraana",
+    "pending": "Kutsuttu, ei ole vielä liittynyt",
+    "cancelInvite": "Peruuta kutsu",
+    "invitedSent": "Kutsu lähetetty osoitteeseen {email}.",
+    "invitedNoEmail": "{email} on kutsuttu, mutta sähköpostia ei voitu lähettää. Lähetä hänelle kutsulinkki.",
+    "copyInvite": "Kopioi kutsulinkki",
+    "you": "Sinä",
+    "inherited": "Sivulta {title}",
+    "groupInherited": "Ryhmä, sivulta {title}",
+    "inheritedAbove": "Yläpuolella olevalta sivulta",
+    "groupInheritedAbove": "Ryhmä, yläpuolella olevalta sivulta",
+    "hiddenGroup": "Ryhmä",
+    "group": "Ryhmä",
+    "viaGeneral": "{level} (yleisestä käyttöoikeudesta)",
+    "viaOwner": "{level} (omistajana)",
+    "overridden": "Yleinen käyttöoikeus on korkeampi ({level}), joten tällä ei ole vaikutusta.",
+    "remove": "Poista",
+    "generalAccess": "Yleinen käyttöoikeus",
+    "everyone": "Kaikki työtilassa",
+    "everyoneHint": "Jäsenet saavat vähintään tämän käyttöoikeuden riippumatta siitä, mitä annat heille erikseen. Valitse ”Ei käyttöoikeutta”, jos haluat avata sivun vain lisäämillesi henkilöille.",
+    "everyoneIn": "Kaikki: {name}",
+    "everyoneTeamspace": "Kaikki tiimitilassa",
+    "everyoneTeamspaceHint": "Tiimitilan jäsenet saavat vähintään tämän käyttöoikeuden riippumatta siitä, mitä annat heille erikseen. Valitse ”Ei käyttöoikeutta”, jos haluat avata sivun vain lisäämillesi henkilöille.",
+    "readOnly": "Vain henkilöt, joilla on täydet oikeudet, voivat muuttaa jakamista.",
+    "copyLink": "Kopioi linkki",
+    "copied": "Kopioitu",
+    "loading": "Ladataan…",
+    "requests": {
+      "heading": "Pyynnöt",
+      "message": "”{message}”",
+      "level": "Käyttöoikeustaso",
+      "approve": "Jaa",
+      "decline": "Hylkää",
+      "outsider": "Ei työtilassa: jakaminen lisää hänet vieraaksi.",
+      "cantInvite": "Ei työtilassa, eikä tämä työtila salli jakamista sen ulkopuolisille.",
+      "asksMore": "Pyytää oikeutta ”{level}”, nyt ”{current}”"
+    },
+    "askMore": {
+      "title": "Pyydä laajempaa käyttöoikeutta",
+      "description": "Sinulla on oikeus ”{level}”. Henkilöt, joilla on täydet oikeudet sivuun, päättävät.",
+      "level": "Pyydettävä käyttöoikeus",
+      "messagePlaceholder": "Viesti (valinnainen)",
+      "send": "Pyydä",
+      "sending": "Pyydetään…",
+      "pending": "Pyysit oikeutta ”{level}”. Henkilöt, joilla on täydet oikeudet sivuun, vastaavat.",
+      "rateLimited": "Olet pyytänyt liian usein. Yritä hetken kuluttua uudelleen.",
+      "unavailable": "Et voi pyytää laajempaa käyttöoikeutta tähän sivuun juuri nyt."
+    },
+    "levels": {
+      "full": "Täydet oikeudet",
+      "edit": "Voi muokata",
+      "comment": "Voi kommentoida",
+      "view": "Voi katsella",
+      "none": "Ei käyttöoikeutta"
+    },
+    "errors": {
+      "notMember": "Tämä henkilö ei ole työtilan jäsen.",
+      "lastFullAccess": "Jollakulla on oltava täydet oikeudet sivuun. Anna ensin jollekulle toiselle täydet oikeudet.",
+      "accessDenied": "Et voi muuttaa tämän sivun jakamista.",
+      "invalidEmail": "Anna kelvollinen sähköpostiosoite.",
+      "invitesRestricted": "Tämä työtila ei salli sivujen jakamista sen ulkopuolisille. Kysy omistajalta.",
+      "generic": "Jakamisen päivittäminen epäonnistui.",
+      "agentFullAccess": "Agentit voivat katsella, kommentoida tai muokata sivua, mutta eivät koskaan saa täysiä oikeuksia."
+    },
+    "everyoneFromTeamspaceHint": "Tiimitilan määrittämä. Sen omistajilla ja työtilan omistajilla on täydet oikeudet. Valitse taso tästä asettaaksesi sen tälle sivulle ja sen alasivuille."
+  },
+  "noAccess": {
+    "metaTitle": "Ei käyttöoikeutta",
+    "title": "Sinulla ei ole pääsyä tälle sivulle",
+    "description": "Pyydä käyttöoikeutta, niin henkilöt, jotka voivat jakaa tämän sivun, saavat pyyntösi.",
+    "descriptionNoRequests": "Pyydä linkin lähettänyttä henkilöä jakamaan tämä sivu kanssasi.",
+    "messageLabel": "Viesti (valinnainen)",
+    "messagePlaceholder": "Lisää viesti henkilöille, jotka voivat jakaa sivun",
+    "request": "Pyydä käyttöoikeutta",
+    "sending": "Lähetetään…",
+    "sentTitle": "Pyyntö lähetetty",
+    "sentDescription": "Kun joku jakaa sivun kanssasi, tämä linkki avaa sen.",
+    "rateLimited": "Olet pyytänyt käyttöoikeutta liian monta kertaa. Yritä hetken kuluttua uudelleen.",
+    "signedInAs": "Olet kirjautunut sisään tunnuksella {email}.",
+    "home": "Siirry työtilaasi"
+  },
+  "embed": {
+    "label": "Tietokanta",
+    "linkedLabel": "Tietokannan linkitetty näkymä",
+    "unavailable": "Tämä tietokanta ei ole käytettävissä. Se on ehkä poistettu, tai sinulla ei ole siihen pääsyä.",
+    "inTrash": "Tämä tietokanta on roskakorissa.",
+    "creating": "Luodaan tietokantaa…",
+    "createFailed": "Tietokannan luominen epäonnistui: {error}",
+    "turnIntoDatabase": "Muunna tietokannaksi",
+    "convertFailed": "Taulukon muuntaminen tietokannaksi epäonnistui: {error}",
+    "tableTooLarge": "Enintään {rows} rivin ja {columns} sarakkeen taulukot voi muuntaa tietokannaksi.",
+    "open": "Avaa sivuna",
+    "linked": "Linkitetty näkymä",
+    "layout": "Asettelu",
+    "viewOnly": "Vain henkilöt, jotka voivat muokata tätä sivua, voivat muuttaa tätä näkymää.",
+    "picker": {
+      "title": "Valitse tietokanta",
+      "search": "Hae tietokantoja",
+      "empty": "Tietokantoja ei löytynyt.",
+      "failed": "Tietokantojen lataaminen epäonnistui."
+    },
+    "slash": {
+      "database": {
+        "title": "Tietokanta",
+        "subtext": "Uusi tietokanta tämän sivun sisällä",
+        "aliases": "database db inline table tietokanta taulukko"
+      },
+      "linkedView": {
+        "title": "Tietokannan linkitetty näkymä",
+        "subtext": "Näytä olemassa oleva tietokanta omalla näkymällään",
+        "aliases": "linked view database db linkitetty näkymä tietokanta"
+      },
+      "dashboard": {
+        "title": "Koontinäyttö",
+        "subtext": "Lukuja, kaavioita ja luetteloita tietokannoistasi",
+        "aliases": "dashboard widgets kpi metrics charts numbers koontinäyttö mittarit kaaviot luvut"
+      },
+      "databaseTabs": {
+        "title": "Tietokantavälilehdet",
+        "subtext": "Useita tietokantoja tai näkymiä, kukin omalla välilehdellään",
+        "aliases": "tabs tabbed database views switch välilehdet tietokanta näkymät"
+      }
+    }
+  },
+  "textStyle": {
+    "superscript": "Yläindeksi",
+    "subscript": "Alaindeksi"
+  },
+  "find": {
+    "label": "Etsi sivulta",
+    "placeholder": "Etsi",
+    "replacePlaceholder": "Korvaa tällä",
+    "noResults": "Ei tuloksia",
+    "matchCase": "Sama kirjainkoko",
+    "matchAccents": "Huomioi tarkkeet",
+    "previous": "Edellinen osuma (Shift+Enter)",
+    "next": "Seuraava osuma (Enter)",
+    "showReplace": "Näytä korvaus",
+    "hideReplace": "Piilota korvaus",
+    "replace": "Korvaa",
+    "replaceAll": "Korvaa kaikki",
+    "close": "Sulje (Esc)"
+  },
+  "template": {
+    "workspace": "Tämä on malli. Siitä luodut uudet sivut kopioivat sen sisällön ja alasivut.",
+    "row": "Tämä on rivimalli. Siitä luodut uudet rivit saavat sen ominaisuudet ja sisällön.",
+    "inside": "Tämä sivu on osa mallia.",
+    "use": "Käytä mallia",
+    "confirmDelete": "Poistetaanko tämä malli pysyvästi? Siitä jo luodut sivut säilyvät ennallaan."
+  },
+  "blocks": {
+    "callout": {
+      "title": "Huomiolaatikko",
+      "subtext": "Tekstiä ja kuvake värillisellä taustalla",
+      "aliases": "callout note tip warning alert box huomio huomiolaatikko vinkki varoitus laatikko",
+      "icon": "Vaihda kuvake",
+      "hiddenInPrint": "Piilotettu tulostettaessa",
+      "titleField": "Huomiolaatikon otsikko",
+      "titlePlaceholder": "Otsikko",
+      "builtin": {
+        "frame": "Kehys"
+      },
+      "styleSubtext": "Huomiolaatikon tyyli",
+      "group": "Huomiolaatikot"
+    },
+    "code": {
+      "language": "Kieli",
+      "plainText": "Pelkkä teksti",
+      "format": "Muotoile koodi",
+      "formatSyntaxError": "Koodia ei muotoiltu: rivillä {line} on syntaksivirhe.",
+      "formatFailed": "Koodin muotoileminen epäonnistui."
+    },
+    "math": {
+      "title": "Yhtälö",
+      "subtext": "TeX-muodossa kirjoitettu erillinen yhtälö",
+      "aliases": "math equation latex tex katex formula yhtälö matematiikka kaava",
+      "placeholder": "Lisää TeX-yhtälö",
+      "sourcePlaceholder": "E = mc^2",
+      "error": "Yhtälössä on virhe"
+    },
+    "inlineMath": {
+      "title": "Tekstinsisäinen yhtälö",
+      "subtext": "Yhtälö tekstin sisällä",
+      "aliases": "inline math equation latex tex katex formula yhtälö matematiikka kaava",
+      "placeholder": "Uusi yhtälö",
+      "sourcePlaceholder": "x^2",
+      "error": "Yhtälövirhe"
+    },
+    "footnote": {
+      "title": "Alaviite",
+      "subtext": "Numeroitu huomautus sivun lopussa",
+      "aliases": "footnote note reference source citation alaviite viite lähde",
+      "placeholder": "Uusi alaviite",
+      "sourcePlaceholder": "Huomautuksen teksti",
+      "list": "Alaviitteet",
+      "goTo": "Siirry alaviitteeseen tekstissä",
+      "back": "Takaisin tekstiin"
+    },
+    "mermaid": {
+      "title": "Mermaid-kaavio",
+      "subtext": "Vuokaavioita, sekvenssikaavioita ja muuta tekstistä piirrettynä",
+      "aliases": "mermaid diagram flowchart chart graph sequence gantt kaavio vuokaavio graafi",
+      "placeholder": "Lisää Mermaid-kaavio",
+      "sourcePlaceholder": "graph TD\n  A --> B",
+      "loading": "Piirretään kaaviota…",
+      "error": "Kaaviossa on virhe",
+      "syntaxError": "Syntaksivirhe",
+      "label": "Kaavio"
+    },
+    "toc": {
+      "title": "Sisällysluettelo",
+      "subtext": "Linkit tämän sivun otsikoihin",
+      "aliases": "toc table contents headings outline sisällysluettelo sisältö otsikot",
+      "label": "Sisällysluettelo",
+      "empty": "Lisää tälle sivulle otsikoita, niin ne luetellaan tässä."
+    },
+    "breadcrumb": {
+      "title": "Murupolku",
+      "subtext": "Tämän yläpuolella olevat sivut linkkeinä",
+      "aliases": "breadcrumb path parents location murupolku polku sijainti",
+      "label": "Murupolku"
+    },
+    "subpages": {
+      "title": "Alasivut",
+      "subtext": "Tämän alla olevat sivut linkkeinä",
+      "aliases": "subpages children child pages list index alasivut sivut luettelo hakemisto",
+      "label": "Alasivut",
+      "empty": "Tämän alle lisäämäsi sivut luetellaan tässä."
+    },
+    "columns": {
+      "two": {
+        "title": "2 saraketta",
+        "subtext": "Kaksi lohkosaraketta vierekkäin",
+        "aliases": "columns column layout side 2 two sarakkeet sarake asettelu kaksi"
+      },
+      "three": {
+        "title": "3 saraketta",
+        "subtext": "Kolme lohkosaraketta vierekkäin",
+        "aliases": "columns column layout side 3 three sarakkeet sarake asettelu kolme"
+      },
+      "add": {
+        "title": "Lisää sarake",
+        "subtext": "Uusi sarake tämän oikealle puolelle (enintään 5)",
+        "aliases": "column columns add new layout sarake sarakkeet lisää uusi asettelu"
+      }
+    },
+    "pageLink": {
+      "title": "Linkki sivuun",
+      "subtext": "Linkki toiseen sivuun ajantasaisella otsikolla",
+      "aliases": "link page mention reference linkki sivu maininta viittaus"
+    },
+    "syncedPage": {
+      "title": "Synkronoitu sivu",
+      "subtext": "Toisen sivun sisältö ajantasaisena ja muokattavana tässä",
+      "aliases": "synced sync embed mirror transclude page synkronoitu sivu upota"
+    },
+    "colors": {
+      "group": "Värit",
+      "text": "Teksti: {color}",
+      "background": "Tausta: {color}",
+      "textDefault": "Tekstin oletusväri",
+      "backgroundDefault": "Ei taustaa",
+      "textAliases": "color colour text font väri teksti fontti",
+      "backgroundAliases": "background highlight color colour tausta korostus väri"
+    },
+    "syncedBlock": {
+      "title": "Synkronoitu lohko",
+      "subtext": "Lohkoja, joita voit näyttää ja muokata usealla sivulla",
+      "aliases": "synced sync reuse shared blocks synkronoitu lohko jaettu uudelleenkäyttö"
+    }
+  },
+  "web": {
+    "bookmark": {
+      "title": "Verkkokirjanmerkki",
+      "subtext": "Linkki korttina otsikkoineen ja kuvineen",
+      "aliases": "bookmark link url web card preview kirjanmerkki linkki verkko kortti esikatselu",
+      "placeholder": "Liitä kirjanmerkiksi tallennettava linkki",
+      "submit": "Lisää kirjanmerkki",
+      "loading": "Haetaan sivua…",
+      "refresh": "Päivitä esikatselu",
+      "resize": "Vedä muuttaaksesi kortin leveyttä",
+      "label": "Kirjanmerkki"
+    },
+    "embed": {
+      "title": "Upotus",
+      "subtext": "YouTube, Figma, Google Docs, Maps ja muuta",
+      "aliases": "embed iframe youtube vimeo loom figma google docs sheets slides codepen spotify maps video upotus upota",
+      "placeholder": "Liitä upotettava linkki",
+      "submit": "Upota",
+      "providers": "YouTube, Vimeo, Loom, Figma, julkaistut Google Docs-, Sheets- ja Slides-tiedostot, CodePen, Spotify ja Google Maps. Muista linkeistä tulee kirjanmerkki.",
+      "frameTitle": "Upotettu sisältö sivustolta {host}",
+      "label": "Upotus"
+    },
+    "paste": {
+      "label": "Liitä muodossa",
+      "bookmark": "Kirjanmerkki",
+      "embed": "Upotus",
+      "mention": "Maininta",
+      "keep": "Säilytä linkkinä"
+    },
+    "invalidUrl": "Anna verkko-osoite, esimerkiksi https://example.com",
+    "errors": {
+      "accessDenied": "Et voi muokata tätä sivua.",
+      "rateLimited": "Liian monta linkin esikatselua kerralla. Yritä minuutin kuluttua uudelleen.",
+      "invalidUrl": "Tämä ei ole verkko-osoite.",
+      "blocked": "Tätä osoitetta ei voi esikatsella.",
+      "unreachable": "Sivulle ei saatu yhteyttä.",
+      "timeout": "Sivu vastasi liian hitaasti.",
+      "tooManyRedirects": "Sivu uudelleenohjaa liian monta kertaa.",
+      "httpError": "Sivu vastasi virheellä."
+    }
+  },
+  "upload": {
+    "tooLarge": "{name} on liian suuri. Tiedostot voivat olla enintään {limit}.",
+    "quotaExceeded": "Tiedostoa {name} ei ladattu: tämä työtila on käyttänyt {limit} tiedostotallennustilaansa.",
+    "failed": "Tiedoston {name} lataaminen epäonnistui.",
+    "storageFailed": "Tiedostoa {name} ei ladattu: työtilan oma tallennustila ei hyväksynyt sitä. Sen omistajat näkevät syyn kohdassa Asetukset > Tallennustila."
+  },
+  "mention": {
+    "people": "Henkilöt",
+    "agents": "Agentit",
+    "groups": "Ryhmät",
+    "groupMembers": "{count, plural, =0 {Ei jäseniä} one {# jäsen} other {# jäsentä}}",
+    "pages": "Sivut",
+    "dates": "Päivämäärät",
+    "newPage": "Uusi sivu: {title}",
+    "newPageHint": "Tämän sivun sisällä",
+    "today": "Tänään",
+    "tomorrow": "Huomenna",
+    "yesterday": "Eilen",
+    "nextWeek": "Ensi viikolla",
+    "noAccess": "Ei käyttöoikeutta",
+    "deleted": "Poistettu sivu",
+    "loading": "Ladataan…",
+    "atBlock": "Avautuu sivun tietyn lohkon kohdalta",
+    "showAsMention": "Näytä mainintana",
+    "personLeft": "{name} (ei enää työtilassa)",
+    "date": "Päivämäärä",
+    "reminder": "Muistutus",
+    "remindNone": "Ei muistutusta",
+    "remindSameDay": "Samana päivänä klo 9.00",
+    "remindDayBefore": "Edellisenä päivänä klo 9.00",
+    "remindWeekBefore": "Viikkoa ennen klo 9.00",
+    "reminderSet": "Muistutus: {when}",
+    "reminderHint": "Saat sen saapuneisiin ja sähköpostiin.",
+    "reminderPast": "Ajankohta on jo mennyt; valitse myöhempi päivämäärä tai muistutus.",
+    "done": "Valmis"
+  },
+  "preview": {
+    "editedBy": "Muokannut {name} {when}",
+    "edited": "Muokattu {when}",
+    "members": "{count, plural, =0 {Tässä ryhmässä ei ole vielä ketään} one {# jäsen} other {# jäsentä}}",
+    "moreMembers": "ja {count} muuta"
+  },
+  "pageLinkPicker": {
+    "title": "Linkki sivuun",
+    "search": "Hae sivuja…",
+    "empty": "Sivuja ei löytynyt",
+    "failed": "Sivujen lataaminen epäonnistui."
+  },
+  "syncedPage": {
+    "label": "Synkronoitu sivu",
+    "viewOnly": "Vain katselu",
+    "cycle": "Tämä sivu näkyy jo yläpuolella, joten se on tässä vain linkkinä."
+  },
+  "backlinks": {
+    "title": "Linkitetty sivuilta",
+    "titleCount": "Linkitetty sivuilta · {count}",
+    "count": "{count, plural, one {# sivu linkittää tänne} other {# sivua linkittää tänne}}",
+    "unlinked": "Linkittämättömät maininnat · {count}",
+    "unlinkedHint": "Sivut, joilla tämän sivun otsikko on kirjoitettu linkittämättä siihen",
+    "link": "Linkitä",
+    "linkLabel": "Linkitä maininta sivulla {title}",
+    "linkFailed": "Otsikko ei ole siellä enää pelkkänä tekstinä.",
+    "locked": "Sivu on lukittu, joten sitä ei voi muuttaa.",
+    "morePlaces": "{count, plural, one {# kohta lisää} other {# kohtaa lisää}}",
+    "fewerPlaces": "Näytä vähemmän",
+    "morePages": "{count, plural, one {Näytä # sivu lisää} other {Näytä # sivua lisää}}"
+  },
+  "blockMenu": {
+    "copyLink": "Kopioi linkki lohkoon",
+    "hideInPrint": "Piilota tulostettaessa",
+    "calloutStyle": "Huomiolaatikon tyyli",
+    "turnIntoCallout": "Muunna huomiolaatikoksi",
+    "plainCallout": "Tavallinen huomiolaatikko",
+    "addTitle": "Lisää otsikko",
+    "removeTitle": "Poista otsikko"
+  },
+  "imageLink": {
+    "menuItem": "Linkki…",
+    "editMenuItem": "Muokkaa linkkiä…",
+    "title": "Linkitä kuva",
+    "urlLabel": "Verkko-osoite",
+    "toPage": "Linkittää sivuun ”{title}”",
+    "invalid": "Anna verkko-osoite, joka alkaa http:// tai https://, tai valitse sivu.",
+    "pickPage": "Linkitä sivuun…",
+    "remove": "Poista linkki",
+    "open": "Avaa linkki"
+  },
+  "pdf": {
+    "untitled": "PDF",
+    "openInNewTab": "Avaa uudessa välilehdessä",
+    "frameTitle": "PDF: {name}",
+    "noPreview": "Tämä selain ei voi näyttää PDF-tiedostoja tässä. Avaa tiedosto lukeaksesi sen."
+  },
+  "pdfExport": {
+    "title": "Vie PDF-tiedostona",
+    "letterhead": "Kirjelomake",
+    "none": "Ei mitään",
+    "defaultMark": "{name} (oletus)",
+    "noLetterheads": "Omistajat voivat lisätä kirjelomakkeita logolla ja yrityksen tiedoilla kohdassa Asetukset → PDF-mallit.",
+    "properties": "Sisällytä rivin arvot",
+    "comments": "Sisällytä kommentit",
+    "hint": "Kaaviot ja yhtälöt tulostuvat tekstinä; käytä Tulosta-toimintoa, jos haluat sivun täsmälleen sellaisena kuin se näkyy.",
+    "download": "Lataa",
+    "preparing": "Valmistellaan…"
+  },
+  "spreadsheet": {
+    "untitled": "Työkirja",
+    "download": "Lataa",
+    "loading": "Luetaan työkirjaa…",
+    "tooLarge": "Tämä työkirja on liian suuri näytettäväksi tässä. Lataa se avataksesi sen.",
+    "unreadable": "Tätä työkirjaa ei voi näyttää tässä: se voi olla vioittunut, salasanasuojattu tai vanha .xls-tiedosto. Lataa se avataksesi sen.",
+    "empty": "Tämä taulukkosivu on tyhjä.",
+    "sheets": "Taulukkosivut",
+    "tableLabel": "{name}, taulukkosivu {sheet}",
+    "partial": "Näytetään ensimmäiset {rows} riviä ja {columns} saraketta",
+    "convert": "Muunna tietokannaksi",
+    "convertTitle": "Tuo työkirjan taulukkosivu uudeksi tietokannaksi"
+  },
+  "print": {
+    "print": "Tulosta tai tallenna PDF-tiedostona",
+    "back": "Takaisin sivulle",
+    "includeSubpages": "Sisällytä alasivut",
+    "preparing": "Ladataan kuvia ja kaavioita…",
+    "hint": "Valitse tulostusikkunassa kohteeksi ”Tallenna PDF-tiedostona”.",
+    "truncated": "Vain ensimmäiset {count} sivua sisällytetään.",
+    "lastUpdated": "Päivitetty viimeksi {date}",
+    "subpages": "Sivut",
+    "embedUnavailable": "Tämä tietokanta ei ole käytettävissäsi."
+  },
+  "quickNote": {
+    "documentTitle": "Pikamuistiinpano",
+    "heading": "Pikamuistiinpano",
+    "description": "Tallennetaan yksityiseksi sivuksi, jonka vain sinä näet. Voit siirtää tai jakaa sen myöhemmin.",
+    "workspace": "Työtila",
+    "title": "Otsikko",
+    "body": "Muistiinpano",
+    "bodyPlaceholder": "Kirjoita jotain tai liitä linkki",
+    "save": "Tallenna muistiinpano",
+    "shortcut": "Uusi pikamuistiinpano",
+    "shortcutShort": "Pikamuistiinpano",
+    "destination": "Tallenna kohteeseen",
+    "privatePage": "Yksityinen sivu"
+  },
+  "dashboard": {
+    "title": "Koontinäyttö",
+    "empty": "Tässä koontinäytössä ei ole vielä pienoisohjelmia.",
+    "emptyEditable": "Näytä täällä lukuja, kaavioita ja luetteloita työtilan tietokannoista. Ne pysyvät ajan tasalla rivien muuttuessa.",
+    "add": "Lisää pienoisohjelma",
+    "full": "Koontinäytössä voi olla enintään {max} pienoisohjelmaa.",
+    "menu": "Pienoisohjelman asetukset",
+    "edit": "Muokkaa",
+    "done": "Valmis",
+    "remove": "Poista pienoisohjelma",
+    "moveBefore": "Siirrä edelle",
+    "moveAfter": "Siirrä perään",
+    "width": "Leveys",
+    "widths": {
+      "1": "Neljäsosa leveydestä",
+      "2": "Puolet leveydestä",
+      "3": "Kolme neljäsosaa leveydestä",
+      "4": "Koko leveys"
+    },
+    "color": "Väri",
+    "colorNone": "Ei väriä",
+    "titleLabel": "Pienoisohjelman otsikko",
+    "titlePlaceholder": "Otsikko (tyhjänä tietokannan nimi)",
+    "unavailable": "Sinulla ei ole pääsyä näihin tietoihin.",
+    "inTrash": "Tämä tietokanta on roskakorissa.",
+    "loadFailed": "Tämän pienoisohjelman lataaminen epäonnistui.",
+    "retry": "Yritä uudelleen",
+    "noGroup": "Tietokannassa ei ole vielä mitään, minkä mukaan ryhmitellä: lisää valinta-, tila- tai päivämääräominaisuus.",
+    "more": "{count, plural, one {# rivi lisää} other {# riviä lisää}}",
+    "rows": "{count, plural, one {# rivi} other {# riviä}}",
+    "byGroup": "ominaisuuden {property} mukaan",
+    "filters": "{count, plural, one {# suodatin} other {# suodatinta}}",
+    "updatedNow": "päivitetty juuri nyt",
+    "updated": "päivitetty {time}"
+  },
+  "databaseTabs": {
+    "title": "Tietokantavälilehdet",
+    "empty": "Näissä välilehdissä ei näytetä vielä tietokantoja.",
+    "emptyEditable": "Näytä useita tietokantoja tai yhden tietokannan näkymiä välilehtinä. Jokainen välilehti on oma näkymänsä.",
+    "add": "Lisää välilehti",
+    "full": "Välilehdissä voi olla enintään {max} näkymää.",
+    "menu": "Välilehden asetukset",
+    "rename": "Nimeä uudelleen",
+    "remove": "Poista välilehti",
+    "nameLabel": "Välilehden nimi",
+    "namePlaceholder": "Tietokannan nimi",
+    "noAccess": "Ei käyttöoikeutta"
+  },
+  "voiceNote": {
+    "record": "Nauhoita äänimuistiinpano",
+    "recording": "Nauhoitetaan",
+    "stop": "Lopeta ja kirjoita puhtaaksi",
+    "discard": "Hylkää",
+    "cancel": "Peruuta",
+    "retry": "Lisää uudelleen",
+    "close": "Sulje",
+    "limit": "Enintään {minutes} min",
+    "chooseFile": "Tai valitse äänitiedosto",
+    "transcribing": "Kirjoitetaan puhettasi tekstiksi…",
+    "writing": "Tekoäly kirjoittaa muistiinpanoa…",
+    "autoStopped": "Nauhoitus pysähtyi {minutes} minuutin enimmäispituuteen.",
+    "review": "Tekoäly kirjoitti tämän muistiinpanon nauhoituksestasi. Tarkista se ennen tallentamista.",
+    "notRewritten": "Tekoäly ei pystynyt kirjoittamaan nauhoitusta puhtaaksi, joten muistiinpano on litterointi sellaisena kuin se kuultiin.",
+    "transcriptKept": "Litterointi tallennetaan muistiinpanon alle.",
+    "propertiesPicked": "{count, plural, one {# ominaisuus täytettiin muistiinpanon perusteella.} other {# ominaisuutta täytettiin muistiinpanon perusteella.}}",
+    "transcriptToggle": "Litterointi",
+    "shortcut": "Uusi äänimuistiinpano",
+    "shortcutShort": "Äänimuistiinpano",
+    "dialogTitle": "Äänimuistiinpano",
+    "dialogDescription": "Puhu, niin tekoäly kirjoittaa siistin muistiinpanon tähän. Litterointi tulee sen alle.",
+    "slashTitle": "Äänimuistiinpano",
+    "slashSubtext": "Puhu, niin tekoäly kirjoittaa sen puhtaaksi tähän",
+    "slashAliases": "voice audio record dictate speech microphone transcribe ääni nauhoita sanele puhe mikrofoni litteroi",
+    "errors": {
+      "unsupported": "Tämä selain ei voi nauhoittaa ääntä. Valitse sen sijaan äänitiedosto.",
+      "insecure": "Nauhoittaminen vaatii suojatun (https) yhteyden. Valitse sen sijaan äänitiedosto.",
+      "denied": "Leafdeskillä ei ole lupaa käyttää mikrofonia. Salli se selaimesi sivustoasetuksissa ja yritä uudelleen.",
+      "noDevice": "Mikrofonia ei löytynyt.",
+      "failed": "Nauhoituksen aloittaminen epäonnistui. Yritä uudelleen.",
+      "fileType": "Tämän tyyppistä äänitiedostoa ei tueta.",
+      "fileTooLarge": "Nauhoitukset voivat olla enintään {max}.",
+      "disabled": "Äänimuistiinpanot eivät ole käytettävissä tässä työtilassa.",
+      "noAccess": "Et voi lisätä muistiinpanoja tähän.",
+      "tooLarge": "Nauhoitus on liian suuri. Nauhoitukset voivat olla enintään {max}.",
+      "rateLimited": "Liian monta tekoälypyyntöä. Yritä hetken kuluttua uudelleen.",
+      "timeout": "Nauhoituksen litterointi kesti liian kauan. Yritä uudelleen tai nauhoita lyhyempi muistiinpano.",
+      "aborted": "Peruttu.",
+      "provider": "Nauhoituksen litterointi epäonnistui. Yritä myöhemmin uudelleen tai pyydä ylläpitäjää tarkistamaan puheentunnistuksen asetukset.",
+      "empty": "Nauhoituksessa ei kuulunut mitään. Yritä uudelleen lähempänä mikrofonia.",
+      "invalid": "Nauhoitusta ei voitu lukea. Yritä uudelleen.",
+      "interrupted": "Palvelin käynnistyi uudelleen kesken käsittelyn. Yritä uudelleen.",
+      "limitReached": "Tämä työtila on saavuttanut tekoälyn kuukausittaisen kustannusrajansa, joten tekoälypyynnöt hylätään ensi kuuhun asti. Omistajat näkevät tiedot asetuksissa kohdassa Tekoälyn käyttö.",
+      "insert": "Muistiinpanon lisääminen sivulle epäonnistui."
+    },
+    "instructions": {
+      "menu": "Äänimuistiinpanojen ohjeet",
+      "menuHint": "Miten tekoäly kirjoittaa tähän tietokantaan tallennetut äänimuistiinpanot",
+      "title": "Äänimuistiinpanojen ohjeet",
+      "description": "Tekoäly noudattaa näitä kirjoittaessaan puhtaaksi tähän tietokantaan tallennetun äänimuistiinpanon. Ne koskevat kaikkia, jotka nauhoittavat siihen.",
+      "placeholder": "Esimerkiksi: Asiakaskäynnin muistiinpano. Kerro yritys, tavattu henkilö, mistä keskusteltiin, tarjouksen tila ja seuraava askel.",
+      "followed": "Tänne tallennetut äänimuistiinpanot noudattavat tämän tietokannan kirjoitusohjeita."
+    }
+  },
+  "review": {
+    "bar": "{count, plural, one {# tekoälyn muutos tarkistettavana} other {# tekoälyn muutosta tarkistettavana}}",
+    "by": "tekijä: {names}",
+    "open": "Tarkista",
+    "keepAll": "Säilytä kaikki",
+    "undoAll": "Kumoa kaikki",
+    "keep": "Säilytä",
+    "undo": "Kumoa",
+    "title": "Tarkista tekoälyn muutokset",
+    "hint": "Säilytä tai kumoa jokainen muutos. Kumoa kaikki tallentaa ensin sivun nykyisen tilan sen historiaan.",
+    "stale": "Sivu muuttui sillä välin: nämä ovat muutokset sellaisina kuin ne nyt ovat.",
+    "failed": "Se ei onnistunut. Yritä uudelleen."
+  },
+  "syncedBlock": {
+    "label": "Synkronoitu lohko",
+    "from": "Synkronoitu sivulta",
+    "viewOnly": "Vain katselu",
+    "copy": "Kopioi synkronoitu lohko",
+    "copied": "Kopioitu",
+    "copyHint": "Liitä se toiselle sivulle näyttääksesi nämä lohkot siellä ajantasaisina",
+    "shownOn": "{count, plural, one {Näytetään # sivulla} other {Näytetään # sivulla}}",
+    "notShownShort": "Ei näytetä muualla",
+    "notShown": "Kopioi tämä synkronoitu lohko ja liitä se toiselle sivulle näyttääksesi sen siellä.",
+    "hiddenPages": "{count, plural, one {ja # sivu, jota et näe} other {ja # sivua, joita et näe}}",
+    "unsync": "Poista synkronointi",
+    "unsyncHint": "Muunna näiden lohkojen tavalliseksi kopioksi",
+    "nested": "Synkronoitu lohko ei voi olla toisen synkronoidun lohkon sisällä.",
+    "turnInto": "Muunna synkronoiduksi lohkoksi",
+    "state": {
+      "noAccess": "Ei käyttöoikeutta",
+      "trashed": "Alkuperäisen synkronoidun lohkon sivu on roskakorissa",
+      "deleted": "Alkuperäisen synkronoidun lohkon sivu on poistettu",
+      "removed": "Alkuperäinen synkronoitu lohko on poistettu"
+    },
+    "exportNote": "Synkronoitu lohko: {state}"
+  },
+  "viewer": {
+    "untitled": "Tiedosto",
+    "counter": "{index}/{count}",
+    "announce": "{name}, {index}/{count}",
+    "previous": "Edellinen tiedosto",
+    "next": "Seuraava tiedosto",
+    "close": "Sulje",
+    "download": "Lataa",
+    "openInNewTab": "Avaa uudessa välilehdessä",
+    "zoom": "Zoomaus",
+    "zoomIn": "Lähennä",
+    "zoomOut": "Loitonna",
+    "zoomReset": "Sovita näyttöön",
+    "zoomResetLevel": "{percent} %, sovita näyttöön",
+    "loading": "Ladataan…",
+    "readingDocument": "Luetaan asiakirjaa…",
+    "unavailable": "Tätä tiedostoa ei voi avata. Se on ehkä poistettu, tai sinulla ei ehkä ole siihen enää pääsyä.",
+    "imageFailed": "Tätä kuvaa ei voi näyttää tässä. Lataa se avataksesi sen.",
+    "empty": "Tämä tiedosto on tyhjä.",
+    "noPreview": "Tämän tyyppiselle tiedostolle ei ole esikatselua.",
+    "unknownType": "Tuntematon tyyppi",
+    "cannotPlay": "Tämä selain ei voi toistaa tätä tiedostoa. Lataa se toistaaksesi sen muualla.",
+    "truncated": "Tästä tiedostosta näytetään vain ensimmäiset {size}. Lataa se nähdäksesi kaiken.",
+    "csvPartial": "Tiedostosta näytetään osa ({rows} riviä). Lataa se nähdäksesi kaiken.",
+    "documentTooLarge": "Tämä asiakirja on liian suuri esikatseltavaksi. Lataa se avataksesi sen.",
+    "documentUnreadable": "Tätä asiakirjaa ei voi esikatsella: se voi olla vioittunut, salasanasuojattu tai vanha .doc-tiedosto. Lataa se avataksesi sen.",
+    "documentBusy": "Palvelin lukee parhaillaan muita asiakirjoja. Yritä hetken kuluttua uudelleen.",
+    "picturesLeftOut": "Joitakin tämän asiakirjan kuvia ei näytetä tässä.",
+    "retry": "Yritä uudelleen",
+    "markdownImage": "Kuva: {alt}",
+    "markdownImageUntitled": "Kuva",
+    "expand": "Avaa katseluohjelmassa",
+    "view": "Näytä {name}"
+  },
+  "presentation": {
+    "previous": "Edellinen dia",
+    "next": "Seuraava dia",
+    "exit": "Lopeta esitys",
+    "counter": "{index}/{count}",
+    "announce": "Dia {index}/{count}"
+  },
+  "markdownSource": {
+    "title": "Muokkaa Markdownina",
+    "sourceTab": "Markdown",
+    "previewTab": "Esikatselu",
+    "toolbar": "Muotoilu",
+    "placeholder": "Kirjoita Markdownia…",
+    "close": "Sulje",
+    "retry": "Yritä uudelleen",
+    "unsaved": "Tallentamattomia muutoksia",
+    "offline": "Offline-tilassa: tallentaminen vaatii yhteyden",
+    "saveHint": "Tallenna sivulle (Ctrl+S tai ⌘S)",
+    "tools": {
+      "bold": "Lihavointi",
+      "italic": "Kursivointi",
+      "code": "Tekstinsisäinen koodi",
+      "link": "Linkki",
+      "heading": "Otsikko {level}",
+      "bulletList": "Luettelomerkitty luettelo",
+      "numberedList": "Numeroitu luettelo",
+      "taskList": "Tehtävälista"
+    },
+    "errors": {
+      "noAccess": "Et voi muokata tätä sivua.",
+      "database": "Tietokannoissa ei ole tekstiä, jota voisi muokata Markdownina.",
+      "trashed": "Tämä sivu on roskakorissa.",
+      "locked": "Tämä sivu on lukittu. Avaa lukitus muokataksesi sitä.",
+      "saveFailed": "Sivun tallentaminen epäonnistui. Yritä hetken kuluttua uudelleen.",
+      "failed": "Jokin meni vikaan. Yritä uudelleen."
+    },
+    "losses": {
+      "title": "Osa tästä sivusta ei säily",
+      "body": "Markdown ei pysty säilyttämään kaikkea tällä sivulla olevaa. Tallentaminen kirjoittaa sivun Markdownin pohjalta, joten nämä katoavat:",
+      "kinds": {
+        "textColor": "Tekstin värit",
+        "backgroundColor": "Taustavärit ja korostukset",
+        "alignment": "Tekstin tasaus",
+        "mediaSize": "Kuvien ja videoiden koot",
+        "callout": "Huomiolaatikoiden värit ja kuvakkeet, joille Markdownissa ei ole muotoa",
+        "textStyle": "Osa tekstin muotoilusta, kuten alleviivaus",
+        "table": "Taulukon sarakeleveydet, otsikkorivit, yhdistetyt solut ja solujen värit",
+        "blockSetting": "Muut lohkoasetukset",
+        "content": "Osa sisällöstä, jota Markdown ei pysty säilyttämään"
+      },
+      "synced": "{count, plural, one {Muutoksesi synkronoidun lohkon sisällä: muokkaa sitä sen sijaan sivulla} other {Muutoksesi # synkronoidun lohkon sisällä: muokkaa niitä sen sijaan sivulla}}",
+      "confirm": "Tallenna silti"
+    },
+    "conflict": {
+      "title": "Joku muu muutti tätä sivua",
+      "body": "Sivu muuttui sen jälkeen, kun avasit sen Markdownin. Lataa sivu sellaisena kuin se nyt on (muutoksesi tässä hylätään) tai tallenna omasi sen päälle.",
+      "reload": "Lataa nykyinen sivu",
+      "overwrite": "Tallenna omani päälle"
+    },
+    "discard": {
+      "title": "Hylätäänkö muutoksesi?",
+      "body": "Markdown-muutoksiasi ei ole tallennettu.",
+      "keep": "Jatka muokkaamista",
+      "confirm": "Hylkää"
+    }
+  },
+  "siblings": {
+    "label": "Sivut sivun {title} vierellä",
+    "empty": "Täällä ei ole muita sivuja",
+    "failed": "Täällä olevien sivujen lataaminen epäonnistui.",
+    "openDatabase": "Avaa tietokanta",
+    "allRows": "Näytä kaikki tietokannan rivit"
+  },
+  "agentChat": {
+    "label": "Agenttichat",
+    "exportLine": "Agenttichat: {name}",
+    "elsewhere": "Agenttichat: käytettävissä sovelluksessa työtilan jäsenille.",
+    "choose": "Valitse agentti",
+    "noAgent": "Valitse agentti, jonka kanssa täällä keskustellaan.",
+    "noAgentReadOnly": "Tälle chatille ei ole valittu agenttia.",
+    "loadFailed": "Tämän chatin lataaminen epäonnistui.",
+    "retry": "Yritä uudelleen",
+    "states": {
+      "guest": "Agenttichatit eivät ole vieraiden käytettävissä.",
+      "gone": "Tämä agentti ei ole enää käytettävissä.",
+      "paused": "Tämä agentti on keskeytetty, joten se ei voi vastata.",
+      "aiOff": "Tekoäly on poistettu käytöstä tässä työtilassa, joten agentti ei voi vastata.",
+      "limitReached": "Tämä agentti on käyttänyt kuukauden tokeninsa, joten se ei voi vastata ennen ensi kuuta.",
+      "noAccess": "Sinulla ei ole pääsyä tähän agenttiin."
+    },
+    "empty": {
+      "full": "Kysy agentilta {name} jotain tai anna sille tehtävä. Se toimii omilla käyttöoikeuksillaan, taidoillaan ja muistillaan, ja jokainen vastaus on yksi sen ajoista.",
+      "readOnly": "Esitä agentille {name} kysymys. Vastaukset tulevat vain sivuilta, jotka näette molemmat, eikä se voi muuttaa mitään."
+    },
+    "readOnly": "Vain luku",
+    "readOnlyHint": "Vastaukset tulevat vain sivuilta, jotka sinä ja agentti näette molemmat.",
+    "placeholder": "Viesti agentille {name}…",
+    "send": "Lähetä",
+    "working": "Työskennellään…",
+    "waiting": "Odotetaan vapaata tekoälyvuoroa…",
+    "approval": "Agentti haluaa käyttää työkalua. Hyväksy kutsu, jotta se voi jatkaa.",
+    "steps": "{count, plural, one {# vaihe} other {# vaihetta}}",
+    "conversations": "Keskustelut",
+    "newConversation": "Uusi keskustelu",
+    "deleteConversation": "Poista tämä keskustelu",
+    "failed": {
+      "aiOff": "Tekoäly on poistettu käytöstä tässä työtilassa.",
+      "agentDisabled": "Agentti keskeytettiin tai arkistoitiin.",
+      "noAccess": "Et voi enää keskustella tämän agentin kanssa täällä.",
+      "provider": "Tekoälypalvelu ei vastannut.",
+      "timeout": "Agentti vastasi liian hitaasti.",
+      "tooManyAttempts": "Työtilan tekoälykiintiö pysyi käytettynä, joten agentti ei voinut aloittaa.",
+      "approvalTimeout": "Kukaan ei vastannut sen kutsuun ajoissa, joten mitään ei lähetetty.",
+      "limitReached": "Agentti on käyttänyt kuukauden tokeninsa.",
+      "costLimit": "Työtila on saavuttanut tekoälyn kuukausittaisen kustannusrajansa.",
+      "error": "Jokin meni vikaan."
+    },
+    "errors": {
+      "invalid": "Kirjoita ensin viesti.",
+      "tooLong": "Viestissä voi olla enintään {max} merkkiä.",
+      "busy": "Agentti vastaa vielä edelliseen viestiisi.",
+      "rateLimited": "Liian monta viestiä kerralla. Yritä hetken kuluttua uudelleen.",
+      "noAccess": "Tämä chat ei ole käytettävissäsi.",
+      "notOnPage": "Tämä chat ei ole enää sivulla.",
+      "guest": "Agenttichatit eivät ole vieraiden käytettävissä.",
+      "gone": "Tämä agentti ei ole enää käytettävissä.",
+      "paused": "Tämä agentti on keskeytetty, joten se ei voi vastata.",
+      "aiOff": "Tekoäly on poistettu käytöstä tässä työtilassa, joten agentti ei voi vastata.",
+      "limitReached": "Tämä agentti on käyttänyt kuukauden tokeninsa."
+    },
+    "picker": {
+      "search": "Hae agentteja",
+      "empty": "Ei agentteja, joiden kanssa keskustella. Omistajat luovat niitä kohdassa Asetukset > Agentit.",
+      "failed": "Agenttien lataaminen epäonnistui.",
+      "paused": "Keskeytetty"
+    },
+    "slash": {
+      "title": "Agenttichat",
+      "subtext": "Keskustele jonkin työtilan agentin kanssa tällä sivulla",
+      "aliases": "agent chat bot assistant ai ask agentti chat botti avustaja tekoäly kysy"
+    },
+    "tab": {
+      "hint": "Liitä tämän agentin linkki sivulle lisätäksesi sinne chatin sen kanssa. Jäsenet voivat keskustella siinä vain luku -tilassa.",
+      "copyLink": "Kopioi linkki"
+    },
+    "awaitingOwner": "Odotetaan, että työtilan omistaja hyväksyy kutsun…"
+  },
+  "button": {
+    "untitled": "Painike",
+    "placeholder": "Painikkeen teksti",
+    "done": "Valmis",
+    "confirm": "Suoritetaanko ”{label}”?",
+    "blockLabel": "Painike ”{label}”",
+    "slash": {
+      "title": "Painike",
+      "subtext": "Tekee napsautettaessa muutaman asian järjestyksessä",
+      "aliases": "button action click run painike toiminto napsauta suorita"
+    },
+    "settings": {
+      "open": "Painikkeen asetukset",
+      "icon": "Emoji",
+      "label": "Teksti",
+      "color": "Väri",
+      "colorDefault": "Oletus",
+      "confirm": "Kysy ennen suorittamista",
+      "confirmHelp": "Napsauttaja vahvistaa ensin.",
+      "steps": "Napsautettaessa",
+      "stepsHelp": "Vaiheet suoritetaan järjestyksessä napsauttajan nimissä ja hänen käyttöoikeuksillaan. Vaihe, jota hän ei voi tehdä, pysäyttää painikkeen siihen.",
+      "addStep": "Lisää vaihe",
+      "moveUp": "Siirrä ylös",
+      "moveDown": "Siirrä alas",
+      "insertAt": "Mihin",
+      "at": {
+        "below": "Painikkeen alle",
+        "top": "Sivun alkuun",
+        "bottom": "Sivun loppuun"
+      },
+      "markdown": "Lohkot Markdownina",
+      "people": "Henkilöt",
+      "message": "Viesti",
+      "notifyHelp": "Vain henkilöille, jotka voivat avata tämän sivun, ilmoitetaan.",
+      "url": "Osoite",
+      "secret": "Allekirjoitussalaisuus",
+      "copySecret": "Kopioi salaisuus",
+      "webhookHelp": "Lähettää tämän sivun JSON-muodossa salaisuudella allekirjoitettuna, jos työtila sallii sisällön lähtemisen sieltä.",
+      "target": "Verkko-osoite tai sivu",
+      "pickPage": "Valitse sivu",
+      "toPage": "Avaa sivun ”{title}”",
+      "rowTitle": "Otsikko",
+      "values": "Arvot",
+      "updateHelp": "Muuttaa enintään {max} riviä, jotka vastaavat suodattimia ja jotka napsauttaja näkee."
+    },
+    "variables": {
+      "group": "Painike",
+      "today": "Tänään",
+      "now": "Nyt",
+      "me": "Napsauttaja"
+    },
+    "steps": {
+      "insert": "Lisää lohkoja",
+      "add_row": "Lisää rivi",
+      "update_rows": "Muuta rivejä",
+      "notify": "Ilmoita henkilöille",
+      "webhook": "Lähetä webhook",
+      "open": "Avaa linkki tai sivu"
+    },
+    "failed": {
+      "notFound": "Tämä painike ei ole enää sivulla.",
+      "noSteps": "Tämä painike ei vielä tee mitään.",
+      "inTrash": "Roskakorissa olevien sivujen painikkeet eivät toimi.",
+      "rateLimited": "Tätä painiketta napsautettiin liian usein. Odota hetki ja yritä uudelleen.",
+      "noAccess": "Sinulla ei ole oikeutta tehdä tätä.",
+      "locked": "Sivu on lukittu.",
+      "notConfigured": "Tätä vaihetta ei ole määritetty.",
+      "databaseGone": "Tietokanta on poistettu tai roskakorissa.",
+      "invalidValue": "Arvo ei sovi ominaisuuteensa.",
+      "exportOff": "Tämä työtila ei salli sisällön lähtemistä sieltä.",
+      "webhookFailed": "Osoite ei hyväksynyt webhookia.",
+      "invalidTarget": "Avattava linkki ei ole kelvollinen.",
+      "buttonGone": "Painike poistettiin sivulta.",
+      "error": "Jokin meni vikaan.",
+      "step": "Vaihetta {step} ({type}) ei suoritettu: {reason}",
+      "templateGone": "Rivimallia ei enää ole."
+    }
+  },
+  "imageCrop": {
+    "menuItem": "Rajaa…",
+    "title": "Rajaa kuva",
+    "hint": "Vedä kehystä tai sen reunoja. Tiedosto säilyy kokonaisena, joten voit muuttaa tätä myöhemmin.",
+    "frame": "Näytettävä osa kuvasta. Nuolinäppäimet siirtävät sitä; Vaihto-näppäimen kanssa ne muuttavat sen kokoa.",
+    "reset": "Näytä koko kuva",
+    "loading": "Ladataan kuvaa…",
+    "failed": "Kuvan lataaminen epäonnistui."
+  }
+}

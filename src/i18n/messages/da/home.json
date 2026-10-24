@@ -1,0 +1,36 @@
+{
+  "hello": "Hej, {name}",
+  "recent": "Redigeret for nylig",
+  "assignedEmpty": "Intet er tildelt dig. Rækker i databaser, som du er tildelt, vises her.",
+  "empty": "Her er ikke noget endnu. Opret din første side for at komme i gang.",
+  "emptyGuest": "Intet er delt med dig her endnu. Sider vises, når nogen deler dem med dig.",
+  "newPage": "Ny side",
+  "newDatabase": "Ny database",
+  "personalWorkspace": "{name}s arbejdsområde",
+  "generalTeamspace": "Generelt",
+  "fromTemplate": "Fra en skabelon",
+  "assigned": "Tildelt dig",
+  "assignedGroups": {
+    "overdue": "Forfaldne",
+    "today": "I dag",
+    "next7": "De næste 7 dage",
+    "later": "Senere",
+    "none": "Ingen dato"
+  },
+  "assignedMore": "Viser {shown} af {total}.",
+  "assignedAll": "Se alle",
+  "myTasks": {
+    "title": "Mine opgaver",
+    "description": "Rækker i de databaser, du kan åbne, som er tildelt dig og ikke er færdige, i hele arbejdsområdet.",
+    "grouping": "Gruppér efter",
+    "byDue": "Efter forfaldsdato",
+    "byDatabase": "Efter database",
+    "sharedRows": "Rækker delt med dig",
+    "shown": "Viser de {shown} med tidligst forfald af {total}.",
+    "markDone": "Markér “{title}” som færdig",
+    "undoLabel": "Markér “{title}” som ikke færdig",
+    "undo": "Fortryd",
+    "markFailed": "Rækken kunne ikke markeres som færdig.",
+    "undoFailed": "Rækkens status kunne ikke sættes tilbage. Ret den i rækken."
+  }
+}

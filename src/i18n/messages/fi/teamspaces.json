@@ -1,0 +1,98 @@
+{
+  "access": {
+    "default": "Oletus",
+    "open": "Avoin",
+    "closed": "Suljettu",
+    "private": "Yksityinen"
+  },
+  "accessHint": {
+    "default": "Kaikki työtilan jäsenet kuuluvat siihen eivätkä voi poistua siitä.",
+    "open": "Kuka tahansa työtilassa voi nähdä sen ja liittyä siihen. Ennen liittymistä he voivat lukea ja kommentoida sen sivuja.",
+    "closed": "Kuka tahansa työtilassa näkee, että se on olemassa. Vain sen jäsenet avaavat sen sivuja; sen omistajat lisäävät heidät.",
+    "private": "Vain sen jäsenet näkevät sen."
+  },
+  "roles": {
+    "owner": "Omistaja",
+    "member": "Jäsen"
+  },
+  "errors": {
+    "nameRequired": "Anna tiimitilalle nimi.",
+    "creationRestricted": "Vain työtilan omistajat voivat luoda tiimitiloja täällä.",
+    "ownersOnly": "Vain työtilan omistajat voivat muuttaa, mihin tiimitiloihin kaikki kuuluvat.",
+    "cannotLeaveDefault": "Kaikki kuuluvat tähän tiimitilaan; siitä ei voi poistua.",
+    "lastOwner": "Tee ensin joku muu tiimitilan omistajaksi.",
+    "notJoinable": "Pyydä tämän tiimitilan omistajaa lisäämään sinut.",
+    "archived": "Tämä tiimitila on arkistoitu.",
+    "notMember": "Vain työtilan omistajat ja jäsenet voivat kuulua sen tiimitiloihin.",
+    "invalidAccess": "Valitse, kuka näkee tiimitilan.",
+    "inGroup": "Tämä henkilö kuuluu tiimitilaan ryhmän kautta. Poista hänet ryhmästä sen sijaan.",
+    "everyoneIn": "Kaikki työtilan jäsenet kuuluvat jo tähän tiimitilaan.",
+    "accessDenied": "Et voi tehdä sitä tässä tiimitilassa.",
+    "invalidMemberLevel": "Valitse, mitä oikeuksia jäsenet saavat tiimitilan sivuihin.",
+    "invalidIcon": "Kuvakkeen on oltava emoji.",
+    "notConvertible": "Vain sivusta voi tulla tiimitila: ei tietokannasta, rivistä tai mallista."
+  },
+  "dialog": {
+    "createTitle": "Uusi tiimitila",
+    "editTitle": "Muokkaa tiimitilaa",
+    "name": "Nimi",
+    "namePlaceholder": "Markkinointi, Kehitys…",
+    "icon": "Valitse kuvake",
+    "description": "Kuvaus",
+    "descriptionPlaceholder": "Mihin tämä tiimitila on tarkoitettu?",
+    "access": "Kuka näkee sen",
+    "defaultLocked": "Vain työtilan omistajat voivat muuttaa oletustiimitilan käyttöoikeuksia.",
+    "becomesDefault": "Kaikki työtilan jäsenet liittyvät siihen eivätkä voi poistua siitä.",
+    "leavesDefault": "Kaikki pysyvät siinä toistaiseksi mutta voivat poistua, eikä uusia työtilan jäseniä lisätä.",
+    "create": "Luo tiimitila",
+    "creating": "Luodaan…",
+    "memberLevel": "Jäsenten oikeudet sen sivuihin",
+    "memberLevelHint": "Mitä jäsenet saavat sivuilla, joilla sitä ei ole asetettu erikseen. Tiimitilan omistajat ja työtilan omistajat saavat aina täydet oikeudet; sivun jakoasetukset ohittavat tämän silti.",
+    "memberLevelLocked": "Vain työtilan omistajat voivat muuttaa, mitä kaikki saavat oletustiimitilassa."
+  },
+  "members": {
+    "title": "Jäsenet: {name}",
+    "everyone": "Kaikki työtilan jäsenet kuuluvat tähän tiimitilaan. Sen omistajat voivat muokata ja hallita sitä.",
+    "readOnly": "Vain tämän tiimitilan omistajat voivat muuttaa, kuka siihen kuuluu.",
+    "add": "Lisää henkilöitä",
+    "search": "Hae henkilöitä",
+    "addSelected": "{count, plural, =0 {Lisää henkilöitä} other {Lisää #}}",
+    "addAs": "Lisää roolilla",
+    "noOneToAdd": "Kaikki työtilan jäsenet kuuluvat jo tähän tiimitilaan.",
+    "noMatches": "Haullasi ei löytynyt ketään.",
+    "empty": "Tähän tiimitilaan ei kuulu ketään.",
+    "list": "Tämän tiimitilan henkilöt",
+    "roleOf": "Rooli: {name}",
+    "remove": "Poista {name}",
+    "you": "(sinä)",
+    "select": "Valitse {name}",
+    "viaGroups": "Ryhmien kautta: {groups}",
+    "groups": "Ryhmät",
+    "groupsHint": "Kaikki näiden ryhmien jäsenet ovat tiimitilan jäseniä niin kauan kuin he kuuluvat ryhmään.",
+    "noGroups": "Tässä tiimitilassa ei ole ryhmiä.",
+    "chooseGroup": "Valitse ryhmä",
+    "addGroupButton": "Lisää ryhmä",
+    "removeGroup": "Poista {name}",
+    "groupMemberCount": "{count, plural, =0 {Ei jäseniä} one {# jäsen} other {# jäsentä}}"
+  },
+  "memberLevel": {
+    "full": "Täydet oikeudet",
+    "edit": "Voi muokata",
+    "comment": "Voi kommentoida",
+    "view": "Voi katsella"
+  },
+  "fromPage": {
+    "menu": "Muuta tiimitilaksi",
+    "title": "Muuta tiimitilaksi",
+    "intro": "Uusi tiimitila ottaa tämän sivun ja sen alla olevat sivut, ja henkilöt, joille sivu on jaettu, liittyvät siihen.",
+    "pages": "{count, plural, =0 {Tästä sivusta tulee sen ensimmäinen sivu.} one {Tästä sivusta ja sen alla olevasta sivusta tulee sen ensimmäiset sivut.} other {Tästä sivusta ja sen alla olevista # sivusta tulee sen ensimmäiset sivut.}}",
+    "owners": "Omistajat: {names}",
+    "members": "Jäsenet, jotka voivat muokata sen sivuja: {names}",
+    "groups": "{count, plural, one {# ryhmä liittyy siihen} other {# ryhmää liittyy siihen}} jäseninä.",
+    "kept": "{count, plural, one {# muu sivulla mainittu henkilö säilyttää} other {# muuta sivulla mainittua henkilöä säilyttävät}} nykyiset käyttöoikeutensa.",
+    "access": "{access}: {hint}",
+    "submit": "Muuta tiimitilaksi",
+    "working": "Muutetaan…",
+    "failed": "Sivua ei voitu muuttaa tiimitilaksi."
+  }
+}

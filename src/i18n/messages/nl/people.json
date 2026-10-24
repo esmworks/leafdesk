@@ -1,0 +1,14 @@
+{
+  "metaTitle": "Personen",
+  "heading": "Personen",
+  "description": "De eigenaren en leden van deze werkruimte, met hun teamruimtes, groepen en de pagina’s die ze onlangs hebben bewerkt. Gasten staan er niet bij.",
+  "search": "Zoeken op naam, e-mail, teamruimte of groep",
+  "count": "{count, plural, one {# persoon} other {# personen}}",
+  "noMatches": "Niemand komt overeen met je zoekopdracht.",
+  "you": "(jij)",
+  "teamspaces": "Teamruimtes",
+  "groups": "Groepen",
+  "recentPages": "Onlangs bewerkt",
+  "none": "Geen",
+  "noRecentPages": "Geen recente bewerkingen die je kunt openen."
+}

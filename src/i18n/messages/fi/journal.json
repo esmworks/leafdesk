@@ -1,0 +1,21 @@
+{
+  "todayNote": "Tämän päivän muistiinpano",
+  "openToday": "Avaa tämän päivän muistiinpano",
+  "startToday": "Aloita tämän päivän muistiinpano",
+  "calendar": "Päivän muistiinpanojen kalenteri",
+  "previousMonth": "Edellinen kuukausi",
+  "nextMonth": "Seuraava kuukausi",
+  "hasNote": "{day} – muistiinpano olemassa",
+  "openDay": "Avaa päivän muistiinpano",
+  "recent": "Aiemmat muistiinpanot",
+  "startWith": "Uudet muistiinpanot alkavat",
+  "startDefault": "Muutamalla otsikolla",
+  "startBlank": "Tyhjällä sivulla",
+  "startTemplates": "Mallit",
+  "openFailed": "Päivän muistiinpanon avaaminen epäonnistui",
+  "saveFailed": "Asetuksen tallentaminen epäonnistui",
+  "searchHint": "päivän muistiinpanoistasi",
+  "yesterday": "Eilisen muistiinpano",
+  "notes": "Muistiinpanot",
+  "noNotes": "Ei vielä muistiinpanoja. Aloita valitsemalla päivä."
+}

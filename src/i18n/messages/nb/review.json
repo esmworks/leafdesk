@@ -1,0 +1,104 @@
+{
+  "metaTitle": "Til gjennomgang",
+  "heading": "Til gjennomgang",
+  "description": "Endringer agenter har foreslått i stedet for å gjøre dem, og automatiseringer som venter på at noen godkjenner dem. Godkjenn en endring for å gjøre den som deg selv, rediger den først, eller avvis den; godkjenn en automatisering for å la kjøringen fortsette, eller avslå den for å stoppe kjøringen. Forslag ingen svarer på, utløper etter 30 dager. Oppfølgings-e-poster som er satt til «spør meg først», venter også her.",
+  "filters": {
+    "agent": "Agent",
+    "database": "Database",
+    "status": "Vis",
+    "allAgents": "Alle agenter",
+    "allDatabases": "Alle databaser",
+    "open": "Venter",
+    "decided": "Besvart",
+    "allRows": "Vis alle rader",
+    "clear": "Fjern filtre"
+  },
+  "count": "{count, plural, one {# endring} other {# endringer}}",
+  "select": "Velg denne endringen",
+  "selectAll": "Velg alle",
+  "selected": "{count} valgt",
+  "approveSelected": "Godkjenn {count}",
+  "dismissSelected": "Avvis {count}",
+  "bulkSkipped": "{count, plural, one {Én endring kunne ikke besvares: Den var allerede besvart, raden er endret siden, eller du kan ikke svare på den.} other {# endringer kunne ikke besvares: De var allerede besvart, radene er endret siden, eller du kan ikke svare på dem.}}",
+  "empty": {
+    "open": "Ingenting venter på gjennomgang fra deg.",
+    "decided": "Ingen endringer er besvart de siste 30 dagene.",
+    "filtered": "Ingen endringer samsvarer med disse filtrene."
+  },
+  "proposes": {
+    "createRow": "<agent></agent> vil legge til en rad i <database></database>",
+    "updateRow": "<agent></agent> vil endre <row></row>",
+    "emailDraft": "<agent></agent> har skrevet et utkast til en e-post på <row></row>",
+    "automationApproval": "<automation></automation> ber om godkjenning på <row></row>",
+    "automationApprovalNoRow": "<automation></automation> ber om godkjenning",
+    "sequenceDraft": "E-post {step} av {steps} i oppfølgingen <sequence></sequence> på <row></row>"
+  },
+  "inDatabase": "i <database></database>",
+  "unknownAgent": "En slettet agent",
+  "someone": "Noen",
+  "viewRun": "Vis kjøringen",
+  "edited": "Redigert",
+  "expires": "Utløper {time}",
+  "decided": {
+    "approved": "Godkjent av {name} {time}",
+    "dismissed": "Avvist av {name} {time}",
+    "expired": "Utløpt uten svar",
+    "rejected": "Avslått av {name} {time}",
+    "timedOut": "Ingen svarte i tide"
+  },
+  "title": "Tittel",
+  "becomes": "blir",
+  "changedSince": "Endret etter at den ble foreslått, nå <value></value>",
+  "conflictNotice": "Denne raden er endret etter at agenten foreslo dette. Hvis du godkjenner, overskrives det den har nå.",
+  "failedNote": "Den ble godkjent, men kunne ikke utføres: {error} Rediger den og godkjenn den på nytt, eller avvis den.",
+  "failed": {
+    "error": "noe gikk galt.",
+    "pageLocked": "raden er låst."
+  },
+  "email": {
+    "from": "Fra",
+    "to": "Til",
+    "cc": "Kopi",
+    "subject": "Emne",
+    "text": "Tekst",
+    "reply": "Et svar på den siste e-posten til raden"
+  },
+  "markdown": "Sidetekst",
+  "notEditable": "Behold eller utelat; endre det på raden etterpå.",
+  "leaveOut": "Utelat",
+  "keep": "Behold",
+  "approve": "Godkjenn",
+  "approveAnyway": "Godkjenn likevel",
+  "send": "Send",
+  "edit": "Rediger",
+  "save": "Lagre endringen",
+  "dismiss": "Avvis",
+  "cannot": {
+    "email": "Bare {name} kan sende dette utkastet, fra sin egen postkasse.",
+    "row": "Du kan se denne endringen, men for å godkjenne den trenger du redigeringstilgang til raden og til hver verdi den angir.",
+    "approval": "Bare personene automatiseringen spør, kan godkjenne eller avslå dette."
+  },
+  "errors": {
+    "notFound": "Denne endringen finnes ikke lenger, eller du kan ikke se den.",
+    "decided": "Noen har allerede svart på denne endringen.",
+    "conflict": "Raden er endret etter at dette ble foreslått. Se på den igjen, og godkjenn den likevel eller avvis den.",
+    "invalid": "Denne endringen er ikke gyldig: {message}",
+    "accessDenied": "Du kan ikke svare på denne endringen."
+  },
+  "banner": {
+    "title": "Endringer som venter på gjennomgang",
+    "bar": "{count, plural, one {# endring venter på gjennomgang} other {# endringer venter på gjennomgang}}",
+    "by": "foreslått av {names}",
+    "open": "Gå gjennom"
+  },
+  "unknownAutomation": "En slettet automatisering",
+  "reject": "Avslå",
+  "approval": {
+    "next": "Hvis godkjent, deretter:",
+    "nothingNext": "Hvis godkjent, avsluttes kjøringen: Ingen trinn kommer etter dette.",
+    "forEach": "for hver rad fra {step}",
+    "approvers": "Spør {names}",
+    "timeoutStop": "Hvis ingen svarer i tide, stopper kjøringen.",
+    "timeoutContinue": "Hvis ingen svarer i tide, fortsetter kjøringen."
+  }
+}

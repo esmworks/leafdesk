@@ -1,0 +1,273 @@
+{
+  "open": "Importér",
+  "title": "Import",
+  "description": "Hent sider ind fra Markdown-filer, ZIP-eksporter, Word-dokumenter, Google-dokumenter og PDF’er, notesbøger fra Evernote, rækker fra en CSV-fil eller Excel-projektmappe, en tavle fra Trello, Asana eller Monday.com eller Jira-sager, der holdes synkroniseret.",
+  "tabs": {
+    "pages": "Markdown og ZIP",
+    "docx": "Word",
+    "pdf": "PDF",
+    "evernote": "Evernote",
+    "csv": "CSV og Excel",
+    "trello": "Trello",
+    "asana": "Asana",
+    "monday": "Monday.com",
+    "jira": "Jira",
+    "googleDocs": "Google Docs"
+  },
+  "destination": "Placér under",
+  "topLevel": "Øverste niveau i arbejdsområdet",
+  "filePage": "Siden med filen",
+  "noDestination": "Der er ingen side, du kan tilføje sider til.",
+  "pages": {
+    "help": "Markdown-filer bliver til sider, og mapper bevarer deres struktur. CSV-filer bliver til databaser, og billeder, som sider linker til, uploades.",
+    "notion": "Fra Notion: eksportér som “Markdown & CSV” med undersider, og vælg ZIP-filen, som den blev hentet (opdelte eksporter virker også). Undersider, databaser, relationer, infobokse, fold-ud-blokke og billeder kommer med.",
+    "obsidian": "Fra Obsidian: vælg boksens mappe eller en ZIP-fil af den. Links mellem noter (også [[wikilinks]]), indlejrede billeder og filer samt infobokse kommer med.",
+    "chooseFiles": "Vælg filer",
+    "chooseFolder": "Vælg en mappe",
+    "drop": "eller slip filer her",
+    "selected": "{count, plural, one {# fil} other {# filer}}, {size}",
+    "clear": "Ryd"
+  },
+  "docx": {
+    "help": "Hvert Word-dokument (.docx) bliver til en side med dets overskrifter, lister, tabeller, links, billeder og fodnoter. En overskrift helt øverst bliver sidens titel; ellers bliver filnavnet det.",
+    "choose": "Vælg Word-filer"
+  },
+  "pdf": {
+    "help": "Hver PDF bliver til en side med dens tekst: større linjer bliver overskrifter, og afsnit samt nummererede lister og punktlister kommer med, også hen over sideskift. Gentagne sidehoveder, sidefødder og sidetal udelades. En overskrift helt øverst bliver sidens titel; ellers bliver filnavnet det.",
+    "scans": "En scannet PDF har ingen tekst at læse og kan ikke importeres: kør først tekstgenkendelse (OCR) på den, eller upload den til en side som en fil.",
+    "choose": "Vælg PDF-filer",
+    "attach": "Vedhæft også hver PDF til dens side for at få billeder, tabeller og layout med"
+  },
+  "evernote": {
+    "help": "Hver Evernote-eksport (.enex) bliver til en database opkaldt efter filen med en række pr. note. Tags, oprettelses- og opdateringstidspunkter, forfatteren og kilde-URL’en bliver til egenskaber, og noten bliver til rækkens side med formatering, lister, to do-punkter, tabeller, kodeblokke, billeder og vedhæftede filer. Krypteret tekst udelades.",
+    "export": "Markér noter eller en notesbog i Evernote, vælg Eksportér → ENEX (.enex), og vælg derefter de hentede filer. En ZIP-fil med flere eksporter virker også.",
+    "choose": "Vælg Evernote-eksporter (.enex)",
+    "names": {
+      "tags": "Tags",
+      "created": "Oprettet",
+      "updated": "Opdateret",
+      "author": "Forfatter",
+      "sourceUrl": "Kilde-URL",
+      "encrypted": "Krypteret tekst blev udeladt fra importen."
+    }
+  },
+  "csv": {
+    "choose": "Vælg en CSV- eller Excel-fil",
+    "summary": "{name}: {rows, plural, one {# række} other {# rækker}}, {columns, plural, one {# kolonne} other {# kolonner}}",
+    "sheet": "Ark",
+    "mode": "Importér som",
+    "newDatabase": "En ny database",
+    "existing": "Rækker i en database",
+    "name": "Navn",
+    "titleColumn": "Rækketitler fra",
+    "noTitle": "Ingen kolonne (rækker uden titel)",
+    "column": "Kolonne",
+    "type": "Type",
+    "target": "Går til",
+    "values": "Værdier",
+    "leaveOut": "Udelad",
+    "rowTitle": "Rækkens titel",
+    "database": "Database",
+    "chooseDatabase": "Vælg en database",
+    "noDatabases": "Der er ingen database, du kan tilføje rækker til.",
+    "cantLoad": "Denne databases egenskaber kunne ikke indlæses.",
+    "newOptions": "Valgværdier, som databasen ikke har endnu, tilføjes som muligheder."
+  },
+  "trello": {
+    "help": "Åbn tavlens menu i Trello, vælg Udskriv, eksportér og del → Eksportér som JSON, og vælg derefter den hentede fil. Tavlen bliver til en database med en tavlevisning: lister, etiketter, medlemmer, datoer, tjeklister, brugerdefinerede felter, beskrivelser og kommentarer kommer med. Arkiverede lister og kort udelades.",
+    "attachments": "Intet hentes fra Trello: linkede vedhæftninger forbliver links, og filer, der er uploadet til Trello, linkes fra hvert korts side.",
+    "choose": "Vælg en Trello-eksport (.json)",
+    "summary": "{name}: {lists, plural, one {# liste} other {# lister}}, {cards, plural, one {# kort} other {# kort}}",
+    "archived": "Arkiveret og derfor udeladt: {lists, plural, one {# liste} other {# lister}} og {cards, plural, one {# kort} other {# kort}}.",
+    "names": {
+      "list": "Liste",
+      "labels": "Etiketter",
+      "members": "Medlemmer",
+      "otherMembers": "Andre medlemmer",
+      "dates": "Datoer",
+      "complete": "Fuldført",
+      "checklist": "Tjekliste",
+      "link": "Link",
+      "attachments": "Vedhæftede filer",
+      "comments": "Kommentarer"
+    }
+  },
+  "asana": {
+    "help": "Åbn projektets menu i Asana, vælg Eksportér → CSV (eller JSON), og vælg derefter den hentede fil. Projektet bliver til en database med en tavlevisning efter sektion: fuldførelse, ansvarlige, datoer, tags, brugerdefinerede felter, noter, underopgaver og afhængigheder kommer med.",
+    "choose": "Vælg en Asana-eksport (.csv eller .json)",
+    "summary": "{name}: {groups, plural, one {# sektion} other {# sektioner}}, {items, plural, one {# opgave} other {# opgaver}}, {subitems, plural, one {# underopgave} other {# underopgaver}}"
+  },
+  "monday": {
+    "help": "Åbn tavlens menu i Monday.com, vælg Eksportér tavle til Excel (med opdateringer, hvis du vil have dem med), og vælg derefter den hentede fil. Tavlen bliver til en database med en tavlevisning efter gruppe: dens kolonner, underpunkter og opdateringer kommer med.",
+    "choose": "Vælg en Monday.com-eksport (.xlsx eller .csv)",
+    "summary": "{name}: {groups, plural, one {# gruppe} other {# grupper}}, {items, plural, one {# punkt} other {# punkter}}, {subitems, plural, one {# underpunkt} other {# underpunkter}}"
+  },
+  "jira": {
+    "help": "Forbind et Jira Cloud-websted for at få en database med dets sager, der holdes ajour: hver sag er en række med nøgle, status, ansvarlig, prioritet, type, etiketter, forfaldsdato og et link tilbage. Ændringer går én vej, fra Jira til Leafdesk.",
+    "site": "Jira-websted",
+    "sitePlaceholder": "dit-team.atlassian.net",
+    "email": "E-mailadresse",
+    "token": "API-token",
+    "tokenHelp": "Opret et i din Atlassian-konto under Sikkerhed → API-tokens. Det opbevares forseglet på serveren og bruges kun til at læse sager.",
+    "tokenLink": "Opret et API-token",
+    "connect": "Forbind",
+    "connecting": "Forbinder…",
+    "connected": "Logget ind som {name}",
+    "change": "Skift",
+    "from": "Sager fra",
+    "project": "Et projekt",
+    "jql": "En JQL-forespørgsel",
+    "chooseProject": "Vælg et projekt",
+    "noProjects": "Denne konto kan ikke se noget projekt. Skriv en JQL-forespørgsel i stedet.",
+    "jqlPlaceholder": "project = OPS AND resolution = Unresolved",
+    "every": "Synkronisér",
+    "intervals": {
+      "m15": "Hvert 15. minut",
+      "m60": "Hver time",
+      "m360": "Hver 6. time",
+      "m1440": "Én gang om dagen",
+      "manual": "Kun når det ønskes"
+    },
+    "submit": "Importér, og hold synkroniseret",
+    "submitting": "Importerer…",
+    "names": {
+      "key": "Nøgle",
+      "status": "Status",
+      "assignee": "Ansvarlig",
+      "others": "{column} (andre)",
+      "priority": "Prioritet",
+      "type": "Type",
+      "labels": "Etiketter",
+      "due": "Forfaldsdato",
+      "link": "Jira-link"
+    },
+    "errors": {
+      "unauthorized": "Jira afviste e-mailadressen og API-tokenet.",
+      "forbidden": "Denne Jira-konto må ikke søge dér.",
+      "notFound": "Intet Jira Cloud-websted svarede på denne adresse, eller projektet findes ikke.",
+      "badQuery": "Jira afviste forespørgslen.",
+      "badQueryDetail": "Jira afviste forespørgslen: {detail}",
+      "tooManyIssues": "Forespørgslen finder mere end {limit} sager. Indsnævr den.",
+      "unreachable": "Jira kunne ikke nås. Synkroniseringen prøver igen næste gang.",
+      "runAsGone": "Den person, der satte synkroniseringen op, har ikke længere en konto.",
+      "accessLost": "Den person, synkroniseringen kører som, kan ikke længere redigere denne database.",
+      "keyGone": "Egenskaben Nøgle er slettet eller har skiftet type, så sager kan ikke matches med rækker.",
+      "failed": "Synkroniseringen mislykkedes. Den prøver igen næste gang.",
+      "invalidSite": "Det er ikke en adresse, Leafdesk kan nå.",
+      "invalidInput": "Udfyld e-mailadressen, API-tokenet og hvad der skal synkroniseres.",
+      "alreadyRunning": "En synkronisering kører. Prøv igen om et øjeblik."
+    }
+  },
+  "board": {
+    "links": "Intet hentes: filer og links i eksporten forbliver links.",
+    "comments": "{count, plural, one {# kommentar placeres} other {# kommentarer placeres}} på rækkernes sider under deres forfatter og tidspunkt.",
+    "leftOut": "Udeladt: {list}.",
+    "types": "Tjek, hvad hver kolonne bliver til: eksporten siger ikke, hvilken slags en kolonne er, så det er gættet.",
+    "names": {
+      "section": "Sektion",
+      "group": "Gruppe",
+      "status": "Status",
+      "toDo": "Skal gøres",
+      "done": "Færdig",
+      "assignee": "Ansvarlig",
+      "tags": "Tags",
+      "dates": "Datoer",
+      "others": "{column} (andre)",
+      "attachments": "Vedhæftede filer",
+      "comments": "Kommentarer"
+    }
+  },
+  "import": "Importér",
+  "importing": "Importerer…",
+  "done": {
+    "title": "Importen er færdig",
+    "created": "Oprettede {list}.",
+    "nothing": "Intet nyt blev oprettet.",
+    "open": "Åbn",
+    "again": "Importér mere"
+  },
+  "counts": {
+    "pages": "{count, plural, one {# side} other {# sider}}",
+    "databases": "{count, plural, one {# database} other {# databaser}}",
+    "rows": "{count, plural, one {# række} other {# rækker}}",
+    "templates": "{count, plural, one {# skabelon} other {# skabeloner}}",
+    "files": "{count, plural, one {# fil} other {# filer}}"
+  },
+  "warnings": {
+    "heading": "Udeladt eller ændret",
+    "invalidValues": "{count, plural, one {# værdi} other {# værdier}} i “{column}” passede ikke til egenskaben og blev efterladt tomme.",
+    "leftOutColumn": "“{column}” blev ikke importeret.",
+    "missingFile": "“{path}”, som “{page}” linker til, var ikke med i uploadet.",
+    "unresolvedLink": "“[[{target}]]” i “{page}” matcher ingen note eller fil i uploadet, så det forbliver tekst.",
+    "encryptedText": "“{page}” havde krypteret tekst, som blev udeladt.",
+    "fileNotStored": {
+      "tooLarge": "“{path}” er større end uploadgrænsen og blev ikke gemt.",
+      "quotaExceeded": "“{path}” blev ikke gemt: arbejdsområdet har ikke mere fillagring.",
+      "failed": "“{path}” kunne ikke gemmes.",
+      "external": "“{path}” blev udeladt: billedet er linket uden for dokumentet.",
+      "unsupportedType": "“{path}” blev udeladt: sider kan ikke vise billeder af denne type."
+    },
+    "skipped": {
+      "nestedZip": "“{path}” er en ZIP-fil, der ligger for dybt, og blev udeladt.",
+      "nestedDatabase": "“{path}” ville blive en database i en database og blev udeladt.",
+      "duplicate": "“{path}” blev udeladt: den fulde version af samme database blev importeret.",
+      "tooLarge": "“{path}” er for stor til én side og blev udeladt.",
+      "unused": "“{path}” blev udeladt: ingen side viser den eller linker til den.",
+      "unsafePath": "“{path}” blev udeladt: dens sti fører uden for ZIP-filen.",
+      "otherSheet": "Arket “{path}” blev udeladt: der importeres kun ét ark ad gangen.",
+      "badNote": "Noten “{path}” kan ikke læses og blev udeladt.",
+      "notEnex": "“{path}” blev udeladt: det er ikke en Evernote-eksport (.enex)."
+    },
+    "more": "…og {count, plural, one {# mere} other {# mere}}."
+  },
+  "errors": {
+    "tooLarge": "Uploadet er større end {limit}.",
+    "tooManyFiles": "En import kan højst indeholde {limit} filer.",
+    "tooManyPages": "En import kan højst oprette {limit} sider.",
+    "tooManyRows": "En fil kan højst have {limit} rækker.",
+    "tooManyColumns": "En fil kan højst have {limit} kolonner.",
+    "badZip": "ZIP-filen kan ikke læses.",
+    "nothingToImport": "Der er ingen Markdown- eller CSV-fil at importere.",
+    "emptyCsv": "Filen har ingen overskriftsrække.",
+    "badWorkbook": "Excel-filen kan ikke læses.",
+    "unsupportedWorkbook": "Kun .xlsx-projektmapper uden adgangskode kan importeres. Gem filen som en Excel-projektmappe (.xlsx) uden adgangskode, og prøv igen.",
+    "badDocx": "“{name}” kan ikke læses som et Word-dokument. Kun .docx-filer kan importeres; gem først ældre .doc-filer som .docx.",
+    "docxTooComplex": "“{name}” er for stor eller kompleks til at blive importeret som én side.",
+    "badPdf": "“{name}” kan ikke læses som en PDF. Den er måske beskadiget eller beskyttet med en adgangskode.",
+    "pdfNoText": "“{name}” har ingen tekst at importere: den ligner en scanning. Kør først tekstgenkendelse (OCR) på den, eller upload den til en side som en fil.",
+    "pdfTooComplex": "“{name}” er for stor til at blive importeret som én side.",
+    "badEnex": "“{name}” kan ikke læses som en Evernote-eksport. Eksportér noterne som ENEX (.enex) i Evernote, og vælg den fil.",
+    "badTrello": "Filen er ikke en eksport af en Trello-tavle. Vælg Eksportér som JSON i tavlens menu i Trello, og vælg den fil.",
+    "badAsana": "Filen er ikke en eksport af et Asana-projekt. Vælg Eksportér → CSV eller JSON i projektets menu i Asana, og vælg den fil.",
+    "badMonday": "Filen er ikke en eksport af en Monday.com-tavle. Vælg Eksportér tavle til Excel i tavlens menu i Monday.com, og vælg den fil.",
+    "badMapping": "Vælg, hvor mindst én kolonne skal hen, og hver egenskab kun én gang.",
+    "noAccess": "Du kan ikke tilføje sider dér, eller stedet findes ikke længere.",
+    "notADatabase": "Rækker kan kun tilføjes til en database.",
+    "badRequest": "Importen gik ikke igennem. Intet blev ændret."
+  },
+  "googleDocs": {
+    "help": "Hvert Google-dokument bliver til en side, læst gennem arbejdsområdets Google Drive-forbindelse, som et Word-dokument ville blive det: overskrifter, lister, tabeller, links, billeder og fodnoter. En overskrift helt øverst bliver sidens titel; ellers bliver dokumentets navn det.",
+    "loading": "Leder efter Google Drive-forbindelser…",
+    "noConnection": "Der er ingen Google Drive-forbindelse, du kan importere gennem. En ejer tilføjer Google Drive under Indstillinger → Forbindelser; medlemmer kan bruge den, når en ejer har sat flueben ved “I chat” for dens værktøj download_file_content.",
+    "connection": "Google Drive-forbindelse",
+    "through": "Via “{name}”",
+    "links": "Links til Google-dokumenter",
+    "linksPlaceholder": "https://docs.google.com/document/d/… (ét pr. linje)",
+    "invalidLink": "Ikke et link til et Google-dokument: “{link}”",
+    "search": "Søg",
+    "searching": "Søger…",
+    "searchPlaceholder": "Ord i titlen (tom: de seneste dokumenter)",
+    "noneFound": "Ingen Google-dokumenter fundet.",
+    "more": "Vis flere",
+    "linksOnly": "Søgning er ikke tilladt gennem denne forbindelse: indsæt links til dokumenterne.",
+    "chosen": "{count, plural, one {# dokument valgt} other {# dokumenter valgt}}",
+    "tooMany": "Vælg højst {limit} dokumenter ad gangen.",
+    "errors": {
+      "noConnection": "Den Google Drive-forbindelse kan ikke bruges. Bed en ejer om at tjekke den under Indstillinger → Forbindelser.",
+      "unreachable": "“{name}” kunne ikke nås. Prøv igen senere, eller bed en ejer om at tjekke forbindelsen.",
+      "signIn": "“{name}” skal logges ind på Google igen: det gør en ejer under Indstillinger → Forbindelser.",
+      "notFound": "Et dokument kan ikke læses via “{name}”: tjek linket, og at forbindelsens Google-konto må åbne det.",
+      "notADocument": "“{id}” er ikke et Google-dokument."
+    }
+  }
+}

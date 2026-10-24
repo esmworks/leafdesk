@@ -1,0 +1,1194 @@
+{
+  "documentTitle": "{title} · Leafdesk",
+  "documentViewTitle": "{title} · {view} · Leafdesk",
+  "header": {
+    "history": "Paginageschiedenis",
+    "analytics": "Statistieken",
+    "more": "Meer",
+    "copyLink": "Link kopiëren",
+    "copyId": "ID kopiëren",
+    "moveToTrash": "Naar prullenbak verplaatsen",
+    "archive": "Archiveren",
+    "unarchive": "Uit archief halen",
+    "archiveHint": "De pagina bewaren maar uit de zijbalk, zoekresultaten en kiezers halen. De subpagina’s gaan mee.",
+    "edited": "Bewerkt {time}",
+    "activity": "Activiteit",
+    "editedBy": "Bewerkt door {name}",
+    "createdBy": "Gemaakt door {name}",
+    "someone": "Iemand",
+    "comments": "Opmerkingen",
+    "suggesting": {
+      "editing": "Bewerken",
+      "suggesting": "Voorstellen",
+      "label": "Modus: {mode}",
+      "editingHint": "De pagina rechtstreeks wijzigen",
+      "suggestingHint": "Je wijzigingen verschijnen als suggesties die anderen kunnen accepteren of afwijzen",
+      "forcedHint": "Je mag opmerkingen plaatsen op deze pagina, dus je wijzigingen zijn suggesties die de bewerkers kunnen accepteren of afwijzen"
+    },
+    "share": "Delen",
+    "accessRequests": "{count, plural, one {# toegangsverzoek} other {# toegangsverzoeken}}",
+    "addFavorite": "Toevoegen aan favorieten",
+    "removeFavorite": "Verwijderen uit favorieten",
+    "follow": "Volgen",
+    "unfollow": "Niet meer volgen",
+    "followHint": "Krijg een melding in je inbox als iemand anders deze rij wijzigt.",
+    "unfollowHint": "Je krijgt een melding in je inbox als iemand anders deze rij wijzigt.",
+    "linkCopied": "Link gekopieerd",
+    "duplicate": "Dupliceren",
+    "duplicateWithoutRows": "Dupliceren zonder rijen",
+    "duplicateSuffix": " (kopie)",
+    "duplicateFailed": "Kan de pagina niet dupliceren.",
+    "moveTo": "Verplaatsen naar",
+    "style": {
+      "font": "Lettertype",
+      "default": "Standaard",
+      "serif": "Serif",
+      "mono": "Mono",
+      "smallText": "Kleine tekst",
+      "fullWidth": "Volledige breedte"
+    },
+    "lockDatabase": "Database vergrendelen",
+    "lockHint": "Zolang de database vergrendeld is, kunnen eigenschappen en weergaven niet veranderen; rijen blijven bewerkbaar.",
+    "locked": "Vergrendeld",
+    "unlock": "Ontgrendelen",
+    "lockPage": "Pagina vergrendelen",
+    "lockPageHint": "Zolang de pagina vergrendeld is, kan niemand de titel, het pictogram, de achtergrond of de tekst wijzigen. Opmerkingen, delen en verplaatsen werken nog wel.",
+    "exportMarkdown": "Exporteren als Markdown",
+    "exportCsv": "Exporteren als CSV",
+    "exportXlsx": "Exporteren als Excel (.xlsx)",
+    "exportZip": "Exporteren met subpagina’s",
+    "exportZipDatabase": "Exporteren met rijpagina’s",
+    "exportPdf": "Exporteren als PDF",
+    "exportComments": "Opmerkingen meenemen",
+    "exportCommentsHint": "Voegt de discussies die je kunt zien toe aan Markdown-, ZIP- en PDF-exports, na elke pagina",
+    "printView": "Afdrukken",
+    "exportPreparing": "Export voorbereiden…",
+    "acceptAllSuggestions": "Alle suggesties accepteren",
+    "rejectAllSuggestions": "Alle suggesties afwijzen",
+    "rejectAllConfirm": "Elke voorgestelde bewerking op deze pagina afwijzen?",
+    "versionHistory": "Versiegeschiedenis",
+    "lastEdited": "Laatst bewerkt door {name}",
+    "wordCount": "{words, plural, one {# woord} other {# woorden}}, {characters, plural, one {# teken} other {# tekens}}",
+    "actionFailed": "Kan dat niet afronden.",
+    "viewers": "{count, plural, one {# andere persoon bekijkt deze pagina} other {# andere personen bekijken deze pagina}}",
+    "viewersTitle": "Bekijken deze pagina",
+    "saveAsTemplate": "Opslaan als sjabloon",
+    "saveAsRowTemplate": "Opslaan als rijsjabloon",
+    "deleteTemplate": "Sjabloon verwijderen",
+    "exportDisabled": "Exporteren is uitgeschakeld",
+    "exportDisabledBody": "De eigenaren van deze werkruimte hebben het exporteren en afdrukken van de pagina’s uitgeschakeld.",
+    "showInGraph": "Tonen in netwerk",
+    "present": "Presenteren",
+    "watch": "Volgen",
+    "watchHint": "Krijg een melding in je inbox als iemand anders deze pagina bewerkt of er een discussie op begint.",
+    "mute": "Dempen",
+    "muteHint": "Je krijgt een melding in je inbox als iemand anders deze pagina bewerkt of er een discussie op begint. Demp de pagina om dat te stoppen.",
+    "editMarkdown": "Bewerken als Markdown"
+  },
+  "comments": {
+    "aboutPage": "Over deze pagina",
+    "aboutProperty": "Bij “{name}”",
+    "title": "Opmerkingen",
+    "close": "Opmerkingen sluiten",
+    "filters": {
+      "open": "Open",
+      "resolved": "Opgelost",
+      "marked": "Gemarkeerd",
+      "all": "Alle"
+    },
+    "empty": {
+      "open": "Geen open opmerkingen. Selecteer tekst op de pagina en kies Opmerking om er een te beginnen.",
+      "resolved": "Geen opgeloste opmerkingen.",
+      "marked": "Geen discussies gemarkeerd om op terug te komen. Kies “Later op terugkomen” in het menu van een discussie.",
+      "all": "Nog geen opmerkingen. Selecteer tekst op de pagina en kies Opmerking om er een te beginnen.",
+      "person": "Geen van deze discussies heeft een opmerking van deze persoon."
+    },
+    "person": {
+      "label": "Discussies per persoon tonen",
+      "active": "Discussies waarin {name} schreef",
+      "everyone": "Iedereen",
+      "you": "{name} (jij)"
+    },
+    "threadMenu": "Opties voor discussie",
+    "mute": "Antwoorden dempen",
+    "unmute": "Antwoorden niet meer dempen",
+    "muteHint": "Geen meldingen meer over nieuwe antwoorden in deze discussie. Als je hier antwoordt of hier wordt vermeld, gaat het weer aan.",
+    "unmuteHint": "Weer meldingen krijgen over nieuwe antwoorden in deze discussie.",
+    "muted": "Antwoorden gedempt",
+    "mutedHint": "Je krijgt geen meldingen over antwoorden in deze discussie totdat je hier antwoordt of iemand je hier vermeldt.",
+    "mergedFrom": "Uit “{title}”",
+    "suggestion": {
+      "label": "Voorgestelde bewerking",
+      "byAi": "Voorgestelde bewerking door AI",
+      "accept": "Accepteren",
+      "reject": "Afwijzen",
+      "withdraw": "Intrekken",
+      "errors": {
+        "notAllowed": "Je kunt deze suggestie niet beantwoorden.",
+        "notFound": "Deze suggestie is al beantwoord of ingetrokken.",
+        "pageLocked": "De pagina is vergrendeld.",
+        "pageInTrash": "De pagina staat in de prullenbak.",
+        "failed": "De suggestie kon niet worden beantwoord. Probeer het opnieuw."
+      }
+    },
+    "sort": {
+      "label": "Discussies sorteren",
+      "recent": "Nieuwste activiteit eerst",
+      "page": "In paginavolgorde"
+    },
+    "new": "Nieuw",
+    "marked": "Gemarkeerd om later op terug te komen",
+    "markedHint": "Je hebt deze discussie gemarkeerd om er later op terug te komen. Alleen jij ziet dit.",
+    "mark": "Later op terugkomen",
+    "unmark": "“Later op terugkomen” verwijderen",
+    "markHint": "Deze discussie onder Gemarkeerd houden totdat je de markering weghaalt. Alleen jij ziet dit.",
+    "unmarkHint": "Deze discussie van je lijst Gemarkeerd halen.",
+    "onProperty": "Opmerking bij “{name}”",
+    "propertyPlaceholder": "Wat is er met deze waarde?",
+    "post": "Opmerking plaatsen",
+    "propertyGone": "Bij deze waarde kunnen geen opmerkingen meer worden geplaatst.",
+    "export": {
+      "quote": "“{quote}”",
+      "removed": "Bij tekst die is verwijderd",
+      "unknown": "Iemand"
+    }
+  },
+  "archived": {
+    "banner": "Deze pagina staat in de prullenbak.",
+    "deletePermanently": "Definitief verwijderen",
+    "confirmDelete": "Deze pagina en alles erin definitief verwijderen? Dit kan niet ongedaan worden gemaakt."
+  },
+  "outdated": {
+    "byOn": "Gearchiveerd door {name} op {date}.",
+    "on": "Gearchiveerd op {date}.",
+    "with": "Gearchiveerd samen met <link>{title}</link>.",
+    "above": "Gearchiveerd samen met een pagina boven deze.",
+    "unarchive": "Uit archief halen",
+    "hint": "Gearchiveerde pagina’s blijven buiten de zijbalk, zoekresultaten en kiezers, maar kunnen nog worden gelezen en bewerkt."
+  },
+  "verification": {
+    "byUntil": "Geverifieerd door {name} tot {date}",
+    "by": "Geverifieerd door {name}",
+    "until": "Geverifieerd tot {date}",
+    "plain": "Geverifieerd",
+    "expiredOn": "Verificatie verlopen {date}",
+    "hint": "Iemand met volledige toegang heeft deze pagina gecontroleerd en als juist gemarkeerd. Bewerken houdt haar geverifieerd.",
+    "change": "De verificatie wijzigen of verwijderen",
+    "menu": "Pagina verifiëren…",
+    "menuVerified": "Verificatie…",
+    "menuHint": "De pagina markeren als gecontroleerd en juist: zoeken rangschikt haar hoger en de AI-chat geeft er de voorkeur aan",
+    "title": "Pagina verifiëren",
+    "description": "Markeer deze pagina als gecontroleerd en juist, voor een tijdje of zonder einde. Zoeken rangschikt geverifieerde pagina’s hoger, markeert ze en vindt ze met is:verified, en de AI-chat geeft er de voorkeur aan. Bewerken houdt de pagina geverifieerd; je krijgt een paar dagen voor het einde bericht.",
+    "durationLabel": "Geverifieerd voor",
+    "durations": {
+      "week": "1 week",
+      "month": "1 maand",
+      "quarter": "3 maanden",
+      "year": "1 jaar",
+      "until": "Tot een bepaalde dag",
+      "forever": "Zonder einde"
+    },
+    "dateLabel": "Geverifieerd tot",
+    "verify": "Verifiëren",
+    "verifyAgain": "Opnieuw verifiëren",
+    "remove": "Verificatie verwijderen",
+    "searchBadge": "Geverifieerd",
+    "errors": {
+      "template": "Sjablonen en de pagina’s daarin worden niet geverifieerd.",
+      "inTrash": "Zet de pagina eerst terug uit de prullenbak.",
+      "invalidEnd": "Kies een dag na vandaag, binnen vijf jaar."
+    }
+  },
+  "icon": {
+    "add": "Pictogram toevoegen",
+    "remove": "Pictogram verwijderen"
+  },
+  "background": {
+    "add": "Achtergrond toevoegen",
+    "change": "Achtergrond",
+    "colors": "Kleur",
+    "patterns": "Patroon",
+    "none": "Geen",
+    "remove": "Achtergrond verwijderen",
+    "colorNames": {
+      "gray": "Grijs",
+      "blue": "Blauw",
+      "green": "Groen",
+      "purple": "Paars",
+      "pink": "Roze",
+      "red": "Rood",
+      "orange": "Oranje",
+      "black": "Zwart"
+    },
+    "patternNames": {
+      "dots": "Stippen",
+      "plus": "Kruisjes",
+      "grid": "Raster",
+      "lines": "Lijnen"
+    }
+  },
+  "title": {
+    "label": "Paginatitel"
+  },
+  "connection": {
+    "live": "Live",
+    "connecting": "Verbinden",
+    "offline": "Offline",
+    "reconnecting": "Opnieuw verbinden",
+    "noAccess": "Geen toegang",
+    "syncing": "Synchroniseren…",
+    "synced": "Gesynchroniseerd",
+    "offlinePending": "Offline · bewerkingen hier bewaard",
+    "offlineHint": "Je bent offline. Blijf bewerken: wijzigingen worden in deze browser opgeslagen en gesynchroniseerd zodra de verbinding terug is.",
+    "notSaved": "Niet opgeslagen",
+    "notSavedHint": "Leafdesk kon je laatste wijzigingen niet opslaan. Houd deze pagina open: je volgende bewerking slaat ze opnieuw op."
+  },
+  "errors": {
+    "accessLost": "Je hebt geen toegang meer tot deze pagina.",
+    "connectionFailed": "Kan geen verbinding maken voor live bewerken. Opnieuw proberen…",
+    "notAvailableOffline": "Deze pagina is nog niet op dit apparaat opgeslagen. Open haar één keer terwijl je online bent om haar offline te gebruiken."
+  },
+  "history": {
+    "title": "Paginageschiedenis",
+    "previewTitle": "Voorbeeld van versie",
+    "modes": {
+      "version": "Versie",
+      "current": "Vergelijken met huidige",
+      "previous": "Vergelijken met vorige"
+    },
+    "reasons": {
+      "auto": "Automatisch opgeslagen",
+      "beforeRestore": "Vóór herstellen",
+      "manual": "Opgeslagen versie",
+      "beforeAiEdit": "Vóór AI-bewerking",
+      "beforeAiEditBy": "Vóór bewerking door {client}",
+      "beforeAssistantEdit": "Vóór bewerking door AI-assistent",
+      "beforeMarkdownEdit": "Vóór Markdown-bewerking",
+      "beforeMerge": "Vóór samenvoegen van rijen"
+    },
+    "empty": "Nog geen versies. Versies worden automatisch opgeslagen terwijl je bewerkt en voordat een AI-app deze pagina wijzigt.",
+    "restore": "Deze versie herstellen",
+    "restoring": "Herstellen…",
+    "restoreHint": "De huidige inhoud wordt eerst als versie opgeslagen.",
+    "diff": {
+      "rangeCurrent": "Wijzigingen van de versie van {from} tot de huidige pagina",
+      "rangePrevious": "Wijzigingen van {from} tot {to}",
+      "earlier": "de vorige versie",
+      "changedBy": "Gewijzigd door {names}",
+      "actorApp": "{client} voor {name}",
+      "none": "Geen wijzigingen.",
+      "oldest": "Dit is de oudste opgeslagen versie, dus er is niets eerders om mee te vergelijken.",
+      "showUnchanged": "{count, plural, one {# ongewijzigd blok tonen} other {# ongewijzigde blokken tonen}}",
+      "formatOnly": "Opmaak gewijzigd"
+    },
+    "errors": {
+      "list": "Kan de paginageschiedenis niet laden. Laad de pagina opnieuw en probeer het nog eens.",
+      "version": "Kan deze versie niet laden.",
+      "restore": "Kan deze versie niet herstellen.",
+      "diff": "Kan deze versies niet vergelijken."
+    }
+  },
+  "analytics": {
+    "title": "Paginastatistieken",
+    "period": "Periode",
+    "days": "{days} dagen",
+    "views": "Weergaven",
+    "viewers": "Bezoekers",
+    "viewedBy": "Bekeken door",
+    "editedBy": "Bewerkt door",
+    "noViews": "Niemand heeft deze pagina in deze periode geopend.",
+    "noEdits": "Geen bewerkingen in deze periode.",
+    "viewCount": "{count, plural, one {# weergave} other {# weergaven}}",
+    "editCount": "{count, plural, one {# bewerking} other {# bewerkingen}}",
+    "chartLabel": "Weergaven per dag",
+    "dayViews": "{day}: {count, plural, one {# weergave} other {# weergaven}}",
+    "notRecorded": "Deze werkruimte registreert geen paginaweergaven, dus alleen bewerkingen worden getoond. Eigenaren kunnen ze inschakelen in Instellingen > Statistieken.",
+    "howCounted": "Een weergave is een eigenaar of lid die de pagina opent; binnen 5 minuten opnieuw openen telt niet. Dagen zijn in UTC.",
+    "howEditsCounted": "Bewerkingen worden geteld uit de paginageschiedenis en de laatste wijziging van de pagina.",
+    "noAccess": "Alleen de eigenaren van de werkruimte en leden die deze pagina kunnen bewerken, zien de statistieken.",
+    "failed": "Kan de statistieken niet laden."
+  },
+  "move": {
+    "title": "Verplaatsen naar",
+    "search": "Pagina’s zoeken…",
+    "empty": "Geen overeenkomende pagina’s.",
+    "failed": "Kan de pagina daar niet heen verplaatsen.",
+    "teamspaceHint": "Bovenaan deze teamruimte: de leden krijgen toegang",
+    "private": "Privé",
+    "privateHint": "Bovenaan je privépagina’s: alleen mensen met wie de pagina is gedeeld, krijgen toegang"
+  },
+  "share": {
+    "tabShare": "Delen",
+    "tabPublish": "Publiceren",
+    "addPeople": "Personen, groepen of e-mailadressen toevoegen",
+    "noMatches": "Geen overeenkomende leden of groepen.",
+    "addPeopleOrAgents": "Personen, groepen, agents of e-mailadressen toevoegen",
+    "noMatchesWithAgents": "Geen overeenkomende leden, groepen of agents.",
+    "agentPaused": "Agent, gepauzeerd",
+    "groupMembers": "{count, plural, =0 {Groep zonder leden} one {Groep met # lid} other {Groep met # leden}}",
+    "membersOnly": "Je kunt delen met leden van de werkruimte. Deze werkruimte staat niet toe dat je deelt met mensen daarbuiten.",
+    "guestHint": "Typ een volledig e-mailadres om te delen met iemand buiten de werkruimte. Die persoon komt erbij als gast en ziet alleen de pagina’s die met hem of haar zijn gedeeld.",
+    "shareWith": "Delen met {email}",
+    "asGuest": "Komt erbij als gast",
+    "pending": "Uitgenodigd, nog niet lid geworden",
+    "cancelInvite": "Uitnodiging intrekken",
+    "invitedSent": "Uitnodiging verstuurd naar {email}.",
+    "invitedNoEmail": "{email} is uitgenodigd, maar er kon geen e-mail worden verstuurd. Stuur de uitnodigingslink zelf.",
+    "copyInvite": "Uitnodigingslink kopiëren",
+    "you": "Jij",
+    "inherited": "Via {title}",
+    "groupInherited": "Groep, via {title}",
+    "inheritedAbove": "Via een bovenliggende pagina",
+    "groupInheritedAbove": "Groep, via een bovenliggende pagina",
+    "hiddenGroup": "Een groep",
+    "group": "Groep",
+    "viaGeneral": "{level} (via algemene toegang)",
+    "viaOwner": "{level} (als eigenaar)",
+    "overridden": "De algemene toegang is hoger ({level}), dus dit heeft geen effect.",
+    "remove": "Verwijderen",
+    "generalAccess": "Algemene toegang",
+    "everyone": "Iedereen in de werkruimte",
+    "everyoneHint": "Leden krijgen minstens deze toegang, wat je ze ook afzonderlijk geeft. Zet dit op \"Geen toegang\" om de pagina alleen open te stellen voor de mensen die je toevoegt.",
+    "everyoneIn": "Iedereen in {name}",
+    "everyoneTeamspace": "Iedereen in de teamruimte",
+    "everyoneTeamspaceHint": "Leden van de teamruimte krijgen minstens deze toegang, wat je ze ook afzonderlijk geeft. Zet dit op \"Geen toegang\" om de pagina alleen open te stellen voor de mensen die je toevoegt.",
+    "readOnly": "Alleen mensen met volledige toegang kunnen het delen wijzigen.",
+    "copyLink": "Link kopiëren",
+    "copied": "Gekopieerd",
+    "loading": "Laden…",
+    "requests": {
+      "heading": "Verzoeken",
+      "message": "“{message}”",
+      "level": "Toegangsniveau",
+      "approve": "Delen",
+      "decline": "Afwijzen",
+      "outsider": "Niet in de werkruimte: delen voegt deze persoon toe als gast.",
+      "cantInvite": "Niet in de werkruimte, en deze werkruimte staat niet toe dat je deelt met mensen daarbuiten.",
+      "asksMore": "Vraagt om “{level}”, heeft nu “{current}”"
+    },
+    "askMore": {
+      "title": "Om meer toegang vragen",
+      "description": "Je hebt “{level}”. De mensen met volledige toegang tot de pagina beslissen.",
+      "level": "Gevraagde toegang",
+      "messagePlaceholder": "Bericht (optioneel)",
+      "send": "Vragen",
+      "sending": "Vragen…",
+      "pending": "Je hebt om “{level}” gevraagd. De mensen met volledige toegang tot de pagina antwoorden.",
+      "rateLimited": "Je hebt te vaak gevraagd. Probeer het over een tijdje opnieuw.",
+      "unavailable": "Je kunt op dit moment niet om meer toegang tot deze pagina vragen."
+    },
+    "levels": {
+      "full": "Volledige toegang",
+      "edit": "Kan bewerken",
+      "comment": "Kan opmerkingen plaatsen",
+      "view": "Kan bekijken",
+      "none": "Geen toegang"
+    },
+    "errors": {
+      "notMember": "Deze persoon is geen lid van de werkruimte.",
+      "lastFullAccess": "Iemand moet volledige toegang tot de pagina houden. Geef eerst iemand anders volledige toegang.",
+      "accessDenied": "Je kunt het delen van deze pagina niet wijzigen.",
+      "invalidEmail": "Voer een geldig e-mailadres in.",
+      "invitesRestricted": "Deze werkruimte staat niet toe dat je pagina’s deelt met mensen daarbuiten. Vraag het een eigenaar.",
+      "generic": "Kan het delen niet bijwerken.",
+      "agentFullAccess": "Agents kunnen een pagina bekijken, er opmerkingen bij plaatsen of haar bewerken, maar krijgen nooit volledige toegang."
+    },
+    "everyoneFromTeamspaceHint": "Ingesteld door de teamruimte. De eigenaren ervan en de eigenaren van de werkruimte hebben volledige toegang. Kies hier een niveau om het voor deze pagina en de subpagina’s in te stellen."
+  },
+  "noAccess": {
+    "metaTitle": "Geen toegang",
+    "title": "Je hebt geen toegang tot deze pagina",
+    "description": "Vraag om toegang, dan krijgen de mensen die deze pagina kunnen delen je verzoek.",
+    "descriptionNoRequests": "Vraag de persoon die je de link heeft gestuurd om deze pagina met je te delen.",
+    "messageLabel": "Bericht (optioneel)",
+    "messagePlaceholder": "Voeg een notitie toe voor de mensen die de pagina kunnen delen",
+    "request": "Toegang aanvragen",
+    "sending": "Versturen…",
+    "sentTitle": "Verzoek verstuurd",
+    "sentDescription": "Als iemand de pagina met je deelt, opent deze link haar.",
+    "rateLimited": "Je hebt te vaak om toegang gevraagd. Probeer het over een tijdje opnieuw.",
+    "signedInAs": "Je bent ingelogd als {email}.",
+    "home": "Naar je werkruimte"
+  },
+  "embed": {
+    "label": "Database",
+    "linkedLabel": "Gekoppelde weergave van een database",
+    "unavailable": "Deze database is niet beschikbaar. Misschien is ze verwijderd, of heb je er geen toegang toe.",
+    "inTrash": "Deze database staat in de prullenbak.",
+    "creating": "Database aanmaken…",
+    "createFailed": "Kan de database niet aanmaken: {error}",
+    "turnIntoDatabase": "Omzetten naar database",
+    "convertFailed": "Kan de tabel niet omzetten naar een database: {error}",
+    "tableTooLarge": "Tabellen met maximaal {rows} rijen en {columns} kolommen kunnen een database worden.",
+    "open": "Openen als pagina",
+    "linked": "Gekoppelde weergave",
+    "layout": "Indeling",
+    "viewOnly": "Alleen mensen die deze pagina kunnen bewerken, kunnen deze weergave wijzigen.",
+    "picker": {
+      "title": "Kies een database",
+      "search": "Databases zoeken",
+      "empty": "Geen databases gevonden.",
+      "failed": "Kan de databases niet laden."
+    },
+    "slash": {
+      "database": {
+        "title": "Database",
+        "subtext": "Een nieuwe database in deze pagina",
+        "aliases": "database db inline table tabel"
+      },
+      "linkedView": {
+        "title": "Gekoppelde weergave van database",
+        "subtext": "Een bestaande database tonen met een eigen weergave",
+        "aliases": "linked view database db gekoppelde weergave"
+      },
+      "dashboard": {
+        "title": "Dashboard",
+        "subtext": "Getallen, grafieken en lijsten uit je databases",
+        "aliases": "dashboard widgets kpi metrics charts numbers grafieken getallen cijfers"
+      },
+      "databaseTabs": {
+        "title": "Databasetabbladen",
+        "subtext": "Meerdere databases of weergaven, elk in een eigen tabblad",
+        "aliases": "tabs tabbed database views switch tabbladen weergaven wisselen"
+      }
+    }
+  },
+  "textStyle": {
+    "superscript": "Superscript",
+    "subscript": "Subscript"
+  },
+  "find": {
+    "label": "Zoeken op pagina",
+    "placeholder": "Zoeken",
+    "replacePlaceholder": "Vervangen door",
+    "noResults": "Geen resultaten",
+    "matchCase": "Hoofdlettergevoelig",
+    "matchAccents": "Accentgevoelig",
+    "previous": "Vorige overeenkomst (Shift+Enter)",
+    "next": "Volgende overeenkomst (Enter)",
+    "showReplace": "Vervangen tonen",
+    "hideReplace": "Vervangen verbergen",
+    "replace": "Vervangen",
+    "replaceAll": "Alles vervangen",
+    "close": "Sluiten (Esc)"
+  },
+  "template": {
+    "workspace": "Dit is een sjabloon. Nieuwe pagina’s die ermee worden gemaakt, kopiëren de inhoud en subpagina’s.",
+    "row": "Dit is een rijsjabloon. Nieuwe rijen die ermee worden gemaakt, krijgen de eigenschappen en inhoud.",
+    "inside": "Deze pagina maakt deel uit van een sjabloon.",
+    "use": "Sjabloon gebruiken",
+    "confirmDelete": "Dit sjabloon definitief verwijderen? Pagina’s die er al mee zijn gemaakt, blijven zoals ze zijn."
+  },
+  "blocks": {
+    "callout": {
+      "title": "Callout",
+      "subtext": "Tekst met een pictogram op een gekleurde achtergrond",
+      "aliases": "callout note tip warning alert box notitie waarschuwing kader",
+      "icon": "Pictogram wijzigen",
+      "hiddenInPrint": "Verborgen bij afdrukken",
+      "titleField": "Titel van de callout",
+      "titlePlaceholder": "Titel",
+      "builtin": {
+        "frame": "Kader"
+      },
+      "styleSubtext": "Calloutstijl",
+      "group": "Callouts"
+    },
+    "code": {
+      "language": "Taal",
+      "plainText": "Platte tekst",
+      "format": "Code opmaken",
+      "formatSyntaxError": "De code is niet opgemaakt: er staat een syntaxfout op regel {line}.",
+      "formatFailed": "De code kon niet worden opgemaakt."
+    },
+    "math": {
+      "title": "Vergelijking",
+      "subtext": "Een losstaande vergelijking in TeX",
+      "aliases": "math equation latex tex katex formula wiskunde vergelijking formule",
+      "placeholder": "Een TeX-vergelijking toevoegen",
+      "sourcePlaceholder": "E = mc^2",
+      "error": "De vergelijking bevat een fout"
+    },
+    "inlineMath": {
+      "title": "Inline vergelijking",
+      "subtext": "Een vergelijking in de tekst",
+      "aliases": "inline math equation latex tex katex formula wiskunde vergelijking formule",
+      "placeholder": "Nieuwe vergelijking",
+      "sourcePlaceholder": "x^2",
+      "error": "Fout in vergelijking"
+    },
+    "footnote": {
+      "title": "Voetnoot",
+      "subtext": "Een genummerde notitie aan het einde van de pagina",
+      "aliases": "footnote note reference source citation voetnoot noot verwijzing bron",
+      "placeholder": "Nieuwe voetnoot",
+      "sourcePlaceholder": "Tekst van de noot",
+      "list": "Voetnoten",
+      "goTo": "Naar de voetnoot in de tekst",
+      "back": "Terug naar de tekst"
+    },
+    "mermaid": {
+      "title": "Mermaid-diagram",
+      "subtext": "Stroomdiagrammen, sequentiediagrammen en meer, getekend vanuit tekst",
+      "aliases": "mermaid diagram flowchart chart graph sequence gantt stroomdiagram",
+      "placeholder": "Een Mermaid-diagram toevoegen",
+      "sourcePlaceholder": "graph TD\n  A --> B",
+      "loading": "Diagram tekenen…",
+      "error": "Het diagram bevat een fout",
+      "syntaxError": "Syntaxfout",
+      "label": "Diagram"
+    },
+    "toc": {
+      "title": "Inhoudsopgave",
+      "subtext": "Links naar de koppen op deze pagina",
+      "aliases": "toc table contents headings outline inhoudsopgave inhoud koppen",
+      "label": "Inhoudsopgave",
+      "empty": "Voeg koppen toe aan deze pagina, dan worden ze hier vermeld."
+    },
+    "breadcrumb": {
+      "title": "Kruimelpad",
+      "subtext": "De pagina’s boven deze, als links",
+      "aliases": "breadcrumb path parents location kruimelpad pad locatie",
+      "label": "Kruimelpad"
+    },
+    "subpages": {
+      "title": "Subpagina’s",
+      "subtext": "De pagina’s onder deze, als links",
+      "aliases": "subpages children child pages list index subpagina’s lijst",
+      "label": "Subpagina’s",
+      "empty": "Pagina’s die je onder deze toevoegt, worden hier vermeld."
+    },
+    "columns": {
+      "two": {
+        "title": "2 kolommen",
+        "subtext": "Twee kolommen met blokken naast elkaar",
+        "aliases": "columns column layout side 2 two kolommen kolom twee"
+      },
+      "three": {
+        "title": "3 kolommen",
+        "subtext": "Drie kolommen met blokken naast elkaar",
+        "aliases": "columns column layout side 3 three kolommen kolom drie"
+      },
+      "add": {
+        "title": "Kolom toevoegen",
+        "subtext": "Een nieuwe kolom rechts van deze (maximaal 5)",
+        "aliases": "column columns add new layout kolom toevoegen nieuw"
+      }
+    },
+    "pageLink": {
+      "title": "Link naar pagina",
+      "subtext": "Een link naar een andere pagina, met de actuele titel",
+      "aliases": "link page mention reference pagina vermelding verwijzing"
+    },
+    "syncedPage": {
+      "title": "Gesynchroniseerde pagina",
+      "subtext": "De inhoud van een andere pagina, live en hier bewerkbaar",
+      "aliases": "synced sync embed mirror transclude page gesynchroniseerd spiegel pagina"
+    },
+    "colors": {
+      "group": "Kleuren",
+      "text": "{color} tekst",
+      "background": "{color} achtergrond",
+      "textDefault": "Standaardtekstkleur",
+      "backgroundDefault": "Geen achtergrond",
+      "textAliases": "color colour text font kleur tekst",
+      "backgroundAliases": "background highlight color colour achtergrond markeren kleur"
+    },
+    "syncedBlock": {
+      "title": "Gesynchroniseerd blok",
+      "subtext": "Blokken die je op meerdere pagina’s kunt tonen en bewerken",
+      "aliases": "synced sync reuse shared blocks gesynchroniseerd hergebruiken gedeeld blokken"
+    }
+  },
+  "web": {
+    "bookmark": {
+      "title": "Webbladwijzer",
+      "subtext": "Een link als kaart met titel en afbeelding",
+      "aliases": "bookmark link url web card preview bladwijzer kaart voorbeeld",
+      "placeholder": "Plak een link om als bladwijzer op te slaan",
+      "submit": "Bladwijzer maken",
+      "loading": "Pagina ophalen…",
+      "refresh": "Voorbeeld vernieuwen",
+      "resize": "Sleep om de breedte van de kaart te wijzigen",
+      "label": "Bladwijzer"
+    },
+    "embed": {
+      "title": "Insluiten",
+      "subtext": "YouTube, Figma, Google Docs, Maps en meer",
+      "aliases": "embed iframe youtube vimeo loom figma google docs sheets slides codepen spotify maps video insluiten",
+      "placeholder": "Plak een link om in te sluiten",
+      "submit": "Insluiten",
+      "providers": "YouTube, Vimeo, Loom, Figma, gepubliceerde Google Docs, Sheets en Slides, CodePen, Spotify en Google Maps. Andere links worden een bladwijzer.",
+      "frameTitle": "Ingesloten inhoud van {host}",
+      "label": "Insluiting"
+    },
+    "paste": {
+      "label": "Plakken als",
+      "bookmark": "Bladwijzer",
+      "embed": "Insluiting",
+      "mention": "Vermelding",
+      "keep": "Als link houden"
+    },
+    "invalidUrl": "Voer een webadres in, zoals https://example.com",
+    "errors": {
+      "accessDenied": "Je kunt deze pagina niet bewerken.",
+      "rateLimited": "Te veel linkvoorbeelden tegelijk. Probeer het over een minuut opnieuw.",
+      "invalidUrl": "Dat is geen webadres.",
+      "blocked": "Van dit adres kan geen voorbeeld worden getoond.",
+      "unreachable": "Kan de pagina niet bereiken.",
+      "timeout": "De pagina deed er te lang over om te antwoorden.",
+      "tooManyRedirects": "De pagina stuurt te vaak door.",
+      "httpError": "De pagina antwoordde met een fout."
+    }
+  },
+  "upload": {
+    "tooLarge": "{name} is te groot. Bestanden mogen maximaal {limit} zijn.",
+    "quotaExceeded": "{name} is niet geüpload: deze werkruimte heeft de {limit} aan bestandsopslag opgebruikt.",
+    "failed": "Kan {name} niet uploaden.",
+    "storageFailed": "{name} is niet geüpload: de eigen opslag van de werkruimte heeft het niet aangenomen. De eigenaren kunnen in Instellingen > Opslag zien waarom."
+  },
+  "mention": {
+    "people": "Personen",
+    "agents": "Agents",
+    "groups": "Groepen",
+    "groupMembers": "{count, plural, =0 {Geen leden} one {# lid} other {# leden}}",
+    "pages": "Pagina’s",
+    "dates": "Datums",
+    "newPage": "Nieuwe pagina: {title}",
+    "newPageHint": "In deze pagina",
+    "today": "Vandaag",
+    "tomorrow": "Morgen",
+    "yesterday": "Gisteren",
+    "nextWeek": "Volgende week",
+    "noAccess": "Geen toegang",
+    "deleted": "Verwijderde pagina",
+    "loading": "Laden…",
+    "atBlock": "Opent bij een blok van de pagina",
+    "showAsMention": "Tonen als vermelding",
+    "personLeft": "{name} (niet meer in de werkruimte)",
+    "date": "Datum",
+    "reminder": "Herinnering",
+    "remindNone": "Geen herinnering",
+    "remindSameDay": "Op de dag zelf, 9:00",
+    "remindDayBefore": "De dag ervoor, 9:00",
+    "remindWeekBefore": "Een week ervoor, 9:00",
+    "reminderSet": "Herinnering: {when}",
+    "reminderHint": "Je krijgt hem in je inbox en per e-mail.",
+    "reminderPast": "Dat tijdstip is voorbij; kies een latere datum of herinnering.",
+    "done": "Klaar"
+  },
+  "preview": {
+    "editedBy": "Bewerkt door {name} {when}",
+    "edited": "Bewerkt {when}",
+    "members": "{count, plural, =0 {Er zit nog niemand in deze groep} one {# lid} other {# leden}}",
+    "moreMembers": "en nog {count}"
+  },
+  "pageLinkPicker": {
+    "title": "Link naar pagina",
+    "search": "Pagina’s zoeken…",
+    "empty": "Geen pagina’s gevonden",
+    "failed": "Kan de pagina’s niet laden."
+  },
+  "syncedPage": {
+    "label": "Gesynchroniseerde pagina",
+    "viewOnly": "Alleen bekijken",
+    "cycle": "Deze pagina wordt hierboven al getoond, dus ze wordt hier alleen gelinkt."
+  },
+  "backlinks": {
+    "title": "Gelinkt vanuit",
+    "titleCount": "Gelinkt vanuit · {count}",
+    "count": "{count, plural, one {# pagina linkt hiernaartoe} other {# pagina’s linken hiernaartoe}}",
+    "unlinked": "Niet-gelinkte vermeldingen · {count}",
+    "unlinkedHint": "Pagina’s die de titel van deze pagina noemen zonder ernaar te linken",
+    "link": "Linken",
+    "linkLabel": "De vermelding in {title} linken",
+    "linkFailed": "De titel staat daar niet meer als gewone tekst.",
+    "locked": "Die pagina is vergrendeld, dus ze kan niet worden gewijzigd.",
+    "morePlaces": "{count, plural, one {Nog # plek} other {Nog # plekken}}",
+    "fewerPlaces": "Minder tonen",
+    "morePages": "{count, plural, one {Nog # pagina tonen} other {Nog # pagina’s tonen}}"
+  },
+  "blockMenu": {
+    "copyLink": "Link naar blok kopiëren",
+    "hideInPrint": "Verbergen bij afdrukken",
+    "calloutStyle": "Calloutstijl",
+    "turnIntoCallout": "Omzetten naar callout",
+    "plainCallout": "Eenvoudige callout",
+    "addTitle": "Titel toevoegen",
+    "removeTitle": "Titel verwijderen"
+  },
+  "imageLink": {
+    "menuItem": "Link…",
+    "editMenuItem": "Link bewerken…",
+    "title": "De afbeelding linken",
+    "urlLabel": "Webadres",
+    "toPage": "Linkt naar de pagina “{title}”",
+    "invalid": "Voer een webadres in dat begint met http:// of https://, of kies een pagina.",
+    "pickPage": "Naar een pagina linken…",
+    "remove": "Link verwijderen",
+    "open": "Link openen"
+  },
+  "pdf": {
+    "untitled": "PDF",
+    "openInNewTab": "Openen in een nieuw tabblad",
+    "frameTitle": "PDF: {name}",
+    "noPreview": "Deze browser kan hier geen pdf’s tonen. Open het bestand om het te lezen."
+  },
+  "pdfExport": {
+    "title": "Exporteren als PDF",
+    "letterhead": "Briefpapier",
+    "none": "Geen",
+    "defaultMark": "{name} (standaard)",
+    "noLetterheads": "Eigenaren kunnen briefpapier met een logo en bedrijfsgegevens toevoegen in Instellingen → PDF-sjablonen.",
+    "properties": "De waarden van de rij meenemen",
+    "comments": "Opmerkingen meenemen",
+    "hint": "Diagrammen en vergelijkingen worden als tekst afgedrukt; gebruik Afdrukken voor de pagina precies zoals die eruitziet.",
+    "download": "Downloaden",
+    "preparing": "Voorbereiden…"
+  },
+  "spreadsheet": {
+    "untitled": "Werkmap",
+    "download": "Downloaden",
+    "loading": "De werkmap lezen…",
+    "tooLarge": "Deze werkmap is te groot om hier te tonen. Download haar om haar te openen.",
+    "unreadable": "Deze werkmap kan hier niet worden getoond: misschien is ze beschadigd, met een wachtwoord beveiligd of een oud .xls-bestand. Download haar om haar te openen.",
+    "empty": "Dit blad is leeg.",
+    "sheets": "Bladen",
+    "tableLabel": "{name}, blad {sheet}",
+    "partial": "Eerste {rows} rijen en {columns} kolommen getoond",
+    "convert": "Omzetten naar een database",
+    "convertTitle": "Een blad van deze werkmap importeren als nieuwe database"
+  },
+  "print": {
+    "print": "Afdrukken of opslaan als PDF",
+    "back": "Terug naar pagina",
+    "includeSubpages": "Subpagina’s meenemen",
+    "preparing": "Afbeeldingen en diagrammen laden…",
+    "hint": "Kies in het afdrukvenster “Opslaan als PDF” als bestemming.",
+    "truncated": "Alleen de eerste {count} pagina’s zijn opgenomen.",
+    "lastUpdated": "Laatst bijgewerkt {date}",
+    "subpages": "Pagina’s",
+    "embedUnavailable": "Deze database is niet beschikbaar voor jou."
+  },
+  "quickNote": {
+    "documentTitle": "Snelle notitie",
+    "heading": "Snelle notitie",
+    "description": "Opgeslagen als privépagina die alleen jij ziet. Je kunt haar later verplaatsen of delen.",
+    "workspace": "Werkruimte",
+    "title": "Titel",
+    "body": "Notitie",
+    "bodyPlaceholder": "Schrijf iets, of plak een link",
+    "save": "Notitie opslaan",
+    "shortcut": "Nieuwe snelle notitie",
+    "shortcutShort": "Snelle notitie",
+    "destination": "Opslaan in",
+    "privatePage": "Privépagina"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "empty": "Dit dashboard heeft nog geen widgets.",
+    "emptyEditable": "Toon hier getallen, grafieken en lijsten uit de databases van de werkruimte. Ze blijven bijgewerkt terwijl rijen veranderen.",
+    "add": "Widget toevoegen",
+    "full": "Een dashboard bevat maximaal {max} widgets.",
+    "menu": "Widgetopties",
+    "edit": "Bewerken",
+    "done": "Klaar",
+    "remove": "Widget verwijderen",
+    "moveBefore": "Naar voren verplaatsen",
+    "moveAfter": "Naar achteren verplaatsen",
+    "width": "Breedte",
+    "widths": {
+      "1": "Een kwart van de breedte",
+      "2": "De halve breedte",
+      "3": "Driekwart van de breedte",
+      "4": "De volledige breedte"
+    },
+    "color": "Kleur",
+    "colorNone": "Geen kleur",
+    "titleLabel": "Titel van de widget",
+    "titlePlaceholder": "Titel (die van de database als leeg)",
+    "unavailable": "Je hebt geen toegang tot deze gegevens.",
+    "inTrash": "Deze database staat in de prullenbak.",
+    "loadFailed": "Deze widget kon niet worden geladen.",
+    "retry": "Opnieuw proberen",
+    "noGroup": "De database heeft nog niets om op te groeperen: voeg een eigenschap van het type selectie, status of datum toe.",
+    "more": "{count, plural, one {Nog # rij} other {Nog # rijen}}",
+    "rows": "{count, plural, one {# rij} other {# rijen}}",
+    "byGroup": "per {property}",
+    "filters": "{count, plural, one {# filter} other {# filters}}",
+    "updatedNow": "zojuist bijgewerkt",
+    "updated": "bijgewerkt {time}"
+  },
+  "databaseTabs": {
+    "title": "Databasetabbladen",
+    "empty": "Deze tabbladen tonen nog geen databases.",
+    "emptyEditable": "Toon meerdere databases, of weergaven van één database, als tabbladen. Elk tabblad is een eigen weergave.",
+    "add": "Tabblad toevoegen",
+    "full": "Tabbladen bevatten maximaal {max} weergaven.",
+    "menu": "Tabbladopties",
+    "rename": "Hernoemen",
+    "remove": "Tabblad verwijderen",
+    "nameLabel": "Naam van het tabblad",
+    "namePlaceholder": "De naam van de database",
+    "noAccess": "Geen toegang"
+  },
+  "voiceNote": {
+    "record": "Een spraaknotitie opnemen",
+    "recording": "Opnemen",
+    "stop": "Stoppen en uitwerken",
+    "discard": "Weggooien",
+    "cancel": "Annuleren",
+    "retry": "Opnieuw invoegen",
+    "close": "Sluiten",
+    "limit": "Maximaal {minutes} min",
+    "chooseFile": "Of kies een audiobestand",
+    "transcribing": "Uitschrijven wat je zei…",
+    "writing": "AI schrijft de notitie…",
+    "autoStopped": "De opname is gestopt bij de limiet van {minutes} min.",
+    "review": "AI heeft deze notitie geschreven op basis van je opname. Controleer haar voordat je opslaat.",
+    "notRewritten": "AI kon deze opname niet uitwerken, dus de notitie is de transcriptie zoals die werd gehoord.",
+    "transcriptKept": "De transcriptie wordt onder de notitie opgeslagen.",
+    "propertiesPicked": "{count, plural, one {# eigenschap is ingevuld op basis van de notitie.} other {# eigenschappen zijn ingevuld op basis van de notitie.}}",
+    "transcriptToggle": "Transcriptie",
+    "shortcut": "Nieuwe spraaknotitie",
+    "shortcutShort": "Spraaknotitie",
+    "dialogTitle": "Spraaknotitie",
+    "dialogDescription": "Spreek, en AI schrijft hier een nette notitie. De transcriptie komt eronder.",
+    "slashTitle": "Spraaknotitie",
+    "slashSubtext": "Spreek, en AI werkt het hier uit",
+    "slashAliases": "voice audio record dictate speech microphone transcribe spraak opnemen dicteren microfoon transcriberen",
+    "errors": {
+      "unsupported": "Deze browser kan geen audio opnemen. Kies in plaats daarvan een audiobestand.",
+      "insecure": "Opnemen vereist een beveiligde (https-)verbinding. Kies in plaats daarvan een audiobestand.",
+      "denied": "Leafdesk mag de microfoon niet gebruiken. Sta het toe in de site-instellingen van je browser en probeer het opnieuw.",
+      "noDevice": "Er is geen microfoon gevonden.",
+      "failed": "De opname kon niet starten. Probeer het opnieuw.",
+      "fileType": "Dit soort audiobestand wordt niet ondersteund.",
+      "fileTooLarge": "Opnames mogen maximaal {max} zijn.",
+      "disabled": "Spraaknotities zijn niet beschikbaar in deze werkruimte.",
+      "noAccess": "Je kunt hier geen notities toevoegen.",
+      "tooLarge": "De opname is te groot. Opnames mogen maximaal {max} zijn.",
+      "rateLimited": "Te veel AI-verzoeken. Probeer het zo meteen opnieuw.",
+      "timeout": "Het uitschrijven van de opname duurde te lang. Probeer het opnieuw, of neem een kortere notitie op.",
+      "aborted": "Geannuleerd.",
+      "provider": "De opname kon niet worden uitgeschreven. Probeer het later opnieuw, of vraag een beheerder om de instellingen voor spraak-naar-tekst te controleren.",
+      "empty": "Er was niets te horen in de opname. Probeer het opnieuw dichter bij de microfoon.",
+      "invalid": "De opname kon niet worden gelezen. Probeer het opnieuw.",
+      "interrupted": "De server is herstart terwijl dit werd uitgewerkt. Probeer het opnieuw.",
+      "limitReached": "Deze werkruimte heeft de maandelijkse limiet voor AI-kosten bereikt, dus AI-verzoeken worden tot volgende maand geweigerd. Eigenaren zien de details in Instellingen onder AI-gebruik.",
+      "insert": "De notitie kon niet aan de pagina worden toegevoegd."
+    },
+    "instructions": {
+      "menu": "Instructies voor spraaknotities",
+      "menuHint": "Hoe AI de spraaknotities uitwerkt die in deze database worden opgeslagen",
+      "title": "Instructies voor spraaknotities",
+      "description": "AI volgt deze instructies als het een spraaknotitie uitwerkt die in deze database wordt opgeslagen. Ze gelden voor iedereen die erin opneemt.",
+      "placeholder": "Bijvoorbeeld: Notitie van een klantbezoek. Behandel het bedrijf, de persoon die je sprak, wat er is besproken, de status van de offerte en de volgende stap.",
+      "followed": "Spraaknotities die hier worden opgeslagen, volgen de schrijfinstructies van deze database."
+    }
+  },
+  "review": {
+    "bar": "{count, plural, one {# AI-wijziging om te beoordelen} other {# AI-wijzigingen om te beoordelen}}",
+    "by": "door {names}",
+    "open": "Beoordelen",
+    "keepAll": "Alles behouden",
+    "undoAll": "Alles ongedaan maken",
+    "keep": "Behouden",
+    "undo": "Ongedaan maken",
+    "title": "AI-wijzigingen beoordelen",
+    "hint": "Behoud elke wijziging of maak haar ongedaan. Alles ongedaan maken slaat de pagina zoals ze nu is eerst op in de geschiedenis.",
+    "stale": "De pagina is intussen gewijzigd: dit zijn de wijzigingen zoals ze nu zijn.",
+    "failed": "Dat is niet gelukt. Probeer het opnieuw."
+  },
+  "syncedBlock": {
+    "label": "Gesynchroniseerd blok",
+    "from": "Gesynchroniseerd vanuit",
+    "viewOnly": "Alleen bekijken",
+    "copy": "Gesynchroniseerd blok kopiëren",
+    "copied": "Gekopieerd",
+    "copyHint": "Plak het in een andere pagina om deze blokken daar live te tonen",
+    "shownOn": "{count, plural, one {Getoond op # pagina} other {Getoond op # pagina’s}}",
+    "notShownShort": "Nergens anders getoond",
+    "notShown": "Kopieer dit gesynchroniseerde blok en plak het in een andere pagina om het daar te tonen.",
+    "hiddenPages": "{count, plural, one {en # pagina die je niet kunt zien} other {en # pagina’s die je niet kunt zien}}",
+    "unsync": "Synchronisatie opheffen",
+    "unsyncHint": "Omzetten naar een gewone kopie van deze blokken",
+    "nested": "Een gesynchroniseerd blok kan niet in een ander gesynchroniseerd blok staan.",
+    "turnInto": "Omzetten naar gesynchroniseerd blok",
+    "state": {
+      "noAccess": "Geen toegang",
+      "trashed": "De pagina van het oorspronkelijke gesynchroniseerde blok staat in de prullenbak",
+      "deleted": "De pagina van het oorspronkelijke gesynchroniseerde blok is verwijderd",
+      "removed": "Het oorspronkelijke gesynchroniseerde blok is verwijderd"
+    },
+    "exportNote": "Gesynchroniseerd blok: {state}"
+  },
+  "viewer": {
+    "untitled": "Bestand",
+    "counter": "{index} van {count}",
+    "announce": "{name}, {index} van {count}",
+    "previous": "Vorig bestand",
+    "next": "Volgend bestand",
+    "close": "Sluiten",
+    "download": "Downloaden",
+    "openInNewTab": "Openen in een nieuw tabblad",
+    "zoom": "Zoomen",
+    "zoomIn": "Inzoomen",
+    "zoomOut": "Uitzoomen",
+    "zoomReset": "Passend op scherm",
+    "zoomResetLevel": "{percent}%, passend op scherm",
+    "loading": "Laden…",
+    "readingDocument": "Het document lezen…",
+    "unavailable": "Dit bestand kan niet worden geopend. Misschien is het verwijderd, of heb je er geen toegang meer toe.",
+    "imageFailed": "Deze afbeelding kan hier niet worden getoond. Download haar om haar te openen.",
+    "empty": "Dit bestand is leeg.",
+    "noPreview": "Er is geen voorbeeld voor dit soort bestand.",
+    "unknownType": "Onbekend type",
+    "cannotPlay": "Deze browser kan dit bestand niet afspelen. Download het om het elders af te spelen.",
+    "truncated": "Alleen de eerste {size} van dit bestand worden getoond. Download het om alles te zien.",
+    "csvPartial": "Een deel van dit bestand wordt getoond ({rows} rijen). Download het om alles te zien.",
+    "documentTooLarge": "Dit document is te groot voor een voorbeeld. Download het om het te openen.",
+    "documentUnreadable": "Van dit document kan geen voorbeeld worden getoond: misschien is het beschadigd, met een wachtwoord beveiligd of een oud .doc-bestand. Download het om het te openen.",
+    "documentBusy": "De server is bezig met het lezen van andere documenten. Probeer het zo meteen opnieuw.",
+    "picturesLeftOut": "Sommige afbeeldingen uit dit document worden hier niet getoond.",
+    "retry": "Opnieuw proberen",
+    "markdownImage": "Afbeelding: {alt}",
+    "markdownImageUntitled": "Afbeelding",
+    "expand": "Openen in viewer",
+    "view": "{name} bekijken"
+  },
+  "presentation": {
+    "previous": "Vorige dia",
+    "next": "Volgende dia",
+    "exit": "Presentatie beëindigen",
+    "counter": "{index} van {count}",
+    "announce": "Dia {index} van {count}"
+  },
+  "markdownSource": {
+    "title": "Bewerken als Markdown",
+    "sourceTab": "Markdown",
+    "previewTab": "Voorbeeld",
+    "toolbar": "Opmaak",
+    "placeholder": "Schrijf Markdown…",
+    "close": "Sluiten",
+    "retry": "Opnieuw proberen",
+    "unsaved": "Niet-opgeslagen wijzigingen",
+    "offline": "Offline: opslaan vereist een verbinding",
+    "saveHint": "Opslaan in de pagina (Ctrl+S of ⌘S)",
+    "tools": {
+      "bold": "Vet",
+      "italic": "Cursief",
+      "code": "Inline code",
+      "link": "Link",
+      "heading": "Kop {level}",
+      "bulletList": "Opsommingslijst",
+      "numberedList": "Genummerde lijst",
+      "taskList": "Takenlijst"
+    },
+    "errors": {
+      "noAccess": "Je kunt deze pagina niet bewerken.",
+      "database": "Databases hebben geen tekst om als Markdown te bewerken.",
+      "trashed": "Deze pagina staat in de prullenbak.",
+      "locked": "Deze pagina is vergrendeld. Ontgrendel haar om haar te bewerken.",
+      "saveFailed": "De pagina kon niet worden opgeslagen. Probeer het zo meteen opnieuw.",
+      "failed": "Er ging iets mis. Probeer het opnieuw."
+    },
+    "losses": {
+      "title": "Een deel van deze pagina blijft niet behouden",
+      "body": "Markdown kan niet alles op deze pagina bevatten. Opslaan schrijft de pagina opnieuw vanuit de Markdown, dus dit gaat verloren:",
+      "kinds": {
+        "textColor": "Tekstkleuren",
+        "backgroundColor": "Achtergrondkleuren en markeringen",
+        "alignment": "Tekstuitlijning",
+        "mediaSize": "Afmetingen van afbeeldingen en video’s",
+        "callout": "Kleuren en pictogrammen van callouts waarvoor Markdown geen vorm heeft",
+        "textStyle": "Sommige tekstopmaak, zoals onderstrepen",
+        "table": "Kolombreedtes, koprijen, samengevoegde cellen en celkleuren van tabellen",
+        "blockSetting": "Andere blokinstellingen",
+        "content": "Sommige inhoud die Markdown niet kan bevatten"
+      },
+      "synced": "{count, plural, one {Je wijzigingen in een gesynchroniseerd blok: bewerk het in plaats daarvan op de pagina} other {Je wijzigingen in # gesynchroniseerde blokken: bewerk ze in plaats daarvan op de pagina}}",
+      "confirm": "Toch opslaan"
+    },
+    "conflict": {
+      "title": "Iemand anders heeft deze pagina gewijzigd",
+      "body": "De pagina is gewijzigd nadat je de Markdown ervan opende. Laad de pagina zoals ze nu is (je wijzigingen hier gaan verloren), of sla die van jou eroverheen op.",
+      "reload": "De huidige pagina laden",
+      "overwrite": "Mijn versie eroverheen opslaan"
+    },
+    "discard": {
+      "title": "Je wijzigingen weggooien?",
+      "body": "Je Markdown-wijzigingen zijn niet opgeslagen.",
+      "keep": "Verder bewerken",
+      "confirm": "Weggooien"
+    }
+  },
+  "siblings": {
+    "label": "Pagina’s naast {title}",
+    "empty": "Geen andere pagina’s hier",
+    "failed": "Kan de pagina’s hier niet laden.",
+    "openDatabase": "Database openen",
+    "allRows": "Alle rijen in de database bekijken"
+  },
+  "agentChat": {
+    "label": "Agentchat",
+    "exportLine": "Agentchat: {name}",
+    "elsewhere": "Agentchat: beschikbaar in de app voor leden van de werkruimte.",
+    "choose": "Kies een agent",
+    "noAgent": "Kies de agent waarmee mensen hier chatten.",
+    "noAgentReadOnly": "Er is geen agent gekozen voor deze chat.",
+    "loadFailed": "Kan deze chat niet laden.",
+    "retry": "Opnieuw proberen",
+    "states": {
+      "guest": "Agentchats zijn niet beschikbaar voor gasten.",
+      "gone": "Deze agent is niet meer beschikbaar.",
+      "paused": "Deze agent is gepauzeerd, dus hij kan niet antwoorden.",
+      "aiOff": "AI staat uit in deze werkruimte, dus de agent kan niet antwoorden.",
+      "limitReached": "Deze agent heeft zijn tokens voor deze maand opgebruikt, dus hij kan tot volgende maand niet antwoorden.",
+      "noAccess": "Je hebt geen toegang tot deze agent."
+    },
+    "empty": {
+      "full": "Vraag {name} iets, of geef een opdracht. De agent werkt met zijn eigen toegang, vaardigheden en geheugen, en elk antwoord is een van zijn runs.",
+      "readOnly": "Stel {name} een vraag. Antwoorden komen alleen uit pagina’s die jullie allebei kunnen zien, en de agent kan niets wijzigen."
+    },
+    "readOnly": "Alleen-lezen",
+    "readOnlyHint": "Antwoorden komen alleen uit pagina’s die jij en de agent allebei kunnen zien.",
+    "placeholder": "Bericht aan {name}…",
+    "send": "Versturen",
+    "working": "Bezig…",
+    "waiting": "Wachten op een AI-plek…",
+    "approval": "De agent wil een tool gebruiken. Keur de aanroep goed om hem verder te laten gaan.",
+    "steps": "{count, plural, one {# stap} other {# stappen}}",
+    "conversations": "Gesprekken",
+    "newConversation": "Nieuw gesprek",
+    "deleteConversation": "Dit gesprek verwijderen",
+    "failed": {
+      "aiOff": "AI staat uit in deze werkruimte.",
+      "agentDisabled": "De agent is gepauzeerd of gearchiveerd.",
+      "noAccess": "Je kunt hier niet meer met deze agent chatten.",
+      "provider": "De AI-provider heeft niet geantwoord.",
+      "timeout": "De agent deed er te lang over om te antwoorden.",
+      "tooManyAttempts": "Het AI-tegoed van de werkruimte bleef opgebruikt, dus de agent kon niet starten.",
+      "approvalTimeout": "Niemand heeft de aanroep op tijd beantwoord, dus er is niets verstuurd.",
+      "limitReached": "De agent heeft zijn tokens voor deze maand opgebruikt.",
+      "costLimit": "De werkruimte heeft de maandelijkse limiet voor AI-kosten bereikt.",
+      "error": "Er ging iets mis."
+    },
+    "errors": {
+      "invalid": "Schrijf eerst een bericht.",
+      "tooLong": "Een bericht mag maximaal {max} tekens hebben.",
+      "busy": "De agent is nog bezig met je vorige bericht.",
+      "rateLimited": "Te veel berichten tegelijk. Probeer het zo meteen opnieuw.",
+      "noAccess": "Deze chat is niet beschikbaar voor jou.",
+      "notOnPage": "Deze chat staat niet meer op de pagina.",
+      "guest": "Agentchats zijn niet beschikbaar voor gasten.",
+      "gone": "Deze agent is niet meer beschikbaar.",
+      "paused": "Deze agent is gepauzeerd, dus hij kan niet antwoorden.",
+      "aiOff": "AI staat uit in deze werkruimte, dus de agent kan niet antwoorden.",
+      "limitReached": "Deze agent heeft zijn tokens voor deze maand opgebruikt."
+    },
+    "picker": {
+      "search": "Agents zoeken",
+      "empty": "Geen agents om mee te chatten. Eigenaren maken ze aan in Instellingen, onder Agents.",
+      "failed": "Kan de agents niet laden.",
+      "paused": "Gepauzeerd"
+    },
+    "slash": {
+      "title": "Agentchat",
+      "subtext": "Op deze pagina chatten met een van de agents van de werkruimte",
+      "aliases": "agent chat bot assistant ai ask assistent vragen"
+    },
+    "tab": {
+      "hint": "Plak de link van deze agent in een pagina om daar een chat met hem te plaatsen. Leden kunnen er alleen-lezend in chatten.",
+      "copyLink": "Link kopiëren"
+    },
+    "awaitingOwner": "Wachten tot een eigenaar van de werkruimte een aanroep goedkeurt…"
+  },
+  "button": {
+    "untitled": "Knop",
+    "placeholder": "Label van de knop",
+    "done": "Klaar",
+    "confirm": "“{label}” uitvoeren?",
+    "blockLabel": "Knop “{label}”",
+    "slash": {
+      "title": "Knop",
+      "subtext": "Doet een paar dingen achter elkaar als erop wordt geklikt",
+      "aliases": "button action click run knop actie klikken uitvoeren"
+    },
+    "settings": {
+      "open": "Knopinstellingen",
+      "icon": "Emoji",
+      "label": "Label",
+      "color": "Kleur",
+      "colorDefault": "Standaard",
+      "confirm": "Vragen voor het uitvoeren",
+      "confirmHelp": "Wie klikt, bevestigt eerst.",
+      "steps": "Bij klikken",
+      "stepsHelp": "Stappen worden op volgorde uitgevoerd, als degene die klikt en met diens toegang. Een stap die diegene niet kan uitvoeren, stopt de knop daar.",
+      "addStep": "Een stap toevoegen",
+      "moveUp": "Omhoog",
+      "moveDown": "Omlaag",
+      "insertAt": "Waar",
+      "at": {
+        "below": "Onder de knop",
+        "top": "Bovenaan de pagina",
+        "bottom": "Aan het einde van de pagina"
+      },
+      "markdown": "Blokken in Markdown",
+      "people": "Personen",
+      "message": "Bericht",
+      "notifyHelp": "Alleen personen die deze pagina kunnen openen, krijgen een melding.",
+      "url": "Adres",
+      "secret": "Ondertekeningsgeheim",
+      "copySecret": "Het geheim kopiëren",
+      "webhookHelp": "Verstuurt deze pagina als JSON, ondertekend met het geheim, als de werkruimte toestaat dat inhoud haar verlaat.",
+      "target": "Webadres of pagina",
+      "pickPage": "Kies een pagina",
+      "toPage": "Opent “{title}”",
+      "rowTitle": "Titel",
+      "values": "Waarden",
+      "updateHelp": "Wijzigt maximaal {max} rijen die aan de filters voldoen en die degene die klikt kan zien."
+    },
+    "variables": {
+      "group": "Knop",
+      "today": "Vandaag",
+      "now": "Nu",
+      "me": "Wie klikte"
+    },
+    "steps": {
+      "insert": "Blokken invoegen",
+      "add_row": "Een rij toevoegen",
+      "update_rows": "Rijen wijzigen",
+      "notify": "Personen een melding sturen",
+      "webhook": "Een webhook versturen",
+      "open": "Een link of pagina openen"
+    },
+    "failed": {
+      "notFound": "Deze knop staat niet meer op de pagina.",
+      "noSteps": "Deze knop doet nog niets.",
+      "inTrash": "Knoppen op pagina’s in de prullenbak worden niet uitgevoerd.",
+      "rateLimited": "Er is te vaak op deze knop geklikt. Wacht even en probeer het opnieuw.",
+      "noAccess": "Je hebt geen toegang om dit te doen.",
+      "locked": "De pagina is vergrendeld.",
+      "notConfigured": "Deze stap is niet ingesteld.",
+      "databaseGone": "De database bestaat niet meer of staat in de prullenbak.",
+      "invalidValue": "Een waarde past niet bij de eigenschap.",
+      "exportOff": "Deze werkruimte staat niet toe dat inhoud haar verlaat.",
+      "webhookFailed": "Het adres heeft de webhook niet geaccepteerd.",
+      "invalidTarget": "De link om te openen is niet geldig.",
+      "buttonGone": "De knop is van de pagina verwijderd.",
+      "error": "Er ging iets mis.",
+      "step": "Stap {step} ({type}) is niet uitgevoerd: {reason}",
+      "templateGone": "Het rijsjabloon bestaat niet meer."
+    }
+  },
+  "imageCrop": {
+    "menuItem": "Bijsnijden…",
+    "title": "De afbeelding bijsnijden",
+    "hint": "Sleep het kader of de randen ervan. Het bestand blijft heel, dus je kunt dit later wijzigen.",
+    "frame": "Deel van de afbeelding dat wordt getoond. Pijltoetsen verplaatsen het; met Shift wijzig je de grootte.",
+    "reset": "De hele afbeelding tonen",
+    "loading": "De afbeelding laden…",
+    "failed": "De afbeelding kon niet worden geladen."
+  }
+}

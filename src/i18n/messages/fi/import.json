@@ -1,0 +1,273 @@
+{
+  "open": "Tuo",
+  "title": "Tuo",
+  "description": "Tuo sivuja Markdown-tiedostoista, ZIP-vienneistä, Word-asiakirjoista, Google-dokumenteista ja PDF-tiedostoista, muistikirjoja Evernotesta, rivejä CSV-tiedostosta tai Excel-työkirjasta, Trello-, Asana- tai Monday.com-taulu tai Jira-tiketit, jotka pysyvät synkronoituina.",
+  "tabs": {
+    "pages": "Markdown ja ZIP",
+    "docx": "Word",
+    "pdf": "PDF",
+    "evernote": "Evernote",
+    "csv": "CSV ja Excel",
+    "trello": "Trello",
+    "asana": "Asana",
+    "monday": "Monday.com",
+    "jira": "Jira",
+    "googleDocs": "Google Docs"
+  },
+  "destination": "Sijainti",
+  "topLevel": "Työtilan ylin taso",
+  "filePage": "Sivu, jolla tiedosto on",
+  "noDestination": "Ei sivua, jolle voisit lisätä sivuja.",
+  "pages": {
+    "help": "Markdown-tiedostoista tulee sivuja, ja kansiot säilyttävät rakenteensa. CSV-tiedostoista tulee tietokantoja, ja sivujen linkittämät kuvat ladataan palvelimelle.",
+    "notion": "Notionista: vie muodossa ”Markdown & CSV” alasivuineen ja valitse ZIP sellaisenaan kuin se latautui (myös osiin jaetut viennit toimivat). Alasivut, tietokannat, relaatiot, huomiolaatikot, avattavat lohkot ja kuvat tulevat mukana.",
+    "obsidian": "Obsidianista: valitse holvin kansio tai siitä tehty ZIP. Muistiinpanojen väliset linkit (myös [[wikilinkit]]), upotetut kuvat ja tiedostot sekä huomiolaatikot tulevat mukana.",
+    "chooseFiles": "Valitse tiedostot",
+    "chooseFolder": "Valitse kansio",
+    "drop": "tai pudota tiedostot tähän",
+    "selected": "{count, plural, one {# tiedosto} other {# tiedostoa}}, {size}",
+    "clear": "Tyhjennä"
+  },
+  "docx": {
+    "help": "Jokaisesta Word-asiakirjasta (.docx) tulee sivu otsikoineen, luetteloineen, taulukoineen, linkkeineen, kuvineen ja alaviitteineen. Aivan alussa oleva otsikko on sivun nimi, muuten tiedoston nimi.",
+    "choose": "Valitse Word-tiedostot"
+  },
+  "pdf": {
+    "help": "Jokaisesta PDF-tiedostosta tulee sivu sen tekstistä: suuremmista riveistä tulee otsikoita, ja kappaleet sekä numeroidut ja luettelomerkityt luettelot tulevat mukana, myös sivunvaihtojen yli. Toistuvat ylä- ja alatunnisteet sekä sivunumerot jätetään pois. Aivan alussa oleva otsikko on sivun nimi, muuten tiedoston nimi.",
+    "scans": "Skannatussa PDF-tiedostossa ei ole luettavaa tekstiä, joten sitä ei voi tuoda: aja sille ensin tekstintunnistus (OCR) tai lataa se sivulle tiedostona.",
+    "choose": "Valitse PDF-tiedostot",
+    "attach": "Liitä jokainen PDF myös sen sivulle kuvien, taulukoiden ja asettelun vuoksi"
+  },
+  "evernote": {
+    "help": "Jokaisesta Evernote-viennistä (.enex) tulee tiedoston mukaan nimetty tietokanta, jossa on rivi jokaista muistiinpanoa kohden. Tunnisteista, luonti- ja päivitysajoista, tekijästä ja lähde-URL:stä tulee ominaisuuksia, ja muistiinpanosta tulee rivin sivu muotoiluineen, luetteloineen, tehtävineen, taulukoineen, koodilohkoineen, kuvineen ja liitteineen. Salattu teksti jätetään pois.",
+    "export": "Valitse Evernotessa muistiinpanot tai muistikirja ja valitse Vie → ENEX (.enex), ja valitse sitten ladatut tiedostot. Myös useasta viennistä tehty ZIP käy.",
+    "choose": "Valitse Evernote-viennit (.enex)",
+    "names": {
+      "tags": "Tunnisteet",
+      "created": "Luotu",
+      "updated": "Päivitetty",
+      "author": "Tekijä",
+      "sourceUrl": "Lähde-URL",
+      "encrypted": "Salattu teksti jätettiin pois tuonnista."
+    }
+  },
+  "csv": {
+    "choose": "Valitse CSV- tai Excel-tiedosto",
+    "summary": "{name}: {rows, plural, one {# rivi} other {# riviä}}, {columns, plural, one {# sarake} other {# saraketta}}",
+    "sheet": "Taulukko",
+    "mode": "Tuo muodossa",
+    "newDatabase": "Uusi tietokanta",
+    "existing": "Tietokannan rivejä",
+    "name": "Nimi",
+    "titleColumn": "Rivien otsikot sarakkeesta",
+    "noTitle": "Ei saraketta (nimettömät rivit)",
+    "column": "Sarake",
+    "type": "Tyyppi",
+    "target": "Kohde",
+    "values": "Arvot",
+    "leaveOut": "Jätä pois",
+    "rowTitle": "Rivin otsikko",
+    "database": "Tietokanta",
+    "chooseDatabase": "Valitse tietokanta",
+    "noDatabases": "Ei tietokantaa, johon voisit lisätä rivejä.",
+    "cantLoad": "Tämän tietokannan ominaisuuksia ei voitu ladata.",
+    "newOptions": "Valinta-arvot, joita tietokannassa ei vielä ole, lisätään vaihtoehdoiksi."
+  },
+  "trello": {
+    "help": "Avaa Trellossa taulun valikko ja valitse Tulosta, vie ja jaa → Vie JSON-muodossa, ja valitse sitten ladattu tiedosto. Taulusta tulee tietokanta, jossa on taulunäkymä: listat, tunnisteet, jäsenet, päivämäärät, tarkistuslistat, mukautetut kentät, kuvaukset ja kommentit tulevat mukana. Arkistoidut listat ja kortit jätetään pois.",
+    "attachments": "Trellosta ei ladata mitään: linkitetyt liitteet pysyvät linkkeinä, ja Trelloon ladattuihin tiedostoihin linkitetään kunkin kortin sivulta.",
+    "choose": "Valitse Trello-vienti (.json)",
+    "summary": "{name}: {lists, plural, one {# lista} other {# listaa}}, {cards, plural, one {# kortti} other {# korttia}}",
+    "archived": "Arkistoitu, joten jätetty pois: {lists, plural, one {# lista} other {# listaa}} ja {cards, plural, one {# kortti} other {# korttia}}.",
+    "names": {
+      "list": "Lista",
+      "labels": "Tunnisteet",
+      "members": "Jäsenet",
+      "otherMembers": "Muut jäsenet",
+      "dates": "Päivämäärät",
+      "complete": "Valmis",
+      "checklist": "Tarkistuslista",
+      "link": "Linkki",
+      "attachments": "Liitteet",
+      "comments": "Kommentit"
+    }
+  },
+  "asana": {
+    "help": "Avaa Asanassa projektin valikko ja valitse Vie → CSV (tai JSON), ja valitse sitten ladattu tiedosto. Projektista tulee tietokanta, jossa on osioittain ryhmitelty taulunäkymä: valmistuminen, vastuuhenkilöt, päivämäärät, tunnisteet, mukautetut kentät, muistiinpanot, alitehtävät ja riippuvuudet tulevat mukana.",
+    "choose": "Valitse Asana-vienti (.csv tai .json)",
+    "summary": "{name}: {groups, plural, one {# osio} other {# osiota}}, {items, plural, one {# tehtävä} other {# tehtävää}}, {subitems, plural, one {# alitehtävä} other {# alitehtävää}}"
+  },
+  "monday": {
+    "help": "Avaa Monday.comissa taulun valikko ja valitse Export board to Excel (päivitysten kanssa, jos haluat ne), ja valitse sitten ladattu tiedosto. Taulusta tulee tietokanta, jossa on ryhmittäin jaettu taulunäkymä: sen sarakkeet, alikohteet ja päivitykset tulevat mukana.",
+    "choose": "Valitse Monday.com-vienti (.xlsx tai .csv)",
+    "summary": "{name}: {groups, plural, one {# ryhmä} other {# ryhmää}}, {items, plural, one {# kohde} other {# kohdetta}}, {subitems, plural, one {# alikohde} other {# alikohdetta}}"
+  },
+  "jira": {
+    "help": "Yhdistä Jira Cloud -sivusto, niin saat sen tiketeistä tietokannan, joka pysyy ajan tasalla: jokainen tiketti on rivi, jossa on sen avain, tila, vastuuhenkilö, prioriteetti, tyyppi, tunnisteet, määräpäivä ja linkki takaisin. Muutokset kulkevat yhteen suuntaan, Jirasta Leafdeskiin.",
+    "site": "Jira-sivusto",
+    "sitePlaceholder": "your-team.atlassian.net",
+    "email": "Sähköpostiosoite",
+    "token": "API-tunnus",
+    "tokenHelp": "Luo tunnus Atlassian-tililläsi kohdassa Security → API tokens. Se säilytetään palvelimella salattuna, ja sitä käytetään vain tikettien lukemiseen.",
+    "tokenLink": "Luo API-tunnus",
+    "connect": "Yhdistä",
+    "connecting": "Yhdistetään…",
+    "connected": "Kirjautunut käyttäjänä {name}",
+    "change": "Vaihda",
+    "from": "Tiketit lähteestä",
+    "project": "Projekti",
+    "jql": "JQL-kysely",
+    "chooseProject": "Valitse projekti",
+    "noProjects": "Tämä tili ei näe yhtään projektia. Kirjoita sen sijaan JQL-kysely.",
+    "jqlPlaceholder": "project = OPS AND resolution = Unresolved",
+    "every": "Synkronointi",
+    "intervals": {
+      "m15": "15 minuutin välein",
+      "m60": "Tunnin välein",
+      "m360": "6 tunnin välein",
+      "m1440": "Kerran päivässä",
+      "manual": "Vain pyydettäessä"
+    },
+    "submit": "Tuo ja pidä synkronoituna",
+    "submitting": "Tuodaan…",
+    "names": {
+      "key": "Avain",
+      "status": "Tila",
+      "assignee": "Vastuuhenkilö",
+      "others": "{column} (muut)",
+      "priority": "Prioriteetti",
+      "type": "Tyyppi",
+      "labels": "Tunnisteet",
+      "due": "Määräpäivä",
+      "link": "Jira-linkki"
+    },
+    "errors": {
+      "unauthorized": "Jira hylkäsi sähköpostiosoitteen ja API-tunnuksen.",
+      "forbidden": "Tällä Jira-tilillä ei ole oikeutta hakea sieltä.",
+      "notFound": "Tästä osoitteesta ei vastannut Jira Cloud -sivusto, tai projektia ei ole olemassa.",
+      "badQuery": "Jira hylkäsi kyselyn.",
+      "badQueryDetail": "Jira hylkäsi kyselyn: {detail}",
+      "tooManyIssues": "Kysely löytää yli {limit} tikettiä. Rajaa sitä.",
+      "unreachable": "Jiraan ei saatu yhteyttä. Synkronointi yrittää uudelleen seuraavalla kerralla.",
+      "runAsGone": "Synkronoinnin määrittäneellä henkilöllä ei ole enää tiliä.",
+      "accessLost": "Henkilö, jonka nimissä synkronointi ajetaan, ei voi enää muokata tätä tietokantaa.",
+      "keyGone": "Avain-ominaisuus poistettiin tai sen tyyppiä muutettiin, joten tikettejä ei voi yhdistää riveihin.",
+      "failed": "Synkronointi epäonnistui. Se yrittää uudelleen seuraavalla kerralla.",
+      "invalidSite": "Leafdesk ei tavoita tätä osoitetta.",
+      "invalidInput": "Täytä sähköpostiosoite, API-tunnus ja synkronoitava kohde.",
+      "alreadyRunning": "Synkronointi on käynnissä. Yritä hetken kuluttua uudelleen."
+    }
+  },
+  "board": {
+    "links": "Mitään ei ladata: viennin tiedostot ja linkit pysyvät linkkeinä.",
+    "comments": "{count, plural, one {# kommentti siirtyy} other {# kommenttia siirtyy}} rivien sivuille kirjoittajineen ja aikoineen.",
+    "leftOut": "Jätetty pois: {list}.",
+    "types": "Tarkista, miksi kukin sarake muuttuu: vienti ei kerro sarakkeen tyyppiä, joten se arvattiin.",
+    "names": {
+      "section": "Osio",
+      "group": "Ryhmä",
+      "status": "Tila",
+      "toDo": "Tehtävänä",
+      "done": "Valmis",
+      "assignee": "Vastuuhenkilö",
+      "tags": "Tunnisteet",
+      "dates": "Päivämäärät",
+      "others": "{column} (muut)",
+      "attachments": "Liitteet",
+      "comments": "Kommentit"
+    }
+  },
+  "import": "Tuo",
+  "importing": "Tuodaan…",
+  "done": {
+    "title": "Tuonti valmis",
+    "created": "Luotiin {list}.",
+    "nothing": "Mitään uutta ei luotu.",
+    "open": "Avaa",
+    "again": "Tuo lisää"
+  },
+  "counts": {
+    "pages": "{count, plural, one {# sivu} other {# sivua}}",
+    "databases": "{count, plural, one {# tietokanta} other {# tietokantaa}}",
+    "rows": "{count, plural, one {# rivi} other {# riviä}}",
+    "templates": "{count, plural, one {# malli} other {# mallia}}",
+    "files": "{count, plural, one {# tiedosto} other {# tiedostoa}}"
+  },
+  "warnings": {
+    "heading": "Pois jätetyt tai muutetut",
+    "invalidValues": "{count, plural, one {# arvo} other {# arvoa}} sarakkeessa ”{column}” ei sopinut ominaisuuteen, ja ne jätettiin tyhjiksi.",
+    "leftOutColumn": "Saraketta ”{column}” ei tuotu.",
+    "missingFile": "”{path}”, johon linkitetään sivulta ”{page}”, puuttui latauksesta.",
+    "unresolvedLink": "”[[{target}]]” sivulla ”{page}” ei vastaa mitään latauksen muistiinpanoa tai tiedostoa, joten se jää tekstiksi.",
+    "encryptedText": "Sivulla ”{page}” oli salattua tekstiä, joka jätettiin pois.",
+    "fileNotStored": {
+      "tooLarge": "”{path}” ylittää latausrajan, eikä sitä tallennettu.",
+      "quotaExceeded": "”{path}” jäi tallentamatta: työtilan tiedostojen tallennustila on loppu.",
+      "failed": "Tiedostoa ”{path}” ei voitu tallentaa.",
+      "external": "”{path}” jätettiin pois: kuva on linkitetty asiakirjan ulkopuolelta.",
+      "unsupportedType": "”{path}” jätettiin pois: sivut eivät voi näyttää tämän tyyppisiä kuvia."
+    },
+    "skipped": {
+      "nestedZip": "”{path}” on liian syvälle sisäkkäinen ZIP, ja se jätettiin pois.",
+      "nestedDatabase": "”{path}” olisi tietokanta tietokannan sisällä, ja se jätettiin pois.",
+      "duplicate": "”{path}” jätettiin pois: saman tietokannan täysi versio tuotiin.",
+      "tooLarge": "”{path}” on liian suuri yhdelle sivulle, ja se jätettiin pois.",
+      "unused": "”{path}” jätettiin pois: mikään sivu ei näytä sitä tai linkitä siihen.",
+      "unsafePath": "”{path}” jätettiin pois: sen polku johtaa ZIP-tiedoston ulkopuolelle.",
+      "otherSheet": "Taulukko ”{path}” jätettiin pois: kerralla tuodaan vain yksi taulukko.",
+      "badNote": "Muistiinpanoa ”{path}” ei voi lukea, ja se jätettiin pois.",
+      "notEnex": "”{path}” jätettiin pois: se ei ole Evernote-vienti (.enex)."
+    },
+    "more": "…ja {count, plural, one {# muu} other {# muuta}}."
+  },
+  "errors": {
+    "tooLarge": "Lataus on suurempi kuin {limit}.",
+    "tooManyFiles": "Tuonnissa voi olla enintään {limit} tiedostoa.",
+    "tooManyPages": "Tuonti voi luoda enintään {limit} sivua.",
+    "tooManyRows": "Tiedostossa voi olla enintään {limit} riviä.",
+    "tooManyColumns": "Tiedostossa voi olla enintään {limit} saraketta.",
+    "badZip": "ZIP-tiedostoa ei voi lukea.",
+    "nothingToImport": "Tuotavaa Markdown- tai CSV-tiedostoa ei ole.",
+    "emptyCsv": "Tiedostossa ei ole otsikkoriviä.",
+    "badWorkbook": "Excel-tiedostoa ei voi lukea.",
+    "unsupportedWorkbook": "Vain salasanattomia .xlsx-työkirjoja voi tuoda. Tallenna tiedosto Excel-työkirjana (.xlsx) ilman salasanaa ja yritä uudelleen.",
+    "badDocx": "Tiedostoa ”{name}” ei voi lukea Word-asiakirjana. Vain .docx-tiedostoja voi tuoda; tallenna vanhemmat .doc-tiedostot ensin .docx-muodossa.",
+    "docxTooComplex": "”{name}” on liian suuri tai monimutkainen tuotavaksi yhtenä sivuna.",
+    "badPdf": "Tiedostoa ”{name}” ei voi lukea PDF-tiedostona. Se voi olla vioittunut tai salasanalla suojattu.",
+    "pdfNoText": "Tiedostossa ”{name}” ei ole tuotavaa tekstiä: se näyttää skannaukselta. Aja sille ensin tekstintunnistus (OCR) tai lataa se sivulle tiedostona.",
+    "pdfTooComplex": "”{name}” on liian suuri tuotavaksi yhtenä sivuna.",
+    "badEnex": "Tiedostoa ”{name}” ei voi lukea Evernote-vientinä. Vie muistiinpanot Evernotessa ENEX-muodossa (.enex) ja valitse se tiedosto.",
+    "badTrello": "Tiedosto ei ole Trello-taulun vienti. Valitse Trellossa taulun valikosta Vie JSON-muodossa ja valitse se tiedosto.",
+    "badAsana": "Tiedosto ei ole Asana-projektin vienti. Valitse Asanassa projektin valikosta Vie → CSV tai JSON ja valitse se tiedosto.",
+    "badMonday": "Tiedosto ei ole Monday.com-taulun vienti. Valitse Monday.comissa taulun valikosta Export board to Excel ja valitse se tiedosto.",
+    "badMapping": "Valitse kohde vähintään yhdelle sarakkeelle ja kukin ominaisuus vain kerran.",
+    "noAccess": "Et voi lisätä sivuja sinne, tai sitä ei enää ole.",
+    "notADatabase": "Rivejä voi lisätä vain tietokantaan.",
+    "badRequest": "Tuonti ei onnistunut. Mitään ei muutettu."
+  },
+  "googleDocs": {
+    "help": "Jokaisesta Google-dokumentista tulee sivu, joka luetaan työtilan Google Drive -yhteyden kautta samoin kuin Word-asiakirja: otsikot, luettelot, taulukot, linkit, kuvat ja alaviitteet. Aivan alussa oleva otsikko on sivun nimi, muuten dokumentin nimi.",
+    "loading": "Etsitään Google Drive -yhteyksiä…",
+    "noConnection": "Ei Google Drive -yhteyttä, jonka kautta voisit tuoda. Omistaja lisää Google Driven kohdassa Asetukset → Yhteydet; jäsenet voivat käyttää sitä, kun omistaja valitsee sen download_file_content-työkalulle ”Chatissa”.",
+    "connection": "Google Drive -yhteys",
+    "through": "Yhteyden ”{name}” kautta",
+    "links": "Linkit Google-dokumentteihin",
+    "linksPlaceholder": "https://docs.google.com/document/d/… (yksi per rivi)",
+    "invalidLink": "Ei linkki Google-dokumenttiin: ”{link}”",
+    "search": "Hae",
+    "searching": "Haetaan…",
+    "searchPlaceholder": "Sanoja otsikossa (tyhjä: uusimmat dokumentit)",
+    "noneFound": "Google-dokumentteja ei löytynyt.",
+    "more": "Näytä lisää",
+    "linksOnly": "Hakeminen ei ole sallittu tämän yhteyden kautta: liitä linkit dokumentteihin.",
+    "chosen": "{count, plural, one {# dokumentti valittu} other {# dokumenttia valittu}}",
+    "tooMany": "Valitse kerralla enintään {limit} dokumenttia.",
+    "errors": {
+      "noConnection": "Tätä Google Drive -yhteyttä ei voi käyttää. Pyydä omistajaa tarkistamaan se kohdassa Asetukset → Yhteydet.",
+      "unreachable": "Yhteyteen ”{name}” ei saatu yhteyttä. Yritä myöhemmin uudelleen tai pyydä omistajaa tarkistamaan yhteys.",
+      "signIn": "Yhteys ”{name}” vaatii uuden kirjautumisen Googleen: omistaja tekee sen kohdassa Asetukset → Yhteydet.",
+      "notFound": "Dokumenttia ei voi lukea yhteyden ”{name}” kautta: tarkista linkki ja se, että yhteyden Google-tili saa avata sen.",
+      "notADocument": "”{id}” ei ole Google-dokumentti."
+    }
+  }
+}

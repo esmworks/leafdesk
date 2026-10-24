@@ -25,8 +25,11 @@ test("picking a language", () => {
   assert.equal(pickLocale(["tr-TR", "en-US"]), "tr");
   assert.equal(pickLocale(["pt-BR"]), "pt");
   assert.equal(pickLocale(["zh-Hans-CN"]), "zh");
-  assert.equal(pickLocale(["nl-NL", "de-AT"]), "de");
-  assert.equal(pickLocale(["nl-NL"]), "en");
+  assert.equal(pickLocale(["is-IS", "de-AT"]), "de");
+  assert.equal(pickLocale(["is-IS"]), "en");
+  assert.equal(pickLocale(["nl-NL"]), "nl");
+  assert.equal(pickLocale(["no", "en"]), "nb");
+  assert.equal(pickLocale(["nn-NO"]), "nb");
   assert.equal(pickLocale([]), "en");
 });
 
