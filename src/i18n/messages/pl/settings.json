@@ -41,6 +41,7 @@
       "language": "język tłumaczenie region",
       "theme": "tryb ciemny tryb jasny kolory",
       "contrast": "dostępność wysoki kontrast",
+      "desktopLinks": "komputer windows mac karty otwieranie linków",
       "notifications": "push e-mail alerty powiadomienie",
       "watchedPages": "obserwuj subskrybuj śledź",
       "offlineDevice": "offline pobierz pamięć podręczna miejsce",
@@ -1113,6 +1114,20 @@
       "standard": "Standardowy",
       "high": "Wysoki",
       "note": "Wysoki kontrast wzmacnia tekst pomocniczy, linie i obramowania fokusu w obu motywach. To ustawienie dotyczy tylko tej przeglądarki. Przy ustawieniu systemowym jest zgodne z opcją zwiększania kontrastu na urządzeniu."
+    }
+  },
+  "desktopLinks": {
+    "heading": "Aplikacja na komputer",
+    "label": "Otwieraj linki w aplikacji na komputer",
+    "note": "Gdy otworzysz stronę Leafdesk w przeglądarce na komputerze z aplikacją, może ona przejść do aplikacji, do własnej karty. W samej aplikacji nic się nie zmienia.",
+    "off": "Wyłączone",
+    "ask": "Proponuj otwarcie",
+    "always": "Zawsze otwieraj",
+    "banner": {
+      "text": "Otworzyć tę stronę w aplikacji na komputer?",
+      "open": "Otwórz w aplikacji",
+      "always": "Zawsze",
+      "dismiss": "Zamknij"
     }
   },
   "language": {

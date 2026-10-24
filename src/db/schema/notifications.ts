@@ -129,6 +129,12 @@ export const userPreference = pgTable("user_preference", {
   followUpTelegram: boolean("follow_up_telegram").notNull().default(true),
   reactionTelegram: boolean("reaction_telegram").notNull().default(false),
   verificationTelegram: boolean("verification_telegram").notNull().default(true),
+  /**
+   * Leafdesk's links opened in a browser go on to the desktop app (lib/desktop-links.ts): "off",
+   * "ask" (the page offers to) or "always" (it tries at once, and stays in the browser if no app
+   * answers).
+   */
+  desktopLinks: text("desktop_links").notNull().default("off"),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

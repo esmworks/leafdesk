@@ -41,6 +41,7 @@
       "language": "语言 翻译 区域",
       "theme": "深色模式 浅色模式 颜色",
       "contrast": "无障碍 高对比度",
+      "desktopLinks": "桌面 windows mac 标签页 打开链接",
       "notifications": "推送 邮件 提醒 通知",
       "watchedPages": "关注 订阅 关注页面",
       "offlineDevice": "离线 下载 缓存 空间",
@@ -1113,6 +1114,20 @@
       "standard": "标准",
       "high": "高",
       "note": "高对比度会在任一主题下加深次要文字、线条和焦点轮廓。此设置仅适用于此浏览器。选择跟随系统时，会跟随设备的“增强对比度”选项。"
+    }
+  },
+  "desktopLinks": {
+    "heading": "桌面应用",
+    "label": "在桌面应用中打开链接",
+    "note": "在装有桌面应用的电脑上用浏览器打开 Leafdesk 页面时，可以转到应用中，在单独的标签页里打开。应用内部不受影响。",
+    "off": "关闭",
+    "ask": "提示打开",
+    "always": "总是打开",
+    "banner": {
+      "text": "在桌面应用中打开此页面？",
+      "open": "在应用中打开",
+      "always": "总是",
+      "dismiss": "关闭"
     }
   },
   "language": {

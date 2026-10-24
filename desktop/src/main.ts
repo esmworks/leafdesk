@@ -2,8 +2,8 @@
  * Leafdesk's desktop app: a window on the person's own Leafdesk server, or on Leafdesk running on
  * this computer (local mode, local-server.ts). The pages come from the server, as in a browser, so
  * the app works with whatever version the server runs and offline use is the web app's own (its
- * service worker). The app adds a window of its own, menus, a screen to pick the server, and a way
- * to trust a server's self-signed certificate.
+ * service worker). The app adds windows of its own with tabs (windows.ts), menus, a screen to pick
+ * the server, and a way to trust a server's self-signed certificate.
  */
 import {
   app,
@@ -34,11 +34,13 @@ import { activeShortcut, aiChatPath, defaultShortcut, SHORTCUT_OFF, shortcutChoi
 import { pageToRemember, startPath } from "./last-page.ts";
 import { hasSession, signIn, startLocalServer, type BackupResult, type LocalServer } from "./local-server.ts";
 import { buildMenu, WEBSITE } from "./menu.ts";
-import { APP_SCHEME, decideNavigation, decideNewWindow, isServerPage, signInReturn } from "./navigation.ts";
+import { APP_SCHEME, decideNavigation, decideNewWindow, isServerPage, openLinkTarget, signInReturn } from "./navigation.ts";
 import { addressCandidates, hostOf, isLeafdeskManifest } from "./server-address.ts";
 import { loadSettings, saveSettings, type Settings } from "./settings.ts";
 import { direction, isLocale, pickLocale, STRINGS, type Locale } from "./strings.ts";
+import { ClosedTabs, readIcon, tabPath, windowsToRestore, type SavedWindow } from "./tabs.ts";
 import { startUpdates } from "./updates.ts";
+import { STRIP_HEIGHT, TabbedWindow } from "./windows.ts";
 
 const APP_DIR = path.join(import.meta.dirname, "..");
 const PAGE = path.join(APP_DIR, "pages", "app.html");
@@ -50,20 +52,24 @@ const ICON = path.join(APP_DIR, "build", "icon.png");
  * or, run from the source, the repository's around the app's folder.
  */
 const SERVER_DIR = app.isPackaged ? path.join(process.resourcesPath, "server") : path.join(APP_DIR, "..");
-/** The web app's own background (src/lib/theme.ts), so a window doesn't flash before it paints. */
+/** The web app's own background (src/lib/theme.ts), so a tab doesn't flash before it paints. */
 const BACKGROUND = { light: "#ffffff", dark: "#18191b" };
+/** The tab strip's background and text (the web app's bg-subtle and fg), for the window's buttons outside macOS. */
+const STRIP = { light: { color: "#f7f7f8", symbolColor: "#1f2023" }, dark: { color: "#202124", symbolColor: "#e8e8ea" } };
 const PROBE_TIMEOUT_MS = 10_000;
 /** The language picked in Leafdesk (src/i18n/config.ts); the app's own words follow it. */
 const LOCALE_COOKIE = "NEXT_LOCALE";
+/** The theme picked in Leafdesk (src/lib/theme.ts); the tab strip and the app's menus follow it. */
+const THEME_COOKIE = "theme";
 /** What the server's pages may ask for: notifications, the clipboard, full screen and the microphone (voice notes). */
 const PERMISSIONS = new Set(["notifications", "clipboard-read", "clipboard-sanitized-write", "fullscreen", "media"]);
 /**
- * macOS: no title bar of its own; the window's buttons sit in the page's top-left corner, centered on
- * the web app's 44px header row. The preload marks the page (`<html data-window-controls>`) so the
- * web app keeps that corner clear and lets the top strip move the window (src/app/globals.css).
+ * macOS: no title bar of its own; the window's buttons sit at the tab strip's start, centered on
+ * it. The preload marks the strip's page (`<html data-window-controls>`) so it keeps that room.
  */
 const INSET_WINDOW_CONTROLS = process.platform === "darwin";
-const TRAFFIC_LIGHTS = { x: 16, y: 16 };
+const TRAFFIC_LIGHTS = { x: 16, y: 13 };
+const SAVE_DELAY_MS = 500;
 
 /** What the app's own page shows. */
 type View =
@@ -86,15 +92,21 @@ export type ConnectReply =
 
 let settings: Settings = { trustedCertificates: {} };
 let locale: Locale = "en";
-let mainWindow: BrowserWindow | null = null;
+/** The window last in front: the global shortcut and `leafdesk://` links go to it. */
+let lastWindow: TabbedWindow | null = null;
 /** Leafdesk on this computer, once started (local mode). */
 let localServer: Promise<LocalServer> | null = null;
+/** Leafdesk on this computer answers: its tabs open its pages at once. */
+let localReady = false;
 let quitting = false;
+/** The app is quitting: its windows close with it, and their tabs are kept as they were. */
+let appQuitting = false;
 /** A `leafdesk://` link that came before the app started. */
 let waitingLink: string | undefined;
 let started = false;
 const views = new WeakMap<WebContents, View>();
 const certificates = new CertificateTrust(() => settings.trustedCertificates);
+const closedTabs = new ClosedTabs();
 
 const settingsFile = () => path.join(app.getPath("userData"), "settings.json");
 const save = () => saveSettings(settingsFile(), settings);
@@ -123,16 +135,17 @@ if (!app.requestSingleInstanceLock()) {
     // Windows and Linux start the app again for a `leafdesk://` link.
     const link = appLinkIn(argv);
     if (link) return followAppLink(link);
-    const window = mainWindow ?? BrowserWindow.getAllWindows()[0];
-    if (!window) return openMainWindow();
-    if (window.isMinimized()) window.restore();
-    window.focus();
+    const window = liveWindow();
+    if (!window) return openWindows();
+    bringForward(window);
   });
   app.on("window-all-closed", () => {
     if (process.platform !== "darwin") app.quit();
   });
   // Leafdesk on this computer stops before the app does, so its pages' last edits are saved.
   app.on("before-quit", (event) => {
+    appQuitting = true;
+    rememberTabsNow();
     if (!localServer) return;
     event.preventDefault();
     if (quitting) return;
@@ -157,9 +170,11 @@ function start() {
   guardPermissions(ses);
   setSpellCheckerLanguages(ses);
   followLeafdeskLanguage(ses);
+  followLeafdeskTheme(ses);
   registerPageBridge();
+  registerTabBridge();
   refreshMenu();
-  openMainWindow();
+  openWindows();
   applyShortcut();
   started = true;
   const link = waitingLink ?? appLinkIn(process.argv);
@@ -168,7 +183,7 @@ function start() {
   startUpdates(strings);
 
   app.on("activate", () => {
-    if (!BrowserWindow.getAllWindows().length) openMainWindow();
+    if (!BrowserWindow.getAllWindows().length) openWindows();
   });
 }
 
@@ -181,16 +196,38 @@ function plainUserAgent(agent: string) {
   return agent.replace(new RegExp(` (?:${names.join("|")})/\\S+`, "g"), "");
 }
 
+/** The window a menu item acts on: the one in front, if it has tabs. */
+const tabbed = (window: BrowserWindow | undefined) => TabbedWindow.fromBrowserWindow(window);
+
 function refreshMenu() {
   Menu.setApplicationMenu(
     buildMenu(strings(), {
       changeServer: () => {
-        const window = mainWindow ?? openMainWindow();
-        showView(window, { view: "connect", address: settings.server });
-        window.focus();
+        const window = liveWindow() ?? openWindow();
+        const contents = window.activeContents();
+        if (contents) showView(contents, { view: "connect", address: settings.server });
+        bringForward(window);
       },
       goHome: (window) => {
-        if (isLocal() || settings.server) openCurrent(window);
+        const contents = tabbed(window)?.activeContents();
+        if (contents && (isLocal() || settings.server)) openCurrent(contents);
+      },
+      tab: (window) => tabbed(window)?.activeContents(),
+      tabs: {
+        newTab: (window) => {
+          const owner = tabbed(window);
+          if (owner) owner.addTab({ path: newTabPath(owner) });
+          else openWindow({ tabs: [{ path: "/" }], active: 0 });
+        },
+        newWindow: () => openWindow({ tabs: [{ path: newTabPath(liveWindow()) }], active: 0 }),
+        closeTab: (window) => {
+          const owner = tabbed(window);
+          if (owner?.list.active != null) owner.closeTab(owner.list.active);
+          else window?.close();
+        },
+        reopenClosedTab: (window) => reopenClosedTab(tabbed(window)),
+        nextTab: (window) => switchTab(tabbed(window), 1),
+        previousTab: (window) => switchTab(tabbed(window), -1),
       },
       backups: localServer ? { now: () => void backUpNow(), show: showBackups, chooseFolder: () => void chooseBackupFolder() } : undefined,
       shortcut: {
@@ -205,6 +242,11 @@ function refreshMenu() {
       },
     }),
   );
+}
+
+function switchTab(window: TabbedWindow | undefined, step: number) {
+  const target = window?.list.neighbour(step);
+  if (window && target != null) window.showTab(target);
 }
 
 /** The global shortcut registered with the system now, and whether the one picked is another app's. */
@@ -236,25 +278,53 @@ function applyShortcut() {
   refreshMenu();
 }
 
+/** The window last in front, if it is still open. */
+function liveWindow(): TabbedWindow | null {
+  if (lastWindow && !lastWindow.window.isDestroyed()) return lastWindow;
+  return TabbedWindow.all().at(-1) ?? null;
+}
+
+function bringForward(window: TabbedWindow) {
+  if (window.window.isMinimized()) window.window.restore();
+  window.window.show();
+  window.window.focus();
+}
+
 /**
  * The global shortcut: Leafdesk comes forward on AI chat (the server's `/ai`, which sends a
- * workspace without AI to a quick note) in the workspace the window shows. The app's own screens
- * (connecting, starting, a problem) only come forward.
+ * workspace without AI to a quick note) in the workspace the shown tab is in. The app's own
+ * screens (connecting, starting, a problem) only come forward.
  */
 function openAiChat() {
   if (process.platform === "darwin") app.focus({ steal: true });
-  const window = mainWindow;
+  const window = liveWindow();
   if (!window) {
-    openMainWindow(aiChatPath());
+    openWindow({ tabs: [{ path: aiChatPath() }], active: 0 });
     return;
   }
-  if (window.isMinimized()) window.restore();
-  window.show();
-  window.focus();
+  bringForward(window);
   const origin = currentOrigin();
-  const url = window.webContents.getURL();
-  if (!origin || views.has(window.webContents) || !isServerPage(url, origin)) return;
-  window.loadURL(`${origin}${aiChatPath(workspaceIn(url, origin))}`).catch(() => undefined);
+  const contents = window.activeContents();
+  const url = contents?.getURL();
+  if (!origin || !contents || views.has(contents) || !isServerPage(url, origin)) return;
+  contents.loadURL(`${origin}${aiChatPath(workspaceIn(url!, origin))}`).catch(() => undefined);
+}
+
+/** Where a new tab opens: the home of the workspace the window's shown tab is in, else the server's. */
+function newTabPath(window: TabbedWindow | null | undefined) {
+  const origin = currentOrigin();
+  const url = window?.activeContents()?.getURL();
+  const workspace = origin && url ? workspaceIn(url, origin) : undefined;
+  return workspace ? `/w/${encodeURIComponent(workspace)}` : "/";
+}
+
+/** Opens the tab closed last again, in the window in front (or a new one), where it was. */
+function reopenClosedTab(window: TabbedWindow | undefined) {
+  const closed = closedTabs.pop();
+  if (!closed) return;
+  const target = isServerPage(closed.url, currentOrigin()) ? { url: closed.url } : { path: "/" };
+  if (window) window.addTab(target, { index: closed.index });
+  else openWindow({ tabs: [{ path: tabPath(closed.url, currentOrigin()) }], active: 0 });
 }
 
 /** Where Leafdesk on this computer keeps its backups: the folder picked, or one in Documents. */
@@ -266,7 +336,7 @@ async function backUpNow() {
   if (!server) return;
   const result = await server.backUp();
   lastBackupProblem = result.errors.length ? result.errors.join("\n") : undefined;
-  const window = BrowserWindow.getFocusedWindow() ?? mainWindow;
+  const window = BrowserWindow.getFocusedWindow() ?? liveWindow()?.window;
   const box = result.errors.length
     ? { type: "warning" as const, message: strings().backupFailed, detail: result.errors.join("\n") }
     : { type: "info" as const, message: strings().backupDone, detail: result.folder };
@@ -282,7 +352,7 @@ function showBackups() {
 
 async function chooseBackupFolder() {
   const options = { defaultPath: backupFolder(), properties: ["openDirectory" as const, "createDirectory" as const] };
-  const window = BrowserWindow.getFocusedWindow() ?? mainWindow;
+  const window = BrowserWindow.getFocusedWindow() ?? liveWindow()?.window;
   const { canceled, filePaths } = window ? await dialog.showOpenDialog(window, options) : await dialog.showOpenDialog(options);
   if (canceled || !filePaths[0]) return;
   settings.backupFolder = filePaths[0];
@@ -300,25 +370,32 @@ function reportBackup(result: BackupResult) {
   lastBackupProblem = problem;
 }
 
-function webPreferences(): WebPreferences {
+/** A page's settings: the tab strip's (`strip`, told where the window's buttons are) or a tab's. */
+function webPreferences(strip = false): WebPreferences {
   return {
     preload: PRELOAD,
     contextIsolation: true,
     sandbox: true,
     nodeIntegration: false,
-    spellcheck: true,
-    additionalArguments: INSET_WINDOW_CONTROLS ? ["--leafdesk-window-controls=inset"] : [],
+    spellcheck: !strip,
+    additionalArguments: strip && INSET_WINDOW_CONTROLS ? ["--leafdesk-window-controls=inset"] : [],
   };
 }
 
-/** The title bar: the system's, or on macOS none, with the window's buttons over the page. */
+const dark = () => nativeTheme.shouldUseDarkColors;
+
+/**
+ * The title bar: none. On macOS the window's buttons sit at the tab strip's start; elsewhere the
+ * system's buttons are drawn over the strip's end, in its colors.
+ */
 function titleBar(): BrowserWindowConstructorOptions {
-  return INSET_WINDOW_CONTROLS ? { titleBarStyle: "hidden", trafficLightPosition: TRAFFIC_LIGHTS } : {};
+  if (INSET_WINDOW_CONTROLS) return { titleBarStyle: "hidden", trafficLightPosition: TRAFFIC_LIGHTS };
+  return { titleBarStyle: "hidden", titleBarOverlay: { ...STRIP[dark() ? "dark" : "light"], height: STRIP_HEIGHT } };
 }
 
 /**
- * Tells the page when the window enters or leaves full screen, where macOS hides the window's
- * buttons; a page that loads asks (registerPageBridge), so it doesn't first draw room for them.
+ * Tells the strip when the window enters or leaves full screen, where macOS hides the window's
+ * buttons; the strip asks when it loads (registerPageBridge), so it doesn't first draw room for them.
  */
 function reportFullScreen(window: BrowserWindow) {
   if (!INSET_WINDOW_CONTROLS) return;
@@ -329,58 +406,104 @@ function reportFullScreen(window: BrowserWindow) {
   window.on("leave-full-screen", send);
 }
 
-function createWindow(bounds?: Partial<Rectangle>) {
-  const window = new BrowserWindow({
-    width: 1200,
-    height: 800,
-    ...bounds,
-    minWidth: 420,
-    minHeight: 480,
-    show: false,
-    title: "Leafdesk",
-    backgroundColor: nativeTheme.shouldUseDarkColors ? BACKGROUND.dark : BACKGROUND.light,
-    icon: process.platform === "linux" ? ICON : undefined,
-    ...titleBar(),
-    webPreferences: webPreferences(),
+/** Which server the remembered tabs belong to: the connected one's origin, or "local" (last-page.ts). */
+const serverKey = () => (isLocal() ? "local" : settings.server);
+
+/**
+ * Opens the windows of the last start with their tabs (the one shown then, the others as they are
+ * picked), or one window on the page last shown, else the server's home; the app's connect screen
+ * when there is no server yet.
+ */
+function openWindows() {
+  const restored = windowsToRestore(settings.tabs, serverKey(), startPath(settings.lastPage, serverKey()));
+  restored.forEach((saved, index) => openWindow(saved, index === 0 ? restoredBounds() : undefined));
+}
+
+/** A window with tabs (`saved`), at `bounds`, else a little below and right of the one in front. */
+function openWindow(saved: SavedWindow = { tabs: [{ path: "/" }], active: 0 }, bounds?: Partial<Rectangle>) {
+  const front = liveWindow();
+  const place = bounds ?? (front ? cascade(front.window.getBounds()) : restoredBounds());
+  const window = new TabbedWindow(
+    {
+      webPreferences: () => webPreferences(),
+      background: () => BACKGROUND[dark() ? "dark" : "light"],
+      titleBar,
+      prepare: guard,
+      open: (contents, page) => openCurrent(contents, page),
+      strings: () => ({ strings: { newTab: strings().newTab, closeTab: strings().closeTab, tabs: strings().tabs }, dir: direction(locale) }),
+      changed: rememberTabs,
+      closed: (url, index) => closedTabs.push({ url, index }),
+      menu: showTabMenu,
+      focused: (focused) => {
+        lastWindow = focused;
+      },
+    },
+    { bounds: place, stripPreferences: webPreferences(true), minWidth: 420, minHeight: 480, icon: process.platform === "linux" ? ICON : undefined },
+  );
+  lastWindow = window;
+  reportFullScreen(window.window);
+  if (!bounds && !front && settings.window?.maximized) window.window.maximize();
+  window.window.on("close", () => {
+    settings.window = { ...window.window.getNormalBounds(), maximized: window.window.isMaximized() };
+    save();
   });
-  reportFullScreen(window);
-  window.once("ready-to-show", () => window.show());
-  // A page that never paints (a server that holds the connection open) still gets its window.
-  setTimeout(() => {
-    if (!window.isDestroyed() && !window.isVisible()) window.show();
-  }, 3000);
-  guard(window.webContents);
+  window.window.on("closed", () => {
+    if (lastWindow === window) lastWindow = null;
+    // A window closed while others stay is forgotten; the last one's tabs are kept for the next start.
+    if (!appQuitting && TabbedWindow.all().length) rememberTabs();
+  });
+  // Without a server yet, the tab shows the app's connect screen (openCurrent).
+  window.restore(saved);
   return window;
 }
 
-/** Which server the remembered page belongs to: the connected one's origin, or "local" (last-page.ts). */
-const serverKey = () => (isLocal() ? "local" : settings.server);
+function cascade(bounds: Rectangle): Partial<Rectangle> {
+  return { x: bounds.x + 24, y: bounds.y + 24, width: bounds.width, height: bounds.height };
+}
 
-/** `page`: the server's page to open; unless asked otherwise, the page last open there, else its home. */
-function openMainWindow(page = startPath(settings.lastPage, serverKey())) {
-  const window = createWindow(restoredBounds());
-  mainWindow = window;
-  if (settings.window?.maximized) window.maximize();
-  // The page it shows, kept for the next start; saved with the window's place below.
-  const remember = (url: string) => {
-    const shown = pageToRemember(url, currentOrigin(), serverKey());
-    if (shown) settings.lastPage = shown;
-  };
-  window.webContents.on("did-navigate", (_event, url) => remember(url));
-  // Leafdesk moves between pages without loading them.
-  window.webContents.on("did-navigate-in-page", (_event, url, isMainFrame) => {
-    if (isMainFrame) remember(url);
-  });
-  window.on("close", () => {
-    settings.window = { ...window.getNormalBounds(), maximized: window.isMaximized() };
-    save();
-  });
-  window.on("closed", () => {
-    if (mainWindow === window) mainWindow = null;
-  });
-  if (isLocal() || settings.server) openCurrent(window, page);
-  else showView(window, { view: "connect" });
-  return window;
+let saveTimer: ReturnType<typeof setTimeout> | undefined;
+
+/** Keeps the windows' tabs (and the page shown last, which older versions open) for the next start, soon. */
+function rememberTabs() {
+  if (appQuitting) return;
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(rememberTabsNow, SAVE_DELAY_MS);
+}
+
+function rememberTabsNow() {
+  clearTimeout(saveTimer);
+  const server = serverKey();
+  const origin = currentOrigin();
+  const windows = TabbedWindow.all();
+  if (!server || !origin || !windows.length) return;
+  settings.tabs = { server, windows: windows.map((window) => window.saved((url) => tabPath(url, origin))) };
+  const shown = liveWindow()?.activeContents()?.getURL();
+  const page = shown ? pageToRemember(shown, origin, server) : null;
+  if (page) settings.lastPage = page;
+  save();
+}
+
+/** A tab's right-click menu in the strip. */
+function showTabMenu(window: TabbedWindow, id: number) {
+  const t = strings();
+  const contents = window.contentsOf(id);
+  if (!contents) return;
+  Menu.buildFromTemplate([
+    { label: t.newTab, click: () => window.addTab({ path: newTabPath(window) }) },
+    {
+      label: t.duplicateTab,
+      click: () => {
+        const url = contents.getURL();
+        const target = isServerPage(url, currentOrigin()) ? { url } : { path: "/" };
+        window.addTab(target, { index: window.list.ids.indexOf(id) + 1 });
+      },
+    },
+    { type: "separator" },
+    { label: t.closeTab, click: () => window.closeTab(id) },
+    { label: t.closeOtherTabs, enabled: window.list.ids.length > 1, click: () => window.closeOthers(id) },
+    { type: "separator" },
+    { label: t.reopenClosedTab, enabled: closedTabs.size > 0, click: () => reopenClosedTab(window) },
+  ]).popup({ window: window.window });
 }
 
 function appLinkIn(argv: string[]) {
@@ -389,20 +512,32 @@ function appLinkIn(argv: string[]) {
 
 /**
  * A `leafdesk://` link: the answer of a service the person signed in to in the system's browser
- * (navigation.ts), which the window takes back to the server to finish under its session.
+ * (navigation.ts), which the shown tab takes back to the server to finish under its session; or
+ * a page of the server to open (`leafdesk://open?url=…`, from the web app), which gets a tab of
+ * its own in the window in front.
  */
 function followAppLink(link: string) {
   if (!started) {
     waitingLink = link;
     return;
   }
-  const target = signInReturn(link, currentOrigin());
+  const origin = currentOrigin();
+  const page = openLinkTarget(link, origin);
+  if (page) {
+    const window = liveWindow() ?? openWindow();
+    window.addTab({ url: page });
+    bringForward(window);
+    if (process.platform === "darwin") app.focus({ steal: true });
+    return;
+  }
+  const target = signInReturn(link, origin);
   if (!target) return;
-  const window = mainWindow ?? openMainWindow();
-  if (window.isMinimized()) window.restore();
-  views.delete(window.webContents);
-  window.loadURL(target).catch(() => undefined);
-  window.focus();
+  const window = liveWindow() ?? openWindow();
+  const contents = window.activeContents();
+  if (!contents) return;
+  views.delete(contents);
+  contents.loadURL(target).catch(() => undefined);
+  bringForward(window);
 }
 
 /** The size and place the window had, unless that place is off every screen now. */
@@ -417,34 +552,37 @@ function restoredBounds(): Partial<Rectangle> | undefined {
   return onScreen ? { x, y, width, height } : { width, height };
 }
 
-function openCurrent(window: BrowserWindow, page = "/") {
-  if (isLocal()) void openLocal(window, false, page);
-  else openServer(window, page);
+function openCurrent(contents: WebContents, page = "/") {
+  if (isLocal()) void openLocal(contents, false, page);
+  else if (settings.server) openServer(contents, page);
+  else showView(contents, { view: "connect" });
 }
 
-function openServer(window: BrowserWindow, page = "/") {
+function openServer(contents: WebContents, page = "/") {
   if (!settings.server) return;
-  views.delete(window.webContents);
+  views.delete(contents);
   // A failed load is shown by did-fail-load (guard), not here.
-  window.loadURL(`${settings.server}${page}`).catch(() => undefined);
+  contents.loadURL(`${settings.server}${page}`).catch(() => undefined);
 }
 
 /**
- * Starts Leafdesk on this computer (once), signs in to its account, and opens its home (or `page`).
- * `signedOut`: the window came to the sign-in page, so the session is gone whatever the cookies say.
+ * Starts Leafdesk on this computer (once), signs in to its account, and opens its home (or `page`)
+ * in a tab. `signedOut`: the tab came to the sign-in page, so the session is gone whatever the
+ * cookies say.
  */
-async function openLocal(window: BrowserWindow, signedOut = false, page = "/") {
-  if (!localServer) showView(window, { view: "starting" });
+async function openLocal(contents: WebContents, signedOut = false, page = "/") {
+  if (!localReady) showView(contents, { view: "starting" });
   try {
     const server = await startLocal();
     await signInLocally(server, signedOut);
     readLeafdeskLanguage(session.defaultSession);
-    if (window.isDestroyed() || !isLocal()) return;
-    views.delete(window.webContents);
-    window.loadURL(`${server.origin}${page}`).catch(() => undefined);
+    readLeafdeskTheme(session.defaultSession);
+    if (contents.isDestroyed() || !isLocal()) return;
+    views.delete(contents);
+    contents.loadURL(`${server.origin}${page}`).catch(() => undefined);
   } catch (error) {
     console.error("Leafdesk on this computer didn't start:", error);
-    if (!window.isDestroyed()) showLocalProblem(window, error instanceof Error ? error.message : String(error));
+    if (!contents.isDestroyed()) showLocalProblem(contents, error instanceof Error ? error.message : String(error));
   }
 }
 
@@ -461,6 +599,7 @@ function startLocal(): Promise<LocalServer> {
   }).then(
     (server) => {
       localOrigin = server.origin;
+      localReady = true;
       server.onBackup(reportBackup);
       refreshMenu();
       if (settings.localPort !== server.port) {
@@ -469,11 +608,12 @@ function startLocal(): Promise<LocalServer> {
       }
       server.onExit((code) => {
         localServer = null;
+        localReady = false;
         refreshMenu();
         void server.stop();
-        for (const window of BrowserWindow.getAllWindows()) {
-          if (isServerPage(window.webContents.getURL(), server.origin)) {
-            showLocalProblem(window, `Leafdesk's server stopped with ${code}; see ${server.log}`);
+        for (const window of TabbedWindow.all()) {
+          for (const contents of window.allContents()) {
+            if (isServerPage(contents.getURL(), server.origin)) showLocalProblem(contents, `Leafdesk's server stopped with ${code}; see ${server.log}`);
           }
         }
       });
@@ -491,14 +631,15 @@ function startLocal(): Promise<LocalServer> {
 async function stopLocal() {
   const starting = localServer;
   localServer = null;
+  localReady = false;
   localOrigin = undefined;
   const server = await starting?.catch(() => null);
   if (server) refreshMenu();
   await server?.stop().catch((error: unknown) => console.error("Leafdesk on this computer didn't stop cleanly:", error));
 }
 
-function showLocalProblem(window: BrowserWindow, detail: string) {
-  showView(window, { view: "problem", server: "", detail, local: true });
+function showLocalProblem(contents: WebContents, detail: string) {
+  showView(contents, { view: "problem", server: "", detail, local: true });
 }
 
 /** The app's browser gets a session of the computer's account, unless it has one the server still knows. */
@@ -521,12 +662,13 @@ async function signInLocally(server: LocalServer, signedOut: boolean) {
   }
 }
 
-function showView(window: BrowserWindow, view: View) {
-  views.set(window.webContents, view);
-  window.loadFile(PAGE).catch(() => undefined);
+/** Shows one of the app's own screens in a tab. */
+function showView(contents: WebContents, view: View) {
+  views.set(contents, view);
+  contents.loadFile(PAGE).catch(() => undefined);
 }
 
-/** Navigation, new windows, failed loads and the context menu of a window's page. */
+/** Navigation, new windows and tabs, failed loads and the context menu of a tab's page. */
 function guard(contents: WebContents) {
   contents.on("will-navigate", (event) => {
     const decision = decideNavigation(event.url, PAGES_URL, currentOrigin());
@@ -537,46 +679,38 @@ function guard(contents: WebContents) {
   contents.on("will-redirect", (event) => {
     if (decideNavigation(event.url, PAGES_URL) !== "allow") event.preventDefault();
   });
-  contents.setWindowOpenHandler(({ url }) => {
+  // Leafdesk's own pages open in a tab: Cmd/Ctrl+click and a middle click in one behind the shown
+  // tab, Shift+click in a window of its own, anything else in a tab in front.
+  contents.setWindowOpenHandler(({ url, disposition }) => {
     const decision = decideNewWindow(url, currentOrigin());
-    if (decision === "window") {
-      return {
-        action: "allow",
-        overrideBrowserWindowOptions: {
-          width: 1100,
-          height: 800,
-          backgroundColor: nativeTheme.shouldUseDarkColors ? BACKGROUND.dark : BACKGROUND.light,
-          ...titleBar(),
-          webPreferences: webPreferences(),
-        },
-      };
+    if (decision === "tab") {
+      const owner = TabbedWindow.of(contents);
+      if (disposition === "new-window" || !owner) openWindow().addTab({ url }, { index: 0 });
+      else owner.addTab({ url }, { fromActive: owner.activeContents() === contents, show: disposition !== "background-tab" });
     }
     if (decision === "external") void shell.openExternal(url);
     return { action: "deny" };
   });
-  contents.on("did-create-window", (child) => {
-    reportFullScreen(child);
-    guard(child.webContents);
-  });
   // Signing out of Leafdesk on this computer leads to its sign-in page: the app signs in again.
   contents.on("did-navigate", (_event, url) => {
-    const window = BrowserWindow.fromWebContents(contents);
-    if (window && isLocal() && localOrigin && isServerPage(url, localOrigin) && new URL(url).pathname === "/sign-in") void openLocal(window, true);
+    if (isLocal() && localOrigin && isServerPage(url, localOrigin) && new URL(url).pathname === "/sign-in") void openLocal(contents, true);
   });
   contents.on("did-fail-load", (_event, code, description, url, isMainFrame) => {
     // -3 is a load that was cancelled, by a newer one for instance.
     if (!isMainFrame || code === -3) return;
-    const window = BrowserWindow.fromWebContents(contents);
-    if (!window) return;
     if (isLocal()) {
-      if (localOrigin && isServerPage(url, localOrigin)) showLocalProblem(window, description);
+      if (localOrigin && isServerPage(url, localOrigin)) showLocalProblem(contents, description);
       return;
     }
     if (!settings.server || !isServerPage(url, settings.server)) return;
     const certificate = isCertificateError(description) ? certificates.problems.get(new URL(settings.server).hostname) : undefined;
-    showView(window, { view: "problem", server: settings.server, detail: description, certificate });
+    showView(contents, { view: "problem", server: settings.server, detail: description, certificate });
   });
-  contents.on("context-menu", (_event, params) => showContextMenu(contents, params, strings()));
+  contents.on("context-menu", (_event, params) => {
+    const owner = TabbedWindow.of(contents);
+    const inApp = owner && isServerPage(params.linkURL, currentOrigin());
+    showContextMenu(contents, params, strings(), inApp ? (url) => owner.addTab({ url }, { fromActive: true, show: false }) : undefined);
+  });
   contents.on("render-process-gone", (_event, details) => {
     if (details.reason !== "clean-exit") contents.reload();
   });
@@ -607,12 +741,16 @@ function setSpellCheckerLanguages(ses: Session) {
   if (languages.length) ses.setSpellCheckerLanguages([...new Set(languages)].slice(0, 3));
 }
 
-/** The app's menus and own pages switch language with Leafdesk's language setting. */
+/** Whether a changed cookie is the server's: the one the app is on. */
+function isServerCookie(cookie: Electron.Cookie) {
+  const origin = currentOrigin();
+  return !!origin && cookie.domain?.replace(/^\./, "") === new URL(origin).hostname;
+}
+
+/** The app's menus, tab strip and own pages switch language with Leafdesk's language setting. */
 function followLeafdeskLanguage(ses: Session) {
   ses.cookies.on("changed", (_event, cookie, cause, removed) => {
-    const origin = currentOrigin();
-    if (cookie.name !== LOCALE_COOKIE || cause === "overwrite" || !origin) return;
-    if (cookie.domain?.replace(/^\./, "") !== new URL(origin).hostname) return;
+    if (cookie.name !== LOCALE_COOKIE || cause === "overwrite" || !isServerCookie(cookie)) return;
     applyLocale(removed ? undefined : cookie.value);
   });
   readLeafdeskLanguage(ses);
@@ -632,6 +770,40 @@ function applyLocale(value: string | undefined) {
   if (next === locale) return;
   locale = next;
   refreshMenu();
+  for (const window of TabbedWindow.all()) window.refresh();
+}
+
+/**
+ * The tab strip, the window's buttons and the app's menus are light or dark as Leafdesk is: its
+ * theme setting (a cookie of the server's), else the system's.
+ */
+function followLeafdeskTheme(ses: Session) {
+  ses.cookies.on("changed", (_event, cookie, cause, removed) => {
+    if (cookie.name !== THEME_COOKIE || cause === "overwrite" || !isServerCookie(cookie)) return;
+    applyTheme(removed ? undefined : cookie.value);
+  });
+  nativeTheme.on("updated", () => {
+    const colors = STRIP[dark() ? "dark" : "light"];
+    for (const window of TabbedWindow.all()) {
+      window.setBackground(BACKGROUND[dark() ? "dark" : "light"]);
+      if (!INSET_WINDOW_CONTROLS) window.window.setTitleBarOverlay({ ...colors, height: STRIP_HEIGHT });
+    }
+  });
+  readLeafdeskTheme(ses);
+}
+
+function readLeafdeskTheme(ses: Session) {
+  const origin = currentOrigin();
+  if (!origin) return applyTheme(undefined);
+  ses.cookies.get({ url: origin, name: THEME_COOKIE }).then(
+    ([cookie]) => applyTheme(cookie?.value),
+    () => undefined,
+  );
+}
+
+function applyTheme(value: string | undefined) {
+  const source = value === "light" || value === "dark" ? value : "system";
+  if (nativeTheme.themeSource !== source) nativeTheme.themeSource = source;
 }
 
 /** Whether a server answers at an origin, and whether it is Leafdesk: its health check and manifest. */
@@ -686,9 +858,8 @@ function registerPageBridge() {
       if (!event.senderFrame?.url.startsWith(PAGES_URL)) throw new Error("Not allowed");
       return listener(event, ...args);
     });
-  const windowOf = (event: IpcMainInvokeEvent) => BrowserWindow.fromWebContents(event.sender);
 
-  // Every page's preload asks this, the server's too: it tells nothing but the window's state.
+  // The tab strip's preload asks this: it tells nothing but the window's state.
   ipcMain.on("leafdesk:full-screen", (event) => {
     event.returnValue = BrowserWindow.fromWebContents(event.sender)?.isFullScreen() ?? false;
   });
@@ -703,26 +874,25 @@ function registerPageBridge() {
   }));
 
   handle("leafdesk:local", (event) => {
-    const window = windowOf(event);
-    if (!localAvailable() || !window) return;
+    if (!localAvailable() || !TabbedWindow.of(event.sender)) return;
     settings.mode = "local";
     save();
     applyShortcut();
-    void openLocal(window);
+    void openLocal(event.sender);
   });
 
   handle("leafdesk:connect", async (event, address, force) => {
     if (typeof address !== "string") return { error: "invalid" } satisfies ConnectReply;
     const { reply, origin } = await connect(address, force === true);
-    const window = windowOf(event);
-    if (origin && window) {
+    if (origin && TabbedWindow.of(event.sender)) {
       settings.server = origin;
       settings.mode = undefined;
       save();
       void stopLocal();
       readLeafdeskLanguage(session.defaultSession);
+      readLeafdeskTheme(session.defaultSession);
       applyShortcut();
-      openServer(window);
+      openServer(event.sender);
     }
     return reply;
   });
@@ -742,6 +912,7 @@ function registerPageBridge() {
       settings.server = problem.origin;
       settings.mode = undefined;
     }
+    rememberTabsNow();
     save();
     app.relaunch();
     // Leaving without "before-quit": Leafdesk on this computer is stopped here.
@@ -750,7 +921,36 @@ function registerPageBridge() {
   });
 
   handle("leafdesk:retry", (event) => {
-    const window = windowOf(event);
-    if (window) openCurrent(window);
+    if (TabbedWindow.of(event.sender)) openCurrent(event.sender);
+  });
+}
+
+/**
+ * What the tab strip (pages/tabs.html) asks for, and the icon a server's page reports for its tab
+ * (preload.cts). Only a window's own strip is heard for the first.
+ */
+function registerTabBridge() {
+  ipcMain.on("leafdesk:tab", (event, action: unknown, id: unknown, index: unknown) => {
+    const owner = TabbedWindow.of(event.sender);
+    if (!owner || owner.window.webContents !== event.sender || !event.senderFrame?.url.startsWith(PAGES_URL)) return;
+    if (action === "add") {
+      owner.addTab({ path: newTabPath(owner) });
+      return;
+    }
+    if (action === "focus") {
+      owner.activeContents()?.focus();
+      return;
+    }
+    if (typeof id !== "number" || !owner.contentsOf(id)) return;
+    if (action === "show") owner.showTab(id, false);
+    else if (action === "close") owner.closeTab(id);
+    else if (action === "move" && typeof index === "number") owner.moveTab(id, index);
+    else if (action === "menu") showTabMenu(owner, id);
+  });
+
+  ipcMain.on("leafdesk:page-icon", (event, icon: unknown) => {
+    const owner = TabbedWindow.of(event.sender);
+    if (!owner || owner.window.webContents === event.sender) return;
+    owner.setIcon(event.sender, isServerPage(event.sender.getURL(), currentOrigin()) ? readIcon(icon) : null);
   });
 }

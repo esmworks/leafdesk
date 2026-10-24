@@ -14,6 +14,7 @@ import { CalendarFeeds } from "@/components/account/calendar-feeds";
 import { TelegramGroup } from "@/components/account/telegram-group";
 import { ApiTokens } from "@/components/settings/api-tokens";
 import { ConnectedApps } from "@/components/settings/connected-apps";
+import { DesktopLinkSettings } from "@/components/settings/desktop-link-settings";
 import { LanguageSettings } from "@/components/settings/language-settings";
 import { OwnMailboxes } from "@/components/settings/mail-settings";
 import { McpInstructions } from "@/components/settings/mcp-instructions";
@@ -26,6 +27,7 @@ import { isLocale, LOCALE_COOKIE } from "@/i18n/config";
 import { CONTRAST_COOKIE, isContrast, isTheme, THEME_COOKIE } from "@/lib/theme";
 import { getAccountOverview, deletionPlanFor, emailChangeEnabled, proofSetupOf } from "@/server/account";
 import { getAccountSecurity } from "@/server/account-security";
+import { getDesktopLinks } from "@/server/desktop-links";
 import { mailStatus } from "@/server/mail";
 import { getNotificationPreferences } from "@/server/notification-preferences";
 import { listWatches } from "@/server/page-watch";
@@ -188,9 +190,10 @@ async function SecurityTab({ session }: { session: Session }) {
 
 async function PreferencesTab({ userId }: { userId: string }) {
   const publicKey = vapidPublicKey();
-  const [cookieStore, notificationPreferences, watches, endpoints, telegram, t, ts] = await Promise.all([
+  const [cookieStore, notificationPreferences, desktopLinks, watches, endpoints, telegram, t, ts] = await Promise.all([
     cookies(),
     getNotificationPreferences(userId),
+    getDesktopLinks(userId),
     listWatches(userId),
     publicKey ? pushEndpoints(userId) : [],
     telegramNotificationsOn(userId),
@@ -213,6 +216,12 @@ async function PreferencesTab({ userId }: { userId: string }) {
             <ContrastSettings current={isContrast(savedContrast) ? savedContrast : null} />
           </div>
         </SettingsGroup>
+        {/* Leafdesk on one computer is the desktop app itself: there is no browser to come from. */}
+        {!env.localMode && (
+          <SettingsGroup anchor="desktopLinks" title={ts("desktopLinks.heading")}>
+            <DesktopLinkSettings current={desktopLinks} />
+          </SettingsGroup>
+        )}
         <SettingsGroup
           anchor="notifications"
           title={ts("notifications.heading")}

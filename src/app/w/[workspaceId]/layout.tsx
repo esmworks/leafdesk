@@ -9,6 +9,7 @@ import { MeetingRecorderProvider } from "@/components/voice/meeting-recorder";
 import { OfflineProvider } from "@/components/offline/offline-context";
 import { Sidebar } from "@/components/sidebar/sidebar";
 import { FloatingSidebarButton, SidebarProvider } from "@/components/sidebar/sidebar-context";
+import { DesktopLinkOffer } from "@/components/workspace/desktop-link-offer";
 import { requestedPageId } from "@/lib/access-requests";
 import { env } from "@/lib/env";
 import { canCreateWorkspace, isInstanceAdmin } from "@/lib/instance-admin";
@@ -20,6 +21,7 @@ import { chatOptionsFor } from "@/server/ai-chat";
 import { memoryAvailable } from "@/server/ai-memory";
 import { aiAvailable } from "@/server/ai-writing";
 import { calloutStylesOf } from "@/server/callout-styles";
+import { getDesktopLinks } from "@/server/desktop-links";
 import { firstAdminId } from "@/server/first-admin";
 import { joinableWorkspaces } from "@/server/join-requests";
 import { listFavorites } from "@/server/page-meta";
@@ -49,7 +51,7 @@ export default async function WorkspaceLayout({
     }
     notFound();
   }
-  const [workspaces, joinable, sidebar, favorites, topLevel, canCreate, cookieStore, ai, sidebarLayout, memory, aiConfigured, calloutStyles, firstAdmin, voice, chatOptions] = await Promise.all([
+  const [workspaces, joinable, sidebar, favorites, topLevel, canCreate, cookieStore, ai, sidebarLayout, memory, aiConfigured, calloutStyles, firstAdmin, voice, chatOptions, desktopLinks] = await Promise.all([
     listWorkspaces(user.id),
     joinableWorkspaces(user.id),
     getSidebar(user.id, workspaceId),
@@ -65,6 +67,7 @@ export default async function WorkspaceLayout({
     firstAdminId(),
     voiceNoteLimits(workspaceId),
     chatOptionsFor(user.id, workspaceId),
+    env.localMode ? ("off" as const) : getDesktopLinks(user.id),
   ]);
 
   const body = (
@@ -96,6 +99,8 @@ export default async function WorkspaceLayout({
           </main>
           {/* The first account of a new server: it administers it, and sign-up is still open. */}
           {firstAdmin === user.id && !env.signUpDisabled && <FirstAdminNotice workspaceId={workspaceId} />}
+          {/* A page opened in a browser offers to go on to the desktop app, for those who turned it on. */}
+          {desktopLinks !== "off" && <DesktopLinkOffer preference={desktopLinks} />}
         </div>
       </RowPanelProvider>
       </MeetingRecorderProvider>

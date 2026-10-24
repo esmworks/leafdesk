@@ -1,13 +1,20 @@
-import { BrowserWindow, Menu, shell, type MenuItemConstructorOptions } from "electron";
+import { BrowserWindow, Menu, shell, type MenuItemConstructorOptions, type WebContents } from "electron";
 import { shortcutLabel } from "./global-shortcut.ts";
 import type { Strings } from "./strings.ts";
+import { tabShortcuts } from "./tabs.ts";
 
 export const WEBSITE = "https://esmworks.github.io/leafdesk/";
 export const ISSUES = "https://github.com/esmworks/leafdesk/issues";
 
+/** What a menu item does to the window in front; undefined when no window is (macOS keeps running without one). */
+type WindowAction = (window: BrowserWindow | undefined) => void;
+
 type Actions = {
   changeServer: () => void;
   goHome: (window: BrowserWindow) => void;
+  /** The page of the shown tab of a window. */
+  tab: (window: BrowserWindow) => WebContents | undefined;
+  tabs: Record<"newTab" | "newWindow" | "closeTab" | "reopenClosedTab" | "nextTab" | "previousTab", WindowAction>;
   /** Leafdesk on this computer's backups, while it runs. */
   backups?: { now: () => void; show: () => void; chooseFolder: () => void };
   /** The global shortcut to AI chat: the choices, the one picked (null: off), and whether another app has it. */
@@ -20,6 +27,26 @@ export function buildMenu(t: Strings, actions: Actions) {
   const focused = (run: (window: BrowserWindow) => void) => (_: unknown, window: unknown) => {
     if (window instanceof BrowserWindow) run(window);
   };
+  const front = (run: WindowAction) => (_: unknown, window: unknown) => run(window instanceof BrowserWindow ? window : undefined);
+  /** An item acting on the shown tab's page rather than on the page that has the keyboard (the strip, after a click on it). */
+  const onTab = (run: (contents: WebContents) => void) =>
+    focused((window) => {
+      const contents = actions.tab(window);
+      if (contents) run(contents);
+    });
+  const keys = tabShortcuts(process.platform);
+  const { tabs } = actions;
+  const tabItems: MenuItemConstructorOptions[] = [
+    { label: t.newTab, accelerator: keys.newTab, click: front(tabs.newTab) },
+    { label: t.newWindow, accelerator: keys.newWindow, click: front(tabs.newWindow) },
+    { type: "separator" },
+    { label: t.reopenClosedTab, accelerator: keys.reopenClosedTab, click: front(tabs.reopenClosedTab) },
+    { type: "separator" },
+  ];
+  const closeItems: MenuItemConstructorOptions[] = [
+    { label: t.closeTab, accelerator: keys.closeTab, click: front(tabs.closeTab) },
+    { role: "close", label: t.menuCloseWindow, accelerator: keys.closeWindow },
+  ];
   const changeServer: MenuItemConstructorOptions = { label: t.menuChangeServer, click: () => actions.changeServer() };
   const { backups } = actions;
   const backupItems: MenuItemConstructorOptions[] = backups
@@ -69,8 +96,8 @@ export function buildMenu(t: Strings, actions: Actions) {
     {
       label: t.menuFile,
       submenu: mac
-        ? [...backupItems, { role: "close", label: t.menuCloseWindow }]
-        : [changeServer, { type: "separator" }, ...backupItems, { role: "close", label: t.menuCloseWindow }, { role: "quit", label: t.menuQuit }],
+        ? [...tabItems, ...backupItems, ...closeItems]
+        : [...tabItems, changeServer, { type: "separator" }, ...backupItems, ...closeItems, { role: "quit", label: t.menuQuit }],
     },
     {
       label: t.menuEdit,
@@ -88,13 +115,13 @@ export function buildMenu(t: Strings, actions: Actions) {
     {
       label: t.menuView,
       submenu: [
-        { role: "reload", label: t.reload },
-        { role: "forceReload", label: t.forceReload },
-        { role: "toggleDevTools", label: t.devTools },
+        { label: t.reload, accelerator: "CmdOrCtrl+R", click: onTab((contents) => contents.reload()) },
+        { label: t.forceReload, accelerator: "Shift+CmdOrCtrl+R", click: onTab((contents) => contents.reloadIgnoringCache()) },
+        { label: t.devTools, accelerator: mac ? "Alt+Cmd+I" : "Ctrl+Shift+I", click: onTab((contents) => contents.toggleDevTools()) },
         { type: "separator" },
-        { role: "resetZoom", label: t.actualSize },
-        { role: "zoomIn", label: t.zoomIn },
-        { role: "zoomOut", label: t.zoomOut },
+        { label: t.actualSize, accelerator: "CmdOrCtrl+0", click: onTab((contents) => contents.setZoomLevel(0)) },
+        { label: t.zoomIn, accelerator: "CmdOrCtrl+Plus", click: onTab((contents) => contents.setZoomLevel(contents.getZoomLevel() + 0.5)) },
+        { label: t.zoomOut, accelerator: "CmdOrCtrl+-", click: onTab((contents) => contents.setZoomLevel(contents.getZoomLevel() - 0.5)) },
         { type: "separator" },
         { role: "togglefullscreen", label: t.toggleFullScreen },
       ],
@@ -105,12 +132,12 @@ export function buildMenu(t: Strings, actions: Actions) {
         {
           label: t.goBack,
           accelerator: mac ? "Cmd+[" : "Alt+Left",
-          click: focused((window) => window.webContents.navigationHistory.goBack()),
+          click: onTab((contents) => contents.navigationHistory.goBack()),
         },
         {
           label: t.goForward,
           accelerator: mac ? "Cmd+]" : "Alt+Right",
-          click: focused((window) => window.webContents.navigationHistory.goForward()),
+          click: onTab((contents) => contents.navigationHistory.goForward()),
         },
         { type: "separator" },
         { label: t.goHome, accelerator: "CmdOrCtrl+Shift+H", click: focused(actions.goHome) },
@@ -120,14 +147,14 @@ export function buildMenu(t: Strings, actions: Actions) {
     },
     {
       label: t.menuWindow,
-      submenu: mac
-        ? [
-            { role: "minimize", label: t.minimize },
-            { role: "zoom", label: t.zoom },
-            { type: "separator" },
-            { role: "front", label: t.bringAllToFront },
-          ]
-        : [{ role: "minimize", label: t.minimize }],
+      submenu: [
+        { role: "minimize", label: t.minimize },
+        ...(mac ? [{ role: "zoom", label: t.zoom } as const] : []),
+        { type: "separator" },
+        { label: t.nextTab, accelerator: keys.nextTab, click: front(tabs.nextTab) },
+        { label: t.previousTab, accelerator: keys.previousTab, click: front(tabs.previousTab) },
+        ...(mac ? [{ type: "separator" } as const, { role: "front", label: t.bringAllToFront } as const] : []),
+      ],
     },
     {
       role: "help",
