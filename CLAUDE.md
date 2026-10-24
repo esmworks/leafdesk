@@ -118,12 +118,17 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   reads pages whose `updated_at` moved past `sensitive_scan`), verified pages `verification.ts`
   (`activeVerification` is the SQL for search and lists; `runVerificationReminders(now)`), SMTP
   `mail/`, inbox `notifications.ts`, push `push.ts`, files `files.ts` + `storage/` (local, S3,
-  workspace drives), import `import/`, export `export.ts`, server-made PDFs `pdf.ts` (reads a page like `print.ts`)
+  workspace drives), import `import/`, export `export.ts`, server-made PDFs `pdf.ts` (reads a page like `print.ts`; `export-pdf.ts` zips one per page for the workspace export)
   and `pdf-document.ts` (pure pdfmake layout; pdfmake must stay in `serverExternalPackages` in
   `next.config.ts`, bundled it loses its font files, and its fonts in the standalone build's
   `outputFileTracingIncludes`), PDF letterheads `letterheads.ts` (pure part in `src/lib/letterheads.ts`;
   the logo is document content kept in `pdf_letterhead`, not page decoration), backup `backup/`, SSO `sso.ts`, SCIM
   `scim.ts`, sealed secrets `secret-box.ts`.
+- **Published links can expire** (`page_publication.expires_at`): every query that serves or
+  lists a publication to visitors adds `livePublication()` (`src/server/publication-live.ts`, its own
+  module so `mentions.ts` can use it without an import cycle); there is no job that unpublishes.
+  `getPublishedPage`, `anyPagePublished` (files), `site.ts` and `mentions.ts` do; a new public read
+  must too. Page audit events get `details.audience` in `recordAudit` (`server/page-audience.ts`).
 - **Workspace sites** (`site.ts`, routes `src/app/s/`): a site on its own domain is routed by
   `server.ts` through `site-hosts.ts`, which sets the trusted `x-leafdesk-site-host` /
   `x-leafdesk-site-analytics` headers (dropped from every client request) that `proxy.ts` rewrites

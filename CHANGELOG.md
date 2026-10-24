@@ -4,6 +4,28 @@
 
 ### Added
 
+- **Published links that expire.** The Publish panel sets a date and time a page's web link stops
+  working, and extends or removes it later. Once it passes, the link, its subpages, the files they
+  show, copying it and the workspace site treat the page as unpublished, checked whenever they are
+  read; the panel says *Expired on …* and Settings → Security lists links with their expiry. Setting
+  or removing one is in the audit log. Migration `drizzle/0136_admin_extras.sql` adds
+  `page_publication.expires_at`.
+- **Invite someone into a teamspace by email.** Typing an address nobody in the workspace has into
+  a teamspace's *Add members* field invites them to the workspace with that teamspace and the role
+  picked; they join both on accepting. Who can add members, owner approval, allowed domains, sign-in
+  policies and guests apply as for any invitation. The same migration adds `teamspaces` to
+  `workspace_invitation` and `workspace_join_request`.
+- **Choose who receives a removed member's pages.** Removing a member asks who takes over the pages
+  only they could manage (and the teamspaces nobody else runs), says how many there are, and
+  defaults to the owner removing them. The audit log records who received how many, also when
+  someone leaves or the identity provider removes them.
+- **Who could reach a page, in the audit log.** Page events record the page's audience at that
+  moment (private, specific people, a teamspace, the whole workspace, or the web), shown in
+  Settings → Audit log, as the CSV's last column and as `target.audience` in the audit stream.
+- **The whole workspace as PDFs.** Settings → General → Export offers PDF next to Markdown and CSV: a
+  ZIP of PDFs in folders following the page tree, databases as tables, rows with text of their own
+  as their own PDFs, at most 1,000 PDFs, streamed as they are made.
+
 - **Danish, Dutch, Norwegian, Finnish and Swedish.** The app, its emails, templates, the editor's
   menus and the desktop app now speak Dansk, Nederlands, Norsk bokmål, Suomi and Svenska, chosen in
   My account → Language or taken from the browser (one asking for Norwegian or Nynorsk gets
