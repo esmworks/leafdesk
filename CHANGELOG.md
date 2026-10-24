@@ -973,6 +973,14 @@
   exports show the block without the chat. MCP's `list_agent_runs` describes chat runs. Migration
   0103 adds the `agent_conversation` table.
 
+- **Google documents can be imported through the workspace's Google Drive connection.** Import
+  has a Google Docs tab: paste links to documents or search the connection's Drive by title, tick
+  up to 20, and each becomes a page the way a Word document does (Drive exports it as one), titled
+  by its top heading or its name, pictures included, all or nothing. Owners may import through any
+  signed-in Google Drive connection; members only through one whose `download_file_content` tool
+  an owner allowed in the AI chat (searching needs `search_files` allowed too); guests never. Each
+  call is recorded in the audit log like the chat's, and the import as from Google Docs.
+
 ### Changed
 
 - **Enter in a code block keeps the line's indentation.** The new line starts with the spaces or
@@ -1097,6 +1105,12 @@
 - **Find opens collapsed toggles.** Cmd/Ctrl+F found text inside a collapsed toggle (or toggle
   heading) but stepping to it showed nothing; the toggle now opens when its match becomes the
   current one. Opening a link to a block inside a collapsed toggle opens it too.
+
+- **Files open in a desktop window with a title bar on macOS.** A PDF, image or other file opened
+  in a window of its own (from the AI chat, a file block) kept the window's buttons over the
+  viewer's toolbar, could not be moved by its top edge and was hard to make full screen; such
+  windows now have the system's title bar, while Leafdesk pages keep theirs inset.
+
 - **Text filters match the Turkish dotted and dotless i.** A "contains ist" filter now finds
   "İstanbul", and "ışık" finds "IŞIK": database view filters, form question conditions and option
   names given by name (MCP, the REST API, a new tag typed into a cell) fold case with İ, I, i and ı

@@ -1,7 +1,7 @@
 {
   "open": "Import",
   "title": "Import",
-  "description": "Bring pages in from Markdown files, ZIP exports, Word documents and PDFs, notebooks from Evernote, rows from a CSV file or Excel workbook, a Trello, Asana or Monday.com board, or Jira issues that stay in sync.",
+  "description": "Bring pages in from Markdown files, ZIP exports, Word documents, Google documents and PDFs, notebooks from Evernote, rows from a CSV file or Excel workbook, a Trello, Asana or Monday.com board, or Jira issues that stay in sync.",
   "tabs": {
     "pages": "Markdown & ZIP",
     "docx": "Word",
@@ -11,7 +11,8 @@
     "trello": "Trello",
     "asana": "Asana",
     "monday": "Monday.com",
-    "jira": "Jira"
+    "jira": "Jira",
+    "googleDocs": "Google Docs"
   },
   "destination": "Put under",
   "topLevel": "Top level of the workspace",
@@ -243,5 +244,30 @@
     "noAccess": "You can't add pages there, or it no longer exists.",
     "notADatabase": "Rows can only be added to a database.",
     "badRequest": "The import didn't go through. Nothing was changed."
+  },
+  "googleDocs": {
+    "help": "Each Google document becomes a page, read through the workspace's Google Drive connection as a Word document would be: headings, lists, tables, links, pictures and footnotes. A heading at the very top becomes the page's title; otherwise the document's name does.",
+    "loading": "Looking for Google Drive connections…",
+    "noConnection": "There is no Google Drive connection you can import through. An owner adds Google Drive in Settings → Connections; members can use it once an owner ticks “In chat” for its download_file_content tool.",
+    "connection": "Google Drive connection",
+    "through": "Through “{name}”",
+    "links": "Links to Google documents",
+    "linksPlaceholder": "https://docs.google.com/document/d/… (one per line)",
+    "invalidLink": "Not a link to a Google document: “{link}”",
+    "search": "Search",
+    "searching": "Searching…",
+    "searchPlaceholder": "Words in the title (empty: the latest documents)",
+    "noneFound": "No Google documents found.",
+    "more": "Show more",
+    "linksOnly": "Searching isn't allowed through this connection: paste links to the documents.",
+    "chosen": "{count, plural, one {# document chosen} other {# documents chosen}}",
+    "tooMany": "Choose at most {limit} documents at a time.",
+    "errors": {
+      "noConnection": "That Google Drive connection can't be used. Ask an owner to check it in Settings → Connections.",
+      "unreachable": "“{name}” could not be reached. Try again later, or ask an owner to check the connection.",
+      "signIn": "“{name}” needs signing in to Google again: an owner does that in Settings → Connections.",
+      "notFound": "A document can't be read through “{name}”: check the link, and that the connection's Google account may open it.",
+      "notADocument": "“{id}” isn't a Google document."
+    }
   }
 }

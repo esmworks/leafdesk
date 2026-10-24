@@ -25,7 +25,7 @@ after you approve them over OAuth.
   tell it, reusable skills, and agents that work on database rows, with Anthropic, OpenAI, Google
   or a local model.
 - **Bring your pages**: import a Notion *Markdown & CSV* export, an Obsidian vault, Evernote notebooks, a Trello board,
-  an Asana project, a Monday.com board, Markdown files, Word documents, PDFs, a folder or CSV, and keep a
+  an Asana project, a Monday.com board, Markdown files, Word documents, Google documents, PDFs, a folder or CSV, and keep a
   database of Jira issues in sync.
 - **Ready for a team**: teamspaces, page permissions, guests, single sign-on (OIDC, SAML), SCIM,
   two-step verification, passkeys and an audit log.
@@ -619,6 +619,19 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   left out and listed in the result; comments and page breaks are dropped. Old `.doc` files need
   saving as `.docx` first. A document is read in a separate worker with a time and memory limit,
   and one that can't be read stops the import before any page is created.
+- **Import from Google Docs**: on Import's Google Docs tab, documents come in through the
+  workspace's **Google Drive** connection (Settings → Connections, from the catalog). Paste links
+  to documents (`docs.google.com/document/d/…`, or Drive's `/file/d/…`), or search the
+  connection's Drive by words in the title (no words lists the latest documents) and tick up to 20.
+  Each is exported by Drive as a Word document and imported as above: one page per document, the
+  heading at the very top or else the document's name as its title, pictures uploaded, all or
+  nothing. A connection is one owner's Google account, so owners may import through any signed-in
+  Google Drive connection; members only through one whose `download_file_content` tool an owner
+  ticked *In chat* (they could already read the same files through the AI chat), and search only
+  with `search_files` ticked too; guests never. Each call to Drive is recorded in the audit log
+  like the chat's, and the import as from Google Docs. A Google Docs connection alone isn't
+  enough: the export is Drive's. Tested against a stand-in Drive server
+  (`scripts/google-docs-import-e2e.ts`), with Google's answers as its MCP server gives them.
 - **Import from PDF**: choose one or more PDFs on Import's PDF tab; each becomes a page made of
   its text layer, read by the same reader search uses for PDFs. A PDF has no structure of its own,
   so it is read from the layout: the size most of the text has is the body's, and short lines in a
@@ -3822,7 +3835,7 @@ Useful scripts:
 | `pnpm mail:test you@example.com` | Send a test email with the SMTP settings from `.env` |
 | `pnpm db:generate` | New migration from schema changes in `src/db/schema` |
 | `pnpm search:index [workspace-id…]` | Builds or catches up the semantic search index (see [Semantic search](#semantic-search)) |
-| `pnpm tsx scripts/access-e2e.ts` | End-to-end checks against the database for page permissions, guests and publishing. The other `scripts/*-e2e.ts` files do the same for their areas (teamspaces, membership policies and join requests, databases, filters, bulk actions, AI features, semantic search and AI chat (with a stand-in OpenAI-compatible server), property types, places and map views (with a stand-in address search), feed views, reactions, database tabs and row page layout, people, trash and its retention, views, formulas, charts, dashboards, forms, inline databases, publishing options, sites and duplicating published pages, presence, offline editing, uploads and who may read the files pages show, import, Notion import, export, full-text search, upserts and guarded bulk row edits, deleting stored files, the search box's filters, backlinks and unlinked mentions, synced pages, the graph, the workspace health check, skills (MCP prompts over an in-memory transport, the AI chat with a stand-in model), and `roundtrip-e2e.ts` for an export imported again); `mcp-e2e.ts` and `auth-e2e.ts` below need a running server. |
+| `pnpm tsx scripts/access-e2e.ts` | End-to-end checks against the database for page permissions, guests and publishing. The other `scripts/*-e2e.ts` files do the same for their areas (teamspaces, membership policies and join requests, databases, filters, bulk actions, AI features, semantic search and AI chat (with a stand-in OpenAI-compatible server), property types, places and map views (with a stand-in address search), feed views, reactions, database tabs and row page layout, people, trash and its retention, views, formulas, charts, dashboards, forms, inline databases, publishing options, sites and duplicating published pages, presence, offline editing, uploads and who may read the files pages show, import, Notion import, Google Docs import (with a stand-in Drive server), export, full-text search, upserts and guarded bulk row edits, deleting stored files, the search box's filters, backlinks and unlinked mentions, synced pages, the graph, the workspace health check, skills (MCP prompts over an in-memory transport, the AI chat with a stand-in model), and `roundtrip-e2e.ts` for an export imported again); `mcp-e2e.ts` and `auth-e2e.ts` below need a running server. |
 | `pnpm tsx scripts/sw-e2e.ts` | Checks the service worker (`public/sw.js`) in headless Chrome against a stand-in server: offline pages, per-user copies, the offline page (set `CHROME_PATH` outside macOS) |
 | `pnpm tsx scripts/mcp-e2e.ts` | End-to-end OAuth + MCP check against a running server (see the header of the file) |
 | `pnpm tsx scripts/api-e2e.ts` | End-to-end REST API check (tokens, every endpoint, access, rate limits, OpenAPI) against a running server |

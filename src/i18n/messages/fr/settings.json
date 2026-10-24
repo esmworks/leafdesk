@@ -1629,6 +1629,7 @@
       "csv": "CSV",
       "xlsx": "Excel",
       "docx": "Word",
+      "google-docs": "Google Docs",
       "markdown": "Markdown",
       "pdf": "PDF",
       "skill": "Compétence (SKILL.md)",

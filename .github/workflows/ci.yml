@@ -135,6 +135,10 @@ jobs:
       - name: Markdown and vault import end-to-end
         run: pnpm tsx scripts/import-e2e.ts
 
+      # A stand-in Google Drive MCP server on a random local port, started by the script.
+      - name: Google Docs import end-to-end
+        run: pnpm tsx scripts/google-docs-import-e2e.ts
+
       - name: Trash end-to-end
         run: pnpm tsx scripts/trash-e2e.ts
 

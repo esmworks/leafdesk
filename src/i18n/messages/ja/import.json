@@ -1,7 +1,7 @@
 {
   "open": "インポート",
   "title": "インポート",
-  "description": "Markdownファイル、ZIPエクスポート、Word文書、PDFからページを、Evernoteからノートブックを、CSVファイルやExcelブックから行を、Trello、Asana、Monday.comのボードを、または同期され続けるJiraの課題を取り込みます。",
+  "description": "Markdownファイル、ZIPエクスポート、Word文書、Google ドキュメント、PDFからページを、Evernoteからノートブックを、CSVファイルやExcelブックから行を、Trello、Asana、Monday.comのボードを、または同期され続けるJiraの課題を取り込みます。",
   "tabs": {
     "pages": "MarkdownとZIP",
     "docx": "Word",
@@ -11,7 +11,8 @@
     "trello": "Trello",
     "asana": "Asana",
     "monday": "Monday.com",
-    "jira": "Jira"
+    "jira": "Jira",
+    "googleDocs": "Google ドキュメント"
   },
   "destination": "配置先",
   "topLevel": "ワークスペースの最上位",
@@ -243,5 +244,30 @@
     "noAccess": "そこにはページを追加できないか、すでに存在しません。",
     "notADatabase": "行はデータベースにしか追加できません。",
     "badRequest": "インポートは完了しませんでした。何も変更されていません。"
+  },
+  "googleDocs": {
+    "help": "Google ドキュメントはそれぞれ 1 つのページになり、ワークスペースの Google Drive 接続を通じて Word 文書と同じように読み込まれます: 見出し、リスト、表、リンク、画像、脚注。先頭の見出しがページのタイトルになり、なければドキュメント名が使われます。",
+    "loading": "Google Drive の接続を探しています…",
+    "noConnection": "インポートに使える Google Drive の接続がありません。オーナーが 設定 → 接続 で Google Drive を追加し、download_file_content ツールの「チャットで使用」にチェックを入れるとメンバーも使えます。",
+    "connection": "Google Drive の接続",
+    "through": "「{name}」経由",
+    "links": "Google ドキュメントのリンク",
+    "linksPlaceholder": "https://docs.google.com/document/d/…（1 行に 1 つ）",
+    "invalidLink": "Google ドキュメントのリンクではありません: 「{link}」",
+    "search": "検索",
+    "searching": "検索中…",
+    "searchPlaceholder": "タイトルの語句（空欄: 最新のドキュメント）",
+    "noneFound": "Google ドキュメントが見つかりません。",
+    "more": "さらに表示",
+    "linksOnly": "この接続では検索できません。ドキュメントのリンクを貼り付けてください。",
+    "chosen": "{count, plural, other {# 件のドキュメントを選択}}",
+    "tooMany": "一度に選べるのは {limit} 件までです。",
+    "errors": {
+      "noConnection": "その Google Drive の接続は使えません。設定 → 接続 で確認するようオーナーに依頼してください。",
+      "unreachable": "「{name}」に接続できません。後でもう一度試すか、接続の確認をオーナーに依頼してください。",
+      "signIn": "「{name}」は Google への再ログインが必要です。オーナーが 設定 → 接続 で行います。",
+      "notFound": "「{name}」経由でドキュメントを読めません。リンクと、接続の Google アカウントがそれを開けるかを確認してください。",
+      "notADocument": "「{id}」は Google ドキュメントではありません。"
+    }
   }
 }

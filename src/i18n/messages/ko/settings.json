@@ -1629,6 +1629,7 @@
       "csv": "CSV",
       "xlsx": "Excel",
       "docx": "Word",
+      "google-docs": "Google 문서",
       "markdown": "Markdown",
       "pdf": "PDF",
       "skill": "스킬(SKILL.md)",

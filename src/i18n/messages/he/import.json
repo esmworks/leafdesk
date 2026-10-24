@@ -1,7 +1,7 @@
 {
   "open": "ייבוא",
   "title": "ייבוא",
-  "description": "ייבוא דפים מקובצי Markdown, מייצואי ZIP, ממסמכי Word ומקובצי PDF, פנקסים מ־Evernote, שורות מקובץ CSV או מחוברת Excel, לוח מ־Trello, מ־Asana או מ־Monday.com, או משימות Jira שנשארות מסונכרנות.",
+  "description": "ייבוא דפים מקובצי Markdown, מייצואי ZIP, ממסמכי Word, ממסמכי Google ומקובצי PDF, פנקסים מ־Evernote, שורות מקובץ CSV או מחוברת Excel, לוח מ־Trello, מ־Asana או מ־Monday.com, או משימות Jira שנשארות מסונכרנות.",
   "tabs": {
     "pages": "Markdown ו־ZIP",
     "docx": "Word",
@@ -11,7 +11,8 @@
     "trello": "Trello",
     "asana": "Asana",
     "monday": "Monday.com",
-    "jira": "Jira"
+    "jira": "Jira",
+    "googleDocs": "Google Docs"
   },
   "destination": "מיקום",
   "topLevel": "הרמה העליונה של סביבת העבודה",
@@ -243,5 +244,30 @@
     "noAccess": "אין לך אפשרות להוסיף דפים לשם, או שהמיקום כבר לא קיים.",
     "notADatabase": "אפשר להוסיף שורות רק למסד נתונים.",
     "badRequest": "הייבוא לא הצליח. לא שונה דבר."
+  },
+  "googleDocs": {
+    "help": "כל מסמך של Google הופך לדף, ונקרא דרך חיבור Google Drive של סביבת העבודה כמו מסמך Word: כותרות, רשימות, טבלאות, קישורים, תמונות והערות שוליים. כותרת בראש המסמך הופכת לכותרת הדף; אחרת, שם המסמך.",
+    "loading": "מחפש חיבורי Google Drive…",
+    "noConnection": "אין חיבור Google Drive שדרכו אפשר לייבא. בעלים מוסיף את Google Drive בהגדרות ← חיבורים; חברים יכולים להשתמש בו אחרי שבעלים מסמן „בצ׳אט” לכלי download_file_content.",
+    "connection": "חיבור Google Drive",
+    "through": "דרך „{name}”",
+    "links": "קישורים למסמכי Google",
+    "linksPlaceholder": "https://docs.google.com/document/d/… (אחד בכל שורה)",
+    "invalidLink": "זה לא קישור למסמך Google: „{link}”",
+    "search": "חיפוש",
+    "searching": "מחפש…",
+    "searchPlaceholder": "מילים מהכותרת (ריק: המסמכים האחרונים)",
+    "noneFound": "לא נמצאו מסמכי Google.",
+    "more": "הצג עוד",
+    "linksOnly": "החיבור הזה לא מאפשר חיפוש: הדבק קישורים למסמכים.",
+    "chosen": "{count, plural, one {נבחר מסמך אחד} two {נבחרו שני מסמכים} other {נבחרו # מסמכים}}",
+    "tooMany": "בחר לכל היותר {limit} מסמכים בכל פעם.",
+    "errors": {
+      "noConnection": "אי אפשר להשתמש בחיבור Google Drive הזה. בקש מבעלים לבדוק אותו בהגדרות ← חיבורים.",
+      "unreachable": "אין גישה אל „{name}”. נסה שוב מאוחר יותר או בקש מבעלים לבדוק את החיבור.",
+      "signIn": "„{name}” צריך להתחבר שוב ל-Google: בעלים עושה זאת בהגדרות ← חיבורים.",
+      "notFound": "אי אפשר לקרוא מסמך דרך „{name}”: בדוק את הקישור ושחשבון Google של החיבור יכול לפתוח אותו.",
+      "notADocument": "„{id}” אינו מסמך Google."
+    }
   }
 }
