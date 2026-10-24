@@ -41,6 +41,7 @@
       "language": "ngôn ngữ bản dịch khu vực",
       "theme": "chế độ tối chế độ sáng màu giao diện",
       "contrast": "trợ năng độ tương phản cao",
+      "desktopLinks": "máy tính windows mac tab mở liên kết",
       "notifications": "đẩy email cảnh báo thông báo",
       "watchedPages": "theo dõi đăng ký quan sát",
       "offlineDevice": "ngoại tuyến tải xuống bộ nhớ đệm dung lượng",
@@ -1117,6 +1118,20 @@
       "standard": "Tiêu chuẩn",
       "high": "Cao",
       "note": "Độ tương phản cao làm văn bản phụ, đường kẻ và viền tiêu điểm đậm hơn, ở cả hai chủ đề. Cài đặt này chỉ áp dụng cho trình duyệt này. Với cài đặt theo hệ thống, nó theo tùy chọn tăng độ tương phản của thiết bị."
+    }
+  },
+  "desktopLinks": {
+    "heading": "Ứng dụng máy tính",
+    "label": "Mở liên kết trong ứng dụng máy tính",
+    "note": "Khi bạn mở một trang Leafdesk trong trình duyệt trên máy tính có ứng dụng, trang có thể chuyển sang ứng dụng, trong một tab riêng. Bên trong ứng dụng không có gì thay đổi.",
+    "off": "Tắt",
+    "ask": "Đề nghị mở",
+    "always": "Luôn mở",
+    "banner": {
+      "text": "Mở trang này trong ứng dụng máy tính?",
+      "open": "Mở trong ứng dụng",
+      "always": "Luôn luôn",
+      "dismiss": "Đóng"
     }
   },
   "language": {

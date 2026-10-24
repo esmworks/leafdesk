@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { decideNavigation, decideNewWindow, isServerPage, showsFile, signInReturn } from "./navigation.ts";
+import { decideNavigation, decideNewWindow, isServerPage, openLinkTarget, showsFile, signInReturn } from "./navigation.ts";
 
 const PAGES = "file:///Applications/Leafdesk.app/Contents/Resources/app.asar/pages/";
 const SERVER = "https://leafdesk.example.com";
@@ -49,8 +49,8 @@ test("mail and phone links go to the system; other schemes nowhere", () => {
   assert.equal(decideNavigation("not a url", PAGES), "deny");
 });
 
-test("new windows: Leafdesk's own pages in the app, the rest in the browser", () => {
-  assert.equal(decideNewWindow(`${SERVER}/w/abc/p/def`, SERVER), "window");
+test("new windows: Leafdesk's own pages in a tab of the app, the rest in the browser", () => {
+  assert.equal(decideNewWindow(`${SERVER}/w/abc/p/def`, SERVER), "tab");
   assert.equal(decideNewWindow("https://example.org/", SERVER), "external");
   assert.equal(decideNewWindow("https://leafdesk.example.com.evil.test/", SERVER), "external");
   assert.equal(decideNewWindow("mailto:someone@example.test", SERVER), "external");
@@ -73,4 +73,25 @@ test("server pages, for permissions", () => {
   assert.equal(isServerPage("http://leafdesk.example.com/", SERVER), false);
   assert.equal(isServerPage(`${PAGES}app.html`, SERVER), false);
   assert.equal(isServerPage(undefined, SERVER), false);
+});
+
+test("a link to open a page in the app opens only the server's own pages", () => {
+  const open = (url: string) => `leafdesk://open?url=${encodeURIComponent(url)}`;
+  assert.equal(openLinkTarget(open(`${SERVER}/w/abc/p/def`), SERVER), `${SERVER}/w/abc/p/def`);
+  assert.equal(openLinkTarget(open(`${SERVER}/w/abc/p/def?row=r1#comment-c1`), SERVER), `${SERVER}/w/abc/p/def?row=r1#comment-c1`);
+  assert.equal(openLinkTarget(open("http://127.0.0.1:51234/w/abc"), "http://127.0.0.1:51234"), "http://127.0.0.1:51234/w/abc");
+  // Another server, or the same host by another scheme or port, isn't opened.
+  assert.equal(openLinkTarget(open("https://evil.example.org/w/abc"), SERVER), null);
+  assert.equal(openLinkTarget(open("http://leafdesk.example.com/w/abc"), SERVER), null);
+  assert.equal(openLinkTarget(open("https://leafdesk.example.com:8443/w/abc"), SERVER), null);
+  assert.equal(openLinkTarget(open("https://leafdesk.example.com.evil.test/w/abc"), SERVER), null);
+  assert.equal(openLinkTarget(open(`https://someone:secret@leafdesk.example.com/w/abc`), SERVER), null);
+  // Nothing but a web address of it, and only with a server to compare.
+  assert.equal(openLinkTarget(open("javascript:alert(1)"), SERVER), null);
+  assert.equal(openLinkTarget(open("file:///etc/passwd"), SERVER), null);
+  assert.equal(openLinkTarget("leafdesk://open", SERVER), null);
+  assert.equal(openLinkTarget("leafdesk://open?url=not%20a%20url", SERVER), null);
+  assert.equal(openLinkTarget(open(`${SERVER}/w/abc`), undefined), null);
+  assert.equal(openLinkTarget(`leafdesk://sign-in/connections?url=${encodeURIComponent(`${SERVER}/w/abc`)}`, SERVER), null);
+  assert.equal(openLinkTarget(`https://leafdesk.example.com/open?url=${encodeURIComponent(`${SERVER}/w/abc`)}`, SERVER), null);
 });

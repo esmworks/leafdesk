@@ -41,6 +41,7 @@
       "language": "idioma traducción región",
       "theme": "modo oscuro modo claro colores",
       "contrast": "accesibilidad alto contraste",
+      "desktopLinks": "escritorio windows mac pestañas abrir enlaces",
       "notifications": "push correo avisos notificación",
       "watchedPages": "seguir suscribirse vigilar",
       "offlineDevice": "sin conexión descargar caché espacio",
@@ -1117,6 +1118,20 @@
       "standard": "Estándar",
       "high": "Alto",
       "note": "El contraste alto refuerza los textos secundarios, las líneas y los contornos de foco, en ambos temas. Este ajuste solo se aplica a este navegador. Con el del sistema, sigue la opción de aumentar el contraste de tu dispositivo."
+    }
+  },
+  "desktopLinks": {
+    "heading": "Aplicación de escritorio",
+    "label": "Abrir enlaces en la aplicación de escritorio",
+    "note": "Cuando abres una página de Leafdesk en un navegador de un ordenador con la aplicación de escritorio, puede continuar en la aplicación, en una pestaña propia. Dentro de la aplicación no cambia nada.",
+    "off": "Desactivado",
+    "ask": "Ofrecer abrirlos",
+    "always": "Abrirlos siempre",
+    "banner": {
+      "text": "¿Abrir esta página en la aplicación de escritorio?",
+      "open": "Abrir en la aplicación",
+      "always": "Siempre",
+      "dismiss": "Cerrar"
     }
   },
   "language": {

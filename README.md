@@ -1372,8 +1372,27 @@ app then trusts that one certificate for that host only, and asks again when it 
 certificate from a certificate authority the computer trusts (an internal one included) needs
 nothing.
 
+**Tabs.** Each window holds tabs, in a strip at the top that follows Leafdesk's light or dark
+look. Cmd+T (Ctrl+T on Windows and Linux) opens one on the workspace's home, Cmd+W closes it (the
+last one closes the window), Cmd+Shift+T brings back the last closed tab, Ctrl+Tab and
+Ctrl+Shift+Tab (also Cmd+Shift+] and Cmd+Shift+[ on macOS) go to the next and previous tab, Cmd+1
+to Cmd+8 pick one and Cmd+9 the last, and Cmd+Shift+N opens a new window. Cmd+click (Ctrl+click) or
+a middle click on a link to a page of your server opens it in a tab behind the current one, and
+Shift+click in a new window. A tab shows its page's title and emoji; tabs reorder by dragging, and
+right-clicking one offers *Close*, *Close Other Tabs*, *Duplicate Tab* and *Reopen Closed Tab*.
+The app reopens every window with its tabs at the next start (a tab loads when first shown), on
+the same server only; all tabs share one sign-in.
+
+**Opening links in the app.** *My account → Preferences → Desktop app → Open links in the desktop
+app* decides what a browser does with Leafdesk pages: *Off* (the default), *Offer to open them* (a
+card offers to open the page in the app, with an *Always* box) or *Always open them* (the browser
+hands the page to the app once and stays on it if the app isn't installed). The app takes these `leafdesk://open?url=…` links only
+for the server it is connected to, exactly by scheme, host and port, and opens them in a new tab of
+the front window. The setting isn't shown in Leafdesk on this computer.
+
 **What it does differently from a browser tab.** Links to other sites open in your browser, and
-windows the pages open stay in the app only when they are on your server. Menus follow the
+windows the pages open become tabs in the app only when they are on your server (a file it shows,
+such as a PDF, opens in a plain window of its own). Menus follow the
 language chosen in My account, or the system's. The server's pages may use notifications, the clipboard,
 full screen and the microphone (voice notes); nothing else, and no other site. Single sign-on and
 connecting apps happen inside the app, so the sign-in it leads to stays with it. The window

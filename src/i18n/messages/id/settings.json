@@ -41,6 +41,7 @@
       "language": "bahasa terjemahan wilayah",
       "theme": "mode gelap mode terang warna tema",
       "contrast": "aksesibilitas kontras tinggi",
+      "desktopLinks": "desktop windows mac tab buka tautan",
       "notifications": "push email peringatan notifikasi",
       "watchedPages": "ikuti berlangganan pantau",
       "offlineDevice": "luring unduh cache ruang",
@@ -1117,6 +1118,20 @@
       "standard": "Standar",
       "high": "Tinggi",
       "note": "Kontras tinggi membuat teks sekunder, garis, dan kerangka fokus lebih tegas, di kedua tema. Pengaturan ini hanya berlaku untuk peramban ini. Dengan pengaturan sistem, ia mengikuti opsi perangkat Anda untuk meningkatkan kontras."
+    }
+  },
+  "desktopLinks": {
+    "heading": "Aplikasi desktop",
+    "label": "Buka tautan di aplikasi desktop",
+    "note": "Saat Anda membuka halaman Leafdesk di browser pada komputer yang memiliki aplikasi desktop, halaman itu bisa dilanjutkan di aplikasi, dalam tabnya sendiri. Di dalam aplikasi tidak ada yang berubah.",
+    "off": "Mati",
+    "ask": "Tawarkan untuk membukanya",
+    "always": "Selalu buka",
+    "banner": {
+      "text": "Buka halaman ini di aplikasi desktop?",
+      "open": "Buka di aplikasi",
+      "always": "Selalu",
+      "dismiss": "Tutup"
     }
   },
   "language": {

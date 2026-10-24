@@ -41,6 +41,7 @@
       "language": "locale translation",
       "theme": "dark mode light mode colors",
       "contrast": "accessibility high contrast",
+      "desktopLinks": "electron windows mac tabs open links",
       "notifications": "push email alerts",
       "watchedPages": "follow subscribe watch",
       "offlineDevice": "offline download cache space",
@@ -1117,6 +1118,20 @@
       "standard": "Standard",
       "high": "High",
       "note": "High contrast makes secondary text, lines and focus outlines stronger, in either theme. This setting only applies to this browser. With the system setting, it follows your device's option to increase contrast."
+    }
+  },
+  "desktopLinks": {
+    "heading": "Desktop app",
+    "label": "Open links in the desktop app",
+    "note": "When you open a Leafdesk page in a browser on a computer with the desktop app, it can go on to the app, in a tab of its own. Inside the app nothing changes.",
+    "off": "Off",
+    "ask": "Offer to open them",
+    "always": "Always open them",
+    "banner": {
+      "text": "Open this page in the desktop app?",
+      "open": "Open in the app",
+      "always": "Always",
+      "dismiss": "Close"
     }
   },
   "language": {

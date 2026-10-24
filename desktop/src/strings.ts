@@ -1,6 +1,6 @@
 /**
- * The desktop app's own words: the connect screen, menus, the context menu and update prompts.
- * Everything inside the window comes from the server in its own language; these follow the
+ * The desktop app's own words: the connect screen, the tab strip, menus, the context menu and update
+ * prompts. Everything inside the window comes from the server in its own language; these follow the
  * language picked in Leafdesk (its NEXT_LOCALE cookie) and otherwise the system's.
  * `{host}` and `{version}` are filled in where they are used.
  */
@@ -89,6 +89,16 @@ const en = {
   updateReadyBody: "Leafdesk {version} is installed when you restart the app.",
   restartNow: "Restart Now",
   later: "Later",
+  newTab: "New Tab",
+  newWindow: "New Window",
+  closeTab: "Close Tab",
+  closeOtherTabs: "Close Other Tabs",
+  duplicateTab: "Duplicate Tab",
+  reopenClosedTab: "Reopen Closed Tab",
+  nextTab: "Show Next Tab",
+  previousTab: "Show Previous Tab",
+  openLinkInNewTab: "Open Link in New Tab",
+  tabs: "Tabs",
 };
 
 export type Strings = typeof en;
@@ -177,6 +187,16 @@ const tr: Strings = {
   updateReadyBody: "Leafdesk {version}, uygulamayı yeniden başlattığınızda kurulur.",
   restartNow: "Şimdi Yeniden Başlat",
   later: "Sonra",
+  newTab: "Yeni Sekme",
+  newWindow: "Yeni Pencere",
+  closeTab: "Sekmeyi Kapat",
+  closeOtherTabs: "Diğer Sekmeleri Kapat",
+  duplicateTab: "Sekmeyi Çoğalt",
+  reopenClosedTab: "Kapatılan Sekmeyi Yeniden Aç",
+  nextTab: "Sonraki Sekmeyi Göster",
+  previousTab: "Önceki Sekmeyi Göster",
+  openLinkInNewTab: "Bağlantıyı Yeni Sekmede Aç",
+  tabs: "Sekmeler",
 };
 
 const de: Strings = {
@@ -263,6 +283,16 @@ const de: Strings = {
   updateReadyBody: "Leafdesk {version} wird beim nächsten Neustart der App installiert.",
   restartNow: "Jetzt neu starten",
   later: "Später",
+  newTab: "Neuer Tab",
+  newWindow: "Neues Fenster",
+  closeTab: "Tab schließen",
+  closeOtherTabs: "Andere Tabs schließen",
+  duplicateTab: "Tab duplizieren",
+  reopenClosedTab: "Geschlossenen Tab wieder öffnen",
+  nextTab: "Nächsten Tab zeigen",
+  previousTab: "Vorherigen Tab zeigen",
+  openLinkInNewTab: "Link in neuem Tab öffnen",
+  tabs: "Tabs",
 };
 
 const es: Strings = {
@@ -349,6 +379,16 @@ const es: Strings = {
   updateReadyBody: "Leafdesk {version} se instala cuando reinicias la aplicación.",
   restartNow: "Reiniciar ahora",
   later: "Más tarde",
+  newTab: "Nueva pestaña",
+  newWindow: "Nueva ventana",
+  closeTab: "Cerrar pestaña",
+  closeOtherTabs: "Cerrar las demás pestañas",
+  duplicateTab: "Duplicar pestaña",
+  reopenClosedTab: "Reabrir pestaña cerrada",
+  nextTab: "Mostrar pestaña siguiente",
+  previousTab: "Mostrar pestaña anterior",
+  openLinkInNewTab: "Abrir enlace en una pestaña nueva",
+  tabs: "Pestañas",
 };
 
 const fr: Strings = {
@@ -435,6 +475,16 @@ const fr: Strings = {
   updateReadyBody: "Leafdesk {version} sera installé au redémarrage de l’application.",
   restartNow: "Redémarrer maintenant",
   later: "Plus tard",
+  newTab: "Nouvel onglet",
+  newWindow: "Nouvelle fenêtre",
+  closeTab: "Fermer l’onglet",
+  closeOtherTabs: "Fermer les autres onglets",
+  duplicateTab: "Dupliquer l’onglet",
+  reopenClosedTab: "Rouvrir l’onglet fermé",
+  nextTab: "Afficher l’onglet suivant",
+  previousTab: "Afficher l’onglet précédent",
+  openLinkInNewTab: "Ouvrir le lien dans un nouvel onglet",
+  tabs: "Onglets",
 };
 
 const it: Strings = {
@@ -521,6 +571,16 @@ const it: Strings = {
   updateReadyBody: "Leafdesk {version} verrà installato al riavvio dell’app.",
   restartNow: "Riavvia ora",
   later: "Più tardi",
+  newTab: "Nuova scheda",
+  newWindow: "Nuova finestra",
+  closeTab: "Chiudi scheda",
+  closeOtherTabs: "Chiudi le altre schede",
+  duplicateTab: "Duplica scheda",
+  reopenClosedTab: "Riapri scheda chiusa",
+  nextTab: "Mostra scheda successiva",
+  previousTab: "Mostra scheda precedente",
+  openLinkInNewTab: "Apri link in una nuova scheda",
+  tabs: "Schede",
 };
 
 const pt: Strings = {
@@ -607,6 +667,16 @@ const pt: Strings = {
   updateReadyBody: "O Leafdesk {version} é instalado quando você reinicia o app.",
   restartNow: "Reiniciar agora",
   later: "Mais tarde",
+  newTab: "Nova aba",
+  newWindow: "Nova janela",
+  closeTab: "Fechar aba",
+  closeOtherTabs: "Fechar as outras abas",
+  duplicateTab: "Duplicar aba",
+  reopenClosedTab: "Reabrir aba fechada",
+  nextTab: "Mostrar próxima aba",
+  previousTab: "Mostrar aba anterior",
+  openLinkInNewTab: "Abrir link em nova aba",
+  tabs: "Abas",
 };
 
 const pl: Strings = {
@@ -693,6 +763,16 @@ const pl: Strings = {
   updateReadyBody: "Leafdesk {version} zostanie zainstalowany po ponownym uruchomieniu aplikacji.",
   restartNow: "Uruchom ponownie teraz",
   later: "Później",
+  newTab: "Nowa karta",
+  newWindow: "Nowe okno",
+  closeTab: "Zamknij kartę",
+  closeOtherTabs: "Zamknij pozostałe karty",
+  duplicateTab: "Duplikuj kartę",
+  reopenClosedTab: "Otwórz ponownie zamkniętą kartę",
+  nextTab: "Pokaż następną kartę",
+  previousTab: "Pokaż poprzednią kartę",
+  openLinkInNewTab: "Otwórz link w nowej karcie",
+  tabs: "Karty",
 };
 
 const ru: Strings = {
@@ -779,6 +859,16 @@ const ru: Strings = {
   updateReadyBody: "Leafdesk {version} установится после перезапуска приложения.",
   restartNow: "Перезапустить",
   later: "Позже",
+  newTab: "Новая вкладка",
+  newWindow: "Новое окно",
+  closeTab: "Закрыть вкладку",
+  closeOtherTabs: "Закрыть другие вкладки",
+  duplicateTab: "Дублировать вкладку",
+  reopenClosedTab: "Открыть закрытую вкладку",
+  nextTab: "Следующая вкладка",
+  previousTab: "Предыдущая вкладка",
+  openLinkInNewTab: "Открыть ссылку в новой вкладке",
+  tabs: "Вкладки",
 };
 
 const uk: Strings = {
@@ -865,6 +955,16 @@ const uk: Strings = {
   updateReadyBody: "Leafdesk {version} встановиться після перезапуску застосунку.",
   restartNow: "Перезапустити",
   later: "Пізніше",
+  newTab: "Нова вкладка",
+  newWindow: "Нове вікно",
+  closeTab: "Закрити вкладку",
+  closeOtherTabs: "Закрити інші вкладки",
+  duplicateTab: "Дублювати вкладку",
+  reopenClosedTab: "Відкрити закриту вкладку",
+  nextTab: "Наступна вкладка",
+  previousTab: "Попередня вкладка",
+  openLinkInNewTab: "Відкрити посилання в новій вкладці",
+  tabs: "Вкладки",
 };
 
 const ar: Strings = {
@@ -951,6 +1051,16 @@ const ar: Strings = {
   updateReadyBody: "يُثبَّت Leafdesk {version} عند إعادة تشغيل التطبيق.",
   restartNow: "إعادة التشغيل الآن",
   later: "لاحقًا",
+  newTab: "علامة تبويب جديدة",
+  newWindow: "نافذة جديدة",
+  closeTab: "إغلاق علامة التبويب",
+  closeOtherTabs: "إغلاق علامات التبويب الأخرى",
+  duplicateTab: "تكرار علامة التبويب",
+  reopenClosedTab: "إعادة فتح علامة التبويب المغلقة",
+  nextTab: "إظهار علامة التبويب التالية",
+  previousTab: "إظهار علامة التبويب السابقة",
+  openLinkInNewTab: "فتح الرابط في علامة تبويب جديدة",
+  tabs: "علامات التبويب",
 };
 
 const he: Strings = {
@@ -1037,6 +1147,16 @@ const he: Strings = {
   updateReadyBody: "Leafdesk {version} יותקן כשהאפליקציה תופעל מחדש.",
   restartNow: "הפעלה מחדש עכשיו",
   later: "אחר כך",
+  newTab: "כרטיסייה חדשה",
+  newWindow: "חלון חדש",
+  closeTab: "סגירת כרטיסייה",
+  closeOtherTabs: "סגירת שאר הכרטיסיות",
+  duplicateTab: "שכפול כרטיסייה",
+  reopenClosedTab: "פתיחה מחדש של כרטיסייה שנסגרה",
+  nextTab: "הצגת הכרטיסייה הבאה",
+  previousTab: "הצגת הכרטיסייה הקודמת",
+  openLinkInNewTab: "פתיחת הקישור בכרטיסייה חדשה",
+  tabs: "כרטיסיות",
 };
 
 const fa: Strings = {
@@ -1123,6 +1243,16 @@ const fa: Strings = {
   updateReadyBody: "Leafdesk {version} پس از راه‌اندازی دوبارهٔ برنامه نصب می‌شود.",
   restartNow: "راه‌اندازی دوباره اکنون",
   later: "بعداً",
+  newTab: "زبانهٔ جدید",
+  newWindow: "پنجرهٔ جدید",
+  closeTab: "بستن زبانه",
+  closeOtherTabs: "بستن زبانه‌های دیگر",
+  duplicateTab: "تکثیر زبانه",
+  reopenClosedTab: "بازکردن دوبارهٔ زبانهٔ بسته‌شده",
+  nextTab: "نمایش زبانهٔ بعدی",
+  previousTab: "نمایش زبانهٔ قبلی",
+  openLinkInNewTab: "بازکردن پیوند در زبانهٔ جدید",
+  tabs: "زبانه‌ها",
 };
 
 const ja: Strings = {
@@ -1209,6 +1339,16 @@ const ja: Strings = {
   updateReadyBody: "Leafdesk {version} はアプリの再起動時にインストールされます。",
   restartNow: "今すぐ再起動",
   later: "あとで",
+  newTab: "新規タブ",
+  newWindow: "新規ウインドウ",
+  closeTab: "タブを閉じる",
+  closeOtherTabs: "ほかのタブを閉じる",
+  duplicateTab: "タブを複製",
+  reopenClosedTab: "閉じたタブを開き直す",
+  nextTab: "次のタブを表示",
+  previousTab: "前のタブを表示",
+  openLinkInNewTab: "リンクを新規タブで開く",
+  tabs: "タブ",
 };
 
 const ko: Strings = {
@@ -1295,6 +1435,16 @@ const ko: Strings = {
   updateReadyBody: "앱을 다시 시작하면 Leafdesk {version}이(가) 설치됩니다.",
   restartNow: "지금 다시 시작",
   later: "나중에",
+  newTab: "새 탭",
+  newWindow: "새 윈도우",
+  closeTab: "탭 닫기",
+  closeOtherTabs: "다른 탭 닫기",
+  duplicateTab: "탭 복제",
+  reopenClosedTab: "닫은 탭 다시 열기",
+  nextTab: "다음 탭 보기",
+  previousTab: "이전 탭 보기",
+  openLinkInNewTab: "새 탭에서 링크 열기",
+  tabs: "탭",
 };
 
 const zh: Strings = {
@@ -1380,6 +1530,16 @@ const zh: Strings = {
   updateReadyBody: "重新启动应用后将安装 Leafdesk {version}。",
   restartNow: "立即重新启动",
   later: "稍后",
+  newTab: "新建标签页",
+  newWindow: "新建窗口",
+  closeTab: "关闭标签页",
+  closeOtherTabs: "关闭其他标签页",
+  duplicateTab: "复制标签页",
+  reopenClosedTab: "重新打开关闭的标签页",
+  nextTab: "显示下一个标签页",
+  previousTab: "显示上一个标签页",
+  openLinkInNewTab: "在新标签页中打开链接",
+  tabs: "标签页",
 };
 
 const id: Strings = {
@@ -1466,6 +1626,16 @@ const id: Strings = {
   updateReadyBody: "Leafdesk {version} dipasang saat Anda memulai ulang aplikasi.",
   restartNow: "Mulai Ulang Sekarang",
   later: "Nanti",
+  newTab: "Tab Baru",
+  newWindow: "Jendela Baru",
+  closeTab: "Tutup Tab",
+  closeOtherTabs: "Tutup Tab Lain",
+  duplicateTab: "Duplikat Tab",
+  reopenClosedTab: "Buka Lagi Tab yang Ditutup",
+  nextTab: "Tampilkan Tab Berikutnya",
+  previousTab: "Tampilkan Tab Sebelumnya",
+  openLinkInNewTab: "Buka Tautan di Tab Baru",
+  tabs: "Tab",
 };
 
 const th: Strings = {
@@ -1552,6 +1722,16 @@ const th: Strings = {
   updateReadyBody: "Leafdesk {version} จะถูกติดตั้งเมื่อคุณรีสตาร์ตแอป",
   restartNow: "รีสตาร์ตตอนนี้",
   later: "ภายหลัง",
+  newTab: "แท็บใหม่",
+  newWindow: "หน้าต่างใหม่",
+  closeTab: "ปิดแท็บ",
+  closeOtherTabs: "ปิดแท็บอื่น",
+  duplicateTab: "ทำสำเนาแท็บ",
+  reopenClosedTab: "เปิดแท็บที่ปิดไปอีกครั้ง",
+  nextTab: "แสดงแท็บถัดไป",
+  previousTab: "แสดงแท็บก่อนหน้า",
+  openLinkInNewTab: "เปิดลิงก์ในแท็บใหม่",
+  tabs: "แท็บ",
 };
 
 const vi: Strings = {
@@ -1638,6 +1818,16 @@ const vi: Strings = {
   updateReadyBody: "Leafdesk {version} sẽ được cài đặt khi bạn khởi động lại ứng dụng.",
   restartNow: "Khởi động lại ngay",
   later: "Để sau",
+  newTab: "Tab mới",
+  newWindow: "Cửa sổ mới",
+  closeTab: "Đóng tab",
+  closeOtherTabs: "Đóng các tab khác",
+  duplicateTab: "Nhân bản tab",
+  reopenClosedTab: "Mở lại tab đã đóng",
+  nextTab: "Hiện tab tiếp theo",
+  previousTab: "Hiện tab trước",
+  openLinkInNewTab: "Mở liên kết trong tab mới",
+  tabs: "Các tab",
 };
 
 /** Same languages as the web app (src/i18n/config.ts), English first. */

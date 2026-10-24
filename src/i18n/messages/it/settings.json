@@ -41,6 +41,7 @@
       "language": "lingua traduzione locale",
       "theme": "modalità scura modalità chiara colori",
       "contrast": "accessibilità contrasto elevato",
+      "desktopLinks": "desktop windows mac schede aprire link",
       "notifications": "push email avvisi notifica",
       "watchedPages": "segui iscriviti osserva",
       "offlineDevice": "offline scarica cache spazio",
@@ -1117,6 +1118,20 @@
       "standard": "Standard",
       "high": "Alto",
       "note": "Il contrasto alto rende più marcati il testo secondario, le linee e i contorni di selezione, in entrambi i temi. Questa impostazione vale solo per questo browser. Con l’impostazione di sistema, segue l’opzione del tuo dispositivo per aumentare il contrasto."
+    }
+  },
+  "desktopLinks": {
+    "heading": "App desktop",
+    "label": "Apri i link nell’app desktop",
+    "note": "Quando apri una pagina di Leafdesk in un browser su un computer con l’app desktop, può proseguire nell’app, in una scheda tutta sua. Dentro l’app non cambia nulla.",
+    "off": "Disattivato",
+    "ask": "Proponi di aprirli",
+    "always": "Aprili sempre",
+    "banner": {
+      "text": "Aprire questa pagina nell’app desktop?",
+      "open": "Apri nell’app",
+      "always": "Sempre",
+      "dismiss": "Chiudi"
     }
   },
   "language": {

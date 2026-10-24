@@ -244,6 +244,16 @@ export function PageView({
       ? t("documentViewTitle", { title: label, view: viewName })
       : t("documentTitle", { title: label });
   }, [title, untitled, viewName, t, inPanel]);
+  // The page's icon, which the desktop app shows on its tab (desktop/src/preload.cts reads it).
+  useEffect(() => {
+    if (inPanel) return;
+    const root = document.documentElement;
+    if (icon) root.dataset.pageIcon = icon;
+    else delete root.dataset.pageIcon;
+    return () => {
+      delete root.dataset.pageIcon;
+    };
+  }, [icon, inPanel]);
 
   // Presenting needs the body's blocks, so the page has a body and its document has synced.
   const canPresent = showBody && Boolean(pageDoc) && synced && !page.archived;

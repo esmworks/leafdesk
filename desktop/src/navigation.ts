@@ -4,12 +4,12 @@
  * Signing in to a service for a connection or for storage is the exception: it happens in the
  * system's browser, where the person is likely signed in to the service already, and the server
  * hands the answer back to the app with a `leafdesk://` link (see `signInReturn`). Links Leafdesk
- * opens in a new tab go to the system's browser, unless they lead back into Leafdesk, which gets a
- * window of its own.
+ * opens in a new tab go to the system's browser, unless they lead back into Leafdesk, which opens
+ * them in a tab of its own (as it does a `leafdesk://open` link, see `openLinkTarget`).
  */
 
 export type NavigationDecision = "allow" | "external" | "deny";
-export type NewWindowDecision = "window" | "external" | "deny";
+export type NewWindowDecision = "tab" | "external" | "deny";
 
 const EXTERNAL_SCHEMES = new Set(["mailto:", "tel:"]);
 
@@ -55,7 +55,7 @@ export function decideNavigation(target: string, localPages: string, server?: st
 export function decideNewWindow(target: string, server: string | undefined): NewWindowDecision {
   const url = parse(target);
   if (!url) return "deny";
-  if (isWeb(url)) return server && url.origin === server ? "window" : "external";
+  if (isWeb(url)) return server && url.origin === server ? "tab" : "external";
   return EXTERNAL_SCHEMES.has(url.protocol) ? "external" : "deny";
 }
 
@@ -99,4 +99,17 @@ export function signInReturn(link: string, server: string | undefined): string |
     if (value !== null) back.searchParams.set(key, value);
   }
   return back.href;
+}
+
+/**
+ * Where a `leafdesk://open?url=<page>` link takes the app: the web app offers it to people who
+ * open Leafdesk's links in the desktop app (src/components/desktop-link-banner.tsx). Only a page of
+ * the server the app is on, by its exact origin, opens; anything else is turned down (null).
+ */
+export function openLinkTarget(link: string, server: string | undefined): string | null {
+  const url = parse(link);
+  if (!url || url.protocol !== `${APP_SCHEME}:` || url.hostname !== "open" || !server) return null;
+  const target = parse(url.searchParams.get("url") ?? "");
+  if (!target || !isWeb(target) || target.origin !== server || target.username || target.password) return null;
+  return `${server}${target.pathname}${target.search}${target.hash}`;
 }

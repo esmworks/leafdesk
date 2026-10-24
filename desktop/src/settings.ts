@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { readShortcut } from "./global-shortcut.ts";
 import { readLastPage, type LastPage } from "./last-page.ts";
+import { readSavedTabs, type SavedTabs } from "./tabs.ts";
 
 export type WindowState = { x?: number; y?: number; width: number; height: number; maximized: boolean };
 
@@ -19,8 +20,10 @@ export type Settings = {
   backupFolder?: string;
   /** The global shortcut to AI chat: one of global-shortcut.ts's choices, or "off"; unset is the default. */
   globalShortcut?: string;
-  /** The page the main window showed last, opened again at the next start (last-page.ts). */
+  /** The page shown last, opened again at the next start when there are no tabs kept (last-page.ts). */
   lastPage?: LastPage;
+  /** The windows' tabs, opened again at the next start on the same server (tabs.ts). */
+  tabs?: SavedTabs;
 };
 
 /** Settings kept in a JSON file; a missing or unreadable file means a first start. */
@@ -36,6 +39,7 @@ export function loadSettings(file: string): Settings {
       backupFolder: typeof value.backupFolder === "string" && value.backupFolder ? value.backupFolder : undefined,
       globalShortcut: readShortcut(value.globalShortcut, process.platform),
       lastPage: readLastPage(value.lastPage),
+      tabs: readSavedTabs(value.tabs),
     };
   } catch {
     return { trustedCertificates: {} };

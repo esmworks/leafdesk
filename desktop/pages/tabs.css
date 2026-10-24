@@ -1,0 +1,252 @@
+/*
+ * The tab strip at the top of every window (src/windows.ts), in the web app's colors
+ * (src/app/globals.css). The shown tab takes the page's background, so it runs on into the page
+ * below. The window moves by the strip's background; the tabs and buttons are cut out of it.
+ * Electron works out those regions in the document's order, not by what is drawn on top, so
+ * nothing that moves the window comes after a tab.
+ */
+:root {
+  color-scheme: light dark;
+  --bg: #ffffff;
+  --bg-subtle: #f7f7f8;
+  --bg-hover: #efeff1;
+  --fg: #1f2023;
+  --fg-muted: #6b6d75;
+  --border: #e4e4e7;
+  --ring: rgba(47, 125, 79, 0.35);
+  --strip-height: 40px;
+  /* Room for macOS's window buttons at the strip's start (main.ts places them). */
+  --controls-width: 0px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #18191b;
+    --bg-subtle: #202124;
+    --bg-hover: #2a2b2f;
+    --fg: #e8e8ea;
+    --fg-muted: #a1a3aa;
+    --border: #2f3034;
+    --ring: rgba(108, 195, 138, 0.4);
+  }
+}
+
+:root[data-window-controls]:not([data-full-screen]) {
+  --controls-width: 78px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: var(--strip-height);
+  overflow: hidden;
+}
+
+body {
+  background: var(--bg-subtle);
+  color: var(--fg);
+  font: 12.5px/1 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+  cursor: default;
+}
+
+.strip {
+  display: flex;
+  align-items: flex-end;
+  height: var(--strip-height);
+  /* macOS's buttons on the left whatever the language; elsewhere the system's on the right (env: the window controls overlay). */
+  padding-left: calc(var(--controls-width) + 8px);
+  padding-right: calc(100vw - env(titlebar-area-x, 0px) - env(titlebar-area-width, 100vw) + 8px);
+  border-bottom: 1px solid var(--border);
+  -webkit-app-region: drag;
+}
+
+.tabs {
+  display: flex;
+  align-items: flex-end;
+  min-width: 0;
+  height: 100%;
+  padding-top: 6px;
+}
+
+.tab {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 1 200px;
+  min-width: 40px;
+  height: 100%;
+  margin-bottom: -1px;
+  padding: 0 6px 0 10px;
+  border: 1px solid transparent;
+  border-bottom: 0;
+  border-radius: 8px 8px 0 0;
+  color: var(--fg-muted);
+  -webkit-app-region: no-drag;
+}
+
+/* A thin line between two tabs, neither of them shown nor under the pointer. */
+.tab + .tab::before {
+  content: "";
+  position: absolute;
+  left: -1px;
+  top: 9px;
+  bottom: 9px;
+  width: 1px;
+  background: var(--border);
+}
+.tab:hover::before,
+.tab:hover + .tab::before,
+.tab[aria-selected="true"]::before,
+.tab[aria-selected="true"] + .tab::before {
+  display: none;
+}
+
+.tab:hover {
+  background: var(--bg-hover);
+}
+
+.tab[aria-selected="true"] {
+  z-index: 1;
+  background: var(--bg);
+  border-color: var(--border);
+  color: var(--fg);
+}
+
+.tab.dragging {
+  z-index: 2;
+  background: var(--bg);
+  border-color: var(--border);
+}
+
+.tab:focus-visible,
+.new-tab:focus-visible,
+.close:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: -2px;
+}
+
+.icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.icon svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.icon.loading::after {
+  content: "";
+  width: 11px;
+  height: 11px;
+  border: 1.5px solid var(--border);
+  border-top-color: var(--fg-muted);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  line-height: 16px;
+}
+
+.close,
+.new-tab {
+  flex: none;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--fg-muted);
+  -webkit-app-region: no-drag;
+}
+
+.close {
+  width: 18px;
+  height: 18px;
+  visibility: hidden;
+}
+
+.tab:hover .close,
+.tab[aria-selected="true"] .close {
+  visibility: visible;
+}
+
+.close:hover,
+.new-tab:hover {
+  background: var(--bg-hover);
+  color: var(--fg);
+}
+
+.tab[aria-selected="true"] .close:hover {
+  background: var(--bg-subtle);
+}
+
+.close svg,
+.new-tab svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+
+.close svg {
+  width: 10px;
+  height: 10px;
+}
+
+.new-tab {
+  width: 26px;
+  height: 26px;
+  margin: 0 0 4px 4px;
+}
+
+.new-tab svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Narrow tabs keep the icon; the shown one keeps its close button. */
+.tab.narrow .title,
+.tab.narrow:not([aria-selected="true"]) .close {
+  display: none;
+}
+.tab.narrow {
+  justify-content: center;
+  padding: 0 4px;
+}
+
+@media (prefers-contrast: more) {
+  .tab {
+    color: var(--fg);
+  }
+}
