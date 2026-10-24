@@ -9,7 +9,7 @@ import {
   useExtensionState,
   type DefaultReactSuggestionItem,
 } from "@blocknote/react";
-import { Bell, Bot, CalendarCheck, CalendarDays, ChevronRight, CircleUser, FilePlus, FileX2, Link2, Lock, Pilcrow, Search } from "lucide-react";
+import { Bell, Bot, CalendarCheck, CalendarDays, ChevronRight, CircleUser, FilePlus, FileX2, Link2, Lock, Pilcrow, Search, Users } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { createPortal } from "react-dom";
@@ -48,6 +48,7 @@ import { LinkMentionChip } from "./link-mention";
 import { LINK_PLACEHOLDER } from "@/lib/link-context";
 import type { Backlink, MentionCandidates, PageRef, UnlinkedMention } from "@/server/mentions";
 import type { AgentCandidate } from "@/server/agents/mentions";
+import type { GroupCandidate } from "@/server/groups";
 import type { PageEditor } from "./embed-blocks";
 import { searchFold } from "@/lib/search-fold";
 import { linkWikilinks, titleKey, wikilinkTitles } from "@/lib/wikilinks";
@@ -192,6 +193,19 @@ function PersonMentionChip({ name }: { name: string }) {
   return (
     <span className="leafdesk-mention leafdesk-mention-user">
       <CircleUser className="leafdesk-mention-icon" aria-hidden />
+      <span className="leafdesk-mention-label">{name || "…"}</span>
+    </span>
+  );
+}
+
+/**
+ * A mentioned group: its name as it was when mentioned. Resting the pointer on it lists who is in
+ * it (page-preview.tsx, which finds it by `data-mention-group`).
+ */
+function GroupMentionChip({ groupId, name }: { groupId: string; name: string }) {
+  return (
+    <span className="leafdesk-mention leafdesk-mention-group" data-mention-group={groupId || undefined}>
+      <Users className="leafdesk-mention-icon" aria-hidden />
       <span className="leafdesk-mention-label">{name || "…"}</span>
     </span>
   );
@@ -393,6 +407,7 @@ const Mention = createReactInlineContentSpec(mentionConfig, {
     );
     if (props.kind === "page") return <PageMentionChip pageId={props.pageId} blockId={props.blockId} />;
     if (props.kind === "user") return <PersonMentionChip name={props.name} />;
+    if (props.kind === "group") return <GroupMentionChip groupId={props.groupId} name={props.name} />;
     if (props.kind === "link") return <LinkMentionChip props={props} onChange={editor.isEditable ? change : null} />;
     return <DateMentionChip props={props} onChange={editor.isEditable ? change : null} />;
   },
@@ -400,7 +415,7 @@ const Mention = createReactInlineContentSpec(mentionConfig, {
   // browser doesn't already show.
   toExternalHTML: function MentionHTML({ inlineContent }) {
     const props = mentionProps(inlineContent.props);
-    if (props.kind === "user") return <span>@{props.name}</span>;
+    if (props.kind === "user" || props.kind === "group") return <span>@{props.name}</span>;
     if (props.kind === "date") return <span>{props.date}</span>;
     if (props.kind === "link") {
       const href = linkMentionHref(props);
@@ -517,6 +532,22 @@ export function personItem(editor: MentionTarget, person: MentionCandidates["peo
   };
 }
 
+/** A group of the workspace in an @ menu (the page's or a comment's), with how many are in it. */
+export function groupItem(
+  editor: MentionTarget,
+  group: GroupCandidate,
+  heading: string,
+  members: (count: number) => string,
+): DefaultReactSuggestionItem {
+  return {
+    title: group.name,
+    subtext: members(group.memberCount),
+    group: heading,
+    icon: <Users size={18} />,
+    onItemClick: () => insertMention(editor, { kind: "group", id: newMentionId(), groupId: group.id, name: group.name }),
+  };
+}
+
 /**
  * An agent in a comment's @ menu, with its icon (or a robot): picking it mentions its user, and
  * posting the comment asks the agent to answer in the thread.
@@ -540,13 +571,13 @@ export function loadedPageTitle(pageId: string): string | null {
   return ref?.status === "ok" ? ref.title : null;
 }
 
-/** `@` in the editor: people of the workspace, pages the user can see, and dates. */
+/** `@` in the editor: people and groups of the workspace, pages the user can see, and dates. */
 export function MentionMenu({ editor, workspaceId, pageId }: { editor: PageEditor; workspaceId: string; pageId: string }) {
   const t = useTranslations("page.mention");
   const pageItem = usePageItem();
   const locale = useLocale();
   // The last answer, so typing doesn't flash an empty menu while the next one loads.
-  const last = useRef<MentionCandidates>({ people: [], pages: [] });
+  const last = useRef<MentionCandidates>({ people: [], groups: [], pages: [] });
 
   const insert = useCallback((props: Partial<MentionProps>) => insertMention(editor, props), [editor]);
 
@@ -561,6 +592,7 @@ export function MentionMenu({ editor, workspaceId, pageId }: { editor: PageEdito
       }
       const q = searchFold(query.trim());
       const people = found.people.map((p) => personItem(editor, p, t("people")));
+      const groups = found.groups.map((g) => groupItem(editor, g, t("groups"), (count) => t("groupMembers", { count })));
       const pages = found.pages.map((p) => pageItem(p, () => insertPageMention(editor, workspaceId, p)));
       const dates = DATE_ITEMS.flatMap((d): DefaultReactSuggestionItem[] => {
         const title = t(d.key);
@@ -586,7 +618,7 @@ export function MentionMenu({ editor, workspaceId, pageId }: { editor: PageEdito
           onItemClick: () => insert({ kind: "date", id: newMentionId(), date }),
         });
       }
-      return [...people, ...pages, ...dates];
+      return [...people, ...groups, ...pages, ...dates];
     },
     [editor, workspaceId, pageId, insert, pageItem, t, locale],
   );

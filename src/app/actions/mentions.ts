@@ -1,6 +1,7 @@
 "use server";
 
 import { AccessError, requirePageAccess } from "@/server/access";
+import { mentionedGroup, type MentionedGroup } from "@/server/groups";
 import * as mentions from "@/server/mentions";
 import { requireUserId } from "@/server/session";
 
@@ -10,7 +11,7 @@ export async function mentionCandidatesAction(pageId: string, query: string): Pr
   try {
     return await mentions.mentionCandidates(userId, pageId, query);
   } catch (error) {
-    if (error instanceof AccessError) return { people: [], pages: [] };
+    if (error instanceof AccessError) return { people: [], groups: [], pages: [] };
     throw error;
   }
 }
@@ -21,7 +22,7 @@ export async function commentMentionCandidatesAction(pageId: string, query: stri
   try {
     return await mentions.commentMentionCandidates(userId, pageId, query);
   } catch (error) {
-    if (error instanceof AccessError) return { people: [], agents: [] };
+    if (error instanceof AccessError) return { people: [], groups: [], agents: [] };
     throw error;
   }
 }
@@ -38,6 +39,17 @@ export async function pagesNamedAction(pageId: string, titles: string[]): Promis
     return [...(await mentions.pagesNamed(userId, pageId, titles))];
   } catch (error) {
     if (error instanceof AccessError) return [];
+    throw error;
+  }
+}
+
+/** A mentioned group's name and members, for owners and members of its workspace; null for anyone else. */
+export async function mentionedGroupAction(groupId: string): Promise<MentionedGroup | null> {
+  const userId = await requireUserId();
+  try {
+    return await mentionedGroup(userId, groupId);
+  } catch (error) {
+    if (error instanceof AccessError) return null;
     throw error;
   }
 }

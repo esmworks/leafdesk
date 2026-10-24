@@ -496,7 +496,10 @@
     },
     "code": {
       "language": "שפה",
-      "plainText": "טקסט פשוט"
+      "plainText": "טקסט פשוט",
+      "format": "עיצוב הקוד",
+      "formatSyntaxError": "הקוד לא עוצב: יש שגיאת תחביר בשורה {line}.",
+      "formatFailed": "לא ניתן היה לעצב את הקוד."
     },
     "math": {
       "title": "משוואה",
@@ -606,6 +609,7 @@
       "submit": "יצירת סימנייה",
       "loading": "בטעינת הדף…",
       "refresh": "רענון התצוגה המקדימה",
+      "resize": "גררו כדי לשנות את רוחב הכרטיס",
       "label": "סימנייה"
     },
     "embed": {
@@ -646,6 +650,8 @@
   "mention": {
     "people": "אנשים",
     "agents": "סוכנים",
+    "groups": "קבוצות",
+    "groupMembers": "{count, plural, =0 {אין חברים} one {חבר אחד} other {# חברים}}",
     "pages": "דפים",
     "dates": "תאריכים",
     "newPage": "דף חדש: {title}",
@@ -670,6 +676,12 @@
     "reminderHint": "התזכורת תגיע לתיבת הדואר הנכנס ובאימייל.",
     "reminderPast": "המועד הזה כבר עבר; יש לבחור תאריך או תזכורת מאוחרים יותר.",
     "done": "סיום"
+  },
+  "preview": {
+    "editedBy": "נערך על ידי {name} {when}",
+    "edited": "נערך {when}",
+    "members": "{count, plural, =0 {אין עדיין אף אחד בקבוצה הזו} one {חבר אחד} other {# חברים}}",
+    "moreMembers": "ועוד {count}"
   },
   "pageLinkPicker": {
     "title": "קישור לדף",

@@ -20,6 +20,7 @@ import {
 import { copyPublishedBlocks, mentionedPageIds } from "@/lib/published-copy";
 import { blocksToMarkdown, markdownToBlocks, pageSchema, serverEditor, type PageBlock } from "./blocknote";
 import { bodySegmentsFromYdoc } from "./published-body";
+import { groupMemberKey, groupMentionTargets } from "@/lib/group-mentions";
 
 function docFrom(blocks: unknown[]) {
   const doc = new Y.Doc();
@@ -155,6 +156,70 @@ describe("mentions in Markdown", () => {
     expect(ids.slice(0, 1)).toEqual(["a1"]);
     expect(ids[2]).toBe("a2");
     expect(new Set(ids).size).toBe(4);
+  });
+});
+
+describe("group mentions", () => {
+  const groupBody = [
+    {
+      type: "paragraph",
+      content: [
+        text("Ping "),
+        mention({ kind: "group", id: "g1", groupId: "grp-design", name: "Design team" }),
+        text(" and "),
+        mention({ kind: "user", id: "m1", userId: "u-ada", name: "Ada Lovelace" }),
+      ],
+    },
+  ];
+  const named = [...people, { id: "grp-design", name: "Design team", group: true }, { id: "grp-ada", name: "Ada", group: true }];
+
+  it("keep their group through the Yjs document and read as @name", () => {
+    const blocks = stored(groupBody);
+    expect(mentions(blocks)[0]).toEqual({ ...EMPTY_MENTION, kind: "group", id: "g1", groupId: "grp-design", name: "Design team" });
+    expect(blocksToPlainText(blocks)).toBe("Ping @Design team and @Ada Lovelace");
+  });
+
+  it("are listed apart from people", () => {
+    const refs = bodyReferences(stored(groupBody));
+    expect(refs.groups).toEqual([{ key: "g1", groupId: "grp-design" }]);
+    expect(refs.people).toEqual([{ key: "m1", userId: "u-ada" }]);
+  });
+
+  it("are written as @name and read back as the same group, keeping its id", async () => {
+    const existing = stored(groupBody);
+    const markdown = (await blocksToMarkdown(existing, { workspaceId: WS })).trim();
+    expect(markdown).toBe("Ping @Design team and @Ada Lovelace");
+    const back = stored(await markdownToBlocks(markdown, existing, { people: named }));
+    expect(mentions(back)).toEqual(mentions(existing));
+  });
+
+  it("lose to a person of the same name, and are found by name otherwise", async () => {
+    const blocks = stored(await markdownToBlocks("@Ada and @design TEAM", [], { people: named }));
+    expect(mentions(blocks).map((m) => [m.kind, m.userId || m.groupId])).toEqual([
+      ["user", "u-ad"],
+      ["group", "grp-design"],
+    ]);
+  });
+
+  it("reach each member once, and only the members they first reached", () => {
+    const groups = [{ key: "g1", groupId: "grp-design" }];
+    const members = new Map([["grp-design", ["u-ada", "u-grace", "u-ada"]]]);
+    expect(groupMentionTargets(groups, members, [])).toEqual([
+      { key: groupMemberKey("g1", "u-ada"), userId: "u-ada", group: true },
+      { key: groupMemberKey("g1", "u-grace"), userId: "u-grace", group: true },
+    ]);
+    // Someone who joined after the mention was notified about isn't told about it.
+    const later = new Map([["grp-design", ["u-ada", "u-grace", "u-new"]]]);
+    const seen = [groupMemberKey("g1", "u-ada"), groupMemberKey("g1", "u-grace"), "m1"];
+    expect(groupMentionTargets(groups, later, seen).map((t) => t.userId)).toEqual(["u-ada", "u-grace"]);
+    // A group of another workspace (not among the members found) reaches nobody.
+    expect(groupMentionTargets([{ key: "g2", groupId: "elsewhere" }], members, [])).toEqual([]);
+  });
+
+  it("become their text in a copy of a published page", () => {
+    const copy = copyPublishedBlocks(stored(groupBody), { pageIds: new Map(), fileIds: new Map(), outside: new Map() } as never);
+    expect(mentions(copy)).toEqual([]);
+    expect(blocksToPlainText(copy)).toBe("Ping @Design team and @Ada Lovelace");
   });
 });
 

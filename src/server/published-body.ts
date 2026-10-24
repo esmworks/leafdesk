@@ -10,7 +10,7 @@ import { AGENT_CHAT_BLOCK } from "@/lib/agent-chat";
 import { DASHBOARD_BLOCK, dashboardLayout, parseDashboard, type DashboardLayout, type DashboardWidget } from "@/lib/dashboard";
 import { isEmbedBlockType, parseLinkedView, type EmbedBlockType, type LinkedView } from "@/lib/embed-blocks";
 import { pdfFileId, spreadsheetFileId } from "@/lib/files";
-import { BOOKMARK_BLOCK, embedFor, isWebBlockType, parseWebUrl, type EmbedTarget } from "@/lib/web-blocks";
+import { BOOKMARK_BLOCK, bookmarkWidth, embedFor, isWebBlockType, parseWebUrl, type EmbedTarget } from "@/lib/web-blocks";
 import {
   bodyReferences,
   isBlockId,
@@ -231,7 +231,16 @@ export type BodyFootnote = { anchor: string; refAnchor: string; text: string };
 export type PublishedColumn<S> = { width: number; segments: S[] };
 
 /** A bookmark card's details, every URL checked to be http(s). */
-export type PublishedBookmark = { url: string; title: string; description: string; image: string; favicon: string; siteName: string };
+export type PublishedBookmark = {
+  url: string;
+  title: string;
+  description: string;
+  image: string;
+  favicon: string;
+  siteName: string;
+  /** Percent of the column (lib/web-blocks bookmarkWidth), or null for all of it. */
+  width: number | null;
+};
 
 /**
  * The uploaded file a file block shows in place, if it holds one: a PDF or an Excel workbook (see
@@ -277,6 +286,7 @@ function webSegment(block: PageBlock): BodySegment | null {
       image: parseWebUrl(props.image)?.href ?? "",
       favicon: parseWebUrl(props.favicon)?.href ?? "",
       siteName: text("siteName"),
+      width: bookmarkWidth(props.width),
     },
   };
 }

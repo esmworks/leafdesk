@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  bookmarkWidth,
   displayHost,
   EMBED_FRAME_ORIGINS,
   embedFor,
@@ -168,5 +169,18 @@ describe("Markdown helpers", () => {
   it("leaves links alone on pages without bookmarks", () => {
     const blocks = [link("https://example.com/a")];
     expect(restoreBookmarks(blocks, [])).toBe(blocks);
+  });
+});
+
+describe("bookmarkWidth", () => {
+  it("is a whole percent of the column, no narrower than the least", () => {
+    expect(bookmarkWidth(55)).toBe(55);
+    expect(bookmarkWidth(42.6)).toBe(43);
+    expect(bookmarkWidth("70")).toBe(70);
+    expect(bookmarkWidth(5)).toBe(30);
+  });
+
+  it("is the whole width for 0, 100 and more, and anything else", () => {
+    for (const value of [0, 100, 140, -10, "", "wide", null, undefined, Number.NaN, {}]) expect(bookmarkWidth(value)).toBeNull();
   });
 });

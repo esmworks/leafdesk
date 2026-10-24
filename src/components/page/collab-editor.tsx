@@ -58,6 +58,7 @@ import { FindBar } from "./find-bar";
 import { FindReplace } from "./find-replace";
 import { DatabasePicker, pageEditorSchema, placeEmbedBlock, useEmbedSlashItems, withEmbedItems, type PageEditor } from "./embed-blocks";
 import { MentionMenu, PageLinkMenu, PagePicker, usePageLinkSlashItem, usePageRefUpdates } from "./mentions";
+import { PagePreviews } from "./page-preview";
 import type { PageDoc } from "./use-page-doc";
 import { SyncedFrameProvider, useSyncedFrame, useSyncedPageSlashItem } from "./synced-page";
 import { pasteSyncedBlock, useSyncedBlockSlashItem } from "./synced-block";
@@ -363,6 +364,7 @@ export default function CollabEditor({
           {/* Search works for everyone; replacing only for people who may edit. */}
           {!nested && <FindBar editor={editor} editable={editable} />}
           {!nested && outlineSlot && <FloatingOutline editor={editor} slot={outlineSlot} />}
+          {!nested && <PagePreviews />}
           <DirectionProvider initialDirection={dir}>
             <BlockNoteView
               key={locale}

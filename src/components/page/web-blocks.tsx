@@ -4,13 +4,14 @@ import { insertOrUpdateBlockForSlashMenu } from "@blocknote/core/extensions";
 import { createReactBlockSpec, type DefaultReactSuggestionItem } from "@blocknote/react";
 import { AtSign, Bookmark, Link2, MonitorPlay, RefreshCw } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent, type RefObject } from "react";
 import { createPortal } from "react-dom";
 import { fetchLinkPreviewAction } from "@/app/actions/link-preview";
 import { cn } from "@/components/ui";
 import {
   BOOKMARK_BLOCK,
   bookmarkBlockConfig,
+  bookmarkWidth,
   displayHost,
   embedFor,
   isLoneUrl,
@@ -110,6 +111,67 @@ function moveCursorAfter(editor: PageEditor, blockId: string) {
 // ---------------------------------------------------------------------------------------------
 // Bookmark
 
+/**
+ * The handle on a bookmark card's end edge that makes the card narrower or wider, as images have:
+ * the card follows the pointer, and letting go stores the width (a share of the column,
+ * lib/web-blocks bookmarkWidth) as one change of the block.
+ */
+function BookmarkResizeHandle({
+  card,
+  label,
+  onDrag,
+  onDone,
+}: {
+  card: RefObject<HTMLDivElement | null>;
+  label: string;
+  onDrag: (width: number | null) => void;
+  onDone: (width: number | null) => void;
+}) {
+  const widthAt = (clientX: number) => {
+    const element = card.current;
+    const column = element?.parentElement;
+    if (!element || !column) return null;
+    const box = element.getBoundingClientRect();
+    const span = isRtl(element) ? box.right - clientX : clientX - box.left;
+    return bookmarkWidth((span / column.clientWidth) * 100);
+  };
+  return (
+    <div
+      role="separator"
+      aria-orientation="vertical"
+      aria-label={label}
+      title={label}
+      onPointerDown={(event) => {
+        if (event.button !== 0) return;
+        event.preventDefault();
+        event.stopPropagation();
+        const target = event.currentTarget;
+        target.setPointerCapture(event.pointerId);
+        let last: number | null = widthAt(event.clientX);
+        const move = (e: PointerEvent) => {
+          last = widthAt(e.clientX);
+          onDrag(last);
+        };
+        const up = () => {
+          target.removeEventListener("pointermove", move);
+          target.removeEventListener("pointerup", up);
+          target.removeEventListener("pointercancel", up);
+          onDone(last);
+        };
+        target.addEventListener("pointermove", move);
+        target.addEventListener("pointerup", up);
+        target.addEventListener("pointercancel", up);
+      }}
+      className={cn(
+        "absolute inset-y-0 -end-3 flex w-3 cursor-ew-resize touch-none items-center justify-center",
+        "opacity-0 transition-opacity group-hover/bookmark:opacity-100",
+      )}
+    >
+      <span className="h-10 max-h-[70%] w-1.5 rounded-full border border-bg bg-fg-muted shadow-sm" />
+    </div>
+  );
+}
+
 const BookmarkBlock = createReactBlockSpec(bookmarkBlockConfig, {
   meta: { selectable: false },
   render: function BookmarkBlockView({ block, editor: anyEditor }) {
@@ -120,6 +182,10 @@ const BookmarkBlock = createReactBlockSpec(bookmarkBlockConfig, {
     const { url, fetchedAt } = block.props;
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    // The width while the card's edge is dragged; undefined when not dragging.
+    const [dragWidth, setDragWidth] = useState<number | null | undefined>(undefined);
+    const card = useRef<HTMLDivElement>(null);
+    const width = dragWidth === undefined ? bookmarkWidth(block.props.width) : dragWidth;
 
     const refresh = useCallback(async () => {
       if (!host || !url || fetching.has(block.id)) return;
@@ -169,31 +235,44 @@ const BookmarkBlock = createReactBlockSpec(bookmarkBlockConfig, {
     }
 
     return (
-      <div contentEditable={false} className="group/bookmark relative w-full">
-        {loading && !block.props.title ? (
-          <div className="flex w-full flex-col gap-1 rounded-md border border-border px-3.5 py-3 text-sm">
-            <span className="text-fg-muted">{t("bookmark.loading")}</span>
-            <span className="truncate text-xs text-fg-faint">{displayHost(url)}</span>
-          </div>
-        ) : (
-          <BookmarkCard bookmark={block.props} />
-        )}
-        {canEdit && (
-          <button
-            type="button"
-            onClick={() => void refresh()}
-            disabled={loading}
-            aria-label={t("bookmark.refresh")}
-            title={t("bookmark.refresh")}
-            className={cn(
-              "absolute inset-e-2 top-2 inline-flex h-7 w-7 items-center justify-center rounded-md border border-border bg-bg text-fg-muted shadow-sm hover:bg-bg-hover hover:text-fg",
-              "opacity-0 transition-opacity focus-visible:opacity-100 group-hover/bookmark:opacity-100",
-              loading && "opacity-100",
-            )}
-          >
-            <RefreshCw className={cn("h-3.5 w-3.5", loading && "animate-spin")} />
-          </button>
-        )}
+      <div contentEditable={false} className="w-full">
+        <div ref={card} className="group/bookmark relative max-w-full" style={{ width: width ? `${width}%` : "100%" }}>
+          {loading && !block.props.title ? (
+            <div className="flex w-full flex-col gap-1 rounded-md border border-border px-3.5 py-3 text-sm">
+              <span className="text-fg-muted">{t("bookmark.loading")}</span>
+              <span className="truncate text-xs text-fg-faint">{displayHost(url)}</span>
+            </div>
+          ) : (
+            <BookmarkCard bookmark={{ ...block.props, width: null }} />
+          )}
+          {canEdit && (
+            <BookmarkResizeHandle
+              card={card}
+              label={t("bookmark.resize")}
+              onDrag={setDragWidth}
+              onDone={(next) => {
+                setDragWidth(undefined);
+                if (next !== bookmarkWidth(block.props.width)) editor.updateBlock(block.id, { props: { width: next ?? 0 } });
+              }}
+            />
+          )}
+          {canEdit && (
+            <button
+              type="button"
+              onClick={() => void refresh()}
+              disabled={loading}
+              aria-label={t("bookmark.refresh")}
+              title={t("bookmark.refresh")}
+              className={cn(
+                "absolute inset-e-2 top-2 inline-flex h-7 w-7 items-center justify-center rounded-md border border-border bg-bg text-fg-muted shadow-sm hover:bg-bg-hover hover:text-fg",
+                "opacity-0 transition-opacity focus-visible:opacity-100 group-hover/bookmark:opacity-100",
+                loading && "opacity-100",
+              )}
+            >
+              <RefreshCw className={cn("h-3.5 w-3.5", loading && "animate-spin")} />
+            </button>
+          )}
+        </div>
         {error && (
           <p role="alert" className="mt-1 text-xs text-danger">
             {error}

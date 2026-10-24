@@ -496,7 +496,10 @@
     },
     "code": {
       "language": "اللغة",
-      "plainText": "نص عادي"
+      "plainText": "نص عادي",
+      "format": "تنسيق الشيفرة",
+      "formatSyntaxError": "لم تُنسَّق الشيفرة: يوجد خطأ في الصياغة في السطر {line}.",
+      "formatFailed": "تعذّر تنسيق الشيفرة."
     },
     "math": {
       "title": "معادلة",
@@ -606,6 +609,7 @@
       "submit": "حفظ كإشارة مرجعية",
       "loading": "جارٍ جلب الصفحة…",
       "refresh": "تحديث المعاينة",
+      "resize": "اسحب لتغيير عرض البطاقة",
       "label": "إشارة مرجعية"
     },
     "embed": {
@@ -646,6 +650,8 @@
   "mention": {
     "people": "الأشخاص",
     "agents": "الوكلاء",
+    "groups": "المجموعات",
+    "groupMembers": "{count, plural, =0 {لا أعضاء} one {عضو واحد} two {عضوان} few {# أعضاء} many {# عضوًا} other {# عضو}}",
     "pages": "الصفحات",
     "dates": "التواريخ",
     "newPage": "صفحة جديدة: {title}",
@@ -670,6 +676,12 @@
     "reminderHint": "سيصلك في صندوق الوارد وبالبريد الإلكتروني.",
     "reminderPast": "لقد مضى ذلك الوقت؛ اختر تاريخًا أو تذكيرًا لاحقًا.",
     "done": "تم"
+  },
+  "preview": {
+    "editedBy": "عدّلها {name} {when}",
+    "edited": "عُدّلت {when}",
+    "members": "{count, plural, =0 {لا أحد في هذه المجموعة بعد} one {عضو واحد} two {عضوان} few {# أعضاء} many {# عضوًا} other {# عضو}}",
+    "moreMembers": "و{count} آخرون"
   },
   "pageLinkPicker": {
     "title": "رابط إلى صفحة",

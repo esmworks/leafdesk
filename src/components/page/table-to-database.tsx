@@ -31,6 +31,7 @@ import { turnIntoSyncedBlock } from "./synced-block";
 import { CalloutStyleItem, CalloutTitleItem } from "./callout-menu";
 import { ImageLinkItem } from "./image-link";
 import { ImageCropItem } from "./image-crop-item";
+import { FormatCodeItem } from "./code-format-item";
 
 // Tables being turned into a database: a second click waits for the first.
 const turning = new Set<string>();
@@ -154,7 +155,7 @@ function HideInPrintItem() {
  * The page editor's side menu (add block, drag handle). Its block menu has the editor's own entries
  * (delete, colors, table headers), the callout's style (or turning a block of text into a callout,
  * callout-menu.tsx), its title, "Copy link to block", for a callout "Hide when printing", for a
- * table "Turn into database", "Turn into synced block" and "Save as snippet"; `onError` shows why
+ * code block "Format code", for a table "Turn into database", "Turn into synced block" and "Save as snippet"; `onError` shows why
  * a change failed. Made once per editor: a new
  * component each render would close an open menu.
  */
@@ -173,6 +174,7 @@ export function pageSideMenu(onError: (message: string) => void): FC<SideMenuPro
         <CopyBlockLinkItem />
         <ImageLinkItem />
         <ImageCropItem />
+        <FormatCodeItem onError={onError} />
         <TurnIntoDatabaseItem onError={onError} />
         <TurnIntoSyncedBlockItem onError={onError} />
         <SaveAsSnippetItem />

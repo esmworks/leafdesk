@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   cleanCommentBody,
   CommentError,
+  commentGroupMentions,
   commentMentions,
   commentText,
   MAX_COMMENT_LENGTH,
@@ -92,6 +93,23 @@ describe("comment mentions", () => {
   it("are the people mentioned, once each", () => {
     expect(commentMentions(body)).toEqual(["bob"]);
     expect(commentMentions("@Bob")).toEqual([]);
+  });
+
+  it("of groups are read apart from people, and stored as the group's name", () => {
+    const withGroup = [
+      {
+        type: "paragraph",
+        content: [
+          { type: "mention", props: { kind: "group", id: "g1", groupId: "grp-1", name: "Design team" } },
+          { type: "text", text: " and ", styles: {} },
+          { type: "mention", props: { kind: "user", userId: "bob", name: "Bob" } },
+          { type: "mention", props: { kind: "group", groupId: "grp-1", name: "Design team" } },
+        ],
+      },
+    ];
+    expect(commentGroupMentions(withGroup)).toEqual(["grp-1"]);
+    expect(commentMentions(withGroup)).toEqual(["bob"]);
+    expect(commentText(cleanCommentBody(mentionsAsText(withGroup, () => null)))).toBe("@Design team and @Bob@Design team");
   });
 
   it("are stored as the person's name", () => {

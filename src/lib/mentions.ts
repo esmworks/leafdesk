@@ -26,6 +26,9 @@
  *                                          page's body is never written into the Markdown of the
  *                                          page showing it (it is that page's own to index).
  *   @Ada Lovelace                          a person: "@" and their name as the workspace knows it.
+ *   @Design team                           a group of the workspace's members (server/groups.ts),
+ *                                          written like a person; a person of the same name wins
+ *                                          when the Markdown is read back.
  *   @2026-10-01                            a date (ISO 8601). A reminder set on a date stays with it
  *                                          when the Markdown is written back; it is set in the editor.
  *   [Title](https://example.com/a)         a link mention: an ordinary link with the title as its
@@ -45,12 +48,14 @@ export const PAGE_LINK_MARKER = "<!-- leafdesk:page-link -->";
 export const SYNCED_PAGE_BLOCK = "syncedPage";
 export const SYNCED_PAGE_MARKER = "<!-- leafdesk:synced-page -->";
 
-export type MentionKind = "user" | "page" | "date" | "link";
+export type MentionKind = "user" | "group" | "page" | "date" | "link";
 
 /**
- * - `id`: this mention, for people and dates. A person hears about a mention once (the server keeps
- *   the ids it has notified about), and a date's reminder is keyed by it.
+ * - `id`: this mention, for people, groups and dates. A person hears about a mention once (the
+ *   server keeps the ids it has notified about), and a date's reminder is keyed by it.
  * - `userId` / `name`: the person, and their name when mentioned (Markdown; shown if they left).
+ * - `groupId` / `name`: a group of the workspace, and its name when mentioned. Each of its members
+ *   who can open the page hears about it as about a mention of themselves.
  * - `pageId`: the page. `blockId`: a block of it the mention opens the page at, or "".
  * - `date`: YYYY-MM-DD. `remindAt`: an ISO instant, or "" for no reminder. The reminder goes to
  *   whoever set it (the server records who, see server/mentions.ts).
@@ -61,9 +66,10 @@ export type MentionKind = "user" | "page" | "date" | "link";
 export const mentionConfig = {
   type: MENTION,
   propSchema: {
-    kind: { default: "page", values: ["user", "page", "date", "link"] },
+    kind: { default: "page", values: ["user", "group", "page", "date", "link"] },
     id: { default: "" },
     userId: { default: "" },
+    groupId: { default: "" },
     name: { default: "" },
     pageId: { default: "" },
     blockId: { default: "" },
@@ -102,6 +108,7 @@ export type MentionProps = {
   kind: MentionKind;
   id: string;
   userId: string;
+  groupId: string;
   name: string;
   pageId: string;
   blockId: string;
@@ -118,6 +125,7 @@ export const EMPTY_MENTION: MentionProps = {
   kind: "page",
   id: "",
   userId: "",
+  groupId: "",
   name: "",
   pageId: "",
   blockId: "",
@@ -187,12 +195,13 @@ export function isIsoDate(value: unknown): value is string {
 export function mentionProps(props: unknown): MentionProps {
   const p = (props && typeof props === "object" ? props : {}) as Record<string, unknown>;
   const str = (key: keyof MentionProps) => (typeof p[key] === "string" ? (p[key] as string) : "");
-  const kind = p.kind === "user" || p.kind === "date" || p.kind === "link" ? p.kind : "page";
+  const kind = p.kind === "user" || p.kind === "group" || p.kind === "date" || p.kind === "link" ? p.kind : "page";
   const blockId = isBlockId(p.blockId) ? p.blockId : "";
   return {
     kind,
     id: str("id"),
     userId: str("userId"),
+    groupId: str("groupId"),
     name: str("name"),
     pageId: str("pageId"),
     blockId,
@@ -207,17 +216,18 @@ export function mentionProps(props: unknown): MentionProps {
 }
 
 /**
- * Markdown text of a person or date mention (page mentions are links, written by the caller; link
- * mentions are links too, lib/link-mentions linkMentionMarkdown).
+ * Markdown text of a person, group or date mention (page mentions are links, written by the caller;
+ * link mentions are links too, lib/link-mentions linkMentionMarkdown).
  */
 export function mentionText(props: MentionProps): string {
   if (props.kind === "user") return `@${props.name.trim() || "someone"}`;
+  if (props.kind === "group") return `@${props.name.trim() || "group"}`;
   if (props.kind === "date") return `@${props.date}`;
   return "";
 }
 
 /**
- * Plain text of a mention, for search: people, dates and the titles of links (a page's title is not
+ * Plain text of a mention, for search: people, groups, dates and the titles of links (a page's title is not
  * the page's to show).
  */
 export function mentionPlainText(props: unknown): string {
@@ -243,7 +253,8 @@ export function pageLinkMarkdown(text: string, workspaceId: string, pageId: stri
 // ---------------------------------------------------------------------------------------------
 // Reading "@…" in text
 
-export type MentionPerson = { id: string; name: string };
+/** Someone `@Name` may mention: a person, or with `group`, a group of the workspace. */
+export type MentionPerson = { id: string; name: string; group?: boolean };
 
 type Piece = { text: string } | { mention: MentionProps };
 
@@ -251,15 +262,15 @@ const WORD = /[\p{L}\p{N}_]/u;
 
 /**
  * Splits text at the `@` mentions it holds: `@YYYY-MM-DD` dates and `@Name` for the given people
- * (the longest name that matches, ignoring case). An "@" inside a word (an email address) or
- * followed by anything else stays text.
+ * and groups (the longest name that matches, ignoring case; a person before a group of the same
+ * name). An "@" inside a word (an email address) or followed by anything else stays text.
  */
 export function splitMentionText(text: string, people: MentionPerson[]): Piece[] {
   if (!text.includes("@")) return [{ text }];
   const named = people
     .filter((p) => p.name.trim())
     .map((p) => ({ ...p, key: p.name.trim().toLocaleLowerCase() }))
-    .sort((a, b) => b.key.length - a.key.length);
+    .sort((a, b) => b.key.length - a.key.length || Number(Boolean(a.group)) - Number(Boolean(b.group)));
   const out: Piece[] = [];
   let plain = "";
   let i = 0;
@@ -282,7 +293,9 @@ export function splitMentionText(text: string, people: MentionPerson[]): Piece[]
         const after = rest[person.name.trim().length];
         if (after !== undefined && WORD.test(after)) continue;
         found = {
-          mention: { ...EMPTY_MENTION, kind: "user", userId: person.id, name: person.name.trim() },
+          mention: person.group
+            ? { ...EMPTY_MENTION, kind: "group", groupId: person.id, name: person.name.trim() }
+            : { ...EMPTY_MENTION, kind: "user", userId: person.id, name: person.name.trim() },
           length: 1 + person.name.trim().length,
         };
         break;
@@ -345,6 +358,8 @@ export type BodyReferences = {
   pageIds: string[];
   /** Person mentions: `key` is the mention's id (or, for one without, the person). */
   people: { key: string; userId: string }[];
+  /** Group mentions: `key` is the mention's id (or, for one without, the group). */
+  groups: { key: string; groupId: string }[];
   /** Dates with a reminder. */
   reminders: { key: string; date: string; remindAt: string }[];
 };
@@ -353,6 +368,7 @@ export type BodyReferences = {
 export function bodyReferences(blocks: AnyBlock[]): BodyReferences {
   const pageIds = new Set<string>();
   const people = new Map<string, string>();
+  const groups = new Map<string, string>();
   const reminders = new Map<string, { date: string; remindAt: string }>();
   const walk = (list: AnyBlock[]) => {
     for (const block of list) {
@@ -370,6 +386,10 @@ export function bodyReferences(blocks: AnyBlock[]): BodyReferences {
       const key = m.id || `user:${m.userId}`;
       if (!people.has(key)) people.set(key, m.userId);
     }
+    if (m.kind === "group" && m.groupId) {
+      const key = m.id || `group:${m.groupId}`;
+      if (!groups.has(key)) groups.set(key, m.groupId);
+    }
     if (m.kind === "date" && m.id && isIsoDate(m.date) && m.remindAt && !Number.isNaN(Date.parse(m.remindAt))) {
       if (!reminders.has(m.id)) reminders.set(m.id, { date: m.date, remindAt: new Date(m.remindAt).toISOString() });
     }
@@ -377,19 +397,21 @@ export function bodyReferences(blocks: AnyBlock[]): BodyReferences {
   return {
     pageIds: [...pageIds],
     people: [...people].map(([key, userId]) => ({ key, userId })),
+    groups: [...groups].map(([key, groupId]) => ({ key, groupId })),
     reminders: [...reminders].map(([key, r]) => ({ key, ...r })),
   };
 }
 
 /**
- * Gives person and date mentions written from Markdown the identity of the ones the page already
- * had: the n-th mention of a person (or date) takes the id (and reminder) of the n-th one before.
+ * Gives person, group and date mentions written from Markdown the identity of the ones the page
+ * already had: the n-th mention of a person (group, date) takes the id (and reminder) of the n-th one before.
  * So writing a page's Markdown back doesn't notify people again or drop reminders. Mentions without
  * a counterpart get a fresh id. Changes `blocks` in place.
  */
 export function carryOverMentions(blocks: AnyBlock[], existing: AnyBlock[]) {
   const queues = new Map<string, MentionProps[]>();
-  const keyOf = (m: MentionProps) => (m.kind === "user" ? `user:${m.userId}` : m.kind === "date" ? `date:${m.date}` : null);
+  const keyOf = (m: MentionProps) =>
+    m.kind === "user" ? `user:${m.userId}` : m.kind === "group" ? `group:${m.groupId}` : m.kind === "date" ? `date:${m.date}` : null;
   eachMention(existing, (m) => {
     const key = keyOf(m);
     if (!key || !m.id) return;

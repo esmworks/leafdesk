@@ -3,6 +3,7 @@
 import { Globe } from "lucide-react";
 import { useState } from "react";
 import {
+  bookmarkWidth,
   displayHost,
   EMBED_ALLOW,
   EMBED_REFERRER_POLICY,
@@ -21,7 +22,7 @@ import {
  * when the bookmark is made.
  */
 
-export type BookmarkView = { url: string; title: string; description: string; image: string; favicon: string };
+export type BookmarkView = { url: string; title: string; description: string; image: string; favicon: string; width?: unknown };
 
 /** An image from another site that disappears if it doesn't load. */
 function RemoteImage({ src, className }: { src: string; className: string }) {
@@ -32,6 +33,10 @@ function RemoteImage({ src, className }: { src: string; className: string }) {
   );
 }
 
+/**
+ * A bookmark's card, as wide as the block says (lib/web-blocks bookmarkWidth: a share of the
+ * column), never wider than the column.
+ */
 export function BookmarkCard({ bookmark: given }: { bookmark: BookmarkView }) {
   // The editor hands over the block's props as the document holds them, and anyone who can edit a
   // page (or an MCP client) can write anything there: only web addresses become links and images.
@@ -44,12 +49,14 @@ export function BookmarkCard({ bookmark: given }: { bookmark: BookmarkView }) {
   const host = displayHost(given.url);
   const [iconFailed, setIconFailed] = useState<string | null>(null);
   const showIcon = bookmark.favicon && iconFailed !== bookmark.favicon;
+  const width = bookmarkWidth(given.width);
   return (
     <a
       href={bookmark.url || undefined}
       target="_blank"
       rel="noopener noreferrer nofollow"
-      className="flex w-full min-w-0 overflow-hidden rounded-md border border-border text-fg no-underline transition-colors hover:bg-bg-hover"
+      style={width ? { width: `${width}%` } : undefined}
+      className="flex w-full min-w-0 max-w-full overflow-hidden rounded-md border border-border text-fg no-underline transition-colors hover:bg-bg-hover"
     >
       <span className="flex min-w-0 flex-1 flex-col gap-1 px-3.5 py-3">
         <span className="truncate text-sm font-medium">{bookmark.title || host}</span>

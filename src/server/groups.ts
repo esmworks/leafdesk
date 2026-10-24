@@ -8,7 +8,9 @@ import {
   user,
   workspaceMember,
 } from "@/db/schema";
+import { avatarSrc } from "@/lib/avatar";
 import { cleanGroupName, GroupError } from "@/lib/groups";
+import { searchFold } from "@/lib/search-fold";
 import { AccessError, isGuest, requireMember, requireMembership } from "@/server/access";
 import { recordAudit } from "@/server/audit";
 import { getCollab } from "@/server/collab/bridge";
@@ -319,4 +321,70 @@ export async function dropFromGroups(tx: Tx, workspaceId: string, userId: string
   await tx
     .delete(memberGroupMember)
     .where(and(eq(memberGroupMember.workspaceId, workspaceId), eq(memberGroupMember.userId, userId)));
+}
+
+// ---------------------------------------------------------------------------------------------
+// Mentions
+
+/** A group in an @ menu: its name and how many people are in it. */
+export type GroupCandidate = { id: string; name: string; memberCount: number };
+
+/**
+ * The workspace's groups whose name holds `q` (folded, lib/search-fold), by name: what the @ menus
+ * offer next to people. The caller checks that the user is an owner or member (guests don't see groups).
+ */
+export async function mentionableGroups(workspaceId: string, q: string, limit = 4): Promise<GroupCandidate[]> {
+  const rows = await db
+    .select({
+      id: memberGroup.id,
+      name: memberGroup.name,
+      memberCount: sql<number>`(select count(*)::int from ${memberGroupMember} m where m.group_id = ${memberGroup.id})`,
+    })
+    .from(memberGroup)
+    .where(eq(memberGroup.workspaceId, workspaceId))
+    .orderBy(sql`lower(${memberGroup.name})`);
+  return rows.filter((g) => !q || searchFold(g.name).includes(q)).slice(0, limit);
+}
+
+/** Every group of the workspace by id and name: what `@Name` in Markdown written into a page may name. */
+export async function groupNames(workspaceId: string): Promise<{ id: string; name: string }[]> {
+  return db.select({ id: memberGroup.id, name: memberGroup.name }).from(memberGroup).where(eq(memberGroup.workspaceId, workspaceId));
+}
+
+/**
+ * Who is in each of `groupIds` that belongs to `workspaceId`, by group id: the people a mention of
+ * the group reaches (each still checked against the page, server/notifications pageRecipients). A
+ * group of another workspace, or one deleted since, has nobody.
+ */
+export async function groupMembersOf(workspaceId: string, groupIds: string[]): Promise<Map<string, string[]>> {
+  const ids = [...new Set(groupIds.filter((id) => typeof id === "string" && id && id.length <= 128))];
+  const out = new Map<string, string[]>();
+  if (!ids.length) return out;
+  const rows = await db
+    .select({ groupId: memberGroupMember.groupId, userId: memberGroupMember.userId })
+    .from(memberGroupMember)
+    .where(and(eq(memberGroupMember.workspaceId, workspaceId), inArray(memberGroupMember.groupId, ids)));
+  for (const r of rows) out.set(r.groupId, [...(out.get(r.groupId) ?? []), r.userId]);
+  return out;
+}
+
+/** A mentioned group as its chip shows it on hover: its live name and who is in it. */
+export type MentionedGroup = { id: string; name: string; members: { id: string; name: string; image: string | null }[] };
+
+/**
+ * The group a mention names, for owners and members of its workspace (like Settings > Groups);
+ * AccessError for anyone else, whether it exists or not.
+ */
+export async function mentionedGroup(userId: string, groupId: string): Promise<MentionedGroup> {
+  if (typeof groupId !== "string" || !groupId || groupId.length > 128) throw new AccessError();
+  const [found] = await db.select().from(memberGroup).where(eq(memberGroup.id, groupId)).limit(1);
+  if (!found) throw new AccessError();
+  await requireMember(userId, found.workspaceId);
+  const members = await db
+    .select({ id: user.id, name: user.name, image: user.image })
+    .from(memberGroupMember)
+    .innerJoin(user, eq(user.id, memberGroupMember.userId))
+    .where(eq(memberGroupMember.groupId, groupId))
+    .orderBy(asc(user.name));
+  return { id: found.id, name: found.name, members: members.map((m) => ({ ...m, image: avatarSrc(m.image) })) };
 }

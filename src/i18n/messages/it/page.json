@@ -496,7 +496,10 @@
     },
     "code": {
       "language": "Linguaggio",
-      "plainText": "Testo semplice"
+      "plainText": "Testo semplice",
+      "format": "Formatta il codice",
+      "formatSyntaxError": "Il codice non è stato formattato: c’è un errore di sintassi alla riga {line}.",
+      "formatFailed": "Impossibile formattare il codice."
     },
     "math": {
       "title": "Equazione",
@@ -606,6 +609,7 @@
       "submit": "Crea segnalibro",
       "loading": "Recupero della pagina…",
       "refresh": "Aggiorna anteprima",
+      "resize": "Trascina per cambiare la larghezza della scheda",
       "label": "Segnalibro"
     },
     "embed": {
@@ -646,6 +650,8 @@
   "mention": {
     "people": "Persone",
     "agents": "Agenti",
+    "groups": "Gruppi",
+    "groupMembers": "{count, plural, =0 {Nessun membro} one {# membro} other {# membri}}",
     "pages": "Pagine",
     "dates": "Date",
     "newPage": "Nuova pagina: {title}",
@@ -670,6 +676,12 @@
     "reminderHint": "Lo riceverai nella Posta in arrivo e via email.",
     "reminderPast": "Quel momento è già passato; scegli una data o un promemoria successivi.",
     "done": "Fine"
+  },
+  "preview": {
+    "editedBy": "Modificato da {name} {when}",
+    "edited": "Modificato {when}",
+    "members": "{count, plural, =0 {Ancora nessuno in questo gruppo} one {# membro} other {# membri}}",
+    "moreMembers": "e altri {count}"
   },
   "pageLinkPicker": {
     "title": "Link a pagina",

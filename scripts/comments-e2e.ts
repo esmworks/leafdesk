@@ -27,6 +27,7 @@ const { getCollab, registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
 const { threadQuotes } = await import("@/server/collab/comment-marks");
 const { commentMentionCandidates } = await import("@/server/mentions");
+const { createGroup } = await import("@/server/groups");
 const { archivePage, createPage } = await import("@/server/pages");
 const { setPagePermission } = await import("@/server/permissions");
 const { flushShareEmails, setShareMailer } = await import("@/server/share-emails");
@@ -411,6 +412,39 @@ try {
   });
   check((await unread(ids.editor, thread.id)).length === 1, "a person an edit mentions hears about it");
   check((await mutedThreads(ids.editor, doc.id)).length === 0, "…and their mute ends");
+
+  // Mentioning a group: its members who can open the page hear about it, as if each were mentioned
+  const groupName = `${RUN} Reviewers`;
+  const reviewers = await createGroup(ids.owner, workspaceId, groupName, [ids.commenter, ids.viewer]);
+  check(
+    (await commentMentionCandidates(ids.commenter, doc.id, "reviewers")).groups.some((g) => g.id === reviewers.id),
+    "the @ menu in a comment offers the workspace's groups",
+  );
+  const groupThread = await changeComments(ids.commenter, doc.id, {
+    type: "createThread",
+    body: [
+      {
+        type: "paragraph",
+        content: [
+          { type: "mention", props: { kind: "group", id: `${RUN}-g`, groupId: reviewers.id, name: groupName } },
+          { type: "text", text: " please look", styles: {} },
+        ],
+      },
+    ],
+    anchor: { quote: "Second paragraph" },
+  });
+  check(commentTextOf(groupThread.comment?.body) === `@${groupName} please look`, "a group mention is kept as the group's name", groupThread.comment?.body);
+  check((await unread(ids.viewer, groupThread.thread!.id)).length === 1, "a member of the mentioned group who can open the page hears about it");
+  check((await unread(ids.commenter, groupThread.thread!.id)).length === 0, "…not the author, though in the group");
+  await changeComments(ids.owner, doc.id, {
+    type: "createThread",
+    body: [{ type: "paragraph", content: [{ type: "mention", props: { kind: "group", groupId: `${RUN}-nope`, name: "Nope" } }, { type: "text", text: " hi", styles: {} }] }],
+    anchor: { quote: "Second paragraph" },
+  });
+  check(
+    (await db.select().from(notification).where(and(eq(notification.userId, ids.viewer), eq(notification.kind, "comment")))).length === 1,
+    "a group of no workspace reaches nobody",
+  );
 
   // Comments on a row's property values: kept out of the row's document, and only for people who
   // see the value (property access, and the row's own access).

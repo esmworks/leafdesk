@@ -26,6 +26,7 @@ const bookmark = {
     favicon: "https://example.com/favicon.ico",
     siteName: "Example",
     fetchedAt: "2026-09-27T10:00:00.000Z",
+    width: 60,
   },
 };
 const embed = { type: "webEmbed", props: { url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ" } };
@@ -123,13 +124,13 @@ describe("web blocks on published pages", () => {
     ]);
     const segments = await bodySegmentsFromYdoc(Y.encodeStateAsUpdate(doc));
     expect(segments.map((s) => s.kind)).toEqual(["html", "bookmark", "webEmbed", "bookmark", "bookmark"]);
-    expect(segments[1]).toMatchObject({ kind: "bookmark", bookmark: { url: "https://example.com/post", title: bookmark.props.title } });
+    expect(segments[1]).toMatchObject({ kind: "bookmark", bookmark: { url: "https://example.com/post", title: bookmark.props.title, width: 60 } });
     expect(segments[2]).toMatchObject({
       kind: "webEmbed",
       url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
       embed: { src: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" },
     });
     expect(segments[3]).toMatchObject({ kind: "bookmark", bookmark: { url: "https://unknown.example/video" } });
-    expect(segments[4]).toMatchObject({ kind: "bookmark", bookmark: { url: "https://example.com/", image: "", favicon: "" } });
+    expect(segments[4]).toMatchObject({ kind: "bookmark", bookmark: { url: "https://example.com/", image: "", favicon: "", width: null } });
   });
 });

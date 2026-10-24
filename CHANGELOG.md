@@ -16,6 +16,24 @@
   may edit the page: views and unique viewers over 7, 30 or 90 days with a daily chart, who
   viewed it and when last, and who edited it. Migration `drizzle/0130_page_views.sql` adds the
   `page_view` table and the members' own switch.
+- **Mention a group with @.** The @ menu in pages and comments offers the workspace's groups next
+  to people, with how many are in each. Each member of a mentioned group who can open the page is
+  notified like a person mentioned by name (once, even when named too; never the author; someone
+  who joins the group later isn't told about mentions made before), and taking the mention out
+  before it was read takes the notifications back. Hovering a group mention lists its members.
+  Markdown, MCP, the API and exports write it as `@Group name` and read it back as the group (a
+  person of the same name wins); comments keep it as that text.
+- **Hover a page mention or link to see the page.** Resting the pointer on a mention of a page or a
+  link to one, in the editor or in comments, shows a card with the page's icon, title and place,
+  who last edited it and when, and its first lines, or for a database row its first values (as
+  property access lets the reader see them). Nothing shows for a page the reader can't open, and
+  no card opens on touch screens; Escape, a click or moving away closes it.
+- **Format code blocks.** *Format code* in a code block's menu formats JavaScript, TypeScript, JSX,
+  TSX, JSON, CSS, SCSS, HTML, Vue, Markdown, YAML and GraphQL with Prettier, which loads only when
+  used, as one change everyone sees and one undo step. Code with a syntax error stays as it was
+  and the message names the line. New dependency: `prettier`.
+- **Narrower bookmark cards.** Dragging a bookmark card's edge sets its width as a share of the
+  column; published pages and the print view keep it, and Markdown written back keeps it.
 
 - **A workspace site can have its own domain, theme, header links, search descriptions, favicon and
   Google Analytics.** In Settings → Site, owners set a domain like `docs.example.com`: requests for

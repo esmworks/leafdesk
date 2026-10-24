@@ -34,6 +34,11 @@ export const bookmarkBlockConfig = {
     siteName: { default: "" },
     /** When the details were fetched (ISO time); empty until they have been. */
     fetchedAt: { default: "" },
+    /**
+     * The card's width in percent of the column it is in (see bookmarkWidth), dragged from its edge;
+     * 0 for the whole width. A share rather than pixels, so published pages and print keep it.
+     */
+    width: { default: 0 },
   },
   content: "none",
 } as const;
@@ -53,7 +58,21 @@ export type BookmarkProps = {
   favicon: string;
   siteName: string;
   fetchedAt: string;
+  width: number;
 };
+
+/** The narrowest a bookmark card can be made, in percent of its column. */
+export const MIN_BOOKMARK_WIDTH = 30;
+
+/**
+ * A bookmark's width as the card is drawn, in percent of its column (MIN_BOOKMARK_WIDTH to 99,
+ * whole numbers), or null for the whole width: 0, 100 and up, and anything that isn't a number.
+ */
+export function bookmarkWidth(value: unknown): number | null {
+  const width = typeof value === "number" ? value : typeof value === "string" && value.trim() ? Number(value) : NaN;
+  if (!Number.isFinite(width) || width <= 0 || width >= 100) return null;
+  return Math.max(MIN_BOOKMARK_WIDTH, Math.round(width));
+}
 
 /** Longest URL kept in a block. */
 // ---------------------------------------------------------------------------------------------
