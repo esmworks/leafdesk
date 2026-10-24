@@ -201,3 +201,11 @@ describe("retypeViewConfig", () => {
     expect(relation.sorts).toEqual([{ propertyId: "q", direction: "desc" }]);
   });
 });
+
+describe("converting unique IDs", () => {
+  it("keeps the ID as shown in text and the number in numbers", () => {
+    const from = side("unique_id", { uniqueId: { prefix: "TASK" } });
+    expect(convertAll(from, "text", [1, 12, null]).out).toEqual(["TASK-1", "TASK-12", null]);
+    expect(convertAll(from, "number", [1, 12, null]).out).toEqual([1, 12, null]);
+  });
+});

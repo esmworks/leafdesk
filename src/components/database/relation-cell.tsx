@@ -63,7 +63,8 @@ export function RelationPicker({
   const lower = searchFold;
   const q = lower(query.trim());
   const rows = target?.rows ?? [];
-  const filtered = q ? rows.filter((r) => lower(r.title).includes(q)) : rows;
+  // A row is found by its ID too ("TASK-12", lib/unique-id) when its database numbers its rows.
+  const filtered = q ? rows.filter((r) => lower(r.title).includes(q) || (r.uniqueId && lower(r.uniqueId).includes(q))) : rows;
   const canCreate = q.length > 0 && !rows.some((r) => lower(r.title.trim()) === q);
   const items: ({ kind: "row"; row: RelationTargetRow } | { kind: "create" })[] = [
     ...filtered.map((row) => ({ kind: "row" as const, row })),
@@ -197,6 +198,7 @@ export function RelationPicker({
             >
               <PageIcon icon={item.row.icon} className="h-3.5 w-3.5 shrink-0 text-xs" />
               <span className="flex-1 truncate">{pageLabel(item.row.title, tc("untitled"))}</span>
+              {item.row.uniqueId && <span className="shrink-0 text-xs text-fg-faint tabular-nums">{item.row.uniqueId}</span>}
               {selectedIds.includes(item.row.id) && <Check className="h-3.5 w-3.5 shrink-0 text-fg-muted" />}
             </button>
           ),

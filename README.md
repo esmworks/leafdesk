@@ -176,6 +176,9 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
     server, or coordinates; see Maps and places), person, one- or two-way relations to other databases, formulas, rollups over
     relations, and the read-only "created by", "created time", "last edited time" and
     "last edited by".
+  - An ID property numbers a database's rows 1, 2, 3… as they are made, with an optional prefix
+    (`TASK-12`). Adding one numbers the rows already there in the order they were made, numbers
+    are never given out twice, and search, quick find and relation pickers find a row by its ID.
   - A two-way relation is one link shown on both rows: linking a row to another, or unlinking it,
     changes the other row's paired property too. That takes edit access to the row you change and
     being able to see the row you link, not edit access to the other database; making a two-way

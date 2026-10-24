@@ -287,7 +287,7 @@ export function parseChecklist(raw: string): { text: string; checked: boolean }[
 
 /** Types a CSV column can be imported into; the rest are worked out by Leafdesk or hold uploads. */
 export function isImportableType(type: PropertyType) {
-  return !["created_by", "created_time", "last_edited_by", "last_edited_time", "formula", "rollup", "files"].includes(type);
+  return !["created_by", "created_time", "last_edited_by", "last_edited_time", "formula", "rollup", "files", "unique_id"].includes(type);
 }
 
 export const INVALID = Symbol("invalid");

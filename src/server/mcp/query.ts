@@ -59,6 +59,7 @@ import { valueFormat } from "@/lib/number-format";
 import { formulaReferences, type PropertyLevel } from "@/lib/property-access";
 import { parseFormula, relatedReads } from "@/lib/formula";
 import { holdsOptions, holdsPeople, holdsTimestamp, isDerived, isReadOnlyType, PERSON_ME, STATUS_GROUPS } from "@/lib/property-types";
+import { parseUniqueId, uniqueIdPrefix } from "@/lib/unique-id";
 
 export type PropertyDef = { id: string; name: string; type: PropertyType; options: PropertyOptions };
 
@@ -215,6 +216,16 @@ export function toFilterRule(props: PropertyDef[], input: FilterInput, lookups: 
       throw new PropertyValueError(`Place "${prop.name}" supports contains and does_not_contain (on its address), is_empty and is_not_empty`);
     }
     value = String(value);
+  } else if (prop?.type === "unique_id") {
+    if (!COMPARISONS.has(input.op) && input.op !== "equals" && input.op !== "not_equals") {
+      throw new PropertyValueError(`Unique ID "${prop.name}" supports equals, not_equals, gt, gte, lt, lte, is_empty and is_not_empty`);
+    }
+    const n = parseUniqueId(value, uniqueIdPrefix(prop));
+    if (n === null) {
+      const prefix = uniqueIdPrefix(prop);
+      throw new PropertyValueError(`"${prop.name}" filter value must be one of its IDs (${prefix ? `${prefix}-12 or ` : ""}12)`);
+    }
+    value = n;
   } else if (prop && filtersByDay(prop)) {
     if (!DAY_OPS.has(input.op)) {
       throw new PropertyValueError(
@@ -734,6 +745,7 @@ export function describeProperty(
           },
         }
       : {}),
+    ...(prop.type === "unique_id" ? { prefix: uniqueIdPrefix(prop) } : {}),
     ...(holdsOptions(prop.type) ? { options: (prop.options.options ?? []).map((o) => o.name) } : {}),
     ...describeDependency(prop, props),
     ...(prop.type === "status" ? { status_groups: statusGroups(prop) } : {}),

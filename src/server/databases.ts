@@ -50,6 +50,7 @@ import { GeocoderError, geocodeAddress } from "./geocoder";
 import { configsOf, DEFAULT_VIEW_NAMES, galleryCover, isViewType, layoutConfigError } from "@/lib/views";
 import { holdsOptions, holdsPeople, isComputed, isDerived, isNumbered, isReadOnlyType, PERSON_ME, type StatusGroup } from "@/lib/property-types";
 import { checkedPrefix, claimPrefix, refuseSecondUniqueId } from "@/server/unique-ids";
+import { formatUniqueId, uniqueIdPrefix } from "@/lib/unique-id";
 import { canRestrict, namesPeople } from "@/lib/property-access";
 import { moveGroupValue } from "@/lib/grouping";
 import {
@@ -3246,7 +3247,8 @@ export async function getDatabaseSnapshot(
   };
 }
 
-export type RelationTargetRow = { id: string; title: string; icon: string | null };
+/** `uniqueId`: the row's ID as it shows ("TASK-12") when its database has a unique ID property, which pickers find it by too. */
+export type RelationTargetRow = { id: string; title: string; icon: string | null; uniqueId?: string };
 export type RelationTarget = {
   /** Null when the related database was deleted or is in the trash. */
   database: { id: string; title: string; icon: string | null } | null;
@@ -3301,6 +3303,22 @@ export async function getRelationTargets(
   const accessByTarget = new Map(
     await Promise.all(databases.map(async (d) => [d.id, await propertyAccessFor(userId, d.id)] as const)),
   );
+  // Rows' IDs (lib/unique-id), by row id, for related databases that number their rows.
+  const idOf = new Map<string, string>();
+  await Promise.all(
+    databases.map(async (d) => {
+      const numbered = (targetProperties.get(d.id) ?? []).find((p) => p.type === "unique_id");
+      if (!numbered) return;
+      const numbers = await db
+        .select({ id: page.id, value: sql<unknown>`${page.properties} -> ${numbered.id}::text` })
+        .from(page)
+        .where(and(eq(page.parentId, d.id), eq(page.isTemplate, false), isNull(page.archivedAt)));
+      for (const n of numbers) {
+        const shown = formatUniqueId(n.value, uniqueIdPrefix(numbered));
+        if (shown) idOf.set(n.id, shown);
+      }
+    }),
+  );
   const out: Record<string, RelationTarget> = {};
   for (const prop of properties) {
     const targetId = prop.type === "relation" ? prop.options.relation?.databaseId : undefined;
@@ -3312,7 +3330,7 @@ export async function getRelationTargets(
       // The paired property lives on the related database: named only for those who can see it.
       pairedName: (database && pairedId && paired.find((p) => p.id === pairedId)?.name) || null,
       rows: database
-        ? rows.filter((r) => r.parentId === targetId).map(({ id, title, icon }) => ({ id, title, icon }))
+        ? rows.filter((r) => r.parentId === targetId).map(({ id, title, icon }) => ({ id, title, icon, ...(idOf.has(id) ? { uniqueId: idOf.get(id) } : {}) }))
         : [],
       properties: database
         ? accessByTarget

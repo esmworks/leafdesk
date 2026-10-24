@@ -294,6 +294,7 @@ export const UNSETTABLE_TYPES = [
   "created_time",
   "last_edited_by",
   "last_edited_time",
+  "unique_id",
 ] as const;
 
 export function isDynamicValue(value: unknown): value is AutomationDynamicValue {

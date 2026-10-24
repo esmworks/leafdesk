@@ -64,6 +64,10 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   property access, dependent selects; a place's address is looked up there first, through
   `geocoder.ts`, because the shared `normalizeValue` is synchronous and takes only coordinates); a
   write that stores values another way (`ai-properties.ts` `saveValue`) calls `followOrRefuse` itself.
+  Unique ID numbers are given out by Postgres triggers (`drizzle/0130_unique_id.sql`), never by app
+  code: an inserted row always gets the next number (the value it brings is dropped) and an
+  update keeps the old one. Copies that must keep their numbers (a duplicated database, a restored
+  backup) insert the rows before the property; `server/unique-ids.ts` checks prefixes.
   Several linked databases at once (views, example rows, an intro page) are a plan: checked in
   `src/lib/database-plan.ts`, created all-or-nothing by `database-plan.ts` `createFromPlan`, which
   Build with AI (`ai-build.ts` drafts the plan) and the AI chat's `create_database` both use.
