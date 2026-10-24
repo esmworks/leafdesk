@@ -1501,6 +1501,7 @@
       "loginMethod": "Cara anggota masuk",
       "ai": "Fitur AI",
       "aiMemory": "Memori AI",
+      "aiWebSearch": "Pencarian web obrolan AI",
       "aiMonthlyLimitUsd": "Batas biaya AI bulanan",
       "trashRetentionDays": "Hapus halaman di sampah setelah",
       "export": "Izinkan ekspor",

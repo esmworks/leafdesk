@@ -136,6 +136,8 @@
     "ownersOnly": "Hanya pemilik yang dapat mengubah ini.",
     "memory": "Memori AI",
     "memoryHint": "Saat aktif, obrolan AI menyimpan catatan singkat tentang orang yang menceritakan dirinya kepadanya, dan menyertakannya pada pertanyaan mereka berikutnya. Setiap orang dapat menonaktifkannya untuk dirinya sendiri. Saat nonaktif, tampilan Memori disembunyikan dan pertanyaan siapa pun tidak membawa catatan; catatan disimpan, tidak dihapus. Eksekusi agen kemudian tidak membawa catatan dan tidak mengusulkan catatan juga.",
+    "webSearch": "Pencarian web di obrolan AI",
+    "webSearchHint": "Jika aktif, obrolan AI dapat mencari di web dengan layanan pencarian server dan membaca halaman web, hanya membaca: setelah membaca dari web, setiap perubahan yang ingin dibuatnya akan ditanyakan terlebih dahulu. Mode riset juga mencari di web. Pertanyaan dan teks halaman yang dipakai untuk mencari keluar dari ruang kerja menuju layanan pencarian.",
     "provider": "Penyedia",
     "providerValue": "{provider}, model {model}",
     "notConfigured": "Belum ada penyedia AI atau model embedding yang diatur di server ini, jadi fitur AI nonaktif. Admin dapat mengaturnya dengan variabel lingkungan AI_PROVIDER dan AI_MODEL (serta AI_EMBEDDINGS_MODEL) (lihat README).",
@@ -208,6 +210,10 @@
       "query": "Mengkueri",
       "rows": "{count, plural, =0 {tidak ada baris yang cocok} other {# baris}}",
       "queryGone": "Mengkueri basis data yang tidak dapat lagi Anda buka",
+      "plan": "Merencanakan riset:",
+      "webSearched": "Mencari “{query}” di web · {count, plural, =0 {tidak ada yang ditemukan} other {# hasil}}",
+      "webRead": "Membaca",
+      "webReadFailed": "Tidak dapat membaca",
       "write": {
         "done": {
           "createRow": "Baris ditambahkan:",
@@ -325,6 +331,11 @@
       "read": "Hanya baca",
       "readHint": "Tidak mengubah apa pun"
     },
+    "model": {
+      "label": "Model",
+      "hint": "Model yang menjawab dalam percakapan ini",
+      "images": "Membaca gambar"
+    },
     "actions": {
       "edit": "Edit",
       "cancel": "Batal",
@@ -333,17 +344,33 @@
     "actionsFor": "Tindakan untuk {name}",
     "greeting": "Apa yang ingin Anda ketahui?",
     "files": {
-      "attach": "Lampirkan berkas CSV",
-      "attachHint": "Lampirkan berkas CSV (hingga 1.000 baris dan 1 MB) untuk menanyakannya atau membuat basis data darinya",
-      "drop": "Lepaskan berkas CSV untuk melampirkannya",
+      "attach": "Lampirkan berkas",
+      "attachHint": "Lampirkan gambar, berkas PDF, Word, Excel, CSV, atau teks untuk menanyakannya",
+      "drop": "Lepaskan berkas untuk melampirkannya",
       "remove": "Hapus {name}",
       "size": "{rows, plural, other {# baris}} × {columns, plural, other {# kolom}}",
-      "notCsv": "Hanya berkas CSV yang dapat dilampirkan. Simpan spreadsheet sebagai CSV terlebih dahulu.",
-      "tooLarge": "Berkas itu lebih besar dari {size}. Lampirkan berkas CSV yang lebih kecil.",
+      "uploading": "Mengunggah…",
+      "notSupported": "Obrolan dapat membaca gambar, dokumen PDF, Word dan Excel, serta berkas CSV, Markdown, dan teks.",
+      "tooLarge": "Berkas itu lebih besar dari {size}. Lampirkan berkas yang lebih kecil.",
       "tooManyRows": "Berkas itu memiliki lebih dari {rows} baris. Lampirkan berkas CSV yang lebih pendek, atau impor sebagai basis data.",
       "tooManyColumns": "Berkas itu memiliki lebih dari {columns} kolom.",
       "empty": "Berkas itu kosong.",
-      "tooMany": "Satu pertanyaan dapat memiliki paling banyak {count} berkas."
+      "tooMany": "Satu pertanyaan dapat memiliki paling banyak {count} berkas.",
+      "noImages": "Model yang dipilih tidak menerima gambar. Pilih model lain, atau hapus gambarnya.",
+      "quota": "Berkas tidak dilampirkan: penyimpanan berkas ruang kerja ini sudah habis.",
+      "failed": "Tidak dapat melampirkan {name}."
+    },
+    "research": {
+      "sourcesHeading": "Sumber",
+      "untitled": "Laporan riset",
+      "toggle": "Riset",
+      "toggleHint": "Mode riset: merencanakan subpertanyaan, mencari dan membaca ruang kerja (dan web, jika aktif), lalu menulis laporan panjang dengan sumber. Tidak mengubah apa pun.",
+      "placeholder": "Apa yang perlu diriset?",
+      "asked": "Riset",
+      "readOnly": "Riset hanya membaca: tidak mengubah apa pun",
+      "save": "Simpan sebagai halaman",
+      "openPage": "Buka halaman",
+      "saveFailed": "Laporan tidak dapat disimpan sebagai halaman."
     }
   },
   "memory": {

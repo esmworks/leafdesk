@@ -1501,6 +1501,7 @@
       "loginMethod": "สมาชิกลงชื่อเข้าใช้อย่างไร",
       "ai": "ฟีเจอร์ AI",
       "aiMemory": "หน่วยความจำ AI",
+      "aiWebSearch": "การค้นหาเว็บของแชท AI",
       "aiMonthlyLimitUsd": "ขีดจำกัดค่าใช้จ่าย AI รายเดือน",
       "trashRetentionDays": "ลบหน้าในถังขยะหลังจาก",
       "export": "อนุญาตการส่งออก",

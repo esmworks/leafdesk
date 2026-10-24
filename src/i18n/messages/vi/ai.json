@@ -136,6 +136,8 @@
     "ownersOnly": "Chỉ chủ sở hữu mới có thể thay đổi điều này.",
     "memory": "Bộ nhớ AI",
     "memoryHint": "Khi bật, trò chuyện AI giữ các ghi chú ngắn về những người kể về bản thân họ, và gửi chúng kèm các câu hỏi sau đó của họ. Mỗi người có thể tự tắt cho mình. Khi tắt, chế độ xem Bộ nhớ bị ẩn và câu hỏi của không ai kèm ghi chú; các ghi chú được giữ lại, không bị xóa. Khi đó các lần chạy của tác tử không kèm ghi chú nào và cũng không đề xuất ghi chú nào.",
+    "webSearch": "Tìm kiếm web trong trò chuyện AI",
+    "webSearchHint": "Khi bật, trò chuyện AI có thể tìm kiếm trên web bằng dịch vụ tìm kiếm của máy chủ và đọc các trang web, chỉ đọc: sau khi đã đọc từ web, mọi thay đổi nó muốn thực hiện đều được hỏi trước. Chế độ nghiên cứu cũng tìm kiếm trên web. Câu hỏi và văn bản trang dùng để tìm kiếm sẽ rời không gian làm việc để đến dịch vụ tìm kiếm.",
     "provider": "Nhà cung cấp",
     "providerValue": "{provider}, mô hình {model}",
     "notConfigured": "Chưa thiết lập nhà cung cấp AI hay mô hình embedding nào trên máy chủ này, nên các tính năng AI đang tắt. Quản trị viên có thể thiết lập bằng các biến môi trường AI_PROVIDER và AI_MODEL (và AI_EMBEDDINGS_MODEL) (xem README).",
@@ -208,6 +210,10 @@
       "query": "Đã truy vấn",
       "rows": "{count, plural, =0 {không có hàng nào khớp} other {# hàng}}",
       "queryGone": "Đã truy vấn một cơ sở dữ liệu bạn không còn mở được",
+      "plan": "Đã lập kế hoạch nghiên cứu:",
+      "webSearched": "Đã tìm “{query}” trên web · {count, plural, =0 {không tìm thấy gì} other {# kết quả}}",
+      "webRead": "Đã đọc",
+      "webReadFailed": "Không đọc được",
       "write": {
         "done": {
           "createRow": "Đã thêm hàng:",
@@ -325,6 +331,11 @@
       "read": "Chỉ đọc",
       "readHint": "Không thay đổi gì"
     },
+    "model": {
+      "label": "Mô hình",
+      "hint": "Mô hình trả lời trong cuộc trò chuyện này",
+      "images": "Đọc được hình ảnh"
+    },
     "actions": {
       "edit": "Chỉnh sửa",
       "cancel": "Hủy",
@@ -333,17 +344,33 @@
     "actionsFor": "Thao tác cho {name}",
     "greeting": "Bạn muốn biết điều gì?",
     "files": {
-      "attach": "Đính kèm tệp CSV",
-      "attachHint": "Đính kèm một tệp CSV (tối đa 1.000 hàng và 1 MB) để hỏi về nó hoặc tạo cơ sở dữ liệu từ nó",
-      "drop": "Thả tệp CSV để đính kèm",
+      "attach": "Đính kèm tệp",
+      "attachHint": "Đính kèm hình ảnh, tệp PDF, Word, Excel, CSV hoặc văn bản để hỏi về chúng",
+      "drop": "Thả tệp để đính kèm",
       "remove": "Xóa {name}",
       "size": "{rows, plural, other {# hàng}} × {columns, plural, other {# cột}}",
-      "notCsv": "Chỉ có thể đính kèm tệp CSV. Hãy lưu bảng tính dưới dạng CSV trước.",
-      "tooLarge": "Tệp đó lớn hơn {size}. Hãy đính kèm một tệp CSV nhỏ hơn.",
+      "uploading": "Đang tải lên…",
+      "notSupported": "Trò chuyện đọc được hình ảnh, tài liệu PDF, Word và Excel, cùng các tệp CSV, Markdown và văn bản.",
+      "tooLarge": "Tệp đó lớn hơn {size}. Hãy đính kèm một tệp nhỏ hơn.",
       "tooManyRows": "Tệp đó có hơn {rows} hàng. Hãy đính kèm một tệp CSV ngắn hơn, hoặc nhập nó dưới dạng cơ sở dữ liệu.",
       "tooManyColumns": "Tệp đó có hơn {columns} cột.",
       "empty": "Tệp đó trống.",
-      "tooMany": "Một câu hỏi có thể có tối đa {count} tệp."
+      "tooMany": "Một câu hỏi có thể có tối đa {count} tệp.",
+      "noImages": "Mô hình đã chọn không nhận hình ảnh. Hãy chọn mô hình khác hoặc gỡ hình ảnh ra.",
+      "quota": "Tệp chưa được đính kèm: không gian làm việc này đã hết dung lượng lưu trữ tệp.",
+      "failed": "Không thể đính kèm {name}."
+    },
+    "research": {
+      "sourcesHeading": "Nguồn",
+      "untitled": "Báo cáo nghiên cứu",
+      "toggle": "Nghiên cứu",
+      "toggleHint": "Chế độ nghiên cứu: lập các câu hỏi phụ, tìm kiếm và đọc không gian làm việc (và web, nếu bật), rồi viết một báo cáo dài kèm nguồn. Không thay đổi gì.",
+      "placeholder": "Cần nghiên cứu điều gì?",
+      "asked": "Nghiên cứu",
+      "readOnly": "Nghiên cứu chỉ đọc: không thay đổi gì",
+      "save": "Lưu thành trang",
+      "openPage": "Mở trang",
+      "saveFailed": "Không thể lưu báo cáo thành trang."
     }
   },
   "memory": {
