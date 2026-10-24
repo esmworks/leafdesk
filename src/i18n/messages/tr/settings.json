@@ -1736,6 +1736,7 @@
       },
       "teamspace": {
         "created": "Ekip alanı oluşturuldu: {target}",
+        "created_from_page": "{source} sayfasını {target} ekip alanına dönüştürdü",
         "updated": "Ekip alanı değiştirildi: {target} ({fields})",
         "archived": "Ekip alanı arşivlendi: {target}",
         "restored": "Ekip alanı geri getirildi: {target}",

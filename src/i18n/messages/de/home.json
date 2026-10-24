@@ -17,5 +17,20 @@
     "later": "Später",
     "none": "Ohne Datum"
   },
-  "assignedMore": "{shown} von {total} angezeigt. Filtere eine Datenbank nach „Ich“, um den Rest zu sehen."
+  "assignedMore": "{shown} von {total} angezeigt.",
+  "assignedAll": "Alle ansehen",
+  "myTasks": {
+    "title": "Meine Aufgaben",
+    "description": "Zeilen der Datenbanken, die du öffnen kannst, die dir zugewiesen und nicht erledigt sind, im ganzen Workspace.",
+    "grouping": "Gruppieren nach",
+    "byDue": "Nach Fälligkeit",
+    "byDatabase": "Nach Datenbank",
+    "sharedRows": "Mit dir geteilte Zeilen",
+    "shown": "Die {shown} am frühesten fälligen von {total} werden angezeigt.",
+    "markDone": "„{title}“ als erledigt markieren",
+    "undoLabel": "„{title}“ als nicht erledigt markieren",
+    "undo": "Rückgängig",
+    "markFailed": "Die Zeile konnte nicht als erledigt markiert werden.",
+    "undoFailed": "Der Status der Zeile konnte nicht zurückgesetzt werden. Ändere ihn in der Zeile."
+  }
 }

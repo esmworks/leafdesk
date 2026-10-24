@@ -1736,6 +1736,7 @@
       },
       "teamspace": {
         "created": "Створено командний простір {target}",
+        "created_from_page": "Перетворив(ла) сторінку {source} на командний простір {target}",
         "updated": "Змінено {fields} командного простору {target}",
         "archived": "Архівовано командний простір {target}",
         "restored": "Відновлено командний простір {target}",

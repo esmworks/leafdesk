@@ -239,7 +239,8 @@
     "newPrivate": "Yeni özel sayfa",
     "more": "{count} sayfa daha",
     "less": "Daha az göster",
-    "meetings": "Toplantılar"
+    "meetings": "Toplantılar",
+    "tasks": "Görevlerim"
   },
   "joinable": {
     "heading": "Katılabileceğiniz çalışma alanları",

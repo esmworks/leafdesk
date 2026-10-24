@@ -17,5 +17,20 @@
     "later": "Sau này",
     "none": "Không có ngày"
   },
-  "assignedMore": "Đang hiển thị {shown} trong {total}. Hãy lọc cơ sở dữ liệu theo “Tôi” để xem phần còn lại."
+  "assignedMore": "Đang hiển thị {shown} trên {total}.",
+  "assignedAll": "Xem tất cả",
+  "myTasks": {
+    "title": "Việc của tôi",
+    "description": "Các hàng trong những cơ sở dữ liệu bạn mở được, được giao cho bạn và chưa xong, trong toàn bộ không gian làm việc.",
+    "grouping": "Nhóm theo",
+    "byDue": "Theo hạn",
+    "byDatabase": "Theo cơ sở dữ liệu",
+    "sharedRows": "Hàng được chia sẻ với bạn",
+    "shown": "Đang hiển thị {shown} hàng gần hạn nhất trên {total}.",
+    "markDone": "Đánh dấu “{title}” là xong",
+    "undoLabel": "Đánh dấu “{title}” là chưa xong",
+    "undo": "Hoàn tác",
+    "markFailed": "Không thể đánh dấu hàng là xong.",
+    "undoFailed": "Không thể khôi phục trạng thái của hàng. Hãy đổi nó trong hàng."
+  }
 }

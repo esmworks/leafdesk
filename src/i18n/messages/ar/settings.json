@@ -1736,6 +1736,7 @@
       },
       "teamspace": {
         "created": "أنشأ مساحة الفريق {target}",
+        "created_from_page": "حوّل الصفحة {source} إلى مساحة الفريق {target}",
         "updated": "غيّر {fields} لمساحة الفريق {target}",
         "archived": "أرشف مساحة الفريق {target}",
         "restored": "استعاد مساحة الفريق {target}",

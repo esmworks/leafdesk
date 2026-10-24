@@ -29,7 +29,8 @@
     "everyoneIn": "Çalışma alanındaki herkes zaten bu ekip alanında.",
     "accessDenied": "Bu ekip alanında bunu yapamazsınız.",
     "invalidMemberLevel": "Üyelerin ekip alanı sayfalarında ne alacağını seçin.",
-    "invalidIcon": "Simge bir emoji olmalı."
+    "invalidIcon": "Simge bir emoji olmalı.",
+    "notConvertible": "Yalnızca bir sayfa ekip alanına dönüşebilir: veritabanı, satır ya da şablon dönüşemez."
   },
   "dialog": {
     "createTitle": "Yeni ekip alanı",
@@ -79,5 +80,19 @@
     "edit": "Düzenleyebilir",
     "comment": "Yorum yapabilir",
     "view": "Görüntüleyebilir"
+  },
+  "fromPage": {
+    "menu": "Ekip alanına dönüştür",
+    "title": "Ekip alanına dönüştür",
+    "intro": "Yeni bir ekip alanı bu sayfayı ve altındaki sayfaları alır; sayfanın paylaşıldığı kişiler ekip alanına katılır.",
+    "pages": "{count, plural, =0 {Bu sayfa ekip alanının ilk sayfası olur.} one {Bu sayfa ve altındaki sayfa ekip alanının ilk sayfaları olur.} other {Bu sayfa ve altındaki # sayfa ekip alanının ilk sayfaları olur.}}",
+    "owners": "Sahipler: {names}",
+    "members": "Sayfalarını düzenleyebilen üyeler: {names}",
+    "groups": "{count, plural, one {# grup} other {# grup}} üye olarak katılır.",
+    "kept": "Sayfada adı geçen {count, plural, one {# kişi daha} other {# kişi daha}} sahip olduğu erişimi korur.",
+    "access": "{access}: {hint}",
+    "submit": "Ekip alanına dönüştür",
+    "working": "Dönüştürülüyor…",
+    "failed": "Sayfa ekip alanına dönüştürülemedi."
   }
 }

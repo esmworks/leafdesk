@@ -20,6 +20,7 @@ import {
   Inbox,
   Keyboard,
   LayoutTemplate,
+  ListTodo,
   LogOut,
   LogOut as LeaveIcon,
   MessagesSquare,
@@ -502,6 +503,7 @@ export function Sidebar({
     ({
       favorites: t("pages.favorites"),
       meetings: t("sections.meetings"),
+      tasks: t("sections.tasks"),
       pages: t("pages.heading"),
       teamspaces: t("teamspaces.heading"),
       shared: t("sections.shared"),
@@ -807,6 +809,13 @@ export function Sidebar({
           ))}
         </ul>
       </SectionGroup>
+    ),
+    tasks: (
+      <div className="mb-2">
+        <SidebarButton icon={<ListTodo className="h-4 w-4" />} href={`/w/${workspaceId}/tasks`} active={pathname === `/w/${workspaceId}/tasks`}>
+          {t("sections.tasks")}
+        </SidebarButton>
+      </div>
     ),
     meetings: (
       <div className="mb-2">

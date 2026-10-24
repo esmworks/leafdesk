@@ -29,7 +29,8 @@
     "everyoneIn": "Wszyscy w obszarze roboczym już należą do tej przestrzeni zespołu.",
     "accessDenied": "Nie możesz tego zrobić w tej przestrzeni zespołu.",
     "invalidMemberLevel": "Wybierz, jaki dostęp mają członkowie do stron przestrzeni zespołu.",
-    "invalidIcon": "Ikona musi być emoji."
+    "invalidIcon": "Ikona musi być emoji.",
+    "notConvertible": "Przestrzenią zespołu może stać się tylko strona, nie baza danych, wiersz ani szablon."
   },
   "dialog": {
     "createTitle": "Nowa przestrzeń zespołu",
@@ -79,5 +80,19 @@
     "edit": "Może edytować",
     "comment": "Może komentować",
     "view": "Może wyświetlać"
+  },
+  "fromPage": {
+    "menu": "Zamień w przestrzeń zespołu",
+    "title": "Zamień w przestrzeń zespołu",
+    "intro": "Nowa przestrzeń zespołu przejmuje tę stronę i strony pod nią, a osoby, którym strona jest udostępniona, do niej dołączają.",
+    "pages": "{count, plural, =0 {Ta strona staje się jej pierwszą stroną.} one {Ta strona i strona pod nią stają się jej pierwszymi stronami.} few {Ta strona i # strony pod nią stają się jej pierwszymi stronami.} many {Ta strona i # stron pod nią staje się jej pierwszymi stronami.} other {Ta strona i # strony pod nią stają się jej pierwszymi stronami.}}",
+    "owners": "Właściciele: {names}",
+    "members": "Członkowie, którzy mogą edytować jej strony: {names}",
+    "groups": "{count, plural, one {# grupa dołącza} few {# grupy dołączają} many {# grup dołącza} other {# grupy dołączają}} jako członkowie.",
+    "kept": "{count, plural, one {# inna osoba wymieniona na stronie zachowuje} few {# inne osoby wymienione na stronie zachowują} many {# innych osób wymienionych na stronie zachowuje} other {# innej osoby wymienionej na stronie zachowuje}} swój dostęp.",
+    "access": "{access}: {hint}",
+    "submit": "Zamień w przestrzeń zespołu",
+    "working": "Zamienianie…",
+    "failed": "Nie udało się zamienić strony w przestrzeń zespołu."
   }
 }

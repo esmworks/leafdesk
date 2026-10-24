@@ -17,5 +17,20 @@
     "later": "Nanti",
     "none": "Tanpa tanggal"
   },
-  "assignedMore": "Menampilkan {shown} dari {total}. Filter basis data berdasarkan “Saya” untuk melihat sisanya."
+  "assignedMore": "Menampilkan {shown} dari {total}.",
+  "assignedAll": "Lihat semua",
+  "myTasks": {
+    "title": "Tugas saya",
+    "description": "Baris dari database yang bisa Anda buka, yang ditugaskan kepada Anda dan belum selesai, di seluruh ruang kerja.",
+    "grouping": "Kelompokkan menurut",
+    "byDue": "Menurut tenggat",
+    "byDatabase": "Menurut database",
+    "sharedRows": "Baris yang dibagikan kepada Anda",
+    "shown": "Menampilkan {shown} dengan tenggat terdekat dari {total}.",
+    "markDone": "Tandai “{title}” selesai",
+    "undoLabel": "Tandai “{title}” belum selesai",
+    "undo": "Urungkan",
+    "markFailed": "Tidak dapat menandai baris sebagai selesai.",
+    "undoFailed": "Tidak dapat mengembalikan status baris. Ubah di dalam baris."
+  }
 }

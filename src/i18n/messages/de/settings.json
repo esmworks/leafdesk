@@ -1736,6 +1736,7 @@
       },
       "teamspace": {
         "created": "Hat den Teamspace {target} erstellt",
+        "created_from_page": "Hat die Seite {source} in den Teamspace {target} umgewandelt",
         "updated": "Hat im Teamspace {target} geändert: {fields}",
         "archived": "Hat den Teamspace {target} archiviert",
         "restored": "Hat den Teamspace {target} wiederhergestellt",

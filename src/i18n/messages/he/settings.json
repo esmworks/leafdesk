@@ -1736,6 +1736,7 @@
       },
       "teamspace": {
         "created": "יצירת מרחב הצוות {target}",
+        "created_from_page": "הפך את הדף {source} למרחב הצוות {target}",
         "updated": "שינוי {fields} של מרחב הצוות {target}",
         "archived": "העברת מרחב הצוות {target} לארכיון",
         "restored": "שחזור מרחב הצוות {target}",

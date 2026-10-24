@@ -1736,6 +1736,7 @@
       },
       "teamspace": {
         "created": "팀스페이스 {target}을(를) 만들었습니다",
+        "created_from_page": "페이지 {source}을(를) 팀스페이스 {target}(으)로 전환함",
         "updated": "팀스페이스 {target}의 {fields}을(를) 변경했습니다",
         "archived": "팀스페이스 {target}을(를) 보관했습니다",
         "restored": "팀스페이스 {target}을(를) 복원했습니다",

@@ -1736,6 +1736,7 @@
       },
       "teamspace": {
         "created": "チームスペース{target}を作成しました",
+        "created_from_page": "ページ{source}をチームスペース{target}に変換しました",
         "updated": "チームスペース{target}の{fields}を変更しました",
         "archived": "チームスペース{target}をアーカイブしました",
         "restored": "チームスペース{target}を復元しました",

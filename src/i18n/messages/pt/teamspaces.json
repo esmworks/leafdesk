@@ -29,7 +29,8 @@
     "everyoneIn": "Todos do espaço de trabalho já estão neste espaço de equipe.",
     "accessDenied": "Você não pode fazer isso neste espaço de equipe.",
     "invalidMemberLevel": "Escolha o que os membros recebem nas páginas do espaço de equipe.",
-    "invalidIcon": "O ícone precisa ser um emoji."
+    "invalidIcon": "O ícone precisa ser um emoji.",
+    "notConvertible": "Só uma página pode virar um espaço de equipe, não um banco de dados, uma linha ou um modelo."
   },
   "dialog": {
     "createTitle": "Novo espaço de equipe",
@@ -79,5 +80,19 @@
     "edit": "Pode editar",
     "comment": "Pode comentar",
     "view": "Pode ver"
+  },
+  "fromPage": {
+    "menu": "Transformar em espaço de equipe",
+    "title": "Transformar em espaço de equipe",
+    "intro": "Um novo espaço de equipe recebe esta página e as páginas abaixo dela, e as pessoas com quem a página é compartilhada entram nele.",
+    "pages": "{count, plural, =0 {Esta página passa a ser a primeira página dele.} one {Esta página e a página abaixo dela passam a ser as primeiras páginas dele.} other {Esta página e as # páginas abaixo dela passam a ser as primeiras páginas dele.}}",
+    "owners": "Proprietários: {names}",
+    "members": "Membros, que podem editar as páginas dele: {names}",
+    "groups": "{count, plural, one {# grupo entra} other {# grupos entram}} como membros.",
+    "kept": "{count, plural, one {# outra pessoa citada na página mantém} other {# outras pessoas citadas na página mantêm}} o acesso que têm.",
+    "access": "{access}: {hint}",
+    "submit": "Transformar em espaço de equipe",
+    "working": "Transformando…",
+    "failed": "Não foi possível transformar a página em um espaço de equipe."
   }
 }

@@ -1736,6 +1736,7 @@
       },
       "teamspace": {
         "created": "สร้างพื้นที่ทีม {target}",
+        "created_from_page": "เปลี่ยนหน้า {source} เป็นพื้นที่ทีม {target}",
         "updated": "เปลี่ยน{fields}ของพื้นที่ทีม {target}",
         "archived": "เก็บถาวรพื้นที่ทีม {target}",
         "restored": "กู้คืนพื้นที่ทีม {target}",

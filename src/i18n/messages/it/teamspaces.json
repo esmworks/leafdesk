@@ -29,7 +29,8 @@
     "everyoneIn": "Tutti nello spazio di lavoro fanno già parte di questo spazio del team.",
     "accessDenied": "Non puoi farlo in questo spazio del team.",
     "invalidMemberLevel": "Scegli che accesso hanno i membri alle pagine dello spazio del team.",
-    "invalidIcon": "L’icona deve essere un’emoji."
+    "invalidIcon": "L’icona deve essere un’emoji.",
+    "notConvertible": "Solo una pagina può diventare uno spazio del team, non un database, una riga o un modello."
   },
   "dialog": {
     "createTitle": "Nuovo spazio del team",
@@ -79,5 +80,19 @@
     "edit": "Può modificare",
     "comment": "Può commentare",
     "view": "Può visualizzare"
+  },
+  "fromPage": {
+    "menu": "Trasforma in spazio del team",
+    "title": "Trasforma in spazio del team",
+    "intro": "Un nuovo spazio del team accoglie questa pagina e le pagine sotto di essa, e le persone con cui la pagina è condivisa vi entrano.",
+    "pages": "{count, plural, =0 {Questa pagina diventa la sua prima pagina.} one {Questa pagina e la pagina sotto di essa diventano le sue prime pagine.} other {Questa pagina e le # pagine sotto di essa diventano le sue prime pagine.}}",
+    "owners": "Proprietari: {names}",
+    "members": "Membri, che possono modificarne le pagine: {names}",
+    "groups": "{count, plural, one {# gruppo entra} other {# gruppi entrano}} come membri.",
+    "kept": "{count, plural, one {# altra persona indicata nella pagina mantiene} other {# altre persone indicate nella pagina mantengono}} l’accesso che hanno.",
+    "access": "{access}: {hint}",
+    "submit": "Trasforma in spazio del team",
+    "working": "Trasformazione…",
+    "failed": "Impossibile trasformare la pagina in uno spazio del team."
   }
 }

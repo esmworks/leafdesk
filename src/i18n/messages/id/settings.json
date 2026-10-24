@@ -1736,6 +1736,7 @@
       },
       "teamspace": {
         "created": "Membuat ruang tim {target}",
+        "created_from_page": "Menjadikan halaman {source} sebagai ruang tim {target}",
         "updated": "Mengubah {fields} ruang tim {target}",
         "archived": "Mengarsipkan ruang tim {target}",
         "restored": "Memulihkan ruang tim {target}",
