@@ -477,7 +477,9 @@
   selected. Snooze an item for an hour, until tomorrow morning or until next Monday (9:00 your
   time): it leaves the inbox and comes back unread then, along with its email if that hadn't gone
   yet. On a phone, swipe an item toward the end of the line to mark it read (or unread again) and
-  toward its start to snooze it until tomorrow morning. Choose per kind whether it shows in the
+  toward its start to snooze it until tomorrow morning. Archive an item, or every read one at once
+  (*Archive read*), to clear the inbox: archived items are read, listed under *Archived* and can be
+  moved back. Choose per kind whether it shows in the
   inbox, whether it comes by email and, on the devices where you turn them on, as a [push
   notification](self-hosting.md#push-notifications).
 - **Verified pages**: someone with full access marks a page, database or row as checked and right

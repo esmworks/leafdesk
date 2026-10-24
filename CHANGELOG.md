@@ -33,6 +33,9 @@
   row back from the rows it already links to (edit access to both databases). *Show in row picker*
   picks up to three properties of the related database to show beside each row's name in the
   picker.
+- **Archive notifications.** Each inbox item has *Archive*, and *Archive read* clears every read
+  one at once. Archived items are marked read, leave the inbox and its count, and are listed under
+  the inbox's *Archived* tab, where *Move to inbox* brings one back. Migration 0136.
 
 ### Changed
 
