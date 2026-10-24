@@ -116,10 +116,10 @@
   they are on and their replies, and can comment or reply as the person (`list_comments`,
   `add_comment`). It lists a page's saved versions and reads one or shows what changed since it
   or by it (`page_history`, `page_version`, the same operations as MCP's history tools). A CSV
-  file can be attached to a question with the paperclip, by dropping it on the box or by pasting
-  it (up to 1,000 rows, 100 columns and 1 MB, with a clear message beyond); the question shows it
-  as a chip with its name and size, the model gets the table cut to fit and can read the rest,
-  and the file stays with the conversation for the questions after it. The chat makes a new
+  file attached to a question (see *Attach images and documents to the AI chat*) is read as a
+  table (up to 1,000 rows and 100 columns, with a clear message beyond): its chip shows its rows
+  and columns, the model gets the table cut to fit and reads the rest with `read_attachment`, and
+  the file stays with the conversation for the questions after it. The chat makes a new
   database with the properties, types and options asked for, or one from an attached file with
   each column's type guessed from its values and its rows imported, under a page the person may
   edit or at the top, private to them (`create_database`, `create_database_from_csv`). It adds
@@ -129,6 +129,38 @@
   and made as the person through the same code as the app's own edits (a new or imported
   database goes into the audit log as one made in the app does); the Telegram bot asks the same
   way.
+- **Attach images and documents to the AI chat.** The paperclip under the question box, dropping
+  files on it or pasting them attaches up to 5 files to a question: images (sent as images to
+  models that take them; the box says so for one that doesn't), PDF, Word and Excel documents
+  (read to text as search reads them), CSV, Markdown and text files, up to 20 MB each (images
+  5 MB). Each is uploaded as it is attached and shows as a chip, in the box and on the question,
+  where it opens the file; a question may be only files. Files stay with the conversation, so
+  later questions see them again (cut to fit) and the chat reads on in one with `read_attachment`.
+  They are stored apart from the workspace's pages: only the person who attached them can open
+  them, backups and exports leave them out, and they are deleted with their conversation (an
+  upload never sent after a day). Migration 0123 (`ai_chat_file`, `ai_conversation.model`).
+- **Pick the AI chat's model.** `AI_CHAT_MODELS` lists more models at the server's provider that
+  the chat's box offers next to `AI_MODEL` and `AI_FAST_MODEL`; with more than one, a picker sits
+  under the box. A conversation keeps its model, a new one starts with the person's latest, and
+  usage and cost are counted per model as before. `AI_IMAGE_INPUT=true` says that models the
+  catalog doesn't know (OpenAI-compatible and local ones) take images. New env vars:
+  `AI_CHAT_MODELS`, `AI_IMAGE_INPUT`.
+- **Research mode in the AI chat.** The telescope button under the box asks for a report instead
+  of an answer: the model plans sub-questions (shown as a step), searches and reads the workspace
+  as the person, attached files and, where web search is on, the web, then writes a long report
+  with a section per sub-question, citing every source. It only reads (no changes, notes or
+  connections, whatever the mode) and has up to 14 turns and 400,000 tokens, counted against the
+  workspace's limits like other requests (as *AI chat* in the usage view). *Save as page* makes a
+  report a private page with its citations as links and a list of sources.
+- **Web search in the AI chat, and Brave or Tavily as the search service.** Where the server has
+  a search service, owners can turn on Settings → General → AI → *Web search in the AI chat* (off
+  by default): the chat then searches the web and reads web pages (`search_web`,
+  `read_web_page`), read-only, fetched with the same address checks and size and time limits as
+  agents' reads, their text framed as outside data, and once an answer read from the web every
+  change it wants is asked about, also in *Auto*. Web sources are cited as links. Besides a
+  self-hosted SearXNG (`WEB_SEARCH_URL`), `WEB_SEARCH_PROVIDER=brave` or `tavily` with
+  `WEB_SEARCH_API_KEY` uses those services, for agents with web access too. New env vars:
+  `WEB_SEARCH_PROVIDER`, `WEB_SEARCH_API_KEY`.
 - **Build databases with AI.** *Build with AI* in the sidebar's *+* menus, on the home page, in
   Cmd+K and as `/` *Build databases with AI* in a page: describe what you want to keep track of and
   the AI drafts up to four databases for it, with typed properties, select options with colors,

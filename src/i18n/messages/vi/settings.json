@@ -1605,6 +1605,7 @@
       "loginMethod": "Cách thành viên đăng nhập",
       "ai": "Tính năng AI",
       "aiMemory": "Bộ nhớ AI",
+      "aiWebSearch": "Tìm kiếm web của trò chuyện AI",
       "aiMonthlyLimitUsd": "Giới hạn chi phí AI hằng tháng",
       "trashRetentionDays": "Xóa các trang trong thùng rác sau",
       "export": "Cho phép xuất",

@@ -1389,6 +1389,7 @@ const SETTING_VALUES: {
   loginMethod: ["any", "sso"],
   ai: [true, false],
   aiMemory: [true, false],
+  aiWebSearch: [false, true],
   trashRetentionDays: TRASH_RETENTION_CHOICES,
   memberInvites: ["owners", "members_with_approval", "any_member"],
   domainJoin: ["join", "request"],

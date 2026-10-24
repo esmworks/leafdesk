@@ -1605,6 +1605,7 @@
       "loginMethod": "メンバーのログイン方法",
       "ai": "AI機能",
       "aiMemory": "AIメモリー",
+      "aiWebSearch": "AI チャットのウェブ検索",
       "aiMonthlyLimitUsd": "AI の月間コスト上限",
       "trashRetentionDays": "ゴミ箱のページを削除するまでの期間",
       "export": "エクスポートを許可",

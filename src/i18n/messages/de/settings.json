@@ -1605,6 +1605,7 @@
       "loginMethod": "Wie sich Mitglieder anmelden",
       "ai": "KI-Funktionen",
       "aiMemory": "KI-Gedächtnis",
+      "aiWebSearch": "Websuche im KI-Chat",
       "aiMonthlyLimitUsd": "Monatliches KI-Kostenlimit",
       "trashRetentionDays": "Seiten im Papierkorb löschen nach",
       "export": "Export erlauben",

@@ -1605,6 +1605,7 @@
       "loginMethod": "Como os membros entram",
       "ai": "Recursos de IA",
       "aiMemory": "Memória de IA",
+      "aiWebSearch": "Pesquisa na web do chat de IA",
       "aiMonthlyLimitUsd": "Limite mensal de custo de IA",
       "trashRetentionDays": "Excluir páginas da lixeira depois de",
       "export": "Permitir exportação",

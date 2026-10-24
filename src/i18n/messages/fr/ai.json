@@ -137,6 +137,8 @@
     "ownersOnly": "Seuls les propriétaires peuvent modifier ce réglage.",
     "memory": "Mémoire de l’IA",
     "memoryHint": "Activée, le chat IA garde de courtes notes sur les personnes qui lui parlent d’elles-mêmes et les envoie avec leurs questions suivantes. Chacun peut la désactiver pour soi. Désactivée, la vue Mémoire est masquée et aucune question n’emporte de notes ; les notes sont conservées, pas supprimées. Les exécutions des agents n’emportent alors aucune note et n’en proposent pas non plus.",
+    "webSearch": "Recherche web dans le chat IA",
+    "webSearchHint": "Activé, le chat IA peut chercher sur le web avec le service de recherche du serveur et lire des pages web, en lecture seule : après avoir lu sur le web, chaque modification qu’il veut faire est demandée. Le mode recherche cherche aussi sur le web. Les questions et le texte avec lesquels il cherche quittent l’espace de travail vers le service de recherche.",
     "provider": "Fournisseur",
     "providerValue": "{provider}, modèle {model}",
     "notConfigured": "Aucun fournisseur d’IA ni modèle d’embeddings n’est configuré sur ce serveur, les fonctions d’IA sont donc désactivées. Un administrateur peut les configurer avec les variables d’environnement AI_PROVIDER et AI_MODEL (et AI_EMBEDDINGS_MODEL) (voir le README).",
@@ -209,6 +211,10 @@
       "query": "Interrogé",
       "rows": "{count, plural, =0 {aucune ligne} one {# ligne} other {# lignes}}",
       "queryGone": "Interrogé une base que vous ne pouvez plus ouvrir",
+      "plan": "Recherche planifiée :",
+      "webSearched": "Recherche web « {query} » · {count, plural, =0 {aucun résultat} one {# résultat} other {# résultats}}",
+      "webRead": "Lu",
+      "webReadFailed": "Lecture impossible :",
       "write": {
         "done": {
           "createRow": "Ligne ajoutée :",
@@ -328,6 +334,11 @@
       "asSuggestions": "Modifications de pages en suggestions",
       "asSuggestionsHint": "Ce que le chat écrit dans une page apparaît en modifications suggérées, à accepter ou refuser"
     },
+    "model": {
+      "label": "Modèle",
+      "hint": "Le modèle qui répond dans cette conversation",
+      "images": "Lit les images"
+    },
     "actions": {
       "edit": "Modifier",
       "cancel": "Annuler",
@@ -336,17 +347,33 @@
     "actionsFor": "Actions pour {name}",
     "greeting": "Que voulez-vous savoir ?",
     "files": {
-      "attach": "Joindre un fichier CSV",
-      "attachHint": "Joindre un fichier CSV (jusqu’à 1 000 lignes et 1 Mo) pour poser des questions dessus ou en faire une base de données",
-      "drop": "Déposez le fichier CSV pour le joindre",
+      "attach": "Joindre des fichiers",
+      "attachHint": "Joindre des images ou des fichiers PDF, Word, Excel, CSV ou texte pour poser des questions dessus",
+      "drop": "Déposez les fichiers pour les joindre",
       "remove": "Retirer {name}",
       "size": "{rows, plural, one {# ligne} other {# lignes}} × {columns, plural, one {# colonne} other {# colonnes}}",
-      "notCsv": "Seuls les fichiers CSV peuvent être joints. Enregistrez d’abord le tableur au format CSV.",
-      "tooLarge": "Ce fichier dépasse {size}. Joignez un fichier CSV plus petit.",
+      "uploading": "Envoi…",
+      "notSupported": "Le chat lit les images, les documents PDF, Word et Excel, et les fichiers CSV, Markdown et texte.",
+      "tooLarge": "Ce fichier dépasse {size}. Joignez un fichier plus petit.",
       "tooManyRows": "Ce fichier a plus de {rows} lignes. Joignez un CSV plus court, ou importez-le comme base de données.",
       "tooManyColumns": "Ce fichier a plus de {columns} colonnes.",
       "empty": "Ce fichier est vide.",
-      "tooMany": "Une question peut avoir au plus {count} fichiers."
+      "tooMany": "Une question peut avoir au plus {count} fichiers.",
+      "noImages": "Le modèle choisi ne prend pas d’images. Choisissez un autre modèle ou retirez l’image.",
+      "quota": "Le fichier n’a pas été joint : cet espace de travail n’a plus de stockage.",
+      "failed": "Impossible de joindre {name}."
+    },
+    "research": {
+      "sourcesHeading": "Sources",
+      "untitled": "Rapport de recherche",
+      "toggle": "Recherche",
+      "toggleHint": "Mode recherche : planifie des sous-questions, cherche et lit dans l’espace de travail (et sur le web, s’il est activé), puis rédige un long rapport avec ses sources. Ne modifie rien.",
+      "placeholder": "Que faut-il rechercher ?",
+      "asked": "Recherche",
+      "readOnly": "La recherche ne fait que lire : elle ne modifie rien",
+      "save": "Enregistrer comme page",
+      "openPage": "Ouvrir la page",
+      "saveFailed": "Impossible d’enregistrer le rapport comme page."
     }
   },
   "memory": {

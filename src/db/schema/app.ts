@@ -93,6 +93,12 @@ export type WorkspaceSettings = {
    */
   aiMemory: boolean;
   /**
+   * Whether the AI chat may search the web and read web pages (server/ai-chat-web.ts), where the
+   * server has a search service. Off until an owner turns it on: questions' words go to the search
+   * service then.
+   */
+  aiWebSearch: boolean;
+  /**
    * The most the workspace's AI requests may cost in a calendar month (UTC), in US dollars, as an
    * owner set it; null: no limit of its own. Counts what every AI account paid, the workspace's own
    * included. The server's AI_MONTHLY_LIMIT_USD caps what its own AI_* key pays besides (see
@@ -169,6 +175,7 @@ export const DEFAULT_WORKSPACE_SETTINGS: WorkspaceSettings = {
   loginMethod: "any",
   ai: true,
   aiMemory: true,
+  aiWebSearch: false,
   aiMonthlyLimitUsd: null,
   trashRetentionDays: 30,
   export: true,

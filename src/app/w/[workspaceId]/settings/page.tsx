@@ -98,7 +98,7 @@ import { storageNoticeOf, type StorageNotice } from "@/lib/workspace-storage";
 import { getStorageSettings } from "@/server/storage/settings";
 import { listAgents } from "@/server/agents/manage";
 import { proposedNoteCounts } from "@/server/agents/memory";
-import { webSearchUrl } from "@/server/agents/web";
+import { webSearchService } from "@/server/agents/web";
 import { listConnections } from "@/server/connections/manage";
 import { oauthRedirectUrl } from "@/server/connections/client";
 import { env } from "@/lib/env";
@@ -382,6 +382,7 @@ async function AiGroup({ workspaceId, userId, isOwner }: { workspaceId: string; 
         workspaceId={workspaceId}
         enabled={settings.ai !== false}
         memory={settings.aiMemory !== false}
+        webSearch={webSearchService() ? settings.aiWebSearch === true : null}
         canEdit={isOwner}
         provider={info && { provider: info.provider, model: info.model }}
         embeddings={info?.embeddings ?? null}
@@ -725,7 +726,7 @@ async function AgentsTab({
       agents={agents}
       proposals={proposals}
       memoryOff={settings.aiMemory === false}
-      webSearch={webSearchUrl() !== null}
+      webSearch={webSearchService() !== null}
       templates={templates}
       ai={ai}
       models={models}

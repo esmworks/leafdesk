@@ -1605,6 +1605,7 @@
       "loginMethod": "成员如何登录",
       "ai": "AI 功能",
       "aiMemory": "AI 记忆",
+      "aiWebSearch": "AI 聊天网络搜索",
       "aiMonthlyLimitUsd": "每月 AI 费用上限",
       "trashRetentionDays": "回收站中的页面保留期限",
       "export": "允许导出",

@@ -137,6 +137,8 @@
     "ownersOnly": "Only owners can change this.",
     "memory": "AI memory",
     "memoryHint": "When on, the AI chat keeps short notes about people who tell it about themselves, and sends them with their later questions. Each person can turn it off for themselves. When off, the Memory view is hidden and nobody's questions carry notes; the notes are kept, not deleted. Agents' runs then carry no notes and propose none either.",
+    "webSearch": "Web search in the AI chat",
+    "webSearchHint": "When on, the AI chat may search the web with the server's search service and read web pages, only reading: after it read from the web, every change it wants to make is asked about. Research mode searches the web too. Questions and page text it searches with leave the workspace for the search service.",
     "provider": "Provider",
     "providerValue": "{provider}, model {model}",
     "notConfigured": "No AI provider or embeddings model is set up on this server, so AI features are off. An admin can set them up with the AI_PROVIDER and AI_MODEL (and AI_EMBEDDINGS_MODEL) environment variables (see the README).",
@@ -209,6 +211,10 @@
       "query": "Queried",
       "rows": "{count, plural, =0 {no rows match} one {# row} other {# rows}}",
       "queryGone": "Queried a database you can no longer open",
+      "plan": "Planned the research:",
+      "webSearched": "Searched the web for “{query}” · {count, plural, =0 {nothing found} one {# result} other {# results}}",
+      "webRead": "Read",
+      "webReadFailed": "Couldn't read",
       "write": {
         "done": {
           "createRow": "Row added:",
@@ -328,6 +334,11 @@
       "asSuggestions": "Page edits as suggestions",
       "asSuggestionsHint": "What the chat writes in a page shows as suggested edits for you to accept or reject"
     },
+    "model": {
+      "label": "Model",
+      "hint": "The model that answers in this conversation",
+      "images": "Reads images"
+    },
     "actions": {
       "edit": "Edit",
       "cancel": "Cancel",
@@ -336,17 +347,33 @@
     "actionsFor": "Actions for {name}",
     "greeting": "What would you like to know?",
     "files": {
-      "attach": "Attach a CSV file",
-      "attachHint": "Attach a CSV file (up to 1,000 rows and 1 MB) to ask about it or make a database of it",
-      "drop": "Drop the CSV file to attach it",
+      "attach": "Attach files",
+      "attachHint": "Attach images, PDF, Word, Excel, CSV or text files to ask about them",
+      "drop": "Drop the files to attach them",
       "remove": "Remove {name}",
       "size": "{rows, plural, one {# row} other {# rows}} × {columns, plural, one {# column} other {# columns}}",
-      "notCsv": "Only CSV files can be attached. Save a spreadsheet as CSV first.",
-      "tooLarge": "That file is larger than {size}. Attach a smaller CSV file.",
+      "uploading": "Uploading…",
+      "notSupported": "The chat reads images, PDF, Word and Excel documents, CSV, Markdown and text files.",
+      "tooLarge": "That file is larger than {size}. Attach a smaller file.",
       "tooManyRows": "That file has more than {rows} rows. Attach a shorter CSV file, or import it as a database.",
       "tooManyColumns": "That file has more than {columns} columns.",
       "empty": "That file is empty.",
-      "tooMany": "A question can have at most {count} files."
+      "tooMany": "A question can have at most {count} files.",
+      "noImages": "The model picked doesn't take images. Pick another model, or take the image off.",
+      "quota": "The file wasn't attached: this workspace is out of file storage.",
+      "failed": "Couldn't attach {name}."
+    },
+    "research": {
+      "sourcesHeading": "Sources",
+      "untitled": "Research report",
+      "toggle": "Research",
+      "toggleHint": "Research mode: plans sub-questions, searches and reads the workspace (and the web, where on), then writes a long report with sources. Changes nothing.",
+      "placeholder": "What should it research?",
+      "asked": "Research",
+      "readOnly": "Research only reads: it changes nothing",
+      "save": "Save as page",
+      "openPage": "Open the page",
+      "saveFailed": "The report couldn't be saved as a page."
     }
   },
   "memory": {

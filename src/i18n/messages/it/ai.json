@@ -137,6 +137,8 @@
     "ownersOnly": "Solo i proprietari possono modificare questa impostazione.",
     "memory": "Memoria IA",
     "memoryHint": "Se attiva, la chat IA conserva brevi note sulle persone che le parlano di sé e le invia insieme alle loro domande successive. Ognuno può disattivarla per sé. Se disattivata, la vista Memoria è nascosta e nessuna domanda include note; le note vengono conservate, non eliminate. Anche le esecuzioni degli agenti non includono note e non ne propongono.",
+    "webSearch": "Ricerca web nella chat IA",
+    "webSearchHint": "Se attiva, la chat IA può cercare sul web con il servizio di ricerca del server e leggere pagine web, solo in lettura: dopo aver letto dal web, ogni modifica che vuole fare viene chiesta. Anche la modalità ricerca cerca sul web. Le domande e il testo con cui cerca escono dal workspace verso il servizio di ricerca.",
     "provider": "Provider",
     "providerValue": "{provider}, modello {model}",
     "notConfigured": "Su questo server non è configurato alcun provider IA né modello di embedding, quindi le funzionalità IA sono disattivate. Un amministratore può configurarli con le variabili d’ambiente AI_PROVIDER e AI_MODEL (e AI_EMBEDDINGS_MODEL) (vedi il README).",
@@ -209,6 +211,10 @@
       "query": "Interrogato",
       "rows": "{count, plural, =0 {nessuna riga corrispondente} one {# riga} other {# righe}}",
       "queryGone": "Interrogato un database che non puoi più aprire",
+      "plan": "Ricerca pianificata:",
+      "webSearched": "Cercato sul web «{query}» · {count, plural, =0 {nessun risultato} one {# risultato} other {# risultati}}",
+      "webRead": "Letto",
+      "webReadFailed": "Impossibile leggere",
       "write": {
         "done": {
           "createRow": "Riga aggiunta:",
@@ -328,6 +334,11 @@
       "asSuggestions": "Modifiche alle pagine come suggerimenti",
       "asSuggestionsHint": "Ciò che la chat scrive in una pagina appare come modifiche suggerite da accettare o rifiutare"
     },
+    "model": {
+      "label": "Modello",
+      "hint": "Il modello che risponde in questa conversazione",
+      "images": "Legge immagini"
+    },
     "actions": {
       "edit": "Modifica",
       "cancel": "Annulla",
@@ -336,17 +347,33 @@
     "actionsFor": "Azioni per {name}",
     "greeting": "Cosa vuoi sapere?",
     "files": {
-      "attach": "Allega un file CSV",
-      "attachHint": "Allega un file CSV (fino a 1.000 righe e 1 MB) per fare domande o crearne un database",
-      "drop": "Rilascia il file CSV per allegarlo",
+      "attach": "Allega file",
+      "attachHint": "Allega immagini o file PDF, Word, Excel, CSV o di testo per fare domande su di essi",
+      "drop": "Rilascia i file per allegarli",
       "remove": "Rimuovi {name}",
       "size": "{rows, plural, one {# riga} other {# righe}} × {columns, plural, one {# colonna} other {# colonne}}",
-      "notCsv": "Si possono allegare solo file CSV. Salva prima il foglio di calcolo come CSV.",
-      "tooLarge": "Il file supera {size}. Allega un CSV più piccolo.",
+      "uploading": "Caricamento…",
+      "notSupported": "La chat legge immagini, documenti PDF, Word ed Excel e file CSV, Markdown e di testo.",
+      "tooLarge": "Il file supera {size}. Allega un file più piccolo.",
       "tooManyRows": "Il file ha più di {rows} righe. Allega un CSV più corto o importalo come database.",
       "tooManyColumns": "Il file ha più di {columns} colonne.",
       "empty": "Il file è vuoto.",
-      "tooMany": "Una domanda può avere al massimo {count} file."
+      "tooMany": "Una domanda può avere al massimo {count} file.",
+      "noImages": "Il modello scelto non accetta immagini. Scegli un altro modello o togli l’immagine.",
+      "quota": "Il file non è stato allegato: lo spazio di archiviazione di questo workspace è esaurito.",
+      "failed": "Impossibile allegare {name}."
+    },
+    "research": {
+      "sourcesHeading": "Fonti",
+      "untitled": "Rapporto di ricerca",
+      "toggle": "Ricerca",
+      "toggleHint": "Modalità ricerca: pianifica sotto-domande, cerca e legge nel workspace (e sul web, dove attivo), poi scrive un rapporto esteso con le fonti. Non modifica nulla.",
+      "placeholder": "Cosa vuoi ricercare?",
+      "asked": "Ricerca",
+      "readOnly": "La ricerca legge soltanto: non modifica nulla",
+      "save": "Salva come pagina",
+      "openPage": "Apri la pagina",
+      "saveFailed": "Impossibile salvare il rapporto come pagina."
     }
   },
   "memory": {

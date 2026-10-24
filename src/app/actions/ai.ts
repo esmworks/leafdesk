@@ -1,12 +1,13 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import type { AiAutofillConfig } from "@/lib/ai";
 import { MAX_CONVERSATIONS, MAX_MEMORIES, MAX_MEMORY_CHARS } from "@/lib/ai-chat";
 import { isDatabaseErrorCode, PropertyValueError } from "@/lib/properties";
 import { AccessError } from "@/server/access";
 import { isAiError } from "@/server/ai";
-import { deleteConversations, getConversation, listConversations } from "@/server/ai-chat";
+import { deleteConversations, getConversation, listConversations, saveReportAsPage } from "@/server/ai-chat";
 import { addMemory, deleteMemories, listMemories, MemoryError, memoryUse, setMemoryUse, updateMemory } from "@/server/ai-memory";
 import { decideChange, type ChatDecision } from "@/server/ai-chat-approvals";
 import { AutofillError, requestAutofill, setAutofill } from "@/server/ai-properties";
@@ -121,6 +122,17 @@ export async function deleteConversationAction(workspaceId: string, conversation
 }
 
 /** What the AI chat remembers about the person in a workspace, oldest first. */
+/** Saves a research report of the person's conversation (its message at `index`) as a private page. */
+export async function saveReportAsPageAction(workspaceId: string, conversationId: string, index: number) {
+  return run(async (userId) => {
+    if (typeof workspaceId !== "string" || typeof conversationId !== "string" || !Number.isInteger(index) || index < 0) throw new AccessError();
+    const t = await getTranslations("ai.chat.research");
+    const saved = await saveReportAsPage(userId, workspaceId, conversationId, index, { sources: t("sourcesHeading"), untitled: t("untitled") });
+    revalidatePath(`/w/${workspaceId}`, "layout");
+    return saved;
+  });
+}
+
 export async function listMemoriesAction(workspaceId: string) {
   return run((userId) => listMemories(userId, String(workspaceId)));
 }

@@ -1605,6 +1605,7 @@
       "loginMethod": "How members sign in",
       "ai": "AI features",
       "aiMemory": "AI memory",
+      "aiWebSearch": "AI chat web search",
       "aiMonthlyLimitUsd": "Monthly AI cost limit",
       "trashRetentionDays": "Delete pages in the trash after",
       "export": "Allow export",

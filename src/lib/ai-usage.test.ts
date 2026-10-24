@@ -40,6 +40,7 @@ describe("a monthly cost limit", () => {
 describe("the usage view", () => {
   it("groups features", () => {
     expect(aiUsageGroup("chat")).toBe("chat");
+    expect(aiUsageGroup("chat.research")).toBe("chat");
     expect(aiUsageGroup("editor.improve")).toBe("writing");
     expect(aiUsageGroup("property.summary")).toBe("properties");
     expect(aiUsageGroup("agent")).toBe("agents");
