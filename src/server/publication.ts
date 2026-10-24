@@ -348,7 +348,7 @@ export type PublishedChart = {
  * drawing its values takes, and nothing of how it is worked out or set up.
  */
 export type PublishedProperty = Pick<DatabaseProperty, "id" | "name" | "type"> & {
-  options: Pick<PropertyOptions, "options" | "number" | "numberDisplay" | "pageVisibility"> & {
+  options: Pick<PropertyOptions, "options" | "number" | "numberDisplay" | "pageVisibility" | "pinned"> & {
     formula?: Pick<FormulaConfig, "type">;
     date?: Pick<DateOptions, "display">;
   };
@@ -884,6 +884,7 @@ export function publishedProperty(prop: DatabaseProperty): PublishedProperty {
   if (prop.type === "date" && stored.date?.display) options.date = { display: stored.date.display };
   if (prop.type === "formula") options.formula = stored.formula?.type ? { type: stored.formula.type } : {};
   if (stored.pageVisibility) options.pageVisibility = stored.pageVisibility;
+  if (stored.pinned) options.pinned = true;
   return { id: prop.id, name: prop.name, type: prop.type, options };
 }
 

@@ -513,6 +513,9 @@
       "hide": "Oculta"
     },
     "pageVisibilityHint": "Para todos. As propriedades ocultas ficam a um clique de distância em “mais propriedades” em cada página de linha.",
+    "pinToTitle": "Fixar sob o título",
+    "unpinFromTitle": "Desafixar do título",
+    "pinFull": "É possível fixar até {max} propriedades.",
     "dateDisplay": "Mostrar como",
     "displayDate": "Data",
     "displayRelative": "Relativa",
@@ -536,7 +539,10 @@
     "addProperty": "Adicionar propriedade",
     "moreProperties": "{count, plural, one {Mais # propriedade} other {Mais # propriedades}}",
     "fewerProperties": "{count, plural, one {Ocultar # propriedade} other {Ocultar # propriedades}}",
-    "propertyMenu": "Opções de {name}"
+    "propertyMenu": "Opções de {name}",
+    "pinned": "Propriedades fixadas",
+    "showBeside": "Mostrar ao lado da página",
+    "showAbove": "Mostrar acima da página"
   },
   "rowActivity": {
     "title": "Atividade",
@@ -902,6 +908,7 @@
     "invalidNumberFormat": "Não é possível salvar este formato de número.",
     "invalidDateOptions": "Não é possível salvar estas configurações de data.",
     "invalidPageVisibility": "Não é possível salvar esta configuração da página da linha.",
+    "tooManyPinned": "As páginas de linha fixam até {max} propriedades.",
     "calendarFeedNotCalendar": "Só é possível assinar visualizações de calendário.",
     "calendarFeedExportOff": "Os proprietários do espaço de trabalho desativaram a exportação, então as assinaturas de calendário também estão desativadas.",
     "webhookExportOff": "Os proprietários do espaço de trabalho desativaram a exportação, então os webhooks também estão desativados.",

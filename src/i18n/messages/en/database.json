@@ -513,6 +513,9 @@
       "hide": "Hidden"
     },
     "pageVisibilityHint": "For everyone. Hidden properties stay a click away under “more properties” on each row page.",
+    "pinToTitle": "Pin under the title",
+    "unpinFromTitle": "Unpin from the title",
+    "pinFull": "Up to {max} properties can be pinned.",
     "dateDisplay": "Show as",
     "displayDate": "Date",
     "displayRelative": "Relative",
@@ -536,7 +539,10 @@
     "addProperty": "Add property",
     "moreProperties": "{count, plural, one {# more property} other {# more properties}}",
     "fewerProperties": "{count, plural, one {Hide # property} other {Hide # properties}}",
-    "propertyMenu": "Options for {name}"
+    "propertyMenu": "Options for {name}",
+    "pinned": "Pinned properties",
+    "showBeside": "Show beside the page",
+    "showAbove": "Show above the page"
   },
   "rowActivity": {
     "title": "Activity",
@@ -902,6 +908,7 @@
     "invalidNumberFormat": "This number format can’t be saved.",
     "invalidDateOptions": "These date settings can’t be saved.",
     "invalidPageVisibility": "This row page setting can’t be saved.",
+    "tooManyPinned": "Row pages pin up to {max} properties.",
     "calendarFeedNotCalendar": "Only calendar views can be subscribed to.",
     "calendarFeedExportOff": "The workspace’s owners turned export off, so calendar subscriptions are off too.",
     "webhookExportOff": "The workspace’s owners turned export off, so webhooks are off too.",

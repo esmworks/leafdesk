@@ -513,6 +513,9 @@
       "hide": "Masquée"
     },
     "pageVisibilityHint": "Pour tout le monde. Les propriétés masquées restent à un clic sous « autres propriétés » sur chaque page de ligne.",
+    "pinToTitle": "Épingler sous le titre",
+    "unpinFromTitle": "Détacher du titre",
+    "pinFull": "Vous pouvez épingler jusqu'à {max} propriétés.",
     "dateDisplay": "Afficher comme",
     "displayDate": "Date",
     "displayRelative": "Relative",
@@ -536,7 +539,10 @@
     "addProperty": "Ajouter une propriété",
     "moreProperties": "{count, plural, one {# autre propriété} other {# autres propriétés}}",
     "fewerProperties": "{count, plural, one {Masquer # propriété} other {Masquer # propriétés}}",
-    "propertyMenu": "Options de {name}"
+    "propertyMenu": "Options de {name}",
+    "pinned": "Propriétés épinglées",
+    "showBeside": "Afficher à côté de la page",
+    "showAbove": "Afficher au-dessus de la page"
   },
   "rowActivity": {
     "title": "Activité",
@@ -902,6 +908,7 @@
     "invalidNumberFormat": "Ce format de nombre ne peut pas être enregistré.",
     "invalidDateOptions": "Ces réglages de date ne peuvent pas être enregistrés.",
     "invalidPageVisibility": "Ce réglage des pages de ligne ne peut pas être enregistré.",
+    "tooManyPinned": "Les pages de ligne épinglent jusqu'à {max} propriétés.",
     "calendarFeedNotCalendar": "Seules les vues calendrier peuvent faire l’objet d’un abonnement.",
     "calendarFeedExportOff": "Les propriétaires de l’espace de travail ont désactivé l’export, les abonnements de calendrier le sont donc aussi.",
     "webhookExportOff": "Les propriétaires de l’espace de travail ont désactivé l’export, les webhooks le sont donc aussi.",

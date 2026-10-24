@@ -27,6 +27,7 @@ import { BackgroundPicker } from "./page-background";
 import { CrumbSiblings } from "./crumb-siblings";
 import { backdropClass } from "./page-backdrop";
 import { Backlinks } from "./mentions";
+import { RowLayoutContext, type RowLayoutHost } from "./row-layout-context";
 import { takeNewPage } from "./new-page-focus";
 import { hasLevel, PageHeaderActions } from "./page-header-actions";
 import { setDocTitle, useDocTitle, usePageDoc, usePageStyle, type ConnectionState } from "./use-page-doc";
@@ -118,6 +119,11 @@ export function PageView({
   const [markdownOpen, setMarkdownOpen] = useState(false);
   const [presenting, setPresenting] = useState(false);
   const [commentsOpen, setCommentsOpen] = useState(false);
+  // A row whose database shows its properties beside the body (lib/row-layout): the column they go in.
+  const [propertiesBeside, setPropertiesBeside] = useState(false);
+  const [asideEl, setAsideEl] = useState<HTMLDivElement | null>(null);
+  const beside = propertiesBeside && showBody && !wide;
+  const rowLayout = useMemo<RowLayoutHost>(() => ({ setBeside: setPropertiesBeside, aside: beside ? asideEl : null }), [beside, asideEl]);
   // The graph and the comments share the room beside the page: opening one closes the other.
   const [graphOpen, setGraphOpen] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
@@ -605,33 +611,42 @@ export function PageView({
 
           {children && (
             <DocumentViewContext.Provider value={setViewName}>
-              <div className={cn(wide ? "mt-5" : "mt-4 px-4 md:px-[54px]")}>{children}</div>
+              <RowLayoutContext.Provider value={rowLayout}>
+                <div className={cn(wide ? "mt-5" : "mt-4 px-4 md:px-[54px]")}>{children}</div>
+              </RowLayoutContext.Provider>
             </DocumentViewContext.Provider>
           )}
 
-          {showBody && (
-            <div className="mt-4 min-h-[40vh]">
-              {pageDoc && synced ? (
-                <CollabEditor
-                  pageDoc={pageDoc}
-                  user={user}
-                  editable={editable}
-                  level={page.archived || info.level === "none" ? "view" : info.level}
-                  workspaceId={workspaceId}
-                  pageId={page.id}
-                  crumbs={trail}
-                  commentsOpen={commentsOpen && !offline}
-                  onCloseComments={() => setCommentsOpen(false)}
-                  offline={offline}
-                  ai={info.ai && editable && !offline && !page.archived}
-                  voice={editable && !offline && !page.archived ? info.voice : null}
-                />
-              ) : (
-                // Without a connection the error above explains why nothing loads.
-                !error && <div className="px-4 text-sm text-fg-faint md:px-[54px]">{tc("loading")}</div>
+          {/* Beside the body on a page wide enough for both (a container query: the row panel and
+              phones are not), else above it, where they'd be without the column. */}
+          <div className={cn(beside && "@container")}>
+            <div className={cn(beside && "@3xl:grid @3xl:grid-cols-[minmax(0,1fr)_17rem] @3xl:items-start")}>
+              {beside && <div ref={setAsideEl} className="min-w-0 px-4 md:px-[54px] @3xl:col-start-2 @3xl:row-start-1 @3xl:ps-0 @3xl:pt-4" />}
+              {showBody && (
+                <div className={cn("mt-4 min-h-[40vh]", beside && "min-w-0 @3xl:col-start-1 @3xl:row-start-1")}>
+                  {pageDoc && synced ? (
+                    <CollabEditor
+                      pageDoc={pageDoc}
+                      user={user}
+                      editable={editable}
+                      level={page.archived || info.level === "none" ? "view" : info.level}
+                      workspaceId={workspaceId}
+                      pageId={page.id}
+                      crumbs={trail}
+                      commentsOpen={commentsOpen && !offline}
+                      onCloseComments={() => setCommentsOpen(false)}
+                      offline={offline}
+                      ai={info.ai && editable && !offline && !page.archived}
+                      voice={editable && !offline && !page.archived ? info.voice : null}
+                    />
+                  ) : (
+                    // Without a connection the error above explains why nothing loads.
+                    !error && <div className="px-4 text-sm text-fg-faint md:px-[54px]">{tc("loading")}</div>
+                  )}
+                </div>
               )}
             </div>
-          )}
+          </div>
           {/* Databases too: a page can mention one. */}
           <Backlinks workspaceId={workspaceId} pageId={page.id} title={page.title} canLink={!offline && !page.archived} />
         </div>

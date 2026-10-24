@@ -513,6 +513,9 @@
       "hide": "Ukryta"
     },
     "pageVisibilityHint": "Dla wszystkich. Ukryte właściwości są o jedno kliknięcie dalej, w sekcji „więcej właściwości” na stronie każdego wiersza.",
+    "pinToTitle": "Przypnij pod tytułem",
+    "unpinFromTitle": "Odepnij spod tytułu",
+    "pinFull": "Można przypiąć do {max} właściwości.",
     "dateDisplay": "Wyświetlaj jako",
     "displayDate": "Data",
     "displayRelative": "Względnie",
@@ -536,7 +539,10 @@
     "addProperty": "Dodaj właściwość",
     "moreProperties": "{count, plural, one {Jeszcze # właściwość} few {Jeszcze # właściwości} many {Jeszcze # właściwości} other {Jeszcze # właściwości}}",
     "fewerProperties": "{count, plural, one {Ukryj # właściwość} few {Ukryj # właściwości} many {Ukryj # właściwości} other {Ukryj # właściwości}}",
-    "propertyMenu": "Opcje: {name}"
+    "propertyMenu": "Opcje: {name}",
+    "pinned": "Przypięte właściwości",
+    "showBeside": "Pokaż obok strony",
+    "showAbove": "Pokaż nad stroną"
   },
   "rowActivity": {
     "title": "Aktywność",
@@ -902,6 +908,7 @@
     "invalidNumberFormat": "Nie można zapisać tego formatu liczby.",
     "invalidDateOptions": "Nie można zapisać tych ustawień daty.",
     "invalidPageVisibility": "Nie można zapisać tego ustawienia strony wiersza.",
+    "tooManyPinned": "Strony wierszy przypinają do {max} właściwości.",
     "calendarFeedNotCalendar": "Subskrybować można tylko widoki kalendarza.",
     "calendarFeedExportOff": "Właściciele obszaru roboczego wyłączyli eksport, więc subskrypcje kalendarza również są wyłączone.",
     "webhookExportOff": "Właściciele obszaru roboczego wyłączyli eksport, więc webhooki również są wyłączone.",

@@ -513,6 +513,9 @@
       "hide": "隐藏"
     },
     "pageVisibilityHint": "对所有人生效。隐藏的属性在每个行页面的“更多属性”下，点击即可查看。",
+    "pinToTitle": "固定在标题下方",
+    "unpinFromTitle": "取消固定在标题下方",
+    "pinFull": "最多可固定 {max} 个属性。",
     "dateDisplay": "显示为",
     "displayDate": "日期",
     "displayRelative": "相对时间",
@@ -536,7 +539,10 @@
     "addProperty": "添加属性",
     "moreProperties": "另外 {count} 个属性",
     "fewerProperties": "隐藏 {count} 个属性",
-    "propertyMenu": "{name} 的选项"
+    "propertyMenu": "{name} 的选项",
+    "pinned": "已固定的属性",
+    "showBeside": "显示在页面旁边",
+    "showAbove": "显示在页面上方"
   },
   "rowActivity": {
     "title": "动态",
@@ -902,6 +908,7 @@
     "invalidNumberFormat": "无法保存此数字格式。",
     "invalidDateOptions": "无法保存这些日期设置。",
     "invalidPageVisibility": "无法保存此行页面设置。",
+    "tooManyPinned": "行页面最多固定 {max} 个属性。",
     "calendarFeedNotCalendar": "只能订阅日历视图。",
     "calendarFeedExportOff": "工作区所有者已关闭导出功能，因此日历订阅也已关闭。",
     "webhookExportOff": "工作区所有者已关闭导出功能，因此 Webhook 也已关闭。",

@@ -513,6 +513,9 @@
       "hide": "숨김"
     },
     "pageVisibilityHint": "모든 사람에게 적용됩니다. 숨긴 속성은 각 행 페이지의 “속성 더 보기”에서 클릭 한 번으로 볼 수 있습니다.",
+    "pinToTitle": "제목 아래에 고정",
+    "unpinFromTitle": "제목 아래 고정 해제",
+    "pinFull": "속성은 최대 {max}개까지 고정할 수 있습니다.",
     "dateDisplay": "표시 형식",
     "displayDate": "날짜",
     "displayRelative": "상대적",
@@ -536,7 +539,10 @@
     "addProperty": "속성 추가",
     "moreProperties": "속성 {count}개 더 보기",
     "fewerProperties": "속성 {count}개 숨기기",
-    "propertyMenu": "{name} 옵션"
+    "propertyMenu": "{name} 옵션",
+    "pinned": "고정한 속성",
+    "showBeside": "페이지 옆에 표시",
+    "showAbove": "페이지 위에 표시"
   },
   "rowActivity": {
     "title": "활동",
@@ -902,6 +908,7 @@
     "invalidNumberFormat": "이 숫자 형식을 저장할 수 없습니다.",
     "invalidDateOptions": "이 날짜 설정을 저장할 수 없습니다.",
     "invalidPageVisibility": "이 행 페이지 설정을 저장할 수 없습니다.",
+    "tooManyPinned": "행 페이지에는 속성을 최대 {max}개까지 고정할 수 있습니다.",
     "calendarFeedNotCalendar": "캘린더 보기만 구독할 수 있습니다.",
     "calendarFeedExportOff": "워크스페이스 소유자가 내보내기를 꺼서 캘린더 구독도 꺼져 있습니다.",
     "webhookExportOff": "워크스페이스 소유자가 내보내기를 꺼서 웹훅도 꺼져 있습니다.",

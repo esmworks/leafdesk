@@ -513,6 +513,9 @@
       "hide": "Oculta"
     },
     "pageVisibilityHint": "Para todos. Las propiedades ocultas quedan a un clic en “más propiedades” de cada página de fila.",
+    "pinToTitle": "Fijar bajo el título",
+    "unpinFromTitle": "Dejar de fijar bajo el título",
+    "pinFull": "Se pueden fijar hasta {max} propiedades.",
     "dateDisplay": "Mostrar como",
     "displayDate": "Fecha",
     "displayRelative": "Relativa",
@@ -536,7 +539,10 @@
     "addProperty": "Añadir propiedad",
     "moreProperties": "{count, plural, one {# propiedad más} other {# propiedades más}}",
     "fewerProperties": "{count, plural, one {Ocultar # propiedad} other {Ocultar # propiedades}}",
-    "propertyMenu": "Opciones de {name}"
+    "propertyMenu": "Opciones de {name}",
+    "pinned": "Propiedades fijadas",
+    "showBeside": "Mostrar junto a la página",
+    "showAbove": "Mostrar encima de la página"
   },
   "rowActivity": {
     "title": "Actividad",
@@ -902,6 +908,7 @@
     "invalidNumberFormat": "Este formato de número no se puede guardar.",
     "invalidDateOptions": "Esta configuración de fecha no se puede guardar.",
     "invalidPageVisibility": "Este ajuste de las páginas de fila no se puede guardar.",
+    "tooManyPinned": "Las páginas de fila fijan hasta {max} propiedades.",
     "calendarFeedNotCalendar": "Solo se puede suscribir a vistas de calendario.",
     "calendarFeedExportOff": "Los propietarios del espacio de trabajo desactivaron la exportación, así que las suscripciones de calendario también están desactivadas.",
     "webhookExportOff": "Los propietarios del espacio de trabajo desactivaron la exportación, así que los webhooks también están desactivados.",

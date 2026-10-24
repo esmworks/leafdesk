@@ -176,7 +176,9 @@ describe("dashboards in Markdown", () => {
 
   it("brings tabs back as tabs", () => {
     const widgets = serializeDashboard([widget("a")]);
-    const existing = [{ id: "d1", type: "dashboard", props: { widgets, layout: "tabs" }, children: [] }];
+    const existing: { id: string; type: string; props: Record<string, unknown>; children: [] }[] = [
+      { id: "d1", type: "dashboard", props: { widgets, layout: "tabs" }, children: [] },
+    ];
     expect(restoreDashboards([{ id: "d1", type: "dashboard", props: {}, children: [] }], existing)).toEqual(existing);
   });
 });

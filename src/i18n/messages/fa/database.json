@@ -513,6 +513,9 @@
       "hide": "پنهان"
     },
     "pageVisibilityHint": "برای همه. ویژگی‌های پنهان در هر صفحه ردیف با یک کلیک زیر «ویژگی‌های بیشتر» در دسترس‌اند.",
+    "pinToTitle": "سنجاق زیر عنوان",
+    "unpinFromTitle": "برداشتن سنجاق از زیر عنوان",
+    "pinFull": "حداکثر {max} ویژگی را می‌توان سنجاق کرد.",
     "dateDisplay": "نمایش به‌صورت",
     "displayDate": "تاریخ",
     "displayRelative": "نسبی",
@@ -536,7 +539,10 @@
     "addProperty": "افزودن ویژگی",
     "moreProperties": "{count, plural, one {# ویژگی دیگر} other {# ویژگی دیگر}}",
     "fewerProperties": "{count, plural, one {پنهان کردن # ویژگی} other {پنهان کردن # ویژگی}}",
-    "propertyMenu": "گزینه‌های {name}"
+    "propertyMenu": "گزینه‌های {name}",
+    "pinned": "ویژگی‌های سنجاق‌شده",
+    "showBeside": "نمایش کنار صفحه",
+    "showAbove": "نمایش بالای صفحه"
   },
   "rowActivity": {
     "title": "فعالیت",
@@ -902,6 +908,7 @@
     "invalidNumberFormat": "این قالب عدد ذخیره نمی‌شود.",
     "invalidDateOptions": "این تنظیمات تاریخ ذخیره نمی‌شوند.",
     "invalidPageVisibility": "این تنظیم صفحه ردیف ذخیره نمی‌شود.",
+    "tooManyPinned": "صفحه‌های ردیف حداکثر {max} ویژگی را سنجاق می‌کنند.",
     "calendarFeedNotCalendar": "فقط می‌توان در نماهای تقویم مشترک شد.",
     "calendarFeedExportOff": "مالکان فضای کاری برون‌بری را خاموش کرده‌اند، بنابراین اشتراک تقویم هم خاموش است.",
     "webhookExportOff": "مالکان فضای کاری برون‌بری را خاموش کرده‌اند، بنابراین وب‌هوک‌ها هم خاموش هستند.",

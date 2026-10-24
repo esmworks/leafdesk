@@ -97,6 +97,7 @@ export const DATABASE_ERROR_CODES = [
   "invalidNumberFormat",
   "invalidDateOptions",
   "invalidPageVisibility",
+  "tooManyPinned",
   "calendarFeedNotCalendar",
   "calendarFeedExportOff",
   "webhookExportOff",

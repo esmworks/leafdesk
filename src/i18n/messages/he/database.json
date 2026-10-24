@@ -513,6 +513,9 @@
       "hide": "מוסתר"
     },
     "pageVisibilityHint": "לכולם. מאפיינים מוסתרים זמינים בלחיצה תחת “מאפיינים נוספים” בכל דף שורה.",
+    "pinToTitle": "הצמדה מתחת לכותרת",
+    "unpinFromTitle": "ביטול ההצמדה מתחת לכותרת",
+    "pinFull": "אפשר להצמיד עד {max} מאפיינים.",
     "dateDisplay": "הצגה בתור",
     "displayDate": "תאריך",
     "displayRelative": "יחסי",
@@ -536,7 +539,10 @@
     "addProperty": "הוספת מאפיין",
     "moreProperties": "{count, plural, one {מאפיין נוסף אחד} two {שני מאפיינים נוספים} other {# מאפיינים נוספים}}",
     "fewerProperties": "{count, plural, one {הסתרת מאפיין אחד} two {הסתרת שני מאפיינים} other {הסתרת # מאפיינים}}",
-    "propertyMenu": "אפשרויות עבור {name}"
+    "propertyMenu": "אפשרויות עבור {name}",
+    "pinned": "מאפיינים מוצמדים",
+    "showBeside": "הצגה לצד הדף",
+    "showAbove": "הצגה מעל הדף"
   },
   "rowActivity": {
     "title": "פעילות",
@@ -902,6 +908,7 @@
     "invalidNumberFormat": "אי אפשר לשמור את תבנית המספר הזו.",
     "invalidDateOptions": "אי אפשר לשמור את הגדרות התאריך האלה.",
     "invalidPageVisibility": "אי אפשר לשמור את ההגדרה הזו של דף השורה.",
+    "tooManyPinned": "דפי שורות מצמידים עד {max} מאפיינים.",
     "calendarFeedNotCalendar": "אפשר להירשם רק לתצוגות לוח שנה.",
     "calendarFeedExportOff": "הבעלים של סביבת העבודה השביתו את הייצוא, ולכן גם ההרשמה ללוחות שנה מושבתת.",
     "webhookExportOff": "הבעלים של סביבת העבודה השביתו את הייצוא, ולכן גם Webhooks מושבתים.",
