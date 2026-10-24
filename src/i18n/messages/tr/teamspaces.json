@@ -30,7 +30,9 @@
     "accessDenied": "Bu ekip alanında bunu yapamazsınız.",
     "invalidMemberLevel": "Üyelerin ekip alanı sayfalarında ne alacağını seçin.",
     "invalidIcon": "Simge bir emoji ya da yerleşik bir simge olmalı.",
-    "notConvertible": "Yalnızca bir sayfa ekip alanına dönüşebilir: veritabanı, satır ya da şablon dönüşemez."
+    "notConvertible": "Yalnızca bir sayfa ekip alanına dönüşebilir: veritabanı, satır ya da şablon dönüşemez.",
+    "invalidEmail": "Geçerli bir e-posta adresi girin.",
+    "cantInvite": "Bu çalışma alanına kişi davet edemezsiniz. Bir sahibe sorun."
   },
   "dialog": {
     "createTitle": "Yeni ekip alanı",
@@ -73,7 +75,16 @@
     "chooseGroup": "Bir grup seçin",
     "addGroupButton": "Grubu ekle",
     "removeGroup": "{name} grubunu çıkar",
-    "groupMemberCount": "{count, plural, =0 {Üye yok} one {# üye} other {# üye}}"
+    "groupMemberCount": "{count, plural, =0 {Üye yok} one {# üye} other {# üye}}",
+    "searchOrInvite": "Kişi arayın ya da e-posta girin",
+    "inviteEmail": "{email} adresini davet et",
+    "inviteHint": "Kişi çalışma alanına davet edilir ve daveti kabul edince bu ekip alanına katılır.",
+    "inviteButton": "Davet et",
+    "invitedAdded": "{email} artık bu ekip alanında.",
+    "invitedRequested": "{email} adresinin davet edilmesini bir sahibin onaylaması gerekiyor. Onaylanınca kişi daveti kabul ettiğinde bu ekip alanına katılır.",
+    "invitedSent": "Davet {email} adresine gönderildi. Kişi kabul edince bu ekip alanına katılır.",
+    "invitedLink": "{email} için davet oluşturuldu ama e-posta gönderilmedi. Bağlantıyı kişiyle paylaşın.",
+    "copyInviteLink": "Bağlantıyı kopyala"
   },
   "memberLevel": {
     "full": "Tam erişim",

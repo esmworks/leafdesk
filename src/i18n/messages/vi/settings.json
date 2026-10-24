@@ -58,7 +58,7 @@
       "workspaceName": "tên đổi tên biểu tượng",
       "ai": "trí tuệ nhân tạo trò chuyện mô hình nhà cung cấp bộ nhớ",
       "workspaceMail": "email hàng thư gửi",
-      "export": "sao lưu tải xuống zip markdown xuất",
+      "export": "sao lưu tải xuống zip markdown xuất pdf",
       "members": "người mời người dùng vai trò xóa thành viên",
       "agents": "ai trợ lý tự động hóa bot tác tử",
       "snippets": "văn bản viết tắt đoạn trích",
@@ -108,7 +108,11 @@
     "description": "Tải về mọi trang bạn thấy được dưới dạng tệp ZIP: trang ở dạng Markdown, cơ sở dữ liệu ở dạng CSV, cùng các tệp chúng hiển thị. Các trang trong thùng rác bị bỏ qua; các mẫu được giữ trong thư mục Mẫu.",
     "button": "Xuất",
     "preparing": "Đang chuẩn bị…",
-    "disabled": "Tính năng xuất đã bị tắt cho không gian làm việc này trong Cài đặt → Bảo mật."
+    "disabled": "Tính năng xuất đã bị tắt cho không gian làm việc này trong Cài đặt → Bảo mật.",
+    "format": "Định dạng xuất",
+    "formatMarkdown": "Markdown và CSV",
+    "formatPdf": "PDF",
+    "descriptionPdf": "Tải về mọi trang bạn thấy được dưới dạng tệp ZIP chứa các PDF, trong các thư mục theo cây trang: cơ sở dữ liệu thành bảng các hàng của nó, và các hàng có nội dung riêng thành PDF riêng. Trang trong thùng rác và mẫu không được đưa vào; tối đa {limit, number} PDF."
   },
   "members": {
     "heading": "Thành viên",
@@ -209,7 +213,12 @@
       "someone": "Một thành viên",
       "approve": "Chấp thuận",
       "decline": "Từ chối"
-    }
+    },
+    "removeBodyChoose": "{name} mất quyền truy cập không gian làm việc này ngay lập tức, kể cả trong các trang đang mở và ứng dụng đã kết nối.",
+    "heirLabel": "Chuyển các trang cho",
+    "heirHint": "Các trang chỉ {name} quản lý được, và các không gian nhóm không ai khác điều hành, sẽ chuyển cho người bạn chọn.",
+    "heirCount": "{count, plural, =0 {Hiện {name} không tự quản lý trang nào. Các không gian nhóm không ai khác điều hành sẽ chuyển cho người bạn chọn.} other {# trang chỉ {name} quản lý được sẽ chuyển cho người bạn chọn, cùng với các không gian nhóm không ai khác điều hành.}}",
+    "heirYou": "{name} (bạn)"
   },
   "guests": {
     "heading": "Khách",
@@ -1222,7 +1231,8 @@
     "invalidNetworkLabel": "Nhãn của {detail} quá dài: tối đa 100 ký tự.",
     "tooManyNetworks": "Một không gian làm việc có tối đa 100 mạng được phê duyệt.",
     "ipLocksYouOut": "Danh sách này không có địa chỉ hiện tại của bạn, {detail}, nên lưu nó sẽ khiến bạn bị khóa khỏi không gian làm việc. Hãy thêm địa chỉ của bạn, hoặc một dải bao gồm nó, trước.",
-    "ipUnknown": "Máy chủ không xác định được địa chỉ của bạn, nên không đảm bảo được danh sách này vẫn cho bạn truy cập. Hãy lưu từ một kết nối mà máy chủ thấy được địa chỉ, hoặc xóa danh sách."
+    "ipUnknown": "Máy chủ không xác định được địa chỉ của bạn, nên không đảm bảo được danh sách này vẫn cho bạn truy cập. Hãy lưu từ một kết nối mà máy chủ thấy được địa chỉ, hoặc xóa danh sách.",
+    "heirInvalid": "Hãy chọn một chủ sở hữu hoặc thành viên vẫn ở lại không gian làm việc."
   },
   "security": {
     "description": "Quyết định cách mọi người đăng nhập, ai có thể đưa người khác vào không gian làm việc này, khách được làm gì, những gì được phép đưa ra ngoài (xuất, ứng dụng đã kết nối) và ai có thể xuất bản trang lên web. Chỉ chủ sở hữu mới thay đổi được các cài đặt này.",
@@ -1269,7 +1279,9 @@
       "unpublish": "Hủy xuất bản",
       "confirm": "Hủy xuất bản trang này? Liên kết sẽ ngừng hoạt động với mọi người.",
       "indexable": "Cho phép công cụ tìm kiếm",
-      "off": "Việc xuất bản đang tắt: hiện không có trang nào trong số này trên web. Chúng sẽ trở lại khi bật lại việc xuất bản, trừ khi bạn hủy xuất bản chúng."
+      "off": "Việc xuất bản đang tắt: hiện không có trang nào trong số này trên web. Chúng sẽ trở lại khi bật lại việc xuất bản, trừ khi bạn hủy xuất bản chúng.",
+      "expiresOn": "Hết hạn {date}",
+      "expiredOn": "Đã hết hạn {date}"
     },
     "forms": {
       "title": "Biểu mẫu công khai",
@@ -1707,7 +1719,8 @@
         "removed": "Đã xóa {target} ({role})",
         "left": "Đã rời không gian làm việc",
         "role_changed": "Đã đổi vai trò của {target} từ {from} sang {to}",
-        "ownership_transferred": "Đã chỉ định {target} làm chủ sở hữu và hạ xuống thành viên"
+        "ownership_transferred": "Đã chỉ định {target} làm chủ sở hữu và hạ xuống thành viên",
+        "content_handed_over": "Đã chuyển {count, plural, other {# trang}} chỉ {target} quản lý được cho {subject}"
       },
       "invitation": {
         "sent": "Đã mời {target} với vai trò {role}",
@@ -1739,7 +1752,8 @@
         "published": "Đã xuất bản {target} lên web",
         "unpublished": "Đã hủy xuất bản {target}",
         "publication_revoked": "Đã gỡ {target} khỏi web (do {subject} xuất bản)",
-        "rows_merged": "Đã gộp {count, plural, other {# hàng}} vào {target}"
+        "rows_merged": "Đã gộp {count, plural, other {# hàng}} vào {target}",
+        "publication_expiry_changed": "{change, select, removed {Đã bỏ thời hạn của liên kết web {target}} other {Đã đặt liên kết web {target} ngừng hoạt động vào {to}}}"
       },
       "property": {
         "access_changed": "Đã thay đổi ai có thể truy cập “{property}” trong {target}",
@@ -1909,6 +1923,15 @@
       "slack_token": "một token Slack",
       "api_key": "một khóa API",
       "jwt": "một JSON Web Token"
+    },
+    "audienceLine": "Đối tượng: {audience}",
+    "audience": {
+      "web": "Đã xuất bản lên web",
+      "workspace": "Toàn bộ không gian làm việc",
+      "workspaceTeamspace": "Toàn bộ không gian làm việc (không gian nhóm {name})",
+      "teamspace": "Không gian nhóm {name}",
+      "people": "Một số người cụ thể ({count})",
+      "private": "Riêng tư"
     }
   },
   "notifications": {

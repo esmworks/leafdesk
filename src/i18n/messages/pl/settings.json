@@ -58,7 +58,7 @@
       "workspaceName": "nazwa zmień nazwę ikona",
       "ai": "sztuczna inteligencja czat model dostawca pamięć",
       "workspaceMail": "e-mail wiersze poczta wyślij",
-      "export": "kopia zapasowa pobierz zip markdown",
+      "export": "kopia zapasowa pobierz zip markdown pdf",
       "members": "osoby zaproś użytkownicy role usuń",
       "agents": "ai asystent automatyzacja bot",
       "snippets": "tekst skróty fragmenty",
@@ -108,7 +108,11 @@
     "description": "Pobierz wszystkie widoczne dla ciebie strony jako plik ZIP: strony jako Markdown, bazy danych jako CSV oraz wyświetlane w nich pliki. Strony w koszu są pomijane; szablony trafiają do folderu Templates.",
     "button": "Eksportuj",
     "preparing": "Przygotowywanie…",
-    "disabled": "Eksport jest wyłączony dla tego obszaru roboczego w sekcji Ustawienia → Bezpieczeństwo."
+    "disabled": "Eksport jest wyłączony dla tego obszaru roboczego w sekcji Ustawienia → Bezpieczeństwo.",
+    "format": "Format eksportu",
+    "formatMarkdown": "Markdown i CSV",
+    "formatPdf": "PDF",
+    "descriptionPdf": "Pobierz wszystkie widoczne dla ciebie strony jako plik ZIP z plikami PDF, w folderach odpowiadających drzewu stron: bazy danych jako tabele ich wierszy, a wiersze z własnym tekstem jako osobne pliki PDF. Strony z kosza i szablony są pomijane; najwyżej {limit, number} plików PDF."
   },
   "members": {
     "heading": "Członkowie",
@@ -209,7 +213,12 @@
       "someone": "Członek",
       "approve": "Zatwierdź",
       "decline": "Odrzuć"
-    }
+    },
+    "removeBodyChoose": "{name} natychmiast traci dostęp do tego obszaru roboczego, także na otwartych stronach i w połączonych aplikacjach.",
+    "heirLabel": "Przekaż strony osobie",
+    "heirHint": "Strony, którymi tylko {name} mógł(a) zarządzać, i przestrzenie zespołu, którymi nikt inny nie zarządza, przejdą na wybraną osobę.",
+    "heirCount": "{count, plural, =0 {{name} nie zarządza obecnie samodzielnie żadną stroną. Przestrzenie zespołu, którymi nikt inny nie zarządza, przejdą na wybraną osobę.} one {# strona, którą tylko {name} mógł(a) zarządzać, przejdzie na wybraną osobę razem z przestrzeniami zespołu, którymi nikt inny nie zarządza.} few {# strony, którymi tylko {name} mógł(a) zarządzać, przejdą na wybraną osobę razem z przestrzeniami zespołu, którymi nikt inny nie zarządza.} many {# stron, którymi tylko {name} mógł(a) zarządzać, przejdzie na wybraną osobę razem z przestrzeniami zespołu, którymi nikt inny nie zarządza.} other {# strony, którymi tylko {name} mógł(a) zarządzać, przejdzie na wybraną osobę razem z przestrzeniami zespołu, którymi nikt inny nie zarządza.}}",
+    "heirYou": "{name} (ty)"
   },
   "guests": {
     "heading": "Goście",
@@ -1222,7 +1231,8 @@
     "invalidNetworkLabel": "Etykieta {detail} jest za długa: najwyżej 100 znaków.",
     "tooManyNetworks": "Obszar roboczy może mieć najwyżej 100 zatwierdzonych sieci.",
     "ipLocksYouOut": "Na tej liście nie ma Twojego obecnego adresu, {detail}, więc po zapisaniu stracisz dostęp do obszaru roboczego. Najpierw dodaj swój adres lub obejmujący go zakres.",
-    "ipUnknown": "Serwer nie widzi Twojego adresu, więc nie może sprawdzić, czy ta lista zachowa Twój dostęp. Zapisz ją przez połączenie, którego adres serwer widzi, albo wyczyść listę."
+    "ipUnknown": "Serwer nie widzi Twojego adresu, więc nie może sprawdzić, czy ta lista zachowa Twój dostęp. Zapisz ją przez połączenie, którego adres serwer widzi, albo wyczyść listę.",
+    "heirInvalid": "Wybierz właściciela lub członka, który zostaje w obszarze roboczym."
   },
   "security": {
     "description": "Zdecyduj, jak osoby się logują, kto może wprowadzać osoby do tego obszaru roboczego, co mogą robić goście, co może go opuszczać (eksporty, połączone aplikacje) i kto może publikować strony w internecie. Tylko właściciele mogą zmieniać te ustawienia.",
@@ -1269,7 +1279,9 @@
       "unpublish": "Cofnij publikację",
       "confirm": "Cofnąć publikację tej strony? Link przestanie działać dla wszystkich.",
       "indexable": "Wyszukiwarki dozwolone",
-      "off": "Publikowanie jest wyłączone: żadna z tych stron nie jest teraz w internecie. Wrócą po ponownym włączeniu publikowania, chyba że cofniesz ich publikację."
+      "off": "Publikowanie jest wyłączone: żadna z tych stron nie jest teraz w internecie. Wrócą po ponownym włączeniu publikowania, chyba że cofniesz ich publikację.",
+      "expiresOn": "Wygasa {date}",
+      "expiredOn": "Wygasł {date}"
     },
     "forms": {
       "title": "Formularze publiczne",
@@ -1707,7 +1719,8 @@
         "removed": "Usunięto {target} ({role})",
         "left": "Opuszczenie obszaru roboczego",
         "role_changed": "Zmieniono rolę {target}: {from} → {to}",
-        "ownership_transferred": "Ustawiono {target} jako właściciela i zmieniono własną rolę na członka"
+        "ownership_transferred": "Ustawiono {target} jako właściciela i zmieniono własną rolę na członka",
+        "content_handed_over": "Przekazano {subject} {count, plural, one {# stronę} few {# strony} many {# stron} other {# strony}}, którymi tylko {target} mógł(a) zarządzać"
       },
       "invitation": {
         "sent": "Zaproszono {target} z rolą: {role}",
@@ -1739,7 +1752,8 @@
         "published": "Opublikowano {target} w internecie",
         "unpublished": "Cofnięto publikację {target}",
         "publication_revoked": "Wycofano {target} z internetu (opublikowane przez: {subject})",
-        "rows_merged": "Scalono {count, plural, one {# wiersz} few {# wiersze} many {# wierszy} other {# wiersza}} z {target}"
+        "rows_merged": "Scalono {count, plural, one {# wiersz} few {# wiersze} many {# wierszy} other {# wiersza}} z {target}",
+        "publication_expiry_changed": "{change, select, removed {Usunięto wygaśnięcie linku internetowego {target}} other {Ustawiono wygaśnięcie linku internetowego {target} na {to}}}"
       },
       "property": {
         "access_changed": "Zmieniono, kto ma dostęp do „{property}” w {target}",
@@ -1909,6 +1923,15 @@
       "slack_token": "token Slack",
       "api_key": "klucz API",
       "jwt": "token JWT (JSON Web Token)"
+    },
+    "audienceLine": "Odbiorcy: {audience}",
+    "audience": {
+      "web": "Opublikowana w internecie",
+      "workspace": "Cały obszar roboczy",
+      "workspaceTeamspace": "Cały obszar roboczy (przestrzeń zespołu {name})",
+      "teamspace": "Przestrzeń zespołu {name}",
+      "people": "Wybrane osoby ({count})",
+      "private": "Prywatna"
     }
   },
   "notifications": {

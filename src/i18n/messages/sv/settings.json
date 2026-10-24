@@ -58,7 +58,7 @@
       "workspaceName": "namn byt namn ikon",
       "ai": "artificiell intelligens chatt modell leverantör minne",
       "workspaceMail": "e-post rader post skicka",
-      "export": "säkerhetskopia ladda ned zip markdown export",
+      "export": "säkerhetskopia ladda ned zip markdown export pdf",
       "members": "personer bjud in användare roller ta bort medlemmar",
       "agents": "ai assistent automatisering bot agenter",
       "snippets": "textexpansion förkortningar textsnuttar",
@@ -108,7 +108,11 @@
     "description": "Ladda ned alla sidor du kan se som en ZIP: sidor som Markdown, databaser som CSV och filerna de visar. Sidor i papperskorgen utelämnas; mallar hamnar i en mapp som heter Mallar.",
     "button": "Exportera",
     "preparing": "Förbereder…",
-    "disabled": "Export är avstängd för den här arbetsytan under Inställningar → Säkerhet."
+    "disabled": "Export är avstängd för den här arbetsytan under Inställningar → Säkerhet.",
+    "format": "Exportformat",
+    "formatMarkdown": "Markdown och CSV",
+    "formatPdf": "PDF",
+    "descriptionPdf": "Ladda ned alla sidor du kan se som en ZIP med PDF-filer, i mappar som följer sidträdet: databaser som tabeller över sina rader och rader med egen text som egna PDF-filer. Sidor i papperskorgen och mallar tas inte med; högst {limit, number} PDF-filer."
   },
   "members": {
     "heading": "Medlemmar",
@@ -209,7 +213,12 @@
       "someone": "En medlem",
       "approve": "Godkänn",
       "decline": "Avböj"
-    }
+    },
+    "removeBodyChoose": "{name} förlorar åtkomsten till den här arbetsytan direkt, även i öppna sidor och anslutna appar.",
+    "heirLabel": "Lämna över sidorna till",
+    "heirHint": "Sidor som bara {name} kunde hantera, och teamytor som ingen annan driver, går till den person du väljer.",
+    "heirCount": "{count, plural, =0 {{name} hanterar inga sidor ensam just nu. Teamytor som ingen annan driver går till den person du väljer.} one {# sida som bara {name} kunde hantera går till den person du väljer, tillsammans med teamytor som ingen annan driver.} other {# sidor som bara {name} kunde hantera går till den person du väljer, tillsammans med teamytor som ingen annan driver.}}",
+    "heirYou": "{name} (du)"
   },
   "guests": {
     "heading": "Gäster",
@@ -1222,7 +1231,8 @@
     "invalidNetworkLabel": "Etiketten för {detail} är för lång: högst 100 tecken.",
     "tooManyNetworks": "En arbetsyta kan ha högst 100 godkända nätverk.",
     "ipLocksYouOut": "Den här listan utesluter din nuvarande adress, {detail}, så om du sparar den stängs du ute från arbetsytan. Lägg först till din adress, eller ett intervall som täcker den.",
-    "ipUnknown": "Servern kan inte avgöra din adress, så den kan inte säkerställa att den här listan släpper in dig. Spara den från en anslutning vars adress servern ser, eller rensa listan."
+    "ipUnknown": "Servern kan inte avgöra din adress, så den kan inte säkerställa att den här listan släpper in dig. Spara den från en anslutning vars adress servern ser, eller rensa listan.",
+    "heirInvalid": "Välj en ägare eller medlem som stannar kvar i arbetsytan."
   },
   "security": {
     "description": "Bestäm hur personer loggar in, vem som kan ta in personer i den här arbetsytan, vad gäster kan göra, vad som kan lämna den (exporter, anslutna appar) och vem som kan publicera sidor på webben. Bara ägare kan ändra de här inställningarna.",
@@ -1269,7 +1279,9 @@
       "unpublish": "Avpublicera",
       "confirm": "Avpublicera den här sidan? Länken slutar fungera för alla.",
       "indexable": "Sökmotorer tillåtna",
-      "off": "Publicering är avstängd: ingen av de här sidorna finns på webben just nu. De kommer tillbaka när publicering slås på igen, om du inte avpublicerar dem."
+      "off": "Publicering är avstängd: ingen av de här sidorna finns på webben just nu. De kommer tillbaka när publicering slås på igen, om du inte avpublicerar dem.",
+      "expiresOn": "Går ut {date}",
+      "expiredOn": "Gick ut {date}"
     },
     "forms": {
       "title": "Offentliga formulär",
@@ -1707,7 +1719,8 @@
         "removed": "Tog bort {target} ({role})",
         "left": "Lämnade arbetsytan",
         "role_changed": "Ändrade rollen för {target} från {from} till {to}",
-        "ownership_transferred": "Gjorde {target} till ägare och klev av till medlem"
+        "ownership_transferred": "Gjorde {target} till ägare och klev av till medlem",
+        "content_handed_over": "Lämnade över {count, plural, one {# sida} other {# sidor}} som bara {target} kunde hantera till {subject}"
       },
       "invitation": {
         "sent": "Bjöd in {target} som {role}",
@@ -1739,7 +1752,8 @@
         "published": "Publicerade {target} på webben",
         "unpublished": "Avpublicerade {target}",
         "publication_revoked": "Tog ned {target} från webben (publicerad av {subject})",
-        "rows_merged": "Sammanfogade {count, plural, one {# rad} other {# rader}} med {target}"
+        "rows_merged": "Sammanfogade {count, plural, one {# rad} other {# rader}} med {target}",
+        "publication_expiry_changed": "{change, select, removed {Tog bort giltighetstiden för webblänken till {target}} other {Satte webblänken till {target} att sluta fungera {to}}}"
       },
       "property": {
         "access_changed": "Ändrade vem som har åtkomst till ”{property}” i {target}",
@@ -1909,6 +1923,15 @@
       "slack_token": "en Slack-token",
       "api_key": "en API-nyckel",
       "jwt": "en JSON Web Token"
+    },
+    "audienceLine": "Målgrupp: {audience}",
+    "audience": {
+      "web": "Publicerad på webben",
+      "workspace": "Hela arbetsytan",
+      "workspaceTeamspace": "Hela arbetsytan (teamytan {name})",
+      "teamspace": "Teamytan {name}",
+      "people": "Vissa personer ({count})",
+      "private": "Privat"
     }
   },
   "notifications": {

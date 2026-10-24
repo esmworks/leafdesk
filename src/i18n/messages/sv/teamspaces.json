@@ -30,7 +30,9 @@
     "accessDenied": "Du kan inte göra det i den här teamytan.",
     "invalidMemberLevel": "Välj vad medlemmar får på teamytans sidor.",
     "invalidIcon": "Ikonen måste vara en emoji eller en inbyggd ikon.",
-    "notConvertible": "Bara en sida kan bli en teamyta: inte en databas, en rad eller en mall."
+    "notConvertible": "Bara en sida kan bli en teamyta: inte en databas, en rad eller en mall.",
+    "invalidEmail": "Ange en giltig e-postadress.",
+    "cantInvite": "Du kan inte bjuda in personer till den här arbetsytan. Fråga en ägare."
   },
   "dialog": {
     "createTitle": "Ny teamyta",
@@ -73,7 +75,16 @@
     "chooseGroup": "Välj en grupp",
     "addGroupButton": "Lägg till grupp",
     "removeGroup": "Ta bort {name}",
-    "groupMemberCount": "{count, plural, =0 {Inga medlemmar} one {# medlem} other {# medlemmar}}"
+    "groupMemberCount": "{count, plural, =0 {Inga medlemmar} one {# medlem} other {# medlemmar}}",
+    "searchOrInvite": "Sök personer eller ange en e-postadress",
+    "inviteEmail": "Bjud in {email}",
+    "inviteHint": "Personen bjuds in till arbetsytan och går med i den här teamytan när inbjudan accepteras.",
+    "inviteButton": "Bjud in",
+    "invitedAdded": "{email} är nu med i den här teamytan.",
+    "invitedRequested": "En ägare måste godkänna inbjudan av {email}. När den är godkänd går personen med i den här teamytan när inbjudan accepteras.",
+    "invitedSent": "Inbjudan skickad till {email}. Personen går med i den här teamytan när inbjudan accepteras.",
+    "invitedLink": "Inbjudan till {email} har skapats, men inget mejl skickades. Dela länken med personen.",
+    "copyInviteLink": "Kopiera länk"
   },
   "memberLevel": {
     "full": "Full åtkomst",

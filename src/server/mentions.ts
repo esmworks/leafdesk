@@ -31,6 +31,7 @@ import { mentionableAgents, type AgentCandidate } from "@/server/agents/mentions
 import { avatarSrc } from "@/lib/avatar";
 import { startSweep } from "@/server/sweep";
 import { syncSyncedReferences } from "@/server/synced-blocks";
+import { livePublication } from "@/server/publication-live";
 
 /**
  * Mentions, page links and reminders on the server. The page's document holds them; each time the
@@ -729,7 +730,7 @@ export async function publishedPageRefs(
           await db
             .select({ pageId: pagePublication.pageId, token: pagePublication.token })
             .from(pagePublication)
-            .where(inArray(pagePublication.pageId, refs.map((r) => r.id)))
+            .where(and(inArray(pagePublication.pageId, refs.map((r) => r.id)), livePublication()))
         ).map((r) => [r.pageId, `/s/${r.token}`] as const)
       : [],
   );

@@ -30,7 +30,9 @@
     "accessDenied": "Det kan du ikke gøre i dette teamområde.",
     "invalidMemberLevel": "Vælg, hvad medlemmer får på teamområdets sider.",
     "invalidIcon": "Ikonet skal være en emoji eller et indbygget ikon.",
-    "notConvertible": "Kun en side kan blive et teamområde: ikke en database, en række eller en skabelon."
+    "notConvertible": "Kun en side kan blive et teamområde: ikke en database, en række eller en skabelon.",
+    "invalidEmail": "Indtast en gyldig e-mailadresse.",
+    "cantInvite": "Du kan ikke invitere personer til dette arbejdsområde. Spørg en ejer."
   },
   "dialog": {
     "createTitle": "Nyt teamområde",
@@ -73,7 +75,16 @@
     "chooseGroup": "Vælg en gruppe",
     "addGroupButton": "Tilføj gruppe",
     "removeGroup": "Fjern {name}",
-    "groupMemberCount": "{count, plural, =0 {Ingen medlemmer} one {# medlem} other {# medlemmer}}"
+    "groupMemberCount": "{count, plural, =0 {Ingen medlemmer} one {# medlem} other {# medlemmer}}",
+    "searchOrInvite": "Søg efter personer, eller indtast en e-mail",
+    "inviteEmail": "Inviter {email}",
+    "inviteHint": "Personen bliver inviteret til arbejdsområdet og kommer med i dette teamområde, når invitationen accepteres.",
+    "inviteButton": "Inviter",
+    "invitedAdded": "{email} er nu med i dette teamområde.",
+    "invitedRequested": "En ejer skal godkende invitationen af {email}. Når den er godkendt, kommer personen med i dette teamområde, når invitationen accepteres.",
+    "invitedSent": "Invitation sendt til {email}. Personen kommer med i dette teamområde, når invitationen accepteres.",
+    "invitedLink": "Invitationen til {email} er oprettet, men der blev ikke sendt nogen e-mail. Del linket med personen.",
+    "copyInviteLink": "Kopiér link"
   },
   "memberLevel": {
     "full": "Fuld adgang",

@@ -145,6 +145,12 @@ export const pagePublication = pgTable("page_publication", {
    * outsideShown). Ids the body no longer shows are ignored.
    */
   outsideDatabaseIds: text("outside_database_ids").array().notNull().default([]),
+  /**
+   * When the link stops working; null: it doesn't. Checked whenever the publication is read
+   * (publication.ts `livePublication`): once past, it is served nowhere (its link, the site, its
+   * files) as if it were unpublished, but the row stays so the publisher can extend or clear it.
+   */
+  expiresAt: timestamp("expires_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

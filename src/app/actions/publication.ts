@@ -32,6 +32,9 @@ export async function getPublicationAction(pageId: string) {
           inSite: found.inSite,
           allowDuplicate: found.allowDuplicate,
           description: found.description,
+          expiresAt: found.expiresAt?.toISOString() ?? null,
+          // Read on the server's clock: an expired link is served nowhere.
+          expired: found.expiresAt !== null && found.expiresAt.getTime() <= Date.now(),
           createdAt: found.createdAt,
         }
       : null,
@@ -65,6 +68,24 @@ export async function updatePublicationAction(pageId: string, patch: Partial<pub
   const userId = await requireUserId();
   await publication.updatePublication(userId, pageId, patch);
   return (await getPublicationAction(pageId)).publication;
+}
+
+/**
+ * Sets when the page's link stops working (an ISO time ahead), or clears it (null). Returns the
+ * publication again, or why the time can't be used.
+ */
+export async function setPublicationExpiryAction(pageId: string, expiresAt: string | null) {
+  const userId = await requireUserId();
+  if (expiresAt !== null && typeof expiresAt !== "string") return { ok: false as const, error: "expiryInvalid" as const };
+  try {
+    await publication.updatePublication(userId, pageId, { expiresAt });
+  } catch (error) {
+    if (error instanceof publication.PublishError && (error.code === "expiryPast" || error.code === "expiryTooFar")) {
+      return { ok: false as const, error: error.code };
+    }
+    throw error;
+  }
+  return { ok: true as const, publication: (await getPublicationAction(pageId)).publication };
 }
 
 /** Which databases from outside the page its publication shows; returns them all again. */

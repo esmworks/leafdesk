@@ -6,6 +6,7 @@ import { SettingsGroup, SettingsHeader } from "@/components/settings/section";
 import {
   AUDIT_CATEGORY_NAMES,
   auditActorName,
+  auditAudience,
   auditCategoryOf,
   auditFilterQuery,
   describeAuditEvent,
@@ -164,6 +165,7 @@ export async function AuditPanel({
                     const category = auditCategoryOf(event.action);
                     const device = parseUserAgent(event.userAgent);
                     const browser = device.browser && device.os ? t("device", { browser: device.browser, os: device.os }) : null;
+                    const audience = auditAudience(event, ts);
                     return (
                       <tr key={event.id} className="align-top">
                         <td className="px-4 py-3 whitespace-nowrap text-fg-muted">
@@ -179,7 +181,13 @@ export async function AuditPanel({
                         </td>
                         <td className="px-4 py-3">
                           <div className="break-words">{describeAuditEvent(event, ts)}</div>
-                          {category && <div className="mt-0.5 text-xs text-fg-muted">{t(`categories.${category}`)}</div>}
+                          {(category || audience) && (
+                            <div className="mt-0.5 text-xs text-fg-muted">
+                              {category && t(`categories.${category}`)}
+                              {category && audience && " · "}
+                              {audience && t("audienceLine", { audience })}
+                            </div>
+                          )}
                         </td>
                         <td className="px-4 py-3 text-xs text-fg-muted">
                           {event.ip ? <div className="break-all">{event.ip}</div> : <div>{t("noSource")}</div>}

@@ -539,7 +539,12 @@
   own it, those who could edit join as members (and groups that could edit, as groups), members
   can edit its pages, and everyone else named on the page (viewers, commenters, guests) keeps what
   they had. It is private when the page was private or in a private teamspace, closed when it was in
-  a closed one, open otherwise. Guests are never in teamspaces: they get single pages. Each teamspace
+  a closed one, open otherwise. Guests are never in teamspaces: they get single pages. Those who
+  manage a teamspace that isn't default can type an email into its *Add members* field: someone
+  already in the workspace is added, anyone else is invited to the workspace as a member with the
+  teamspace (and the role picked) in the invitation, and joins both on accepting. It goes through
+  the workspace's own invitation rules (who can add members, approval, allowed domains, sign-in
+  policies), and inviting the same address again keeps the teamspaces of the first invitation. Each teamspace
   sets what its members get on its pages (full access, can edit, can comment or can view) where a
   page isn't shared otherwise; its owners and workspace owners get full access, and so does
   whoever adds a page at its top. Below full access, members are held to the database property
@@ -563,7 +568,11 @@
   search, the sidebar, the API, MCP and the AI chat follow it.
   Someone who leaves the workspace, or is removed from it, loses what it gave them by name: their
   access to pages and properties, their calendar feeds of it and API tokens made only for it
-  (pages only they could manage pass to an owner first). Coming back starts afresh.
+  (pages only they could manage, and teamspaces nobody else runs, pass to someone first). An owner
+  removing a member picks who receives them in the dialog, which says how many pages that is (the
+  owner by default; any member or owner who stays); someone leaving hands them to the oldest owner,
+  and so does the identity provider. The audit log records who received how many. Coming back
+  starts afresh.
 - **Property access**: people with full access to a database decide, from a column's menu, who
   may see and change that one property: everyone with access to the database can edit it, edit
   only its values, view it, see only that the column exists, or not see it at all, with
@@ -606,7 +615,8 @@
   their before and after, single sign-on and SCIM, pages and databases created, duplicated,
   imported, moved, put in the trash, restored and deleted for good, publishing, API tokens and
   connected apps, exports), with the app or identity provider it went through and the address it
-  came from, newest first, filtered by person, kind of change and dates, and as CSV. Events are
+  came from, and for page events who could reach the page at that moment (private, specific
+  people, a teamspace by name, the whole workspace or the web), newest first, filtered by person, kind of change and dates, and as CSV. Events are
   kept for a year. Owners can stream new events to their security tools as they happen, and
   scripts read the log through the REST API (see [Audit log streaming](account-and-security.md#audit-log-streaming)).
 - **Sensitive content detection**: when owners turn it on in Settings → Security, pages and rows
@@ -624,7 +634,10 @@
   engines unless you allow them. Published databases show the views you pick (tables, boards,
   lists, galleries) and visitors switch between them; their browsers get each property's name,
   type and how its values show, never a formula's expression, an AI autofill prompt or a
-  reminder. Owners decide whether members may publish,
+  reminder. A published link can have an expiry: once it passes, the link, its subpages, the
+  files they show and the workspace site treat the page as unpublished, until someone extends or
+  removes the expiry in the Publish panel (Settings → Security lists links with their expiry, and
+  setting or removing one is in the audit log). Owners decide whether members may publish,
   can take any published page offline, or turn publishing off for the whole workspace (see
   [Workspace security switches](account-and-security.md#workspace-security-switches)).
 - **Workspace site**: owners give the workspace's published pages one readable address

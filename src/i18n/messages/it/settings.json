@@ -58,7 +58,7 @@
       "workspaceName": "nome rinomina icona",
       "ai": "intelligenza artificiale chat modello fornitore memoria",
       "workspaceMail": "email righe posta invia",
-      "export": "backup scarica zip markdown",
+      "export": "backup scarica zip markdown pdf",
       "members": "persone invita utenti ruoli rimuovi",
       "agents": "ia assistente automazione bot",
       "snippets": "testo scorciatoie frammenti",
@@ -108,7 +108,11 @@
     "description": "Scarica come ZIP tutte le pagine che puoi vedere: le pagine in Markdown, i database in CSV e i file che contengono. Le pagine nel cestino sono escluse; i modelli finiscono in una cartella Modelli.",
     "button": "Esporta",
     "preparing": "Preparazione…",
-    "disabled": "L’esportazione è disattivata per questo spazio di lavoro in Impostazioni → Sicurezza."
+    "disabled": "L’esportazione è disattivata per questo spazio di lavoro in Impostazioni → Sicurezza.",
+    "format": "Formato di esportazione",
+    "formatMarkdown": "Markdown e CSV",
+    "formatPdf": "PDF",
+    "descriptionPdf": "Scarica tutte le pagine che puoi vedere come ZIP di PDF, in cartelle che seguono l’albero delle pagine: i database come tabelle delle loro righe e le righe con testo proprio come PDF a sé. Le pagine nel cestino e i modelli sono esclusi; al massimo {limit, number} PDF."
   },
   "members": {
     "heading": "Membri",
@@ -209,7 +213,12 @@
       "someone": "Un membro",
       "approve": "Approva",
       "decline": "Rifiuta"
-    }
+    },
+    "removeBodyChoose": "{name} perde subito l’accesso a questo spazio di lavoro, anche nelle pagine aperte e nelle app connesse.",
+    "heirLabel": "Passa le sue pagine a",
+    "heirHint": "Le pagine che solo {name} poteva gestire, e gli spazi del team che nessun altro gestisce, passano alla persona scelta.",
+    "heirCount": "{count, plural, =0 {Al momento {name} non gestisce da solo nessuna pagina. Gli spazi del team che nessun altro gestisce passano alla persona scelta.} one {# pagina che solo {name} poteva gestire passa alla persona scelta, insieme agli spazi del team che nessun altro gestisce.} other {# pagine che solo {name} poteva gestire passano alla persona scelta, insieme agli spazi del team che nessun altro gestisce.}}",
+    "heirYou": "{name} (tu)"
   },
   "guests": {
     "heading": "Ospiti",
@@ -1222,7 +1231,8 @@
     "invalidNetworkLabel": "L’etichetta di {detail} è troppo lunga: al massimo 100 caratteri.",
     "tooManyNetworks": "Uno spazio di lavoro può avere al massimo 100 reti approvate.",
     "ipLocksYouOut": "Questo elenco non comprende il tuo indirizzo attuale, {detail}: salvarlo ti chiuderebbe fuori dallo spazio di lavoro. Aggiungi prima il tuo indirizzo o un intervallo che lo comprenda.",
-    "ipUnknown": "Il server non vede il tuo indirizzo, quindi non può verificare che questo elenco ti lasci entrare. Salvalo da una connessione di cui il server vede l’indirizzo, oppure svuota l’elenco."
+    "ipUnknown": "Il server non vede il tuo indirizzo, quindi non può verificare che questo elenco ti lasci entrare. Salvalo da una connessione di cui il server vede l’indirizzo, oppure svuota l’elenco.",
+    "heirInvalid": "Scegli un proprietario o un membro che resta nello spazio di lavoro."
   },
   "security": {
     "description": "Decidi come accedono le persone, chi può portare persone in questo spazio di lavoro, cosa possono fare gli ospiti, cosa può uscirne (esportazioni, app connesse) e chi può pubblicare pagine sul web. Solo i proprietari possono modificare queste impostazioni.",
@@ -1269,7 +1279,9 @@
       "unpublish": "Annulla pubblicazione",
       "confirm": "Annullare la pubblicazione di questa pagina? Il link smette di funzionare per tutti.",
       "indexable": "Motori di ricerca consentiti",
-      "off": "La pubblicazione è disattivata: al momento nessuna di queste pagine è sul web. Torneranno quando la pubblicazione verrà riattivata, a meno che tu non ne annulli la pubblicazione."
+      "off": "La pubblicazione è disattivata: al momento nessuna di queste pagine è sul web. Torneranno quando la pubblicazione verrà riattivata, a meno che tu non ne annulli la pubblicazione.",
+      "expiresOn": "Scade il {date}",
+      "expiredOn": "Scaduto il {date}"
     },
     "forms": {
       "title": "Moduli pubblici",
@@ -1707,7 +1719,8 @@
         "removed": "Ha rimosso {target} ({role})",
         "left": "È uscito dallo spazio di lavoro",
         "role_changed": "Ha cambiato il ruolo di {target} da {from} a {to}",
-        "ownership_transferred": "Ha reso {target} proprietario ed è passato a membro"
+        "ownership_transferred": "Ha reso {target} proprietario ed è passato a membro",
+        "content_handed_over": "Ha passato a {subject} {count, plural, one {# pagina} other {# pagine}} che solo {target} poteva gestire"
       },
       "invitation": {
         "sent": "Ha invitato {target} come {role}",
@@ -1739,7 +1752,8 @@
         "published": "Ha pubblicato {target} sul web",
         "unpublished": "Ha annullato la pubblicazione di {target}",
         "publication_revoked": "Ha tolto {target} dal web (pubblicata da {subject})",
-        "rows_merged": "Ha unito {count, plural, one {# riga} other {# righe}} a {target}"
+        "rows_merged": "Ha unito {count, plural, one {# riga} other {# righe}} a {target}",
+        "publication_expiry_changed": "{change, select, removed {Ha rimosso la scadenza del link web di {target}} other {Ha fatto scadere il link web di {target} il {to}}}"
       },
       "property": {
         "access_changed": "Ha cambiato chi può accedere a “{property}” in {target}",
@@ -1909,6 +1923,15 @@
       "slack_token": "un token Slack",
       "api_key": "una chiave API",
       "jwt": "un JSON Web Token"
+    },
+    "audienceLine": "Pubblico: {audience}",
+    "audience": {
+      "web": "Pubblicata sul web",
+      "workspace": "Tutto lo spazio di lavoro",
+      "workspaceTeamspace": "Tutto lo spazio di lavoro (spazio del team {name})",
+      "teamspace": "Spazio del team {name}",
+      "people": "Persone specifiche ({count})",
+      "private": "Privata"
     }
   },
   "notifications": {

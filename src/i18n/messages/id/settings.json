@@ -58,7 +58,7 @@
       "workspaceName": "nama ganti nama ikon",
       "ai": "kecerdasan buatan obrolan model penyedia memori",
       "workspaceMail": "email baris surat kirim",
-      "export": "cadangan unduh zip markdown ekspor",
+      "export": "cadangan unduh zip markdown ekspor pdf",
       "members": "orang undang pengguna peran hapus anggota",
       "agents": "ai asisten otomatisasi bot agen",
       "snippets": "teks singkatan cuplikan",
@@ -108,7 +108,11 @@
     "description": "Unduh setiap halaman yang dapat Anda lihat sebagai ZIP: halaman sebagai Markdown, basis data sebagai CSV, beserta berkas yang ditampilkannya. Halaman di sampah dilewati; templat disimpan dalam folder Templat.",
     "button": "Ekspor",
     "preparing": "Menyiapkan…",
-    "disabled": "Ekspor dimatikan untuk ruang kerja ini di Pengaturan → Keamanan."
+    "disabled": "Ekspor dimatikan untuk ruang kerja ini di Pengaturan → Keamanan.",
+    "format": "Format ekspor",
+    "formatMarkdown": "Markdown dan CSV",
+    "formatPdf": "PDF",
+    "descriptionPdf": "Unduh setiap halaman yang dapat Anda lihat sebagai ZIP berisi PDF, dalam folder yang mengikuti pohon halaman: database sebagai tabel barisnya, dan baris dengan teks sendiri sebagai PDF tersendiri. Halaman di tempat sampah dan templat tidak disertakan; paling banyak {limit, number} PDF."
   },
   "members": {
     "heading": "Anggota",
@@ -209,7 +213,12 @@
       "someone": "Seorang anggota",
       "approve": "Setujui",
       "decline": "Tolak"
-    }
+    },
+    "removeBodyChoose": "{name} langsung kehilangan akses ke ruang kerja ini, termasuk di halaman yang terbuka dan aplikasi terhubung.",
+    "heirLabel": "Serahkan halamannya kepada",
+    "heirHint": "Halaman yang hanya dapat dikelola {name}, dan ruang tim yang tidak dikelola orang lain, dialihkan kepada orang yang Anda pilih.",
+    "heirCount": "{count, plural, =0 {Saat ini {name} tidak mengelola halaman apa pun sendirian. Ruang tim yang tidak dikelola orang lain dialihkan kepada orang yang Anda pilih.} other {# halaman yang hanya dapat dikelola {name} dialihkan kepada orang yang Anda pilih, bersama ruang tim yang tidak dikelola orang lain.}}",
+    "heirYou": "{name} (Anda)"
   },
   "guests": {
     "heading": "Tamu",
@@ -1222,7 +1231,8 @@
     "invalidNetworkLabel": "Label {detail} terlalu panjang: paling banyak 100 karakter.",
     "tooManyNetworks": "Ruang kerja dapat memiliki paling banyak 100 jaringan yang disetujui.",
     "ipLocksYouOut": "Daftar ini tidak menyertakan alamat Anda saat ini, {detail}, sehingga menyimpannya akan mengunci Anda dari ruang kerja. Tambahkan alamat Anda, atau rentang yang mencakupnya, terlebih dahulu.",
-    "ipUnknown": "Server tidak dapat mengetahui alamat Anda, sehingga tidak dapat memastikan daftar ini tetap menyertakan Anda. Simpan dari koneksi yang alamatnya terlihat oleh server, atau kosongkan daftar."
+    "ipUnknown": "Server tidak dapat mengetahui alamat Anda, sehingga tidak dapat memastikan daftar ini tetap menyertakan Anda. Simpan dari koneksi yang alamatnya terlihat oleh server, atau kosongkan daftar.",
+    "heirInvalid": "Pilih pemilik atau anggota yang tetap berada di ruang kerja."
   },
   "security": {
     "description": "Tentukan bagaimana orang masuk, siapa yang dapat membawa orang ke ruang kerja ini, apa yang dapat dilakukan tamu, apa yang dapat keluar darinya (ekspor, aplikasi terhubung), dan siapa yang dapat menerbitkan halaman ke web. Hanya pemilik yang dapat mengubah pengaturan ini.",
@@ -1269,7 +1279,9 @@
       "unpublish": "Batalkan penerbitan",
       "confirm": "Batalkan penerbitan halaman ini? Tautannya berhenti berfungsi untuk semua orang.",
       "indexable": "Mesin pencari diizinkan",
-      "off": "Penerbitan dimatikan: tidak ada halaman ini yang ada di web saat ini. Halaman kembali saat penerbitan diaktifkan lagi, kecuali Anda membatalkan penerbitannya."
+      "off": "Penerbitan dimatikan: tidak ada halaman ini yang ada di web saat ini. Halaman kembali saat penerbitan diaktifkan lagi, kecuali Anda membatalkan penerbitannya.",
+      "expiresOn": "Kedaluwarsa {date}",
+      "expiredOn": "Kedaluwarsa sejak {date}"
     },
     "forms": {
       "title": "Formulir publik",
@@ -1707,7 +1719,8 @@
         "removed": "Mengeluarkan {target} ({role})",
         "left": "Keluar dari ruang kerja",
         "role_changed": "Mengubah peran {target} dari {from} menjadi {to}",
-        "ownership_transferred": "Menjadikan {target} pemilik dan mundur menjadi anggota"
+        "ownership_transferred": "Menjadikan {target} pemilik dan mundur menjadi anggota",
+        "content_handed_over": "Menyerahkan {count, plural, other {# halaman}} yang hanya dapat dikelola {target} kepada {subject}"
       },
       "invitation": {
         "sent": "Mengundang {target} sebagai {role}",
@@ -1739,7 +1752,8 @@
         "published": "Menerbitkan {target} ke web",
         "unpublished": "Membatalkan penerbitan {target}",
         "publication_revoked": "Menurunkan {target} dari web (diterbitkan oleh {subject})",
-        "rows_merged": "Menggabungkan {count, plural, other {# baris}} ke {target}"
+        "rows_merged": "Menggabungkan {count, plural, other {# baris}} ke {target}",
+        "publication_expiry_changed": "{change, select, removed {Menghapus masa berlaku tautan web {target}} other {Mengatur tautan web {target} berhenti berfungsi pada {to}}}"
       },
       "property": {
         "access_changed": "Mengubah siapa yang dapat mengakses “{property}” di {target}",
@@ -1909,6 +1923,15 @@
       "slack_token": "token Slack",
       "api_key": "kunci API",
       "jwt": "JSON Web Token"
+    },
+    "audienceLine": "Audiens: {audience}",
+    "audience": {
+      "web": "Diterbitkan ke web",
+      "workspace": "Seluruh ruang kerja",
+      "workspaceTeamspace": "Seluruh ruang kerja (ruang tim {name})",
+      "teamspace": "Ruang tim {name}",
+      "people": "Orang tertentu ({count})",
+      "private": "Pribadi"
     }
   },
   "notifications": {

@@ -70,5 +70,19 @@
   },
   "publishingOff": "Penerbitan ke web dinonaktifkan di ruang kerja ini. Halaman terbitan tidak ditampilkan sampai pemilik mengaktifkannya kembali.",
   "descriptionLabel": "Deskripsi pencarian",
-  "descriptionHint": "Ditampilkan di hasil pencarian dan pratinjau tautan. Kosong: deskripsi default situs."
+  "descriptionHint": "Ditampilkan di hasil pencarian dan pratinjau tautan. Kosong: deskripsi default situs.",
+  "expiredTitle": "Tautan kedaluwarsa",
+  "expiry": "Masa berlaku tautan",
+  "expiryHint": "Tautan berfungsi sampai Anda membatalkan penerbitan halaman.",
+  "expiresOn": "Tautan berhenti berfungsi pada {date}.",
+  "expiredOn": "Kedaluwarsa pada {date}: tautan tidak lagi berfungsi di mana pun. Pilih waktu yang lebih lambat atau hapus masa berlakunya untuk mengaktifkannya kembali.",
+  "setExpiry": "Atur masa berlaku",
+  "extendExpiry": "Perpanjang",
+  "expiryLabel": "Tautan berhenti berfungsi pada",
+  "saveExpiry": "Simpan",
+  "removeExpiry": "Hapus masa berlaku",
+  "cancelExpiry": "Batal",
+  "expiryPast": "Pilih waktu di masa mendatang.",
+  "expiryTooFar": "Pilih waktu dalam sepuluh tahun ke depan.",
+  "expiredDescription": "Saat ini tidak ada yang bisa membuka halaman ini atau subhalamannya lewat tautan: pengunjung diberi tahu bahwa halaman tidak ditemukan."
 }

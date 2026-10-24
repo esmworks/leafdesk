@@ -70,5 +70,19 @@
   },
   "publishingOff": "La publicación en la web está desactivada en este espacio de trabajo. Las páginas publicadas no se muestran hasta que un propietario la vuelva a activar.",
   "descriptionLabel": "Descripción para buscadores",
-  "descriptionHint": "Aparece en resultados de búsqueda y vistas previas de enlaces. Vacía: la descripción predeterminada del sitio."
+  "descriptionHint": "Aparece en resultados de búsqueda y vistas previas de enlaces. Vacía: la descripción predeterminada del sitio.",
+  "expiredTitle": "Enlace caducado",
+  "expiry": "Caducidad del enlace",
+  "expiryHint": "El enlace funciona hasta que dejes de publicar la página.",
+  "expiresOn": "El enlace deja de funcionar el {date}.",
+  "expiredOn": "Caducó el {date}: el enlace ya no funciona en ningún sitio. Elige una fecha posterior o quita la caducidad para recuperarlo.",
+  "setExpiry": "Fijar caducidad",
+  "extendExpiry": "Ampliar",
+  "expiryLabel": "El enlace deja de funcionar el",
+  "saveExpiry": "Guardar",
+  "removeExpiry": "Quitar caducidad",
+  "cancelExpiry": "Cancelar",
+  "expiryPast": "Elige una fecha futura.",
+  "expiryTooFar": "Elige una fecha dentro de los próximos diez años.",
+  "expiredDescription": "Ahora nadie puede abrir esta página ni sus subpáginas con el enlace: a quien lo visite se le indica que no se encontró."
 }
