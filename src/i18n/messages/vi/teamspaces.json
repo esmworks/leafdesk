@@ -29,7 +29,8 @@
     "everyoneIn": "Mọi người trong không gian làm việc đã ở trong không gian nhóm này rồi.",
     "accessDenied": "Bạn không thể làm điều đó trong không gian nhóm này.",
     "invalidMemberLevel": "Hãy chọn quyền mà các thành viên có trên các trang của không gian nhóm.",
-    "invalidIcon": "Biểu tượng phải là một emoji."
+    "invalidIcon": "Biểu tượng phải là một emoji.",
+    "notConvertible": "Chỉ một trang mới có thể thành không gian nhóm, không phải cơ sở dữ liệu, hàng hay mẫu."
   },
   "dialog": {
     "createTitle": "Không gian nhóm mới",
@@ -79,5 +80,19 @@
     "edit": "Có thể chỉnh sửa",
     "comment": "Có thể bình luận",
     "view": "Có thể xem"
+  },
+  "fromPage": {
+    "menu": "Chuyển thành không gian nhóm",
+    "title": "Chuyển thành không gian nhóm",
+    "intro": "Một không gian nhóm mới nhận trang này và các trang bên dưới nó, và những người được chia sẻ trang sẽ tham gia.",
+    "pages": "{count, plural, =0 {Trang này trở thành trang đầu tiên của nó.} other {Trang này và # trang bên dưới trở thành các trang đầu tiên của nó.}}",
+    "owners": "Chủ sở hữu: {names}",
+    "members": "Thành viên, có thể sửa các trang của nó: {names}",
+    "groups": "{count, plural, other {# nhóm}} tham gia với tư cách thành viên.",
+    "kept": "{count, plural, other {# người khác}} được nêu trên trang vẫn giữ quyền truy cập hiện có.",
+    "access": "{access}: {hint}",
+    "submit": "Chuyển thành không gian nhóm",
+    "working": "Đang chuyển…",
+    "failed": "Không thể chuyển trang thành không gian nhóm."
   }
 }

@@ -29,7 +29,8 @@
     "everyoneIn": "Semua orang di ruang kerja sudah ada di ruang tim ini.",
     "accessDenied": "Anda tidak dapat melakukannya di ruang tim ini.",
     "invalidMemberLevel": "Pilih apa yang didapat anggota pada halaman ruang tim.",
-    "invalidIcon": "Ikon harus berupa emoji."
+    "invalidIcon": "Ikon harus berupa emoji.",
+    "notConvertible": "Hanya halaman yang bisa menjadi ruang tim, bukan database, baris, atau templat."
   },
   "dialog": {
     "createTitle": "Ruang tim baru",
@@ -79,5 +80,19 @@
     "edit": "Dapat mengedit",
     "comment": "Dapat berkomentar",
     "view": "Dapat melihat"
+  },
+  "fromPage": {
+    "menu": "Jadikan ruang tim",
+    "title": "Jadikan ruang tim",
+    "intro": "Ruang tim baru menerima halaman ini dan halaman di bawahnya, dan orang-orang yang diberi akses ke halaman ini bergabung ke dalamnya.",
+    "pages": "{count, plural, =0 {Halaman ini menjadi halaman pertamanya.} other {Halaman ini dan # halaman di bawahnya menjadi halaman-halaman pertamanya.}}",
+    "owners": "Pemilik: {names}",
+    "members": "Anggota, yang bisa mengedit halamannya: {names}",
+    "groups": "{count, plural, other {# grup}} bergabung sebagai anggota.",
+    "kept": "{count, plural, other {# orang lain}} yang disebut di halaman tetap memiliki akses mereka.",
+    "access": "{access}: {hint}",
+    "submit": "Jadikan ruang tim",
+    "working": "Menjadikan…",
+    "failed": "Tidak dapat menjadikan halaman sebagai ruang tim."
   }
 }

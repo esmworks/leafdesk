@@ -239,7 +239,8 @@
     "newPrivate": "Halaman pribadi baru",
     "more": "{count} lainnya",
     "less": "Tampilkan lebih sedikit",
-    "meetings": "Rapat"
+    "meetings": "Rapat",
+    "tasks": "Tugas saya"
   },
   "joinable": {
     "heading": "Ruang kerja yang dapat Anda ikuti",

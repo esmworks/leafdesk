@@ -79,6 +79,11 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   button that starts it) and the few before it; the database rows assigned to you that aren't done
   and that you can open, grouped as overdue, today, the next 7 days, later and no date; and the
   pages edited last.
+- **My tasks** (in the sidebar; hide or move it like its other sections): every database row
+  assigned to you across the workspace, in any person property, that isn't done and that you can
+  open, by due date or by database, with its status and first date; the first 200, the ones due
+  soonest. A row opens beside the list. Tick a row with a status to set it to the first option of
+  its *Done* group, and untick it to put the status back; the home page's list works the same way.
 - **Search box** (Cmd/Ctrl+K): before you type, the pages last edited. Narrow a search with
   `in:Projects` or `in:"Launch plan"` (that page and everything under it; several pages of that
   title, or several `in:`, search under any of them; a title nobody can see finds nothing) and
@@ -484,7 +489,13 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   section for pages only you see. Settings → Teamspaces lists them with filters, their members and
   owners, the default teamspaces and whether members may create teamspaces. Moving a page to
   another teamspace, or to Private, gives it the access of its new place; people it was shared
-  with by name keep theirs. Guests are never in teamspaces: they get single pages. Each teamspace
+  with by name keep theirs. *Turn into teamspace* in a page's ⋯ menu (full access to the page and
+  the right to create teamspaces) makes a teamspace named after the page: the page and the pages
+  right under it become its top-level pages; whoever turns it and those with full access to the page
+  own it, those who could edit join as members (and groups that could edit, as groups), members
+  can edit its pages, and everyone else named on the page (viewers, commenters, guests) keeps what
+  they had. It is private when the page was private or in a private teamspace, closed when it was in
+  a closed one, open otherwise. Guests are never in teamspaces: they get single pages. Each teamspace
   sets what its members get on its pages (full access, can edit, can comment or can view) where a
   page isn't shared otherwise; its owners and workspace owners get full access, and so does
   whoever adds a page at its top. Below full access, members are held to the database property

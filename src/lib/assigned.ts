@@ -41,3 +41,43 @@ export function groupAssigned<R extends { date: string | null; endDate?: string 
     ),
   })).filter((g) => g.rows.length > 0);
 }
+
+/** How a list of assigned rows is grouped: by when they are due, or by the database they are in. */
+export type AssignedGrouping = "due" | "database";
+
+export const isAssignedGrouping = (value: unknown): value is AssignedGrouping => value === "due" || value === "database";
+
+/**
+ * The rows by database, the databases by name, and the rows of each in due-date order: the
+ * earliest date first, rows without one last, then the row edited last. Rows shared with the
+ * viewer without their database (no title) come last, together, under a null database.
+ */
+export function groupByDatabase<R extends { databaseId: string; databaseTitle: string | null; date: string | null; updatedAt: Date }>(
+  rows: R[],
+  collator: Intl.Collator = new Intl.Collator(),
+): { databaseId: string | null; databaseTitle: string | null; rows: R[] }[] {
+  const byDatabase = new Map<string | null, R[]>();
+  for (const row of rows) {
+    const key = row.databaseTitle === null ? null : row.databaseId;
+    const list = byDatabase.get(key);
+    if (list) list.push(row);
+    else byDatabase.set(key, [row]);
+  }
+  return [...byDatabase.entries()]
+    .map(([databaseId, list]) => ({
+      databaseId,
+      databaseTitle: databaseId === null ? null : list[0].databaseTitle,
+      rows: list.sort(
+        (a, b) =>
+          (a.date === null ? 1 : 0) - (b.date === null ? 1 : 0) ||
+          (a.date ?? "").localeCompare(b.date ?? "") ||
+          b.updatedAt.getTime() - a.updatedAt.getTime(),
+      ),
+    }))
+    .sort(
+      (a, b) =>
+        (a.databaseTitle === null ? 1 : 0) - (b.databaseTitle === null ? 1 : 0) ||
+        collator.compare(a.databaseTitle ?? "", b.databaseTitle ?? "") ||
+        (a.databaseId ?? "").localeCompare(b.databaseId ?? ""),
+    );
+}

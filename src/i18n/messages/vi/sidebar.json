@@ -239,7 +239,8 @@
     "newPrivate": "Trang riêng tư mới",
     "more": "Thêm {count}",
     "less": "Thu gọn",
-    "meetings": "Cuộc họp"
+    "meetings": "Cuộc họp",
+    "tasks": "Việc của tôi"
   },
   "joinable": {
     "heading": "Không gian làm việc bạn có thể tham gia",

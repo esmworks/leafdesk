@@ -1737,6 +1737,7 @@
       },
       "teamspace": {
         "created": "فضای تیمی {target} را ایجاد کرد",
+        "created_from_page": "صفحهٔ {source} را به فضای تیمی {target} تبدیل کرد",
         "updated": "{fields} فضای تیمی {target} را تغییر داد",
         "archived": "فضای تیمی {target} را بایگانی کرد",
         "restored": "فضای تیمی {target} را بازیابی کرد",

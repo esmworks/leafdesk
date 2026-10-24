@@ -1737,6 +1737,7 @@
       },
       "teamspace": {
         "created": "Đã tạo không gian nhóm {target}",
+        "created_from_page": "Đã chuyển trang {source} thành không gian nhóm {target}",
         "updated": "Đã thay đổi {fields} của không gian nhóm {target}",
         "archived": "Đã lưu trữ không gian nhóm {target}",
         "restored": "Đã khôi phục không gian nhóm {target}",

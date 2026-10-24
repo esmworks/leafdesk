@@ -29,7 +29,8 @@
     "everyoneIn": "워크스페이스의 모든 사람이 이미 이 팀스페이스에 속해 있습니다.",
     "accessDenied": "이 팀스페이스에서는 그 작업을 할 수 없습니다.",
     "invalidMemberLevel": "멤버가 팀스페이스 페이지에서 받을 권한을 선택하세요.",
-    "invalidIcon": "아이콘은 이모지여야 합니다."
+    "invalidIcon": "아이콘은 이모지여야 합니다.",
+    "notConvertible": "팀스페이스로 바꿀 수 있는 것은 페이지뿐입니다. 데이터베이스, 행, 템플릿은 안 됩니다."
   },
   "dialog": {
     "createTitle": "새 팀스페이스",
@@ -79,5 +80,19 @@
     "edit": "편집 가능",
     "comment": "댓글 가능",
     "view": "보기 가능"
+  },
+  "fromPage": {
+    "menu": "팀스페이스로 전환",
+    "title": "팀스페이스로 전환",
+    "intro": "새 팀스페이스가 이 페이지와 그 아래 페이지를 가져가고, 페이지를 공유받은 사람들이 팀스페이스에 참여합니다.",
+    "pages": "{count, plural, =0 {이 페이지가 팀스페이스의 첫 페이지가 됩니다.} other {이 페이지와 그 아래 페이지 #개가 팀스페이스의 첫 페이지가 됩니다.}}",
+    "owners": "소유자: {names}",
+    "members": "페이지를 편집할 수 있는 멤버: {names}",
+    "groups": "그룹 {count, plural, other {#개}}가 멤버로 참여합니다.",
+    "kept": "페이지에 지정된 다른 {count, plural, other {#명}}은 지금의 액세스 권한을 유지합니다.",
+    "access": "{access}: {hint}",
+    "submit": "팀스페이스로 전환",
+    "working": "전환 중…",
+    "failed": "페이지를 팀스페이스로 전환하지 못했습니다."
   }
 }

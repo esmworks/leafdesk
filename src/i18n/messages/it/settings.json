@@ -1737,6 +1737,7 @@
       },
       "teamspace": {
         "created": "Ha creato lo spazio del team {target}",
+        "created_from_page": "Ha trasformato la pagina {source} nello spazio del team {target}",
         "updated": "Ha modificato {fields} dello spazio del team {target}",
         "archived": "Ha archiviato lo spazio del team {target}",
         "restored": "Ha ripristinato lo spazio del team {target}",

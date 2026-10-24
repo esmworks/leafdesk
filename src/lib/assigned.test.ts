@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { assignedGroup, groupAssigned } from "./assigned";
+import { assignedGroup, groupAssigned, groupByDatabase } from "./assigned";
+import { firstDoneOption, isDoneStatus } from "./properties";
 
 describe("assignedGroup", () => {
   const today = "2026-10-09";
@@ -53,5 +54,62 @@ describe("groupAssigned", () => {
 
   it("returns nothing for no rows", () => {
     expect(groupAssigned([], "2026-10-09")).toEqual([]);
+  });
+});
+
+describe("groupByDatabase", () => {
+  const at = (iso: string) => new Date(iso);
+  const row = (id: string, databaseId: string, databaseTitle: string | null, date: string | null, edited = "2026-10-01") => ({
+    id,
+    databaseId,
+    databaseTitle,
+    date,
+    updatedAt: at(`${edited}T00:00:00Z`),
+  });
+
+  it("groups by database, names in order and rows of databases the viewer can't open last, together", () => {
+    const groups = groupByDatabase([
+      row("a", "d2", "Tasks", "2026-10-12"),
+      row("b", "d1", "Bugs", null),
+      row("c", "d3", null, "2026-10-01"),
+      row("d", "d2", "Tasks", "2026-10-03"),
+      row("e", "d1", "Bugs", "2026-11-01"),
+      row("f", "d4", null, null),
+    ]);
+    expect(groups.map((g) => [g.databaseId, g.databaseTitle, g.rows.map((r) => r.id)])).toEqual([
+      ["d1", "Bugs", ["e", "b"]],
+      ["d2", "Tasks", ["d", "a"]],
+      [null, null, ["c", "f"]],
+    ]);
+  });
+
+  it("puts rows without a date last, the one edited last first", () => {
+    const groups = groupByDatabase([
+      row("a", "d", "Tasks", null, "2026-10-01"),
+      row("b", "d", "Tasks", null, "2026-10-05"),
+      row("c", "d", "Tasks", "2026-12-01"),
+    ]);
+    expect(groups[0].rows.map((r) => r.id)).toEqual(["c", "b", "a"]);
+  });
+
+  it("returns nothing for no rows", () => {
+    expect(groupByDatabase([])).toEqual([]);
+  });
+});
+
+describe("firstDoneOption", () => {
+  const status = (options: { id: string; group?: "todo" | "in_progress" | "done" }[]) => ({
+    options: { options: options.map((o) => ({ ...o, name: o.id, color: "gray" })) },
+  });
+
+  it("picks the first option of the done group", () => {
+    const prop = status([{ id: "new", group: "todo" }, { id: "doing", group: "in_progress" }, { id: "shipped", group: "done" }, { id: "dropped", group: "done" }]);
+    expect(firstDoneOption(prop)?.id).toBe("shipped");
+    expect(isDoneStatus(prop, firstDoneOption(prop)?.id)).toBe(true);
+  });
+
+  it("finds none when no option is done (options without a group count as to do)", () => {
+    expect(firstDoneOption(status([{ id: "new" }, { id: "doing", group: "in_progress" }]))).toBeUndefined();
+    expect(firstDoneOption({ options: {} })).toBeUndefined();
   });
 });

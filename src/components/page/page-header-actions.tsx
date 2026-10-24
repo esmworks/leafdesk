@@ -40,6 +40,7 @@ import {
   Star,
   Trash2,
   Type,
+  Users,
   Waypoints,
   X,
 } from "lucide-react";
@@ -522,9 +523,11 @@ function PageMenu({
   const tMerge = useTranslations("database.merge");
   const tVerify = useTranslations("page.verification");
   const tRowAccess = useTranslations("database.rowAccess");
+  const tTeamspaces = useTranslations("teamspaces");
   const locale = useLocale();
   const router = useRouter();
   const [moveOpen, setMoveOpen] = useState(false);
+  const [teamspaceOpen, setTeamspaceOpen] = useState(false);
   const [pdfOpen, setPdfOpen] = useState(false);
   const [analyticsOpen, setAnalyticsOpen] = useState(false);
   // Whether the exports below (Markdown, ZIP, the PDF dialog's first choice) carry the comments.
@@ -787,6 +790,18 @@ function PageMenu({
                 }}
               >
                 {t("moveTo")}
+              </MenuItem>
+            )}
+            {/* Full access and the right to create teamspaces; pages only (server/teamspace-from-page.ts). */}
+            {info.teamspace && !page.archived && (
+              <MenuItem
+                icon={<Users className="h-4 w-4" />}
+                onClick={() => {
+                  close();
+                  setTeamspaceOpen(true);
+                }}
+              >
+                {tTeamspaces("fromPage.menu")}
               </MenuItem>
             )}
             {/* Full access, like moving it. A page archived with one above it comes back with that one (see its banner). */}
@@ -1108,6 +1123,14 @@ function PageMenu({
           </Suspense>,
           document.body,
         )}
+      {teamspaceOpen &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <Suspense fallback={null}>
+            <TurnIntoTeamspaceDialog workspaceId={workspaceId} pageId={page.id} onClose={() => setTeamspaceOpen(false)} />
+          </Suspense>,
+          document.body,
+        )}
       {analyticsOpen &&
         typeof document !== "undefined" &&
         createPortal(
@@ -1146,9 +1169,10 @@ function PageMenu({
   );
 }
 
-// The PDF, analytics and row access dialogs come with their first use, not with every page.
+// The PDF, analytics, teamspace and row access dialogs come with their first use, not with every page.
 const PdfExportDialog = lazy(() => import("./pdf-export-dialog"));
 const PageAnalyticsDialog = lazy(() => import("./page-analytics-dialog"));
+const TurnIntoTeamspaceDialog = lazy(() => import("./turn-into-teamspace-dialog"));
 const RowAccessDialog = lazy(() => import("@/components/database/row-access-dialog").then((m) => ({ default: m.RowAccessDialog })));
 
 /** Pick a new parent: any page or database in the sidebar tree except this page and its subpages. */

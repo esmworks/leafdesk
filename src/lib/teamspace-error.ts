@@ -11,7 +11,8 @@ export type TeamspaceErrorCode =
   | "invalidMemberLevel"
   | "invalidIcon"
   | "inGroup"
-  | "everyoneIn";
+  | "everyoneIn"
+  | "notConvertible";
 
 /** An expected failure the UI translates by `code`; the English message is for logs and MCP. */
 export class TeamspaceError extends Error {

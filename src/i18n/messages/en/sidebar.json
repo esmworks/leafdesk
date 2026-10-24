@@ -239,7 +239,8 @@
     "newPrivate": "New private page",
     "more": "{count} more",
     "less": "Show less",
-    "meetings": "Meetings"
+    "meetings": "Meetings",
+    "tasks": "My tasks"
   },
   "joinable": {
     "heading": "Workspaces you can join",

@@ -17,5 +17,20 @@
     "later": "Later",
     "none": "No date"
   },
-  "assignedMore": "Showing {shown} of {total}. Filter a database by “Me” to see the rest."
+  "assignedMore": "Showing {shown} of {total}.",
+  "assignedAll": "See all",
+  "myTasks": {
+    "title": "My tasks",
+    "description": "Rows of the databases you can open that are assigned to you and aren't done, across the workspace.",
+    "grouping": "Group by",
+    "byDue": "By due date",
+    "byDatabase": "By database",
+    "sharedRows": "Rows shared with you",
+    "shown": "Showing the {shown} due soonest of {total}.",
+    "markDone": "Mark “{title}” done",
+    "undoLabel": "Mark “{title}” not done",
+    "undo": "Undo",
+    "markFailed": "Couldn't mark the row done.",
+    "undoFailed": "Couldn't put the row's status back. Change it in the row."
+  }
 }

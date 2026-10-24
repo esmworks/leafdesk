@@ -17,5 +17,20 @@
     "later": "それ以降",
     "none": "日付なし"
   },
-  "assignedMore": "{total}件中{shown}件を表示しています。残りを見るには、データベースを「自分」でフィルターしてください。"
+  "assignedMore": "{total}件中{shown}件を表示しています。",
+  "assignedAll": "すべて表示",
+  "myTasks": {
+    "title": "マイタスク",
+    "description": "ワークスペース全体で、開けるデータベースの行のうち、あなたに割り当てられていて完了していないもの。",
+    "grouping": "グループ化",
+    "byDue": "期限別",
+    "byDatabase": "データベース別",
+    "sharedRows": "あなたと共有された行",
+    "shown": "{total}件のうち期限が近い{shown}件を表示しています。",
+    "markDone": "「{title}」を完了にする",
+    "undoLabel": "「{title}」を未完了に戻す",
+    "undo": "元に戻す",
+    "markFailed": "行を完了にできませんでした。",
+    "undoFailed": "行のステータスを元に戻せませんでした。行の中で変更してください。"
+  }
 }

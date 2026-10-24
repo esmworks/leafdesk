@@ -29,7 +29,8 @@
     "everyoneIn": "Todos los miembros del espacio de trabajo ya están en este espacio de equipo.",
     "accessDenied": "No puedes hacer eso en este espacio de equipo.",
     "invalidMemberLevel": "Elige qué obtienen los miembros en las páginas del espacio de equipo.",
-    "invalidIcon": "El icono debe ser un emoji."
+    "invalidIcon": "El icono debe ser un emoji.",
+    "notConvertible": "Solo una página puede convertirse en espacio de equipo, no una base de datos, una fila ni una plantilla."
   },
   "dialog": {
     "createTitle": "Nuevo espacio de equipo",
@@ -79,5 +80,19 @@
     "edit": "Puede editar",
     "comment": "Puede comentar",
     "view": "Puede ver"
+  },
+  "fromPage": {
+    "menu": "Convertir en espacio de equipo",
+    "title": "Convertir en espacio de equipo",
+    "intro": "Un nuevo espacio de equipo recibe esta página y las páginas que tiene debajo, y las personas con las que se comparte la página se unen a él.",
+    "pages": "{count, plural, =0 {Esta página pasa a ser su primera página.} one {Esta página y la página que tiene debajo pasan a ser sus primeras páginas.} other {Esta página y las # páginas que tiene debajo pasan a ser sus primeras páginas.}}",
+    "owners": "Propietarios: {names}",
+    "members": "Miembros, que pueden editar sus páginas: {names}",
+    "groups": "{count, plural, one {# grupo se une} other {# grupos se unen}} como miembros.",
+    "kept": "{count, plural, one {# persona más nombrada en la página conserva} other {# personas más nombradas en la página conservan}} el acceso que tienen.",
+    "access": "{access}: {hint}",
+    "submit": "Convertir en espacio de equipo",
+    "working": "Convirtiendo…",
+    "failed": "No se pudo convertir la página en un espacio de equipo."
   }
 }

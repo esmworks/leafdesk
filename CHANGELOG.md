@@ -19,6 +19,28 @@
   database; the four state options can't be deleted while sprints are on. Turning sprints off keeps the sprints database and
   every task's sprint; turning them on again picks them up. REST API: `POST
   /databases/{database_id}/sprints/complete` (with `dry_run`). No migration.
+- **My tasks.** A new sidebar section (it can be hidden or moved like the others) opens a page
+  listing every database row assigned to you across the workspace, in any person property, that
+  isn't done and that you can open: by due date (overdue, today, the next 7 days, later, no date)
+  or by database, with each row's status and first date, the first 200 due soonest. Rows open in
+  the row panel beside the list. A row with a status has a box that sets it to the first option of
+  its *Done* group, written like any change of the row (automations and activity included), and
+  unticking it puts the status back; the home page's *Assigned to you* list gets the same box and
+  a *See all* link. Finding the rows assigned to you now works out access once per database rather
+  than once per row: about 40 ms instead of 450 on a database of 50,000 rows.
+- **Turn a page into a teamspace.** The page menu's *Turn into teamspace*, for people with full
+  access to a page who may create teamspaces, makes a teamspace named after the page, with its
+  icon, after a dialog that says what will happen. The page and the pages right under it become
+  the teamspace's top-level pages, in one step. Whoever turns it and the people with full access to
+  the page become its owners, those who could edit it its members (with edit access to its pages),
+  groups that could edit it join as groups; viewers, commenters and guests keep the access they
+  had, and every page that moves keeps the people and groups it inherited, so nobody named on the
+  page gains or loses access. The teamspace is private when the page was private or in a private
+  teamspace, closed when it was in a closed one, open otherwise. The audit log records it as
+  *Turned the page … into the teamspace …*, with who joined and each page moved. The sidebar of whoever
+  turns it unfolds the new teamspace at once, as it now does whenever the open page moves to
+  another place.
+
 - **Page views and page analytics.** Opening a page, database or row in the app now records a
   view, once the page has been open two seconds and at most once per person and page every five
   minutes, kept as one count per page, person and UTC day and deleted after a year. Only owners

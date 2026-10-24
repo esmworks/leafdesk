@@ -239,7 +239,8 @@
     "newPrivate": "דף פרטי חדש",
     "more": "עוד {count}",
     "less": "הצגת פחות",
-    "meetings": "פגישות"
+    "meetings": "פגישות",
+    "tasks": "המשימות שלי"
   },
   "joinable": {
     "heading": "סביבות עבודה שאפשר להצטרף אליהן",

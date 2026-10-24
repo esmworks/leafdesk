@@ -17,5 +17,20 @@
     "later": "以后",
     "none": "无日期"
   },
-  "assignedMore": "显示 {total} 项中的 {shown} 项。在数据库中按“我”筛选可查看其余内容。"
+  "assignedMore": "显示 {total} 条中的 {shown} 条。",
+  "assignedAll": "查看全部",
+  "myTasks": {
+    "title": "我的任务",
+    "description": "整个工作区中，你能打开的数据库里分配给你且尚未完成的行。",
+    "grouping": "分组方式",
+    "byDue": "按截止日期",
+    "byDatabase": "按数据库",
+    "sharedRows": "与你共享的行",
+    "shown": "显示 {total} 条中截止日期最近的 {shown} 条。",
+    "markDone": "将“{title}”标记为完成",
+    "undoLabel": "将“{title}”标记为未完成",
+    "undo": "撤销",
+    "markFailed": "无法将该行标记为完成。",
+    "undoFailed": "无法恢复该行的状态。请在行中修改。"
+  }
 }

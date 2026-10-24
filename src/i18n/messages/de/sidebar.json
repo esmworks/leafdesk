@@ -239,7 +239,8 @@
     "newPrivate": "Neue private Seite",
     "more": "{count} weitere",
     "less": "Weniger anzeigen",
-    "meetings": "Besprechungen"
+    "meetings": "Besprechungen",
+    "tasks": "Meine Aufgaben"
   },
   "joinable": {
     "heading": "Workspaces, denen du beitreten kannst",

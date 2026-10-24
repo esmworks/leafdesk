@@ -239,7 +239,8 @@
     "newPrivate": "Nouvelle page privée",
     "more": "{count} de plus",
     "less": "Afficher moins",
-    "meetings": "Réunions"
+    "meetings": "Réunions",
+    "tasks": "Mes tâches"
   },
   "joinable": {
     "heading": "Espaces que vous pouvez rejoindre",

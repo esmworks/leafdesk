@@ -32,6 +32,7 @@ export const AUDIT_CATEGORIES = {
   ],
   teamspaces: [
     "teamspace.created",
+    "teamspace.created_from_page",
     "teamspace.updated",
     "teamspace.archived",
     "teamspace.restored",

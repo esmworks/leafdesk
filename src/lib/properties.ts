@@ -231,6 +231,11 @@ export function isDoneStatus(property: { options: PropertyOptions }, value: unkn
   return option !== undefined && statusGroupOf(option) === "done";
 }
 
+/** The first option of the status property's "done" group: what marking a row done picks. */
+export function firstDoneOption(property: { options: PropertyOptions }): SelectOption | undefined {
+  return (property.options.options ?? []).find((o) => statusGroupOf(o) === "done");
+}
+
 /** Default color for a status option added to `group`. */
 export function statusColor(group: StatusGroup) {
   return STATUS_COLORS[group];

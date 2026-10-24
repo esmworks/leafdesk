@@ -1737,6 +1737,7 @@
       },
       "teamspace": {
         "created": "创建了团队空间 {target}",
+        "created_from_page": "将页面 {source} 转为团队空间 {target}",
         "updated": "更改了团队空间 {target} 的{fields}",
         "archived": "归档了团队空间 {target}",
         "restored": "恢复了团队空间 {target}",

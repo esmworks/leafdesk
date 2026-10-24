@@ -17,5 +17,20 @@
     "later": "나중",
     "none": "날짜 없음"
   },
-  "assignedMore": "{total}개 중 {shown}개를 표시하고 있습니다. 나머지를 보려면 데이터베이스를 “나”로 필터링하세요."
+  "assignedMore": "{total}개 중 {shown}개를 표시합니다.",
+  "assignedAll": "모두 보기",
+  "myTasks": {
+    "title": "내 작업",
+    "description": "워크스페이스 전체에서 열 수 있는 데이터베이스의 행 중 나에게 할당되었고 완료되지 않은 행입니다.",
+    "grouping": "그룹 기준",
+    "byDue": "마감일별",
+    "byDatabase": "데이터베이스별",
+    "sharedRows": "나와 공유된 행",
+    "shown": "{total}개 중 마감이 가장 가까운 {shown}개를 표시합니다.",
+    "markDone": "“{title}” 완료로 표시",
+    "undoLabel": "“{title}” 미완료로 표시",
+    "undo": "실행 취소",
+    "markFailed": "행을 완료로 표시하지 못했습니다.",
+    "undoFailed": "행의 상태를 되돌리지 못했습니다. 행에서 직접 변경하세요."
+  }
 }

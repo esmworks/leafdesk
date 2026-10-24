@@ -17,5 +17,20 @@
     "later": "Plus tard",
     "none": "Sans date"
   },
-  "assignedMore": "{shown} sur {total} affichés. Filtrez une base de données sur « Moi » pour voir le reste."
+  "assignedMore": "{shown} sur {total} affichées.",
+  "assignedAll": "Tout voir",
+  "myTasks": {
+    "title": "Mes tâches",
+    "description": "Les lignes des bases de données que vous pouvez ouvrir, qui vous sont assignées et ne sont pas terminées, dans tout l’espace de travail.",
+    "grouping": "Regrouper par",
+    "byDue": "Par échéance",
+    "byDatabase": "Par base de données",
+    "sharedRows": "Lignes partagées avec vous",
+    "shown": "Les {shown} plus proches de leur échéance sur {total} sont affichées.",
+    "markDone": "Marquer « {title} » comme terminée",
+    "undoLabel": "Marquer « {title} » comme non terminée",
+    "undo": "Annuler",
+    "markFailed": "Impossible de marquer la ligne comme terminée.",
+    "undoFailed": "Impossible de rétablir le statut de la ligne. Modifiez-le dans la ligne."
+  }
 }
