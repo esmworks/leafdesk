@@ -41,6 +41,7 @@
       "language": "språk lokalisering oversettelse",
       "theme": "mørk modus lys modus farger tema",
       "contrast": "tilgjengelighet høy kontrast",
+      "desktopLinks": "electron windows mac faner åpne lenker skrivebordsapp",
       "notifications": "push e-post varsler",
       "watchedPages": "følg abonner overvåk",
       "offlineDevice": "frakoblet nedlasting hurtigbuffer plass offline",
@@ -1119,6 +1120,20 @@
       "note": "Høy kontrast gjør sekundærtekst, linjer og fokusrammer tydeligere, i begge temaer. Denne innstillingen gjelder bare denne nettleseren. Med systeminnstillingen følger den enhetens valg for økt kontrast."
     }
   },
+  "desktopLinks": {
+    "heading": "Skrivebordsapp",
+    "label": "Åpne lenker i skrivebordsappen",
+    "note": "Når du åpner en Leafdesk-side i en nettleser på en datamaskin med skrivebordsappen, kan den gå videre til appen, i en egen fane. Inne i appen endres ingenting.",
+    "off": "Av",
+    "ask": "Tilby å åpne dem",
+    "always": "Åpne dem alltid",
+    "banner": {
+      "text": "Vil du åpne denne siden i skrivebordsappen?",
+      "open": "Åpne i appen",
+      "always": "Alltid",
+      "dismiss": "Lukk"
+    }
+  },
   "language": {
     "heading": "Språk",
     "label": "Språk i grensesnittet",
@@ -1863,6 +1878,11 @@
       "sensitive_content": {
         "found": "Fant {kind} ({excerpt}) på {target}",
         "dismissed": "Avviste {kind} ({excerpt}) funnet på {target}"
+      },
+      "github_sync": {
+        "created": "Satte opp pull-forespørsler fra GitHub i {target}",
+        "updated": "Endret GitHub-oppsettet for {target}",
+        "deleted": "Fjernet GitHub-oppsettet for {target}"
       }
     },
     "decisions": {

@@ -1178,7 +1178,8 @@
       "invalidTarget": "Lenken som skal åpnes, er ikke gyldig.",
       "buttonGone": "Knappen ble fjernet fra siden.",
       "error": "Noe gikk galt.",
-      "step": "Trinn {step} ({type}) ble ikke kjørt: {reason}"
+      "step": "Trinn {step} ({type}) ble ikke kjørt: {reason}",
+      "templateGone": "Radmalen er borte."
     }
   },
   "imageCrop": {

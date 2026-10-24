@@ -34,7 +34,27 @@
     "stopped": "Stoppet. Du kan fortsatt beholde det som er skrevet så langt.",
     "applyFailed": "Forslaget kunne ikke legges til på siden.",
     "asSuggestions": "Legg til som endringsforslag",
-    "selectionChanged": "Den markerte teksten ble endret i mellomtiden, så forslaget ble lagt til under den."
+    "selectionChanged": "Den markerte teksten ble endret i mellomtiden, så forslaget ble lagt til under den.",
+    "saved": {
+      "title": "Lagrede instruksjoner",
+      "empty": "Lagre en instruksjon du bruker ofte, med bokmerket ved siden av Send. Instruksjoner for hele teamet er <skills>ferdigheter</skills>.",
+      "saveInstruction": "Lagre instruksjon",
+      "name": "Navn",
+      "namePlaceholder": "Gi instruksjonen et navn",
+      "save": "Lagre",
+      "cancel": "Avbryt",
+      "rename": "Nytt navn",
+      "renameNamed": "Gi {name} nytt navn",
+      "deleteNamed": "Slett {name}",
+      "errors": {
+        "emptyName": "Gi instruksjonen et navn.",
+        "emptyPrompt": "Det er ingen instruksjon å lagre.",
+        "nameTooLong": "Navn kan være på høyst {max} tegn.",
+        "promptTooLong": "Instruksjoner kan være på høyst {max} tegn.",
+        "full": "Du kan ha høyst {max} lagrede instruksjoner. Slett én for å lagre en ny.",
+        "notFound": "Denne lagrede instruksjonen finnes ikke lenger."
+      }
+    }
   },
   "errors": {
     "disabled": "KI er ikke tilgjengelig i dette arbeidsområdet.",

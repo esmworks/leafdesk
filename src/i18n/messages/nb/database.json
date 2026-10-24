@@ -550,7 +550,9 @@
     "parentOptionToggle": "Tilby «{option}» når «{parent}» er «{value}»",
     "sortOptionsAsc": "Sorter A → Å",
     "sortOptionsDesc": "Sorter Å → A",
-    "dragOption": "Dra for å flytte {name}"
+    "dragOption": "Dra for å flytte {name}",
+    "urlPreview": "Vis som lenkeforhåndsvisning",
+    "urlPreviewHint": "Radsider viser ikonet, tittelen og bildet til den lenkede siden under lenken."
   },
   "rowProperties": {
     "noProperties": "Ingen egenskaper",
@@ -971,7 +973,8 @@
     "sprintsDatabase": "Denne databasen inneholder sprintene til en annen database: slå sprinter på eller av der.",
     "noCurrentSprint": "Ingen sprint er gjeldende. Merk først én sprint som gjeldende.",
     "invalidSprints": "Sprinter kan ikke settes opp slik: kontroller sprintlengden, den første dagen og sprintdatabasen.",
-    "sprintStateOption": "Dette alternativet angir tilstanden til en sprint. Gi det gjerne nytt navn, eller slå av sprinter før du sletter det."
+    "sprintStateOption": "Dette alternativet angir tilstanden til en sprint. Gi det gjerne nytt navn, eller slå av sprinter før du sletter det.",
+    "invalidSlackUrl": "Ikke en adresse til en innkommende webhook i Slack (https://hooks.slack.com/services/…)."
   },
   "formula": {
     "title": "Formel",
@@ -1272,7 +1275,8 @@
         "log": "Skriv til kjøringshistorikken",
         "celebrate": "Feir med konfetti",
         "approval": "Be om godkjenning",
-        "start_sequence": "Start en oppfølging"
+        "start_sequence": "Start en oppfølging",
+        "slack": "Send til Slack"
       },
       "trashHelp": "Flytter raden til papirkurven, der den kan gjenopprettes til papirkurven tømmes. Ingenting kan kjøre etter denne handlingen.",
       "addAction": "Legg til handling",
@@ -1332,7 +1336,8 @@
         "badExample": "Eksempelbrødteksten er ikke gyldig JSON.",
         "exampleTooLong": "Eksempelbrødteksten er for lang.",
         "needApprovers": "Velg hvem som skal spørres.",
-        "needTimeout": "Skriv inn et helt antall dager fra 1 til 30."
+        "needTimeout": "Skriv inn et helt antall dager fra 1 til 30.",
+        "needSlackUrl": "Skriv inn adressen til den innkommende webhooken i Slack."
       },
       "agent": "Agent",
       "chooseAgent": "Velg en agent…",
@@ -1464,7 +1469,8 @@
         "noAddress": "Raden har ingen e-postadresse",
         "emailOff": "E-post på rader er slått av",
         "noPerson": "Hoppet over: kjøringen ble ikke startet av en endring fra en person",
-        "tooLate": "Hoppet over: for lenge etter endringen til å feire den"
+        "tooLate": "Hoppet over: for lenge etter endringen til å feire den",
+        "templateGone": "Radmalen finnes ikke lenger"
       },
       "waitingApproval": "Venter på godkjenning",
       "approval": {
@@ -1566,7 +1572,19 @@
       "logPlaceholder": "For eksempel: Importerte {template}",
       "logHelp": "Skrives i kjøringshistorikken, med variablene fylt ut.",
       "celebrateHelp": "Konfetti i appen for den som gjorde endringen som startet kjøringen, i vinduene vedkommende har åpne. Kjøringer som ingen startet (tidsplaner, datoer som passeres, innkommende webhooks, anonyme skjemasvar), hopper over dette, og det samme gjør kjøringer som kommer hit mer enn to minutter etter endringen.",
-      "celebrateTry": "Prøv det"
+      "celebrateTry": "Prøv det",
+      "slackUrl": "Innkommende webhook i Slack",
+      "slackReplace": "Lim inn en ny adresse for å erstatte den lagrede",
+      "slackSaved": "Lagret adresse:",
+      "slackMessage": "Melding",
+      "slackPlaceholder": "For eksempel: Klar til gjennomgang: {template}",
+      "slackHelp": "Legger ut meldingen i Slack-kanalen til den innkommende webhooken, med en lenke til raden. Slack-formatering (*fet*, _kursiv_) fungerer. Adressen holdes hemmelig og vises bare forkortet.",
+      "rowTemplate": "Radmal",
+      "rowTemplateNone": "Ingen (en tom rad)",
+      "rowTemplateDefault": "Databasens standardmal",
+      "rowTemplateDefaultNamed": "Standardmalen ({name})",
+      "rowTemplateGone": "En mal som ikke finnes lenger",
+      "rowTemplateHelp": "Raden starter som en kopi av malen. Verdier som angis her, går foran malens; en tom tittel beholder malens."
     },
     "variables": {
       "button": "Sett inn en variabel",
@@ -1851,5 +1869,122 @@
       "allView": "Alle sprinter",
       "boardView": "Etter tilstand"
     }
+  },
+  "github": {
+    "menuItem": "Pull-forespørsler i GitHub",
+    "menuHint": "Legg til lenker til pull-forespørsler som nevner en rad med ID-en, og flytt radens status",
+    "title": "Pull-forespørsler i GitHub",
+    "intro": "En pull-forespørsel som nevner en rad med ID-en, for eksempel {example}, i tittelen, beskrivelsen eller grenen, legger til lenken sin på raden og kan flytte radens status.",
+    "needUniqueId": "Legg først til en ID-egenskap i denne databasen: pull-forespørsler nevner rader med ID-en.",
+    "needPrefix": "Gi først ID-egenskapen «{property}» et prefiks, for eksempel OPPG: pull-forespørsler nevner rader med det.",
+    "linkProperty": "Legg til lenker til pull-forespørsler i",
+    "noLinks": "Ikke legg til lenker",
+    "newProperty": "Ny tekstegenskap…",
+    "newPropertyName": "Pull-forespørsler",
+    "newPropertyLabel": "Navn på den nye egenskapen",
+    "linkHelp": "En tekstegenskap beholder alle pull-forespørsler, én per linje; en URL-egenskap beholder den nyeste.",
+    "statusProperty": "Flytt statusen i",
+    "noStatus": "Ikke endre statusen",
+    "noStatusProperty": "Denne databasen har ingen statusegenskap, så bare lenker legges til.",
+    "statusOff": "Statusen forblir som den er.",
+    "statusHelp": "Pull-forespørsler som er utkast, legger til lenken sin, men flytter ingenting før de er klare til gjennomgang. En rad som allerede har en ferdig-status, flyttes bare når en pull-forespørsel slås sammen.",
+    "move": {
+      "opened": "Åpnet eller klar til gjennomgang",
+      "merged": "Slått sammen",
+      "closed": "Lukket uten sammenslåing"
+    },
+    "leave": "La være som den er",
+    "setUp": "Sett opp",
+    "save": "Lagre",
+    "change": "Endre",
+    "whatItDoes": "Hva den gjør",
+    "linksTo": "Legger til lenker til pull-forespørsler i «{property}».",
+    "noLinksSaved": "Legger ikke til lenker.",
+    "movesIn": "Flytter «{property}»: {moves}.",
+    "moves": {
+      "opened": "åpnet til {option}",
+      "merged": "slått sammen til {option}",
+      "closed": "lukket uten sammenslåing til {option}"
+    },
+    "noMoves": "Lar statusen være som den er.",
+    "inGithub": "I GitHub",
+    "steps": "Åpne Webhooks i repositoriets innstillinger (Settings), velg «Add webhook», fyll ut feltene nedenfor, velg «Let me select individual events» og kryss bare av for «Pull requests».",
+    "payloadUrl": "Payload URL",
+    "secret": "Secret",
+    "showSecret": "Vis hemmeligheten",
+    "hideSecret": "Skjul hemmeligheten",
+    "secretUnreadable": "Hemmeligheten kan ikke lenger leses på denne serveren. Lag en ny og gi den til GitHub.",
+    "rotate": "Lag en ny hemmelighet",
+    "rotateConfirm": "Vil du lage en ny hemmelighet? Leveranser som er signert med den gamle, avvises til du gir GitHub den nye.",
+    "contentType": "Content type",
+    "events": "Hendelser",
+    "eventsValue": "Pull requests",
+    "deliveries": "Siste leveranser",
+    "refresh": "Oppdater",
+    "noDeliveries": "Ingenting har kommet ennå. Når du legger til webhooken, sender GitHub en ping som vises her.",
+    "ping": "Ping fra GitHub",
+    "pingOk": "Webhooken er tilkoblet.",
+    "otherEvent": "Hendelse {event}",
+    "handling": "Behandles…",
+    "ignored": "Ingenting å gjøre for «{action}».",
+    "noIds": "Nevner ingen rad i denne databasen.",
+    "outcome": {
+      "updated": "oppdatert",
+      "unchanged": "allerede oppdatert",
+      "notFound": "ikke funnet",
+      "noAccess": "ingen redigeringstilgang",
+      "failed": "mislyktes"
+    },
+    "deliveryErrors": {
+      "noUniqueId": "Databasen har ikke lenger noen ID-egenskap med prefiks.",
+      "runAsGone": "Personen den kjører som, finnes ikke lenger. Lagre oppsettet på nytt.",
+      "accessLost": "Personen den kjører som, kan ikke lenger redigere denne databasen. Lagre oppsettet på nytt.",
+      "inTrash": "Databasen ligger i papirkurven.",
+      "failed": "Noe gikk galt under behandlingen."
+    },
+    "runsAs": "Endringer gjøres som {name}, som lagret oppsettet sist.",
+    "runsAsGone": "Personen den kjørte som, finnes ikke lenger: lagre på nytt for å kjøre den som deg.",
+    "remove": "Fjern",
+    "removeConfirm": "Vil du fjerne GitHub-oppsettet? Leveranser fra GitHub avvises fra da av; lenker som allerede er lagt til, blir værende.",
+    "errors": {
+      "noUniqueId": "Legg først til en ID-egenskap med prefiks i denne databasen.",
+      "invalidProperty": "Velg en tekst- eller URL-egenskap for lenkene, en statusegenskap og alternativene for den.",
+      "notSetUp": "Denne databasen har ikke noe GitHub-oppsett."
+    }
+  },
+  "slack": {
+    "menuItem": "Slack-varsler",
+    "menuHint": "Legg ut i en Slack-kanal når en rad legges til eller en egenskap endres",
+    "title": "Slack-varsler",
+    "intro": "Legger ut i en Slack-kanal når en rad legges til eller en egenskap endres. Det lagres som en automatisering du kan endre senere.",
+    "url": "Innkommende webhook i Slack",
+    "urlHelp": "I Slack legger du til appen Incoming WebHooks i kanalen og kopierer webhook-URL-en. Den holdes hemmelig og vises bare forkortet.",
+    "when": "Når",
+    "rowAdded": "En rad legges til",
+    "propertyChanges": "{property} endres",
+    "to": "Til",
+    "anyValue": "Hvilken som helst verdi",
+    "checked": "Avmerket",
+    "unchecked": "Ikke avmerket",
+    "message": "Melding",
+    "messageHelp": "Variabler i doble klammeparenteser fylles ut fra raden. En lenke til raden legges til på slutten.",
+    "defaultAdded": "{actor} la til en rad i {database}",
+    "defaultChanged": "{actor} endret {property} til {value}",
+    "nameAdded": "Slack: nye rader",
+    "nameChanged": "Slack: {property} endret",
+    "nameChangedTo": "Slack: {property} er {value}",
+    "create": "Opprett",
+    "created": "Opprettet automatiseringen «{name}».",
+    "existing": "Automatiseringer som legger ut i Slack",
+    "existingHelp": "Endre eller slå dem av under databasens automatiseringer.",
+    "off": "av"
+  },
+  "templateValues": {
+    "me": "Meg",
+    "today": "I dag",
+    "now": "Nå",
+    "hint": "Fylles ut når en rad legges til fra denne malen",
+    "dateWhen": "Angis når en rad legges til",
+    "meOption": "Den som legger til raden"
   }
 }
