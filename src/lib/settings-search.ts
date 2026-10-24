@@ -81,6 +81,11 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
   { id: "webhooks", tab: "webhooks", keywords: true },
   { id: "site", tab: "site", label: "settings:site.heading", keywords: true },
   { id: "sitePages", tab: "site", label: "settings:site.pagesHeading", when: owner },
+  { id: "siteTheme", tab: "site", label: "settings:site.themeLabel", when: owner },
+  { id: "siteHeader", tab: "site", label: "settings:site.linksLabel", keywords: true, when: owner },
+  { id: "siteDescription", tab: "site", label: "settings:site.descriptionLabel", keywords: true, when: owner },
+  { id: "siteAnalytics", tab: "site", label: "settings:site.analyticsLabel", keywords: true, when: owner },
+  { id: "siteDomain", tab: "site", label: "settings:site.domainLabel", keywords: true, when: owner },
 
   { id: "authentication", tab: "security", label: "settings:security.authenticationHeading" },
   { id: "requireTwoFactor", tab: "security", label: "settings:security.requireTwoFactor.title", keywords: true },

@@ -12,7 +12,8 @@ import {
   updatePublicationAction,
 } from "@/app/actions/publication";
 import { ViewIcon } from "@/components/database/property-icons";
-import { Button, cn, PageIcon, Switch } from "@/components/ui";
+import { Button, cn, PageIcon, Switch, textareaClass } from "@/components/ui";
+import { SEARCH_DESCRIPTION_MAX } from "@/lib/site";
 import type { ViewType } from "@/db/schema";
 
 type Publication = {
@@ -23,6 +24,8 @@ type Publication = {
   indexable: boolean;
   inSite: boolean;
   allowDuplicate: boolean;
+  /** What search results and link previews say about the page. */
+  description: string;
 } | null;
 type Option = "indexable" | "inSite" | "allowDuplicate";
 type WebView = { id: string; name: string; type: ViewType; published: boolean };
@@ -157,6 +160,20 @@ export function PublishTab({ pageId }: { pageId: string }) {
           </div>
         ))}
 
+      {publication && (
+        <PublishDescription
+          // Starts again from what is stored once it is saved.
+          key={publication.description}
+          stored={publication.description}
+          disabled={busy || blocker !== null}
+          onSave={(description) =>
+            void change(async () => {
+              setPublication((await updatePublicationAction(pageId, { description })) ?? null);
+            })
+          }
+        />
+      )}
+
       {outside.length > 0 && (
         <div className="mt-4">
           <p className="text-sm">{t("outside")}</p>
@@ -281,6 +298,32 @@ export function PublishTab({ pageId }: { pageId: string }) {
           </Button>
         )}
       </div>
+    </div>
+  );
+}
+
+/** The publication's search description, saved when the field is left. */
+function PublishDescription({ stored, disabled, onSave }: { stored: string; disabled: boolean; onSave: (description: string) => void }) {
+  const t = useTranslations("publish");
+  const [value, setValue] = useState(stored);
+  return (
+    <div className="mt-3">
+      <label htmlFor="publish-description" className="text-sm">
+        {t("descriptionLabel")}
+      </label>
+      <p className="mt-0.5 text-xs text-fg-muted">{t("descriptionHint")}</p>
+      <textarea
+        id="publish-description"
+        rows={2}
+        value={value}
+        maxLength={SEARCH_DESCRIPTION_MAX}
+        disabled={disabled}
+        className={cn(textareaClass, "mt-1.5")}
+        onChange={(e) => setValue(e.target.value)}
+        onBlur={() => {
+          if (value.replace(/\s+/g, " ").trim() !== stored) onSave(value);
+        }}
+      />
     </div>
   );
 }

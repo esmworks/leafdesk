@@ -81,7 +81,11 @@
       "aiUsageLimit": "budget cost spending cap",
       "aiUsagePeople": "per person member cost tokens",
       "health": "broken links orphans duplicates empty pages",
-      "audit": "log history events who changed"
+      "audit": "log history events who changed",
+      "siteHeader": "navigation menu links top bar",
+      "siteDescription": "seo meta description search engines preview open graph",
+      "siteAnalytics": "google analytics ga4 gtag tracking visitors statistics",
+      "siteDomain": "custom domain dns host name cname certificate"
     }
   },
   "workspace": {
@@ -1931,8 +1935,46 @@
       "reserved": "This address is reserved. Pick another one.",
       "slugTaken": "Another workspace uses this address.",
       "homeNotPublished": "Pick a published page of this workspace that you can see.",
-      "ownersOnly": "Only workspace owners can do this."
-    }
+      "ownersOnly": "Only workspace owners can do this.",
+      "domainInvalid": "Enter a domain name such as docs.example.com (not an IP address).",
+      "domainReserved": "This is the app's own address. Pick another domain.",
+      "domainTaken": "Another site uses this domain.",
+      "linksInvalid": "Each header link needs a text and a page of this workspace or an http(s) address.",
+      "analyticsInvalid": "A measurement ID looks like G-XXXXXXXXXX.",
+      "themeInvalid": "Pick light, dark or the visitor's system.",
+      "noSite": "Set up the site first."
+    },
+    "lookHeading": "Look and header",
+    "lookDescription": "How every page of the site looks to its visitors.",
+    "themeLabel": "Theme",
+    "themeHint": "Visitors see the site in this theme, whatever they chose in the app.",
+    "themes": {
+      "system": "Follow the visitor's system",
+      "light": "Light",
+      "dark": "Dark"
+    },
+    "linksLabel": "Header links",
+    "linksHint": "Up to {max} links in the site's header, to pages listed in the site or to web addresses.",
+    "linkLabel": "Link text",
+    "linkTarget": "Leads to",
+    "linkWeb": "A web address",
+    "linkUnlisted": "A page no longer listed",
+    "linkUrl": "Web address",
+    "linkRemove": "Remove link",
+    "linkAdd": "Add link",
+    "searchHeading": "Search engines and analytics",
+    "searchDescription": "What search results and link previews say about the site, and whether its visits are counted.",
+    "descriptionLabel": "Default description",
+    "descriptionHint": "Shown in search results and link previews for pages without a description of their own (set in a page's Publish tab).",
+    "analyticsLabel": "Google Analytics",
+    "analyticsHint": "A Google Analytics 4 measurement ID (G-…). Visitors' browsers then load Google's tag on every page of the site and send Google what they view.",
+    "domainHeading": "Own domain",
+    "domainDescription": "Serve the site at the root of a domain of yours, like docs.example.com.",
+    "domainLabel": "Domain",
+    "domainHint": "A host name, without https:// or a path. Leave it empty to serve the site only at its address here.",
+    "domainStepDns": "Point the domain at this server: a CNAME record to {host}, or A and AAAA records to its address.",
+    "domainStepProxy": "Ask whoever runs the server to add the domain to its reverse proxy, with a certificate for HTTPS.",
+    "domainStepOnly": "The domain serves only the site's published pages: signing in and the rest of the app stay at this address."
   },
   "connections": {
     "heading": "Connections",

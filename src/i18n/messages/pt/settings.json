@@ -81,7 +81,11 @@
       "aiUsageLimit": "orçamento custo gasto teto",
       "aiUsagePeople": "por pessoa membro custo tokens",
       "health": "links quebrados órfãs duplicadas páginas vazias",
-      "audit": "registro histórico eventos quem alterou"
+      "audit": "registro histórico eventos quem alterou",
+      "siteHeader": "navegação menu links barra superior",
+      "siteDescription": "seo meta descrição buscadores prévia open graph",
+      "siteAnalytics": "google analytics ga4 gtag rastreamento visitantes estatísticas",
+      "siteDomain": "domínio próprio dns nome de host cname certificado"
     }
   },
   "workspace": {
@@ -1931,8 +1935,46 @@
       "reserved": "Este endereço é reservado. Escolha outro.",
       "slugTaken": "Outro espaço de trabalho usa este endereço.",
       "homeNotPublished": "Escolha uma página publicada deste espaço de trabalho que você possa ver.",
-      "ownersOnly": "Só proprietários do espaço de trabalho podem fazer isso."
-    }
+      "ownersOnly": "Só proprietários do espaço de trabalho podem fazer isso.",
+      "domainInvalid": "Digite um nome de domínio como docs.example.com (não um endereço IP).",
+      "domainReserved": "Este é o endereço do próprio app. Escolha outro domínio.",
+      "domainTaken": "Outro site usa este domínio.",
+      "linksInvalid": "Cada link do cabeçalho precisa de um texto e de uma página deste espaço de trabalho ou de um endereço http(s).",
+      "analyticsInvalid": "Um ID de métricas tem o formato G-XXXXXXXXXX.",
+      "themeInvalid": "Escolha claro, escuro ou o sistema do visitante.",
+      "noSite": "Configure o site primeiro."
+    },
+    "lookHeading": "Aparência e cabeçalho",
+    "lookDescription": "Como cada página do site aparece para os visitantes.",
+    "themeLabel": "Tema",
+    "themeHint": "Os visitantes veem o site neste tema, seja qual for a escolha deles no app.",
+    "themes": {
+      "system": "Seguir o sistema do visitante",
+      "light": "Claro",
+      "dark": "Escuro"
+    },
+    "linksLabel": "Links do cabeçalho",
+    "linksHint": "Até {max} links no cabeçalho do site, para páginas do site ou endereços da web.",
+    "linkLabel": "Texto do link",
+    "linkTarget": "Leva a",
+    "linkWeb": "Um endereço da web",
+    "linkUnlisted": "Uma página que não está mais listada",
+    "linkUrl": "Endereço da web",
+    "linkRemove": "Remover link",
+    "linkAdd": "Adicionar link",
+    "searchHeading": "Buscadores e estatísticas",
+    "searchDescription": "O que os resultados de busca e as prévias de links dizem sobre o site, e se as visitas são contadas.",
+    "descriptionLabel": "Descrição padrão",
+    "descriptionHint": "Aparece nos resultados de busca e nas prévias de links das páginas sem descrição própria (definida na aba Publicar de cada página).",
+    "analyticsLabel": "Google Analytics",
+    "analyticsHint": "Um ID de métricas do Google Analytics 4 (G-…). Os navegadores dos visitantes passam a carregar a tag do Google em todas as páginas do site e a enviar ao Google o que veem.",
+    "domainHeading": "Domínio próprio",
+    "domainDescription": "Sirva o site na raiz de um domínio seu, como docs.example.com.",
+    "domainLabel": "Domínio",
+    "domainHint": "Um nome de host, sem https:// nem caminho. Deixe vazio para servir o site só no endereço daqui.",
+    "domainStepDns": "Aponte o domínio para este servidor: um registro CNAME para {host}, ou registros A e AAAA para o endereço dele.",
+    "domainStepProxy": "Peça a quem administra o servidor para adicionar o domínio ao proxy reverso, com um certificado para HTTPS.",
+    "domainStepOnly": "O domínio serve só as páginas publicadas do site: o login e o resto do app continuam neste endereço."
   },
   "connections": {
     "heading": "Conexões",

@@ -81,7 +81,11 @@
       "aiUsageLimit": "budżet koszt wydatki limit",
       "aiUsagePeople": "na osobę członek koszt tokeny",
       "health": "zepsute linki osierocone duplikaty puste strony",
-      "audit": "dziennik historia zdarzenia kto zmienił"
+      "audit": "dziennik historia zdarzenia kto zmienił",
+      "siteHeader": "nawigacja menu linki górny pasek",
+      "siteDescription": "seo meta opis wyszukiwarki podgląd open graph",
+      "siteAnalytics": "google analytics ga4 gtag śledzenie odwiedzający statystyki",
+      "siteDomain": "własna domena dns nazwa hosta cname certyfikat"
     }
   },
   "workspace": {
@@ -1931,8 +1935,46 @@
       "reserved": "Ten adres jest zarezerwowany. Wybierz inny.",
       "slugTaken": "Inny obszar roboczy używa tego adresu.",
       "homeNotPublished": "Wybierz opublikowaną stronę tego obszaru roboczego, którą widzisz.",
-      "ownersOnly": "Tylko właściciele obszaru roboczego mogą to zrobić."
-    }
+      "ownersOnly": "Tylko właściciele obszaru roboczego mogą to zrobić.",
+      "domainInvalid": "Wpisz nazwę domeny, np. docs.example.com (nie adres IP).",
+      "domainReserved": "To adres samej aplikacji. Wybierz inną domenę.",
+      "domainTaken": "Inna witryna używa tej domeny.",
+      "linksInvalid": "Każdy link w nagłówku wymaga tekstu oraz strony tego obszaru roboczego lub adresu http(s).",
+      "analyticsInvalid": "Identyfikator pomiaru wygląda jak G-XXXXXXXXXX.",
+      "themeInvalid": "Wybierz jasny, ciemny lub system odwiedzającego.",
+      "noSite": "Najpierw skonfiguruj witrynę."
+    },
+    "lookHeading": "Wygląd i nagłówek",
+    "lookDescription": "Jak każda strona witryny wygląda dla odwiedzających.",
+    "themeLabel": "Motyw",
+    "themeHint": "Odwiedzający widzą witrynę w tym motywie, niezależnie od tego, co wybrali w aplikacji.",
+    "themes": {
+      "system": "Zgodnie z systemem odwiedzającego",
+      "light": "Jasny",
+      "dark": "Ciemny"
+    },
+    "linksLabel": "Linki w nagłówku",
+    "linksHint": "Do {max} linków w nagłówku witryny, do stron witryny lub adresów internetowych.",
+    "linkLabel": "Tekst linku",
+    "linkTarget": "Prowadzi do",
+    "linkWeb": "Adres internetowy",
+    "linkUnlisted": "Strona, której już nie ma w witrynie",
+    "linkUrl": "Adres internetowy",
+    "linkRemove": "Usuń link",
+    "linkAdd": "Dodaj link",
+    "searchHeading": "Wyszukiwarki i statystyki",
+    "searchDescription": "Co wyniki wyszukiwania i podglądy linków mówią o witrynie oraz czy jej odwiedziny są liczone.",
+    "descriptionLabel": "Domyślny opis",
+    "descriptionHint": "Pokazywany w wynikach wyszukiwania i podglądach linków stron bez własnego opisu (ustawianego w karcie Opublikuj strony).",
+    "analyticsLabel": "Google Analytics",
+    "analyticsHint": "Identyfikator pomiaru Google Analytics 4 (G-…). Przeglądarki odwiedzających wczytują wtedy tag Google na każdej stronie witryny i wysyłają Google, co oglądają.",
+    "domainHeading": "Własna domena",
+    "domainDescription": "Udostępniaj witrynę w katalogu głównym własnej domeny, np. docs.example.com.",
+    "domainLabel": "Domena",
+    "domainHint": "Nazwa hosta, bez https:// i ścieżki. Zostaw puste, by witryna była dostępna tylko pod adresem tutaj.",
+    "domainStepDns": "Skieruj domenę na ten serwer: rekord CNAME na {host} albo rekordy A i AAAA na jego adres.",
+    "domainStepProxy": "Poproś osobę prowadzącą serwer o dodanie domeny do odwrotnego proxy, z certyfikatem dla HTTPS.",
+    "domainStepOnly": "Domena udostępnia tylko opublikowane strony witryny: logowanie i reszta aplikacji zostają pod tym adresem."
   },
   "connections": {
     "heading": "Połączenia",

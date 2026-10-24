@@ -81,7 +81,11 @@
       "aiUsageLimit": "anggaran biaya pengeluaran batas",
       "aiUsagePeople": "per orang anggota biaya token",
       "health": "tautan rusak yatim duplikat halaman kosong",
-      "audit": "log riwayat peristiwa siapa mengubah"
+      "audit": "log riwayat peristiwa siapa mengubah",
+      "siteHeader": "navigasi menu tautan bilah atas",
+      "siteDescription": "seo meta deskripsi mesin pencari pratinjau open graph",
+      "siteAnalytics": "google analytics ga4 gtag pelacakan pengunjung statistik",
+      "siteDomain": "domain sendiri dns nama host cname sertifikat"
     }
   },
   "workspace": {
@@ -1931,8 +1935,46 @@
       "reserved": "Alamat ini dicadangkan. Pilih yang lain.",
       "slugTaken": "Ruang kerja lain memakai alamat ini.",
       "homeNotPublished": "Pilih halaman terbit dari ruang kerja ini yang dapat Anda lihat.",
-      "ownersOnly": "Hanya pemilik ruang kerja yang dapat melakukan ini."
-    }
+      "ownersOnly": "Hanya pemilik ruang kerja yang dapat melakukan ini.",
+      "domainInvalid": "Masukkan nama domain seperti docs.example.com (bukan alamat IP).",
+      "domainReserved": "Ini alamat aplikasi itu sendiri. Pilih domain lain.",
+      "domainTaken": "Situs lain memakai domain ini.",
+      "linksInvalid": "Setiap tautan header perlu teks dan halaman ruang kerja ini atau alamat http(s).",
+      "analyticsInvalid": "ID pengukuran berbentuk G-XXXXXXXXXX.",
+      "themeInvalid": "Pilih terang, gelap, atau sistem pengunjung.",
+      "noSite": "Siapkan situs terlebih dahulu."
+    },
+    "lookHeading": "Tampilan dan header",
+    "lookDescription": "Bagaimana setiap halaman situs terlihat bagi pengunjung.",
+    "themeLabel": "Tema",
+    "themeHint": "Pengunjung melihat situs dengan tema ini, apa pun pilihan mereka di aplikasi.",
+    "themes": {
+      "system": "Ikuti sistem pengunjung",
+      "light": "Terang",
+      "dark": "Gelap"
+    },
+    "linksLabel": "Tautan header",
+    "linksHint": "Hingga {max} tautan di header situs, ke halaman situs atau alamat web.",
+    "linkLabel": "Teks tautan",
+    "linkTarget": "Menuju ke",
+    "linkWeb": "Alamat web",
+    "linkUnlisted": "Halaman yang tidak lagi tercantum",
+    "linkUrl": "Alamat web",
+    "linkRemove": "Hapus tautan",
+    "linkAdd": "Tambah tautan",
+    "searchHeading": "Mesin pencari dan analitik",
+    "searchDescription": "Apa yang dikatakan hasil pencarian dan pratinjau tautan tentang situs, dan apakah kunjungannya dihitung.",
+    "descriptionLabel": "Deskripsi default",
+    "descriptionHint": "Ditampilkan di hasil pencarian dan pratinjau tautan untuk halaman tanpa deskripsi sendiri (diatur di tab Terbitkan pada halaman).",
+    "analyticsLabel": "Google Analytics",
+    "analyticsHint": "ID pengukuran Google Analytics 4 (G-…). Browser pengunjung lalu memuat tag Google di setiap halaman situs dan mengirim ke Google apa yang mereka lihat.",
+    "domainHeading": "Domain sendiri",
+    "domainDescription": "Sajikan situs di root domain milik Anda, seperti docs.example.com.",
+    "domainLabel": "Domain",
+    "domainHint": "Nama host, tanpa https:// atau path. Kosongkan untuk menyajikan situs hanya di alamatnya di sini.",
+    "domainStepDns": "Arahkan domain ke server ini: data CNAME ke {host}, atau data A dan AAAA ke alamatnya.",
+    "domainStepProxy": "Minta pengelola server menambahkan domain ke reverse proxy-nya, dengan sertifikat untuk HTTPS.",
+    "domainStepOnly": "Domain itu hanya menyajikan halaman situs yang diterbitkan: masuk dan bagian lain aplikasi tetap di alamat ini."
   },
   "connections": {
     "heading": "Koneksi",

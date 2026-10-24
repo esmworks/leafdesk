@@ -81,7 +81,11 @@
       "aiUsageLimit": "budget coût dépenses plafond",
       "aiUsagePeople": "par personne membre coût jetons",
       "health": "liens cassés orphelines doublons pages vides",
-      "audit": "journal historique événements qui a modifié"
+      "audit": "journal historique événements qui a modifié",
+      "siteHeader": "navigation menu liens barre du haut",
+      "siteDescription": "seo meta description moteurs de recherche aperçu open graph",
+      "siteAnalytics": "google analytics ga4 gtag suivi visiteurs statistiques",
+      "siteDomain": "domaine personnalisé dns nom d’hôte cname certificat"
     }
   },
   "workspace": {
@@ -1931,8 +1935,46 @@
       "reserved": "Cette adresse est réservée. Choisissez-en une autre.",
       "slugTaken": "Un autre espace de travail utilise cette adresse.",
       "homeNotPublished": "Choisissez une page publiée de cet espace de travail que vous pouvez voir.",
-      "ownersOnly": "Seuls les propriétaires de l’espace de travail peuvent faire cela."
-    }
+      "ownersOnly": "Seuls les propriétaires de l’espace de travail peuvent faire cela.",
+      "domainInvalid": "Saisissez un nom de domaine comme docs.example.com (pas une adresse IP).",
+      "domainReserved": "C’est l’adresse de l’application elle-même. Choisissez un autre domaine.",
+      "domainTaken": "Un autre site utilise ce domaine.",
+      "linksInvalid": "Chaque lien de l’en-tête a besoin d’un texte et d’une page de cet espace de travail ou d’une adresse http(s).",
+      "analyticsInvalid": "Un ID de mesure ressemble à G-XXXXXXXXXX.",
+      "themeInvalid": "Choisissez clair, sombre ou le système du visiteur.",
+      "noSite": "Configurez d’abord le site."
+    },
+    "lookHeading": "Apparence et en-tête",
+    "lookDescription": "L’apparence de chaque page du site pour ses visiteurs.",
+    "themeLabel": "Thème",
+    "themeHint": "Les visiteurs voient le site dans ce thème, quel que soit leur choix dans l’application.",
+    "themes": {
+      "system": "Suivre le système du visiteur",
+      "light": "Clair",
+      "dark": "Sombre"
+    },
+    "linksLabel": "Liens de l’en-tête",
+    "linksHint": "Jusqu’à {max} liens dans l’en-tête du site, vers des pages du site ou des adresses web.",
+    "linkLabel": "Texte du lien",
+    "linkTarget": "Mène à",
+    "linkWeb": "Une adresse web",
+    "linkUnlisted": "Une page qui n’est plus listée",
+    "linkUrl": "Adresse web",
+    "linkRemove": "Retirer le lien",
+    "linkAdd": "Ajouter un lien",
+    "searchHeading": "Moteurs de recherche et statistiques",
+    "searchDescription": "Ce que les résultats de recherche et les aperçus de liens disent du site, et si ses visites sont comptées.",
+    "descriptionLabel": "Description par défaut",
+    "descriptionHint": "Affichée dans les résultats de recherche et les aperçus de liens des pages sans description propre (définie dans l’onglet Publier d’une page).",
+    "analyticsLabel": "Google Analytics",
+    "analyticsHint": "Un ID de mesure Google Analytics 4 (G-…). Les navigateurs des visiteurs chargent alors la balise Google sur chaque page du site et lui envoient ce qu’ils consultent.",
+    "domainHeading": "Domaine personnalisé",
+    "domainDescription": "Servez le site à la racine d’un domaine à vous, comme docs.example.com.",
+    "domainLabel": "Domaine",
+    "domainHint": "Un nom d’hôte, sans https:// ni chemin. Laissez vide pour ne servir le site qu’à son adresse ici.",
+    "domainStepDns": "Faites pointer le domaine vers ce serveur : un enregistrement CNAME vers {host}, ou des enregistrements A et AAAA vers son adresse.",
+    "domainStepProxy": "Demandez à la personne qui gère le serveur d’ajouter le domaine à son proxy inverse, avec un certificat pour HTTPS.",
+    "domainStepOnly": "Le domaine ne sert que les pages publiées du site : la connexion et le reste de l’application restent à cette adresse."
   },
   "connections": {
     "heading": "Connexions",

@@ -81,7 +81,11 @@
       "aiUsageLimit": "ngân sách chi phí chi tiêu giới hạn",
       "aiUsagePeople": "theo người thành viên chi phí token",
       "health": "liên kết hỏng mồ côi trùng lặp trang trống",
-      "audit": "nhật ký lịch sử sự kiện ai đã thay đổi"
+      "audit": "nhật ký lịch sử sự kiện ai đã thay đổi",
+      "siteHeader": "điều hướng menu liên kết thanh trên cùng",
+      "siteDescription": "seo meta mô tả công cụ tìm kiếm xem trước open graph",
+      "siteAnalytics": "google analytics ga4 gtag theo dõi khách truy cập thống kê",
+      "siteDomain": "tên miền riêng dns tên máy chủ cname chứng chỉ"
     }
   },
   "workspace": {
@@ -1931,8 +1935,46 @@
       "reserved": "Địa chỉ này đã được dành riêng. Hãy chọn địa chỉ khác.",
       "slugTaken": "Một không gian làm việc khác đang dùng địa chỉ này.",
       "homeNotPublished": "Hãy chọn một trang đã xuất bản của không gian làm việc này mà bạn thấy được.",
-      "ownersOnly": "Chỉ chủ sở hữu không gian làm việc mới có thể thực hiện việc này."
-    }
+      "ownersOnly": "Chỉ chủ sở hữu không gian làm việc mới có thể thực hiện việc này.",
+      "domainInvalid": "Nhập một tên miền như docs.example.com (không phải địa chỉ IP).",
+      "domainReserved": "Đây là địa chỉ của chính ứng dụng. Hãy chọn tên miền khác.",
+      "domainTaken": "Một trang web khác đang dùng tên miền này.",
+      "linksInvalid": "Mỗi liên kết đầu trang cần có chữ và một trang của không gian làm việc này hoặc một địa chỉ http(s).",
+      "analyticsInvalid": "Mã đo lường có dạng G-XXXXXXXXXX.",
+      "themeInvalid": "Chọn sáng, tối hoặc theo hệ thống của khách.",
+      "noSite": "Hãy thiết lập trang web trước."
+    },
+    "lookHeading": "Giao diện và thanh đầu trang",
+    "lookDescription": "Mỗi trang của trang web trông thế nào với khách truy cập.",
+    "themeLabel": "Chủ đề",
+    "themeHint": "Khách truy cập thấy trang web theo chủ đề này, bất kể họ đã chọn gì trong ứng dụng.",
+    "themes": {
+      "system": "Theo hệ thống của khách",
+      "light": "Sáng",
+      "dark": "Tối"
+    },
+    "linksLabel": "Liên kết đầu trang",
+    "linksHint": "Tối đa {max} liên kết trên đầu trang web, tới các trang của trang web hoặc địa chỉ web.",
+    "linkLabel": "Chữ của liên kết",
+    "linkTarget": "Dẫn tới",
+    "linkWeb": "Một địa chỉ web",
+    "linkUnlisted": "Một trang không còn được liệt kê",
+    "linkUrl": "Địa chỉ web",
+    "linkRemove": "Gỡ liên kết",
+    "linkAdd": "Thêm liên kết",
+    "searchHeading": "Công cụ tìm kiếm và thống kê",
+    "searchDescription": "Kết quả tìm kiếm và bản xem trước liên kết nói gì về trang web, và lượt truy cập có được đếm không.",
+    "descriptionLabel": "Mô tả mặc định",
+    "descriptionHint": "Hiện trong kết quả tìm kiếm và bản xem trước liên kết của các trang không có mô tả riêng (đặt trong thẻ Xuất bản của trang).",
+    "analyticsLabel": "Google Analytics",
+    "analyticsHint": "Mã đo lường Google Analytics 4 (G-…). Khi đó trình duyệt của khách tải thẻ Google trên mọi trang của trang web và gửi cho Google những gì họ xem.",
+    "domainHeading": "Tên miền riêng",
+    "domainDescription": "Phục vụ trang web tại gốc của một tên miền của bạn, như docs.example.com.",
+    "domainLabel": "Tên miền",
+    "domainHint": "Một tên máy chủ, không có https:// hay đường dẫn. Để trống để chỉ phục vụ trang web tại địa chỉ ở đây.",
+    "domainStepDns": "Trỏ tên miền về máy chủ này: một bản ghi CNAME tới {host}, hoặc bản ghi A và AAAA tới địa chỉ của nó.",
+    "domainStepProxy": "Nhờ người quản trị máy chủ thêm tên miền vào reverse proxy, kèm chứng chỉ cho HTTPS.",
+    "domainStepOnly": "Tên miền chỉ phục vụ các trang đã xuất bản của trang web: đăng nhập và phần còn lại của ứng dụng vẫn ở địa chỉ này."
   },
   "connections": {
     "heading": "Kết nối",

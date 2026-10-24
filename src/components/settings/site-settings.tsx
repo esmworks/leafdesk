@@ -1,14 +1,28 @@
 "use client";
 
-import { ExternalLink, Globe, Lock } from "lucide-react";
+import { ExternalLink, Globe, Lock, Plus, X } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
-import { removeSiteAction, saveSiteAction, setSiteListingAction } from "@/app/actions/site";
-import { Button, Input, selectClass, Switch } from "@/components/ui";
-import { SITE_SLUG_MAX, siteSlugProblem, slugify } from "@/lib/site";
+import { removeSiteAction, saveSiteAction, setSiteListingAction, updateSiteOptionsAction } from "@/app/actions/site";
+import { Button, IconButton, Input, selectClass, Switch, textareaClass } from "@/components/ui";
+import {
+  isAnalyticsId,
+  isWebAddress,
+  normalizeSiteDomain,
+  SEARCH_DESCRIPTION_MAX,
+  SITE_HEADER_LABEL_MAX,
+  SITE_HEADER_LINKS_MAX,
+  SITE_SLUG_MAX,
+  SITE_THEMES,
+  siteDomainProblem,
+  siteSlugProblem,
+  slugify,
+  type SiteHeaderLink,
+  type SiteTheme,
+} from "@/lib/site";
 import type { WorkspacePublication } from "@/server/publication";
-import type { WorkspaceSiteInfo } from "@/server/site";
+import type { SiteOptions, WorkspaceSiteInfo } from "@/server/site";
 import { SettingsRow } from "./section";
 import { useAction } from "./workspace-settings";
 
@@ -227,5 +241,293 @@ function SitePageRow({ workspaceId, publication: p, home }: { workspaceId: strin
         />
       }
     />
+  );
+}
+
+/** Saves some of the site's options; `saved` until they change again. */
+function useSiteOptions(workspaceId: string) {
+  const { pending, error, run } = useAction();
+  const [saved, setSaved] = useState(false);
+  const save = (patch: Partial<SiteOptions>, onSaved?: (site: WorkspaceSiteInfo) => void) => {
+    setSaved(false);
+    run(() => updateSiteOptionsAction(workspaceId, patch), (site) => {
+      setSaved(true);
+      onSaved?.(site);
+    });
+  };
+  return { pending, error, saved, setSaved, save };
+}
+
+function SaveRow({ pending, error, saved, dirty, invalid }: { pending: boolean; error: string | null; saved: boolean; dirty: boolean; invalid?: boolean }) {
+  const tc = useTranslations("common");
+  return (
+    <SettingsRow
+      title=""
+      description={error ? <span className="text-danger">{error}</span> : saved ? tc("saved") : undefined}
+      control={
+        <Button type="submit" variant="primary" disabled={pending || !dirty || invalid}>
+          {pending ? tc("saving") : tc("save")}
+        </Button>
+      }
+    />
+  );
+}
+
+type LinkDraft = { label: string; target: string; url: string };
+/** The select's value for a web address; page links use the page's id. */
+const WEB = "web";
+
+const toDraft = (link: SiteHeaderLink): LinkDraft =>
+  "url" in link ? { label: link.label, target: WEB, url: link.url } : { label: link.label, target: link.pageId, url: "" };
+const fromDraft = (draft: LinkDraft): SiteHeaderLink =>
+  draft.target === WEB ? { label: draft.label.trim(), url: draft.url.trim() } : { label: draft.label.trim(), pageId: draft.target };
+/** Links as text to compare, in one key order (the database keeps its own). */
+const linksKey = (links: SiteHeaderLink[]) => JSON.stringify(links.map((l) => fromDraft(toDraft(l))));
+
+/** Settings > Site, owners: the site's theme and the links in its header. */
+export function SiteLook({ workspaceId, site, publications }: { workspaceId: string; site: WorkspaceSiteInfo; publications: WorkspacePublication[] }) {
+  const t = useTranslations("settings.site");
+  const tc = useTranslations("common");
+  const [theme, setTheme] = useState<SiteTheme>(site.theme);
+  const [links, setLinks] = useState<LinkDraft[]>(site.headerLinks.map(toDraft));
+  const [stored, setStored] = useState({ theme: site.theme, links: linksKey(site.headerLinks) });
+  const { pending, error, saved, setSaved, save } = useSiteOptions(workspaceId);
+  // Header links lead to pages the site lists (their subpages are a click away in its navigation).
+  const pages = publications.filter((p) => p.inSite && p.title !== null && !p.inTrash);
+  const cleaned = links.map(fromDraft);
+  const invalid = links.some((l) => !l.label.trim() || (l.target === WEB ? !isWebAddress(l.url.trim()) : !l.target));
+  const dirty = theme !== stored.theme || linksKey(cleaned) !== stored.links;
+  const change = (i: number, patch: Partial<LinkDraft>) => {
+    setLinks((all) => all.map((l, j) => (j === i ? { ...l, ...patch } : l)));
+    setSaved(false);
+  };
+
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (invalid || !dirty) return;
+        save({ theme, headerLinks: cleaned }, (now) => setStored({ theme: now.theme, links: linksKey(now.headerLinks) }));
+      }}
+    >
+      <SettingsRow
+        anchor="siteTheme"
+        title={t("themeLabel")}
+        htmlFor="site-theme"
+        description={t("themeHint")}
+        control={
+          <select
+            id="site-theme"
+            className={`${selectClass} w-full sm:w-60`}
+            value={theme}
+            onChange={(e) => {
+              setTheme(e.target.value as SiteTheme);
+              setSaved(false);
+            }}
+          >
+            {SITE_THEMES.map((value) => (
+              <option key={value} value={value}>
+                {t(`themes.${value}`)}
+              </option>
+            ))}
+          </select>
+        }
+      />
+      <SettingsRow anchor="siteHeader" title={t("linksLabel")} description={t("linksHint", { max: SITE_HEADER_LINKS_MAX })}>
+        <ul className="flex flex-col gap-2">
+          {links.map((link, i) => {
+            const badUrl = link.target === WEB && link.url.trim() !== "" && !isWebAddress(link.url.trim());
+            return (
+              <li key={i} className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                <Input
+                  aria-label={t("linkLabel")}
+                  placeholder={t("linkLabel")}
+                  value={link.label}
+                  maxLength={SITE_HEADER_LABEL_MAX}
+                  className="w-full sm:w-44"
+                  onChange={(e) => change(i, { label: e.target.value })}
+                />
+                <select
+                  aria-label={t("linkTarget")}
+                  className={`${selectClass} w-full sm:w-48`}
+                  value={link.target}
+                  onChange={(e) => change(i, { target: e.target.value })}
+                >
+                  <option value={WEB}>{t("linkWeb")}</option>
+                  {/* A page taken out of the site stays picked; the site leaves the link out until it is listed again. */}
+                  {link.target !== WEB && !pages.some((p) => p.pageId === link.target) && <option value={link.target}>{t("linkUnlisted")}</option>}
+                  {pages.map((p) => (
+                    <option key={p.pageId} value={p.pageId}>
+                      {p.icon ? `${p.icon} ` : ""}
+                      {p.title || tc("untitled")}
+                    </option>
+                  ))}
+                </select>
+                {link.target === WEB && (
+                  <Input
+                    aria-label={t("linkUrl")}
+                    aria-invalid={badUrl || undefined}
+                    placeholder="https://"
+                    type="url"
+                    value={link.url}
+                    className={`w-full min-w-0 sm:flex-1 ${badUrl ? "border-danger" : ""}`}
+                    onChange={(e) => change(i, { url: e.target.value })}
+                  />
+                )}
+                <IconButton
+                  type="button"
+                  label={t("linkRemove")}
+                  className="self-end sm:ms-auto sm:self-center"
+                  onClick={() => {
+                    setLinks((all) => all.filter((_, j) => j !== i));
+                    setSaved(false);
+                  }}
+                >
+                  <X className="h-4 w-4" />
+                </IconButton>
+              </li>
+            );
+          })}
+        </ul>
+        {links.length < SITE_HEADER_LINKS_MAX && (
+          <Button
+            type="button"
+            size="sm"
+            className={links.length ? "mt-3" : ""}
+            onClick={() => {
+              setLinks((all) => [...all, { label: "", target: pages[0]?.pageId ?? WEB, url: "" }]);
+              setSaved(false);
+            }}
+          >
+            <Plus className="h-3.5 w-3.5" />
+            {t("linkAdd")}
+          </Button>
+        )}
+      </SettingsRow>
+      <SaveRow pending={pending} error={error} saved={saved} dirty={dirty} invalid={invalid} />
+    </form>
+  );
+}
+
+/** Settings > Site, owners: what search engines and link previews say, and Google Analytics. */
+export function SiteSearch({ workspaceId, site }: { workspaceId: string; site: WorkspaceSiteInfo }) {
+  const t = useTranslations("settings.site");
+  const [description, setDescription] = useState(site.description);
+  const [analyticsId, setAnalyticsId] = useState(site.analyticsId ?? "");
+  const [stored, setStored] = useState({ description: site.description, analyticsId: site.analyticsId ?? "" });
+  const { pending, error, saved, setSaved, save } = useSiteOptions(workspaceId);
+  const id = analyticsId.trim().toUpperCase();
+  const badId = id !== "" && !isAnalyticsId(id);
+  const dirty = description.trim() !== stored.description || id !== stored.analyticsId;
+
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (badId || !dirty) return;
+        save({ description, analyticsId: id || null }, (now) => {
+          setStored({ description: now.description, analyticsId: now.analyticsId ?? "" });
+          setDescription(now.description);
+        });
+      }}
+    >
+      <SettingsRow anchor="siteDescription" title={t("descriptionLabel")} htmlFor="site-description" description={t("descriptionHint")}>
+        <textarea
+          id="site-description"
+          rows={2}
+          maxLength={SEARCH_DESCRIPTION_MAX}
+          value={description}
+          className={textareaClass}
+          onChange={(e) => {
+            setDescription(e.target.value);
+            setSaved(false);
+          }}
+        />
+      </SettingsRow>
+      <SettingsRow
+        anchor="siteAnalytics"
+        title={t("analyticsLabel")}
+        htmlFor="site-analytics"
+        description={badId ? <span className="text-danger">{t("errors.analyticsInvalid")}</span> : t("analyticsHint")}
+        control={
+          <Input
+            id="site-analytics"
+            value={analyticsId}
+            placeholder="G-XXXXXXXXXX"
+            spellCheck={false}
+            autoCapitalize="characters"
+            className="w-full sm:w-60"
+            onChange={(e) => {
+              setAnalyticsId(e.target.value);
+              setSaved(false);
+            }}
+          />
+        }
+      />
+      <SaveRow pending={pending} error={error} saved={saved} dirty={dirty} invalid={badId} />
+    </form>
+  );
+}
+
+/** Settings > Site, owners: a domain of the site's own, with what the server's operator sets up for it. */
+export function SiteDomain({ workspaceId, site }: { workspaceId: string; site: WorkspaceSiteInfo }) {
+  const t = useTranslations("settings.site");
+  const [domain, setDomain] = useState(site.domain ?? "");
+  const [stored, setStored] = useState(site.domain ?? "");
+  const [appHost, setAppHost] = useState("");
+  const { pending, error, saved, setSaved, save } = useSiteOptions(workspaceId);
+  useEffect(() => setAppHost(window.location.hostname), []);
+  const typed = domain.trim();
+  const normalized = typed ? normalizeSiteDomain(typed) : null;
+  const problem = typed ? (normalized ? siteDomainProblem(normalized, appHost) : "domainInvalid") : null;
+  const dirty = (normalized ?? "") !== stored;
+
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (problem || !dirty) return;
+        save({ domain: normalized }, (now) => {
+          setStored(now.domain ?? "");
+          setDomain(now.domain ?? "");
+        });
+      }}
+    >
+      <SettingsRow
+        anchor="siteDomain"
+        title={t("domainLabel")}
+        htmlFor="site-domain"
+        description={problem ? <span className="text-danger">{t(`errors.${problem}`)}</span> : t("domainHint")}
+        control={
+          <Input
+            id="site-domain"
+            value={domain}
+            placeholder="docs.example.com"
+            spellCheck={false}
+            autoCapitalize="off"
+            className="w-full sm:w-60"
+            onChange={(e) => {
+              setDomain(e.target.value);
+              setSaved(false);
+            }}
+          />
+        }
+      >
+        {stored && (
+          <div className="flex items-center gap-1.5 text-sm">
+            <a href={`https://${stored}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-accent hover:underline">
+              {`https://${stored}`}
+              <ExternalLink className="h-3.5 w-3.5" />
+            </a>
+          </div>
+        )}
+        <ol className="mt-2 list-decimal space-y-1 ps-5 text-sm text-fg-muted">
+          <li>{t("domainStepDns", { host: appHost || "…" })}</li>
+          <li>{t("domainStepProxy")}</li>
+          <li>{t("domainStepOnly")}</li>
+        </ol>
+      </SettingsRow>
+      <SaveRow pending={pending} error={error} saved={saved} dirty={dirty} invalid={problem !== null} />
+    </form>
   );
 }

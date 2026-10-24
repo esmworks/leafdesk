@@ -81,7 +81,11 @@
       "aiUsageLimit": "Budget Kosten Ausgaben Obergrenze",
       "aiUsagePeople": "pro Person Mitglied Kosten Token",
       "health": "defekte Links verwaiste Duplikate leere Seiten",
-      "audit": "Protokoll Verlauf Ereignisse wer geändert"
+      "audit": "Protokoll Verlauf Ereignisse wer geändert",
+      "siteHeader": "navigation menü links kopfleiste",
+      "siteDescription": "seo meta beschreibung suchmaschinen vorschau open graph",
+      "siteAnalytics": "google analytics ga4 gtag tracking besucher statistik",
+      "siteDomain": "eigene domain dns hostname cname zertifikat"
     }
   },
   "workspace": {
@@ -1931,8 +1935,46 @@
       "reserved": "Diese Adresse ist reserviert. Wähle eine andere.",
       "slugTaken": "Ein anderer Workspace verwendet diese Adresse.",
       "homeNotPublished": "Wähle eine veröffentlichte Seite dieses Workspace, die du sehen kannst.",
-      "ownersOnly": "Nur Workspace-Inhaber können das tun."
-    }
+      "ownersOnly": "Nur Workspace-Inhaber können das tun.",
+      "domainInvalid": "Gib einen Domainnamen wie docs.example.com ein (keine IP-Adresse).",
+      "domainReserved": "Das ist die eigene Adresse der App. Wähle eine andere Domain.",
+      "domainTaken": "Eine andere Website verwendet diese Domain.",
+      "linksInvalid": "Jeder Link in der Kopfzeile braucht einen Text und eine Seite dieses Arbeitsbereichs oder eine http(s)-Adresse.",
+      "analyticsInvalid": "Eine Mess-ID sieht aus wie G-XXXXXXXXXX.",
+      "themeInvalid": "Wähle Hell, Dunkel oder das System des Besuchers.",
+      "noSite": "Richte zuerst die Website ein."
+    },
+    "lookHeading": "Aussehen und Kopfzeile",
+    "lookDescription": "Wie jede Seite der Website für Besucher aussieht.",
+    "themeLabel": "Design",
+    "themeHint": "Besucher sehen die Website in diesem Design, unabhängig davon, was sie in der App gewählt haben.",
+    "themes": {
+      "system": "System des Besuchers folgen",
+      "light": "Hell",
+      "dark": "Dunkel"
+    },
+    "linksLabel": "Links in der Kopfzeile",
+    "linksHint": "Bis zu {max} Links in der Kopfzeile der Website, zu Seiten der Website oder zu Webadressen.",
+    "linkLabel": "Linktext",
+    "linkTarget": "Führt zu",
+    "linkWeb": "Eine Webadresse",
+    "linkUnlisted": "Eine nicht mehr aufgeführte Seite",
+    "linkUrl": "Webadresse",
+    "linkRemove": "Link entfernen",
+    "linkAdd": "Link hinzufügen",
+    "searchHeading": "Suchmaschinen und Statistik",
+    "searchDescription": "Was Suchergebnisse und Linkvorschauen über die Website sagen und ob ihre Besuche gezählt werden.",
+    "descriptionLabel": "Standardbeschreibung",
+    "descriptionHint": "Erscheint in Suchergebnissen und Linkvorschauen für Seiten ohne eigene Beschreibung (im Tab „Veröffentlichen“ einer Seite festgelegt).",
+    "analyticsLabel": "Google Analytics",
+    "analyticsHint": "Eine Google-Analytics-4-Mess-ID (G-…). Die Browser der Besucher laden dann auf jeder Seite der Website das Google-Tag und senden Google, was sie ansehen.",
+    "domainHeading": "Eigene Domain",
+    "domainDescription": "Die Website im Stammverzeichnis einer eigenen Domain anbieten, etwa docs.example.com.",
+    "domainLabel": "Domain",
+    "domainHint": "Ein Hostname, ohne https:// oder Pfad. Leer lassen, um die Website nur unter ihrer Adresse hier anzubieten.",
+    "domainStepDns": "Richte die Domain auf diesen Server: ein CNAME-Eintrag auf {host} oder A- und AAAA-Einträge auf seine Adresse.",
+    "domainStepProxy": "Bitte die Person, die den Server betreibt, die Domain mit einem Zertifikat für HTTPS in den Reverse Proxy aufzunehmen.",
+    "domainStepOnly": "Die Domain liefert nur die veröffentlichten Seiten der Website aus: Anmeldung und der Rest der App bleiben unter dieser Adresse."
   },
   "connections": {
     "heading": "Verbindungen",

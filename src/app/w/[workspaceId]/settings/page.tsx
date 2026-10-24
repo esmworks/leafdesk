@@ -63,7 +63,7 @@ import {
   SsoConnectionForm,
   SsoSetupDetails,
 } from "@/components/settings/sso-settings";
-import { SitePages, SiteSettings } from "@/components/settings/site-settings";
+import { SiteDomain, SiteLook, SitePages, SiteSearch, SiteSettings } from "@/components/settings/site-settings";
 import { TeamspacesPanel } from "@/components/settings/teamspaces-panel";
 import { WorkspaceApps } from "@/components/settings/workspace-apps";
 import { WorkspaceBackup } from "@/components/settings/workspace-backup";
@@ -626,6 +626,19 @@ async function SiteTab({
         <SettingsGroup anchor="sitePages" title={t("site.pagesHeading")} description={t("site.pagesDescription")}>
           <SitePages workspaceId={workspaceId} publications={publications} homePageId={site?.homePageId ?? null} />
         </SettingsGroup>
+      )}
+      {site && publications && (
+        <>
+          <SettingsGroup title={t("site.lookHeading")} description={t("site.lookDescription")}>
+            <SiteLook workspaceId={workspaceId} site={site} publications={publications} />
+          </SettingsGroup>
+          <SettingsGroup title={t("site.searchHeading")} description={t("site.searchDescription")}>
+            <SiteSearch workspaceId={workspaceId} site={site} />
+          </SettingsGroup>
+          <SettingsGroup title={t("site.domainHeading")} description={t("site.domainDescription")}>
+            <SiteDomain workspaceId={workspaceId} site={site} />
+          </SettingsGroup>
+        </>
       )}
     </div>
   );

@@ -81,7 +81,11 @@
       "aiUsageLimit": "bütçe maliyet harcama sınır",
       "aiUsagePeople": "kişi başı üye maliyet token",
       "health": "kırık bağlantılar sahipsiz yinelenen boş sayfalar",
-      "audit": "kayıt geçmiş olaylar kim değiştirdi"
+      "audit": "kayıt geçmiş olaylar kim değiştirdi",
+      "siteHeader": "gezinme menü bağlantılar üst çubuk",
+      "siteDescription": "seo meta açıklama arama motorları önizleme open graph",
+      "siteAnalytics": "google analytics ga4 gtag izleme ziyaretçi istatistik",
+      "siteDomain": "özel alan adı dns ana makine adı cname sertifika"
     }
   },
   "workspace": {
@@ -1931,8 +1935,46 @@
       "reserved": "Bu adres ayrılmış. Başka bir adres seçin.",
       "slugTaken": "Bu adresi başka bir çalışma alanı kullanıyor.",
       "homeNotPublished": "Bu çalışma alanının görebildiğiniz, yayındaki bir sayfasını seçin.",
-      "ownersOnly": "Bunu yalnızca çalışma alanı sahipleri yapabilir."
-    }
+      "ownersOnly": "Bunu yalnızca çalışma alanı sahipleri yapabilir.",
+      "domainInvalid": "docs.example.com gibi bir alan adı girin (IP adresi değil).",
+      "domainReserved": "Bu, uygulamanın kendi adresi. Başka bir alan adı seçin.",
+      "domainTaken": "Bu alan adını başka bir site kullanıyor.",
+      "linksInvalid": "Her üst bilgi bağlantısının bir metni ve bu çalışma alanından bir sayfası ya da bir http(s) adresi olmalı.",
+      "analyticsInvalid": "Ölçüm kimliği G-XXXXXXXXXX biçimindedir.",
+      "themeInvalid": "Açık, koyu ya da ziyaretçinin sistemini seçin.",
+      "noSite": "Önce siteyi kurun."
+    },
+    "lookHeading": "Görünüm ve üst bilgi",
+    "lookDescription": "Sitenin her sayfasının ziyaretçilere nasıl göründüğü.",
+    "themeLabel": "Tema",
+    "themeHint": "Ziyaretçiler, uygulamada ne seçmiş olurlarsa olsunlar siteyi bu temayla görür.",
+    "themes": {
+      "system": "Ziyaretçinin sistemine uy",
+      "light": "Açık",
+      "dark": "Koyu"
+    },
+    "linksLabel": "Üst bilgi bağlantıları",
+    "linksHint": "Sitenin üst bilgisinde, sitedeki sayfalara veya web adreslerine en fazla {max} bağlantı.",
+    "linkLabel": "Bağlantı metni",
+    "linkTarget": "Gittiği yer",
+    "linkWeb": "Bir web adresi",
+    "linkUnlisted": "Artık listelenmeyen bir sayfa",
+    "linkUrl": "Web adresi",
+    "linkRemove": "Bağlantıyı kaldır",
+    "linkAdd": "Bağlantı ekle",
+    "searchHeading": "Arama motorları ve analiz",
+    "searchDescription": "Arama sonuçlarının ve bağlantı önizlemelerinin site hakkında ne dediği ve ziyaretlerin sayılıp sayılmadığı.",
+    "descriptionLabel": "Varsayılan açıklama",
+    "descriptionHint": "Kendi açıklaması olmayan sayfaların arama sonuçlarında ve bağlantı önizlemelerinde görünür (sayfanın Yayınla sekmesinden ayarlanır).",
+    "analyticsLabel": "Google Analytics",
+    "analyticsHint": "Bir Google Analytics 4 ölçüm kimliği (G-…). Ziyaretçilerin tarayıcıları bu durumda sitenin her sayfasında Google etiketini yükler ve neye baktıklarını Google'a gönderir.",
+    "domainHeading": "Kendi alan adı",
+    "domainDescription": "Siteyi docs.example.com gibi size ait bir alan adının kökünde yayınlayın.",
+    "domainLabel": "Alan adı",
+    "domainHint": "https:// ve yol olmadan bir ana makine adı. Siteyi yalnızca buradaki adresinde yayınlamak için boş bırakın.",
+    "domainStepDns": "Alan adını bu sunucuya yönlendirin: {host} adresine bir CNAME kaydı ya da sunucunun adresine A ve AAAA kayıtları.",
+    "domainStepProxy": "Sunucuyu yöneten kişiden alan adını, HTTPS sertifikasıyla birlikte ters vekil sunucusuna eklemesini isteyin.",
+    "domainStepOnly": "Alan adı yalnızca sitenin yayımlanmış sayfalarını sunar: giriş ve uygulamanın geri kalanı bu adreste kalır."
   },
   "connections": {
     "heading": "Bağlantılar",

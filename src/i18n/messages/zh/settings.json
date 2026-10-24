@@ -81,7 +81,11 @@
       "aiUsageLimit": "预算 费用 支出 上限",
       "aiUsagePeople": "按人 成员 费用 令牌",
       "health": "失效链接 孤立 重复 空页面",
-      "audit": "日志 历史 事件 修改者"
+      "audit": "日志 历史 事件 修改者",
+      "siteHeader": "导航 菜单 链接 顶栏",
+      "siteDescription": "seo 元 描述 搜索引擎 预览 open graph",
+      "siteAnalytics": "google analytics ga4 gtag 跟踪 访客 统计",
+      "siteDomain": "自有域名 dns 主机名 cname 证书"
     }
   },
   "workspace": {
@@ -1931,8 +1935,46 @@
       "reserved": "此地址已被保留。请另选一个。",
       "slugTaken": "另一个工作区正在使用此地址。",
       "homeNotPublished": "请选择此工作区中你能看到的已发布页面。",
-      "ownersOnly": "只有工作区所有者可以执行此操作。"
-    }
+      "ownersOnly": "只有工作区所有者可以执行此操作。",
+      "domainInvalid": "请输入域名，例如 docs.example.com（不能是 IP 地址）。",
+      "domainReserved": "这是应用自身的地址。请换一个域名。",
+      "domainTaken": "另一个网站正在使用此域名。",
+      "linksInvalid": "每个页眉链接都需要文字，以及此工作区的页面或 http(s) 地址。",
+      "analyticsInvalid": "衡量 ID 的格式为 G-XXXXXXXXXX。",
+      "themeInvalid": "请选择浅色、深色或访客的系统设置。",
+      "noSite": "请先设置网站。"
+    },
+    "lookHeading": "外观与页眉",
+    "lookDescription": "网站每个页面在访客眼中的样子。",
+    "themeLabel": "主题",
+    "themeHint": "无论访客在应用中选了什么，网站都以此主题显示。",
+    "themes": {
+      "system": "跟随访客的系统设置",
+      "light": "浅色",
+      "dark": "深色"
+    },
+    "linksLabel": "页眉链接",
+    "linksHint": "网站页眉中最多 {max} 个链接，指向网站中的页面或网址。",
+    "linkLabel": "链接文字",
+    "linkTarget": "指向",
+    "linkWeb": "网址",
+    "linkUnlisted": "已不在网站中的页面",
+    "linkUrl": "网址",
+    "linkRemove": "移除链接",
+    "linkAdd": "添加链接",
+    "searchHeading": "搜索引擎与统计",
+    "searchDescription": "搜索结果和链接预览如何介绍网站，以及是否统计访问。",
+    "descriptionLabel": "默认描述",
+    "descriptionHint": "显示在没有自己描述的页面的搜索结果和链接预览中（描述在页面的“发布”标签中设置）。",
+    "analyticsLabel": "Google Analytics",
+    "analyticsHint": "Google Analytics 4 衡量 ID（G-…）。设置后，访客的浏览器会在网站每个页面加载 Google 代码，并把浏览内容发送给 Google。",
+    "domainHeading": "自有域名",
+    "domainDescription": "在你自己的域名（如 docs.example.com）根路径提供网站。",
+    "domainLabel": "域名",
+    "domainHint": "仅主机名，不含 https:// 或路径。留空则网站只在此处的地址提供。",
+    "domainStepDns": "将域名指向此服务器：添加指向 {host} 的 CNAME 记录，或指向其地址的 A 和 AAAA 记录。",
+    "domainStepProxy": "请服务器管理员把该域名加入反向代理，并配置 HTTPS 证书。",
+    "domainStepOnly": "该域名只提供网站已发布的页面：登录和应用的其他部分仍在此地址。"
   },
   "connections": {
     "heading": "连接",

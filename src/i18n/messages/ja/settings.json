@@ -81,7 +81,11 @@
       "aiUsageLimit": "予算 コスト 支出 上限",
       "aiUsagePeople": "ユーザーごと メンバー コスト トークン",
       "health": "リンク切れ 孤立 重複 空のページ",
-      "audit": "ログ 履歴 イベント 変更者"
+      "audit": "ログ 履歴 イベント 変更者",
+      "siteHeader": "ナビゲーション メニュー リンク 上部バー",
+      "siteDescription": "seo メタ 説明 検索エンジン プレビュー open graph",
+      "siteAnalytics": "google analytics ga4 gtag トラッキング 訪問者 統計",
+      "siteDomain": "独自ドメイン dns ホスト名 cname 証明書"
     }
   },
   "workspace": {
@@ -1931,8 +1935,46 @@
       "reserved": "このアドレスは予約されています。別のアドレスを選択してください。",
       "slugTaken": "このアドレスは別のワークスペースで使われています。",
       "homeNotPublished": "このワークスペースの、あなたが閲覧できる公開ページを選択してください。",
-      "ownersOnly": "この操作ができるのはワークスペースのオーナーだけです。"
-    }
+      "ownersOnly": "この操作ができるのはワークスペースのオーナーだけです。",
+      "domainInvalid": "docs.example.com のようなドメイン名を入力してください（IP アドレスは不可）。",
+      "domainReserved": "これはアプリ自体のアドレスです。別のドメインを選んでください。",
+      "domainTaken": "このドメインは別のサイトで使われています。",
+      "linksInvalid": "ヘッダーの各リンクには、テキストと、このワークスペースのページまたは http(s) アドレスが必要です。",
+      "analyticsInvalid": "測定 ID は G-XXXXXXXXXX の形式です。",
+      "themeInvalid": "ライト、ダーク、または訪問者のシステム設定を選んでください。",
+      "noSite": "先にサイトを設定してください。"
+    },
+    "lookHeading": "外観とヘッダー",
+    "lookDescription": "サイトの各ページが訪問者にどう見えるか。",
+    "themeLabel": "テーマ",
+    "themeHint": "訪問者がアプリで何を選んでいても、サイトはこのテーマで表示されます。",
+    "themes": {
+      "system": "訪問者のシステム設定に従う",
+      "light": "ライト",
+      "dark": "ダーク"
+    },
+    "linksLabel": "ヘッダーのリンク",
+    "linksHint": "サイトのヘッダーに最大 {max} 件のリンク。サイトのページまたはウェブアドレスへ。",
+    "linkLabel": "リンクのテキスト",
+    "linkTarget": "リンク先",
+    "linkWeb": "ウェブアドレス",
+    "linkUnlisted": "掲載されなくなったページ",
+    "linkUrl": "ウェブアドレス",
+    "linkRemove": "リンクを削除",
+    "linkAdd": "リンクを追加",
+    "searchHeading": "検索エンジンとアクセス解析",
+    "searchDescription": "検索結果やリンクのプレビューでサイトがどう紹介されるか、訪問を計測するか。",
+    "descriptionLabel": "既定の説明",
+    "descriptionHint": "独自の説明がないページの検索結果やリンクのプレビューに表示されます（説明は各ページの「公開」タブで設定）。",
+    "analyticsLabel": "Google アナリティクス",
+    "analyticsHint": "Google アナリティクス 4 の測定 ID（G-…）。設定すると、訪問者のブラウザはサイトの全ページで Google タグを読み込み、閲覧内容を Google に送信します。",
+    "domainHeading": "独自ドメイン",
+    "domainDescription": "docs.example.com のような自分のドメインのルートでサイトを公開します。",
+    "domainLabel": "ドメイン",
+    "domainHint": "https:// やパスを含まないホスト名。空のままにすると、サイトはここでのアドレスでのみ公開されます。",
+    "domainStepDns": "ドメインをこのサーバーに向けます：{host} への CNAME レコード、またはサーバーのアドレスへの A・AAAA レコード。",
+    "domainStepProxy": "サーバーの管理者に、HTTPS 用の証明書とともにドメインをリバースプロキシへ追加してもらいます。",
+    "domainStepOnly": "このドメインではサイトの公開ページだけが表示されます。サインインやアプリのほかの部分はこのアドレスのままです。"
   },
   "connections": {
     "heading": "接続",
