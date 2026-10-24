@@ -58,7 +58,7 @@
       "workspaceName": "name rename icon",
       "ai": "artificial intelligence chat model provider memory",
       "workspaceMail": "email rows mail send",
-      "export": "backup download zip markdown",
+      "export": "backup download zip markdown pdf",
       "members": "people invite users roles remove",
       "agents": "ai assistant automation bot",
       "snippets": "text expansion shortcuts",
@@ -108,7 +108,11 @@
     "description": "Download every page you can see as a ZIP: pages as Markdown, databases as CSV, and the files they show. Pages in the trash are left out; templates are kept in a Templates folder.",
     "button": "Export",
     "preparing": "Preparing…",
-    "disabled": "Export is turned off for this workspace in Settings → Security."
+    "disabled": "Export is turned off for this workspace in Settings → Security.",
+    "format": "Export format",
+    "formatMarkdown": "Markdown and CSV",
+    "formatPdf": "PDF",
+    "descriptionPdf": "Download every page you can see as a ZIP of PDFs, in folders that follow the page tree: databases as tables of their rows, and rows with text of their own as PDFs of their own. Pages in the trash and templates are left out; at most {limit, number} PDFs."
   },
   "members": {
     "heading": "Members",
