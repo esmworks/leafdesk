@@ -1,0 +1,21 @@
+{
+  "hello": "Halo, {name}",
+  "recent": "Baru diedit",
+  "assignedEmpty": "Tidak ada yang ditugaskan kepada Anda. Baris basis data yang ditugaskan kepada Anda muncul di sini.",
+  "empty": "Belum ada apa pun di sini. Buat halaman pertama Anda untuk memulai.",
+  "emptyGuest": "Belum ada yang dibagikan kepada Anda di sini. Halaman akan muncul setelah seseorang membagikannya kepada Anda.",
+  "newPage": "Halaman baru",
+  "newDatabase": "Basis data baru",
+  "personalWorkspace": "Ruang kerja {name}",
+  "generalTeamspace": "Umum",
+  "fromTemplate": "Dari templat",
+  "assigned": "Ditugaskan kepada Anda",
+  "assignedGroups": {
+    "overdue": "Terlambat",
+    "today": "Hari ini",
+    "next7": "7 hari ke depan",
+    "later": "Nanti",
+    "none": "Tanpa tanggal"
+  },
+  "assignedMore": "Menampilkan {shown} dari {total}. Filter basis data berdasarkan “Saya” untuk melihat sisanya."
+}

@@ -1,0 +1,64 @@
+{
+  "metaTitle": "Keterampilan",
+  "heading": "Keterampilan",
+  "description": "Instruksi yang dipakai ulang tim Anda, disimpan sebagai halaman: cara merangkum catatan rapat, membalas pelanggan, atau memilah permintaan. Pilih satu di obrolan AI dengan /, atau dari aplikasi AI yang terhubung ke ruang kerja. Setiap keterampilan adalah halaman atau baris basis data; orang melihat keterampilan yang dapat mereka buka.",
+  "new": "Keterampilan baru",
+  "search": "Cari keterampilan",
+  "count": "{count, plural, other {# keterampilan}}",
+  "noMatches": "Tidak ada keterampilan yang cocok dengan pencarian Anda.",
+  "emptyTitle": "Belum ada keterampilan",
+  "emptyHint": "Halaman atau baris basis data apa pun juga dapat menjadi keterampilan: buka lalu aktifkan Gunakan sebagai keterampilan di menu ⋯ miliknya.",
+  "builtins": {
+    "heading": "Mulai dari keterampilan siap pakai",
+    "hint": "Masing-masing menjadi baris di basis data keterampilan Anda: ubah agar sesuai dengan pekerjaan Anda, lalu bagikan ke tim.",
+    "open": "Keterampilan siap pakai"
+  },
+  "noDescription": "Belum ada deskripsi",
+  "inDatabase": "Di {database}",
+  "updated": "Diperbarui {time}",
+  "download": "Unduh {title} sebagai SKILL.md",
+  "downloadHint": "ZIP berisi SKILL.md keterampilan ini, untuk asisten AI yang memasang keterampilan",
+  "menu": {
+    "toggle": "Gunakan sebagai keterampilan",
+    "hint": "Tawarkan halaman ini sebagai instruksi yang dapat dipakai ulang di obrolan AI dan untuk aplikasi AI yang terhubung ke ruang kerja",
+    "export": "Ekspor sebagai SKILL.md",
+    "database": "Basis data keterampilan",
+    "databaseHint": "Setiap baris basis data ini adalah keterampilan; properti Deskripsi menjelaskan kegunaan masing-masing"
+  },
+  "bar": {
+    "label": "Keterampilan",
+    "description": "Kegunaan keterampilan ini",
+    "placeholder": "Jelaskan kegunaan keterampilan ini dan kapan memakainya",
+    "none": "Belum ada deskripsi",
+    "library": "Semua keterampilan",
+    "inDatabase": "Deskripsinya adalah properti {property}"
+  },
+  "chat": {
+    "heading": "Keterampilan",
+    "none": "Belum ada keterampilan.",
+    "library": "Buka pustaka keterampilan",
+    "noMatches": "Tidak ada keterampilan yang cocok.",
+    "using": "Memakai keterampilan {title}",
+    "remove": "Hapus keterampilan",
+    "pick": "Gunakan keterampilan",
+    "pickHint": "Gunakan keterampilan (atau ketik / di kotak kosong)",
+    "used": "Memakai keterampilan {title}"
+  },
+  "errors": {
+    "notAPage": "Hanya halaman dan baris basis data yang dapat menjadi keterampilan, bukan basis data.",
+    "notADatabase": "Hanya basis data yang dapat menjadi basis data keterampilan.",
+    "template": "Templat dan halaman di dalamnya tidak dapat menjadi keterampilan.",
+    "inTrash": "Pulihkan halaman dari sampah terlebih dahulu.",
+    "tooLong": "Deskripsi keterampilan paling banyak {max} karakter.",
+    "notASkill": "Halaman ini bukan lagi keterampilan."
+  },
+  "database": {
+    "title": "Keterampilan",
+    "description": "Deskripsi",
+    "files": "Berkas",
+    "tags": "Tag",
+    "createdBy": "Dibuat oleh",
+    "open": "Buka basis data keterampilan",
+    "hint": "Setiap keterampilan baru adalah baris di basis data keterampilan Anda, dengan deskripsi, berkas, dan tag."
+  }
+}

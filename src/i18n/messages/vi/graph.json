@@ -1,0 +1,55 @@
+{
+  "metaTitle": "Đồ thị",
+  "heading": "Đồ thị",
+  "count": "{pages, plural, other {# trang}} · {edges, plural, other {# kết nối}}",
+  "reload": "Tải lại",
+  "find": "Tìm một trang để tập trung vào",
+  "focus": "Xung quanh",
+  "depth": "Số bước",
+  "clearFocus": "Hiện toàn bộ đồ thị",
+  "tree": "Trang con",
+  "rows": "Hàng cơ sở dữ liệu",
+  "orphans": "Trang không có kết nối",
+  "kinds": {
+    "page": "Trang",
+    "database": "Cơ sở dữ liệu",
+    "row": "Hàng"
+  },
+  "edges": {
+    "link": "Liên kết",
+    "relation": "Quan hệ",
+    "child": "Trang con"
+  },
+  "truncated": "Đang hiển thị {count} trang được chỉnh sửa gần đây nhất.",
+  "canvas": "Đồ thị các trang của không gian làm việc",
+  "empty": "Không có trang nào để hiển thị.",
+  "focusMissing": "Trang đó không có trong đồ thị: có thể nó nằm trong thùng rác hoặc chưa được chia sẻ với bạn.",
+  "local": {
+    "title": "Đồ thị của trang này",
+    "close": "Đóng đồ thị",
+    "openFull": "Mở trong đồ thị đầy đủ",
+    "canvas": "Đồ thị các trang xung quanh trang này",
+    "empty": "Chưa có trang nào được kết nối với trang này.",
+    "failed": "Không thể tải đồ thị."
+  },
+  "zoomIn": "Phóng to",
+  "zoomOut": "Thu nhỏ",
+  "fit": "Vừa khung đồ thị",
+  "hint": "Nhấp để chọn, nhấp đúp để mở",
+  "fewEdges": {
+    "title": "Chưa có nhiều liên kết giữa các trang",
+    "body": "Đồ thị hiển thị các liên kết giữa các trang và quan hệ giữa các hàng cơ sở dữ liệu. Nhập [[ hoặc @ trong một trang để liên kết đến trang khác, hoặc thêm thuộc tính quan hệ vào cơ sở dữ liệu; các liên kết sẽ xuất hiện ở đây.",
+    "showTree": "Hiện liên kết trang con"
+  },
+  "inspector": {
+    "open": "Mở trang",
+    "focus": "Tập trung xung quanh nó",
+    "expandRows": "{count, plural, other {Hiện # hàng}}",
+    "collapseRows": "Thu gọn các hàng",
+    "rows": "{count, plural, other {# hàng}}",
+    "none": "Không liên kết với trang nào khác.",
+    "more": "và {count} mục nữa",
+    "close": "Bỏ chọn",
+    "parent": "Nằm trong"
+  }
+}

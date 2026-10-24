@@ -1,0 +1,124 @@
+{
+  "copyTitle": "{title} (salinan)",
+  "errors": {
+    "triggerRequired": "Beri potongan teks sebuah pemicu.",
+    "triggerInvalid": "Pemicu terdiri dari paling banyak {max} huruf kecil, angka, tanda hubung, dan garis bawah.",
+    "triggerTaken": "Potongan teks lain di sini sudah memakai pemicu ini.",
+    "titleTooLong": "Judul paling banyak {max} karakter.",
+    "bodyRequired": "Tulis apa yang disisipkan potongan teks ini.",
+    "bodyTooLong": "Potongan teks paling banyak {max} karakter.",
+    "tooMany": "Di sini dapat ada paling banyak {max} potongan teks. Hapus beberapa untuk menambah lagi.",
+    "notFound": "Potongan teks ini sudah tidak ada.",
+    "ownersOnly": "Hanya pemilik ruang kerja yang dapat mengubah potongan teksnya.",
+    "accessDenied": "Anda tidak memiliki akses ke potongan teks ini.",
+    "importInvalid": "Ini bukan berkas potongan teks. Gunakan ekspor Leafdesk, atau daftar objek dengan id dan label.",
+    "importTooLarge": "Berkas terlalu besar untuk diimpor."
+  },
+  "menu": {
+    "group": "Potongan teks",
+    "personal": "Potongan teks saya",
+    "workspace": "Potongan teks ruang kerja",
+    "insertFailed": "Tidak dapat menyisipkan potongan teks. {error}"
+  },
+  "save": {
+    "menuItem": "Simpan sebagai potongan teks",
+    "saved": "Tersimpan. Ketik ;{trigger} untuk menyisipkannya."
+  },
+  "form": {
+    "newTitle": "Potongan teks baru",
+    "editTitle": "Edit potongan teks",
+    "title": "Judul",
+    "titlePlaceholder": "Catatan rapat",
+    "trigger": "Pemicu",
+    "triggerPlaceholder": "rapat",
+    "triggerHint": "Ketik ;{trigger} di halaman, atau temukan di Potongan teks pada menu /.",
+    "target": "Simpan ke",
+    "targetPersonal": "Potongan teks saya (hanya Anda)",
+    "targetWorkspace": "{workspace} (semua orang di ruang kerja)",
+    "body": "Isi (Markdown)",
+    "bodyPlaceholder": "## Agenda\n- ",
+    "placeholders": "Diisi saat disisipkan:",
+    "placeholder": {
+      "date": "Tanggal hari ini",
+      "time": "Waktu saat ini",
+      "datetime": "Tanggal hari ini dan waktu",
+      "me": "Nama Anda",
+      "page": "Judul halaman",
+      "cursor": "Tempat kursor berada"
+    },
+    "length": "{count} dari {max} karakter",
+    "preview": "Pratinjau",
+    "previewPage": "Judul halaman",
+    "previewEmpty": "Blok yang disisipkan potongan teks ditampilkan di sini.",
+    "create": "Buat potongan teks"
+  },
+  "settings": {
+    "personalDescription": "Potongan konten yang Anda sisipkan saat mengetik: ketik ; dan pemicu potongan teks di halaman mana pun, atau pilih di Potongan teks pada menu /. Hanya Anda yang melihatnya.",
+    "description": "Potongan konten yang Anda sisipkan saat mengetik: ketik ; dan pemicu potongan teks di halaman mana pun, atau pilih di Potongan teks pada menu /.",
+    "tabsLabel": "Potongan teks",
+    "tabs": {
+      "mine": "Milik saya",
+      "workspace": "Ruang kerja"
+    },
+    "mineNote": "Hanya Anda yang melihatnya, dan Anda dapat memakainya di setiap ruang kerja yang Anda ikuti.",
+    "workspaceNote": "Semua orang di {workspace} dapat memakainya. Hanya pemilik yang menambah dan mengubahnya.",
+    "workspaceNoteOwner": "Semua orang di {workspace} dapat memakainya. Pemilik menambah dan mengubahnya.",
+    "search": "Cari potongan teks",
+    "new": "Potongan teks baru",
+    "import": "Impor",
+    "importing": "Mengimpor…",
+    "export": "Ekspor",
+    "count": "{count} dari {max}",
+    "noMatches": "Tidak ada potongan teks yang cocok.",
+    "empty": "Ruang kerja belum memiliki potongan teks bersama.",
+    "emptyOwner": "Belum ada potongan teks. Mulai dengan contoh, atau buat sendiri.",
+    "emptyWorkspaceOwner": "Ruang kerja belum memiliki potongan teks bersama. Buat satu yang dapat dipakai semua orang.",
+    "examplesHeading": "Contoh",
+    "addExample": "Tambah",
+    "actionsFor": "Tindakan untuk {title}",
+    "edit": "Edit",
+    "duplicate": "Duplikat",
+    "delete": "Hapus",
+    "deleteTitle": "Hapus “{title}”?",
+    "deleteBody": "Halaman tempat potongan teks ini disisipkan tetap mempertahankan teksnya.",
+    "imported": "{count, plural, =0 {Tidak ada potongan teks yang ditambahkan.} other {# potongan teks ditambahkan.}}",
+    "skipped": "{count, plural, other {# dilewati:}}",
+    "skip": {
+      "triggerRequired": "tanpa pemicu",
+      "triggerInvalid": "pemicu tidak diizinkan",
+      "titleTooLong": "judul terlalu panjang",
+      "bodyRequired": "kosong",
+      "bodyTooLong": "terlalu panjang",
+      "duplicate": "dua kali di berkas",
+      "exists": "pemicu sudah dipakai",
+      "tooMany": "melebihi batas"
+    },
+    "untitledTrigger": "(tanpa pemicu)",
+    "importFailed": "Tidak dapat mengimpor. {error}"
+  },
+  "examples": {
+    "meeting": {
+      "trigger": "rapat",
+      "title": "Catatan rapat",
+      "attendees": "Peserta",
+      "agenda": "Agenda",
+      "notes": "Catatan",
+      "actions": "Tindak lanjut"
+    },
+    "log": {
+      "trigger": "log",
+      "title": "Baris log bertanggal"
+    },
+    "decision": {
+      "trigger": "keputusan",
+      "title": "Catatan keputusan",
+      "heading": "Keputusan",
+      "date": "Tanggal",
+      "decidedBy": "Diputuskan oleh",
+      "context": "Konteks",
+      "options": "Opsi yang dipertimbangkan",
+      "outcome": "Yang kami putuskan",
+      "consequences": "Konsekuensi"
+    }
+  }
+}

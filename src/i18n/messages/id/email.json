@@ -1,0 +1,271 @@
+{
+  "footer": "Email ini dikirim oleh Leafdesk di {appUrl}.",
+  "actionFallback": "Jika tombolnya tidak berfungsi, tempel tautan ini ke peramban Anda:",
+  "test": {
+    "subject": "Email uji dari Leafdesk",
+    "heading": "Pengiriman email berfungsi",
+    "body": "Ini adalah pesan uji dari server Leafdesk Anda di {appUrl}. Jika Anda dapat membacanya, email sudah diatur dengan benar."
+  },
+  "invitation": {
+    "subject": "{inviter} mengundang Anda ke “{workspace}” di Leafdesk",
+    "heading": "Bergabung dengan “{workspace}”",
+    "body": "{inviter} mengundang Anda untuk bergabung dengan “{workspace}” di Leafdesk sebagai {role}.",
+    "expires": "Tautan berlaku selama 7 hari. Daftar dengan {email} untuk menerima.",
+    "action": "Terima undangan",
+    "roles": {
+      "owner": "pemilik",
+      "member": "anggota",
+      "guest": "tamu"
+    }
+  },
+  "passwordReset": {
+    "subject": "Atur ulang kata sandi Leafdesk Anda",
+    "heading": "Atur ulang kata sandi Anda",
+    "body": "Halo {name}, seseorang meminta untuk mengatur ulang kata sandi akun Leafdesk Anda. Jika itu Anda, pilih kata sandi baru dengan tombol di bawah.",
+    "expires": "Tautan berlaku selama {minutes} menit dan hanya sekali pakai. Jika Anda tidak memintanya, abaikan email ini; kata sandi Anda tidak berubah.",
+    "action": "Pilih kata sandi baru"
+  },
+  "assignment": {
+    "subject": "{actor} menugaskan Anda pada “{row}”",
+    "heading": "Anda ditugaskan pada “{row}”",
+    "body": "{actor} menambahkan Anda ke “{property}” di {database}.",
+    "bodyHidden": "{actor} menambahkan Anda ke “{property}”.",
+    "action": "Buka",
+    "untitled": "Tanpa judul",
+    "someone": "Seseorang",
+    "optOut": "Anda dapat mematikan email ini di Akun saya > Preferensi."
+  },
+  "share": {
+    "subject": "{actor} membagikan “{page}” kepada Anda",
+    "heading": "{actor} membagikan sebuah halaman kepada Anda",
+    "body": "Sekarang Anda dapat {level} “{page}” di {workspace}.",
+    "levels": {
+      "view": "melihat",
+      "comment": "melihat dan berkomentar pada",
+      "edit": "mengedit",
+      "full": "melihat, mengedit, dan membagikan"
+    },
+    "action": "Buka halaman",
+    "untitled": "Tanpa judul",
+    "optOut": "Anda dapat mematikan email ini di Akun saya > Preferensi."
+  },
+  "comment": {
+    "subject": "{actor} berkomentar pada “{page}”",
+    "heading": "{actor} berkomentar pada “{page}”",
+    "quote": "“{text}”",
+    "body": "Komentar ini ada di “{page}” di {workspace}. Balas atau selesaikan dari halaman.",
+    "action": "Buka halaman",
+    "optOut": "Anda menerima ini karena Anda ikut dalam utas komentar ini. Anda dapat mematikannya di Akun saya > Preferensi."
+  },
+  "mention": {
+    "subject": "{actor} menyebut Anda di “{page}”",
+    "heading": "{actor} menyebut Anda di “{page}”",
+    "body": "Sebutan ini ada di “{page}” di {workspace}.",
+    "action": "Buka halaman",
+    "someone": "Seseorang",
+    "optOut": "Anda menerima ini karena seseorang menyebut Anda. Anda dapat mematikannya di Akun saya > Preferensi."
+  },
+  "reminder": {
+    "subject": "Pengingat: {date} di “{page}”",
+    "heading": "Pengingat: {date}",
+    "body": "Anda meminta untuk diingatkan tentang {date} di “{page}” di {workspace}.",
+    "action": "Buka halaman",
+    "optOut": "Anda menerima ini karena Anda mengatur pengingat. Anda dapat mematikannya di Akun saya > Preferensi."
+  },
+  "dateReminder": {
+    "subject": "Pengingat: “{page}” pada {date}",
+    "heading": "“{page}” pada {date}",
+    "body": "“{page}” di {database} ({workspace}) memiliki {property} pada {date}.",
+    "bodyHidden": "“{page}” ({workspace}) memiliki {property} pada {date}.",
+    "action": "Buka baris",
+    "optOut": "Anda menerima ini karena {database} mengingatkan orang-orang pada barisnya. Anda dapat mematikan pengingat di Akun saya > Preferensi.",
+    "optOutHidden": "Anda menerima ini karena basis datanya mengingatkan orang-orang pada barisnya. Anda dapat mematikan pengingat di Akun saya > Preferensi."
+  },
+  "automation": {
+    "subject": "Otomatisasi “{automation}”: “{page}”",
+    "heading": "Otomatisasi “{automation}” memberi tahu Anda tentang “{page}”",
+    "body": "{actor} menambahkan atau mengubah “{page}” di {database} ({workspace}).",
+    "bodyHidden": "{actor} menambahkan atau mengubah “{page}” ({workspace}).",
+    "bodyDatePassed": "“{page}” di {database} ({workspace}) telah mencapai tanggal yang ditunggu otomatisasi ini.",
+    "bodyDatePassedHidden": "“{page}” ({workspace}) telah mencapai tanggal yang ditunggu otomatisasi ini.",
+    "action": "Buka baris",
+    "someone": "Seseorang",
+    "optOut": "Anda menerima ini karena otomatisasi basis data memberi tahu Anda. Anda dapat mematikannya di Akun saya > Preferensi."
+  },
+  "rowUpdate": {
+    "subject": "{actor} mengubah “{page}”",
+    "heading": "{actor} mengubah “{page}”",
+    "intro": "{actor} mengubah “{page}” di {database} ({workspace}):",
+    "introHidden": "{actor} mengubah “{page}” ({workspace}):",
+    "change": "{property}: {from} → {to}",
+    "title": "Judul",
+    "body": "Teks baris ini telah diedit.",
+    "empty": "kosong",
+    "checked": "dicentang",
+    "unchecked": "tidak dicentang",
+    "deletedOption": "{count, plural, other {# opsi yang dihapus}}",
+    "unknownPerson": "{count, plural, other {# orang tidak dikenal}}",
+    "noAccess": "Tidak ada akses",
+    "untitled": "Tanpa judul",
+    "checklist": "{done} dari {total} selesai",
+    "action": "Buka baris",
+    "someone": "Seseorang",
+    "optOut": "Anda menerima ini karena Anda mengikuti baris ini. Berhenti mengikutinya dari menu halaman baris, atau matikan email ini di Akun saya > Preferensi."
+  },
+  "pageUpdate": {
+    "subject": "{actor} mengedit “{page}”",
+    "heading": "{actor} mengedit “{page}”",
+    "body": "“{page}” di {workspace} telah berubah. Buka untuk melihat yang baru; riwayatnya menunjukkan setiap perubahan.",
+    "someone": "Seseorang",
+    "action": "Buka halaman",
+    "optOut": "Anda menerima ini karena Anda memantau halaman ini: Anda membuat atau mengeditnya, memilih untuk memantaunya, atau memantau ruang timnya. Bisukan dari menu ⋯ halaman, atau matikan email ini di Akun saya > Preferensi.",
+    "digestSubject": "{count, plural, other {# halaman yang Anda pantau diedit}}",
+    "digestIntro": "Anda sudah menerima email hari ini tentang halaman yang Anda pantau, jadi suntingan ini digabung:",
+    "digestPage": "“{page}” di {workspace}, diedit oleh {actor}: {link}",
+    "digestAction": "Buka Leafdesk"
+  },
+  "accessRequest": {
+    "subject": "{requester} meminta akses ke “{page}”",
+    "heading": "{requester} meminta akses ke “{page}”",
+    "body": "{requester} ({email}) ingin membuka “{page}” di {workspace}.",
+    "bodyWithoutEmail": "{requester} ingin membuka “{page}” di {workspace}.",
+    "message": "Pesan mereka: “{message}”",
+    "answer": "Bagikan halaman kepada mereka dengan memilih apa yang dapat mereka lakukan, atau tolak permintaannya. Anda dapat menjawab dari kotak masuk atau dari Bagikan pada halaman.",
+    "action": "Buka halaman",
+    "optOut": "Anda menerima ini karena Anda memiliki akses penuh ke halaman ini. Anda dapat mematikannya di Akun saya > Preferensi."
+  },
+  "accessApproved": {
+    "subject": "Sekarang Anda dapat membuka “{page}”",
+    "heading": "{actor} menyetujui permintaan Anda",
+    "body": "Sekarang Anda dapat {level} “{page}” di {workspace}.",
+    "action": "Buka halaman"
+  },
+  "accessDeclined": {
+    "subject": "Permintaan akses Anda ditolak",
+    "heading": "Permintaan Anda ditolak",
+    "body": "Permintaan Anda untuk mengakses halaman ini ditolak: {link}",
+    "hint": "Jika Anda masih memerlukannya, tanyakan kepada orang yang mengirimkan tautan itu."
+  },
+  "emailChange": {
+    "subject": "Konfirmasi alamat email baru Anda",
+    "heading": "Konfirmasi alamat email baru Anda",
+    "body": "Halo {name}, Anda meminta untuk memakai alamat ini untuk akun Leafdesk Anda sebagai ganti {old}. Konfirmasikan dengan tombol di bawah.",
+    "expires": "Tautan berlaku selama {hours} jam dan hanya sekali pakai. Jika Anda tidak memintanya, abaikan email ini; tidak ada yang berubah.",
+    "action": "Konfirmasi alamat email"
+  },
+  "emailChanged": {
+    "subject": "Alamat email akun Leafdesk Anda berubah",
+    "heading": "Alamat email Anda berubah",
+    "body": "Halo {name}, alamat email akun Leafdesk Anda berubah dari {old} menjadi {new}. Mulai sekarang, masuk dengan alamat baru.",
+    "warning": "Jika Anda tidak melakukan perubahan ini, segera hubungi pemilik ruang kerja Anda."
+  },
+  "passwordChanged": {
+    "subject": "Kata sandi Leafdesk Anda berubah",
+    "heading": "Kata sandi Anda berubah",
+    "body": "Halo {name}, kata sandi akun Leafdesk Anda baru saja diubah.",
+    "warning": "Jika Anda tidak melakukan perubahan ini, atur ulang kata sandi Anda dari halaman masuk dan hubungi pemilik ruang kerja Anda."
+  },
+  "joinRequest": {
+    "join": {
+      "subject": "{asker} meminta untuk bergabung dengan “{workspace}”",
+      "heading": "{asker} meminta untuk bergabung",
+      "body": "{asker} ({email}) meminta untuk bergabung dengan “{workspace}” di Leafdesk. Setujui atau tolak permintaan di Pengaturan > Anggota."
+    },
+    "invite": {
+      "subject": "{asker} meminta untuk mengundang {email} ke “{workspace}”",
+      "heading": "Seorang anggota meminta untuk mengundang seseorang",
+      "body": "{asker} ingin mengundang {email} ke “{workspace}” di Leafdesk. Undangan dikirim setelah pemilik menyetujuinya."
+    },
+    "action": "Tinjau permintaan",
+    "optOut": "Anda dapat mematikan email ini di Akun saya > Preferensi."
+  },
+  "joinDecision": {
+    "joinApproved": {
+      "subject": "Anda bergabung dengan “{workspace}”",
+      "heading": "Selamat datang di “{workspace}”",
+      "body": "Seorang pemilik menyetujui permintaan Anda untuk bergabung dengan “{workspace}” di Leafdesk."
+    },
+    "joinDeclined": {
+      "subject": "Permintaan Anda untuk bergabung dengan “{workspace}”",
+      "heading": "Permintaan Anda tidak disetujui",
+      "body": "Seorang pemilik “{workspace}” menolak permintaan Anda untuk bergabung. Anda dapat meminta undangan kepada salah satu pemiliknya."
+    },
+    "inviteApproved": {
+      "subject": "{email} diundang ke “{workspace}”",
+      "heading": "Undangan Anda telah dikirim",
+      "body": "Seorang pemilik menyetujui permintaan Anda, dan {email} diundang ke “{workspace}” di Leafdesk."
+    },
+    "inviteDeclined": {
+      "subject": "Permintaan Anda untuk mengundang {email}",
+      "heading": "Permintaan Anda tidak disetujui",
+      "body": "Seorang pemilik “{workspace}” menolak permintaan Anda untuk mengundang {email}."
+    },
+    "action": "Buka Leafdesk"
+  },
+  "verification": {
+    "subject": "Verifikasi alamat email Leafdesk Anda",
+    "heading": "Verifikasi alamat email Anda",
+    "body": "Halo {name}, konfirmasikan bahwa alamat ini milik Anda dengan tombol di bawah.",
+    "ignore": "Jika Anda tidak membuat akun Leafdesk, Anda dapat mengabaikan email ini.",
+    "action": "Verifikasi alamat email"
+  },
+  "passwordResetRequired": {
+    "subject": "Pilih kata sandi Leafdesk baru",
+    "heading": "Pilih kata sandi baru",
+    "body": "Halo {name}, administrator server Leafdesk ini meminta Anda memilih kata sandi baru. Kata sandi lama Anda tidak lagi dapat dipakai untuk masuk.",
+    "expires": "Tautan berlaku selama {minutes} menit dan hanya sekali pakai. Masuk lagi dengan kata sandi lama akan mengirim yang baru.",
+    "action": "Pilih kata sandi baru"
+  },
+  "push": {
+    "assignment": "{actor} menugaskan Anda pada “{property}”",
+    "pageShared": "{actor} membagikan halaman ini kepada Anda",
+    "comment": "{actor} berkomentar di utas yang Anda ikuti",
+    "mention": "{actor} menyebut Anda",
+    "reminder": "Pengingat: {date}",
+    "accessRequest": "{actor} meminta akses ke halaman ini",
+    "automation": "Otomatisasi “{name}”: {actor} menambahkan atau mengubah baris ini",
+    "automationDatePassed": "Otomatisasi “{name}”: tanggal baris ini telah tiba",
+    "rowUpdate": "{actor} mengubah {fields}",
+    "rowUpdateSome": "{actor} mengubah baris ini",
+    "rowUpdateTitle": "judul",
+    "rowUpdateBody": "teks",
+    "pageUpdated": "{actor} mengedit halaman ini",
+    "rowEmail": "Email dari {from}",
+    "followUp": "Tindak lanjut “{sequence}” dijeda: email berikutnya perlu diperiksa",
+    "reaction": "{actor} memberi reaksi {emoji} pada komentar Anda",
+    "people": "{others, plural, =0 {{name}} other {{name} dan # lainnya}}",
+    "someone": "Seseorang",
+    "joinRequestTitle": "Permintaan bergabung",
+    "joinRequest": "{actor} meminta untuk bergabung",
+    "inviteRequest": "{actor} meminta untuk mengundang {email}",
+    "approvalTitle": "{agent} meminta izin untuk melanjutkan",
+    "approval": "Ingin memanggil “{tool}” di {connection}",
+    "memoryTitle": "{agent} ingin mengingat",
+    "memory": "{count, plural, other {Mengusulkan # catatan untuk memorinya}}",
+    "reportTitle": "Laporan dari {agent}",
+    "reportDone": "Eksekusi terjadwalnya selesai",
+    "reportFailed": "Eksekusi terjadwalnya gagal",
+    "untitled": "Tanpa judul",
+    "snooze": "Tunda 1 jam",
+    "aiAccountTitle": "Akun AI dihapus",
+    "aiAccountDetached": "AI ruang kerja tidak lagi berjalan dengan kunci milik {actor}.",
+    "reviewTitle": "Untuk ditinjau",
+    "review": "{count, plural, other {# perubahan menunggu tinjauan Anda, yang terbaru dari {agent}}}"
+  },
+  "agentReply": {
+    "aiOff": "Saya tidak dapat menjawab: AI dimatikan di ruang kerja ini.",
+    "agentDisabled": "Saya tidak dapat menjawab: saya sedang dijeda. Pemilik ruang kerja dapat mengaktifkan saya kembali di Pengaturan.",
+    "limitReached": "Saya tidak dapat menjawab: batas token saya bulan ini sudah terpakai. Pemilik ruang kerja dapat menaikkannya di Pengaturan.",
+    "costLimit": "Saya tidak dapat menjawab: ruang kerja telah mencapai batas biaya AI bulanannya.",
+    "timeout": "Saya tidak dapat menyelesaikannya tepat waktu. Coba lagi dengan permintaan yang lebih kecil.",
+    "approvalTimeout": "Saya tidak dapat menyelesaikannya: tidak ada yang menyetujui apa yang perlu saya lakukan dalam sehari, jadi saya berhenti.",
+    "empty": "Saya sudah memeriksanya, tetapi tidak ada yang bisa ditambahkan.",
+    "failed": "Maaf, saya tidak dapat menyelesaikan ini. Pemilik ruang kerja dapat melihat apa yang terjadi di eksekusi saya di Pengaturan."
+  },
+  "workspaceDeleted": {
+    "subject": "{workspace} telah dihapus",
+    "heading": "{workspace} telah dihapus",
+    "body": "Halo {name}, {by} menghapus ruang kerja Leafdesk {workspace}, beserta semua halaman, basis data, dan berkasnya. Anda tidak dapat lagi membukanya.",
+    "note": "Ruang kerja yang dihapus tidak dapat dipulihkan. Jika Anda tidak menduga ini, bicaralah dengan {by} atau pemilik ruang kerja lainnya."
+  }
+}

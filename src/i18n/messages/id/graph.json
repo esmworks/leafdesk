@@ -1,0 +1,55 @@
+{
+  "metaTitle": "Grafik",
+  "heading": "Grafik",
+  "count": "{pages, plural, other {# halaman}} · {edges, plural, other {# koneksi}}",
+  "reload": "Muat ulang",
+  "find": "Cari halaman untuk difokuskan",
+  "focus": "Sekitar",
+  "depth": "Langkah",
+  "clearFocus": "Tampilkan seluruh grafik",
+  "tree": "Subhalaman",
+  "rows": "Baris basis data",
+  "orphans": "Halaman tanpa koneksi",
+  "kinds": {
+    "page": "Halaman",
+    "database": "Basis data",
+    "row": "Baris"
+  },
+  "edges": {
+    "link": "Tautan",
+    "relation": "Relasi",
+    "child": "Subhalaman"
+  },
+  "truncated": "Menampilkan {count} halaman yang paling baru diedit.",
+  "canvas": "Grafik halaman ruang kerja",
+  "empty": "Tidak ada halaman untuk ditampilkan.",
+  "focusMissing": "Halaman itu tidak ada di grafik: mungkin ada di sampah, atau tidak dibagikan kepada Anda.",
+  "local": {
+    "title": "Grafik halaman ini",
+    "close": "Tutup grafik",
+    "openFull": "Buka di grafik lengkap",
+    "canvas": "Grafik halaman di sekitar halaman ini",
+    "empty": "Belum ada halaman yang terhubung dengan halaman ini.",
+    "failed": "Tidak dapat memuat grafik."
+  },
+  "zoomIn": "Perbesar",
+  "zoomOut": "Perkecil",
+  "fit": "Sesuaikan grafik",
+  "hint": "Klik untuk memilih, klik dua kali untuk membuka",
+  "fewEdges": {
+    "title": "Belum banyak tautan antarhalaman",
+    "body": "Grafik menampilkan tautan antarhalaman dan relasi antarbaris basis data. Ketik [[ atau @ di halaman untuk menautkan ke halaman lain, atau tambahkan properti relasi ke basis data; tautannya akan muncul di sini.",
+    "showTree": "Tampilkan tautan subhalaman"
+  },
+  "inspector": {
+    "open": "Buka halaman",
+    "focus": "Fokus di sekitarnya",
+    "expandRows": "{count, plural, other {Tampilkan # baris}}",
+    "collapseRows": "Ringkas baris",
+    "rows": "{count, plural, other {# baris}}",
+    "none": "Tidak terhubung ke halaman lain.",
+    "more": "dan {count} lainnya",
+    "close": "Hapus pilihan",
+    "parent": "Di dalam"
+  }
+}
