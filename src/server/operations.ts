@@ -25,7 +25,8 @@ import {
   parseBackgroundText,
   parsePageBackground,
 } from "@/lib/page-background";
-import { requirePageAccess } from "@/server/access";
+import { AccessError, requirePageAccess } from "@/server/access";
+import type { ImportWarning } from "@/lib/import/result";
 import { calloutStylesOfWorkspaces } from "@/server/callout-styles";
 import { getCollab, type WriteActor } from "@/server/collab/bridge";
 import * as comments from "@/server/comments";
@@ -49,6 +50,7 @@ import { verificationUntil, type VerificationView } from "@/lib/verification";
 import { isWatching, setWatching } from "@/server/page-watch";
 import { isFollowing, setFollowing } from "@/server/row-follow";
 import * as pages from "@/server/pages";
+import { saveWebPage as saveWebPageOp, WebClipError } from "@/server/web-clip";
 import * as propertyAccess from "@/server/property-access";
 import * as rowActivityFeed from "@/server/row-activity-feed";
 import { mergeRows as mergeRowsOp } from "@/server/merge-rows";
@@ -251,6 +253,19 @@ export const inputs = {
       .string()
       .optional()
       .describe('A page template of the workspace, or a built-in one ("builtin:<key>"), from list_templates.'),
+  }),
+  saveWebPage: z.object({
+    url: z.string().min(1).max(2048).describe("The web page's address (http or https)."),
+    workspace_id: z.string().optional().describe("Workspace for a top-level page. Ignored when parent_id is set."),
+    parent_id: z
+      .string()
+      .optional()
+      .describe("A page to save it under, or a database to save it into as a row (its first URL property gets the address)."),
+    teamspace_id: z
+      .string()
+      .optional()
+      .describe('Top-level pages: the teamspace to add it to, or "private" (the default) for a page only the user sees. Ignored when parent_id is set.'),
+    quote: z.string().max(5000).optional().describe("Text from the page to show as a quote under the link back to it."),
   }),
   updatePage: z.object({
     page_id: id("page"),
@@ -964,6 +979,47 @@ export async function createPage(
     ...(await teamspaceOf(ctx, created.teamspaceId)),
     parent_id: created.parentId,
     url: pageUrl(created.workspaceId, created.id),
+  };
+}
+
+/** What a saved web page left out, in words. */
+function webClipWarning(warning: ImportWarning): string {
+  if (warning.code === "tooManyImages") return `${warning.count} more pictures were left out: at most ${warning.limit} are copied.`;
+  if (warning.code === "fileNotStored") return `The picture "${warning.path}" wasn't copied (${warning.reason}).`;
+  return warning.code;
+}
+
+/**
+ * Saves the web page at `url` as a page (see server/web-clip.ts): under parent_id (a page), into
+ * it as a row (a database), or at the top of the workspace.
+ */
+export async function saveWebPage(ctx: OperationContext, { url, workspace_id, parent_id, teamspace_id, quote }: Args<"saveWebPage">) {
+  const location = await resolveLocation(ctx, workspace_id, parent_id, teamspace_id);
+  let saved;
+  try {
+    saved = await saveWebPageOp(ctx.actor, {
+      workspaceId: location.workspaceId,
+      url,
+      targetId: location.parentId,
+      teamspaceId: location.teamspaceId ?? null,
+      quote,
+    });
+  } catch (error) {
+    if (error instanceof WebClipError && error.code === "noAccess") throw new AccessError();
+    throw error;
+  }
+  const created = await pages.getPage(ctx.userId, saved.page.id);
+  return {
+    id: created.id,
+    title: pageLabel(created.title),
+    workspace_id: created.workspaceId,
+    ...(await teamspaceOf(ctx, created.teamspaceId)),
+    parent_id: created.parentId,
+    row: saved.page.row,
+    url: pageUrl(created.workspaceId, created.id),
+    source_url: url,
+    pictures_copied: saved.created.files,
+    warnings: [...saved.warnings.map(webClipWarning), ...(saved.moreWarnings ? [`…and ${saved.moreWarnings} more.`] : [])],
   };
 }
 

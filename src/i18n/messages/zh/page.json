@@ -821,7 +821,12 @@
     "shortcut": "新建快速笔记",
     "shortcutShort": "快速笔记",
     "destination": "保存到",
-    "privatePage": "私有页面"
+    "privatePage": "私有页面",
+    "fullPage": {
+      "heading": "保存整个页面",
+      "help": "保存页面的正文和图片及原网页链接，而不只是链接。",
+      "save": "保存整个页面"
+    }
   },
   "dashboard": {
     "title": "仪表板",

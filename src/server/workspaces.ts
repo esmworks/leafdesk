@@ -1870,6 +1870,27 @@ export async function setSidebarLayout(userId: string, workspaceId: string, inpu
     .where(and(eq(workspaceMember.workspaceId, workspaceId), eq(workspaceMember.userId, userId)));
 }
 
+/**
+ * Where the member last saved a web page to in this workspace (server/web-clip.ts): a page or
+ * database id, or null for a private page at the top (and for non-members). Not checked here: the
+ * caller checks the target is still there and theirs to edit.
+ */
+export async function getWebClipTarget(userId: string, workspaceId: string): Promise<string | null> {
+  const [row] = await db
+    .select({ target: workspaceMember.webClipTarget })
+    .from(workspaceMember)
+    .where(and(eq(workspaceMember.workspaceId, workspaceId), eq(workspaceMember.userId, userId)));
+  return row?.target ?? null;
+}
+
+/** Remembers where the member saved a web page to (see getWebClipTarget); nothing happens for non-members. */
+export async function setWebClipTarget(userId: string, workspaceId: string, target: string | null) {
+  await db
+    .update(workspaceMember)
+    .set({ webClipTarget: target })
+    .where(and(eq(workspaceMember.workspaceId, workspaceId), eq(workspaceMember.userId, userId)));
+}
+
 /** The member's own switch for the AI chat's memory in this workspace (see server/ai-memory.ts); null when not a member. */
 export async function getMemberAiMemory(userId: string, workspaceId: string): Promise<boolean | null> {
   const [row] = await db

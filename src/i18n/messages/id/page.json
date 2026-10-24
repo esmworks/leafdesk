@@ -821,7 +821,12 @@
     "shortcut": "Catatan cepat baru",
     "shortcutShort": "Catatan cepat",
     "destination": "Simpan ke",
-    "privatePage": "Halaman privat"
+    "privatePage": "Halaman privat",
+    "fullPage": {
+      "heading": "Simpan seluruh halaman",
+      "help": "Menyimpan teks dan gambar halaman beserta tautan kembali, bukan hanya tautannya.",
+      "save": "Simpan seluruh halaman"
+    }
   },
   "dashboard": {
     "title": "Dasbor",

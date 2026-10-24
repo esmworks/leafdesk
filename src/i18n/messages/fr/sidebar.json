@@ -54,6 +54,7 @@
     "moveFailed": "Impossible de déplacer la page ici. Pour la déplacer ailleurs, vous devez disposer d’un accès complet.",
     "fromTemplate": "À partir d’un modèle",
     "import": "Importer…",
+    "saveFromWeb": "Enregistrer depuis le web…",
     "confirmMoveSpace": "Déplacer cette page vers {place} ? Les personnes qui peuvent la voir changeront en conséquence."
   },
   "search": {

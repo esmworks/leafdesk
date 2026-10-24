@@ -12,7 +12,8 @@
     "asana": "Asana",
     "monday": "Monday.com",
     "jira": "Jira",
-    "googleDocs": "Google Docs"
+    "googleDocs": "Google Docs",
+    "web": "Page web"
   },
   "destination": "Placer sous",
   "topLevel": "Niveau supérieur de l’espace de travail",
@@ -219,7 +220,8 @@
       "badNote": "La note « {path} » ne peut pas être lue et a été ignorée.",
       "notEnex": "« {path} » a été ignoré : ce n’est pas un export Evernote (.enex)."
     },
-    "more": "…et {count, plural, one {# autre} other {# autres}}."
+    "more": "…et {count, plural, one {# autre} other {# autres}}.",
+    "tooManyImages": "{count, plural, one {# image de plus a été laissée} other {# images de plus ont été laissées}} de côté : une page web enregistrée en garde au plus {limit}."
   },
   "errors": {
     "tooLarge": "L’envoi dépasse {limit}.",
@@ -269,6 +271,42 @@
       "signIn": "« {name} » doit se reconnecter à Google : un propriétaire le fait dans Paramètres → Connexions.",
       "notFound": "Un document ne peut pas être lu via « {name} » : vérifiez le lien et que le compte Google de la connexion peut l'ouvrir.",
       "notADocument": "« {id} » n'est pas un document Google."
+    }
+  },
+  "web": {
+    "title": "Enregistrer depuis le web",
+    "description": "Enregistrer une page web comme page : son texte, ses images et un lien vers elle.",
+    "help": "Collez l’adresse d’une page web. Son texte principal est enregistré sans les menus, publicités et pieds de page qui l’entourent, et ses images sont copiées dans l’espace de travail. Une recette vient en premier, avec ses ingrédients en liste de cases à cocher.",
+    "url": "Adresse web",
+    "target": "Enregistrer dans",
+    "privatePage": "Page privée en haut",
+    "underPage": "Sous une page",
+    "intoDatabase": "Comme ligne d’une base de données",
+    "save": "Enregistrer la page",
+    "saving": "Enregistrement de la page…",
+    "bookmarklet": {
+      "heading": "Enregistrer depuis votre navigateur",
+      "help": "Faites glisser ce bouton dans la barre de favoris de votre navigateur. Sur n’importe quelle page web, cliquez dessus pour l’enregistrer ici ; le texte sélectionné vient en citation.",
+      "link": "Enregistrer dans Leafdesk"
+    },
+    "errors": {
+      "invalidUrl": "Ce n’est pas une adresse web. Collez-en une qui commence par http:// ou https://.",
+      "blocked": "Cette adresse ne peut pas être enregistrée : elle mène à un réseau privé ou à un port que les pages web n’utilisent pas.",
+      "unreachable": "La page est injoignable. Vérifiez l’adresse et réessayez.",
+      "timeout": "La page a mis trop de temps à répondre. Réessayez plus tard.",
+      "httpError": "Le site a répondu par une erreur : la page demande peut-être une connexion, ou n’existe plus.",
+      "notHtml": "Cette adresse n’est pas une page web (c’est peut-être un fichier). Téléversez plutôt les fichiers sur une page.",
+      "noAccess": "Vous ne pouvez pas ajouter de pages ici. Choisissez un autre endroit.",
+      "badTarget": "Une page web peut être enregistrée sous une page ou dans une base de données de cet espace de travail.",
+      "tooComplex": "La page est trop grande ou trop complexe pour être enregistrée en une seule page."
+    },
+    "recipe": {
+      "yield": "Pour",
+      "prepTime": "Préparation",
+      "cookTime": "Cuisson",
+      "totalTime": "Total",
+      "ingredients": "Ingrédients",
+      "steps": "Étapes"
     }
   }
 }

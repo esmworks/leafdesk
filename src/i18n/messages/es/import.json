@@ -12,7 +12,8 @@
     "asana": "Asana",
     "monday": "Monday.com",
     "jira": "Jira",
-    "googleDocs": "Google Docs"
+    "googleDocs": "Google Docs",
+    "web": "Página web"
   },
   "destination": "Colocar dentro de",
   "topLevel": "Nivel superior del espacio de trabajo",
@@ -219,7 +220,8 @@
       "badNote": "La nota “{path}” no se puede leer y se excluyó.",
       "notEnex": "“{path}” se excluyó: no es una exportación de Evernote (.enex)."
     },
-    "more": "…y {count, plural, one {# más} other {# más}}."
+    "more": "…y {count, plural, one {# más} other {# más}}.",
+    "tooManyImages": "{count, plural, one {Se dejó fuera # imagen más} other {Se dejaron fuera # imágenes más}}: una página web guardada conserva como máximo {limit}."
   },
   "errors": {
     "tooLarge": "Lo que subiste supera {limit}.",
@@ -269,6 +271,42 @@
       "signIn": "«{name}» necesita volver a iniciar sesión en Google: lo hace un propietario en Configuración → Conexiones.",
       "notFound": "No se puede leer un documento a través de «{name}»: revisa el enlace y que la cuenta de Google de la conexión pueda abrirlo.",
       "notADocument": "«{id}» no es un documento de Google."
+    }
+  },
+  "web": {
+    "title": "Guardar desde la web",
+    "description": "Guarda una página web como página: su texto, sus imágenes y un enlace a ella.",
+    "help": "Pega la dirección de una página web. Su texto principal se guarda sin los menús, anuncios y pies de página que lo rodean, y sus imágenes se copian al espacio de trabajo. Una receta va primero, con sus ingredientes como lista de verificación.",
+    "url": "Dirección web",
+    "target": "Guardar en",
+    "privatePage": "Página privada en el nivel superior",
+    "underPage": "Dentro de una página",
+    "intoDatabase": "Como fila de una base de datos",
+    "save": "Guardar página",
+    "saving": "Guardando la página…",
+    "bookmarklet": {
+      "heading": "Guardar desde tu navegador",
+      "help": "Arrastra este botón a la barra de marcadores de tu navegador. En cualquier página web, haz clic en él para guardarla aquí; el texto que hayas seleccionado se incluye como cita.",
+      "link": "Guardar en Leafdesk"
+    },
+    "errors": {
+      "invalidUrl": "Eso no es una dirección web. Pega una que empiece por http:// o https://.",
+      "blocked": "Esta dirección no se puede guardar: apunta a una red privada o a un puerto que las páginas web no usan.",
+      "unreachable": "No se pudo acceder a la página. Comprueba la dirección y vuelve a intentarlo.",
+      "timeout": "La página tardó demasiado en responder. Inténtalo más tarde.",
+      "httpError": "El sitio respondió con un error: quizá la página requiera iniciar sesión o ya no exista.",
+      "notHtml": "Esta dirección no es una página web (puede ser un archivo). Sube los archivos a una página.",
+      "noAccess": "No puedes añadir páginas ahí. Elige otro lugar donde guardar.",
+      "badTarget": "Una página web se puede guardar dentro de una página o en una base de datos de este espacio de trabajo.",
+      "tooComplex": "La página es demasiado grande o compleja para guardarla como una sola página."
+    },
+    "recipe": {
+      "yield": "Rinde",
+      "prepTime": "Preparación",
+      "cookTime": "Cocción",
+      "totalTime": "Total",
+      "ingredients": "Ingredientes",
+      "steps": "Pasos"
     }
   }
 }

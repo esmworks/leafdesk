@@ -1666,7 +1666,8 @@
       "skill": "Færdighed (SKILL.md)",
       "notion": "Notion",
       "obsidian": "Obsidian",
-      "enex": "Evernote"
+      "enex": "Evernote",
+      "web": "Webside"
     },
     "settingNames": {
       "guestInvites": "Hvem kan invitere gæster",

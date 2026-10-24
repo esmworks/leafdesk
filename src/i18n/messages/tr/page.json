@@ -821,7 +821,12 @@
     "shortcut": "Yeni hızlı not",
     "shortcutShort": "Hızlı not",
     "destination": "Kaydedilecek yer",
-    "privatePage": "Özel sayfa"
+    "privatePage": "Özel sayfa",
+    "fullPage": {
+      "heading": "Sayfanın tamamını kaydet",
+      "help": "Yalnızca bağlantıyı değil, sayfanın metnini ve resimlerini de geri dönen bir bağlantıyla kaydeder.",
+      "save": "Sayfanın tamamını kaydet"
+    }
   },
   "dashboard": {
     "title": "Gösterge paneli",

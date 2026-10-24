@@ -1666,7 +1666,8 @@
       "skill": "ทักษะ (SKILL.md)",
       "notion": "Notion",
       "obsidian": "Obsidian",
-      "enex": "Evernote"
+      "enex": "Evernote",
+      "web": "หน้าเว็บ"
     },
     "settingNames": {
       "guestInvites": "ใครเชิญผู้เยี่ยมชมได้",

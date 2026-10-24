@@ -821,7 +821,12 @@
     "shortcut": "Nowa szybka notatka",
     "shortcutShort": "Szybka notatka",
     "destination": "Zapisz w",
-    "privatePage": "Prywatna strona"
+    "privatePage": "Prywatna strona",
+    "fullPage": {
+      "heading": "Zapisz całą stronę",
+      "help": "Zapisuje tekst i obrazy strony z linkiem do źródła zamiast samego linku.",
+      "save": "Zapisz całą stronę"
+    }
   },
   "dashboard": {
     "title": "Pulpit",

@@ -54,6 +54,7 @@
     "moveFailed": "The page couldn't be moved here. Moving it somewhere else needs full access to it.",
     "fromTemplate": "From a template",
     "import": "Import…",
+    "saveFromWeb": "Save from web…",
     "confirmMoveSpace": "Move this page to {place}? Who can see it changes to match."
   },
   "search": {

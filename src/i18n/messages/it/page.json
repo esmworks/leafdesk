@@ -821,7 +821,12 @@
     "shortcut": "Nuova nota rapida",
     "shortcutShort": "Nota rapida",
     "destination": "Salva in",
-    "privatePage": "Pagina privata"
+    "privatePage": "Pagina privata",
+    "fullPage": {
+      "heading": "Salva l’intera pagina",
+      "help": "Salva testo e immagini della pagina con un link alla fonte, invece del solo link.",
+      "save": "Salva intera pagina"
+    }
   },
   "dashboard": {
     "title": "Dashboard",

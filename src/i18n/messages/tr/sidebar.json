@@ -54,6 +54,7 @@
     "moveFailed": "Sayfa buraya taşınamadı. Başka bir yere taşımak sayfada tam erişim gerektirir.",
     "fromTemplate": "Şablondan",
     "import": "İçe aktar…",
+    "saveFromWeb": "Web'den kaydet…",
     "confirmMoveSpace": "Bu sayfa {place} içine taşınsın mı? Sayfayı kimlerin görebileceği de buna göre değişir."
   },
   "search": {

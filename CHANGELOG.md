@@ -159,6 +159,21 @@
   example tasks in the current and next sprint and the backlog. *Docs* makes a doc library with a
   category, an owner and the last edit, a board by category and a view by last edit, and four
   example docs, two of them verified by you for three months. Both in every language.
+- **Save a web page.** *Save from web…* in the sidebar's *New* and *+* menus (and the new *Web page*
+  tab of Import) takes the address of a web page and saves it as a page: its title, a link back to
+  it, and its main text without the menus, ads, comments and footers around it. Its pictures (up to
+  20, 5 MB each) are copied into the workspace rather than loaded from the site. A page with a
+  schema.org recipe starts with it: what it makes and how long it takes, the ingredients as a
+  checklist and the steps as a numbered list, then the rest of the page. It goes under a page,
+  into a database as a row (with the address in its first URL property) or, by default, to a
+  private page at the top; the form starts where you saved the last time. The dialog offers a
+  *Save to Leafdesk* bookmarklet that opens the quick note with the page you are on (its address,
+  title and the text you selected); there, and when a link is shared to the installed app,
+  *Save full page* saves the whole page instead of the link. The REST API saves one with
+  `POST /api/v1/pages/from-web`. The server fetches only public addresses over http or https on
+  the usual web ports, checks every redirect again, and stops after 15 seconds and 5 MB of page.
+  Migration `drizzle/0139_web_clip_target.sql` adds where each person last saved to
+  (`workspace_member.web_clip_target`). No MCP tool: the tool list is at its size budget.
 
 ### Changed
 

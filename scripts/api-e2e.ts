@@ -460,6 +460,15 @@ try {
   await denied("POST", `/databases/${database.id}/query`, pagesOnly, "rows:read", {});
   await denied("GET", `/pages/${pageId}/comments`, pagesOnly, "comments:read");
   await denied("PATCH", `/pages/${pageId}`, pagesOnly, "pages:write", { title: "no" });
+  // Saving a web page: refused before anything is fetched, so no site has to answer
+  await denied("POST", "/pages/from-web", pagesOnly, "pages:write", { url: "https://example.com/", parent_id: pageId });
+  const pagesWriter = await scoped("pages writer", ["pages:write"]);
+  const intoDatabase = await api("POST", "/pages/from-web", pagesWriter, { url: "https://example.com/", parent_id: database.id });
+  check(intoDatabase.status === 403 && errorCode(intoDatabase) === "insufficient_scope" && intoDatabase.body.error.details?.scope === "rows:write", "…and rows:write to save into a database", intoDatabase.body);
+  const badScheme = await api("POST", "/pages/from-web", W, { url: "ftp://example.com/file", parent_id: pageId });
+  check(badScheme.status === 400 && errorCode(badScheme) === "invalid_request" && badScheme.body.error.param === "url", "POST /pages/from-web refuses an address that isn't a web page", badScheme.body);
+  const privateAddress = await api("POST", "/pages/from-web", W, { url: "http://10.20.30.40/", parent_id: pageId });
+  check(privateAddress.status === 400 && privateAddress.body.error.param === "url", "…and one on a private network", privateAddress.body);
   const scopedRow = await api("POST", `/databases/${database.id}/rows`, rowsWriter, { title: "Foxtrot" });
   check(scopedRow.status === 201, "rows:write adds rows", scopedRow.body);
   check((await api("GET", `/rows/${scopedRow.body.id}`, rowsWriter)).status === 200, "…and reads them, write bringing read");

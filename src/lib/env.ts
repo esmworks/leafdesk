@@ -68,6 +68,7 @@ export const env = {
    * CONNECTOR_ALLOWED_HOSTS: host names (or host:port) a connection's MCP server may be on even
    * though they are on a private network, a local name or plain http (a server on the same
    * machine, say); comma-separated. Every other connection goes only to public https addresses.
+   * Saving a web page (`server/web-clip.ts`) may reach these hosts too.
    */
   get connectorAllowedHosts() {
     return (process.env.CONNECTOR_ALLOWED_HOSTS ?? "")
