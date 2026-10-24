@@ -531,9 +531,6 @@
     "pinToTitle": "Fastgør under titlen",
     "unpinFromTitle": "Frigør fra titlen",
     "pinFull": "Der kan højst fastgøres {max} egenskaber.",
-    "dateDisplay": "Vis som",
-    "displayDate": "Dato",
-    "displayRelative": "Relativ",
     "relativeHint": "Datoer inden for en uge fra i dag vises som “i morgen”, “om 3 dage”, “for 2 dage siden”.",
     "reminder": "Påmindelse",
     "reminderNone": "Ingen påmindelse",
@@ -552,7 +549,25 @@
     "sortOptionsDesc": "Sortér Å → A",
     "dragOption": "Træk for at flytte {name}",
     "urlPreview": "Vis som linkforhåndsvisning",
-    "urlPreviewHint": "Rækkesider viser den linkede sides ikon, titel og billede under linket."
+    "urlPreviewHint": "Rækkesider viser den linkede sides ikon, titel og billede under linket.",
+    "relationOptions": "Relationsindstillinger",
+    "showAs": "Vis som",
+    "dateFormat": "Datoformat",
+    "dateFormats": {
+      "default": "Standard",
+      "full": "Fuld dato",
+      "short": "Kort dato",
+      "mdy": "Måned/Dag/År",
+      "dmy": "Dag/Måned/År",
+      "ymd": "År/Måned/Dag",
+      "relative": "Relativ"
+    },
+    "timeFormat": "Tidsformat",
+    "timeFormats": {
+      "default": "Standard",
+      "12h": "12 timer",
+      "24h": "24 timer"
+    }
   },
   "rowProperties": {
     "noProperties": "Ingen egenskaber",
@@ -694,7 +709,27 @@
     "noMatches": "Ingen matchende rækker",
     "newRow": "Ny række",
     "open": "Åbn {title}",
-    "unlink": "Fjern link til {title}"
+    "unlink": "Fjern link til {title}",
+    "options": "Relationsindstillinger",
+    "limit": "Grænse",
+    "limitAny": "Ingen grænse",
+    "limitOne": "1 side",
+    "limitHint": "Hver række kobles til én række. Vælger du en anden, erstatter den den.",
+    "rowPage": "På rækkesider",
+    "displayInline": "Indlejret",
+    "displaySection": "Som sektion",
+    "sectionHint": "Koblede rækker vises under egenskaberne, hvor deres egenskaber kan redigeres.",
+    "shows": "Koblede rækker viser",
+    "showsHint": "Vises i tabelceller, kort og rækkesider.",
+    "titlePart": "Titel",
+    "addPart": "Tilføj en egenskab…",
+    "moveUp": "Flyt {name} op",
+    "moveDown": "Flyt {name} ned",
+    "hidePart": "Vis ikke {name}",
+    "overLimit": "Kobler nu kun én række: vælg den, der skal blive.",
+    "addLink": "Tilføj kobling",
+    "noLinks": "Ingen koblede rækker endnu",
+    "showMore": "Vis {count} mere"
   },
   "person": {
     "search": "Søg efter personer",
@@ -974,7 +1009,9 @@
     "noCurrentSprint": "Ingen sprint er aktuel. Markér først én sprint som aktuel.",
     "invalidSprints": "Sprints kan ikke sættes op sådan: tjek sprintlængden, den første dag og sprintdatabasen.",
     "sprintStateOption": "Denne mulighed markerer en sprints tilstand. Omdøb den, hvis du vil, eller slå sprints fra, før du sletter den.",
-    "invalidSlackUrl": "Ikke en adresse til en indgående Slack-webhook (https://hooks.slack.com/services/…)."
+    "invalidSlackUrl": "Ikke en adresse til en indgående Slack-webhook (https://hooks.slack.com/services/…).",
+    "relationLimit": "“{property}” kobler højst én række. Vælg én række.",
+    "invalidRelationOptions": "Disse relationsindstillinger kan ikke gemmes."
   },
   "formula": {
     "title": "Formel",
@@ -1818,7 +1855,9 @@
     "save": "Gem og synkronisér",
     "stop": "Stop synkronisering",
     "stopConfirm": "Stop synkroniseringen af denne database? Dens rækker forbliver som de er, og loginnet glemmes.",
-    "viewOnly": "Kun personer med fuld adgang til databasen kan ændre synkroniseringen."
+    "viewOnly": "Kun personer med fuld adgang til databasen kan ændre synkroniseringen.",
+    "reporter": "Indberetter",
+    "reporterNone": "Ikke synkroniseret"
   },
   "sprints": {
     "menuItem": "Sprints",

@@ -57,3 +57,8 @@ export function checkNumberDisplay(input: unknown): { ok: true; display: NumberD
     },
   };
 }
+
+/** Whether a property's values can show as a bar or a ring: numbers, formulas giving a number and rollups. */
+export function takesNumberDisplay(prop: { type: string; options: { formula?: { type?: string } } }) {
+  return prop.type === "number" || prop.type === "rollup" || (prop.type === "formula" && prop.options.formula?.type === "number");
+}

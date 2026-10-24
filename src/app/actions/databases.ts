@@ -6,6 +6,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import type { NumberDisplay, NumberFormat, PropertyType, SelectOption, ViewConfig, ViewType } from "@/db/schema";
 import { avatarSrc } from "@/lib/avatar";
 import type { DateOptionsInput } from "@/lib/date-options";
+import type { RelationOptionsInput } from "@/lib/relation-options";
 import { isLocale, TIME_ZONE_COOKIE } from "@/i18n/config";
 import type { PageVisibility } from "@/lib/page-visibility";
 import type { DependencyInput } from "@/lib/dependencies";
@@ -131,6 +132,8 @@ export async function createRowAction(
         templateId: input.templateId,
         useDefault: input.useDefault,
         timeZone: await cookieTimeZone(),
+        // And its "@today" in the title is written in their language.
+        locale: await getLocale(),
       });
       return { id: created.id, position: created.position };
     }
@@ -332,6 +335,7 @@ export async function updatePropertyAction(
     dependsOn?: string | null;
     prefix?: string | null;
     urlPreview?: boolean;
+    relation?: RelationOptionsInput;
   },
 ) {
   return run((userId) => databases.updateProperty(userId, propertyId, patch));

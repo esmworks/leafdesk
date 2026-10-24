@@ -531,9 +531,6 @@
     "pinToTitle": "Fijar bajo el título",
     "unpinFromTitle": "Dejar de fijar bajo el título",
     "pinFull": "Se pueden fijar hasta {max} propiedades.",
-    "dateDisplay": "Mostrar como",
-    "displayDate": "Fecha",
-    "displayRelative": "Relativa",
     "relativeHint": "Las fechas a menos de una semana de hoy se leen «mañana», «dentro de 3 días», «hace 2 días».",
     "reminder": "Recordatorio",
     "reminderNone": "Sin recordatorio",
@@ -552,7 +549,25 @@
     "sortOptionsDesc": "Ordenar Z → A",
     "dragOption": "Arrastra para mover {name}",
     "urlPreview": "Mostrar como vista previa del enlace",
-    "urlPreviewHint": "Las páginas de fila muestran el icono, el título y la imagen de la página enlazada bajo el enlace."
+    "urlPreviewHint": "Las páginas de fila muestran el icono, el título y la imagen de la página enlazada bajo el enlace.",
+    "relationOptions": "Ajustes de la relación",
+    "showAs": "Mostrar como",
+    "dateFormat": "Formato de fecha",
+    "dateFormats": {
+      "default": "Predeterminado",
+      "full": "Fecha completa",
+      "short": "Fecha corta",
+      "mdy": "Mes/Día/Año",
+      "dmy": "Día/Mes/Año",
+      "ymd": "Año/Mes/Día",
+      "relative": "Relativa"
+    },
+    "timeFormat": "Formato de hora",
+    "timeFormats": {
+      "default": "Predeterminado",
+      "12h": "12 horas",
+      "24h": "24 horas"
+    }
   },
   "rowProperties": {
     "noProperties": "Sin propiedades",
@@ -694,7 +709,27 @@
     "noMatches": "Ninguna fila coincide",
     "newRow": "Nueva fila",
     "open": "Abrir {title}",
-    "unlink": "Quitar el vínculo con {title}"
+    "unlink": "Quitar el vínculo con {title}",
+    "options": "Ajustes de la relación",
+    "limit": "Límite",
+    "limitAny": "Sin límite",
+    "limitOne": "1 página",
+    "limitHint": "Cada fila enlaza una sola fila. Elegir otra la reemplaza.",
+    "rowPage": "En las páginas de fila",
+    "displayInline": "En línea",
+    "displaySection": "Como sección",
+    "sectionHint": "Las filas enlazadas se muestran bajo las propiedades, con sus propiedades editables ahí.",
+    "shows": "Las filas enlazadas muestran",
+    "showsHint": "Se ve en celdas de tabla, tarjetas y páginas de fila.",
+    "titlePart": "Título",
+    "addPart": "Añadir una propiedad…",
+    "moveUp": "Subir {name}",
+    "moveDown": "Bajar {name}",
+    "hidePart": "Dejar de mostrar {name}",
+    "overLimit": "Ahora enlaza una sola fila: elige la que quieres conservar.",
+    "addLink": "Añadir enlace",
+    "noLinks": "Aún no hay filas enlazadas",
+    "showMore": "Mostrar {count} más"
   },
   "person": {
     "search": "Buscar personas",
@@ -974,7 +1009,9 @@
     "noCurrentSprint": "Ningún sprint está en curso. Marca primero un sprint como actual.",
     "invalidSprints": "Los sprints no se pueden configurar así: revisa la duración del sprint, el primer día y la base de datos de sprints.",
     "sprintStateOption": "Esta opción marca el estado de un sprint. Puedes cambiarle el nombre o desactivar los sprints antes de eliminarla.",
-    "invalidSlackUrl": "No es la dirección de un webhook entrante de Slack (https://hooks.slack.com/services/…)."
+    "invalidSlackUrl": "No es la dirección de un webhook entrante de Slack (https://hooks.slack.com/services/…).",
+    "relationLimit": "«{property}» enlaza como máximo una fila. Elige una fila.",
+    "invalidRelationOptions": "No se pueden guardar estos ajustes de relación."
   },
   "formula": {
     "title": "Fórmula",
@@ -1818,7 +1855,9 @@
     "save": "Guardar y sincronizar",
     "stop": "Dejar de sincronizar",
     "stopConfirm": "¿Dejar de sincronizar esta base de datos? Sus filas se quedan como están y el inicio de sesión se olvida.",
-    "viewOnly": "Solo las personas con acceso completo a la base de datos pueden cambiar la sincronización."
+    "viewOnly": "Solo las personas con acceso completo a la base de datos pueden cambiar la sincronización.",
+    "reporter": "Informador",
+    "reporterNone": "Sin sincronizar"
   },
   "sprints": {
     "menuItem": "Sprints",

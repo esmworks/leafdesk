@@ -139,7 +139,8 @@
       "type": "Tür",
       "labels": "Etiketler",
       "due": "Bitiş tarihi",
-      "link": "Jira bağlantısı"
+      "link": "Jira bağlantısı",
+      "reporter": "Bildiren"
     },
     "errors": {
       "unauthorized": "Jira e-posta adresini ve API anahtarını kabul etmedi.",

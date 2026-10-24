@@ -21,7 +21,9 @@ import {
   EyeOff,
   Fingerprint,
   GripVertical,
+  Gauge,
   Hash,
+  Link,
   ListFilter,
   Lock,
   PanelTop,
@@ -50,7 +52,8 @@ import { isAutofillType, type AiAutofillConfig } from "@/lib/ai";
 import { canBeParent, canDepend, dependencyProblem, withoutParentOptions } from "@/lib/dependent-options";
 import { MAX_PROPERTY_DESCRIPTION, propertyDescription } from "@/lib/property-description";
 import type { AggregateFn } from "@/lib/aggregate";
-import type { DateOptionsInput } from "@/lib/date-options";
+import { takesDateOptions, type DateOptionsInput } from "@/lib/date-options";
+import type { RelationOptionsInput } from "@/lib/relation-options";
 import type { NumberDisplay } from "@/lib/number-display";
 import { takesNumberFormat, type NumberFormat } from "@/lib/number-format";
 import { PAGE_VISIBILITIES, pageVisibilityOf, type PageVisibility } from "@/lib/page-visibility";
@@ -59,7 +62,8 @@ import { cleanUniqueIdPrefix, formatUniqueId, MAX_UNIQUE_ID_PREFIX, uniqueIdPref
 import { AutofillEditor } from "./ai-autofill";
 import { DateOptionsEditor } from "./date-options-menu";
 import { FormulaEditor } from "./formula-editor";
-import { NumberFormatEditor } from "./number-format-menu";
+import { NumberDisplayEditor, NumberFormatEditor } from "./number-format-menu";
+import { RelationOptionsEditor } from "./relation-options-menu";
 import { RollupEditor } from "./rollup-editor";
 import { CalculationOptions } from "./table-calculations";
 import { OptionChip } from "./property-cell";
@@ -249,6 +253,8 @@ export type PropertyMenuActions = {
   setNumberDisplay?: (display: NumberDisplay | null) => void;
   /** Dates: saves how values show and the reminder (see lib/date-options). */
   setDateOptions?: (input: DateOptionsInput) => void;
+  /** Relations: saves the limit, where row pages show it and what linked rows show (see lib/relation-options). */
+  setRelationOptions?: (input: RelationOptionsInput) => void;
   /** Unique IDs: saves the prefix they show with (null for none; see lib/unique-id). */
   setUniqueIdPrefix?: (prefix: string | null) => void;
   /** URLs: whether row pages show a preview of the linked page (server/url-preview.ts). */
@@ -295,6 +301,8 @@ export function PropertyMenu({
     | "rollup"
     | "number-format"
     | "date-options"
+    | "relation-options"
+    | "number-display"
     | "unique-id"
     | "page-visibility"
     | "autofill"
@@ -461,8 +469,8 @@ export function PropertyMenu({
       <NumberFormatEditor
         prop={prop}
         onChange={actions.setNumberFormat}
-        // Formulas show their result as the number; only number properties show a bar or a ring.
-        onDisplayChange={prop.type === "number" ? actions.setNumberDisplay : undefined}
+        // Number properties and formulas giving a number show as a bar or a ring where it is offered.
+        onDisplayChange={actions.setNumberDisplay}
         onBack={() => setPage("main")}
       />
     );
@@ -470,6 +478,14 @@ export function PropertyMenu({
 
   if (page === "date-options" && prop && actions.setDateOptions) {
     return <DateOptionsEditor prop={prop} onChange={actions.setDateOptions} onBack={() => setPage("main")} />;
+  }
+
+  if (page === "relation-options" && prop && actions.setRelationOptions) {
+    return <RelationOptionsEditor prop={prop} onChange={actions.setRelationOptions} onBack={() => setPage("main")} />;
+  }
+
+  if (page === "number-display" && prop && actions.setNumberDisplay) {
+    return <NumberDisplayEditor prop={prop} onChange={actions.setNumberDisplay} onBack={() => setPage("main")} />;
   }
 
   if (page === "unique-id" && prop && actions.setUniqueIdPrefix) {
@@ -622,7 +638,7 @@ export function PropertyMenu({
         {t("uniqueIdPrefix")}
       </MenuItem>
     ),
-    prop?.type === "date" && actions.setDateOptions && (
+    prop && takesDateOptions(prop.type) && actions.setDateOptions && (
       <MenuItem
         key="date-options"
         // The bell says a reminder is on; the details are a click away.
@@ -631,6 +647,16 @@ export function PropertyMenu({
         onClick={() => setPage("date-options")}
       >
         {t("dateOptions")}
+      </MenuItem>
+    ),
+    prop?.type === "relation" && actions.setRelationOptions && (
+      <MenuItem key="relation-options" icon={icon(Link)} trailing={<ChevronRight className="h-3.5 w-3.5 rtl:-scale-x-100" />} onClick={() => setPage("relation-options")}>
+        {t("relationOptions")}
+      </MenuItem>
+    ),
+    prop?.type === "rollup" && actions.setNumberDisplay && (
+      <MenuItem key="number-display" icon={icon(Gauge)} trailing={<ChevronRight className="h-3.5 w-3.5 rtl:-scale-x-100" />} onClick={() => setPage("number-display")}>
+        {t("showAs")}
       </MenuItem>
     ),
     prop?.type === "url" && actions.setUrlPreview && (

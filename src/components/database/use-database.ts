@@ -36,6 +36,7 @@ import { databaseSnapshotKey, deleteSnapshot, loadSnapshot, saveSnapshot } from 
 import type { NumberDisplay, NumberFormat, PropertyType, SelectOption, ViewConfig, ViewType } from "@/db/schema/app";
 import { MAX_AUTOFILL_ROWS, type AiAutofillConfig } from "@/lib/ai";
 import { checkDateOptions, type DateOptionsInput } from "@/lib/date-options";
+import { checkRelationOptions, type RelationOptionsInput } from "@/lib/relation-options";
 import { withoutDeleted } from "@/lib/deleted-schema";
 import { keepUnchanged } from "@/lib/keep-unchanged";
 import type { DependencyInput } from "@/lib/dependencies";
@@ -564,6 +565,19 @@ export function useDatabase(
         const { url: _old, ...rest } = prop.options;
         return mutateSchema(patchProperty(prop.id, { options: on ? { ...rest, url: { preview: true } } : rest }), () =>
           updatePropertyAction(prop.id, { urlPreview: on }),
+        );
+      },
+
+      /**
+       * Saves a relation's limit, where row pages show it and what its linked rows show (see
+       * lib/relation-options); the server checks them, and the refetch brings the values shown.
+       */
+      setRelationOptions(prop: Property, input: RelationOptionsInput) {
+        const current = prop.options.relation;
+        const checked = current ? checkRelationOptions(input, current, null) : null;
+        if (!checked?.ok) return;
+        return mutateSchema(patchProperty(prop.id, { options: { ...prop.options, relation: checked.relation } }), () =>
+          updatePropertyAction(prop.id, { relation: input }),
         );
       },
 

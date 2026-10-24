@@ -139,7 +139,8 @@
       "type": "نوع",
       "labels": "برچسب‌ها",
       "due": "سررسید",
-      "link": "پیوند Jira"
+      "link": "پیوند Jira",
+      "reporter": "گزارش‌دهنده"
     },
     "errors": {
       "unauthorized": "Jira نشانی ایمیل و توکن API را نپذیرفت.",

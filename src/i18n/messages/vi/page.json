@@ -477,7 +477,8 @@
     "row": "Đây là một mẫu hàng. Các hàng mới tạo từ nó nhận các thuộc tính và nội dung của nó.",
     "inside": "Trang này là một phần của mẫu.",
     "use": "Dùng mẫu",
-    "confirmDelete": "Xóa vĩnh viễn mẫu này? Các trang đã tạo từ nó vẫn giữ nguyên."
+    "confirmDelete": "Xóa vĩnh viễn mẫu này? Các trang đã tạo từ nó vẫn giữ nguyên.",
+    "titleMarkers": "Viết @today, @now hoặc @me trong tiêu đề: mỗi hàng mới sẽ nhận ngày, giờ hoặc tên người thêm hàng đó."
   },
   "blocks": {
     "callout": {

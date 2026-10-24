@@ -477,7 +477,8 @@
     "row": "Este é um modelo de linha. Novas linhas criadas a partir dele recebem as propriedades e o conteúdo dele.",
     "inside": "Esta página faz parte de um modelo.",
     "use": "Usar modelo",
-    "confirmDelete": "Excluir este modelo de vez? As páginas já criadas a partir dele continuam como estão."
+    "confirmDelete": "Excluir este modelo de vez? As páginas já criadas a partir dele continuam como estão.",
+    "titleMarkers": "Escreva @today, @now ou @me no título: cada nova linha recebe a data, a hora ou o nome de quem a adiciona."
   },
   "blocks": {
     "callout": {

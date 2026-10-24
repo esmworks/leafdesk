@@ -139,7 +139,8 @@
       "type": "Тип",
       "labels": "Метки",
       "due": "Срок",
-      "link": "Ссылка на Jira"
+      "link": "Ссылка на Jira",
+      "reporter": "Автор задачи"
     },
     "errors": {
       "unauthorized": "Jira отклонила адрес эл. почты и API-токен.",

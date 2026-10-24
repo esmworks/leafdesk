@@ -477,7 +477,8 @@
     "row": "To jest szablon wiersza. Nowe wiersze utworzone z niego otrzymują jego właściwości i treść.",
     "inside": "Ta strona jest częścią szablonu.",
     "use": "Użyj szablonu",
-    "confirmDelete": "Usunąć ten szablon na stałe? Strony już z niego utworzone pozostaną bez zmian."
+    "confirmDelete": "Usunąć ten szablon na stałe? Strony już z niego utworzone pozostaną bez zmian.",
+    "titleMarkers": "Wpisz @today, @now lub @me w tytule: każdy nowy wiersz dostanie datę, godzinę lub imię osoby, która go dodaje."
   },
   "blocks": {
     "callout": {

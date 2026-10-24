@@ -531,9 +531,6 @@
     "pinToTitle": "Pin under the title",
     "unpinFromTitle": "Unpin from the title",
     "pinFull": "Up to {max} properties can be pinned.",
-    "dateDisplay": "Show as",
-    "displayDate": "Date",
-    "displayRelative": "Relative",
     "relativeHint": "Dates within a week of today read “tomorrow”, “in 3 days”, “2 days ago”.",
     "reminder": "Reminder",
     "reminderNone": "No reminder",
@@ -552,7 +549,25 @@
     "sortOptionsDesc": "Sort Z → A",
     "dragOption": "Drag to move {name}",
     "urlPreview": "Show as link preview",
-    "urlPreviewHint": "Row pages show the linked page's icon, title and image under the link."
+    "urlPreviewHint": "Row pages show the linked page's icon, title and image under the link.",
+    "relationOptions": "Relation options",
+    "showAs": "Show as",
+    "dateFormat": "Date format",
+    "dateFormats": {
+      "default": "Default",
+      "full": "Full date",
+      "short": "Short date",
+      "mdy": "Month/Day/Year",
+      "dmy": "Day/Month/Year",
+      "ymd": "Year/Month/Day",
+      "relative": "Relative"
+    },
+    "timeFormat": "Time format",
+    "timeFormats": {
+      "default": "Default",
+      "12h": "12-hour",
+      "24h": "24-hour"
+    }
   },
   "rowProperties": {
     "noProperties": "No properties",
@@ -694,7 +709,27 @@
     "noMatches": "No matching rows",
     "newRow": "New row",
     "open": "Open {title}",
-    "unlink": "Remove link to {title}"
+    "unlink": "Remove link to {title}",
+    "options": "Relation options",
+    "limit": "Limit",
+    "limitAny": "No limit",
+    "limitOne": "1 page",
+    "limitHint": "Each row links to one row. Picking another replaces it.",
+    "rowPage": "On row pages",
+    "displayInline": "Inline",
+    "displaySection": "As a section",
+    "sectionHint": "Linked rows show under the properties, with their properties editable there.",
+    "shows": "Linked rows show",
+    "showsHint": "Shown in table cells, cards and row pages.",
+    "titlePart": "Title",
+    "addPart": "Add a property…",
+    "moveUp": "Move {name} up",
+    "moveDown": "Move {name} down",
+    "hidePart": "Stop showing {name}",
+    "overLimit": "Links to one row now: pick the one to keep.",
+    "addLink": "Add link",
+    "noLinks": "No linked rows yet",
+    "showMore": "Show {count} more"
   },
   "person": {
     "search": "Search people",
@@ -974,7 +1009,9 @@
     "noCurrentSprint": "No sprint is current. Mark one sprint as current first.",
     "invalidSprints": "Sprints can’t be set up like this: check the sprint length, the first day and the sprints database.",
     "sprintStateOption": "This option marks a sprint’s state. Rename it if you like, or turn sprints off before deleting it.",
-    "invalidSlackUrl": "Not a Slack incoming webhook address (https://hooks.slack.com/services/…)."
+    "invalidSlackUrl": "Not a Slack incoming webhook address (https://hooks.slack.com/services/…).",
+    "relationLimit": "“{property}” links to one row at most. Pick one row.",
+    "invalidRelationOptions": "These relation settings can’t be saved."
   },
   "formula": {
     "title": "Formula",
@@ -1818,7 +1855,9 @@
     "save": "Save and sync",
     "stop": "Stop syncing",
     "stopConfirm": "Stop syncing this database? Its rows stay as they are, and the sign-in is forgotten.",
-    "viewOnly": "Only people with full access to the database can change the sync."
+    "viewOnly": "Only people with full access to the database can change the sync.",
+    "reporter": "Reporter",
+    "reporterNone": "Not synced"
   },
   "sprints": {
     "menuItem": "Sprints",

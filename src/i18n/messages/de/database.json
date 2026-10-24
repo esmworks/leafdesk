@@ -531,9 +531,6 @@
     "pinToTitle": "Unter dem Titel anheften",
     "unpinFromTitle": "Vom Titel lösen",
     "pinFull": "Es lassen sich bis zu {max} Eigenschaften anheften.",
-    "dateDisplay": "Anzeigen als",
-    "displayDate": "Datum",
-    "displayRelative": "Relativ",
     "relativeHint": "Daten innerhalb einer Woche erscheinen als „morgen“, „in 3 Tagen“, „vor 2 Tagen“.",
     "reminder": "Erinnerung",
     "reminderNone": "Keine Erinnerung",
@@ -552,7 +549,25 @@
     "sortOptionsDesc": "Sortieren Z → A",
     "dragOption": "Ziehen, um {name} zu verschieben",
     "urlPreview": "Als Linkvorschau anzeigen",
-    "urlPreviewHint": "Zeilenseiten zeigen Symbol, Titel und Bild der verlinkten Seite unter dem Link."
+    "urlPreviewHint": "Zeilenseiten zeigen Symbol, Titel und Bild der verlinkten Seite unter dem Link.",
+    "relationOptions": "Relationseinstellungen",
+    "showAs": "Anzeigen als",
+    "dateFormat": "Datumsformat",
+    "dateFormats": {
+      "default": "Standard",
+      "full": "Langes Datum",
+      "short": "Kurzes Datum",
+      "mdy": "Monat/Tag/Jahr",
+      "dmy": "Tag/Monat/Jahr",
+      "ymd": "Jahr/Monat/Tag",
+      "relative": "Relativ"
+    },
+    "timeFormat": "Zeitformat",
+    "timeFormats": {
+      "default": "Standard",
+      "12h": "12 Stunden",
+      "24h": "24 Stunden"
+    }
   },
   "rowProperties": {
     "noProperties": "Keine Eigenschaften",
@@ -694,7 +709,27 @@
     "noMatches": "Keine passenden Zeilen",
     "newRow": "Neue Zeile",
     "open": "{title} öffnen",
-    "unlink": "Verknüpfung mit {title} entfernen"
+    "unlink": "Verknüpfung mit {title} entfernen",
+    "options": "Relationseinstellungen",
+    "limit": "Begrenzung",
+    "limitAny": "Unbegrenzt",
+    "limitOne": "1 Seite",
+    "limitHint": "Jede Zeile verknüpft eine Zeile. Eine andere zu wählen ersetzt sie.",
+    "rowPage": "Auf Zeilenseiten",
+    "displayInline": "Inline",
+    "displaySection": "Als eigener Abschnitt",
+    "sectionHint": "Verknüpfte Zeilen erscheinen unter den Eigenschaften, ihre Eigenschaften sind dort bearbeitbar.",
+    "shows": "Verknüpfte Zeilen zeigen",
+    "showsHint": "Zu sehen in Tabellenzellen, Karten und Zeilenseiten.",
+    "titlePart": "Titel",
+    "addPart": "Eigenschaft hinzufügen…",
+    "moveUp": "{name} nach oben",
+    "moveDown": "{name} nach unten",
+    "hidePart": "{name} nicht mehr zeigen",
+    "overLimit": "Verknüpft jetzt nur eine Zeile: Wähle die, die bleiben soll.",
+    "addLink": "Verknüpfung hinzufügen",
+    "noLinks": "Noch keine verknüpften Zeilen",
+    "showMore": "{count} weitere zeigen"
   },
   "person": {
     "search": "Personen suchen",
@@ -974,7 +1009,9 @@
     "noCurrentSprint": "Kein Sprint ist aktuell. Markiere zuerst einen Sprint als aktuell.",
     "invalidSprints": "So lassen sich Sprints nicht einrichten: Prüfe die Sprintlänge, den ersten Tag und die Sprint-Datenbank.",
     "sprintStateOption": "Diese Option kennzeichnet den Stand eines Sprints. Benenne sie gern um oder schalte Sprints aus, bevor du sie löschst.",
-    "invalidSlackUrl": "Keine Adresse eines eingehenden Slack-Webhooks (https://hooks.slack.com/services/…)."
+    "invalidSlackUrl": "Keine Adresse eines eingehenden Slack-Webhooks (https://hooks.slack.com/services/…).",
+    "relationLimit": "„{property}“ verknüpft höchstens eine Zeile. Wähle eine Zeile.",
+    "invalidRelationOptions": "Diese Relationseinstellungen lassen sich nicht speichern."
   },
   "formula": {
     "title": "Formel",
@@ -1818,7 +1855,9 @@
     "save": "Speichern und synchronisieren",
     "stop": "Synchronisierung beenden",
     "stopConfirm": "Synchronisierung dieser Datenbank beenden? Ihre Zeilen bleiben, wie sie sind, und die Anmeldung wird vergessen.",
-    "viewOnly": "Nur Personen mit Vollzugriff auf die Datenbank können die Synchronisierung ändern."
+    "viewOnly": "Nur Personen mit Vollzugriff auf die Datenbank können die Synchronisierung ändern.",
+    "reporter": "Melder",
+    "reporterNone": "Nicht synchronisiert"
   },
   "sprints": {
     "menuItem": "Sprints",

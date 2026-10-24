@@ -477,7 +477,8 @@
     "row": "Tämä on rivimalli. Siitä luodut uudet rivit saavat sen ominaisuudet ja sisällön.",
     "inside": "Tämä sivu on osa mallia.",
     "use": "Käytä mallia",
-    "confirmDelete": "Poistetaanko tämä malli pysyvästi? Siitä jo luodut sivut säilyvät ennallaan."
+    "confirmDelete": "Poistetaanko tämä malli pysyvästi? Siitä jo luodut sivut säilyvät ennallaan.",
+    "titleMarkers": "Kirjoita otsikkoon @today, @now tai @me: jokainen uusi rivi saa päivämäärän, kellonajan tai lisääjän nimen."
   },
   "blocks": {
     "callout": {

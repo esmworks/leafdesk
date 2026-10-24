@@ -477,7 +477,8 @@
     "row": "Dit is een rijsjabloon. Nieuwe rijen die ermee worden gemaakt, krijgen de eigenschappen en inhoud.",
     "inside": "Deze pagina maakt deel uit van een sjabloon.",
     "use": "Sjabloon gebruiken",
-    "confirmDelete": "Dit sjabloon definitief verwijderen? Pagina’s die er al mee zijn gemaakt, blijven zoals ze zijn."
+    "confirmDelete": "Dit sjabloon definitief verwijderen? Pagina’s die er al mee zijn gemaakt, blijven zoals ze zijn.",
+    "titleMarkers": "Schrijf @today, @now of @me in de titel: elke nieuwe rij krijgt de datum, de tijd of de naam van wie hem toevoegt."
   },
   "blocks": {
     "callout": {

@@ -139,7 +139,8 @@
       "type": "النوع",
       "labels": "التسميات",
       "due": "تاريخ الاستحقاق",
-      "link": "رابط Jira"
+      "link": "رابط Jira",
+      "reporter": "المُبلِّغ"
     },
     "errors": {
       "unauthorized": "رفض Jira عنوان البريد الإلكتروني ورمز API.",

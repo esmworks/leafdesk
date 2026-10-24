@@ -531,9 +531,6 @@
     "pinToTitle": "Fixar sob o título",
     "unpinFromTitle": "Desafixar do título",
     "pinFull": "É possível fixar até {max} propriedades.",
-    "dateDisplay": "Mostrar como",
-    "displayDate": "Data",
-    "displayRelative": "Relativa",
     "relativeHint": "Datas a até uma semana de hoje aparecem como “amanhã”, “em 3 dias”, “há 2 dias”.",
     "reminder": "Lembrete",
     "reminderNone": "Sem lembrete",
@@ -552,7 +549,25 @@
     "sortOptionsDesc": "Ordenar Z → A",
     "dragOption": "Arraste para mover {name}",
     "urlPreview": "Mostrar como pré-visualização do link",
-    "urlPreviewHint": "As páginas de linha mostram o ícone, o título e a imagem da página vinculada abaixo do link."
+    "urlPreviewHint": "As páginas de linha mostram o ícone, o título e a imagem da página vinculada abaixo do link.",
+    "relationOptions": "Configurações da relação",
+    "showAs": "Mostrar como",
+    "dateFormat": "Formato de data",
+    "dateFormats": {
+      "default": "Padrão",
+      "full": "Data completa",
+      "short": "Data curta",
+      "mdy": "Mês/Dia/Ano",
+      "dmy": "Dia/Mês/Ano",
+      "ymd": "Ano/Mês/Dia",
+      "relative": "Relativa"
+    },
+    "timeFormat": "Formato de hora",
+    "timeFormats": {
+      "default": "Padrão",
+      "12h": "12 horas",
+      "24h": "24 horas"
+    }
   },
   "rowProperties": {
     "noProperties": "Nenhuma propriedade",
@@ -694,7 +709,27 @@
     "noMatches": "Nenhuma linha correspondente",
     "newRow": "Nova linha",
     "open": "Abrir {title}",
-    "unlink": "Remover vínculo com {title}"
+    "unlink": "Remover vínculo com {title}",
+    "options": "Configurações da relação",
+    "limit": "Limite",
+    "limitAny": "Sem limite",
+    "limitOne": "1 página",
+    "limitHint": "Cada linha vincula uma única linha. Escolher outra a substitui.",
+    "rowPage": "Nas páginas de linha",
+    "displayInline": "Em linha",
+    "displaySection": "Como seção",
+    "sectionHint": "As linhas vinculadas aparecem abaixo das propriedades, com suas propriedades editáveis ali.",
+    "shows": "As linhas vinculadas mostram",
+    "showsHint": "Aparece em células de tabela, cartões e páginas de linha.",
+    "titlePart": "Título",
+    "addPart": "Adicionar uma propriedade…",
+    "moveUp": "Mover {name} para cima",
+    "moveDown": "Mover {name} para baixo",
+    "hidePart": "Deixar de mostrar {name}",
+    "overLimit": "Agora vincula uma só linha: escolha a que deve ficar.",
+    "addLink": "Adicionar vínculo",
+    "noLinks": "Ainda não há linhas vinculadas",
+    "showMore": "Mostrar mais {count}"
   },
   "person": {
     "search": "Pesquisar pessoas",
@@ -974,7 +1009,9 @@
     "noCurrentSprint": "Nenhum sprint está em andamento. Marque primeiro um sprint como atual.",
     "invalidSprints": "Os sprints não podem ser configurados assim: verifique a duração do sprint, o primeiro dia e o banco de dados de sprints.",
     "sprintStateOption": "Esta opção marca o estado de um sprint. Pode renomeá-la ou desativar os sprints antes de a eliminar.",
-    "invalidSlackUrl": "Não é o endereço de um webhook de entrada do Slack (https://hooks.slack.com/services/…)."
+    "invalidSlackUrl": "Não é o endereço de um webhook de entrada do Slack (https://hooks.slack.com/services/…).",
+    "relationLimit": "“{property}” vincula no máximo uma linha. Escolha uma linha.",
+    "invalidRelationOptions": "Não é possível salvar estas configurações de relação."
   },
   "formula": {
     "title": "Fórmula",
@@ -1818,7 +1855,9 @@
     "save": "Salvar e sincronizar",
     "stop": "Parar de sincronizar",
     "stopConfirm": "Parar de sincronizar este banco de dados? As linhas dele ficam como estão, e o login é esquecido.",
-    "viewOnly": "Só pessoas com acesso total ao banco de dados podem alterar a sincronização."
+    "viewOnly": "Só pessoas com acesso total ao banco de dados podem alterar a sincronização.",
+    "reporter": "Relator",
+    "reporterNone": "Não sincronizado"
   },
   "sprints": {
     "menuItem": "Sprints",

@@ -477,7 +477,8 @@
     "row": "Det här är en radmall. Nya rader som skapas från den får dess egenskaper och innehåll.",
     "inside": "Den här sidan är en del av en mall.",
     "use": "Använd mallen",
-    "confirmDelete": "Radera den här mallen för gott? Sidor som redan skapats från den förblir som de är."
+    "confirmDelete": "Radera den här mallen för gott? Sidor som redan skapats från den förblir som de är.",
+    "titleMarkers": "Skriv @today, @now eller @me i titeln: varje ny rad får datumet, tiden eller namnet på den som lägger till den."
   },
   "blocks": {
     "callout": {

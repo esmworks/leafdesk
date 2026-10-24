@@ -531,9 +531,6 @@
     "pinToTitle": "Ghim dưới tiêu đề",
     "unpinFromTitle": "Bỏ ghim khỏi dưới tiêu đề",
     "pinFull": "Có thể ghim tối đa {max} thuộc tính.",
-    "dateDisplay": "Hiển thị dạng",
-    "displayDate": "Ngày",
-    "displayRelative": "Tương đối",
     "relativeHint": "Các ngày trong vòng một tuần quanh hôm nay hiển thị như “ngày mai”, “3 ngày nữa”, “2 ngày trước”.",
     "reminder": "Lời nhắc",
     "reminderNone": "Không nhắc",
@@ -552,7 +549,25 @@
     "sortOptionsDesc": "Sắp xếp Z → A",
     "dragOption": "Kéo để di chuyển {name}",
     "urlPreview": "Hiển thị dưới dạng xem trước liên kết",
-    "urlPreviewHint": "Trang hàng hiển thị biểu tượng, tiêu đề và hình ảnh của trang được liên kết bên dưới liên kết."
+    "urlPreviewHint": "Trang hàng hiển thị biểu tượng, tiêu đề và hình ảnh của trang được liên kết bên dưới liên kết.",
+    "relationOptions": "Cài đặt quan hệ",
+    "showAs": "Hiển thị dạng",
+    "dateFormat": "Định dạng ngày",
+    "dateFormats": {
+      "default": "Mặc định",
+      "full": "Ngày đầy đủ",
+      "short": "Ngày rút gọn",
+      "mdy": "Tháng/Ngày/Năm",
+      "dmy": "Ngày/Tháng/Năm",
+      "ymd": "Năm/Tháng/Ngày",
+      "relative": "Tương đối"
+    },
+    "timeFormat": "Định dạng giờ",
+    "timeFormats": {
+      "default": "Mặc định",
+      "12h": "12 giờ",
+      "24h": "24 giờ"
+    }
   },
   "rowProperties": {
     "noProperties": "Không có thuộc tính",
@@ -694,7 +709,27 @@
     "noMatches": "Không có hàng nào khớp",
     "newRow": "Hàng mới",
     "open": "Mở {title}",
-    "unlink": "Xóa liên kết đến {title}"
+    "unlink": "Xóa liên kết đến {title}",
+    "options": "Cài đặt quan hệ",
+    "limit": "Giới hạn",
+    "limitAny": "Không giới hạn",
+    "limitOne": "1 trang",
+    "limitHint": "Mỗi hàng chỉ liên kết một hàng. Chọn hàng khác sẽ thay thế hàng đó.",
+    "rowPage": "Trên trang hàng",
+    "displayInline": "Cùng dòng",
+    "displaySection": "Thành một mục riêng",
+    "sectionHint": "Các hàng liên kết hiện bên dưới thuộc tính, có thể sửa thuộc tính của chúng ngay tại đó.",
+    "shows": "Hàng liên kết hiển thị",
+    "showsHint": "Hiện trong ô bảng, thẻ và trang hàng.",
+    "titlePart": "Tiêu đề",
+    "addPart": "Thêm thuộc tính…",
+    "moveUp": "Đưa {name} lên",
+    "moveDown": "Đưa {name} xuống",
+    "hidePart": "Ngừng hiển thị {name}",
+    "overLimit": "Giờ chỉ liên kết một hàng: hãy chọn hàng cần giữ.",
+    "addLink": "Thêm liên kết",
+    "noLinks": "Chưa có hàng liên kết",
+    "showMore": "Hiện thêm {count}"
   },
   "person": {
     "search": "Tìm người",
@@ -974,7 +1009,9 @@
     "noCurrentSprint": "Không có sprint nào là hiện tại. Hãy đánh dấu một sprint là hiện tại trước.",
     "invalidSprints": "Không thể thiết lập sprint như vậy: hãy kiểm tra độ dài sprint, ngày đầu tiên và cơ sở dữ liệu sprint.",
     "sprintStateOption": "Tùy chọn này đánh dấu trạng thái của sprint. Bạn có thể đổi tên, hoặc tắt sprint trước khi xóa nó.",
-    "invalidSlackUrl": "Không phải địa chỉ webhook đến của Slack (https://hooks.slack.com/services/…)."
+    "invalidSlackUrl": "Không phải địa chỉ webhook đến của Slack (https://hooks.slack.com/services/…).",
+    "relationLimit": "“{property}” chỉ liên kết tối đa một hàng. Hãy chọn một hàng.",
+    "invalidRelationOptions": "Không thể lưu các cài đặt quan hệ này."
   },
   "formula": {
     "title": "Công thức",
@@ -1818,7 +1855,9 @@
     "save": "Lưu và đồng bộ",
     "stop": "Dừng đồng bộ",
     "stopConfirm": "Dừng đồng bộ cơ sở dữ liệu này? Các hàng vẫn giữ nguyên, và thông tin đăng nhập sẽ bị quên.",
-    "viewOnly": "Chỉ những người có toàn quyền với cơ sở dữ liệu mới có thể thay đổi việc đồng bộ."
+    "viewOnly": "Chỉ những người có toàn quyền với cơ sở dữ liệu mới có thể thay đổi việc đồng bộ.",
+    "reporter": "Người báo cáo",
+    "reporterNone": "Không đồng bộ"
   },
   "sprints": {
     "menuItem": "Sprint",

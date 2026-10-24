@@ -139,7 +139,8 @@
       "type": "Type",
       "labels": "Labels",
       "due": "Due date",
-      "link": "Jira link"
+      "link": "Jira link",
+      "reporter": "Reporter"
     },
     "errors": {
       "unauthorized": "Jira refused the email address and API token.",

@@ -139,7 +139,8 @@
       "type": "Type",
       "labels": "Étiquettes",
       "due": "Date d’échéance",
-      "link": "Lien Jira"
+      "link": "Lien Jira",
+      "reporter": "Rapporteur"
     },
     "errors": {
       "unauthorized": "Jira a refusé l’adresse e-mail et le jeton d’API.",

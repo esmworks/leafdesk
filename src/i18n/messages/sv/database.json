@@ -531,9 +531,6 @@
     "pinToTitle": "Fäst under titeln",
     "unpinFromTitle": "Lossa från titeln",
     "pinFull": "Upp till {max} egenskaper kan fästas.",
-    "dateDisplay": "Visa som",
-    "displayDate": "Datum",
-    "displayRelative": "Relativt",
     "relativeHint": "Datum inom en vecka från i dag visas som ”i morgon”, ”om 3 dagar”, ”för 2 dagar sedan”.",
     "reminder": "Påminnelse",
     "reminderNone": "Ingen påminnelse",
@@ -552,7 +549,25 @@
     "sortOptionsDesc": "Sortera Ö → A",
     "dragOption": "Dra för att flytta {name}",
     "urlPreview": "Visa som länkförhandsvisning",
-    "urlPreviewHint": "Radsidor visar den länkade sidans ikon, titel och bild under länken."
+    "urlPreviewHint": "Radsidor visar den länkade sidans ikon, titel och bild under länken.",
+    "relationOptions": "Relationsinställningar",
+    "showAs": "Visa som",
+    "dateFormat": "Datumformat",
+    "dateFormats": {
+      "default": "Standard",
+      "full": "Fullständigt datum",
+      "short": "Kort datum",
+      "mdy": "Månad/Dag/År",
+      "dmy": "Dag/Månad/År",
+      "ymd": "År/Månad/Dag",
+      "relative": "Relativt"
+    },
+    "timeFormat": "Tidsformat",
+    "timeFormats": {
+      "default": "Standard",
+      "12h": "12 timmar",
+      "24h": "24 timmar"
+    }
   },
   "rowProperties": {
     "noProperties": "Inga egenskaper",
@@ -694,7 +709,27 @@
     "noMatches": "Inga matchande rader",
     "newRow": "Ny rad",
     "open": "Öppna {title}",
-    "unlink": "Ta bort länken till {title}"
+    "unlink": "Ta bort länken till {title}",
+    "options": "Relationsinställningar",
+    "limit": "Gräns",
+    "limitAny": "Ingen gräns",
+    "limitOne": "1 sida",
+    "limitHint": "Varje rad länkar till en rad. Väljer du en annan ersätter den den.",
+    "rowPage": "På radsidor",
+    "displayInline": "Inbäddat",
+    "displaySection": "Som eget avsnitt",
+    "sectionHint": "Länkade rader visas under egenskaperna, där deras egenskaper kan redigeras.",
+    "shows": "Länkade rader visar",
+    "showsHint": "Syns i tabellceller, kort och radsidor.",
+    "titlePart": "Titel",
+    "addPart": "Lägg till en egenskap…",
+    "moveUp": "Flytta upp {name}",
+    "moveDown": "Flytta ned {name}",
+    "hidePart": "Sluta visa {name}",
+    "overLimit": "Länkar nu bara till en rad: välj den som ska vara kvar.",
+    "addLink": "Lägg till länk",
+    "noLinks": "Inga länkade rader än",
+    "showMore": "Visa {count} till"
   },
   "person": {
     "search": "Sök personer",
@@ -974,7 +1009,9 @@
     "noCurrentSprint": "Ingen sprint är aktuell. Markera först en sprint som aktuell.",
     "invalidSprints": "Sprintar kan inte ställas in så här: kontrollera sprintlängden, första dagen och sprintdatabasen.",
     "sprintStateOption": "Det här alternativet anger en sprints läge. Byt namn på det om du vill, eller stäng av sprintar innan du raderar det.",
-    "invalidSlackUrl": "Inte adressen till en inkommande webhook i Slack (https://hooks.slack.com/services/…)."
+    "invalidSlackUrl": "Inte adressen till en inkommande webhook i Slack (https://hooks.slack.com/services/…).",
+    "relationLimit": "”{property}” länkar till högst en rad. Välj en rad.",
+    "invalidRelationOptions": "De här relationsinställningarna kan inte sparas."
   },
   "formula": {
     "title": "Formel",
@@ -1818,7 +1855,9 @@
     "save": "Spara och synka",
     "stop": "Sluta synka",
     "stopConfirm": "Sluta synka den här databasen? Dess rader förblir som de är, och inloggningen glöms bort.",
-    "viewOnly": "Bara personer med full åtkomst till databasen kan ändra synken."
+    "viewOnly": "Bara personer med full åtkomst till databasen kan ändra synken.",
+    "reporter": "Rapportör",
+    "reporterNone": "Synkas inte"
   },
   "sprints": {
     "menuItem": "Sprintar",

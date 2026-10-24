@@ -477,7 +477,8 @@
     "row": "Dette er en rækkeskabelon. Nye rækker, der laves ud fra den, får dens egenskaber og indhold.",
     "inside": "Denne side er en del af en skabelon.",
     "use": "Brug skabelon",
-    "confirmDelete": "Vil du slette denne skabelon permanent? Sider, der allerede er lavet ud fra den, forbliver som de er."
+    "confirmDelete": "Vil du slette denne skabelon permanent? Sider, der allerede er lavet ud fra den, forbliver som de er.",
+    "titleMarkers": "Skriv @today, @now eller @me i titlen: hver ny række får datoen, klokkeslættet eller navnet på den, der tilføjer den."
   },
   "blocks": {
     "callout": {

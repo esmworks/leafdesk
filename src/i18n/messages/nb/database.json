@@ -531,9 +531,6 @@
     "pinToTitle": "Fest under tittelen",
     "unpinFromTitle": "Løsne fra tittelen",
     "pinFull": "Opptil {max} egenskaper kan festes.",
-    "dateDisplay": "Vis som",
-    "displayDate": "Dato",
-    "displayRelative": "Relativ",
     "relativeHint": "Datoer innenfor en uke fra i dag vises som «i morgen», «om 3 dager», «for 2 dager siden».",
     "reminder": "Påminnelse",
     "reminderNone": "Ingen påminnelse",
@@ -552,7 +549,25 @@
     "sortOptionsDesc": "Sorter Å → A",
     "dragOption": "Dra for å flytte {name}",
     "urlPreview": "Vis som lenkeforhåndsvisning",
-    "urlPreviewHint": "Radsider viser ikonet, tittelen og bildet til den lenkede siden under lenken."
+    "urlPreviewHint": "Radsider viser ikonet, tittelen og bildet til den lenkede siden under lenken.",
+    "relationOptions": "Relasjonsinnstillinger",
+    "showAs": "Vis som",
+    "dateFormat": "Datoformat",
+    "dateFormats": {
+      "default": "Standard",
+      "full": "Full dato",
+      "short": "Kort dato",
+      "mdy": "Måned/Dag/År",
+      "dmy": "Dag/Måned/År",
+      "ymd": "År/Måned/Dag",
+      "relative": "Relativ"
+    },
+    "timeFormat": "Tidsformat",
+    "timeFormats": {
+      "default": "Standard",
+      "12h": "12 timer",
+      "24h": "24 timer"
+    }
   },
   "rowProperties": {
     "noProperties": "Ingen egenskaper",
@@ -694,7 +709,27 @@
     "noMatches": "Ingen samsvarende rader",
     "newRow": "Ny rad",
     "open": "Åpne {title}",
-    "unlink": "Fjern koblingen til {title}"
+    "unlink": "Fjern koblingen til {title}",
+    "options": "Relasjonsinnstillinger",
+    "limit": "Grense",
+    "limitAny": "Ingen grense",
+    "limitOne": "1 side",
+    "limitHint": "Hver rad kobles til én rad. Velger du en annen, erstatter den den.",
+    "rowPage": "På radsider",
+    "displayInline": "Innebygd",
+    "displaySection": "Som egen del",
+    "sectionHint": "Koblede rader vises under egenskapene, der egenskapene deres kan redigeres.",
+    "shows": "Koblede rader viser",
+    "showsHint": "Vises i tabellceller, kort og radsider.",
+    "titlePart": "Tittel",
+    "addPart": "Legg til en egenskap…",
+    "moveUp": "Flytt {name} opp",
+    "moveDown": "Flytt {name} ned",
+    "hidePart": "Ikke vis {name}",
+    "overLimit": "Kobler nå bare til én rad: velg den som skal bli.",
+    "addLink": "Legg til kobling",
+    "noLinks": "Ingen koblede rader ennå",
+    "showMore": "Vis {count} til"
   },
   "person": {
     "search": "Søk etter personer",
@@ -974,7 +1009,9 @@
     "noCurrentSprint": "Ingen sprint er gjeldende. Merk først én sprint som gjeldende.",
     "invalidSprints": "Sprinter kan ikke settes opp slik: kontroller sprintlengden, den første dagen og sprintdatabasen.",
     "sprintStateOption": "Dette alternativet angir tilstanden til en sprint. Gi det gjerne nytt navn, eller slå av sprinter før du sletter det.",
-    "invalidSlackUrl": "Ikke en adresse til en innkommende webhook i Slack (https://hooks.slack.com/services/…)."
+    "invalidSlackUrl": "Ikke en adresse til en innkommende webhook i Slack (https://hooks.slack.com/services/…).",
+    "relationLimit": "«{property}» kobler til høyst én rad. Velg én rad.",
+    "invalidRelationOptions": "Disse relasjonsinnstillingene kan ikke lagres."
   },
   "formula": {
     "title": "Formel",
@@ -1818,7 +1855,9 @@
     "save": "Lagre og synkroniser",
     "stop": "Stopp synkroniseringen",
     "stopConfirm": "Vil du stoppe synkroniseringen av denne databasen? Radene forblir som de er, og påloggingen glemmes.",
-    "viewOnly": "Bare personer med full tilgang til databasen kan endre synkroniseringen."
+    "viewOnly": "Bare personer med full tilgang til databasen kan endre synkroniseringen.",
+    "reporter": "Rapportør",
+    "reporterNone": "Ikke synkronisert"
   },
   "sprints": {
     "menuItem": "Sprinter",
