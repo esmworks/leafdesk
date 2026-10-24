@@ -1,6 +1,6 @@
 /**
  * End-to-end check of mentions and page links: Markdown in and out, notifying mentioned people once
- * (and only if they can open the page), live and access-checked titles of mentioned pages,
+ * (and only if they can open the page), and the members of mentioned groups the same way, live and access-checked titles of mentioned pages,
  * backlinks, reminders on dates, copies, published pages, the MCP tools and a browser's edits.
  * Creates its own users and workspace and deletes them afterwards.
  *
@@ -30,6 +30,9 @@ const { setPagePermission } = await import("@/server/permissions");
 const { flushShareEmails, setShareMailer } = await import("@/server/share-emails");
 const { deliverDueReminders, listBacklinks, mentionCandidates, resolvePageRefs } = await import("@/server/mentions");
 const { listNotifications } = await import("@/server/notifications");
+const { addGroupMembers, createGroup } = await import("@/server/groups");
+const { pagePreview } = await import("@/server/page-preview");
+const { addProperty } = await import("@/server/databases");
 const { getPublishedPage, publishPage } = await import("@/server/publication");
 const { AccessError } = await import("@/server/access");
 const { InMemoryTransport } = await import("@modelcontextprotocol/server");
@@ -116,6 +119,7 @@ const ids = {
   editor: `${RUN}-editor`,
   reader: `${RUN}-reader`,
   outsider: `${RUN}-outsider`,
+  late: `${RUN}-late`,
 };
 const userIds = Object.values(ids);
 const workspaceId = `${RUN}-ws`;
@@ -134,6 +138,7 @@ try {
     { workspaceId, userId: ids.owner, role: "owner" },
     { workspaceId, userId: ids.editor, role: "member" },
     { workspaceId, userId: ids.reader, role: "member" },
+    { workspaceId, userId: ids.late, role: "member" },
     { workspaceId: otherWorkspace, userId: ids.outsider, role: "owner" },
   ]);
   const owner = { userId: ids.owner };
@@ -217,6 +222,25 @@ try {
   check(refs[2].status === "deleted", "a page in the trash shows as deleted", refs[2]);
   check(refs[3].status === "noAccess" && refs[4].status === "deleted", "…and pages elsewhere or gone don't leak", refs);
 
+  // Hover cards of mentioned pages
+  const child = await createPage(owner, { workspaceId, parentId: target.id, title: "Milestones" });
+  await getCollab().replaceContent(child.id, "First   line of the milestones.\n\nSecond line.", { userId: ids.editor });
+  const preview = await pagePreview(ids.editor, child.id);
+  check(
+    preview?.title === "Milestones" && preview.path.map((p) => p.title).join() === "Roadmap v2" && preview.editedBy === ids.editor,
+    "a page's hover card shows its title, the pages above it and who last edited it",
+    preview,
+  );
+  check(preview?.excerpt === "First line of the milestones.\nSecond line." && preview.properties.length === 0, "…and its first lines", preview);
+  check((await failure(() => pagePreview(ids.editor, secret.id))) === "access", "…but nothing of a page the viewer can't open");
+  check((await failure(() => pagePreview(ids.editor, "no-such-page"))) === "access", "…the same as a page that doesn't exist");
+  check((await pagePreview(ids.owner, gone.id)) === null, "…and no card for a page in the trash");
+  const deals = await createPage(owner, { workspaceId, kind: "database", title: "Deals" });
+  await addProperty(ids.owner, deals.id, { name: "Next step", type: "text" });
+  const deal = await createPage(owner, { workspaceId, parentId: deals.id, title: "Acme", properties: { "Next step": "Call back on Monday" } });
+  const rowPreview = await pagePreview(ids.editor, deal.id);
+  check(rowPreview?.properties.some((p) => p.name === "Next step" && p.value === "Call back on Monday"), "a row's hover card shows its values", rowPreview);
+
   // Notifying people
   let notes = await mentionNotes(ids.editor, plan.id);
   check(notes.length === 1 && notes[0].actorId === ids.owner && notes[0].emailDueAt !== null, "a mentioned person is notified, with an email queued", notes);
@@ -251,6 +275,42 @@ try {
   await db.update(notification).set({ readAt: new Date() }).where(and(eq(notification.userId, ids.editor), eq(notification.kind, "mention")));
   const inbox = await listNotifications(ids.editor, { workspaceId });
   check(inbox.some((n) => n.kind === "mention" && n.pageId === plan.id), "mentions show in the inbox", inbox);
+
+  // Mentioning a group
+  const groupName = `${RUN} Design`;
+  const team = await createGroup(ids.owner, workspaceId, groupName, [ids.owner, ids.editor, ids.reader]);
+  const brief = await createPage(owner, { workspaceId, title: "Design brief" });
+  // The reader, in the group, can't open this page.
+  await setPagePermission(ids.owner, brief.id, ids.owner, "full");
+  await setPagePermission(ids.owner, brief.id, ids.editor, "edit");
+  await setPagePermission(ids.owner, brief.id, null, "none");
+  await getCollab().replaceContent(brief.id, `Over to @${groupName}, and @${ids.editor} too.`, owner);
+  const groupMentions = await mentionsOf(brief.id);
+  check(
+    groupMentions[0]?.kind === "group" && groupMentions[0].groupId === team.id && groupMentions[0].name === groupName && groupMentions[0].id,
+    "@Name of a group in Markdown becomes a group mention",
+    groupMentions,
+  );
+  check((await getCollab().readPage(brief.id)).markdown.includes(`@${groupName}`), "…written back as @Name");
+  check((await mentionNotes(ids.editor, brief.id)).length === 1, "a member of a mentioned group who can open the page is notified, once though named too");
+  check((await mentionNotes(ids.owner, brief.id)).length === 0, "…not the author, though in the group");
+  check((await mentionNotes(ids.reader, brief.id)).length === 0, "…nor a member who can't open the page");
+  await addGroupMembers(ids.owner, team.id, [ids.late]);
+  await setPagePermission(ids.owner, brief.id, ids.late, "view");
+  await getCollab().appendContent(brief.id, "Edited.", owner);
+  check((await mentionNotes(ids.late, brief.id)).length === 0, "someone who joins the group later isn't told about the mention made before");
+  check((await mentionNotes(ids.editor, brief.id)).length === 1, "…and saving again notifies nobody again");
+  const menuGroups = (await mentionCandidates(ids.editor, brief.id, "design")).groups;
+  check(menuGroups.length === 1 && menuGroups[0].id === team.id && menuGroups[0].memberCount === 4, "the @ menu offers the workspace's groups", menuGroups);
+  await getCollab().replaceContent(brief.id, `Over to @${ids.editor}.`, owner);
+  await getCollab().replaceContent(brief.id, "No one.", owner);
+  check((await mentionNotes(ids.editor, brief.id)).length === 0, "taking the mentions out before they were read takes the notification back");
+  await getCollab().replaceContent(brief.id, `Again, @${groupName}.`, owner);
+  check(
+    (await mentionNotes(ids.editor, brief.id)).length === 1 && (await mentionNotes(ids.late, brief.id)).length === 1,
+    "…and mentioning the group again tells its members now",
+  );
+  await archivePage(ids.owner, brief.id);
 
   // Reminders
   const setReminder = async (remindAt: string, as = ids.owner) => {
