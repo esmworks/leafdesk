@@ -14,6 +14,7 @@
     "action": "Daveti kabul et",
     "roles": {
       "owner": "sahip",
+      "membership_admin": "üyelik yöneticisi",
       "member": "üye",
       "guest": "misafir"
     }

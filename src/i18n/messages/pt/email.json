@@ -14,6 +14,7 @@
     "action": "Aceitar convite",
     "roles": {
       "owner": "proprietário",
+      "membership_admin": "administrador de membros",
       "member": "membro",
       "guest": "convidado"
     }

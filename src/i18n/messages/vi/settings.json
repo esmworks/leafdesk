@@ -112,7 +112,7 @@
   },
   "members": {
     "heading": "Thành viên",
-    "description": "Thành viên có thể xem và chỉnh sửa mọi trang trừ khi việc chia sẻ của trang bị hạn chế; khách chỉ thấy các trang được chia sẻ với họ. Chủ sở hữu còn có thể quản lý thành viên.",
+    "description": "Thành viên có thể xem và chỉnh sửa mọi trang trừ khi việc chia sẻ của trang bị hạn chế; khách chỉ thấy các trang được chia sẻ với họ. Chủ sở hữu còn có thể quản lý thành viên; quản trị viên thành viên quản lý người và nhóm, nhưng không quản lý các cài đặt khác.",
     "tabs": {
       "members": "Thành viên",
       "invitations": "Lời mời đang chờ",
@@ -153,6 +153,7 @@
     "roleLabel": "Vai trò",
     "roles": {
       "owner": "Chủ sở hữu",
+      "membership_admin": "Quản trị viên thành viên",
       "member": "Thành viên",
       "guest": "Khách"
     },
@@ -214,7 +215,7 @@
   "guests": {
     "heading": "Khách",
     "description": "Khách là những người bên ngoài không gian làm việc, chỉ thấy các trang được chia sẻ với họ. Xem từng khách mở được những gì, thu hồi quyền truy cập, chuyển khách thành thành viên hoặc xóa họ.",
-    "descriptionMember": "Khách là những người bên ngoài không gian làm việc, chỉ thấy các trang được chia sẻ với họ. Bạn có thể thu hồi quyền truy cập trên các trang mà bạn có toàn quyền. Chỉ chủ sở hữu mới có thể chuyển khách thành thành viên hoặc xóa họ.",
+    "descriptionMember": "Khách là những người bên ngoài không gian làm việc, chỉ thấy các trang được chia sẻ với họ. Bạn có thể thu hồi quyền truy cập trên các trang mà bạn có toàn quyền. Chỉ chủ sở hữu và quản trị viên thành viên mới có thể chuyển khách thành thành viên hoặc xóa họ.",
     "count": "{count, plural, =0 {Không có khách} other {# khách}}",
     "search": "Tìm khách hoặc trang",
     "exportCsv": "Tải danh sách khách dưới dạng CSV",
@@ -320,7 +321,7 @@
   "groups": {
     "heading": "Nhóm",
     "description": "Nhóm gom nhiều người lại để bạn có thể chia sẻ một trang với tất cả họ hoặc thêm họ vào một không gian nhóm cùng lúc. Ai tham gia nhóm sẽ có những gì nhóm có; ai rời nhóm sẽ mất chúng. Chỉ chủ sở hữu và thành viên mới có thể ở trong nhóm, khách thì không.",
-    "ownersOnly": "Chỉ chủ sở hữu không gian làm việc mới có thể tạo và thay đổi nhóm.",
+    "ownersOnly": "Chỉ chủ sở hữu không gian làm việc và quản trị viên thành viên mới có thể tạo và thay đổi nhóm.",
     "newButton": "Nhóm mới",
     "search": "Tìm nhóm",
     "empty": "Chưa có nhóm nào.",
@@ -365,7 +366,8 @@
       "nameRequired": "Hãy đặt tên cho nhóm.",
       "nameTaken": "Một nhóm khác đã có tên này.",
       "notMember": "Chỉ chủ sở hữu và thành viên của không gian làm việc mới có thể ở trong các nhóm của nó.",
-      "accessDenied": "Chỉ chủ sở hữu không gian làm việc mới có thể thay đổi nhóm."
+      "ownMembership": "Quản trị viên thành viên không thể tự thêm mình vào nhóm. Hãy nhờ chủ sở hữu không gian làm việc.",
+      "accessDenied": "Chỉ chủ sở hữu không gian làm việc và quản trị viên thành viên mới có thể thay đổi nhóm."
     }
   },
   "agents": {
@@ -1612,6 +1614,7 @@
     "privatePages": "trang riêng tư",
     "roles": {
       "owner": "chủ sở hữu",
+      "membership_admin": "quản trị viên thành viên",
       "member": "thành viên",
       "guest": "khách"
     },

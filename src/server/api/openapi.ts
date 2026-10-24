@@ -144,7 +144,7 @@ const SCHEMAS: Record<string, JsonSchema> = {
         {
           id,
           name: { type: "string" },
-          role: { type: "string", enum: ["owner", "member", "guest"] },
+          role: { type: "string", enum: ["owner", "membership_admin", "member", "guest"] },
           callout_styles: {
             type: "array",
             description: "The workspace's callout styles, when it has any: a page body writes one as `> [!key] Title`.",

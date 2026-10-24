@@ -112,7 +112,7 @@
   },
   "members": {
     "heading": "Członkowie",
-    "description": "Członkowie mogą wyświetlać i edytować każdą stronę, chyba że jej udostępnianie jest ograniczone; goście widzą tylko udostępnione im strony. Właściciele mogą też zarządzać członkami.",
+    "description": "Członkowie mogą wyświetlać i edytować każdą stronę, chyba że jej udostępnianie jest ograniczone; goście widzą tylko udostępnione im strony. Właściciele mogą też zarządzać członkami; administratorzy członków zarządzają osobami i grupami, ale żadnymi innymi ustawieniami.",
     "tabs": {
       "members": "Członkowie",
       "invitations": "Oczekujące zaproszenia",
@@ -153,6 +153,7 @@
     "roleLabel": "Rola",
     "roles": {
       "owner": "Właściciel",
+      "membership_admin": "Administrator członków",
       "member": "Członek",
       "guest": "Gość"
     },
@@ -214,7 +215,7 @@
   "guests": {
     "heading": "Goście",
     "description": "Goście to osoby spoza obszaru roboczego, które widzą tylko udostępnione im strony. Sprawdź, co może otworzyć każdy gość, odbierz dostęp, ustaw gościa jako członka lub go usuń.",
-    "descriptionMember": "Goście to osoby spoza obszaru roboczego, które widzą tylko udostępnione im strony. Możesz odebrać dostęp do stron, do których masz pełny dostęp. Tylko właściciele mogą ustawić gościa jako członka lub go usunąć.",
+    "descriptionMember": "Goście to osoby spoza obszaru roboczego, które widzą tylko udostępnione im strony. Możesz odebrać dostęp do stron, do których masz pełny dostęp. Tylko właściciele i administratorzy członków mogą ustawić gościa jako członka lub go usunąć.",
     "count": "{count, plural, =0 {Brak gości} one {# gość} few {# gości} many {# gości} other {# gościa}}",
     "search": "Szukaj gości lub stron",
     "exportCsv": "Pobierz listę gości jako CSV",
@@ -320,7 +321,7 @@
   "groups": {
     "heading": "Grupy",
     "description": "Grupy łączą osoby, dzięki czemu możesz udostępnić stronę im wszystkim lub dodać je do przestrzeni zespołu za jednym razem. Kto dołącza do grupy, otrzymuje to, co ma grupa; kto ją opuszcza, to traci. Do grup mogą należeć tylko właściciele i członkowie, nie goście.",
-    "ownersOnly": "Tylko właściciele obszaru roboczego mogą tworzyć i zmieniać grupy.",
+    "ownersOnly": "Tylko właściciele obszaru roboczego i administratorzy członków mogą tworzyć i zmieniać grupy.",
     "newButton": "Nowa grupa",
     "search": "Szukaj grup",
     "empty": "Brak grup.",
@@ -365,7 +366,8 @@
       "nameRequired": "Nadaj grupie nazwę.",
       "nameTaken": "Inna grupa ma już tę nazwę.",
       "notMember": "Do grup mogą należeć tylko właściciele i członkowie obszaru roboczego.",
-      "accessDenied": "Tylko właściciele obszaru roboczego mogą zmieniać grupy."
+      "ownMembership": "Administratorzy członków nie mogą dodać samych siebie do grupy. Poproś właściciela obszaru roboczego.",
+      "accessDenied": "Tylko właściciele obszaru roboczego i administratorzy członków mogą zmieniać grupy."
     }
   },
   "agents": {
@@ -1612,6 +1614,7 @@
     "privatePages": "prywatne strony",
     "roles": {
       "owner": "właściciel",
+      "membership_admin": "administrator członków",
       "member": "członek",
       "guest": "gość"
     },

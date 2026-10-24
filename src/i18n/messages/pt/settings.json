@@ -112,7 +112,7 @@
   },
   "members": {
     "heading": "Membros",
-    "description": "Membros podem ver e editar todas as páginas, a menos que o compartilhamento delas seja restrito; convidados veem só as páginas compartilhadas com eles. Proprietários também podem gerenciar membros.",
+    "description": "Membros podem ver e editar todas as páginas, a menos que o compartilhamento delas seja restrito; convidados veem só as páginas compartilhadas com eles. Proprietários também podem gerenciar membros; administradores de membros gerenciam pessoas e grupos, mas nenhuma outra configuração.",
     "tabs": {
       "members": "Membros",
       "invitations": "Convites pendentes",
@@ -153,6 +153,7 @@
     "roleLabel": "Função",
     "roles": {
       "owner": "Proprietário",
+      "membership_admin": "Administrador de membros",
       "member": "Membro",
       "guest": "Convidado"
     },
@@ -214,7 +215,7 @@
   "guests": {
     "heading": "Convidados",
     "description": "Convidados são pessoas de fora do espaço de trabalho que veem só as páginas compartilhadas com elas. Veja o que cada convidado pode abrir, retire acessos, torne um convidado membro ou remova-o.",
-    "descriptionMember": "Convidados são pessoas de fora do espaço de trabalho que veem só as páginas compartilhadas com elas. Você pode retirar o acesso em páginas às quais tem acesso total. Só proprietários podem tornar um convidado membro ou removê-lo.",
+    "descriptionMember": "Convidados são pessoas de fora do espaço de trabalho que veem só as páginas compartilhadas com elas. Você pode retirar o acesso em páginas às quais tem acesso total. Só proprietários e administradores de membros podem tornar um convidado membro ou removê-lo.",
     "count": "{count, plural, =0 {Nenhum convidado} one {# convidado} other {# convidados}}",
     "search": "Pesquisar convidados ou páginas",
     "exportCsv": "Baixar convidados em CSV",
@@ -320,7 +321,7 @@
   "groups": {
     "heading": "Grupos",
     "description": "Grupos reúnem pessoas para que você possa compartilhar uma página com todas elas ou adicioná-las a um espaço de equipe de uma vez. Quem entra em um grupo recebe o que o grupo tem; quem sai perde. Só proprietários e membros podem participar de grupos, convidados não.",
-    "ownersOnly": "Só proprietários do espaço de trabalho podem criar e alterar grupos.",
+    "ownersOnly": "Só proprietários do espaço de trabalho e administradores de membros podem criar e alterar grupos.",
     "newButton": "Novo grupo",
     "search": "Pesquisar grupos",
     "empty": "Nenhum grupo ainda.",
@@ -365,7 +366,8 @@
       "nameRequired": "Dê um nome ao grupo.",
       "nameTaken": "Outro grupo já tem este nome.",
       "notMember": "Só proprietários e membros do espaço de trabalho podem participar dos grupos dele.",
-      "accessDenied": "Só proprietários do espaço de trabalho podem alterar grupos."
+      "ownMembership": "Administradores de membros não podem adicionar a si mesmos a um grupo. Peça a um proprietário do espaço de trabalho.",
+      "accessDenied": "Só proprietários do espaço de trabalho e administradores de membros podem alterar grupos."
     }
   },
   "agents": {
@@ -1612,6 +1614,7 @@
     "privatePages": "páginas privadas",
     "roles": {
       "owner": "proprietário",
+      "membership_admin": "administrador de membros",
       "member": "membro",
       "guest": "convidado"
     },

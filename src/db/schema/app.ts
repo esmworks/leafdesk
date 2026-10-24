@@ -266,8 +266,11 @@ export const pdfLetterhead = pgTable(
 /**
  * `owner` and `member` see every page unless a page permission restricts it; a `guest` sees only
  * pages shared with them and can't create top-level pages or see who else is in the workspace.
+ * A `membership_admin` gets exactly what a member gets on content, and besides manages the
+ * workspace's people as owners do (lib/workspace-roles.ts `managesPeople`): invitations, roles
+ * other than owner, join requests and groups. Nothing else owners decide.
  */
-export type WorkspaceRole = "owner" | "member" | "guest";
+export type WorkspaceRole = "owner" | "membership_admin" | "member" | "guest";
 
 export const workspaceMember = pgTable(
   "workspace_member",
@@ -297,7 +300,11 @@ export const workspaceMember = pgTable(
     pageViews: boolean("page_views").notNull().default(true),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [primaryKey({ columns: [t.workspaceId, t.userId] }), index("workspace_member_user_idx").on(t.userId)],
+  (t) => [
+    primaryKey({ columns: [t.workspaceId, t.userId] }),
+    index("workspace_member_user_idx").on(t.userId),
+    check("workspace_member_role_check", sql`${t.role} in ('owner', 'membership_admin', 'member', 'guest')`),
+  ],
 );
 
 /**

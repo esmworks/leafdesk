@@ -112,7 +112,7 @@
   },
   "members": {
     "heading": "Leden",
-    "description": "Leden kunnen elke pagina zien en bewerken, tenzij het delen ervan is beperkt; gasten zien alleen pagina’s die met hen zijn gedeeld. Eigenaren kunnen ook leden beheren.",
+    "description": "Leden kunnen elke pagina zien en bewerken, tenzij het delen ervan is beperkt; gasten zien alleen pagina’s die met hen zijn gedeeld. Eigenaren kunnen ook leden beheren; ledenbeheerders beheren mensen en groepen, maar geen andere instellingen.",
     "tabs": {
       "members": "Leden",
       "invitations": "Openstaande uitnodigingen",
@@ -153,6 +153,7 @@
     "roleLabel": "Rol",
     "roles": {
       "owner": "Eigenaar",
+      "membership_admin": "Ledenbeheerder",
       "member": "Lid",
       "guest": "Gast"
     },
@@ -214,7 +215,7 @@
   "guests": {
     "heading": "Gasten",
     "description": "Gasten zijn mensen van buiten de werkruimte die alleen de pagina’s zien die met hen zijn gedeeld. Bekijk wat elke gast kan openen, trek toegang in, maak een gast lid of verwijder die.",
-    "descriptionMember": "Gasten zijn mensen van buiten de werkruimte die alleen de pagina’s zien die met hen zijn gedeeld. Je kunt toegang intrekken op pagina’s waartoe je volledige toegang hebt. Alleen eigenaren kunnen een gast lid maken of verwijderen.",
+    "descriptionMember": "Gasten zijn mensen van buiten de werkruimte die alleen de pagina’s zien die met hen zijn gedeeld. Je kunt toegang intrekken op pagina’s waartoe je volledige toegang hebt. Alleen eigenaren en ledenbeheerders kunnen een gast lid maken of verwijderen.",
     "count": "{count, plural, =0 {Geen gasten} one {# gast} other {# gasten}}",
     "search": "Gasten of pagina’s zoeken",
     "exportCsv": "Gasten downloaden als CSV",
@@ -320,7 +321,7 @@
   "groups": {
     "heading": "Groepen",
     "description": "Groepen bundelen mensen, zodat je een pagina met allemaal tegelijk kunt delen of ze in één keer aan een teamruimte kunt toevoegen. Wie lid wordt van een groep, krijgt wat de groep heeft; wie haar verlaat, verliest dat. Alleen eigenaren en leden kunnen in groepen zitten, geen gasten.",
-    "ownersOnly": "Alleen eigenaren van de werkruimte kunnen groepen maken en wijzigen.",
+    "ownersOnly": "Alleen eigenaren van de werkruimte en ledenbeheerders kunnen groepen maken en wijzigen.",
     "newButton": "Nieuwe groep",
     "search": "Groepen zoeken",
     "empty": "Nog geen groepen.",
@@ -365,7 +366,8 @@
       "nameRequired": "Geef de groep een naam.",
       "nameTaken": "Een andere groep heeft deze naam al.",
       "notMember": "Alleen eigenaren en leden van de werkruimte kunnen in de groepen ervan zitten.",
-      "accessDenied": "Alleen eigenaren van de werkruimte kunnen groepen wijzigen."
+      "ownMembership": "Ledenbeheerders kunnen zichzelf niet aan een groep toevoegen. Vraag het een eigenaar van de werkruimte.",
+      "accessDenied": "Alleen eigenaren van de werkruimte en ledenbeheerders kunnen groepen wijzigen."
     }
   },
   "agents": {
@@ -1612,6 +1614,7 @@
     "privatePages": "privépagina’s",
     "roles": {
       "owner": "eigenaar",
+      "membership_admin": "ledenbeheerder",
       "member": "lid",
       "guest": "gast"
     },

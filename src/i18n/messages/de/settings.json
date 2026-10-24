@@ -112,7 +112,7 @@
   },
   "members": {
     "heading": "Mitglieder",
-    "description": "Mitglieder können jede Seite sehen und bearbeiten, sofern ihre Freigabe nicht eingeschränkt ist; Gäste sehen nur Seiten, die mit ihnen geteilt wurden. Inhaber können außerdem Mitglieder verwalten.",
+    "description": "Mitglieder können jede Seite sehen und bearbeiten, sofern ihre Freigabe nicht eingeschränkt ist; Gäste sehen nur Seiten, die mit ihnen geteilt wurden. Inhaber können außerdem Mitglieder verwalten; Mitglieder-Admins verwalten Personen und Gruppen, aber keine anderen Einstellungen.",
     "tabs": {
       "members": "Mitglieder",
       "invitations": "Offene Einladungen",
@@ -153,6 +153,7 @@
     "roleLabel": "Rolle",
     "roles": {
       "owner": "Inhaber",
+      "membership_admin": "Mitglieder-Admin",
       "member": "Mitglied",
       "guest": "Gast"
     },
@@ -214,7 +215,7 @@
   "guests": {
     "heading": "Gäste",
     "description": "Gäste sind Personen außerhalb des Workspace, die nur Seiten sehen, die mit ihnen geteilt wurden. Sieh, was jeder Gast öffnen kann, entziehe Zugriff, mache einen Gast zum Mitglied oder entferne ihn.",
-    "descriptionMember": "Gäste sind Personen außerhalb des Workspace, die nur Seiten sehen, die mit ihnen geteilt wurden. Du kannst Zugriff auf Seiten entziehen, auf die du vollen Zugriff hast. Nur Inhaber können einen Gast zum Mitglied machen oder entfernen.",
+    "descriptionMember": "Gäste sind Personen außerhalb des Workspace, die nur Seiten sehen, die mit ihnen geteilt wurden. Du kannst Zugriff auf Seiten entziehen, auf die du vollen Zugriff hast. Nur Inhaber und Mitglieder-Admins können einen Gast zum Mitglied machen oder entfernen.",
     "count": "{count, plural, =0 {Keine Gäste} one {# Gast} other {# Gäste}}",
     "search": "Gäste oder Seiten suchen",
     "exportCsv": "Gäste als CSV herunterladen",
@@ -320,7 +321,7 @@
   "groups": {
     "heading": "Gruppen",
     "description": "Gruppen fassen Personen zusammen, damit du eine Seite mit allen teilen oder sie auf einmal zu einem Teamspace hinzufügen kannst. Wer einer Gruppe beitritt, bekommt, was die Gruppe hat; wer sie verlässt, verliert es. Nur Inhaber und Mitglieder können in Gruppen sein, keine Gäste.",
-    "ownersOnly": "Nur Workspace-Inhaber können Gruppen erstellen und ändern.",
+    "ownersOnly": "Nur Workspace-Inhaber und Mitglieder-Admins können Gruppen erstellen und ändern.",
     "newButton": "Neue Gruppe",
     "search": "Gruppen suchen",
     "empty": "Noch keine Gruppen.",
@@ -365,7 +366,8 @@
       "nameRequired": "Gib der Gruppe einen Namen.",
       "nameTaken": "Eine andere Gruppe hat bereits diesen Namen.",
       "notMember": "Nur Inhaber und Mitglieder des Workspace können in seinen Gruppen sein.",
-      "accessDenied": "Nur Workspace-Inhaber können Gruppen ändern."
+      "ownMembership": "Mitglieder-Admins können sich nicht selbst zu einer Gruppe hinzufügen. Frag einen Workspace-Inhaber.",
+      "accessDenied": "Nur Workspace-Inhaber und Mitglieder-Admins können Gruppen ändern."
     }
   },
   "agents": {
@@ -1612,6 +1614,7 @@
     "privatePages": "private Seiten",
     "roles": {
       "owner": "Inhaber",
+      "membership_admin": "Mitglieder-Admin",
       "member": "Mitglied",
       "guest": "Gast"
     },

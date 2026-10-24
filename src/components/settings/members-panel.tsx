@@ -23,6 +23,8 @@ import { Button, cn, Dialog, IconButton, Input, MenuItem, selectClass, Switch, t
 import { UserAvatar } from "@/components/user-avatar";
 import type { WorkspaceRole } from "@/db/schema/app";
 import { MAX_BULK_EMAILS, parseEmailList } from "@/lib/emails";
+import { assignableRoles } from "@/lib/membership-policy";
+import { managesPeople, mayChangeRole, mayRemove, ROLE_ORDER, WORKSPACE_ROLES } from "@/lib/workspace-roles";
 import type { JoinRequestItem } from "@/server/join-requests";
 import type { BulkAddResult } from "@/server/workspaces";
 import { searchFold } from "@/lib/search-fold";
@@ -49,14 +51,12 @@ function matches(query: string, ...values: string[]) {
   return !q || values.some((v) => searchFold(v).includes(q));
 }
 
-const ROLE_ORDER: Record<WorkspaceRole, number> = { owner: 0, member: 1, guest: 2 };
-
 function compareMembers(a: Member, b: Member, key: SortKey) {
   switch (key) {
     case "name":
       return (a.name || a.email).localeCompare(b.name || b.email);
     case "role":
-      // Owners, then members, then guests when ascending.
+      // Owners, then membership admins, members and guests when ascending.
       return ROLE_ORDER[a.role] - ROLE_ORDER[b.role] || (a.name || a.email).localeCompare(b.name || b.email);
     case "joined":
       return a.joinedAt.getTime() - b.joinedAt.getTime();
@@ -69,7 +69,7 @@ function compareMembers(a: Member, b: Member, key: SortKey) {
 export function MembersPanel({
   workspaceId,
   currentUserId,
-  isOwner,
+  viewerRole,
   initialTab = "members",
   addMembers,
   members,
@@ -83,16 +83,17 @@ export function MembersPanel({
 }: {
   workspaceId: string;
   currentUserId: string;
-  isOwner: boolean;
+  /** The viewer's role: owners and membership admins manage people here, owners alone the join link. */
+  viewerRole: WorkspaceRole;
   initialTab?: Tab;
   /** How the viewer may add members (Settings > Security): right away, by asking an owner, or not. */
   addMembers: "direct" | "request" | null;
   /** Render time from the server, so relative dates match between server and client render. */
   now: Date;
   members: Member[];
-  /** Pending invitations; only owners get them. */
+  /** Pending invitations; only owners and membership admins get them. */
   invitations: Invitation[];
-  /** Join requests waiting for an owner; only owners get them. */
+  /** Join requests waiting for a decision; only owners and membership admins get them. */
   requests: JoinRequestItem[];
   /** The join link, or null when off. Only owners get it. */
   joinLink: string | null;
@@ -104,6 +105,8 @@ export function MembersPanel({
   groups: Record<string, MemberGroup[]>;
 }) {
   const t = useTranslations("settings.members");
+  const isOwner = viewerRole === "owner";
+  const canManage = managesPeople(viewerRole);
   const [tab, setTab] = useState<Tab>(initialTab);
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<Sort>({ key: "name", dir: "asc" });
@@ -135,12 +138,12 @@ export function MembersPanel({
               <TabButton active={tab === "members"} onClick={() => setTab("members")}>
                 {t("tabs.members")} <span className="text-fg-faint">{members.length}</span>
               </TabButton>
-              {isOwner && takesPeopleIn && (
+              {canManage && takesPeopleIn && (
                 <TabButton active={tab === "invitations"} onClick={() => setTab("invitations")}>
                   {t("tabs.invitations")} <span className="text-fg-faint">{invitations.length}</span>
                 </TabButton>
               )}
-              {isOwner && takesPeopleIn && (
+              {canManage && takesPeopleIn && (
                 <TabButton active={tab === "requests"} onClick={() => setTab("requests")}>
                   {t("tabs.requests")} <span className="text-fg-faint">{requests.length}</span>
                 </TabButton>
@@ -158,7 +161,7 @@ export function MembersPanel({
                   className="w-44 ps-7 sm:w-56"
                 />
               </div>
-              {isOwner && (
+              {canManage && (
                 <a
                   href={`/w/${workspaceId}/settings/members.csv`}
                   download
@@ -183,7 +186,7 @@ export function MembersPanel({
                 now={now}
                 workspaceId={workspaceId}
                 currentUserId={currentUserId}
-                isOwner={isOwner}
+                viewerRole={viewerRole}
                 members={shownMembers}
                 teamspaces={teamspaces}
                 groups={groups}
@@ -217,7 +220,7 @@ export function MembersPanel({
           workspaceId={workspaceId}
           open={adding}
           onClose={() => setAdding(false)}
-          canPickRole={isOwner}
+          roles={canManage ? assignableRoles(viewerRole) : []}
           asks={addMembers === "request"}
         />
       )}
@@ -346,7 +349,7 @@ function MembersTable({
   now,
   workspaceId,
   currentUserId,
-  isOwner,
+  viewerRole,
   members,
   teamspaces,
   groups,
@@ -357,7 +360,7 @@ function MembersTable({
   now: Date;
   workspaceId: string;
   currentUserId: string;
-  isOwner: boolean;
+  viewerRole: WorkspaceRole;
   members: Member[];
   teamspaces: Record<string, MemberTeamspace[]>;
   groups: Record<string, MemberGroup[]>;
@@ -398,7 +401,7 @@ function MembersTable({
               teamspaces={teamspaces[m.userId] ?? []}
               groups={groups[m.userId] ?? []}
               isSelf={m.userId === currentUserId}
-              isOwner={isOwner}
+              viewerRole={viewerRole}
             />
           ))}
         </tbody>
@@ -417,7 +420,7 @@ function MemberRow({
   teamspaces,
   groups,
   isSelf,
-  isOwner,
+  viewerRole,
 }: {
   now: Date;
   workspaceId: string;
@@ -425,7 +428,7 @@ function MemberRow({
   teamspaces: MemberTeamspace[];
   groups: MemberGroup[];
   isSelf: boolean;
-  isOwner: boolean;
+  viewerRole: WorkspaceRole;
 }) {
   const router = useRouter();
   const t = useTranslations("settings.members");
@@ -434,9 +437,11 @@ function MemberRow({
   const [confirm, setConfirm] = useState<PendingConfirm>(null);
   const menu = useFloating<HTMLButtonElement>();
   const { pending, error, run } = useAction();
-  const canRemove = isOwner || isSelf;
-  // Ownership goes to members only; a guest has to be made a member first.
-  const canTransfer = isOwner && !isSelf && member.role === "member";
+  const canRemove = isSelf || mayRemove(viewerRole, member.role);
+  // Ownership goes to members (membership admins too) only; a guest has to be made a member first.
+  const canTransfer = viewerRole === "owner" && !isSelf && (member.role === "member" || member.role === "membership_admin");
+  // The roles the viewer may give this person: owners any, membership admins none to or from owner.
+  const roleChoices = WORKSPACE_ROLES.filter((role) => role !== member.role && mayChangeRole(viewerRole, member.role, role));
 
   return (
     <tr className="align-middle">
@@ -454,7 +459,7 @@ function MemberRow({
         {error && <p className="mt-1 text-xs text-danger">{error}</p>}
       </td>
       <td className="px-4 py-3">
-        {isOwner ? (
+        {roleChoices.length ? (
           <select
             aria-label={t("roleOf", { name: member.name })}
             className={selectClass}
@@ -462,9 +467,11 @@ function MemberRow({
             disabled={pending}
             onChange={(e) => run(() => setMemberRoleAction(workspaceId, member.userId, e.target.value as WorkspaceRole))}
           >
-            <option value="owner">{t("roles.owner")}</option>
-            <option value="member">{t("roles.member")}</option>
-            <option value="guest">{t("roles.guest")}</option>
+            {WORKSPACE_ROLES.filter((role) => role === member.role || roleChoices.includes(role)).map((role) => (
+              <option key={role} value={role}>
+                {t(`roles.${role}`)}
+              </option>
+            ))}
           </select>
         ) : (
           <span className="text-fg-muted">{t(`roles.${member.role}`)}</span>
@@ -714,14 +721,14 @@ function AddMembersDialog({
   workspaceId,
   open,
   onClose,
-  canPickRole,
+  roles,
   asks,
 }: {
   workspaceId: string;
   open: boolean;
   onClose: () => void;
-  /** Owners choose the role; members add members only. */
-  canPickRole: boolean;
+  /** The roles the viewer may pick (owners any, membership admins any but owner); none: members add members only. */
+  roles: WorkspaceRole[];
   /** The workspace wants the viewer's additions approved by an owner first. */
   asks: boolean;
 }) {
@@ -813,13 +820,16 @@ function AddMembersDialog({
             <span className={cn("text-xs", tooMany ? "text-danger" : "text-fg-muted")}>
               {tooMany ? tErrors("tooManyEmails") : t("add.count", { count })}
             </span>
-            {canPickRole && (
+            {roles.length > 1 && (
               <label className="flex items-center gap-2 text-sm text-fg-muted">
                 {t("roleLabel")}
                 <select className={selectClass} value={role} onChange={(e) => setRole(e.target.value as WorkspaceRole)}>
-                  <option value="member">{t("roles.member")}</option>
-                  <option value="owner">{t("roles.owner")}</option>
-                  <option value="guest">{t("roles.guest")}</option>
+                  {/* Member first: what most people are added as. */}
+                  {["member" as const, ...roles.filter((r) => r !== "member")].map((r) => (
+                    <option key={r} value={r}>
+                      {t(`roles.${r}`)}
+                    </option>
+                  ))}
                 </select>
               </label>
             )}
@@ -841,7 +851,7 @@ function AddMembersDialog({
 
 const SOURCE_KEYS = { domain: "domain", link: "link", switcher: "switcher", member: "member" } as const;
 
-/** Settings > Members > Requests: people asking to join, and members asking to invite someone. Owners only. */
+/** Settings > Members > Requests: people asking to join, and members asking to invite someone. Owners and membership admins. */
 function RequestsTable({
   now,
   workspaceId,

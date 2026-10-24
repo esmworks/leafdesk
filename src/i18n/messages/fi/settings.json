@@ -112,7 +112,7 @@
   },
   "members": {
     "heading": "Jäsenet",
-    "description": "Jäsenet voivat nähdä ja muokata kaikkia sivuja, ellei sivun jakamista ole rajoitettu; vieraat näkevät vain heidän kanssaan jaetut sivut. Omistajat voivat lisäksi hallita jäseniä.",
+    "description": "Jäsenet voivat nähdä ja muokata kaikkia sivuja, ellei sivun jakamista ole rajoitettu; vieraat näkevät vain heidän kanssaan jaetut sivut. Omistajat voivat lisäksi hallita jäseniä; jäsenten ylläpitäjät hallitsevat henkilöitä ja ryhmiä mutta eivät muita asetuksia.",
     "tabs": {
       "members": "Jäsenet",
       "invitations": "Odottavat kutsut",
@@ -153,6 +153,7 @@
     "roleLabel": "Rooli",
     "roles": {
       "owner": "Omistaja",
+      "membership_admin": "Jäsenten ylläpitäjä",
       "member": "Jäsen",
       "guest": "Vieras"
     },
@@ -214,7 +215,7 @@
   "guests": {
     "heading": "Vieraat",
     "description": "Vieraat ovat työtilan ulkopuolisia henkilöitä, jotka näkevät vain heidän kanssaan jaetut sivut. Näe, mitä kukin vieras voi avata, peru pääsy, tee vieraasta jäsen tai poista hänet.",
-    "descriptionMember": "Vieraat ovat työtilan ulkopuolisia henkilöitä, jotka näkevät vain heidän kanssaan jaetut sivut. Voit perua pääsyn sivuilta, joihin sinulla on täydet oikeudet. Vain omistajat voivat tehdä vieraasta jäsenen tai poistaa hänet.",
+    "descriptionMember": "Vieraat ovat työtilan ulkopuolisia henkilöitä, jotka näkevät vain heidän kanssaan jaetut sivut. Voit perua pääsyn sivuilta, joihin sinulla on täydet oikeudet. Vain omistajat ja jäsenten ylläpitäjät voivat tehdä vieraasta jäsenen tai poistaa hänet.",
     "count": "{count, plural, =0 {Ei vieraita} one {# vieras} other {# vierasta}}",
     "search": "Hae vieraita tai sivuja",
     "exportCsv": "Lataa vieraat CSV-tiedostona",
@@ -320,7 +321,7 @@
   "groups": {
     "heading": "Ryhmät",
     "description": "Ryhmät kokoavat ihmisiä yhteen, jotta voit jakaa sivun kaikille heille tai lisätä heidät tiimitilaan kerralla. Ryhmään liittyvä saa sen, mitä ryhmällä on; ryhmästä poistuva menettää sen. Ryhmiin voivat kuulua vain omistajat ja jäsenet, eivät vieraat.",
-    "ownersOnly": "Vain työtilan omistajat voivat luoda ja muuttaa ryhmiä.",
+    "ownersOnly": "Vain työtilan omistajat ja jäsenten ylläpitäjät voivat luoda ja muuttaa ryhmiä.",
     "newButton": "Uusi ryhmä",
     "search": "Hae ryhmiä",
     "empty": "Ei vielä ryhmiä.",
@@ -365,7 +366,8 @@
       "nameRequired": "Anna ryhmälle nimi.",
       "nameTaken": "Toisella ryhmällä on jo tämä nimi.",
       "notMember": "Vain työtilan omistajat ja jäsenet voivat kuulua sen ryhmiin.",
-      "accessDenied": "Vain työtilan omistajat voivat muuttaa ryhmiä."
+      "ownMembership": "Jäsenten ylläpitäjät eivät voi lisätä itseään ryhmään. Pyydä työtilan omistajaa.",
+      "accessDenied": "Vain työtilan omistajat ja jäsenten ylläpitäjät voivat muuttaa ryhmiä."
     }
   },
   "agents": {
@@ -1612,6 +1614,7 @@
     "privatePages": "yksityiset sivut",
     "roles": {
       "owner": "omistaja",
+      "membership_admin": "jäsenten ylläpitäjä",
       "member": "jäsen",
       "guest": "vieras"
     },

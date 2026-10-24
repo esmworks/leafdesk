@@ -14,6 +14,7 @@
     "action": "招待を承諾",
     "roles": {
       "owner": "オーナー",
+      "membership_admin": "メンバー管理者",
       "member": "メンバー",
       "guest": "ゲスト"
     }

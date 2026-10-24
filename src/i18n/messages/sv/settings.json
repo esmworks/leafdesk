@@ -112,7 +112,7 @@
   },
   "members": {
     "heading": "Medlemmar",
-    "description": "Medlemmar kan se och redigera alla sidor om inte delningen är begränsad; gäster ser bara sidor som delats med dem. Ägare kan dessutom hantera medlemmar.",
+    "description": "Medlemmar kan se och redigera alla sidor om inte delningen är begränsad; gäster ser bara sidor som delats med dem. Ägare kan dessutom hantera medlemmar; medlemsadministratörer hanterar personer och grupper, men inga andra inställningar.",
     "tabs": {
       "members": "Medlemmar",
       "invitations": "Väntande inbjudningar",
@@ -153,6 +153,7 @@
     "roleLabel": "Roll",
     "roles": {
       "owner": "Ägare",
+      "membership_admin": "Medlemsadministratör",
       "member": "Medlem",
       "guest": "Gäst"
     },
@@ -214,7 +215,7 @@
   "guests": {
     "heading": "Gäster",
     "description": "Gäster är personer utanför arbetsytan som bara ser sidorna som delats med dem. Se vad varje gäst kan öppna, ta tillbaka åtkomst, gör en gäst till medlem eller ta bort hen.",
-    "descriptionMember": "Gäster är personer utanför arbetsytan som bara ser sidorna som delats med dem. Du kan ta tillbaka åtkomst till sidor där du har full åtkomst. Bara ägare kan göra en gäst till medlem eller ta bort hen.",
+    "descriptionMember": "Gäster är personer utanför arbetsytan som bara ser sidorna som delats med dem. Du kan ta tillbaka åtkomst till sidor där du har full åtkomst. Bara ägare och medlemsadministratörer kan göra en gäst till medlem eller ta bort hen.",
     "count": "{count, plural, =0 {Inga gäster} one {# gäst} other {# gäster}}",
     "search": "Sök gäster eller sidor",
     "exportCsv": "Ladda ned gäster som CSV",
@@ -320,7 +321,7 @@
   "groups": {
     "heading": "Grupper",
     "description": "Grupper samlar personer så att du kan dela en sida med alla eller lägga till dem i en teamyta på en gång. Den som går med i en grupp får det gruppen har; den som lämnar den förlorar det. Bara ägare och medlemmar kan vara med i grupper, inte gäster.",
-    "ownersOnly": "Bara arbetsytans ägare kan skapa och ändra grupper.",
+    "ownersOnly": "Bara arbetsytans ägare och medlemsadministratörer kan skapa och ändra grupper.",
     "newButton": "Ny grupp",
     "search": "Sök grupper",
     "empty": "Inga grupper än.",
@@ -365,7 +366,8 @@
       "nameRequired": "Ge gruppen ett namn.",
       "nameTaken": "En annan grupp har redan det här namnet.",
       "notMember": "Bara arbetsytans ägare och medlemmar kan vara med i dess grupper.",
-      "accessDenied": "Bara arbetsytans ägare kan ändra grupper."
+      "ownMembership": "Medlemsadministratörer kan inte lägga till sig själva i en grupp. Be en ägare av arbetsytan.",
+      "accessDenied": "Bara arbetsytans ägare och medlemsadministratörer kan ändra grupper."
     }
   },
   "agents": {
@@ -1612,6 +1614,7 @@
     "privatePages": "privata sidor",
     "roles": {
       "owner": "ägare",
+      "membership_admin": "medlemsadministratör",
       "member": "medlem",
       "guest": "gäst"
     },

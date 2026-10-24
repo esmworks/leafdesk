@@ -7,16 +7,17 @@ import {
   teamspaceGroup,
   user,
   workspaceMember,
+  type WorkspaceRole,
 } from "@/db/schema";
 import { avatarSrc } from "@/lib/avatar";
 import { cleanGroupName, GroupError } from "@/lib/groups";
 import { searchFold } from "@/lib/search-fold";
-import { AccessError, isGuest, requireMember, requireMembership } from "@/server/access";
+import { AccessError, isGuest, requireMember, requirePeopleManager } from "@/server/access";
 import { recordAudit } from "@/server/audit";
 import { getCollab } from "@/server/collab/bridge";
 import { refuseInLocalMode } from "@/server/local-mode";
 import { listTeamspaces } from "@/server/teamspaces";
-import { handOverOrphanedPages } from "@/server/workspaces";
+import { handOverOrphanedPages, heirFor } from "@/server/workspaces";
 
 /**
  * Member groups: named sets of a workspace's owners and members that pages are shared with and
@@ -64,12 +65,26 @@ async function namesOf(reader: Pick<typeof db, "select">, userIds: string[]) {
 const isUniqueViolation = (error: unknown) =>
   (error as { code?: string }).code === "23505" || (error as { cause?: { code?: string } }).cause?.code === "23505";
 
-/** The group, when it belongs to a workspace the user is an owner of. AccessError otherwise, missing or not. */
+/**
+ * The group and the actor's role, when it belongs to a workspace whose people the user manages
+ * (an owner or membership admin). AccessError otherwise, missing or not.
+ */
 async function ownedGroup(actorId: string, groupId: string) {
   const [found] = await db.select().from(memberGroup).where(eq(memberGroup.id, groupId)).limit(1);
   if (!found) throw new AccessError();
-  await requireMembership(actorId, found.workspaceId, "owner");
-  return found;
+  const { role } = await requirePeopleManager(actorId, found.workspaceId);
+  return { ...found, actorRole: role };
+}
+
+/**
+ * A group gives its people what pages and teamspaces gave the group, so a membership admin, who
+ * manages people and not content, doesn't put themselves in one: that would open pages to them
+ * that nobody shared with them. Owners may.
+ */
+function refuseJoiningOwnGroup(actorId: string, actorRole: WorkspaceRole, adding: string[]) {
+  if (actorRole !== "owner" && adding.includes(actorId)) {
+    throw new GroupError("ownMembership", "Membership admins can't add themselves to a group. Ask a workspace owner.");
+  }
 }
 
 /**
@@ -150,12 +165,16 @@ async function requireGroupable(workspaceId: string, userIds: string[]) {
   }
 }
 
-/** A new group, with these people in it. Workspace owners only, and not on one computer (local mode). */
+/**
+ * A new group, with these people in it. Workspace owners and membership admins (not with
+ * themselves in it), and not on one computer (local mode).
+ */
 export async function createGroup(actorId: string, workspaceId: string, name: string, userIds: string[] = []) {
   refuseInLocalMode();
-  await requireMembership(actorId, workspaceId, "owner");
+  const { role: actorRole } = await requirePeopleManager(actorId, workspaceId);
   const clean = cleanGroupName(name);
   const wanted = [...new Set(userIds)];
+  refuseJoiningOwnGroup(actorId, actorRole, wanted);
   await requireGroupable(workspaceId, wanted);
   try {
     return await db.transaction(async (tx) => {
@@ -188,9 +207,10 @@ export async function createGroup(actorId: string, workspaceId: string, name: st
 export type GroupChanges = { name?: string; add?: string[]; remove?: string[] };
 
 /**
- * Renames a group and changes who is in it, in one transaction. Workspace owners only. The people
- * added must be owners or members of the workspace. Taking people out hands pages nobody could
- * manage without them to the owner who did it. The open editors of everyone added or taken out
+ * Renames a group and changes who is in it, in one transaction. Workspace owners and membership
+ * admins (who don't add themselves). The people added must be owners or members of the workspace.
+ * Taking people out hands pages nobody could manage without them to the owner who did it (for a
+ * membership admin, the longest-standing owner: see heirFor). The open editors of everyone added or taken out
  * are checked again (see afterAccessChange).
  * Settings > Groups and SCIM (/scim/v2/Groups, see server/scim.ts) both go through here.
  */
@@ -200,6 +220,7 @@ export async function changeGroup(actorId: string, groupId: string, changes: Gro
   const add = [...new Set(changes.add ?? [])];
   const remove = [...new Set(changes.remove ?? [])].filter((id) => !add.includes(id));
   if (name === undefined && !add.length && !remove.length) return;
+  refuseJoiningOwnGroup(actorId, found.actorRole, add);
   await requireGroupable(found.workspaceId, add);
   let changed: string[];
   try {
@@ -230,7 +251,8 @@ export async function changeGroup(actorId: string, groupId: string, changes: Gro
         .where(and(eq(memberGroupMember.groupId, groupId), inArray(memberGroupMember.userId, remove)))
         .returning({ userId: memberGroupMember.userId });
       if (gone.length) {
-        await handOverOrphanedPages(tx, found.workspaceId, actorId);
+        const heir = await heirFor(tx, found.workspaceId, actorId, found.actorRole);
+        if (heir) await handOverOrphanedPages(tx, found.workspaceId, heir);
         await recordAudit({ ...event, action: "group.members_removed", details: { names: await namesOf(tx, gone.map((g) => g.userId)) } }, tx);
       }
       return [...added, ...gone].map((g) => g.userId);
@@ -243,34 +265,35 @@ export async function changeGroup(actorId: string, groupId: string, changes: Gro
   await afterAccessChange(found.workspaceId, changed);
 }
 
-/** Renames a group. Workspace owners only. */
+/** Renames a group. Owners and membership admins. */
 export async function renameGroup(actorId: string, groupId: string, name: string) {
   await changeGroup(actorId, groupId, { name });
 }
 
-/** Adds owners or members of the workspace to a group; people already in it stay. Workspace owners only. */
+/** Adds owners or members of the workspace to a group; people already in it stay. Owners and membership admins. */
 export async function addGroupMembers(actorId: string, groupId: string, userIds: string[]) {
   await changeGroup(actorId, groupId, { add: userIds });
 }
 
 /**
- * Takes someone out of a group. Workspace owners only. Pages nobody could manage without them go to
- * the owner who did it, and their open editors that lost access are dropped (see changeGroup).
+ * Takes someone out of a group. Owners and membership admins. Pages nobody could manage without them go to
+ * the owner who did it (see changeGroup), and their open editors that lost access are dropped (see changeGroup).
  */
 export async function removeGroupMember(actorId: string, groupId: string, targetId: string) {
   await changeGroup(actorId, groupId, { remove: [targetId] });
 }
 
 /**
- * Deletes a group with its page entries and teamspace memberships. Workspace owners only. People
- * keep what they have on their own; pages nobody could manage any more go to the owner who did it.
+ * Deletes a group with its page entries and teamspace memberships. Owners and membership admins. People
+ * keep what they have on their own; pages nobody could manage any more go to the owner who did it (see changeGroup).
  */
 export async function deleteGroup(actorId: string, groupId: string) {
   const found = await ownedGroup(actorId, groupId);
   const members = await groupMemberIds(groupId);
   await db.transaction(async (tx) => {
     await tx.delete(memberGroup).where(eq(memberGroup.id, groupId));
-    await handOverOrphanedPages(tx, found.workspaceId, actorId);
+    const heir = await heirFor(tx, found.workspaceId, actorId, found.actorRole);
+    if (heir) await handOverOrphanedPages(tx, found.workspaceId, heir);
     await recordAudit(
       { workspaceId: found.workspaceId, actorId, action: "group.deleted", target: { type: "group", id: groupId, label: found.name } },
       tx,

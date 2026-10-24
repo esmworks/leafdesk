@@ -18,10 +18,10 @@ import {
 } from "@/db/schema";
 import { normalizeEmail } from "@/lib/emails";
 import { env } from "@/lib/env";
-import { type Access, automaticAccess, domainAccess, onAllowedDomain } from "@/lib/membership-policy";
+import { type Access, assignableRoles, automaticAccess, domainAccess, onAllowedDomain } from "@/lib/membership-policy";
 import { sharedLimiter, takeAll } from "@/lib/rate-limit";
 import { domainsFromColumn, emailDomain } from "@/lib/sso-config";
-import { AccessError, findMembership, requireMembership } from "@/server/access";
+import { AccessError, findMembership, requirePeopleManager } from "@/server/access";
 import { recordAudit } from "@/server/audit";
 import { joinRequestDecidedEmail, mailStatus, sendMail, type OutgoingMail } from "@/server/mail";
 import { recipientLocale, requestLocale } from "@/server/mail/locale";
@@ -332,9 +332,9 @@ export type JoinRequestItem = {
 
 const asker = alias(user, "asker");
 
-/** The requests waiting for an owner, oldest first. Owners only. */
+/** The requests waiting for an owner or membership admin, oldest first. Owners and membership admins only. */
 export async function listJoinRequests(actorId: string, workspaceId: string): Promise<JoinRequestItem[]> {
-  await requireMembership(actorId, workspaceId, "owner");
+  await requirePeopleManager(actorId, workspaceId);
   return db
     .select({
       id: workspaceJoinRequest.id,
@@ -391,14 +391,17 @@ async function takePending(tx: Tx, workspaceId: string, requestId: string): Prom
 /**
  * Lets the request in. Someone asking to join becomes a member; a member's request to invite
  * someone goes out as that member's invitation (added right away when an account has the address,
- * verified, see addMemberAs), which is returned so the owner can share its link. Owners only.
+ * verified, see addMemberAs), which is returned so the owner can share its link. Owners and
+ * membership admins; a request to bring someone in as an owner (none is filed today: members only
+ * ask for members) only owners approve.
  */
 export async function approveJoinRequest(actorId: string, workspaceId: string, requestId: string) {
   refuseInLocalMode();
-  await requireMembership(actorId, workspaceId, "owner");
+  const actor = await requirePeopleManager(actorId, workspaceId);
   let result: AddMemberResult | null = null;
   const request = await db.transaction(async (tx) => {
     const request = await takePending(tx, workspaceId, requestId);
+    if (!assignableRoles(actor.role).includes(request.role)) throw new AccessError();
     await recordAudit({ workspaceId, actorId, ...decisionEvent(request, "join_request.approved") }, tx);
     if (request.kind === "invite") {
       // The invitation (or the addition) that follows is recorded on its own, by addMemberAs.
@@ -457,10 +460,13 @@ export async function approveJoinRequest(actorId: string, workspaceId: string, r
   return result;
 }
 
-/** Turns the request down; someone asking to join may ask again later (see domainAccess). Owners only. */
+/**
+ * Turns the request down; someone asking to join may ask again later (see domainAccess). Owners
+ * and membership admins.
+ */
 export async function declineJoinRequest(actorId: string, workspaceId: string, requestId: string) {
   refuseInLocalMode();
-  await requireMembership(actorId, workspaceId, "owner");
+  await requirePeopleManager(actorId, workspaceId);
   const request = await db.transaction(async (tx) => {
     const request = await takePending(tx, workspaceId, requestId);
     await recordAudit({ workspaceId, actorId, ...decisionEvent(request, "join_request.declined") }, tx);

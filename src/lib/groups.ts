@@ -1,4 +1,4 @@
-export type GroupErrorCode = "nameRequired" | "nameTaken" | "notMember";
+export type GroupErrorCode = "nameRequired" | "nameTaken" | "notMember" | "ownMembership";
 
 /** An expected failure the UI translates by `code`; the English message is for logs, MCP and the API. */
 export class GroupError extends Error {

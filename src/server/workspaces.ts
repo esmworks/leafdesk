@@ -42,6 +42,7 @@ import { isAgentEmail } from "@/lib/agents";
 import { isReservedEmail } from "@/lib/reserved-emails";
 import { isEmail, MAX_BULK_EMAILS, normalizeEmail } from "@/lib/emails";
 import { assignableRoles, invitationApplies, linkAccess, memberInviteMode, verifiedAllowedDomains } from "@/lib/membership-policy";
+import { managesPeople, mayChangeRole, mayRemove } from "@/lib/workspace-roles";
 import { TRASH_RETENTION_CHOICES } from "@/lib/retention";
 import { parseDomains } from "@/lib/sso-config";
 import { parseCalloutStyles } from "@/lib/callout-styles";
@@ -58,6 +59,7 @@ import {
   isGuest,
   requireMember,
   requireMembership,
+  requirePeopleManager,
   workspacesHiddenFromApp,
 } from "@/server/access";
 import { isAgentUser, notAgentUser } from "@/server/agents/users";
@@ -556,7 +558,7 @@ export async function addMemberAs(
   return { kind: "added" };
 }
 
-const ROLE_RANK: Record<WorkspaceRole, number> = { guest: 0, member: 1, owner: 2 };
+const ROLE_RANK: Record<WorkspaceRole, number> = { guest: 0, member: 1, membership_admin: 2, owner: 3 };
 
 /**
  * Invites someone without an account as a guest, so a page can be shared with them. A pending
@@ -664,9 +666,12 @@ export async function addMembers(
   return results;
 }
 
-/** Pending invitations, including expired ones so owners can renew them. Owners only. */
+/**
+ * Pending invitations, including expired ones so they can be renewed. Owners and membership
+ * admins; invitations to become an owner (and their links) only owners see.
+ */
 export async function listInvitations(actorId: string, workspaceId: string) {
-  await requireMembership(actorId, workspaceId, "owner");
+  const { role: actorRole } = await requirePeopleManager(actorId, workspaceId);
   const rows = await db
     .select({
       id: workspaceInvitation.id,
@@ -676,17 +681,26 @@ export async function listInvitations(actorId: string, workspaceId: string) {
       expiresAt: workspaceInvitation.expiresAt,
     })
     .from(workspaceInvitation)
-    .where(eq(workspaceInvitation.workspaceId, workspaceId))
+    .where(
+      and(eq(workspaceInvitation.workspaceId, workspaceId), actorRole === "owner" ? undefined : ne(workspaceInvitation.role, "owner")),
+    )
     .orderBy(asc(workspaceInvitation.createdAt));
   return rows.map(({ token, ...row }) => ({ ...row, link: invitationLink(token) }));
 }
 
+/** Withdraws an invitation. Owners and membership admins; an invitation to become an owner, owners only. */
 export async function revokeInvitation(actorId: string, workspaceId: string, invitationId: string) {
-  await requireMembership(actorId, workspaceId, "owner");
+  const { role: actorRole } = await requirePeopleManager(actorId, workspaceId);
   await db.transaction(async (tx) => {
     const revoked = await tx
       .delete(workspaceInvitation)
-      .where(and(eq(workspaceInvitation.workspaceId, workspaceId), eq(workspaceInvitation.id, invitationId)))
+      .where(
+        and(
+          eq(workspaceInvitation.workspaceId, workspaceId),
+          eq(workspaceInvitation.id, invitationId),
+          actorRole === "owner" ? undefined : ne(workspaceInvitation.role, "owner"),
+        ),
+      )
       .returning({ email: workspaceInvitation.email, role: workspaceInvitation.role });
     // Pages shared with them by email go with the invitation.
     for (const { email, role } of revoked) {
@@ -939,8 +953,12 @@ async function refuseAgentUser(targetId: string) {
   if (await isAgentUser(targetId)) throw new WorkspaceError("agentUser", "This is an agent; change it in the agent's settings.");
 }
 
+/**
+ * Changes someone's role. Owners change any; membership admins any between membership admin,
+ * member and guest (`mayChangeRole`): they never make, unmake or touch an owner.
+ */
 export async function setMemberRole(actorId: string, workspaceId: string, targetId: string, role: WorkspaceRole) {
-  await requireMembership(actorId, workspaceId, "owner");
+  const actor = await requirePeopleManager(actorId, workspaceId);
   await refuseAgentUser(targetId);
   const previous = await db.transaction(async (tx) => {
     const [current] = await tx
@@ -949,6 +967,7 @@ export async function setMemberRole(actorId: string, workspaceId: string, target
       .where(and(eq(workspaceMember.workspaceId, workspaceId), eq(workspaceMember.userId, targetId)))
       .for("update");
     if (!current) throw new WorkspaceError("notMember", "This person is not a member.");
+    if (!mayChangeRole(actor.role, current.role, role)) throw new AccessError();
     if (current.role === "owner" && role !== "owner" && (await countOwners(workspaceId, tx)) <= 1) {
       throw new WorkspaceError("lastOwner", "A workspace needs at least one owner.");
     }
@@ -960,7 +979,7 @@ export async function setMemberRole(actorId: string, workspaceId: string, target
     // "everyone", owners have too, and their own entries keep applying. Guests aren't in teamspaces.
     // Nor in groups: a group's pages and teamspaces are for owners and members.
     if (isGuest(role) && !isGuest(current.role)) {
-      await dropFromTeamspaces(tx, workspaceId, targetId, actorId);
+      await dropFromTeamspaces(tx, workspaceId, targetId, await heirFor(tx, workspaceId, actorId, actor.role));
       await dropFromGroups(tx, workspaceId, targetId);
     }
     if (current.role !== role) {
@@ -1048,11 +1067,14 @@ async function forgetWorkspaceGrants(tx: Tx, workspaceId: string, userId: string
   await tx.delete(apiToken).where(and(eq(apiToken.userId, userId), eq(apiToken.workspaceId, workspaceId)));
 }
 
-/** Owners can remove anyone; members can only remove themselves (leave). */
+/**
+ * Owners can remove anyone, membership admins anyone but owners (`mayRemove`); everyone else can
+ * only remove themselves (leave).
+ */
 export async function removeMember(actorId: string, workspaceId: string, targetId: string) {
   // Leaving works without meeting the two-step policy: nobody should have to set it up to get out.
   const actor = actorId === targetId ? await findMembership(actorId, workspaceId) : await requireMembership(actorId, workspaceId);
-  if (!actor || (actorId !== targetId && actor.role !== "owner")) throw new AccessError();
+  if (!actor || (actorId !== targetId && !managesPeople(actor.role))) throw new AccessError();
   // Archiving an agent takes it out of the lists; its membership stays, so its edits keep its name.
   await refuseAgentUser(targetId);
   let released: AiAccountRelease | null = null;
@@ -1063,6 +1085,7 @@ export async function removeMember(actorId: string, workspaceId: string, targetI
       .where(and(eq(workspaceMember.workspaceId, workspaceId), eq(workspaceMember.userId, targetId)))
       .for("update");
     if (!current) throw new WorkspaceError("notMember", "This person is not a member.");
+    if (actorId !== targetId && !mayRemove(actor.role, current.role)) throw new AccessError();
     if (current.role === "owner" && (await countOwners(workspaceId, tx)) <= 1) {
       throw new WorkspaceError("lastOwnerRemove", "A workspace needs at least one owner. Make someone else an owner first.");
     }
@@ -1073,8 +1096,9 @@ export async function removeMember(actorId: string, workspaceId: string, targetI
       .delete(workspaceMember)
       .where(and(eq(workspaceMember.workspaceId, workspaceId), eq(workspaceMember.userId, targetId)));
     released = await releaseAiAccount(tx, workspaceId, targetId);
-    // An owner removing someone takes over what only they managed; someone leaving hands it to an owner.
-    const heir = actorId !== targetId ? actorId : await oldestOwner(tx, workspaceId);
+    // An owner removing someone takes over what only they managed; someone leaving, or removed by a
+    // membership admin (who manages people, not their pages), hands it to an owner.
+    const heir = actorId !== targetId ? await heirFor(tx, workspaceId, actorId, actor.role) : await oldestOwner(tx, workspaceId);
     await dropFromTeamspaces(tx, workspaceId, targetId, heir);
     if (heir) await handOverOrphanedPages(tx, workspaceId, heir);
     await forgetWorkspaceGrants(tx, workspaceId, targetId);
@@ -1384,6 +1408,15 @@ export async function oldestOwner(reader: Pick<typeof db, "select">, workspaceId
 }
 
 /**
+ * Who takes over the pages and teamspaces only `actorId`'s change left without a manager
+ * (handOverOrphanedPages, dropFromTeamspaces): the acting owner, or for a membership admin, who
+ * manages people and not their pages, the workspace's longest-standing owner.
+ */
+export async function heirFor(tx: Pick<typeof db, "select">, workspaceId: string, actorId: string, actorRole: WorkspaceRole) {
+  return actorRole === "owner" ? actorId : await oldestOwner(tx, workspaceId);
+}
+
+/**
  * After someone leaves the workspace (or a group loses a member or is deleted), gives `heirId` full
  * access to every page nobody in the workspace can manage any more, so no page is stranded where
  * nobody can share or delete it. Only pages with entries of their own (for people or groups) can be
@@ -1684,14 +1717,14 @@ export async function removeMemberByProvider(workspaceId: string, userId: string
 
 /**
  * Whether the user may bring people from outside the workspace in as guests, by sharing a page
- * with them: owners always, members when the workspace allows it, guests never.
+ * with them: owners and membership admins always, members when the workspace allows it, guests never.
  */
 export async function canInviteGuests(userId: string, workspaceId: string) {
   // No guests when Leafdesk runs on one computer: there is no one to bring in.
   if (env.localMode) return false;
   const [membership, settings] = await Promise.all([getMembership(userId, workspaceId), workspaceSettings(workspaceId)]);
   if (!membership) return false;
-  return membership.role === "owner" || (membership.role === "member" && settings.guestInvites === "members");
+  return managesPeople(membership.role) || (membership.role === "member" && settings.guestInvites === "members");
 }
 
 /**

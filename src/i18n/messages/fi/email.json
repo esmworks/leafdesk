@@ -14,6 +14,7 @@
     "action": "Hyväksy kutsu",
     "roles": {
       "owner": "omistaja",
+      "membership_admin": "jäsenten ylläpitäjä",
       "member": "jäsen",
       "guest": "vieras"
     }

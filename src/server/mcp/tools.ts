@@ -3432,7 +3432,7 @@ export function createMcpServer(principal: McpPrincipal) {
     {
       title: "List workspace members",
       description:
-        "List the people in a workspace with their name, email, role (owner, member or guest) and when they joined it (joined_at). Guests can't list them. Owners invite more people with invite_member.",
+        "List the people in a workspace with their name, email, role (owner, membership_admin, member or guest) and joined_at. Guests can't list them. Owners invite more people with invite_member.",
       inputSchema: z.object({ workspace_id: id("workspace") }),
       annotations: READ,
     },
@@ -3463,7 +3463,7 @@ export function createMcpServer(principal: McpPrincipal) {
         inputSchema: z.object({
           workspace_id: id("workspace"),
           email: z.string().max(254).describe("The person's email address."),
-          role: z.enum(["member", "owner", "guest"]).default("member").describe("Their role in the workspace (default member)."),
+          role: z.enum(["member", "owner", "membership_admin", "guest"]).default("member").describe("Their role in the workspace (default member)."),
         }),
         annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
         scopeChallenge: requireWrite,
@@ -3477,7 +3477,7 @@ export function createMcpServer(principal: McpPrincipal) {
         } catch (error) {
           if (error instanceof AccessError) {
             throw new ToolInputError(
-              "The user can't add people to this workspace with that role: owners can; members only when the workspace's \"Who can add members\" setting lets them, and only as members; guests never. Check the workspace id and the user's role with list_workspaces.",
+              "The user can't add people to this workspace with that role: owners can; membership admins as anything but owner; members only when the workspace's \"Who can add members\" setting lets them, and only as members; guests never. Check the workspace id and the user's role with list_workspaces.",
             );
           }
           if (error instanceof workspaces.WorkspaceError) throw new ToolInputError(`${error.message}`);

@@ -33,13 +33,13 @@ function matchOf(query: string, guest: Guest, untitled: string): "none" | "perso
 
 export function GuestsPanel({
   workspaceId,
-  isOwner,
+  canManage,
   guests,
   now,
 }: {
   workspaceId: string;
-  /** Owners also change a guest's role and remove them; members only take back page access. */
-  isOwner: boolean;
+  /** Owners and membership admins also change a guest's role and remove them; members only take back page access. */
+  canManage: boolean;
   guests: Guest[];
   /** Render time from the server, so "expired" matches between server and client render. */
   now: Date;
@@ -58,7 +58,7 @@ export function GuestsPanel({
 
   return (
     <div>
-      <SettingsHeader title={t("heading")} description={isOwner ? t("description") : t("descriptionMember")} />
+      <SettingsHeader title={t("heading")} description={canManage ? t("description") : t("descriptionMember")} />
       <div className="space-y-3">
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-sm text-fg-muted">{t("count", { count: guests.length })}</span>
@@ -113,7 +113,7 @@ export function GuestsPanel({
                   <GuestRows
                     key={guest.userId ?? `invited:${guest.email}`}
                     workspaceId={workspaceId}
-                    isOwner={isOwner}
+                    canManage={canManage}
                     guest={guest}
                     // A search that only matched a page title shows the pages it matched in.
                     open={pageMatch ? true : undefined}
@@ -136,13 +136,13 @@ type Confirm = "makeMember" | "remove" | "revoke" | null;
 /** A guest's row and, below it while open, the pages they were given. One tbody, so they stay together. */
 function GuestRows({
   workspaceId,
-  isOwner,
+  canManage,
   guest,
   open: forcedOpen,
   now,
 }: {
   workspaceId: string;
-  isOwner: boolean;
+  canManage: boolean;
   guest: Guest;
   open?: boolean;
   now: Date;
@@ -159,9 +159,9 @@ function GuestRows({
   const count = guest.pages.length + guest.hiddenPages + guest.invitations.length + guest.hiddenInvitations;
   const expired = guest.expiresAt !== null && guest.expiresAt.getTime() <= now.getTime();
   const detailsId = `guest-pages-${guest.userId ?? guest.email}`;
-  // Owners only: making them a member and removing them for those who joined, withdrawing the
+  // Owners and membership admins: making them a member and removing them for those who joined, withdrawing the
   // invitation for those who haven't.
-  const actions = isOwner && (guest.userId !== null || guest.invitationId !== null);
+  const actions = canManage && (guest.userId !== null || guest.invitationId !== null);
 
   function confirmed() {
     if (confirm === "makeMember" && guest.userId) {

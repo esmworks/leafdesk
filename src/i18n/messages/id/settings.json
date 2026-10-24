@@ -112,7 +112,7 @@
   },
   "members": {
     "heading": "Anggota",
-    "description": "Anggota dapat melihat dan mengedit setiap halaman kecuali berbaginya dibatasi; tamu hanya melihat halaman yang dibagikan kepada mereka. Pemilik juga dapat mengelola anggota.",
+    "description": "Anggota dapat melihat dan mengedit setiap halaman kecuali berbaginya dibatasi; tamu hanya melihat halaman yang dibagikan kepada mereka. Pemilik juga dapat mengelola anggota; admin keanggotaan mengelola orang dan grup, tetapi tidak pengaturan lainnya.",
     "tabs": {
       "members": "Anggota",
       "invitations": "Undangan tertunda",
@@ -153,6 +153,7 @@
     "roleLabel": "Peran",
     "roles": {
       "owner": "Pemilik",
+      "membership_admin": "Admin keanggotaan",
       "member": "Anggota",
       "guest": "Tamu"
     },
@@ -214,7 +215,7 @@
   "guests": {
     "heading": "Tamu",
     "description": "Tamu adalah orang dari luar ruang kerja yang hanya melihat halaman yang dibagikan kepada mereka. Lihat apa yang dapat dibuka setiap tamu, tarik kembali akses, jadikan tamu sebagai anggota, atau keluarkan mereka.",
-    "descriptionMember": "Tamu adalah orang dari luar ruang kerja yang hanya melihat halaman yang dibagikan kepada mereka. Anda dapat menarik kembali akses pada halaman yang Anda miliki akses penuhnya. Hanya pemilik yang dapat menjadikan tamu sebagai anggota atau mengeluarkan mereka.",
+    "descriptionMember": "Tamu adalah orang dari luar ruang kerja yang hanya melihat halaman yang dibagikan kepada mereka. Anda dapat menarik kembali akses pada halaman yang Anda miliki akses penuhnya. Hanya pemilik dan admin keanggotaan yang dapat menjadikan tamu sebagai anggota atau mengeluarkan mereka.",
     "count": "{count, plural, =0 {Tidak ada tamu} other {# tamu}}",
     "search": "Cari tamu atau halaman",
     "exportCsv": "Unduh tamu sebagai CSV",
@@ -320,7 +321,7 @@
   "groups": {
     "heading": "Grup",
     "description": "Grup mengumpulkan orang sehingga Anda dapat membagikan halaman kepada mereka semua atau menambahkan mereka ke ruang tim sekaligus. Siapa pun yang bergabung ke grup mendapatkan apa yang dimiliki grup; siapa pun yang keluar kehilangannya. Hanya pemilik dan anggota yang dapat berada di grup, bukan tamu.",
-    "ownersOnly": "Hanya pemilik ruang kerja yang dapat membuat dan mengubah grup.",
+    "ownersOnly": "Hanya pemilik ruang kerja dan admin keanggotaan yang dapat membuat dan mengubah grup.",
     "newButton": "Grup baru",
     "search": "Cari grup",
     "empty": "Belum ada grup.",
@@ -365,7 +366,8 @@
       "nameRequired": "Beri nama grup.",
       "nameTaken": "Grup lain sudah memiliki nama ini.",
       "notMember": "Hanya pemilik dan anggota ruang kerja yang dapat berada di grupnya.",
-      "accessDenied": "Hanya pemilik ruang kerja yang dapat mengubah grup."
+      "ownMembership": "Admin keanggotaan tidak dapat menambahkan diri sendiri ke grup. Mintalah kepada pemilik ruang kerja.",
+      "accessDenied": "Hanya pemilik ruang kerja dan admin keanggotaan yang dapat mengubah grup."
     }
   },
   "agents": {
@@ -1612,6 +1614,7 @@
     "privatePages": "halaman pribadi",
     "roles": {
       "owner": "pemilik",
+      "membership_admin": "admin keanggotaan",
       "member": "anggota",
       "guest": "tamu"
     },

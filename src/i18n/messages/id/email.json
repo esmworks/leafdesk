@@ -14,6 +14,7 @@
     "action": "Terima undangan",
     "roles": {
       "owner": "pemilik",
+      "membership_admin": "admin keanggotaan",
       "member": "anggota",
       "guest": "tamu"
     }

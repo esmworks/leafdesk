@@ -112,7 +112,7 @@
   },
   "members": {
     "heading": "Members",
-    "description": "Members can see and edit every page unless its sharing is restricted; guests see only pages shared with them. Owners can also manage members.",
+    "description": "Members can see and edit every page unless its sharing is restricted; guests see only pages shared with them. Owners can also manage members; membership admins manage people and groups, but no other settings.",
     "tabs": {
       "members": "Members",
       "invitations": "Pending invitations",
@@ -153,6 +153,7 @@
     "roleLabel": "Role",
     "roles": {
       "owner": "Owner",
+      "membership_admin": "Membership admin",
       "member": "Member",
       "guest": "Guest"
     },
@@ -214,7 +215,7 @@
   "guests": {
     "heading": "Guests",
     "description": "Guests are people from outside the workspace who see only the pages shared with them. See what each guest can open, take access back, make a guest a member or remove them.",
-    "descriptionMember": "Guests are people from outside the workspace who see only the pages shared with them. You can take back access on pages you have full access to. Only owners can make a guest a member or remove them.",
+    "descriptionMember": "Guests are people from outside the workspace who see only the pages shared with them. You can take back access on pages you have full access to. Only owners and membership admins can make a guest a member or remove them.",
     "count": "{count, plural, =0 {No guests} one {# guest} other {# guests}}",
     "search": "Search guests or pages",
     "exportCsv": "Download guests as CSV",
@@ -320,7 +321,7 @@
   "groups": {
     "heading": "Groups",
     "description": "Groups bundle people so you can share a page with all of them or add them to a teamspace at once. Whoever joins a group gets what the group has; whoever leaves it loses it. Only owners and members can be in groups, not guests.",
-    "ownersOnly": "Only workspace owners can create and change groups.",
+    "ownersOnly": "Only workspace owners and membership admins can create and change groups.",
     "newButton": "New group",
     "search": "Search groups",
     "empty": "No groups yet.",
@@ -365,7 +366,8 @@
       "nameRequired": "Give the group a name.",
       "nameTaken": "Another group already has this name.",
       "notMember": "Only owners and members of the workspace can be in its groups.",
-      "accessDenied": "Only workspace owners can change groups."
+      "ownMembership": "Membership admins can’t add themselves to a group. Ask a workspace owner.",
+      "accessDenied": "Only workspace owners and membership admins can change groups."
     }
   },
   "agents": {
@@ -1612,6 +1614,7 @@
     "privatePages": "private pages",
     "roles": {
       "owner": "owner",
+      "membership_admin": "membership admin",
       "member": "member",
       "guest": "guest"
     },

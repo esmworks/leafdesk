@@ -1,5 +1,8 @@
 // Client-safe: shared by server/agents/sharing.ts, the agent dialog's Share section, MCP and REST.
 
+import type { WorkspaceRole } from "@/db/schema/app";
+import { contentRole } from "@/lib/workspace-roles";
+
 /**
  * Sharing an agent: like a page, an agent has a list of who may use it. Each entry names a person,
  * a group or everyone in the workspace (owners and members, never guests) with a level:
@@ -33,13 +36,14 @@ export const hasAgentLevel = (level: AgentLevel, min: AgentLevel) => RANK[level]
  * reach them: their own, their groups', everyone's.
  */
 export function resolveAgentLevel(input: {
-  role: "owner" | "member" | "guest" | null;
+  role: WorkspaceRole | null;
   person?: AgentShareLevel | null;
   groups?: readonly AgentShareLevel[];
   everyone?: AgentShareLevel | null;
 }): AgentLevel {
   if (input.role === "owner") return "full";
-  if (input.role !== "member") return "none";
+  // A membership admin is a member here (lib/workspace-roles.ts contentRole).
+  if (!input.role || contentRole(input.role) !== "member") return "none";
   if (input.person) return input.person;
   const groups = input.groups ?? [];
   if (groups.length) return groups.reduce<AgentShareLevel>((best, level) => (RANK[level] > RANK[best] ? level : best), groups[0]);
