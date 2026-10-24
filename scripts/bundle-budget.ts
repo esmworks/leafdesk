@@ -18,9 +18,12 @@ import { gzipSync } from "node:zlib";
  * CSV files and approval cards for new databases and forms add about 2 kB (the CSV parser itself
  * loads only with a file), the meeting block's editor spec and Markdown support (the editor
  * needs them; its recorder loads only when recording), and the "Available offline" switch and its
- * state (the downloader loads on demand, but Turbopack keeps a copy of it per route group).
+ * state (the downloader loads on demand, but Turbopack keeps a copy of it per route group). The
+ * import dialog (with the Asana and Monday.com readers, about 45 kB) and the Build with AI dialog
+ * load the first time they open; the editor's dictionaries (every language in one chunk, about
+ * 3 kB each) load with the editor.
  */
-const BUDGET = { routeFirstLoad: 810, allClientJs: 4050 };
+const BUDGET = { routeFirstLoad: 810, allClientJs: 4200 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;
