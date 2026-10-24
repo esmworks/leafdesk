@@ -97,6 +97,7 @@ export function RelationPicker({
   const tc = useTranslations("common");
   const ctx = useRelations();
   const target = ctx?.targets[prop.id];
+  const outerPeople = usePeople();
   const [query, setQuery] = useState("");
   const [active, setActive] = useState(0);
   const [busy, setBusy] = useState(false);
@@ -170,116 +171,120 @@ export function RelationPicker({
   // What linked rows show beside their titles in cells and cards shows here too (lib/relation-options).
   const shown = shownPropertyIds(prop.options.relation).flatMap((id) => target.properties.filter((p) => p.id === id));
 
+  // The people the shown values name come with the related rows, as in RelationChips.
+  const people = target.people ? { viewerId: outerPeople.viewerId, people: target.people } : outerPeople;
   return (
-    <div className={shown.length ? "w-[28rem] max-w-[calc(100vw-1rem)]" : "w-80"}>
-      <div className="flex items-center gap-1.5 border-b border-border bg-bg-subtle px-2 py-1.5">
-        <PageIcon icon={database.icon} kind="database" className="h-3.5 w-3.5 shrink-0 text-xs" />
-        <input
-          ref={input}
-          value={query}
-          placeholder={t("search", { title: pageLabel(database.title, tc("untitled")) })}
-          aria-label={t("input", { property: prop.name })}
-          onChange={(e) => {
-            setQuery(e.target.value);
-            setActive(0);
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "ArrowDown") {
-              e.preventDefault();
-              setActive((a) => Math.min(a + 1, items.length - 1));
-            } else if (e.key === "ArrowUp") {
-              e.preventDefault();
-              setActive((a) => Math.max(a - 1, 0));
-            } else if (e.key === "Enter") {
-              e.preventDefault();
-              choose(active);
-            }
-          }}
-          className="h-6 min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-fg-faint"
-        />
-      </div>
-      {selected.length > 0 && (
-        <div className="border-b border-border p-1">
-          <div className="px-2 pt-1 pb-1 text-xs text-fg-muted">{t("linked")}</div>
-          {single && selected.length > 1 && <div className="px-2 pb-1 text-xs text-fg-faint">{t("overLimit")}</div>}
-          {selected.map((row) => {
-            const title = pageLabel(row.title, tc("untitled"));
-            return (
-              <div key={row.id} className="group flex items-center gap-1 rounded px-2 py-1 text-sm hover:bg-bg-hover">
-                <PageIcon icon={row.icon} className="h-3.5 w-3.5 shrink-0 text-xs" />
-                <span className="flex-1 truncate">{title}</span>
-                <Link
-                  href={href(row.id)}
-                  aria-label={t("open", { title })}
-                  title={t("open", { title })}
-                  className="inline-flex h-6 w-6 items-center justify-center rounded text-fg-muted hover:bg-bg-active hover:text-fg"
-                >
-                  <ExternalLink className="h-3.5 w-3.5" />
-                </Link>
-                <button
-                  type="button"
-                  aria-label={t("unlink", { title })}
-                  title={t("unlink", { title })}
-                  onClick={() => unlink(row.id)}
-                  className="inline-flex h-6 w-6 items-center justify-center rounded text-fg-muted hover:bg-bg-active hover:text-fg"
-                >
-                  <X className="h-3.5 w-3.5" />
-                </button>
-              </div>
-            );
-          })}
+    <PeopleProvider value={people}>
+      <div className={shown.length ? "w-[28rem] max-w-[calc(100vw-1rem)]" : "w-80"}>
+        <div className="flex items-center gap-1.5 border-b border-border bg-bg-subtle px-2 py-1.5">
+          <PageIcon icon={database.icon} kind="database" className="h-3.5 w-3.5 shrink-0 text-xs" />
+          <input
+            ref={input}
+            value={query}
+            placeholder={t("search", { title: pageLabel(database.title, tc("untitled")) })}
+            aria-label={t("input", { property: prop.name })}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              setActive(0);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "ArrowDown") {
+                e.preventDefault();
+                setActive((a) => Math.min(a + 1, items.length - 1));
+              } else if (e.key === "ArrowUp") {
+                e.preventDefault();
+                setActive((a) => Math.max(a - 1, 0));
+              } else if (e.key === "Enter") {
+                e.preventDefault();
+                choose(active);
+              }
+            }}
+            className="h-6 min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-fg-faint"
+          />
         </div>
-      )}
-      <div className="max-h-64 overflow-y-auto p-1">
-        {!items.length && (
-          <div className="px-2 py-1.5 text-xs text-fg-faint">{rows.length ? t("noMatches") : t("noRows")}</div>
+        {selected.length > 0 && (
+          <div className="border-b border-border p-1">
+            <div className="px-2 pt-1 pb-1 text-xs text-fg-muted">{t("linked")}</div>
+            {single && selected.length > 1 && <div className="px-2 pb-1 text-xs text-fg-faint">{t("overLimit")}</div>}
+            {selected.map((row) => {
+              const title = pageLabel(row.title, tc("untitled"));
+              return (
+                <div key={row.id} className="group flex items-center gap-1 rounded px-2 py-1 text-sm hover:bg-bg-hover">
+                  <PageIcon icon={row.icon} className="h-3.5 w-3.5 shrink-0 text-xs" />
+                  <span className="flex-1 truncate">{title}</span>
+                  <Link
+                    href={href(row.id)}
+                    aria-label={t("open", { title })}
+                    title={t("open", { title })}
+                    className="inline-flex h-6 w-6 items-center justify-center rounded text-fg-muted hover:bg-bg-active hover:text-fg"
+                  >
+                    <ExternalLink className="h-3.5 w-3.5" />
+                  </Link>
+                  <button
+                    type="button"
+                    aria-label={t("unlink", { title })}
+                    title={t("unlink", { title })}
+                    onClick={() => unlink(row.id)}
+                    className="inline-flex h-6 w-6 items-center justify-center rounded text-fg-muted hover:bg-bg-active hover:text-fg"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              );
+            })}
+          </div>
         )}
-        {items.map((item, i) =>
-          item.kind === "create" ? (
-            <button
-              key="__create"
-              type="button"
-              disabled={busy}
-              onMouseEnter={() => setActive(i)}
-              onClick={() => choose(i)}
-              className={cn(
-                "flex w-full items-center gap-2 rounded px-2 py-1 text-start text-sm",
-                i === active && "bg-bg-hover",
-              )}
-            >
-              <Plus className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
-              <span className="shrink-0 text-fg-muted">{t("newRow")}</span>
-              <span className="truncate">{query.trim()}</span>
-            </button>
-          ) : (
-            <button
-              key={item.row.id}
-              type="button"
-              onMouseEnter={() => setActive(i)}
-              onClick={() => choose(i)}
-              className={cn(
-                "flex w-full items-center gap-2 rounded px-2 py-1 text-start text-sm",
-                i === active && "bg-bg-hover",
-              )}
-            >
-              <PageIcon icon={item.row.icon} className="h-3.5 w-3.5 shrink-0 text-xs" />
-              <span className="flex-1 truncate">{pageLabel(item.row.title, tc("untitled"))}</span>
-              {shown.length > 0 && (
-                <span className="flex max-w-[55%] min-w-0 shrink-0 items-center gap-2 overflow-hidden text-xs text-fg-muted">
-                  {shown.map((p) => (
-                    <span key={p.id} className="flex min-w-0 max-w-32 items-center">
-                      {!item.row.hidden?.includes(p.id) && <PropertyDisplay prop={p} value={item.row.values?.[p.id]} />}
-                    </span>
-                  ))}
-                </span>
-              )}
-              {item.row.uniqueId && <span className="shrink-0 text-xs text-fg-faint tabular-nums">{item.row.uniqueId}</span>}
-              {selectedIds.includes(item.row.id) && <Check className="h-3.5 w-3.5 shrink-0 text-fg-muted" />}
-            </button>
-          ),
-        )}
+        <div className="max-h-64 overflow-y-auto p-1">
+          {!items.length && (
+            <div className="px-2 py-1.5 text-xs text-fg-faint">{rows.length ? t("noMatches") : t("noRows")}</div>
+          )}
+          {items.map((item, i) =>
+            item.kind === "create" ? (
+              <button
+                key="__create"
+                type="button"
+                disabled={busy}
+                onMouseEnter={() => setActive(i)}
+                onClick={() => choose(i)}
+                className={cn(
+                  "flex w-full items-center gap-2 rounded px-2 py-1 text-start text-sm",
+                  i === active && "bg-bg-hover",
+                )}
+              >
+                <Plus className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
+                <span className="shrink-0 text-fg-muted">{t("newRow")}</span>
+                <span className="truncate">{query.trim()}</span>
+              </button>
+            ) : (
+              <button
+                key={item.row.id}
+                type="button"
+                onMouseEnter={() => setActive(i)}
+                onClick={() => choose(i)}
+                className={cn(
+                  "flex w-full items-center gap-2 rounded px-2 py-1 text-start text-sm",
+                  i === active && "bg-bg-hover",
+                )}
+              >
+                <PageIcon icon={item.row.icon} className="h-3.5 w-3.5 shrink-0 text-xs" />
+                <span className="flex-1 truncate">{pageLabel(item.row.title, tc("untitled"))}</span>
+                {shown.length > 0 && (
+                  <span className="flex max-w-[55%] min-w-0 shrink-0 items-center gap-2 overflow-hidden text-xs text-fg-muted">
+                    {shown.map((p) => (
+                      <span key={p.id} className="flex min-w-0 max-w-32 items-center">
+                        {!item.row.hidden?.includes(p.id) && <PropertyDisplay prop={p} value={item.row.values?.[p.id]} />}
+                      </span>
+                    ))}
+                  </span>
+                )}
+                {item.row.uniqueId && <span className="shrink-0 text-xs text-fg-faint tabular-nums">{item.row.uniqueId}</span>}
+                {selectedIds.includes(item.row.id) && <Check className="h-3.5 w-3.5 shrink-0 text-fg-muted" />}
+              </button>
+            ),
+          )}
+        </div>
       </div>
-    </div>
+    </PeopleProvider>
   );
 }
 
