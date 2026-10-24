@@ -34,6 +34,7 @@
     "unfollowHint": "Bạn nhận thông báo trong hộp thư đến khi người khác thay đổi hàng này.",
     "linkCopied": "Đã sao chép liên kết",
     "duplicate": "Nhân đôi",
+    "duplicateWithoutRows": "Nhân đôi không kèm hàng",
     "duplicateSuffix": " (bản sao)",
     "duplicateFailed": "Không thể nhân đôi trang.",
     "moveTo": "Chuyển đến",

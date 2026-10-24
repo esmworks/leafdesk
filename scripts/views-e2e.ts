@@ -3,7 +3,8 @@
  * views start with, config validation, gallery covers in the database snapshot (read from row
  * bodies, only while a gallery shows them, and only for rows the viewer can see), timeline edits
  * writing start and end together, creating and updating these views over MCP, calendars without
- * weekends and views without page icons (published ones too).
+ * weekends and views without page icons (published ones too), and duplicating a database without
+ * its rows (in the app and over MCP).
  * Creates its own users and workspace and deletes them afterwards.
  *
  *   pnpm tsx scripts/views-e2e.ts
@@ -252,6 +253,41 @@ try {
     copiedTimeline.config.endDateBy === copiedEnds.id && copiedEnds.id !== ends.id,
     "a duplicated timeline ends at the copied end property",
     copiedTimeline.config,
+  );
+
+  // Duplicating without rows: properties, views, row templates and the page, no rows (nor what's in them)
+  const template = await createPage(actor, { workspaceId, parentId: tasks.id, title: "Bug report", template: true });
+  await createPage(actor, { workspaceId, parentId: r1.id, title: "Notes inside a row" });
+  const childrenOf = async (id: string) =>
+    db.select({ id: page.id, title: page.title, isTemplate: page.isTemplate }).from(page).where(eq(page.parentId, id));
+  const source = await getDatabaseSnapshot(ids.owner, tasks.id);
+  const empty = await duplicatePage(actor, tasks.id, " (empty)", { withoutRows: true });
+  const emptied = await getDatabaseSnapshot(ids.owner, empty.id);
+  const emptyChildren = await childrenOf(empty.id);
+  check(emptied.rows.length === 0 && source.rows.length > 0, "a database duplicated without rows has none", emptied.rows.length);
+  check(
+    emptyChildren.length === 1 && emptyChildren[0].isTemplate && emptyChildren[0].title === template.title,
+    "…but keeps its row templates",
+    emptyChildren,
+  );
+  check(
+    emptied.properties.map((p) => p.name).join() === source.properties.map((p) => p.name).join() &&
+      emptied.views.map((v) => `${v.type}:${v.name}`).join() === source.views.map((v) => `${v.type}:${v.name}`).join(),
+    "…and its properties and views",
+    emptied.views.map((v) => v.name),
+  );
+  const emptiedTimeline = emptied.views.find((v) => v.type === "timeline" && v.name === "Plan")!;
+  check(
+    emptiedTimeline.config.endDateBy === emptied.properties.find((p) => p.name === "Ends")!.id,
+    "…whose views point at the copied properties",
+    emptiedTimeline.config,
+  );
+  check((await getDatabaseSnapshot(ids.owner, tasks.id)).rows.length === source.rows.length, "the original keeps its rows");
+  const overMcp = await callTool(ids.owner, "duplicate_page", { page_id: tasks.id, title: "Blank tasks", without_rows: true });
+  check(
+    !overMcp.isError && (await childrenOf(overMcp.data.id)).every((c) => c.isTemplate),
+    "MCP duplicates a database without its rows",
+    overMcp.text,
   );
 
   // Deleting the end property turns bars back into one-day bars

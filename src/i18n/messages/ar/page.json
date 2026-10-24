@@ -34,6 +34,7 @@
     "unfollowHint": "تعرف في صندوق الوارد عندما يغيّر شخص آخر هذا الصف.",
     "linkCopied": "تم نسخ الرابط",
     "duplicate": "تكرار",
+    "duplicateWithoutRows": "تكرار بدون صفوف",
     "duplicateSuffix": " (نسخة)",
     "duplicateFailed": "تعذّر تكرار الصفحة.",
     "moveTo": "نقل إلى",

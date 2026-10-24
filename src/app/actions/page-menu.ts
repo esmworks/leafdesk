@@ -64,13 +64,15 @@ export async function setPageOutdatedAction(workspaceId: string, pageId: string,
   if (found.parentId) revalidatePath(`/w/${workspaceId}/p/${found.parentId}`);
 }
 
+/** Copies the page beside the original; `withoutRows` leaves the rows of its databases behind. */
 export async function duplicatePageAction(
   pageId: string,
+  options: { withoutRows?: boolean } = {},
 ): Promise<{ ok: true; id: string; workspaceId: string } | { ok: false }> {
   const userId = await requireUserId();
   const t = await getTranslations("page.header");
   try {
-    const copy = await duplicatePage({ userId }, pageId, t("duplicateSuffix"));
+    const copy = await duplicatePage({ userId }, pageId, t("duplicateSuffix"), { withoutRows: options.withoutRows === true });
     return { ok: true, ...copy };
   } catch (error) {
     console.error("[duplicate page]", error);

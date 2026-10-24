@@ -34,6 +34,7 @@
     "unfollowHint": "Anda mendapat kabar di kotak masuk saat orang lain mengubah baris ini.",
     "linkCopied": "Tautan tersalin",
     "duplicate": "Duplikat",
+    "duplicateWithoutRows": "Duplikat tanpa baris",
     "duplicateSuffix": " (salinan)",
     "duplicateFailed": "Tidak dapat menduplikasi halaman.",
     "moveTo": "Pindahkan ke",

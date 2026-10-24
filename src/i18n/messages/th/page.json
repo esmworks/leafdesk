@@ -34,6 +34,7 @@
     "unfollowHint": "คุณได้รับแจ้งในกล่องข้อความเมื่อมีคนอื่นเปลี่ยนแถวนี้",
     "linkCopied": "คัดลอกลิงก์แล้ว",
     "duplicate": "ทำสำเนา",
+    "duplicateWithoutRows": "ทำสำเนาโดยไม่มีแถว",
     "duplicateSuffix": " (สำเนา)",
     "duplicateFailed": "ทำสำเนาหน้าไม่ได้",
     "moveTo": "ย้ายไปที่",

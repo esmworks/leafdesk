@@ -34,6 +34,7 @@
     "unfollowHint": "Du erfährst in deinem Posteingang, wenn jemand anderes diese Zeile ändert.",
     "linkCopied": "Link kopiert",
     "duplicate": "Duplizieren",
+    "duplicateWithoutRows": "Ohne Zeilen duplizieren",
     "duplicateSuffix": " (Kopie)",
     "duplicateFailed": "Die Seite konnte nicht dupliziert werden.",
     "moveTo": "Verschieben nach",

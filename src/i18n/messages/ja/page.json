@@ -34,6 +34,7 @@
     "unfollowHint": "他の人がこの行を変更すると受信トレイでお知らせが届きます。",
     "linkCopied": "リンクをコピーしました",
     "duplicate": "複製",
+    "duplicateWithoutRows": "行なしで複製",
     "duplicateSuffix": "（コピー）",
     "duplicateFailed": "ページを複製できませんでした。",
     "moveTo": "移動先",

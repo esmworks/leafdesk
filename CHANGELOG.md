@@ -4,6 +4,12 @@
 
 ### Added
 
+- **Duplicate a database without its rows.** The database's page menu has *Duplicate without
+  rows*: the copy gets the properties, views (forms start closed, as with any copy), row templates
+  and the database's own page, but no rows and nothing inside them. Relations behave as in a full
+  copy (a relation to the database itself points at the copy; one to another database becomes
+  one-way), and automations are not copied, as before. MCP's `duplicate_page` takes `without_rows`,
+  which empties every database it copies.
 - **Calendars without weekends, and views without page icons.** A calendar's Layout menu has
   *Show weekends* (on by default): turned off, the month and the week show Monday to Friday across
   the whole width, bars are cut where a weekend interrupts them, and rows dated only on a Saturday

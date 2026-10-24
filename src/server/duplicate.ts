@@ -73,6 +73,11 @@ export type CopyTarget = {
   private: boolean;
   /** Leave the source's comment threads (and their marks in the text) behind. */
   stripComments: boolean;
+  /**
+   * Leave the rows of the databases copied along behind (and the pages inside them): the copies keep
+   * their properties, views, row templates and their own page. The root is copied either way.
+   */
+  withoutRows?: boolean;
 };
 
 export type CopiedTree = {
@@ -114,10 +119,11 @@ export async function copyPageTree(
       created_by: string | null;
     }>(sql`
       with recursive sub as (
-        select id from ${page} where id = ${pageId}
+        select id, kind from ${page} where id = ${pageId}
         union all
-        select p.id from ${page} p join sub on p.parent_id = sub.id
+        select p.id, p.kind from ${page} p join sub on p.parent_id = sub.id
         where p.archived_at is null and ${pageVisibleTo(userId, "p")}
+          ${target.withoutRows ? sql`and (sub.kind <> 'database' or p.is_template)` : sql``}
       )
       select p.id, p.parent_id, p.kind, p.title, p.position, p.properties, p.is_template, p.default_template_id, p.created_by
       from (select id from sub limit ${MAX_DUPLICATE_PAGES + 1}) s
@@ -418,7 +424,14 @@ export async function duplicatePage(
   pageId: string,
   copySuffix: string,
   /** False when the caller tells open views about several copies at once. */
-  { notify = true }: { notify?: boolean } = {},
+  {
+    notify = true,
+    withoutRows = false,
+  }: {
+    notify?: boolean;
+    /** Databases (the page itself, or those under it) are copied without their rows (see CopyTarget). */
+    withoutRows?: boolean;
+  } = {},
 ): Promise<{ id: string; workspaceId: string }> {
   const { userId } = actor;
   const source = await requirePageAccess(userId, pageId, "view");
@@ -450,6 +463,7 @@ export async function duplicatePage(
     teamspaceId: placement.teamspaceId,
     private: placement.private,
     stripComments: false,
+    withoutRows,
   });
 
   // A row copied into its database links to the same rows; two-way relations mirror that.
@@ -467,7 +481,7 @@ export async function duplicatePage(
       actorId: userId,
       action: "page.duplicated",
       target: { type: "page", id: root.id, label: title },
-      details: { kind: source.kind, source: source.title },
+      details: { kind: source.kind, source: source.title, ...(withoutRows ? { withoutRows: true } : {}) },
     });
   }
 

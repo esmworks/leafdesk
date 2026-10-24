@@ -11,6 +11,7 @@ import {
   CheckCheck,
   ChevronDown,
   Copy,
+  CopyMinus,
   CornerUpLeft,
   Download,
   FileArchive,
@@ -596,10 +597,10 @@ function PageMenu({
       }
     });
 
-  const duplicate = (close: () => void) =>
+  const duplicate = (close: () => void, withoutRows = false) =>
     startTransition(async () => {
       setError(null);
-      const result = await duplicatePageAction(page.id);
+      const result = await duplicatePageAction(page.id, { withoutRows });
       if (!result.ok) {
         setError(t("duplicateFailed"));
         return;
@@ -747,6 +748,12 @@ function PageMenu({
             {!page.archived && canEdit && (page.parentId !== null || info.topLevel) && (
               <MenuItem icon={<Copy className="h-4 w-4" />} onClick={() => duplicate(close)}>
                 {t("duplicate")}
+              </MenuItem>
+            )}
+            {/* The database's properties, views, row templates and page, as an empty database to fill anew. */}
+            {isDatabase && !page.archived && canEdit && (page.parentId !== null || info.topLevel) && (
+              <MenuItem icon={<CopyMinus className="h-4 w-4" />} onClick={() => duplicate(close, true)}>
+                {t("duplicateWithoutRows")}
               </MenuItem>
             )}
             {/* Duplicates of this row into one; the rows merged go to the trash, which guests don't have. */}

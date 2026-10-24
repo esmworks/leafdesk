@@ -3284,16 +3284,20 @@ export function createMcpServer(principal: McpPrincipal) {
       inputSchema: z.object({
         page_id: id("page"),
         title: z.string().min(1).max(500).optional().describe('Title of the copy. Default: the original\'s title plus " (copy)".'),
+        without_rows: z
+          .boolean()
+          .optional()
+          .describe("Copy databases (this one, or those under the page) with their properties, views and row templates but no rows."),
       }),
       annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
       scopeChallenge: requireWrite,
     },
-    write(async ({ page_id, title }: { page_id: string; title?: string }) => {
+    write(async ({ page_id, title, without_rows }: { page_id: string; title?: string; without_rows?: boolean }) => {
       const { page } = await ops.loadPage(ctx, page_id);
       if (page.archivedAt) throw new ToolInputError("This page is in the trash. Restore it with restore_page before duplicating it.");
       let copy: { id: string };
       try {
-        copy = await duplicatePage(actor, page_id, " (copy)");
+        copy = await duplicatePage(actor, page_id, " (copy)", { withoutRows: without_rows === true });
       } catch (error) {
         // The page limit is a plain Error; everything else keeps its own mapping.
         if (error instanceof Error && error.message.startsWith("Can't duplicate more than")) {

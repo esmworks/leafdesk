@@ -288,6 +288,9 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
     into a database from its block menu: its first row names the properties.
   - Lock a database to freeze its properties and views, and export its rows as CSV.
   - Row templates with preset properties and content; pick one as the default for "New".
+  - *Duplicate without rows* (the database's page menu) copies a database's properties, views,
+    row templates and its own page, as an empty database to fill anew. Relations, forms and access
+    rules come along as with *Duplicate*; automations stay with the original either way.
   - Repeating templates: a row template adds a row by itself every day, every few weeks on chosen
     weekdays, every month or every year, at a time in a time zone, optionally with the date in its
     title. The rows are added as the person who set the repeat, with their access at the time, and
@@ -3400,7 +3403,7 @@ The tools cover:
   creates at the top is private to the user, so nothing an app makes is shared before they
   decide; the user moves it to share it.
 - **Pages:** `get_page`, `create_page`, `update_page`, `move_page`, `duplicate_page` (a copy with
-  everything under it, beside the original), `archive_page`, `list_trash`, `restore_page` (the
+  everything under it, beside the original; `without_rows` copies databases without their rows), `archive_page`, `list_trash`, `restore_page` (the
   trash), `set_page_archived` (archive an outdated page or unarchive it; `search`, `list_pages`
   and `query_database` leave archived pages and rows out unless `include_archived` is true).
   `list_pages` with `favorites: true` lists the user's starred pages, and `get_page` says whether a
