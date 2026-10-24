@@ -9,6 +9,9 @@
   siblings. Moving a page to the trash (from the sidebar or the page) and moving database rows to
   the trash show a note with *Undo* too, which brings them back. The note closes after a few
   seconds; a new one replaces it.
+- **Copy a code block's code.** A *Copy* button sits in the corner of every code block, in the
+  editor and on published pages and sites (shown on hover, always on touch screens), and copies
+  the code as written.
 
 ### Changed
 

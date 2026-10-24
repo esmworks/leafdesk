@@ -109,6 +109,7 @@ export async function PublishedBody({
           <div
             key={i}
             className={cn(styles.body, print && styles.print, pad)}
+            data-published-html=""
             // Serialized by BlockNote from our own document with unsafe URLs removed; see published-body.ts.
             dangerouslySetInnerHTML={{ __html: block.html }}
           />
