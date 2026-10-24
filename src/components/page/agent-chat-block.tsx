@@ -6,6 +6,7 @@ import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
 import { chatAgentsAction } from "@/app/actions/agent-chat";
+import { IconGlyph } from "@/components/builtin-icon";
 import { Button, cn, Dialog } from "@/components/ui";
 import { AGENT_CHAT_BLOCK, agentChatBlockConfig, agentLinkRef, newChatId } from "@/lib/agent-chat";
 import { searchFold } from "@/lib/search-fold";
@@ -159,7 +160,7 @@ function AgentPicker({ open, workspaceId, onPick, onClose }: { open: boolean; wo
       <div className={cn("max-h-80 overflow-y-auto p-1", !agents && !failed && "opacity-70")}>
         {matches.map((a) => (
           <button key={a.id} type="button" onClick={() => onPick(a.id)} className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-start text-sm hover:bg-bg-hover">
-            <span className="flex h-5 w-5 shrink-0 items-center justify-center">{a.icon ?? <Bot className="h-4 w-4 text-fg-muted" aria-hidden />}</span>
+            <span className="flex h-5 w-5 shrink-0 items-center justify-center">{a.icon ? <IconGlyph icon={a.icon} /> : <Bot className="h-4 w-4 text-fg-muted" aria-hidden />}</span>
             <span className="min-w-0 flex-1">
               <span className="block truncate">{a.name}</span>
               {a.description && <span className="block truncate text-xs text-fg-muted">{a.description}</span>}

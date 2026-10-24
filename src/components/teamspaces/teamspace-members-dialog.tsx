@@ -13,6 +13,7 @@ import {
   removeTeamspaceMemberAction,
   setTeamspaceRoleAction,
 } from "@/app/actions/teamspaces";
+import { IconGlyph } from "@/components/builtin-icon";
 import { CopyButton } from "@/components/settings/copy-button";
 import { useAction } from "@/components/settings/workspace-settings";
 import { Button, cn, Dialog, IconButton, Input, selectClass } from "@/components/ui";
@@ -116,7 +117,7 @@ function MembersBody({
     <div className="space-y-4 p-5">
       <div className="space-y-1">
         <h2 className="flex min-w-0 items-center gap-2 text-base font-semibold">
-          {teamspace.icon && <span className="leading-none">{teamspace.icon}</span>}
+          {teamspace.icon && <IconGlyph icon={teamspace.icon} />}
           <span className="truncate">{t("members.title", { name: teamspace.name })}</span>
         </h2>
         {(isDefault || !canManage) && (

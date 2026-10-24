@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { decidePendingChangesAction, listPendingChangesAction, type ReviewQueue as Queue } from "@/app/actions/review";
+import { IconGlyph } from "@/components/builtin-icon";
 import { useChannel } from "@/components/collab/use-channel";
 import { Button, cn, pageLabel, selectClass } from "@/components/ui";
 import type { PendingChangeFilter, PendingChangeView } from "@/lib/pending-changes";
@@ -237,7 +238,7 @@ export function ReviewQueue({
             {groups.map((g) => (
               <section key={g.database.id} aria-label={pageLabel(g.database.title, tc("untitled"))}>
                 <h2 className="mb-2 flex items-center gap-2 text-sm font-medium">
-                  {g.database.icon && <span aria-hidden>{g.database.icon}</span>}
+                  {g.database.icon && <span aria-hidden><IconGlyph icon={g.database.icon} /></span>}
                   <span className="truncate">{pageLabel(g.database.title, tc("untitled"))}</span>
                   <span className="font-normal text-fg-muted">{g.changes.length}</span>
                 </h2>
