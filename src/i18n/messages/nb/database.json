@@ -552,7 +552,9 @@
     "sortOptionsDesc": "Sorter Å → A",
     "dragOption": "Dra for å flytte {name}",
     "urlPreview": "Vis som lenkeforhåndsvisning",
-    "urlPreviewHint": "Radsider viser ikonet, tittelen og bildet til den lenkede siden under lenken."
+    "urlPreviewHint": "Radsider viser ikonet, tittelen og bildet til den lenkede siden under lenken.",
+    "onePerson": "Begrens til én person",
+    "onePersonHint": "Hver rad nevner høyst én person. Rader med flere beholder dem til de endres."
   },
   "rowProperties": {
     "noProperties": "Ingen egenskaper",
@@ -926,6 +928,7 @@
     "pageLocked": "Denne siden er låst. Lås den opp fra menyen for å endre tittel, ikon, bakgrunn eller tekst.",
     "pageInTrash": "Denne siden ligger i papirkurven. Gjenopprett den for å endre den.",
     "invalidPerson": "«{property}» kan bare inneholde personer i dette arbeidsområdet.",
+    "onePerson": "«{property}» kan bare ha én person.",
     "readOnlyProperty": "«{property}» fylles ut automatisk og kan ikke endres.",
     "invalidFilter": "Dette filteret kan ikke lagres. Last inn siden på nytt og prøv igjen.",
     "tooManyRows": "Du kan endre høyst {max} rader om gangen.",

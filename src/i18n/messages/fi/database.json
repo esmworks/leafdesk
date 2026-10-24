@@ -552,7 +552,9 @@
     "sortOptionsDesc": "Lajittele Ö → A",
     "dragOption": "Siirrä vaihtoehtoa {name} vetämällä",
     "urlPreview": "Näytä linkin esikatseluna",
-    "urlPreviewHint": "Rivisivuilla linkin alla näkyvät linkitetyn sivun kuvake, otsikko ja kuva."
+    "urlPreviewHint": "Rivisivuilla linkin alla näkyvät linkitetyn sivun kuvake, otsikko ja kuva.",
+    "onePerson": "Rajoita yhteen henkilöön",
+    "onePersonHint": "Kukin rivi nimeää enintään yhden henkilön. Rivit, joilla on useampia, säilyttävät ne, kunnes niitä muutetaan."
   },
   "rowProperties": {
     "noProperties": "Ei ominaisuuksia",
@@ -926,6 +928,7 @@
     "pageLocked": "Tämä sivu on lukittu. Avaa lukitus sen valikosta muuttaaksesi otsikkoa, kuvaketta, taustaa tai tekstiä.",
     "pageInTrash": "Tämä sivu on roskakorissa. Palauta se muuttaaksesi sitä.",
     "invalidPerson": "Ominaisuus ”{property}” voi sisältää vain tämän työtilan henkilöitä.",
+    "onePerson": "”{property}” voi sisältää vain yhden henkilön.",
     "readOnlyProperty": "Ominaisuus ”{property}” täytetään automaattisesti, eikä sitä voi muuttaa.",
     "invalidFilter": "Tätä suodatinta ei voi tallentaa. Lataa sivu uudelleen ja yritä uudestaan.",
     "tooManyRows": "Voit muuttaa enintään {max} riviä kerralla.",

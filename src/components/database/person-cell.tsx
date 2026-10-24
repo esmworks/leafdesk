@@ -134,8 +134,10 @@ export function PersonPicker({
     setSelectedIds(ids);
     onChange(ids.length ? ids : null);
   };
+  // Limited to one person, picking someone puts them in the place of whoever was there.
+  const single = prop.options.person?.single === true;
   const toggle = (id: string) =>
-    setIds(selectedIds.includes(id) ? selectedIds.filter((x) => x !== id) : [...selectedIds, id]);
+    setIds(selectedIds.includes(id) ? selectedIds.filter((x) => x !== id) : single ? [id] : [...selectedIds, id]);
 
   return (
     <div className="w-72">

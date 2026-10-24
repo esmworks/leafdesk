@@ -340,6 +340,7 @@ export async function updatePropertyAction(
     dependsOn?: string | null;
     prefix?: string | null;
     urlPreview?: boolean;
+    onePerson?: boolean;
   },
 ) {
   return run((userId) => databases.updateProperty(userId, propertyId, patch));

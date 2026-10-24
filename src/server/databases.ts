@@ -1999,9 +1999,16 @@ export async function updateProperty(
     prefix?: string | null;
     /** URLs: whether row pages show a preview of the linked page (server/url-preview.ts). */
     urlPreview?: boolean;
+    /** People: whether a row names one person at most (rows naming more keep them until changed). */
+    onePerson?: boolean;
   },
 ) {
   const prop = await requireProperty(userId, propertyId);
+  if (patch.onePerson !== undefined && prop.type !== "person") {
+    throw new PropertyValueError(`"${prop.name}" is a ${prop.type} property; only people can be limited to one`, "unsupportedType", {
+      type: prop.type,
+    });
+  }
   if (patch.urlPreview !== undefined && prop.type !== "url") {
     throw new PropertyValueError(`"${prop.name}" is a ${prop.type} property; only URLs show link previews`, "unsupportedType", {
       type: prop.type,
@@ -2094,6 +2101,7 @@ export async function updateProperty(
   if (dependsOn !== undefined) change((o) => (dependsOn ? { ...o, dependsOn } : without(o, "dependsOn")));
   if (prefix !== undefined) change((o) => (prefix ? { ...o, uniqueId: { prefix } } : without(o, "uniqueId")));
   if (patch.urlPreview !== undefined) change((o) => (patch.urlPreview === true ? { ...o, url: { preview: true } } : without(o, "url")));
+  if (patch.onePerson !== undefined) change((o) => (patch.onePerson === true ? { ...o, person: { single: true } } : without(o, "person")));
   // Options of this property others depend on that go away leave their lists (lib/dependent-options).
   const dependents = removed.length ? dependentsOf(prop.id, siblings) : [];
   const workspaceId = prefix ? await workspaceOf(prop.databaseId) : null;

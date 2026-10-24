@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowDown, ArrowUp, Bot, ChevronRight, Ellipsis, EyeOff, Plus } from "lucide-react";
+import dynamic from "next/dynamic";
 import { useTimeZone, useTranslations } from "next-intl";
 import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { cn, MenuItem } from "@/components/ui";
@@ -33,7 +34,7 @@ import { OpenLink, PropertyCell } from "./property-cell";
 import { PropertyTypeIcon } from "./property-icons";
 import { PropertyAccessDialog } from "./property-access-dialog";
 import { PropertyLock, usePropertyAccess } from "./property-access";
-import { AddPropertyPanel, PropertyMenu, type PropertyMenuActions } from "./property-menu";
+import type { PropertyMenuActions } from "./property-menu";
 import { usePropertyHint } from "./property-hint";
 import { HIDE_SCROLLBAR, StickyScrollbar } from "./scroll-x";
 import { CalculationRow } from "./table-calculations";
@@ -50,6 +51,10 @@ import { AddSubItemButton, SUB_ITEM_INDENT, SubItemCount, SubItemToggle, useSubI
 import { inlineSign } from "@/components/direction";
 import { TITLE, type Property, type Row, type View } from "./types";
 import type { DatabaseApi } from "./use-database";
+
+// A column's menu and the new-property panel open on a click: loaded then.
+const PropertyMenu = dynamic(() => import("./property-menu").then((m) => m.PropertyMenu), { ssr: false });
+const AddPropertyPanel = dynamic(() => import("./property-menu").then((m) => m.AddPropertyPanel), { ssr: false });
 
 /** The Name column; narrower on phones so the next column peeks in. */
 const NAME_WIDTH = { wide: 280, phone: 180 };
@@ -787,6 +792,7 @@ export function TableView({
                       setDateOptions: fixed || p.type !== "date" ? undefined : (input) => api.setDateOptions(p, input),
                       setUniqueIdPrefix: fixed || p.type !== "unique_id" ? undefined : (prefix) => api.setUniqueIdPrefix(p, prefix),
                       setUrlPreview: fixed || p.type !== "url" ? undefined : (on) => api.setUrlPreview(p, on),
+                      setOnePerson: fixed || p.type !== "person" ? undefined : (on) => api.setOnePerson(p, on),
                       setNumberDisplay: fixed || p.type !== "number" ? undefined : (display) => api.setNumberDisplay(p, display),
                       setPageVisibility: fixed ? undefined : (visibility) => api.setPageVisibility(p, visibility),
                       setAutofill: fixed || !ai.enabled || !isAutofillType(p.type) ? undefined : (config) => api.setAutofill(p, config),

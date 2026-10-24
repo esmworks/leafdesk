@@ -552,7 +552,9 @@
     "sortOptionsDesc": "按 Z → A 排序",
     "dragOption": "拖动以移动{name}",
     "urlPreview": "显示为链接预览",
-    "urlPreviewHint": "行页面会在链接下方显示所链接页面的图标、标题和图片。"
+    "urlPreviewHint": "行页面会在链接下方显示所链接页面的图标、标题和图片。",
+    "onePerson": "限制为一人",
+    "onePersonHint": "每行最多指定一人。已指定多人的行在修改前保持不变。"
   },
   "rowProperties": {
     "noProperties": "没有属性",
@@ -926,6 +928,7 @@
     "pageLocked": "此页面已锁定。请在其菜单中解锁，才能更改其标题、图标、背景或正文。",
     "pageInTrash": "此页面在回收站中。请先恢复它，才能进行更改。",
     "invalidPerson": "“{property}”只能包含此工作区的人员。",
+    "onePerson": "“{property}”只能指定一人。",
     "readOnlyProperty": "“{property}”是自动填写的，无法更改。",
     "invalidFilter": "无法保存此筛选条件。请重新加载页面后重试。",
     "tooManyRows": "一次最多可更改 {max} 行。",

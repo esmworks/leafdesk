@@ -35,6 +35,7 @@ import {
   Sigma,
   Trash2,
   Ungroup,
+  UserRound,
   WrapText,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
@@ -253,6 +254,8 @@ export type PropertyMenuActions = {
   setUniqueIdPrefix?: (prefix: string | null) => void;
   /** URLs: whether row pages show a preview of the linked page (server/url-preview.ts). */
   setUrlPreview?: (on: boolean) => void;
+  /** People: whether a row names one person at most. */
+  setOnePerson?: (on: boolean) => void;
   /** Text properties, when AI is available: turns AI autofill on, changes it or (null) turns it off. */
   setAutofill?: (config: AiAutofillConfig | null) => void;
   /** Autofill properties: works the values of the view's rows out again. */
@@ -643,6 +646,18 @@ export function PropertyMenu({
         onClick={run(() => actions.setUrlPreview?.(!prop.options.url?.preview))}
       >
         {t("urlPreview")}
+      </MenuItem>
+    ),
+    prop?.type === "person" && actions.setOnePerson && (
+      <MenuItem
+        key="one-person"
+        icon={icon(UserRound)}
+        pressed={Boolean(prop.options.person?.single)}
+        trailing={prop.options.person?.single ? icon(Check) : undefined}
+        title={t("onePersonHint")}
+        onClick={run(() => actions.setOnePerson?.(!prop.options.person?.single))}
+      >
+        {t("onePerson")}
       </MenuItem>
     ),
     isAutofillType(prop?.type) && prop?.options.ai && actions.updateAllAutofill && (

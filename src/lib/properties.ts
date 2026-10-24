@@ -85,6 +85,7 @@ export const DATABASE_ERROR_CODES = [
   "notDependencyRelation",
   "invalidDependencySettings",
   "invalidPerson",
+  "onePerson",
   "readOnlyProperty",
   "relationTargetReadOnly",
   "databaseLocked",
@@ -464,6 +465,9 @@ export function normalizeValue(prop: PropertyDef, value: unknown): unknown {
         throw new PropertyValueError(`"${prop.name}" takes a list of people`, "invalidPerson", { property: prop.name });
       }
       const unique = [...new Set((raw as string[]).map((v) => v.trim()).filter(Boolean))];
+      if (prop.options.person?.single && unique.length > 1) {
+        throw new PropertyValueError(`"${prop.name}" holds one person`, "onePerson", { property: prop.name });
+      }
       return unique.length ? unique : null;
     }
     case "multi_select": {

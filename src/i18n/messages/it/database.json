@@ -552,7 +552,9 @@
     "sortOptionsDesc": "Ordina Z → A",
     "dragOption": "Trascina per spostare {name}",
     "urlPreview": "Mostra come anteprima del link",
-    "urlPreviewHint": "Le pagine delle righe mostrano icona, titolo e immagine della pagina collegata sotto il link."
+    "urlPreviewHint": "Le pagine delle righe mostrano icona, titolo e immagine della pagina collegata sotto il link.",
+    "onePerson": "Limita a una persona",
+    "onePersonHint": "Ogni riga indica al massimo una persona. Le righe che ne indicano di più le mantengono finché non vengono modificate."
   },
   "rowProperties": {
     "noProperties": "Nessuna proprietà",
@@ -926,6 +928,7 @@
     "pageLocked": "Questa pagina è bloccata. Sbloccala dal suo menu per modificarne titolo, icona, sfondo o testo.",
     "pageInTrash": "Questa pagina è nel cestino. Ripristinala per modificarla.",
     "invalidPerson": "“{property}” può contenere solo persone di questo spazio di lavoro.",
+    "onePerson": "“{property}” contiene una sola persona.",
     "readOnlyProperty": "“{property}” viene compilata automaticamente e non può essere modificata.",
     "invalidFilter": "Questo filtro non può essere salvato. Ricarica la pagina e riprova.",
     "tooManyRows": "Puoi modificare al massimo {max} righe alla volta.",

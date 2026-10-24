@@ -552,7 +552,9 @@
     "sortOptionsDesc": "Sorteren Z → A",
     "dragOption": "Sleep om {name} te verplaatsen",
     "urlPreview": "Tonen als linkvoorbeeld",
-    "urlPreviewHint": "Rijpagina’s tonen het pictogram, de titel en de afbeelding van de gelinkte pagina onder de link."
+    "urlPreviewHint": "Rijpagina’s tonen het pictogram, de titel en de afbeelding van de gelinkte pagina onder de link.",
+    "onePerson": "Beperken tot één persoon",
+    "onePersonHint": "Elke rij noemt hoogstens één persoon. Rijen met meer houden die tot ze worden gewijzigd."
   },
   "rowProperties": {
     "noProperties": "Geen eigenschappen",
@@ -926,6 +928,7 @@
     "pageLocked": "Deze pagina is vergrendeld. Ontgrendel haar via het menu om de titel, het pictogram, de achtergrond of de tekst te wijzigen.",
     "pageInTrash": "Deze pagina staat in de prullenbak. Zet haar terug om haar te wijzigen.",
     "invalidPerson": "“{property}” kan alleen personen uit deze werkruimte bevatten.",
+    "onePerson": "“{property}” bevat maar één persoon.",
     "readOnlyProperty": "“{property}” wordt automatisch ingevuld en kan niet worden gewijzigd.",
     "invalidFilter": "Dit filter kan niet worden opgeslagen. Laad de pagina opnieuw en probeer het nog eens.",
     "tooManyRows": "Je kunt maximaal {max} rijen tegelijk wijzigen.",

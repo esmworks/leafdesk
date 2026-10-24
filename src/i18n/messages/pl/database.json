@@ -552,7 +552,9 @@
     "sortOptionsDesc": "Sortuj Z → A",
     "dragOption": "Przeciągnij, aby przenieść {name}",
     "urlPreview": "Pokaż jako podgląd linku",
-    "urlPreviewHint": "Strony wierszy pokazują pod linkiem ikonę, tytuł i obraz podlinkowanej strony."
+    "urlPreviewHint": "Strony wierszy pokazują pod linkiem ikonę, tytuł i obraz podlinkowanej strony.",
+    "onePerson": "Ogranicz do jednej osoby",
+    "onePersonHint": "Każdy wiersz wskazuje najwyżej jedną osobę. Wiersze, które wskazują więcej, zachowują je do czasu zmiany."
   },
   "rowProperties": {
     "noProperties": "Brak właściwości",
@@ -926,6 +928,7 @@
     "pageLocked": "Ta strona jest zablokowana. Odblokuj ją w jej menu, aby zmienić tytuł, ikonę, tło lub tekst.",
     "pageInTrash": "Ta strona jest w koszu. Przywróć ją, aby ją zmienić.",
     "invalidPerson": "„{property}” może zawierać tylko osoby z tego obszaru roboczego.",
+    "onePerson": "„{property}” może zawierać tylko jedną osobę.",
     "readOnlyProperty": "„{property}” jest wypełniane automatycznie i nie można tego zmienić.",
     "invalidFilter": "Nie można zapisać tego filtra. Odśwież stronę i spróbuj ponownie.",
     "tooManyRows": "Naraz możesz zmienić najwyżej {max, plural, one {# wiersz} few {# wiersze} many {# wierszy} other {# wiersza}}.",

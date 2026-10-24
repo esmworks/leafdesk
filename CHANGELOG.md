@@ -21,6 +21,10 @@
   fit (a column's name, an option, a linked row, a page in the sidebar) shows in full as a tooltip
   when the pointer rests on it, and a cell's list of options, people, linked rows or files that
   doesn't all fit shows every one of them.
+- **Limit a person property to one person.** *Limit to one person* in a person column's menu makes
+  each row name one person at most: picking someone puts them in the place of whoever was there, and
+  writes naming more (API, MCP, automations, imports) are refused. Rows naming more when it is turned
+  on keep them until they're changed. MCP's `get_database` shows such a property with `one_person`.
 
 ### Changed
 

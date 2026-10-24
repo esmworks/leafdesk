@@ -552,7 +552,9 @@
     "sortOptionsDesc": "Sortér Å → A",
     "dragOption": "Træk for at flytte {name}",
     "urlPreview": "Vis som linkforhåndsvisning",
-    "urlPreviewHint": "Rækkesider viser den linkede sides ikon, titel og billede under linket."
+    "urlPreviewHint": "Rækkesider viser den linkede sides ikon, titel og billede under linket.",
+    "onePerson": "Begræns til én person",
+    "onePersonHint": "Hver række nævner højst én person. Rækker med flere beholder dem, indtil de ændres."
   },
   "rowProperties": {
     "noProperties": "Ingen egenskaber",
@@ -926,6 +928,7 @@
     "pageLocked": "Denne side er låst. Lås den op fra dens menu for at ændre titel, ikon, baggrund eller tekst.",
     "pageInTrash": "Denne side ligger i papirkurven. Gendan den for at ændre den.",
     "invalidPerson": "“{property}” kan kun indeholde personer fra dette arbejdsområde.",
+    "onePerson": "“{property}” kan kun have én person.",
     "readOnlyProperty": "“{property}” udfyldes automatisk og kan ikke ændres.",
     "invalidFilter": "Dette filter kan ikke gemmes. Genindlæs siden, og prøv igen.",
     "tooManyRows": "Du kan højst ændre {max} rækker ad gangen.",

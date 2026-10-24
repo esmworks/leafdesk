@@ -151,6 +151,9 @@
   - A URL property can *Show as link preview*: row pages then show the linked page's icon, title
     and image under the link, fetched on the server behind the same SSRF guard as bookmarks and
     kept for a day.
+  - A person property can be limited to one person (*Limit to one person* in its menu): picking
+    someone replaces whoever was there, and writes naming more are refused. Rows naming more when
+    it is turned on keep them until they're changed.
   - An ID property numbers a database's rows 1, 2, 3… as they are made, with an optional prefix
     (`TASK-12`). Adding one numbers the rows already there in the order they were made, numbers
     are never given out twice, and search, quick find and relation pickers find a row by its ID.

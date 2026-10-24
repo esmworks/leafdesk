@@ -729,6 +729,11 @@ export type PropertyOptions = {
    */
   url?: { preview: true };
   /**
+   * Person properties: a row names one person at most (lib/properties normalizeValue refuses more);
+   * any number when missing. Rows naming more when it is turned on keep them until changed.
+   */
+  person?: { single: true };
+  /**
    * Row pages: "hide_empty" leaves the property out while the row has no value for it, "hide"
    * always (both under "more properties", see lib/page-visibility); shown when missing.
    */

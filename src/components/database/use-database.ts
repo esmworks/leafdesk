@@ -592,6 +592,14 @@ export function useDatabase(
         );
       },
 
+      /** Limits a person property to one person a row, or lifts the limit. */
+      setOnePerson(prop: Property, on: boolean) {
+        const { person: _old, ...rest } = prop.options;
+        return mutateSchema(patchProperty(prop.id, { options: on ? { ...rest, person: { single: true } } : rest }), () =>
+          updatePropertyAction(prop.id, { onePerson: on }),
+        );
+      },
+
       /** Saves a date property's display and reminder (see lib/date-options); the server checks it. */
       setDateOptions(prop: Property, input: DateOptionsInput) {
         const checked = checkDateOptions(input, prop.options.date, new Date());

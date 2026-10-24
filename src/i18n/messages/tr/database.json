@@ -552,7 +552,9 @@
     "sortOptionsDesc": "Z → A sırala",
     "dragOption": "{name} seçeneğini taşımak için sürükleyin",
     "urlPreview": "Bağlantı önizlemesi olarak göster",
-    "urlPreviewHint": "Satır sayfaları bağlantının altında bağlanan sayfanın simgesini, başlığını ve görselini gösterir."
+    "urlPreviewHint": "Satır sayfaları bağlantının altında bağlanan sayfanın simgesini, başlığını ve görselini gösterir.",
+    "onePerson": "Tek kişiyle sınırla",
+    "onePersonHint": "Her satır en fazla bir kişiyi gösterir. Daha fazla kişi içeren satırlar değiştirilene kadar onları korur."
   },
   "rowProperties": {
     "noProperties": "Özellik yok",
@@ -926,6 +928,7 @@
     "pageLocked": "Bu sayfa kilitli. Başlığını, simgesini, arka planını veya metnini değiştirmek için sayfanın menüsünden kilidi açın.",
     "pageInTrash": "Bu sayfa çöp kutusunda. Değiştirmek için geri yükleyin.",
     "invalidPerson": "“{property}” yalnızca bu çalışma alanındaki kişileri içerebilir.",
+    "onePerson": "“{property}” yalnızca bir kişi tutar.",
     "readOnlyProperty": "“{property}” otomatik doldurulur, değiştirilemez.",
     "invalidFilter": "Bu filtre kaydedilemedi. Sayfayı yenileyip tekrar deneyin.",
     "tooManyRows": "Tek seferde en fazla {max} satır değiştirilebilir.",

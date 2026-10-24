@@ -552,7 +552,9 @@
     "sortOptionsDesc": "Sortera Ö → A",
     "dragOption": "Dra för att flytta {name}",
     "urlPreview": "Visa som länkförhandsvisning",
-    "urlPreviewHint": "Radsidor visar den länkade sidans ikon, titel och bild under länken."
+    "urlPreviewHint": "Radsidor visar den länkade sidans ikon, titel och bild under länken.",
+    "onePerson": "Begränsa till en person",
+    "onePersonHint": "Varje rad anger högst en person. Rader som anger fler behåller dem tills de ändras."
   },
   "rowProperties": {
     "noProperties": "Inga egenskaper",
@@ -926,6 +928,7 @@
     "pageLocked": "Den här sidan är låst. Lås upp den från dess meny för att ändra titel, ikon, bakgrund eller text.",
     "pageInTrash": "Den här sidan ligger i papperskorgen. Återställ den för att ändra den.",
     "invalidPerson": "”{property}” kan bara innehålla personer i den här arbetsytan.",
+    "onePerson": "”{property}” kan bara ha en person.",
     "readOnlyProperty": "”{property}” fylls i automatiskt och kan inte ändras.",
     "invalidFilter": "Det här filtret kan inte sparas. Läs in sidan igen och försök på nytt.",
     "tooManyRows": "Du kan ändra högst {max} rader åt gången.",

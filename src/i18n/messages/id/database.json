@@ -552,7 +552,9 @@
     "sortOptionsDesc": "Urutkan Z → A",
     "dragOption": "Seret untuk memindahkan {name}",
     "urlPreview": "Tampilkan sebagai pratinjau tautan",
-    "urlPreviewHint": "Halaman baris menampilkan ikon, judul, dan gambar halaman tertaut di bawah tautan."
+    "urlPreviewHint": "Halaman baris menampilkan ikon, judul, dan gambar halaman tertaut di bawah tautan.",
+    "onePerson": "Batasi ke satu orang",
+    "onePersonHint": "Setiap baris menyebut paling banyak satu orang. Baris yang menyebut lebih tetap menyimpannya sampai diubah."
   },
   "rowProperties": {
     "noProperties": "Tidak ada properti",
@@ -926,6 +928,7 @@
     "pageLocked": "Halaman ini dikunci. Buka kunci dari menunya untuk mengubah judul, ikon, latar belakang, atau teksnya.",
     "pageInTrash": "Halaman ini ada di sampah. Pulihkan untuk mengubahnya.",
     "invalidPerson": "“{property}” hanya dapat berisi orang di ruang kerja ini.",
+    "onePerson": "“{property}” hanya berisi satu orang.",
     "readOnlyProperty": "“{property}” diisi otomatis dan tidak dapat diubah.",
     "invalidFilter": "Filter ini tidak dapat disimpan. Muat ulang halaman dan coba lagi.",
     "tooManyRows": "Anda dapat mengubah paling banyak {max} baris sekaligus.",

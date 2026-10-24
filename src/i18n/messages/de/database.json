@@ -552,7 +552,9 @@
     "sortOptionsDesc": "Sortieren Z → A",
     "dragOption": "Ziehen, um {name} zu verschieben",
     "urlPreview": "Als Linkvorschau anzeigen",
-    "urlPreviewHint": "Zeilenseiten zeigen Symbol, Titel und Bild der verlinkten Seite unter dem Link."
+    "urlPreviewHint": "Zeilenseiten zeigen Symbol, Titel und Bild der verlinkten Seite unter dem Link.",
+    "onePerson": "Auf eine Person beschränken",
+    "onePersonHint": "Jede Zeile nennt höchstens eine Person. Zeilen mit mehreren behalten sie, bis sie geändert werden."
   },
   "rowProperties": {
     "noProperties": "Keine Eigenschaften",
@@ -926,6 +928,7 @@
     "pageLocked": "Diese Seite ist gesperrt. Entsperre sie über ihr Menü, um Titel, Symbol, Hintergrund oder Text zu ändern.",
     "pageInTrash": "Diese Seite ist im Papierkorb. Stelle sie wieder her, um sie zu ändern.",
     "invalidPerson": "„{property}“ kann nur Personen aus diesem Workspace enthalten.",
+    "onePerson": "„{property}“ enthält nur eine Person.",
     "readOnlyProperty": "„{property}“ wird automatisch ausgefüllt und kann nicht geändert werden.",
     "invalidFilter": "Dieser Filter kann nicht gespeichert werden. Lade die Seite neu und versuch es noch einmal.",
     "tooManyRows": "Du kannst höchstens {max} Zeilen auf einmal ändern.",

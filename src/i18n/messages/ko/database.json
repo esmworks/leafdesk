@@ -552,7 +552,9 @@
     "sortOptionsDesc": "내림차순 정렬 (Z → A)",
     "dragOption": "끌어서 {name} 이동",
     "urlPreview": "링크 미리보기로 표시",
-    "urlPreviewHint": "행 페이지에서 링크 아래에 링크된 페이지의 아이콘, 제목, 이미지를 보여 줍니다."
+    "urlPreviewHint": "행 페이지에서 링크 아래에 링크된 페이지의 아이콘, 제목, 이미지를 보여 줍니다.",
+    "onePerson": "한 명으로 제한",
+    "onePersonHint": "각 행에는 최대 한 명만 지정됩니다. 이미 여러 명이 지정된 행은 변경될 때까지 그대로 유지됩니다."
   },
   "rowProperties": {
     "noProperties": "속성 없음",
@@ -926,6 +928,7 @@
     "pageLocked": "이 페이지는 잠겨 있습니다. 제목, 아이콘, 배경 또는 텍스트를 변경하려면 메뉴에서 잠금을 해제하세요.",
     "pageInTrash": "이 페이지는 휴지통에 있습니다. 변경하려면 복원하세요.",
     "invalidPerson": "“{property}”에는 이 워크스페이스의 사람만 넣을 수 있습니다.",
+    "onePerson": "“{property}”에는 한 명만 지정할 수 있습니다.",
     "readOnlyProperty": "“{property}”은(는) 자동으로 채워지며 변경할 수 없습니다.",
     "invalidFilter": "이 필터를 저장할 수 없습니다. 페이지를 새로고침한 후 다시 시도하세요.",
     "tooManyRows": "한 번에 최대 {max}개 행까지 변경할 수 있습니다.",

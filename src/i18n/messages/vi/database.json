@@ -552,7 +552,9 @@
     "sortOptionsDesc": "Sắp xếp Z → A",
     "dragOption": "Kéo để di chuyển {name}",
     "urlPreview": "Hiển thị dưới dạng xem trước liên kết",
-    "urlPreviewHint": "Trang hàng hiển thị biểu tượng, tiêu đề và hình ảnh của trang được liên kết bên dưới liên kết."
+    "urlPreviewHint": "Trang hàng hiển thị biểu tượng, tiêu đề và hình ảnh của trang được liên kết bên dưới liên kết.",
+    "onePerson": "Giới hạn một người",
+    "onePersonHint": "Mỗi hàng chỉ ghi tối đa một người. Các hàng đang ghi nhiều người sẽ giữ nguyên cho đến khi được thay đổi."
   },
   "rowProperties": {
     "noProperties": "Không có thuộc tính",
@@ -926,6 +928,7 @@
     "pageLocked": "Trang này đang bị khóa. Hãy mở khóa từ menu của nó để thay đổi tiêu đề, biểu tượng, hình nền hoặc nội dung.",
     "pageInTrash": "Trang này đang ở trong thùng rác. Hãy khôi phục để thay đổi nó.",
     "invalidPerson": "“{property}” chỉ có thể chứa những người của không gian làm việc này.",
+    "onePerson": "“{property}” chỉ chứa một người.",
     "readOnlyProperty": "“{property}” được điền tự động và không thể thay đổi.",
     "invalidFilter": "Không thể lưu bộ lọc này. Hãy tải lại trang và thử lại.",
     "tooManyRows": "Bạn chỉ có thể thay đổi tối đa {max} hàng cùng lúc.",

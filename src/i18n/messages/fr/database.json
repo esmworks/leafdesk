@@ -552,7 +552,9 @@
     "sortOptionsDesc": "Trier de Z à A",
     "dragOption": "Faire glisser pour déplacer {name}",
     "urlPreview": "Afficher en aperçu du lien",
-    "urlPreviewHint": "Les pages de ligne affichent l’icône, le titre et l’image de la page liée sous le lien."
+    "urlPreviewHint": "Les pages de ligne affichent l’icône, le titre et l’image de la page liée sous le lien.",
+    "onePerson": "Limiter à une personne",
+    "onePersonHint": "Chaque ligne nomme une personne au plus. Les lignes qui en nomment davantage les gardent jusqu’à ce qu’on les modifie."
   },
   "rowProperties": {
     "noProperties": "Aucune propriété",
@@ -926,6 +928,7 @@
     "pageLocked": "Cette page est verrouillée. Déverrouillez-la depuis son menu pour modifier son titre, son icône, son arrière-plan ou son texte.",
     "pageInTrash": "Cette page est dans la corbeille. Restaurez-la pour la modifier.",
     "invalidPerson": "« {property} » ne peut contenir que des personnes de cet espace de travail.",
+    "onePerson": "« {property} » ne contient qu’une personne.",
     "readOnlyProperty": "« {property} » est rempli automatiquement et ne peut pas être modifié.",
     "invalidFilter": "Ce filtre ne peut pas être enregistré. Rechargez la page et réessayez.",
     "tooManyRows": "Vous pouvez modifier au maximum {max} lignes à la fois.",

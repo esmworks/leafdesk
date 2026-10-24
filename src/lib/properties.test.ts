@@ -52,6 +52,14 @@ const tags = prop("multi_select", {
 });
 
 describe("normalizeValue", () => {
+  it("keeps a person property limited to one person to one", () => {
+    const one = prop("person", { person: { single: true } });
+    expect(normalizeValue(one, ["u1"])).toEqual(["u1"]);
+    expect(normalizeValue(one, ["u1", "u1"])).toEqual(["u1"]);
+    expect(() => normalizeValue(one, ["u1", "u2"])).toThrow(expect.objectContaining({ code: "onePerson" }));
+    expect(normalizeValue(prop("person"), ["u1", "u2"])).toEqual(["u1", "u2"]);
+  });
+
   it("clears on empty input", () => {
     expect(normalizeValue(prop("text"), "")).toBeNull();
     expect(normalizeValue(prop("number"), null)).toBeNull();
