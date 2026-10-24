@@ -1119,5 +1119,14 @@
       "error": "Algo salió mal.",
       "step": "El paso {step} ({type}) no se ejecutó: {reason}"
     }
+  },
+  "imageCrop": {
+    "menuItem": "Recortar…",
+    "title": "Recortar la imagen",
+    "hint": "Arrastra el marco o sus bordes. El archivo queda entero, así que puedes cambiarlo más tarde.",
+    "frame": "Parte de la imagen que se muestra. Las flechas la mueven; con Mayús cambian su tamaño.",
+    "reset": "Mostrar la imagen entera",
+    "loading": "Cargando la imagen…",
+    "failed": "No se pudo cargar la imagen."
   }
 }

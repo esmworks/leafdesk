@@ -1119,5 +1119,14 @@
       "error": "Etwas ist schiefgelaufen.",
       "step": "Schritt {step} ({type}) wurde nicht ausgeführt: {reason}"
     }
+  },
+  "imageCrop": {
+    "menuItem": "Zuschneiden…",
+    "title": "Bild zuschneiden",
+    "hint": "Ziehe den Rahmen oder seine Kanten. Die Datei bleibt vollständig, du kannst das später ändern.",
+    "frame": "Angezeigter Teil des Bildes. Pfeiltasten verschieben ihn, mit Umschalt ändern sie die Größe.",
+    "reset": "Ganzes Bild zeigen",
+    "loading": "Bild wird geladen…",
+    "failed": "Das Bild konnte nicht geladen werden."
   }
 }

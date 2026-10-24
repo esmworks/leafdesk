@@ -67,6 +67,7 @@ import { useMeetingSlashItem } from "./meeting-block";
 import { PasteLinkMenu, useWebSlashItems } from "./web-blocks";
 import { LinkToolbarWithMention } from "./link-mention";
 import { ImageLinkContext, ImageLinkDialog } from "./image-link";
+import { ImageCropContext } from "./image-crop-item";
 import { useColorSlashItems } from "./slash-colors";
 import { withTextScriptButtons } from "./text-scripts";
 import { withSideAlignButtons } from "./align-buttons";
@@ -77,6 +78,7 @@ import { suggestingExtension, type SuggestingMode } from "./suggesting";
 
 /** The page's floating outline, loaded once the page has a place for it (see floating-outline.tsx). */
 const FloatingOutline = dynamic(() => import("./floating-outline"), { ssr: false });
+const ImageCropDialog = dynamic(() => import("./image-crop-dialog"), { ssr: false });
 
 /**
  * y-prosemirror's undo plugin keeps its Y.UndoManager in plugin state but destroys it whenever the
@@ -196,6 +198,7 @@ export default function CollabEditor({
   const pickSynced = useCallback((at: string) => setLinkAt({ at, type: SYNCED_PAGE_BLOCK }), []);
   // The image block whose link is being set ("Link…" in its block menu).
   const [linkImageAt, setLinkImageAt] = useState<string | null>(null);
+  const [cropImageAt, setCropImageAt] = useState<string | null>(null);
   const tSynced = useTranslations("page.blocks.syncedPage");
   const tSyncedBlock = useTranslations("page.syncedBlock");
   // The pages shown around this editor, for the synced pages in it (see synced-page.tsx).
@@ -381,7 +384,9 @@ export default function CollabEditor({
               {!nested && (editable || !typing) && (
                 <SaveAsSnippetContext.Provider value={snippets.save}>
                   <ImageLinkContext.Provider value={setLinkImageAt}>
-                    <SideMenuController sideMenu={sideMenu} floatingUIOptions={sideMenuPlacement} />
+                    <ImageCropContext.Provider value={setCropImageAt}>
+                      <SideMenuController sideMenu={sideMenu} floatingUIOptions={sideMenuPlacement} />
+                    </ImageCropContext.Provider>
                   </ImageLinkContext.Provider>
                 </SaveAsSnippetContext.Provider>
               )}
@@ -465,6 +470,7 @@ export default function CollabEditor({
           }}
         />
         <ImageLinkDialog editor={editor} blockId={linkImageAt} workspaceId={workspaceId} pageId={pageId} onClose={() => setLinkImageAt(null)} />
+        {cropImageAt && <ImageCropDialog editor={editor} blockId={cropImageAt} onClose={() => setCropImageAt(null)} />}
         {buildAt !== null && (
           <BuildWithAiDialog
             workspaceId={workspaceId}

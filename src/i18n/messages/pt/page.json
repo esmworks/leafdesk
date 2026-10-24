@@ -1119,5 +1119,14 @@
       "error": "Algo deu errado.",
       "step": "O passo {step} ({type}) não foi executado: {reason}"
     }
+  },
+  "imageCrop": {
+    "menuItem": "Recortar…",
+    "title": "Recortar a imagem",
+    "hint": "Arraste a moldura ou as bordas. O arquivo continua inteiro, então você pode mudar isso depois.",
+    "frame": "Parte da imagem que aparece. As setas a movem; com Shift, mudam o tamanho.",
+    "reset": "Mostrar a imagem inteira",
+    "loading": "Carregando a imagem…",
+    "failed": "Não foi possível carregar a imagem."
   }
 }

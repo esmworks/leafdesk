@@ -249,4 +249,15 @@ describe("published page body", () => {
     const html = segments.map((s) => (s.kind === "html" ? s.html : "")).join("");
     expect(html.match(/href="[^"]*"/g)).toEqual([`href="/s/site/target#block-${block}"`, `href="/s/site/target#block-${block}"`, 'href="/s/site/target"']);
   });
+
+  it("shows a cropped image as its part, inside its link", async () => {
+    const crop = JSON.stringify({ x: 0.5, y: 0.25, w: 0.5, h: 0.5, ar: 1 });
+    const blocks = [{ type: "image", props: { url: "/api/files/abc", name: "a", previewWidth: 200, crop, link: "https://example.com/" } }];
+    const doc = new Y.Doc();
+    doc.transact(() => serverEditor.blocksToYXmlFragment(blocks as never, doc.getXmlFragment(COLLAB_FRAGMENT)));
+    const segments = await bodySegmentsFromYdoc(Y.encodeStateAsUpdate(doc));
+    const html = segments.map((s) => (s.kind === "html" ? s.html : "")).join("");
+    expect(html).toMatch(/<div data-image-crop="" style="position:relative;overflow:hidden;aspect-ratio:1;border-radius:4px;width:200px;max-width:100%"/);
+    expect(html).toMatch(/<a href="https:\/\/example\.com\/"[^>]*><img[^>]*style="position:absolute;max-width:none;width:200%;height:200%;left:-100%;top:-50%"/);
+  });
 });

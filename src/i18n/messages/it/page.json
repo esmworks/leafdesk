@@ -1119,5 +1119,14 @@
       "error": "Qualcosa è andato storto.",
       "step": "Il passaggio {step} ({type}) non è stato eseguito: {reason}"
     }
+  },
+  "imageCrop": {
+    "menuItem": "Ritaglia…",
+    "title": "Ritaglia l’immagine",
+    "hint": "Trascina la cornice o i suoi bordi. Il file resta intero, quindi puoi cambiarlo in seguito.",
+    "frame": "Parte dell’immagine mostrata. Le frecce la spostano; con Maiusc la ridimensionano.",
+    "reset": "Mostra l’immagine intera",
+    "loading": "Caricamento dell’immagine…",
+    "failed": "Impossibile caricare l’immagine."
   }
 }

@@ -35,6 +35,7 @@ const PROP_LOSS: Record<string, MarkdownLoss> = {
   backgroundColor: "backgroundColor",
   textAlignment: "alignment",
   previewWidth: "mediaSize",
+  crop: "mediaSize",
 };
 
 /** Inline styles whose loss has a name of its own; any other is a "textStyle" (underline, say). */

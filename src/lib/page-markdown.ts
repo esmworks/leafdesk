@@ -10,6 +10,7 @@ import { restoreDashboards } from "./dashboard";
 import { restoreMeetings } from "./meetings";
 import { restoreButtons } from "./buttons";
 import { mergeReferencedBlocks, splitMarkdownReferences } from "./embed-blocks";
+import { restoreImageCrops } from "./image-crop";
 import { carryOverMentions, restoreLinkMentions } from "./mentions";
 import { collapseSyncedRegions, SYNCED_BLOCK, syncedBlocksIn } from "./synced-blocks";
 import { restoreBookmarks } from "./web-blocks";
@@ -61,6 +62,8 @@ export async function markdownToPageBlocks<B extends MdBlock>(
   // names the page's own, it can't make one.
   if (!keepMissingInline) return restoreButtons(restoreMeetings(restoreDashboards(blocks, []), []), []);
   const rewritten = restoreButtons(restoreMeetings(restoreDashboards(restoreBookmarks(blocks, existing), existing), existing), existing);
+  // Images come back whole from Markdown; ones still showing the same file keep their crop.
+  restoreImageCrops(rewritten, existing);
   carryOverBlockIds(rewritten, existing);
   return rewritten;
 }

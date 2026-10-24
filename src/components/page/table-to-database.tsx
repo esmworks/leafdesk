@@ -30,6 +30,7 @@ import { SaveAsSnippetItem } from "./snippets";
 import { turnIntoSyncedBlock } from "./synced-block";
 import { CalloutStyleItem, CalloutTitleItem } from "./callout-menu";
 import { ImageLinkItem } from "./image-link";
+import { ImageCropItem } from "./image-crop-item";
 
 // Tables being turned into a database: a second click waits for the first.
 const turning = new Set<string>();
@@ -171,6 +172,7 @@ export function pageSideMenu(onError: (message: string) => void): FC<SideMenuPro
         <HideInPrintItem />
         <CopyBlockLinkItem />
         <ImageLinkItem />
+        <ImageCropItem />
         <TurnIntoDatabaseItem onError={onError} />
         <TurnIntoSyncedBlockItem onError={onError} />
         <SaveAsSnippetItem />

@@ -1119,5 +1119,14 @@
       "error": "Un problème est survenu.",
       "step": "L’étape {step} ({type}) ne s’est pas exécutée : {reason}"
     }
+  },
+  "imageCrop": {
+    "menuItem": "Rogner…",
+    "title": "Rogner l’image",
+    "hint": "Faites glisser le cadre ou ses bords. Le fichier reste entier : vous pourrez changer cela plus tard.",
+    "frame": "Partie de l’image affichée. Les flèches la déplacent ; avec Maj, elles la redimensionnent.",
+    "reset": "Afficher l’image entière",
+    "loading": "Chargement de l’image…",
+    "failed": "Impossible de charger l’image."
   }
 }

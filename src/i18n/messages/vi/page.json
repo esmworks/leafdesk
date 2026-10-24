@@ -1119,5 +1119,14 @@
       "error": "Đã xảy ra lỗi.",
       "step": "Bước {step} ({type}) không chạy: {reason}"
     }
+  },
+  "imageCrop": {
+    "menuItem": "Cắt ảnh…",
+    "title": "Cắt ảnh",
+    "hint": "Kéo khung hoặc các cạnh của khung. Tệp vẫn còn nguyên nên bạn có thể đổi lại sau.",
+    "frame": "Phần ảnh được hiển thị. Phím mũi tên để di chuyển; giữ Shift để đổi kích thước.",
+    "reset": "Hiện toàn bộ ảnh",
+    "loading": "Đang tải ảnh…",
+    "failed": "Không tải được ảnh."
   }
 }

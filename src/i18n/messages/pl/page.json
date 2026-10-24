@@ -1119,5 +1119,14 @@
       "error": "Coś poszło nie tak.",
       "step": "Krok {step} ({type}) nie został wykonany: {reason}"
     }
+  },
+  "imageCrop": {
+    "menuItem": "Przytnij…",
+    "title": "Przytnij obraz",
+    "hint": "Przeciągnij ramkę lub jej krawędzie. Plik pozostaje cały, więc możesz to później zmienić.",
+    "frame": "Pokazywana część obrazu. Strzałki ją przesuwają, a z Shift zmieniają jej rozmiar.",
+    "reset": "Pokaż cały obraz",
+    "loading": "Wczytywanie obrazu…",
+    "failed": "Nie udało się wczytać obrazu."
   }
 }

@@ -1119,5 +1119,14 @@
       "error": "Bir sorun oluştu.",
       "step": "{step}. adım ({type}) çalışmadı: {reason}"
     }
+  },
+  "imageCrop": {
+    "menuItem": "Kırp…",
+    "title": "Görseli kırp",
+    "hint": "Çerçeveyi ya da kenarlarını sürükleyin. Dosya bütün kalır, bunu sonra değiştirebilirsiniz.",
+    "frame": "Görselin gösterilecek kısmı. Ok tuşları onu taşır; Shift ile boyutunu değiştirir.",
+    "reset": "Görselin tamamını göster",
+    "loading": "Görsel yükleniyor…",
+    "failed": "Görsel yüklenemedi."
   }
 }

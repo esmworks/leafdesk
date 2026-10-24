@@ -1119,5 +1119,14 @@
       "error": "Something went wrong.",
       "step": "Step {step} ({type}) didn’t run: {reason}"
     }
+  },
+  "imageCrop": {
+    "menuItem": "Crop…",
+    "title": "Crop the image",
+    "hint": "Drag the frame or its edges. The file stays whole, so you can change this later.",
+    "frame": "Part of the image to show. Arrow keys move it; with Shift they resize it.",
+    "reset": "Show the whole image",
+    "loading": "Loading the image…",
+    "failed": "The image couldn’t be loaded."
   }
 }
