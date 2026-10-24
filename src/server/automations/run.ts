@@ -96,7 +96,6 @@ const HISTORY_BYTES = 16 * 1024;
 type Run = typeof automationRun.$inferSelect;
 type Automation = typeof databaseAutomation.$inferSelect;
 type Row = { id: string; title: string; parentId: string | null; workspaceId: string; archivedAt: Date | null; properties: Record<string, unknown> };
-type Prop = Awaited<ReturnType<typeof getProperties>>[number];
 
 /**
  * Takes due runs, marking them running, so two sweeps never take the same one. Databases take
