@@ -17,6 +17,28 @@ const WAIT_MS = 15_000;
 const HIGHLIGHT_MS = 2_500;
 
 /**
+ * Opens the collapsed toggles (toggle list items, toggle headings) `element` sits under, so it can be
+ * seen and scrolled to. A collapsed toggle's blocks are in the page, only hidden. Each is opened
+ * with its own button, so the editor remembers it open as if someone had clicked it. Returns
+ * whether any was opened.
+ */
+export function openCollapsedAncestors(element: Element): boolean {
+  let opened = false;
+  for (let node = element.parentElement; node; node = node.parentElement) {
+    // A block's nested blocks are a group beside its own content.
+    if (!node.classList.contains("bn-block-group")) continue;
+    const content = node.parentElement?.querySelector(":scope > .bn-block-content");
+    const wrapper = content?.querySelector('.bn-toggle-wrapper[data-show-children="false"]');
+    const button = wrapper?.querySelector<HTMLButtonElement>(":scope > .bn-toggle-button");
+    if (button) {
+      button.click();
+      opened = true;
+    }
+  }
+  return opened;
+}
+
+/**
  * Scrolls to the block once the editor shows it, then highlights it. A block that isn't there by
  * then (deleted since the link was made) leaves the page as it opened.
  *
@@ -35,6 +57,7 @@ function focusBlock(id: string): () => void {
   const show = () => {
     const el = document.querySelector<HTMLElement>(selector);
     if (!el) return false;
+    openCollapsedAncestors(el);
     el.scrollIntoView({ block: "center", behavior: "smooth" });
     style = document.createElement("style");
     style.textContent = `${selector} > .bn-block > .bn-block-content { border-radius: 4px; animation: leafdesk-block-focus ${HIGHLIGHT_MS}ms ease-out; }`;

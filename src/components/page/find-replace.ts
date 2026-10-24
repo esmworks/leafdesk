@@ -2,6 +2,7 @@ import { createExtension } from "@blocknote/core";
 import { Plugin, PluginKey, type EditorState, type Transaction } from "prosemirror-state";
 import { Decoration, DecorationSet, type EditorView } from "prosemirror-view";
 import { findMatches, matchIndexAt, type FindMatch } from "@/lib/find-replace";
+import { openCollapsedAncestors } from "./block-focus";
 
 /**
  * Find in the page body: a ProseMirror plugin holding the query, its matches and their highlights.
@@ -103,10 +104,14 @@ function apply(tr: Transaction, prev: FindState, state: EditorState): FindState 
   };
 }
 
-/** Scrolls the current match to the middle of the window unless it's already comfortably in view. */
+/**
+ * Scrolls the current match to the middle of the window unless it's already comfortably in view.
+ * A match inside a collapsed toggle opens it first: the toggle's blocks are searched like the rest.
+ */
 function reveal(view: EditorView) {
   const el = view.dom.querySelector<HTMLElement>(".leafdesk-find-current");
   if (!el) return;
+  openCollapsedAncestors(el);
   const rect = el.getBoundingClientRect();
   // The sticky page header and the find bar cover the top of the window.
   if (rect.top < 120 || rect.bottom > window.innerHeight - 40) el.scrollIntoView({ block: "center", inline: "nearest" });
