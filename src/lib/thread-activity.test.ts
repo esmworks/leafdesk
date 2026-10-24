@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { lastActivity, newThreadIds } from "./thread-activity";
+import { hasCommentBy, lastActivity, newThreadIds, threadPeople } from "./thread-activity";
 
 const t = (minute: number) => new Date(Date.UTC(2026, 9, 23, 12, minute)).toISOString();
 const c = (userId: string, minute: number, deleted = false) => ({ userId, createdAt: t(minute), deletedAt: deleted ? t(minute + 1) : null });
@@ -30,5 +30,25 @@ describe("newThreadIds", () => {
 
   it("has nothing new for someone who never looked", () => {
     expect(newThreadIds(threads, "me", {}).size).toBe(0);
+  });
+});
+
+describe("threads by person", () => {
+  const threads = [
+    { id: "t1", createdAt: "2026-10-01T09:00:00Z", comments: [{ userId: "ada", createdAt: "2026-10-01T09:00:00Z" }, { userId: "bo", createdAt: "2026-10-02T09:00:00Z" }] },
+    { id: "t2", createdAt: "2026-10-03T09:00:00Z", comments: [{ userId: "cem", createdAt: "2026-10-03T09:00:00Z" }, { userId: "ada", createdAt: "2026-10-04T09:00:00Z", deletedAt: "2026-10-05T09:00:00Z" }] },
+    { id: "t3", createdAt: "2026-10-06T09:00:00Z", comments: [{ userId: "dan", createdAt: "2026-10-06T09:00:00Z", deletedAt: "2026-10-06T10:00:00Z" }] },
+  ];
+
+  it("lists who wrote what is still there, the latest writer first", () => {
+    // Ada's later comment was deleted: her last one left is the first of t1.
+    expect(threadPeople(threads)).toEqual(["cem", "bo", "ada"]);
+    expect(threadPeople([])).toEqual([]);
+  });
+
+  it("finds a person's threads, started or replied to, not by deleted comments", () => {
+    expect(threads.filter((t) => hasCommentBy(t, "ada")).map((t) => t.id)).toEqual(["t1"]);
+    expect(threads.filter((t) => hasCommentBy(t, "bo")).map((t) => t.id)).toEqual(["t1"]);
+    expect(threads.filter((t) => hasCommentBy(t, "dan")).map((t) => t.id)).toEqual([]);
   });
 });

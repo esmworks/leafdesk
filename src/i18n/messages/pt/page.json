@@ -96,7 +96,14 @@
       "open": "Nenhum comentário aberto. Selecione um texto na página e escolha Comentar para começar.",
       "resolved": "Nenhum comentário resolvido.",
       "marked": "Nenhuma conversa marcada para voltar depois. Escolha “Voltar depois” no menu de uma conversa.",
-      "all": "Nenhum comentário ainda. Selecione um texto na página e escolha Comentar para começar."
+      "all": "Nenhum comentário ainda. Selecione um texto na página e escolha Comentar para começar.",
+      "person": "Nenhum destes tópicos tem um comentário desta pessoa."
+    },
+    "person": {
+      "label": "Mostrar tópicos por pessoa",
+      "active": "Tópicos em que {name} escreveu",
+      "everyone": "Todos",
+      "you": "{name} (você)"
     },
     "threadMenu": "Opções da conversa",
     "mute": "Silenciar respostas",

@@ -96,7 +96,14 @@
       "open": "Aucun commentaire ouvert. Sélectionnez du texte dans la page et choisissez Commenter pour en ajouter un.",
       "resolved": "Aucun commentaire résolu.",
       "marked": "Aucun fil marqué pour y revenir. Choisissez « Revenir plus tard » dans le menu d’un fil.",
-      "all": "Aucun commentaire pour l’instant. Sélectionnez du texte dans la page et choisissez Commenter pour en ajouter un."
+      "all": "Aucun commentaire pour l’instant. Sélectionnez du texte dans la page et choisissez Commenter pour en ajouter un.",
+      "person": "Aucun de ces fils ne contient de commentaire de cette personne."
+    },
+    "person": {
+      "label": "Afficher les fils par personne",
+      "active": "Fils où {name} a écrit",
+      "everyone": "Tout le monde",
+      "you": "{name} (vous)"
     },
     "threadMenu": "Options du fil",
     "mute": "Masquer les réponses",

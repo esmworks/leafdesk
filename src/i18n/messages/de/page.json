@@ -96,7 +96,14 @@
       "open": "Keine offenen Kommentare. Markiere Text auf der Seite und wähle „Kommentieren“, um einen zu beginnen.",
       "resolved": "Keine erledigten Kommentare.",
       "marked": "Keine Threads zum Wiederaufgreifen markiert. Wähle im Menü eines Threads „Später ansehen“.",
-      "all": "Noch keine Kommentare. Markiere Text auf der Seite und wähle „Kommentieren“, um einen zu beginnen."
+      "all": "Noch keine Kommentare. Markiere Text auf der Seite und wähle „Kommentieren“, um einen zu beginnen.",
+      "person": "Keiner dieser Threads enthält einen Kommentar dieser Person."
+    },
+    "person": {
+      "label": "Threads nach Person anzeigen",
+      "active": "Threads, in denen {name} geschrieben hat",
+      "everyone": "Alle",
+      "you": "{name} (du)"
     },
     "threadMenu": "Optionen für den Thread",
     "mute": "Antworten stummschalten",

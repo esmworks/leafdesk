@@ -95,7 +95,14 @@
       "open": "Tidak ada komentar terbuka. Pilih teks di halaman dan pilih Komentar untuk memulai satu.",
       "resolved": "Tidak ada komentar yang terselesaikan.",
       "marked": "Tidak ada utas yang ditandai untuk dikunjungi lagi. Pilih “Kembali nanti” di menu utas.",
-      "all": "Belum ada komentar. Pilih teks di halaman dan pilih Komentar untuk memulai satu."
+      "all": "Belum ada komentar. Pilih teks di halaman dan pilih Komentar untuk memulai satu.",
+      "person": "Tidak ada utas di sini yang berisi komentar dari orang ini."
+    },
+    "person": {
+      "label": "Tampilkan utas menurut orang",
+      "active": "Utas tempat {name} menulis",
+      "everyone": "Semua orang",
+      "you": "{name} (Anda)"
     },
     "threadMenu": "Opsi utas",
     "mute": "Bisukan balasan",

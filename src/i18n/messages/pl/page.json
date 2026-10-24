@@ -96,7 +96,14 @@
       "open": "Brak otwartych komentarzy. Zaznacz tekst na stronie i wybierz Komentarz, aby rozpocząć.",
       "resolved": "Brak rozwiązanych komentarzy.",
       "marked": "Brak wątków oznaczonych do powrotu. Wybierz „Wróć później” w menu wątku.",
-      "all": "Brak komentarzy. Zaznacz tekst na stronie i wybierz Komentarz, aby rozpocząć."
+      "all": "Brak komentarzy. Zaznacz tekst na stronie i wybierz Komentarz, aby rozpocząć.",
+      "person": "Żaden z tych wątków nie ma komentarza tej osoby."
+    },
+    "person": {
+      "label": "Pokaż wątki według osoby",
+      "active": "Wątki, w których pisał(a) {name}",
+      "everyone": "Wszyscy",
+      "you": "{name} (ty)"
     },
     "threadMenu": "Opcje wątku",
     "mute": "Wycisz odpowiedzi",

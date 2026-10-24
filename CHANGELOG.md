@@ -13,6 +13,9 @@
   away by itself, and the audit log records what was asked along with what was given. Requests
   from the "You don't have access" screen work as before; the workspace's *Access requests*
   setting covers both. Migration 0128 adds the requested level to `access_request`.
+- **List the comment threads someone wrote in.** The comments panel has a person picker next to
+  its sort: everyone who wrote a comment still there, you first, and choosing one lists only the
+  threads they started or replied in, alongside the Open, Resolved, Marked and All filters.
 - **The desktop app opens on the page you left.** At start, the window goes back to the last
   page it showed instead of the home page, when that page is on the server it is connected to
   (or on Leafdesk on this computer); the app keeps only the page's path, never another address.

@@ -96,7 +96,14 @@
       "open": "No open comments. Select text in the page and choose Comment to start one.",
       "resolved": "No resolved comments.",
       "marked": "No threads marked to come back to. Choose “Come back later” in a thread’s menu.",
-      "all": "No comments yet. Select text in the page and choose Comment to start one."
+      "all": "No comments yet. Select text in the page and choose Comment to start one.",
+      "person": "None of these threads has a comment by this person."
+    },
+    "person": {
+      "label": "Show threads by person",
+      "active": "Threads {name} wrote in",
+      "everyone": "Everyone",
+      "you": "{name} (you)"
     },
     "threadMenu": "Thread options",
     "mute": "Mute replies",

@@ -95,7 +95,14 @@
       "open": "Không có bình luận nào đang mở. Hãy chọn văn bản trong trang và chọn Bình luận để bắt đầu một bình luận.",
       "resolved": "Không có bình luận nào đã giải quyết.",
       "marked": "Không có chuỗi nào được đánh dấu để quay lại. Hãy chọn “Quay lại sau” trong menu của một chuỗi.",
-      "all": "Chưa có bình luận nào. Hãy chọn văn bản trong trang và chọn Bình luận để bắt đầu một bình luận."
+      "all": "Chưa có bình luận nào. Hãy chọn văn bản trong trang và chọn Bình luận để bắt đầu một bình luận.",
+      "person": "Không có chuỗi nào ở đây có bình luận của người này."
+    },
+    "person": {
+      "label": "Hiện chuỗi theo người",
+      "active": "Các chuỗi {name} đã viết",
+      "everyone": "Mọi người",
+      "you": "{name} (bạn)"
     },
     "threadMenu": "Tùy chọn chuỗi",
     "mute": "Tắt thông báo trả lời",

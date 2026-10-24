@@ -96,7 +96,14 @@
       "open": "Nessun commento aperto. Seleziona del testo nella pagina e scegli Commenta per iniziarne uno.",
       "resolved": "Nessun commento risolto.",
       "marked": "Nessuna discussione segnata da riprendere. Scegli “Riprendi più tardi” nel menu di una discussione.",
-      "all": "Ancora nessun commento. Seleziona del testo nella pagina e scegli Commenta per iniziarne uno."
+      "all": "Ancora nessun commento. Seleziona del testo nella pagina e scegli Commenta per iniziarne uno.",
+      "person": "Nessuno di questi thread ha un commento di questa persona."
+    },
+    "person": {
+      "label": "Mostra i thread per persona",
+      "active": "Thread in cui ha scritto {name}",
+      "everyone": "Tutti",
+      "you": "{name} (tu)"
     },
     "threadMenu": "Opzioni della discussione",
     "mute": "Silenzia risposte",

@@ -96,7 +96,14 @@
       "open": "No hay comentarios abiertos. Selecciona texto en la página y elige Comentar para empezar uno.",
       "resolved": "No hay comentarios resueltos.",
       "marked": "No hay hilos marcados para volver a ellos. Elige «Volver más tarde» en el menú de un hilo.",
-      "all": "Todavía no hay comentarios. Selecciona texto en la página y elige Comentar para empezar uno."
+      "all": "Todavía no hay comentarios. Selecciona texto en la página y elige Comentar para empezar uno.",
+      "person": "Ninguno de estos hilos tiene un comentario de esta persona."
+    },
+    "person": {
+      "label": "Ver hilos por persona",
+      "active": "Hilos en los que escribió {name}",
+      "everyone": "Todos",
+      "you": "{name} (tú)"
     },
     "threadMenu": "Opciones del hilo",
     "mute": "Silenciar respuestas",

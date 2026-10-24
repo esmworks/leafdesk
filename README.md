@@ -335,7 +335,8 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   value takes threads of its own: the comment button beside a value (with how many open threads it
   has) starts one, and the comments panel lists them under the property's name. Only people who
   see that value read, write and hear about them (a row's access counts too), and a deleted
-  property's threads come back when it is restored.
+  property's threads come back when it is restored. The comments panel lists open, resolved,
+  marked or all threads, and with its person picker only those someone started or replied in.
 - **Suggested edits**: switch the page header from *Editing* to *Suggesting* and changes show as
   suggestions instead: inserted text underlined, deleted text struck through but kept, new
   formatting marked, live for everyone. Each is a thread in the comments panel, in its author's

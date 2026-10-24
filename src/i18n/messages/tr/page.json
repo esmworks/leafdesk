@@ -96,7 +96,14 @@
       "open": "Açık yorum yok. Yorum başlatmak için sayfada bir metin seçip Yorum'u seçin.",
       "resolved": "Çözülen yorum yok.",
       "marked": "Daha sonra dönmek için işaretlediğiniz konuşma yok. Bir konuşmanın menüsünden “Sonra dön”ü seçin.",
-      "all": "Henüz yorum yok. Yorum başlatmak için sayfada bir metin seçip Yorum'u seçin."
+      "all": "Henüz yorum yok. Yorum başlatmak için sayfada bir metin seçip Yorum'u seçin.",
+      "person": "Bu konuşmaların hiçbirinde bu kişinin yorumu yok."
+    },
+    "person": {
+      "label": "Konuşmaları kişiye göre göster",
+      "active": "{name} kişisinin yazdığı konuşmalar",
+      "everyone": "Herkes",
+      "you": "{name} (siz)"
     },
     "threadMenu": "Yorum konusu seçenekleri",
     "mute": "Yanıtları sessize al",
