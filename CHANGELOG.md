@@ -17,6 +17,10 @@
   of leaving an untitled one behind. With a name typed, Escape keeps the row as before.
 - **Fit a table column to its content.** Double-clicking a column's edge in a table view sets its
   width to fit its header and the rows shown, wider or narrower, and keeps it with the view.
+- **See text that's cut short.** Anything in a workspace that ends in an ellipsis because it doesn't
+  fit (a column's name, an option, a linked row, a page in the sidebar) shows in full as a tooltip
+  when the pointer rests on it, and a cell's list of options, people, linked rows or files that
+  doesn't all fit shows every one of them.
 
 ### Changed
 

@@ -179,6 +179,8 @@
     their cards onto more lines instead of cutting them off (*Wrap all properties*).
   - Table columns are resized by dragging their edge; double-clicking the edge fits the column to
     its header and the rows shown. The width is kept with the view.
+  - Names, options and linked rows cut short with an ellipsis show in full as a tooltip on hover;
+    so does a cell's list of values that doesn't all fit.
   - Table views calculate column totals, averages, counts and more over the filtered rows.
   - Board columns show how many cards they hold next to their name, and can show one calculation
     over a property for their cards on the line under it, the same in every column: the sum of the

@@ -11,6 +11,7 @@ import { Sidebar } from "@/components/sidebar/sidebar";
 import { FloatingSidebarButton, SidebarProvider } from "@/components/sidebar/sidebar-context";
 import { DesktopLinkOffer } from "@/components/workspace/desktop-link-offer";
 import { Toaster } from "@/components/toast";
+import { TruncatedTitles } from "@/components/workspace/truncated-titles-watcher";
 import { requestedPageId } from "@/lib/access-requests";
 import { env } from "@/lib/env";
 import { canCreateWorkspace, isInstanceAdmin } from "@/lib/instance-admin";
@@ -104,6 +105,8 @@ export default async function WorkspaceLayout({
           {desktopLinks !== "off" && <DesktopLinkOffer preference={desktopLinks} />}
           {/* Notes after moving or trashing, with Undo (components/toast). */}
           <Toaster />
+          {/* Text cut short shows in full as a tooltip (components/workspace/truncated-titles). */}
+          <TruncatedTitles />
         </div>
       </RowPanelProvider>
       </MeetingRecorderProvider>

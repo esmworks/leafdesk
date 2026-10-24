@@ -279,7 +279,7 @@ export function PropertyDisplay({ prop, value, wrap, style }: { prop: ShownPrope
       const selected = selectedOptions(prop, value);
       if (!selected.length) return null;
       return (
-        <span className={cn("flex min-w-0 gap-1", wrap ? "flex-wrap" : "overflow-hidden")}>
+        <span data-cut-list="" className={cn("flex min-w-0 gap-1", wrap ? "flex-wrap" : "overflow-hidden")}>
           {selected.map((o) => (
             <OptionChip key={o.id} option={o} dot={prop.type === "status"} />
           ))}

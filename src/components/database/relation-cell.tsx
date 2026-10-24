@@ -17,7 +17,7 @@ export function RelationChips({ prop, value, wrap }: { prop: Pick<Property, "id"
   const rows = linkedRows(ctx?.targets[prop.id], value);
   if (!rows.length) return null;
   return (
-    <span className={cn("flex min-w-0 gap-x-2 gap-y-0.5", wrap ? "flex-wrap" : "overflow-hidden")}>
+    <span data-cut-list="" className={cn("flex min-w-0 gap-x-2 gap-y-0.5", wrap ? "flex-wrap" : "overflow-hidden")}>
       {rows.map((row) => (
         <RelationChip key={row.id} row={row} />
       ))}

@@ -84,7 +84,7 @@ export function PersonChips({ value, wrap }: { value: unknown; wrap?: boolean })
   const me = Array.isArray(value) && value.includes(PERSON_ME);
   if (!assigned.length && !me) return null;
   return (
-    <span className={cn("flex min-w-0 gap-x-2.5 gap-y-0.5", wrap ? "flex-wrap" : "overflow-hidden")}>
+    <span data-cut-list="" className={cn("flex min-w-0 gap-x-2.5 gap-y-0.5", wrap ? "flex-wrap" : "overflow-hidden")}>
       {me && <MarkerChip marker="me" />}
       {assigned.map((person) => (
         <PersonChip key={person.id} person={person} />
