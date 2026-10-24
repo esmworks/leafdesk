@@ -780,7 +780,6 @@ export async function viewStep(userId: string, record: ChatStepRecord, pages?: A
   return { kind: "read", page: view };
 }
 
-/** Cited pages as the person may see them now: pages they can't open lose id and title. */
 /**
  * The scopes questions were asked in, by `kind:id`, titled as the person may see them now: a page
  * they can no longer open, or a teamspace they can no longer see, has no title.
@@ -797,6 +796,7 @@ async function viewScopes(userId: string, scopes: NonNullable<ChatMessageRecord[
   return out;
 }
 
+/** Cited pages as the person may see them now: pages they can't open lose id and title. */
 export async function viewSources(userId: string, refs: ChatSourceRef[]): Promise<ChatSourceView[]> {
   const visible = await visiblePages(userId, refs.flatMap((r) => (r.pageId ? [r.pageId] : [])));
   // Verified as of now, not when the answer was written.
