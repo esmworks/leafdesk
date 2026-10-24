@@ -83,5 +83,6 @@
   "removeExpiry": "Vervaldatum verwijderen",
   "cancelExpiry": "Annuleren",
   "expiryPast": "Kies een tijdstip in de toekomst.",
-  "expiryTooFar": "Kies een tijdstip binnen de komende tien jaar."
+  "expiryTooFar": "Kies een tijdstip binnen de komende tien jaar.",
+  "expiredDescription": "Niemand kan deze pagina of haar subpagina’s nu via de link openen: bezoekers krijgen te zien dat ze niet gevonden is."
 }

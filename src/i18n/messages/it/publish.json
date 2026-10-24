@@ -83,5 +83,6 @@
   "removeExpiry": "Rimuovi scadenza",
   "cancelExpiry": "Annulla",
   "expiryPast": "Scegli una data futura.",
-  "expiryTooFar": "Scegli una data entro i prossimi dieci anni."
+  "expiryTooFar": "Scegli una data entro i prossimi dieci anni.",
+  "expiredDescription": "Ora nessuno può aprire questa pagina o le sue sottopagine dal link: chi lo visita vede che non è stata trovata."
 }

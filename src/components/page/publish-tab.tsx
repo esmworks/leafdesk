@@ -113,7 +113,7 @@ export function PublishTab({ pageId }: { pageId: string }) {
         </span>
         <div className="min-w-0 flex-1">
           <p className="text-sm font-medium">{publication ? (publication.expired ? t("expiredTitle") : t("published")) : t("title")}</p>
-          <p className="mt-0.5 text-xs text-fg-muted">{t("description")}</p>
+          <p className="mt-0.5 text-xs text-fg-muted">{publication?.expired ? t("expiredDescription") : t("description")}</p>
         </div>
       </div>
 

@@ -83,5 +83,6 @@
   "removeExpiry": "Bỏ thời hạn",
   "cancelExpiry": "Hủy",
   "expiryPast": "Hãy chọn một thời điểm trong tương lai.",
-  "expiryTooFar": "Hãy chọn một thời điểm trong vòng mười năm tới."
+  "expiryTooFar": "Hãy chọn một thời điểm trong vòng mười năm tới.",
+  "expiredDescription": "Hiện không ai mở được trang này hay các trang con qua liên kết: khách truy cập sẽ thấy trang không tồn tại."
 }

@@ -83,5 +83,6 @@
   "removeExpiry": "有効期限を削除",
   "cancelExpiry": "キャンセル",
   "expiryPast": "将来の日時を選んでください。",
-  "expiryTooFar": "今後10年以内の日時を選んでください。"
+  "expiryTooFar": "今後10年以内の日時を選んでください。",
+  "expiredDescription": "現在、このページとサブページはリンクから誰も開けません。訪問者には見つからないと表示されます。"
 }

@@ -83,5 +83,6 @@
   "removeExpiry": "Remover validade",
   "cancelExpiry": "Cancelar",
   "expiryPast": "Escolha uma data no futuro.",
-  "expiryTooFar": "Escolha uma data dentro dos próximos dez anos."
+  "expiryTooFar": "Escolha uma data dentro dos próximos dez anos.",
+  "expiredDescription": "Agora ninguém consegue abrir esta página nem as subpáginas pelo link: quem visita vê que ela não foi encontrada."
 }

@@ -83,5 +83,6 @@
   "removeExpiry": "Süreyi kaldır",
   "cancelExpiry": "Vazgeç",
   "expiryPast": "İleri bir zaman seçin.",
-  "expiryTooFar": "Önümüzdeki on yıl içinde bir zaman seçin."
+  "expiryTooFar": "Önümüzdeki on yıl içinde bir zaman seçin.",
+  "expiredDescription": "Şu anda kimse bu sayfayı ya da alt sayfalarını bağlantıyla açamaz: ziyaretçiler sayfanın bulunamadığını görür."
 }

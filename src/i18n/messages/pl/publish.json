@@ -83,5 +83,6 @@
   "removeExpiry": "Usuń wygaśnięcie",
   "cancelExpiry": "Anuluj",
   "expiryPast": "Wybierz termin w przyszłości.",
-  "expiryTooFar": "Wybierz termin w ciągu najbliższych dziesięciu lat."
+  "expiryTooFar": "Wybierz termin w ciągu najbliższych dziesięciu lat.",
+  "expiredDescription": "Nikt nie może teraz otworzyć tej strony ani jej podstron przez link: odwiedzający widzą, że jej nie znaleziono."
 }

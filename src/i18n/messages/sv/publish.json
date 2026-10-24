@@ -83,5 +83,6 @@
   "removeExpiry": "Ta bort giltighetstid",
   "cancelExpiry": "Avbryt",
   "expiryPast": "Välj en tidpunkt i framtiden.",
-  "expiryTooFar": "Välj en tidpunkt inom de närmaste tio åren."
+  "expiryTooFar": "Välj en tidpunkt inom de närmaste tio åren.",
+  "expiredDescription": "Ingen kan öppna den här sidan eller dess undersidor via länken nu: besökare får veta att den inte hittades."
 }

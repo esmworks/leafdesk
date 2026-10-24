@@ -415,33 +415,36 @@ function AddPeople({
           {outcome.kind === "invited" && outcome.delivery !== "sent" && <CopyButton value={outcome.link} label={t("copyInviteLink")} />}
         </div>
       )}
-      <ul className="max-h-40 divide-y divide-border overflow-y-auto rounded-md border border-border">
-        {!candidates.length ? (
-          <li className="px-3 py-3 text-center text-sm text-fg-muted">{t("noOneToAdd")}</li>
-        ) : shown.length ? (
-          shown.map((person) => (
-            <li key={person.userId}>
-              <label className="flex cursor-pointer items-center gap-2.5 px-3 py-1.5 text-sm hover:bg-bg-hover">
-                <input
-                  type="checkbox"
-                  aria-label={t("select", { name: person.name || person.email })}
-                  checked={chosen.includes(person.userId)}
-                  onChange={(e) =>
-                    setSelected((s) => (e.target.checked ? [...s, person.userId] : s.filter((id) => id !== person.userId)))
-                  }
-                  className="accent-accent"
-                />
-                <span className="min-w-0 flex-1 truncate">
-                  {person.name}
-                  <span className="text-fg-muted"> {person.email}</span>
-                </span>
-              </label>
-            </li>
-          ))
-        ) : (
-          <li className="px-3 py-3 text-center text-sm text-fg-muted">{t("noMatches")}</li>
-        )}
-      </ul>
+      {/* An address to invite stands in for the empty list. */}
+      {!(invitable && !shown.length) && (
+        <ul className="max-h-40 divide-y divide-border overflow-y-auto rounded-md border border-border">
+          {!candidates.length ? (
+            <li className="px-3 py-3 text-center text-sm text-fg-muted">{t("noOneToAdd")}</li>
+          ) : shown.length ? (
+            shown.map((person) => (
+              <li key={person.userId}>
+                <label className="flex cursor-pointer items-center gap-2.5 px-3 py-1.5 text-sm hover:bg-bg-hover">
+                  <input
+                    type="checkbox"
+                    aria-label={t("select", { name: person.name || person.email })}
+                    checked={chosen.includes(person.userId)}
+                    onChange={(e) =>
+                      setSelected((s) => (e.target.checked ? [...s, person.userId] : s.filter((id) => id !== person.userId)))
+                    }
+                    className="accent-accent"
+                  />
+                  <span className="min-w-0 flex-1 truncate">
+                    {person.name}
+                    <span className="text-fg-muted"> {person.email}</span>
+                  </span>
+                </label>
+              </li>
+            ))
+          ) : (
+            <li className="px-3 py-3 text-center text-sm text-fg-muted">{t("noMatches")}</li>
+          )}
+        </ul>
+      )}
       <div className="flex items-center justify-end gap-2">
         <label className="flex items-center gap-2 text-sm text-fg-muted">
           {t("addAs")}

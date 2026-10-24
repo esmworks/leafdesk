@@ -83,5 +83,6 @@
   "removeExpiry": "Poista voimassaolon päättyminen",
   "cancelExpiry": "Peruuta",
   "expiryPast": "Valitse tuleva ajankohta.",
-  "expiryTooFar": "Valitse ajankohta seuraavan kymmenen vuoden sisältä."
+  "expiryTooFar": "Valitse ajankohta seuraavan kymmenen vuoden sisältä.",
+  "expiredDescription": "Kukaan ei voi nyt avata tätä sivua tai sen alasivuja linkin kautta: vierailijat näkevät, ettei sivua löytynyt."
 }

@@ -83,5 +83,6 @@
   "removeExpiry": "Fjern utløp",
   "cancelExpiry": "Avbryt",
   "expiryPast": "Velg et tidspunkt i fremtiden.",
-  "expiryTooFar": "Velg et tidspunkt innen de neste ti årene."
+  "expiryTooFar": "Velg et tidspunkt innen de neste ti årene.",
+  "expiredDescription": "Ingen kan åpne denne siden eller undersidene via lenken nå: besøkende får vite at den ikke ble funnet."
 }

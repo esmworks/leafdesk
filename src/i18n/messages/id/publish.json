@@ -83,5 +83,6 @@
   "removeExpiry": "Hapus masa berlaku",
   "cancelExpiry": "Batal",
   "expiryPast": "Pilih waktu di masa mendatang.",
-  "expiryTooFar": "Pilih waktu dalam sepuluh tahun ke depan."
+  "expiryTooFar": "Pilih waktu dalam sepuluh tahun ke depan.",
+  "expiredDescription": "Saat ini tidak ada yang bisa membuka halaman ini atau subhalamannya lewat tautan: pengunjung diberi tahu bahwa halaman tidak ditemukan."
 }

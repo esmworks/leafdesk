@@ -83,5 +83,6 @@
   "removeExpiry": "Remove expiry",
   "cancelExpiry": "Cancel",
   "expiryPast": "Pick a time in the future.",
-  "expiryTooFar": "Pick a time within the next ten years."
+  "expiryTooFar": "Pick a time within the next ten years.",
+  "expiredDescription": "Nobody can open this page or its subpages through the link now: visitors are told it wasn't found."
 }

@@ -83,5 +83,6 @@
   "removeExpiry": "Ablauf entfernen",
   "cancelExpiry": "Abbrechen",
   "expiryPast": "Wähle einen Zeitpunkt in der Zukunft.",
-  "expiryTooFar": "Wähle einen Zeitpunkt innerhalb der nächsten zehn Jahre."
+  "expiryTooFar": "Wähle einen Zeitpunkt innerhalb der nächsten zehn Jahre.",
+  "expiredDescription": "Über den Link kann diese Seite samt Unterseiten gerade niemand öffnen: Besucher erfahren, dass sie nicht gefunden wurde."
 }

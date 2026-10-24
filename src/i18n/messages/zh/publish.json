@@ -83,5 +83,6 @@
   "removeExpiry": "移除有效期",
   "cancelExpiry": "取消",
   "expiryPast": "请选择将来的时间。",
-  "expiryTooFar": "请选择未来十年内的时间。"
+  "expiryTooFar": "请选择未来十年内的时间。",
+  "expiredDescription": "现在任何人都无法通过链接打开此页面及其子页面：访客会看到页面不存在。"
 }

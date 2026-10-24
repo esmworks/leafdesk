@@ -83,5 +83,6 @@
   "removeExpiry": "만료 제거",
   "cancelExpiry": "취소",
   "expiryPast": "미래의 시간을 선택하세요.",
-  "expiryTooFar": "앞으로 10년 이내의 시간을 선택하세요."
+  "expiryTooFar": "앞으로 10년 이내의 시간을 선택하세요.",
+  "expiredDescription": "지금은 누구도 링크로 이 페이지와 하위 페이지를 열 수 없습니다. 방문자에게는 페이지를 찾을 수 없다고 표시됩니다."
 }
