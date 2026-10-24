@@ -1,35 +1,30 @@
 "use client";
 
 import type { Dictionary } from "@blocknote/core";
-import { ar, de, en, es, fa, fr, he, it, ja, ko, pl, pt, ru, uk, vi, zh } from "@blocknote/core/locales";
+import { en } from "@blocknote/core/locales";
 import { useLocale } from "next-intl";
+import { use } from "react";
 import { DEFAULT_LOCALE, type Locale } from "../config";
-import { id } from "./id";
-import { th } from "./th";
-import { tr } from "./tr";
+import { EDITOR_DICTIONARY_LOADERS } from "./loaders";
 
-/**
- * BlockNote's own UI strings (slash menu, toolbars, placeholders) per language. BlockNote ships
- * many languages (`@blocknote/core/locales`); import the new one here. For a language it lacks,
- * add `./<locale>.ts` like tr.ts. Named imports keep the other dictionaries out of the bundle; the
- * `Record<Locale, …>` type makes `pnpm typecheck` fail when a language is missing here.
- */
-export const EDITOR_DICTIONARIES: Record<Locale, Dictionary> = { en, tr, de, es, fr, it, pt, pl, ru, uk, ar, he: hebrew(), fa, ja, ko, zh, id, th, vi };
+const loading = new Map<string, Promise<Dictionary>>();
 
-/** BlockNote's Hebrew, with resolving a comment thread said as resolving it (not "mark button"). */
-function hebrew(): Dictionary {
-  const { comments } = he;
-  return {
-    ...he,
-    comments: {
-      ...comments,
-      actions: { ...comments.actions, resolve: "סמן כנפתר" },
-      sidebar: { ...comments.sidebar, marked_as_resolved: "סומן כנפתר" },
-    },
-  };
+/** The current language's dictionary, downloaded once; a failed download leaves the editor in English. */
+function loadEditorDictionary(locale: string): Promise<Dictionary> {
+  let dictionary = loading.get(locale);
+  if (!dictionary) {
+    const load = EDITOR_DICTIONARY_LOADERS[locale as Locale] ?? EDITOR_DICTIONARY_LOADERS[DEFAULT_LOCALE];
+    dictionary = load().catch(() => en);
+    loading.set(locale, dictionary);
+  }
+  return dictionary;
 }
 
-/** The editor dictionary for the current language. */
+/**
+ * The editor dictionary for the current language. Until it has downloaded the editor suspends
+ * (every editor is a `dynamic()` import, so its loading state stays up) rather than showing English.
+ */
 export function useEditorDictionary(): Dictionary {
-  return EDITOR_DICTIONARIES[useLocale()] ?? EDITOR_DICTIONARIES[DEFAULT_LOCALE];
+  const locale = useLocale();
+  return locale === DEFAULT_LOCALE ? en : use(loadEditorDictionary(locale));
 }

@@ -3,7 +3,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { EDITOR_DICTIONARIES } from "./blocknote";
+import { EDITOR_DICTIONARY_LOADERS } from "./blocknote/loaders";
 import { tr as editorTr } from "./blocknote/tr";
 import { checkTranslations, compareFile, formatIssues } from "./check";
 import { DEFAULT_LOCALE, LOCALES, negotiateLocale, requestLocale } from "./config";
@@ -55,8 +55,8 @@ describe("translations", () => {
     expect((await loadMessages("tr")).common.untitled).toBe("Adsız");
   });
 
-  it("every language has an editor dictionary; the Turkish one covers every BlockNote key", () => {
-    for (const locale of LOCALES) expect(EDITOR_DICTIONARIES[locale], locale).toBeDefined();
+  it("every language has an editor dictionary; the Turkish one covers every BlockNote key", async () => {
+    for (const locale of LOCALES) expect(await EDITOR_DICTIONARY_LOADERS[locale](), locale).toBeDefined();
     expect(keys(editorTr).sort()).toEqual(keys(editorEn).sort());
   });
 

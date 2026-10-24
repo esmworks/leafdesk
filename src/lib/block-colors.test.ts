@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { EDITOR_DICTIONARIES } from "@/i18n/blocknote";
+import { EDITOR_DICTIONARY_LOADERS } from "@/i18n/blocknote/loaders";
 import { BLOCK_COLORS, colorAliases } from "./block-colors";
 
 describe("block colors", () => {
-  it("are the colors every editor language names", () => {
-    for (const dictionary of Object.values(EDITOR_DICTIONARIES)) {
+  it("are the colors every editor language names", async () => {
+    for (const dictionary of await Promise.all(Object.values(EDITOR_DICTIONARY_LOADERS).map((load) => load()))) {
       expect(Object.keys(dictionary.color_picker.colors).sort()).toEqual([...BLOCK_COLORS].sort());
     }
   });

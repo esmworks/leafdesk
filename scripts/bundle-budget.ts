@@ -30,7 +30,9 @@ import { gzipSync } from "node:zlib";
  *
  * What keeps first loads small: the workspace layout loads no editor (the row panel's page view is
  * lazy), database views other than table, gallery and list load when shown, and dialogs used now
- * and then (automations, import, PDF export, QR codes) load when opened.
+ * and then (automations, import, PDF export, QR codes) load when opened. The editor loads only the
+ * dictionary of the language in use, after itself: ours (Turkish, Indonesian, Thai) about 3 kB
+ * each, BlockNote's (one module) about 30 kB together, English none.
  */
 const BUDGET = { routeFirstLoad: 760, firstLoadShared: 1110, onDemandChunk: 450 };
 

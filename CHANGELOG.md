@@ -779,6 +779,11 @@
   less. The client JavaScript budget now checks what opening a page downloads (the largest route,
   and all routes' first loads together) and the largest chunk loaded on demand, instead of the sum
   of every chunk the build holds.
+- **The editor downloads only the dictionary of the language in use.** Its menus' texts in every
+  language used to come with the editor, about 34 kB (gzipped) on each page opened; now English
+  needs nothing more, Turkish, Indonesian and Thai about 3 kB, and BlockNote's other languages
+  about 30 kB. The editor keeps its loading state until the dictionary is there, so it never
+  shows English menus first.
 - **"Export as PDF" downloads a PDF file.** The page menu's *Export as PDF* now makes the file on
   the server, in a letterhead picked in its dialog (for a row, with its values if asked). The
   browser's print dialog moved to *Print*, which still keeps the page exactly as it looks, diagrams
