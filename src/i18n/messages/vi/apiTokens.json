@@ -1,0 +1,131 @@
+{
+  "heading": "Token truy cập cá nhân",
+  "description": "Token cho phép các tập lệnh và chương trình khác dùng REST API của Leafdesk với tư cách bạn, với quyền truy cập trang của bạn. Hãy giữ bí mật như mật khẩu.",
+  "docs": "Tài liệu API",
+  "empty": "Bạn chưa có token nào.",
+  "create": "Token mới",
+  "form": {
+    "title": "Token truy cập cá nhân mới",
+    "name": "Tên",
+    "namePlaceholder": "ví dụ: Tập lệnh báo cáo hằng tuần",
+    "access": "Quyền truy cập",
+    "workspace": "Không gian làm việc",
+    "allWorkspaces": "Tất cả không gian làm việc của tôi",
+    "expiry": "Hết hạn sau",
+    "days": "{count, plural, other {# ngày}}",
+    "never": "Không bao giờ",
+    "submit": "Tạo token",
+    "creating": "Đang tạo…"
+  },
+  "created": {
+    "title": "Sao chép token mới của bạn",
+    "body": "Đây là lần duy nhất token được hiển thị. Hãy lưu ở nơi an toàn; nếu bạn làm mất, hãy thu hồi nó và tạo token khác.",
+    "done": "Xong"
+  },
+  "row": {
+    "readOnly": "Chỉ đọc",
+    "readWrite": "Đọc và ghi",
+    "allWorkspaces": "Tất cả không gian làm việc",
+    "createdAt": "Tạo ngày {date}",
+    "lastUsed": "dùng lần cuối {date}",
+    "neverUsed": "chưa từng dùng",
+    "expires": "hết hạn {date}",
+    "expired": "đã hết hạn {date}",
+    "noExpiry": "không hết hạn",
+    "legacy": "tạo trước khi có quyền truy cập theo từng tài nguyên"
+  },
+  "revoke": "Thu hồi",
+  "revoking": "Đang thu hồi…",
+  "confirmRevoke": "Thu hồi {name}",
+  "revokeError": "Không thể thu hồi token. Hãy thử lại.",
+  "errors": {
+    "name": "Hãy đặt cho token một cái tên tối đa 100 ký tự.",
+    "scopes": "Hãy chọn những gì token được phép làm.",
+    "workspace": "Bạn không phải thành viên của không gian làm việc đó.",
+    "expiry": "Hãy chọn thời điểm token hết hạn.",
+    "limit": "Bạn đã có số token tối đa cho phép. Hãy thu hồi một token trước.",
+    "generic": "Không thể tạo token. Hãy thử lại.",
+    "notFound": "Token này không còn tồn tại."
+  },
+  "docsPage": {
+    "metaTitle": "REST API",
+    "openapi": "Tài liệu OpenAPI (JSON)",
+    "tokensWhere": "Tạo token trong Tài khoản của tôi → Ứng dụng đã kết nối.",
+    "quickStart": "Bắt đầu nhanh",
+    "baseUrl": "URL gốc",
+    "errors": "Lỗi",
+    "code": "Mã",
+    "status": "Trạng thái",
+    "endpoints": "Điểm cuối",
+    "parameters": "Tham số",
+    "inPath": "đường dẫn",
+    "inQuery": "truy vấn",
+    "body": "Nội dung yêu cầu (JSON)",
+    "formBody": "Nội dung yêu cầu (dữ liệu biểu mẫu multipart)",
+    "response": "Phản hồi {status}",
+    "name": "Tên",
+    "type": "Kiểu",
+    "description": "Mô tả",
+    "required": "bắt buộc",
+    "scopes": "Phạm vi",
+    "scope": "Phạm vi",
+    "access": "Quyền truy cập",
+    "read": "Đọc",
+    "write": "Ghi",
+    "inHeader": "tiêu đề"
+  },
+  "scopes": {
+    "presets": {
+      "readAll": "Đọc mọi thứ",
+      "all": "Đọc và ghi mọi thứ"
+    },
+    "read": "Đọc",
+    "write": "Ghi",
+    "toggle": "{access}: {resource}",
+    "resources": {
+      "workspaces": {
+        "name": "Không gian làm việc",
+        "hint": "Các không gian làm việc, không gian nhóm và nhóm của chúng."
+      },
+      "pages": {
+        "name": "Trang",
+        "hint": "Trang, trang con và ghi chú hằng ngày; quyền ghi cũng bao gồm ghi chú giọng nói."
+      },
+      "search": {
+        "name": "Tìm kiếm",
+        "hint": "Tìm kiếm trên các trang và hàng."
+      },
+      "databases": {
+        "name": "Cơ sở dữ liệu",
+        "hint": "Thuộc tính và chế độ xem của một cơ sở dữ liệu."
+      },
+      "rows": {
+        "name": "Hàng",
+        "hint": "Truy vấn các hàng và đọc hoạt động của chúng; quyền ghi cho phép thêm và thay đổi hàng."
+      },
+      "comments": {
+        "name": "Bình luận",
+        "hint": "Các chuỗi bình luận; quyền ghi cho phép bắt đầu chuỗi và trả lời."
+      },
+      "agents": {
+        "name": "Tác tử",
+        "hint": "Cài đặt, lần chạy, lịch chạy và việc chia sẻ của các tác tử."
+      }
+    },
+    "summary": {
+      "read": "{resource}: đọc",
+      "readWrite": "{resource}: đọc và ghi"
+    }
+  },
+  "edit": {
+    "button": "Đổi quyền truy cập",
+    "title": "Đổi những gì {name} được phép làm",
+    "body": "Token vẫn giữ nguyên mã bí mật; thay đổi có hiệu lực từ yêu cầu tiếp theo của nó.",
+    "legacy": "Token này được tạo trước khi quyền truy cập được chọn theo từng tài nguyên, nên nó có thể đọc mọi thứ (và ghi mọi thứ, nếu được tạo để ghi), kể cả những gì được thêm sau này. Khi lưu, nó sẽ có đúng những gì bạn chọn ở đây.",
+    "errors": {
+      "scopes": "Hãy chọn ít nhất một việc token được phép làm.",
+      "notFound": "Token này không còn tồn tại.",
+      "generic": "Không thể thay đổi token. Hãy thử lại."
+    }
+  }
+}

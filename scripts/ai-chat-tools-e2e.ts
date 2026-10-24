@@ -42,6 +42,7 @@ const { Readable } = await import("node:stream");
 type ChatEvent = import("@/lib/ai-chat").ChatEvent;
 type ChatInput = import("@/server/ai-chat").ChatInput;
 type ChatActionView = import("@/lib/ai-chat").ChatActionView;
+type FormConfig = import("@/db/schema/app").FormConfig;
 
 const RUN = `aichat-tools-e2e-${Date.now().toString(36)}`;
 
@@ -297,6 +298,45 @@ try {
   fake.chats.length = 0;
   await ask(alice, { workspaceId, message: "Make a form" });
   check(lastResults()[0]?.startsWith("The change is not valid:"), "a question about a property the database doesn't have is refused", lastResults());
+
+  fake.setChat(
+    caller([
+      {
+        name: "create_form",
+        arguments: {
+          database_id: tasks.id,
+          title: "Urgent tasks",
+          questions: [{ property: "title" }, { property: "Priority" }, { property: "Due", required: true, show_when: { question: "Priority", check: "is", values: ["High"] } }],
+          show_own_answers: true,
+        },
+      },
+    ]),
+  );
+  await ask(alice, { workspaceId, message: "Make a form that asks for a due date only for urgent tasks" });
+  const [conditional] = await db
+    .select()
+    .from(databaseView)
+    .where(and(eq(databaseView.databaseId, tasks.id), eq(databaseView.name, "Urgent tasks")));
+  const conditionalForm = (conditional?.config as { form?: FormConfig } | undefined)?.form;
+  const due = conditionalForm?.questions?.find((q) => q.propertyId === taskProps.find((p) => p.name === "Due")?.id);
+  check(
+    due?.showIf?.propertyId === priority!.id &&
+      due.showIf.values?.[0] === priority!.options.options?.find((o) => o.name === "High")?.id &&
+      conditionalForm?.showOwnAnswers === true,
+    "create_form sets a question's condition by option name, and shows people their own answers",
+    conditionalForm,
+  );
+  fake.setChat(
+    caller([
+      {
+        name: "create_form",
+        arguments: { database_id: tasks.id, questions: [{ property: "Due", show_when: { question: "Priority", check: "is", values: ["High"] } }, { property: "Priority" }] },
+      },
+    ]),
+  );
+  fake.chats.length = 0;
+  await ask(alice, { workspaceId, message: "Make a form" });
+  check(lastResults()[0]?.startsWith("The change is not valid:"), "a condition about a later question is refused", lastResults());
 
   // ── CSV files ─────────────────────────────────────────────────────────────────────────────
   /** Uploads a file as the chat box does; its id, to send with a question. */

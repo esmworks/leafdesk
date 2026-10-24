@@ -10,6 +10,30 @@
     "labelPlaceholder": "Domanda",
     "helpPlaceholder": "Aggiungi un testo di aiuto (facoltativo)",
     "required": "Obbligatoria",
+    "showWhen": "Mostra solo se",
+    "addCondition": "Mostra solo se…",
+    "removeCondition": "Rimuovi condizione",
+    "conditionQuestion": "Domanda a cui si riferisce la condizione",
+    "conditionCheck": "Condizione",
+    "conditionOptions": "Opzioni cercate dalla condizione",
+    "conditionText": "Testo",
+    "conditionPickOption": "Scegli almeno un’opzione per salvare questa condizione.",
+    "conditionTypeText": "Scrivi un testo per salvare questa condizione.",
+    "op": {
+      "is": "è una tra",
+      "isNot": "non è nessuna tra",
+      "contains": "contiene",
+      "notContains": "non contiene",
+      "hasAny": "include una tra",
+      "hasNone": "non include nessuna tra",
+      "checked": "è selezionata",
+      "unchecked": "non è selezionata",
+      "empty": "è vuota",
+      "notEmpty": "non è vuota"
+    },
+    "minChoices": "Almeno",
+    "maxChoices": "Al massimo",
+    "anyNumber": "Qualsiasi",
     "moveUp": "Sposta su",
     "moveDown": "Sposta giù",
     "remove": "Rimuovi domanda",
@@ -27,7 +51,9 @@
     "afterTitle": "Dopo l’invio",
     "confirmationLabel": "Messaggio",
     "confirmationPlaceholder": "Grazie! La tua risposta è stata inviata.",
-    "allowAnother": "Consenti di inviare un’altra risposta"
+    "allowAnother": "Consenti di inviare un’altra risposta",
+    "showOwnAnswers": "Mostra a ciascuno le proprie risposte",
+    "showOwnAnswersDescription": "Chi accede per rispondere vede ciò che ha inviato con questo modulo, e nient’altro del database. Le risposte anonime non vengono mai mostrate."
   },
   "fill": {
     "submit": "Invia",
@@ -41,7 +67,18 @@
     "addItem": "Aggiungi un elemento",
     "newItem": "Nuovo elemento",
     "removeItem": "Rimuovi {text}",
-    "honeypot": "Lascia vuoto questo campo"
+    "honeypot": "Lascia vuoto questo campo",
+    "choicesExactly": "Scegline esattamente {count}.",
+    "choicesBetween": "Scegline da {min} a {max}.",
+    "choicesAtLeast": "Scegline almeno {min}.",
+    "choicesAtMost": "Scegline al massimo {max}."
+  },
+  "own": {
+    "title": "Le tue risposte",
+    "description": "Ciò che hai inviato con questo modulo. Solo tu vedi questo elenco.",
+    "none": "Non hai ancora inviato risposte.",
+    "sentAt": "Inviata {date}",
+    "empty": "Nessuna risposta da mostrare."
   },
   "share": {
     "button": "Condividi",
@@ -69,6 +106,7 @@
     "required": "Questa domanda è obbligatoria.",
     "tooLong": "Questa risposta è troppo lunga (al massimo {max} caratteri).",
     "tooMany": "Scegline al massimo {max}.",
+    "tooFew": "Scegline almeno {min}.",
     "invalidText": "Questa risposta deve essere un testo.",
     "invalidAnswers": "Alcune risposte vanno ricontrollate.",
     "closed": "Questo modulo non accetta più risposte.",

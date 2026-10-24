@@ -64,6 +64,9 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   property access, dependent selects; a place's address is looked up there first, through
   `geocoder.ts`, because the shared `normalizeValue` is synchronous and takes only coordinates); a
   write that stores values another way (`ai-properties.ts` `saveValue`) calls `followOrRefuse` itself.
+  Several linked databases at once (views, example rows, an intro page) are a plan: checked in
+  `src/lib/database-plan.ts`, created all-or-nothing by `database-plan.ts` `createFromPlan`, which
+  Build with AI (`ai-build.ts` drafts the plan) and the AI chat's `create_database` both use.
 - **Shared operations.** `src/server/operations.ts` is what the MCP tools, the REST API, the AI
   chat, agents and automations do with pages, databases, rows and comments. Each operation runs as
   `ctx.userId` with that person's access; the caller checks its own scopes first.
@@ -130,8 +133,11 @@ because they are separate module graphs.
   `src/lib/contrast.test.ts`: colors in `globals.css` keep their contrast.
 - `src/server/mcp/tools-context.test.ts`: the MCP tool list every client sends its model stays
   under 275 KB in all and 25 KB per tool. Raise a number only on purpose, in the same commit.
-- `scripts/bundle-budget.ts` (CI, after `pnpm build`): client JS budgets. Raise one only on purpose,
-  in the same commit.
+- `scripts/bundle-budget.ts` (CI, after `pnpm build`): gzipped client JS budgets for the largest
+  route's first load, all routes' first-load chunks together and the largest on-demand chunk. Lazy
+  code has no total. Anything in `src/app/w/[workspaceId]/layout.tsx`'s static imports (sidebar,
+  row panel, AI chat) is in every workspace route's first load: load editors, views and occasional
+  dialogs there with `lazy`/`dynamic`. Raise a budget only on purpose, in the same commit.
 
 ## Conventions
 

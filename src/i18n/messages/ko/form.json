@@ -10,6 +10,30 @@
     "labelPlaceholder": "질문",
     "helpPlaceholder": "도움말 텍스트 추가 (선택 사항)",
     "required": "필수",
+    "showWhen": "다음 경우에만 표시",
+    "addCondition": "다음 경우에만 표시…",
+    "removeCondition": "조건 삭제",
+    "conditionQuestion": "조건이 가리키는 질문",
+    "conditionCheck": "조건",
+    "conditionOptions": "조건이 찾는 옵션",
+    "conditionText": "텍스트",
+    "conditionPickOption": "이 조건을 저장하려면 옵션을 하나 이상 선택하세요.",
+    "conditionTypeText": "이 조건을 저장하려면 텍스트를 입력하세요.",
+    "op": {
+      "is": "다음 중 하나임",
+      "isNot": "다음 중 어느 것도 아님",
+      "contains": "포함",
+      "notContains": "포함하지 않음",
+      "hasAny": "다음 중 하나를 포함",
+      "hasNone": "다음 중 어느 것도 포함하지 않음",
+      "checked": "선택됨",
+      "unchecked": "선택되지 않음",
+      "empty": "비어 있음",
+      "notEmpty": "비어 있지 않음"
+    },
+    "minChoices": "최소",
+    "maxChoices": "최대",
+    "anyNumber": "제한 없음",
     "moveUp": "위로 이동",
     "moveDown": "아래로 이동",
     "remove": "질문 제거",
@@ -27,7 +51,9 @@
     "afterTitle": "제출 후",
     "confirmationLabel": "메시지",
     "confirmationPlaceholder": "감사합니다! 응답이 전송되었습니다.",
-    "allowAnother": "다른 응답 제출 허용"
+    "allowAnother": "다른 응답 제출 허용",
+    "showOwnAnswers": "응답자에게 자신의 응답 표시",
+    "showOwnAnswersDescription": "로그인해 응답한 사람은 이 양식으로 보낸 내용만 볼 수 있으며 데이터베이스의 다른 내용은 볼 수 없습니다. 익명 응답은 표시되지 않습니다."
   },
   "fill": {
     "submit": "제출",
@@ -41,7 +67,18 @@
     "addItem": "항목 추가",
     "newItem": "새 항목",
     "removeItem": "{text} 제거",
-    "honeypot": "이 필드는 비워 두세요"
+    "honeypot": "이 필드는 비워 두세요",
+    "choicesExactly": "정확히 {count}개를 선택하세요.",
+    "choicesBetween": "{min}~{max}개를 선택하세요.",
+    "choicesAtLeast": "최소 {min}개를 선택하세요.",
+    "choicesAtMost": "최대 {max}개까지 선택하세요."
+  },
+  "own": {
+    "title": "내 응답",
+    "description": "이 양식으로 보낸 내용입니다. 이 목록은 나만 볼 수 있습니다.",
+    "none": "아직 보낸 응답이 없습니다.",
+    "sentAt": "{date}에 보냄",
+    "empty": "표시할 응답이 없습니다."
   },
   "share": {
     "button": "공유",
@@ -69,6 +106,7 @@
     "required": "필수 질문입니다.",
     "tooLong": "응답이 너무 깁니다(최대 {max}자).",
     "tooMany": "최대 {max}개까지 선택하세요.",
+    "tooFew": "최소 {min}개를 선택하세요.",
     "invalidText": "응답은 텍스트여야 합니다.",
     "invalidAnswers": "일부 응답을 다시 확인해야 합니다.",
     "closed": "이 양식은 더 이상 응답을 받지 않습니다.",

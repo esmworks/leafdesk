@@ -181,6 +181,10 @@ describe("attached files and new databases", () => {
     expect(await prepare("create_database", { title: "T", properties: [{ name: "Title", type: "text" }] })).toMatchObject({ content: expect.stringContaining('"Title" is taken') });
     expect(await prepare("create_database", { title: "T", properties: [{ name: "A", type: "text" }, { name: "a", type: "number" }] })).toMatchObject({ content: expect.stringContaining('"a" is taken') });
     expect(await prepare("create_database", { title: "T", properties: [{ name: "F", type: "formula" }] })).toMatchObject({ content: expect.stringContaining("type must be one of") });
+    // Checked as every plan of databases is (lib/database-plan): a status needs a done option.
+    expect(await prepare("create_database", { title: "T", properties: [{ name: "Stage", type: "status", options: ["Open"] }] })).toMatchObject({
+      content: 'The change is not valid: property "Stage": a status needs at least one option in the "done" group.',
+    });
     // In a page's chat, it goes under a page of that scope.
     expect(await prepare("create_database", { title: "T" }, "scope")).toMatchObject({ content: expect.stringContaining("give parent_id") });
   });

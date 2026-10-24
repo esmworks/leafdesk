@@ -25,7 +25,7 @@ after you approve them over OAuth.
   tell it, reusable skills, and agents that work on database rows, with Anthropic, OpenAI, Google
   or a local model.
 - **Bring your pages**: import a Notion *Markdown & CSV* export, an Obsidian vault, a Trello board,
-  Markdown files, Word documents, a folder or CSV.
+  an Asana project, a Monday.com board, Markdown files, Word documents, a folder or CSV.
 - **Ready for a team**: teamspaces, page permissions, guests, single sign-on (OIDC, SAML), SCIM,
   two-step verification, passkeys and an audit log.
 - **Yours to run**: one `docker compose up` on your own server, data in your PostgreSQL,
@@ -248,7 +248,13 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
     aren't named, and entries about a deleted property come back with it. Text is kept with
     credentials masked; the activity goes with the row when it is deleted for good.
   - Form views collect answers as new rows, in the app or through a public link, signed in or
-    anonymous.
+    anonymous. A question can be asked only when an earlier answer is or isn't one of some
+    options, contains a text, is ticked or is empty; questions not asked aren't required and
+    their answers are dropped, which the server works out again from the answers it gets.
+    Multi-select, people, linked-row and file questions can take at least and at most a number of
+    choices. A form can show people who signed in to answer what they sent through it (only its
+    questions, never other rows or properties, even without access to the database); anonymous
+    answers are never shown.
   - Put a database inside any page, or show a view of an existing one there. A table block turns
     into a database from its block menu: its first row names the properties.
   - Lock a database to freeze its properties and views, and export its rows as CSV.
@@ -295,6 +301,10 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   or a small business: customers, the quotes given to them, jobs and a balance sheet, linked to each
   other, with a dashboard over all four and a weekly plan. A new workspace can start with it.
   Templates stay out of the sidebar, search, trash and published sites.
+- **Build with AI** (with AI set up): describe what you want to keep track of and AI drafts the
+  databases for it, with typed properties, options, relations between them, a few views and example
+  rows; you rename or remove what you don't need before anything is created (see
+  [Building databases with AI](#ai-features)).
 - **Comments**: select text and comment on it; reply, react, resolve and reopen threads, live for
   everyone on the page. People who can comment on a page (or edit it) write comments and viewers
   read along; full access also deletes other people's comments.
@@ -507,6 +517,40 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   to Trello, and images in descriptions become links. Archived lists and cards are left out and
   counted before importing. Trello's export holds only a board's more recent actions, so the oldest
   comments of a busy board may be missing.
+- **Import from Asana**: in Asana, choose *Export → CSV* (or *JSON*) in the project's menu, and
+  pick the downloaded file on Import's Asana tab. The project becomes a database named after it
+  that opens on a board view grouped by section: sections become a select in the order they come,
+  completion a status (to do or done), the assignee a person when exactly one person in the
+  workspace has their email address (by name when the export has no address) and text otherwise,
+  start and due dates one date (a range when both are set), tags a multi-select, and custom fields
+  properties typed by their values (number, date, select and so on; the JSON export says their
+  types and option colors itself), which the Import dialog shows and lets you change before
+  importing. Subtasks become sub-items of their task, and *Blocked By* and *Blocking* the
+  database's dependencies; both find tasks by id, else by name when exactly one task has it. Notes
+  become the row's body, where links to tasks of the project lead to their rows; the JSON export's
+  comments follow under their author and time and its attachments as links (nothing is
+  downloaded). *Created At*, *Last Modified* and other projects a task is in are left out and
+  listed in the result, as are parents and dependencies that name no task of the export. Tested
+  against files built from Asana's documented export format, not yet a real export.
+- **Import from Monday.com**: in Monday.com, choose *Export board to Excel* in the board's menu
+  (with updates, if you want them), and pick the downloaded `.xlsx` (or its sheet saved as CSV) on
+  Import's Monday.com tab. The board becomes a database named after it that opens on a board view
+  grouped by group, and subitems become sub-items of their item. The export doesn't say what kind
+  each column is, so it is guessed from the column's name and values, shown in the Import dialog
+  and changeable there: *Status* (and Stage, State) becomes a status whose labels are options (Done
+  and the like done, Working on it and Stuck in progress, others to do); Person, People, Owner and
+  the like people, matched by name when exactly one person in the workspace has it (text
+  otherwise); dates a date, timelines (`2026-10-01 - 2026-10-05`) a date range, numbers a number,
+  Tags and Dropdown a multi-select, links a URL (the address, without its text), email addresses
+  and phone numbers their own types, `v` checkboxes a checkbox, a *Location* column a place when
+  every value carries its coordinates (an address alone stays text: the import doesn't look
+  addresses up), and the rest text. A *Dependency*
+  column becomes the database's dependencies, by item name. Updates become comments in the row's
+  body under their author and time, where links to items of the board lead to their rows; files
+  and links stay links. Other sheets of the workbook, and updates or dependencies naming no item,
+  are listed in the result. Read as the documented layout: the board's name on top, each group's
+  name over its header row, subitems one column in under their item, updates on a sheet of their
+  own. Tested against files built from that layout, not yet a real export.
 - **Workspaces and members**: add people by email (several at once) as owners or members, send
   an invitation link to people who don't have an account yet (or whose account's address was
   never verified: anyone can sign up with someone else's address), or turn on a join link anyone
@@ -2028,6 +2072,7 @@ as it can (Claude Sonnet and Opus 5.5 can't stop thinking, so "off" is low effor
 | Chat | `AI_MODEL` (or the model picked, see `AI_CHAT_MODELS`) | medium |
 | Chat in research mode | `AI_MODEL` (or the model picked) | the model's default |
 | Drafting an agent from a description | `AI_MODEL` | medium |
+| Building databases from a description | `AI_MODEL` | medium |
 | Agents | `AI_MODEL` | the model's default (Claude 5.5: high) |
 | Agents set to the fast model | `AI_FAST_MODEL` | low |
 
@@ -2045,6 +2090,21 @@ page, *Try again* asks again and *Discard* (or Escape) drops it. *Stop* cancels 
 a suggestion is added, the page's current version is saved in its history ("Before AI assistant
 edit"), and the change is an ordinary edit everyone sees live, which Undo takes back. Only people
 who may edit a page can use it there.
+
+**Building databases with AI.** *Build with AI* in the sidebar's *+* menus, on the home page, in
+Cmd+K (`>`) and as `/` *Build databases with AI* in a page opens a box to describe what you want
+to keep track of ("a hiring pipeline: candidates, their interviews and who interviews whom"). The
+AI drafts a plan of up to four databases: their properties with types, select options with
+colors, statuses with their groups, relations between the databases (one or both ways), up to six
+views each (tables, boards by a select or status, calendars and timelines by a date, galleries,
+lists, with filters and sorts), a few example rows and, from the menus, a page about them that
+holds them. The plan is checked against the property and view types Leafdesk has; one that doesn't
+pass goes back to the AI once with what is wrong. You then see it and rename or remove databases,
+properties and views, and leave out the example rows or the page, before *Create* makes it as you,
+where you opened the box (in a page: under it, with a database block for each). Everything is made
+or nothing is: a step that fails takes back what came before it. The AI chat's `create_database`
+(one database with its properties) goes through the same check and creation. It counts as *Other*
+in Settings > AI usage and is held to the workspace's AI limits.
 
 **AI properties.** In a database, *+* → *AI autofill* adds a text property that AI fills in; any
 text property's menu has *AI autofill…* too. It can write a summary of each row's page, a
@@ -3556,7 +3616,7 @@ published under the Apache License 2.0 and stay available under it.
 
 Notion is a trademark of Notion Labs, Inc. Leafdesk is an independent project, not affiliated with,
 endorsed by or sponsored by Notion Labs, Inc. The name appears only to describe what Leafdesk is an
-alternative to and what it imports from. Obsidian and Trello are trademarks of their owners;
+alternative to and what it imports from. Obsidian, Trello, Asana and Monday.com are trademarks of their owners;
 Leafdesk is not affiliated with them either, and names them only to describe what it imports. The names and logos of
 the services in the connection catalog are trademarks of their owners; Leafdesk shows them only to
 identify the service a connection reaches, and is not affiliated with or endorsed by them.

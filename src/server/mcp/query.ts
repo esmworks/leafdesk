@@ -3,6 +3,7 @@ import type {
   FilterEntry,
   FilterOp,
   FilterRule,
+  FormCondition,
   PropertyOptions,
   PropertyType,
   SortRule,
@@ -37,7 +38,7 @@ import {
   rangeNeedsDays,
 } from "@/lib/filters";
 import { asFiles } from "@/lib/files";
-import { formDefaults, formQuestions, isPublicAskable } from "@/lib/forms";
+import { formDefaults, formQuestions, isPublicAskable, type ResolvedQuestion } from "@/lib/forms";
 import { groupDateByOf, type GroupContext, type GroupValue } from "@/lib/grouping";
 import { pageLabel } from "@/lib/labels";
 import {
@@ -454,18 +455,33 @@ function describeForm(props: PropertyDef[], form: NonNullable<ViewConfig["form"]
   return {
     ...(form.title ? { title: form.title } : {}),
     ...(form.description ? { description: form.description } : {}),
-    questions: formQuestions(form, props).map((q) => ({
+    questions: formQuestions(form, props).map((q, _, all) => ({
       property: q.prop?.name ?? "title",
       ...(q.required ? { required: true } : {}),
       ...(q.label ? { label: q.label } : {}),
       ...(q.description ? { description: q.description } : {}),
       ...(q.prop && !isPublicAskable(q.prop.type) ? { public: false } : {}),
+      ...(q.showIf ? { asked_when: describeCondition(q.showIf, all) } : {}),
+      ...(q.minChoices !== undefined ? { min_choices: q.minChoices } : {}),
+      ...(q.maxChoices !== undefined ? { max_choices: q.maxChoices } : {}),
     })),
     ...(Object.keys(defaults).length
       ? { defaults: displayProperties(props.filter((p) => p.id in defaults), defaults, lookups) }
       : {}),
     ...(form.confirmation ? { confirmation_message: form.confirmation } : {}),
     ...(form.allowAnother === false ? { allow_another: false } : {}),
+    ...(form.showOwnAnswers ? { shows_own_answers: true } : {}),
+  };
+}
+
+/** A question's condition by name: the question it is about, the check, and option names or the text. */
+function describeCondition(condition: FormCondition, questions: ResolvedQuestion<PropertyDef>[]) {
+  const source = questions.find((q) => q.propertyId === condition.propertyId);
+  const options = source?.prop?.options.options;
+  return {
+    question: source?.prop?.name ?? "title",
+    check: condition.op,
+    ...(condition.values ? { values: condition.values.map((v) => options?.find((o) => o.id === v)?.name ?? v) } : {}),
   };
 }
 

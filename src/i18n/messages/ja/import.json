@@ -1,12 +1,14 @@
 {
   "open": "インポート",
   "title": "インポート",
-  "description": "Markdownファイル、ZIPエクスポート、Word文書からページを、CSVファイルやExcelブックから行を、またはTrelloのボードを取り込みます。",
+  "description": "Markdownファイル、ZIPエクスポート、Word文書からページを、CSVファイルやExcelブックから行を、またはTrello、Asana、Monday.comのボードを取り込みます。",
   "tabs": {
     "pages": "MarkdownとZIP",
     "docx": "Word",
     "csv": "CSVとExcel",
-    "trello": "Trello"
+    "trello": "Trello",
+    "asana": "Asana",
+    "monday": "Monday.com"
   },
   "destination": "配置先",
   "topLevel": "ワークスペースの最上位",
@@ -67,6 +69,35 @@
       "comments": "コメント"
     }
   },
+  "asana": {
+    "help": "Asanaでプロジェクトのメニューを開き、エクスポート → CSV（またはJSON）を選んで、ダウンロードしたファイルを選びます。プロジェクトはセクションごとのボードビューを持つデータベースになり、完了状態、担当者、日付、タグ、カスタムフィールド、メモ、サブタスク、依存関係も取り込まれます。",
+    "choose": "Asanaのエクスポートを選ぶ（.csv または .json）",
+    "summary": "{name}: {groups}個のセクション、{items}件のタスク、{subitems}件のサブタスク"
+  },
+  "monday": {
+    "help": "Monday.comでボードのメニューを開き、ボードをExcelにエクスポート（必要なら更新も含めて）を選んで、ダウンロードしたファイルを選びます。ボードはグループごとのボードビューを持つデータベースになり、列、サブアイテム、更新も取り込まれます。",
+    "choose": "Monday.comのエクスポートを選ぶ（.xlsx または .csv）",
+    "summary": "{name}: {groups}個のグループ、{items}件のアイテム、{subitems}件のサブアイテム"
+  },
+  "board": {
+    "links": "何もダウンロードしません。エクスポート内のファイルとリンクはリンクのままです。",
+    "comments": "{count}件のコメントは、投稿者と日時とともに各行のページに入ります。",
+    "leftOut": "取り込まないもの: {list}",
+    "types": "各列が何になるかを確認してください。エクスポートには列の種類がないため、推測しています。",
+    "names": {
+      "section": "セクション",
+      "group": "グループ",
+      "status": "ステータス",
+      "toDo": "未着手",
+      "done": "完了",
+      "assignee": "担当者",
+      "tags": "タグ",
+      "dates": "日付",
+      "others": "{column}（その他）",
+      "attachments": "添付ファイル",
+      "comments": "コメント"
+    }
+  },
   "import": "インポート",
   "importing": "インポート中…",
   "done": {
@@ -86,6 +117,7 @@
   "warnings": {
     "heading": "除外または変更されたもの",
     "invalidValues": "「{column}」の{count}個の値はプロパティに合わなかったため、空のままにしました。",
+    "leftOutColumn": "「{column}」は取り込みませんでした。",
     "missingFile": "「{page}」からリンクされている「{path}」は、アップロードに含まれていませんでした。",
     "unresolvedLink": "「{page}」内の「[[{target}]]」は、アップロードしたノートやファイルのどれとも一致しないため、テキストのまま残ります。",
     "fileNotStored": {
@@ -120,6 +152,8 @@
     "badDocx": "「{name}」をWord文書として読み取れません。インポートできるのは.docxファイルだけです。古い.docファイルは先に.docxとして保存してください。",
     "docxTooComplex": "「{name}」は大きすぎるか複雑すぎるため、1ページとしてインポートできません。",
     "badTrello": "このファイルはTrelloのボードのエクスポートではありません。Trelloでボードのメニューから「JSONとしてエクスポート」を選び、そのファイルを選択してください。",
+    "badAsana": "このファイルはAsanaのプロジェクトのエクスポートではありません。Asanaでプロジェクトのメニューからエクスポート → CSV または JSON を選び、そのファイルを選んでください。",
+    "badMonday": "このファイルはMonday.comのボードのエクスポートではありません。Monday.comでボードのメニューからボードをExcelにエクスポートを選び、そのファイルを選んでください。",
     "badMapping": "少なくとも1つの列の取り込み先を選択し、各プロパティは1回だけ使ってください。",
     "noAccess": "そこにはページを追加できないか、すでに存在しません。",
     "notADatabase": "行はデータベースにしか追加できません。",

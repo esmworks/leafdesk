@@ -4,7 +4,8 @@
  * public links (on and off, anonymous or signed in, the publishing policy, owners revoking them,
  * nothing but the questions leaking), the spam guards (rate limits, honeypot, fill time), copies
  * never keeping a link, links closing when the publisher loses access or the database goes to the
- * trash, and forms over MCP.
+ * trash, forms over MCP, and conditional questions (answers to questions not asked dropped,
+ * required only when asked), choice limits and people seeing only their own answers.
  * Creates its own users and workspace and deletes them afterwards.
  *
  *   pnpm tsx scripts/form-e2e.ts
@@ -20,15 +21,14 @@ try {
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
 const { and, eq, inArray, isNull } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { databaseView, formPublication, notification, page, user, workspace, workspaceMember } = await import("@/db/schema");
+const { databaseView, formPublication, formSubmission, notification, page, user, workspace, workspaceMember } = await import("@/db/schema");
 const { InMemoryTransport } = await import("@modelcontextprotocol/server");
 const { registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
 const { createMcpServer } = await import("@/server/mcp/tools");
 const { READ_SCOPE, WRITE_SCOPE } = await import("@/server/mcp/principal");
-const { addProperty, addView, deleteProperty, deleteView, getDatabaseSnapshot, getProperties, updateView } = await import(
-  "@/server/databases"
-);
+const { addProperty, addView, deleteProperty, deleteView, getDatabaseSnapshot, getProperties, updateRowProperties, updateView } =
+  await import("@/server/databases");
 const { getPublishedPage, publishPage } = await import("@/server/publication");
 const forms = await import("@/server/forms");
 const { duplicatePage } = await import("@/server/duplicate");
@@ -495,6 +495,209 @@ try {
   await setPagePermission(ids.owner, leads.id, ids.member, "full");
   const memberMcp = await callTool(ids.member, "update_database_view", { database_id: leads.id, view_id: made.data.id, public: true });
   check(memberMcp.isError && /only owners publish/.test(memberMcp.text), "MCP follows the publishing policy", memberMcp.text);
+  await updateWorkspaceSettings(ids.owner, workspaceId, { publishing: "members" });
+
+  // Conditions, choice limits and people's own answers
+  const reports = await createPage(actor, { workspaceId, kind: "database", title: "Reports" });
+  await setPagePermission(ids.owner, reports.id, ids.member, "edit");
+  const kind = await addProperty(ids.owner, reports.id, { name: "Kind", type: "select", options: ["Bug", "Idea"] });
+  const details = await addProperty(ids.owner, reports.id, { name: "Details", type: "text" });
+  const areas = await addProperty(ids.owner, reports.id, { name: "Areas", type: "multi_select", options: ["A", "B", "C", "D"] });
+  const followUp = await addProperty(ids.owner, reports.id, { name: "Follow up", type: "checkbox" });
+  const replyTo = await addProperty(ids.owner, reports.id, { name: "Reply to", type: "email" });
+  const internal = await addProperty(ids.owner, reports.id, { name: "Internal", type: "text" });
+  const bug = optionId(kind, "Bug");
+  const idea = optionId(kind, "Idea");
+  const reportForm = await addView(ids.owner, reports.id, { name: "Report", type: "form" });
+  const reportQuestions = [
+    { propertyId: FORM_TITLE, required: true },
+    { propertyId: kind.id, required: true },
+    { propertyId: details.id, required: true, showIf: { propertyId: kind.id, op: "is" as const, values: [bug] } },
+    { propertyId: areas.id, minChoices: 2, maxChoices: 3 },
+    { propertyId: followUp.id },
+    { propertyId: replyTo.id, required: true, showIf: { propertyId: followUp.id, op: "checked" as const } },
+  ];
+  const laterRef = await failure(() =>
+    updateView(ids.owner, reportForm.id, {
+      config: { form: { questions: [{ propertyId: details.id, showIf: { propertyId: kind.id, op: "is", values: [bug] } }, { propertyId: kind.id }] } },
+    }),
+  );
+  check(laterRef instanceof PropertyValueError, "a condition about a later question is refused", String(laterRef));
+  const badOption = await failure(() =>
+    updateView(ids.owner, reportForm.id, {
+      config: { form: { questions: [{ propertyId: kind.id }, { propertyId: details.id, showIf: { propertyId: kind.id, op: "is", values: ["nope"] } }] } },
+    }),
+  );
+  check(badOption instanceof PropertyValueError, "a condition naming an option the property doesn't have is refused", String(badOption));
+  const badCheck = await failure(() =>
+    updateView(ids.owner, reportForm.id, {
+      config: { form: { questions: [{ propertyId: kind.id }, { propertyId: details.id, showIf: { propertyId: kind.id, op: "checked" } }] } },
+    }),
+  );
+  check(badCheck instanceof PropertyValueError, "a check a select can't take is refused", String(badCheck));
+  const textLimits = await failure(() =>
+    updateView(ids.owner, reportForm.id, { config: { form: { questions: [{ propertyId: details.id, maxChoices: 2 }] } } }),
+  );
+  check(textLimits instanceof PropertyValueError, "choice limits on a text question are refused", String(textLimits));
+  await updateView(ids.owner, reportForm.id, { config: { form: { questions: reportQuestions, showOwnAnswers: true } } });
+
+  const noDetails = await failure(() => forms.submitForm(ids.member, reportForm.id, { [FORM_TITLE]: "Crash", [kind.id]: bug }));
+  check(
+    formCode(noDetails) === "invalidAnswers" &&
+      (noDetails as InstanceType<typeof forms.FormError>).answers.map((e) => `${e.propertyId}:${e.code}`).join() === `${details.id}:required`,
+    "a required question is required while its condition is met",
+    noDetails,
+  );
+  const { id: ideaRow } = await forms.submitForm(ids.member, reportForm.id, {
+    [FORM_TITLE]: "Dark mode",
+    [kind.id]: "Idea",
+    [details.id]: "dropped",
+    [replyTo.id]: "not an email",
+    [followUp.id]: false,
+    [areas.id]: [optionId(areas, "A"), optionId(areas, "B")],
+  });
+  const ideaValues = (await rowById(ideaRow)).properties;
+  check(
+    !(details.id in ideaValues) && !(replyTo.id in ideaValues) && ideaValues[kind.id] === idea,
+    "answers to questions the other answers leave out are dropped, not checked",
+    ideaValues,
+  );
+  const tooFew = await failure(() =>
+    forms.submitForm(ids.member, reportForm.id, { [FORM_TITLE]: "X", [kind.id]: idea, [areas.id]: [optionId(areas, "A")] }),
+  );
+  const tooManyAreas = await failure(() =>
+    forms.submitForm(ids.member, reportForm.id, { [FORM_TITLE]: "X", [kind.id]: idea, [areas.id]: areas.options.options!.map((o) => o.id) }),
+  );
+  const codes = (e: unknown) => (e as InstanceType<typeof forms.FormError>).answers?.map((a) => `${a.code}:${a.params.min ?? a.params.max}`).join();
+  check(codes(tooFew) === "tooFew:2" && codes(tooManyAreas) === "tooMany:3", "choice limits are enforced on the server", [tooFew, tooManyAreas]);
+  const followed = await forms.submitForm(ids.member, reportForm.id, {
+    [FORM_TITLE]: "Login fails",
+    [kind.id]: bug,
+    [details.id]: "On Safari",
+    [followUp.id]: true,
+    [replyTo.id]: "member@example.test",
+  });
+  const followedValues = (await rowById(followed.id)).properties;
+  check(followedValues[details.id] === "On Safari" && followedValues[replyTo.id] === "member@example.test", "answers to questions that are asked are kept", followedValues);
+
+  // Their own answers in the app: the member's, newest first, never the owner's
+  await forms.submitForm(ids.owner, reportForm.id, { [FORM_TITLE]: "Owner's", [kind.id]: idea });
+  const memberOwn = await forms.listOwnSubmissions(ids.member, reportForm.id);
+  check(
+    memberOwn?.length === 2 && memberOwn[0].values[FORM_TITLE] === "Login fails" && memberOwn[1].values[FORM_TITLE] === "Dark mode",
+    "people see what they sent through the form in the app, newest first",
+    memberOwn,
+  );
+  check((await forms.listOwnSubmissions(ids.owner, reportForm.id))?.length === 1, "and only what they sent");
+
+  // Their own answers by the public link: each person sees theirs, and only the form's questions
+  forms.resetFormRateLimits();
+  const reportLink = await forms.publishForm(ids.owner, reportForm.id);
+  const reportTicket = forms.issueFormTicket(reportLink.token, now - 5_000);
+  const publicReport = await forms.getPublicForm(reportLink.token);
+  check(
+    publicReport?.showOwnAnswers === true &&
+      publicReport.questions.find((q) => q.propertyId === details.id)?.showIf?.values?.[0] === bug &&
+      publicReport.questions.find((q) => q.propertyId === areas.id)?.maxChoices === 3,
+    "the public form carries its conditions and limits",
+    publicReport?.questions,
+  );
+  const send = (userId: string, answers: Record<string, unknown>) =>
+    forms.submitPublicForm(reportLink.token, { answers, ticket: reportTicket }, { userId, ip: `10.9.0.${userIds.indexOf(userId)}`, now });
+  const publicHidden = await send(ids.outsider, { [FORM_TITLE]: "Outsider idea", [kind.id]: idea, [details.id]: "dropped too" });
+  check(!(details.id in (await rowById(publicHidden.id!)).properties), "public answers to questions not asked are dropped");
+  const publicMissing2 = await failure(() => send(ids.outsider, { [FORM_TITLE]: "Outsider bug", [kind.id]: bug }));
+  check(formCode(publicMissing2) === "invalidAnswers", "public answers need what their conditions ask for", publicMissing2);
+  await send(ids.guest, { [FORM_TITLE]: "Guest bug", [kind.id]: bug, [details.id]: "Guest details" });
+  // Someone on the team fills in a value the form doesn't ask, and one its conditions leave out.
+  await updateRowProperties(ids.owner, publicHidden.id!, { [internal.id]: "only for us", [details.id]: "filled in later" });
+  const outsiderOwn = await forms.listOwnPublicSubmissions(reportLink.token, ids.outsider);
+  const guestOwn = await forms.listOwnPublicSubmissions(reportLink.token, ids.guest);
+  check(
+    outsiderOwn?.length === 1 &&
+      outsiderOwn[0].values[FORM_TITLE] === "Outsider idea" &&
+      Object.keys(outsiderOwn[0].values).sort().join() === [FORM_TITLE, kind.id].sort().join(),
+    "a respondent sees their own answer: the questions asked, not other properties or questions left out",
+    outsiderOwn,
+  );
+  check(
+    guestOwn?.length === 1 && guestOwn[0].values[details.id] === "Guest details" && !JSON.stringify(guestOwn).includes("Outsider"),
+    "another respondent sees only theirs",
+    guestOwn,
+  );
+  check((await forms.listOwnPublicSubmissions(reportLink.token, null)) === null, "nobody signed in sees no answers");
+  check(
+    (await forms.listOwnPublicSubmissions(reportLink.token, ids.member))?.length === 2,
+    "answers sent to the same form in the app show on its public link too",
+  );
+  const records = await db.select().from(formSubmission).where(eq(formSubmission.viewId, reportForm.id));
+  check(records.length === 5 && records.every((r) => r.userId), "every signed-in answer records who sent it through which form", records);
+  await archivePage(ids.owner, publicHidden.id!);
+  check((await forms.listOwnPublicSubmissions(reportLink.token, ids.outsider))?.length === 0, "a row in the trash no longer shows");
+  await restorePage(ids.owner, publicHidden.id!);
+  await forms.publishForm(ids.owner, reportForm.id, { anonymous: true });
+  check(
+    (await forms.getPublicForm(reportLink.token))?.showOwnAnswers === false &&
+      (await forms.listOwnPublicSubmissions(reportLink.token, ids.outsider)) === null,
+    "an anonymous form shows nobody past answers",
+  );
+  const anonymousAnswer = await send(ids.outsider, { [FORM_TITLE]: "Anon", [kind.id]: idea });
+  check(
+    (await db.select().from(formSubmission).where(eq(formSubmission.rowId, anonymousAnswer.id!))).length === 0,
+    "an anonymous answer records nobody",
+  );
+  await forms.publishForm(ids.owner, reportForm.id, { anonymous: false });
+  await updateView(ids.owner, reportForm.id, { config: { form: { questions: reportQuestions } } });
+  check((await forms.listOwnPublicSubmissions(reportLink.token, ids.outsider)) === null, "with the setting off, nobody sees past answers");
+  check((await forms.listOwnSubmissions(ids.member, reportForm.id)) === null, "…in the app either");
+
+  // A copy keeps the conditions, about the copied properties
+  const reportsCopy = await duplicatePage(actor, reports.id, " (copy)");
+  const copiedProps = await getProperties(reportsCopy.id);
+  const [copiedForm] = (await db.select().from(databaseView).where(eq(databaseView.databaseId, reportsCopy.id))).filter((v) => v.type === "form");
+  const copiedDetails = copiedForm.config.form?.questions?.find((q) => q.propertyId === copiedProps.find((p) => p.name === "Details")!.id);
+  check(
+    copiedDetails?.showIf?.propertyId === copiedProps.find((p) => p.name === "Kind")!.id && copiedDetails.showIf.values?.[0] === bug,
+    "a copied form's conditions are about the copy's properties",
+    copiedForm.config.form,
+  );
+
+  // MCP replacing the questions keeps conditions and limits, and describes them
+  const mcpReorder = await callTool(ids.owner, "update_database_view", {
+    database_id: reports.id,
+    view_id: reportForm.id,
+    questions: [{ property: "title" }, { property: "Details" }, { property: "Kind" }, { property: "Areas" }],
+  });
+  const [reordered] = await db.select().from(databaseView).where(eq(databaseView.id, reportForm.id));
+  const reorderedBy = Object.fromEntries((reordered.config.form?.questions ?? []).map((q) => [q.propertyId, q]));
+  check(
+    !mcpReorder.isError && !reorderedBy[details.id].showIf && reorderedBy[areas.id].maxChoices === 3,
+    "MCP keeps choice limits and drops a condition its new order puts first",
+    reordered.config.form,
+  );
+  await updateView(ids.owner, reportForm.id, { config: { form: { questions: reportQuestions } } });
+  const describedReports = await callTool(ids.owner, "get_database", { database_id: reports.id });
+  const describedReport = describedReports.data.views.find((v: { id: string }) => v.id === reportForm.id);
+  const describedDetails = describedReport?.form?.questions?.find((q: { property: string }) => q.property === "Details");
+  check(
+    describedDetails?.asked_when?.question === "Kind" && describedDetails.asked_when.values?.[0] === "Bug",
+    "get_database describes conditions by name",
+    describedReport?.form,
+  );
+
+  // Deleting the property a condition is about leaves the question asked always
+  await deleteProperty(ids.owner, kind.id);
+  const afterDelete = await forms.getPublicForm(reportLink.token);
+  check(
+    afterDelete?.questions.find((q) => q.propertyId === details.id)?.showIf === undefined,
+    "a condition about a deleted property is dropped, the question kept",
+    afterDelete?.questions,
+  );
+  const [staleForm] = await db.select().from(databaseView).where(eq(databaseView.id, reportForm.id));
+  const renamed = await failure(() =>
+    updateView(ids.owner, reportForm.id, { config: { ...staleForm.config, form: { ...staleForm.config.form, title: "Report a problem" } } }),
+  );
+  check(renamed === null, "a form whose condition went stale can still be changed", renamed);
 
   console.log(`\n${passed} checks passed`);
 } finally {

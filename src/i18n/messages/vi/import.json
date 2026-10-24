@@ -1,0 +1,162 @@
+{
+  "open": "Nhập",
+  "title": "Nhập",
+  "description": "Đưa trang vào từ tệp Markdown, tệp xuất ZIP và tài liệu Word, đưa hàng vào từ tệp CSV hoặc sổ làm việc Excel, hoặc từ một bảng Trello.",
+  "tabs": {
+    "pages": "Markdown & ZIP",
+    "docx": "Word",
+    "csv": "CSV & Excel",
+    "trello": "Trello",
+    "asana": "Asana",
+    "monday": "Monday.com"
+  },
+  "destination": "Đặt dưới",
+  "topLevel": "Cấp cao nhất của không gian làm việc",
+  "filePage": "Trang chứa tệp",
+  "noDestination": "Không có trang nào mà bạn có thể thêm trang vào.",
+  "pages": {
+    "help": "Các tệp Markdown trở thành trang và thư mục giữ nguyên cấu trúc. Các tệp CSV trở thành cơ sở dữ liệu, và ảnh mà các trang liên kết đến sẽ được tải lên.",
+    "notion": "Từ Notion: xuất dưới dạng “Markdown & CSV” kèm trang con, rồi chọn tệp ZIP đúng như khi tải về (bản xuất bị chia nhỏ cũng dùng được). Trang con, cơ sở dữ liệu, quan hệ, hộp chú thích, mục thu gọn và ảnh đều được nhập kèm.",
+    "obsidian": "Từ Obsidian: chọn thư mục của vault, hoặc một tệp ZIP của nó. Liên kết giữa các ghi chú (cả [[wikilinks]]), ảnh và tệp nhúng, cùng hộp chú thích đều được nhập kèm.",
+    "chooseFiles": "Chọn tệp",
+    "chooseFolder": "Chọn một thư mục",
+    "drop": "hoặc thả tệp vào đây",
+    "selected": "{count, plural, other {# tệp}}, {size}",
+    "clear": "Xóa"
+  },
+  "docx": {
+    "help": "Mỗi tài liệu Word (.docx) trở thành một trang, kèm tiêu đề, danh sách, bảng, liên kết, hình ảnh và chú thích cuối trang. Tiêu đề ở trên cùng sẽ thành tiêu đề của trang; nếu không, tên tệp sẽ được dùng.",
+    "choose": "Chọn tệp Word"
+  },
+  "csv": {
+    "choose": "Chọn một tệp CSV hoặc Excel",
+    "summary": "{name}: {rows, plural, other {# hàng}}, {columns, plural, other {# cột}}",
+    "sheet": "Trang tính",
+    "mode": "Nhập dưới dạng",
+    "newDatabase": "Một cơ sở dữ liệu mới",
+    "existing": "Hàng của một cơ sở dữ liệu",
+    "name": "Tên",
+    "titleColumn": "Tiêu đề hàng lấy từ",
+    "noTitle": "Không có cột (hàng chưa đặt tên)",
+    "column": "Cột",
+    "type": "Loại",
+    "target": "Đưa vào",
+    "values": "Giá trị",
+    "leaveOut": "Bỏ qua",
+    "rowTitle": "Tiêu đề hàng",
+    "database": "Cơ sở dữ liệu",
+    "chooseDatabase": "Chọn một cơ sở dữ liệu",
+    "noDatabases": "Không có cơ sở dữ liệu nào mà bạn có thể thêm hàng vào.",
+    "cantLoad": "Không thể tải các thuộc tính của cơ sở dữ liệu này.",
+    "newOptions": "Các giá trị lựa chọn mà cơ sở dữ liệu chưa có sẽ được thêm làm tùy chọn."
+  },
+  "trello": {
+    "help": "Trong Trello, hãy mở menu của bảng và chọn In, xuất và chia sẻ → Xuất dưới dạng JSON, rồi chọn tệp đã tải về. Bảng sẽ trở thành một cơ sở dữ liệu với chế độ xem bảng Kanban: danh sách, nhãn, thành viên, ngày, danh sách kiểm tra, trường tùy chỉnh, mô tả và bình luận đều được nhập kèm. Các danh sách và thẻ đã lưu trữ sẽ bị bỏ qua.",
+    "attachments": "Không có gì được tải xuống từ Trello: các tệp đính kèm dạng liên kết vẫn là liên kết, và các tệp đã tải lên Trello được liên kết từ trang của từng thẻ.",
+    "choose": "Chọn một tệp xuất từ Trello (.json)",
+    "summary": "{name}: {lists, plural, other {# danh sách}}, {cards, plural, other {# thẻ}}",
+    "archived": "Đã lưu trữ nên bị bỏ qua: {lists, plural, other {# danh sách}} và {cards, plural, other {# thẻ}}.",
+    "names": {
+      "list": "Danh sách",
+      "labels": "Nhãn",
+      "members": "Thành viên",
+      "otherMembers": "Thành viên khác",
+      "dates": "Ngày",
+      "complete": "Hoàn thành",
+      "checklist": "Danh sách kiểm tra",
+      "link": "Liên kết",
+      "attachments": "Tệp đính kèm",
+      "comments": "Bình luận"
+    }
+  },
+  "asana": {
+    "help": "Trong Asana, hãy mở menu của dự án và chọn Xuất → CSV (hoặc JSON), rồi chọn tệp đã tải về. Dự án sẽ trở thành một cơ sở dữ liệu với chế độ xem bảng Kanban theo mục: trạng thái hoàn thành, người được giao, ngày, thẻ, trường tùy chỉnh, ghi chú, công việc con và phụ thuộc đều được nhập kèm.",
+    "choose": "Chọn một tệp xuất từ Asana (.csv hoặc .json)",
+    "summary": "{name}: {groups, plural, other {# mục}}, {items, plural, other {# công việc}}, {subitems, plural, other {# công việc con}}"
+  },
+  "monday": {
+    "help": "Trong Monday.com, hãy mở menu của bảng và chọn Xuất bảng sang Excel (kèm các cập nhật nếu bạn muốn), rồi chọn tệp đã tải về. Bảng sẽ trở thành một cơ sở dữ liệu với chế độ xem bảng Kanban theo nhóm: các cột, mục con và cập nhật của nó đều được nhập kèm.",
+    "choose": "Chọn một tệp xuất từ Monday.com (.xlsx hoặc .csv)",
+    "summary": "{name}: {groups, plural, other {# nhóm}}, {items, plural, other {# mục}}, {subitems, plural, other {# mục con}}"
+  },
+  "board": {
+    "links": "Không có gì được tải xuống: các tệp và liên kết trong bản xuất vẫn là liên kết.",
+    "comments": "{count, plural, other {# bình luận được đưa}} vào trang của các hàng, kèm tên tác giả và thời gian.",
+    "leftOut": "Bị bỏ qua: {list}.",
+    "types": "Hãy kiểm tra mỗi cột sẽ trở thành gì: bản xuất không cho biết loại của cột, nên loại đã được đoán.",
+    "names": {
+      "section": "Mục",
+      "group": "Nhóm",
+      "status": "Trạng thái",
+      "toDo": "Cần làm",
+      "done": "Hoàn thành",
+      "assignee": "Người được giao",
+      "tags": "Thẻ",
+      "dates": "Ngày",
+      "others": "{column} (khác)",
+      "attachments": "Tệp đính kèm",
+      "comments": "Bình luận"
+    }
+  },
+  "import": "Nhập",
+  "importing": "Đang nhập…",
+  "done": {
+    "title": "Đã nhập xong",
+    "created": "Đã tạo {list}.",
+    "nothing": "Không có gì mới được tạo.",
+    "open": "Mở",
+    "again": "Nhập thêm"
+  },
+  "counts": {
+    "pages": "{count, plural, other {# trang}}",
+    "databases": "{count, plural, other {# cơ sở dữ liệu}}",
+    "rows": "{count, plural, other {# hàng}}",
+    "templates": "{count, plural, other {# mẫu}}",
+    "files": "{count, plural, other {# tệp}}"
+  },
+  "warnings": {
+    "heading": "Bị bỏ qua hoặc đã thay đổi",
+    "invalidValues": "{count, plural, other {# giá trị}} trong “{column}” không phù hợp với thuộc tính và đã được để trống.",
+    "leftOutColumn": "Cột “{column}” chưa được nhập.",
+    "missingFile": "“{path}”, được liên kết từ “{page}”, không có trong tệp tải lên.",
+    "unresolvedLink": "“[[{target}]]” trong “{page}” không khớp với ghi chú hay tệp nào trong phần tải lên, nên được giữ nguyên là văn bản.",
+    "fileNotStored": {
+      "tooLarge": "“{path}” lớn hơn giới hạn tải lên và chưa được lưu.",
+      "quotaExceeded": "“{path}” chưa được lưu: không gian làm việc đã hết dung lượng lưu trữ tệp.",
+      "failed": "Không thể lưu “{path}”.",
+      "external": "“{path}” đã bị bỏ qua: hình ảnh được liên kết từ bên ngoài tài liệu.",
+      "unsupportedType": "“{path}” đã bị bỏ qua: trang không thể hiển thị hình ảnh thuộc loại này."
+    },
+    "skipped": {
+      "nestedZip": "“{path}” là một tệp ZIP lồng quá sâu và đã bị bỏ qua.",
+      "nestedDatabase": "“{path}” sẽ là cơ sở dữ liệu nằm trong cơ sở dữ liệu và đã bị bỏ qua.",
+      "duplicate": "“{path}” đã bị bỏ qua: phiên bản đầy đủ của cùng cơ sở dữ liệu đã được nhập.",
+      "tooLarge": "“{path}” quá lớn cho một trang và đã bị bỏ qua.",
+      "unused": "“{path}” đã bị bỏ qua: không có trang nào hiển thị hoặc liên kết đến nó.",
+      "unsafePath": "“{path}” đã bị bỏ qua: đường dẫn của nó dẫn ra ngoài tệp ZIP.",
+      "otherSheet": "Trang tính “{path}” đã bị bỏ qua: mỗi lần chỉ nhập một trang tính."
+    },
+    "more": "…và {count, plural, other {# mục nữa}}."
+  },
+  "errors": {
+    "tooLarge": "Phần tải lên lớn hơn {limit}.",
+    "tooManyFiles": "Một lần nhập chứa tối đa {limit} tệp.",
+    "tooManyPages": "Một lần nhập tạo tối đa {limit} trang.",
+    "tooManyRows": "Một tệp có tối đa {limit} hàng.",
+    "tooManyColumns": "Một tệp có tối đa {limit} cột.",
+    "badZip": "Không thể đọc tệp ZIP.",
+    "nothingToImport": "Không có tệp Markdown hoặc CSV nào để nhập.",
+    "emptyCsv": "Tệp không có hàng tiêu đề.",
+    "badWorkbook": "Không thể đọc tệp Excel.",
+    "unsupportedWorkbook": "Chỉ nhập được sổ làm việc .xlsx không có mật khẩu. Hãy lưu tệp dưới dạng Sổ làm việc Excel (.xlsx) không có mật khẩu rồi thử lại.",
+    "badDocx": "Không thể đọc “{name}” như một tài liệu Word. Chỉ nhập được tệp .docx; hãy lưu các tệp .doc cũ thành .docx trước.",
+    "docxTooComplex": "“{name}” quá lớn hoặc quá phức tạp để nhập thành một trang.",
+    "badTrello": "Tệp này không phải là tệp xuất của bảng Trello. Trong Trello, hãy chọn Xuất dưới dạng JSON từ menu của bảng và chọn tệp đó.",
+    "badAsana": "Tệp này không phải là tệp xuất của một dự án Asana. Trong Asana, hãy chọn Xuất → CSV hoặc JSON từ menu của dự án và chọn tệp đó.",
+    "badMonday": "Tệp này không phải là tệp xuất của một bảng Monday.com. Trong Monday.com, hãy chọn Xuất bảng sang Excel từ menu của bảng và chọn tệp đó.",
+    "badMapping": "Hãy chọn nơi đưa ít nhất một cột, và mỗi thuộc tính chỉ dùng một lần.",
+    "noAccess": "Bạn không thể thêm trang vào đó, hoặc nó không còn tồn tại.",
+    "notADatabase": "Chỉ có thể thêm hàng vào một cơ sở dữ liệu.",
+    "badRequest": "Việc nhập không thành công. Không có gì bị thay đổi."
+  }
+}

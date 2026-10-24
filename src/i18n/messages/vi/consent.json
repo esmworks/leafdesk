@@ -1,0 +1,37 @@
+{
+  "metaTitle": "Cấp quyền cho ứng dụng",
+  "expired": {
+    "title": "Liên kết này đã hết hạn",
+    "body": "Yêu cầu cấp quyền không hợp lệ hoặc đã quá cũ. Hãy quay lại ứng dụng bạn đang kết nối và bắt đầu lại."
+  },
+  "unknownClient": {
+    "title": "Ứng dụng không xác định",
+    "body": "Ứng dụng đang yêu cầu truy cập chưa được đăng ký với Leafdesk hoặc đã bị vô hiệu hóa. Hãy quay lại và thử kết nối lại."
+  },
+  "heading": "{client} muốn truy cập tài khoản Leafdesk của bạn",
+  "identifiedBy": "Ứng dụng này được nhận diện bởi {host}.",
+  "unverified": "Ứng dụng này tự đăng ký tự động và chưa được Leafdesk xem xét. Chỉ tiếp tục nếu chính bạn đã bắt đầu kết nối này.",
+  "notYou": "Không phải bạn?",
+  "willAllow": "Điều này sẽ cho phép {client}:",
+  "readOnlyHint": "Bỏ chọn để chỉ cấp quyền đọc. Mọi chỉnh sửa đều được lưu vào lịch sử trang trước, nên bạn có thể hoàn tác.",
+  "access": {
+    "all": "Quyền truy cập bao gồm mọi không gian làm việc bạn tham gia. Bạn có thể ngắt kết nối ứng dụng bất cứ lúc nào trong Cài đặt.",
+    "listed": "Quyền truy cập bao gồm mọi không gian làm việc bạn tham gia: {workspaces}. Bạn có thể ngắt kết nối ứng dụng bất cứ lúc nào trong Cài đặt."
+  },
+  "deny": "Từ chối",
+  "denying": "Đang từ chối…",
+  "allow": "Cho phép",
+  "allowing": "Đang cho phép…",
+  "redirectNotice": "Bạn sẽ được đưa trở lại {host}.",
+  "error": "Không thể hoàn tất yêu cầu. Hãy quay lại ứng dụng và thử lại.",
+  "scopes": {
+    "openid": "Xác nhận bạn là ai",
+    "profile": "Xem tên và ảnh hồ sơ của bạn",
+    "email": "Xem địa chỉ email của bạn",
+    "offlineAccess": "Duy trì kết nối mà không yêu cầu bạn đăng nhập lại",
+    "pagesRead": "Đọc các trang và cơ sở dữ liệu trong không gian làm việc của bạn",
+    "pagesWrite": "Tạo và chỉnh sửa trang cùng các hàng cơ sở dữ liệu, và chuyển trang vào thùng rác",
+    "notificationsRead": "Đọc các thông báo trong hộp thư đến của bạn",
+    "filesWrite": "Tải tệp lên các trang, từ một liên kết hoặc từ chính ứng dụng"
+  }
+}

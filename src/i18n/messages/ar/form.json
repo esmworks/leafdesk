@@ -10,6 +10,30 @@
     "labelPlaceholder": "السؤال",
     "helpPlaceholder": "إضافة نص مساعدة (اختياري)",
     "required": "مطلوب",
+    "showWhen": "عرض فقط عندما",
+    "addCondition": "عرض فقط عندما…",
+    "removeCondition": "إزالة الشرط",
+    "conditionQuestion": "السؤال الذي يخصه الشرط",
+    "conditionCheck": "الشرط",
+    "conditionOptions": "الخيارات التي يبحث عنها الشرط",
+    "conditionText": "النص",
+    "conditionPickOption": "اختر خيارًا واحدًا على الأقل لحفظ هذا الشرط.",
+    "conditionTypeText": "اكتب نصًا لحفظ هذا الشرط.",
+    "op": {
+      "is": "أحد",
+      "isNot": "ليس أيًا من",
+      "contains": "يحتوي على",
+      "notContains": "لا يحتوي على",
+      "hasAny": "يتضمن أيًا من",
+      "hasNone": "لا يتضمن أيًا من",
+      "checked": "محدد",
+      "unchecked": "غير محدد",
+      "empty": "فارغ",
+      "notEmpty": "غير فارغ"
+    },
+    "minChoices": "على الأقل",
+    "maxChoices": "على الأكثر",
+    "anyNumber": "أي عدد",
     "moveUp": "نقل لأعلى",
     "moveDown": "نقل لأسفل",
     "remove": "إزالة السؤال",
@@ -27,7 +51,9 @@
     "afterTitle": "بعد الإرسال",
     "confirmationLabel": "الرسالة",
     "confirmationPlaceholder": "شكرًا! تم إرسال ردك.",
-    "allowAnother": "السماح بإرسال رد آخر"
+    "allowAnother": "السماح بإرسال رد آخر",
+    "showOwnAnswers": "عرض إجابات كل شخص له",
+    "showOwnAnswersDescription": "يرى من يسجّل الدخول للإجابة ما أرسله عبر هذا النموذج، ولا شيء آخر من قاعدة البيانات. لا تُعرض الإجابات المجهولة أبدًا."
   },
   "fill": {
     "submit": "إرسال",
@@ -41,7 +67,18 @@
     "addItem": "إضافة عنصر",
     "newItem": "عنصر جديد",
     "removeItem": "إزالة {text}",
-    "honeypot": "اترك هذا الحقل فارغًا"
+    "honeypot": "اترك هذا الحقل فارغًا",
+    "choicesExactly": "اختر {count} بالضبط.",
+    "choicesBetween": "اختر من {min} إلى {max}.",
+    "choicesAtLeast": "اختر {min} على الأقل.",
+    "choicesAtMost": "اختر {max} كحد أقصى."
+  },
+  "own": {
+    "title": "إجاباتك",
+    "description": "ما أرسلته عبر هذا النموذج. أنت وحدك ترى هذه القائمة.",
+    "none": "لم ترسل أي إجابات بعد.",
+    "sentAt": "أُرسلت {date}",
+    "empty": "لا توجد إجابات لعرضها."
   },
   "share": {
     "button": "مشاركة",
@@ -69,6 +106,7 @@
     "required": "هذا السؤال مطلوب.",
     "tooLong": "هذه الإجابة طويلة جدًا (الحد الأقصى {max, plural, one {حرف واحد} two {حرفان} few {# أحرف} many {# حرفًا} other {# حرف}}).",
     "tooMany": "اختر {max} كحد أقصى.",
+    "tooFew": "اختر {min} على الأقل.",
     "invalidText": "يجب أن تكون هذه الإجابة نصًا.",
     "invalidAnswers": "بعض الإجابات تحتاج إلى مراجعة.",
     "closed": "لم يعد هذا النموذج يستقبل إجابات.",

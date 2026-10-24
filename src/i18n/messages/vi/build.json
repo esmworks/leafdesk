@@ -1,0 +1,38 @@
+{
+  "menuItem": "Xây dựng bằng AI",
+  "title": "Xây dựng bằng AI",
+  "hint": "Hãy mô tả những gì bạn muốn theo dõi. AI soạn các cơ sở dữ liệu, và bạn xem xét chúng trước khi bất cứ thứ gì được tạo.",
+  "reviewTitle": "Xem xét kế hoạch",
+  "reviewHint": "Đổi tên hoặc xóa những gì bạn không cần, rồi tạo.",
+  "back": "Quay lại phần mô tả",
+  "label": "Bạn cần gì?",
+  "placeholder": "Một quy trình tuyển dụng: các ứng viên đi qua các vòng phỏng vấn, các buổi phỏng vấn với từng người, và ai phỏng vấn ai.",
+  "draft": "Soạn các cơ sở dữ liệu",
+  "drafting": "Đang soạn…",
+  "create": "Tạo",
+  "creating": "Đang tạo…",
+  "intro": "Thêm một trang giới thiệu về chúng, “{title}”, chứa các cơ sở dữ liệu bên trong",
+  "exampleRows": "{count, plural, other {Thêm # hàng ví dụ}}",
+  "databaseTitle": "Tên cơ sở dữ liệu",
+  "removeDatabase": "Xóa {name}",
+  "properties": "Thuộc tính",
+  "views": "Chế độ xem",
+  "noProperties": "Chỉ có tên của mỗi hàng.",
+  "removeView": "Xóa chế độ xem {name}",
+  "rename": "Đổi tên {name}",
+  "linksTo": "Liên kết đến {database}",
+  "linksBoth": "Liên kết đến {database}, hai chiều",
+  "removeProperty": "Xóa {name}",
+  "slash": {
+    "title": "Xây dựng cơ sở dữ liệu bằng AI",
+    "subtext": "Mô tả điều bạn cần và AI soạn các cơ sở dữ liệu bên trong trang này",
+    "aliases": "ai xây dựng cơ sở dữ liệu tạo kế hoạch build database databases generate plan"
+  },
+  "errors": {
+    "unusable": "AI không thể soạn cơ sở dữ liệu cho yêu cầu đó. Hãy thử mô tả bằng cách khác.",
+    "invalid": "Không thể tạo kế hoạch như hiện tại. Hãy quay lại và soạn lại.",
+    "parent": "Cơ sở dữ liệu không thể nằm bên trong một cơ sở dữ liệu.",
+    "noAccess": "Bạn không thể thêm trang ở đây.",
+    "failed": "Có điều gì đó trong kế hoạch không phù hợp, nên chưa có gì được tạo. Hãy xóa các hàng ví dụ và thử lại."
+  }
+}

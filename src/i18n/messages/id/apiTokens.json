@@ -1,0 +1,131 @@
+{
+  "heading": "Token akses pribadi",
+  "description": "Token memungkinkan skrip dan program lain memakai REST API Leafdesk sebagai Anda, dengan akses Anda ke halaman. Jaga kerahasiaannya, seperti kata sandi.",
+  "docs": "Dokumentasi API",
+  "empty": "Anda belum memiliki token.",
+  "create": "Token baru",
+  "form": {
+    "title": "Token akses pribadi baru",
+    "name": "Nama",
+    "namePlaceholder": "mis. Skrip laporan mingguan",
+    "access": "Akses",
+    "workspace": "Ruang kerja",
+    "allWorkspaces": "Semua ruang kerja saya",
+    "expiry": "Kedaluwarsa setelah",
+    "days": "{count, plural, other {# hari}}",
+    "never": "Tidak pernah",
+    "submit": "Buat token",
+    "creating": "Membuat…"
+  },
+  "created": {
+    "title": "Salin token baru Anda",
+    "body": "Token hanya ditampilkan sekali ini. Simpan di tempat yang aman; jika hilang, cabut token itu dan buat yang lain.",
+    "done": "Selesai"
+  },
+  "row": {
+    "readOnly": "Hanya baca",
+    "readWrite": "Baca dan tulis",
+    "allWorkspaces": "Semua ruang kerja",
+    "createdAt": "Dibuat {date}",
+    "lastUsed": "terakhir dipakai {date}",
+    "neverUsed": "belum pernah dipakai",
+    "expires": "kedaluwarsa {date}",
+    "expired": "kedaluwarsa {date}",
+    "noExpiry": "tidak kedaluwarsa",
+    "legacy": "dibuat sebelum ada akses per sumber daya"
+  },
+  "revoke": "Cabut",
+  "revoking": "Mencabut…",
+  "confirmRevoke": "Cabut {name}",
+  "revokeError": "Tidak dapat mencabut token. Coba lagi.",
+  "errors": {
+    "name": "Beri token nama paling banyak 100 karakter.",
+    "scopes": "Pilih apa yang boleh dilakukan token.",
+    "workspace": "Anda bukan anggota ruang kerja itu.",
+    "expiry": "Pilih kapan token kedaluwarsa.",
+    "limit": "Anda sudah memiliki jumlah token maksimum. Cabut satu terlebih dahulu.",
+    "generic": "Tidak dapat membuat token. Coba lagi.",
+    "notFound": "Token ini sudah tidak ada."
+  },
+  "docsPage": {
+    "metaTitle": "REST API",
+    "openapi": "Dokumen OpenAPI (JSON)",
+    "tokensWhere": "Buat token di Akun saya → Aplikasi terhubung.",
+    "quickStart": "Mulai cepat",
+    "baseUrl": "URL dasar",
+    "errors": "Kesalahan",
+    "code": "Kode",
+    "status": "Status",
+    "endpoints": "Endpoint",
+    "parameters": "Parameter",
+    "inPath": "path",
+    "inQuery": "query",
+    "body": "Isi permintaan (JSON)",
+    "formBody": "Isi permintaan (multipart form data)",
+    "response": "Respons {status}",
+    "name": "Nama",
+    "type": "Tipe",
+    "description": "Deskripsi",
+    "required": "wajib",
+    "scopes": "Cakupan",
+    "scope": "Cakupan",
+    "access": "Akses",
+    "read": "Baca",
+    "write": "Tulis",
+    "inHeader": "header"
+  },
+  "scopes": {
+    "presets": {
+      "readAll": "Baca semuanya",
+      "all": "Baca dan tulis semuanya"
+    },
+    "read": "Baca",
+    "write": "Tulis",
+    "toggle": "{access}: {resource}",
+    "resources": {
+      "workspaces": {
+        "name": "Ruang kerja",
+        "hint": "Ruang kerja, ruang tim, dan grupnya."
+      },
+      "pages": {
+        "name": "Halaman",
+        "hint": "Halaman, subhalaman, dan catatan harian; akses tulis juga mencakup catatan suara."
+      },
+      "search": {
+        "name": "Pencarian",
+        "hint": "Pencarian di seluruh halaman dan baris."
+      },
+      "databases": {
+        "name": "Basis data",
+        "hint": "Properti dan tampilan basis data."
+      },
+      "rows": {
+        "name": "Baris",
+        "hint": "Kueri baris dan baca aktivitasnya; akses tulis menambah dan mengubah baris."
+      },
+      "comments": {
+        "name": "Komentar",
+        "hint": "Utas komentar; akses tulis memulai utas dan membalas."
+      },
+      "agents": {
+        "name": "Agen",
+        "hint": "Pengaturan, eksekusi, jadwal, dan pembagian agen."
+      }
+    },
+    "summary": {
+      "read": "{resource}: baca",
+      "readWrite": "{resource}: baca dan tulis"
+    }
+  },
+  "edit": {
+    "button": "Ubah akses",
+    "title": "Ubah apa yang boleh dilakukan {name}",
+    "body": "Token tetap memakai rahasianya; perubahan berlaku mulai permintaan berikutnya.",
+    "legacy": "Token ini dibuat sebelum akses dipilih per sumber daya, sehingga dapat membaca semuanya (dan menulis semuanya, jika dibuat untuk menulis), termasuk yang ditambahkan kemudian. Menyimpan akan memberinya persis apa yang Anda pilih di sini.",
+    "errors": {
+      "scopes": "Pilih setidaknya satu hal yang boleh dilakukan token.",
+      "notFound": "Token ini sudah tidak ada.",
+      "generic": "Tidak dapat mengubah token. Coba lagi."
+    }
+  }
+}

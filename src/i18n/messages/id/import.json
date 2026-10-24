@@ -1,0 +1,162 @@
+{
+  "open": "Impor",
+  "title": "Impor",
+  "description": "Bawa masuk halaman dari berkas Markdown, ekspor ZIP, dan dokumen Word, baris dari berkas CSV atau buku kerja Excel, atau papan Trello.",
+  "tabs": {
+    "pages": "Markdown & ZIP",
+    "docx": "Word",
+    "csv": "CSV & Excel",
+    "trello": "Trello",
+    "asana": "Asana",
+    "monday": "Monday.com"
+  },
+  "destination": "Letakkan di bawah",
+  "topLevel": "Tingkat teratas ruang kerja",
+  "filePage": "Halaman dengan berkasnya",
+  "noDestination": "Tidak ada halaman yang dapat Anda tambahi halaman.",
+  "pages": {
+    "help": "Berkas Markdown menjadi halaman dan folder mempertahankan strukturnya. Berkas CSV menjadi basis data, dan gambar yang ditautkan halaman diunggah.",
+    "notion": "Dari Notion: ekspor sebagai “Markdown & CSV” beserta subhalaman, lalu pilih ZIP seperti saat diunduh (ekspor yang terpisah juga dapat). Subhalaman, basis data, relasi, callout, toggle, dan gambar ikut terbawa.",
+    "obsidian": "Dari Obsidian: pilih folder vault, atau ZIP-nya. Tautan antarcatatan (termasuk [[wikilinks]]), gambar dan berkas yang disematkan, serta callout ikut terbawa.",
+    "chooseFiles": "Pilih berkas",
+    "chooseFolder": "Pilih folder",
+    "drop": "atau jatuhkan berkas di sini",
+    "selected": "{count, plural, other {# berkas}}, {size}",
+    "clear": "Hapus"
+  },
+  "docx": {
+    "help": "Setiap dokumen Word (.docx) menjadi sebuah halaman, beserta judul, daftar, tabel, tautan, gambar, dan catatan kakinya. Judul di bagian paling atas menjadi judul halaman; jika tidak, nama berkas yang dipakai.",
+    "choose": "Pilih berkas Word"
+  },
+  "csv": {
+    "choose": "Pilih berkas CSV atau Excel",
+    "summary": "{name}: {rows, plural, other {# baris}}, {columns, plural, other {# kolom}}",
+    "sheet": "Lembar",
+    "mode": "Impor sebagai",
+    "newDatabase": "Basis data baru",
+    "existing": "Baris pada basis data",
+    "name": "Nama",
+    "titleColumn": "Judul baris dari",
+    "noTitle": "Tanpa kolom (baris tanpa judul)",
+    "column": "Kolom",
+    "type": "Tipe",
+    "target": "Masuk ke",
+    "values": "Nilai",
+    "leaveOut": "Lewati",
+    "rowTitle": "Judul baris",
+    "database": "Basis data",
+    "chooseDatabase": "Pilih basis data",
+    "noDatabases": "Tidak ada basis data yang dapat Anda tambahi baris.",
+    "cantLoad": "Properti basis data ini tidak dapat dimuat.",
+    "newOptions": "Nilai pilihan yang belum dimiliki basis data ditambahkan sebagai opsi."
+  },
+  "trello": {
+    "help": "Di Trello, buka menu papan lalu pilih Cetak, ekspor, dan bagikan → Ekspor sebagai JSON, kemudian pilih berkas yang diunduh. Papan menjadi basis data dengan tampilan papan: daftar, label, anggota, tanggal, daftar centang, kolom khusus, deskripsi, dan komentar ikut terbawa. Daftar dan kartu yang diarsipkan dilewati.",
+    "attachments": "Tidak ada yang diunduh dari Trello: lampiran berupa tautan tetap menjadi tautan, dan berkas yang diunggah ke Trello ditautkan dari halaman setiap kartu.",
+    "choose": "Pilih ekspor Trello (.json)",
+    "summary": "{name}: {lists, plural, other {# daftar}}, {cards, plural, other {# kartu}}",
+    "archived": "Diarsipkan, jadi dilewati: {lists, plural, other {# daftar}} dan {cards, plural, other {# kartu}}.",
+    "names": {
+      "list": "Daftar",
+      "labels": "Label",
+      "members": "Anggota",
+      "otherMembers": "Anggota lain",
+      "dates": "Tanggal",
+      "complete": "Selesai",
+      "checklist": "Daftar centang",
+      "link": "Tautan",
+      "attachments": "Lampiran",
+      "comments": "Komentar"
+    }
+  },
+  "asana": {
+    "help": "Di Asana, buka menu proyek lalu pilih Ekspor → CSV (atau JSON), kemudian pilih berkas yang diunduh. Proyek menjadi basis data dengan tampilan papan menurut bagian: status selesai, penerima tugas, tanggal, tag, kolom khusus, catatan, subtugas, dan dependensi ikut terbawa.",
+    "choose": "Pilih ekspor Asana (.csv atau .json)",
+    "summary": "{name}: {groups, plural, other {# bagian}}, {items, plural, other {# tugas}}, {subitems, plural, other {# subtugas}}"
+  },
+  "monday": {
+    "help": "Di Monday.com, buka menu papan lalu pilih Ekspor papan ke Excel (beserta pembaruan jika Anda mau), kemudian pilih berkas yang diunduh. Papan menjadi basis data dengan tampilan papan menurut grup: kolom, subitem, dan pembaruannya ikut terbawa.",
+    "choose": "Pilih ekspor Monday.com (.xlsx atau .csv)",
+    "summary": "{name}: {groups, plural, other {# grup}}, {items, plural, other {# item}}, {subitems, plural, other {# subitem}}"
+  },
+  "board": {
+    "links": "Tidak ada yang diunduh: berkas dan tautan dalam ekspor tetap menjadi tautan.",
+    "comments": "{count, plural, other {# komentar masuk}} ke halaman baris, di bawah penulis dan waktunya.",
+    "leftOut": "Dilewati: {list}.",
+    "types": "Periksa menjadi apa setiap kolom: ekspor tidak menyebutkan jenis kolom, jadi ditebak.",
+    "names": {
+      "section": "Bagian",
+      "group": "Grup",
+      "status": "Status",
+      "toDo": "Akan dikerjakan",
+      "done": "Selesai",
+      "assignee": "Penerima tugas",
+      "tags": "Tag",
+      "dates": "Tanggal",
+      "others": "{column} (lainnya)",
+      "attachments": "Lampiran",
+      "comments": "Komentar"
+    }
+  },
+  "import": "Impor",
+  "importing": "Mengimpor…",
+  "done": {
+    "title": "Impor selesai",
+    "created": "Membuat {list}.",
+    "nothing": "Tidak ada yang baru dibuat.",
+    "open": "Buka",
+    "again": "Impor lagi"
+  },
+  "counts": {
+    "pages": "{count, plural, other {# halaman}}",
+    "databases": "{count, plural, other {# basis data}}",
+    "rows": "{count, plural, other {# baris}}",
+    "templates": "{count, plural, other {# templat}}",
+    "files": "{count, plural, other {# berkas}}"
+  },
+  "warnings": {
+    "heading": "Dilewati atau diubah",
+    "invalidValues": "{count, plural, other {# nilai}} di “{column}” tidak sesuai dengan properti dan dibiarkan kosong.",
+    "leftOutColumn": "“{column}” tidak diimpor.",
+    "missingFile": "“{path}”, yang ditautkan dari “{page}”, tidak ada dalam unggahan.",
+    "unresolvedLink": "“[[{target}]]” di “{page}” tidak cocok dengan catatan atau berkas mana pun dalam unggahan, sehingga tetap berupa teks.",
+    "fileNotStored": {
+      "tooLarge": "“{path}” lebih besar dari batas unggahan dan tidak disimpan.",
+      "quotaExceeded": "“{path}” tidak disimpan: penyimpanan berkas ruang kerja sudah penuh.",
+      "failed": "“{path}” tidak dapat disimpan.",
+      "external": "“{path}” dilewati: gambar ditautkan dari luar dokumen.",
+      "unsupportedType": "“{path}” dilewati: halaman tidak dapat menampilkan gambar bertipe ini."
+    },
+    "skipped": {
+      "nestedZip": "“{path}” adalah ZIP yang bersarang terlalu dalam dan dilewati.",
+      "nestedDatabase": "“{path}” akan menjadi basis data di dalam basis data dan dilewati.",
+      "duplicate": "“{path}” dilewati: versi lengkap dari basis data yang sama sudah diimpor.",
+      "tooLarge": "“{path}” terlalu besar untuk satu halaman dan dilewati.",
+      "unused": "“{path}” dilewati: tidak ada halaman yang menampilkan atau menautkannya.",
+      "unsafePath": "“{path}” dilewati: jalurnya mengarah ke luar ZIP.",
+      "otherSheet": "Lembar “{path}” dilewati: hanya satu lembar yang diimpor sekali waktu."
+    },
+    "more": "…dan {count, plural, other {# lagi}}."
+  },
+  "errors": {
+    "tooLarge": "Unggahan lebih besar dari {limit}.",
+    "tooManyFiles": "Satu impor dapat memuat paling banyak {limit} berkas.",
+    "tooManyPages": "Satu impor dapat membuat paling banyak {limit} halaman.",
+    "tooManyRows": "Satu berkas dapat memiliki paling banyak {limit} baris.",
+    "tooManyColumns": "Satu berkas dapat memiliki paling banyak {limit} kolom.",
+    "badZip": "Berkas ZIP tidak dapat dibaca.",
+    "nothingToImport": "Tidak ada berkas Markdown atau CSV untuk diimpor.",
+    "emptyCsv": "Berkas tidak memiliki baris header.",
+    "badWorkbook": "Berkas Excel tidak dapat dibaca.",
+    "unsupportedWorkbook": "Hanya buku kerja .xlsx tanpa kata sandi yang dapat diimpor. Simpan berkas sebagai Excel Workbook (.xlsx) tanpa kata sandi lalu coba lagi.",
+    "badDocx": "“{name}” tidak dapat dibaca sebagai dokumen Word. Hanya berkas .docx yang dapat diimpor; simpan berkas .doc lama sebagai .docx terlebih dahulu.",
+    "docxTooComplex": "“{name}” terlalu besar atau rumit untuk diimpor sebagai satu halaman.",
+    "badTrello": "Berkas ini bukan ekspor papan Trello. Di Trello, pilih Ekspor sebagai JSON dari menu papan dan pilih berkas itu.",
+    "badAsana": "Berkas ini bukan ekspor proyek Asana. Di Asana, pilih Ekspor → CSV atau JSON dari menu proyek dan pilih berkas itu.",
+    "badMonday": "Berkas ini bukan ekspor papan Monday.com. Di Monday.com, pilih Ekspor papan ke Excel dari menu papan dan pilih berkas itu.",
+    "badMapping": "Pilih tujuan setidaknya satu kolom, dan setiap properti hanya sekali.",
+    "noAccess": "Anda tidak dapat menambahkan halaman di sana, atau tempat itu sudah tidak ada.",
+    "notADatabase": "Baris hanya dapat ditambahkan ke basis data.",
+    "badRequest": "Impor tidak berhasil. Tidak ada yang diubah."
+  }
+}

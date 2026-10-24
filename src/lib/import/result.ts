@@ -30,6 +30,10 @@ export const IMPORT_ERROR_CODES = [
   "docxTooComplex",
   /** The file isn't a Trello board's JSON export. */
   "badTrello",
+  /** The file isn't an Asana project's CSV or JSON export. */
+  "badAsana",
+  /** The file isn't a Monday.com board exported to Excel (or saved as CSV). */
+  "badMonday",
   /** Merging: no column goes to a property, or two go to the same one. */
   "badMapping",
   /** The destination is missing, in the trash or not editable, or not a database when merging. */
@@ -53,6 +57,8 @@ export class ImportError extends Error {
 export type ImportWarning =
   /** Cells of a column that didn't fit its property (a word in a number column): left empty. */
   | { code: "invalidValues"; column: string; count: number }
+  /** A column of another app's export that isn't imported (its creation and edit times: Leafdesk keeps its own). */
+  | { code: "leftOutColumn"; column: string }
   /** A relative link or image pointing at a file the upload doesn't have: left as it was. */
   | { code: "missingFile"; path: string; page: string }
   /** A wikilink (`[[Name]]`) naming no file of the upload: left as it was written. */
