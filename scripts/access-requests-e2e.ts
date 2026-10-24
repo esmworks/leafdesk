@@ -407,6 +407,9 @@ try {
   // Asking for more access, from the Share menu of a page one can open
   await db.insert(page).values([P("more")]);
   const more = `${RUN}-more`;
+  // In a second workspace too: the email reads their role in this one only.
+  await db.insert(workspace).values({ id: `${workspaceId}-2`, name: `${workspaceName} 2` });
+  await db.insert(workspaceMember).values({ workspaceId: `${workspaceId}-2`, userId: bob, role: "owner" });
   await setPagePermission(owner, more, owner, "full");
   await setPagePermission(owner, more, alice, "full");
   await setPagePermission(owner, more, null, "view");
@@ -508,7 +511,7 @@ try {
   failed = true;
   console.error(error);
 } finally {
-  await db.delete(workspace).where(inArray(workspace.id, [workspaceId]));
+  await db.delete(workspace).where(inArray(workspace.id, [workspaceId, `${workspaceId}-2`]));
   await db.delete(user).where(inArray(user.id, userIds));
   await (globalThis as unknown as { __leafdeskSql?: { end(): Promise<void> } }).__leafdeskSql?.end();
   // The database client is kept on globalThis under the app's name; exiting also closes it here.

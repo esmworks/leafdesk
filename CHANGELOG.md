@@ -901,6 +901,10 @@
 
 ### Fixed
 
+- **Access request emails reach the people who can answer them when the requester is in several
+  workspaces.** The email's check of the requester's role read their memberships everywhere and
+  failed, so no email went out; the inbox and the Share menu were not affected.
+
 - **Text filters match the Turkish dotted and dotless i.** A "contains ist" filter now finds
   "İstanbul", and "ışık" finds "IŞIK": database view filters, form question conditions and option
   names given by name (MCP, the REST API, a new tag typed into a cell) fold case with İ, I, i and ı
