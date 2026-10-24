@@ -475,7 +475,7 @@ describe("buttons in page bodies", () => {
       ["button", "btn1"],
       ["paragraph", expect.anything()],
     ]);
-    expect(renamed[0].props).toEqual({ label: "Begin", icon: "🚀", config });
+    expect(renamed[0].props).toEqual({ label: "Begin", icon: "🚀", config, color: "" });
   });
 
   it("can't be made from Markdown", async () => {
