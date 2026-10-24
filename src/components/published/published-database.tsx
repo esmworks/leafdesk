@@ -196,8 +196,8 @@ function Card({ row, table, href, cover }: { row: PublishedRow; table: Published
         {shown.length > 0 && (
           <div className="relative mt-2 flex flex-col items-start gap-1.5 text-xs">
             {shown.map((p) => (
-              <div key={p.id} className="flex max-w-full min-w-0 items-center text-fg-muted" title={p.name}>
-                <PropertyDisplay prop={p} value={row.properties[p.id]} style={row.styles?.[p.id]} />
+              <div key={p.id} className={cn("flex max-w-full min-w-0 text-fg-muted", table.wrap ? "items-start" : "items-center")} title={p.name}>
+                <PropertyDisplay prop={p} value={row.properties[p.id]} style={row.styles?.[p.id]} wrap={table.wrap} />
               </div>
             ))}
           </div>

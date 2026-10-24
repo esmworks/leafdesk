@@ -607,7 +607,7 @@ export function PropertyCell({
         data-cell-edit={readOnly ? undefined : ""}
         onClick={() => !readOnly && setEditing(true)}
         onKeyDown={(e) => {
-          if (!readOnly && (e.key === "Enter" || e.key === " ") && e.target === e.currentTarget) {
+          if (!readOnly && ((e.key === "Enter" && !e.shiftKey) || e.key === " ") && e.target === e.currentTarget) {
             e.preventDefault();
             setEditing(true);
           }

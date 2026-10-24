@@ -410,6 +410,14 @@ try {
   check((await tabs(published.id)).join() === "Compact,Board,Table", "new views come last", await tabs(published.id));
   await moveView(ids.owner, compact.id, table.id, "after");
   check((await tabs(published.id)).join() === "Board,Table,Compact", "a view moves after another", await tabs(published.id));
+  await updateView(ids.owner, board.id, { config: { ...board.config, wrapProperties: true } });
+  const wrappedBoard = (await getPublishedPage(token))?.database;
+  check(wrappedBoard?.layout === "board" && wrappedBoard.wrap === true, "a published board wraps its cards' values as its view does", wrappedBoard?.layout);
+  await updateView(ids.owner, compact.id, { config: { shown: [when.id], wrapProperties: true } });
+  await moveView(ids.owner, compact.id, board.id, "before");
+  check((await getPublishedPage(token))?.database?.wrap === undefined, "…and a list, whose values don't wrap, doesn't");
+  await moveView(ids.owner, compact.id, table.id, "after");
+  await updateView(ids.owner, compact.id, { config: { shown: [when.id] } });
   await moveView(ids.owner, table.id, board.id, "before");
   check((await tabs(published.id)).join() === "Table,Board,Compact", "a view moves before another", await tabs(published.id));
   const firstColumns = (await getPublishedPage(token))?.database?.properties.map((p) => p.id);

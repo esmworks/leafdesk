@@ -21,7 +21,8 @@
 
 - **Board and gallery cards can show long values whole.** Their Layout menu has *Wrap all
   properties*: text, tags, relations, people and links on the cards take more lines instead of
-  being cut off. MCP's `create_database_view` and `update_database_view` take `wrap_properties`.
+  being cut off, published views too. MCP's `create_database_view` and `update_database_view` take
+  `wrap_properties`.
 - **Sort a select's options by name.** The options editor of select, multi-select and status
   properties has *Sort A → Z* and *Sort Z → A*, which put the options in that order once, compared
   as the viewer's language reads them (accents and case aside, "Phase 2" before "Phase 10"); a
