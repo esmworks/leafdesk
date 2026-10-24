@@ -33,6 +33,7 @@
     "reviewNote": "Yapay zekâ hata yapabilir. Metni tutmadan önce kontrol et.",
     "stopped": "Durduruldu. Şimdiye kadar yazılanı yine de tutabilirsin.",
     "applyFailed": "Öneri sayfaya eklenemedi.",
+    "asSuggestions": "Önerilen değişiklik olarak ekle",
     "selectionChanged": "Seçili metin bu arada değişti, bu yüzden öneri altına eklendi."
   },
   "errors": {
@@ -323,7 +324,9 @@
       "auto": "Otomatik",
       "autoHint": "Sormadan ekler ve değiştirir",
       "read": "Sadece oku",
-      "readHint": "Hiçbir şeyi değiştirmez"
+      "readHint": "Hiçbir şeyi değiştirmez",
+      "asSuggestions": "Sayfa değişiklikleri öneri olarak",
+      "asSuggestionsHint": "Sohbetin sayfaya yazdıkları, kabul edip reddedebileceğiniz önerilen değişiklikler olarak görünür"
     },
     "actions": {
       "edit": "Düzenle",

@@ -22,6 +22,66 @@
     "snippets": "Parçacıklar",
     "pdf": "PDF şablonları"
   },
+  "search": {
+    "label": "Ayarlarda ara",
+    "placeholder": "Ayarlarda ara",
+    "noResults": "Eşleşen ayar yok.",
+    "labels": {
+      "aiUsagePeople": "Kişiye göre kullanım"
+    },
+    "keywords": {
+      "profile": "ad fotoğraf profil resmi avatar",
+      "email": "adres değiştir doğrula e-posta",
+      "deleteAccount": "hesabı kaldır kapat sil",
+      "password": "değiştir sıfırla şifre giriş",
+      "twoFactor": "2fa mfa doğrulayıcı kod iki adımlı",
+      "passkeys": "webauthn güvenlik anahtarı parmak izi yüz",
+      "sessions": "cihazlar oturum çıkış yap",
+      "language": "dil çeviri yerel",
+      "theme": "koyu mod açık mod renkler tema",
+      "contrast": "erişilebilirlik yüksek kontrast",
+      "notifications": "anlık e-posta uyarı bildirim",
+      "watchedPages": "takip abone izle",
+      "offlineDevice": "çevrimdışı indir önbellek alan",
+      "offlinePages": "çevrimdışı indir internetsiz",
+      "mailboxes": "e-posta gelen kutusu imap smtp",
+      "calendars": "ical akış abone takvim",
+      "storageAccounts": "drive s3 dosyalar bulut",
+      "connectedApps": "oauth istemciler erişim iptal",
+      "aiAccounts": "api anahtarı kendi anahtar sağlayıcı",
+      "telegram": "bot sohbet mesajlar",
+      "mcp": "asistan model bağlam protokolü sunucu",
+      "apiTokens": "rest api belirteç anahtar geliştirici",
+      "about": "sürüm lisans güncelleme",
+      "workspaceName": "ad yeniden adlandır simge",
+      "ai": "yapay zekâ sohbet model sağlayıcı bellek",
+      "workspaceMail": "e-posta satırlar posta gönder",
+      "export": "yedek indir zip markdown dışa aktar",
+      "members": "kişiler davet kullanıcılar roller çıkar",
+      "agents": "yapay zekâ asistan otomasyon bot",
+      "snippets": "metin kısayollar parçacık",
+      "letterheads": "pdf üst bilgi alt bilgi logo yazdır",
+      "connections": "entegrasyonlar mcp servisler araçlar",
+      "site": "web sitesi yayınla alan adı",
+      "requireTwoFactor": "2fa mfa zorunlu politika",
+      "loginMethod": "sso şifre giriş politika",
+      "allowedNetworks": "ip izin listesi adres ofis vpn",
+      "membership": "davet katılma istekleri alan adları",
+      "sso": "saml oidc kimlik sağlayıcı",
+      "scim": "hazırlama dizin eşitleme kullanıcılar",
+      "exportPolicy": "indir yazdır pdf",
+      "connectedAppsPolicy": "mcp rest api belirteçler erişim",
+      "publishing": "yayınla web paylaş herkese açık bağlantı",
+      "retention": "çöp kutusu geçmiş sil sakla gün",
+      "legalHolds": "dava koru e-keşif sakla yasal",
+      "storage": "dosyalar s3 drive kova",
+      "analyticsPeople": "etkinlik düzenlemeler istatistik",
+      "aiUsageLimit": "bütçe maliyet harcama sınır",
+      "aiUsagePeople": "kişi başı üye maliyet token",
+      "health": "kırık bağlantılar sahipsiz yinelenen boş sayfalar",
+      "audit": "kayıt geçmiş olaylar kim değiştirdi"
+    }
+  },
   "workspace": {
     "heading": "Çalışma alanı",
     "nameLabel": "Çalışma alanı adı",
@@ -1387,6 +1447,50 @@
       "memberView": "{count, plural, =0 {Kapalı: çalışma alanı her ağdan açılabilir.} one {Açık: çalışma alanı yalnızca # onaylı ağdan açılabilir.} other {Açık: çalışma alanı yalnızca # onaylı ağdan açılabilir.}}"
     }
   },
+  "legalHolds": {
+    "title": "Yasal saklama",
+    "description": "Saklama sürdükçe, kapsadığı kişilerin bu çalışma alanında oluşturduğu veya düzenlediği hiçbir şey kalıcı olarak silinemez. Sayfaları ve satırları yine çöp kutusuna taşınabilir, ama geçmişleri, yorumları ve dosyalarıyla orada kalır; çalışma alanı ve bu kişilerin hesapları silinemez.",
+    "holds": "Saklamalar",
+    "holdsDescription": "Saklama koymak ve kaldırmak denetim günlüğüne kaydedilir.",
+    "empty": "Saklama yok.",
+    "new": "Yeni saklama",
+    "setBy": "{name} koydu, {date, date, medium}",
+    "setOn": "{date, date, medium} tarihinde konuldu",
+    "people": "{count, plural, one {# kişi} other {# kişi}}",
+    "left": "ayrıldı",
+    "guest": "misafir",
+    "release": "Kaldır",
+    "confirmRelease": "{name} saklamasını kaldır",
+    "form": {
+      "title": "Yeni yasal saklama",
+      "description": "Kapsayacağı kişileri seçin: üyeler, misafirler veya ayrılmış ama burada bir şey oluşturmuş ya da düzenlemiş kişiler.",
+      "name": "Ad",
+      "namePlaceholder": "Dosya veya dava",
+      "reason": "Gerekçe",
+      "reasonPlaceholder": "İsteğe bağlı: neden ve kimin isteğiyle",
+      "people": "Kişiler ({count})",
+      "search": "Kişi ara",
+      "loading": "Yükleniyor…",
+      "nobody": "Eşleşen kimse yok.",
+      "submit": "Saklamaya al"
+    },
+    "errors": {
+      "pageHeld": "Bu sayfayı veya altındaki bir sayfayı yasal saklama koruyor: saklama sürdükçe kalıcı olarak silinemez ve çöp kutusunda kalır.",
+      "templateHeld": "Bu şablonu yasal saklama koruyor: saklama sürdükçe silinemez.",
+      "propertyHeld": "Bu özelliğin değerlerini yasal saklama koruyor: saklama sürdükçe kalıcı olarak silinemez.",
+      "commentHeld": "Bu yorumu yasal saklama koruyor: saklama sürdükçe silinemez.",
+      "letterheadHeld": "Bu antetli kâğıdı yasal saklama koruyor: saklama sürdükçe silinemez.",
+      "workspaceHeld": "Bu çalışma alanında yasal saklama var. Çalışma alanını silmeden önce saklamayı kaldırın (Ayarlar > Güvenlik).",
+      "nameRequired": "Saklamaya bir ad verin.",
+      "nameTooLong": "Ad en fazla 200 karakter olabilir.",
+      "reasonTooLong": "Gerekçe en fazla 2.000 karakter olabilir.",
+      "noPeople": "Saklamanın kimi kapsayacağını seçin.",
+      "tooManyPeople": "Bir saklama en fazla 200 kişiyi kapsar.",
+      "unknownPerson": "Seçtiğiniz biri artık bu çalışma alanında değil.",
+      "notFound": "Bu saklama zaten kaldırılmış.",
+      "ownersOnly": "Yasal saklamaları yalnızca sahipler yönetir."
+    }
+  },
   "audit": {
     "description": "Bu çalışma alanında kimin neyi değiştirdiğinin kaydı: üyeler ve roller, davetler, paylaşım, ekip alanları ve gruplar, ayarlar, güvenlik, sayfa oluşturma, taşıma, çöpe atma ve silme, yayınlama, bağlı uygulamalar ve dışa aktarmalar. Yalnızca sahipler görebilir.",
     "filters": "Denetim kaydını filtrele",
@@ -1621,6 +1725,10 @@
       "scim": {
         "token_created": "SCIM anahtarı oluşturuldu: {target}",
         "token_revoked": "SCIM anahtarı iptal edildi: {target}"
+      },
+      "legal_hold": {
+        "set": "{names} için {target} yasal saklamasını koydu",
+        "released": "{names} için {target} yasal saklamasını kaldırdı"
       },
       "site": {
         "saved": "Site kaydedildi: {slug}",

@@ -1,6 +1,7 @@
 "use server";
 
 import { getLocale, getTranslations } from "next-intl/server";
+import { LegalHoldError } from "@/lib/legal-hold";
 import { isDatabaseErrorCode, PropertyValueError } from "@/lib/properties";
 import { builtinTemplates, type BuiltinTemplateKey } from "@/lib/builtin-templates";
 import { AccessError, hasLevel } from "@/server/access";
@@ -22,6 +23,7 @@ async function run<T>(label: string, fn: (userId: string) => Promise<T>): Promis
     if (error instanceof Error && isDatabaseErrorCode(code)) return { ok: false, error: t(`database.errors.${code}`, params ?? {}) };
     if (error instanceof TeamspaceError) return { ok: false, error: t(`teamspaces.errors.${error.code}`) };
     if (error instanceof AccessError) return { ok: false, error: t("database.errors.accessDenied") };
+    if (error instanceof LegalHoldError) return { ok: false, error: t(`settings.legalHolds.errors.${error.code}`) };
     if (!(error instanceof PropertyValueError)) console.error(`[${label}]`, error);
     return { ok: false, error: t("common.genericError") };
   }

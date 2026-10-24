@@ -36,6 +36,7 @@ import {
 } from "@/server/databases";
 import { copyPageTree } from "@/server/duplicate";
 import { archivePage, createPage, ENGLISH_SEED_NAMES, removeOrphanFiles } from "@/server/pages";
+import { refuseHeldPages } from "@/server/legal-hold";
 import { placeTopLevel, TeamspaceError } from "@/server/teamspaces";
 import { createWorkspace, requireTopLevel } from "@/server/workspaces";
 
@@ -346,11 +347,13 @@ export async function setDefaultRowTemplate(userId: string, databaseId: string, 
 
 /**
  * Deletes a template for good, with everything under it. Templates never go to the trash (they
- * aren't listed there), so this needs full access, like emptying the trash does.
+ * aren't listed there), so this needs full access, like emptying the trash does. Refused while a
+ * legal hold keeps it (server/legal-hold.ts).
  */
 export async function deleteTemplate(userId: string, templateId: string) {
   const template = await requirePageAccess(userId, templateId, "full");
   if (!template.isTemplate) throw withCode(new AccessError("Not a template"), "notATemplate");
+  await refuseHeldPages(template.workspaceId, [templateId], "templateHeld");
   await db.delete(page).where(eq(page.id, templateId));
   await removeOrphanFiles(template.workspaceId);
   const collab = getCollab();

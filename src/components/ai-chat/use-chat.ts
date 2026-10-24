@@ -16,6 +16,7 @@ import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { decideChangeAction, deleteConversationAction, getConversationAction } from "@/app/actions/ai";
 import { isAiErrorCode } from "@/lib/ai";
+import { aiAsSuggestions, setAiAsSuggestions } from "@/lib/ai-suggestions";
 import { CHAT_MODES, changedThings, thoughtText, type ChatActionView, type ChatEvent, type ChatMessageView, type ChatMode } from "@/lib/ai-chat";
 import {
   CHAT_CSV_MAX_CHARS,
@@ -126,6 +127,15 @@ export function useChat(
   const [status, setStatus] = useState<ChatStatus | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [mode, setModeState] = useState<ChatMode>("ask");
+  // What it writes in page bodies goes in as suggested edits: the person's choice (lib/ai-suggestions).
+  const [asSuggestions, setAsSuggestionsState] = useState(false);
+  useEffect(() => setAsSuggestionsState(aiAsSuggestions()), []);
+  const asSuggestionsRef = useRef(asSuggestions);
+  asSuggestionsRef.current = asSuggestions;
+  const setAsSuggestions = useCallback((on: boolean) => {
+    setAsSuggestionsState(on);
+    setAiAsSuggestions(on);
+  }, []);
   const [pending, setPending] = useState<PendingChange | null>(null);
   const [skill, setSkill] = useState<ChatSkillPick | null>(null);
   const [files, setFiles] = useState<ChatFile[]>([]);
@@ -345,6 +355,7 @@ export function useChat(
           ...(again ? { replaceLast: true } : {}),
           ...(used ? { skillId: used.id } : {}),
           timeZone: browserTimeZone(),
+          ...(asSuggestionsRef.current ? { asSuggestions: true } : {}),
           ...(attached.length ? { attachments: attached.map(({ name, text }) => ({ name, text })) } : {}),
         }),
         signal: controller.signal,
@@ -536,6 +547,8 @@ export function useChat(
     inputRef,
     mode,
     setMode,
+    asSuggestions,
+    setAsSuggestions,
     pending,
     decide,
     send,

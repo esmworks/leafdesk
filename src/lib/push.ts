@@ -8,6 +8,7 @@ import { commentHash } from "./comments";
 import { rowEmailHash } from "./mail";
 import { reviewPath } from "./pending-changes";
 import { canSnooze } from "./snooze";
+import type { SuggestionNotice } from "./suggestions";
 import { isTimeZone } from "./time-zone";
 
 export type VapidConfig = { publicKey: string; privateKey: string; subject: string };
@@ -133,7 +134,16 @@ export type PushItem = {
   followUp?: { sequence: string } | null;
   /** Reactions: with what, and who reacted (the latest first). */
   reaction?: { emojis: string[]; people: { name: string }[] } | null;
+  /** Comments about a suggested edit: what became of it. */
+  suggestion?: SuggestionNotice | null;
 };
+
+/** The line of a comment notification about a suggested edit, in the inbox and in push messages. */
+export const SUGGESTION_LINES = {
+  suggested: "suggested",
+  accepted: "suggestionAccepted",
+  rejected: "suggestionRejected",
+} as const satisfies Record<SuggestionNotice, string>;
 
 /** The texts of a push message (`push` in email.json), already in the recipient's language. */
 export type PushTranslator = (key: string, values?: Record<string, string | number>) => string;
@@ -204,7 +214,7 @@ export function pushPayload(
         line = t("pageShared", { actor });
         break;
       case "comment":
-        line = t("comment", { actor });
+        line = item.suggestion ? t(SUGGESTION_LINES[item.suggestion], { actor }) : t("comment", { actor });
         break;
       case "mention":
         line = t("mention", { actor });

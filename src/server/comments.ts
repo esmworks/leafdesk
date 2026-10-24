@@ -16,6 +16,7 @@ import {
 import { AccessError, getMembership, hasLevel, isGuest, requirePageAccess, resolvePageAccess } from "@/server/access";
 import { avatarSrc } from "@/lib/avatar";
 import { getCollab } from "@/server/collab/bridge";
+import { refuseHeldComments } from "@/server/legal-hold";
 import type { CommentOpResult } from "@/server/collab/bridge";
 import { reactionTarget } from "@/lib/comment-reactions";
 import { recordComment, recordReaction, withdrawComments, withdrawReaction, withdrawReactions } from "@/server/notifications";
@@ -112,6 +113,11 @@ export async function changeComments(userId: string, pageId: string, op: Comment
   const mentioned = op?.type === "addComment" || op?.type === "createThread" || op?.type === "updateComment" ? commentMentions(op.body) : [];
   const clean = cleanOp(op);
   const role = hasLevel(level, "full") ? "editor" : "comment";
+  if (clean.type === "deleteComment" || clean.type === "deleteThread") {
+    // What someone under a legal hold wrote stays (server/legal-hold.ts).
+    const commentId = clean.type === "deleteComment" ? clean.commentId : undefined;
+    await refuseHeldComments(target.workspaceId, () => getCollab().readThreads(pageId), clean.threadId, commentId);
+  }
   const result = await getCollab().commentOp(pageId, { userId, role }, clean);
 
   if ((clean.type === "createThread" || clean.type === "addComment") && result.thread && result.comment) {

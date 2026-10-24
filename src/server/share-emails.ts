@@ -407,12 +407,14 @@ async function send({
     return;
   }
   if (kind === "comment") {
+    // A new suggested edit (server/suggested-edits.ts): its thread's first comment quotes the change.
     const content = commentEmail(locale, {
       actorName: actor?.name ?? "",
       pageTitle,
       workspaceName: space?.name ?? "",
       text,
       link: threadId ? `${link}${commentHash(threadId)}` : link,
+      suggested: message === "suggested",
     });
     await mailer({ to: recipient.email, ...content });
     return;

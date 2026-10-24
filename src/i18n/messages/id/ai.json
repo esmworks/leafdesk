@@ -33,6 +33,7 @@
     "reviewNote": "AI dapat membuat kesalahan. Periksa teksnya sebelum Anda menyimpannya.",
     "stopped": "Dihentikan. Anda masih dapat menyimpan apa yang sudah ditulis sejauh ini.",
     "applyFailed": "Saran tidak dapat ditambahkan ke halaman.",
+    "asSuggestions": "Tambahkan sebagai saran edit",
     "selectionChanged": "Teks yang dipilih berubah sementara itu, jadi saran ditambahkan di bawahnya."
   },
   "errors": {
@@ -323,7 +324,9 @@
       "auto": "Otomatis",
       "autoHint": "Menambah dan mengubah tanpa bertanya",
       "read": "Hanya baca",
-      "readHint": "Tidak mengubah apa pun"
+      "readHint": "Tidak mengubah apa pun",
+      "asSuggestions": "Edit halaman sebagai saran",
+      "asSuggestionsHint": "Yang ditulis obrolan di halaman tampil sebagai saran edit untuk Anda terima atau tolak"
     },
     "actions": {
       "edit": "Edit",

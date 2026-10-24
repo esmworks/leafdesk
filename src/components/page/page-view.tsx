@@ -16,6 +16,7 @@ import {
 import { setPageLockedAction, setPageOutdatedAction } from "@/app/actions/page-menu";
 import { createRowAction } from "@/app/actions/databases";
 import { createFromTemplateAction } from "@/app/actions/templates";
+import { answerSuggestionsAction } from "@/app/actions/comments";
 import { Button, cn, PageIcon, pageLabel } from "@/components/ui";
 import type { PageKind } from "@/db/schema/app";
 import { SidebarOpenButton } from "@/components/sidebar/sidebar-context";
@@ -32,6 +33,8 @@ import { takeNewPage } from "./new-page-focus";
 import { hasLevel, PageHeaderActions } from "./page-header-actions";
 import { setDocTitle, useDocTitle, usePageDoc, usePageStyle, type ConnectionState } from "./use-page-doc";
 import { usePagePresence } from "./use-presence";
+import { usePendingSuggestions } from "./pending-suggestions";
+import type { Decision } from "@/lib/suggestions";
 import { useIsOffline, useOffline } from "@/components/offline/offline-context";
 import { SkillBar } from "@/components/skills/skill-bar";
 import { DarkScheme } from "@/components/theme/theme-provider";
@@ -142,6 +145,12 @@ export function PageView({
   // is locked, so don't let them type at all. Offline edits are kept in this browser: the doc syncs
   // them when the connection comes back.
   const editable = !page.archived && canEdit && !locked && synced && connection !== "noAccess";
+  // People who may only comment suggest edits to a page's body (components/page/suggesting.ts);
+  // people who may edit choose to in the header. The server takes nothing else from them.
+  const canSuggest = !canEdit && hasLevel(info.level, "comment") && page.kind === "page" && showBody;
+  const suggestOnly = !page.archived && canSuggest && !locked && synced && connection !== "noAccess";
+  const [suggestingChosen, setSuggestingChosen] = useState(false);
+  const pendingSuggestions = usePendingSuggestions(synced ? pageDoc?.doc : undefined);
   // Pages with a body only: databases always use the whole width and the app's typeface.
   const pageStyle = usePageStyle(synced ? pageDoc?.doc : undefined, style);
   const fullWidth = showBody && !wide && pageStyle.fullWidth;
@@ -257,6 +266,13 @@ export function PageView({
     });
   }
 
+  /** Accepts or rejects every suggested edit that waits (the page menu). */
+  const answerAllSuggestions = (decision: Decision) =>
+    run(async () => {
+      const result = await answerSuggestionsAction(page.id, decision, null);
+      if (!result.ok) throw new Error(result.code);
+    });
+
   function changeIcon(next: string | null) {
     const previous = icon;
     setIcon(next);
@@ -323,11 +339,18 @@ export function PageView({
 
   function deleteForever() {
     if (!confirm(t("archived.confirmDelete"))) return;
-    run(async () => {
-      await deletePagePermanentlyAction(page.id);
-      if (panelRef.current) return panelRef.current.onGone();
-      router.push(`/w/${workspaceId}`);
-      router.refresh();
+    setActionError(null);
+    startTransition(async () => {
+      try {
+        const result = await deletePagePermanentlyAction(page.id);
+        // A legal hold keeps it: said in place of the generic failure.
+        if (!result.ok) return setActionError(result.error);
+        if (panelRef.current) return panelRef.current.onGone();
+        router.push(`/w/${workspaceId}`);
+        router.refresh();
+      } catch {
+        setActionError(t("header.actionFailed"));
+      }
     });
   }
 
@@ -507,6 +530,12 @@ export function PageView({
               onLocked={setLockedNow}
               onSkill={setSkillNow}
               onOutdated={setOutdatedNow}
+              suggesting={
+                showBody && page.kind === "page" && !page.archived && !locked && (canEdit || canSuggest)
+                  ? { on: canSuggest || suggestingChosen, forced: canSuggest, onChange: setSuggestingChosen }
+                  : undefined
+              }
+              onAnswerAll={canEdit && !locked && !page.archived && pendingSuggestions.length ? answerAllSuggestions : undefined}
             />
           </div>
         </header>
@@ -629,6 +658,8 @@ export function PageView({
                       pageDoc={pageDoc}
                       user={user}
                       editable={editable}
+                      suggestOnly={suggestOnly}
+                      suggesting={editable && suggestingChosen}
                       level={page.archived || info.level === "none" ? "view" : info.level}
                       workspaceId={workspaceId}
                       pageId={page.id}

@@ -250,7 +250,8 @@ try {
   check((await failure(() => changeComments(ids.editor, doc.id, { type: "addComment", threadId: "nope", body: "hi" }))) === "notFound", "replies need a thread");
 
   // People who may only comment
-  check((await authorizeCollab(ids.commenter, { kind: "page", id: doc.id })).readOnly, "people who can comment open the page read-only");
+  const commenterConnection = await authorizeCollab(ids.commenter, { kind: "page", id: doc.id });
+  check(commenterConnection.suggestOnly && !commenterConnection.readOnly, "people who can comment open the page to suggest edits only");
   check((await failure(() => requirePageAccess(ids.commenter, doc.id, "edit"))) === "access", "…and can't edit it");
   const [firstBlock] = (await getCollab().readBlocks(doc.id)).blocks;
   const byCommenter = await changeComments(ids.commenter, doc.id, {

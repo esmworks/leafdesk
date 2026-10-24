@@ -28,6 +28,7 @@ import { checkDateInput, dateDays, dateSortKey, isDay, type DaySpan } from "./da
 import { dayNumber, timestampDay } from "./time-zone";
 import { asFiles, cleanFileName, fileIdOf, fileUrl, MAX_FILES_PER_VALUE, type FileValue } from "./files";
 import { derivedType, isErrorValue, rollupFormat } from "./derived";
+import { searchFold } from "./search-fold";
 import {
   holdsOptions,
   holdsPeople,
@@ -345,8 +346,8 @@ function normalizePlace(prop: PropertyDef, value: unknown): PlaceValue {
 
 function findOption(options: SelectOption[] | undefined, input: unknown): SelectOption | undefined {
   if (typeof input !== "string") return undefined;
-  const needle = input.trim().toLowerCase();
-  return options?.find((o) => o.id === input || o.name.toLowerCase() === needle);
+  const needle = searchFold(input.trim());
+  return options?.find((o) => o.id === input || searchFold(o.name) === needle);
 }
 
 /**
@@ -600,11 +601,14 @@ function matchesDays(days: DaySpan | null, rule: FilterRule, now: Date, timeZone
 
 const DATE_OPS = new Set<FilterOp>(["is_within", "equals", "not_equals", "lt", "lte", "gt", "gte"]);
 
-/** "Contains" on text: case-insensitive; lists (multi-select names, rollup values) match an item exactly. */
+/**
+ * "Contains" on text: case-insensitive, with the dotted and dotless i alike (searchFold), so "ist"
+ * finds "İstanbul"; lists (multi-select names, rollup values) match an item exactly.
+ */
 function containsText(v: unknown, value: unknown) {
-  const needle = String(value ?? "").toLowerCase();
-  if (Array.isArray(v)) return v.some((x) => String(x).toLowerCase() === needle);
-  return String(v ?? "").toLowerCase().includes(needle);
+  const needle = searchFold(String(value ?? ""));
+  if (Array.isArray(v)) return v.some((x) => searchFold(String(x)) === needle);
+  return searchFold(String(v ?? "")).includes(needle);
 }
 
 /**

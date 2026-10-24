@@ -33,6 +33,7 @@
     "reviewNote": "L’IA peut se tromper. Vérifiez le texte avant de le conserver.",
     "stopped": "Arrêté. Vous pouvez tout de même conserver ce qui a déjà été écrit.",
     "applyFailed": "La suggestion n’a pas pu être ajoutée à la page.",
+    "asSuggestions": "Ajouter comme modifications suggérées",
     "selectionChanged": "Le texte sélectionné a changé entre-temps, la suggestion a donc été ajoutée en dessous."
   },
   "errors": {
@@ -323,7 +324,9 @@
       "auto": "Auto",
       "autoHint": "Ajoute et modifie sans demander",
       "read": "Lecture seule",
-      "readHint": "Ne modifie rien"
+      "readHint": "Ne modifie rien",
+      "asSuggestions": "Modifications de pages en suggestions",
+      "asSuggestionsHint": "Ce que le chat écrit dans une page apparaît en modifications suggérées, à accepter ou refuser"
     },
     "actions": {
       "edit": "Modifier",

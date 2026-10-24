@@ -22,6 +22,66 @@
     "snippets": "Snippets",
     "pdf": "PDF templates"
   },
+  "search": {
+    "label": "Search settings",
+    "placeholder": "Search settings",
+    "noResults": "No settings match.",
+    "labels": {
+      "aiUsagePeople": "Usage by person"
+    },
+    "keywords": {
+      "profile": "name photo avatar picture",
+      "email": "address change verify",
+      "deleteAccount": "remove close account",
+      "password": "change reset sign in",
+      "twoFactor": "2fa mfa authenticator code",
+      "passkeys": "webauthn security key fingerprint face",
+      "sessions": "devices signed in sign out",
+      "language": "locale translation",
+      "theme": "dark mode light mode colors",
+      "contrast": "accessibility high contrast",
+      "notifications": "push email alerts",
+      "watchedPages": "follow subscribe watch",
+      "offlineDevice": "offline download cache space",
+      "offlinePages": "offline download without internet",
+      "mailboxes": "email inbox imap smtp",
+      "calendars": "ical feed subscribe calendar",
+      "storageAccounts": "drive s3 files cloud",
+      "connectedApps": "oauth clients access revoke",
+      "aiAccounts": "api key own key provider",
+      "telegram": "bot chat messages",
+      "mcp": "assistant model context protocol server",
+      "apiTokens": "rest api token key developer",
+      "about": "version license update",
+      "workspaceName": "name rename icon",
+      "ai": "artificial intelligence chat model provider memory",
+      "workspaceMail": "email rows mail send",
+      "export": "backup download zip markdown",
+      "members": "people invite users roles remove",
+      "agents": "ai assistant automation bot",
+      "snippets": "text expansion shortcuts",
+      "letterheads": "pdf header footer logo print",
+      "connections": "integrations mcp services tools",
+      "site": "website publish domain web",
+      "requireTwoFactor": "2fa mfa enforce policy",
+      "loginMethod": "sso password sign in policy",
+      "allowedNetworks": "ip allowlist address office vpn",
+      "membership": "invite join requests domains",
+      "sso": "saml oidc identity provider",
+      "scim": "provisioning directory sync users",
+      "exportPolicy": "download print pdf",
+      "connectedAppsPolicy": "mcp rest api tokens access",
+      "publishing": "publish web share public link",
+      "retention": "trash history delete keep days",
+      "legalHolds": "litigation preserve ediscovery keep",
+      "storage": "files s3 drive bucket",
+      "analyticsPeople": "activity edits statistics",
+      "aiUsageLimit": "budget cost spending cap",
+      "aiUsagePeople": "per person member cost tokens",
+      "health": "broken links orphans duplicates empty pages",
+      "audit": "log history events who changed"
+    }
+  },
   "workspace": {
     "heading": "Workspace",
     "nameLabel": "Workspace name",
@@ -1387,6 +1447,50 @@
       "memberView": "{count, plural, =0 {Off: the workspace opens from any network.} one {On: the workspace opens only from # approved network.} other {On: the workspace opens only from # approved networks.}}"
     }
   },
+  "legalHolds": {
+    "title": "Legal holds",
+    "description": "While a hold stands, nothing the people on it created or edited in this workspace can be deleted for good. Their pages and rows can still go to the trash, but stay there with their history, comments and files; the workspace and their accounts can't be deleted.",
+    "holds": "Holds",
+    "holdsDescription": "Setting and releasing a hold is recorded in the audit log.",
+    "empty": "No holds.",
+    "new": "New hold",
+    "setBy": "Set by {name} on {date, date, medium}",
+    "setOn": "Set on {date, date, medium}",
+    "people": "{count, plural, one {# person} other {# people}}",
+    "left": "left",
+    "guest": "guest",
+    "release": "Release",
+    "confirmRelease": "Release {name}",
+    "form": {
+      "title": "New legal hold",
+      "description": "Choose the people it covers: members, guests, or people who have left but created or edited something here.",
+      "name": "Name",
+      "namePlaceholder": "Matter or case",
+      "reason": "Reason",
+      "reasonPlaceholder": "Optional: why, and who asked for it",
+      "people": "People ({count})",
+      "search": "Search people",
+      "loading": "Loading…",
+      "nobody": "Nobody matches.",
+      "submit": "Put on hold"
+    },
+    "errors": {
+      "pageHeld": "A legal hold keeps this page, or a page under it: it can't be deleted for good while the hold stands, and stays in the trash.",
+      "templateHeld": "A legal hold keeps this template: it can't be deleted while the hold stands.",
+      "propertyHeld": "A legal hold keeps this property's values: it can't be deleted for good while the hold stands.",
+      "commentHeld": "A legal hold keeps this comment: it can't be deleted while the hold stands.",
+      "letterheadHeld": "A legal hold keeps this letterhead: it can't be deleted while the hold stands.",
+      "workspaceHeld": "This workspace has a legal hold. Release it (Settings > Security) before deleting the workspace.",
+      "nameRequired": "Give the hold a name.",
+      "nameTooLong": "Use at most 200 characters for the name.",
+      "reasonTooLong": "Use at most 2,000 characters for the reason.",
+      "noPeople": "Choose who the hold is on.",
+      "tooManyPeople": "One hold covers at most 200 people.",
+      "unknownPerson": "Someone you chose isn't in this workspace any more.",
+      "notFound": "That hold was released already.",
+      "ownersOnly": "Only owners manage legal holds."
+    }
+  },
   "audit": {
     "description": "A record of who changed what in this workspace: members and roles, invitations, sharing, teamspaces and groups, settings, security, pages created, moved, trashed and deleted, publishing, connected apps and exports. Only owners can see it.",
     "filters": "Filter the audit log",
@@ -1621,6 +1725,10 @@
       "scim": {
         "token_created": "Created the SCIM token {target}",
         "token_revoked": "Revoked the SCIM token {target}"
+      },
+      "legal_hold": {
+        "set": "Put the legal hold {target} on {names}",
+        "released": "Released the legal hold {target} on {names}"
       },
       "site": {
         "saved": "Saved the site at {slug}",

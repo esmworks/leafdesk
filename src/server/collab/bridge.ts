@@ -8,6 +8,7 @@
 import type { BlockEdit } from "@/lib/block-edits";
 import type { CommentOp, PlainComment, PlainThread } from "@/lib/comments";
 import type { PageStyle } from "@/lib/page-style";
+import type { Decision, SuggestionSummary } from "@/lib/suggestions";
 
 export type CommentOpResult = {
   /** The thread after the change; missing when it was deleted. */
@@ -18,7 +19,18 @@ export type CommentOpResult = {
   anchored?: boolean;
 };
 
-export type WriteActor = { userId: string; oauthClientId?: string | null };
+export type WriteActor = {
+  userId: string;
+  oauthClientId?: string | null;
+  /**
+   * The AI chat writes for this person, who chose to get its changes to page bodies as suggested
+   * edits (collab/suggestion-doc writeBlocksAsSuggestions): they wait for an answer like theirs.
+   */
+  asSuggestions?: boolean;
+};
+
+/** A suggested edit that was accepted or rejected, with the thread it had (null when none). */
+export type AnsweredSuggestion = SuggestionSummary & { threadId: string | null };
 
 export type PageContent = { title: string; markdown: string; text: string };
 
@@ -177,6 +189,14 @@ export interface CollabService {
    * do it.
    */
   commentOp(pageId: string, actor: CommentActor, op: CommentOp): Promise<CommentOpResult>;
+  /** The body's pending suggested edits (lib/suggestions), from the live document when it is open. */
+  readSuggestions(pageId: string): Promise<SuggestionSummary[]>;
+  /**
+   * Accepts or rejects suggested edits in the page's live document, `ids` or every one (null), and
+   * resolves their threads as `actor` (server/suggestions.ts checks access first). Returns the ones
+   * it found: the others were answered or withdrawn already.
+   */
+  resolveSuggestions(pageId: string, decision: Decision, ids: string[] | null, actor: WriteActor): Promise<AnsweredSuggestion[]>;
   /**
    * The page was locked or unlocked (server/pages.ts setPageLocked). Locking makes its open browser
    * connections read-only at once; unlocking makes those of people who may edit it writable again.

@@ -64,6 +64,17 @@
   those threads until you take the mark off. MCP's `list_comments` and the REST API's comments
   say `marked: true` for threads the asking user marked. The marks and when each person saw each
   thread are kept per person (migration 0117) and go with the thread.
+- **Suggested edits.** The page header switches between *Editing* and *Suggesting*: while
+  suggesting, typed text shows underlined as an insertion, deleted text stays, struck through, and
+  new formatting is marked as a change, live for everyone on the page. Each suggestion is a thread
+  in the comments panel, opened in its author's name, with *Accept* and *Reject* for people who may
+  edit and *Withdraw* for its author; the page menu accepts or rejects them all. People who may
+  only comment always suggest, and the server takes nothing else from their connection. Until a
+  suggestion is accepted the page reads without it: its Markdown, search, published pages, PDF
+  and print, exports, history, MCP, the REST API and the AI. A page's watchers (a row's
+  followers) hear about new suggestions as about new threads, by inbox, push and email, and the
+  author hears when theirs is accepted or rejected. MCP's `list_comments` and the REST API say
+  `suggestion` for a suggestion's thread. The writing assistant can apply its text as suggestions.
 - **Views color rows by rules.** *Color rules* in a view's layout menu (tables, boards, galleries,
   lists, calendars and timelines) colors the rows that match conditions: each rule has a color
   from the option palette, colors the whole row or card or one property's value, and tests rows
@@ -106,7 +117,7 @@
   react with emoji and read and add the row's comments. Reactions to rows follow page access and
   are new; color rules color posts. Linked views, dashboards, MCP, the REST API and the AI chat
   can make feed views; published pages show each post's date, title, values and the start of its
-  body, without reactions or comments. Migration 0122 (the reactions, and the row page setting
+  body, without reactions or comments. Migration 0123 (the reactions, and the row page setting
   below).
 - **Database tabs.** The `/tabs` block shows several databases, or views of one, as tabs, each a
   view of its own that editors set up with its toolbar, rename, reorder and remove. Readers get only
@@ -214,6 +225,34 @@
   picked by name, or in none. Guests make PDFs without letterheads. Migration 0115 adds the
   `pdf_letterhead` table.
 
+- **Owners can put people under a legal hold.** Settings → Security → Legal holds lists the holds
+  of the workspace, each with its name, reason, who set it and when, and the people it covers:
+  members, guests, or people who have left but created or edited something there. While a hold
+  stands, nothing they created or edited (a page they made, last edited, saved a version of,
+  changed a value of, uploaded a file to or commented on, and any page above one) is deleted for
+  good: it can still go to the trash and come back, but *Delete forever*, the trash and history
+  retention, the file cleanups, deleting a template, a deleted property's values or a comment keep
+  it or refuse with a message, the workspace can't be deleted, and the people's accounts can't be
+  deleted. Removing a held person from the workspace, also over SCIM, keeps their pages, as it
+  always did. Setting and releasing a hold is recorded in the audit log, and backups carry the
+  holds. Migration 0122 adds them.
+- **Settings can be searched.** A box at the top of Settings' navigation finds a setting on any tab
+  you have, your account's included, by its name, its tab or other words people look for it by
+  ("dark mode", "2fa", "ip", "backup"): picking one opens its tab, scrolls to the setting and
+  highlights it for a moment. Only what you can see is found: owners' settings for owners, and
+  nothing a guest's or a one-computer Leafdesk's Settings leave out. The search box (Cmd/Ctrl+K)
+  finds them too after `>`, as *Settings: Security → Approved networks*.
+- **Swipe inbox items on a phone.** On a touch screen, swiping an item of the inbox toward the end
+  of the line marks it read, or unread again, and swiping it toward the start snoozes it until
+  tomorrow at 9:00; what letting go will do shows behind the item as it moves. A group of
+  notifications about one page goes the same way, all of it. The buttons stay, and a mouse or pen
+  works as before.
+- **The desktop app has a system-wide shortcut to AI chat.** Pressing Cmd+Shift+J on macOS
+  (Ctrl+Shift+J on Windows and Linux) in any app brings Leafdesk forward and opens AI chat in the
+  workspace its window shows, or a quick note where AI is off in that workspace. *Go → Ask AI
+  Shortcut* switches it to Cmd/Ctrl+Shift+Space or Cmd/Ctrl+Option/Alt+L, or turns it off; when
+  another app already has the keys, the menu says so and another can be picked. The choice is kept
+  in the app's settings.
 - **Table rows move by their handle, which also opens a fuller row menu.** The ⋯ button before
   each row of a table is now a handle: drag it to move the row among the others (in its group, and
   under the same parent when sub-items nest) while no sort orders the view; the order is the one
@@ -760,6 +799,11 @@
   medium. Agents keep the model's default. The README's AI section has the table.
 
 ### Fixed
+
+- **Text filters match the Turkish dotted and dotless i.** A "contains ist" filter now finds
+  "İstanbul", and "ışık" finds "IŞIK": database view filters, form question conditions and option
+  names given by name (MCP, the REST API, a new tag typed into a cell) fold case with İ, I, i and ı
+  treated alike, as search and pickers already did. Other letters keep their accents.
 
 - **The AI chat knows today's date.** Each question now carries the date, weekday and time in the
   asker's time zone (the browser's), so "today", "this week" and dates written into quotes come out

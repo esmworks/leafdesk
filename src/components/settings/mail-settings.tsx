@@ -26,7 +26,7 @@ export function MailSettings({ workspaceId, initial }: { workspaceId: string; in
 
   return (
     <div className="space-y-10">
-      <SettingsGroup title={t("heading")} description={t("description")}>
+      <SettingsGroup anchor="workspaceMail" title={t("heading")} description={t("description")}>
         <SettingsRow
           title={t("enabled")}
           description={

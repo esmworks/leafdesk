@@ -13,10 +13,14 @@ import { gzipSync } from "node:zlib";
  * Gzipped kB, for what a person waits for rather than what the build holds:
  *
  * - `routeFirstLoad`: the largest first load of any route, what opening that page downloads: a
- *   page or database (about 720 kB, the editor and the table view among it), then Settings (about
+ *   page or database (about 735 kB, the editor and the table view among it), then Settings (about
  *   470 kB) and the workspace's other routes (about 365 kB).
- * - `firstLoadShared`: every chunk any route loads first, together (about 1020 kB); it grows when
- *   code moves into first loads, even into a route the largest doesn't show.
+ * - `firstLoadShared`: every chunk any route loads first, together (about 1075 kB); it grows when
+ *   code moves into first loads, even into a route the largest doesn't show. Of that, about 55 kB
+ *   are what pages and databases do on their own: views' color rules, the "Available offline"
+ *   switch, the meeting block's editor spec, reactions and the discussions panel, form
+ *   conditions, place values and new chat cards; their dialogs (row access, color rules, Build
+ *   with AI, import) load when opened.
  * - `onDemandChunk`: the largest chunk loaded on demand. Lazy code is free until it is used, so
  *   there is no sum of it, but one chunk is still downloaded whole when it is: the Mermaid diagram
  *   layouts (elkjs) are the largest, about 430 kB, fetched only for a diagram that uses them.
@@ -25,7 +29,7 @@ import { gzipSync } from "node:zlib";
  * lazy), database views other than table, gallery and list load when shown, and dialogs used now
  * and then (automations, import, PDF export, QR codes) load when opened.
  */
-const BUDGET = { routeFirstLoad: 760, firstLoadShared: 1060, onDemandChunk: 450 };
+const BUDGET = { routeFirstLoad: 760, firstLoadShared: 1090, onDemandChunk: 450 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;

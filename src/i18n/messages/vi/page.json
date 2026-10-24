@@ -16,6 +16,14 @@
     "createdBy": "Tạo bởi {name}",
     "someone": "Ai đó",
     "comments": "Bình luận",
+    "suggesting": {
+      "editing": "Chỉnh sửa",
+      "suggesting": "Đề xuất",
+      "label": "Chế độ: {mode}",
+      "editingHint": "Thay đổi trang trực tiếp",
+      "suggestingHint": "Thay đổi của bạn hiển thị dưới dạng đề xuất mà người khác có thể chấp nhận hoặc từ chối",
+      "forcedHint": "Bạn có thể bình luận trên trang này, nên thay đổi của bạn là đề xuất mà người chỉnh sửa trang có thể chấp nhận hoặc từ chối"
+    },
     "share": "Chia sẻ",
     "accessRequests": "{count, plural, other {# yêu cầu truy cập}}",
     "addFavorite": "Thêm vào yêu thích",
@@ -51,6 +59,9 @@
     "exportPdf": "Xuất dưới dạng PDF",
     "printView": "In",
     "exportPreparing": "Đang chuẩn bị xuất…",
+    "acceptAllSuggestions": "Chấp nhận tất cả đề xuất",
+    "rejectAllSuggestions": "Từ chối tất cả đề xuất",
+    "rejectAllConfirm": "Từ chối mọi đề xuất chỉnh sửa trên trang này?",
     "versionHistory": "Lịch sử phiên bản",
     "lastEdited": "Chỉnh sửa lần cuối bởi {name}",
     "wordCount": "{words, plural, other {# từ}}, {characters, plural, other {# ký tự}}",
@@ -94,6 +105,20 @@
     "muted": "Đã tắt thông báo trả lời",
     "mutedHint": "Bạn không nhận thông báo về các trả lời trong chuỗi này cho đến khi bạn trả lời ở đây hoặc có người nhắc đến bạn ở đây.",
     "mergedFrom": "Từ “{title}”",
+    "suggestion": {
+      "label": "Đề xuất chỉnh sửa",
+      "byAi": "Đề xuất chỉnh sửa của AI",
+      "accept": "Chấp nhận",
+      "reject": "Từ chối",
+      "withdraw": "Rút lại",
+      "errors": {
+        "notAllowed": "Bạn không thể phản hồi đề xuất này.",
+        "notFound": "Đề xuất này đã được phản hồi hoặc đã bị rút lại.",
+        "pageLocked": "Trang đang bị khóa.",
+        "pageInTrash": "Trang đang ở trong thùng rác.",
+        "failed": "Không thể phản hồi đề xuất. Hãy thử lại."
+      }
+    },
     "sort": {
       "label": "Sắp xếp các chuỗi",
       "recent": "Hoạt động mới nhất trước",

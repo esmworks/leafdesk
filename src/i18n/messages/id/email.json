@@ -57,6 +57,11 @@
     "action": "Buka halaman",
     "optOut": "Anda menerima ini karena Anda ikut dalam utas komentar ini. Anda dapat mematikannya di Akun saya > Preferensi."
   },
+  "suggestion": {
+    "subject": "{actor} menyarankan edit pada “{page}”",
+    "heading": "{actor} menyarankan edit pada “{page}”",
+    "body": "Saran ini ada di “{page}” di {workspace}. Terima atau tolak dari halaman, atau balas di utasnya."
+  },
   "mention": {
     "subject": "{actor} menyebut Anda di “{page}”",
     "heading": "{actor} menyebut Anda di “{page}”",
@@ -220,6 +225,9 @@
     "assignment": "{actor} menugaskan Anda pada “{property}”",
     "pageShared": "{actor} membagikan halaman ini kepada Anda",
     "comment": "{actor} berkomentar di utas yang Anda ikuti",
+    "suggested": "{actor} menyarankan edit pada halaman ini",
+    "suggestionAccepted": "{actor} menerima saran edit Anda",
+    "suggestionRejected": "{actor} menolak saran edit Anda",
     "mention": "{actor} menyebut Anda",
     "reminder": "Pengingat: {date}",
     "accessRequest": "{actor} meminta akses ke halaman ini",

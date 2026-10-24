@@ -16,6 +16,14 @@
     "createdBy": "Criado por {name}",
     "someone": "Alguém",
     "comments": "Comentários",
+    "suggesting": {
+      "editing": "Edição",
+      "suggesting": "Sugestão",
+      "label": "Modo: {mode}",
+      "editingHint": "Alterar a página diretamente",
+      "suggestingHint": "Suas alterações aparecem como sugestões que outras pessoas podem aceitar ou rejeitar",
+      "forcedHint": "Você pode comentar nesta página, então suas alterações são sugestões que os editores dela podem aceitar ou rejeitar"
+    },
     "share": "Compartilhar",
     "accessRequests": "{count, plural, one {# solicitação de acesso} other {# solicitações de acesso}}",
     "addFavorite": "Adicionar aos favoritos",
@@ -51,6 +59,9 @@
     "exportPdf": "Exportar como PDF",
     "printView": "Imprimir",
     "exportPreparing": "Preparando a exportação…",
+    "acceptAllSuggestions": "Aceitar todas as sugestões",
+    "rejectAllSuggestions": "Rejeitar todas as sugestões",
+    "rejectAllConfirm": "Rejeitar todas as alterações sugeridas nesta página?",
     "versionHistory": "Histórico de versões",
     "lastEdited": "Última edição por {name}",
     "wordCount": "{words, plural, one {# palavra} other {# palavras}}, {characters, plural, one {# caractere} other {# caracteres}}",
@@ -94,6 +105,20 @@
     "muted": "Respostas silenciadas",
     "mutedHint": "Você não é avisado sobre respostas nesta conversa até responder aqui ou alguém mencionar você aqui.",
     "mergedFrom": "De “{title}”",
+    "suggestion": {
+      "label": "Alteração sugerida",
+      "byAi": "Alteração sugerida pela IA",
+      "accept": "Aceitar",
+      "reject": "Rejeitar",
+      "withdraw": "Retirar",
+      "errors": {
+        "notAllowed": "Você não pode responder a esta sugestão.",
+        "notFound": "Esta sugestão já foi respondida ou retirada.",
+        "pageLocked": "A página está bloqueada.",
+        "pageInTrash": "A página está na lixeira.",
+        "failed": "Não foi possível responder à sugestão. Tente de novo."
+      }
+    },
     "sort": {
       "label": "Ordenar conversas",
       "recent": "Atividade mais recente primeiro",

@@ -57,6 +57,11 @@
     "action": "Apri la pagina",
     "optOut": "Ricevi queste email perché hai partecipato a questa discussione. Puoi disattivarle in Il mio account > Preferenze."
   },
+  "suggestion": {
+    "subject": "{actor} ha suggerito modifiche a “{page}”",
+    "heading": "{actor} ha suggerito modifiche a “{page}”",
+    "body": "Il suggerimento è su “{page}” in {workspace}. Accettalo o rifiutalo dalla pagina, oppure rispondi nella sua discussione."
+  },
   "mention": {
     "subject": "{actor} ti ha menzionato in “{page}”",
     "heading": "{actor} ti ha menzionato in “{page}”",
@@ -220,6 +225,9 @@
     "assignment": "{actor} ti ha assegnato a “{property}”",
     "pageShared": "{actor} ha condiviso questa pagina con te",
     "comment": "{actor} ha commentato in una discussione a cui partecipi",
+    "suggested": "{actor} ha suggerito modifiche a questa pagina",
+    "suggestionAccepted": "{actor} ha accettato la tua modifica suggerita",
+    "suggestionRejected": "{actor} ha rifiutato la tua modifica suggerita",
     "mention": "{actor} ti ha menzionato",
     "reminder": "Promemoria: {date}",
     "accessRequest": "{actor} ha chiesto l’accesso a questa pagina",

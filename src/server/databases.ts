@@ -60,6 +60,7 @@ import {
   withoutParentOptions,
 } from "@/lib/dependent-options";
 import { cleanDescription, MAX_PROPERTY_DESCRIPTION } from "@/lib/property-description";
+import { searchFold } from "@/lib/search-fold";
 import { makesLoop, parentProperty, singleParent, storedParent, subItemsProperty } from "@/lib/sub-items";
 import {
   blockedByProperty,
@@ -122,6 +123,7 @@ import { queueRowWrites } from "@/server/row-follow";
 import { workspacePeople, workspaceSettings, type WorkspacePerson } from "@/server/workspaces";
 import { agentMarks, isAgentUser } from "@/server/agents/users";
 import { recordAudit } from "@/server/audit";
+import { heldPageIds, refuseHeldPages } from "@/server/legal-hold";
 import {
   assignmentsTheySee,
   propertyAccessFor,
@@ -2057,7 +2059,7 @@ export async function ensureOption(userId: string, propertyId: string, name: str
     throw withCode(new Error("Not a select property"), "notASelectProperty");
   }
   const options = prop.options.options ?? [];
-  const existing = options.find((o) => o.name.toLowerCase() === name.trim().toLowerCase());
+  const existing = options.find((o) => searchFold(o.name) === searchFold(name.trim()));
   if (existing) return existing;
   // A status option added by name (a new board column) starts out as to do.
   const option: SelectOption =
@@ -2253,6 +2255,9 @@ export async function restoreProperty(userId: string, propertyId: string) {
 export async function purgeProperty(userId: string, propertyId: string) {
   const { prop, database } = await requireDeletedProperty(userId, propertyId);
   const detach = await mayOnlyDetach(userId, await withPair(prop, db, true), true);
+  // Its values on rows a legal hold keeps (and the other side's, when that goes too) stay.
+  const sides = detach ? [prop] : await withPair(prop, db, true);
+  await refuseHeldPages(database.workspaceId, [...new Set(sides.map((p) => p.databaseId))], "propertyHeld");
   const pair = await db.transaction(async (tx) => {
     const pair = await withPair(prop, tx, true);
     // Alone, it leaves the other side as a one-way relation (see eraseProperties).
@@ -2266,7 +2271,8 @@ export async function purgeProperty(userId: string, propertyId: string) {
 
 /**
  * Deletes deleted properties for good, with the other sides of their relations (the daily cleanup,
- * server/retention). Recorded in the audit log as the server's own. Returns how many went.
+ * server/retention). Recorded in the audit log as the server's own. Returns how many went. Those
+ * with values a legal hold keeps (either side's database holds a held row) are left for later.
  */
 export async function purgeDeletedProperties(workspaceId: string, propertyIds: string[]) {
   if (!propertyIds.length) return 0;
@@ -2275,8 +2281,13 @@ export async function purgeDeletedProperties(workspaceId: string, propertyIds: s
       .select()
       .from(databaseProperty)
       .where(and(inArray(databaseProperty.id, propertyIds), isNotNull(databaseProperty.deletedAt)));
+    const pairs = await Promise.all(due.map((p) => withPair(p, tx, true)));
+    const held = await heldPageIds(workspaceId, [...new Set(pairs.flat().map((p) => p.databaseId))], tx);
     const all = new Map<string, DatabaseProperty>();
-    for (const p of due) for (const q of await withPair(p, tx, true)) all.set(q.id, q);
+    for (const pair of pairs) {
+      if (pair.some((q) => held.has(q.databaseId))) continue;
+      for (const q of pair) all.set(q.id, q);
+    }
     const props = [...all.values()];
     await eraseProperties(tx, props);
     await auditProperties(tx, workspaceId, null, "property.deleted", props);

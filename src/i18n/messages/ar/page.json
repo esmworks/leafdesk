@@ -16,6 +16,14 @@
     "createdBy": "أنشأها {name}",
     "someone": "شخص ما",
     "comments": "التعليقات",
+    "suggesting": {
+      "editing": "تحرير",
+      "suggesting": "اقتراح",
+      "label": "الوضع: {mode}",
+      "editingHint": "غيّر الصفحة مباشرة",
+      "suggestingHint": "تظهر تغييراتك كاقتراحات يمكن للآخرين قبولها أو رفضها",
+      "forcedHint": "يمكنك التعليق على هذه الصفحة، لذا تكون تغييراتك اقتراحات يمكن لمحرريها قبولها أو رفضها"
+    },
     "share": "مشاركة",
     "accessRequests": "{count, plural, one {طلب وصول واحد} two {طلبا وصول} few {# طلبات وصول} many {# طلب وصول} other {# طلب وصول}}",
     "addFavorite": "إضافة إلى المفضلة",
@@ -51,6 +59,9 @@
     "exportPdf": "تصدير بصيغة PDF",
     "printView": "طباعة",
     "exportPreparing": "جارٍ تحضير التصدير…",
+    "acceptAllSuggestions": "قبول كل الاقتراحات",
+    "rejectAllSuggestions": "رفض كل الاقتراحات",
+    "rejectAllConfirm": "هل تريد رفض كل التعديلات المقترحة في هذه الصفحة؟",
     "versionHistory": "سجل النسخ",
     "lastEdited": "آخر تعديل بواسطة {name}",
     "wordCount": "الكلمات: {words}، الأحرف: {characters}",
@@ -94,6 +105,20 @@
     "muted": "الردود مكتومة",
     "mutedHint": "لن تتلقى إشعارات بالردود في هذه السلسلة حتى ترد هنا أو يذكرك أحد هنا.",
     "mergedFrom": "من «{title}»",
+    "suggestion": {
+      "label": "تعديل مقترح",
+      "byAi": "تعديل اقترحه الذكاء الاصطناعي",
+      "accept": "قبول",
+      "reject": "رفض",
+      "withdraw": "سحب",
+      "errors": {
+        "notAllowed": "لا يمكنك الرد على هذا الاقتراح.",
+        "notFound": "تم الرد على هذا الاقتراح أو سحبه بالفعل.",
+        "pageLocked": "الصفحة مقفلة.",
+        "pageInTrash": "الصفحة في سلة المهملات.",
+        "failed": "تعذّر الرد على الاقتراح. حاول مرة أخرى."
+      }
+    },
     "sort": {
       "label": "ترتيب السلاسل",
       "recent": "الأحدث نشاطًا أولًا",

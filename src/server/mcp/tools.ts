@@ -1131,7 +1131,11 @@ export function createMcpServer(principal: McpPrincipal) {
                 n.kind === "assignment"
                   ? `${who} assigned the user to "${n.propertyName ?? ""}" on "${title}" in ${pageLabel(n.databaseTitle)}`
                   : n.kind === "comment"
-                    ? `${who} commented on "${title}" in a thread the user is in (see list_comments)`
+                    ? n.suggestion === "suggested"
+                      ? `${who} suggested edits to "${title}"; each is a comment thread (see list_comments)`
+                      : n.suggestion
+                        ? `${who} ${n.suggestion} the user's suggested edit on "${title}"`
+                        : `${who} commented on "${title}" in a thread the user is in (see list_comments)`
                     : n.kind === "mention"
                       ? `${who} mentioned the user on "${title}"`
                       : n.kind === "reminder"

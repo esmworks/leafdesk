@@ -1,7 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import type { PageKind } from "@/db/schema";
+import { LegalHoldError } from "@/lib/legal-hold";
 import type { PageBackground } from "@/lib/page-background";
 import { hasLevel } from "@/server/access";
 import * as pages from "@/server/pages";
@@ -79,9 +81,16 @@ export async function restorePageAction(pageId: string) {
   await pages.restorePage(userId, pageId);
 }
 
-export async function deletePagePermanentlyAction(pageId: string) {
+/** A legal hold that keeps the page comes back as a message to show; other failures throw. */
+export async function deletePagePermanentlyAction(pageId: string): Promise<{ ok: true } | { ok: false; error: string; code: string }> {
   const userId = await requireUserId();
-  await pages.deletePagePermanently(userId, pageId);
+  try {
+    await pages.deletePagePermanently(userId, pageId);
+    return { ok: true };
+  } catch (error) {
+    if (!(error instanceof LegalHoldError)) throw error;
+    return { ok: false, error: (await getTranslations("settings.legalHolds.errors"))(error.code), code: error.code };
+  }
 }
 
 /** `teamspaceId` (top level only): the teamspace to move it to, null for the private pages. */

@@ -22,6 +22,66 @@
     "snippets": "Textbausteine",
     "pdf": "PDF-Vorlagen"
   },
+  "search": {
+    "label": "Einstellungen durchsuchen",
+    "placeholder": "Einstellungen durchsuchen",
+    "noResults": "Keine Einstellung passt.",
+    "labels": {
+      "aiUsagePeople": "Nutzung pro Person"
+    },
+    "keywords": {
+      "profile": "Name Foto Avatar Bild",
+      "email": "Adresse ändern bestätigen E-Mail",
+      "deleteAccount": "Konto entfernen schließen löschen",
+      "password": "ändern zurücksetzen Anmeldung Passwort",
+      "twoFactor": "2FA MFA Authenticator Code",
+      "passkeys": "WebAuthn Sicherheitsschlüssel Fingerabdruck Gesicht",
+      "sessions": "Geräte angemeldet abmelden",
+      "language": "Sprache Übersetzung Gebietsschema",
+      "theme": "Dunkelmodus Hellmodus Farben",
+      "contrast": "Barrierefreiheit hoher Kontrast",
+      "notifications": "Push E-Mail Hinweise Benachrichtigung",
+      "watchedPages": "folgen abonnieren beobachten",
+      "offlineDevice": "offline herunterladen Cache Speicherplatz",
+      "offlinePages": "offline herunterladen ohne Internet",
+      "mailboxes": "E-Mail Posteingang IMAP SMTP",
+      "calendars": "iCal Feed abonnieren Kalender",
+      "storageAccounts": "Drive S3 Dateien Cloud",
+      "connectedApps": "OAuth Clients Zugriff widerrufen",
+      "aiAccounts": "API-Schlüssel eigener Schlüssel Anbieter",
+      "telegram": "Bot Chat Nachrichten",
+      "mcp": "Assistent Model Context Protocol Server",
+      "apiTokens": "REST API Token Schlüssel Entwickler",
+      "about": "Version Lizenz Update",
+      "workspaceName": "Name umbenennen Symbol",
+      "ai": "künstliche Intelligenz Chat Modell Anbieter Gedächtnis",
+      "workspaceMail": "E-Mail Zeilen Mail senden",
+      "export": "Sicherung herunterladen ZIP Markdown",
+      "members": "Personen einladen Benutzer Rollen entfernen",
+      "agents": "KI Assistent Automatisierung Bot",
+      "snippets": "Textbausteine Kürzel",
+      "letterheads": "PDF Kopfzeile Fußzeile Logo drucken",
+      "connections": "Integrationen MCP Dienste Werkzeuge",
+      "site": "Website veröffentlichen Domain Web",
+      "requireTwoFactor": "2FA MFA erzwingen Richtlinie",
+      "loginMethod": "SSO Passwort Anmeldung Richtlinie",
+      "allowedNetworks": "IP Zulassungsliste Adresse Büro VPN",
+      "membership": "einladen beitreten Anfragen Domains",
+      "sso": "SAML OIDC Identitätsanbieter",
+      "scim": "Bereitstellung Verzeichnis Synchronisierung Benutzer",
+      "exportPolicy": "herunterladen drucken PDF",
+      "connectedAppsPolicy": "MCP REST API Token Zugriff",
+      "publishing": "veröffentlichen Web teilen öffentlicher Link",
+      "retention": "Papierkorb Verlauf löschen aufbewahren Tage",
+      "legalHolds": "Rechtsstreit sichern E-Discovery aufbewahren",
+      "storage": "Dateien S3 Drive Bucket",
+      "analyticsPeople": "Aktivität Bearbeitungen Statistik",
+      "aiUsageLimit": "Budget Kosten Ausgaben Obergrenze",
+      "aiUsagePeople": "pro Person Mitglied Kosten Token",
+      "health": "defekte Links verwaiste Duplikate leere Seiten",
+      "audit": "Protokoll Verlauf Ereignisse wer geändert"
+    }
+  },
   "workspace": {
     "heading": "Workspace",
     "nameLabel": "Name des Workspace",
@@ -1387,6 +1447,50 @@
       "memberView": "{count, plural, =0 {Aus: Der Workspace lässt sich aus jedem Netzwerk öffnen.} one {An: Der Workspace lässt sich nur aus # freigegebenen Netzwerk öffnen.} other {An: Der Workspace lässt sich nur aus # freigegebenen Netzwerken öffnen.}}"
     }
   },
+  "legalHolds": {
+    "title": "Rechtliche Aufbewahrung",
+    "description": "Solange eine Aufbewahrung besteht, kann nichts endgültig gelöscht werden, was die betroffenen Personen in diesem Workspace erstellt oder bearbeitet haben. Ihre Seiten und Zeilen können weiter in den Papierkorb, bleiben dort aber mit Verlauf, Kommentaren und Dateien; der Workspace und ihre Konten können nicht gelöscht werden.",
+    "holds": "Aufbewahrungen",
+    "holdsDescription": "Das Setzen und Aufheben einer Aufbewahrung wird im Audit-Log festgehalten.",
+    "empty": "Keine Aufbewahrungen.",
+    "new": "Neue Aufbewahrung",
+    "setBy": "Gesetzt von {name} am {date, date, medium}",
+    "setOn": "Gesetzt am {date, date, medium}",
+    "people": "{count, plural, one {# Person} other {# Personen}}",
+    "left": "ausgetreten",
+    "guest": "Gast",
+    "release": "Aufheben",
+    "confirmRelease": "{name} aufheben",
+    "form": {
+      "title": "Neue rechtliche Aufbewahrung",
+      "description": "Wählen Sie die Personen, die sie betrifft: Mitglieder, Gäste oder Personen, die ausgetreten sind, aber hier etwas erstellt oder bearbeitet haben.",
+      "name": "Name",
+      "namePlaceholder": "Angelegenheit oder Verfahren",
+      "reason": "Grund",
+      "reasonPlaceholder": "Optional: warum, und wer sie verlangt hat",
+      "people": "Personen ({count})",
+      "search": "Personen suchen",
+      "loading": "Wird geladen …",
+      "nobody": "Niemand passt.",
+      "submit": "Aufbewahrung setzen"
+    },
+    "errors": {
+      "pageHeld": "Eine rechtliche Aufbewahrung schützt diese Seite oder eine Seite darunter: Sie kann nicht endgültig gelöscht werden, solange die Aufbewahrung besteht, und bleibt im Papierkorb.",
+      "templateHeld": "Eine rechtliche Aufbewahrung schützt diese Vorlage: Sie kann nicht gelöscht werden, solange die Aufbewahrung besteht.",
+      "propertyHeld": "Eine rechtliche Aufbewahrung schützt die Werte dieser Eigenschaft: Sie kann nicht endgültig gelöscht werden, solange die Aufbewahrung besteht.",
+      "commentHeld": "Eine rechtliche Aufbewahrung schützt diesen Kommentar: Er kann nicht gelöscht werden, solange die Aufbewahrung besteht.",
+      "letterheadHeld": "Eine rechtliche Aufbewahrung schützt diesen Briefkopf: Er kann nicht gelöscht werden, solange die Aufbewahrung besteht.",
+      "workspaceHeld": "Für diesen Workspace besteht eine rechtliche Aufbewahrung. Heben Sie sie auf (Einstellungen > Sicherheit), bevor Sie den Workspace löschen.",
+      "nameRequired": "Geben Sie der Aufbewahrung einen Namen.",
+      "nameTooLong": "Der Name darf höchstens 200 Zeichen lang sein.",
+      "reasonTooLong": "Der Grund darf höchstens 2.000 Zeichen lang sein.",
+      "noPeople": "Wählen Sie, wen die Aufbewahrung betrifft.",
+      "tooManyPeople": "Eine Aufbewahrung betrifft höchstens 200 Personen.",
+      "unknownPerson": "Eine gewählte Person ist nicht mehr in diesem Workspace.",
+      "notFound": "Diese Aufbewahrung wurde bereits aufgehoben.",
+      "ownersOnly": "Nur Inhaber verwalten rechtliche Aufbewahrungen."
+    }
+  },
   "audit": {
     "description": "Wer in diesem Workspace was geändert hat: Mitglieder und Rollen, Einladungen, Freigaben, Teamspaces und Gruppen, Einstellungen, Sicherheit, erstellte, verschobene, in den Papierkorb gelegte und gelöschte Seiten, Veröffentlichungen, verbundene Apps und Exporte. Nur Inhaber sehen es.",
     "filters": "Audit-Log filtern",
@@ -1621,6 +1725,10 @@
       "scim": {
         "token_created": "Hat das SCIM-Token {target} erstellt",
         "token_revoked": "Hat das SCIM-Token {target} widerrufen"
+      },
+      "legal_hold": {
+        "set": "Hat die rechtliche Aufbewahrung {target} für {names} gesetzt",
+        "released": "Hat die rechtliche Aufbewahrung {target} für {names} aufgehoben"
       },
       "site": {
         "saved": "Hat die Website unter {slug} gespeichert",

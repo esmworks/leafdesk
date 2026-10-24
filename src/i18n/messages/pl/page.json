@@ -16,6 +16,14 @@
     "createdBy": "Utworzone przez: {name}",
     "someone": "Ktoś",
     "comments": "Komentarze",
+    "suggesting": {
+      "editing": "Edycja",
+      "suggesting": "Sugestie",
+      "label": "Tryb: {mode}",
+      "editingHint": "Zmieniaj stronę bezpośrednio",
+      "suggestingHint": "Twoje zmiany pojawiają się jako sugestie, które inni mogą przyjąć lub odrzucić",
+      "forcedHint": "Możesz komentować tę stronę, więc twoje zmiany są sugestiami, które jej redaktorzy mogą przyjąć lub odrzucić"
+    },
     "share": "Udostępnij",
     "accessRequests": "{count, plural, one {# prośba o dostęp} few {# prośby o dostęp} many {# próśb o dostęp} other {# prośby o dostęp}}",
     "addFavorite": "Dodaj do ulubionych",
@@ -51,6 +59,9 @@
     "exportPdf": "Eksportuj jako PDF",
     "printView": "Drukuj",
     "exportPreparing": "Przygotowywanie eksportu…",
+    "acceptAllSuggestions": "Przyjmij wszystkie sugestie",
+    "rejectAllSuggestions": "Odrzuć wszystkie sugestie",
+    "rejectAllConfirm": "Odrzucić wszystkie sugerowane zmiany na tej stronie?",
     "versionHistory": "Historia wersji",
     "lastEdited": "Ostatnio edytowane przez: {name}",
     "wordCount": "{words, plural, one {# słowo} few {# słowa} many {# słów} other {# słowa}}, {characters, plural, one {# znak} few {# znaki} many {# znaków} other {# znaku}}",
@@ -94,6 +105,20 @@
     "muted": "Odpowiedzi wyciszone",
     "mutedHint": "Nie otrzymujesz powiadomień o odpowiedziach w tym wątku, dopóki tu nie odpowiesz lub ktoś cię tu nie wspomni.",
     "mergedFrom": "Z „{title}”",
+    "suggestion": {
+      "label": "Sugerowana zmiana",
+      "byAi": "Zmiana sugerowana przez AI",
+      "accept": "Przyjmij",
+      "reject": "Odrzuć",
+      "withdraw": "Wycofaj",
+      "errors": {
+        "notAllowed": "Nie możesz odpowiedzieć na tę sugestię.",
+        "notFound": "Ta sugestia ma już odpowiedź albo została wycofana.",
+        "pageLocked": "Strona jest zablokowana.",
+        "pageInTrash": "Strona jest w koszu.",
+        "failed": "Nie udało się odpowiedzieć na sugestię. Spróbuj ponownie."
+      }
+    },
     "sort": {
       "label": "Sortuj wątki",
       "recent": "Najnowsza aktywność najpierw",

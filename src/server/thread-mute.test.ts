@@ -42,6 +42,8 @@ vi.mock("@/server/row-follow", () => ({ followOnTakingPart: vi.fn() }));
 vi.mock("@/server/workspaces", () => ({ workspacePeople: vi.fn() }));
 vi.mock("@/server/agents/users", () => ({ agentMarks: vi.fn(), markOf: vi.fn() }));
 vi.mock("@/server/thread-state", () => ({ forgetThreadStates: vi.fn() }));
+// No legal holds here: deleting comments goes ahead.
+vi.mock("@/server/legal-hold", () => ({ refuseHeldComments: async () => {} }));
 vi.mock("@/server/thread-mute", () => {
   const of = (threadId: string) => state.mutes.get(threadId) ?? new Set<string>();
   return {

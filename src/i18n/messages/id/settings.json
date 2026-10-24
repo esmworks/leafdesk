@@ -22,6 +22,66 @@
     "snippets": "Potongan teks",
     "pdf": "Templat PDF"
   },
+  "search": {
+    "label": "Cari pengaturan",
+    "placeholder": "Cari pengaturan",
+    "noResults": "Tidak ada pengaturan yang cocok.",
+    "labels": {
+      "aiUsagePeople": "Penggunaan per orang"
+    },
+    "keywords": {
+      "profile": "nama foto avatar gambar",
+      "email": "alamat ubah verifikasi email",
+      "deleteAccount": "hapus tutup akun",
+      "password": "ubah atur ulang masuk kata sandi",
+      "twoFactor": "2fa mfa autentikator kode",
+      "passkeys": "webauthn kunci keamanan sidik jari wajah",
+      "sessions": "perangkat masuk keluar sesi",
+      "language": "bahasa terjemahan wilayah",
+      "theme": "mode gelap mode terang warna tema",
+      "contrast": "aksesibilitas kontras tinggi",
+      "notifications": "push email peringatan notifikasi",
+      "watchedPages": "ikuti berlangganan pantau",
+      "offlineDevice": "luring unduh cache ruang",
+      "offlinePages": "luring unduh tanpa internet",
+      "mailboxes": "email kotak masuk imap smtp",
+      "calendars": "ical umpan berlangganan kalender",
+      "storageAccounts": "drive s3 file cloud",
+      "connectedApps": "oauth klien akses cabut",
+      "aiAccounts": "kunci api kunci sendiri penyedia",
+      "telegram": "bot obrolan pesan",
+      "mcp": "asisten model context protocol server",
+      "apiTokens": "rest api token kunci pengembang",
+      "about": "versi lisensi pembaruan",
+      "workspaceName": "nama ganti nama ikon",
+      "ai": "kecerdasan buatan obrolan model penyedia memori",
+      "workspaceMail": "email baris surat kirim",
+      "export": "cadangan unduh zip markdown ekspor",
+      "members": "orang undang pengguna peran hapus anggota",
+      "agents": "ai asisten otomatisasi bot agen",
+      "snippets": "teks singkatan cuplikan",
+      "letterheads": "pdf kop surat header footer logo cetak",
+      "connections": "integrasi mcp layanan alat koneksi",
+      "site": "situs web terbitkan domain",
+      "requireTwoFactor": "2fa mfa wajib kebijakan",
+      "loginMethod": "sso kata sandi masuk kebijakan",
+      "allowedNetworks": "ip daftar izin alamat kantor vpn jaringan",
+      "membership": "undang bergabung permintaan domain",
+      "sso": "saml oidc penyedia identitas",
+      "scim": "penyediaan direktori sinkron pengguna",
+      "exportPolicy": "unduh cetak pdf ekspor",
+      "connectedAppsPolicy": "mcp rest api token akses",
+      "publishing": "terbitkan web bagikan tautan publik",
+      "retention": "sampah riwayat hapus simpan hari",
+      "legalHolds": "litigasi pertahankan ediscovery simpan",
+      "storage": "file s3 drive bucket penyimpanan",
+      "analyticsPeople": "aktivitas suntingan statistik",
+      "aiUsageLimit": "anggaran biaya pengeluaran batas",
+      "aiUsagePeople": "per orang anggota biaya token",
+      "health": "tautan rusak yatim duplikat halaman kosong",
+      "audit": "log riwayat peristiwa siapa mengubah"
+    }
+  },
   "workspace": {
     "heading": "Ruang kerja",
     "nameLabel": "Nama ruang kerja",
@@ -1387,6 +1447,50 @@
       "memberView": "{count, plural, =0 {Mati: ruang kerja terbuka dari jaringan apa pun.} other {Hidup: ruang kerja hanya terbuka dari # jaringan yang disetujui.}}"
     }
   },
+  "legalHolds": {
+    "title": "Penahanan hukum",
+    "description": "Selama penahanan berlaku, tidak ada yang dibuat atau diedit oleh orang yang ditahan di ruang kerja ini yang dapat dihapus selamanya. Halaman dan baris mereka masih bisa dipindahkan ke sampah, tetapi tetap di sana bersama riwayat, komentar, dan filenya; ruang kerja dan akun mereka tidak dapat dihapus.",
+    "holds": "Penahanan",
+    "holdsDescription": "Menetapkan dan melepas penahanan dicatat di log audit.",
+    "empty": "Tidak ada penahanan.",
+    "new": "Penahanan baru",
+    "setBy": "Ditetapkan oleh {name} pada {date, date, medium}",
+    "setOn": "Ditetapkan pada {date, date, medium}",
+    "people": "{count, plural, other {# orang}}",
+    "left": "sudah keluar",
+    "guest": "tamu",
+    "release": "Lepaskan",
+    "confirmRelease": "Lepaskan {name}",
+    "form": {
+      "title": "Penahanan hukum baru",
+      "description": "Pilih orang yang dicakupnya: anggota, tamu, atau orang yang sudah keluar tetapi pernah membuat atau mengedit sesuatu di sini.",
+      "name": "Nama",
+      "namePlaceholder": "Perkara atau kasus",
+      "reason": "Alasan",
+      "reasonPlaceholder": "Opsional: mengapa, dan siapa yang memintanya",
+      "people": "Orang ({count})",
+      "search": "Cari orang",
+      "loading": "Memuat…",
+      "nobody": "Tidak ada yang cocok.",
+      "submit": "Tetapkan penahanan"
+    },
+    "errors": {
+      "pageHeld": "Penahanan hukum menahan halaman ini, atau halaman di bawahnya: halaman tidak dapat dihapus selamanya selama penahanan berlaku, dan tetap di sampah.",
+      "templateHeld": "Penahanan hukum menahan templat ini: templat tidak dapat dihapus selama penahanan berlaku.",
+      "propertyHeld": "Penahanan hukum menahan nilai properti ini: properti tidak dapat dihapus selamanya selama penahanan berlaku.",
+      "commentHeld": "Penahanan hukum menahan komentar ini: komentar tidak dapat dihapus selama penahanan berlaku.",
+      "letterheadHeld": "Penahanan hukum menahan kop surat ini: kop surat tidak dapat dihapus selama penahanan berlaku.",
+      "workspaceHeld": "Ruang kerja ini memiliki penahanan hukum. Lepaskan (Pengaturan > Keamanan) sebelum menghapus ruang kerja.",
+      "nameRequired": "Beri nama penahanan.",
+      "nameTooLong": "Gunakan paling banyak 200 karakter untuk nama.",
+      "reasonTooLong": "Gunakan paling banyak 2.000 karakter untuk alasan.",
+      "noPeople": "Pilih siapa yang ditahan.",
+      "tooManyPeople": "Satu penahanan mencakup paling banyak 200 orang.",
+      "unknownPerson": "Seseorang yang Anda pilih sudah tidak ada di ruang kerja ini.",
+      "notFound": "Penahanan itu sudah dilepas.",
+      "ownersOnly": "Hanya pemilik yang mengelola penahanan hukum."
+    }
+  },
   "audit": {
     "description": "Catatan tentang siapa mengubah apa di ruang kerja ini: anggota dan peran, undangan, berbagi, ruang tim dan grup, pengaturan, keamanan, halaman yang dibuat, dipindahkan, dibuang ke sampah, dan dihapus, penerbitan, aplikasi terhubung, dan ekspor. Hanya pemilik yang dapat melihatnya.",
     "filters": "Filter log audit",
@@ -1621,6 +1725,10 @@
       "scim": {
         "token_created": "Membuat token SCIM {target}",
         "token_revoked": "Mencabut token SCIM {target}"
+      },
+      "legal_hold": {
+        "set": "Menetapkan penahanan hukum {target} pada {names}",
+        "released": "Melepas penahanan hukum {target} pada {names}"
       },
       "site": {
         "saved": "Menyimpan situs di {slug}",

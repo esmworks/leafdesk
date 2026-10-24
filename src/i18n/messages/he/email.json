@@ -57,6 +57,11 @@
     "action": "פתיחת הדף",
     "optOut": "האימיילים האלה נשלחים אליך כי השתתפת בשרשור התגובות הזה. אפשר להשבית אותם בהחשבון שלי > העדפות."
   },
+  "suggestion": {
+    "subject": "{actor} הציע שינויים ב“{page}”",
+    "heading": "{actor} הציע שינויים ב“{page}”",
+    "body": "ההצעה נמצאת ב“{page}” ב-{workspace}. אפשר לקבל או לדחות אותה מהדף, או להשיב בשרשור שלה."
+  },
   "mention": {
     "subject": "{actor} הזכיר אותך ב־“{page}”",
     "heading": "{actor} הזכיר אותך ב־“{page}”",
@@ -220,6 +225,9 @@
     "assignment": "{actor} הקצה אותך ל־“{property}”",
     "pageShared": "{actor} שיתף איתך את הדף הזה",
     "comment": "{actor} הגיב בשרשור שהשתתפת בו",
+    "suggested": "{actor} הציע שינויים בדף הזה",
+    "suggestionAccepted": "{actor} קיבל את הצעת השינוי שלך",
+    "suggestionRejected": "{actor} דחה את הצעת השינוי שלך",
     "mention": "{actor} הזכיר אותך",
     "reminder": "תזכורת: {date}",
     "accessRequest": "{actor} ביקש גישה לדף הזה",

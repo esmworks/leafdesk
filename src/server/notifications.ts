@@ -29,6 +29,7 @@ import { newAssignees } from "@/lib/properties";
 import type { PropertyType } from "@/lib/property-types";
 import { readableProperties, referencedIds, resolveValue, type ActivityValue } from "@/lib/row-activity";
 import { isEmptyRowUpdate, mergeRowUpdates, parseRowUpdate, visibleRowUpdate, type RowUpdate } from "@/lib/row-updates";
+import { isSuggestionNotice, type SuggestionNotice } from "@/lib/suggestions";
 import {
   FULL_RANK,
   findMembership,
@@ -184,16 +185,26 @@ export const COMMENT_EMAIL_DELAY_MS = 2 * 60_000;
 
 /**
  * Tells people about a new comment in a thread. A thread someone hasn't read yet stays one
- * notification, moved up to the latest comment. Never throws: the comment went through.
+ * notification, moved up to the latest comment. Never throws: the comment went through. With
+ * `notice`, it is about the thread's suggested edit instead (server/suggested-edits.ts): a new one,
+ * or its answer, which is not emailed (the thread has no comment of the actor to quote).
  */
-export async function recordComment(actorId: string, workspaceId: string, pageId: string, threadId: string, userIds: string[]) {
+export async function recordComment(
+  actorId: string,
+  workspaceId: string,
+  pageId: string,
+  threadId: string,
+  userIds: string[],
+  notice?: SuggestionNotice,
+) {
   const recipients = [...new Set(userIds)].filter((id) => id !== actorId);
   if (!recipients.length) return;
   try {
     // Only people who can still open the page hear about it.
     const visible = await pageRecipients(recipients, pageId);
     if (!visible.length) return;
-    const emailDueAt = mailStatus() === "disabled" ? null : new Date(Date.now() + COMMENT_EMAIL_DELAY_MS);
+    const emailDueAt =
+      mailStatus() === "disabled" || (notice && notice !== "suggested") ? null : new Date(Date.now() + COMMENT_EMAIL_DELAY_MS);
     const emailLocale = await requestLocale();
     const inserted = await db.transaction(async (tx) => {
       await tx.delete(notification).where(
@@ -208,7 +219,9 @@ export async function recordComment(actorId: string, workspaceId: string, pageId
       );
       return tx
         .insert(notification)
-        .values(visible.map((userId) => ({ userId, workspaceId, kind: "comment" as const, actorId, pageId, threadId, emailDueAt, emailLocale })))
+        .values(
+          visible.map((userId) => ({ userId, workspaceId, kind: "comment" as const, actorId, pageId, threadId, emailDueAt, emailLocale, message: notice ?? null })),
+        )
         .returning({ id: notification.id });
     });
     signal(workspaceId);
@@ -706,6 +719,8 @@ export type InboxItem = {
   followUp: { sequence: string } | null;
   /** Reactions: to which comment of thread `threadId`, with what and by whom (the latest first). */
   reaction: InboxReaction | null;
+  /** Comments: when it is about the thread's suggested edit, what happened to it (lib/suggestions). */
+  suggestion: SuggestionNotice | null;
 };
 
 export type InboxReaction = {
@@ -944,8 +959,9 @@ export async function listNotifications(
     shown.map(async ({ readAt, actorEmail, actorImage, requestId, requestMessage, requesterRole, agentRunId, rowDatabaseId, rowCreatedBy, rowProperties, changes, rowEmailId, followUpSequence, commentId, reactions: _reactions, automationMessage, ...row }) => ({
       ...row,
       actorImage: avatarSrc(actorImage),
-      // A reaction's message is the comment it quotes (see reaction below).
-      automationMessage: row.kind === "reaction" ? null : automationMessage,
+      // A reaction's message is the comment it quotes (see reaction below), a comment's what became of its suggestion.
+      automationMessage: row.kind === "reaction" || row.kind === "comment" ? null : automationMessage,
+      suggestion: row.kind === "comment" && isSuggestionNotice(automationMessage) ? automationMessage : null,
       reaction: reactions.get(row.id) ?? null,
       rowUpdate: updates.get(row.id) ?? null,
       rowEmail: emails.get(row.id) ?? null,
@@ -1266,5 +1282,27 @@ export async function markRead(userId: string, workspaceId: string, notification
       ),
     );
   // The user's other tabs update their count too.
+  signal(workspaceId);
+}
+
+/**
+ * Marks the given notifications unread again (a swipe in the inbox on a phone). An email still to
+ * come about one goes out as for any unread notification; one that went, or was left out because
+ * it had been read, doesn't come again.
+ */
+export async function markUnread(userId: string, workspaceId: string, notificationIds: string[]) {
+  await requireMembership(userId, workspaceId);
+  if (!notificationIds.length) return;
+  await db
+    .update(notification)
+    .set({ readAt: null })
+    .where(
+      and(
+        eq(notification.userId, userId),
+        eq(notification.workspaceId, workspaceId),
+        isNotNull(notification.readAt),
+        inArray(notification.id, notificationIds),
+      ),
+    );
   signal(workspaceId);
 }

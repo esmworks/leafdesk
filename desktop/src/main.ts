@@ -9,6 +9,7 @@ import {
   app,
   BrowserWindow,
   dialog,
+  globalShortcut,
   ipcMain,
   Menu,
   nativeTheme,
@@ -29,6 +30,7 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { CertificateTrust, isCertificateError, type CertificateProblem } from "./certificates.ts";
 import { showContextMenu } from "./context-menu.ts";
+import { activeShortcut, aiChatPath, defaultShortcut, SHORTCUT_OFF, shortcutChoices, workspaceIn } from "./global-shortcut.ts";
 import { hasSession, signIn, startLocalServer, type BackupResult, type LocalServer } from "./local-server.ts";
 import { buildMenu, WEBSITE } from "./menu.ts";
 import { APP_SCHEME, decideNavigation, decideNewWindow, isServerPage, signInReturn } from "./navigation.ts";
@@ -136,6 +138,7 @@ if (!app.requestSingleInstanceLock()) {
     quitting = true;
     void stopLocal().finally(() => app.quit());
   });
+  app.on("will-quit", () => globalShortcut.unregisterAll());
   void app.whenReady().then(start);
 }
 
@@ -156,6 +159,7 @@ function start() {
   registerPageBridge();
   refreshMenu();
   openMainWindow();
+  applyShortcut();
   started = true;
   const link = waitingLink ?? appLinkIn(process.argv);
   waitingLink = undefined;
@@ -188,8 +192,68 @@ function refreshMenu() {
         if (isLocal() || settings.server) openCurrent(window);
       },
       backups: localServer ? { now: () => void backUpNow(), show: showBackups, chooseFolder: () => void chooseBackupFolder() } : undefined,
+      shortcut: {
+        choices: shortcutChoices(process.platform),
+        current: activeShortcut(settings.globalShortcut, process.platform),
+        inUse: shortcutInUse,
+        pick: (accelerator) => {
+          settings.globalShortcut = accelerator === null ? SHORTCUT_OFF : accelerator === defaultShortcut(process.platform) ? undefined : accelerator;
+          save();
+          applyShortcut();
+        },
+      },
     }),
   );
+}
+
+/** The global shortcut registered with the system now, and whether the one picked is another app's. */
+let registeredShortcut: string | null = null;
+let shortcutInUse = false;
+
+/**
+ * Registers the global shortcut picked in the menu in place of the one before, once there is a
+ * server or Leafdesk on this computer to open. Keys another app holds are told in the menu.
+ */
+function applyShortcut() {
+  if (registeredShortcut) globalShortcut.unregister(registeredShortcut);
+  registeredShortcut = null;
+  shortcutInUse = false;
+  const accelerator = activeShortcut(settings.globalShortcut, process.platform);
+  if (accelerator && (isLocal() || settings.server)) {
+    let registered = false;
+    try {
+      registered = globalShortcut.register(accelerator, openAiChat);
+    } catch (error) {
+      console.warn(`The global shortcut ${accelerator} couldn't be registered:`, error);
+    }
+    if (registered) registeredShortcut = accelerator;
+    else {
+      shortcutInUse = true;
+      console.warn(`The global shortcut ${accelerator} is in use by another app.`);
+    }
+  }
+  refreshMenu();
+}
+
+/**
+ * The global shortcut: Leafdesk comes forward on AI chat (the server's `/ai`, which sends a
+ * workspace without AI to a quick note) in the workspace the window shows. The app's own screens
+ * (connecting, starting, a problem) only come forward.
+ */
+function openAiChat() {
+  if (process.platform === "darwin") app.focus({ steal: true });
+  const window = mainWindow;
+  if (!window) {
+    openMainWindow(aiChatPath());
+    return;
+  }
+  if (window.isMinimized()) window.restore();
+  window.show();
+  window.focus();
+  const origin = currentOrigin();
+  const url = window.webContents.getURL();
+  if (!origin || views.has(window.webContents) || !isServerPage(url, origin)) return;
+  window.loadURL(`${origin}${aiChatPath(workspaceIn(url, origin))}`).catch(() => undefined);
 }
 
 /** Where Leafdesk on this computer keeps its backups: the folder picked, or one in Documents. */
@@ -288,7 +352,8 @@ function createWindow(bounds?: Partial<Rectangle>) {
   return window;
 }
 
-function openMainWindow() {
+/** `page`: the server's page to open, its home unless asked otherwise. */
+function openMainWindow(page = "/") {
   const window = createWindow(restoredBounds());
   mainWindow = window;
   if (settings.window?.maximized) window.maximize();
@@ -299,7 +364,7 @@ function openMainWindow() {
   window.on("closed", () => {
     if (mainWindow === window) mainWindow = null;
   });
-  if (isLocal() || settings.server) openCurrent(window);
+  if (isLocal() || settings.server) openCurrent(window, page);
   else showView(window, { view: "connect" });
   return window;
 }
@@ -338,23 +403,23 @@ function restoredBounds(): Partial<Rectangle> | undefined {
   return onScreen ? { x, y, width, height } : { width, height };
 }
 
-function openCurrent(window: BrowserWindow) {
-  if (isLocal()) void openLocal(window);
-  else openServer(window);
+function openCurrent(window: BrowserWindow, page = "/") {
+  if (isLocal()) void openLocal(window, false, page);
+  else openServer(window, page);
 }
 
-function openServer(window: BrowserWindow) {
+function openServer(window: BrowserWindow, page = "/") {
   if (!settings.server) return;
   views.delete(window.webContents);
   // A failed load is shown by did-fail-load (guard), not here.
-  window.loadURL(`${settings.server}/`).catch(() => undefined);
+  window.loadURL(`${settings.server}${page}`).catch(() => undefined);
 }
 
 /**
- * Starts Leafdesk on this computer (once), signs in to its account, and opens its home. `signedOut`:
- * the window came to the sign-in page, so the session is gone whatever the cookies say.
+ * Starts Leafdesk on this computer (once), signs in to its account, and opens its home (or `page`).
+ * `signedOut`: the window came to the sign-in page, so the session is gone whatever the cookies say.
  */
-async function openLocal(window: BrowserWindow, signedOut = false) {
+async function openLocal(window: BrowserWindow, signedOut = false, page = "/") {
   if (!localServer) showView(window, { view: "starting" });
   try {
     const server = await startLocal();
@@ -362,7 +427,7 @@ async function openLocal(window: BrowserWindow, signedOut = false) {
     readLeafdeskLanguage(session.defaultSession);
     if (window.isDestroyed() || !isLocal()) return;
     views.delete(window.webContents);
-    window.loadURL(`${server.origin}/`).catch(() => undefined);
+    window.loadURL(`${server.origin}${page}`).catch(() => undefined);
   } catch (error) {
     console.error("Leafdesk on this computer didn't start:", error);
     if (!window.isDestroyed()) showLocalProblem(window, error instanceof Error ? error.message : String(error));
@@ -628,6 +693,7 @@ function registerPageBridge() {
     if (!localAvailable() || !window) return;
     settings.mode = "local";
     save();
+    applyShortcut();
     void openLocal(window);
   });
 
@@ -641,6 +707,7 @@ function registerPageBridge() {
       save();
       void stopLocal();
       readLeafdeskLanguage(session.defaultSession);
+      applyShortcut();
       openServer(window);
     }
     return reply;

@@ -12,6 +12,7 @@ import { cleanFileName, contentTypeFor, fileIdsIn, fileIdsInProperties, fileUrl,
 import { sameLocation } from "@/lib/workspace-storage";
 import { AccessError, accessRank, requireMembership, requirePageAccess, sessionHeldBack } from "@/server/access";
 import { queueDocument } from "@/server/file-text";
+import { uploadUnderHold } from "@/server/legal-hold";
 import { propertyAccessFor } from "@/server/property-access";
 import { anyPagePublished } from "@/server/publication";
 import { fetchRemoteFile, RemoteFetchError, type RemoteFetchOptions } from "@/server/remote-fetch";
@@ -600,7 +601,8 @@ export async function drainStorageDeletions(): Promise<{ deleted: number; failed
 /**
  * Removes files whose page was deleted for good and that no page shows anymore (in `workspaceId`,
  * or everywhere). A page showing the file without authorization doesn't count: nobody can read the
- * file through it. Returns how many went.
+ * file through it. Uploads of people under a legal hold stay (server/legal-hold.ts). Returns how
+ * many went.
  */
 export async function purgeOrphanFiles(workspaceId?: string): Promise<number> {
   const keys = await db.transaction(async (tx) => {
@@ -610,6 +612,7 @@ export async function purgeOrphanFiles(workspaceId?: string): Promise<number> {
         and(
           isNull(file.pageId),
           sql`not exists (select 1 from ${fileReference} r where r.file_id = ${file.id} and r.authorized)`,
+          sql`not ${uploadUnderHold()}`,
           workspaceId ? eq(file.workspaceId, workspaceId) : undefined,
         ),
       )
@@ -624,7 +627,7 @@ export async function purgeOrphanFiles(workspaceId?: string): Promise<number> {
 
 /**
  * Removes uploads no page ever showed, `olderThanMs` (a day by default) after they were uploaded
- * (in `workspaceId`, or everywhere).
+ * (in `workspaceId`, or everywhere), but for those of people under a legal hold.
  */
 export async function purgeUnusedUploads({ olderThanMs = 24 * 60 * 60 * 1000, workspaceId }: { olderThanMs?: number; workspaceId?: string } = {}): Promise<number> {
   const keys = await db.transaction(async (tx) => {
@@ -636,6 +639,7 @@ export async function purgeUnusedUploads({ olderThanMs = 24 * 60 * 60 * 1000, wo
           isNull(file.referencedAt),
           sql`${file.createdAt} < now() - make_interval(secs => ${olderThanMs / 1000})`,
           sql`not exists (select 1 from ${fileReference} r where r.file_id = ${file.id})`,
+          sql`not ${uploadUnderHold()}`,
         ),
       )
       .returning(fileObjectColumns);

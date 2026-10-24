@@ -24,6 +24,8 @@ export type AccountErrorCode =
   | "soleOwner"
   /** Files of shared workspaces are in the person's own storage and have nowhere to move to. */
   | "storageStuck"
+  /** A legal hold keeps the account (DeletionPlan.legalHolds). */
+  | "legalHold"
   | "currentSession"
   | "sessionNotFound"
   | "avatarType"
@@ -108,6 +110,11 @@ export type DeletionPlan = {
    */
   storageMoves?: { id: string; name: string }[];
   storageStuck?: { id: string; name: string }[];
+  /**
+   * Workspaces with a legal hold that keeps the account: one on the person, or any in a workspace
+   * that would be deleted with it (server/legal-hold.ts). Deleting is refused.
+   */
+  legalHolds?: { id: string; name: string }[];
 };
 
 /**

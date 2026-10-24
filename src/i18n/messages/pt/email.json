@@ -57,6 +57,11 @@
     "action": "Abrir página",
     "optOut": "Você recebe estes e-mails porque participou desta conversa de comentários. Você pode desativá-los em Minha conta > Preferências."
   },
+  "suggestion": {
+    "subject": "{actor} sugeriu alterações em “{page}”",
+    "heading": "{actor} sugeriu alterações em “{page}”",
+    "body": "A sugestão está em “{page}”, em {workspace}. Aceite ou rejeite pela página, ou responda na conversa dela."
+  },
   "mention": {
     "subject": "{actor} mencionou você em “{page}”",
     "heading": "{actor} mencionou você em “{page}”",
@@ -220,6 +225,9 @@
     "assignment": "{actor} atribuiu você a “{property}”",
     "pageShared": "{actor} compartilhou esta página com você",
     "comment": "{actor} comentou em uma conversa da qual você participa",
+    "suggested": "{actor} sugeriu alterações nesta página",
+    "suggestionAccepted": "{actor} aceitou sua alteração sugerida",
+    "suggestionRejected": "{actor} rejeitou sua alteração sugerida",
     "mention": "{actor} mencionou você",
     "reminder": "Lembrete: {date}",
     "accessRequest": "{actor} pediu acesso a esta página",

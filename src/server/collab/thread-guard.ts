@@ -132,3 +132,70 @@ export function touchesThreads(doc: Y.Doc, update: Uint8Array): boolean {
   }
   return false;
 }
+
+/**
+ * Whether every change of a client's update stays inside the root type `name` of the document (a
+ * page's body), and the document can apply all of it at once: what the server takes from people
+ * who may only suggest (collab/suggest-guard). Unlike touchesThreads it refuses what it can't place:
+ * an item it can't follow to a root, garbage-collected structs, deletions of clocks the document
+ * doesn't hold.
+ */
+export function staysInside(doc: Y.Doc, update: Uint8Array, name: string): boolean {
+  const root = doc.share.get(name) ?? null;
+  const { structs, ds } = Y.decodeUpdate(update);
+  if (structs.some((s) => !(s instanceof Y.Item) && !(s instanceof Y.Skip))) return false;
+  const items = structs.filter((s): s is Y.Item => s instanceof Y.Item);
+  const own = new Map<number, Y.Item[]>();
+  for (const item of items) {
+    const list = own.get(item.id.client);
+    if (list) list.push(item);
+    else own.set(item.id.client, [item]);
+  }
+  for (const list of own.values()) list.sort((a, b) => a.id.clock - b.id.clock);
+  const ownAt = (id: Y.ID) => covering(own.get(id.client) ?? [], id.clock);
+
+  const inside = new Map<Y.Item, boolean>();
+  const isInside = (item: Y.Item, depth = 0): boolean => {
+    const known = inside.get(item);
+    if (known !== undefined) return known;
+    let result = false;
+    if (depth > 10_000) result = false;
+    else if (typeof item.parent === "string") result = item.parent === name;
+    else {
+      const ref = item.parent instanceof Y.ID ? item.parent : (item.origin ?? item.rightOrigin);
+      if (ref) {
+        const existing = itemAt(doc, ref);
+        if (existing) result = root !== null && rootOf(existing) === root;
+        else {
+          const sibling = ownAt(ref);
+          result = sibling ? isInside(sibling, depth + 1) : false;
+        }
+      } else if (item.parent instanceof Y.AbstractType) {
+        result = root !== null && (item.parent === root || rootOf(item) === root);
+      }
+    }
+    inside.set(item, result);
+    return result;
+  };
+  if (!items.every((item) => isInside(item))) return false;
+
+  // Deletions: only of what the document or this update holds, and only inside the root.
+  for (const [client, deletes] of ds.clients) {
+    const existing = (doc.store.clients.get(client) ?? []) as Struct[];
+    const last = existing[existing.length - 1];
+    const docEnd = last ? last.id.clock + last.length : 0;
+    const mine = own.get(client) ?? [];
+    for (const { clock, len } of deletes) {
+      for (let at = clock; at < clock + len; ) {
+        const struct = at < docEnd ? covering(existing, at) : covering(mine, at);
+        if (!struct) return false;
+        if (struct instanceof Y.Item) {
+          const inRoot = at < docEnd ? root !== null && rootOf(struct) === root : isInside(struct);
+          if (!inRoot && !(at < docEnd && struct.deleted)) return false;
+        }
+        at = struct.id.clock + struct.length;
+      }
+    }
+  }
+  return true;
+}

@@ -5,14 +5,15 @@ import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useState, useEffect } from "react";
 import { approveAccessRequestAction, declineAccessRequestAction } from "@/app/actions/access-requests";
-import { listInboxAction, markReadAction, snoozeAction } from "@/app/actions/notifications";
+import { listInboxAction, markReadAction, markUnreadAction, snoozeAction } from "@/app/actions/notifications";
 import { ApprovalActions } from "@/components/connections/approval-actions";
 import { Value } from "@/components/database/row-activity";
 import { Button, cn, Dialog, IconButton, PageIcon, pageLabel } from "@/components/ui";
 import { UserAvatar } from "@/components/user-avatar";
+import { InboxSwipe } from "./inbox-swipe";
 import { groupCounts, groupInbox, type InboxEntry } from "@/lib/inbox-groups";
 import { APPROVAL_LEVELS, type ApprovalLevel } from "@/lib/access-requests";
-import { pushLink } from "@/lib/push";
+import { pushLink, SUGGESTION_LINES } from "@/lib/push";
 import { formatIsoDate } from "@/lib/mentions";
 import { relativeTime } from "@/lib/relative-time";
 import { canSnooze, SNOOZE_CHOICES, snoozeUntil, type SnoozeChoice } from "@/lib/snooze";
@@ -82,6 +83,16 @@ export function InboxDialog({
     onRead();
   };
 
+  const markUnread = async (ids: string[]) => {
+    setItems((list) => list?.map((item) => (ids.includes(item.id) ? { ...item, read: false } : item)) ?? list);
+    try {
+      await markUnreadAction(workspaceId, ids);
+    } catch {
+      setError(true);
+    }
+    onRead();
+  };
+
   // The notification whose snooze choices are open.
   const [snoozing, setSnoozing] = useState<string | null>(null);
   const snooze = async (id: string, choice: SnoozeChoice) => {
@@ -124,167 +135,176 @@ export function InboxDialog({
   /** One notification of the list, on its own or (`nested`) opened from its group. */
   const itemRow = (item: InboxItem, nested = false) => (
     <li key={item.id} className={cn("relative", nested && "ms-4 border-s border-border ps-1")}>
-      <button
-        type="button"
-        className={cn(
-          "flex w-full items-start gap-2.5 rounded-md px-3 py-2 text-start hover:bg-bg-hover",
-          canSnooze(item.kind) && "pe-10",
-        )}
-        onClick={() => {
-          if (!item.read) void markRead([item.id]);
-          onClose();
-          // Join requests are decided in Settings > Members; an agent's call (or a scheduled
-          // run's report) opens its run, its proposed notes its memory.
-          router.push(pushLink({ ...item, workspaceId }));
-        }}
+      <InboxSwipe
+        read={item.read}
+        snoozable={canSnooze(item.kind)}
+        onRead={() => void (item.read ? markUnread([item.id]) : markRead([item.id]))}
+        onSnooze={() => void snooze(item.id, SWIPE_SNOOZE)}
       >
-        <span
-          aria-hidden
-          className={cn("mt-1.5 h-2 w-2 shrink-0 rounded-full", item.read ? "bg-transparent" : "bg-accent")}
-        />
-        <span className="min-w-0 flex-1">
-          {/* Opened from its group, which names the page already. */}
-          {!nested && (
-            <span className={cn("flex items-center gap-1.5 text-sm", !item.read && "font-medium")}>
-              {item.kind === "agent_approval" ? (
-                <>
-                  <ShieldQuestion aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
-                  <span className="truncate">{t("approvalTitle", { agent: item.approval?.agentName ?? item.actorName ?? t("someone") })}</span>
-                </>
-              ) : item.kind === "agent_memory" ? (
-                <>
-                  <NotebookPen aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
-                  <span className="truncate">{t("memoryTitle", { agent: item.memory?.agentName ?? item.actorName ?? t("someone") })}</span>
-                </>
-              ) : item.kind === "agent_report" ? (
-                <>
-                  <CalendarClock aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
-                  <span className="truncate">{t("reportTitle", { agent: item.report?.agentName ?? item.actorName ?? t("someone") })}</span>
-                </>
-              ) : item.kind === "review" ? (
-                <>
-                  <ClipboardCheck aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
-                  <span className="truncate">{t("reviewTitle")}</span>
-                </>
-              ) : item.kind === "ai_account_detached" ? (
-                <>
-                  <KeyRound aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
-                  <span className="truncate">{t("aiAccountTitle")}</span>
-                </>
-              ) : item.kind === "row_email" || item.kind === "follow_up" ? (
-                <>
-                  <Mail aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
-                  <span className="truncate">{pageLabel(item.pageTitle ?? "", tc("untitled"))}</span>
-                </>
-              ) : item.pageId === null ? (
-                <>
-                  <UserPlus aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
-                  <span className="truncate">{t("joinRequestTitle")}</span>
-                </>
-              ) : (
-                <>
-                  <PageIcon icon={item.pageIcon} kind="page" className="text-sm" />
-                  <span className="truncate">{pageLabel(item.pageTitle ?? "", tc("untitled"))}</span>
-                </>
+        <button
+          type="button"
+          className={cn(
+            "flex w-full items-start gap-2.5 rounded-md px-3 py-2 text-start hover:bg-bg-hover",
+            canSnooze(item.kind) && "pe-10",
+          )}
+          onClick={() => {
+            if (!item.read) void markRead([item.id]);
+            onClose();
+            // Join requests are decided in Settings > Members; an agent's call (or a scheduled
+            // run's report) opens its run, its proposed notes its memory.
+            router.push(pushLink({ ...item, workspaceId }));
+          }}
+        >
+          <span
+            aria-hidden
+            className={cn("mt-1.5 h-2 w-2 shrink-0 rounded-full", item.read ? "bg-transparent" : "bg-accent")}
+          />
+          <span className="min-w-0 flex-1">
+            {/* Opened from its group, which names the page already. */}
+            {!nested && (
+              <span className={cn("flex items-center gap-1.5 text-sm", !item.read && "font-medium")}>
+                {item.kind === "agent_approval" ? (
+                  <>
+                    <ShieldQuestion aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
+                    <span className="truncate">{t("approvalTitle", { agent: item.approval?.agentName ?? item.actorName ?? t("someone") })}</span>
+                  </>
+                ) : item.kind === "agent_memory" ? (
+                  <>
+                    <NotebookPen aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
+                    <span className="truncate">{t("memoryTitle", { agent: item.memory?.agentName ?? item.actorName ?? t("someone") })}</span>
+                  </>
+                ) : item.kind === "agent_report" ? (
+                  <>
+                    <CalendarClock aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
+                    <span className="truncate">{t("reportTitle", { agent: item.report?.agentName ?? item.actorName ?? t("someone") })}</span>
+                  </>
+                ) : item.kind === "review" ? (
+                  <>
+                    <ClipboardCheck aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
+                    <span className="truncate">{t("reviewTitle")}</span>
+                  </>
+                ) : item.kind === "ai_account_detached" ? (
+                  <>
+                    <KeyRound aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
+                    <span className="truncate">{t("aiAccountTitle")}</span>
+                  </>
+                ) : item.kind === "row_email" || item.kind === "follow_up" ? (
+                  <>
+                    <Mail aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
+                    <span className="truncate">{pageLabel(item.pageTitle ?? "", tc("untitled"))}</span>
+                  </>
+                ) : item.pageId === null ? (
+                  <>
+                    <UserPlus aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
+                    <span className="truncate">{t("joinRequestTitle")}</span>
+                  </>
+                ) : (
+                  <>
+                    <PageIcon icon={item.pageIcon} kind="page" className="text-sm" />
+                    <span className="truncate">{pageLabel(item.pageTitle ?? "", tc("untitled"))}</span>
+                  </>
+              )}
+              </span>
             )}
+            <span className={cn("block", nested ? cn("text-sm", !item.read && "font-medium") : "mt-0.5 text-xs text-fg-muted")}>
+              {item.kind === "agent_approval"
+                ? item.approval
+                  ? t("approval", { tool: item.approval.tool, connection: item.approval.connectionName })
+                  : t("approvalAnswered")
+                : item.kind === "agent_memory"
+                ? !item.memory
+                  ? t("memoryAnswered")
+                  : item.memory.text === null
+                    ? t("memoryHidden", { count: item.memory.count })
+                    : t("memory", { text: item.memory.text, more: item.memory.count - 1 })
+                : item.kind === "agent_report"
+                ? !item.report
+                  ? t("reportGone")
+                  : item.report.status === "failed"
+                    ? t("reportFailed")
+                    : item.report.text === null
+                      ? t("reportHidden")
+                      : item.report.text || t("reportDone")
+                : item.kind === "review"
+                ? t("review", { count: item.review?.count ?? 0, agent: item.actorName || t("someone") })
+                : item.kind === "ai_account_detached"
+                ? t("aiAccountDetached", { actor: item.actorName || t("someone") })
+                : item.kind === "access_request"
+                ? t("accessRequest", { actor: item.actorName || item.accessRequest?.requesterEmail || t("someone") })
+                : item.kind === "join_request"
+                ? item.requestKind === "invite"
+                  ? t("inviteRequest", { actor: item.actorName || t("someone"), email: item.requestEmail ?? "" })
+                  : t("joinRequest", { actor: item.actorName || t("someone") })
+                : item.kind === "page_shared"
+                ? t("pageShared", { actor: item.actorName || t("someone") })
+                : item.kind === "comment"
+                  ? item.suggestion
+                    ? t(SUGGESTION_LINES[item.suggestion], { actor: item.actorName || t("someone") })
+                    : t("comment", { actor: item.actorName || t("someone") })
+                  : item.kind === "reaction"
+                    ? t("reaction", {
+                        actor: t("people", {
+                          name: item.reaction?.people[0]?.name || item.actorName || t("someone"),
+                          others: Math.max(0, (item.reaction?.people.length ?? 1) - 1),
+                        }),
+                        emoji: item.reaction?.emojis.join(" ") ?? "",
+                      })
+                  : item.kind === "mention"
+                    ? t("mention", { actor: item.actorName || t("someone") })
+                    : item.kind === "reminder"
+                      ? t("reminder", { date: item.reminderDate ? formatIsoDate(item.reminderDate, locale) : "" })
+                      : item.kind === "row_update"
+                        ? t("rowUpdate", { actor: item.actorName || t("someone") })
+                      : item.kind === "page_updated"
+                        ? t("pageUpdated", { actor: item.actorName || t("someone") })
+                      : item.kind === "row_email"
+                        ? t("rowEmail", { from: item.rowEmail?.from || t("someone") })
+                      : item.kind === "follow_up"
+                        ? t("followUp", { sequence: item.followUp?.sequence ?? "" })
+                      : item.kind === "automation"
+                        ? item.reminderDate
+                          ? t("automationDatePassed", { name: item.automationName ?? "" })
+                          : item.actorName
+                            ? t("automation", { name: item.automationName ?? "", actor: item.actorName })
+                            : // A schedule, a request or a test run: nobody's change started it.
+                              t("automationRun", { name: item.automationName ?? "" })
+                        : t("assignment", { actor: item.actorName || t("someone"), property: item.propertyName ?? "" })}
+              {item.databaseTitle !== null && <> · {pageLabel(item.databaseTitle, tc("untitled"))}</>}
             </span>
+            {item.automationMessage && (
+              <bdi className="mt-1 line-clamp-3 block text-xs leading-5 break-words whitespace-pre-line text-fg">{item.automationMessage}</bdi>
+            )}
+            {item.reaction?.excerpt && (
+            <bdi className="mt-1 line-clamp-2 block text-xs leading-5 break-words text-fg">{t("reactionExcerpt", { text: item.reaction.excerpt })}</bdi>
           )}
-          <span className={cn("block", nested ? cn("text-sm", !item.read && "font-medium") : "mt-0.5 text-xs text-fg-muted")}>
-            {item.kind === "agent_approval"
-              ? item.approval
-                ? t("approval", { tool: item.approval.tool, connection: item.approval.connectionName })
-                : t("approvalAnswered")
-              : item.kind === "agent_memory"
-              ? !item.memory
-                ? t("memoryAnswered")
-                : item.memory.text === null
-                  ? t("memoryHidden", { count: item.memory.count })
-                  : t("memory", { text: item.memory.text, more: item.memory.count - 1 })
-              : item.kind === "agent_report"
-              ? !item.report
-                ? t("reportGone")
-                : item.report.status === "failed"
-                  ? t("reportFailed")
-                  : item.report.text === null
-                    ? t("reportHidden")
-                    : item.report.text || t("reportDone")
-              : item.kind === "review"
-              ? t("review", { count: item.review?.count ?? 0, agent: item.actorName || t("someone") })
-              : item.kind === "ai_account_detached"
-              ? t("aiAccountDetached", { actor: item.actorName || t("someone") })
-              : item.kind === "access_request"
-              ? t("accessRequest", { actor: item.actorName || item.accessRequest?.requesterEmail || t("someone") })
-              : item.kind === "join_request"
-              ? item.requestKind === "invite"
-                ? t("inviteRequest", { actor: item.actorName || t("someone"), email: item.requestEmail ?? "" })
-                : t("joinRequest", { actor: item.actorName || t("someone") })
-              : item.kind === "page_shared"
-              ? t("pageShared", { actor: item.actorName || t("someone") })
-              : item.kind === "comment"
-                ? t("comment", { actor: item.actorName || t("someone") })
-                : item.kind === "reaction"
-                  ? t("reaction", {
-                      actor: t("people", {
-                        name: item.reaction?.people[0]?.name || item.actorName || t("someone"),
-                        others: Math.max(0, (item.reaction?.people.length ?? 1) - 1),
-                      }),
-                      emoji: item.reaction?.emojis.join(" ") ?? "",
-                    })
-                : item.kind === "mention"
-                  ? t("mention", { actor: item.actorName || t("someone") })
-                  : item.kind === "reminder"
-                    ? t("reminder", { date: item.reminderDate ? formatIsoDate(item.reminderDate, locale) : "" })
-                    : item.kind === "row_update"
-                      ? t("rowUpdate", { actor: item.actorName || t("someone") })
-                    : item.kind === "page_updated"
-                      ? t("pageUpdated", { actor: item.actorName || t("someone") })
-                    : item.kind === "row_email"
-                      ? t("rowEmail", { from: item.rowEmail?.from || t("someone") })
-                    : item.kind === "follow_up"
-                      ? t("followUp", { sequence: item.followUp?.sequence ?? "" })
-                    : item.kind === "automation"
-                      ? item.reminderDate
-                        ? t("automationDatePassed", { name: item.automationName ?? "" })
-                        : item.actorName
-                          ? t("automation", { name: item.automationName ?? "", actor: item.actorName })
-                          : // A schedule, a request or a test run: nobody's change started it.
-                            t("automationRun", { name: item.automationName ?? "" })
-                      : t("assignment", { actor: item.actorName || t("someone"), property: item.propertyName ?? "" })}
-            {item.databaseTitle !== null && <> · {pageLabel(item.databaseTitle, tc("untitled"))}</>}
+          {item.rowUpdate && <RowUpdateChanges update={item.rowUpdate} />}
+            {item.rowEmail && (
+              <span className="mt-1 block text-xs leading-5 text-fg-muted">
+                <bdi className="block truncate text-fg">{item.rowEmail.subject || t("noSubject")}</bdi>
+                {item.rowEmail.snippet && <bdi className="line-clamp-2 block break-words">{item.rowEmail.snippet}</bdi>}
+              </span>
+            )}
           </span>
-          {item.automationMessage && (
-            <bdi className="mt-1 line-clamp-3 block text-xs leading-5 break-words whitespace-pre-line text-fg">{item.automationMessage}</bdi>
-          )}
-          {item.reaction?.excerpt && (
-          <bdi className="mt-1 line-clamp-2 block text-xs leading-5 break-words text-fg">{t("reactionExcerpt", { text: item.reaction.excerpt })}</bdi>
+          <time
+            dateTime={new Date(item.createdAt).toISOString()}
+            className="shrink-0 pt-0.5 text-xs text-fg-faint"
+            title={new Date(item.createdAt).toLocaleString(locale)}
+          >
+            {relativeTime(item.createdAt, locale)}
+          </time>
+          {!item.read && <span className="sr-only">{t("unread")}</span>}
+        </button>
+        {canSnooze(item.kind) && (
+          <IconButton
+            label={t("snooze")}
+            aria-expanded={snoozing === item.id}
+            className="absolute inset-e-2 top-2 text-fg-faint"
+            onClick={() => setSnoozing(snoozing === item.id ? null : item.id)}
+          >
+            <AlarmClock className="h-3.5 w-3.5" />
+          </IconButton>
         )}
-        {item.rowUpdate && <RowUpdateChanges update={item.rowUpdate} />}
-          {item.rowEmail && (
-            <span className="mt-1 block text-xs leading-5 text-fg-muted">
-              <bdi className="block truncate text-fg">{item.rowEmail.subject || t("noSubject")}</bdi>
-              {item.rowEmail.snippet && <bdi className="line-clamp-2 block break-words">{item.rowEmail.snippet}</bdi>}
-            </span>
-          )}
-        </span>
-        <time
-          dateTime={new Date(item.createdAt).toISOString()}
-          className="shrink-0 pt-0.5 text-xs text-fg-faint"
-          title={new Date(item.createdAt).toLocaleString(locale)}
-        >
-          {relativeTime(item.createdAt, locale)}
-        </time>
-        {!item.read && <span className="sr-only">{t("unread")}</span>}
-      </button>
-      {canSnooze(item.kind) && (
-        <IconButton
-          label={t("snooze")}
-          aria-expanded={snoozing === item.id}
-          className="absolute inset-e-2 top-2 text-fg-faint"
-          onClick={() => setSnoozing(snoozing === item.id ? null : item.id)}
-        >
-          <AlarmClock className="h-3.5 w-3.5" />
-        </IconButton>
-      )}
+      </InboxSwipe>
       {snoozing === item.id && (
         <div className="flex flex-wrap items-center gap-1 pb-2 ps-[2.125rem] pe-3" role="group" aria-label={t("snooze")}>
           {SNOOZE_CHOICES.map((choice) => (
@@ -339,63 +359,70 @@ export function InboxDialog({
     const people = [...new Map(entry.items.flatMap((item) => (item.actorId ? [[item.actorId, item] as const] : []))).values()];
     return (
       <li key={entry.key} className="relative">
-        <button
-          type="button"
-          aria-expanded={open}
-          className={cn("flex w-full items-start gap-2.5 rounded-md px-3 py-2 text-start hover:bg-bg-hover", entry.unread > 0 ? "pe-[6.25rem]" : "pe-[4.5rem]")}
-          onClick={() => {
-            if (unreadIds.length) void markRead(unreadIds);
-            onClose();
-            router.push(pushLink({ ...newest, workspaceId }));
-          }}
+        <InboxSwipe
+          read={entry.unread === 0}
+          snoozable
+          onRead={() => void (entry.unread === 0 ? markUnread(ids) : markRead(unreadIds))}
+          onSnooze={() => void snoozeAll(entry.key, ids, SWIPE_SNOOZE)}
         >
-          <span aria-hidden className={cn("mt-1.5 h-2 w-2 shrink-0 rounded-full", entry.unread ? "bg-accent" : "bg-transparent")} />
-          <span className="min-w-0 flex-1">
-            <span className={cn("flex items-center gap-1.5 text-sm", entry.unread > 0 && "font-medium")}>
-              <PageIcon icon={newest.pageIcon} kind="page" className="text-sm" />
-              <span className="truncate">{pageLabel(newest.pageTitle ?? "", tc("untitled"))}</span>
-            </span>
-            <span className="mt-1 flex items-center gap-2 text-xs text-fg-muted">
-              <span className="flex shrink-0 -space-x-1.5 rtl:space-x-reverse">
-                {people.slice(0, MAX_GROUP_AVATARS).map((item) => (
-                  <UserAvatar
-                    key={item.actorId}
-                    name={item.actorName ?? t("someone")}
-                    image={item.actorImage}
-                    size="xs"
-                    title={item.actorName ?? undefined}
-                    className="ring-2 ring-bg"
-                  />
-                ))}
-              </span>
-              <span className="min-w-0">
-                {parts.join(", ")}
-                {people.length > 0 && <> · {t("people", { name: people[0].actorName || t("someone"), others: people.length - 1 })}</>}
-              </span>
-            </span>
-          </span>
-          <time
-            dateTime={new Date(newest.createdAt).toISOString()}
-            className="shrink-0 pt-0.5 text-xs text-fg-faint"
-            title={new Date(newest.createdAt).toLocaleString(locale)}
+          <button
+            type="button"
+            aria-expanded={open}
+            className={cn("flex w-full items-start gap-2.5 rounded-md px-3 py-2 text-start hover:bg-bg-hover", entry.unread > 0 ? "pe-[6.25rem]" : "pe-[4.5rem]")}
+            onClick={() => {
+              if (unreadIds.length) void markRead(unreadIds);
+              onClose();
+              router.push(pushLink({ ...newest, workspaceId }));
+            }}
           >
-            {relativeTime(newest.createdAt, locale)}
-          </time>
-          {entry.unread > 0 && <span className="sr-only">{t("unread")}</span>}
-        </button>
-        <div className="absolute inset-e-2 top-2 flex items-center">
-          {entry.unread > 0 && (
-            <IconButton label={t("groupMarkRead")} className="text-fg-faint" onClick={() => void markRead(unreadIds)}>
-              <Check className="h-3.5 w-3.5" />
+            <span aria-hidden className={cn("mt-1.5 h-2 w-2 shrink-0 rounded-full", entry.unread ? "bg-accent" : "bg-transparent")} />
+            <span className="min-w-0 flex-1">
+              <span className={cn("flex items-center gap-1.5 text-sm", entry.unread > 0 && "font-medium")}>
+                <PageIcon icon={newest.pageIcon} kind="page" className="text-sm" />
+                <span className="truncate">{pageLabel(newest.pageTitle ?? "", tc("untitled"))}</span>
+              </span>
+              <span className="mt-1 flex items-center gap-2 text-xs text-fg-muted">
+                <span className="flex shrink-0 -space-x-1.5 rtl:space-x-reverse">
+                  {people.slice(0, MAX_GROUP_AVATARS).map((item) => (
+                    <UserAvatar
+                      key={item.actorId}
+                      name={item.actorName ?? t("someone")}
+                      image={item.actorImage}
+                      size="xs"
+                      title={item.actorName ?? undefined}
+                      className="ring-2 ring-bg"
+                    />
+                  ))}
+                </span>
+                <span className="min-w-0">
+                  {parts.join(", ")}
+                  {people.length > 0 && <> · {t("people", { name: people[0].actorName || t("someone"), others: people.length - 1 })}</>}
+                </span>
+              </span>
+            </span>
+            <time
+              dateTime={new Date(newest.createdAt).toISOString()}
+              className="shrink-0 pt-0.5 text-xs text-fg-faint"
+              title={new Date(newest.createdAt).toLocaleString(locale)}
+            >
+              {relativeTime(newest.createdAt, locale)}
+            </time>
+            {entry.unread > 0 && <span className="sr-only">{t("unread")}</span>}
+          </button>
+          <div className="absolute inset-e-2 top-2 flex items-center">
+            {entry.unread > 0 && (
+              <IconButton label={t("groupMarkRead")} className="text-fg-faint" onClick={() => void markRead(unreadIds)}>
+                <Check className="h-3.5 w-3.5" />
+              </IconButton>
+            )}
+            <IconButton label={t("snooze")} aria-expanded={snoozing === entry.key} className="text-fg-faint" onClick={() => setSnoozing(snoozing === entry.key ? null : entry.key)}>
+              <AlarmClock className="h-3.5 w-3.5" />
             </IconButton>
-          )}
-          <IconButton label={t("snooze")} aria-expanded={snoozing === entry.key} className="text-fg-faint" onClick={() => setSnoozing(snoozing === entry.key ? null : entry.key)}>
-            <AlarmClock className="h-3.5 w-3.5" />
-          </IconButton>
-          <IconButton label={open ? t("groupCollapse") : t("groupExpand", { count: entry.items.length })} aria-expanded={open} className="text-fg-faint" onClick={() => toggleGroup(entry.key)}>
-            {open ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5 rtl:rotate-180" />}
-          </IconButton>
-        </div>
+            <IconButton label={open ? t("groupCollapse") : t("groupExpand", { count: entry.items.length })} aria-expanded={open} className="text-fg-faint" onClick={() => toggleGroup(entry.key)}>
+              {open ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5 rtl:rotate-180" />}
+            </IconButton>
+          </div>
+        </InboxSwipe>
         {snoozing === entry.key && (
           <div className="flex flex-wrap items-center gap-1 pb-2 ps-[2.125rem] pe-3" role="group" aria-label={t("snooze")}>
             {SNOOZE_CHOICES.map((choice) => (
@@ -523,6 +550,9 @@ function AccessRequestActions({ request, onAnswered }: { request: InboxAccessReq
     </div>
   );
 }
+
+/** Where a swipe snoozes an item to (components/sidebar/inbox-swipe.tsx): tomorrow morning. */
+const SWIPE_SNOOZE: SnoozeChoice = "tomorrow";
 
 /** The most people's pictures a group of notifications shows. */
 const MAX_GROUP_AVATARS = 3;

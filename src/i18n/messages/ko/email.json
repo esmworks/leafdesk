@@ -57,6 +57,11 @@
     "action": "페이지 열기",
     "optOut": "이 댓글 스레드에 참여했기 때문에 이 이메일을 받습니다. 내 계정 > 환경설정에서 끌 수 있습니다."
   },
+  "suggestion": {
+    "subject": "{actor}님이 “{page}”의 편집을 제안했습니다",
+    "heading": "{actor}님이 “{page}”의 편집을 제안했습니다",
+    "body": "제안은 {workspace}의 “{page}”에 있습니다. 페이지에서 수락하거나 거절하거나, 제안 스레드에 답글을 남기세요."
+  },
   "mention": {
     "subject": "{actor}님이 “{page}”에서 회원님을 멘션했습니다",
     "heading": "{actor}님이 “{page}”에서 회원님을 멘션했습니다",
@@ -220,6 +225,9 @@
     "assignment": "{actor}님이 “{property}”에 회원님을 할당했습니다",
     "pageShared": "{actor}님이 이 페이지를 공유했습니다",
     "comment": "{actor}님이 참여 중인 스레드에 댓글을 남겼습니다",
+    "suggested": "{actor}님이 이 페이지의 편집을 제안했습니다",
+    "suggestionAccepted": "{actor}님이 내가 제안한 편집을 수락했습니다",
+    "suggestionRejected": "{actor}님이 내가 제안한 편집을 거절했습니다",
     "mention": "{actor}님이 회원님을 멘션했습니다",
     "reminder": "리마인더: {date}",
     "accessRequest": "{actor}님이 이 페이지에 대한 액세스를 요청했습니다",

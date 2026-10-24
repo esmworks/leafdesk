@@ -62,6 +62,7 @@ import { changedValues, recordAudit } from "@/server/audit";
 import { firstAdminId } from "@/server/first-admin";
 import type { QueuedObject } from "@/server/files";
 import { joinRecordOf, rememberDeparture, requestInvitation, requestToJoinFrom, settleJoinRequest } from "@/server/join-requests";
+import { workspacesHolding, workspacesWithHolds } from "@/server/legal-hold";
 import { turkishGenitive } from "@/lib/turkish";
 import { getCollab } from "@/server/collab/bridge";
 import { attachDefaultStorage } from "@/server/storage/accounts";
@@ -1129,7 +1130,8 @@ async function standingsOf(reader: Pick<typeof db, "select">, userId: string): P
 
 /** What deleting `userId`'s account would do to each of their workspaces (see lib/account.ts). */
 export async function accountDeletionPlan(userId: string): Promise<DeletionPlan> {
-  const plan = planAccountDeletion(await standingsOf(db, userId));
+  const standing = planAccountDeletion(await standingsOf(db, userId));
+  const plan = withLegalHolds(standing, await accountHolds(db, userId, standing));
   if (!plan.left.length) return plan;
   // Files of the workspaces they leave that are in their storage move first, where they can.
   const { moving, stuck } = await planMovesAway(db, { userId, workspaceIds: plan.left.map((w) => w.id), reason: "accountDeleted", actorId: userId, mode: "preview" });
@@ -1167,8 +1169,9 @@ export async function withdrawFromWorkspaces(
   if (locked.length) {
     await tx.select({ id: workspace.id }).from(workspace).where(inArray(workspace.id, locked)).orderBy(asc(workspace.id)).for("update");
   }
-  const plan = planAccountDeletion(await standingsOf(tx, userId));
-  if (plan.blockers.length) return { plan, fileKeys: [], providerIds: [], aiReleased: [] };
+  const standing = planAccountDeletion(await standingsOf(tx, userId));
+  const plan = withLegalHolds(standing, await accountHolds(tx, userId, standing));
+  if (plan.blockers.length || plan.legalHolds?.length) return { plan, fileKeys: [], providerIds: [], aiReleased: [] };
   // Files of the workspaces they leave that are in their storage move to an owner's (or the
   // server's) once this commits; their storage account outlives them until the moves are done.
   // Refused (rolling everything back) when some have nowhere to go.
@@ -1225,6 +1228,20 @@ export async function withdrawFromWorkspaces(
   }
   return { plan, fileKeys, providerIds, aiReleased };
 }
+
+/**
+ * The workspaces whose legal holds keep `userId`'s account (server/legal-hold.ts): one on them, or
+ * any in a workspace the plan deletes with it.
+ */
+async function accountHolds(reader: Pick<typeof db, "select" | "selectDistinct" | "execute">, userId: string, plan: DeletionPlan) {
+  const found = new Map<string, { id: string; name: string }>();
+  for (const w of [...(await workspacesHolding(userId, reader)), ...(await workspacesWithHolds(plan.deleted.map((d) => d.id), reader))]) {
+    found.set(w.id, w);
+  }
+  return [...found.values()];
+}
+
+const withLegalHolds = (plan: DeletionPlan, holds: { id: string; name: string }[]): DeletionPlan => (holds.length ? { ...plan, legalHolds: holds } : plan);
 
 /** The single sign-on connections whose provider row belongs to `userId`, who set them up. */
 async function connectionsSetUpBy(reader: Pick<typeof db, "select">, userId: string) {

@@ -16,6 +16,14 @@
     "createdBy": "由 {name} 创建",
     "someone": "有人",
     "comments": "评论",
+    "suggesting": {
+      "editing": "编辑",
+      "suggesting": "建议",
+      "label": "模式：{mode}",
+      "editingHint": "直接修改页面",
+      "suggestingHint": "你的修改会显示为建议，其他人可以接受或拒绝",
+      "forcedHint": "你可以评论此页面，因此你的修改是建议，页面的编辑者可以接受或拒绝"
+    },
     "share": "分享",
     "accessRequests": "{count} 个访问申请",
     "addFavorite": "添加到收藏",
@@ -51,6 +59,9 @@
     "exportPdf": "导出为 PDF",
     "printView": "打印",
     "exportPreparing": "正在准备导出…",
+    "acceptAllSuggestions": "接受所有建议",
+    "rejectAllSuggestions": "拒绝所有建议",
+    "rejectAllConfirm": "拒绝此页面上的所有建议修改？",
     "versionHistory": "版本历史",
     "lastEdited": "最后由 {name} 编辑",
     "wordCount": "{words} 个词，{characters} 个字符",
@@ -94,6 +105,20 @@
     "muted": "回复已设为免打扰",
     "mutedHint": "在你于此回复或有人在此提及你之前，你不会收到此讨论串中回复的通知。",
     "mergedFrom": "来自“{title}”",
+    "suggestion": {
+      "label": "建议的修改",
+      "byAi": "AI 建议的修改",
+      "accept": "接受",
+      "reject": "拒绝",
+      "withdraw": "撤回",
+      "errors": {
+        "notAllowed": "你无法答复此建议。",
+        "notFound": "此建议已被答复或撤回。",
+        "pageLocked": "页面已锁定。",
+        "pageInTrash": "页面在回收站中。",
+        "failed": "无法答复此建议，请重试。"
+      }
+    },
     "sort": {
       "label": "排序讨论",
       "recent": "最新动态在前",

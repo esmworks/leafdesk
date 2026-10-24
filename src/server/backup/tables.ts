@@ -90,6 +90,9 @@ export const BACKED_UP: Record<string, Scope> = {
   // The workspace's own snippets; people's personal ones have no workspace and stay out.
   snippet: own,
   pdf_letterhead: own,
+  // Legal holds come back with the workspace: a restore mustn't be a way out of one.
+  legal_hold: own,
+  legal_hold_person: (ws) => sql`hold_id in (select id from legal_hold where workspace_id = ${ws})`,
 };
 
 /** Tables older backups held and later ones leave out: a restore passes over them. */
