@@ -539,7 +539,7 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   can be read by people the value is hidden from. Nor does it read relations, rollups or people
   properties (or formulas reading them), which can name rows and people its readers can't open. Relations and the created/edited by/time
   properties can't be restricted.
-- **Member groups**: workspace owners gather members into groups (Settings → Groups) and share a
+- **Member groups**: workspace owners and membership admins gather members into groups (Settings → Groups) and share a
   page with a group, or add it to a teamspace, the way they would with a person. Everyone in the
   group gets that access for as long as they are in it; when a page has entries for someone and
   their groups, the highest level wins. Guests can't be in groups, and people leave their groups
@@ -779,7 +779,15 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   The dialog lists the latest deliveries with the rows each changed; setting up, changing and
   removing it are in the audit log. Tested with signed deliveries (`scripts/github-sync-e2e.ts`),
   not yet against GitHub itself.
-- **Workspaces and members**: add people by email (several at once) as owners or members, send
+- **Workspaces and members**: four roles. Owners run the workspace; members see and edit every
+  page that isn't restricted; guests see only what is shared with them; **membership admins** have
+  exactly a member's access to content (pages, databases, teamspaces, AI, agents, MCP and the REST
+  API) and run its people as owners do: they add and remove members and guests, change roles among
+  member, membership admin and guest, approve or decline join requests, manage invitations and
+  groups, and see Settings → Members, Guests and Groups. They never make, demote or remove an
+  owner, can't add themselves to a group, and get no other owner tab or action (security, join
+  link, ownership, SCIM, single sign-on, audit log, analytics, connections, export and the like).
+  Add people by email (several at once) as owners, membership admins or members, send
   an invitation link to people who don't have an account yet (or whose account's address was
   never verified: anyone can sign up with someone else's address), or turn on a join link anyone
   can use. Owners can export the member list as CSV, hand ownership to someone else, and decide who
@@ -1780,7 +1788,9 @@ dismissed one stays dismissed). Turning detection off deletes the findings.
 
 ## Who can join a workspace
 
-Owners decide in the workspace's **Settings → Security → Members**:
+Owners decide in the workspace's **Settings → Security → Members**. Where an owner approves or
+declines below (join requests, members' additions waiting for approval), a membership admin may
+too; join requests reach them in the inbox and by email like owners.
 
 - **Who can add members:** *Owners only* (default), *Members, with an owner's approval*, or
   *Owners and members*. Members add people as members only, never as owners or guests. With

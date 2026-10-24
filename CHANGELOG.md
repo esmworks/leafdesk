@@ -4,6 +4,19 @@
 
 ### Added
 
+- **Membership admin role.** Owners can make someone a *membership admin* in Settings → Members.
+  On content a membership admin is exactly a member (pages, databases, teamspaces, AI, agents,
+  MCP and the REST API). With people they do what owners do: add and remove members and guests,
+  change roles among member, membership admin and guest, approve or decline join requests and
+  members' additions, manage invitations and groups, and export the member list; join requests
+  reach them in the inbox and by email. They never make, demote or remove an owner, don't see
+  invitations to become an owner, can't add themselves to a group, and get no other owner tab or
+  action (security, join link, ownership, audit log, analytics, connections, SCIM, single sign-on).
+  Pages and teamspaces that only a removed person could manage pass to the oldest owner, not to
+  the membership admin who removed them. MCP's `list_users`, `list_workspaces` and
+  `invite_member` and the REST API's workspace list name the new role; SCIM treats it as a member.
+  Migration `drizzle/0136_membership_admin.sql` adds the role, a check on the role column and the
+  role to `page_access_level`.
 - **Danish, Dutch, Norwegian, Finnish and Swedish.** The app, its emails, templates, the editor's
   menus and the desktop app now speak Dansk, Nederlands, Norsk bokmål, Suomi and Svenska, chosen in
   My account → Language or taken from the browser (one asking for Norwegian or Nynorsk gets
