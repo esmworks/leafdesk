@@ -1,0 +1,300 @@
+{
+  "footer": "Deze e-mail is verstuurd door Leafdesk op {appUrl}.",
+  "actionFallback": "Werkt de knop niet? Plak deze link in je browser:",
+  "test": {
+    "subject": "Test-e-mail van Leafdesk",
+    "heading": "E-mailbezorging werkt",
+    "body": "Dit is een testbericht van je Leafdesk-server op {appUrl}. Als je dit kunt lezen, is e-mail goed ingesteld."
+  },
+  "invitation": {
+    "subject": "{inviter} heeft je uitgenodigd voor “{workspace}” op Leafdesk",
+    "heading": "Word lid van “{workspace}”",
+    "body": "{inviter} heeft je uitgenodigd om lid te worden van “{workspace}” op Leafdesk als {role}.",
+    "expires": "De link werkt 7 dagen. Registreer je met {email} om te accepteren.",
+    "action": "Uitnodiging accepteren",
+    "roles": {
+      "owner": "eigenaar",
+      "member": "lid",
+      "guest": "gast"
+    }
+  },
+  "passwordReset": {
+    "subject": "Je Leafdesk-wachtwoord opnieuw instellen",
+    "heading": "Je wachtwoord opnieuw instellen",
+    "body": "Hallo {name}, iemand heeft gevraagd om het wachtwoord van je Leafdesk-account opnieuw in te stellen. Was jij dat, kies dan met de knop hieronder een nieuw wachtwoord.",
+    "expires": "De link werkt {minutes} minuten en maar één keer. Heb je hier niet om gevraagd, negeer deze e-mail dan; je wachtwoord blijft hetzelfde.",
+    "action": "Een nieuw wachtwoord kiezen"
+  },
+  "assignment": {
+    "subject": "{actor} heeft je toegewezen aan “{row}”",
+    "heading": "Je bent toegewezen aan “{row}”",
+    "body": "{actor} heeft je toegevoegd aan “{property}” in {database}.",
+    "bodyHidden": "{actor} heeft je toegevoegd aan “{property}”.",
+    "action": "Openen",
+    "untitled": "Naamloos",
+    "someone": "Iemand",
+    "optOut": "Je kunt deze e-mails uitschakelen in Mijn account > Voorkeuren."
+  },
+  "share": {
+    "subject": "{actor} heeft “{page}” met je gedeeld",
+    "heading": "{actor} heeft een pagina met je gedeeld",
+    "body": "Je kunt “{page}” in {workspace} nu {level}.",
+    "levels": {
+      "view": "bekijken",
+      "comment": "bekijken en becommentariëren",
+      "edit": "bewerken",
+      "full": "bekijken, bewerken en delen"
+    },
+    "action": "Pagina openen",
+    "untitled": "Naamloos",
+    "optOut": "Je kunt deze e-mails uitschakelen in Mijn account > Voorkeuren."
+  },
+  "comment": {
+    "subject": "{actor} heeft een opmerking geplaatst bij “{page}”",
+    "heading": "{actor} heeft een opmerking geplaatst bij “{page}”",
+    "quote": "“{text}”",
+    "body": "De opmerking staat bij “{page}” in {workspace}. Beantwoord of sluit haar vanaf de pagina.",
+    "action": "Pagina openen",
+    "optOut": "Je krijgt deze e-mails omdat je aan deze discussie hebt deelgenomen. Je kunt ze uitschakelen in Mijn account > Voorkeuren."
+  },
+  "suggestion": {
+    "subject": "{actor} heeft bewerkingen voorgesteld voor “{page}”",
+    "heading": "{actor} heeft bewerkingen voorgesteld voor “{page}”",
+    "body": "Het voorstel staat bij “{page}” in {workspace}. Accepteer of wijs het af vanaf de pagina, of reageer in de discussie."
+  },
+  "mention": {
+    "subject": "{actor} heeft je vermeld op “{page}”",
+    "heading": "{actor} heeft je vermeld op “{page}”",
+    "body": "De vermelding staat op “{page}” in {workspace}.",
+    "action": "Pagina openen",
+    "someone": "Iemand",
+    "optOut": "Je krijgt deze e-mails omdat iemand je heeft vermeld. Je kunt ze uitschakelen in Mijn account > Voorkeuren."
+  },
+  "reminder": {
+    "subject": "Herinnering: {date} op “{page}”",
+    "heading": "Herinnering: {date}",
+    "body": "Je hebt gevraagd om herinnerd te worden aan {date} op “{page}” in {workspace}.",
+    "action": "Pagina openen",
+    "optOut": "Je krijgt deze e-mails omdat je een herinnering hebt ingesteld. Je kunt ze uitschakelen in Mijn account > Voorkeuren."
+  },
+  "pageVerification": {
+    "endsSubject": "Je verificatie van “{page}” loopt af {date}",
+    "endsHeading": "Verificatie loopt binnenkort af",
+    "endsBody": "Je hebt “{page}” in {workspace} geverifieerd tot {date}. Klopt de pagina nog, verifieer haar dan opnieuw via het ⋯-menu van de pagina zodat ze geverifieerd blijft.",
+    "endedSubject": "Je verificatie van “{page}” is verlopen",
+    "endedHeading": "Verificatie verlopen",
+    "endedBody": "Je verificatie van “{page}” in {workspace} is afgelopen {date}. De pagina toont “Verificatie verlopen” totdat iemand haar opnieuw verifieert.",
+    "action": "Pagina openen",
+    "optOut": "Je krijgt deze e-mails omdat je de pagina hebt geverifieerd. Je kunt ze uitschakelen in Mijn account > Voorkeuren."
+  },
+  "dateReminder": {
+    "subject": "Herinnering: “{page}” op {date}",
+    "heading": "“{page}” is op {date}",
+    "body": "“{page}” in {database} ({workspace}) heeft {property} op {date}.",
+    "bodyHidden": "“{page}” ({workspace}) heeft {property} op {date}.",
+    "action": "Rij openen",
+    "optOut": "Je krijgt deze e-mails omdat {database} de personen van de rijen herinnert. Je kunt herinneringen uitschakelen in Mijn account > Voorkeuren.",
+    "optOutHidden": "Je krijgt deze e-mails omdat de database de personen van de rijen herinnert. Je kunt herinneringen uitschakelen in Mijn account > Voorkeuren."
+  },
+  "automation": {
+    "subject": "Automatisering “{automation}”: “{page}”",
+    "heading": "De automatisering “{automation}” laat je iets weten over “{page}”",
+    "body": "{actor} heeft “{page}” toegevoegd of gewijzigd in {database} ({workspace}).",
+    "bodyHidden": "{actor} heeft “{page}” toegevoegd of gewijzigd ({workspace}).",
+    "bodyDatePassed": "“{page}” in {database} ({workspace}) heeft de datum bereikt waarop deze automatisering wacht.",
+    "bodyDatePassedHidden": "“{page}” ({workspace}) heeft de datum bereikt waarop deze automatisering wacht.",
+    "action": "Rij openen",
+    "someone": "Iemand",
+    "optOut": "Je krijgt deze e-mails omdat een database-automatisering je op de hoogte houdt. Je kunt ze uitschakelen in Mijn account > Voorkeuren."
+  },
+  "rowUpdate": {
+    "subject": "{actor} heeft “{page}” gewijzigd",
+    "heading": "{actor} heeft “{page}” gewijzigd",
+    "intro": "{actor} heeft “{page}” gewijzigd in {database} ({workspace}):",
+    "introHidden": "{actor} heeft “{page}” gewijzigd ({workspace}):",
+    "change": "{property}: {from} → {to}",
+    "title": "Titel",
+    "body": "De tekst van de rij is bewerkt.",
+    "empty": "niets",
+    "checked": "aangevinkt",
+    "unchecked": "niet aangevinkt",
+    "deletedOption": "{count, plural, one {een verwijderde optie} other {# verwijderde opties}}",
+    "unknownPerson": "{count, plural, one {iemand onbekend} other {# onbekende personen}}",
+    "noAccess": "Geen toegang",
+    "untitled": "Naamloos",
+    "checklist": "{done} van {total} klaar",
+    "action": "Rij openen",
+    "someone": "Iemand",
+    "optOut": "Je krijgt deze e-mails omdat je deze rij volgt. Stop met volgen via het paginamenu van de rij, of schakel deze e-mails uit in Mijn account > Voorkeuren."
+  },
+  "pageUpdate": {
+    "subject": "{actor} heeft “{page}” bewerkt",
+    "heading": "{actor} heeft “{page}” bewerkt",
+    "body": "“{page}” in {workspace} is gewijzigd. Open de pagina om te zien wat er nieuw is; de geschiedenis toont elke wijziging.",
+    "someone": "Iemand",
+    "action": "Pagina openen",
+    "optOut": "Je krijgt deze e-mails omdat je deze pagina volgt: je hebt haar gemaakt of bewerkt, ervoor gekozen haar te volgen, of je volgt de teamruimte. Demp haar via het ⋯-menu van de pagina, of schakel deze e-mails uit in Mijn account > Voorkeuren.",
+    "digestSubject": "{count, plural, one {# pagina die je volgt, is bewerkt} other {# pagina’s die je volgt, zijn bewerkt}}",
+    "digestIntro": "Je hebt vandaag al e-mails gehad over pagina’s die je volgt, dus deze bewerkingen komen samen:",
+    "digestPage": "“{page}” in {workspace}, bewerkt door {actor}: {link}",
+    "digestAction": "Leafdesk openen"
+  },
+  "accessRequest": {
+    "subject": "{requester} heeft om toegang tot “{page}” gevraagd",
+    "heading": "{requester} heeft om toegang tot “{page}” gevraagd",
+    "body": "{requester} ({email}) wil “{page}” in {workspace} graag openen.",
+    "bodyWithoutEmail": "{requester} wil “{page}” in {workspace} graag openen.",
+    "message": "Het bericht: “{message}”",
+    "moreSubject": "{requester} wil “{page}” graag {level, select, comment {becommentariëren} other {bewerken}}",
+    "moreHeading": "{requester} heeft om meer toegang tot “{page}” gevraagd",
+    "moreBody": "{requester} ({email}) kan “{page}” in {workspace} openen en wil de pagina graag {level, select, comment {becommentariëren} other {bewerken}}.",
+    "moreBodyWithoutEmail": "{requester} kan “{page}” in {workspace} openen en wil de pagina graag {level, select, comment {becommentariëren} other {bewerken}}.",
+    "answer": "Deel de pagina met deze persoon en kies wat die mag doen, of wijs het verzoek af. Je kunt antwoorden vanuit je inbox of via Delen op de pagina.",
+    "action": "Pagina openen",
+    "optOut": "Je krijgt deze e-mails omdat je volledige toegang tot de pagina hebt. Je kunt ze uitschakelen in Mijn account > Voorkeuren."
+  },
+  "accessApproved": {
+    "subject": "Je kunt “{page}” nu openen",
+    "heading": "{actor} heeft je verzoek goedgekeurd",
+    "body": "Je kunt “{page}” in {workspace} nu {level}.",
+    "action": "Pagina openen"
+  },
+  "accessDeclined": {
+    "subject": "Je toegangsverzoek is afgewezen",
+    "heading": "Je verzoek is afgewezen",
+    "body": "Je verzoek om toegang tot deze pagina is afgewezen: {link}",
+    "hint": "Heb je de toegang nog steeds nodig, vraag het dan aan de persoon die je de link heeft gestuurd.",
+    "moreBody": "Je verzoek om “{page}” te {level, select, comment {becommentariëren} other {bewerken}} is afgewezen. Je kunt de pagina nog steeds openen zoals voorheen: {link}"
+  },
+  "emailChange": {
+    "subject": "Bevestig je nieuwe e-mailadres",
+    "heading": "Bevestig je nieuwe e-mailadres",
+    "body": "Hallo {name}, je hebt gevraagd om dit adres te gebruiken voor je Leafdesk-account in plaats van {old}. Bevestig het met de knop hieronder.",
+    "expires": "De link werkt {hours} uur en maar één keer. Heb je hier niet om gevraagd, negeer deze e-mail dan; er verandert niets.",
+    "action": "E-mailadres bevestigen"
+  },
+  "emailChanged": {
+    "subject": "Het e-mailadres van je Leafdesk-account is gewijzigd",
+    "heading": "Je e-mailadres is gewijzigd",
+    "body": "Hallo {name}, het e-mailadres van je Leafdesk-account is gewijzigd van {old} in {new}. Log voortaan in met het nieuwe adres.",
+    "warning": "Heb je deze wijziging niet zelf gedaan, neem dan direct contact op met een eigenaar van je werkruimte."
+  },
+  "passwordChanged": {
+    "subject": "Je Leafdesk-wachtwoord is gewijzigd",
+    "heading": "Je wachtwoord is gewijzigd",
+    "body": "Hallo {name}, het wachtwoord van je Leafdesk-account is zojuist gewijzigd.",
+    "warning": "Heb je deze wijziging niet zelf gedaan, stel je wachtwoord dan opnieuw in via de inlogpagina en neem contact op met een eigenaar van je werkruimte."
+  },
+  "joinRequest": {
+    "join": {
+      "subject": "{asker} vraagt om lid te worden van “{workspace}”",
+      "heading": "{asker} vraagt om lid te worden",
+      "body": "{asker} ({email}) vraagt om lid te worden van “{workspace}” op Leafdesk. Keur het verzoek goed of wijs het af in Instellingen > Leden."
+    },
+    "invite": {
+      "subject": "{asker} vraagt om {email} uit te nodigen voor “{workspace}”",
+      "heading": "Een lid vraagt om iemand uit te nodigen",
+      "body": "{asker} wil {email} graag uitnodigen voor “{workspace}” op Leafdesk. De uitnodiging gaat de deur uit zodra een eigenaar haar goedkeurt."
+    },
+    "action": "Verzoeken bekijken",
+    "optOut": "Je kunt deze e-mails uitschakelen in Mijn account > Voorkeuren."
+  },
+  "joinDecision": {
+    "joinApproved": {
+      "subject": "Je bent lid geworden van “{workspace}”",
+      "heading": "Welkom bij “{workspace}”",
+      "body": "Een eigenaar heeft je verzoek goedgekeurd om lid te worden van “{workspace}” op Leafdesk."
+    },
+    "joinDeclined": {
+      "subject": "Je verzoek om lid te worden van “{workspace}”",
+      "heading": "Je verzoek is niet goedgekeurd",
+      "body": "Een eigenaar van “{workspace}” heeft je verzoek om lid te worden afgewezen. Je kunt een van de eigenaren om een uitnodiging vragen."
+    },
+    "inviteApproved": {
+      "subject": "{email} is uitgenodigd voor “{workspace}”",
+      "heading": "Je uitnodiging is verstuurd",
+      "body": "Een eigenaar heeft je verzoek goedgekeurd, en {email} is uitgenodigd voor “{workspace}” op Leafdesk."
+    },
+    "inviteDeclined": {
+      "subject": "Je verzoek om {email} uit te nodigen",
+      "heading": "Je verzoek is niet goedgekeurd",
+      "body": "Een eigenaar van “{workspace}” heeft je verzoek om {email} uit te nodigen afgewezen."
+    },
+    "action": "Leafdesk openen"
+  },
+  "verification": {
+    "subject": "Verifieer je Leafdesk-e-mailadres",
+    "heading": "Verifieer je e-mailadres",
+    "body": "Hallo {name}, bevestig met de knop hieronder dat dit adres van jou is.",
+    "ignore": "Heb je geen Leafdesk-account aangemaakt, dan kun je deze e-mail negeren.",
+    "action": "E-mailadres verifiëren"
+  },
+  "passwordResetRequired": {
+    "subject": "Kies een nieuw Leafdesk-wachtwoord",
+    "heading": "Kies een nieuw wachtwoord",
+    "body": "Hallo {name}, een beheerder van deze Leafdesk-server heeft je gevraagd een nieuw wachtwoord te kiezen. Met je oude wachtwoord kun je niet meer inloggen.",
+    "expires": "De link werkt {minutes} minuten en maar één keer. Als je opnieuw inlogt met je oude wachtwoord, wordt er een nieuwe gestuurd.",
+    "action": "Een nieuw wachtwoord kiezen"
+  },
+  "push": {
+    "assignment": "{actor} heeft je toegewezen aan “{property}”",
+    "pageShared": "{actor} heeft deze pagina met je gedeeld",
+    "comment": "{actor} heeft gereageerd in een discussie waaraan je deelneemt",
+    "suggested": "{actor} heeft bewerkingen voorgesteld voor deze pagina",
+    "suggestionAccepted": "{actor} heeft je voorgestelde bewerking geaccepteerd",
+    "suggestionRejected": "{actor} heeft je voorgestelde bewerking afgewezen",
+    "mention": "{actor} heeft je vermeld",
+    "reminder": "Herinnering: {date}",
+    "accessRequest": "{actor} heeft om toegang tot deze pagina gevraagd",
+    "accessRequestMore": "{actor} wil deze pagina graag {level, select, comment {becommentariëren} other {bewerken}}",
+    "automation": "Automatisering “{name}”: {actor} heeft deze rij toegevoegd of gewijzigd",
+    "automationDatePassed": "Automatisering “{name}”: de datum van deze rij is aangebroken",
+    "button": "{actor} heeft je deze pagina gestuurd met een knop",
+    "rowUpdate": "{actor} heeft {fields} gewijzigd",
+    "rowUpdateSome": "{actor} heeft deze rij gewijzigd",
+    "rowUpdateTitle": "de titel",
+    "rowUpdateBody": "de tekst",
+    "pageUpdated": "{actor} heeft deze pagina bewerkt",
+    "rowEmail": "E-mail van {from}",
+    "followUp": "Opvolgreeks “{sequence}” gepauzeerd: de volgende e-mail moet worden bekeken",
+    "reaction": "{actor} heeft met {emoji} op je opmerking gereageerd",
+    "people": "{others, plural, =0 {{name}} one {{name} en # ander} other {{name} en # anderen}}",
+    "verificationEnds": "Je verificatie van deze pagina loopt af {date}",
+    "verificationEnded": "Je verificatie van deze pagina is verlopen {date}",
+    "someone": "Iemand",
+    "joinRequestTitle": "Lidmaatschapsverzoek",
+    "joinRequest": "{actor} vraagt om lid te worden",
+    "inviteRequest": "{actor} vraagt om {email} uit te nodigen",
+    "approvalTitle": "{agent} vraagt om door te gaan",
+    "approval": "Wil “{tool}” aanroepen op {connection}",
+    "memoryTitle": "{agent} wil iets onthouden",
+    "memory": "{count, plural, one {Stelt een notitie voor het geheugen voor} other {Stelt # notities voor het geheugen voor}}",
+    "reportTitle": "Rapport van {agent}",
+    "reportDone": "De geplande run is klaar",
+    "reportFailed": "De geplande run is mislukt",
+    "untitled": "Naamloos",
+    "snooze": "1 uur sluimeren",
+    "read": "Als gelezen markeren",
+    "aiAccountTitle": "AI-account verwijderd",
+    "aiAccountDetached": "De AI van de werkruimte draait niet meer op de sleutel van {actor}.",
+    "reviewTitle": "Ter beoordeling",
+    "review": "{count, plural, one {{agent} heeft een wijziging ter beoordeling voorgesteld} other {# wijzigingen wachten op je beoordeling, de nieuwste van {agent}}}",
+    "sensitiveContent": "Er is {kind, select, card {een betaalkaartnummer} iban {een IBAN} national_id {een burgerservicenummer of ander nationaal ID-nummer} private_key {een privésleutel} aws_key {een AWS-toegangssleutel} github_token {een GitHub-token} slack_token {een Slack-token} api_key {een API-sleutel} jwt {een JSON Web Token} other {gevoelige inhoud}} op deze pagina gevonden."
+  },
+  "agentReply": {
+    "aiOff": "Ik kan niet antwoorden: AI staat uit in deze werkruimte.",
+    "agentDisabled": "Ik kan niet antwoorden: ik ben gepauzeerd. Een eigenaar van de werkruimte kan me weer inschakelen in Instellingen.",
+    "limitReached": "Ik kan niet antwoorden: ik heb mijn tokenlimiet voor deze maand opgebruikt. Een eigenaar van de werkruimte kan die verhogen in Instellingen.",
+    "costLimit": "Ik kan niet antwoorden: de werkruimte heeft de maandelijkse limiet voor AI-kosten bereikt.",
+    "timeout": "Ik kon het niet op tijd afronden. Probeer het opnieuw met een kleinere vraag.",
+    "approvalTimeout": "Ik kon het niet afronden: niemand heeft binnen een dag goedgekeurd wat ik moest doen, dus ik ben gestopt.",
+    "empty": "Ik heb ernaar gekeken, maar heb niets toe te voegen.",
+    "failed": "Sorry, ik kon dit niet afronden. Een eigenaar van de werkruimte kan in Instellingen in mijn runs zien wat er is gebeurd."
+  },
+  "workspaceDeleted": {
+    "subject": "{workspace} is verwijderd",
+    "heading": "{workspace} is verwijderd",
+    "body": "Hallo {name}, {by} heeft de Leafdesk-werkruimte {workspace} verwijderd, met alle pagina’s, databases en bestanden. Je kunt haar niet meer openen.",
+    "note": "Verwijderde werkruimtes kunnen niet worden hersteld. Had je dit niet verwacht, praat dan met {by} of een andere eigenaar van de werkruimte."
+  }
+}

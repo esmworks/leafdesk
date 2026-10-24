@@ -1,0 +1,55 @@
+{
+  "metaTitle": "Netwerk",
+  "heading": "Netwerk",
+  "count": "{pages, plural, one {# pagina} other {# pagina’s}} · {edges, plural, one {# verbinding} other {# verbindingen}}",
+  "reload": "Opnieuw laden",
+  "find": "Zoek een pagina om op te focussen",
+  "focus": "Rondom",
+  "depth": "Stappen",
+  "clearFocus": "Het hele netwerk tonen",
+  "tree": "Subpagina’s",
+  "rows": "Databaserijen",
+  "orphans": "Pagina’s zonder verbindingen",
+  "kinds": {
+    "page": "Pagina",
+    "database": "Database",
+    "row": "Rij"
+  },
+  "edges": {
+    "link": "Link",
+    "relation": "Relatie",
+    "child": "Subpagina"
+  },
+  "truncated": "De {count} meest recent bewerkte pagina’s worden weergegeven.",
+  "canvas": "Netwerk van de pagina’s in de werkruimte",
+  "empty": "Geen pagina’s om te tonen.",
+  "focusMissing": "Die pagina staat niet in het netwerk: misschien staat ze in de prullenbak, of is ze niet met je gedeeld.",
+  "local": {
+    "title": "Netwerk van deze pagina",
+    "close": "Netwerk sluiten",
+    "openFull": "Openen in het volledige netwerk",
+    "canvas": "Netwerk van de pagina’s rond deze pagina",
+    "empty": "Er zijn nog geen pagina’s met deze pagina verbonden.",
+    "failed": "Kan het netwerk niet laden."
+  },
+  "zoomIn": "Inzoomen",
+  "zoomOut": "Uitzoomen",
+  "fit": "Netwerk passend maken",
+  "hint": "Klik om te selecteren, dubbelklik om te openen",
+  "fewEdges": {
+    "title": "Nog weinig links tussen pagina’s",
+    "body": "Het netwerk toont de links tussen pagina’s en de relaties tussen databaserijen. Typ [[ of @ in een pagina om naar een andere te linken, of voeg een relatie-eigenschap toe aan een database; de links verschijnen hier.",
+    "showTree": "Subpaginalinks tonen"
+  },
+  "inspector": {
+    "open": "Pagina openen",
+    "focus": "Hierop focussen",
+    "expandRows": "{count, plural, one {# rij tonen} other {# rijen tonen}}",
+    "collapseRows": "Rijen samenvoegen",
+    "rows": "{count, plural, one {# rij} other {# rijen}}",
+    "none": "Niet verbonden met een andere pagina.",
+    "more": "en nog {count}",
+    "close": "Selectie wissen",
+    "parent": "Binnen"
+  }
+}

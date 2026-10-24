@@ -1,0 +1,21 @@
+{
+  "todayNote": "Notitie van vandaag",
+  "openToday": "Notitie van vandaag openen",
+  "startToday": "Notitie van vandaag beginnen",
+  "calendar": "Kalender met dagnotities",
+  "previousMonth": "Vorige maand",
+  "nextMonth": "Volgende maand",
+  "hasNote": "{day} — heeft een notitie",
+  "openDay": "Notitie van die dag openen",
+  "recent": "Eerdere notities",
+  "startWith": "Nieuwe notities beginnen met",
+  "startDefault": "Een paar kopjes",
+  "startBlank": "Een lege pagina",
+  "startTemplates": "Sjablonen",
+  "openFailed": "Kan de dagnotitie niet openen",
+  "saveFailed": "Kan de instelling niet opslaan",
+  "searchHint": "je dagnotities",
+  "yesterday": "Notitie van gisteren",
+  "notes": "Notities",
+  "noNotes": "Nog geen notities. Kies een dag om er een te beginnen."
+}

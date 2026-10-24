@@ -1,0 +1,37 @@
+{
+  "metaTitle": "App autoriseren",
+  "expired": {
+    "title": "Deze link is verlopen",
+    "body": "Het autorisatieverzoek is ongeldig of te oud. Ga terug naar de app die je aan het koppelen was en begin opnieuw."
+  },
+  "unknownClient": {
+    "title": "Onbekende app",
+    "body": "De app die om toegang vraagt, is niet bij Leafdesk geregistreerd of is uitgeschakeld. Ga terug en probeer opnieuw te koppelen."
+  },
+  "heading": "{client} wil toegang tot je Leafdesk-account",
+  "identifiedBy": "Deze app wordt geïdentificeerd door {host}.",
+  "unverified": "Deze app heeft zichzelf automatisch geregistreerd en is niet door Leafdesk beoordeeld. Ga alleen verder als jij deze koppeling bent gestart.",
+  "notYou": "Ben jij dit niet?",
+  "willAllow": "Hiermee mag {client}:",
+  "readOnlyHint": "Vink uit om alleen leestoegang te geven. Elke bewerking wordt eerst in de paginageschiedenis opgeslagen, zodat je die ongedaan kunt maken.",
+  "access": {
+    "all": "De toegang geldt voor alle werkruimtes waarvan je lid bent. Je kunt de app altijd ontkoppelen in Instellingen.",
+    "listed": "De toegang geldt voor alle werkruimtes waarvan je lid bent: {workspaces}. Je kunt de app altijd ontkoppelen in Instellingen."
+  },
+  "deny": "Weigeren",
+  "denying": "Weigeren…",
+  "allow": "Toestaan",
+  "allowing": "Toestaan…",
+  "redirectNotice": "Je wordt teruggestuurd naar {host}.",
+  "error": "Kan het verzoek niet voltooien. Ga terug naar de app en probeer het opnieuw.",
+  "scopes": {
+    "openid": "Bevestigen wie je bent",
+    "profile": "Je naam en profielfoto zien",
+    "email": "Je e-mailadres zien",
+    "offlineAccess": "Verbonden blijven zonder je opnieuw te laten inloggen",
+    "pagesRead": "Pagina’s en databases in je werkruimtes lezen",
+    "pagesWrite": "Pagina’s en databaserijen maken en bewerken, en pagina’s naar de prullenbak verplaatsen",
+    "notificationsRead": "Je inboxmeldingen lezen",
+    "filesWrite": "Bestanden naar pagina’s uploaden, via een link of vanuit de app zelf"
+  }
+}

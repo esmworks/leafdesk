@@ -1,0 +1,98 @@
+{
+  "access": {
+    "default": "Standaard",
+    "open": "Open",
+    "closed": "Gesloten",
+    "private": "Privé"
+  },
+  "accessHint": {
+    "default": "Iedereen in de werkruimte is lid en kan niet vertrekken.",
+    "open": "Iedereen in de werkruimte kan haar zien en lid worden. Totdat ze lid worden, kunnen ze de pagina’s lezen en er opmerkingen bij plaatsen.",
+    "closed": "Iedereen in de werkruimte kan zien dat ze bestaat. Alleen leden openen de pagina’s; de eigenaren voegen hen toe.",
+    "private": "Alleen leden kunnen haar zien."
+  },
+  "roles": {
+    "owner": "Eigenaar",
+    "member": "Lid"
+  },
+  "errors": {
+    "nameRequired": "Geef de teamruimte een naam.",
+    "creationRestricted": "Hier kunnen alleen eigenaren van de werkruimte teamruimtes aanmaken.",
+    "ownersOnly": "Alleen eigenaren van de werkruimte kunnen wijzigen in welke teamruimtes iedereen zit.",
+    "cannotLeaveDefault": "Iedereen zit in deze teamruimte; je kunt er niet uit vertrekken.",
+    "lastOwner": "Maak eerst iemand anders eigenaar van de teamruimte.",
+    "notJoinable": "Vraag een eigenaar van deze teamruimte om je toe te voegen.",
+    "archived": "Deze teamruimte is gearchiveerd.",
+    "notMember": "Alleen eigenaren en leden van de werkruimte kunnen in de teamruimtes zitten.",
+    "invalidAccess": "Kies wie de teamruimte kan zien.",
+    "inGroup": "Deze persoon zit via een groep in de teamruimte. Verwijder de persoon in plaats daarvan uit de groep.",
+    "everyoneIn": "Iedereen in de werkruimte zit al in deze teamruimte.",
+    "accessDenied": "Dat kun je in deze teamruimte niet doen.",
+    "invalidMemberLevel": "Kies wat leden krijgen op de pagina’s van de teamruimte.",
+    "invalidIcon": "Het pictogram moet een emoji zijn.",
+    "notConvertible": "Alleen een pagina kan een teamruimte worden: geen database, rij of sjabloon."
+  },
+  "dialog": {
+    "createTitle": "Nieuwe teamruimte",
+    "editTitle": "Teamruimte bewerken",
+    "name": "Naam",
+    "namePlaceholder": "Marketing, Engineering…",
+    "icon": "Kies een pictogram",
+    "description": "Beschrijving",
+    "descriptionPlaceholder": "Waarvoor is deze teamruimte?",
+    "access": "Wie haar kan zien",
+    "defaultLocked": "Alleen eigenaren van de werkruimte kunnen de toegang van een standaardteamruimte wijzigen.",
+    "becomesDefault": "Iedereen in de werkruimte wordt lid en kan niet vertrekken.",
+    "leavesDefault": "Iedereen blijft voorlopig lid maar kan vertrekken, en nieuwe leden van de werkruimte worden niet toegevoegd.",
+    "create": "Teamruimte aanmaken",
+    "creating": "Aanmaken…",
+    "memberLevel": "Toegang van leden tot de pagina’s",
+    "memberLevelHint": "Wat leden krijgen op pagina’s die dit niet zelf instellen. Eigenaren van de teamruimte en van de werkruimte krijgen altijd volledige toegang; de deelinstellingen van een pagina gaan hier nog steeds boven.",
+    "memberLevelLocked": "Alleen eigenaren van de werkruimte kunnen wijzigen wat iedereen in een standaardteamruimte krijgt."
+  },
+  "members": {
+    "title": "Leden van {name}",
+    "everyone": "Iedereen in de werkruimte zit in deze teamruimte. De eigenaren kunnen haar bewerken en beheren.",
+    "readOnly": "Alleen de eigenaren van deze teamruimte kunnen wijzigen wie erin zit.",
+    "add": "Personen toevoegen",
+    "search": "Personen zoeken",
+    "addSelected": "{count, plural, =0 {Personen toevoegen} other {# toevoegen}}",
+    "addAs": "Toevoegen als",
+    "noOneToAdd": "Iedereen in de werkruimte zit al in deze teamruimte.",
+    "noMatches": "Niemand komt overeen met je zoekopdracht.",
+    "empty": "Er zit niemand in deze teamruimte.",
+    "list": "Personen in deze teamruimte",
+    "roleOf": "Rol van {name}",
+    "remove": "{name} verwijderen",
+    "you": "(jij)",
+    "select": "{name} selecteren",
+    "viaGroups": "Via {groups}",
+    "groups": "Groepen",
+    "groupsHint": "Iedereen in deze groepen is lid van de teamruimte zolang die in de groep zit.",
+    "noGroups": "Geen groepen in deze teamruimte.",
+    "chooseGroup": "Kies een groep",
+    "addGroupButton": "Groep toevoegen",
+    "removeGroup": "{name} verwijderen",
+    "groupMemberCount": "{count, plural, =0 {Geen leden} one {# lid} other {# leden}}"
+  },
+  "memberLevel": {
+    "full": "Volledige toegang",
+    "edit": "Kan bewerken",
+    "comment": "Kan opmerkingen plaatsen",
+    "view": "Kan bekijken"
+  },
+  "fromPage": {
+    "menu": "Omzetten naar teamruimte",
+    "title": "Omzetten naar teamruimte",
+    "intro": "Een nieuwe teamruimte krijgt deze pagina en de pagina’s eronder, en de personen met wie de pagina is gedeeld, worden lid.",
+    "pages": "{count, plural, =0 {Deze pagina wordt de eerste pagina.} one {Deze pagina en de pagina eronder worden de eerste pagina’s.} other {Deze pagina en de # pagina’s eronder worden de eerste pagina’s.}}",
+    "owners": "Eigenaren: {names}",
+    "members": "Leden, die de pagina’s kunnen bewerken: {names}",
+    "groups": "{count, plural, one {# groep wordt} other {# groepen worden}} lid.",
+    "kept": "{count, plural, one {# andere persoon die op de pagina staat, houdt} other {# andere personen die op de pagina staan, houden}} de toegang die ze hebben.",
+    "access": "{access}: {hint}",
+    "submit": "Omzetten naar teamruimte",
+    "working": "Omzetten…",
+    "failed": "Kan de pagina niet omzetten naar een teamruimte."
+  }
+}

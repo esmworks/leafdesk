@@ -1,0 +1,238 @@
+{
+  "meeting-notes": {
+    "title": "Vergadernotities",
+    "description": "Agenda, notities, besluiten en actiepunten.",
+    "markdown": "**Datum:** \n\n**Deelnemers:** \n\n## Agenda\n\n1. \n\n## Notities\n\n\n\n## Besluiten\n\n- \n\n## Actiepunten\n\n- [ ] "
+  },
+  "weekly-plan": {
+    "title": "Weekplanning",
+    "description": "Doelen voor de week en een checklist per dag.",
+    "markdown": "## Doelen deze week\n\n- [ ] \n\n### Maandag\n\n- [ ] \n\n### Dinsdag\n\n- [ ] \n\n### Woensdag\n\n- [ ] \n\n### Donderdag\n\n- [ ] \n\n### Vrijdag\n\n- [ ] \n\n## Notities voor volgende week\n"
+  },
+  "project-tracker": {
+    "title": "Projecttracker",
+    "description": "Taken met status, prioriteit, eigenaar en deadline, in een tabel en op een bord.",
+    "seedNames": {
+      "status": "Status",
+      "notStarted": "Niet begonnen",
+      "inProgress": "Bezig",
+      "done": "Klaar",
+      "tags": "Labels",
+      "table": "Alle taken"
+    },
+    "properties": {
+      "priority": "Prioriteit",
+      "owner": "Eigenaar",
+      "due": "Deadline"
+    },
+    "options": {
+      "high": "Hoog",
+      "medium": "Gemiddeld",
+      "low": "Laag"
+    },
+    "board": "Bord",
+    "rowTemplate": {
+      "title": "Nieuwe taak",
+      "markdown": "## Doel\n\n\n\n## Stappen\n\n- [ ] \n\n## Notities\n\n"
+    },
+    "rows": {
+      "brief": "De projectbriefing schrijven",
+      "milestone": "De eerste mijlpaal plannen",
+      "team": "Het team uitnodigen"
+    }
+  },
+  "wins-log": {
+    "title": "Successenlogboek",
+    "description": "Successen, complimenten en afgerond werk op één plek, met grafieken per maand, soort en gebied.",
+    "markdown": "Elk succes, elk compliment en elk afgerond stuk werk komt hier, met een link naar waar het gebeurde. Voeg ze met de hand toe, of laat de agent Successenlogger ze toevoegen vanuit je koppelingen.",
+    "database": "Successen",
+    "table": "Alle successen",
+    "board": "Per soort",
+    "properties": {
+      "type": "Soort",
+      "area": "Gebied",
+      "date": "Datum",
+      "impact": "Impact",
+      "source": "Bron",
+      "person": "Personen"
+    },
+    "types": {
+      "feedback": "Feedback",
+      "delivery": "Oplevering",
+      "metric": "Cijfer",
+      "event": "Evenement",
+      "other": "Overig"
+    },
+    "areas": {
+      "product": "Product",
+      "customers": "Klanten",
+      "team": "Team",
+      "operations": "Bedrijfsvoering",
+      "sales": "Verkoop"
+    },
+    "impacts": {
+      "high": "Hoog",
+      "medium": "Gemiddeld",
+      "low": "Laag"
+    },
+    "widgets": {
+      "total": "Successen",
+      "byMonth": "Successen per maand",
+      "byArea": "Per gebied",
+      "byImpact": "Per impact"
+    },
+    "rowTemplate": {
+      "title": "Nieuw succes",
+      "markdown": "## Wat er gebeurde\n\n\n\n## Waarom het ertoe doet\n\n\n\n## Bewijs\n\n- "
+    },
+    "rows": {
+      "praise": "Een klant prees de nieuwe onboarding",
+      "launch": "De factuurexport opgeleverd",
+      "response": "Supportantwoorden duren nu minder dan twee uur",
+      "talk": "Een presentatie gegeven tijdens het teamuitje",
+      "thanks": "Verkoop bedankte ons voor de demo-opzet"
+    }
+  },
+  "small-business": {
+    "title": "Klein bedrijf",
+    "description": "Klanten, de offertes die je ze geeft, opdrachten en een balans, aan elkaar gekoppeld, met een dashboard en een weekplanning.",
+    "currency": "EUR",
+    "dashboard": {
+      "title": "Dashboard",
+      "markdown": "> [!NOTE]\n> Opdrachten, offertes, klanten en de balans op één scherm. De widgets volgen de databases terwijl die veranderen.\n\nVoeg eerst je klanten toe, en daarna de offertes die je ze geeft. Als een offerte wordt geaccepteerd, voeg je een opdracht toe en koppel je die aan de offerte en de klant. Vul de balans in met de dag waarop je telt: de widgets tonen de boekingen van deze maand.",
+      "widgets": {
+        "openJobs": "Open opdrachten",
+        "dueJobs": "Verlopen of bijna verlopen",
+        "openQuotes": "Open offertes",
+        "netWorth": "Eigen vermogen deze maand",
+        "jobsByPerson": "Open opdrachten per persoon en prioriteit",
+        "upcomingJobs": "Open opdrachten per deadline",
+        "quotesByStatus": "Offertes per status",
+        "quoteFollowUps": "Offertes opvolgen",
+        "customersByStage": "Klanten per fase",
+        "customerFollowUps": "Klanten opvolgen",
+        "balanceBreakdown": "Balans deze maand",
+        "netWorthByDate": "Eigen vermogen per datum"
+      }
+    },
+    "customers": {
+      "title": "Klanten",
+      "table": "Alle klanten",
+      "board": "Per fase",
+      "properties": {
+        "stage": "Fase",
+        "city": "Plaats",
+        "contact": "Contactpersoon",
+        "phone": "Telefoon",
+        "email": "E-mail",
+        "nextStep": "Volgende stap",
+        "nextStepDate": "Volgende stap op",
+        "quotes": "Offertes",
+        "jobs": "Opdrachten",
+        "quoted": "Totaal geoffreerd"
+      },
+      "stages": {
+        "lead": "Lead",
+        "prospect": "Prospect",
+        "customer": "Klant",
+        "inactive": "Inactief"
+      }
+    },
+    "quotes": {
+      "title": "Offertes",
+      "table": "Alle offertes",
+      "board": "Per status",
+      "calendar": "Opvolging",
+      "properties": {
+        "customer": "Klant",
+        "status": "Status",
+        "amount": "Bedrag",
+        "followUp": "Opvolgen op",
+        "date": "Datum",
+        "validUntil": "Geldig tot",
+        "preparedBy": "Opgesteld door",
+        "jobs": "Opdrachten"
+      },
+      "statuses": {
+        "draft": "Concept",
+        "sent": "Verstuurd",
+        "revision": "Herziening gevraagd",
+        "accepted": "Geaccepteerd",
+        "lost": "Verloren"
+      },
+      "rowTemplate": {
+        "title": "Nieuwe offerte",
+        "markdown": "## Posten\n\n- \n\n## Voorwaarden\n\n**Betaling:** \n\n**Levering:** \n\n## Notities\n"
+      }
+    },
+    "jobs": {
+      "title": "Opdrachten",
+      "table": "Alle opdrachten",
+      "board": "Bord",
+      "byPerson": "Per persoon",
+      "calendar": "Kalender",
+      "properties": {
+        "status": "Status",
+        "priority": "Prioriteit",
+        "assignee": "Uitvoerder",
+        "due": "Deadline",
+        "customer": "Klant",
+        "quote": "Offerte",
+        "notes": "Notities"
+      },
+      "statuses": {
+        "todo": "Te doen",
+        "waiting": "Wachtend",
+        "inProgress": "Bezig",
+        "done": "Klaar"
+      },
+      "priorities": {
+        "urgent": "Urgent",
+        "high": "Hoog",
+        "normal": "Normaal",
+        "low": "Laag"
+      },
+      "rowTemplate": {
+        "title": "Nieuwe opdracht",
+        "markdown": "## Stappen\n\n- [ ] \n"
+      }
+    },
+    "balance": {
+      "title": "Balans",
+      "table": "Alle boekingen",
+      "byDate": "Per datum",
+      "netWorth": "Eigen vermogen",
+      "thisMonth": "Deze maand",
+      "properties": {
+        "date": "Datum",
+        "side": "Zijde",
+        "group": "Groep",
+        "amount": "Bedrag",
+        "net": "Netto-effect",
+        "note": "Notitie"
+      },
+      "sides": {
+        "asset": "Activa",
+        "liability": "Passiva"
+      },
+      "groups": {
+        "cash": "Kas en bank",
+        "receivables": "Debiteuren",
+        "chequesIn": "Ontvangen cheques",
+        "stock": "Voorraad",
+        "equipment": "Inventaris",
+        "payables": "Crediteuren",
+        "chequesOut": "Uitgeschreven cheques",
+        "card": "Creditcardschuld",
+        "loans": "Bankleningen",
+        "taxes": "Belastingen en sociale lasten",
+        "wages": "Te betalen lonen",
+        "other": "Overig"
+      }
+    }
+  },
+  "journal": {
+    "title": "Dagboek",
+    "markdown": "## Focus\n\n- [ ] \n\n## Notities\n\n## Vandaag gedaan\n"
+  }
+}

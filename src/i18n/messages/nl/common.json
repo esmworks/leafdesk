@@ -1,0 +1,33 @@
+{
+  "appDescription": "Opensource-werkruimte voor documenten en databases, met MCP-toegang voor AI-agents.",
+  "untitled": "Naamloos",
+  "sourceCode": "Broncode",
+  "agent": "Agent",
+  "agentName": "{name} (agent)",
+  "cancel": "Annuleren",
+  "save": "Opslaan",
+  "saving": "Opslaan…",
+  "saved": "Opgeslagen.",
+  "close": "Sluiten",
+  "delete": "Verwijderen",
+  "remove": "Verwijderen",
+  "restore": "Herstellen",
+  "loading": "Laden…",
+  "copy": "Kopiëren",
+  "copied": "Gekopieerd",
+  "genericError": "Er ging iets mis. Probeer het opnieuw.",
+  "errorPage": {
+    "title": "Er ging iets mis",
+    "description": "Deze pagina kon niet worden weergegeven, of je laatste wijziging is niet doorgevoerd.",
+    "retry": "Opnieuw proberen",
+    "home": "Naar de startpagina"
+  },
+  "export": {
+    "failed": "Kan de export niet starten. Probeer het opnieuw.",
+    "tooManyPages": "Dit is te veel om in één keer te exporteren: een export bevat maximaal {limit} pagina’s. Exporteer een kleiner deel van de werkruimte.",
+    "tooLarge": "De bestanden in deze export zijn samen groter dan {size}. Exporteer een kleiner deel van de werkruimte.",
+    "busy": "Je hebt al een export lopen. Wacht tot de download daarvan klaar is.",
+    "disabled": "Exporteren is uitgeschakeld in deze werkruimte."
+  },
+  "celebrate": "Goed gedaan!"
+}

@@ -1,0 +1,97 @@
+{
+  "metaTitle": "Serverbeheer",
+  "title": "Serverbeheer",
+  "description": "De accounts op deze server, hun sessies en hun wachtwoorden. Je ziet deze pagina omdat je geverifieerde e-mailadres in ADMIN_EMAILS staat.",
+  "back": "Terug naar {workspace}",
+  "backHome": "Terug",
+  "workspaces": {
+    "heading": "Werkruimtes aanmaken",
+    "everyone": "Iedereen kan werkruimtes aanmaken",
+    "admins": "Alleen beheerders kunnen werkruimtes aanmaken",
+    "description": "Ingesteld met WORKSPACE_CREATION op de server (everyone of admins). Iedereen krijgt bij het registreren nog steeds een persoonlijke werkruimte."
+  },
+  "sessions": {
+    "heading": "Iedereen",
+    "description": "{count, plural, one {# ingelogde sessie} other {# ingelogde sessies}} op deze server.",
+    "signOutEveryone": "Iedereen uitloggen",
+    "signOutEveryoneDescription": "Beëindigt elke sessie op elk apparaat behalve die van jou in deze browser, en pagina’s die daar open zijn, worden niet meer gesynchroniseerd. Gekoppelde apps en API-tokens blijven werken.",
+    "signOutEveryoneTitle": "Iedereen uitloggen?",
+    "signOutEveryoneBody": "Iedereen op deze server moet opnieuw inloggen, jij ook op je andere apparaten.",
+    "signOutEveryoneConfirm": "Iedereen uitloggen",
+    "resetEveryone": "Nieuwe wachtwoorden vereisen",
+    "resetEveryoneDescription": "Iedereen die met een wachtwoord inlogt, behalve jij, wordt uitgelogd en moet bij de volgende keer inloggen een nieuw wachtwoord kiezen. Accounts die alleen inloggen met single sign-on, GitHub of Google worden niet beïnvloed.",
+    "resetByEmail": "Bij het inloggen krijgen ze per e-mail een link om het te kiezen.",
+    "resetInApp": "E-mail is niet ingesteld op deze server, dus ze kiezen het direct nadat ze hebben ingelogd met hun oude wachtwoord (en een verificatiecode, als ze die gebruiken).",
+    "resetEveryoneTitle": "Van iedereen een nieuw wachtwoord vereisen?",
+    "resetEveryoneBody": "Iedereen met een wachtwoord, behalve jij, wordt nu uitgelogd en kan niet meer inloggen met het huidige wachtwoord.",
+    "resetEveryoneConfirm": "Nieuwe wachtwoorden vereisen"
+  },
+  "users": {
+    "heading": "Accounts",
+    "count": "{count, plural, one {# account} other {# accounts}}",
+    "countPartial": "{shown} van {total} accounts weergegeven. Zoek om de andere te vinden.",
+    "search": "Zoeken op naam of e-mail",
+    "noMatches": "Geen account komt overeen met deze zoekopdracht.",
+    "none": "Nog geen accounts.",
+    "columns": {
+      "user": "Account",
+      "workspaces": "Werkruimtes",
+      "lastActive": "Laatst actief",
+      "twoFactor": "Twee stappen",
+      "password": "Wachtwoord",
+      "actions": "Acties"
+    },
+    "you": "(jij)",
+    "admin": "Beheerder",
+    "unverified": "Niet geverifieerd",
+    "signedOut": "Niet ingelogd",
+    "on": "Aan",
+    "off": "Uit",
+    "hasPassword": "Ingesteld",
+    "noPassword": "Geen",
+    "resetPending": "Nieuw vereist",
+    "actionsFor": "Acties voor {name}",
+    "signOut": "Overal uitloggen",
+    "signOutTitle": "{name} overal uitloggen?",
+    "signOutBody": "{count, plural, one {Hun # sessie wordt beëindigd} other {Hun # sessies worden beëindigd}}, en pagina’s die ze open hebben, worden niet meer gesynchroniseerd. Gekoppelde apps en API-tokens blijven werken.",
+    "signOutSelfBody": "{count, plural, one {Je # sessie wordt beëindigd} other {Je # sessies worden beëindigd}}, behalve die in deze browser.",
+    "signOutConfirm": "Uitloggen",
+    "requireReset": "Nieuw wachtwoord vereisen",
+    "resetTitle": "Een nieuw wachtwoord van {name} vereisen?",
+    "resetBody": "Ze worden nu uitgelogd en moeten een nieuw wachtwoord kiezen wanneer ze de volgende keer met een wachtwoord inloggen.",
+    "resetByEmail": "Bij het inloggen krijgen ze per e-mail een link om het te kiezen.",
+    "resetInApp": "E-mail is niet ingesteld op deze server, dus ze kiezen het direct nadat ze hebben ingelogd met hun oude wachtwoord (en een verificatiecode, als ze die gebruiken).",
+    "resetConfirm": "Nieuw wachtwoord vereisen"
+  },
+  "errors": {
+    "notFound": "Dat account is niet gevonden.",
+    "noPassword": "Dit account heeft geen wachtwoord; het logt op een andere manier in.",
+    "self": "Wijzig je eigen wachtwoord op je accountpagina.",
+    "noWorkspace": "Die werkruimte is niet gevonden."
+  },
+  "descriptionFirstAccount": "De accounts op deze server, hun sessies en hun wachtwoorden. Je ziet deze pagina omdat jouw account het eerste account op deze server was.",
+  "signUp": {
+    "heading": "Registratie",
+    "open": "Iedereen kan zich registreren",
+    "openDescription": "Iedereen die het adres van deze server kan openen, kan een account aanmaken. Zet DISABLE_SIGNUP=true op de server om registratie te sluiten (met Docker in het .env-bestand naast docker-compose.yml, en voer daarna docker compose up -d uit). Bestaande accounts kunnen nog steeds inloggen, en mensen die je uitnodigt, kunnen nog steeds lid worden.",
+    "closed": "Registratie is gesloten",
+    "closedDescription": "Ingesteld met DISABLE_SIGNUP op de server. Bestaande accounts kunnen nog steeds inloggen, en mensen die je uitnodigt, kunnen nog steeds lid worden via hun uitnodigingslink."
+  },
+  "firstAdmin": {
+    "title": "Jij beheert deze server",
+    "body": "Jouw account is hier het eerste, dus Serverbeheer is van jou. Iedereen die dit adres kan bereiken, kan zich nog registreren; Serverbeheer laat zien hoe je dat afsluit.",
+    "open": "Serverbeheer",
+    "dismiss": "Sluiten"
+  },
+  "networks": {
+    "heading": "Goedgekeurde netwerken",
+    "description": "Werkruimtes die alleen vanaf goedgekeurde netwerken openen. Als een lijst de eigenaren van een werkruimte buitensluit, wis die dan hier: de werkruimte opent dan vanaf elk netwerk totdat de eigenaren de lijst opnieuw instellen.",
+    "none": "Geen enkele werkruimte beperkt het inloggen tot goedgekeurde netwerken",
+    "noneDescription": "Eigenaren stellen goedgekeurde netwerken in via Instellingen → Beveiliging van hun werkruimte.",
+    "count": "{count, plural, one {# netwerk} other {# netwerken}}",
+    "clear": "Lijst wissen",
+    "clearTitle": "De goedgekeurde netwerken van {workspace} wissen?",
+    "clearBody": "Iedereen in de werkruimte kan die dan weer vanaf elk netwerk openen, en het auditlogboek legt vast dat jij de lijst hebt gewist. De eigenaren kunnen haar opnieuw instellen via Instellingen → Beveiliging.",
+    "clearConfirm": "Lijst wissen"
+  }
+}
