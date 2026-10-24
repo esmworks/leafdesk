@@ -13,17 +13,19 @@ import { gzipSync } from "node:zlib";
  * Gzipped kB, for what a person waits for rather than what the build holds:
  *
  * - `routeFirstLoad`: the largest first load of any route, what opening that page downloads: a
- *   page or database (about 735 kB, the editor and the table view among it), then Settings (about
+ *   page or database (about 750 kB, the editor and the table view among it), then Settings (about
  *   470 kB) and the workspace's other routes (about 365 kB).
- * - `firstLoadShared`: every chunk any route loads first, together (about 1100 kB); it grows when
+ * - `firstLoadShared`: every chunk any route loads first, together (about 1111 kB); it grows when
  *   code moves into first loads, even into a route the largest doesn't show. Of that, about 80 kB
  *   are what pages and databases do on their own: views' color rules, the "Available offline"
  *   switch, the meeting block's editor spec, reactions and the discussions panel, form
  *   conditions, place values and new chat cards, then suggested edits' pending count, the
  *   verified badge, pinned properties and properties beside the body, comments on property
- *   values, the feed's reactions, the chat's model picker and research steps, and the inbox's
- *   swipes; their dialogs (row access, color rules, Build with AI, import, verifying a page, page
- *   webhooks, button settings) and the feed view load when opened.
+ *   values, the feed's reactions, the chat's model picker, research steps and scope, the inbox's
+ *   swipes, link mentions, button colors, the floating outline's loader, the comments panel's
+ *   person filter and personal filters on views people can't change; their dialogs (row access,
+ *   color rules, Build with AI, import, verifying a page, page webhooks, button settings, image
+ *   crop) and the feed view load when opened.
  * - `onDemandChunk`: the largest chunk loaded on demand. Lazy code is free until it is used, so
  *   there is no sum of it, but one chunk is still downloaded whole when it is: the Mermaid diagram
  *   layouts (elkjs) are the largest, about 430 kB, fetched only for a diagram that uses them.
@@ -34,7 +36,7 @@ import { gzipSync } from "node:zlib";
  * dictionary of the language in use, after itself: ours (Turkish, Indonesian, Thai) about 3 kB
  * each, BlockNote's (one module) about 30 kB together, English none.
  */
-const BUDGET = { routeFirstLoad: 760, firstLoadShared: 1110, onDemandChunk: 450 };
+const BUDGET = { routeFirstLoad: 760, firstLoadShared: 1120, onDemandChunk: 450 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;

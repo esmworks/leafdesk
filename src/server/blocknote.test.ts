@@ -445,10 +445,11 @@ describe("agent chats in page bodies", () => {
   });
 
   it("show a note, never the agent, on a published page", async () => {
-    const doc = docFrom([{ type: "paragraph", content: "Visible" }, { type: "agentChat", props: { agentId: "a1", chatId: "c1" } }]);
+    const doc = docFrom([{ type: "paragraph", content: "Visible" }, { type: "agentChat", props: { agentId: "agent-never-shown", chatId: "c1" } }]);
     const segments = await bodySegmentsFromYdoc(Y.encodeStateAsUpdate(doc));
     expect(segments.map((s) => s.kind)).toEqual(["html", "agentChat"]);
-    expect(JSON.stringify(segments)).not.toContain("a1");
+    // An id no random block id can contain, unlike a short one such as "a1".
+    expect(JSON.stringify(segments)).not.toContain("agent-never-shown");
   });
 });
 
