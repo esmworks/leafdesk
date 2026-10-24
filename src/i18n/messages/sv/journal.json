@@ -1,0 +1,21 @@
+{
+  "todayNote": "Dagens anteckning",
+  "openToday": "Öppna dagens anteckning",
+  "startToday": "Börja dagens anteckning",
+  "calendar": "Kalender för daganteckningar",
+  "previousMonth": "Föregående månad",
+  "nextMonth": "Nästa månad",
+  "hasNote": "{day} – har en anteckning",
+  "openDay": "Öppna den dagens anteckning",
+  "recent": "Tidigare anteckningar",
+  "startWith": "Nya anteckningar börjar med",
+  "startDefault": "Några rubriker",
+  "startBlank": "En tom sida",
+  "startTemplates": "Mallar",
+  "openFailed": "Det gick inte att öppna daganteckningen",
+  "saveFailed": "Det gick inte att spara inställningen",
+  "searchHint": "dina daganteckningar",
+  "yesterday": "Gårdagens anteckning",
+  "notes": "Anteckningar",
+  "noNotes": "Inga anteckningar än. Välj en dag för att börja en."
+}

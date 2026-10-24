@@ -1,0 +1,273 @@
+{
+  "open": "Importera",
+  "title": "Importera",
+  "description": "Hämta in sidor från Markdown-filer, ZIP-exporter, Word-dokument, Google-dokument och PDF-filer, anteckningsböcker från Evernote, rader från en CSV-fil eller Excel-arbetsbok, en tavla från Trello, Asana eller Monday.com, eller Jira-ärenden som hålls synkade.",
+  "tabs": {
+    "pages": "Markdown och ZIP",
+    "docx": "Word",
+    "pdf": "PDF",
+    "evernote": "Evernote",
+    "csv": "CSV och Excel",
+    "trello": "Trello",
+    "asana": "Asana",
+    "monday": "Monday.com",
+    "jira": "Jira",
+    "googleDocs": "Google Dokument"
+  },
+  "destination": "Placera under",
+  "topLevel": "Arbetsytans översta nivå",
+  "filePage": "Sidan med filen",
+  "noDestination": "Det finns ingen sida som du kan lägga till sidor i.",
+  "pages": {
+    "help": "Markdown-filer blir sidor och mappar behåller sin struktur. CSV-filer blir databaser, och bilder som sidorna länkar till laddas upp.",
+    "notion": "Från Notion: exportera som ”Markdown & CSV” med undersidor och välj ZIP-filen som den laddades ned (uppdelade exporter fungerar också). Undersidor, databaser, relationer, inforutor, utfällbara listor och bilder följer med.",
+    "obsidian": "Från Obsidian: välj valvets mapp, eller en ZIP-fil av den. Länkar mellan anteckningar (även [[wikilänkar]]), inbäddade bilder och filer samt inforutor följer med.",
+    "chooseFiles": "Välj filer",
+    "chooseFolder": "Välj en mapp",
+    "drop": "eller släpp filer här",
+    "selected": "{count, plural, one {# fil} other {# filer}}, {size}",
+    "clear": "Rensa"
+  },
+  "docx": {
+    "help": "Varje Word-dokument (.docx) blir en sida, med sina rubriker, listor, tabeller, länkar, bilder och fotnoter. En rubrik allra överst blir sidans titel; annars blir filnamnet det.",
+    "choose": "Välj Word-filer"
+  },
+  "pdf": {
+    "help": "Varje PDF blir en sida av dess text: större rader blir rubriker, och stycken samt numrerade listor och punktlistor följer med, även över sidbrytningar. Löpande sidhuvuden, sidfötter och sidnummer utelämnas. En rubrik allra överst blir sidans titel; annars blir filnamnet det.",
+    "scans": "En skannad PDF har ingen text att läsa och kan inte importeras: kör först textigenkänning (OCR) på den, eller ladda upp den till en sida som en fil.",
+    "choose": "Välj PDF-filer",
+    "attach": "Bifoga även varje PDF till dess sida, för dess bilder, tabeller och layout"
+  },
+  "evernote": {
+    "help": "Varje Evernote-export (.enex) blir en databas med filens namn, med en rad per anteckning. Taggar, när den skapades och uppdaterades, författaren och käll-URL:en blir egenskaper, och anteckningen blir radens sida med sin formatering, listor, att göra-punkter, tabeller, kodblock, bilder och bilagor. Krypterad text utelämnas.",
+    "export": "Markera anteckningar eller en anteckningsbok i Evernote och välj Export → ENEX (.enex), och välj sedan de nedladdade filerna. En ZIP-fil med flera exporter fungerar också.",
+    "choose": "Välj Evernote-exporter (.enex)",
+    "names": {
+      "tags": "Taggar",
+      "created": "Skapad",
+      "updated": "Uppdaterad",
+      "author": "Författare",
+      "sourceUrl": "Käll-URL",
+      "encrypted": "Krypterad text utelämnades från importen."
+    }
+  },
+  "csv": {
+    "choose": "Välj en CSV- eller Excel-fil",
+    "summary": "{name}: {rows, plural, one {# rad} other {# rader}}, {columns, plural, one {# kolumn} other {# kolumner}}",
+    "sheet": "Blad",
+    "mode": "Importera som",
+    "newDatabase": "En ny databas",
+    "existing": "Rader i en databas",
+    "name": "Namn",
+    "titleColumn": "Radtitlar från",
+    "noTitle": "Ingen kolumn (namnlösa rader)",
+    "column": "Kolumn",
+    "type": "Typ",
+    "target": "Hamnar i",
+    "values": "Värden",
+    "leaveOut": "Utelämna",
+    "rowTitle": "Radtitel",
+    "database": "Databas",
+    "chooseDatabase": "Välj en databas",
+    "noDatabases": "Det finns ingen databas som du kan lägga till rader i.",
+    "cantLoad": "Den här databasens egenskaper kunde inte läsas in.",
+    "newOptions": "Urvalsvärden som databasen inte har än läggs till som alternativ."
+  },
+  "trello": {
+    "help": "Öppna tavlans meny i Trello och välj Print, export and share → Export as JSON, och välj sedan den nedladdade filen. Tavlan blir en databas med en tavelvy: listor, etiketter, medlemmar, datum, checklistor, anpassade fält, beskrivningar och kommentarer följer med. Arkiverade listor och kort utelämnas.",
+    "attachments": "Inget laddas ned från Trello: länkade bilagor förblir länkar, och filer som laddats upp till Trello länkas från varje korts sida.",
+    "choose": "Välj en Trello-export (.json)",
+    "summary": "{name}: {lists, plural, one {# lista} other {# listor}}, {cards, plural, one {# kort} other {# kort}}",
+    "archived": "Arkiverade och därför utelämnade: {lists, plural, one {# lista} other {# listor}} och {cards, plural, one {# kort} other {# kort}}.",
+    "names": {
+      "list": "Lista",
+      "labels": "Etiketter",
+      "members": "Medlemmar",
+      "otherMembers": "Andra medlemmar",
+      "dates": "Datum",
+      "complete": "Slutförd",
+      "checklist": "Checklista",
+      "link": "Länk",
+      "attachments": "Bilagor",
+      "comments": "Kommentarer"
+    }
+  },
+  "asana": {
+    "help": "Öppna projektets meny i Asana och välj Export → CSV (eller JSON), och välj sedan den nedladdade filen. Projektet blir en databas med en tavelvy per avsnitt: slutförande, tilldelade, datum, taggar, anpassade fält, anteckningar, deluppgifter och beroenden följer med.",
+    "choose": "Välj en Asana-export (.csv eller .json)",
+    "summary": "{name}: {groups, plural, one {# avsnitt} other {# avsnitt}}, {items, plural, one {# uppgift} other {# uppgifter}}, {subitems, plural, one {# deluppgift} other {# deluppgifter}}"
+  },
+  "monday": {
+    "help": "Öppna tavlans meny i Monday.com och välj Export board to Excel (med uppdateringar om du vill ha dem), och välj sedan den nedladdade filen. Tavlan blir en databas med en tavelvy per grupp: dess kolumner, underobjekt och uppdateringar följer med.",
+    "choose": "Välj en Monday.com-export (.xlsx eller .csv)",
+    "summary": "{name}: {groups, plural, one {# grupp} other {# grupper}}, {items, plural, one {# objekt} other {# objekt}}, {subitems, plural, one {# underobjekt} other {# underobjekt}}"
+  },
+  "jira": {
+    "help": "Anslut en Jira Cloud-webbplats för att få en databas med dess ärenden som hålls i takt: varje ärende är en rad med sin nyckel, status, tilldelade person, prioritet, typ, etiketter, förfallodatum och en länk tillbaka. Ändringar går åt ett håll, från Jira till Leafdesk.",
+    "site": "Jira-webbplats",
+    "sitePlaceholder": "ditt-team.atlassian.net",
+    "email": "E-postadress",
+    "token": "API-token",
+    "tokenHelp": "Skapa en i ditt Atlassian-konto under Security → API tokens. Den förvaras förseglad på servern och används bara för att läsa ärenden.",
+    "tokenLink": "Skapa en API-token",
+    "connect": "Anslut",
+    "connecting": "Ansluter…",
+    "connected": "Inloggad som {name}",
+    "change": "Ändra",
+    "from": "Ärenden från",
+    "project": "Ett projekt",
+    "jql": "En JQL-fråga",
+    "chooseProject": "Välj ett projekt",
+    "noProjects": "Det här kontot kan inte se något projekt. Skriv en JQL-fråga i stället.",
+    "jqlPlaceholder": "project = OPS AND resolution = Unresolved",
+    "every": "Synka",
+    "intervals": {
+      "m15": "Var 15:e minut",
+      "m60": "Varje timme",
+      "m360": "Var 6:e timme",
+      "m1440": "En gång om dagen",
+      "manual": "Bara på begäran"
+    },
+    "submit": "Importera och håll synkat",
+    "submitting": "Importerar…",
+    "names": {
+      "key": "Nyckel",
+      "status": "Status",
+      "assignee": "Tilldelad",
+      "others": "{column} (övriga)",
+      "priority": "Prioritet",
+      "type": "Typ",
+      "labels": "Etiketter",
+      "due": "Förfallodatum",
+      "link": "Jira-länk"
+    },
+    "errors": {
+      "unauthorized": "Jira avvisade e-postadressen och API-token.",
+      "forbidden": "Det här Jira-kontot får inte söka där.",
+      "notFound": "Ingen Jira Cloud-webbplats svarade på den här adressen, eller så finns inte projektet.",
+      "badQuery": "Jira avvisade frågan.",
+      "badQueryDetail": "Jira avvisade frågan: {detail}",
+      "tooManyIssues": "Frågan hittar fler än {limit} ärenden. Begränsa den.",
+      "unreachable": "Det gick inte att nå Jira. Synkningen försöker igen nästa gång.",
+      "runAsGone": "Personen som konfigurerade synkningen har inte längre något konto.",
+      "accessLost": "Personen som synkningen körs som kan inte längre redigera den här databasen.",
+      "keyGone": "Egenskapen Nyckel har raderats eller bytt typ, så ärenden kan inte matchas mot rader.",
+      "failed": "Synkningen misslyckades. Den försöker igen nästa gång.",
+      "invalidSite": "Det är ingen adress som Leafdesk kan nå.",
+      "invalidInput": "Fyll i e-postadressen, API-token och vad som ska synkas.",
+      "alreadyRunning": "En synkning pågår. Försök igen om en stund."
+    }
+  },
+  "board": {
+    "links": "Inget laddas ned: filer och länkar i exporten förblir länkar.",
+    "comments": "{count, plural, one {# kommentar hamnar} other {# kommentarer hamnar}} på radernas sidor, under sin författare och tid.",
+    "leftOut": "Utelämnat: {list}.",
+    "types": "Kontrollera vad varje kolumn blir: exporten anger inte vilken sorts kolumn det är, så det har gissats.",
+    "names": {
+      "section": "Avsnitt",
+      "group": "Grupp",
+      "status": "Status",
+      "toDo": "Att göra",
+      "done": "Klar",
+      "assignee": "Tilldelad",
+      "tags": "Taggar",
+      "dates": "Datum",
+      "others": "{column} (övriga)",
+      "attachments": "Bilagor",
+      "comments": "Kommentarer"
+    }
+  },
+  "import": "Importera",
+  "importing": "Importerar…",
+  "done": {
+    "title": "Importen är klar",
+    "created": "Skapade {list}.",
+    "nothing": "Inget nytt skapades.",
+    "open": "Öppna",
+    "again": "Importera mer"
+  },
+  "counts": {
+    "pages": "{count, plural, one {# sida} other {# sidor}}",
+    "databases": "{count, plural, one {# databas} other {# databaser}}",
+    "rows": "{count, plural, one {# rad} other {# rader}}",
+    "templates": "{count, plural, one {# mall} other {# mallar}}",
+    "files": "{count, plural, one {# fil} other {# filer}}"
+  },
+  "warnings": {
+    "heading": "Utelämnat eller ändrat",
+    "invalidValues": "{count, plural, one {# värde} other {# värden}} i ”{column}” passade inte egenskapen och lämnades tomma.",
+    "leftOutColumn": "”{column}” importerades inte.",
+    "missingFile": "”{path}”, som länkas från ”{page}”, fanns inte i uppladdningen.",
+    "unresolvedLink": "”[[{target}]]” i ”{page}” matchar ingen anteckning eller fil i uppladdningen, så den förblir text.",
+    "encryptedText": "”{page}” hade krypterad text, som utelämnades.",
+    "fileNotStored": {
+      "tooLarge": "”{path}” är större än uppladdningsgränsen och sparades inte.",
+      "quotaExceeded": "”{path}” sparades inte: arbetsytan har slut på fillagring.",
+      "failed": "”{path}” kunde inte sparas.",
+      "external": "”{path}” utelämnades: bilden länkas från utanför dokumentet.",
+      "unsupportedType": "”{path}” utelämnades: sidor kan inte visa bilder av den här typen."
+    },
+    "skipped": {
+      "nestedZip": "”{path}” är en ZIP-fil som är nästlad för djupt och utelämnades.",
+      "nestedDatabase": "”{path}” skulle bli en databas i en databas och utelämnades.",
+      "duplicate": "”{path}” utelämnades: den fullständiga versionen av samma databas importerades.",
+      "tooLarge": "”{path}” är för stor för en sida och utelämnades.",
+      "unused": "”{path}” utelämnades: ingen sida visar den eller länkar till den.",
+      "unsafePath": "”{path}” utelämnades: dess sökväg leder utanför ZIP-filen.",
+      "otherSheet": "Bladet ”{path}” utelämnades: bara ett blad importeras åt gången.",
+      "badNote": "Anteckningen ”{path}” kan inte läsas och utelämnades.",
+      "notEnex": "”{path}” utelämnades: det är ingen Evernote-export (.enex)."
+    },
+    "more": "…och {count, plural, one {# till} other {# till}}."
+  },
+  "errors": {
+    "tooLarge": "Uppladdningen är större än {limit}.",
+    "tooManyFiles": "En import får innehålla högst {limit} filer.",
+    "tooManyPages": "En import får skapa högst {limit} sidor.",
+    "tooManyRows": "En fil får ha högst {limit} rader.",
+    "tooManyColumns": "En fil får ha högst {limit} kolumner.",
+    "badZip": "ZIP-filen kan inte läsas.",
+    "nothingToImport": "Det finns ingen Markdown- eller CSV-fil att importera.",
+    "emptyCsv": "Filen har ingen rubrikrad.",
+    "badWorkbook": "Excel-filen kan inte läsas.",
+    "unsupportedWorkbook": "Bara .xlsx-arbetsböcker utan lösenord kan importeras. Spara filen som Excel-arbetsbok (.xlsx) utan lösenord och försök igen.",
+    "badDocx": "”{name}” kan inte läsas som ett Word-dokument. Bara .docx-filer kan importeras; spara äldre .doc-filer som .docx först.",
+    "docxTooComplex": "”{name}” är för stort eller komplext för att importeras som en sida.",
+    "badPdf": "”{name}” kan inte läsas som en PDF. Den kan vara skadad eller lösenordsskyddad.",
+    "pdfNoText": "”{name}” har ingen text att importera: den ser ut att vara en skanning. Kör först textigenkänning (OCR) på den, eller ladda upp den till en sida som en fil.",
+    "pdfTooComplex": "”{name}” är för stor för att importeras som en sida.",
+    "badEnex": "”{name}” kan inte läsas som en Evernote-export. Exportera anteckningarna som ENEX (.enex) i Evernote och välj den filen.",
+    "badTrello": "Filen är ingen export av en Trello-tavla. Välj Export as JSON i tavlans meny i Trello och välj den filen.",
+    "badAsana": "Filen är ingen export av ett Asana-projekt. Välj Export → CSV eller JSON i projektets meny i Asana och välj den filen.",
+    "badMonday": "Filen är ingen export av en Monday.com-tavla. Välj Export board to Excel i tavlans meny i Monday.com och välj den filen.",
+    "badMapping": "Välj vart minst en kolumn ska, och varje egenskap bara en gång.",
+    "noAccess": "Du kan inte lägga till sidor där, eller så finns den inte längre.",
+    "notADatabase": "Rader kan bara läggas till i en databas.",
+    "badRequest": "Importen gick inte igenom. Inget har ändrats."
+  },
+  "googleDocs": {
+    "help": "Varje Google-dokument blir en sida, inläst via arbetsytans Google Drive-anslutning på samma sätt som ett Word-dokument: rubriker, listor, tabeller, länkar, bilder och fotnoter. En rubrik allra överst blir sidans titel; annars blir dokumentets namn det.",
+    "loading": "Letar efter Google Drive-anslutningar…",
+    "noConnection": "Det finns ingen Google Drive-anslutning som du kan importera via. En ägare lägger till Google Drive i Inställningar → Anslutningar; medlemmar kan använda den när en ägare har kryssat i ”I chatten” för dess verktyg download_file_content.",
+    "connection": "Google Drive-anslutning",
+    "through": "Via ”{name}”",
+    "links": "Länkar till Google-dokument",
+    "linksPlaceholder": "https://docs.google.com/document/d/… (en per rad)",
+    "invalidLink": "Ingen länk till ett Google-dokument: ”{link}”",
+    "search": "Sök",
+    "searching": "Söker…",
+    "searchPlaceholder": "Ord i titeln (tomt: de senaste dokumenten)",
+    "noneFound": "Inga Google-dokument hittades.",
+    "more": "Visa fler",
+    "linksOnly": "Sökning är inte tillåten via den här anslutningen: klistra in länkar till dokumenten.",
+    "chosen": "{count, plural, one {# dokument valt} other {# dokument valda}}",
+    "tooMany": "Välj högst {limit} dokument åt gången.",
+    "errors": {
+      "noConnection": "Den Google Drive-anslutningen kan inte användas. Be en ägare att kontrollera den i Inställningar → Anslutningar.",
+      "unreachable": "Det gick inte att nå ”{name}”. Försök igen senare, eller be en ägare att kontrollera anslutningen.",
+      "signIn": "”{name}” behöver loggas in på Google igen: en ägare gör det i Inställningar → Anslutningar.",
+      "notFound": "Ett dokument kan inte läsas via ”{name}”: kontrollera länken och att anslutningens Google-konto får öppna det.",
+      "notADocument": "”{id}” är inget Google-dokument."
+    }
+  }
+}

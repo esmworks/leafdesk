@@ -1,0 +1,97 @@
+{
+  "metaTitle": "Serveradministration",
+  "title": "Serveradministration",
+  "description": "Kontona på den här servern, deras sessioner och deras lösenord. Du ser den här sidan eftersom din verifierade e-postadress finns med i ADMIN_EMAILS.",
+  "back": "Tillbaka till {workspace}",
+  "backHome": "Tillbaka",
+  "workspaces": {
+    "heading": "Skapa arbetsytor",
+    "everyone": "Alla kan skapa arbetsytor",
+    "admins": "Bara administratörer kan skapa arbetsytor",
+    "description": "Anges med WORKSPACE_CREATION på servern (everyone eller admins). Alla får ändå en personlig arbetsyta när de skapar konto."
+  },
+  "sessions": {
+    "heading": "Alla",
+    "description": "{count, plural, one {# inloggad session} other {# inloggade sessioner}} på den här servern.",
+    "signOutEveryone": "Logga ut alla",
+    "signOutEveryoneDescription": "Avslutar alla sessioner på alla enheter utom din i den här webbläsaren, och sidor som är öppna där slutar synkas. Anslutna appar och API-token fortsätter att fungera.",
+    "signOutEveryoneTitle": "Logga ut alla?",
+    "signOutEveryoneBody": "Alla på den här servern måste logga in igen, även du på dina andra enheter.",
+    "signOutEveryoneConfirm": "Logga ut alla",
+    "resetEveryone": "Kräv nya lösenord",
+    "resetEveryoneDescription": "Alla som loggar in med lösenord, utom du, loggas ut och måste välja ett nytt lösenord vid nästa inloggning. Konton som bara loggar in med enkel inloggning, GitHub eller Google påverkas inte.",
+    "resetByEmail": "När de loggar in får de en länk via e-post för att välja det.",
+    "resetInApp": "E-post är inte konfigurerad på den här servern, så de väljer det direkt efter att ha loggat in med sitt gamla lösenord (och en tvåstegskod, om de använder en).",
+    "resetEveryoneTitle": "Kräva nya lösenord av alla?",
+    "resetEveryoneBody": "Alla med ett lösenord, utom du, loggas ut nu och kan inte logga in med sitt nuvarande lösenord igen.",
+    "resetEveryoneConfirm": "Kräv nya lösenord"
+  },
+  "users": {
+    "heading": "Konton",
+    "count": "{count, plural, one {# konto} other {# konton}}",
+    "countPartial": "Visar {shown} av {total} konton. Sök för att hitta de andra.",
+    "search": "Sök på namn eller e-post",
+    "noMatches": "Inget konto matchar sökningen.",
+    "none": "Inga konton än.",
+    "columns": {
+      "user": "Konto",
+      "workspaces": "Arbetsytor",
+      "lastActive": "Senast aktiv",
+      "twoFactor": "Tvåsteg",
+      "password": "Lösenord",
+      "actions": "Åtgärder"
+    },
+    "you": "(du)",
+    "admin": "Admin",
+    "unverified": "Ej verifierad",
+    "signedOut": "Inte inloggad",
+    "on": "På",
+    "off": "Av",
+    "hasPassword": "Angivet",
+    "noPassword": "Inget",
+    "resetPending": "Nytt krävs",
+    "actionsFor": "Åtgärder för {name}",
+    "signOut": "Logga ut överallt",
+    "signOutTitle": "Logga ut {name} överallt?",
+    "signOutBody": "{count, plural, one {Personens # session avslutas} other {Personens # sessioner avslutas}}, och sidor som personen har öppna slutar synkas. Anslutna appar och API-token fortsätter att fungera.",
+    "signOutSelfBody": "{count, plural, one {Din # session avslutas} other {Dina # sessioner avslutas}}, utom den i den här webbläsaren.",
+    "signOutConfirm": "Logga ut",
+    "requireReset": "Kräv ett nytt lösenord",
+    "resetTitle": "Kräva ett nytt lösenord av {name}?",
+    "resetBody": "Personen loggas ut nu och måste välja ett nytt lösenord nästa gång hen loggar in med ett.",
+    "resetByEmail": "När de loggar in får de en länk via e-post för att välja det.",
+    "resetInApp": "E-post är inte konfigurerad på den här servern, så de väljer det direkt efter att ha loggat in med sitt gamla lösenord (och en tvåstegskod, om de använder en).",
+    "resetConfirm": "Kräv ett nytt lösenord"
+  },
+  "errors": {
+    "notFound": "Kontot hittades inte.",
+    "noPassword": "Det här kontot har inget lösenord; det loggar in på ett annat sätt.",
+    "self": "Ändra ditt eget lösenord på din kontosida.",
+    "noWorkspace": "Arbetsytan hittades inte."
+  },
+  "descriptionFirstAccount": "Kontona på den här servern, deras sessioner och deras lösenord. Du ser den här sidan eftersom ditt konto var det första på den här servern.",
+  "signUp": {
+    "heading": "Registrering",
+    "open": "Alla kan skapa konto",
+    "openDescription": "Alla som kan öppna den här serverns adress kan skapa ett konto. Stäng registreringen genom att ange DISABLE_SIGNUP=true på servern (med Docker i .env-filen bredvid docker-compose.yml, och kör sedan docker compose up -d). Befintliga konton kan fortfarande logga in, och personer du bjuder in kan fortfarande gå med.",
+    "closed": "Registreringen är stängd",
+    "closedDescription": "Anges med DISABLE_SIGNUP på servern. Befintliga konton kan fortfarande logga in, och personer du bjuder in kan fortfarande gå med via sin inbjudningslänk."
+  },
+  "firstAdmin": {
+    "title": "Du administrerar den här servern",
+    "body": "Ditt konto är det första här, så serveradministrationen är din. Alla som når den här adressen kan fortfarande skapa konto; Serveradministration visar hur du stänger det.",
+    "open": "Serveradministration",
+    "dismiss": "Stäng"
+  },
+  "networks": {
+    "heading": "Godkända nätverk",
+    "description": "Arbetsytor som bara öppnas från godkända nätverk. Om en lista stänger ute en arbetsytas ägare kan du rensa den här: arbetsytan öppnas då från alla nätverk tills ägarna anger listan igen.",
+    "none": "Ingen arbetsyta begränsar inloggning till godkända nätverk",
+    "noneDescription": "Ägare anger godkända nätverk i arbetsytans Inställningar → Säkerhet.",
+    "count": "{count, plural, one {# nätverk} other {# nätverk}}",
+    "clear": "Rensa listan",
+    "clearTitle": "Rensa de godkända nätverken för {workspace}?",
+    "clearBody": "Alla i arbetsytan kan öppna den från alla nätverk igen, och dess granskningslogg registrerar att du rensade listan. Dess ägare kan ange den igen i Inställningar → Säkerhet.",
+    "clearConfirm": "Rensa listan"
+  }
+}

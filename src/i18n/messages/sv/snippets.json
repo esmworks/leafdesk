@@ -1,0 +1,124 @@
+{
+  "copyTitle": "{title} (kopia)",
+  "errors": {
+    "triggerRequired": "Ge textsnutten en förkortning.",
+    "triggerInvalid": "En förkortning består av upp till {max} gemener (a–z), siffror, bindestreck och understreck.",
+    "triggerTaken": "En annan textsnutt här har redan den här förkortningen.",
+    "titleTooLong": "En titel får vara högst {max} tecken.",
+    "bodyRequired": "Skriv vad textsnutten ska infoga.",
+    "bodyTooLong": "En textsnutt får vara högst {max} tecken.",
+    "tooMany": "Det får finnas högst {max} textsnuttar här. Radera några för att lägga till fler.",
+    "notFound": "Den här textsnutten finns inte längre.",
+    "ownersOnly": "Bara arbetsytans ägare ändrar dess textsnuttar.",
+    "accessDenied": "Du har inte åtkomst till de här textsnuttarna.",
+    "importInvalid": "Det här är ingen fil med textsnuttar. Använd en export från Leafdesk, eller en lista med objekt som har ett id och en etikett.",
+    "importTooLarge": "Filen är för stor för att importeras."
+  },
+  "menu": {
+    "group": "Textsnuttar",
+    "personal": "Mina textsnuttar",
+    "workspace": "Arbetsytans textsnuttar",
+    "insertFailed": "Det gick inte att infoga textsnutten. {error}"
+  },
+  "save": {
+    "menuItem": "Spara som textsnutt",
+    "saved": "Sparad. Skriv ;{trigger} för att infoga den."
+  },
+  "form": {
+    "newTitle": "Ny textsnutt",
+    "editTitle": "Redigera textsnutt",
+    "title": "Titel",
+    "titlePlaceholder": "Mötesanteckningar",
+    "trigger": "Förkortning",
+    "triggerPlaceholder": "mote",
+    "triggerHint": "Skriv ;{trigger} på en sida, eller hitta den under Textsnuttar i /-menyn.",
+    "target": "Spara i",
+    "targetPersonal": "Mina textsnuttar (bara du)",
+    "targetWorkspace": "{workspace} (alla i arbetsytan)",
+    "body": "Innehåll (Markdown)",
+    "bodyPlaceholder": "## Agenda\n- ",
+    "placeholders": "Fylls i vid infogning:",
+    "placeholder": {
+      "date": "Dagens datum",
+      "time": "Klockslaget nu",
+      "datetime": "Dagens datum och klockslaget",
+      "me": "Ditt namn",
+      "page": "Sidans titel",
+      "cursor": "Där markören hamnar"
+    },
+    "length": "{count} av {max} tecken",
+    "preview": "Förhandsvisning",
+    "previewPage": "Sidans titel",
+    "previewEmpty": "Blocken som textsnutten infogar visas här.",
+    "create": "Skapa textsnutt"
+  },
+  "settings": {
+    "personalDescription": "Innehåll som du infogar medan du skriver: skriv ; och en textsnutts förkortning på valfri sida, eller välj den under Textsnuttar i /-menyn. Bara du ser dessa.",
+    "description": "Innehåll som du infogar medan du skriver: skriv ; och en textsnutts förkortning på valfri sida, eller välj den under Textsnuttar i /-menyn.",
+    "tabsLabel": "Textsnuttar",
+    "tabs": {
+      "mine": "Mina",
+      "workspace": "Arbetsytan"
+    },
+    "mineNote": "Bara du ser dessa, och du kan använda dem i alla arbetsytor du ingår i.",
+    "workspaceNote": "Alla i {workspace} kan använda dessa. Bara ägare lägger till och ändrar dem.",
+    "workspaceNoteOwner": "Alla i {workspace} kan använda dessa. Ägare lägger till och ändrar dem.",
+    "search": "Sök textsnuttar",
+    "new": "Ny textsnutt",
+    "import": "Importera",
+    "importing": "Importerar…",
+    "export": "Exportera",
+    "count": "{count} av {max}",
+    "noMatches": "Inga textsnuttar matchar.",
+    "empty": "Arbetsytan har inga delade textsnuttar än.",
+    "emptyOwner": "Inga textsnuttar än. Börja med ett exempel eller skapa en egen.",
+    "emptyWorkspaceOwner": "Arbetsytan har inga delade textsnuttar än. Skapa en som alla kan använda.",
+    "examplesHeading": "Exempel",
+    "addExample": "Lägg till",
+    "actionsFor": "Åtgärder för {title}",
+    "edit": "Redigera",
+    "duplicate": "Duplicera",
+    "delete": "Radera",
+    "deleteTitle": "Radera ”{title}”?",
+    "deleteBody": "Sidor som den infogats i behåller sin text.",
+    "imported": "{count, plural, =0 {Inga textsnuttar lades till.} one {# textsnutt lades till.} other {# textsnuttar lades till.}}",
+    "skipped": "{count, plural, one {# hoppades över:} other {# hoppades över:}}",
+    "skip": {
+      "triggerRequired": "ingen förkortning",
+      "triggerInvalid": "förkortningen är inte tillåten",
+      "titleTooLong": "för lång titel",
+      "bodyRequired": "tom",
+      "bodyTooLong": "för lång",
+      "duplicate": "två gånger i filen",
+      "exists": "förkortningen används redan",
+      "tooMany": "över gränsen"
+    },
+    "untitledTrigger": "(ingen förkortning)",
+    "importFailed": "Det gick inte att importera. {error}"
+  },
+  "examples": {
+    "meeting": {
+      "trigger": "mote",
+      "title": "Mötesanteckningar",
+      "attendees": "Deltagare",
+      "agenda": "Agenda",
+      "notes": "Anteckningar",
+      "actions": "Åtgärdspunkter"
+    },
+    "log": {
+      "trigger": "logg",
+      "title": "Daterad loggrad"
+    },
+    "decision": {
+      "trigger": "beslut",
+      "title": "Beslutsprotokoll",
+      "heading": "Beslut",
+      "date": "Datum",
+      "decidedBy": "Beslutat av",
+      "context": "Bakgrund",
+      "options": "Alternativ som övervägdes",
+      "outcome": "Vad vi beslutade",
+      "consequences": "Konsekvenser"
+    }
+  }
+}

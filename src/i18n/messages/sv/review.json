@@ -1,0 +1,104 @@
+{
+  "metaTitle": "Att granska",
+  "heading": "Att granska",
+  "description": "Ändringar som agenter föreslog i stället för att göra dem, och automatiseringar som väntar på någons godkännande. Godkänn en ändring för att göra den som dig, redigera den först eller avvisa den; godkänn en automatisering för att låta körningen fortsätta, eller neka den för att stoppa körningen. Förslag som ingen besvarar går ut efter 30 dagar. Uppföljande e-postmeddelanden som är inställda på ”fråga mig först” väntar också här.",
+  "filters": {
+    "agent": "Agent",
+    "database": "Databas",
+    "status": "Visa",
+    "allAgents": "Alla agenter",
+    "allDatabases": "Alla databaser",
+    "open": "Väntar",
+    "decided": "Besvarade",
+    "allRows": "Visa alla rader",
+    "clear": "Rensa filter"
+  },
+  "count": "{count, plural, one {# ändring} other {# ändringar}}",
+  "select": "Markera den här ändringen",
+  "selectAll": "Markera alla",
+  "selected": "{count} markerade",
+  "approveSelected": "Godkänn {count}",
+  "dismissSelected": "Avvisa {count}",
+  "bulkSkipped": "{count, plural, one {En ändring kunde inte besvaras: den var redan besvarad, dess rad har ändrats sedan dess, eller så kan du inte besvara den.} other {# ändringar kunde inte besvaras: de var redan besvarade, deras rader har ändrats sedan dess, eller så kan du inte besvara dem.}}",
+  "empty": {
+    "open": "Inget väntar på din granskning.",
+    "decided": "Inga ändringar besvarades de senaste 30 dagarna.",
+    "filtered": "Inga ändringar matchar de här filtren."
+  },
+  "proposes": {
+    "createRow": "<agent></agent> vill lägga till en rad i <database></database>",
+    "updateRow": "<agent></agent> vill ändra <row></row>",
+    "emailDraft": "<agent></agent> skrev ett utkast till ett e-postmeddelande på <row></row>",
+    "automationApproval": "<automation></automation> ber om godkännande på <row></row>",
+    "automationApprovalNoRow": "<automation></automation> ber om godkännande",
+    "sequenceDraft": "E-postmeddelande {step} av {steps} i uppföljningen <sequence></sequence> på <row></row>"
+  },
+  "inDatabase": "i <database></database>",
+  "unknownAgent": "En raderad agent",
+  "someone": "Någon",
+  "viewRun": "Visa körningen",
+  "edited": "Redigerad",
+  "expires": "Går ut {time}",
+  "decided": {
+    "approved": "Godkänd av {name} {time}",
+    "dismissed": "Avvisad av {name} {time}",
+    "expired": "Gick ut obesvarad",
+    "rejected": "Nekad av {name} {time}",
+    "timedOut": "Ingen svarade i tid"
+  },
+  "title": "Titel",
+  "becomes": "blir",
+  "changedSince": "Har ändrats sedan förslaget, nu <value></value>",
+  "conflictNotice": "Den här raden har ändrats sedan agenten föreslog detta. Om du godkänner skrivs det som raden har nu över.",
+  "failedNote": "Den godkändes men kunde inte genomföras: {error} Redigera den och godkänn den igen, eller avvisa den.",
+  "failed": {
+    "error": "något gick fel.",
+    "pageLocked": "raden är låst."
+  },
+  "email": {
+    "from": "Från",
+    "to": "Till",
+    "cc": "Kopia",
+    "subject": "Ämne",
+    "text": "Text",
+    "reply": "Ett svar på radens senaste e-postmeddelande"
+  },
+  "markdown": "Sidtext",
+  "notEditable": "Behåll eller utelämna; ändra det på raden efteråt.",
+  "leaveOut": "Utelämna",
+  "keep": "Behåll",
+  "approve": "Godkänn",
+  "approveAnyway": "Godkänn ändå",
+  "send": "Skicka",
+  "edit": "Redigera",
+  "save": "Spara ändringen",
+  "dismiss": "Avvisa",
+  "cannot": {
+    "email": "Bara {name} kan skicka det här utkastet, från sin egen brevlåda.",
+    "row": "Du kan se den här ändringen, men för att godkänna den krävs redigeringsåtkomst till raden och till varje värde som den sätter.",
+    "approval": "Bara de personer som automatiseringen frågar kan godkänna eller neka detta."
+  },
+  "errors": {
+    "notFound": "Den här ändringen finns inte längre, eller så kan du inte se den.",
+    "decided": "Någon har redan besvarat den här ändringen.",
+    "conflict": "Raden har ändrats sedan detta föreslogs. Titta på den igen och godkänn ändå eller avvisa.",
+    "invalid": "Den här ändringen är inte giltig: {message}",
+    "accessDenied": "Du kan inte besvara den här ändringen."
+  },
+  "banner": {
+    "title": "Ändringar som väntar på granskning",
+    "bar": "{count, plural, one {# ändring väntar på granskning} other {# ändringar väntar på granskning}}",
+    "by": "föreslagna av {names}",
+    "open": "Granska"
+  },
+  "unknownAutomation": "En raderad automatisering",
+  "reject": "Neka",
+  "approval": {
+    "next": "Om det godkänns, sedan:",
+    "nothingNext": "Om det godkänns avslutas körningen: inga steg kommer efter det här.",
+    "forEach": "för varje rad från {step}",
+    "approvers": "Frågar {names}",
+    "timeoutStop": "Om ingen svarar i tid stoppas körningen.",
+    "timeoutContinue": "Om ingen svarar i tid fortsätter körningen."
+  }
+}

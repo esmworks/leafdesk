@@ -1,0 +1,36 @@
+{
+  "hello": "Hej, {name}",
+  "recent": "Nyligen redigerade",
+  "assignedEmpty": "Inget är tilldelat dig. Rader i databaser som tilldelas dig visas här.",
+  "empty": "Här finns inget än. Skapa din första sida för att komma igång.",
+  "emptyGuest": "Inget har delats med dig här än. Sidor visas när någon delar dem med dig.",
+  "newPage": "Ny sida",
+  "newDatabase": "Ny databas",
+  "personalWorkspace": "{name}s arbetsyta",
+  "generalTeamspace": "Allmänt",
+  "fromTemplate": "Från en mall",
+  "assigned": "Tilldelat dig",
+  "assignedGroups": {
+    "overdue": "Försenade",
+    "today": "I dag",
+    "next7": "Kommande 7 dagar",
+    "later": "Senare",
+    "none": "Inget datum"
+  },
+  "assignedMore": "Visar {shown} av {total}.",
+  "assignedAll": "Visa alla",
+  "myTasks": {
+    "title": "Mina uppgifter",
+    "description": "Rader i databaser du kan öppna som är tilldelade dig och inte är klara, i hela arbetsytan.",
+    "grouping": "Gruppera efter",
+    "byDue": "Efter förfallodatum",
+    "byDatabase": "Efter databas",
+    "sharedRows": "Rader som delats med dig",
+    "shown": "Visar de {shown} med närmast förfallodatum av {total}.",
+    "markDone": "Markera ”{title}” som klar",
+    "undoLabel": "Markera ”{title}” som inte klar",
+    "undo": "Ångra",
+    "markFailed": "Det gick inte att markera raden som klar.",
+    "undoFailed": "Det gick inte att återställa radens status. Ändra den i raden."
+  }
+}

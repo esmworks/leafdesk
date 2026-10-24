@@ -1,0 +1,38 @@
+{
+  "menuItem": "Bygg med AI",
+  "title": "Bygg med AI",
+  "hint": "Beskriv vad du vill hålla koll på. AI skissar databaserna, och du granskar dem innan något skapas.",
+  "reviewTitle": "Granska planen",
+  "reviewHint": "Byt namn på eller ta bort det du inte behöver och skapa sedan.",
+  "back": "Tillbaka till beskrivningen",
+  "label": "Vad behöver du?",
+  "placeholder": "En rekryteringsprocess: kandidater som går igenom intervjusteg, intervjuerna med var och en av dem och vem som intervjuar vem.",
+  "draft": "Skissa databaserna",
+  "drafting": "Skissar…",
+  "create": "Skapa",
+  "creating": "Skapar…",
+  "intro": "Lägg till en sida om dem, ”{title}”, med databaserna i den",
+  "exampleRows": "{count, plural, one {Lägg till exempelraden} other {Lägg till de # exempelraderna}}",
+  "databaseTitle": "Databasens namn",
+  "removeDatabase": "Ta bort {name}",
+  "properties": "Egenskaper",
+  "views": "Vyer",
+  "noProperties": "Bara namnet på varje rad.",
+  "removeView": "Ta bort vyn {name}",
+  "rename": "Byt namn på {name}",
+  "linksTo": "Länkar till {database}",
+  "linksBoth": "Länkar till {database}, åt båda hållen",
+  "removeProperty": "Ta bort {name}",
+  "slash": {
+    "title": "Bygg databaser med AI",
+    "subtext": "Beskriv vad du behöver så skissar AI databaser i den här sidan",
+    "aliases": "ai bygg databas databaser generera plan build database generate"
+  },
+  "errors": {
+    "unusable": "AI kunde inte skissa databaser för det. Försök beskriva det med andra ord.",
+    "invalid": "Planen kan inte skapas som den är. Gå tillbaka och skissa den igen.",
+    "parent": "Databaser kan inte ligga i en databas.",
+    "noAccess": "Du kan inte lägga till sidor här.",
+    "failed": "Något i planen passade inte, så inget skapades. Ta bort exempelraderna och försök igen."
+  }
+}

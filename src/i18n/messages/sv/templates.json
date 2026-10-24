@@ -1,0 +1,238 @@
+{
+  "meeting-notes": {
+    "title": "Mötesanteckningar",
+    "description": "Agenda, anteckningar, beslut och åtgärdspunkter.",
+    "markdown": "**Datum:** \n\n**Deltagare:** \n\n## Agenda\n\n1. \n\n## Anteckningar\n\n\n\n## Beslut\n\n- \n\n## Åtgärdspunkter\n\n- [ ] "
+  },
+  "weekly-plan": {
+    "title": "Veckoplan",
+    "description": "Veckans mål och en checklista per dag.",
+    "markdown": "## Mål den här veckan\n\n- [ ] \n\n### Måndag\n\n- [ ] \n\n### Tisdag\n\n- [ ] \n\n### Onsdag\n\n- [ ] \n\n### Torsdag\n\n- [ ] \n\n### Fredag\n\n- [ ] \n\n## Anteckningar till nästa vecka\n"
+  },
+  "project-tracker": {
+    "title": "Projektuppföljning",
+    "description": "Uppgifter med status, prioritet, ansvarig och förfallodatum, i en tabell och på en tavla.",
+    "seedNames": {
+      "status": "Status",
+      "notStarted": "Inte påbörjad",
+      "inProgress": "Pågår",
+      "done": "Klar",
+      "tags": "Taggar",
+      "table": "Alla uppgifter"
+    },
+    "properties": {
+      "priority": "Prioritet",
+      "owner": "Ansvarig",
+      "due": "Förfallodatum"
+    },
+    "options": {
+      "high": "Hög",
+      "medium": "Medel",
+      "low": "Låg"
+    },
+    "board": "Tavla",
+    "rowTemplate": {
+      "title": "Ny uppgift",
+      "markdown": "## Mål\n\n\n\n## Steg\n\n- [ ] \n\n## Anteckningar\n\n"
+    },
+    "rows": {
+      "brief": "Skriv projektbeskrivningen",
+      "milestone": "Planera den första milstolpen",
+      "team": "Bjud in teamet"
+    }
+  },
+  "wins-log": {
+    "title": "Framgångslogg",
+    "description": "Framgångar, beröm och avslutat arbete på ett ställe, med diagram per månad, typ och område.",
+    "markdown": "Varje framgång, varje beröm och varje avslutad arbetsuppgift hamnar här, med en länk till var det hände. Lägg till dem för hand, eller låt agenten Framgångsloggare lägga till dem från dina anslutningar.",
+    "database": "Framgångar",
+    "table": "Alla framgångar",
+    "board": "Efter typ",
+    "properties": {
+      "type": "Typ",
+      "area": "Område",
+      "date": "Datum",
+      "impact": "Effekt",
+      "source": "Källa",
+      "person": "Personer"
+    },
+    "types": {
+      "feedback": "Feedback",
+      "delivery": "Leverans",
+      "metric": "Nyckeltal",
+      "event": "Evenemang",
+      "other": "Annat"
+    },
+    "areas": {
+      "product": "Produkt",
+      "customers": "Kunder",
+      "team": "Team",
+      "operations": "Drift",
+      "sales": "Försäljning"
+    },
+    "impacts": {
+      "high": "Hög",
+      "medium": "Medel",
+      "low": "Låg"
+    },
+    "widgets": {
+      "total": "Framgångar",
+      "byMonth": "Framgångar per månad",
+      "byArea": "Per område",
+      "byImpact": "Per effekt"
+    },
+    "rowTemplate": {
+      "title": "Ny framgång",
+      "markdown": "## Vad hände\n\n\n\n## Varför det spelar roll\n\n\n\n## Belägg\n\n- "
+    },
+    "rows": {
+      "praise": "En kund berömde den nya introduktionen",
+      "launch": "Faktureringsexporten har lanserats",
+      "response": "Supportsvar tar nu under två timmar",
+      "talk": "Höll ett föredrag på teamets konferens",
+      "thanks": "Säljteamet tackade oss för demomiljön"
+    }
+  },
+  "small-business": {
+    "title": "Småföretag",
+    "description": "Kunder, offerterna du ger dem, jobb och en balansräkning, länkade till varandra, med en instrumentpanel och en veckoplan.",
+    "currency": "SEK",
+    "dashboard": {
+      "title": "Instrumentpanel",
+      "markdown": "> [!NOTE]\n> Jobb, offerter, kunder och balansräkningen på en skärm. Widgetarna följer databaserna när de ändras.\n\nLägg först till dina kunder och sedan offerterna du ger dem. När en offert godkänns lägger du till ett jobb och länkar det till offerten och kunden. Fyll i balansräkningen med dagen du räknar den: widgetarna visar den här månadens poster.",
+      "widgets": {
+        "openJobs": "Öppna jobb",
+        "dueJobs": "Förfallna eller försenade",
+        "openQuotes": "Öppna offerter",
+        "netWorth": "Nettoförmögenhet den här månaden",
+        "jobsByPerson": "Öppna jobb per person och prioritet",
+        "upcomingJobs": "Öppna jobb efter förfallodatum",
+        "quotesByStatus": "Offerter per status",
+        "quoteFollowUps": "Uppföljning av offerter",
+        "customersByStage": "Kunder per fas",
+        "customerFollowUps": "Uppföljning av kunder",
+        "balanceBreakdown": "Balansräkning den här månaden",
+        "netWorthByDate": "Nettoförmögenhet per datum"
+      }
+    },
+    "customers": {
+      "title": "Kunder",
+      "table": "Alla kunder",
+      "board": "Efter fas",
+      "properties": {
+        "stage": "Fas",
+        "city": "Ort",
+        "contact": "Kontaktperson",
+        "phone": "Telefon",
+        "email": "E-post",
+        "nextStep": "Nästa steg",
+        "nextStepDate": "Nästa steg den",
+        "quotes": "Offerter",
+        "jobs": "Jobb",
+        "quoted": "Offererat totalt"
+      },
+      "stages": {
+        "lead": "Lead",
+        "prospect": "Prospekt",
+        "customer": "Kund",
+        "inactive": "Inaktiv"
+      }
+    },
+    "quotes": {
+      "title": "Offerter",
+      "table": "Alla offerter",
+      "board": "Efter status",
+      "calendar": "Uppföljningar",
+      "properties": {
+        "customer": "Kund",
+        "status": "Status",
+        "amount": "Belopp",
+        "followUp": "Följ upp den",
+        "date": "Datum",
+        "validUntil": "Giltig till",
+        "preparedBy": "Upprättad av",
+        "jobs": "Jobb"
+      },
+      "statuses": {
+        "draft": "Utkast",
+        "sent": "Skickad",
+        "revision": "Ändring begärd",
+        "accepted": "Godkänd",
+        "lost": "Förlorad"
+      },
+      "rowTemplate": {
+        "title": "Ny offert",
+        "markdown": "## Poster\n\n- \n\n## Villkor\n\n**Betalning:** \n\n**Leverans:** \n\n## Anteckningar\n"
+      }
+    },
+    "jobs": {
+      "title": "Jobb",
+      "table": "Alla jobb",
+      "board": "Tavla",
+      "byPerson": "Per person",
+      "calendar": "Kalender",
+      "properties": {
+        "status": "Status",
+        "priority": "Prioritet",
+        "assignee": "Ansvarig",
+        "due": "Förfallodatum",
+        "customer": "Kund",
+        "quote": "Offert",
+        "notes": "Anteckningar"
+      },
+      "statuses": {
+        "todo": "Att göra",
+        "waiting": "Väntar",
+        "inProgress": "Pågår",
+        "done": "Klar"
+      },
+      "priorities": {
+        "urgent": "Brådskande",
+        "high": "Hög",
+        "normal": "Normal",
+        "low": "Låg"
+      },
+      "rowTemplate": {
+        "title": "Nytt jobb",
+        "markdown": "## Steg\n\n- [ ] \n"
+      }
+    },
+    "balance": {
+      "title": "Balansräkning",
+      "table": "Alla poster",
+      "byDate": "Per datum",
+      "netWorth": "Nettoförmögenhet",
+      "thisMonth": "Den här månaden",
+      "properties": {
+        "date": "Datum",
+        "side": "Sida",
+        "group": "Grupp",
+        "amount": "Belopp",
+        "net": "Nettoeffekt",
+        "note": "Anteckning"
+      },
+      "sides": {
+        "asset": "Tillgång",
+        "liability": "Skuld"
+      },
+      "groups": {
+        "cash": "Kassa och bank",
+        "receivables": "Kundfordringar",
+        "chequesIn": "Mottagna checkar",
+        "stock": "Lager",
+        "equipment": "Inventarier",
+        "payables": "Leverantörsskulder",
+        "chequesOut": "Utfärdade checkar",
+        "card": "Kreditkortsskuld",
+        "loans": "Banklån",
+        "taxes": "Skatter och sociala avgifter",
+        "wages": "Skulder för löner",
+        "other": "Övrigt"
+      }
+    }
+  },
+  "journal": {
+    "title": "Dagbok",
+    "markdown": "## Fokus\n\n- [ ] \n\n## Anteckningar\n\n## Klart i dag\n"
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "metaTitle": "Färdigheter",
+  "heading": "Färdigheter",
+  "description": "Instruktioner som ditt team återanvänder, sparade som sidor: hur man sammanfattar mötesanteckningar, svarar en kund eller sorterar ett ärende. Välj en i AI-chatten med / eller från en AI-app som är ansluten till arbetsytan. Varje färdighet är en sida eller databasrad; personer ser de färdigheter de kan öppna.",
+  "new": "Ny färdighet",
+  "search": "Sök färdigheter",
+  "count": "{count, plural, one {# färdighet} other {# färdigheter}}",
+  "noMatches": "Ingen färdighet matchar din sökning.",
+  "emptyTitle": "Inga färdigheter än",
+  "emptyHint": "Vilken sida eller databasrad som helst kan också vara en färdighet: öppna den och aktivera Använd som färdighet i dess ⋯-meny.",
+  "builtins": {
+    "heading": "Börja från en färdig färdighet",
+    "hint": "Var och en blir en rad i din färdighetsdatabas: anpassa den efter ditt arbete och dela den sedan med ditt team.",
+    "open": "Färdiga färdigheter"
+  },
+  "noDescription": "Ingen beskrivning än",
+  "inDatabase": "I {database}",
+  "updated": "Uppdaterad {time}",
+  "download": "Ladda ned {title} som SKILL.md",
+  "downloadHint": "En ZIP-fil med färdighetens SKILL.md, för AI-assistenter som installerar färdigheter",
+  "menu": {
+    "toggle": "Använd som färdighet",
+    "hint": "Erbjud den här sidan som återanvändbara instruktioner i AI-chatten och för AI-appar som är anslutna till arbetsytan",
+    "export": "Exportera som SKILL.md",
+    "database": "Färdighetsdatabas",
+    "databaseHint": "Varje rad i den här databasen är en färdighet; dess egenskap Beskrivning anger vad var och en är till för"
+  },
+  "bar": {
+    "label": "Färdighet",
+    "description": "Vad färdigheten är till för",
+    "placeholder": "Beskriv vad den här färdigheten är till för och när den ska användas",
+    "none": "Ingen beskrivning än",
+    "library": "Alla färdigheter",
+    "inDatabase": "Dess beskrivning är egenskapen {property}"
+  },
+  "chat": {
+    "heading": "Färdigheter",
+    "none": "Inga färdigheter än.",
+    "library": "Öppna färdighetsbiblioteket",
+    "noMatches": "Ingen färdighet matchar.",
+    "using": "Använder färdigheten {title}",
+    "remove": "Ta bort färdigheten",
+    "pick": "Använd en färdighet",
+    "pickHint": "Använd en färdighet (eller skriv / i den tomma rutan)",
+    "used": "Använde färdigheten {title}"
+  },
+  "errors": {
+    "notAPage": "Bara sidor och databasrader kan vara färdigheter, inte databaser.",
+    "notADatabase": "Bara databaser kan vara färdighetsdatabaser.",
+    "template": "Mallar och sidorna i dem kan inte vara färdigheter.",
+    "inTrash": "Återställ först sidan från papperskorgen.",
+    "tooLong": "En färdighets beskrivning får vara högst {max} tecken.",
+    "notASkill": "Den här sidan är inte längre en färdighet."
+  },
+  "database": {
+    "title": "Färdigheter",
+    "description": "Beskrivning",
+    "files": "Filer",
+    "tags": "Taggar",
+    "createdBy": "Skapad av",
+    "open": "Öppna färdighetsdatabasen",
+    "hint": "Varje ny färdighet är en rad i din färdighetsdatabas, med en beskrivning, filer och taggar."
+  }
+}
