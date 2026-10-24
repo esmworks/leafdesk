@@ -1845,6 +1845,11 @@
       "review": {
         "approved": "{kind, select, email_draft {Enviou o e-mail que o agente “{agent}” rascunhou em {target}} create_row {Aprovou a linha que o agente “{agent}” propôs em {target}} other {Aprovou a alteração que o agente “{agent}” propôs para {target}}}{outcome, select, failed { (falhou)} other {}}",
         "dismissed": "{kind, select, email_draft {Descartou o e-mail que o agente “{agent}” rascunhou em {target}} create_row {Descartou a linha que o agente “{agent}” propôs em {target}} other {Descartou a alteração que o agente “{agent}” propôs para {target}}}"
+      },
+      "github_sync": {
+        "created": "Configurou as pull requests do GitHub em {target}",
+        "updated": "Alterou a configuração do GitHub de {target}",
+        "deleted": "Removeu a configuração do GitHub de {target}"
       }
     },
     "decisions": {

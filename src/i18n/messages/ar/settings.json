@@ -1845,6 +1845,11 @@
       "review": {
         "approved": "{kind, select, email_draft {أرسل البريد الذي كتب الوكيل «{agent}» مسودته على {target}} create_row {وافق على الصف الذي اقترحه الوكيل «{agent}» في {target}} other {وافق على التغيير الذي اقترحه الوكيل «{agent}» على {target}}}{outcome, select, failed { (وفشل ذلك)} other {}}",
         "dismissed": "{kind, select, email_draft {تجاهل البريد الذي كتب الوكيل «{agent}» مسودته على {target}} create_row {تجاهل الصف الذي اقترحه الوكيل «{agent}» في {target}} other {تجاهل التغيير الذي اقترحه الوكيل «{agent}» على {target}}}"
+      },
+      "github_sync": {
+        "created": "أعدّ طلبات السحب في GitHub في {target}",
+        "updated": "غيّر إعداد GitHub في {target}",
+        "deleted": "أزال إعداد GitHub من {target}"
       }
     },
     "decisions": {

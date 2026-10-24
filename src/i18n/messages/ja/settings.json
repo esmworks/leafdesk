@@ -1845,6 +1845,11 @@
       "review": {
         "approved": "{kind, select, email_draft {エージェント「{agent}」が{target}で下書きしたメールを送信しました} create_row {エージェント「{agent}」が{target}に提案した行を承認しました} other {エージェント「{agent}」が{target}に提案した変更を承認しました}}{outcome, select, failed {（失敗しました）} other {}}",
         "dismissed": "{kind, select, email_draft {エージェント「{agent}」が{target}で下書きしたメールを却下しました} create_row {エージェント「{agent}」が{target}に提案した行を却下しました} other {エージェント「{agent}」が{target}に提案した変更を却下しました}}"
+      },
+      "github_sync": {
+        "created": "{target}に GitHub のプルリクエストを設定しました",
+        "updated": "{target}の GitHub 設定を変更しました",
+        "deleted": "{target}の GitHub 設定を削除しました"
       }
     },
     "decisions": {

@@ -1845,6 +1845,11 @@
       "review": {
         "approved": "{kind, select, email_draft {ایمیلی را که عامل «{agent}» روی {target} پیش‌نویس کرده بود فرستاد} create_row {ردیفی را که عامل «{agent}» در {target} پیشنهاد کرده بود تأیید کرد} other {تغییری را که عامل «{agent}» برای {target} پیشنهاد کرده بود تأیید کرد}}{outcome, select, failed { (ناموفق بود)} other {}}",
         "dismissed": "{kind, select, email_draft {ایمیلی را که عامل «{agent}» روی {target} پیش‌نویس کرده بود رد کرد} create_row {ردیفی را که عامل «{agent}» در {target} پیشنهاد کرده بود رد کرد} other {تغییری را که عامل «{agent}» برای {target} پیشنهاد کرده بود رد کرد}}"
+      },
+      "github_sync": {
+        "created": "درخواست‌های ادغام GitHub را در {target} راه‌اندازی کرد",
+        "updated": "راه‌اندازی GitHub در {target} را تغییر داد",
+        "deleted": "راه‌اندازی GitHub را از {target} برداشت"
       }
     },
     "decisions": {

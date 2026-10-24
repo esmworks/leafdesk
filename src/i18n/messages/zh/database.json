@@ -966,7 +966,8 @@
     "geocoderBusy": "地址搜索繁忙。请稍后再试“{property}”。",
     "invalidUniqueIdPrefix": "ID 前缀最多 {max} 个字母（A–Z）和数字，例如 TASK。",
     "uniqueIdPrefixTaken": "此工作区中的另一个数据库已在使用 ID 前缀“{prefix}”。",
-    "oneUniqueId": "此数据库已在“{property}”中为行编号。"
+    "oneUniqueId": "此数据库已在“{property}”中为行编号。",
+    "invalidSlackUrl": "这不是 Slack 传入 Webhook 的地址（https://hooks.slack.com/services/…）。"
   },
   "formula": {
     "title": "公式",
@@ -1267,7 +1268,8 @@
         "log": "写入运行记录",
         "celebrate": "撒彩纸庆祝",
         "approval": "请求审批",
-        "start_sequence": "开始跟进"
+        "start_sequence": "开始跟进",
+        "slack": "发送到 Slack"
       },
       "trashHelp": "将该行移到回收站，在回收站清空之前都可以从中恢复。此操作之后不能再运行任何操作。",
       "addAction": "添加操作",
@@ -1327,7 +1329,8 @@
         "badExample": "示例正文不是有效的 JSON。",
         "exampleTooLong": "示例正文太长。",
         "needApprovers": "选择要询问的人。",
-        "needTimeout": "输入 1 到 30 之间的整数天数。"
+        "needTimeout": "输入 1 到 30 之间的整数天数。",
+        "needSlackUrl": "请输入 Slack 传入 Webhook 的地址。"
       },
       "agent": "智能体",
       "chooseAgent": "选择智能体…",
@@ -1561,7 +1564,13 @@
       "logPlaceholder": "例如：已导入 {template}",
       "logHelp": "填入变量后写入运行记录。",
       "celebrateHelp": "为做出触发本次运行之更改的人，在其打开的应用窗口中撒彩纸。无人触发的运行（计划、日期到期、传入的 Webhook、匿名表单回复）会跳过此步骤；在更改两分钟后才到达此步骤的运行也会跳过。",
-      "celebrateTry": "试一试"
+      "celebrateTry": "试一试",
+      "slackUrl": "Slack 传入 Webhook",
+      "slackReplace": "粘贴新地址以替换已保存的地址",
+      "slackSaved": "已保存的地址：",
+      "slackMessage": "消息",
+      "slackPlaceholder": "例如：待评审：{template}",
+      "slackHelp": "将消息连同行链接发布到传入 Webhook 所属的 Slack 频道。可以使用 Slack 格式（*粗体*、_斜体_）。地址会保密，只显示缩写。"
     },
     "variables": {
       "button": "插入变量",
@@ -1796,5 +1805,114 @@
     "stop": "停止同步",
     "stopConfirm": "停止同步此数据库？其行保持不变，登录信息将被清除。",
     "viewOnly": "只有对数据库拥有完全访问权限的人才能更改同步。"
+  },
+  "github": {
+    "menuItem": "GitHub 拉取请求",
+    "menuHint": "为按 ID 提及某行的拉取请求添加链接，并推进该行的状态",
+    "title": "GitHub 拉取请求",
+    "intro": "在标题、描述或分支中按 ID（如 {example}）提及某行的拉取请求，会把链接添加到该行，并可推进其状态。",
+    "needUniqueId": "请先为此数据库添加 ID 属性：拉取请求按 ID 提及行。",
+    "needPrefix": "请先为 ID 属性“{property}”设置前缀，如 TASK：拉取请求用它提及行。",
+    "linkProperty": "将拉取请求链接添加到",
+    "noLinks": "不添加链接",
+    "newProperty": "新建文本属性…",
+    "newPropertyName": "拉取请求",
+    "newPropertyLabel": "新属性的名称",
+    "linkHelp": "文本属性保留所有拉取请求，每行一个；URL 属性只保留最新的一个。",
+    "statusProperty": "推进状态的属性",
+    "noStatus": "不更改状态",
+    "noStatusProperty": "此数据库没有状态属性，因此只添加链接。",
+    "statusOff": "状态保持不变。",
+    "statusHelp": "草稿拉取请求会添加链接，但在准备好评审前不推进任何状态。已处于完成状态的行只会在拉取请求合并时推进。",
+    "move": {
+      "opened": "已打开或可评审",
+      "merged": "已合并",
+      "closed": "未合并即关闭"
+    },
+    "leave": "保持不变",
+    "setUp": "设置",
+    "save": "保存",
+    "change": "更改",
+    "whatItDoes": "作用",
+    "linksTo": "将拉取请求链接添加到“{property}”。",
+    "noLinksSaved": "不添加链接。",
+    "movesIn": "推进“{property}”：{moves}。",
+    "moves": {
+      "opened": "打开时为 {option}",
+      "merged": "合并时为 {option}",
+      "closed": "未合并即关闭时为 {option}"
+    },
+    "noMoves": "状态保持不变。",
+    "inGithub": "在 GitHub 中",
+    "steps": "在仓库的 Settings 中打开 Webhooks，选择 Add webhook，填写下面的字段，选择“Let me select individual events”，并只勾选 Pull requests。",
+    "payloadUrl": "Payload URL",
+    "secret": "密钥",
+    "showSecret": "显示密钥",
+    "hideSecret": "隐藏密钥",
+    "secretUnreadable": "此服务器已无法读取该密钥。请新建一个并填入 GitHub。",
+    "rotate": "新建密钥",
+    "rotateConfirm": "要新建密钥吗？在你把新密钥填入 GitHub 之前，用旧密钥签名的投递都会被拒绝。",
+    "contentType": "Content type",
+    "events": "事件",
+    "eventsValue": "Pull requests",
+    "deliveries": "最近的投递",
+    "refresh": "刷新",
+    "noDeliveries": "还没有收到任何内容。添加 Webhook 后，GitHub 会发送一个 ping，并显示在这里。",
+    "ping": "来自 GitHub 的 ping",
+    "pingOk": "Webhook 已连接。",
+    "otherEvent": "事件 {event}",
+    "handling": "正在处理…",
+    "ignored": "“{action}”无需处理。",
+    "noIds": "没有提及此数据库中的任何行。",
+    "outcome": {
+      "updated": "已更新",
+      "unchanged": "已是最新",
+      "notFound": "未找到",
+      "noAccess": "无编辑权限",
+      "failed": "失败"
+    },
+    "deliveryErrors": {
+      "noUniqueId": "数据库已没有带前缀的 ID 属性。",
+      "runAsGone": "运行身份对应的人已不存在。请重新保存设置。",
+      "accessLost": "运行身份对应的人已无法编辑此数据库。请重新保存设置。",
+      "inTrash": "数据库在回收站中。",
+      "failed": "处理时出错了。"
+    },
+    "runsAs": "更改以最后保存者 {name} 的身份进行。",
+    "runsAsGone": "原来的运行身份已不存在：重新保存即可以你的身份运行。",
+    "remove": "移除",
+    "removeConfirm": "要移除 GitHub 设置吗？此后 GitHub 的投递会被拒绝；已添加的链接会保留。",
+    "errors": {
+      "noUniqueId": "请先为此数据库添加带前缀的 ID 属性。",
+      "invalidProperty": "请选择用于链接的文本或 URL 属性、状态属性及其选项。",
+      "notSetUp": "此数据库没有 GitHub 设置。"
+    }
+  },
+  "slack": {
+    "menuItem": "Slack 通知",
+    "menuHint": "添加行或属性变化时发布到 Slack 频道",
+    "title": "Slack 通知",
+    "intro": "添加行或属性变化时发布到 Slack 频道。它会保存为一个之后可以修改的自动化。",
+    "url": "Slack 传入 Webhook",
+    "urlHelp": "在 Slack 中为频道添加 Incoming WebHooks 应用，并复制其 Webhook URL。它会保密，只显示缩写。",
+    "when": "何时",
+    "rowAdded": "添加了行",
+    "propertyChanges": "{property} 变化",
+    "to": "变为",
+    "anyValue": "任意值",
+    "checked": "已勾选",
+    "unchecked": "未勾选",
+    "message": "消息",
+    "messageHelp": "双花括号中的变量会用行的内容填写。末尾会附上行的链接。",
+    "defaultAdded": "{actor} 在 {database} 中添加了一行",
+    "defaultChanged": "{actor} 将 {property} 改为 {value}",
+    "nameAdded": "Slack：新行",
+    "nameChanged": "Slack：{property} 变化",
+    "nameChangedTo": "Slack：{property} 为 {value}",
+    "create": "创建",
+    "created": "已创建自动化“{name}”。",
+    "existing": "发布到 Slack 的自动化",
+    "existingHelp": "可在数据库的自动化中修改或关闭它们。",
+    "off": "已关闭"
   }
 }

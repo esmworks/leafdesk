@@ -1845,6 +1845,11 @@
       "review": {
         "approved": "{kind, select, email_draft {ส่งอีเมลที่เอเจนต์ “{agent}” ร่างบน {target}} create_row {อนุมัติแถวที่เอเจนต์ “{agent}” เสนอใน {target}} other {อนุมัติการเปลี่ยนแปลงที่เอเจนต์ “{agent}” เสนอต่อ {target}}}{outcome, select, failed { (ล้มเหลว)} other {}}",
         "dismissed": "{kind, select, email_draft {ปฏิเสธอีเมลที่เอเจนต์ “{agent}” ร่างบน {target}} create_row {ปฏิเสธแถวที่เอเจนต์ “{agent}” เสนอใน {target}} other {ปฏิเสธการเปลี่ยนแปลงที่เอเจนต์ “{agent}” เสนอต่อ {target}}}"
+      },
+      "github_sync": {
+        "created": "ตั้งค่า pull request ของ GitHub ใน {target}",
+        "updated": "เปลี่ยนการตั้งค่า GitHub ของ {target}",
+        "deleted": "นำการตั้งค่า GitHub ของ {target} ออก"
       }
     },
     "decisions": {

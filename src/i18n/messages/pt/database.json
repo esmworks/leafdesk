@@ -966,7 +966,8 @@
     "geocoderBusy": "A busca de endereços está ocupada. Tente “{property}” de novo em instantes.",
     "invalidUniqueIdPrefix": "Um prefixo de ID tem no máximo {max} letras (A–Z) e dígitos, como TASK.",
     "uniqueIdPrefixTaken": "Outro banco de dados deste espaço de trabalho já usa o prefixo de ID “{prefix}”.",
-    "oneUniqueId": "Este banco de dados já numera suas linhas em “{property}”."
+    "oneUniqueId": "Este banco de dados já numera suas linhas em “{property}”.",
+    "invalidSlackUrl": "Não é o endereço de um webhook de entrada do Slack (https://hooks.slack.com/services/…)."
   },
   "formula": {
     "title": "Fórmula",
@@ -1267,7 +1268,8 @@
         "log": "Escrever no histórico de execuções",
         "celebrate": "Celebrar com confetes",
         "approval": "Pedir aprovação",
-        "start_sequence": "Iniciar um acompanhamento"
+        "start_sequence": "Iniciar um acompanhamento",
+        "slack": "Enviar ao Slack"
       },
       "trashHelp": "Move a linha para a lixeira, de onde ela pode ser restaurada até a lixeira ser esvaziada. Nada pode ser executado depois desta ação.",
       "addAction": "Adicionar ação",
@@ -1327,7 +1329,8 @@
         "badExample": "O corpo de exemplo não é JSON válido.",
         "exampleTooLong": "O corpo de exemplo é longo demais.",
         "needApprovers": "Escolha a quem perguntar.",
-        "needTimeout": "Digite um número inteiro de dias entre 1 e 30."
+        "needTimeout": "Digite um número inteiro de dias entre 1 e 30.",
+        "needSlackUrl": "Digite o endereço do webhook de entrada do Slack."
       },
       "agent": "Agente",
       "chooseAgent": "Escolha um agente…",
@@ -1561,7 +1564,13 @@
       "logPlaceholder": "Por exemplo: {template} importado",
       "logHelp": "Escrita no histórico de execuções, com as variáveis preenchidas.",
       "celebrateHelp": "Confetes no app para quem fez a alteração que iniciou a execução, nas janelas que tiver abertas. Execuções que ninguém iniciou (agendamentos, datas que passam, webhooks recebidos, respostas anônimas de formulários) pulam esta etapa, assim como as que chegam aqui mais de dois minutos depois da alteração.",
-      "celebrateTry": "Experimentar"
+      "celebrateTry": "Experimentar",
+      "slackUrl": "Webhook de entrada do Slack",
+      "slackReplace": "Cole um novo endereço para substituir o salvo",
+      "slackSaved": "Endereço salvo:",
+      "slackMessage": "Mensagem",
+      "slackPlaceholder": "Por exemplo: Pronto para revisão: {template}",
+      "slackHelp": "Publica a mensagem no canal do Slack do webhook de entrada, com um link para a linha. A formatação do Slack (*negrito*, _itálico_) funciona. O endereço fica em segredo e só aparece abreviado."
     },
     "variables": {
       "button": "Inserir uma variável",
@@ -1796,5 +1805,114 @@
     "stop": "Parar de sincronizar",
     "stopConfirm": "Parar de sincronizar este banco de dados? As linhas dele ficam como estão, e o login é esquecido.",
     "viewOnly": "Só pessoas com acesso total ao banco de dados podem alterar a sincronização."
+  },
+  "github": {
+    "menuItem": "Pull requests do GitHub",
+    "menuHint": "Adicionar links de pull requests que citam uma linha pelo ID e mudar o status da linha",
+    "title": "Pull requests do GitHub",
+    "intro": "Uma pull request que cita uma linha pelo ID, como {example}, no título, na descrição ou no branch adiciona seu link a essa linha e pode mudar o status dela.",
+    "needUniqueId": "Primeiro adicione uma propriedade ID a este banco de dados: as pull requests citam linhas pelo ID.",
+    "needPrefix": "Primeiro dê um prefixo à propriedade ID “{property}”, como TASK: as pull requests citam linhas por ele.",
+    "linkProperty": "Adicionar links de pull requests a",
+    "noLinks": "Não adicionar links",
+    "newProperty": "Nova propriedade de texto…",
+    "newPropertyName": "Pull requests",
+    "newPropertyLabel": "Nome da nova propriedade",
+    "linkHelp": "Uma propriedade de texto guarda todas as pull requests, uma por linha; uma propriedade URL guarda a mais recente.",
+    "statusProperty": "Mudar o status em",
+    "noStatus": "Não mudar o status",
+    "noStatusProperty": "Este banco de dados não tem propriedade de status, então só são adicionados links.",
+    "statusOff": "O status fica como está.",
+    "statusHelp": "Rascunhos adicionam o link mas não mudam nada até ficarem prontos para revisão. Uma linha já em um status concluído só muda quando uma pull request é mesclada.",
+    "move": {
+      "opened": "Aberta ou pronta para revisão",
+      "merged": "Mesclada",
+      "closed": "Fechada sem mesclar"
+    },
+    "leave": "Deixar como está",
+    "setUp": "Configurar",
+    "save": "Salvar",
+    "change": "Alterar",
+    "whatItDoes": "O que faz",
+    "linksTo": "Adiciona links de pull requests a “{property}”.",
+    "noLinksSaved": "Não adiciona links.",
+    "movesIn": "Muda “{property}”: {moves}.",
+    "moves": {
+      "opened": "aberta para {option}",
+      "merged": "mesclada para {option}",
+      "closed": "fechada sem mesclar para {option}"
+    },
+    "noMoves": "Deixa o status como está.",
+    "inGithub": "No GitHub",
+    "steps": "Nas Settings do repositório, abra Webhooks, escolha Add webhook, preencha os campos abaixo, escolha “Let me select individual events” e marque só Pull requests.",
+    "payloadUrl": "Payload URL",
+    "secret": "Segredo",
+    "showSecret": "Mostrar o segredo",
+    "hideSecret": "Ocultar o segredo",
+    "secretUnreadable": "O segredo não pode mais ser lido neste servidor. Crie um novo e passe-o ao GitHub.",
+    "rotate": "Criar um novo segredo",
+    "rotateConfirm": "Criar um novo segredo? Entregas assinadas com o antigo são recusadas até você passar o novo ao GitHub.",
+    "contentType": "Content type",
+    "events": "Eventos",
+    "eventsValue": "Pull requests",
+    "deliveries": "Entregas recentes",
+    "refresh": "Atualizar",
+    "noDeliveries": "Nada chegou ainda. Quando você adiciona o webhook, o GitHub envia um ping que aparece aqui.",
+    "ping": "Ping do GitHub",
+    "pingOk": "O webhook está conectado.",
+    "otherEvent": "Evento {event}",
+    "handling": "Em processamento…",
+    "ignored": "Nada a fazer para “{action}”.",
+    "noIds": "Não cita nenhuma linha deste banco de dados.",
+    "outcome": {
+      "updated": "atualizada",
+      "unchanged": "já atualizada",
+      "notFound": "não encontrada",
+      "noAccess": "sem acesso de edição",
+      "failed": "falhou"
+    },
+    "deliveryErrors": {
+      "noUniqueId": "O banco de dados não tem mais uma propriedade ID com prefixo.",
+      "runAsGone": "A pessoa em nome de quem roda não existe mais. Salve a configuração de novo.",
+      "accessLost": "A pessoa em nome de quem roda não pode mais editar este banco de dados. Salve a configuração de novo.",
+      "inTrash": "O banco de dados está na lixeira.",
+      "failed": "Algo deu errado ao processar."
+    },
+    "runsAs": "As alterações são feitas como {name}, que salvou por último.",
+    "runsAsGone": "A pessoa em nome de quem rodava não existe mais: salve de novo para rodar como você.",
+    "remove": "Remover",
+    "removeConfirm": "Remover a configuração do GitHub? A partir daí as entregas do GitHub são recusadas; os links já adicionados ficam.",
+    "errors": {
+      "noUniqueId": "Primeiro adicione a este banco de dados uma propriedade ID com prefixo.",
+      "invalidProperty": "Escolha uma propriedade de texto ou URL para os links, uma propriedade de status e suas opções.",
+      "notSetUp": "Este banco de dados não tem configuração do GitHub."
+    }
+  },
+  "slack": {
+    "menuItem": "Notificações do Slack",
+    "menuHint": "Publicar em um canal do Slack quando uma linha é adicionada ou uma propriedade muda",
+    "title": "Notificações do Slack",
+    "intro": "Publica em um canal do Slack quando uma linha é adicionada ou uma propriedade muda. É salvo como uma automação que você pode alterar depois.",
+    "url": "Webhook de entrada do Slack",
+    "urlHelp": "No Slack, adicione o app Incoming WebHooks ao canal e copie a URL do webhook. Ela fica em segredo e só aparece abreviada.",
+    "when": "Quando",
+    "rowAdded": "Uma linha é adicionada",
+    "propertyChanges": "{property} muda",
+    "to": "Para",
+    "anyValue": "Qualquer valor",
+    "checked": "Marcada",
+    "unchecked": "Desmarcada",
+    "message": "Mensagem",
+    "messageHelp": "Variáveis entre chaves duplas são preenchidas a partir da linha. Um link para a linha é adicionado no fim.",
+    "defaultAdded": "{actor} adicionou uma linha a {database}",
+    "defaultChanged": "{actor} mudou {property} para {value}",
+    "nameAdded": "Slack: novas linhas",
+    "nameChanged": "Slack: {property} mudou",
+    "nameChangedTo": "Slack: {property} é {value}",
+    "create": "Criar",
+    "created": "Automação “{name}” criada.",
+    "existing": "Automações que publicam no Slack",
+    "existingHelp": "Altere-as ou desative-as nas automações do banco de dados.",
+    "off": "desativada"
   }
 }

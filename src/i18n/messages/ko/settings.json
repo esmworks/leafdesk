@@ -1845,6 +1845,11 @@
       "review": {
         "approved": "{kind, select, email_draft {에이전트 “{agent}”이(가) {target}에서 작성한 이메일 초안을 보냈습니다} create_row {에이전트 “{agent}”이(가) {target}에 제안한 행을 승인했습니다} other {에이전트 “{agent}”이(가) {target}에 제안한 변경을 승인했습니다}}{outcome, select, failed { (실패)} other {}}",
         "dismissed": "{kind, select, email_draft {에이전트 “{agent}”이(가) {target}에서 작성한 이메일 초안을 무시했습니다} create_row {에이전트 “{agent}”이(가) {target}에 제안한 행을 무시했습니다} other {에이전트 “{agent}”이(가) {target}에 제안한 변경을 무시했습니다}}"
+      },
+      "github_sync": {
+        "created": "{target}에 GitHub 풀 리퀘스트를 설정했습니다",
+        "updated": "{target}의 GitHub 설정을 바꿨습니다",
+        "deleted": "{target}의 GitHub 설정을 제거했습니다"
       }
     },
     "decisions": {

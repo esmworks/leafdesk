@@ -1845,6 +1845,11 @@
       "review": {
         "approved": "{kind, select, email_draft {Đã gửi email mà tác tử “{agent}” soạn trên {target}} create_row {Đã chấp thuận hàng mà tác tử “{agent}” đề xuất trong {target}} other {Đã chấp thuận thay đổi mà tác tử “{agent}” đề xuất cho {target}}}{outcome, select, failed { (thất bại)} other {}}",
         "dismissed": "{kind, select, email_draft {Đã bỏ qua email mà tác tử “{agent}” soạn trên {target}} create_row {Đã bỏ qua hàng mà tác tử “{agent}” đề xuất trong {target}} other {Đã bỏ qua thay đổi mà tác tử “{agent}” đề xuất cho {target}}}"
+      },
+      "github_sync": {
+        "created": "Đã thiết lập pull request GitHub trong {target}",
+        "updated": "Đã thay đổi thiết lập GitHub của {target}",
+        "deleted": "Đã gỡ thiết lập GitHub của {target}"
       }
     },
     "decisions": {

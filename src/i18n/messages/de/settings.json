@@ -1845,6 +1845,11 @@
       "review": {
         "approved": "{kind, select, email_draft {Hat die E-Mail gesendet, die der Agent „{agent}“ zu {target} entworfen hat} create_row {Hat die Zeile freigegeben, die der Agent „{agent}“ in {target} vorgeschlagen hat} other {Hat die Änderung freigegeben, die der Agent „{agent}“ für {target} vorgeschlagen hat}}{outcome, select, failed { (fehlgeschlagen)} other {}}",
         "dismissed": "{kind, select, email_draft {Hat die E-Mail verworfen, die der Agent „{agent}“ zu {target} entworfen hat} create_row {Hat die Zeile verworfen, die der Agent „{agent}“ in {target} vorgeschlagen hat} other {Hat die Änderung verworfen, die der Agent „{agent}“ für {target} vorgeschlagen hat}}"
+      },
+      "github_sync": {
+        "created": "GitHub-Pull-Requests in {target} eingerichtet",
+        "updated": "GitHub-Einrichtung von {target} geändert",
+        "deleted": "GitHub-Einrichtung von {target} entfernt"
       }
     },
     "decisions": {

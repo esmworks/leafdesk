@@ -1845,6 +1845,11 @@
       "review": {
         "approved": "{kind, select, email_draft {“{agent}” ajanının {target} üzerinde hazırladığı e-postayı gönderdi} create_row {“{agent}” ajanının {target} içinde önerdiği satırı onayladı} other {“{agent}” ajanının {target} için önerdiği değişikliği onayladı}}{outcome, select, failed { (başarısız oldu)} other {}}",
         "dismissed": "{kind, select, email_draft {“{agent}” ajanının {target} üzerinde hazırladığı e-postayı reddetti} create_row {“{agent}” ajanının {target} içinde önerdiği satırı reddetti} other {“{agent}” ajanının {target} için önerdiği değişikliği reddetti}}"
+      },
+      "github_sync": {
+        "created": "{target} içinde GitHub pull request’leri kuruldu",
+        "updated": "{target} GitHub kurulumu değiştirildi",
+        "deleted": "{target} GitHub kurulumu kaldırıldı"
       }
     },
     "decisions": {

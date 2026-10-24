@@ -966,7 +966,8 @@
     "geocoderBusy": "Die Adresssuche ist ausgelastet. Versuche „{property}“ gleich noch einmal.",
     "invalidUniqueIdPrefix": "Ein ID-Präfix besteht aus höchstens {max} Buchstaben (A–Z) und Ziffern, etwa TASK.",
     "uniqueIdPrefixTaken": "Eine andere Datenbank in diesem Arbeitsbereich verwendet das ID-Präfix „{prefix}“ bereits.",
-    "oneUniqueId": "Diese Datenbank nummeriert ihre Zeilen bereits in „{property}“."
+    "oneUniqueId": "Diese Datenbank nummeriert ihre Zeilen bereits in „{property}“.",
+    "invalidSlackUrl": "Keine Adresse eines eingehenden Slack-Webhooks (https://hooks.slack.com/services/…)."
   },
   "formula": {
     "title": "Formel",
@@ -1267,7 +1268,8 @@
         "log": "In den Ausführungsverlauf schreiben",
         "celebrate": "Mit Konfetti feiern",
         "approval": "Freigabe anfragen",
-        "start_sequence": "Follow-up starten"
+        "start_sequence": "Follow-up starten",
+        "slack": "An Slack senden"
       },
       "trashHelp": "Verschiebt die Zeile in den Papierkorb, aus dem sie wiederhergestellt werden kann, bis er geleert wird. Nach dieser Aktion kann nichts mehr laufen.",
       "addAction": "Aktion hinzufügen",
@@ -1327,7 +1329,8 @@
         "badExample": "Der Beispiel-Body ist kein gültiges JSON.",
         "exampleTooLong": "Der Beispiel-Body ist zu lang.",
         "needApprovers": "Wähle, wen du fragen willst.",
-        "needTimeout": "Gib eine ganze Zahl von Tagen zwischen 1 und 30 ein."
+        "needTimeout": "Gib eine ganze Zahl von Tagen zwischen 1 und 30 ein.",
+        "needSlackUrl": "Gib die Adresse des eingehenden Slack-Webhooks ein."
       },
       "agent": "Agent",
       "chooseAgent": "Agenten wählen…",
@@ -1561,7 +1564,13 @@
       "logPlaceholder": "Zum Beispiel: {template} importiert",
       "logHelp": "Wird mit ausgefüllten Variablen in den Ausführungsverlauf geschrieben.",
       "celebrateHelp": "Konfetti in der App für die Person, deren Änderung den Lauf gestartet hat, in ihren offenen Fenstern. Läufe, die niemand gestartet hat (Zeitpläne, verstrichene Daten, eingehende Webhooks, anonyme Formularantworten), überspringen den Schritt, ebenso Läufe, die ihn erst mehr als zwei Minuten nach der Änderung erreichen.",
-      "celebrateTry": "Ausprobieren"
+      "celebrateTry": "Ausprobieren",
+      "slackUrl": "Eingehender Slack-Webhook",
+      "slackReplace": "Neue Adresse einfügen, um die gespeicherte zu ersetzen",
+      "slackSaved": "Gespeicherte Adresse:",
+      "slackMessage": "Nachricht",
+      "slackPlaceholder": "Zum Beispiel: Bereit zur Prüfung: {template}",
+      "slackHelp": "Sendet die Nachricht mit einem Link zur Zeile in den Slack-Kanal des eingehenden Webhooks. Slack-Formatierung (*fett*, _kursiv_) funktioniert. Die Adresse bleibt geheim und wird nur gekürzt angezeigt."
     },
     "variables": {
       "button": "Variable einfügen",
@@ -1796,5 +1805,114 @@
     "stop": "Synchronisierung beenden",
     "stopConfirm": "Synchronisierung dieser Datenbank beenden? Ihre Zeilen bleiben, wie sie sind, und die Anmeldung wird vergessen.",
     "viewOnly": "Nur Personen mit Vollzugriff auf die Datenbank können die Synchronisierung ändern."
+  },
+  "github": {
+    "menuItem": "GitHub-Pull-Requests",
+    "menuHint": "Links zu Pull Requests hinzufügen, die eine Zeile über ihre ID nennen, und den Status der Zeile ändern",
+    "title": "GitHub-Pull-Requests",
+    "intro": "Ein Pull Request, der eine Zeile über ihre ID wie {example} in Titel, Beschreibung oder Branch nennt, fügt der Zeile seinen Link hinzu und kann ihren Status ändern.",
+    "needUniqueId": "Füge dieser Datenbank zuerst eine ID-Eigenschaft hinzu: Pull Requests nennen Zeilen über ihre ID.",
+    "needPrefix": "Gib der ID-Eigenschaft „{property}“ zuerst ein Präfix wie TASK: Pull Requests nennen Zeilen darüber.",
+    "linkProperty": "Pull-Request-Links hinzufügen zu",
+    "noLinks": "Keine Links hinzufügen",
+    "newProperty": "Neue Texteigenschaft…",
+    "newPropertyName": "Pull Requests",
+    "newPropertyLabel": "Name der neuen Eigenschaft",
+    "linkHelp": "Eine Texteigenschaft behält jeden Pull Request, einen pro Zeile; eine URL-Eigenschaft behält den neuesten.",
+    "statusProperty": "Status ändern in",
+    "noStatus": "Status nicht ändern",
+    "noStatusProperty": "Diese Datenbank hat keine Statuseigenschaft, daher werden nur Links hinzugefügt.",
+    "statusOff": "Der Status bleibt, wie er ist.",
+    "statusHelp": "Entwürfe fügen ihren Link hinzu, ändern aber nichts, bis sie zur Prüfung bereit sind. Eine Zeile mit einem erledigten Status ändert sich nur, wenn ein Pull Request gemergt wird.",
+    "move": {
+      "opened": "Geöffnet oder bereit zur Prüfung",
+      "merged": "Gemergt",
+      "closed": "Ohne Merge geschlossen"
+    },
+    "leave": "Unverändert lassen",
+    "setUp": "Einrichten",
+    "save": "Speichern",
+    "change": "Ändern",
+    "whatItDoes": "Was passiert",
+    "linksTo": "Fügt Pull-Request-Links zu „{property}“ hinzu.",
+    "noLinksSaved": "Fügt keine Links hinzu.",
+    "movesIn": "Ändert „{property}“: {moves}.",
+    "moves": {
+      "opened": "geöffnet zu {option}",
+      "merged": "gemergt zu {option}",
+      "closed": "ohne Merge geschlossen zu {option}"
+    },
+    "noMoves": "Lässt den Status, wie er ist.",
+    "inGithub": "In GitHub",
+    "steps": "Öffne in den Einstellungen des Repositorys „Webhooks“, wähle „Add webhook“, fülle die Felder unten aus, wähle „Let me select individual events“ und hake nur „Pull requests“ an.",
+    "payloadUrl": "Payload-URL",
+    "secret": "Secret",
+    "showSecret": "Secret anzeigen",
+    "hideSecret": "Secret verbergen",
+    "secretUnreadable": "Das Secret kann auf diesem Server nicht mehr gelesen werden. Erstelle ein neues und gib es GitHub.",
+    "rotate": "Neues Secret erstellen",
+    "rotateConfirm": "Neues Secret erstellen? Mit dem alten signierte Zustellungen werden abgelehnt, bis du GitHub das neue gibst.",
+    "contentType": "Content type",
+    "events": "Ereignisse",
+    "eventsValue": "Pull requests",
+    "deliveries": "Letzte Zustellungen",
+    "refresh": "Aktualisieren",
+    "noDeliveries": "Noch nichts angekommen. Wenn du den Webhook hinzufügst, sendet GitHub einen Ping, der hier erscheint.",
+    "ping": "Ping von GitHub",
+    "pingOk": "Der Webhook ist verbunden.",
+    "otherEvent": "Ereignis {event}",
+    "handling": "Wird bearbeitet…",
+    "ignored": "Für „{action}“ ist nichts zu tun.",
+    "noIds": "Nennt keine Zeile dieser Datenbank.",
+    "outcome": {
+      "updated": "aktualisiert",
+      "unchanged": "schon aktuell",
+      "notFound": "nicht gefunden",
+      "noAccess": "kein Bearbeitungszugriff",
+      "failed": "fehlgeschlagen"
+    },
+    "deliveryErrors": {
+      "noUniqueId": "Die Datenbank hat keine ID-Eigenschaft mit Präfix mehr.",
+      "runAsGone": "Die Person, als die es läuft, gibt es nicht mehr. Speichere die Einrichtung erneut.",
+      "accessLost": "Die Person, als die es läuft, kann diese Datenbank nicht mehr bearbeiten. Speichere die Einrichtung erneut.",
+      "inTrash": "Die Datenbank ist im Papierkorb.",
+      "failed": "Bei der Bearbeitung ist etwas schiefgegangen."
+    },
+    "runsAs": "Änderungen werden als {name} vorgenommen, der sie zuletzt gespeichert hat.",
+    "runsAsGone": "Die Person, als die es lief, gibt es nicht mehr: Speichere erneut, damit es als du läuft.",
+    "remove": "Entfernen",
+    "removeConfirm": "GitHub-Einrichtung entfernen? Zustellungen von GitHub werden dann abgelehnt; schon hinzugefügte Links bleiben.",
+    "errors": {
+      "noUniqueId": "Füge dieser Datenbank zuerst eine ID-Eigenschaft mit Präfix hinzu.",
+      "invalidProperty": "Wähle eine Text- oder URL-Eigenschaft für die Links, eine Statuseigenschaft und ihre Optionen.",
+      "notSetUp": "Diese Datenbank hat keine GitHub-Einrichtung."
+    }
+  },
+  "slack": {
+    "menuItem": "Slack-Benachrichtigungen",
+    "menuHint": "In einen Slack-Kanal posten, wenn eine Zeile hinzugefügt wird oder sich eine Eigenschaft ändert",
+    "title": "Slack-Benachrichtigungen",
+    "intro": "Postet in einen Slack-Kanal, wenn eine Zeile hinzugefügt wird oder sich eine Eigenschaft ändert. Wird als Automatisierung gespeichert, die du später ändern kannst.",
+    "url": "Eingehender Slack-Webhook",
+    "urlHelp": "Füge in Slack dem Kanal die App „Incoming WebHooks“ hinzu und kopiere ihre Webhook-URL. Sie bleibt geheim und wird nur gekürzt angezeigt.",
+    "when": "Wann",
+    "rowAdded": "Eine Zeile wird hinzugefügt",
+    "propertyChanges": "{property} ändert sich",
+    "to": "Zu",
+    "anyValue": "Beliebiger Wert",
+    "checked": "Angehakt",
+    "unchecked": "Nicht angehakt",
+    "message": "Nachricht",
+    "messageHelp": "Variablen in doppelten geschweiften Klammern werden aus der Zeile gefüllt. Am Ende wird ein Link zur Zeile angefügt.",
+    "defaultAdded": "{actor} hat eine Zeile zu {database} hinzugefügt",
+    "defaultChanged": "{actor} hat {property} auf {value} geändert",
+    "nameAdded": "Slack: neue Zeilen",
+    "nameChanged": "Slack: {property} geändert",
+    "nameChangedTo": "Slack: {property} ist {value}",
+    "create": "Erstellen",
+    "created": "Automatisierung „{name}“ erstellt.",
+    "existing": "Automatisierungen, die an Slack posten",
+    "existingHelp": "Ändere oder deaktiviere sie in den Automatisierungen der Datenbank.",
+    "off": "aus"
   }
 }

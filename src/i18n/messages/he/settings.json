@@ -1845,6 +1845,11 @@
       "review": {
         "approved": "{kind, select, email_draft {שליחת האימייל שהסוכן “{agent}” ניסח ב־{target}} create_row {אישור השורה שהסוכן “{agent}” הציע ב־{target}} other {אישור השינוי שהסוכן “{agent}” הציע ל־{target}}}{outcome, select, failed { (נכשל)} other {}}",
         "dismissed": "{kind, select, email_draft {דחיית האימייל שהסוכן “{agent}” ניסח ב־{target}} create_row {דחיית השורה שהסוכן “{agent}” הציע ב־{target}} other {דחיית השינוי שהסוכן “{agent}” הציע ל־{target}}}"
+      },
+      "github_sync": {
+        "created": "הגדרת בקשות משיכה של GitHub ב־{target}",
+        "updated": "שינוי הגדרת GitHub של {target}",
+        "deleted": "הסרת הגדרת GitHub של {target}"
       }
     },
     "decisions": {

@@ -1845,6 +1845,11 @@
       "review": {
         "approved": "{kind, select, email_draft {Mengirim email yang disusun agen “{agent}” pada {target}} create_row {Menyetujui baris yang diusulkan agen “{agent}” di {target}} other {Menyetujui perubahan yang diusulkan agen “{agent}” pada {target}}}{outcome, select, failed { (gagal)} other {}}",
         "dismissed": "{kind, select, email_draft {Menolak email yang disusun agen “{agent}” pada {target}} create_row {Menolak baris yang diusulkan agen “{agent}” di {target}} other {Menolak perubahan yang diusulkan agen “{agent}” pada {target}}}"
+      },
+      "github_sync": {
+        "created": "Menyiapkan pull request GitHub di {target}",
+        "updated": "Mengubah pengaturan GitHub di {target}",
+        "deleted": "Menghapus pengaturan GitHub di {target}"
       }
     },
     "decisions": {

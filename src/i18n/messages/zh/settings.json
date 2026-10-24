@@ -1845,6 +1845,11 @@
       "review": {
         "approved": "{kind, select, email_draft {发送了智能体“{agent}”在 {target} 上起草的邮件} create_row {批准了智能体“{agent}”在 {target} 中提议的行} other {批准了智能体“{agent}”对 {target} 提议的更改}}{outcome, select, failed {（失败）} other {}}",
         "dismissed": "{kind, select, email_draft {忽略了智能体“{agent}”在 {target} 上起草的邮件} create_row {忽略了智能体“{agent}”在 {target} 中提议的行} other {忽略了智能体“{agent}”对 {target} 提议的更改}}"
+      },
+      "github_sync": {
+        "created": "在 {target} 中设置了 GitHub 拉取请求",
+        "updated": "更改了 {target} 的 GitHub 设置",
+        "deleted": "移除了 {target} 的 GitHub 设置"
       }
     },
     "decisions": {

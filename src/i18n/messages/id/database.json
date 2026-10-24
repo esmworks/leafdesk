@@ -966,7 +966,8 @@
     "geocoderBusy": "Pencarian alamat sedang sibuk. Coba “{property}” lagi sebentar lagi.",
     "invalidUniqueIdPrefix": "Prefiks ID berisi paling banyak {max} huruf (A–Z) dan angka, misalnya TASK.",
     "uniqueIdPrefixTaken": "Database lain di ruang kerja ini sudah memakai prefiks ID “{prefix}”.",
-    "oneUniqueId": "Database ini sudah menomori barisnya di “{property}”."
+    "oneUniqueId": "Database ini sudah menomori barisnya di “{property}”.",
+    "invalidSlackUrl": "Bukan alamat webhook masuk Slack (https://hooks.slack.com/services/…)."
   },
   "formula": {
     "title": "Rumus",
@@ -1267,7 +1268,8 @@
         "log": "Tulis ke riwayat eksekusi",
         "celebrate": "Rayakan dengan konfeti",
         "approval": "Minta persetujuan",
-        "start_sequence": "Mulai tindak lanjut"
+        "start_sequence": "Mulai tindak lanjut",
+        "slack": "Kirim ke Slack"
       },
       "trashHelp": "Memindahkan baris ke sampah, tempat baris dapat dipulihkan hingga sampah dikosongkan. Tidak ada yang dapat berjalan setelah tindakan ini.",
       "addAction": "Tambahkan tindakan",
@@ -1327,7 +1329,8 @@
         "badExample": "Isi contoh bukan JSON yang valid.",
         "exampleTooLong": "Isi contoh terlalu panjang.",
         "needApprovers": "Pilih siapa yang dimintai.",
-        "needTimeout": "Masukkan jumlah hari bulat dari 1 sampai 30."
+        "needTimeout": "Masukkan jumlah hari bulat dari 1 sampai 30.",
+        "needSlackUrl": "Masukkan alamat webhook masuk Slack."
       },
       "agent": "Agen",
       "chooseAgent": "Pilih agen…",
@@ -1561,7 +1564,13 @@
       "logPlaceholder": "Misalnya: Mengimpor {template}",
       "logHelp": "Ditulis ke riwayat eksekusi, dengan variabelnya terisi.",
       "celebrateHelp": "Konfeti di aplikasi untuk orang yang membuat perubahan yang memulai eksekusi, di jendela yang mereka buka. Eksekusi yang tidak dimulai siapa pun (jadwal, tanggal terlewati, webhook masuk, jawaban formulir anonim) melewatinya, begitu pula eksekusi yang sampai di sini lebih dari dua menit setelah perubahan.",
-      "celebrateTry": "Coba"
+      "celebrateTry": "Coba",
+      "slackUrl": "Webhook masuk Slack",
+      "slackReplace": "Tempel alamat baru untuk mengganti yang tersimpan",
+      "slackSaved": "Alamat tersimpan:",
+      "slackMessage": "Pesan",
+      "slackPlaceholder": "Misalnya: Siap ditinjau: {template}",
+      "slackHelp": "Memposting pesan ke kanal Slack milik webhook masuk, dengan tautan ke baris. Format Slack (*tebal*, _miring_) berfungsi. Alamatnya dirahasiakan dan hanya ditampilkan disingkat."
     },
     "variables": {
       "button": "Sisipkan variabel",
@@ -1796,5 +1805,114 @@
     "stop": "Hentikan sinkronisasi",
     "stopConfirm": "Hentikan sinkronisasi basis data ini? Barisnya tetap seperti adanya, dan info masuk dilupakan.",
     "viewOnly": "Hanya orang dengan akses penuh ke basis data yang dapat mengubah sinkronisasi."
+  },
+  "github": {
+    "menuItem": "Pull request GitHub",
+    "menuHint": "Tambahkan tautan pull request yang menyebut baris dengan ID-nya, dan pindahkan status baris",
+    "title": "Pull request GitHub",
+    "intro": "Pull request yang menyebut baris dengan ID-nya, seperti {example}, di judul, deskripsi, atau branch-nya menambahkan tautannya ke baris itu dan dapat memindahkan statusnya.",
+    "needUniqueId": "Tambahkan properti ID ke database ini dulu: pull request menyebut baris dengan ID-nya.",
+    "needPrefix": "Beri properti ID “{property}” sebuah prefiks dulu, seperti TASK: pull request menyebut baris dengannya.",
+    "linkProperty": "Tambahkan tautan pull request ke",
+    "noLinks": "Jangan tambahkan tautan",
+    "newProperty": "Properti teks baru…",
+    "newPropertyName": "Pull request",
+    "newPropertyLabel": "Nama properti baru",
+    "linkHelp": "Properti teks menyimpan setiap pull request, satu per baris; properti URL menyimpan yang terbaru.",
+    "statusProperty": "Pindahkan status di",
+    "noStatus": "Jangan ubah status",
+    "noStatusProperty": "Database ini tidak punya properti status, jadi hanya tautan yang ditambahkan.",
+    "statusOff": "Status tetap seperti adanya.",
+    "statusHelp": "Pull request draf menambahkan tautannya tetapi tidak memindahkan apa pun sampai siap ditinjau. Baris yang sudah berstatus selesai hanya berpindah saat pull request di-merge.",
+    "move": {
+      "opened": "Dibuka atau siap ditinjau",
+      "merged": "Di-merge",
+      "closed": "Ditutup tanpa merge"
+    },
+    "leave": "Biarkan seperti adanya",
+    "setUp": "Siapkan",
+    "save": "Simpan",
+    "change": "Ubah",
+    "whatItDoes": "Yang dilakukan",
+    "linksTo": "Menambahkan tautan pull request ke “{property}”.",
+    "noLinksSaved": "Tidak menambahkan tautan.",
+    "movesIn": "Memindahkan “{property}”: {moves}.",
+    "moves": {
+      "opened": "dibuka ke {option}",
+      "merged": "di-merge ke {option}",
+      "closed": "ditutup tanpa merge ke {option}"
+    },
+    "noMoves": "Membiarkan status seperti adanya.",
+    "inGithub": "Di GitHub",
+    "steps": "Di Settings repositori, buka Webhooks, pilih Add webhook, isi kolom di bawah, pilih “Let me select individual events” dan centang Pull requests saja.",
+    "payloadUrl": "Payload URL",
+    "secret": "Rahasia",
+    "showSecret": "Tampilkan rahasia",
+    "hideSecret": "Sembunyikan rahasia",
+    "secretUnreadable": "Rahasia tidak dapat dibaca lagi di server ini. Buat yang baru dan berikan ke GitHub.",
+    "rotate": "Buat rahasia baru",
+    "rotateConfirm": "Buat rahasia baru? Kiriman yang ditandatangani dengan yang lama ditolak sampai Anda memberikan yang baru ke GitHub.",
+    "contentType": "Content type",
+    "events": "Peristiwa",
+    "eventsValue": "Pull requests",
+    "deliveries": "Kiriman terbaru",
+    "refresh": "Muat ulang",
+    "noDeliveries": "Belum ada yang masuk. Saat Anda menambahkan webhook, GitHub mengirim ping yang muncul di sini.",
+    "ping": "Ping dari GitHub",
+    "pingOk": "Webhook terhubung.",
+    "otherEvent": "Peristiwa {event}",
+    "handling": "Sedang diproses…",
+    "ignored": "Tidak ada yang perlu dilakukan untuk “{action}”.",
+    "noIds": "Tidak menyebut baris mana pun dari database ini.",
+    "outcome": {
+      "updated": "diperbarui",
+      "unchanged": "sudah terbaru",
+      "notFound": "tidak ditemukan",
+      "noAccess": "tanpa akses edit",
+      "failed": "gagal"
+    },
+    "deliveryErrors": {
+      "noUniqueId": "Database tidak lagi punya properti ID dengan prefiks.",
+      "runAsGone": "Orang yang menjadi atas namanya sudah tidak ada. Simpan pengaturan lagi.",
+      "accessLost": "Orang yang menjadi atas namanya tidak bisa lagi mengedit database ini. Simpan pengaturan lagi.",
+      "inTrash": "Database ada di sampah.",
+      "failed": "Terjadi masalah saat memprosesnya."
+    },
+    "runsAs": "Perubahan dibuat atas nama {name}, yang terakhir menyimpannya.",
+    "runsAsGone": "Orang yang menjadi atas namanya sudah tidak ada: simpan lagi agar berjalan atas nama Anda.",
+    "remove": "Hapus",
+    "removeConfirm": "Hapus pengaturan GitHub? Setelah itu kiriman GitHub ditolak; tautan yang sudah ditambahkan tetap ada.",
+    "errors": {
+      "noUniqueId": "Tambahkan dulu properti ID dengan prefiks ke database ini.",
+      "invalidProperty": "Pilih properti teks atau URL untuk tautan, properti status, dan opsinya.",
+      "notSetUp": "Database ini tidak punya pengaturan GitHub."
+    }
+  },
+  "slack": {
+    "menuItem": "Notifikasi Slack",
+    "menuHint": "Posting ke kanal Slack saat baris ditambahkan atau properti berubah",
+    "title": "Notifikasi Slack",
+    "intro": "Memposting ke kanal Slack saat baris ditambahkan atau properti berubah. Disimpan sebagai otomatisasi yang bisa Anda ubah nanti.",
+    "url": "Webhook masuk Slack",
+    "urlHelp": "Di Slack, tambahkan aplikasi Incoming WebHooks ke kanal dan salin URL webhook-nya. URL dirahasiakan dan hanya ditampilkan disingkat.",
+    "when": "Kapan",
+    "rowAdded": "Baris ditambahkan",
+    "propertyChanges": "{property} berubah",
+    "to": "Menjadi",
+    "anyValue": "Nilai apa pun",
+    "checked": "Dicentang",
+    "unchecked": "Tidak dicentang",
+    "message": "Pesan",
+    "messageHelp": "Variabel dalam kurung kurawal ganda diisi dari baris. Tautan ke baris ditambahkan di akhir.",
+    "defaultAdded": "{actor} menambahkan baris ke {database}",
+    "defaultChanged": "{actor} mengubah {property} menjadi {value}",
+    "nameAdded": "Slack: baris baru",
+    "nameChanged": "Slack: {property} berubah",
+    "nameChangedTo": "Slack: {property} menjadi {value}",
+    "create": "Buat",
+    "created": "Otomatisasi “{name}” dibuat.",
+    "existing": "Otomatisasi yang memposting ke Slack",
+    "existingHelp": "Ubah atau matikan di otomatisasi database.",
+    "off": "mati"
   }
 }

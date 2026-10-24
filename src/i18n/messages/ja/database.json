@@ -966,7 +966,8 @@
     "geocoderBusy": "住所検索が混み合っています。少し待ってから「{property}」をもう一度試してください。",
     "invalidUniqueIdPrefix": "IDの接頭辞は{max}文字以内の英字（A–Z）と数字です（例: TASK）。",
     "uniqueIdPrefixTaken": "このワークスペースの別のデータベースが、すでにIDの接頭辞「{prefix}」を使っています。",
-    "oneUniqueId": "このデータベースはすでに「{property}」で行に番号を付けています。"
+    "oneUniqueId": "このデータベースはすでに「{property}」で行に番号を付けています。",
+    "invalidSlackUrl": "Slack の Incoming Webhook のアドレスではありません（https://hooks.slack.com/services/…）。"
   },
   "formula": {
     "title": "数式",
@@ -1267,7 +1268,8 @@
         "log": "実行履歴に書き込む",
         "celebrate": "紙吹雪でお祝い",
         "approval": "承認を依頼",
-        "start_sequence": "フォローアップを開始"
+        "start_sequence": "フォローアップを開始",
+        "slack": "Slack に送信"
       },
       "trashHelp": "行をゴミ箱に移動します。ゴミ箱が空になるまでは復元できます。このアクションの後には何も実行できません。",
       "addAction": "アクションを追加",
@@ -1327,7 +1329,8 @@
         "badExample": "本文の例が有効な JSON ではありません。",
         "exampleTooLong": "本文の例が長すぎます。",
         "needApprovers": "依頼する相手を選んでください。",
-        "needTimeout": "1〜30の整数で日数を入力してください。"
+        "needTimeout": "1〜30の整数で日数を入力してください。",
+        "needSlackUrl": "Slack の Incoming Webhook のアドレスを入力してください。"
       },
       "agent": "エージェント",
       "chooseAgent": "エージェントを選択…",
@@ -1561,7 +1564,13 @@
       "logPlaceholder": "例：{template} をインポートしました",
       "logHelp": "変数を埋めた状態で実行履歴に書き込まれます。",
       "celebrateHelp": "実行のきっかけとなる変更をした人の、アプリで開いているウィンドウに紙吹雪を表示します。誰も始めていない実行（スケジュール、日付の経過、受信 Webhook、匿名のフォーム回答）と、変更から 2 分以上たってこのステップに来た実行では、スキップされます。",
-      "celebrateTry": "試す"
+      "celebrateTry": "試す",
+      "slackUrl": "Slack の Incoming Webhook",
+      "slackReplace": "保存済みのアドレスを置き換えるには新しいアドレスを貼り付けます",
+      "slackSaved": "保存済みのアドレス:",
+      "slackMessage": "メッセージ",
+      "slackPlaceholder": "例: レビュー待ち: {template}",
+      "slackHelp": "Incoming Webhook の Slack チャンネルに、行へのリンク付きでメッセージを投稿します。Slack の書式（*太字*、_斜体_）が使えます。アドレスは秘密として保管され、短縮表示のみされます。"
     },
     "variables": {
       "button": "変数を挿入",
@@ -1796,5 +1805,114 @@
     "stop": "同期を停止",
     "stopConfirm": "このデータベースの同期を停止しますか？行はそのまま残り、ログイン情報は破棄されます。",
     "viewOnly": "同期を変更できるのは、データベースへのフルアクセス権を持つ人だけです。"
+  },
+  "github": {
+    "menuItem": "GitHub のプルリクエスト",
+    "menuHint": "行を ID で示すプルリクエストのリンクを追加し、行のステータスを進めます",
+    "title": "GitHub のプルリクエスト",
+    "intro": "タイトル、説明、ブランチで {example} のように行を ID で示すプルリクエストは、その行にリンクを追加し、ステータスを進めることができます。",
+    "needUniqueId": "まずこのデータベースに ID プロパティを追加してください。プルリクエストは行を ID で示します。",
+    "needPrefix": "まず ID プロパティ「{property}」に TASK のような接頭辞を付けてください。プルリクエストはそれで行を示します。",
+    "linkProperty": "プルリクエストのリンクの追加先",
+    "noLinks": "リンクを追加しない",
+    "newProperty": "新しいテキストプロパティ…",
+    "newPropertyName": "プルリクエスト",
+    "newPropertyLabel": "新しいプロパティの名前",
+    "linkHelp": "テキストプロパティはすべてのプルリクエストを 1 行に 1 件ずつ保持し、URL プロパティは最新のものを保持します。",
+    "statusProperty": "ステータスを進めるプロパティ",
+    "noStatus": "ステータスを変えない",
+    "noStatusProperty": "このデータベースにはステータスプロパティがないため、リンクだけを追加します。",
+    "statusOff": "ステータスはそのままです。",
+    "statusHelp": "ドラフトのプルリクエストはリンクを追加しますが、レビュー準備ができるまで何も進めません。すでに完了グループのステータスにある行は、プルリクエストがマージされたときだけ進みます。",
+    "move": {
+      "opened": "オープンまたはレビュー準備完了",
+      "merged": "マージ",
+      "closed": "マージせずにクローズ"
+    },
+    "leave": "そのまま",
+    "setUp": "設定する",
+    "save": "保存",
+    "change": "変更",
+    "whatItDoes": "動作",
+    "linksTo": "プルリクエストのリンクを「{property}」に追加します。",
+    "noLinksSaved": "リンクを追加しません。",
+    "movesIn": "「{property}」を進めます: {moves}。",
+    "moves": {
+      "opened": "オープンで {option}",
+      "merged": "マージで {option}",
+      "closed": "マージせずクローズで {option}"
+    },
+    "noMoves": "ステータスはそのままです。",
+    "inGithub": "GitHub で",
+    "steps": "リポジトリの Settings で Webhooks を開き、Add webhook を選び、下の項目を入力して「Let me select individual events」を選び、Pull requests だけにチェックを入れます。",
+    "payloadUrl": "Payload URL",
+    "secret": "シークレット",
+    "showSecret": "シークレットを表示",
+    "hideSecret": "シークレットを隠す",
+    "secretUnreadable": "このサーバーではシークレットを読み取れなくなりました。新しいものを作成して GitHub に設定してください。",
+    "rotate": "新しいシークレットを作成",
+    "rotateConfirm": "新しいシークレットを作成しますか？GitHub に新しいものを設定するまで、古いもので署名された配信は拒否されます。",
+    "contentType": "Content type",
+    "events": "イベント",
+    "eventsValue": "Pull requests",
+    "deliveries": "最近の配信",
+    "refresh": "更新",
+    "noDeliveries": "まだ何も届いていません。Webhook を追加すると GitHub が ping を送り、ここに表示されます。",
+    "ping": "GitHub からの ping",
+    "pingOk": "Webhook は接続されています。",
+    "otherEvent": "イベント {event}",
+    "handling": "処理中…",
+    "ignored": "「{action}」では何もしません。",
+    "noIds": "このデータベースの行を示していません。",
+    "outcome": {
+      "updated": "更新済み",
+      "unchanged": "変更なし",
+      "notFound": "見つかりません",
+      "noAccess": "編集権限なし",
+      "failed": "失敗"
+    },
+    "deliveryErrors": {
+      "noUniqueId": "データベースに接頭辞付きの ID プロパティがなくなりました。",
+      "runAsGone": "実行者として設定された人がいなくなりました。設定を保存し直してください。",
+      "accessLost": "実行者として設定された人がこのデータベースを編集できなくなりました。設定を保存し直してください。",
+      "inTrash": "データベースはゴミ箱にあります。",
+      "failed": "処理中に問題が発生しました。"
+    },
+    "runsAs": "変更は最後に保存した {name} として行われます。",
+    "runsAsGone": "実行者だった人がいなくなりました。あなたとして実行するには保存し直してください。",
+    "remove": "削除",
+    "removeConfirm": "GitHub の設定を削除しますか？以後 GitHub からの配信は拒否されます。追加済みのリンクは残ります。",
+    "errors": {
+      "noUniqueId": "まずこのデータベースに接頭辞付きの ID プロパティを追加してください。",
+      "invalidProperty": "リンク用のテキストまたは URL プロパティ、ステータスプロパティとその選択肢を選んでください。",
+      "notSetUp": "このデータベースには GitHub の設定がありません。"
+    }
+  },
+  "slack": {
+    "menuItem": "Slack 通知",
+    "menuHint": "行が追加されたときやプロパティが変わったときに Slack チャンネルへ投稿します",
+    "title": "Slack 通知",
+    "intro": "行が追加されたときやプロパティが変わったときに Slack チャンネルへ投稿します。後で変更できるオートメーションとして保存されます。",
+    "url": "Slack の Incoming Webhook",
+    "urlHelp": "Slack でチャンネルに Incoming WebHooks アプリを追加し、Webhook URL をコピーします。秘密として保管され、短縮表示のみされます。",
+    "when": "タイミング",
+    "rowAdded": "行が追加されたとき",
+    "propertyChanges": "{property} が変わったとき",
+    "to": "変更後",
+    "anyValue": "任意の値",
+    "checked": "オン",
+    "unchecked": "オフ",
+    "message": "メッセージ",
+    "messageHelp": "二重の波かっこで囲んだ変数は行の内容で埋められます。最後に行へのリンクが追加されます。",
+    "defaultAdded": "{actor} が {database} に行を追加しました",
+    "defaultChanged": "{actor} が {property} を {value} に変更しました",
+    "nameAdded": "Slack: 新しい行",
+    "nameChanged": "Slack: {property} の変更",
+    "nameChangedTo": "Slack: {property} が {value}",
+    "create": "作成",
+    "created": "オートメーション「{name}」を作成しました。",
+    "existing": "Slack に投稿するオートメーション",
+    "existingHelp": "データベースのオートメーションで変更またはオフにできます。",
+    "off": "オフ"
   }
 }
