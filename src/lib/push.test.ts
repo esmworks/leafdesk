@@ -76,6 +76,7 @@ const texts: Record<string, string> = {
   rowUpdateBody: "the text",
   untitled: "Untitled",
   snooze: "Snooze 1 hour",
+  read: "Mark as read",
   reaction: "{actor} reacted {emoji} to your comment",
   people: "{name} (+{others})",
 };
@@ -111,6 +112,7 @@ describe("pushPayload", () => {
       body: "Ayşe mentioned you",
       url: "/w/ws1/p/p1",
       tag: "n1",
+      read: "Mark as read",
       snooze: "Snooze 1 hour",
     });
     expect(pushPayload(item({ kind: "comment", pageTitle: "  " }), t, date)).toMatchObject({ title: "Untitled", body: "Ayşe commented in a thread you're in" });
@@ -158,6 +160,7 @@ describe("pushPayload", () => {
       body: "Ayşe asked to invite new@example.com",
       url: "/w/ws1/settings?tab=members&view=requests",
       tag: "n1",
+      read: "Mark as read",
       snooze: "Snooze 1 hour",
     });
     const approval = { agentId: "a1", runId: "r1", agentName: "Helper", tool: "send_mail", connectionName: "Mail" };
@@ -167,7 +170,8 @@ describe("pushPayload", () => {
       body: "Wants to call “send_mail” on Mail",
       url: "/w/ws1/settings?tab=agents&agent=a1&run=r1",
       tag: "n1",
-      // It waits only so long: no snoozing.
+      // It waits only so long: no snoozing, though it can be marked read.
+      read: "Mark as read",
       snooze: "",
     });
     // Answered (or ran out of time) before the push went out: nothing to say.
@@ -181,6 +185,7 @@ describe("pushPayload", () => {
       body: "Proposes 2 notes for its memory",
       url: "/w/ws1/settings?tab=agents&agent=a1&agentTab=memory",
       tag: "n1",
+      read: "Mark as read",
       snooze: "Snooze 1 hour",
     });
     // Kept or dismissed before the push went out.
@@ -194,6 +199,7 @@ describe("pushPayload", () => {
       body: "Finished its scheduled run",
       url: "/w/ws1/settings?tab=agents&agent=a1&run=r1",
       tag: "n1",
+      read: "Mark as read",
       snooze: "Snooze 1 hour",
     });
     expect(pushPayload(item({ kind: "agent_report", pageId: null, report: { ...report, status: "failed" } }), t, date)?.body).toBe("Its scheduled run didn't finish");
@@ -207,6 +213,7 @@ describe("pushPayload", () => {
       body: "Ayşe changed Status, the title, the text · Tasks",
       url: "/w/ws1/p/p1",
       tag: "n1",
+      read: "Mark as read",
       snooze: "Snooze 1 hour",
     });
     expect(pushPayload(item({ kind: "row_update", rowUpdate: null }), t, date)?.body).toBe("Ayşe changed this row");
@@ -226,7 +233,7 @@ describe("pushPayload", () => {
 });
 
 describe("encodePushPayload", () => {
-  const payload = { title: "Roadmap", body: "Ayşe mentioned you", url: "https://leafdesk.example.com/w/ws1/p/p1", tag: "n1", snooze: "Snooze 1 hour" };
+  const payload = { title: "Roadmap", body: "Ayşe mentioned you", url: "https://leafdesk.example.com/w/ws1/p/p1", tag: "n1", read: "Mark as read", snooze: "Snooze 1 hour" };
 
   it("is the payload as JSON", () => {
     expect(JSON.parse(encodePushPayload(payload))).toEqual(payload);

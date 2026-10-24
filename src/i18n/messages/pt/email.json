@@ -274,6 +274,7 @@
     "reportFailed": "A execução agendada falhou",
     "untitled": "Sem título",
     "snooze": "Adiar 1 hora",
+    "read": "Marcar como lido",
     "aiAccountTitle": "Conta de IA removida",
     "aiAccountDetached": "A IA do espaço de trabalho não funciona mais com a chave de {actor}.",
     "reviewTitle": "Para revisar",

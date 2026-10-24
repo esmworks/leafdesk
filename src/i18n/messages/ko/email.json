@@ -274,6 +274,7 @@
     "reportFailed": "예약된 실행이 실패했습니다",
     "untitled": "제목 없음",
     "snooze": "1시간 후 다시 알림",
+    "read": "읽음으로 표시",
     "aiAccountTitle": "AI 계정 삭제됨",
     "aiAccountDetached": "워크스페이스의 AI가 더 이상 {actor}님의 키로 실행되지 않습니다.",
     "reviewTitle": "검토 대기",

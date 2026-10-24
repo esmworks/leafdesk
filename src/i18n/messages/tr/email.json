@@ -274,6 +274,7 @@
     "reportFailed": "Zamanlanmış çalışması başarısız oldu",
     "untitled": "Adsız",
     "snooze": "1 saat ertele",
+    "read": "Okundu işaretle",
     "aiAccountTitle": "Yapay zekâ hesabı kaldırıldı",
     "aiAccountDetached": "Çalışma alanının yapay zekâsı artık {actor} kişisinin anahtarıyla çalışmıyor.",
     "reviewTitle": "İncelenecekler",

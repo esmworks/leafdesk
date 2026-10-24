@@ -274,6 +274,7 @@
     "reportFailed": "Its scheduled run failed",
     "untitled": "Untitled",
     "snooze": "Snooze 1 hour",
+    "read": "Mark as read",
     "aiAccountTitle": "AI account removed",
     "aiAccountDetached": "The workspace's AI no longer runs on {actor}'s key.",
     "reviewTitle": "For review",

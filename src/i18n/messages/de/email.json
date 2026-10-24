@@ -274,6 +274,7 @@
     "reportFailed": "Sein geplanter Lauf ist fehlgeschlagen",
     "untitled": "Ohne Titel",
     "snooze": "1 Stunde zurückstellen",
+    "read": "Als gelesen markieren",
     "aiAccountTitle": "KI-Konto entfernt",
     "aiAccountDetached": "Die KI des Workspaces läuft nicht mehr über den Schlüssel von {actor}.",
     "reviewTitle": "Zu prüfen",

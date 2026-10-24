@@ -1330,6 +1330,27 @@ export async function markRead(userId: string, workspaceId: string, notification
 }
 
 /**
+ * Marks one of the user's notifications read, in whatever workspace it is (a push notification's
+ * button, see api/notifications/[id]/read). Its email, if it hasn't gone yet, then doesn't go.
+ * Returns false when the user has no such notification.
+ */
+export async function markNotificationRead(userId: string, notificationId: string) {
+  const [row] = await db
+    .select({ workspaceId: notification.workspaceId, readAt: notification.readAt })
+    .from(notification)
+    .where(and(eq(notification.id, notificationId), eq(notification.userId, userId)));
+  if (!row) return false;
+  if (!row.readAt) {
+    await db
+      .update(notification)
+      .set({ readAt: new Date() })
+      .where(and(eq(notification.id, notificationId), eq(notification.userId, userId), isNull(notification.readAt)));
+    signal(row.workspaceId);
+  }
+  return true;
+}
+
+/**
  * Marks the given notifications unread again (a swipe in the inbox on a phone). An email still to
  * come about one goes out as for any unread notification; one that went, or was left out because
  * it had been read, doesn't come again.

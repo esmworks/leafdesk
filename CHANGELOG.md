@@ -13,6 +13,9 @@
   away by itself, and the audit log records what was asked along with what was given. Requests
   from the "You don't have access" screen work as before; the workspace's *Access requests*
   setting covers both. Migration 0128 adds the requested level to `access_request`.
+- **Mark a push notification read from the notification.** Next to *Snooze 1 hour*, push
+  notifications have a *Mark as read* button that marks the inbox item read without opening
+  Leafdesk; an email still to come about it then doesn't go.
 - **Keep a database of Jira issues in sync.** Import has a Jira tab: connect a Jira Cloud site
   with an email address and API token, pick a project or write a JQL query, and get a database
   whose rows are the issues (key, summary, status, assignee, priority, type, labels, due date and a

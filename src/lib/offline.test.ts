@@ -98,6 +98,22 @@ describe("pages the service worker keeps", () => {
     expect(FILE_PATH.test("/api/files/abc_DEF-123")).toBe(true);
     expect(FILE_PATH.test("/api/files/abc/preview")).toBe(false);
   });
+
+  it("public/sw.js answers a push notification's buttons through their routes", () => {
+    const sw = readFileSync(new URL("../../public/sw.js", import.meta.url), "utf8");
+    // Each button posts to its route with the header the route checks (src/app/api/notifications/[id]).
+    for (const [action, route, header] of [
+      ["read", "read", "X-Leafdesk-Read"],
+      ["snooze", "snooze", "X-Leafdesk-Snooze"],
+    ]) {
+      expect(sw).toContain(`action: "${action}"`);
+      expect(sw).toContain(`event.action === "${action}"`);
+      expect(sw).toContain(`/api/notifications/\${encodeURIComponent(id)}/${route}`);
+      expect(sw).toContain(`"${header}": "1"`);
+      const handler = readFileSync(new URL(`../app/api/notifications/[id]/${route}/route.ts`, import.meta.url), "utf8");
+      expect(handler).toContain(`"${header.toLowerCase()}"`);
+    }
+  });
 });
 
 describe("recent pages and unsent edits", () => {

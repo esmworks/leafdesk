@@ -1296,9 +1296,10 @@ New inbox items can also come as system notifications on people's devices, while
 closed too. Each person turns them on per device in My account → Preferences ("Push notifications
 on this device"), and picks there, per kind of notification, whether it comes as a push next to
 the inbox and email. Push follows the inbox: a kind kept out of the inbox isn't pushed. Opening a
-notification brings an open Leafdesk tab to the page, or opens one; its "Snooze 1 hour" button
-puts it off as the inbox's snooze does (not on agents' requests to go ahead, which wait only so
-long). People who linked Telegram get the same notifications there too (see
+notification brings an open Leafdesk tab to the page, or opens one; its "Mark as read" button
+marks the inbox item read (its email, if still to come, then doesn't go) and its "Snooze 1 hour"
+button puts it off as the inbox's snooze does (not on agents' requests to go ahead, which wait
+only so long). People who linked Telegram get the same notifications there too (see
 [AI chat from Telegram](#ai-chat-from-telegram)), with a Telegram column of their own.
 
 Push is off until the server has a VAPID key pair. Make one and add the printed lines to `.env`:

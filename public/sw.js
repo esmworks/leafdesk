@@ -17,7 +17,8 @@
  * - Everything else (API routes, uploads, server actions, RSC requests, the collab websocket) is
  *   never touched.
  * - Push messages (server/push.ts) show as notifications; opening one brings an open Leafdesk tab
- *   to the notification's page, or opens a new window; its Snooze button snoozes it for an hour.
+ *   to the notification's page, or opens a new window; its Mark as read button marks it read and
+ *   its Snooze button snoozes it for an hour.
  *
  * Bump VERSION when changing this file's caching of static files.
  */
@@ -304,7 +305,7 @@ async function trim(cache) {
 }
 
 // ---------------------------------------------------------------------------------------------
-// Push notifications. The server sends { title, body, url, tag, snooze } for a new inbox notification;
+// Push notifications. The server sends { title, body, url, tag, read, snooze } for a new inbox notification;
 // every message shows a notification (browsers require it), a generic one if the data is unusable.
 
 self.addEventListener("push", (event) => {
@@ -321,7 +322,14 @@ function readPush(data) {
   }
   if (!message || typeof message !== "object") return null;
   const text = (value) => (typeof value === "string" ? value : "");
-  return { title: text(message.title), body: text(message.body), url: text(message.url), tag: text(message.tag), snooze: text(message.snooze) };
+  return {
+    title: text(message.title),
+    body: text(message.body),
+    url: text(message.url),
+    tag: text(message.tag),
+    read: text(message.read),
+    snooze: text(message.snooze),
+  };
 }
 
 function showPush(message) {
@@ -335,8 +343,11 @@ function showPush(message) {
   if (message && message.tag) {
     options.tag = message.tag;
     options.data.id = message.tag;
-    // The tag is the notification's id: its button snoozes it for an hour (see notificationclick).
-    if (message.snooze) options.actions = [{ action: "snooze", title: message.snooze }];
+    // The tag is the notification's id: its buttons mark it read or snooze it for an hour (see notificationclick).
+    const actions = [];
+    if (message.read) actions.push({ action: "read", title: message.read });
+    if (message.snooze) actions.push({ action: "snooze", title: message.snooze });
+    if (actions.length) options.actions = actions;
   }
   return self.registration.showNotification((message && message.title) || "Leafdesk", options);
 }
@@ -357,6 +368,10 @@ self.addEventListener("notificationclick", (event) => {
     event.waitUntil(snooze(data.id));
     return;
   }
+  if (event.action === "read" && data.id) {
+    event.waitUntil(markRead(data.id));
+    return;
+  }
   event.waitUntil(openFromNotification(data.url));
 });
 
@@ -367,6 +382,17 @@ async function snooze(id) {
       method: "POST",
       credentials: "same-origin",
       headers: { "X-Leafdesk-Snooze": "1" },
+    });
+  } catch {}
+}
+
+/** Marks the inbox item read, as the signed-in user, the way snooze does. */
+async function markRead(id) {
+  try {
+    await fetch(`/api/notifications/${encodeURIComponent(id)}/read`, {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "X-Leafdesk-Read": "1" },
     });
   } catch {}
 }

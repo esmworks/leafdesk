@@ -274,6 +274,7 @@
     "reportFailed": "スケジュールされた実行が失敗しました",
     "untitled": "無題",
     "snooze": "1時間スヌーズ",
+    "read": "既読にする",
     "aiAccountTitle": "AIアカウントが削除されました",
     "aiAccountDetached": "ワークスペースのAIは、{actor}のキーでは実行されなくなりました。",
     "reviewTitle": "確認待ち",
