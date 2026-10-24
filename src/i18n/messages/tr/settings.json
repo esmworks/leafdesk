@@ -78,6 +78,8 @@
       "legalHolds": "dava koru e-keşif sakla yasal",
       "storage": "dosyalar s3 drive kova",
       "analyticsPeople": "etkinlik düzenlemeler istatistik",
+      "pageViews": "görüntüleme ziyaret en çok görüntülenen izleme gizlilik",
+      "ownPageViews": "görüntüleme izleme gizlilik vazgeç analiz",
       "aiUsageLimit": "bütçe maliyet harcama sınır",
       "aiUsagePeople": "kişi başı üye maliyet token",
       "health": "kırık bağlantılar sahipsiz yinelenen boş sayfalar",
@@ -925,14 +927,18 @@
     }
   },
   "analytics": {
-    "description": "Bu çalışma alanında kimin ne kadar düzenleme yaptığı; sayfa geçmişinden ve her sayfanın son değişikliğinden sayılır. Bunun için ayrıca bir şey kaydedilmez. Yalnızca sahipler görür.",
+    "description": "Bu çalışma alanında kimin ne kadar düzenleme yaptığı (sayfa geçmişinden ve her sayfanın son değişikliğinden sayılır) ve sayfa görüntülemeleri kaydedilirken hangi sayfaları açtıkları. Yalnızca sahipler görür.",
     "periods": "Dönem",
     "period": "Son {days} gün",
     "activeMembers": "Etkin üyeler",
     "activeOf": "{total} üyeden {active}",
     "edits": "Düzenlemeler",
     "pagesEdited": "Düzenlenen sayfalar",
+    "views": "Görüntülemeler",
+    "viewers": "Görüntüleyenler",
+    "pagesViewed": "Görüntülenen sayfalar",
     "howCounted": "Bir düzenleme, sayfanın kaydedilmiş bir sürümü (biri yazarken en çok 10 dakikada bir, ayrıca her uygulama, yapay zekâ veya geri yükleme değişikliğinden önce bir tane) ya da sayfa geçmişinin tutmadığı bir değişikliktir; örneğin bir satırın değerleri.",
+    "howViewsCounted": "Bir görüntüleme, bir sahibin veya üyenin uygulamada bir sayfayı, veritabanını ya da satırı açmasıdır; 5 dakika içinde yeniden açmak sayılmaz. Misafirler, ajanlar, bağlı uygulamalar, yayımlanmış sayfalar ve kendi görüntülemelerini kapatan kişiler kaydedilmez. Görüntülemeler bir yıl tutulur.",
     "peopleHeading": "Kişi başına düzenlemeler",
     "peopleDescription": "Misafirler düzenlemeleriyle listelenir ama etkin üye sayılmaz.",
     "pagesHeading": "En çok düzenlenen sayfalar",
@@ -942,6 +948,13 @@
     "neverEdited": "Düzenleme yok",
     "exportPeople": "Kişi başına düzenlemeleri CSV olarak indir",
     "exportPages": "En çok düzenlenen sayfaları CSV olarak indir",
+    "viewersHeading": "Kişi başına görüntülemeler",
+    "viewersDescription": "Sahipler ve üyeler; misafirlerin görüntülemeleri kaydedilmez.",
+    "viewedHeading": "En çok görüntülenen sayfalar",
+    "noViews": "Bu dönemde sayfa görüntülemesi yok.",
+    "neverViewed": "Görüntüleme yok",
+    "exportViewers": "Kişi başına görüntülemeleri CSV olarak indir",
+    "exportViewed": "En çok görüntülenen sayfaları CSV olarak indir",
     "columns": {
       "person": "Kişi",
       "role": "Rol",
@@ -949,8 +962,21 @@
       "pages": "Sayfa",
       "lastEdit": "Son düzenleme",
       "page": "Sayfa",
-      "editors": "Düzenleyen"
+      "editors": "Düzenleyen",
+      "views": "Görüntüleme",
+      "viewers": "Görüntüleyen",
+      "lastView": "Son görüntüleme"
+    },
+    "recording": {
+      "title": "Sayfa görüntülemelerini kaydet",
+      "description": "Sahiplerin ve üyelerin hangi sayfaları açtığını bu analizler ve her sayfanın Analitik bölümü için say. Kapalıyken başka bir şey kaydedilmez ve yalnızca düzenlemeler gösterilir."
     }
+  },
+  "pageViews": {
+    "heading": "Sayfa görüntülemeleri",
+    "title": "Görüntülemelerimi kaydet",
+    "description": "Burada açtığınız sayfalar, sahiplerin ve sayfayı düzenleyebilenlerin gördüğü çalışma alanı analizlerinde sayılır. Görüntülemelerinizi bunların dışında tutmak için kapatın.",
+    "workspaceOff": "Bu çalışma alanı sayfa görüntülemelerini kaydetmiyor: sahipleri kapattı."
   },
   "aiUsage": {
     "description": "Bu çalışma alanında yapay zekânın aylara, özelliklere ve modellere göre ne kadar tuttuğu ve bir ayda en fazla ne kadar tutabileceği. Yalnızca sayılar tutulur; ne sorulduğu ya da ne yanıtlandığı asla kaydedilmez. Yalnızca sahipler görür.",

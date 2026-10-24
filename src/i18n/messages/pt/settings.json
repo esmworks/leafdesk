@@ -78,6 +78,8 @@
       "legalHolds": "litígio preservar ediscovery manter",
       "storage": "arquivos s3 drive bucket",
       "analyticsPeople": "atividade edições estatísticas",
+      "pageViews": "visualizações visitantes mais vistas rastreamento privacidade",
+      "ownPageViews": "visualizações rastreamento privacidade sair estatísticas",
       "aiUsageLimit": "orçamento custo gasto teto",
       "aiUsagePeople": "por pessoa membro custo tokens",
       "health": "links quebrados órfãs duplicadas páginas vazias",
@@ -925,14 +927,18 @@
     }
   },
   "analytics": {
-    "description": "Quanto as pessoas editaram neste espaço de trabalho, contado a partir do histórico das páginas e da última alteração de cada página. Nada a mais é rastreado. Só proprietários veem isto.",
+    "description": "Quanto cada pessoa editou neste espaço de trabalho, contado a partir do histórico das páginas e da última alteração de cada página, e quais páginas abriu enquanto as visualizações são registradas. Só os proprietários veem isto.",
     "periods": "Período",
     "period": "Últimos {days} dias",
     "activeMembers": "Membros ativos",
     "activeOf": "{active} de {total}",
     "edits": "Edições",
     "pagesEdited": "Páginas editadas",
+    "views": "Visualizações",
+    "viewers": "Visitantes",
+    "pagesViewed": "Páginas vistas",
     "howCounted": "Uma edição é uma versão salva de uma página (no máximo uma a cada 10 minutos enquanto alguém digita, e uma antes de cada alteração feita por app, IA ou restauração) ou uma alteração que o histórico da página não guarda, como os valores de uma linha.",
+    "howViewsCounted": "Uma visualização é um proprietário ou membro abrindo uma página, base de dados ou linha no app; abrir de novo em menos de 5 minutos não conta. Convidados, agentes, apps conectados, páginas publicadas e pessoas que desativaram as próprias visualizações não são registrados. As visualizações são guardadas por um ano.",
     "peopleHeading": "Edições por pessoa",
     "peopleDescription": "Convidados aparecem com as edições deles, mas não contam como membros ativos.",
     "pagesHeading": "Páginas mais editadas",
@@ -942,6 +948,13 @@
     "neverEdited": "Nenhuma edição",
     "exportPeople": "Baixar edições por pessoa em CSV",
     "exportPages": "Baixar páginas mais editadas em CSV",
+    "viewersHeading": "Visualizações por pessoa",
+    "viewersDescription": "Proprietários e membros; as visualizações de convidados não são registradas.",
+    "viewedHeading": "Páginas mais vistas",
+    "noViews": "Nenhuma visualização neste período.",
+    "neverViewed": "Sem visualizações",
+    "exportViewers": "Baixar visualizações por pessoa em CSV",
+    "exportViewed": "Baixar páginas mais vistas em CSV",
     "columns": {
       "person": "Pessoa",
       "role": "Função",
@@ -949,8 +962,21 @@
       "pages": "Páginas",
       "lastEdit": "Última edição",
       "page": "Página",
-      "editors": "Editores"
+      "editors": "Editores",
+      "views": "Visualizações",
+      "viewers": "Visitantes",
+      "lastView": "Última visualização"
+    },
+    "recording": {
+      "title": "Registrar visualizações de páginas",
+      "description": "Conta quais páginas proprietários e membros abrem, para estas estatísticas e as de cada página. Desativado, nada mais é registrado e só as edições aparecem."
     }
+  },
+  "pageViews": {
+    "heading": "Visualizações de páginas",
+    "title": "Registrar minhas visualizações",
+    "description": "As páginas que você abre aqui contam nas estatísticas do espaço de trabalho, que proprietários e quem pode editar uma página veem. Desative para deixar suas visualizações de fora.",
+    "workspaceOff": "Este espaço de trabalho não registra visualizações de páginas: os proprietários as desativaram."
   },
   "aiUsage": {
     "description": "Quanto custou a IA deste espaço de trabalho, por mês, recurso e modelo, e o máximo que pode custar num mês. Só se guardam números, nunca o que foi perguntado ou respondido. Só os proprietários veem isto.",

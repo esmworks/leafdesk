@@ -78,6 +78,8 @@
       "legalHolds": "litigio preservar ediscovery conservar",
       "storage": "archivos s3 drive bucket",
       "analyticsPeople": "actividad ediciones estadísticas",
+      "pageViews": "visitas visitantes más vistas seguimiento privacidad",
+      "ownPageViews": "visitas seguimiento privacidad excluirme analíticas",
       "aiUsageLimit": "presupuesto coste gasto límite",
       "aiUsagePeople": "por persona miembro coste tokens",
       "health": "enlaces rotos huérfanas duplicadas páginas vacías",
@@ -925,14 +927,18 @@
     }
   },
   "analytics": {
-    "description": "Cuánto se editó en este espacio de trabajo, contado a partir del historial de páginas y del último cambio de cada página. No se registra nada adicional. Solo lo ven los propietarios.",
+    "description": "Cuánto editó cada persona en este espacio de trabajo, contado a partir del historial de páginas y del último cambio de cada página, y qué páginas abrieron mientras se registran las visitas. Solo lo ven los propietarios.",
     "periods": "Periodo",
     "period": "Últimos {days} días",
     "activeMembers": "Miembros activos",
     "activeOf": "{active} de {total}",
     "edits": "Ediciones",
     "pagesEdited": "Páginas editadas",
+    "views": "Visitas",
+    "viewers": "Visitantes",
+    "pagesViewed": "Páginas vistas",
     "howCounted": "Una edición es una versión guardada de una página (como mucho una cada 10 minutos mientras alguien escribe, y una antes de cada cambio de una app, la IA o una restauración) o un cambio que el historial no guarda, como los valores de una fila.",
+    "howViewsCounted": "Una visita es un propietario o miembro abriendo una página, base de datos o fila en la app; volver a abrirla en menos de 5 minutos no cuenta. No se registran invitados, agentes, apps conectadas, páginas publicadas ni las personas que desactivaron sus propias visitas. Las visitas se guardan un año.",
     "peopleHeading": "Ediciones por persona",
     "peopleDescription": "Los invitados aparecen con sus ediciones, pero no cuentan como miembros activos.",
     "pagesHeading": "Páginas más editadas",
@@ -942,6 +948,13 @@
     "neverEdited": "Sin ediciones",
     "exportPeople": "Descargar ediciones por persona en CSV",
     "exportPages": "Descargar las páginas más editadas en CSV",
+    "viewersHeading": "Visitas por persona",
+    "viewersDescription": "Propietarios y miembros; las visitas de los invitados no se registran.",
+    "viewedHeading": "Páginas más vistas",
+    "noViews": "No hay visitas en este periodo.",
+    "neverViewed": "Sin visitas",
+    "exportViewers": "Descargar visitas por persona como CSV",
+    "exportViewed": "Descargar páginas más vistas como CSV",
     "columns": {
       "person": "Persona",
       "role": "Rol",
@@ -949,8 +962,21 @@
       "pages": "Páginas",
       "lastEdit": "Última edición",
       "page": "Página",
-      "editors": "Editores"
+      "editors": "Editores",
+      "views": "Visitas",
+      "viewers": "Visitantes",
+      "lastView": "Última visita"
+    },
+    "recording": {
+      "title": "Registrar visitas de páginas",
+      "description": "Cuenta qué páginas abren los propietarios y miembros, para estas analíticas y las de cada página. Desactivado, no se registra nada más y solo se muestran las ediciones."
     }
+  },
+  "pageViews": {
+    "heading": "Visitas de páginas",
+    "title": "Registrar mis visitas",
+    "description": "Las páginas que abres aquí cuentan en las analíticas del espacio de trabajo, que ven los propietarios y quienes pueden editar una página. Desactívalo para dejar tus visitas fuera.",
+    "workspaceOff": "Este espacio de trabajo no registra visitas de páginas: sus propietarios las desactivaron."
   },
   "aiUsage": {
     "description": "Lo que costó la IA de este espacio de trabajo, por mes, función y modelo, y lo máximo que puede costar en un mes. Solo se guardan cifras, nunca lo que se preguntó ni se respondió. Solo lo ven los propietarios.",

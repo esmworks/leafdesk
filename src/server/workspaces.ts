@@ -1398,6 +1398,7 @@ const SETTING_VALUES: {
   connectedApps: CONNECTED_APPS_MODES,
   accessRequests: [true, false],
   email: [false, true],
+  pageViews: [true, false],
 };
 
 /**
@@ -1702,6 +1703,34 @@ export async function getMemberAiMemory(userId: string, workspaceId: string): Pr
     .from(workspaceMember)
     .where(and(eq(workspaceMember.workspaceId, workspaceId), eq(workspaceMember.userId, userId)));
   return row ? row.aiMemory : null;
+}
+
+/**
+ * Whether the pages the person opens in this workspace are recorded for analytics
+ * (server/page-views.ts): only for owners and members, not agents, who left it on, while the
+ * workspace records views. `own` is their own switch (null when not a member), `workspace` the
+ * owners' one.
+ */
+export async function pageViewRecording(userId: string, workspaceId: string): Promise<{ own: boolean | null; workspace: boolean; records: boolean }> {
+  const [[row], settings] = await Promise.all([
+    db
+      .select({ role: workspaceMember.role, pageViews: workspaceMember.pageViews })
+      .from(workspaceMember)
+      .where(and(eq(workspaceMember.workspaceId, workspaceId), eq(workspaceMember.userId, userId), notAgentUser(workspaceMember.userId))),
+    workspaceSettings(workspaceId),
+  ]);
+  const workspaceOn = settings.pageViews !== false;
+  return { own: row ? row.pageViews : null, workspace: workspaceOn, records: !!row && row.role !== "guest" && row.pageViews && workspaceOn };
+}
+
+/** Sets the member's own switch for recording the pages they open in this workspace; false when not a member. */
+export async function setMemberPageViews(userId: string, workspaceId: string, on: boolean): Promise<boolean> {
+  const changed = await db
+    .update(workspaceMember)
+    .set({ pageViews: on })
+    .where(and(eq(workspaceMember.workspaceId, workspaceId), eq(workspaceMember.userId, userId)))
+    .returning({ userId: workspaceMember.userId });
+  return changed.length > 0;
 }
 
 /** Sets the member's own switch for the AI chat's memory in this workspace; false when not a member. */

@@ -3,6 +3,7 @@
   "documentViewTitle": "{title} · {view} · Leafdesk",
   "header": {
     "history": "Lịch sử trang",
+    "analytics": "Phân tích",
     "more": "Thêm",
     "copyLink": "Sao chép liên kết",
     "copyId": "Sao chép ID",
@@ -286,6 +287,26 @@
       "restore": "Không thể khôi phục phiên bản này.",
       "diff": "Không thể so sánh các phiên bản này."
     }
+  },
+  "analytics": {
+    "title": "Phân tích trang",
+    "period": "Khoảng thời gian",
+    "days": "{days} ngày",
+    "views": "Lượt xem",
+    "viewers": "Người xem",
+    "viewedBy": "Đã xem",
+    "editedBy": "Đã chỉnh sửa",
+    "noViews": "Không ai mở trang này trong khoảng thời gian này.",
+    "noEdits": "Không có chỉnh sửa trong khoảng thời gian này.",
+    "viewCount": "{count} lượt xem",
+    "editCount": "{count} lần chỉnh sửa",
+    "chartLabel": "Lượt xem mỗi ngày",
+    "dayViews": "{day}: {count} lượt xem",
+    "notRecorded": "Không gian làm việc này không ghi lại lượt xem trang nên chỉ hiển thị chỉnh sửa. Chủ sở hữu có thể bật trong Cài đặt > Phân tích.",
+    "howCounted": "Một lượt xem là khi chủ sở hữu hoặc thành viên mở trang; mở lại trong vòng 5 phút không được tính. Ngày theo UTC.",
+    "howEditsCounted": "Chỉnh sửa được tính từ lịch sử trang và thay đổi gần nhất của trang.",
+    "noAccess": "Chỉ chủ sở hữu không gian làm việc và thành viên có thể chỉnh sửa trang này mới thấy phân tích của nó.",
+    "failed": "Không tải được phân tích."
   },
   "move": {
     "title": "Chuyển đến",

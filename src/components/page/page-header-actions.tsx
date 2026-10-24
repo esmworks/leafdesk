@@ -7,6 +7,7 @@ import {
   BadgeCheck,
   Bell,
   BellOff,
+  ChartColumn,
   Check,
   CheckCheck,
   ChevronDown,
@@ -525,6 +526,7 @@ function PageMenu({
   const router = useRouter();
   const [moveOpen, setMoveOpen] = useState(false);
   const [pdfOpen, setPdfOpen] = useState(false);
+  const [analyticsOpen, setAnalyticsOpen] = useState(false);
   // Whether the exports below (Markdown, ZIP, the PDF dialog's first choice) carry the comments.
   const [exportComments, setExportComments] = useState(false);
   const [voiceInstructionsOpen, setVoiceInstructionsOpen] = useState(false);
@@ -1050,6 +1052,19 @@ function PageMenu({
                 {t("versionHistory")}
               </MenuItem>
             )}
+            {/* Who opened and edited the page: for owners and members who may edit it, never guests. */}
+            {canEdit && !info.guest && !info.template && (
+              <MenuItem
+                icon={<ChartColumn className="h-4 w-4" />}
+                disabled={offline}
+                onClick={() => {
+                  close();
+                  setAnalyticsOpen(true);
+                }}
+              >
+                {t("analytics")}
+              </MenuItem>
+            )}
 
             {(error || zipExport.error) && (
               <p role="alert" className="px-2 pt-1 text-xs text-danger">
@@ -1093,6 +1108,14 @@ function PageMenu({
           </Suspense>,
           document.body,
         )}
+      {analyticsOpen &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <Suspense fallback={null}>
+            <PageAnalyticsDialog pageId={page.id} onClose={() => setAnalyticsOpen(false)} />
+          </Suspense>,
+          document.body,
+        )}
       {mergeOpen && (
         <MergeWithDialog
           rowId={page.id}
@@ -1123,8 +1146,9 @@ function PageMenu({
   );
 }
 
-// The PDF and row access dialogs come with their first use, not with every page.
+// The PDF, analytics and row access dialogs come with their first use, not with every page.
 const PdfExportDialog = lazy(() => import("./pdf-export-dialog"));
+const PageAnalyticsDialog = lazy(() => import("./page-analytics-dialog"));
 const RowAccessDialog = lazy(() => import("@/components/database/row-access-dialog").then((m) => ({ default: m.RowAccessDialog })));
 
 /** Pick a new parent: any page or database in the sidebar tree except this page and its subpages. */

@@ -3,6 +3,7 @@
   "documentViewTitle": "{title} · {view} · Leafdesk",
   "header": {
     "history": "Page history",
+    "analytics": "Analytics",
     "more": "More",
     "copyLink": "Copy link",
     "copyId": "Copy ID",
@@ -286,6 +287,26 @@
       "restore": "Could not restore this version.",
       "diff": "Could not compare these versions."
     }
+  },
+  "analytics": {
+    "title": "Page analytics",
+    "period": "Period",
+    "days": "{days} days",
+    "views": "Views",
+    "viewers": "Viewers",
+    "viewedBy": "Viewed by",
+    "editedBy": "Edited by",
+    "noViews": "Nobody opened this page in this period.",
+    "noEdits": "No edits in this period.",
+    "viewCount": "{count, plural, one {# view} other {# views}}",
+    "editCount": "{count, plural, one {# edit} other {# edits}}",
+    "chartLabel": "Views per day",
+    "dayViews": "{day}: {count, plural, one {# view} other {# views}}",
+    "notRecorded": "This workspace doesn't record page views, so only edits are shown. Owners can turn them on in Settings > Analytics.",
+    "howCounted": "A view is an owner or member opening the page; opening it again within 5 minutes doesn't count. Days are in UTC.",
+    "howEditsCounted": "Edits are counted from page history and the page's latest change.",
+    "noAccess": "Only the workspace's owners and members who can edit this page see its analytics.",
+    "failed": "Couldn't load the analytics."
   },
   "move": {
     "title": "Move to",

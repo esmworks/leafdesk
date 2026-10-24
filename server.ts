@@ -54,6 +54,7 @@ const { startRowUpdates } = await import("./src/server/row-follow");
 const { startPageUpdates } = await import("./src/server/page-watch");
 const { startVerificationReminders } = await import("./src/server/verification");
 const { startPageWebhooks } = await import("./src/server/page-webhooks/deliver");
+const { startPageViewRetention } = await import("./src/server/page-views");
 const { startDateReminders } = await import("./src/server/date-reminders");
 const { startAiProperties } = await import("./src/server/ai-properties");
 const { startSemanticIndex } = await import("./src/server/semantic-index");
@@ -202,6 +203,8 @@ server.listen(port, hostname, () => {
   startVerificationReminders();
   // Sends what happens to pages to the workspaces' page webhooks, and retries them.
   startPageWebhooks();
+  // Deletes page views older than a year (analytics only keep that long).
+  startPageViewRetention();
   // Logs the AI provider (or that AI is off) and follows row changes for auto-updating AI values.
   startAiProperties();
   startSemanticIndex();

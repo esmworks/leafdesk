@@ -501,8 +501,13 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
 - **People directory and analytics**: a *People* page with a card for each owner and member (their
   teamspaces, groups and recently edited pages, as far as the viewer may see them), and, for
   owners, Settings → Analytics: active members, edits per person and the most edited pages over
-  7, 30 or 90 days, with CSV export. Counted from page history and last edits; nothing extra is
-  tracked.
+  7, 30 or 90 days, with CSV export, counted from page history and last edits. While page views
+  are recorded (on by default; owners turn it off there, and each person can opt out under
+  Settings → General) it adds views, unique viewers, views per person and the most viewed pages,
+  and each page's menu has *Analytics* for people who may edit it: views per day, who opened it
+  and who edited it. A view is an owner or member opening a page, database or row in the app,
+  kept as one count per page, person and day for a year; guests, agents, API and MCP clients and
+  published pages are never recorded.
 - **Workspace health**: Settings → Health, for owners and members, checks the pages each person
   can open for what is worth tidying: links and mentions to pages in the trash or deleted, top-level
   pages nothing links to, pages with a title and no body, pages nobody edited for 3, 6, 12 or 24

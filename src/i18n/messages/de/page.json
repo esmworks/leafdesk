@@ -3,6 +3,7 @@
   "documentViewTitle": "{title} · {view} · Leafdesk",
   "header": {
     "history": "Seitenverlauf",
+    "analytics": "Analysen",
     "more": "Mehr",
     "copyLink": "Link kopieren",
     "copyId": "ID kopieren",
@@ -286,6 +287,26 @@
       "restore": "Diese Version konnte nicht wiederhergestellt werden.",
       "diff": "Diese Versionen konnten nicht verglichen werden."
     }
+  },
+  "analytics": {
+    "title": "Seitenanalysen",
+    "period": "Zeitraum",
+    "days": "{days} Tage",
+    "views": "Aufrufe",
+    "viewers": "Besucher",
+    "viewedBy": "Aufgerufen von",
+    "editedBy": "Bearbeitet von",
+    "noViews": "In diesem Zeitraum hat niemand diese Seite geöffnet.",
+    "noEdits": "Keine Bearbeitungen in diesem Zeitraum.",
+    "viewCount": "{count, plural, one {# Aufruf} other {# Aufrufe}}",
+    "editCount": "{count, plural, one {# Bearbeitung} other {# Bearbeitungen}}",
+    "chartLabel": "Aufrufe pro Tag",
+    "dayViews": "{day}: {count, plural, one {# Aufruf} other {# Aufrufe}}",
+    "notRecorded": "Dieser Arbeitsbereich erfasst keine Seitenaufrufe, daher werden nur Bearbeitungen gezeigt. Inhaber können sie unter Einstellungen > Analysen einschalten.",
+    "howCounted": "Ein Aufruf ist das Öffnen der Seite durch einen Inhaber oder ein Mitglied; erneutes Öffnen innerhalb von 5 Minuten zählt nicht. Tage in UTC.",
+    "howEditsCounted": "Bearbeitungen werden aus dem Seitenverlauf und der letzten Änderung der Seite gezählt.",
+    "noAccess": "Nur Inhaber des Arbeitsbereichs und Mitglieder, die diese Seite bearbeiten dürfen, sehen ihre Analysen.",
+    "failed": "Die Analysen konnten nicht geladen werden."
   },
   "move": {
     "title": "Verschieben nach",

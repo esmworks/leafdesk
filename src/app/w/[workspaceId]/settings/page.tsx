@@ -26,6 +26,7 @@ import { getLocale, getTimeZone, getTranslations } from "next-intl/server";
 import { ACCOUNT_ICONS, AccountTabContent } from "@/components/account/account-tabs";
 import { AgentsPanel } from "@/components/settings/agents-panel";
 import { AnalyticsPanel } from "@/components/settings/analytics-panel";
+import { OwnPageViewsSetting } from "@/components/settings/page-views-settings";
 import { AiUsagePanel } from "@/components/settings/ai-usage-panel";
 import { AuditPanel } from "@/components/settings/audit-panel";
 import { ConnectionsPanel } from "@/components/settings/connections-panel";
@@ -109,6 +110,7 @@ import { aiInfoFor } from "@/server/ai";
 import { workspaceAiUsage } from "@/server/ai-usage";
 import { workspaceAiView } from "@/server/ai-accounts";
 import { workspaceAnalytics } from "@/server/analytics";
+import { ownPageViews } from "@/server/page-views";
 import { auditActors, listAuditEvents } from "@/server/audit";
 import { listWorkspaceFormPublications } from "@/server/forms";
 import { listJoinRequests } from "@/server/join-requests";
@@ -241,6 +243,7 @@ export default async function SettingsPage({
               {!guest && <CalloutStylesGroup workspaceId={workspaceId} userId={user.id} isOwner={isOwner} />}
               {!guest && <AiGroup workspaceId={workspaceId} userId={user.id} isOwner={isOwner} />}
               {!guest && <MailGroup workspaceId={workspaceId} userId={user.id} />}
+              {!guest && <PageViewsGroup workspaceId={workspaceId} userId={user.id} />}
               {/* Exporting everything is for owners, like the members list download. */}
               {isOwner && <ExportGroup workspaceId={workspaceId} userId={user.id} />}
               {isOwner && <DeleteGroup workspaceId={workspaceId} name={workspace.name} session={session} />}
@@ -347,6 +350,19 @@ async function SnippetsTab({
         initialScope={shared ? scope : "mine"}
       />
     </>
+  );
+}
+
+/**
+ * Settings > General > Page views: the person's own switch for recording the pages they open here
+ * (server/page-views.ts), which the owners' switch under Analytics overrides.
+ */
+async function PageViewsGroup({ workspaceId, userId }: { workspaceId: string; userId: string }) {
+  const [recording, t] = await Promise.all([ownPageViews(userId, workspaceId), getTranslations("settings.pageViews")]);
+  return (
+    <SettingsGroup title={t("heading")} className="mt-10">
+      <OwnPageViewsSetting workspaceId={workspaceId} own={recording.own} workspaceOn={recording.workspace} />
+    </SettingsGroup>
   );
 }
 

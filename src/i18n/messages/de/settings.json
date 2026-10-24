@@ -78,6 +78,8 @@
       "legalHolds": "Rechtsstreit sichern E-Discovery aufbewahren",
       "storage": "Dateien S3 Drive Bucket",
       "analyticsPeople": "Aktivität Bearbeitungen Statistik",
+      "pageViews": "aufrufe besucher meistgesehen tracking datenschutz",
+      "ownPageViews": "aufrufe tracking datenschutz abmelden analysen",
       "aiUsageLimit": "Budget Kosten Ausgaben Obergrenze",
       "aiUsagePeople": "pro Person Mitglied Kosten Token",
       "health": "defekte Links verwaiste Duplikate leere Seiten",
@@ -925,14 +927,18 @@
     }
   },
   "analytics": {
-    "description": "Wie viel in diesem Arbeitsbereich bearbeitet wurde, gezählt aus dem Seitenverlauf und der letzten Änderung jeder Seite. Dafür wird nichts zusätzlich erfasst. Nur Inhaber sehen das.",
+    "description": "Wie viel in diesem Arbeitsbereich bearbeitet wurde, gezählt aus dem Seitenverlauf und der letzten Änderung jeder Seite, und welche Seiten geöffnet wurden, solange Seitenaufrufe erfasst werden. Nur Inhaber sehen das.",
     "periods": "Zeitraum",
     "period": "Letzte {days} Tage",
     "activeMembers": "Aktive Mitglieder",
     "activeOf": "{active} von {total}",
     "edits": "Bearbeitungen",
     "pagesEdited": "Bearbeitete Seiten",
+    "views": "Aufrufe",
+    "viewers": "Besucher",
+    "pagesViewed": "Aufgerufene Seiten",
     "howCounted": "Eine Bearbeitung ist eine gespeicherte Version einer Seite (höchstens eine alle 10 Minuten, während jemand tippt, und eine vor jeder Änderung durch eine App, die KI oder eine Wiederherstellung) oder eine Änderung, die der Seitenverlauf nicht aufbewahrt, etwa die Werte einer Zeile.",
+    "howViewsCounted": "Ein Aufruf ist das Öffnen einer Seite, Datenbank oder Zeile in der App durch einen Inhaber oder ein Mitglied; erneutes Öffnen innerhalb von 5 Minuten zählt nicht. Gäste, Agenten, verbundene Apps, veröffentlichte Seiten und Personen, die ihre eigenen Aufrufe ausgeschaltet haben, werden nicht erfasst. Aufrufe werden ein Jahr aufbewahrt.",
     "peopleHeading": "Bearbeitungen pro Person",
     "peopleDescription": "Gäste werden mit ihren Bearbeitungen aufgeführt, zählen aber nicht als aktive Mitglieder.",
     "pagesHeading": "Am häufigsten bearbeitete Seiten",
@@ -942,6 +948,13 @@
     "neverEdited": "Keine Bearbeitungen",
     "exportPeople": "Bearbeitungen pro Person als CSV herunterladen",
     "exportPages": "Am häufigsten bearbeitete Seiten als CSV herunterladen",
+    "viewersHeading": "Aufrufe pro Person",
+    "viewersDescription": "Inhaber und Mitglieder; Aufrufe von Gästen werden nicht erfasst.",
+    "viewedHeading": "Meistaufgerufene Seiten",
+    "noViews": "Keine Seitenaufrufe in diesem Zeitraum.",
+    "neverViewed": "Keine Aufrufe",
+    "exportViewers": "Aufrufe pro Person als CSV herunterladen",
+    "exportViewed": "Meistaufgerufene Seiten als CSV herunterladen",
     "columns": {
       "person": "Person",
       "role": "Rolle",
@@ -949,8 +962,21 @@
       "pages": "Seiten",
       "lastEdit": "Letzte Bearbeitung",
       "page": "Seite",
-      "editors": "Bearbeiter"
+      "editors": "Bearbeiter",
+      "views": "Aufrufe",
+      "viewers": "Besucher",
+      "lastView": "Letzter Aufruf"
+    },
+    "recording": {
+      "title": "Seitenaufrufe erfassen",
+      "description": "Zählt, welche Seiten Inhaber und Mitglieder öffnen, für diese Analysen und die Analysen jeder Seite. Aus: Es wird nichts mehr erfasst, und nur Bearbeitungen werden gezeigt."
     }
+  },
+  "pageViews": {
+    "heading": "Seitenaufrufe",
+    "title": "Meine Seitenaufrufe erfassen",
+    "description": "Seiten, die du hier öffnest, werden in den Analysen des Arbeitsbereichs gezählt, die Inhaber und Personen sehen, die eine Seite bearbeiten dürfen. Schalte das aus, um deine Aufrufe herauszuhalten.",
+    "workspaceOff": "Dieser Arbeitsbereich erfasst keine Seitenaufrufe: Seine Inhaber haben sie ausgeschaltet."
   },
   "aiUsage": {
     "description": "Was die KI dieses Workspace gekostet hat, nach Monat, Funktion und Modell, und wie viel sie im Monat höchstens kosten darf. Gespeichert werden nur Zahlen, nie Fragen oder Antworten. Nur Eigentümer sehen das.",

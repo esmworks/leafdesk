@@ -78,6 +78,8 @@
       "legalHolds": "spór sądowy zachowaj ediscovery",
       "storage": "pliki s3 drive bucket",
       "analyticsPeople": "aktywność edycje statystyki",
+      "pageViews": "wyświetlenia odwiedzający najczęściej śledzenie prywatność",
+      "ownPageViews": "wyświetlenia śledzenie prywatność rezygnacja statystyki",
       "aiUsageLimit": "budżet koszt wydatki limit",
       "aiUsagePeople": "na osobę członek koszt tokeny",
       "health": "zepsute linki osierocone duplikaty puste strony",
@@ -925,14 +927,18 @@
     }
   },
   "analytics": {
-    "description": "Ile edytowano w tym obszarze roboczym, na podstawie historii stron i ostatniej zmiany każdej strony. Nic dodatkowego nie jest śledzone. Widzą to tylko właściciele.",
+    "description": "Ile kto edytował w tym obszarze roboczym (liczone z historii stron i ostatniej zmiany każdej strony) oraz które strony otwierał, gdy wyświetlenia są rejestrowane. Widzą to tylko właściciele.",
     "periods": "Okres",
     "period": "Ostatnie {days, plural, one {# dzień} few {# dni} many {# dni} other {# dnia}}",
     "activeMembers": "Aktywni członkowie",
     "activeOf": "{active} z {total}",
     "edits": "Edycje",
     "pagesEdited": "Edytowane strony",
+    "views": "Wyświetlenia",
+    "viewers": "Odwiedzający",
+    "pagesViewed": "Wyświetlone strony",
     "howCounted": "Edycja to zapisana wersja strony (najwyżej jedna co 10 minut podczas pisania i jedna przed każdą zmianą wprowadzoną przez aplikację, AI lub przywrócenie) albo zmiana, której historia strony nie przechowuje, np. wartości wiersza.",
+    "howViewsCounted": "Wyświetlenie to otwarcie strony, bazy danych lub wiersza w aplikacji przez właściciela lub członka; ponowne otwarcie w ciągu 5 minut się nie liczy. Goście, agenci, połączone aplikacje, opublikowane strony i osoby, które wyłączyły własne wyświetlenia, nie są rejestrowani. Wyświetlenia są przechowywane przez rok.",
     "peopleHeading": "Edycje na osobę",
     "peopleDescription": "Goście są wymienieni wraz ze swoimi edycjami, ale nie liczą się jako aktywni członkowie.",
     "pagesHeading": "Najczęściej edytowane strony",
@@ -942,6 +948,13 @@
     "neverEdited": "Brak edycji",
     "exportPeople": "Pobierz edycje na osobę jako CSV",
     "exportPages": "Pobierz najczęściej edytowane strony jako CSV",
+    "viewersHeading": "Wyświetlenia na osobę",
+    "viewersDescription": "Właściciele i członkowie; wyświetlenia gości nie są rejestrowane.",
+    "viewedHeading": "Najczęściej wyświetlane strony",
+    "noViews": "Brak wyświetleń w tym okresie.",
+    "neverViewed": "Brak wyświetleń",
+    "exportViewers": "Pobierz wyświetlenia na osobę jako CSV",
+    "exportViewed": "Pobierz najczęściej wyświetlane strony jako CSV",
     "columns": {
       "person": "Osoba",
       "role": "Rola",
@@ -949,8 +962,21 @@
       "pages": "Strony",
       "lastEdit": "Ostatnia edycja",
       "page": "Strona",
-      "editors": "Edytujący"
+      "editors": "Edytujący",
+      "views": "Wyświetlenia",
+      "viewers": "Odwiedzający",
+      "lastView": "Ostatnie wyświetlenie"
+    },
+    "recording": {
+      "title": "Rejestruj wyświetlenia stron",
+      "description": "Liczy, które strony otwierają właściciele i członkowie, na potrzeby tych statystyk i statystyk każdej strony. Wyłączone: nic więcej nie jest rejestrowane, a pokazywane są tylko edycje."
     }
+  },
+  "pageViews": {
+    "heading": "Wyświetlenia stron",
+    "title": "Rejestruj moje wyświetlenia",
+    "description": "Strony, które tu otwierasz, są liczone w statystykach obszaru roboczego, które widzą właściciele i osoby mogące edytować stronę. Wyłącz, aby wykluczyć z nich swoje wyświetlenia.",
+    "workspaceOff": "Ten obszar roboczy nie rejestruje wyświetleń stron: jego właściciele je wyłączyli."
   },
   "aiUsage": {
     "description": "Ile kosztowało AI tej przestrzeni roboczej według miesiąca, funkcji i modelu oraz ile może kosztować najwyżej w miesiącu. Zapisywane są tylko liczby, nigdy pytania ani odpowiedzi. Widzą to tylko właściciele.",

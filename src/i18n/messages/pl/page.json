@@ -3,6 +3,7 @@
   "documentViewTitle": "{title} · {view} · Leafdesk",
   "header": {
     "history": "Historia strony",
+    "analytics": "Analityka",
     "more": "Więcej",
     "copyLink": "Kopiuj link",
     "copyId": "Kopiuj ID",
@@ -286,6 +287,26 @@
       "restore": "Nie udało się przywrócić tej wersji.",
       "diff": "Nie udało się porównać tych wersji."
     }
+  },
+  "analytics": {
+    "title": "Analityka strony",
+    "period": "Okres",
+    "days": "{days} dni",
+    "views": "Wyświetlenia",
+    "viewers": "Odwiedzający",
+    "viewedBy": "Wyświetlili",
+    "editedBy": "Edytowali",
+    "noViews": "Nikt nie otworzył tej strony w tym okresie.",
+    "noEdits": "Brak edycji w tym okresie.",
+    "viewCount": "{count, plural, one {# wyświetlenie} few {# wyświetlenia} many {# wyświetleń} other {# wyświetlenia}}",
+    "editCount": "{count, plural, one {# edycja} few {# edycje} many {# edycji} other {# edycji}}",
+    "chartLabel": "Wyświetlenia dziennie",
+    "dayViews": "{day}: {count, plural, one {# wyświetlenie} few {# wyświetlenia} many {# wyświetleń} other {# wyświetlenia}}",
+    "notRecorded": "Ten obszar roboczy nie rejestruje wyświetleń stron, więc pokazywane są tylko edycje. Właściciele mogą je włączyć w Ustawieniach > Analityka.",
+    "howCounted": "Wyświetlenie to otwarcie strony przez właściciela lub członka; ponowne otwarcie w ciągu 5 minut się nie liczy. Dni w UTC.",
+    "howEditsCounted": "Edycje są liczone z historii strony i jej ostatniej zmiany.",
+    "noAccess": "Statystyki tej strony widzą tylko właściciele obszaru roboczego i członkowie, którzy mogą ją edytować.",
+    "failed": "Nie udało się wczytać statystyk."
   },
   "move": {
     "title": "Przenieś do",

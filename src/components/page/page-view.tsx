@@ -33,6 +33,7 @@ import { takeNewPage } from "./new-page-focus";
 import { hasLevel, PageHeaderActions } from "./page-header-actions";
 import { setDocTitle, useDocTitle, usePageDoc, usePageStyle, type ConnectionState } from "./use-page-doc";
 import { usePagePresence } from "./use-presence";
+import { useRecordView } from "./record-view";
 import { usePendingSuggestions } from "./pending-suggestions";
 import type { Decision } from "@/lib/suggestions";
 import { useIsOffline, useOffline } from "@/components/offline/offline-context";
@@ -178,6 +179,8 @@ export function PageView({
     if (!offlineUser || page.archived || connection === "noAccess") return;
     rememberPage(offlineUser, { id: page.id, workspaceId, title, icon });
   }, [offlineUser, page.id, page.archived, workspaceId, title, icon, connection]);
+  // Counted in the workspace's analytics (server/page-views.ts); pages in the trash aren't.
+  useRecordView(page.archived ? null : page.id);
   const titleRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => setIcon(page.icon), [page.icon]);

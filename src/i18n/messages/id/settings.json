@@ -78,6 +78,8 @@
       "legalHolds": "litigasi pertahankan ediscovery simpan",
       "storage": "file s3 drive bucket penyimpanan",
       "analyticsPeople": "aktivitas suntingan statistik",
+      "pageViews": "tampilan pengunjung kunjungan terpopuler pelacakan privasi",
+      "ownPageViews": "tampilan pelacakan privasi keluar analitik",
       "aiUsageLimit": "anggaran biaya pengeluaran batas",
       "aiUsagePeople": "per orang anggota biaya token",
       "health": "tautan rusak yatim duplikat halaman kosong",
@@ -925,14 +927,18 @@
     }
   },
   "analytics": {
-    "description": "Seberapa banyak orang mengedit di ruang kerja ini, dihitung dari riwayat halaman dan perubahan terakhir setiap halaman. Tidak ada pelacakan tambahan. Hanya pemilik yang melihat ini.",
+    "description": "Seberapa banyak orang mengedit di ruang kerja ini (dihitung dari riwayat halaman dan perubahan terakhir tiap halaman) dan halaman mana yang mereka buka selama tampilan halaman dicatat. Hanya pemilik yang melihatnya.",
     "periods": "Periode",
     "period": "{days} hari terakhir",
     "activeMembers": "Anggota aktif",
     "activeOf": "{active} dari {total}",
     "edits": "Suntingan",
     "pagesEdited": "Halaman diedit",
+    "views": "Tampilan",
+    "viewers": "Pengunjung",
+    "pagesViewed": "Halaman dilihat",
     "howCounted": "Suntingan adalah versi halaman yang tersimpan (paling banyak satu setiap 10 menit saat seseorang mengetik, dan satu sebelum setiap perubahan oleh aplikasi, AI, atau pemulihan) atau perubahan yang tidak disimpan riwayat halaman, seperti nilai sebuah baris.",
+    "howViewsCounted": "Satu tampilan adalah pemilik atau anggota membuka halaman, basis data, atau baris di aplikasi; membukanya lagi dalam 5 menit tidak dihitung. Tamu, agen, aplikasi terhubung, halaman terbit, dan orang yang mematikan tampilan mereka sendiri tidak dicatat. Tampilan disimpan selama setahun.",
     "peopleHeading": "Suntingan per orang",
     "peopleDescription": "Tamu dicantumkan beserta suntingannya tetapi tidak dihitung sebagai anggota aktif.",
     "pagesHeading": "Halaman paling banyak diedit",
@@ -942,6 +948,13 @@
     "neverEdited": "Tidak ada suntingan",
     "exportPeople": "Unduh suntingan per orang sebagai CSV",
     "exportPages": "Unduh halaman paling banyak diedit sebagai CSV",
+    "viewersHeading": "Tampilan per orang",
+    "viewersDescription": "Pemilik dan anggota; tampilan tamu tidak dicatat.",
+    "viewedHeading": "Halaman paling banyak dilihat",
+    "noViews": "Tidak ada tampilan dalam periode ini.",
+    "neverViewed": "Tidak ada tampilan",
+    "exportViewers": "Unduh tampilan per orang sebagai CSV",
+    "exportViewed": "Unduh halaman paling banyak dilihat sebagai CSV",
     "columns": {
       "person": "Orang",
       "role": "Peran",
@@ -949,8 +962,21 @@
       "pages": "Halaman",
       "lastEdit": "Suntingan terakhir",
       "page": "Halaman",
-      "editors": "Penyunting"
+      "editors": "Penyunting",
+      "views": "Tampilan",
+      "viewers": "Pengunjung",
+      "lastView": "Tampilan terakhir"
+    },
+    "recording": {
+      "title": "Catat tampilan halaman",
+      "description": "Menghitung halaman yang dibuka pemilik dan anggota, untuk analitik ini dan analitik tiap halaman. Jika mati, tidak ada lagi yang dicatat dan hanya suntingan yang ditampilkan."
     }
+  },
+  "pageViews": {
+    "heading": "Tampilan halaman",
+    "title": "Catat tampilan saya",
+    "description": "Halaman yang Anda buka di sini dihitung dalam analitik ruang kerja, yang dilihat pemilik dan orang yang dapat menyunting halaman. Matikan agar tampilan Anda tidak ikut dihitung.",
+    "workspaceOff": "Ruang kerja ini tidak mencatat tampilan halaman: pemiliknya mematikannya."
   },
   "aiUsage": {
     "description": "Berapa biaya AI ruang kerja ini, per bulan, fitur, dan model, serta batas biayanya dalam sebulan. Hanya jumlah yang disimpan, tidak pernah apa yang ditanyakan atau dijawab. Hanya pemilik yang melihat ini.",

@@ -78,6 +78,8 @@
       "legalHolds": "litige conserver ediscovery préserver",
       "storage": "fichiers s3 drive bucket",
       "analyticsPeople": "activité modifications statistiques",
+      "pageViews": "vues visiteurs visites plus vues suivi confidentialité",
+      "ownPageViews": "vues suivi confidentialité désactiver statistiques",
       "aiUsageLimit": "budget coût dépenses plafond",
       "aiUsagePeople": "par personne membre coût jetons",
       "health": "liens cassés orphelines doublons pages vides",
@@ -925,14 +927,18 @@
     }
   },
   "analytics": {
-    "description": "Le volume de modifications dans cet espace de travail, compté à partir de l’historique des pages et de la dernière modification de chaque page. Rien de plus n’est enregistré. Seuls les propriétaires le voient.",
+    "description": "Combien chacun a modifié dans cet espace de travail, compté à partir de l’historique des pages et de la dernière modification de chaque page, et quelles pages ont été ouvertes tant que les vues sont enregistrées. Seuls les propriétaires le voient.",
     "periods": "Période",
     "period": "{days} derniers jours",
     "activeMembers": "Membres actifs",
     "activeOf": "{active} sur {total}",
     "edits": "Modifications",
     "pagesEdited": "Pages modifiées",
+    "views": "Vues",
+    "viewers": "Visiteurs",
+    "pagesViewed": "Pages vues",
     "howCounted": "Une modification est une version enregistrée d’une page (au plus une toutes les 10 minutes pendant la saisie, et une avant chaque changement par une application, l’IA ou une restauration) ou un changement que l’historique ne conserve pas, comme les valeurs d’une ligne.",
+    "howViewsCounted": "Une vue, c’est un propriétaire ou un membre qui ouvre une page, une base de données ou une ligne dans l’app ; la rouvrir dans les 5 minutes ne compte pas. Les invités, agents, apps connectées, pages publiées et personnes ayant désactivé leurs propres vues ne sont pas enregistrés. Les vues sont gardées un an.",
     "peopleHeading": "Modifications par personne",
     "peopleDescription": "Les invités figurent avec leurs modifications, mais ne comptent pas comme membres actifs.",
     "pagesHeading": "Pages les plus modifiées",
@@ -942,6 +948,13 @@
     "neverEdited": "Aucune modification",
     "exportPeople": "Télécharger les modifications par personne en CSV",
     "exportPages": "Télécharger les pages les plus modifiées en CSV",
+    "viewersHeading": "Vues par personne",
+    "viewersDescription": "Propriétaires et membres ; les vues des invités ne sont pas enregistrées.",
+    "viewedHeading": "Pages les plus vues",
+    "noViews": "Aucune vue sur cette période.",
+    "neverViewed": "Aucune vue",
+    "exportViewers": "Télécharger les vues par personne en CSV",
+    "exportViewed": "Télécharger les pages les plus vues en CSV",
     "columns": {
       "person": "Personne",
       "role": "Rôle",
@@ -949,8 +962,21 @@
       "pages": "Pages",
       "lastEdit": "Dernière modification",
       "page": "Page",
-      "editors": "Contributeurs"
+      "editors": "Contributeurs",
+      "views": "Vues",
+      "viewers": "Visiteurs",
+      "lastView": "Dernière vue"
+    },
+    "recording": {
+      "title": "Enregistrer les vues des pages",
+      "description": "Compte les pages qu’ouvrent les propriétaires et les membres, pour ces statistiques et celles de chaque page. Désactivé, plus rien n’est enregistré et seules les modifications s’affichent."
     }
+  },
+  "pageViews": {
+    "heading": "Vues des pages",
+    "title": "Enregistrer mes vues",
+    "description": "Les pages que vous ouvrez ici comptent dans les statistiques de l’espace de travail, que voient les propriétaires et les personnes pouvant modifier une page. Désactivez-le pour en exclure vos vues.",
+    "workspaceOff": "Cet espace de travail n’enregistre pas les vues des pages : ses propriétaires les ont désactivées."
   },
   "aiUsage": {
     "description": "Ce qu'a coûté l'IA de cet espace de travail, par mois, fonctionnalité et modèle, et ce qu'elle peut coûter au plus par mois. Seuls des chiffres sont conservés, jamais les questions ni les réponses. Seuls les propriétaires voient ceci.",

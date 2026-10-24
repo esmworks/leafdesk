@@ -4,6 +4,19 @@
 
 ### Added
 
+- **Page views and page analytics.** Opening a page, database or row in the app now records a
+  view, once the page has been open two seconds and at most once per person and page every five
+  minutes, kept as one count per page, person and UTC day and deleted after a year. Only owners
+  and members are recorded: never guests, agents, API tokens, MCP clients or visitors of published
+  pages. Settings → Analytics gains *Record page views* (on by default; off, nothing more is
+  recorded and analytics show edits only), total views, unique viewers and pages viewed for the
+  period, *Views per person* and *Most viewed pages* (pages the owner can't open counted but not
+  named), each with a CSV download. Each person can turn off *Record my page views* for
+  themselves under Settings → General. The page menu has *Analytics* for owners and members who
+  may edit the page: views and unique viewers over 7, 30 or 90 days with a daily chart, who
+  viewed it and when last, and who edited it. Migration `drizzle/0130_page_views.sql` adds the
+  `page_view` table and the members' own switch.
+
 - **A workspace site can have its own domain, theme, header links, search descriptions, favicon and
   Google Analytics.** In Settings → Site, owners set a domain like `docs.example.com`: requests for
   that host get the site at its root (`/` is the home page, pages at `/<title>-<id>`, links stay

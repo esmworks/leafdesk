@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { boolean, index, integer, jsonb, pgTable, primaryKey, text, timestamp } from "drizzle-orm/pg-core";
+import { boolean, date, index, integer, jsonb, pgTable, primaryKey, text, timestamp } from "drizzle-orm/pg-core";
 import type { Attendee } from "@/lib/meetings";
 import type { SiteHeaderLink, SiteTheme } from "@/lib/site";
 import { databaseView, page, workspace } from "./app";
@@ -29,6 +29,27 @@ export const meetingNote = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [primaryKey({ columns: [t.pageId, t.meetingId] })],
+);
+
+/**
+ * Someone opened a page, database or row in the app (server/page-views.ts): one row per page,
+ * person and UTC day, with how many times (a reopening within VIEW_REPEAT_MS doesn't count again)
+ * and when last. For analytics only, never content; kept a year (PAGE_VIEW_RETENTION_DAYS).
+ */
+export const pageView = pgTable(
+  "page_view",
+  {
+    pageId: text("page_id")
+      .notNull()
+      .references(() => page.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    day: date("day", { mode: "string" }).notNull(),
+    count: integer("count").notNull().default(1),
+    lastViewedAt: timestamp("last_viewed_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.pageId, t.userId, t.day] }), index("page_view_user_idx").on(t.userId), index("page_view_day_idx").on(t.day)],
 );
 
 /** Pages a user starred; listed under Favorites in their sidebar. Private to that user. */

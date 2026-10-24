@@ -67,6 +67,7 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
   { id: "calloutStyles", tab: "general", label: "settings:calloutStyles.heading", when: member },
   { id: "ai", tab: "general", label: "ai:settings.heading", keywords: true, when: member },
   { id: "workspaceMail", tab: "general", label: "settings:email.heading", keywords: true, when: member },
+  { id: "ownPageViews", tab: "general", label: "settings:pageViews.title", keywords: true, when: member },
   { id: "export", tab: "general", label: "settings:export.heading", keywords: true, when: owner },
   { id: "deleteWorkspace", tab: "general", label: "settings:deleteWorkspace.heading", when: owner },
   { id: "members", tab: "members", keywords: true },
@@ -106,6 +107,7 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
   { id: "legalHolds", tab: "security", label: "settings:legalHolds.title", keywords: true, when: owner },
 
   { id: "storage", tab: "storage", keywords: true },
+  { id: "pageViews", tab: "analytics", label: "settings:analytics.recording.title", keywords: true },
   { id: "analyticsPeople", tab: "analytics", label: "settings:analytics.peopleHeading", keywords: true },
   { id: "analyticsPages", tab: "analytics", label: "settings:analytics.pagesHeading" },
   { id: "aiUsageLimit", tab: "aiUsage", label: "settings:aiUsage.limitHeading", keywords: true },

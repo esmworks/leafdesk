@@ -3,6 +3,7 @@
   "documentViewTitle": "{title} · {view} · Leafdesk",
   "header": {
     "history": "Riwayat halaman",
+    "analytics": "Analitik",
     "more": "Lainnya",
     "copyLink": "Salin tautan",
     "copyId": "Salin ID",
@@ -286,6 +287,26 @@
       "restore": "Tidak dapat memulihkan versi ini.",
       "diff": "Tidak dapat membandingkan versi-versi ini."
     }
+  },
+  "analytics": {
+    "title": "Analitik halaman",
+    "period": "Periode",
+    "days": "{days} hari",
+    "views": "Tampilan",
+    "viewers": "Pengunjung",
+    "viewedBy": "Dilihat oleh",
+    "editedBy": "Disunting oleh",
+    "noViews": "Tidak ada yang membuka halaman ini dalam periode ini.",
+    "noEdits": "Tidak ada suntingan dalam periode ini.",
+    "viewCount": "{count} tampilan",
+    "editCount": "{count} suntingan",
+    "chartLabel": "Tampilan per hari",
+    "dayViews": "{day}: {count} tampilan",
+    "notRecorded": "Ruang kerja ini tidak mencatat tampilan halaman, jadi hanya suntingan yang ditampilkan. Pemilik dapat menyalakannya di Pengaturan > Analitik.",
+    "howCounted": "Satu tampilan adalah pemilik atau anggota membuka halaman; membukanya lagi dalam 5 menit tidak dihitung. Hari dalam UTC.",
+    "howEditsCounted": "Suntingan dihitung dari riwayat halaman dan perubahan terakhirnya.",
+    "noAccess": "Hanya pemilik ruang kerja dan anggota yang dapat menyunting halaman ini yang melihat analitiknya.",
+    "failed": "Tidak dapat memuat analitik."
   },
   "move": {
     "title": "Pindahkan ke",

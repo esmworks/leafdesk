@@ -3,6 +3,7 @@
   "documentViewTitle": "{title} · {view} · Leafdesk",
   "header": {
     "history": "Sayfa geçmişi",
+    "analytics": "Analitik",
     "more": "Diğer işlemler",
     "copyLink": "Bağlantıyı kopyala",
     "copyId": "ID'yi kopyala",
@@ -286,6 +287,26 @@
       "restore": "Bu sürüm geri yüklenemedi.",
       "diff": "Bu sürümler karşılaştırılamadı."
     }
+  },
+  "analytics": {
+    "title": "Sayfa analitiği",
+    "period": "Dönem",
+    "days": "{days} gün",
+    "views": "Görüntülemeler",
+    "viewers": "Görüntüleyenler",
+    "viewedBy": "Görüntüleyenler",
+    "editedBy": "Düzenleyenler",
+    "noViews": "Bu dönemde bu sayfayı kimse açmadı.",
+    "noEdits": "Bu dönemde düzenleme yok.",
+    "viewCount": "{count, plural, one {# görüntüleme} other {# görüntüleme}}",
+    "editCount": "{count, plural, one {# düzenleme} other {# düzenleme}}",
+    "chartLabel": "Günlük görüntülemeler",
+    "dayViews": "{day}: {count, plural, one {# görüntüleme} other {# görüntüleme}}",
+    "notRecorded": "Bu çalışma alanı sayfa görüntülemelerini kaydetmiyor, bu yüzden yalnızca düzenlemeler gösteriliyor. Sahipler bunu Ayarlar > Analitik’ten açabilir.",
+    "howCounted": "Bir görüntüleme, bir sahibin veya üyenin sayfayı açmasıdır; 5 dakika içinde yeniden açmak sayılmaz. Günler UTC’ye göredir.",
+    "howEditsCounted": "Düzenlemeler sayfa geçmişinden ve sayfanın son değişikliğinden sayılır.",
+    "noAccess": "Bu sayfanın analizlerini yalnızca çalışma alanının sahipleri ve sayfayı düzenleyebilen üyeler görür.",
+    "failed": "Analizler yüklenemedi."
   },
   "move": {
     "title": "Şuraya taşı",
