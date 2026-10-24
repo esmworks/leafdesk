@@ -33,7 +33,7 @@
   from its `⋯` menu, for a week, a month, three months, a year, until a chosen day or with no end;
   a badge under the title says who verified it and until when, or that it expired, and editing the
   page keeps it verified. The verifier is reminded three days before the end and when it comes
-  (*Verified pages* in Settings > Preferences: inbox and email by default). Search ranks verified
+  (*Pages you verified* in Settings > Preferences: inbox and email by default). Search ranks verified
   pages above otherwise equal ones, marks them and takes `is:verified`; the AI chat prefers
   verified sources and marks their citations; MCP's `get_page` and `search` and the REST API say
   `verified`, and `update_page` / `PATCH /pages/{id}` take it. Settings > Health lists expired

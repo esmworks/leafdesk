@@ -362,7 +362,7 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   or with no end. Under the title a badge says who verified it and until when, and once that day
   passes, that the verification expired; editing the page keeps it verified. The verifier hears
   three days before the end and when it comes (in the inbox and by email, as they choose under
-  *Verified pages* in Settings > Preferences). Search ranks a verified page above an otherwise
+  *Pages you verified* in Settings > Preferences). Search ranks a verified page above an otherwise
   equal one and marks it, and `is:verified` lists only verified pages; the AI chat is told which
   sources are verified, prefers them where sources disagree, and its citations show the mark.
   MCP's `get_page` and `search` and the REST API's pages say `verified` (who, when, until, and
