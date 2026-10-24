@@ -1211,7 +1211,8 @@ windows the pages open stay in the app only when they are on your server. Menus 
 language chosen in My account, or the system's. The server's pages may use notifications, the clipboard,
 full screen and the microphone (voice notes); nothing else, and no other site. Single sign-on and
 connecting apps happen inside the app, so the sign-in it leads to stays with it. The window
-remembers its size and place. Cmd+Shift+J on macOS (Ctrl+Shift+J on Windows and Linux), pressed in
+remembers its size and place, and opens on the page it last showed (only a page of the same
+server, or of Leafdesk on this computer; otherwise the home page). Cmd+Shift+J on macOS (Ctrl+Shift+J on Windows and Linux), pressed in
 any app, brings Leafdesk forward and opens AI chat in the workspace its window shows, or a quick
 note where AI is off there; *Go → Ask AI Shortcut* picks other keys or turns it off, and says
 when another app already has the keys. Offline editing works as in the installed web app, which needs HTTPS
