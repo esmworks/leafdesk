@@ -34,7 +34,27 @@
     "stopped": "Pysäytetty. Voit silti säilyttää tähän mennessä kirjoitetun.",
     "applyFailed": "Ehdotusta ei voitu lisätä sivulle.",
     "asSuggestions": "Lisää muokkausehdotuksina",
-    "selectionChanged": "Valittu teksti muuttui sillä välin, joten ehdotus lisättiin sen alle."
+    "selectionChanged": "Valittu teksti muuttui sillä välin, joten ehdotus lisättiin sen alle.",
+    "saved": {
+      "title": "Tallennetut kehotteet",
+      "empty": "Tallenna usein käyttämäsi ohje Lähetä-painikkeen vieressä olevalla kirjanmerkillä. Koko tiimin ohjeet ovat <skills>taitoja</skills>.",
+      "saveInstruction": "Tallenna kehote",
+      "name": "Nimi",
+      "namePlaceholder": "Anna kehotteelle nimi",
+      "save": "Tallenna",
+      "cancel": "Peruuta",
+      "rename": "Uusi nimi",
+      "renameNamed": "Nimeä uudelleen: {name}",
+      "deleteNamed": "Poista {name}",
+      "errors": {
+        "emptyName": "Anna kehotteelle nimi.",
+        "emptyPrompt": "Tallennettavaa ohjetta ei ole.",
+        "nameTooLong": "Nimessä voi olla enintään {max} merkkiä.",
+        "promptTooLong": "Kehotteessa voi olla enintään {max} merkkiä.",
+        "full": "Voit säilyttää enintään {max} tallennettua kehotetta. Poista yksi tallentaaksesi uuden.",
+        "notFound": "Tätä tallennettua kehotetta ei enää ole."
+      }
+    }
   },
   "errors": {
     "disabled": "Tekoäly ei ole käytettävissä tässä työtilassa.",

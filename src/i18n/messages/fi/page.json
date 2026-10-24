@@ -1178,7 +1178,8 @@
       "invalidTarget": "Avattava linkki ei ole kelvollinen.",
       "buttonGone": "Painike poistettiin sivulta.",
       "error": "Jokin meni vikaan.",
-      "step": "Vaihetta {step} ({type}) ei suoritettu: {reason}"
+      "step": "Vaihetta {step} ({type}) ei suoritettu: {reason}",
+      "templateGone": "Rivimallia ei enää ole."
     }
   },
   "imageCrop": {

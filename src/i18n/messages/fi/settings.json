@@ -41,6 +41,7 @@
       "language": "kieli kieliasetus käännös",
       "theme": "teema tumma tila vaalea tila värit",
       "contrast": "saavutettavuus korkea kontrasti",
+      "desktopLinks": "electron windows mac välilehdet avaa linkit työpöytäsovellus",
       "notifications": "ilmoitukset push sähköposti hälytykset",
       "watchedPages": "seuraa tilaa seuratut sivut",
       "offlineDevice": "offline lataa välimuisti tila",
@@ -1119,6 +1120,20 @@
       "note": "Korkea kontrasti vahvistaa toissijaista tekstiä, viivoja ja kohdistuksen ääriviivoja kummassakin teemassa. Tämä asetus koskee vain tätä selainta. Järjestelmäasetuksella se noudattaa laitteesi kontrastin lisäämisen asetusta."
     }
   },
+  "desktopLinks": {
+    "heading": "Työpöytäsovellus",
+    "label": "Avaa linkit työpöytäsovelluksessa",
+    "note": "Kun avaat Leafdesk-sivun selaimessa tietokoneella, jolla on työpöytäsovellus, sivu voi siirtyä sovellukseen omaan välilehteensä. Sovelluksen sisällä mikään ei muutu.",
+    "off": "Pois",
+    "ask": "Tarjoa avaamista",
+    "always": "Avaa aina",
+    "banner": {
+      "text": "Avataanko tämä sivu työpöytäsovelluksessa?",
+      "open": "Avaa sovelluksessa",
+      "always": "Aina",
+      "dismiss": "Sulje"
+    }
+  },
   "language": {
     "heading": "Kieli",
     "label": "Käyttöliittymän kieli",
@@ -1863,6 +1878,11 @@
       "sensitive_content": {
         "found": "Löysi kohteesta {target}: {kind} ({excerpt})",
         "dismissed": "Ohitti kohteesta {target} löytyneen: {kind} ({excerpt})"
+      },
+      "github_sync": {
+        "created": "Otti GitHubin pull requestit käyttöön kohteessa {target}",
+        "updated": "Muutti kohteen {target} GitHub-asetuksia",
+        "deleted": "Poisti kohteen {target} GitHub-asetukset"
       }
     },
     "decisions": {

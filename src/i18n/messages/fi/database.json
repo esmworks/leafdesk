@@ -550,7 +550,9 @@
     "parentOptionToggle": "Tarjoa ”{option}”, kun ”{parent}” on ”{value}”",
     "sortOptionsAsc": "Lajittele A → Ö",
     "sortOptionsDesc": "Lajittele Ö → A",
-    "dragOption": "Siirrä vaihtoehtoa {name} vetämällä"
+    "dragOption": "Siirrä vaihtoehtoa {name} vetämällä",
+    "urlPreview": "Näytä linkin esikatseluna",
+    "urlPreviewHint": "Rivisivuilla linkin alla näkyvät linkitetyn sivun kuvake, otsikko ja kuva."
   },
   "rowProperties": {
     "noProperties": "Ei ominaisuuksia",
@@ -971,7 +973,8 @@
     "sprintsDatabase": "Tämä tietokanta sisältää toisen tietokannan sprintit: ota sprintit käyttöön tai pois käytöstä siellä.",
     "noCurrentSprint": "Mikään sprintti ei ole käynnissä. Merkitse ensin yksi sprintti nykyiseksi.",
     "invalidSprints": "Sprinttejä ei voi määrittää näin: tarkista sprintin pituus, ensimmäinen päivä ja sprinttien tietokanta.",
-    "sprintStateOption": "Tämä vaihtoehto merkitsee sprintin tilaa. Voit nimetä sen uudelleen tai poistaa sprintit käytöstä ennen sen poistamista."
+    "sprintStateOption": "Tämä vaihtoehto merkitsee sprintin tilaa. Voit nimetä sen uudelleen tai poistaa sprintit käytöstä ennen sen poistamista.",
+    "invalidSlackUrl": "Tämä ei ole Slackin saapuvan webhookin osoite (https://hooks.slack.com/services/…)."
   },
   "formula": {
     "title": "Kaava",
@@ -1272,7 +1275,8 @@
         "log": "Kirjoita ajohistoriaan",
         "celebrate": "Juhli konfeteilla",
         "approval": "Pyydä hyväksyntää",
-        "start_sequence": "Aloita seurantasarja"
+        "start_sequence": "Aloita seurantasarja",
+        "slack": "Lähetä Slackiin"
       },
       "trashHelp": "Siirtää rivin roskakoriin, josta sen voi palauttaa, kunnes roskakori tyhjennetään. Tämän toiminnon jälkeen ei voi suorittaa mitään.",
       "addAction": "Lisää toiminto",
@@ -1332,7 +1336,8 @@
         "badExample": "Esimerkkirunko ei ole kelvollista JSONia.",
         "exampleTooLong": "Esimerkkirunko on liian pitkä.",
         "needApprovers": "Valitse, keneltä kysytään.",
-        "needTimeout": "Anna päivien määrä kokonaislukuna väliltä 1–30."
+        "needTimeout": "Anna päivien määrä kokonaislukuna väliltä 1–30.",
+        "needSlackUrl": "Anna Slackin saapuvan webhookin osoite."
       },
       "agent": "Agentti",
       "chooseAgent": "Valitse agentti…",
@@ -1464,7 +1469,8 @@
         "noAddress": "Rivillä ei ole sähköpostiosoitetta",
         "emailOff": "Rivien sähköposti on pois käytöstä",
         "noPerson": "Ohitettu: tätä ajoa ei käynnistänyt kenenkään henkilön muutos",
-        "tooLate": "Ohitettu: muutoksesta on liian kauan juhlittavaksi"
+        "tooLate": "Ohitettu: muutoksesta on liian kauan juhlittavaksi",
+        "templateGone": "Rivimallia ei enää ole"
       },
       "waitingApproval": "Odottaa hyväksyntää",
       "approval": {
@@ -1566,7 +1572,19 @@
       "logPlaceholder": "Esimerkiksi: Tuotu {template}",
       "logHelp": "Kirjoitetaan ajohistoriaan muuttujat täytettyinä.",
       "celebrateHelp": "Konfetteja sovelluksessa ajon käynnistäneen muutoksen tekijälle, hänen avoimissa ikkunoissaan. Ajot, joita kukaan ei käynnistänyt (aikataulut, ohitetut päivämäärät, saapuvat webhookit, nimettömät lomakevastaukset), ohittavat sen, samoin ajot, jotka ehtivät tähän yli kaksi minuuttia muutoksen jälkeen.",
-      "celebrateTry": "Kokeile"
+      "celebrateTry": "Kokeile",
+      "slackUrl": "Slackin saapuva webhook",
+      "slackReplace": "Liitä uusi osoite tallennetun tilalle",
+      "slackSaved": "Tallennettu osoite:",
+      "slackMessage": "Viesti",
+      "slackPlaceholder": "Esimerkiksi: Valmis tarkistettavaksi: {template}",
+      "slackHelp": "Lähettää viestin saapuvan webhookin Slack-kanavalle linkin kera riviin. Slackin muotoilut (*lihavointi*, _kursiivi_) toimivat. Osoite pidetään salaisena ja näytetään vain lyhennettynä.",
+      "rowTemplate": "Rivimalli",
+      "rowTemplateNone": "Ei mitään (tyhjä rivi)",
+      "rowTemplateDefault": "Tietokannan oletusmalli",
+      "rowTemplateDefaultNamed": "Oletusmalli ({name})",
+      "rowTemplateGone": "Malli, jota ei enää ole",
+      "rowTemplateHelp": "Rivi alkaa mallin kopiona. Tässä asetetut arvot korvaavat mallin arvot; tyhjä otsikko säilyttää mallin otsikon."
     },
     "variables": {
       "button": "Lisää muuttuja",
@@ -1851,5 +1869,122 @@
       "allView": "Kaikki sprintit",
       "boardView": "Tilan mukaan"
     }
+  },
+  "github": {
+    "menuItem": "GitHubin pull requestit",
+    "menuHint": "Lisää linkit pull requesteihin, jotka mainitsevat rivin ID:n, ja siirrä rivin tilaa",
+    "title": "GitHubin pull requestit",
+    "intro": "Kun pull request mainitsee rivin ID:n, kuten {example}, otsikossaan, kuvauksessaan tai haarassaan, sen linkki lisätään riville ja rivin tila voi siirtyä.",
+    "needUniqueId": "Lisää tähän tietokantaan ensin ID-ominaisuus: pull requestit tunnistavat rivit niiden ID:n perusteella.",
+    "needPrefix": "Anna ID-ominaisuudelle ”{property}” ensin etuliite, kuten TASK: pull requestit tunnistavat rivit sen avulla.",
+    "linkProperty": "Lisää pull request -linkit kohteeseen",
+    "noLinks": "Älä lisää linkkejä",
+    "newProperty": "Uusi tekstiominaisuus…",
+    "newPropertyName": "Pull requestit",
+    "newPropertyLabel": "Uuden ominaisuuden nimi",
+    "linkHelp": "Tekstiominaisuus säilyttää jokaisen pull requestin, yhden riviä kohden; URL-ominaisuus säilyttää uusimman.",
+    "statusProperty": "Siirrä tilaa ominaisuudessa",
+    "noStatus": "Älä muuta tilaa",
+    "noStatusProperty": "Tässä tietokannassa ei ole tilaominaisuutta, joten vain linkit lisätään.",
+    "statusOff": "Tila pysyy ennallaan.",
+    "statusHelp": "Luonnokset lisäävät linkkinsä mutta eivät siirrä mitään, ennen kuin ne ovat valmiita tarkistettaviksi. Rivi, jonka tila on jo valmis-ryhmässä, siirtyy vain, kun pull request yhdistetään.",
+    "move": {
+      "opened": "Avattu tai valmis tarkistettavaksi",
+      "merged": "Yhdistetty",
+      "closed": "Suljettu yhdistämättä"
+    },
+    "leave": "Jätä ennalleen",
+    "setUp": "Ota käyttöön",
+    "save": "Tallenna",
+    "change": "Muuta",
+    "whatItDoes": "Mitä se tekee",
+    "linksTo": "Lisää pull request -linkit ominaisuuteen ”{property}”.",
+    "noLinksSaved": "Ei lisää linkkejä.",
+    "movesIn": "Siirtää ominaisuutta ”{property}”: {moves}.",
+    "moves": {
+      "opened": "avattu → {option}",
+      "merged": "yhdistetty → {option}",
+      "closed": "suljettu yhdistämättä → {option}"
+    },
+    "noMoves": "Jättää tilan ennalleen.",
+    "inGithub": "GitHubissa",
+    "steps": "Avaa repositorion Settings-kohdasta Webhooks, valitse Add webhook, täytä alla olevat kentät, valitse ”Let me select individual events” ja rastita vain Pull requests.",
+    "payloadUrl": "Payload URL",
+    "secret": "Secret",
+    "showSecret": "Näytä salaisuus",
+    "hideSecret": "Piilota salaisuus",
+    "secretUnreadable": "Salaisuutta ei voi enää lukea tällä palvelimella. Luo uusi ja anna se GitHubille.",
+    "rotate": "Luo uusi salaisuus",
+    "rotateConfirm": "Luodaanko uusi salaisuus? Vanhalla allekirjoitetut toimitukset hylätään, kunnes annat GitHubille uuden.",
+    "contentType": "Content type",
+    "events": "Tapahtumat",
+    "eventsValue": "Pull requests",
+    "deliveries": "Viimeisimmät toimitukset",
+    "refresh": "Päivitä",
+    "noDeliveries": "Mitään ei ole vielä saapunut. Kun lisäät webhookin, GitHub lähettää pingin, joka näkyy tässä.",
+    "ping": "Ping GitHubista",
+    "pingOk": "Webhook on yhdistetty.",
+    "otherEvent": "Tapahtuma {event}",
+    "handling": "Käsitellään…",
+    "ignored": "Toiminnolle ”{action}” ei ole tehtävää.",
+    "noIds": "Ei mainitse yhtään tämän tietokannan riviä.",
+    "outcome": {
+      "updated": "päivitetty",
+      "unchanged": "jo ajan tasalla",
+      "notFound": "ei löytynyt",
+      "noAccess": "ei muokkausoikeutta",
+      "failed": "epäonnistui"
+    },
+    "deliveryErrors": {
+      "noUniqueId": "Tietokannassa ei ole enää etuliitteellistä ID-ominaisuutta.",
+      "runAsGone": "Henkilöä, jonka nimissä se toimii, ei enää ole. Tallenna asetukset uudelleen.",
+      "accessLost": "Henkilö, jonka nimissä se toimii, ei voi enää muokata tätä tietokantaa. Tallenna asetukset uudelleen.",
+      "inTrash": "Tietokanta on roskakorissa.",
+      "failed": "Käsittelyssä tapahtui virhe."
+    },
+    "runsAs": "Muutokset tehdään käyttäjän {name} nimissä, koska hän tallensi asetukset viimeksi.",
+    "runsAsGone": "Henkilöä, jonka nimissä se toimi, ei enää ole: tallenna asetukset uudelleen, niin se toimii sinun nimissäsi.",
+    "remove": "Poista",
+    "removeConfirm": "Poistetaanko GitHub-asetukset? GitHubin toimitukset hylätään siitä lähtien; jo lisätyt linkit säilyvät.",
+    "errors": {
+      "noUniqueId": "Lisää tähän tietokantaan ensin etuliitteellinen ID-ominaisuus.",
+      "invalidProperty": "Valitse linkeille teksti- tai URL-ominaisuus sekä tilaominaisuus ja sen vaihtoehdot.",
+      "notSetUp": "Tälle tietokannalle ei ole GitHub-asetuksia."
+    }
+  },
+  "slack": {
+    "menuItem": "Slack-ilmoitukset",
+    "menuHint": "Lähetä viesti Slack-kanavalle, kun rivi lisätään tai ominaisuus muuttuu",
+    "title": "Slack-ilmoitukset",
+    "intro": "Lähettää viestin Slack-kanavalle, kun rivi lisätään tai ominaisuus muuttuu. Se tallennetaan automaationa, jota voit muuttaa myöhemmin.",
+    "url": "Slackin saapuva webhook",
+    "urlHelp": "Lisää Slackissa kanavalle Incoming WebHooks -sovellus ja kopioi sen webhook-URL. Se pidetään salaisena ja näytetään vain lyhennettynä.",
+    "when": "Milloin",
+    "rowAdded": "Rivi lisätään",
+    "propertyChanges": "Ominaisuus {property} muuttuu",
+    "to": "Arvoksi",
+    "anyValue": "Mikä tahansa arvo",
+    "checked": "Valittu",
+    "unchecked": "Ei valittu",
+    "message": "Viesti",
+    "messageHelp": "Kaksoisaaltosulkeissa olevat muuttujat täytetään riviltä. Loppuun lisätään linkki riviin.",
+    "defaultAdded": "{actor} lisäsi rivin tietokantaan {database}",
+    "defaultChanged": "{actor} muutti ominaisuuden {property} arvoksi {value}",
+    "nameAdded": "Slack: uudet rivit",
+    "nameChanged": "Slack: {property} muuttui",
+    "nameChangedTo": "Slack: {property} on {value}",
+    "create": "Luo",
+    "created": "Automaatio ”{name}” luotiin.",
+    "existing": "Slackiin lähettävät automaatiot",
+    "existingHelp": "Muuta niitä tai poista ne käytöstä tietokannan automaatioissa.",
+    "off": "pois"
+  },
+  "templateValues": {
+    "me": "Minä",
+    "today": "Tänään",
+    "now": "Nyt",
+    "hint": "Täytetään, kun rivi lisätään tästä mallista",
+    "dateWhen": "Asetetaan, kun rivi lisätään",
+    "meOption": "Rivin lisääjä"
   }
 }
