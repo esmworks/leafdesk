@@ -1199,21 +1199,14 @@ input.leafdesk-callout-title-input {
 /*
  * Wide column lists (lib/columns `wide`): on a page of standard width, a top-level list reaches
  * past the text into the page's margins, `--wide` of the way out to the page's edges less 48px for
- * the block handles; its outer edges are dragged to set it. The page's width comes from the page
- * view's element (data-page-area, a size container), registered so it is measured there and not
- * at the list. Full-width pages, the page beside the comments panel and phones show it at the
- * text's width.
+ * the block handles; its outer edges are dragged to set it. The page's width is `--page-area`,
+ * which the page view's element (data-page-area) sets from its size (page-view.tsx). Full-width
+ * pages, the page beside the comments panel and phones show it at the text's width.
  */
 @property --page-area {
   syntax: "<length>";
   inherits: true;
   initial-value: 0px;
-}
-[data-page-area] {
-  container-type: inline-size;
-}
-.page-column {
-  --page-area: 100cqw;
 }
 .leafdesk-column-list {
   position: relative;

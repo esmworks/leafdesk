@@ -174,6 +174,17 @@ export function PageView({
     else router.refresh();
   }, [router]);
   const rootRef = useRef<HTMLDivElement>(null);
+  // The page's width, for wide column lists (globals.css `--page-area`). Measured rather than a
+  // size container, which would hold the page's fixed-position parts inside it.
+  useLayoutEffect(() => {
+    const el = rootRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const measure = () => el.style.setProperty("--page-area", `${el.clientWidth}px`);
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   // Listed on the offline page, whose links open the copies the service worker kept.
   useEffect(() => {
