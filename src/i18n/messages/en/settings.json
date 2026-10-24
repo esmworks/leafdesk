@@ -1269,7 +1269,9 @@
       "unpublish": "Unpublish",
       "confirm": "Unpublish this page? The link stops working for everyone.",
       "indexable": "Search engines allowed",
-      "off": "Publishing is turned off: none of these pages are on the web right now. They come back when publishing is turned on again, unless you unpublish them."
+      "off": "Publishing is turned off: none of these pages are on the web right now. They come back when publishing is turned on again, unless you unpublish them.",
+      "expiresOn": "Expires {date}",
+      "expiredOn": "Expired {date}"
     },
     "forms": {
       "title": "Public forms",
@@ -1707,7 +1709,8 @@
         "removed": "Removed {target} ({role})",
         "left": "Left the workspace",
         "role_changed": "Changed the role of {target} from {from} to {to}",
-        "ownership_transferred": "Made {target} an owner and stepped down to member"
+        "ownership_transferred": "Made {target} an owner and stepped down to member",
+        "content_handed_over": "Handed {count, plural, one {# page} other {# pages}} that only {target} could manage over to {subject}"
       },
       "invitation": {
         "sent": "Invited {target} as {role}",
@@ -1739,7 +1742,8 @@
         "published": "Published {target} to the web",
         "unpublished": "Unpublished {target}",
         "publication_revoked": "Took {target} off the web (published by {subject})",
-        "rows_merged": "Merged {count, plural, one {# row} other {# rows}} into {target}"
+        "rows_merged": "Merged {count, plural, one {# row} other {# rows}} into {target}",
+        "publication_expiry_changed": "{change, select, removed {Removed the expiry of the web link of {target}} other {Set the web link of {target} to stop working on {to}}}"
       },
       "property": {
         "access_changed": "Changed who can access “{property}” in {target}",
@@ -1909,6 +1913,15 @@
       "slack_token": "a Slack token",
       "api_key": "an API key",
       "jwt": "a JSON Web Token"
+    },
+    "audienceLine": "Audience: {audience}",
+    "audience": {
+      "web": "Published to the web",
+      "workspace": "Whole workspace",
+      "workspaceTeamspace": "Whole workspace (teamspace {name})",
+      "teamspace": "Teamspace {name}",
+      "people": "Specific people ({count})",
+      "private": "Private"
     }
   },
   "notifications": {

@@ -316,6 +316,12 @@ export const workspaceInvitation = pgTable(
     role: text("role").$type<WorkspaceRole>().notNull().default("member"),
     token: text("token").notNull().unique(),
     invitedBy: text("invited_by").references(() => user.id, { onDelete: "set null" }),
+    /**
+     * Teamspaces the invitee joins along with the workspace (invited from a teamspace's members),
+     * with their role there: those still in the workspace and not archived when they join (see
+     * teamspaces.ts joinInvitedTeamspaces). Guests join none.
+     */
+    teamspaces: jsonb("teamspaces").$type<InvitedTeamspace[]>().notNull().default([]),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
   },
@@ -357,6 +363,8 @@ export const workspaceJoinRequest = pgTable(
     status: text("status").$type<JoinRequestStatus>().notNull().default("pending"),
     /** The asker's interface language when they asked, for the email about the decision. */
     locale: text("locale"),
+    /** `invite`: teamspaces the invitation carries once approved (see workspaceInvitation.teamspaces). */
+    teamspaces: jsonb("teamspaces").$type<InvitedTeamspace[]>().notNull().default([]),
     decidedBy: text("decided_by").references(() => user.id, { onDelete: "set null" }),
     decidedAt: timestamp("decided_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
@@ -383,6 +391,8 @@ export const TEAMSPACE_ACCESS = ["default", "open", "closed", "private"] as cons
 export type TeamspaceAccess = (typeof TEAMSPACE_ACCESS)[number];
 /** Teamspace owners change its settings and members; members add and edit its pages. */
 export type TeamspaceRole = "owner" | "member";
+/** A teamspace an invitation to the workspace also brings its invitee into, and their role there. */
+export type InvitedTeamspace = { id: string; role: TeamspaceRole };
 
 /**
  * What a teamspace's members get on its pages when a page says nothing else (the page's own

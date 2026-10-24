@@ -114,3 +114,13 @@ describe("batching", () => {
     expect(streamRetryDelayMs(0)).toBe(30_000);
   });
 });
+
+describe("streamed page events", () => {
+  it("carry who could reach the page, and only page events do", () => {
+    const page = event({ action: "page.published", targetType: "page", targetId: "p-1", targetLabel: "Docs", details: { audience: { kind: "web" } } });
+    expect(streamedAuditEvent(page).target).toMatchObject({ type: "page", id: "p-1", audience: { kind: "web" } });
+    expect(streamedAuditEvent(event()).target).not.toHaveProperty("audience");
+    const bad = event({ targetType: "page", targetId: "p-1", details: { audience: "everyone" } });
+    expect(streamedAuditEvent(bad).target).not.toHaveProperty("audience");
+  });
+});

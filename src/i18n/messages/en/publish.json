@@ -70,5 +70,18 @@
   },
   "publishingOff": "Publishing to the web is turned off in this workspace. Published pages aren't shown until an owner turns it back on.",
   "descriptionLabel": "Search description",
-  "descriptionHint": "Shown in search results and link previews. Empty: the site's default description."
+  "descriptionHint": "Shown in search results and link previews. Empty: the site's default description.",
+  "expiredTitle": "Link expired",
+  "expiry": "Link expiry",
+  "expiryHint": "The link works until you unpublish the page.",
+  "expiresOn": "The link stops working on {date}.",
+  "expiredOn": "Expired on {date}: the link no longer works anywhere. Pick a later time or remove the expiry to bring it back.",
+  "setExpiry": "Set expiry",
+  "extendExpiry": "Extend",
+  "expiryLabel": "Link stops working at",
+  "saveExpiry": "Save",
+  "removeExpiry": "Remove expiry",
+  "cancelExpiry": "Cancel",
+  "expiryPast": "Pick a time in the future.",
+  "expiryTooFar": "Pick a time within the next ten years."
 }

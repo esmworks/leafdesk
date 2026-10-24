@@ -756,7 +756,7 @@ try {
   const csv = toCsv(auditCsvRows(csvEvents, t));
   const lines = csv.trim().split("\r\n");
   check(csvEvents.length === 40 && lines.length === 41, "the CSV holds every filtered event, not a page", lines.length);
-  check(lines[0].endsWith("time,actor,actor_email,actor_type,via,action,category,description,target,ip,user_agent,details"), "…under a header", lines[0]);
+  check(lines[0].endsWith("time,actor,actor_email,actor_type,via,action,category,description,target,ip,user_agent,details,audience"), "…under a header", lines[0]);
   check(lines[1].includes(",workspace.settings_changed,settings,"), "…with the action and its category", lines[1]);
 
   // ── Retention: a year of events, only in the workspaces of the run ───────────────────────────

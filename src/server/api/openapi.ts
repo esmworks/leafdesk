@@ -918,7 +918,25 @@ const SCHEMAS: Record<string, JsonSchema> = {
         },
         ["kind", "id", "name"],
       ),
-      target: { type: ["object", "null"], properties: { type: { type: "string" }, id: { type: ["string", "null"] }, label: { type: "string" } } },
+      target: {
+        type: ["object", "null"],
+        properties: {
+          type: { type: "string" },
+          id: { type: ["string", "null"] },
+          label: { type: "string" },
+          audience: {
+            type: "object",
+            description:
+              "Pages only: who could reach the page when it happened. `kind` is web (published), workspace (everyone in it; `teamspace` names a teamspace everyone is in), teamspace (its members; `teamspace` names it), people (only those it is shared with: `people` and `groups` count them) or private.",
+            properties: {
+              kind: { type: "string", enum: ["web", "workspace", "teamspace", "people", "private"] },
+              teamspace: { type: "string" },
+              people: { type: "integer" },
+              groups: { type: "integer" },
+            },
+          },
+        },
+      },
       details: { type: "object", additionalProperties: true, description: "Small before/after values, credentials masked." },
     },
     ["id", "time", "action", "actor", "details"],
