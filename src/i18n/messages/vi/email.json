@@ -145,6 +145,10 @@
     "body": "{requester} ({email}) muốn mở “{page}” trong {workspace}.",
     "bodyWithoutEmail": "{requester} muốn mở “{page}” trong {workspace}.",
     "message": "Lời nhắn của họ: “{message}”",
+    "moreSubject": "{requester} đã xin quyền {level, select, comment {bình luận} other {chỉnh sửa}} “{page}”",
+    "moreHeading": "{requester} đã xin thêm quyền truy cập “{page}”",
+    "moreBody": "{requester} ({email}) có thể mở “{page}” trong {workspace} và muốn {level, select, comment {bình luận trên trang này} other {chỉnh sửa trang này}}.",
+    "moreBodyWithoutEmail": "{requester} có thể mở “{page}” trong {workspace} và muốn {level, select, comment {bình luận trên trang này} other {chỉnh sửa trang này}}.",
     "answer": "Hãy chia sẻ trang với họ và chọn những gì họ được làm, hoặc từ chối yêu cầu. Bạn có thể trả lời từ hộp thư đến hoặc từ mục Chia sẻ trên trang.",
     "action": "Mở trang",
     "optOut": "Bạn nhận email này vì bạn có toàn quyền với trang. Bạn có thể tắt chúng trong Tài khoản của tôi > Tùy chọn."
@@ -159,7 +163,8 @@
     "subject": "Yêu cầu truy cập của bạn đã bị từ chối",
     "heading": "Yêu cầu của bạn đã bị từ chối",
     "body": "Yêu cầu truy cập trang này của bạn đã bị từ chối: {link}",
-    "hint": "Nếu bạn vẫn cần quyền truy cập, hãy hỏi người đã gửi liên kết cho bạn."
+    "hint": "Nếu bạn vẫn cần quyền truy cập, hãy hỏi người đã gửi liên kết cho bạn.",
+    "moreBody": "Yêu cầu {level, select, comment {bình luận} other {chỉnh sửa}} “{page}” của bạn đã bị từ chối. Bạn vẫn có thể mở trang như trước: {link}"
   },
   "emailChange": {
     "subject": "Xác nhận địa chỉ email mới của bạn",
@@ -241,6 +246,7 @@
     "mention": "{actor} đã nhắc đến bạn",
     "reminder": "Nhắc nhở: {date}",
     "accessRequest": "{actor} đã xin quyền truy cập trang này",
+    "accessRequestMore": "{actor} đã xin quyền {level, select, comment {bình luận} other {chỉnh sửa}} trang này",
     "automation": "Tự động hóa “{name}”: {actor} đã thêm hoặc thay đổi hàng này",
     "automationDatePassed": "Tự động hóa “{name}”: đã đến ngày của hàng này",
     "button": "{actor} đã gửi trang này cho bạn bằng một nút",

@@ -145,6 +145,10 @@
     "body": "{requester} ({email}) ต้องการเปิด “{page}” ใน {workspace}",
     "bodyWithoutEmail": "{requester} ต้องการเปิด “{page}” ใน {workspace}",
     "message": "ข้อความจากผู้ขอ: “{message}”",
+    "moreSubject": "{requester} ขอสิทธิ์{level, select, comment {แสดงความคิดเห็นใน} other {แก้ไข}} “{page}”",
+    "moreHeading": "{requester} ขอสิทธิ์เข้าถึง “{page}” เพิ่มเติม",
+    "moreBody": "{requester} ({email}) เปิด “{page}” ใน {workspace} ได้ และต้องการ{level, select, comment {แสดงความคิดเห็นในหน้านี้} other {แก้ไขหน้านี้}}",
+    "moreBodyWithoutEmail": "{requester} เปิด “{page}” ใน {workspace} ได้ และต้องการ{level, select, comment {แสดงความคิดเห็นในหน้านี้} other {แก้ไขหน้านี้}}",
     "answer": "แชร์หน้านี้ให้ผู้ขอโดยเลือกสิ่งที่ทำได้ หรือปฏิเสธคำขอ คุณตอบได้จากกล่องข้อความหรือจากปุ่มแชร์ในหน้านั้น",
     "action": "เปิดหน้า",
     "optOut": "คุณได้รับอีเมลนี้เพราะคุณมีสิทธิ์เต็มในหน้านี้ คุณปิดได้ที่บัญชีของฉัน > ค่ากำหนด"
@@ -159,7 +163,8 @@
     "subject": "คำขอสิทธิ์เข้าถึงของคุณถูกปฏิเสธ",
     "heading": "คำขอของคุณถูกปฏิเสธ",
     "body": "คำขอสิทธิ์เข้าถึงหน้านี้ของคุณถูกปฏิเสธ: {link}",
-    "hint": "หากคุณยังต้องการสิทธิ์ ให้ถามผู้ที่ส่งลิงก์ให้คุณ"
+    "hint": "หากคุณยังต้องการสิทธิ์ ให้ถามผู้ที่ส่งลิงก์ให้คุณ",
+    "moreBody": "คำขอสิทธิ์{level, select, comment {แสดงความคิดเห็นใน} other {แก้ไข}} “{page}” ของคุณถูกปฏิเสธ คุณยังเปิดหน้านี้ได้เหมือนเดิม: {link}"
   },
   "emailChange": {
     "subject": "ยืนยันที่อยู่อีเมลใหม่ของคุณ",
@@ -241,6 +246,7 @@
     "mention": "{actor} กล่าวถึงคุณ",
     "reminder": "การเตือน: {date}",
     "accessRequest": "{actor} ขอสิทธิ์เข้าถึงหน้านี้",
+    "accessRequestMore": "{actor} ขอสิทธิ์{level, select, comment {แสดงความคิดเห็นใน} other {แก้ไข}}หน้านี้",
     "automation": "ระบบอัตโนมัติ “{name}”: {actor} เพิ่มหรือเปลี่ยนแถวนี้",
     "automationDatePassed": "ระบบอัตโนมัติ “{name}”: ถึงวันที่ของแถวนี้แล้ว",
     "button": "{actor} ส่งหน้านี้ถึงคุณด้วยปุ่ม",

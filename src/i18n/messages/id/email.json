@@ -145,6 +145,10 @@
     "body": "{requester} ({email}) ingin membuka “{page}” di {workspace}.",
     "bodyWithoutEmail": "{requester} ingin membuka “{page}” di {workspace}.",
     "message": "Pesan mereka: “{message}”",
+    "moreSubject": "{requester} meminta untuk {level, select, comment {berkomentar pada} other {mengedit}} “{page}”",
+    "moreHeading": "{requester} meminta akses lebih ke “{page}”",
+    "moreBody": "{requester} ({email}) dapat membuka “{page}” di {workspace} dan ingin {level, select, comment {berkomentar padanya} other {mengeditnya}}.",
+    "moreBodyWithoutEmail": "{requester} dapat membuka “{page}” di {workspace} dan ingin {level, select, comment {berkomentar padanya} other {mengeditnya}}.",
     "answer": "Bagikan halaman kepada mereka dengan memilih apa yang dapat mereka lakukan, atau tolak permintaannya. Anda dapat menjawab dari kotak masuk atau dari Bagikan pada halaman.",
     "action": "Buka halaman",
     "optOut": "Anda menerima ini karena Anda memiliki akses penuh ke halaman ini. Anda dapat mematikannya di Akun saya > Preferensi."
@@ -159,7 +163,8 @@
     "subject": "Permintaan akses Anda ditolak",
     "heading": "Permintaan Anda ditolak",
     "body": "Permintaan Anda untuk mengakses halaman ini ditolak: {link}",
-    "hint": "Jika Anda masih memerlukannya, tanyakan kepada orang yang mengirimkan tautan itu."
+    "hint": "Jika Anda masih memerlukannya, tanyakan kepada orang yang mengirimkan tautan itu.",
+    "moreBody": "Permintaan Anda untuk {level, select, comment {berkomentar pada} other {mengedit}} “{page}” ditolak. Anda tetap dapat membukanya seperti sebelumnya: {link}"
   },
   "emailChange": {
     "subject": "Konfirmasi alamat email baru Anda",
@@ -241,6 +246,7 @@
     "mention": "{actor} menyebut Anda",
     "reminder": "Pengingat: {date}",
     "accessRequest": "{actor} meminta akses ke halaman ini",
+    "accessRequestMore": "{actor} meminta untuk {level, select, comment {berkomentar pada} other {mengedit}} halaman ini",
     "automation": "Otomatisasi “{name}”: {actor} menambahkan atau mengubah baris ini",
     "automationDatePassed": "Otomatisasi “{name}”: tanggal baris ini telah tiba",
     "button": "{actor} mengirimkan halaman ini kepada Anda dengan tombol",

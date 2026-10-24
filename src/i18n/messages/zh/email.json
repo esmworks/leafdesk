@@ -145,6 +145,10 @@
     "body": "{requester}（{email}）希望打开 {workspace} 中的“{page}”。",
     "bodyWithoutEmail": "{requester}希望打开 {workspace} 中的“{page}”。",
     "message": "对方的留言：“{message}”",
+    "moreSubject": "{requester} 申请{level, select, comment {评论} other {编辑}}“{page}”",
+    "moreHeading": "{requester} 申请更多“{page}”的访问权限",
+    "moreBody": "{requester}（{email}）可以打开 {workspace} 中的“{page}”，希望能够{level, select, comment {评论} other {编辑}}它。",
+    "moreBodyWithoutEmail": "{requester} 可以打开 {workspace} 中的“{page}”，希望能够{level, select, comment {评论} other {编辑}}它。",
     "answer": "你可以与对方分享此页面并选择其权限，或拒绝此申请。你可以在收件箱中或页面上的“分享”中处理。",
     "action": "打开页面",
     "optOut": "你收到这类邮件是因为你拥有此页面的完全访问权限。你可以在“我的账户 > 偏好设置”中关闭它们。"
@@ -159,7 +163,8 @@
     "subject": "你的访问申请已被拒绝",
     "heading": "你的申请已被拒绝",
     "body": "你对此页面的访问申请已被拒绝：{link}",
-    "hint": "如果你仍需要访问，请询问发送链接给你的人。"
+    "hint": "如果你仍需要访问，请询问发送链接给你的人。",
+    "moreBody": "你{level, select, comment {评论} other {编辑}}“{page}”的申请已被拒绝。你仍可以像以前一样打开它：{link}"
   },
   "emailChange": {
     "subject": "确认你的新邮箱地址",
@@ -241,6 +246,7 @@
     "mention": "{actor} 提及了你",
     "reminder": "提醒：{date}",
     "accessRequest": "{actor} 申请访问此页面",
+    "accessRequestMore": "{actor} 申请{level, select, comment {评论} other {编辑}}此页面",
     "automation": "自动化“{name}”：{actor} 添加或更改了这一行",
     "automationDatePassed": "自动化“{name}”：这一行的日期已到",
     "button": "{actor} 通过按钮向你发送了此页面",

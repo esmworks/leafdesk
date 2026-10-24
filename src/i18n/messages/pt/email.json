@@ -145,6 +145,10 @@
     "body": "{requester} ({email}) gostaria de abrir “{page}” em {workspace}.",
     "bodyWithoutEmail": "{requester} gostaria de abrir “{page}” em {workspace}.",
     "message": "Mensagem: “{message}”",
+    "moreSubject": "{requester} pediu para {level, select, comment {comentar} other {editar}} “{page}”",
+    "moreHeading": "{requester} pediu mais acesso a “{page}”",
+    "moreBody": "{requester} ({email}) pode abrir “{page}” em {workspace} e gostaria de {level, select, comment {comentá-la} other {editá-la}}.",
+    "moreBodyWithoutEmail": "{requester} pode abrir “{page}” em {workspace} e gostaria de {level, select, comment {comentá-la} other {editá-la}}.",
     "answer": "Compartilhe a página com a pessoa, escolhendo o que ela pode fazer, ou recuse a solicitação. Você pode responder pela sua caixa de entrada ou pelo botão Compartilhar na página.",
     "action": "Abrir página",
     "optOut": "Você recebe estes e-mails porque tem acesso total à página. Você pode desativá-los em Minha conta > Preferências."
@@ -159,7 +163,8 @@
     "subject": "Sua solicitação de acesso foi recusada",
     "heading": "Sua solicitação foi recusada",
     "body": "Sua solicitação de acesso a esta página foi recusada: {link}",
-    "hint": "Se você ainda precisar dela, peça à pessoa que enviou o link."
+    "hint": "Se você ainda precisar dela, peça à pessoa que enviou o link.",
+    "moreBody": "Sua solicitação para {level, select, comment {comentar} other {editar}} “{page}” foi recusada. Você ainda pode abri-la como antes: {link}"
   },
   "emailChange": {
     "subject": "Confirme seu novo endereço de e-mail",
@@ -241,6 +246,7 @@
     "mention": "{actor} mencionou você",
     "reminder": "Lembrete: {date}",
     "accessRequest": "{actor} pediu acesso a esta página",
+    "accessRequestMore": "{actor} pediu para {level, select, comment {comentar} other {editar}} esta página",
     "automation": "Automação “{name}”: {actor} adicionou ou alterou esta linha",
     "automationDatePassed": "Automação “{name}”: chegou a data desta linha",
     "button": "{actor} enviou esta página para você com um botão",

@@ -327,7 +327,19 @@
       "approve": "Share",
       "decline": "Decline",
       "outsider": "Not in the workspace: sharing adds them as a guest.",
-      "cantInvite": "Not in the workspace, and this workspace doesn't let you share with people outside it."
+      "cantInvite": "Not in the workspace, and this workspace doesn't let you share with people outside it.",
+      "asksMore": "Asks for “{level}”, has “{current}” now"
+    },
+    "askMore": {
+      "title": "Ask for more access",
+      "description": "You have “{level}”. The people with full access to the page decide.",
+      "level": "Access to ask for",
+      "messagePlaceholder": "Message (optional)",
+      "send": "Ask",
+      "sending": "Asking…",
+      "pending": "You asked for “{level}”. The people with full access to the page will answer.",
+      "rateLimited": "You asked too often. Try again in a while.",
+      "unavailable": "You can't ask for more access to this page right now."
     },
     "levels": {
       "full": "Full access",

@@ -145,6 +145,10 @@
     "body": "{requester} ({email}) quiere abrir “{page}” en {workspace}.",
     "bodyWithoutEmail": "{requester} quiere abrir “{page}” en {workspace}.",
     "message": "Su mensaje: “{message}”",
+    "moreSubject": "{requester} pidió {level, select, comment {comentar} other {editar}} “{page}”",
+    "moreHeading": "{requester} pidió más acceso a “{page}”",
+    "moreBody": "{requester} ({email}) puede abrir “{page}” en {workspace} y quiere {level, select, comment {comentarla} other {editarla}}.",
+    "moreBodyWithoutEmail": "{requester} puede abrir “{page}” en {workspace} y quiere {level, select, comment {comentarla} other {editarla}}.",
     "answer": "Comparte la página con esta persona eligiendo lo que puede hacer, o rechaza la solicitud. Puedes responder desde tu bandeja de entrada o desde Compartir en la página.",
     "action": "Abrir página",
     "optOut": "Recibes estos correos porque tienes acceso total a la página. Puedes desactivarlos en Mi cuenta > Preferencias."
@@ -159,7 +163,8 @@
     "subject": "Se rechazó tu solicitud de acceso",
     "heading": "Se rechazó tu solicitud",
     "body": "Se rechazó tu solicitud de acceso a esta página: {link}",
-    "hint": "Si aún la necesitas, pregunta a quien te envió el enlace."
+    "hint": "Si aún la necesitas, pregunta a quien te envió el enlace.",
+    "moreBody": "Se rechazó tu solicitud para {level, select, comment {comentar} other {editar}} “{page}”. Puedes seguir abriéndola como antes: {link}"
   },
   "emailChange": {
     "subject": "Confirma tu nueva dirección de correo",
@@ -241,6 +246,7 @@
     "mention": "{actor} te mencionó",
     "reminder": "Recordatorio: {date}",
     "accessRequest": "{actor} pidió acceso a esta página",
+    "accessRequestMore": "{actor} pidió {level, select, comment {comentar} other {editar}} esta página",
     "automation": "Automatización “{name}”: {actor} añadió o cambió esta fila",
     "automationDatePassed": "Automatización “{name}”: llegó la fecha de esta fila",
     "button": "{actor} te envió esta página con un botón",

@@ -282,6 +282,18 @@ describe("access request emails", () => {
     expect(bare.text).not.toContain("Mesajı");
   });
 
+  it("says what someone who can open the page asks for on top", () => {
+    const request = { requesterName: "Ada", requesterEmail: "ada@example.com", pageTitle: "Bütçe", workspaceName: "Ekip", message: null, link };
+    const edit = accessRequestEmail("en", { ...request, level: "edit" });
+    expect(edit.subject).toBe("Ada asked to edit “Bütçe”");
+    expect(edit.text).toContain("Ada (ada@example.com) can open “Bütçe” in Ekip and would like to edit it.");
+    const comment = accessRequestEmail("en", { ...request, requesterEmail: null, level: "comment" });
+    expect(comment.subject).toBe("Ada asked to comment on “Bütçe”");
+    expect(comment.text).not.toContain("ada@example.com");
+    // A request for any access reads as before.
+    expect(accessRequestEmail("en", { ...request, level: "view" }).subject).toBe("Ada asked for access to “Bütçe”");
+  });
+
   it("tells the requester what they can do now", () => {
     const approved = accessApprovedEmail("en", { actorName: "Erhan", pageTitle: "Bütçe", workspaceName: "Ekip", level: "comment", link });
     expect(approved.subject).toBe("You can now open “Bütçe”");
@@ -294,5 +306,12 @@ describe("access request emails", () => {
     expect(declined.subject).toBe("Your request for access was declined");
     expect(declined.text).toContain(link);
     for (const leak of ["Bütçe", "Ekip", "Erhan"]) expect(declined.text).not.toContain(leak);
+  });
+
+  it("names the page when declining more access to someone who can open it", () => {
+    const declined = accessDeclinedEmail("en", { link, more: { level: "edit", pageTitle: "Bütçe" } });
+    expect(declined.text).toContain("Your request to edit “Bütçe” was declined. You can still open it as before:");
+    expect(declined.text).toContain(link);
+    expect(declined.text).not.toContain("Erhan");
   });
 });

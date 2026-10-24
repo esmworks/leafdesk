@@ -138,6 +138,7 @@
     "mention": "{actor} menyebut Anda",
     "reminder": "Pengingat: {date}",
     "accessRequest": "{actor} meminta akses ke halaman ini",
+    "accessRequestMore": "{actor} meminta untuk {level, select, comment {berkomentar pada} other {mengedit}} halaman ini",
     "automation": "Otomatisasi “{name}”: {actor} menambahkan atau mengubah baris ini",
     "automationDatePassed": "Otomatisasi “{name}”: tanggal baris ini telah tiba",
     "button": "{actor} mengirimkan halaman ini kepada Anda dengan tombol",

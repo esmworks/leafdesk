@@ -4,6 +4,15 @@
 
 ### Added
 
+- **Ask for more access to a page you can open.** Someone who can view or comment on a page can
+  ask to comment on it or edit it from its Share menu, with an optional message, and sees that
+  the request waits until it is answered. The people with full access hear about it in their
+  inbox, by email and by push notification, which say what was asked; they share at that level or
+  another one above what the person has, or decline, from the inbox or the Share panel. A person
+  has one request per page (asking for more replaces it), a request answered some other way goes
+  away by itself, and the audit log records what was asked along with what was given. Requests
+  from the "You don't have access" screen work as before; the workspace's *Access requests*
+  setting covers both. Migration 0128 adds the requested level to `access_request`.
 - **Keep a database of Jira issues in sync.** Import has a Jira tab: connect a Jira Cloud site
   with an email address and API token, pick a project or write a JQL query, and get a database
   whose rows are the issues (key, summary, status, assignee, priority, type, labels, due date and a

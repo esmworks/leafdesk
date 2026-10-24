@@ -145,6 +145,10 @@
     "body": "{requester} ({email}) vorrebbe aprire “{page}” in {workspace}.",
     "bodyWithoutEmail": "{requester} vorrebbe aprire “{page}” in {workspace}.",
     "message": "Il suo messaggio: “{message}”",
+    "moreSubject": "{requester} ha chiesto di {level, select, comment {commentare} other {modificare}} “{page}”",
+    "moreHeading": "{requester} ha chiesto più accesso a “{page}”",
+    "moreBody": "{requester} ({email}) può aprire “{page}” in {workspace} e vorrebbe {level, select, comment {commentarla} other {modificarla}}.",
+    "moreBodyWithoutEmail": "{requester} può aprire “{page}” in {workspace} e vorrebbe {level, select, comment {commentarla} other {modificarla}}.",
     "answer": "Condividi la pagina scegliendo cosa può fare oppure rifiuta la richiesta. Puoi rispondere dalla tua Posta in arrivo o da Condividi nella pagina.",
     "action": "Apri la pagina",
     "optOut": "Ricevi queste email perché hai accesso completo alla pagina. Puoi disattivarle in Il mio account > Preferenze."
@@ -159,7 +163,8 @@
     "subject": "La tua richiesta di accesso è stata rifiutata",
     "heading": "La tua richiesta è stata rifiutata",
     "body": "La tua richiesta di accesso a questa pagina è stata rifiutata: {link}",
-    "hint": "Se ne hai ancora bisogno, chiedi alla persona che ti ha inviato il link."
+    "hint": "Se ne hai ancora bisogno, chiedi alla persona che ti ha inviato il link.",
+    "moreBody": "La tua richiesta di {level, select, comment {commentare} other {modificare}} “{page}” è stata rifiutata. Puoi ancora aprirla come prima: {link}"
   },
   "emailChange": {
     "subject": "Conferma il tuo nuovo indirizzo email",
@@ -241,6 +246,7 @@
     "mention": "{actor} ti ha menzionato",
     "reminder": "Promemoria: {date}",
     "accessRequest": "{actor} ha chiesto l’accesso a questa pagina",
+    "accessRequestMore": "{actor} ha chiesto di {level, select, comment {commentare} other {modificare}} questa pagina",
     "automation": "Automazione “{name}”: {actor} ha aggiunto o modificato questa riga",
     "automationDatePassed": "Automazione “{name}”: è arrivata la data di questa riga",
     "button": "{actor} ti ha inviato questa pagina con un pulsante",

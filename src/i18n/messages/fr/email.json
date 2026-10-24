@@ -145,6 +145,10 @@
     "body": "{requester} ({email}) souhaite ouvrir « {page} » dans {workspace}.",
     "bodyWithoutEmail": "{requester} souhaite ouvrir « {page} » dans {workspace}.",
     "message": "Son message : « {message} »",
+    "moreSubject": "{requester} demande à {level, select, comment {commenter} other {modifier}} « {page} »",
+    "moreHeading": "{requester} demande plus d’accès à « {page} »",
+    "moreBody": "{requester} ({email}) peut ouvrir « {page} » dans {workspace} et souhaite {level, select, comment {la commenter} other {la modifier}}.",
+    "moreBodyWithoutEmail": "{requester} peut ouvrir « {page} » dans {workspace} et souhaite {level, select, comment {la commenter} other {la modifier}}.",
     "answer": "Partagez la page avec cette personne en choisissant ce qu’elle peut faire, ou refusez la demande. Vous pouvez répondre depuis votre boîte de réception ou depuis Partager sur la page.",
     "action": "Ouvrir la page",
     "optOut": "Vous recevez ces e-mails, car vous avez un accès complet à la page. Vous pouvez les désactiver dans Mon compte > Préférences."
@@ -159,7 +163,8 @@
     "subject": "Votre demande d’accès a été refusée",
     "heading": "Votre demande a été refusée",
     "body": "Votre demande d’accès à cette page a été refusée : {link}",
-    "hint": "Si vous en avez encore besoin, demandez à la personne qui vous a envoyé le lien."
+    "hint": "Si vous en avez encore besoin, demandez à la personne qui vous a envoyé le lien.",
+    "moreBody": "Votre demande pour {level, select, comment {commenter} other {modifier}} « {page} » a été refusée. Vous pouvez toujours l’ouvrir comme avant : {link}"
   },
   "emailChange": {
     "subject": "Confirmez votre nouvelle adresse e-mail",
@@ -241,6 +246,7 @@
     "mention": "{actor} vous a mentionné",
     "reminder": "Rappel : {date}",
     "accessRequest": "{actor} demande l’accès à cette page",
+    "accessRequestMore": "{actor} demande à {level, select, comment {commenter} other {modifier}} cette page",
     "automation": "Automatisation « {name} » : {actor} a ajouté ou modifié cette ligne",
     "automationDatePassed": "Automatisation « {name} » : la date de cette ligne est arrivée",
     "button": "{actor} vous a envoyé cette page avec un bouton",

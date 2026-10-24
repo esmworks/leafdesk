@@ -145,6 +145,10 @@
     "body": "{requester} ({email}) would like to open “{page}” in {workspace}.",
     "bodyWithoutEmail": "{requester} would like to open “{page}” in {workspace}.",
     "message": "Their message: “{message}”",
+    "moreSubject": "{requester} asked to {level, select, comment {comment on} other {edit}} “{page}”",
+    "moreHeading": "{requester} asked for more access to “{page}”",
+    "moreBody": "{requester} ({email}) can open “{page}” in {workspace} and would like to {level, select, comment {comment on it} other {edit it}}.",
+    "moreBodyWithoutEmail": "{requester} can open “{page}” in {workspace} and would like to {level, select, comment {comment on it} other {edit it}}.",
     "answer": "Share the page with them, picking what they can do, or decline the request. You can answer from your inbox or from Share on the page.",
     "action": "Open page",
     "optOut": "You get these because you have full access to the page. You can turn them off in My account > Preferences."
@@ -159,7 +163,8 @@
     "subject": "Your request for access was declined",
     "heading": "Your request was declined",
     "body": "Your request for access to this page was declined: {link}",
-    "hint": "If you still need it, ask the person who sent you the link."
+    "hint": "If you still need it, ask the person who sent you the link.",
+    "moreBody": "Your request to {level, select, comment {comment on} other {edit}} “{page}” was declined. You can still open it as before: {link}"
   },
   "emailChange": {
     "subject": "Confirm your new email address",
@@ -241,6 +246,7 @@
     "mention": "{actor} mentioned you",
     "reminder": "Reminder: {date}",
     "accessRequest": "{actor} asked for access to this page",
+    "accessRequestMore": "{actor} asked to {level, select, comment {comment on} other {edit}} this page",
     "automation": "Automation “{name}”: {actor} added or changed this row",
     "automationDatePassed": "Automation “{name}”: this row’s date has come",
     "button": "{actor} sent you this page with a button",

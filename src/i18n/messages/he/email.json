@@ -145,6 +145,10 @@
     "body": "{requester} ({email}) מבקש לפתוח את “{page}” ב־{workspace}.",
     "bodyWithoutEmail": "{requester} מבקש לפתוח את “{page}” ב־{workspace}.",
     "message": "ההודעה שצורפה: “{message}”",
+    "moreSubject": "{requester} ביקש {level, select, comment {להוסיף תגובות אל} other {לערוך את}} “{page}”",
+    "moreHeading": "{requester} ביקש גישה רחבה יותר אל “{page}”",
+    "moreBody": "{requester} ({email}) יכול לפתוח את “{page}” ב-{workspace} ומבקש {level, select, comment {להוסיף אליו תגובות} other {לערוך אותו}}.",
+    "moreBodyWithoutEmail": "{requester} יכול לפתוח את “{page}” ב-{workspace} ומבקש {level, select, comment {להוסיף אליו תגובות} other {לערוך אותו}}.",
     "answer": "אפשר לשתף את הדף ולבחור מה תהיה ההרשאה, או לדחות את הבקשה. אפשר לענות מתיבת הדואר הנכנס או מ“שיתוף” בדף.",
     "action": "פתיחת הדף",
     "optOut": "האימיילים האלה נשלחים אליך כי יש לך גישה מלאה לדף. אפשר להשבית אותם בהחשבון שלי > העדפות."
@@ -159,7 +163,8 @@
     "subject": "בקשת הגישה שלך נדחתה",
     "heading": "הבקשה שלך נדחתה",
     "body": "בקשת הגישה שלך לדף הזה נדחתה: {link}",
-    "hint": "אם הגישה עדיין נחוצה לך, אפשר לפנות למי ששלח לך את הקישור."
+    "hint": "אם הגישה עדיין נחוצה לך, אפשר לפנות למי ששלח לך את הקישור.",
+    "moreBody": "הבקשה שלך {level, select, comment {להוסיף תגובות אל} other {לערוך את}} “{page}” נדחתה. עדיין אפשר לפתוח אותו כמו קודם: {link}"
   },
   "emailChange": {
     "subject": "אישור כתובת האימייל החדשה",
@@ -241,6 +246,7 @@
     "mention": "{actor} הזכיר אותך",
     "reminder": "תזכורת: {date}",
     "accessRequest": "{actor} ביקש גישה לדף הזה",
+    "accessRequestMore": "{actor} ביקש {level, select, comment {להוסיף תגובות לדף הזה} other {לערוך את הדף הזה}}",
     "automation": "אוטומציה “{name}”: {actor} הוסיף או שינה את השורה הזו",
     "automationDatePassed": "אוטומציה “{name}”: הגיע התאריך של השורה הזו",
     "button": "{actor} שלח לך את הדף הזה באמצעות כפתור",

@@ -118,7 +118,7 @@ export type PushItem = {
   reminderDate: string | null;
   reminderTimeZone: string | null;
   automationName: string | null;
-  accessRequest: { requesterEmail: string } | null;
+  accessRequest: { requesterEmail: string; level: "view" | "comment" | "edit" } | null;
   requestKind: string | null;
   requestEmail: string | null;
   approval: { agentId: string; runId: string; agentName: string; tool: string; connectionName: string } | null;
@@ -210,7 +210,11 @@ export function pushPayload(
     title = item.pageTitle?.trim() || t("untitled");
     switch (item.kind) {
       case "access_request":
-        line = t("accessRequest", { actor: item.actorName || item.accessRequest?.requesterEmail || t("someone") });
+        {
+          const asker = item.actorName || item.accessRequest?.requesterEmail || t("someone");
+          const level = item.accessRequest?.level ?? "view";
+          line = level === "view" ? t("accessRequest", { actor: asker }) : t("accessRequestMore", { actor: asker, level });
+        }
         break;
       case "page_shared":
         line = t("pageShared", { actor });

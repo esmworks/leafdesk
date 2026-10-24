@@ -138,6 +138,7 @@
     "mention": "Упоминание от {actor}",
     "reminder": "Напоминание: {date}",
     "accessRequest": "{actor} просит доступ к этой странице",
+    "accessRequestMore": "{actor} просит разрешить {level, select, comment {комментировать} other {редактировать}} эту страницу",
     "automation": "Автоматизация «{name}»: {actor} добавил(а) или изменил(а) эту строку",
     "automationDatePassed": "Автоматизация «{name}»: дата в этой строке наступила",
     "button": "{actor} отправил(а) вам эту страницу кнопкой",

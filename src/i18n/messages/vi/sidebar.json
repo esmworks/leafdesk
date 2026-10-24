@@ -138,6 +138,7 @@
     "mention": "{actor} đã nhắc đến bạn",
     "reminder": "Nhắc nhở: {date}",
     "accessRequest": "{actor} đã xin quyền truy cập trang này",
+    "accessRequestMore": "{actor} đã xin quyền {level, select, comment {bình luận} other {chỉnh sửa}} trang này",
     "automation": "Tự động hóa “{name}”: {actor} đã thêm hoặc thay đổi hàng này",
     "automationDatePassed": "Tự động hóa “{name}”: đã đến ngày của hàng này",
     "button": "{actor} đã gửi trang này cho bạn bằng một nút",

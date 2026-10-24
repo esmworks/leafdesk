@@ -138,6 +138,7 @@
     "mention": "{actor} hat dich erwähnt",
     "reminder": "Erinnerung: {date}",
     "accessRequest": "{actor} möchte Zugriff auf diese Seite",
+    "accessRequestMore": "{actor} möchte diese Seite {level, select, comment {kommentieren} other {bearbeiten}}",
     "automation": "Automatisierung „{name}“: {actor} hat diese Zeile hinzugefügt oder geändert",
     "automationDatePassed": "Automatisierung „{name}“: Das Datum dieser Zeile ist erreicht",
     "button": "{actor} hat dir diese Seite mit einer Schaltfläche geschickt",

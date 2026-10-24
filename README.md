@@ -447,8 +447,10 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   reaches it. Share a page with someone outside the workspace by email and they join
   as a guest who sees only the pages shared with them (an account whose address was never
   verified is invited by email, like someone without one). Someone who opens a link to a page they
-  can't see can request access; the people with full access approve it at a level or decline it
-  from their inbox or the Share panel (owners can turn requests off in Settings → Security).
+  can't see can request access, and someone who can view or comment on a page can ask to comment
+  or edit from its Share panel; the people with full access see what was asked, approve it at that
+  level or another one above what the person has, or decline it, from their inbox or the Share
+  panel (owners can turn requests off in Settings → Security).
   The Share panel shows everyone who can view the page who has it; access inherited from a page
   above names that page only to those who can open it, and guests see people's names but not
   their email addresses, and that a group has access but not which one.

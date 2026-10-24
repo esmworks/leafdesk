@@ -409,24 +409,44 @@ export function pageUpdateDigestEmail(
   });
 }
 
-/** To the people with full access to a page: someone asked for access to it. */
+/**
+ * To the people with full access to a page: someone asked for access to it, or (`level` comment or
+ * edit) someone who can open it asked for more.
+ */
 export function accessRequestEmail(
   locale: Locale,
   /** `requesterEmail` null: the recipient doesn't learn it (a guest, about someone in the workspace). */
-  request: { requesterName: string; requesterEmail: string | null; pageTitle: string; workspaceName: string; message: string | null; link: string },
+  request: {
+    requesterName: string;
+    requesterEmail: string | null;
+    pageTitle: string;
+    workspaceName: string;
+    message: string | null;
+    link: string;
+    level?: "view" | "comment" | "edit";
+  },
 ): RenderedEmail {
   const t = emailTranslator(locale);
+  const more = request.level === "comment" || request.level === "edit" ? request.level : null;
   const names = {
     requester: request.requesterName || request.requesterEmail || "?",
     email: request.requesterEmail ?? "",
     page: request.pageTitle,
     workspace: request.workspaceName,
+    level: more ?? "edit",
   };
+  const body = more
+    ? request.requesterEmail === null
+      ? t("accessRequest.moreBodyWithoutEmail", names)
+      : t("accessRequest.moreBody", names)
+    : request.requesterEmail === null
+      ? t("accessRequest.bodyWithoutEmail", names)
+      : t("accessRequest.body", names);
   return renderEmail(locale, {
-    subject: t("accessRequest.subject", names),
-    heading: t("accessRequest.heading", names),
+    subject: more ? t("accessRequest.moreSubject", names) : t("accessRequest.subject", names),
+    heading: more ? t("accessRequest.moreHeading", names) : t("accessRequest.heading", names),
     paragraphs: [
-      request.requesterEmail === null ? t("accessRequest.bodyWithoutEmail", names) : t("accessRequest.body", names),
+      body,
       ...(request.message ? [t("accessRequest.message", { message: request.message })] : []),
       t("accessRequest.answer"),
       t("accessRequest.optOut"),
@@ -452,14 +472,21 @@ export function accessApprovedEmail(
 
 /**
  * To the requester: their request was declined. Names neither the page nor the workspace nor who
- * declined it, since they still can't see the page; the link tells them which one it was.
+ * declined it, since they still can't see the page; the link tells them which one it was. Someone
+ * who asked for more of a page they can open (`more`) is told its title and that they keep what
+ * they have.
  */
-export function accessDeclinedEmail(locale: Locale, decline: { link: string }): RenderedEmail {
+export function accessDeclinedEmail(
+  locale: Locale,
+  decline: { link: string; more?: { level: "comment" | "edit"; pageTitle: string } },
+): RenderedEmail {
   const t = emailTranslator(locale);
   return renderEmail(locale, {
     subject: t("accessDeclined.subject"),
     heading: t("accessDeclined.heading"),
-    paragraphs: [t("accessDeclined.body", { link: decline.link }), t("accessDeclined.hint")],
+    paragraphs: decline.more
+      ? [t("accessDeclined.moreBody", { level: decline.more.level, page: decline.more.pageTitle, link: decline.link })]
+      : [t("accessDeclined.body", { link: decline.link }), t("accessDeclined.hint")],
   });
 }
 

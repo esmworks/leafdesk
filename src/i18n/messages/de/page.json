@@ -327,7 +327,19 @@
       "approve": "Teilen",
       "decline": "Ablehnen",
       "outsider": "Nicht im Workspace: Beim Teilen kommt die Person als Gast dazu.",
-      "cantInvite": "Nicht im Workspace, und dieser Workspace erlaubt dir nicht, mit Personen außerhalb zu teilen."
+      "cantInvite": "Nicht im Workspace, und dieser Workspace erlaubt dir nicht, mit Personen außerhalb zu teilen.",
+      "asksMore": "Möchte „{level}“, hat jetzt „{current}“"
+    },
+    "askMore": {
+      "title": "Mehr Zugriff anfragen",
+      "description": "Du hast „{level}“. Darüber entscheiden die Personen mit Vollzugriff auf die Seite.",
+      "level": "Gewünschter Zugriff",
+      "messagePlaceholder": "Nachricht (optional)",
+      "send": "Anfragen",
+      "sending": "Wird angefragt…",
+      "pending": "Du hast „{level}“ angefragt. Die Personen mit Vollzugriff auf die Seite antworten dir.",
+      "rateLimited": "Du hast zu oft angefragt. Versuch es später noch einmal.",
+      "unavailable": "Du kannst gerade keinen weiteren Zugriff auf diese Seite anfragen."
     },
     "levels": {
       "full": "Vollzugriff",

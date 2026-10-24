@@ -327,7 +327,19 @@
       "approve": "Partager",
       "decline": "Refuser",
       "outsider": "Hors de l’espace de travail : le partage l’ajoute comme invité.",
-      "cantInvite": "Hors de l’espace de travail, et cet espace ne vous permet pas de partager avec des personnes extérieures."
+      "cantInvite": "Hors de l’espace de travail, et cet espace ne vous permet pas de partager avec des personnes extérieures.",
+      "asksMore": "Demande « {level} », a « {current} » actuellement"
+    },
+    "askMore": {
+      "title": "Demander plus d’accès",
+      "description": "Vous avez « {level} ». Les personnes disposant d’un accès complet à la page décident.",
+      "level": "Accès demandé",
+      "messagePlaceholder": "Message (facultatif)",
+      "send": "Demander",
+      "sending": "Envoi…",
+      "pending": "Vous avez demandé « {level} ». Les personnes disposant d’un accès complet à la page vous répondront.",
+      "rateLimited": "Vous avez fait trop de demandes. Réessayez plus tard.",
+      "unavailable": "Vous ne pouvez pas demander plus d’accès à cette page pour le moment."
     },
     "levels": {
       "full": "Accès complet",

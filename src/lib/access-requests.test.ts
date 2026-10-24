@@ -1,5 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { ACCESS_REQUEST_MESSAGE_MAX, cleanRequestMessage, isApprovalLevel, requestedPageId } from "./access-requests";
+import {
+  ACCESS_REQUEST_MESSAGE_MAX,
+  approvalLevelsFor,
+  cleanRequestMessage,
+  isApprovalLevel,
+  isMoreAccessLevel,
+  initialApprovalLevel,
+  levelsToAsk,
+  requestedPageId,
+} from "./access-requests";
 
 describe("cleanRequestMessage", () => {
   it("keeps the text, trimmed", () => {
@@ -64,5 +73,37 @@ describe("requestedPageId", () => {
     expect(requestedPageId(null, "ws-1")).toBeNull();
     expect(requestedPageId(undefined, "ws-1")).toBeNull();
     expect(requestedPageId("/w/ws-1/p/%E0%A4%A", "ws-1")).toBeNull();
+  });
+});
+
+describe("asking for more access", () => {
+  it("offers what is above the current level, up to edit", () => {
+    expect(levelsToAsk("view")).toEqual(["comment", "edit"]);
+    expect(levelsToAsk("comment")).toEqual(["edit"]);
+    expect(levelsToAsk("edit")).toEqual([]);
+    expect(levelsToAsk("full")).toEqual([]);
+    // Without access, people ask from the "You don't have access" screen instead.
+    expect(levelsToAsk("none")).toEqual([]);
+  });
+
+  it("takes only comment and edit", () => {
+    expect(isMoreAccessLevel("edit")).toBe(true);
+    expect(isMoreAccessLevel("comment")).toBe(true);
+    expect(isMoreAccessLevel("view")).toBe(false);
+    expect(isMoreAccessLevel("full")).toBe(false);
+    expect(isMoreAccessLevel(3)).toBe(false);
+  });
+
+  it("lets approvers give only more than the requester has", () => {
+    expect(approvalLevelsFor("none")).toEqual(["view", "comment", "edit", "full"]);
+    expect(approvalLevelsFor("view")).toEqual(["comment", "edit", "full"]);
+    expect(approvalLevelsFor("comment")).toEqual(["edit", "full"]);
+    expect(approvalLevelsFor("full")).toEqual([]);
+  });
+
+  it("starts the approver's picker at the level asked for", () => {
+    expect(initialApprovalLevel({ level: "comment", current: "view" }, "edit")).toBe("comment");
+    expect(initialApprovalLevel({ level: "view", current: "none" }, "edit")).toBe("edit");
+    expect(initialApprovalLevel({ level: "view", current: "none" }, "full")).toBe("full");
   });
 });

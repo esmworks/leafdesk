@@ -1188,7 +1188,7 @@
     "sharingHeading": "Teilen",
     "accessRequests": {
       "title": "Zugriffsanfragen",
-      "description": "Wer den Link zu einer Seite öffnet, die er nicht sehen kann, kann mit einer Nachricht um Zugriff bitten. Die Anfrage geht an die Personen mit vollem Zugriff auf die Seite. Aus: Sie sehen nur, dass sie keinen Zugriff haben."
+      "description": "Wer einen Link zu einer Seite öffnet, die er nicht sehen kann, kann mit einer Nachricht um Zugriff bitten, und wer eine Seite ansehen oder kommentieren kann, kann über ihr Teilen-Menü darum bitten, sie zu kommentieren oder zu bearbeiten. Die Anfrage geht an die Personen mit Vollzugriff auf die Seite. Aus: Niemand kann anfragen."
     },
     "guestInvites": {
       "title": "Wer Gäste einladen darf",

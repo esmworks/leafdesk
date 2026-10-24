@@ -145,6 +145,10 @@
     "body": "{requester}（{email}）が{workspace}の「{page}」を開きたいと希望しています。",
     "bodyWithoutEmail": "{requester}が{workspace}の「{page}」を開きたいと希望しています。",
     "message": "メッセージ：「{message}」",
+    "moreSubject": "{requester}が「{page}」の{level, select, comment {コメント} other {編集}}権限をリクエストしました",
+    "moreHeading": "{requester}が「{page}」へのより多くのアクセス権をリクエストしました",
+    "moreBody": "{requester}（{email}）は{workspace}の「{page}」を開けます。このページを{level, select, comment {コメント} other {編集}}できるようにしてほしいとのことです。",
+    "moreBodyWithoutEmail": "{requester}は{workspace}の「{page}」を開けます。このページを{level, select, comment {コメント} other {編集}}できるようにしてほしいとのことです。",
     "answer": "権限を選んでページを共有するか、リクエストを拒否してください。受信トレイまたはページの「共有」から回答できます。",
     "action": "ページを開く",
     "optOut": "このページへのフルアクセス権をお持ちのため、このメールが届いています。「マイアカウント > 環境設定」でオフにできます。"
@@ -159,7 +163,8 @@
     "subject": "アクセスのリクエストが拒否されました",
     "heading": "リクエストが拒否されました",
     "body": "このページへのアクセスのリクエストは拒否されました：{link}",
-    "hint": "引き続きアクセスが必要な場合は、リンクを送った人に依頼してください。"
+    "hint": "引き続きアクセスが必要な場合は、リンクを送った人に依頼してください。",
+    "moreBody": "「{page}」の{level, select, comment {コメント} other {編集}}権限のリクエストは拒否されました。これまでどおり開くことはできます：{link}"
   },
   "emailChange": {
     "subject": "新しいメールアドレスを確認してください",
@@ -241,6 +246,7 @@
     "mention": "{actor}があなたをメンションしました",
     "reminder": "リマインダー：{date}",
     "accessRequest": "{actor}がこのページへのアクセスをリクエストしました",
+    "accessRequestMore": "{actor}がこのページの{level, select, comment {コメント} other {編集}}権限をリクエストしました",
     "automation": "オートメーション「{name}」：{actor}がこの行を追加または変更しました",
     "automationDatePassed": "オートメーション「{name}」：この行の日付になりました",
     "button": "{actor} さんがボタンでこのページを送信しました",

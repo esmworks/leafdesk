@@ -56,6 +56,8 @@ const texts: Record<string, string> = {
   mention: "{actor} mentioned you",
   reminder: "Reminder: {date}",
   accessRequest: "{actor} asked for access to this page",
+  // The real text picks its words by level (an ICU select), which this stand-in doesn't do.
+  accessRequestMore: "{actor} asked for {level} access",
   automation: "Automation “{name}”: {actor} added or changed this row",
   someone: "Someone",
   joinRequestTitle: "Join request",
@@ -138,8 +140,15 @@ describe("pushPayload", () => {
   });
 
   it("names a requester without a name by their email", () => {
-    const request = item({ kind: "access_request", actorName: null, accessRequest: { requesterEmail: "vera@example.com" } });
+    const request = item({ kind: "access_request", actorName: null, accessRequest: { requesterEmail: "vera@example.com", level: "view" } });
     expect(pushPayload(request, t, date)?.body).toBe("vera@example.com asked for access to this page");
+  });
+
+  it("says what someone who can open the page asks for on top", () => {
+    const edit = item({ kind: "access_request", accessRequest: { requesterEmail: "vera@example.com", level: "edit" } });
+    expect(pushPayload(edit, t, date)?.body).toBe("Ayşe asked for edit access");
+    const comment = item({ kind: "access_request", accessRequest: { requesterEmail: "vera@example.com", level: "comment" } });
+    expect(pushPayload(comment, t, date)?.body).toBe("Ayşe asked for comment access");
   });
 
   it("leads join requests to the members' requests, and agents' calls to the run", () => {

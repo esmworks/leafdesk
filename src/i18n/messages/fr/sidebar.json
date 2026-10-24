@@ -138,6 +138,7 @@
     "mention": "{actor} vous a mentionné",
     "reminder": "Rappel : {date}",
     "accessRequest": "{actor} demande l’accès à cette page",
+    "accessRequestMore": "{actor} demande à {level, select, comment {commenter} other {modifier}} cette page",
     "automation": "Automatisation « {name} » : {actor} a ajouté ou modifié cette ligne",
     "automationDatePassed": "Automatisation « {name} » : la date de cette ligne est arrivée",
     "button": "{actor} vous a envoyé cette page avec un bouton",

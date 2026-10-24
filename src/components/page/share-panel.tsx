@@ -1,10 +1,10 @@
 "use client";
 
-import { Bot, Check, Link2, Mail, Search, Send, Users, UsersRound, X } from "lucide-react";
+import { Bot, Check, Clock, Link2, Mail, Search, Send, Users, UsersRound, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { UserAvatar } from "@/components/user-avatar";
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
-import { approveAccessRequestAction, declineAccessRequestAction } from "@/app/actions/access-requests";
+import { approveAccessRequestAction, declineAccessRequestAction, requestMoreAccessAction } from "@/app/actions/access-requests";
 import {
   getSharingAction,
   removePageGroupPermissionAction,
@@ -15,8 +15,9 @@ import {
   sharePageByEmailAction,
   type SharingResult,
 } from "@/app/actions/sharing";
-import { Button, cn } from "@/components/ui";
+import { Button, cn, Input, selectClass } from "@/components/ui";
 import type { PageLevel } from "@/db/schema";
+import { ACCESS_REQUEST_MESSAGE_MAX, initialApprovalLevel, isAbove, type ApprovalLevel, type MoreAccessLevel } from "@/lib/access-requests";
 import { AGENT_ACCESS_LEVELS } from "@/lib/agents";
 import { isEmail, normalizeEmail } from "@/lib/emails";
 import { searchFold } from "@/lib/search-fold";
@@ -205,7 +206,7 @@ function ShareTab({ pageId, currentUser, onChange }: { pageId: string; currentUs
               <AccessRequestRow
                 key={request.id}
                 request={request}
-                initialLevel={request.inWorkspace ? addLevel(request.requesterId) : "edit"}
+                initialLevel={initialApprovalLevel(request, request.inWorkspace ? (addLevel(request.requesterId) as ApprovalLevel) : "edit")}
                 onApprove={(level) => void run(() => approveAccessRequestAction(request.id, level))}
                 onDecline={() => void run(() => declineAccessRequestAction(request.id))}
               />
@@ -295,7 +296,12 @@ function ShareTab({ pageId, currentUser, onChange }: { pageId: string; currentUs
           )}
         </div>
       ) : (
-        <p className="text-xs text-fg-muted">{t("readOnly")}</p>
+        <>
+          <p className="text-xs text-fg-muted">{t("readOnly")}</p>
+          {(data.askable.length > 0 || data.myRequest) && (
+            <AskForMore pageId={pageId} current={data.level} askable={data.askable} pending={data.myRequest} onSent={() => void load()} />
+          )}
+        </>
       )}
 
       {error && (
@@ -518,6 +524,8 @@ function AccessRequestRow({
   const t = useTranslations("page.share");
   const [level, setLevel] = useState<PageLevel>(initialLevel === "none" ? "edit" : initialLevel);
   const note = !request.inWorkspace ? (request.approvable ? t("requests.outsider") : t("requests.cantInvite")) : null;
+  // Someone who can open the page is shared more, never less, than they have.
+  const choices = LEVELS.filter((l) => l !== "none" && isAbove(l, request.current));
   return (
     <li className="list-none">
       <div className="flex items-center gap-2">
@@ -526,6 +534,11 @@ function AccessRequestRow({
           <PersonLabel name={request.name || request.email || "?"} detail={request.email ?? undefined} />
         </div>
       </div>
+      {request.level !== "view" && (
+        <p className="mt-1 ms-9 text-xs text-fg-muted">
+          {t("requests.asksMore", { level: t(`levels.${request.level}`), current: t(`levels.${request.current}`) })}
+        </p>
+      )}
       {request.message && (
         <p className="mt-1 ms-9 text-sm break-words whitespace-pre-line text-fg-muted">{t("requests.message", { message: request.message })}</p>
       )}
@@ -538,7 +551,7 @@ function AccessRequestRow({
           disabled={!request.approvable}
           className="h-7 rounded-md bg-transparent px-1.5 text-sm text-fg-muted hover:bg-bg-hover focus:outline-none"
         >
-          {LEVELS.filter((l) => l !== "none").map((l) => (
+          {choices.map((l) => (
             <option key={l} value={l}>
               {t(`levels.${l}`)}
             </option>
@@ -552,6 +565,100 @@ function AccessRequestRow({
         </Button>
       </div>
     </li>
+  );
+}
+
+/**
+ * For someone who can view or comment on the page: ask the people with full access for more
+ * (server/access-requests.ts `requestMoreAccess`), with an optional message. Once asked, what they
+ * asked for shows until it is answered.
+ */
+function AskForMore({
+  pageId,
+  current,
+  askable,
+  pending,
+  onSent,
+}: {
+  pageId: string;
+  current: PageLevel;
+  askable: MoreAccessLevel[];
+  pending: PageLevel | null;
+  onSent: () => void;
+}) {
+  const t = useTranslations("page.share.askMore");
+  const tl = useTranslations("page.share.levels");
+  const tc = useTranslations("common");
+  const [level, setLevel] = useState<MoreAccessLevel>(askable.includes("edit") ? "edit" : (askable[0] ?? "edit"));
+  const [message, setMessage] = useState("");
+  const [state, setState] = useState<"idle" | "sending" | "rateLimited" | "unavailable" | "error">("idle");
+
+  if (pending) {
+    return (
+      <p role="status" className="mt-2 flex items-start gap-2 rounded-md bg-bg-hover px-2.5 py-2 text-xs text-fg-muted">
+        <Clock className="mt-px h-3.5 w-3.5 shrink-0" aria-hidden />
+        <span>{t("pending", { level: tl(pending) })}</span>
+      </p>
+    );
+  }
+
+  const send = async () => {
+    setState("sending");
+    try {
+      const outcome = await requestMoreAccessAction(pageId, level, message);
+      if (outcome === "sent") {
+        setMessage("");
+        setState("idle");
+        onSent();
+      } else setState(outcome === "rateLimited" ? "rateLimited" : outcome === "unavailable" ? "unavailable" : "error");
+    } catch {
+      setState("error");
+    }
+  };
+
+  return (
+    <form
+      className="mt-3 space-y-2 border-t border-border pt-3"
+      onSubmit={(e) => {
+        e.preventDefault();
+        void send();
+      }}
+    >
+      <div>
+        <p className="text-sm font-medium">{t("title")}</p>
+        <p className="text-xs text-fg-muted">{t("description", { level: tl(current) })}</p>
+      </div>
+      <div className="flex gap-1.5">
+        <select
+          value={level}
+          aria-label={t("level")}
+          onChange={(e) => setLevel(e.target.value as MoreAccessLevel)}
+          className={cn(selectClass, "shrink-0")}
+        >
+          {[...askable].reverse().map((l) => (
+            <option key={l} value={l}>
+              {tl(l)}
+            </option>
+          ))}
+        </select>
+        <Input
+          value={message}
+          maxLength={ACCESS_REQUEST_MESSAGE_MAX}
+          onChange={(e) => setMessage(e.target.value)}
+          placeholder={t("messagePlaceholder")}
+          aria-label={t("messagePlaceholder")}
+          className="h-8 min-w-0 flex-1"
+        />
+        <Button type="submit" size="sm" variant="primary" className="h-8 shrink-0" disabled={state === "sending"}>
+          {state === "sending" ? t("sending") : t("send")}
+        </Button>
+      </div>
+      {(state === "rateLimited" || state === "unavailable" || state === "error") && (
+        <p role="alert" className="text-xs text-danger">
+          {state === "error" ? tc("genericError") : t(state)}
+        </p>
+      )}
+    </form>
   );
 }
 

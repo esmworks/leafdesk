@@ -327,7 +327,19 @@
       "approve": "Chia sẻ",
       "decline": "Từ chối",
       "outsider": "Không ở trong không gian làm việc: chia sẻ sẽ thêm họ với tư cách khách.",
-      "cantInvite": "Không ở trong không gian làm việc, và không gian làm việc này không cho phép bạn chia sẻ với người bên ngoài."
+      "cantInvite": "Không ở trong không gian làm việc, và không gian làm việc này không cho phép bạn chia sẻ với người bên ngoài.",
+      "asksMore": "Xin “{level}”, hiện có “{current}”"
+    },
+    "askMore": {
+      "title": "Xin thêm quyền truy cập",
+      "description": "Bạn đang có “{level}”. Những người có toàn quyền với trang sẽ quyết định.",
+      "level": "Quyền muốn xin",
+      "messagePlaceholder": "Lời nhắn (không bắt buộc)",
+      "send": "Xin",
+      "sending": "Đang xin…",
+      "pending": "Bạn đã xin “{level}”. Những người có toàn quyền với trang sẽ trả lời.",
+      "rateLimited": "Bạn đã xin quá nhiều lần. Hãy thử lại sau một lúc.",
+      "unavailable": "Hiện bạn không thể xin thêm quyền truy cập trang này."
     },
     "levels": {
       "full": "Toàn quyền",

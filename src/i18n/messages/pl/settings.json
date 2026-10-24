@@ -1188,7 +1188,7 @@
     "sharingHeading": "Udostępnianie",
     "accessRequests": {
       "title": "Prośby o dostęp",
-      "description": "Osoby, które otworzą link do strony, której nie widzą, mogą poprosić o dostęp, dołączając wiadomość. Prośbę otrzymują osoby z pełnym dostępem do strony. Wyłączone: widzą tylko informację, że nie mają dostępu."
+      "description": "Osoby, które otworzą link do strony, której nie widzą, mogą poprosić o dostęp z wiadomością, a osoby, które mogą wyświetlać lub komentować stronę, mogą w jej menu Udostępnij poprosić o możliwość komentowania lub edytowania. Prośba trafia do osób z pełnym dostępem do strony. Wyłączone: nikt nie może prosić."
     },
     "guestInvites": {
       "title": "Kto może zapraszać gości",

@@ -327,7 +327,19 @@
       "approve": "Compartir",
       "decline": "Rechazar",
       "outsider": "No está en el espacio de trabajo: al compartir se une como invitado.",
-      "cantInvite": "No está en el espacio de trabajo y este espacio no te permite compartir con personas de fuera."
+      "cantInvite": "No está en el espacio de trabajo y este espacio no te permite compartir con personas de fuera.",
+      "asksMore": "Pide “{level}”, ahora tiene “{current}”"
+    },
+    "askMore": {
+      "title": "Pedir más acceso",
+      "description": "Tienes “{level}”. Deciden las personas con acceso completo a la página.",
+      "level": "Acceso que pides",
+      "messagePlaceholder": "Mensaje (opcional)",
+      "send": "Pedir",
+      "sending": "Pidiendo…",
+      "pending": "Pediste “{level}”. Las personas con acceso completo a la página te responderán.",
+      "rateLimited": "Has pedido demasiadas veces. Vuelve a intentarlo más tarde.",
+      "unavailable": "Ahora no puedes pedir más acceso a esta página."
     },
     "levels": {
       "full": "Acceso completo",

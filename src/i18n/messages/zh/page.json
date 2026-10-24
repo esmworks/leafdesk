@@ -327,7 +327,19 @@
       "approve": "分享",
       "decline": "拒绝",
       "outsider": "不在工作区中：分享后对方将以访客身份加入。",
-      "cantInvite": "不在工作区中，且此工作区不允许你与工作区之外的人分享。"
+      "cantInvite": "不在工作区中，且此工作区不允许你与工作区之外的人分享。",
+      "asksMore": "申请“{level}”，当前为“{current}”"
+    },
+    "askMore": {
+      "title": "申请更多访问权限",
+      "description": "你当前为“{level}”。由拥有此页面完全访问权限的人决定。",
+      "level": "申请的权限",
+      "messagePlaceholder": "留言（可选）",
+      "send": "申请",
+      "sending": "正在申请…",
+      "pending": "你已申请“{level}”。拥有此页面完全访问权限的人会回复你。",
+      "rateLimited": "你申请的次数过多。请稍后再试。",
+      "unavailable": "你目前无法申请此页面的更多访问权限。"
     },
     "levels": {
       "full": "完全访问",

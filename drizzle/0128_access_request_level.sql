@@ -1,0 +1,2 @@
+ALTER TABLE "access_request" ADD COLUMN "level" text DEFAULT 'view' NOT NULL;--> statement-breakpoint
+ALTER TABLE "access_request" ADD CONSTRAINT "access_request_level_check" CHECK ("access_request"."level" in ('view', 'comment', 'edit'));

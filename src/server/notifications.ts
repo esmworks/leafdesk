@@ -1,6 +1,7 @@
 import { and, count, desc, eq, inArray, isNotNull, isNull, lte, ne, notInArray, or, sql, type SQL } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { db } from "@/db";
+import type { RequestedLevel } from "@/lib/access-requests";
 import { UNSNOOZABLE_KINDS } from "@/lib/snooze";
 import {
   accessRequest,
@@ -21,6 +22,7 @@ import {
   type AgentRunState,
   type JoinRequestKind,
   type NotificationKind,
+  type PageLevel,
 } from "@/db/schema";
 import { addReactor, parseReactors, reactionSummary, removeReactor, type Reactor } from "@/lib/comment-reactions";
 import { avatarSrc } from "@/lib/avatar";
@@ -35,9 +37,11 @@ import {
   FULL_RANK,
   findMembership,
   inWorkspace,
+  levelFromRank,
   ownsWorkspace,
   pageVisibleTo,
   peopleWithFullAccess,
+  rankOf,
   requireMembership,
   workspaceOwnerIds,
   workspaceRoleOf,
@@ -819,6 +823,10 @@ export type InboxAccessRequest = {
   /** Empty for a guest's inbox when the requester is in the workspace: guests don't learn members' addresses. */
   requesterEmail: string;
   message: string | null;
+  /** What they asked for: "view" is any access (from the no-access screen). */
+  level: RequestedLevel;
+  /** What they have now: none, or less than `level` for those asking for more. */
+  current: PageLevel;
   /** The requester is in the workspace (as a member or guest); otherwise approving adds them as a guest. */
   inWorkspace: boolean;
   /** The user may approve it: always for people in the workspace, for others when they may invite guests. */
@@ -859,7 +867,8 @@ async function inboxFilter(userId: string, workspaceId?: string, only?: Notifica
           and(
             sql`page_access_level(${userId}, ${page.id}) = ${FULL_RANK}`,
             isNotNull(notification.actorId),
-            sql`page_access_level(${notification.actorId}, ${page.id}) = 0`,
+            // The requester still has less than they asked for (see server/access-requests).
+            sql`exists (select 1 from ${accessRequest} where ${accessRequest.id} = ${notification.accessRequestId} and page_access_level(${accessRequest.requesterId}, ${accessRequest.pageId}) < ${rankOf(accessRequest.level)})`,
           ),
         ),
       ),
@@ -919,6 +928,8 @@ export async function listNotifications(
       actorEmail: actor.email,
       requestId: accessRequest.id,
       requestMessage: accessRequest.message,
+      requestLevel: accessRequest.level,
+      requesterLevel: sql<number | null>`page_access_level(${accessRequest.requesterId}, ${accessRequest.pageId})`,
       requesterRole: workspaceRoleOf(accessRequest.requesterId, accessRequest.workspaceId),
       agentRunId: notification.agentRunId,
       rowDatabaseId: page.parentId,
@@ -987,7 +998,7 @@ export async function listNotifications(
       !(r.kind === "agent_approval" && r.agentRunId && approvals.get(r.agentRunId) === null),
   );
   return Promise.all(
-    shown.map(async ({ readAt, actorEmail, actorImage, requestId, requestMessage, requesterRole, agentRunId, rowDatabaseId, rowCreatedBy, rowProperties, changes, rowEmailId, followUpSequence, commentId, reactions: _reactions, automationMessage, ...row }) => ({
+    shown.map(async ({ readAt, actorEmail, actorImage, requestId, requestMessage, requestLevel, requesterLevel, requesterRole, agentRunId, rowDatabaseId, rowCreatedBy, rowProperties, changes, rowEmailId, followUpSequence, commentId, reactions: _reactions, automationMessage, ...row }) => ({
       ...row,
       actorImage: avatarSrc(actorImage),
       // A reaction's message is the comment it quotes (see reaction below), a comment's what became of its suggestion.
@@ -1008,6 +1019,8 @@ export async function listNotifications(
               id: requestId,
               requesterEmail: requesterRole !== null && (await isGuestIn(row.workspaceId)) ? "" : (actorEmail ?? ""),
               message: requestMessage,
+              level: requestLevel ?? "view",
+              current: levelFromRank(requesterLevel),
               inWorkspace: requesterRole !== null,
               approvable: requesterRole !== null || (await mayInvite(row.workspaceId)),
             }

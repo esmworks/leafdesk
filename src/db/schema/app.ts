@@ -123,8 +123,9 @@ export type WorkspaceSettings = {
   connectedApps: "full" | "read" | "off";
   /**
    * Whether someone who opens a link to a page they can't see may ask for access from the "You
-   * don't have access" screen (see server/access-requests.ts). Guests and people outside the
-   * workspace too: approving brings them in as guests, which the guest invite policy decides.
+   * don't have access" screen, and someone who can view or comment on a page for more from its
+   * Share menu (see server/access-requests.ts). Guests and people outside the workspace too:
+   * approving brings them in as guests, which the guest invite policy decides.
    */
   accessRequests: boolean;
   /**

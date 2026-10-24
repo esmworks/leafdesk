@@ -334,6 +334,9 @@ export const FULL_RANK = rank("full");
 /** The rank `page_access_level` returns for edit access. */
 export const EDIT_RANK = rank("edit");
 
+/** A stored level (a column or value holding "view" … "full") as the rank `page_access_level` returns. */
+export const rankOf = (level: SQL | AnyColumn) => sql<number>`coalesce(array_position(array['view', 'comment', 'edit', 'full'], ${level}::text), 0)`;
+
 /** The level `page_access_level` returns (0–4) as a name; anything unexpected is `none`. */
 export const levelFromRank = (value: unknown): AccessLevel => PAGE_LEVELS[Number(value)] ?? "none";
 

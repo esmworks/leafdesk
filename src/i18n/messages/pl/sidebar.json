@@ -138,6 +138,7 @@
     "mention": "{actor} wspomina o tobie",
     "reminder": "Przypomnienie: {date}",
     "accessRequest": "{actor} prosi o dostęp do tej strony",
+    "accessRequestMore": "{actor} prosi o możliwość {level, select, comment {komentowania} other {edytowania}} tej strony",
     "automation": "Automatyzacja „{name}”: {actor} dodaje lub zmienia ten wiersz",
     "automationDatePassed": "Automatyzacja „{name}”: nadeszła data tego wiersza",
     "button": "{actor} wysłał(a) Ci tę stronę przyciskiem",

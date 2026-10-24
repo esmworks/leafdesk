@@ -138,6 +138,7 @@
     "mention": "{actor} згадує вас",
     "reminder": "Нагадування: {date}",
     "accessRequest": "{actor} просить доступ до цієї сторінки",
+    "accessRequestMore": "{actor} просить дозволу {level, select, comment {коментувати} other {редагувати}} цю сторінку",
     "automation": "Автоматизація «{name}»: {actor} додає або змінює цей рядок",
     "automationDatePassed": "Автоматизація «{name}»: настала дата цього рядка",
     "button": "{actor} надіслав(ла) вам цю сторінку кнопкою",

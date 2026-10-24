@@ -327,7 +327,19 @@
       "approve": "Bagikan",
       "decline": "Tolak",
       "outsider": "Tidak ada di ruang kerja: berbagi menambahkan mereka sebagai tamu.",
-      "cantInvite": "Tidak ada di ruang kerja, dan ruang kerja ini tidak mengizinkan Anda berbagi dengan orang di luarnya."
+      "cantInvite": "Tidak ada di ruang kerja, dan ruang kerja ini tidak mengizinkan Anda berbagi dengan orang di luarnya.",
+      "asksMore": "Meminta “{level}”, saat ini “{current}”"
+    },
+    "askMore": {
+      "title": "Minta akses lebih",
+      "description": "Anda memiliki “{level}”. Orang dengan akses penuh ke halaman ini yang memutuskan.",
+      "level": "Akses yang diminta",
+      "messagePlaceholder": "Pesan (opsional)",
+      "send": "Minta",
+      "sending": "Meminta…",
+      "pending": "Anda meminta “{level}”. Orang dengan akses penuh ke halaman ini akan menjawab.",
+      "rateLimited": "Anda terlalu sering meminta. Coba lagi nanti.",
+      "unavailable": "Anda tidak dapat meminta akses lebih ke halaman ini saat ini."
     },
     "levels": {
       "full": "Akses penuh",

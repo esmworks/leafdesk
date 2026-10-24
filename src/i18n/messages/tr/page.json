@@ -327,7 +327,19 @@
       "approve": "Paylaş",
       "decline": "Reddet",
       "outsider": "Çalışma alanında değil: paylaşınca misafir olarak eklenir.",
-      "cantInvite": "Çalışma alanında değil ve bu çalışma alanı dışarıdan kişilerle paylaşmanıza izin vermiyor."
+      "cantInvite": "Çalışma alanında değil ve bu çalışma alanı dışarıdan kişilerle paylaşmanıza izin vermiyor.",
+      "asksMore": "“{level}” istiyor, şu an “{current}”"
+    },
+    "askMore": {
+      "title": "Daha fazla erişim iste",
+      "description": "Şu an “{level}” erişiminiz var. Karar, sayfaya tam erişimi olanlarındır.",
+      "level": "İstenen erişim",
+      "messagePlaceholder": "Mesaj (isteğe bağlı)",
+      "send": "İste",
+      "sending": "İsteniyor…",
+      "pending": "“{level}” erişimi istediniz. Sayfaya tam erişimi olanlar yanıtlayacak.",
+      "rateLimited": "Çok fazla istek gönderdiniz. Biraz sonra yeniden deneyin.",
+      "unavailable": "Şu an bu sayfa için daha fazla erişim isteyemezsiniz."
     },
     "levels": {
       "full": "Tam erişim",

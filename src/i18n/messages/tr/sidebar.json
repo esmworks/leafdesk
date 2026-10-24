@@ -138,6 +138,7 @@
     "mention": "{actor} sizden bahsetti",
     "reminder": "Hatırlatma: {date}",
     "accessRequest": "{actor} bu sayfaya erişim istedi",
+    "accessRequestMore": "{actor} bu sayfada {level, select, comment {yorum yapmak} other {düzenleme yapmak}} istiyor",
     "automation": "“{name}” otomasyonu: {actor} bu satırı ekledi ya da değiştirdi",
     "automationDatePassed": "“{name}” otomasyonu: bu satırın tarihi geldi",
     "button": "{actor} bu sayfayı size bir düğmeyle gönderdi",

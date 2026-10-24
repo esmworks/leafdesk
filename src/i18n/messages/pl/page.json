@@ -327,7 +327,19 @@
       "approve": "Udostępnij",
       "decline": "Odrzuć",
       "outsider": "Spoza obszaru roboczego: udostępnienie doda tę osobę jako gościa.",
-      "cantInvite": "Spoza obszaru roboczego, a ten obszar roboczy nie pozwala udostępniać osobom spoza niego."
+      "cantInvite": "Spoza obszaru roboczego, a ten obszar roboczy nie pozwala udostępniać osobom spoza niego.",
+      "asksMore": "Prosi o „{level}”, teraz ma „{current}”"
+    },
+    "askMore": {
+      "title": "Poproś o szerszy dostęp",
+      "description": "Masz „{level}”. Decydują osoby z pełnym dostępem do strony.",
+      "level": "Dostęp, o który prosisz",
+      "messagePlaceholder": "Wiadomość (opcjonalnie)",
+      "send": "Poproś",
+      "sending": "Wysyłanie…",
+      "pending": "Poprosiłeś o „{level}”. Odpowiedzą osoby z pełnym dostępem do strony.",
+      "rateLimited": "Zbyt wiele próśb. Spróbuj ponownie za jakiś czas.",
+      "unavailable": "Nie możesz teraz poprosić o szerszy dostęp do tej strony."
     },
     "levels": {
       "full": "Pełny dostęp",

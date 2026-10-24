@@ -145,6 +145,10 @@
     "body": "{requester} ({email}) möchte „{page}“ in {workspace} öffnen.",
     "bodyWithoutEmail": "{requester} möchte „{page}“ in {workspace} öffnen.",
     "message": "Nachricht: „{message}“",
+    "moreSubject": "{requester} möchte „{page}“ {level, select, comment {kommentieren} other {bearbeiten}}",
+    "moreHeading": "{requester} möchte mehr Zugriff auf „{page}“",
+    "moreBody": "{requester} ({email}) kann „{page}“ in {workspace} öffnen und möchte die Seite {level, select, comment {kommentieren} other {bearbeiten}}.",
+    "moreBodyWithoutEmail": "{requester} kann „{page}“ in {workspace} öffnen und möchte die Seite {level, select, comment {kommentieren} other {bearbeiten}}.",
     "answer": "Teile die Seite mit dieser Person und wähle, was sie tun darf, oder lehne die Anfrage ab. Du kannst in deinem Posteingang oder über Teilen auf der Seite antworten.",
     "action": "Seite öffnen",
     "optOut": "Du erhältst diese E-Mails, weil du vollen Zugriff auf die Seite hast. Du kannst sie unter Mein Konto > Präferenzen abschalten."
@@ -159,7 +163,8 @@
     "subject": "Deine Zugriffsanfrage wurde abgelehnt",
     "heading": "Deine Anfrage wurde abgelehnt",
     "body": "Deine Anfrage für Zugriff auf diese Seite wurde abgelehnt: {link}",
-    "hint": "Wenn du sie weiterhin brauchst, frag die Person, die dir den Link geschickt hat."
+    "hint": "Wenn du sie weiterhin brauchst, frag die Person, die dir den Link geschickt hat.",
+    "moreBody": "Deine Anfrage, „{page}“ zu {level, select, comment {kommentieren} other {bearbeiten}}, wurde abgelehnt. Du kannst die Seite weiterhin wie bisher öffnen: {link}"
   },
   "emailChange": {
     "subject": "Bestätige deine neue E-Mail-Adresse",
@@ -241,6 +246,7 @@
     "mention": "{actor} hat dich erwähnt",
     "reminder": "Erinnerung: {date}",
     "accessRequest": "{actor} möchte Zugriff auf diese Seite",
+    "accessRequestMore": "{actor} möchte diese Seite {level, select, comment {kommentieren} other {bearbeiten}}",
     "automation": "Automatisierung „{name}“: {actor} hat diese Zeile hinzugefügt oder geändert",
     "automationDatePassed": "Automatisierung „{name}“: Das Datum dieser Zeile ist erreicht",
     "button": "{actor} hat dir diese Seite mit einer Schaltfläche geschickt",

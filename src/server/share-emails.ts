@@ -18,7 +18,7 @@ import { env } from "@/lib/env";
 import { commentHash, commentText } from "@/lib/comments";
 import { pageLabel } from "@/lib/labels";
 import { PAGE_EMAIL_COOLDOWN_MS, PAGE_EMAIL_WINDOW_MS, planPageEmails } from "@/lib/page-watch";
-import { ownsWorkspace, resolvePageAccess, workspaceRoleOf } from "@/server/access";
+import { ownsWorkspace, rankOf, resolvePageAccess, workspaceRoleOf } from "@/server/access";
 import { getCollab } from "@/server/collab/bridge";
 import { threadsVisibleTo } from "@/server/property-comments";
 import {
@@ -361,13 +361,16 @@ async function send({
       ? await db
           .select({
             message: accessRequest.message,
+            level: accessRequest.level,
+            wanted: sql<boolean>`page_access_level(${accessRequest.requesterId}, ${accessRequest.pageId}) < ${rankOf(accessRequest.level)}`,
             requesterRole: workspaceRoleOf(accessRequest.requesterId, accessRequest.workspaceId),
             recipientRole: workspaceRoleOf(sql`${userId}`, accessRequest.workspaceId),
           })
           .from(accessRequest)
           .where(eq(accessRequest.id, accessRequestId))
       : [];
-    if (!request || !actor) return;
+    // Or they got that access some other way since.
+    if (!request || !request.wanted || !actor) return;
     // Guests don't learn the addresses of people in the workspace (see listAccessRequests).
     const hideEmail = request.recipientRole === "guest" && request.requesterRole !== null;
     const content = accessRequestEmail(locale, {
@@ -377,6 +380,7 @@ async function send({
       workspaceName: space?.name ?? "",
       message: request.message,
       link,
+      level: request.level,
     });
     await mailer({ to: recipient.email, ...content });
     return;

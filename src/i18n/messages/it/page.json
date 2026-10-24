@@ -327,7 +327,19 @@
       "approve": "Condividi",
       "decline": "Rifiuta",
       "outsider": "Non è nello spazio di lavoro: condividendo lo aggiungi come ospite.",
-      "cantInvite": "Non è nello spazio di lavoro, e questo spazio di lavoro non consente di condividere con persone esterne."
+      "cantInvite": "Non è nello spazio di lavoro, e questo spazio di lavoro non consente di condividere con persone esterne.",
+      "asksMore": "Chiede “{level}”, ora ha “{current}”"
+    },
+    "askMore": {
+      "title": "Chiedi più accesso",
+      "description": "Hai “{level}”. Decidono le persone con accesso completo alla pagina.",
+      "level": "Accesso da chiedere",
+      "messagePlaceholder": "Messaggio (facoltativo)",
+      "send": "Chiedi",
+      "sending": "Invio…",
+      "pending": "Hai chiesto “{level}”. Ti risponderanno le persone con accesso completo alla pagina.",
+      "rateLimited": "Hai fatto troppe richieste. Riprova più tardi.",
+      "unavailable": "Al momento non puoi chiedere più accesso a questa pagina."
     },
     "levels": {
       "full": "Accesso completo",

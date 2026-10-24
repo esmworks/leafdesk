@@ -145,6 +145,10 @@
     "body": "يرغب {requester} ({email}) في فتح «{page}» في {workspace}.",
     "bodyWithoutEmail": "يرغب {requester} في فتح «{page}» في {workspace}.",
     "message": "رسالته: «{message}»",
+    "moreSubject": "طلب {requester} {level, select, comment {التعليق على} other {تحرير}} «{page}»",
+    "moreHeading": "طلب {requester} وصولًا أكبر إلى «{page}»",
+    "moreBody": "يمكن لـ {requester} ({email}) فتح «{page}» في {workspace} ويود {level, select, comment {التعليق عليها} other {تحريرها}}.",
+    "moreBodyWithoutEmail": "يمكن لـ {requester} فتح «{page}» في {workspace} ويود {level, select, comment {التعليق عليها} other {تحريرها}}.",
     "answer": "شارك الصفحة معه مع اختيار ما يمكنه فعله، أو ارفض الطلب. يمكنك الرد من صندوق الوارد أو من «مشاركة» في الصفحة.",
     "action": "فتح الصفحة",
     "optOut": "تصلك هذه الرسائل لأن لديك وصولًا كاملًا إلى الصفحة. يمكنك إيقافها من حسابي > التفضيلات."
@@ -159,7 +163,8 @@
     "subject": "تم رفض طلب الوصول الخاص بك",
     "heading": "تم رفض طلبك",
     "body": "تم رفض طلبك للوصول إلى هذه الصفحة: {link}",
-    "hint": "إذا كنت لا تزال بحاجة إليها، فاسأل الشخص الذي أرسل إليك الرابط."
+    "hint": "إذا كنت لا تزال بحاجة إليها، فاسأل الشخص الذي أرسل إليك الرابط.",
+    "moreBody": "تم رفض طلبك {level, select, comment {للتعليق على} other {لتحرير}} «{page}». لا يزال بإمكانك فتحها كما في السابق: {link}"
   },
   "emailChange": {
     "subject": "تأكيد عنوان بريدك الإلكتروني الجديد",
@@ -241,6 +246,7 @@
     "mention": "أشار إليك {actor}",
     "reminder": "تذكير: {date}",
     "accessRequest": "طلب {actor} الوصول إلى هذه الصفحة",
+    "accessRequestMore": "طلب {actor} {level, select, comment {التعليق على} other {تحرير}} هذه الصفحة",
     "automation": "الأتمتة «{name}»: أضاف {actor} هذا الصف أو غيّره",
     "automationDatePassed": "الأتمتة «{name}»: حان موعد تاريخ هذا الصف",
     "button": "أرسل إليك {actor} هذه الصفحة عبر زر",
