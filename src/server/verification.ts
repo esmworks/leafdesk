@@ -11,7 +11,7 @@
  * Only the one row per page in `page_verification`; whether it still holds is worked out against
  * the time whenever it is read (`activeVerification`), never stored on the page.
  */
-import { and, eq, inArray, isNotNull, isNull, lte, sql, type SQL } from "drizzle-orm";
+import { and, eq, gt, inArray, isNotNull, isNull, lte, sql, type SQL } from "drizzle-orm";
 import { db } from "@/db";
 import { page, pageVerification, user } from "@/db/schema";
 import { PAGE_HEADER_EVENT } from "@/lib/collab-constants";
@@ -184,13 +184,13 @@ export async function runVerificationReminders(now: Date = new Date()) {
         isNull(pageVerification.remindedAt),
         isNotNull(pageVerification.expiresAt),
         lte(pageVerification.expiresAt, new Date(now.getTime() + REMIND_BEFORE_MS)),
-        sql`${pageVerification.expiresAt} > ${now}`,
+        gt(pageVerification.expiresAt, now),
       ),
     )
     .returning();
   const ended = await db
     .update(pageVerification)
-    .set({ expiredAt: now, remindedAt: sql`coalesce(${pageVerification.remindedAt}, ${now})` })
+    .set({ expiredAt: now, remindedAt: sql`coalesce(${pageVerification.remindedAt}, ${now.toISOString()}::timestamptz)` })
     .where(and(isNull(pageVerification.expiredAt), isNotNull(pageVerification.expiresAt), lte(pageVerification.expiresAt, now)))
     .returning();
   for (const row of [...soon, ...ended]) {

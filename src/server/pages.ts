@@ -865,13 +865,13 @@ export type SearchOptions = SearchScope & {
 };
 
 /** Whether a search has a scope of its own, which lists pages even without words to search for. */
-const scoped = ({ withinPageIds, kinds }: SearchScope) => Boolean(withinPageIds?.length || kinds?.length);
+const scoped = ({ withinPageIds, kinds, verifiedOnly }: SearchScope) => Boolean(withinPageIds?.length || kinds?.length || verifiedOnly);
 
 /**
  * Search across the user's workspaces (or one workspace): full-text search over titles and bodies,
  * merged with semantic search (reciprocal rank fusion) where the server has an embeddings model
  * and the workspace has AI on. Without one, exactly the full-text results. With a scope (pages to
- * look under, kinds of page) and no text, the pages in the scope, last edited first.
+ * look under, kinds of page, verified only) and no text, the pages in the scope, last edited first.
  */
 export async function searchPages(userId: string, query: string, options: SearchOptions = {}): Promise<SearchHit[]> {
   const q = query.trim();

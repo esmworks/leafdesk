@@ -30,6 +30,7 @@ import type { PropertyType } from "@/lib/property-types";
 import { readableProperties, referencedIds, resolveValue, type ActivityValue } from "@/lib/row-activity";
 import { isEmptyRowUpdate, mergeRowUpdates, parseRowUpdate, visibleRowUpdate, type RowUpdate } from "@/lib/row-updates";
 import {
+  accessRank,
   FULL_RANK,
   findMembership,
   inWorkspace,
@@ -466,7 +467,7 @@ export async function recordVerificationReminder(userId: string, pageId: string,
   const [target] = await db
     .select({ workspaceId: page.workspaceId })
     .from(page)
-    .where(and(eq(page.id, pageId), isNull(page.archivedAt), sql`page_access_level(${userId}, ${page.id}) > 0`))
+    .where(and(eq(page.id, pageId), isNull(page.archivedAt), sql`${accessRank(userId, sql`${page.id}`)} > 0`))
     .limit(1);
   if (!target) return;
   const inserted = await db
