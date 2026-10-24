@@ -31,6 +31,7 @@ export async function getPublicationAction(pageId: string) {
           indexable: found.indexable,
           inSite: found.inSite,
           allowDuplicate: found.allowDuplicate,
+          description: found.description,
           createdAt: found.createdAt,
         }
       : null,
@@ -59,7 +60,7 @@ export async function setPublicationIndexableAction(pageId: string, indexable: b
   await publication.setPublicationIndexable(userId, pageId, indexable);
 }
 
-/** Changes the publication's options (search engines, listing in the site, duplicating). */
+/** Changes the publication's options (search engines and description, listing in the site, duplicating). */
 export async function updatePublicationAction(pageId: string, patch: Partial<publication.PublicationOptions>) {
   const userId = await requireUserId();
   await publication.updatePublication(userId, pageId, patch);

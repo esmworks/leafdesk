@@ -11,6 +11,7 @@ import next from "next";
 import type { NextConfig } from "next";
 import { CLIENT_IP_HEADER, clientIpFrom, describeTrustedProxies, trustedProxyCount } from "./src/lib/client-ip";
 import { applySecretFiles } from "./src/lib/secret-files";
+import { SITE_ANALYTICS_HEADER, SITE_HOST_HEADER } from "./src/lib/site";
 
 try {
   process.loadEnvFile();
@@ -71,6 +72,7 @@ const { startRowMailSender } = await import("./src/server/row-mail/send");
 const { startSequences } = await import("./src/server/sequences/run");
 const { startJiraSyncs } = await import("./src/server/jira-sync/run");
 const { startTelegram } = await import("./src/server/telegram");
+const { siteGate, upgradeAllowed } = await import("./src/server/site-hosts");
 
 const { hocuspocus, service } = createCollab();
 registerCollab(service);
@@ -122,13 +124,31 @@ const ws = crossws({
 const trustedProxies = trustedProxyCount();
 
 const server = createServer((req, res) => {
-  // Overwrites whatever the client sent under this name.
+  // Overwrites whatever the client sent under these names.
   req.headers[CLIENT_IP_HEADER] = clientIpFrom(req.headers["x-forwarded-for"], req.socket.remoteAddress, trustedProxies);
-  handleRequest(req, res).catch((error) => {
-    console.error(error);
-    res.statusCode = 500;
-    res.end("Internal Server Error");
-  });
+  delete req.headers[SITE_HOST_HEADER];
+  delete req.headers[SITE_ANALYTICS_HEADER];
+  // A workspace site on a domain of its own gets its pages and nothing else (server/site-hosts.ts).
+  siteGate(req.method ?? "GET", req.url ?? "/", req.headers.host)
+    .then((gate) => {
+      if (gate.kind === "redirect") {
+        res.writeHead(308, { location: gate.location, "cache-control": "no-store" }).end();
+        return;
+      }
+      if (gate.kind === "notFound") {
+        res.writeHead(404, { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" }).end("Not Found");
+        return;
+      }
+      if (gate.kind === "site") req.headers[SITE_HOST_HEADER] = gate.slug;
+      if ((gate.kind === "site" || gate.kind === "app") && gate.analyticsId) req.headers[SITE_ANALYTICS_HEADER] = gate.analyticsId;
+      return handleRequest(req, res);
+    })
+    .catch((error) => {
+      console.error(error);
+      if (res.headersSent) return res.end();
+      res.statusCode = 500;
+      res.end("Internal Server Error");
+    });
 });
 
 server.on("upgrade", (req: IncomingMessage, socket: Duplex, head: Buffer) => {
@@ -136,13 +156,23 @@ server.on("upgrade", (req: IncomingMessage, socket: Duplex, head: Buffer) => {
   // (approved networks), so whatever the client sent under this name is overwritten here as well.
   req.headers[CLIENT_IP_HEADER] = clientIpFrom(req.headers["x-forwarded-for"], req.socket.remoteAddress, trustedProxies);
   const { pathname } = new URL(req.url ?? "/", "http://localhost");
+  upgradeAllowed(req.url ?? "/", req.headers.host).then(
+    (allowed) => {
+      if (allowed) upgrade(req, socket, head, pathname);
+      else socket.end("HTTP/1.1 404 Not Found\r\nConnection: close\r\n\r\n");
+    },
+    () => socket.destroy(),
+  );
+});
+
+function upgrade(req: IncomingMessage, socket: Duplex, head: Buffer, pathname: string) {
   if (pathname === "/collab") {
     ws.handleUpgrade(req, socket, head);
   } else {
     // Next dev (HMR) websockets.
     handleNextUpgrade(req, socket, head);
   }
-});
+}
 
 server.listen(port, hostname, () => {
   console.log(`leafdesk ready on http://localhost:${port} (${dev ? "dev" : "production"})`);

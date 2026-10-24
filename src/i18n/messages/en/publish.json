@@ -65,7 +65,10 @@
   },
   "site": {
     "menu": "Pages",
-    "navigation": "Site pages"
+    "navigation": "Site pages",
+    "links": "Site links"
   },
-  "publishingOff": "Publishing to the web is turned off in this workspace. Published pages aren't shown until an owner turns it back on."
+  "publishingOff": "Publishing to the web is turned off in this workspace. Published pages aren't shown until an owner turns it back on.",
+  "descriptionLabel": "Search description",
+  "descriptionHint": "Shown in search results and link previews. Empty: the site's default description."
 }

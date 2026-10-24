@@ -65,7 +65,10 @@
   },
   "site": {
     "menu": "Strony",
-    "navigation": "Strony witryny"
+    "navigation": "Strony witryny",
+    "links": "Linki witryny"
   },
-  "publishingOff": "Publikowanie w internecie jest wyłączone w tym obszarze roboczym. Opublikowane strony nie są wyświetlane, dopóki właściciel go ponownie nie włączy."
+  "publishingOff": "Publikowanie w internecie jest wyłączone w tym obszarze roboczym. Opublikowane strony nie są wyświetlane, dopóki właściciel go ponownie nie włączy.",
+  "descriptionLabel": "Opis dla wyszukiwarek",
+  "descriptionHint": "Pokazywany w wynikach wyszukiwania i podglądach linków. Pusty: domyślny opis witryny."
 }

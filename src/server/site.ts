@@ -1,10 +1,26 @@
 import { and, eq, inArray, isNotNull, isNull, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { page, pagePublication, workspaceSite, type PageKind } from "@/db/schema";
-import { isSiteKey, publishedHref, siteSlugProblem, type PublishedLinks, type SiteSlugProblem } from "@/lib/site";
+import {
+  cleanDescription,
+  cleanHeaderLinks,
+  isAnalyticsId,
+  isSiteKey,
+  isSiteTheme,
+  normalizeSiteDomain,
+  publishedHref,
+  siteDomainProblem,
+  siteSlugProblem,
+  type PublishedLinks,
+  type SiteDomainProblem,
+  type SiteHeaderLink,
+  type SiteSlugProblem,
+  type SiteTheme,
+} from "@/lib/site";
 import { accessRank, pageVisibleTo, requireMember, requireMembership, requirePageAccess } from "@/server/access";
 import { changedValues, recordAudit } from "@/server/audit";
 import { chainTo, getPublishedPage, type PublishedPage } from "@/server/publication";
+import { forgetSiteHosts } from "@/server/site-hosts";
 import { publishingOn } from "@/server/workspaces";
 import { refuseInLocalMode } from "@/server/local-mode";
 import { env } from "@/lib/env";
@@ -23,6 +39,9 @@ import { env } from "@/lib/env";
  *   setting.
  * - While the workspace has publishing turned off, the site is not found; its settings stay.
  * - Publication links (`/s/<token>/…`) keep working as before.
+ * - Owners may give it a domain of its own: requests for that host get the site at its root and
+ *   nothing else (server/site-hosts.ts, routed by server.ts and proxy.ts). Its theme, header links,
+ *   search description and Google Analytics ID are theirs to set too (updateSiteOptions).
  */
 
 /** Deepest level under a listed page that the navigation shows; deeper pages are still served. */
@@ -35,26 +54,60 @@ const MAX_LISTED = 200;
 export class SiteError extends Error {
   constructor(
     message: string,
-    readonly code: SiteSlugProblem | "slugTaken" | "homeNotPublished",
+    readonly code:
+      | SiteSlugProblem
+      | SiteDomainProblem
+      | "slugTaken"
+      | "homeNotPublished"
+      | "domainTaken"
+      | "linksInvalid"
+      | "analyticsInvalid"
+      | "themeInvalid"
+      | "noSite",
   ) {
     super(message);
     this.name = "SiteError";
   }
 }
 
-export type WorkspaceSiteInfo = { slug: string; title: string; homePageId: string | null; url: string };
+/** What owners set besides the address, title and home page (see updateSiteOptions). */
+export type SiteOptions = {
+  /** A host name of the site's own, or null. */
+  domain: string | null;
+  theme: SiteTheme;
+  /** Search description of pages without one of their own. */
+  description: string;
+  headerLinks: SiteHeaderLink[];
+  /** Google Analytics 4 measurement ID, or null. */
+  analyticsId: string | null;
+};
+
+export type WorkspaceSiteInfo = { slug: string; title: string; homePageId: string | null; url: string } & SiteOptions;
 
 const siteUrl = (slug: string) => `/s/${slug}`;
+
+async function readSite(workspaceId: string): Promise<WorkspaceSiteInfo | null> {
+  const [row] = await db
+    .select({
+      slug: workspaceSite.slug,
+      title: workspaceSite.title,
+      homePageId: workspaceSite.homePageId,
+      domain: workspaceSite.domain,
+      theme: workspaceSite.theme,
+      description: workspaceSite.description,
+      headerLinks: workspaceSite.headerLinks,
+      analyticsId: workspaceSite.analyticsId,
+    })
+    .from(workspaceSite)
+    .where(eq(workspaceSite.workspaceId, workspaceId))
+    .limit(1);
+  return row ? { ...row, theme: isSiteTheme(row.theme) ? row.theme : "system", url: siteUrl(row.slug) } : null;
+}
 
 /** The workspace's site, or null when it has none. Owners and members. */
 export async function getSite(userId: string, workspaceId: string): Promise<WorkspaceSiteInfo | null> {
   await requireMember(userId, workspaceId);
-  const [row] = await db
-    .select({ slug: workspaceSite.slug, title: workspaceSite.title, homePageId: workspaceSite.homePageId })
-    .from(workspaceSite)
-    .where(eq(workspaceSite.workspaceId, workspaceId))
-    .limit(1);
-  return row ? { ...row, url: siteUrl(row.slug) } : null;
+  return readSite(workspaceId);
 }
 
 /**
@@ -122,7 +175,83 @@ export async function saveSite(
     }
     throw error;
   }
-  return { slug, title, homePageId, url: siteUrl(slug) };
+  forgetSiteHosts();
+  return (await readSite(workspaceId))!;
+}
+
+/**
+ * Changes the site's own domain, theme, header links, default search description or analytics
+ * ID. Owners only, once the site is set up. A domain must be a host name no other site has (and
+ * not the app's own); header links lead to pages of the workspace or http(s) addresses.
+ */
+export async function updateSiteOptions(userId: string, workspaceId: string, patch: Partial<SiteOptions>): Promise<WorkspaceSiteInfo> {
+  refuseInLocalMode();
+  await requireMembership(userId, workspaceId, "owner");
+  const before = await readSite(workspaceId);
+  if (!before) throw new SiteError("Set up the site first", "noSite");
+  const next: Partial<SiteOptions> = {};
+  if (patch.domain !== undefined) {
+    const typed = patch.domain === null ? "" : String(patch.domain).trim();
+    if (typed) {
+      const domain = normalizeSiteDomain(typed);
+      const problem = domain ? siteDomainProblem(domain, new URL(env.appUrl).hostname) : "domainInvalid";
+      if (problem || !domain) throw new SiteError(`"${typed}" can't be the site's domain (${problem})`, problem ?? "domainInvalid");
+      const [taken] = await db.select({ workspaceId: workspaceSite.workspaceId }).from(workspaceSite).where(eq(workspaceSite.domain, domain)).limit(1);
+      if (taken && taken.workspaceId !== workspaceId) throw new SiteError(`Another site uses ${domain}`, "domainTaken");
+      next.domain = domain;
+    } else next.domain = null;
+  }
+  if (patch.theme !== undefined) {
+    if (!isSiteTheme(patch.theme)) throw new SiteError("The theme is light, dark or system", "themeInvalid");
+    next.theme = patch.theme;
+  }
+  if (patch.description !== undefined) next.description = cleanDescription(patch.description);
+  if (patch.headerLinks !== undefined) {
+    const links = cleanHeaderLinks(patch.headerLinks);
+    if (!links) throw new SiteError("Header links need a label and a page or an http(s) address", "linksInvalid");
+    const pageIds = links.flatMap((l) => ("pageId" in l ? [l.pageId] : []));
+    if (pageIds.length) {
+      const found = await db
+        .select({ id: page.id })
+        .from(page)
+        .where(and(inArray(page.id, pageIds), eq(page.workspaceId, workspaceId)));
+      if (found.length !== new Set(pageIds).size) throw new SiteError("Header links lead to pages of this workspace", "linksInvalid");
+    }
+    next.headerLinks = links;
+  }
+  if (patch.analyticsId !== undefined) {
+    const id = patch.analyticsId === null ? "" : String(patch.analyticsId).trim().toUpperCase();
+    if (id && !isAnalyticsId(id)) throw new SiteError(`"${id}" isn't a Google Analytics measurement ID`, "analyticsInvalid");
+    next.analyticsId = id || null;
+  }
+  const changes = changedValues<Record<string, unknown>>(
+    Object.fromEntries(Object.keys(next).map((key) => [key, before[key as keyof SiteOptions]])),
+    next,
+  );
+  if (!Object.keys(changes).length) return before;
+  try {
+    await db.transaction(async (tx) => {
+      await tx.update(workspaceSite).set(next).where(eq(workspaceSite.workspaceId, workspaceId));
+      await recordAudit(
+        {
+          workspaceId,
+          actorId: userId,
+          action: "site.saved",
+          target: { type: "site", id: before.slug, label: before.slug },
+          details: { slug: before.slug, created: false, changes },
+        },
+        tx,
+      );
+    });
+  } catch (error) {
+    // Another site took the domain in the meantime.
+    if ((error as { cause?: { code?: string } }).cause?.code === "23505" || (error as { code?: string }).code === "23505") {
+      throw new SiteError(`Another site uses ${next.domain}`, "domainTaken");
+    }
+    throw error;
+  }
+  forgetSiteHosts();
+  return (await readSite(workspaceId))!;
 }
 
 /**
@@ -152,19 +281,22 @@ export async function setSiteListing(userId: string, workspaceId: string, pageId
 export async function siteForPage(userId: string, pageId: string): Promise<{ url: string; pageUrl: string } | null> {
   const p = await requirePageAccess(userId, pageId, "view");
   const [row] = await db
-    .select({ slug: workspaceSite.slug, homePageId: workspaceSite.homePageId })
+    .select({ slug: workspaceSite.slug, homeId: workspaceSite.homePageId, domain: workspaceSite.domain })
     .from(workspaceSite)
     .where(eq(workspaceSite.workspaceId, p.workspaceId))
     .limit(1);
   if (!row) return null;
   const url = siteUrl(row.slug);
-  return { url, pageUrl: publishedHref({ base: url, homeId: row.homePageId ?? "", site: true }, pageId, p.title) };
+  // With a domain of its own, the page's address is there.
+  const base = row.domain ? `https://${row.domain}` : url;
+  return { url, pageUrl: publishedHref({ base, homeId: row.homeId ?? "", site: true }, pageId, p.title) };
 }
 
 /** Takes the site down; its pages keep their own links. Owners only. */
 export async function removeSite(userId: string, workspaceId: string): Promise<void> {
   await requireMembership(userId, workspaceId, "owner");
   const removed = await db.delete(workspaceSite).where(eq(workspaceSite.workspaceId, workspaceId)).returning({ slug: workspaceSite.slug });
+  forgetSiteHosts();
   for (const { slug } of removed) {
     await recordAudit({ workspaceId, actorId: userId, action: "site.removed", target: { type: "site", id: slug, label: slug }, details: { slug } });
   }
@@ -177,9 +309,24 @@ type Listed = { pageId: string; token: string; publisher: string; title: string;
 
 export type SiteNavNode = { id: string; title: string; icon: string | null; kind: PageKind; href: string; children: SiteNavNode[] };
 
+/** A header link as visitors get it: `external` for web addresses. */
+export type SiteHeaderItem = { label: string; href: string; external: boolean };
+
 export type PublicSite = {
   slug: string;
   title: string;
+  /** The site's own domain, when it has one. */
+  domain: string | null;
+  /** Served at the root of its own domain (this request came for it): links have no `/s/<slug>`. */
+  onDomain: boolean;
+  theme: SiteTheme;
+  /** Search description of pages without their own. */
+  description: string;
+  /** Header links to pages the site doesn't serve (anymore) are left out. */
+  headerLinks: SiteHeaderItem[];
+  analyticsId: string | null;
+  /** The home page's icon (the site's favicon, when it is an emoji). */
+  homeIcon: string | null;
   /** The page `/s/<slug>` opens; null when the site lists nothing it can serve. */
   homeId: string | null;
   links: PublishedLinks;
@@ -244,8 +391,11 @@ async function ancestorsOf(pageIds: string[]): Promise<Map<string, string[]>> {
   return out;
 }
 
-/** The site with this slug, or null. */
-export async function loadSite(slug: string): Promise<SiteContext | null> {
+/**
+ * The site with this slug, or null. `onDomain`: the request came for the site's own domain
+ * (server.ts says so, see site-hosts.ts), so its pages are linked at the root.
+ */
+export async function loadSite(slug: string, { onDomain = false }: { onDomain?: boolean } = {}): Promise<SiteContext | null> {
   if (!isSiteKey(slug) || env.localMode) return null;
   const [site] = await db.select().from(workspaceSite).where(eq(workspaceSite.slug, slug)).limit(1);
   // Publishing turned off: the site is not found, as if it had none, until it is turned back on.
@@ -283,10 +433,39 @@ export async function loadSite(slug: string): Promise<SiteContext | null> {
   const collator = new Intl.Collator("en", { sensitivity: "base", numeric: true });
   tops.sort((a, b) => (a.pageId === home ? -1 : b.pageId === home ? 1 : collator.compare(a.title, b.title)));
   const homeId = home ?? tops[0]?.pageId ?? null;
-  const links: PublishedLinks = { base: siteUrl(site.slug), homeId: homeId ?? "", site: true };
+  const shownOnDomain = onDomain && site.domain !== null;
+  const links: PublishedLinks = { base: shownOnDomain ? "" : siteUrl(site.slug), homeId: homeId ?? "", site: true };
   const nav = await Promise.all(tops.map((entry) => navTree(entry, links)));
 
-  return { slug: site.slug, title: site.title, homeId, links, nav, servingPublication };
+  // Header links to pages lead to their address in the site, while it serves them.
+  const linkedIds = site.headerLinks.flatMap((l) => ("pageId" in l ? [l.pageId] : []));
+  const served = await Promise.all(linkedIds.map(async (id) => ((await servingPublication(id)) ? id : null)));
+  const servedIds = [...new Set([...served.filter((id): id is string => id !== null), ...(homeId ? [homeId] : [])])];
+  const pages = servedIds.length
+    ? await db.select({ id: page.id, title: page.title, icon: page.icon }).from(page).where(inArray(page.id, servedIds))
+    : [];
+  const byId = new Map(pages.map((p) => [p.id, p]));
+  const headerLinks = site.headerLinks.flatMap((l): SiteHeaderItem[] => {
+    if ("url" in l) return [{ label: l.label, href: l.url, external: true }];
+    const target = served.includes(l.pageId) ? byId.get(l.pageId) : undefined;
+    return target ? [{ label: l.label, href: publishedHref(links, target.id, target.title), external: false }] : [];
+  });
+
+  return {
+    slug: site.slug,
+    title: site.title,
+    domain: site.domain,
+    onDomain: shownOnDomain,
+    theme: isSiteTheme(site.theme) ? site.theme : "system",
+    description: site.description,
+    headerLinks,
+    analyticsId: site.analyticsId,
+    homeIcon: (homeId && byId.get(homeId)?.icon) || null,
+    homeId,
+    links,
+    nav,
+    servingPublication,
+  };
 }
 
 /** A listed page and its subpages as the navigation shows them (not database rows). */

@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { cache } from "react";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages, getTranslations } from "next-intl/server";
@@ -11,7 +11,9 @@ import { TimeZoneCookie } from "@/components/time-zone-cookie";
 import { localeDirection } from "@/i18n/config";
 import { clientMessages } from "@/i18n/messages";
 import { env } from "@/lib/env";
+import { isSiteKey, SITE_KEY_HEADER } from "@/lib/site";
 import { CONTRAST_COOKIE, isContrast, isTheme, THEME_COLORS, THEME_COOKIE } from "@/lib/theme";
+import { siteTheme } from "@/server/site-hosts";
 import "./globals.css";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -26,8 +28,14 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-/** The theme chosen for this browser in Settings > Preferences, or null to follow the system. */
+/**
+ * The theme chosen for this browser in Settings > Preferences, or null to follow the system. A
+ * workspace site's pages (the proxy names the site) take the site's theme instead, for everyone.
+ */
 const chosenTheme = cache(async () => {
+  const site = (await headers()).get(SITE_KEY_HEADER);
+  const ofSite = site && isSiteKey(site) ? await siteTheme(site) : null;
+  if (ofSite) return ofSite === "system" ? null : ofSite;
   const theme = (await cookies()).get(THEME_COOKIE)?.value;
   return isTheme(theme) ? theme : null;
 });

@@ -65,7 +65,10 @@
   },
   "site": {
     "menu": "Seiten",
-    "navigation": "Seiten der Website"
+    "navigation": "Seiten der Website",
+    "links": "Website-Links"
   },
-  "publishingOff": "In diesem Workspace ist das Veröffentlichen im Web ausgeschaltet. Veröffentlichte Seiten werden erst wieder angezeigt, wenn ein Inhaber es einschaltet."
+  "publishingOff": "In diesem Workspace ist das Veröffentlichen im Web ausgeschaltet. Veröffentlichte Seiten werden erst wieder angezeigt, wenn ein Inhaber es einschaltet.",
+  "descriptionLabel": "Suchbeschreibung",
+  "descriptionHint": "Erscheint in Suchergebnissen und Linkvorschauen. Leer: die Standardbeschreibung der Website."
 }

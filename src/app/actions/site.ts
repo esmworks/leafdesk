@@ -5,7 +5,7 @@ import { getTranslations } from "next-intl/server";
 import { AccessError } from "@/server/access";
 import { DuplicateError, duplicatePublishedPage } from "@/server/published-duplicate";
 import { requireUserId } from "@/server/session";
-import { removeSite, saveSite, setSiteListing, SiteError, type WorkspaceSiteInfo } from "@/server/site";
+import { removeSite, saveSite, setSiteListing, SiteError, updateSiteOptions, type SiteOptions, type WorkspaceSiteInfo } from "@/server/site";
 import type { ActionResult } from "./workspaces";
 
 // Expected failures come back translated: Next.js hides thrown messages in production.
@@ -28,6 +28,14 @@ export async function saveSiteAction(
 ): Promise<ActionResult<WorkspaceSiteInfo>> {
   const userId = await requireUserId();
   return siteRun(workspaceId, () => saveSite(userId, workspaceId, input));
+}
+
+/** The site's domain, theme, header links, search description or analytics ID. Owners only. */
+export async function updateSiteOptionsAction(workspaceId: string, patch: Partial<SiteOptions>): Promise<ActionResult<WorkspaceSiteInfo>> {
+  const userId = await requireUserId();
+  if (!patch || typeof patch !== "object") throw new Error("Expected the options to change");
+  const { domain, theme, description, headerLinks, analyticsId } = patch;
+  return siteRun(workspaceId, () => updateSiteOptions(userId, String(workspaceId), { domain, theme, description, headerLinks, analyticsId }));
 }
 
 export async function removeSiteAction(workspaceId: string): Promise<ActionResult<undefined>> {

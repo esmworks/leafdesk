@@ -65,7 +65,10 @@
   },
   "site": {
     "menu": "页面",
-    "navigation": "站点页面"
+    "navigation": "站点页面",
+    "links": "网站链接"
   },
-  "publishingOff": "此工作区已关闭发布到网络的功能。在所有者重新开启之前，已发布的页面不会显示。"
+  "publishingOff": "此工作区已关闭发布到网络的功能。在所有者重新开启之前，已发布的页面不会显示。",
+  "descriptionLabel": "搜索描述",
+  "descriptionHint": "显示在搜索结果和链接预览中。留空则使用网站的默认描述。"
 }

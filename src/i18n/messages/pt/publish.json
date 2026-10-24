@@ -65,7 +65,10 @@
   },
   "site": {
     "menu": "Páginas",
-    "navigation": "Páginas do site"
+    "navigation": "Páginas do site",
+    "links": "Links do site"
   },
-  "publishingOff": "A publicação na web está desativada neste espaço de trabalho. As páginas publicadas não são mostradas até que um proprietário a ative de novo."
+  "publishingOff": "A publicação na web está desativada neste espaço de trabalho. As páginas publicadas não são mostradas até que um proprietário a ative de novo.",
+  "descriptionLabel": "Descrição para buscadores",
+  "descriptionHint": "Aparece nos resultados de busca e nas prévias de links. Vazia: a descrição padrão do site."
 }

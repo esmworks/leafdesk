@@ -6,11 +6,14 @@ import type { LoadedPage } from "@/app/s/[token]/load";
 import { backdropClass } from "@/components/page/page-backdrop";
 import { DarkScheme } from "@/components/theme/theme-provider";
 import { PageIcon } from "@/components/ui";
+import { env } from "@/lib/env";
 import { pageLabel } from "@/lib/labels";
 import { pageTextClasses } from "@/lib/page-style";
 import { publishedHref } from "@/lib/site";
 import { PublishedBody, PublishedRowProperties, showsSubpages } from "./published-body";
 import { PublishedDatabaseView } from "./published-database";
+import { SiteAnalytics } from "./site-analytics";
+import { SiteHeaderLinks } from "./site-header-links";
 import { SiteNav } from "./site-nav";
 import { SourceFooter } from "./source-footer";
 
@@ -19,11 +22,14 @@ const cn = (...classes: (string | false | null | undefined)[]) => classes.filter
 
 /**
  * Read-only public view of a published page (`/s/<token>/…`), or of a page of a workspace's site
- * (`/s/<slug>/…`), which adds the site's title and navigation. Rendered on the server for visitors
- * without a session: no editor, no client data fetching.
+ * (`/s/<slug>/…`, or the root of its own domain), which adds the site's title, header links and
+ * navigation. Rendered on the server for visitors without a session: no editor, no client data
+ * fetching.
  */
 export async function PublishedView({ loaded }: { loaded: LoadedPage }) {
   const { data, site, key } = loaded;
+  // On a site's own domain only the site is served: what needs the app goes to its address.
+  const app = site?.onDomain ? env.appUrl : "";
   const [t, tc, format] = await Promise.all([getTranslations("publish"), getTranslations("common"), getFormatter()]);
   const untitled = tc("untitled");
   const titles = new Map<string, string>([...data.crumbs, ...data.children].map((p) => [p.id, p.title]));
@@ -31,7 +37,7 @@ export async function PublishedView({ loaded }: { loaded: LoadedPage }) {
   const wide = data.kind === "database";
   const title = pageLabel(data.title, untitled);
   const duplicateHref = data.allowDuplicate
-    ? `/s/${key}/duplicate?page=${encodeURIComponent(data.id)}`
+    ? `${app}/s/${key}/duplicate?page=${encodeURIComponent(data.id)}`
     : null;
   const current = new Set(data.crumbs.map((c) => c.id));
 
@@ -82,6 +88,9 @@ export async function PublishedView({ loaded }: { loaded: LoadedPage }) {
           {crumbs}
         </div>
         <div className="flex shrink-0 items-center gap-2">
+          {site && site.headerLinks.length > 0 && (
+            <SiteHeaderLinks links={site.headerLinks} label={t("site.links")} className="me-1 hidden md:flex" />
+          )}
           {duplicateHref && (
             <Link
               href={duplicateHref}
@@ -92,19 +101,30 @@ export async function PublishedView({ loaded }: { loaded: LoadedPage }) {
               {t("duplicate.button")}
             </Link>
           )}
-          <Link href="/" className="text-sm font-semibold tracking-tight text-fg-faint hover:text-fg-muted">
-            leafdesk
-          </Link>
+          {app ? (
+            <a href={app} className="text-sm font-semibold tracking-tight text-fg-faint hover:text-fg-muted">
+              leafdesk
+            </a>
+          ) : (
+            <Link href="/" className="text-sm font-semibold tracking-tight text-fg-faint hover:text-fg-muted">
+              leafdesk
+            </Link>
+          )}
         </div>
       </header>
 
-      {site && site.nav.length > 0 && (
+      {loaded.analyticsId && <SiteAnalytics id={loaded.analyticsId} nonce={loaded.nonce} />}
+
+      {site && (site.nav.length > 0 || site.headerLinks.length > 0) && (
         <details className="group border-b border-border md:hidden">
           <summary className="flex h-10 cursor-pointer list-none items-center gap-2 px-3 text-sm text-fg-muted hover:text-fg [&::-webkit-details-marker]:hidden">
             <Menu className="h-4 w-4" aria-hidden />
             {t("site.menu")}
           </summary>
           <div className="max-h-[60dvh] overflow-y-auto px-2 pb-3">
+            {site.headerLinks.length > 0 && (
+              <SiteHeaderLinks links={site.headerLinks} label={t("site.links")} className="mb-2 flex-wrap border-b border-border pb-2" />
+            )}
             <SiteNav nodes={site.nav} currentId={data.id} open={current} untitled={untitled} label={t("site.navigation")} />
           </div>
         </details>

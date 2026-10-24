@@ -65,7 +65,10 @@
   },
   "site": {
     "menu": "Halaman",
-    "navigation": "Halaman situs"
+    "navigation": "Halaman situs",
+    "links": "Tautan situs"
   },
-  "publishingOff": "Penerbitan ke web dinonaktifkan di ruang kerja ini. Halaman terbitan tidak ditampilkan sampai pemilik mengaktifkannya kembali."
+  "publishingOff": "Penerbitan ke web dinonaktifkan di ruang kerja ini. Halaman terbitan tidak ditampilkan sampai pemilik mengaktifkannya kembali.",
+  "descriptionLabel": "Deskripsi pencarian",
+  "descriptionHint": "Ditampilkan di hasil pencarian dan pratinjau tautan. Kosong: deskripsi default situs."
 }

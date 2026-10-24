@@ -65,7 +65,10 @@
   },
   "site": {
     "menu": "Sayfalar",
-    "navigation": "Site sayfaları"
+    "navigation": "Site sayfaları",
+    "links": "Site bağlantıları"
   },
-  "publishingOff": "Bu çalışma alanında web'de yayınlama kapalı. Bir sahip yeniden açana kadar yayınlanan sayfalar gösterilmez."
+  "publishingOff": "Bu çalışma alanında web'de yayınlama kapalı. Bir sahip yeniden açana kadar yayınlanan sayfalar gösterilmez.",
+  "descriptionLabel": "Arama açıklaması",
+  "descriptionHint": "Arama sonuçlarında ve bağlantı önizlemelerinde görünür. Boşsa sitenin varsayılan açıklaması kullanılır."
 }

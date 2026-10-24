@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { contentSecurityPolicy, newNonce } from "./content-security-policy";
+import { contentSecurityPolicy, newNonce, policyNonce } from "./content-security-policy";
 import { EMBED_FRAME_ORIGINS } from "./web-blocks";
 
 const directives = (policy: string) =>
@@ -35,6 +35,32 @@ describe("content security policy", () => {
       expect(directives(policy).get("connect-src")).toEqual(["'self'"]);
       expect(policy.split("; ").filter((d) => d.startsWith("script-src"))).toHaveLength(1);
     }
+  });
+
+  it("lets Google's tag in only for a site with analytics, and changes nothing else", () => {
+    const base = { nonce: "n", host: "docs.example.com", dev: false };
+    const plain = contentSecurityPolicy(base);
+    expect(contentSecurityPolicy({ ...base, analytics: false })).toBe(plain);
+    expect(plain).not.toMatch(/googletagmanager|analytics/);
+    const withTag = directives(contentSecurityPolicy({ ...base, analytics: true }));
+    expect(withTag.get("script-src")).toEqual(["'self'", "'nonce-n'", "'strict-dynamic'", "https://www.googletagmanager.com"]);
+    expect(withTag.get("connect-src")).toEqual([
+      "'self'",
+      "ws://docs.example.com",
+      "wss://docs.example.com",
+      "https://*.google-analytics.com",
+      "https://*.analytics.google.com",
+      "https://www.googletagmanager.com",
+    ]);
+    const others = (policy: Map<string, string[]>) => [...policy].filter(([name]) => name !== "script-src" && name !== "connect-src");
+    expect(others(withTag)).toEqual(others(directives(plain)));
+  });
+
+  it("reads the nonce back from a policy", () => {
+    const nonce = newNonce();
+    expect(policyNonce(contentSecurityPolicy({ nonce, host: "a.example", dev: false }))).toBe(nonce);
+    expect(policyNonce(null)).toBeUndefined();
+    expect(policyNonce("default-src 'self'")).toBeUndefined();
   });
 
   it("makes a new random nonce each time", () => {

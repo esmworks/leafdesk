@@ -65,7 +65,10 @@
   },
   "site": {
     "menu": "Trang",
-    "navigation": "Các trang của trang web"
+    "navigation": "Các trang của trang web",
+    "links": "Liên kết của trang web"
   },
-  "publishingOff": "Việc xuất bản lên web đã bị tắt trong không gian làm việc này. Các trang đã xuất bản sẽ không hiển thị cho đến khi chủ sở hữu bật lại."
+  "publishingOff": "Việc xuất bản lên web đã bị tắt trong không gian làm việc này. Các trang đã xuất bản sẽ không hiển thị cho đến khi chủ sở hữu bật lại.",
+  "descriptionLabel": "Mô tả cho tìm kiếm",
+  "descriptionHint": "Hiện trong kết quả tìm kiếm và bản xem trước liên kết. Để trống: mô tả mặc định của trang web."
 }

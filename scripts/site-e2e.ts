@@ -2,9 +2,11 @@
  * End-to-end check of workspace sites and "Duplicate" on published pages: setting up a site (slug
  * rules, owners only, home page among published pages), which publications it lists and serves
  * (never unlisted ones or pages the publisher can't see), its navigation and links, search-engine
- * settings carried over, the home page falling back, and duplicating a published page into another
- * workspace (only when allowed, only what is published, files copied, no people or private
- * properties, rate limited). With APP_URL set, also checks the public routes over HTTP.
+ * settings carried over, the home page falling back, the site's own domain, theme, header links,
+ * search descriptions and analytics ID, and duplicating a published page into another workspace
+ * (only when allowed, only what is published, files copied, no people or private properties, rate
+ * limited). With APP_URL set, also checks the public routes over HTTP: the site on its own domain
+ * (and nothing else there), its metadata, favicon and Content-Security-Policy.
  * Creates its own users and workspaces and deletes them afterwards.
  *
  *   pnpm tsx scripts/site-e2e.ts
@@ -21,6 +23,7 @@ try {
 
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
 const { Readable } = await import("node:stream");
+const http = await import("node:http");
 const { and, eq, inArray } = await import("drizzle-orm");
 const { db } = await import("@/db");
 const { databaseProperty, databaseView, file, fileReference, page, pagePermission, pagePublication, user, workspace, workspaceMember, workspaceSite } =
@@ -29,7 +32,7 @@ const { addProperty, addView, createRows, getDatabaseSnapshot } = await import("
 const publication = await import("@/server/publication");
 const site = await import("@/server/site");
 const dup = await import("@/server/published-duplicate");
-const { createPage, archivePage } = await import("@/server/pages");
+const { createPage, archivePage, setPageIcon } = await import("@/server/pages");
 const { setPagePermission } = await import("@/server/permissions");
 const { storeFile } = await import("@/server/files");
 const { instanceStorage } = await import("@/server/storage");
@@ -40,6 +43,8 @@ const { pageSegment } = await import("@/lib/site");
 
 const RUN = `site-e2e-${Date.now().toString(36)}`;
 const SLUG = `e2e-${Date.now().toString(36)}`;
+const DOMAIN = `${SLUG}.example.net`;
+const GA = "G-E2E1234567";
 
 const { hocuspocus, service } = createCollab();
 registerCollab(service);
@@ -218,6 +223,67 @@ try {
   check((await site.getSitePage(ctx, chapter.id))!.data.indexable, "…and follow their publication's setting");
   check(!(await site.getSitePage(ctx))!.data.indexable, "…per publication");
 
+  // ---------------------------------------------------------------------------------------------
+  // Own domain, theme, header links, search descriptions, analytics
+  const options = (patch: Parameters<typeof site.updateSiteOptions>[2], userId = ids.owner, ws = source) =>
+    site.updateSiteOptions(userId, ws, patch);
+  check((await failure(() => options({ theme: "dark" }, ids.member))) === "access", "members can't change the site's options");
+  check((await failure(() => options({ domain: "docs.example.com" }, ids.visitor, target))) === "noSite", "options need a site");
+  for (const [domain, code] of [
+    ["not a domain", "domainInvalid"],
+    ["127.0.0.1", "domainInvalid"],
+    ["intranet", "domainInvalid"],
+    ["docs.example.com/path", "domainInvalid"],
+    [new URL(process.env.APP_URL ?? "http://localhost:3000").hostname, "domainReserved"],
+  ] as const) {
+    const got = await failure(() => options({ domain }));
+    check(got === code || (code === "domainReserved" && got === "domainInvalid"), `the domain "${domain}" is refused (${got})`);
+  }
+  check((await failure(() => options({ theme: "sepia" as never }))) === "themeInvalid", "the theme is light, dark or system");
+  check((await failure(() => options({ analyticsId: "UA-1234-1" }))) === "analyticsInvalid", "only Google Analytics 4 measurement IDs");
+  check((await failure(() => options({ headerLinks: [{ label: "x", url: "javascript:alert(1)" }] }))) === "linksInvalid", "header links can't run script");
+  check((await failure(() => options({ headerLinks: [{ label: "Theirs", pageId: `${RUN}-nope` }] }))) === "linksInvalid", "header links lead to pages of the workspace");
+  await setPageIcon(ids.owner, home.id, "📘");
+  const withOptions = await options({
+    domain: `https://${DOMAIN.toUpperCase()}/`,
+    theme: "dark",
+    description: "  Acme's docs:\n how things work.  ",
+    analyticsId: GA.toLowerCase(),
+    headerLinks: [
+      { label: "Guide", pageId: guide.id },
+      { label: "Hidden", pageId: linkOnly.id },
+      { label: "Status", url: "https://status.example.com" },
+    ],
+  });
+  check(withOptions.domain === DOMAIN && withOptions.analyticsId === GA, "the domain is stored as a host name, the ID uppercased", withOptions);
+  check(withOptions.description === "Acme's docs: how things work.", "the description is kept to one paragraph");
+  await site.saveSite(ids.visitor, target, { slug: `${SLUG}-b`, title: "", homePageId: null });
+  check((await failure(() => options({ domain: DOMAIN }, ids.visitor, target))) === "domainTaken", "another site can't take the same domain");
+  ctx = (await site.loadSite(SLUG))!;
+  check(ctx.links.base === `/s/${SLUG}` && !ctx.onDomain && ctx.domain === DOMAIN && ctx.theme === "dark", "at the app's address the site keeps its /s/ links");
+  check(
+    ctx.headerLinks.map((l) => `${l.label}=${l.href}`).join() === `Guide=/s/${SLUG}/${pageSegment(guide.id, "Guide")},Status=https://status.example.com`,
+    "header links lead to the site's pages, leave out pages it doesn't serve, and keep web addresses",
+    ctx.headerLinks,
+  );
+  check(ctx.homeIcon === "📘" && ctx.analyticsId === GA, "the site knows its home page's icon and analytics ID");
+  const onDomain = (await site.loadSite(SLUG, { onDomain: true }))!;
+  check(onDomain.links.base === "" && onDomain.onDomain, "on its own domain the site links at the root");
+  check(
+    onDomain.nav.find((n) => n.id === guide.id)?.href === `/${pageSegment(guide.id, "Guide")}` && onDomain.headerLinks[0].href === `/${pageSegment(guide.id, "Guide")}`,
+    "navigation and header links have root addresses there",
+  );
+  const onDomainChapter = (await site.getSitePage(onDomain, chapter.id))!;
+  const domainHtml = onDomainChapter.data.body.filter((b) => b.kind === "html").map((b) => (b as { html: string }).html).join("");
+  check(domainHtml.includes(`href="/${pageSegment(guide.id, "Guide")}"`) && !domainHtml.includes(`/s/${SLUG}`), "links in page bodies stay on the domain", domainHtml);
+  check((await site.siteForPage(ids.owner, guide.id))?.pageUrl === `https://${DOMAIN}/${pageSegment(guide.id, "Guide")}`, "the Publish tab gives the page's address on the domain");
+
+  await publication.updatePublication(ids.owner, guide.id, { description: "The guide,\n\tstep by step." });
+  check((await publication.getPublication(ids.owner, guide.id))?.description === "The guide, step by step.", "a publication keeps its own search description");
+  check((await failure(() => publication.updatePublication(ids.visitor, guide.id, { description: "x" }))) === "access", "only people who may publish the page change it");
+  check((await site.getSitePage(ctx, guide.id))!.data.description === "The guide, step by step.", "the published page carries its description");
+  check((await site.getSitePage(ctx, chapter.id))!.data.description === "", "…its subpages fall back to the site's");
+
   // A listed page under another listed page shows under it
   await publication.publishPage(ids.owner, chapter.id);
   await publication.updatePublication(ids.owner, chapter.id, { inSite: true });
@@ -309,6 +375,19 @@ try {
   // Public routes, when a server is running
   if (appUrl) {
     const get = (path: string) => fetch(new URL(path, appUrl), { redirect: "manual" });
+    const port = new URL(appUrl).port || "80";
+    // fetch keeps its own Host header: these go to the server with the one a browser would send.
+    const onHost = (host: string, path: string, method = "GET", headers: Record<string, string> = {}) =>
+      new Promise<{ status: number; headers: Record<string, string | string[] | undefined>; body: string }>((resolve, reject) => {
+        const req = http.request({ host: "127.0.0.1", port, path, method, headers: { host: `${host}:${port}`, ...headers } }, (res) => {
+          let body = "";
+          res.setEncoding("utf8");
+          res.on("data", (chunk) => (body += chunk));
+          res.on("end", () => resolve({ status: res.statusCode ?? 0, headers: res.headers, body }));
+        });
+        req.on("error", reject);
+        req.end();
+      });
     const res = await get(`/s/${SLUG}`);
     const body = await res.text();
     check(res.status === 200 && body.includes("Acme Docs") && body.includes("Chapter One"), "GET /s/<slug> shows the site with its navigation", res.status);
@@ -330,6 +409,92 @@ try {
       "Duplicate asks visitors to sign in and come back",
       signIn.headers.get("location"),
     );
+
+    // The site on its own domain. The server reads sites' domains every few seconds.
+    let root = await onHost(DOMAIN, "/");
+    for (let i = 0; i < 40 && !root.body.includes("Acme Docs"); i++) {
+      await new Promise((r) => setTimeout(r, 500));
+      root = await onHost(DOMAIN, "/");
+    }
+    check(root.status === 200 && root.body.includes("Acme Docs"), "the domain's root is the site's home page", root.status);
+    const guideSegment = pageSegment(guide.id, "Guide");
+    check(root.body.includes(`href="/${guideSegment}"`) && !root.body.includes(`href="/s/${SLUG}`), "its links stay on the domain");
+    check(root.body.includes(`<link rel="canonical" href="https://${DOMAIN}/"`), "the canonical address is on the domain", /<link rel="canonical"[^>]*>/.exec(root.body)?.[0]);
+    check(/<html[^>]*data-theme="dark"/.test(root.body), "the site's theme applies, whatever the visitor's cookie", /<html[^>]*>/.exec(root.body)?.[0]);
+    check(
+      root.body.includes('<meta name="description" content="Acme&#x27;s docs: how things work."') &&
+        root.body.includes('<meta property="og:description" content="Acme&#x27;s docs: how things work."') &&
+        root.body.includes('<meta name="twitter:card" content="summary"') &&
+        root.body.includes('<meta property="og:site_name" content="Acme Docs"'),
+      "pages without a description carry the site's, with Open Graph and Twitter tags",
+      root.body.match(/<meta (name|property)="(description|og:[a-z_]+|twitter:[a-z]+)"[^>]*>/g),
+    );
+    check(/<title>📘 Home<\/title>/.test(root.body), "the home page's title doesn't end in the app's name", /<title>[^<]*<\/title>/.exec(root.body)?.[0]);
+    const icon = /<link rel="icon" href="([^"]+)" type="image\/svg\+xml"/.exec(root.body)?.[1];
+    check(icon?.startsWith("/favicon.svg?v=") && !root.body.includes('href="/icon.svg'), "the favicon is the home page's emoji", icon);
+    const favicon = await onHost(DOMAIN, icon!.replace(/&amp;/g, "&"));
+    check(favicon.status === 200 && String(favicon.headers["content-type"]).startsWith("image/svg+xml") && favicon.body.includes("📘"), "favicon.svg draws it");
+    const csp = String(root.headers["content-security-policy"]);
+    check(csp.includes("https://www.googletagmanager.com") && csp.includes("https://*.google-analytics.com"), "with an analytics ID the policy lets Google's tag in", csp);
+    const nonce = /'nonce-([^']+)'/.exec(csp)?.[1];
+    check(
+      root.body.includes(`https://www.googletagmanager.com/gtag/js?id=${GA}`) && root.body.includes(`nonce="${nonce}"`) && root.body.includes(`gtag("config","${GA}")`),
+      "the page loads Google's tag with the response's nonce",
+    );
+    const guideOnDomain = await onHost(DOMAIN, `/${guideSegment}`);
+    check(
+      guideOnDomain.status === 200 && guideOnDomain.body.includes('<meta name="description" content="The guide, step by step."'),
+      "a page on the domain carries its own description",
+    );
+    check(guideOnDomain.body.includes('href="https://status.example.com"') && guideOnDomain.body.includes(">Status</a>"), "the header shows the site's links");
+    const imageOnDomain = await onHost(DOMAIN, `/api/files/${image.id}`);
+    check(imageOnDomain.status === 200, "files the pages show load on the domain", imageOnDomain.status);
+    const moved = await onHost(DOMAIN, `/s/${SLUG}/${guideSegment}`);
+    check(moved.status === 308 && moved.headers.location === `/${guideSegment}`, "the app's site address leads to the root one there", moved.headers.location);
+    const dupOnDomain = await onHost(DOMAIN, `/duplicate?page=${guide.id}`);
+    check(dupOnDomain.status === 308 && dupOnDomain.headers.location === `${appUrl.replace(/\/$/, "")}/s/${SLUG}/duplicate?page=${guide.id}`, "Duplicate goes to the app's address", dupOnDomain.headers.location);
+    for (const path of ["/w/x", "/sign-in", "/api/auth/get-session", "/api/v1/pages", "/mcp", "/sw.js", "/f/x", `/s/${linkPub.token}`, "/.well-known/oauth-authorization-server"]) {
+      const res = await onHost(DOMAIN, path);
+      check(res.status === 404 && !res.headers["set-cookie"], `${path} isn't served on the domain`, res.status);
+    }
+    const post = await onHost(DOMAIN, "/", "POST", { "content-type": "text/plain", "next-action": "x" });
+    check(post.status === 404, "nothing is written through the domain (server actions included)", post.status);
+    const socket = await new Promise<number>((resolve, reject) => {
+      const req = http.request({
+        host: "127.0.0.1",
+        port,
+        path: "/collab",
+        headers: { host: DOMAIN, connection: "Upgrade", upgrade: "websocket", "sec-websocket-version": "13", "sec-websocket-key": "dGhlIHNhbXBsZSBub25jZQ==" },
+      });
+      req.on("upgrade", (_res, s) => {
+        s.destroy();
+        resolve(101);
+      });
+      req.on("response", (res) => resolve(res.statusCode ?? 0));
+      req.on("error", reject);
+      req.end();
+    });
+    check(socket === 404, "the collaboration socket isn't served on the domain", socket);
+
+    const atApp = await get(`/s/${SLUG}`);
+    const atAppBody = await atApp.text();
+    check(atAppBody.includes(`<link rel="canonical" href="https://${DOMAIN}/"`), "at the app's address the canonical one is on the domain");
+    check(String(atApp.headers.get("content-security-policy")).includes("googletagmanager"), "…and the site's pages there load Google's tag too");
+    const elsewhere = await onHost(`other-${DOMAIN}`, `/s/${SLUG}`);
+    check(elsewhere.status === 200 && elsewhere.body.includes(`href="/s/${SLUG}/${guideSegment}"`), "an unknown host is served as before");
+    const tokenPage = await get(`/s/${linkPub.token}`);
+    check(!String(tokenPage.headers.get("content-security-policy")).includes("googletagmanager"), "other published pages' policy is unchanged");
+    const signInPage = await get("/sign-in");
+    check(!String(signInPage.headers.get("content-security-policy")).includes("googletagmanager"), "…and so is the app's");
+    const spoofed = await onHost(`other-${DOMAIN}`, "/sign-in", "GET", { "x-leafdesk-site-host": SLUG, "x-leafdesk-site-analytics": GA });
+    check(!String(spoofed.headers["content-security-policy"]).includes("googletagmanager") && !spoofed.body.includes("Acme Docs"), "clients can't send the server's site headers");
+    await site.updateSiteOptions(ids.owner, source, { domain: null, analyticsId: null });
+    let gone = await onHost(DOMAIN, "/");
+    for (let i = 0; i < 40 && gone.body.includes("Acme Docs"); i++) {
+      await new Promise((r) => setTimeout(r, 500));
+      gone = await onHost(DOMAIN, "/");
+    }
+    check(!gone.body.includes("Acme Docs"), "taking the domain away stops serving the site there");
   } else {
     console.log("(APP_URL not set: skipping the HTTP checks)");
   }

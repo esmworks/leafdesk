@@ -1,6 +1,7 @@
 import { sql } from "drizzle-orm";
 import { boolean, index, integer, jsonb, pgTable, primaryKey, text, timestamp } from "drizzle-orm/pg-core";
 import type { Attendee } from "@/lib/meetings";
+import type { SiteHeaderLink, SiteTheme } from "@/lib/site";
 import { databaseView, page, workspace } from "./app";
 import { user } from "./auth";
 
@@ -114,6 +115,8 @@ export const pagePublication = pgTable("page_publication", {
   inSite: boolean("in_site").notNull().default(false),
   /** Signed-in visitors may copy the page (as published) into a workspace of theirs. Off by default. */
   allowDuplicate: boolean("allow_duplicate").notNull().default(false),
+  /** What search results and link previews say about the page; empty: the site's default. */
+  description: text("description").notNull().default(""),
   /**
    * Databases outside the page that its body shows (dashboard widgets, linked views) and the
    * publisher chose to show there anyway. Only through those blocks: they get no address of their
@@ -139,6 +142,20 @@ export const workspaceSite = pgTable("workspace_site", {
   title: text("title").notNull().default(""),
   /** A published page of the workspace; while it isn't served, the site opens its first listed page. */
   homePageId: text("home_page_id").references(() => page.id, { onDelete: "set null" }),
+  /**
+   * A host name of the site's own (`docs.example.com`, lowercase; see lib/site.ts): requests for it
+   * are served the site at its root and nothing else (server/site-hosts.ts). Unique across the
+   * server. DNS and certificates are the operator's.
+   */
+  domain: text("domain").unique(),
+  /** Light, dark, or the visitor's system setting, for every page of the site. */
+  theme: text("theme").$type<SiteTheme>().notNull().default("system"),
+  /** Search description of the pages without one of their own. */
+  description: text("description").notNull().default(""),
+  /** Links in the site's header, to pages it serves or web addresses (lib/site.ts). */
+  headerLinks: jsonb("header_links").$type<SiteHeaderLink[]>().notNull().default([]),
+  /** A Google Analytics 4 measurement ID (`G-…`): the site's pages then load Google's tag. */
+  analyticsId: text("analytics_id"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true })
     .notNull()

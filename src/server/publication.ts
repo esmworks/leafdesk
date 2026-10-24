@@ -34,7 +34,7 @@ import { withoutDeleted } from "@/lib/deleted-schema";
 import { hideReferences, unknownProperties } from "@/lib/property-access-rows";
 import { holdsOptions, holdsPeople, UNPUBLISHED_PROPERTY_TYPES } from "@/lib/property-types";
 import { unknownToVisitors } from "@/lib/published-copy";
-import { publishedHref, type PublishedLinks } from "@/lib/site";
+import { cleanDescription, publishedHref, type PublishedLinks } from "@/lib/site";
 import { AccessError, accessRank, childVisibleTo, pageVisibleTo, requireMembership, requirePageAccess } from "@/server/access";
 import { recordAudit } from "@/server/audit";
 import { deletedPropertyIds, rowCovers, type DatabaseProperty } from "@/server/databases";
@@ -87,6 +87,7 @@ export async function getPublication(userId: string, pageId: string) {
       indexable: pagePublication.indexable,
       inSite: pagePublication.inSite,
       allowDuplicate: pagePublication.allowDuplicate,
+      description: pagePublication.description,
       createdAt: pagePublication.createdAt,
     })
     .from(pagePublication)
@@ -168,9 +169,10 @@ async function requirePublishRights(userId: string, pageId: string) {
  * A publication's options:
  * - `indexable`: search engines may index the page and its subpages (off by default);
  * - `inSite`: the workspace's site lists it (see server/site.ts; off by default);
- * - `allowDuplicate`: signed-in visitors may copy it into a workspace of theirs (off by default).
+ * - `allowDuplicate`: signed-in visitors may copy it into a workspace of theirs (off by default);
+ * - `description`: what search results and link previews say about the page (empty: the site's).
  */
-export type PublicationOptions = { indexable: boolean; inSite: boolean; allowDuplicate: boolean };
+export type PublicationOptions = { indexable: boolean; inSite: boolean; allowDuplicate: boolean; description: string };
 
 /** Changes some options of a page's publication; needs what publishing needs. */
 export async function updatePublication(userId: string, pageId: string, patch: Partial<PublicationOptions>): Promise<void> {
@@ -180,6 +182,10 @@ export async function updatePublication(userId: string, pageId: string, patch: P
     if (patch[key] === undefined) continue;
     if (typeof patch[key] !== "boolean") throw new PublishError(`${key} must be true or false`);
     clean[key] = patch[key];
+  }
+  if (patch.description !== undefined) {
+    if (typeof patch.description !== "string") throw new PublishError("description must be text");
+    clean.description = cleanDescription(patch.description);
   }
   if (!Object.keys(clean).length) return;
   const updated = await db
@@ -422,6 +428,8 @@ export type PublishedWidget = {
 export type PublishedEmbed = { id: string; title: string; icon: string | null; outside?: true; table: PublishedDatabase };
 export type PublishedPage = {
   token: string;
+  /** The publication's search description, on its own page; empty on its subpages. */
+  description: string;
   /** Search engines may index it (the publication allows it). */
   indexable: boolean;
   /** Signed-in visitors may copy it into a workspace of theirs (the publication allows it). */
@@ -477,6 +485,7 @@ export async function getPublishedPage(
       publishedBy: pagePublication.publishedBy,
       indexable: pagePublication.indexable,
       allowDuplicate: pagePublication.allowDuplicate,
+      description: pagePublication.description,
       outside: pagePublication.outsideDatabaseIds,
     })
     .from(pagePublication)
@@ -528,6 +537,7 @@ export async function getPublishedPage(
 
   return {
     token,
+    description: target.id === root.id ? root.description : "",
     indexable: root.indexable,
     allowDuplicate: root.allowDuplicate,
     links,

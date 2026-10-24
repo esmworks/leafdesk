@@ -16,19 +16,31 @@ import { EMBED_FRAME_ORIGINS } from "@/lib/web-blocks";
  * - Frames: this origin (the inline PDF viewer, an <object>) and the allowlisted embed providers.
  * - Connections: this origin, its websockets included (collaboration, and HMR in development),
  *   spelled out for browsers whose 'self' doesn't cover ws:/wss:.
+ * - `analytics`: the pages of a workspace site with a Google Analytics ID (server/site-hosts.ts)
+ *   may load Google's tag and send it what it measures: exactly its hosts, nothing else changes.
  */
-export function contentSecurityPolicy({ nonce, host, dev }: { nonce: string; host: string; dev: boolean }): string {
+export function contentSecurityPolicy({
+  nonce,
+  host,
+  dev,
+  analytics = false,
+}: {
+  nonce: string;
+  host: string;
+  dev: boolean;
+  analytics?: boolean;
+}): string {
   // The Host header is the visitor's to write: anything but a host name (and port) is left out
   // rather than let into the policy.
   const sockets = /^[a-z0-9.-]+(:\d+)?$|^\[[0-9a-f:.]+\](:\d+)?$/i.test(host) ? [`ws://${host}`, `wss://${host}`] : [];
   const directives: [string, ...string[]][] = [
     ["default-src", "'self'"],
-    ["script-src", "'self'", `'nonce-${nonce}'`, "'strict-dynamic'", ...(dev ? ["'unsafe-eval'"] : [])],
+    ["script-src", "'self'", `'nonce-${nonce}'`, "'strict-dynamic'", ...(dev ? ["'unsafe-eval'"] : []), ...(analytics ? ANALYTICS_SCRIPTS : [])],
     ["style-src", "'self'", "'unsafe-inline'"],
     ["img-src", "*", "data:", "blob:"],
     ["media-src", "*", "data:", "blob:"],
     ["font-src", "'self'", "data:"],
-    ["connect-src", "'self'", ...sockets],
+    ["connect-src", "'self'", ...sockets, ...(analytics ? ANALYTICS_CONNECTIONS : [])],
     ["frame-src", "'self'", ...EMBED_FRAME_ORIGINS],
     ["object-src", "'self'"],
     ["worker-src", "'self'", "blob:"],
@@ -38,6 +50,16 @@ export function contentSecurityPolicy({ nonce, host, dev }: { nonce: string; hos
     ["frame-ancestors", "'self'"],
   ];
   return directives.map((d) => d.join(" ")).join("; ");
+}
+
+/** Where Google's tag (gtag.js) comes from; with 'strict-dynamic' the nonce is what lets it in. */
+const ANALYTICS_SCRIPTS = ["https://www.googletagmanager.com"];
+/** Where Google Analytics 4 sends its measurements (images may come from anywhere already). */
+const ANALYTICS_CONNECTIONS = ["https://*.google-analytics.com", "https://*.analytics.google.com", "https://www.googletagmanager.com"];
+
+/** The nonce of a policy contentSecurityPolicy wrote, for server components that add a script. */
+export function policyNonce(policy: string | null): string | undefined {
+  return policy ? /'nonce-([A-Za-z0-9+/=]+)'/.exec(policy)?.[1] : undefined;
 }
 
 /** A fresh nonce for one response: 128 random bits, base64. */
