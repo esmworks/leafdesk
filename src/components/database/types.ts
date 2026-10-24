@@ -1,5 +1,6 @@
 import type { ChecklistItem, PropertyType, SelectOption } from "@/db/schema/app";
 import type { AiCellState } from "@/lib/ai";
+import type { DatabaseSyncSummary } from "@/lib/jira-sync";
 import type { MapTiles } from "@/lib/place";
 import type { PropertyAccessInfo } from "@/lib/property-access";
 import type { TemplateRepeatSummary } from "@/lib/schedule";
@@ -45,6 +46,8 @@ export type DatabaseSnapshot = {
   properties: Property[];
   views: View[];
   rows: Row[];
+  /** Where the rows are kept in step from (a Jira sync), when they are. */
+  sync?: DatabaseSyncSummary | null;
   /** Row templates of the database (see server/templates.ts), for the menu next to "New". */
   templates: { id: string; title: string; icon: string | null; repeat: TemplateRepeatSummary | null }[];
   /** Related database and its rows, per relation property id. */

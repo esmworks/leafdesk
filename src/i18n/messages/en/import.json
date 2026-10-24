@@ -1,14 +1,15 @@
 {
   "open": "Import",
   "title": "Import",
-  "description": "Bring pages in from Markdown files, ZIP exports and Word documents, rows from a CSV file or Excel workbook, or a Trello, Asana or Monday.com board.",
+  "description": "Bring pages in from Markdown files, ZIP exports and Word documents, rows from a CSV file or Excel workbook, a Trello, Asana or Monday.com board, or Jira issues that stay in sync.",
   "tabs": {
     "pages": "Markdown & ZIP",
     "docx": "Word",
     "csv": "CSV & Excel",
     "trello": "Trello",
     "asana": "Asana",
-    "monday": "Monday.com"
+    "monday": "Monday.com",
+    "jira": "Jira"
   },
   "destination": "Put under",
   "topLevel": "Top level of the workspace",
@@ -78,6 +79,62 @@
     "help": "In Monday.com, open the board's menu and choose Export board to Excel (with updates if you want them), then pick the downloaded file. The board becomes a database with a board view by group: its columns, subitems and updates come along.",
     "choose": "Choose a Monday.com export (.xlsx or .csv)",
     "summary": "{name}: {groups, plural, one {# group} other {# groups}}, {items, plural, one {# item} other {# items}}, {subitems, plural, one {# subitem} other {# subitems}}"
+  },
+  "jira": {
+    "help": "Connect a Jira Cloud site to get a database of its issues that stays in step: each issue is a row with its key, status, assignee, priority, type, labels, due date and a link back. Changes go one way, from Jira to Leafdesk.",
+    "site": "Jira site",
+    "sitePlaceholder": "your-team.atlassian.net",
+    "email": "Email address",
+    "token": "API token",
+    "tokenHelp": "Create one in your Atlassian account under Security → API tokens. It is kept sealed on the server and only used to read issues.",
+    "tokenLink": "Create an API token",
+    "connect": "Connect",
+    "connecting": "Connecting…",
+    "connected": "Signed in as {name}",
+    "change": "Change",
+    "from": "Issues from",
+    "project": "A project",
+    "jql": "A JQL query",
+    "chooseProject": "Choose a project",
+    "noProjects": "This account can't see any project. Write a JQL query instead.",
+    "jqlPlaceholder": "project = OPS AND resolution = Unresolved",
+    "every": "Sync",
+    "intervals": {
+      "m15": "Every 15 minutes",
+      "m60": "Every hour",
+      "m360": "Every 6 hours",
+      "m1440": "Once a day",
+      "manual": "Only when asked"
+    },
+    "submit": "Import and keep in sync",
+    "submitting": "Importing…",
+    "names": {
+      "key": "Key",
+      "status": "Status",
+      "assignee": "Assignee",
+      "others": "{column} (others)",
+      "priority": "Priority",
+      "type": "Type",
+      "labels": "Labels",
+      "due": "Due date",
+      "link": "Jira link"
+    },
+    "errors": {
+      "unauthorized": "Jira refused the email address and API token.",
+      "forbidden": "This Jira account may not search there.",
+      "notFound": "No Jira Cloud site answered at this address, or the project doesn't exist.",
+      "badQuery": "Jira refused the query.",
+      "badQueryDetail": "Jira refused the query: {detail}",
+      "tooManyIssues": "The query finds more than {limit} issues. Narrow it down.",
+      "unreachable": "Jira couldn't be reached. The sync tries again next time.",
+      "runAsGone": "The person who set the sync up no longer has an account.",
+      "accessLost": "The person the sync runs as can no longer edit this database.",
+      "keyGone": "The Key property was deleted or changed type, so issues can't be matched to rows.",
+      "failed": "The sync failed. It tries again next time.",
+      "invalidSite": "That isn't an address Leafdesk can reach.",
+      "invalidInput": "Fill in the email address, the API token and what to sync.",
+      "alreadyRunning": "A sync is running. Try again in a moment."
+    }
   },
   "board": {
     "links": "Nothing is downloaded: files and links in the export stay links.",

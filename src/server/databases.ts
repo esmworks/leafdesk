@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { queueAutomations } from "./automations/queue";
 import {
   databaseProperty,
+  databaseSync,
   databaseView,
   page,
   PROPERTY_TYPES,
@@ -28,6 +29,7 @@ import {
 } from "@/db/schema";
 import { avatarSrc } from "@/lib/avatar";
 import { COLLAB_FRAGMENT } from "@/lib/collab-constants";
+import type { DatabaseSyncSummary } from "@/lib/jira-sync";
 import { firstImageInYdoc, PG_MARKDOWN_IMAGE_PATTERN } from "@/lib/cover";
 import { asFiles, fileIdOf, fileIdsInProperties, fileUrl, type FileValue } from "@/lib/files";
 import { assertNotInTrash } from "@/lib/page-lock";
@@ -941,7 +943,7 @@ function splitPatch(normalized: Record<string, unknown>) {
  * A row's stored properties with `set` written over them and `cleared` removed, worked out by the
  * database at write time: values other writes left in properties this call doesn't touch stay.
  */
-function mergedProperties(set: Record<string, unknown>, cleared: string[]) {
+export function mergedProperties(set: Record<string, unknown>, cleared: string[]) {
   const minus = cleared.length
     ? sql` - ARRAY[${sql.join(
         cleared.map((k) => sql`${k}::text`),
@@ -3122,11 +3124,20 @@ export async function getDatabaseSnapshot(
       ),
     )
     .orderBy(asc(page.position), asc(page.createdAt), asc(page.id));
-  const [relations, people, covers, templates] = await Promise.all([
+  const [relations, people, covers, templates, [synced]] = await Promise.all([
     getRelationTargets(userId, properties),
     getPeople(userId, properties),
     withCovers ? rowCovers(stored) : null,
     listRowTemplateSummaries(userId, databaseId),
+    db
+      .select({
+        siteUrl: databaseSync.siteUrl,
+        lastRunAt: databaseSync.lastRunAt,
+        lastError: databaseSync.lastError,
+        enabled: databaseSync.enabled,
+      })
+      .from(databaseSync)
+      .where(eq(databaseSync.databaseId, databaseId)),
   ]);
   const rows: DatabaseRowWithPosition[] = (await withValues(userId, databaseId, stored, properties, { relations, people }, access)).map(
     ({ hasImage: _, ...row }) => (covers ? { ...row, cover: covers.get(row.id) ?? null } : row),
@@ -3149,6 +3160,10 @@ export async function getDatabaseSnapshot(
     rows,
     /** Row templates, for the menu next to "New". */
     templates,
+    /** Where the rows are kept in step from (server/jira-sync), when they are. */
+    sync: synced
+      ? ({ source: "jira", ...synced, lastRunAt: synced.lastRunAt?.toISOString() ?? null } satisfies DatabaseSyncSummary)
+      : null,
     relations,
     people,
     viewerId: userId,

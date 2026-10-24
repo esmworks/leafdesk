@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import type { JiraNames } from "@/lib/jira-sync";
 import type { BoardNames } from "@/server/import/board";
 import type { TrelloNames } from "@/server/import/trello";
 import type { DatabaseSeedNames } from "@/server/pages";
@@ -64,6 +65,23 @@ export async function boardImportNames(): Promise<BoardNames> {
     blocking: td("dependencies.blockingName"),
     attachments: t("attachments"),
     comments: t("comments"),
+    board: td("views.board"),
+  };
+}
+
+/** Names of the properties and view a Jira sync creates, in the user's language. */
+export async function jiraSyncNames(): Promise<JiraNames> {
+  const [t, td] = await Promise.all([getTranslations("import.jira.names"), getTranslations("database")]);
+  return {
+    key: t("key"),
+    status: t("status"),
+    assignee: t("assignee"),
+    others: (column) => t("others", { column }),
+    priority: t("priority"),
+    type: t("type"),
+    labels: t("labels"),
+    due: t("due"),
+    link: t("link"),
     board: td("views.board"),
   };
 }

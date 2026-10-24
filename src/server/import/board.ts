@@ -280,7 +280,7 @@ export async function importBoard(actor: WriteActor, input: BoardImportInput): P
  * gives one, else by name, when exactly one person has it. Finds no one for a guest, who can't
  * look people up.
  */
-async function matcher(userId: string, workspaceId: string): Promise<(person: BoardPerson) => string | undefined> {
+export async function matcher(userId: string, workspaceId: string): Promise<(person: BoardPerson) => string | undefined> {
   const membership = await getMembership(userId, workspaceId);
   if (!membership || isGuest(membership.role)) return () => undefined;
   const byName = new Map<string, string[]>();

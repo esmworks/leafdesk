@@ -1714,5 +1714,26 @@
     "delete": "Delete rule",
     "add": "Add rule",
     "firstMatchWins": "When several rules match, the first one colors the row or value."
+  },
+  "jiraSync": {
+    "button": "Synced from Jira",
+    "buttonPaused": "Jira sync paused",
+    "title": "Jira sync",
+    "site": "Site",
+    "project": "Project {key}",
+    "jql": "JQL",
+    "account": "Signed in as {email}",
+    "lastRun": "Last synced {when}, {count, plural, one {# issue} other {# issues}}",
+    "never": "Not synced yet",
+    "running": "Syncing…",
+    "paused": "Paused",
+    "overwrite": "Jira is the source: the synced properties and row titles are written over on each sync, so change them in Jira. Properties you add yourself stay as they are, and rows whose issue stops matching are left alone.",
+    "syncNow": "Sync now",
+    "changeQuery": "Change what it syncs",
+    "changeSignIn": "Change the sign-in",
+    "save": "Save and sync",
+    "stop": "Stop syncing",
+    "stopConfirm": "Stop syncing this database? Its rows stay as they are, and the sign-in is forgotten.",
+    "viewOnly": "Only people with full access to the database can change the sync."
   }
 }

@@ -67,6 +67,7 @@ const { startLocalBackups } = await import("./src/server/local-backups");
 const { startRowMailSync } = await import("./src/server/row-mail/sync");
 const { startRowMailSender } = await import("./src/server/row-mail/send");
 const { startSequences } = await import("./src/server/sequences/run");
+const { startJiraSyncs } = await import("./src/server/jira-sync/run");
 const { startTelegram } = await import("./src/server/telegram");
 
 const { hocuspocus, service } = createCollab();
@@ -185,6 +186,8 @@ server.listen(port, hostname, () => {
   startRowMailSync();
   startRowMailSender();
   startSequences();
+  // Keeps databases synced from Jira in step, each as often as it was set to.
+  startJiraSyncs();
   // Answers people's questions to the AI chat from Telegram, when the server has a bot.
   startTelegram();
 });
