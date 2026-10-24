@@ -23,7 +23,8 @@ try {
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
 const { and, eq, inArray, isNull } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { databaseProperty, databaseView, formPublication, page, teamspace, user, workspace, workspaceMember } = await import("@/db/schema");
+const { databaseProperty, databaseView, file, formPublication, page, teamspace, user, workspace, workspaceMember } = await import("@/db/schema");
+const { deleteQueued, fileObject, fileObjectColumns } = await import("@/server/files");
 const { registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
 const { createPage } = await import("@/server/pages");
@@ -422,6 +423,9 @@ try {
   console.log(`\n${passed} checks passed`);
 } finally {
   resetAi();
+  // The attached files' rows go with the workspace; their stored objects are deleted here.
+  const stored = await db.delete(file).where(inArray(file.workspaceId, [workspaceId])).returning(fileObjectColumns);
+  await deleteQueued(stored.map(fileObject)).catch(() => 0);
   await db.delete(workspace).where(inArray(workspace.id, [workspaceId]));
   await db.delete(user).where(inArray(user.id, userIds));
   await fake.close();
