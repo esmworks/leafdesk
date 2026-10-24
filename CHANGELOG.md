@@ -196,6 +196,34 @@
   picked by name, or in none. Guests make PDFs without letterheads. Migration 0115 adds the
   `pdf_letterhead` table.
 
+- **Owners can put people under a legal hold.** Settings → Security → Legal holds lists the holds
+  of the workspace, each with its name, reason, who set it and when, and the people it covers:
+  members, guests, or people who have left but created or edited something there. While a hold
+  stands, nothing they created or edited (a page they made, last edited, saved a version of,
+  changed a value of, uploaded a file to or commented on, and any page above one) is deleted for
+  good: it can still go to the trash and come back, but *Delete forever*, the trash and history
+  retention, the file cleanups, deleting a template, a deleted property's values or a comment keep
+  it or refuse with a message, the workspace can't be deleted, and the people's accounts can't be
+  deleted. Removing a held person from the workspace, also over SCIM, keeps their pages, as it
+  always did. Setting and releasing a hold is recorded in the audit log, and backups carry the
+  holds. Migration 0122 adds them.
+- **Settings can be searched.** A box at the top of Settings' navigation finds a setting on any tab
+  you have, your account's included, by its name, its tab or other words people look for it by
+  ("dark mode", "2fa", "ip", "backup"): picking one opens its tab, scrolls to the setting and
+  highlights it for a moment. Only what you can see is found: owners' settings for owners, and
+  nothing a guest's or a one-computer Leafdesk's Settings leave out. The search box (Cmd/Ctrl+K)
+  finds them too after `>`, as *Settings: Security → Approved networks*.
+- **Swipe inbox items on a phone.** On a touch screen, swiping an item of the inbox toward the end
+  of the line marks it read, or unread again, and swiping it toward the start snoozes it until
+  tomorrow at 9:00; what letting go will do shows behind the item as it moves. A group of
+  notifications about one page goes the same way, all of it. The buttons stay, and a mouse or pen
+  works as before.
+- **The desktop app has a system-wide shortcut to AI chat.** Pressing Cmd+Shift+J on macOS
+  (Ctrl+Shift+J on Windows and Linux) in any app brings Leafdesk forward and opens AI chat in the
+  workspace its window shows, or a quick note where AI is off in that workspace. *Go → Ask AI
+  Shortcut* switches it to Cmd/Ctrl+Shift+Space or Cmd/Ctrl+Option/Alt+L, or turns it off; when
+  another app already has the keys, the menu says so and another can be picked. The choice is kept
+  in the app's settings.
 - **Table rows move by their handle, which also opens a fuller row menu.** The ⋯ button before
   each row of a table is now a handle: drag it to move the row among the others (in its group, and
   under the same parent when sub-items nest) while no sort orders the view; the order is the one

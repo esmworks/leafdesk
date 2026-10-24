@@ -1,7 +1,9 @@
 import { and, asc, eq, ne } from "drizzle-orm";
 import { db } from "@/db";
 import { pdfLetterhead } from "@/db/schema";
+import { LegalHoldError } from "@/lib/legal-hold";
 import { isGuest, requireMembership } from "@/server/access";
+import { heldUserIds } from "@/server/legal-hold";
 import type { PdfLetterhead } from "@/server/pdf-document";
 import { imageType, MAX_LETTERHEADS, MAX_LOGO_BYTES, parseLetterhead, sameLetterheadName, type Letterhead, type LetterheadProblem } from "@/lib/letterheads";
 
@@ -114,9 +116,16 @@ export async function updateLetterhead(userId: string, letterheadId: string, inp
   return shown(row);
 }
 
-/** Removes a letterhead; owners only. PDFs then use the default (none when it was the default). */
+/**
+ * Removes a letterhead; owners only. PDFs then use the default (none when it was the default).
+ * Refused while its maker is under a legal hold (server/legal-hold.ts).
+ */
 export async function deleteLetterhead(userId: string, letterheadId: string): Promise<void> {
-  await ownedLetterhead(userId, letterheadId);
+  const { workspaceId } = await ownedLetterhead(userId, letterheadId);
+  const [row] = await db.select({ createdBy: pdfLetterhead.createdBy }).from(pdfLetterhead).where(eq(pdfLetterhead.id, letterheadId));
+  if (row?.createdBy && (await heldUserIds(workspaceId)).includes(row.createdBy)) {
+    throw new LegalHoldError("letterheadHeld", "A legal hold keeps this letterhead.");
+  }
   await db.delete(pdfLetterhead).where(eq(pdfLetterhead.id, letterheadId));
 }
 

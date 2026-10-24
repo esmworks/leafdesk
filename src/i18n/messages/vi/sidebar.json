@@ -69,6 +69,8 @@
     "recent": "Chỉnh sửa gần đây",
     "commands": "Lệnh",
     "noCommands": "Không có lệnh phù hợp",
+    "setting": "Cài đặt: {tab} → {setting}",
+    "settingsTab": "Cài đặt: {tab}",
     "hint": {
       "in": "trong một trang",
       "type": "chỉ cơ sở dữ liệu (hoặc trang, hàng)",
@@ -147,6 +149,7 @@
     "groupEdits": "{count, plural, other {# lần chỉnh sửa}}",
     "groupNewEdits": "{count, plural, other {# lần chỉnh sửa mới}}",
     "groupMarkRead": "Đánh dấu là đã đọc",
+    "markUnread": "Đánh dấu là chưa đọc",
     "groupExpand": "Hiện tất cả {count}",
     "groupCollapse": "Hiện ít hơn",
     "noSubject": "(không có chủ đề)",

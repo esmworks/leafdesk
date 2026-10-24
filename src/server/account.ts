@@ -584,7 +584,8 @@ export async function deletionPlanFor(userId: string): Promise<DeletionPlan> {
 
 /**
  * Deletes the account, after proof and the typed confirmation (the account's email). Refused while
- * the person is the only owner of a workspace others are in. Otherwise, in one transaction:
+ * the person is the only owner of a workspace others are in, and while a legal hold keeps it (one
+ * on the person, or in a workspace that would go with it). Otherwise, in one transaction:
  * workspaces nobody else is in are deleted with their pages and files; from the others the person
  * leaves, and an owner takes over the pages only they could manage (as when leaving), and the
  * connections the person set up (see withdrawFromWorkspaces); then the user row goes, and with it
@@ -603,12 +604,14 @@ export async function deleteAccount(current: AccountSession, input: { confirmati
   const preview = await deletionPlanFor(userId);
   if (preview.blockers.length) throw new AccountError("soleOwner", preview.blockers.map((w) => w.name));
   if (preview.storageStuck?.length) throw new AccountError("storageStuck", preview.storageStuck.map((w) => w.name));
+  if (preview.legalHolds?.length) throw new AccountError("legalHold", preview.legalHolds.map((w) => w.name));
   await reauthenticate(current, input.proof);
 
   const { plan, keys, cutOff, aiReleased } = await db.transaction(async (tx) => {
     const { plan, fileKeys: keys, providerIds, aiReleased } = await withdrawFromWorkspaces(tx, userId);
     if (plan.blockers.length) throw new AccountError("soleOwner", plan.blockers.map((w) => w.name));
     if (plan.storageStuck?.length) throw new AccountError("storageStuck", plan.storageStuck.map((w) => w.name));
+    if (plan.legalHolds?.length) throw new AccountError("legalHold", plan.legalHolds.map((w) => w.name));
     // Pending email changes and password reset links (Better Auth keeps the user id as the value).
     await tx.delete(verification).where(or(eq(verification.value, userId), changeRowsOf(userId)));
     const [gone] = await tx.delete(user).where(eq(user.id, userId)).returning({ image: user.image });

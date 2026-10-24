@@ -69,6 +69,8 @@
     "recent": "Modifiées récemment",
     "commands": "Commandes",
     "noCommands": "Aucune commande correspondante",
+    "setting": "Paramètres : {tab} → {setting}",
+    "settingsTab": "Paramètres : {tab}",
     "hint": {
       "in": "dans une page",
       "type": "seulement les bases de données (ou page, row)",
@@ -147,6 +149,7 @@
     "groupEdits": "{count, plural, one {# modification} other {# modifications}}",
     "groupNewEdits": "{count, plural, one {# nouvelle modification} other {# nouvelles modifications}}",
     "groupMarkRead": "Marquer comme lu",
+    "markUnread": "Marquer comme non lu",
     "groupExpand": "Afficher les {count}",
     "groupCollapse": "Afficher moins",
     "noSubject": "(sans objet)",

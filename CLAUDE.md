@@ -67,6 +67,10 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   Several linked databases at once (views, example rows, an intro page) are a plan: checked in
   `src/lib/database-plan.ts`, created all-or-nothing by `database-plan.ts` `createFromPlan`, which
   Build with AI (`ai-build.ts` drafts the plan) and the AI chat's `create_database` both use.
+- **Legal holds.** `src/server/legal-hold.ts` is the one check before content is deleted for good
+  (Delete forever, trash and history retention, file cleanups, templates, deleted properties,
+  comments, letterheads, workspace and account deletion). A new hard delete of pages, rows, files
+  or what people wrote calls it; moving to the trash doesn't need to.
 - **Shared operations.** `src/server/operations.ts` is what the MCP tools, the REST API, the AI
   chat, agents and automations do with pages, databases, rows and comments. Each operation runs as
   `ctx.userId` with that person's access; the caller checks its own scopes first.
@@ -131,6 +135,9 @@ because they are separate module graphs.
   `cjk_bigrams`. `src/lib/offline.test.ts`: `public/sw.js` follows `src/lib/offline.ts`.
   `src/lib/connection-catalog.test.ts`: `public/connections/*.png` matches the catalog.
   `src/lib/contrast.test.ts`: colors in `globals.css` keep their contrast.
+- `src/lib/settings-search.test.ts`: every entry of the settings search (`src/lib/settings-search.ts`)
+  names English texts that exist and a group or row marked `anchor="<id>"`, and every settings tab
+  has one. A new setting gets an entry there, with the condition the page shows it under.
 - `src/server/mcp/tools-context.test.ts`: the MCP tool list every client sends its model stays
   under 275 KB in all and 25 KB per tool. Raise a number only on purpose, in the same commit.
 - `scripts/bundle-budget.ts` (CI, after `pnpm build`): gzipped client JS budgets for the largest

@@ -69,6 +69,8 @@
     "recent": "Ostatnio edytowane",
     "commands": "Polecenia",
     "noCommands": "Brak pasującego polecenia",
+    "setting": "Ustawienia: {tab} → {setting}",
+    "settingsTab": "Ustawienia: {tab}",
     "hint": {
       "in": "wewnątrz strony",
       "type": "tylko bazy danych (lub strony, wiersze)",
@@ -147,6 +149,7 @@
     "groupEdits": "{count, plural, one {# zmiana} few {# zmiany} many {# zmian} other {# zmiany}}",
     "groupNewEdits": "{count, plural, one {# nowa zmiana} few {# nowe zmiany} many {# nowych zmian} other {# nowej zmiany}}",
     "groupMarkRead": "Oznacz jako przeczytane",
+    "markUnread": "Oznacz jako nieprzeczytane",
     "groupExpand": "Pokaż wszystkie ({count})",
     "groupCollapse": "Pokaż mniej",
     "noSubject": "(bez tematu)",

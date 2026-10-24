@@ -27,6 +27,7 @@ export async function ApiTokens() {
 
   return (
     <SettingsGroup
+      anchor="apiTokens"
       title={t("heading")}
       description={
         <>

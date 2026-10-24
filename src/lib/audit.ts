@@ -60,6 +60,8 @@ export const AUDIT_CATEGORIES = {
     "workspace.domains_verified",
     "workspace.networks_changed",
     "workspace.networks_cleared",
+    "legal_hold.set",
+    "legal_hold.released",
   ],
   pages: [
     "page.created",
@@ -172,7 +174,8 @@ export type AuditTargetType =
   | "ai_account"
   | "site"
   | "connection"
-  | "mailbox";
+  | "mailbox"
+  | "legal_hold";
 
 /** A stored event, as the list and the CSV show it. Names are as they were when it happened. */
 export type AuditEvent = {

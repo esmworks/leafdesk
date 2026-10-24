@@ -2,13 +2,14 @@
 
 import { getTranslations } from "next-intl/server";
 import { CommentError, type CommentOp } from "@/lib/comments";
+import { LegalHoldError } from "@/lib/legal-hold";
 import { AccessError } from "@/server/access";
 import * as comments from "@/server/comments";
 import { requireUserId } from "@/server/session";
 import { mutedThreads, setThreadMuted } from "@/server/thread-mute";
 import { markThreadsSeen, setThreadMarked, threadStates } from "@/server/thread-state";
 
-export type CommentFailure = "notAllowed" | "notFound" | "invalidBody" | "tooLong";
+export type CommentFailure = "notAllowed" | "notFound" | "invalidBody" | "tooLong" | "commentHeld";
 
 /**
  * One comment change from the editor. Failures the person can act on come back as a code (errors
@@ -22,6 +23,11 @@ export async function changeCommentsAction(pageId: string, op: CommentOp) {
   } catch (error) {
     if (error instanceof CommentError) return { ok: false as const, code: error.code as CommentFailure };
     if (error instanceof AccessError) return { ok: false as const, code: "notAllowed" as CommentFailure };
+    // Said to the person: the comment stays where they tried to delete it.
+    if (error instanceof LegalHoldError) {
+      const message = (await getTranslations("settings.legalHolds.errors"))("commentHeld");
+      return { ok: false as const, code: "commentHeld" as CommentFailure, message };
+    }
     throw error;
   }
 }

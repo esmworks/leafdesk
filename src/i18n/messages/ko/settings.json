@@ -22,6 +22,66 @@
     "snippets": "스니펫",
     "pdf": "PDF 템플릿"
   },
+  "search": {
+    "label": "설정 검색",
+    "placeholder": "설정 검색",
+    "noResults": "일치하는 설정이 없습니다.",
+    "labels": {
+      "aiUsagePeople": "사람별 사용량"
+    },
+    "keywords": {
+      "profile": "이름 사진 아바타 이미지",
+      "email": "주소 변경 인증 이메일",
+      "deleteAccount": "제거 닫기 계정 삭제",
+      "password": "변경 재설정 로그인 비밀번호",
+      "twoFactor": "2fa mfa 인증 앱 코드",
+      "passkeys": "webauthn 보안 키 지문 얼굴",
+      "sessions": "기기 로그인됨 로그아웃",
+      "language": "언어 번역 지역",
+      "theme": "다크 모드 라이트 모드 색상",
+      "contrast": "접근성 고대비",
+      "notifications": "푸시 이메일 알림 경고",
+      "watchedPages": "팔로우 구독 지켜보기",
+      "offlineDevice": "오프라인 다운로드 캐시 공간",
+      "offlinePages": "오프라인 다운로드 인터넷 없이",
+      "mailboxes": "이메일 받은편지함 imap smtp",
+      "calendars": "ical 피드 구독 캘린더",
+      "storageAccounts": "drive s3 파일 클라우드",
+      "connectedApps": "oauth 클라이언트 액세스 취소",
+      "aiAccounts": "api 키 내 키 공급자",
+      "telegram": "봇 채팅 메시지",
+      "mcp": "어시스턴트 model context protocol 서버",
+      "apiTokens": "rest api 토큰 키 개발자",
+      "about": "버전 라이선스 업데이트",
+      "workspaceName": "이름 이름 바꾸기 아이콘",
+      "ai": "인공지능 채팅 모델 공급자 메모리",
+      "workspaceMail": "이메일 행 메일 보내기",
+      "export": "백업 다운로드 zip markdown",
+      "members": "사람 초대 사용자 역할 제거",
+      "agents": "ai 어시스턴트 자동화 봇",
+      "snippets": "텍스트 단축어 스니펫",
+      "letterheads": "pdf 머리글 바닥글 로고 인쇄",
+      "connections": "통합 mcp 서비스 도구",
+      "site": "웹사이트 게시 도메인",
+      "requireTwoFactor": "2fa mfa 필수 정책",
+      "loginMethod": "sso 비밀번호 로그인 정책",
+      "allowedNetworks": "ip 허용 목록 주소 사무실 vpn",
+      "membership": "초대 참여 요청 도메인",
+      "sso": "saml oidc ID 공급자",
+      "scim": "프로비저닝 디렉터리 동기화 사용자",
+      "exportPolicy": "다운로드 인쇄 pdf",
+      "connectedAppsPolicy": "mcp rest api 토큰 액세스",
+      "publishing": "게시 웹 공유 공개 링크",
+      "retention": "휴지통 기록 삭제 보관 일",
+      "legalHolds": "소송 보존 전자증거개시 보관",
+      "storage": "파일 s3 drive 버킷",
+      "analyticsPeople": "활동 편집 통계",
+      "aiUsageLimit": "예산 비용 지출 한도",
+      "aiUsagePeople": "사람별 멤버 비용 토큰",
+      "health": "깨진 링크 고아 중복 빈 페이지",
+      "audit": "로그 기록 이벤트 변경한 사람"
+    }
+  },
   "workspace": {
     "heading": "워크스페이스",
     "nameLabel": "워크스페이스 이름",
@@ -1387,6 +1447,50 @@
       "memberView": "{count, plural, =0 {꺼짐: 어느 네트워크에서나 워크스페이스를 열 수 있습니다.} other {켜짐: 승인된 네트워크 #개에서만 워크스페이스를 열 수 있습니다.}}"
     }
   },
+  "legalHolds": {
+    "title": "법적 보존",
+    "description": "보존이 유지되는 동안 대상자가 이 워크스페이스에서 만들거나 편집한 것은 영구 삭제할 수 없습니다. 페이지와 행은 여전히 휴지통으로 옮길 수 있지만 기록, 댓글, 파일과 함께 그대로 남고, 워크스페이스와 대상자의 계정은 삭제할 수 없습니다.",
+    "holds": "보존",
+    "holdsDescription": "보존 설정과 해제는 감사 로그에 기록됩니다.",
+    "empty": "보존이 없습니다.",
+    "new": "새 보존",
+    "setBy": "{name}님이 {date, date, medium}에 설정",
+    "setOn": "{date, date, medium}에 설정",
+    "people": "{count, plural, other {#명}}",
+    "left": "나감",
+    "guest": "게스트",
+    "release": "해제",
+    "confirmRelease": "{name} 해제",
+    "form": {
+      "title": "새 법적 보존",
+      "description": "대상자를 선택하세요: 멤버, 게스트, 또는 나갔지만 여기서 무언가를 만들거나 편집한 사람.",
+      "name": "이름",
+      "namePlaceholder": "사안 또는 사건",
+      "reason": "사유",
+      "reasonPlaceholder": "선택 사항: 이유와 요청한 사람",
+      "people": "대상자 ({count})",
+      "search": "사람 검색",
+      "loading": "불러오는 중…",
+      "nobody": "일치하는 사람이 없습니다.",
+      "submit": "보존 설정"
+    },
+    "errors": {
+      "pageHeld": "법적 보존이 이 페이지 또는 그 아래 페이지를 보존하고 있습니다. 보존이 유지되는 동안 영구 삭제할 수 없으며 휴지통에 남습니다.",
+      "templateHeld": "법적 보존이 이 템플릿을 보존하고 있습니다. 보존이 유지되는 동안 삭제할 수 없습니다.",
+      "propertyHeld": "법적 보존이 이 속성의 값을 보존하고 있습니다. 보존이 유지되는 동안 영구 삭제할 수 없습니다.",
+      "commentHeld": "법적 보존이 이 댓글을 보존하고 있습니다. 보존이 유지되는 동안 삭제할 수 없습니다.",
+      "letterheadHeld": "법적 보존이 이 레터헤드를 보존하고 있습니다. 보존이 유지되는 동안 삭제할 수 없습니다.",
+      "workspaceHeld": "이 워크스페이스에 법적 보존이 있습니다. 워크스페이스를 삭제하기 전에 해제하세요 (설정 > 보안).",
+      "nameRequired": "보존 이름을 입력하세요.",
+      "nameTooLong": "이름은 200자 이하로 입력하세요.",
+      "reasonTooLong": "사유는 2,000자 이하로 입력하세요.",
+      "noPeople": "보존 대상자를 선택하세요.",
+      "tooManyPeople": "보존 하나의 대상자는 최대 200명입니다.",
+      "unknownPerson": "선택한 사람이 더 이상 이 워크스페이스에 없습니다.",
+      "notFound": "그 보존은 이미 해제되었습니다.",
+      "ownersOnly": "법적 보존은 소유자만 관리합니다."
+    }
+  },
   "audit": {
     "description": "이 워크스페이스에서 누가 무엇을 변경했는지 기록합니다: 멤버와 역할, 초대, 공유, 팀스페이스와 그룹, 설정, 보안, 페이지 생성·이동·휴지통 이동·삭제, 게시, 연결된 앱, 내보내기. 소유자만 볼 수 있습니다.",
     "filters": "감사 로그 필터",
@@ -1621,6 +1725,10 @@
       "scim": {
         "token_created": "SCIM 토큰 {target}을(를) 만들었습니다",
         "token_revoked": "SCIM 토큰 {target}을(를) 취소했습니다"
+      },
+      "legal_hold": {
+        "set": "{names}에게 법적 보존 {target}을(를) 설정함",
+        "released": "{names}의 법적 보존 {target}을(를) 해제함"
       },
       "site": {
         "saved": "{slug} 주소의 사이트를 저장했습니다",

@@ -69,6 +69,8 @@
     "recent": "Недавно изменённые",
     "commands": "Команды",
     "noCommands": "Нет подходящей команды",
+    "setting": "Настройки: {tab} → {setting}",
+    "settingsTab": "Настройки: {tab}",
     "hint": {
       "in": "внутри страницы",
       "type": "только базы данных (или страницы, строки)",
@@ -147,6 +149,7 @@
     "groupEdits": "{count, plural, one {# правка} few {# правки} many {# правок} other {# правки}}",
     "groupNewEdits": "{count, plural, one {# новая правка} few {# новые правки} many {# новых правок} other {# новой правки}}",
     "groupMarkRead": "Отметить как прочитанное",
+    "markUnread": "Отметить как непрочитанное",
     "groupExpand": "Показать все ({count})",
     "groupCollapse": "Свернуть",
     "noSubject": "(без темы)",

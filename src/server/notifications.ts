@@ -1268,3 +1268,25 @@ export async function markRead(userId: string, workspaceId: string, notification
   // The user's other tabs update their count too.
   signal(workspaceId);
 }
+
+/**
+ * Marks the given notifications unread again (a swipe in the inbox on a phone). An email still to
+ * come about one goes out as for any unread notification; one that went, or was left out because
+ * it had been read, doesn't come again.
+ */
+export async function markUnread(userId: string, workspaceId: string, notificationIds: string[]) {
+  await requireMembership(userId, workspaceId);
+  if (!notificationIds.length) return;
+  await db
+    .update(notification)
+    .set({ readAt: null })
+    .where(
+      and(
+        eq(notification.userId, userId),
+        eq(notification.workspaceId, workspaceId),
+        isNotNull(notification.readAt),
+        inArray(notification.id, notificationIds),
+      ),
+    );
+  signal(workspaceId);
+}

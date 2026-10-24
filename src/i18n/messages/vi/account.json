@@ -125,7 +125,10 @@
     "blockedList": "Các không gian làm việc cần bàn giao:",
     "storageStuckBody": "Tệp của các không gian làm việc bạn sắp rời đang nằm trong kho lưu trữ của riêng bạn, và không có nơi nào để chuyển đi: không chủ sở hữu nào khác có kho lưu trữ mặc định, và kho lưu trữ của máy chủ này không nhận được chúng. Hãy nhờ một chủ sở hữu thiết lập kho lưu trữ, hoặc chuyển các tệp (Cài đặt > Lưu trữ), rồi xóa tài khoản của bạn.",
     "storageStuckList": "Các không gian làm việc có tệp không có nơi để chuyển đi:",
-    "storageMovesList": "Tệp của chúng trong kho lưu trữ của bạn sẽ được chuyển sang kho của một chủ sở hữu trước (kho của bạn vẫn phục vụ chúng cho đến lúc đó):"
+    "storageMovesList": "Tệp của chúng trong kho lưu trữ của bạn sẽ được chuyển sang kho của một chủ sở hữu trước (kho của bạn vẫn phục vụ chúng cho đến lúc đó):",
+    "legalHoldTitle": "Một lệnh lưu giữ pháp lý đang giữ tài khoản của bạn",
+    "legalHoldBody": "Lệnh lưu giữ pháp lý bao gồm những gì bạn đã tạo hoặc chỉnh sửa trong các không gian làm việc này, nên không thể xóa tài khoản của bạn khi lệnh còn hiệu lực. Hãy nhờ chủ sở hữu ở đó gỡ bỏ lệnh.",
+    "legalHoldList": "Không gian làm việc có lệnh lưu giữ:"
   },
   "confirmEmail": {
     "metaTitle": "Xác nhận địa chỉ email",
@@ -164,7 +167,8 @@
     "avatarTooLarge": "Ảnh quá lớn (tối đa 2 MB).",
     "samePassword": "Hãy chọn mật khẩu khác với mật khẩu cũ.",
     "resetStepExpired": "Bước này đã hết hạn. Hãy đăng nhập lại bằng mật khẩu cũ.",
-    "storageStuck": "Tệp của {workspaces} đang nằm trong kho lưu trữ của bạn và không có nơi nào để chuyển đi. Hãy nhờ các chủ sở hữu thiết lập kho lưu trữ, hoặc chuyển các tệp trước."
+    "storageStuck": "Tệp của {workspaces} đang nằm trong kho lưu trữ của bạn và không có nơi nào để chuyển đi. Hãy nhờ các chủ sở hữu thiết lập kho lưu trữ, hoặc chuyển các tệp trước.",
+    "legalHold": "Một lệnh lưu giữ pháp lý trong {workspaces} đang giữ tài khoản của bạn. Hãy nhờ chủ sở hữu ở đó gỡ bỏ lệnh trước."
   },
   "mail": {
     "description": "Các hộp thư và địa chỉ lịch của bạn, trong mọi không gian làm việc bạn tham gia.",

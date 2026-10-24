@@ -69,6 +69,8 @@
     "recent": "اخیراً ویرایش‌شده",
     "commands": "فرمان‌ها",
     "noCommands": "فرمان مطابقی وجود ندارد",
+    "setting": "تنظیمات: {tab} ← {setting}",
+    "settingsTab": "تنظیمات: {tab}",
     "hint": {
       "in": "درون یک صفحه",
       "type": "فقط پایگاه‌های داده (یا صفحه، ردیف)",
@@ -147,6 +149,7 @@
     "groupEdits": "{count, plural, one {# ویرایش} other {# ویرایش}}",
     "groupNewEdits": "{count, plural, one {# ویرایش تازه} other {# ویرایش تازه}}",
     "groupMarkRead": "علامت‌گذاری به‌عنوان خوانده‌شده",
+    "markUnread": "علامت‌گذاری به‌عنوان خوانده‌نشده",
     "groupExpand": "نمایش همهٔ {count} مورد",
     "groupCollapse": "نمایش کمتر",
     "noSubject": "(بدون موضوع)",

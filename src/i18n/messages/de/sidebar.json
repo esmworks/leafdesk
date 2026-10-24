@@ -69,6 +69,8 @@
     "recent": "Zuletzt bearbeitet",
     "commands": "Befehle",
     "noCommands": "Kein passender Befehl",
+    "setting": "Einstellungen: {tab} → {setting}",
+    "settingsTab": "Einstellungen: {tab}",
     "hint": {
       "in": "innerhalb einer Seite",
       "type": "nur Datenbanken (oder page, row)",
@@ -147,6 +149,7 @@
     "groupEdits": "{count, plural, one {# Bearbeitung} other {# Bearbeitungen}}",
     "groupNewEdits": "{count, plural, one {# neue Bearbeitung} other {# neue Bearbeitungen}}",
     "groupMarkRead": "Als gelesen markieren",
+    "markUnread": "Als ungelesen markieren",
     "groupExpand": "Alle {count} anzeigen",
     "groupCollapse": "Weniger anzeigen",
     "noSubject": "(kein Betreff)",

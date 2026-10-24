@@ -30,6 +30,8 @@ export function TrashDialog({
   // When the list was loaded: days left count from there rather than from each render.
   const [loadedAt, setLoadedAt] = useState(() => new Date());
   const [error, setError] = useState(false);
+  // What a refusal said (a legal hold keeps the page), in place of the generic error.
+  const [refusal, setRefusal] = useState<string | null>(null);
   const [, startTransition] = useTransition();
 
   const load = () =>
@@ -50,9 +52,14 @@ export function TrashDialog({
   /** Runs a trash change; on failure (e.g. someone else just changed the page) shows an error and reloads. */
   function run(action: () => Promise<unknown>) {
     setError(false);
+    setRefusal(null);
     startTransition(async () => {
       try {
-        await action();
+        const result = await action();
+        if (result && typeof result === "object" && "ok" in result && result.ok === false && "error" in result) {
+          setRefusal(String(result.error));
+          return;
+        }
         onChange();
       } catch {
         setError(true);
@@ -79,9 +86,9 @@ export function TrashDialog({
   return (
     <Dialog open={open} onClose={onClose}>
       <div className="border-b border-border px-4 py-3 text-sm font-medium">{t("title")}</div>
-      {error && (
+      {(error || refusal) && (
         <p role="alert" className="border-b border-border px-4 py-2 text-xs text-danger">
-          {tc("genericError")}
+          {refusal ?? tc("genericError")}
         </p>
       )}
       <ul className="max-h-[50vh] overflow-y-auto p-1">

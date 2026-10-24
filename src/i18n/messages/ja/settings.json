@@ -22,6 +22,66 @@
     "snippets": "スニペット",
     "pdf": "PDF テンプレート"
   },
+  "search": {
+    "label": "設定を検索",
+    "placeholder": "設定を検索",
+    "noResults": "一致する設定はありません。",
+    "labels": {
+      "aiUsagePeople": "ユーザー別の使用量"
+    },
+    "keywords": {
+      "profile": "名前 写真 アバター 画像",
+      "email": "アドレス 変更 確認 メール",
+      "deleteAccount": "削除 閉鎖 アカウント",
+      "password": "変更 リセット サインイン パスワード",
+      "twoFactor": "2fa mfa 認証アプリ コード",
+      "passkeys": "webauthn セキュリティキー 指紋 顔",
+      "sessions": "デバイス サインイン中 サインアウト",
+      "language": "言語 翻訳 ロケール",
+      "theme": "ダークモード ライトモード 色",
+      "contrast": "アクセシビリティ ハイコントラスト",
+      "notifications": "プッシュ メール アラート 通知",
+      "watchedPages": "フォロー 購読 ウォッチ",
+      "offlineDevice": "オフライン ダウンロード キャッシュ 容量",
+      "offlinePages": "オフライン ダウンロード インターネットなし",
+      "mailboxes": "メール 受信箱 imap smtp",
+      "calendars": "ical フィード 購読 カレンダー",
+      "storageAccounts": "drive s3 ファイル クラウド",
+      "connectedApps": "oauth クライアント アクセス 取り消し",
+      "aiAccounts": "api キー 自分のキー プロバイダー",
+      "telegram": "ボット チャット メッセージ",
+      "mcp": "アシスタント model context protocol サーバー",
+      "apiTokens": "rest api トークン キー 開発者",
+      "about": "バージョン ライセンス アップデート",
+      "workspaceName": "名前 名前変更 アイコン",
+      "ai": "人工知能 チャット モデル プロバイダー メモリ",
+      "workspaceMail": "メール 行 送信",
+      "export": "バックアップ ダウンロード zip markdown",
+      "members": "メンバー 招待 ユーザー ロール 削除",
+      "agents": "ai アシスタント 自動化 ボット",
+      "snippets": "テキスト 短縮 スニペット",
+      "letterheads": "pdf ヘッダー フッター ロゴ 印刷",
+      "connections": "連携 mcp サービス ツール",
+      "site": "ウェブサイト 公開 ドメイン",
+      "requireTwoFactor": "2fa mfa 必須 ポリシー",
+      "loginMethod": "sso パスワード サインイン ポリシー",
+      "allowedNetworks": "ip 許可リスト アドレス オフィス vpn",
+      "membership": "招待 参加 リクエスト ドメイン",
+      "sso": "saml oidc ID プロバイダー",
+      "scim": "プロビジョニング ディレクトリ 同期 ユーザー",
+      "exportPolicy": "ダウンロード 印刷 pdf",
+      "connectedAppsPolicy": "mcp rest api トークン アクセス",
+      "publishing": "公開 ウェブ 共有 公開リンク",
+      "retention": "ゴミ箱 履歴 削除 保持 日数",
+      "legalHolds": "訴訟 保全 eディスカバリー 保持",
+      "storage": "ファイル s3 drive バケット",
+      "analyticsPeople": "アクティビティ 編集 統計",
+      "aiUsageLimit": "予算 コスト 支出 上限",
+      "aiUsagePeople": "ユーザーごと メンバー コスト トークン",
+      "health": "リンク切れ 孤立 重複 空のページ",
+      "audit": "ログ 履歴 イベント 変更者"
+    }
+  },
   "workspace": {
     "heading": "ワークスペース",
     "nameLabel": "ワークスペース名",
@@ -1387,6 +1447,50 @@
       "memberView": "{count, plural, =0 {オフ：どのネットワークからでもワークスペースを開けます。} other {オン：ワークスペースは # 件の承認済みネットワークからのみ開けます。}}"
     }
   },
+  "legalHolds": {
+    "title": "リーガルホールド",
+    "description": "ホールドが有効な間、対象者がこのワークスペースで作成・編集したものは完全には削除できません。ページや行はゴミ箱に移せますが、履歴・コメント・ファイルとともにそこに残ります。ワークスペースと対象者のアカウントも削除できません。",
+    "holds": "ホールド",
+    "holdsDescription": "ホールドの設定と解除は監査ログに記録されます。",
+    "empty": "ホールドはありません。",
+    "new": "新しいホールド",
+    "setBy": "{name} が {date, date, medium} に設定",
+    "setOn": "{date, date, medium} に設定",
+    "people": "{count, plural, other {# 人}}",
+    "left": "退出済み",
+    "guest": "ゲスト",
+    "release": "解除",
+    "confirmRelease": "{name} を解除",
+    "form": {
+      "title": "新しいリーガルホールド",
+      "description": "対象者を選んでください: メンバー、ゲスト、またはここで何かを作成・編集した退出済みの人。",
+      "name": "名前",
+      "namePlaceholder": "案件名",
+      "reason": "理由",
+      "reasonPlaceholder": "任意: 理由と依頼者",
+      "people": "対象者 ({count})",
+      "search": "人を検索",
+      "loading": "読み込み中…",
+      "nobody": "該当する人はいません。",
+      "submit": "ホールドを設定"
+    },
+    "errors": {
+      "pageHeld": "リーガルホールドがこのページ (またはその下のページ) を保持しています。ホールドが有効な間は完全に削除できず、ゴミ箱に残ります。",
+      "templateHeld": "リーガルホールドがこのテンプレートを保持しています。ホールドが有効な間は削除できません。",
+      "propertyHeld": "リーガルホールドがこのプロパティの値を保持しています。ホールドが有効な間は完全に削除できません。",
+      "commentHeld": "リーガルホールドがこのコメントを保持しています。ホールドが有効な間は削除できません。",
+      "letterheadHeld": "リーガルホールドがこのレターヘッドを保持しています。ホールドが有効な間は削除できません。",
+      "workspaceHeld": "このワークスペースにはリーガルホールドがあります。ワークスペースを削除する前に解除してください (設定 > セキュリティ)。",
+      "nameRequired": "ホールドに名前を付けてください。",
+      "nameTooLong": "名前は200文字以内にしてください。",
+      "reasonTooLong": "理由は2,000文字以内にしてください。",
+      "noPeople": "ホールドの対象者を選んでください。",
+      "tooManyPeople": "1つのホールドの対象者は200人までです。",
+      "unknownPerson": "選んだ人がもうこのワークスペースにいません。",
+      "notFound": "そのホールドはすでに解除されています。",
+      "ownersOnly": "リーガルホールドを管理できるのはオーナーだけです。"
+    }
+  },
   "audit": {
     "description": "このワークスペースで誰が何を変更したかの記録です。メンバーとロール、招待、共有、チームスペースとグループ、設定、セキュリティ、ページの作成・移動・ゴミ箱への移動・削除、公開、接続済みアプリ、エクスポートが含まれます。オーナーだけが閲覧できます。",
     "filters": "監査ログをフィルター",
@@ -1621,6 +1725,10 @@
       "scim": {
         "token_created": "SCIMトークン{target}を作成しました",
         "token_revoked": "SCIMトークン{target}を無効にしました"
+      },
+      "legal_hold": {
+        "set": "{names} にリーガルホールド {target} を設定しました",
+        "released": "{names} のリーガルホールド {target} を解除しました"
       },
       "site": {
         "saved": "{slug}のサイトを保存しました",

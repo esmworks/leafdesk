@@ -22,6 +22,66 @@
     "snippets": "Extraits",
     "pdf": "Modèles PDF"
   },
+  "search": {
+    "label": "Rechercher dans les paramètres",
+    "placeholder": "Rechercher dans les paramètres",
+    "noResults": "Aucun paramètre ne correspond.",
+    "labels": {
+      "aiUsagePeople": "Utilisation par personne"
+    },
+    "keywords": {
+      "profile": "nom photo avatar image",
+      "email": "adresse changer vérifier e-mail",
+      "deleteAccount": "supprimer fermer compte",
+      "password": "changer réinitialiser connexion mot de passe",
+      "twoFactor": "2fa mfa authentificateur code",
+      "passkeys": "webauthn clé de sécurité empreinte visage",
+      "sessions": "appareils connecté déconnexion",
+      "language": "langue traduction région",
+      "theme": "mode sombre mode clair couleurs",
+      "contrast": "accessibilité contraste élevé",
+      "notifications": "push e-mail alertes notification",
+      "watchedPages": "suivre s'abonner surveiller",
+      "offlineDevice": "hors ligne télécharger cache espace",
+      "offlinePages": "hors ligne télécharger sans internet",
+      "mailboxes": "e-mail boîte de réception imap smtp",
+      "calendars": "ical flux s'abonner calendrier",
+      "storageAccounts": "drive s3 fichiers cloud",
+      "connectedApps": "oauth clients accès révoquer",
+      "aiAccounts": "clé api propre clé fournisseur",
+      "telegram": "bot discussion messages",
+      "mcp": "assistant model context protocol serveur",
+      "apiTokens": "rest api jeton clé développeur",
+      "about": "version licence mise à jour",
+      "workspaceName": "nom renommer icône",
+      "ai": "intelligence artificielle discussion modèle fournisseur mémoire",
+      "workspaceMail": "e-mail lignes courrier envoyer",
+      "export": "sauvegarde télécharger zip markdown",
+      "members": "personnes inviter utilisateurs rôles retirer",
+      "agents": "ia assistant automatisation bot",
+      "snippets": "texte raccourcis extraits",
+      "letterheads": "pdf en-tête pied de page logo imprimer",
+      "connections": "intégrations mcp services outils",
+      "site": "site web publier domaine",
+      "requireTwoFactor": "2fa mfa imposer règle",
+      "loginMethod": "sso mot de passe connexion règle",
+      "allowedNetworks": "ip liste autorisée adresse bureau vpn",
+      "membership": "inviter rejoindre demandes domaines",
+      "sso": "saml oidc fournisseur d'identité",
+      "scim": "provisionnement annuaire synchronisation utilisateurs",
+      "exportPolicy": "télécharger imprimer pdf",
+      "connectedAppsPolicy": "mcp rest api jetons accès",
+      "publishing": "publier web partager lien public",
+      "retention": "corbeille historique supprimer conserver jours",
+      "legalHolds": "litige conserver ediscovery préserver",
+      "storage": "fichiers s3 drive bucket",
+      "analyticsPeople": "activité modifications statistiques",
+      "aiUsageLimit": "budget coût dépenses plafond",
+      "aiUsagePeople": "par personne membre coût jetons",
+      "health": "liens cassés orphelines doublons pages vides",
+      "audit": "journal historique événements qui a modifié"
+    }
+  },
   "workspace": {
     "heading": "Espace de travail",
     "nameLabel": "Nom de l’espace de travail",
@@ -1387,6 +1447,50 @@
       "memberView": "{count, plural, =0 {Désactivé : l’espace de travail s’ouvre depuis n’importe quel réseau.} one {Activé : l’espace de travail ne s’ouvre que depuis # réseau approuvé.} other {Activé : l’espace de travail ne s’ouvre que depuis # réseaux approuvés.}}"
     }
   },
+  "legalHolds": {
+    "title": "Conservations légales",
+    "description": "Tant qu'une conservation est en place, rien de ce que les personnes concernées ont créé ou modifié dans cet espace de travail ne peut être supprimé définitivement. Leurs pages et lignes peuvent toujours aller à la corbeille, mais y restent avec leur historique, leurs commentaires et leurs fichiers ; l'espace de travail et leurs comptes ne peuvent pas être supprimés.",
+    "holds": "Conservations",
+    "holdsDescription": "La mise en place et la levée d'une conservation sont enregistrées dans le journal d'audit.",
+    "empty": "Aucune conservation.",
+    "new": "Nouvelle conservation",
+    "setBy": "Mise en place par {name} le {date, date, medium}",
+    "setOn": "Mise en place le {date, date, medium}",
+    "people": "{count, plural, one {# personne} other {# personnes}}",
+    "left": "partie",
+    "guest": "invité",
+    "release": "Lever",
+    "confirmRelease": "Lever {name}",
+    "form": {
+      "title": "Nouvelle conservation légale",
+      "description": "Choisissez les personnes concernées : membres, invités, ou personnes parties qui ont créé ou modifié quelque chose ici.",
+      "name": "Nom",
+      "namePlaceholder": "Affaire ou dossier",
+      "reason": "Motif",
+      "reasonPlaceholder": "Facultatif : pourquoi, et qui l'a demandée",
+      "people": "Personnes ({count})",
+      "search": "Rechercher des personnes",
+      "loading": "Chargement…",
+      "nobody": "Personne ne correspond.",
+      "submit": "Mettre en conservation"
+    },
+    "errors": {
+      "pageHeld": "Une conservation légale protège cette page, ou une page en dessous : elle ne peut pas être supprimée définitivement tant que la conservation est en place, et reste dans la corbeille.",
+      "templateHeld": "Une conservation légale protège ce modèle : il ne peut pas être supprimé tant que la conservation est en place.",
+      "propertyHeld": "Une conservation légale protège les valeurs de cette propriété : elle ne peut pas être supprimée définitivement tant que la conservation est en place.",
+      "commentHeld": "Une conservation légale protège ce commentaire : il ne peut pas être supprimé tant que la conservation est en place.",
+      "letterheadHeld": "Une conservation légale protège cet en-tête : il ne peut pas être supprimé tant que la conservation est en place.",
+      "workspaceHeld": "Cet espace de travail a une conservation légale. Levez-la (Paramètres > Sécurité) avant de supprimer l'espace de travail.",
+      "nameRequired": "Donnez un nom à la conservation.",
+      "nameTooLong": "Utilisez au plus 200 caractères pour le nom.",
+      "reasonTooLong": "Utilisez au plus 2 000 caractères pour le motif.",
+      "noPeople": "Choisissez qui la conservation concerne.",
+      "tooManyPeople": "Une conservation concerne au plus 200 personnes.",
+      "unknownPerson": "Une personne choisie n'est plus dans cet espace de travail.",
+      "notFound": "Cette conservation a déjà été levée.",
+      "ownersOnly": "Seuls les propriétaires gèrent les conservations légales."
+    }
+  },
   "audit": {
     "description": "Qui a modifié quoi dans cet espace de travail : membres et rôles, invitations, partage, espaces d’équipe et groupes, paramètres, sécurité, pages créées, déplacées, mises à la corbeille et supprimées, publications, applications connectées et exportations. Seuls les propriétaires peuvent le voir.",
     "filters": "Filtrer le journal d’audit",
@@ -1621,6 +1725,10 @@
       "scim": {
         "token_created": "A créé le jeton SCIM {target}",
         "token_revoked": "A révoqué le jeton SCIM {target}"
+      },
+      "legal_hold": {
+        "set": "A mis la conservation légale {target} sur {names}",
+        "released": "A levé la conservation légale {target} sur {names}"
       },
       "site": {
         "saved": "A enregistré le site à l’adresse {slug}",

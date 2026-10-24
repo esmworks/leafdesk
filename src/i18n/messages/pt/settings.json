@@ -22,6 +22,66 @@
     "snippets": "Trechos",
     "pdf": "Modelos de PDF"
   },
+  "search": {
+    "label": "Pesquisar nas configurações",
+    "placeholder": "Pesquisar nas configurações",
+    "noResults": "Nenhuma configuração corresponde.",
+    "labels": {
+      "aiUsagePeople": "Uso por pessoa"
+    },
+    "keywords": {
+      "profile": "nome foto avatar imagem",
+      "email": "endereço alterar verificar e-mail",
+      "deleteAccount": "remover encerrar conta",
+      "password": "alterar redefinir entrar senha",
+      "twoFactor": "2fa mfa autenticador código",
+      "passkeys": "webauthn chave de segurança impressão digital rosto",
+      "sessions": "dispositivos conectados sair",
+      "language": "idioma tradução região",
+      "theme": "modo escuro modo claro cores",
+      "contrast": "acessibilidade alto contraste",
+      "notifications": "push e-mail alertas notificação",
+      "watchedPages": "seguir assinar acompanhar",
+      "offlineDevice": "offline baixar cache espaço",
+      "offlinePages": "offline baixar sem internet",
+      "mailboxes": "e-mail caixa de entrada imap smtp",
+      "calendars": "ical feed assinar calendário",
+      "storageAccounts": "drive s3 arquivos nuvem",
+      "connectedApps": "oauth clientes acesso revogar",
+      "aiAccounts": "chave de api chave própria provedor",
+      "telegram": "bot chat mensagens",
+      "mcp": "assistente model context protocol servidor",
+      "apiTokens": "rest api token chave desenvolvedor",
+      "about": "versão licença atualização",
+      "workspaceName": "nome renomear ícone",
+      "ai": "inteligência artificial chat modelo provedor memória",
+      "workspaceMail": "e-mail linhas correio enviar",
+      "export": "backup baixar zip markdown",
+      "members": "pessoas convidar usuários funções remover",
+      "agents": "ia assistente automação bot",
+      "snippets": "texto atalhos trechos",
+      "letterheads": "pdf cabeçalho rodapé logotipo imprimir",
+      "connections": "integrações mcp serviços ferramentas",
+      "site": "site publicar domínio web",
+      "requireTwoFactor": "2fa mfa obrigatória política",
+      "loginMethod": "sso senha entrar política",
+      "allowedNetworks": "ip lista de permissões endereço escritório vpn",
+      "membership": "convidar entrar pedidos domínios",
+      "sso": "saml oidc provedor de identidade",
+      "scim": "provisionamento diretório sincronizar usuários",
+      "exportPolicy": "baixar imprimir pdf",
+      "connectedAppsPolicy": "mcp rest api tokens acesso",
+      "publishing": "publicar web compartilhar link público",
+      "retention": "lixeira histórico excluir manter dias",
+      "legalHolds": "litígio preservar ediscovery manter",
+      "storage": "arquivos s3 drive bucket",
+      "analyticsPeople": "atividade edições estatísticas",
+      "aiUsageLimit": "orçamento custo gasto teto",
+      "aiUsagePeople": "por pessoa membro custo tokens",
+      "health": "links quebrados órfãs duplicadas páginas vazias",
+      "audit": "registro histórico eventos quem alterou"
+    }
+  },
   "workspace": {
     "heading": "Espaço de trabalho",
     "nameLabel": "Nome do espaço de trabalho",
@@ -1387,6 +1447,50 @@
       "memberView": "{count, plural, =0 {Desativado: o espaço de trabalho abre de qualquer rede.} one {Ativado: o espaço de trabalho só abre de # rede aprovada.} other {Ativado: o espaço de trabalho só abre de # redes aprovadas.}}"
     }
   },
+  "legalHolds": {
+    "title": "Retenções legais",
+    "description": "Enquanto uma retenção estiver ativa, nada do que as pessoas incluídas criaram ou editaram neste espaço de trabalho pode ser excluído para sempre. As páginas e linhas delas ainda podem ir para a lixeira, mas ficam lá com histórico, comentários e arquivos; o espaço de trabalho e as contas delas não podem ser excluídos.",
+    "holds": "Retenções",
+    "holdsDescription": "Aplicar e liberar uma retenção fica registrado no log de auditoria.",
+    "empty": "Nenhuma retenção.",
+    "new": "Nova retenção",
+    "setBy": "Aplicada por {name} em {date, date, medium}",
+    "setOn": "Aplicada em {date, date, medium}",
+    "people": "{count, plural, one {# pessoa} other {# pessoas}}",
+    "left": "saiu",
+    "guest": "convidado",
+    "release": "Liberar",
+    "confirmRelease": "Liberar {name}",
+    "form": {
+      "title": "Nova retenção legal",
+      "description": "Escolha as pessoas incluídas: membros, convidados ou pessoas que saíram mas criaram ou editaram algo aqui.",
+      "name": "Nome",
+      "namePlaceholder": "Assunto ou processo",
+      "reason": "Motivo",
+      "reasonPlaceholder": "Opcional: por quê e quem pediu",
+      "people": "Pessoas ({count})",
+      "search": "Pesquisar pessoas",
+      "loading": "Carregando…",
+      "nobody": "Ninguém corresponde.",
+      "submit": "Aplicar retenção"
+    },
+    "errors": {
+      "pageHeld": "Uma retenção legal preserva esta página, ou uma página abaixo dela: ela não pode ser excluída para sempre enquanto a retenção estiver ativa e fica na lixeira.",
+      "templateHeld": "Uma retenção legal preserva este modelo: ele não pode ser excluído enquanto a retenção estiver ativa.",
+      "propertyHeld": "Uma retenção legal preserva os valores desta propriedade: ela não pode ser excluída para sempre enquanto a retenção estiver ativa.",
+      "commentHeld": "Uma retenção legal preserva este comentário: ele não pode ser excluído enquanto a retenção estiver ativa.",
+      "letterheadHeld": "Uma retenção legal preserva este papel timbrado: ele não pode ser excluído enquanto a retenção estiver ativa.",
+      "workspaceHeld": "Este espaço de trabalho tem uma retenção legal. Libere-a (Configurações > Segurança) antes de excluir o espaço de trabalho.",
+      "nameRequired": "Dê um nome à retenção.",
+      "nameTooLong": "Use no máximo 200 caracteres no nome.",
+      "reasonTooLong": "Use no máximo 2.000 caracteres no motivo.",
+      "noPeople": "Escolha quem a retenção inclui.",
+      "tooManyPeople": "Uma retenção inclui no máximo 200 pessoas.",
+      "unknownPerson": "Alguém que você escolheu não está mais neste espaço de trabalho.",
+      "notFound": "Essa retenção já foi liberada.",
+      "ownersOnly": "Só proprietários gerenciam retenções legais."
+    }
+  },
   "audit": {
     "description": "Um registro de quem alterou o quê neste espaço de trabalho: membros e funções, convites, compartilhamento, espaços de equipe e grupos, configurações, segurança, páginas criadas, movidas, enviadas para a lixeira e excluídas, publicação, apps conectados e exportações. Só proprietários podem vê-lo.",
     "filters": "Filtrar o registro de auditoria",
@@ -1621,6 +1725,10 @@
       "scim": {
         "token_created": "Criou o token SCIM {target}",
         "token_revoked": "Revogou o token SCIM {target}"
+      },
+      "legal_hold": {
+        "set": "Aplicou a retenção legal {target} a {names}",
+        "released": "Liberou a retenção legal {target} de {names}"
       },
       "site": {
         "saved": "Salvou o site em {slug}",

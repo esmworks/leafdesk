@@ -22,6 +22,66 @@
     "snippets": "Đoạn mẫu",
     "pdf": "Mẫu PDF"
   },
+  "search": {
+    "label": "Tìm trong cài đặt",
+    "placeholder": "Tìm trong cài đặt",
+    "noResults": "Không có cài đặt nào khớp.",
+    "labels": {
+      "aiUsagePeople": "Mức sử dụng theo người"
+    },
+    "keywords": {
+      "profile": "tên ảnh ảnh đại diện hình",
+      "email": "địa chỉ thay đổi xác minh email",
+      "deleteAccount": "xóa đóng tài khoản",
+      "password": "đổi đặt lại đăng nhập mật khẩu",
+      "twoFactor": "2fa mfa ứng dụng xác thực mã",
+      "passkeys": "webauthn khóa bảo mật vân tay khuôn mặt",
+      "sessions": "thiết bị đã đăng nhập đăng xuất phiên",
+      "language": "ngôn ngữ bản dịch khu vực",
+      "theme": "chế độ tối chế độ sáng màu giao diện",
+      "contrast": "trợ năng độ tương phản cao",
+      "notifications": "đẩy email cảnh báo thông báo",
+      "watchedPages": "theo dõi đăng ký quan sát",
+      "offlineDevice": "ngoại tuyến tải xuống bộ nhớ đệm dung lượng",
+      "offlinePages": "ngoại tuyến tải xuống không có internet",
+      "mailboxes": "email hộp thư đến imap smtp",
+      "calendars": "ical nguồn cấp đăng ký lịch",
+      "storageAccounts": "drive s3 tệp đám mây",
+      "connectedApps": "oauth ứng dụng khách quyền truy cập thu hồi",
+      "aiAccounts": "khóa api khóa riêng nhà cung cấp",
+      "telegram": "bot trò chuyện tin nhắn",
+      "mcp": "trợ lý model context protocol máy chủ",
+      "apiTokens": "rest api token khóa nhà phát triển",
+      "about": "phiên bản giấy phép cập nhật",
+      "workspaceName": "tên đổi tên biểu tượng",
+      "ai": "trí tuệ nhân tạo trò chuyện mô hình nhà cung cấp bộ nhớ",
+      "workspaceMail": "email hàng thư gửi",
+      "export": "sao lưu tải xuống zip markdown xuất",
+      "members": "người mời người dùng vai trò xóa thành viên",
+      "agents": "ai trợ lý tự động hóa bot tác tử",
+      "snippets": "văn bản viết tắt đoạn trích",
+      "letterheads": "pdf tiêu đề thư đầu trang chân trang logo in",
+      "connections": "tích hợp mcp dịch vụ công cụ kết nối",
+      "site": "trang web xuất bản tên miền",
+      "requireTwoFactor": "2fa mfa bắt buộc chính sách",
+      "loginMethod": "sso mật khẩu đăng nhập chính sách",
+      "allowedNetworks": "ip danh sách cho phép địa chỉ văn phòng vpn mạng",
+      "membership": "mời tham gia yêu cầu tên miền",
+      "sso": "saml oidc nhà cung cấp danh tính",
+      "scim": "cấp phát thư mục đồng bộ người dùng",
+      "exportPolicy": "tải xuống in pdf xuất",
+      "connectedAppsPolicy": "mcp rest api token quyền truy cập",
+      "publishing": "xuất bản web chia sẻ liên kết công khai",
+      "retention": "thùng rác lịch sử xóa giữ ngày",
+      "legalHolds": "kiện tụng bảo toàn ediscovery giữ",
+      "storage": "tệp s3 drive bucket lưu trữ",
+      "analyticsPeople": "hoạt động chỉnh sửa thống kê",
+      "aiUsageLimit": "ngân sách chi phí chi tiêu giới hạn",
+      "aiUsagePeople": "theo người thành viên chi phí token",
+      "health": "liên kết hỏng mồ côi trùng lặp trang trống",
+      "audit": "nhật ký lịch sử sự kiện ai đã thay đổi"
+    }
+  },
   "workspace": {
     "heading": "Không gian làm việc",
     "nameLabel": "Tên không gian làm việc",
@@ -1387,6 +1447,50 @@
       "memberView": "{count, plural, =0 {Tắt: không gian làm việc mở được từ mọi mạng.} other {Bật: không gian làm việc chỉ mở được từ # mạng được phê duyệt.}}"
     }
   },
+  "legalHolds": {
+    "title": "Lưu giữ pháp lý",
+    "description": "Khi lệnh lưu giữ còn hiệu lực, không thứ gì mà những người trong lệnh đã tạo hoặc chỉnh sửa trong không gian làm việc này có thể bị xóa vĩnh viễn. Trang và hàng của họ vẫn có thể chuyển vào thùng rác, nhưng sẽ ở lại đó cùng lịch sử, bình luận và tệp; không thể xóa không gian làm việc và tài khoản của họ.",
+    "holds": "Lệnh lưu giữ",
+    "holdsDescription": "Việc đặt và gỡ bỏ lệnh lưu giữ được ghi trong nhật ký kiểm tra.",
+    "empty": "Không có lệnh lưu giữ nào.",
+    "new": "Lệnh lưu giữ mới",
+    "setBy": "Do {name} đặt ngày {date, date, medium}",
+    "setOn": "Đặt ngày {date, date, medium}",
+    "people": "{count, plural, other {# người}}",
+    "left": "đã rời đi",
+    "guest": "khách",
+    "release": "Gỡ bỏ",
+    "confirmRelease": "Gỡ bỏ {name}",
+    "form": {
+      "title": "Lệnh lưu giữ pháp lý mới",
+      "description": "Chọn những người mà lệnh bao gồm: thành viên, khách, hoặc những người đã rời đi nhưng từng tạo hoặc chỉnh sửa nội dung ở đây.",
+      "name": "Tên",
+      "namePlaceholder": "Vụ việc hoặc hồ sơ",
+      "reason": "Lý do",
+      "reasonPlaceholder": "Không bắt buộc: lý do và ai yêu cầu",
+      "people": "Người ({count})",
+      "search": "Tìm người",
+      "loading": "Đang tải…",
+      "nobody": "Không ai khớp.",
+      "submit": "Đặt lệnh lưu giữ"
+    },
+    "errors": {
+      "pageHeld": "Một lệnh lưu giữ pháp lý đang giữ trang này, hoặc một trang bên dưới nó: không thể xóa vĩnh viễn khi lệnh còn hiệu lực, và trang sẽ ở lại trong thùng rác.",
+      "templateHeld": "Một lệnh lưu giữ pháp lý đang giữ mẫu này: không thể xóa khi lệnh còn hiệu lực.",
+      "propertyHeld": "Một lệnh lưu giữ pháp lý đang giữ các giá trị của thuộc tính này: không thể xóa vĩnh viễn khi lệnh còn hiệu lực.",
+      "commentHeld": "Một lệnh lưu giữ pháp lý đang giữ bình luận này: không thể xóa khi lệnh còn hiệu lực.",
+      "letterheadHeld": "Một lệnh lưu giữ pháp lý đang giữ tiêu đề thư này: không thể xóa khi lệnh còn hiệu lực.",
+      "workspaceHeld": "Không gian làm việc này có lệnh lưu giữ pháp lý. Hãy gỡ bỏ lệnh (Cài đặt > Bảo mật) trước khi xóa không gian làm việc.",
+      "nameRequired": "Hãy đặt tên cho lệnh lưu giữ.",
+      "nameTooLong": "Tên dài tối đa 200 ký tự.",
+      "reasonTooLong": "Lý do dài tối đa 2.000 ký tự.",
+      "noPeople": "Hãy chọn người chịu lệnh lưu giữ.",
+      "tooManyPeople": "Một lệnh lưu giữ bao gồm tối đa 200 người.",
+      "unknownPerson": "Một người bạn chọn không còn ở trong không gian làm việc này.",
+      "notFound": "Lệnh lưu giữ đó đã được gỡ bỏ.",
+      "ownersOnly": "Chỉ chủ sở hữu mới quản lý được lệnh lưu giữ pháp lý."
+    }
+  },
   "audit": {
     "description": "Bản ghi ai đã thay đổi gì trong không gian làm việc này: thành viên và vai trò, lời mời, chia sẻ, không gian nhóm và nhóm, cài đặt, bảo mật, trang được tạo, chuyển, đưa vào thùng rác và xóa, xuất bản, ứng dụng đã kết nối và các lần xuất. Chỉ chủ sở hữu mới xem được.",
     "filters": "Lọc nhật ký kiểm tra",
@@ -1621,6 +1725,10 @@
       "scim": {
         "token_created": "Đã tạo token SCIM {target}",
         "token_revoked": "Đã thu hồi token SCIM {target}"
+      },
+      "legal_hold": {
+        "set": "Đã đặt lệnh lưu giữ pháp lý {target} cho {names}",
+        "released": "Đã gỡ bỏ lệnh lưu giữ pháp lý {target} của {names}"
       },
       "site": {
         "saved": "Đã lưu trang web tại {slug}",

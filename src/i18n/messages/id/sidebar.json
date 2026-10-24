@@ -69,6 +69,8 @@
     "recent": "Baru diedit",
     "commands": "Perintah",
     "noCommands": "Tidak ada perintah yang cocok",
+    "setting": "Pengaturan: {tab} → {setting}",
+    "settingsTab": "Pengaturan: {tab}",
     "hint": {
       "in": "di dalam halaman",
       "type": "hanya basis data (atau halaman, baris)",
@@ -147,6 +149,7 @@
     "groupEdits": "{count, plural, other {# suntingan}}",
     "groupNewEdits": "{count, plural, other {# suntingan baru}}",
     "groupMarkRead": "Tandai sudah dibaca",
+    "markUnread": "Tandai belum dibaca",
     "groupExpand": "Tampilkan semua {count}",
     "groupCollapse": "Tampilkan lebih sedikit",
     "noSubject": "(tanpa subjek)",

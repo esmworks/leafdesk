@@ -125,7 +125,10 @@
     "blockedList": "Ruang kerja yang harus diserahkan:",
     "storageStuckBody": "Berkas ruang kerja yang akan Anda tinggalkan berada di penyimpanan Anda sendiri, dan tidak ada tempat untuk memindahkannya: tidak ada pemilik lain yang memiliki penyimpanan bawaan, dan penyimpanan server ini tidak dapat menampungnya. Minta pemilik untuk mengatur penyimpanan, atau pindahkan berkasnya (Pengaturan > Penyimpanan), lalu hapus akun Anda.",
     "storageStuckList": "Ruang kerja yang berkasnya tidak punya tujuan:",
-    "storageMovesList": "Berkas mereka di penyimpanan Anda dipindahkan ke penyimpanan pemilik terlebih dahulu (penyimpanan Anda tetap melayaninya sampai saat itu):"
+    "storageMovesList": "Berkas mereka di penyimpanan Anda dipindahkan ke penyimpanan pemilik terlebih dahulu (penyimpanan Anda tetap melayaninya sampai saat itu):",
+    "legalHoldTitle": "Penahanan hukum menahan akun Anda",
+    "legalHoldBody": "Penahanan hukum mencakup apa yang Anda buat atau edit di ruang kerja ini, jadi akun Anda tidak dapat dihapus selama penahanan berlaku. Minta pemilik di sana untuk melepasnya.",
+    "legalHoldList": "Ruang kerja dengan penahanan:"
   },
   "confirmEmail": {
     "metaTitle": "Konfirmasi alamat email",
@@ -164,7 +167,8 @@
     "avatarTooLarge": "Foto terlalu besar (maksimal 2 MB).",
     "samePassword": "Pilih kata sandi yang berbeda dari yang lama.",
     "resetStepExpired": "Langkah ini sudah kedaluwarsa. Masuk lagi dengan kata sandi lama Anda.",
-    "storageStuck": "Berkas {workspaces} berada di penyimpanan Anda dan tidak punya tujuan pemindahan. Minta pemiliknya mengatur penyimpanan, atau pindahkan berkasnya terlebih dahulu."
+    "storageStuck": "Berkas {workspaces} berada di penyimpanan Anda dan tidak punya tujuan pemindahan. Minta pemiliknya mengatur penyimpanan, atau pindahkan berkasnya terlebih dahulu.",
+    "legalHold": "Penahanan hukum di {workspaces} menahan akun Anda. Minta pemilik di sana untuk melepasnya terlebih dahulu."
   },
   "mail": {
     "description": "Kotak surat dan alamat kalender Anda, di setiap ruang kerja yang Anda ikuti.",

@@ -22,6 +22,66 @@
     "snippets": "Frammenti",
     "pdf": "Modelli PDF"
   },
+  "search": {
+    "label": "Cerca nelle impostazioni",
+    "placeholder": "Cerca nelle impostazioni",
+    "noResults": "Nessuna impostazione corrisponde.",
+    "labels": {
+      "aiUsagePeople": "Utilizzo per persona"
+    },
+    "keywords": {
+      "profile": "nome foto avatar immagine",
+      "email": "indirizzo cambia verifica email",
+      "deleteAccount": "rimuovi chiudi account",
+      "password": "cambia reimposta accesso password",
+      "twoFactor": "2fa mfa autenticatore codice",
+      "passkeys": "webauthn chiave di sicurezza impronta volto",
+      "sessions": "dispositivi connessi esci",
+      "language": "lingua traduzione locale",
+      "theme": "modalità scura modalità chiara colori",
+      "contrast": "accessibilità contrasto elevato",
+      "notifications": "push email avvisi notifica",
+      "watchedPages": "segui iscriviti osserva",
+      "offlineDevice": "offline scarica cache spazio",
+      "offlinePages": "offline scarica senza internet",
+      "mailboxes": "email posta in arrivo imap smtp",
+      "calendars": "ical feed iscriviti calendario",
+      "storageAccounts": "drive s3 file cloud",
+      "connectedApps": "oauth client accesso revoca",
+      "aiAccounts": "chiave api propria chiave fornitore",
+      "telegram": "bot chat messaggi",
+      "mcp": "assistente model context protocol server",
+      "apiTokens": "rest api token chiave sviluppatore",
+      "about": "versione licenza aggiornamento",
+      "workspaceName": "nome rinomina icona",
+      "ai": "intelligenza artificiale chat modello fornitore memoria",
+      "workspaceMail": "email righe posta invia",
+      "export": "backup scarica zip markdown",
+      "members": "persone invita utenti ruoli rimuovi",
+      "agents": "ia assistente automazione bot",
+      "snippets": "testo scorciatoie frammenti",
+      "letterheads": "pdf intestazione piè di pagina logo stampa",
+      "connections": "integrazioni mcp servizi strumenti",
+      "site": "sito web pubblica dominio",
+      "requireTwoFactor": "2fa mfa obbligatoria criterio",
+      "loginMethod": "sso password accesso criterio",
+      "allowedNetworks": "ip elenco consentiti indirizzo ufficio vpn",
+      "membership": "invita unisciti richieste domini",
+      "sso": "saml oidc provider di identità",
+      "scim": "provisioning directory sincronizza utenti",
+      "exportPolicy": "scarica stampa pdf",
+      "connectedAppsPolicy": "mcp rest api token accesso",
+      "publishing": "pubblica web condividi link pubblico",
+      "retention": "cestino cronologia elimina conserva giorni",
+      "legalHolds": "contenzioso conserva ediscovery preserva",
+      "storage": "file s3 drive bucket",
+      "analyticsPeople": "attività modifiche statistiche",
+      "aiUsageLimit": "budget costo spesa tetto",
+      "aiUsagePeople": "per persona membro costo token",
+      "health": "link rotti orfane duplicati pagine vuote",
+      "audit": "registro cronologia eventi chi ha modificato"
+    }
+  },
   "workspace": {
     "heading": "Spazio di lavoro",
     "nameLabel": "Nome dello spazio di lavoro",
@@ -1387,6 +1447,50 @@
       "memberView": "{count, plural, =0 {Disattivato: lo spazio di lavoro si apre da qualsiasi rete.} one {Attivato: lo spazio di lavoro si apre solo da # rete approvata.} other {Attivato: lo spazio di lavoro si apre solo da # reti approvate.}}"
     }
   },
+  "legalHolds": {
+    "title": "Conservazioni legali",
+    "description": "Finché una conservazione è attiva, nulla di ciò che le persone incluse hanno creato o modificato in questo spazio di lavoro può essere eliminato definitivamente. Le loro pagine e righe possono ancora finire nel cestino, ma vi restano con cronologia, commenti e file; lo spazio di lavoro e i loro account non possono essere eliminati.",
+    "holds": "Conservazioni",
+    "holdsDescription": "L'attivazione e la revoca di una conservazione vengono registrate nel registro di controllo.",
+    "empty": "Nessuna conservazione.",
+    "new": "Nuova conservazione",
+    "setBy": "Attivata da {name} il {date, date, medium}",
+    "setOn": "Attivata il {date, date, medium}",
+    "people": "{count, plural, one {# persona} other {# persone}}",
+    "left": "uscito",
+    "guest": "ospite",
+    "release": "Revoca",
+    "confirmRelease": "Revoca {name}",
+    "form": {
+      "title": "Nuova conservazione legale",
+      "description": "Scegli le persone incluse: membri, ospiti o persone uscite che hanno creato o modificato qualcosa qui.",
+      "name": "Nome",
+      "namePlaceholder": "Pratica o causa",
+      "reason": "Motivo",
+      "reasonPlaceholder": "Facoltativo: perché e chi l'ha richiesta",
+      "people": "Persone ({count})",
+      "search": "Cerca persone",
+      "loading": "Caricamento…",
+      "nobody": "Nessuno corrisponde.",
+      "submit": "Attiva conservazione"
+    },
+    "errors": {
+      "pageHeld": "Una conservazione legale protegge questa pagina, o una pagina al suo interno: non può essere eliminata definitivamente finché la conservazione è attiva, e resta nel cestino.",
+      "templateHeld": "Una conservazione legale protegge questo modello: non può essere eliminato finché la conservazione è attiva.",
+      "propertyHeld": "Una conservazione legale protegge i valori di questa proprietà: non può essere eliminata definitivamente finché la conservazione è attiva.",
+      "commentHeld": "Una conservazione legale protegge questo commento: non può essere eliminato finché la conservazione è attiva.",
+      "letterheadHeld": "Una conservazione legale protegge questa carta intestata: non può essere eliminata finché la conservazione è attiva.",
+      "workspaceHeld": "Questo spazio di lavoro ha una conservazione legale. Revocala (Impostazioni > Sicurezza) prima di eliminare lo spazio di lavoro.",
+      "nameRequired": "Dai un nome alla conservazione.",
+      "nameTooLong": "Usa al massimo 200 caratteri per il nome.",
+      "reasonTooLong": "Usa al massimo 2.000 caratteri per il motivo.",
+      "noPeople": "Scegli chi include la conservazione.",
+      "tooManyPeople": "Una conservazione include al massimo 200 persone.",
+      "unknownPerson": "Una persona scelta non è più in questo spazio di lavoro.",
+      "notFound": "Quella conservazione è già stata revocata.",
+      "ownersOnly": "Solo i proprietari gestiscono le conservazioni legali."
+    }
+  },
   "audit": {
     "description": "Un registro di chi ha modificato cosa in questo spazio di lavoro: membri e ruoli, inviti, condivisione, spazi del team e gruppi, impostazioni, sicurezza, pagine create, spostate, cestinate ed eliminate, pubblicazione, app connesse ed esportazioni. Solo i proprietari possono vederlo.",
     "filters": "Filtra il registro di controllo",
@@ -1621,6 +1725,10 @@
       "scim": {
         "token_created": "Ha creato il token SCIM {target}",
         "token_revoked": "Ha revocato il token SCIM {target}"
+      },
+      "legal_hold": {
+        "set": "Ha attivato la conservazione legale {target} per {names}",
+        "released": "Ha revocato la conservazione legale {target} per {names}"
       },
       "site": {
         "saved": "Ha salvato il sito in {slug}",

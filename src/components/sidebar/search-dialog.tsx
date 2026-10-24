@@ -14,8 +14,12 @@ import { highlightParts } from "@/lib/search-highlight";
 import { parseSearchQuery } from "@/lib/search-query";
 import type { SearchHit } from "@/server/pages";
 
-/** Something the search box can do instead of opening a page: typed after `>`. */
-export type SearchCommand = { id: string; label: string; icon: ReactNode; run: () => void };
+/**
+ * Something the search box can do instead of opening a page: typed after `>`. `keywords`: other
+ * words it is found by. `whenTyped`: listed only once something is typed after `>` (the settings,
+ * which would otherwise bury the rest).
+ */
+export type SearchCommand = { id: string; label: string; icon: ReactNode; run: () => void; keywords?: string; whenTyped?: boolean };
 
 /**
  * `blockId`: where the passage a search by meaning matched starts; the page opens there. `file`: the
@@ -112,8 +116,10 @@ export function SearchDialog({
 
   const items = useMemo<Item[]>(() => {
     if (commandMode) {
-      const wanted = fold(trimmed.slice(1));
-      return commands.filter((c) => fold(c.label).includes(wanted)).map((command) => ({ type: "command", command }));
+      const words = fold(trimmed.slice(1)).split(/\s+/).filter(Boolean);
+      return commands
+        .filter((c) => (words.length > 0 || !c.whenTyped) && words.every((word) => fold(`${c.label} ${c.keywords ?? ""}`).includes(word)))
+        .map((command) => ({ type: "command", command }));
     }
     const pages: PageItem[] = trimmed ? hits : recent;
     return pages.map((page) => ({ type: "page", page }));

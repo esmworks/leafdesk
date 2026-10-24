@@ -84,9 +84,13 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   `type:page`, `type:database`, `type:row` (database rows) or `type:journal` (your daily notes);
   filters work without words too,
   listing the pages they match, last edited first. Type `>` for commands: new page or database,
-  from a template, import, trash, inbox, settings and keyboard shortcuts. The line under the
+  from a template, import, trash, inbox, settings and keyboard shortcuts, and, once you type
+  after `>`, each setting you can see (*Settings: Security → Legal holds*). The line under the
   results puts each of these into the box. The words you typed show in bold in the text under each
   result.
+- **Settings search**: the box at the top of Settings' navigation finds a setting on any tab you
+  have, by its name, its tab or other words ("dark mode", "2fa", "ip"), opens the tab, scrolls to
+  the setting and highlights it.
 - **Page style**: at the top of a page's `⋯` menu, a typeface for the page (default, serif or
   mono), small text, and full width. It is set per page and everyone sees it, changing live for
   whoever has the page open; anyone who can edit the page can change it. Copies and templates keep
@@ -135,7 +139,8 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   databases. Where the server can transcribe, the quick note takes voice notes too (see
   [Voice notes](#voice-notes)).
 - **Desktop app** for macOS, Windows and Linux: a window on your server, or Leafdesk running on
-  the computer itself with its own database and daily backups (see [Desktop app](#desktop-app)).
+  the computer itself with its own database and daily backups (see [Desktop app](#desktop-app)). A
+  system-wide shortcut (Cmd/Ctrl+Shift+J) brings it forward on AI chat.
 - **Find and replace** in a page (Cmd/Ctrl+F): highlights every match, steps through them, and
   replaces one or all in a single undo step. Anyone who can open the page can search it.
 - **Databases**: every row is also a page.
@@ -366,7 +371,9 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   find there an agent's call waiting for approval and the notes an agent's run proposed for its
   memory. A comment notification opens the page with that thread selected. Snooze an item
   for an hour, until tomorrow morning or until next Monday (9:00 your time): it leaves the inbox and comes back unread
-  then, along with its email if that hadn't gone yet. Choose per kind whether it shows in the inbox, whether it comes by email and, on the devices where you turn them on, as a [push notification](#push-notifications).
+  then, along with its email if that hadn't gone yet. On a phone, swipe an item toward the end of
+  the line to mark it read (or unread again) and toward its start to snooze it until tomorrow
+  morning. Choose per kind whether it shows in the inbox, whether it comes by email and, on the devices where you turn them on, as a [push notification](#push-notifications).
 - **Page history**: versions are saved automatically while you edit and before every AI edit.
   You can preview and restore any version, and see what changed since it or since the version
   before, and who (or which AI app) changed it. Changes an AI app, the chat or an agent writes to a
@@ -438,6 +445,13 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   connected apps, exports), with the app or identity provider it went through and the address it
   came from, newest first, filtered by person, kind of change and dates, and as CSV. Events are
   kept for a year.
+- **Legal holds**: owners put a named hold, with its reason, on people of the workspace (members,
+  guests, or people who have left) in Settings → Security. While it stands, nothing they created
+  or edited there is deleted for good: their pages and rows (and pages above them, with their
+  history, comments and files) can go to the trash and come back, but *Delete forever*, the trash
+  and history retention, the file cleanups, deleting templates, deleted properties' values and
+  comments keep them or refuse with a message, and neither the workspace nor their accounts can be
+  deleted. Setting and releasing a hold is in the audit log.
 - **Publish to the web**: a read-only public link for a page and its subpages, kept out of search
   engines unless you allow them. Published databases show the views you pick (tables, boards,
   lists, galleries) and visitors switch between them; their browsers get each property's name,
@@ -898,7 +912,8 @@ Pages stay in the trash for the time owners choose in Settings > Security > Data
 days by default, or forever); once a day the server deletes the pages whose time is up, with their
 files, and prunes old page history (versions older than 90 days or past the newest 200 of a page;
 saved versions and those from before a restore stay a year) and the audit log's events older than
-a year. Production servers run this cleanup; set `RETENTION_JOB=on` or `off` to decide otherwise
+a year. Pages a legal hold keeps (see Settings > Security > Legal holds) stay in the trash, with all
+their history, until the hold is released. Production servers run this cleanup; set `RETENTION_JOB=on` or `off` to decide otherwise
 (a dev server doesn't run it unless it is `on`).
 
 The ZIP is streamed while it is built, one download at a time per person. Larger exports are
@@ -1119,7 +1134,10 @@ windows the pages open stay in the app only when they are on your server. Menus 
 language chosen in My account, or the system's. The server's pages may use notifications, the clipboard,
 full screen and the microphone (voice notes); nothing else, and no other site. Single sign-on and
 connecting apps happen inside the app, so the sign-in it leads to stays with it. The window
-remembers its size and place. Offline editing works as in the installed web app, which needs HTTPS
+remembers its size and place. Cmd+Shift+J on macOS (Ctrl+Shift+J on Windows and Linux), pressed in
+any app, brings Leafdesk forward and opens AI chat in the workspace its window shows, or a quick
+note where AI is off there; *Go → Ask AI Shortcut* picks other keys or turns it off, and says
+when another app already has the keys. Offline editing works as in the installed web app, which needs HTTPS
 (or `localhost`) for the service worker.
 
 **Not yet.** Push notifications don't reach the desktop app (the inbox still shows what's new), and

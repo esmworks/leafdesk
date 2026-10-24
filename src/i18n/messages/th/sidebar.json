@@ -69,6 +69,8 @@
     "recent": "แก้ไขล่าสุด",
     "commands": "คำสั่ง",
     "noCommands": "ไม่มีคำสั่งที่ตรงกัน",
+    "setting": "การตั้งค่า: {tab} → {setting}",
+    "settingsTab": "การตั้งค่า: {tab}",
     "hint": {
       "in": "ภายในหน้า",
       "type": "เฉพาะฐานข้อมูล (หรือ page, row)",
@@ -147,6 +149,7 @@
     "groupEdits": "{count, plural, other {# การแก้ไข}}",
     "groupNewEdits": "{count, plural, other {# การแก้ไขใหม่}}",
     "groupMarkRead": "ทำเครื่องหมายว่าอ่านแล้ว",
+    "markUnread": "ทำเครื่องหมายว่ายังไม่อ่าน",
     "groupExpand": "แสดงทั้งหมด {count}",
     "groupCollapse": "แสดงน้อยลง",
     "noSubject": "(ไม่มีหัวเรื่อง)",

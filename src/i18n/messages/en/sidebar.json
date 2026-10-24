@@ -69,6 +69,8 @@
     "recent": "Recently edited",
     "commands": "Commands",
     "noCommands": "No matching command",
+    "setting": "Settings: {tab} → {setting}",
+    "settingsTab": "Settings: {tab}",
     "hint": {
       "in": "inside a page",
       "type": "only databases (or page, row)",
@@ -147,6 +149,7 @@
     "groupEdits": "{count, plural, one {# edit} other {# edits}}",
     "groupNewEdits": "{count, plural, one {# new edit} other {# new edits}}",
     "groupMarkRead": "Mark as read",
+    "markUnread": "Mark as unread",
     "groupExpand": "Show all {count}",
     "groupCollapse": "Show fewer",
     "noSubject": "(no subject)",

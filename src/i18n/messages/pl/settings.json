@@ -22,6 +22,66 @@
     "snippets": "Fragmenty",
     "pdf": "Szablony PDF"
   },
+  "search": {
+    "label": "Szukaj w ustawieniach",
+    "placeholder": "Szukaj w ustawieniach",
+    "noResults": "Żadne ustawienie nie pasuje.",
+    "labels": {
+      "aiUsagePeople": "Użycie według osoby"
+    },
+    "keywords": {
+      "profile": "imię zdjęcie awatar obraz",
+      "email": "adres zmień zweryfikuj e-mail",
+      "deleteAccount": "usuń zamknij konto",
+      "password": "zmień zresetuj logowanie hasło",
+      "twoFactor": "2fa mfa aplikacja uwierzytelniająca kod",
+      "passkeys": "webauthn klucz bezpieczeństwa odcisk palca twarz",
+      "sessions": "urządzenia zalogowane wyloguj",
+      "language": "język tłumaczenie region",
+      "theme": "tryb ciemny tryb jasny kolory",
+      "contrast": "dostępność wysoki kontrast",
+      "notifications": "push e-mail alerty powiadomienie",
+      "watchedPages": "obserwuj subskrybuj śledź",
+      "offlineDevice": "offline pobierz pamięć podręczna miejsce",
+      "offlinePages": "offline pobierz bez internetu",
+      "mailboxes": "e-mail skrzynka odbiorcza imap smtp",
+      "calendars": "ical kanał subskrybuj kalendarz",
+      "storageAccounts": "drive s3 pliki chmura",
+      "connectedApps": "oauth klienci dostęp odwołaj",
+      "aiAccounts": "klucz api własny klucz dostawca",
+      "telegram": "bot czat wiadomości",
+      "mcp": "asystent model context protocol serwer",
+      "apiTokens": "rest api token klucz programista",
+      "about": "wersja licencja aktualizacja",
+      "workspaceName": "nazwa zmień nazwę ikona",
+      "ai": "sztuczna inteligencja czat model dostawca pamięć",
+      "workspaceMail": "e-mail wiersze poczta wyślij",
+      "export": "kopia zapasowa pobierz zip markdown",
+      "members": "osoby zaproś użytkownicy role usuń",
+      "agents": "ai asystent automatyzacja bot",
+      "snippets": "tekst skróty fragmenty",
+      "letterheads": "pdf nagłówek stopka logo drukuj",
+      "connections": "integracje mcp usługi narzędzia",
+      "site": "strona www publikuj domena",
+      "requireTwoFactor": "2fa mfa wymuś zasada",
+      "loginMethod": "sso hasło logowanie zasada",
+      "allowedNetworks": "ip lista dozwolonych adres biuro vpn",
+      "membership": "zaproś dołącz prośby domeny",
+      "sso": "saml oidc dostawca tożsamości",
+      "scim": "aprowizacja katalog synchronizacja użytkownicy",
+      "exportPolicy": "pobierz drukuj pdf",
+      "connectedAppsPolicy": "mcp rest api tokeny dostęp",
+      "publishing": "publikuj web udostępnij link publiczny",
+      "retention": "kosz historia usuń zachowaj dni",
+      "legalHolds": "spór sądowy zachowaj ediscovery",
+      "storage": "pliki s3 drive bucket",
+      "analyticsPeople": "aktywność edycje statystyki",
+      "aiUsageLimit": "budżet koszt wydatki limit",
+      "aiUsagePeople": "na osobę członek koszt tokeny",
+      "health": "zepsute linki osierocone duplikaty puste strony",
+      "audit": "dziennik historia zdarzenia kto zmienił"
+    }
+  },
   "workspace": {
     "heading": "Obszar roboczy",
     "nameLabel": "Nazwa obszaru roboczego",
@@ -1387,6 +1447,50 @@
       "memberView": "{count, plural, =0 {Wyłączone: obszar roboczy otwiera się z każdej sieci.} one {Włączone: obszar roboczy otwiera się tylko z # zatwierdzonej sieci.} few {Włączone: obszar roboczy otwiera się tylko z # zatwierdzonych sieci.} many {Włączone: obszar roboczy otwiera się tylko z # zatwierdzonych sieci.} other {Włączone: obszar roboczy otwiera się tylko z # zatwierdzonych sieci.}}"
     }
   },
+  "legalHolds": {
+    "title": "Blokady prawne",
+    "description": "Dopóki blokada obowiązuje, niczego, co objęte nią osoby utworzyły lub edytowały w tym obszarze roboczym, nie można trwale usunąć. Ich strony i wiersze nadal mogą trafić do kosza, ale zostają tam z historią, komentarzami i plikami; nie można usunąć obszaru roboczego ani ich kont.",
+    "holds": "Blokady",
+    "holdsDescription": "Nałożenie i zdjęcie blokady jest zapisywane w dzienniku audytu.",
+    "empty": "Brak blokad.",
+    "new": "Nowa blokada",
+    "setBy": "Nałożona przez {name} {date, date, medium}",
+    "setOn": "Nałożona {date, date, medium}",
+    "people": "{count, plural, one {# osoba} few {# osoby} many {# osób} other {# osoby}}",
+    "left": "odszedł",
+    "guest": "gość",
+    "release": "Zdejmij",
+    "confirmRelease": "Zdejmij {name}",
+    "form": {
+      "title": "Nowa blokada prawna",
+      "description": "Wybierz osoby, które obejmuje: członków, gości lub osoby, które odeszły, ale coś tu utworzyły lub edytowały.",
+      "name": "Nazwa",
+      "namePlaceholder": "Sprawa lub postępowanie",
+      "reason": "Powód",
+      "reasonPlaceholder": "Opcjonalnie: dlaczego i kto o nią poprosił",
+      "people": "Osoby ({count})",
+      "search": "Szukaj osób",
+      "loading": "Wczytywanie…",
+      "nobody": "Nikt nie pasuje.",
+      "submit": "Nałóż blokadę"
+    },
+    "errors": {
+      "pageHeld": "Blokada prawna chroni tę stronę lub stronę pod nią: nie można jej trwale usunąć, dopóki blokada obowiązuje, i zostaje w koszu.",
+      "templateHeld": "Blokada prawna chroni ten szablon: nie można go usunąć, dopóki blokada obowiązuje.",
+      "propertyHeld": "Blokada prawna chroni wartości tej właściwości: nie można jej trwale usunąć, dopóki blokada obowiązuje.",
+      "commentHeld": "Blokada prawna chroni ten komentarz: nie można go usunąć, dopóki blokada obowiązuje.",
+      "letterheadHeld": "Blokada prawna chroni ten papier firmowy: nie można go usunąć, dopóki blokada obowiązuje.",
+      "workspaceHeld": "Ten obszar roboczy ma blokadę prawną. Zdejmij ją (Ustawienia > Bezpieczeństwo), zanim usuniesz obszar roboczy.",
+      "nameRequired": "Nadaj blokadzie nazwę.",
+      "nameTooLong": "Nazwa może mieć najwyżej 200 znaków.",
+      "reasonTooLong": "Powód może mieć najwyżej 2000 znaków.",
+      "noPeople": "Wybierz, kogo obejmuje blokada.",
+      "tooManyPeople": "Jedna blokada obejmuje najwyżej 200 osób.",
+      "unknownPerson": "Wybranej osoby nie ma już w tym obszarze roboczym.",
+      "notFound": "Ta blokada została już zdjęta.",
+      "ownersOnly": "Blokadami prawnymi zarządzają tylko właściciele."
+    }
+  },
   "audit": {
     "description": "Rejestr tego, kto co zmienił w tym obszarze roboczym: członkowie i role, zaproszenia, udostępnianie, przestrzenie zespołów i grupy, ustawienia, bezpieczeństwo, tworzenie, przenoszenie, wyrzucanie do kosza i usuwanie stron, publikowanie, połączone aplikacje i eksporty. Widzą go tylko właściciele.",
     "filters": "Filtruj dziennik inspekcji",
@@ -1621,6 +1725,10 @@
       "scim": {
         "token_created": "Utworzono token SCIM {target}",
         "token_revoked": "Unieważniono token SCIM {target}"
+      },
+      "legal_hold": {
+        "set": "Nałożył blokadę prawną {target} na {names}",
+        "released": "Zdjął blokadę prawną {target} z {names}"
       },
       "site": {
         "saved": "Zapisano witrynę pod adresem {slug}",

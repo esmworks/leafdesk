@@ -69,6 +69,8 @@
     "recent": "عُدّلت مؤخرًا",
     "commands": "الأوامر",
     "noCommands": "لا يوجد أمر مطابق",
+    "setting": "الإعدادات: {tab} ← {setting}",
+    "settingsTab": "الإعدادات: {tab}",
     "hint": {
       "in": "داخل صفحة",
       "type": "قواعد البيانات فقط (أو صفحة، صف)",
@@ -147,6 +149,7 @@
     "groupEdits": "{count, plural, zero {لا تعديلات} one {تعديل واحد} two {تعديلان} few {# تعديلات} many {# تعديلًا} other {# تعديل}}",
     "groupNewEdits": "{count, plural, zero {لا تعديلات جديدة} one {تعديل جديد} two {تعديلان جديدان} few {# تعديلات جديدة} many {# تعديلًا جديدًا} other {# تعديل جديد}}",
     "groupMarkRead": "تعليم كمقروء",
+    "markUnread": "وضع علامة كغير مقروء",
     "groupExpand": "عرض الكل ({count})",
     "groupCollapse": "عرض أقل",
     "noSubject": "(بلا موضوع)",
