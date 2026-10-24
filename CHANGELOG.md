@@ -22,7 +22,9 @@
   had, and every page that moves keeps the people and groups it inherited, so nobody named on the
   page gains or loses access. The teamspace is private when the page was private or in a private
   teamspace, closed when it was in a closed one, open otherwise. The audit log records it as
-  *Turned the page … into the teamspace …*, with who joined and each page moved.
+  *Turned the page … into the teamspace …*, with who joined and each page moved. The sidebar of whoever
+  turns it unfolds the new teamspace at once, as it now does whenever the open page moves to
+  another place.
 
 - **Page views and page analytics.** Opening a page, database or row in the app now records a
   view, once the page has been open two seconds and at most once per person and page every five
