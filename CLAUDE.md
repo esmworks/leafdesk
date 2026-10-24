@@ -66,6 +66,8 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   property access, dependent selects; a place's address is looked up there first, through
   `geocoder.ts`, because the shared `normalizeValue` is synchronous and takes only coordinates); a
   write that stores values another way (`ai-properties.ts` `saveValue`) calls `followOrRefuse` itself.
+  A relation's limit, row-page section and the properties its linked rows show are
+  `src/lib/relation-options.ts`; those values ride along in `getRelationTargets`, never a fetch per chip.
   Unique ID numbers are given out by Postgres triggers (`drizzle/0131_unique_id.sql`), never by app
   code: an inserted row always gets the next number (the value it brings is dropped) and an
   update keeps the old one. Copies that must keep their numbers (a duplicated database, a restored

@@ -4,6 +4,31 @@
 
 ### Added
 
+- **Relations limited to one row.** *Relation options* in a relation's menu set *1 page* or *No
+  limit*. With one, the picker replaces the linked row instead of adding one, and the server
+  refuses writes (app, API, MCP, automations) that give more, with a message naming the property.
+  Rows that already link several keep them until their relation is next changed, when one has to be
+  picked. Each side of a two-way relation has its own limit: linking to a row whose side links one
+  moves it away from its old link. MCP's `update_database_property` takes `relation_limit` and
+  `get_database` says `links_one_row`.
+- **Linked rows show their properties.** A relation's options pick up to four properties of the
+  linked rows (status, person, date and the like, not formulas, rollups, relations or files) to
+  show beside or before their title, in table cells, cards and row pages. The values come with the
+  rows, within the viewer's property access.
+- **Relations as a section of the row page.** *As a section* lists a relation's linked rows under
+  the row page's properties, ten at a time with *Show more*, with the properties they show editable
+  in place and links added or removed there. *Inline* stays the default.
+- **Date formats.** Date, created time and last edited time properties pick a full or short date,
+  month/day/year, day/month/year, year/month/day or relative, and a 12- or 24-hour clock, written
+  in the viewer's language in the app and on published pages. Exports, CSV, the API and MCP keep
+  ISO dates.
+- **`@today`, `@now` and `@me` in row template titles.** Each row made from the template gets the
+  day, the moment (in the maker's time zone) or the maker's name in its title; the template's page
+  says so under its title. Rows made through the API, MCP, automations or repeats get ISO dates.
+- **Jira reporters.** Jira syncs fill a *Reporter* person property from the issue's reporter,
+  matched by email like the assignee; the sync dialog picks which person property it goes to, or
+  none.
+
 - **Danish, Dutch, Norwegian, Finnish and Swedish.** The app, its emails, templates, the editor's
   menus and the desktop app now speak Dansk, Nederlands, Norsk bokmål, Suomi and Svenska, chosen in
   My account → Language or taken from the browser (one asking for Norwegian or Nynorsk gets
@@ -1071,6 +1096,10 @@
   call is recorded in the audit log like the chat's, and the import as from Google Docs.
 
 ### Changed
+
+- **Bars and rings for formulas and rollups.** Formulas giving a number and rollups can show as a
+  colored bar or ring with a divisor, like number properties (*Show as* in a rollup's menu). A
+  rollup's older bar or ring setting is taken as the starting point.
 
 - **Enter in a code block keeps the line's indentation.** The new line starts with the spaces or
   tabs the line before it started with. On a last line holding only indentation, Enter drops it,
