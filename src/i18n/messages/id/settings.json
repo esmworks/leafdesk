@@ -1633,7 +1633,8 @@
       "pdf": "PDF",
       "skill": "Keterampilan (SKILL.md)",
       "notion": "Notion",
-      "obsidian": "Obsidian"
+      "obsidian": "Obsidian",
+      "enex": "Evernote"
     },
     "settingNames": {
       "guestInvites": "Siapa yang dapat mengundang tamu",

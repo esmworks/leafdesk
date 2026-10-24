@@ -1,11 +1,12 @@
 {
   "open": "导入",
   "title": "导入",
-  "description": "从 Markdown 文件、ZIP 导出、Word 文档和 PDF 导入页面，从 CSV 文件或 Excel 工作簿导入行，导入一个 Trello、Asana 或 Monday.com 看板，或导入保持同步的 Jira 事务。",
+  "description": "从 Markdown 文件、ZIP 导出、Word 文档和 PDF 导入页面，从 Evernote 导入笔记本，从 CSV 文件或 Excel 工作簿导入行，导入一个 Trello、Asana 或 Monday.com 看板，或导入保持同步的 Jira 事务。",
   "tabs": {
     "pages": "Markdown 和 ZIP",
     "docx": "Word",
     "pdf": "PDF",
+    "evernote": "Evernote",
     "csv": "CSV 和 Excel",
     "trello": "Trello",
     "asana": "Asana",
@@ -35,6 +36,19 @@
     "scans": "扫描的 PDF 没有可读取的文字，无法导入：请先对其进行文字识别（OCR），或将其作为文件上传到页面。",
     "choose": "选择 PDF 文件",
     "attach": "同时将每个 PDF 附加到其页面，保留其中的图片、表格和版式"
+  },
+  "evernote": {
+    "help": "每个 Evernote 导出文件（.enex）都会成为一个以文件名命名的数据库，每条笔记一行。标签、创建和更新时间、作者和来源 URL 成为属性，笔记本身连同格式、列表、待办事项、表格、代码块、图片和附件成为该行的页面。加密文本会被省略。",
+    "export": "在 Evernote 中选择笔记或笔记本，选择“导出”→ ENEX（.enex），然后在这里选择下载的文件。包含多个导出文件的 ZIP 也可以。",
+    "choose": "选择 Evernote 导出文件（.enex）",
+    "names": {
+      "tags": "标签",
+      "created": "创建时间",
+      "updated": "更新时间",
+      "author": "作者",
+      "sourceUrl": "来源 URL",
+      "encrypted": "加密文本未被导入。"
+    }
   },
   "csv": {
     "choose": "选择 CSV 或 Excel 文件",
@@ -184,6 +198,7 @@
     "leftOutColumn": "“{column}”未导入。",
     "missingFile": "“{page}”中链接的“{path}”不在上传的内容中。",
     "unresolvedLink": "“{page}”中的“[[{target}]]”与上传内容中的任何笔记或文件都不匹配，因此保留为文本。",
+    "encryptedText": "“{page}”含有加密文本，已省略。",
     "fileNotStored": {
       "tooLarge": "“{path}”超过上传大小限制，未被保存。",
       "quotaExceeded": "“{path}”未被保存：工作区的文件存储空间已用完。",
@@ -198,7 +213,9 @@
       "tooLarge": "“{path}”对于单个页面来说过大，已省略。",
       "unused": "“{path}”已省略：没有页面显示或链接到它。",
       "unsafePath": "“{path}”已省略：其路径指向 ZIP 之外。",
-      "otherSheet": "工作表“{path}”已省略：每次只导入一个工作表。"
+      "otherSheet": "工作表“{path}”已省略：每次只导入一个工作表。",
+      "badNote": "无法读取笔记“{path}”，已省略。",
+      "notEnex": "“{path}”已省略：它不是 Evernote 导出文件（.enex）。"
     },
     "more": "…以及另外 {count} 项。"
   },
@@ -218,6 +235,7 @@
     "badPdf": "无法将“{name}”作为 PDF 读取。它可能已损坏或受密码保护。",
     "pdfNoText": "“{name}”没有可导入的文字：它看起来是扫描件。请先对其进行文字识别（OCR），或将其作为文件上传到页面。",
     "pdfTooComplex": "“{name}”太大，无法作为一个页面导入。",
+    "badEnex": "无法将“{name}”读取为 Evernote 导出文件。请在 Evernote 中将笔记导出为 ENEX（.enex），然后选择该文件。",
     "badTrello": "该文件不是 Trello 看板的导出文件。请在 Trello 的看板菜单中选择“导出为 JSON”，然后选择该文件。",
     "badAsana": "该文件不是 Asana 项目导出。请在 Asana 的项目菜单中选择“导出 → CSV”或 JSON，然后选择该文件。",
     "badMonday": "该文件不是 Monday.com 看板导出。请在 Monday.com 的看板菜单中选择“将看板导出到 Excel”，然后选择该文件。",

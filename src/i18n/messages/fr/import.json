@@ -1,11 +1,12 @@
 {
   "open": "Importer",
   "title": "Importer",
-  "description": "Importez des pages depuis des fichiers Markdown, des exports ZIP, des documents Word et des PDF, des lignes depuis un fichier CSV ou un classeur Excel, un tableau Trello, Asana ou Monday.com, ou des tickets Jira qui restent synchronisés.",
+  "description": "Importez des pages depuis des fichiers Markdown, des exports ZIP, des documents Word et des PDF, des carnets Evernote, des lignes depuis un fichier CSV ou un classeur Excel, un tableau Trello, Asana ou Monday.com, ou des tickets Jira qui restent synchronisés.",
   "tabs": {
     "pages": "Markdown et ZIP",
     "docx": "Word",
     "pdf": "PDF",
+    "evernote": "Evernote",
     "csv": "CSV et Excel",
     "trello": "Trello",
     "asana": "Asana",
@@ -35,6 +36,19 @@
     "scans": "Un PDF scanné n'a pas de texte à lire et ne peut pas être importé : passez-le d'abord à la reconnaissance de texte (OCR), ou téléversez-le sur une page en tant que fichier.",
     "choose": "Choisir des fichiers PDF",
     "attach": "Joindre aussi chaque PDF à sa page, pour ses images, ses tableaux et sa mise en page"
+  },
+  "evernote": {
+    "help": "Chaque export Evernote (.enex) devient une base de données portant le nom du fichier, avec une ligne par note. Les tags, les dates de création et de modification, l’auteur et l’URL source deviennent des propriétés, et la note devient la page de la ligne avec sa mise en forme, ses listes, ses tâches, ses tableaux, ses blocs de code, ses images et ses pièces jointes. Le texte chiffré est ignoré.",
+    "export": "Dans Evernote, sélectionnez des notes ou un carnet et choisissez Exporter → ENEX (.enex), puis choisissez ici les fichiers téléchargés. Un ZIP de plusieurs exports convient aussi.",
+    "choose": "Choisir des exports Evernote (.enex)",
+    "names": {
+      "tags": "Tags",
+      "created": "Créée",
+      "updated": "Modifiée",
+      "author": "Auteur",
+      "sourceUrl": "URL source",
+      "encrypted": "Le texte chiffré n’a pas été importé."
+    }
   },
   "csv": {
     "choose": "Choisir un fichier CSV ou Excel",
@@ -184,6 +198,7 @@
     "leftOutColumn": "« {column} » n’a pas été importé.",
     "missingFile": "« {path} », lié depuis « {page} », ne faisait pas partie de l’envoi.",
     "unresolvedLink": "« [[{target}]] » dans « {page} » ne correspond à aucune note ni à aucun fichier de l’envoi : il reste du texte.",
+    "encryptedText": "« {page} » contenait du texte chiffré, qui a été ignoré.",
     "fileNotStored": {
       "tooLarge": "« {path} » dépasse la taille maximale autorisée et n’a pas été enregistré.",
       "quotaExceeded": "« {path} » n’a pas été enregistré : l’espace de travail n’a plus d’espace de stockage.",
@@ -198,7 +213,9 @@
       "tooLarge": "« {path} » est trop volumineux pour une seule page et a été ignoré.",
       "unused": "« {path} » a été ignoré : aucune page ne l’affiche ni n’y renvoie.",
       "unsafePath": "« {path} » a été ignoré : son chemin sort du ZIP.",
-      "otherSheet": "La feuille « {path} » a été ignorée : une seule feuille est importée à la fois."
+      "otherSheet": "La feuille « {path} » a été ignorée : une seule feuille est importée à la fois.",
+      "badNote": "La note « {path} » ne peut pas être lue et a été ignorée.",
+      "notEnex": "« {path} » a été ignoré : ce n’est pas un export Evernote (.enex)."
     },
     "more": "…et {count, plural, one {# autre} other {# autres}}."
   },
@@ -218,6 +235,7 @@
     "badPdf": "« {name} » ne peut pas être lu comme un PDF. Il est peut-être endommagé ou protégé par un mot de passe.",
     "pdfNoText": "« {name} » n'a pas de texte à importer : il semble s'agir d'un scan. Passez-le d'abord à la reconnaissance de texte (OCR), ou téléversez-le sur une page en tant que fichier.",
     "pdfTooComplex": "« {name} » est trop volumineux pour être importé en une seule page.",
+    "badEnex": "« {name} » ne peut pas être lu comme un export Evernote. Dans Evernote, exportez les notes au format ENEX (.enex) et choisissez ce fichier.",
     "badTrello": "Ce fichier n’est pas un export de tableau Trello. Dans Trello, choisissez Exporter au format JSON dans le menu du tableau, puis ce fichier.",
     "badAsana": "Le fichier n’est pas un export de projet Asana. Dans Asana, choisissez Exporter → CSV ou JSON dans le menu du projet, puis ce fichier.",
     "badMonday": "Le fichier n’est pas un export de tableau Monday.com. Dans Monday.com, choisissez Exporter le tableau vers Excel dans le menu du tableau, puis ce fichier.",

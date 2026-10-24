@@ -1633,7 +1633,8 @@
       "pdf": "PDF",
       "skill": "Skill (SKILL.md)",
       "notion": "Notion",
-      "obsidian": "Obsidian"
+      "obsidian": "Obsidian",
+      "enex": "Evernote"
     },
     "settingNames": {
       "guestInvites": "Who can invite guests",

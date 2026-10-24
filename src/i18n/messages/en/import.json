@@ -1,11 +1,12 @@
 {
   "open": "Import",
   "title": "Import",
-  "description": "Bring pages in from Markdown files, ZIP exports, Word documents and PDFs, rows from a CSV file or Excel workbook, a Trello, Asana or Monday.com board, or Jira issues that stay in sync.",
+  "description": "Bring pages in from Markdown files, ZIP exports, Word documents and PDFs, notebooks from Evernote, rows from a CSV file or Excel workbook, a Trello, Asana or Monday.com board, or Jira issues that stay in sync.",
   "tabs": {
     "pages": "Markdown & ZIP",
     "docx": "Word",
     "pdf": "PDF",
+    "evernote": "Evernote",
     "csv": "CSV & Excel",
     "trello": "Trello",
     "asana": "Asana",
@@ -35,6 +36,19 @@
     "scans": "A scanned PDF has no text to read and can't be imported: run text recognition (OCR) on it first, or upload it to a page as a file.",
     "choose": "Choose PDF files",
     "attach": "Also attach each PDF to its page, for its pictures, tables and layout"
+  },
+  "evernote": {
+    "help": "Each Evernote export (.enex) becomes a database named after the file, with a row per note. Tags, the creation and update times, the author and the source URL become properties, and the note becomes the row's page with its formatting, lists, to-dos, tables, code blocks, pictures and attachments. Encrypted text is left out.",
+    "export": "In Evernote, select notes or a notebook and choose Export → ENEX (.enex), then pick the downloaded files. A ZIP of several exports works too.",
+    "choose": "Choose Evernote exports (.enex)",
+    "names": {
+      "tags": "Tags",
+      "created": "Created",
+      "updated": "Updated",
+      "author": "Author",
+      "sourceUrl": "Source URL",
+      "encrypted": "Encrypted text was left out of the import."
+    }
   },
   "csv": {
     "choose": "Choose a CSV or Excel file",
@@ -184,6 +198,7 @@
     "leftOutColumn": "“{column}” wasn't imported.",
     "missingFile": "“{path}”, linked from “{page}”, wasn't in the upload.",
     "unresolvedLink": "“[[{target}]]” in “{page}” doesn't match a note or file of the upload, so it stays as text.",
+    "encryptedText": "“{page}” had encrypted text, which was left out.",
     "fileNotStored": {
       "tooLarge": "“{path}” is larger than the upload limit and wasn't stored.",
       "quotaExceeded": "“{path}” wasn't stored: the workspace is out of file storage.",
@@ -198,7 +213,9 @@
       "tooLarge": "“{path}” is too large for one page and was left out.",
       "unused": "“{path}” was left out: no page shows it or links to it.",
       "unsafePath": "“{path}” was left out: its path leads outside the ZIP.",
-      "otherSheet": "The sheet “{path}” was left out: only one sheet is imported at a time."
+      "otherSheet": "The sheet “{path}” was left out: only one sheet is imported at a time.",
+      "badNote": "The note “{path}” can't be read and was left out.",
+      "notEnex": "“{path}” was left out: it isn't an Evernote export (.enex)."
     },
     "more": "…and {count, plural, one {# more} other {# more}}."
   },
@@ -218,6 +235,7 @@
     "badPdf": "“{name}” can't be read as a PDF. It may be damaged or protected with a password.",
     "pdfNoText": "“{name}” has no text to import: it looks like a scan. Run text recognition (OCR) on it first, or upload it to a page as a file.",
     "pdfTooComplex": "“{name}” is too large to import as one page.",
+    "badEnex": "“{name}” can't be read as an Evernote export. In Evernote, export the notes as ENEX (.enex) and pick that file.",
     "badTrello": "The file isn't a Trello board export. In Trello, choose Export as JSON from the board's menu and pick that file.",
     "badAsana": "The file isn't an Asana project export. In Asana, choose Export → CSV or JSON from the project's menu and pick that file.",
     "badMonday": "The file isn't a Monday.com board export. In Monday.com, choose Export board to Excel from the board's menu and pick that file.",

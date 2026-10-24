@@ -1,11 +1,12 @@
 {
   "open": "Nhập",
   "title": "Nhập",
-  "description": "Đưa trang vào từ tệp Markdown, tệp xuất ZIP, tài liệu Word và tệp PDF, đưa hàng vào từ tệp CSV hoặc sổ làm việc Excel, từ một bảng Trello, Asana hoặc Monday.com, hoặc đưa vào các issue Jira luôn được đồng bộ.",
+  "description": "Đưa trang vào từ tệp Markdown, tệp xuất ZIP, tài liệu Word và tệp PDF, sổ tay từ Evernote, đưa hàng vào từ tệp CSV hoặc sổ làm việc Excel, từ một bảng Trello, Asana hoặc Monday.com, hoặc đưa vào các issue Jira luôn được đồng bộ.",
   "tabs": {
     "pages": "Markdown & ZIP",
     "docx": "Word",
     "pdf": "PDF",
+    "evernote": "Evernote",
     "csv": "CSV & Excel",
     "trello": "Trello",
     "asana": "Asana",
@@ -35,6 +36,19 @@
     "scans": "PDF được quét không có văn bản để đọc nên không thể nhập: hãy chạy nhận dạng văn bản (OCR) trước, hoặc tải nó lên một trang dưới dạng tệp.",
     "choose": "Chọn tệp PDF",
     "attach": "Đính kèm thêm mỗi tệp PDF vào trang của nó, để giữ hình ảnh, bảng và bố cục"
+  },
+  "evernote": {
+    "help": "Mỗi tệp xuất Evernote (.enex) trở thành một cơ sở dữ liệu mang tên tệp, mỗi ghi chú một hàng. Thẻ, thời điểm tạo và cập nhật, tác giả và URL nguồn trở thành thuộc tính, còn ghi chú trở thành trang của hàng với định dạng, danh sách, việc cần làm, bảng, khối mã, hình ảnh và tệp đính kèm. Văn bản mã hóa bị bỏ qua.",
+    "export": "Trong Evernote, chọn ghi chú hoặc một sổ tay rồi chọn Xuất → ENEX (.enex), sau đó chọn các tệp đã tải xuống ở đây. Một tệp ZIP chứa nhiều tệp xuất cũng được.",
+    "choose": "Chọn tệp xuất Evernote (.enex)",
+    "names": {
+      "tags": "Thẻ",
+      "created": "Ngày tạo",
+      "updated": "Ngày cập nhật",
+      "author": "Tác giả",
+      "sourceUrl": "URL nguồn",
+      "encrypted": "Văn bản mã hóa đã không được nhập."
+    }
   },
   "csv": {
     "choose": "Chọn một tệp CSV hoặc Excel",
@@ -184,6 +198,7 @@
     "leftOutColumn": "Cột “{column}” chưa được nhập.",
     "missingFile": "“{path}”, được liên kết từ “{page}”, không có trong tệp tải lên.",
     "unresolvedLink": "“[[{target}]]” trong “{page}” không khớp với ghi chú hay tệp nào trong phần tải lên, nên được giữ nguyên là văn bản.",
+    "encryptedText": "“{page}” có văn bản mã hóa, phần này đã bị bỏ qua.",
     "fileNotStored": {
       "tooLarge": "“{path}” lớn hơn giới hạn tải lên và chưa được lưu.",
       "quotaExceeded": "“{path}” chưa được lưu: không gian làm việc đã hết dung lượng lưu trữ tệp.",
@@ -198,7 +213,9 @@
       "tooLarge": "“{path}” quá lớn cho một trang và đã bị bỏ qua.",
       "unused": "“{path}” đã bị bỏ qua: không có trang nào hiển thị hoặc liên kết đến nó.",
       "unsafePath": "“{path}” đã bị bỏ qua: đường dẫn của nó dẫn ra ngoài tệp ZIP.",
-      "otherSheet": "Trang tính “{path}” đã bị bỏ qua: mỗi lần chỉ nhập một trang tính."
+      "otherSheet": "Trang tính “{path}” đã bị bỏ qua: mỗi lần chỉ nhập một trang tính.",
+      "badNote": "Không đọc được ghi chú “{path}” nên đã bỏ qua.",
+      "notEnex": "“{path}” đã bị bỏ qua: không phải tệp xuất Evernote (.enex)."
     },
     "more": "…và {count, plural, other {# mục nữa}}."
   },
@@ -218,6 +235,7 @@
     "badPdf": "Không thể đọc “{name}” dưới dạng PDF. Tệp có thể bị hỏng hoặc được bảo vệ bằng mật khẩu.",
     "pdfNoText": "“{name}” không có văn bản để nhập: có vẻ là bản quét. Hãy chạy nhận dạng văn bản (OCR) trước, hoặc tải nó lên một trang dưới dạng tệp.",
     "pdfTooComplex": "“{name}” quá lớn để nhập thành một trang.",
+    "badEnex": "Không đọc được “{name}” như một tệp xuất Evernote. Trong Evernote, hãy xuất ghi chú dưới dạng ENEX (.enex) rồi chọn tệp đó.",
     "badTrello": "Tệp này không phải là tệp xuất của bảng Trello. Trong Trello, hãy chọn Xuất dưới dạng JSON từ menu của bảng và chọn tệp đó.",
     "badAsana": "Tệp này không phải là tệp xuất của một dự án Asana. Trong Asana, hãy chọn Xuất → CSV hoặc JSON từ menu của dự án và chọn tệp đó.",
     "badMonday": "Tệp này không phải là tệp xuất của một bảng Monday.com. Trong Monday.com, hãy chọn Xuất bảng sang Excel từ menu của bảng và chọn tệp đó.",
