@@ -574,6 +574,7 @@
       "label": "Paste as",
       "bookmark": "Bookmark",
       "embed": "Embed",
+      "mention": "Mention",
       "keep": "Keep as link"
     },
     "invalidUrl": "Enter a web address, like https://example.com",
@@ -609,6 +610,7 @@
     "deleted": "Deleted page",
     "loading": "Loading…",
     "atBlock": "Opens at a block of the page",
+    "showAsMention": "Show as mention",
     "personLeft": "{name} (no longer in the workspace)",
     "date": "Date",
     "reminder": "Reminder",

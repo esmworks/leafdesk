@@ -8,6 +8,7 @@ import {
   bodyReferences,
   carryOverMentions,
   eachMention,
+  EMPTY_MENTION,
   isIsoDate,
   linkedPageId,
   linkedPageRef,
@@ -72,9 +73,9 @@ describe("mentions in the server schema", () => {
     expect(blocks.map((b) => b.type)).toEqual(["paragraph", "pageLink"]);
     expect(blocks[1].props).toMatchObject({ pageId: OTHER });
     expect(mentions(blocks)).toEqual([
-      { kind: "user", id: "m1", userId: "u-ada", name: "Ada Lovelace", pageId: "", blockId: "", date: "", remindAt: "" },
-      { kind: "page", id: "", userId: "", name: "", pageId: PAGE, blockId: "", date: "", remindAt: "" },
-      { kind: "date", id: "m2", userId: "", name: "", pageId: "", blockId: "", date: "2026-10-01", remindAt: "2026-10-01T07:00:00.000Z" },
+      { ...EMPTY_MENTION, kind: "user", id: "m1", userId: "u-ada", name: "Ada Lovelace" },
+      { ...EMPTY_MENTION, kind: "page", pageId: PAGE },
+      { ...EMPTY_MENTION, kind: "date", id: "m2", date: "2026-10-01", remindAt: "2026-10-01T07:00:00.000Z" },
     ]);
   });
 
@@ -373,5 +374,63 @@ describe("links to a block of a page", () => {
     const places = linkPlaces(blocks);
     expect(places.get(PAGE)).toEqual([{ block: blocks[0].id, context: expect.stringContaining("Read ") }]);
     expect(places.get(OTHER)).toEqual([{ block: blocks[1].id, context: null }]);
+  });
+});
+
+describe("link mentions", () => {
+  const linkMention = {
+    kind: "link",
+    url: "https://example.com/docs/start",
+    title: "Getting [started]",
+    favicon: "https://example.com/favicon.ico",
+    siteName: "Example Docs",
+    fetchedAt: "2026-10-24T10:00:00.000Z",
+  };
+  const page = [
+    { type: "paragraph", content: [text("Read "), mention(linkMention), text(" first, then "), mention({ kind: "link", url: "https://example.org/" })] },
+    { type: "paragraph", content: [mention({ kind: "link", url: "javascript:alert(1)", title: "Bad" })] },
+  ];
+
+  it("keep their details through the Yjs document", () => {
+    expect(mentions(stored(page))[0]).toEqual({ ...EMPTY_MENTION, ...linkMention });
+  });
+
+  it("read as their title in plain text, or the site before they have one", () => {
+    expect(blocksToPlainText(stored(page))).toBe("Read Getting [started] first, then example.org");
+  });
+
+  it("are written as links with their title, and nothing without a web address", async () => {
+    const markdown = (await blocksToMarkdown(stored(page), { workspaceId: WS })).trim();
+    expect(markdown).toBe("Read [Getting \\[started\\]](https://example.com/docs/start) first, then [example.org](https://example.org/)");
+  });
+
+  it("come back from Markdown written back into the page, other links staying links", async () => {
+    const existing = stored(page);
+    const markdown = await blocksToMarkdown(existing, { workspaceId: WS });
+    const back = stored(await markdownToBlocks(`${markdown}\n\nSee [elsewhere](https://example.com/docs/start) and [Getting \\[started\\]](https://example.com/docs/start).`, existing));
+    const found = mentions(back);
+    expect(found.map((m) => m.kind)).toEqual(["link", "link"]);
+    expect(found[0]).toEqual({ ...EMPTY_MENTION, ...linkMention });
+    expect(found[1].url).toBe("https://example.org/");
+    // Each mention once: the same link again, and a link with other text, stay links.
+    const links = (back[1].content as { type: string; href?: string }[]).filter((n) => n.type === "link");
+    expect(links.map((l) => l.href)).toEqual(["https://example.com/docs/start", "https://example.com/docs/start"]);
+    // Added to a page (not a rewrite of it), links stay links.
+    expect(mentions(stored(await markdownToBlocks(markdown, existing, { carryOver: false, keepMissingInline: false })))).toEqual([]);
+  });
+
+  it("show on published pages as links with their title", async () => {
+    const segments = await bodySegmentsFromYdoc(Y.encodeStateAsUpdate(docFrom(page)));
+    const html = segments.map((s) => (s.kind === "html" ? s.html : "")).join("");
+    expect(html).toContain('href="https://example.com/docs/start"');
+    expect(html).toContain("Getting [started]</a>");
+    expect(html).toContain('href="https://example.org/"');
+    expect(html).not.toContain("javascript");
+    expect(html).not.toContain("favicon");
+  });
+
+  it("stay as they are in a copy of a published page", () => {
+    const [block] = copyPublishedBlocks(page.slice(0, 1) as never, { pageIds: new Map(), outside: new Map(), fileIds: new Map() } as never);
+    expect(mentions([block])[0]).toEqual({ ...EMPTY_MENTION, ...linkMention });
   });
 });

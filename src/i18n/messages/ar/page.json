@@ -574,6 +574,7 @@
       "label": "اللصق كـ",
       "bookmark": "إشارة مرجعية",
       "embed": "تضمين",
+      "mention": "إشارة",
       "keep": "الإبقاء كرابط"
     },
     "invalidUrl": "أدخل عنوان ويب، مثل https://example.com",
@@ -609,6 +610,7 @@
     "deleted": "صفحة محذوفة",
     "loading": "جارٍ التحميل…",
     "atBlock": "يفتح الصفحة عند كتلة منها",
+    "showAsMention": "إظهار كإشارة",
     "personLeft": "{name} (لم يعد في مساحة العمل)",
     "date": "التاريخ",
     "reminder": "التذكير",

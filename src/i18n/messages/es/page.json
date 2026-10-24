@@ -574,6 +574,7 @@
       "label": "Pegar como",
       "bookmark": "Marcador",
       "embed": "Incrustado",
+      "mention": "Mención",
       "keep": "Mantener como enlace"
     },
     "invalidUrl": "Escribe una dirección web, como https://example.com",
@@ -609,6 +610,7 @@
     "deleted": "Página eliminada",
     "loading": "Cargando…",
     "atBlock": "Abre la página en un bloque",
+    "showAsMention": "Mostrar como mención",
     "personLeft": "{name} (ya no está en el espacio de trabajo)",
     "date": "Fecha",
     "reminder": "Recordatorio",

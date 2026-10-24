@@ -574,6 +574,7 @@
       "label": "Wklej jako",
       "bookmark": "Zakładka",
       "embed": "Osadzenie",
+      "mention": "Wzmianka",
       "keep": "Zostaw jako link"
     },
     "invalidUrl": "Wpisz adres internetowy, np. https://example.com",
@@ -609,6 +610,7 @@
     "deleted": "Usunięta strona",
     "loading": "Ładowanie…",
     "atBlock": "Otwiera stronę w miejscu bloku",
+    "showAsMention": "Pokaż jako wzmiankę",
     "personLeft": "{name} (nie należy już do obszaru roboczego)",
     "date": "Data",
     "reminder": "Przypomnienie",

@@ -117,6 +117,20 @@ describe("comment mentions", () => {
     expect(commentText(cleanCommentBody(sent))).toBe("See Price list by 2026-11-02@Bob");
     expect(mentionsAsText("plain", () => null)).toBe("plain");
   });
+
+  it("of links are sent as links with their title", () => {
+    const pasted = [
+      {
+        type: "paragraph",
+        content: [
+          { type: "mention", props: { kind: "link", url: "https://example.com/a", title: "Docs", favicon: "https://example.com/i.ico" } },
+          { type: "mention", props: { kind: "link", url: "javascript:alert(1)", title: "Bad" } },
+        ],
+      },
+    ];
+    const [block] = cleanCommentBody(mentionsAsText(pasted, () => null)) as { content: unknown[] }[];
+    expect(block.content).toEqual([{ type: "link", href: "https://example.com/a", content: [{ type: "text", text: "Docs", styles: {} }] }]);
+  });
 });
 
 describe("replyAudience", () => {

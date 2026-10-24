@@ -10,7 +10,7 @@ import { restoreDashboards } from "./dashboard";
 import { restoreMeetings } from "./meetings";
 import { restoreButtons } from "./buttons";
 import { mergeReferencedBlocks, splitMarkdownReferences } from "./embed-blocks";
-import { carryOverMentions } from "./mentions";
+import { carryOverMentions, restoreLinkMentions } from "./mentions";
 import { collapseSyncedRegions, SYNCED_BLOCK, syncedBlocksIn } from "./synced-blocks";
 import { restoreBookmarks } from "./web-blocks";
 
@@ -32,7 +32,8 @@ export type PageMarkdownOptions = {
  * Reference lines become database blocks (see mergeReferencedBlocks for what carries over), column
  * markers become column lists (lib/columns groupColumns), and footnotes come back with their notes
  * (lib/content-markdown footnoteMarkdown). People and dates mentioned before keep their mention's
- * identity (see carryOverMentions). `parse` reads Markdown without reference lines or footnote
+ * identity (see carryOverMentions), and links the page showed as mentions come back as them
+ * (restoreLinkMentions). `parse` reads Markdown without reference lines or footnote
  * definitions in it.
  */
 export async function markdownToPageBlocks<B extends MdBlock>(
@@ -52,6 +53,7 @@ export async function markdownToPageBlocks<B extends MdBlock>(
   const blocks = groupColumns(notes.restore(mergeReferencedBlocks(parts, existing, { keepMissingInline })));
   if (keepMissingInline && pageId) blocks.push(...missingSources(blocks, existing, pageId));
   carryOverMentions(blocks, carryOver ? existing : []);
+  if (carryOver) restoreLinkMentions(blocks, existing);
   // A rewrite of the whole body (not an append) gets the page's bookmarks back from their link lines
   // and its dashboards from theirs; an append makes no dashboard (restoreDashboards drops the lines).
   // Meetings likewise: a rewrite keeps the page's meeting blocks its regions name, an addition gets

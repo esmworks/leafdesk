@@ -15,9 +15,11 @@ import {
   FormattingToolbarController,
   getDefaultReactSlashMenuItems,
   getFormattingToolbarItems,
+  LinkToolbarController,
   SideMenuController,
   SuggestionMenuController,
   useCreateBlockNote,
+  type LinkToolbarProps,
 } from "@blocknote/react";
 import { DirectionProvider } from "@mantine/core";
 import { X } from "lucide-react";
@@ -63,6 +65,7 @@ import { pasteAgentChat, useAgentChatSlashItem } from "./agent-chat-block";
 import { useButtonSlashItem } from "./button-block";
 import { useMeetingSlashItem } from "./meeting-block";
 import { PasteLinkMenu, useWebSlashItems } from "./web-blocks";
+import { LinkToolbarWithMention } from "./link-mention";
 import { ImageLinkContext, ImageLinkDialog } from "./image-link";
 import { useColorSlashItems } from "./slash-colors";
 import { withTextScriptButtons } from "./text-scripts";
@@ -336,6 +339,14 @@ export default function CollabEditor({
   // The editor's menus and its block handles follow the interface language's direction: right to
   // left, the handles sit to the right of the blocks and submenus open to the left.
   const dir = useDirection();
+  // A link in the text can become a mention (link-mention.tsx) for people who may edit.
+  const linkToolbar = useMemo(
+    () =>
+      function PageLinkToolbar(props: LinkToolbarProps) {
+        return <LinkToolbarWithMention {...props} editor={editor} mentionable={editable} />;
+      },
+    [editor, editable],
+  );
   const sideMenuPlacement = useMemo(
     () => ({ useFloatingOptions: { placement: dir === "rtl" ? ("right-start" as const) : ("left-start" as const) } }),
     [dir],
@@ -358,6 +369,7 @@ export default function CollabEditor({
               slashMenu={false}
               sideMenu={false}
               formattingToolbar={false}
+              linkToolbar={false}
               comments={false}
               className="leafdesk-editor"
             >
@@ -393,6 +405,7 @@ export default function CollabEditor({
               {editable && <MentionMenu editor={editor} workspaceId={workspaceId} pageId={pageId} />}
               {editable && <PageLinkMenu editor={editor} workspaceId={workspaceId} pageId={pageId} offline={offline} />}
               <PasteLinkMenu editor={editor} />
+              <LinkToolbarController linkToolbar={linkToolbar} />
               {/* People who may only read get no toolbar; commenting shows it on read-only pages too. */}
               {(editable || canComment) && (
                 <FormattingToolbarController

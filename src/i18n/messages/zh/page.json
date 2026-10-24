@@ -574,6 +574,7 @@
       "label": "粘贴为",
       "bookmark": "书签",
       "embed": "嵌入",
+      "mention": "提及",
       "keep": "保留为链接"
     },
     "invalidUrl": "请输入网址，例如 https://example.com",
@@ -609,6 +610,7 @@
     "deleted": "已删除的页面",
     "loading": "正在加载…",
     "atBlock": "在页面的某个块处打开",
+    "showAsMention": "显示为提及",
     "personLeft": "{name}（已不在工作区中）",
     "date": "日期",
     "reminder": "提醒",

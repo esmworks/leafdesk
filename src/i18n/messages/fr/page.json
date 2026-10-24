@@ -574,6 +574,7 @@
       "label": "Coller comme",
       "bookmark": "Signet",
       "embed": "Intégration",
+      "mention": "Mention",
       "keep": "Garder le lien"
     },
     "invalidUrl": "Saisissez une adresse web, comme https://example.com",
@@ -609,6 +610,7 @@
     "deleted": "Page supprimée",
     "loading": "Chargement…",
     "atBlock": "Ouvre la page à un bloc",
+    "showAsMention": "Afficher comme mention",
     "personLeft": "{name} (ne fait plus partie de l’espace de travail)",
     "date": "Date",
     "reminder": "Rappel",

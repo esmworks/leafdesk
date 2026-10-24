@@ -574,6 +574,7 @@
       "label": "Tempel sebagai",
       "bookmark": "Markah",
       "embed": "Sematan",
+      "mention": "Sebutan",
       "keep": "Biarkan sebagai tautan"
     },
     "invalidUrl": "Masukkan alamat web, seperti https://example.com",
@@ -609,6 +610,7 @@
     "deleted": "Halaman yang dihapus",
     "loading": "Memuat…",
     "atBlock": "Terbuka di sebuah blok halaman",
+    "showAsMention": "Tampilkan sebagai sebutan",
     "personLeft": "{name} (tidak lagi di ruang kerja)",
     "date": "Tanggal",
     "reminder": "Pengingat",

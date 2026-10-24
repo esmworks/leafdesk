@@ -574,6 +574,7 @@
       "label": "Dán dưới dạng",
       "bookmark": "Dấu trang",
       "embed": "Nhúng",
+      "mention": "Nhắc đến",
       "keep": "Giữ dưới dạng liên kết"
     },
     "invalidUrl": "Hãy nhập một địa chỉ web, như https://example.com",
@@ -609,6 +610,7 @@
     "deleted": "Trang đã xóa",
     "loading": "Đang tải…",
     "atBlock": "Mở tại một khối của trang",
+    "showAsMention": "Hiển thị dạng nhắc đến",
     "personLeft": "{name} (không còn trong không gian làm việc)",
     "date": "Ngày",
     "reminder": "Lời nhắc",

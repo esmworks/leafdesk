@@ -7,6 +7,8 @@
  * document: paragraphs of styled text and links.
  */
 
+import { displayHost, parseWebUrl } from "./web-blocks";
+
 /** The map in the page's document holding its threads, as BlockNote's thread stores expect. */
 export const THREADS_MAP = "threads";
 
@@ -193,6 +195,12 @@ export function mentionsAsText(body: unknown, pageTitle: (pageId: string) => str
     const content = block.content.flatMap((node: unknown) => {
       if (!isRecord(node) || node.type !== "mention" || !isRecord(node.props) || node.props.kind === "user") return [node];
       const { kind, pageId, date } = node.props;
+      if (kind === "link") {
+        // A link mention is a link with its title (lib/mentions linkMentionTitle).
+        const href = parseWebUrl(node.props.url)?.href;
+        const title = typeof node.props.title === "string" ? node.props.title.replace(/\s+/g, " ").trim() : "";
+        return href ? [{ type: "link", href, content: [{ type: "text", text: title || displayHost(href), styles: {} }] }] : [];
+      }
       const text = kind === "date" ? date : typeof pageId === "string" ? pageTitle(pageId) : null;
       return typeof text === "string" && text ? [{ type: "text", text, styles: {} }] : [];
     });

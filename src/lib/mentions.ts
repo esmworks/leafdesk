@@ -1,6 +1,6 @@
 /**
  * Mentions and page links in page bodies: an `@` mention of a person, a page or a date inside a
- * line of text, a "Link to page" block, and a synced page block (another page's body shown live).
+ * line of text, a link shown as a mention (the site's icon, the page's title and the site's name), a "Link to page" block, and a synced page block (another page's body shown live).
  *
  * Like the other custom content (lib/content-blocks, lib/embed-blocks), the configs here are shared
  * by the editor (React specs, components/page/mentions.tsx) and the server (server/blocknote.ts):
@@ -28,10 +28,15 @@
  *   @Ada Lovelace                          a person: "@" and their name as the workspace knows it.
  *   @2026-10-01                            a date (ISO 8601). A reminder set on a date stays with it
  *                                          when the Markdown is written back; it is set in the editor.
+ *   [Title](https://example.com/a)         a link mention: an ordinary link with the title as its
+ *                                          text. Written back into the page, a link with the URL and
+ *                                          text of one of its link mentions becomes that mention
+ *                                          again (restoreLinkMentions); any other link stays a link.
  */
 
 import * as Y from "yjs";
 import { COLLAB_FRAGMENT } from "./collab-constants";
+import { displayHost, markdownLinkDestination, markdownLinkText, parseWebUrl } from "./web-blocks";
 
 export const MENTION = "mention";
 export const PAGE_LINK_BLOCK = "pageLink";
@@ -39,7 +44,7 @@ export const PAGE_LINK_MARKER = "<!-- leafdesk:page-link -->";
 export const SYNCED_PAGE_BLOCK = "syncedPage";
 export const SYNCED_PAGE_MARKER = "<!-- leafdesk:synced-page -->";
 
-export type MentionKind = "user" | "page" | "date";
+export type MentionKind = "user" | "page" | "date" | "link";
 
 /**
  * - `id`: this mention, for people and dates. A person hears about a mention once (the server keeps
@@ -48,11 +53,14 @@ export type MentionKind = "user" | "page" | "date";
  * - `pageId`: the page. `blockId`: a block of it the mention opens the page at, or "".
  * - `date`: YYYY-MM-DD. `remindAt`: an ISO instant, or "" for no reminder. The reminder goes to
  *   whoever set it (the server records who, see server/mentions.ts).
+ * - `url`: a link mention's address (http or https). `title`, `favicon` and `siteName`: the
+ *   linked page's details, fetched once like a bookmark's (server/link-preview.ts) and stored, so
+ *   showing the mention fetches nothing but the icon. `fetchedAt`: when, or "" until then.
  */
 export const mentionConfig = {
   type: MENTION,
   propSchema: {
-    kind: { default: "page", values: ["user", "page", "date"] },
+    kind: { default: "page", values: ["user", "page", "date", "link"] },
     id: { default: "" },
     userId: { default: "" },
     name: { default: "" },
@@ -60,6 +68,11 @@ export const mentionConfig = {
     blockId: { default: "" },
     date: { default: "" },
     remindAt: { default: "" },
+    url: { default: "" },
+    title: { default: "" },
+    favicon: { default: "" },
+    siteName: { default: "" },
+    fetchedAt: { default: "" },
   },
   content: "none",
 } as const;
@@ -93,9 +106,28 @@ export type MentionProps = {
   blockId: string;
   date: string;
   remindAt: string;
+  url: string;
+  title: string;
+  favicon: string;
+  siteName: string;
+  fetchedAt: string;
 };
 
-export const EMPTY_MENTION: MentionProps = { kind: "page", id: "", userId: "", name: "", pageId: "", blockId: "", date: "", remindAt: "" };
+export const EMPTY_MENTION: MentionProps = {
+  kind: "page",
+  id: "",
+  userId: "",
+  name: "",
+  pageId: "",
+  blockId: "",
+  date: "",
+  remindAt: "",
+  url: "",
+  title: "",
+  favicon: "",
+  siteName: "",
+  fetchedAt: "",
+};
 
 export const newMentionId = () => crypto.randomUUID();
 
@@ -154,21 +186,53 @@ export function isIsoDate(value: unknown): value is string {
 export function mentionProps(props: unknown): MentionProps {
   const p = (props && typeof props === "object" ? props : {}) as Record<string, unknown>;
   const str = (key: keyof MentionProps) => (typeof p[key] === "string" ? (p[key] as string) : "");
-  const kind = p.kind === "user" || p.kind === "date" ? p.kind : "page";
+  const kind = p.kind === "user" || p.kind === "date" || p.kind === "link" ? p.kind : "page";
   const blockId = isBlockId(p.blockId) ? p.blockId : "";
-  return { kind, id: str("id"), userId: str("userId"), name: str("name"), pageId: str("pageId"), blockId, date: str("date"), remindAt: str("remindAt") };
+  return {
+    kind,
+    id: str("id"),
+    userId: str("userId"),
+    name: str("name"),
+    pageId: str("pageId"),
+    blockId,
+    date: str("date"),
+    remindAt: str("remindAt"),
+    url: str("url"),
+    title: str("title"),
+    favicon: str("favicon"),
+    siteName: str("siteName"),
+    fetchedAt: str("fetchedAt"),
+  };
 }
 
-/** Markdown text of a person or date mention (page mentions are links, written by the caller). */
+/** The address a link mention opens: its URL when that is a web address (http or https), else null. */
+export const linkMentionHref = (props: Pick<MentionProps, "url">): string | null => parseWebUrl(props.url)?.href ?? null;
+
+/** What a link mention reads as: the page's title, or the site's address until it has one. */
+export const linkMentionTitle = (props: Pick<MentionProps, "url" | "title">): string =>
+  props.title.replace(/\s+/g, " ").trim() || displayHost(props.url) || props.url.trim();
+
+/**
+ * Markdown text of a person, date or link mention (page mentions are links, written by the caller).
+ * A link mention is a link with its title as the text; one without a web address writes nothing.
+ */
 export function mentionText(props: MentionProps): string {
   if (props.kind === "user") return `@${props.name.trim() || "someone"}`;
   if (props.kind === "date") return `@${props.date}`;
+  if (props.kind === "link") {
+    const href = linkMentionHref(props);
+    return href ? `[${markdownLinkText(linkMentionTitle(props))}](${markdownLinkDestination(href)})` : "";
+  }
   return "";
 }
 
-/** Plain text of a mention, for search: people and dates only (a page's title is not the page's to show). */
+/**
+ * Plain text of a mention, for search: people, dates and the titles of links (a page's title is not
+ * the page's to show).
+ */
 export function mentionPlainText(props: unknown): string {
   const p = mentionProps(props);
+  if (p.kind === "link") return linkMentionHref(p) ? linkMentionTitle(p) : "";
   return p.kind === "page" ? "" : mentionText(p);
 }
 
@@ -343,6 +407,52 @@ export function carryOverMentions(blocks: AnyBlock[], existing: AnyBlock[]) {
     props.id = m.id || before?.id || newMentionId();
     if (m.kind === "date" && !m.remindAt && before?.remindAt) props.remindAt = before.remindAt;
   });
+}
+
+type LinkInline = { type?: string; href?: unknown; content?: unknown; text?: unknown };
+
+const linkText = (content: unknown): string =>
+  typeof content === "string"
+    ? content
+    : Array.isArray(content)
+      ? (content as LinkInline[]).map((n) => (typeof n?.text === "string" ? n.text : linkText(n?.content))).join("")
+      : "";
+
+/**
+ * Markdown written back into a page turns its link mentions into links, `[Title](url)`. This turns
+ * each link with the URL and text of one of the page's link mentions back into that mention, with
+ * the details it had, in order and each mention once. Other links stay links. Changes `blocks` in
+ * place.
+ */
+export function restoreLinkMentions(blocks: AnyBlock[], existing: AnyBlock[]) {
+  const available: { key: string; props: MentionProps }[] = [];
+  eachMention(existing, (m) => {
+    const href = m.kind === "link" ? linkMentionHref(m) : null;
+    if (href) available.push({ key: `${href}\n${linkMentionTitle(m)}`, props: m });
+  });
+  if (!available.length) return;
+  const swap = (content: unknown) => {
+    if (!Array.isArray(content)) return;
+    content.forEach((node: LinkInline, i) => {
+      if (node?.type !== "link") return;
+      const href = parseWebUrl(node.href)?.href;
+      const key = href ? `${href}\n${linkText(node.content).replace(/\s+/g, " ").trim()}` : null;
+      const at = key ? available.findIndex((a) => a.key === key) : -1;
+      if (at < 0) return;
+      const [match] = available.splice(at, 1);
+      content[i] = { type: MENTION, props: { ...match.props } };
+    });
+  };
+  const walk = (list: AnyBlock[]) => {
+    for (const block of list) {
+      const table = block.content as { type?: string; rows?: { cells?: unknown[] }[] } | null;
+      if (table && typeof table === "object" && !Array.isArray(table) && table.type === "tableContent") {
+        for (const row of table.rows ?? []) for (const cell of row.cells ?? []) swap(Array.isArray(cell) ? cell : (cell as { content?: unknown } | null)?.content);
+      } else swap(block.content);
+      if (block.children?.length) walk(block.children);
+    }
+  };
+  walk(blocks);
 }
 
 // ---------------------------------------------------------------------------------------------

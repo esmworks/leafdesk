@@ -574,6 +574,7 @@
       "label": "Şu şekilde yapıştır",
       "bookmark": "Yer imi",
       "embed": "Gömülü içerik",
+      "mention": "Bahsetme",
       "keep": "Bağlantı olarak bırak"
     },
     "invalidUrl": "https://example.com gibi bir web adresi girin",
@@ -609,6 +610,7 @@
     "deleted": "Silinmiş sayfa",
     "loading": "Yükleniyor…",
     "atBlock": "Sayfayı bir blokta açar",
+    "showAsMention": "Bahsetme olarak göster",
     "personLeft": "{name} (artık çalışma alanında değil)",
     "date": "Tarih",
     "reminder": "Hatırlatma",

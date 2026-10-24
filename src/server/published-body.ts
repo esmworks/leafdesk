@@ -11,7 +11,17 @@ import { DASHBOARD_BLOCK, dashboardLayout, parseDashboard, type DashboardLayout,
 import { isEmbedBlockType, parseLinkedView, type EmbedBlockType, type LinkedView } from "@/lib/embed-blocks";
 import { pdfFileId, spreadsheetFileId } from "@/lib/files";
 import { BOOKMARK_BLOCK, embedFor, isWebBlockType, parseWebUrl, type EmbedTarget } from "@/lib/web-blocks";
-import { bodyReferences, isBlockId, isPageBlockType, MENTION, mentionPlainText, mentionProps, PAGE_LINK_BLOCK } from "@/lib/mentions";
+import {
+  bodyReferences,
+  isBlockId,
+  isPageBlockType,
+  linkMentionHref,
+  linkMentionTitle,
+  MENTION,
+  mentionPlainText,
+  mentionProps,
+  PAGE_LINK_BLOCK,
+} from "@/lib/mentions";
 import { withoutSyncedBlocks } from "@/lib/synced-blocks";
 import { IMAGE_BLOCK, parseImageLink } from "@/lib/image-links";
 import { BUTTON_BLOCK } from "@/lib/buttons";
@@ -126,6 +136,11 @@ function resolveInline(content: Json, refs: Map<string, PublishedPageRef>): Json
       if (node?.type !== MENTION) return [item];
       const props = mentionProps(node.props);
       if (props.kind === "page") return pageRefInline(refs.get(props.pageId), props.blockId);
+      if (props.kind === "link") {
+        // A link mention reads as a link with its title (the site's icon is the editor's).
+        const href = linkMentionHref(props);
+        return href ? [{ type: "link", href, content: [textNode(linkMentionTitle(props))] }] : [];
+      }
       return [textNode(mentionPlainText(props))];
     });
   }

@@ -574,6 +574,7 @@
       "label": "Einfügen als",
       "bookmark": "Lesezeichen",
       "embed": "Einbettung",
+      "mention": "Erwähnung",
       "keep": "Als Link belassen"
     },
     "invalidUrl": "Gib eine Webadresse ein, zum Beispiel https://example.com",
@@ -609,6 +610,7 @@
     "deleted": "Gelöschte Seite",
     "loading": "Wird geladen…",
     "atBlock": "Öffnet die Seite an einem Block",
+    "showAsMention": "Als Erwähnung anzeigen",
     "personLeft": "{name} (nicht mehr im Workspace)",
     "date": "Datum",
     "reminder": "Erinnerung",

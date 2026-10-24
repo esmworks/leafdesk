@@ -574,6 +574,7 @@
       "label": "הדבקה בתור",
       "bookmark": "סימנייה",
       "embed": "הטמעה",
+      "mention": "אזכור",
       "keep": "השארה כקישור"
     },
     "invalidUrl": "יש להזין כתובת אינטרנט, למשל https://example.com",
@@ -609,6 +610,7 @@
     "deleted": "דף שנמחק",
     "loading": "בטעינה…",
     "atBlock": "פותח את הדף בבלוק מסוים",
+    "showAsMention": "הצגה כאזכור",
     "personLeft": "{name} (כבר לא בסביבת העבודה)",
     "date": "תאריך",
     "reminder": "תזכורת",

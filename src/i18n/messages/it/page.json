@@ -574,6 +574,7 @@
       "label": "Incolla come",
       "bookmark": "Segnalibro",
       "embed": "Contenuto incorporato",
+      "mention": "Menzione",
       "keep": "Mantieni come link"
     },
     "invalidUrl": "Inserisci un indirizzo web, ad esempio https://example.com",
@@ -609,6 +610,7 @@
     "deleted": "Pagina eliminata",
     "loading": "Caricamento…",
     "atBlock": "Apre la pagina a un blocco",
+    "showAsMention": "Mostra come menzione",
     "personLeft": "{name} (non più nello spazio di lavoro)",
     "date": "Data",
     "reminder": "Promemoria",
