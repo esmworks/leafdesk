@@ -1,11 +1,12 @@
 {
   "open": "İçe aktar",
   "title": "İçe aktar",
-  "description": "Markdown dosyalarından, ZIP dışa aktarımlarından, Word belgelerinden ve PDF'lerden sayfa, CSV dosyasından veya Excel çalışma kitabından satır, bir Trello, Asana veya Monday.com panosu ya da eşitlenmeye devam eden Jira kayıtları getirin.",
+  "description": "Markdown dosyalarından, ZIP dışa aktarımlarından, Word belgelerinden ve PDF'lerden sayfa, Evernote'tan defter, CSV dosyasından veya Excel çalışma kitabından satır, bir Trello, Asana veya Monday.com panosu ya da eşitlenmeye devam eden Jira kayıtları getirin.",
   "tabs": {
     "pages": "Markdown ve ZIP",
     "docx": "Word",
     "pdf": "PDF",
+    "evernote": "Evernote",
     "csv": "CSV ve Excel",
     "trello": "Trello",
     "asana": "Asana",
@@ -35,6 +36,19 @@
     "scans": "Taranmış bir PDF'te okunacak metin yoktur ve içe aktarılamaz: önce metin tanıma (OCR) uygulayın ya da bir sayfaya dosya olarak yükleyin.",
     "choose": "PDF dosyalarını seçin",
     "attach": "Resimleri, tabloları ve düzeni için her PDF'i kendi sayfasına da ekle"
+  },
+  "evernote": {
+    "help": "Her Evernote dışa aktarımı (.enex), dosyanın adını taşıyan bir veritabanı olur ve her not bir satır olur. Etiketler, oluşturulma ve güncellenme zamanları, yazar ve kaynak URL özellik olur; not da biçimlendirmesi, listeleri, yapılacakları, tabloları, kod blokları, resimleri ve ekleriyle satırın sayfası olur. Şifreli metin dışarıda bırakılır.",
+    "export": "Evernote'ta notları veya bir defteri seçip Dışa aktar → ENEX (.enex) deyin, sonra indirilen dosyaları seçin. Birkaç dışa aktarımı içeren bir ZIP de olur.",
+    "choose": "Evernote dışa aktarımlarını seçin (.enex)",
+    "names": {
+      "tags": "Etiketler",
+      "created": "Oluşturulma",
+      "updated": "Güncellenme",
+      "author": "Yazar",
+      "sourceUrl": "Kaynak URL",
+      "encrypted": "Şifreli metin içe aktarıma alınmadı."
+    }
   },
   "csv": {
     "choose": "CSV veya Excel dosyası seç",
@@ -184,6 +198,7 @@
     "leftOutColumn": "“{column}” içe aktarılmadı.",
     "missingFile": "“{page}” sayfasının bağlantı verdiği “{path}” yüklemede yoktu.",
     "unresolvedLink": "“{page}” sayfasındaki “[[{target}]]” yüklemedeki hiçbir not ya da dosyayla eşleşmiyor; metin olarak kaldı.",
+    "encryptedText": "“{page}” şifreli metin içeriyordu; bu metin dışarıda bırakıldı.",
     "fileNotStored": {
       "tooLarge": "“{path}” yükleme sınırından büyük olduğu için saklanmadı.",
       "quotaExceeded": "“{path}” saklanmadı: çalışma alanının dosya depolaması doldu.",
@@ -198,7 +213,9 @@
       "tooLarge": "“{path}” tek bir sayfa için çok büyük olduğu için dışarıda bırakıldı.",
       "unused": "“{path}” hiçbir sayfada gösterilmediği ya da bağlantı verilmediği için dışarıda bırakıldı.",
       "unsafePath": "“{path}” ZIP'in dışını gösteren bir yolu olduğu için dışarıda bırakıldı.",
-      "otherSheet": "“{path}” sayfası dışarıda bırakıldı: her seferinde tek bir sayfa aktarılır."
+      "otherSheet": "“{path}” sayfası dışarıda bırakıldı: her seferinde tek bir sayfa aktarılır.",
+      "badNote": "“{path}” notu okunamadığı için dışarıda bırakıldı.",
+      "notEnex": "“{path}” bir Evernote dışa aktarımı (.enex) olmadığı için dışarıda bırakıldı."
     },
     "more": "…ve {count, plural, one {# tane daha} other {# tane daha}}."
   },
@@ -218,6 +235,7 @@
     "badPdf": "“{name}” PDF olarak okunamıyor. Bozuk ya da parolayla korunuyor olabilir.",
     "pdfNoText": "“{name}” içinde içe aktarılacak metin yok: taranmış bir belgeye benziyor. Önce metin tanıma (OCR) uygulayın ya da bir sayfaya dosya olarak yükleyin.",
     "pdfTooComplex": "“{name}” tek bir sayfa olarak içe aktarılamayacak kadar büyük.",
+    "badEnex": "“{name}” bir Evernote dışa aktarımı olarak okunamıyor. Evernote'ta notları ENEX (.enex) olarak dışa aktarıp o dosyayı seçin.",
     "badTrello": "Dosya bir Trello panosu dışa aktarımı değil. Trello'da panonun menüsünden JSON olarak dışa aktar'ı seçip o dosyayı seçin.",
     "badAsana": "Dosya bir Asana projesi dışa aktarımı değil. Asana'da projenin menüsünden Dışa aktar → CSV veya JSON'u seçip o dosyayı seçin.",
     "badMonday": "Dosya bir Monday.com panosu dışa aktarımı değil. Monday.com'da panonun menüsünden Panoyu Excel'e aktar'ı seçip o dosyayı seçin.",

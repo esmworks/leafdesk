@@ -1,11 +1,12 @@
 {
   "open": "インポート",
   "title": "インポート",
-  "description": "Markdownファイル、ZIPエクスポート、Word文書、PDFからページを、CSVファイルやExcelブックから行を、Trello、Asana、Monday.comのボードを、または同期され続けるJiraの課題を取り込みます。",
+  "description": "Markdownファイル、ZIPエクスポート、Word文書、PDFからページを、Evernoteからノートブックを、CSVファイルやExcelブックから行を、Trello、Asana、Monday.comのボードを、または同期され続けるJiraの課題を取り込みます。",
   "tabs": {
     "pages": "MarkdownとZIP",
     "docx": "Word",
     "pdf": "PDF",
+    "evernote": "Evernote",
     "csv": "CSVとExcel",
     "trello": "Trello",
     "asana": "Asana",
@@ -35,6 +36,19 @@
     "scans": "スキャンしたPDFには読み取れるテキストがないため取り込めません。先に文字認識（OCR）をかけるか、ファイルとしてページにアップロードしてください。",
     "choose": "PDFファイルを選択",
     "attach": "画像・表・レイアウトのために、各PDFをそのページにも添付する"
+  },
+  "evernote": {
+    "help": "Evernoteのエクスポート（.enex）はファイル名のデータベースになり、ノートごとに1行になります。タグ、作成日時と更新日時、作成者、ソースURLはプロパティになり、ノートは書式、リスト、ToDo、表、コードブロック、画像、添付ファイルとともに行のページになります。暗号化されたテキストは除外されます。",
+    "export": "Evernoteでノートまたはノートブックを選択して［エクスポート］→ ENEX（.enex）を選び、ダウンロードしたファイルをここで選択します。複数のエクスポートをまとめたZIPも使えます。",
+    "choose": "Evernoteのエクスポートを選択（.enex）",
+    "names": {
+      "tags": "タグ",
+      "created": "作成日時",
+      "updated": "更新日時",
+      "author": "作成者",
+      "sourceUrl": "ソースURL",
+      "encrypted": "暗号化されたテキストは取り込まれませんでした。"
+    }
   },
   "csv": {
     "choose": "CSVまたはExcelファイルを選択",
@@ -184,6 +198,7 @@
     "leftOutColumn": "「{column}」は取り込みませんでした。",
     "missingFile": "「{page}」からリンクされている「{path}」は、アップロードに含まれていませんでした。",
     "unresolvedLink": "「{page}」内の「[[{target}]]」は、アップロードしたノートやファイルのどれとも一致しないため、テキストのまま残ります。",
+    "encryptedText": "「{page}」には暗号化されたテキストがあり、除外されました。",
     "fileNotStored": {
       "tooLarge": "「{path}」はアップロードの上限を超えているため、保存されませんでした。",
       "quotaExceeded": "「{path}」は保存されませんでした。ワークスペースのファイル容量が不足しています。",
@@ -198,7 +213,9 @@
       "tooLarge": "「{path}」は1ページには大きすぎるため、除外されました。",
       "unused": "「{path}」は除外されました。表示またはリンクしているページがありません。",
       "unsafePath": "「{path}」は除外されました。パスがZIPの外を指しています。",
-      "otherSheet": "シート「{path}」は除外されました。一度にインポートできるのは1シートだけです。"
+      "otherSheet": "シート「{path}」は除外されました。一度にインポートできるのは1シートだけです。",
+      "badNote": "ノート「{path}」は読み込めないため除外されました。",
+      "notEnex": "「{path}」は除外されました。Evernoteのエクスポート（.enex）ではありません。"
     },
     "more": "…ほか{count}件。"
   },
@@ -218,6 +235,7 @@
     "badPdf": "「{name}」をPDFとして読み取れません。破損しているか、パスワードで保護されている可能性があります。",
     "pdfNoText": "「{name}」には取り込むテキストがありません。スキャンのようです。先に文字認識（OCR）をかけるか、ファイルとしてページにアップロードしてください。",
     "pdfTooComplex": "「{name}」は大きすぎて1つのページとして取り込めません。",
+    "badEnex": "「{name}」はEvernoteのエクスポートとして読み込めません。EvernoteでノートをENEX（.enex）形式でエクスポートし、そのファイルを選択してください。",
     "badTrello": "このファイルはTrelloのボードのエクスポートではありません。Trelloでボードのメニューから「JSONとしてエクスポート」を選び、そのファイルを選択してください。",
     "badAsana": "このファイルはAsanaのプロジェクトのエクスポートではありません。Asanaでプロジェクトのメニューからエクスポート → CSV または JSON を選び、そのファイルを選んでください。",
     "badMonday": "このファイルはMonday.comのボードのエクスポートではありません。Monday.comでボードのメニューからボードをExcelにエクスポートを選び、そのファイルを選んでください。",

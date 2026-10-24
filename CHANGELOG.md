@@ -51,6 +51,15 @@
   shows it, and rows read their IDs as shown (`"TASK-12"`) in MCP, the REST API and the AI chat,
   which refuse to write them. Migration `drizzle/0131_unique_id.sql` adds the counter and the
   triggers that hand out the numbers.
+- **Import from Evernote.** Import has an Evernote tab for exports (.enex, several at once, or ZIPs
+  of them): each becomes a database named after its file with a row per note. Tags become a
+  multi-select, the creation and update times dates (read as UTC), the author and source URL a
+  text and a URL property, each only when some note has it. A note's content becomes its row's
+  page: headings, text styles, highlights, links, nested lists, to-dos as checklist items, tables,
+  code blocks, quotes and dividers. Its pictures are uploaded as images and its other attachments
+  as files (one over the upload limit or the workspace's storage is left out and reported).
+  Encrypted text is replaced by a line saying it was left out, a note whose content can't be read
+  is skipped with a warning, and an export that declares entities in its DOCTYPE is refused.
 
 - **A workspace site can have its own domain, theme, header links, search descriptions, favicon and
   Google Analytics.** In Settings → Site, owners set a domain like `docs.example.com`: requests for

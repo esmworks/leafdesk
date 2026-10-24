@@ -1633,7 +1633,8 @@
       "pdf": "PDF",
       "skill": "Habilidad (SKILL.md)",
       "notion": "Notion",
-      "obsidian": "Obsidian"
+      "obsidian": "Obsidian",
+      "enex": "Evernote"
     },
     "settingNames": {
       "guestInvites": "Quién puede añadir invitados",

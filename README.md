@@ -24,7 +24,7 @@ after you approve them over OAuth.
   what it may read or change; optional AI writing, AI properties, a chat that remembers what you
   tell it, reusable skills, and agents that work on database rows, with Anthropic, OpenAI, Google
   or a local model.
-- **Bring your pages**: import a Notion *Markdown & CSV* export, an Obsidian vault, a Trello board,
+- **Bring your pages**: import a Notion *Markdown & CSV* export, an Obsidian vault, Evernote notebooks, a Trello board,
   an Asana project, a Monday.com board, Markdown files, Word documents, PDFs, a folder or CSV, and keep a
   database of Jira issues in sync.
 - **Ready for a team**: teamspaces, page permissions, guests, single sign-on (OIDC, SAML), SCIM,
@@ -643,6 +643,17 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   wikilink or its ZIP holds the `.obsidian` folder; other Markdown keeps `%%`, `^` and `==` as
   written. A note whose first line is a heading other than its file name takes the heading as its
   title (links still find it by file name).
+- **Import from Evernote**: in Evernote, select notes or a notebook and choose *Export → ENEX*,
+  then pick the .enex files (or a ZIP of them) on Import's Evernote tab. Each export becomes a
+  database named after its file, with a row per note: tags become a multi-select, the creation and
+  update times dates (Evernote writes them in UTC), the author and source URL a text and a URL
+  property. The note's content becomes the row's page: headings, bold, italic, underline,
+  strikethrough, highlights, web and mail links, nested lists, to-dos as checklist items, tables,
+  code blocks, quotes and dividers. Pictures are uploaded as images and other attachments as files,
+  where the note shows them (attachments it doesn't show go at the end). Encrypted text can't be
+  read without its passphrase and is replaced by a line saying so; links to other notes keep their
+  text only. The export is read with a strict XML reader that refuses a DOCTYPE declaring entities
+  and never fetches anything; a note whose content isn't well-formed is skipped and reported.
 - **Import from Trello**: in Trello, choose *Print, export and share → Export as JSON* in the
   board's menu, and pick the downloaded file on Import's Trello tab. The board becomes a database
   that opens on a board view grouped by list: lists become a select property in the board's order,
@@ -3899,7 +3910,7 @@ published under the Apache License 2.0 and stay available under it.
 
 Notion is a trademark of Notion Labs, Inc. Leafdesk is an independent project, not affiliated with,
 endorsed by or sponsored by Notion Labs, Inc. The name appears only to describe what Leafdesk is an
-alternative to and what it imports from. Obsidian, Trello, Asana, Monday.com, Jira and Atlassian are trademarks of their owners;
+alternative to and what it imports from. Obsidian, Evernote, Trello, Asana, Monday.com, Jira and Atlassian are trademarks of their owners;
 Leafdesk is not affiliated with them either, and names them only to describe what it imports or syncs. The names and logos of
 the services in the connection catalog are trademarks of their owners; Leafdesk shows them only to
 identify the service a connection reaches, and is not affiliated with or endorsed by them.

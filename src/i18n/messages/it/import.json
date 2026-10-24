@@ -1,11 +1,12 @@
 {
   "open": "Importa",
   "title": "Importa",
-  "description": "Porta dentro pagine da file Markdown, esportazioni ZIP, documenti Word e PDF, righe da un file CSV o da una cartella di lavoro Excel, una bacheca Trello, Asana o Monday.com, oppure ticket Jira che restano sincronizzati.",
+  "description": "Porta dentro pagine da file Markdown, esportazioni ZIP, documenti Word e PDF, taccuini di Evernote, righe da un file CSV o da una cartella di lavoro Excel, una bacheca Trello, Asana o Monday.com, oppure ticket Jira che restano sincronizzati.",
   "tabs": {
     "pages": "Markdown e ZIP",
     "docx": "Word",
     "pdf": "PDF",
+    "evernote": "Evernote",
     "csv": "CSV ed Excel",
     "trello": "Trello",
     "asana": "Asana",
@@ -35,6 +36,19 @@
     "scans": "Un PDF scansionato non ha testo da leggere e non può essere importato: esegui prima il riconoscimento del testo (OCR) oppure caricalo in una pagina come file.",
     "choose": "Scegli file PDF",
     "attach": "Allega anche ogni PDF alla sua pagina, per immagini, tabelle e impaginazione"
+  },
+  "evernote": {
+    "help": "Ogni esportazione di Evernote (.enex) diventa un database con il nome del file e una riga per nota. Tag, date di creazione e di modifica, autore e URL di origine diventano proprietà, e la nota diventa la pagina della riga con formattazione, elenchi, attività, tabelle, blocchi di codice, immagini e allegati. Il testo cifrato viene escluso.",
+    "export": "In Evernote seleziona delle note o un taccuino e scegli Esporta → ENEX (.enex), poi scegli qui i file scaricati. Va bene anche uno ZIP con più esportazioni.",
+    "choose": "Scegli esportazioni di Evernote (.enex)",
+    "names": {
+      "tags": "Tag",
+      "created": "Creata",
+      "updated": "Modificata",
+      "author": "Autore",
+      "sourceUrl": "URL di origine",
+      "encrypted": "Il testo cifrato è stato escluso dall’importazione."
+    }
   },
   "csv": {
     "choose": "Scegli un file CSV o Excel",
@@ -184,6 +198,7 @@
     "leftOutColumn": "“{column}” non è stato importato.",
     "missingFile": "“{path}”, collegato da “{page}”, non era tra i file caricati.",
     "unresolvedLink": "“[[{target}]]” in “{page}” non corrisponde a nessuna nota o file caricato, quindi resta come testo.",
+    "encryptedText": "“{page}” conteneva testo cifrato, che è stato escluso.",
     "fileNotStored": {
       "tooLarge": "“{path}” supera il limite di caricamento e non è stato salvato.",
       "quotaExceeded": "“{path}” non è stato salvato: lo spazio di lavoro ha esaurito lo spazio di archiviazione per i file.",
@@ -198,7 +213,9 @@
       "tooLarge": "“{path}” è troppo grande per una sola pagina ed è stato escluso.",
       "unused": "“{path}” è stato escluso: nessuna pagina lo mostra o vi rimanda.",
       "unsafePath": "“{path}” è stato escluso: il suo percorso porta fuori dallo ZIP.",
-      "otherSheet": "Il foglio “{path}” è stato escluso: si importa un solo foglio alla volta."
+      "otherSheet": "Il foglio “{path}” è stato escluso: si importa un solo foglio alla volta.",
+      "badNote": "La nota “{path}” non può essere letta ed è stata esclusa.",
+      "notEnex": "“{path}” è stato escluso: non è un’esportazione di Evernote (.enex)."
     },
     "more": "…e {count, plural, one {# altro} other {altri #}}."
   },
@@ -218,6 +235,7 @@
     "badPdf": "Impossibile leggere «{name}» come PDF. Potrebbe essere danneggiato o protetto da password.",
     "pdfNoText": "«{name}» non ha testo da importare: sembra una scansione. Esegui prima il riconoscimento del testo (OCR) oppure caricalo in una pagina come file.",
     "pdfTooComplex": "«{name}» è troppo grande per essere importato come una sola pagina.",
+    "badEnex": "“{name}” non può essere letto come esportazione di Evernote. In Evernote esporta le note come ENEX (.enex) e scegli quel file.",
     "badTrello": "Il file non è un’esportazione di una bacheca Trello. In Trello, scegli Esporta come JSON dal menu della bacheca e scegli quel file.",
     "badAsana": "Il file non è un'esportazione di un progetto Asana. In Asana, scegli Esporta → CSV o JSON dal menu del progetto e scegli quel file.",
     "badMonday": "Il file non è un'esportazione di una bacheca Monday.com. In Monday.com, scegli Esporta bacheca in Excel dal menu della bacheca e scegli quel file.",

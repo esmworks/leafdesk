@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import type { JiraNames } from "@/lib/jira-sync";
 import type { BoardNames } from "@/server/import/board";
+import type { EnexNames } from "@/server/import/enex";
 import type { TrelloNames } from "@/server/import/trello";
 import type { DatabaseSeedNames } from "@/server/pages";
 
@@ -66,6 +67,19 @@ export async function boardImportNames(): Promise<BoardNames> {
     attachments: t("attachments"),
     comments: t("comments"),
     board: td("views.board"),
+  };
+}
+
+/** Names of what an Evernote import creates (properties, the line for encrypted text), in the user's language. */
+export async function enexImportNames(): Promise<EnexNames> {
+  const t = await getTranslations("import.evernote.names");
+  return {
+    tags: t("tags"),
+    created: t("created"),
+    updated: t("updated"),
+    author: t("author"),
+    sourceUrl: t("sourceUrl"),
+    encrypted: t("encrypted"),
   };
 }
 

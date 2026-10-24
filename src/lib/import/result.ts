@@ -34,6 +34,8 @@ export const IMPORT_ERROR_CODES = [
   "pdfNoText",
   /** A PDF (`name`) with more pages than an import reads (PDF_LIMITS), or too much text for one page. */
   "pdfTooComplex",
+  /** A file (`name`) that isn't an Evernote export (.enex), can't be read as one, or a ZIP holding none. */
+  "badEnex",
   /** The file isn't a Trello board's JSON export. */
   "badTrello",
   /** The file isn't an Asana project's CSV or JSON export. */
@@ -75,13 +77,21 @@ export type ImportWarning =
    * (`external`) or of a type pages don't show (`unsupportedType`, such as a Windows metafile).
    */
   | { code: "fileNotStored"; path: string; reason: "tooLarge" | "quotaExceeded" | "failed" | "external" | "unsupportedType" }
+  /** A note (`page`: the export and the note's title) held encrypted text, which was left out. */
+  | { code: "encryptedText"; page: string }
   /**
    * Files left out: a ZIP inside the ZIP, a database inside a database, a duplicate CSV (or a
    * database's own Markdown file), a Markdown file over the size limit, a file no page shows or
-   * links to (there's nowhere to put it), a ZIP entry whose path climbs out of the archive, and
-   * the sheets of a workbook other than the one imported (`path` is the sheet's name).
+   * links to (there's nowhere to put it), a ZIP entry whose path climbs out of the archive,
+   * the sheets of a workbook other than the one imported (`path` is the sheet's name), a note of an
+   * Evernote export whose content can't be read (`badNote`; `tooLarge` past its limit) and a file
+   * of a ZIP of exports that isn't one (`notEnex`).
    */
-  | { code: "skipped"; path: string; reason: "nestedZip" | "nestedDatabase" | "duplicate" | "tooLarge" | "unused" | "unsafePath" | "otherSheet" };
+  | {
+      code: "skipped";
+      path: string;
+      reason: "nestedZip" | "nestedDatabase" | "duplicate" | "tooLarge" | "unused" | "unsafePath" | "otherSheet" | "badNote" | "notEnex";
+    };
 
 /** At most this many warnings are listed; `moreWarnings` counts the rest. */
 export const MAX_WARNINGS = 50;

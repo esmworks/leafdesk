@@ -225,15 +225,16 @@ export async function docxBlocks(name: string, html: string): Promise<{ title: s
 }
 
 /**
- * The blocks of a document converted to HTML (a Word document, a PDF's text), checked as a
- * published page's are and against DOCX_LIMITS.blocks, and its title from a first-level heading
- * at the very top (see docxBlocks). `codes`: the errors for HTML that can't be read and for too
- * many blocks.
+ * The blocks of a document converted to HTML (a Word document, a PDF's text, a note), checked as
+ * a published page's are and against DOCX_LIMITS.blocks, and its title from a first-level heading
+ * at the very top (see docxBlocks) unless `title` is false (the document has a title of its own).
+ * `codes`: the errors for HTML that can't be read and for too many blocks.
  */
 export async function htmlBlocks(
   name: string,
   html: string,
   codes: { unreadable: ImportErrorCode; tooComplex: ImportErrorCode },
+  { title: takeTitle = true }: { title?: boolean } = {},
 ): Promise<{ title: string | null; blocks: PageBlock[] }> {
   let parsed: PageBlock[];
   try {
@@ -246,7 +247,7 @@ export async function htmlBlocks(
     throw new ImportError(`“${name}” is too large to import as one page`, codes.tooComplex, { name });
   }
   const first = blocks[0];
-  if (first?.type === "heading" && (first.props as { level?: number }).level === 1) {
+  if (takeTitle && first?.type === "heading" && (first.props as { level?: number }).level === 1) {
     const title = plainText(first.content).replace(/\s+/g, " ").trim().slice(0, 200);
     if (title) return { title, blocks: [...(first.children ?? []), ...blocks.slice(1)] };
   }

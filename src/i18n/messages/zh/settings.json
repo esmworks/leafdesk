@@ -1633,7 +1633,8 @@
       "pdf": "PDF",
       "skill": "技能（SKILL.md）",
       "notion": "Notion",
-      "obsidian": "Obsidian"
+      "obsidian": "Obsidian",
+      "enex": "Evernote"
     },
     "settingNames": {
       "guestInvites": "谁可以邀请访客",

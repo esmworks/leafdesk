@@ -1,11 +1,12 @@
 {
   "open": "Importar",
   "title": "Importar",
-  "description": "Trae páginas desde archivos Markdown, exportaciones ZIP, documentos de Word y PDF, filas desde un archivo CSV o un libro de Excel, un tablero de Trello, Asana o Monday.com, o incidencias de Jira que se mantienen sincronizadas.",
+  "description": "Trae páginas desde archivos Markdown, exportaciones ZIP, documentos de Word y PDF, libretas de Evernote, filas desde un archivo CSV o un libro de Excel, un tablero de Trello, Asana o Monday.com, o incidencias de Jira que se mantienen sincronizadas.",
   "tabs": {
     "pages": "Markdown y ZIP",
     "docx": "Word",
     "pdf": "PDF",
+    "evernote": "Evernote",
     "csv": "CSV y Excel",
     "trello": "Trello",
     "asana": "Asana",
@@ -35,6 +36,19 @@
     "scans": "Un PDF escaneado no tiene texto que leer y no se puede importar: pásale primero un reconocimiento de texto (OCR) o súbelo a una página como archivo.",
     "choose": "Elegir archivos PDF",
     "attach": "Adjuntar también cada PDF a su página, por sus imágenes, tablas y diseño"
+  },
+  "evernote": {
+    "help": "Cada exportación de Evernote (.enex) se convierte en una base de datos con el nombre del archivo y una fila por nota. Las etiquetas, las fechas de creación y actualización, el autor y la URL de origen pasan a ser propiedades, y la nota se convierte en la página de la fila con su formato, listas, tareas, tablas, bloques de código, imágenes y adjuntos. El texto cifrado se excluye.",
+    "export": "En Evernote, selecciona notas o una libreta y elige Exportar → ENEX (.enex); luego elige aquí los archivos descargados. También sirve un ZIP con varias exportaciones.",
+    "choose": "Elegir exportaciones de Evernote (.enex)",
+    "names": {
+      "tags": "Etiquetas",
+      "created": "Creada",
+      "updated": "Actualizada",
+      "author": "Autor",
+      "sourceUrl": "URL de origen",
+      "encrypted": "El texto cifrado se excluyó de la importación."
+    }
   },
   "csv": {
     "choose": "Elegir un archivo CSV o Excel",
@@ -184,6 +198,7 @@
     "leftOutColumn": "“{column}” no se importó.",
     "missingFile": "“{path}”, enlazado desde “{page}”, no estaba en lo que subiste.",
     "unresolvedLink": "“[[{target}]]” en “{page}” no coincide con ninguna nota ni archivo de lo que subiste, así que queda como texto.",
+    "encryptedText": "“{page}” tenía texto cifrado, que se excluyó.",
     "fileNotStored": {
       "tooLarge": "“{path}” supera el límite de subida y no se guardó.",
       "quotaExceeded": "“{path}” no se guardó: el espacio de trabajo se ha quedado sin almacenamiento de archivos.",
@@ -198,7 +213,9 @@
       "tooLarge": "“{path}” es demasiado grande para una sola página y se excluyó.",
       "unused": "“{path}” se excluyó: ninguna página lo muestra ni enlaza a él.",
       "unsafePath": "“{path}” se excluyó: su ruta sale del ZIP.",
-      "otherSheet": "La hoja “{path}” se excluyó: solo se importa una hoja cada vez."
+      "otherSheet": "La hoja “{path}” se excluyó: solo se importa una hoja cada vez.",
+      "badNote": "La nota “{path}” no se puede leer y se excluyó.",
+      "notEnex": "“{path}” se excluyó: no es una exportación de Evernote (.enex)."
     },
     "more": "…y {count, plural, one {# más} other {# más}}."
   },
@@ -218,6 +235,7 @@
     "badPdf": "No se puede leer «{name}» como PDF. Puede estar dañado o protegido con contraseña.",
     "pdfNoText": "«{name}» no tiene texto que importar: parece un escaneo. Pásale primero un reconocimiento de texto (OCR) o súbelo a una página como archivo.",
     "pdfTooComplex": "«{name}» es demasiado grande para importarlo como una sola página.",
+    "badEnex": "“{name}” no se puede leer como exportación de Evernote. En Evernote, exporta las notas como ENEX (.enex) y elige ese archivo.",
     "badTrello": "El archivo no es una exportación de un tablero de Trello. En Trello, elige Exportar como JSON en el menú del tablero y elige ese archivo.",
     "badAsana": "El archivo no es una exportación de un proyecto de Asana. En Asana, elige Exportar → CSV o JSON en el menú del proyecto y elige ese archivo.",
     "badMonday": "El archivo no es una exportación de un tablero de Monday.com. En Monday.com, elige Exportar tablero a Excel en el menú del tablero y elige ese archivo.",

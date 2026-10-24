@@ -62,6 +62,9 @@ const isDocx = (file: File) => /\.docx$/i.test(file.name);
 /** What the PDF tab's file picker offers, and what it takes from a drop. */
 const PDF_ACCEPT = ".pdf,application/pdf";
 const isPdf = (file: File) => /\.pdf$/i.test(file.name);
+/** What the Evernote tab's file picker offers (exports, and ZIPs of them), and what it takes from a drop. */
+const ENEX_ACCEPT = ".enex,.zip,application/zip";
+const isEnexUpload = (file: File) => /\.(enex|zip)$/i.test(file.name);
 /** What the Trello tab's file picker offers. */
 const TRELLO_ACCEPT = ".json,application/json";
 /** What the Asana and Monday.com tabs' file pickers offer. */
@@ -119,13 +122,14 @@ export function ImportDialog({
   const databases = flat.filter(({ node }) => node.kind === "database" && canEdit(node));
   const activeNode = tree.find((n) => n.id === activeId);
 
-  const [tab, setTab] = useState<"pages" | "docx" | "pdf" | "csv" | "trello" | BoardSource | "jira">("pages");
+  const [tab, setTab] = useState<"pages" | "docx" | "pdf" | "evernote" | "csv" | "trello" | BoardSource | "jira">("pages");
   const [destination, setDestination] = useState("");
   const [picked, setPicked] = useState<Picked[]>([]);
   // A folder that came with an Obsidian vault's settings folder (which isn't sent).
   const [vault, setVault] = useState(false);
   const [documents, setDocuments] = useState<File[]>([]);
   const [pdfs, setPdfs] = useState<File[]>([]);
+  const [notebooks, setNotebooks] = useState<File[]>([]);
   // Each PDF is uploaded to its page too, for its pictures, tables and layout.
   const [attachPdf, setAttachPdf] = useState(true);
   const [csv, setCsv] = useState<CsvState | null>(null);
@@ -152,6 +156,7 @@ export function ImportDialog({
   const csvInput = useRef<HTMLInputElement>(null);
   const docxInput = useRef<HTMLInputElement>(null);
   const pdfInput = useRef<HTMLInputElement>(null);
+  const enexInput = useRef<HTMLInputElement>(null);
   const trelloInput = useRef<HTMLInputElement>(null);
   const boardInput = useRef<HTMLInputElement>(null);
 
@@ -167,6 +172,7 @@ export function ImportDialog({
     setVault(false);
     setDocuments([]);
     setPdfs([]);
+    setNotebooks([]);
     setAttachPdf(true);
     setCsv(null);
     setTrello(null);
@@ -225,6 +231,7 @@ export function ImportDialog({
   const totalSize = picked.reduce((sum, p) => sum + p.file.size, 0);
   const documentsSize = documents.reduce((sum, f) => sum + f.size, 0);
   const pdfsSize = pdfs.reduce((sum, f) => sum + f.size, 0);
+  const notebooksSize = notebooks.reduce((sum, f) => sum + f.size, 0);
 
   function addFiles(list: FileList | File[] | null) {
     if (!list) return;
@@ -250,6 +257,14 @@ export function ImportDialog({
     if (!list) return;
     const next = [...list].filter(isPdf);
     setPdfs((prev) => [...prev.filter((f) => !next.some((n) => n.name === f.name)), ...next]);
+    setError(null);
+  }
+
+  /** Adds Evernote exports (and ZIPs of them) to the list (by name: choosing one again replaces it); other files are passed over. */
+  function addNotebooks(list: FileList | File[] | null) {
+    if (!list) return;
+    const next = [...list].filter(isEnexUpload);
+    setNotebooks((prev) => [...prev.filter((f) => !next.some((n) => n.name === f.name)), ...next]);
     setError(null);
   }
 
@@ -345,6 +360,7 @@ export function ImportDialog({
       "badPdf",
       "pdfNoText",
       "pdfTooComplex",
+      "badEnex",
       "badTrello",
       "badAsana",
       "badMonday",
@@ -381,6 +397,11 @@ export function ImportDialog({
       form.append("parentId", destination);
       if (attachPdf) form.append("attach", "1");
       for (const file of pdfs) form.append("file", file, file.name);
+    } else if (tab === "evernote") {
+      if (notebooksSize > IMPORT_LIMITS.uploadBytes) return setError(t("errors.tooLarge", { limit: formatBytes(IMPORT_LIMITS.uploadBytes) }));
+      form.append("mode", "enex");
+      form.append("parentId", destination);
+      for (const file of notebooks) form.append("file", file, file.name);
     } else if (tab === "trello") {
       if (!trello) return;
       form.append("mode", "trello");
@@ -452,6 +473,8 @@ export function ImportDialog({
         return t("warnings.missingFile", { path: w.path, page: w.page });
       case "unresolvedLink":
         return t("warnings.unresolvedLink", { target: w.target, page: w.page });
+      case "encryptedText":
+        return t("warnings.encryptedText", { page: w.page });
       case "fileNotStored":
         return t(`warnings.fileNotStored.${w.reason}`, { path: w.path });
       case "skipped":
@@ -467,6 +490,8 @@ export function ImportDialog({
         ? documents.length > 0 && destinationValid
         : tab === "pdf"
           ? pdfs.length > 0 && destinationValid
+        : tab === "evernote"
+          ? notebooks.length > 0 && destinationValid
         : tab === "trello"
           ? trello !== null && destinationValid
           : tab === "asana" || tab === "monday"
@@ -532,6 +557,7 @@ export function ImportDialog({
             setVault(false);
             setDocuments([]);
             setPdfs([]);
+            setNotebooks([]);
             setCsv(null);
             setTrello(null);
             setBoard(null);
@@ -540,7 +566,7 @@ export function ImportDialog({
       ) : (
         <div className="max-h-[70vh] space-y-4 overflow-y-auto p-4" aria-busy={busy}>
           <div role="tablist" aria-label={t("title")} className="inline-flex flex-wrap gap-0.5 rounded-lg bg-bg-hover p-0.5">
-            {(["pages", "docx", "pdf", "csv", "trello", "asana", "monday", "jira"] as const).map((key) => (
+            {(["pages", "docx", "pdf", "evernote", "csv", "trello", "asana", "monday", "jira"] as const).map((key) => (
               <button
                 key={key}
                 type="button"
@@ -765,6 +791,64 @@ export function ImportDialog({
                 />
                 <span>{t("pdf.attach")}</span>
               </label>
+              {destinationPicker}
+            </>
+          ) : tab === "evernote" ? (
+            <>
+              <p className="text-sm text-fg-muted">{t("evernote.help")}</p>
+              <p className="text-sm text-fg-muted">{t("evernote.export")}</p>
+              <div
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setDragOver(true);
+                }}
+                onDragLeave={() => setDragOver(false)}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setDragOver(false);
+                  addNotebooks(e.dataTransfer.files);
+                }}
+                className={cn(
+                  "flex flex-wrap items-center gap-2 rounded-lg border border-dashed border-border px-3 py-3",
+                  dragOver && "border-accent bg-accent/5",
+                )}
+              >
+                <Button disabled={busy} onClick={() => enexInput.current?.click()}>
+                  <FileUp className="h-4 w-4" />
+                  {t("evernote.choose")}
+                </Button>
+                <span className="text-xs text-fg-faint">{t("pages.drop")}</span>
+                <input
+                  ref={enexInput}
+                  type="file"
+                  multiple
+                  hidden
+                  accept={ENEX_ACCEPT}
+                  data-import="enex"
+                  onChange={(e) => {
+                    addNotebooks(e.target.files);
+                    e.target.value = "";
+                  }}
+                />
+              </div>
+              {notebooks.length > 0 && (
+                <div className="rounded-lg border border-border">
+                  <div className="flex items-center justify-between border-b border-border px-3 py-1.5 text-xs text-fg-muted">
+                    <span>{t("pages.selected", { count: notebooks.length, size: formatBytes(notebooksSize) })}</span>
+                    <Button size="sm" variant="ghost" disabled={busy} onClick={() => setNotebooks([])}>
+                      {t("pages.clear")}
+                    </Button>
+                  </div>
+                  <ul className="max-h-32 overflow-y-auto px-3 py-1.5 text-xs text-fg-muted">
+                    {notebooks.slice(0, 50).map((file) => (
+                      <li key={file.name} className="truncate">
+                        {file.name}
+                      </li>
+                    ))}
+                    {notebooks.length > 50 && <li>…</li>}
+                  </ul>
+                </div>
+              )}
               {destinationPicker}
             </>
           ) : tab === "trello" ? (

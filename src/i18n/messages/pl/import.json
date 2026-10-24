@@ -1,11 +1,12 @@
 {
   "open": "Importuj",
   "title": "Import",
-  "description": "Przenieś strony z plików Markdown, eksportów ZIP, dokumentów Word i plików PDF, wiersze z pliku CSV lub skoroszytu Excel, tablicę z Trello, Asany lub Monday.com albo zgłoszenia z Jiry, które pozostają zsynchronizowane.",
+  "description": "Przenieś strony z plików Markdown, eksportów ZIP, dokumentów Word i plików PDF, notesy z Evernote, wiersze z pliku CSV lub skoroszytu Excel, tablicę z Trello, Asany lub Monday.com albo zgłoszenia z Jiry, które pozostają zsynchronizowane.",
   "tabs": {
     "pages": "Markdown i ZIP",
     "docx": "Word",
     "pdf": "PDF",
+    "evernote": "Evernote",
     "csv": "CSV i Excel",
     "trello": "Trello",
     "asana": "Asana",
@@ -35,6 +36,19 @@
     "scans": "Zeskanowany PDF nie ma tekstu do odczytania i nie można go zaimportować: najpierw uruchom na nim rozpoznawanie tekstu (OCR) albo prześlij go na stronę jako plik.",
     "choose": "Wybierz pliki PDF",
     "attach": "Dołącz też każdy PDF do jego strony, dla obrazów, tabel i układu"
+  },
+  "evernote": {
+    "help": "Każdy eksport z Evernote (.enex) staje się bazą danych o nazwie pliku, z wierszem dla każdej notatki. Tagi, czas utworzenia i aktualizacji, autor i źródłowy URL stają się właściwościami, a notatka staje się stroną wiersza z formatowaniem, listami, zadaniami, tabelami, blokami kodu, obrazami i załącznikami. Zaszyfrowany tekst jest pomijany.",
+    "export": "W Evernote zaznacz notatki lub notes i wybierz Eksportuj → ENEX (.enex), a potem wybierz tutaj pobrane pliki. ZIP z kilkoma eksportami też zadziała.",
+    "choose": "Wybierz eksporty z Evernote (.enex)",
+    "names": {
+      "tags": "Tagi",
+      "created": "Utworzono",
+      "updated": "Zaktualizowano",
+      "author": "Autor",
+      "sourceUrl": "Źródłowy URL",
+      "encrypted": "Zaszyfrowany tekst został pominięty przy imporcie."
+    }
   },
   "csv": {
     "choose": "Wybierz plik CSV lub Excel",
@@ -184,6 +198,7 @@
     "leftOutColumn": "Kolumna „{column}” nie została zaimportowana.",
     "missingFile": "Brak w przesłanych plikach: „{path}” (link na stronie „{page}”).",
     "unresolvedLink": "„[[{target}]]” na stronie „{page}” nie pasuje do żadnej notatki ani pliku z przesłanych, więc pozostaje tekstem.",
+    "encryptedText": "„{page}” zawierała zaszyfrowany tekst, który pominięto.",
     "fileNotStored": {
       "tooLarge": "Nie zapisano „{path}”: przekracza limit przesyłania.",
       "quotaExceeded": "Nie zapisano „{path}”: w obszarze roboczym skończyło się miejsce na pliki.",
@@ -198,7 +213,9 @@
       "tooLarge": "Pominięto „{path}”: za duże na jedną stronę.",
       "unused": "Pominięto „{path}”: żadna strona go nie wyświetla ani do niego nie linkuje.",
       "unsafePath": "Pominięto „{path}”: jego ścieżka prowadzi poza archiwum ZIP.",
-      "otherSheet": "Pominięto arkusz „{path}”: importowany jest tylko jeden arkusz naraz."
+      "otherSheet": "Pominięto arkusz „{path}”: importowany jest tylko jeden arkusz naraz.",
+      "badNote": "Nie można odczytać notatki „{path}”, więc ją pominięto.",
+      "notEnex": "Pominięto „{path}”: to nie jest eksport z Evernote (.enex)."
     },
     "more": "…i jeszcze {count}."
   },
@@ -218,6 +235,7 @@
     "badPdf": "Nie można odczytać „{name}” jako PDF. Może być uszkodzony albo chroniony hasłem.",
     "pdfNoText": "„{name}” nie ma tekstu do zaimportowania: wygląda na skan. Najpierw uruchom na nim rozpoznawanie tekstu (OCR) albo prześlij go na stronę jako plik.",
     "pdfTooComplex": "„{name}” jest za duży, by zaimportować go jako jedną stronę.",
+    "badEnex": "Nie można odczytać „{name}” jako eksportu z Evernote. W Evernote wyeksportuj notatki jako ENEX (.enex) i wybierz ten plik.",
     "badTrello": "Ten plik nie jest eksportem tablicy Trello. W Trello wybierz Eksportuj jako JSON z menu tablicy i wskaż ten plik.",
     "badAsana": "Ten plik nie jest eksportem projektu z Asany. W Asanie wybierz Eksportuj → CSV lub JSON z menu projektu i wybierz ten plik.",
     "badMonday": "Ten plik nie jest eksportem tablicy z Monday.com. W Monday.com wybierz Eksportuj tablicę do Excela z menu tablicy i wybierz ten plik.",

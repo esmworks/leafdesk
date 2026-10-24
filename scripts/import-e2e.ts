@@ -4,7 +4,10 @@
  * as page links, images uploaded, an Obsidian vault's wikilinks, embeds, aliases and callouts), CSV files as new databases (guessed and chosen types) and into
  * existing ones (column mapping, new options, people and relations by name, cells that don't fit),
  * Excel workbooks (a database exported as one comes back with the same values), Word documents
- * (a page each, titled by their first heading, pictures uploaded), PDFs (a page of their text: headings
+ * (a page each, titled by their first heading, pictures uploaded), Evernote exports (a database
+ * each with tags, times, author and source URL as properties, a row per note with its to-dos,
+ * tables and attachments, encrypted text and unreadable notes reported, entity declarations
+ * refused, exports in a ZIP), PDFs (a page of their text: headings
  * by size, paragraphs joined across lines and page breaks, lists, running headers and footers left
  * out, the PDF itself attached; a scan refused), Trello boards (a database on a
  * board view grouped by list, labels, members as people or text, dates, checklists, custom fields,
@@ -29,7 +32,7 @@ try {
 const { mkdtemp, readFile, rm } = await import("node:fs/promises");
 const { tmpdir } = await import("node:os");
 const { join } = await import("node:path");
-const { randomBytes } = await import("node:crypto");
+const { createHash, randomBytes } = await import("node:crypto");
 
 const uploadDir = await mkdtemp(join(tmpdir(), "leafdesk-import-e2e-"));
 process.env.STORAGE_DRIVER = "local";
@@ -56,6 +59,8 @@ const { AccessError } = await import("@/server/access");
 const { importPages } = await import("@/server/import/markdown");
 const { importDocx } = await import("@/server/import/docx");
 const docxFixture = await import("@/server/import/docx-fixtures");
+const { importEnex } = await import("@/server/import/enex");
+const enexFixture = await import("@/lib/import/enex-fixtures");
 const { importPdf } = await import("@/server/import/pdf");
 const { default: pdfmake } = await import("pdfmake");
 const { importCsvAsDatabase, importCsvIntoDatabase } = await import("@/server/import/csv");
@@ -568,6 +573,126 @@ try {
   check(
     (await failure(() => importDocx({ userId: ids.guest }, { workspaceId, parentId: docsHome.id, files: [{ name: "x.docx", data: notesDocx }] }))) === "access",
     "Word documents go only where the user may add pages",
+  );
+
+  // Evernote exports: a database per export, a row per note, attachments uploaded to the rows
+  const md5 = (base64: string) => createHash("md5").update(Buffer.from(base64, "base64")).digest("hex");
+  const { enexFile, PNG_BASE64 } = enexFixture;
+  const ticketPdf = Buffer.from("%PDF-1.4 a ticket").toString("base64");
+  const hugePng = Buffer.concat([Buffer.from(PNG_BASE64, "base64"), randomBytes(12_000)]).toString("base64");
+  const travel = enexFile([
+    {
+      title: "Packing list",
+      body:
+        `<div>Bring <b>socks</b></div><div><en-todo checked="true"/>Passport</div><div><en-todo/>Charger</div>` +
+        `<div><en-media hash="${md5(PNG_BASE64)}" type="image/png"/></div><en-media hash="${md5(hugePng)}" type="image/png"/>` +
+        `<table><tr><td>Day</td><td>Place</td></tr><tr><td>1</td><td>Rome</td></tr></table><en-crypt hint="pin">c2VjcmV0</en-crypt>`,
+      created: "20231107T101530Z",
+      updated: "20231108T090000Z",
+      tags: ["trip", "summer"],
+      author: "Ayşe",
+      sourceUrl: "https://example.com/list",
+      resources: [
+        { base64: PNG_BASE64, mime: "image/png", fileName: "map.png" },
+        { base64: ticketPdf, mime: "application/pdf", fileName: "ticket.pdf" },
+        { base64: hugePng, mime: "image/png", fileName: "huge.png" },
+      ],
+    },
+    { title: "Broken", body: "<div><b>unclosed</div>" },
+    { title: "Ideas", body: "<div>Plain&nbsp;text</div>", created: "20240101T000000Z", tags: ["Trip"] },
+  ]);
+  const enexHome = await createPage(owner, { workspaceId, title: "Evernote" });
+  const fromEnex = await importEnex(owner, { workspaceId, parentId: enexHome.id, files: [{ name: "Travel.enex", data: strToU8(travel) }] });
+  check(
+    JSON.stringify(fromEnex.pages.map((p) => `${p.kind}:${p.title}`)) === JSON.stringify(["database:Travel"]) &&
+      fromEnex.created.databases === 1 && fromEnex.created.rows === 2 && fromEnex.created.files === 2,
+    "an Evernote export becomes a database named after its file, a row per readable note, its attachments uploaded",
+    fromEnex,
+  );
+  const travelId = fromEnex.pages[0].id;
+  const travelDb = await databases.getDatabase(ids.owner, travelId);
+  check(
+    JSON.stringify(travelDb.properties.map((p) => `${p.name}:${p.type}`)) ===
+      JSON.stringify(["Tags:multi_select", "Created:date", "Updated:date", "Author:text", "Source URL:url"]) &&
+      JSON.stringify(travelDb.properties[0].options.options?.map((o) => o.name)) === JSON.stringify(["trip", "summer"]),
+    "…with its tags (one option per tag, whatever its case), times, author and source URL as properties",
+    travelDb.properties,
+  );
+  const travelRows = await databases.listRows(ids.owner, travelId);
+  const [tagsProp, createdProp, updatedProp, authorProp, sourceProp] = travelDb.properties;
+  const packing = travelRows.find((r) => r.title === "Packing list");
+  const ideaNote = travelRows.find((r) => r.title === "Ideas");
+  const tagNames = (row: typeof packing) =>
+    ((row?.properties[tagsProp.id] ?? []) as string[]).map((id) => tagsProp.options.options?.find((o) => o.id === id)?.name).join();
+  check(
+    travelRows.length === 2 && packing && ideaNote && tagNames(packing) === "trip,summer" && tagNames(ideaNote) === "trip" &&
+      Date.parse(String(packing.properties[createdProp.id])) === Date.UTC(2023, 10, 7, 10, 15, 30) &&
+      Date.parse(String(packing.properties[updatedProp.id])) === Date.UTC(2023, 10, 8, 9, 0, 0) &&
+      packing.properties[authorProp.id] === "Ayşe" && packing.properties[sourceProp.id] === "https://example.com/list" &&
+      ideaNote.properties[updatedProp.id] === undefined,
+    "…and each note's values on its row, times read as UTC",
+    travelRows.map((r) => [r.title, r.properties]),
+  );
+  await eventually(async () => (await body(packing!.id)).includes("Passport"), "the note's body");
+  const packingBody = await body(packing!.id);
+  const packingFiles = await db.select().from(file).where(eq(file.pageId, packing!.id));
+  const mapFile = packingFiles.find((f) => f.name === "map.png");
+  const ticketFile = packingFiles.find((f) => f.name === "ticket.pdf");
+  check(
+    packingFiles.length === 2 && mapFile && ticketFile && packingBody.includes("**socks**") && packingBody.includes("[x] Passport") &&
+      packingBody.includes("[ ] Charger") && packingBody.includes(`/api/files/${mapFile.id}`) && packingBody.includes(`/api/files/${ticketFile.id}`) &&
+      /\|\s*Day\s*\|\s*Place\s*\|/.test(packingBody) && packingBody.includes("Encrypted text was left out") && !packingBody.includes("c2VjcmV0") &&
+      !packingBody.includes("leafdesk-enex-media"),
+    "the note becomes the row's page: formatting, to-dos, a table, the picture shown and the file it doesn't show attached",
+    { packingBody, packingFiles },
+  );
+  await eventually(async () => (await body(ideaNote!.id)).includes("Plain"), "the second note's body");
+  check((await body(ideaNote!.id)).includes("Plain text") || (await body(ideaNote!.id)).includes("Plain text"), "…HTML entities read as text");
+  const enexWarned = fromEnex.warnings.map((w) => `${w.code}:${"path" in w ? w.path : "page" in w ? w.page : ""}:${"reason" in w ? w.reason : ""}`);
+  check(
+    JSON.stringify(enexWarned) ===
+      JSON.stringify([
+        "encryptedText:Travel.enex/Packing list:",
+        "skipped:Travel.enex/Broken:badNote",
+        "fileNotStored:Travel.enex/Packing list/huge.png:tooLarge",
+      ]),
+    "encrypted text, a note that can't be read and an attachment over the upload limit are reported",
+    fromEnex.warnings,
+  );
+  const [enexAudit] = await db
+    .select()
+    .from(auditEvent)
+    .where(and(eq(auditEvent.workspaceId, workspaceId), eq(auditEvent.action, "page.imported"), eq(auditEvent.actorUserId, ids.owner)))
+    .orderBy(desc(auditEvent.createdAt))
+    .limit(1);
+  check((enexAudit?.details as { format?: string } | undefined)?.format === "enex", "an Evernote import is recorded in the audit log", enexAudit);
+
+  const laughs = `<?xml version="1.0"?><!DOCTYPE en-export [<!ENTITY lol "lol"><!ENTITY lol2 "&lol;&lol;&lol;&lol;">]><en-export><note><title>&lol2;</title></note></en-export>`;
+  const enexBefore = (await titles(enexHome.id)).length;
+  check(
+    (await failure(() =>
+      importEnex(owner, { workspaceId, parentId: enexHome.id, files: [{ name: "Good.enex", data: strToU8(travel) }, { name: "Laughs.enex", data: strToU8(laughs) }] }),
+    )) === "badEnex" && (await titles(enexHome.id)).length === enexBefore,
+    "an export declaring entities is refused, and stops the import before any database is created",
+  );
+  check(
+    (await failure(() => importEnex(owner, { workspaceId, parentId: enexHome.id, files: [{ name: "notes.txt", data: strToU8("x") }] }))) === "badEnex",
+    "only .enex files (and ZIPs of them) are taken",
+  );
+  const zipped = await importEnex(owner, {
+    workspaceId,
+    parentId: enexHome.id,
+    files: [{ name: "Notebooks.zip", data: zip({ "Export/Work.enex": enexFile([{ title: "Standup", body: "<div>Notes</div>" }]), "Export/readme.txt": "hi" }) }],
+  });
+  check(
+    zipped.pages[0]?.title === "Work" && zipped.created.rows === 1 &&
+      JSON.stringify(zipped.warnings) === JSON.stringify([{ code: "skipped", path: "Export/readme.txt", reason: "notEnex" }]),
+    "exports in a ZIP are imported, its other files reported",
+    zipped,
+  );
+  check(
+    (await failure(() => importEnex({ userId: ids.guest }, { workspaceId, parentId: enexHome.id, files: [{ name: "x.enex", data: strToU8(travel) }] }))) === "access",
+    "Evernote exports go only where the user may add pages",
   );
 
   // PDFs: a page of their text each (generated here with the standard Helvetica font, so they stay small)
@@ -1167,6 +1292,20 @@ try {
     brokenWord.status === 400 && brokenWord.json.code === "badDocx" && brokenWord.json.params.name === "Broken.docx",
     "…and refuses a damaged one with a code the dialog translates",
     brokenWord,
+  );
+  const enexRoute = await post({ mode: "enex", workspaceId, parentId: home.id }, [
+    { name: "Recipes.enex", data: enexFixture.enexFile([{ title: "Soup", body: "<div><en-todo/>Onions</div>", tags: ["dinner"] }]) },
+  ]);
+  check(
+    enexRoute.status === 201 && enexRoute.json.pages[0].title === "Recipes" && enexRoute.json.created.databases === 1 && enexRoute.json.created.rows === 1,
+    "…Evernote exports as databases",
+    enexRoute,
+  );
+  const brokenEnex = await post({ mode: "enex", workspaceId, parentId: home.id }, [{ name: "Broken.enex", data: "<en-export><note>" }]);
+  check(
+    brokenEnex.status === 400 && brokenEnex.json.code === "badEnex" && brokenEnex.json.params.name === "Broken.enex",
+    "…and refuses a damaged one with a code the dialog translates",
+    brokenEnex,
   );
   const pdfRoute = await post({ mode: "pdf", workspaceId, parentId: home.id, attach: "1" }, [{ name: "Memo.pdf", data: memoPdf }]);
   check(pdfRoute.status === 201 && pdfRoute.json.pages[0].title === "Memo" && pdfRoute.json.created.files === 1, "…PDFs as pages, attached when asked", pdfRoute);
