@@ -2,6 +2,30 @@
 
 ## Unreleased
 
+## 0.6.3 — 2026-10-24
+
+### Upgrading from 0.6.2
+
+- **Download the new `docker-compose.yml`.** It passes the new settings on to the app:
+  `AI_FAST_MODEL`, `AI_CHAT_MODELS`, `AI_IMAGE_INPUT`, `AI_MONTHLY_LIMIT_USD`, `WEB_SEARCH_*`,
+  `TELEGRAM_*`, `GEOCODER_URL`, `MAP_TILE_URL` and `MAP_TILE_ATTRIBUTION`. An existing `.env` keeps
+  working unchanged.
+- **Migrations 0093 to 0135** run automatically when the container starts (from source, run
+  `pnpm db:migrate`). 0093 rewrites the `page` and `file_text` tables once to rebuild their search
+  vectors, which takes a while on a large instance; the others add tables and columns. 0107 marks
+  every existing API token as legacy, so it keeps the access it had; 0104 and 0110 fill the shares
+  of existing agents and the first version of existing automations.
+- **Place properties and map views use OpenStreetMap's public servers** for address search and map
+  images unless `GEOCODER_URL` and `MAP_TILE_URL` are set. Set them empty to keep the server and
+  browsers from reaching them, or point them at your own servers for more than light use.
+- **`AI_MAX_OUTPUT_TOKENS` defaults to 8192** (was 2048), and **`AI_MAX_INPUT_CHARS` is unset by
+  default** (was 48000): a request may then send what the model's context window takes. A server
+  that sets either keeps its value.
+- Off until set: web search for agents and the AI chat (`WEB_SEARCH_PROVIDER`, `WEB_SEARCH_URL`),
+  the AI chat from Telegram (`TELEGRAM_BOT_TOKEN`), a monthly AI cost limit
+  (`AI_MONTHLY_LIMIT_USD`). Streaming the audit log and finding sensitive content stay off until an
+  owner turns them on in Settings → Security.
+
 ### Added
 
 - **Danish, Dutch, Norwegian, Finnish and Swedish.** The app, its emails, templates, the editor's
@@ -1184,6 +1208,12 @@
   Sonnet and Opus 5.5, which always think); writing up voice notes and the writing assistant's
   fixed actions ask for low effort; the chat and the writing assistant's own instructions for
   medium. Agents keep the model's default. The README's AI section has the table.
+- **The MCP tool list is smaller and has a budget.** The descriptions a client sends to its model
+  were tightened, filter rules inside groups and automation steps no longer repeat what the
+  top-level fields already say (290 KB to 265 KB), and `src/server/mcp/tools-context.test.ts` now fails when the
+  whole list passes 275 KB or one tool passes 25 KB, so a new tool has to fit or raise the budget on
+  purpose. The list stays the same for every grant: a read-only token still sees the write tools,
+  because a step-up challenge is how it asks for them.
 
 ### Fixed
 
@@ -1250,15 +1280,6 @@
   has the word written either way still comes first, and the snippet shows where. Migration 0093
   rewrites the `page` and `file_text` tables once to rebuild their search vectors; it runs
   automatically when the container starts (from source, run `pnpm db:migrate`).
-
-### Changed
-
-- **The MCP tool list is smaller and has a budget.** The descriptions a client sends to its model
-  were tightened, filter rules inside groups and automation steps no longer repeat what the
-  top-level fields already say (290 KB to 265 KB), and `src/server/mcp/tools-context.test.ts` now fails when the
-  whole list passes 275 KB or one tool passes 25 KB, so a new tool has to fit or raise the budget on
-  purpose. The list stays the same for every grant: a read-only token still sees the write tools,
-  because a step-up challenge is how it asks for them.
 
 ## 0.6.2 — 2026-10-20
 
