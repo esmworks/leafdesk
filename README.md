@@ -828,6 +828,9 @@ that host. Nothing else is served there: no sign-in, app pages, API, MCP or coll
 on that host. The site keeps working at `/s/<slug>` too, and search engines are pointed at
 `https://<domain>/…`. Other hosts behave as before. The server reads sites' domains every 15
 seconds, so with several app instances a new domain may take that long to work on all of them.
+A domain only takes effect when the reverse proxy sends it to the app, but any host name it does
+send there (other than `APP_URL`'s) can be claimed by a workspace owner: route only `APP_URL`'s
+host and the domains you set up for sites to the app.
 
 Leafdesk doesn't verify domains or get certificates; whoever runs the server does:
 
