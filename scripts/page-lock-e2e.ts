@@ -357,6 +357,8 @@ try {
     return live(pageId).includes(text);
   };
   try {
+    // Only viewing: someone who may comment gets a connection that takes their suggestions, not a read-only one.
+    await setPagePermission(ids.owner, notes.id, ids.viewer, "view");
     const viewing = await openTab(ids.viewer, notes.id);
     type(viewing.doc, "Typed while viewing.");
     check(!(await arrives(notes.id, "Typed while viewing.", 500)), "a viewer's open page doesn't take their edits");
