@@ -3,6 +3,7 @@
   "documentViewTitle": "{title} · {view} · Leafdesk",
   "header": {
     "history": "Historique de la page",
+    "analytics": "Statistiques",
     "more": "Plus",
     "copyLink": "Copier le lien",
     "copyId": "Copier l’ID",
@@ -286,6 +287,26 @@
       "restore": "Impossible de restaurer cette version.",
       "diff": "Impossible de comparer ces versions."
     }
+  },
+  "analytics": {
+    "title": "Statistiques de la page",
+    "period": "Période",
+    "days": "{days} jours",
+    "views": "Vues",
+    "viewers": "Visiteurs",
+    "viewedBy": "Vue par",
+    "editedBy": "Modifiée par",
+    "noViews": "Personne n’a ouvert cette page sur cette période.",
+    "noEdits": "Aucune modification sur cette période.",
+    "viewCount": "{count, plural, one {# vue} other {# vues}}",
+    "editCount": "{count, plural, one {# modification} other {# modifications}}",
+    "chartLabel": "Vues par jour",
+    "dayViews": "{day} : {count, plural, one {# vue} other {# vues}}",
+    "notRecorded": "Cet espace de travail n’enregistre pas les vues des pages, seules les modifications s’affichent donc. Les propriétaires peuvent les activer dans Paramètres > Statistiques.",
+    "howCounted": "Une vue, c’est un propriétaire ou un membre qui ouvre la page ; la rouvrir dans les 5 minutes ne compte pas. Jours en UTC.",
+    "howEditsCounted": "Les modifications sont comptées à partir de l’historique de la page et de sa dernière modification.",
+    "noAccess": "Seuls les propriétaires de l’espace de travail et les membres pouvant modifier cette page voient ses statistiques.",
+    "failed": "Impossible de charger les statistiques."
   },
   "move": {
     "title": "Déplacer vers",

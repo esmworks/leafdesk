@@ -160,6 +160,13 @@ export type WorkspaceSettings = {
    */
   email: boolean;
   /**
+   * Whether opening a page, database or row in the app is recorded for Settings > Analytics and
+   * each page's Analytics (server/page-views.ts): one count per page, person and day. Guests,
+   * agents, connected apps and published pages never are, and each member may opt out of it
+   * themselves. Off, nothing more is recorded and analytics show edits only.
+   */
+  pageViews: boolean;
+  /**
    * The workspace's callout styles (lib/callout-styles): named box looks its owners define in
    * Settings > General and everyone inserts. Checked by parseCalloutStyles when saved.
    */
@@ -188,6 +195,7 @@ export const DEFAULT_WORKSPACE_SETTINGS: WorkspaceSettings = {
   domainJoin: "join",
   joinRequests: "nobody",
   email: false,
+  pageViews: true,
   calloutStyles: [],
 };
 
@@ -277,6 +285,8 @@ export const workspaceMember = pgTable(
      * questions carry no notes and it keeps none, but the notes they have stay.
      */
     aiMemory: boolean("ai_memory").notNull().default(true),
+    /** Whether the pages they open here are recorded for analytics (server/page-views.ts), while the workspace records them. */
+    pageViews: boolean("page_views").notNull().default(true),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [primaryKey({ columns: [t.workspaceId, t.userId] }), index("workspace_member_user_idx").on(t.userId)],

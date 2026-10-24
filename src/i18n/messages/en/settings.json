@@ -78,6 +78,8 @@
       "legalHolds": "litigation preserve ediscovery keep",
       "storage": "files s3 drive bucket",
       "analyticsPeople": "activity edits statistics",
+      "pageViews": "views viewers visits most viewed tracking privacy",
+      "ownPageViews": "views tracking privacy opt out analytics",
       "aiUsageLimit": "budget cost spending cap",
       "aiUsagePeople": "per person member cost tokens",
       "health": "broken links orphans duplicates empty pages",
@@ -925,14 +927,18 @@
     }
   },
   "analytics": {
-    "description": "How much people edited in this workspace, counted from page history and each page's latest change. Nothing extra is tracked. Only owners see this.",
+    "description": "How much people edited in this workspace, counted from page history and each page's latest change, and which pages they opened while page views are recorded. Only owners see this.",
     "periods": "Period",
     "period": "Last {days} days",
     "activeMembers": "Active members",
     "activeOf": "{active} of {total}",
     "edits": "Edits",
     "pagesEdited": "Pages edited",
+    "views": "Views",
+    "viewers": "Viewers",
+    "pagesViewed": "Pages viewed",
     "howCounted": "An edit is a saved version of a page (at most one every 10 minutes while someone types, and one before each app, AI or restore change) or a change page history doesn't keep, such as a row's values.",
+    "howViewsCounted": "A view is an owner or member opening a page, database or row in the app; opening it again within 5 minutes doesn't count. Guests, agents, connected apps, published pages and people who turned off their own views aren't recorded. Views are kept for a year.",
     "peopleHeading": "Edits per person",
     "peopleDescription": "Guests are listed with their edits but don't count as active members.",
     "pagesHeading": "Most edited pages",
@@ -942,6 +948,13 @@
     "neverEdited": "No edits",
     "exportPeople": "Download edits per person as CSV",
     "exportPages": "Download most edited pages as CSV",
+    "viewersHeading": "Views per person",
+    "viewersDescription": "Owners and members; guests' views aren't recorded.",
+    "viewedHeading": "Most viewed pages",
+    "noViews": "No page views in this period.",
+    "neverViewed": "No views",
+    "exportViewers": "Download views per person as CSV",
+    "exportViewed": "Download most viewed pages as CSV",
     "columns": {
       "person": "Person",
       "role": "Role",
@@ -949,8 +962,21 @@
       "pages": "Pages",
       "lastEdit": "Last edit",
       "page": "Page",
-      "editors": "Editors"
+      "editors": "Editors",
+      "views": "Views",
+      "viewers": "Viewers",
+      "lastView": "Last view"
+    },
+    "recording": {
+      "title": "Record page views",
+      "description": "Count which pages owners and members open, for these analytics and each page's Analytics. Off, nothing more is recorded and only edits are shown."
     }
+  },
+  "pageViews": {
+    "heading": "Page views",
+    "title": "Record my page views",
+    "description": "Pages you open here are counted in the workspace's analytics, which owners and people who can edit a page see. Turn this off to keep your views out of them.",
+    "workspaceOff": "This workspace doesn't record page views: its owners turned them off."
   },
   "aiUsage": {
     "description": "What this workspace's AI cost, by month, feature and model, and the most it may cost in a month. Only counts are kept, never what was asked or answered. Only owners see this.",

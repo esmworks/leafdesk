@@ -78,6 +78,8 @@
       "legalHolds": "kiện tụng bảo toàn ediscovery giữ",
       "storage": "tệp s3 drive bucket lưu trữ",
       "analyticsPeople": "hoạt động chỉnh sửa thống kê",
+      "pageViews": "lượt xem người xem truy cập xem nhiều theo dõi quyền riêng tư",
+      "ownPageViews": "lượt xem theo dõi quyền riêng tư từ chối phân tích",
       "aiUsageLimit": "ngân sách chi phí chi tiêu giới hạn",
       "aiUsagePeople": "theo người thành viên chi phí token",
       "health": "liên kết hỏng mồ côi trùng lặp trang trống",
@@ -925,14 +927,18 @@
     }
   },
   "analytics": {
-    "description": "Mức độ chỉnh sửa của mọi người trong không gian làm việc này, được tính từ lịch sử trang và thay đổi gần nhất của mỗi trang. Không theo dõi thêm gì khác. Chỉ chủ sở hữu mới thấy mục này.",
+    "description": "Mỗi người đã chỉnh sửa bao nhiêu trong không gian làm việc này (tính từ lịch sử trang và thay đổi gần nhất của từng trang) và đã mở những trang nào trong khi lượt xem được ghi lại. Chỉ chủ sở hữu thấy mục này.",
     "periods": "Khoảng thời gian",
     "period": "{days} ngày qua",
     "activeMembers": "Thành viên hoạt động",
     "activeOf": "{active} trên {total}",
     "edits": "Lần chỉnh sửa",
     "pagesEdited": "Trang đã chỉnh sửa",
+    "views": "Lượt xem",
+    "viewers": "Người xem",
+    "pagesViewed": "Trang đã xem",
     "howCounted": "Một lần chỉnh sửa là một phiên bản đã lưu của trang (tối đa một lần mỗi 10 phút khi có người đang gõ, và một lần trước mỗi thay đổi do ứng dụng, AI hoặc khôi phục) hoặc một thay đổi mà lịch sử trang không giữ, chẳng hạn giá trị của một hàng.",
+    "howViewsCounted": "Một lượt xem là khi chủ sở hữu hoặc thành viên mở một trang, cơ sở dữ liệu hoặc hàng trong ứng dụng; mở lại trong vòng 5 phút không được tính. Khách, tác tử, ứng dụng đã kết nối, trang đã xuất bản và những người đã tắt lượt xem của mình không được ghi lại. Lượt xem được giữ một năm.",
     "peopleHeading": "Lần chỉnh sửa theo người",
     "peopleDescription": "Khách được liệt kê cùng các lần chỉnh sửa của họ nhưng không tính là thành viên hoạt động.",
     "pagesHeading": "Các trang được chỉnh sửa nhiều nhất",
@@ -942,6 +948,13 @@
     "neverEdited": "Không có lần chỉnh sửa",
     "exportPeople": "Tải số lần chỉnh sửa theo người dưới dạng CSV",
     "exportPages": "Tải các trang được chỉnh sửa nhiều nhất dưới dạng CSV",
+    "viewersHeading": "Lượt xem theo người",
+    "viewersDescription": "Chủ sở hữu và thành viên; lượt xem của khách không được ghi lại.",
+    "viewedHeading": "Trang được xem nhiều nhất",
+    "noViews": "Không có lượt xem trong khoảng thời gian này.",
+    "neverViewed": "Chưa có lượt xem",
+    "exportViewers": "Tải lượt xem theo người dưới dạng CSV",
+    "exportViewed": "Tải trang được xem nhiều nhất dưới dạng CSV",
     "columns": {
       "person": "Người",
       "role": "Vai trò",
@@ -949,8 +962,21 @@
       "pages": "Trang",
       "lastEdit": "Chỉnh sửa gần nhất",
       "page": "Trang",
-      "editors": "Người chỉnh sửa"
+      "editors": "Người chỉnh sửa",
+      "views": "Lượt xem",
+      "viewers": "Người xem",
+      "lastView": "Xem lần cuối"
+    },
+    "recording": {
+      "title": "Ghi lại lượt xem trang",
+      "description": "Đếm những trang mà chủ sở hữu và thành viên mở, cho phần phân tích này và phân tích của từng trang. Khi tắt, không ghi thêm gì và chỉ hiển thị chỉnh sửa."
     }
+  },
+  "pageViews": {
+    "heading": "Lượt xem trang",
+    "title": "Ghi lại lượt xem của tôi",
+    "description": "Các trang bạn mở ở đây được tính vào phân tích của không gian làm việc, mà chủ sở hữu và người có thể chỉnh sửa trang nhìn thấy. Tắt để không tính lượt xem của bạn.",
+    "workspaceOff": "Không gian làm việc này không ghi lại lượt xem trang: chủ sở hữu đã tắt."
   },
   "aiUsage": {
     "description": "Chi phí AI của không gian làm việc này, theo tháng, tính năng và mô hình, cùng mức tối đa được phép chi trong một tháng. Chỉ số lượng được giữ lại, không bao giờ giữ nội dung đã hỏi hay đã trả lời. Chỉ chủ sở hữu mới thấy mục này.",

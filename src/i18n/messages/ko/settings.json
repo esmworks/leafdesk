@@ -78,6 +78,8 @@
       "legalHolds": "소송 보존 전자증거개시 보관",
       "storage": "파일 s3 drive 버킷",
       "analyticsPeople": "활동 편집 통계",
+      "pageViews": "조회 조회자 방문 인기 추적 개인정보",
+      "ownPageViews": "조회 추적 개인정보 제외 분석",
       "aiUsageLimit": "예산 비용 지출 한도",
       "aiUsagePeople": "사람별 멤버 비용 토큰",
       "health": "깨진 링크 고아 중복 빈 페이지",
@@ -925,14 +927,18 @@
     }
   },
   "analytics": {
-    "description": "이 워크스페이스에서 사람들이 얼마나 편집했는지를 페이지 기록과 각 페이지의 최근 변경을 기준으로 집계합니다. 추가로 추적하는 것은 없습니다. 소유자만 볼 수 있습니다.",
+    "description": "이 워크스페이스에서 누가 얼마나 편집했는지(페이지 기록과 각 페이지의 마지막 변경에서 집계)와, 조회가 기록되는 동안 어떤 페이지를 열었는지 보여 줍니다. 소유자만 볼 수 있습니다.",
     "periods": "기간",
     "period": "최근 {days}일",
     "activeMembers": "활성 멤버",
     "activeOf": "{total}명 중 {active}명",
     "edits": "편집",
     "pagesEdited": "편집된 페이지",
+    "views": "조회수",
+    "viewers": "조회한 사람",
+    "pagesViewed": "조회된 페이지",
     "howCounted": "편집은 페이지의 저장된 버전(누군가 입력하는 동안 최대 10분에 한 번, 그리고 앱·AI·복원으로 인한 변경 전마다 한 번) 또는 행의 값처럼 페이지 기록에 남지 않는 변경을 말합니다.",
+    "howViewsCounted": "조회는 소유자나 멤버가 앱에서 페이지, 데이터베이스, 행을 여는 것입니다. 5분 안에 다시 열면 세지 않습니다. 게스트, 에이전트, 연결된 앱, 게시된 페이지, 자신의 조회 기록을 끈 사람은 기록되지 않습니다. 조회는 1년간 보관됩니다.",
     "peopleHeading": "사람별 편집",
     "peopleDescription": "게스트도 편집 수와 함께 표시되지만 활성 멤버로 집계되지는 않습니다.",
     "pagesHeading": "가장 많이 편집된 페이지",
@@ -942,6 +948,13 @@
     "neverEdited": "편집 없음",
     "exportPeople": "사람별 편집을 CSV로 다운로드",
     "exportPages": "가장 많이 편집된 페이지를 CSV로 다운로드",
+    "viewersHeading": "사람별 조회수",
+    "viewersDescription": "소유자와 멤버. 게스트의 조회는 기록되지 않습니다.",
+    "viewedHeading": "가장 많이 조회된 페이지",
+    "noViews": "이 기간에 조회가 없습니다.",
+    "neverViewed": "조회 없음",
+    "exportViewers": "사람별 조회수를 CSV로 다운로드",
+    "exportViewed": "가장 많이 조회된 페이지를 CSV로 다운로드",
     "columns": {
       "person": "사람",
       "role": "역할",
@@ -949,8 +962,21 @@
       "pages": "페이지",
       "lastEdit": "마지막 편집",
       "page": "페이지",
-      "editors": "편집자"
+      "editors": "편집자",
+      "views": "조회수",
+      "viewers": "조회한 사람",
+      "lastView": "마지막 조회"
+    },
+    "recording": {
+      "title": "페이지 조회 기록",
+      "description": "소유자와 멤버가 어떤 페이지를 여는지 이 분석과 각 페이지의 분석을 위해 셉니다. 끄면 더 이상 기록하지 않고 편집만 표시합니다."
     }
+  },
+  "pageViews": {
+    "heading": "페이지 조회",
+    "title": "내 조회 기록",
+    "description": "여기서 연 페이지는 소유자와 페이지를 편집할 수 있는 사람이 보는 워크스페이스 분석에 집계됩니다. 내 조회를 제외하려면 끄세요.",
+    "workspaceOff": "이 워크스페이스는 페이지 조회를 기록하지 않습니다. 소유자가 껐습니다."
   },
   "aiUsage": {
     "description": "이 워크스페이스의 AI에 든 비용을 월, 기능, 모델별로 보여 주고 한 달에 쓸 수 있는 최대 금액을 정합니다. 숫자만 저장하며 질문이나 답변 내용은 절대 저장하지 않습니다. 소유자만 볼 수 있습니다.",

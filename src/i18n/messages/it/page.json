@@ -3,6 +3,7 @@
   "documentViewTitle": "{title} · {view} · Leafdesk",
   "header": {
     "history": "Cronologia della pagina",
+    "analytics": "Statistiche",
     "more": "Altro",
     "copyLink": "Copia link",
     "copyId": "Copia ID",
@@ -286,6 +287,26 @@
       "restore": "Impossibile ripristinare questa versione.",
       "diff": "Impossibile confrontare queste versioni."
     }
+  },
+  "analytics": {
+    "title": "Statistiche della pagina",
+    "period": "Periodo",
+    "days": "{days} giorni",
+    "views": "Visualizzazioni",
+    "viewers": "Visitatori",
+    "viewedBy": "Vista da",
+    "editedBy": "Modificata da",
+    "noViews": "Nessuno ha aperto questa pagina in questo periodo.",
+    "noEdits": "Nessuna modifica in questo periodo.",
+    "viewCount": "{count, plural, one {# visualizzazione} other {# visualizzazioni}}",
+    "editCount": "{count, plural, one {# modifica} other {# modifiche}}",
+    "chartLabel": "Visualizzazioni al giorno",
+    "dayViews": "{day}: {count, plural, one {# visualizzazione} other {# visualizzazioni}}",
+    "notRecorded": "Questo spazio di lavoro non registra le visualizzazioni, quindi si mostrano solo le modifiche. I proprietari possono attivarle in Impostazioni > Statistiche.",
+    "howCounted": "Una visualizzazione è un proprietario o un membro che apre la pagina; riaprirla entro 5 minuti non conta. Giorni in UTC.",
+    "howEditsCounted": "Le modifiche sono contate dalla cronologia della pagina e dalla sua ultima modifica.",
+    "noAccess": "Solo i proprietari dello spazio di lavoro e i membri che possono modificare questa pagina ne vedono le statistiche.",
+    "failed": "Impossibile caricare le statistiche."
   },
   "move": {
     "title": "Sposta in",

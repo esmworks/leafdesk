@@ -3,6 +3,7 @@
   "documentViewTitle": "{title} · {view} · Leafdesk",
   "header": {
     "history": "페이지 기록",
+    "analytics": "분석",
     "more": "더 보기",
     "copyLink": "링크 복사",
     "copyId": "ID 복사",
@@ -286,6 +287,26 @@
       "restore": "이 버전을 복원할 수 없습니다.",
       "diff": "이 버전들을 비교할 수 없습니다."
     }
+  },
+  "analytics": {
+    "title": "페이지 분석",
+    "period": "기간",
+    "days": "{days}일",
+    "views": "조회수",
+    "viewers": "조회한 사람",
+    "viewedBy": "조회한 사람",
+    "editedBy": "편집한 사람",
+    "noViews": "이 기간에 이 페이지를 연 사람이 없습니다.",
+    "noEdits": "이 기간에 편집이 없습니다.",
+    "viewCount": "조회 {count}회",
+    "editCount": "편집 {count}회",
+    "chartLabel": "일별 조회수",
+    "dayViews": "{day}: 조회 {count}회",
+    "notRecorded": "이 워크스페이스는 페이지 조회를 기록하지 않아 편집만 표시합니다. 소유자는 설정 > 분석에서 켤 수 있습니다.",
+    "howCounted": "조회는 소유자나 멤버가 페이지를 여는 것입니다. 5분 안에 다시 열면 세지 않습니다. 날짜는 UTC 기준입니다.",
+    "howEditsCounted": "편집은 페이지 기록과 페이지의 마지막 변경에서 셉니다.",
+    "noAccess": "이 페이지의 분석은 워크스페이스 소유자와 이 페이지를 편집할 수 있는 멤버만 볼 수 있습니다.",
+    "failed": "분석을 불러오지 못했습니다."
   },
   "move": {
     "title": "이동",

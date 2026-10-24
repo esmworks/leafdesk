@@ -3,6 +3,7 @@
   "documentViewTitle": "{title} · {view} · Leafdesk",
   "header": {
     "history": "ページ履歴",
+    "analytics": "分析",
     "more": "その他",
     "copyLink": "リンクをコピー",
     "copyId": "IDをコピー",
@@ -286,6 +287,26 @@
       "restore": "このバージョンを復元できませんでした。",
       "diff": "これらのバージョンを比較できませんでした。"
     }
+  },
+  "analytics": {
+    "title": "ページの分析",
+    "period": "期間",
+    "days": "{days} 日",
+    "views": "閲覧数",
+    "viewers": "閲覧者",
+    "viewedBy": "閲覧した人",
+    "editedBy": "編集した人",
+    "noViews": "この期間にこのページを開いた人はいません。",
+    "noEdits": "この期間の編集はありません。",
+    "viewCount": "{count} 回閲覧",
+    "editCount": "{count} 回編集",
+    "chartLabel": "日別の閲覧数",
+    "dayViews": "{day}: {count} 回閲覧",
+    "notRecorded": "このワークスペースはページの閲覧を記録していないため、編集だけを表示しています。オーナーは設定 > 分析でオンにできます。",
+    "howCounted": "閲覧とは、オーナーまたはメンバーがページを開くことです。5 分以内に開き直しても数えません。日付は UTC です。",
+    "howEditsCounted": "編集はページ履歴とページの最新の変更から数えます。",
+    "noAccess": "このページの分析を見られるのは、ワークスペースのオーナーと、このページを編集できるメンバーだけです。",
+    "failed": "分析を読み込めませんでした。"
   },
   "move": {
     "title": "移動先",

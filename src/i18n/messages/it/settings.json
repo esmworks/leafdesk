@@ -78,6 +78,8 @@
       "legalHolds": "contenzioso conserva ediscovery preserva",
       "storage": "file s3 drive bucket",
       "analyticsPeople": "attività modifiche statistiche",
+      "pageViews": "visualizzazioni visitatori più viste tracciamento privacy",
+      "ownPageViews": "visualizzazioni tracciamento privacy escludimi statistiche",
       "aiUsageLimit": "budget costo spesa tetto",
       "aiUsagePeople": "per persona membro costo token",
       "health": "link rotti orfane duplicati pagine vuote",
@@ -925,14 +927,18 @@
     }
   },
   "analytics": {
-    "description": "Quanto hanno modificato le persone in questo spazio di lavoro, calcolato dalla cronologia delle pagine e dall’ultima modifica di ogni pagina. Non viene tracciato nient’altro. Solo i proprietari vedono questi dati.",
+    "description": "Quanto ha modificato ciascuno in questo spazio di lavoro, contato dalla cronologia delle pagine e dall’ultima modifica di ogni pagina, e quali pagine ha aperto mentre le visualizzazioni vengono registrate. Lo vedono solo i proprietari.",
     "periods": "Periodo",
     "period": "Ultimi {days} giorni",
     "activeMembers": "Membri attivi",
     "activeOf": "{active} su {total}",
     "edits": "Modifiche",
     "pagesEdited": "Pagine modificate",
+    "views": "Visualizzazioni",
+    "viewers": "Visitatori",
+    "pagesViewed": "Pagine visualizzate",
     "howCounted": "Una modifica è una versione salvata di una pagina (al massimo una ogni 10 minuti mentre qualcuno scrive, e una prima di ogni modifica da app, IA o ripristino) oppure una modifica che la cronologia delle pagine non conserva, come i valori di una riga.",
+    "howViewsCounted": "Una visualizzazione è un proprietario o un membro che apre una pagina, un database o una riga nell’app; riaprirla entro 5 minuti non conta. Ospiti, agenti, app collegate, pagine pubblicate e persone che hanno disattivato le proprie visualizzazioni non vengono registrati. Le visualizzazioni sono conservate per un anno.",
     "peopleHeading": "Modifiche per persona",
     "peopleDescription": "Gli ospiti sono elencati con le loro modifiche ma non contano come membri attivi.",
     "pagesHeading": "Pagine più modificate",
@@ -942,6 +948,13 @@
     "neverEdited": "Nessuna modifica",
     "exportPeople": "Scarica le modifiche per persona in CSV",
     "exportPages": "Scarica le pagine più modificate in CSV",
+    "viewersHeading": "Visualizzazioni per persona",
+    "viewersDescription": "Proprietari e membri; le visualizzazioni degli ospiti non vengono registrate.",
+    "viewedHeading": "Pagine più visualizzate",
+    "noViews": "Nessuna visualizzazione in questo periodo.",
+    "neverViewed": "Nessuna visualizzazione",
+    "exportViewers": "Scarica le visualizzazioni per persona in CSV",
+    "exportViewed": "Scarica le pagine più visualizzate in CSV",
     "columns": {
       "person": "Persona",
       "role": "Ruolo",
@@ -949,8 +962,21 @@
       "pages": "Pagine",
       "lastEdit": "Ultima modifica",
       "page": "Pagina",
-      "editors": "Autori delle modifiche"
+      "editors": "Autori delle modifiche",
+      "views": "Visualizzazioni",
+      "viewers": "Visitatori",
+      "lastView": "Ultima visualizzazione"
+    },
+    "recording": {
+      "title": "Registra le visualizzazioni delle pagine",
+      "description": "Conta quali pagine aprono proprietari e membri, per queste statistiche e per quelle di ogni pagina. Disattivato, non si registra altro e si mostrano solo le modifiche."
     }
+  },
+  "pageViews": {
+    "heading": "Visualizzazioni delle pagine",
+    "title": "Registra le mie visualizzazioni",
+    "description": "Le pagine che apri qui contano nelle statistiche dello spazio di lavoro, che vedono i proprietari e chi può modificare una pagina. Disattivalo per escludere le tue visualizzazioni.",
+    "workspaceOff": "Questo spazio di lavoro non registra le visualizzazioni delle pagine: i proprietari le hanno disattivate."
   },
   "aiUsage": {
     "description": "Quanto è costata l'IA di questo spazio di lavoro, per mese, funzione e modello, e quanto può costare al massimo in un mese. Si conservano solo numeri, mai domande o risposte. Lo vedono solo i proprietari.",

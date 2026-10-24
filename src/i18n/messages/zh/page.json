@@ -3,6 +3,7 @@
   "documentViewTitle": "{title} · {view} · Leafdesk",
   "header": {
     "history": "页面历史",
+    "analytics": "分析",
     "more": "更多",
     "copyLink": "复制链接",
     "copyId": "复制 ID",
@@ -286,6 +287,26 @@
       "restore": "无法恢复此版本。",
       "diff": "无法比较这些版本。"
     }
+  },
+  "analytics": {
+    "title": "页面分析",
+    "period": "期间",
+    "days": "{days} 天",
+    "views": "浏览量",
+    "viewers": "浏览者",
+    "viewedBy": "浏览者",
+    "editedBy": "编辑者",
+    "noViews": "此期间没有人打开过此页面。",
+    "noEdits": "此期间没有编辑。",
+    "viewCount": "{count} 次浏览",
+    "editCount": "{count} 次编辑",
+    "chartLabel": "每日浏览量",
+    "dayViews": "{day}：{count} 次浏览",
+    "notRecorded": "此工作区不记录页面浏览，因此只显示编辑。所有者可以在设置 > 分析中开启。",
+    "howCounted": "一次浏览是所有者或成员打开此页面；5 分钟内再次打开不计。日期按 UTC 计算。",
+    "howEditsCounted": "编辑根据页面历史和页面的最新更改统计。",
+    "noAccess": "只有工作区的所有者和能编辑此页面的成员可以看到它的分析。",
+    "failed": "无法加载分析。"
   },
   "move": {
     "title": "移动到",

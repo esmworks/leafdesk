@@ -3,6 +3,7 @@
   "documentViewTitle": "{title} · {view} · Leafdesk",
   "header": {
     "history": "Histórico da página",
+    "analytics": "Análises",
     "more": "Mais",
     "copyLink": "Copiar link",
     "copyId": "Copiar ID",
@@ -286,6 +287,26 @@
       "restore": "Não foi possível restaurar esta versão.",
       "diff": "Não foi possível comparar estas versões."
     }
+  },
+  "analytics": {
+    "title": "Análises da página",
+    "period": "Período",
+    "days": "{days} dias",
+    "views": "Visualizações",
+    "viewers": "Visitantes",
+    "viewedBy": "Vista por",
+    "editedBy": "Editada por",
+    "noViews": "Ninguém abriu esta página neste período.",
+    "noEdits": "Nenhuma edição neste período.",
+    "viewCount": "{count, plural, one {# visualização} other {# visualizações}}",
+    "editCount": "{count, plural, one {# edição} other {# edições}}",
+    "chartLabel": "Visualizações por dia",
+    "dayViews": "{day}: {count, plural, one {# visualização} other {# visualizações}}",
+    "notRecorded": "Este espaço de trabalho não registra visualizações de páginas, então só as edições aparecem. Os proprietários podem ativá-las em Configurações > Análises.",
+    "howCounted": "Uma visualização é um proprietário ou membro abrindo a página; abrir de novo em menos de 5 minutos não conta. Dias em UTC.",
+    "howEditsCounted": "As edições são contadas a partir do histórico da página e da sua última alteração.",
+    "noAccess": "Só os proprietários do espaço de trabalho e os membros que podem editar esta página veem as estatísticas dela.",
+    "failed": "Não foi possível carregar as estatísticas."
   },
   "move": {
     "title": "Mover para",

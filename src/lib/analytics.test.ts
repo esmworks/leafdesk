@@ -14,6 +14,20 @@ const at = new Date("2026-09-20T12:00:00Z");
 const report: AnalyticsReport = {
   days: 30,
   since: new Date("2026-08-29T12:00:00Z"),
+  recording: true,
+  views: {
+    total: 12,
+    viewers: 2,
+    pagesViewed: 2,
+    people: [
+      { userId: "a", name: "Ayşe", email: "ayse@example.test", image: null, role: "owner", views: 9, pages: 2, lastViewAt: at },
+      { userId: "b", name: "=cmd()", email: "b@example.test", image: null, role: "member", views: 0, pages: 0, lastViewAt: null },
+    ],
+    pages: [
+      { id: "p1", title: "Roadmap", icon: null, kind: "page", views: 10, viewers: 2, lastViewAt: at },
+      { id: null, title: null, icon: null, kind: null, views: 2, viewers: 1, lastViewAt: at },
+    ],
+  },
   totalEdits: 7,
   pagesEdited: 2,
   activeMembers: 1,
@@ -64,9 +78,30 @@ describe("analyticsCsvRows", () => {
     ]);
   });
 
+  it("lists every member's views, and the most viewed pages untitled where the owner can't open them", () => {
+    expect(analyticsCsvRows(report, "viewers")).toEqual([
+      ["name", "email", "role", "views", "pages_viewed", "last_viewed_at"],
+      ["Ayşe", "ayse@example.test", "owner", 9, 2, at],
+      ["=cmd()", "b@example.test", "member", 0, 0, null],
+    ]);
+    expect(analyticsCsvRows(report, "viewed")).toEqual([
+      ["title", "private", "views", "viewers", "last_viewed_at"],
+      ["Roadmap", "no", 10, 2, at],
+      [null, "yes", 2, 1, at],
+    ]);
+  });
+
+  it("gives only the headers of the views tables while views aren't recorded", () => {
+    const off = { ...report, recording: false, views: null };
+    expect(analyticsCsvRows(off, "viewers")).toEqual([["name", "email", "role", "views", "pages_viewed", "last_viewed_at"]]);
+    expect(analyticsCsvRows(off, "viewed")).toEqual([["title", "private", "views", "viewers", "last_viewed_at"]]);
+  });
+
   it("knows its tables", () => {
     expect(isAnalyticsTable("members")).toBe(true);
     expect(isAnalyticsTable("pages")).toBe(true);
+    expect(isAnalyticsTable("viewers")).toBe(true);
+    expect(isAnalyticsTable("viewed")).toBe(true);
     expect(isAnalyticsTable("people")).toBe(false);
   });
 });

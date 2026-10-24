@@ -78,6 +78,8 @@
       "legalHolds": "诉讼 保全 电子取证 保留",
       "storage": "文件 s3 drive 存储桶",
       "analyticsPeople": "活动 编辑 统计",
+      "pageViews": "浏览 浏览者 访问 热门 跟踪 隐私",
+      "ownPageViews": "浏览 跟踪 隐私 退出 分析",
       "aiUsageLimit": "预算 费用 支出 上限",
       "aiUsagePeople": "按人 成员 费用 令牌",
       "health": "失效链接 孤立 重复 空页面",
@@ -925,14 +927,18 @@
     }
   },
   "analytics": {
-    "description": "人们在此工作区中的编辑量，根据页面历史和每个页面的最近更改统计。不会额外跟踪任何信息。只有所有者可以看到。",
+    "description": "此工作区中每个人编辑了多少（根据页面历史和每个页面的最新更改统计），以及在记录浏览期间打开了哪些页面。只有所有者能看到。",
     "periods": "时间段",
     "period": "过去 {days} 天",
     "activeMembers": "活跃成员",
     "activeOf": "{active}/{total}",
     "edits": "编辑",
     "pagesEdited": "已编辑的页面",
+    "views": "浏览量",
+    "viewers": "浏览者",
+    "pagesViewed": "被浏览的页面",
     "howCounted": "一次编辑是指页面的一个已保存版本（有人输入时每 10 分钟最多一个，以及每次应用、AI 或恢复更改之前各一个），或页面历史不保留的更改，例如行的值。",
+    "howViewsCounted": "一次浏览是所有者或成员在应用中打开一个页面、数据库或行；5 分钟内再次打开不计。访客、智能体、已连接的应用、已发布的页面以及关闭了自己浏览记录的人不会被记录。浏览记录保留一年。",
     "peopleHeading": "每人编辑次数",
     "peopleDescription": "访客及其编辑会列出，但不计为活跃成员。",
     "pagesHeading": "编辑最多的页面",
@@ -942,6 +948,13 @@
     "neverEdited": "没有编辑",
     "exportPeople": "将每人编辑次数下载为 CSV",
     "exportPages": "将编辑最多的页面下载为 CSV",
+    "viewersHeading": "按人统计的浏览量",
+    "viewersDescription": "所有者和成员；访客的浏览不会被记录。",
+    "viewedHeading": "浏览最多的页面",
+    "noViews": "此期间没有浏览。",
+    "neverViewed": "无浏览",
+    "exportViewers": "将按人统计的浏览量下载为 CSV",
+    "exportViewed": "将浏览最多的页面下载为 CSV",
     "columns": {
       "person": "人员",
       "role": "角色",
@@ -949,8 +962,21 @@
       "pages": "页面",
       "lastEdit": "最后编辑",
       "page": "页面",
-      "editors": "编辑者"
+      "editors": "编辑者",
+      "views": "浏览量",
+      "viewers": "浏览者",
+      "lastView": "最近浏览"
+    },
+    "recording": {
+      "title": "记录页面浏览",
+      "description": "统计所有者和成员打开了哪些页面，用于此处的分析和每个页面的分析。关闭后不再记录，只显示编辑。"
     }
+  },
+  "pageViews": {
+    "heading": "页面浏览",
+    "title": "记录我的浏览",
+    "description": "你在这里打开的页面会计入工作区的分析，所有者和能编辑页面的人可以看到。关闭即可不计入你的浏览。",
+    "workspaceOff": "此工作区不记录页面浏览：所有者已将其关闭。"
   },
   "aiUsage": {
     "description": "此工作区的 AI 按月份、功能和模型花费了多少，以及每月最多可以花多少。只保存数字，从不保存提问或回答的内容。只有所有者能看到。",
