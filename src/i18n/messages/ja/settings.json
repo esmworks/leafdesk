@@ -12,6 +12,7 @@
     "groups": "グループ",
     "agents": "エージェント",
     "connections": "接続",
+    "webhooks": "Webhook",
     "storage": "ストレージ",
     "analytics": "分析",
     "aiUsage": "AI の使用量",
@@ -957,6 +958,8 @@
     "moveToTrash": "ゴミ箱に移動",
     "confirmTrash": "「{title}」をゴミ箱に移動しますか？",
     "lastEdited": "最終編集：{when}",
+    "verificationEndedBy": "{name}が検証、{when}に終了",
+    "verificationEnded": "検証は{when}に終了",
     "alike": "類似度{similarity, number, percent}",
     "inProperty": "{database}の{property}",
     "removeFromRelation": "削除",
@@ -980,6 +983,11 @@
       "title": "更新されていないページ",
       "description": "過去{months}か月間誰も編集していないページです。最も長く更新されていないものから表示します。内容が古くなっている可能性があります。",
       "none": "すべてのページが最近編集されています。"
+    },
+    "expiredVerifications": {
+      "title": "期限切れの検証",
+      "description": "検証の期限日が過ぎたページです。内容を確認して再検証するか、検証を解除してください。",
+      "none": "期限切れの検証はありません。"
     },
     "duplicates": {
       "title": "重複の可能性",
@@ -1568,6 +1576,8 @@
         "permission_removed": "{target}の共有から{subject}を削除しました",
         "row_access_changed": "{target}の行がアクセス権を与えるユーザーを変更しました",
         "deleted": "{target}を完全に削除しました",
+        "verified": "{target}を検証しました",
+        "unverified": "{target}の検証を解除しました",
         "published": "{target}をWebに公開しました",
         "unpublished": "{target}の公開を停止しました",
         "publication_revoked": "{target}をWebから取り下げました（公開者：{subject}）",
@@ -1639,6 +1649,11 @@
         "created": "{target}にオートメーション「{name}」を作成しました",
         "updated": "{change, select, on {{target}のオートメーション「{name}」をオンにしました} off {{target}のオートメーション「{name}」をオフにしました} other {{target}のオートメーション「{name}」を変更しました}}",
         "deleted": "{target}のオートメーション「{name}」を削除しました"
+      },
+      "webhook": {
+        "created": "Webhook「{target}」を追加しました",
+        "updated": "{change, select, on {Webhook「{target}」をオンにしました} off {Webhook「{target}」をオフにしました} other {Webhook「{target}」を変更しました}}",
+        "deleted": "Webhook「{target}」を削除しました"
       },
       "export": {
         "workspace": "ワークスペースをエクスポートしました（{count}ページ）",
@@ -1771,7 +1786,10 @@
     "followUpChannel": "フォローアップ：{channel}",
     "reactionTitle": "リアクション",
     "reactionDescription": "あなたのコメントに誰かがリアクションしたとき。同じコメントへのリアクションは、開くまでまとめて表示されます。",
-    "reactionChannel": "リアクション: {channel}"
+    "reactionChannel": "リアクション: {channel}",
+    "verificationTitle": "検証したページ",
+    "verificationDescription": "検証したページの検証期限が近づいたとき（数日前）と、期限が切れたときにお知らせします。",
+    "verificationChannel": "検証したページ：{channel}"
   },
   "site": {
     "description": "このワークスペースの公開ページに、わかりやすい1つのアドレス、ホームページ、ページ間のナビゲーションを用意します。",
@@ -2009,6 +2027,102 @@
       "redo": "メモを付けて差し戻す…",
       "notWhole": "この呼び出しは、ここに表示されているより長いか、ここではマスクされている値を含んでいます。承認する前に、実行を開いて送信される内容をすべて確認してください。",
       "openRun": "実行を開いて承認"
+    }
+  },
+  "webhooks": {
+    "description": "このワークスペースのページで起きたことを、その都度別のサービスに送信します。署名付きの POST リクエストを https アドレスに送り、対象はワークスペース全体、1つのチームスペース、または1つのページとその配下のページから選べます。各リクエストは最後に Webhook を保存した人として、その人が開ける範囲で送信されます。データベースの行とテンプレートは送信されません。",
+    "exportOff": "「設定 › セキュリティ」でエクスポートがオフになっているため、再びオンにするまで Webhook は何も送信しません。",
+    "count": "{count, plural, =0 {Webhook はまだありません。} other {# 件の Webhook}}",
+    "add": "Webhook を追加",
+    "empty": "Webhook を追加すると、ページのイベントを自分のサービスに送信できます。",
+    "allEvents": "すべてのイベント",
+    "scopeLabel": {
+      "workspace": "ワークスペースのすべてのページ",
+      "teamspace": "{name}のページ",
+      "page": "{title}とその配下のページ"
+    },
+    "events": {
+      "pageCreated": "ページの作成",
+      "pageUpdated": "ページの編集",
+      "pageMoved": "ページの移動",
+      "pageTrashed": "ページをゴミ箱に移動",
+      "pageRestored": "ページをゴミ箱から復元",
+      "pageDeleted": "ページの完全削除",
+      "commentCreated": "コメントの追加",
+      "ping": "テスト"
+    },
+    "sendsAs": "{name}として、その人が開ける範囲で送信します。",
+    "paused": "一時停止中：{name}はオーナーではなくなりました。保存すると、あなたとして送信されます。",
+    "pausedBadge": "一時停止中",
+    "offBadge": "オフ",
+    "toggle": "{name}を送信する",
+    "test": "テストを送信",
+    "testDelivered": "テストはアドレスに届きました（応答：{status}）。",
+    "testFailed": "テストを送信できませんでした：{reason}。",
+    "edit": "編集",
+    "delete": "削除",
+    "deleteNote": "すぐに停止し、配信ログも削除されます。",
+    "working": "処理中…",
+    "secret": {
+      "show": "署名シークレット",
+      "rotate": "新しいシークレット",
+      "rotateNote": "現在のシークレットはすぐに署名に使われなくなります。シークレットで確認しているサービス側も更新してください。",
+      "title": "「{name}」の署名シークレット",
+      "label": "署名シークレット",
+      "note": "これを使って各リクエストの X-Leafdesk-Signature ヘッダーを確認してください。形式は t=TIME,v1=HMAC で、HMAC は TIME、ドット、本文をつないだものの16進数の HMAC-SHA256 です。シークレットは外部に漏らさないでください。"
+    },
+    "log": {
+      "title": "{count, plural, =0 {最近の配信} other {最近の配信（#）}}",
+      "empty": "過去30日間に送信されたものはありません。",
+      "attempts": "{count, plural, other {#回試行}}",
+      "next": "次回の試行：{when}"
+    },
+    "status": {
+      "pending": "待機中",
+      "delivered": "配信済み",
+      "failed": "失敗",
+      "skipped": "未送信"
+    },
+    "codes": {
+      "noAccess": "送信者として設定された人がページを開けません",
+      "notOwner": "送信者として設定された人がオーナーではなくなりました",
+      "exportOff": "エクスポートがオフです",
+      "disabled": "Webhook がオフです",
+      "invalidUrl": "アドレスが無効です",
+      "blocked": "アドレスがプライベートネットワーク上にあります",
+      "unreachable": "アドレスに接続できませんでした",
+      "timeout": "10秒以内に応答がありませんでした",
+      "redirect": "アドレスがリダイレクトで応答しました",
+      "http": "アドレスが {status} で応答しました"
+    },
+    "form": {
+      "title": "Webhook を追加",
+      "editTitle": "Webhook を変更",
+      "name": "名前",
+      "url": "アドレス",
+      "urlHint": "https アドレスを指定します。リクエストには署名が付き、リダイレクトはたどりません。",
+      "events": "イベント",
+      "scope": "ページ",
+      "scopes": {
+        "workspace": "ワークスペース全体",
+        "teamspace": "1つのチームスペース",
+        "page": "1つのページとその配下のページ"
+      },
+      "teamspace": "チームスペースを選択",
+      "pickPage": "ページを検索",
+      "noPages": "選択できるページがありません。",
+      "otherPage": "変更",
+      "save": "保存",
+      "create": "Webhook を追加"
+    },
+    "errors": {
+      "invalidName": "Webhook の名前を100文字以内で入力してください。",
+      "invalidUrl": "ユーザー名やパスワードを含まない有効な https アドレスを入力してください。",
+      "httpsOnly": "Webhook の送信先は https アドレスのみです。",
+      "noEvents": "イベントを1つ以上選択してください。",
+      "invalidScope": "このワークスペースのチームスペースまたはページを選択してください。",
+      "tooMany": "1つのワークスペースに設定できる Webhook は25件までです。",
+      "ownersOnly": "Webhook を管理できるのはワークスペースのオーナーだけです。"
     }
   },
   "email": {

@@ -72,6 +72,16 @@
     "action": "Apri la pagina",
     "optOut": "Ricevi queste email perché hai impostato un promemoria. Puoi disattivarle in Il mio account > Preferenze."
   },
+  "pageVerification": {
+    "endsSubject": "La tua verifica di “{page}” scade il {date}",
+    "endsHeading": "La verifica scade a breve",
+    "endsBody": "Hai verificato “{page}” in {workspace} fino al {date}. Se è ancora corretta, verificala di nuovo dal menu ⋯ della pagina per mantenerla verificata.",
+    "endedSubject": "La tua verifica di “{page}” è scaduta",
+    "endedHeading": "Verifica scaduta",
+    "endedBody": "La tua verifica di “{page}” in {workspace} è scaduta il {date}. La pagina mostra “Verifica scaduta” finché qualcuno non la verifica di nuovo.",
+    "action": "Apri la pagina",
+    "optOut": "Ricevi queste email perché hai verificato la pagina. Puoi disattivarle in Il mio account > Preferenze."
+  },
   "dateReminder": {
     "subject": "Promemoria: “{page}” il {date}",
     "heading": "“{page}” è il {date}",
@@ -234,6 +244,8 @@
     "followUp": "Follow-up “{sequence}” in pausa: la prossima email va controllata",
     "reaction": "{actor} ha reagito con {emoji} al tuo commento",
     "people": "{others, plural, =0 {{name}} one {{name} e # altra persona} other {{name} e altre # persone}}",
+    "verificationEnds": "La tua verifica di questa pagina scade il {date}",
+    "verificationEnded": "La tua verifica di questa pagina è scaduta il {date}",
     "someone": "Qualcuno",
     "joinRequestTitle": "Richiesta di adesione",
     "joinRequest": "{actor} ha chiesto di unirsi",

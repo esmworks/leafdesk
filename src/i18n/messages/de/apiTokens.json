@@ -110,6 +110,10 @@
       "agents": {
         "name": "Agenten",
         "hint": "Einstellungen, Ausführungen, Zeitpläne und Freigaben von Agenten."
+      },
+      "webhooks": {
+        "name": "Webhooks",
+        "hint": "Seiten-Webhooks und ihre Zustellungen; Schreiben fügt sie hinzu, ändert und testet sie (nur Inhaber)."
       }
     },
     "summary": {

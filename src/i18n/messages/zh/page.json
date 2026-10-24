@@ -120,6 +120,39 @@
     "unarchive": "取消归档",
     "hint": "已归档的页面不会出现在侧边栏、搜索和选择列表中，但仍可阅读和编辑。"
   },
+  "verification": {
+    "byUntil": "由 {name} 验证，有效期至 {date}",
+    "by": "由 {name} 验证",
+    "until": "已验证，有效期至 {date}",
+    "plain": "已验证",
+    "expiredOn": "验证已过期：{date}",
+    "hint": "拥有完全访问权限的人检查了此页面并将其标记为正确。编辑页面不会取消验证。",
+    "change": "更改或移除验证",
+    "menu": "验证页面…",
+    "menuVerified": "验证…",
+    "menuHint": "将页面标记为已检查且正确：搜索会将其排得更靠前，AI 聊天会优先参考它",
+    "title": "验证页面",
+    "description": "将此页面标记为已检查且正确，可以设定期限，也可以不设期限。已验证的页面在搜索中排名更靠前、带有标记，可用 is:verified 找到，AI 聊天也会优先参考它们。编辑页面不会取消验证；结束前几天你会收到通知。",
+    "durationLabel": "验证期限",
+    "durations": {
+      "week": "1 周",
+      "month": "1 个月",
+      "quarter": "3 个月",
+      "year": "1 年",
+      "until": "到指定日期",
+      "forever": "永久"
+    },
+    "dateLabel": "验证有效期至",
+    "verify": "验证",
+    "verifyAgain": "重新验证",
+    "remove": "移除验证",
+    "searchBadge": "已验证",
+    "errors": {
+      "template": "模板及其中的页面无法验证。",
+      "inTrash": "请先从回收站恢复该页面。",
+      "invalidEnd": "请选择今天之后、五年以内的日期。"
+    }
+  },
   "icon": {
     "add": "添加图标",
     "remove": "移除图标"

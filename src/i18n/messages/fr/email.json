@@ -72,6 +72,16 @@
     "action": "Ouvrir la page",
     "optOut": "Vous recevez ces e-mails, car vous avez défini un rappel. Vous pouvez les désactiver dans Mon compte > Préférences."
   },
+  "pageVerification": {
+    "endsSubject": "Votre vérification de « {page} » prend fin le {date}",
+    "endsHeading": "La vérification prend bientôt fin",
+    "endsBody": "Vous avez vérifié « {page} » dans {workspace} jusqu’au {date}. Si elle est toujours juste, vérifiez-la à nouveau depuis le menu ⋯ de la page pour qu’elle reste vérifiée.",
+    "endedSubject": "Votre vérification de « {page} » a expiré",
+    "endedHeading": "Vérification expirée",
+    "endedBody": "Votre vérification de « {page} » dans {workspace} a pris fin le {date}. La page affiche « Vérification expirée » jusqu’à ce que quelqu’un la vérifie à nouveau.",
+    "action": "Ouvrir la page",
+    "optOut": "Vous recevez ces e-mails, car vous avez vérifié la page. Vous pouvez les désactiver dans Mon compte > Préférences."
+  },
   "dateReminder": {
     "subject": "Rappel : « {page} » le {date}",
     "heading": "« {page} » est le {date}",
@@ -234,6 +244,8 @@
     "followUp": "Relance « {sequence} » en pause : son prochain e-mail est à vérifier",
     "reaction": "{actor} a réagi {emoji} à votre commentaire",
     "people": "{others, plural, =0 {{name}} one {{name} et # autre personne} other {{name} et # autres personnes}}",
+    "verificationEnds": "Votre vérification de cette page prend fin le {date}",
+    "verificationEnded": "Votre vérification de cette page a expiré le {date}",
     "someone": "Quelqu’un",
     "joinRequestTitle": "Demande d'accès",
     "joinRequest": "{actor} a demandé à rejoindre l'espace",

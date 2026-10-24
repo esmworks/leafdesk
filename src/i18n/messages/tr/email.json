@@ -72,6 +72,16 @@
     "action": "Sayfayı aç",
     "optOut": "Hatırlatma kurduğunuz için bu e-postaları alıyorsunuz. Hesabım > Tercihler'den kapatabilirsiniz."
   },
+  "pageVerification": {
+    "endsSubject": "“{page}” sayfasındaki doğrulamanız {date} tarihinde sona eriyor",
+    "endsHeading": "Doğrulama yakında sona eriyor",
+    "endsBody": "{workspace} çalışma alanındaki “{page}” sayfasını {date} tarihine kadar doğruladınız. Hâlâ doğruysa, doğrulanmış kalması için sayfanın ⋯ menüsünden yeniden doğrulayın.",
+    "endedSubject": "“{page}” sayfasındaki doğrulamanızın süresi doldu",
+    "endedHeading": "Doğrulamanın süresi doldu",
+    "endedBody": "{workspace} çalışma alanındaki “{page}” sayfasına ait doğrulamanız {date} tarihinde sona erdi. Biri yeniden doğrulayana kadar sayfada “Doğrulamanın süresi doldu” yazar.",
+    "action": "Sayfayı aç",
+    "optOut": "Sayfayı doğruladığınız için bu e-postaları alıyorsunuz. Hesabım > Tercihler'den kapatabilirsiniz."
+  },
   "dateReminder": {
     "subject": "Hatırlatma: “{page}”, {date}",
     "heading": "“{page}”: {date}",
@@ -234,6 +244,8 @@
     "followUp": "“{sequence}” takibi duraklatıldı: sıradaki e-postasına bakılması gerekiyor",
     "reaction": "{actor} yorumunuza {emoji} tepkisi verdi",
     "people": "{others, plural, =0 {{name}} one {{name} ve # kişi daha} other {{name} ve # kişi daha}}",
+    "verificationEnds": "Bu sayfadaki doğrulamanız {date} tarihinde sona eriyor",
+    "verificationEnded": "Bu sayfadaki doğrulamanızın süresi {date} tarihinde doldu",
     "someone": "Biri",
     "joinRequestTitle": "Katılma isteği",
     "joinRequest": "{actor} katılmak istedi",

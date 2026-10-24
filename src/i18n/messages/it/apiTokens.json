@@ -110,6 +110,10 @@
       "agents": {
         "name": "Agenti",
         "hint": "Impostazioni, esecuzioni, pianificazioni e condivisione degli agenti."
+      },
+      "webhooks": {
+        "name": "Webhook",
+        "hint": "Webhook delle pagine e le loro consegne; la scrittura li aggiunge, li modifica e li prova (solo proprietari)."
       }
     },
     "summary": {

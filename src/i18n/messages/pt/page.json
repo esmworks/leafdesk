@@ -120,6 +120,39 @@
     "unarchive": "Desarquivar",
     "hint": "Páginas arquivadas ficam fora da barra lateral, da pesquisa e dos seletores, mas ainda podem ser lidas e editadas."
   },
+  "verification": {
+    "byUntil": "Verificada por {name} até {date}",
+    "by": "Verificada por {name}",
+    "until": "Verificada até {date}",
+    "plain": "Verificada",
+    "expiredOn": "Verificação expirada em {date}",
+    "hint": "Alguém com acesso total conferiu esta página e a marcou como correta. Editá-la a mantém verificada.",
+    "change": "Alterar ou remover a verificação",
+    "menu": "Verificar página…",
+    "menuVerified": "Verificação…",
+    "menuHint": "Marcar a página como conferida e correta: a pesquisa a coloca mais acima e o chat de IA a prefere",
+    "title": "Verificar página",
+    "description": "Marque esta página como conferida e correta, por um tempo ou sem prazo. A pesquisa coloca as páginas verificadas mais acima, as destaca e as encontra com is:verified, e o chat de IA as prefere. Editar a página a mantém verificada; você recebe um aviso alguns dias antes do fim.",
+    "durationLabel": "Verificada durante",
+    "durations": {
+      "week": "1 semana",
+      "month": "1 mês",
+      "quarter": "3 meses",
+      "year": "1 ano",
+      "until": "Até um dia",
+      "forever": "Sem prazo"
+    },
+    "dateLabel": "Verificada até",
+    "verify": "Verificar",
+    "verifyAgain": "Verificar de novo",
+    "remove": "Remover verificação",
+    "searchBadge": "Verificada",
+    "errors": {
+      "template": "Modelos e as páginas dentro deles não são verificados.",
+      "inTrash": "Primeiro restaure a página da lixeira.",
+      "invalidEnd": "Escolha um dia depois de hoje, dentro de cinco anos."
+    }
+  },
   "icon": {
     "add": "Adicionar ícone",
     "remove": "Remover ícone"

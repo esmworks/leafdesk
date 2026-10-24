@@ -72,6 +72,16 @@
     "action": "Abrir página",
     "optOut": "Você recebe estes e-mails porque definiu um lembrete. Você pode desativá-los em Minha conta > Preferências."
   },
+  "pageVerification": {
+    "endsSubject": "Sua verificação de “{page}” termina em {date}",
+    "endsHeading": "A verificação termina em breve",
+    "endsBody": "Você verificou “{page}” em {workspace} até {date}. Se ela ainda estiver correta, verifique-a de novo pelo menu ⋯ da página para mantê-la verificada.",
+    "endedSubject": "Sua verificação de “{page}” expirou",
+    "endedHeading": "Verificação expirada",
+    "endedBody": "Sua verificação de “{page}” em {workspace} terminou em {date}. A página mostra “Verificação expirada” até que alguém a verifique de novo.",
+    "action": "Abrir página",
+    "optOut": "Você recebe estes e-mails porque verificou a página. Você pode desativá-los em Minha conta > Preferências."
+  },
   "dateReminder": {
     "subject": "Lembrete: “{page}” em {date}",
     "heading": "“{page}” é em {date}",
@@ -234,6 +244,8 @@
     "followUp": "Acompanhamento “{sequence}” pausado: o próximo e-mail precisa de uma olhada",
     "reaction": "{actor} reagiu com {emoji} ao seu comentário",
     "people": "{others, plural, =0 {{name}} one {{name} e mais # pessoa} other {{name} e mais # pessoas}}",
+    "verificationEnds": "Sua verificação desta página termina em {date}",
+    "verificationEnded": "Sua verificação desta página expirou em {date}",
     "someone": "Alguém",
     "joinRequestTitle": "Solicitação para participar",
     "joinRequest": "{actor} pediu para participar",

@@ -12,6 +12,7 @@
     "groups": "Grup",
     "agents": "Agen",
     "connections": "Koneksi",
+    "webhooks": "Webhook",
     "storage": "Penyimpanan",
     "analytics": "Analitik",
     "aiUsage": "Penggunaan AI",
@@ -957,6 +958,8 @@
     "moveToTrash": "Pindahkan ke sampah",
     "confirmTrash": "Pindahkan “{title}” ke sampah?",
     "lastEdited": "Terakhir diedit {when}",
+    "verificationEndedBy": "Diverifikasi oleh {name}, berakhir {when}",
+    "verificationEnded": "Verifikasi berakhir {when}",
     "alike": "{similarity, number, percent} mirip",
     "inProperty": "{property} di {database}",
     "removeFromRelation": "Hapus",
@@ -980,6 +983,11 @@
       "title": "Halaman tidak tersentuh",
       "description": "Halaman yang tidak diedit siapa pun dalam {months} bulan terakhir, yang paling lama tidak tersentuh lebih dulu. Isinya mungkin sudah usang.",
       "none": "Setiap halaman baru-baru ini diedit."
+    },
+    "expiredVerifications": {
+      "title": "Verifikasi kedaluwarsa",
+      "description": "Halaman yang diverifikasi seseorang hingga tanggal yang sudah lewat. Periksa dan verifikasi lagi, atau hapus verifikasinya.",
+      "none": "Tidak ada verifikasi yang kedaluwarsa."
     },
     "duplicates": {
       "title": "Kemungkinan duplikat",
@@ -1568,6 +1576,8 @@
         "permission_removed": "Mengeluarkan {subject} dari berbagi {target}",
         "row_access_changed": "Mengubah siapa yang diberi akses oleh baris {target}",
         "deleted": "Menghapus {target} secara permanen",
+        "verified": "Memverifikasi {target}",
+        "unverified": "Menghapus verifikasi {target}",
         "published": "Menerbitkan {target} ke web",
         "unpublished": "Membatalkan penerbitan {target}",
         "publication_revoked": "Menurunkan {target} dari web (diterbitkan oleh {subject})",
@@ -1639,6 +1649,11 @@
         "created": "Membuat otomatisasi “{name}” di {target}",
         "updated": "{change, select, on {Mengaktifkan otomatisasi “{name}” di {target}} off {Mematikan otomatisasi “{name}” di {target}} other {Mengubah otomatisasi “{name}” di {target}}}",
         "deleted": "Menghapus otomatisasi “{name}” di {target}"
+      },
+      "webhook": {
+        "created": "Menambahkan webhook “{target}”",
+        "updated": "{change, select, on {Mengaktifkan webhook “{target}”} off {Menonaktifkan webhook “{target}”} other {Mengubah webhook “{target}”}}",
+        "deleted": "Menghapus webhook “{target}”"
       },
       "export": {
         "workspace": "Mengekspor ruang kerja ({count, plural, other {# halaman}})",
@@ -1771,7 +1786,10 @@
     "followUpChannel": "Tindak lanjut: {channel}",
     "reactionTitle": "Reaksi",
     "reactionDescription": "Seseorang memberi reaksi pada komentar yang Anda tulis. Reaksi pada komentar yang sama digabung sampai Anda membukanya.",
-    "reactionChannel": "Reaksi: {channel}"
+    "reactionChannel": "Reaksi: {channel}",
+    "verificationTitle": "Halaman yang Anda verifikasi",
+    "verificationDescription": "Halaman yang Anda verifikasi akan segera tidak terverifikasi lagi: beberapa hari sebelumnya, dan saat hal itu terjadi.",
+    "verificationChannel": "Halaman yang Anda verifikasi: {channel}"
   },
   "site": {
     "description": "Beri halaman terbit ruang kerja ini satu alamat yang mudah dibaca, sebuah beranda, dan navigasi di antaranya.",
@@ -2009,6 +2027,102 @@
       "redo": "Kembalikan dengan catatan…",
       "notWhole": "Panggilan ini lebih panjang dari yang ditampilkan di sini, atau memuat nilai yang disamarkan di sini. Buka eksekusinya untuk melihat semua yang akan dikirim sebelum menyetujuinya.",
       "openRun": "Buka eksekusi untuk menyetujui"
+    }
+  },
+  "webhooks": {
+    "description": "Kirim apa yang terjadi pada halaman ruang kerja ini ke layanan lain saat itu juga: permintaan POST bertanda tangan ke alamat https, untuk seluruh ruang kerja, satu ruang tim, atau satu halaman beserta halaman di bawahnya. Setiap permintaan dikirim atas nama orang yang terakhir menyimpan webhook, sebatas apa yang boleh dia buka; baris basis data dan templat tidak dikirim.",
+    "exportOff": "Ekspor dinonaktifkan di Pengaturan › Keamanan, jadi webhook tidak mengirim apa pun sampai ekspor diaktifkan lagi.",
+    "count": "{count, plural, =0 {Belum ada webhook.} other {# webhook}}",
+    "add": "Tambah webhook",
+    "empty": "Tambahkan webhook untuk mengirim peristiwa halaman ke layanan milik Anda sendiri.",
+    "allEvents": "Semua peristiwa",
+    "scopeLabel": {
+      "workspace": "Semua halaman ruang kerja",
+      "teamspace": "Halaman {name}",
+      "page": "{title} dan halaman di bawahnya"
+    },
+    "events": {
+      "pageCreated": "Halaman dibuat",
+      "pageUpdated": "Halaman diedit",
+      "pageMoved": "Halaman dipindahkan",
+      "pageTrashed": "Halaman dipindahkan ke sampah",
+      "pageRestored": "Halaman dipulihkan dari sampah",
+      "pageDeleted": "Halaman dihapus permanen",
+      "commentCreated": "Komentar ditambahkan",
+      "ping": "Uji"
+    },
+    "sendsAs": "Dikirim atas nama {name}, sebatas apa yang boleh dia buka.",
+    "paused": "Dijeda: {name} bukan lagi pemilik. Simpan untuk mengirim atas nama Anda.",
+    "pausedBadge": "Dijeda",
+    "offBadge": "Nonaktif",
+    "toggle": "Kirim {name}",
+    "test": "Kirim uji",
+    "testDelivered": "Uji sampai ke alamat tersebut (jawabannya {status}).",
+    "testFailed": "Uji tidak berhasil: {reason}.",
+    "edit": "Edit",
+    "delete": "Hapus",
+    "deleteNote": "Webhook langsung berhenti, dan log pengirimannya ikut terhapus.",
+    "working": "Memproses…",
+    "secret": {
+      "show": "Rahasia penandatanganan",
+      "rotate": "Rahasia baru",
+      "rotateNote": "Rahasia saat ini langsung berhenti menandatangani: perbarui layanan yang memeriksanya.",
+      "title": "Rahasia penandatanganan “{name}”",
+      "label": "Rahasia penandatanganan",
+      "note": "Gunakan untuk memeriksa header X-Leafdesk-Signature pada setiap permintaan: t=TIME,v1=HMAC, dengan HMAC adalah HMAC-SHA256 heksadesimal dari TIME, sebuah titik, dan isi permintaan. Jaga kerahasiaannya."
+    },
+    "log": {
+      "title": "{count, plural, =0 {Pengiriman terbaru} other {Pengiriman terbaru (#)}}",
+      "empty": "Tidak ada yang dikirim dalam 30 hari terakhir.",
+      "attempts": "{count, plural, other {# percobaan}}",
+      "next": "percobaan berikutnya pukul {when}"
+    },
+    "status": {
+      "pending": "Menunggu",
+      "delivered": "Terkirim",
+      "failed": "Gagal",
+      "skipped": "Tidak dikirim"
+    },
+    "codes": {
+      "noAccess": "orang yang menjadi pengirim tidak dapat membuka halaman",
+      "notOwner": "orang yang menjadi pengirim bukan lagi pemilik",
+      "exportOff": "ekspor dinonaktifkan",
+      "disabled": "webhook nonaktif",
+      "invalidUrl": "alamat tidak valid",
+      "blocked": "alamat berada di jaringan pribadi",
+      "unreachable": "alamat tidak dapat dijangkau",
+      "timeout": "tidak ada jawaban dalam 10 detik",
+      "redirect": "alamat menjawab dengan pengalihan",
+      "http": "alamat menjawab {status}"
+    },
+    "form": {
+      "title": "Tambah webhook",
+      "editTitle": "Ubah webhook",
+      "name": "Nama",
+      "url": "Alamat",
+      "urlHint": "Alamat https. Permintaan ditandatangani; pengalihan tidak diikuti.",
+      "events": "Peristiwa",
+      "scope": "Halaman",
+      "scopes": {
+        "workspace": "Seluruh ruang kerja",
+        "teamspace": "Satu ruang tim",
+        "page": "Satu halaman dan halaman di bawahnya"
+      },
+      "teamspace": "Pilih ruang tim",
+      "pickPage": "Cari halaman",
+      "noPages": "Tidak ada halaman untuk dipilih.",
+      "otherPage": "Ubah",
+      "save": "Simpan",
+      "create": "Tambah webhook"
+    },
+    "errors": {
+      "invalidName": "Beri webhook nama hingga 100 karakter.",
+      "invalidUrl": "Masukkan alamat https yang valid tanpa nama pengguna atau kata sandi.",
+      "httpsOnly": "Webhook hanya dikirim ke alamat https.",
+      "noEvents": "Pilih setidaknya satu peristiwa.",
+      "invalidScope": "Pilih ruang tim atau halaman di ruang kerja ini.",
+      "tooMany": "Satu ruang kerja dapat memiliki hingga 25 webhook.",
+      "ownersOnly": "Hanya pemilik ruang kerja yang mengelola webhook."
     }
   },
   "email": {

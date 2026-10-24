@@ -120,6 +120,39 @@
     "unarchive": "Desarchivar",
     "hint": "Las páginas archivadas no aparecen en la barra lateral, la búsqueda ni los selectores, pero se pueden seguir leyendo y editando."
   },
+  "verification": {
+    "byUntil": "Verificada por {name} hasta el {date}",
+    "by": "Verificada por {name}",
+    "until": "Verificada hasta el {date}",
+    "plain": "Verificada",
+    "expiredOn": "Verificación caducada el {date}",
+    "hint": "Alguien con acceso completo revisó esta página y la marcó como correcta. Editarla no quita la verificación.",
+    "change": "Cambiar o quitar la verificación",
+    "menu": "Verificar página…",
+    "menuVerified": "Verificación…",
+    "menuHint": "Marca la página como revisada y correcta: la búsqueda la sitúa más arriba y el chat de IA la prefiere",
+    "title": "Verificar página",
+    "description": "Marca esta página como revisada y correcta, por un tiempo o sin fecha de fin. La búsqueda sitúa más arriba las páginas verificadas, las señala y las encuentra con is:verified, y el chat de IA las prefiere. Editar la página no quita la verificación; te avisamos unos días antes de que termine.",
+    "durationLabel": "Verificada durante",
+    "durations": {
+      "week": "1 semana",
+      "month": "1 mes",
+      "quarter": "3 meses",
+      "year": "1 año",
+      "until": "Hasta un día",
+      "forever": "Sin fecha de fin"
+    },
+    "dateLabel": "Verificada hasta",
+    "verify": "Verificar",
+    "verifyAgain": "Volver a verificar",
+    "remove": "Quitar la verificación",
+    "searchBadge": "Verificada",
+    "errors": {
+      "template": "Las plantillas y las páginas que contienen no se verifican.",
+      "inTrash": "Primero restaura la página desde la papelera.",
+      "invalidEnd": "Elige un día posterior a hoy y dentro de los próximos cinco años."
+    }
+  },
   "icon": {
     "add": "Añadir icono",
     "remove": "Quitar icono"

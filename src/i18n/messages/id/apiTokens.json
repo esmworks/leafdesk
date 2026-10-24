@@ -110,6 +110,10 @@
       "agents": {
         "name": "Agen",
         "hint": "Pengaturan, eksekusi, jadwal, dan pembagian agen."
+      },
+      "webhooks": {
+        "name": "Webhook",
+        "hint": "Webhook halaman dan pengirimannya; akses tulis menambah, mengubah, dan mengujinya (khusus pemilik)."
       }
     },
     "summary": {

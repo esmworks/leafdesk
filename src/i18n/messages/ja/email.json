@@ -72,6 +72,16 @@
     "action": "ページを開く",
     "optOut": "リマインダーを設定したため、このメールが届いています。「マイアカウント > 環境設定」でオフにできます。"
   },
+  "pageVerification": {
+    "endsSubject": "「{page}」の検証は{date}に終了します",
+    "endsHeading": "検証の期限が近づいています",
+    "endsBody": "{workspace}の「{page}」を{date}まで検証済みにしています。内容がまだ正しければ、ページの⋯メニューから再検証して検証済みの状態を保ってください。",
+    "endedSubject": "「{page}」の検証の期限が切れました",
+    "endedHeading": "検証の期限切れ",
+    "endedBody": "{workspace}の「{page}」の検証は{date}に終了しました。誰かが再検証するまで、ページには「検証の期限切れ」と表示されます。",
+    "action": "ページを開く",
+    "optOut": "ページを検証したため、このメールが届いています。「マイアカウント > 環境設定」でオフにできます。"
+  },
   "dateReminder": {
     "subject": "リマインダー：「{page}」（{date}）",
     "heading": "「{page}」は{date}です",
@@ -234,6 +244,8 @@
     "followUp": "フォローアップ「{sequence}」が一時停止しました：次のメールの確認が必要です",
     "reaction": "{actor}があなたのコメントに{emoji}でリアクションしました",
     "people": "{others, plural, =0 {{name}さん} other {{name}さんほか#人}}",
+    "verificationEnds": "このページの検証は{date}に終了します",
+    "verificationEnded": "このページの検証は{date}に期限切れになりました",
     "someone": "誰か",
     "joinRequestTitle": "参加リクエスト",
     "joinRequest": "{actor}が参加をリクエストしました",

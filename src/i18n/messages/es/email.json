@@ -72,6 +72,16 @@
     "action": "Abrir página",
     "optOut": "Recibes estos correos porque configuraste un recordatorio. Puedes desactivarlos en Mi cuenta > Preferencias."
   },
+  "pageVerification": {
+    "endsSubject": "Tu verificación de “{page}” termina el {date}",
+    "endsHeading": "La verificación termina pronto",
+    "endsBody": "Verificaste “{page}” en {workspace} hasta el {date}. Si sigue siendo correcta, vuelve a verificarla desde el menú ⋯ de la página para que siga verificada.",
+    "endedSubject": "Tu verificación de “{page}” caducó",
+    "endedHeading": "Verificación caducada",
+    "endedBody": "Tu verificación de “{page}” en {workspace} terminó el {date}. La página muestra “Verificación caducada” hasta que alguien la vuelva a verificar.",
+    "action": "Abrir página",
+    "optOut": "Recibes estos correos porque verificaste la página. Puedes desactivarlos en Mi cuenta > Preferencias."
+  },
   "dateReminder": {
     "subject": "Recordatorio: «{page}» el {date}",
     "heading": "«{page}» es el {date}",
@@ -234,6 +244,8 @@
     "followUp": "Seguimiento “{sequence}” en pausa: hay que revisar su próximo correo",
     "reaction": "{actor} reaccionó con {emoji} a tu comentario",
     "people": "{others, plural, =0 {{name}} one {{name} y # persona más} other {{name} y # personas más}}",
+    "verificationEnds": "Tu verificación de esta página termina el {date}",
+    "verificationEnded": "Tu verificación de esta página caducó el {date}",
     "someone": "Alguien",
     "joinRequestTitle": "Solicitud de acceso",
     "joinRequest": "{actor} pidió unirse",

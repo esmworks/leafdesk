@@ -120,6 +120,39 @@
     "unarchive": "Keluarkan dari arsip",
     "hint": "Halaman yang diarsipkan tidak muncul di bilah samping, pencarian, dan pemilih, tetapi tetap dapat dibaca dan diedit."
   },
+  "verification": {
+    "byUntil": "Diverifikasi oleh {name} hingga {date}",
+    "by": "Diverifikasi oleh {name}",
+    "until": "Terverifikasi hingga {date}",
+    "plain": "Terverifikasi",
+    "expiredOn": "Verifikasi kedaluwarsa pada {date}",
+    "hint": "Seseorang dengan akses penuh memeriksa halaman ini dan menandainya sebagai benar. Mengedit halaman ini tidak menghapus verifikasinya.",
+    "change": "Ubah atau hapus verifikasi",
+    "menu": "Verifikasi halaman…",
+    "menuVerified": "Verifikasi…",
+    "menuHint": "Tandai halaman sebagai sudah diperiksa dan benar: pencarian menempatkannya lebih tinggi dan obrolan AI lebih mengutamakannya",
+    "title": "Verifikasi halaman",
+    "description": "Tandai halaman ini sebagai sudah diperiksa dan benar, untuk sementara atau tanpa batas waktu. Pencarian menempatkan halaman terverifikasi lebih tinggi, menandainya, dan menemukannya dengan is:verified, dan obrolan AI lebih mengutamakannya. Mengedit halaman tidak menghapus verifikasinya; Anda akan diberi tahu beberapa hari sebelum verifikasi berakhir.",
+    "durationLabel": "Terverifikasi selama",
+    "durations": {
+      "week": "1 minggu",
+      "month": "1 bulan",
+      "quarter": "3 bulan",
+      "year": "1 tahun",
+      "until": "Hingga tanggal tertentu",
+      "forever": "Tanpa batas waktu"
+    },
+    "dateLabel": "Terverifikasi hingga",
+    "verify": "Verifikasi",
+    "verifyAgain": "Verifikasi lagi",
+    "remove": "Hapus verifikasi",
+    "searchBadge": "Terverifikasi",
+    "errors": {
+      "template": "Templat dan halaman di dalamnya tidak dapat diverifikasi.",
+      "inTrash": "Pulihkan halaman dari sampah terlebih dahulu.",
+      "invalidEnd": "Pilih tanggal setelah hari ini, dalam lima tahun ke depan."
+    }
+  },
   "icon": {
     "add": "Tambahkan ikon",
     "remove": "Hapus ikon"

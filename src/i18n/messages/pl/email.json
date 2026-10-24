@@ -72,6 +72,16 @@
     "action": "Otwórz stronę",
     "optOut": "Otrzymujesz te e-maile, ponieważ ustawiono przypomnienie. Możesz je wyłączyć w sekcji Moje konto > Preferencje."
   },
+  "pageVerification": {
+    "endsSubject": "Twoja weryfikacja strony „{page}” kończy się {date}",
+    "endsHeading": "Weryfikacja wkrótce się kończy",
+    "endsBody": "Strona „{page}” w obszarze roboczym {workspace} jest przez ciebie zweryfikowana do {date}. Jeśli nadal jest poprawna, zweryfikuj ją ponownie z menu ⋯ strony, aby pozostała zweryfikowana.",
+    "endedSubject": "Twoja weryfikacja strony „{page}” wygasła",
+    "endedHeading": "Weryfikacja wygasła",
+    "endedBody": "Twoja weryfikacja strony „{page}” w obszarze roboczym {workspace} zakończyła się {date}. Strona pokazuje „Weryfikacja wygasła”, dopóki ktoś nie zweryfikuje jej ponownie.",
+    "action": "Otwórz stronę",
+    "optOut": "Otrzymujesz te e-maile, ponieważ ta strona została przez ciebie zweryfikowana. Możesz je wyłączyć w sekcji Moje konto > Preferencje."
+  },
   "dateReminder": {
     "subject": "Przypomnienie: „{page}”, {date}",
     "heading": "„{page}”: {date}",
@@ -234,6 +244,8 @@
     "followUp": "Follow-up „{sequence}” wstrzymany: jego następny e-mail wymaga sprawdzenia",
     "reaction": "{actor} zareagował(a) {emoji} na Twój komentarz",
     "people": "{others, plural, =0 {{name}} one {{name} i # inna osoba} few {{name} i # inne osoby} many {{name} i # innych osób} other {{name} i # innych osób}}",
+    "verificationEnds": "Twoja weryfikacja tej strony kończy się {date}",
+    "verificationEnded": "Twoja weryfikacja tej strony wygasła {date}",
     "someone": "Ktoś",
     "joinRequestTitle": "Prośba o dołączenie",
     "joinRequest": "{actor} prosi o dołączenie",

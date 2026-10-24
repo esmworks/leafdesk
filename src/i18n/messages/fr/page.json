@@ -120,6 +120,39 @@
     "unarchive": "Désarchiver",
     "hint": "Les pages archivées n’apparaissent plus dans la barre latérale, la recherche ni les sélecteurs, mais restent lisibles et modifiables."
   },
+  "verification": {
+    "byUntil": "Vérifiée par {name} jusqu’au {date}",
+    "by": "Vérifiée par {name}",
+    "until": "Vérifiée jusqu’au {date}",
+    "plain": "Vérifiée",
+    "expiredOn": "Vérification expirée le {date}",
+    "hint": "Une personne disposant d’un accès complet a contrôlé cette page et l’a marquée comme juste. La modifier ne lui retire pas sa vérification.",
+    "change": "Modifier ou retirer la vérification",
+    "menu": "Vérifier la page…",
+    "menuVerified": "Vérification…",
+    "menuHint": "Marquer la page comme contrôlée et juste : la recherche la classe plus haut et le chat IA la privilégie",
+    "title": "Vérifier la page",
+    "description": "Marquez cette page comme contrôlée et juste, pour un temps ou sans fin. La recherche classe les pages vérifiées plus haut, les signale et les trouve avec is:verified, et le chat IA les privilégie. Modifier la page ne lui retire pas sa vérification ; vous êtes prévenu quelques jours avant la fin.",
+    "durationLabel": "Vérifiée pendant",
+    "durations": {
+      "week": "1 semaine",
+      "month": "1 mois",
+      "quarter": "3 mois",
+      "year": "1 an",
+      "until": "Jusqu’à un jour donné",
+      "forever": "Sans fin"
+    },
+    "dateLabel": "Vérifiée jusqu’au",
+    "verify": "Vérifier",
+    "verifyAgain": "Vérifier à nouveau",
+    "remove": "Retirer la vérification",
+    "searchBadge": "Vérifiée",
+    "errors": {
+      "template": "Les modèles et les pages qu’ils contiennent ne sont pas vérifiés.",
+      "inTrash": "Restaurez d’abord la page depuis la corbeille.",
+      "invalidEnd": "Choisissez un jour après aujourd’hui, dans les cinq ans à venir."
+    }
+  },
   "icon": {
     "add": "Ajouter une icône",
     "remove": "Supprimer l’icône"

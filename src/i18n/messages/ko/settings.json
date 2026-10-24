@@ -12,6 +12,7 @@
     "groups": "그룹",
     "agents": "에이전트",
     "connections": "연결",
+    "webhooks": "웹훅",
     "storage": "저장소",
     "analytics": "분석",
     "aiUsage": "AI 사용량",
@@ -957,6 +958,8 @@
     "moveToTrash": "휴지통으로 이동",
     "confirmTrash": "“{title}”을(를) 휴지통으로 이동할까요?",
     "lastEdited": "마지막 편집: {when}",
+    "verificationEndedBy": "{name}이(가) 검증함, {when} 종료됨",
+    "verificationEnded": "검증 종료: {when}",
     "alike": "{similarity, number, percent} 유사",
     "inProperty": "{database}의 {property}",
     "removeFromRelation": "제거",
@@ -980,6 +983,11 @@
       "title": "편집되지 않은 페이지",
       "description": "최근 {months}개월 동안 아무도 편집하지 않은 페이지입니다. 가장 오래된 것부터 표시합니다. 내용이 오래되었을 수 있습니다.",
       "none": "모든 페이지가 최근에 편집되었습니다."
+    },
+    "expiredVerifications": {
+      "title": "만료된 검증",
+      "description": "검증 종료일이 지난 페이지입니다. 내용을 확인하고 다시 검증하거나 검증을 제거하세요.",
+      "none": "만료된 검증이 없습니다."
     },
     "duplicates": {
       "title": "중복 가능성",
@@ -1568,6 +1576,8 @@
         "permission_removed": "{target}의 공유 대상에서 {subject}을(를) 제거했습니다",
         "row_access_changed": "{target}의 행이 액세스를 부여하는 대상을 변경했습니다",
         "deleted": "{target}을(를) 영구 삭제했습니다",
+        "verified": "{target}을(를) 검증했습니다",
+        "unverified": "{target}의 검증을 제거했습니다",
         "published": "{target}을(를) 웹에 게시했습니다",
         "unpublished": "{target}의 게시를 취소했습니다",
         "publication_revoked": "{target}을(를) 웹에서 내렸습니다({subject}이(가) 게시함)",
@@ -1639,6 +1649,11 @@
         "created": "{target}에 자동화 “{name}”을(를) 만들었습니다",
         "updated": "{change, select, on {{target}의 자동화 “{name}”을(를) 켰습니다} off {{target}의 자동화 “{name}”을(를) 껐습니다} other {{target}의 자동화 “{name}”을(를) 변경했습니다}}",
         "deleted": "{target}의 자동화 “{name}”을(를) 삭제했습니다"
+      },
+      "webhook": {
+        "created": "웹훅 “{target}”을(를) 추가했습니다",
+        "updated": "{change, select, on {웹훅 “{target}”을(를) 켰습니다} off {웹훅 “{target}”을(를) 껐습니다} other {웹훅 “{target}”을(를) 변경했습니다}}",
+        "deleted": "웹훅 “{target}”을(를) 제거했습니다"
       },
       "export": {
         "workspace": "워크스페이스를 내보냈습니다(페이지 {count}개)",
@@ -1771,7 +1786,10 @@
     "followUpChannel": "팔로업: {channel}",
     "reactionTitle": "반응",
     "reactionDescription": "누군가 내가 쓴 댓글에 반응할 때. 같은 댓글에 대한 반응은 열어 볼 때까지 하나로 모입니다.",
-    "reactionChannel": "반응: {channel}"
+    "reactionChannel": "반응: {channel}",
+    "verificationTitle": "내가 검증한 페이지",
+    "verificationDescription": "내가 검증한 페이지의 검증이 곧 끝날 때(며칠 전)와 끝났을 때 알려 드립니다.",
+    "verificationChannel": "내가 검증한 페이지: {channel}"
   },
   "site": {
     "description": "이 워크스페이스의 게시된 페이지에 읽기 쉬운 하나의 주소, 홈 페이지, 페이지 간 탐색을 제공합니다.",
@@ -2009,6 +2027,102 @@
       "redo": "메모와 함께 되돌려 보내기…",
       "notWhole": "이 호출은 여기에 표시된 것보다 길거나 여기서 가려진 값을 포함합니다. 승인하기 전에 실행을 열어 전송될 전체 내용을 확인하세요.",
       "openRun": "실행을 열어 승인"
+    }
+  },
+  "webhooks": {
+    "description": "이 워크스페이스의 페이지에서 일어나는 일을 바로 다른 서비스로 보냅니다. 서명된 POST 요청을 https 주소로 보내며, 대상은 워크스페이스 전체, 하나의 팀스페이스, 또는 한 페이지와 그 아래 페이지 중에서 고를 수 있습니다. 각 요청은 웹훅을 마지막으로 저장한 사람으로서, 그 사람이 열 수 있는 범위 안에서 전송됩니다. 데이터베이스 행과 템플릿은 전송되지 않습니다.",
+    "exportOff": "설정 › 보안에서 내보내기가 꺼져 있어, 다시 켤 때까지 웹훅은 아무것도 보내지 않습니다.",
+    "count": "{count, plural, =0 {아직 웹훅이 없습니다.} other {웹훅 #개}}",
+    "add": "웹훅 추가",
+    "empty": "웹훅을 추가하여 페이지 이벤트를 직접 운영하는 서비스로 보내세요.",
+    "allEvents": "모든 이벤트",
+    "scopeLabel": {
+      "workspace": "워크스페이스의 모든 페이지",
+      "teamspace": "{name}의 페이지",
+      "page": "{title} 및 그 아래 페이지"
+    },
+    "events": {
+      "pageCreated": "페이지 생성됨",
+      "pageUpdated": "페이지 편집됨",
+      "pageMoved": "페이지 이동됨",
+      "pageTrashed": "페이지가 휴지통으로 이동됨",
+      "pageRestored": "페이지가 휴지통에서 복원됨",
+      "pageDeleted": "페이지 영구 삭제됨",
+      "commentCreated": "댓글 추가됨",
+      "ping": "테스트"
+    },
+    "sendsAs": "{name}(으)로서, 그 사람이 열 수 있는 범위 안에서 보냅니다.",
+    "paused": "일시 중지됨: {name}은(는) 더 이상 소유자가 아닙니다. 저장하면 본인으로서 보냅니다.",
+    "pausedBadge": "일시 중지됨",
+    "offBadge": "꺼짐",
+    "toggle": "{name} 보내기",
+    "test": "테스트 보내기",
+    "testDelivered": "테스트가 주소에 도달했습니다(응답: {status}).",
+    "testFailed": "테스트가 전송되지 않았습니다: {reason}.",
+    "edit": "편집",
+    "delete": "제거",
+    "deleteNote": "즉시 중지되며, 전송 기록도 함께 삭제됩니다.",
+    "working": "처리 중…",
+    "secret": {
+      "show": "서명 시크릿",
+      "rotate": "새 시크릿",
+      "rotateNote": "현재 시크릿은 즉시 서명에 쓰이지 않습니다. 시크릿을 확인하는 서비스를 업데이트하세요.",
+      "title": "“{name}”의 서명 시크릿",
+      "label": "서명 시크릿",
+      "note": "이 시크릿으로 각 요청의 X-Leafdesk-Signature 헤더를 확인하세요. 형식은 t=TIME,v1=HMAC이며, HMAC은 TIME, 점, 본문을 이은 값의 16진수 HMAC-SHA256입니다. 시크릿은 외부에 공개하지 마세요."
+    },
+    "log": {
+      "title": "{count, plural, =0 {최근 전송} other {최근 전송(#)}}",
+      "empty": "지난 30일 동안 보낸 항목이 없습니다.",
+      "attempts": "{count, plural, other {#회 시도}}",
+      "next": "다음 시도: {when}"
+    },
+    "status": {
+      "pending": "대기 중",
+      "delivered": "전송됨",
+      "failed": "실패",
+      "skipped": "보내지 않음"
+    },
+    "codes": {
+      "noAccess": "보내는 사람으로 지정된 사용자가 페이지를 열 수 없음",
+      "notOwner": "보내는 사람으로 지정된 사용자가 더 이상 소유자가 아님",
+      "exportOff": "내보내기가 꺼져 있음",
+      "disabled": "웹훅이 꺼져 있음",
+      "invalidUrl": "주소가 유효하지 않음",
+      "blocked": "주소가 사설 네트워크에 있음",
+      "unreachable": "주소에 연결할 수 없음",
+      "timeout": "10초 안에 응답 없음",
+      "redirect": "주소가 리디렉션으로 응답함",
+      "http": "주소가 {status}(으)로 응답함"
+    },
+    "form": {
+      "title": "웹훅 추가",
+      "editTitle": "웹훅 변경",
+      "name": "이름",
+      "url": "주소",
+      "urlHint": "https 주소입니다. 요청에는 서명이 붙으며, 리디렉션은 따라가지 않습니다.",
+      "events": "이벤트",
+      "scope": "페이지",
+      "scopes": {
+        "workspace": "워크스페이스 전체",
+        "teamspace": "팀스페이스 하나",
+        "page": "한 페이지와 그 아래 페이지"
+      },
+      "teamspace": "팀스페이스 선택",
+      "pickPage": "페이지 찾기",
+      "noPages": "선택할 페이지가 없습니다.",
+      "otherPage": "변경",
+      "save": "저장",
+      "create": "웹훅 추가"
+    },
+    "errors": {
+      "invalidName": "웹훅 이름을 100자 이내로 입력하세요.",
+      "invalidUrl": "사용자 이름이나 비밀번호가 없는 유효한 https 주소를 입력하세요.",
+      "httpsOnly": "웹훅은 https 주소로만 보낼 수 있습니다.",
+      "noEvents": "이벤트를 하나 이상 선택하세요.",
+      "invalidScope": "이 워크스페이스의 팀스페이스나 페이지를 선택하세요.",
+      "tooMany": "워크스페이스당 웹훅은 최대 25개입니다.",
+      "ownersOnly": "워크스페이스 소유자만 웹훅을 관리할 수 있습니다."
     }
   },
   "email": {

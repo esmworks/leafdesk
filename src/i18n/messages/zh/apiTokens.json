@@ -110,6 +110,10 @@
       "agents": {
         "name": "智能体",
         "hint": "智能体的设置、运行、计划和共享。"
+      },
+      "webhooks": {
+        "name": "Webhook",
+        "hint": "页面 Webhook 及其投递记录；写入包括添加、更改和测试它们（仅限所有者）。"
       }
     },
     "summary": {
