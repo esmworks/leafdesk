@@ -512,7 +512,13 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   (`/s/<slug>`) with a home page and a navigation of the pages listed in it; pages get addresses
   like `/s/<slug>/getting-started-<id>`, and links between listed pages stay on the site. Pages
   are listed only when someone chooses to, so a page shared by link stays unlisted; each keeps its
-  own link and search-engine setting. A publication can also **allow duplicate**: signed-in
+  own link and search-engine setting. Owners pick the site's theme (light, dark or the visitor's
+  system), put up to six links in its header (to listed pages or web addresses), give it a default
+  search description (each published page can have its own, shown with the title as the meta
+  description and in Open Graph and Twitter link previews), and may add a Google Analytics 4
+  measurement ID. The site's favicon is its home page's emoji, drawn as SVG by the server. A site
+  can also have a domain of its own (see [Workspace site on its own domain](#workspace-site-on-its-own-domain)).
+  A publication can also **allow duplicate**: signed-in
   visitors copy the page, as published, into one of their workspaces (or its templates), files
   included and without comments, history, people or private properties.
 - **File uploads**: drop, paste or pick images, video, audio and other files into a page. They are
@@ -811,6 +817,40 @@ On SIGINT or SIGTERM (`docker compose stop`, a redeploy, Ctrl+C) the server take
 requests, closes the editors' connections and waits until every open page is saved, at most eight
 seconds, inside Docker's ten-second grace period; it logs it when it had to stop waiting. A second
 Ctrl+C exits at once. Browsers keep what they hadn't sent and send it again when they reconnect.
+
+### Workspace site on its own domain
+
+A workspace owner can give the workspace site a domain of its own (Settings → Site → Own domain),
+like `docs.example.com`. Requests whose `Host` is that name (lowercased, port ignored) get the site
+at the root: `/` is its home page, its pages are `/<title>-<id>`, and links between them stay on
+that host. Nothing else is served there: no sign-in, app pages, API, MCP or collaboration socket
+(they answer 404; *Duplicate* goes to the app's own address, `APP_URL`), so no session is ever used
+on that host. The site keeps working at `/s/<slug>` too, and search engines are pointed at
+`https://<domain>/…`. Other hosts behave as before. The server reads sites' domains every 15
+seconds, so with several app instances a new domain may take that long to work on all of them.
+
+Leafdesk doesn't verify domains or get certificates; whoever runs the server does:
+
+1. **DNS**: a `CNAME` record from the domain to the app's host name (or `A`/`AAAA` records to the
+   server's address).
+2. **Reverse proxy and certificate**: route the domain to the app like `APP_URL`, **passing the
+   original `Host` header**, and serve it over HTTPS. With Caddy, which gets the certificate
+   itself:
+
+   ```
+   docs.example.com {
+     reverse_proxy app:3000
+   }
+   ```
+
+   With nginx, add the domain to a `server` block with its certificate, `proxy_pass` to the app and
+   `proxy_set_header Host $host;`.
+
+When the site has a Google Analytics measurement ID, visitors' browsers load Google's tag from
+`https://www.googletagmanager.com` on each page of the site (at its own domain and at
+`/s/<slug>`) and send what they view to Google Analytics (`*.google-analytics.com`,
+`*.analytics.google.com`). Those pages' Content-Security-Policy allows exactly these hosts; no other
+page loads anything from Google.
 
 ### Use an external PostgreSQL
 

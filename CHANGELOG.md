@@ -4,6 +4,20 @@
 
 ### Added
 
+- **A workspace site can have its own domain, theme, header links, search descriptions, favicon and
+  Google Analytics.** In Settings → Site, owners set a domain like `docs.example.com`: requests for
+  that host get the site at its root (`/` is the home page, pages at `/<title>-<id>`, links stay
+  on the domain) and nothing else, so sign-in, the app, the API, MCP and the collaboration socket
+  answer 404 there and no session is used on it; the README says how to point DNS and the reverse
+  proxy at the server. Owners also pick the site's theme (light, dark or the visitor's system, over
+  whatever visitors chose in the app), up to six header links to listed pages or web addresses, a
+  default search description, and a Google Analytics 4 measurement ID, which only then loads
+  Google's tag on the site's pages with exactly Google's hosts added to their Content-Security-
+  Policy. Each published page can have its own search description (Publish tab). Pages carry it as
+  the meta description and in Open Graph and Twitter tags, site pages point search engines at the
+  domain, their titles no longer end in "Leafdesk", and the favicon is the home page's emoji, drawn
+  as SVG. Migration 0128 adds the columns.
+
 - **Keep a database of Jira issues in sync.** Import has a Jira tab: connect a Jira Cloud site
   with an email address and API token, pick a project or write a JQL query, and get a database
   whose rows are the issues (key, summary, status, assignee, priority, type, labels, due date and a

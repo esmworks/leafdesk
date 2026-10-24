@@ -109,6 +109,12 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   `outputFileTracingIncludes`), PDF letterheads `letterheads.ts` (pure part in `src/lib/letterheads.ts`;
   the logo is document content kept in `pdf_letterhead`, not page decoration), backup `backup/`, SSO `sso.ts`, SCIM
   `scim.ts`, sealed secrets `secret-box.ts`.
+- **Workspace sites** (`site.ts`, routes `src/app/s/`): a site on its own domain is routed by
+  `server.ts` through `site-hosts.ts`, which sets the trusted `x-leafdesk-site-host` /
+  `x-leafdesk-site-analytics` headers (dropped from every client request) that `proxy.ts` rewrites
+  and widens the CSP by. Only what `routeOnSiteHost` (`src/lib/site.ts`) lets through is served on
+  such a host; a path a published page needs there (a new file route) goes into it, and a path
+  left out of the proxy's matcher is not rewritten to the site there.
 
 **Running as a person.** Every operation carries a real user id and access is worked out in SQL
 when it runs, never carried over from earlier. On top of that, AsyncLocalStorage overlays:
