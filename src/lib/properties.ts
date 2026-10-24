@@ -113,6 +113,7 @@ export const DATABASE_ERROR_CODES = [
   "invalidAutomation",
   "tooManyAutomations",
   "invalidWebhookUrl",
+  "invalidSlackUrl",
   "webhookBlocked",
   "agentOwnersOnly",
   "invalidRepeat",

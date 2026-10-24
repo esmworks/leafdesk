@@ -27,7 +27,9 @@ import {
   Lock,
   LockKeyhole,
   Merge,
+  GitPullRequest,
   MessageSquare,
+  MessageSquareShare,
   MessagesSquare,
   Mic,
   MoreHorizontal,
@@ -522,6 +524,8 @@ function PageMenu({
   const tMerge = useTranslations("database.merge");
   const tVerify = useTranslations("page.verification");
   const tRowAccess = useTranslations("database.rowAccess");
+  const tGithub = useTranslations("database.github");
+  const tSlack = useTranslations("database.slack");
   const locale = useLocale();
   const router = useRouter();
   const [moveOpen, setMoveOpen] = useState(false);
@@ -534,6 +538,8 @@ function PageMenu({
   // Mounted from its first opening on, so it closes the way it opens.
   const [rowAccessUsed, setRowAccessUsed] = useState(false);
   if (rowAccessOpen && !rowAccessUsed) setRowAccessUsed(true);
+  const [githubOpen, setGithubOpen] = useState(false);
+  const [slackOpen, setSlackOpen] = useState(false);
   const [mergeOpen, setMergeOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
@@ -856,6 +862,31 @@ function PageMenu({
                 {tRowAccess("menuItem")}
               </MenuItem>
             )}
+            {/* Pull requests that name rows by their ID (server/github-sync), and Slack notifications (an automation). */}
+            {isDatabase && !page.archived && canManage && (
+              <>
+                <MenuItem
+                  icon={<GitPullRequest className="h-4 w-4" />}
+                  title={tGithub("menuHint")}
+                  onClick={() => {
+                    close();
+                    setGithubOpen(true);
+                  }}
+                >
+                  {tGithub("menuItem")}
+                </MenuItem>
+                <MenuItem
+                  icon={<MessageSquareShare className="h-4 w-4" />}
+                  title={tSlack("menuHint")}
+                  onClick={() => {
+                    close();
+                    setSlackOpen(true);
+                  }}
+                >
+                  {tSlack("menuItem")}
+                </MenuItem>
+              </>
+            )}
             {/* How voice notes saved in the database are written up: a database setting, like the lock. */}
             {isDatabase && !page.archived && canManage && info.voice && (
               <MenuItem
@@ -1129,6 +1160,24 @@ function PageMenu({
           }}
         />
       )}
+      {isDatabase &&
+        githubOpen &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <Suspense fallback={null}>
+            <GithubSyncDialog workspaceId={workspaceId} databaseId={page.id} onClose={() => setGithubOpen(false)} />
+          </Suspense>,
+          document.body,
+        )}
+      {isDatabase &&
+        slackOpen &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <Suspense fallback={null}>
+            <SlackSetupDialog databaseId={page.id} onClose={() => setSlackOpen(false)} />
+          </Suspense>,
+          document.body,
+        )}
       {isDatabase && rowAccessUsed && (
         <Suspense fallback={null}>
           <RowAccessDialog
@@ -1149,6 +1198,8 @@ function PageMenu({
 // The PDF, analytics and row access dialogs come with their first use, not with every page.
 const PdfExportDialog = lazy(() => import("./pdf-export-dialog"));
 const PageAnalyticsDialog = lazy(() => import("./page-analytics-dialog"));
+const GithubSyncDialog = lazy(() => import("@/components/database/github-sync-dialog"));
+const SlackSetupDialog = lazy(() => import("@/components/database/slack-setup-dialog"));
 const RowAccessDialog = lazy(() => import("@/components/database/row-access-dialog").then((m) => ({ default: m.RowAccessDialog })));
 
 /** Pick a new parent: any page or database in the sidebar tree except this page and its subpages. */

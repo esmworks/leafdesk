@@ -150,6 +150,13 @@ export type AutomationAction = (
    * after `timeoutDays`, it stops or (`onTimeout: "continue"`) goes on.
    */
   | ApprovalAction
+  /**
+   * Posts `message` (text with templates, in Slack's markup) to a Slack incoming webhook, with the
+   * row (or the database, for a run without one) as a link (lib/slack). The address is a secret:
+   * `sealed` (server/secret-box) is kept with the step and never leaves the server; `hint` is what
+   * is shown of it.
+   */
+  | { type: "slack"; sealed?: string; hint: string; message: string }
 ) & { id?: string };
 
 export type ApprovalAction = {
@@ -182,6 +189,7 @@ export const AUTOMATION_ACTION_TYPES = [
   "celebrate",
   "start_sequence",
   "approval",
+  "slack",
 ] as const satisfies AutomationActionType[];
 
 /**

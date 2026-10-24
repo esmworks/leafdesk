@@ -114,6 +114,11 @@ export type DraftAction = { key: string; id: string } & (
   | { type: "start_sequence"; sequenceId: string; forEach: string }
   /** `timeoutDays` as typed. */
   | { type: "approval"; people: string[]; properties: string[]; message: string; timeoutDays: string; onTimeout: ApprovalTimeout }
+  /**
+   * `url`: a new address as typed ("" keeps the saved one, which only shows as `hint`); `savedId`:
+   * the id the step was saved with, whose address it keeps when renamed.
+   */
+  | { type: "slack"; url: string; hint: string; savedId: string; message: string }
 );
 
 export type DraftActionOf<T extends AutomationActionType> = Extract<DraftAction, { type: T }>;
@@ -152,6 +157,7 @@ const ID_STEMS: Record<AutomationActionType, string> = {
   celebrate: "celebrate",
   start_sequence: "follow_up",
   approval: "approval",
+  slack: "slack",
 };
 
 export function newStepId(type: AutomationActionType, taken: string[]) {
@@ -313,6 +319,8 @@ export function toDraft(automation: Automation, properties: Property[]): Draft {
         return { ...base, type: "celebrate" };
       case "webhook":
         return { ...base, type: "webhook", url: action.url };
+      case "slack":
+        return { ...base, type: "slack", url: "", hint: action.hint, savedId: ids[i], message: action.message };
       case "start_sequence":
         return { ...base, type: "start_sequence", sequenceId: action.sequenceId, forEach: action.forEach ?? "" };
       case "approval":
@@ -361,6 +369,8 @@ export function newAction(type: AutomationActionType, actions: DraftAction[], tr
       return { ...base, type };
     case "webhook":
       return { ...base, type, url: "" };
+    case "slack":
+      return { ...base, type, url: "", hint: "", savedId: "", message: "" };
     case "start_sequence":
       return { ...base, type, sequenceId: "", forEach };
     case "approval":
@@ -503,6 +513,10 @@ export function draftProblem(
         break;
       case "webhook":
         if (!action.url.trim()) problem = "needUrl";
+        break;
+      case "slack":
+        if (!action.url.trim() && !action.hint) problem = "needSlackUrl";
+        else if (badText(action.message)) problem = "badTemplate";
         break;
       case "http_request": {
         const body = parseJson(action.body);
@@ -651,6 +665,14 @@ export function actionsInput(draft: Draft, properties: Property[], schemaOf: (da
         return { id, type: "celebrate" as const };
       case "webhook":
         return { id, type: "webhook" as const, url: action.url.trim() };
+      case "slack":
+        return {
+          id,
+          type: "slack" as const,
+          message: action.message.trim(),
+          // Left out, the address stays the saved step's, which the browser never had.
+          ...(action.url.trim() ? { url: action.url.trim() } : { urlFrom: action.savedId || id }),
+        };
       case "start_sequence":
         return { id, type: "start_sequence" as const, sequence: action.sequenceId, ...forEach };
       case "approval":
