@@ -25,7 +25,7 @@ const { notification, page, user, workspace, workspaceMember } = await import("@
 const { COLLAB_FRAGMENT, SUGGESTION_REFUSED_EVENT } = await import("@/lib/collab-constants");
 const { commentText } = await import("@/lib/comments");
 const { suggestTransaction } = await import("@/lib/suggest-changes");
-const { newSuggestionId, rejectedView, suggestionAuthor } = await import("@/lib/suggestions");
+const { isAiSuggestion, newSuggestionId, rejectedView, suggestionAuthor } = await import("@/lib/suggestions");
 const { listComments } = await import("@/server/comments");
 const { getCollab, registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
@@ -282,6 +282,15 @@ try {
   check(suggestionAuthor((await pending(doc.id))[0].id) === ids.commenter, "suggestion ids name their author");
   check((await answerSuggestions(ids.editor, doc.id, "accept", null)).length === 2, "accept all answers every pending one");
   check((await markdownOf(doc.id)).includes("Hello dear big world.") && (await markdownOf(doc.id)).includes("Second paragraph."), "…applying them all", await markdownOf(doc.id));
+
+  // The AI chat of someone who asked for suggestions
+  const before = await markdownOf(doc.id);
+  await getCollab().replaceContent(doc.id, "Hello dear big world.\n\nSecond paragraph, by the AI.", { userId: ids.editor, asSuggestions: true }, true);
+  const fromAi = await pending(doc.id);
+  check(fromAi.length === 1 && fromAi[0].authorId === ids.editor && isAiSuggestion(fromAi[0].id), "the AI's write goes in as its suggestion in the person's name", fromAi);
+  check((await markdownOf(doc.id)) === before, "…and the page reads as before", await markdownOf(doc.id));
+  await answerSuggestions(ids.editor, doc.id, "accept", null);
+  check((await markdownOf(doc.id)).includes("Second paragraph, by the AI."), "…until it is accepted", await markdownOf(doc.id));
 
   // A locked page takes no answers
   edit(commenter.doc, ids.commenter, (tr, d) => tr.insertText(" again", at(d, "Second")));
