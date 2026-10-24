@@ -1,4 +1,4 @@
-import { ALERT_KINDS, CALLOUT_BLOCK, DEFAULT_CALLOUT_ICON } from "./content-blocks";
+import { ALERT_KINDS, CALLOUT_BLOCK, DEFAULT_CALLOUT_ICON } from "./content-block-names";
 import { BLOCK_COLORS, type BlockColor } from "./block-colors";
 import { parseIcon } from "./icon";
 

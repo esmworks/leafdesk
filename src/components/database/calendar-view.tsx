@@ -23,7 +23,7 @@ import { moveDateStart, parseDateValue, shiftDateValue } from "@/lib/date-value"
 import { pageLabel } from "@/lib/labels";
 import { dayNumber, dayString, monthDay, zonedInstant } from "@/lib/time-zone";
 import { CALENDAR_MODES, viewDateProperty } from "@/lib/views";
-import { CardTitleInput } from "./board-view";
+import { CardTitleInput } from "./card-title-input";
 import { CalendarFeedButton } from "./calendar-feed";
 import { usePropertyAccess } from "./property-access";
 import { RowValue, shownValues } from "./property-cell";
