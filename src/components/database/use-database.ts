@@ -349,11 +349,11 @@ export function useDatabase(
       report,
 
       /**
-       * Adds a row: blank, from a row template (templateId), or from the database's default
-       * template when it has one (useDefault, what "New" does). Returns its id.
+       * Adds a row: blank, from a row template (templateId), or from the default template of the
+       * view (viewId) or else the database when there is one (useDefault, what "New" does). Returns its id.
        */
       async createRow(
-        input: { title?: string; properties?: Record<string, unknown>; templateId?: string | null; useDefault?: boolean } = {},
+        input: { title?: string; properties?: Record<string, unknown>; templateId?: string | null; useDefault?: boolean; viewId?: string } = {},
       ) {
         if (!snapshot) return null;
         try {
