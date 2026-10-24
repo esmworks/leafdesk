@@ -1,0 +1,952 @@
+{
+  "documentTitle": "{title} · Leafdesk",
+  "documentViewTitle": "{title} · {view} · Leafdesk",
+  "header": {
+    "history": "Riwayat halaman",
+    "more": "Lainnya",
+    "copyLink": "Salin tautan",
+    "copyId": "Salin ID",
+    "moveToTrash": "Pindahkan ke sampah",
+    "archive": "Arsipkan",
+    "unarchive": "Keluarkan dari arsip",
+    "archiveHint": "Simpan halaman tetapi keluarkan dari bilah samping, pencarian, dan pemilih. Subhalamannya ikut.",
+    "edited": "Diedit {time}",
+    "activity": "Aktivitas",
+    "editedBy": "Diedit oleh {name}",
+    "createdBy": "Dibuat oleh {name}",
+    "someone": "Seseorang",
+    "comments": "Komentar",
+    "share": "Bagikan",
+    "accessRequests": "{count, plural, other {# permintaan akses}}",
+    "addFavorite": "Tambahkan ke favorit",
+    "removeFavorite": "Hapus dari favorit",
+    "follow": "Ikuti",
+    "unfollow": "Berhenti mengikuti",
+    "followHint": "Dapatkan kabar di kotak masuk saat orang lain mengubah baris ini.",
+    "unfollowHint": "Anda mendapat kabar di kotak masuk saat orang lain mengubah baris ini.",
+    "linkCopied": "Tautan tersalin",
+    "duplicate": "Duplikat",
+    "duplicateSuffix": " (salinan)",
+    "duplicateFailed": "Tidak dapat menduplikasi halaman.",
+    "moveTo": "Pindahkan ke",
+    "style": {
+      "font": "Font",
+      "default": "Bawaan",
+      "serif": "Serif",
+      "mono": "Mono",
+      "smallText": "Teks kecil",
+      "fullWidth": "Lebar penuh"
+    },
+    "lockDatabase": "Kunci basis data",
+    "lockHint": "Selama dikunci, properti dan tampilan tidak dapat berubah; baris tetap dapat diedit.",
+    "locked": "Terkunci",
+    "unlock": "Buka kunci",
+    "lockPage": "Kunci halaman",
+    "lockPageHint": "Selama dikunci, tidak ada yang dapat mengubah judul, ikon, latar belakang, atau teks. Komentar, berbagi, dan pemindahan tetap berfungsi.",
+    "exportMarkdown": "Ekspor sebagai Markdown",
+    "exportCsv": "Ekspor sebagai CSV",
+    "exportXlsx": "Ekspor sebagai Excel (.xlsx)",
+    "exportZip": "Ekspor beserta subhalaman",
+    "exportZipDatabase": "Ekspor beserta halaman baris",
+    "exportPdf": "Ekspor sebagai PDF",
+    "printView": "Cetak",
+    "exportPreparing": "Menyiapkan ekspor…",
+    "versionHistory": "Riwayat versi",
+    "lastEdited": "Terakhir diedit oleh {name}",
+    "wordCount": "{words, plural, other {# kata}}, {characters, plural, other {# karakter}}",
+    "actionFailed": "Tidak dapat menyelesaikannya.",
+    "viewers": "{count, plural, other {# orang lain sedang melihat halaman ini}}",
+    "viewersTitle": "Sedang melihat halaman ini",
+    "saveAsTemplate": "Simpan sebagai templat",
+    "saveAsRowTemplate": "Simpan sebagai templat baris",
+    "deleteTemplate": "Hapus templat",
+    "exportDisabled": "Ekspor dinonaktifkan",
+    "exportDisabledBody": "Pemilik ruang kerja ini telah menonaktifkan ekspor dan pencetakan halamannya.",
+    "showInGraph": "Tampilkan di grafik",
+    "present": "Presentasikan",
+    "watch": "Pantau",
+    "watchHint": "Dapatkan kabar di kotak masuk saat orang lain mengedit halaman ini atau memulai utas komentar di dalamnya.",
+    "mute": "Bisukan",
+    "muteHint": "Anda mendapat kabar di kotak masuk saat orang lain mengedit halaman ini atau memulai utas komentar di dalamnya. Bisukan untuk berhenti.",
+    "editMarkdown": "Edit sebagai Markdown"
+  },
+  "comments": {
+    "aboutPage": "Tentang halaman ini",
+    "title": "Komentar",
+    "close": "Tutup komentar",
+    "filters": {
+      "open": "Terbuka",
+      "resolved": "Terselesaikan",
+      "marked": "Ditandai",
+      "all": "Semua"
+    },
+    "empty": {
+      "open": "Tidak ada komentar terbuka. Pilih teks di halaman dan pilih Komentar untuk memulai satu.",
+      "resolved": "Tidak ada komentar yang terselesaikan.",
+      "marked": "Tidak ada utas yang ditandai untuk dikunjungi lagi. Pilih “Kembali nanti” di menu utas.",
+      "all": "Belum ada komentar. Pilih teks di halaman dan pilih Komentar untuk memulai satu."
+    },
+    "threadMenu": "Opsi utas",
+    "mute": "Bisukan balasan",
+    "unmute": "Bunyikan balasan",
+    "muteHint": "Berhenti mendapat kabar tentang balasan baru di utas ini. Membalas di sini, atau disebut di sini, mengaktifkannya kembali.",
+    "unmuteHint": "Dapatkan kabar tentang balasan baru di utas ini lagi.",
+    "muted": "Balasan dibisukan",
+    "mutedHint": "Anda tidak mendapat kabar tentang balasan di utas ini sampai Anda membalas di sini atau seseorang menyebut Anda di sini.",
+    "mergedFrom": "Dari “{title}”",
+    "sort": {
+      "label": "Urutkan utas",
+      "recent": "Aktivitas terbaru dulu",
+      "page": "Sesuai urutan halaman"
+    },
+    "new": "Baru",
+    "marked": "Ditandai untuk dikunjungi lagi nanti",
+    "markedHint": "Anda menandai utas ini untuk dikunjungi lagi nanti. Hanya Anda yang melihatnya.",
+    "mark": "Kembali nanti",
+    "unmark": "Hapus “Kembali nanti”",
+    "markHint": "Simpan utas ini di Ditandai sampai Anda melepas tandanya. Hanya Anda yang melihatnya.",
+    "unmarkHint": "Keluarkan utas ini dari daftar Ditandai Anda."
+  },
+  "archived": {
+    "banner": "Halaman ini ada di sampah.",
+    "deletePermanently": "Hapus permanen",
+    "confirmDelete": "Hapus halaman ini dan semua isinya secara permanen? Tindakan ini tidak dapat dibatalkan."
+  },
+  "outdated": {
+    "byOn": "Diarsipkan oleh {name} pada {date}.",
+    "on": "Diarsipkan pada {date}.",
+    "with": "Diarsipkan bersama <link>{title}</link>.",
+    "above": "Diarsipkan bersama halaman di atas halaman ini.",
+    "unarchive": "Keluarkan dari arsip",
+    "hint": "Halaman yang diarsipkan tidak muncul di bilah samping, pencarian, dan pemilih, tetapi tetap dapat dibaca dan diedit."
+  },
+  "icon": {
+    "add": "Tambahkan ikon",
+    "remove": "Hapus ikon"
+  },
+  "background": {
+    "add": "Tambahkan latar belakang",
+    "change": "Latar belakang",
+    "colors": "Warna",
+    "patterns": "Pola",
+    "none": "Tidak ada",
+    "remove": "Hapus latar belakang",
+    "colorNames": {
+      "gray": "Abu-abu",
+      "blue": "Biru",
+      "green": "Hijau",
+      "purple": "Ungu",
+      "pink": "Merah muda",
+      "red": "Merah",
+      "orange": "Oranye",
+      "black": "Hitam"
+    },
+    "patternNames": {
+      "dots": "Titik",
+      "plus": "Silang",
+      "grid": "Kisi",
+      "lines": "Garis"
+    }
+  },
+  "title": {
+    "label": "Judul halaman"
+  },
+  "connection": {
+    "live": "Langsung",
+    "connecting": "Menghubungkan",
+    "offline": "Luring",
+    "reconnecting": "Menghubungkan kembali",
+    "noAccess": "Tanpa akses",
+    "syncing": "Menyinkronkan…",
+    "synced": "Tersinkron",
+    "offlinePending": "Luring · perubahan disimpan di sini",
+    "offlineHint": "Anda sedang luring. Lanjutkan mengedit: perubahan disimpan di browser ini dan disinkronkan saat koneksi kembali.",
+    "notSaved": "Belum tersimpan",
+    "notSavedHint": "Leafdesk tidak dapat menyimpan perubahan terbaru Anda. Biarkan halaman ini terbuka: pengeditan berikutnya akan menyimpannya lagi."
+  },
+  "errors": {
+    "accessLost": "Anda tidak lagi memiliki akses ke halaman ini.",
+    "connectionFailed": "Tidak dapat terhubung ke pengeditan langsung. Mencoba lagi…",
+    "notAvailableOffline": "Halaman ini belum tersimpan di perangkat ini. Buka sekali saat daring untuk memakainya secara luring."
+  },
+  "history": {
+    "title": "Riwayat halaman",
+    "previewTitle": "Pratinjau versi",
+    "modes": {
+      "version": "Versi",
+      "current": "Bandingkan dengan yang sekarang",
+      "previous": "Bandingkan dengan sebelumnya"
+    },
+    "reasons": {
+      "auto": "Simpan otomatis",
+      "beforeRestore": "Sebelum pemulihan",
+      "manual": "Versi tersimpan",
+      "beforeAiEdit": "Sebelum edit AI",
+      "beforeAiEditBy": "Sebelum edit oleh {client}",
+      "beforeAssistantEdit": "Sebelum edit asisten AI",
+      "beforeMarkdownEdit": "Sebelum edit Markdown",
+      "beforeMerge": "Sebelum menggabungkan baris"
+    },
+    "empty": "Belum ada versi. Versi disimpan otomatis saat Anda mengedit dan sebelum aplikasi AI mana pun mengubah halaman ini.",
+    "restore": "Pulihkan versi ini",
+    "restoring": "Memulihkan…",
+    "restoreHint": "Konten saat ini disimpan sebagai versi terlebih dahulu.",
+    "diff": {
+      "rangeCurrent": "Perubahan dari versi {from} hingga halaman saat ini",
+      "rangePrevious": "Perubahan dari {from} hingga {to}",
+      "earlier": "versi sebelumnya",
+      "changedBy": "Diubah oleh {names}",
+      "actorApp": "{client} untuk {name}",
+      "none": "Tidak ada perubahan.",
+      "oldest": "Ini adalah versi tersimpan tertua, jadi tidak ada yang lebih awal untuk dibandingkan.",
+      "showUnchanged": "{count, plural, other {Tampilkan # blok yang tidak berubah}}",
+      "formatOnly": "Pemformatan berubah"
+    },
+    "errors": {
+      "list": "Tidak dapat memuat riwayat halaman. Muat ulang halaman dan coba lagi.",
+      "version": "Tidak dapat memuat versi ini.",
+      "restore": "Tidak dapat memulihkan versi ini.",
+      "diff": "Tidak dapat membandingkan versi-versi ini."
+    }
+  },
+  "move": {
+    "title": "Pindahkan ke",
+    "search": "Cari halaman…",
+    "empty": "Tidak ada halaman yang cocok.",
+    "failed": "Tidak dapat memindahkan halaman ke sana.",
+    "teamspaceHint": "Bagian atas ruang tim ini: anggotanya mendapat akses",
+    "private": "Privat",
+    "privateHint": "Bagian atas halaman privat Anda: hanya orang yang diberi akses lewat berbagi yang mendapat akses"
+  },
+  "share": {
+    "tabShare": "Bagikan",
+    "tabPublish": "Terbitkan",
+    "addPeople": "Tambahkan orang, grup, atau email",
+    "noMatches": "Tidak ada anggota atau grup yang cocok.",
+    "addPeopleOrAgents": "Tambahkan orang, grup, agen, atau email",
+    "noMatchesWithAgents": "Tidak ada anggota, grup, atau agen yang cocok.",
+    "agentPaused": "Agen, dijeda",
+    "groupMembers": "{count, plural, =0 {Grup tanpa anggota} other {Grup beranggota #}}",
+    "membersOnly": "Anda dapat berbagi dengan anggota ruang kerja. Ruang kerja ini tidak mengizinkan Anda berbagi dengan orang di luarnya.",
+    "guestHint": "Ketik alamat email lengkap untuk berbagi dengan orang di luar ruang kerja. Mereka bergabung sebagai tamu dan hanya melihat halaman yang dibagikan kepada mereka.",
+    "shareWith": "Bagikan dengan {email}",
+    "asGuest": "Bergabung sebagai tamu",
+    "pending": "Diundang, belum bergabung",
+    "cancelInvite": "Batalkan undangan",
+    "invitedSent": "Undangan dikirim ke {email}.",
+    "invitedNoEmail": "{email} diundang, tetapi email tidak dapat dikirim. Kirimkan tautan undangan kepada mereka.",
+    "copyInvite": "Salin tautan undangan",
+    "you": "Anda",
+    "inherited": "Dari {title}",
+    "groupInherited": "Grup, dari {title}",
+    "inheritedAbove": "Dari halaman di atas",
+    "groupInheritedAbove": "Grup, dari halaman di atas",
+    "hiddenGroup": "Sebuah grup",
+    "group": "Grup",
+    "viaGeneral": "{level} (dari akses umum)",
+    "viaOwner": "{level} (sebagai pemilik)",
+    "overridden": "Akses umum lebih tinggi ({level}), jadi ini tidak berpengaruh.",
+    "remove": "Keluarkan",
+    "generalAccess": "Akses umum",
+    "everyone": "Semua orang di ruang kerja",
+    "everyoneHint": "Anggota mendapat setidaknya akses sebanyak ini, apa pun yang Anda berikan secara individu. Atur ke “Tanpa akses” untuk membuka halaman hanya bagi orang yang Anda tambahkan.",
+    "everyoneIn": "Semua orang di {name}",
+    "everyoneTeamspace": "Semua orang di ruang tim",
+    "everyoneTeamspaceHint": "Anggota ruang tim mendapat setidaknya akses sebanyak ini, apa pun yang Anda berikan secara individu. Atur ke “Tanpa akses” untuk membuka halaman hanya bagi orang yang Anda tambahkan.",
+    "readOnly": "Hanya orang dengan akses penuh yang dapat mengubah pembagian.",
+    "copyLink": "Salin tautan",
+    "copied": "Tersalin",
+    "loading": "Memuat…",
+    "requests": {
+      "heading": "Permintaan",
+      "message": "“{message}”",
+      "level": "Tingkat akses",
+      "approve": "Bagikan",
+      "decline": "Tolak",
+      "outsider": "Tidak ada di ruang kerja: berbagi menambahkan mereka sebagai tamu.",
+      "cantInvite": "Tidak ada di ruang kerja, dan ruang kerja ini tidak mengizinkan Anda berbagi dengan orang di luarnya."
+    },
+    "levels": {
+      "full": "Akses penuh",
+      "edit": "Dapat mengedit",
+      "comment": "Dapat berkomentar",
+      "view": "Dapat melihat",
+      "none": "Tanpa akses"
+    },
+    "errors": {
+      "notMember": "Orang ini bukan anggota ruang kerja.",
+      "lastFullAccess": "Seseorang harus tetap memiliki akses penuh ke halaman. Beri orang lain akses penuh terlebih dahulu.",
+      "accessDenied": "Anda tidak dapat mengubah pembagian halaman ini.",
+      "invalidEmail": "Masukkan alamat email yang valid.",
+      "invitesRestricted": "Ruang kerja ini tidak mengizinkan Anda membagikan halaman kepada orang di luarnya. Tanyakan kepada pemilik.",
+      "generic": "Tidak dapat memperbarui pembagian.",
+      "agentFullAccess": "Agen dapat melihat, berkomentar, atau mengedit halaman, tetapi tidak pernah mendapat akses penuh."
+    },
+    "everyoneFromTeamspaceHint": "Diatur oleh ruang tim. Pemiliknya dan pemilik ruang kerja memiliki akses penuh. Pilih tingkat di sini untuk mengaturnya bagi halaman ini dan subhalamannya."
+  },
+  "noAccess": {
+    "metaTitle": "Tanpa akses",
+    "title": "Anda tidak memiliki akses ke halaman ini",
+    "description": "Minta akses dan orang yang dapat membagikan halaman ini akan menerima permintaan Anda.",
+    "descriptionNoRequests": "Minta orang yang mengirimkan tautan kepada Anda untuk membagikan halaman ini.",
+    "messageLabel": "Pesan (opsional)",
+    "messagePlaceholder": "Tambahkan catatan untuk orang yang dapat membagikannya",
+    "request": "Minta akses",
+    "sending": "Mengirim…",
+    "sentTitle": "Permintaan terkirim",
+    "sentDescription": "Saat seseorang membagikan halaman kepada Anda, tautan ini akan membukanya.",
+    "rateLimited": "Anda terlalu sering meminta akses. Coba lagi nanti.",
+    "signedInAs": "Anda masuk sebagai {email}.",
+    "home": "Ke ruang kerja Anda"
+  },
+  "embed": {
+    "label": "Basis data",
+    "linkedLabel": "Tampilan tertaut dari basis data",
+    "unavailable": "Basis data ini tidak tersedia. Mungkin sudah dihapus, atau Anda tidak memiliki akses ke sana.",
+    "inTrash": "Basis data ini ada di sampah.",
+    "creating": "Membuat basis data…",
+    "createFailed": "Tidak dapat membuat basis data: {error}",
+    "turnIntoDatabase": "Ubah menjadi basis data",
+    "convertFailed": "Tidak dapat mengubah tabel menjadi basis data: {error}",
+    "tableTooLarge": "Tabel hingga {rows} baris dan {columns} kolom dapat menjadi basis data.",
+    "open": "Buka sebagai halaman",
+    "linked": "Tampilan tertaut",
+    "layout": "Tata letak",
+    "viewOnly": "Hanya orang yang dapat mengedit halaman ini yang dapat mengubah tampilan ini.",
+    "picker": {
+      "title": "Pilih basis data",
+      "search": "Cari basis data",
+      "empty": "Tidak ada basis data ditemukan.",
+      "failed": "Tidak dapat memuat basis data."
+    },
+    "slash": {
+      "database": {
+        "title": "Basis data",
+        "subtext": "Basis data baru di dalam halaman ini",
+        "aliases": "basis data database db sebaris tabel inline table"
+      },
+      "linkedView": {
+        "title": "Tampilan tertaut dari basis data",
+        "subtext": "Tampilkan basis data yang ada dengan tampilannya sendiri",
+        "aliases": "tampilan tertaut basis data database db linked view"
+      },
+      "dashboard": {
+        "title": "Dasbor",
+        "subtext": "Angka, bagan, dan daftar dari basis data Anda",
+        "aliases": "dasbor dashboard widget kpi metrik bagan angka metrics charts numbers"
+      }
+    }
+  },
+  "textStyle": {
+    "superscript": "Superskrip",
+    "subscript": "Subskrip"
+  },
+  "find": {
+    "label": "Cari di halaman",
+    "placeholder": "Cari",
+    "replacePlaceholder": "Ganti dengan",
+    "noResults": "Tidak ada hasil",
+    "matchCase": "Cocokkan huruf besar/kecil",
+    "matchAccents": "Cocokkan aksen",
+    "previous": "Hasil sebelumnya (Shift+Enter)",
+    "next": "Hasil berikutnya (Enter)",
+    "showReplace": "Tampilkan ganti",
+    "hideReplace": "Sembunyikan ganti",
+    "replace": "Ganti",
+    "replaceAll": "Ganti semua",
+    "close": "Tutup (Esc)"
+  },
+  "template": {
+    "workspace": "Ini adalah templat. Halaman baru yang dibuat darinya menyalin konten dan subhalamannya.",
+    "row": "Ini adalah templat baris. Baris baru yang dibuat darinya mendapat properti dan kontennya.",
+    "inside": "Halaman ini bagian dari sebuah templat.",
+    "use": "Gunakan templat",
+    "confirmDelete": "Hapus templat ini secara permanen? Halaman yang sudah dibuat darinya tidak berubah."
+  },
+  "blocks": {
+    "callout": {
+      "title": "Callout",
+      "subtext": "Teks dengan ikon di latar berwarna",
+      "aliases": "callout catatan tips peringatan kotak note tip warning alert box",
+      "icon": "Ubah ikon",
+      "hiddenInPrint": "Disembunyikan saat mencetak",
+      "titleField": "Judul callout",
+      "titlePlaceholder": "Judul",
+      "builtin": {
+        "frame": "Bingkai"
+      },
+      "styleSubtext": "Gaya callout",
+      "group": "Callout"
+    },
+    "code": {
+      "language": "Bahasa",
+      "plainText": "Teks biasa"
+    },
+    "math": {
+      "title": "Persamaan",
+      "subtext": "Persamaan blok yang ditulis dalam TeX",
+      "aliases": "matematika persamaan rumus math equation latex tex katex formula",
+      "placeholder": "Tambahkan persamaan TeX",
+      "sourcePlaceholder": "E = mc^2",
+      "error": "Persamaan memiliki kesalahan"
+    },
+    "inlineMath": {
+      "title": "Persamaan sebaris",
+      "subtext": "Persamaan di dalam teks",
+      "aliases": "persamaan sebaris matematika rumus inline math equation latex tex katex formula",
+      "placeholder": "Persamaan baru",
+      "sourcePlaceholder": "x^2",
+      "error": "Kesalahan persamaan"
+    },
+    "footnote": {
+      "title": "Catatan kaki",
+      "subtext": "Catatan bernomor di akhir halaman",
+      "aliases": "catatan kaki referensi sumber kutipan footnote note reference source citation",
+      "placeholder": "Catatan kaki baru",
+      "sourcePlaceholder": "Teks catatan",
+      "list": "Catatan kaki",
+      "goTo": "Buka catatan kaki di teks",
+      "back": "Kembali ke teks"
+    },
+    "mermaid": {
+      "title": "Diagram Mermaid",
+      "subtext": "Diagram alir, diagram urutan, dan lainnya, digambar dari teks",
+      "aliases": "mermaid diagram diagram alir bagan grafik urutan gantt flowchart chart graph sequence",
+      "placeholder": "Tambahkan diagram Mermaid",
+      "sourcePlaceholder": "graph TD\n  A --> B",
+      "loading": "Menggambar diagram…",
+      "error": "Diagram memiliki kesalahan",
+      "syntaxError": "Kesalahan sintaks",
+      "label": "Diagram"
+    },
+    "toc": {
+      "title": "Daftar isi",
+      "subtext": "Tautan ke judul di halaman ini",
+      "aliases": "daftar isi judul kerangka toc table contents headings outline",
+      "label": "Daftar isi",
+      "empty": "Tambahkan judul ke halaman ini dan judul-judul itu akan dicantumkan di sini."
+    },
+    "breadcrumb": {
+      "title": "Jejak halaman",
+      "subtext": "Halaman di atas halaman ini, sebagai tautan",
+      "aliases": "jejak halaman jalur induk lokasi breadcrumb path parents location",
+      "label": "Jejak halaman"
+    },
+    "subpages": {
+      "title": "Subhalaman",
+      "subtext": "Halaman di bawah halaman ini, sebagai tautan",
+      "aliases": "subhalaman anak halaman daftar indeks subpages children child pages list index",
+      "label": "Subhalaman",
+      "empty": "Halaman yang Anda tambahkan di bawah halaman ini dicantumkan di sini."
+    },
+    "columns": {
+      "two": {
+        "title": "2 kolom",
+        "subtext": "Dua kolom blok berdampingan",
+        "aliases": "kolom tata letak samping 2 dua columns column layout side two"
+      },
+      "three": {
+        "title": "3 kolom",
+        "subtext": "Tiga kolom blok berdampingan",
+        "aliases": "kolom tata letak samping 3 tiga columns column layout side three"
+      },
+      "add": {
+        "title": "Tambah kolom",
+        "subtext": "Kolom baru di sebelah kanan kolom ini (hingga 5)",
+        "aliases": "kolom tambah baru tata letak column columns add new layout"
+      }
+    },
+    "pageLink": {
+      "title": "Tautan ke halaman",
+      "subtext": "Tautan ke halaman lain, dengan judul langsungnya",
+      "aliases": "tautan halaman sebut referensi link page mention reference"
+    },
+    "syncedPage": {
+      "title": "Halaman tersinkron",
+      "subtext": "Konten halaman lain, langsung dan dapat diedit di sini",
+      "aliases": "tersinkron sinkron sematkan cermin halaman synced sync embed mirror transclude page"
+    },
+    "colors": {
+      "group": "Warna",
+      "text": "Teks {color}",
+      "background": "Latar belakang {color}",
+      "textDefault": "Warna teks bawaan",
+      "backgroundDefault": "Tanpa latar belakang",
+      "textAliases": "warna teks font color colour text",
+      "backgroundAliases": "latar belakang sorot warna background highlight color colour"
+    },
+    "syncedBlock": {
+      "title": "Blok tersinkron",
+      "subtext": "Blok yang dapat ditampilkan dan diedit di beberapa halaman",
+      "aliases": "tersinkron sinkron pakai ulang bersama blok synced sync reuse shared blocks"
+    }
+  },
+  "web": {
+    "bookmark": {
+      "title": "Markah web",
+      "subtext": "Tautan yang ditampilkan sebagai kartu dengan judul dan gambarnya",
+      "aliases": "markah bookmark tautan url web kartu pratinjau link card preview",
+      "placeholder": "Tempel tautan untuk dimarkahi",
+      "submit": "Markahi",
+      "loading": "Mengambil halaman…",
+      "refresh": "Segarkan pratinjau",
+      "label": "Markah"
+    },
+    "embed": {
+      "title": "Sematan",
+      "subtext": "YouTube, Figma, Google Docs, Maps, dan lainnya",
+      "aliases": "sematan embed iframe youtube vimeo loom figma google docs sheets slides codepen spotify maps video",
+      "placeholder": "Tempel tautan untuk disematkan",
+      "submit": "Sematkan",
+      "providers": "YouTube, Vimeo, Loom, Figma, Google Docs, Sheets, dan Slides yang diterbitkan, CodePen, Spotify, dan Google Maps. Tautan lain menjadi markah.",
+      "frameTitle": "Konten tersemat dari {host}",
+      "label": "Sematan"
+    },
+    "paste": {
+      "label": "Tempel sebagai",
+      "bookmark": "Markah",
+      "embed": "Sematan",
+      "keep": "Biarkan sebagai tautan"
+    },
+    "invalidUrl": "Masukkan alamat web, seperti https://example.com",
+    "errors": {
+      "accessDenied": "Anda tidak dapat mengedit halaman ini.",
+      "rateLimited": "Terlalu banyak pratinjau tautan sekaligus. Coba lagi dalam semenit.",
+      "invalidUrl": "Itu bukan alamat web.",
+      "blocked": "Alamat ini tidak dapat dipratinjau.",
+      "unreachable": "Tidak dapat menjangkau halaman.",
+      "timeout": "Halaman terlalu lama menjawab.",
+      "tooManyRedirects": "Halaman mengalihkan terlalu sering.",
+      "httpError": "Halaman menjawab dengan kesalahan."
+    }
+  },
+  "upload": {
+    "tooLarge": "{name} terlalu besar. Berkas paling besar {limit}.",
+    "quotaExceeded": "{name} tidak diunggah: ruang kerja ini telah memakai seluruh {limit} penyimpanan berkasnya.",
+    "failed": "Tidak dapat mengunggah {name}.",
+    "storageFailed": "{name} tidak diunggah: penyimpanan milik ruang kerja tidak menerimanya. Pemiliknya dapat melihat alasannya di Pengaturan > Penyimpanan."
+  },
+  "mention": {
+    "people": "Orang",
+    "agents": "Agen",
+    "pages": "Halaman",
+    "dates": "Tanggal",
+    "newPage": "Halaman baru: {title}",
+    "newPageHint": "Di dalam halaman ini",
+    "today": "Hari ini",
+    "tomorrow": "Besok",
+    "yesterday": "Kemarin",
+    "nextWeek": "Minggu depan",
+    "noAccess": "Tanpa akses",
+    "deleted": "Halaman yang dihapus",
+    "loading": "Memuat…",
+    "atBlock": "Terbuka di sebuah blok halaman",
+    "personLeft": "{name} (tidak lagi di ruang kerja)",
+    "date": "Tanggal",
+    "reminder": "Pengingat",
+    "remindNone": "Tanpa pengingat",
+    "remindSameDay": "Pada hari itu, 09.00",
+    "remindDayBefore": "Sehari sebelumnya, 09.00",
+    "remindWeekBefore": "Seminggu sebelumnya, 09.00",
+    "reminderSet": "Pengingat: {when}",
+    "reminderHint": "Anda akan menerimanya di kotak masuk dan lewat email.",
+    "reminderPast": "Waktu itu sudah lewat; pilih tanggal atau pengingat yang lebih akhir.",
+    "done": "Selesai"
+  },
+  "pageLinkPicker": {
+    "title": "Tautan ke halaman",
+    "search": "Cari halaman…",
+    "empty": "Tidak ada halaman ditemukan",
+    "failed": "Tidak dapat memuat halaman."
+  },
+  "syncedPage": {
+    "label": "Halaman tersinkron",
+    "viewOnly": "Hanya lihat",
+    "cycle": "Halaman ini sudah ditampilkan di atas, jadi di sini hanya ditautkan."
+  },
+  "backlinks": {
+    "title": "Ditautkan dari",
+    "titleCount": "Ditautkan dari · {count}",
+    "count": "{count, plural, other {# halaman menaut ke sini}}",
+    "unlinked": "Sebutan tanpa tautan · {count}",
+    "unlinkedHint": "Halaman yang menulis judul halaman ini tanpa menautkannya",
+    "link": "Tautkan",
+    "linkLabel": "Tautkan sebutan di {title}",
+    "linkFailed": "Judulnya tidak lagi ditulis sebagai teks biasa di sana.",
+    "locked": "Halaman itu dikunci, jadi tidak dapat diubah.",
+    "morePlaces": "{count, plural, other {# tempat lagi}}",
+    "fewerPlaces": "Tampilkan lebih sedikit",
+    "morePages": "{count, plural, other {Tampilkan # halaman lagi}}"
+  },
+  "blockMenu": {
+    "copyLink": "Salin tautan ke blok",
+    "hideInPrint": "Sembunyikan saat mencetak",
+    "calloutStyle": "Gaya callout",
+    "turnIntoCallout": "Ubah menjadi callout",
+    "plainCallout": "Callout polos",
+    "addTitle": "Tambahkan judul",
+    "removeTitle": "Hapus judul"
+  },
+  "pdf": {
+    "untitled": "PDF",
+    "openInNewTab": "Buka di tab baru",
+    "frameTitle": "PDF: {name}",
+    "noPreview": "Browser ini tidak dapat menampilkan PDF di sini. Buka berkas untuk membacanya."
+  },
+  "pdfExport": {
+    "title": "Ekspor sebagai PDF",
+    "letterhead": "Kop surat",
+    "none": "Tidak ada",
+    "defaultMark": "{name} (bawaan)",
+    "noLetterheads": "Pemilik dapat menambahkan kop surat dengan logo dan rincian perusahaan di Pengaturan → Templat PDF.",
+    "properties": "Sertakan nilai baris",
+    "hint": "Diagram dan persamaan dicetak sebagai teks; gunakan Cetak untuk halaman persis seperti tampilannya.",
+    "download": "Unduh",
+    "preparing": "Menyiapkan…"
+  },
+  "spreadsheet": {
+    "untitled": "Buku kerja",
+    "download": "Unduh",
+    "loading": "Membaca buku kerja…",
+    "tooLarge": "Buku kerja ini terlalu besar untuk ditampilkan di sini. Unduh untuk membukanya.",
+    "unreadable": "Buku kerja ini tidak dapat ditampilkan di sini: mungkin rusak, dilindungi kata sandi, atau berkas .xls lama. Unduh untuk membukanya.",
+    "empty": "Lembar ini kosong.",
+    "sheets": "Lembar",
+    "tableLabel": "{name}, lembar {sheet}",
+    "partial": "Menampilkan {rows} baris dan {columns} kolom pertama",
+    "convert": "Ubah menjadi basis data",
+    "convertTitle": "Impor satu lembar buku kerja ini sebagai basis data baru"
+  },
+  "print": {
+    "print": "Cetak atau simpan sebagai PDF",
+    "back": "Kembali ke halaman",
+    "includeSubpages": "Sertakan subhalaman",
+    "preparing": "Memuat gambar dan diagram…",
+    "hint": "Di dialog cetak, pilih “Simpan sebagai PDF” sebagai tujuan.",
+    "truncated": "Hanya {count} halaman pertama yang disertakan.",
+    "lastUpdated": "Terakhir diperbarui {date}",
+    "subpages": "Halaman",
+    "embedUnavailable": "Basis data ini tidak tersedia bagi Anda."
+  },
+  "quickNote": {
+    "documentTitle": "Catatan cepat",
+    "heading": "Catatan cepat",
+    "description": "Disimpan sebagai halaman privat yang hanya Anda lihat. Anda dapat memindahkan atau membagikannya nanti.",
+    "workspace": "Ruang kerja",
+    "title": "Judul",
+    "body": "Catatan",
+    "bodyPlaceholder": "Tulis sesuatu, atau tempel tautan",
+    "save": "Simpan catatan",
+    "shortcut": "Catatan cepat baru",
+    "shortcutShort": "Catatan cepat",
+    "destination": "Simpan ke",
+    "privatePage": "Halaman privat"
+  },
+  "dashboard": {
+    "title": "Dasbor",
+    "empty": "Dasbor ini belum memiliki widget.",
+    "emptyEditable": "Tampilkan angka, bagan, dan daftar dari basis data ruang kerja di sini. Semuanya tetap mutakhir saat baris berubah.",
+    "add": "Tambahkan widget",
+    "full": "Dasbor dapat menampung hingga {max} widget.",
+    "menu": "Opsi widget",
+    "edit": "Edit",
+    "done": "Selesai",
+    "remove": "Hapus widget",
+    "moveBefore": "Pindahkan sebelum",
+    "moveAfter": "Pindahkan setelah",
+    "width": "Lebar",
+    "widths": {
+      "1": "Seperempat lebar",
+      "2": "Setengah lebar",
+      "3": "Tiga perempat lebar",
+      "4": "Lebar penuh"
+    },
+    "color": "Warna",
+    "colorNone": "Tanpa warna",
+    "titleLabel": "Judul widget",
+    "titlePlaceholder": "Judul (judul basis data jika kosong)",
+    "unavailable": "Anda tidak memiliki akses ke data ini.",
+    "inTrash": "Basis data ini ada di sampah.",
+    "loadFailed": "Widget ini tidak dapat dimuat.",
+    "retry": "Coba lagi",
+    "noGroup": "Basis data belum memiliki yang dapat dipakai untuk mengelompokkan: tambahkan properti pilihan, status, atau tanggal.",
+    "more": "{count, plural, other {# baris lagi}}",
+    "rows": "{count, plural, other {# baris}}",
+    "byGroup": "menurut {property}",
+    "filters": "{count, plural, other {# filter}}",
+    "updatedNow": "baru saja diperbarui",
+    "updated": "diperbarui {time}"
+  },
+  "voiceNote": {
+    "record": "Rekam catatan suara",
+    "recording": "Merekam",
+    "stop": "Berhenti dan tuliskan",
+    "discard": "Buang",
+    "cancel": "Batal",
+    "retry": "Sisipkan lagi",
+    "close": "Tutup",
+    "limit": "Hingga {minutes} mnt",
+    "chooseFile": "Atau pilih berkas audio",
+    "transcribing": "Menuliskan apa yang Anda ucapkan…",
+    "writing": "AI sedang menulis catatan…",
+    "autoStopped": "Rekaman berhenti pada batas {minutes} menit.",
+    "review": "AI menulis catatan ini dari rekaman Anda. Periksa sebelum Anda menyimpannya.",
+    "notRewritten": "AI tidak dapat menuliskan rekaman ini, jadi catatannya adalah transkrip seperti yang terdengar.",
+    "transcriptKept": "Transkrip disimpan di bawah catatan.",
+    "propertiesPicked": "{count, plural, other {# properti diisi dari catatan.}}",
+    "transcriptToggle": "Transkrip",
+    "shortcut": "Catatan suara baru",
+    "shortcutShort": "Catatan suara",
+    "dialogTitle": "Catatan suara",
+    "dialogDescription": "Berbicaralah, dan AI menulis catatan yang rapi di sini. Transkrip ditempatkan di bawahnya.",
+    "slashTitle": "Catatan suara",
+    "slashSubtext": "Berbicaralah, dan AI menuliskannya di sini",
+    "slashAliases": "suara audio rekam dikte ucapan mikrofon transkripsi voice record dictate speech microphone transcribe",
+    "errors": {
+      "unsupported": "Browser ini tidak dapat merekam audio. Pilih berkas audio sebagai gantinya.",
+      "insecure": "Perekaman memerlukan koneksi aman (https). Pilih berkas audio sebagai gantinya.",
+      "denied": "Leafdesk tidak diizinkan memakai mikrofon. Izinkan di pengaturan situs browser Anda dan coba lagi.",
+      "noDevice": "Mikrofon tidak ditemukan.",
+      "failed": "Rekaman tidak dapat dimulai. Coba lagi.",
+      "fileType": "Jenis berkas audio ini tidak didukung.",
+      "fileTooLarge": "Rekaman paling besar {max}.",
+      "disabled": "Catatan suara tidak tersedia di ruang kerja ini.",
+      "noAccess": "Anda tidak dapat menambahkan catatan di sini.",
+      "tooLarge": "Rekaman terlalu besar. Rekaman paling besar {max}.",
+      "rateLimited": "Terlalu banyak permintaan AI. Coba lagi sebentar lagi.",
+      "timeout": "Menuliskan rekaman terlalu lama. Coba lagi, atau rekam catatan yang lebih pendek.",
+      "aborted": "Dibatalkan.",
+      "provider": "Rekaman tidak dapat dituliskan. Coba lagi nanti, atau minta admin memeriksa pengaturan ucapan-ke-teks.",
+      "empty": "Tidak ada suara yang terdengar dalam rekaman. Coba lagi lebih dekat ke mikrofon.",
+      "invalid": "Rekaman tidak dapat dibaca. Coba lagi.",
+      "interrupted": "Server dimulai ulang saat ini sedang diproses. Coba lagi.",
+      "limitReached": "Ruang kerja ini mencapai batas biaya AI bulanan, sehingga permintaan AI ditolak hingga bulan depan. Pemilik dapat melihat rinciannya di Pengaturan pada Penggunaan AI.",
+      "insert": "Catatan tidak dapat ditambahkan ke halaman."
+    },
+    "instructions": {
+      "menu": "Instruksi catatan suara",
+      "menuHint": "Cara AI menuliskan catatan suara yang disimpan di basis data ini",
+      "title": "Instruksi catatan suara",
+      "description": "AI mengikuti ini saat menuliskan catatan suara yang disimpan di basis data ini. Instruksi berlaku bagi semua orang yang merekam ke dalamnya.",
+      "placeholder": "Misalnya: Catatan kunjungan pelanggan. Cakup perusahaan, orang yang ditemui, apa yang dibahas, status penawaran, dan langkah berikutnya.",
+      "followed": "Catatan suara yang disimpan di sini mengikuti instruksi penulisan basis data ini."
+    }
+  },
+  "review": {
+    "bar": "{count, plural, other {# perubahan AI untuk ditinjau}}",
+    "by": "oleh {names}",
+    "open": "Tinjau",
+    "keepAll": "Pertahankan semua",
+    "undoAll": "Urungkan semua",
+    "keep": "Pertahankan",
+    "undo": "Urungkan",
+    "title": "Tinjau perubahan AI",
+    "hint": "Pertahankan atau urungkan setiap perubahan. Urungkan semua menyimpan halaman seperti sekarang ke riwayatnya terlebih dahulu.",
+    "stale": "Halaman berubah sementara itu: ini adalah perubahan seperti sekarang.",
+    "failed": "Itu tidak berhasil. Coba lagi."
+  },
+  "syncedBlock": {
+    "label": "Blok tersinkron",
+    "from": "Disinkronkan dari",
+    "viewOnly": "Hanya lihat",
+    "copy": "Salin blok tersinkron",
+    "copied": "Tersalin",
+    "copyHint": "Tempel ke halaman lain untuk menampilkan blok ini di sana, secara langsung",
+    "shownOn": "{count, plural, other {Ditampilkan di # halaman}}",
+    "notShownShort": "Tidak ditampilkan di tempat lain",
+    "notShown": "Salin blok tersinkron ini dan tempel ke halaman lain untuk menampilkannya di sana.",
+    "hiddenPages": "{count, plural, other {dan # halaman yang tidak dapat Anda lihat}}",
+    "unsync": "Putuskan sinkronisasi",
+    "unsyncHint": "Ubah menjadi salinan biasa dari blok ini",
+    "nested": "Blok tersinkron tidak dapat berada di dalam blok tersinkron lain.",
+    "turnInto": "Ubah menjadi blok tersinkron",
+    "state": {
+      "noAccess": "Tanpa akses",
+      "trashed": "Halaman blok tersinkron asli ada di sampah",
+      "deleted": "Halaman blok tersinkron asli telah dihapus",
+      "removed": "Blok tersinkron asli telah dihapus"
+    },
+    "exportNote": "Blok tersinkron: {state}"
+  },
+  "viewer": {
+    "untitled": "Berkas",
+    "counter": "{index} dari {count}",
+    "announce": "{name}, {index} dari {count}",
+    "previous": "Berkas sebelumnya",
+    "next": "Berkas berikutnya",
+    "close": "Tutup",
+    "download": "Unduh",
+    "openInNewTab": "Buka di tab baru",
+    "zoom": "Zoom",
+    "zoomIn": "Perbesar",
+    "zoomOut": "Perkecil",
+    "zoomReset": "Sesuaikan layar",
+    "zoomResetLevel": "{percent}%, sesuaikan layar",
+    "loading": "Memuat…",
+    "readingDocument": "Membaca dokumen…",
+    "unavailable": "Berkas ini tidak dapat dibuka. Mungkin sudah dihapus, atau Anda tidak lagi memiliki akses ke sana.",
+    "imageFailed": "Gambar ini tidak dapat ditampilkan di sini. Unduh untuk membukanya.",
+    "empty": "Berkas ini kosong.",
+    "noPreview": "Tidak ada pratinjau untuk jenis berkas ini.",
+    "unknownType": "Tipe tidak dikenal",
+    "cannotPlay": "Browser ini tidak dapat memutar berkas ini. Unduh untuk memutarnya di tempat lain.",
+    "truncated": "Hanya {size} pertama dari berkas ini yang ditampilkan. Unduh untuk melihat seluruhnya.",
+    "csvPartial": "Sebagian berkas ini ditampilkan ({rows} baris). Unduh untuk melihat seluruhnya.",
+    "documentTooLarge": "Dokumen ini terlalu besar untuk dipratinjau. Unduh untuk membukanya.",
+    "documentUnreadable": "Dokumen ini tidak dapat dipratinjau: mungkin rusak, dilindungi kata sandi, atau berkas .doc lama. Unduh untuk membukanya.",
+    "documentBusy": "Server sedang sibuk membaca dokumen lain. Coba lagi sebentar lagi.",
+    "picturesLeftOut": "Beberapa gambar dokumen ini tidak ditampilkan di sini.",
+    "retry": "Coba lagi",
+    "markdownImage": "Gambar: {alt}",
+    "markdownImageUntitled": "Gambar",
+    "expand": "Buka di penampil",
+    "view": "Lihat {name}"
+  },
+  "presentation": {
+    "previous": "Slide sebelumnya",
+    "next": "Slide berikutnya",
+    "exit": "Akhiri presentasi",
+    "counter": "{index} dari {count}",
+    "announce": "Slide {index} dari {count}"
+  },
+  "markdownSource": {
+    "title": "Edit sebagai Markdown",
+    "sourceTab": "Markdown",
+    "previewTab": "Pratinjau",
+    "toolbar": "Pemformatan",
+    "placeholder": "Tulis Markdown…",
+    "close": "Tutup",
+    "retry": "Coba lagi",
+    "unsaved": "Perubahan belum tersimpan",
+    "offline": "Luring: menyimpan memerlukan koneksi",
+    "saveHint": "Simpan ke halaman (Ctrl+S atau ⌘S)",
+    "tools": {
+      "bold": "Tebal",
+      "italic": "Miring",
+      "code": "Kode sebaris",
+      "link": "Tautan",
+      "heading": "Judul {level}",
+      "bulletList": "Daftar berpoin",
+      "numberedList": "Daftar bernomor",
+      "taskList": "Daftar tugas"
+    },
+    "errors": {
+      "noAccess": "Anda tidak dapat mengedit halaman ini.",
+      "database": "Basis data tidak memiliki teks untuk diedit sebagai Markdown.",
+      "trashed": "Halaman ini ada di sampah.",
+      "locked": "Halaman ini dikunci. Buka kunci untuk mengeditnya.",
+      "saveFailed": "Halaman tidak dapat disimpan. Coba lagi sebentar lagi.",
+      "failed": "Terjadi kesalahan. Coba lagi."
+    },
+    "losses": {
+      "title": "Sebagian halaman ini tidak akan dipertahankan",
+      "body": "Markdown tidak dapat menampung semua yang ada di halaman ini. Menyimpan menulis halaman dari Markdown, sehingga hal-hal ini hilang:",
+      "kinds": {
+        "textColor": "Warna teks",
+        "backgroundColor": "Warna latar belakang dan sorotan",
+        "alignment": "Perataan teks",
+        "mediaSize": "Ukuran gambar dan video",
+        "callout": "Warna dan ikon callout yang tidak memiliki bentuk di Markdown",
+        "textStyle": "Beberapa pemformatan teks, seperti garis bawah",
+        "table": "Lebar kolom tabel, baris header, sel yang digabung, dan warna sel",
+        "blockSetting": "Pengaturan blok lainnya",
+        "content": "Beberapa konten yang tidak dapat ditampung Markdown"
+      },
+      "synced": "{count, plural, other {Perubahan Anda di dalam # blok tersinkron: edit di halaman saja}}",
+      "confirm": "Tetap simpan"
+    },
+    "conflict": {
+      "title": "Orang lain mengubah halaman ini",
+      "body": "Halaman berubah setelah Anda membuka Markdown-nya. Muat halaman seperti sekarang (perubahan Anda di sini dibuang), atau simpan perubahan Anda di atasnya.",
+      "reload": "Muat halaman saat ini",
+      "overwrite": "Simpan milik saya di atasnya"
+    },
+    "discard": {
+      "title": "Buang perubahan Anda?",
+      "body": "Perubahan Markdown Anda belum disimpan.",
+      "keep": "Lanjutkan mengedit",
+      "confirm": "Buang"
+    }
+  },
+  "siblings": {
+    "label": "Halaman di samping {title}",
+    "empty": "Tidak ada halaman lain di sini",
+    "failed": "Tidak dapat memuat halaman di sini.",
+    "openDatabase": "Buka basis data",
+    "allRows": "Lihat semua baris di basis data"
+  },
+  "agentChat": {
+    "label": "Obrolan agen",
+    "exportLine": "Obrolan agen: {name}",
+    "elsewhere": "Obrolan agen: tersedia di aplikasi untuk anggota ruang kerja.",
+    "choose": "Pilih agen",
+    "noAgent": "Pilih agen yang diajak mengobrol orang di sini.",
+    "noAgentReadOnly": "Belum ada agen yang dipilih untuk obrolan ini.",
+    "loadFailed": "Tidak dapat memuat obrolan ini.",
+    "retry": "Coba lagi",
+    "states": {
+      "guest": "Obrolan agen tidak tersedia untuk tamu.",
+      "gone": "Agen ini sudah tidak tersedia.",
+      "paused": "Agen ini dijeda, jadi tidak dapat menjawab.",
+      "aiOff": "AI nonaktif di ruang kerja ini, jadi agen tidak dapat menjawab.",
+      "limitReached": "Agen ini telah memakai token bulanannya, jadi tidak dapat menjawab hingga bulan depan.",
+      "noAccess": "Anda tidak memiliki akses ke agen ini."
+    },
+    "empty": {
+      "full": "Tanyakan sesuatu kepada {name}, atau beri tugas. Agen bekerja dengan akses, keterampilan, dan memorinya sendiri, dan setiap jawaban adalah salah satu eksekusinya.",
+      "readOnly": "Ajukan pertanyaan kepada {name}. Jawaban hanya berasal dari halaman yang dapat dilihat kalian berdua, dan agen tidak dapat mengubah apa pun."
+    },
+    "readOnly": "Hanya baca",
+    "readOnlyHint": "Jawaban hanya berasal dari halaman yang dapat dilihat oleh Anda dan agen.",
+    "placeholder": "Kirim pesan ke {name}…",
+    "send": "Kirim",
+    "working": "Bekerja…",
+    "waiting": "Menunggu slot AI…",
+    "approval": "Agen ingin memakai sebuah alat. Setujui panggilan agar agen melanjutkan.",
+    "steps": "{count, plural, other {# langkah}}",
+    "conversations": "Percakapan",
+    "newConversation": "Percakapan baru",
+    "deleteConversation": "Hapus percakapan ini",
+    "failed": {
+      "aiOff": "AI nonaktif di ruang kerja ini.",
+      "agentDisabled": "Agen dijeda atau diarsipkan.",
+      "noAccess": "Anda tidak lagi dapat mengobrol dengan agen ini di sini.",
+      "provider": "Penyedia AI tidak menjawab.",
+      "timeout": "Agen terlalu lama menjawab.",
+      "tooManyAttempts": "Jatah AI ruang kerja tetap habis, jadi agen tidak dapat memulai.",
+      "approvalTimeout": "Tidak ada yang menjawab panggilannya tepat waktu, jadi tidak ada yang dikirim.",
+      "limitReached": "Agen telah memakai token bulanannya.",
+      "costLimit": "Ruang kerja telah mencapai batas biaya AI bulanan.",
+      "error": "Terjadi kesalahan."
+    },
+    "errors": {
+      "invalid": "Tulis pesan terlebih dahulu.",
+      "tooLong": "Pesan dapat memiliki paling banyak {max} karakter.",
+      "busy": "Agen masih menjawab pesan terakhir Anda.",
+      "rateLimited": "Terlalu banyak pesan sekaligus. Coba lagi sebentar lagi.",
+      "noAccess": "Obrolan ini tidak tersedia bagi Anda.",
+      "notOnPage": "Obrolan ini sudah tidak ada di halaman.",
+      "guest": "Obrolan agen tidak tersedia untuk tamu.",
+      "gone": "Agen ini sudah tidak tersedia.",
+      "paused": "Agen ini dijeda, jadi tidak dapat menjawab.",
+      "aiOff": "AI nonaktif di ruang kerja ini, jadi agen tidak dapat menjawab.",
+      "limitReached": "Agen ini telah memakai token bulanannya."
+    },
+    "picker": {
+      "search": "Cari agen",
+      "empty": "Tidak ada agen untuk diajak mengobrol. Pemilik membuatnya di Pengaturan, di bagian Agen.",
+      "failed": "Tidak dapat memuat agen.",
+      "paused": "Dijeda"
+    },
+    "slash": {
+      "title": "Obrolan agen",
+      "subtext": "Mengobrol dengan salah satu agen ruang kerja di halaman ini",
+      "aliases": "obrolan agen bot asisten ai tanya agent chat assistant ask"
+    },
+    "tab": {
+      "hint": "Tempel tautan agen ini ke halaman untuk menaruh obrolan dengannya di sana. Anggota dapat mengobrol di dalamnya secara hanya-baca.",
+      "copyLink": "Salin tautan"
+    },
+    "awaitingOwner": "Menunggu pemilik ruang kerja menyetujui sebuah panggilan…"
+  }
+}

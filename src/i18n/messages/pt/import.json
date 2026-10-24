@@ -1,12 +1,14 @@
 {
   "open": "Importar",
   "title": "Importar",
-  "description": "Traga páginas de arquivos Markdown, exportações ZIP e documentos do Word, linhas de um arquivo CSV ou pasta de trabalho do Excel, ou um quadro do Trello.",
+  "description": "Traga páginas de arquivos Markdown, exportações ZIP e documentos do Word, linhas de um arquivo CSV ou pasta de trabalho do Excel, ou um quadro do Trello, Asana ou Monday.com.",
   "tabs": {
     "pages": "Markdown e ZIP",
     "docx": "Word",
     "csv": "CSV e Excel",
-    "trello": "Trello"
+    "trello": "Trello",
+    "asana": "Asana",
+    "monday": "Monday.com"
   },
   "destination": "Colocar em",
   "topLevel": "Nível superior do espaço de trabalho",
@@ -67,6 +69,35 @@
       "comments": "Comentários"
     }
   },
+  "asana": {
+    "help": "No Asana, abra o menu do projeto e escolha Exportar → CSV (ou JSON) e depois escolha o arquivo baixado. O projeto vira um banco de dados com uma visualização de quadro por seção: conclusão, responsáveis, datas, tags, campos personalizados, notas, subtarefas e dependências vêm junto.",
+    "choose": "Escolher uma exportação do Asana (.csv ou .json)",
+    "summary": "{name}: {groups, plural, one {# seção} other {# seções}}, {items, plural, one {# tarefa} other {# tarefas}}, {subitems, plural, one {# subtarefa} other {# subtarefas}}"
+  },
+  "monday": {
+    "help": "No Monday.com, abra o menu do quadro e escolha Exportar quadro para Excel (com as atualizações, se quiser) e depois escolha o arquivo baixado. O quadro vira um banco de dados com uma visualização de quadro por grupo: colunas, subitens e atualizações vêm junto.",
+    "choose": "Escolher uma exportação do Monday.com (.xlsx ou .csv)",
+    "summary": "{name}: {groups, plural, one {# grupo} other {# grupos}}, {items, plural, one {# item} other {# itens}}, {subitems, plural, one {# subitem} other {# subitens}}"
+  },
+  "board": {
+    "links": "Nada é baixado: arquivos e links da exportação continuam sendo links.",
+    "comments": "{count, plural, one {# comentário vai} other {# comentários vão}} para as páginas das linhas, com autor e horário.",
+    "leftOut": "Deixados de fora: {list}.",
+    "types": "Confira em que cada coluna se transforma: a exportação não diz de que tipo ela é, então isso foi deduzido.",
+    "names": {
+      "section": "Seção",
+      "group": "Grupo",
+      "status": "Status",
+      "toDo": "A fazer",
+      "done": "Concluído",
+      "assignee": "Responsável",
+      "tags": "Tags",
+      "dates": "Datas",
+      "others": "{column} (outros)",
+      "attachments": "Anexos",
+      "comments": "Comentários"
+    }
+  },
   "import": "Importar",
   "importing": "Importando…",
   "done": {
@@ -86,6 +117,7 @@
   "warnings": {
     "heading": "Deixado de fora ou alterado",
     "invalidValues": "{count, plural, one {# valor} other {# valores}} em “{column}” não se encaixaram na propriedade e ficaram vazios.",
+    "leftOutColumn": "“{column}” não foi importado.",
     "missingFile": "“{path}”, vinculado em “{page}”, não estava no envio.",
     "unresolvedLink": "“[[{target}]]” em “{page}” não corresponde a nenhuma nota ou arquivo do envio, então continua como texto.",
     "fileNotStored": {
@@ -120,6 +152,8 @@
     "badDocx": "Não foi possível ler “{name}” como documento do Word. Só arquivos .docx podem ser importados; salve arquivos .doc antigos como .docx primeiro.",
     "docxTooComplex": "“{name}” é grande ou complexo demais para importar como uma página.",
     "badTrello": "O arquivo não é uma exportação de quadro do Trello. No Trello, escolha Exportar como JSON no menu do quadro e escolha esse arquivo.",
+    "badAsana": "O arquivo não é uma exportação de projeto do Asana. No Asana, escolha Exportar → CSV ou JSON no menu do projeto e escolha esse arquivo.",
+    "badMonday": "O arquivo não é uma exportação de quadro do Monday.com. No Monday.com, escolha Exportar quadro para Excel no menu do quadro e escolha esse arquivo.",
     "badMapping": "Escolha para onde vai pelo menos uma coluna, e cada propriedade só uma vez.",
     "noAccess": "Você não pode adicionar páginas ali, ou o local não existe mais.",
     "notADatabase": "Linhas só podem ser adicionadas a um banco de dados.",

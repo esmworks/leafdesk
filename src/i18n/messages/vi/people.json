@@ -1,0 +1,14 @@
+{
+  "metaTitle": "Mọi người",
+  "heading": "Mọi người",
+  "description": "Các chủ sở hữu và thành viên của không gian làm việc này, cùng không gian nhóm, nhóm và những trang họ đã chỉnh sửa gần đây. Khách không được liệt kê.",
+  "search": "Tìm theo tên, email, không gian nhóm hoặc nhóm",
+  "count": "{count, plural, other {# người}}",
+  "noMatches": "Không có ai khớp với tìm kiếm của bạn.",
+  "you": "(bạn)",
+  "teamspaces": "Không gian nhóm",
+  "groups": "Nhóm",
+  "recentPages": "Chỉnh sửa gần đây",
+  "none": "Không có",
+  "noRecentPages": "Không có chỉnh sửa gần đây nào bạn có thể mở."
+}

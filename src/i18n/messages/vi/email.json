@@ -1,0 +1,271 @@
+{
+  "footer": "Email này được Leafdesk gửi từ {appUrl}.",
+  "actionFallback": "Nếu nút không hoạt động, hãy dán liên kết này vào trình duyệt của bạn:",
+  "test": {
+    "subject": "Email thử từ Leafdesk",
+    "heading": "Gửi email hoạt động bình thường",
+    "body": "Đây là tin nhắn thử từ máy chủ Leafdesk của bạn tại {appUrl}. Nếu bạn đọc được tin này, email đã được thiết lập đúng."
+  },
+  "invitation": {
+    "subject": "{inviter} đã mời bạn vào “{workspace}” trên Leafdesk",
+    "heading": "Tham gia “{workspace}”",
+    "body": "{inviter} đã mời bạn tham gia “{workspace}” trên Leafdesk với vai trò {role}.",
+    "expires": "Liên kết có hiệu lực trong 7 ngày. Hãy đăng ký bằng {email} để chấp nhận.",
+    "action": "Chấp nhận lời mời",
+    "roles": {
+      "owner": "chủ sở hữu",
+      "member": "thành viên",
+      "guest": "khách"
+    }
+  },
+  "passwordReset": {
+    "subject": "Đặt lại mật khẩu Leafdesk của bạn",
+    "heading": "Đặt lại mật khẩu của bạn",
+    "body": "Xin chào {name}, có người đã yêu cầu đặt lại mật khẩu cho tài khoản Leafdesk của bạn. Nếu là bạn, hãy chọn mật khẩu mới bằng nút bên dưới.",
+    "expires": "Liên kết có hiệu lực trong {minutes} phút và chỉ dùng được một lần. Nếu bạn không yêu cầu việc này, hãy bỏ qua email này; mật khẩu của bạn vẫn giữ nguyên.",
+    "action": "Chọn mật khẩu mới"
+  },
+  "assignment": {
+    "subject": "{actor} đã giao bạn vào “{row}”",
+    "heading": "Bạn đã được giao vào “{row}”",
+    "body": "{actor} đã thêm bạn vào “{property}” trong {database}.",
+    "bodyHidden": "{actor} đã thêm bạn vào “{property}”.",
+    "action": "Mở",
+    "untitled": "Chưa đặt tên",
+    "someone": "Ai đó",
+    "optOut": "Bạn có thể tắt các email này trong Tài khoản của tôi > Tùy chọn."
+  },
+  "share": {
+    "subject": "{actor} đã chia sẻ “{page}” với bạn",
+    "heading": "{actor} đã chia sẻ một trang với bạn",
+    "body": "Giờ bạn có thể {level} “{page}” trong {workspace}.",
+    "levels": {
+      "view": "xem",
+      "comment": "xem và bình luận",
+      "edit": "chỉnh sửa",
+      "full": "xem, chỉnh sửa và chia sẻ"
+    },
+    "action": "Mở trang",
+    "untitled": "Chưa đặt tên",
+    "optOut": "Bạn có thể tắt các email này trong Tài khoản của tôi > Tùy chọn."
+  },
+  "comment": {
+    "subject": "{actor} đã bình luận về “{page}”",
+    "heading": "{actor} đã bình luận về “{page}”",
+    "quote": "“{text}”",
+    "body": "Bình luận nằm trên “{page}” trong {workspace}. Hãy trả lời hoặc giải quyết nó từ trang.",
+    "action": "Mở trang",
+    "optOut": "Bạn nhận email này vì bạn đã tham gia chuỗi bình luận này. Bạn có thể tắt chúng trong Tài khoản của tôi > Tùy chọn."
+  },
+  "mention": {
+    "subject": "{actor} đã nhắc đến bạn trên “{page}”",
+    "heading": "{actor} đã nhắc đến bạn trên “{page}”",
+    "body": "Lượt nhắc đến nằm trên “{page}” trong {workspace}.",
+    "action": "Mở trang",
+    "someone": "Ai đó",
+    "optOut": "Bạn nhận email này vì có người đã nhắc đến bạn. Bạn có thể tắt chúng trong Tài khoản của tôi > Tùy chọn."
+  },
+  "reminder": {
+    "subject": "Nhắc nhở: {date} trên “{page}”",
+    "heading": "Nhắc nhở: {date}",
+    "body": "Bạn đã yêu cầu được nhắc về {date} trên “{page}” trong {workspace}.",
+    "action": "Mở trang",
+    "optOut": "Bạn nhận email này vì bạn đã đặt một lời nhắc. Bạn có thể tắt chúng trong Tài khoản của tôi > Tùy chọn."
+  },
+  "dateReminder": {
+    "subject": "Nhắc nhở: “{page}” vào {date}",
+    "heading": "“{page}” vào {date}",
+    "body": "“{page}” trong {database} ({workspace}) có {property} vào {date}.",
+    "bodyHidden": "“{page}” ({workspace}) có {property} vào {date}.",
+    "action": "Mở hàng",
+    "optOut": "Bạn nhận email này vì {database} nhắc những người trong các hàng của nó. Bạn có thể tắt lời nhắc trong Tài khoản của tôi > Tùy chọn.",
+    "optOutHidden": "Bạn nhận email này vì cơ sở dữ liệu của nó nhắc những người trong các hàng của mình. Bạn có thể tắt lời nhắc trong Tài khoản của tôi > Tùy chọn."
+  },
+  "automation": {
+    "subject": "Tự động hóa “{automation}”: “{page}”",
+    "heading": "Tự động hóa “{automation}” báo cho bạn về “{page}”",
+    "body": "{actor} đã thêm hoặc thay đổi “{page}” trong {database} ({workspace}).",
+    "bodyHidden": "{actor} đã thêm hoặc thay đổi “{page}” ({workspace}).",
+    "bodyDatePassed": "“{page}” trong {database} ({workspace}) đã đến ngày mà tự động hóa này chờ.",
+    "bodyDatePassedHidden": "“{page}” ({workspace}) đã đến ngày mà tự động hóa này chờ.",
+    "action": "Mở hàng",
+    "someone": "Ai đó",
+    "optOut": "Bạn nhận email này vì một tự động hóa của cơ sở dữ liệu thông báo cho bạn. Bạn có thể tắt chúng trong Tài khoản của tôi > Tùy chọn."
+  },
+  "rowUpdate": {
+    "subject": "{actor} đã thay đổi “{page}”",
+    "heading": "{actor} đã thay đổi “{page}”",
+    "intro": "{actor} đã thay đổi “{page}” trong {database} ({workspace}):",
+    "introHidden": "{actor} đã thay đổi “{page}” ({workspace}):",
+    "change": "{property}: {from} → {to}",
+    "title": "Tiêu đề",
+    "body": "Nội dung của hàng đã được chỉnh sửa.",
+    "empty": "trống",
+    "checked": "đã chọn",
+    "unchecked": "chưa chọn",
+    "deletedOption": "{count, plural, other {# tùy chọn đã xóa}}",
+    "unknownPerson": "{count, plural, other {# người không xác định}}",
+    "noAccess": "Không có quyền truy cập",
+    "untitled": "Chưa đặt tên",
+    "checklist": "Đã xong {done} trên {total}",
+    "action": "Mở hàng",
+    "someone": "Ai đó",
+    "optOut": "Bạn nhận email này vì bạn theo dõi hàng này. Hãy ngừng theo dõi từ menu của trang hàng, hoặc tắt các email này trong Tài khoản của tôi > Tùy chọn."
+  },
+  "pageUpdate": {
+    "subject": "{actor} đã chỉnh sửa “{page}”",
+    "heading": "{actor} đã chỉnh sửa “{page}”",
+    "body": "“{page}” trong {workspace} đã thay đổi. Hãy mở để xem có gì mới; lịch sử của trang cho thấy từng thay đổi.",
+    "someone": "Ai đó",
+    "action": "Mở trang",
+    "optOut": "Bạn nhận email này vì bạn theo dõi trang này: bạn đã tạo hoặc chỉnh sửa nó, đã chọn theo dõi nó, hoặc theo dõi không gian nhóm của nó. Hãy tắt tiếng từ menu ⋯ của trang, hoặc tắt các email này trong Tài khoản của tôi > Tùy chọn.",
+    "digestSubject": "{count, plural, other {# trang bạn theo dõi đã được chỉnh sửa}}",
+    "digestIntro": "Hôm nay bạn đã nhận email về các trang bạn theo dõi, nên các chỉnh sửa này được gộp lại:",
+    "digestPage": "“{page}” trong {workspace}, được chỉnh sửa bởi {actor}: {link}",
+    "digestAction": "Mở Leafdesk"
+  },
+  "accessRequest": {
+    "subject": "{requester} đã xin quyền truy cập “{page}”",
+    "heading": "{requester} đã xin quyền truy cập “{page}”",
+    "body": "{requester} ({email}) muốn mở “{page}” trong {workspace}.",
+    "bodyWithoutEmail": "{requester} muốn mở “{page}” trong {workspace}.",
+    "message": "Lời nhắn của họ: “{message}”",
+    "answer": "Hãy chia sẻ trang với họ và chọn những gì họ được làm, hoặc từ chối yêu cầu. Bạn có thể trả lời từ hộp thư đến hoặc từ mục Chia sẻ trên trang.",
+    "action": "Mở trang",
+    "optOut": "Bạn nhận email này vì bạn có toàn quyền với trang. Bạn có thể tắt chúng trong Tài khoản của tôi > Tùy chọn."
+  },
+  "accessApproved": {
+    "subject": "Giờ bạn có thể mở “{page}”",
+    "heading": "{actor} đã chấp thuận yêu cầu của bạn",
+    "body": "Giờ bạn có thể {level} “{page}” trong {workspace}.",
+    "action": "Mở trang"
+  },
+  "accessDeclined": {
+    "subject": "Yêu cầu truy cập của bạn đã bị từ chối",
+    "heading": "Yêu cầu của bạn đã bị từ chối",
+    "body": "Yêu cầu truy cập trang này của bạn đã bị từ chối: {link}",
+    "hint": "Nếu bạn vẫn cần quyền truy cập, hãy hỏi người đã gửi liên kết cho bạn."
+  },
+  "emailChange": {
+    "subject": "Xác nhận địa chỉ email mới của bạn",
+    "heading": "Xác nhận địa chỉ email mới của bạn",
+    "body": "Xin chào {name}, bạn đã yêu cầu dùng địa chỉ này cho tài khoản Leafdesk thay cho {old}. Hãy xác nhận bằng nút bên dưới.",
+    "expires": "Liên kết có hiệu lực trong {hours} giờ và chỉ dùng được một lần. Nếu bạn không yêu cầu việc này, hãy bỏ qua email này; sẽ không có gì thay đổi.",
+    "action": "Xác nhận địa chỉ email"
+  },
+  "emailChanged": {
+    "subject": "Địa chỉ email của tài khoản Leafdesk của bạn đã thay đổi",
+    "heading": "Địa chỉ email của bạn đã thay đổi",
+    "body": "Xin chào {name}, địa chỉ email của tài khoản Leafdesk của bạn đã đổi từ {old} sang {new}. Từ nay hãy đăng nhập bằng địa chỉ mới.",
+    "warning": "Nếu bạn không thực hiện thay đổi này, hãy liên hệ ngay với một chủ sở hữu không gian làm việc của bạn."
+  },
+  "passwordChanged": {
+    "subject": "Mật khẩu Leafdesk của bạn đã thay đổi",
+    "heading": "Mật khẩu của bạn đã thay đổi",
+    "body": "Xin chào {name}, mật khẩu của tài khoản Leafdesk của bạn vừa được thay đổi.",
+    "warning": "Nếu bạn không thực hiện thay đổi này, hãy đặt lại mật khẩu từ trang đăng nhập và liên hệ với một chủ sở hữu không gian làm việc của bạn."
+  },
+  "joinRequest": {
+    "join": {
+      "subject": "{asker} đã xin tham gia “{workspace}”",
+      "heading": "{asker} đã xin tham gia",
+      "body": "{asker} ({email}) đã xin tham gia “{workspace}” trên Leafdesk. Hãy chấp thuận hoặc từ chối yêu cầu trong Cài đặt > Thành viên."
+    },
+    "invite": {
+      "subject": "{asker} đã xin mời {email} vào “{workspace}”",
+      "heading": "Một thành viên đã xin mời người khác",
+      "body": "{asker} muốn mời {email} vào “{workspace}” trên Leafdesk. Lời mời sẽ được gửi đi khi một chủ sở hữu chấp thuận."
+    },
+    "action": "Xem xét các yêu cầu",
+    "optOut": "Bạn có thể tắt các email này trong Tài khoản của tôi > Tùy chọn."
+  },
+  "joinDecision": {
+    "joinApproved": {
+      "subject": "Bạn đã tham gia “{workspace}”",
+      "heading": "Chào mừng đến với “{workspace}”",
+      "body": "Một chủ sở hữu đã chấp thuận yêu cầu tham gia “{workspace}” trên Leafdesk của bạn."
+    },
+    "joinDeclined": {
+      "subject": "Yêu cầu tham gia “{workspace}” của bạn",
+      "heading": "Yêu cầu của bạn không được chấp thuận",
+      "body": "Một chủ sở hữu của “{workspace}” đã từ chối yêu cầu tham gia của bạn. Bạn có thể xin một chủ sở hữu gửi lời mời."
+    },
+    "inviteApproved": {
+      "subject": "{email} đã được mời vào “{workspace}”",
+      "heading": "Lời mời của bạn đã được gửi đi",
+      "body": "Một chủ sở hữu đã chấp thuận yêu cầu của bạn, và {email} đã được mời vào “{workspace}” trên Leafdesk."
+    },
+    "inviteDeclined": {
+      "subject": "Yêu cầu mời {email} của bạn",
+      "heading": "Yêu cầu của bạn không được chấp thuận",
+      "body": "Một chủ sở hữu của “{workspace}” đã từ chối yêu cầu mời {email} của bạn."
+    },
+    "action": "Mở Leafdesk"
+  },
+  "verification": {
+    "subject": "Xác minh địa chỉ email Leafdesk của bạn",
+    "heading": "Xác minh địa chỉ email của bạn",
+    "body": "Xin chào {name}, hãy xác nhận địa chỉ này là của bạn bằng nút bên dưới.",
+    "ignore": "Nếu bạn không tạo tài khoản Leafdesk, bạn có thể bỏ qua email này.",
+    "action": "Xác minh địa chỉ email"
+  },
+  "passwordResetRequired": {
+    "subject": "Chọn mật khẩu Leafdesk mới",
+    "heading": "Chọn mật khẩu mới",
+    "body": "Xin chào {name}, quản trị viên của máy chủ Leafdesk này đã yêu cầu bạn chọn mật khẩu mới. Mật khẩu cũ của bạn không còn đăng nhập được nữa.",
+    "expires": "Liên kết có hiệu lực trong {minutes} phút và chỉ dùng được một lần. Đăng nhập lại bằng mật khẩu cũ sẽ gửi cho bạn một liên kết mới.",
+    "action": "Chọn mật khẩu mới"
+  },
+  "push": {
+    "assignment": "{actor} đã giao bạn vào “{property}”",
+    "pageShared": "{actor} đã chia sẻ trang này với bạn",
+    "comment": "{actor} đã bình luận trong một chuỗi bạn tham gia",
+    "mention": "{actor} đã nhắc đến bạn",
+    "reminder": "Nhắc nhở: {date}",
+    "accessRequest": "{actor} đã xin quyền truy cập trang này",
+    "automation": "Tự động hóa “{name}”: {actor} đã thêm hoặc thay đổi hàng này",
+    "automationDatePassed": "Tự động hóa “{name}”: đã đến ngày của hàng này",
+    "rowUpdate": "{actor} đã thay đổi {fields}",
+    "rowUpdateSome": "{actor} đã thay đổi hàng này",
+    "rowUpdateTitle": "tiêu đề",
+    "rowUpdateBody": "nội dung",
+    "pageUpdated": "{actor} đã chỉnh sửa trang này",
+    "rowEmail": "Email từ {from}",
+    "followUp": "Chuỗi theo dõi “{sequence}” đã tạm dừng: email tiếp theo cần được xem xét",
+    "reaction": "{actor} đã bày tỏ cảm xúc {emoji} với bình luận của bạn",
+    "people": "{others, plural, =0 {{name}} other {{name} và # người khác}}",
+    "someone": "Ai đó",
+    "joinRequestTitle": "Yêu cầu tham gia",
+    "joinRequest": "{actor} đã xin tham gia",
+    "inviteRequest": "{actor} đã xin mời {email}",
+    "approvalTitle": "{agent} xin phép tiếp tục",
+    "approval": "Muốn gọi “{tool}” trên {connection}",
+    "memoryTitle": "{agent} muốn ghi nhớ",
+    "memory": "{count, plural, other {Đề xuất # ghi chú cho bộ nhớ của nó}}",
+    "reportTitle": "Báo cáo từ {agent}",
+    "reportDone": "Lần chạy theo lịch của tác tử đã hoàn tất",
+    "reportFailed": "Lần chạy theo lịch của tác tử đã thất bại",
+    "untitled": "Chưa đặt tên",
+    "snooze": "Hoãn 1 giờ",
+    "aiAccountTitle": "Đã gỡ tài khoản AI",
+    "aiAccountDetached": "AI của không gian làm việc không còn chạy bằng khóa của {actor}.",
+    "reviewTitle": "Cần xem xét",
+    "review": "{count, plural, other {# thay đổi đang chờ bạn xem xét, mới nhất từ {agent}}}"
+  },
+  "agentReply": {
+    "aiOff": "Tôi không thể trả lời: AI đang tắt trong không gian làm việc này.",
+    "agentDisabled": "Tôi không thể trả lời: tôi đang bị tạm dừng. Chủ sở hữu của không gian làm việc có thể bật lại tôi trong Cài đặt.",
+    "limitReached": "Tôi không thể trả lời: tôi đã dùng hết giới hạn token của tháng này. Chủ sở hữu của không gian làm việc có thể nâng giới hạn trong Cài đặt.",
+    "costLimit": "Tôi không thể trả lời: không gian làm việc đã đạt giới hạn chi phí AI hằng tháng.",
+    "timeout": "Tôi không kịp hoàn tất. Hãy thử lại với một yêu cầu nhỏ hơn.",
+    "approvalTimeout": "Tôi không thể hoàn tất: không ai chấp thuận việc tôi cần làm trong vòng một ngày, nên tôi đã dừng lại.",
+    "empty": "Tôi đã xem xét nhưng không có gì để bổ sung.",
+    "failed": "Xin lỗi, tôi không thể hoàn tất việc này. Chủ sở hữu của không gian làm việc có thể xem điều gì đã xảy ra trong các lần chạy của tôi ở Cài đặt."
+  },
+  "workspaceDeleted": {
+    "subject": "{workspace} đã bị xóa",
+    "heading": "{workspace} đã bị xóa",
+    "body": "Xin chào {name}, {by} đã xóa không gian làm việc Leafdesk {workspace}, cùng toàn bộ trang, cơ sở dữ liệu và tệp của nó. Bạn không thể mở nó nữa.",
+    "note": "Không thể khôi phục không gian làm việc đã xóa. Nếu bạn không ngờ tới việc này, hãy trao đổi với {by} hoặc một chủ sở hữu khác của không gian làm việc."
+  }
+}

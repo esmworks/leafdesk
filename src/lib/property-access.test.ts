@@ -222,4 +222,27 @@ describe("view references", () => {
     expect(restoreReferences(order, { propertyOrder: ["c", "a", "b"] }, gone).propertyOrder).toEqual(["c", "a", "secret", "b"]);
     expect(restoreReferences({ propertyOrder: ["secret", "a"] }, { propertyOrder: ["a"] }, gone).propertyOrder).toEqual(["secret", "a"]);
   });
+
+  it("puts a form's hidden question back where it was, with the conditions about it", () => {
+    const form = {
+      form: {
+        questions: [
+          { propertyId: "title" },
+          { propertyId: "secret" },
+          { propertyId: "notes", showIf: { propertyId: "secret", op: "notEmpty" } },
+          { propertyId: "a" },
+        ],
+      },
+    } as ViewConfig;
+    const shown = hideReferences(form, gone);
+    expect(shown.form?.questions).toEqual([{ propertyId: "title" }, { propertyId: "notes" }, { propertyId: "a" }]);
+    // The saver moved "a" to the front and labelled "notes".
+    const edited = { form: { questions: [{ propertyId: "a" }, { propertyId: "title" }, { propertyId: "notes", label: "Notes" }] } } as ViewConfig;
+    expect(restoreReferences(form, edited, gone).form?.questions).toEqual([
+      { propertyId: "a" },
+      { propertyId: "title" },
+      { propertyId: "secret" },
+      { propertyId: "notes", label: "Notes", showIf: { propertyId: "secret", op: "notEmpty" } },
+    ]);
+  });
 });

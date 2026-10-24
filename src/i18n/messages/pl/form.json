@@ -10,6 +10,30 @@
     "labelPlaceholder": "Pytanie",
     "helpPlaceholder": "Dodaj tekst pomocy (opcjonalnie)",
     "required": "Wymagane",
+    "showWhen": "Pokaż tylko, gdy",
+    "addCondition": "Pokaż tylko, gdy…",
+    "removeCondition": "Usuń warunek",
+    "conditionQuestion": "Pytanie, którego dotyczy warunek",
+    "conditionCheck": "Warunek",
+    "conditionOptions": "Opcje, których szuka warunek",
+    "conditionText": "Tekst",
+    "conditionPickOption": "Wybierz co najmniej jedną opcję, aby zapisać ten warunek.",
+    "conditionTypeText": "Wpisz tekst, aby zapisać ten warunek.",
+    "op": {
+      "is": "jest jedną z",
+      "isNot": "nie jest żadną z",
+      "contains": "zawiera",
+      "notContains": "nie zawiera",
+      "hasAny": "obejmuje którąś z",
+      "hasNone": "nie obejmuje żadnej z",
+      "checked": "jest zaznaczone",
+      "unchecked": "nie jest zaznaczone",
+      "empty": "jest puste",
+      "notEmpty": "nie jest puste"
+    },
+    "minChoices": "Co najmniej",
+    "maxChoices": "Najwyżej",
+    "anyNumber": "Dowolnie",
     "moveUp": "Przenieś w górę",
     "moveDown": "Przenieś w dół",
     "remove": "Usuń pytanie",
@@ -27,7 +51,9 @@
     "afterTitle": "Po wysłaniu",
     "confirmationLabel": "Komunikat",
     "confirmationPlaceholder": "Dziękujemy! Twoja odpowiedź została wysłana.",
-    "allowAnother": "Pozwól wysłać kolejną odpowiedź"
+    "allowAnother": "Pozwól wysłać kolejną odpowiedź",
+    "showOwnAnswers": "Pokazuj osobom ich własne odpowiedzi",
+    "showOwnAnswersDescription": "Osoby, które logują się, aby odpowiedzieć, widzą to, co wysłały przez ten formularz, i nic więcej z bazy danych. Anonimowe odpowiedzi nigdy nie są pokazywane."
   },
   "fill": {
     "submit": "Wyślij",
@@ -41,7 +67,18 @@
     "addItem": "Dodaj element",
     "newItem": "Nowy element",
     "removeItem": "Usuń {text}",
-    "honeypot": "Pozostaw to pole puste"
+    "honeypot": "Pozostaw to pole puste",
+    "choicesExactly": "Wybierz dokładnie {count}.",
+    "choicesBetween": "Wybierz od {min} do {max}.",
+    "choicesAtLeast": "Wybierz co najmniej {min}.",
+    "choicesAtMost": "Wybierz najwyżej {max}."
+  },
+  "own": {
+    "title": "Twoje odpowiedzi",
+    "description": "To, co wysłano przez ten formularz. Tylko Ty widzisz tę listę.",
+    "none": "Nie wysłano jeszcze żadnej odpowiedzi.",
+    "sentAt": "Wysłano {date}",
+    "empty": "Brak odpowiedzi do pokazania."
   },
   "share": {
     "button": "Udostępnij",
@@ -69,6 +106,7 @@
     "required": "To pytanie jest wymagane.",
     "tooLong": "Ta odpowiedź jest za długa (najwyżej {max, plural, one {# znak} few {# znaki} many {# znaków} other {# znaku}}).",
     "tooMany": "Wybierz najwyżej {max}.",
+    "tooFew": "Wybierz co najmniej {min}.",
     "invalidText": "Ta odpowiedź musi być tekstem.",
     "invalidAnswers": "Niektóre odpowiedzi wymagają poprawienia.",
     "closed": "Ten formularz nie przyjmuje już odpowiedzi.",

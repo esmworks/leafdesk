@@ -1,0 +1,952 @@
+{
+  "documentTitle": "{title} · Leafdesk",
+  "documentViewTitle": "{title} · {view} · Leafdesk",
+  "header": {
+    "history": "Lịch sử trang",
+    "more": "Thêm",
+    "copyLink": "Sao chép liên kết",
+    "copyId": "Sao chép ID",
+    "moveToTrash": "Chuyển vào thùng rác",
+    "archive": "Lưu trữ",
+    "unarchive": "Bỏ lưu trữ",
+    "archiveHint": "Giữ trang nhưng đưa nó ra khỏi thanh bên, tìm kiếm và bộ chọn. Các trang con đi cùng với nó.",
+    "edited": "Chỉnh sửa {time}",
+    "activity": "Hoạt động",
+    "editedBy": "Chỉnh sửa bởi {name}",
+    "createdBy": "Tạo bởi {name}",
+    "someone": "Ai đó",
+    "comments": "Bình luận",
+    "share": "Chia sẻ",
+    "accessRequests": "{count, plural, other {# yêu cầu truy cập}}",
+    "addFavorite": "Thêm vào yêu thích",
+    "removeFavorite": "Xóa khỏi yêu thích",
+    "follow": "Theo dõi",
+    "unfollow": "Ngừng theo dõi",
+    "followHint": "Nhận thông báo trong hộp thư đến khi người khác thay đổi hàng này.",
+    "unfollowHint": "Bạn nhận thông báo trong hộp thư đến khi người khác thay đổi hàng này.",
+    "linkCopied": "Đã sao chép liên kết",
+    "duplicate": "Nhân đôi",
+    "duplicateSuffix": " (bản sao)",
+    "duplicateFailed": "Không thể nhân đôi trang.",
+    "moveTo": "Chuyển đến",
+    "style": {
+      "font": "Phông chữ",
+      "default": "Mặc định",
+      "serif": "Có chân",
+      "mono": "Đơn cách",
+      "smallText": "Chữ nhỏ",
+      "fullWidth": "Toàn chiều rộng"
+    },
+    "lockDatabase": "Khóa cơ sở dữ liệu",
+    "lockHint": "Khi bị khóa, các thuộc tính và chế độ xem không thể thay đổi; các hàng vẫn chỉnh sửa được.",
+    "locked": "Đã khóa",
+    "unlock": "Mở khóa",
+    "lockPage": "Khóa trang",
+    "lockPageHint": "Khi bị khóa, không ai có thể thay đổi tiêu đề, biểu tượng, hình nền hay nội dung. Bình luận, chia sẻ và di chuyển vẫn hoạt động.",
+    "exportMarkdown": "Xuất dưới dạng Markdown",
+    "exportCsv": "Xuất dưới dạng CSV",
+    "exportXlsx": "Xuất dưới dạng Excel (.xlsx)",
+    "exportZip": "Xuất kèm các trang con",
+    "exportZipDatabase": "Xuất kèm các trang hàng",
+    "exportPdf": "Xuất dưới dạng PDF",
+    "printView": "In",
+    "exportPreparing": "Đang chuẩn bị xuất…",
+    "versionHistory": "Lịch sử phiên bản",
+    "lastEdited": "Chỉnh sửa lần cuối bởi {name}",
+    "wordCount": "{words, plural, other {# từ}}, {characters, plural, other {# ký tự}}",
+    "actionFailed": "Không thể hoàn tất thao tác đó.",
+    "viewers": "{count, plural, other {# người khác đang xem trang này}}",
+    "viewersTitle": "Đang xem trang này",
+    "saveAsTemplate": "Lưu thành mẫu",
+    "saveAsRowTemplate": "Lưu thành mẫu hàng",
+    "deleteTemplate": "Xóa mẫu",
+    "exportDisabled": "Tính năng xuất đã bị tắt",
+    "exportDisabledBody": "Chủ sở hữu của không gian làm việc này đã tắt việc xuất và in các trang của nó.",
+    "showInGraph": "Hiện trong đồ thị",
+    "present": "Trình chiếu",
+    "watch": "Theo dõi",
+    "watchHint": "Nhận thông báo trong hộp thư đến khi người khác chỉnh sửa trang này hoặc bắt đầu một chuỗi bình luận trên đó.",
+    "mute": "Tắt thông báo",
+    "muteHint": "Bạn nhận thông báo trong hộp thư đến khi người khác chỉnh sửa trang này hoặc bắt đầu một chuỗi bình luận trên đó. Hãy tắt thông báo để dừng.",
+    "editMarkdown": "Chỉnh sửa dưới dạng Markdown"
+  },
+  "comments": {
+    "aboutPage": "Về trang này",
+    "title": "Bình luận",
+    "close": "Đóng bình luận",
+    "filters": {
+      "open": "Đang mở",
+      "resolved": "Đã giải quyết",
+      "marked": "Đã đánh dấu",
+      "all": "Tất cả"
+    },
+    "empty": {
+      "open": "Không có bình luận nào đang mở. Hãy chọn văn bản trong trang và chọn Bình luận để bắt đầu một bình luận.",
+      "resolved": "Không có bình luận nào đã giải quyết.",
+      "marked": "Không có chuỗi nào được đánh dấu để quay lại. Hãy chọn “Quay lại sau” trong menu của một chuỗi.",
+      "all": "Chưa có bình luận nào. Hãy chọn văn bản trong trang và chọn Bình luận để bắt đầu một bình luận."
+    },
+    "threadMenu": "Tùy chọn chuỗi",
+    "mute": "Tắt thông báo trả lời",
+    "unmute": "Bật thông báo trả lời",
+    "muteHint": "Ngừng nhận thông báo về các trả lời mới trong chuỗi này. Trả lời ở đây, hoặc được nhắc đến ở đây, sẽ bật lại.",
+    "unmuteHint": "Nhận lại thông báo về các trả lời mới trong chuỗi này.",
+    "muted": "Đã tắt thông báo trả lời",
+    "mutedHint": "Bạn không nhận thông báo về các trả lời trong chuỗi này cho đến khi bạn trả lời ở đây hoặc có người nhắc đến bạn ở đây.",
+    "mergedFrom": "Từ “{title}”",
+    "sort": {
+      "label": "Sắp xếp các chuỗi",
+      "recent": "Hoạt động mới nhất trước",
+      "page": "Theo thứ tự trong trang"
+    },
+    "new": "Mới",
+    "marked": "Đã đánh dấu để quay lại sau",
+    "markedHint": "Bạn đã đánh dấu chuỗi này để quay lại sau. Chỉ mình bạn thấy điều này.",
+    "mark": "Quay lại sau",
+    "unmark": "Bỏ “Quay lại sau”",
+    "markHint": "Giữ chuỗi này trong mục Đã đánh dấu cho đến khi bạn bỏ dấu. Chỉ mình bạn thấy.",
+    "unmarkHint": "Đưa chuỗi này ra khỏi danh sách Đã đánh dấu của bạn."
+  },
+  "archived": {
+    "banner": "Trang này đang ở trong thùng rác.",
+    "deletePermanently": "Xóa vĩnh viễn",
+    "confirmDelete": "Xóa vĩnh viễn trang này và mọi thứ bên trong? Không thể hoàn tác."
+  },
+  "outdated": {
+    "byOn": "Được {name} lưu trữ vào {date}.",
+    "on": "Được lưu trữ vào {date}.",
+    "with": "Được lưu trữ cùng với <link>{title}</link>.",
+    "above": "Được lưu trữ cùng với một trang phía trên trang này.",
+    "unarchive": "Bỏ lưu trữ",
+    "hint": "Các trang đã lưu trữ nằm ngoài thanh bên, tìm kiếm và bộ chọn, nhưng vẫn có thể đọc và chỉnh sửa."
+  },
+  "icon": {
+    "add": "Thêm biểu tượng",
+    "remove": "Xóa biểu tượng"
+  },
+  "background": {
+    "add": "Thêm hình nền",
+    "change": "Hình nền",
+    "colors": "Màu",
+    "patterns": "Họa tiết",
+    "none": "Không có",
+    "remove": "Xóa hình nền",
+    "colorNames": {
+      "gray": "Xám",
+      "blue": "Xanh dương",
+      "green": "Xanh lá",
+      "purple": "Tím",
+      "pink": "Hồng",
+      "red": "Đỏ",
+      "orange": "Cam",
+      "black": "Đen"
+    },
+    "patternNames": {
+      "dots": "Chấm",
+      "plus": "Dấu cộng",
+      "grid": "Lưới",
+      "lines": "Đường kẻ"
+    }
+  },
+  "title": {
+    "label": "Tiêu đề trang"
+  },
+  "connection": {
+    "live": "Trực tiếp",
+    "connecting": "Đang kết nối",
+    "offline": "Ngoại tuyến",
+    "reconnecting": "Đang kết nối lại",
+    "noAccess": "Không có quyền truy cập",
+    "syncing": "Đang đồng bộ…",
+    "synced": "Đã đồng bộ",
+    "offlinePending": "Ngoại tuyến · chỉnh sửa được giữ tại đây",
+    "offlineHint": "Bạn đang ngoại tuyến. Cứ tiếp tục chỉnh sửa: thay đổi được lưu trong trình duyệt này và đồng bộ khi có kết nối trở lại.",
+    "notSaved": "Chưa lưu",
+    "notSavedHint": "Leafdesk không thể lưu các thay đổi mới nhất của bạn. Hãy để trang này mở: lần chỉnh sửa tiếp theo sẽ lưu chúng lại."
+  },
+  "errors": {
+    "accessLost": "Bạn không còn quyền truy cập trang này.",
+    "connectionFailed": "Không thể kết nối với chỉnh sửa trực tiếp. Đang thử lại…",
+    "notAvailableOffline": "Trang này chưa được lưu trên thiết bị này. Hãy mở nó một lần khi có mạng để dùng ngoại tuyến."
+  },
+  "history": {
+    "title": "Lịch sử trang",
+    "previewTitle": "Xem trước phiên bản",
+    "modes": {
+      "version": "Phiên bản",
+      "current": "So sánh với hiện tại",
+      "previous": "So sánh với phiên bản trước"
+    },
+    "reasons": {
+      "auto": "Tự động lưu",
+      "beforeRestore": "Trước khi khôi phục",
+      "manual": "Phiên bản đã lưu",
+      "beforeAiEdit": "Trước khi AI chỉnh sửa",
+      "beforeAiEditBy": "Trước khi {client} chỉnh sửa",
+      "beforeAssistantEdit": "Trước khi trợ lý AI chỉnh sửa",
+      "beforeMarkdownEdit": "Trước khi chỉnh sửa Markdown",
+      "beforeMerge": "Trước khi gộp các hàng"
+    },
+    "empty": "Chưa có phiên bản nào. Các phiên bản được lưu tự động khi bạn chỉnh sửa và trước khi bất kỳ ứng dụng AI nào thay đổi trang này.",
+    "restore": "Khôi phục phiên bản này",
+    "restoring": "Đang khôi phục…",
+    "restoreHint": "Nội dung hiện tại được lưu thành một phiên bản trước.",
+    "diff": {
+      "rangeCurrent": "Các thay đổi từ phiên bản {from} đến trang hiện tại",
+      "rangePrevious": "Các thay đổi từ {from} đến {to}",
+      "earlier": "phiên bản trước đó",
+      "changedBy": "Thay đổi bởi {names}",
+      "actorApp": "{client} cho {name}",
+      "none": "Không có thay đổi.",
+      "oldest": "Đây là phiên bản đã lưu cũ nhất, nên không có gì trước đó để so sánh.",
+      "showUnchanged": "{count, plural, other {Hiện # khối không thay đổi}}",
+      "formatOnly": "Định dạng đã thay đổi"
+    },
+    "errors": {
+      "list": "Không thể tải lịch sử trang. Hãy tải lại trang và thử lại.",
+      "version": "Không thể tải phiên bản này.",
+      "restore": "Không thể khôi phục phiên bản này.",
+      "diff": "Không thể so sánh các phiên bản này."
+    }
+  },
+  "move": {
+    "title": "Chuyển đến",
+    "search": "Tìm trang…",
+    "empty": "Không có trang nào khớp.",
+    "failed": "Không thể chuyển trang đến đó.",
+    "teamspaceHint": "Đầu không gian nhóm này: các thành viên của nó có quyền truy cập",
+    "private": "Riêng tư",
+    "privateHint": "Đầu các trang riêng tư của bạn: chỉ những người được chia sẻ mới có quyền truy cập"
+  },
+  "share": {
+    "tabShare": "Chia sẻ",
+    "tabPublish": "Xuất bản",
+    "addPeople": "Thêm người, nhóm hoặc email",
+    "noMatches": "Không có thành viên hoặc nhóm nào khớp.",
+    "addPeopleOrAgents": "Thêm người, nhóm, tác tử hoặc email",
+    "noMatchesWithAgents": "Không có thành viên, nhóm hoặc tác tử nào khớp.",
+    "agentPaused": "Tác tử, đã tạm dừng",
+    "groupMembers": "{count, plural, =0 {Nhóm không có thành viên} other {Nhóm gồm # thành viên}}",
+    "membersOnly": "Bạn có thể chia sẻ với các thành viên của không gian làm việc. Không gian làm việc này không cho phép bạn chia sẻ với người bên ngoài.",
+    "guestHint": "Hãy nhập đầy đủ địa chỉ email để chia sẻ với người bên ngoài không gian làm việc. Họ tham gia với tư cách khách và chỉ thấy các trang được chia sẻ với họ.",
+    "shareWith": "Chia sẻ với {email}",
+    "asGuest": "Tham gia với tư cách khách",
+    "pending": "Đã mời, chưa tham gia",
+    "cancelInvite": "Hủy lời mời",
+    "invitedSent": "Đã gửi lời mời đến {email}.",
+    "invitedNoEmail": "{email} đã được mời, nhưng không thể gửi email. Hãy gửi cho họ liên kết mời.",
+    "copyInvite": "Sao chép liên kết mời",
+    "you": "Bạn",
+    "inherited": "Từ {title}",
+    "groupInherited": "Nhóm, từ {title}",
+    "inheritedAbove": "Từ một trang phía trên",
+    "groupInheritedAbove": "Nhóm, từ một trang phía trên",
+    "hiddenGroup": "Một nhóm",
+    "group": "Nhóm",
+    "viaGeneral": "{level} (từ quyền truy cập chung)",
+    "viaOwner": "{level} (với tư cách chủ sở hữu)",
+    "overridden": "Quyền truy cập chung cao hơn ({level}), nên mục này không có tác dụng.",
+    "remove": "Gỡ bỏ",
+    "generalAccess": "Quyền truy cập chung",
+    "everyone": "Mọi người trong không gian làm việc",
+    "everyoneHint": "Các thành viên có ít nhất quyền này, bất kể bạn cấp riêng cho họ những gì. Đặt thành “Không có quyền truy cập” để chỉ mở trang cho những người bạn thêm.",
+    "everyoneIn": "Mọi người trong {name}",
+    "everyoneTeamspace": "Mọi người trong không gian nhóm",
+    "everyoneTeamspaceHint": "Các thành viên của không gian nhóm có ít nhất quyền này, bất kể bạn cấp riêng cho họ những gì. Đặt thành “Không có quyền truy cập” để chỉ mở trang cho những người bạn thêm.",
+    "readOnly": "Chỉ những người có toàn quyền mới có thể thay đổi chia sẻ.",
+    "copyLink": "Sao chép liên kết",
+    "copied": "Đã sao chép",
+    "loading": "Đang tải…",
+    "requests": {
+      "heading": "Yêu cầu",
+      "message": "“{message}”",
+      "level": "Mức truy cập",
+      "approve": "Chia sẻ",
+      "decline": "Từ chối",
+      "outsider": "Không ở trong không gian làm việc: chia sẻ sẽ thêm họ với tư cách khách.",
+      "cantInvite": "Không ở trong không gian làm việc, và không gian làm việc này không cho phép bạn chia sẻ với người bên ngoài."
+    },
+    "levels": {
+      "full": "Toàn quyền",
+      "edit": "Có thể chỉnh sửa",
+      "comment": "Có thể bình luận",
+      "view": "Có thể xem",
+      "none": "Không có quyền truy cập"
+    },
+    "errors": {
+      "notMember": "Người này không phải thành viên của không gian làm việc.",
+      "lastFullAccess": "Phải có người giữ toàn quyền đối với trang. Hãy cấp toàn quyền cho người khác trước.",
+      "accessDenied": "Bạn không thể thay đổi chia sẻ của trang này.",
+      "invalidEmail": "Hãy nhập địa chỉ email hợp lệ.",
+      "invitesRestricted": "Không gian làm việc này không cho phép bạn chia sẻ trang với người bên ngoài. Hãy hỏi một chủ sở hữu.",
+      "generic": "Không thể cập nhật chia sẻ.",
+      "agentFullAccess": "Tác tử có thể xem, bình luận hoặc chỉnh sửa một trang, nhưng không bao giờ có toàn quyền."
+    },
+    "everyoneFromTeamspaceHint": "Do không gian nhóm đặt. Chủ sở hữu của nó và chủ sở hữu không gian làm việc có toàn quyền. Hãy chọn một mức ở đây để đặt cho trang này và các trang con của nó."
+  },
+  "noAccess": {
+    "metaTitle": "Không có quyền truy cập",
+    "title": "Bạn không có quyền truy cập trang này",
+    "description": "Hãy yêu cầu quyền truy cập và những người có thể chia sẻ trang này sẽ nhận được yêu cầu của bạn.",
+    "descriptionNoRequests": "Hãy nhờ người đã gửi cho bạn liên kết chia sẻ trang này với bạn.",
+    "messageLabel": "Lời nhắn (không bắt buộc)",
+    "messagePlaceholder": "Thêm một lời nhắn cho những người có thể chia sẻ trang",
+    "request": "Yêu cầu quyền truy cập",
+    "sending": "Đang gửi…",
+    "sentTitle": "Đã gửi yêu cầu",
+    "sentDescription": "Khi có người chia sẻ trang với bạn, liên kết này sẽ mở nó.",
+    "rateLimited": "Bạn đã yêu cầu quyền truy cập quá nhiều lần. Hãy thử lại sau một lúc.",
+    "signedInAs": "Bạn đang đăng nhập với tư cách {email}.",
+    "home": "Đến không gian làm việc của bạn"
+  },
+  "embed": {
+    "label": "Cơ sở dữ liệu",
+    "linkedLabel": "Chế độ xem liên kết của một cơ sở dữ liệu",
+    "unavailable": "Cơ sở dữ liệu này không khả dụng. Có thể nó đã bị xóa, hoặc bạn không có quyền truy cập.",
+    "inTrash": "Cơ sở dữ liệu này đang ở trong thùng rác.",
+    "creating": "Đang tạo cơ sở dữ liệu…",
+    "createFailed": "Không thể tạo cơ sở dữ liệu: {error}",
+    "turnIntoDatabase": "Chuyển thành cơ sở dữ liệu",
+    "convertFailed": "Không thể chuyển bảng thành cơ sở dữ liệu: {error}",
+    "tableTooLarge": "Các bảng có tối đa {rows} hàng và {columns} cột có thể trở thành cơ sở dữ liệu.",
+    "open": "Mở dưới dạng trang",
+    "linked": "Chế độ xem liên kết",
+    "layout": "Bố cục",
+    "viewOnly": "Chỉ những người có thể chỉnh sửa trang này mới thay đổi được chế độ xem này.",
+    "picker": {
+      "title": "Chọn một cơ sở dữ liệu",
+      "search": "Tìm cơ sở dữ liệu",
+      "empty": "Không tìm thấy cơ sở dữ liệu nào.",
+      "failed": "Không thể tải các cơ sở dữ liệu."
+    },
+    "slash": {
+      "database": {
+        "title": "Cơ sở dữ liệu",
+        "subtext": "Một cơ sở dữ liệu mới bên trong trang này",
+        "aliases": "cơ sở dữ liệu csdl bảng nội tuyến database db inline table"
+      },
+      "linkedView": {
+        "title": "Chế độ xem liên kết của cơ sở dữ liệu",
+        "subtext": "Hiển thị một cơ sở dữ liệu có sẵn với chế độ xem riêng",
+        "aliases": "chế độ xem liên kết cơ sở dữ liệu csdl linked view database db"
+      },
+      "dashboard": {
+        "title": "Bảng điều khiển",
+        "subtext": "Số liệu, biểu đồ và danh sách từ các cơ sở dữ liệu của bạn",
+        "aliases": "bảng điều khiển tiện ích chỉ số biểu đồ số liệu dashboard widgets kpi metrics charts numbers"
+      }
+    }
+  },
+  "textStyle": {
+    "superscript": "Chỉ số trên",
+    "subscript": "Chỉ số dưới"
+  },
+  "find": {
+    "label": "Tìm trong trang",
+    "placeholder": "Tìm",
+    "replacePlaceholder": "Thay bằng",
+    "noResults": "Không có kết quả",
+    "matchCase": "Phân biệt hoa thường",
+    "matchAccents": "Phân biệt dấu",
+    "previous": "Kết quả trước (Shift+Enter)",
+    "next": "Kết quả tiếp theo (Enter)",
+    "showReplace": "Hiện thay thế",
+    "hideReplace": "Ẩn thay thế",
+    "replace": "Thay thế",
+    "replaceAll": "Thay thế tất cả",
+    "close": "Đóng (Esc)"
+  },
+  "template": {
+    "workspace": "Đây là một mẫu. Các trang mới tạo từ nó sao chép nội dung và các trang con của nó.",
+    "row": "Đây là một mẫu hàng. Các hàng mới tạo từ nó nhận các thuộc tính và nội dung của nó.",
+    "inside": "Trang này là một phần của mẫu.",
+    "use": "Dùng mẫu",
+    "confirmDelete": "Xóa vĩnh viễn mẫu này? Các trang đã tạo từ nó vẫn giữ nguyên."
+  },
+  "blocks": {
+    "callout": {
+      "title": "Hộp nhấn mạnh",
+      "subtext": "Văn bản có biểu tượng trên nền màu",
+      "aliases": "hộp nhấn mạnh ghi chú mẹo cảnh báo callout note tip warning alert box",
+      "icon": "Đổi biểu tượng",
+      "hiddenInPrint": "Ẩn khi in",
+      "titleField": "Tiêu đề hộp nhấn mạnh",
+      "titlePlaceholder": "Tiêu đề",
+      "builtin": {
+        "frame": "Khung"
+      },
+      "styleSubtext": "Kiểu hộp nhấn mạnh",
+      "group": "Hộp nhấn mạnh"
+    },
+    "code": {
+      "language": "Ngôn ngữ",
+      "plainText": "Văn bản thuần"
+    },
+    "math": {
+      "title": "Phương trình",
+      "subtext": "Một phương trình hiển thị viết bằng TeX",
+      "aliases": "toán phương trình công thức math equation latex tex katex formula",
+      "placeholder": "Thêm một phương trình TeX",
+      "sourcePlaceholder": "E = mc^2",
+      "error": "Phương trình có lỗi"
+    },
+    "inlineMath": {
+      "title": "Phương trình nội dòng",
+      "subtext": "Một phương trình bên trong văn bản",
+      "aliases": "toán phương trình nội dòng công thức inline math equation latex tex katex formula",
+      "placeholder": "Phương trình mới",
+      "sourcePlaceholder": "x^2",
+      "error": "Lỗi phương trình"
+    },
+    "footnote": {
+      "title": "Chú thích cuối trang",
+      "subtext": "Một ghi chú được đánh số ở cuối trang",
+      "aliases": "chú thích cuối trang ghi chú tham khảo nguồn trích dẫn footnote note reference source citation",
+      "placeholder": "Chú thích mới",
+      "sourcePlaceholder": "Nội dung chú thích",
+      "list": "Chú thích cuối trang",
+      "goTo": "Đến chú thích trong văn bản",
+      "back": "Quay lại văn bản"
+    },
+    "mermaid": {
+      "title": "Sơ đồ Mermaid",
+      "subtext": "Lưu đồ, sơ đồ tuần tự và nhiều loại khác, vẽ từ văn bản",
+      "aliases": "sơ đồ lưu đồ biểu đồ mermaid diagram flowchart chart graph sequence gantt",
+      "placeholder": "Thêm một sơ đồ Mermaid",
+      "sourcePlaceholder": "graph TD\n  A --> B",
+      "loading": "Đang vẽ sơ đồ…",
+      "error": "Sơ đồ có lỗi",
+      "syntaxError": "Lỗi cú pháp",
+      "label": "Sơ đồ"
+    },
+    "toc": {
+      "title": "Mục lục",
+      "subtext": "Các liên kết đến những tiêu đề trong trang này",
+      "aliases": "mục lục tiêu đề đề cương toc table contents headings outline",
+      "label": "Mục lục",
+      "empty": "Hãy thêm tiêu đề vào trang này và chúng sẽ được liệt kê ở đây."
+    },
+    "breadcrumb": {
+      "title": "Đường dẫn trang",
+      "subtext": "Các trang phía trên trang này, dưới dạng liên kết",
+      "aliases": "đường dẫn trang cha vị trí breadcrumb path parents location",
+      "label": "Đường dẫn trang"
+    },
+    "subpages": {
+      "title": "Trang con",
+      "subtext": "Các trang nằm dưới trang này, dưới dạng liên kết",
+      "aliases": "trang con danh sách mục lục subpages children child pages list index",
+      "label": "Trang con",
+      "empty": "Các trang bạn thêm dưới trang này được liệt kê ở đây."
+    },
+    "columns": {
+      "two": {
+        "title": "2 cột",
+        "subtext": "Hai cột khối nằm cạnh nhau",
+        "aliases": "cột bố cục cạnh nhau columns column layout side 2 two"
+      },
+      "three": {
+        "title": "3 cột",
+        "subtext": "Ba cột khối nằm cạnh nhau",
+        "aliases": "cột bố cục cạnh nhau columns column layout side 3 three"
+      },
+      "add": {
+        "title": "Thêm cột",
+        "subtext": "Một cột mới bên phải cột này (tối đa 5)",
+        "aliases": "cột thêm mới bố cục column columns add new layout"
+      }
+    },
+    "pageLink": {
+      "title": "Liên kết đến trang",
+      "subtext": "Liên kết đến một trang khác, với tiêu đề luôn cập nhật",
+      "aliases": "liên kết trang nhắc đến tham chiếu link page mention reference"
+    },
+    "syncedPage": {
+      "title": "Trang đồng bộ",
+      "subtext": "Nội dung của một trang khác, trực tiếp và có thể chỉnh sửa tại đây",
+      "aliases": "trang đồng bộ nhúng phản chiếu synced sync embed mirror transclude page"
+    },
+    "colors": {
+      "group": "Màu",
+      "text": "Chữ {color}",
+      "background": "Nền {color}",
+      "textDefault": "Màu chữ mặc định",
+      "backgroundDefault": "Không có nền",
+      "textAliases": "màu chữ phông color colour text font",
+      "backgroundAliases": "nền làm nổi bật màu background highlight color colour"
+    },
+    "syncedBlock": {
+      "title": "Khối đồng bộ",
+      "subtext": "Các khối bạn có thể hiển thị và chỉnh sửa trên nhiều trang",
+      "aliases": "khối đồng bộ tái sử dụng dùng chung synced sync reuse shared blocks"
+    }
+  },
+  "web": {
+    "bookmark": {
+      "title": "Dấu trang web",
+      "subtext": "Một liên kết hiển thị dưới dạng thẻ có tiêu đề và hình ảnh",
+      "aliases": "dấu trang liên kết url web thẻ xem trước bookmark link card preview",
+      "placeholder": "Dán liên kết để đánh dấu trang",
+      "submit": "Đánh dấu trang",
+      "loading": "Đang tải trang…",
+      "refresh": "Làm mới bản xem trước",
+      "label": "Dấu trang"
+    },
+    "embed": {
+      "title": "Nhúng",
+      "subtext": "YouTube, Figma, Google Docs, Maps và nhiều dịch vụ khác",
+      "aliases": "nhúng embed iframe youtube vimeo loom figma google docs sheets slides codepen spotify maps video",
+      "placeholder": "Dán liên kết để nhúng",
+      "submit": "Nhúng",
+      "providers": "YouTube, Vimeo, Loom, Figma, Google Docs, Sheets và Slides đã xuất bản, CodePen, Spotify và Google Maps. Các liên kết khác trở thành dấu trang.",
+      "frameTitle": "Nội dung nhúng từ {host}",
+      "label": "Nhúng"
+    },
+    "paste": {
+      "label": "Dán dưới dạng",
+      "bookmark": "Dấu trang",
+      "embed": "Nhúng",
+      "keep": "Giữ dưới dạng liên kết"
+    },
+    "invalidUrl": "Hãy nhập một địa chỉ web, như https://example.com",
+    "errors": {
+      "accessDenied": "Bạn không thể chỉnh sửa trang này.",
+      "rateLimited": "Quá nhiều bản xem trước liên kết cùng lúc. Hãy thử lại sau một phút.",
+      "invalidUrl": "Đó không phải là địa chỉ web.",
+      "blocked": "Không thể xem trước địa chỉ này.",
+      "unreachable": "Không thể truy cập trang.",
+      "timeout": "Trang mất quá lâu để phản hồi.",
+      "tooManyRedirects": "Trang chuyển hướng quá nhiều lần.",
+      "httpError": "Trang phản hồi bằng một lỗi."
+    }
+  },
+  "upload": {
+    "tooLarge": "{name} quá lớn. Tệp có thể tối đa {limit}.",
+    "quotaExceeded": "{name} chưa được tải lên: không gian làm việc này đã dùng hết {limit} dung lượng tệp.",
+    "failed": "Không thể tải lên {name}.",
+    "storageFailed": "{name} chưa được tải lên: nơi lưu trữ riêng của không gian làm việc không nhận nó. Chủ sở hữu có thể xem lý do trong Cài đặt > Lưu trữ."
+  },
+  "mention": {
+    "people": "Mọi người",
+    "agents": "Tác tử",
+    "pages": "Trang",
+    "dates": "Ngày",
+    "newPage": "Trang mới: {title}",
+    "newPageHint": "Bên trong trang này",
+    "today": "Hôm nay",
+    "tomorrow": "Ngày mai",
+    "yesterday": "Hôm qua",
+    "nextWeek": "Tuần sau",
+    "noAccess": "Không có quyền truy cập",
+    "deleted": "Trang đã xóa",
+    "loading": "Đang tải…",
+    "atBlock": "Mở tại một khối của trang",
+    "personLeft": "{name} (không còn trong không gian làm việc)",
+    "date": "Ngày",
+    "reminder": "Lời nhắc",
+    "remindNone": "Không nhắc",
+    "remindSameDay": "Vào ngày đó, 9:00",
+    "remindDayBefore": "Một ngày trước, 9:00",
+    "remindWeekBefore": "Một tuần trước, 9:00",
+    "reminderSet": "Lời nhắc: {when}",
+    "reminderHint": "Bạn sẽ nhận được trong hộp thư đến và qua email.",
+    "reminderPast": "Thời điểm đó đã qua; hãy chọn ngày hoặc lời nhắc muộn hơn.",
+    "done": "Xong"
+  },
+  "pageLinkPicker": {
+    "title": "Liên kết đến trang",
+    "search": "Tìm trang…",
+    "empty": "Không tìm thấy trang nào",
+    "failed": "Không thể tải các trang."
+  },
+  "syncedPage": {
+    "label": "Trang đồng bộ",
+    "viewOnly": "Chỉ xem",
+    "cycle": "Trang này đã được hiển thị ở phía trên, nên ở đây chỉ là liên kết."
+  },
+  "backlinks": {
+    "title": "Được liên kết từ",
+    "titleCount": "Được liên kết từ · {count}",
+    "count": "{count, plural, other {# trang liên kết đến đây}}",
+    "unlinked": "Nhắc đến chưa có liên kết · {count}",
+    "unlinkedHint": "Các trang viết tiêu đề của trang này mà không liên kết đến nó",
+    "link": "Liên kết",
+    "linkLabel": "Liên kết phần nhắc đến trong {title}",
+    "linkFailed": "Tiêu đề không còn được viết ở đó dưới dạng văn bản thuần.",
+    "locked": "Trang đó đang bị khóa, nên không thể thay đổi.",
+    "morePlaces": "{count, plural, other {# vị trí nữa}}",
+    "fewerPlaces": "Hiện ít hơn",
+    "morePages": "{count, plural, other {Hiện thêm # trang}}"
+  },
+  "blockMenu": {
+    "copyLink": "Sao chép liên kết đến khối",
+    "hideInPrint": "Ẩn khi in",
+    "calloutStyle": "Kiểu hộp nhấn mạnh",
+    "turnIntoCallout": "Chuyển thành hộp nhấn mạnh",
+    "plainCallout": "Hộp nhấn mạnh thường",
+    "addTitle": "Thêm tiêu đề",
+    "removeTitle": "Xóa tiêu đề"
+  },
+  "pdf": {
+    "untitled": "PDF",
+    "openInNewTab": "Mở trong thẻ mới",
+    "frameTitle": "PDF: {name}",
+    "noPreview": "Trình duyệt này không thể hiển thị PDF tại đây. Hãy mở tệp để đọc."
+  },
+  "pdfExport": {
+    "title": "Xuất dưới dạng PDF",
+    "letterhead": "Tiêu đề thư",
+    "none": "Không có",
+    "defaultMark": "{name} (mặc định)",
+    "noLetterheads": "Chủ sở hữu có thể thêm tiêu đề thư kèm logo và thông tin công ty trong Cài đặt → Mẫu PDF.",
+    "properties": "Bao gồm các giá trị của hàng",
+    "hint": "Sơ đồ và phương trình được in dưới dạng văn bản; hãy dùng In để có trang đúng như hiển thị.",
+    "download": "Tải xuống",
+    "preparing": "Đang chuẩn bị…"
+  },
+  "spreadsheet": {
+    "untitled": "Sổ tính",
+    "download": "Tải xuống",
+    "loading": "Đang đọc sổ tính…",
+    "tooLarge": "Sổ tính này quá lớn để hiển thị ở đây. Hãy tải xuống để mở.",
+    "unreadable": "Không thể hiển thị sổ tính này ở đây: có thể nó bị hỏng, có mật khẩu hoặc là tệp .xls cũ. Hãy tải xuống để mở.",
+    "empty": "Trang tính này trống.",
+    "sheets": "Trang tính",
+    "tableLabel": "{name}, trang tính {sheet}",
+    "partial": "Hiển thị {rows} hàng và {columns} cột đầu tiên",
+    "convert": "Chuyển thành cơ sở dữ liệu",
+    "convertTitle": "Nhập một trang tính của sổ tính này thành cơ sở dữ liệu mới"
+  },
+  "print": {
+    "print": "In hoặc lưu thành PDF",
+    "back": "Quay lại trang",
+    "includeSubpages": "Bao gồm các trang con",
+    "preparing": "Đang tải hình ảnh và sơ đồ…",
+    "hint": "Trong hộp thoại in, hãy chọn “Lưu dưới dạng PDF” làm đích đến.",
+    "truncated": "Chỉ {count} trang đầu tiên được bao gồm.",
+    "lastUpdated": "Cập nhật lần cuối {date}",
+    "subpages": "Trang",
+    "embedUnavailable": "Bạn không dùng được cơ sở dữ liệu này."
+  },
+  "quickNote": {
+    "documentTitle": "Ghi chú nhanh",
+    "heading": "Ghi chú nhanh",
+    "description": "Được lưu thành một trang riêng tư mà chỉ mình bạn thấy. Bạn có thể chuyển hoặc chia sẻ nó sau.",
+    "workspace": "Không gian làm việc",
+    "title": "Tiêu đề",
+    "body": "Ghi chú",
+    "bodyPlaceholder": "Viết gì đó, hoặc dán một liên kết",
+    "save": "Lưu ghi chú",
+    "shortcut": "Ghi chú nhanh mới",
+    "shortcutShort": "Ghi chú nhanh",
+    "destination": "Lưu vào",
+    "privatePage": "Trang riêng tư"
+  },
+  "dashboard": {
+    "title": "Bảng điều khiển",
+    "empty": "Bảng điều khiển này chưa có tiện ích nào.",
+    "emptyEditable": "Hiển thị số liệu, biểu đồ và danh sách từ các cơ sở dữ liệu của không gian làm việc tại đây. Chúng luôn cập nhật khi các hàng thay đổi.",
+    "add": "Thêm tiện ích",
+    "full": "Một bảng điều khiển chứa tối đa {max} tiện ích.",
+    "menu": "Tùy chọn tiện ích",
+    "edit": "Chỉnh sửa",
+    "done": "Xong",
+    "remove": "Xóa tiện ích",
+    "moveBefore": "Chuyển lên trước",
+    "moveAfter": "Chuyển ra sau",
+    "width": "Chiều rộng",
+    "widths": {
+      "1": "Một phần tư chiều rộng",
+      "2": "Một nửa chiều rộng",
+      "3": "Ba phần tư chiều rộng",
+      "4": "Toàn chiều rộng"
+    },
+    "color": "Màu",
+    "colorNone": "Không có màu",
+    "titleLabel": "Tiêu đề tiện ích",
+    "titlePlaceholder": "Tiêu đề (dùng tên cơ sở dữ liệu nếu để trống)",
+    "unavailable": "Bạn không có quyền truy cập dữ liệu này.",
+    "inTrash": "Cơ sở dữ liệu này đang ở trong thùng rác.",
+    "loadFailed": "Không thể tải tiện ích này.",
+    "retry": "Thử lại",
+    "noGroup": "Cơ sở dữ liệu chưa có gì để nhóm theo: hãy thêm một thuộc tính lựa chọn, trạng thái hoặc ngày.",
+    "more": "{count, plural, other {# hàng nữa}}",
+    "rows": "{count, plural, other {# hàng}}",
+    "byGroup": "theo {property}",
+    "filters": "{count, plural, other {# bộ lọc}}",
+    "updatedNow": "vừa cập nhật",
+    "updated": "cập nhật {time}"
+  },
+  "voiceNote": {
+    "record": "Ghi một ghi chú giọng nói",
+    "recording": "Đang ghi âm",
+    "stop": "Dừng và viết lại",
+    "discard": "Bỏ đi",
+    "cancel": "Hủy",
+    "retry": "Chèn lại",
+    "close": "Đóng",
+    "limit": "Tối đa {minutes} phút",
+    "chooseFile": "Hoặc chọn một tệp âm thanh",
+    "transcribing": "Đang ghi lại những gì bạn nói…",
+    "writing": "AI đang viết ghi chú…",
+    "autoStopped": "Việc ghi âm đã dừng ở giới hạn {minutes} phút.",
+    "review": "AI đã viết ghi chú này từ bản ghi âm của bạn. Hãy kiểm tra trước khi lưu.",
+    "notRewritten": "AI không thể viết lại bản ghi âm này, nên ghi chú là bản ghi lời đúng như nghe được.",
+    "transcriptKept": "Bản ghi lời được lưu bên dưới ghi chú.",
+    "propertiesPicked": "{count, plural, other {# thuộc tính đã được điền từ ghi chú.}}",
+    "transcriptToggle": "Bản ghi lời",
+    "shortcut": "Ghi chú giọng nói mới",
+    "shortcutShort": "Ghi chú giọng nói",
+    "dialogTitle": "Ghi chú giọng nói",
+    "dialogDescription": "Hãy nói, và AI sẽ viết một ghi chú gọn gàng tại đây. Bản ghi lời nằm bên dưới.",
+    "slashTitle": "Ghi chú giọng nói",
+    "slashSubtext": "Hãy nói, và AI viết lại tại đây",
+    "slashAliases": "giọng nói âm thanh ghi âm đọc micrô chuyển văn bản voice audio record dictate speech microphone transcribe",
+    "errors": {
+      "unsupported": "Trình duyệt này không thể ghi âm. Hãy chọn một tệp âm thanh.",
+      "insecure": "Ghi âm cần kết nối an toàn (https). Hãy chọn một tệp âm thanh.",
+      "denied": "Leafdesk không được phép dùng micrô. Hãy cho phép trong cài đặt trang web của trình duyệt rồi thử lại.",
+      "noDevice": "Không tìm thấy micrô.",
+      "failed": "Không thể bắt đầu ghi âm. Hãy thử lại.",
+      "fileType": "Loại tệp âm thanh này không được hỗ trợ.",
+      "fileTooLarge": "Bản ghi âm có thể tối đa {max}.",
+      "disabled": "Ghi chú giọng nói không khả dụng trong không gian làm việc này.",
+      "noAccess": "Bạn không thể thêm ghi chú ở đây.",
+      "tooLarge": "Bản ghi âm quá lớn. Bản ghi âm có thể tối đa {max}.",
+      "rateLimited": "Quá nhiều yêu cầu AI. Hãy thử lại sau giây lát.",
+      "timeout": "Việc chuyển bản ghi âm thành văn bản mất quá lâu. Hãy thử lại, hoặc ghi một ghi chú ngắn hơn.",
+      "aborted": "Đã hủy.",
+      "provider": "Không thể chuyển bản ghi âm thành văn bản. Hãy thử lại sau, hoặc nhờ quản trị viên kiểm tra cài đặt chuyển giọng nói thành văn bản.",
+      "empty": "Không nghe thấy gì trong bản ghi âm. Hãy thử lại ở gần micrô hơn.",
+      "invalid": "Không thể đọc bản ghi âm. Hãy thử lại.",
+      "interrupted": "Máy chủ đã khởi động lại trong lúc xử lý việc này. Hãy thử lại.",
+      "limitReached": "Không gian làm việc này đã đạt giới hạn chi phí AI hằng tháng, nên các yêu cầu AI bị từ chối cho đến tháng sau. Chủ sở hữu xem chi tiết trong Cài đặt, mục Mức sử dụng AI.",
+      "insert": "Không thể thêm ghi chú vào trang."
+    },
+    "instructions": {
+      "menu": "Hướng dẫn ghi chú giọng nói",
+      "menuHint": "Cách AI viết lại các ghi chú giọng nói được lưu trong cơ sở dữ liệu này",
+      "title": "Hướng dẫn ghi chú giọng nói",
+      "description": "AI làm theo các hướng dẫn này khi viết lại một ghi chú giọng nói được lưu trong cơ sở dữ liệu này. Chúng áp dụng cho mọi người ghi âm vào đó.",
+      "placeholder": "Ví dụ: Ghi chú thăm khách hàng. Nêu công ty, người đã gặp, nội dung đã bàn, tình trạng báo giá và bước tiếp theo.",
+      "followed": "Các ghi chú giọng nói được lưu ở đây tuân theo hướng dẫn viết của cơ sở dữ liệu này."
+    }
+  },
+  "review": {
+    "bar": "{count, plural, other {# thay đổi của AI cần xem xét}}",
+    "by": "bởi {names}",
+    "open": "Xem xét",
+    "keepAll": "Giữ tất cả",
+    "undoAll": "Hoàn tác tất cả",
+    "keep": "Giữ",
+    "undo": "Hoàn tác",
+    "title": "Xem xét các thay đổi của AI",
+    "hint": "Giữ hoặc hoàn tác từng thay đổi. Hoàn tác tất cả sẽ lưu trang như hiện tại vào lịch sử của nó trước.",
+    "stale": "Trang đã thay đổi trong lúc đó: đây là các thay đổi như hiện tại.",
+    "failed": "Thao tác đó không thành công. Hãy thử lại."
+  },
+  "syncedBlock": {
+    "label": "Khối đồng bộ",
+    "from": "Đồng bộ từ",
+    "viewOnly": "Chỉ xem",
+    "copy": "Sao chép khối đồng bộ",
+    "copied": "Đã sao chép",
+    "copyHint": "Dán nó vào một trang khác để hiển thị các khối này ở đó, trực tiếp",
+    "shownOn": "{count, plural, other {Hiển thị trên # trang}}",
+    "notShownShort": "Không hiển thị ở nơi khác",
+    "notShown": "Hãy sao chép khối đồng bộ này và dán vào một trang khác để hiển thị nó ở đó.",
+    "hiddenPages": "{count, plural, other {và # trang bạn không thấy}}",
+    "unsync": "Hủy đồng bộ",
+    "unsyncHint": "Chuyển thành bản sao thường của các khối này",
+    "nested": "Một khối đồng bộ không thể nằm trong khối đồng bộ khác.",
+    "turnInto": "Chuyển thành khối đồng bộ",
+    "state": {
+      "noAccess": "Không có quyền truy cập",
+      "trashed": "Trang của khối đồng bộ gốc đang ở trong thùng rác",
+      "deleted": "Trang của khối đồng bộ gốc đã bị xóa",
+      "removed": "Khối đồng bộ gốc đã bị xóa"
+    },
+    "exportNote": "Khối đồng bộ: {state}"
+  },
+  "viewer": {
+    "untitled": "Tệp",
+    "counter": "{index} trên {count}",
+    "announce": "{name}, {index} trên {count}",
+    "previous": "Tệp trước",
+    "next": "Tệp tiếp theo",
+    "close": "Đóng",
+    "download": "Tải xuống",
+    "openInNewTab": "Mở trong thẻ mới",
+    "zoom": "Thu phóng",
+    "zoomIn": "Phóng to",
+    "zoomOut": "Thu nhỏ",
+    "zoomReset": "Vừa màn hình",
+    "zoomResetLevel": "{percent}%, vừa màn hình",
+    "loading": "Đang tải…",
+    "readingDocument": "Đang đọc tài liệu…",
+    "unavailable": "Không thể mở tệp này. Có thể nó đã bị xóa, hoặc bạn không còn quyền truy cập.",
+    "imageFailed": "Không thể hiển thị hình ảnh này ở đây. Hãy tải xuống để mở.",
+    "empty": "Tệp này trống.",
+    "noPreview": "Không có bản xem trước cho loại tệp này.",
+    "unknownType": "Loại không xác định",
+    "cannotPlay": "Trình duyệt này không thể phát tệp này. Hãy tải xuống để phát ở nơi khác.",
+    "truncated": "Chỉ hiển thị {size} đầu tiên của tệp này. Hãy tải xuống để xem toàn bộ.",
+    "csvPartial": "Đang hiển thị một phần của tệp này ({rows} hàng). Hãy tải xuống để xem toàn bộ.",
+    "documentTooLarge": "Tài liệu này quá lớn để xem trước. Hãy tải xuống để mở.",
+    "documentUnreadable": "Không thể xem trước tài liệu này: có thể nó bị hỏng, có mật khẩu hoặc là tệp .doc cũ. Hãy tải xuống để mở.",
+    "documentBusy": "Máy chủ đang bận đọc các tài liệu khác. Hãy thử lại sau giây lát.",
+    "picturesLeftOut": "Một số hình ảnh của tài liệu này không được hiển thị ở đây.",
+    "retry": "Thử lại",
+    "markdownImage": "Hình ảnh: {alt}",
+    "markdownImageUntitled": "Hình ảnh",
+    "expand": "Mở trong trình xem",
+    "view": "Xem {name}"
+  },
+  "presentation": {
+    "previous": "Slide trước",
+    "next": "Slide tiếp theo",
+    "exit": "Kết thúc trình chiếu",
+    "counter": "{index} trên {count}",
+    "announce": "Slide {index} trên {count}"
+  },
+  "markdownSource": {
+    "title": "Chỉnh sửa dưới dạng Markdown",
+    "sourceTab": "Markdown",
+    "previewTab": "Xem trước",
+    "toolbar": "Định dạng",
+    "placeholder": "Viết Markdown…",
+    "close": "Đóng",
+    "retry": "Thử lại",
+    "unsaved": "Thay đổi chưa lưu",
+    "offline": "Ngoại tuyến: lưu cần có kết nối",
+    "saveHint": "Lưu vào trang (Ctrl+S hoặc ⌘S)",
+    "tools": {
+      "bold": "In đậm",
+      "italic": "In nghiêng",
+      "code": "Mã nội dòng",
+      "link": "Liên kết",
+      "heading": "Tiêu đề {level}",
+      "bulletList": "Danh sách dấu đầu dòng",
+      "numberedList": "Danh sách đánh số",
+      "taskList": "Danh sách việc cần làm"
+    },
+    "errors": {
+      "noAccess": "Bạn không thể chỉnh sửa trang này.",
+      "database": "Cơ sở dữ liệu không có văn bản để chỉnh sửa dưới dạng Markdown.",
+      "trashed": "Trang này đang ở trong thùng rác.",
+      "locked": "Trang này đang bị khóa. Hãy mở khóa để chỉnh sửa.",
+      "saveFailed": "Không thể lưu trang. Hãy thử lại sau giây lát.",
+      "failed": "Đã xảy ra lỗi. Hãy thử lại."
+    },
+    "losses": {
+      "title": "Một số phần của trang này sẽ không được giữ lại",
+      "body": "Markdown không thể chứa mọi thứ trên trang này. Khi lưu, trang được viết lại từ Markdown, nên những mục sau sẽ mất:",
+      "kinds": {
+        "textColor": "Màu chữ",
+        "backgroundColor": "Màu nền và phần làm nổi bật",
+        "alignment": "Căn lề văn bản",
+        "mediaSize": "Kích thước hình ảnh và video",
+        "callout": "Màu và biểu tượng của hộp nhấn mạnh mà Markdown không có dạng tương ứng",
+        "textStyle": "Một số định dạng văn bản, chẳng hạn gạch chân",
+        "table": "Độ rộng cột bảng, hàng tiêu đề, ô đã gộp và màu ô",
+        "blockSetting": "Các cài đặt khối khác",
+        "content": "Một số nội dung mà Markdown không thể chứa"
+      },
+      "synced": "{count, plural, other {Các thay đổi của bạn bên trong # khối đồng bộ: hãy chỉnh sửa chúng trên trang thay vào đó}}",
+      "confirm": "Vẫn lưu"
+    },
+    "conflict": {
+      "title": "Có người khác đã thay đổi trang này",
+      "body": "Trang đã thay đổi sau khi bạn mở Markdown của nó. Hãy tải trang như hiện tại (các thay đổi của bạn ở đây sẽ bị bỏ), hoặc lưu bản của bạn đè lên.",
+      "reload": "Tải trang hiện tại",
+      "overwrite": "Lưu bản của tôi đè lên"
+    },
+    "discard": {
+      "title": "Bỏ các thay đổi của bạn?",
+      "body": "Các thay đổi Markdown của bạn chưa được lưu.",
+      "keep": "Tiếp tục chỉnh sửa",
+      "confirm": "Bỏ đi"
+    }
+  },
+  "siblings": {
+    "label": "Các trang bên cạnh {title}",
+    "empty": "Không có trang nào khác ở đây",
+    "failed": "Không thể tải các trang ở đây.",
+    "openDatabase": "Mở cơ sở dữ liệu",
+    "allRows": "Xem tất cả các hàng trong cơ sở dữ liệu"
+  },
+  "agentChat": {
+    "label": "Trò chuyện với tác tử",
+    "exportLine": "Trò chuyện với tác tử: {name}",
+    "elsewhere": "Trò chuyện với tác tử: có trong ứng dụng dành cho các thành viên của không gian làm việc.",
+    "choose": "Chọn một tác tử",
+    "noAgent": "Hãy chọn tác tử mà mọi người trò chuyện ở đây.",
+    "noAgentReadOnly": "Chưa chọn tác tử nào cho cuộc trò chuyện này.",
+    "loadFailed": "Không thể tải cuộc trò chuyện này.",
+    "retry": "Thử lại",
+    "states": {
+      "guest": "Khách không dùng được trò chuyện với tác tử.",
+      "gone": "Tác tử này không còn khả dụng.",
+      "paused": "Tác tử này đang tạm dừng, nên không thể trả lời.",
+      "aiOff": "AI đang tắt trong không gian làm việc này, nên tác tử không thể trả lời.",
+      "limitReached": "Tác tử này đã dùng hết token của tháng, nên không thể trả lời cho đến tháng sau.",
+      "noAccess": "Bạn không có quyền truy cập tác tử này."
+    },
+    "empty": {
+      "full": "Hãy hỏi {name} điều gì đó, hoặc giao việc cho nó. Nó làm việc với quyền truy cập, kỹ năng và bộ nhớ của riêng mình, và mỗi câu trả lời là một lần chạy của nó.",
+      "readOnly": "Hãy hỏi {name} một câu hỏi. Câu trả lời chỉ lấy từ các trang mà cả hai cùng thấy, và nó không thể thay đổi gì."
+    },
+    "readOnly": "Chỉ đọc",
+    "readOnlyHint": "Câu trả lời chỉ lấy từ các trang mà bạn và tác tử cùng thấy.",
+    "placeholder": "Nhắn cho {name}…",
+    "send": "Gửi",
+    "working": "Đang xử lý…",
+    "waiting": "Đang chờ một suất AI…",
+    "approval": "Tác tử muốn dùng một công cụ. Hãy phê duyệt lệnh gọi để nó tiếp tục.",
+    "steps": "{count, plural, other {# bước}}",
+    "conversations": "Các cuộc trò chuyện",
+    "newConversation": "Cuộc trò chuyện mới",
+    "deleteConversation": "Xóa cuộc trò chuyện này",
+    "failed": {
+      "aiOff": "AI đang tắt trong không gian làm việc này.",
+      "agentDisabled": "Tác tử đã bị tạm dừng hoặc lưu trữ.",
+      "noAccess": "Bạn không còn trò chuyện được với tác tử này ở đây.",
+      "provider": "Nhà cung cấp AI không trả lời.",
+      "timeout": "Tác tử mất quá lâu để trả lời.",
+      "tooManyAttempts": "Hạn mức AI của không gian làm việc vẫn đang hết, nên tác tử không thể bắt đầu.",
+      "approvalTimeout": "Không ai trả lời lệnh gọi của nó kịp thời, nên không có gì được gửi.",
+      "limitReached": "Tác tử đã dùng hết token của tháng.",
+      "costLimit": "Không gian làm việc đã đạt giới hạn chi phí AI hằng tháng.",
+      "error": "Đã xảy ra lỗi."
+    },
+    "errors": {
+      "invalid": "Hãy viết một tin nhắn trước.",
+      "tooLong": "Một tin nhắn có tối đa {max} ký tự.",
+      "busy": "Tác tử vẫn đang trả lời tin nhắn trước của bạn.",
+      "rateLimited": "Quá nhiều tin nhắn cùng lúc. Hãy thử lại sau giây lát.",
+      "noAccess": "Bạn không dùng được cuộc trò chuyện này.",
+      "notOnPage": "Cuộc trò chuyện này không còn trên trang nữa.",
+      "guest": "Khách không dùng được trò chuyện với tác tử.",
+      "gone": "Tác tử này không còn khả dụng.",
+      "paused": "Tác tử này đang tạm dừng, nên không thể trả lời.",
+      "aiOff": "AI đang tắt trong không gian làm việc này, nên tác tử không thể trả lời.",
+      "limitReached": "Tác tử này đã dùng hết token của tháng."
+    },
+    "picker": {
+      "search": "Tìm tác tử",
+      "empty": "Không có tác tử nào để trò chuyện. Chủ sở hữu tạo chúng trong Cài đặt, mục Tác tử.",
+      "failed": "Không thể tải các tác tử.",
+      "paused": "Đã tạm dừng"
+    },
+    "slash": {
+      "title": "Trò chuyện với tác tử",
+      "subtext": "Trò chuyện với một trong các tác tử của không gian làm việc trên trang này",
+      "aliases": "tác tử trò chuyện bot trợ lý ai hỏi agent chat assistant ask"
+    },
+    "tab": {
+      "hint": "Dán liên kết của tác tử này vào một trang để đặt cuộc trò chuyện với nó ở đó. Các thành viên có thể trò chuyện ở đó ở chế độ chỉ đọc.",
+      "copyLink": "Sao chép liên kết"
+    },
+    "awaitingOwner": "Đang chờ chủ sở hữu không gian làm việc phê duyệt một lệnh gọi…"
+  }
+}

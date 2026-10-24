@@ -1,0 +1,97 @@
+{
+  "metaTitle": "Administrasi server",
+  "title": "Administrasi server",
+  "description": "Akun di server ini, sesi, dan kata sandinya. Anda melihat halaman ini karena alamat email Anda yang terverifikasi tercantum di ADMIN_EMAILS.",
+  "back": "Kembali ke {workspace}",
+  "backHome": "Kembali",
+  "workspaces": {
+    "heading": "Pembuatan ruang kerja",
+    "everyone": "Semua orang dapat membuat ruang kerja",
+    "admins": "Hanya administrator yang dapat membuat ruang kerja",
+    "description": "Diatur dengan WORKSPACE_CREATION di server (everyone atau admins). Setiap orang tetap mendapat ruang kerja pribadi saat mendaftar."
+  },
+  "sessions": {
+    "heading": "Semua orang",
+    "description": "{count, plural, other {# sesi masuk}} di server ini.",
+    "signOutEveryone": "Keluarkan semua orang",
+    "signOutEveryoneDescription": "Mengakhiri setiap sesi di setiap perangkat kecuali sesi Anda di browser ini, dan halaman yang terbuka di sana berhenti tersinkron. Aplikasi terhubung dan token API tetap berfungsi.",
+    "signOutEveryoneTitle": "Keluarkan semua orang?",
+    "signOutEveryoneBody": "Semua orang di server ini harus masuk lagi, termasuk Anda di perangkat lain.",
+    "signOutEveryoneConfirm": "Keluarkan semua orang",
+    "resetEveryone": "Wajibkan kata sandi baru",
+    "resetEveryoneDescription": "Semua orang yang masuk dengan kata sandi, kecuali Anda, dikeluarkan dan harus memilih kata sandi baru saat masuk berikutnya. Akun yang hanya masuk dengan SSO, GitHub, atau Google tidak terpengaruh.",
+    "resetByEmail": "Saat mereka masuk, mereka menerima tautan lewat email untuk memilihnya.",
+    "resetInApp": "Email belum diatur di server ini, jadi mereka memilihnya segera setelah masuk dengan kata sandi lama (dan kode dua langkah, jika menggunakannya).",
+    "resetEveryoneTitle": "Wajibkan kata sandi baru dari semua orang?",
+    "resetEveryoneBody": "Semua orang yang memakai kata sandi, kecuali Anda, dikeluarkan sekarang dan tidak dapat masuk lagi dengan kata sandi mereka saat ini.",
+    "resetEveryoneConfirm": "Wajibkan kata sandi baru"
+  },
+  "users": {
+    "heading": "Akun",
+    "count": "{count, plural, other {# akun}}",
+    "countPartial": "Menampilkan {shown} dari {total} akun. Cari untuk menemukan yang lain.",
+    "search": "Cari berdasarkan nama atau email",
+    "noMatches": "Tidak ada akun yang cocok dengan pencarian ini.",
+    "none": "Belum ada akun.",
+    "columns": {
+      "user": "Akun",
+      "workspaces": "Ruang kerja",
+      "lastActive": "Terakhir aktif",
+      "twoFactor": "Dua langkah",
+      "password": "Kata sandi",
+      "actions": "Tindakan"
+    },
+    "you": "(Anda)",
+    "admin": "Admin",
+    "unverified": "Belum diverifikasi",
+    "signedOut": "Belum masuk",
+    "on": "Aktif",
+    "off": "Nonaktif",
+    "hasPassword": "Ada",
+    "noPassword": "Tidak ada",
+    "resetPending": "Perlu yang baru",
+    "actionsFor": "Tindakan untuk {name}",
+    "signOut": "Keluarkan dari semua perangkat",
+    "signOutTitle": "Keluarkan {name} dari semua perangkat?",
+    "signOutBody": "{count, plural, other {# sesi mereka berakhir}}, dan halaman yang mereka buka berhenti tersinkron. Aplikasi terhubung dan token API tetap berfungsi.",
+    "signOutSelfBody": "{count, plural, other {# sesi Anda berakhir}}, kecuali sesi di browser ini.",
+    "signOutConfirm": "Keluarkan",
+    "requireReset": "Wajibkan kata sandi baru",
+    "resetTitle": "Wajibkan kata sandi baru dari {name}?",
+    "resetBody": "Mereka dikeluarkan sekarang dan harus memilih kata sandi baru saat masuk dengan kata sandi berikutnya.",
+    "resetByEmail": "Saat mereka masuk, mereka menerima tautan lewat email untuk memilihnya.",
+    "resetInApp": "Email belum diatur di server ini, jadi mereka memilihnya segera setelah masuk dengan kata sandi lama (dan kode dua langkah, jika menggunakannya).",
+    "resetConfirm": "Wajibkan kata sandi baru"
+  },
+  "errors": {
+    "notFound": "Akun itu tidak ditemukan.",
+    "noPassword": "Akun ini tidak memiliki kata sandi; akun ini masuk dengan cara lain.",
+    "self": "Ubah kata sandi Anda sendiri di halaman akun Anda.",
+    "noWorkspace": "Ruang kerja itu tidak ditemukan."
+  },
+  "descriptionFirstAccount": "Akun di server ini, sesi, dan kata sandinya. Anda melihat halaman ini karena akun Anda adalah akun pertama di server ini.",
+  "signUp": {
+    "heading": "Pendaftaran",
+    "open": "Siapa saja dapat mendaftar",
+    "openDescription": "Siapa saja yang dapat membuka alamat server ini dapat membuat akun. Untuk menutup pendaftaran, atur DISABLE_SIGNUP=true di server (dengan Docker, di berkas .env di samping docker-compose.yml, lalu jalankan docker compose up -d). Akun yang ada tetap dapat masuk, dan orang yang Anda undang tetap dapat bergabung.",
+    "closed": "Pendaftaran ditutup",
+    "closedDescription": "Diatur dengan DISABLE_SIGNUP di server. Akun yang ada tetap dapat masuk, dan orang yang Anda undang tetap dapat bergabung lewat tautan undangan mereka."
+  },
+  "firstAdmin": {
+    "title": "Anda mengelola server ini",
+    "body": "Akun Anda yang pertama di sini, jadi Administrasi server menjadi milik Anda. Siapa saja yang dapat menjangkau alamat ini tetap dapat mendaftar; Administrasi server menunjukkan cara menutupnya.",
+    "open": "Administrasi server",
+    "dismiss": "Tutup"
+  },
+  "networks": {
+    "heading": "Jaringan yang disetujui",
+    "description": "Ruang kerja yang hanya dapat dibuka dari jaringan yang disetujui. Jika suatu daftar mengunci pemilik ruang kerja, kosongkan di sini: ruang kerja itu lalu dapat dibuka dari jaringan mana pun hingga pemiliknya mengatur daftar itu lagi.",
+    "none": "Tidak ada ruang kerja yang membatasi proses masuk ke jaringan yang disetujui",
+    "noneDescription": "Pemilik mengatur jaringan yang disetujui di Pengaturan → Keamanan ruang kerja mereka.",
+    "count": "{count, plural, other {# jaringan}}",
+    "clear": "Kosongkan daftar",
+    "clearTitle": "Kosongkan jaringan yang disetujui untuk {workspace}?",
+    "clearBody": "Semua orang di ruang kerja dapat membukanya dari jaringan mana pun lagi, dan log audit ruang kerja mencatat bahwa Anda mengosongkan daftar. Pemiliknya dapat mengaturnya lagi di Pengaturan → Keamanan.",
+    "clearConfirm": "Kosongkan daftar"
+  }
+}

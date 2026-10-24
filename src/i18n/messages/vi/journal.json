@@ -1,0 +1,21 @@
+{
+  "todayNote": "Ghi chú hôm nay",
+  "openToday": "Mở ghi chú hôm nay",
+  "startToday": "Bắt đầu ghi chú hôm nay",
+  "calendar": "Lịch ghi chú hằng ngày",
+  "previousMonth": "Tháng trước",
+  "nextMonth": "Tháng sau",
+  "hasNote": "{day} — có ghi chú",
+  "openDay": "Mở ghi chú của ngày đó",
+  "recent": "Ghi chú trước đó",
+  "startWith": "Ghi chú mới bắt đầu với",
+  "startDefault": "Vài tiêu đề",
+  "startBlank": "Một trang trống",
+  "startTemplates": "Mẫu",
+  "openFailed": "Không thể mở ghi chú hằng ngày",
+  "saveFailed": "Không thể lưu cài đặt",
+  "searchHint": "ghi chú hằng ngày của bạn",
+  "yesterday": "Ghi chú hôm qua",
+  "notes": "Ghi chú",
+  "noNotes": "Chưa có ghi chú nào. Hãy chọn một ngày để bắt đầu."
+}

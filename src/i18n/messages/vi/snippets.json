@@ -1,0 +1,124 @@
+{
+  "copyTitle": "{title} (bản sao)",
+  "errors": {
+    "triggerRequired": "Hãy đặt trình kích hoạt cho đoạn mẫu.",
+    "triggerInvalid": "Trình kích hoạt dài tối đa {max} ký tự gồm chữ thường, chữ số, dấu gạch ngang và dấu gạch dưới.",
+    "triggerTaken": "Một đoạn mẫu khác ở đây đã dùng trình kích hoạt này.",
+    "titleTooLong": "Tiêu đề dài tối đa {max} ký tự.",
+    "bodyRequired": "Hãy viết nội dung mà đoạn mẫu chèn vào.",
+    "bodyTooLong": "Một đoạn mẫu dài tối đa {max} ký tự.",
+    "tooMany": "Ở đây có thể có tối đa {max} đoạn mẫu. Hãy xóa bớt để thêm nữa.",
+    "notFound": "Đoạn mẫu này không còn.",
+    "ownersOnly": "Chỉ chủ sở hữu của không gian làm việc mới thay đổi được các đoạn mẫu của nó.",
+    "accessDenied": "Bạn không có quyền truy cập các đoạn mẫu này.",
+    "importInvalid": "Đây không phải tệp đoạn mẫu. Hãy dùng tệp xuất từ Leafdesk, hoặc một danh sách đối tượng có id và label.",
+    "importTooLarge": "Tệp quá lớn để nhập."
+  },
+  "menu": {
+    "group": "Đoạn mẫu",
+    "personal": "Đoạn mẫu của tôi",
+    "workspace": "Đoạn mẫu của không gian làm việc",
+    "insertFailed": "Không thể chèn đoạn mẫu. {error}"
+  },
+  "save": {
+    "menuItem": "Lưu thành đoạn mẫu",
+    "saved": "Đã lưu. Gõ ;{trigger} để chèn nó."
+  },
+  "form": {
+    "newTitle": "Đoạn mẫu mới",
+    "editTitle": "Chỉnh sửa đoạn mẫu",
+    "title": "Tiêu đề",
+    "titlePlaceholder": "Ghi chú cuộc họp",
+    "trigger": "Trình kích hoạt",
+    "triggerPlaceholder": "hop",
+    "triggerHint": "Gõ ;{trigger} trong một trang, hoặc tìm nó trong Đoạn mẫu ở menu /.",
+    "target": "Lưu vào",
+    "targetPersonal": "Đoạn mẫu của tôi (chỉ mình bạn)",
+    "targetWorkspace": "{workspace} (mọi người trong không gian làm việc)",
+    "body": "Nội dung (Markdown)",
+    "bodyPlaceholder": "## Chương trình họp\n- ",
+    "placeholders": "Được điền khi chèn:",
+    "placeholder": {
+      "date": "Ngày hôm nay",
+      "time": "Giờ hiện tại",
+      "datetime": "Ngày hôm nay và giờ",
+      "me": "Tên của bạn",
+      "page": "Tiêu đề của trang",
+      "cursor": "Vị trí con trỏ sẽ đặt"
+    },
+    "length": "{count} trên {max} ký tự",
+    "preview": "Xem trước",
+    "previewPage": "Tiêu đề trang",
+    "previewEmpty": "Các khối mà đoạn mẫu chèn vào sẽ hiện ở đây.",
+    "create": "Tạo đoạn mẫu"
+  },
+  "settings": {
+    "personalDescription": "Những phần nội dung bạn chèn khi đang gõ: gõ ; và trình kích hoạt của một đoạn mẫu trong bất kỳ trang nào, hoặc chọn nó trong Đoạn mẫu ở menu /. Chỉ mình bạn thấy chúng.",
+    "description": "Những phần nội dung bạn chèn khi đang gõ: gõ ; và trình kích hoạt của một đoạn mẫu trong bất kỳ trang nào, hoặc chọn nó trong Đoạn mẫu ở menu /.",
+    "tabsLabel": "Đoạn mẫu",
+    "tabs": {
+      "mine": "Của tôi",
+      "workspace": "Không gian làm việc"
+    },
+    "mineNote": "Chỉ mình bạn thấy chúng, và bạn có thể dùng chúng trong mọi không gian làm việc bạn tham gia.",
+    "workspaceNote": "Mọi người trong {workspace} đều có thể dùng chúng. Chỉ chủ sở hữu mới thêm và thay đổi chúng.",
+    "workspaceNoteOwner": "Mọi người trong {workspace} đều có thể dùng chúng. Chủ sở hữu thêm và thay đổi chúng.",
+    "search": "Tìm đoạn mẫu",
+    "new": "Đoạn mẫu mới",
+    "import": "Nhập",
+    "importing": "Đang nhập…",
+    "export": "Xuất",
+    "count": "{count} trên {max}",
+    "noMatches": "Không có đoạn mẫu nào khớp.",
+    "empty": "Không gian làm việc chưa có đoạn mẫu dùng chung nào.",
+    "emptyOwner": "Chưa có đoạn mẫu nào. Hãy bắt đầu với một ví dụ, hoặc tự tạo.",
+    "emptyWorkspaceOwner": "Không gian làm việc chưa có đoạn mẫu dùng chung nào. Hãy tạo một đoạn mà mọi người đều dùng được.",
+    "examplesHeading": "Ví dụ",
+    "addExample": "Thêm",
+    "actionsFor": "Thao tác cho {title}",
+    "edit": "Chỉnh sửa",
+    "duplicate": "Nhân đôi",
+    "delete": "Xóa",
+    "deleteTitle": "Xóa “{title}”?",
+    "deleteBody": "Các trang đã được chèn đoạn mẫu này vẫn giữ nguyên văn bản của chúng.",
+    "imported": "{count, plural, =0 {Không có đoạn mẫu nào được thêm.} other {Đã thêm # đoạn mẫu.}}",
+    "skipped": "{count, plural, other {# bị bỏ qua:}}",
+    "skip": {
+      "triggerRequired": "không có trình kích hoạt",
+      "triggerInvalid": "trình kích hoạt không được phép",
+      "titleTooLong": "tiêu đề quá dài",
+      "bodyRequired": "trống",
+      "bodyTooLong": "quá dài",
+      "duplicate": "xuất hiện hai lần trong tệp",
+      "exists": "trình kích hoạt đã được dùng",
+      "tooMany": "vượt quá giới hạn"
+    },
+    "untitledTrigger": "(không có trình kích hoạt)",
+    "importFailed": "Không thể nhập. {error}"
+  },
+  "examples": {
+    "meeting": {
+      "trigger": "hop",
+      "title": "Ghi chú cuộc họp",
+      "attendees": "Người tham dự",
+      "agenda": "Chương trình họp",
+      "notes": "Ghi chú",
+      "actions": "Việc cần làm"
+    },
+    "log": {
+      "trigger": "nhatky",
+      "title": "Dòng nhật ký có ngày"
+    },
+    "decision": {
+      "trigger": "quyetdinh",
+      "title": "Biên bản quyết định",
+      "heading": "Quyết định",
+      "date": "Ngày",
+      "decidedBy": "Người quyết định",
+      "context": "Bối cảnh",
+      "options": "Các phương án đã cân nhắc",
+      "outcome": "Chúng tôi đã quyết định gì",
+      "consequences": "Hệ quả"
+    }
+  }
+}

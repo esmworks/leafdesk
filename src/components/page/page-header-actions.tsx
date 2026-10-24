@@ -976,10 +976,10 @@ function PageMenu({
   );
 }
 
-/** Pick a new parent: any page or database in the sidebar tree except this page and its subpages. */
 // The PDF dialog comes with its first use, not with every page.
 const PdfExportDialog = lazy(() => import("./pdf-export-dialog"));
 
+/** Pick a new parent: any page or database in the sidebar tree except this page and its subpages. */
 export function MoveDialog({
   workspaceId,
   pageId,
