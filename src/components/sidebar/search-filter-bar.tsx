@@ -5,7 +5,7 @@ import { useFormatter, useTranslations } from "next-intl";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { searchFilterOptionsAction } from "@/app/actions/pages";
 import { cn, MenuItem, MenuSeparator, menuFieldClass, PageIcon, Popover } from "@/components/ui";
-import { MAX_FILTER_VALUES, SEARCH_DATE_PRESETS, type SearchDateFilter, type SearchDateField, type SearchFilters } from "@/lib/search-filters";
+import { MAX_FILTER_VALUES, SEARCH_DATE_PRESETS, type SearchDateFilter, type SearchDateField, type SearchFilters } from "@/lib/search-filter-state";
 import { searchFold } from "@/lib/search-fold";
 import type { SearchFilterOptions } from "@/server/search-filter-options";
 

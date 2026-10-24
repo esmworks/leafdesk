@@ -12,7 +12,7 @@ import type { PageKind } from "@/db/schema";
 import { pageOrBlockPath } from "@/lib/mentions";
 import { searchFold } from "@/lib/search-fold";
 import { highlightParts } from "@/lib/search-highlight";
-import { hasFilterValues, NO_SEARCH_FILTERS, type SearchFilters } from "@/lib/search-filters";
+import { hasFilterValues, NO_SEARCH_FILTERS, type SearchFilters } from "@/lib/search-filter-state";
 import { parseSearchQuery } from "@/lib/search-query";
 import type { SearchHit } from "@/server/pages";
 
