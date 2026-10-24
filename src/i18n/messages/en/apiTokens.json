@@ -45,7 +45,8 @@
     "expiry": "Choose when the token expires.",
     "limit": "You have the most tokens allowed. Revoke one first.",
     "generic": "Could not create the token. Try again.",
-    "notFound": "This token no longer exists."
+    "notFound": "This token no longer exists.",
+    "ownerScope": "Only a workspace's owners can let a token read its audit log, and only a token limited to that workspace."
   },
   "docsPage": {
     "metaTitle": "REST API",
@@ -114,6 +115,10 @@
       "webhooks": {
         "name": "Webhooks",
         "hint": "Page webhooks and their deliveries; writing adds, changes and tests them (owners only)."
+      },
+      "audit": {
+        "name": "Audit log",
+        "hint": "The workspace's audit log (owners only, for a token limited to a workspace they own)."
       }
     },
     "summary": {
@@ -129,7 +134,8 @@
     "errors": {
       "scopes": "Choose at least one thing the token may do.",
       "notFound": "This token no longer exists.",
-      "generic": "Could not change the token. Try again."
+      "generic": "Could not change the token. Try again.",
+      "ownerScope": "Only a workspace's owners can let a token read its audit log, and only a token limited to that workspace."
     }
   }
 }

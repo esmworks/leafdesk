@@ -278,7 +278,8 @@
     "aiAccountTitle": "Compte IA supprimé",
     "aiAccountDetached": "L’IA de l’espace de travail ne fonctionne plus avec la clé de {actor}.",
     "reviewTitle": "À vérifier",
-    "review": "{count, plural, one {{agent} a proposé une modification à vérifier} other {# modifications attendent votre vérification, la dernière de {agent}}}"
+    "review": "{count, plural, one {{agent} a proposé une modification à vérifier} other {# modifications attendent votre vérification, la dernière de {agent}}}",
+    "sensitiveContent": "{kind, select, card {Un numéro de carte de paiement a été trouvé sur cette page.} iban {Un IBAN a été trouvé sur cette page.} national_id {Un numéro d’identité national a été trouvé sur cette page.} private_key {Une clé privée a été trouvée sur cette page.} aws_key {Une clé d’accès AWS a été trouvée sur cette page.} github_token {Un jeton GitHub a été trouvé sur cette page.} slack_token {Un jeton Slack a été trouvé sur cette page.} api_key {Une clé d’API a été trouvée sur cette page.} jwt {Un jeton JSON Web Token a été trouvé sur cette page.} other {Du contenu sensible a été trouvé sur cette page.}}"
   },
   "agentReply": {
     "aiOff": "Je ne peux pas répondre : l’IA est désactivée dans cet espace de travail.",

@@ -13,6 +13,7 @@ import type { VerificationView } from "@/lib/verification";
 import { isWatching } from "@/server/page-watch";
 import { isFollowing } from "@/server/row-follow";
 import { skillDescriptionProperty } from "@/server/skills";
+import { canTurnIntoTeamspace } from "@/server/teamspace-from-page";
 import { exportAllowed, topLevelAccess } from "@/server/workspaces";
 
 /** What the page header shows: who made and last changed the page, the viewer's access and star. */
@@ -59,6 +60,8 @@ export type PageHeaderInfo = {
   outdated: OutdatedState | null;
   /** Set when someone verified the page, expired or not: by whom, until when (server/verification). */
   verified: VerificationView | null;
+  /** Whether the user may turn the page into a teamspace (server/teamspace-from-page.ts). */
+  teamspace: boolean;
 };
 
 export async function getPageHeaderInfo(userId: string, pageId: string): Promise<PageHeaderInfo> {
@@ -67,7 +70,7 @@ export async function getPageHeaderInfo(userId: string, pageId: string): Promise
   const creator = alias(user, "creator");
   const editor = alias(user, "editor");
   const isSkill = found.isSkill && !found.inTemplate;
-  const [[names], [star], membership, topLevel, ai, voice, exportable, accessRequests, following, watching, outdated, skillProperty, verified] = await Promise.all([
+  const [[names], [star], membership, topLevel, ai, voice, exportable, accessRequests, following, watching, outdated, skillProperty, verified, teamspace] = await Promise.all([
     db
       .select({
         createdBy: creator.name,
@@ -94,6 +97,7 @@ export async function getPageHeaderInfo(userId: string, pageId: string): Promise
     outdatedState(userId, pageId),
     isSkill && found.parentId ? skillDescriptionProperty(found.parentId) : null,
     verificationOf(pageId),
+    canTurnIntoTeamspace(userId, found, level),
   ]);
   return {
     level,
@@ -118,6 +122,7 @@ export async function getPageHeaderInfo(userId: string, pageId: string): Promise
     watching,
     outdated,
     verified,
+    teamspace,
   };
 }
 

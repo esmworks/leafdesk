@@ -198,7 +198,8 @@
     "aiAccountDetached": "Die KI des Workspaces läuft nicht mehr über den Schlüssel von {actor}. Wähle in den Einstellungen ein anderes KI-Konto.",
     "reviewTitle": "Zu prüfen",
     "review": "{count, plural, one {{agent} hat eine Änderung zur Prüfung vorgeschlagen} other {# Änderungen warten auf deine Prüfung, die neueste von {agent}}}",
-    "automationRun": "Automatisierung „{name}“"
+    "automationRun": "Automatisierung „{name}“",
+    "sensitiveContent": "Hier wurde {kind, select, card {eine Zahlungskartennummer} iban {eine IBAN} national_id {eine nationale Ausweisnummer} private_key {ein privater Schlüssel} aws_key {ein AWS-Zugriffsschlüssel} github_token {ein GitHub-Token} slack_token {ein Slack-Token} api_key {ein API-Schlüssel} jwt {ein JSON Web Token} other {sensibler Inhalt}} gefunden. Prüfe den Fund unter Einstellungen > Sicherheit."
   },
   "templates": {
     "title": "Vorlagen",
@@ -239,7 +240,8 @@
     "newPrivate": "Neue private Seite",
     "more": "{count} weitere",
     "less": "Weniger anzeigen",
-    "meetings": "Besprechungen"
+    "meetings": "Besprechungen",
+    "tasks": "Meine Aufgaben"
   },
   "joinable": {
     "heading": "Workspaces, denen du beitreten kannst",

@@ -12,7 +12,7 @@ import {
   type UpdateApiTokenResult,
 } from "@/app/actions/api-tokens";
 import { Button, cn, Dialog, Input, selectClass } from "@/components/ui";
-import { READ_SCOPES, type ApiTokenScope } from "@/lib/api-scopes";
+import { OWNER_SCOPES, READ_SCOPES, type ApiTokenScope } from "@/lib/api-scopes";
 import { ApiTokenScopePicker } from "./api-token-scopes";
 import { CopyButton } from "./copy-button";
 
@@ -21,7 +21,7 @@ const EXPIRY_DAYS = [7, 30, 90, 365, null] as const;
 const DEFAULT_EXPIRY = 90;
 
 /** "New token" button and the dialog that creates one and shows its secret once. */
-export function NewApiToken({ workspaces }: { workspaces: { id: string; name: string }[] }) {
+export function NewApiToken({ workspaces }: { workspaces: { id: string; name: string; owner: boolean }[] }) {
   const t = useTranslations("apiTokens");
   const tc = useTranslations("common");
   const router = useRouter();
@@ -116,7 +116,12 @@ export function NewApiToken({ workspaces }: { workspaces: { id: string; name: st
             </div>
             <fieldset className="space-y-1.5">
               <legend className="mb-1.5 text-sm font-medium">{t("form.access")}</legend>
-              <ApiTokenScopePicker value={scopes} onChange={setScopes} disabled={pending} />
+              <ApiTokenScopePicker
+                value={scopes}
+                onChange={setScopes}
+                disabled={pending}
+                owner={workspaces.some((w) => w.id === workspaceId && w.owner)}
+              />
             </fieldset>
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-1.5">
@@ -127,7 +132,14 @@ export function NewApiToken({ workspaces }: { workspaces: { id: string; name: st
                   id={`${ids}-workspace`}
                   className={cn(selectClass, "w-full")}
                   value={workspaceId}
-                  onChange={(e) => setWorkspaceId(e.target.value)}
+                  onChange={(e) => {
+                    const id = e.target.value;
+                    setWorkspaceId(id);
+                    // Owner-only scopes go with a workspace the person owns.
+                    if (!workspaces.some((w) => w.id === id && w.owner)) {
+                      setScopes((s) => s.filter((scope) => !(OWNER_SCOPES as readonly string[]).includes(scope)));
+                    }
+                  }}
                 >
                   <option value="">{t("form.allWorkspaces")}</option>
                   {workspaces.map((w) => (
@@ -187,11 +199,14 @@ export function EditApiTokenScopes({
   name,
   scopes: current,
   legacy,
+  owner,
 }: {
   tokenId: string;
   name: string;
   scopes: ApiTokenScope[];
   legacy: boolean;
+  /** Whether the token belongs to a workspace the person owns (owner-only scopes). */
+  owner: boolean;
 }) {
   const t = useTranslations("apiTokens");
   const tc = useTranslations("common");
@@ -241,7 +256,7 @@ export function EditApiTokenScopes({
             <p className="mt-1 text-sm text-fg-muted">{t("edit.body")}</p>
           </div>
           {legacy && <p className="rounded-md border border-border bg-bg-subtle px-3 py-2 text-xs text-fg-muted">{t("edit.legacy")}</p>}
-          <ApiTokenScopePicker value={scopes} onChange={setScopes} disabled={pending} />
+          <ApiTokenScopePicker value={scopes} onChange={setScopes} disabled={pending} owner={owner} />
           {error && (
             <p role="alert" className="text-sm text-danger">
               {t(`edit.errors.${error}`)}

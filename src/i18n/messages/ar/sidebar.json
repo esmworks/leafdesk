@@ -198,7 +198,8 @@
     "aiAccountDetached": "لم يعد الذكاء الاصطناعي في مساحة العمل يعمل بمفتاح {actor}. اختر حساب ذكاء اصطناعي آخر من الإعدادات.",
     "reviewTitle": "للمراجعة",
     "review": "{count, plural, zero {لا تغييرات بانتظار مراجعتك} one {اقترح {agent} تغييرًا لمراجعتك} two {تغييران بانتظار مراجعتك، آخرهما من {agent}} few {# تغييرات بانتظار مراجعتك، آخرها من {agent}} many {# تغييرًا بانتظار مراجعتك، آخرها من {agent}} other {# تغيير بانتظار مراجعتك، آخرها من {agent}}}",
-    "automationRun": "الأتمتة “{name}”"
+    "automationRun": "الأتمتة “{name}”",
+    "sensitiveContent": "عُثر هنا على {kind, select, card {رقم بطاقة دفع} iban {رقم IBAN} national_id {رقم هوية وطنية} private_key {مفتاح خاص} aws_key {مفتاح وصول AWS} github_token {رمز GitHub} slack_token {رمز Slack} api_key {مفتاح API} jwt {رمز JSON Web Token} other {محتوى حساس}}. راجع النتيجة في الإعدادات > الأمان."
   },
   "templates": {
     "title": "القوالب",
@@ -239,7 +240,8 @@
     "newPrivate": "صفحة خاصة جديدة",
     "more": "{count} أخرى",
     "less": "عرض أقل",
-    "meetings": "الاجتماعات"
+    "meetings": "الاجتماعات",
+    "tasks": "مهامي"
   },
   "joinable": {
     "heading": "مساحات عمل يمكنك الانضمام إليها",

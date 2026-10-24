@@ -168,6 +168,12 @@ export type WorkspaceSettings = {
    */
   pageViews: boolean;
   /**
+   * Whether saved pages and rows are scanned for card numbers, IBANs, national ID numbers and
+   * secrets (server/sensitive-content.ts), with findings listed to owners in Settings > Security.
+   * Off until an owner turns it on; turning it off forgets the findings.
+   */
+  sensitiveContent: boolean;
+  /**
    * The workspace's callout styles (lib/callout-styles): named box looks its owners define in
    * Settings > General and everyone inserts. Checked by parseCalloutStyles when saved.
    */
@@ -197,6 +203,7 @@ export const DEFAULT_WORKSPACE_SETTINGS: WorkspaceSettings = {
   joinRequests: "nobody",
   email: false,
   pageViews: true,
+  sensitiveContent: false,
   calloutStyles: [],
 };
 
@@ -581,16 +588,35 @@ export type RelationConfig = {
   databaseId: string;
   pairedPropertyId?: string | null;
   /**
-   * What a relation of a database with itself stands for: "parent" holds each row's parent, which
+   * What a relation stands for. Of a database with itself: "parent" holds each row's parent, which
    * makes the rows linking to a row its sub-items (see lib/sub-items); "blocked_by" holds the rows
-   * each row waits for (see lib/dependencies). Set by turning the feature on; a copy of the
-   * property, or the property turned into another type, doesn't keep it.
+   * each row waits for (see lib/dependencies). To another database: "sprint" holds the sprint each
+   * task is planned in (see lib/sprints). Set by turning the feature on; a copy of the property,
+   * or the property turned into another type, doesn't keep it.
    */
   role?: RelationRole;
   /** A "blocked_by" relation: how waiting rows follow when the rows they wait for move. */
   dependencies?: DependencyConfig;
+  /**
+   * A "sprint" relation: how the sprints database it links to is laid out. Kept when sprints are
+   * turned off (only the role goes), so turning them on again picks the same sprints up.
+   */
+  sprints?: SprintConfig;
 };
-export type RelationRole = "parent" | "blocked_by";
+export type RelationRole = "parent" | "blocked_by" | "sprint";
+/** Where a sprint stands: one is current, one next, later ones future, past ones completed. */
+export type SprintState = "current" | "next" | "future" | "completed";
+export type SprintConfig = {
+  /** The sprints database's date property: each sprint's first and last day, as a range. */
+  datesPropertyId: string;
+  /** The sprints database's select of where each sprint stands, and its option for each state. */
+  statePropertyId: string;
+  states: Record<SprintState, string>;
+  /** How long a sprint is, in weeks (1 to 4). */
+  weeks: number;
+  /** The task database's board of the current sprint, which offers "Complete sprint". */
+  boardViewId?: string;
+};
 /**
  * When a row's dates move, the rows waiting for it move: "overlap" only when they would start
  * before it ends, "keep_gap" by as much as it moved, "none" never.

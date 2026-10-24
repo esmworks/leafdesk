@@ -37,7 +37,7 @@ export async function ApiTokens() {
           </Link>
         </>
       }
-      action={<NewApiToken workspaces={workspaces.map((w) => ({ id: w.id, name: w.name }))} />}
+      action={<NewApiToken workspaces={workspaces.map((w) => ({ id: w.id, name: w.name, owner: w.role === "owner" }))} />}
     >
       {tokens.length === 0 ? (
         <p className="px-5 py-8 text-center text-sm text-fg-muted">{t("empty")}</p>
@@ -72,7 +72,13 @@ export async function ApiTokens() {
                 </p>
               </div>
               <div className="flex shrink-0 items-start gap-1.5">
-                <EditApiTokenScopes tokenId={token.id} name={token.name} scopes={token.scopes} legacy={token.legacyScopes} />
+                <EditApiTokenScopes
+                  tokenId={token.id}
+                  name={token.name}
+                  scopes={token.scopes}
+                  legacy={token.legacyScopes}
+                  owner={workspaces.some((w) => w.id === token.workspaceId && w.role === "owner")}
+                />
                 <RevokeApiTokenButton tokenId={token.id} name={token.name} />
               </div>
             </div>

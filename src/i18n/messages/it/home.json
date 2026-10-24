@@ -17,5 +17,20 @@
     "later": "Più avanti",
     "none": "Senza data"
   },
-  "assignedMore": "{shown} visualizzate su {total}. Filtra un database per “Io” per vedere le altre."
+  "assignedMore": "Visualizzate {shown} di {total}.",
+  "assignedAll": "Vedi tutto",
+  "myTasks": {
+    "title": "Le mie attività",
+    "description": "Le righe dei database che puoi aprire, assegnate a te e non completate, in tutto lo spazio di lavoro.",
+    "grouping": "Raggruppa per",
+    "byDue": "Per scadenza",
+    "byDatabase": "Per database",
+    "sharedRows": "Righe condivise con te",
+    "shown": "Visualizzate le {shown} con la scadenza più vicina su {total}.",
+    "markDone": "Segna “{title}” come completata",
+    "undoLabel": "Segna “{title}” come non completata",
+    "undo": "Annulla",
+    "markFailed": "Impossibile segnare la riga come completata.",
+    "undoFailed": "Impossibile ripristinare lo stato della riga. Cambialo nella riga."
+  }
 }

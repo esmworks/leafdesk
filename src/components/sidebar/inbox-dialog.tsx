@@ -229,6 +229,8 @@ export function InboxDialog({
                 ? t("review", { count: item.review?.count ?? 0, agent: item.actorName || t("someone") })
                 : item.kind === "ai_account_detached"
                 ? t("aiAccountDetached", { actor: item.actorName || t("someone") })
+                : item.kind === "sensitive_content"
+                ? t("sensitiveContent", { kind: item.automationMessage ?? "" })
                 : item.kind === "access_request"
                 ? item.accessRequest && item.accessRequest.level !== "view"
                   ? t("accessRequestMore", { actor: item.actorName || item.accessRequest.requesterEmail || t("someone"), level: item.accessRequest.level })

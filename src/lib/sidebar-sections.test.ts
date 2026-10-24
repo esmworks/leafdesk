@@ -3,16 +3,28 @@ import { cleanSidebarLayout, sidebarOrder, withSection } from "./sidebar-section
 
 describe("sidebarOrder", () => {
   it("starts from the default order", () => {
-    expect(sidebarOrder({})).toEqual(["favorites", "meetings", "pages", "teamspaces", "shared", "private"]);
+    expect(sidebarOrder({})).toEqual(["favorites", "tasks", "meetings", "pages", "teamspaces", "shared", "private"]);
   });
 
   it("follows the saved order and appends the sections it leaves out", () => {
-    expect(sidebarOrder({ order: ["private", "pages", "teamspaces"] })).toEqual(["private", "pages", "teamspaces", "favorites", "meetings", "shared"]);
+    expect(sidebarOrder({ order: ["private", "pages", "teamspaces"] })).toEqual(["private", "pages", "teamspaces", "favorites", "tasks", "meetings", "shared"]);
   });
 
   it("puts pages just above the teamspaces when the saved order doesn't list it", () => {
-    expect(sidebarOrder({ order: ["private", "teamspaces"] })).toEqual(["private", "pages", "teamspaces", "favorites", "meetings", "shared"]);
-    expect(sidebarOrder({ order: ["teamspaces", "pages"] })).toEqual(["teamspaces", "pages", "favorites", "meetings", "shared", "private"]);
+    expect(sidebarOrder({ order: ["private", "teamspaces"] })).toEqual(["private", "pages", "teamspaces", "favorites", "tasks", "meetings", "shared"]);
+    expect(sidebarOrder({ order: ["teamspaces", "pages"] })).toEqual(["teamspaces", "pages", "favorites", "tasks", "meetings", "shared", "private"]);
+  });
+
+  it("puts a section added since an order was saved after the sections it lists", () => {
+    expect(sidebarOrder({ order: ["favorites", "meetings", "pages", "teamspaces", "shared", "private"] })).toEqual([
+      "favorites",
+      "meetings",
+      "pages",
+      "teamspaces",
+      "shared",
+      "private",
+      "tasks",
+    ]);
   });
 });
 

@@ -3,6 +3,7 @@ import { and, asc, eq, gt, inArray, isNotNull, max, ne, or, sql } from "drizzle-
 import { getLocale, getTranslations } from "next-intl/server";
 import { db } from "@/db";
 import {
+  account,
   agentConversation,
   aiAccount,
   aiConversation,
@@ -22,6 +23,9 @@ import {
   pageIndexState,
   pagePermission,
   propertyPermission,
+  sensitiveFinding,
+  sensitiveScan,
+  session,
   ssoProvider,
   user,
   workspace,
@@ -37,7 +41,7 @@ import { type DeletionPlan, planAccountDeletion, type WorkspaceStanding } from "
 import { isAgentEmail } from "@/lib/agents";
 import { isReservedEmail } from "@/lib/reserved-emails";
 import { isEmail, MAX_BULK_EMAILS, normalizeEmail } from "@/lib/emails";
-import { assignableRoles, invitationApplies, linkAccess, memberInviteMode } from "@/lib/membership-policy";
+import { assignableRoles, invitationApplies, linkAccess, memberInviteMode, verifiedAllowedDomains } from "@/lib/membership-policy";
 import { TRASH_RETENTION_CHOICES } from "@/lib/retention";
 import { parseDomains } from "@/lib/sso-config";
 import { parseCalloutStyles } from "@/lib/callout-styles";
@@ -301,6 +305,75 @@ export async function workspacePeople(workspaceId: string): Promise<WorkspacePer
     .from(workspaceMember)
     .innerJoin(user, eq(user.id, workspaceMember.userId))
     .where(and(eq(workspaceMember.workspaceId, workspaceId), notAgentUser(workspaceMember.userId)));
+}
+
+/** How someone can sign in: a password, single sign-on, a passkey, or another provider's account (by its id: "github"). */
+export type SignInMethod = "password" | "sso" | "passkey" | (string & {});
+
+export type DomainPerson = {
+  userId: string;
+  name: string;
+  email: string;
+  image: string | null;
+  emailVerified: boolean;
+  /** Their role here, or null for someone not in the workspace. */
+  role: WorkspaceRole | null;
+  /** When a session of theirs was last used (sessions are renewed once a day while in use); null without one. */
+  lastActiveAt: Date | null;
+  signIn: SignInMethod[];
+};
+
+/** The most people listed at once from the workspace's domains. */
+export const DOMAIN_PEOPLE_LIMIT = 500;
+
+/**
+ * The workspace's verified email domains: those its single sign-on connection verified, and its
+ * allowed domains proven by DNS or by that connection (server/allowed-domains.ts). Subdomains count.
+ */
+export async function verifiedDomainsOf(workspaceId: string): Promise<string[]> {
+  const [settings, ssoDomains] = await Promise.all([workspaceSettings(workspaceId), ssoVerifiedDomains(db, workspaceId)]);
+  return [...new Set([...ssoDomains, ...verifiedAllowedDomains({ ...settings, ssoDomains })])].sort();
+}
+
+/**
+ * Accounts on this server with an address in the workspace's verified domains (see
+ * verifiedDomainsOf), in the workspace or not, for Settings > Security: their role here, when they
+ * were last active and how they can sign in. Agents aren't people: they are left out. Owners only;
+ * none without verified domains.
+ */
+export async function domainPeople(actorId: string, workspaceId: string): Promise<{ domains: string[]; people: DomainPerson[]; more: boolean }> {
+  await requireMembership(actorId, workspaceId, "owner");
+  const domains = await verifiedDomainsOf(workspaceId);
+  if (!domains.length) return { domains, people: [], more: false };
+  const host = sql`split_part(lower(${user.email}), '@', 2)`;
+  const rows = await db
+    .select({
+      userId: user.id,
+      name: user.name,
+      email: user.email,
+      image: user.image,
+      emailVerified: user.emailVerified,
+      role: workspaceMember.role,
+      lastActiveAt: sql<Date | null>`(select max(${session.updatedAt}) from ${session} where ${session.userId} = ${user.id})`.mapWith(session.updatedAt),
+      providers: sql<string[]>`array(select distinct case when ${account.providerId} = 'credential' then (case when ${account.password} is not null then 'password' end) when exists (select 1 from ${ssoProvider} where ${ssoProvider.providerId} = ${account.providerId}) then 'sso' else ${account.providerId} end from ${account} where ${account.userId} = ${user.id})`,
+      hasPasskey: sql<boolean>`exists (select 1 from ${passkey} where ${passkey.userId} = ${user.id})`,
+    })
+    .from(user)
+    .leftJoin(workspaceMember, and(eq(workspaceMember.userId, user.id), eq(workspaceMember.workspaceId, workspaceId)))
+    .where(and(notAgentUser(user.id), or(...domains.map((d) => sql`(${host} = ${d} or right(${host}, ${d.length + 1}) = ${`.${d}`})`))))
+    .orderBy(sql`${workspaceMember.role} is null`, asc(user.name), asc(user.email))
+    .limit(DOMAIN_PEOPLE_LIMIT + 1);
+  const people = rows.slice(0, DOMAIN_PEOPLE_LIMIT).map((r) => ({
+    userId: r.userId,
+    name: r.name,
+    email: r.email,
+    image: r.image,
+    emailVerified: Boolean(r.emailVerified),
+    role: r.role,
+    lastActiveAt: r.lastActiveAt,
+    signIn: [...(r.providers ?? []).filter((p): p is string => Boolean(p)), ...(r.hasPasskey ? ["passkey"] : [])],
+  }));
+  return { domains, people, more: rows.length > DOMAIN_PEOPLE_LIMIT };
 }
 
 /** When each member last changed a page in this workspace (content, title, properties, trash). */
@@ -1399,6 +1472,7 @@ const SETTING_VALUES: {
   accessRequests: [true, false],
   email: [false, true],
   pageViews: [true, false],
+  sensitiveContent: [false, true],
 };
 
 /**
@@ -1473,6 +1547,11 @@ export async function updateWorkspaceSettings(
   if (clean.ai === false) {
     await db.delete(pageChunk).where(eq(pageChunk.workspaceId, workspaceId));
     await db.delete(pageIndexState).where(eq(pageIndexState.workspaceId, workspaceId));
+  }
+  // Detection off: what it found, and which pages it read, are forgotten (turned on again, it reads everything anew).
+  if (clean.sensitiveContent === false) {
+    await db.delete(sensitiveFinding).where(eq(sensitiveFinding.workspaceId, workspaceId));
+    await db.delete(sensitiveScan).where(eq(sensitiveScan.workspaceId, workspaceId));
   }
   // Open editors were let in before; the ones the policy now holds back reconnect and are refused.
   if (clean.requireTwoFactor === true || clean.loginMethod === "sso") await getCollab().disconnectHeldBack(workspaceId);

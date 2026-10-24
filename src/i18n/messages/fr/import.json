@@ -1,7 +1,7 @@
 {
   "open": "Importer",
   "title": "Importer",
-  "description": "Importez des pages depuis des fichiers Markdown, des exports ZIP, des documents Word et des PDF, des carnets Evernote, des lignes depuis un fichier CSV ou un classeur Excel, un tableau Trello, Asana ou Monday.com, ou des tickets Jira qui restent synchronisés.",
+  "description": "Importez des pages depuis des fichiers Markdown, des exports ZIP, des documents Word, des documents Google et des PDF, des carnets Evernote, des lignes depuis un fichier CSV ou un classeur Excel, un tableau Trello, Asana ou Monday.com, ou des tickets Jira qui restent synchronisés.",
   "tabs": {
     "pages": "Markdown et ZIP",
     "docx": "Word",
@@ -11,7 +11,8 @@
     "trello": "Trello",
     "asana": "Asana",
     "monday": "Monday.com",
-    "jira": "Jira"
+    "jira": "Jira",
+    "googleDocs": "Google Docs"
   },
   "destination": "Placer sous",
   "topLevel": "Niveau supérieur de l’espace de travail",
@@ -243,5 +244,30 @@
     "noAccess": "Vous ne pouvez pas ajouter de pages à cet endroit, ou il n’existe plus.",
     "notADatabase": "Les lignes ne peuvent être ajoutées qu’à une base de données.",
     "badRequest": "L’importation n’a pas abouti. Rien n’a été modifié."
+  },
+  "googleDocs": {
+    "help": "Chaque document Google devient une page, lu via la connexion Google Drive de l'espace de travail comme un document Word : titres, listes, tableaux, liens, images et notes de bas de page. Un titre tout en haut devient le titre de la page ; sinon, le nom du document.",
+    "loading": "Recherche des connexions Google Drive…",
+    "noConnection": "Aucune connexion Google Drive ne vous permet d'importer. Un propriétaire ajoute Google Drive dans Paramètres → Connexions ; les membres peuvent l'utiliser dès qu'un propriétaire coche « Dans le chat » pour son outil download_file_content.",
+    "connection": "Connexion Google Drive",
+    "through": "Via « {name} »",
+    "links": "Liens vers des documents Google",
+    "linksPlaceholder": "https://docs.google.com/document/d/… (un par ligne)",
+    "invalidLink": "Ce n'est pas un lien vers un document Google : « {link} »",
+    "search": "Rechercher",
+    "searching": "Recherche…",
+    "searchPlaceholder": "Mots du titre (vide : les documents les plus récents)",
+    "noneFound": "Aucun document Google trouvé.",
+    "more": "Afficher plus",
+    "linksOnly": "La recherche n'est pas autorisée via cette connexion : collez les liens des documents.",
+    "chosen": "{count, plural, one {# document choisi} other {# documents choisis}}",
+    "tooMany": "Choisissez au plus {limit} documents à la fois.",
+    "errors": {
+      "noConnection": "Cette connexion Google Drive ne peut pas être utilisée. Demandez à un propriétaire de la vérifier dans Paramètres → Connexions.",
+      "unreachable": "« {name} » est injoignable. Réessayez plus tard ou demandez à un propriétaire de vérifier la connexion.",
+      "signIn": "« {name} » doit se reconnecter à Google : un propriétaire le fait dans Paramètres → Connexions.",
+      "notFound": "Un document ne peut pas être lu via « {name} » : vérifiez le lien et que le compte Google de la connexion peut l'ouvrir.",
+      "notADocument": "« {id} » n'est pas un document Google."
+    }
   }
 }

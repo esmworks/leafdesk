@@ -34,7 +34,7 @@ import { activeShortcut, aiChatPath, defaultShortcut, SHORTCUT_OFF, shortcutChoi
 import { pageToRemember, startPath } from "./last-page.ts";
 import { hasSession, signIn, startLocalServer, type BackupResult, type LocalServer } from "./local-server.ts";
 import { buildMenu, WEBSITE } from "./menu.ts";
-import { APP_SCHEME, decideNavigation, decideNewWindow, isServerPage, openLinkTarget, signInReturn } from "./navigation.ts";
+import { APP_SCHEME, decideNavigation, decideNewWindow, isServerPage, openLinkTarget, showsFile, signInReturn } from "./navigation.ts";
 import { addressCandidates, hostOf, isLeafdeskManifest } from "./server-address.ts";
 import { loadSettings, saveSettings, type Settings } from "./settings.ts";
 import { direction, isLocale, pickLocale, STRINGS, type Locale } from "./strings.ts";
@@ -212,7 +212,7 @@ function refreshMenu() {
         const contents = tabbed(window)?.activeContents();
         if (contents && (isLocal() || settings.server)) openCurrent(contents);
       },
-      tab: (window) => tabbed(window)?.activeContents(),
+      tab: (window) => tabbed(window)?.activeContents() ?? window.webContents,
       tabs: {
         newTab: (window) => {
           const owner = tabbed(window);
@@ -370,7 +370,10 @@ function reportBackup(result: BackupResult) {
   lastBackupProblem = problem;
 }
 
-/** A page's settings: the tab strip's (`strip`, told where the window's buttons are) or a tab's. */
+/**
+ * A page's settings: the tab strip's (`strip`, told where the window's buttons are), a tab's, or a
+ * window's of its own that shows one of the server's files.
+ */
 function webPreferences(strip = false): WebPreferences {
   return {
     preload: PRELOAD,
@@ -683,6 +686,19 @@ function guard(contents: WebContents) {
   // tab, Shift+click in a window of its own, anything else in a tab in front.
   contents.setWindowOpenHandler(({ url, disposition }) => {
     const decision = decideNewWindow(url, currentOrigin());
+    if (decision === "tab" && showsFile(url)) {
+      // A PDF, image or export: a plain window with the system's title bar and no tab strip, since
+      // the browser's own viewer leaves no room for the window's buttons nor a strip to move it by.
+      return {
+        action: "allow",
+        overrideBrowserWindowOptions: {
+          width: 1100,
+          height: 800,
+          backgroundColor: dark() ? BACKGROUND.dark : BACKGROUND.light,
+          webPreferences: webPreferences(),
+        },
+      };
+    }
     if (decision === "tab") {
       const owner = TabbedWindow.of(contents);
       if (disposition === "new-window" || !owner) openWindow().addTab({ url }, { index: 0 });
@@ -691,6 +707,7 @@ function guard(contents: WebContents) {
     if (decision === "external") void shell.openExternal(url);
     return { action: "deny" };
   });
+  contents.on("did-create-window", (child) => guard(child.webContents));
   // Signing out of Leafdesk on this computer leads to its sign-in page: the app signs in again.
   contents.on("did-navigate", (_event, url) => {
     if (isLocal() && localOrigin && isServerPage(url, localOrigin) && new URL(url).pathname === "/sign-in") void openLocal(contents, true);

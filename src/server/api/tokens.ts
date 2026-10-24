@@ -2,7 +2,7 @@ import { createHash, randomBytes } from "node:crypto";
 import { and, count, desc, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { apiToken, workspace } from "@/db/schema";
-import { API_TOKEN_SCOPES, effectiveScopes, isApiTokenScope, normalizeScopes, type ApiTokenScope } from "@/lib/api-scopes";
+import { ALL_API_SCOPES, effectiveScopes, isApiTokenScope, isOwnerScope, normalizeScopes, type ApiTokenScope } from "@/lib/api-scopes";
 import { findMembership, memberWorkspaceIds, signInPolicyRefusal } from "@/server/access";
 import { recordAudit } from "@/server/audit";
 import { forgetApiTokenUse } from "@/server/connected-app-use";
@@ -28,7 +28,7 @@ const TOUCH_INTERVAL_MS = 60_000;
 export class ApiTokenError extends Error {
   constructor(
     message: string,
-    readonly code: "name" | "scopes" | "workspace" | "expiry" | "limit" | "notFound",
+    readonly code: "name" | "scopes" | "ownerScope" | "workspace" | "expiry" | "limit" | "notFound",
   ) {
     super(message);
     this.name = "ApiTokenError";
@@ -78,9 +78,21 @@ async function recordToken(
 function checkedScopes(scopes: readonly string[]) {
   const normalized = normalizeScopes(scopes);
   if (!normalized.length || !scopes.every(isApiTokenScope)) {
-    throw new ApiTokenError(`Scopes must be some of ${API_TOKEN_SCOPES.join(", ")}`, "scopes");
+    throw new ApiTokenError(`Scopes must be some of ${ALL_API_SCOPES.join(", ")}`, "scopes");
   }
   return normalized;
+}
+
+/**
+ * Owner-only scopes (the audit log) go only to a token of one workspace, which `userId` owns now.
+ * Its calls check again that they still do.
+ */
+async function checkOwnerScopes(userId: string, workspaceId: string | null, scopes: readonly string[]) {
+  if (!scopes.some(isOwnerScope)) return;
+  const membership = workspaceId ? await findMembership(userId, workspaceId) : null;
+  if (membership?.role !== "owner") {
+    throw new ApiTokenError("Only a workspace's owners can let a token read its audit log, and only a token for that workspace", "ownerScope");
+  }
 }
 
 export type NewApiToken = {
@@ -125,6 +137,7 @@ export async function createApiToken(userId: string, input: NewApiToken, now = n
   // for that workspace, or one for all of them while any of them holds it back.
   const refusal = await signInPolicyRefusal(userId, workspaceId ? [workspaceId] : await memberWorkspaceIds(userId));
   if (refusal) throw refusal;
+  await checkOwnerScopes(userId, workspaceId, scopes);
   const [{ n }] = await db.select({ n: count() }).from(apiToken).where(eq(apiToken.userId, userId));
   if (n >= MAX_TOKENS_PER_USER) throw new ApiTokenError(`You can have at most ${MAX_TOKENS_PER_USER} tokens; revoke one first`, "limit");
   const secret = generateTokenSecret();
@@ -174,11 +187,12 @@ export async function updateApiTokenScopes(userId: string, tokenId: string, scop
   const next = checkedScopes(scopes);
   const updated = await db.transaction(async (tx) => {
     const [before] = await tx
-      .select({ scopes: apiToken.scopes, legacyScopes: apiToken.legacyScopes })
+      .select({ scopes: apiToken.scopes, legacyScopes: apiToken.legacyScopes, workspaceId: apiToken.workspaceId })
       .from(apiToken)
       .where(and(eq(apiToken.id, tokenId), eq(apiToken.userId, userId)))
       .for("update");
     if (!before) return null;
+    await checkOwnerScopes(userId, before.workspaceId, next);
     const [row] = await tx
       .update(apiToken)
       .set({ scopes: next, legacyScopes: false })

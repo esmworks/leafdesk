@@ -1,7 +1,7 @@
 {
   "open": "İçe aktar",
   "title": "İçe aktar",
-  "description": "Markdown dosyalarından, ZIP dışa aktarımlarından, Word belgelerinden ve PDF'lerden sayfa, Evernote'tan defter, CSV dosyasından veya Excel çalışma kitabından satır, bir Trello, Asana veya Monday.com panosu ya da eşitlenmeye devam eden Jira kayıtları getirin.",
+  "description": "Markdown dosyalarından, ZIP dışa aktarımlarından, Word ve Google belgelerinden ve PDF'lerden sayfa, Evernote'tan defter, CSV dosyasından veya Excel çalışma kitabından satır, bir Trello, Asana veya Monday.com panosu ya da eşitlenmeye devam eden Jira kayıtları getirin.",
   "tabs": {
     "pages": "Markdown ve ZIP",
     "docx": "Word",
@@ -11,7 +11,8 @@
     "trello": "Trello",
     "asana": "Asana",
     "monday": "Monday.com",
-    "jira": "Jira"
+    "jira": "Jira",
+    "googleDocs": "Google Docs"
   },
   "destination": "Nereye",
   "topLevel": "Çalışma alanının en üst düzeyi",
@@ -243,5 +244,30 @@
     "noAccess": "Oraya sayfa ekleyemezsiniz ya da artık mevcut değil.",
     "notADatabase": "Satırlar yalnızca bir veritabanına eklenebilir.",
     "badRequest": "İçe aktarma gerçekleşmedi. Hiçbir şey değişmedi."
+  },
+  "googleDocs": {
+    "help": "Her Google belgesi, çalışma alanının Google Drive bağlantısı üzerinden bir Word belgesi gibi okunup bir sayfa olur: başlıklar, listeler, tablolar, bağlantılar, resimler ve dipnotlar. En üstteki başlık sayfanın adı olur; yoksa belgenin adı kullanılır.",
+    "loading": "Google Drive bağlantıları aranıyor…",
+    "noConnection": "İçe aktarabileceğiniz bir Google Drive bağlantısı yok. Bir sahip Google Drive'ı Ayarlar → Bağlantılar'da ekler; üyeler, bir sahip download_file_content aracı için “Sohbette” kutusunu işaretleyince kullanabilir.",
+    "connection": "Google Drive bağlantısı",
+    "through": "“{name}” üzerinden",
+    "links": "Google belgelerinin bağlantıları",
+    "linksPlaceholder": "https://docs.google.com/document/d/… (her satıra bir tane)",
+    "invalidLink": "Bir Google belgesinin bağlantısı değil: “{link}”",
+    "search": "Ara",
+    "searching": "Aranıyor…",
+    "searchPlaceholder": "Başlıktaki kelimeler (boş: en son belgeler)",
+    "noneFound": "Google belgesi bulunamadı.",
+    "more": "Daha fazla göster",
+    "linksOnly": "Bu bağlantı üzerinden arama yapılamıyor: belgelerin bağlantılarını yapıştırın.",
+    "chosen": "{count, plural, one {# belge seçildi} other {# belge seçildi}}",
+    "tooMany": "Bir seferde en çok {limit} belge seçin.",
+    "errors": {
+      "noConnection": "Bu Google Drive bağlantısı kullanılamıyor. Bir sahipten Ayarlar → Bağlantılar'da kontrol etmesini isteyin.",
+      "unreachable": "“{name}” bağlantısına ulaşılamadı. Daha sonra yeniden deneyin ya da bir sahipten bağlantıyı kontrol etmesini isteyin.",
+      "signIn": "“{name}” için Google'da yeniden oturum açılması gerekiyor: bunu bir sahip Ayarlar → Bağlantılar'da yapar.",
+      "notFound": "Bir belge “{name}” üzerinden okunamıyor: bağlantıyı ve bağlantının Google hesabının belgeyi açabildiğini kontrol edin.",
+      "notADocument": "“{id}” bir Google belgesi değil."
+    }
   }
 }

@@ -506,6 +506,21 @@ export async function recordVerificationReminder(userId: string, pageId: string,
 }
 
 /**
+ * Tells the workspace's owners that sensitive content of `kind` (a SensitiveKind) was found on the
+ * page (server/sensitive-content.ts, which keeps it to once a day per page and kind). Inbox only.
+ */
+export async function recordSensitiveContent(workspaceId: string, pageId: string, kind: string) {
+  const owners = await workspaceOwnerIds(workspaceId);
+  if (!owners.length) return;
+  const inserted = await db
+    .insert(notification)
+    .values(owners.map((userId) => ({ userId, workspaceId, kind: "sensitive_content" as const, actorId: null, pageId, message: kind })))
+    .returning({ id: notification.id });
+  signal(workspaceId);
+  pushNotifications(inserted.map((n) => n.id));
+}
+
+/**
  * Tells everyone in the workspace with full access to the page that `requesterId` asked for access
  * (request `requestId`), and emails them right away. The email is in each approver's language, else
  * in the requester's (`locale`, see server/share-emails.ts). Returns who was told.

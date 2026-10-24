@@ -1,5 +1,6 @@
 import { Download } from "lucide-react";
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { getFormatter, getTranslations } from "next-intl/server";
 import { SettingsGroup, SettingsHeader } from "@/components/settings/section";
 import {
@@ -34,12 +35,15 @@ export async function AuditPanel({
   hasMore,
   filters,
   actors,
+  streaming,
 }: {
   workspaceId: string;
   events: AuditEvent[];
   hasMore: boolean;
   filters: AuditFilters;
   actors: AuditActorOption[];
+  /** Streaming the log to the owners' security tools, shown above the events. */
+  streaming?: ReactNode;
 }) {
   const [settingsT, t, format] = await Promise.all([getTranslations("settings"), getTranslations("settings.audit"), getFormatter()]);
   // The descriptions look their texts up by keys built at run time (lib/audit.ts).
@@ -55,6 +59,7 @@ export async function AuditPanel({
   return (
     <div>
       <SettingsHeader title={settingsT("nav.audit")} description={t("description")} />
+      {streaming && <div className="mb-10">{streaming}</div>}
 
       <div className="space-y-6">
         <form action={base} role="search" aria-label={t("filters")} className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_auto_auto_auto] lg:items-end">

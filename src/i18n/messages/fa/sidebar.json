@@ -198,7 +198,8 @@
     "aiAccountDetached": "هوش مصنوعی فضای کاری دیگر با کلید {actor} اجرا نمی‌شود. در تنظیمات یک حساب هوش مصنوعی دیگر انتخاب کنید.",
     "reviewTitle": "برای بازبینی",
     "review": "{count, plural, one {{agent} تغییری را برای بازبینی شما پیشنهاد کرد} other {# تغییر منتظر بازبینی شماست، آخرینش از {agent}}}",
-    "automationRun": "خودکارسازی «{name}»"
+    "automationRun": "خودکارسازی «{name}»",
+    "sensitiveContent": "{kind, select, card {یک شمارهٔ کارت پرداخت} iban {یک شمارهٔ IBAN} national_id {یک شمارهٔ شناسایی ملی} private_key {یک کلید خصوصی} aws_key {یک کلید دسترسی AWS} github_token {یک توکن GitHub} slack_token {یک توکن Slack} api_key {یک کلید API} jwt {یک توکن JSON Web Token} other {محتوای حساس}} اینجا پیدا شد. آن را در تنظیمات > امنیت بررسی کنید."
   },
   "templates": {
     "title": "الگوها",
@@ -239,7 +240,8 @@
     "newPrivate": "صفحه خصوصی جدید",
     "more": "{count} مورد دیگر",
     "less": "نمایش کمتر",
-    "meetings": "جلسه‌ها"
+    "meetings": "جلسه‌ها",
+    "tasks": "کارهای من"
   },
   "joinable": {
     "heading": "فضاهای کاری‌ای که می‌توانید به آن‌ها بپیوندید",

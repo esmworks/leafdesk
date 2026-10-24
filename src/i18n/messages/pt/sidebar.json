@@ -198,7 +198,8 @@
     "aiAccountDetached": "A IA do espaço de trabalho não funciona mais com a chave de {actor}. Escolha outra conta de IA em Configurações.",
     "reviewTitle": "Para revisar",
     "review": "{count, plural, one {{agent} propôs uma alteração para sua revisão} other {# alterações aguardam sua revisão, a mais recente de {agent}}}",
-    "automationRun": "Automação “{name}”"
+    "automationRun": "Automação “{name}”",
+    "sensitiveContent": "Encontramos {kind, select, card {um número de cartão de pagamento} iban {um IBAN} national_id {um número de identidade nacional} private_key {uma chave privada} aws_key {uma chave de acesso da AWS} github_token {um token do GitHub} slack_token {um token do Slack} api_key {uma chave de API} jwt {um JSON Web Token} other {conteúdo sensível}} aqui. Revise em Configurações > Segurança."
   },
   "templates": {
     "title": "Modelos",
@@ -239,7 +240,8 @@
     "newPrivate": "Nova página privada",
     "more": "Mais {count}",
     "less": "Mostrar menos",
-    "meetings": "Reuniões"
+    "meetings": "Reuniões",
+    "tasks": "Minhas tarefas"
   },
   "joinable": {
     "heading": "Espaços de trabalho em que você pode entrar",

@@ -64,6 +64,7 @@ export function planDuplicate(input: DuplicateInput, newId: () => string = () =>
   const propIds = new Map(input.properties.map((p) => [p.id, newId()]));
   const copiedDatabases = new Set(input.pages.filter((p) => p.kind === "database").map((p) => p.id));
   const propsById = new Map(input.properties.map((p) => [p.id, p]));
+  const viewIds = new Map(input.views.map((v) => [v.id, newId()]));
 
   /** Where a relation points after copying: the copy when its target database is copied too. */
   const relationInside = (prop: SourceProperty | undefined) => {
@@ -87,6 +88,17 @@ export function planDuplicate(input: DuplicateInput, newId: () => string = () =>
                     ...relation.dependencies,
                     startPropertyId: relation.dependencies.startPropertyId && through(propIds)(relation.dependencies.startPropertyId),
                     endPropertyId: relation.dependencies.endPropertyId && through(propIds)(relation.dependencies.endPropertyId),
+                  },
+                }
+              : {}),
+            // Sprints, kept in the copied sprints database: its properties and options, and the copied board.
+            ...(relation.sprints
+              ? {
+                  sprints: {
+                    ...relation.sprints,
+                    datesPropertyId: through(propIds)(relation.sprints.datesPropertyId),
+                    statePropertyId: through(propIds)(relation.sprints.statePropertyId),
+                    boardViewId: relation.sprints.boardViewId && viewIds.get(relation.sprints.boardViewId),
                   },
                 }
               : {}),
@@ -134,7 +146,7 @@ export function planDuplicate(input: DuplicateInput, newId: () => string = () =>
   const views = input.views.map(
     (view): SourceView => ({
       ...view,
-      id: newId(),
+      id: viewIds.get(view.id)!,
       databaseId: pageIds.get(view.databaseId)!,
       config: remapViewConfig(view.config, propIds, (propertyId) =>
         relationInside(propsById.get(propertyId)) ? pageIds : null,

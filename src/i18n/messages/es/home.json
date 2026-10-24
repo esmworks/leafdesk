@@ -17,5 +17,20 @@
     "later": "Más adelante",
     "none": "Sin fecha"
   },
-  "assignedMore": "Se muestran {shown} de {total}. Filtra una base de datos por «Yo» para ver el resto."
+  "assignedMore": "Se muestran {shown} de {total}.",
+  "assignedAll": "Ver todo",
+  "myTasks": {
+    "title": "Mis tareas",
+    "description": "Filas de las bases de datos que puedes abrir, asignadas a ti y sin terminar, en todo el espacio de trabajo.",
+    "grouping": "Agrupar por",
+    "byDue": "Por fecha de vencimiento",
+    "byDatabase": "Por base de datos",
+    "sharedRows": "Filas compartidas contigo",
+    "shown": "Se muestran las {shown} que vencen antes de {total}.",
+    "markDone": "Marcar “{title}” como hecha",
+    "undoLabel": "Marcar “{title}” como no hecha",
+    "undo": "Deshacer",
+    "markFailed": "No se pudo marcar la fila como hecha.",
+    "undoFailed": "No se pudo restaurar el estado de la fila. Cámbialo en la fila."
+  }
 }

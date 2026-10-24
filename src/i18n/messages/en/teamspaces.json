@@ -29,7 +29,8 @@
     "everyoneIn": "Everyone in the workspace is in this teamspace already.",
     "accessDenied": "You can't do that in this teamspace.",
     "invalidMemberLevel": "Choose what members get on the teamspace's pages.",
-    "invalidIcon": "The icon must be an emoji."
+    "invalidIcon": "The icon must be an emoji.",
+    "notConvertible": "Only a page can become a teamspace: not a database, a row or a template."
   },
   "dialog": {
     "createTitle": "New teamspace",
@@ -79,5 +80,19 @@
     "edit": "Can edit",
     "comment": "Can comment",
     "view": "Can view"
+  },
+  "fromPage": {
+    "menu": "Turn into teamspace",
+    "title": "Turn into teamspace",
+    "intro": "A new teamspace takes this page and the pages under it, and the people the page is shared with join it.",
+    "pages": "{count, plural, =0 {This page becomes its first page.} one {This page and the page under it become its first pages.} other {This page and the # pages under it become its first pages.}}",
+    "owners": "Owners: {names}",
+    "members": "Members, who can edit its pages: {names}",
+    "groups": "{count, plural, one {# group joins it} other {# groups join it}} as members.",
+    "kept": "{count, plural, one {# other person named on the page keeps} other {# other people named on the page keep}} the access they have.",
+    "access": "{access}: {hint}",
+    "submit": "Turn into teamspace",
+    "working": "Turning…",
+    "failed": "Couldn't turn the page into a teamspace."
   }
 }

@@ -88,7 +88,11 @@
       "siteHeader": "điều hướng menu liên kết thanh trên cùng",
       "siteDescription": "seo meta mô tả công cụ tìm kiếm xem trước open graph",
       "siteAnalytics": "google analytics ga4 gtag theo dõi khách truy cập thống kê",
-      "siteDomain": "tên miền riêng dns tên máy chủ cname chứng chỉ"
+      "siteDomain": "tên miền riêng dns tên máy chủ cname chứng chỉ",
+      "eventStream": "siem bảo mật nhật ký luồng xuất webhook chuyển tiếp sự kiện",
+      "sensitiveContent": "dlp chống rò rỉ dữ liệu thẻ tín dụng iban bí mật token khóa quét",
+      "sensitiveFindings": "dlp phát hiện bí mật rò rỉ số thẻ bỏ qua",
+      "domainPeople": "tên miền tài khoản người dùng công ty email không được quản lý"
     }
   },
   "workspace": {
@@ -1595,7 +1599,7 @@
       "teamspaces": "Không gian nhóm",
       "groups": "Nhóm",
       "settings": "Cài đặt không gian làm việc",
-      "security": "Đăng nhập một lần và SCIM",
+      "security": "Bảo mật",
       "pages": "Trang",
       "integrations": "Ứng dụng đã kết nối và token API",
       "exports": "Xuất",
@@ -1644,6 +1648,7 @@
       "csv": "CSV",
       "xlsx": "Excel",
       "docx": "Word",
+      "google-docs": "Google Docs",
       "markdown": "Markdown",
       "pdf": "PDF",
       "skill": "Kỹ năng (SKILL.md)",
@@ -1671,7 +1676,8 @@
       "domainJoin": "Khi một người thuộc các tên miền này đăng nhập",
       "joinRequests": "Ai có thể xin tham gia",
       "email": "Email trên các hàng",
-      "agentCreation": "Ai có thể tạo tác tử"
+      "agentCreation": "Ai có thể tạo tác tử",
+      "sensitiveContent": "Phát hiện nội dung nhạy cảm"
     },
     "values": {
       "on": "Bật",
@@ -1752,6 +1758,7 @@
       },
       "teamspace": {
         "created": "Đã tạo không gian nhóm {target}",
+        "created_from_page": "Đã chuyển trang {source} thành không gian nhóm {target}",
         "updated": "Đã thay đổi {fields} của không gian nhóm {target}",
         "archived": "Đã lưu trữ không gian nhóm {target}",
         "restored": "Đã khôi phục không gian nhóm {target}",
@@ -1861,6 +1868,16 @@
       "review": {
         "approved": "{kind, select, email_draft {Đã gửi email mà tác tử “{agent}” soạn trên {target}} create_row {Đã chấp thuận hàng mà tác tử “{agent}” đề xuất trong {target}} other {Đã chấp thuận thay đổi mà tác tử “{agent}” đề xuất cho {target}}}{outcome, select, failed { (thất bại)} other {}}",
         "dismissed": "{kind, select, email_draft {Đã bỏ qua email mà tác tử “{agent}” soạn trên {target}} create_row {Đã bỏ qua hàng mà tác tử “{agent}” đề xuất trong {target}} other {Đã bỏ qua thay đổi mà tác tử “{agent}” đề xuất cho {target}}}"
+      },
+      "audit_stream": {
+        "created": "Bắt đầu truyền nhật ký kiểm tra đến {target}",
+        "updated": "{change, select, on {Đã bật truyền nhật ký kiểm tra đến {target}} off {Đã tắt truyền nhật ký kiểm tra đến {target}} other {Đã thay đổi việc truyền nhật ký kiểm tra đến {target}}}",
+        "secret_replaced": "Đã thay khóa bí mật ký của luồng nhật ký kiểm tra đến {target}",
+        "removed": "Đã dừng truyền nhật ký kiểm tra đến {target}"
+      },
+      "sensitive_content": {
+        "found": "Đã tìm thấy {kind} ({excerpt}) trong {target}",
+        "dismissed": "Đã bỏ qua {kind} ({excerpt}) tìm thấy trong {target}"
       }
     },
     "decisions": {
@@ -1876,6 +1893,17 @@
       "full": "Toàn quyền",
       "edit": "Có thể chỉnh sửa",
       "interact": "Có thể xem và tương tác"
+    },
+    "sensitiveKinds": {
+      "card": "một số thẻ thanh toán",
+      "iban": "một IBAN",
+      "national_id": "một số định danh cá nhân",
+      "private_key": "một khóa riêng tư",
+      "aws_key": "một khóa truy cập AWS",
+      "github_token": "một token GitHub",
+      "slack_token": "một token Slack",
+      "api_key": "một khóa API",
+      "jwt": "một JSON Web Token"
     }
   },
   "notifications": {
@@ -2677,5 +2705,112 @@
       "logoSize": "Logo quá lớn: tối đa 512 KB.",
       "notFound": "Tiêu đề thư đó không còn nữa. Hãy tải lại trang."
     }
+  },
+  "eventStream": {
+    "title": "Truyền đến công cụ bảo mật của bạn",
+    "description": "Gửi các sự kiện kiểm tra mới ngay khi chúng xảy ra đến một địa chỉ HTTPS, chẳng hạn bộ thu thập quản lý thông tin và sự kiện bảo mật (SIEM) của bạn.",
+    "url": "Địa chỉ",
+    "start": "Bắt đầu truyền",
+    "saveUrl": "Lưu địa chỉ",
+    "how": "Sự kiện được gửi dưới dạng POST JSON có chữ ký, tối đa 100 sự kiện mỗi lần và trong khoảng 30 giây sau khi xảy ra, cũ nhất trước. Hãy kiểm tra tiêu đề X-Leafdesk-Signature của mỗi yêu cầu bằng khóa bí mật ký; một sự kiện có thể đến hai lần, vì vậy hãy giữ bản đầu tiên của mỗi id sự kiện. Các yêu cầu thất bại được thử lại trong 7 ngày.",
+    "toggle": "Truyền nhật ký kiểm tra",
+    "state": {
+      "on": "Đang truyền",
+      "off": "Tắt: sự kiện mới không được gửi",
+      "failing": "Thất bại từ {since}"
+    },
+    "nextTry": "thử lại {when}",
+    "lastSuccess": "Gửi thành công lần cuối {when}",
+    "noSuccess": "Chưa gửi được gì",
+    "sent": "{count, plural, =0 {chưa gửi sự kiện nào} other {đã gửi # sự kiện}}",
+    "waiting": "{count, plural, other {# đang chờ}}",
+    "dropped": "{count, plural, other {# sự kiện}} đã chờ quá 7 ngày và bị bỏ, gần nhất {when}",
+    "test": "Gửi sự kiện thử",
+    "testDelivered": "Địa chỉ đã nhận sự kiện thử ({status}).",
+    "testFailed": "Sự kiện thử không gửi được: {reason}.",
+    "rotate": "Thay khóa bí mật",
+    "rotateNote": "Khóa bí mật hiện tại ngừng ký ngay lập tức.",
+    "remove": "Dừng truyền",
+    "removeNote": "Địa chỉ, khóa bí mật của nó và các sự kiện còn đang chờ sẽ bị xóa.",
+    "working": "Đang xử lý…",
+    "secret": {
+      "title": "Khóa bí mật ký",
+      "note": "Hãy sao chép ngay: khóa này sẽ không được hiển thị lại. Bạn có thể thay nó bất cứ lúc nào.",
+      "label": "Khóa bí mật ký"
+    },
+    "codes": {
+      "invalidUrl": "địa chỉ không hợp lệ",
+      "blocked": "địa chỉ nằm trong mạng riêng mà máy chủ này không được phép truy cập",
+      "unreachable": "không thể kết nối đến địa chỉ",
+      "timeout": "không có phản hồi trong 10 giây",
+      "redirect": "địa chỉ phản hồi bằng chuyển hướng",
+      "http": "địa chỉ phản hồi {status}"
+    },
+    "errors": {
+      "invalidUrl": "Hãy nhập một địa chỉ hợp lệ.",
+      "httpsOnly": "Sự kiện kiểm tra chỉ có thể được gửi đến địa chỉ https.",
+      "notFound": "Không gian làm việc này không truyền nhật ký kiểm tra.",
+      "ownersOnly": "Chỉ chủ sở hữu mới có thể thay đổi mục này."
+    }
+  },
+  "sensitiveContent": {
+    "title": "Nội dung nhạy cảm",
+    "description": "Tìm số thẻ thanh toán, IBAN, số định danh cá nhân và các bí mật như khóa riêng tư và token truy cập trong các trang và hàng của không gian làm việc.",
+    "toggle": "Tìm nội dung nhạy cảm",
+    "toggleDescription": "Các trang và hàng được đọc ở chế độ nền sau khi thay đổi. Chủ sở hữu được báo trong hộp thư đến và mỗi phát hiện được ghi vào nhật ký kiểm tra; chỉ một phần đã che của giá trị được giữ lại. Tắt mục này sẽ xóa các phát hiện.",
+    "findingsTitle": "Phát hiện chưa xử lý",
+    "none": "Không tìm thấy gì trong các trang và hàng của không gian làm việc.",
+    "off": "Bật tìm nội dung nhạy cảm để xem các trang và hàng chứa gì.",
+    "more": "{count, plural, other {Còn # phát hiện khác không được hiển thị.}}",
+    "dismiss": "Bỏ qua",
+    "foundAt": "tìm thấy {when}",
+    "kinds": {
+      "card": "Số thẻ thanh toán",
+      "iban": "IBAN",
+      "national_id": "Số định danh cá nhân",
+      "private_key": "Khóa riêng tư",
+      "aws_key": "Khóa truy cập AWS",
+      "github_token": "Token GitHub",
+      "slack_token": "Token Slack",
+      "api_key": "Khóa API",
+      "jwt": "JSON Web Token"
+    },
+    "errors": {
+      "gone": "Phát hiện này đã được bỏ qua hoặc đã được giải quyết."
+    }
+  },
+  "domainPeople": {
+    "title": "Người thuộc tên miền của bạn",
+    "description": "Các tài khoản trên máy chủ này có địa chỉ email thuộc tên miền đã xác minh của không gian làm việc, dù họ có trong không gian làm việc hay không.",
+    "summary": "{count, plural, other {# tài khoản}} trong {domains}, {inside} trong không gian làm việc này.",
+    "more": "Chỉ liệt kê 500 người đầu tiên.",
+    "search": "Tìm người",
+    "filter": "Hiển thị",
+    "filters": {
+      "all": "Mọi người",
+      "in": "Trong không gian làm việc này",
+      "out": "Không trong không gian làm việc này"
+    },
+    "columns": {
+      "person": "Người",
+      "workspace": "Trong không gian làm việc này",
+      "lastActive": "Hoạt động lần cuối",
+      "signIn": "Đăng nhập bằng",
+      "actions": "Thao tác"
+    },
+    "outside": "Không trong không gian làm việc",
+    "unverified": "địa chỉ chưa xác minh",
+    "never": "Chưa bao giờ",
+    "noSignIn": "Không có cách đăng nhập",
+    "methods": {
+      "password": "Mật khẩu",
+      "sso": "Đăng nhập một lần",
+      "passkey": "Khóa truy cập"
+    },
+    "add": "Thêm làm thành viên",
+    "remove": "Xóa",
+    "removing": "Đang xóa…",
+    "noMatches": "Không có ai phù hợp.",
+    "empty": "Chưa có tài khoản nào trên máy chủ này dùng các tên miền này."
   }
 }

@@ -372,13 +372,14 @@ export const NOTIFICATION_KINDS = [
   "agent_memory",
   "agent_report",
   "ai_account_detached",
+  "sensitive_content",
 ] as const;
 export type NotificationKind = (typeof NOTIFICATION_KINDS)[number];
 /**
  * Kinds that always show to the workspace's owners: an agent's call or notes waiting for them, a
- * scheduled run's report, or the AI account the workspace ran on gone.
+ * scheduled run's report, the AI account the workspace ran on gone, or sensitive content found.
  */
-export const OWNER_KINDS = ["agent_approval", "agent_memory", "agent_report", "ai_account_detached"] as const satisfies readonly NotificationKind[];
+export const OWNER_KINDS = ["agent_approval", "agent_memory", "agent_report", "ai_account_detached", "sensitive_content"] as const satisfies readonly NotificationKind[];
 export type OwnerKind = (typeof OWNER_KINDS)[number];
 export const isOwnerKind = (kind: string): kind is OwnerKind => (OWNER_KINDS as readonly string[]).includes(kind);
 /** Kinds people choose to hear about (not OWNER_KINDS). */
@@ -415,7 +416,9 @@ export type PreferenceKind = Exclude<NotificationKind, OwnerKind>;
  * "verification": the user's verification of page `pageId` ends at `date` (an ISO time) in a few days, or ended then (created
  * at or after it); see server/verification.ts.
  * "ai_account_detached": the workspace's AI no longer runs on `actorId`'s own AI account (they left
- * the workspace, deleted the account or their whole account); it has no page. Unread ones are dropped when the change is
+ * the workspace, deleted the account or their whole account); it has no page.
+ * "sensitive_content": sensitive content of kind `message` (a SensitiveKind) was found on page
+ * `pageId` (server/sensitive-content.ts); owners hear of a page and kind at most once a day. Unread ones are dropped when the change is
  * undone (or the request decided). Rows are recorded
  * whatever the user's preferences; the inbox leaves out the kinds they turned off.
  */

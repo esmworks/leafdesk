@@ -1,7 +1,7 @@
 {
   "open": "Importar",
   "title": "Importar",
-  "description": "Trae páginas desde archivos Markdown, exportaciones ZIP, documentos de Word y PDF, libretas de Evernote, filas desde un archivo CSV o un libro de Excel, un tablero de Trello, Asana o Monday.com, o incidencias de Jira que se mantienen sincronizadas.",
+  "description": "Trae páginas desde archivos Markdown, exportaciones ZIP, documentos de Word, documentos de Google y PDF, libretas de Evernote, filas desde un archivo CSV o un libro de Excel, un tablero de Trello, Asana o Monday.com, o incidencias de Jira que se mantienen sincronizadas.",
   "tabs": {
     "pages": "Markdown y ZIP",
     "docx": "Word",
@@ -11,7 +11,8 @@
     "trello": "Trello",
     "asana": "Asana",
     "monday": "Monday.com",
-    "jira": "Jira"
+    "jira": "Jira",
+    "googleDocs": "Google Docs"
   },
   "destination": "Colocar dentro de",
   "topLevel": "Nivel superior del espacio de trabajo",
@@ -243,5 +244,30 @@
     "noAccess": "No puedes añadir páginas ahí o ya no existe.",
     "notADatabase": "Solo se pueden añadir filas a una base de datos.",
     "badRequest": "La importación no se completó. No se cambió nada."
+  },
+  "googleDocs": {
+    "help": "Cada documento de Google se convierte en una página, leído a través de la conexión de Google Drive del espacio de trabajo como un documento de Word: encabezados, listas, tablas, enlaces, imágenes y notas al pie. Un encabezado al principio pasa a ser el título de la página; si no, el nombre del documento.",
+    "loading": "Buscando conexiones de Google Drive…",
+    "noConnection": "No hay ninguna conexión de Google Drive a través de la que puedas importar. Un propietario añade Google Drive en Configuración → Conexiones; los miembros pueden usarla cuando un propietario marca «En el chat» para su herramienta download_file_content.",
+    "connection": "Conexión de Google Drive",
+    "through": "A través de «{name}»",
+    "links": "Enlaces a documentos de Google",
+    "linksPlaceholder": "https://docs.google.com/document/d/… (uno por línea)",
+    "invalidLink": "No es un enlace a un documento de Google: «{link}»",
+    "search": "Buscar",
+    "searching": "Buscando…",
+    "searchPlaceholder": "Palabras del título (vacío: los documentos más recientes)",
+    "noneFound": "No se encontraron documentos de Google.",
+    "more": "Mostrar más",
+    "linksOnly": "Esta conexión no permite buscar: pega enlaces a los documentos.",
+    "chosen": "{count, plural, one {# documento elegido} other {# documentos elegidos}}",
+    "tooMany": "Elige como máximo {limit} documentos a la vez.",
+    "errors": {
+      "noConnection": "Esa conexión de Google Drive no se puede usar. Pide a un propietario que la revise en Configuración → Conexiones.",
+      "unreachable": "No se pudo acceder a «{name}». Inténtalo más tarde o pide a un propietario que revise la conexión.",
+      "signIn": "«{name}» necesita volver a iniciar sesión en Google: lo hace un propietario en Configuración → Conexiones.",
+      "notFound": "No se puede leer un documento a través de «{name}»: revisa el enlace y que la cuenta de Google de la conexión pueda abrirlo.",
+      "notADocument": "«{id}» no es un documento de Google."
+    }
   }
 }

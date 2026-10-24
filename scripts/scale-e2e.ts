@@ -60,6 +60,9 @@ const LIMITS: Record<string, number> = {
   "open a page": 2_500, // 1,181
   "a page's links and mentions": 250, // 50
   "reload the sidebar": 2_500, // 1,080
+  // Not measured on CI yet: the list of rows itself took 40–70 ms on a laptop (server/assigned.ts),
+  // the rest is the page around it, like "open a page".
+  "open My tasks": 2_500,
   "connect to a page (first time)": 250, // 18
   "connect to a page again": 250, // 15
 };
@@ -298,6 +301,14 @@ try {
   await time("reload the sidebar", async () => {
     const text = await callAction(jar, pagePath, "src/app/actions/pages.ts", "getSidebarAction", [workspaceId]);
     return kb(text.length);
+  });
+
+  // ---------------------------------------------------------------- My tasks
+  // The owner is named on a sixth of the 50,000 rows: thousands of open rows to sort out.
+  await time("open My tasks", async () => {
+    const html = await getHtml(jar, `/w/${workspaceId}/tasks`);
+    check(html.includes("Task "), "My tasks lists rows assigned to the owner", html.slice(0, 300));
+    return kb(html.length);
   });
 
   // ---------------------------------------------------------------- live documents

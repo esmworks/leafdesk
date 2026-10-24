@@ -198,7 +198,8 @@
     "aiAccountDetached": "L’IA de l’espace de travail ne fonctionne plus avec la clé de {actor}. Choisissez un autre compte IA dans Paramètres.",
     "reviewTitle": "À vérifier",
     "review": "{count, plural, one {{agent} a proposé une modification à vérifier} other {# modifications attendent votre vérification, la dernière de {agent}}}",
-    "automationRun": "Automatisation « {name} »"
+    "automationRun": "Automatisation « {name} »",
+    "sensitiveContent": "{kind, select, card {Un numéro de carte de paiement a été trouvé ici.} iban {Un IBAN a été trouvé ici.} national_id {Un numéro d’identité national a été trouvé ici.} private_key {Une clé privée a été trouvée ici.} aws_key {Une clé d’accès AWS a été trouvée ici.} github_token {Un jeton GitHub a été trouvé ici.} slack_token {Un jeton Slack a été trouvé ici.} api_key {Une clé d’API a été trouvée ici.} jwt {Un jeton JSON Web Token a été trouvé ici.} other {Du contenu sensible a été trouvé ici.}} À examiner dans Paramètres > Sécurité."
   },
   "templates": {
     "title": "Modèles",
@@ -239,7 +240,8 @@
     "newPrivate": "Nouvelle page privée",
     "more": "{count} de plus",
     "less": "Afficher moins",
-    "meetings": "Réunions"
+    "meetings": "Réunions",
+    "tasks": "Mes tâches"
   },
   "joinable": {
     "heading": "Espaces que vous pouvez rejoindre",

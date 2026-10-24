@@ -118,6 +118,8 @@ export type PushItem = {
   reminderDate: string | null;
   reminderTimeZone: string | null;
   automationName: string | null;
+  /** Automations: the message their notify step wrote. Sensitive content: the kind found. */
+  automationMessage?: string | null;
   accessRequest: { requesterEmail: string; level: "view" | "comment" | "edit" } | null;
   requestKind: string | null;
   requestEmail: string | null;
@@ -160,6 +162,8 @@ export function pushLink(item: PushItem): string {
   if (item.kind === "review") return reviewPath(item.workspaceId);
   // The workspace's AI account is chosen in Settings > General.
   if (item.kind === "ai_account_detached") return `/w/${item.workspaceId}/settings`;
+  // Findings are reviewed, and dismissed, in Settings > Security.
+  if (item.kind === "sensitive_content") return `/w/${item.workspaceId}/settings?tab=security#setting-sensitiveFindings`;
   if (item.pageId === null) return `/w/${item.workspaceId}/settings?tab=members&view=requests`;
   if (item.kind === "row_email" && item.rowEmail) return `/w/${item.workspaceId}/p/${item.pageId}${rowEmailHash(item.rowEmail.id)}`;
   return `/w/${item.workspaceId}/p/${item.pageId}${(item.kind === "comment" || item.kind === "reaction") && item.threadId ? commentHash(item.threadId) : ""}`;
@@ -203,6 +207,10 @@ export function pushPayload(
   } else if (item.kind === "ai_account_detached") {
     title = t("aiAccountTitle");
     line = t("aiAccountDetached", { actor });
+  } else if (item.kind === "sensitive_content") {
+    // The page's title, and what kind of thing: never the value, not even masked.
+    title = item.pageTitle?.trim() || t("untitled");
+    line = t("sensitiveContent", { kind: item.automationMessage ?? "" });
   } else if (item.kind === "join_request") {
     title = t("joinRequestTitle");
     line = item.requestKind === "invite" ? t("inviteRequest", { actor, email: item.requestEmail ?? "" }) : t("joinRequest", { actor });

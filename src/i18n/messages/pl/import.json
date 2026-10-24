@@ -1,7 +1,7 @@
 {
   "open": "Importuj",
   "title": "Import",
-  "description": "Przenieś strony z plików Markdown, eksportów ZIP, dokumentów Word i plików PDF, notesy z Evernote, wiersze z pliku CSV lub skoroszytu Excel, tablicę z Trello, Asany lub Monday.com albo zgłoszenia z Jiry, które pozostają zsynchronizowane.",
+  "description": "Przenieś strony z plików Markdown, eksportów ZIP, dokumentów Word, dokumentów Google i plików PDF, notesy z Evernote, wiersze z pliku CSV lub skoroszytu Excel, tablicę z Trello, Asany lub Monday.com albo zgłoszenia z Jiry, które pozostają zsynchronizowane.",
   "tabs": {
     "pages": "Markdown i ZIP",
     "docx": "Word",
@@ -11,7 +11,8 @@
     "trello": "Trello",
     "asana": "Asana",
     "monday": "Monday.com",
-    "jira": "Jira"
+    "jira": "Jira",
+    "googleDocs": "Google Docs"
   },
   "destination": "Umieść w",
   "topLevel": "Najwyższy poziom obszaru roboczego",
@@ -243,5 +244,30 @@
     "noAccess": "Nie możesz tam dodawać stron lub to miejsce już nie istnieje.",
     "notADatabase": "Wiersze można dodawać tylko do bazy danych.",
     "badRequest": "Import się nie powiódł. Niczego nie zmieniono."
+  },
+  "googleDocs": {
+    "help": "Każdy dokument Google staje się stroną, odczytaną przez połączenie Google Drive obszaru roboczego jak dokument Word: nagłówki, listy, tabele, linki, obrazy i przypisy. Nagłówek na samej górze staje się tytułem strony; w przeciwnym razie nazwa dokumentu.",
+    "loading": "Szukanie połączeń Google Drive…",
+    "noConnection": "Nie ma połączenia Google Drive, przez które możesz importować. Właściciel dodaje Google Drive w Ustawienia → Połączenia; członkowie mogą z niego korzystać, gdy właściciel zaznaczy „W czacie” dla narzędzia download_file_content.",
+    "connection": "Połączenie Google Drive",
+    "through": "Przez „{name}”",
+    "links": "Linki do dokumentów Google",
+    "linksPlaceholder": "https://docs.google.com/document/d/… (jeden w wierszu)",
+    "invalidLink": "To nie jest link do dokumentu Google: „{link}”",
+    "search": "Szukaj",
+    "searching": "Szukanie…",
+    "searchPlaceholder": "Słowa w tytule (puste: najnowsze dokumenty)",
+    "noneFound": "Nie znaleziono dokumentów Google.",
+    "more": "Pokaż więcej",
+    "linksOnly": "To połączenie nie pozwala wyszukiwać: wklej linki do dokumentów.",
+    "chosen": "{count, plural, one {Wybrano # dokument} few {Wybrano # dokumenty} many {Wybrano # dokumentów} other {Wybrano # dokumentu}}",
+    "tooMany": "Wybierz naraz najwyżej {limit} dokumentów.",
+    "errors": {
+      "noConnection": "Tego połączenia Google Drive nie można użyć. Poproś właściciela o sprawdzenie go w Ustawienia → Połączenia.",
+      "unreachable": "Nie można połączyć się z „{name}”. Spróbuj później lub poproś właściciela o sprawdzenie połączenia.",
+      "signIn": "„{name}” wymaga ponownego zalogowania do Google: robi to właściciel w Ustawienia → Połączenia.",
+      "notFound": "Nie można odczytać dokumentu przez „{name}”: sprawdź link i czy konto Google połączenia może go otworzyć.",
+      "notADocument": "„{id}” nie jest dokumentem Google."
+    }
   }
 }

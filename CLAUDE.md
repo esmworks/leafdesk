@@ -47,7 +47,9 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
 - **Access.** `src/server/access.ts` is the one place that decides who may see or change a page:
   `requirePageAccess(userId, pageId, level)` for one page, `pageVisibleTo(userId)` as the SQL
   condition for lists. The rule is the SQL function `page_access_level`, last redefined in
-  `drizzle/0116_row_access.sql`. Shares: `permissions.ts`; per-property rules:
+  `drizzle/0116_row_access.sql`. For a database's rows, `childVisibleTo(userId, databaseId)` works it
+  out once per database instead of once per row; Postgres JIT can add about 200 ms to such queries,
+  so `server/assigned.ts` runs them with `set local jit = off`. Shares: `permissions.ts`; per-property rules:
   `property-access.ts`; rows giving the people they name access: `row-access.ts`; teamspace
   membership: `teamspaces.ts`; guests: `guests.ts`. Sign-in policies (approved networks, two-step,
   SSO only) are `policyHold` there; the request's address comes from `CLIENT_IP_HEADER`, which
@@ -99,12 +101,18 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   writes; `asAutomation` keeps an automation's writes from firing more automations) and
   `src/server/schedules.ts` (`registerScheduleHandler`).
 - **Other areas:** meeting notes `meetings.ts` (the block's props, `src/lib/meetings.ts`; its list
-  table synced in `persistPage` by `meeting-notes.ts`), Telegram bot `src/server/telegram/`, Jira syncs `jira-sync/` (own
+  table synced in `persistPage` by `meeting-notes.ts`), sprints `sprints.ts` (no table: the setup is the `sprints` config on the task database's relation
+  with role `sprint`; the current sprint's views filter on a hidden rollup of the sprint state, so
+  they follow a completion without changing; rollups show option names, so `updateProperty`
+  rewrites such rollup filters when options are renamed), Telegram bot `src/server/telegram/`, Jira syncs `jira-sync/` (own
   `database_sync` table and a one-minute sweep; pure mapping in `src/lib/jira-sync.ts`), mail to and from rows `row-mail/`, follow-up
   sequences on rows `sequences/` (sent by a 30-second `startSequences` job; `runSequences(now)` runs
   a round as of any moment, which `scripts/follow-ups-e2e.ts` uses), page webhooks
   `page-webhooks/` (queued from `pages.ts`, `collab/service.ts` and `comments.ts`, sent as the owner
-  who last saved the webhook; `runPageWebhooks(now)`), verified pages `verification.ts`
+  who last saved the webhook; `runPageWebhooks(now)`), audit log streaming `audit-stream.ts` (an outbox a trigger on `audit_event` fills, so
+  events committed out of order still go; `runAuditStreams(now)`), sensitive content scans
+  `sensitive-content.ts` (detectors and masking pure in `src/lib/sensitive-content.ts`; a sweep
+  reads pages whose `updated_at` moved past `sensitive_scan`), verified pages `verification.ts`
   (`activeVerification` is the SQL for search and lists; `runVerificationReminders(now)`), SMTP
   `mail/`, inbox `notifications.ts`, push `push.ts`, files `files.ts` + `storage/` (local, S3,
   workspace drives), import `import/`, export `export.ts`, server-made PDFs `pdf.ts` (reads a page like `print.ts`)
@@ -224,7 +232,7 @@ plus the `scripts/*-e2e.ts` of the area you touched (`pnpm tsx scripts/<name>-e2
   agents, agent-api, agent-approvers, agent-chat, agent-handoff, agent-memory, agent-mention,
   agent-schedule, agent-sharing, agent-skills, automation, button, timed-automation, schedule,
   row-activity, row-follow, row-mail, discussions, follow-ups (starts its own GreenMail container
-  unless given ports), page-watch, page-webhooks, verify, wins-log, jira-sync. `connector-e2e` starts its own `next dev` against
+  unless given ports), page-watch, page-webhooks, verify, wins-log, jira-sync, sprints. `connector-e2e` starts its own `next dev` against
   `<database>_peer`, which must exist; no other dev server may run in the same checkout.
 - Each script's header says what it needs. `.github/workflows/ci.yml` shows the env each step gets;
   not every e2e script is in CI.

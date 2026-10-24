@@ -128,9 +128,16 @@ jobs:
       - name: Assigned rows end-to-end
         run: pnpm tsx scripts/assigned-e2e.ts
 
+      - name: My tasks and page-to-teamspace end-to-end
+        run: pnpm tsx scripts/my-tasks-e2e.ts
+
       # Uploads go to a temporary folder the script makes.
       - name: Markdown and vault import end-to-end
         run: pnpm tsx scripts/import-e2e.ts
+
+      # A stand-in Google Drive MCP server on a random local port, started by the script.
+      - name: Google Docs import end-to-end
+        run: pnpm tsx scripts/google-docs-import-e2e.ts
 
       - name: Trash end-to-end
         run: pnpm tsx scripts/trash-e2e.ts

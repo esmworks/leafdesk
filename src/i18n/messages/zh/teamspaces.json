@@ -29,7 +29,8 @@
     "everyoneIn": "工作区中的所有人都已在此团队空间中。",
     "accessDenied": "你无法在此团队空间中执行此操作。",
     "invalidMemberLevel": "请选择成员对团队空间页面的访问权限。",
-    "invalidIcon": "图标必须是表情符号。"
+    "invalidIcon": "图标必须是表情符号。",
+    "notConvertible": "只有页面可以变成团队空间，数据库、行或模板不行。"
   },
   "dialog": {
     "createTitle": "新建团队空间",
@@ -79,5 +80,19 @@
     "edit": "可编辑",
     "comment": "可评论",
     "view": "可查看"
+  },
+  "fromPage": {
+    "menu": "转为团队空间",
+    "title": "转为团队空间",
+    "intro": "新的团队空间会接收此页面及其下的页面，与此页面共享的人会加入其中。",
+    "pages": "{count, plural, =0 {此页面成为它的第一个页面。} other {此页面及其下的 # 个页面成为它的首批页面。}}",
+    "owners": "所有者：{names}",
+    "members": "可编辑其页面的成员：{names}",
+    "groups": "{count, plural, other {# 个群组}}以成员身份加入。",
+    "kept": "页面上列出的其他 {count, plural, other {# 人}}保留他们现有的访问权限。",
+    "access": "{access}：{hint}",
+    "submit": "转为团队空间",
+    "working": "正在转换…",
+    "failed": "无法将页面转为团队空间。"
   }
 }

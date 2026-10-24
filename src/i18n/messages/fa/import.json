@@ -1,7 +1,7 @@
 {
   "open": "درون‌ریزی",
   "title": "درون‌ریزی",
-  "description": "صفحه‌ها را از فایل‌های Markdown، خروجی‌های ZIP، سندهای Word و فایل‌های PDF، دفترچه‌ها را از Evernote، ردیف‌ها را از فایل CSV یا کارپوشهٔ Excel، یک تخته از Trello، Asana یا Monday.com، یا مسئله‌های Jira را که همگام می‌مانند بیاورید.",
+  "description": "صفحه‌ها را از فایل‌های Markdown، خروجی‌های ZIP، سندهای Word، سندهای Google و فایل‌های PDF، دفترچه‌ها را از Evernote، ردیف‌ها را از فایل CSV یا کارپوشهٔ Excel، یک تخته از Trello، Asana یا Monday.com، یا مسئله‌های Jira را که همگام می‌مانند بیاورید.",
   "tabs": {
     "pages": "Markdown و ZIP",
     "docx": "Word",
@@ -11,7 +11,8 @@
     "trello": "Trello",
     "asana": "Asana",
     "monday": "Monday.com",
-    "jira": "Jira"
+    "jira": "Jira",
+    "googleDocs": "Google Docs"
   },
   "destination": "قرار دادن زیر",
   "topLevel": "سطح بالای فضای کاری",
@@ -243,5 +244,30 @@
     "noAccess": "نمی‌توانید آنجا صفحه اضافه کنید، یا دیگر وجود ندارد.",
     "notADatabase": "ردیف‌ها را فقط می‌توان به پایگاه داده اضافه کرد.",
     "badRequest": "درون‌ریزی انجام نشد. چیزی تغییر نکرد."
+  },
+  "googleDocs": {
+    "help": "هر سند Google به یک صفحه تبدیل می‌شود و مانند یک سند Word از راه اتصال Google Drive فضای کار خوانده می‌شود: سرفصل‌ها، فهرست‌ها، جدول‌ها، پیوندها، تصویرها و پانویس‌ها. سرفصل بالای سند عنوان صفحه می‌شود؛ وگرنه نام سند.",
+    "loading": "در حال جستجوی اتصال‌های Google Drive…",
+    "noConnection": "هیچ اتصال Google Drive‌ای نیست که بتوانید از راه آن وارد کنید. مالک Google Drive را در تنظیمات ← اتصال‌ها اضافه می‌کند؛ اعضا وقتی می‌توانند از آن استفاده کنند که مالک «در گفتگو» را برای ابزار download_file_content علامت بزند.",
+    "connection": "اتصال Google Drive",
+    "through": "از راه «{name}»",
+    "links": "پیوندهای سندهای Google",
+    "linksPlaceholder": "https://docs.google.com/document/d/… (هر خط یکی)",
+    "invalidLink": "پیوند یک سند Google نیست: «{link}»",
+    "search": "جستجو",
+    "searching": "در حال جستجو…",
+    "searchPlaceholder": "واژه‌های عنوان (خالی: تازه‌ترین سندها)",
+    "noneFound": "سند Google‌ای پیدا نشد.",
+    "more": "نمایش بیشتر",
+    "linksOnly": "جستجو از راه این اتصال مجاز نیست: پیوند سندها را بچسبانید.",
+    "chosen": "{count, plural, one {# سند انتخاب شد} other {# سند انتخاب شد}}",
+    "tooMany": "هر بار حداکثر {limit} سند انتخاب کنید.",
+    "errors": {
+      "noConnection": "از این اتصال Google Drive نمی‌توان استفاده کرد. از مالک بخواهید آن را در تنظیمات ← اتصال‌ها بررسی کند.",
+      "unreachable": "دسترسی به «{name}» ممکن نشد. بعداً دوباره امتحان کنید یا از مالک بخواهید اتصال را بررسی کند.",
+      "signIn": "«{name}» باید دوباره به Google وارد شود: این کار را مالک در تنظیمات ← اتصال‌ها انجام می‌دهد.",
+      "notFound": "سندی از راه «{name}» خوانده نمی‌شود: پیوند را بررسی کنید و اینکه حساب Google اتصال بتواند آن را باز کند.",
+      "notADocument": "«{id}» سند Google نیست."
+    }
   }
 }

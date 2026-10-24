@@ -9,15 +9,32 @@ import {
   READ_SCOPES,
   scopesWrite,
   writeScopeOf,
+  ALL_API_SCOPES,
+  isOwnerScope,
+  OWNER_SCOPES,
+  SCOPE_PRESETS,
 } from "./api-scopes";
 
 describe("API token scopes", () => {
   it("has a read scope for every resource and a write scope where it says so", () => {
     for (const { resource, write } of API_SCOPE_RESOURCES) {
-      expect(API_TOKEN_SCOPES).toContain(`${resource}:read`);
+      expect(ALL_API_SCOPES).toContain(`${resource}:read`);
       expect(writeScopeOf(resource) !== null).toBe(write);
     }
-    expect(API_TOKEN_SCOPES).toHaveLength(API_SCOPE_RESOURCES.length + API_SCOPE_RESOURCES.filter((r) => r.write).length);
+    expect(ALL_API_SCOPES).toHaveLength(API_SCOPE_RESOURCES.length + API_SCOPE_RESOURCES.filter((r) => r.write).length);
+  });
+
+  it("keeps owners' scopes out of what anyone may give, the presets and older tokens", () => {
+    const owners = API_SCOPE_RESOURCES.filter((r) => "owners" in r && r.owners).map((r) => `${r.resource}:read`);
+    expect(owners).toEqual([...OWNER_SCOPES]);
+    for (const scope of OWNER_SCOPES) {
+      expect(isOwnerScope(scope)).toBe(true);
+      expect(API_TOKEN_SCOPES).not.toContain(scope);
+      expect(SCOPE_PRESETS.all).not.toContain(scope);
+      expect(READ_SCOPES).not.toContain(scope);
+      expect(effectiveScopes(["pages:write"], true)).not.toContain(scope);
+      expect(normalizeScopes([scope, "pages:read"])).toEqual(["pages:read", scope]);
+    }
   });
 
   it("normalizes: known scopes only, catalog order, write brings its own read and nothing else", () => {

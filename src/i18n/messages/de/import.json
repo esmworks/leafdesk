@@ -1,7 +1,7 @@
 {
   "open": "Importieren",
   "title": "Importieren",
-  "description": "Importiere Seiten aus Markdown-Dateien, ZIP-Exporten, Word-Dokumenten und PDFs, Notizbücher aus Evernote, Zeilen aus einer CSV-Datei oder Excel-Arbeitsmappe, ein Board aus Trello, Asana oder Monday.com oder Jira-Vorgänge, die synchron bleiben.",
+  "description": "Importiere Seiten aus Markdown-Dateien, ZIP-Exporten, Word- und Google-Dokumenten und PDFs, Notizbücher aus Evernote, Zeilen aus einer CSV-Datei oder Excel-Arbeitsmappe, ein Board aus Trello, Asana oder Monday.com oder Jira-Vorgänge, die synchron bleiben.",
   "tabs": {
     "pages": "Markdown & ZIP",
     "docx": "Word",
@@ -11,7 +11,8 @@
     "trello": "Trello",
     "asana": "Asana",
     "monday": "Monday.com",
-    "jira": "Jira"
+    "jira": "Jira",
+    "googleDocs": "Google Docs"
   },
   "destination": "Einfügen unter",
   "topLevel": "Oberste Ebene des Workspace",
@@ -243,5 +244,30 @@
     "noAccess": "Du kannst dort keine Seiten hinzufügen, oder das Ziel existiert nicht mehr.",
     "notADatabase": "Zeilen können nur einer Datenbank hinzugefügt werden.",
     "badRequest": "Der Import ist fehlgeschlagen. Es wurde nichts geändert."
+  },
+  "googleDocs": {
+    "help": "Jedes Google-Dokument wird zu einer Seite, gelesen über die Google-Drive-Verbindung des Arbeitsbereichs wie ein Word-Dokument: Überschriften, Listen, Tabellen, Links, Bilder und Fußnoten. Eine Überschrift ganz oben wird zum Seitentitel, sonst der Name des Dokuments.",
+    "loading": "Google-Drive-Verbindungen werden gesucht…",
+    "noConnection": "Es gibt keine Google-Drive-Verbindung, über die du importieren kannst. Ein Inhaber fügt Google Drive unter Einstellungen → Verbindungen hinzu; Mitglieder können sie nutzen, sobald ein Inhaber „Im Chat“ für das Werkzeug download_file_content ankreuzt.",
+    "connection": "Google-Drive-Verbindung",
+    "through": "Über „{name}“",
+    "links": "Links zu Google-Dokumenten",
+    "linksPlaceholder": "https://docs.google.com/document/d/… (einer pro Zeile)",
+    "invalidLink": "Kein Link zu einem Google-Dokument: „{link}“",
+    "search": "Suchen",
+    "searching": "Suche läuft…",
+    "searchPlaceholder": "Wörter im Titel (leer: die neuesten Dokumente)",
+    "noneFound": "Keine Google-Dokumente gefunden.",
+    "more": "Mehr anzeigen",
+    "linksOnly": "Über diese Verbindung ist keine Suche erlaubt: füge Links zu den Dokumenten ein.",
+    "chosen": "{count, plural, one {# Dokument ausgewählt} other {# Dokumente ausgewählt}}",
+    "tooMany": "Wähle höchstens {limit} Dokumente auf einmal.",
+    "errors": {
+      "noConnection": "Diese Google-Drive-Verbindung kann nicht genutzt werden. Bitte einen Inhaber, sie unter Einstellungen → Verbindungen zu prüfen.",
+      "unreachable": "„{name}“ ist nicht erreichbar. Versuche es später erneut oder bitte einen Inhaber, die Verbindung zu prüfen.",
+      "signIn": "„{name}“ muss sich erneut bei Google anmelden: Das macht ein Inhaber unter Einstellungen → Verbindungen.",
+      "notFound": "Ein Dokument kann über „{name}“ nicht gelesen werden: Prüfe den Link und ob das Google-Konto der Verbindung es öffnen darf.",
+      "notADocument": "„{id}“ ist kein Google-Dokument."
+    }
   }
 }

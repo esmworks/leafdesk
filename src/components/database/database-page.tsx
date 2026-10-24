@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus, TriangleAlert, X } from "lucide-react";
+import { FlagTriangleRight, Plus, TriangleAlert, X } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
@@ -17,6 +17,8 @@ import { atLeast } from "@/lib/property-access";
 import { searchRows } from "@/lib/row-search";
 import { opensNewTab } from "@/lib/row-panel";
 import { galleryCover, openRowsOf, opensRows, withViewSorts } from "@/lib/views";
+import { holdsSprints, sprintProperty } from "@/lib/sprints";
+import { getSprintsAction } from "@/app/actions/databases";
 import { AutomationsButton } from "./automations-button";
 import { JiraSyncButton } from "./jira-sync-button";
 import { GalleryView } from "./gallery-view";
@@ -68,6 +70,9 @@ const MemoTimelineView = memo(TimelineView);
 const DashboardView = dynamic(() => import("./dashboard-view"), { loading: () => <DashboardSkeleton /> });
 // Loaded when a map view opens: Leaflet (which needs a browser) comes along only then.
 const MapView = memo(dynamic(() => import("./map-view"), { ssr: false, loading: () => <MapSkeleton /> }));
+// Opened now and then, from the layout menu and the current sprint's toolbar.
+const SprintsDialog = dynamic(() => import("./sprints-dialog").then((module) => module.SprintsDialog));
+const CompleteSprintDialog = dynamic(() => import("./sprints-dialog").then((module) => module.CompleteSprintDialog));
 // Loaded when a feed view opens: its posts bring the Markdown renderer along.
 const FeedView = memo(dynamic(() => import("./feed-view"), { loading: () => <DashboardSkeleton /> }));
 
@@ -232,6 +237,32 @@ export function DatabasePage({
     return { ...api, updateView: updateView as typeof api.updateView };
   }, [api, isLinked, onLinkedChange]);
 
+  // Sprints (lib/sprints): the task database's sprint property, the view of the current sprint, and
+  // whether this database holds another one's sprints. Both offer completing the current sprint.
+  const [sprintsOpen, setSprintsOpen] = useState(false);
+  const [completeOpen, setCompleteOpen] = useState(false);
+  const sprint = snapshot && !linked ? sprintProperty(snapshot.properties) : null;
+  const sprintBoardId = sprint?.options.relation?.sprints?.boardViewId ?? null;
+  const sprintsHere = Boolean(snapshot && !linked && holdsSprints(snapshot.properties, snapshot.relations));
+  const onSprintBoard = !!sprint && !!view && view.id === sprintBoardId;
+  // Tasks added on the current sprint's board go to that sprint (its filter reads the sprint's state).
+  const [currentSprint, setCurrentSprint] = useState<{ viewId: string; sprintId: string | null } | null>(null);
+  const [sprintsLoaded, setSprintsLoaded] = useState(0);
+  useEffect(() => {
+    if (!onSprintBoard || !sprintBoardId) return;
+    let live = true;
+    void getSprintsAction(databaseId).then((result) => {
+      if (live && result.ok && result.data.side === "tasks" && result.data.on) {
+        setCurrentSprint({ viewId: sprintBoardId, sprintId: result.data.current?.id ?? null });
+      }
+    });
+    return () => {
+      live = false;
+    };
+  }, [onSprintBoard, sprintBoardId, databaseId, sprintsLoaded]);
+  const sprintId = sprint?.id;
+  const currentSprintId = currentSprint && view?.id === currentSprint.viewId ? currentSprint.sprintId : null;
+
   // New rows get the values the active filters ask for, so they don't vanish right after creation.
   const viewApi = useMemo(() => {
     const fromFilters =
@@ -246,7 +277,7 @@ export function DatabasePage({
     // Values the viewer may not set would make the server refuse the whole row.
     const access = snapshot?.propertyAccess ?? {};
     const defaults = Object.fromEntries(
-      Object.entries(fromFilters).filter(([id]) => atLeast(access[id]?.level ?? "edit", "edit_values")),
+      Object.entries({ ...fromFilters, ...(sprintId && currentSprintId ? { [sprintId]: [currentSprintId] } : {}) }).filter(([id]) => atLeast(access[id]?.level ?? "edit", "edit_values")),
     );
     if (!Object.keys(defaults).length) return baseApi;
     return {
@@ -254,7 +285,7 @@ export function DatabasePage({
       createRow: (input: Parameters<typeof baseApi.createRow>[0] = {}) =>
         baseApi.createRow({ ...input, properties: { ...defaults, ...input.properties } }),
     };
-  }, [baseApi, view, snapshot]);
+  }, [baseApi, view, snapshot, sprintId, currentSprintId]);
 
   const visibleRows = useMemo(() => {
     if (!view || !snapshot) return [];
@@ -505,7 +536,14 @@ export function DatabasePage({
                             onCreatePlaceProperty={readOnly ? undefined : createPlaceProperty}
                             onSubItems={readOnly ? undefined : (on, propertyId) => void api.setSubItems(on, propertyId)}
                             onDependencies={readOnly ? undefined : (on, input) => void api.setDependencies(on, input)}
+                            onSprints={readOnly || linked ? undefined : () => setSprintsOpen(true)}
                           />
+                          {!readOnly && (onSprintBoard || sprintsHere) && (
+                            <Button size="sm" variant="ghost" onClick={() => setCompleteOpen(true)} title={t("sprints.complete")}>
+                              <FlagTriangleRight className="h-3.5 w-3.5" />
+                              <span className="hidden lg:inline">{t("sprints.complete")}</span>
+                            </Button>
+                          )}
                           {snapshot.sync && !linked && (
                             <JiraSyncButton databaseId={databaseId} sync={snapshot.sync} onChanged={() => void api.refetch()} />
                           )}
@@ -720,6 +758,26 @@ export function DatabasePage({
                     )}
                   </div>
                 </div>
+                {sprintsOpen && (
+                  <SprintsDialog
+                    workspaceId={workspaceId}
+                    databaseId={databaseId}
+                    onClose={() => setSprintsOpen(false)}
+                    onChanged={(viewId) => {
+                      void api.refetch().then(() => viewId && selectView(viewId));
+                    }}
+                  />
+                )}
+                {completeOpen && (
+                  <CompleteSprintDialog
+                    databaseId={databaseId}
+                    onClose={() => setCompleteOpen(false)}
+                    onDone={() => {
+                      void api.refetch();
+                      setSprintsLoaded((n) => n + 1);
+                    }}
+                  />
+                )}
               </RowOpenerContext>
             </AiAutofillProvider>
           </PropertyAccessProvider>

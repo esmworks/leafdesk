@@ -26,6 +26,8 @@ export type DocxImportInput = {
   /** At the top level: the teamspace, null for private pages, undefined for the default teamspace (see createPage). */
   teamspaceId?: string | null;
   files: { name: string; data: Uint8Array }[];
+  /** Where the documents came from, as the audit log names it (Google documents arrive as Word ones). */
+  format?: "docx" | "google-docs";
 };
 
 export const isDocx = (name: string) => /\.docx$/i.test(name);
@@ -94,6 +96,6 @@ export async function importDocx(actor: WriteActor, input: DocxImportInput): Pro
     warnings: warnings.list,
     moreWarnings: warnings.more,
   };
-  await recordImport(userId, workspaceId, result, "docx");
+  await recordImport(userId, workspaceId, result, input.format ?? "docx");
   return result;
 }

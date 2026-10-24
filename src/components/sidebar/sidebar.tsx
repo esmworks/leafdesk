@@ -20,6 +20,7 @@ import {
   Inbox,
   Keyboard,
   LayoutTemplate,
+  ListTodo,
   LogOut,
   LogOut as LeaveIcon,
   MessagesSquare,
@@ -502,6 +503,7 @@ export function Sidebar({
     ({
       favorites: t("pages.favorites"),
       meetings: t("sections.meetings"),
+      tasks: t("sections.tasks"),
       pages: t("pages.heading"),
       teamspaces: t("teamspaces.heading"),
       shared: t("sections.shared"),
@@ -540,13 +542,15 @@ export function Sidebar({
     });
   }
 
-  // Opening a page (a link, search, a new page) unfolds the way to it, once per page, so the
-  // sidebar shows where it is; folding it again afterwards is left alone.
+  // Opening a page (a link, search, a new page) unfolds the way to it, once per page and place, so
+  // the sidebar shows where it is, and again when the open page moves (to a new teamspace, say);
+  // folding it again afterwards is left alone.
   const revealed = useRef<string | null>(null);
   useEffect(() => {
     const node = activeId ? byId.get(activeId) : undefined;
-    if (!node || revealed.current === activeId) return;
-    revealed.current = activeId;
+    const place = node && `${node.id}@${node.section}`;
+    if (!node || revealed.current === place) return;
+    revealed.current = place ?? null;
     const ancestors: string[] = [];
     for (let id = node.parentId; id; id = byId.get(id)?.parentId ?? null) {
       if (ancestors.includes(id)) break;
@@ -571,7 +575,7 @@ export function Sidebar({
     requestAnimationFrame(() =>
       document.querySelector(`[data-sidebar-page="${CSS.escape(node.id)}"]`)?.scrollIntoView({ block: "nearest" }),
     );
-    // Only when another page opens (or the tree first holds it), not on every fold.
+    // Only when another page opens, the tree first holds it or it moves, not on every fold.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeId, byId]);
 
@@ -807,6 +811,13 @@ export function Sidebar({
           ))}
         </ul>
       </SectionGroup>
+    ),
+    tasks: (
+      <div className="mb-2">
+        <SidebarButton icon={<ListTodo className="h-4 w-4" />} href={`/w/${workspaceId}/tasks`} active={pathname === `/w/${workspaceId}/tasks`}>
+          {t("sections.tasks")}
+        </SidebarButton>
+      </div>
     ),
     meetings: (
       <div className="mb-2">

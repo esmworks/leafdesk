@@ -33,6 +33,9 @@ import * as webhooks from "@/server/page-webhooks/manage";
 import * as ops from "@/server/operations";
 import { MAX_ACTIVITY_PAGE } from "@/server/row-activity-feed";
 import { voiceAudioType } from "@/lib/voice-notes";
+import { AUDIT_ACTOR_KINDS, AUDIT_CATEGORY_NAMES } from "@/lib/audit";
+import { streamedAuditEvent } from "@/lib/audit-stream";
+import { readAuditEvents } from "@/server/audit";
 import { AiError, sttLimits } from "@/server/ai";
 import { pageUrl } from "@/server/mcp/format";
 import { createVoiceNote } from "@/server/voice-notes";
@@ -66,7 +69,7 @@ export type ApiRoute<Q extends Schema = Schema, B extends Schema = Schema> = {
   /** Relative to /api/v1, with `{name}` path parameters. */
   path: string;
   operationId: string;
-  tag: "Account" | "Workspaces" | "Pages" | "Databases" | "Rows" | "Comments" | "Agents" | "Review" | "Follow-ups" | "Webhooks";
+  tag: "Account" | "Workspaces" | "Pages" | "Databases" | "Rows" | "Comments" | "Agents" | "Review" | "Follow-ups" | "Webhooks" | "Audit log";
   summary: string;
   description?: string;
   /** What the token needs to call it; null for any token (GET /me). */
@@ -736,6 +739,22 @@ export const API_ROUTES: ApiRoute[] = [
     },
   }),
   defineRoute({
+    method: "POST",
+    path: "/databases/{database_id}/sprints/complete",
+    operationId: "completeSprint",
+    tag: "Databases",
+    summary: "Complete the current sprint",
+    description:
+      "For a task database with sprints turned on (in the app), or its sprints database: the current sprint is marked completed, the next one becomes current (else the first future one, else a new one), a new next sprint of the same length is added when none waits, and the tasks of the completed sprint whose status isn't done move to the new current sprint. Needs edit access to both databases; tasks the user may not change stay and are counted in skipped_tasks. dry_run reports what would change without changing it.",
+    scope: "rows:write",
+    body: ops.inputs.completeSprint.omit({ database_id: true }),
+    response: "SprintCompleted",
+    handler: async ({ principal, ctx, params, body }) => {
+      await requirePageInWorkspace(principal, params.database_id);
+      return ops.completeSprint(ctx, { ...body, database_id: params.database_id });
+    },
+  }),
+  defineRoute({
     method: "GET",
     path: "/rows/{row_id}",
     operationId: "getRow",
@@ -1279,7 +1298,62 @@ export const API_ROUTES: ApiRoute[] = [
       return { webhook_id: params.webhook_id, deliveries: (await webhooks.listPageWebhookDeliveries(principal.userId, params.webhook_id, query.limit)).map(describeDelivery) };
     },
   }),
+  defineRoute({
+    method: "GET",
+    path: "/workspaces/{workspace_id}/audit-log",
+    operationId: "listAuditEvents",
+    tag: "Audit log",
+    summary: "Read the audit log",
+    description:
+      "The workspace's audit log, newest first (or oldest first with `order=asc`, to read on from where you stopped), filtered by time, who acted and what. Each event is shaped as audit log streaming sends it: `action` as stored (new versions add actions; keep unknown ones), `category` as Settings groups it, `actor` (`kind` user, agent, api_token, connected_app, scim, system or automation; `via` the token's, app's or automation's name), `target` and `details`. Pages are read with a cursor that keeps its place as events are added. Workspace owners only, with a token limited to the workspace.",
+    scope: "audit:read",
+    query: z.object({
+      since: z.iso.datetime({ offset: true }).optional().describe("Events at or after this time (ISO 8601)."),
+      until: z.iso.datetime({ offset: true }).optional().describe("Events before this time (ISO 8601)."),
+      actor_id: z.string().max(200).optional().describe("Events of this person (whatever they acted through)."),
+      actor_kind: z.enum(AUDIT_ACTOR_KINDS).optional().describe("Events of this kind of actor."),
+      action: z.string().max(100).optional().describe("Events of this action, such as member.added."),
+      category: z.enum(AUDIT_CATEGORY_NAMES as [string, ...string[]]).optional().describe("Events of the actions of this category, as Settings groups them."),
+      order: z.enum(["desc", "asc"]).default("desc").describe("desc (default): newest first; asc: oldest first."),
+      limit: limitInput(500, 100),
+      cursor: cursorInput,
+    }),
+    response: "AuditEventList",
+    handler: async ({ principal, params, query }) => {
+      requireWorkspace(principal, params.workspace_id);
+      const after = decodeAuditCursor(query.cursor, query.order);
+      const { events, hasMore } = await readAuditEvents(principal.userId, params.workspace_id, {
+        since: query.since ? new Date(query.since) : null,
+        until: query.until ? new Date(query.until) : null,
+        actorId: query.actor_id ?? null,
+        actorKind: query.actor_kind ?? null,
+        action: query.action ?? null,
+        category: (query.category as (typeof AUDIT_CATEGORY_NAMES)[number] | undefined) ?? null,
+        order: query.order,
+        after,
+        limit: query.limit,
+      });
+      const last = events.at(-1);
+      const next = hasMore && last ? Buffer.from(JSON.stringify({ t: last.cursorAt, id: last.id, o: query.order })).toString("base64url") : null;
+      return { workspace_id: params.workspace_id, events: events.map(streamedAuditEvent), next_cursor: next, has_more: next !== null };
+    },
+  }),
 ];
+
+/** A time as Postgres writes a timestamptz as text, to the microsecond: 2026-10-24 18:55:01.123456+03. */
+const CURSOR_TIME = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}(?:\.\d{1,6})?[+-]\d{2}(?::\d{2}){0,2}$/;
+
+/** Where the previous page of the audit log ended; refused when it isn't a cursor of this order. */
+function decodeAuditCursor(cursor: string | undefined, order: "asc" | "desc") {
+  if (!cursor) return null;
+  try {
+    const { t, id, o } = JSON.parse(Buffer.from(cursor, "base64url").toString("utf8")) as { t?: unknown; id?: unknown; o?: unknown };
+    if (typeof t === "string" && typeof id === "string" && o === order && CURSOR_TIME.test(t)) return { at: t, id };
+  } catch {
+    // Falls through to the error below.
+  }
+  throw new ApiError(400, "invalid_cursor", "The cursor is not valid. Pass next_cursor from the previous response as it is, with the same order.");
+}
 
 /** The route for a method and path (relative to /api/v1), with its path parameters. */
 export function matchRoute(routes: ApiRoute[], method: string, path: string) {

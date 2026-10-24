@@ -125,6 +125,11 @@ export const DATABASE_ERROR_CODES = [
   "invalidUniqueIdPrefix",
   "uniqueIdPrefixTaken",
   "oneUniqueId",
+  "sprintsOff",
+  "sprintsDatabase",
+  "noCurrentSprint",
+  "invalidSprints",
+  "sprintStateOption",
 ] as const;
 export type DatabaseErrorCode = (typeof DATABASE_ERROR_CODES)[number];
 export type DatabaseErrorParams = Record<string, string>;
@@ -224,6 +229,11 @@ export function optionOf(property: { options: PropertyOptions }, value: unknown)
 export function isDoneStatus(property: { options: PropertyOptions }, value: unknown) {
   const option = optionOf(property, value);
   return option !== undefined && statusGroupOf(option) === "done";
+}
+
+/** The first option of the status property's "done" group: what marking a row done picks. */
+export function firstDoneOption(property: { options: PropertyOptions }): SelectOption | undefined {
+  return (property.options.options ?? []).find((o) => statusGroupOf(o) === "done");
 }
 
 /** Default color for a status option added to `group`. */

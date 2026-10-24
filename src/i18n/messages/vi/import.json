@@ -1,7 +1,7 @@
 {
   "open": "Nhập",
   "title": "Nhập",
-  "description": "Đưa trang vào từ tệp Markdown, tệp xuất ZIP, tài liệu Word và tệp PDF, sổ tay từ Evernote, đưa hàng vào từ tệp CSV hoặc sổ làm việc Excel, từ một bảng Trello, Asana hoặc Monday.com, hoặc đưa vào các issue Jira luôn được đồng bộ.",
+  "description": "Đưa trang vào từ tệp Markdown, tệp xuất ZIP, tài liệu Word, tài liệu Google và tệp PDF, sổ tay từ Evernote, đưa hàng vào từ tệp CSV hoặc sổ làm việc Excel, từ một bảng Trello, Asana hoặc Monday.com, hoặc đưa vào các issue Jira luôn được đồng bộ.",
   "tabs": {
     "pages": "Markdown & ZIP",
     "docx": "Word",
@@ -11,7 +11,8 @@
     "trello": "Trello",
     "asana": "Asana",
     "monday": "Monday.com",
-    "jira": "Jira"
+    "jira": "Jira",
+    "googleDocs": "Google Docs"
   },
   "destination": "Đặt dưới",
   "topLevel": "Cấp cao nhất của không gian làm việc",
@@ -243,5 +244,30 @@
     "noAccess": "Bạn không thể thêm trang vào đó, hoặc nó không còn tồn tại.",
     "notADatabase": "Chỉ có thể thêm hàng vào một cơ sở dữ liệu.",
     "badRequest": "Việc nhập không thành công. Không có gì bị thay đổi."
+  },
+  "googleDocs": {
+    "help": "Mỗi tài liệu Google trở thành một trang, được đọc qua kết nối Google Drive của không gian làm việc như một tài liệu Word: tiêu đề, danh sách, bảng, liên kết, hình ảnh và chú thích cuối trang. Tiêu đề ở trên cùng trở thành tên trang; nếu không thì dùng tên tài liệu.",
+    "loading": "Đang tìm kết nối Google Drive…",
+    "noConnection": "Không có kết nối Google Drive nào bạn có thể dùng để nhập. Chủ sở hữu thêm Google Drive trong Cài đặt → Kết nối; thành viên dùng được khi chủ sở hữu đánh dấu “Trong trò chuyện” cho công cụ download_file_content.",
+    "connection": "Kết nối Google Drive",
+    "through": "Qua “{name}”",
+    "links": "Liên kết tới tài liệu Google",
+    "linksPlaceholder": "https://docs.google.com/document/d/… (mỗi dòng một liên kết)",
+    "invalidLink": "Không phải liên kết tới tài liệu Google: “{link}”",
+    "search": "Tìm",
+    "searching": "Đang tìm…",
+    "searchPlaceholder": "Từ trong tiêu đề (để trống: tài liệu mới nhất)",
+    "noneFound": "Không tìm thấy tài liệu Google nào.",
+    "more": "Hiện thêm",
+    "linksOnly": "Kết nối này không cho phép tìm kiếm: hãy dán liên kết tới tài liệu.",
+    "chosen": "{count, plural, other {Đã chọn # tài liệu}}",
+    "tooMany": "Mỗi lần chọn tối đa {limit} tài liệu.",
+    "errors": {
+      "noConnection": "Không thể dùng kết nối Google Drive đó. Hãy nhờ chủ sở hữu kiểm tra trong Cài đặt → Kết nối.",
+      "unreachable": "Không kết nối được tới “{name}”. Hãy thử lại sau, hoặc nhờ chủ sở hữu kiểm tra kết nối.",
+      "signIn": "“{name}” cần đăng nhập lại Google: chủ sở hữu làm việc này trong Cài đặt → Kết nối.",
+      "notFound": "Không đọc được một tài liệu qua “{name}”: hãy kiểm tra liên kết, và tài khoản Google của kết nối có được mở nó không.",
+      "notADocument": "“{id}” không phải là tài liệu Google."
+    }
   }
 }

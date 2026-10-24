@@ -45,7 +45,8 @@
     "expiry": "Elige cuándo caduca el token.",
     "limit": "Ya tienes el máximo de tokens permitidos. Revoca uno primero.",
     "generic": "No se pudo crear el token. Vuelve a intentarlo.",
-    "notFound": "Este token ya no existe."
+    "notFound": "Este token ya no existe.",
+    "ownerScope": "Solo los propietarios de un espacio de trabajo pueden permitir que un token lea su registro de auditoría, y solo si el token está limitado a ese espacio de trabajo."
   },
   "docsPage": {
     "metaTitle": "API REST",
@@ -114,6 +115,10 @@
       "webhooks": {
         "name": "Webhooks",
         "hint": "Webhooks de páginas y sus entregas; escribir los añade, cambia y prueba (solo propietarios)."
+      },
+      "audit": {
+        "name": "Registro de auditoría",
+        "hint": "El registro de auditoría del espacio de trabajo (solo propietarios, para un token limitado a un espacio de trabajo del que son propietarios)."
       }
     },
     "summary": {
@@ -129,7 +134,8 @@
     "errors": {
       "scopes": "Elige al menos una cosa que pueda hacer el token.",
       "notFound": "Este token ya no existe.",
-      "generic": "No se pudo cambiar el token. Inténtalo de nuevo."
+      "generic": "No se pudo cambiar el token. Inténtalo de nuevo.",
+      "ownerScope": "Solo los propietarios de un espacio de trabajo pueden permitir que un token lea su registro de auditoría, y solo si el token está limitado a ese espacio de trabajo."
     }
   }
 }

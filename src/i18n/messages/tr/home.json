@@ -17,5 +17,20 @@
     "later": "Daha sonra",
     "none": "Tarihsiz"
   },
-  "assignedMore": "{total} satırdan {shown} tanesi gösteriliyor. Kalanlar için bir veritabanını “Ben” ile süzün."
+  "assignedMore": "{total} satırdan {shown} tanesi gösteriliyor.",
+  "assignedAll": "Tümünü gör",
+  "myTasks": {
+    "title": "Görevlerim",
+    "description": "Çalışma alanı genelinde açabildiğiniz veritabanlarında size atanmış ve bitmemiş satırlar.",
+    "grouping": "Gruplama",
+    "byDue": "Bitiş tarihine göre",
+    "byDatabase": "Veritabanına göre",
+    "sharedRows": "Sizinle paylaşılan satırlar",
+    "shown": "{total} satırdan tarihi en yakın {shown} tanesi gösteriliyor.",
+    "markDone": "“{title}” satırını bitti olarak işaretle",
+    "undoLabel": "“{title}” satırını bitmedi olarak işaretle",
+    "undo": "Geri al",
+    "markFailed": "Satır bitti olarak işaretlenemedi.",
+    "undoFailed": "Satırın durumu geri alınamadı. Satırın içinden değiştirin."
+  }
 }

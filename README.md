@@ -25,7 +25,7 @@ after you approve them over OAuth.
   tell it, reusable skills, and agents that work on database rows, with Anthropic, OpenAI, Google
   or a local model.
 - **Bring your pages**: import a Notion *Markdown & CSV* export, an Obsidian vault, Evernote notebooks, a Trello board,
-  an Asana project, a Monday.com board, Markdown files, Word documents, PDFs, a folder or CSV, and keep a
+  an Asana project, a Monday.com board, Markdown files, Word documents, Google documents, PDFs, a folder or CSV, and keep a
   database of Jira issues in sync.
 - **Ready for a team**: teamspaces, page permissions, guests, single sign-on (OIDC, SAML), SCIM,
   two-step verification, passkeys and an audit log.
@@ -79,6 +79,11 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   button that starts it) and the few before it; the database rows assigned to you that aren't done
   and that you can open, grouped as overdue, today, the next 7 days, later and no date; and the
   pages edited last.
+- **My tasks** (in the sidebar; hide or move it like its other sections): every database row
+  assigned to you across the workspace, in any person property, that isn't done and that you can
+  open, by due date or by database, with its status and first date; the first 200, the ones due
+  soonest. A row opens beside the list. Tick a row with a status to set it to the first option of
+  its *Done* group, and untick it to put the status back; the home page's list works the same way.
 - **Search box** (Cmd/Ctrl+K): before you type, the pages last edited. Narrow a search with
   `in:Projects` or `in:"Launch plan"` (that page and everything under it; several pages of that
   title, or several `in:`, search under any of them; a title nobody can see finds nothing) and
@@ -278,6 +283,14 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
     dot at the end of a bar onto another row links them. When a row's dates move, the rows waiting
     for it follow: only when they would overlap, by as much to keep the gap, or not at all, and
     optionally never starting on a weekend. A row can't wait for itself or a row waiting for it.
+  - Sprints: turned on from a view's settings with a sprint length (one to four weeks) and the first
+    sprint's day, a task database gets a Sprints database beside it (each sprint with its dates and
+    a state: current, next, future or completed), a "Sprint" property on its tasks and three views:
+    the current sprint's board by status, sprint planning and the backlog. *Complete sprint* marks
+    the current sprint completed, makes the next one current, plans a new next one of the same
+    length and moves the tasks not done to the new current sprint, all at once; the current sprint's
+    board follows on its own. Turning sprints off keeps the sprints database and every task's
+    sprint, and turning them on again picks them up. The REST API completes a sprint too.
   - Charts over a date can show a running total, or what remains (a burndown): grouped by the day
     work was finished, each period takes its rows away from the whole, and rows without that date
     stay open. An automation that sets the date to today when a status changes to done fills it in.
@@ -476,7 +489,13 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   section for pages only you see. Settings → Teamspaces lists them with filters, their members and
   owners, the default teamspaces and whether members may create teamspaces. Moving a page to
   another teamspace, or to Private, gives it the access of its new place; people it was shared
-  with by name keep theirs. Guests are never in teamspaces: they get single pages. Each teamspace
+  with by name keep theirs. *Turn into teamspace* in a page's ⋯ menu (full access to the page and
+  the right to create teamspaces) makes a teamspace named after the page: the page and the pages
+  right under it become its top-level pages; whoever turns it and those with full access to the page
+  own it, those who could edit join as members (and groups that could edit, as groups), members
+  can edit its pages, and everyone else named on the page (viewers, commenters, guests) keeps what
+  they had. It is private when the page was private or in a private teamspace, closed when it was in
+  a closed one, open otherwise. Guests are never in teamspaces: they get single pages. Each teamspace
   sets what its members get on its pages (full access, can edit, can comment or can view) where a
   page isn't shared otherwise; its owners and workspace owners get full access, and so does
   whoever adds a page at its top. Below full access, members are held to the database property
@@ -540,7 +559,12 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   imported, moved, put in the trash, restored and deleted for good, publishing, API tokens and
   connected apps, exports), with the app or identity provider it went through and the address it
   came from, newest first, filtered by person, kind of change and dates, and as CSV. Events are
-  kept for a year.
+  kept for a year. Owners can stream new events to their security tools as they happen, and
+  scripts read the log through the REST API (see [Audit log streaming](#audit-log-streaming)).
+- **Sensitive content detection**: when owners turn it on in Settings → Security, pages and rows
+  are read in the background for payment card numbers, IBANs, national ID numbers and secrets
+  (private keys, access tokens), and what is found is listed to owners with a masked excerpt (see
+  [Sensitive content](#sensitive-content)).
 - **Legal holds**: owners put a named hold, with its reason, on people of the workspace (members,
   guests, or people who have left) in Settings → Security. While it stands, nothing they created
   or edited there is deleted for good: their pages and rows (and pages above them, with their
@@ -600,6 +624,19 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   left out and listed in the result; comments and page breaks are dropped. Old `.doc` files need
   saving as `.docx` first. A document is read in a separate worker with a time and memory limit,
   and one that can't be read stops the import before any page is created.
+- **Import from Google Docs**: on Import's Google Docs tab, documents come in through the
+  workspace's **Google Drive** connection (Settings → Connections, from the catalog). Paste links
+  to documents (`docs.google.com/document/d/…`, or Drive's `/file/d/…`), or search the
+  connection's Drive by words in the title (no words lists the latest documents) and tick up to 20.
+  Each is exported by Drive as a Word document and imported as above: one page per document, the
+  heading at the very top or else the document's name as its title, pictures uploaded, all or
+  nothing. A connection is one owner's Google account, so owners may import through any signed-in
+  Google Drive connection; members only through one whose `download_file_content` tool an owner
+  ticked *In chat* (they could already read the same files through the AI chat), and search only
+  with `search_files` ticked too; guests never. Each call to Drive is recorded in the audit log
+  like the chat's, and the import as from Google Docs. A Google Docs connection alone isn't
+  enough: the export is Drive's. Tested against a stand-in Drive server
+  (`scripts/google-docs-import-e2e.ts`), with Google's answers as its MCP server gives them.
 - **Import from PDF**: choose one or more PDFs on Import's PDF tab; each becomes a page made of
   its text layer, read by the same reader search uses for PDFs. A PDF has no structure of its own,
   so it is read from the layout: the size most of the text has is the body's, and short lines in a
@@ -1354,7 +1391,8 @@ for the server it is connected to, exactly by scheme, host and port, and opens t
 the front window. The setting isn't shown in Leafdesk on this computer.
 
 **What it does differently from a browser tab.** Links to other sites open in your browser, and
-windows the pages open become tabs in the app only when they are on your server. Menus follow the
+windows the pages open become tabs in the app only when they are on your server (a file it shows,
+such as a PDF, opens in a plain window of its own). Menus follow the
 language chosen in My account, or the system's. The server's pages may use notifications, the clipboard,
 full screen and the microphone (voice notes); nothing else, and no other site. Single sign-on and
 connecting apps happen inside the app, so the sign-in it leads to stays with it. The window
@@ -1631,6 +1669,89 @@ the REST API.
   that person's account: an app or a token belongs to the person, so it stops reaching all of their
   workspaces until they connect it again or make a new token. Only this workspace's audit log
   records it, with the owner as who did it and the person it was about.
+
+- **People from your domains** (owners, once the workspace has verified email domains): every
+  account on the server with an address in those domains or their subdomains, whether it is in
+  the workspace (and as what) or not, when it was last active (from its sessions, renewed once a
+  day while in use) and how it signs in (password, single sign-on, passkey, social login). Those
+  outside are added with the usual *Add members* step and members are removed as in Settings →
+  Members. Up to 500 are listed; agents are left out.
+
+## Audit log streaming
+
+Owners send the workspace's audit events to their own collector (a SIEM, a log pipeline) in
+**Settings → Audit log → Stream to your security tools**: an HTTPS address, and a signing secret
+that is shown once (kept sealed with `LEAFDESK_ENCRYPTION_KEY`, like connections' secrets) and can be
+replaced. Addresses get the same checks as automation webhooks: https only, public addresses only,
+no redirects, ten seconds per request; hosts in `AUTOMATION_WEBHOOK_ALLOWED_HOSTS` may use http and
+private addresses.
+
+Each event recorded while the stream is on is sent once it goes through, **at least once and in
+order**: batches of up to 100 events, oldest first, sent when 100 wait or the oldest has waited 30
+seconds. A batch that fails (a network error or an answer other than 2xx) is tried again after 30
+seconds, then 1, 2, 5, 15 and 30 minutes, then every hour, with the same delivery id and the events
+waiting by then; events still unsent after 7 days are given up on and counted. Events recorded
+while the stream is off are not sent later. The settings show whether it is streaming or failing
+(since when, the last error and the next try), the last delivery, how many events were sent and
+how many wait, and *Send test event* sends one made-up event right away.
+
+Each batch is a `POST` with `Content-Type: application/json` and these headers:
+
+- `X-Leafdesk-Event`: `audit.events` (`ping` for a test)
+- `X-Leafdesk-Delivery`: the batch's id, the same each time it is tried again
+- `X-Leafdesk-Signature`: `t=<unix seconds>,v1=<hex HMAC-SHA256 of "<t>.<body>" with the secret>`
+
+```json
+{
+  "id": "4f0c2c1e-…",
+  "type": "audit.events",
+  "workspace_id": "…",
+  "sent_at": "2026-10-24T10:00:30.000Z",
+  "events": [
+    {
+      "id": "…",
+      "time": "2026-10-24T10:00:01.123Z",
+      "action": "member.role_changed",
+      "category": "members",
+      "actor": { "kind": "user", "id": "…", "name": "Ada", "email": "ada@example.com", "via": null, "ip": "192.0.2.1", "user_agent": "…" },
+      "target": { "type": "user", "id": "…", "label": "Bob" },
+      "details": { "from": "member", "to": "owner" }
+    }
+  ]
+}
+```
+
+A test carries `"type": "ping"` and `"test": true`. `actor.kind` is `user`, `agent`, `api_token`,
+`connected_app`, `scim`, `system` or `automation` (`via` names the token, app or automation);
+`category` is the Settings filter's group, or null for an action the version doesn't know. New
+versions add actions: keep the ones you don't know. Check the signature against the raw body and
+refuse old timestamps; an event can arrive twice (a batch whose answer was lost is sent again), so
+keep the first of each event `id`.
+
+The same events can be read with the REST API: `GET /workspaces/{id}/audit-log` (scope
+`audit:read`, which only a workspace's owners can give, and only to a token limited to that
+workspace) filters by `since`, `until`, `actor_id`, `actor_kind`, `action` and `category`, newest
+first or `order=asc`, up to 500 at a time with `next_cursor`. The token stops reading once its
+person is no longer an owner.
+
+## Sensitive content
+
+Owners turn on **Look for sensitive content** in Settings → Security (off by default). A
+background job then reads the title, body and row values of the workspace's pages once they
+change (templates and the trash aren't read; turning it on reads every page once) and looks for:
+
+- payment card numbers of the known issuers that pass the Luhn check, compact or in groups;
+- IBANs with their country's length and a valid mod-97 check;
+- Turkish national ID numbers (T.C. kimlik no) with both check digits right;
+- private keys (PEM blocks), AWS access keys, GitHub and Slack tokens, `sk-` style API keys,
+  live payment-provider keys, Google API keys, Leafdesk API tokens and JSON Web Tokens.
+
+The value itself is never kept: a finding holds its kind, a masked excerpt (`**** **** **** 4242`,
+`TR** **** **** 1326`, `ghp_…3f9a`) and a keyed hash to know it again. Each finding is recorded in
+the audit log, and owners get an inbox notice for a page and kind at most once a day. Settings →
+Security lists the open findings with links to their pages and a *Dismiss* button; a finding
+resolves itself once the page no longer holds the value, and opens again if it comes back (a
+dismissed one stays dismissed). Turning detection off deletes the findings.
 
 ## Who can join a workspace
 
@@ -3691,6 +3812,7 @@ brings the read scope of its resource. Every endpoint needs one scope (the refer
 | `rows:read`, `rows:write` | `POST /databases/{id}/query`, `GET /rows/{id}` and its activity; writing adds, upserts and changes rows (a voice note into a database needs it too) |
 | `comments:read`, `comments:write` | a page's comment threads; writing starts threads and replies |
 | `agents:read`, `agents:write` | agents, their runs, usage, schedules and sharing; writing changes them, asks for runs, sets schedules and shares |
+| `audit:read` | `GET /workspaces/{id}/audit-log` (owners only, on a token limited to that workspace; never in the presets; see [Audit log streaming](#audit-log-streaming)) |
 
 Tokens made before scopes were per resource keep exactly the access they had: their `pages:read`
 reads everything and their `pages:write` reads and writes everything, including endpoints added
@@ -3821,7 +3943,7 @@ Useful scripts:
 | `pnpm mail:test you@example.com` | Send a test email with the SMTP settings from `.env` |
 | `pnpm db:generate` | New migration from schema changes in `src/db/schema` |
 | `pnpm search:index [workspace-id…]` | Builds or catches up the semantic search index (see [Semantic search](#semantic-search)) |
-| `pnpm tsx scripts/access-e2e.ts` | End-to-end checks against the database for page permissions, guests and publishing. The other `scripts/*-e2e.ts` files do the same for their areas (teamspaces, membership policies and join requests, databases, filters, bulk actions, AI features, semantic search and AI chat (with a stand-in OpenAI-compatible server), property types, places and map views (with a stand-in address search), feed views, reactions, database tabs and row page layout, people, trash and its retention, views, formulas, charts, dashboards, forms, inline databases, publishing options, sites and duplicating published pages, presence, offline editing, uploads and who may read the files pages show, import, Notion import, export, full-text search, upserts and guarded bulk row edits, deleting stored files, the search box's filters, backlinks and unlinked mentions, synced pages, the graph, the workspace health check, skills (MCP prompts over an in-memory transport, the AI chat with a stand-in model), and `roundtrip-e2e.ts` for an export imported again); `mcp-e2e.ts` and `auth-e2e.ts` below need a running server. |
+| `pnpm tsx scripts/access-e2e.ts` | End-to-end checks against the database for page permissions, guests and publishing. The other `scripts/*-e2e.ts` files do the same for their areas (teamspaces, membership policies and join requests, databases, filters, bulk actions, AI features, semantic search and AI chat (with a stand-in OpenAI-compatible server), property types, places and map views (with a stand-in address search), feed views, reactions, database tabs and row page layout, people, trash and its retention, views, formulas, charts, dashboards, forms, inline databases, publishing options, sites and duplicating published pages, presence, offline editing, uploads and who may read the files pages show, import, Notion import, Google Docs import (with a stand-in Drive server), export, full-text search, upserts and guarded bulk row edits, deleting stored files, the search box's filters, backlinks and unlinked mentions, synced pages, the graph, the workspace health check, skills (MCP prompts over an in-memory transport, the AI chat with a stand-in model), and `roundtrip-e2e.ts` for an export imported again); `mcp-e2e.ts` and `auth-e2e.ts` below need a running server. |
 | `pnpm tsx scripts/sw-e2e.ts` | Checks the service worker (`public/sw.js`) in headless Chrome against a stand-in server: offline pages, per-user copies, the offline page (set `CHROME_PATH` outside macOS) |
 | `pnpm tsx scripts/mcp-e2e.ts` | End-to-end OAuth + MCP check against a running server (see the header of the file) |
 | `pnpm tsx scripts/api-e2e.ts` | End-to-end REST API check (tokens, every endpoint, access, rate limits, OpenAPI) against a running server |

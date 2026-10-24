@@ -7,6 +7,7 @@ import { AccessError } from "@/server/access";
 import { listGroups } from "@/server/groups";
 import { setWatchingTeamspace } from "@/server/page-watch";
 import { requireUserId } from "@/server/session";
+import { previewTeamspaceFromPage, turnPageIntoTeamspace } from "@/server/teamspace-from-page";
 import {
   addTeamspaceGroups,
   addTeamspaceMembers,
@@ -68,6 +69,23 @@ export async function createTeamspaceAction(
   if (input.memberLevel !== undefined && !isTeamspaceMemberLevel(input.memberLevel)) return fail("invalidMemberLevel");
   const result = await run(async (userId) => {
     const created = await createTeamspace(userId, workspaceId, input);
+    return { id: created.id };
+  });
+  refresh(workspaceId);
+  return result;
+}
+
+/** What turning a page into a teamspace would do (server/teamspace-from-page.ts), for the dialog asking first. */
+export async function previewTeamspaceFromPageAction(pageId: string) {
+  if (typeof pageId !== "string") return fail("accessDenied");
+  return run((userId) => previewTeamspaceFromPage(userId, pageId));
+}
+
+/** Turns a page into a teamspace named `name`: the page and the pages under it become its pages. */
+export async function turnPageIntoTeamspaceAction(workspaceId: string, pageId: string, name: string) {
+  if (typeof pageId !== "string" || typeof name !== "string") return fail("accessDenied");
+  const result = await run(async (userId) => {
+    const created = await turnPageIntoTeamspace(userId, pageId, name);
     return { id: created.id };
   });
   refresh(workspaceId);

@@ -88,7 +88,11 @@
       "siteHeader": "내비게이션 메뉴 링크 상단 바",
       "siteDescription": "seo 메타 설명 검색 엔진 미리보기 open graph",
       "siteAnalytics": "google analytics ga4 gtag 추적 방문자 통계",
-      "siteDomain": "자체 도메인 dns 호스트 이름 cname 인증서"
+      "siteDomain": "자체 도메인 dns 호스트 이름 cname 인증서",
+      "eventStream": "siem 보안 로그 스트림 내보내기 웹훅 전달 이벤트",
+      "sensitiveContent": "dlp 데이터 유출 방지 신용카드 iban 비밀 토큰 키 검사",
+      "sensitiveFindings": "dlp 발견 유출 비밀 카드 번호 무시",
+      "domainPeople": "도메인 계정 사용자 회사 이메일 관리되지 않는"
     }
   },
   "workspace": {
@@ -1595,7 +1599,7 @@
       "teamspaces": "팀스페이스",
       "groups": "그룹",
       "settings": "워크스페이스 설정",
-      "security": "SSO와 SCIM",
+      "security": "보안",
       "pages": "페이지",
       "integrations": "연결된 앱과 API 토큰",
       "exports": "내보내기",
@@ -1644,6 +1648,7 @@
       "csv": "CSV",
       "xlsx": "Excel",
       "docx": "Word",
+      "google-docs": "Google 문서",
       "markdown": "Markdown",
       "pdf": "PDF",
       "skill": "스킬(SKILL.md)",
@@ -1671,7 +1676,8 @@
       "domainJoin": "이 도메인의 사용자가 로그인할 때",
       "joinRequests": "참여를 요청할 수 있는 사람",
       "email": "행의 이메일",
-      "agentCreation": "에이전트를 만들 수 있는 사람"
+      "agentCreation": "에이전트를 만들 수 있는 사람",
+      "sensitiveContent": "민감한 콘텐츠 감지"
     },
     "values": {
       "on": "켜짐",
@@ -1752,6 +1758,7 @@
       },
       "teamspace": {
         "created": "팀스페이스 {target}을(를) 만들었습니다",
+        "created_from_page": "페이지 {source}을(를) 팀스페이스 {target}(으)로 전환함",
         "updated": "팀스페이스 {target}의 {fields}을(를) 변경했습니다",
         "archived": "팀스페이스 {target}을(를) 보관했습니다",
         "restored": "팀스페이스 {target}을(를) 복원했습니다",
@@ -1861,6 +1868,16 @@
       "review": {
         "approved": "{kind, select, email_draft {에이전트 “{agent}”이(가) {target}에서 작성한 이메일 초안을 보냈습니다} create_row {에이전트 “{agent}”이(가) {target}에 제안한 행을 승인했습니다} other {에이전트 “{agent}”이(가) {target}에 제안한 변경을 승인했습니다}}{outcome, select, failed { (실패)} other {}}",
         "dismissed": "{kind, select, email_draft {에이전트 “{agent}”이(가) {target}에서 작성한 이메일 초안을 무시했습니다} create_row {에이전트 “{agent}”이(가) {target}에 제안한 행을 무시했습니다} other {에이전트 “{agent}”이(가) {target}에 제안한 변경을 무시했습니다}}"
+      },
+      "audit_stream": {
+        "created": "감사 로그를 {target}(으)로 스트리밍하기 시작함",
+        "updated": "{change, select, on {{target}(으)로 감사 로그 스트리밍을 켬} off {{target}(으)로 감사 로그 스트리밍을 끔} other {{target}(으)로의 감사 로그 스트리밍을 변경함}}",
+        "secret_replaced": "{target}(으)로의 감사 로그 스트림 서명 비밀 키를 교체함",
+        "removed": "감사 로그를 {target}(으)로 스트리밍하는 것을 중지함"
+      },
+      "sensitive_content": {
+        "found": "{target}에서 {kind}({excerpt})을(를) 발견함",
+        "dismissed": "{target}에서 발견된 {kind}({excerpt})을(를) 무시함"
       }
     },
     "decisions": {
@@ -1876,6 +1893,17 @@
       "full": "전체 액세스",
       "edit": "편집 가능",
       "interact": "보기 및 상호 작용 가능"
+    },
+    "sensitiveKinds": {
+      "card": "결제 카드 번호",
+      "iban": "IBAN",
+      "national_id": "신분증 번호",
+      "private_key": "개인 키",
+      "aws_key": "AWS 액세스 키",
+      "github_token": "GitHub 토큰",
+      "slack_token": "Slack 토큰",
+      "api_key": "API 키",
+      "jwt": "JSON Web Token"
     }
   },
   "notifications": {
@@ -2677,5 +2705,112 @@
       "logoSize": "로고가 너무 큽니다. 최대 512KB입니다.",
       "notFound": "이 레터헤드는 더 이상 없습니다. 페이지를 새로 고치세요."
     }
+  },
+  "eventStream": {
+    "title": "보안 도구로 스트리밍",
+    "description": "새 감사 이벤트를 발생하는 즉시 HTTPS 주소(예: 보안 정보 및 이벤트 관리(SIEM) 수집기)로 보냅니다.",
+    "url": "주소",
+    "start": "스트리밍 시작",
+    "saveUrl": "주소 저장",
+    "how": "이벤트는 서명된 JSON POST로 한 번에 최대 100개씩, 발생 후 약 30초 이내에 오래된 것부터 전송됩니다. 각 요청의 X-Leafdesk-Signature 헤더를 서명 비밀 키로 확인하세요. 같은 이벤트가 두 번 도착할 수 있으므로 이벤트 id별로 처음 것만 보관하세요. 실패한 요청은 7일 동안 다시 시도됩니다.",
+    "toggle": "감사 로그 스트리밍",
+    "state": {
+      "on": "스트리밍 중",
+      "off": "꺼짐: 새 이벤트를 보내지 않음",
+      "failing": "{since}부터 실패 중"
+    },
+    "nextTry": "{when}에 다시 시도",
+    "lastSuccess": "마지막 전송 {when}",
+    "noSuccess": "아직 전송된 것이 없음",
+    "sent": "{count, plural, =0 {보낸 이벤트 없음} other {이벤트 #개 보냄}}",
+    "waiting": "{count, plural, other {#개 대기 중}}",
+    "dropped": "{count, plural, other {이벤트 #개}}가 7일 넘게 대기하여 포기되었습니다. 가장 최근: {when}",
+    "test": "테스트 이벤트 보내기",
+    "testDelivered": "주소가 테스트 이벤트를 받았습니다({status}).",
+    "testFailed": "테스트 이벤트가 전달되지 않았습니다: {reason}.",
+    "rotate": "비밀 키 교체",
+    "rotateNote": "현재 비밀 키는 즉시 서명에 사용되지 않습니다.",
+    "remove": "스트리밍 중지",
+    "removeNote": "주소와 비밀 키, 아직 대기 중인 이벤트가 모두 삭제됩니다.",
+    "working": "처리 중…",
+    "secret": {
+      "title": "서명 비밀 키",
+      "note": "지금 복사하세요. 다시 표시되지 않습니다. 언제든지 교체할 수 있습니다.",
+      "label": "서명 비밀 키"
+    },
+    "codes": {
+      "invalidUrl": "주소가 올바르지 않습니다",
+      "blocked": "이 서버가 접근할 수 없는 사설 네트워크의 주소입니다",
+      "unreachable": "주소에 연결할 수 없습니다",
+      "timeout": "10초 안에 응답이 없습니다",
+      "redirect": "주소가 리디렉션으로 응답했습니다",
+      "http": "주소가 {status}(으)로 응답했습니다"
+    },
+    "errors": {
+      "invalidUrl": "올바른 주소를 입력하세요.",
+      "httpsOnly": "감사 이벤트는 https 주소로만 보낼 수 있습니다.",
+      "notFound": "이 워크스페이스는 감사 로그를 스트리밍하지 않습니다.",
+      "ownersOnly": "소유자만 변경할 수 있습니다."
+    }
+  },
+  "sensitiveContent": {
+    "title": "민감한 콘텐츠",
+    "description": "워크스페이스의 페이지와 행에서 결제 카드 번호, IBAN, 신분증 번호, 개인 키와 액세스 토큰 같은 비밀 정보를 찾습니다.",
+    "toggle": "민감한 콘텐츠 찾기",
+    "toggleDescription": "페이지와 행은 변경된 후 백그라운드에서 읽힙니다. 소유자는 받은 편지함으로 알림을 받고 각 발견 항목은 감사 로그에 기록됩니다. 값은 가려진 일부만 보관됩니다. 이 기능을 끄면 발견 항목이 삭제됩니다.",
+    "findingsTitle": "처리되지 않은 발견 항목",
+    "none": "워크스페이스의 페이지와 행에서 발견된 것이 없습니다.",
+    "off": "민감한 콘텐츠 찾기를 켜면 페이지와 행에 무엇이 있는지 볼 수 있습니다.",
+    "more": "{count, plural, other {표시되지 않은 발견 항목이 #개 더 있습니다.}}",
+    "dismiss": "무시",
+    "foundAt": "{when}에 발견",
+    "kinds": {
+      "card": "결제 카드 번호",
+      "iban": "IBAN",
+      "national_id": "신분증 번호",
+      "private_key": "개인 키",
+      "aws_key": "AWS 액세스 키",
+      "github_token": "GitHub 토큰",
+      "slack_token": "Slack 토큰",
+      "api_key": "API 키",
+      "jwt": "JSON Web Token"
+    },
+    "errors": {
+      "gone": "이 발견 항목은 이미 무시되었거나 해결되었습니다."
+    }
+  },
+  "domainPeople": {
+    "title": "내 도메인의 사람들",
+    "description": "이메일 주소가 워크스페이스의 확인된 도메인에 속하는 이 서버의 계정으로, 워크스페이스에 있는지와 관계없이 표시됩니다.",
+    "summary": "{domains}에 {count, plural, other {계정 #개}}, 그중 {inside}개가 이 워크스페이스에 있습니다.",
+    "more": "처음 500개만 표시됩니다.",
+    "search": "사람 검색",
+    "filter": "표시",
+    "filters": {
+      "all": "모든 사람",
+      "in": "이 워크스페이스에 있음",
+      "out": "이 워크스페이스에 없음"
+    },
+    "columns": {
+      "person": "사람",
+      "workspace": "이 워크스페이스",
+      "lastActive": "마지막 활동",
+      "signIn": "로그인 방법",
+      "actions": "작업"
+    },
+    "outside": "워크스페이스에 없음",
+    "unverified": "주소 미확인",
+    "never": "없음",
+    "noSignIn": "로그인 방법 없음",
+    "methods": {
+      "password": "비밀번호",
+      "sso": "싱글 사인온",
+      "passkey": "패스키"
+    },
+    "add": "멤버로 추가",
+    "remove": "제거",
+    "removing": "제거 중…",
+    "noMatches": "일치하는 사람이 없습니다.",
+    "empty": "이 서버에 아직 이 도메인을 사용하는 계정이 없습니다."
   }
 }

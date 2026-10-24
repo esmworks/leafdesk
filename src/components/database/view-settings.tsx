@@ -1,6 +1,6 @@
 "use client";
 
-import { ChartBarBig, ChartColumnBig, ChartLine, ChartPie, Check, Hash, ListTree, Palette, Plus, SlidersHorizontal, Waypoints } from "lucide-react";
+import { ChartBarBig, ChartColumnBig, ChartLine, ChartPie, Check, Hash, IterationCw, ListTree, Palette, Plus, SlidersHorizontal, Waypoints } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import { useState, type ReactNode } from "react";
@@ -85,6 +85,7 @@ export function ViewLayoutMenu({
   onCreatePlaceProperty,
   onSubItems,
   onDependencies,
+  onSprints,
   readOnly,
   locked,
 }: {
@@ -98,10 +99,13 @@ export function ViewLayoutMenu({
   onSubItems?: (on: boolean, propertyId?: string) => void;
   /** Missing when the user can't change dependencies. */
   onDependencies?: DependenciesHandler;
+  /** Opens the database's sprints (see lib/sprints); missing when the user can't change them. */
+  onSprints?: () => void;
   readOnly?: boolean;
   locked?: boolean;
 }) {
   const t = useTranslations("database.layout");
+  const tSprints = useTranslations("database.sprints");
   const menu = useFloating<HTMLButtonElement>();
   const [colorRules, setColorRules] = useState(false);
   const nesting = NESTING_VIEWS.has(view.type);
@@ -261,6 +265,19 @@ export function ViewLayoutMenu({
               }}
             >
               {t("colorRules")}
+            </MenuItem>
+          )}
+          {/* A setting of the database, like sub-items: tasks planned in sprints of a database of their own. */}
+          {rows && onSprints && !locked && (
+            <MenuItem
+              icon={<IterationCw className="h-3.5 w-3.5" />}
+              title={tSprints("menuHint")}
+              onClick={() => {
+                menu.close();
+                onSprints();
+              }}
+            >
+              {tSprints("menuItem")}
             </MenuItem>
           )}
         </div>

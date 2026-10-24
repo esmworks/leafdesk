@@ -13,15 +13,78 @@
   behind the current one. Tabs show their page's title and emoji, reorder by dragging and have a
   menu with *Close*, *Close Other Tabs*, *Duplicate Tab* and *Reopen Closed Tab*; every window
   comes back with its tabs at the next start, and all tabs share one sign-in. Reload, zoom, back
-  and forward act on the current tab.
+  and forward act on the current tab. A file the server shows (a PDF, an image, an export) still
+  opens in a window of its own with the system's title bar.
 - **Open Leafdesk links in the desktop app.** *My account → Preferences → Desktop app* (*Off*, *Offer to open
   them* or *Always open them*) lets a browser hand Leafdesk pages to the desktop app: the offer is a
   card to open the page there, with an *Always* box; *Always open them* tries the app
   once per browser tab and stays on the web page when it isn't installed. The app accepts
   `leafdesk://open?url=…` only for the server it is connected to (same scheme, host and port) and
   opens the page in a new tab. Not shown in Leafdesk on this computer. Migration
-  `drizzle/0132_desktop_links.sql` adds the person's choice to `user_preference`.
+  `drizzle/0133_desktop_links.sql` adds the person's choice to `user_preference`.
+- **Task databases can be planned in sprints.** A view's settings have *Sprints*: asked only for
+  the sprint length (one to four weeks) and the first sprint's day, it adds a Sprints database
+  beside the task database (dates and a state of current, next, future or completed; the first
+  sprint current, the second next), a two-way "Sprint" property on the tasks, a status if the
+  database had none, and the views *Current sprint* (a board by status), *Sprint planning* and
+  *Backlog*, all at once or not at all. *Complete sprint*, on the current sprint's board and on the
+  sprints database, says what will change and then, in one step, marks the current sprint
+  completed, makes the next one current, plans a new next one of the same length and moves the
+  tasks whose status isn't done to the new current sprint (tasks the person can't edit stay and are
+  counted). The current sprint's board follows the current sprint without its filter changing, and
+  new cards on it go into the current sprint. The states can be renamed: filters on a rollup that
+  lists a select's options (as these views' do) follow a rename of those options, in every
+  database; the four state options can't be deleted while sprints are on. Turning sprints off keeps the sprints database and
+  every task's sprint; turning them on again picks them up. REST API: `POST
+  /databases/{database_id}/sprints/complete` (with `dry_run`). No migration.
+- **My tasks.** A new sidebar section (it can be hidden or moved like the others) opens a page
+  listing every database row assigned to you across the workspace, in any person property, that
+  isn't done and that you can open: by due date (overdue, today, the next 7 days, later, no date)
+  or by database, with each row's status and first date, the first 200 due soonest. Rows open in
+  the row panel beside the list. A row with a status has a box that sets it to the first option of
+  its *Done* group, written like any change of the row (automations and activity included), and
+  unticking it puts the status back; the home page's *Assigned to you* list gets the same box and
+  a *See all* link. Finding the rows assigned to you now works out access once per database rather
+  than once per row: about 40 ms instead of 450 on a database of 50,000 rows.
+- **Turn a page into a teamspace.** The page menu's *Turn into teamspace*, for people with full
+  access to a page who may create teamspaces, makes a teamspace named after the page, with its
+  icon, after a dialog that says what will happen. The page and the pages right under it become
+  the teamspace's top-level pages, in one step. Whoever turns it and the people with full access to
+  the page become its owners, those who could edit it its members (with edit access to its pages),
+  groups that could edit it join as groups; viewers, commenters and guests keep the access they
+  had, and every page that moves keeps the people and groups it inherited, so nobody named on the
+  page gains or loses access. The teamspace is private when the page was private or in a private
+  teamspace, closed when it was in a closed one, open otherwise. The audit log records it as
+  *Turned the page … into the teamspace …*, with who joined and each page moved. The sidebar of whoever
+  turns it unfolds the new teamspace at once, as it now does whenever the open page moves to
+  another place.
 
+- **Stream the audit log to your security tools.** Settings → Audit log gains *Stream to your
+  security tools* for owners: an HTTPS address and a signing secret, shown once, sealed and
+  replaceable. New audit events go out as signed JSON batches (up to 100, within about 30 seconds,
+  oldest first, at least once) with the same headers and signature as automation webhooks, are
+  tried again with growing waits up to an hour under the same delivery id, and are given up on
+  (and counted) after 7 days. The settings show whether it streams or fails and since when, the
+  last error and delivery, what was sent and what waits, and *Send test event*. Starting, changing,
+  replacing the secret of and stopping a stream are in the audit log. The REST API gains
+  `GET /workspaces/{id}/audit-log` with the new `audit:read` scope, which only owners can give, and
+  only to a token limited to their workspace (no preset includes it): filters by time, actor,
+  actor kind, action and category, either order, with a cursor. Migration
+  `drizzle/0132_siem_dlp.sql` adds the stream and the outbox a trigger on `audit_event` fills. The audit
+  log's *Single sign-on and SCIM* filter is now called *Security*, as it holds these too.
+- **Sensitive content detection.** Owners can turn on *Look for sensitive content* in Settings →
+  Security (off by default): pages and rows are read in the background after they change for
+  payment card numbers (issuer and Luhn checked), IBANs (mod 97), Turkish national ID numbers and
+  secrets (private keys, AWS keys, GitHub and Slack tokens, `sk-` keys, JSON Web Tokens and more).
+  A finding keeps only a masked excerpt and a keyed hash, never the value; each is in the audit
+  log, owners hear of a page and kind in their inbox at most once a day, and Settings → Security
+  lists the open ones with their pages and *Dismiss*. A finding resolves itself once the value is
+  gone from the page; turning detection off deletes the findings. The same migration adds the
+  `sensitive_finding` and `sensitive_scan` tables.
+- **People from your domains.** Settings → Security lists, for owners of a workspace with verified
+  email domains, every account on the server with an address in them: whether it is in the
+  workspace and as what, when it was last active and how it signs in, with *Add as member* and
+  *Remove*.
 - **Page views and page analytics.** Opening a page, database or row in the app now records a
   view, once the page has been open two seconds and at most once per person and page every five
   minutes, kept as one count per page, person and UTC day and deleted after a year. Only owners
@@ -954,6 +1017,14 @@
   exports show the block without the chat. MCP's `list_agent_runs` describes chat runs. Migration
   0103 adds the `agent_conversation` table.
 
+- **Google documents can be imported through the workspace's Google Drive connection.** Import
+  has a Google Docs tab: paste links to documents or search the connection's Drive by title, tick
+  up to 20, and each becomes a page the way a Word document does (Drive exports it as one), titled
+  by its top heading or its name, pictures included, all or nothing. Owners may import through any
+  signed-in Google Drive connection; members only through one whose `download_file_content` tool
+  an owner allowed in the AI chat (searching needs `search_files` allowed too); guests never. Each
+  call is recorded in the audit log like the chat's, and the import as from Google Docs.
+
 ### Changed
 
 - **Enter in a code block keeps the line's indentation.** The new line starts with the spaces or
@@ -1078,6 +1149,12 @@
 - **Find opens collapsed toggles.** Cmd/Ctrl+F found text inside a collapsed toggle (or toggle
   heading) but stepping to it showed nothing; the toggle now opens when its match becomes the
   current one. Opening a link to a block inside a collapsed toggle opens it too.
+
+- **Files open in a desktop window with a title bar on macOS.** A PDF, image or other file opened
+  in a window of its own (from the AI chat, a file block) kept the window's buttons over the
+  viewer's toolbar, could not be moved by its top edge and was hard to make full screen; such
+  windows now have the system's title bar, while Leafdesk pages keep theirs inset.
+
 - **Text filters match the Turkish dotted and dotless i.** A "contains ist" filter now finds
   "İstanbul", and "ışık" finds "IŞIK": database view filters, form question conditions and option
   names given by name (MCP, the REST API, a new tag typed into a cell) fold case with İ, I, i and ı

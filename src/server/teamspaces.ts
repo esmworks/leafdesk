@@ -978,6 +978,80 @@ export async function dropFromTeamspaces(tx: Tx, workspaceId: string, userId: st
   }
 }
 
+/**
+ * Of these people, the owners and members of the workspace (who may be in its teamspaces; guests
+ * may not), with their names.
+ */
+export async function teamspaceEligible(reader: Pick<typeof db, "select">, workspaceId: string, userIds: string[]) {
+  if (!userIds.length) return new Map<string, string>();
+  const rows = await reader
+    .select({ id: user.id, name: user.name, email: user.email })
+    .from(workspaceMember)
+    .innerJoin(user, eq(user.id, workspaceMember.userId))
+    .where(
+      and(eq(workspaceMember.workspaceId, workspaceId), inArray(workspaceMember.userId, userIds), inArray(workspaceMember.role, ["owner", "member"])),
+    );
+  return new Map(rows.map((r) => [r.id, r.name || r.email]));
+}
+
+/**
+ * A teamspace made from a page (server/teamspace-from-page.ts), in that move's transaction: its
+ * owners and members by a row each, its groups, and the audit log's account of it. The caller
+ * checked that `actorId` may create teamspaces and passes only people `teamspaceEligible` allows.
+ */
+export async function createTeamspaceFromPage(
+  tx: Tx,
+  input: {
+    workspaceId: string;
+    actorId: string;
+    name: string;
+    icon: string | null;
+    access: TeamspaceAccess;
+    memberLevel: TeamspaceMemberLevel;
+    owners: string[];
+    members: string[];
+    groupIds: string[];
+    source: { id: string; title: string };
+  },
+) {
+  const { workspaceId, actorId, access, memberLevel } = input;
+  const [row] = await tx
+    .insert(teamspace)
+    .values({ workspaceId, name: cleanName(input.name), icon: parseIcon(input.icon), access, memberLevel, createdBy: actorId })
+    .returning();
+  const people = [
+    ...input.owners.map((userId) => ({ teamspaceId: row.id, userId, role: "owner" as const })),
+    ...input.members.filter((id) => !input.owners.includes(id)).map((userId) => ({ teamspaceId: row.id, userId, role: "member" as const })),
+  ];
+  await tx.insert(teamspaceMember).values(people).onConflictDoNothing();
+  const groups = new Map<string, string>();
+  for (const groupId of input.groupIds) groups.set(groupId, (await requireGroupIn(workspaceId, groupId)).name);
+  if (groups.size) await tx.insert(teamspaceGroup).values([...groups.keys()].map((groupId) => ({ teamspaceId: row.id, workspaceId, groupId })));
+  const target = { type: "teamspace" as const, id: row.id, label: row.name };
+  // Who joined besides whoever made it, by role, as adding them by hand records it.
+  const added = async (role: "owner" | "member") => {
+    const ids = people.filter((p) => p.role === role && p.userId !== actorId).map((p) => p.userId);
+    if (!ids.length) return [];
+    return [{ workspaceId, actorId, action: "teamspace.member_added" as const, target, details: { names: await namesOf(tx, ids), role } }];
+  };
+  await recordAudit(
+    [
+      {
+        workspaceId,
+        actorId,
+        action: "teamspace.created_from_page",
+        target,
+        details: { access, memberLevel, source: input.source.title, sourceId: input.source.id },
+      },
+      ...(await added("owner")),
+      ...(await added("member")),
+      ...(groups.size ? [{ workspaceId, actorId, action: "teamspace.group_added" as const, target, details: { names: [...groups.values()] } }] : []),
+    ],
+    tx,
+  );
+  return row;
+}
+
 /** Names the General teamspace the database gives a new workspace, and makes its creator its owner. */
 export async function setUpGeneralTeamspace(tx: Tx, workspaceId: string, ownerId: string, name: string) {
   const [general] = await tx
