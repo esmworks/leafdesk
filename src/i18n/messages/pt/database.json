@@ -129,7 +129,8 @@
     "addViewHeading": "Adicionar uma visualização",
     "rename": "Renomear",
     "viewName": "Nome da visualização",
-    "deleteView": "Excluir visualização"
+    "deleteView": "Excluir visualização",
+    "icon": "Ícone"
   },
   "deleted": {
     "properties": "Propriedades excluídas",
@@ -571,7 +572,8 @@
     "statusCheckboxHint": "Uma caixa marcada enquanto o status estiver concluído. Marcá-la escolhe o primeiro status concluído; desmarcá-la, o primeiro a fazer.",
     "pickerProperties": "Mostrar no seletor de linhas",
     "pickerPropertiesHint": "Até três propriedades exibidas ao lado do nome de cada linha ao vincular linhas.",
-    "pickerPropertiesNone": "O banco de dados relacionado não tem propriedades para mostrar."
+    "pickerPropertiesNone": "O banco de dados relacionado não tem propriedades para mostrar.",
+    "icon": "Ícone"
   },
   "rowProperties": {
     "noProperties": "Nenhuma propriedade",
@@ -933,7 +935,7 @@
     "parentInTrash": "A página principal está na lixeira. Restaure-a primeiro.",
     "nestedDatabase": "Um banco de dados não pode conter outro banco de dados.",
     "pageTooDeep": "As páginas podem ser aninhadas em no máximo {max} níveis.",
-    "invalidIcon": "O ícone deve ser um emoji.",
+    "invalidIcon": "O ícone precisa ser um emoji ou um ícone integrado.",
     "invalidRelation": "“{property}” só pode vincular linhas do banco de dados relacionado a ela.",
     "invalidRelationTarget": "Uma relação deve apontar para um banco de dados no mesmo espaço de trabalho.",
     "subItemLoop": "“{property}” não pode colocar uma linha sob ela mesma ou sob um dos seus próprios subitens.",

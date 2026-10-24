@@ -1,5 +1,6 @@
 "use client";
 
+import { IconGlyph } from "@/components/builtin-icon";
 import { cellMarkClass, colorMarkClass, type RowColors } from "@/lib/color-rules";
 import { Ellipsis, Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -207,7 +208,7 @@ const GalleryCard = memo(function GalleryCard({
           <CardTitleInput initial={typed || row.title} onDone={(title) => onTitle(row, title)} />
         ) : (
           <div className="flex min-w-0 gap-1.5 pe-6 text-sm leading-5 font-medium">
-            {showIcon && row.icon && (!coverClass || cover) && <span className="shrink-0">{row.icon}</span>}
+            {showIcon && row.icon && (!coverClass || cover) && <IconGlyph icon={row.icon} className="shrink-0" />}
             <span className={cn("min-w-0 break-words", !row.title && "text-fg-faint", cellMarkClass(color, "title"))}>
               {pageLabel(row.title, tc("untitled"))}
             </span>

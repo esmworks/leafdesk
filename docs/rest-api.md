@@ -19,6 +19,15 @@ brings the read scope of its resource. Every endpoint needs one scope (the refer
 `GET /me` takes any token), and a token without it gets `403 insufficient_scope` with the scope in
 `details.scope`:
 
+**Icons.** Pages, databases, rows, teamspaces, agents, callouts and buttons keep their icon as a
+string: an emoji as it is (`"📘"`), or a built-in line icon written `icon:<name>` or
+`icon:<name>:<color>` (`"icon:rocket:blue"`), where the color is one of `gray`, `brown`, `orange`,
+`yellow`, `green`, `blue`, `purple`, `pink` and `red` (without one it takes the text color). The
+REST API, the MCP tools and Markdown export return it unchanged, and writes accept either form; an
+unknown icon name or color is refused. The names are those of `src/lib/builtin-icon-names.ts`.
+In Markdown a callout's icon leads its text under the alert line (`> [!TIP]`, then
+`> icon:lightbulb:yellow Text`), and reads back the same way.
+
 | Scope | Endpoints |
 | --- | --- |
 | `workspaces:read` | `GET /workspaces`, a workspace's teamspaces and groups |

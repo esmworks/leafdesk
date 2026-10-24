@@ -1,3 +1,4 @@
+import { ICON_INPUT } from "@/lib/icon";
 import { eq } from "drizzle-orm";
 import * as z from "zod";
 import { db } from "@/db";
@@ -197,7 +198,7 @@ const searchTime = z
 
 const pageBodies = {
   updatePage: ops.inputs.updatePage.omit({ page_id: true }).extend({
-    icon: z.string().max(16).nullable().optional().describe("A single emoji used as the page icon; null removes it."),
+    icon: z.string().max(64).nullable().optional().describe(`${ICON_INPUT} null removes it.`),
   }),
   movePage: ops.inputs.movePage.omit({ page_id: true }),
   addComment: ops.inputs.addComment.omit({ page_id: true }),

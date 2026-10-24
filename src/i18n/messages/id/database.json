@@ -129,7 +129,8 @@
     "addViewHeading": "Tambahkan tampilan",
     "rename": "Ganti nama",
     "viewName": "Nama tampilan",
-    "deleteView": "Hapus tampilan"
+    "deleteView": "Hapus tampilan",
+    "icon": "Ikon"
   },
   "deleted": {
     "properties": "Properti yang dihapus",
@@ -571,7 +572,8 @@
     "statusCheckboxHint": "Kotak tercentang selama status selesai. Mencentangnya memilih status selesai pertama, menghapus centang memilih status belum dikerjakan pertama.",
     "pickerProperties": "Tampilkan di pemilih baris",
     "pickerPropertiesHint": "Hingga tiga properti ditampilkan di samping nama setiap baris saat menautkan baris.",
-    "pickerPropertiesNone": "Basis data terkait tidak memiliki properti untuk ditampilkan."
+    "pickerPropertiesNone": "Basis data terkait tidak memiliki properti untuk ditampilkan.",
+    "icon": "Ikon"
   },
   "rowProperties": {
     "noProperties": "Tidak ada properti",
@@ -933,7 +935,7 @@
     "parentInTrash": "Halaman induk ada di sampah. Pulihkan terlebih dahulu.",
     "nestedDatabase": "Basis data tidak dapat berisi basis data lain.",
     "pageTooDeep": "Halaman dapat disarangkan paling dalam {max} tingkat.",
-    "invalidIcon": "Ikon harus berupa emoji.",
+    "invalidIcon": "Ikon harus berupa emoji atau ikon bawaan.",
     "invalidRelation": "“{property}” hanya dapat menautkan ke baris basis data terkaitnya.",
     "invalidRelationTarget": "Relasi harus menunjuk ke basis data di ruang kerja yang sama.",
     "subItemLoop": "“{property}” tidak dapat menempatkan baris di bawah dirinya sendiri atau di bawah salah satu sub-itemnya.",

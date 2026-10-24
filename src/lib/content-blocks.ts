@@ -1,3 +1,4 @@
+import { readBuiltinIcon } from "./icon-value";
 import { defaultProps } from "@blocknote/core";
 import { type AlertKind, BREADCRUMB_BLOCK, CALLOUT_BLOCK, DEFAULT_CALLOUT_ICON, FOOTNOTE, INLINE_MATH, MATH_BLOCK, MERMAID_BLOCK, SUBPAGES_BLOCK, TOC_BLOCK } from "./content-block-names";
 
@@ -124,4 +125,14 @@ export function leadingEmoji(text: string): string | null {
     text,
   );
   return match ? match[0] : null;
+}
+
+/**
+ * A callout's icon at the start of its Markdown text: an emoji, or a built-in icon written as it is
+ * stored (`icon:star:blue`, lib/icon-value) and followed by a space or nothing.
+ */
+export function leadingIcon(text: string): string | null {
+  const builtin = /^icon:[a-z0-9-]+(?::[a-z]+)?(?=\s|$)/.exec(text);
+  if (builtin) return readBuiltinIcon(builtin[0]) ? builtin[0] : null;
+  return leadingEmoji(text);
 }

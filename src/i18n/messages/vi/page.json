@@ -202,7 +202,38 @@
   },
   "icon": {
     "add": "Thêm biểu tượng",
-    "remove": "Xóa biểu tượng"
+    "remove": "Xóa biểu tượng",
+    "emojiTab": "Emoji",
+    "iconsTab": "Biểu tượng",
+    "searchEmoji": "Tìm emoji",
+    "searchIcons": "Tìm biểu tượng",
+    "random": "Ngẫu nhiên",
+    "skinTone": "Màu da",
+    "tones": {
+      "0": "Không có màu da",
+      "1": "Màu da sáng",
+      "2": "Màu da sáng trung bình",
+      "3": "Màu da trung bình",
+      "4": "Màu da tối trung bình",
+      "5": "Màu da tối"
+    },
+    "color": "Màu biểu tượng",
+    "textColor": "Màu chữ",
+    "categoriesLabel": "Danh mục",
+    "categories": {
+      "smileys": "Mặt cười & cảm xúc",
+      "people": "Con người & cơ thể",
+      "nature": "Động vật & thiên nhiên",
+      "food": "Đồ ăn & thức uống",
+      "travel": "Du lịch & địa điểm",
+      "activities": "Hoạt động",
+      "objects": "Đồ vật",
+      "symbols": "Ký hiệu",
+      "flags": "Cờ"
+    },
+    "loading": "Đang tải…",
+    "loadFailed": "Không tải được emoji.",
+    "noMatches": "Không có kết quả phù hợp."
   },
   "background": {
     "add": "Thêm hình nền",
@@ -1125,7 +1156,7 @@
     },
     "settings": {
       "open": "Cài đặt nút",
-      "icon": "Biểu tượng cảm xúc",
+      "icon": "Biểu tượng",
       "label": "Nhãn",
       "color": "Màu",
       "colorDefault": "Mặc định",

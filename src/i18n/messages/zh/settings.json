@@ -734,7 +734,7 @@
       "accessDenied": "你没有执行此操作的权限。",
       "reasons": {
         "name": "请为智能体命名。",
-        "icon": "智能体的图标必须是表情符号。",
+        "icon": "代理的图标是表情符号或内置图标。",
         "level": "智能体可以查看、评论或编辑页面。",
         "template": "此模板不存在。",
         "database": "请选择此工作区中的数据库。",
@@ -2655,7 +2655,7 @@
       "reservedKey": "此键已被内置类型占用（note、tip、important、warning、caution、info、danger、details、frame、card、panel）。",
       "duplicateKey": "其他样式已在使用此键。",
       "name": "请输入不超过 60 个字符的名称。",
-      "icon": "请选择一个表情符号，或不使用图标。",
+      "icon": "请选择一个表情符号或内置图标，或不使用图标。",
       "color": "请选择颜色。",
       "border": "请选择边框。",
       "title": "标题最多 120 个字符。"

@@ -129,7 +129,8 @@
     "addViewHeading": "Lägg till en vy",
     "rename": "Byt namn",
     "viewName": "Vyns namn",
-    "deleteView": "Radera vyn"
+    "deleteView": "Radera vyn",
+    "icon": "Ikon"
   },
   "deleted": {
     "properties": "Raderade egenskaper",
@@ -571,7 +572,8 @@
     "statusCheckboxHint": "En ruta som är ikryssad medan statusen är klar. Att kryssa i väljer den första klar-statusen, att kryssa ur den första att göra-statusen.",
     "pickerProperties": "Visa i radväljaren",
     "pickerPropertiesHint": "Upp till tre egenskaper visas bredvid varje rads namn när rader länkas.",
-    "pickerPropertiesNone": "Den relaterade databasen har inga egenskaper att visa."
+    "pickerPropertiesNone": "Den relaterade databasen har inga egenskaper att visa.",
+    "icon": "Ikon"
   },
   "rowProperties": {
     "noProperties": "Inga egenskaper",
@@ -933,7 +935,7 @@
     "parentInTrash": "Den överordnade sidan ligger i papperskorgen. Återställ den först.",
     "nestedDatabase": "En databas kan inte innehålla en annan databas.",
     "pageTooDeep": "Sidor kan kapslas högst {max} nivåer djupt.",
-    "invalidIcon": "Ikonen måste vara en emoji.",
+    "invalidIcon": "Ikonen måste vara en emoji eller en inbyggd ikon.",
     "invalidRelation": "”{property}” kan bara länka till rader i sin relaterade databas.",
     "invalidRelationTarget": "En relation måste peka på en databas i samma arbetsyta.",
     "subItemLoop": "”{property}” kan inte placera en rad under sig själv eller under ett av sina egna underobjekt.",

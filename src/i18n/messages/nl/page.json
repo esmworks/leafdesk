@@ -202,7 +202,38 @@
   },
   "icon": {
     "add": "Pictogram toevoegen",
-    "remove": "Pictogram verwijderen"
+    "remove": "Pictogram verwijderen",
+    "emojiTab": "Emoji",
+    "iconsTab": "Pictogrammen",
+    "searchEmoji": "Emoji zoeken",
+    "searchIcons": "Pictogrammen zoeken",
+    "random": "Willekeurig",
+    "skinTone": "Huidskleur",
+    "tones": {
+      "0": "Geen huidskleur",
+      "1": "Lichte huidskleur",
+      "2": "Lichtgetinte huidskleur",
+      "3": "Getinte huidskleur",
+      "4": "Donkergetinte huidskleur",
+      "5": "Donkere huidskleur"
+    },
+    "color": "Kleur van pictogram",
+    "textColor": "Tekstkleur",
+    "categoriesLabel": "Categorieën",
+    "categories": {
+      "smileys": "Smileys en emoties",
+      "people": "Mensen en lichaam",
+      "nature": "Dieren en natuur",
+      "food": "Eten en drinken",
+      "travel": "Reizen en plaatsen",
+      "activities": "Activiteiten",
+      "objects": "Voorwerpen",
+      "symbols": "Symbolen",
+      "flags": "Vlaggen"
+    },
+    "loading": "Laden…",
+    "loadFailed": "De emoji konden niet worden geladen.",
+    "noMatches": "Geen resultaten."
   },
   "background": {
     "add": "Achtergrond toevoegen",
@@ -1125,7 +1156,7 @@
     },
     "settings": {
       "open": "Knopinstellingen",
-      "icon": "Emoji",
+      "icon": "Pictogram",
       "label": "Label",
       "color": "Kleur",
       "colorDefault": "Standaard",

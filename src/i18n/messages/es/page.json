@@ -202,7 +202,38 @@
   },
   "icon": {
     "add": "Añadir icono",
-    "remove": "Quitar icono"
+    "remove": "Quitar icono",
+    "emojiTab": "Emoji",
+    "iconsTab": "Iconos",
+    "searchEmoji": "Buscar emoji",
+    "searchIcons": "Buscar iconos",
+    "random": "Aleatorio",
+    "skinTone": "Tono de piel",
+    "tones": {
+      "0": "Sin tono de piel",
+      "1": "Tono de piel claro",
+      "2": "Tono de piel claro medio",
+      "3": "Tono de piel medio",
+      "4": "Tono de piel oscuro medio",
+      "5": "Tono de piel oscuro"
+    },
+    "color": "Color del icono",
+    "textColor": "Color del texto",
+    "categoriesLabel": "Categorías",
+    "categories": {
+      "smileys": "Caras y emociones",
+      "people": "Personas y cuerpo",
+      "nature": "Animales y naturaleza",
+      "food": "Comida y bebida",
+      "travel": "Viajes y lugares",
+      "activities": "Actividades",
+      "objects": "Objetos",
+      "symbols": "Símbolos",
+      "flags": "Banderas"
+    },
+    "loading": "Cargando…",
+    "loadFailed": "No se pudieron cargar los emoji.",
+    "noMatches": "No hay coincidencias."
   },
   "background": {
     "add": "Añadir fondo",
@@ -1125,7 +1156,7 @@
     },
     "settings": {
       "open": "Ajustes del botón",
-      "icon": "Emoji",
+      "icon": "Icono",
       "label": "Texto",
       "color": "Color",
       "colorDefault": "Predeterminado",

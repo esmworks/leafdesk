@@ -129,7 +129,8 @@
     "addViewHeading": "Ansicht hinzufügen",
     "rename": "Umbenennen",
     "viewName": "Name der Ansicht",
-    "deleteView": "Ansicht löschen"
+    "deleteView": "Ansicht löschen",
+    "icon": "Symbol"
   },
   "deleted": {
     "properties": "Gelöschte Eigenschaften",
@@ -571,7 +572,8 @@
     "statusCheckboxHint": "Ein Kästchen, das angehakt ist, solange der Status erledigt ist. Anhaken wählt den ersten Erledigt-Status, Abhaken den ersten Zu-erledigen-Status.",
     "pickerProperties": "In der Zeilenauswahl zeigen",
     "pickerPropertiesHint": "Bis zu drei Eigenschaften neben dem Namen jeder Zeile, wenn Zeilen verknüpft werden.",
-    "pickerPropertiesNone": "Die verknüpfte Datenbank hat keine Eigenschaften zum Anzeigen."
+    "pickerPropertiesNone": "Die verknüpfte Datenbank hat keine Eigenschaften zum Anzeigen.",
+    "icon": "Symbol"
   },
   "rowProperties": {
     "noProperties": "Keine Eigenschaften",
@@ -933,7 +935,7 @@
     "parentInTrash": "Die übergeordnete Seite liegt im Papierkorb. Stelle sie zuerst wieder her.",
     "nestedDatabase": "Eine Datenbank kann keine andere Datenbank enthalten.",
     "pageTooDeep": "Seiten können höchstens {max} Ebenen tief verschachtelt werden.",
-    "invalidIcon": "Das Symbol muss ein Emoji sein.",
+    "invalidIcon": "Das Symbol muss ein Emoji oder ein eingebautes Symbol sein.",
     "invalidRelation": "„{property}“ kann nur mit Zeilen der verknüpften Datenbank verknüpft werden.",
     "invalidRelationTarget": "Eine Relation muss auf eine Datenbank im selben Workspace verweisen.",
     "subItemLoop": "„{property}“ kann eine Zeile nicht unter sich selbst oder unter eines ihrer eigenen Unterelemente stellen.",

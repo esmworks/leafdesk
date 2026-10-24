@@ -734,7 +734,7 @@
       "accessDenied": "No tienes permiso para hacer esto.",
       "reasons": {
         "name": "Ponle un nombre al agente.",
-        "icon": "El icono de un agente es un emoji.",
+        "icon": "El icono de un agente es un emoji o un icono integrado.",
         "level": "Un agente puede ver, comentar o editar una página.",
         "template": "Esta plantilla no existe.",
         "database": "Elige una base de datos de este espacio de trabajo.",
@@ -2655,7 +2655,7 @@
       "reservedKey": "Esta clave pertenece a un tipo integrado (note, tip, important, warning, caution, info, danger, details, frame, card, panel).",
       "duplicateKey": "Otro estilo ya usa esta clave.",
       "name": "Escribe un nombre de hasta 60 caracteres.",
-      "icon": "Elige un emoji o ningún icono.",
+      "icon": "Elige un emoji o un icono integrado, o ningún icono.",
       "color": "Elige un color.",
       "border": "Elige un borde.",
       "title": "El título puede tener como máximo 120 caracteres."

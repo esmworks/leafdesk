@@ -202,7 +202,38 @@
   },
   "icon": {
     "add": "Tilføj ikon",
-    "remove": "Fjern ikon"
+    "remove": "Fjern ikon",
+    "emojiTab": "Emoji",
+    "iconsTab": "Ikoner",
+    "searchEmoji": "Søg efter emoji",
+    "searchIcons": "Søg efter ikoner",
+    "random": "Tilfældig",
+    "skinTone": "Hudfarve",
+    "tones": {
+      "0": "Ingen hudfarve",
+      "1": "Lys hudfarve",
+      "2": "Medium-lys hudfarve",
+      "3": "Medium hudfarve",
+      "4": "Medium-mørk hudfarve",
+      "5": "Mørk hudfarve"
+    },
+    "color": "Ikonfarve",
+    "textColor": "Tekstfarve",
+    "categoriesLabel": "Kategorier",
+    "categories": {
+      "smileys": "Smileys og følelser",
+      "people": "Mennesker og krop",
+      "nature": "Dyr og natur",
+      "food": "Mad og drikke",
+      "travel": "Rejser og steder",
+      "activities": "Aktiviteter",
+      "objects": "Objekter",
+      "symbols": "Symboler",
+      "flags": "Flag"
+    },
+    "loading": "Indlæser…",
+    "loadFailed": "Emoji kunne ikke indlæses.",
+    "noMatches": "Intet matcher."
   },
   "background": {
     "add": "Tilføj baggrund",
@@ -1125,7 +1156,7 @@
     },
     "settings": {
       "open": "Knapindstillinger",
-      "icon": "Emoji",
+      "icon": "Ikon",
       "label": "Tekst",
       "color": "Farve",
       "colorDefault": "Standard",

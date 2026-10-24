@@ -129,7 +129,8 @@
     "addViewHeading": "Add a view",
     "rename": "Rename",
     "viewName": "View name",
-    "deleteView": "Delete view"
+    "deleteView": "Delete view",
+    "icon": "Icon"
   },
   "deleted": {
     "properties": "Deleted properties",
@@ -571,7 +572,8 @@
     "statusCheckboxHint": "A box ticked while the status is done. Ticking it picks the first done status, unticking the first to-do one.",
     "pickerProperties": "Show in row picker",
     "pickerPropertiesHint": "Up to three properties shown beside each row's name when linking rows.",
-    "pickerPropertiesNone": "The related database has no properties to show."
+    "pickerPropertiesNone": "The related database has no properties to show.",
+    "icon": "Icon"
   },
   "rowProperties": {
     "noProperties": "No properties",
@@ -933,7 +935,7 @@
     "parentInTrash": "The parent page is in the trash. Restore it first.",
     "nestedDatabase": "A database can’t contain another database.",
     "pageTooDeep": "Pages can be nested at most {max} levels deep.",
-    "invalidIcon": "The icon must be an emoji.",
+    "invalidIcon": "The icon must be an emoji or a built-in icon.",
     "invalidRelation": "“{property}” can only link to rows of its related database.",
     "invalidRelationTarget": "A relation must point to a database in the same workspace.",
     "subItemLoop": "“{property}” can’t put a row under itself or under one of its own sub-items.",

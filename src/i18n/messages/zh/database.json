@@ -129,7 +129,8 @@
     "addViewHeading": "添加视图",
     "rename": "重命名",
     "viewName": "视图名称",
-    "deleteView": "删除视图"
+    "deleteView": "删除视图",
+    "icon": "图标"
   },
   "deleted": {
     "properties": "已删除的属性",
@@ -571,7 +572,8 @@
     "statusCheckboxHint": "状态为已完成时勾选。勾选会选择第一个已完成状态，取消勾选会选择第一个待办状态。",
     "pickerProperties": "在行选择器中显示",
     "pickerPropertiesHint": "关联行时，在每行名称旁最多显示三个属性。",
-    "pickerPropertiesNone": "关联的数据库没有可显示的属性。"
+    "pickerPropertiesNone": "关联的数据库没有可显示的属性。",
+    "icon": "图标"
   },
   "rowProperties": {
     "noProperties": "没有属性",
@@ -933,7 +935,7 @@
     "parentInTrash": "上级页面在回收站中。请先恢复它。",
     "nestedDatabase": "数据库不能包含另一个数据库。",
     "pageTooDeep": "页面最多只能嵌套 {max} 层。",
-    "invalidIcon": "图标必须是表情符号。",
+    "invalidIcon": "图标必须是表情符号或内置图标。",
     "invalidRelation": "“{property}”只能链接到其关联数据库中的行。",
     "invalidRelationTarget": "关联必须指向同一工作区中的数据库。",
     "subItemLoop": "“{property}”不能将一行放在其自身或其子项之下。",

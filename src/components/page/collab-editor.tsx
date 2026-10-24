@@ -66,6 +66,7 @@ import { pasteAgentChat, useAgentChatSlashItem } from "./agent-chat-block";
 import { useButtonSlashItem } from "./button-block";
 import { useMeetingSlashItem } from "./meeting-block";
 import { PasteLinkMenu, useWebSlashItems } from "./web-blocks";
+import { EmojiMenu } from "./emoji-menu";
 import { LinkToolbarWithMention } from "./link-mention-toolbar";
 import { ImageLinkContext, ImageLinkDialog } from "./image-link";
 import { ImageCropContext } from "./image-crop-item";
@@ -378,6 +379,7 @@ export default function CollabEditor({
               theme={colorScheme}
               editable={mountEditable}
               slashMenu={false}
+              emojiPicker={false}
               sideMenu={false}
               formattingToolbar={false}
               linkToolbar={false}
@@ -418,6 +420,7 @@ export default function CollabEditor({
               {editable && <MentionMenu editor={editor} workspaceId={workspaceId} pageId={pageId} />}
               {editable && <PageLinkMenu editor={editor} workspaceId={workspaceId} pageId={pageId} offline={offline} />}
               <PasteLinkMenu editor={editor} />
+              <EmojiMenu editor={editor} />
               <LinkToolbarController linkToolbar={linkToolbar} />
               {/* People who may only read get no toolbar; commenting shows it on read-only pages too. */}
               {(editable || canComment) && (

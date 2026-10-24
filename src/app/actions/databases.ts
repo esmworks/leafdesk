@@ -342,6 +342,7 @@ export async function updatePropertyAction(
     dependsOn?: string | null;
     prefix?: string | null;
     urlPreview?: boolean;
+    icon?: string | null;
     onePerson?: boolean;
     statusDisplay?: "checkbox" | "option";
   },

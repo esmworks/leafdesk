@@ -202,7 +202,38 @@
   },
   "icon": {
     "add": "Tambahkan ikon",
-    "remove": "Hapus ikon"
+    "remove": "Hapus ikon",
+    "emojiTab": "Emoji",
+    "iconsTab": "Ikon",
+    "searchEmoji": "Cari emoji",
+    "searchIcons": "Cari ikon",
+    "random": "Acak",
+    "skinTone": "Warna kulit",
+    "tones": {
+      "0": "Tanpa warna kulit",
+      "1": "Warna kulit terang",
+      "2": "Warna kulit cukup terang",
+      "3": "Warna kulit sedang",
+      "4": "Warna kulit cukup gelap",
+      "5": "Warna kulit gelap"
+    },
+    "color": "Warna ikon",
+    "textColor": "Warna teks",
+    "categoriesLabel": "Kategori",
+    "categories": {
+      "smileys": "Smiley & emosi",
+      "people": "Orang & tubuh",
+      "nature": "Hewan & alam",
+      "food": "Makanan & minuman",
+      "travel": "Perjalanan & tempat",
+      "activities": "Aktivitas",
+      "objects": "Objek",
+      "symbols": "Simbol",
+      "flags": "Bendera"
+    },
+    "loading": "Memuat…",
+    "loadFailed": "Emoji tidak dapat dimuat.",
+    "noMatches": "Tidak ada yang cocok."
   },
   "background": {
     "add": "Tambahkan latar belakang",
@@ -1125,7 +1156,7 @@
     },
     "settings": {
       "open": "Pengaturan tombol",
-      "icon": "Emoji",
+      "icon": "Ikon",
       "label": "Label",
       "color": "Warna",
       "colorDefault": "Bawaan",

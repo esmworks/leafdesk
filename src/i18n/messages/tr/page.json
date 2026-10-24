@@ -202,7 +202,38 @@
   },
   "icon": {
     "add": "Simge ekle",
-    "remove": "Simgeyi kaldır"
+    "remove": "Simgeyi kaldır",
+    "emojiTab": "Emoji",
+    "iconsTab": "Simgeler",
+    "searchEmoji": "Emoji ara",
+    "searchIcons": "Simge ara",
+    "random": "Rastgele",
+    "skinTone": "Ten rengi",
+    "tones": {
+      "0": "Ten rengi yok",
+      "1": "Açık ten rengi",
+      "2": "Orta açık ten rengi",
+      "3": "Orta ten rengi",
+      "4": "Orta koyu ten rengi",
+      "5": "Koyu ten rengi"
+    },
+    "color": "Simge rengi",
+    "textColor": "Metin rengi",
+    "categoriesLabel": "Kategoriler",
+    "categories": {
+      "smileys": "İfadeler ve duygular",
+      "people": "İnsanlar ve vücut",
+      "nature": "Hayvanlar ve doğa",
+      "food": "Yiyecek ve içecek",
+      "travel": "Seyahat ve yerler",
+      "activities": "Etkinlikler",
+      "objects": "Nesneler",
+      "symbols": "Semboller",
+      "flags": "Bayraklar"
+    },
+    "loading": "Yükleniyor…",
+    "loadFailed": "Emojiler yüklenemedi.",
+    "noMatches": "Eşleşen bir şey yok."
   },
   "background": {
     "add": "Arka plan ekle",
@@ -1125,7 +1156,7 @@
     },
     "settings": {
       "open": "Düğme ayarları",
-      "icon": "Emoji",
+      "icon": "Simge",
       "label": "Etiket",
       "color": "Renk",
       "colorDefault": "Varsayılan",

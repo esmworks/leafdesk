@@ -734,7 +734,7 @@
       "accessDenied": "Du har ikke tillatelse til å gjøre dette.",
       "reasons": {
         "name": "Gi agenten et navn.",
-        "icon": "Ikonet til en agent er en emoji.",
+        "icon": "Ikonet til en agent er en emoji eller et innebygd ikon.",
         "level": "En agent kan lese, kommentere eller redigere en side.",
         "template": "Denne malen finnes ikke.",
         "database": "Velg en database i dette arbeidsområdet.",
@@ -2655,7 +2655,7 @@
       "reservedKey": "Denne nøkkelen brukes av en innebygd type (note, tip, important, warning, caution, info, danger, details, frame, card, panel).",
       "duplicateKey": "En annen stil har allerede denne nøkkelen.",
       "name": "Skriv inn et navn på opptil 60 tegn.",
-      "icon": "Velg én emoji, eller ikke noe ikon.",
+      "icon": "Velg én emoji eller ett innebygd ikon, eller ingen ikon.",
       "color": "Velg en farge.",
       "border": "Velg en kantlinje.",
       "title": "Tittelen kan ha høyst 120 tegn."

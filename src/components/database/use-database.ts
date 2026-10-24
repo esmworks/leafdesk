@@ -566,6 +566,12 @@ export function useDatabase(
         );
       },
 
+      /** Sets the icon a property shows instead of its type's (null for the type's). */
+      setPropertyIcon(prop: Property, icon: string | null) {
+        const { icon: _old, ...rest } = prop.options;
+        return mutateSchema(patchProperty(prop.id, { options: icon ? { ...rest, icon } : rest }), () => updatePropertyAction(prop.id, { icon }));
+      },
+
       /**
        * Makes a select depend on another select property (null: on nothing; see lib/dependent-options).
        * A new one forgets which options went with which of the old one's.

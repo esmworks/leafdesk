@@ -143,6 +143,13 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   on other sites go through `app/api/files/external` (connections' address checks only). Comment
   mentions and previews: `lib/comment-refs.ts`, resolved per reader by `server/comment-refs.ts`.
   Cmd/Ctrl+Alt+T: `components/toggle-all.ts` (views with groups join through `useToggleAllGroups`).
+- **Icons.** A stored icon is an emoji or `icon:<name>[:<color>]` (`src/lib/icon-value.ts`, tiny and
+  safe anywhere; checked by `lib/icon.ts` `parseIcon` against `lib/builtin-icon-names.ts`). Show one
+  with `IconGlyph` (`components/builtin-icon.tsx`), never as raw text; text output strips it with
+  `iconText`. Drawings (`lib/builtin-icons-data.ts`, from `scripts/builtin-icons.ts`) load lazily;
+  server SVG for favicons and PDF is `lib/builtin-icon-svg.ts`. Emoji data and names per locale are
+  static files in `public/emoji/` written by `scripts/emoji-data.ts`, fetched by the picker and the
+  editor's ":" menu, never imported.
 - **Workspace sites** (`site.ts`, routes `src/app/s/`): a site on its own domain is routed by
   `server.ts` through `site-hosts.ts`, which sets the trusted `x-leafdesk-site-host` /
   `x-leafdesk-site-analytics` headers (dropped from every client request) that `proxy.ts` rewrites

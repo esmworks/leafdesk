@@ -202,7 +202,38 @@
   },
   "icon": {
     "add": "Ajouter une icône",
-    "remove": "Supprimer l’icône"
+    "remove": "Supprimer l’icône",
+    "emojiTab": "Emoji",
+    "iconsTab": "Icônes",
+    "searchEmoji": "Rechercher un emoji",
+    "searchIcons": "Rechercher une icône",
+    "random": "Au hasard",
+    "skinTone": "Teint",
+    "tones": {
+      "0": "Sans teint",
+      "1": "Peau claire",
+      "2": "Peau moyennement claire",
+      "3": "Peau légèrement mate",
+      "4": "Peau mate",
+      "5": "Peau foncée"
+    },
+    "color": "Couleur de l’icône",
+    "textColor": "Couleur du texte",
+    "categoriesLabel": "Catégories",
+    "categories": {
+      "smileys": "Smileys et émotions",
+      "people": "Personnes et corps",
+      "nature": "Animaux et nature",
+      "food": "Nourriture et boissons",
+      "travel": "Voyages et lieux",
+      "activities": "Activités",
+      "objects": "Objets",
+      "symbols": "Symboles",
+      "flags": "Drapeaux"
+    },
+    "loading": "Chargement…",
+    "loadFailed": "Impossible de charger les emoji.",
+    "noMatches": "Aucun résultat."
   },
   "background": {
     "add": "Ajouter un arrière-plan",
@@ -1125,7 +1156,7 @@
     },
     "settings": {
       "open": "Paramètres du bouton",
-      "icon": "Emoji",
+      "icon": "Icône",
       "label": "Libellé",
       "color": "Couleur",
       "colorDefault": "Par défaut",

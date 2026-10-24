@@ -78,6 +78,16 @@
   --graph-relation: #d4a65f;
   --graph-child: #d5d7db;
   --graph-faded: #eeeef0;
+  /* Built-in icons in a color (lib/icon-value, .icon-* below): the option palette's hues, as text. */
+  --icon-gray: #5c6e61;
+  --icon-brown: #935839;
+  --icon-orange: #9c5301;
+  --icon-yellow: #7f6606;
+  --icon-green: #187d42;
+  --icon-blue: #0b6fa7;
+  --icon-purple: #7955a0;
+  --icon-pink: #9d4673;
+  --icon-red: #ac3f42;
 }
 
 /* The print view (app/print) stays light in dark mode: see the end of this file. */
@@ -114,6 +124,15 @@
     --graph-relation: #9a7540;
     --graph-child: #323438;
     --graph-faded: #252629;
+    --icon-gray: #adbcb1;
+    --icon-brown: #dbab93;
+    --icon-orange: #eca56f;
+    --icon-yellow: #cfb565;
+    --icon-green: #89c99a;
+    --icon-blue: #84bfeb;
+    --icon-purple: #c4a9e5;
+    --icon-pink: #e69fc0;
+    --icon-red: #f39c99;
   }
 }
 
@@ -137,6 +156,15 @@
     --ring: rgba(29, 92, 55, 0.75);
     --scrollbar: rgba(11, 12, 14, 0.4);
     --scrollbar-hover: rgba(11, 12, 14, 0.6);
+    --icon-gray: #4f5f53;
+    --icon-brown: #844f33;
+    --icon-orange: #8c4b01;
+    --icon-yellow: #705a05;
+    --icon-green: #146937;
+    --icon-blue: #095f90;
+    --icon-purple: #6d4d90;
+    --icon-pink: #90406a;
+    --icon-red: #9e3a3d;
   }
 }
 :root:not(:has([data-print-view])) {
@@ -320,6 +348,22 @@
     .opt-red, .tint-red { --opt-bg: #ad514a; --opt-fg: #fbefef; --opt-tint: #251b1b; --opt-card: #3c2422; --opt-mark: #482b2a; }
   }
 }
+
+/* A built-in icon's box, in the base layer so a `hidden` (or other display) utility given to it wins. */
+@layer base {
+  .builtin-icon { display: inline-flex; }
+}
+
+/* A built-in icon's color (components/builtin-icon.tsx). */
+.icon-gray { color: var(--icon-gray); }
+.icon-brown { color: var(--icon-brown); }
+.icon-orange { color: var(--icon-orange); }
+.icon-yellow { color: var(--icon-yellow); }
+.icon-green { color: var(--icon-green); }
+.icon-blue { color: var(--icon-blue); }
+.icon-purple { color: var(--icon-purple); }
+.icon-pink { color: var(--icon-pink); }
+.icon-red { color: var(--icon-red); }
 
 .opt-gray, .opt-brown, .opt-orange, .opt-yellow, .opt-green, .opt-blue, .opt-purple, .opt-pink, .opt-red {
   background: var(--opt-bg);

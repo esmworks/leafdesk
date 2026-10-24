@@ -1,5 +1,6 @@
 "use client";
 
+import { IconGlyph } from "@/components/builtin-icon";
 import { ArrowDown, ArrowUp, Bot, ChevronRight, Ellipsis, EyeOff, Plus } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useTimeZone, useTranslations } from "next-intl";
@@ -472,7 +473,7 @@ export function TableView({
           />
           <div className="flex font-medium" style={subItems.nested ? { paddingInlineStart: line.depth * SUB_ITEM_INDENT + 4 } : undefined}>
             {subItems.nested && <SubItemToggle line={line} title={label} onToggle={() => subItems.toggle(row.id)} className="h-[33px]" />}
-            {showIcons && row.icon && <span className="flex h-[33px] shrink-0 items-center ps-2 leading-none">{row.icon}</span>}
+            {showIcons && row.icon && <span className="flex h-[33px] shrink-0 items-center ps-2 leading-none"><IconGlyph icon={row.icon} /></span>}
             <div className="min-w-0 flex-1">
               <QuickAddContext value={editTitleOf === row.id ? quick : null}>
                 <PropertyCell
@@ -813,6 +814,7 @@ export function TableView({
                       setOptions: fixed ? undefined : (options) => api.setOptions(p, options),
                       setDependsOn: fixed ? undefined : (parentId) => api.setDependsOn(p, parentId),
                       setDescription: fixed ? undefined : (description) => api.setDescription(p, description),
+                      setIcon: fixed ? undefined : (icon) => api.setPropertyIcon(p, icon),
                       setFormula: fixed ? undefined : (expression) => api.setFormula(p, expression),
                       setRollup: fixed ? undefined : (rollup) => api.setRollup(p, rollup),
                       setNumberFormat:
@@ -1081,7 +1083,7 @@ function HeaderCell({
         aria-describedby={description ? descriptionId : undefined}
         className="flex h-[33px] w-full items-center gap-1.5 px-2 text-sm text-fg-muted hover:bg-bg-hover disabled:hover:bg-transparent"
       >
-        <PropertyTypeIcon type={icon} className="h-3.5 w-3.5 shrink-0" />
+        <PropertyTypeIcon type={icon} icon={prop?.options.icon} className="h-3.5 w-3.5 shrink-0" />
         <span className="truncate">{label}</span>
         {prop && <PropertyLock propertyId={prop.id} />}
         {isAutofillType(prop?.type) && prop?.options.ai && <Bot className="h-3.5 w-3.5 shrink-0" aria-label={tAi("addEntry")} />}

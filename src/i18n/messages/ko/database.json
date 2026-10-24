@@ -129,7 +129,8 @@
     "addViewHeading": "보기 추가",
     "rename": "이름 변경",
     "viewName": "보기 이름",
-    "deleteView": "보기 삭제"
+    "deleteView": "보기 삭제",
+    "icon": "아이콘"
   },
   "deleted": {
     "properties": "삭제된 속성",
@@ -571,7 +572,8 @@
     "statusCheckboxHint": "상태가 완료인 동안 체크됩니다. 체크하면 첫 번째 완료 상태가, 해제하면 첫 번째 할 일 상태가 선택됩니다.",
     "pickerProperties": "행 선택기에 표시",
     "pickerPropertiesHint": "행을 연결할 때 각 행 이름 옆에 최대 세 개의 속성을 표시합니다.",
-    "pickerPropertiesNone": "관련 데이터베이스에 표시할 속성이 없습니다."
+    "pickerPropertiesNone": "관련 데이터베이스에 표시할 속성이 없습니다.",
+    "icon": "아이콘"
   },
   "rowProperties": {
     "noProperties": "속성 없음",
@@ -933,7 +935,7 @@
     "parentInTrash": "상위 페이지가 휴지통에 있습니다. 먼저 복원하세요.",
     "nestedDatabase": "데이터베이스 안에 다른 데이터베이스를 넣을 수 없습니다.",
     "pageTooDeep": "페이지는 최대 {max}단계까지만 중첩할 수 있습니다.",
-    "invalidIcon": "아이콘은 이모지여야 합니다.",
+    "invalidIcon": "아이콘은 이모지 또는 기본 제공 아이콘이어야 합니다.",
     "invalidRelation": "“{property}”은(는) 관련 데이터베이스의 행에만 연결할 수 있습니다.",
     "invalidRelationTarget": "관계형은 같은 워크스페이스의 데이터베이스를 가리켜야 합니다.",
     "subItemLoop": "“{property}”에서 행을 자기 자신이나 자신의 하위 항목 아래에 둘 수 없습니다.",

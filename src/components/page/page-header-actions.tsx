@@ -1,5 +1,6 @@
 "use client";
 
+import { IconGlyph } from "@/components/builtin-icon";
 import {
   Archive,
   ArchiveRestore,
@@ -1356,7 +1357,7 @@ export function MoveDialog({
             className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-start hover:bg-bg-hover"
           >
             {r.icon ? (
-              <span className="flex h-4 w-4 items-center justify-center text-sm">{r.icon}</span>
+              <IconGlyph icon={r.icon} className="flex h-4 w-4 items-center justify-center text-sm" />
             ) : (
               <ArrowRightLeft className="h-4 w-4 text-fg-muted" />
             )}

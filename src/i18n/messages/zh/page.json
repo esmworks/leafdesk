@@ -202,7 +202,38 @@
   },
   "icon": {
     "add": "添加图标",
-    "remove": "移除图标"
+    "remove": "移除图标",
+    "emojiTab": "表情符号",
+    "iconsTab": "图标",
+    "searchEmoji": "搜索表情符号",
+    "searchIcons": "搜索图标",
+    "random": "随机",
+    "skinTone": "肤色",
+    "tones": {
+      "0": "无肤色",
+      "1": "较浅肤色",
+      "2": "中等偏浅肤色",
+      "3": "中等肤色",
+      "4": "中等偏深肤色",
+      "5": "较深肤色"
+    },
+    "color": "图标颜色",
+    "textColor": "文字颜色",
+    "categoriesLabel": "类别",
+    "categories": {
+      "smileys": "笑脸和情感",
+      "people": "人物和身体",
+      "nature": "动物和自然",
+      "food": "食物和饮料",
+      "travel": "旅行和地点",
+      "activities": "活动",
+      "objects": "物品",
+      "symbols": "符号",
+      "flags": "旗帜"
+    },
+    "loading": "正在加载…",
+    "loadFailed": "无法加载表情符号。",
+    "noMatches": "没有匹配项。"
   },
   "background": {
     "add": "添加背景",
@@ -1125,7 +1156,7 @@
     },
     "settings": {
       "open": "按钮设置",
-      "icon": "表情符号",
+      "icon": "图标",
       "label": "文字",
       "color": "颜色",
       "colorDefault": "默认",

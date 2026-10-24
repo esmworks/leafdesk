@@ -202,7 +202,38 @@
   },
   "icon": {
     "add": "Lägg till ikon",
-    "remove": "Ta bort ikon"
+    "remove": "Ta bort ikon",
+    "emojiTab": "Emoji",
+    "iconsTab": "Ikoner",
+    "searchEmoji": "Sök emoji",
+    "searchIcons": "Sök ikoner",
+    "random": "Slumpa",
+    "skinTone": "Hudton",
+    "tones": {
+      "0": "Ingen hudton",
+      "1": "Ljus hudton",
+      "2": "Mellanljus hudton",
+      "3": "Mellanfärgad hudton",
+      "4": "Mellanmörk hudton",
+      "5": "Mörk hudton"
+    },
+    "color": "Ikonfärg",
+    "textColor": "Textfärg",
+    "categoriesLabel": "Kategorier",
+    "categories": {
+      "smileys": "Smileys och känslor",
+      "people": "Människor och kropp",
+      "nature": "Djur och natur",
+      "food": "Mat och dryck",
+      "travel": "Resor och platser",
+      "activities": "Aktiviteter",
+      "objects": "Föremål",
+      "symbols": "Symboler",
+      "flags": "Flaggor"
+    },
+    "loading": "Läser in …",
+    "loadFailed": "Det gick inte att läsa in emojierna.",
+    "noMatches": "Inga träffar."
   },
   "background": {
     "add": "Lägg till bakgrund",
@@ -1125,7 +1156,7 @@
     },
     "settings": {
       "open": "Knappinställningar",
-      "icon": "Emoji",
+      "icon": "Ikon",
       "label": "Etikett",
       "color": "Färg",
       "colorDefault": "Standard",

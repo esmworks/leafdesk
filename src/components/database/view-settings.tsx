@@ -400,7 +400,7 @@ function SubItemsSettings({
             {t("turnOn")}
           </MenuItem>
           {selfRelations.map((p) => (
-            <MenuItem key={p.id} icon={<PropertyTypeIcon type={p.type} />} onClick={() => onSubItems?.(true, p.id)}>
+            <MenuItem key={p.id} icon={<PropertyTypeIcon type={p.type} icon={p.options.icon} />} onClick={() => onSubItems?.(true, p.id)}>
               {t("useExisting", { name: p.name })}
             </MenuItem>
           ))}
@@ -449,7 +449,7 @@ function DependencySettings({
         {selfRelations.map((p) => (
           <MenuItem
             key={p.id}
-            icon={<PropertyTypeIcon type={p.type} />}
+            icon={<PropertyTypeIcon type={p.type} icon={p.options.icon} />}
             onClick={() => onDependencies(true, { propertyId: p.id, settings: viewDates })}
           >
             {t("useExisting", { name: p.name })}
@@ -527,7 +527,7 @@ function TimelineSettings({
         <MenuItem
           key={p.id}
           active={p.id === start?.id}
-          icon={<PropertyTypeIcon type={p.type} />}
+          icon={<PropertyTypeIcon type={p.type} icon={p.options.icon} />}
           onClick={() => onSet({ dateBy: p.id, endDateBy: p.id === end?.id ? undefined : view.config.endDateBy })}
         >
           {p.name}
@@ -540,7 +540,7 @@ function TimelineSettings({
         {t("noEnd")}
       </Choice>
       {ends.map((p) => (
-        <MenuItem key={p.id} active={p.id === end?.id} icon={<PropertyTypeIcon type={p.type} />} onClick={() => onSet({ endDateBy: p.id })}>
+        <MenuItem key={p.id} active={p.id === end?.id} icon={<PropertyTypeIcon type={p.type} icon={p.options.icon} />} onClick={() => onSet({ endDateBy: p.id })}>
           {p.name}
         </MenuItem>
       ))}
@@ -555,7 +555,7 @@ function TimelineSettings({
         {t("noGrouping")}
       </Choice>
       {groupable.map((p) => (
-        <MenuItem key={p.id} active={p.id === groupBy?.id} icon={<PropertyTypeIcon type={p.type} />} onClick={() => onSet({ groupBy: p.id })}>
+        <MenuItem key={p.id} active={p.id === groupBy?.id} icon={<PropertyTypeIcon type={p.type} icon={p.options.icon} />} onClick={() => onSet({ groupBy: p.id })}>
           {p.name}
         </MenuItem>
       ))}

@@ -1,6 +1,7 @@
 "use client";
 
 import { forwardRef, useEffect, useRef, useState, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode } from "react";
+import { IconGlyph } from "./builtin-icon";
 
 export function cn(...classes: (string | false | null | undefined)[]) {
   return classes.filter(Boolean).join(" ");
@@ -264,7 +265,7 @@ export function Switch({
 }
 
 export function PageIcon({ icon, kind, className }: { icon: string | null; kind?: string; className?: string }) {
-  if (icon) return <span className={cn("leading-none", className)}>{icon}</span>;
+  if (icon) return <IconGlyph icon={icon} className={className} />;
   return (
     <svg viewBox="0 0 16 16" className={cn("h-4 w-4 text-fg-faint", className)} fill="none" stroke="currentColor" strokeWidth="1.3" aria-hidden>
       {kind === "database" ? (

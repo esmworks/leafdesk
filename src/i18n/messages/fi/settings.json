@@ -734,7 +734,7 @@
       "accessDenied": "Sinulla ei ole oikeutta tehdä tätä.",
       "reasons": {
         "name": "Anna agentille nimi.",
-        "icon": "Agentin kuvake on emoji.",
+        "icon": "Agentin kuvake on emoji tai sisäänrakennettu kuvake.",
         "level": "Agentti voi katsella, kommentoida tai muokata sivua.",
         "template": "Tätä mallia ei ole olemassa.",
         "database": "Valitse tämän työtilan tietokanta.",
@@ -2655,7 +2655,7 @@
       "reservedKey": "Tämä avain on varattu sisäänrakennetulle tyypille (note, tip, important, warning, caution, info, danger, details, frame, card, panel).",
       "duplicateKey": "Toisella tyylillä on jo tämä avain.",
       "name": "Anna enintään 60 merkin nimi.",
-      "icon": "Valitse yksi emoji tai ei kuvaketta.",
+      "icon": "Valitse yksi emoji tai sisäänrakennettu kuvake, tai ei kuvaketta.",
       "color": "Valitse väri.",
       "border": "Valitse reunus.",
       "title": "Otsikossa voi olla enintään 120 merkkiä."

@@ -129,7 +129,8 @@
     "addViewHeading": "Görünüm ekleyin",
     "rename": "Yeniden adlandır",
     "viewName": "Görünüm adı",
-    "deleteView": "Görünümü sil"
+    "deleteView": "Görünümü sil",
+    "icon": "Simge"
   },
   "deleted": {
     "properties": "Silinen özellikler",
@@ -571,7 +572,8 @@
     "statusCheckboxHint": "Durum tamamlandıyken işaretli bir kutu. İşaretlemek ilk tamamlandı durumunu, işareti kaldırmak ilk yapılacak durumunu seçer.",
     "pickerProperties": "Satır seçicide göster",
     "pickerPropertiesHint": "Satır bağlarken her satırın adının yanında en fazla üç özellik gösterilir.",
-    "pickerPropertiesNone": "İlişkili veritabanında gösterilecek özellik yok."
+    "pickerPropertiesNone": "İlişkili veritabanında gösterilecek özellik yok.",
+    "icon": "Simge"
   },
   "rowProperties": {
     "noProperties": "Özellik yok",
@@ -933,7 +935,7 @@
     "parentInTrash": "Üst sayfa çöp kutusunda. Önce onu geri yükleyin.",
     "nestedDatabase": "Bir veritabanının içinde başka bir veritabanı olamaz.",
     "pageTooDeep": "Sayfalar en fazla {max} düzey iç içe olabilir.",
-    "invalidIcon": "Simge bir emoji olmalı.",
+    "invalidIcon": "Simge bir emoji ya da yerleşik bir simge olmalı.",
     "invalidRelation": "“{property}” yalnızca ilişkili veritabanının satırlarına bağlanabilir.",
     "invalidRelationTarget": "İlişki aynı çalışma alanındaki bir veritabanını göstermelidir.",
     "subItemLoop": "“{property}” bir satırı kendisinin ya da kendi alt öğelerinden birinin altına koyamaz.",

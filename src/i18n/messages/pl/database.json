@@ -129,7 +129,8 @@
     "addViewHeading": "Dodaj widok",
     "rename": "Zmień nazwę",
     "viewName": "Nazwa widoku",
-    "deleteView": "Usuń widok"
+    "deleteView": "Usuń widok",
+    "icon": "Ikona"
   },
   "deleted": {
     "properties": "Usunięte właściwości",
@@ -571,7 +572,8 @@
     "statusCheckboxHint": "Pole zaznaczone, gdy status jest ukończony. Zaznaczenie wybiera pierwszy status ukończony, odznaczenie pierwszy do zrobienia.",
     "pickerProperties": "Pokaż w wyborze wierszy",
     "pickerPropertiesHint": "Do trzech właściwości wyświetlanych obok nazwy każdego wiersza podczas łączenia wierszy.",
-    "pickerPropertiesNone": "Powiązana baza danych nie ma właściwości do pokazania."
+    "pickerPropertiesNone": "Powiązana baza danych nie ma właściwości do pokazania.",
+    "icon": "Ikona"
   },
   "rowProperties": {
     "noProperties": "Brak właściwości",
@@ -933,7 +935,7 @@
     "parentInTrash": "Strona nadrzędna jest w koszu. Najpierw ją przywróć.",
     "nestedDatabase": "Baza danych nie może zawierać innej bazy danych.",
     "pageTooDeep": "Strony mogą być zagnieżdżone najwyżej na {max, plural, one {# poziom} few {# poziomy} many {# poziomów} other {# poziomu}} w głąb.",
-    "invalidIcon": "Ikona musi być emoji.",
+    "invalidIcon": "Ikona musi być emoji lub wbudowaną ikoną.",
     "invalidRelation": "„{property}” może linkować tylko do wierszy powiązanej bazy danych.",
     "invalidRelationTarget": "Relacja musi wskazywać bazę danych w tym samym obszarze roboczym.",
     "subItemLoop": "„{property}” nie może umieścić wiersza pod nim samym ani pod jednym z jego podelementów.",

@@ -129,7 +129,8 @@
     "addViewHeading": "Aggiungi una vista",
     "rename": "Rinomina",
     "viewName": "Nome della vista",
-    "deleteView": "Elimina vista"
+    "deleteView": "Elimina vista",
+    "icon": "Icona"
   },
   "deleted": {
     "properties": "Proprietà eliminate",
@@ -571,7 +572,8 @@
     "statusCheckboxHint": "Una casella spuntata finché lo stato è completato. Spuntarla sceglie il primo stato completato, togliere la spunta il primo da fare.",
     "pickerProperties": "Mostra nel selettore di righe",
     "pickerPropertiesHint": "Fino a tre proprietà mostrate accanto al nome di ogni riga quando si collegano righe.",
-    "pickerPropertiesNone": "Il database collegato non ha proprietà da mostrare."
+    "pickerPropertiesNone": "Il database collegato non ha proprietà da mostrare.",
+    "icon": "Icona"
   },
   "rowProperties": {
     "noProperties": "Nessuna proprietà",
@@ -933,7 +935,7 @@
     "parentInTrash": "La pagina principale è nel cestino. Ripristinala prima.",
     "nestedDatabase": "Un database non può contenere un altro database.",
     "pageTooDeep": "Le pagine possono essere annidate al massimo per {max} livelli.",
-    "invalidIcon": "L’icona deve essere un’emoji.",
+    "invalidIcon": "L’icona deve essere un’emoji o un’icona integrata.",
     "invalidRelation": "“{property}” può collegarsi solo alle righe del suo database correlato.",
     "invalidRelationTarget": "Una relazione deve puntare a un database nello stesso spazio di lavoro.",
     "subItemLoop": "“{property}” non può mettere una riga sotto se stessa o sotto uno dei suoi sotto-elementi.",

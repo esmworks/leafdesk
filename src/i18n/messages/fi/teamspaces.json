@@ -29,7 +29,7 @@
     "everyoneIn": "Kaikki työtilan jäsenet kuuluvat jo tähän tiimitilaan.",
     "accessDenied": "Et voi tehdä sitä tässä tiimitilassa.",
     "invalidMemberLevel": "Valitse, mitä oikeuksia jäsenet saavat tiimitilan sivuihin.",
-    "invalidIcon": "Kuvakkeen on oltava emoji.",
+    "invalidIcon": "Kuvakkeen on oltava emoji tai sisäänrakennettu kuvake.",
     "notConvertible": "Vain sivusta voi tulla tiimitila: ei tietokannasta, rivistä tai mallista."
   },
   "dialog": {

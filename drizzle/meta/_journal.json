@@ -953,6 +953,13 @@
       "when": 1792861653110,
       "tag": "0135_ai_saved_prompts",
       "breakpoints": true
+    },
+    {
+      "idx": 136,
+      "version": "7",
+      "when": 1792865753880,
+      "tag": "0137_icon_preferences",
+      "breakpoints": true
     }
   ]
 }

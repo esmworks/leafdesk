@@ -129,7 +129,8 @@
     "addViewHeading": "Añadir una vista",
     "rename": "Cambiar nombre",
     "viewName": "Nombre de la vista",
-    "deleteView": "Eliminar vista"
+    "deleteView": "Eliminar vista",
+    "icon": "Icono"
   },
   "deleted": {
     "properties": "Propiedades eliminadas",
@@ -571,7 +572,8 @@
     "statusCheckboxHint": "Una casilla marcada mientras el estado está completado. Al marcarla se elige el primer estado completado; al desmarcarla, el primero pendiente.",
     "pickerProperties": "Mostrar en el selector de filas",
     "pickerPropertiesHint": "Hasta tres propiedades junto al nombre de cada fila al vincular filas.",
-    "pickerPropertiesNone": "La base de datos relacionada no tiene propiedades que mostrar."
+    "pickerPropertiesNone": "La base de datos relacionada no tiene propiedades que mostrar.",
+    "icon": "Icono"
   },
   "rowProperties": {
     "noProperties": "Sin propiedades",
@@ -933,7 +935,7 @@
     "parentInTrash": "La página principal está en la papelera. Restáurala primero.",
     "nestedDatabase": "Una base de datos no puede contener otra base de datos.",
     "pageTooDeep": "Las páginas pueden anidarse como máximo {max} niveles.",
-    "invalidIcon": "El icono debe ser un emoji.",
+    "invalidIcon": "El icono debe ser un emoji o un icono integrado.",
     "invalidRelation": "“{property}” solo puede vincularse a filas de su base de datos relacionada.",
     "invalidRelationTarget": "Una relación debe apuntar a una base de datos del mismo espacio de trabajo.",
     "subItemLoop": "“{property}” no puede poner una fila debajo de sí misma ni de uno de sus propios subelementos.",

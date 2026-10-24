@@ -1,5 +1,6 @@
 "use client";
 
+import { iconPrefix } from "@/lib/icon-value";
 import { Check, ChevronRight, ExternalLink, Plug, Plus, RefreshCw, Search, ShieldCheck, X } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
@@ -1140,7 +1141,7 @@ function NewTrigger({
           <select className={cn(selectClass, "w-full")} value={agentId} onChange={(e) => setAgentId(e.target.value)}>
             {agents.map((agent) => (
               <option key={agent.id} value={agent.id}>
-                {agent.icon ? `${agent.icon} ` : ""}
+                {iconPrefix(agent.icon)}
                 {agent.name}
               </option>
             ))}

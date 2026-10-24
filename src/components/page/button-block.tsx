@@ -1,5 +1,7 @@
 "use client";
 
+import { iconText } from "@/lib/icon-value";
+import { IconGlyph } from "@/components/builtin-icon";
 import { createReactBlockSpec, type DefaultReactSuggestionItem } from "@blocknote/react";
 import { Loader2, MousePointerClick, Settings2 } from "lucide-react";
 import dynamic from "next/dynamic";
@@ -98,7 +100,7 @@ export const ButtonBlock = createReactBlockSpec(buttonBlockConfig, {
             !label && !color && "text-fg-muted",
           )}
         >
-          {running ? <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin" aria-hidden /> : icon ? <span aria-hidden>{icon}</span> : <MousePointerClick className="h-3.5 w-3.5 shrink-0" aria-hidden />}
+          {running ? <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin" aria-hidden /> : icon ? <IconGlyph icon={icon} /> : <MousePointerClick className="h-3.5 w-3.5 shrink-0" aria-hidden />}
           <span className="truncate">{label || t("untitled")}</span>
         </button>
         {editable && (
@@ -122,7 +124,7 @@ export const ButtonBlock = createReactBlockSpec(buttonBlockConfig, {
     );
   },
   // Copied out of the app, a button is its label.
-  toExternalHTML: ({ block }) => <p>{[block.props.icon, cleanButtonLabel(block.props.label)].filter(Boolean).join(" ")}</p>,
+  toExternalHTML: ({ block }) => <p>{[iconText(block.props.icon), cleanButtonLabel(block.props.label)].filter(Boolean).join(" ")}</p>,
 });
 
 /** The "Button" slash menu entry: adds a button, whose settings open at once. */

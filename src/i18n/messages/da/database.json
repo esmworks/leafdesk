@@ -129,7 +129,8 @@
     "addViewHeading": "Tilføj en visning",
     "rename": "Omdøb",
     "viewName": "Visningens navn",
-    "deleteView": "Slet visning"
+    "deleteView": "Slet visning",
+    "icon": "Ikon"
   },
   "deleted": {
     "properties": "Slettede egenskaber",
@@ -571,7 +572,8 @@
     "statusCheckboxHint": "Et felt, der er afkrydset, mens status er færdig. Afkrydsning vælger den første færdige status, fjernelse den første at gøre-status.",
     "pickerProperties": "Vis i rækkevælgeren",
     "pickerPropertiesHint": "Op til tre egenskaber vist ved siden af hver rækkes navn, når rækker forbindes.",
-    "pickerPropertiesNone": "Den relaterede database har ingen egenskaber at vise."
+    "pickerPropertiesNone": "Den relaterede database har ingen egenskaber at vise.",
+    "icon": "Ikon"
   },
   "rowProperties": {
     "noProperties": "Ingen egenskaber",
@@ -933,7 +935,7 @@
     "parentInTrash": "Den overordnede side ligger i papirkurven. Gendan den først.",
     "nestedDatabase": "En database kan ikke indeholde en anden database.",
     "pageTooDeep": "Sider kan højst ligge {max} niveauer dybt.",
-    "invalidIcon": "Ikonet skal være en emoji.",
+    "invalidIcon": "Ikonet skal være en emoji eller et indbygget ikon.",
     "invalidRelation": "“{property}” kan kun linke til rækker i sin relaterede database.",
     "invalidRelationTarget": "En relation skal pege på en database i samme arbejdsområde.",
     "subItemLoop": "“{property}” kan ikke placere en række under sig selv eller under et af dens egne underpunkter.",

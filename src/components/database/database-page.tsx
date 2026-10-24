@@ -482,6 +482,7 @@ export function DatabasePage({
                         onSelect={selectView}
                         onAdd={addView}
                         onRename={(v, name) => api.updateView(v, { name })}
+                        onIcon={(v, icon) => api.updateView(v, { config: { ...v.config, icon: icon ?? undefined } })}
                         onMove={(id, target, side) => api.moveView(id, target, side)}
                         deleted={deletedSchema}
                         onDelete={async (v) => {

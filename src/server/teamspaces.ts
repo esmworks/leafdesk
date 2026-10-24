@@ -19,7 +19,7 @@ import {
   type WorkspaceRole,
 } from "@/db/schema";
 import { env } from "@/lib/env";
-import { parseIcon } from "@/lib/icon";
+import { ICON_RULE, parseIcon } from "@/lib/icon";
 import { TeamspaceError } from "@/lib/teamspace-error";
 import type { TeamspaceReach } from "@/lib/teamspace-reach";
 import { AccessError, isGuest, requireMember } from "@/server/access";
@@ -277,11 +277,11 @@ function cleanName(name: string) {
   return clean;
 }
 
-/** No icon (null), or an emoji like a page's (lib/icon). */
+/** No icon (null), or an emoji or built-in icon like a page's (lib/icon). */
 function checkedIcon(value: unknown) {
   if (value === null || value === undefined) return null;
   const icon = parseIcon(value);
-  if (!icon) throw new TeamspaceError("invalidIcon", "A teamspace's icon is an emoji.");
+  if (!icon) throw new TeamspaceError("invalidIcon", `A teamspace's icon is ${ICON_RULE}.`);
   return icon;
 }
 
