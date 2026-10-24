@@ -166,6 +166,10 @@
   },
   "activeRules": {
     "clear": "ล้าง",
+    "personal": "เฉพาะคุณ",
+    "personalTitle": "ตัวกรองและการเรียงลำดับเหล่านี้ไม่ได้บันทึกลงในมุมมอง: ไม่มีใครเห็นนอกจากคุณ และจะหายไปเมื่อคุณออกจากหน้า",
+    "reset": "รีเซ็ต",
+    "resetTitle": "กลับไปใช้ตัวกรองและการเรียงลำดับของมุมมอง",
     "unknownProperty": "ไม่ทราบ",
     "unknownFilter": "ตัวกรองที่ไม่รู้จัก",
     "filterWithValue": "{property} {operator} {value}",

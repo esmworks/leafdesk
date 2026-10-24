@@ -166,6 +166,10 @@
   },
   "activeRules": {
     "clear": "Wyczyść",
+    "personal": "Tylko dla ciebie",
+    "personalTitle": "Te filtry i sortowania nie są zapisywane w widoku: nikt inny ich nie widzi, a znikają po opuszczeniu strony.",
+    "reset": "Resetuj",
+    "resetTitle": "Wróć do filtrów i sortowań widoku",
     "unknownProperty": "Nieznana",
     "unknownFilter": "Nieznany filtr",
     "filterWithValue": "{property} {operator} {value}",

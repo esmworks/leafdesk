@@ -166,6 +166,10 @@
   },
   "activeRules": {
     "clear": "ניקוי",
+    "personal": "רק בשבילך",
+    "personalTitle": "המסננים והמיונים האלה לא נשמרים בתצוגה: אף אחד אחר לא רואה אותם, והם נעלמים כשיוצאים מהדף.",
+    "reset": "איפוס",
+    "resetTitle": "חזרה למסננים ולמיונים של התצוגה",
     "unknownProperty": "לא ידוע",
     "unknownFilter": "מסנן לא ידוע",
     "filterWithValue": "{property} {operator} {value}",

@@ -166,6 +166,10 @@
   },
   "activeRules": {
     "clear": "Cancella",
+    "personal": "Solo per te",
+    "personalTitle": "Questi filtri e ordinamenti non vengono salvati nella vista: nessun altro li vede e spariscono quando lasci la pagina.",
+    "reset": "Ripristina",
+    "resetTitle": "Torna ai filtri e agli ordinamenti della vista",
     "unknownProperty": "Sconosciuta",
     "unknownFilter": "Filtro sconosciuto",
     "filterWithValue": "{property} {operator} {value}",

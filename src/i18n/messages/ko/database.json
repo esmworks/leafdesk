@@ -166,6 +166,10 @@
   },
   "activeRules": {
     "clear": "지우기",
+    "personal": "나만 보기",
+    "personalTitle": "이 필터와 정렬은 보기에 저장되지 않습니다. 다른 사람에게는 보이지 않으며 페이지를 떠나면 사라집니다.",
+    "reset": "재설정",
+    "resetTitle": "보기 자체의 필터와 정렬로 돌아가기",
     "unknownProperty": "알 수 없음",
     "unknownFilter": "알 수 없는 필터",
     "filterWithValue": "{property} {operator} {value}",

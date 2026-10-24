@@ -166,6 +166,10 @@
   },
   "activeRules": {
     "clear": "پاک کردن",
+    "personal": "فقط برای شما",
+    "personalTitle": "این فیلترها و مرتب‌سازی‌ها در نما ذخیره نمی‌شوند: کس دیگری آن‌ها را نمی‌بیند و با ترک صفحه از بین می‌روند.",
+    "reset": "بازنشانی",
+    "resetTitle": "بازگشت به فیلترها و مرتب‌سازی‌های خود نما",
     "unknownProperty": "ناشناخته",
     "unknownFilter": "فیلتر ناشناخته",
     "filterWithValue": "{property} {operator} {value}",

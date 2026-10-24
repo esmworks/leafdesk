@@ -36,6 +36,9 @@ import { useIsOffline } from "@/components/offline/offline-context";
 import { ActiveRulesBar, ViewSearch, ViewTabs, ViewToolbar, type FilterRequest } from "./view-bar";
 import { timelineDates, ViewLayoutMenu } from "./view-settings";
 
+/** The rules a viewer who may not change a view sets for themselves (see `ownRules`). */
+type PersonalRules = Pick<ViewConfig, "filters" | "filterCombinator" | "sorts">;
+
 // The page redraws with every change of its address, a row opening beside the view among them;
 // a view, with its hundreds of rows, only when what it's given changes.
 // The table, gallery and list views come with the page; the others load when one is first shown,
@@ -150,14 +153,23 @@ export function DatabasePage({
     [linkedSettings, databaseId, t],
   );
   const views = linkedView ? [linkedView] : (snapshot?.views ?? []);
-  const view = views.find((v) => v.id === selectedViewId) ?? views[0] ?? null;
-  useDocumentViewName(view?.name || null, !embedded);
+  const savedView = views.find((v) => v.id === selectedViewId) ?? views[0] ?? null;
+  useDocumentViewName(savedView?.name || null, !embedded);
   // Rows and views change through the server: offline, the database is read-only.
   const offline = useIsOffline() || offlineCopyFrom !== null;
   const readOnly = (snapshot?.database.archived ?? false) || !canEdit || offline;
   const locked = snapshot?.database.locked ?? false;
   // A linked view's settings belong to the page showing it, not to the database.
   const configReadOnly = linked ? !linked.onChange : readOnly;
+  // Whoever may not change the view still filters and sorts it for themselves: their rules stay
+  // here, per view, until the page closes, and replace the view's own for them alone.
+  const personalRules = configReadOnly;
+  const [ownRules, setOwnRules] = useState<Record<string, PersonalRules>>({});
+  const ownViewRules = personalRules && savedView ? ownRules[savedView.id] : undefined;
+  const view = useMemo(
+    () => (savedView && ownViewRules ? { ...savedView, config: { ...savedView.config, ...ownViewRules } } : savedView),
+    [savedView, ownViewRules],
+  );
 
   const selectView = useCallback((id: string) => {
     setSelectedViewId(id);
@@ -294,7 +306,15 @@ export function DatabasePage({
   );
 
   // What the views are given stays the same from one render of the page to the next (see MemoBoardView).
-  const setConfig = useCallback((v: View, config: ViewConfig) => baseApi.updateView(v, { config }), [baseApi]);
+  const setConfig = useCallback(
+    async (v: View, config: ViewConfig) => {
+      if (!personalRules) return baseApi.updateView(v, { config });
+      const { filters, filterCombinator, sorts } = config;
+      setOwnRules((all) => ({ ...all, [v.id]: { filters, filterCombinator, sorts } }));
+      return null;
+    },
+    [baseApi, personalRules],
+  );
   const properties = snapshot?.properties;
   // Adds a rule on the column with its first operator, like the filter menu's "Add filter".
   const filterBy = useCallback(
@@ -467,6 +487,7 @@ export function DatabasePage({
                             view={view}
                             properties={viewProperties}
                             readOnly={configReadOnly}
+                            personal={personalRules}
                             locked={locked}
                             onConfig={(config) => setConfig(view, config)}
                             filterRequest={filterRequest}
@@ -537,7 +558,17 @@ export function DatabasePage({
                       <ActiveRulesBar
                         view={view}
                         properties={snapshot.properties}
-                        readOnly={configReadOnly}
+                        readOnly={configReadOnly && !personalRules}
+                        onReset={
+                          ownViewRules
+                            ? () =>
+                                setOwnRules((all) => {
+                                  const rest = { ...all };
+                                  delete rest[view.id];
+                                  return rest;
+                                })
+                            : undefined
+                        }
                         onConfig={(config) => setConfig(view, config)}
                       />
                     )}

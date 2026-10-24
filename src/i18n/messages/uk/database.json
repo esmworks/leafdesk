@@ -166,6 +166,10 @@
   },
   "activeRules": {
     "clear": "Очистити",
+    "personal": "Лише для вас",
+    "personalTitle": "Ці фільтри й сортування не зберігаються в поданні: їх ніхто більше не бачить, і вони зникнуть, коли ви підете зі сторінки.",
+    "reset": "Скинути",
+    "resetTitle": "Повернути фільтри й сортування подання",
     "unknownProperty": "Невідома",
     "unknownFilter": "Невідомий фільтр",
     "filterWithValue": "{property} {operator} {value}",

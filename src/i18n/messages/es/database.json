@@ -166,6 +166,10 @@
   },
   "activeRules": {
     "clear": "Borrar",
+    "personal": "Solo para ti",
+    "personalTitle": "Estos filtros y ordenaciones no se guardan en la vista: nadie más los ve y desaparecen al salir de la página.",
+    "reset": "Restablecer",
+    "resetTitle": "Volver a los filtros y ordenaciones de la vista",
     "unknownProperty": "Desconocida",
     "unknownFilter": "Filtro desconocido",
     "filterWithValue": "{property} {operator} {value}",

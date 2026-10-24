@@ -166,6 +166,10 @@
   },
   "activeRules": {
     "clear": "Effacer",
+    "personal": "Pour vous seul",
+    "personalTitle": "Ces filtres et tris ne sont pas enregistrés dans la vue : personne d'autre ne les voit, et ils disparaissent quand vous quittez la page.",
+    "reset": "Réinitialiser",
+    "resetTitle": "Revenir aux filtres et tris de la vue",
     "unknownProperty": "Inconnue",
     "unknownFilter": "Filtre inconnu",
     "filterWithValue": "{property} {operator} {value}",

@@ -166,6 +166,10 @@
   },
   "activeRules": {
     "clear": "Clear",
+    "personal": "Only for you",
+    "personalTitle": "These filters and sorts aren't saved to the view: no one else sees them, and they go when you leave the page.",
+    "reset": "Reset",
+    "resetTitle": "Go back to the view's own filters and sorts",
     "unknownProperty": "Unknown",
     "unknownFilter": "Unknown filter",
     "filterWithValue": "{property} {operator} {value}",

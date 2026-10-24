@@ -166,6 +166,10 @@
   },
   "activeRules": {
     "clear": "クリア",
+    "personal": "自分だけ",
+    "personalTitle": "これらのフィルターと並べ替えはビューに保存されません。他の人には表示されず、ページを離れると消えます。",
+    "reset": "リセット",
+    "resetTitle": "ビュー本来のフィルターと並べ替えに戻す",
     "unknownProperty": "不明",
     "unknownFilter": "不明なフィルター",
     "filterWithValue": "{property}：{operator} {value}",

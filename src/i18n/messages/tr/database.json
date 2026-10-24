@@ -166,6 +166,10 @@
   },
   "activeRules": {
     "clear": "Temizle",
+    "personal": "Yalnızca sizin için",
+    "personalTitle": "Bu filtreler ve sıralamalar görünüme kaydedilmez: başka kimse görmez ve sayfadan ayrıldığınızda kaybolur.",
+    "reset": "Sıfırla",
+    "resetTitle": "Görünümün kendi filtre ve sıralamalarına dön",
     "unknownProperty": "Bilinmeyen",
     "unknownFilter": "Bilinmeyen filtre",
     "filterWithValue": "{property} {operator} {value}",

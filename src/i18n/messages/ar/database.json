@@ -166,6 +166,10 @@
   },
   "activeRules": {
     "clear": "مسح",
+    "personal": "لك وحدك",
+    "personalTitle": "لا تُحفظ عوامل التصفية والفرز هذه في العرض: لا يراها أحد غيرك، وتزول عندما تغادر الصفحة.",
+    "reset": "إعادة تعيين",
+    "resetTitle": "العودة إلى عوامل التصفية والفرز الخاصة بالعرض",
     "unknownProperty": "غير معروفة",
     "unknownFilter": "عامل تصفية غير معروف",
     "filterWithValue": "{property} {operator} {value}",

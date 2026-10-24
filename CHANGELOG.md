@@ -4,6 +4,10 @@
 
 ### Added
 
+- **People who can only view a database filter and sort it for themselves.** The view's Filter
+  and Sort menus now show for them too, locked databases included: the rules apply only in their
+  own window, replace the view's while set, are marked *Only for you* beside them, and are never
+  saved, so nobody else's view changes; *Reset* goes back to the view's own filters and sorts.
 - **Duplicate a database without its rows.** The database's page menu has *Duplicate without
   rows*: the copy gets the properties, views (forms start closed, as with any copy), row templates
   and the database's own page, but no rows and nothing inside them. Relations behave as in a full

@@ -166,6 +166,10 @@
   },
   "activeRules": {
     "clear": "Xóa",
+    "personal": "Chỉ cho bạn",
+    "personalTitle": "Các bộ lọc và cách sắp xếp này không được lưu vào chế độ xem: không ai khác thấy chúng và chúng sẽ mất khi bạn rời trang.",
+    "reset": "Đặt lại",
+    "resetTitle": "Quay lại bộ lọc và cách sắp xếp của chế độ xem",
     "unknownProperty": "Không xác định",
     "unknownFilter": "Bộ lọc không xác định",
     "filterWithValue": "{property} {operator} {value}",

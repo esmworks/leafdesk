@@ -178,6 +178,9 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
     before, after, on or before and on or after a day, and selects, statuses, tags, relations and
     people on any of several values or none of them in one rule. A "Me" filter (also inside such a
     list) shows each viewer their own rows.
+  - People who can only view a database (or a view whose settings they can't change) still filter
+    and sort it for themselves: their rules replace the view's for them alone, marked *Only for
+    you*, are never saved, and *Reset* brings back the view's own.
   - Each view with rows can leave out the rows' page icons (Layout → *Show page icons*; published
     views too), and a calendar can leave out Saturdays and Sundays (*Show weekends*, month and
     week alike): its weekdays then share the width, and rows only on a weekend are listed under it

@@ -166,6 +166,10 @@
   },
   "activeRules": {
     "clear": "Hapus",
+    "personal": "Hanya untuk Anda",
+    "personalTitle": "Filter dan urutan ini tidak disimpan ke tampilan: tidak ada orang lain yang melihatnya, dan akan hilang saat Anda meninggalkan halaman.",
+    "reset": "Atur ulang",
+    "resetTitle": "Kembali ke filter dan urutan milik tampilan",
     "unknownProperty": "Tidak dikenal",
     "unknownFilter": "Filter tidak dikenal",
     "filterWithValue": "{property} {operator} {value}",
