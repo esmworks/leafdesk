@@ -21,6 +21,7 @@ import {
   Hand,
   Globe,
   Loader2,
+  MessageSquareDiff,
   Paperclip,
   Pencil,
   RotateCcw,
@@ -352,7 +353,7 @@ export function ChatThread({
               )}
               <div className={cn("flex items-center justify-between gap-2", page && "mt-1")}>
                 <div className="flex items-center gap-0.5">
-                  <ModePicker mode={chat.mode} onChange={chat.setMode} />
+                  <ModePicker mode={chat.mode} onChange={chat.setMode} asSuggestions={chat.asSuggestions} onSuggestions={chat.setAsSuggestions} />
                   <IconButton
                     label={tSkills("pick")}
                     title={tSkills("pickHint")}
@@ -794,7 +795,18 @@ function QueueStrip({ queued, onClear }: { queued: QueuedQuestion[]; onClear: ()
 const MODE_ICONS = { ask: Hand, auto: Zap, read: Eye } as const;
 
 /** What the chat may change, under the question box. */
-function ModePicker({ mode, onChange }: { mode: ChatMode; onChange: (mode: ChatMode) => void }) {
+function ModePicker({
+  mode,
+  onChange,
+  asSuggestions,
+  onSuggestions,
+}: {
+  mode: ChatMode;
+  onChange: (mode: ChatMode) => void;
+  /** What it writes in page bodies goes in as suggested edits (lib/ai-suggestions). */
+  asSuggestions: boolean;
+  onSuggestions: (on: boolean) => void;
+}) {
   const t = useTranslations("ai.chat.mode");
   const Icon = MODE_ICONS[mode];
   return (
@@ -842,6 +854,22 @@ function ModePicker({ mode, onChange }: { mode: ChatMode; onChange: (mode: ChatM
               </MenuItem>
             );
           })}
+          <MenuItem
+            pressed={asSuggestions}
+            icon={<MessageSquareDiff className="h-4 w-4 shrink-0 self-start mt-0.5" />}
+            onClick={() => {
+              onSuggestions(!asSuggestions);
+              close();
+            }}
+          >
+            <span className="flex min-w-0 flex-1 flex-col">
+              <span className="flex items-center justify-between gap-2">
+                {t("asSuggestions")}
+                {asSuggestions && <Check className="h-3.5 w-3.5 text-fg-muted" />}
+              </span>
+              <span className="text-xs text-fg-muted">{t("asSuggestionsHint")}</span>
+            </span>
+          </MenuItem>
         </div>
       )}
     </Popover>

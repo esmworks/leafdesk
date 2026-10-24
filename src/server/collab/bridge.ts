@@ -19,7 +19,15 @@ export type CommentOpResult = {
   anchored?: boolean;
 };
 
-export type WriteActor = { userId: string; oauthClientId?: string | null };
+export type WriteActor = {
+  userId: string;
+  oauthClientId?: string | null;
+  /**
+   * The AI chat writes for this person, who chose to get its changes to page bodies as suggested
+   * edits (collab/suggestion-doc writeBlocksAsSuggestions): they wait for an answer like theirs.
+   */
+  asSuggestions?: boolean;
+};
 
 /** A suggested edit that was accepted or rejected, with the thread it had (null when none). */
 export type AnsweredSuggestion = SuggestionSummary & { threadId: string | null };

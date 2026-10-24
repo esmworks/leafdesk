@@ -33,6 +33,7 @@
     "reviewNote": "KI kann Fehler machen. Prüfe den Text, bevor du ihn übernimmst.",
     "stopped": "Gestoppt. Du kannst den bisher geschriebenen Text trotzdem übernehmen.",
     "applyFailed": "Der Vorschlag konnte der Seite nicht hinzugefügt werden.",
+    "asSuggestions": "Als Änderungsvorschläge einfügen",
     "selectionChanged": "Der ausgewählte Text hat sich inzwischen geändert, daher wurde der Vorschlag darunter eingefügt."
   },
   "errors": {
@@ -323,7 +324,9 @@
       "auto": "Automatisch",
       "autoHint": "Fügt hinzu und ändert, ohne zu fragen",
       "read": "Nur lesen",
-      "readHint": "Ändert nichts"
+      "readHint": "Ändert nichts",
+      "asSuggestions": "Seitenänderungen als Vorschläge",
+      "asSuggestionsHint": "Was der Chat in eine Seite schreibt, erscheint als Änderungsvorschlag, den du annehmen oder ablehnen kannst"
     },
     "actions": {
       "edit": "Bearbeiten",

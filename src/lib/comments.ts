@@ -63,6 +63,8 @@ export type PlainThread = {
   quote?: string | null;
   /** The thread is about the whole page and quotes nothing (agents write these). Only set by the server. */
   page?: true;
+  /** The thread is about this suggested edit (lib/suggestions), opened by the server. Only set by the server. */
+  suggestion?: string;
 };
 
 type Styles = Partial<Record<(typeof STYLES)[number], true>>;

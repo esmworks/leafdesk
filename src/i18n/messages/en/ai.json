@@ -33,6 +33,7 @@
     "reviewNote": "AI can make mistakes. Check the text before you keep it.",
     "stopped": "Stopped. You can still keep what was written so far.",
     "applyFailed": "The suggestion couldn't be added to the page.",
+    "asSuggestions": "Add as suggested edits",
     "selectionChanged": "The selected text changed meanwhile, so the suggestion was added below it."
   },
   "errors": {
@@ -323,7 +324,9 @@
       "auto": "Auto",
       "autoHint": "Adds and changes without asking",
       "read": "Read only",
-      "readHint": "Doesn't change anything"
+      "readHint": "Doesn't change anything",
+      "asSuggestions": "Page edits as suggestions",
+      "asSuggestionsHint": "What the chat writes in a page shows as suggested edits for you to accept or reject"
     },
     "actions": {
       "edit": "Edit",

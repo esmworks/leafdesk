@@ -20,7 +20,17 @@ import {
   PAGE_WRITABLE_EVENT,
   SUGGESTION_REFUSED_EVENT,
 } from "@/lib/collab-constants";
-import { CommentError, isPageThread, PAGE_THREAD_METADATA, plainComment, plainThread, THREADS_MAP, type CommentOp, type PlainThread } from "@/lib/comments";
+import {
+  CommentError,
+  isPageThread,
+  PAGE_THREAD_METADATA,
+  plainComment,
+  plainThread,
+  suggestionOfThread,
+  THREADS_MAP,
+  type CommentOp,
+  type PlainThread,
+} from "@/lib/comments";
 import { markdownImageHint, PG_MARKDOWN_IMAGE_PATTERN } from "@/lib/cover";
 import { migrateDocTitle, readDocTitle, writeDocTitle } from "@/lib/collab-title";
 import { assertNotInTrash, assertPageUnlocked, isPageLocked } from "@/lib/page-lock";
@@ -56,6 +66,7 @@ import {
   resolveSuggestionThreads,
   suggestionsIn,
   syncSuggestionThreads,
+  writeBlocksAsSuggestions,
   writeBlocksKeepingSuggestions,
   type SuggestionThreadChanges,
 } from "./suggestion-doc";
@@ -102,7 +113,15 @@ function readThreadsOf(doc: Y.Doc): PlainThread[] {
   const store = new YjsThreadStore("", threads, new DefaultThreadStoreAuth("", "comment"));
   const quotes = threadQuotes(doc.getXmlFragment(COLLAB_FRAGMENT));
   return [...store.getThreads().values()]
-    .map((t) => ({ ...plainThread(t), quote: quotes.get(t.id) ?? null, ...(isPageThread(t.metadata) ? { page: true as const } : {}) }))
+    .map((t) => {
+      const suggestion = suggestionOfThread(t.metadata);
+      return {
+        ...plainThread(t),
+        quote: quotes.get(t.id) ?? null,
+        ...(isPageThread(t.metadata) ? { page: true as const } : {}),
+        ...(suggestion ? { suggestion } : {}),
+      };
+    })
     .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
 }
 
@@ -646,7 +665,9 @@ export function createCollab() {
             () =>
               keepingComments(doc, () => {
                 // Diff-based: unchanged blocks keep their Yjs identity, so open editors keep cursors.
-                writeBlocksKeepingSuggestions(fragment, next);
+                // The AI chat of someone who asked for it suggests the change instead.
+                if (actor.asSuggestions) writeBlocksAsSuggestions(fragment, next, actor.userId);
+                else writeBlocksKeepingSuggestions(fragment, next);
               }),
             { source: "local", context: actor },
           );

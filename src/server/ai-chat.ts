@@ -124,6 +124,8 @@ export type ChatInput = {
   timeZone?: string | null;
   /** CSV files attached to the question: each file's name and text (lib/chat-attachments.ts). */
   attachments?: { name: string; text: string }[] | null;
+  /** The person's choice: what the chat writes in page bodies goes in as the AI's suggested edits. */
+  asSuggestions?: boolean;
 };
 
 /** Refusals before anything is sent: access problems look like missing things. */
@@ -204,6 +206,7 @@ export async function startChat(userId: string, input: ChatInput, signal?: Abort
     memoryChanges: !appReadOnly,
     timeZone: isTimeZone(input.timeZone) ? input.timeZone : browserTimeZone(),
     attachments,
+    asSuggestions: input.asSuggestions === true,
   } as const;
   return runChat(userId, input.workspaceId, message, chat, signal);
 }
@@ -269,6 +272,7 @@ async function* runChat(
     memoryChanges,
     timeZone,
     attachments,
+    asSuggestions,
   }: {
     scope: { id: string; title: string } | null;
     skill: ChatSkill | null;
@@ -284,10 +288,12 @@ async function* runChat(
     timeZone: string;
     /** The question's own files (read and named). */
     attachments: ChatAttachmentRecord[];
+    /** Body writes go in as the AI's suggested edits (collab/suggestion-doc writeBlocksAsSuggestions). */
+    asSuggestions: boolean;
   },
   signal?: AbortSignal,
 ): AsyncGenerator<ChatEvent> {
-  const ctx: ops.OperationContext = { userId, actor: { userId } };
+  const ctx: ops.OperationContext = { userId, actor: { userId, ...(asSuggestions ? { asSuggestions } : {}) } };
   // "Don't ask again" makes the rest of this answer `auto`.
   let mode = initialMode;
   // Keeping notes about the person changes nothing in the workspace: it's offered in every mode,

@@ -298,6 +298,18 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
 - **Comments**: select text and comment on it; reply, react, resolve and reopen threads, live for
   everyone on the page. People who can comment on a page (or edit it) write comments and viewers
   read along; full access also deletes other people's comments.
+- **Suggested edits**: switch the page header from *Editing* to *Suggesting* and changes show as
+  suggestions instead: inserted text underlined, deleted text struck through but kept, new
+  formatting marked, live for everyone. Each is a thread in the comments panel, in its author's
+  name, which people who may edit accept or reject (one at a time, or all from the page menu) and
+  its author withdraws. People who may only comment always suggest: their connection to the page
+  takes their own suggestions and nothing else, checked by the server on every change (it compares
+  the page with their suggestions taken back before and after), so they never edit the page itself.
+  A pending suggestion isn't part of the page anywhere else: Markdown, search, published pages,
+  PDF and print, exports, history, MCP, the REST API and the AI read the page without it, and server
+  writes keep the suggestions of blocks they leave as they were. Watchers hear about new
+  suggestions like new threads; authors hear when theirs are answered. The writing assistant can
+  apply its text as suggestions, marked as the AI's.
 - **Mentions and page links**: `@` mentions people, pages (with their live title, or "No access")
   and dates with optional reminders; `[[` links to a page, or to a new page inside this one with
   the title typed, and `[[Title]]` typed, pasted or written through MCP and the API links to the

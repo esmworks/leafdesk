@@ -1,14 +1,16 @@
 import { DefaultThreadStoreAuth } from "@blocknote/core/comments";
 import { _blocksToProsemirrorNode, YjsThreadStore } from "@blocknote/core/yjs";
 import { Fragment, type Node } from "prosemirror-model";
-import { Transform } from "prosemirror-transform";
+import { replaceStep, Transform } from "prosemirror-transform";
 import { prosemirrorToYXmlFragment, yXmlFragmentToProseMirrorRootNode } from "y-prosemirror";
 import * as Y from "yjs";
 import { COLLAB_FRAGMENT } from "@/lib/collab-constants";
+import { suggestSteps } from "@/lib/suggest-changes";
 import { suggestionOfThread, THREADS_MAP, type CommentBody } from "@/lib/comments";
 import {
   hasSuggestions,
   listSuggestions,
+  newSuggestionId,
   rejectedView,
   resolvedDoc,
   resolveSuggestions,
@@ -64,6 +66,38 @@ export function writeBlocksKeepingSuggestions(fragment: Y.XmlFragment, next: Pag
     editor.blocksToYXmlFragment(next, fragment);
     return;
   }
+  writeRoot(fragment, keepingSuggestions(raw, next));
+}
+
+/**
+ * Writes `next` (blocks of the page as it reads) into the body as suggested edits of the AI, in
+ * `authorId`'s name (lib/suggestions newSuggestionId with `ai`): what it changes from the first
+ * difference to the last becomes one suggestion, the text it replaces marked deleted and the new
+ * marked inserted, for the person to accept or reject. Suggestions already there stay.
+ */
+export function writeBlocksAsSuggestions(fragment: Y.XmlFragment, next: PageBlock[], authorId: string) {
+  const raw = bodyRoot(fragment);
+  const target = keepingSuggestions(raw, next);
+  const start = raw.content.findDiffStart(target.content);
+  if (start === null) return;
+  const end = raw.content.findDiffEnd(target.content)!;
+  let endA = end.a;
+  let endB = end.b;
+  // Both ends past the start: a change in the middle of a repeated run is found from both sides.
+  const overlap = start - Math.min(endA, endB);
+  if (overlap > 0) {
+    endA += overlap;
+    endB += overlap;
+  }
+  const step = replaceStep(raw, start, endA, target.slice(start, endB));
+  if (!step) return;
+  const tracked = new Transform(raw);
+  suggestSteps(tracked, [step], [raw], { authorId, newId: () => newSuggestionId(authorId, { ai: true }) });
+  writeRoot(fragment, tracked.doc);
+}
+
+/** `next` as a body, each block the write leaves as the page read it keeping its suggestions (see above). */
+function keepingSuggestions(raw: Node, next: PageBlock[]): Node {
   const read = containersOf(rejectedView(raw));
   const before = containersOf(raw);
   const target = _blocksToProsemirrorNode(editor.editor, next as never) as Node;
@@ -89,7 +123,7 @@ export function writeBlocksKeepingSuggestions(fragment: Y.XmlFragment, next: Pag
     }
     return node.copy(content);
   };
-  writeRoot(fragment, keep(target));
+  return keep(target);
 }
 
 /**

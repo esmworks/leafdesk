@@ -6,10 +6,10 @@ import * as Y from "yjs";
 import { COLLAB_FRAGMENT } from "@/lib/collab-constants";
 import { suggestionOfThread, THREADS_MAP } from "@/lib/comments";
 import { suggestTransaction } from "@/lib/suggest-changes";
-import { listSuggestions, newSuggestionId, rejectedView, ZWSP } from "@/lib/suggestions";
+import { isAiSuggestion, listSuggestions, newSuggestionId, rejectedView, ZWSP } from "@/lib/suggestions";
 import { serverEditor, type PageBlock } from "@/server/blocknote";
 import { onlyOwnSuggestions } from "./suggest-guard";
-import { bodyRoot, resolveInFragment, syncSuggestionThreads, writeBlocksKeepingSuggestions } from "./suggestion-doc";
+import { bodyRoot, resolveInFragment, syncSuggestionThreads, writeBlocksAsSuggestions, writeBlocksKeepingSuggestions } from "./suggestion-doc";
 
 const paragraphs = (...texts: string[]) => texts.map((content, i) => ({ id: `b${i}`, type: "paragraph", content })) as unknown as PageBlock[];
 
@@ -157,6 +157,28 @@ describe("writeBlocksKeepingSuggestions", () => {
     expect(written(doc)).toEqual(["Hello dear world", "Changed"]);
     expect(reads(doc)).toEqual(["Hello world", "Changed"]);
     expect(listSuggestions(bodyRoot(fragment))).toHaveLength(1);
+  });
+});
+
+describe("writeBlocksAsSuggestions", () => {
+  it("writes what changes as the AI's suggestion in the person's name", () => {
+    const doc = pageDoc("Hello world", "Second", "Third");
+    const fragment = doc.getXmlFragment(COLLAB_FRAGMENT);
+    writeBlocksAsSuggestions(fragment, paragraphs("Hello world", "Changed", "Third"), "carol");
+    expect(reads(doc)).toEqual(["Hello world", "Second", "Third"]);
+    const suggestions = listSuggestions(bodyRoot(fragment));
+    expect(suggestions.length).toBeGreaterThan(0);
+    expect(suggestions.every((s) => s.authorId === "carol" && isAiSuggestion(s.id))).toBe(true);
+    resolveInFragment(fragment, "accept", null);
+    expect(written(doc)).toEqual(["Hello world", "Changed", "Third"]);
+  });
+
+  it("writes nothing when nothing changes", () => {
+    const doc = pageDoc("Hello world");
+    let changed = false;
+    doc.on("update", () => (changed = true));
+    writeBlocksAsSuggestions(doc.getXmlFragment(COLLAB_FRAGMENT), paragraphs("Hello world"), "carol");
+    expect(changed).toBe(false);
   });
 });
 
