@@ -1,12 +1,14 @@
 {
   "open": "Importa",
   "title": "Importa",
-  "description": "Porta dentro pagine da file Markdown, esportazioni ZIP e documenti Word, righe da un file CSV o da una cartella di lavoro Excel, oppure una bacheca Trello.",
+  "description": "Porta dentro pagine da file Markdown, esportazioni ZIP e documenti Word, righe da un file CSV o da una cartella di lavoro Excel, oppure una bacheca Trello, Asana o Monday.com.",
   "tabs": {
     "pages": "Markdown e ZIP",
     "docx": "Word",
     "csv": "CSV ed Excel",
-    "trello": "Trello"
+    "trello": "Trello",
+    "asana": "Asana",
+    "monday": "Monday.com"
   },
   "destination": "Inserisci in",
   "topLevel": "Livello principale dello spazio di lavoro",
@@ -67,6 +69,35 @@
       "comments": "Commenti"
     }
   },
+  "asana": {
+    "help": "In Asana, apri il menu del progetto e scegli Esporta → CSV (o JSON), poi scegli il file scaricato. Il progetto diventa un database con una vista bacheca per sezione: completamento, assegnatari, date, tag, campi personalizzati, note, sottoattività e dipendenze vengono importati.",
+    "choose": "Scegli un'esportazione di Asana (.csv o .json)",
+    "summary": "{name}: {groups, plural, one {# sezione} other {# sezioni}}, {items, plural, one {# attività} other {# attività}}, {subitems, plural, one {# sottoattività} other {# sottoattività}}"
+  },
+  "monday": {
+    "help": "In Monday.com, apri il menu della bacheca e scegli Esporta bacheca in Excel (con gli aggiornamenti, se li vuoi), poi scegli il file scaricato. La bacheca diventa un database con una vista bacheca per gruppo: colonne, sottoelementi e aggiornamenti vengono importati.",
+    "choose": "Scegli un'esportazione di Monday.com (.xlsx o .csv)",
+    "summary": "{name}: {groups, plural, one {# gruppo} other {# gruppi}}, {items, plural, one {# elemento} other {# elementi}}, {subitems, plural, one {# sottoelemento} other {# sottoelementi}}"
+  },
+  "board": {
+    "links": "Non viene scaricato nulla: file e link dell'esportazione restano link.",
+    "comments": "{count, plural, one {# commento va} other {# commenti vanno}} nelle pagine delle righe, con autore e ora.",
+    "leftOut": "Esclusi: {list}.",
+    "types": "Controlla cosa diventa ogni colonna: l'esportazione non dice di che tipo è, quindi è stato dedotto.",
+    "names": {
+      "section": "Sezione",
+      "group": "Gruppo",
+      "status": "Stato",
+      "toDo": "Da fare",
+      "done": "Fatto",
+      "assignee": "Assegnatario",
+      "tags": "Tag",
+      "dates": "Date",
+      "others": "{column} (altri)",
+      "attachments": "Allegati",
+      "comments": "Commenti"
+    }
+  },
   "import": "Importa",
   "importing": "Importazione in corso…",
   "done": {
@@ -86,6 +117,7 @@
   "warnings": {
     "heading": "Esclusi o modificati",
     "invalidValues": "{count, plural, one {# valore} other {# valori}} in “{column}” non erano adatti alla proprietà e sono stati lasciati vuoti.",
+    "leftOutColumn": "“{column}” non è stato importato.",
     "missingFile": "“{path}”, collegato da “{page}”, non era tra i file caricati.",
     "unresolvedLink": "“[[{target}]]” in “{page}” non corrisponde a nessuna nota o file caricato, quindi resta come testo.",
     "fileNotStored": {
@@ -120,6 +152,8 @@
     "badDocx": "Impossibile leggere “{name}” come documento Word. Si possono importare solo file .docx: salva prima i vecchi file .doc come .docx.",
     "docxTooComplex": "“{name}” è troppo grande o complesso per essere importato come una sola pagina.",
     "badTrello": "Il file non è un’esportazione di una bacheca Trello. In Trello, scegli Esporta come JSON dal menu della bacheca e scegli quel file.",
+    "badAsana": "Il file non è un'esportazione di un progetto Asana. In Asana, scegli Esporta → CSV o JSON dal menu del progetto e scegli quel file.",
+    "badMonday": "Il file non è un'esportazione di una bacheca Monday.com. In Monday.com, scegli Esporta bacheca in Excel dal menu della bacheca e scegli quel file.",
     "badMapping": "Scegli la destinazione di almeno una colonna, e usa ogni proprietà una sola volta.",
     "noAccess": "Non puoi aggiungere pagine lì, oppure non esiste più.",
     "notADatabase": "Le righe si possono aggiungere solo a un database.",

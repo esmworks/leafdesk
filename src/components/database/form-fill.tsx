@@ -5,7 +5,15 @@ import { useLocale, useTranslations } from "next-intl";
 import { useId, useState, type ReactNode } from "react";
 import { Button, cn } from "@/components/ui";
 import type { NumberFormat, SelectOption } from "@/db/schema/app";
-import { checkAnswers, MAX_TEXT_ANSWER, MAX_TITLE_ANSWER, questionHelp, type AnswerError, type ResolvedQuestion } from "@/lib/forms";
+import {
+  checkAnswers,
+  hiddenQuestions,
+  MAX_TEXT_ANSWER,
+  MAX_TITLE_ANSWER,
+  questionHelp,
+  type AnswerError,
+  type ResolvedQuestion,
+} from "@/lib/forms";
 import { isDatabaseErrorCode, sortStatusOptions } from "@/lib/properties";
 import { availableOptions, followDependencies, parentOf } from "@/lib/dependent-options";
 import { FilesEditor, type UploadFile } from "./files-cell";
@@ -22,14 +30,16 @@ export type FormProperty = {
 export type FormFillQuestion<P extends FormProperty = FormProperty> = ResolvedQuestion<P>;
 export type FormSubmitResult = { ok: true } | { ok: false; error: string; fields?: Record<string, string> };
 
-const FIELD_CODES = ["required", "tooLong", "tooMany", "invalidText"];
+const FIELD_CODES = ["required", "tooLong", "tooMany", "tooFew", "invalidText"];
 
 const inputClass =
   "w-full rounded-md border border-border bg-bg px-2.5 text-sm outline-none placeholder:text-fg-faint focus:border-accent disabled:opacity-60";
 
 /**
  * A form to fill in: the questions with an input each, checked in the browser the way the server
- * checks them, then sent through `onSubmit`. Used in the app and on public form pages.
+ * checks them, then sent through `onSubmit`. Used in the app and on public form pages. Questions
+ * whose condition the answers so far don't meet aren't shown or sent (the server works that out
+ * again); what was typed into them comes back if they show again.
  */
 export function FormFill<P extends FormProperty>({
   title,
@@ -62,6 +72,7 @@ export function FormFill<P extends FormProperty>({
   upload?: UploadFile;
 }) {
   const t = useTranslations();
+  const tFill = useTranslations("form.fill");
   const locale = useLocale();
   const [values, setValues] = useState<Record<string, unknown>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -93,10 +104,13 @@ export function FormFill<P extends FormProperty>({
     });
   };
 
+  const hidden = hiddenQuestions(questions, values);
+  const shown = questions.filter((q) => !hidden.has(q.propertyId));
+
   /** Typed text as values the server stores; text it can't read goes as typed, to be refused with a reason. */
   const answers = () => {
     const out: Record<string, unknown> = {};
-    for (const q of questions) {
+    for (const q of shown) {
       const raw = values[q.propertyId];
       if (raw === undefined) continue;
       const type = q.prop?.type;
@@ -164,12 +178,14 @@ export function FormFill<P extends FormProperty>({
       {description && <p className="mt-2 text-sm whitespace-pre-wrap text-fg-muted">{description}</p>}
 
       <div className="mt-8 flex flex-col gap-7">
-        {questions.map((q) => {
+        {shown.map((q) => {
           const inputId = `${formId}-${q.propertyId}`;
           const error = errors[q.propertyId];
           const label = q.label || q.prop?.name || t("form.nameQuestion");
           const help = questionHelp(q);
-          const describedBy = [help && `${inputId}-help`, error && `${inputId}-error`].filter(Boolean).join(" ") || undefined;
+          const limits = choiceHint(tFill, q);
+          const describedBy =
+            [help && `${inputId}-help`, limits && `${inputId}-limits`, error && `${inputId}-error`].filter(Boolean).join(" ") || undefined;
           const field = {
             id: inputId,
             question: q,
@@ -203,6 +219,11 @@ export function FormFill<P extends FormProperty>({
               {help && (
                 <p id={`${inputId}-help`} className={cn("mt-0.5 text-xs whitespace-pre-wrap text-fg-muted", inline && "ps-[26px]")}>
                   {help}
+                </p>
+              )}
+              {limits && (
+                <p id={`${inputId}-limits`} className="mt-0.5 text-xs text-fg-muted">
+                  {limits}
                 </p>
               )}
               {!inline && (
@@ -256,6 +277,19 @@ export function FormFill<P extends FormProperty>({
       </div>
     </form>
   );
+}
+
+/** How many choices a list question takes, when it limits them ("Choose 2 to 3."). */
+function choiceHint(
+  t: ReturnType<typeof useTranslations<"form.fill">>,
+  { minChoices: min, maxChoices: max }: { minChoices?: number; maxChoices?: number },
+): string | null {
+  if (min !== undefined && max !== undefined) {
+    return min === max ? t("choicesExactly", { count: min }) : t("choicesBetween", { min, max });
+  }
+  if (min !== undefined) return t("choicesAtLeast", { min });
+  if (max !== undefined) return t("choicesAtMost", { max });
+  return null;
 }
 
 function RequiredMark({ required }: { required: boolean }) {
@@ -386,6 +420,7 @@ function AnswerInput<P extends FormProperty>({
           disabled={disabled}
           label={label}
           offered={parentOf(prop, asked) ? availableOptions(prop, asked, values) : undefined}
+          max={question.maxChoices}
         />
       );
     case "checklist":
@@ -420,6 +455,7 @@ function OptionChoices({
   disabled,
   label,
   offered,
+  max,
   ...a11y
 }: {
   id: string;
@@ -430,6 +466,8 @@ function OptionChoices({
   label: string;
   /** The options that go with the answers so far (a select depending on another); all without. */
   offered?: SelectOption[];
+  /** A multi-select's most choices: once reached, the other options can't be ticked. */
+  max?: number;
   "aria-invalid"?: boolean;
   "aria-describedby"?: string;
   "aria-required"?: boolean;
@@ -446,13 +484,14 @@ function OptionChoices({
     <div id={id} role={multi ? "group" : "radiogroup"} aria-label={label} {...a11y} className="flex flex-col items-start gap-0.5">
       {shown.map((option) => {
         const on = picked.includes(option.id);
+        const full = multi && !on && max !== undefined && picked.length >= max;
         return (
           <button
             key={option.id}
             type="button"
             role={multi ? "checkbox" : "radio"}
             aria-checked={on}
-            disabled={disabled}
+            disabled={disabled || full}
             onClick={() => toggle(option.id)}
             className="-mx-1.5 flex max-w-full items-center gap-2 rounded-md px-1.5 py-1 hover:bg-bg-hover disabled:pointer-events-none disabled:opacity-60"
           >

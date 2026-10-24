@@ -4,6 +4,33 @@
 
 ### Added
 
+- **Form questions can depend on earlier answers, take a number of choices, and show people their
+  own answers.** In the form builder, *Show only when…* asks a question only when an earlier
+  question's answer is (or isn't) one of some options, contains (or doesn't contain) a text, is
+  ticked or not, or is empty or not; the question shows and hides as people answer, in the app and
+  on the public link. A question not asked isn't required and its answer is dropped: the server
+  works out which questions were asked from the answers it gets, whatever the page sent. A
+  condition must be about an earlier question and name only its options; one whose question or
+  options are deleted, or whose property changes type, stops applying and the question is asked
+  always. Multi-select, people, linked-row and file questions take *At least* and *At most* a
+  number of choices, checked in the form and on the server. With *Show people their own answers*
+  (off by default) someone who signed in to answer sees, under the form and when they come back
+  to it, what they sent through it: only the form's questions, never other properties or rows,
+  even without access to the database; anonymous answers are never shown and the answers can't be
+  edited there. `get_database` describes conditions, limits and the setting, and replacing a form's
+  questions over MCP keeps them. Migration 0121 adds the `form_submission` table, which records the
+  form and the person behind each signed-in answer.
+- **Import from Asana and Monday.com.** Import has an Asana tab that takes a project's CSV or JSON
+  export and a Monday.com tab that takes a board exported to Excel (or saved as CSV). Each becomes
+  a database opening on a board grouped by section or group, with Asana's completion as a status,
+  assignees and people as people (by email address, else by name, when one person in the
+  workspace matches; text otherwise), start and due dates and Monday's timelines as dates, tags as
+  a multi-select, locations with their coordinates as places, and the other columns typed by
+  their names and values, shown and changeable in the dialog before importing. Subtasks and subitems become sub-items, Asana's *Blocked By* and
+  *Blocking* and Monday's *Dependency* column the database's dependencies, notes the rows' bodies
+  and comments and updates follow there under their author and time, with links between items
+  leading to their rows. Nothing is downloaded; columns left out (such as *Created At*) are listed
+  in the result.
 - **Indonesian, Thai and Vietnamese.** The app, its emails, templates, the editor's menus and the
   desktop app now speak Bahasa Indonesia, ไทย and Tiếng Việt, chosen in My account → Language or
   taken from the browser. Quick add knows their date words, CSV import their title columns and
@@ -43,7 +70,7 @@
   and notify like others, and MCP's `list_comments` names the property. Only people who see the
   value read, write and hear about them, and people a restricted row leaves out read none; a
   deleted property's threads go away until it is restored. They are kept apart from the row's
-  document, in a table of their own (migration 0121).
+  document, in a table of their own (migration 0122).
 - **Buttons on pages.** The `/button` block does a few things in order when someone clicks it:
   inserts blocks written in Markdown (below the button, or at the top or end of the page), adds a
   row to a database, changes the rows of a database that filters match, notifies people, sends
@@ -51,7 +78,7 @@
   and `{{me}}`, and a button can ask before it runs. It runs as whoever clicks, each step with
   their access, and stops at the first step they can't do, saying which and why. Its row changes
   are the clicker's own: they start the database's automations, and the row's activity marks them
-  as made through a button (migration 0121). Published pages and the print view show buttons
+  as made through a button (migration 0122). Published pages and the print view show buttons
   disabled; Markdown over MCP and the API keeps a button as a line with its id and label.
 - **Images can link somewhere.** *Link…* in an image's block menu sets a web address or a page of
   the workspace. In the editor a small button on the image follows it; read-only pages, published
@@ -111,6 +138,18 @@
   and made as the person through the same code as the app's own edits (a new or imported
   database goes into the audit log as one made in the app does); the Telegram bot asks the same
   way.
+- **Build databases with AI.** *Build with AI* in the sidebar's *+* menus, on the home page, in
+  Cmd+K and as `/` *Build databases with AI* in a page: describe what you want to keep track of and
+  the AI drafts up to four databases for it, with typed properties, select options with colors,
+  statuses with their groups, relations between them, a few views (boards, calendars, timelines,
+  galleries and lists, with grouping, filters and sorts), example rows linked to each other, and a
+  page about them. The plan is checked against the real property and view types (one that doesn't
+  pass goes back to the AI once with what is wrong), shown to rename or remove databases,
+  properties and views and to leave out the example rows or the page, and then created as you,
+  where you opened it, all of it or nothing. The AI chat's `create_database` (still one
+  database with its properties) now goes through the same check and creation, so a status it
+  makes needs a done option. It counts
+  as *Other* in Settings > AI usage and is held to the workspace's AI limits. No migration.
 - **Write a formula by describing it.** Where the workspace has AI, the formula editor has a
   *Describe it* box: say what the formula should work out ("days left until the due date") and the
   AI writes it from the database's properties you may know of (names and types, never row values)
@@ -170,6 +209,13 @@
   log. Tables keep their layout, with amounts on the right; a row's values are left out unless
   asked for. An agent can do the same in its owner's chat. New dependency: pdfmake.
 
+- **PDF letterheads.** Owners set up the workspace's letterheads in the new Settings → PDF
+  templates tab: a logo on the left, in the middle or on the right, lines at the top of every page
+  (company, address, tax number) and at the foot (bank details), an accent color and page numbers.
+  One is the default. PDF files from the page menu and the AI chat print in it, or in another one
+  picked by name, or in none. Guests make PDFs without letterheads. Migration 0115 adds the
+  `pdf_letterhead` table.
+
 - **Table rows move by their handle, which also opens a fuller row menu.** The ⋯ button before
   each row of a table is now a handle: drag it to move the row among the others (in its group, and
   under the same parent when sub-items nest) while no sort orders the view; the order is the one
@@ -182,13 +228,6 @@
   the row, ⌘⇧P moves it, ⌘⇧M opens its comments and Del moves it to the trash; the menu shows
   the keys, and so does the shortcuts list. The page ⋯ menu counts a page's words and characters
   too.
-- **PDF letterheads.** Owners set up the workspace's letterheads in the new Settings → PDF
-  templates tab: a logo on the left, in the middle or on the right, lines at the top of every page
-  (company, address, tax number) and at the foot (bank details), an accent color and page numbers.
-  One is the default. PDF files from the page menu and the AI chat print in it, or in another one
-  picked by name, or in none. Guests make PDFs without letterheads. Migration 0115 adds the
-  `pdf_letterhead` table.
-
 - **Skills live in a skills database.** *New skill* in the skills library, and the ready-made
   skills, now add a row to a skills database: the person's own, made private at the top of the
   workspace the first time, with *Description*, *Files*, *Tags* and *Created by* properties and its
@@ -617,6 +656,14 @@
 
 ### Changed
 
+- **Pages open with less to download.** The workspace's routes no longer load the page editor
+  until a row is opened beside them, so Home, Settings, the graph, reviews, people and AI download
+  about 300 kB less (gzipped) when they open. Board, calendar, timeline, chart and form views, the
+  automations dialog, the importer and the QR codes of two-step setup load when first used (views
+  in the background once their database has loaded), so a page or database opens with about 75 kB
+  less. The client JavaScript budget now checks what opening a page downloads (the largest route,
+  and all routes' first loads together) and the largest chunk loaded on demand, instead of the sum
+  of every chunk the build holds.
 - **"Export as PDF" downloads a PDF file.** The page menu's *Export as PDF* now makes the file on
   the server, in a letterhead picked in its dialog (for a row, with its values if asked). The
   browser's print dialog moved to *Print*, which still keeps the page exactly as it looks, diagrams
@@ -715,6 +762,11 @@
   medium. Agents keep the model's default. The README's AI section has the table.
 
 ### Fixed
+
+- **Text filters match the Turkish dotted and dotless i.** A "contains ist" filter now finds
+  "İstanbul", and "ışık" finds "IŞIK": database view filters, form question conditions and option
+  names given by name (MCP, the REST API, a new tag typed into a cell) fold case with İ, I, i and ı
+  treated alike, as search and pickers already did. Other letters keep their accents.
 
 - **The AI chat knows today's date.** Each question now carries the date, weekday and time in the
   asker's time zone (the browser's), so "today", "this week" and dates written into quotes come out

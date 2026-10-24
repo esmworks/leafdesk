@@ -1,0 +1,13 @@
+{
+  "metaTitle": "Undangan",
+  "title": "Bergabung dengan “{workspace}”",
+  "invalidTitle": "Undangan tidak ditemukan",
+  "invalidBody": "Tautan undangan ini tidak valid, sudah kedaluwarsa, atau dibatalkan. Minta tautan baru kepada orang yang mengundang Anda.",
+  "home": "Ke Leafdesk",
+  "wrongAccount": "Undangan ini untuk {email}, tetapi Anda masuk sebagai {current}. Keluar lalu buka tautan itu lagi.",
+  "acceptBody": "Anda diundang untuk bergabung sebagai {role}.",
+  "signInBody": "Sudah ada akun yang memakai {email}. Masuk untuk menerima undangan.",
+  "signIn": "Masuk",
+  "join": "Gabung ke ruang kerja",
+  "joining": "Bergabung…"
+}

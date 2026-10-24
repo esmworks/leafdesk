@@ -1,0 +1,38 @@
+{
+  "menuItem": "Mit KI erstellen",
+  "title": "Mit KI erstellen",
+  "hint": "Beschreiben Sie, was Sie festhalten möchten. Die KI entwirft die Datenbanken, und Sie prüfen sie, bevor etwas erstellt wird.",
+  "reviewTitle": "Plan prüfen",
+  "reviewHint": "Benennen Sie um oder entfernen Sie, was Sie nicht brauchen, und erstellen Sie ihn dann.",
+  "back": "Zurück zur Beschreibung",
+  "label": "Was brauchen Sie?",
+  "placeholder": "Ein Bewerbungsprozess: Kandidaten, die die Interviewphasen durchlaufen, die Interviews mit jedem von ihnen und wer wen interviewt.",
+  "draft": "Datenbanken entwerfen",
+  "drafting": "Wird entworfen…",
+  "create": "Erstellen",
+  "creating": "Wird erstellt…",
+  "intro": "Eine Seite dazu hinzufügen, „{title}“, mit den Datenbanken darin",
+  "exampleRows": "{count, plural, one {Die Beispielzeile hinzufügen} other {Die # Beispielzeilen hinzufügen}}",
+  "databaseTitle": "Name der Datenbank",
+  "removeDatabase": "{name} entfernen",
+  "properties": "Eigenschaften",
+  "views": "Ansichten",
+  "noProperties": "Nur der Name jeder Zeile.",
+  "removeView": "Die Ansicht {name} entfernen",
+  "rename": "{name} umbenennen",
+  "linksTo": "Verknüpft mit {database}",
+  "linksBoth": "Verknüpft mit {database}, in beide Richtungen",
+  "removeProperty": "{name} entfernen",
+  "slash": {
+    "title": "Datenbanken mit KI erstellen",
+    "subtext": "Beschreiben Sie, was Sie brauchen, und die KI entwirft Datenbanken auf dieser Seite",
+    "aliases": "ki ai erstellen datenbank datenbanken generieren plan"
+  },
+  "errors": {
+    "unusable": "Die KI konnte dafür keine Datenbanken entwerfen. Beschreiben Sie es mit anderen Worten.",
+    "invalid": "Der Plan kann so nicht erstellt werden. Gehen Sie zurück und entwerfen Sie ihn neu.",
+    "parent": "Datenbanken können nicht in einer Datenbank liegen.",
+    "noAccess": "Sie können hier keine Seiten hinzufügen.",
+    "failed": "Etwas im Plan passte nicht, daher wurde nichts erstellt. Entfernen Sie die Beispielzeilen und versuchen Sie es erneut."
+  }
+}

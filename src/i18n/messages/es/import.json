@@ -1,12 +1,14 @@
 {
   "open": "Importar",
   "title": "Importar",
-  "description": "Trae páginas desde archivos Markdown, exportaciones ZIP y documentos de Word, filas desde un archivo CSV o un libro de Excel, o un tablero de Trello.",
+  "description": "Trae páginas desde archivos Markdown, exportaciones ZIP y documentos de Word, filas desde un archivo CSV o un libro de Excel, o un tablero de Trello, Asana o Monday.com.",
   "tabs": {
     "pages": "Markdown y ZIP",
     "docx": "Word",
     "csv": "CSV y Excel",
-    "trello": "Trello"
+    "trello": "Trello",
+    "asana": "Asana",
+    "monday": "Monday.com"
   },
   "destination": "Colocar dentro de",
   "topLevel": "Nivel superior del espacio de trabajo",
@@ -67,6 +69,35 @@
       "comments": "Comentarios"
     }
   },
+  "asana": {
+    "help": "En Asana, abre el menú del proyecto y elige Exportar → CSV (o JSON); luego elige el archivo descargado. El proyecto se convierte en una base de datos con una vista de tablero por sección: se traen la finalización, los responsables, las fechas, las etiquetas, los campos personalizados, las notas, las subtareas y las dependencias.",
+    "choose": "Elegir una exportación de Asana (.csv o .json)",
+    "summary": "{name}: {groups, plural, one {# sección} other {# secciones}}, {items, plural, one {# tarea} other {# tareas}}, {subitems, plural, one {# subtarea} other {# subtareas}}"
+  },
+  "monday": {
+    "help": "En Monday.com, abre el menú del tablero y elige Exportar tablero a Excel (con las actualizaciones, si las quieres); luego elige el archivo descargado. El tablero se convierte en una base de datos con una vista de tablero por grupo: se traen sus columnas, subelementos y actualizaciones.",
+    "choose": "Elegir una exportación de Monday.com (.xlsx o .csv)",
+    "summary": "{name}: {groups, plural, one {# grupo} other {# grupos}}, {items, plural, one {# elemento} other {# elementos}}, {subitems, plural, one {# subelemento} other {# subelementos}}"
+  },
+  "board": {
+    "links": "No se descarga nada: los archivos y enlaces de la exportación siguen siendo enlaces.",
+    "comments": "{count, plural, one {# comentario va} other {# comentarios van}} en las páginas de las filas, con su autor y hora.",
+    "leftOut": "Se omiten: {list}.",
+    "types": "Revisa en qué se convierte cada columna: la exportación no dice de qué tipo es, así que se ha deducido.",
+    "names": {
+      "section": "Sección",
+      "group": "Grupo",
+      "status": "Estado",
+      "toDo": "Por hacer",
+      "done": "Hecho",
+      "assignee": "Responsable",
+      "tags": "Etiquetas",
+      "dates": "Fechas",
+      "others": "{column} (otros)",
+      "attachments": "Adjuntos",
+      "comments": "Comentarios"
+    }
+  },
   "import": "Importar",
   "importing": "Importando…",
   "done": {
@@ -86,6 +117,7 @@
   "warnings": {
     "heading": "Excluido o modificado",
     "invalidValues": "{count, plural, one {# valor} other {# valores}} de “{column}” no encajaban con la propiedad y se dejaron vacíos.",
+    "leftOutColumn": "“{column}” no se importó.",
     "missingFile": "“{path}”, enlazado desde “{page}”, no estaba en lo que subiste.",
     "unresolvedLink": "“[[{target}]]” en “{page}” no coincide con ninguna nota ni archivo de lo que subiste, así que queda como texto.",
     "fileNotStored": {
@@ -120,6 +152,8 @@
     "badDocx": "“{name}” no se puede leer como documento de Word. Solo se pueden importar archivos .docx; guarda primero los archivos .doc antiguos como .docx.",
     "docxTooComplex": "“{name}” es demasiado grande o complejo para importarlo como una sola página.",
     "badTrello": "El archivo no es una exportación de un tablero de Trello. En Trello, elige Exportar como JSON en el menú del tablero y elige ese archivo.",
+    "badAsana": "El archivo no es una exportación de un proyecto de Asana. En Asana, elige Exportar → CSV o JSON en el menú del proyecto y elige ese archivo.",
+    "badMonday": "El archivo no es una exportación de un tablero de Monday.com. En Monday.com, elige Exportar tablero a Excel en el menú del tablero y elige ese archivo.",
     "badMapping": "Elige el destino de al menos una columna, y usa cada propiedad una sola vez.",
     "noAccess": "No puedes añadir páginas ahí o ya no existe.",
     "notADatabase": "Solo se pueden añadir filas a una base de datos.",

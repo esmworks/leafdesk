@@ -1,0 +1,33 @@
+{
+  "appDescription": "Không gian làm việc mã nguồn mở cho tài liệu và cơ sở dữ liệu, với quyền truy cập MCP cho các tác tử AI.",
+  "untitled": "Chưa có tiêu đề",
+  "sourceCode": "Mã nguồn",
+  "agent": "Tác tử",
+  "agentName": "{name} (tác tử)",
+  "cancel": "Hủy",
+  "save": "Lưu",
+  "saving": "Đang lưu…",
+  "saved": "Đã lưu.",
+  "close": "Đóng",
+  "delete": "Xóa",
+  "remove": "Gỡ bỏ",
+  "restore": "Khôi phục",
+  "loading": "Đang tải…",
+  "copy": "Sao chép",
+  "copied": "Đã sao chép",
+  "genericError": "Đã xảy ra lỗi. Hãy thử lại.",
+  "errorPage": {
+    "title": "Đã xảy ra lỗi",
+    "description": "Không thể hiển thị trang này, hoặc thay đổi gần nhất của bạn chưa được lưu.",
+    "retry": "Thử lại",
+    "home": "Về trang chủ"
+  },
+  "export": {
+    "failed": "Không thể bắt đầu xuất. Hãy thử lại.",
+    "tooManyPages": "Quá nhiều để xuất cùng lúc: mỗi lần xuất chứa tối đa {limit} trang. Hãy xuất một phần nhỏ hơn của không gian làm việc.",
+    "tooLarge": "Các tệp trong lần xuất này có tổng dung lượng vượt quá {size}. Hãy xuất một phần nhỏ hơn của không gian làm việc.",
+    "busy": "Bạn đang có một lần xuất đang chạy. Hãy đợi tải xuống hoàn tất.",
+    "disabled": "Tính năng xuất đã bị tắt trong không gian làm việc này."
+  },
+  "celebrate": "Làm tốt lắm!"
+}

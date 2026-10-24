@@ -10,6 +10,30 @@
     "labelPlaceholder": "Question",
     "helpPlaceholder": "Add help text (optional)",
     "required": "Required",
+    "showWhen": "Show only when",
+    "addCondition": "Show only when…",
+    "removeCondition": "Remove condition",
+    "conditionQuestion": "Question the condition is about",
+    "conditionCheck": "Condition",
+    "conditionOptions": "Options the condition looks for",
+    "conditionText": "Text",
+    "conditionPickOption": "Pick at least one option to save this condition.",
+    "conditionTypeText": "Type a text to save this condition.",
+    "op": {
+      "is": "is any of",
+      "isNot": "is none of",
+      "contains": "contains",
+      "notContains": "doesn't contain",
+      "hasAny": "includes any of",
+      "hasNone": "includes none of",
+      "checked": "is checked",
+      "unchecked": "is not checked",
+      "empty": "is empty",
+      "notEmpty": "is not empty"
+    },
+    "minChoices": "At least",
+    "maxChoices": "At most",
+    "anyNumber": "Any",
     "moveUp": "Move up",
     "moveDown": "Move down",
     "remove": "Remove question",
@@ -27,7 +51,9 @@
     "afterTitle": "After submitting",
     "confirmationLabel": "Message",
     "confirmationPlaceholder": "Thanks! Your response was sent.",
-    "allowAnother": "Let people submit another response"
+    "allowAnother": "Let people submit another response",
+    "showOwnAnswers": "Show people their own answers",
+    "showOwnAnswersDescription": "People who sign in to answer see what they sent through this form, and nothing else from the database. Anonymous answers are never shown."
   },
   "fill": {
     "submit": "Submit",
@@ -41,7 +67,18 @@
     "addItem": "Add an item",
     "newItem": "New item",
     "removeItem": "Remove {text}",
-    "honeypot": "Leave this field empty"
+    "honeypot": "Leave this field empty",
+    "choicesExactly": "Choose exactly {count}.",
+    "choicesBetween": "Choose {min} to {max}.",
+    "choicesAtLeast": "Choose at least {min}.",
+    "choicesAtMost": "Choose at most {max}."
+  },
+  "own": {
+    "title": "Your answers",
+    "description": "What you sent through this form. Only you see this list.",
+    "none": "You haven't sent any answers yet.",
+    "sentAt": "Sent {date}",
+    "empty": "No answers to show."
   },
   "share": {
     "button": "Share",
@@ -69,6 +106,7 @@
     "required": "This question is required.",
     "tooLong": "This answer is too long (at most {max} characters).",
     "tooMany": "Choose at most {max}.",
+    "tooFew": "Choose at least {min}.",
     "invalidText": "This answer must be text.",
     "invalidAnswers": "Some answers need another look.",
     "closed": "This form no longer takes answers.",

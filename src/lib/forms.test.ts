@@ -2,10 +2,13 @@ import { describe, expect, it } from "vitest";
 import type { PropertyOptions, PropertyType } from "@/db/schema/app";
 import {
   checkAnswers,
+  conditionHolds,
   defaultFormConfig,
   formConfigError,
   formDefaults,
   formQuestions,
+  formSchemaError,
+  hiddenQuestions,
   isAskable,
   isPublicAskable,
   MAX_FORM_QUESTIONS,
@@ -213,5 +216,149 @@ describe("checkAnswers", () => {
   it("refuses a name that isn't text", () => {
     const result = checkAnswers(questions.slice(0, 1), { title: ["x"] });
     expect(result.ok).toBe(false);
+  });
+});
+
+describe("conditions", () => {
+  const form = {
+    questions: [
+      { propertyId: "title" },
+      { propertyId: "status" },
+      { propertyId: "notes", required: true, showIf: { propertyId: "status", op: "is" as const, values: ["done", "gone"] } },
+      { propertyId: "agree" },
+      { propertyId: "email", required: true, showIf: { propertyId: "agree", op: "checked" as const } },
+      { propertyId: "site", showIf: { propertyId: "notes", op: "contains" as const, values: ["Web"] } },
+      { propertyId: "tags", showIf: { propertyId: "items", op: "notEmpty" as const } },
+      { propertyId: "items" },
+    ],
+  };
+  const questions = formQuestions(form, props);
+
+  it("keeps conditions that still hold, without options that are gone, and drops the others", () => {
+    const by = Object.fromEntries(questions.map((q) => [q.propertyId, q.showIf]));
+    expect(by.notes).toEqual({ propertyId: "status", op: "is", values: ["done"] });
+    expect(by.email).toEqual({ propertyId: "agree", op: "checked" });
+    // About a later question: asked always.
+    expect(by.tags).toBeUndefined();
+    // About a question taken out of the form, or of a type that can't be checked that way.
+    const stale = formQuestions(
+      {
+        questions: [
+          { propertyId: "agree" },
+          { propertyId: "notes", showIf: { propertyId: "gone", op: "notEmpty" } },
+          { propertyId: "site", showIf: { propertyId: "agree", op: "is", values: ["x"] } },
+          { propertyId: "count", showIf: { propertyId: "status", op: "is", values: ["done"] } },
+        ],
+      },
+      props,
+    );
+    expect(stale.map((q) => q.showIf)).toEqual([undefined, undefined, undefined, undefined]);
+  });
+
+  it("checks answers as the form holds them and as they are stored", () => {
+    expect(conditionHolds({ op: "is", values: ["done"] }, "status", "done")).toBe(true);
+    expect(conditionHolds({ op: "isNot", values: ["done"] }, "status", undefined)).toBe(true);
+    expect(conditionHolds({ op: "contains", values: ["a"] }, "multi_select", ["b", "a"])).toBe(true);
+    expect(conditionHolds({ op: "notContains", values: ["a"] }, "multi_select", ["b"])).toBe(true);
+    expect(conditionHolds({ op: "contains", values: ["web"] }, "text", " My WEBsite ")).toBe(true);
+    expect(conditionHolds({ op: "contains", values: ["ist"] }, "text", "İstanbul")).toBe(true);
+    expect(conditionHolds({ op: "contains", values: ["ışık"] }, "text", "IŞIK")).toBe(true);
+    expect(conditionHolds({ op: "notContains", values: ["ILIK"] }, "text", "ılık")).toBe(false);
+    expect(conditionHolds({ op: "unchecked" }, "checkbox", undefined)).toBe(true);
+    expect(conditionHolds({ op: "empty" }, "text", "   ")).toBe(true);
+    expect(conditionHolds({ op: "notEmpty" }, "files", [])).toBe(false);
+  });
+
+  it("hides questions whose condition isn't met, and those depending on a hidden one", () => {
+    expect([...hiddenQuestions(questions, {})].sort()).toEqual(["email", "notes", "site"]);
+    expect([...hiddenQuestions(questions, { status: "done", notes: "web shop" })].sort()).toEqual(["email"]);
+    // The text matches, but the question it is about isn't asked: neither is this one.
+    expect(hiddenQuestions(questions, { status: "new", notes: "web shop" }).has("site")).toBe(true);
+  });
+
+  it("drops answers to questions not asked and requires the others", () => {
+    const hidden = checkAnswers(questions, { title: "A", status: "new", notes: "kept?", site: "https://x.test", agree: false, email: "nope" });
+    expect(hidden).toEqual({ ok: true, title: "A", properties: { status: "new" } });
+    const shown = checkAnswers(questions, { title: "A", status: "Done", agree: true });
+    expect(shown.ok).toBe(false);
+    if (shown.ok) return;
+    // "Done" is an option name: worked out as the option before the condition looks at it.
+    expect(shown.errors.map((e) => [e.propertyId, e.code])).toEqual([
+      ["notes", "required"],
+      ["email", "required"],
+    ]);
+  });
+});
+
+describe("choice limits", () => {
+  const many = prop("many", "multi_select", {
+    options: ["a", "b", "c"].map((id) => ({ id, name: id.toUpperCase(), color: "gray" })),
+  });
+  const questions = formQuestions(
+    {
+      questions: [
+        { propertyId: "many", minChoices: 2, maxChoices: 2 },
+        { propertyId: "owner", maxChoices: 1 },
+        { propertyId: "notes", minChoices: 1 },
+      ],
+    },
+    [...props, many],
+  );
+
+  it("apply to list questions only", () => {
+    expect(questions.map((q) => [q.minChoices, q.maxChoices])).toEqual([
+      [2, 2],
+      [undefined, 1],
+      [undefined, undefined],
+    ]);
+  });
+
+  it("refuse too few and too many choices, but not an optional question left empty", () => {
+    const result = checkAnswers(questions, { many: ["a"], owner: ["u1", "u2"] });
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.errors).toEqual([
+      { propertyId: "many", code: "tooFew", params: { min: "2", property: "Many" } },
+      { propertyId: "owner", code: "tooMany", params: { max: "1", property: "Owner" } },
+    ]);
+    expect(checkAnswers(questions, { many: ["a", "b"], owner: ["u1"] }).ok).toBe(true);
+    expect(checkAnswers(questions, {}).ok).toBe(true);
+  });
+});
+
+describe("form settings for conditions and limits", () => {
+  it.each([
+    [{ questions: [{ propertyId: "a", showIf: { propertyId: "b", op: "empty" } }, { propertyId: "b" }] }, "earlier"],
+    [{ questions: [{ propertyId: "a", showIf: { propertyId: "a", op: "empty" } }] }, "earlier"],
+    [{ questions: [{ propertyId: "a" }, { propertyId: "b", showIf: { propertyId: "a", op: "near" } }] }, "check"],
+    [{ questions: [{ propertyId: "a" }, { propertyId: "b", showIf: { propertyId: "a", op: "is", values: [] } }] }, "values"],
+    [{ questions: [{ propertyId: "a" }, { propertyId: "b", showIf: { propertyId: "a", op: "empty", values: ["x"] } }] }, "no values"],
+    [{ questions: [{ propertyId: "a", minChoices: 0 }] }, "minChoices"],
+    [{ questions: [{ propertyId: "a", minChoices: 3, maxChoices: 2 }] }, "more than"],
+    [{ showOwnAnswers: "yes" }, "showOwnAnswers"],
+  ])("refuses %j", (form, message) => {
+    expect(formConfigError(form)).toContain(message);
+  });
+
+  it("accepts a condition about an earlier question", () => {
+    expect(
+      formConfigError({
+        questions: [{ propertyId: "a" }, { propertyId: "b", showIf: { propertyId: "a", op: "is", values: ["x"] }, maxChoices: 3 }],
+        showOwnAnswers: true,
+      }),
+    ).toBeNull();
+  });
+
+  it("checks them against the properties when they change", () => {
+    const form = (showIf: object, extra: object = {}) =>
+      ({ questions: [{ propertyId: "status" }, { propertyId: "tags", showIf, ...extra }] }) as never;
+    expect(formSchemaError(form({ propertyId: "status", op: "is", values: ["done"] }, { maxChoices: 1 }), props)).toBeNull();
+    expect(formSchemaError(form({ propertyId: "status", op: "is", values: ["nope"] }), props)).toContain("option");
+    expect(formSchemaError(form({ propertyId: "status", op: "checked" }), props)).toContain("can't check");
+    expect(formSchemaError(form({ propertyId: "author", op: "empty" }), props)).toContain("can't ask");
+    expect(formSchemaError({ questions: [{ propertyId: "notes", maxChoices: 2 }] }, props)).toContain("number of choices");
+    // Unchanged from what is stored: what later changes broke is left for the form to ignore.
+    const stale = form({ propertyId: "status", op: "is", values: ["nope"] });
+    expect(formSchemaError(stale, props, stale)).toBeNull();
   });
 });

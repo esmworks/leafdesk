@@ -1,0 +1,14 @@
+{
+  "metaTitle": "Orang",
+  "heading": "Orang",
+  "description": "Pemilik dan anggota ruang kerja ini, beserta ruang tim, grup, dan halaman yang baru mereka edit. Tamu tidak ditampilkan.",
+  "search": "Cari berdasarkan nama, email, ruang tim, atau grup",
+  "count": "{count, plural, other {# orang}}",
+  "noMatches": "Tidak ada yang cocok dengan pencarian Anda.",
+  "you": "(Anda)",
+  "teamspaces": "Ruang tim",
+  "groups": "Grup",
+  "recentPages": "Baru diedit",
+  "none": "Tidak ada",
+  "noRecentPages": "Tidak ada hasil edit terbaru yang dapat Anda buka."
+}

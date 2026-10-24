@@ -1,12 +1,14 @@
 {
   "open": "Importieren",
   "title": "Importieren",
-  "description": "Importiere Seiten aus Markdown-Dateien, ZIP-Exporten und Word-Dokumenten, Zeilen aus einer CSV-Datei oder Excel-Arbeitsmappe oder ein Trello-Board.",
+  "description": "Importiere Seiten aus Markdown-Dateien, ZIP-Exporten und Word-Dokumenten, Zeilen aus einer CSV-Datei oder Excel-Arbeitsmappe oder ein Board aus Trello, Asana oder Monday.com.",
   "tabs": {
     "pages": "Markdown & ZIP",
     "docx": "Word",
     "csv": "CSV & Excel",
-    "trello": "Trello"
+    "trello": "Trello",
+    "asana": "Asana",
+    "monday": "Monday.com"
   },
   "destination": "Einfügen unter",
   "topLevel": "Oberste Ebene des Workspace",
@@ -67,6 +69,35 @@
       "comments": "Kommentare"
     }
   },
+  "asana": {
+    "help": "Öffne in Asana das Menü des Projekts und wähle Exportieren → CSV (oder JSON), dann die heruntergeladene Datei. Das Projekt wird eine Datenbank mit einer Board-Ansicht nach Abschnitten: Erledigt-Status, Zuständige, Daten, Tags, benutzerdefinierte Felder, Notizen, Unteraufgaben und Abhängigkeiten kommen mit.",
+    "choose": "Asana-Export wählen (.csv oder .json)",
+    "summary": "{name}: {groups, plural, one {# Abschnitt} other {# Abschnitte}}, {items, plural, one {# Aufgabe} other {# Aufgaben}}, {subitems, plural, one {# Unteraufgabe} other {# Unteraufgaben}}"
+  },
+  "monday": {
+    "help": "Öffne in Monday.com das Menü des Boards und wähle Board nach Excel exportieren (mit Updates, wenn du sie willst), dann die heruntergeladene Datei. Das Board wird eine Datenbank mit einer Board-Ansicht nach Gruppen: Spalten, Unterelemente und Updates kommen mit.",
+    "choose": "Monday.com-Export wählen (.xlsx oder .csv)",
+    "summary": "{name}: {groups, plural, one {# Gruppe} other {# Gruppen}}, {items, plural, one {# Element} other {# Elemente}}, {subitems, plural, one {# Unterelement} other {# Unterelemente}}"
+  },
+  "board": {
+    "links": "Nichts wird heruntergeladen: Dateien und Links im Export bleiben Links.",
+    "comments": "{count, plural, one {# Kommentar kommt} other {# Kommentare kommen}} mit Autor und Zeit auf die Seiten der Zeilen.",
+    "leftOut": "Weggelassen: {list}.",
+    "types": "Prüfe, was aus jeder Spalte wird: Der Export sagt nicht, welche Art eine Spalte ist, daher wurde sie geschätzt.",
+    "names": {
+      "section": "Abschnitt",
+      "group": "Gruppe",
+      "status": "Status",
+      "toDo": "Offen",
+      "done": "Erledigt",
+      "assignee": "Zuständig",
+      "tags": "Tags",
+      "dates": "Daten",
+      "others": "{column} (weitere)",
+      "attachments": "Anhänge",
+      "comments": "Kommentare"
+    }
+  },
   "import": "Importieren",
   "importing": "Wird importiert…",
   "done": {
@@ -86,6 +117,7 @@
   "warnings": {
     "heading": "Ausgelassen oder geändert",
     "invalidValues": "{count, plural, one {# Wert in „{column}“ passte nicht zur Eigenschaft und wurde leer gelassen.} other {# Werte in „{column}“ passten nicht zur Eigenschaft und wurden leer gelassen.}}",
+    "leftOutColumn": "„{column}“ wurde nicht importiert.",
     "missingFile": "„{path}“, verlinkt in „{page}“, war nicht im Upload enthalten.",
     "unresolvedLink": "„[[{target}]]“ in „{page}“ passt zu keiner Notiz und keiner Datei im Upload und bleibt deshalb Text.",
     "fileNotStored": {
@@ -120,6 +152,8 @@
     "badDocx": "„{name}“ kann nicht als Word-Dokument gelesen werden. Nur .docx-Dateien können importiert werden; speichere ältere .doc-Dateien zuerst als .docx.",
     "docxTooComplex": "„{name}“ ist zu groß oder zu komplex, um als eine Seite importiert zu werden.",
     "badTrello": "Die Datei ist kein Trello-Board-Export. Wähle in Trello im Menü des Boards Als JSON exportieren und dann diese Datei.",
+    "badAsana": "Die Datei ist kein Asana-Projektexport. Wähle in Asana im Menü des Projekts Exportieren → CSV oder JSON und dann diese Datei.",
+    "badMonday": "Die Datei ist kein Monday.com-Board-Export. Wähle in Monday.com im Menü des Boards Board nach Excel exportieren und dann diese Datei.",
     "badMapping": "Lege für mindestens eine Spalte ein Ziel fest und verwende jede Eigenschaft nur einmal.",
     "noAccess": "Du kannst dort keine Seiten hinzufügen, oder das Ziel existiert nicht mehr.",
     "notADatabase": "Zeilen können nur einer Datenbank hinzugefügt werden.",

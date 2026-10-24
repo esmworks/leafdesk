@@ -1,4 +1,5 @@
 import { defaultProps } from "@blocknote/core";
+import { type AlertKind, BREADCRUMB_BLOCK, CALLOUT_BLOCK, DEFAULT_CALLOUT_ICON, FOOTNOTE, INLINE_MATH, MATH_BLOCK, MERMAID_BLOCK, SUBPAGES_BLOCK, TOC_BLOCK } from "./content-block-names";
 
 /**
  * Content blocks beyond BlockNote's own: callouts, equations (block and inline), footnotes, Mermaid
@@ -13,16 +14,8 @@ import { defaultProps } from "@blocknote/core";
  * document like a code block, so collaborators' keystrokes merge and search finds the source.
  */
 
-export const CALLOUT_BLOCK = "callout";
-export const MATH_BLOCK = "math";
-export const INLINE_MATH = "inlineMath";
-export const FOOTNOTE = "footnote";
-export const MERMAID_BLOCK = "mermaid";
-export const TOC_BLOCK = "tableOfContents";
-export const BREADCRUMB_BLOCK = "breadcrumb";
-export const SUBPAGES_BLOCK = "subpages";
-
-export const DEFAULT_CALLOUT_ICON = "💡";
+// The names live apart (lib/content-block-names.ts) so code that only needs one skips the editor library.
+export { ALERT_KINDS, type AlertKind, BREADCRUMB_BLOCK, CALLOUT_BLOCK, DEFAULT_CALLOUT_ICON, FOOTNOTE, INLINE_MATH, MATH_BLOCK, MERMAID_BLOCK, SUBPAGES_BLOCK, TOC_BLOCK } from "./content-block-names";
 
 /**
  * A callout: an icon and text on a colored background. The color is BlockNote's own background
@@ -98,9 +91,6 @@ export const KATEX_OPTIONS = {
  * The alert kind carries the color, as far as the five kinds go: gray, green, purple, yellow and
  * red come back as they were, other colors as the nearest kind's.
  */
-export const ALERT_KINDS = ["NOTE", "TIP", "IMPORTANT", "WARNING", "CAUTION"] as const;
-export type AlertKind = (typeof ALERT_KINDS)[number];
-
 const KIND_COLOR: Record<AlertKind, string> = {
   NOTE: "gray",
   TIP: "green",

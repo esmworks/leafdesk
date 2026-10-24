@@ -1,8 +1,12 @@
 import * as z from "zod";
-import type { ViewConfig, ViewType } from "@/db/schema/app";
+import type { FormCondition, ViewConfig, ViewType } from "@/db/schema/app";
 import {
   FORM_TITLE,
   canDefault,
+  conditionOps,
+  conditionTakesValues,
+  formConfigError,
+  formSchemaError,
   isAskable,
   MAX_CONFIRMATION,
   MAX_FORM_DEFAULTS,
@@ -12,6 +16,7 @@ import {
   MAX_QUESTION_DESCRIPTION,
   MAX_QUESTION_LABEL,
 } from "@/lib/forms";
+import { holdsOptions } from "@/lib/property-types";
 import * as forms from "@/server/forms";
 import { rowValue } from "@/server/operations";
 import { ToolInputError } from "./format";
@@ -66,12 +71,31 @@ export const formInputs = {
     ),
 };
 
+/**
+ * When a question is asked: an earlier question (by property name, or "title"), the check
+ * (lib/forms conditionOps) and, for checks that compare, option names or one text.
+ */
+export type ConditionInput = { question: string; check: string; values?: string[] };
+
+/**
+ * `show_when`, `min_choices`, `max_choices` and `show_own_answers` aren't MCP inputs (its tool
+ * list has no room for them): the AI chat's create_form sets them, and MCP keeps what the app set.
+ */
 export type FormInput = {
-  questions?: { property: string; required?: boolean; label?: string; description?: string }[];
+  questions?: {
+    property: string;
+    required?: boolean;
+    label?: string;
+    description?: string;
+    show_when?: ConditionInput;
+    min_choices?: number;
+    max_choices?: number;
+  }[];
   form_title?: string;
   form_description?: string;
   confirmation_message?: string;
   allow_another?: boolean;
+  show_own_answers?: boolean;
   defaults?: Record<string, unknown>;
   public?: boolean;
   anonymous?: boolean;
@@ -83,10 +107,32 @@ const FORM_SETTINGS = [
   "form_description",
   "confirmation_message",
   "allow_another",
+  "show_own_answers",
   "defaults",
   "public",
   "anonymous",
 ] as const;
+
+/** A condition by name as stored: the question's property id, the check, option ids or the text. */
+function conditionFrom(props: PropertyDef[], earlier: ReadonlySet<string>, input: ConditionInput): FormCondition {
+  const { key, prop } = resolvePropertyKey(props, input.question);
+  if (!earlier.has(key)) throw new ToolInputError(`A question can only depend on one asked before it; "${input.question}" isn't.`);
+  const type = prop?.type ?? "title";
+  const checks = conditionOps(type);
+  const op = checks.find((c) => c === input.check);
+  if (!op) throw new ToolInputError(`"${input.question}" can be checked with ${checks.join(", ")}, not "${input.check}".`);
+  if (!conditionTakesValues(op)) return { propertyId: key, op };
+  const given = (input.values ?? []).map((v) => String(v).trim()).filter(Boolean);
+  if (!given.length) throw new ToolInputError(`The check "${op}" of "${input.question}" needs values.`);
+  if (!prop || !holdsOptions(prop.type)) return { propertyId: key, op, values: given.slice(0, 1) };
+  const options = prop.options.options ?? [];
+  const values = given.map((name) => {
+    const option = options.find((o) => o.id === name || o.name.trim().toLowerCase() === name.toLowerCase());
+    if (!option) throw new ToolInputError(`"${name}" is not an option of "${prop.name}". Options: ${options.map((o) => o.name).join(", ") || "none"}`);
+    return option.id;
+  });
+  return { propertyId: key, op, values: [...new Set(values)] };
+}
 
 /** The form settings the caller asked to change, merged into the view's form. Names become ids. */
 export function formConfigPatch(props: PropertyDef[], type: ViewType, current: ViewConfig, input: FormInput): ViewConfig {
@@ -96,20 +142,35 @@ export function formConfigPatch(props: PropertyDef[], type: ViewType, current: V
   const form = { ...current.form };
   if (input.questions) {
     const seen = new Set<string>();
+    const before = new Map((current.form?.questions ?? []).map((q) => [q.propertyId, q]));
     form.questions = input.questions.map((q) => {
       const { key, prop } = resolvePropertyKey(props, q.property);
       if (!prop && key !== FORM_TITLE) throw new ToolInputError(`"${q.property}" can't be asked in a form.`);
       if (prop && !isAskable(prop.type)) throw new ToolInputError(`"${prop.name}" is ${prop.type}, which a form can't ask for.`);
       if (seen.has(key)) throw new ToolInputError(`"${q.property}" is asked twice.`);
+      // A question asked before keeps the condition and choice limits it had unless new ones are
+      // given, as long as its condition is still about a question asked before it.
+      const was = before.get(key);
+      const showIf = q.show_when
+        ? conditionFrom(props, seen, q.show_when)
+        : was?.showIf && seen.has(was.showIf.propertyId)
+          ? was.showIf
+          : undefined;
+      const minChoices = q.min_choices ?? was?.minChoices;
+      const maxChoices = q.max_choices ?? was?.maxChoices;
       seen.add(key);
       return {
         propertyId: key,
         ...(q.required ? { required: true } : {}),
         ...(q.label?.trim() ? { label: q.label.trim() } : {}),
         ...(q.description?.trim() ? { description: q.description.trim() } : {}),
+        ...(showIf ? { showIf } : {}),
+        ...(minChoices !== undefined ? { minChoices } : {}),
+        ...(maxChoices !== undefined ? { maxChoices } : {}),
       };
     });
   }
+  if (input.show_own_answers !== undefined) form.showOwnAnswers = input.show_own_answers ? true : undefined;
   if (input.form_title !== undefined) form.title = input.form_title.trim() || undefined;
   if (input.form_description !== undefined) form.description = input.form_description.trim() || undefined;
   if (input.confirmation_message !== undefined) form.confirmation = input.confirmation_message.trim() || undefined;
@@ -128,6 +189,9 @@ export function formConfigPatch(props: PropertyDef[], type: ViewType, current: V
       }),
     );
   }
+  // Conditions and choice limits as the app checks them, so a tool hears what is wrong by name.
+  const error = formConfigError(form) ?? formSchemaError(form, props, current.form);
+  if (error) throw new ToolInputError(`${error}.`);
   return { form };
 }
 

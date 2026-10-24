@@ -1,0 +1,38 @@
+{
+  "menuItem": "Bangun dengan AI",
+  "title": "Bangun dengan AI",
+  "hint": "Jelaskan apa yang ingin Anda catat. AI menyusun draf basis data, dan Anda meninjaunya sebelum apa pun dibuat.",
+  "reviewTitle": "Tinjau rencana",
+  "reviewHint": "Ganti nama atau hapus yang tidak Anda perlukan, lalu buat.",
+  "back": "Kembali ke deskripsi",
+  "label": "Apa yang Anda butuhkan?",
+  "placeholder": "Alur perekrutan: kandidat yang bergerak melalui tahap wawancara, wawancara dengan masing-masing kandidat, dan siapa yang mewawancarai siapa.",
+  "draft": "Susun draf basis data",
+  "drafting": "Menyusun draf…",
+  "create": "Buat",
+  "creating": "Membuat…",
+  "intro": "Tambahkan halaman tentangnya, “{title}”, dengan basis data di dalamnya",
+  "exampleRows": "{count, plural, other {Tambahkan # baris contoh}}",
+  "databaseTitle": "Nama basis data",
+  "removeDatabase": "Hapus {name}",
+  "properties": "Properti",
+  "views": "Tampilan",
+  "noProperties": "Hanya nama setiap baris.",
+  "removeView": "Hapus tampilan {name}",
+  "rename": "Ganti nama {name}",
+  "linksTo": "Tertaut ke {database}",
+  "linksBoth": "Tertaut ke {database}, dua arah",
+  "removeProperty": "Hapus {name}",
+  "slash": {
+    "title": "Bangun basis data dengan AI",
+    "subtext": "Jelaskan kebutuhan Anda dan AI menyusun draf basis data di dalam halaman ini",
+    "aliases": "ai bangun basis data buat rencana build database databases generate plan"
+  },
+  "errors": {
+    "unusable": "AI tidak dapat menyusun draf basis data untuk itu. Coba jelaskan dengan kata lain.",
+    "invalid": "Rencana tidak dapat dibuat seperti ini. Kembali dan susun draf lagi.",
+    "parent": "Basis data tidak dapat ditempatkan di dalam basis data.",
+    "noAccess": "Anda tidak dapat menambahkan halaman di sini.",
+    "failed": "Ada bagian rencana yang tidak sesuai, jadi tidak ada yang dibuat. Hapus baris contoh dan coba lagi."
+  }
+}

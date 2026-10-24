@@ -9,7 +9,7 @@ import {
   type PartialBlock,
 } from "@blocknote/core";
 import { createReactBlockSpec, type DefaultReactSuggestionItem } from "@blocknote/react";
-import { Database, LayoutDashboard, SquareArrowOutUpRight } from "lucide-react";
+import { Database, LayoutDashboard, Sparkles, SquareArrowOutUpRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 import { createInlineDatabaseAction } from "@/app/actions/embeds";
@@ -132,6 +132,7 @@ type PageBlockInput = PartialBlock<
  * Puts a database block where the slash menu was opened: in place of the block when it is empty
  * (the "/" the menu leaves behind aside), after it otherwise, with a paragraph to keep typing in.
  * `at` may have gone meanwhile (the block is added after a server round trip): then at the end.
+ * Returns the block placed, for the next one to go after it.
  */
 export function placeEmbedBlock(editor: PageEditor, at: string, block: PageBlockInput) {
   const current = editor.getBlock(at);
@@ -148,18 +149,24 @@ export function placeEmbedBlock(editor: PageEditor, at: string, block: PageBlock
   const next = editor.getNextBlock(placed);
   const after = next ?? editor.insertBlocks([{ type: "paragraph" }], placed, "after")[0];
   editor.setTextCursorPosition(after, "start");
+  return placed;
 }
 
-/** Slash menu entries for the database blocks, placed after BlockNote's own "Table". */
+/**
+ * Slash menu entries for the database blocks, placed after BlockNote's own "Table". `onBuild`, when
+ * the page may use AI: "Build databases with AI" (components/workspace/build-with-ai-dialog.tsx).
+ */
 export function useEmbedSlashItems(
   editor: PageEditor,
   {
     onCreateError,
     onPickDatabase,
     onDashboard,
-  }: { onCreateError: (message: string) => void; onPickDatabase: (at: string) => void; onDashboard?: () => void },
+    onBuild,
+  }: { onCreateError: (message: string) => void; onPickDatabase: (at: string) => void; onDashboard?: () => void; onBuild?: (at: string) => void },
 ) {
   const t = useTranslations("page.embed");
+  const tBuild = useTranslations("build.slash");
   const host = useEmbedHost();
   return useMemo(() => {
     if (!host?.editable) return () => [] as DefaultReactSuggestionItem[];
@@ -188,6 +195,18 @@ export function useEmbedSlashItems(
             });
         },
       },
+      ...(onBuild
+        ? [
+            {
+              title: tBuild("title"),
+              subtext: tBuild("subtext"),
+              aliases: tBuild("aliases").split(" "),
+              group,
+              icon: <Sparkles size={18} />,
+              onItemClick: () => onBuild(editor.getTextCursorPosition().block.id),
+            },
+          ]
+        : []),
       {
         title: t("slash.linkedView.title"),
         subtext: t("slash.linkedView.subtext"),
@@ -209,7 +228,7 @@ export function useEmbedSlashItems(
         },
       },
     ];
-  }, [editor, host, t, onCreateError, onPickDatabase, onDashboard]);
+  }, [editor, host, t, tBuild, onCreateError, onPickDatabase, onDashboard, onBuild]);
 }
 
 /** Inserts each extra item after the last item of its group (e.g. BlockNote's "Advanced"), in order. */

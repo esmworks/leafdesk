@@ -113,3 +113,25 @@ export const formPublication = pgTable("form_publication", {
   publishedBy: text("published_by").references(() => user.id, { onDelete: "set null" }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
+
+/**
+ * A row someone signed in added through a form, in the app or by its public link: what lets them
+ * see their own answers later (server/forms ownSubmissions) without any access to the database.
+ * Anonymous answers have none. Goes with the row when it is deleted for good, and with the view.
+ */
+export const formSubmission = pgTable(
+  "form_submission",
+  {
+    rowId: text("row_id")
+      .primaryKey()
+      .references(() => page.id, { onDelete: "cascade" }),
+    viewId: text("view_id")
+      .notNull()
+      .references(() => databaseView.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("form_submission_view_user_idx").on(t.viewId, t.userId, t.createdAt.desc())],
+);

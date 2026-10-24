@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 import {
   getFormSharingAction,
+  ownSubmissionsAction,
   publishFormAction,
   submitFormAction,
   unpublishFormAction,
@@ -13,24 +14,33 @@ import {
 } from "@/app/actions/forms";
 import { useLocalMode } from "@/components/local-mode";
 import { Button, cn, MenuItem, Switch } from "@/components/ui";
-import type { FormConfig, FormQuestion } from "@/db/schema/app";
+import type { FormCondition, FormConfig, FormQuestion } from "@/db/schema/app";
 import {
   FORM_TITLE,
   formQuestions,
   canDefault,
+  conditionOps,
+  conditionTakesValues,
   isAskable,
   isPublicAskable,
+  MAX_CONDITION_TEXT,
   MAX_CONFIRMATION,
   MAX_FORM_DESCRIPTION,
   MAX_FORM_TITLE,
+  MAX_LIST_ANSWER,
   MAX_QUESTION_DESCRIPTION,
   MAX_QUESTION_LABEL,
+  takesChoiceLimits,
+  type ConditionOp,
+  type ResolvedQuestion,
 } from "@/lib/forms";
-import type { FormSharing } from "@/server/forms";
+import { holdsOptions } from "@/lib/property-types";
+import type { FormSharing, OwnSubmission } from "@/server/forms";
 import { Floating, useFloating } from "./floating";
 import { postFile } from "./files-cell";
+import { OwnAnswers } from "./form-answers";
 import { FormFill } from "./form-fill";
-import { PropertyCell } from "./property-cell";
+import { OptionChip, PropertyCell } from "./property-cell";
 import { usePropertyAccess } from "./property-access";
 import { PropertyTypeIcon, usePropertyTypeLabel } from "./property-icons";
 import type { Property, View } from "./types";
@@ -64,6 +74,19 @@ export function FormView({
   const tc = useTranslations("common");
   const form = view.config.form ?? {};
   const access = usePropertyAccess();
+  // The form shows people what they sent through it: loaded when it is filled in, and again after
+  // each answer.
+  const showOwn = form.showOwnAnswers === true && !(editable && !preview);
+  const [own, setOwn] = useState<OwnSubmission[] | null>(null);
+  const loadOwn = async () => {
+    const result = await ownSubmissionsAction(view.id).catch(() => null);
+    setOwn(result?.ok ? result.data : null);
+  };
+  useEffect(() => {
+    if (showOwn) void loadOwn();
+    else setOwn(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [view.id, showOwn]);
 
   if (editable && !preview) {
     return (
@@ -77,6 +100,18 @@ export function FormView({
     );
   }
 
+  // Answers are written as the person answering: questions about values they may not change
+  // (property access) aren't asked, since the server would leave them out. Leaving them out before
+  // the questions are worked out drops conditions about them too, as the server does.
+  const questions = formQuestions(
+    form,
+    properties.filter((p) => access.canEditValues(p.id)),
+  );
+  const renderValue = (question: (typeof questions)[number], value: unknown) =>
+    question.prop && (
+      <PropertyCell variant="panel" wrap readOnly prop={question.prop} value={value} onChange={() => {}} onCreateOption={async () => null} />
+    );
+
   return (
     <div className="page-gutter pb-16">
       <div className="mx-auto max-w-2xl pt-6">
@@ -84,16 +119,17 @@ export function FormView({
           key={view.id}
           title={form.title?.trim() || databaseTitle || tc("untitled")}
           description={form.description?.trim()}
-          // Answers are written as the person answering: questions about values they may not
-          // change (property access) aren't asked, since the server would leave them out.
-          questions={formQuestions(form, properties).filter((q) => !q.prop || access.canEditValues(q.prop.id))}
+          questions={questions}
           confirmation={form.confirmation}
           allowAnother={form.allowAnother}
           disabled={!editable}
           note={archived ? t("fill.archived") : !editable ? t("fill.viewOnly") : undefined}
           onSubmit={async (answers) => {
             const result = await submitFormAction(view.id, answers);
-            if (result.ok) void api.refetch();
+            if (result.ok) {
+              void api.refetch();
+              if (showOwn) void loadOwn();
+            }
             return result.ok ? { ok: true } : result;
           }}
           upload={(file) => postFile(`/api/files?form=${encodeURIComponent(view.id)}`, file)}
@@ -110,6 +146,7 @@ export function FormView({
             )
           }
         />
+        {own && <OwnAnswers questions={questions} submissions={own} renderValue={renderValue} />}
       </div>
     </div>
   );
@@ -361,6 +398,7 @@ function DraftText({
   maxLength,
   className,
   label,
+  bare,
 }: {
   value: string;
   onCommit: (value: string) => void;
@@ -369,6 +407,8 @@ function DraftText({
   maxLength: number;
   className?: string;
   label: string;
+  /** Only `className` styles it (a small boxed field). */
+  bare?: boolean;
 }) {
   const [draft, setDraft] = useState(value);
   const focused = useRef(false);
@@ -387,10 +427,9 @@ function DraftText({
       focused.current = false;
       if (draft !== value) onCommit(draft);
     },
-    className: cn(
-      "w-full min-w-0 rounded-md bg-transparent outline-none placeholder:text-fg-faint hover:bg-bg-hover focus:bg-bg-hover",
-      className,
-    ),
+    className: bare
+      ? className
+      : cn("w-full min-w-0 rounded-md bg-transparent outline-none placeholder:text-fg-faint hover:bg-bg-hover focus:bg-bg-hover", className),
   };
   return multiline ? (
     <textarea {...props} rows={1} onChange={(e) => setDraft(e.target.value)} className={cn(props.className, "resize-none [field-sizing:content]")} />
@@ -426,10 +465,18 @@ function FormBuilder({
   const addDefault = useFloating<HTMLButtonElement>();
 
   const questions = formQuestions(form, properties);
-  // Saved questions include ones about deleted properties; edits keep only the ones shown.
-  const stored: FormQuestion[] = questions.map((q) => (form.questions ?? []).find((s) => s.propertyId === q.propertyId)!);
+  // Saved questions include ones about deleted properties; edits keep only the ones shown, with
+  // the conditions and limits that still hold.
+  const stored: FormQuestion[] = questions.map((q) =>
+    clean({
+      ...(form.questions ?? []).find((s) => s.propertyId === q.propertyId)!,
+      showIf: q.showIf,
+      minChoices: q.minChoices,
+      maxChoices: q.maxChoices,
+    }),
+  );
   const asked = new Set(questions.map((q) => q.propertyId));
-  const setQuestions = (next: FormQuestion[]) => onChange({ ...form, questions: next });
+  const setQuestions = (next: FormQuestion[]) => onChange({ ...form, questions: inOrder(next) });
   const patchQuestion = (i: number, patch: Partial<FormQuestion>) =>
     setQuestions(stored.map((q, j) => (j === i ? clean({ ...q, ...patch }) : q)));
   const move = (i: number, by: number) => {
@@ -541,6 +588,22 @@ function FormBuilder({
                     <Switch label={t("required")} checked={q.required} onChange={(required) => patchQuestion(i, { required })} />
                   </label>
                 </div>
+                {(i > 0 || (q.prop && takesChoiceLimits(q.prop.type))) && (
+                  <div className="mt-2 flex flex-wrap items-start justify-between gap-x-3 gap-y-1.5 ps-6 text-xs text-fg-muted">
+                    <div className="min-w-0 flex-1">
+                      {i > 0 && (
+                        <ConditionEditor
+                          // A saved change starts the editor again from what was saved.
+                          key={JSON.stringify(q.showIf ?? null)}
+                          question={q}
+                          earlier={questions.slice(0, i)}
+                          onChange={(showIf) => patchQuestion(i, { showIf })}
+                        />
+                      )}
+                    </div>
+                    {q.prop && takesChoiceLimits(q.prop.type) && <ChoiceLimits question={q} onChange={(limits) => patchQuestion(i, limits)} />}
+                  </div>
+                )}
               </li>
             );
           })}
@@ -630,20 +693,215 @@ function FormBuilder({
               onChange={(on) => onChange({ ...form, allowAnother: on ? undefined : false })}
             />
           </label>
+          <label className="mt-3 flex items-start justify-between gap-3 text-sm">
+            <span className="min-w-0">
+              {t("showOwnAnswers")}
+              <span className="mt-0.5 block text-xs text-fg-muted">{t("showOwnAnswersDescription")}</span>
+            </span>
+            <Switch
+              label={t("showOwnAnswers")}
+              checked={form.showOwnAnswers === true}
+              onChange={(on) => onChange({ ...form, showOwnAnswers: on ? true : undefined })}
+            />
+          </label>
         </section>
       </div>
     </div>
   );
 }
 
-/** Drops empty texts and a false `required`, so saved questions stay minimal. */
+/** Drops empty texts, a false `required` and unset settings, so saved questions stay minimal. */
 function clean(q: FormQuestion): FormQuestion {
   return {
     propertyId: q.propertyId,
     ...(q.required ? { required: true } : {}),
     ...(q.label?.trim() ? { label: q.label.trim() } : {}),
     ...(q.description?.trim() ? { description: q.description.trim() } : {}),
+    ...(q.showIf ? { showIf: q.showIf } : {}),
+    ...(q.minChoices !== undefined ? { minChoices: q.minChoices } : {}),
+    ...(q.maxChoices !== undefined ? { maxChoices: q.maxChoices } : {}),
   };
+}
+
+/**
+ * Questions with every condition about an earlier one: moving a question above the one its
+ * condition is about, or removing that one, takes the condition away.
+ */
+function inOrder(questions: FormQuestion[]): FormQuestion[] {
+  const earlier = new Set<string>();
+  return questions.map((q) => {
+    const out = q.showIf && !earlier.has(q.showIf.propertyId) ? clean({ ...q, showIf: undefined }) : q;
+    earlier.add(q.propertyId);
+    return out;
+  });
+}
+
+/**
+ * When a question is asked: "Show only when" an earlier question's answer meets a check. Kept as a
+ * draft until it is complete (an option picked, a text typed); only complete conditions are saved.
+ */
+function ConditionEditor({
+  question,
+  earlier,
+  onChange,
+}: {
+  question: ResolvedQuestion<Property>;
+  earlier: ResolvedQuestion<Property>[];
+  onChange: (condition: FormCondition | undefined) => void;
+}) {
+  const t = useTranslations("form.builder");
+  const tf = useTranslations("form");
+  const saved = question.showIf;
+  const [draft, setDraft] = useState<FormCondition | null>(saved ?? null);
+  const typeOf = (id: string) => earlier.find((q) => q.propertyId === id)?.prop?.type ?? "title";
+  const complete = (c: FormCondition) => !conditionTakesValues(c.op) || Boolean(c.values?.length);
+  const update = (next: FormCondition) => {
+    setDraft(next);
+    if (complete(next)) onChange(next);
+  };
+  const remove = () => {
+    setDraft(null);
+    if (saved) onChange(undefined);
+  };
+
+  if (!draft) {
+    return (
+      <button
+        type="button"
+        onClick={() => {
+          const source = earlier[earlier.length - 1];
+          update({ propertyId: source.propertyId, op: conditionOps(source.prop?.type ?? "title")[0] });
+        }}
+        className="inline-flex h-6 items-center gap-1 rounded px-1 text-xs text-fg-muted hover:bg-bg-hover hover:text-fg"
+      >
+        <Plus className="h-3 w-3" />
+        {t("addCondition")}
+      </button>
+    );
+  }
+
+  const type = typeOf(draft.propertyId);
+  const source = earlier.find((q) => q.propertyId === draft.propertyId);
+  const options = holdsOptions(type) ? (source?.prop?.options.options ?? []) : null;
+  const values = draft.values ?? [];
+  // A multi-select's checks take any or none of the options picked.
+  const opLabel = (op: ConditionOp) =>
+    type === "multi_select" && (op === "contains" || op === "notContains") ? t(op === "contains" ? "op.hasAny" : "op.hasNone") : t(`op.${op}`);
+  const field = "h-6 max-w-full rounded border border-border bg-bg px-1 text-xs outline-none focus:border-accent";
+
+  return (
+    <div className="flex w-full flex-col gap-1.5">
+      <div className="flex flex-wrap items-center gap-1.5">
+        <span>{t("showWhen")}</span>
+        <select
+          aria-label={t("conditionQuestion")}
+          className={cn(field, "max-w-48")}
+          value={draft.propertyId}
+          onChange={(e) => update({ propertyId: e.target.value, op: conditionOps(typeOf(e.target.value))[0] })}
+        >
+          {earlier.map((q) => (
+            <option key={q.propertyId} value={q.propertyId}>
+              {q.label || q.prop?.name || tf("nameQuestion")}
+            </option>
+          ))}
+        </select>
+        <select
+          aria-label={t("conditionCheck")}
+          className={field}
+          value={draft.op}
+          onChange={(e) => {
+            const op = e.target.value as ConditionOp;
+            // Options or a text picked for one check carry over to another that takes them.
+            update({ propertyId: draft.propertyId, op, ...(conditionTakesValues(op) && values.length ? { values } : {}) });
+          }}
+        >
+          {conditionOps(type).map((op) => (
+            <option key={op} value={op}>
+              {opLabel(op)}
+            </option>
+          ))}
+        </select>
+        {conditionTakesValues(draft.op) && !options && (
+          <DraftText
+            value={values[0] ?? ""}
+            onCommit={(text) => update({ ...draft, values: text.trim() ? [text.trim()] : [] })}
+            placeholder={t("conditionText")}
+            maxLength={MAX_CONDITION_TEXT}
+            label={t("conditionText")}
+            bare
+            className={cn(field, "w-40 placeholder:text-fg-faint")}
+          />
+        )}
+        <IconAction label={t("removeCondition")} onClick={remove}>
+          <X className="h-3.5 w-3.5" />
+        </IconAction>
+      </div>
+      {conditionTakesValues(draft.op) && options && (
+        <div role="group" aria-label={t("conditionOptions")} className="flex flex-wrap gap-1">
+          {options.map((option) => {
+            const on = values.includes(option.id);
+            return (
+              <button
+                key={option.id}
+                type="button"
+                aria-pressed={on}
+                onClick={() => update({ ...draft, values: on ? values.filter((v) => v !== option.id) : [...values, option.id] })}
+                className={cn("rounded-md p-0.5", on ? "ring-2 ring-accent" : "opacity-60 hover:opacity-100")}
+              >
+                <OptionChip option={option} dot={type === "status"} />
+              </button>
+            );
+          })}
+        </div>
+      )}
+      {!complete(draft) && <p className="text-fg-muted">{options ? t("conditionPickOption") : t("conditionTypeText")}</p>}
+    </div>
+  );
+}
+
+/** At least and at most how many choices a list question takes; empty for any number. */
+function ChoiceLimits({
+  question,
+  onChange,
+}: {
+  question: ResolvedQuestion<Property>;
+  onChange: (limits: { minChoices?: number; maxChoices?: number }) => void;
+}) {
+  const t = useTranslations("form.builder");
+  const read = (text: string) => {
+    const n = Number.parseInt(text.trim(), 10);
+    return Number.isFinite(n) && n >= 1 ? Math.min(n, MAX_LIST_ANSWER) : undefined;
+  };
+  const set = (key: "minChoices" | "maxChoices", text: string) => {
+    let { minChoices: min, maxChoices: max } = question;
+    if (key === "minChoices") min = read(text);
+    else max = read(text);
+    // The other limit follows, so the least is never more than the most.
+    if (min !== undefined && max !== undefined && min > max) {
+      if (key === "minChoices") max = min;
+      else min = max;
+    }
+    onChange({ minChoices: min, maxChoices: max });
+  };
+  const box = "h-6 w-12 rounded border border-border bg-bg px-1 text-center text-xs outline-none placeholder:text-fg-faint focus:border-accent";
+  return (
+    <div className="flex items-center gap-2">
+      {(["minChoices", "maxChoices"] as const).map((key) => (
+        <label key={key} className="flex items-center gap-1">
+          {t(key)}
+          <DraftText
+            value={question[key] === undefined ? "" : String(question[key])}
+            onCommit={(text) => set(key, text)}
+            placeholder={t("anyNumber")}
+            maxLength={3}
+            label={t(key)}
+            bare
+            className={box}
+          />
+        </label>
+      ))}
+    </div>
+  );
 }
 
 function IconAction({

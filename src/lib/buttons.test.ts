@@ -75,10 +75,11 @@ describe("button Markdown lines", () => {
   });
 
   it("put the page's button back, at any depth, with a new label", () => {
-    const existing = [
+    type Block = { id?: string; type: string; props?: Record<string, unknown>; children?: Block[] };
+    const existing: Block[] = [
       { id: "p", type: "paragraph", children: [{ id: "b1", type: "button", props: { label: "Old", icon: "🚀", config: "{}" }, children: [] }] },
     ];
-    const parsed = [
+    const parsed: Block[] = [
       { id: "b1", type: "button", props: { label: "New" }, children: [] },
       { type: "columnList", children: [{ id: "b1", type: "button", props: { label: "Again" }, children: [] }] },
       { id: "b9", type: "button", props: { label: "Made up" }, children: [] },
@@ -88,7 +89,7 @@ describe("button Markdown lines", () => {
       { type: "columnList", children: [] },
     ]);
     // Without a label in the line the button keeps its own.
-    expect(restoreButtons([{ id: "b1", type: "button", props: { label: "" }, children: [] }], existing)[0].props).toEqual({ label: "Old", icon: "🚀", config: "{}" });
+    expect(restoreButtons<Block>([{ id: "b1", type: "button", props: { label: "" }, children: [] }], existing)[0].props).toEqual({ label: "Old", icon: "🚀", config: "{}" });
   });
 
   it("become a line of their own in exports, outside code only", () => {

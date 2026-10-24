@@ -1,0 +1,38 @@
+{
+  "menuItem": "Utwórz z AI",
+  "title": "Utwórz z AI",
+  "hint": "Opisz, co chcesz śledzić. AI przygotuje projekt baz danych, a Ty przejrzysz go, zanim cokolwiek zostanie utworzone.",
+  "reviewTitle": "Przejrzyj plan",
+  "reviewHint": "Zmień nazwy lub usuń to, czego nie potrzebujesz, a potem go utwórz.",
+  "back": "Wróć do opisu",
+  "label": "Czego potrzebujesz?",
+  "placeholder": "Proces rekrutacji: kandydaci przechodzący przez etapy rozmów, rozmowy z każdym z nich i kto z kim rozmawia.",
+  "draft": "Przygotuj bazy danych",
+  "drafting": "Przygotowywanie…",
+  "create": "Utwórz",
+  "creating": "Tworzenie…",
+  "intro": "Dodaj stronę o nich, „{title}”, z bazami danych w środku",
+  "exampleRows": "{count, plural, one {Dodaj przykładowy wiersz} few {Dodaj # przykładowe wiersze} many {Dodaj # przykładowych wierszy} other {Dodaj # przykładowego wiersza}}",
+  "databaseTitle": "Nazwa bazy danych",
+  "removeDatabase": "Usuń {name}",
+  "properties": "Właściwości",
+  "views": "Widoki",
+  "noProperties": "Tylko nazwa każdego wiersza.",
+  "removeView": "Usuń widok {name}",
+  "rename": "Zmień nazwę {name}",
+  "linksTo": "Łączy z {database}",
+  "linksBoth": "Łączy z {database}, w obie strony",
+  "removeProperty": "Usuń {name}",
+  "slash": {
+    "title": "Utwórz bazy danych z AI",
+    "subtext": "Opisz, czego potrzebujesz, a AI przygotuje bazy danych na tej stronie",
+    "aliases": "ai sztuczna inteligencja utwórz baza danych bazy generuj plan"
+  },
+  "errors": {
+    "unusable": "AI nie udało się przygotować do tego baz danych. Spróbuj opisać to innymi słowami.",
+    "invalid": "Planu nie można utworzyć w tej postaci. Wróć i przygotuj go ponownie.",
+    "parent": "Bazy danych nie mogą znajdować się w bazie danych.",
+    "noAccess": "Nie możesz tu dodawać stron.",
+    "failed": "Coś w planie nie pasowało, więc nic nie zostało utworzone. Usuń przykładowe wiersze i spróbuj ponownie."
+  }
+}

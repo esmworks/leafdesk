@@ -53,6 +53,7 @@ export const BACKED_UP: Record<string, Scope> = {
   row_reminder: ofPages("row_id"),
   page_publication: ofPages("page_id"),
   form_publication: (ws) => sql`view_id in (select id from database_view where database_id in ${pages(ws)})`,
+  form_submission: ofPages("row_id"),
   workspace_site: own,
   file: own,
   file_reference: ofFiles,

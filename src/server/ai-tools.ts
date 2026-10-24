@@ -18,7 +18,8 @@ import { env } from "@/lib/env";
 import { attachmentCsv } from "@/lib/chat-attachment-table";
 import { cleanFileName, formatBytes } from "@/lib/files";
 import { CSV_COLUMN_TYPES, guessColumn, guessTitleColumn, type CsvColumnType } from "@/lib/import/csv";
-import { MAX_CONFIRMATION, MAX_FORM_DESCRIPTION, MAX_FORM_TITLE, MAX_QUESTION_DESCRIPTION, MAX_QUESTION_LABEL } from "@/lib/forms";
+import { validateDatabasePlan } from "@/lib/database-plan";
+import { MAX_CONDITION_VALUES, MAX_CONFIRMATION, MAX_FORM_DESCRIPTION, MAX_FORM_TITLE, MAX_QUESTION_DESCRIPTION, MAX_QUESTION_LABEL } from "@/lib/forms";
 import { holdsOptions } from "@/lib/property-types";
 import { pageLabel } from "@/lib/labels";
 import { sameLetterheadName } from "@/lib/letterheads";
@@ -32,14 +33,15 @@ import type { AiTool } from "@/server/ai";
 import { attachmentBlock, formatSources, truncateText, type ChatSourceText } from "@/server/ai/prompts";
 import type { ChatDecision } from "@/server/ai-chat-approvals";
 import { getCollab } from "@/server/collab/bridge";
-import { addProperty, addView, getDatabase, getLookups, normalizeRowProperties, updateView } from "@/server/databases";
+import { addView, getDatabase, getLookups, normalizeRowProperties, updateView } from "@/server/databases";
+import { createFromPlan } from "@/server/database-plan";
 import { assertExportAllowed, ExportError } from "@/server/export";
 import { uploadFile } from "@/server/files";
 import { applyFormLink, formConfigPatch, type FormInput } from "@/server/mcp/form-settings";
 import { ToolInputError } from "@/server/mcp/format";
 import { describeProperty } from "@/server/mcp/query";
 import * as ops from "@/server/operations";
-import { createPage, getTree, savedSeedNames } from "@/server/pages";
+import { getTree, savedSeedNames } from "@/server/pages";
 import { listLetterheads } from "@/server/letterheads";
 import { pagePdf } from "@/server/pdf";
 import { outdatedState } from "@/server/page-outdated";
@@ -390,12 +392,29 @@ export const WRITE_TOOLS: AiTool[] = [
               property: { type: "string", description: 'A property\'s name, or "title".' },
               label: { type: "string", description: "The question as asked (the property's name when left out)." },
               description: { type: "string", description: "Help under the question." },
-              required: { type: "boolean" },
+              required: { type: "boolean", description: "Needs an answer while it is asked." },
+              show_when: {
+                type: "object",
+                description:
+                  "Ask it only when an earlier question's answer meets a check: select or status is / isNot one of values (option names); multi-select contains / notContains any of values; text, email, url, phone or title contains / notContains values[0]; checkbox checked / unchecked; any question empty / notEmpty. A question not asked isn't required and its answer is dropped.",
+                properties: {
+                  question: { type: "string", description: 'The earlier question\'s property name, or "title".' },
+                  check: { type: "string", enum: ["is", "isNot", "contains", "notContains", "checked", "unchecked", "empty", "notEmpty"] },
+                  values: { type: "array", items: { type: "string" } },
+                },
+                required: ["question", "check"],
+              },
+              min_choices: { type: "integer", description: "Multi-select, person, relation or files: the fewest choices when answered." },
+              max_choices: { type: "integer", description: "Multi-select, person, relation or files: the most choices." },
             },
             required: ["property"],
           },
         },
         confirmation: { type: "string", description: "Shown once an answer is sent." },
+        show_own_answers: {
+          type: "boolean",
+          description: "People who sign in to answer see what they sent through the form (only its questions); never on anonymous answers.",
+        },
         public: { type: "boolean", description: "Also open it to anyone with its link, outside the workspace (only when the person asks for that)." },
         anonymous: { type: "boolean", description: "With public: take answers without signing in." },
       },
@@ -1099,8 +1118,9 @@ async function databaseText(ctx: ops.OperationContext, databaseId: string, lead:
 
 /**
  * create_database: a database under a page or at the top, with the properties asked for (or a
- * status and tags), checked before the person is asked. Made with its properties in one go: a
- * property that can't be added takes the database back with it.
+ * status and tags), checked before the person is asked. Written as a plan of one database and made
+ * the way every plan is (server/database-plan): a property that can't be added takes the database
+ * back with it.
  */
 async function prepareDatabase(ctx: ops.OperationContext, workspaceId: string, scopeId: string | null, args: Record<string, unknown>): Promise<PreparedWrite | ToolOutcome> {
   const { userId } = ctx;
@@ -1123,6 +1143,9 @@ async function prepareDatabase(ctx: ops.OperationContext, workspaceId: string, s
     if (options.length > MAX_NEW_OPTIONS) return invalidChange(`properties.${i}: give at most ${MAX_NEW_OPTIONS} options.`);
     props.push({ name, type, ...(options.length ? { options } : {}) });
   }
+  const plan = { intro: null, databases: [{ key: "database", title, properties: props.map((p) => ({ name: p.name, type: p.type, options: p.options })) }] };
+  const checked = validateDatabasePlan(plan);
+  if (!checked.ok) return invalidChange(checked.problems.join(" ").replace(/Database "[^"]*"(, )?/g, ""));
   const where = await newDatabaseParent(userId, workspaceId, scopeId, text(args.parent_id) || undefined);
   if (!("target" in where)) return where;
   return {
@@ -1136,23 +1159,9 @@ async function prepareDatabase(ctx: ops.OperationContext, workspaceId: string, s
     },
     record: { kind: "write", action: "createDatabase", targetId: where.target?.pageId ?? null, title, changes: [] },
     execute: async () => {
-      const parentId = where.target?.pageId ?? null;
-      const database = await createPage(ctx.actor, {
-        workspaceId,
-        parentId,
-        teamspaceId: parentId ? undefined : null,
-        kind: "database",
-        title,
-        seedNames: await savedSeedNames(userId),
-        seedProperties: props.length === 0,
-      });
-      try {
-        for (const p of props) await addProperty(userId, database.id, { name: p.name, type: p.type, options: p.options });
-      } catch (error) {
-        const { discardDatabase } = await import("@/server/import/csv");
-        await discardDatabase(database);
-        throw error;
-      }
+      const parentId = where.target?.pageId;
+      const made = await createFromPlan(ctx.actor, workspaceId, checked.plan, parentId ? { parentId } : { teamspaceId: null }, { seedEmpty: true });
+      const database = made.databases[0];
       return { id: database.id, title: database.title, text: await databaseText(ctx, database.id, `The database "${pageLabel(database.title)}"`) };
     },
   };
@@ -1259,7 +1268,27 @@ async function prepareForm(ctx: ops.OperationContext, workspaceId: string, scope
         const e = (q && typeof q === "object" ? q : {}) as Record<string, unknown>;
         const property = text(e.property);
         if (!property) return [];
-        return [{ property, required: e.required === true, label: text(e.label)?.slice(0, MAX_QUESTION_LABEL), description: text(e.description)?.slice(0, MAX_QUESTION_DESCRIPTION) }];
+        const when = (e.show_when && typeof e.show_when === "object" ? e.show_when : null) as Record<string, unknown> | null;
+        const count = (v: unknown) => (typeof v === "number" && Number.isFinite(v) ? Math.trunc(v) : undefined);
+        return [
+          {
+            property,
+            required: e.required === true,
+            label: text(e.label)?.slice(0, MAX_QUESTION_LABEL),
+            description: text(e.description)?.slice(0, MAX_QUESTION_DESCRIPTION),
+            ...(when && text(when.question)
+              ? {
+                  show_when: {
+                    question: text(when.question)!,
+                    check: text(when.check) ?? "",
+                    values: Array.isArray(when.values) ? when.values.flatMap((v) => text(v) ?? []).slice(0, MAX_CONDITION_VALUES) : undefined,
+                  },
+                }
+              : {}),
+            min_choices: count(e.min_choices),
+            max_choices: count(e.max_choices),
+          },
+        ];
       })
     : undefined;
   const formInput: FormInput = {
@@ -1267,6 +1296,7 @@ async function prepareForm(ctx: ops.OperationContext, workspaceId: string, scope
     form_title: text(args.title)?.slice(0, MAX_FORM_TITLE),
     form_description: text(args.description)?.slice(0, MAX_FORM_DESCRIPTION),
     confirmation_message: text(args.confirmation)?.slice(0, MAX_CONFIRMATION),
+    ...(args.show_own_answers === true ? { show_own_answers: true } : {}),
   };
   const { properties } = await getDatabase(userId, target.page.id);
   // Checked now (names to ids, types a form can ask), and again on the database as it is then.
