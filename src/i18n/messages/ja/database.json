@@ -29,6 +29,7 @@
     "calendar": "カレンダー",
     "gallery": "ギャラリー",
     "list": "リスト",
+    "feed": "フィード",
     "timeline": "タイムライン",
     "chart": "グラフ",
     "dashboard": "ダッシュボード",
@@ -512,6 +513,9 @@
       "hide": "非表示"
     },
     "pageVisibilityHint": "全員に適用されます。非表示のプロパティは、各行のページの「その他のプロパティ」からワンクリックで表示できます。",
+    "pinToTitle": "タイトルの下に固定",
+    "unpinFromTitle": "タイトルの下から固定を外す",
+    "pinFull": "固定できるプロパティは {max} 個までです。",
     "dateDisplay": "表示形式",
     "displayDate": "日付",
     "displayRelative": "相対",
@@ -535,7 +539,10 @@
     "addProperty": "プロパティを追加",
     "moreProperties": "その他のプロパティ（{count}個）",
     "fewerProperties": "{count}個のプロパティを非表示",
-    "propertyMenu": "{name}のオプション"
+    "propertyMenu": "{name}のオプション",
+    "pinned": "固定したプロパティ",
+    "showBeside": "ページの横に表示",
+    "showAbove": "ページの上に表示"
   },
   "rowActivity": {
     "title": "アクティビティ",
@@ -761,6 +768,30 @@
     "new": "新規",
     "empty": "表示する行がありません。"
   },
+  "feed": {
+    "someone": "だれか",
+    "empty": "まだ投稿はありません。",
+    "emptyCanPost": "まだ投稿はありません。行を追加して最初の投稿を書きましょう。",
+    "morePosts": "{count, plural, other {さらに # 件の投稿を表示}}",
+    "showMore": "もっと見る",
+    "showLess": "閉じる",
+    "bodyCut": "続きは行のページにあります。",
+    "addReaction": "リアクションを追加",
+    "reactedBy": "{names} さんが {emoji} でリアクションしました",
+    "reactionCount": "{emoji}: {count, plural, other {# 件のリアクション}}",
+    "comments": "コメント",
+    "allComments": "{count, plural, other {# 件のコメントをすべて表示}}",
+    "commentPlaceholder": "コメントを書く…",
+    "send": "送信",
+    "errors": {
+      "failed": "問題が発生しました。もう一度お試しください。",
+      "tooLong": "コメントが長すぎます。",
+      "notAllowed": "ここにはコメントできません。",
+      "invalidEmoji": "絵文字を 1 つ選んでください。",
+      "tooMany": "この投稿には 1 人が残せる上限までリアクションしています。",
+      "inTrash": "ゴミ箱の投稿にはリアクションできません。"
+    }
+  },
   "chart": {
     "type": "グラフの種類",
     "types": {
@@ -877,6 +908,7 @@
     "invalidNumberFormat": "この数値の形式は保存できません。",
     "invalidDateOptions": "この日付の設定は保存できません。",
     "invalidPageVisibility": "この行のページの設定は保存できません。",
+    "tooManyPinned": "行のページに固定できるプロパティは {max} 個までです。",
     "calendarFeedNotCalendar": "購読できるのはカレンダービューだけです。",
     "calendarFeedExportOff": "ワークスペースのオーナーがエクスポートをオフにしたため、カレンダーの購読もオフになっています。",
     "webhookExportOff": "ワークスペースのオーナーがエクスポートをオフにしたため、Webhook もオフになっています。",

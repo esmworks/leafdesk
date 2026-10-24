@@ -392,6 +392,11 @@
         "title": "Tableau de bord",
         "subtext": "Des chiffres, graphiques et listes tirés de vos bases de données",
         "aliases": "dashboard widgets kpi metrics charts tableau de bord graphiques indicateurs"
+      },
+      "databaseTabs": {
+        "title": "Onglets de bases de données",
+        "subtext": "Plusieurs bases ou vues, un onglet chacune",
+        "aliases": "onglets base de données vues changer tabs"
       }
     }
   },
@@ -734,6 +739,19 @@
     "filters": "{count, plural, one {# filtre} other {# filtres}}",
     "updatedNow": "mis à jour à l'instant",
     "updated": "mis à jour {time}"
+  },
+  "databaseTabs": {
+    "title": "Onglets de bases de données",
+    "empty": "Ces onglets n'affichent encore aucune base de données.",
+    "emptyEditable": "Affichez plusieurs bases de données, ou des vues d'une même base, sous forme d'onglets. Chaque onglet est une vue à part.",
+    "add": "Ajouter un onglet",
+    "full": "Les onglets contiennent jusqu'à {max} vues.",
+    "menu": "Options de l'onglet",
+    "rename": "Renommer",
+    "remove": "Retirer l'onglet",
+    "nameLabel": "Nom de l'onglet",
+    "namePlaceholder": "Le nom de la base de données",
+    "noAccess": "Pas d'accès"
   },
   "voiceNote": {
     "record": "Enregistrer une note vocale",

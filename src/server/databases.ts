@@ -77,6 +77,7 @@ import {
 import { calculationFormat, checkNumberFormat, takesNumberFormat, valueFormat } from "@/lib/number-format";
 import { checkNumberDisplay } from "@/lib/number-display";
 import { isPageVisibility, type PageVisibility } from "@/lib/page-visibility";
+import { canPin, isPinned, MAX_PINNED } from "@/lib/row-layout";
 import { checkDateOptions, type DateOptionsInput } from "@/lib/date-options";
 import { shiftDateValue } from "@/lib/date-value";
 import { dayValue } from "@/lib/timeline";
@@ -2023,6 +2024,34 @@ export async function updateProperty(
   return { date };
 }
 
+/**
+ * Pins a property to the strip under its rows' titles, or takes it out (lib/row-layout). How row
+ * pages look is the database's, for everyone: full access, as for who sees each property.
+ */
+export async function setPropertyPinned(userId: string, propertyId: string, pinned: boolean) {
+  const prop = await requireProperty(userId, propertyId);
+  await requireDatabase(userId, prop.databaseId, "full");
+  if (pinned === isPinned(prop)) return;
+  if (pinned && !canPin(await getProperties(prop.databaseId), prop.id)) {
+    throw Object.assign(withCode(new Error("Too many pinned properties"), "tooManyPinned"), { params: { max: String(MAX_PINNED) } });
+  }
+  const { pinned: _was, ...rest } = prop.options;
+  await db
+    .update(databaseProperty)
+    .set({ options: pinned ? { ...rest, pinned: true } : rest })
+    .where(eq(databaseProperty.id, propertyId));
+  notifySchema(prop.databaseId);
+}
+
+/** Shows a database's row properties beside the row's body on wide pages, or above it (lib/row-layout); full access. */
+export async function setPropertiesBeside(userId: string, databaseId: string, beside: boolean) {
+  const database = await requireDatabase(userId, databaseId, "full");
+  assertUnlocked(database);
+  // How its rows look isn't an edit of the database: its edit time stays.
+  await db.update(page).set({ propertiesBeside: beside, ...KEEP_EDIT_TIME }).where(eq(page.id, databaseId));
+  notifySchema(databaseId);
+}
+
 /** Adds a select option by name if missing and returns it (used when typing a new tag). */
 export async function ensureOption(userId: string, propertyId: string, name: string) {
   const prop = await requireProperty(userId, propertyId, { cellEdit: true });
@@ -2522,7 +2551,7 @@ async function retypeProperty(
           : {};
     // Whether it shows on row pages, and what it holds, don't depend on the type; the property it
     // depends on only while it is still a select or multi-select (whose options keep their lists).
-    const { pageVisibility, description, dependsOn } = prop.options;
+    const { pageVisibility, pinned, description, dependsOn } = prop.options;
     const kept = canDepend(input.type) && dependsOn ? { dependsOn } : {};
     const typed: PropertyOptions =
       typeOptions.options && !kept.dependsOn ? { ...typeOptions, options: withoutParentOptions(typeOptions.options) } : typeOptions;
@@ -2531,6 +2560,7 @@ async function retypeProperty(
       ...typed,
       ...kept,
       ...(pageVisibility ? { pageVisibility } : {}),
+      ...(pinned ? { pinned } : {}),
     };
     // New values by row id; null removes one. Unticked boxes and types Leafdesk works out store none.
     const next: Record<string, unknown> = {};
@@ -3370,6 +3400,8 @@ export async function getRow(userId: string, rowId: string) {
     databaseId: row.parentId,
     databaseTitle: database.title,
     databaseLocked: Boolean(database.lockedAt),
+    /** Row pages show the properties beside the body where there is room (lib/row-layout). */
+    propertiesBeside: database.propertiesBeside,
     row: {
       id: row.id,
       title: row.title,

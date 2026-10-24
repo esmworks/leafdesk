@@ -392,6 +392,11 @@
         "title": "ダッシュボード",
         "subtext": "データベースの数値、グラフ、リスト",
         "aliases": "dashboard widgets kpi metrics charts numbers ダッシュボード ウィジェット 指標 グラフ 数値"
+      },
+      "databaseTabs": {
+        "title": "データベースのタブ",
+        "subtext": "複数のデータベースやビューを 1 つずつタブに",
+        "aliases": "タブ データベース ビュー 切り替え tabs"
       }
     }
   },
@@ -734,6 +739,19 @@
     "filters": "{count}個のフィルター",
     "updatedNow": "たった今更新",
     "updated": "{time}に更新"
+  },
+  "databaseTabs": {
+    "title": "データベースのタブ",
+    "empty": "このタブにはまだデータベースがありません。",
+    "emptyEditable": "複数のデータベースや 1 つのデータベースの複数のビューをタブで表示します。タブごとに独自のビューになります。",
+    "add": "タブを追加",
+    "full": "タブには最大 {max} 個のビューを置けます。",
+    "menu": "タブのオプション",
+    "rename": "名前を変更",
+    "remove": "タブを削除",
+    "nameLabel": "タブの名前",
+    "namePlaceholder": "データベースの名前",
+    "noAccess": "アクセス権なし"
   },
   "voiceNote": {
     "record": "ボイスメモを録音",

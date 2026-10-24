@@ -29,6 +29,7 @@
     "calendar": "Calendario",
     "gallery": "Galleria",
     "list": "Elenco",
+    "feed": "Bacheca",
     "timeline": "Timeline",
     "chart": "Grafico",
     "dashboard": "Dashboard",
@@ -512,6 +513,9 @@
       "hide": "Nascosta"
     },
     "pageVisibilityHint": "Per tutti. Le proprietà nascoste restano a un clic di distanza in “altre proprietà” su ogni pagina di riga.",
+    "pinToTitle": "Fissa sotto il titolo",
+    "unpinFromTitle": "Togli dal titolo",
+    "pinFull": "Si possono fissare fino a {max} proprietà.",
     "dateDisplay": "Mostra come",
     "displayDate": "Data",
     "displayRelative": "Relativa",
@@ -535,7 +539,10 @@
     "addProperty": "Aggiungi proprietà",
     "moreProperties": "{count, plural, one {# altra proprietà} other {Altre # proprietà}}",
     "fewerProperties": "{count, plural, one {Nascondi # proprietà} other {Nascondi # proprietà}}",
-    "propertyMenu": "Opzioni per {name}"
+    "propertyMenu": "Opzioni per {name}",
+    "pinned": "Proprietà fissate",
+    "showBeside": "Mostra accanto alla pagina",
+    "showAbove": "Mostra sopra la pagina"
   },
   "rowActivity": {
     "title": "Attività",
@@ -761,6 +768,30 @@
     "new": "Nuovo",
     "empty": "Nessuna riga da mostrare."
   },
+  "feed": {
+    "someone": "Qualcuno",
+    "empty": "Ancora nessun post.",
+    "emptyCanPost": "Ancora nessun post. Aggiungi una riga per scrivere il primo.",
+    "morePosts": "{count, plural, one {Mostra # altro post} other {Mostra altri # post}}",
+    "showMore": "Mostra di più",
+    "showLess": "Mostra meno",
+    "bodyCut": "Il resto è nella pagina della riga.",
+    "addReaction": "Aggiungi reazione",
+    "reactedBy": "{names} ha reagito con {emoji}",
+    "reactionCount": "{emoji}: {count, plural, one {# reazione} other {# reazioni}}",
+    "comments": "Commenti",
+    "allComments": "{count, plural, one {Mostra # commento} other {Mostra tutti i # commenti}}",
+    "commentPlaceholder": "Scrivi un commento…",
+    "send": "Invia",
+    "errors": {
+      "failed": "Qualcosa è andato storto. Riprova.",
+      "tooLong": "Questo commento è troppo lungo.",
+      "notAllowed": "Non puoi commentare qui.",
+      "invalidEmoji": "Scegli una sola emoji.",
+      "tooMany": "Hai lasciato su questo post tutte le reazioni che una persona può lasciare.",
+      "inTrash": "I post nel cestino non possono ricevere reazioni."
+    }
+  },
   "chart": {
     "type": "Tipo di grafico",
     "types": {
@@ -877,6 +908,7 @@
     "invalidNumberFormat": "Questo formato numerico non può essere salvato.",
     "invalidDateOptions": "Queste impostazioni della data non possono essere salvate.",
     "invalidPageVisibility": "Questa impostazione della pagina di riga non può essere salvata.",
+    "tooManyPinned": "Le pagine delle righe fissano fino a {max} proprietà.",
     "calendarFeedNotCalendar": "Solo le viste calendario supportano l’iscrizione.",
     "calendarFeedExportOff": "I proprietari dello spazio di lavoro hanno disattivato l’esportazione, quindi anche le iscrizioni ai calendari sono disattivate.",
     "webhookExportOff": "I proprietari dello spazio di lavoro hanno disattivato l’esportazione, quindi anche i webhook sono disattivati.",

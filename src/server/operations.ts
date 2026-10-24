@@ -67,6 +67,7 @@ import { normalizeValue } from "@/lib/properties";
 import { idFromLink, pageUrl, sliceText, ToolInputError, VersionConflictError } from "./mcp/format";
 import { dashboardsOutput } from "./mcp/dashboards";
 import { markdownDashboards } from "@/lib/dashboard";
+import { withViewSorts } from "@/lib/views";
 import {
   describeAccessSettings,
   describeChartSeries,
@@ -1304,7 +1305,7 @@ export async function queryDatabase(
   // about those values.
   const { rows: ordered, sorts: applied } = await databases.listRowsInOrder(userId, database_id, {
     filters: [saved, own].filter((g) => g.rules.length),
-    sorts: ownSorts ?? view?.config.sorts ?? [],
+    sorts: ownSorts ?? (view ? withViewSorts(view).sorts : undefined) ?? [],
     // Rows archived on their own (server/page-outdated.ts), as asked or as the view shows them.
     showOutdated: include_archived ?? view?.config.showOutdated,
   });

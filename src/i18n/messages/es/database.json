@@ -29,6 +29,7 @@
     "calendar": "Calendario",
     "gallery": "Galería",
     "list": "Lista",
+    "feed": "Muro",
     "timeline": "Cronograma",
     "chart": "Gráfico",
     "dashboard": "Panel",
@@ -512,6 +513,9 @@
       "hide": "Oculta"
     },
     "pageVisibilityHint": "Para todos. Las propiedades ocultas quedan a un clic en “más propiedades” de cada página de fila.",
+    "pinToTitle": "Fijar bajo el título",
+    "unpinFromTitle": "Dejar de fijar bajo el título",
+    "pinFull": "Se pueden fijar hasta {max} propiedades.",
     "dateDisplay": "Mostrar como",
     "displayDate": "Fecha",
     "displayRelative": "Relativa",
@@ -535,7 +539,10 @@
     "addProperty": "Añadir propiedad",
     "moreProperties": "{count, plural, one {# propiedad más} other {# propiedades más}}",
     "fewerProperties": "{count, plural, one {Ocultar # propiedad} other {Ocultar # propiedades}}",
-    "propertyMenu": "Opciones de {name}"
+    "propertyMenu": "Opciones de {name}",
+    "pinned": "Propiedades fijadas",
+    "showBeside": "Mostrar junto a la página",
+    "showAbove": "Mostrar encima de la página"
   },
   "rowActivity": {
     "title": "Actividad",
@@ -761,6 +768,30 @@
     "new": "Nuevo",
     "empty": "No hay filas que mostrar."
   },
+  "feed": {
+    "someone": "Alguien",
+    "empty": "Aún no hay publicaciones.",
+    "emptyCanPost": "Aún no hay publicaciones. Añade una fila para escribir la primera.",
+    "morePosts": "{count, plural, one {Mostrar # publicación más} other {Mostrar # publicaciones más}}",
+    "showMore": "Mostrar más",
+    "showLess": "Mostrar menos",
+    "bodyCut": "El resto está en la página de la fila.",
+    "addReaction": "Añadir reacción",
+    "reactedBy": "{names} reaccionó con {emoji}",
+    "reactionCount": "{emoji}: {count, plural, one {# reacción} other {# reacciones}}",
+    "comments": "Comentarios",
+    "allComments": "{count, plural, one {Mostrar # comentario} other {Mostrar los # comentarios}}",
+    "commentPlaceholder": "Escribe un comentario…",
+    "send": "Enviar",
+    "errors": {
+      "failed": "Algo salió mal. Inténtalo de nuevo.",
+      "tooLong": "Ese comentario es demasiado largo.",
+      "notAllowed": "No puedes comentar aquí.",
+      "invalidEmoji": "Elige un solo emoji.",
+      "tooMany": "Ya dejaste en esta publicación tantas reacciones como puede una persona.",
+      "inTrash": "Las publicaciones de la papelera no pueden recibir reacciones."
+    }
+  },
   "chart": {
     "type": "Tipo de gráfico",
     "types": {
@@ -877,6 +908,7 @@
     "invalidNumberFormat": "Este formato de número no se puede guardar.",
     "invalidDateOptions": "Esta configuración de fecha no se puede guardar.",
     "invalidPageVisibility": "Este ajuste de las páginas de fila no se puede guardar.",
+    "tooManyPinned": "Las páginas de fila fijan hasta {max} propiedades.",
     "calendarFeedNotCalendar": "Solo se puede suscribir a vistas de calendario.",
     "calendarFeedExportOff": "Los propietarios del espacio de trabajo desactivaron la exportación, así que las suscripciones de calendario también están desactivadas.",
     "webhookExportOff": "Los propietarios del espacio de trabajo desactivaron la exportación, así que los webhooks también están desactivados.",

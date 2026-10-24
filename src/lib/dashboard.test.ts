@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   dashboardDatabaseIds,
+  dashboardLayout,
   dashboardLine,
   defaultSpan,
   isComputedWidget,
@@ -8,6 +9,7 @@ import {
   MAX_WIDGETS,
   markdownDashboards,
   moveWidget,
+  newTab,
   newWidget,
   newWidgetId,
   placeWidget,
@@ -15,6 +17,7 @@ import {
   parseDashboardLine,
   restoreDashboards,
   serializeDashboard,
+  stampHeader,
   staleWidgets,
   updateWidget,
   widgetBoxClass,
@@ -169,6 +172,38 @@ describe("dashboards in Markdown", () => {
       { id: "p2", type: "paragraph", props: {}, children: [] },
     ]);
     expect(restoreDashboards(parsed, [])).toEqual([{ id: "p2", type: "paragraph", props: {}, children: [] }]);
+  });
+
+  it("brings tabs back as tabs", () => {
+    const widgets = serializeDashboard([widget("a")]);
+    const existing: { id: string; type: string; props: Record<string, unknown>; children: [] }[] = [
+      { id: "d1", type: "dashboard", props: { widgets, layout: "tabs" }, children: [] },
+    ];
+    expect(restoreDashboards([{ id: "d1", type: "dashboard", props: {}, children: [] }], existing)).toEqual(existing);
+  });
+});
+
+describe("tabs", () => {
+  it("are a layout only when the block says so: blocks made before tabs are grids", () => {
+    expect(dashboardLayout("tabs")).toBe("tabs");
+    expect(dashboardLayout("grid")).toBe("grid");
+    expect(dashboardLayout(undefined)).toBe("grid");
+    expect(dashboardLayout("carousel")).toBe("grid");
+  });
+
+  it("start as a table of their database, and keep it when read back", () => {
+    const tab = newTab("t1", DB);
+    expect(tab.view).toEqual({ type: "table", config: {} });
+    expect(parseDashboard(serializeDashboard([tab]))).toEqual([tab]);
+  });
+
+  it("read who may open their databases from the stamps", () => {
+    const sales = { title: "Sales", icon: "💰", inTrash: false };
+    expect(stampHeader(widgetStamp(sales))).toEqual(sales);
+    expect(stampHeader(widgetStamp({ ...sales, icon: null, inTrash: true }))).toEqual({ ...sales, icon: null, inTrash: true });
+    expect(stampHeader(widgetStamp(null))).toBeNull();
+    expect(stampHeader(undefined)).toBeNull();
+    expect(stampHeader("{not json")).toBeNull();
   });
 });
 

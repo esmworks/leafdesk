@@ -6,6 +6,7 @@ import {
   CommentError,
   commentMentions,
   commentText,
+  isReactionEmoji,
   replyAudience,
   threadParticipants,
   type CommentAnchor,
@@ -41,13 +42,8 @@ import { redactError } from "@/lib/redact";
 /** Someone in a page's comments. Agents (see server/agents) are marked, with their icon. */
 export type CommentUser = { id: string; username: string; avatarUrl: string; isAgent: boolean; agentIcon: string | null };
 
-/** Longest reaction, in UTF-16 units: an emoji with its modifiers. */
-const MAX_EMOJI = 32;
-
 function cleanEmoji(emoji: unknown): string {
-  if (typeof emoji !== "string" || !emoji || emoji.length > MAX_EMOJI || /\s/.test(emoji) || !/\p{Extended_Pictographic}/u.test(emoji)) {
-    throw new CommentError("A reaction is one emoji", "invalidBody");
-  }
+  if (!isReactionEmoji(emoji)) throw new CommentError("A reaction is one emoji", "invalidBody");
   return emoji;
 }
 
@@ -57,6 +53,8 @@ const id = (value: unknown) => {
 };
 
 const MAX_QUOTE = 1000;
+/** Announced on a row's database channel after a change to the row's comments. */
+export const COMMENTS_EVENT = "comments";
 
 function cleanAnchor(anchor: unknown): CommentAnchor | undefined {
   if (anchor === undefined || anchor === null) return undefined;
@@ -178,6 +176,8 @@ export async function changeComments(userId: string, pageId: string, op: Comment
     // Reactions to a deleted comment are about nothing any more.
     await withdrawReactions(target.workspaceId, pageId, clean.threadId, clean.commentId);
   }
+  // A row's comments show in its database's feed views (components/database/feed-view).
+  if (target.parentId) getCollab().broadcast(`db:${target.parentId}`, COMMENTS_EVENT);
   return result;
 }
 

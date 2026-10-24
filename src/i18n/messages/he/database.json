@@ -29,6 +29,7 @@
     "calendar": "לוח שנה",
     "gallery": "גלריה",
     "list": "רשימה",
+    "feed": "פיד",
     "timeline": "ציר זמן",
     "chart": "תרשים",
     "dashboard": "לוח בקרה",
@@ -512,6 +513,9 @@
       "hide": "מוסתר"
     },
     "pageVisibilityHint": "לכולם. מאפיינים מוסתרים זמינים בלחיצה תחת “מאפיינים נוספים” בכל דף שורה.",
+    "pinToTitle": "הצמדה מתחת לכותרת",
+    "unpinFromTitle": "ביטול ההצמדה מתחת לכותרת",
+    "pinFull": "אפשר להצמיד עד {max} מאפיינים.",
     "dateDisplay": "הצגה בתור",
     "displayDate": "תאריך",
     "displayRelative": "יחסי",
@@ -535,7 +539,10 @@
     "addProperty": "הוספת מאפיין",
     "moreProperties": "{count, plural, one {מאפיין נוסף אחד} two {שני מאפיינים נוספים} other {# מאפיינים נוספים}}",
     "fewerProperties": "{count, plural, one {הסתרת מאפיין אחד} two {הסתרת שני מאפיינים} other {הסתרת # מאפיינים}}",
-    "propertyMenu": "אפשרויות עבור {name}"
+    "propertyMenu": "אפשרויות עבור {name}",
+    "pinned": "מאפיינים מוצמדים",
+    "showBeside": "הצגה לצד הדף",
+    "showAbove": "הצגה מעל הדף"
   },
   "rowActivity": {
     "title": "פעילות",
@@ -761,6 +768,30 @@
     "new": "חדש",
     "empty": "אין שורות להצגה."
   },
+  "feed": {
+    "someone": "מישהו",
+    "empty": "אין עדיין פוסטים.",
+    "emptyCanPost": "אין עדיין פוסטים. אפשר להוסיף שורה כדי לכתוב את הראשון.",
+    "morePosts": "{count, plural, one {הצגת פוסט נוסף} other {הצגת # פוסטים נוספים}}",
+    "showMore": "הצגת עוד",
+    "showLess": "הצגת פחות",
+    "bodyCut": "ההמשך נמצא בדף של השורה.",
+    "addReaction": "הוספת תגובת אמוג׳י",
+    "reactedBy": "{names} הגיבו עם {emoji}",
+    "reactionCount": "{emoji}: {count, plural, one {תגובה אחת} other {# תגובות}}",
+    "comments": "תגובות",
+    "allComments": "{count, plural, one {הצגת תגובה אחת} other {הצגת כל # התגובות}}",
+    "commentPlaceholder": "כתיבת תגובה…",
+    "send": "שליחה",
+    "errors": {
+      "failed": "משהו השתבש. אפשר לנסות שוב.",
+      "tooLong": "התגובה ארוכה מדי.",
+      "notAllowed": "אין לך אפשרות להגיב כאן.",
+      "invalidEmoji": "יש לבחור אמוג׳י אחד.",
+      "tooMany": "השארת על הפוסט הזה את מספר התגובות המרבי לאדם אחד.",
+      "inTrash": "אי אפשר להגיב באמוג׳י לפוסטים שבאשפה."
+    }
+  },
   "chart": {
     "type": "סוג התרשים",
     "types": {
@@ -877,6 +908,7 @@
     "invalidNumberFormat": "אי אפשר לשמור את תבנית המספר הזו.",
     "invalidDateOptions": "אי אפשר לשמור את הגדרות התאריך האלה.",
     "invalidPageVisibility": "אי אפשר לשמור את ההגדרה הזו של דף השורה.",
+    "tooManyPinned": "דפי שורות מצמידים עד {max} מאפיינים.",
     "calendarFeedNotCalendar": "אפשר להירשם רק לתצוגות לוח שנה.",
     "calendarFeedExportOff": "הבעלים של סביבת העבודה השביתו את הייצוא, ולכן גם ההרשמה ללוחות שנה מושבתת.",
     "webhookExportOff": "הבעלים של סביבת העבודה השביתו את הייצוא, ולכן גם Webhooks מושבתים.",

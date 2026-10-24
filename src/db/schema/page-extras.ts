@@ -74,6 +74,26 @@ export const pageVerification = pgTable(
 );
 
 /**
+ * Emoji reactions to a page itself, as a feed view shows them under each database row (see
+ * server/reactions.ts): one row per person and emoji. Reactions to comments live with the comments,
+ * in the page's document.
+ */
+export const pageReaction = pgTable(
+  "page_reaction",
+  {
+    pageId: text("page_id")
+      .notNull()
+      .references(() => page.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    emoji: text("emoji").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.pageId, t.userId, t.emoji] }), index("page_reaction_user_idx").on(t.userId)],
+);
+
+/**
  * A page published to the web: anyone with the link can read it without signing in. The token is
  * the only way in, so unpublishing (deleting the row) or publishing again with a new token cuts off
  * old links.

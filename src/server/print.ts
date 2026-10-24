@@ -185,6 +185,7 @@ async function printSection(userId: string, pageId: string, depth: number, index
         if (segment.kind === "dashboard") {
           return {
             kind: "dashboard",
+            layout: segment.layout,
             widgets: await Promise.all(segment.widgets.map(async (w) => widgetShowing(w, await printedEmbed(userId, w.databaseId, { linked: w.view }, loads)))),
           };
         }

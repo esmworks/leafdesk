@@ -29,6 +29,7 @@
     "calendar": "Kalendarz",
     "gallery": "Galeria",
     "list": "Lista",
+    "feed": "Tablica",
     "timeline": "Oś czasu",
     "chart": "Wykres",
     "dashboard": "Pulpit",
@@ -512,6 +513,9 @@
       "hide": "Ukryta"
     },
     "pageVisibilityHint": "Dla wszystkich. Ukryte właściwości są o jedno kliknięcie dalej, w sekcji „więcej właściwości” na stronie każdego wiersza.",
+    "pinToTitle": "Przypnij pod tytułem",
+    "unpinFromTitle": "Odepnij spod tytułu",
+    "pinFull": "Można przypiąć do {max} właściwości.",
     "dateDisplay": "Wyświetlaj jako",
     "displayDate": "Data",
     "displayRelative": "Względnie",
@@ -535,7 +539,10 @@
     "addProperty": "Dodaj właściwość",
     "moreProperties": "{count, plural, one {Jeszcze # właściwość} few {Jeszcze # właściwości} many {Jeszcze # właściwości} other {Jeszcze # właściwości}}",
     "fewerProperties": "{count, plural, one {Ukryj # właściwość} few {Ukryj # właściwości} many {Ukryj # właściwości} other {Ukryj # właściwości}}",
-    "propertyMenu": "Opcje: {name}"
+    "propertyMenu": "Opcje: {name}",
+    "pinned": "Przypięte właściwości",
+    "showBeside": "Pokaż obok strony",
+    "showAbove": "Pokaż nad stroną"
   },
   "rowActivity": {
     "title": "Aktywność",
@@ -761,6 +768,30 @@
     "new": "Nowy",
     "empty": "Brak wierszy do wyświetlenia."
   },
+  "feed": {
+    "someone": "Ktoś",
+    "empty": "Nie ma jeszcze wpisów.",
+    "emptyCanPost": "Nie ma jeszcze wpisów. Dodaj wiersz, aby napisać pierwszy.",
+    "morePosts": "{count, plural, one {Pokaż jeszcze # wpis} few {Pokaż jeszcze # wpisy} many {Pokaż jeszcze # wpisów} other {Pokaż jeszcze # wpisu}}",
+    "showMore": "Pokaż więcej",
+    "showLess": "Pokaż mniej",
+    "bodyCut": "Reszta jest na stronie wiersza.",
+    "addReaction": "Dodaj reakcję",
+    "reactedBy": "{names} reaguje: {emoji}",
+    "reactionCount": "{emoji}: {count, plural, one {# reakcja} few {# reakcje} many {# reakcji} other {# reakcji}}",
+    "comments": "Komentarze",
+    "allComments": "{count, plural, one {Pokaż # komentarz} few {Pokaż wszystkie # komentarze} many {Pokaż wszystkie # komentarzy} other {Pokaż wszystkie # komentarza}}",
+    "commentPlaceholder": "Napisz komentarz…",
+    "send": "Wyślij",
+    "errors": {
+      "failed": "Coś poszło nie tak. Spróbuj ponownie.",
+      "tooLong": "Ten komentarz jest za długi.",
+      "notAllowed": "Nie możesz tu komentować.",
+      "invalidEmoji": "Wybierz jedno emoji.",
+      "tooMany": "Zostawiono już pod tym wpisem tyle reakcji, ile może jedna osoba.",
+      "inTrash": "Wpisy w koszu nie mogą dostawać reakcji."
+    }
+  },
   "chart": {
     "type": "Typ wykresu",
     "types": {
@@ -877,6 +908,7 @@
     "invalidNumberFormat": "Nie można zapisać tego formatu liczby.",
     "invalidDateOptions": "Nie można zapisać tych ustawień daty.",
     "invalidPageVisibility": "Nie można zapisać tego ustawienia strony wiersza.",
+    "tooManyPinned": "Strony wierszy przypinają do {max} właściwości.",
     "calendarFeedNotCalendar": "Subskrybować można tylko widoki kalendarza.",
     "calendarFeedExportOff": "Właściciele obszaru roboczego wyłączyli eksport, więc subskrypcje kalendarza również są wyłączone.",
     "webhookExportOff": "Właściciele obszaru roboczego wyłączyli eksport, więc webhooki również są wyłączone.",

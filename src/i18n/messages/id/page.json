@@ -392,6 +392,11 @@
         "title": "Dasbor",
         "subtext": "Angka, bagan, dan daftar dari basis data Anda",
         "aliases": "dasbor dashboard widget kpi metrik bagan angka metrics charts numbers"
+      },
+      "databaseTabs": {
+        "title": "Tab basis data",
+        "subtext": "Beberapa basis data atau tampilan, masing-masing satu tab",
+        "aliases": "tab basis data tampilan ganti tabs"
       }
     }
   },
@@ -734,6 +739,19 @@
     "filters": "{count, plural, other {# filter}}",
     "updatedNow": "baru saja diperbarui",
     "updated": "diperbarui {time}"
+  },
+  "databaseTabs": {
+    "title": "Tab basis data",
+    "empty": "Tab ini belum menampilkan basis data apa pun.",
+    "emptyEditable": "Tampilkan beberapa basis data, atau beberapa tampilan dari satu basis data, sebagai tab. Setiap tab adalah tampilan tersendiri.",
+    "add": "Tambahkan tab",
+    "full": "Tab memuat paling banyak {max} tampilan.",
+    "menu": "Opsi tab",
+    "rename": "Ganti nama",
+    "remove": "Hapus tab",
+    "nameLabel": "Nama tab",
+    "namePlaceholder": "Nama basis data",
+    "noAccess": "Tidak ada akses"
   },
   "voiceNote": {
     "record": "Rekam catatan suara",

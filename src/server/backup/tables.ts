@@ -46,6 +46,7 @@ export const BACKED_UP: Record<string, Scope> = {
   page_group_permission: ofPages("page_id"),
   property_permission: own,
   page_favorite: ofPages("page_id"),
+  page_reaction: ofPages("page_id"),
   meeting_note: ofPages("page_id"),
   page_watch: ofPages("page_id"),
   page_verification: ofPages("page_id"),

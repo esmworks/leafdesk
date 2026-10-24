@@ -128,6 +128,24 @@
   search, OpenStreetMap's by default, empty turns it off), `MAP_TILE_URL` and
   `MAP_TILE_ATTRIBUTION` (the map's tiles and their credit, OpenStreetMap's by default, an empty
   URL turns maps off). No migration. New dependency: Leaflet.
+- **Feed views.** A *feed* view shows a database's rows as posts in one column, newest first
+  unless the view sorts otherwise: each with who wrote it and when, the view's shown properties and
+  the start of its body, which "Show more" opens in place. Under each post people who may comment
+  react with emoji and read and add the row's comments. Reactions to rows follow page access and
+  are new; color rules color posts. Linked views, dashboards, MCP, the REST API and the AI chat
+  can make feed views; published pages show each post's date, title, values and the start of its
+  body, without reactions or comments. Migration 0125 (the reactions, and the row page setting
+  below).
+- **Database tabs.** The `/tabs` block shows several databases, or views of one, as tabs, each a
+  view of its own that editors set up with its toolbar, rename, reorder and remove. Readers get only
+  the tabs whose database they can open. It is a dashboard laid out as tabs, so Markdown, `get_page`
+  and the dashboard tools read and change it (`add_dashboard` takes `layout: "tabs"`); published
+  pages switch tabs in place and print every tab.
+- **Row page layout.** People with full access to a database pin up to four properties into a
+  strip under its rows' titles, from a property's menu on a row, and choose whether the other
+  properties show above the body or in a column beside it where the page is wide enough (above it
+  on phones and in narrow side panels). The choice is the database's, for everyone. Published rows
+  show pinned properties first.
 - **The AI chat reads comments and page history, takes CSV files, and makes databases and
   forms.** It lists a page's comment threads, open and resolved, with their authors, the text
   they are on and their replies, and can comment or reply as the person (`list_comments`,

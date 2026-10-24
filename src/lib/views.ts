@@ -5,6 +5,7 @@ import type {
   ChartSort,
   ChartType,
   OpenRows,
+  SortRule,
   SubItemsDisplay,
   TimelineZoom,
   ViewConfig,
@@ -16,7 +17,7 @@ import { colorRulesConfigError } from "./color-rules";
 import { CHART_ACCUMULATES, CHART_SORTS, CHART_TYPES, isBoardAggregateFn, isChartAggregateFn } from "./chart";
 import { filterConfigError } from "./filters";
 import { formConfigError } from "./forms";
-import { SELECT_COLORS } from "./properties";
+import { CREATED_KEY, SELECT_COLORS } from "./properties";
 import { SUB_ITEMS_DISPLAYS } from "./sub-items";
 
 /** Every kind of database view, in the order the "Add a view" menu lists them. */
@@ -26,6 +27,7 @@ export const VIEW_TYPES = [
   "calendar",
   "gallery",
   "list",
+  "feed",
   "timeline",
   "map",
   "chart",
@@ -43,7 +45,7 @@ export const TIMELINE_ZOOMS = ["day", "week", "month"] as const satisfies readon
 export const CALENDAR_MODES = ["month", "week"] as const satisfies readonly CalendarMode[];
 export const OPEN_ROWS = ["panel", "page"] as const satisfies readonly OpenRows[];
 /** The views whose rows open from them; forms have none and charts list theirs as links. */
-export const ROW_VIEW_TYPES = ["table", "board", "calendar", "gallery", "list", "timeline", "map"] as const satisfies readonly ViewType[];
+export const ROW_VIEW_TYPES = ["table", "board", "calendar", "gallery", "list", "feed", "timeline", "map"] as const satisfies readonly ViewType[];
 
 /** How narrow and how wide a table column may be saved (the table keeps a dragged column within these). */
 export const MIN_COLUMN_WIDTH = 60;
@@ -60,6 +62,7 @@ export const DEFAULT_VIEW_NAMES: Record<ViewType, string> = {
   calendar: "Calendar",
   gallery: "Gallery",
   list: "List",
+  feed: "Feed",
   timeline: "Timeline",
   map: "Map",
   chart: "Chart",
@@ -70,6 +73,17 @@ export const DEFAULT_VIEW_NAMES: Record<ViewType, string> = {
 /** Whether a view of this type opens rows (see ROW_VIEW_TYPES). */
 export function opensRows(type: ViewType): boolean {
   return (ROW_VIEW_TYPES as readonly ViewType[]).includes(type);
+}
+
+/** What a feed shows first while its view sorts by nothing: the newest post. */
+export const FEED_SORTS: readonly SortRule[] = [{ propertyId: CREATED_KEY, direction: "desc" }];
+
+/**
+ * A view's settings with the order its rows show in: its own sorts, or for a feed without any,
+ * newest first (a feed reads as a stream of posts, not in the order rows were dragged into).
+ */
+export function withViewSorts<C extends Pick<ViewConfig, "sorts">>(view: { type: ViewType; config: C }): C {
+  return view.type === "feed" && !view.config.sorts?.length ? { ...view.config, sorts: [...FEED_SORTS] } : view.config;
 }
 
 /** Where the view opens its rows: a panel beside it unless it was set to open them as pages. */

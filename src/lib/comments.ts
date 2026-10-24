@@ -18,6 +18,14 @@ const COMMENT_HASH = /^#comment-([\w-]{1,100})$/;
 /** The thread a link's fragment (`location.hash`) names, if it names one. */
 export const threadOfHash = (hash: string): string | undefined => COMMENT_HASH.exec(hash)?.[1];
 
+/** Longest reaction, in UTF-16 units: an emoji with its modifiers. */
+const MAX_EMOJI = 32;
+
+/** Whether `value` is one emoji (with its modifiers): what a reaction, to a comment or a page, is. */
+export function isReactionEmoji(value: unknown): value is string {
+  return typeof value === "string" && !!value && value.length <= MAX_EMOJI && !/\s/.test(value) && /\p{Extended_Pictographic}/u.test(value);
+}
+
 /** Longest comment, in characters of text. */
 export const MAX_COMMENT_LENGTH = 10_000;
 const MAX_PARAGRAPHS = 100;

@@ -21,13 +21,14 @@ import {
 import { timestampDay } from "@/lib/time-zone";
 import { PG_MARKDOWN_IMAGE_PATTERN } from "@/lib/cover";
 import type { FormulaStyle } from "@/lib/formula";
-import { LIST_WIDGET_ROWS, type DashboardWidget, type WidgetColor, type WidgetSpan } from "@/lib/dashboard";
+import { LIST_WIDGET_ROWS, type DashboardLayout, type DashboardWidget, type WidgetColor, type WidgetSpan } from "@/lib/dashboard";
 import type { EmbedBlockType, LinkedView } from "@/lib/embed-blocks";
 import { arrangeGroups, boardGroupProperty, groupRowsBy, isGroupable, type GroupValue } from "@/lib/grouping";
 import { parsePageBackground, type PageBackground } from "@/lib/page-background";
 import { DEFAULT_PAGE_STYLE, pageStyleFromYdoc, type PageStyle } from "@/lib/page-style";
 import { applyView, computedValues, isHiddenInView, orderProperties } from "@/lib/properties";
-import { coverProperty, galleryCover } from "@/lib/views";
+import { coverProperty, galleryCover, withViewSorts } from "@/lib/views";
+import { FEED_EXCERPT_CHARS, feedPlainExcerpt } from "@/lib/feed";
 import { firstImageFile } from "@/lib/files";
 import { withoutDeleted } from "@/lib/deleted-schema";
 import { hideReferences, unknownProperties } from "@/lib/property-access-rows";
@@ -315,12 +316,14 @@ export type PublishedRow = {
   updatedAt: Date;
   /** Galleries showing covers: the first image in the row's body, or of the view's files property. */
   cover?: string | null;
+  /** Feeds: the first part of the row's body, as plain text (lib/feed feedPlainExcerpt). */
+  excerpt?: string;
   /** How styled formula results show (see lib/formula style()). */
   styles?: Record<string, FormulaStyle>;
 };
 export type PublishedViewTab = { id: string; name: string; type: ViewType };
 /** How a published view is drawn; calendars and timelines show as tables, charts as their numbers. */
-export type PublishedLayout = "table" | "board" | "list" | "gallery" | "chart";
+export type PublishedLayout = "table" | "board" | "list" | "gallery" | "feed" | "chart";
 /**
  * A chart view's numbers, worked out on the server from the rows the page publishes and only its
  * public properties: one value for a number chart, else each group's (and stack segment's) value.
@@ -345,7 +348,7 @@ export type PublishedChart = {
  * drawing its values takes, and nothing of how it is worked out or set up.
  */
 export type PublishedProperty = Pick<DatabaseProperty, "id" | "name" | "type"> & {
-  options: Pick<PropertyOptions, "options" | "number" | "numberDisplay" | "pageVisibility"> & {
+  options: Pick<PropertyOptions, "options" | "number" | "numberDisplay" | "pageVisibility" | "pinned"> & {
     formula?: Pick<FormulaConfig, "type">;
     date?: Pick<DateOptions, "display">;
   };
@@ -386,7 +389,7 @@ export type PublishedBlock =
   | { kind: "pdf"; fileId: string; name: string; caption: string }
   | { kind: "spreadsheet"; fileId: string; name: string; caption: string }
   | { kind: "columns"; columns: PublishedColumn<PublishedBlock>[] }
-  | { kind: "dashboard"; widgets: PublishedWidget[] }
+  | { kind: "dashboard"; widgets: PublishedWidget[]; layout: DashboardLayout }
   | { kind: "footnotes"; notes: BodyFootnote[] }
   | {
       kind: "embed";
@@ -754,7 +757,11 @@ async function publishedBody(
           };
         }
         if (segment.kind === "dashboard") {
-          return { kind: "dashboard", widgets: await Promise.all(segment.widgets.map((w) => publishedWidget(publisher, rootId, outside, w, loads))) };
+          return {
+            kind: "dashboard",
+            layout: segment.layout,
+            widgets: await Promise.all(segment.widgets.map((w) => publishedWidget(publisher, rootId, outside, w, loads))),
+          };
         }
         if (segment.kind !== "embed") return segment;
         return { kind: "embed", type: segment.type, database: await publishedEmbed(publisher, rootId, outside, segment.databaseId, segment.view, loads) };
@@ -877,6 +884,7 @@ export function publishedProperty(prop: DatabaseProperty): PublishedProperty {
   if (prop.type === "date" && stored.date?.display) options.date = { display: stored.date.display };
   if (prop.type === "formula") options.formula = stored.formula?.type ? { type: stored.formula.type } : {};
   if (stored.pageVisibility) options.pageVisibility = stored.pageVisibility;
+  if (stored.pinned) options.pinned = true;
   return { id: prop.id, name: prop.name, type: prop.type, options };
 }
 
@@ -929,7 +937,7 @@ export function webViews<V extends { published: boolean }>(views: V[]): V[] {
   return picked.length ? picked : views.slice(0, 1);
 }
 
-const LAYOUTS: Partial<Record<ViewType, PublishedLayout>> = { board: "board", list: "list", gallery: "gallery" };
+const LAYOUTS: Partial<Record<ViewType, PublishedLayout>> = { board: "board", list: "list", gallery: "gallery", feed: "feed" };
 
 /**
  * What publishedDatabase reads of a database whichever view shows it, for one request: a page
@@ -1072,7 +1080,7 @@ export async function publishedDatabase(
   // The columns are the ones the view itself shows, so a list or timeline never publishes what it
   // keeps hidden.
   const rows = await loadValues(loads, publisher, databaseId, reader, withCovers, schema, stored);
-  const viewed = applyView(rows, chosen.config, allProperties, { people: await sortNames(rows, allProperties, chosen.config) });
+  const viewed = applyView(rows, withViewSorts(chosen), allProperties, { people: await sortNames(rows, allProperties, chosen.config) });
   if (chosen.type === "chart") {
     return {
       properties: [],
@@ -1096,15 +1104,29 @@ export async function publishedDatabase(
   const shown = orderProperties(properties, chosen.config.propertyOrder).filter(
     (prop) => !isHiddenInView(chosen, prop) && !(layout === "board" && prop.id === groups?.property.id),
   );
+  const excerpts = layout === "feed" ? await feedExcerpts(viewed.slice(0, PUBLISHED_FEED_EXCERPTS).map((r) => r.id)) : null;
   return {
     properties: shown.map(publishedProperty),
     view: { id: chosen.id, name: chosen.name, type: chosen.type },
     views: tabs,
     layout,
-    rows: viewed.map((row) => ({ ...onlyValuesOf(row, shown), ...coverOf(row) })),
+    rows: viewed.map((row) => ({ ...onlyValuesOf(row, shown), ...coverOf(row), ...(excerpts ? { excerpt: excerpts.get(row.id) ?? "" } : {}) })),
     groups: layout === "board" || layout === "table" ? groups : null,
     cardSize: chosen.config.cardSize ?? "medium",
   };
+}
+
+/** Posts of a published feed that show the first part of their body; the rest show their title and values. */
+const PUBLISHED_FEED_EXCERPTS = 100;
+
+/** The first part of each row's body as plain text (lib/feed feedPlainExcerpt), by row id. */
+async function feedExcerpts(rowIds: string[]): Promise<Map<string, string>> {
+  if (!rowIds.length) return new Map();
+  const rows = await db
+    .select({ id: page.id, head: sql<string>`left(${page.contentMarkdown}, ${FEED_EXCERPT_CHARS * 6})` })
+    .from(page)
+    .where(inArray(page.id, rowIds));
+  return new Map(rows.map((r) => [r.id, feedPlainExcerpt(r.head)]));
 }
 
 /**

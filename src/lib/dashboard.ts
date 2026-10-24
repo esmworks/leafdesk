@@ -14,6 +14,11 @@ import { DASHBOARD_COLUMNS, MAX_WIDGET_TITLE, MAX_WIDGETS, WIDGET_ID, WIDGET_SPA
  * Like a linked view, the block holds only database ids and view settings, never what a database
  * holds, so the page's readers learn nothing of a database they can't see.
  *
+ * The block shows its widgets in a grid, or as tabs (`layout` "tabs"): one widget at a time, each
+ * named on its tab, as several databases (or views of one) side by side in little room. A reader
+ * gets only the tabs whose database they can open. Both are the same widgets, so a block switches
+ * between them keeping everything, and the tools that read and change dashboards read and change tabs.
+ *
  * A database's dashboard views (view type "dashboard") hold the same widgets in their settings
  * (ViewConfig `widgets`), each a view of that database, so they name none (viewWidgets).
  *
@@ -27,9 +32,15 @@ export const dashboardBlockConfig = {
   type: DASHBOARD_BLOCK,
   // The widgets as JSON (see parseDashboard): block props are flat strings, and keeping them in the
   // block makes them sync, undo and version with the page.
-  propSchema: { widgets: { default: "" } },
+  propSchema: { widgets: { default: "" }, layout: { default: "grid" } },
   content: "none",
 } as const;
+
+/** How a dashboard block lays its widgets out: in a grid, or as tabs showing one at a time. */
+export const DASHBOARD_LAYOUTS = ["grid", "tabs"] as const;
+export type DashboardLayout = (typeof DASHBOARD_LAYOUTS)[number];
+/** A block's layout prop as it may be read: anything but "tabs" is a grid, as blocks made before tabs are. */
+export const dashboardLayout = (value: unknown): DashboardLayout => (value === "tabs" ? "tabs" : "grid");
 
 export { DASHBOARD_COLUMNS, MAX_WIDGET_TITLE, MAX_WIDGETS, WIDGET_SPANS, type WidgetSpan } from "./views";
 /**
@@ -97,6 +108,11 @@ export function newWidgetId(taken: Pick<DashboardWidget, "id">[]) {
 export function newWidget(id: string, databaseId: string): DashboardWidget {
   const view: LinkedView = { type: "chart", config: { chartType: "number" } };
   return { id, databaseId, title: "", span: defaultSpan(view), view };
+}
+
+/** What a new tab shows until it is set up: its database as a table. */
+export function newTab(id: string, databaseId: string): DashboardWidget {
+  return { id, databaseId, title: "", span: 4, view: { type: "table", config: {} } };
 }
 
 /**
@@ -228,6 +244,17 @@ export function widgetStamp(header: WidgetDatabaseHeader): string {
   return header ? JSON.stringify([header.title, header.icon, header.inTrash]) : "none";
 }
 
+/** The header a stamp was made from (widgetStamp): null for a database the reader can't see, or a stamp that isn't one. */
+export function stampHeader(stamp: string | undefined): WidgetDatabaseHeader {
+  if (!stamp || stamp === "none") return null;
+  try {
+    const [title, icon, inTrash] = JSON.parse(stamp) as unknown[];
+    return typeof title === "string" ? { title, icon: typeof icon === "string" ? icon : null, inTrash: inTrash === true } : null;
+  } catch {
+    return null;
+  }
+}
+
 /**
  * The widgets to ask again after the page tree changed: those whose database's stamp differs from
  * `now`, and those whose stamp isn't known (still loading, or failed).
@@ -314,7 +341,9 @@ export function restoreDashboards<B extends AnyBlock>(blocks: B[], existing: B[]
         const match = current.get(id);
         if (!match || used.has(id)) return [];
         used.add(id);
-        return [{ ...block, id, props: { widgets: String(match.props?.widgets ?? "") }, children: [] } as B];
+        const layout = dashboardLayout(match.props?.layout);
+        const props = { widgets: String(match.props?.widgets ?? ""), ...(layout === "tabs" ? { layout } : {}) };
+        return [{ ...block, id, props, children: [] } as B];
       }
       return block.children?.length ? [{ ...block, children: walk(block.children as B[]) }] : [block];
     });

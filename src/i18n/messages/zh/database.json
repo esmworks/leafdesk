@@ -29,6 +29,7 @@
     "calendar": "日历",
     "gallery": "画廊",
     "list": "列表",
+    "feed": "动态",
     "timeline": "时间线",
     "chart": "图表",
     "dashboard": "仪表板",
@@ -512,6 +513,9 @@
       "hide": "隐藏"
     },
     "pageVisibilityHint": "对所有人生效。隐藏的属性在每个行页面的“更多属性”下，点击即可查看。",
+    "pinToTitle": "固定在标题下方",
+    "unpinFromTitle": "取消固定在标题下方",
+    "pinFull": "最多可固定 {max} 个属性。",
     "dateDisplay": "显示为",
     "displayDate": "日期",
     "displayRelative": "相对时间",
@@ -535,7 +539,10 @@
     "addProperty": "添加属性",
     "moreProperties": "另外 {count} 个属性",
     "fewerProperties": "隐藏 {count} 个属性",
-    "propertyMenu": "{name} 的选项"
+    "propertyMenu": "{name} 的选项",
+    "pinned": "已固定的属性",
+    "showBeside": "显示在页面旁边",
+    "showAbove": "显示在页面上方"
   },
   "rowActivity": {
     "title": "动态",
@@ -761,6 +768,30 @@
     "new": "新建",
     "empty": "没有可显示的行。"
   },
+  "feed": {
+    "someone": "某人",
+    "empty": "还没有帖子。",
+    "emptyCanPost": "还没有帖子。添加一行来写第一篇。",
+    "morePosts": "{count, plural, other {再显示 # 篇帖子}}",
+    "showMore": "显示更多",
+    "showLess": "收起",
+    "bodyCut": "其余内容在该行的页面上。",
+    "addReaction": "添加回应",
+    "reactedBy": "{names} 用 {emoji} 回应了",
+    "reactionCount": "{emoji}：{count, plural, other {# 个回应}}",
+    "comments": "评论",
+    "allComments": "{count, plural, other {显示全部 # 条评论}}",
+    "commentPlaceholder": "写评论…",
+    "send": "发送",
+    "errors": {
+      "failed": "出了点问题，请重试。",
+      "tooLong": "这条评论太长了。",
+      "notAllowed": "你不能在这里评论。",
+      "invalidEmoji": "请只选一个表情。",
+      "tooMany": "你在这篇帖子上留下的回应已达到每人上限。",
+      "inTrash": "回收站中的帖子不能添加回应。"
+    }
+  },
   "chart": {
     "type": "图表类型",
     "types": {
@@ -877,6 +908,7 @@
     "invalidNumberFormat": "无法保存此数字格式。",
     "invalidDateOptions": "无法保存这些日期设置。",
     "invalidPageVisibility": "无法保存此行页面设置。",
+    "tooManyPinned": "行页面最多固定 {max} 个属性。",
     "calendarFeedNotCalendar": "只能订阅日历视图。",
     "calendarFeedExportOff": "工作区所有者已关闭导出功能，因此日历订阅也已关闭。",
     "webhookExportOff": "工作区所有者已关闭导出功能，因此 Webhook 也已关闭。",

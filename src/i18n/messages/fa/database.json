@@ -29,6 +29,7 @@
     "calendar": "تقویم",
     "gallery": "گالری",
     "list": "فهرست",
+    "feed": "فید",
     "timeline": "خط زمانی",
     "chart": "نمودار",
     "dashboard": "داشبورد",
@@ -512,6 +513,9 @@
       "hide": "پنهان"
     },
     "pageVisibilityHint": "برای همه. ویژگی‌های پنهان در هر صفحه ردیف با یک کلیک زیر «ویژگی‌های بیشتر» در دسترس‌اند.",
+    "pinToTitle": "سنجاق زیر عنوان",
+    "unpinFromTitle": "برداشتن سنجاق از زیر عنوان",
+    "pinFull": "حداکثر {max} ویژگی را می‌توان سنجاق کرد.",
     "dateDisplay": "نمایش به‌صورت",
     "displayDate": "تاریخ",
     "displayRelative": "نسبی",
@@ -535,7 +539,10 @@
     "addProperty": "افزودن ویژگی",
     "moreProperties": "{count, plural, one {# ویژگی دیگر} other {# ویژگی دیگر}}",
     "fewerProperties": "{count, plural, one {پنهان کردن # ویژگی} other {پنهان کردن # ویژگی}}",
-    "propertyMenu": "گزینه‌های {name}"
+    "propertyMenu": "گزینه‌های {name}",
+    "pinned": "ویژگی‌های سنجاق‌شده",
+    "showBeside": "نمایش کنار صفحه",
+    "showAbove": "نمایش بالای صفحه"
   },
   "rowActivity": {
     "title": "فعالیت",
@@ -761,6 +768,30 @@
     "new": "جدید",
     "empty": "ردیفی برای نمایش وجود ندارد."
   },
+  "feed": {
+    "someone": "کسی",
+    "empty": "هنوز پستی نیست.",
+    "emptyCanPost": "هنوز پستی نیست. برای نوشتن اولین پست یک ردیف اضافه کنید.",
+    "morePosts": "{count, plural, one {نمایش # پست دیگر} other {نمایش # پست دیگر}}",
+    "showMore": "نمایش بیشتر",
+    "showLess": "نمایش کمتر",
+    "bodyCut": "ادامه در صفحهٔ ردیف است.",
+    "addReaction": "افزودن واکنش",
+    "reactedBy": "{names} با {emoji} واکنش نشان داد",
+    "reactionCount": "{emoji}: {count, plural, one {# واکنش} other {# واکنش}}",
+    "comments": "نظرها",
+    "allComments": "{count, plural, one {نمایش # نظر} other {نمایش همهٔ # نظر}}",
+    "commentPlaceholder": "نظری بنویسید…",
+    "send": "ارسال",
+    "errors": {
+      "failed": "مشکلی پیش آمد. دوباره امتحان کنید.",
+      "tooLong": "این نظر خیلی طولانی است.",
+      "notAllowed": "شما نمی‌توانید اینجا نظر بدهید.",
+      "invalidEmoji": "فقط یک ایموجی انتخاب کنید.",
+      "tooMany": "روی این پست به اندازهٔ حداکثر مجاز برای یک نفر واکنش گذاشته‌اید.",
+      "inTrash": "پست‌های داخل سطل زباله واکنش نمی‌گیرند."
+    }
+  },
   "chart": {
     "type": "نوع نمودار",
     "types": {
@@ -877,6 +908,7 @@
     "invalidNumberFormat": "این قالب عدد ذخیره نمی‌شود.",
     "invalidDateOptions": "این تنظیمات تاریخ ذخیره نمی‌شوند.",
     "invalidPageVisibility": "این تنظیم صفحه ردیف ذخیره نمی‌شود.",
+    "tooManyPinned": "صفحه‌های ردیف حداکثر {max} ویژگی را سنجاق می‌کنند.",
     "calendarFeedNotCalendar": "فقط می‌توان در نماهای تقویم مشترک شد.",
     "calendarFeedExportOff": "مالکان فضای کاری برون‌بری را خاموش کرده‌اند، بنابراین اشتراک تقویم هم خاموش است.",
     "webhookExportOff": "مالکان فضای کاری برون‌بری را خاموش کرده‌اند، بنابراین وب‌هوک‌ها هم خاموش هستند.",

@@ -27,6 +27,10 @@ export type RowSnapshot = {
   propertyAccess?: Record<string, PropertyAccessInfo>;
   /** With full access: the properties that have access rules. */
   restrictedPropertyIds?: string[];
+  /** The database shows its rows' properties beside the body (lib/row-layout); missing in copies kept before. */
+  beside?: boolean;
+  /** Full access: the viewer may set how the database's row pages look. */
+  canSetLayout?: boolean;
 };
 
 type LoadedRow = Extract<Awaited<ReturnType<typeof loadRowAction>>, { ok: true }>["data"];
@@ -47,5 +51,7 @@ export function rowSnapshotOf(data: LoadedRow): RowSnapshot {
     styles: data.row.styles,
     propertyAccess: data.propertyAccess,
     restrictedPropertyIds: data.restrictedPropertyIds,
+    beside: data.propertiesBeside,
+    canSetLayout: data.canManageAccess,
   };
 }

@@ -392,6 +392,11 @@
         "title": "대시보드",
         "subtext": "데이터베이스의 숫자, 차트, 목록",
         "aliases": "dashboard widgets kpi metrics charts numbers 대시보드 위젯 지표 차트 숫자"
+      },
+      "databaseTabs": {
+        "title": "데이터베이스 탭",
+        "subtext": "여러 데이터베이스나 보기를 탭 하나씩",
+        "aliases": "탭 데이터베이스 보기 전환 tabs"
       }
     }
   },
@@ -734,6 +739,19 @@
     "filters": "필터 {count}개",
     "updatedNow": "방금 업데이트됨",
     "updated": "{time} 업데이트됨"
+  },
+  "databaseTabs": {
+    "title": "데이터베이스 탭",
+    "empty": "이 탭에는 아직 데이터베이스가 없습니다.",
+    "emptyEditable": "여러 데이터베이스나 한 데이터베이스의 여러 보기를 탭으로 보여 줍니다. 탭마다 고유한 보기입니다.",
+    "add": "탭 추가",
+    "full": "탭에는 보기를 최대 {max}개까지 넣을 수 있습니다.",
+    "menu": "탭 옵션",
+    "rename": "이름 바꾸기",
+    "remove": "탭 제거",
+    "nameLabel": "탭 이름",
+    "namePlaceholder": "데이터베이스 이름",
+    "noAccess": "접근 권한 없음"
   },
   "voiceNote": {
     "record": "음성 메모 녹음",

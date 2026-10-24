@@ -29,6 +29,7 @@
     "calendar": "تقويم",
     "gallery": "معرض",
     "list": "قائمة",
+    "feed": "الموجز",
     "timeline": "مخطط زمني",
     "chart": "مخطط بياني",
     "dashboard": "لوحة معلومات",
@@ -512,6 +513,9 @@
       "hide": "مخفية"
     },
     "pageVisibilityHint": "للجميع. تبقى الخصائص المخفية على بُعد نقرة ضمن «المزيد من الخصائص» في كل صفحة صف.",
+    "pinToTitle": "تثبيت تحت العنوان",
+    "unpinFromTitle": "إلغاء التثبيت من تحت العنوان",
+    "pinFull": "يمكن تثبيت ما يصل إلى {max} من الخصائص.",
     "dateDisplay": "العرض كـ",
     "displayDate": "تاريخ",
     "displayRelative": "نسبي",
@@ -535,7 +539,10 @@
     "addProperty": "إضافة خاصية",
     "moreProperties": "{count, plural, one {خاصية أخرى} two {خاصيتان أخريان} few {# خصائص أخرى} many {# خاصية أخرى} other {# خاصية أخرى}}",
     "fewerProperties": "{count, plural, one {إخفاء خاصية واحدة} two {إخفاء خاصيتين} few {إخفاء # خصائص} many {إخفاء # خاصية} other {إخفاء # خاصية}}",
-    "propertyMenu": "خيارات {name}"
+    "propertyMenu": "خيارات {name}",
+    "pinned": "الخصائص المثبّتة",
+    "showBeside": "العرض بجانب الصفحة",
+    "showAbove": "العرض فوق الصفحة"
   },
   "rowActivity": {
     "title": "النشاط",
@@ -761,6 +768,30 @@
     "new": "جديد",
     "empty": "لا صفوف لعرضها."
   },
+  "feed": {
+    "someone": "شخص ما",
+    "empty": "لا توجد منشورات بعد.",
+    "emptyCanPost": "لا توجد منشورات بعد. أضف صفًا لكتابة أول منشور.",
+    "morePosts": "{count, plural, zero {عرض # منشور إضافي} one {عرض منشور إضافي واحد} two {عرض منشورين إضافيين} few {عرض # منشورات إضافية} many {عرض # منشورًا إضافيًا} other {عرض # منشور إضافي}}",
+    "showMore": "عرض المزيد",
+    "showLess": "عرض أقل",
+    "bodyCut": "البقية في صفحة الصف.",
+    "addReaction": "إضافة تفاعل",
+    "reactedBy": "تفاعل {names} بـ {emoji}",
+    "reactionCount": "{emoji}: {count, plural, zero {# تفاعل} one {تفاعل واحد} two {تفاعلان} few {# تفاعلات} many {# تفاعلًا} other {# تفاعل}}",
+    "comments": "التعليقات",
+    "allComments": "{count, plural, zero {عرض # تعليق} one {عرض تعليق واحد} two {عرض التعليقين} few {عرض التعليقات الـ #} many {عرض التعليقات الـ #} other {عرض التعليقات الـ #}}",
+    "commentPlaceholder": "اكتب تعليقًا…",
+    "send": "إرسال",
+    "errors": {
+      "failed": "حدث خطأ ما. حاول مرة أخرى.",
+      "tooLong": "هذا التعليق طويل جدًا.",
+      "notAllowed": "لا يمكنك التعليق هنا.",
+      "invalidEmoji": "اختر رمزًا تعبيريًا واحدًا.",
+      "tooMany": "تركت على هذا المنشور أكبر عدد من التفاعلات المسموح به لشخص واحد.",
+      "inTrash": "لا يمكن التفاعل مع المنشورات الموجودة في سلة المهملات."
+    }
+  },
   "chart": {
     "type": "نوع المخطط",
     "types": {
@@ -877,6 +908,7 @@
     "invalidNumberFormat": "لا يمكن حفظ تنسيق الأرقام هذا.",
     "invalidDateOptions": "لا يمكن حفظ إعدادات التاريخ هذه.",
     "invalidPageVisibility": "لا يمكن حفظ إعداد صفحة الصف هذا.",
+    "tooManyPinned": "تثبّت صفحات الصفوف حتى {max} من الخصائص.",
     "calendarFeedNotCalendar": "يمكن الاشتراك في طرق عرض التقويم فقط.",
     "calendarFeedExportOff": "أوقف مالكو مساحة العمل التصدير، لذا اشتراكات التقويم معطّلة أيضًا.",
     "webhookExportOff": "أوقف مالكو مساحة العمل التصدير، لذا Webhooks معطّلة أيضًا.",

@@ -496,6 +496,11 @@ export const page = pgTable(
      */
     voiceNoteInstructions: text("voice_note_instructions").notNull().default(""),
     /**
+     * Databases: row pages show the properties in a column beside the body where the page is wide
+     * enough, instead of above it (lib/row-layout). Pinned properties stay under the title either way.
+     */
+    propertiesBeside: boolean("properties_beside").notNull().default(false),
+    /**
      * A skill (server/skills.ts): reusable instructions, the page's body, offered in the skills
      * library, to MCP clients as prompts and in the AI chat. Pages and rows only, never templates.
      */
@@ -678,6 +683,11 @@ export type PropertyOptions = {
    * always (both under "more properties", see lib/page-visibility); shown when missing.
    */
   pageVisibility?: Exclude<PageVisibility, "show">;
+  /**
+   * Row pages: the property sits in the compact strip under the row's title, whatever its
+   * pageVisibility says (a few per database, see lib/row-layout).
+   */
+  pinned?: true;
 };
 
 export const databaseProperty = pgTable(
@@ -710,7 +720,7 @@ export const databaseProperty = pgTable(
   ],
 );
 
-export type ViewType = "table" | "board" | "calendar" | "gallery" | "list" | "timeline" | "map" | "chart" | "dashboard" | "form";
+export type ViewType = "table" | "board" | "calendar" | "gallery" | "list" | "feed" | "timeline" | "map" | "chart" | "dashboard" | "form";
 /** Grouping by a date: one group per day, week (Monday to Sunday), month or year. */
 export type GroupDateBy = "day" | "week" | "month" | "year";
 export type GroupStatusBy = "option" | "group";

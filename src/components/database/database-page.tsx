@@ -16,7 +16,7 @@ import { applyView, defaultsFromFilters, filterOperators, orderProperties } from
 import { atLeast } from "@/lib/property-access";
 import { searchRows } from "@/lib/row-search";
 import { opensNewTab } from "@/lib/row-panel";
-import { galleryCover, openRowsOf, opensRows } from "@/lib/views";
+import { galleryCover, openRowsOf, opensRows, withViewSorts } from "@/lib/views";
 import { AutomationsButton } from "./automations-button";
 import { GalleryView } from "./gallery-view";
 import { ListView } from "./list-view";
@@ -64,6 +64,8 @@ const MemoTimelineView = memo(TimelineView);
 const DashboardView = dynamic(() => import("./dashboard-view"), { loading: () => <DashboardSkeleton /> });
 // Loaded when a map view opens: Leaflet (which needs a browser) comes along only then.
 const MapView = memo(dynamic(() => import("./map-view"), { ssr: false, loading: () => <MapSkeleton /> }));
+// Loaded when a feed view opens: its posts bring the Markdown renderer along.
+const FeedView = memo(dynamic(() => import("./feed-view"), { loading: () => <DashboardSkeleton /> }));
 
 /** A database shown inside a page body (see components/page/embed-blocks). */
 export type DatabaseEmbed = {
@@ -80,6 +82,7 @@ export function DatabasePage({
   workspaceId,
   databaseId,
   canEdit = true,
+  canComment = canEdit,
   guest = false,
   exportable = true,
   embed,
@@ -88,6 +91,8 @@ export function DatabasePage({
   databaseId: string;
   /** False for viewers: every change is refused by the server, so the controls are hidden. */
   canEdit?: boolean;
+  /** The viewer may comment on rows (and react to them in a feed); as `canEdit` unless given. */
+  canComment?: boolean;
   /** Guests get fewer bulk actions (no trash). */
   guest?: boolean;
   /** The workspace lets people export its pages (the selection's CSV export). */
@@ -240,7 +245,7 @@ export function DatabasePage({
 
   const visibleRows = useMemo(() => {
     if (!view || !snapshot) return [];
-    const shown = applyView(rows, view.config, snapshot.properties, { viewerId: snapshot.viewerId, people: snapshot.people });
+    const shown = applyView(rows, withViewSorts(view), snapshot.properties, { viewerId: snapshot.viewerId, people: snapshot.people });
     return searchRows(shown, search, snapshot.properties, { people: snapshot.people, relations: snapshot.relations });
   }, [rows, view, snapshot, search]);
   // Each shown row's colors under the view's color rules, once per change of rows or rules. Rows
@@ -604,6 +609,17 @@ export function DatabasePage({
                         readOnly={readOnly}
                         locked={locked}
                         onCreateDateProperty={createDateProperty}
+                      />
+                    ) : view.type === "feed" ? (
+                      <FeedView
+                        colors={rowColors}
+                        workspaceId={workspaceId}
+                        databaseId={databaseId}
+                        view={view}
+                        properties={viewProperties}
+                        rows={visibleRows}
+                        readOnly={readOnly}
+                        canComment={canComment && !offline && !snapshot.database.archived}
                       />
                     ) : view.type === "map" ? (
                       <MapView

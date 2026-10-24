@@ -392,6 +392,11 @@
         "title": "Dashboard",
         "subtext": "Numeri, grafici ed elenchi dai tuoi database",
         "aliases": "dashboard widgets kpi metrics charts numbers widget metriche grafici numeri cruscotto"
+      },
+      "databaseTabs": {
+        "title": "Schede di database",
+        "subtext": "Più database o viste, una scheda ciascuno",
+        "aliases": "schede tab database viste cambia"
       }
     }
   },
@@ -734,6 +739,19 @@
     "filters": "{count, plural, one {# filtro} other {# filtri}}",
     "updatedNow": "aggiornato ora",
     "updated": "aggiornato {time}"
+  },
+  "databaseTabs": {
+    "title": "Schede di database",
+    "empty": "Queste schede non mostrano ancora alcun database.",
+    "emptyEditable": "Mostra più database, o viste di uno stesso database, come schede. Ogni scheda è una vista a sé.",
+    "add": "Aggiungi scheda",
+    "full": "Le schede contengono fino a {max} viste.",
+    "menu": "Opzioni della scheda",
+    "rename": "Rinomina",
+    "remove": "Rimuovi scheda",
+    "nameLabel": "Nome della scheda",
+    "namePlaceholder": "Il nome del database",
+    "noAccess": "Nessun accesso"
   },
   "voiceNote": {
     "record": "Registra una nota vocale",

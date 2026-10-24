@@ -29,6 +29,7 @@
     "calendar": "ปฏิทิน",
     "gallery": "แกลเลอรี",
     "list": "รายการ",
+    "feed": "ฟีด",
     "timeline": "ไทม์ไลน์",
     "chart": "แผนภูมิ",
     "dashboard": "แดชบอร์ด",
@@ -512,6 +513,9 @@
       "hide": "ซ่อน"
     },
     "pageVisibilityHint": "สำหรับทุกคน คุณสมบัติที่ซ่อนยังเปิดดูได้ในคลิกเดียวใต้ “คุณสมบัติเพิ่มเติม” บนหน้าของแต่ละแถว",
+    "pinToTitle": "ปักหมุดไว้ใต้ชื่อเรื่อง",
+    "unpinFromTitle": "เลิกปักหมุดจากใต้ชื่อเรื่อง",
+    "pinFull": "ปักหมุดคุณสมบัติได้สูงสุด {max} รายการ",
     "dateDisplay": "แสดงเป็น",
     "displayDate": "วันที่",
     "displayRelative": "แบบสัมพัทธ์",
@@ -535,7 +539,10 @@
     "addProperty": "เพิ่มคุณสมบัติ",
     "moreProperties": "{count, plural, other {อีก # คุณสมบัติ}}",
     "fewerProperties": "{count, plural, other {ซ่อน # คุณสมบัติ}}",
-    "propertyMenu": "ตัวเลือกของ {name}"
+    "propertyMenu": "ตัวเลือกของ {name}",
+    "pinned": "คุณสมบัติที่ปักหมุด",
+    "showBeside": "แสดงข้างหน้า",
+    "showAbove": "แสดงเหนือหน้า"
   },
   "rowActivity": {
     "title": "กิจกรรม",
@@ -761,6 +768,30 @@
     "new": "ใหม่",
     "empty": "ไม่มีแถวที่จะแสดง"
   },
+  "feed": {
+    "someone": "ใครบางคน",
+    "empty": "ยังไม่มีโพสต์",
+    "emptyCanPost": "ยังไม่มีโพสต์ เพิ่มแถวเพื่อเขียนโพสต์แรก",
+    "morePosts": "{count, plural, other {แสดงโพสต์อีก # รายการ}}",
+    "showMore": "แสดงเพิ่มเติม",
+    "showLess": "แสดงน้อยลง",
+    "bodyCut": "ส่วนที่เหลืออยู่ในหน้าของแถว",
+    "addReaction": "เพิ่มรีแอ็กชัน",
+    "reactedBy": "{names} รีแอ็กชันด้วย {emoji}",
+    "reactionCount": "{emoji}: {count, plural, other {# รีแอ็กชัน}}",
+    "comments": "ความคิดเห็น",
+    "allComments": "{count, plural, other {แสดงความคิดเห็นทั้งหมด # รายการ}}",
+    "commentPlaceholder": "เขียนความคิดเห็น…",
+    "send": "ส่ง",
+    "errors": {
+      "failed": "เกิดข้อผิดพลาด ลองอีกครั้ง",
+      "tooLong": "ความคิดเห็นนี้ยาวเกินไป",
+      "notAllowed": "คุณแสดงความคิดเห็นที่นี่ไม่ได้",
+      "invalidEmoji": "เลือกอีโมจิเพียงตัวเดียว",
+      "tooMany": "คุณรีแอ็กชันโพสต์นี้ครบจำนวนที่หนึ่งคนทำได้แล้ว",
+      "inTrash": "โพสต์ในถังขยะรับรีแอ็กชันไม่ได้"
+    }
+  },
   "chart": {
     "type": "ประเภทแผนภูมิ",
     "types": {
@@ -877,6 +908,7 @@
     "invalidNumberFormat": "บันทึกรูปแบบตัวเลขนี้ไม่ได้",
     "invalidDateOptions": "บันทึกการตั้งค่าวันที่เหล่านี้ไม่ได้",
     "invalidPageVisibility": "บันทึกการตั้งค่าหน้าของแถวนี้ไม่ได้",
+    "tooManyPinned": "หน้าของแถวปักหมุดคุณสมบัติได้สูงสุด {max} รายการ",
     "calendarFeedNotCalendar": "สมัครรับได้เฉพาะมุมมองปฏิทิน",
     "calendarFeedExportOff": "เจ้าของพื้นที่ทำงานปิดการส่งออก การสมัครรับปฏิทินจึงปิดด้วย",
     "webhookExportOff": "เจ้าของพื้นที่ทำงานปิดการส่งออก เว็บฮุกจึงปิดด้วย",

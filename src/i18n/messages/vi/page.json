@@ -392,6 +392,11 @@
         "title": "Bảng điều khiển",
         "subtext": "Số liệu, biểu đồ và danh sách từ các cơ sở dữ liệu của bạn",
         "aliases": "bảng điều khiển tiện ích chỉ số biểu đồ số liệu dashboard widgets kpi metrics charts numbers"
+      },
+      "databaseTabs": {
+        "title": "Tab cơ sở dữ liệu",
+        "subtext": "Nhiều cơ sở dữ liệu hoặc chế độ xem, mỗi cái một tab",
+        "aliases": "tab cơ sở dữ liệu chế độ xem chuyển tabs"
       }
     }
   },
@@ -734,6 +739,19 @@
     "filters": "{count, plural, other {# bộ lọc}}",
     "updatedNow": "vừa cập nhật",
     "updated": "cập nhật {time}"
+  },
+  "databaseTabs": {
+    "title": "Tab cơ sở dữ liệu",
+    "empty": "Các tab này chưa hiển thị cơ sở dữ liệu nào.",
+    "emptyEditable": "Hiển thị nhiều cơ sở dữ liệu, hoặc nhiều chế độ xem của một cơ sở dữ liệu, dưới dạng tab. Mỗi tab là một chế độ xem riêng.",
+    "add": "Thêm tab",
+    "full": "Các tab chứa tối đa {max} chế độ xem.",
+    "menu": "Tùy chọn tab",
+    "rename": "Đổi tên",
+    "remove": "Xóa tab",
+    "nameLabel": "Tên tab",
+    "namePlaceholder": "Tên cơ sở dữ liệu",
+    "noAccess": "Không có quyền truy cập"
   },
   "voiceNote": {
     "record": "Ghi một ghi chú giọng nói",

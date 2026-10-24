@@ -392,6 +392,11 @@
         "title": "Panel",
         "subtext": "Números, gráficos y listas de tus bases de datos",
         "aliases": "dashboard widgets kpi metrics charts panel tablero gráficos graficos métricas metricas"
+      },
+      "databaseTabs": {
+        "title": "Pestañas de bases de datos",
+        "subtext": "Varias bases de datos o vistas, una pestaña cada una",
+        "aliases": "pestañas base de datos vistas cambiar tabs"
       }
     }
   },
@@ -734,6 +739,19 @@
     "filters": "{count, plural, one {# filtro} other {# filtros}}",
     "updatedNow": "actualizado ahora mismo",
     "updated": "actualizado {time}"
+  },
+  "databaseTabs": {
+    "title": "Pestañas de bases de datos",
+    "empty": "Estas pestañas aún no muestran ninguna base de datos.",
+    "emptyEditable": "Muestra varias bases de datos, o vistas de una, como pestañas. Cada pestaña es una vista propia.",
+    "add": "Añadir pestaña",
+    "full": "Caben hasta {max} vistas en pestañas.",
+    "menu": "Opciones de la pestaña",
+    "rename": "Cambiar nombre",
+    "remove": "Quitar pestaña",
+    "nameLabel": "Nombre de la pestaña",
+    "namePlaceholder": "El nombre de la base de datos",
+    "noAccess": "Sin acceso"
   },
   "voiceNote": {
     "record": "Grabar una nota de voz",
