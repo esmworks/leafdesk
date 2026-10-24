@@ -780,6 +780,21 @@ export type FormQuestion = {
   label?: string;
   /** Help text under the question. */
   description?: string;
+  /** Asked only when an earlier question's answer meets this (see lib/forms conditionHolds). */
+  showIf?: FormCondition;
+  /** List answers (multi-select, people, linked rows, files): how many may be picked, when answered. */
+  minChoices?: number;
+  maxChoices?: number;
+};
+/**
+ * When a form question is asked: the answer to an earlier question (`propertyId`, "title" for the
+ * name) is one of `values` (option ids) or not, contains `values[0]` (text, or any of the options
+ * of a multi-select) or not, is ticked or not, or is empty or not.
+ */
+export type FormCondition = {
+  propertyId: string;
+  op: "is" | "isNot" | "contains" | "notContains" | "checked" | "unchecked" | "empty" | "notEmpty";
+  values?: string[];
 };
 /**
  * A form view: the questions it asks, in order, and what happens to the row it creates. Whether
@@ -800,6 +815,11 @@ export type FormConfig = {
   confirmation?: string;
   /** Whether the thank-you screen offers to fill the form in again; true when missing. */
   allowAnother?: boolean;
+  /**
+   * Signed-in people who answered see what they sent through this form (its questions only, see
+   * server/forms ownSubmissions); off when missing. Anonymous answers are never shown.
+   */
+  showOwnAnswers?: boolean;
 };
 /**
  * One widget of a dashboard view: a view of the dashboard's own database (any layout but a form or

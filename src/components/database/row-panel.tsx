@@ -3,13 +3,13 @@
 import { Check, ChevronDown, ChevronUp, Link2, Maximize2, TriangleAlert, X } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useLayoutEffect, useMemo, useReducer, useRef, useState, type CSSProperties, type ReactNode, type RefObject } from "react";
+import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useReducer, useRef, useState, type CSSProperties, type ReactNode, type RefObject } from "react";
 import { loadRowPanelAction, rowPanelStampAction, type RowPanelPage } from "@/app/actions/row-panel";
 import { useAiChat } from "@/components/ai-chat/chat-panel";
 import { useChannel } from "@/components/collab/use-channel";
 import { useIsOffline } from "@/components/offline/offline-context";
 import { FOCUS_BLOCK_EVENT } from "@/components/page/block-focus";
-import { PageView, type PanelChrome } from "@/components/page/page-view";
+import type { PanelChrome } from "@/components/page/page-view";
 import { Button, IconButton, pageLabel } from "@/components/ui";
 import { PHONE_QUERY, useMediaQuery } from "@/components/use-media-query";
 import {
@@ -27,7 +27,13 @@ import {
 import { isEditable } from "@/lib/shortcuts";
 import { inlineSign } from "@/components/direction";
 import { createOpenRowStore, RowPanelContext, type RowOrigin, type RowPanelHost } from "./row-panel-context";
-import { RowProperties } from "./row-properties";
+
+// The page editor and the row's properties load when a row first opens, not with every page of the
+// workspace this provider wraps (its routes without an editor would otherwise carry all of it).
+const loadPageView = () => import("@/components/page/page-view");
+const loadRowProperties = () => import("./row-properties");
+const PageView = lazy(() => loadPageView().then((module) => ({ default: module.PageView })));
+const RowProperties = lazy(() => loadRowProperties().then((module) => ({ default: module.RowProperties })));
 
 const pagePath = (workspaceId: string, pageId: string) => `/w/${workspaceId}/p/${pageId}`;
 
@@ -311,9 +317,12 @@ function RowPanel({
     [around, onOpen],
   );
 
-  // Focus moves into the panel as it opens, so its keys work and screen readers find it.
+  // Focus moves into the panel as it opens, so its keys work and screen readers find it. The
+  // editor's code starts loading now, beside the row's data, instead of after it.
   useEffect(() => {
     panelRef.current?.focus({ preventScroll: true });
+    void loadPageView();
+    void loadRowProperties();
   }, []);
   // The next row's page replaces this one's: keep focus in the panel.
   useEffect(() => {
@@ -407,34 +416,53 @@ function RowPanel({
   );
 
   const title = result?.ok ? pageLabel(result.data.page.title, tc("untitled")) : tc("untitled");
+  const loading = (
+    <div aria-busy="true" aria-label={tc("loading")} className="animate-pulse px-6 pt-10 md:px-[54px]">
+      <div className="h-9 w-2/3 rounded-md bg-bg-hover" />
+      <div className="mt-6 space-y-2.5">
+        {[0, 1, 2].map((i) => (
+          <div key={i} className="h-6 w-1/2 rounded-md bg-bg-subtle" />
+        ))}
+      </div>
+    </div>
+  );
   let body: ReactNode;
   if (result?.ok) {
     const { data } = result;
     const canEdit = data.info.level === "edit" || data.info.level === "full";
     body = (
-      <PageView
-        key={data.page.id}
-        workspaceId={data.workspaceId}
-        page={data.page}
-        info={data.info}
-        crumbs={data.crumbs}
-        user={user}
-        showBody
-        wide={false}
-        style={data.style}
-        panel={{ ...chrome, controls }}
+      <Suspense
+        fallback={
+          <>
+            <header className="sticky top-0 z-[35] flex h-11 items-center gap-0.5 px-3">{controls}</header>
+            {loading}
+          </>
+        }
       >
-        {data.databaseId ? (
-          <RowProperties
-            workspaceId={data.workspaceId}
-            databaseId={data.databaseId}
-            rowId={data.page.id}
-            readOnly={data.page.archived || !canEdit}
-          />
-        ) : (
-          wasRow && <Notice>{t("notInDatabase")}</Notice>
-        )}
-      </PageView>
+        <PageView
+          key={data.page.id}
+          workspaceId={data.workspaceId}
+          page={data.page}
+          info={data.info}
+          crumbs={data.crumbs}
+          user={user}
+          showBody
+          wide={false}
+          style={data.style}
+          panel={{ ...chrome, controls }}
+        >
+          {data.databaseId ? (
+            <RowProperties
+              workspaceId={data.workspaceId}
+              databaseId={data.databaseId}
+              rowId={data.page.id}
+              readOnly={data.page.archived || !canEdit}
+            />
+          ) : (
+            wasRow && <Notice>{t("notInDatabase")}</Notice>
+          )}
+        </PageView>
+      </Suspense>
     );
   } else {
     body = (
@@ -468,14 +496,7 @@ function RowPanel({
             )}
           </div>
         ) : (
-          <div aria-busy="true" aria-label={tc("loading")} className="animate-pulse px-6 pt-10 md:px-[54px]">
-            <div className="h-9 w-2/3 rounded-md bg-bg-hover" />
-            <div className="mt-6 space-y-2.5">
-              {[0, 1, 2].map((i) => (
-                <div key={i} className="h-6 w-1/2 rounded-md bg-bg-subtle" />
-              ))}
-            </div>
-          </div>
+          loading
         )}
       </>
     );

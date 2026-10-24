@@ -1,0 +1,104 @@
+{
+  "metaTitle": "Untuk ditinjau",
+  "heading": "Untuk ditinjau",
+  "description": "Perubahan yang diusulkan agen alih-alih langsung dibuat, dan otomatisasi yang menunggu persetujuan seseorang. Setujui perubahan untuk membuatnya atas nama Anda, edit dulu, atau abaikan; setujui otomatisasi agar eksekusinya berlanjut, atau tolak untuk menghentikannya. Usulan yang tidak dijawab kedaluwarsa setelah 30 hari. Email tindak lanjut yang diatur “tanya saya dulu” juga menunggu di sini.",
+  "filters": {
+    "agent": "Agen",
+    "database": "Basis data",
+    "status": "Tampilkan",
+    "allAgents": "Semua agen",
+    "allDatabases": "Semua basis data",
+    "open": "Menunggu",
+    "decided": "Sudah dijawab",
+    "allRows": "Tampilkan semua baris",
+    "clear": "Hapus filter"
+  },
+  "count": "{count, plural, other {# perubahan}}",
+  "select": "Pilih perubahan ini",
+  "selectAll": "Pilih semua",
+  "selected": "{count} dipilih",
+  "approveSelected": "Setujui {count}",
+  "dismissSelected": "Abaikan {count}",
+  "bulkSkipped": "{count, plural, other {# perubahan tidak dapat dijawab: sudah dijawab, barisnya telah berubah, atau Anda tidak dapat menjawabnya.}}",
+  "empty": {
+    "open": "Tidak ada yang menunggu tinjauan Anda.",
+    "decided": "Tidak ada perubahan yang dijawab dalam 30 hari terakhir.",
+    "filtered": "Tidak ada perubahan yang cocok dengan filter ini."
+  },
+  "proposes": {
+    "createRow": "<agent></agent> ingin menambahkan baris ke <database></database>",
+    "updateRow": "<agent></agent> ingin mengubah <row></row>",
+    "emailDraft": "<agent></agent> menyusun draf email di <row></row>",
+    "automationApproval": "<automation></automation> meminta persetujuan di <row></row>",
+    "automationApprovalNoRow": "<automation></automation> meminta persetujuan",
+    "sequenceDraft": "Email {step} dari {steps} pada rangkaian tindak lanjut <sequence></sequence> di <row></row>"
+  },
+  "inDatabase": "di <database></database>",
+  "unknownAgent": "Agen yang telah dihapus",
+  "someone": "Seseorang",
+  "viewRun": "Lihat eksekusi",
+  "edited": "Diedit",
+  "expires": "Kedaluwarsa {time}",
+  "decided": {
+    "approved": "Disetujui oleh {name} {time}",
+    "dismissed": "Diabaikan oleh {name} {time}",
+    "expired": "Kedaluwarsa tanpa jawaban",
+    "rejected": "Ditolak oleh {name} {time}",
+    "timedOut": "Tidak ada yang menjawab tepat waktu"
+  },
+  "title": "Judul",
+  "becomes": "menjadi",
+  "changedSince": "Berubah sejak diusulkan, kini <value></value>",
+  "conflictNotice": "Baris ini berubah sejak agen mengusulkannya. Menyetujui akan menimpa isinya saat ini.",
+  "failedNote": "Perubahan ini disetujui tetapi tidak dapat dibuat: {error} Edit lalu setujui lagi, atau abaikan.",
+  "failed": {
+    "error": "terjadi kesalahan.",
+    "pageLocked": "baris dikunci."
+  },
+  "email": {
+    "from": "Dari",
+    "to": "Kepada",
+    "cc": "Cc",
+    "subject": "Subjek",
+    "text": "Teks",
+    "reply": "Balasan untuk email terbaru di baris"
+  },
+  "markdown": "Teks halaman",
+  "notEditable": "Pertahankan atau lewati; ubah di baris setelahnya.",
+  "leaveOut": "Lewati",
+  "keep": "Pertahankan",
+  "approve": "Setujui",
+  "approveAnyway": "Tetap setujui",
+  "send": "Kirim",
+  "edit": "Edit",
+  "save": "Simpan edit",
+  "dismiss": "Abaikan",
+  "cannot": {
+    "email": "Hanya {name} yang dapat mengirim draf ini, dari kotak surat miliknya sendiri.",
+    "row": "Anda dapat melihat perubahan ini, tetapi menyetujuinya memerlukan akses edit ke baris dan ke setiap nilai yang diaturnya.",
+    "approval": "Hanya orang yang diminta oleh otomatisasi yang dapat menyetujui atau menolak ini."
+  },
+  "errors": {
+    "notFound": "Perubahan ini sudah tidak ada, atau Anda tidak dapat melihatnya.",
+    "decided": "Seseorang sudah menjawab perubahan ini.",
+    "conflict": "Baris berubah sejak ini diusulkan. Periksa lagi, lalu setujui saja atau abaikan.",
+    "invalid": "Edit ini tidak valid: {message}",
+    "accessDenied": "Anda tidak dapat menjawab perubahan ini."
+  },
+  "banner": {
+    "title": "Perubahan menunggu tinjauan",
+    "bar": "{count, plural, other {# perubahan menunggu tinjauan}}",
+    "by": "diusulkan oleh {names}",
+    "open": "Tinjau"
+  },
+  "unknownAutomation": "Otomatisasi yang telah dihapus",
+  "reject": "Tolak",
+  "approval": {
+    "next": "Jika disetujui, maka:",
+    "nothingNext": "Jika disetujui, eksekusi berakhir: tidak ada langkah setelah ini.",
+    "forEach": "untuk setiap baris dari {step}",
+    "approvers": "Meminta {names}",
+    "timeoutStop": "Jika tidak ada yang menjawab tepat waktu, eksekusi berhenti.",
+    "timeoutContinue": "Jika tidak ada yang menjawab tepat waktu, eksekusi berlanjut."
+  }
+}

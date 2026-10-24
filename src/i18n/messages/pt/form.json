@@ -10,6 +10,30 @@
     "labelPlaceholder": "Pergunta",
     "helpPlaceholder": "Adicione um texto de ajuda (opcional)",
     "required": "Obrigatória",
+    "showWhen": "Mostrar só quando",
+    "addCondition": "Mostrar só quando…",
+    "removeCondition": "Remover condição",
+    "conditionQuestion": "Pergunta a que a condição se refere",
+    "conditionCheck": "Condição",
+    "conditionOptions": "Opções que a condição procura",
+    "conditionText": "Texto",
+    "conditionPickOption": "Escolha pelo menos uma opção para salvar esta condição.",
+    "conditionTypeText": "Digite um texto para salvar esta condição.",
+    "op": {
+      "is": "é uma de",
+      "isNot": "não é nenhuma de",
+      "contains": "contém",
+      "notContains": "não contém",
+      "hasAny": "inclui alguma de",
+      "hasNone": "não inclui nenhuma de",
+      "checked": "está marcada",
+      "unchecked": "não está marcada",
+      "empty": "está vazia",
+      "notEmpty": "não está vazia"
+    },
+    "minChoices": "Pelo menos",
+    "maxChoices": "No máximo",
+    "anyNumber": "Qualquer",
     "moveUp": "Mover para cima",
     "moveDown": "Mover para baixo",
     "remove": "Remover pergunta",
@@ -27,7 +51,9 @@
     "afterTitle": "Depois do envio",
     "confirmationLabel": "Mensagem",
     "confirmationPlaceholder": "Obrigado! Sua resposta foi enviada.",
-    "allowAnother": "Permitir que as pessoas enviem outra resposta"
+    "allowAnother": "Permitir que as pessoas enviem outra resposta",
+    "showOwnAnswers": "Mostrar às pessoas as próprias respostas",
+    "showOwnAnswersDescription": "Quem entra na conta para responder vê o que enviou por este formulário, e nada mais do banco de dados. Respostas anônimas nunca são mostradas."
   },
   "fill": {
     "submit": "Enviar",
@@ -41,7 +67,18 @@
     "addItem": "Adicionar um item",
     "newItem": "Novo item",
     "removeItem": "Remover {text}",
-    "honeypot": "Deixe este campo vazio"
+    "honeypot": "Deixe este campo vazio",
+    "choicesExactly": "Escolha exatamente {count}.",
+    "choicesBetween": "Escolha de {min} a {max}.",
+    "choicesAtLeast": "Escolha pelo menos {min}.",
+    "choicesAtMost": "Escolha no máximo {max}."
+  },
+  "own": {
+    "title": "Suas respostas",
+    "description": "O que você enviou por este formulário. Só você vê esta lista.",
+    "none": "Você ainda não enviou nenhuma resposta.",
+    "sentAt": "Enviada {date}",
+    "empty": "Nenhuma resposta para mostrar."
   },
   "share": {
     "button": "Compartilhar",
@@ -69,6 +106,7 @@
     "required": "Esta pergunta é obrigatória.",
     "tooLong": "Esta resposta é longa demais (no máximo {max} caracteres).",
     "tooMany": "Escolha no máximo {max}.",
+    "tooFew": "Escolha pelo menos {min}.",
     "invalidText": "Esta resposta precisa ser um texto.",
     "invalidAnswers": "Algumas respostas precisam ser revisadas.",
     "closed": "Este formulário não aceita mais respostas.",

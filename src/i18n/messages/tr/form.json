@@ -10,6 +10,30 @@
     "labelPlaceholder": "Soru",
     "helpPlaceholder": "Yardım metni ekleyin (isteğe bağlı)",
     "required": "Zorunlu",
+    "showWhen": "Yalnızca şu durumda göster:",
+    "addCondition": "Yalnızca şu durumda göster…",
+    "removeCondition": "Koşulu kaldır",
+    "conditionQuestion": "Koşulun ilgili olduğu soru",
+    "conditionCheck": "Koşul",
+    "conditionOptions": "Koşulun aradığı seçenekler",
+    "conditionText": "Metin",
+    "conditionPickOption": "Bu koşulu kaydetmek için en az bir seçenek seçin.",
+    "conditionTypeText": "Bu koşulu kaydetmek için bir metin yazın.",
+    "op": {
+      "is": "şunlardan biri",
+      "isNot": "şunların hiçbiri",
+      "contains": "içerir",
+      "notContains": "içermez",
+      "hasAny": "şunlardan birini içerir",
+      "hasNone": "şunların hiçbirini içermez",
+      "checked": "işaretli",
+      "unchecked": "işaretli değil",
+      "empty": "boş",
+      "notEmpty": "boş değil"
+    },
+    "minChoices": "En az",
+    "maxChoices": "En fazla",
+    "anyNumber": "Herhangi",
     "moveUp": "Yukarı taşı",
     "moveDown": "Aşağı taşı",
     "remove": "Soruyu kaldır",
@@ -27,7 +51,9 @@
     "afterTitle": "Gönderdikten sonra",
     "confirmationLabel": "Mesaj",
     "confirmationPlaceholder": "Teşekkürler! Yanıtınız gönderildi.",
-    "allowAnother": "Başka bir yanıt gönderilebilsin"
+    "allowAnother": "Başka bir yanıt gönderilebilsin",
+    "showOwnAnswers": "Yanıtlayanlara kendi yanıtlarını göster",
+    "showOwnAnswersDescription": "Yanıtlamak için oturum açanlar bu formla gönderdiklerini görür, veritabanından başka hiçbir şeyi görmez. Anonim yanıtlar hiçbir zaman gösterilmez."
   },
   "fill": {
     "submit": "Gönder",
@@ -41,7 +67,18 @@
     "addItem": "Madde ekle",
     "newItem": "Yeni madde",
     "removeItem": "{text} maddesini kaldır",
-    "honeypot": "Bu alanı boş bırakın"
+    "honeypot": "Bu alanı boş bırakın",
+    "choicesExactly": "Tam olarak {count} seçim yapın.",
+    "choicesBetween": "{min} ile {max} arasında seçim yapın.",
+    "choicesAtLeast": "En az {min} seçim yapın.",
+    "choicesAtMost": "En fazla {max} seçim yapabilirsiniz."
+  },
+  "own": {
+    "title": "Yanıtlarınız",
+    "description": "Bu formla gönderdikleriniz. Bu listeyi yalnızca siz görürsünüz.",
+    "none": "Henüz yanıt göndermediniz.",
+    "sentAt": "Gönderildi: {date}",
+    "empty": "Gösterilecek yanıt yok."
   },
   "share": {
     "button": "Paylaş",
@@ -69,6 +106,7 @@
     "required": "Bu soru zorunludur.",
     "tooLong": "Bu yanıt çok uzun (en fazla {max} karakter).",
     "tooMany": "En fazla {max} seçim yapabilirsiniz.",
+    "tooFew": "En az {min} seçim yapın.",
     "invalidText": "Bu yanıt metin olmalıdır.",
     "invalidAnswers": "Bazı yanıtları kontrol etmeniz gerekiyor.",
     "closed": "Bu form artık yanıt kabul etmiyor.",

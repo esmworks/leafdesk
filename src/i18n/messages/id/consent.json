@@ -1,0 +1,37 @@
+{
+  "metaTitle": "Otorisasi aplikasi",
+  "expired": {
+    "title": "Tautan ini sudah kedaluwarsa",
+    "body": "Permintaan otorisasi tidak valid atau sudah terlalu lama. Kembali ke aplikasi yang sedang Anda hubungkan dan mulai lagi."
+  },
+  "unknownClient": {
+    "title": "Aplikasi tidak dikenal",
+    "body": "Aplikasi yang meminta akses tidak terdaftar di Leafdesk atau telah dinonaktifkan. Kembali dan coba hubungkan lagi."
+  },
+  "heading": "{client} ingin mengakses akun Leafdesk Anda",
+  "identifiedBy": "Aplikasi ini dikenali dari {host}.",
+  "unverified": "Aplikasi ini mendaftarkan dirinya secara otomatis dan belum ditinjau oleh Leafdesk. Lanjutkan hanya jika Anda yang memulai koneksi ini.",
+  "notYou": "Bukan Anda?",
+  "willAllow": "Ini akan mengizinkan {client} untuk:",
+  "readOnlyHint": "Hapus centang untuk memberi akses hanya-baca. Setiap perubahan disimpan ke riwayat halaman terlebih dahulu, sehingga Anda bisa membatalkannya.",
+  "access": {
+    "all": "Akses mencakup setiap ruang kerja yang Anda ikuti. Anda dapat memutuskan aplikasi kapan saja di Pengaturan.",
+    "listed": "Akses mencakup setiap ruang kerja yang Anda ikuti: {workspaces}. Anda dapat memutuskan aplikasi kapan saja di Pengaturan."
+  },
+  "deny": "Tolak",
+  "denying": "Menolak…",
+  "allow": "Izinkan",
+  "allowing": "Mengizinkan…",
+  "redirectNotice": "Anda akan dikembalikan ke {host}.",
+  "error": "Tidak dapat menyelesaikan permintaan. Kembali ke aplikasi dan coba lagi.",
+  "scopes": {
+    "openid": "Memastikan identitas Anda",
+    "profile": "Melihat nama dan foto profil Anda",
+    "email": "Melihat alamat email Anda",
+    "offlineAccess": "Tetap terhubung tanpa meminta Anda masuk lagi",
+    "pagesRead": "Membaca halaman dan basis data di ruang kerja Anda",
+    "pagesWrite": "Membuat dan mengedit halaman serta baris basis data, dan memindahkan halaman ke sampah",
+    "notificationsRead": "Membaca notifikasi kotak masuk Anda",
+    "filesWrite": "Mengunggah berkas ke halaman, dari tautan atau dari aplikasi itu sendiri"
+  }
+}

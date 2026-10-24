@@ -1,0 +1,238 @@
+{
+  "meeting-notes": {
+    "title": "Catatan rapat",
+    "description": "Agenda, catatan, keputusan, dan butir tindakan.",
+    "markdown": "**Tanggal:** \n\n**Peserta:** \n\n## Agenda\n\n1. \n\n## Catatan\n\n\n\n## Keputusan\n\n- \n\n## Butir tindakan\n\n- [ ] "
+  },
+  "weekly-plan": {
+    "title": "Rencana mingguan",
+    "description": "Sasaran minggu ini dan daftar centang per hari.",
+    "markdown": "## Sasaran minggu ini\n\n- [ ] \n\n### Senin\n\n- [ ] \n\n### Selasa\n\n- [ ] \n\n### Rabu\n\n- [ ] \n\n### Kamis\n\n- [ ] \n\n### Jumat\n\n- [ ] \n\n## Catatan untuk minggu depan\n"
+  },
+  "project-tracker": {
+    "title": "Pelacak proyek",
+    "description": "Tugas dengan status, prioritas, penanggung jawab, dan tenggat, dalam tabel dan papan.",
+    "seedNames": {
+      "status": "Status",
+      "notStarted": "Belum dimulai",
+      "inProgress": "Sedang dikerjakan",
+      "done": "Selesai",
+      "tags": "Tag",
+      "table": "Semua tugas"
+    },
+    "properties": {
+      "priority": "Prioritas",
+      "owner": "Penanggung jawab",
+      "due": "Tenggat"
+    },
+    "options": {
+      "high": "Tinggi",
+      "medium": "Sedang",
+      "low": "Rendah"
+    },
+    "board": "Papan",
+    "rowTemplate": {
+      "title": "Tugas baru",
+      "markdown": "## Tujuan\n\n\n\n## Langkah\n\n- [ ] \n\n## Catatan\n\n"
+    },
+    "rows": {
+      "brief": "Tulis ringkasan proyek",
+      "milestone": "Rencanakan tonggak pertama",
+      "team": "Undang tim"
+    }
+  },
+  "wins-log": {
+    "title": "Log pencapaian",
+    "description": "Pencapaian, pujian, dan pekerjaan yang selesai di satu tempat, dengan grafik per bulan, jenis, dan bidang.",
+    "markdown": "Setiap pencapaian, pujian, dan pekerjaan yang selesai dicatat di sini, dengan tautan ke tempat kejadiannya. Tambahkan secara manual, atau biarkan agen Pencatat pencapaian menambahkannya dari koneksi Anda.",
+    "database": "Pencapaian",
+    "table": "Semua pencapaian",
+    "board": "Menurut jenis",
+    "properties": {
+      "type": "Jenis",
+      "area": "Bidang",
+      "date": "Tanggal",
+      "impact": "Dampak",
+      "source": "Sumber",
+      "person": "Orang"
+    },
+    "types": {
+      "feedback": "Umpan balik",
+      "delivery": "Pengiriman",
+      "metric": "Metrik",
+      "event": "Acara",
+      "other": "Lainnya"
+    },
+    "areas": {
+      "product": "Produk",
+      "customers": "Pelanggan",
+      "team": "Tim",
+      "operations": "Operasional",
+      "sales": "Penjualan"
+    },
+    "impacts": {
+      "high": "Tinggi",
+      "medium": "Sedang",
+      "low": "Rendah"
+    },
+    "widgets": {
+      "total": "Pencapaian",
+      "byMonth": "Pencapaian per bulan",
+      "byArea": "Menurut bidang",
+      "byImpact": "Menurut dampak"
+    },
+    "rowTemplate": {
+      "title": "Pencapaian baru",
+      "markdown": "## Apa yang terjadi\n\n\n\n## Mengapa penting\n\n\n\n## Bukti\n\n- "
+    },
+    "rows": {
+      "praise": "Seorang pelanggan memuji proses orientasi yang baru",
+      "launch": "Ekspor penagihan telah dirilis",
+      "response": "Balasan dukungan kini memakan waktu kurang dari dua jam",
+      "talk": "Memberi presentasi di luar kantor tim",
+      "thanks": "Tim penjualan berterima kasih atas persiapan demo"
+    }
+  },
+  "small-business": {
+    "title": "Usaha kecil",
+    "description": "Pelanggan, penawaran yang Anda berikan, pekerjaan, dan neraca, saling terhubung, dengan dasbor dan rencana mingguan.",
+    "currency": "IDR",
+    "dashboard": {
+      "title": "Dasbor",
+      "markdown": "> [!NOTE]\n> Pekerjaan, penawaran, pelanggan, dan neraca dalam satu layar. Widget mengikuti basis data saat berubah.\n\nTambahkan pelanggan Anda terlebih dahulu, lalu penawaran yang Anda berikan kepada mereka. Saat penawaran diterima, tambahkan pekerjaan dan tautkan ke penawaran dan pelanggannya. Masukkan neraca dengan hari saat Anda menghitungnya: widget menampilkan entri bulan ini.",
+      "widgets": {
+        "openJobs": "Pekerjaan terbuka",
+        "dueJobs": "Jatuh tempo atau terlambat",
+        "openQuotes": "Penawaran terbuka",
+        "netWorth": "Kekayaan bersih bulan ini",
+        "jobsByPerson": "Pekerjaan terbuka per orang dan prioritas",
+        "upcomingJobs": "Pekerjaan terbuka menurut tenggat",
+        "quotesByStatus": "Penawaran menurut status",
+        "quoteFollowUps": "Tindak lanjut penawaran",
+        "customersByStage": "Pelanggan menurut tahap",
+        "customerFollowUps": "Tindak lanjut pelanggan",
+        "balanceBreakdown": "Neraca bulan ini",
+        "netWorthByDate": "Kekayaan bersih menurut tanggal"
+      }
+    },
+    "customers": {
+      "title": "Pelanggan",
+      "table": "Semua pelanggan",
+      "board": "Menurut tahap",
+      "properties": {
+        "stage": "Tahap",
+        "city": "Kota",
+        "contact": "Narahubung",
+        "phone": "Telepon",
+        "email": "Email",
+        "nextStep": "Langkah berikutnya",
+        "nextStepDate": "Langkah berikutnya pada",
+        "quotes": "Penawaran",
+        "jobs": "Pekerjaan",
+        "quoted": "Total penawaran"
+      },
+      "stages": {
+        "lead": "Prospek awal",
+        "prospect": "Calon pelanggan",
+        "customer": "Pelanggan",
+        "inactive": "Tidak aktif"
+      }
+    },
+    "quotes": {
+      "title": "Penawaran",
+      "table": "Semua penawaran",
+      "board": "Menurut status",
+      "calendar": "Tindak lanjut",
+      "properties": {
+        "customer": "Pelanggan",
+        "status": "Status",
+        "amount": "Jumlah",
+        "followUp": "Tindak lanjut pada",
+        "date": "Tanggal",
+        "validUntil": "Berlaku hingga",
+        "preparedBy": "Disiapkan oleh",
+        "jobs": "Pekerjaan"
+      },
+      "statuses": {
+        "draft": "Draf",
+        "sent": "Terkirim",
+        "revision": "Revisi diminta",
+        "accepted": "Diterima",
+        "lost": "Gagal"
+      },
+      "rowTemplate": {
+        "title": "Penawaran baru",
+        "markdown": "## Item\n\n- \n\n## Ketentuan\n\n**Pembayaran:** \n\n**Pengiriman:** \n\n## Catatan\n"
+      }
+    },
+    "jobs": {
+      "title": "Pekerjaan",
+      "table": "Semua pekerjaan",
+      "board": "Papan",
+      "byPerson": "Menurut orang",
+      "calendar": "Kalender",
+      "properties": {
+        "status": "Status",
+        "priority": "Prioritas",
+        "assignee": "Penerima tugas",
+        "due": "Tenggat",
+        "customer": "Pelanggan",
+        "quote": "Penawaran",
+        "notes": "Catatan"
+      },
+      "statuses": {
+        "todo": "Akan dikerjakan",
+        "waiting": "Menunggu",
+        "inProgress": "Sedang dikerjakan",
+        "done": "Selesai"
+      },
+      "priorities": {
+        "urgent": "Mendesak",
+        "high": "Tinggi",
+        "normal": "Normal",
+        "low": "Rendah"
+      },
+      "rowTemplate": {
+        "title": "Pekerjaan baru",
+        "markdown": "## Langkah\n\n- [ ] \n"
+      }
+    },
+    "balance": {
+      "title": "Neraca",
+      "table": "Semua entri",
+      "byDate": "Menurut tanggal",
+      "netWorth": "Kekayaan bersih",
+      "thisMonth": "Bulan ini",
+      "properties": {
+        "date": "Tanggal",
+        "side": "Sisi",
+        "group": "Kelompok",
+        "amount": "Jumlah",
+        "net": "Efek bersih",
+        "note": "Catatan"
+      },
+      "sides": {
+        "asset": "Aset",
+        "liability": "Kewajiban"
+      },
+      "groups": {
+        "cash": "Kas dan bank",
+        "receivables": "Piutang",
+        "chequesIn": "Cek diterima",
+        "stock": "Persediaan",
+        "equipment": "Peralatan",
+        "payables": "Utang usaha",
+        "chequesOut": "Cek diterbitkan",
+        "card": "Utang kartu kredit",
+        "loans": "Pinjaman bank",
+        "taxes": "Pajak dan jaminan sosial",
+        "wages": "Upah terutang",
+        "other": "Lainnya"
+      }
+    }
+  },
+  "journal": {
+    "title": "Jurnal",
+    "markdown": "## Fokus\n\n- [ ] \n\n## Catatan\n\n## Selesai hari ini\n"
+  }
+}

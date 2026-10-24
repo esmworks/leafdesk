@@ -1,0 +1,21 @@
+{
+  "todayNote": "Catatan hari ini",
+  "openToday": "Buka catatan hari ini",
+  "startToday": "Mulai catatan hari ini",
+  "calendar": "Kalender catatan harian",
+  "previousMonth": "Bulan sebelumnya",
+  "nextMonth": "Bulan berikutnya",
+  "hasNote": "{day} — ada catatan",
+  "openDay": "Buka catatan hari itu",
+  "recent": "Catatan sebelumnya",
+  "startWith": "Catatan baru dimulai dengan",
+  "startDefault": "Beberapa judul",
+  "startBlank": "Halaman kosong",
+  "startTemplates": "Templat",
+  "openFailed": "Tidak dapat membuka catatan harian",
+  "saveFailed": "Tidak dapat menyimpan pengaturan",
+  "searchHint": "catatan harian Anda",
+  "yesterday": "Catatan kemarin",
+  "notes": "Catatan",
+  "noNotes": "Belum ada catatan. Pilih satu hari untuk memulai."
+}

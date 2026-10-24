@@ -7,7 +7,7 @@ import { cn, PageIcon } from "@/components/ui";
 import { pageLabel } from "@/lib/labels";
 import { isHiddenInView } from "@/lib/properties";
 import type { SubItemLine } from "@/lib/sub-items";
-import { CardTitleInput } from "./board-view";
+import { CardTitleInput } from "./card-title-input";
 import { RowMenu } from "./gallery-view";
 import { RowValue, shownValues } from "./property-cell";
 import { QuickAddContext } from "./quick-add";

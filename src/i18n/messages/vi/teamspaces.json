@@ -1,0 +1,83 @@
+{
+  "access": {
+    "default": "Mặc định",
+    "open": "Mở",
+    "closed": "Đóng",
+    "private": "Riêng tư"
+  },
+  "accessHint": {
+    "default": "Mọi người trong không gian làm việc đều ở trong đó và không thể rời đi.",
+    "open": "Bất kỳ ai trong không gian làm việc đều có thể thấy và tham gia. Trước khi tham gia, họ có thể đọc và bình luận trên các trang của nó.",
+    "closed": "Bất kỳ ai trong không gian làm việc đều có thể thấy nó tồn tại. Chỉ các thành viên mới mở được các trang của nó; chủ sở hữu của nó thêm họ vào.",
+    "private": "Chỉ các thành viên của nó mới thấy được."
+  },
+  "roles": {
+    "owner": "Chủ sở hữu",
+    "member": "Thành viên"
+  },
+  "errors": {
+    "nameRequired": "Hãy đặt tên cho không gian nhóm.",
+    "creationRestricted": "Ở đây chỉ chủ sở hữu không gian làm việc mới có thể tạo không gian nhóm.",
+    "ownersOnly": "Chỉ chủ sở hữu không gian làm việc mới có thể thay đổi những không gian nhóm mà mọi người đều tham gia.",
+    "cannotLeaveDefault": "Mọi người đều ở trong không gian nhóm này; không thể rời khỏi nó.",
+    "lastOwner": "Hãy cho người khác làm chủ sở hữu của không gian nhóm trước.",
+    "notJoinable": "Hãy nhờ chủ sở hữu của không gian nhóm này thêm bạn.",
+    "archived": "Không gian nhóm này đã được lưu trữ.",
+    "notMember": "Chỉ chủ sở hữu và thành viên của không gian làm việc mới có thể ở trong các không gian nhóm của nó.",
+    "invalidAccess": "Hãy chọn ai có thể thấy không gian nhóm.",
+    "inGroup": "Người này ở trong không gian nhóm thông qua một nhóm. Hãy gỡ họ khỏi nhóm thay vào đó.",
+    "everyoneIn": "Mọi người trong không gian làm việc đã ở trong không gian nhóm này rồi.",
+    "accessDenied": "Bạn không thể làm điều đó trong không gian nhóm này.",
+    "invalidMemberLevel": "Hãy chọn quyền mà các thành viên có trên các trang của không gian nhóm.",
+    "invalidIcon": "Biểu tượng phải là một emoji."
+  },
+  "dialog": {
+    "createTitle": "Không gian nhóm mới",
+    "editTitle": "Chỉnh sửa không gian nhóm",
+    "name": "Tên",
+    "namePlaceholder": "Tiếp thị, Kỹ thuật…",
+    "icon": "Chọn biểu tượng",
+    "description": "Mô tả",
+    "descriptionPlaceholder": "Không gian nhóm này dùng để làm gì?",
+    "access": "Ai có thể thấy",
+    "defaultLocked": "Chỉ chủ sở hữu không gian làm việc mới có thể thay đổi quyền truy cập của không gian nhóm mặc định.",
+    "becomesDefault": "Mọi người trong không gian làm việc đều tham gia và không thể rời đi.",
+    "leavesDefault": "Hiện tại mọi người vẫn ở trong đó nhưng có thể rời đi, và các thành viên mới của không gian làm việc sẽ không được thêm vào.",
+    "create": "Tạo không gian nhóm",
+    "creating": "Đang tạo…",
+    "memberLevel": "Quyền của thành viên trên các trang của nó",
+    "memberLevelHint": "Quyền mà thành viên có trên các trang không tự đặt quyền riêng. Chủ sở hữu của không gian nhóm và chủ sở hữu không gian làm việc luôn có toàn quyền; cài đặt chia sẻ của một trang vẫn ghi đè lên điều này.",
+    "memberLevelLocked": "Chỉ chủ sở hữu không gian làm việc mới có thể thay đổi quyền mà mọi người có trong một không gian nhóm mặc định."
+  },
+  "members": {
+    "title": "Thành viên của {name}",
+    "everyone": "Mọi người trong không gian làm việc đều ở trong không gian nhóm này. Chủ sở hữu của nó có thể chỉnh sửa và quản lý nó.",
+    "readOnly": "Chỉ chủ sở hữu của không gian nhóm này mới có thể thay đổi ai ở trong đó.",
+    "add": "Thêm người",
+    "search": "Tìm người",
+    "addSelected": "{count, plural, =0 {Thêm người} other {Thêm #}}",
+    "addAs": "Thêm với vai trò",
+    "noOneToAdd": "Mọi người trong không gian làm việc đã ở trong không gian nhóm này rồi.",
+    "noMatches": "Không có ai khớp với tìm kiếm của bạn.",
+    "empty": "Không có ai trong không gian nhóm này.",
+    "list": "Những người trong không gian nhóm này",
+    "roleOf": "Vai trò của {name}",
+    "remove": "Xóa {name}",
+    "you": "(bạn)",
+    "select": "Chọn {name}",
+    "viaGroups": "Thông qua {groups}",
+    "groups": "Nhóm",
+    "groupsHint": "Mọi người trong các nhóm này là thành viên của không gian nhóm khi họ còn ở trong nhóm.",
+    "noGroups": "Không có nhóm nào trong không gian nhóm này.",
+    "chooseGroup": "Chọn một nhóm",
+    "addGroupButton": "Thêm nhóm",
+    "removeGroup": "Xóa {name}",
+    "groupMemberCount": "{count, plural, =0 {Không có thành viên} other {# thành viên}}"
+  },
+  "memberLevel": {
+    "full": "Toàn quyền",
+    "edit": "Có thể chỉnh sửa",
+    "comment": "Có thể bình luận",
+    "view": "Có thể xem"
+  }
+}

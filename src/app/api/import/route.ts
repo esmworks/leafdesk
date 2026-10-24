@@ -1,8 +1,10 @@
-import { databaseSeedNames, trelloImportNames } from "@/app/actions/seed-names";
+import { boardImportNames, databaseSeedNames, trelloImportNames } from "@/app/actions/seed-names";
 import { requestTimeZone } from "@/i18n/config";
 import { auth } from "@/lib/auth";
+import { readAsanaExport } from "@/lib/import/asana";
 import { CSV_COLUMN_TYPES, decodeText, type CsvColumnType } from "@/lib/import/csv";
 import { cleanTitle, IMPORT_LIMITS } from "@/lib/import/markdown";
+import { readMondayExport } from "@/lib/import/monday";
 import { ImportError, WarningList, type ImportResult } from "@/lib/import/result";
 import { parseTrelloExport } from "@/lib/import/trello";
 import { spreadsheetTable } from "@/lib/import/xlsx";
@@ -10,6 +12,7 @@ import { PropertyValueError } from "@/lib/properties";
 import { isTimeZone } from "@/lib/time-zone";
 import { AccessError } from "@/server/access";
 import { isCrossSite } from "@/server/cross-site";
+import { importBoard } from "@/server/import/board";
 import { importCsvAsDatabase, importCsvIntoDatabase, recordImport, type ColumnTarget } from "@/server/import/csv";
 import { importDocx } from "@/server/import/docx";
 import { importPages } from "@/server/import/markdown";
@@ -31,6 +34,9 @@ import { TeamspaceError } from "@/server/teamspaces";
  *                   (JSON) says where each column goes: "title", a property id, or null.
  *   mode=trello     One Trello board's JSON export (`file`) as a new database under `parentId` /
  *                   `workspaceId`, called `title` (the board's name when empty).
+ *   mode=asana      One Asana project's CSV or JSON export (`file`), the same way; `types` (JSON: a
+ *                   type or null per column the export has, see lib/import/board) as read when missing.
+ *   mode=monday     One Monday.com board's Excel export (or its sheet saved as CSV), the same way.
  *
  * A workbook's sheet is `sheet` (an index into its visible worksheets); without it the first one is
  * imported and the others are reported as left out.
@@ -103,6 +109,22 @@ export async function POST(request: Request) {
         board,
         seedNames: await seedNames(),
         names,
+        timeZone,
+      });
+    } else if (mode === "asana" || mode === "monday") {
+      if (uploads.length !== 1) return fail(400, "badRequest", "Send one export");
+      const data = new Uint8Array(await uploads[0].arrayBuffer());
+      const board = mode === "asana" ? readAsanaExport(uploads[0].name, data) : readMondayExport(uploads[0].name, data);
+      const types = json(field("types"));
+      result = await importBoard(actor, {
+        workspaceId,
+        parentId,
+        teamspaceId,
+        title: field("title") ?? "",
+        board,
+        types: Array.isArray(types) ? types : undefined,
+        seedNames: await seedNames(),
+        names: await boardImportNames().catch(() => undefined),
         timeZone,
       });
     } else if (mode === "csv-new" || mode === "csv-merge") {

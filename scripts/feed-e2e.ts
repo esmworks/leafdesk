@@ -136,7 +136,7 @@ try {
 
   // Row page layout: full access only, a few pins at most.
   for (const prop of await getProperties(news.id)) await deleteProperty(owner, prop.id);
-  const props = [];
+  const props: { id: string }[] = [];
   for (let i = 0; i <= MAX_PINNED; i++) props.push(await addProperty(owner, news.id, { name: `P${i}`, type: "text" }));
   await setPagePermission(owner, news.id, commenter, "edit");
   check((await failure(() => setPropertyPinned(commenter, props[0].id, true))) === "AccessError", "pinning takes full access");

@@ -1,5 +1,5 @@
 {
-  "id": "f95c5631-40fc-44cd-bbcf-77242e46063c",
+  "id": "0df9b303-3c09-4cc7-8d5c-f137c45a192b",
   "prevId": "bee7777d-df2e-4566-a113-2695ce97eb7c",
   "version": "7",
   "dialect": "postgresql",
@@ -2326,13 +2326,6 @@
           "notNull": true,
           "default": "''"
         },
-        "properties_beside": {
-          "name": "properties_beside",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
         "is_skill": {
           "name": "is_skill",
           "type": "boolean",
@@ -4558,6 +4551,112 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.form_submission": {
+      "name": "form_submission",
+      "schema": "",
+      "columns": {
+        "row_id": {
+          "name": "row_id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "view_id": {
+          "name": "view_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "form_submission_view_user_idx": {
+          "name": "form_submission_view_user_idx",
+          "columns": [
+            {
+              "expression": "view_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": false,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "form_submission_row_id_page_id_fk": {
+          "name": "form_submission_row_id_page_id_fk",
+          "tableFrom": "form_submission",
+          "tableTo": "page",
+          "columnsFrom": [
+            "row_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "form_submission_view_id_database_view_id_fk": {
+          "name": "form_submission_view_id_database_view_id_fk",
+          "tableFrom": "form_submission",
+          "tableTo": "database_view",
+          "columnsFrom": [
+            "view_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "form_submission_user_id_user_id_fk": {
+          "name": "form_submission_user_id_user_id_fk",
+          "tableFrom": "form_submission",
+          "tableTo": "user",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.meeting_note": {
       "name": "meeting_note",
       "schema": "",
@@ -4845,96 +4944,6 @@
           ]
         }
       },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.page_reaction": {
-      "name": "page_reaction",
-      "schema": "",
-      "columns": {
-        "page_id": {
-          "name": "page_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "user_id": {
-          "name": "user_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "emoji": {
-          "name": "emoji",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "page_reaction_user_idx": {
-          "name": "page_reaction_user_idx",
-          "columns": [
-            {
-              "expression": "user_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "page_reaction_page_id_page_id_fk": {
-          "name": "page_reaction_page_id_page_id_fk",
-          "tableFrom": "page_reaction",
-          "tableTo": "page",
-          "columnsFrom": [
-            "page_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "page_reaction_user_id_user_id_fk": {
-          "name": "page_reaction_user_id_user_id_fk",
-          "tableFrom": "page_reaction",
-          "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "page_reaction_page_id_user_id_emoji_pk": {
-          "name": "page_reaction_page_id_user_id_emoji_pk",
-          "columns": [
-            "page_id",
-            "user_id",
-            "emoji"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
