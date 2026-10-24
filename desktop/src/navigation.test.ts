@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { decideNavigation, decideNewWindow, isServerPage, signInReturn } from "./navigation.ts";
+import { decideNavigation, decideNewWindow, isServerPage, showsFile, signInReturn } from "./navigation.ts";
 
 const PAGES = "file:///Applications/Leafdesk.app/Contents/Resources/app.asar/pages/";
 const SERVER = "https://leafdesk.example.com";
@@ -57,6 +57,14 @@ test("new windows: Leafdesk's own pages in the app, the rest in the browser", ()
   assert.equal(decideNewWindow("about:blank", SERVER), "deny");
   assert.equal(decideNewWindow("file:///etc/passwd", SERVER), "deny");
   assert.equal(decideNewWindow(`${SERVER}/`, undefined), "external");
+});
+
+test("files open in a window with the system's title bar, pages without", () => {
+  assert.equal(showsFile(`${SERVER}/api/files/abc`), true);
+  assert.equal(showsFile(`${SERVER}/api/ai/chat/files/abc?download=1`), true);
+  assert.equal(showsFile(`${SERVER}/w/abc/p/def`), false);
+  assert.equal(showsFile(`${SERVER}/apiary`), false);
+  assert.equal(showsFile("not a url"), false);
 });
 
 test("server pages, for permissions", () => {

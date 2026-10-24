@@ -993,6 +993,12 @@
 - **Find opens collapsed toggles.** Cmd/Ctrl+F found text inside a collapsed toggle (or toggle
   heading) but stepping to it showed nothing; the toggle now opens when its match becomes the
   current one. Opening a link to a block inside a collapsed toggle opens it too.
+
+- **Files open in a desktop window with a title bar on macOS.** A PDF, image or other file opened
+  in a window of its own (from the AI chat, a file block) kept the window's buttons over the
+  viewer's toolbar, could not be moved by its top edge and was hard to make full screen; such
+  windows now have the system's title bar, while Leafdesk pages keep theirs inset.
+
 - **Text filters match the Turkish dotted and dotless i.** A "contains ist" filter now finds
   "İstanbul", and "ışık" finds "IŞIK": database view filters, form question conditions and option
   names given by name (MCP, the REST API, a new tag typed into a cell) fold case with İ, I, i and ı
