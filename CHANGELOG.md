@@ -87,6 +87,26 @@
   (MCP, REST, forms) keep the database's default; "For all views" clears the views' own choices.
 - **Hide vertical gridlines in tables.** Layout → "Show vertical lines" turns off the lines
   between a table's columns, for that view and where it is published.
+- **Jump back in.** The workspace's home page starts with the pages you opened last, and the search
+  box lists them before you type, newest first and only pages you can still open. While the
+  workspace or you don't record page views (or for guests, whose views aren't recorded), the home
+  page shows only *Recently edited* and the search box the pages last edited, as before.
+- **Search filters.** Menus under the search box's query narrow a search by teamspace, by who
+  created a page, by who edited it last, and by when it was last edited or created: today, the
+  last 7 or 30 days, or days you pick, in your time zone. They work with the typed `in:`, `type:`
+  and `is:verified`, and list pages without words too. The REST API's `GET /search` takes the
+  same filters as `teamspace_id`, `created_by`, `edited_by` (`me` for yourself), `created_after`,
+  `created_before`, `edited_after` and `edited_before`, and no longer needs a query when a filter
+  is given. MCP's `search` tool doesn't take them: its schema is at the tool list's size budget.
+- **Exact phrases in search.** Text in double quotes (`"launch plan"`) finds only pages with those
+  words whole, side by side and in that order, in the search box, the REST API and MCP; Chinese
+  and Japanese phrases too. A page found only by meaning isn't listed for such a search. A quote
+  still being typed searches its words as before, and the AI chat's searches leave quotes alone.
+- **Sprints and Docs templates.** *Sprints* makes a page holding a task database with two-week
+  sprints turned on: a board by status, the current sprint, sprint planning and a backlog, with
+  example tasks in the current and next sprint and the backlog. *Docs* makes a doc library with a
+  category, an owner and the last edit, a board by category and a view by last edit, and four
+  example docs, two of them verified by you for three months. Both in every language.
 
 ### Changed
 

@@ -533,7 +533,8 @@ With an embeddings model, search also finds pages by meaning ("car" finds a page
 automobiles): in the search dialog (such results are marked *Similar meaning*), the chat, MCP
 `search` and REST `GET /search` (each result says `match: "text"` or `"semantic"`). The two
 rankings are merged by reciprocal rank fusion. Without an embeddings model, or with AI off for the
-workspace, search is exactly the full-text search.
+workspace, search is exactly the full-text search. A search with text in double quotes needs that
+phrase on the page: meaning alone then finds nothing more, though passages still come from it.
 
 ```bash
 AI_EMBEDDINGS_MODEL=text-embedding-3-small   # or nomic-embed-text with Ollama, etc.

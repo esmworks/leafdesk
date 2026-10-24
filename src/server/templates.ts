@@ -5,6 +5,7 @@ import type { FilterEntry, ViewConfig } from "@/db/schema/app";
 import {
   builtinTemplate,
   isBuiltinTemplateKey,
+  type BuiltinDatabaseTemplate,
   type BuiltinFilter,
   type BuiltinKitDatabase,
   type BuiltinKitProperty,
@@ -16,6 +17,7 @@ import { DASHBOARD_BLOCK, newWidgetId, serializeDashboard, type DashboardWidget 
 import { DATABASE_BLOCK } from "@/lib/embed-blocks";
 import { DEFAULT_ROW_TEMPLATE } from "@/lib/automations";
 import { holdsOptions } from "@/lib/property-types";
+import { sprintProperty } from "@/lib/sprints";
 import { namesMe, resolveMarkers } from "@/lib/template-values";
 import { AccessError, accessRank, levelFromRank, pageVisibleTo, requireMembership, requirePageAccess, type AccessLevel } from "@/server/access";
 import { isAgentUser } from "@/server/agents/users";
@@ -40,7 +42,9 @@ import {
 import { copyPageTree } from "@/server/duplicate";
 import { archivePage, createPage, ENGLISH_SEED_NAMES, removeOrphanFiles } from "@/server/pages";
 import { refuseHeldPages } from "@/server/legal-hold";
+import { setSprints } from "@/server/sprints";
 import { placeTopLevel, TeamspaceError } from "@/server/teamspaces";
+import { setPageVerification } from "@/server/verification";
 import { createWorkspace, requireTopLevel } from "@/server/workspaces";
 
 /**
@@ -626,6 +630,9 @@ async function createKit(
   }
 }
 
+/** How long the built-in templates' example pages marked verified stay verified. */
+const VERIFIED_EXAMPLE_DAYS = 90;
+
 /**
  * A new page from the built-in gallery (see lib/builtin-templates), in the user's language: a
  * page with its Markdown, or a database with its properties, views, default row template and a
@@ -661,7 +668,7 @@ export async function createFromBuiltin(
   const { userId } = actor;
   const { dashboard } = builtin;
   const host = dashboard
-    ? await createPage(actor, { workspaceId, parentId, teamspaceId, title: builtin.title, icon: builtin.icon, markdown: dashboard.markdown })
+    ? await createPage(actor, { workspaceId, parentId, teamspaceId, title: dashboard.page ?? builtin.title, icon: builtin.icon, markdown: dashboard.markdown })
     : null;
   let top: string | null = host?.id ?? null;
   try {
@@ -685,11 +692,37 @@ export async function createFromBuiltin(
     }
     const template = await createRowTemplate(actor, database.id, builtin.rowTemplate);
     await setDefaultRowTemplate(userId, database.id, template.id);
+    // Sprints beside the database (in the page, with one), and the sprint each example task is in.
+    let inSprint: (row: BuiltinDatabaseTemplate["rows"][number]) => Record<string, string[]> = () => ({});
+    if (builtin.sprints) {
+      const info = await setSprints(actor, database.id, { on: true, weeks: builtin.sprints.weeks });
+      const sprint = sprintProperty(await getProperties(database.id));
+      if (info.side === "tasks" && info.on && sprint) {
+        const ids = { current: info.current?.id, next: info.next?.id };
+        inSprint = (row) => {
+          const id = row.sprint && ids[row.sprint];
+          return id ? { [sprint.id]: [id] } : {};
+        };
+      }
+    }
+    // Verified for three months, as a person verifying would pick: search shows what verified pages look like.
+    const verifiedUntil = new Date(Date.now() + VERIFIED_EXAMPLE_DAYS * 86_400_000);
     for (const row of builtin.rows) {
-      await createPage(actor, { workspaceId, parentId: database.id, title: row.title, properties: row.properties });
+      const made = await createPage(actor, {
+        workspaceId,
+        parentId: database.id,
+        title: row.title,
+        properties: { ...row.properties, ...inSprint(row) },
+        ...(row.markdown ? { markdown: row.markdown } : {}),
+      });
+      if (row.verified) await setPageVerification(userId, made.id, verifiedUntil);
     }
     if (!host || !dashboard) return { id: database.id, workspaceId: database.workspaceId };
 
+    if (!dashboard.widgets.length) {
+      await getCollab().appendBlocks(host.id, [{ id: crypto.randomUUID(), type: DATABASE_BLOCK, props: { databaseId: database.id } }], actor);
+      return { id: host.id, workspaceId: host.workspaceId };
+    }
     // The dashboard first, then the database it charts, shown in the page.
     const widgets: DashboardWidget[] = [];
     for (const widget of dashboard.widgets) {

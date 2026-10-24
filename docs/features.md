@@ -15,7 +15,9 @@
   spaces between words: "会議" finds "明日の会議について", a word's characters only side by side;
   Korean words by their start, so with a particle joined on: "회의" finds "회의를"; pages whose
   title has the words come first; past the first 80,000 characters of a huge page's text, words
-  aren't found), and also by meaning when the server has an embeddings model
+  aren't found; text in double quotes, `"launch plan"`, only with its words whole, side by side and
+  in that order, and then a page found by meaning alone isn't listed), and also by meaning when the
+  server has an embeddings model
   (see [Semantic search](ai.md#semantic-search)). Full-text search also looks inside the PDFs and
   Word documents a page shows, with or without an embeddings model: a page is found when one of
   its documents has every word, after the pages that have them in their own text, and the result
@@ -29,14 +31,19 @@
   database's other rows, to jump to.
 - **Home page**: quick buttons for a new page, database or template; today's daily note (or a
   button that starts it) and the few before it; the database rows assigned to you that aren't done
-  and that you can open, grouped as overdue, today, the next 7 days, later and no date; and the
-  pages edited last.
+  and that you can open, grouped as overdue, today, the next 7 days, later and no date; *Jump back
+  in*, the pages you opened last (while the workspace and you record page views, see *People directory and analytics*;
+  only pages you can still open); and the pages edited last.
 - **My tasks** (in the sidebar; hide or move it like its other sections): every database row
   assigned to you across the workspace, in any person property, that isn't done and that you can
   open, by due date or by database, with its status and first date; the first 200, the ones due
   soonest. A row opens beside the list. Tick a row with a status to set it to the first option of
   its *Done* group, and untick it to put the status back; the home page's list works the same way.
-- **Search box** (Cmd/Ctrl+K): before you type, the pages last edited. Narrow a search with
+- **Search box** (Cmd/Ctrl+K): before you type, the pages you opened last (the pages last edited
+  while your page views aren't recorded or you haven't opened any yet). The menus under the query
+  narrow it by teamspace, by who created a page or edited it last, and by when it was last edited
+  or created (today, the last 7 or 30 days, or days you pick, in your time zone); they list pages
+  without words too. Narrow a search with
   `in:Projects` or `in:"Launch plan"` (that page and everything under it; several pages of that
   title, or several `in:`, search under any of them; a title nobody can see finds nothing) and
   `type:page`, `type:database`, `type:row` (database rows) or `type:journal` (your daily notes),
@@ -387,9 +394,13 @@
   opening its day makes a new one. Guests can keep one only where they may add private pages.
 - **Templates**: save a page or database (with its subpages) as a template and create new pages
   from it, or start from built-in templates for meeting notes, a weekly plan, a project tracker, a
-  wins log (a dashboard of wins by month, type, area and impact over the database that holds them)
-  or a small business: customers, the quotes given to them, jobs and a balance sheet, linked to each
-  other, with a dashboard over all four and a weekly plan. A new workspace can start with it.
+  wins log (a dashboard of wins by month, type, area and impact over the database that holds them),
+  a small business (customers, the quotes given to them, jobs and a balance sheet, linked to each
+  other, with a dashboard over all four and a weekly plan; a new workspace can start with it),
+  sprints (a page holding a task database with two-week sprints turned on: a board by status, the
+  current sprint, sprint planning and a backlog, with example tasks in them) or docs (a doc library
+  with a category, an owner and the last edit, on a board by category and sorted by the last edit,
+  with example docs, two of them verified by you for three months).
   Templates stay out of the sidebar, search, trash and published sites.
 - **Build with AI** (with AI set up): describe what you want to keep track of and AI drafts the
   databases for it, with typed properties, options, relations between them, a few views and example

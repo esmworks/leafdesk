@@ -231,6 +231,79 @@
       }
     }
   },
+  "sprints": {
+    "title": "Sprints",
+    "description": "Opgaver planlagt i sprints på to uger: den aktuelle sprint på en tavle, sprintplanlægning og en backlog.",
+    "page": "Teamets sprints",
+    "markdown": "Planlæg teamets arbejde i sprints på to uger. **Aktuel sprint** viser denne sprints opgaver efter status, **Sprintplanlægning** opgaverne i hver kommende sprint, og **Backlog** de opgaver, der endnu ikke har en sprint. Når en sprint slutter, så åbn **Sprints** i databasens menu og vælg **Afslut sprint**: Den næste sprint starter, og ufærdige opgaver flyttes over i den.",
+    "database": "Opgaver",
+    "table": "Alle opgaver",
+    "board": "Tavle",
+    "properties": {
+      "assignee": "Tildelt",
+      "priority": "Prioritet",
+      "points": "Point"
+    },
+    "options": {
+      "high": "Høj",
+      "medium": "Mellem",
+      "low": "Lav"
+    },
+    "rowTemplate": {
+      "title": "Ny opgave",
+      "markdown": "## Hvad\n\n\n\n## Færdig når\n\n- [ ] \n\n## Noter\n\n"
+    },
+    "rows": {
+      "goal": "Bliv enige om sprintmålet",
+      "signup": "Byg den nye tilmeldingsformular",
+      "emails": "Skriv velkomstmailene",
+      "tests": "Test tilmelding på telefoner",
+      "pricing": "Opdater prissiden",
+      "feedback": "Sortér sidste måneds kundefeedback"
+    }
+  },
+  "docs": {
+    "title": "Dokumentation",
+    "description": "Vejledninger, opslag og politikker samlet ét sted, hver med kategori, ansvarlig og hvornår den sidst blev redigeret.",
+    "markdown": "Hvert dokument er en side i biblioteket nedenfor med sin kategori og ansvarlige. Når du har tjekket, at et dokument er korrekt, så vælg **Verificér side** i dets menu: Søgningen viser verificerede dokumenter først og markerer dem, `is:verified` finder kun dem, og AI-chatten foretrækker dem.",
+    "database": "Dokumentbibliotek",
+    "table": "Alle dokumenter",
+    "board": "Efter kategori",
+    "recent": "Redigeret for nylig",
+    "properties": {
+      "category": "Kategori",
+      "owner": "Ansvarlig",
+      "edited": "Sidst redigeret"
+    },
+    "categories": {
+      "guide": "Vejledning",
+      "reference": "Opslag",
+      "policy": "Politik",
+      "onboarding": "Onboarding"
+    },
+    "rowTemplate": {
+      "title": "Nyt dokument",
+      "markdown": "## Resumé\n\n\n\n## Detaljer\n\n\n\n## Relateret\n\n- "
+    },
+    "rows": {
+      "writing": {
+        "title": "Sådan skriver vi dokumentation",
+        "markdown": "## Resumé\n\nÉt dokument til ét emne, skrevet til en, der er ny i det.\n\n## Detaljer\n\n- Start med det, læseren skal gøre.\n- Hold trinene korte og i rækkefølge.\n- Udpeg en ansvarlig, og verificér dokumentet, når du har tjekket det."
+      },
+      "onboarding": {
+        "title": "Tjekliste til første uge",
+        "markdown": "## Resumé\n\nHvad en ny kollega gør i sin første uge.\n\n## Detaljer\n\n- [ ] Opret dine konti\n- [ ] Mød dit team\n- [ ] Læs dokumentationen for dit område"
+      },
+      "release": {
+        "title": "Udgivelsesproces",
+        "markdown": "## Resumé\n\nSådan går en ændring fra review til kunderne.\n\n## Detaljer\n\n1. Gennemgå og flet ændringen.\n2. Test den på staging-serveren.\n3. Udgiv den, og giv teamet besked."
+      },
+      "expenses": {
+        "title": "Udgiftspolitik",
+        "markdown": "## Resumé\n\nHvad virksomheden betaler for, og hvordan du får udlæg refunderet.\n\n## Detaljer\n\n- Gem kvitteringen.\n- Indsend inden for 30 dage.\n- Spørg din leder, før du bruger mere end normalt."
+      }
+    }
+  },
   "journal": {
     "title": "Dagbog",
     "markdown": "## Fokus\n\n- [ ] \n\n## Noter\n\n## Klaret i dag\n"

@@ -97,6 +97,12 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   `chat-attachment-table.ts` (the parser, loaded by the box only when a file comes); AI property values: `ai-properties.ts`; notes it keeps: `ai-memory.ts`; semantic
   index and search: `semantic-index.ts`, `semantic-search.ts`. Test doubles: `ai/testing.ts`
   (`installFauxAi`, unit tests) and `ai/fake-openai.ts` (`startFakeOpenAi`, e2e scripts).
+- **Search.** `src/server/pages.ts` `searchPages` merges `fullTextSearch` with semantic search;
+  `semantic-search.ts` `searchScope` is the one place a search's scope and filters become SQL, used
+  by full-text, document and ID hits and by search by meaning alike, so a new filter goes there (and
+  into `scoped()` in pages.ts, or it won't list pages without text). The box's typed syntax and
+  quoted phrases: `src/lib/search-query.ts`; its filter menus: `src/lib/search-filters.ts` (server),
+  `search-filter-state.ts` (import-free, for the box in every first load).
 - **Agents.** `src/server/agents/run.ts` is the worker (`agent_run`, its `source` typed in
   `src/lib/agents.ts`) and holds the tool lists; runs are queued from `requests.ts`, `chat.ts`,
   `mentions.ts`, `handoff.ts` and the `agent` schedule kind. Each agent is its own user.

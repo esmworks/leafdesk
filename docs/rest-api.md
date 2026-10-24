@@ -63,7 +63,10 @@ Filter ops: `contains`, `does_not_contain`, `equals`, `not_equals`, `is_any_of` 
   `GET /pages/{id}/children`, `POST /pages/{id}/move`, `/archive` and `/restore` (the trash), and
   `POST /pages/{id}/archived` (`archived: true` or `false`: archive an outdated page or unarchive
   it; `GET /search`, the page lists and `POST /databases/{id}/query` leave archived pages and rows
-  out unless `include_archived` is true). `GET /pages/{id}`
+  out unless `include_archived` is true). `GET /search` takes text in double quotes as a phrase and
+  the filters `teamspace_id`, `created_by` and `edited_by` (comma-separated ids, `me` for
+  yourself), `created_after`, `created_before`, `edited_after` and `edited_before` (ISO 8601; a day
+  alone is its start in UTC); with a filter the query may be left out. `GET /pages/{id}`
   gives the body's `version`, and `PATCH` takes it back as `expected_version`: when the body
   changed since, nothing is written and the answer is `409` `version_conflict` with the current
   version. Body writes report the new `version`.

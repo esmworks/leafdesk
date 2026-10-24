@@ -231,6 +231,79 @@
       }
     }
   },
+  "sprints": {
+    "title": "Sprintar",
+    "description": "Uppgifter planerade i tvåveckorssprintar: den aktuella sprinten på en tavla, sprintplanering och en backlogg.",
+    "page": "Teamets sprintar",
+    "markdown": "Planera teamets arbete i tvåveckorssprintar. **Aktuell sprint** visar den här sprintens uppgifter efter status, **Sprintplanering** uppgifterna i varje kommande sprint och **Backlogg** de uppgifter som ännu inte har någon sprint. När en sprint är slut öppnar du **Sprintar** i databasens meny och väljer **Slutför sprint**: nästa sprint startar och ofärdiga uppgifter flyttas till den.",
+    "database": "Uppgifter",
+    "table": "Alla uppgifter",
+    "board": "Tavla",
+    "properties": {
+      "assignee": "Tilldelad",
+      "priority": "Prioritet",
+      "points": "Poäng"
+    },
+    "options": {
+      "high": "Hög",
+      "medium": "Medel",
+      "low": "Låg"
+    },
+    "rowTemplate": {
+      "title": "Ny uppgift",
+      "markdown": "## Vad\n\n\n\n## Klart när\n\n- [ ] \n\n## Anteckningar\n\n"
+    },
+    "rows": {
+      "goal": "Kom överens om sprintmålet",
+      "signup": "Bygg det nya registreringsformuläret",
+      "emails": "Skriv välkomstmejlen",
+      "tests": "Testa registreringen på mobiler",
+      "pricing": "Uppdatera prissidan",
+      "feedback": "Sortera förra månadens kundfeedback"
+    }
+  },
+  "docs": {
+    "title": "Dokument",
+    "description": "Instruktioner, referens och policyer på ett ställe, med kategori, ägare och när varje dokument senast redigerades.",
+    "markdown": "Varje dokument är en sida i biblioteket nedan, med sin kategori och ägare. När du har kontrollerat att ett dokument stämmer väljer du **Verifiera sidan** i dess meny: sökningen rankar verifierade dokument först och markerar dem, `is:verified` hittar bara dem och AI-chatten föredrar dem.",
+    "database": "Dokumentbibliotek",
+    "table": "Alla dokument",
+    "board": "Efter kategori",
+    "recent": "Nyligen redigerade",
+    "properties": {
+      "category": "Kategori",
+      "owner": "Ägare",
+      "edited": "Senast redigerad"
+    },
+    "categories": {
+      "guide": "Instruktion",
+      "reference": "Referens",
+      "policy": "Policy",
+      "onboarding": "Introduktion"
+    },
+    "rowTemplate": {
+      "title": "Nytt dokument",
+      "markdown": "## Sammanfattning\n\n\n\n## Detaljer\n\n\n\n## Relaterat\n\n- "
+    },
+    "rows": {
+      "writing": {
+        "title": "Så skriver vi dokument",
+        "markdown": "## Sammanfattning\n\nEtt dokument per ämne, skrivet för någon som är ny inom det.\n\n## Detaljer\n\n- Börja med vad läsaren behöver göra.\n- Håll stegen korta och i ordning.\n- Utse en ägare och verifiera dokumentet när du har kontrollerat det."
+      },
+      "onboarding": {
+        "title": "Checklista för första veckan",
+        "markdown": "## Sammanfattning\n\nVad en ny kollega gör under sin första vecka.\n\n## Detaljer\n\n- [ ] Konfigurera dina konton\n- [ ] Träffa ditt team\n- [ ] Läs dokumenten för ditt område"
+      },
+      "release": {
+        "title": "Releaseprocess",
+        "markdown": "## Sammanfattning\n\nHur en ändring går från granskning till kunderna.\n\n## Detaljer\n\n1. Granska och slå ihop ändringen.\n2. Testa den på testservern.\n3. Släpp den och berätta för teamet."
+      },
+      "expenses": {
+        "title": "Utläggspolicy",
+        "markdown": "## Sammanfattning\n\nVad företaget betalar för och hur du begär ersättning.\n\n## Detaljer\n\n- Spara kvittot.\n- Begär ersättning inom 30 dagar.\n- Fråga din chef innan du lägger mer än vanligt."
+      }
+    }
+  },
   "journal": {
     "title": "Dagbok",
     "markdown": "## Fokus\n\n- [ ] \n\n## Anteckningar\n\n## Klart i dag\n"

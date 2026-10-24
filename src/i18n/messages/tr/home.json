@@ -1,5 +1,6 @@
 {
   "hello": "Merhaba, {name}",
+  "jumpBackIn": "Kaldığınız yerden devam edin",
   "recent": "Son düzenlenenler",
   "assignedEmpty": "Size atanmış bir iş yok. Veritabanlarında size atanan satırlar burada görünür.",
   "empty": "Burada henüz bir şey yok. Başlamak için ilk sayfanızı oluşturun.",

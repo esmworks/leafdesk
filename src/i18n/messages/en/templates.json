@@ -231,6 +231,79 @@
       }
     }
   },
+  "sprints": {
+    "title": "Sprints",
+    "description": "Tasks planned in two-week sprints: the current sprint on a board, sprint planning and a backlog.",
+    "page": "Team sprints",
+    "markdown": "Plan the team's work in two-week sprints. **Current sprint** shows this sprint's tasks by status, **Sprint planning** the tasks of each sprint to come, and **Backlog** the tasks no sprint has yet. When a sprint ends, open **Sprints** in the database's menu and choose **Complete sprint**: the next sprint starts and unfinished tasks move to it.",
+    "database": "Tasks",
+    "table": "All tasks",
+    "board": "Board",
+    "properties": {
+      "assignee": "Assignee",
+      "priority": "Priority",
+      "points": "Points"
+    },
+    "options": {
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low"
+    },
+    "rowTemplate": {
+      "title": "New task",
+      "markdown": "## What\n\n\n\n## Done when\n\n- [ ] \n\n## Notes\n\n"
+    },
+    "rows": {
+      "goal": "Agree on the sprint goal",
+      "signup": "Build the new sign-up form",
+      "emails": "Write the welcome emails",
+      "tests": "Test sign-up on phones",
+      "pricing": "Update the pricing page",
+      "feedback": "Sort last month's customer feedback"
+    }
+  },
+  "docs": {
+    "title": "Docs",
+    "description": "How-tos, reference and policies in one place, with a category, an owner and when each was last edited.",
+    "markdown": "Every doc is a page in the library below, with its category and owner. When you have checked that a doc is right, choose **Verify page** in its menu: search ranks verified docs first and marks them, `is:verified` finds only them, and the AI chat prefers them.",
+    "database": "Doc library",
+    "table": "All docs",
+    "board": "By category",
+    "recent": "Recently edited",
+    "properties": {
+      "category": "Category",
+      "owner": "Owner",
+      "edited": "Last edited"
+    },
+    "categories": {
+      "guide": "How-to",
+      "reference": "Reference",
+      "policy": "Policy",
+      "onboarding": "Onboarding"
+    },
+    "rowTemplate": {
+      "title": "New doc",
+      "markdown": "## Summary\n\n\n\n## Details\n\n\n\n## Related\n\n- "
+    },
+    "rows": {
+      "writing": {
+        "title": "How we write docs",
+        "markdown": "## Summary\n\nOne doc for one topic, written for someone new to it.\n\n## Details\n\n- Start with what the reader needs to do.\n- Keep steps short and in order.\n- Name an owner, and verify the doc when you have checked it."
+      },
+      "onboarding": {
+        "title": "First week checklist",
+        "markdown": "## Summary\n\nWhat a new teammate does in their first week.\n\n## Details\n\n- [ ] Set up your accounts\n- [ ] Meet your team\n- [ ] Read the docs of your area"
+      },
+      "release": {
+        "title": "Release process",
+        "markdown": "## Summary\n\nHow a change goes from review to customers.\n\n## Details\n\n1. Review and merge the change.\n2. Test it on the staging server.\n3. Release it and tell the team."
+      },
+      "expenses": {
+        "title": "Expense policy",
+        "markdown": "## Summary\n\nWhat the company pays for and how to claim it.\n\n## Details\n\n- Keep the receipt.\n- Claim within 30 days.\n- Ask your manager before spending more than usual."
+      }
+    }
+  },
   "journal": {
     "title": "Journal",
     "markdown": "## Focus\n\n- [ ] \n\n## Notes\n\n## Done today\n"

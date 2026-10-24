@@ -56,6 +56,7 @@ import { completeSprint as completeSprintOp } from "@/server/sprints";
 import { COMBINE, MAX_MERGE_ROWS, MERGE_TITLE, MIN_MERGE_ROWS, type MergeChoices } from "@/lib/merge-rows";
 import * as skills from "@/server/skills";
 import * as snippets from "@/server/snippets";
+import { parseSearchQuery } from "@/lib/search-query";
 import { skillSlug } from "@/lib/skills";
 import { MAX_ACTIVITY_PAGE } from "@/server/row-activity-feed";
 import { valueText } from "@/lib/row-activity";
@@ -632,12 +633,24 @@ export async function listGroups(ctx: OperationContext, { workspace_id }: Args<"
  * `within` keeps to a page and its subpages, or to a teamspace (AI chat); `passages` adds the best matching passage of
  * each page (as far as semantic search found one) and the block it starts at (AI chat). `anyWord`:
  * pages with any of the query's words, not all (AI chat, which searches with whole questions).
- * Archived pages (server/page-outdated.ts) only with `include_archived`.
+ * Archived pages (server/page-outdated.ts) only with `include_archived`. Text in double quotes must
+ * appear as written (lib/search-query), except with `anyWord`. `filters`: teamspaces, people who
+ * created or last edited a page, and when (the REST API's search parameters).
  */
 export async function search(
   ctx: OperationContext,
   { query, workspace_id, limit, include_archived = false }: Args<"search">,
-  { within, passages = false, anyWord = false }: { within?: ChatScopeRef; passages?: boolean; anyWord?: boolean } = {},
+  {
+    within,
+    passages = false,
+    anyWord = false,
+    filters = {},
+  }: {
+    within?: ChatScopeRef;
+    passages?: boolean;
+    anyWord?: boolean;
+    filters?: Pick<pages.SearchOptions, "teamspaceIds" | "createdBy" | "editedBy" | "createdIn" | "editedIn">;
+  } = {},
 ) {
   const hits = await pages.searchPages(ctx.userId, query, {
     workspaceId: workspace_id,
@@ -645,6 +658,8 @@ export async function search(
     ...(within?.kind === "page" ? { withinPageId: within.id } : within?.kind === "teamspace" ? { withinTeamspaceId: within.id } : {}),
     anyWord,
     includeOutdated: include_archived,
+    ...(anyWord ? {} : { phrases: parseSearchQuery(query).phrases }),
+    ...filters,
   });
   const verifications = await activeVerifications(hits.filter((h) => h.verified).map((h) => h.id));
   return {

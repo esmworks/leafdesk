@@ -231,6 +231,79 @@
       }
     }
   },
+  "sprints": {
+    "title": "Sprints",
+    "description": "Des tâches planifiées en sprints de deux semaines : le sprint en cours sur un tableau, la planification des sprints et un backlog.",
+    "page": "Sprints de l’équipe",
+    "markdown": "Planifiez le travail de l’équipe en sprints de deux semaines. **Sprint en cours** affiche les tâches de ce sprint par statut, **Planification des sprints** les tâches de chaque sprint à venir, et **Backlog** les tâches qui n’ont pas encore de sprint. À la fin d’un sprint, ouvrez **Sprints** dans le menu de la base de données et choisissez **Terminer le sprint** : le sprint suivant commence et les tâches inachevées y sont déplacées.",
+    "database": "Tâches",
+    "table": "Toutes les tâches",
+    "board": "Tableau",
+    "properties": {
+      "assignee": "Assigné à",
+      "priority": "Priorité",
+      "points": "Points"
+    },
+    "options": {
+      "high": "Haute",
+      "medium": "Moyenne",
+      "low": "Basse"
+    },
+    "rowTemplate": {
+      "title": "Nouvelle tâche",
+      "markdown": "## Quoi\n\n\n\n## Terminé quand\n\n- [ ] \n\n## Notes\n\n"
+    },
+    "rows": {
+      "goal": "Convenir de l’objectif du sprint",
+      "signup": "Créer le nouveau formulaire d’inscription",
+      "emails": "Rédiger les e-mails de bienvenue",
+      "tests": "Tester l’inscription sur téléphone",
+      "pricing": "Mettre à jour la page des tarifs",
+      "feedback": "Trier les retours clients du mois dernier"
+    }
+  },
+  "docs": {
+    "title": "Documentation",
+    "description": "Guides pratiques, références et règles au même endroit, chacun avec une catégorie, un responsable et sa date de dernière modification.",
+    "markdown": "Chaque document est une page de la bibliothèque ci-dessous, avec sa catégorie et son responsable. Quand vous avez vérifié qu’un document est juste, choisissez **Vérifier la page** dans son menu : la recherche classe les documents vérifiés en premier et les signale, `is:verified` ne trouve qu’eux, et le chat IA les privilégie.",
+    "database": "Bibliothèque de documents",
+    "table": "Tous les documents",
+    "board": "Par catégorie",
+    "recent": "Modifiés récemment",
+    "properties": {
+      "category": "Catégorie",
+      "owner": "Responsable",
+      "edited": "Dernière modification"
+    },
+    "categories": {
+      "guide": "Guide pratique",
+      "reference": "Référence",
+      "policy": "Politique",
+      "onboarding": "Intégration"
+    },
+    "rowTemplate": {
+      "title": "Nouveau document",
+      "markdown": "## Résumé\n\n\n\n## Détails\n\n\n\n## Voir aussi\n\n- "
+    },
+    "rows": {
+      "writing": {
+        "title": "Comment nous rédigeons les documents",
+        "markdown": "## Résumé\n\nUn document par sujet, écrit pour quelqu’un qui le découvre.\n\n## Détails\n\n- Commencez par ce que le lecteur doit faire.\n- Gardez des étapes courtes et dans l’ordre.\n- Désignez un responsable, et vérifiez le document une fois que vous l’avez relu."
+      },
+      "onboarding": {
+        "title": "Check-list de la première semaine",
+        "markdown": "## Résumé\n\nCe que fait un nouveau collègue pendant sa première semaine.\n\n## Détails\n\n- [ ] Configurez vos comptes\n- [ ] Rencontrez votre équipe\n- [ ] Lisez les documents de votre domaine"
+      },
+      "release": {
+        "title": "Processus de mise en production",
+        "markdown": "## Résumé\n\nComment une modification passe de la relecture aux clients.\n\n## Détails\n\n1. Relisez et fusionnez la modification.\n2. Testez-la sur le serveur de préproduction.\n3. Mettez-la en production et prévenez l’équipe."
+      },
+      "expenses": {
+        "title": "Politique de notes de frais",
+        "markdown": "## Résumé\n\nCe que l’entreprise prend en charge et comment se faire rembourser.\n\n## Détails\n\n- Conservez le justificatif.\n- Faites votre demande sous 30 jours.\n- Demandez à votre responsable avant de dépenser plus que d’habitude."
+      }
+    }
+  },
   "journal": {
     "title": "Journal",
     "markdown": "## Priorités\n\n- [ ] \n\n## Notes\n\n## Fait aujourd’hui\n"

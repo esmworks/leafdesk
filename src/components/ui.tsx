@@ -215,9 +215,10 @@ export function Dialog({
         role="dialog"
         aria-modal="true"
         className={cn(
-          "w-full overflow-hidden rounded-xl border border-border bg-bg shadow-2xl",
+          "w-full rounded-xl border border-border bg-bg shadow-2xl",
           // cn doesn't merge classes: with two max-w utilities the stylesheet's order would pick, not the caller.
           !className?.split(" ").some((c) => c.startsWith("max-w-")) && "max-w-xl",
+          !className?.split(" ").some((c) => c.startsWith("overflow-")) && "overflow-hidden",
           className,
         )}
       >
