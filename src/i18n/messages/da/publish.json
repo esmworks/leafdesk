@@ -70,5 +70,18 @@
   },
   "publishingOff": "Udgivelse på nettet er slået fra i dette arbejdsområde. Udgivne sider vises ikke, før en ejer slår det til igen.",
   "descriptionLabel": "Beskrivelse til søgning",
-  "descriptionHint": "Vises i søgeresultater og linkforhåndsvisninger. Tom: webstedets standardbeskrivelse."
+  "descriptionHint": "Vises i søgeresultater og linkforhåndsvisninger. Tom: webstedets standardbeskrivelse.",
+  "expiredTitle": "Linket er udløbet",
+  "expiry": "Linkets udløb",
+  "expiryHint": "Linket virker, indtil du afpublicerer siden.",
+  "expiresOn": "Linket holder op med at virke {date}.",
+  "expiredOn": "Udløb {date}: linket virker ikke længere nogen steder. Vælg et senere tidspunkt, eller fjern udløbet for at få det tilbage.",
+  "setExpiry": "Angiv udløb",
+  "extendExpiry": "Forlæng",
+  "expiryLabel": "Linket holder op med at virke",
+  "saveExpiry": "Gem",
+  "removeExpiry": "Fjern udløb",
+  "cancelExpiry": "Annuller",
+  "expiryPast": "Vælg et tidspunkt i fremtiden.",
+  "expiryTooFar": "Vælg et tidspunkt inden for de næste ti år."
 }

@@ -58,7 +58,7 @@
       "workspaceName": "이름 이름 바꾸기 아이콘",
       "ai": "인공지능 채팅 모델 공급자 메모리",
       "workspaceMail": "이메일 행 메일 보내기",
-      "export": "백업 다운로드 zip markdown",
+      "export": "백업 다운로드 zip markdown pdf",
       "members": "사람 초대 사용자 역할 제거",
       "agents": "ai 어시스턴트 자동화 봇",
       "snippets": "텍스트 단축어 스니펫",
@@ -108,7 +108,11 @@
     "description": "볼 수 있는 모든 페이지를 ZIP으로 다운로드합니다. 페이지는 Markdown으로, 데이터베이스는 CSV로, 표시되는 파일도 함께 포함됩니다. 휴지통에 있는 페이지는 제외되며, 템플릿은 Templates 폴더에 보관됩니다.",
     "button": "내보내기",
     "preparing": "준비 중…",
-    "disabled": "이 워크스페이스에서는 설정 → 보안에서 내보내기가 꺼져 있습니다."
+    "disabled": "이 워크스페이스에서는 설정 → 보안에서 내보내기가 꺼져 있습니다.",
+    "format": "내보내기 형식",
+    "formatMarkdown": "Markdown 및 CSV",
+    "formatPdf": "PDF",
+    "descriptionPdf": "볼 수 있는 모든 페이지를 페이지 트리를 따르는 폴더에 담긴 PDF ZIP으로 다운로드합니다. 데이터베이스는 행 표로, 자체 텍스트가 있는 행은 별도의 PDF로 만들어집니다. 휴지통에 있는 페이지와 템플릿은 제외되며, PDF는 최대 {limit, number}개입니다."
   },
   "members": {
     "heading": "멤버",
@@ -209,7 +213,12 @@
       "someone": "멤버",
       "approve": "승인",
       "decline": "거절"
-    }
+    },
+    "removeBodyChoose": "{name}은(는) 열려 있는 페이지와 연결된 앱을 포함해 이 워크스페이스에 즉시 액세스할 수 없게 됩니다.",
+    "heirLabel": "페이지를 넘겨받을 사람",
+    "heirHint": "{name}만 관리할 수 있던 페이지와 다른 누구도 운영하지 않는 팀스페이스는 선택한 사람에게 넘어갑니다.",
+    "heirCount": "{count, plural, =0 {현재 {name}이(가) 혼자 관리하는 페이지는 없습니다. 다른 누구도 운영하지 않는 팀스페이스는 선택한 사람에게 넘어갑니다.} other {{name}만 관리할 수 있던 페이지 #개가 다른 누구도 운영하지 않는 팀스페이스와 함께 선택한 사람에게 넘어갑니다.}}",
+    "heirYou": "{name}(나)"
   },
   "guests": {
     "heading": "게스트",
@@ -1222,7 +1231,8 @@
     "invalidNetworkLabel": "{detail}의 레이블이 너무 깁니다. 최대 100자까지 입력할 수 있습니다.",
     "tooManyNetworks": "워크스페이스에는 승인된 네트워크를 최대 100개까지 둘 수 있습니다.",
     "ipLocksYouOut": "이 목록에 현재 내 주소({detail})가 없어 저장하면 워크스페이스에 들어갈 수 없게 됩니다. 먼저 내 주소나 이를 포함하는 범위를 추가하세요.",
-    "ipUnknown": "서버가 내 주소를 알 수 없어 이 목록이 나를 막지 않는지 확인할 수 없습니다. 서버가 주소를 알 수 있는 연결에서 저장하거나 목록을 비우세요."
+    "ipUnknown": "서버가 내 주소를 알 수 없어 이 목록이 나를 막지 않는지 확인할 수 없습니다. 서버가 주소를 알 수 있는 연결에서 저장하거나 목록을 비우세요.",
+    "heirInvalid": "워크스페이스에 남는 소유자나 멤버를 선택하세요."
   },
   "security": {
     "description": "로그인 방법, 이 워크스페이스에 사람을 들일 수 있는 사람, 게스트가 할 수 있는 일, 워크스페이스 밖으로 나갈 수 있는 것(내보내기, 연결된 앱), 웹에 페이지를 게시할 수 있는 사람을 정합니다. 소유자만 이 설정을 변경할 수 있습니다.",
@@ -1269,7 +1279,9 @@
       "unpublish": "게시 취소",
       "confirm": "이 페이지의 게시를 취소할까요? 모든 사람에게서 링크가 작동하지 않게 됩니다.",
       "indexable": "검색 엔진 허용됨",
-      "off": "게시가 꺼져 있습니다. 지금은 이 페이지들이 웹에 없습니다. 게시를 취소하지 않는 한 게시가 다시 켜지면 돌아옵니다."
+      "off": "게시가 꺼져 있습니다. 지금은 이 페이지들이 웹에 없습니다. 게시를 취소하지 않는 한 게시가 다시 켜지면 돌아옵니다.",
+      "expiresOn": "{date}에 만료",
+      "expiredOn": "{date}에 만료됨"
     },
     "forms": {
       "title": "공개 양식",
@@ -1707,7 +1719,8 @@
         "removed": "{target}({role})을(를) 제거했습니다",
         "left": "워크스페이스에서 나갔습니다",
         "role_changed": "{target}의 역할을 {from}에서 {to}(으)로 변경했습니다",
-        "ownership_transferred": "{target}을(를) 소유자로 지정하고 본인은 멤버로 변경했습니다"
+        "ownership_transferred": "{target}을(를) 소유자로 지정하고 본인은 멤버로 변경했습니다",
+        "content_handed_over": "{target}만 관리할 수 있던 {count, plural, other {페이지 #개}}를 {subject}에게 넘겼습니다"
       },
       "invitation": {
         "sent": "{target}을(를) {role}(으)로 초대했습니다",
@@ -1739,7 +1752,8 @@
         "published": "{target}을(를) 웹에 게시했습니다",
         "unpublished": "{target}의 게시를 취소했습니다",
         "publication_revoked": "{target}을(를) 웹에서 내렸습니다({subject}이(가) 게시함)",
-        "rows_merged": "행 {count}개를 {target}에 병합"
+        "rows_merged": "행 {count}개를 {target}에 병합",
+        "publication_expiry_changed": "{change, select, removed {{target}의 웹 링크 만료를 제거했습니다} other {{target}의 웹 링크가 {to}에 작동을 멈추도록 설정했습니다}}"
       },
       "property": {
         "access_changed": "{target}에서 “{property}”에 액세스할 수 있는 사람을 변경했습니다",
@@ -1909,6 +1923,15 @@
       "slack_token": "Slack 토큰",
       "api_key": "API 키",
       "jwt": "JSON Web Token"
+    },
+    "audienceLine": "공개 대상: {audience}",
+    "audience": {
+      "web": "웹에 게시됨",
+      "workspace": "워크스페이스 전체",
+      "workspaceTeamspace": "워크스페이스 전체(팀스페이스 {name})",
+      "teamspace": "팀스페이스 {name}",
+      "people": "특정 사용자({count})",
+      "private": "비공개"
     }
   },
   "notifications": {

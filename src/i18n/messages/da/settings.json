@@ -58,7 +58,7 @@
       "workspaceName": "navn omdøb ikon",
       "ai": "kunstig intelligens chat model udbyder hukommelse",
       "workspaceMail": "e-mail rækker post send",
-      "export": "sikkerhedskopi download zip markdown eksport",
+      "export": "sikkerhedskopi download zip markdown eksport pdf",
       "members": "personer invitér brugere roller fjern medlemmer",
       "agents": "AI assistent automatisering bot agenter",
       "snippets": "tekstudvidelse genveje tekstbidder",
@@ -108,7 +108,11 @@
     "description": "Download alle sider, du kan se, som en ZIP-fil: sider som Markdown, databaser som CSV og de filer, de viser. Sider i papirkurven udelades; skabeloner gemmes i en Skabeloner-mappe.",
     "button": "Eksportér",
     "preparing": "Forbereder…",
-    "disabled": "Eksport er slået fra for dette arbejdsområde under Indstillinger → Sikkerhed."
+    "disabled": "Eksport er slået fra for dette arbejdsområde under Indstillinger → Sikkerhed.",
+    "format": "Eksportformat",
+    "formatMarkdown": "Markdown og CSV",
+    "formatPdf": "PDF",
+    "descriptionPdf": "Download alle sider, du kan se, som en ZIP med PDF-filer i mapper, der følger sidetræet: databaser som tabeller over deres rækker, og rækker med egen tekst som egne PDF-filer. Sider i papirkurven og skabeloner kommer ikke med; højst {limit, number} PDF-filer."
   },
   "members": {
     "heading": "Medlemmer",
@@ -209,7 +213,12 @@
       "someone": "Et medlem",
       "approve": "Godkend",
       "decline": "Afvis"
-    }
+    },
+    "removeBodyChoose": "{name} mister adgangen til dette arbejdsområde med det samme, også i åbne sider og forbundne apps.",
+    "heirLabel": "Overdrag sider til",
+    "heirHint": "Sider, som kun {name} kunne administrere, og teamområder, som ingen andre styrer, går til den person, du vælger.",
+    "heirCount": "{count, plural, =0 {{name} administrerer ingen sider alene lige nu. Teamområder, som ingen andre styrer, går til den person, du vælger.} one {# side, som kun {name} kunne administrere, går til den person, du vælger, sammen med teamområder, som ingen andre styrer.} other {# sider, som kun {name} kunne administrere, går til den person, du vælger, sammen med teamområder, som ingen andre styrer.}}",
+    "heirYou": "{name} (dig)"
   },
   "guests": {
     "heading": "Gæster",
@@ -1222,7 +1231,8 @@
     "invalidNetworkLabel": "Etiketten for {detail} er for lang: højst 100 tegn.",
     "tooManyNetworks": "Et arbejdsområde kan højst have 100 godkendte netværk.",
     "ipLocksYouOut": "Denne liste udelader din nuværende adresse, {detail}, så hvis du gemmer den, bliver du lukket ude af arbejdsområdet. Tilføj først din adresse eller et interval, der dækker den.",
-    "ipUnknown": "Serveren kan ikke se din adresse, så den kan ikke sikre, at denne liste holder dig inde. Gem den fra en forbindelse, hvis adresse serveren kan se, eller ryd listen."
+    "ipUnknown": "Serveren kan ikke se din adresse, så den kan ikke sikre, at denne liste holder dig inde. Gem den fra en forbindelse, hvis adresse serveren kan se, eller ryd listen.",
+    "heirInvalid": "Vælg en ejer eller et medlem, der bliver i arbejdsområdet."
   },
   "security": {
     "description": "Bestem, hvordan personer logger ind, hvem der kan bringe personer ind i dette arbejdsområde, hvad gæster kan gøre, hvad der kan forlade det (eksporter, forbundne apps), og hvem der kan udgive sider på nettet. Kun ejere kan ændre disse indstillinger.",
@@ -1269,7 +1279,9 @@
       "unpublish": "Fjern udgivelse",
       "confirm": "Fjern udgivelsen af denne side? Linket holder op med at virke for alle.",
       "indexable": "Søgemaskiner tilladt",
-      "off": "Udgivelse er slået fra: ingen af disse sider er på nettet lige nu. De kommer tilbage, når udgivelse slås til igen, medmindre du fjerner deres udgivelse."
+      "off": "Udgivelse er slået fra: ingen af disse sider er på nettet lige nu. De kommer tilbage, når udgivelse slås til igen, medmindre du fjerner deres udgivelse.",
+      "expiresOn": "Udløber {date}",
+      "expiredOn": "Udløb {date}"
     },
     "forms": {
       "title": "Offentlige formularer",
@@ -1707,7 +1719,8 @@
         "removed": "Fjernede {target} ({role})",
         "left": "Forlod arbejdsområdet",
         "role_changed": "Ændrede rollen for {target} fra {from} til {to}",
-        "ownership_transferred": "Gjorde {target} til ejer og trådte tilbage til medlem"
+        "ownership_transferred": "Gjorde {target} til ejer og trådte tilbage til medlem",
+        "content_handed_over": "Overdrog {count, plural, one {# side} other {# sider}}, som kun {target} kunne administrere, til {subject}"
       },
       "invitation": {
         "sent": "Inviterede {target} som {role}",
@@ -1739,7 +1752,8 @@
         "published": "Udgav {target} på nettet",
         "unpublished": "Fjernede udgivelsen af {target}",
         "publication_revoked": "Tog {target} af nettet (udgivet af {subject})",
-        "rows_merged": "Flettede {count, plural, one {# række} other {# rækker}} ind i {target}"
+        "rows_merged": "Flettede {count, plural, one {# række} other {# rækker}} ind i {target}",
+        "publication_expiry_changed": "{change, select, removed {Fjernede udløbet af weblinket til {target}} other {Satte weblinket til {target} til at udløbe {to}}}"
       },
       "property": {
         "access_changed": "Ændrede, hvem der har adgang til “{property}” i {target}",
@@ -1909,6 +1923,15 @@
       "slack_token": "et Slack-token",
       "api_key": "en API-nøgle",
       "jwt": "et JSON Web Token"
+    },
+    "audienceLine": "Målgruppe: {audience}",
+    "audience": {
+      "web": "Udgivet på nettet",
+      "workspace": "Hele arbejdsområdet",
+      "workspaceTeamspace": "Hele arbejdsområdet (teamområdet {name})",
+      "teamspace": "Teamområdet {name}",
+      "people": "Bestemte personer ({count})",
+      "private": "Privat"
     }
   },
   "notifications": {

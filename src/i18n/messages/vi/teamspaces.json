@@ -30,7 +30,9 @@
     "accessDenied": "Bạn không thể làm điều đó trong không gian nhóm này.",
     "invalidMemberLevel": "Hãy chọn quyền mà các thành viên có trên các trang của không gian nhóm.",
     "invalidIcon": "Biểu tượng phải là một emoji.",
-    "notConvertible": "Chỉ một trang mới có thể thành không gian nhóm, không phải cơ sở dữ liệu, hàng hay mẫu."
+    "notConvertible": "Chỉ một trang mới có thể thành không gian nhóm, không phải cơ sở dữ liệu, hàng hay mẫu.",
+    "invalidEmail": "Hãy nhập địa chỉ email hợp lệ.",
+    "cantInvite": "Bạn không thể mời người khác vào không gian làm việc này. Hãy nhờ chủ sở hữu."
   },
   "dialog": {
     "createTitle": "Không gian nhóm mới",
@@ -73,7 +75,16 @@
     "chooseGroup": "Chọn một nhóm",
     "addGroupButton": "Thêm nhóm",
     "removeGroup": "Xóa {name}",
-    "groupMemberCount": "{count, plural, =0 {Không có thành viên} other {# thành viên}}"
+    "groupMemberCount": "{count, plural, =0 {Không có thành viên} other {# thành viên}}",
+    "searchOrInvite": "Tìm người hoặc nhập email",
+    "inviteEmail": "Mời {email}",
+    "inviteHint": "Họ được mời vào không gian làm việc và tham gia không gian nhóm này khi chấp nhận.",
+    "inviteButton": "Mời",
+    "invitedAdded": "{email} hiện đã ở trong không gian nhóm này.",
+    "invitedRequested": "Chủ sở hữu cần duyệt lời mời {email}. Sau khi được duyệt, họ tham gia không gian nhóm này khi chấp nhận.",
+    "invitedSent": "Đã gửi lời mời đến {email}. Họ tham gia không gian nhóm này khi chấp nhận.",
+    "invitedLink": "Đã tạo lời mời cho {email} nhưng không có email nào được gửi. Hãy chia sẻ liên kết với họ.",
+    "copyInviteLink": "Sao chép liên kết"
   },
   "memberLevel": {
     "full": "Toàn quyền",

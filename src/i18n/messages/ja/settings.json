@@ -58,7 +58,7 @@
       "workspaceName": "名前 名前変更 アイコン",
       "ai": "人工知能 チャット モデル プロバイダー メモリ",
       "workspaceMail": "メール 行 送信",
-      "export": "バックアップ ダウンロード zip markdown",
+      "export": "バックアップ ダウンロード zip markdown pdf",
       "members": "メンバー 招待 ユーザー ロール 削除",
       "agents": "ai アシスタント 自動化 ボット",
       "snippets": "テキスト 短縮 スニペット",
@@ -108,7 +108,11 @@
     "description": "閲覧できるすべてのページをZIPでダウンロードします。ページはMarkdown、データベースはCSV、ページに表示されているファイルも含まれます。ゴミ箱にあるページは除外され、テンプレートは「Templates」フォルダーに保存されます。",
     "button": "エクスポート",
     "preparing": "準備中…",
-    "disabled": "このワークスペースでは「設定 → セキュリティ」でエクスポートがオフになっています。"
+    "disabled": "このワークスペースでは「設定 → セキュリティ」でエクスポートがオフになっています。",
+    "format": "エクスポート形式",
+    "formatMarkdown": "MarkdownとCSV",
+    "formatPdf": "PDF",
+    "descriptionPdf": "閲覧できるすべてのページを、ページツリーに沿ったフォルダ構成のPDFのZIPとしてダウンロードします。データベースは行の表として、本文のある行は個別のPDFとして出力されます。ゴミ箱にあるページとテンプレートは含まれません。PDFは最大{limit, number}件です。"
   },
   "members": {
     "heading": "メンバー",
@@ -209,7 +213,12 @@
       "someone": "メンバー",
       "approve": "承認",
       "decline": "拒否"
-    }
+    },
+    "removeBodyChoose": "{name}は、開いているページや接続済みアプリを含め、このワークスペースへのアクセス権をすぐに失います。",
+    "heirLabel": "ページの引き継ぎ先",
+    "heirHint": "{name}だけが管理できたページと、ほかに誰も管理していないチームスペースは、選んだ人に引き継がれます。",
+    "heirCount": "{count, plural, =0 {{name}が単独で管理しているページは今のところありません。ほかに誰も管理していないチームスペースは、選んだ人に引き継がれます。} other {{name}だけが管理できた#件のページは、ほかに誰も管理していないチームスペースとともに、選んだ人に引き継がれます。}}",
+    "heirYou": "{name}(あなた)"
   },
   "guests": {
     "heading": "ゲスト",
@@ -1222,7 +1231,8 @@
     "invalidNetworkLabel": "{detail} のラベルが長すぎます（100 文字まで）。",
     "tooManyNetworks": "ワークスペースに登録できる承認済みネットワークは 100 件までです。",
     "ipLocksYouOut": "このリストには現在のあなたのアドレス（{detail}）が含まれていないため、保存するとワークスペースに入れなくなります。先にご自身のアドレスか、それを含む範囲を追加してください。",
-    "ipUnknown": "サーバーがあなたのアドレスを判別できないため、このリストで締め出されないかを確認できません。サーバーがアドレスを判別できる接続から保存するか、リストを空にしてください。"
+    "ipUnknown": "サーバーがあなたのアドレスを判別できないため、このリストで締め出されないかを確認できません。サーバーがアドレスを判別できる接続から保存するか、リストを空にしてください。",
+    "heirInvalid": "ワークスペースに残るオーナーまたはメンバーを選んでください。"
   },
   "security": {
     "description": "ログイン方法、このワークスペースに人を招き入れられる人、ゲストができること、外部に出せるもの（エクスポート、接続済みアプリ）、ページをWebに公開できる人を設定します。これらの設定を変更できるのはオーナーだけです。",
@@ -1269,7 +1279,9 @@
       "unpublish": "公開を停止",
       "confirm": "このページの公開を停止しますか？リンクは全員に対して使えなくなります。",
       "indexable": "検索エンジンを許可",
-      "off": "公開はオフになっています。これらのページは現在どれもWebに公開されていません。公開を停止しない限り、公開が再びオンになると元に戻ります。"
+      "off": "公開はオフになっています。これらのページは現在どれもWebに公開されていません。公開を停止しない限り、公開が再びオンになると元に戻ります。",
+      "expiresOn": "{date}に期限切れ",
+      "expiredOn": "{date}に期限切れになりました"
     },
     "forms": {
       "title": "公開フォーム",
@@ -1707,7 +1719,8 @@
         "removed": "{target}（{role}）を削除しました",
         "left": "ワークスペースから退出しました",
         "role_changed": "{target}のロールを{from}から{to}に変更しました",
-        "ownership_transferred": "{target}をオーナーにし、自身はメンバーになりました"
+        "ownership_transferred": "{target}をオーナーにし、自身はメンバーになりました",
+        "content_handed_over": "{target}だけが管理できた{count, plural, other {#件のページ}}を{subject}に引き継ぎました"
       },
       "invitation": {
         "sent": "{target}を{role}として招待しました",
@@ -1739,7 +1752,8 @@
         "published": "{target}をWebに公開しました",
         "unpublished": "{target}の公開を停止しました",
         "publication_revoked": "{target}をWebから取り下げました（公開者：{subject}）",
-        "rows_merged": "{count}行を{target}に統合しました"
+        "rows_merged": "{count}行を{target}に統合しました",
+        "publication_expiry_changed": "{change, select, removed {{target}のWebリンクの有効期限を削除しました} other {{target}のWebリンクが{to}に無効になるよう設定しました}}"
       },
       "property": {
         "access_changed": "{target}の「{property}」にアクセスできる人を変更しました",
@@ -1909,6 +1923,15 @@
       "slack_token": "Slack トークン",
       "api_key": "API キー",
       "jwt": "JSON Web Token（JWT）"
+    },
+    "audienceLine": "公開範囲: {audience}",
+    "audience": {
+      "web": "Webに公開",
+      "workspace": "ワークスペース全体",
+      "workspaceTeamspace": "ワークスペース全体(チームスペース{name})",
+      "teamspace": "チームスペース{name}",
+      "people": "特定のユーザー({count})",
+      "private": "プライベート"
     }
   },
   "notifications": {

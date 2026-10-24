@@ -70,5 +70,18 @@
   },
   "publishingOff": "Verkkojulkaisu on poistettu käytöstä tässä työtilassa. Julkaistuja sivuja ei näytetä, ennen kuin omistaja ottaa sen taas käyttöön.",
   "descriptionLabel": "Hakukuvaus",
-  "descriptionHint": "Näytetään hakutuloksissa ja linkkien esikatseluissa. Tyhjä: sivuston oletuskuvaus."
+  "descriptionHint": "Näytetään hakutuloksissa ja linkkien esikatseluissa. Tyhjä: sivuston oletuskuvaus.",
+  "expiredTitle": "Linkki on vanhentunut",
+  "expiry": "Linkin voimassaolo",
+  "expiryHint": "Linkki toimii, kunnes poistat sivun julkaisun.",
+  "expiresOn": "Linkki lakkaa toimimasta {date}.",
+  "expiredOn": "Vanheni {date}: linkki ei enää toimi missään. Valitse myöhempi ajankohta tai poista voimassaolon päättyminen, niin linkki palaa.",
+  "setExpiry": "Aseta voimassaolo",
+  "extendExpiry": "Jatka",
+  "expiryLabel": "Linkki lakkaa toimimasta",
+  "saveExpiry": "Tallenna",
+  "removeExpiry": "Poista voimassaolon päättyminen",
+  "cancelExpiry": "Peruuta",
+  "expiryPast": "Valitse tuleva ajankohta.",
+  "expiryTooFar": "Valitse ajankohta seuraavan kymmenen vuoden sisältä."
 }

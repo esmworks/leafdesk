@@ -30,7 +30,9 @@
     "accessDenied": "Et voi tehdä sitä tässä tiimitilassa.",
     "invalidMemberLevel": "Valitse, mitä oikeuksia jäsenet saavat tiimitilan sivuihin.",
     "invalidIcon": "Kuvakkeen on oltava emoji.",
-    "notConvertible": "Vain sivusta voi tulla tiimitila: ei tietokannasta, rivistä tai mallista."
+    "notConvertible": "Vain sivusta voi tulla tiimitila: ei tietokannasta, rivistä tai mallista.",
+    "invalidEmail": "Anna kelvollinen sähköpostiosoite.",
+    "cantInvite": "Et voi kutsua ihmisiä tähän työtilaan. Pyydä omistajaa."
   },
   "dialog": {
     "createTitle": "Uusi tiimitila",
@@ -73,7 +75,16 @@
     "chooseGroup": "Valitse ryhmä",
     "addGroupButton": "Lisää ryhmä",
     "removeGroup": "Poista {name}",
-    "groupMemberCount": "{count, plural, =0 {Ei jäseniä} one {# jäsen} other {# jäsentä}}"
+    "groupMemberCount": "{count, plural, =0 {Ei jäseniä} one {# jäsen} other {# jäsentä}}",
+    "searchOrInvite": "Hae ihmisiä tai kirjoita sähköpostiosoite",
+    "inviteEmail": "Kutsu {email}",
+    "inviteHint": "Hänet kutsutaan työtilaan, ja hän liittyy tähän tiimitilaan hyväksyessään kutsun.",
+    "inviteButton": "Kutsu",
+    "invitedAdded": "{email} on nyt tässä tiimitilassa.",
+    "invitedRequested": "Omistajan on hyväksyttävä osoitteen {email} kutsuminen. Hyväksynnän jälkeen hän liittyy tähän tiimitilaan hyväksyessään kutsun.",
+    "invitedSent": "Kutsu lähetettiin osoitteeseen {email}. Hän liittyy tähän tiimitilaan hyväksyessään kutsun.",
+    "invitedLink": "Kutsu osoitteelle {email} luotiin, mutta sähköpostia ei lähetetty. Jaa linkki hänelle.",
+    "copyInviteLink": "Kopioi linkki"
   },
   "memberLevel": {
     "full": "Täydet oikeudet",

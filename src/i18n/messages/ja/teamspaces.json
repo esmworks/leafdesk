@@ -30,7 +30,9 @@
     "accessDenied": "このチームスペースではその操作はできません。",
     "invalidMemberLevel": "チームスペースのページでメンバーに与える権限を選択してください。",
     "invalidIcon": "アイコンは絵文字にしてください。",
-    "notConvertible": "チームスペースにできるのはページだけです。データベース、行、テンプレートはできません。"
+    "notConvertible": "チームスペースにできるのはページだけです。データベース、行、テンプレートはできません。",
+    "invalidEmail": "有効なメールアドレスを入力してください。",
+    "cantInvite": "このワークスペースに人を招待することはできません。オーナーに依頼してください。"
   },
   "dialog": {
     "createTitle": "新しいチームスペース",
@@ -73,7 +75,16 @@
     "chooseGroup": "グループを選択",
     "addGroupButton": "グループを追加",
     "removeGroup": "{name}を削除",
-    "groupMemberCount": "{count, plural, =0 {メンバーなし} other {メンバー{count}人}}"
+    "groupMemberCount": "{count, plural, =0 {メンバーなし} other {メンバー{count}人}}",
+    "searchOrInvite": "ユーザーを検索、またはメールアドレスを入力",
+    "inviteEmail": "{email}を招待",
+    "inviteHint": "ワークスペースに招待され、承諾するとこのチームスペースに参加します。",
+    "inviteButton": "招待",
+    "invitedAdded": "{email}がこのチームスペースに参加しました。",
+    "invitedRequested": "{email}の招待にはオーナーの承認が必要です。承認後、招待を承諾するとこのチームスペースに参加します。",
+    "invitedSent": "{email}に招待を送信しました。承諾するとこのチームスペースに参加します。",
+    "invitedLink": "{email}への招待を作成しましたが、メールは送信されていません。リンクを共有してください。",
+    "copyInviteLink": "リンクをコピー"
   },
   "memberLevel": {
     "full": "フルアクセス",

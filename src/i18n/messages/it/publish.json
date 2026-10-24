@@ -70,5 +70,18 @@
   },
   "publishingOff": "La pubblicazione sul web è disattivata in questo spazio di lavoro. Le pagine pubblicate non vengono mostrate finché un proprietario non la riattiva.",
   "descriptionLabel": "Descrizione per i motori di ricerca",
-  "descriptionHint": "Mostrata nei risultati di ricerca e nelle anteprime dei link. Vuota: la descrizione predefinita del sito."
+  "descriptionHint": "Mostrata nei risultati di ricerca e nelle anteprime dei link. Vuota: la descrizione predefinita del sito.",
+  "expiredTitle": "Link scaduto",
+  "expiry": "Scadenza del link",
+  "expiryHint": "Il link funziona finché non annulli la pubblicazione della pagina.",
+  "expiresOn": "Il link smette di funzionare il {date}.",
+  "expiredOn": "Scaduto il {date}: il link non funziona più da nessuna parte. Scegli una data successiva o rimuovi la scadenza per ripristinarlo.",
+  "setExpiry": "Imposta scadenza",
+  "extendExpiry": "Proroga",
+  "expiryLabel": "Il link smette di funzionare il",
+  "saveExpiry": "Salva",
+  "removeExpiry": "Rimuovi scadenza",
+  "cancelExpiry": "Annulla",
+  "expiryPast": "Scegli una data futura.",
+  "expiryTooFar": "Scegli una data entro i prossimi dieci anni."
 }

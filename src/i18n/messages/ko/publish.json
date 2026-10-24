@@ -70,5 +70,18 @@
   },
   "publishingOff": "이 워크스페이스에서는 웹 게시가 꺼져 있습니다. 소유자가 다시 켤 때까지 게시된 페이지가 표시되지 않습니다.",
   "descriptionLabel": "검색용 설명",
-  "descriptionHint": "검색 결과와 링크 미리보기에 표시됩니다. 비어 있으면 사이트의 기본 설명을 씁니다."
+  "descriptionHint": "검색 결과와 링크 미리보기에 표시됩니다. 비어 있으면 사이트의 기본 설명을 씁니다.",
+  "expiredTitle": "링크 만료됨",
+  "expiry": "링크 만료",
+  "expiryHint": "페이지 게시를 취소할 때까지 링크가 작동합니다.",
+  "expiresOn": "링크는 {date}에 작동을 멈춥니다.",
+  "expiredOn": "{date}에 만료되었습니다. 이제 링크는 어디서도 작동하지 않습니다. 다시 사용하려면 더 나중 시간을 고르거나 만료를 제거하세요.",
+  "setExpiry": "만료 설정",
+  "extendExpiry": "연장",
+  "expiryLabel": "링크 작동 중지 시간",
+  "saveExpiry": "저장",
+  "removeExpiry": "만료 제거",
+  "cancelExpiry": "취소",
+  "expiryPast": "미래의 시간을 선택하세요.",
+  "expiryTooFar": "앞으로 10년 이내의 시간을 선택하세요."
 }

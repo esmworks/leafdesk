@@ -30,7 +30,9 @@
     "accessDenied": "你无法在此团队空间中执行此操作。",
     "invalidMemberLevel": "请选择成员对团队空间页面的访问权限。",
     "invalidIcon": "图标必须是表情符号。",
-    "notConvertible": "只有页面可以变成团队空间，数据库、行或模板不行。"
+    "notConvertible": "只有页面可以变成团队空间，数据库、行或模板不行。",
+    "invalidEmail": "请输入有效的电子邮件地址。",
+    "cantInvite": "你不能邀请他人加入此工作区。请联系所有者。"
   },
   "dialog": {
     "createTitle": "新建团队空间",
@@ -73,7 +75,16 @@
     "chooseGroup": "选择用户组",
     "addGroupButton": "添加用户组",
     "removeGroup": "移除 {name}",
-    "groupMemberCount": "{count, plural, =0 {无成员} other {# 位成员}}"
+    "groupMemberCount": "{count, plural, =0 {无成员} other {# 位成员}}",
+    "searchOrInvite": "搜索人员或输入电子邮件",
+    "inviteEmail": "邀请 {email}",
+    "inviteHint": "对方会收到加入工作区的邀请，接受后即加入此团队空间。",
+    "inviteButton": "邀请",
+    "invitedAdded": "{email} 现已加入此团队空间。",
+    "invitedRequested": "邀请 {email} 需要所有者批准。批准后，对方接受邀请即加入此团队空间。",
+    "invitedSent": "已向 {email} 发送邀请。对方接受后即加入此团队空间。",
+    "invitedLink": "已为 {email} 创建邀请，但没有发送电子邮件。请将链接分享给对方。",
+    "copyInviteLink": "复制链接"
   },
   "memberLevel": {
     "full": "完全访问",

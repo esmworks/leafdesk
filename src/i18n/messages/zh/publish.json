@@ -70,5 +70,18 @@
   },
   "publishingOff": "此工作区已关闭发布到网络的功能。在所有者重新开启之前，已发布的页面不会显示。",
   "descriptionLabel": "搜索描述",
-  "descriptionHint": "显示在搜索结果和链接预览中。留空则使用网站的默认描述。"
+  "descriptionHint": "显示在搜索结果和链接预览中。留空则使用网站的默认描述。",
+  "expiredTitle": "链接已过期",
+  "expiry": "链接有效期",
+  "expiryHint": "在你取消发布页面之前，链接一直有效。",
+  "expiresOn": "链接将于 {date} 失效。",
+  "expiredOn": "已于 {date} 过期：链接在任何地方都已失效。选择更晚的时间或移除有效期即可恢复。",
+  "setExpiry": "设置有效期",
+  "extendExpiry": "延长",
+  "expiryLabel": "链接失效时间",
+  "saveExpiry": "保存",
+  "removeExpiry": "移除有效期",
+  "cancelExpiry": "取消",
+  "expiryPast": "请选择将来的时间。",
+  "expiryTooFar": "请选择未来十年内的时间。"
 }

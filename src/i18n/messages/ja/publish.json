@@ -70,5 +70,18 @@
   },
   "publishingOff": "このワークスペースではWebへの公開がオフになっています。オーナーが再びオンにするまで、公開ページは表示されません。",
   "descriptionLabel": "検索用の説明",
-  "descriptionHint": "検索結果やリンクのプレビューに表示されます。空の場合はサイトの既定の説明を使います。"
+  "descriptionHint": "検索結果やリンクのプレビューに表示されます。空の場合はサイトの既定の説明を使います。",
+  "expiredTitle": "リンクの期限切れ",
+  "expiry": "リンクの有効期限",
+  "expiryHint": "ページの公開を停止するまでリンクは有効です。",
+  "expiresOn": "リンクは{date}に無効になります。",
+  "expiredOn": "{date}に期限切れになりました。リンクはどこでも使えなくなっています。元に戻すには、より後の日時を選ぶか、有効期限を削除してください。",
+  "setExpiry": "有効期限を設定",
+  "extendExpiry": "延長",
+  "expiryLabel": "リンクが無効になる日時",
+  "saveExpiry": "保存",
+  "removeExpiry": "有効期限を削除",
+  "cancelExpiry": "キャンセル",
+  "expiryPast": "将来の日時を選んでください。",
+  "expiryTooFar": "今後10年以内の日時を選んでください。"
 }

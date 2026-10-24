@@ -30,7 +30,9 @@
     "accessDenied": "Das kannst du in diesem Teamspace nicht tun.",
     "invalidMemberLevel": "Wählen Sie, was Mitglieder auf den Seiten des Teambereichs erhalten.",
     "invalidIcon": "Das Symbol muss ein Emoji sein.",
-    "notConvertible": "Nur eine Seite kann zum Teamspace werden, keine Datenbank, Zeile oder Vorlage."
+    "notConvertible": "Nur eine Seite kann zum Teamspace werden, keine Datenbank, Zeile oder Vorlage.",
+    "invalidEmail": "Gib eine gültige E-Mail-Adresse ein.",
+    "cantInvite": "Du kannst keine Personen in diesen Workspace einladen. Frag einen Inhaber."
   },
   "dialog": {
     "createTitle": "Neuer Teamspace",
@@ -73,7 +75,16 @@
     "chooseGroup": "Gruppe auswählen",
     "addGroupButton": "Gruppe hinzufügen",
     "removeGroup": "{name} entfernen",
-    "groupMemberCount": "{count, plural, =0 {Keine Mitglieder} one {# Mitglied} other {# Mitglieder}}"
+    "groupMemberCount": "{count, plural, =0 {Keine Mitglieder} one {# Mitglied} other {# Mitglieder}}",
+    "searchOrInvite": "Personen suchen oder E-Mail eingeben",
+    "inviteEmail": "{email} einladen",
+    "inviteHint": "Die Person wird in den Workspace eingeladen und tritt diesem Teamspace bei, sobald sie annimmt.",
+    "inviteButton": "Einladen",
+    "invitedAdded": "{email} ist jetzt in diesem Teamspace.",
+    "invitedRequested": "Ein Inhaber muss die Einladung von {email} genehmigen. Danach tritt die Person diesem Teamspace bei, sobald sie annimmt.",
+    "invitedSent": "Einladung an {email} gesendet. Die Person tritt diesem Teamspace bei, sobald sie annimmt.",
+    "invitedLink": "Einladung für {email} erstellt, aber es wurde keine E-Mail verschickt. Teile den Link mit der Person.",
+    "copyInviteLink": "Link kopieren"
   },
   "memberLevel": {
     "full": "Vollzugriff",

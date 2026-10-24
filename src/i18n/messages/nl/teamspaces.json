@@ -30,7 +30,9 @@
     "accessDenied": "Dat kun je in deze teamruimte niet doen.",
     "invalidMemberLevel": "Kies wat leden krijgen op de pagina’s van de teamruimte.",
     "invalidIcon": "Het pictogram moet een emoji zijn.",
-    "notConvertible": "Alleen een pagina kan een teamruimte worden: geen database, rij of sjabloon."
+    "notConvertible": "Alleen een pagina kan een teamruimte worden: geen database, rij of sjabloon.",
+    "invalidEmail": "Voer een geldig e-mailadres in.",
+    "cantInvite": "Je kunt geen mensen uitnodigen voor deze werkruimte. Vraag het een eigenaar."
   },
   "dialog": {
     "createTitle": "Nieuwe teamruimte",
@@ -73,7 +75,16 @@
     "chooseGroup": "Kies een groep",
     "addGroupButton": "Groep toevoegen",
     "removeGroup": "{name} verwijderen",
-    "groupMemberCount": "{count, plural, =0 {Geen leden} one {# lid} other {# leden}}"
+    "groupMemberCount": "{count, plural, =0 {Geen leden} one {# lid} other {# leden}}",
+    "searchOrInvite": "Zoek mensen of voer een e-mailadres in",
+    "inviteEmail": "{email} uitnodigen",
+    "inviteHint": "Diegene wordt uitgenodigd voor de werkruimte en komt in deze teamruimte zodra die accepteert.",
+    "inviteButton": "Uitnodigen",
+    "invitedAdded": "{email} zit nu in deze teamruimte.",
+    "invitedRequested": "Een eigenaar moet de uitnodiging voor {email} goedkeuren. Daarna komt diegene in deze teamruimte zodra die accepteert.",
+    "invitedSent": "Uitnodiging verstuurd naar {email}. Diegene komt in deze teamruimte zodra die accepteert.",
+    "invitedLink": "Uitnodiging voor {email} aangemaakt, maar er is geen e-mail verstuurd. Deel de link met diegene.",
+    "copyInviteLink": "Link kopiëren"
   },
   "memberLevel": {
     "full": "Volledige toegang",

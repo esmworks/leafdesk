@@ -70,5 +70,18 @@
   },
   "publishingOff": "La publication sur le Web est désactivée dans cet espace de travail. Les pages publiées ne sont plus affichées jusqu’à ce qu’un propriétaire la réactive.",
   "descriptionLabel": "Description pour les moteurs de recherche",
-  "descriptionHint": "Affichée dans les résultats de recherche et les aperçus de liens. Vide : la description par défaut du site."
+  "descriptionHint": "Affichée dans les résultats de recherche et les aperçus de liens. Vide : la description par défaut du site.",
+  "expiredTitle": "Lien expiré",
+  "expiry": "Expiration du lien",
+  "expiryHint": "Le lien fonctionne jusqu’à ce que vous dépubliiez la page.",
+  "expiresOn": "Le lien cesse de fonctionner le {date}.",
+  "expiredOn": "Expiré le {date} : le lien ne fonctionne plus nulle part. Choisissez une date ultérieure ou retirez l’expiration pour le rétablir.",
+  "setExpiry": "Définir une expiration",
+  "extendExpiry": "Prolonger",
+  "expiryLabel": "Le lien cesse de fonctionner le",
+  "saveExpiry": "Enregistrer",
+  "removeExpiry": "Retirer l’expiration",
+  "cancelExpiry": "Annuler",
+  "expiryPast": "Choisissez une date dans le futur.",
+  "expiryTooFar": "Choisissez une date dans les dix prochaines années."
 }
