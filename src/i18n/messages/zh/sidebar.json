@@ -198,7 +198,8 @@
     "aiAccountDetached": "工作区的 AI 不再使用 {actor} 的密钥运行。请在设置中选择另一个 AI 账户。",
     "reviewTitle": "待审阅",
     "review": "{count, plural, =1 {{agent} 提议了一处更改，等待你审阅} other {# 处更改等待你审阅，最新一处来自 {agent}}}",
-    "automationRun": "自动化“{name}”"
+    "automationRun": "自动化“{name}”",
+    "sensitiveContent": "在此处发现了{kind, select, card {支付卡号} iban {IBAN} national_id {身份证号} private_key {私钥} aws_key {AWS 访问密钥} github_token {GitHub 令牌} slack_token {Slack 令牌} api_key {API 密钥} jwt {JSON Web Token} other {敏感内容}}。请在 设置 > 安全 中查看。"
   },
   "templates": {
     "title": "模板",

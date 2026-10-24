@@ -87,7 +87,11 @@
       "siteHeader": "gezinme menü bağlantılar üst çubuk",
       "siteDescription": "seo meta açıklama arama motorları önizleme open graph",
       "siteAnalytics": "google analytics ga4 gtag izleme ziyaretçi istatistik",
-      "siteDomain": "özel alan adı dns ana makine adı cname sertifika"
+      "siteDomain": "özel alan adı dns ana makine adı cname sertifika",
+      "eventStream": "siem güvenlik kayıt günlük akış aktarım dışa aktar webhook olay yönlendir",
+      "sensitiveContent": "dlp veri sızıntısı önleme kredi kartı iban gizli bilgi belirteç anahtar tarama kimlik numarası",
+      "sensitiveFindings": "dlp bulgular sızan gizli bilgiler kart numaraları yok say",
+      "domainPeople": "alan adı hesaplar kullanıcılar şirket e-posta gölge yönetilmeyen"
     }
   },
   "workspace": {
@@ -1580,7 +1584,7 @@
       "teamspaces": "Ekip alanları",
       "groups": "Gruplar",
       "settings": "Çalışma alanı ayarları",
-      "security": "Çoklu oturum açma ve SCIM",
+      "security": "Güvenlik",
       "pages": "Sayfalar",
       "integrations": "Bağlı uygulamalar ve API anahtarları",
       "exports": "Dışa aktarmalar",
@@ -1657,7 +1661,8 @@
       "domainJoin": "Bu alan adlarından biri giriş yaptığında",
       "joinRequests": "Kimler katılmak için istek gönderebilir",
       "email": "Satırlarda e-posta",
-      "agentCreation": "Kimler ajan oluşturabilir"
+      "agentCreation": "Kimler ajan oluşturabilir",
+      "sensitiveContent": "Hassas içeriği tespit et"
     },
     "values": {
       "on": "Açık",
@@ -1848,6 +1853,16 @@
       "review": {
         "approved": "{kind, select, email_draft {“{agent}” ajanının {target} üzerinde hazırladığı e-postayı gönderdi} create_row {“{agent}” ajanının {target} içinde önerdiği satırı onayladı} other {“{agent}” ajanının {target} için önerdiği değişikliği onayladı}}{outcome, select, failed { (başarısız oldu)} other {}}",
         "dismissed": "{kind, select, email_draft {“{agent}” ajanının {target} üzerinde hazırladığı e-postayı reddetti} create_row {“{agent}” ajanının {target} içinde önerdiği satırı reddetti} other {“{agent}” ajanının {target} için önerdiği değişikliği reddetti}}"
+      },
+      "audit_stream": {
+        "created": "Denetim kaydını {target} adresine aktarmaya başladı",
+        "updated": "{change, select, on {Denetim kaydının {target} adresine aktarımını açtı} off {Denetim kaydının {target} adresine aktarımını kapattı} other {Denetim kaydının {target} adresine aktarımını değiştirdi}}",
+        "secret_replaced": "Denetim kaydının {target} adresine aktarımında imzalama anahtarını yeniledi",
+        "removed": "Denetim kaydını {target} adresine aktarmayı durdurdu"
+      },
+      "sensitive_content": {
+        "found": "{target} içinde {kind} bulundu ({excerpt})",
+        "dismissed": "{target} içinde bulunan {kind} ({excerpt}) yok sayıldı"
       }
     },
     "decisions": {
@@ -1863,6 +1878,17 @@
       "full": "Tam erişim",
       "edit": "Düzenleyebilir",
       "interact": "Görüntüleyebilir ve etkileşebilir"
+    },
+    "sensitiveKinds": {
+      "card": "bir ödeme kartı numarası",
+      "iban": "bir IBAN",
+      "national_id": "bir T.C. kimlik numarası",
+      "private_key": "bir özel anahtar",
+      "aws_key": "bir AWS erişim anahtarı",
+      "github_token": "bir GitHub belirteci",
+      "slack_token": "bir Slack belirteci",
+      "api_key": "bir API anahtarı",
+      "jwt": "bir JSON Web Token"
     }
   },
   "notifications": {
@@ -2664,5 +2690,112 @@
       "logoSize": "Logo çok büyük: en çok 512 KB olabilir.",
       "notFound": "Bu antet artık yok. Sayfayı yenileyin."
     }
+  },
+  "eventStream": {
+    "title": "Güvenlik araçlarınıza aktarın",
+    "description": "Yeni denetim olaylarını oldukları anda bir HTTPS adresine, örneğin güvenlik bilgi ve olay yönetimi (SIEM) toplayıcınıza gönderin.",
+    "url": "Adres",
+    "start": "Aktarımı başlat",
+    "saveUrl": "Adresi kaydet",
+    "how": "Olaylar imzalı JSON POST istekleri olarak, bir seferde en fazla 100 tane, oluştuktan sonra yaklaşık 30 saniye içinde ve en eskiden başlayarak gider. Her isteğin X-Leafdesk-Signature başlığını imzalama anahtarıyla doğrulayın; bir olay iki kez gelebilir, bu yüzden her olay kimliğinden yalnızca ilkini tutun. Başarısız istekler 7 gün boyunca yeniden denenir.",
+    "toggle": "Denetim kaydını aktar",
+    "state": {
+      "on": "Aktarılıyor",
+      "off": "Kapalı: yeni olaylar gönderilmiyor",
+      "failing": "{since} tarihinden beri başarısız"
+    },
+    "nextTry": "yeniden deneme: {when}",
+    "lastSuccess": "Son gönderim: {when}",
+    "noSuccess": "Henüz hiçbir şey gönderilmedi",
+    "sent": "{count, plural, =0 {hiç olay gönderilmedi} one {# olay gönderildi} other {# olay gönderildi}}",
+    "waiting": "{count, plural, one {# bekliyor} other {# bekliyor}}",
+    "dropped": "{count, plural, one {# olay} other {# olay}} 7 günden uzun bekledi ve {count, plural, one {gönderilmesinden vazgeçildi} other {gönderilmesinden vazgeçildi}}; en sonuncusu {when}",
+    "test": "Test olayı gönder",
+    "testDelivered": "Adres test olayını kabul etti ({status}).",
+    "testFailed": "Test olayı ulaşmadı: {reason}.",
+    "rotate": "Anahtarı yenile",
+    "rotateNote": "Mevcut anahtar hemen imzalamayı bırakır.",
+    "remove": "Aktarımı durdur",
+    "removeNote": "Adres, anahtarı ve hâlâ bekleyen olaylar kaldırılır.",
+    "working": "İşleniyor…",
+    "secret": {
+      "title": "İmzalama anahtarı",
+      "note": "Şimdi kopyalayın: bir daha gösterilmez. İstediğiniz zaman yenileyebilirsiniz.",
+      "label": "İmzalama anahtarı"
+    },
+    "codes": {
+      "invalidUrl": "adres geçerli değil",
+      "blocked": "adres, bu sunucunun erişemeyeceği özel bir ağda",
+      "unreachable": "adrese ulaşılamadı",
+      "timeout": "10 saniye içinde yanıt gelmedi",
+      "redirect": "adres bir yönlendirmeyle yanıt verdi",
+      "http": "adres {status} yanıtını verdi"
+    },
+    "errors": {
+      "invalidUrl": "Geçerli bir adres girin.",
+      "httpsOnly": "Denetim olayları yalnızca https adreslerine gidebilir.",
+      "notFound": "Bu çalışma alanı denetim kaydını aktarmıyor.",
+      "ownersOnly": "Bunu yalnızca sahipler değiştirebilir."
+    }
+  },
+  "sensitiveContent": {
+    "title": "Hassas içerik",
+    "description": "Çalışma alanının sayfalarında ve satırlarında ödeme kartı numaralarını, IBAN'ları, T.C. kimlik numaralarını ve özel anahtarlar, erişim belirteçleri gibi gizli bilgileri bulun.",
+    "toggle": "Hassas içerik ara",
+    "toggleDescription": "Sayfalar ve satırlar değiştikten sonra arka planda okunur. Sahipler gelen kutularından haberdar edilir ve her bulgu denetim kaydına yazılır; değerin yalnızca maskelenmiş bir kısmı saklanır. Bunu kapatmak bulguları temizler.",
+    "findingsTitle": "Açık bulgular",
+    "none": "Çalışma alanının sayfalarında ve satırlarında hiçbir şey bulunmadı.",
+    "off": "Sayfaların ve satırların neler içerdiğini görmek için hassas içerik aramayı açın.",
+    "more": "{count, plural, one {# bulgu daha gösterilmiyor.} other {# bulgu daha gösterilmiyor.}}",
+    "dismiss": "Yok say",
+    "foundAt": "bulunma: {when}",
+    "kinds": {
+      "card": "Ödeme kartı numarası",
+      "iban": "IBAN",
+      "national_id": "T.C. kimlik numarası",
+      "private_key": "Özel anahtar",
+      "aws_key": "AWS erişim anahtarı",
+      "github_token": "GitHub belirteci",
+      "slack_token": "Slack belirteci",
+      "api_key": "API anahtarı",
+      "jwt": "JSON Web Token"
+    },
+    "errors": {
+      "gone": "Bu bulgu zaten yok sayılmış ya da çözülmüş."
+    }
+  },
+  "domainPeople": {
+    "title": "Alan adlarınızdaki kişiler",
+    "description": "Bu sunucuda, e-posta adresi çalışma alanının doğrulanmış alan adlarından birinde olan hesaplar; çalışma alanında olsunlar ya da olmasınlar.",
+    "summary": "{domains} içinde {count, plural, one {# hesap} other {# hesap}}, bunlardan {inside} tanesi bu çalışma alanında.",
+    "more": "Yalnızca ilk 500 kişi listelenir.",
+    "search": "Kişi ara",
+    "filter": "Göster",
+    "filters": {
+      "all": "Herkes",
+      "in": "Bu çalışma alanında",
+      "out": "Bu çalışma alanında değil"
+    },
+    "columns": {
+      "person": "Kişi",
+      "workspace": "Bu çalışma alanında",
+      "lastActive": "Son etkinlik",
+      "signIn": "Giriş yöntemi",
+      "actions": "İşlemler"
+    },
+    "outside": "Çalışma alanında değil",
+    "unverified": "adres doğrulanmadı",
+    "never": "Hiçbir zaman",
+    "noSignIn": "Giriş yöntemi yok",
+    "methods": {
+      "password": "Şifre",
+      "sso": "Çoklu oturum açma",
+      "passkey": "Passkey"
+    },
+    "add": "Üye olarak ekle",
+    "remove": "Çıkar",
+    "removing": "Çıkarılıyor…",
+    "noMatches": "Eşleşen kimse yok.",
+    "empty": "Bu sunucuda henüz bu alan adlarını kullanan hesap yok."
   }
 }

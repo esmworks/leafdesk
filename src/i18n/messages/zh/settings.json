@@ -87,7 +87,11 @@
       "siteHeader": "导航 菜单 链接 顶栏",
       "siteDescription": "seo 元 描述 搜索引擎 预览 open graph",
       "siteAnalytics": "google analytics ga4 gtag 跟踪 访客 统计",
-      "siteDomain": "自有域名 dns 主机名 cname 证书"
+      "siteDomain": "自有域名 dns 主机名 cname 证书",
+      "eventStream": "siem 安全 日志 流式 导出 webhook 转发 事件",
+      "sensitiveContent": "dlp 数据防泄漏 信用卡 银行卡 iban 机密 令牌 密钥 扫描",
+      "sensitiveFindings": "dlp 发现 泄露 机密 卡号 忽略",
+      "domainPeople": "域名 账户 用户 公司 邮箱 未管理"
     }
   },
   "workspace": {
@@ -1580,7 +1584,7 @@
       "teamspaces": "团队空间",
       "groups": "用户组",
       "settings": "工作区设置",
-      "security": "单点登录和 SCIM",
+      "security": "安全",
       "pages": "页面",
       "integrations": "已连接的应用和 API 令牌",
       "exports": "导出",
@@ -1657,7 +1661,8 @@
       "domainJoin": "这些域名的人登录时",
       "joinRequests": "谁可以申请加入",
       "email": "行中的邮件",
-      "agentCreation": "谁可以创建智能体"
+      "agentCreation": "谁可以创建智能体",
+      "sensitiveContent": "检测敏感内容"
     },
     "values": {
       "on": "开启",
@@ -1848,6 +1853,16 @@
       "review": {
         "approved": "{kind, select, email_draft {发送了智能体“{agent}”在 {target} 上起草的邮件} create_row {批准了智能体“{agent}”在 {target} 中提议的行} other {批准了智能体“{agent}”对 {target} 提议的更改}}{outcome, select, failed {（失败）} other {}}",
         "dismissed": "{kind, select, email_draft {忽略了智能体“{agent}”在 {target} 上起草的邮件} create_row {忽略了智能体“{agent}”在 {target} 中提议的行} other {忽略了智能体“{agent}”对 {target} 提议的更改}}"
+      },
+      "audit_stream": {
+        "created": "开始将审计日志流式传输到 {target}",
+        "updated": "{change, select, on {开启了将审计日志流式传输到 {target}} off {关闭了将审计日志流式传输到 {target}} other {更改了将审计日志流式传输到 {target} 的设置}}",
+        "secret_replaced": "更换了流式传输到 {target} 的审计日志签名密钥",
+        "removed": "停止将审计日志流式传输到 {target}"
+      },
+      "sensitive_content": {
+        "found": "在 {target} 中发现{kind}（{excerpt}）",
+        "dismissed": "忽略了在 {target} 中发现的{kind}（{excerpt}）"
       }
     },
     "decisions": {
@@ -1863,6 +1878,17 @@
       "full": "完全访问",
       "edit": "可编辑",
       "interact": "可查看和互动"
+    },
+    "sensitiveKinds": {
+      "card": "支付卡号",
+      "iban": "IBAN",
+      "national_id": "身份证号",
+      "private_key": "私钥",
+      "aws_key": "AWS 访问密钥",
+      "github_token": "GitHub 令牌",
+      "slack_token": "Slack 令牌",
+      "api_key": "API 密钥",
+      "jwt": "JSON Web Token"
     }
   },
   "notifications": {
@@ -2664,5 +2690,112 @@
       "logoSize": "徽标太大：最大 512 KB。",
       "notFound": "该信笺已不存在。请刷新页面。"
     }
+  },
+  "eventStream": {
+    "title": "流式传输到你的安全工具",
+    "description": "将新的审计事件在发生时发送到一个 HTTPS 地址，例如你的安全信息和事件管理（SIEM）收集器。",
+    "url": "地址",
+    "start": "开始流式传输",
+    "saveUrl": "保存地址",
+    "how": "事件以签名的 JSON POST 请求发送，每次最多 100 个，在发生后约 30 秒内送出，从最早的开始。请用签名密钥校验每个请求的 X-Leafdesk-Signature 标头；同一事件可能送达两次，请按事件 id 只保留第一次。失败的请求会在 7 天内重试。",
+    "toggle": "流式传输审计日志",
+    "state": {
+      "on": "正在流式传输",
+      "off": "已关闭：新事件不会发送",
+      "failing": "自 {since} 起失败"
+    },
+    "nextTry": "将于 {when} 重试",
+    "lastSuccess": "上次送达于 {when}",
+    "noSuccess": "尚未送达任何内容",
+    "sent": "{count, plural, =0 {未发送事件} other {已发送 # 个事件}}",
+    "waiting": "{count, plural, other {# 个等待中}}",
+    "dropped": "{count, plural, other {# 个事件}}等待超过 7 天后已被放弃，最近一次在 {when}",
+    "test": "发送测试事件",
+    "testDelivered": "该地址已接收测试事件（{status}）。",
+    "testFailed": "测试事件未能送达：{reason}。",
+    "rotate": "更换密钥",
+    "rotateNote": "当前密钥将立即停止签名。",
+    "remove": "停止流式传输",
+    "removeNote": "地址、其密钥以及仍在等待的事件都将被移除。",
+    "working": "处理中…",
+    "secret": {
+      "title": "签名密钥",
+      "note": "请现在复制：它不会再次显示。你可以随时更换它。",
+      "label": "签名密钥"
+    },
+    "codes": {
+      "invalidUrl": "地址无效",
+      "blocked": "该地址位于此服务器无法访问的私有网络中",
+      "unreachable": "无法连接到该地址",
+      "timeout": "10 秒内没有响应",
+      "redirect": "该地址返回了重定向",
+      "http": "该地址返回了 {status}"
+    },
+    "errors": {
+      "invalidUrl": "请输入有效的地址。",
+      "httpsOnly": "审计事件只能发送到 https 地址。",
+      "notFound": "此工作区没有流式传输审计日志。",
+      "ownersOnly": "只有所有者可以更改此项。"
+    }
+  },
+  "sensitiveContent": {
+    "title": "敏感内容",
+    "description": "在工作区的页面和行中查找支付卡号、IBAN、身份证号以及私钥和访问令牌等机密。",
+    "toggle": "查找敏感内容",
+    "toggleDescription": "页面和行在更改后会在后台读取。所有者会在收件箱中收到通知，每个发现都会记录在审计日志中；只保留值的掩码部分。关闭此项会清除所有发现。",
+    "findingsTitle": "未处理的发现",
+    "none": "在工作区的页面和行中未发现任何内容。",
+    "off": "开启查找敏感内容，即可查看页面和行中包含的内容。",
+    "more": "{count, plural, other {还有 # 个发现未显示。}}",
+    "dismiss": "忽略",
+    "foundAt": "发现于 {when}",
+    "kinds": {
+      "card": "支付卡号",
+      "iban": "IBAN",
+      "national_id": "身份证号",
+      "private_key": "私钥",
+      "aws_key": "AWS 访问密钥",
+      "github_token": "GitHub 令牌",
+      "slack_token": "Slack 令牌",
+      "api_key": "API 密钥",
+      "jwt": "JSON Web Token"
+    },
+    "errors": {
+      "gone": "此发现已被忽略或已解决。"
+    }
+  },
+  "domainPeople": {
+    "title": "来自你的域名的人员",
+    "description": "此服务器上电子邮件地址属于工作区已验证域名的账户，无论他们是否在工作区中。",
+    "summary": "{domains} 中有 {count, plural, other {# 个账户}}，其中 {inside} 个在此工作区。",
+    "more": "只列出前 500 个。",
+    "search": "搜索人员",
+    "filter": "显示",
+    "filters": {
+      "all": "所有人",
+      "in": "在此工作区中",
+      "out": "不在此工作区中"
+    },
+    "columns": {
+      "person": "人员",
+      "workspace": "在此工作区中",
+      "lastActive": "上次活动",
+      "signIn": "登录方式",
+      "actions": "操作"
+    },
+    "outside": "不在工作区中",
+    "unverified": "地址未验证",
+    "never": "从未",
+    "noSignIn": "没有登录方式",
+    "methods": {
+      "password": "密码",
+      "sso": "单点登录",
+      "passkey": "通行密钥"
+    },
+    "add": "添加为成员",
+    "remove": "移除",
+    "removing": "正在移除…",
+    "noMatches": "没有匹配的人员。",
+    "empty": "此服务器上还没有使用这些域名的账户。"
   }
 }

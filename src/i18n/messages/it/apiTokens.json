@@ -45,7 +45,8 @@
     "expiry": "Scegli quando scade il token.",
     "limit": "Hai raggiunto il numero massimo di token consentiti. Revocane prima uno.",
     "generic": "Impossibile creare il token. Riprova.",
-    "notFound": "Questo token non esiste più."
+    "notFound": "Questo token non esiste più.",
+    "ownerScope": "Solo i proprietari di uno spazio di lavoro possono permettere a un token di leggerne il registro di controllo, e solo a un token limitato a quello spazio di lavoro."
   },
   "docsPage": {
     "metaTitle": "REST API",
@@ -114,6 +115,10 @@
       "webhooks": {
         "name": "Webhook",
         "hint": "Webhook delle pagine e le loro consegne; la scrittura li aggiunge, li modifica e li prova (solo proprietari)."
+      },
+      "audit": {
+        "name": "Registro di controllo",
+        "hint": "Il registro di controllo dello spazio di lavoro (solo per i proprietari, con un token limitato a uno spazio di lavoro di cui sono proprietari)."
       }
     },
     "summary": {
@@ -129,7 +134,8 @@
     "errors": {
       "scopes": "Scegli almeno una cosa che il token può fare.",
       "notFound": "Questo token non esiste più.",
-      "generic": "Impossibile modificare il token. Riprova."
+      "generic": "Impossibile modificare il token. Riprova.",
+      "ownerScope": "Solo i proprietari di uno spazio di lavoro possono permettere a un token di leggerne il registro di controllo, e solo a un token limitato a quello spazio di lavoro."
     }
   }
 }

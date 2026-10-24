@@ -87,7 +87,11 @@
       "siteHeader": "navegación menú enlaces barra superior",
       "siteDescription": "seo meta descripción buscadores vista previa open graph",
       "siteAnalytics": "google analytics ga4 gtag seguimiento visitantes estadísticas",
-      "siteDomain": "dominio propio dns nombre de host cname certificado"
+      "siteDomain": "dominio propio dns nombre de host cname certificado",
+      "eventStream": "siem seguridad registro transmisión stream exportar webhook reenviar eventos",
+      "sensitiveContent": "dlp prevención pérdida de datos tarjeta de crédito iban secretos tokens claves escanear datos sensibles",
+      "sensitiveFindings": "dlp hallazgos secretos filtrados números de tarjeta descartar",
+      "domainPeople": "dominio cuentas usuarios empresa correo shadow it no gestionadas"
     }
   },
   "workspace": {
@@ -1580,7 +1584,7 @@
       "teamspaces": "Espacios de equipo",
       "groups": "Grupos",
       "settings": "Ajustes del espacio de trabajo",
-      "security": "Inicio de sesión único y SCIM",
+      "security": "Seguridad",
       "pages": "Páginas",
       "integrations": "Apps conectadas y tokens de API",
       "exports": "Exportaciones",
@@ -1657,7 +1661,8 @@
       "domainJoin": "Cuando alguien de estos dominios inicia sesión",
       "joinRequests": "Quién puede pedir unirse",
       "email": "Correo en las filas",
-      "agentCreation": "Quién puede crear agentes"
+      "agentCreation": "Quién puede crear agentes",
+      "sensitiveContent": "Detectar contenido sensible"
     },
     "values": {
       "on": "Activado",
@@ -1848,6 +1853,16 @@
       "review": {
         "approved": "{kind, select, email_draft {Envió el correo que el agente «{agent}» redactó en {target}} create_row {Aprobó la fila que el agente «{agent}» propuso en {target}} other {Aprobó el cambio que el agente «{agent}» propuso en {target}}}{outcome, select, failed { (falló)} other {}}",
         "dismissed": "{kind, select, email_draft {Descartó el correo que el agente «{agent}» redactó en {target}} create_row {Descartó la fila que el agente «{agent}» propuso en {target}} other {Descartó el cambio que el agente «{agent}» propuso en {target}}}"
+      },
+      "audit_stream": {
+        "created": "Empezó a transmitir el registro de auditoría a {target}",
+        "updated": "{change, select, on {Activó la transmisión del registro de auditoría a {target}} off {Desactivó la transmisión del registro de auditoría a {target}} other {Cambió la transmisión del registro de auditoría a {target}}}",
+        "secret_replaced": "Reemplazó el secreto de firma de la transmisión del registro de auditoría a {target}",
+        "removed": "Dejó de transmitir el registro de auditoría a {target}"
+      },
+      "sensitive_content": {
+        "found": "Encontró {kind} ({excerpt}) en {target}",
+        "dismissed": "Descartó el hallazgo de {kind} ({excerpt}) en {target}"
       }
     },
     "decisions": {
@@ -1863,6 +1878,17 @@
       "full": "Acceso completo",
       "edit": "Puede editar",
       "interact": "Puede ver e interactuar"
+    },
+    "sensitiveKinds": {
+      "card": "un número de tarjeta de pago",
+      "iban": "un IBAN",
+      "national_id": "un número de identificación nacional",
+      "private_key": "una clave privada",
+      "aws_key": "una clave de acceso de AWS",
+      "github_token": "un token de GitHub",
+      "slack_token": "un token de Slack",
+      "api_key": "una clave de API",
+      "jwt": "un JSON Web Token (JWT)"
     }
   },
   "notifications": {
@@ -2664,5 +2690,112 @@
       "logoSize": "El logotipo es demasiado grande: como máximo 512 KB.",
       "notFound": "Ese membrete ya no existe. Recarga la página."
     }
+  },
+  "eventStream": {
+    "title": "Transmisión a tus herramientas de seguridad",
+    "description": "Envía los nuevos eventos de auditoría en cuanto ocurren a una dirección HTTPS, como el recolector de tu sistema de gestión de información y eventos de seguridad (SIEM).",
+    "url": "Dirección",
+    "start": "Empezar a transmitir",
+    "saveUrl": "Guardar dirección",
+    "how": "Los eventos se envían como solicitudes POST de JSON firmadas, hasta 100 a la vez y unos 30 segundos después de ocurrir, los más antiguos primero. Comprueba el encabezado X-Leafdesk-Signature de cada solicitud con el secreto de firma; un evento puede llegar dos veces, así que quédate con el primero de cada id de evento. Las solicitudes fallidas se reintentan durante 7 días.",
+    "toggle": "Transmitir el registro de auditoría",
+    "state": {
+      "on": "Transmitiendo",
+      "off": "Desactivado: los nuevos eventos no se envían",
+      "failing": "Con fallos desde {since}"
+    },
+    "nextTry": "nuevo intento {when}",
+    "lastSuccess": "Última entrega {when}",
+    "noSuccess": "Aún no se ha entregado nada",
+    "sent": "{count, plural, =0 {ningún evento enviado} one {# evento enviado} other {# eventos enviados}}",
+    "waiting": "{count, plural, one {# en espera} other {# en espera}}",
+    "dropped": "{count, plural, one {# evento esperó más de 7 días y se abandonó} other {# eventos esperaron más de 7 días y se abandonaron}}, el último {when}",
+    "test": "Enviar evento de prueba",
+    "testDelivered": "La dirección aceptó el evento de prueba ({status}).",
+    "testFailed": "El evento de prueba no llegó: {reason}.",
+    "rotate": "Reemplazar secreto",
+    "rotateNote": "El secreto actual deja de firmar de inmediato.",
+    "remove": "Dejar de transmitir",
+    "removeNote": "Se eliminan la dirección, su secreto y los eventos que aún estén en espera.",
+    "working": "Procesando…",
+    "secret": {
+      "title": "Secreto de firma",
+      "note": "Cópialo ahora: no se volverá a mostrar. Puedes reemplazarlo en cualquier momento.",
+      "label": "Secreto de firma"
+    },
+    "codes": {
+      "invalidUrl": "la dirección no es válida",
+      "blocked": "la dirección está en una red privada a la que este servidor no puede acceder",
+      "unreachable": "no se pudo llegar a la dirección",
+      "timeout": "sin respuesta en 10 segundos",
+      "redirect": "la dirección respondió con una redirección",
+      "http": "la dirección respondió {status}"
+    },
+    "errors": {
+      "invalidUrl": "Introduce una dirección válida.",
+      "httpsOnly": "Los eventos de auditoría solo pueden enviarse a direcciones https.",
+      "notFound": "El espacio de trabajo no transmite su registro de auditoría.",
+      "ownersOnly": "Solo los propietarios pueden cambiar esto."
+    }
+  },
+  "sensitiveContent": {
+    "title": "Contenido sensible",
+    "description": "Busca números de tarjetas de pago, IBAN, números de identificación nacional y secretos como claves privadas y tokens de acceso en las páginas y filas del espacio de trabajo.",
+    "toggle": "Buscar contenido sensible",
+    "toggleDescription": "Las páginas y filas se leen en segundo plano después de cambiar. Los propietarios reciben un aviso en su bandeja de entrada y cada hallazgo queda anotado en el registro de auditoría; solo se guarda una parte enmascarada del valor. Al desactivarlo se borran los hallazgos.",
+    "findingsTitle": "Hallazgos abiertos",
+    "none": "No se encontró nada en las páginas y filas del espacio de trabajo.",
+    "off": "Activa la búsqueda de contenido sensible para ver qué contienen las páginas y filas.",
+    "more": "{count, plural, one {# hallazgo más no se muestra.} other {# hallazgos más no se muestran.}}",
+    "dismiss": "Descartar",
+    "foundAt": "encontrado {when}",
+    "kinds": {
+      "card": "Número de tarjeta de pago",
+      "iban": "IBAN",
+      "national_id": "Número de identificación nacional",
+      "private_key": "Clave privada",
+      "aws_key": "Clave de acceso de AWS",
+      "github_token": "Token de GitHub",
+      "slack_token": "Token de Slack",
+      "api_key": "Clave de API",
+      "jwt": "JSON Web Token (JWT)"
+    },
+    "errors": {
+      "gone": "Este hallazgo ya se descartó o se resolvió."
+    }
+  },
+  "domainPeople": {
+    "title": "Personas de tus dominios",
+    "description": "Cuentas de este servidor con una dirección de correo en los dominios verificados del espacio de trabajo, estén o no en el espacio de trabajo.",
+    "summary": "{count, plural, one {# cuenta} other {# cuentas}} en {domains}, {inside} en este espacio de trabajo.",
+    "more": "Solo se muestran las primeras 500.",
+    "search": "Buscar personas",
+    "filter": "Mostrar",
+    "filters": {
+      "all": "Todos",
+      "in": "En este espacio de trabajo",
+      "out": "Fuera de este espacio de trabajo"
+    },
+    "columns": {
+      "person": "Persona",
+      "workspace": "En este espacio de trabajo",
+      "lastActive": "Última actividad",
+      "signIn": "Inicia sesión con",
+      "actions": "Acciones"
+    },
+    "outside": "Fuera del espacio de trabajo",
+    "unverified": "dirección no verificada",
+    "never": "Nunca",
+    "noSignIn": "Sin método de inicio de sesión",
+    "methods": {
+      "password": "Contraseña",
+      "sso": "Inicio de sesión único",
+      "passkey": "Llave de acceso"
+    },
+    "add": "Añadir como miembro",
+    "remove": "Quitar",
+    "removing": "Quitando…",
+    "noMatches": "Nadie coincide.",
+    "empty": "Todavía no hay cuentas en este servidor que usen estos dominios."
   }
 }

@@ -559,7 +559,12 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   imported, moved, put in the trash, restored and deleted for good, publishing, API tokens and
   connected apps, exports), with the app or identity provider it went through and the address it
   came from, newest first, filtered by person, kind of change and dates, and as CSV. Events are
-  kept for a year.
+  kept for a year. Owners can stream new events to their security tools as they happen, and
+  scripts read the log through the REST API (see [Audit log streaming](#audit-log-streaming)).
+- **Sensitive content detection**: when owners turn it on in Settings → Security, pages and rows
+  are read in the background for payment card numbers, IBANs, national ID numbers and secrets
+  (private keys, access tokens), and what is found is listed to owners with a masked excerpt (see
+  [Sensitive content](#sensitive-content)).
 - **Legal holds**: owners put a named hold, with its reason, on people of the workspace (members,
   guests, or people who have left) in Settings → Security. While it stands, nothing they created
   or edited there is deleted for good: their pages and rows (and pages above them, with their
@@ -1645,6 +1650,89 @@ the REST API.
   that person's account: an app or a token belongs to the person, so it stops reaching all of their
   workspaces until they connect it again or make a new token. Only this workspace's audit log
   records it, with the owner as who did it and the person it was about.
+
+- **People from your domains** (owners, once the workspace has verified email domains): every
+  account on the server with an address in those domains or their subdomains, whether it is in
+  the workspace (and as what) or not, when it was last active (from its sessions, renewed once a
+  day while in use) and how it signs in (password, single sign-on, passkey, social login). Those
+  outside are added with the usual *Add members* step and members are removed as in Settings →
+  Members. Up to 500 are listed; agents are left out.
+
+## Audit log streaming
+
+Owners send the workspace's audit events to their own collector (a SIEM, a log pipeline) in
+**Settings → Audit log → Stream to your security tools**: an HTTPS address, and a signing secret
+that is shown once (kept sealed with `LEAFDESK_ENCRYPTION_KEY`, like connections' secrets) and can be
+replaced. Addresses get the same checks as automation webhooks: https only, public addresses only,
+no redirects, ten seconds per request; hosts in `AUTOMATION_WEBHOOK_ALLOWED_HOSTS` may use http and
+private addresses.
+
+Each event recorded while the stream is on is sent once it goes through, **at least once and in
+order**: batches of up to 100 events, oldest first, sent when 100 wait or the oldest has waited 30
+seconds. A batch that fails (a network error or an answer other than 2xx) is tried again after 30
+seconds, then 1, 2, 5, 15 and 30 minutes, then every hour, with the same delivery id and the events
+waiting by then; events still unsent after 7 days are given up on and counted. Events recorded
+while the stream is off are not sent later. The settings show whether it is streaming or failing
+(since when, the last error and the next try), the last delivery, how many events were sent and
+how many wait, and *Send test event* sends one made-up event right away.
+
+Each batch is a `POST` with `Content-Type: application/json` and these headers:
+
+- `X-Leafdesk-Event`: `audit.events` (`ping` for a test)
+- `X-Leafdesk-Delivery`: the batch's id, the same each time it is tried again
+- `X-Leafdesk-Signature`: `t=<unix seconds>,v1=<hex HMAC-SHA256 of "<t>.<body>" with the secret>`
+
+```json
+{
+  "id": "4f0c2c1e-…",
+  "type": "audit.events",
+  "workspace_id": "…",
+  "sent_at": "2026-10-24T10:00:30.000Z",
+  "events": [
+    {
+      "id": "…",
+      "time": "2026-10-24T10:00:01.123Z",
+      "action": "member.role_changed",
+      "category": "members",
+      "actor": { "kind": "user", "id": "…", "name": "Ada", "email": "ada@example.com", "via": null, "ip": "192.0.2.1", "user_agent": "…" },
+      "target": { "type": "user", "id": "…", "label": "Bob" },
+      "details": { "from": "member", "to": "owner" }
+    }
+  ]
+}
+```
+
+A test carries `"type": "ping"` and `"test": true`. `actor.kind` is `user`, `agent`, `api_token`,
+`connected_app`, `scim`, `system` or `automation` (`via` names the token, app or automation);
+`category` is the Settings filter's group, or null for an action the version doesn't know. New
+versions add actions: keep the ones you don't know. Check the signature against the raw body and
+refuse old timestamps; an event can arrive twice (a batch whose answer was lost is sent again), so
+keep the first of each event `id`.
+
+The same events can be read with the REST API: `GET /workspaces/{id}/audit-log` (scope
+`audit:read`, which only a workspace's owners can give, and only to a token limited to that
+workspace) filters by `since`, `until`, `actor_id`, `actor_kind`, `action` and `category`, newest
+first or `order=asc`, up to 500 at a time with `next_cursor`. The token stops reading once its
+person is no longer an owner.
+
+## Sensitive content
+
+Owners turn on **Look for sensitive content** in Settings → Security (off by default). A
+background job then reads the title, body and row values of the workspace's pages once they
+change (templates and the trash aren't read; turning it on reads every page once) and looks for:
+
+- payment card numbers of the known issuers that pass the Luhn check, compact or in groups;
+- IBANs with their country's length and a valid mod-97 check;
+- Turkish national ID numbers (T.C. kimlik no) with both check digits right;
+- private keys (PEM blocks), AWS access keys, GitHub and Slack tokens, `sk-` style API keys,
+  live payment-provider keys, Google API keys, Leafdesk API tokens and JSON Web Tokens.
+
+The value itself is never kept: a finding holds its kind, a masked excerpt (`**** **** **** 4242`,
+`TR** **** **** 1326`, `ghp_…3f9a`) and a keyed hash to know it again. Each finding is recorded in
+the audit log, and owners get an inbox notice for a page and kind at most once a day. Settings →
+Security lists the open findings with links to their pages and a *Dismiss* button; a finding
+resolves itself once the page no longer holds the value, and opens again if it comes back (a
+dismissed one stays dismissed). Turning detection off deletes the findings.
 
 ## Who can join a workspace
 
@@ -3705,6 +3793,7 @@ brings the read scope of its resource. Every endpoint needs one scope (the refer
 | `rows:read`, `rows:write` | `POST /databases/{id}/query`, `GET /rows/{id}` and its activity; writing adds, upserts and changes rows (a voice note into a database needs it too) |
 | `comments:read`, `comments:write` | a page's comment threads; writing starts threads and replies |
 | `agents:read`, `agents:write` | agents, their runs, usage, schedules and sharing; writing changes them, asks for runs, sets schedules and shares |
+| `audit:read` | `GET /workspaces/{id}/audit-log` (owners only, on a token limited to that workspace; never in the presets; see [Audit log streaming](#audit-log-streaming)) |
 
 Tokens made before scopes were per resource keep exactly the access they had: their `pages:read`
 reads everything and their `pages:write` reads and writes everything, including endpoints added

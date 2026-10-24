@@ -1128,6 +1128,20 @@ export function createMcpServer(principal: McpPrincipal) {
                 url: `${env.appUrl}/w/${n.workspaceId}/settings`,
               };
             }
+            // Sensitive content found on a page: owners review and dismiss it in the app.
+            if (n.kind === "sensitive_content") {
+              return {
+                id: n.id,
+                kind: n.kind,
+                read: n.read,
+                created_at: n.createdAt.toISOString(),
+                summary: `Sensitive content (${n.automationMessage ?? "unknown"}) was found on "${pageLabel(n.pageTitle)}"; owners review it in Settings > Security`,
+                actor: null,
+                workspace_id: n.workspaceId,
+                workspace_name: n.workspaceName,
+                url: `${env.appUrl}/w/${n.workspaceId}/settings?tab=security#setting-sensitiveFindings`,
+              };
+            }
             // Join requests are about the workspace, not a page; owners decide them in the app.
             if (n.kind === "join_request" || n.pageId === null) {
               return {

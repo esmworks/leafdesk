@@ -36,7 +36,7 @@ export async function createApiTokenAction(input: {
   }
 }
 
-export type UpdateApiTokenResult = { ok: true } | { ok: false; error: "scopes" | "notFound" | "generic" };
+export type UpdateApiTokenResult = { ok: true } | { ok: false; error: "scopes" | "ownerScope" | "notFound" | "generic" };
 
 /** Changes what one of the user's tokens may do; its secret stays the same. */
 export async function updateApiTokenScopesAction(tokenId: string, scopes: string[]): Promise<UpdateApiTokenResult> {
@@ -46,7 +46,9 @@ export async function updateApiTokenScopesAction(tokenId: string, scopes: string
     revalidatePath("/w/[workspaceId]/settings", "page");
     return { ok: true };
   } catch (error) {
-    if (error instanceof ApiTokenError && (error.code === "scopes" || error.code === "notFound")) return { ok: false, error: error.code };
+    if (error instanceof ApiTokenError && (error.code === "scopes" || error.code === "ownerScope" || error.code === "notFound")) {
+      return { ok: false, error: error.code };
+    }
     console.error("could not change an API token's scopes", error);
     return { ok: false, error: "generic" };
   }

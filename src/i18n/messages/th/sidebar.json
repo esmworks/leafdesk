@@ -198,7 +198,8 @@
     "aiAccountDetached": "AI ของพื้นที่ทำงานไม่ได้ทำงานด้วยคีย์ของ {actor} อีกต่อไป เลือกบัญชี AI อื่นในการตั้งค่า",
     "reviewTitle": "รอตรวจสอบ",
     "review": "{count, plural, other {มี # การเปลี่ยนแปลงรอให้คุณตรวจสอบ ล่าสุดจาก {agent}}}",
-    "automationRun": "ระบบอัตโนมัติ “{name}”"
+    "automationRun": "ระบบอัตโนมัติ “{name}”",
+    "sensitiveContent": "พบ{kind, select, card {หมายเลขบัตรชำระเงิน} iban {IBAN} national_id {เลขประจำตัวประชาชน} private_key {คีย์ส่วนตัว} aws_key {คีย์การเข้าถึง AWS} github_token {โทเค็น GitHub} slack_token {โทเค็น Slack} api_key {คีย์ API} jwt {JSON Web Token} other {เนื้อหาที่ละเอียดอ่อน}}ที่นี่ ตรวจสอบได้ใน การตั้งค่า > ความปลอดภัย"
   },
   "templates": {
     "title": "เทมเพลต",

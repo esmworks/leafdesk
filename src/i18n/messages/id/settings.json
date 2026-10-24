@@ -87,7 +87,11 @@
       "siteHeader": "navigasi menu tautan bilah atas",
       "siteDescription": "seo meta deskripsi mesin pencari pratinjau open graph",
       "siteAnalytics": "google analytics ga4 gtag pelacakan pengunjung statistik",
-      "siteDomain": "domain sendiri dns nama host cname sertifikat"
+      "siteDomain": "domain sendiri dns nama host cname sertifikat",
+      "eventStream": "siem keamanan log aliran ekspor webhook teruskan peristiwa",
+      "sensitiveContent": "dlp pencegahan kebocoran data kartu kredit iban rahasia token kunci pindai",
+      "sensitiveFindings": "dlp temuan rahasia bocor nomor kartu abaikan",
+      "domainPeople": "domain akun pengguna perusahaan email tidak dikelola"
     }
   },
   "workspace": {
@@ -1580,7 +1584,7 @@
       "teamspaces": "Ruang tim",
       "groups": "Grup",
       "settings": "Pengaturan ruang kerja",
-      "security": "Single sign-on dan SCIM",
+      "security": "Keamanan",
       "pages": "Halaman",
       "integrations": "Aplikasi terhubung dan token API",
       "exports": "Ekspor",
@@ -1657,7 +1661,8 @@
       "domainJoin": "Saat seseorang dari domain ini masuk",
       "joinRequests": "Siapa yang dapat meminta bergabung",
       "email": "Email pada baris",
-      "agentCreation": "Siapa yang dapat membuat agen"
+      "agentCreation": "Siapa yang dapat membuat agen",
+      "sensitiveContent": "Deteksi konten sensitif"
     },
     "values": {
       "on": "Hidup",
@@ -1848,6 +1853,16 @@
       "review": {
         "approved": "{kind, select, email_draft {Mengirim email yang disusun agen “{agent}” pada {target}} create_row {Menyetujui baris yang diusulkan agen “{agent}” di {target}} other {Menyetujui perubahan yang diusulkan agen “{agent}” pada {target}}}{outcome, select, failed { (gagal)} other {}}",
         "dismissed": "{kind, select, email_draft {Menolak email yang disusun agen “{agent}” pada {target}} create_row {Menolak baris yang diusulkan agen “{agent}” di {target}} other {Menolak perubahan yang diusulkan agen “{agent}” pada {target}}}"
+      },
+      "audit_stream": {
+        "created": "Mulai mengalirkan log audit ke {target}",
+        "updated": "{change, select, on {Mengaktifkan aliran log audit ke {target}} off {Menonaktifkan aliran log audit ke {target}} other {Mengubah aliran log audit ke {target}}}",
+        "secret_replaced": "Mengganti rahasia penandatanganan aliran log audit ke {target}",
+        "removed": "Berhenti mengalirkan log audit ke {target}"
+      },
+      "sensitive_content": {
+        "found": "Menemukan {kind} ({excerpt}) di {target}",
+        "dismissed": "Mengabaikan {kind} ({excerpt}) yang ditemukan di {target}"
       }
     },
     "decisions": {
@@ -1863,6 +1878,17 @@
       "full": "Akses penuh",
       "edit": "Dapat mengedit",
       "interact": "Dapat melihat & berinteraksi"
+    },
+    "sensitiveKinds": {
+      "card": "nomor kartu pembayaran",
+      "iban": "IBAN",
+      "national_id": "nomor identitas nasional",
+      "private_key": "kunci privat",
+      "aws_key": "kunci akses AWS",
+      "github_token": "token GitHub",
+      "slack_token": "token Slack",
+      "api_key": "kunci API",
+      "jwt": "JSON Web Token"
     }
   },
   "notifications": {
@@ -2664,5 +2690,112 @@
       "logoSize": "Logo terlalu besar: paling besar 512 KB.",
       "notFound": "Kop surat itu sudah tidak ada. Muat ulang halaman."
     }
+  },
+  "eventStream": {
+    "title": "Alirkan ke alat keamanan Anda",
+    "description": "Kirim peristiwa audit baru saat terjadi ke alamat HTTPS, seperti pengumpul manajemen informasi dan peristiwa keamanan (SIEM) Anda.",
+    "url": "Alamat",
+    "start": "Mulai mengalirkan",
+    "saveUrl": "Simpan alamat",
+    "how": "Peristiwa dikirim sebagai POST JSON bertanda tangan, hingga 100 sekaligus dan dalam sekitar 30 detik setelah terjadi, dari yang terlama. Periksa header X-Leafdesk-Signature setiap permintaan dengan rahasia penandatanganan; sebuah peristiwa bisa tiba dua kali, jadi simpan yang pertama untuk setiap id peristiwa. Permintaan yang gagal dicoba lagi selama 7 hari.",
+    "toggle": "Alirkan log audit",
+    "state": {
+      "on": "Mengalirkan",
+      "off": "Nonaktif: peristiwa baru tidak dikirim",
+      "failing": "Gagal sejak {since}"
+    },
+    "nextTry": "dicoba lagi {when}",
+    "lastSuccess": "Terakhir terkirim {when}",
+    "noSuccess": "Belum ada yang terkirim",
+    "sent": "{count, plural, =0 {tidak ada peristiwa terkirim} other {# peristiwa terkirim}}",
+    "waiting": "{count, plural, other {# menunggu}}",
+    "dropped": "{count, plural, other {# peristiwa}} menunggu lebih dari 7 hari dan dibatalkan, terakhir {when}",
+    "test": "Kirim peristiwa uji",
+    "testDelivered": "Alamat menerima peristiwa uji ({status}).",
+    "testFailed": "Peristiwa uji tidak berhasil terkirim: {reason}.",
+    "rotate": "Ganti rahasia",
+    "rotateNote": "Rahasia saat ini langsung berhenti menandatangani.",
+    "remove": "Hentikan aliran",
+    "removeNote": "Alamat, rahasianya, dan peristiwa yang masih menunggu akan dihapus.",
+    "working": "Memproses…",
+    "secret": {
+      "title": "Rahasia penandatanganan",
+      "note": "Salin sekarang: rahasia ini tidak ditampilkan lagi. Anda dapat menggantinya kapan saja.",
+      "label": "Rahasia penandatanganan"
+    },
+    "codes": {
+      "invalidUrl": "alamat tidak valid",
+      "blocked": "alamat berada di jaringan pribadi yang tidak boleh dijangkau server ini",
+      "unreachable": "alamat tidak dapat dijangkau",
+      "timeout": "tidak ada jawaban dalam 10 detik",
+      "redirect": "alamat menjawab dengan pengalihan",
+      "http": "alamat menjawab {status}"
+    },
+    "errors": {
+      "invalidUrl": "Masukkan alamat yang valid.",
+      "httpsOnly": "Peristiwa audit hanya dapat dikirim ke alamat https.",
+      "notFound": "Ruang kerja ini tidak mengalirkan log auditnya.",
+      "ownersOnly": "Hanya pemilik yang dapat mengubah ini."
+    }
+  },
+  "sensitiveContent": {
+    "title": "Konten sensitif",
+    "description": "Temukan nomor kartu pembayaran, IBAN, nomor identitas nasional, dan rahasia seperti kunci privat dan token akses di halaman dan baris ruang kerja.",
+    "toggle": "Cari konten sensitif",
+    "toggleDescription": "Halaman dan baris dibaca di latar belakang setelah berubah. Pemilik diberi tahu di kotak masuk mereka dan setiap temuan dicatat di log audit; hanya sebagian nilai yang disamarkan yang disimpan. Menonaktifkan ini menghapus temuan.",
+    "findingsTitle": "Temuan terbuka",
+    "none": "Tidak ada yang ditemukan di halaman dan baris ruang kerja.",
+    "off": "Aktifkan pencarian konten sensitif untuk melihat isi halaman dan baris.",
+    "more": "{count, plural, other {# temuan lainnya tidak ditampilkan.}}",
+    "dismiss": "Abaikan",
+    "foundAt": "ditemukan {when}",
+    "kinds": {
+      "card": "Nomor kartu pembayaran",
+      "iban": "IBAN",
+      "national_id": "Nomor identitas nasional",
+      "private_key": "Kunci privat",
+      "aws_key": "Kunci akses AWS",
+      "github_token": "Token GitHub",
+      "slack_token": "Token Slack",
+      "api_key": "Kunci API",
+      "jwt": "JSON Web Token"
+    },
+    "errors": {
+      "gone": "Temuan ini sudah diabaikan atau diselesaikan."
+    }
+  },
+  "domainPeople": {
+    "title": "Orang dari domain Anda",
+    "description": "Akun di server ini dengan alamat email di domain terverifikasi ruang kerja, baik yang ada di ruang kerja maupun tidak.",
+    "summary": "{count, plural, other {# akun}} di {domains}, {inside} di ruang kerja ini.",
+    "more": "Hanya 500 pertama yang ditampilkan.",
+    "search": "Cari orang",
+    "filter": "Tampilkan",
+    "filters": {
+      "all": "Semua orang",
+      "in": "Di ruang kerja ini",
+      "out": "Tidak di ruang kerja ini"
+    },
+    "columns": {
+      "person": "Orang",
+      "workspace": "Di ruang kerja ini",
+      "lastActive": "Terakhir aktif",
+      "signIn": "Masuk dengan",
+      "actions": "Tindakan"
+    },
+    "outside": "Tidak di ruang kerja",
+    "unverified": "alamat belum diverifikasi",
+    "never": "Tidak pernah",
+    "noSignIn": "Tidak ada metode masuk",
+    "methods": {
+      "password": "Kata sandi",
+      "sso": "Sistem masuk tunggal",
+      "passkey": "Kunci sandi"
+    },
+    "add": "Tambahkan sebagai anggota",
+    "remove": "Hapus",
+    "removing": "Menghapus…",
+    "noMatches": "Tidak ada yang cocok.",
+    "empty": "Belum ada akun di server ini yang memakai domain ini."
   }
 }

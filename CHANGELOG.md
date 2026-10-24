@@ -41,6 +41,32 @@
   turns it unfolds the new teamspace at once, as it now does whenever the open page moves to
   another place.
 
+- **Stream the audit log to your security tools.** Settings → Audit log gains *Stream to your
+  security tools* for owners: an HTTPS address and a signing secret, shown once, sealed and
+  replaceable. New audit events go out as signed JSON batches (up to 100, within about 30 seconds,
+  oldest first, at least once) with the same headers and signature as automation webhooks, are
+  tried again with growing waits up to an hour under the same delivery id, and are given up on
+  (and counted) after 7 days. The settings show whether it streams or fails and since when, the
+  last error and delivery, what was sent and what waits, and *Send test event*. Starting, changing,
+  replacing the secret of and stopping a stream are in the audit log. The REST API gains
+  `GET /workspaces/{id}/audit-log` with the new `audit:read` scope, which only owners can give, and
+  only to a token limited to their workspace (no preset includes it): filters by time, actor,
+  actor kind, action and category, either order, with a cursor. Migration
+  `drizzle/0132_siem_dlp.sql` adds the stream and the outbox a trigger on `audit_event` fills. The audit
+  log's *Single sign-on and SCIM* filter is now called *Security*, as it holds these too.
+- **Sensitive content detection.** Owners can turn on *Look for sensitive content* in Settings →
+  Security (off by default): pages and rows are read in the background after they change for
+  payment card numbers (issuer and Luhn checked), IBANs (mod 97), Turkish national ID numbers and
+  secrets (private keys, AWS keys, GitHub and Slack tokens, `sk-` keys, JSON Web Tokens and more).
+  A finding keeps only a masked excerpt and a keyed hash, never the value; each is in the audit
+  log, owners hear of a page and kind in their inbox at most once a day, and Settings → Security
+  lists the open ones with their pages and *Dismiss*. A finding resolves itself once the value is
+  gone from the page; turning detection off deletes the findings. The same migration adds the
+  `sensitive_finding` and `sensitive_scan` tables.
+- **People from your domains.** Settings → Security lists, for owners of a workspace with verified
+  email domains, every account on the server with an address in them: whether it is in the
+  workspace and as what, when it was last active and how it signs in, with *Add as member* and
+  *Remove*.
 - **Page views and page analytics.** Opening a page, database or row in the app now records a
   view, once the page has been open two seconds and at most once per person and page every five
   minutes, kept as one count per page, person and UTC day and deleted after a year. Only owners

@@ -87,7 +87,11 @@
       "siteHeader": "navegação menu links barra superior",
       "siteDescription": "seo meta descrição buscadores prévia open graph",
       "siteAnalytics": "google analytics ga4 gtag rastreamento visitantes estatísticas",
-      "siteDomain": "domínio próprio dns nome de host cname certificado"
+      "siteDomain": "domínio próprio dns nome de host cname certificado",
+      "eventStream": "siem segurança registro log stream exportar webhook encaminhar eventos",
+      "sensitiveContent": "dlp prevenção perda de dados cartão de crédito iban segredos tokens chaves verificar",
+      "sensitiveFindings": "dlp ocorrências segredos vazados números de cartão dispensar",
+      "domainPeople": "domínio contas usuários empresa e-mail shadow não gerenciadas"
     }
   },
   "workspace": {
@@ -1580,7 +1584,7 @@
       "teamspaces": "Espaços de equipe",
       "groups": "Grupos",
       "settings": "Configurações do espaço de trabalho",
-      "security": "Login único e SCIM",
+      "security": "Segurança",
       "pages": "Páginas",
       "integrations": "Apps conectados e tokens de API",
       "exports": "Exportações",
@@ -1657,7 +1661,8 @@
       "domainJoin": "Quando alguém destes domínios entra",
       "joinRequests": "Quem pode pedir para entrar",
       "email": "E-mail nas linhas",
-      "agentCreation": "Quem pode criar agentes"
+      "agentCreation": "Quem pode criar agentes",
+      "sensitiveContent": "Detectar conteúdo sensível"
     },
     "values": {
       "on": "Ativado",
@@ -1848,6 +1853,16 @@
       "review": {
         "approved": "{kind, select, email_draft {Enviou o e-mail que o agente “{agent}” rascunhou em {target}} create_row {Aprovou a linha que o agente “{agent}” propôs em {target}} other {Aprovou a alteração que o agente “{agent}” propôs para {target}}}{outcome, select, failed { (falhou)} other {}}",
         "dismissed": "{kind, select, email_draft {Descartou o e-mail que o agente “{agent}” rascunhou em {target}} create_row {Descartou a linha que o agente “{agent}” propôs em {target}} other {Descartou a alteração que o agente “{agent}” propôs para {target}}}"
+      },
+      "audit_stream": {
+        "created": "Começou a enviar o registro de auditoria para {target}",
+        "updated": "{change, select, on {Ativou o envio do registro de auditoria para {target}} off {Desativou o envio do registro de auditoria para {target}} other {Alterou o envio do registro de auditoria para {target}}}",
+        "secret_replaced": "Substituiu o segredo de assinatura do envio do registro de auditoria para {target}",
+        "removed": "Parou de enviar o registro de auditoria para {target}"
+      },
+      "sensitive_content": {
+        "found": "Encontrou {kind} ({excerpt}) em {target}",
+        "dismissed": "Dispensou a ocorrência de {kind} ({excerpt}) em {target}"
       }
     },
     "decisions": {
@@ -1863,6 +1878,17 @@
       "full": "Acesso total",
       "edit": "Pode editar",
       "interact": "Pode ver e interagir"
+    },
+    "sensitiveKinds": {
+      "card": "um número de cartão de pagamento",
+      "iban": "um IBAN",
+      "national_id": "um número de identidade nacional",
+      "private_key": "uma chave privada",
+      "aws_key": "uma chave de acesso da AWS",
+      "github_token": "um token do GitHub",
+      "slack_token": "um token do Slack",
+      "api_key": "uma chave de API",
+      "jwt": "um JSON Web Token"
     }
   },
   "notifications": {
@@ -2664,5 +2690,112 @@
       "logoSize": "O logotipo é grande demais: no máximo 512 KB.",
       "notFound": "Esse papel timbrado não existe mais. Recarregue a página."
     }
+  },
+  "eventStream": {
+    "title": "Envie para suas ferramentas de segurança",
+    "description": "Envie novos eventos de auditoria, assim que acontecem, para um endereço HTTPS, como o coletor do seu sistema de gerenciamento de informações e eventos de segurança (SIEM).",
+    "url": "Endereço",
+    "start": "Começar a enviar",
+    "saveUrl": "Salvar endereço",
+    "how": "Os eventos são enviados como POSTs JSON assinados, até 100 por vez e cerca de 30 segundos depois de acontecerem, dos mais antigos para os mais novos. Verifique o cabeçalho X-Leafdesk-Signature de cada requisição com o segredo de assinatura; um evento pode chegar duas vezes, então mantenha o primeiro de cada id de evento. Requisições que falham são tentadas novamente por 7 dias.",
+    "toggle": "Enviar o registro de auditoria",
+    "state": {
+      "on": "Enviando",
+      "off": "Desativado: novos eventos não são enviados",
+      "failing": "Falhando desde {since}"
+    },
+    "nextTry": "nova tentativa em {when}",
+    "lastSuccess": "Última entrega em {when}",
+    "noSuccess": "Nada entregue ainda",
+    "sent": "{count, plural, =0 {nenhum evento enviado} one {# evento enviado} other {# eventos enviados}}",
+    "waiting": "{count, plural, one {# aguardando} other {# aguardando}}",
+    "dropped": "{count, plural, one {# evento esperou mais de 7 dias e foi abandonado} other {# eventos esperaram mais de 7 dias e foram abandonados}}, o mais recente em {when}",
+    "test": "Enviar evento de teste",
+    "testDelivered": "O endereço aceitou o evento de teste ({status}).",
+    "testFailed": "O evento de teste não foi entregue: {reason}.",
+    "rotate": "Substituir segredo",
+    "rotateNote": "O segredo atual deixa de assinar imediatamente.",
+    "remove": "Parar de enviar",
+    "removeNote": "O endereço, seu segredo e os eventos que ainda aguardam envio são removidos.",
+    "working": "Processando…",
+    "secret": {
+      "title": "Segredo de assinatura",
+      "note": "Copie agora: ele não será mostrado de novo. Você pode substituí-lo a qualquer momento.",
+      "label": "Segredo de assinatura"
+    },
+    "codes": {
+      "invalidUrl": "o endereço não é válido",
+      "blocked": "o endereço está em uma rede privada que este servidor não pode acessar",
+      "unreachable": "não foi possível acessar o endereço",
+      "timeout": "nenhuma resposta em 10 segundos",
+      "redirect": "o endereço respondeu com um redirecionamento",
+      "http": "o endereço respondeu {status}"
+    },
+    "errors": {
+      "invalidUrl": "Informe um endereço válido.",
+      "httpsOnly": "Eventos de auditoria só podem ser enviados para endereços https.",
+      "notFound": "O espaço de trabalho não envia seu registro de auditoria.",
+      "ownersOnly": "Só proprietários podem alterar isso."
+    }
+  },
+  "sensitiveContent": {
+    "title": "Conteúdo sensível",
+    "description": "Encontre números de cartão de pagamento, IBANs, números de identidade nacional e segredos como chaves privadas e tokens de acesso nas páginas e linhas do espaço de trabalho.",
+    "toggle": "Procurar conteúdo sensível",
+    "toggleDescription": "Páginas e linhas são lidas em segundo plano depois de alteradas. Os proprietários são avisados na caixa de entrada e cada ocorrência fica no registro de auditoria; só uma parte mascarada do valor é guardada. Desativar isto apaga as ocorrências.",
+    "findingsTitle": "Ocorrências em aberto",
+    "none": "Nada encontrado nas páginas e linhas do espaço de trabalho.",
+    "off": "Ative a procura de conteúdo sensível para ver o que as páginas e linhas contêm.",
+    "more": "{count, plural, one {Mais # ocorrência não é mostrada.} other {Mais # ocorrências não são mostradas.}}",
+    "dismiss": "Dispensar",
+    "foundAt": "detectado em {when}",
+    "kinds": {
+      "card": "Número de cartão de pagamento",
+      "iban": "IBAN",
+      "national_id": "Número de identidade nacional",
+      "private_key": "Chave privada",
+      "aws_key": "Chave de acesso da AWS",
+      "github_token": "Token do GitHub",
+      "slack_token": "Token do Slack",
+      "api_key": "Chave de API",
+      "jwt": "JSON Web Token"
+    },
+    "errors": {
+      "gone": "Esta ocorrência já foi dispensada ou resolvida."
+    }
+  },
+  "domainPeople": {
+    "title": "Pessoas dos seus domínios",
+    "description": "Contas neste servidor com endereço de e-mail nos domínios verificados do espaço de trabalho, estejam elas no espaço de trabalho ou não.",
+    "summary": "{count, plural, one {# conta} other {# contas}} em {domains}, {inside} neste espaço de trabalho.",
+    "more": "Só as primeiras 500 são listadas.",
+    "search": "Pesquisar pessoas",
+    "filter": "Mostrar",
+    "filters": {
+      "all": "Todos",
+      "in": "Neste espaço de trabalho",
+      "out": "Fora deste espaço de trabalho"
+    },
+    "columns": {
+      "person": "Pessoa",
+      "workspace": "Neste espaço de trabalho",
+      "lastActive": "Última atividade",
+      "signIn": "Entra com",
+      "actions": "Ações"
+    },
+    "outside": "Fora do espaço de trabalho",
+    "unverified": "endereço não verificado",
+    "never": "Nunca",
+    "noSignIn": "Nenhum método de entrada",
+    "methods": {
+      "password": "Senha",
+      "sso": "Login único",
+      "passkey": "Chave de acesso"
+    },
+    "add": "Adicionar como membro",
+    "remove": "Remover",
+    "removing": "Removendo…",
+    "noMatches": "Ninguém corresponde.",
+    "empty": "Nenhuma conta neste servidor usa esses domínios ainda."
   }
 }

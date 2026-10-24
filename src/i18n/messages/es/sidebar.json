@@ -198,7 +198,8 @@
     "aiAccountDetached": "La IA del espacio de trabajo ya no funciona con la clave de {actor}. Elige otra cuenta de IA en Configuración.",
     "reviewTitle": "Por revisar",
     "review": "{count, plural, one {{agent} propuso un cambio para que lo revises} other {# cambios esperan tu revisión; el último, de {agent}}}",
-    "automationRun": "Automatización “{name}”"
+    "automationRun": "Automatización “{name}”",
+    "sensitiveContent": "Se encontró {kind, select, card {un número de tarjeta de pago} iban {un IBAN} national_id {un número de identificación nacional} private_key {una clave privada} aws_key {una clave de acceso de AWS} github_token {un token de GitHub} slack_token {un token de Slack} api_key {una clave de API} jwt {un JSON Web Token} other {contenido sensible}} aquí. Revisa el hallazgo en Configuración > Seguridad."
   },
   "templates": {
     "title": "Plantillas",

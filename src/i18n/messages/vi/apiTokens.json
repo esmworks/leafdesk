@@ -45,7 +45,8 @@
     "expiry": "Hãy chọn thời điểm token hết hạn.",
     "limit": "Bạn đã có số token tối đa cho phép. Hãy thu hồi một token trước.",
     "generic": "Không thể tạo token. Hãy thử lại.",
-    "notFound": "Token này không còn tồn tại."
+    "notFound": "Token này không còn tồn tại.",
+    "ownerScope": "Chỉ chủ sở hữu của không gian làm việc mới có thể cho phép token đọc nhật ký kiểm tra của nó, và chỉ với token giới hạn trong không gian làm việc đó."
   },
   "docsPage": {
     "metaTitle": "REST API",
@@ -114,6 +115,10 @@
       "webhooks": {
         "name": "Webhook",
         "hint": "Webhook của trang và các lần gửi của chúng; quyền ghi cho phép thêm, thay đổi và thử chúng (chỉ chủ sở hữu)."
+      },
+      "audit": {
+        "name": "Nhật ký kiểm tra",
+        "hint": "Nhật ký kiểm tra của không gian làm việc (chỉ chủ sở hữu, cho token giới hạn trong không gian làm việc họ sở hữu)."
       }
     },
     "summary": {
@@ -129,7 +134,8 @@
     "errors": {
       "scopes": "Hãy chọn ít nhất một việc token được phép làm.",
       "notFound": "Token này không còn tồn tại.",
-      "generic": "Không thể thay đổi token. Hãy thử lại."
+      "generic": "Không thể thay đổi token. Hãy thử lại.",
+      "ownerScope": "Chỉ chủ sở hữu của không gian làm việc mới có thể cho phép token đọc nhật ký kiểm tra của nó, và chỉ với token giới hạn trong không gian làm việc đó."
     }
   }
 }

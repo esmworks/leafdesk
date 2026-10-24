@@ -87,7 +87,11 @@
       "siteHeader": "navigation menü links kopfleiste",
       "siteDescription": "seo meta beschreibung suchmaschinen vorschau open graph",
       "siteAnalytics": "google analytics ga4 gtag tracking besucher statistik",
-      "siteDomain": "eigene domain dns hostname cname zertifikat"
+      "siteDomain": "eigene domain dns hostname cname zertifikat",
+      "eventStream": "siem sicherheit protokoll stream export webhook ereignisse weiterleiten",
+      "sensitiveContent": "dlp datenverlust sensible daten kreditkarte iban geheimnisse token schlüssel scannen",
+      "sensitiveFindings": "dlp funde geleakte geheimnisse kartennummern verwerfen",
+      "domainPeople": "domain konten benutzer firma e-mail schatten-it unverwaltet"
     }
   },
   "workspace": {
@@ -1580,7 +1584,7 @@
       "teamspaces": "Teamspaces",
       "groups": "Gruppen",
       "settings": "Workspace-Einstellungen",
-      "security": "Single Sign-on und SCIM",
+      "security": "Sicherheit",
       "pages": "Seiten",
       "integrations": "Verbundene Apps und API-Token",
       "exports": "Exporte",
@@ -1657,7 +1661,8 @@
       "domainJoin": "Wenn sich jemand aus diesen Domains anmeldet",
       "joinRequests": "Wer um Beitritt bitten kann",
       "email": "E-Mails in Zeilen",
-      "agentCreation": "Wer Agenten erstellen kann"
+      "agentCreation": "Wer Agenten erstellen kann",
+      "sensitiveContent": "Sensible Inhalte erkennen"
     },
     "values": {
       "on": "An",
@@ -1848,6 +1853,16 @@
       "review": {
         "approved": "{kind, select, email_draft {Hat die E-Mail gesendet, die der Agent „{agent}“ zu {target} entworfen hat} create_row {Hat die Zeile freigegeben, die der Agent „{agent}“ in {target} vorgeschlagen hat} other {Hat die Änderung freigegeben, die der Agent „{agent}“ für {target} vorgeschlagen hat}}{outcome, select, failed { (fehlgeschlagen)} other {}}",
         "dismissed": "{kind, select, email_draft {Hat die E-Mail verworfen, die der Agent „{agent}“ zu {target} entworfen hat} create_row {Hat die Zeile verworfen, die der Agent „{agent}“ in {target} vorgeschlagen hat} other {Hat die Änderung verworfen, die der Agent „{agent}“ für {target} vorgeschlagen hat}}"
+      },
+      "audit_stream": {
+        "created": "Hat das Streaming des Audit-Logs an {target} gestartet",
+        "updated": "{change, select, on {Hat das Streaming des Audit-Logs an {target} eingeschaltet} off {Hat das Streaming des Audit-Logs an {target} ausgeschaltet} other {Hat das Streaming des Audit-Logs an {target} geändert}}",
+        "secret_replaced": "Hat den Signaturschlüssel des Audit-Log-Streams an {target} ersetzt",
+        "removed": "Hat das Streaming des Audit-Logs an {target} beendet"
+      },
+      "sensitive_content": {
+        "found": "Hat {kind} ({excerpt}) in {target} gefunden",
+        "dismissed": "Hat den Hinweis auf {kind} ({excerpt}) in {target} verworfen"
       }
     },
     "decisions": {
@@ -1863,6 +1878,17 @@
       "full": "Vollzugriff",
       "edit": "Kann bearbeiten",
       "interact": "Kann ansehen & interagieren"
+    },
+    "sensitiveKinds": {
+      "card": "eine Zahlungskartennummer",
+      "iban": "eine IBAN",
+      "national_id": "eine nationale Ausweisnummer",
+      "private_key": "einen privaten Schlüssel",
+      "aws_key": "einen AWS-Zugriffsschlüssel",
+      "github_token": "ein GitHub-Token",
+      "slack_token": "ein Slack-Token",
+      "api_key": "einen API-Schlüssel",
+      "jwt": "ein JSON Web Token (JWT)"
     }
   },
   "notifications": {
@@ -2664,5 +2690,112 @@
       "logoSize": "Das Logo ist zu groß: höchstens 512 KB.",
       "notFound": "Dieser Briefkopf existiert nicht mehr. Laden Sie die Seite neu."
     }
+  },
+  "eventStream": {
+    "title": "An deine Sicherheitstools streamen",
+    "description": "Sende neue Audit-Ereignisse sofort an eine HTTPS-Adresse, etwa an den Collector deines SIEM-Systems (Security Information and Event Management).",
+    "url": "Adresse",
+    "start": "Streaming starten",
+    "saveUrl": "Adresse speichern",
+    "how": "Ereignisse gehen als signierte JSON-POST-Anfragen raus, bis zu 100 auf einmal und innerhalb von etwa 30 Sekunden nach ihrem Eintreten, die ältesten zuerst. Prüfe den X-Leafdesk-Signature-Header jeder Anfrage mit dem Signaturschlüssel; ein Ereignis kann zweimal ankommen, behalte also jeweils das erste mit derselben Ereignis-ID. Fehlgeschlagene Anfragen werden 7 Tage lang erneut versucht.",
+    "toggle": "Audit-Log streamen",
+    "state": {
+      "on": "Wird gestreamt",
+      "off": "Aus: Neue Ereignisse werden nicht gesendet",
+      "failing": "Schlägt fehl seit {since}"
+    },
+    "nextTry": "nächster Versuch {when}",
+    "lastSuccess": "Zuletzt zugestellt {when}",
+    "noSuccess": "Noch nichts zugestellt",
+    "sent": "{count, plural, =0 {keine Ereignisse gesendet} one {# Ereignis gesendet} other {# Ereignisse gesendet}}",
+    "waiting": "{count, plural, one {# wartet} other {# warten}}",
+    "dropped": "{count, plural, one {# Ereignis hat länger als 7 Tage gewartet und wurde aufgegeben} other {# Ereignisse haben länger als 7 Tage gewartet und wurden aufgegeben}}, zuletzt {when}",
+    "test": "Testereignis senden",
+    "testDelivered": "Die Adresse hat das Testereignis angenommen ({status}).",
+    "testFailed": "Das Testereignis ist nicht angekommen: {reason}.",
+    "rotate": "Schlüssel ersetzen",
+    "rotateNote": "Der aktuelle Schlüssel signiert sofort nicht mehr.",
+    "remove": "Streaming beenden",
+    "removeNote": "Die Adresse, ihr Schlüssel und alle noch wartenden Ereignisse werden entfernt.",
+    "working": "Wird ausgeführt…",
+    "secret": {
+      "title": "Signaturschlüssel",
+      "note": "Kopiere ihn jetzt: Er wird nicht noch einmal angezeigt. Du kannst ihn jederzeit ersetzen.",
+      "label": "Signaturschlüssel"
+    },
+    "codes": {
+      "invalidUrl": "die Adresse ist ungültig",
+      "blocked": "die Adresse liegt in einem privaten Netzwerk, das dieser Server nicht erreichen darf",
+      "unreachable": "die Adresse war nicht erreichbar",
+      "timeout": "keine Antwort innerhalb von 10 Sekunden",
+      "redirect": "die Adresse hat mit einer Weiterleitung geantwortet",
+      "http": "die Adresse hat mit {status} geantwortet"
+    },
+    "errors": {
+      "invalidUrl": "Gib eine gültige Adresse ein.",
+      "httpsOnly": "Audit-Ereignisse können nur an https-Adressen gehen.",
+      "notFound": "Dieser Workspace streamt sein Audit-Log nicht.",
+      "ownersOnly": "Nur Inhaber können das ändern."
+    }
+  },
+  "sensitiveContent": {
+    "title": "Sensible Inhalte",
+    "description": "Finde Zahlungskartennummern, IBANs, nationale Ausweisnummern und Geheimnisse wie private Schlüssel und Zugriffstoken in den Seiten und Zeilen des Workspace.",
+    "toggle": "Nach sensiblen Inhalten suchen",
+    "toggleDescription": "Seiten und Zeilen werden nach jeder Änderung im Hintergrund gelesen. Inhaber erhalten eine Nachricht in ihrem Posteingang, und jeder Fund wird im Audit-Log festgehalten; vom Wert wird nur ein maskierter Teil aufbewahrt. Wenn du das ausschaltest, werden die Funde gelöscht.",
+    "findingsTitle": "Offene Funde",
+    "none": "In den Seiten und Zeilen des Workspace wurde nichts gefunden.",
+    "off": "Schalte die Suche nach sensiblen Inhalten ein, um zu sehen, was Seiten und Zeilen enthalten.",
+    "more": "{count, plural, one {# weiterer Fund wird nicht angezeigt.} other {# weitere Funde werden nicht angezeigt.}}",
+    "dismiss": "Verwerfen",
+    "foundAt": "gefunden {when}",
+    "kinds": {
+      "card": "Zahlungskartennummer",
+      "iban": "IBAN",
+      "national_id": "Nationale Ausweisnummer",
+      "private_key": "Privater Schlüssel",
+      "aws_key": "AWS-Zugriffsschlüssel",
+      "github_token": "GitHub-Token",
+      "slack_token": "Slack-Token",
+      "api_key": "API-Schlüssel",
+      "jwt": "JSON Web Token (JWT)"
+    },
+    "errors": {
+      "gone": "Dieser Fund wurde bereits verworfen oder behoben."
+    }
+  },
+  "domainPeople": {
+    "title": "Personen aus deinen Domains",
+    "description": "Konten auf diesem Server mit einer E-Mail-Adresse in den verifizierten Domains des Workspace, ob sie im Workspace sind oder nicht.",
+    "summary": "{count, plural, one {# Konto} other {# Konten}} in {domains}, davon {inside} in diesem Workspace.",
+    "more": "Nur die ersten 500 werden aufgeführt.",
+    "search": "Personen suchen",
+    "filter": "Anzeigen",
+    "filters": {
+      "all": "Alle",
+      "in": "In diesem Workspace",
+      "out": "Nicht in diesem Workspace"
+    },
+    "columns": {
+      "person": "Person",
+      "workspace": "In diesem Workspace",
+      "lastActive": "Zuletzt aktiv",
+      "signIn": "Meldet sich an mit",
+      "actions": "Aktionen"
+    },
+    "outside": "Nicht im Workspace",
+    "unverified": "Adresse nicht verifiziert",
+    "never": "Nie",
+    "noSignIn": "Keine Anmeldemethode",
+    "methods": {
+      "password": "Passwort",
+      "sso": "Single Sign-on",
+      "passkey": "Passkey"
+    },
+    "add": "Als Mitglied hinzufügen",
+    "remove": "Entfernen",
+    "removing": "Wird entfernt…",
+    "noMatches": "Niemand entspricht der Suche.",
+    "empty": "Noch verwendet kein Konto auf diesem Server diese Domains."
   }
 }

@@ -29,6 +29,9 @@ import { AnalyticsPanel } from "@/components/settings/analytics-panel";
 import { OwnPageViewsSetting } from "@/components/settings/page-views-settings";
 import { AiUsagePanel } from "@/components/settings/ai-usage-panel";
 import { AuditPanel } from "@/components/settings/audit-panel";
+import { AuditStreamSettings } from "@/components/settings/audit-stream-settings";
+import { DomainPeople } from "@/components/settings/domain-people";
+import { SensitiveContentSetting, SensitiveFindings } from "@/components/settings/sensitive-content-settings";
 import { ConnectionsPanel } from "@/components/settings/connections-panel";
 import { GroupsPanel } from "@/components/settings/groups-panel";
 import { GuestsPanel } from "@/components/settings/guests-panel";
@@ -112,6 +115,8 @@ import { workspaceAiView } from "@/server/ai-accounts";
 import { workspaceAnalytics } from "@/server/analytics";
 import { ownPageViews } from "@/server/page-views";
 import { auditActors, listAuditEvents } from "@/server/audit";
+import { getAuditStream } from "@/server/audit-stream";
+import { listSensitiveFindings } from "@/server/sensitive-content";
 import { listWorkspaceFormPublications } from "@/server/forms";
 import { listJoinRequests } from "@/server/join-requests";
 import { listLetterheads } from "@/server/letterheads";
@@ -137,6 +142,7 @@ import {
   listInvitations,
   listMembers,
   memberInviteAccess,
+  domainPeople,
   ssoAvailable,
 } from "@/server/workspaces";
 import { listWorkspaceApps } from "@/server/workspace-apps";
@@ -461,7 +467,7 @@ async function SecurityTab({ workspaceId, userId, isOwner }: { workspaceId: stri
   // On one computer (lib/env.ts localMode) there is no one to sign in with SSO, provision, invite,
   // ask for access or publish to: those settings are left out.
   const local = env.localMode;
-  const [settings, publications, forms, session, withoutTwoFactor, canUseSso, connection, scimTokens, scimManaged, domainStatus, apps, holds, networks, networkCount, clientIp, t] =
+  const [settings, publications, forms, session, withoutTwoFactor, canUseSso, connection, scimTokens, scimManaged, domainStatus, apps, holds, networks, networkCount, clientIp, fromDomains, t] =
     await Promise.all([
       getWorkspaceSettings(userId, workspaceId),
       isOwner && !local ? listWorkspacePublications(userId, workspaceId) : null,
@@ -478,8 +484,10 @@ async function SecurityTab({ workspaceId, userId, isOwner }: { workspaceId: stri
       isOwner && !local ? getAllowedNetworks(userId, workspaceId) : [],
       !isOwner && !local ? allowedNetworkCount(userId, workspaceId) : 0,
       requestIp(),
+      isOwner && !local ? domainPeople(userId, workspaceId) : null,
       getTranslations("settings"),
     ]);
+  const findings = isOwner && settings.sensitiveContent ? await listSensitiveFindings(userId, workspaceId) : null;
   const setup = ssoSetupInfo(workspaceId);
   return (
     <div className="space-y-10">
@@ -544,6 +552,18 @@ async function SecurityTab({ workspaceId, userId, isOwner }: { workspaceId: stri
           />
         </SettingsGroup>
       )}
+      {fromDomains && fromDomains.domains.length > 0 && (
+        <SettingsGroup anchor="domainPeople" title={t("domainPeople.title")} description={t("domainPeople.description")}>
+          <DomainPeople
+            workspaceId={workspaceId}
+            currentUserId={userId}
+            domains={fromDomains.domains}
+            more={fromDomains.more}
+            now={new Date()}
+            people={fromDomains.people.map((person) => ({ ...person, lastActiveAt: person.lastActiveAt?.toISOString() ?? null }))}
+          />
+        </SettingsGroup>
+      )}
       {!local && (
         <SettingsGroup anchor="accessRequests" title={t("security.sharingHeading")}>
           <AccessRequestsSetting workspaceId={workspaceId} settings={settings} canEdit={isOwner} />
@@ -565,6 +585,18 @@ async function SecurityTab({ workspaceId, userId, isOwner }: { workspaceId: stri
           <ConnectedAppsSetting workspaceId={workspaceId} settings={settings} canEdit={isOwner} />
         </div>
       </SettingsGroup>
+      {isOwner && (
+        <SettingsGroup anchor="sensitiveContent" title={t("sensitiveContent.title")} description={t("sensitiveContent.description")}>
+          <SensitiveContentSetting workspaceId={workspaceId} enabled={settings.sensitiveContent} />
+          <div id={settingAnchor("sensitiveFindings")} className="border-t border-border">
+            {findings ? (
+              <SensitiveFindings workspaceId={workspaceId} findings={findings.findings} total={findings.total} />
+            ) : (
+              <p className="px-5 py-4 text-sm text-fg-muted">{t("sensitiveContent.off")}</p>
+            )}
+          </div>
+        </SettingsGroup>
+      )}
       {apps && (
         <SettingsGroup anchor="workspaceApps" title={t("security.workspaceApps.title")} description={t("security.workspaceApps.description")}>
           <WorkspaceApps workspaceId={workspaceId} apps={apps.apps} total={apps.total} mode={connectedAppsMode(settings.connectedApps)} />
@@ -857,11 +889,18 @@ async function AuditTab({
   const filters = parseAuditFilters(query);
   // The date range is in days of the viewer's clock (the time zone cookie, UTC without one).
   const timeZone = await getTimeZone();
-  const [{ events, hasMore }, actors] = await Promise.all([
+  const [{ events, hasMore }, actors, stream, t] = await Promise.all([
     listAuditEvents(userId, workspaceId, filters, { timeZone }),
     auditActors(userId, workspaceId),
+    getAuditStream(userId, workspaceId),
+    getTranslations("settings.eventStream"),
   ]);
-  return <AuditPanel workspaceId={workspaceId} events={events} hasMore={hasMore} filters={filters} actors={actors} />;
+  const streaming = (
+    <SettingsGroup anchor="eventStream" title={t("title")} description={t("description")}>
+      <AuditStreamSettings workspaceId={workspaceId} stream={stream} />
+    </SettingsGroup>
+  );
+  return <AuditPanel workspaceId={workspaceId} events={events} hasMore={hasMore} filters={filters} actors={actors} streaming={streaming} />;
 }
 
 async function TeamspacesTab({ workspaceId, userId, isOwner }: { workspaceId: string; userId: string; isOwner: boolean }) {

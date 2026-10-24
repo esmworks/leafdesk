@@ -95,10 +95,14 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
   { id: "membership", tab: "security", label: "settings:security.membersHeading", keywords: true, when: online },
   { id: "sso", tab: "security", label: "settings:security.sso.title", keywords: true, when: ownerOnline },
   { id: "scim", tab: "security", label: "settings:security.scim.title", keywords: true, when: ownerOnline },
+  // Listed only while the workspace has verified domains, which the search doesn't know: it then opens the tab.
+  { id: "domainPeople", tab: "security", label: "settings:domainPeople.title", keywords: true, when: ownerOnline },
   { id: "accessRequests", tab: "security", label: "settings:security.accessRequests.title", when: online },
   { id: "guestPolicies", tab: "security", label: "settings:security.guestsHeading", when: online },
   { id: "exportPolicy", tab: "security", label: "settings:security.export.title", keywords: true },
   { id: "connectedAppsPolicy", tab: "security", label: "settings:security.connectedApps.title", keywords: true },
+  { id: "sensitiveContent", tab: "security", label: "settings:sensitiveContent.title", keywords: true, when: owner },
+  { id: "sensitiveFindings", tab: "security", label: "settings:sensitiveContent.findingsTitle", keywords: true, when: owner },
   { id: "workspaceApps", tab: "security", label: "settings:security.workspaceApps.title", when: owner },
   { id: "publishing", tab: "security", label: "settings:security.publishingHeading", keywords: true, when: online },
   { id: "publications", tab: "security", label: "settings:security.publications.title", when: ownerOnline },
@@ -115,6 +119,7 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
   { id: "aiUsagePeople", tab: "aiUsage", label: "settings:search.labels.aiUsagePeople", keywords: true },
   { id: "health", tab: "health", keywords: true },
   { id: "audit", tab: "audit", keywords: true },
+  { id: "eventStream", tab: "audit", label: "settings:eventStream.title", keywords: true, when: owner },
 ];
 
 /** The DOM id a setting's group or row carries, which a jump scrolls to. */

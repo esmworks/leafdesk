@@ -168,6 +168,12 @@ export type WorkspaceSettings = {
    */
   pageViews: boolean;
   /**
+   * Whether saved pages and rows are scanned for card numbers, IBANs, national ID numbers and
+   * secrets (server/sensitive-content.ts), with findings listed to owners in Settings > Security.
+   * Off until an owner turns it on; turning it off forgets the findings.
+   */
+  sensitiveContent: boolean;
+  /**
    * The workspace's callout styles (lib/callout-styles): named box looks its owners define in
    * Settings > General and everyone inserts. Checked by parseCalloutStyles when saved.
    */
@@ -197,6 +203,7 @@ export const DEFAULT_WORKSPACE_SETTINGS: WorkspaceSettings = {
   joinRequests: "nobody",
   email: false,
   pageViews: true,
+  sensitiveContent: false,
   calloutStyles: [],
 };
 

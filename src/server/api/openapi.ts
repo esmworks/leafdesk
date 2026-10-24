@@ -1,5 +1,5 @@
 import * as z from "zod";
-import { API_SCOPE_DESCRIPTIONS, API_TOKEN_SCOPES } from "@/lib/api-scopes";
+import { ALL_API_SCOPES, API_SCOPE_DESCRIPTIONS, OWNER_SCOPES } from "@/lib/api-scopes";
 import { API_ERROR_CODES } from "./errors";
 import { API_PREFIX, DEFAULT_RATE_LIMIT, MAX_BODY_BYTES, takesIdempotencyKey } from "./handler";
 import { IDEMPOTENCY_HEADER, MAX_IDEMPOTENCY_KEY, REPLAYED_HEADER } from "./idempotency";
@@ -18,6 +18,7 @@ const TAGS = [
   { name: "Review", description: "Changes agents proposed instead of making them: rows to add or change and email drafts, each approved (optionally edited) or dismissed by a person." },
   { name: "Follow-ups", description: "Follow-up sequences of mail databases, and the rows they go on: emails sent one after another from a member's mailbox until the contact replies." },
   { name: "Webhooks", description: "Page webhooks: signed POSTs to an address of the workspace owners' choosing when pages are created, edited, moved, trashed, restored or deleted, or commented on." },
+  { name: "Audit log", description: "A workspace's audit log, for its owners: who changed what, and when. Settings can also stream it to an address as it happens." },
 ];
 
 /** Field descriptions are shared with the MCP server and sometimes name its tools. */
@@ -35,7 +36,7 @@ const DESCRIPTION = `A REST API for the pages, databases, rows and comments of L
 
 **Authentication.** Create a personal access token in Settings → Connected apps and send it as \`Authorization: Bearer esi_…\`. Tokens may be limited to one workspace and may expire. Tokens look like \`esi_\` followed by 40 letters and digits, so secret scanners can spot leaked ones; revoke a leaked token in Settings. Tokens act outside a workspace's "require two-step verification" policy, like connected MCP apps.
 
-**Scopes.** A token may read, and for some resources write, each kind of thing on its own: ${API_TOKEN_SCOPES.map((s) => `\`${s}\``).join(", ")}. A write scope brings the read scope of its resource. Each endpoint names the one scope it needs (\`GET /me\` takes any token); without it the answer is \`403 insufficient_scope\` with the scope in \`details.scope\`. What a token may do can be changed in Settings without changing its secret. Tokens made before scopes were per resource keep the access they had: their \`pages:read\` reads everything and their \`pages:write\` reads and writes everything (\`GET /me\` shows \`legacy_scopes: true\` and lists the scopes they stand for).
+**Scopes.** A token may read, and for some resources write, each kind of thing on its own: ${ALL_API_SCOPES.map((s) => `\`${s}\``).join(", ")}. A write scope brings the read scope of its resource. ${OWNER_SCOPES.map((s) => `\`${s}\``).join(", ")} only a workspace's owners can give, to a token limited to that workspace; no other scope, and no older token, includes it. Each endpoint names the one scope it needs (\`GET /me\` takes any token); without it the answer is \`403 insufficient_scope\` with the scope in \`details.scope\`. What a token may do can be changed in Settings without changing its secret. Tokens made before scopes were per resource keep the access they had: their \`pages:read\` reads everything and their \`pages:write\` reads and writes everything (\`GET /me\` shows \`legacy_scopes: true\` and lists the scopes they stand for).
 
 **Errors** are JSON: \`{"error": {"code": "not_found", "message": "…"}}\`. Invalid input adds \`details\` (what is wrong with each field) and \`param\`, the field it is about where it is known (\`title\`, \`properties.Status\`, \`rows.2.properties.Status\`). A page, database or row that doesn't exist and one the user may not see both answer \`404 not_found\`.
 
@@ -128,7 +129,7 @@ const SCHEMAS: Record<string, JsonSchema> = {
       id,
       scopes: {
         type: "array",
-        items: { type: "string", enum: [...API_TOKEN_SCOPES] },
+        items: { type: "string", enum: [...ALL_API_SCOPES] },
         description: "What the token may do; for a legacy token, what its pages:read or pages:write stands for.",
       },
       legacy_scopes: { type: "boolean", description: "Made before scopes were per resource." },
@@ -899,6 +900,30 @@ const SCHEMAS: Record<string, JsonSchema> = {
     ["id", "event", "status", "attempts", "created_at"],
   ),
   WebhookDeliveryList: loose({ webhook_id: id, deliveries: { type: "array", items: ref("WebhookDelivery") } }, ["webhook_id", "deliveries"]),
+  AuditEvent: loose(
+    {
+      id,
+      time: { type: "string", format: "date-time" },
+      action: { type: "string", description: "As stored, such as member.added; new versions add actions." },
+      category: { type: ["string", "null"], description: "The category Settings groups the action in; null for one this version doesn't know." },
+      actor: loose(
+        {
+          kind: { type: "string", enum: ["user", "agent", "api_token", "connected_app", "scim", "system", "automation"] },
+          id: { type: ["string", "null"], description: "The person who acted (or for whom a token, app or automation acted)." },
+          name: { type: "string" },
+          email: { type: ["string", "null"] },
+          via: { type: ["string", "null"], description: "The API token's, connected app's, SCIM token's or automation's name." },
+          ip: { type: ["string", "null"] },
+          user_agent: { type: ["string", "null"] },
+        },
+        ["kind", "id", "name"],
+      ),
+      target: { type: ["object", "null"], properties: { type: { type: "string" }, id: { type: ["string", "null"] }, label: { type: "string" } } },
+      details: { type: "object", additionalProperties: true, description: "Small before/after values, credentials masked." },
+    },
+    ["id", "time", "action", "actor", "details"],
+  ),
+  AuditEventList: loose({ workspace_id: id, events: { type: "array", items: ref("AuditEvent") }, ...cursorFields }, ["workspace_id", "events", "has_more"]),
   SequenceList: loose({ database_id: id, sequences: { type: "array", items: ref("Sequence") } }, ["database_id", "sequences"]),
   Enrollment: loose(
     {
@@ -1094,7 +1119,7 @@ export function buildOpenApiDocument(routes: ApiRoute[], { appUrl, version }: { 
           type: "http",
           scheme: "bearer",
           bearerFormat: "esi_ personal access token",
-          description: `Personal access token from Settings → Connected apps. Scopes: ${API_TOKEN_SCOPES.join(", ")}.`,
+          description: `Personal access token from Settings → Connected apps. Scopes: ${ALL_API_SCOPES.join(", ")}.`,
           "x-scopes": API_SCOPE_DESCRIPTIONS,
         },
       },

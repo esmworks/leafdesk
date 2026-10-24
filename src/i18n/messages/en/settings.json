@@ -87,7 +87,11 @@
       "siteHeader": "navigation menu links top bar",
       "siteDescription": "seo meta description search engines preview open graph",
       "siteAnalytics": "google analytics ga4 gtag tracking visitors statistics",
-      "siteDomain": "custom domain dns host name cname certificate"
+      "siteDomain": "custom domain dns host name cname certificate",
+      "eventStream": "siem security log stream export webhook forward events",
+      "sensitiveContent": "dlp data loss prevention credit card iban secrets tokens keys scan",
+      "sensitiveFindings": "dlp findings leaked secrets card numbers dismiss",
+      "domainPeople": "domain accounts users company email shadow unmanaged"
     }
   },
   "workspace": {
@@ -1580,7 +1584,7 @@
       "teamspaces": "Teamspaces",
       "groups": "Groups",
       "settings": "Workspace settings",
-      "security": "Single sign-on and SCIM",
+      "security": "Security",
       "pages": "Pages",
       "integrations": "Connected apps and API tokens",
       "exports": "Exports",
@@ -1657,7 +1661,8 @@
       "domainJoin": "When someone from these domains signs in",
       "joinRequests": "Who can ask to join",
       "email": "Email on rows",
-      "agentCreation": "Who can create agents"
+      "agentCreation": "Who can create agents",
+      "sensitiveContent": "Detect sensitive content"
     },
     "values": {
       "on": "On",
@@ -1848,6 +1853,16 @@
       "review": {
         "approved": "{kind, select, email_draft {Sent the email the agent “{agent}” drafted on {target}} create_row {Approved the row the agent “{agent}” proposed in {target}} other {Approved the change the agent “{agent}” proposed to {target}}}{outcome, select, failed { (it failed)} other {}}",
         "dismissed": "{kind, select, email_draft {Dismissed the email the agent “{agent}” drafted on {target}} create_row {Dismissed the row the agent “{agent}” proposed in {target}} other {Dismissed the change the agent “{agent}” proposed to {target}}}"
+      },
+      "audit_stream": {
+        "created": "Started streaming the audit log to {target}",
+        "updated": "{change, select, on {Turned on streaming of the audit log to {target}} off {Turned off streaming of the audit log to {target}} other {Changed streaming of the audit log to {target}}}",
+        "secret_replaced": "Replaced the signing secret of the audit log stream to {target}",
+        "removed": "Stopped streaming the audit log to {target}"
+      },
+      "sensitive_content": {
+        "found": "Found {kind} ({excerpt}) on {target}",
+        "dismissed": "Dismissed {kind} ({excerpt}) found on {target}"
       }
     },
     "decisions": {
@@ -1863,6 +1878,17 @@
       "full": "Full access",
       "edit": "Can edit",
       "interact": "Can view & interact"
+    },
+    "sensitiveKinds": {
+      "card": "a payment card number",
+      "iban": "an IBAN",
+      "national_id": "a national ID number",
+      "private_key": "a private key",
+      "aws_key": "an AWS access key",
+      "github_token": "a GitHub token",
+      "slack_token": "a Slack token",
+      "api_key": "an API key",
+      "jwt": "a JSON Web Token"
     }
   },
   "notifications": {
@@ -2664,5 +2690,112 @@
       "logoSize": "The logo is too large: at most 512 KB.",
       "notFound": "That letterhead isn't there anymore. Reload the page."
     }
+  },
+  "eventStream": {
+    "title": "Stream to your security tools",
+    "description": "Send new audit events as they happen to an HTTPS address, such as your security information and event management (SIEM) collector.",
+    "url": "Address",
+    "start": "Start streaming",
+    "saveUrl": "Save address",
+    "how": "Events go as signed JSON POSTs, up to 100 at a time and within about 30 seconds of happening, oldest first. Check the X-Leafdesk-Signature header of each request with the signing secret; an event can arrive twice, so keep the first of each event id. Failed requests are tried again for 7 days.",
+    "toggle": "Stream the audit log",
+    "state": {
+      "on": "Streaming",
+      "off": "Off: new events aren't sent",
+      "failing": "Failing since {since}"
+    },
+    "nextTry": "trying again {when}",
+    "lastSuccess": "Last delivered {when}",
+    "noSuccess": "Nothing delivered yet",
+    "sent": "{count, plural, =0 {no events sent} one {# event sent} other {# events sent}}",
+    "waiting": "{count, plural, one {# waiting} other {# waiting}}",
+    "dropped": "{count, plural, one {# event} other {# events}} waited more than 7 days and {count, plural, one {was} other {were}} given up on, most recently {when}",
+    "test": "Send test event",
+    "testDelivered": "The address accepted the test event ({status}).",
+    "testFailed": "The test event didn't go through: {reason}.",
+    "rotate": "Replace secret",
+    "rotateNote": "The current secret stops signing at once.",
+    "remove": "Stop streaming",
+    "removeNote": "The address, its secret and any events still waiting are removed.",
+    "working": "Working…",
+    "secret": {
+      "title": "Signing secret",
+      "note": "Copy it now: it isn't shown again. You can replace it at any time.",
+      "label": "Signing secret"
+    },
+    "codes": {
+      "invalidUrl": "the address isn't valid",
+      "blocked": "the address is on a private network this server may not reach",
+      "unreachable": "the address couldn't be reached",
+      "timeout": "no answer within 10 seconds",
+      "redirect": "the address answered with a redirect",
+      "http": "the address answered {status}"
+    },
+    "errors": {
+      "invalidUrl": "Enter a valid address.",
+      "httpsOnly": "Audit events can only go to https addresses.",
+      "notFound": "The workspace doesn't stream its audit log.",
+      "ownersOnly": "Only owners can change this."
+    }
+  },
+  "sensitiveContent": {
+    "title": "Sensitive content",
+    "description": "Find payment card numbers, IBANs, national ID numbers and secrets such as private keys and access tokens in the workspace's pages and rows.",
+    "toggle": "Look for sensitive content",
+    "toggleDescription": "Pages and rows are read in the background after they change. Owners are told in their inbox and each finding is recorded in the audit log; only a masked part of the value is kept. Turning this off clears the findings.",
+    "findingsTitle": "Open findings",
+    "none": "Nothing found in the workspace's pages and rows.",
+    "off": "Turn on looking for sensitive content to see what pages and rows hold.",
+    "more": "{count, plural, one {# more finding is not shown.} other {# more findings are not shown.}}",
+    "dismiss": "Dismiss",
+    "foundAt": "found {when}",
+    "kinds": {
+      "card": "Payment card number",
+      "iban": "IBAN",
+      "national_id": "National ID number",
+      "private_key": "Private key",
+      "aws_key": "AWS access key",
+      "github_token": "GitHub token",
+      "slack_token": "Slack token",
+      "api_key": "API key",
+      "jwt": "JSON Web Token"
+    },
+    "errors": {
+      "gone": "This finding was already dismissed or resolved."
+    }
+  },
+  "domainPeople": {
+    "title": "People from your domains",
+    "description": "Accounts on this server with an email address in the workspace's verified domains, whether they are in the workspace or not.",
+    "summary": "{count, plural, one {# account} other {# accounts}} in {domains}, {inside} in this workspace.",
+    "more": "Only the first 500 are listed.",
+    "search": "Search people",
+    "filter": "Show",
+    "filters": {
+      "all": "Everyone",
+      "in": "In this workspace",
+      "out": "Not in this workspace"
+    },
+    "columns": {
+      "person": "Person",
+      "workspace": "In this workspace",
+      "lastActive": "Last active",
+      "signIn": "Signs in with",
+      "actions": "Actions"
+    },
+    "outside": "Not in workspace",
+    "unverified": "address not verified",
+    "never": "Never",
+    "noSignIn": "No sign-in method",
+    "methods": {
+      "password": "Password",
+      "sso": "Single sign-on",
+      "passkey": "Passkey"
+    },
+    "add": "Add as member",
+    "remove": "Remove",
+    "removing": "Removing…",
+    "noMatches": "No one matches.",
+    "empty": "No accounts on this server use these domains yet."
   }
 }

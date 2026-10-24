@@ -198,7 +198,8 @@
     "aiAccountDetached": "ה־AI של סביבת העבודה כבר לא פועל על המפתח של {actor}. אפשר לבחור חשבון AI אחר בהגדרות.",
     "reviewTitle": "לבדיקה",
     "review": "{count, plural, one {{agent} הציע שינוי לבדיקה שלך} two {שני שינויים ממתינים לבדיקה שלך, האחרון מ־{agent}} other {# שינויים ממתינים לבדיקה שלך, האחרון מ־{agent}}}",
-    "automationRun": "האוטומציה “{name}”"
+    "automationRun": "האוטומציה “{name}”",
+    "sensitiveContent": "נמצא כאן {kind, select, card {מספר כרטיס תשלום} iban {מספר IBAN} national_id {מספר זהות לאומי} private_key {מפתח פרטי} aws_key {מפתח גישה של AWS} github_token {אסימון GitHub} slack_token {אסימון Slack} api_key {מפתח API} jwt {אסימון JSON Web Token} other {תוכן רגיש}}. אפשר לבדוק את הממצא בהגדרות > אבטחה."
   },
   "templates": {
     "title": "תבניות",

@@ -28,3 +28,4 @@ export * from "./sequences";
 export * from "./legal-holds";
 export * from "./webhooks";
 export * from "./syncs";
+export * from "./security";

@@ -45,7 +45,8 @@
     "expiry": "Choisissez quand le jeton expire.",
     "limit": "Vous avez atteint le nombre maximal de jetons. Révoquez-en un d’abord.",
     "generic": "Impossible de créer le jeton. Réessayez.",
-    "notFound": "Ce jeton n’existe plus."
+    "notFound": "Ce jeton n’existe plus.",
+    "ownerScope": "Seuls les propriétaires d’un espace de travail peuvent autoriser un jeton à lire son journal d’audit, et seulement un jeton limité à cet espace de travail."
   },
   "docsPage": {
     "metaTitle": "API REST",
@@ -114,6 +115,10 @@
       "webhooks": {
         "name": "Webhooks",
         "hint": "Webhooks de page et leurs envois ; l’écriture les ajoute, les modifie et les teste (propriétaires uniquement)."
+      },
+      "audit": {
+        "name": "Journal d’audit",
+        "hint": "Le journal d’audit de l’espace de travail (propriétaires uniquement, pour un jeton limité à un espace de travail dont ils sont propriétaires)."
       }
     },
     "summary": {
@@ -129,7 +134,8 @@
     "errors": {
       "scopes": "Choisissez au moins une chose que le jeton peut faire.",
       "notFound": "Ce jeton n’existe plus.",
-      "generic": "Impossible de modifier le jeton. Réessayez."
+      "generic": "Impossible de modifier le jeton. Réessayez.",
+      "ownerScope": "Seuls les propriétaires d’un espace de travail peuvent autoriser un jeton à lire son journal d’audit, et seulement un jeton limité à cet espace de travail."
     }
   }
 }
