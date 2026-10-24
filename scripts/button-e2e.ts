@@ -183,7 +183,8 @@ try {
   const [stored] = await db.select({ ydoc: page.ydoc }).from(page).where(eq(page.id, weekly));
   const html = await bodyHtmlFromYdoc(stored.ydoc ? new Uint8Array(stored.ydoc) : null);
   check(/data-button-color="green"[^>]*><button[^>]*class="opt-green"/.test(html), "a published button keeps its color", html);
-  check(!html.includes("evil") && (html.match(/class="opt-/g) ?? []).length === 1, "…and a color outside the palette is dropped", html);
+  // (BlockNote writes every prop as an escaped data attribute; the color itself only ever becomes a palette class.)
+  check(!/(class|style)="[^"]*evil/.test(html) && !html.includes('data-button-color="url') && (html.match(/class="opt-/g) ?? []).length === 1, "…and a color outside the palette is dropped", html);
 
   // Who may click
   check((await failure(() => pressButton(ids.outsider, weekly, "start", { timeZone: zone }))) === "access", "people who can't open the page can't click its buttons");
